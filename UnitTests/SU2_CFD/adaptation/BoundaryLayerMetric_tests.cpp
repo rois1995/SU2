@@ -1000,7 +1000,9 @@ TEST_CASE("Native geometric volume quadrature resolves microscopic BL in coarse 
   }
   for(const double ratio:{1.5,1.25}) {
     double volume=0,integral=0,mx=0,mz=0,mz2=0;
-    const auto rule=layers.IntegrationRule3D(cell,ratio);
+    bool dependent=true;unsigned densityCalls=0;
+    const auto rule=layers.IntegrationRule3D(cell,ratio,[&](const auto&){++densityCalls;return 1.;},&dependent);
+    CHECK_FALSE(dependent);CHECK(densityCalls==0);
     REQUIRE(rule.size()<10000);
     for(const auto& point:rule) {
       REQUIRE(point.weight>0);double sum=0;
@@ -1105,7 +1107,9 @@ TEST_CASE("Native3D volume support detects a thin finite wall missed by all cell
     return std::pow(std::sqrt(3.)/(2*side*side*hn),w);
   };
   double volume=0,active=0,integral=0,mz=0,mz2=0,analyticIntegral=0,maximumDensityMismatch=0;
-  const auto rule=layers.IntegrationRule3D(cell);
+  bool dependent=false;
+  const auto rule=layers.IntegrationRule3D(cell,1.5,{},&dependent);
+  CHECK(dependent);
   for(const auto& point:rule) {
     volume+=point.weight;
     if(!point.samples.empty())active+=point.weight;
@@ -1209,4 +1213,18 @@ TEST_CASE("Native3D parallel chords preserve source volume and moments on rotate
     CHECK(sampled);CHECK(volume==Approx(expectedVolume).epsilon(1e-10));
     CHECK(integral==Approx(expectedVolume*expected).epsilon(1e-10));
   }
+}
+
+TEST_CASE("Native edge breakpoint admission counts physical roots on a densely tiled wall", "[NativeComposite3D]") {
+  CBoundaryLayerMetric::Wall wall;wall.layer={"wall",1e-6,1.2,.05};
+  constexpr unsigned n=64;
+  for(unsigned j=0;j<=n;++j)for(unsigned i=0;i<=n;++i)wall.coord.insert(wall.coord.end(),{double(i)/n,double(j)/n,0});
+  for(unsigned j=0;j<n;++j)for(unsigned i=0;i<n;++i) {
+    const unsigned a=j*(n+1)+i,b=a+1,d=a+n+1,c=d+1;
+    wall.conn.insert(wall.conn.end(),{a,b,c,c,a,c,d,d});
+  }
+  CBoundaryLayerMetric layers(3,{wall});
+  const auto cuts=layers.EdgeBreakpoints({.1,.53,5e-6},{.9,.53,5e-6});
+  // A chord wholly inside a planar band has no physical level crossings, despite many feature roots.
+  REQUIRE(cuts.size()==2);CHECK(cuts.front()==0);CHECK(cuts.back()==1);
 }

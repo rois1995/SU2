@@ -357,10 +357,13 @@ public:
    *       and is kept from then on, see KeepTimeStep).
    *       MPI: each rank builds its partition from its reader slices (CDistributedMemoryMeshReaderFVM), and the
    *       markers of the new geometry are checked by name over all ranks against the markers of the result.
+   * \return False on collective remesher refusal/deadline; no mesh, solution or output changes.
    * \param[in] remeshed - This rank's part of the new mesh, same markers as the current one (RemeshFromMetric).
    * \param[in] transfer - Sets the solution on the new mesh from the previous one.
    */
-  void ReplaceMesh(const CRemeshResult& remeshed, CSolutionTransfer& transfer);
+  /*! Collective admission; refusal changes no driver state. */
+  bool CanReplaceMesh(const CRemeshResult& remeshed) const;
+  bool ReplaceMesh(const CRemeshResult& remeshed, CSolutionTransfer& transfer);
 
   /*!
    * \brief ReplaceMesh with a complete mesh (developer programs).
@@ -369,7 +372,7 @@ public:
    * \param[in] mesh - New mesh, same markers as the current one.
    * \param[in] transfer - Sets the solution on the new mesh from the previous one.
    */
-  void ReplaceMesh(const CSimplexMesh& mesh, CSolutionTransfer& transfer);
+  bool ReplaceMesh(const CSimplexMesh& mesh, CSolutionTransfer& transfer);
 
   /*!
    * \brief ReplaceMesh with another donor or keeping the current mesh (fixed-point windows).
@@ -380,7 +383,7 @@ public:
    * \param[out] keepCurrent - If not nullptr, the geometry and solvers of the current mesh are not deleted but returned
    *            here (with the marker names and levels, as a donor of later transfers); release with ReleaseMesh.
    */
-  void ReplaceMesh(const CRemeshResult& remeshed, CSolutionTransfer& transfer, const CMeshDonor* donor,
+  bool ReplaceMesh(const CRemeshResult& remeshed, CSolutionTransfer& transfer, const CMeshDonor* donor,
                    CMeshDonor* keepCurrent);
 
   /*!

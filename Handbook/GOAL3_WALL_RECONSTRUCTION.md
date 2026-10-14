@@ -3,7 +3,7 @@
 Repository: `/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated`.
 Branch: `codex/native-3d-bl`. Full Goal3 ACTIVE and incomplete.
 Cases: `integration_evidence/native_3d_bl_v1/wall_reconstruction_v1`.
-All owned build/test/audit handles are terminal at this checkpoint.
+All private replay jobs are terminal. See STATIC_ASSESSMENT_2.md for current connected checks.
 
 ## What is implemented
 
@@ -41,11 +41,35 @@ growth12→64 nor a single proxy/carving search fixed the stronger case. The lat
 multi-point approach improves overall search progress but still needs reconnection
 under the actual varying field. Timings from rejected runs are diagnostic only.
 
+## Current connected implementation
+
+The existing Cone primitive already certifies two-to-three and three-to-two
+flips. A bounded private repair now uses those and four-to-four operations on internal faces/edges,
+measures shape at actual frozen-field centroids, preserves prescribed height and
+footprints, and certifies the unchanged interface. It can return partial private
+improvement; full composed-edge/progress/publication checks remain mandatory.
+It is not yet connected to production transactions.
+
+New cases: `integration_evidence/native_3d_bl_v1/connectivity_replay_v1`.
+The exact saved native joint proposal is replayed with the original six-cell
+`diag(4+12*x)` field and unchanged geometric BL. Focused tests also cover a sliver
+edge, full fixed-interface closure and atomic trial-budget rejection. Both focused
+serial cases pass (18 assertions). Distinct rejected-state caching and four-cell
+reconnection yield141 unique trials/13 flips, shape loss2.1209455→.40215385
+(81.0% reduction), with unchanged coordinates, physical interface and normal feet.
+Independent audit confirms coverage/disjointness/height/footprints and the same
+loss. qmin .14731276,Jmin .02311797,Lmax6.73871217 still FAIL final contracts.
+This is private progress, not an accepted adapted mesh or a completed production
+adaptation. Prior no-cache/two-three-only runs and a corrected diagnostic sqrt2
+normalization report are preserved. No whole stronger-field adaptation rerun or
+broad regression was performed for the replay.
+
 ## Next substantial step
 
-Reuse exact saved cavities and original source for local replay. Add bounded
-metric-aware tetrahedral internal reconnection/face-edge flips to the complete
-multi-point proposal, and inspect bad wall-child/transition topology directly.
+Reuse exact saved cavities and original source for local replay. Connect the demonstrated bounded reconnection to complete
+multi-point proposals only after resolving the remaining poor transition point
+placement. The worst retained transition tetrahedron uses nodes1004,0,1002,3;
+fixed-point reconnection alone leaves it below the shape gates.
 Keep the interface, requested height, original sensor field and final strict gates.
 Do not raise ceilings, relax the target or repeat whole CFD/large MPI campaigns.
 Finish a complete serial stronger-field adaptation before the connected MPI matrix.

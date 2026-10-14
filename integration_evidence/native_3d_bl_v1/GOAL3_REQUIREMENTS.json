@@ -226,7 +226,7 @@
     "MPI": "pending connected milestone",
     "scope": "One planar cube production case plus six focused first-row geometry/movement cases. Actual computed metric, conservative current+BDF/bounded-SA and SU2/CGNS/reference/restart checks; independent exact embedding, full composed metric, wall footprint and height. No new MPI, full regressions, general layer coverage, actual CFD accuracy or performance qualification."
   },
-  "owned_jobs": "All terminal. Focused serial geometry PASS; stronger native case FAIL; independent rejected-progress and constructive-control audits saved. No MPI/full regression campaign.",
+  "owned_jobs": [],
   "wall_reconstruction": {
     "status": "INCOMPLETE_OPERATOR_MILESTONE",
     "evidence": "integration_evidence/native_3d_bl_v1/wall_reconstruction_v1/summary.json",
@@ -241,5 +241,16 @@
     },
     "target_feasibility": "576-cell constructive non-native control PASS declared metric/height/footprint contracts; not zero-centroid alignment",
     "remaining": "Replay the exact blocked wall patches and add metric-aware internal reconnection (including tetrahedral face/edge flips) to the complete multi-point replacement; do not raise budgets or relax target/gates."
+  },
+  "static_assessment_2": {
+    "status": "PASS_FOCUSED_SCOPE",
+    "evidence": "integration_evidence/native_3d_bl_v1/static_assessment2_v1/summary.json",
+    "findings": "Handbook/STATIC_ASSESSMENT_2.md",
+    "remaining": "Changed-skin curved clearance index, expanded curved/BL concurrent dependencies, stronger sensor operator blockage and full original Goal3 gates remain open."
+  },
+  "private_connectivity_replay": {
+    "status": "PRIVATE_PROGRESS_ONLY_INADMISSIBLE",
+    "evidence": "integration_evidence/native_3d_bl_v1/connectivity_replay_v1/independent_audit.json",
+    "production_integration": false
   }
 }

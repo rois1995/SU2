@@ -1,0 +1,42 @@
+{
+  "status": "PASS_FOCUSED_SCOPE",
+  "stages": [
+    {
+      "stage": "serial",
+      "status": "PASS",
+      "receipt_sha256": "138473db7e5c5c006846008d112e09b3a73c0f79b6ebc091eef5d0f05df39e08",
+      "summaries": [
+        "Passed all 22 test cases with 186116 assertions."
+      ]
+    },
+    {
+      "stage": "mpi2",
+      "status": "PASS",
+      "receipt_sha256": "d428b497d56f5f4b7879b950669c88d2c42ab4a3543bc410eaab93a307c172ac",
+      "summaries": [
+        "Passed all 7 test cases with 132 assertions.",
+        "Passed all 7 test cases with 139 assertions."
+      ]
+    },
+    {
+      "stage": "mpi4",
+      "status": "PASS",
+      "receipt_sha256": "4c9a25843eb4fdbaba507e8f75e48dcef2d761d7d0a8c2c6148ebe88406b207f",
+      "summaries": [
+        "Passed all 7 test cases with 130 assertions.",
+        "Passed all 7 test cases with 123 assertions.",
+        "Passed all 7 test cases with 118 assertions.",
+        "Passed all 7 test cases with 118 assertions."
+      ]
+    }
+  ],
+  "assessment_sha256": "c629dfd26788c62fa437060ba5650a9cfb25a24add0aeb699938cfde58dd8c26",
+  "scope": "Serial RANS/SA two-cycle BL construction/release, conservative current/BDF transfer and SU2/CGNS/restart; focused MPI2/4 complete-vertex first-row transactions (MPI1/2/4 worker subsets), reference admission and one-rank replacement refusal. Private reconnection remains inadmissible progress only. No full regression, strong-sensor completion, real CFD accuracy, timings or scaling qualification.",
+  "preserved_failures": [
+    "non-dyadic oblique fixture rejected by exact coplanarity",
+    "forced physical midpoints regress serial RANS work budget; reverted to certifiable balanced placement with midpoint fallback",
+    "concurrent first-row over-admission with one work slot; fixed by prefix admission",
+    "Catch list-count/one-summary-per-rank collector corrections",
+    "private node helper compile failure"
+  ]
+}

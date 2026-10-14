@@ -146,6 +146,19 @@ bool ReconstructSplitPatch(const Patch& old,Edge edge,Node point,Node interior,c
                            Id first_cell,const PlanarReference& reference,Patch& fresh,Face& obstruction,
                            std::string& reason,KernelStats* stats = nullptr,
                            const std::map<int,double>& heights = {});
+class FrozenField;
+struct ConnectivityRepairReport {
+  size_t trials=0, flips=0;
+  double before_loss=0, after_loss=0;
+  bool complete_shape=false;
+};
+/*! Bounded private two/three/four-tet flips measured in the actual frozen field. Returns a strictly
+ * improved private replacement, possibly still inadmissible; unchanged output on failure.
+ * Fixed coordinates/interface and requested first height/footprints remain mandatory. Caller admits
+ * the complete original dependencies and validates full composed edges/progress before publication. */
+bool RepairMetricConnectivity(const Patch& old,FrozenField& target,const PlanarReference& reference,
+                              const std::map<int,double>& heights,Id first_cell,Patch& fresh,
+                              ConnectivityRepairReport& report,std::string& reason,size_t maximum_trials=64);
 bool UndoEdgeSplit(const Patch& old, Id point, Edge endpoints, Id first_cell, const PlanarReference& reference,
                    Patch& fresh, std::string& reason, KernelStats* stats = nullptr);
 /*! Contracts a vertex to an existing neighbor in its complete admitted vertex star, without split history.

@@ -1,0 +1,74 @@
+{
+  "status": "PASS_PRIVATE_PROGRESS_ONLY",
+  "frames": [
+    {
+      "file": "independent_before.json",
+      "cells": 38,
+      "points": 17,
+      "physical_faces": 14,
+      "volume": "1",
+      "minimum_mean_ratio": 0.13659385133348825,
+      "minimum_scaled_jacobian": 0.019026705696278134,
+      "maximum_length": 6.738712173171468,
+      "longest_edge": [
+        1,
+        6
+      ],
+      "markers": {
+        "11": 1,
+        "10": 2,
+        "13": 1,
+        "12": 2,
+        "14": 1,
+        "15": 1,
+        "16": 1,
+        "17": 1,
+        "18": 1,
+        "19": 1,
+        "20": 1,
+        "21": 1
+      },
+      "strict_metric_gate": false,
+      "shape_loss": 2.120945515567024,
+      "minimum_wall_footprint_barycentric": 0.33333333333333326,
+      "full_admissible": false
+    },
+    {
+      "file": "independent_after.json",
+      "cells": 42,
+      "points": 17,
+      "physical_faces": 14,
+      "volume": "1",
+      "minimum_mean_ratio": 0.14731276214311206,
+      "minimum_scaled_jacobian": 0.02311796733333061,
+      "maximum_length": 6.738712173171468,
+      "longest_edge": [
+        1,
+        6
+      ],
+      "markers": {
+        "11": 1,
+        "10": 2,
+        "13": 1,
+        "12": 2,
+        "14": 1,
+        "15": 1,
+        "16": 1,
+        "17": 1,
+        "18": 1,
+        "19": 1,
+        "20": 1,
+        "21": 1
+      },
+      "strict_metric_gate": false,
+      "shape_loss": 0.40215384584813074,
+      "minimum_wall_footprint_barycentric": 0.33333333333333326,
+      "full_admissible": false
+    }
+  ],
+  "fixed_skin": true,
+  "native_receipt_sha256": "50cbbba5de1567f77432a1b5ac39d438f930e03fd6ca77443aed98ca3e44fae7",
+  "helper_sha256": "0ab89f41db67c1636397aeb59ff1aca688a6c9b238f245e74c1015286a60a85b",
+  "metric_helper_sha256": "a0c7967d3d1a92d48d54ce13fb93c5e72ef22ad35413892d840e0fdb780bbb7f",
+  "scope": "Exact global coverage, fixed physical interface, independent actual-field centroid shape and full composed edge measurements and prescribed wall footprints. Partial shape progress is not an accepted adaptation or production/MPI/CFD qualification."
+}

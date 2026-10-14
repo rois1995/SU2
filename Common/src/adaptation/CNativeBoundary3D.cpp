@@ -6,6 +6,7 @@
  */
 #include "../../include/adaptation/CNativeBoundary3D.hpp"
 #include "../../include/adaptation/CTransferMemory.hpp"
+#include "../../include/adaptation/CNativeMetric3D.hpp"
 #include "../../include/adt/CADTElemClass.hpp"
 #include "../../include/option_structure.hpp"
 #include <cmath>
@@ -560,7 +561,7 @@ PlanarReference::PlanarReference(std::vector<Facet> input, size_t ceiling, std::
     }
     bool valid = true;
     try {
-      ValidateSurfaceTopology(triangles, false);
+      ValidateSurfaceTopology(triangles, false, SIZE_MAX);
     } catch (const std::invalid_argument&) {
       valid = false;
     }
@@ -631,8 +632,8 @@ PlanarReference::PlanarReference(std::vector<Facet> input, size_t ceiling, std::
       else if(edge.second.size()!=2 || edge.second[0][0]!=edge.second[1][1] || edge.second[0][1]!=edge.second[1][0])valid=false;
     }
     try {
-      if(g.kind==AnalyticSurface::Kind::Sphere){if(!border.empty())valid=false;else ValidateSurfaceTopology(triangles,true);}
-      else if(g.kind==AnalyticSurface::Kind::Disk)ValidateSurfaceTopology(triangles,false);
+      if(g.kind==AnalyticSurface::Kind::Sphere){if(!border.empty())valid=false;else ValidateSurfaceTopology(triangles,true,SIZE_MAX);}
+      else if(g.kind==AnalyticSurface::Kind::Disk)ValidateSurfaceTopology(triangles,false,SIZE_MAX);
       else if(vertices.size()+component.size()!=uses.size())valid=false; // Cylinder annulus Euler characteristic.
     }catch(const std::invalid_argument&){valid=false;}
     if(g.kind==AnalyticSurface::Kind::Cylinder && valid) {
@@ -1323,6 +1324,95 @@ bool ReconstructSplitPatch(const Patch& old,Edge edge,Node point,Node interior,c
     }
     fresh.cells.swap(proposal.cells);fresh.surface.swap(proposal.surface);reason.clear();return true;
   }catch(const std::exception& e){if(wallObstruction!=Face{})obstruction=wallObstruction;reason=e.what();return false;}
+}
+bool RepairMetricConnectivity(const Patch& old,FrozenField& target,const PlanarReference& reference,
+                              const std::map<int,double>& heights,Id first,Patch& fresh,
+                              ConnectivityRepairReport& report,std::string& reason,size_t maximum_trials) {
+  report={};
+  try {
+    if(old.cells.empty() || old.cells.size()>MaximumCavityCells || maximum_trials>4096)
+      throw std::invalid_argument("Native3D private connectivity repair exceeds its cell/trial bound.");
+    const auto skin=SkinMap(Incidence(old.cells).Boundary());CheckSurface(old,skin,reference,nullptr);
+    FirstHeightReport height;
+    if(!CheckFirstHeight(old,heights,reference,height,reason))throw std::invalid_argument(reason);
+    Patch working=old;
+    std::map<std::array<Id,4>,double> losses;
+    std::set<std::vector<Id>> rejected_states;
+    auto loss=[&](const Cell& cell) {
+      std::array<Id,4> key;for(unsigned i=0;i<4;++i)key[i]=cell.v[i].id;std::sort(key.begin(),key.end());
+      const auto found=losses.find(key);if(found!=losses.end())return found->second;
+      const auto m=Measure({cell.v[0].p,cell.v[1].p,cell.v[2].p,cell.v[3].p},target.Query(Centroid(cell)).target);
+      const double q=std::max(0.,1-m.mean_ratio/MinimumMeanRatio),j=std::max(0.,1-m.minimum_scaled_jacobian/MinimumScaledJacobian);
+      const auto value=q*q+j*j;losses.emplace(key,value);return value;
+    };
+    auto total=[&](const std::vector<Cell>& cells) {double value=0;for(const auto& c:cells)value+=loss(c);return value;};
+    report.before_loss=report.after_loss=total(working.cells);
+    while(report.after_loss>0 && report.trials<maximum_trials) {
+      std::map<Face,std::vector<size_t>> faces;
+      std::map<Edge,std::vector<size_t>> edges;
+      for(size_t i=0;i<working.cells.size();++i) {
+        const auto& v=working.cells[i].v;
+        for(auto f:std::array<Face,4>{{{v[1].id,v[2].id,v[3].id},{v[0].id,v[3].id,v[2].id},
+                                      {v[0].id,v[1].id,v[3].id},{v[0].id,v[2].id,v[1].id}}})faces[Key(f)].push_back(i);
+        for(unsigned a=0;a<4;++a)for(unsigned b=a+1;b<4;++b) {
+          Edge e{v[a].id,v[b].id};std::sort(e.begin(),e.end());edges[e].push_back(i);
+        }
+      }
+      auto trial=[&](const std::vector<size_t>& selected,Id apex) {
+        if(report.trials>=maximum_trials)return false;
+        std::vector<Cell> region;for(auto i:selected)region.push_back(working.cells[i]);
+        const auto before=total(region);if(before==0)return false;
+        std::vector<std::array<Id,4>> state;
+        for(const auto& c:region){std::array<Id,4> v;for(unsigned i=0;i<4;++i)v[i]=c.v[i].id;std::sort(v.begin(),v.end());state.push_back(v);}
+        std::sort(state.begin(),state.end());std::vector<Id> key{Id(region.size()),apex};
+        for(const auto& v:state)key.insert(key.end(),v.begin(),v.end());
+        if(!rejected_states.insert(key).second)return false;
+        ++report.trials;const auto nodes=Nodes(region);std::vector<Cell> replacement;std::string rejected;
+        if(!Cone(region,nodes.at(apex),first,replacement,rejected))return false;
+        if(!((region.size()+replacement.size()==5 && region.size()!=replacement.size()) ||
+             (region.size()==4 && replacement.size()==4)))return false;
+        const auto after=total(replacement);
+        if(!(after<before*(1-1e-8)-1e-14))return false;
+        Patch proposal;proposal.surface=working.surface;
+        for(size_t i=0;i<working.cells.size();++i)
+          if(std::find(selected.begin(),selected.end(),i)==selected.end())proposal.cells.push_back(working.cells[i]);
+        proposal.cells.insert(proposal.cells.end(),replacement.begin(),replacement.end());
+        if(proposal.cells.size()>MaximumReplacementCells || first>UINT64_MAX-(proposal.cells.size()-1))return false;
+        for(size_t i=0;i<proposal.cells.size();++i)proposal.cells[i].id=first+i;
+        if(!CheckFirstHeight(proposal,heights,reference,height,rejected))return false;
+        rejected_states.erase(key);
+        working=std::move(proposal);++report.flips;report.after_loss=total(working.cells);return true;
+      };
+      bool changed=false;
+      for(const auto& row:faces)if(row.second.size()==2) {
+        const auto& c=working.cells[row.second[0]];
+        const auto apex=std::find_if(c.v.begin(),c.v.end(),[&](Node n){return !Has(row.first,n.id);});
+        if(apex!=c.v.end() && trial(row.second,apex->id)){changed=true;break;}
+        if(report.trials>=maximum_trials)break;
+      }
+      if(!changed)for(const auto& row:edges)if(row.second.size()==3 || row.second.size()==4) {
+        bool interface=false;for(const auto& face:skin)interface=interface || (Has(face.second,row.first[0]) && Has(face.second,row.first[1]));
+        if(interface)continue;
+        std::vector<Cell> region;for(auto i:row.second)region.push_back(working.cells[i]);const auto nodes=Nodes(region);
+        for(const auto& apex:nodes)if(apex.first!=row.first[0] && apex.first!=row.first[1]) {
+          if(trial(row.second,apex.first)){changed=true;break;}
+          if(row.second.size()==3 || report.trials>=maximum_trials)break;
+        }
+        if(changed || report.trials>=maximum_trials)break;
+      }
+      if(!changed)break;
+    }
+    report.complete_shape=report.after_loss==0;
+    if(!report.flips)throw std::invalid_argument("Native3D admitted flips made no actual-field shape progress.");
+    working.surface.clear();
+    const auto physical=CheckSurface(old,skin,reference,nullptr);
+    // Flip geometry has an unchanged interface; final reference/topology checks remain independent.
+    std::string closure;
+    if(!ValidatePrescribedInterface(old.cells,working.cells,SkinVector(skin),closure))throw std::invalid_argument(closure);
+    for(const auto& f:physical)working.surface.push_back(f.second);
+    CheckSurface(working,skin,reference,nullptr);
+    fresh=std::move(working);reason.clear();return true;
+  }catch(const std::exception& e){reason=e.what();return false;}
 }
 bool UndoEdgeSplit(const Patch& old, Id point, Edge edge, Id first, const PlanarReference& reference, Patch& fresh,
                    std::string& reason, KernelStats* stats) {

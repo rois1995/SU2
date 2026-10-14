@@ -467,7 +467,7 @@ TEST_CASE("Native indexed reference binding matches exhaustive finite oriented c
 }
 
 TEST_CASE("Native planar authority admits large tiled patches with constant border query work", "[NativeMesh3D][NativeReferenceSearch3D]") {
-  for (size_t n : {size_t(4), size_t(16)}) {
+  for (size_t n : {size_t(4), size_t(32)}) {
     std::vector<Facet> facets;
     auto node=[&](size_t i,size_t j){return Node{Id(j*(n+1)+i),{double(i)/n,double(j)/n,0}};};
     for(size_t j=0;j<n;++j)for(size_t i=0;i<n;++i) {
@@ -1220,4 +1220,54 @@ TEST_CASE("Native3D uneven wall split replaces apices and transition together", 
   CHECK(Connectivity(sentinel)==saved);
   CHECK_FALSE(ReconstructSplitPatch(aligned,edge,split,{UINT64_MAX,{}},Tensor{},2000,reference,sentinel,obstruction,reason,nullptr,heights));
   CHECK(Connectivity(sentinel)==saved);
+}
+
+
+TEST_CASE("Native3D private actual-field flips repair a slender internal edge", "[NativeConnectivity3D]") {
+  const Node a{0,{0,0,0}},b{1,{1,0,0}},c{2,{0,1,0}},top{3,{.01,.01,.5}},bottom{4,{.01,.01,-.5}};
+  Patch pair;
+  for(auto v:{std::array<Node,4>{a,b,c,top},std::array<Node,4>{a,b,c,bottom}}) {
+    if(Orientation(v[0].p,v[1].p,v[2].p,v[3].p)<0)std::swap(v[0],v[1]);pair.cells.push_back({Id(pair.cells.size()),v});
+  }
+  std::string reason;Patch old;REQUIRE(Cone(pair.cells,top,10,old.cells,reason));
+  for(auto face:Incidence(old.cells).Boundary())old.surface.push_back({face,Id(old.surface.size())});
+  const PlanarReference reference(Facets(old));
+  DonorCell donor;donor.cell={0,{{{20,{-2,-2,-2}},{21,{8,-2,-2}},{22,{-2,8,-2}},{23,{-2,-2,8}}}}};donor.sensor.fill(Tensor{});
+  FrozenField field({donor});Patch fresh;ConnectivityRepairReport report;
+  REQUIRE(RepairMetricConnectivity(old,field,reference,{},100,fresh,report,reason));
+  CHECK(report.flips>0);CHECK(report.complete_shape);CHECK(report.after_loss<report.before_loss);
+  CHECK(fresh.cells.size()==2);CHECK(ValidateFixedInterface(old.cells,fresh.cells,reason));
+  PatchMetric metric;REQUIRE(ValidateMetricPatch(fresh.cells,field,metric,reason));
+  auto unchanged=old;CHECK_FALSE(RepairMetricConnectivity(old,field,reference,{},100,unchanged,report,reason,0));
+  CHECK(Connectivity(unchanged)==Connectivity(old));
+}
+
+namespace {
+#include "fixtures/native_wall_joint.inc"
+}
+TEST_CASE("Native3D saved wall proposal replays bounded actual-field connectivity repair", "[NativeConnectivityReplay3D]") {
+  const auto seed=Cube();const PlanarReference reference(Facets(seed));const auto old=SavedWallJoint();
+  std::vector<DonorCell> source;
+  for(const auto& c:seed.cells) {DonorCell d;d.cell=c;for(unsigned k=0;k<4;++k){const auto s=4+12*c.v[k].p.x;d.sensor[k]={s,0,0,s,0,s};}source.push_back(d);}
+  CBoundaryLayerMetric::Wall wall;wall.layer={"wall",.1,1.2,.3};wall.coord={0,0,0,1,0,0,1,1,0,0,1,0};wall.conn={0,1,2,2,0,2,3,3};
+  CBoundaryLayerMetric layers(3,{wall});
+  auto compose=[&](Point p,Tensor sensor) {
+    CBoundaryLayerMetric::Tensor m;const su2double x[3]={p.x,p.y,p.z};
+    m.m[0][0]=sensor.xx;m.m[0][1]=m.m[1][0]=sensor.xy;m.m[0][2]=m.m[2][0]=sensor.xz;
+    m.m[1][1]=sensor.yy;m.m[1][2]=m.m[2][1]=sensor.yz;m.m[2][2]=sensor.zz;layers.ApplyPoint(x,m,4.,nullptr,false);
+    return Tensor{SU2_TYPE::GetValue(m.m[0][0]),SU2_TYPE::GetValue(m.m[0][1]),SU2_TYPE::GetValue(m.m[0][2]),
+                  SU2_TYPE::GetValue(m.m[1][1]),SU2_TYPE::GetValue(m.m[1][2]),SU2_TYPE::GetValue(m.m[2][2])};
+  };
+  FrozenField field(source,compose,false,{},[&](Point a,Point b){return layers.EdgeBreakpoints({a.x,a.y,a.z},{b.x,b.y,b.z});});
+  std::map<int,double> heights;for(const auto& f:Facets(seed))if(std::all_of(f.v.begin(),f.v.end(),[](Node n){return n.p.z==0;}))heights[f.marker]=.1;
+  Patch fresh;ConnectivityRepairReport report;std::string reason;
+  const bool progress=RepairMetricConnectivity(old,field,reference,heights,100000,fresh,report,reason,256);
+  std::cout<<"CONNECTIVITY_REPLAY progress="<<progress<<" trials="<<report.trials<<" flips="<<report.flips
+           <<" before_loss="<<report.before_loss<<" after_loss="<<report.after_loss<<" complete_shape="<<report.complete_shape<<" reason="<<reason<<"\n";
+  REQUIRE(progress);CHECK(report.after_loss<report.before_loss);CHECK(ValidateFixedInterface(old.cells,fresh.cells,reason));
+  FirstHeightReport height;REQUIRE(CheckFirstHeight(fresh,heights,reference,height,reason));
+  SaveCurved(old,reference,"connectivity_replay_before");SaveCurved(fresh,reference,"connectivity_replay_after");
+  PatchMetric metric;const bool admissible=ValidateMetricPatch(fresh.cells,field,metric,reason);
+  std::cout<<"CONNECTIVITY_REPLAY_GATE admissible="<<admissible<<" q="<<metric.minimum_mean_ratio<<" J="<<metric.minimum_scaled_jacobian
+           <<" L="<<double(metric.maximum_length)<<" reason="<<reason<<"\n";
 }

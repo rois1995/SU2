@@ -1,0 +1,10 @@
+Traceback (most recent call last):
+  File "integration_evidence/native_3d_bl_v1/static_assessment2_v1/run.py", line 54, in <module>
+    if __name__=='__main__':sys.exit(main())
+  File "integration_evidence/native_3d_bl_v1/static_assessment2_v1/run.py", line 18, in main
+    listing=subprocess.check_output([str(BINARY),selection,'--list-test-names-only'],text=True)
+  File "/usr/lib/python3.8/subprocess.py", line 415, in check_output
+    return run(*popenargs, stdout=PIPE, timeout=timeout, check=True,
+  File "/usr/lib/python3.8/subprocess.py", line 516, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver', '[NativeReference3D],[NativeReferenceSearch3D],[NativeComposite3D],[NativeVolumeBL3D],[NativeFirstLayerEngine3D],[NativeFirstLayerConcurrency3D],[NativePolicyVeto3D],[NativeConnectivity3D],[NativeConnectivityReplay3D]', '--list-test-names-only']' returned non-zero exit status 21.

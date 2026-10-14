@@ -8,9 +8,9 @@
 #pragma once
 #include "CNativeImport3D.hpp"
 namespace SU2Native3D {
-constexpr size_t ReferenceFileLimit3D = 1024 * 1024;
+constexpr size_t ReferenceStorageLimit3D = size_t(2) << 30;
 std::string EncodeReference(const ReferenceState& state);
-ReferenceState DecodeReference(const std::string& bytes, size_t ceiling = SIZE_MAX);
+ReferenceState DecodeReference(const std::string& bytes, size_t ceiling = ReferenceStorageLimit3D);
 /*! Collective root I/O and elected decoding. Missing file returns false; malformed files never rebase geometry. */
 bool LoadReference(const std::string& filename, ReferenceState& state);
 /*! Recoverable collective memory admission before byte transport and reference construction.

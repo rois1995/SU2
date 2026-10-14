@@ -31,7 +31,7 @@ performance advantage.
 | Barycentric and conservative transfer | Existing implementations reused | Both exercised on repeated controlled BL adaptation; conservative transfer and resumed CFD pass all three realistic-airfoil cycles at MPI1/2/4 |
 | Fixed physical sampling | `ADAP_SURFACE= NO` retains physical vertices/edges | Paired MPI controls demonstrate both a repairable fixed case and an incompatible retained-edge target |
 | Adaptive physical sampling | `ADAP_SURFACE= YES` permits reference-constrained split/remove/redistribution | Controlled MPI runs retain markers, components, feature vertices and first altitude |
-| Static single-zone 3D tetrahedra with triangular faceted boundaries | Opt-in native core; `ADAP_SURFACE= YES`, no `ADAP_BL`, `ADAP_HESSIAN_NOISE= 0` | Controlled MPI1/2/4 adaptation, current/BDF transfer and SU2/CGNS checks; see NATIVE_3D_DEVELOPMENT_GOALS.md and the current handoff for practical limits and pending qualification |
+| Static single-zone 3D tetrahedra with triangular faceted boundaries | Opt-in native core; `ADAP_SURFACE= YES`, `ADAP_HESSIAN_NOISE= 0`; optional geometric faceted BL policy and explicit analytic sidecar geometry | Controlled MPI1/2/4 adaptation, current/BDF transfer and SU2/CGNS checks; see NATIVE_3D_DEVELOPMENT_GOALS.md and the current handoff for practical limits and pending qualification |
 | Mixed cells, periodic/paired interfaces, moving/deforming meshes, multizone, FEM, adjoint/derivative builds | Explicitly rejected | Guard implementation; selected collective failure subprocess controls. This is not exhaustive runtime coverage of every rejection. |
 | Smooth CAD/reference projection | No native fitted/CAD reference input implemented | Original polyline is the production reference; analytic smooth-reference research controls do not establish native CAD integration |
 
@@ -210,8 +210,8 @@ uses the existing dual-time adaptation driver. Set `TIME_DOMAIN=YES`, positive
 `TIME_STEP`, `TIME_MARCHING=DUAL_TIME_STEPPING-1ST_ORDER` or `-2ND_ORDER`,
 `ADAP_FREQ`, and `ADAP_UNSTEADY_METRIC=WINDOW_AVERAGE`. Existing solver settings,
 BL contracts and transfer choices still apply. Native3D has a separate opt-in
-tetrahedral core; 3D BL construction, curved projection and physical unsteady
-qualification remain pending.
+tetrahedral core with faceted BL construction and explicit analytic projection.
+General BL/curved robustness and physical unsteady accuracy remain unqualified.
 
 Mesh `mesh_<first-step>.su2` or `.cgns` and its `.native_ref` pair with the
 rewritten restart of step `first-step-1` (and `first-step-2` for BDF2). The donor
@@ -226,3 +226,23 @@ that checkpoint lifecycle is not validated here.
 The measured cache improvement reduces one RAE coarse-to-BL native phase cost
 by35.2% with byte-identical meshes and solutions. It does not establish affordable
 adaptation cadence for arbitrary unsteady flows. See NATIVE_UNSTEADY_PERFORMANCE.md.
+
+## Native3D work limits and recoverable refusal
+
+`ADAP_NATIVE_MAX_WORK` bounds global proposals (default `max(4096,64*input_cells)`).
+`ADAP_NATIVE_MAX_TIME` is an optional elapsed-time admission budget, checked at
+collective safe points; it is not a hard interrupt of an individual operation.
+An incomplete native result or expired replacement admission skips adaptation,
+retains the current mesh/current+BDF solution, and continues the supported steady
+or time-window run. No adapted mesh or transferred restart is written for a skip.
+A rebuild admitted within its deadline completes without a second post-transfer
+veto. Invalid input, geometry authority, solver setup and transfer failures still
+use their existing error handling; an unverified intermediate mesh is never
+accepted merely because time/work ran out. Native FIXED_POINT remains unsupported.
+
+Original geometry charts are bounded by their admitted storage, rather than the
+local cavity's 512-face topology budget. Sidecars use parsing/construction storage
+admission instead of a 1 MiB file-size cutoff. First-row construction reserves
+complete cavity vertices and processes disjoint owners concurrently; expanded
+curved/BL repair remains serialized pending complete concurrent dependencies.
+See [assessment reconciliation](Handbook/STATIC_ASSESSMENT_2.md) for remaining limits.

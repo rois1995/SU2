@@ -467,14 +467,14 @@ void CSinglezoneDriver::RunAdaptationLoop() {
     const auto& level = config->GetAdap_Level(iLevel);
     initialRunState.SetCFL(level.flowCFL);
 
-    ReplaceMesh(mesh, *transfer);
+    const bool replaced = ReplaceMesh(mesh, *transfer);
 
     config->SetAdap_FlowLevel(iLevel);
     output->SetResidualReduction(level.residualReduction);
 
     /*--- The new mesh is accepted (built, solution transferred). ---*/
 
-    if (config->GetAdap_Mesh_Output()) WriteAdaptedMesh(iCycle + 1);
+    if (replaced && config->GetAdap_Mesh_Output()) WriteAdaptedMesh(iCycle + 1);
 
     summary.back().adaptTime = SU2_MPI::Wtime() - adaptStart;
   }
@@ -572,6 +572,8 @@ void CSinglezoneDriver::SampleTimeWindowMetric() {
            << " time steps (" << TimeIter + 1 - windowSamples << " to " << TimeIter << ")." << endl;
     }
     /*--- ADAP_BL_METHOD= TWO_PASS: the remesher builds the boundary-layer metric itself, on its pass-A mesh. ---*/
+    if (config->GetKind_Adap_Remesher() == ADAP_REMESHER::NATIVE_CAVITY && config->GetnAdap_BL())
+      { auto remesher = MakeRemesher(); }
     solver_flow->ComputeMetric(geometry, config, nullptr,
                                config->GetKind_Adap_BL_Method() != ADAP_BL_METHOD::TWO_PASS, nativeReference.get(), nativeReference3D.get());
     windowMetricDone = true;
@@ -780,6 +782,8 @@ void CSinglezoneDriver::PredictWindowMetric() {
   }
 
   /*--- Complexity, bounds, corner and boundary-layer metrics. ---*/
+  if (config->GetKind_Adap_Remesher() == ADAP_REMESHER::NATIVE_CAVITY && config->GetnAdap_BL())
+    { auto remesher = MakeRemesher(); }
   solver_flow->ComputeMetric(geometry, config, &predicted,
                              config->GetKind_Adap_BL_Method() != ADAP_BL_METHOD::TWO_PASS, nativeReference.get(), nativeReference3D.get());
   predictSnapshots.clear();
@@ -1028,7 +1032,7 @@ void CSinglezoneDriver::RunTimeAdaptationLoop() {
       /*--- The new meshes start from the transferred solution, not from restart files. ---*/
       config->SetSolutionInMemory();
 
-      ReplaceMesh(mesh, transfer);
+      const bool replaced = ReplaceMesh(mesh, transfer);
       iCycle = (TimeIter + 1) / freq;
       output->SetAdaptationCycle(iCycle, 0, false);
 
@@ -1038,8 +1042,10 @@ void CSinglezoneDriver::RunTimeAdaptationLoop() {
        *    it, and the previous checkpoint (the old mesh with its files) is no longer complete once they are. ---*/
 
       const auto outputStart = SU2_MPI::Wtime();
-      if (config->GetAdap_Mesh_Output()) WriteAdaptedMesh(iCycle, TimeIter + 1);
-      WriteTimeHistoryRestarts();
+      if (replaced) {
+        if (config->GetAdap_Mesh_Output()) WriteAdaptedMesh(iCycle, TimeIter + 1);
+        WriteTimeHistoryRestarts();
+      }
       const auto outputTime = SU2_MPI::Wtime() - outputStart;
       UsedTimeOutput += outputTime;
 
@@ -1051,7 +1057,7 @@ void CSinglezoneDriver::RunTimeAdaptationLoop() {
       row.nOutside = transferReport.nOutside;
       row.maxDistance = transferReport.maxDistance;
       row.maxRelDistance = transferReport.maxRelDistance;
-      row.defect = transferReport.conservationDefect;
+      row.defect = replaced ? transferReport.conservationDefect : -1.;
 
       CycleSummary next;
       next.cycle = iCycle;
@@ -1452,6 +1458,10 @@ void CSinglezoneDriver::RunTimeFixedPointLoop() {
       const bool accepted = (iIter == nIterFP) || (iIter >= 2 && previousChange >= 0.0 && previousChange < tolFP);
 
       if (iIter > 0) {
+        // Native FIXED_POINT is unsupported; serial MMG guarantees complete results without a deadline hook.
+        if (!CanReplaceMesh(nextMesh))
+          SU2_MPI::Error("FIXED_POINT requires a complete remesh; native fixed-point recovery is unsupported.", CURRENT_FUNCTION);
+        nextMesh.beforeAcceptance = {};
         const auto adaptStart = SU2_MPI::Wtime();
         TimeIter = (first > 0) ? first - 1 : 0;
         config->SetTimeIter(TimeIter);
@@ -1672,15 +1682,28 @@ void CSinglezoneDriver::WriteAdaptedMesh(unsigned long iCycle, unsigned long fir
   }
 }
 
-void CSinglezoneDriver::ReplaceMesh(const CRemeshResult& remeshed, CSolutionTransfer& transfer) {
-  ReplaceMesh(remeshed, transfer, nullptr, nullptr);
+bool CSinglezoneDriver::CanReplaceMesh(const CRemeshResult& remeshed) const {
+  CLocalFailure refusal;
+  if (remeshed.status != CRemeshResult::Status::COMPLETE)
+    refusal.Set(1, 0, remeshed.status == CRemeshResult::Status::INCOMPLETE_QUALITY ?
+        "Remesher returned incomplete quality." : "Remesher returned incomplete coverage.");
+  if (remeshed.beforeAcceptance && !remeshed.beforeAcceptance())
+    refusal.Set(1, 0, "Remesher elapsed deadline exhausted before replacement.");
+  const auto elected = ElectFailure(refusal, SU2_MPI::GetComm());
+  if (elected.any && rank == MASTER_NODE)
+    cout << "Adaptation skipped: " << elected.message << " Current mesh and solution retained." << endl;
+  return !elected.any;
 }
 
-void CSinglezoneDriver::ReplaceMesh(const CSimplexMesh& mesh, CSolutionTransfer& transfer) {
+bool CSinglezoneDriver::ReplaceMesh(const CRemeshResult& remeshed, CSolutionTransfer& transfer) {
+  return ReplaceMesh(remeshed, transfer, nullptr, nullptr);
+}
+
+bool CSinglezoneDriver::ReplaceMesh(const CSimplexMesh& mesh, CSolutionTransfer& transfer) {
   CRemeshResult remeshed;
   remeshed.slices = CReaderSlices::FromComplete(mesh, MASTER_NODE);
   remeshed.markers = remeshed.slices.markersWithElements;
-  ReplaceMesh(remeshed, transfer, nullptr, nullptr);
+  return ReplaceMesh(remeshed, transfer, nullptr, nullptr);
 }
 
 void CSinglezoneDriver::ReleaseMesh(CMeshDonor& mesh) {
@@ -1692,25 +1715,15 @@ void CSinglezoneDriver::ReleaseMesh(CMeshDonor& mesh) {
   }
 }
 
-void CSinglezoneDriver::ReplaceMesh(const CRemeshResult& remeshed, CSolutionTransfer& transfer,
+bool CSinglezoneDriver::ReplaceMesh(const CRemeshResult& remeshed, CSolutionTransfer& transfer,
                                     const CMeshDonor* keptDonor, CMeshDonor* keepCurrent) {
   SU2_ZONE_SCOPED
 
   SU2Native3D::RuntimeProfile3D<5> profile(config_container[ZONE_0]->GetWrt_Performance() && nDim == 3 &&
       config_container[ZONE_0]->GetKind_Adap_Remesher() == ADAP_REMESHER::NATIVE_CAVITY, "replace");
 
-  CLocalFailure acceptance;
-  if (remeshed.status!=CRemeshResult::Status::COMPLETE)
-    acceptance.Set(1,0,remeshed.status==CRemeshResult::Status::INCOMPLETE_QUALITY?
-          "Remesher returned incomplete quality. The accepted mesh and solution are retained.":
-          "Remesher returned incomplete coverage. The accepted mesh and solution are retained.");
-  CollectiveFailure(acceptance,CURRENT_FUNCTION);
-
-  if (remeshed.beforeAcceptance) {
-    if (!remeshed.beforeAcceptance())
-      acceptance.Set(1,0,"Native3D elapsed deadline exhausted before replacement; accepted mesh and solution retained.");
-    CollectiveFailure(acceptance,CURRENT_FUNCTION);
-  }
+  lastReplaceTime = lastTransferTime = 0;
+  if (!CanReplaceMesh(remeshed)) return false;
 
   const su2double startTime = SU2_MPI::Wtime();
 
@@ -1821,12 +1834,6 @@ void CSinglezoneDriver::ReplaceMesh(const CRemeshResult& remeshed, CSolutionTran
   auto* donorIntegration = integration_container[ZONE_0][INST_0];
   auto* donorIteration = iteration_container[ZONE_0][INST_0];
 
-  if (remeshed.beforeAcceptance) {
-    if (!remeshed.beforeAcceptance())
-      acceptance.Set(1,0,"Native3D elapsed deadline exhausted during rebuild/transfer; accepted mesh and solution retained.");
-    CollectiveFailure(acceptance,CURRENT_FUNCTION);
-  }
-
   geometry_container[ZONE_0][INST_0] = geometry;
   solver_container[ZONE_0][INST_0] = solver;
   numerics_container[ZONE_0][INST_0] = numerics;
@@ -1887,6 +1894,7 @@ void CSinglezoneDriver::ReplaceMesh(const CRemeshResult& remeshed, CSolutionTran
     }
   }
   profile.Report(config->GetTimeIter(), {{"geometry", "geometry_checks", "solver", "transfer", "finalize"}});
+  return true;
 }
 
 void CSinglezoneDriver::AdaptMesh(CSolutionTransfer& transfer) {

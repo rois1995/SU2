@@ -12,11 +12,16 @@ and one independently audited production/restart case at published508e52cf7b.
 Current frontier: coordinated wall/transition reconstruction with retained
 interior points. Its geometric witness passes, but the stronger native field
 still fails the work ceiling. A separately generated control proves target
-feasibility under the declared contracts. All owned jobs are terminal; MPI is
-reserved for the next connected milestone. Full Goal3 remains incomplete.
+feasibility under the declared contracts. Private actual-field 2/3/4-cell reconnection now passes its saved-proposal replay
+and independent audit, but still fails full shape/edge admission and is not wired
+into production. The connected static-assessment patch passes focused serial22-case and MPI2/4
+7-case-per-rank checks for recoverable refusal, first-row owner concurrency,
+reference admission and quadrature reuse. All owned jobs are terminal.
+Full Goal3 remains incomplete.
 
 Current testcase folder:
-`integration_evidence/native_3d_bl_v1/wall_reconstruction_v1`.
+`integration_evidence/native_3d_bl_v1/static_assessment2_v1` (focused serial/MPI stages).
+Private replay remains in `integration_evidence/native_3d_bl_v1/connectivity_replay_v1`.
 The production checkpoint's inspectable grids and states remain in
 `integration_evidence/native_3d_bl_v1/production_policy_v1/mpi1`, `mpi2`, `mpi4`.
 
@@ -24,6 +29,7 @@ Read only the relevant handbook:
 
 - [Current Goal 3 implementation, evidence and remaining gates](Handbook/GOAL3_CURRENT.md).
 - [Wall reconstruction failures, feasibility control and next replay step](Handbook/GOAL3_WALL_RECONSTRUCTION.md).
+- [Static assessment 2: fixes, qualification and open architectural limits](Handbook/STATIC_ASSESSMENT_2.md).
 - [Completed Goals 1 and 2 and their scope](Handbook/COMPLETED_GOALS.md).
 - [Permanent implementation and validation rules](AGENTS.md).
 - [Full requirement audit](integration_evidence/native_3d_bl_v1/GOAL3_REQUIREMENTS.json).

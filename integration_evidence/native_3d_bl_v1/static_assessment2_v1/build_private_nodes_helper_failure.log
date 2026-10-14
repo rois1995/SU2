@@ -1,0 +1,13 @@
+ninja: Entering directory `integration_evidence/build-integrated-v2'
+[1/4] Compiling C++ object Common/src/libSU2AccurateSum.a.p/adaptation_CNativeEngine3D.cpp.o
+FAILED: [code=1] Common/src/libSU2AccurateSum.a.p/adaptation_CNativeEngine3D.cpp.o 
+c++ -ICommon/src/libSU2AccurateSum.a.p -ICommon/src -I../../Common/src -I../../externals/CLI11 -I../../externals/eigen -I../../externals/cgns/adf -I../../externals/cgns/adfh -Iexternals/cgns -I../../externals/cgns -Iexternals/cgns/hdf5 -I../../externals/cgns/hdf5 -I../../externals/metis/include -I../../externals/metis/GKlib -I../../externals/metis/libmetis -I../../externals/parmetis/include -I../../externals/parmetis/libparmetis -I../../externals/mel -I/usr/lib/x86_64-linux-gnu/openmpi/include/openmpi -I/usr/lib/x86_64-linux-gnu/openmpi/include -fdiagnostics-color=always -D_GLIBCXX_ASSERTIONS=1 -D_FILE_OFFSET_BITS=64 -std=c++17 -O2 -g -fPIC -pthread -Wno-empty-body -Wno-ignored-qualifiers -Wno-unused-parameter -Wno-deprecated-declarations -Wno-error=cast-function-type -Wno-cast-function-type -Wno-error=stringop-truncation -Wno-stringop-truncation -Wno-error=missing-field-initializers -Wno-missing-field-initializers -Wno-error=class-memaccess -Wno-class-memaccess -Wno-overloaded-virtual -Wno-array-bounds -march=native -ffast-math -fno-finite-math-only -DHAVE_CGNS -DHAVE_MPI -DHAVE_METIS -DHAVE_PARMETIS -DHAVE_MMG -fno-fast-math -fno-unsafe-math-optimizations -ffp-contract=off -MD -MQ Common/src/libSU2AccurateSum.a.p/adaptation_CNativeEngine3D.cpp.o -MF Common/src/libSU2AccurateSum.a.p/adaptation_CNativeEngine3D.cpp.o.d -o Common/src/libSU2AccurateSum.a.p/adaptation_CNativeEngine3D.cpp.o -c ../../Common/src/adaptation/CNativeEngine3D.cpp
+../../Common/src/adaptation/CNativeEngine3D.cpp: In function ‘bool SU2Native3D::{anonymous}::SameSkin(const SU2Native3D::Patch&, const SU2Native3D::Patch&)’:
+../../Common/src/adaptation/CNativeEngine3D.cpp:74:16: error: ‘Nodes’ was not declared in this scope; did you mean ‘Node’?
+   74 |   const auto a=Nodes(old.cells),b=Nodes(fresh.cells);
+      |                ^~~~~
+      |                Node
+../../Common/src/adaptation/CNativeEngine3D.cpp:75:66: error: ‘b’ was not declared in this scope
+   75 |   for(const auto& face:before)for(Id id:face)if(!Same(a.at(id).p,b.at(id).p))return false;
+      |                                                                  ^
+ninja: build stopped: subcommand failed.

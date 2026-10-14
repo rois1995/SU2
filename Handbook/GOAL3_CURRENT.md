@@ -49,6 +49,28 @@ Read [the smaller wall-reconstruction handbook](GOAL3_WALL_RECONSTRUCTION.md)
 for exact failures, preserved artifacts and the next substantial replay/reconnection
 step. Goal3 remains ACTIVE; this is not complete native BL generation.
 
+## Static assessment reconciliation
+
+The supplied b449 static report was checked against current callers and kernels.
+A connected patch makes supported native rejection recoverable before replacement,
+keeps ordinary replacement output conditional on acceptance, removes the late
+post-transfer deadline veto, admits whole geometry components/reference files by
+storage, all-gathers initial facets without P sender copies, runs disjoint
+first-row owners through complete-vertex reservations, preserves certifiable metric-balanced physical placement with a
+midpoint/projection fallback, validates unique physical edge cuts before counting
+them and reuses geometry-only quadrature across sensor trials. Hidden support
+still invalidates against trial sensor/core. No full-window snapshot was added to
+unsupported native fixed-point mode.
+
+Focused serial22-case and MPI2/4 seven-case-per-rank correctness stages PASS.
+Serial includes the actual initialized RANS/SA adaptation/transfer/restart control.
+All owned jobs are terminal. Saved stages are in
+`integration_evidence/native_3d_bl_v1/static_assessment2_v1`.
+Read [the reconciliation](STATIC_ASSESSMENT_2.md) for exact fixed/partial/open scope.
+This does not establish general curved/BL concurrency or scaling. Whole changed-skin
+curved clearance and expanded repair serialization remain open. Goal3 completion
+still requires the full gates below, not just this assessment patch.
+
 ## Remaining full-goal gates
 
 Composed gradation probes violate the sensor HGRAD transport bound although sensor

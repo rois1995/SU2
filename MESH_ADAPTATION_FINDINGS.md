@@ -8,9 +8,16 @@ A576-cell generated control passes the same declared metric/height/footprint
 contracts (qmin .5819,Jmin .3105,Lmax1.6645), so native operator blockage is
 established for these contracts. It is not native output or a zero-centroid-tilt
 certificate. Longer growth gave no accepted wall reconstruction and was reverted.
-Next: exact local replay and actual-field internal reconnection of the multi-point
-wall/transition proposal, without target/gate/budget relaxation. No new MPI/full
-regression or performance qualification. Details and retained failures are in
+Private 2/3/4-cell reconnection passes exact saved-proposal replay and independent
+audit:13 flips, shape loss2.1209455→.40215385 (81%), but q .1473/J .0231/L6.7387
+still fail final admission. It is not yet a production operator. Next: retained
+transition-point placement and coordinated reconstruction without target/gate/budget
+relaxation. The static-assessment follow-up passes serial22 cases (including
+RANS/SA construction/release/transfer/restart) and targeted MPI2/4 seven-case-per-rank
+checks. Rejection is recoverable; first-row owners use complete-vertex reservations
+concurrently; geometry admissions and quadrature reuse are improved. Changed-skin
+curved collision indexing and expanded BL/curved serialization remain open.
+No full regression, real CFD convergence or performance qualification. Details and retained failures are in
 [the wall handbook](Handbook/GOAL3_WALL_RECONSTRUCTION.md).
 
 Current alignment follow-up: the previous coarsened BL meshes have one normal foot
