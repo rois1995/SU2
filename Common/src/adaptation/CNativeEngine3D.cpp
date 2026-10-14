@@ -55,13 +55,18 @@ bool DonorCap(const std::string& reason) {
   return reason=="Original donor import exceeds patch budget." || reason=="Original donor union exceeds patch budget.";
 }
 using RepairFeature = std::pair<unsigned,std::array<Id,3>>;
-long double GeometryExcess(const Patch& patch,const PlanarReference& geometry,double tolerance) {
+double SurfaceTolerance(const PlanarReference& geometry,Id facet,double configured,const std::map<int,double>& heights) {
+  const auto height=heights.find(geometry.Get(facet).marker);
+  return height!=heights.end() && geometry.Analytic().count(geometry.Canonical(facet)) ?
+      std::min(configured,.5*height->second) : configured;
+}
+long double GeometryExcess(const Patch& patch,const PlanarReference& geometry,double tolerance,const std::map<int,double>& heights) {
   std::map<Id,Point> nodes;
   for(const auto& c:patch.cells)for(auto n:c.v)nodes.emplace(n.id,n.p);
   long double excess=0;
   for(const auto& f:patch.surface) {
     const std::array<Point,3> p{nodes.at(f.v[0]),nodes.at(f.v[1]),nodes.at(f.v[2])};
-    const long double error=std::max(0.,geometry.SurfaceError(f.facet,p)-tolerance);
+    const long double error=std::max(0.,geometry.SurfaceError(f.facet,p)-SurfaceTolerance(geometry,f.facet,tolerance,heights));
     const long double ax=static_cast<long double>(p[1].x)-p[0].x,ay=static_cast<long double>(p[1].y)-p[0].y,az=static_cast<long double>(p[1].z)-p[0].z;
     const long double bx=static_cast<long double>(p[2].x)-p[0].x,by=static_cast<long double>(p[2].y)-p[0].y,bz=static_cast<long double>(p[2].z)-p[0].z;
     excess+=error*error*std::hypot(ay*bz-az*by,az*bx-ax*bz,ax*by-ay*bx);
@@ -129,13 +134,14 @@ bool Clearance(World& world,const Owned& working,const Patch& old,const Patch& f
 struct Choice { Edge edge{}; EdgeMeasure measure; bool active = false; Feature feature; bool geometric=false; };
 class Selection {
  public:
-  Selection(bool coarsening, bool repairing, const PlanarReference& geometry, EngineStats& stats, bool timings, double tolerance)
-      : coarsening(coarsening), track_repairs(repairing), repair_event(repairing), geometry(geometry), stats(stats), timings(timings), tolerance(tolerance) {}
+  Selection(bool coarsening, bool repairing, const PlanarReference& geometry, EngineStats& stats, bool timings, double tolerance,const std::map<int,double>& heights)
+      : coarsening(coarsening), track_repairs(repairing), repair_event(repairing), geometry(geometry), stats(stats), timings(timings), tolerance(tolerance), heights(heights) {}
   bool coarsening, track_repairs, repair_event, prune_collapses = false, track_splits = false;
   const PlanarReference& geometry;
   EngineStats& stats;
   bool timings;
   double tolerance;
+  const std::map<int,double>& heights;
   std::set<std::tuple<long double,Id,Edge>> geometry_queue;
   long double Priority(long double length) const { return coarsening ? length : -length; }
   bool Candidate(long double length) const {
@@ -347,7 +353,8 @@ class Selection {
         std::array<Point,3> triangle{};
         for(size_t i=0;i<3;++i)for(auto n:cell.v)if(n.id==faces[slot][i])triangle[i]=n.p;
         const double error=geometry.SurfaceError(owned.physical[slot].facet,triangle);
-        if(error<=tolerance)continue;
+        const auto allowed=SurfaceTolerance(geometry,owned.physical[slot].facet,tolerance,heights);
+        if(error<=allowed)continue;
         row.valid=false;
         for(size_t i=0;i<3;++i)for(size_t j=i+1;j<3;++j) {
           const auto a=triangle[i],b=triangle[j];
@@ -357,9 +364,9 @@ class Selection {
             const Point middle{double((static_cast<long double>(a.x)+b.x)/2),double((static_cast<long double>(a.y)+b.y)/2),double((static_cast<long double>(a.z)+b.z)/2)};
             const auto projected=geometry.Project(owned.physical[slot].facet,middle);
             auto left=triangle,right=triangle;left[j]=projected;right[i]=projected;
-            const auto before=GeometryExcess(Patch{{cell},{{faces[slot],owned.physical[slot].facet}}},geometry,tolerance);
-            const double l=std::max(0.,geometry.SurfaceError(owned.physical[slot].facet,left)-tolerance);
-            const double r=std::max(0.,geometry.SurfaceError(owned.physical[slot].facet,right)-tolerance);
+            const auto before=GeometryExcess(Patch{{cell},{{faces[slot],owned.physical[slot].facet}}},geometry,tolerance,heights);
+            const double l=std::max(0.,geometry.SurfaceError(owned.physical[slot].facet,left)-allowed);
+            const double r=std::max(0.,geometry.SurfaceError(owned.physical[slot].facet,right)-allowed);
             auto area=[](const std::array<Point,3>& t) {
               const long double ax=static_cast<long double>(t[1].x)-t[0].x,ay=static_cast<long double>(t[1].y)-t[0].y,az=static_cast<long double>(t[1].z)-t[0].z;
               const long double bx=static_cast<long double>(t[2].x)-t[0].x,by=static_cast<long double>(t[2].y)-t[0].y,bz=static_cast<long double>(t[2].z)-t[0].z;
@@ -452,7 +459,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
   EngineResult result;
   auto& stats=result.stats;
   Owned working;
-  Selection selection(coarsening,repairing,geometry,stats,options.timings,options.surface_tolerance);
+  Selection selection(coarsening,repairing,geometry,stats,options.timings,options.surface_tolerance,options.wall_heights);
   std::map<Edge,EdgeMeasure> retired_edges;
   // Joint split feasibility depends on neighboring vertex stars, even when the edge itself is unchanged.
   selection.track_splits=bool(composition);
@@ -1083,8 +1090,8 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     auto geometric_change=[&](bool candidate,MetricChange kind) {
       if(!candidate || !curved)return candidate;
       try {
-        const auto before=GeometryExcess(old,geometry,options.surface_tolerance);
-        const auto after=GeometryExcess(fresh,geometry,options.surface_tolerance);
+        const auto before=GeometryExcess(old,geometry,options.surface_tolerance,options.wall_heights);
+        const auto after=GeometryExcess(fresh,geometry,options.surface_tolerance,options.wall_heights);
         geometric_progress=before>0 && after<before*(1-1e-12L);
         if((kind==MetricChange::GeometryRefine && !geometric_progress) ||
            (kind==MetricChange::Coarsen && after>0) ||

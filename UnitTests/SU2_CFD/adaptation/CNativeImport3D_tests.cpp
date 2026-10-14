@@ -10,6 +10,7 @@
 #include "../../../SU2_CFD/include/adaptation/CBarycentricTransfer.hpp"
 #include "../../../SU2_CFD/include/output/CMeshOutput.hpp"
 #include "../../../SU2_CFD/include/adaptation/CConservativeTransfer.hpp"
+#include "../../../SU2_CFD/include/adaptation/CBoundaryLayerMetric.hpp"
 #include "../../../Common/include/geometry/meshreader/CSU2ASCIIMeshReaderFVM.hpp"
 #include "../../../Common/include/geometry/meshreader/CCGNSMeshReaderFVM.hpp"
 #include "../../../Common/include/adaptation/CNativeRemesher3D.hpp"
@@ -1529,4 +1530,78 @@ TEST_CASE("Native3D production wall policy preserves sensor donors and RANS hist
   }
   REQUIRE(counts.size()==2);CHECK(counts[0]>6);CHECK(counts[1]<counts[0]);
   {Mute mute;driver->Finalize();driver.reset();}
+}
+
+TEST_CASE("Cold native cylinder BL construction and release use the same original sensor and smooth policy", "[.][NativeCurvedBLConstruction3D]") {
+  World world;const auto seed=PrimitiveMesh(false,false);
+  std::stringstream text("SOLVER= RANS\nKIND_TURB_MODEL= SA\nMACH_NUMBER= .2\nAOA= 90\nREYNOLDS_NUMBER= 1000\nREYNOLDS_LENGTH= 1\n"
+      "MESH_FORMAT= SU2\nMESH_FILENAME= unused.su2\nMARKER_FAR= (cap0,cap1)\nMARKER_HEATFLUX= (cylinder,0)\nMGLEVEL= 0\n"
+      "COMPUTE_METRIC= YES\nADAP_SENSOR= PRESSURE\nADAP_REMESHER= NATIVE_CAVITY\nADAP_SURFACE= YES\nADAP_HESSIAN_NOISE= 0\n"
+      "ADAP_BL_MARKER= (cylinder)\nADAP_BL_FIRST_HEIGHT= (.05)\nADAP_BL_GROWTH= (1.2)\nADAP_BL_THICKNESS= (.2)\nADAP_HAUSD= .04\n");
+  if(!world.rank) {
+    auto cfg=text.str();const std::string old="MESH_FILENAME= unused.su2";const auto at=cfg.find(old);REQUIRE(at!=std::string::npos);
+    cfg.replace(at,old.size(),"MESH_FILENAME= curved_cylinder_initial_euler.su2");std::ofstream out("curved_cylinder.cfg");out<<cfg;
+  }
+  std::unique_ptr<CConfig> config;{Mute mute;config=std::make_unique<CConfig>(text,SU2_COMPONENT::SU2_CFD,false);}
+  MeshSolution mesh(config.get(),seed,0);su2activematrix sensor(mesh.Fine().GetnPointDomain(),6);
+  for(unsigned long p=0;p<sensor.rows();++p)for(unsigned k=0;k<6;++k)sensor(p,k)=k==0||k==3||k==5?1.:0.;
+  ReferenceState reference;ImportGeometry(*config,mesh.Fine(),nullptr,reference);DeclarePrimitive(reference,false,false);
+  const auto input=ImportGeometry(*config,mesh.Fine(),&sensor,reference);const auto before=Signature(world,input.cells,reference);
+  auto layers=CBoundaryLayerMetric::FromNativeReference(reference,*config);
+  MetricComposition compose=[layers](Point p,Tensor s) {
+    CBoundaryLayerMetric::Tensor m;const su2double x[3]={p.x,p.y,p.z};
+    m.m[0][0]=s.xx;m.m[0][1]=m.m[1][0]=s.xy;m.m[0][2]=m.m[2][0]=s.xz;
+    m.m[1][1]=s.yy;m.m[1][2]=m.m[2][1]=s.yz;m.m[2][2]=s.zz;
+    layers->ApplyPoint(x,m,1.,nullptr,false);
+    return Tensor{SU2_TYPE::GetValue(m.m[0][0]),SU2_TYPE::GetValue(m.m[0][1]),SU2_TYPE::GetValue(m.m[0][2]),
+        SU2_TYPE::GetValue(m.m[1][1]),SU2_TYPE::GetValue(m.m[1][2]),SU2_TYPE::GetValue(m.m[2][2])};
+  };
+  EngineOptions options;options.surface_tolerance=.04;options.maximum_work=4096;options.timings=true;
+  for(unsigned marker=0;marker<reference.marker_names.size();++marker)if(reference.marker_names[marker]=="cylinder")options.wall_heights[marker]=.05;
+  REQUIRE(options.wall_heights.size()==1);
+  options.edge_breakpoints=[layers](Point a,Point b){return layers->EdgeBreakpoints({a.x,a.y,a.z},{b.x,b.y,b.z});};
+  auto save=[&](const std::string& name,const Owned& owned) {
+    Save(world,name,owned,input.original,reference);
+    std::vector<OwnedCell> local;for(const auto& row:owned)local.push_back(row.second);const auto all=world.metadata(local);
+    if(world.rank)return;
+    CSimplexMesh output;output.nDim=3;std::map<Id,unsigned long> ids;std::map<int,unsigned> markers;
+    const std::array<std::array<unsigned,3>,4> faces{{{{1,2,3}},{{0,3,2}},{{0,1,3}},{{0,2,1}}}};
+    for(const auto& row:all) {
+      for(auto n:row.cell.v){auto inserted=ids.emplace(n.id,ids.size());if(inserted.second)output.coord.insert(output.coord.end(),{n.p.x,n.p.y,n.p.z});output.elem.push_back(inserted.first->second);}
+      output.elemRef.push_back(0);
+      for(unsigned f=0;f<4;++f)if(row.physical[f].present) {
+        const auto marker=reference.original->Get(row.physical[f].facet).marker;auto inserted=markers.emplace(marker,markers.size());
+        if(inserted.second)output.markers.push_back({reference.marker_names.at(marker),marker,{}});
+        for(auto k:faces[f])output.markers[inserted.first->second].elem.push_back(ids.at(row.cell.v[k].id));
+      }
+    }
+    simplex_test::WriteSU2Mesh(output,name+".su2");std::ofstream sidecar(name+".su2.native_ref");sidecar<<EncodeReference(reference);
+  };
+  save("curved_cylinder_initial_euler",input.cells);
+  const auto refined=Refine(world,input.cells,input.original,*reference.original,compose,options);
+  if(!world.rank)std::cout<<"CURVED_NATIVE3D refine valid="<<refined.valid<<" work="<<refined.stats.global_work<<" reason="<<refined.reason<<std::endl;
+  if(!world.rank) {
+    const auto& e=refined.stats;const auto& m=e.last_metric_rejection;
+    std::cout<<std::setprecision(17)<<"CURVED_NATIVE3D_DIAG accepted="<<e.accepted<<" rejected="<<e.rejected
+        <<" topology_trials="<<e.wall_topology_trials<<" topology_accepted="<<e.wall_topology_accepted
+        <<" joint_trials="<<e.wall_joint_trials<<" joint_moves="<<e.wall_joint_moves<<" joint_accepted="<<e.wall_joint_accepted
+        <<" geometry_rejected="<<e.geometry_rejected<<" shape_rejected="<<e.metric_shape_rejected
+        <<" failure="<<unsigned(m.failure)<<" q="<<m.minimum_mean_ratio<<" j="<<m.minimum_scaled_jacobian
+        <<" feature_count="<<e.last_rejected_feature.count<<" v0="<<e.last_rejected_feature.vertices[0]
+        <<" v1="<<e.last_rejected_feature.vertices[1]<<" v2="<<e.last_rejected_feature.vertices[2]
+        <<" x="<<e.last_rejected_cavity_centroid.x<<" y="<<e.last_rejected_cavity_centroid.y<<" z="<<e.last_rejected_cavity_centroid.z<<std::endl;
+  }
+  save(refined.valid?"curved_cylinder_BL":"curved_cylinder_BL_rejected",refined.cells);
+  CHECK(Signature(world,input.cells,reference)==before);INFO(refined.reason);REQUIRE(refined.valid);
+  const auto allOriginal=world.metadata(input.original);
+  FrozenField target(allOriginal,compose,false,AssociatedExtensions(allOriginal,*reference.original),options.edge_breakpoints);
+  for(const auto& row:refined.cells) {
+    PatchMetric measured;std::string reason;CHECK(ValidateMetricPatch({row.second.cell},target,measured,reason));
+    CHECK(target.Query(Centroid(row.second.cell)).sensor.xx==Approx(1.));
+  }
+  options.wall_heights.clear();options.edge_breakpoints={};options.maximum_work-=refined.stats.global_work;
+  const auto released=Coarsen(world,refined.cells,input.original,*reference.original,{},options);
+  if(!world.rank)std::cout<<"CURVED_NATIVE3D release valid="<<released.valid<<" work="<<released.stats.global_work<<" reason="<<released.reason<<std::endl;
+  save(released.valid?"curved_cylinder_released":"curved_cylinder_released_rejected",released.cells);
+  INFO(released.reason);REQUIRE(released.valid);
 }

@@ -1228,3 +1228,174 @@ TEST_CASE("Native edge breakpoint admission counts physical roots on a densely t
   // A chord wholly inside a planar band has no physical level crossings, despite many feature roots.
   REQUIRE(cuts.size()==2);CHECK(cuts.front()==0);CHECK(cuts.back()==1);
 }
+
+namespace {
+CBoundaryLayerMetric::Wall AnalyticSphereWall(double h0=.01,double thickness=.03,double radius=1,SU2Native3D::Point origin={}) {
+  using namespace SU2Native3D;
+  const std::array<Point,6> points{{{origin.x+radius,origin.y,origin.z},{origin.x-radius,origin.y,origin.z},
+      {origin.x,origin.y+radius,origin.z},{origin.x,origin.y-radius,origin.z},{origin.x,origin.y,origin.z+radius},{origin.x,origin.y,origin.z-radius}}};
+  CBoundaryLayerMetric::Wall wall;wall.layer={"sphere",h0,1.2,thickness};wall.surface_tolerance=.01;
+  std::vector<Facet> facets;std::map<Id,AnalyticSurface> curves;AnalyticSurface g;g.origin=origin;g.extent={radius,0,0};
+  for(unsigned x=0;x<2;++x)for(unsigned y=2;y<4;++y)for(unsigned z=4;z<6;++z) {
+    std::array<unsigned,3> v{x,y,z};
+    if(Orientation(origin,points[v[0]],points[v[1]],points[v[2]])>0)std::swap(v[1],v[2]);
+    Facet f;f.id=facets.size();f.marker=1;
+    for(unsigned k=0;k<3;++k)f.v[k]={v[k],points[v[k]]};facets.push_back(f);curves[f.id]=g;
+    wall.conn.insert(wall.conn.end(),{v[0],v[1],v[2],v[2]});
+  }
+  for(auto p:points)wall.coord.insert(wall.coord.end(),{p.x,p.y,p.z});
+  wall.authority=std::make_shared<PlanarReference>(facets,SIZE_MAX,curves);wall.authority_facet=wall.authority->Canonical(0);
+  return wall;
+}
+}
+
+TEST_CASE("Smooth native BL preserves actual radial queries, fine sensors and hidden sphere edge bands", "[NativeCurvedBL3D]") {
+  const auto wall=AnalyticSphereWall();CBoundaryLayerMetric layers(3,{wall});
+  for(double offset:{-1e-7,1e-7,.005,.02}) {
+    const su2double x[3]={1+offset,0,0};const auto sample=layers.Evaluate(0,x,4.);
+    CHECK(SU2_TYPE::GetValue(sample.distance)==Approx(std::abs(offset)).margin(2e-15));
+    double norm=0;for(auto value:sample.normal)norm+=SU2_TYPE::GetValue(value*value);
+    CHECK(norm==Approx(1.).margin(2e-12));
+    Tensor sensor;for(unsigned j=0;j<3;++j)sensor.m[j][j]=1e8;
+    layers.ApplyPoint(x,sensor,4.,nullptr,false);
+    for(unsigned i=0;i<3;++i)for(unsigned j=0;j<3;++j)CHECK(SU2_TYPE::GetValue(sensor.m[i][j])==Approx(i==j?1e8:0.).margin(2e-6));
+  }
+  const std::array<double,3> a{-2,.9,0},b{2,.9,0};
+  for(auto p:{a,b,std::array<double,3>{0,.9,0}}) {
+    const su2double x[3]={p[0],p[1],p[2]};CHECK(layers.Evaluate(0,x,4.).weight==0);
+  }
+  const auto cuts=layers.EdgeBreakpoints(a,b),reverse=layers.EdgeBreakpoints(b,a);
+  REQUIRE(cuts.size()>20);REQUIRE(cuts.size()==reverse.size());
+  const double crossing=.5-std::sqrt(1-.9*.9)/4;
+  CHECK(*std::min_element(cuts.begin(),cuts.end(),[&](auto x,auto y){return std::abs(x-crossing)<std::abs(y-crossing);})==Approx(crossing).margin(2e-12));
+  for(size_t i=0;i<cuts.size();++i)CHECK(cuts[i]==Approx(1-reverse[cuts.size()-1-i]).margin(2e-12));
+}
+
+TEST_CASE("Smooth spherical BL thin volume rule resolves an enclosed layer against a radial integral", "[.][NativeCurvedBLVolume3D]") {
+  const auto wall=AnalyticSphereWall();CBoundaryLayerMetric layers(3,{wall});
+  const std::array<std::array<double,3>,4> cell{{{{0,0,0}},{{4,0,0}},{{0,4,0}},{{0,0,4}}}};
+  auto density=[&](const CBoundaryLayerMetric::IntegrationPoint3D& p) {
+    Tensor metric;for(unsigned j=0;j<3;++j)metric.m[j][j]=4;
+    for(const auto& sample:p.samples)layers.ApplySample(sample.wall,sample.sample,metric,4.,nullptr,false);
+    su2double v[3][3],e[3],w[3];CBlasStructure::EigenDecomposition(metric.m,v,e,3,w);
+    return SU2_TYPE::GetValue(sqrt(e[0]*e[1]*e[2]));
+  };
+  // Whole spherical octant shell is inside this coarse tetrahedron.
+  const double epsilon=.005,chord=2*std::sqrt(epsilon*(2-epsilon)),curvature=std::pow(1.8/chord,2);
+  auto radial=[&](double distance) {
+    const double hn=std::max(.01,2*(.01+.2*distance)/2.2);
+    const double t=std::clamp((distance-.027)/.003,0.,1.),weight=1-t*t*(3-2*t);
+    return std::pow(curvature,weight)*std::pow(4.,1-weight)*std::pow(1/hn,weight)*std::pow(2.,1-weight);
+  };
+  auto integral=[&](double left,double right) {
+    constexpr unsigned n=4096;const double h=(right-left)/n;double total=0;
+    for(unsigned k=0;k<=n;++k){const double d=left+h*k;total+=(k==0||k==n?1:k%2?4:2)*(1+d*d)*(radial(d)-8);}
+    return h*total/3;
+  };
+  const double expected=8*64/6+std::acos(-1.)*(integral(0,.005)+integral(.005,.027)+integral(.027,.03));
+  bool dependent=false;const auto rule=layers.IntegrationRule3D(cell,1.5,density,&dependent);
+  double volume=0,measured=0;bool sampled=false;
+  for(const auto& p:rule){CHECK(p.weight>0);volume+=p.weight;measured+=p.weight*density(p);sampled=sampled||!p.samples.empty();}
+  REQUIRE(sampled);CHECK(dependent);CHECK(volume==Approx(64./6).epsilon(2e-10));
+  INFO("points="<<rule.size()<<" measured="<<measured<<" radial="<<expected);
+  CHECK(measured==Approx(expected).epsilon(8e-4));
+}
+
+TEST_CASE("Smooth first-row clearance separates curved geometry blockage from exact facet altitude", "[NativeCurvedBL3D]") {
+  using namespace SU2Native3D;const auto wall=AnalyticSphereWall();const auto& reference=*wall.authority;
+  const auto face=reference.Get(0);const auto a=face.v[0].p,b=face.v[1].p,c=face.v[2].p;
+  Point center{(a.x+b.x+c.x)/3,(a.y+b.y+c.y)/3,(a.z+b.z+c.z)/3};
+  const double radius=std::hypot(center.x,center.y,center.z);
+  for(double height:{.1,.6}) {
+    Node apex{10,{center.x*(1+height/radius),center.y*(1+height/radius),center.z*(1+height/radius)}};
+    Cell cell;cell.id=100;cell.v={face.v[0],face.v[2],face.v[1],apex};
+    REQUIRE(Orientation(cell.v[0].p,cell.v[1].p,cell.v[2].p,cell.v[3].p)>0);
+    Patch patch{{cell},{{{face.v[0].id,face.v[1].id,face.v[2].id},0}}};
+    FirstHeightReport report;std::string reason;const bool valid=CheckFirstHeight(patch,{{1,height}},reference,report,reason);
+    CHECK(report.height_failures==0);CHECK(report.footprint_failures==0);
+    CHECK(report.minimum_reference_clearance_ratio==Approx((radius+height-1)/height).epsilon(2e-12));
+    CHECK(valid==(height>.5));
+    if(!valid){CHECK(report.reference_clearance_failures==1);CHECK(reason.find("geometry-height incompatibility")!=std::string::npos);CHECK(report.reference_clearance_cell==100);}
+  }
+  const PlanarReference partial({face},SIZE_MAX,{{0,reference.Analytic().at(0)}});
+  CHECK_FALSE(partial.CompleteAnalytic(0));CHECK_THROWS(partial.ClosestAnalytic(0,{1.1,0,0}));
+}
+
+TEST_CASE("Finite cylinder BL queries and edge bands include the actual end rims", "[NativeCurvedBL3D]") {
+  using namespace SU2Native3D;constexpr unsigned n=16;
+  CBoundaryLayerMetric::Wall wall;wall.layer={"cylinder",.1,1.2,.3};wall.surface_tolerance=.01;
+  std::vector<Node> points;std::vector<Facet> facets;std::map<Id,AnalyticSurface> curves;
+  AnalyticSurface g;g.kind=AnalyticSurface::Kind::Cylinder;g.extent={1,1,0};
+  for(unsigned z=0;z<2;++z)for(unsigned i=0;i<n;++i) {
+    const double angle=2*std::acos(-1.)*i/n;Point p{std::cos(angle),std::sin(angle),double(z)};
+    points.push_back({points.size(),p});wall.coord.insert(wall.coord.end(),{p.x,p.y,p.z});
+  }
+  for(unsigned i=0;i<n;++i) {
+    const unsigned j=(i+1)%n;
+    for(auto v:{std::array<unsigned,3>{i,n+j,j},std::array<unsigned,3>{i,n+i,n+j}}) {
+      Facet f;f.id=facets.size();f.marker=1;for(unsigned k=0;k<3;++k)f.v[k]=points[v[k]];
+      facets.push_back(f);curves[f.id]=g;wall.conn.insert(wall.conn.end(),{v[0],v[1],v[2],v[2]});
+    }
+  }
+  wall.authority=std::make_shared<PlanarReference>(facets,SIZE_MAX,curves);wall.authority_facet=wall.authority->Canonical(0);
+  REQUIRE(wall.authority->CompleteAnalytic(0));CBoundaryLayerMetric layers(3,{wall});
+  for(double z:{-.1,.5,1.1}) {
+    const su2double x[3]={1.05,0,z};const auto sample=layers.Evaluate(0,x,1.);
+    const double dz=std::max({0.,-z,z-1});CHECK(SU2_TYPE::GetValue(sample.distance)==Approx(std::hypot(.05,dz)).epsilon(2e-12));
+    double norm=0;for(auto value:sample.normal)norm+=SU2_TYPE::GetValue(value*value);CHECK(norm==Approx(1.).margin(2e-12));
+  }
+  const su2double rim[3]={1,0,1.05};const auto sample=layers.Evaluate(0,rim,1.);
+  CHECK(SU2_TYPE::GetValue(sample.full.m[1][1])>=std::pow(1.8/(2*std::sqrt(.01*1.99)),2)*(1-1e-10));
+  const auto cuts=layers.EdgeBreakpoints({1.05,0,-1},{1.05,0,2});
+  const double crossing=(1-std::sqrt(.3*.3-.05*.05))/3;
+  CHECK(*std::min_element(cuts.begin(),cuts.end(),[&](auto x,auto y){return std::abs(x-crossing)<std::abs(y-crossing);})==Approx(crossing).margin(2e-10));
+}
+
+TEST_CASE("Visible wall samples cannot hide an enclosed thin spherical second wall", "[.][NativeInteractingBLVolume3D]") {
+  CBoundaryLayerMetric::Wall visible;visible.layer={"a_visible",2.,1.,2.};
+  visible.coord={-2,-2,0,2,-2,0,2,2,0,-2,2,0};visible.conn={0,1,2,2,0,2,3,3};
+  auto hidden=AnalyticSphereWall(1e-5,3e-5,.001,{.35,.35,.02});hidden.layer.marker="b_hidden";
+  CBoundaryLayerMetric layers(3,{visible,hidden});
+  const std::array<std::array<double,3>,4> cell{{{{0,0,0}},{{1,0,0}},{{0,1,0}},{{0,0,1}}}};
+  auto density=[&](const CBoundaryLayerMetric::IntegrationPoint3D& p) {
+    Tensor metric;for(unsigned j=0;j<3;++j)metric.m[j][j]=4;
+    for(const auto& sample:p.samples)layers.ApplySample(sample.wall,sample.sample,metric,4.,nullptr,false);
+    su2double v[3][3],e[3],w[3];CBlasStructure::EigenDecomposition(metric.m,v,e,3,w);
+    return SU2_TYPE::GetValue(sqrt(e[0]*e[1]*e[2]));
+  };
+  const double r=.001,epsilon=5e-6,curvature=std::pow(1.8/(2*std::sqrt(epsilon*(2*r-epsilon))),2);
+  auto integrand=[&](double distance) {
+    const double hn=std::max(1e-5,2*(1e-5+.2*distance)/2.2),t=std::clamp((distance-2.7e-5)/3e-6,0.,1.),weight=1-t*t*(3-2*t);
+    const double full=std::pow(curvature,weight)*std::pow(4.,1-weight)*std::pow(1/hn,weight)*std::pow(2.,1-weight);
+    return (r*r+distance*distance)*(full-8);
+  };
+  auto integral=[&](double left,double right) {
+    constexpr unsigned n=4096;const double h=(right-left)/n;double sum=0;
+    for(unsigned k=0;k<=n;++k)sum+=(k==0||k==n?1:k%2?4:2)*integrand(left+h*k);
+    return h*sum/3;
+  };
+  const double expected=8./6+4*std::acos(-1.)*(integral(0,5e-6)+integral(5e-6,2.7e-5)+integral(2.7e-5,3e-5));
+  const auto rule=layers.IntegrationRule3D(cell,1.5,density);double volume=0,measured=0;bool found=false;
+  for(const auto& p:rule) {
+    volume+=p.weight;measured+=p.weight*density(p);
+    CHECK(std::any_of(p.samples.begin(),p.samples.end(),[](const auto& s){return s.wall==0;}));
+    found=found||std::any_of(p.samples.begin(),p.samples.end(),[](const auto& s){return s.wall==1;});
+  }
+  REQUIRE(found);CHECK(volume==Approx(1./6).epsilon(2e-10));
+  INFO("points="<<rule.size()<<" measured="<<measured<<" radial="<<expected);
+  CHECK(measured==Approx(expected).epsilon(8e-4));
+}
+
+TEST_CASE("Curved BL gradation diagnosis keeps sensor and composed fields distinct", "[NativeCurvedBL3D]") {
+  const auto wall=AnalyticSphereWall();CBoundaryLayerMetric layers(3,{wall});
+  const double points[]={1.027,1.028,1.029,1.03};double maximum=1;
+  auto metric=[&](double position){const su2double x[3]={position,0,0};Tensor m;for(unsigned j=0;j<3;++j)m.m[j][j]=4;layers.ApplyPoint(x,m,4.,nullptr,false);return m;};
+  for(unsigned i=0;i<3;++i)for(bool reversed:{false,true}) {
+    const auto a=metric(points[i+unsigned(reversed)]),b=metric(points[i+unsigned(!reversed)]);
+    const double distance=(points[i+1]-points[i])*std::sqrt(SU2_TYPE::GetValue(b.m[0][0]));
+    const double factor=std::pow(1+std::log(1.3)*distance,-2);
+    for(unsigned j=0;j<3;++j)maximum=std::max(maximum,factor*SU2_TYPE::GetValue(b.m[j][j]/a.m[j][j]));
+  }
+  // These finite fade probes diagnose the target; they do not regularize it during reconstruction.
+  CHECK(maximum>1);std::cout<<"CURVED_BL_GRADATION sensor_ratio=1 composed_ratio="<<std::setprecision(17)<<maximum<<'\n';
+}

@@ -281,6 +281,16 @@ bool CheckFirstHeight(const Patch& patch,const std::map<int,double>& heights,con
         if(count==3){++found;apex=opposite;cell=candidate.id;}
       }
       if(found!=1){++report.missing_cells;throw std::invalid_argument("Native3D wall face has no unique first child.");}
+      if(reference.CompleteAnalytic(face.facet)) {
+        const auto closest=reference.ClosestAnalytic(face.facet,apex.p);
+        const auto n=closest.normal,d=closest.direction;
+        const long double clearance=-closest.distance*((long double)d.x*n.x+(long double)d.y*n.y+(long double)d.z*n.z);
+        if(clearance/height->second<report.minimum_reference_clearance_ratio) {
+          report.minimum_reference_clearance_ratio=double(clearance/height->second);
+          report.reference_clearance_facet=face.facet;report.reference_clearance_cell=cell;report.reference_clearance_apex=apex.p;
+        }
+        if(!(clearance>0))++report.reference_clearance_failures;
+      }
       const auto altitude=std::abs(Orientation(a,b,c,apex.p,stats))/area;
       const double error=double(std::abs(altitude/height->second-1));
       auto tangent=Delta(apex.p,center);const auto projection=Dot(tangent,normal);
@@ -306,6 +316,10 @@ bool CheckFirstHeight(const Patch& patch,const std::map<int,double>& heights,con
         report.maximum_relative_error=error;report.worst_facet=face.facet;report.worst_cell=cell;report.worst_apex=apex.p;
       }
     }
+    if(report.reference_clearance_failures)throw std::invalid_argument("Native3D geometry-height incompatibility of the normal-row proposal at facet "+
+        std::to_string(report.reference_clearance_facet)+" cell "+std::to_string(report.reference_clearance_cell)+
+        " clearance/h0="+std::to_string(report.minimum_reference_clearance_ratio)+
+        ": apex crosses smooth reference; resolve curvature before constructing the row.");
     if(report.height_failures)throw std::invalid_argument("Native3D prescribed height fails at facet "+std::to_string(report.worst_facet)+
         " cell "+std::to_string(report.worst_cell)+" relative error "+std::to_string(report.maximum_relative_error));
     if(report.footprint_failures)throw std::invalid_argument("Native3D first-row normal foot leaves wall triangle at facet "+
@@ -424,6 +438,45 @@ Node ConstrainMovePoint(const Patch& old,Id vertex,Node proposal,const std::map<
   for(size_t i=0;i<rank;++i){const auto component=Dot(displacement,basis[i]);for(unsigned j=0;j<3;++j)displacement[j]-=component*basis[i][j];}
   proposal.p={double(origin.x+displacement[0]),double(origin.y+displacement[1]),double(origin.z+displacement[2])};
   return proposal;
+}
+PlanarReference::ClosestSurface PlanarReference::ClosestAnalytic(Id id,Point p) const {
+  id=Canonical(id);
+  if(!CompleteAnalytic(id))throw std::invalid_argument("Native3D closest smooth wall requires a complete certified component.");
+  for(double x:{p.x,p.y,p.z})if(!std::isfinite(x))throw std::invalid_argument("Nonfinite native3D smooth-wall query.");
+  const auto& g=analytic.at(id);auto q=Delta(p,g.origin);Vector n{},foot{};
+  const auto& face=Get(id);const auto physical=Cross(Delta(face.v[1].p,face.v[0].p),Delta(face.v[2].p,face.v[0].p));
+  if(g.kind==AnalyticSurface::Kind::Sphere) {
+    const auto length=Norm(q);
+    n=length>0?q:Delta(face.v[0].p,g.origin);const auto scale=Norm(n);
+    for(size_t j=0;j<3;++j){n[j]/=scale;foot[j]=g.extent.x*n[j];}
+    if(Dot(physical,Delta(face.v[0].p,g.origin))<0)for(auto& x:n)x=-x;
+  } else if(g.kind==AnalyticSurface::Kind::Cylinder || g.kind==AnalyticSurface::Kind::Disk) {
+    const auto axis=UnitAxis(g);const auto z=Dot(axis,q);Vector radial{};
+    for(size_t j=0;j<3;++j)radial[j]=q[j]-z*axis[j];const auto rho=Norm(radial);
+    if(g.kind==AnalyticSurface::Kind::Cylinder) {
+      if(rho>0)n=radial;
+      else {n=Delta(face.v[0].p,g.origin);const auto t=Dot(n,axis);for(size_t j=0;j<3;++j)n[j]-=t*axis[j];}
+      const auto scale=Norm(n);for(auto& x:n)x/=scale;
+      const auto level=std::clamp(z,0.L,static_cast<long double>(g.extent.y));
+      for(size_t j=0;j<3;++j)foot[j]=g.extent.x*n[j]+level*axis[j];
+      auto original=Delta(face.v[0].p,g.origin);const auto t=Dot(original,axis);
+      for(size_t j=0;j<3;++j)original[j]-=t*axis[j];
+      if(Dot(physical,original)<0)for(auto& x:n)x=-x;
+    } else {
+      const auto scale=rho>g.extent.x?g.extent.x/rho:1.L;
+      for(size_t j=0;j<3;++j)foot[j]=radial[j]*scale;
+      n=axis;if(Dot(physical,axis)<0)for(auto& x:n)x=-x;
+    }
+  } else throw std::invalid_argument("Native3D closest graph-wall authority is not implemented.");
+  ClosestSurface result;
+  Vector separation{};for(size_t j=0;j<3;++j)separation[j]=q[j]-foot[j];
+  result.distance=double(Norm(separation));
+  result.point={double(g.origin.x+foot[0]),double(g.origin.y+foot[1]),double(g.origin.z+foot[2])};
+  result.normal={double(n[0]),double(n[1]),double(n[2])};
+  result.direction=result.normal;
+  if(result.distance>0)result.direction={double(separation[0]/result.distance),double(separation[1]/result.distance),double(separation[2]/result.distance)};
+  if(!std::isfinite(result.distance) || !Contains(id,result.point))throw std::runtime_error("Unrepresentable native3D smooth closest point.");
+  return result;
 }
 Point ScaleCylinder(const AnalyticSurface& g,Point p,double factor) {
   const auto a=UnitAxis(g),d=Delta(p,g.origin);const auto t=Dot(a,d);Vector q{};

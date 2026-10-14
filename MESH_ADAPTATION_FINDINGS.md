@@ -1,14 +1,16 @@
 # Goal3 production geometric policy and real RANS restart: local MPI PASS — 2026-10-14
 
-Curved BL continuation: twelve scale/height diagnostics show that a normal-centroid
-row can have exact facet altitude/footprint but negative smooth-wall clearance.
-Geometry-resolving refinement in an unchanged coarse tangential proxy also fails
-q/J; this is a coupled geometry/target/construction issue, not proof that adaptation
-is infeasible. Actual analytic BL queries remain rejected. See
-[the curved BL handbook](Handbook/GOAL3_CURVED_BL.md).
-Test-only per-worker workflow stages are added; their focused build is live and
-runtime qualification is pending. No production engine/metric changes or new CFD
-runs in this continuation. Prior evidence retains its executed provenance.
+Curved BL continuation: shared radial geometry/query, tangent curvature demand,
+actual bands/thin integration and physical height checks are built. Field4 controls
+and single-sphere radial/volume oracle PASS. Full cold-cylinder construction still
+rejects4096 work with120 cells; interacting thin-volume still rejects16384
+subdivisions. Off-wall tangential lookup was discontinuous and now binds to the
+true smooth foot. Composed gradation ratio30.65099 is separate from sensor ratio1.
+Cold main edits accepted0; joint4071 trials/37 private moves; topology8 trials/0
+accepted. Early budget exit leaves metric/feature defaults, not measured quality.
+Next is actual blocked-patch diagnosis and curved wall/transition reconstruction,
+not larger budgets. Details/failures/grids are in
+[the curved handbook](Handbook/GOAL3_CURVED_BL.md). No full-goal or speedup claim.
 
 
 Current wall-reconstruction capability: retained volume topology, prescribed normal

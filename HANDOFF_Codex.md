@@ -25,18 +25,25 @@ The centroid-insertion experiment did not help and was removed; its evidence is
 preserved. Full physical/curved/interacting-wall qualification remains open.
 Full Goal3 remains incomplete.
 
-Current continuation: per-worker production-policy checks now save separate N/M
-stages and execution intent; the test-only selector is being built, not yet runtime
-qualified. Existing completed engine/transfer receipts describe their actual prior
-binaries. One owned nice19/j1 build is live (session17031, Ninja PID2163160); revalidate
-before restarting. No new SU2/MPI case is running. The curved-wall diagnostic shows
-that exact facet height/footprint can put a normal-centroid apex inside smooth
-geometry, and geometry resolution can conflict with a coarse tangential metric.
-Its twelve-case sweep and two one-tet diagnostic grids are saved; they are not
-native adapted grids. Read the curved BL handbook for the connected next step.
+Current continuation: connected certified radial BL queries, frozen tangent
+curvature demand, actual edge/thin integration, per-wall hidden coverage and
+physical row-clearance checks are implemented and built. Field4 controls PASS;
+single-sphere radial fan/volume oracle PASS. Composed gradation remains uncertified.
+Full curved cold construction still rejects at4096 work with120 cells; interacting
+thin-wall integration rejects at16384 subdivisions. Off-wall tangent lookup caused
+an earlier edge quadrature failure and was fixed by binding to the true foot.
+The cold wall remains unrefined;37 private moves produce no accepted main edit.
+Early budget exit does not retain representative metric/feature diagnosis yet.
+Next: reproduce that actual curved wall/transition blockage, fix diagnosis and
+construction, without raising limits. All failures, input/rejected grids, sources/
+binaries/helpers and partial certificates are preserved. All owned jobs terminal.
+No new MPI/full regression or physical CFD campaign. Earlier qualification stays
+tied to its executed source/binary. Full Goal3 remains active and incomplete.
 
-Current diagnostic folder:
-`integration_evidence/native_3d_bl_v1/curved_wall_feasibility_v1`.
+Current inspectable case folders:
+`integration_evidence/native_3d_bl_v1/wall_reconstruction_v1/curved_cold`,
+`curved_field`, `curved_volume`, `interacting_volume`.
+Earlier diagnostic: `integration_evidence/native_3d_bl_v1/curved_wall_feasibility_v1`.
 Latest qualified focused controls: `integration_evidence/native_3d_bl_v1/connectivity_replay_v1/integration`.
 Accepted stronger-field meshes are in `integration_evidence/native_3d_bl_v1/wall_reconstruction_v1/sensor`,
 `sensor_mpi2`, `sensor_mpi4`; rejected predecessors remain in `sensor_previous_*`.

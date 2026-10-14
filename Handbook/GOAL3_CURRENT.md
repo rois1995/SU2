@@ -55,18 +55,22 @@ step. Goal3 remains ACTIVE; this is not complete native BL generation.
 
 ## Current continuation
 
-Test-only worker selection and per-worker provenance collectors/auditors are added.
-The focused single-job build is pending under heavy contention; no selected worker
-stage has run yet. `production_policy_v1/README.md` gives the resumable commands.
-The previous transfer and stronger-field receipts remain tied to their actual
-executed binaries; no production engine/metric behavior changed in this continuation.
+The connected curved implementation now supplies certified radial queries,
+frozen tangent curvature demand, geometry-resolved bands/thin quadrature and
+physical first-row clearance, with height-coupled geometry error. Field4 controls
+PASS; the single-sphere radial integral/positive-volume oracle PASS. Composed
+ratio30.65099 remains uncertified. Full cold-cylinder construction rejects at4096
+work (120 cells/50 nodes, no accepted main edit); interacting thin-sphere volume
+integration rejects at16384 subdivisions. The earlier interior proxy lookup
+quadrature failure was fixed by binding tangential interpolation to the smooth
+foot. All owned jobs are terminal. No new MPI or full regression.
 
-The twelve-case curved-wall diagnostic independently checks positive exported
-one-tet geometry and reproduces negative smooth-wall clearance despite exact facet
-height and footprint1/3. Resolving geometry can also make an unchanged coarse
-metric fail q/J. Read [the coupled curved BL work](GOAL3_CURVED_BL.md). The experiment
-is not native construction or general infeasibility; analytic BL remains rejected
-until its query, integration and joint construction are implemented consistently.
+Read [the curved work and next blocker](GOAL3_CURVED_BL.md) and
+`wall_reconstruction_v1/curved_summary.json`. Keep prior successful evidence and
+new failures distinct. The current early work exit leaves metric/feature defaults;
+capture the actual failed curved dependency/patch before further reconstruction.
+Partial/graph/mixed components and external-fluid pre-row curvature resolution
+remain open. These field controls do not complete native curved BL or full Goal3.
 
 ## Static assessment reconciliation
 
@@ -99,7 +103,8 @@ field. Preserve the target and diagnose it rather than spreading wall tensors.
 
 General thin/curved/interacting walls and marker junctions, stronger sensor fields,
 layer coverage and alignment beyond this necessary footprint condition remain
-unqualified. Analytic BL distance/normal evaluation remains explicitly rejected.
+unqualified. The new certified radial BL implementation is unqualified; partial/graph/mixed
+analytic components still reject.
 Actual small RANS convergence/wall shear/forces, practical M6 comparison, complete
 adaptation/CFD cost and affordability remain open. Goal 4 starts only after full
 Goal 3 completion. No external cluster submission is authorized by this handoff.

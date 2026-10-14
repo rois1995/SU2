@@ -1,0 +1,20 @@
+ninja: Entering directory `integration_evidence/build-integrated-v2'
+[1/26] Compiling C++ object Common/src/libSU2AccurateSum.a.p/adaptation_CNativeField3D.cpp.o
+[2/26] Compiling C++ object Common/src/libSU2AccurateSum.a.p/adaptation_CNativeBoundary3D.cpp.o
+[3/26] Compiling C++ object Common/src/libSU2AccurateSum.a.p/adaptation_CNativeDistributed3D.cpp.o
+[4/26] Compiling C++ object Common/src/libSU2AccurateSum.a.p/adaptation_CNativeDonor3D.cpp.o
+[5/26] Compiling C++ object Common/src/libSU2AccurateSum.a.p/adaptation_CNativeEngine3D.cpp.o
+[6/26] Compiling C++ object Common/src/libSU2AccurateSum.a.p/adaptation_CNativePartition3D.cpp.o
+[7/26] Compiling C++ object Common/src/libSU2Common.a.p/adaptation_CNativeImport3D.cpp.o
+[8/26] Compiling C++ object Common/src/libSU2Common.a.p/adaptation_CNativeReferenceIO3D.cpp.o
+[9/26] Compiling C++ object Common/src/libSU2Common.a.p/adaptation_CNativeRemesher3D.cpp.o
+[10/26] Compiling C++ object SU2_CFD/src/libSU2core.a.p/solvers_CSolver.cpp.o
+[11/26] Compiling C++ object SU2_CFD/src/libSU2core.a.p/drivers_CSinglezoneDriver.cpp.o
+[12/26] Compiling C++ object SU2_CFD/src/libSU2core.a.p/adaptation_CBoundaryLayerMetric.cpp.o
+FAILED: [code=1] SU2_CFD/src/libSU2core.a.p/adaptation_CBoundaryLayerMetric.cpp.o 
+c++ -ISU2_CFD/src/libSU2core.a.p -ISU2_CFD/src -I../../SU2_CFD/src -I../../externals/CLI11 -I../../externals/eigen -I../../externals/cgns/adf -I../../externals/cgns/adfh -Iexternals/cgns -I../../externals/cgns -Iexternals/cgns/hdf5 -I../../externals/cgns/hdf5 -I../../externals/metis/include -I../../externals/metis/GKlib -I../../externals/metis/libmetis -I../../externals/parmetis/include -I../../externals/parmetis/libparmetis -I../../externals/mel -ICommon/src -I../../Common/src -I/usr/lib/x86_64-linux-gnu/openmpi/include/openmpi -I/usr/lib/x86_64-linux-gnu/openmpi/include -fdiagnostics-color=always -D_GLIBCXX_ASSERTIONS=1 -D_FILE_OFFSET_BITS=64 -std=c++17 -O2 -g -fPIC -pthread -Wno-empty-body -Wno-ignored-qualifiers -Wno-unused-parameter -Wno-deprecated-declarations -Wno-error=cast-function-type -Wno-cast-function-type -Wno-error=stringop-truncation -Wno-stringop-truncation -Wno-error=missing-field-initializers -Wno-missing-field-initializers -Wno-error=class-memaccess -Wno-class-memaccess -Wno-overloaded-virtual -Wno-array-bounds -march=native -ffast-math -fno-finite-math-only -DHAVE_CGNS -DHAVE_MPI -DHAVE_METIS -DHAVE_PARMETIS -DHAVE_MMG -MD -MQ SU2_CFD/src/libSU2core.a.p/adaptation_CBoundaryLayerMetric.cpp.o -MF SU2_CFD/src/libSU2core.a.p/adaptation_CBoundaryLayerMetric.cpp.o.d -o SU2_CFD/src/libSU2core.a.p/adaptation_CBoundaryLayerMetric.cpp.o -c ../../SU2_CFD/src/adaptation/CBoundaryLayerMetric.cpp
+../../SU2_CFD/src/adaptation/CBoundaryLayerMetric.cpp: In member function ‘std::vector<double> CBoundaryLayerMetric::EdgeBreakpoints(const std::array<double, 3>&, const std::array<double, 3>&, double, unsigned int)’:
+../../SU2_CFD/src/adaptation/CBoundaryLayerMetric.cpp:1909:17: error: inconsistent deduction for ‘auto’: ‘const double’ and then ‘const long double’
+ 1909 |           const auto left=pieces[k-1],right=pieces[k],middle=.5*(left+right),height=z+middle*slope;
+      |                 ^~~~
+ninja: build stopped: subcommand failed.

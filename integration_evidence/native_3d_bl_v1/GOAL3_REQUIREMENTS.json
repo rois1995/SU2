@@ -45,7 +45,7 @@
     {
       "id": "geometry",
       "scope": "planar/curved/features/junctions/interacting layers; refine/coarsen and geometry authority",
-      "status": "Twelve independent scale/height diagnostics reproduce smooth-wall clearance vs exact facet height and geometry-resolution vs frozen metric shape incompatibility. This is a construction/target diagnosis, not native curved BL qualification or general infeasibility. Analytic BL still explicitly rejected; query, edge/thin integration and coordinated reconstruction remain required."
+      "status": "Certified radial query, curvature target, actual edge/thin integration and physical clearance implemented/built. Four field controls and single-sphere radial oracle PASS. Cold cylinder FAIL4096 (120 cells; no main edit), interacting-volume FAIL16384. Early-exit patch/metric diagnosis incomplete. Partial/graph/mixed components and external-fluid curvature-before-row remain unsupported. Full curved/feature/interacting native and physics/performance gates open."
     },
     {
       "id": "MPI_transfer",
@@ -97,7 +97,7 @@
     "connectivity_replay_v1/visibility_fixture.json"
   ],
   "execution_state": {
-    "status": "one owned nice19/j1 selector build live; no new SU2/MPI run; current production MPI4 remains required",
+    "status": "all owned jobs terminal; curved field/single-sphere volume PASS, full cold/interacting volume FAIL; no new MPI or physical CFD",
     "CFD_runs": 0,
     "production_MPI": "Current PASS N/M1/1,2/1,2/2; N/M4/1,4/2,4/4 remain required. Previous full matrix historical.",
     "independent_frames": 6
@@ -231,15 +231,7 @@
     "MPI": "pending connected milestone",
     "scope": "One planar cube production case plus six focused first-row geometry/movement cases. Actual computed metric, conservative current+BDF/bounded-SA and SU2/CGNS/reference/restart checks; independent exact embedding, full composed metric, wall footprint and height. No new MPI, full regressions, general layer coverage, actual CFD accuracy or performance qualification."
   },
-  "owned_jobs": [
-    {
-      "kind": "focused test-only build",
-      "session_id": 17031,
-      "ninja_pid": 2163160,
-      "log": "/tmp/native-policy-worker-selection-build.log",
-      "rule": "Verify current process/session identity before any restart; no elapsed-time inference."
-    }
-  ],
+  "owned_jobs": [],
   "wall_reconstruction": {
     "status": "PASS_PLANAR_STRONGER_FIELD_LIMITED_SCOPE",
     "evidence": "integration_evidence/native_3d_bl_v1/wall_reconstruction_v1/summary.json",
@@ -268,7 +260,24 @@
     "evidence": "curved_wall_feasibility_v1/result.json",
     "mesh_audit": "curved_wall_feasibility_v1/mesh_geometry_audit.json",
     "status": "PASS_DIAGNOSTIC_ONLY",
-    "production_support": "still explicitly rejected",
+    "production_support": "Certified radial query/integration/construction guards implemented, unqualified; partial/graph/mixed-component markers still reject.",
     "next": "Connected actual-query curved authority, full edge/thin integration, frozen target feasibility and joint wall/transition reconstruction."
+  },
+  "curved_BL_implementation": {
+    "status": "INCOMPLETE_CURVED_MILESTONE",
+    "book": "Handbook/GOAL3_CURVED_BL.md",
+    "required_cold_stage": "wall_reconstruction_v1/curved_cold",
+    "focused_stages": [
+      "curved_field",
+      "curved_volume",
+      "interacting_volume"
+    ],
+    "compile_failure": "wall_reconstruction_v1/curved_build_failure/receipt.json",
+    "remaining": "Actual failed curved dependency/patch diagnosis and coordinated wall/transition reconstruction; interacting thin integration; independent full geometry/metric acceptance; general fields/geometry, MPI/current+BDF/return/restart, physical RANS/accuracy and lifecycle performance. Do not complete from field/volume controls.",
+    "compile_failures": [
+      "wall_reconstruction_v1/curved_build_failure/receipt.json",
+      "wall_reconstruction_v1/curved_build_failure_2/receipt.json"
+    ],
+    "summary": "wall_reconstruction_v1/curved_summary.json"
   }
 }

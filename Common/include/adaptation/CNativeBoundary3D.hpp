@@ -7,6 +7,7 @@
 #pragma once
 #include "CNativeCavity3D.hpp"
 #include <map>
+#include <limits>
 #include <memory>
 #include <set>
 class CADTElemClass;
@@ -55,10 +56,16 @@ class PlanarReference {
   explicit PlanarReference(std::vector<Facet> facets, size_t ceiling = SIZE_MAX,
                            std::map<Id, AnalyticSurface> analytic = {});
   const std::map<Id, AnalyticSurface>& Analytic() const { return analytic; }
+  bool CompleteAnalytic(Id facet) const { return complete_analytic.count(Canonical(facet)); }
+  struct ClosestSurface { Point point, normal, direction; double distance=0; };
+  /*! Exact radial/finite-axis closest point on a certified complete sphere, cylinder or disk.
+   * Partial charts and graph surfaces reject; normal is physically oriented, direction points towards the query. */
+  ClosestSurface ClosestAnalytic(Id facet,Point p) const;
   /*! Projection must remain in the original finite chart; unsupported feature intersections reject. */
   Point Project(Id facet, Point p, KernelStats* stats = nullptr) const;
   bool OnProjectedEdge(Id facet, Point a, Point b, Point p, KernelStats* stats = nullptr) const;
   const Facet& Get(Id id) const;
+  const std::map<Id,Facet>& Facets() const { return facets; }
   /*! Requested resident map/vector storage; allocator metadata and constructor scratch are separate. */
   size_t ResidentBytes() const;
   /*! Conservative reference construction peak, including the house local box index. */
@@ -90,6 +97,10 @@ class PlanarReference {
 };
 struct FirstHeightReport {
   size_t wall_faces=0, height_failures=0, footprint_failures=0, missing_cells=0;
+  size_t reference_clearance_failures=0;
+  double minimum_reference_clearance_ratio=std::numeric_limits<double>::infinity();
+  Id reference_clearance_facet=0,reference_clearance_cell=0;
+  Point reference_clearance_apex{};
   double maximum_relative_error=0, maximum_tilt=0, minimum_barycentric=1./3;
   Id footprint_facet=0, footprint_cell=0;
   Id worst_facet=0, worst_cell=0;

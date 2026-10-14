@@ -1,8 +1,61 @@
 # Goal3 curved-wall BL: coupled geometry, target and construction
 
 NativeIntegrated, branch `codex/native-3d-bl`. Curved BL is not qualified.
-`CBoundaryLayerMetric::FromNativeReference` still explicitly rejects analytic
-wall authority. That rejection stays until the connected path is ready.
+The current connected implementation is being built. Actual queries now support
+certified complete sphere, finite-cylinder and disk components. Partial/graph
+charts and markers mixing components still reject; this is not general CAD.
+
+Current source connects: true closest distance and gradient, frozen curvature
+refinement in the existing tangent block, preserved normal scale/finer demands/fade,
+conservative proxy envelopes, actual radial/finite-rim edge bands, projected-chord
+thin quadrature and separate hidden coverage for each wall. Finite-rim uncertainty
+and work remain bounded and unresolved cases reject. A rounded closest point is
+not used to normalize a different thin distance. Requested curved surfaces use
+min(Hausd,h0/2) in both selection and whole-patch progress. First-row checks retain
+exact facet altitude/footprints and additionally reject negative smooth-wall
+clearance, with facet/cell/apex diagnostics. No sensor-only donor/transport change.
+
+The connected build and links PASS. Both compile errors are preserved in
+`wall_reconstruction_v1/curved_build_failure` and `curved_build_failure_2`.
+The selector-only build was stopped deliberately for batching. All owned jobs are
+terminal. Current stage summary: `wall_reconstruction_v1/curved_summary.json`.
+
+- Field controls PASS4 cases/163 assertions on their recorded binary: real radial
+  queries/gradients, finer demands, finite rims, physical height and separate
+  gradation. Sensor ratio1; composed fade ratio30.65099 remains uncertified.
+- The first cold-cylinder run failed quadrature at edge0,11, from(0,0,0) to
+  (.70710678,.70710678,1). Off-wall proxy lookup could switch distinct interior
+  closest points. Tangential interpolation now binds to the smooth closest foot;
+  that removes the quadrature failure without relaxing target/gates.
+- Native cold construction still FAILS at4096 work,120 private cells/50 nodes:
+  main accepted0; topology trials8/accepted0; joint trials4071/private moves37/
+  accepted0. Wall16 triangles are unchanged; defect.07612 exceeds coupled.025.
+  Initial/rejected SU2/JSON/reference grids and config are inspectable. No release
+  or CFD replacement occurs. Partial independent geometry checks pass positive
+  cells, oriented incidence/skin and exact volume closure; disjointness/full
+  metric/curved-height acceptance is not thereby established.
+- Single-sphere volume oracle PASS22936 assertions. Inflated proxy footprint
+  partitioning had2752 charts and failed65536 points; removing it gave5 charts
+  but still failed. Positive sphere-centred fans, where the centre is inside/on
+  the source tetrahedron, now pass within unchanged16384 subdivision/65536 point
+  and error bounds. Original barycentrics and actual-point samples are retained.
+  General geometry still uses the chord path. Earlier failures remain archived.
+- The visible-wall/hidden thin-sphere oracle still FAILS the16384 subdivision
+  bound. It is not qualified; do not infer interacting-layer robustness.
+
+Next: fix early work-exit diagnosis so it retains the actual failed curved patch,
+metric residual and specific dependencies, then give that wall/transition
+reconstruction the needed coupled freedom. Current last metric/feature fields are
+unset on the cold budget exit: q1/J1 are defaults, not evidence. Do not increase
+budgets or add placement variants without the reproduced blocker. Address the
+interacting fan/subdivision limitation separately; preserve both complete targets.
+
+Full cold-grid success and independent curved whole-mesh audit, MPI/return/transfer/
+restart and physical RANS/performance gates remain required. Partial/graph/mixed
+components remain unsupported. External-fluid cold geometry making the normal row
+cross its smooth wall still needs curvature resolution before row initialization.
+The100-case directional tangent arithmetic check is preserved separately; it is
+not a compiled/native mesh certificate. No speedup/scaling/affordability claim.
 
 ## What the new diagnostic proves
 

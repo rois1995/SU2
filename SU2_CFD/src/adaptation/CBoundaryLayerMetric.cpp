@@ -41,6 +41,7 @@
 #include "../../../Common/include/parallelization/CPassiveComm.hpp"
 #include "../../../Common/include/adaptation/CNativeImport2D.hpp"
 #include "../../../Common/include/adaptation/CNativeImport3D.hpp"
+#include "../../../Common/include/adaptation/CNativeMetric3D.hpp"
 #include "../../include/adaptation/ConvexClipping.hpp"
 #include "../../../Common/include/geometry/CGeometry.hpp"
 #include "../../../Common/include/linear_algebra/blas_structure.hpp"
@@ -75,9 +76,11 @@ void Spectral(unsigned short n, const Mat3& A, Mat3& B, F f) {
 
 /*--- Invert the tangent block independently: a 3D eigensolve can lose h0^2
  *     through large spectral shifts even on a flat wall. Keep its logarithm for the fade. ---*/
-void WallMetric3D(const Mat3& size, CBoundaryLayerMetric::Sample& sample) {
+void WallMetric3D(const Mat3& size, CBoundaryLayerMetric::Sample& sample,double curvature=0,
+                  const std::array<double,3>* curvedDirection=nullptr) {
 #if defined(CODI_FORWARD_TYPE) || defined(CODI_REVERSE_TYPE)
   // Native3D is primal-only; retain the existing active wall-metric path for other callers.
+  if(curvature>0)throw std::runtime_error("Native3D analytic BL metric is primal-only.");
   su2double combined[3][3];
   for(unsigned i=0;i<3;++i)for(unsigned j=0;j<3;++j)
     combined[i][j]=size[i][j]+pow(sample.hn,2)*sample.normal[i]*sample.normal[j];
@@ -107,7 +110,34 @@ void WallMetric3D(const Mat3& size, CBoundaryLayerMetric::Sample& sample) {
   const auto angle=.5L*std::atan2(2*bb,aa-cc), cosine=std::cos(angle), sine=std::sin(angle);
   Vector q{},r{};
   for(unsigned i=0;i<3;++i) {q[i]=cosine*u[i]+sine*v[i];r[i]=-sine*u[i]+cosine*v[i];}
-  const auto l0=std::log(scale)+std::log(largest),l1=std::log(scale)+std::log(smallest);
+  auto l0=std::log(scale)+std::log(largest),l1=std::log(scale)+std::log(smallest);
+  if(curvature>0) {
+    if(!curvedDirection) {
+      // Sphere: cap both tangent sizes, preserving every already finer direction.
+      l0=-std::log(std::max(std::exp(-l0),(long double)curvature));
+      l1=-std::log(std::max(std::exp(-l1),(long double)curvature));
+    } else {
+      long double d0=0,d1=0;for(unsigned i=0;i<3;++i){d0+=(*curvedDirection)[i]*u[i];d1+=(*curvedDirection)[i]*v[i];}
+      const auto norm=std::hypot(d0,d1);if(!(norm>1e-12L))throw std::runtime_error("Unresolved native3D curvature tangent.");
+      d0/=norm;d1/=norm;
+      const auto covariance=scale*(aa*d0*d0+2*bb*d0*d1+cc*d1*d1);
+      if(!(covariance>0))throw std::runtime_error("Invalid native3D curvature tangent size.");
+      const auto alpha=std::max(0.L,(long double)curvature-1/covariance);
+      if(alpha>0) {
+        // Rank-one addition enforces M >= curvature*d*d^T without relaxing the old metric.
+        const auto m0=std::exp(-l0),m1=std::exp(-l1);
+        long double a=m0*cosine*cosine+m1*sine*sine+alpha*d0*d0;
+        long double b=(m0-m1)*cosine*sine+alpha*d0*d1;
+        long double c=m0*sine*sine+m1*cosine*cosine+alpha*d1*d1;
+        const auto ms=std::max({std::abs(a),std::abs(b),std::abs(c)});a/=ms;b/=ms;c/=ms;
+        const auto large=.5L*(a+c+std::hypot(a-c,2*b)),small=std::fma(a,c,-b*b)/large;
+        if(!(small>0))throw std::runtime_error("Singular native3D curvature tangent metric.");
+        const auto angle=.5L*std::atan2(2*b,a-c),co=std::cos(angle),si=std::sin(angle);
+        for(unsigned i=0;i<3;++i){q[i]=co*u[i]+si*v[i];r[i]=-si*u[i]+co*v[i];}
+        l0=-std::log(ms)-std::log(large);l1=-std::log(ms)-std::log(small);
+      }
+    }
+  }
   const auto ln=-2*std::log(SU2_TYPE::GetValue(sample.hn));
   for(unsigned i=0;i<3;++i)for(unsigned j=0;j<3;++j) {
     sample.full.m[i][j]=std::exp(-l0)*q[i]*q[j]+std::exp(-l1)*r[i]*r[j]+std::exp(ln)*n[i]*n[j];
@@ -231,6 +261,8 @@ struct CBoundaryLayerMetric::WallData {
   /*--- 3D ---*/
   std::vector<Vec3> faceNormal;            /*!< \brief Unit normal of each triangle. */
   std::vector<std::array<Vec3, 3>> edgeNormal; /*!< \brief Normal of the edge opposite each vertex of a triangle. */
+  double maximum_wall_eigenvalue=0;
+  double proxy_error=0; /*!< Broad-phase envelope only; never a query distance or metric. */
   std::vector<CBoundaryLayerMetric::Tensor> vertexLog; /*!< \brief Logarithm of the size tensor of each vertex. */
 };
 
@@ -528,6 +560,9 @@ void CBoundaryLayerMetric::Build() {
       SU2_MPI::Error("Wall " + name + ": the boundary-layer metric needs first height > 0, growth >= 1 and thickness "
                      ">= first height.", CURRENT_FUNCTION);
     }
+    if(wall.authority && (nDim!=3 || !wall.authority->CompleteAnalytic(wall.authority_facet) ||
+        !(wall.surface_tolerance>0) || !std::isfinite(wall.surface_tolerance)))
+      throw std::invalid_argument("Invalid native3D analytic BL authority/geometry tolerance.");
     d->full = max(d->h0, 0.9 * d->thickness);
     d->width = d->thickness - d->full;
 
@@ -757,6 +792,51 @@ void CBoundaryLayerMetric::Build() {
       }
     }
 
+    if(wall.authority) {
+      const auto root=wall.authority->Canonical(wall.authority_facet);
+      using TriangleKey=std::array<std::array<double,3>,3>;
+      std::set<TriangleKey> expected,actual;
+      for(const auto& entry:wall.authority->Facets())if(wall.authority->Canonical(entry.first)==root) {
+        TriangleKey key;
+        for(unsigned k=0;k<3;++k)key[k]={entry.second.v[k].p.x,entry.second.v[k].p.y,entry.second.v[k].p.z};
+        std::sort(key.begin(),key.end());expected.insert(key);
+      }
+      const auto& g=wall.authority->Analytic().at(root);
+      for(size_t at=0;at<d->elem.size();at+=3) {
+        SU2Native3D::Tetrahedron points{};TriangleKey key;
+        for(unsigned k=0;k<3;++k) {
+          const auto* p=x(d->elem[at+k]);key[k]={SU2_TYPE::GetValue(p[0]),SU2_TYPE::GetValue(p[1]),SU2_TYPE::GetValue(p[2])};
+          points[k]={key[k][0],key[k][1],key[k][2]};
+        }
+        std::sort(key.begin(),key.end());actual.insert(key);
+        d->proxy_error=std::max(d->proxy_error,wall.authority->SurfaceError(root,{points[0],points[1],points[2]}));
+        if(g.kind==SU2Native3D::AnalyticSurface::Kind::Disk)for(unsigned k=0;k<3;++k) {
+          const auto a=points[k],b=points[(k+1)%3];
+          const double ra=std::hypot(a.x-g.origin.x,a.y-g.origin.y,a.z-g.origin.z),rb=std::hypot(b.x-g.origin.x,b.y-g.origin.y,b.z-g.origin.z);
+          if(std::abs(ra-g.extent.x)<=g.tolerance && std::abs(rb-g.extent.x)<=g.tolerance) {
+            const double chord=std::hypot(a.x-b.x,a.y-b.y,a.z-b.z);
+            const long double half=.5L*chord;
+            const long double sagitta=half*half/(g.extent.x+std::sqrt(std::max(0.L,(long double)g.extent.x*g.extent.x-half*half)));
+            d->proxy_error=std::max(d->proxy_error,double(sagitta));
+          }
+        }
+      }
+      if(actual!=expected || actual.size()!=d->elem.size()/3)throw std::invalid_argument("Native3D analytic BL proxy must cover exactly its complete original component.");
+      for(unsigned j=0;j<3;++j){d->low[j]-=d->proxy_error;d->high[j]+=d->proxy_error;}
+      double bound=1/std::pow(SU2_TYPE::GetValue(d->h0),2);
+      for(const auto& logarithm:d->vertexLog) {
+        su2double vectors[3][3],values[3],workspace[3];CBlasStructure::EigenDecomposition(logarithm.m,vectors,values,3,workspace);
+        for(auto value:values)bound=std::max(bound,std::exp(-SU2_TYPE::GetValue(value)));
+      }
+      if(g.kind!=SU2Native3D::AnalyticSurface::Kind::Disk) {
+        const long double epsilon=std::min(wall.surface_tolerance,.5*SU2_TYPE::GetValue(d->h0));
+        const auto e=std::min(epsilon,(long double)g.extent.x);
+        const auto chord=2*std::sqrt(e*(2*g.extent.x-e));
+        bound=std::max(bound,double(std::pow(SU2Native3D::MaximumMetricEdge/chord,2)));
+      }
+      d->maximum_wall_eigenvalue=4*bound;
+      if(!std::isfinite(d->maximum_wall_eigenvalue))throw std::runtime_error("Unrepresentable native3D curved BL metric bound.");
+    }
     /*--- Local ADT of the segments / triangles. ---*/
     const unsigned short nNode = nDim;
     const auto nItem = d->elem.size() / nNode;
@@ -783,10 +863,19 @@ CBoundaryLayerMetric::Sample CBoundaryLayerMetric::Evaluate(unsigned short iWall
   unsigned long id = 0;
   int rankID = 0;
   su2double adtDistance = 0.0;
-  d.adt->DetermineNearestElement(X, adtDistance, markerID, id, rankID);
+  SU2Native3D::PlanarReference::ClosestSurface smooth;
+  su2double lookup[3]={X[0],X[1],nDim==3?X[2]:su2double(0.)};
+  if(wall.authority) {
+    smooth=wall.authority->ClosestAnalytic(wall.authority_facet,
+        {SU2_TYPE::GetValue(X[0]),SU2_TYPE::GetValue(X[1]),SU2_TYPE::GetValue(X[2])});
+    lookup[0]=smooth.point.x;lookup[1]=smooth.point.y;lookup[2]=smooth.point.z;
+  }
+  // Tangential interpolation belongs to the physical foot, not an interior proxy Voronoi branch.
+  d.adt->DetermineNearestElement(lookup, adtDistance, markerID, id, rankID);
 
   su2double tangentSize[3][3] = {{0.0}};  // 3D: size tensor (squared sizes) on the tangent plane
   su2double ht = 0.0, tangent[3] = {0.0};  // 2D
+  su2double geometricNormal[3] = {0.0};
 
   if (nDim == 2) {
     /*--- Exact distance to a segment, parameter of the closest point. ---*/
@@ -870,13 +959,18 @@ CBoundaryLayerMetric::Sample CBoundaryLayerMetric::Evaluate(unsigned short iWall
     /*--- Closest point of the nearest triangle and its barycentric weights. ---*/
     const auto* t = &d.elem[3 * id];
     su2double w[3];
-    ClosestPointTriangle(x(t[0]), x(t[1]), x(t[2]), X, w);
+    ClosestPointTriangle(x(t[0]), x(t[1]), x(t[2]), wall.authority?lookup:X, w);
     su2double projected[3] = {0.0};
     for (unsigned short k = 0; k < 3; ++k)
       for (unsigned short iDim = 0; iDim < 3; ++iDim) projected[iDim] += w[k] * x(t[k])[iDim];
     su2double dist2 = 0.0;
     for (unsigned short iDim = 0; iDim < 3; ++iDim) dist2 += pow(X[iDim] - projected[iDim], 2);
     sample.distance = sqrt(dist2);
+    if(wall.authority) {
+      sample.distance=smooth.distance;
+      projected[0]=smooth.point.x;projected[1]=smooth.point.y;projected[2]=smooth.point.z;
+      geometricNormal[0]=smooth.normal.x;geometricNormal[1]=smooth.normal.y;geometricNormal[2]=smooth.normal.z;
+    }
 
     /*--- Normal: of the face, of an edge, of a vertex, or towards the point if it is off the wall. ---*/
     Vec3 n = d.faceNormal[id];
@@ -888,8 +982,10 @@ CBoundaryLayerMetric::Sample CBoundaryLayerMetric::Evaluate(unsigned short iWall
     }
     if (nZero == 1) n = d.edgeNormal[id][kMin];
     if (nZero >= 2) n = d.vertexNormal[t[kMax]];
+    if(wall.authority)n={smooth.normal.x,smooth.normal.y,smooth.normal.z};
     if (sample.distance > d.tolerance) {
-      for (unsigned short iDim = 0; iDim < 3; ++iDim) n[iDim] = (X[iDim] - projected[iDim]) / sample.distance;
+      if(wall.authority)n={smooth.direction.x,smooth.direction.y,smooth.direction.z};
+      else for (unsigned short iDim = 0; iDim < 3; ++iDim) n[iDim] = (X[iDim] - projected[iDim]) / sample.distance;
     }
     for (unsigned short iDim = 0; iDim < 3; ++iDim) sample.normal[iDim] = n[iDim];
 
@@ -931,7 +1027,25 @@ CBoundaryLayerMetric::Sample CBoundaryLayerMetric::Evaluate(unsigned short iWall
       for (int j = 0; j < 2; ++j)
         M[i][j] = tangent[i] * tangent[j] / (ht * ht) + sample.normal[i] * sample.normal[j] / pow(sample.hn, 2);
   } else {
-    WallMetric3D(tangentSize, sample);
+    double curvature=0;std::array<double,3> direction{};const std::array<double,3>* curvedDirection=nullptr;
+    if(wall.authority) {
+      const auto& g=wall.authority->Analytic().at(wall.authority_facet);
+      if(g.kind!=SU2Native3D::AnalyticSurface::Kind::Disk) {
+        const long double epsilon=std::min(wall.surface_tolerance,.5*SU2_TYPE::GetValue(d.h0));
+        const long double radius=g.extent.x,e=std::min(epsilon,radius);
+        const long double chord=2*std::sqrt(e*(2*radius-e));
+        curvature=double(std::pow(SU2Native3D::MaximumMetricEdge/chord,2));
+        if(g.kind==SU2Native3D::AnalyticSurface::Kind::Cylinder) {
+          const double norm=std::hypot(g.axis.x,g.axis.y,g.axis.z);
+          const double a[3]={g.axis.x/norm,g.axis.y/norm,g.axis.z/norm};
+          direction[0]=a[1]*SU2_TYPE::GetValue(geometricNormal[2])-a[2]*SU2_TYPE::GetValue(geometricNormal[1]);
+          direction[1]=a[2]*SU2_TYPE::GetValue(geometricNormal[0])-a[0]*SU2_TYPE::GetValue(geometricNormal[2]);
+          direction[2]=a[0]*SU2_TYPE::GetValue(geometricNormal[1])-a[1]*SU2_TYPE::GetValue(geometricNormal[0]);
+          curvedDirection=&direction;
+        }
+      }
+    }
+    WallMetric3D(tangentSize,sample,curvature,curvedDirection);
   }
 
   /*--- Fade: eigenvalues interpolated in logarithm towards the isotropic core metric. ---*/
@@ -994,10 +1108,11 @@ std::shared_ptr<CBoundaryLayerMetric> CBoundaryLayerMetric::FromNativeReference(
   for (unsigned short b=0;b<config.GetnAdap_BL();++b) {
     Wall wall;wall.layer=config.GetAdap_BL(b);
     std::map<uint64_t,unsigned long> points;
+    bool faceted=false;std::set<uint64_t> components;
     for(const auto& face:reference.facets) {
       if(reference.marker_names.at(face.marker)!=wall.layer.marker) continue;
-      if(reference.original->Analytic().count(face.id))
-        throw std::runtime_error("Native3D analytic BL distance/normal evaluation is not implemented.");
+      if(reference.original->Analytic().count(face.id))components.insert(reference.original->Canonical(face.id));
+      else faceted=true;
       for(const auto& node:face.v) {
         auto insertion=points.emplace(node.id,points.size());
         if(insertion.second) {
@@ -1008,6 +1123,12 @@ std::shared_ptr<CBoundaryLayerMetric> CBoundaryLayerMetric::FromNativeReference(
       wall.conn.push_back(wall.conn.back());
     }
     if(wall.conn.empty()) throw std::invalid_argument("Native3D BL marker has no original wall faces: "+wall.layer.marker);
+    if(!components.empty()) {
+      if(faceted || components.size()!=1)throw std::invalid_argument("Native3D analytic BL marker needs one complete component; split physical components into separate markers.");
+      wall.authority=reference.original;wall.authority_facet=*components.begin();
+      if(!wall.authority->CompleteAnalytic(wall.authority_facet))throw std::invalid_argument("Native3D analytic BL partial/graph component is unsupported.");
+      wall.surface_tolerance=SU2_TYPE::GetValue(config.GetAdap_Hausd());
+    }
     walls.push_back(std::move(wall));
   }
   return std::make_shared<CBoundaryLayerMetric>(3,std::move(walls),config.GetAdap_Angle());
@@ -1018,6 +1139,59 @@ using BLPoint3D=std::array<double,3>;
 using BLTetrahedron=std::array<BLPoint3D,4>;
 long double BLDeterminant(const BLPoint3D& a,const BLPoint3D& b,const BLPoint3D& c,const BLPoint3D& d) {
   return SU2Native3D::Orientation({a[0],a[1],a[2]},{b[0],b[1],b[2]},{c[0],c[1],c[2]},{d[0],d[1],d[2]});
+}
+bool MayIntersectSmoothBand(const BLTetrahedron& tet,const SU2Native3D::PlanarReference& authority,
+                            uint64_t facet,double thickness) {
+  if(BLDeterminant(tet[0],tet[1],tet[2],tet[3])==0)return false;
+  const auto& g=authority.Analytic().at(facet);
+  using V=std::array<long double,3>;
+  auto dot=[](const V& a,const V& b){return a[0]*b[0]+a[1]*b[1]+a[2]*b[2];};
+  auto cross=[](const V& a,const V& b){return V{a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]};};
+  auto norm=[&](const V& a){return std::sqrt(dot(a,a));};
+  V axis{g.axis.x,g.axis.y,g.axis.z};const auto scale=norm(axis);for(auto& x:axis)x/=scale;
+  std::array<V,4> radial;long double zlo=INFINITY,zhi=-INFINITY,rmin=INFINITY,rmax=0,magnitude=g.extent.x;
+  for(unsigned k=0;k<4;++k) {
+    radial[k]={(long double)tet[k][0]-g.origin.x,(long double)tet[k][1]-g.origin.y,(long double)tet[k][2]-g.origin.z};
+    for(unsigned j=0;j<3;++j)magnitude=std::max(magnitude,std::abs((long double)tet[k][j]));
+    if(g.kind!=SU2Native3D::AnalyticSurface::Kind::Sphere) {
+      const auto z=dot(radial[k],axis);zlo=std::min(zlo,z);zhi=std::max(zhi,z);
+      for(unsigned j=0;j<3;++j)radial[k][j]-=z*axis[j];
+    }
+    rmin=std::min(rmin,norm(radial[k]));rmax=std::max(rmax,norm(radial[k]));
+  }
+  if(g.kind==SU2Native3D::AnalyticSurface::Kind::Sphere) {
+    SU2Native3D::Tetrahedron source;for(unsigned k=0;k<4;++k)source[k]={tet[k][0],tet[k][1],tet[k][2]};
+    if(SU2Native3D::Orientation(source[0],source[1],source[2],source[3])<0)std::swap(source[0],source[1]);
+    std::array<long double,4> weights;
+    if(SU2Native3D::Barycentric(source,g.origin,weights))rmin=0;
+    else for(unsigned skip=0;skip<4;++skip) {
+      unsigned v[3],at=0;for(unsigned k=0;k<4;++k)if(k!=skip)v[at++]=k;
+      su2double a[3],b[3],c[3],p[3]={g.origin.x,g.origin.y,g.origin.z},w[3];
+      for(unsigned j=0;j<3;++j){a[j]=tet[v[0]][j];b[j]=tet[v[1]][j];c[j]=tet[v[2]][j];}
+      ClosestPointTriangle(a,b,c,p,w);V d{};
+      for(unsigned j=0;j<3;++j)d[j]=SU2_TYPE::GetValue(w[0]*a[j]+w[1]*b[j]+w[2]*c[j])-p[j];
+      rmin=std::min(rmin,norm(d));
+    }
+  } else {
+    for(unsigned i=0;i<4;++i)for(unsigned j=i+1;j<4;++j) {
+      V edge{};for(unsigned k=0;k<3;++k)edge[k]=radial[j][k]-radial[i][k];
+      const auto square=dot(edge,edge);const auto t=square>0?std::clamp(-dot(radial[i],edge)/square,0.L,1.L):0.L;
+      V closest{};for(unsigned k=0;k<3;++k)closest[k]=radial[i][k]+t*edge[k];rmin=std::min(rmin,norm(closest));
+      for(unsigned third=j+1;third<4;++third) {
+        const auto a=dot(cross(radial[i],radial[j]),axis),b=dot(cross(radial[j],radial[third]),axis),c=dot(cross(radial[third],radial[i]),axis);
+        const auto pad=128*std::numeric_limits<long double>::epsilon()*magnitude*magnitude;
+        // A projected triangle containing the axis puts zero in the convex radial range.
+        if((a>=-pad && b>=-pad && c>=-pad)||(a<=pad && b<=pad && c<=pad))rmin=0;
+      }
+    }
+  }
+  const long double padding=256*std::numeric_limits<double>::epsilon()*magnitude;
+  rmin=std::max(0.L,rmin-padding);rmax+=padding;zlo-=padding;zhi+=padding;
+  const auto radialGap=g.kind==SU2Native3D::AnalyticSurface::Kind::Disk ?
+      std::max(0.L,rmin-g.extent.x) : std::max({0.L,rmin-g.extent.x,(long double)g.extent.x-rmax});
+  const auto axialGap=g.kind==SU2Native3D::AnalyticSurface::Kind::Sphere ? 0.L :
+      std::max({0.L,zlo-(g.kind==SU2Native3D::AnalyticSurface::Kind::Cylinder?g.extent.y:0.),-zhi});
+  return std::hypot(radialGap,axialGap)<thickness;
 }
 // Separating projections only exclude support; uncertain geometry always receives subdivision.
 bool MayIntersectWallBand(const BLTetrahedron& tet,const std::array<BLPoint3D,3>& face,double thickness) {
@@ -1119,14 +1293,15 @@ std::vector<CBoundaryLayerMetric::IntegrationPoint3D> CBoundaryLayerMetric::Inte
   if(BLDeterminant(tetrahedron[0],tetrahedron[1],tetrahedron[2],tetrahedron[3])==0)
     throw std::invalid_argument("Degenerate native3D BL integration cell.");
   const std::array<std::array<double,4>,4> bary{{{{1,0,0,0}},{{0,1,0,0}},{{0,0,1,0}},{{0,0,0,1}}}};
-  struct SupportFace { std::array<BLPoint3D,3> vertices; double thickness; };
+  struct SupportFace { std::array<BLPoint3D,3> vertices; double thickness; unsigned short wall; };
   std::vector<SupportFace> support;
   bool hiddenSupport=false;
   for(unsigned short wall=0;wall<walls.size();++wall) {
     const auto& d=*data[wall];if(!d.adt)continue;
-    const double thickness=SU2_TYPE::GetValue(d.thickness);
+    const double thickness=SU2_TYPE::GetValue(d.thickness)+d.proxy_error;
+    if(walls[wall].authority && !MayIntersectSmoothBand(tetrahedron,*walls[wall].authority,walls[wall].authority_facet,SU2_TYPE::GetValue(d.thickness)))continue;
     bool hidden=true;
-    for(const auto& p:tetrahedron){const su2double x[3]={p[0],p[1],p[2]};hidden=hidden && Evaluate(wall,x,1.).distance>=thickness;}
+    if(!walls[wall].authority)for(const auto& p:tetrahedron){const su2double x[3]={p[0],p[1],p[2]};hidden=hidden && Evaluate(wall,x,1.).distance>=thickness;}
     su2double low[3],high[3];
     for(unsigned j=0;j<3;++j) {
       double a=tetrahedron[0][j],b=a;for(const auto& p:tetrahedron){a=std::min(a,p[j]);b=std::max(b,p[j]);}
@@ -1135,11 +1310,12 @@ std::vector<CBoundaryLayerMetric::IntegrationPoint3D> CBoundaryLayerMetric::Inte
     std::vector<unsigned long> faces;d.adt->DetermineIntersectingElements(low,high,faces);
     std::sort(faces.begin(),faces.end());
     for(auto f:faces) {
-      SupportFace face;face.thickness=thickness;
+      SupportFace face;face.thickness=thickness;face.wall=wall;
       for(unsigned k=0;k<3;++k)for(unsigned j=0;j<3;++j)
         face.vertices[k][j]=SU2_TYPE::GetValue(walls[wall].coord[3*d.elem[3*f+k]+j]);
       if(!MayIntersectWallBand(tetrahedron,face.vertices,thickness*(1-1e-12)))continue;
       support.push_back(face);hiddenSupport=hiddenSupport || hidden;
+      if(walls[wall].authority)break; // One frame seed; smooth support is certified by the whole component.
     }
   }
   if(sensorDependent)*sensorDependent=hiddenSupport;
@@ -1156,6 +1332,105 @@ std::vector<CBoundaryLayerMetric::IntegrationPoint3D> CBoundaryLayerMetric::Inte
     if(!(value>0) || !std::isfinite(value))throw std::runtime_error("Native3D BL quadrature density is nonfinite/nonpositive.");
     return value;
   };
+  // Positive radial fans avoid a spherical silhouette in parallel-chord coordinates.
+  SU2Native3D::Tetrahedron fanSource;
+  for(unsigned k=0;k<4;++k)fanSource[k]={tetrahedron[k][0],tetrahedron[k][1],tetrahedron[k][2]};
+  const bool fanReversed=SU2Native3D::Orientation(fanSource[0],fanSource[1],fanSource[2],fanSource[3])<0;
+  if(fanReversed)std::swap(fanSource[1],fanSource[2]);
+  for(const auto& wall:walls)if(wall.authority) {
+    const auto& g=wall.authority->Analytic().at(wall.authority_facet);
+    std::array<long double,4> centerWeights;
+    if(g.kind!=SU2Native3D::AnalyticSurface::Kind::Sphere || !SU2Native3D::Barycentric(fanSource,g.origin,centerWeights))continue;
+    if(fanReversed)std::swap(centerWeights[1],centerWeights[2]);
+    const BLPoint3D center{g.origin.x,g.origin.y,g.origin.z};
+    const double radialNodes[5]={-.90617984593866399280,-.53846931010568309104,0,.53846931010568309104,.90617984593866399280};
+    const double radialWeights[5]={.23692688505618908751,.47862867049936646804,128./225,.47862867049936646804,.23692688505618908751};
+    const double lowNodes[3]={-.77459666924148337704,0,.77459666924148337704},lowWeights[3]={5./9,8./9,5./9};
+    const double angular[7][3]={{1./3,1./3,1./3},{.059715871789770,.470142064105115,.470142064105115},
+      {.470142064105115,.059715871789770,.470142064105115},{.470142064105115,.470142064105115,.059715871789770},
+      {.797426985353087,.101286507323456,.101286507323456},{.101286507323456,.797426985353087,.101286507323456},
+      {.101286507323456,.101286507323456,.797426985353087}};
+    const double angularWeights[7]={.225,.132394152788506,.132394152788506,.132394152788506,.125939180544827,.125939180544827,.125939180544827};
+    using Panel=std::array<std::array<double,4>,3>;
+    std::vector<IntegrationPoint3D> radialRule;size_t radialWork=0;
+    auto position=[&](const std::array<double,4>& b){BLPoint3D p{};for(unsigned k=0;k<4;++k)for(unsigned j=0;j<3;++j)p[j]+=b[k]*tetrahedron[k][j];return p;};
+    std::function<void(const Panel&,unsigned)> refineAngular;
+    refineAngular=[&](const Panel& panel,unsigned depth) {
+      if(++radialWork>16384)throw std::runtime_error("Native3D spherical-fan work budget exhausted.");
+      const BLTetrahedron region{center,position(panel[0]),position(panel[1]),position(panel[2])};
+      const double volume=std::abs(BLDeterminant(region[0],region[1],region[2],region[3]))/6;if(!(volume>0))return;
+      auto integrate=[&](bool high,std::vector<IntegrationPoint3D>& points,double& error) {
+        double value=0;
+        for(unsigned at=0;at<(high?7u:3u);++at) {
+          std::array<double,4> end{};
+          for(unsigned k=0;k<4;++k)for(unsigned j=0;j<3;++j)
+            end[k]+=panel[j][k]*(high?angular[at][j]:(at==j?2./3:1./6));
+          const auto target=position(end);const auto cuts=EdgeBreakpoints(center,target,std::max(2.,bandRatio),4);
+          const double jacobian=3*volume*(high?angularWeights[at]:1./3);
+          auto gauss=[&](double left,double right,unsigned order,std::vector<IntegrationPoint3D>& samples) {
+            double sum=0;const double half=.5*(right-left),middle=.5*(right+left);
+            for(unsigned p=0;p<order;++p) {
+              const double t=middle+half*(order==5?radialNodes[p]:lowNodes[p]);std::array<double,4> parent{};
+              for(unsigned k=0;k<4;++k)parent[k]=double((1-t)*centerWeights[k]+t*end[k]);
+              auto x=position(parent);SetBLSourceQuery(tetrahedron,fanSource,fanReversed,parent,x);
+              IntegrationPoint3D point{parent,jacobian*half*(order==5?radialWeights[p]:lowWeights[p])*t*t,SamplePoints({x[0],x[1],x[2]})};
+              sum+=point.weight*probe(point);samples.push_back(std::move(point));
+            }
+            return sum;
+          };
+          std::function<void(double,double,unsigned)> refineRadius;
+          refineRadius=[&](double left,double right,unsigned level) {
+            std::vector<IntegrationPoint3D> lower,upper;const auto a=gauss(left,right,3,lower),b=gauss(left,right,5,upper);
+            if(std::abs(a-b)<=1e-5*b) {
+              if(radialRule.size()+points.size()+lower.size()>65536)throw std::runtime_error("Native3D spherical-fan point budget exhausted.");
+              error+=std::abs(a-b);value+=a;points.insert(points.end(),std::make_move_iterator(lower.begin()),std::make_move_iterator(lower.end()));return;
+            }
+            if(++radialWork>16384)throw std::runtime_error("Native3D spherical radial work budget exhausted.");
+            const double middle=.5*(left+right);
+            if(level>=32 || middle==left || middle==right)throw std::runtime_error("Unresolved native3D spherical radial density.");
+            refineRadius(left,middle,level+1);refineRadius(middle,right,level+1);
+          };
+          for(size_t k=1;k<cuts.size();++k)refineRadius(cuts[k-1],cuts[k],0);
+        }
+        return value;
+      };
+      std::vector<IntegrationPoint3D> low,high;double lowerError=0,upperError=0;
+      const auto a=integrate(false,low,lowerError),b=integrate(true,high,upperError);
+      std::vector<bool> sampled(walls.size(),false);
+      for(const auto* points:{&low,&high})for(const auto& point:*points)for(const auto& s:point.samples)sampled[s.wall]=true;
+      bool unresolved=false;
+      for(unsigned w=0;w<walls.size();++w)if(!sampled[w] && data[w]->adt) {
+        if(walls[w].authority)unresolved=unresolved || MayIntersectSmoothBand(region,*walls[w].authority,walls[w].authority_facet,SU2_TYPE::GetValue(data[w]->thickness));
+        else {
+          const double thickness=SU2_TYPE::GetValue(data[w]->thickness);su2double lo[3],hi[3];
+          for(unsigned j=0;j<3;++j){double first=region[0][j],last=first;for(const auto& x:region){first=std::min(first,x[j]);last=std::max(last,x[j]);}lo[j]=first-thickness;hi[j]=last+thickness;}
+          std::vector<unsigned long> faces;data[w]->adt->DetermineIntersectingElements(lo,hi,faces);
+          for(auto f:faces){std::array<BLPoint3D,3> face;for(unsigned k=0;k<3;++k)for(unsigned j=0;j<3;++j)face[k][j]=SU2_TYPE::GetValue(walls[w].coord[3*data[w]->elem[3*f+k]+j]);unresolved=unresolved || MayIntersectWallBand(region,face,thickness*(1-1e-12));}
+        }
+      }
+      if(!unresolved && std::abs(a-b)+lowerError+upperError<=1e-4*b) {
+        if(radialRule.size()+high.size()>65536)throw std::runtime_error("Native3D spherical-fan point budget exhausted.");
+        radialRule.insert(radialRule.end(),std::make_move_iterator(high.begin()),std::make_move_iterator(high.end()));return;
+      }
+      if(depth>=32)throw std::runtime_error("Unresolved native3D spherical angular density/support.");
+      unsigned first=0,last=1;double longest=0;
+      for(unsigned i=0;i<3;++i)for(unsigned j=i+1;j<3;++j){const auto x=position(panel[i]),y=position(panel[j]);double d=0;for(unsigned k=0;k<3;++k)d+=(x[k]-y[k])*(x[k]-y[k]);if(d>longest){longest=d;first=i;last=j;}}
+      std::array<double,4> middle{};for(unsigned k=0;k<4;++k)middle[k]=.5*(panel[first][k]+panel[last][k]);
+      if(middle==panel[first] || middle==panel[last])throw std::runtime_error("Unrepresentable native3D spherical angular split.");
+      for(auto vertex:{first,last}){auto child=panel;child[vertex]=middle;refineAngular(child,depth+1);}
+    };
+    for(unsigned skip=0;skip<4;++skip) {
+      unsigned ids[3],at=0;for(unsigned k=0;k<4;++k)if(k!=skip)ids[at++]=k;
+      const double volume=std::abs(BLDeterminant(center,tetrahedron[ids[0]],tetrahedron[ids[1]],tetrahedron[ids[2]]))/6;
+      if(!(volume>0))continue;
+      su2double a[3],b[3],c[3],origin[3]={g.origin.x,g.origin.y,g.origin.z},weights[3];
+      for(unsigned j=0;j<3;++j){a[j]=tetrahedron[ids[0]][j];b[j]=tetrahedron[ids[1]][j];c[j]=tetrahedron[ids[2]][j];}
+      ClosestPointTriangle(a,b,c,origin,weights);std::array<double,4> anchor{};for(unsigned j=0;j<3;++j)anchor[ids[j]]=SU2_TYPE::GetValue(weights[j]);
+      for(unsigned j=0;j<3;++j){Panel face{anchor};face[1][ids[j]]=1;face[2][ids[(j+1)%3]]=1;refineAngular(face,0);}
+    }
+    if(sensorDependent)*sensorDependent=true;
+    return radialRule;
+  }
   using Triangle=std::array<std::array<double,4>,3>;
   struct ChordRule {
     Triangle entry,exit;
@@ -1240,6 +1515,7 @@ std::vector<CBoundaryLayerMetric::IntegrationPoint3D> CBoundaryLayerMetric::Inte
     // Separate small finite wall footprints before density probes; agreement of two rules can miss them.
     std::vector<convex_clip::Polygon> pieces{overlap};
     for(const auto& face:support) {
+      if(walls[face.wall].authority)continue; // Facet footprints do not partition a smooth component.
       std::array<std::array<double,2>,3> footprint{};
       for(unsigned k=0;k<3;++k)for(unsigned j=0;j<3;++j) {
         footprint[k][0]+=double(((long double)face.vertices[k][j]-tetrahedron[0][j])*u[j]);
@@ -1425,16 +1701,19 @@ std::vector<CBoundaryLayerMetric::IntegrationPoint3D> CBoundaryLayerMetric::Inte
     panel.value=integrate(charts[cone],triangle,fraction,true,panel.fine,highRadialError,&panel.vertexValues);
     const auto low=integrate(charts[cone],triangle,fraction,false,coarse,lowRadialError);
     panel.error=std::abs(panel.value-low)+highRadialError+lowRadialError;
-    bool sampled=false;for(const auto& point:panel.fine)sampled=sampled || !point.samples.empty();
-    for(const auto& point:coarse)sampled=sampled || !point.samples.empty();
-    if(!sampled) {
+    std::vector<bool> sampled(walls.size(),false);
+    for(const auto* points:{&panel.fine,&coarse})for(const auto& point:*points)for(const auto& s:point.samples)sampled[s.wall]=true;
+    if(std::any_of(support.begin(),support.end(),[&](const auto& f){return !sampled[f.wall];})) {
       std::array<BLPoint3D,6> boundary{};
       for(unsigned side=0;side<2;++side)for(unsigned p=0;p<3;++p)for(unsigned j=0;j<3;++j)for(unsigned k=0;k<4;++k)for(unsigned v=0;v<3;++v)
         boundary[3*side+p][j]+=triangle[p][v]*(side?charts[cone].exit[v][k]:charts[cone].entry[v][k])*tetrahedron[k][j];
       const std::array<BLTetrahedron,3> regions{{{boundary[0],boundary[1],boundary[2],boundary[5]},
           {boundary[0],boundary[1],boundary[4],boundary[5]},{boundary[0],boundary[3],boundary[4],boundary[5]}}};
-      for(const auto& face:support)for(const auto& region:regions)
-        if(MayIntersectWallBand(region,face.vertices,face.thickness*(1-1e-12)))panel.unresolved=true;
+      for(const auto& face:support)if(!sampled[face.wall])for(const auto& region:regions) {
+        const auto& wall=walls[face.wall];
+        if(wall.authority ? MayIntersectSmoothBand(region,*wall.authority,wall.authority_facet,SU2_TYPE::GetValue(data[face.wall]->thickness)) :
+            MayIntersectWallBand(region,face.vertices,face.thickness*(1-1e-12)))panel.unresolved=true;
+      }
     }
     unresolved+=panel.unresolved;
     totalValue+=panel.value;totalError+=panel.error;
@@ -1654,7 +1933,8 @@ std::vector<double> CBoundaryLayerMetric::EdgeBreakpoints(
     for (unsigned k = 1; k <= fadeBands; ++k) levels.push_back(full + (thickness-full)*k/fadeBands);
     validRoot=[&](double t) {
       su2double x[3]{};for(unsigned j=0;j<nDim;++j)x[j]=(1-t)*a[j]+t*b[j];
-      const double actual=SU2_TYPE::GetValue(Evaluate(wall,x,1.).distance);
+      const double actual=walls[wall].authority ? walls[wall].authority->ClosestAnalytic(walls[wall].authority_facet,
+          {SU2_TYPE::GetValue(x[0]),SU2_TYPE::GetValue(x[1]),SU2_TYPE::GetValue(x[2])}).distance : SU2_TYPE::GetValue(Evaluate(wall,x,1.).distance);
       double coordinateScale=0;
       for(unsigned j=0;j<nDim;++j)coordinateScale=std::max({coordinateScale,std::abs(a[j]),std::abs(b[j])});
       const double roundoff=64*std::numeric_limits<double>::epsilon()*coordinateScale;
@@ -1662,6 +1942,88 @@ std::vector<double> CBoundaryLayerMetric::EdgeBreakpoints(
         if(std::abs(actual-level)<=std::max(roundoff,1e-10*std::max(h0,level)))return true;
       return false;
     };
+    if(walls[wall].authority) {
+      const auto& authority=*walls[wall].authority;const auto& g=authority.Analytic().at(walls[wall].authority_facet);
+      Vector radial{},velocity=chord,axis{};
+      const double center[3]={g.origin.x,g.origin.y,g.origin.z};
+      for(unsigned j=0;j<3;++j)radial[j]=(long double)a[j]-center[j];
+      long double z=0,slope=0;
+      if(g.kind!=SU2Native3D::AnalyticSurface::Kind::Sphere) {
+        axis={g.axis.x,g.axis.y,g.axis.z};const auto n=std::sqrt(dot(axis,axis));for(auto& x:axis)x/=n;
+        z=dot(radial,axis);slope=dot(chord,axis);
+        for(unsigned j=0;j<3;++j){radial[j]-=z*axis[j];velocity[j]-=slope*axis[j];}
+      }
+      if(g.kind!=SU2Native3D::AnalyticSurface::Kind::Disk)for(double level:levels)for(int side:{-1,1}) {
+        const long double radius=(long double)g.extent.x+side*(long double)level;
+        if(radius<0)continue;
+        if(level && radius==g.extent.x)throw std::runtime_error("Unrepresentable native3D smooth distance band.");
+        const auto speed=dot(velocity,velocity);
+        if(speed>0) {
+          const auto center=-dot(radial,velocity)/speed;Vector nearest{};
+          for(unsigned j=0;j<3;++j)nearest[j]=std::fma(center,velocity[j],radial[j]);
+          const auto minimum=std::sqrt(dot(nearest,nearest));const auto difference=(radius-minimum)*(radius+minimum);
+          if(difference>=0){const auto width=std::sqrt(difference/speed);retain(center-width);retain(center+width);}
+        }
+      }
+      if(g.kind==SU2Native3D::AnalyticSurface::Kind::Disk && slope)for(double level:levels){retain((level-z)/slope);retain((-level-z)/slope);}
+      if(g.kind!=SU2Native3D::AnalyticSurface::Kind::Sphere && dot(velocity,velocity)==0) {
+        const auto rho=std::sqrt(dot(radial,radial));
+        const auto radialDistance=g.kind==SU2Native3D::AnalyticSurface::Kind::Cylinder?rho-g.extent.x:std::max(0.L,rho-g.extent.x);
+        if(slope)for(double height:{0.,g.kind==SU2Native3D::AnalyticSurface::Kind::Cylinder?g.extent.y:0.})for(double level:levels) {
+          const auto difference=((long double)level-radialDistance)*((long double)level+radialDistance);
+          if(difference>=0) {
+            const auto center=(height-z)/slope,width=std::sqrt(difference)/std::abs(slope);
+            retain(center-width);retain(center+width);
+          }
+        }
+      } else if(g.kind!=SU2Native3D::AnalyticSurface::Kind::Sphere) {
+        auto mandatory=[&](double t){if(t>0 && t<1 && retained.insert(t).second){if(cuts.size()>=65536)throw std::runtime_error("Native3D curved edge cuts exceed work budget.");cuts.push_back(t);}};
+        std::vector<double> pieces{0,1};
+        if(slope)for(double height:{0.,g.kind==SU2Native3D::AnalyticSurface::Kind::Cylinder?g.extent.y:0.}) {
+          const double t=double((height-z)/slope);if(t>0 && t<1){pieces.push_back(t);mandatory(t);}
+        }
+        std::sort(pieces.begin(),pieces.end());pieces.erase(std::unique(pieces.begin(),pieces.end()),pieces.end());
+        const auto length=std::sqrt(dot(chord,chord));size_t work=0;double unresolvedError=0;
+        const double allowance=1e-8/levels.size();
+        std::function<void(double,double)> resolve;
+        resolve=[&](double left,double right) {
+          if(++work>16384)throw std::runtime_error("Native3D finite-rim edge resolution exceeds work budget.");
+          const auto middle=.5*(left+right);SU2Native3D::Point p;
+          p={double((1-middle)*a[0]+middle*b[0]),double((1-middle)*a[1]+middle*b[1]),double((1-middle)*a[2]+middle*b[2])};
+          const auto closest=authority.ClosestAnalytic(walls[wall].authority_facet,p);const double distance=closest.distance;
+          const auto half=(right-left)/2;auto radius=length*half;
+          Vector here{};for(unsigned j=0;j<3;++j)here[j]=radial[j]+middle*velocity[j];
+          const auto radialLower=std::sqrt(dot(here,here))-std::sqrt(dot(velocity,velocity))*half;
+          const auto distanceLower=distance-radius;
+          if(radialLower>0 && distanceLower>0) {
+            const Vector gradient{closest.direction.x,closest.direction.y,closest.direction.z};
+            // Distance to a finite circular rim has this Hessian bound away from its medial axis.
+            const auto hessian=length*length*(1/distanceLower+1/radialLower);
+            radius=std::min(radius,std::abs(dot(gradient,chord))*half+.5L*hessian*half*half);
+          }
+          const auto error=64*std::numeric_limits<double>::epsilon()*std::max({std::abs(p.x),std::abs(p.y),std::abs(p.z),g.extent.x});
+          if(std::none_of(levels.begin(),levels.end(),[&](double level){return level>=distance-radius-error && level<=distance+radius+error;}))return;
+          const double uncertainty=double(length*(right-left)*std::sqrt(d.maximum_wall_eigenvalue));
+          if(uncertainty<=allowance) {
+            unresolvedError+=uncertainty;if(unresolvedError>1e-8)throw std::runtime_error("Native3D finite-rim crossing uncertainty exceeds edge tolerance.");
+            mandatory(left);mandatory(right);return;
+          }
+          if(middle==left || middle==right)throw std::runtime_error("Unresolved native3D finite-rim distance crossing.");
+          resolve(left,middle);resolve(middle,right);
+        };
+        for(size_t k=1;k<pieces.size();++k) {
+          const auto left=pieces[k-1],right=pieces[k],middle=.5*(left+right);
+          const auto height=z+middle*slope;
+          if(g.kind==SU2Native3D::AnalyticSurface::Kind::Cylinder && height>=0 && height<=g.extent.y)continue;
+          if(g.kind==SU2Native3D::AnalyticSurface::Kind::Disk) {
+            auto radius2=[&](double t){Vector p{};for(unsigned j=0;j<3;++j)p[j]=radial[j]+t*velocity[j];return dot(p,p);};
+            if(std::max(radius2(left),radius2(right))<=(long double)g.extent.x*g.extent.x)continue;
+          }
+          resolve(left,right);
+        }
+      }
+      continue;
+    }
     su2double low[3]{}, high[3]{};
     for (unsigned j = 0; j < nDim; ++j) {
       low[j] = std::min(a[j],b[j])-thickness;
