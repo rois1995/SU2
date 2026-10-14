@@ -19,6 +19,30 @@ steps over repeated small checkpoints.
 - Updates should state progress toward the actual end-to-end goal and its remaining
   blockers, rather than treating each passing intermediate test as a milestone.
 
+## Capability-first implementation
+
+Permanent user instruction, 2026-10-14; applies across context compaction and
+future sessions.
+
+- Organize work around a complete end-to-end capability and its known difficult
+  failure, rather than repeatedly extending isolated operators until toy cases pass.
+- Before a substantial implementation, state the missing capability, the evidence
+  for its underlying limitation, and the acceptance conditions. Choose a connected
+  design that addresses that limitation across the affected callers and constraints.
+- Use the known difficult target and a small set of meaningfully different fields
+  or geometries to assess the complete change. Do not defer the difficult case
+  until a succession of easier checkpoints has passed.
+- Simple tests establish primitive correctness or resolve specific risks; they do
+  not establish robust mesh generation and must not be reported as capability
+  milestones. Keep private intermediate progress distinct from an admissible final
+  mesh and a successful adaptation/solution-transfer workflow.
+- When a strategy stalls on the difficult target, preserve the diagnosis and
+  reconsider the construction or coordination it lacks. Do not keep adding local
+  variants or raising limits without evidence that they address the blockage.
+- Deliver substantial connected improvements, then validate at the cadence above.
+  Preserve the full agreed goal and all acceptance gates; neither a prototype nor
+  a passing fixture justifies narrowing the goal or declaring it complete.
+
 ## Reuse and resumable validation
 
 Permanent user instruction, 2026-10-13; applies across context compaction and

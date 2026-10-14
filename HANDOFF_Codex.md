@@ -35,6 +35,11 @@ Read only the relevant handbook:
 - [Full requirement audit](integration_evidence/native_3d_bl_v1/GOAL3_REQUIREMENTS.json).
 - [Historical handoffs, split into smaller files](Handbook/History/INDEX.md).
 
+Permanent working rule: pursue complete capabilities against known difficult
+failures, with a small set of distinct fields/geometries. Simple passing tests are
+primitive checks, not capability milestones. Reconsider stalled construction
+strategies rather than accumulating local variants. See AGENTS.md.
+
 Update current state in place; archive superseded evidence without repeatedly
 prepending old updates. Reuse valid checks with source/build/binary/config/input/
 helper provenance. Focused serial checks during development; broader regressions
