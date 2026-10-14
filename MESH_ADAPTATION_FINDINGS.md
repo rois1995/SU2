@@ -13,8 +13,12 @@ The1026-cell/260-node rejected grid passes shape, declared wall height/feet and
 independent geometry checks, but150 of1368 actual-target edges exceed1.8 (max3.860547).
 These length gates remain strict. Saved-grid audit isolates failures without a new
 construction run. Five focused controls PASS56 assertions; no CFD replacement.
-Next: complete cap/wall/interior long-edge reconstruction, preserving the frozen
-field and all existing valid geometry/height/shape contracts. Details/failures/grids are in
+Longest cap-edge replay exposes exact-collinearity rejection of the rounded
+balanced point. Joint same-component cavities now admit it via oriented geometry;
+strict split/junction checks remain.2→14-cell common-fan growth still fails shape.
+Four focused geometry controls PASS1622 assertions/local geometry audit PASS scoped.
+Next: coordinated retained/transition reconstruction for long edges, preserving
+all frozen-field and geometry/height/shape contracts. Details/failures/grids are in
 [the curved handbook](Handbook/GOAL3_CURVED_BL.md). No full-goal or speedup claim.
 
 

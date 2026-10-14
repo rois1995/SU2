@@ -62,10 +62,27 @@ terminal. Current stage summary: `wall_reconstruction_v1/curved_summary.json`.
 - The visible-wall/hidden thin-sphere oracle still FAILS the16384 subdivision
   bound. It is not qualified; do not infer interacting-layer robustness.
 
+The longest saved radial cap edge has actual length3.860547. Exact replay now
+compares strict split, star insertion and grown joint reconstruction. Its balanced
+binary64 point is not exactly collinear: strict split correctly rejects; star fan
+is geometric but fails q .178130/J .046729; joint reconstruction previously rejected
+before geometry. Joint same-component boundary reconstruction now permits the
+rounded/projected point and relies on its complete oriented cavity checks. Strict
+splitting, marker junctions, height, metric and external-clearance gates remain.
+
+Joint cap reconstruction now produces geometry and a specific obstructing face.
+Following actual neighboring faces grows2→14 cells, but the single common fan
+continues to fail shape (latest q .104424/J .015465). This rules out treating mere
+fan enlargement as the missing capability. Four focused shared geometry controls
+PASS1622 assertions, including rounded insertion, junction and atomicity checks;
+independent local replay geometry audit PASS in its stated scope. No full run/MPI
+or performance campaign after this change. Evidence: `curved_edge_replay.json`,
+`curved_edge_geometry.json`, inspectable old/grown/proposed JSON and source pins.
+
 Next: resolve the saved grid's150 oversized edges while retaining its established
 geometry/height/shape. Many long edges are radial cap edges; others lie on the wall
-or in the interior. Inspect the balanced-point boundary and interior reconstruction
-paths against those actual failures. Do not raise limits or change the target.
+or in the interior. The rounded cap insertion is now admitted; replace the failing common-fan
+layout with coordinated retained/transition topology against the actual long edges. Do not raise limits or change the target.
 The completed star comparison establishes the need for early dependency admission;
 representative streamed failures still do not report whole-proposal minima.
 

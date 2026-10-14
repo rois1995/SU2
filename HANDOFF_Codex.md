@@ -39,8 +39,12 @@ Its1026-cell/260-node rejected grid passes all shape, declared height/feet and e
 local geometry checks;150 of1368 actual-target edges remain oversized (max3.860547).
 No CFD replacement/release. Reusable saved-grid audit isolates those residuals
 without another construction run. Five focused controls PASS56 assertions.
-Next: resolve cap/wall/interior long-edge reconstruction on that saved grid,
-without raising limits or retargeting. All failures, input/rejected grids, sources/
+Longest cap-edge replay diagnoses a rounded point rejected by strict/joint split.
+Joint same-chart cavities now admit it through full geometry checks; strict split
+and junction checks remain. Targeted2→14-cell common-fan growth still fails metric
+shape. Four focused geometry controls PASS1622 assertions; local geometry audit
+PASS scoped. Next: retained/transition reconstruction for those long edges, rather
+than more fan enlargement, without raising limits or retargeting. All failures, input/rejected grids, sources/
 binaries/helpers and partial certificates are preserved. All owned jobs terminal.
 No new MPI/full regression or physical CFD campaign. Earlier qualification stays
 tied to its executed source/binary. Full Goal3 remains active and incomplete.

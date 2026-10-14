@@ -1626,6 +1626,57 @@ TEST_CASE("Cold native cylinder BL construction and release use the same origina
     REQUIRE(cells.good());REQUIRE(lengths.good());std::ofstream summary("grid_metric_summary.json");summary<<std::setprecision(17)
         <<"{\"cells\":"<<grid.cells.size()<<",\"shape_failures\":"<<shapeFailures<<",\"q\":"<<q<<",\"j\":"<<j
         <<",\"edges\":"<<edges.size()<<",\"oversized_edges\":"<<longEdges<<",\"maximum_length\":"<<maximum<<"}\n";REQUIRE(summary.good());
+    if(std::getenv("SU2_NATIVE_CURVED_EDGE_REPLAY")) {
+      REQUIRE(!edges.empty());const auto longest=std::max_element(edges.begin(),edges.end(),[&](const auto& a,const auto& b) {
+        return target.TargetEdgeLength(a.second.first,a.second.second)<target.TargetEdgeLength(b.second.first,b.second.second);
+      });
+      const auto edge=longest->first;Patch old;
+      for(const auto& row:grid.cells) {
+        unsigned count=0;for(auto n:row.second.cell.v)count+=n.id==edge[0] || n.id==edge[1];if(count!=2)continue;
+        old.cells.push_back(row.second.cell);
+        const auto& c=row.second.cell;const std::array<Face,4> faces{{{{c.v[1].id,c.v[2].id,c.v[3].id}},{{c.v[0].id,c.v[3].id,c.v[2].id}},{{c.v[0].id,c.v[1].id,c.v[3].id}},{{c.v[0].id,c.v[2].id,c.v[1].id}}}};
+        for(unsigned f=0;f<4;++f)if(row.second.physical[f].present)old.surface.push_back({faces[f],row.second.physical[f].facet});
+      }
+      REQUIRE(!old.cells.empty());SaveRecords("edge_original",PatchRecords(old),captured_source,reference);
+      const Node point{1000000,target.BalancedSplitPoint(longest->second.first,longest->second.second)};
+      std::cout<<std::setprecision(17)<<"EDGE_REPLAY edge="<<edge[0]<<','<<edge[1]<<" star="<<old.cells.size()<<" point="<<point.p.x<<','<<point.p.y<<','<<point.p.z<<std::endl;
+      for(unsigned op=0;op<3;++op) {
+        Patch fresh;Face obstruction{};std::string reason;
+        const bool geometry=op==0?SplitEdge(old,edge,point,2000000,*reference.original,fresh,reason):
+            op==1?InsertEdgeCavity(old,edge,point,2000000,*reference.original,fresh,reason):
+            ReconstructSplitPatch(old,edge,point,{1000001,{}},target.Query(Centroid(old.cells.front())).target,2000000,*reference.original,fresh,obstruction,reason,nullptr,options.wall_heights);
+        FirstHeightReport height;bool valid=false;PatchMetric measured;
+        if(geometry){SaveRecords("edge_op"+std::to_string(op),PatchRecords(fresh),captured_source,reference);
+          if(CheckFirstHeight(fresh,options.wall_heights,*reference.original,height,reason))
+            valid=ValidateMetricChange(old.cells,fresh.cells,MetricChange::Refine,target,measured,reason);}
+        std::cout<<"EDGE_REPLAY op="<<op<<" geometry="<<geometry<<" valid="<<valid<<" q="<<measured.minimum_mean_ratio<<" j="<<measured.minimum_scaled_jacobian
+            <<" obstruction="<<obstruction[0]<<','<<obstruction[1]<<','<<obstruction[2]<<" reason="<<reason<<std::endl;
+        if(op==2 && !valid) {
+          std::set<Id> admitted;for(const auto& c:old.cells)admitted.insert(c.id);
+          for(unsigned growth=0;growth<12 && obstruction!=Face{};++growth) {
+            auto key=obstruction;std::sort(key.begin(),key.end());bool added=false;
+            for(const auto& row:grid.cells)if(!admitted.count(row.first)) {
+              unsigned count=0;for(auto n:row.second.cell.v)count+=std::find(key.begin(),key.end(),n.id)!=key.end();
+              if(count==3){admitted.insert(row.first);added=true;}
+            }
+            if(!added || admitted.size()>MaximumCavityCells)break;
+            std::vector<OwnedCell> rows;for(Id id:admitted)rows.push_back(grid.cells.at(id));
+            old.cells.clear();old.surface.clear();for(const auto& row:rows) {
+              old.cells.push_back(row.cell);const auto& c=row.cell;const std::array<Face,4> faces{{{{c.v[1].id,c.v[2].id,c.v[3].id}},{{c.v[0].id,c.v[3].id,c.v[2].id}},{{c.v[0].id,c.v[1].id,c.v[3].id}},{{c.v[0].id,c.v[2].id,c.v[1].id}}}};
+              for(unsigned f=0;f<4;++f)if(row.physical[f].present)old.surface.push_back({faces[f],row.physical[f].facet});
+            }
+            Patch expanded;const bool rebuilt=ReconstructSplitPatch(old,edge,point,{1000001,{}},target.Query(Centroid(old.cells.front())).target,2000000,*reference.original,expanded,obstruction,reason,nullptr,options.wall_heights);
+            bool accepted=false;
+            if(rebuilt && CheckFirstHeight(expanded,options.wall_heights,*reference.original,height,reason))accepted=ValidateMetricChange(old.cells,expanded.cells,MetricChange::Refine,target,measured,reason);
+            SaveRecords("edge_grown_old",PatchRecords(old),captured_source,reference);
+            if(rebuilt)SaveRecords("edge_grown_proposal",PatchRecords(expanded),captured_source,reference);
+            std::cout<<"EDGE_GROWTH step="<<growth<<" cells="<<old.cells.size()<<" geometry="<<rebuilt<<" valid="<<accepted
+                <<" obstruction="<<obstruction[0]<<','<<obstruction[1]<<','<<obstruction[2]<<" reason="<<reason<<std::endl;
+            if(accepted)break;
+          }
+        }
+      }
+    }
     CHECK(Signature(world,input.cells,reference)==before);return;  // Read-only diagnostics; rejected mesh is never a CFD replacement.
   }
   if(std::getenv("SU2_NATIVE_CURVED_REPLAY")) {

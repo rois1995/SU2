@@ -41,7 +41,8 @@
     "Early zero-trial interface probe admits specifically missing vertex71 star before repair; exact14-cell replay remains invalid after256 trials, complete15-cell replay passes shape in14 trials.",
     "Full event still rejects4096 work, after210 private edits/all8 wall reconstructions.1026 cells,260 nodes,166 physical faces; no release/CFD replacement.",
     "Saved-grid native residuals: no shape violations,qmin .210041/Jmin .061128;150 oversized edges of1368,max3.860547. Independent geometry/height/exported-tensor shape checks PASS scoped; length remains a rejection.",
-    "Five focused controls PASS56 assertions. No new MPI/full regression/physical CFD/performance qualification."
+    "Five focused controls PASS56 assertions. No new MPI/full regression/physical CFD/performance qualification.",
+    "Longest cap edge balanced point is not exactly collinear; strict split rejects. Joint same-chart cavities now admit it with full geometry checks; targeted2\u219214-cell common fan still fails shape. Four focused shared geometry controls PASS1622 assertions/local exact geometry audit PASS scoped; not full target acceptance."
   ],
   "remaining": "Resolve oversized cap/wall/interior edges; preserve full original Goal3 scope including interacting/gradation/MPI/current+BDF/return/restart/RANS/accuracy/performance. No acceptance claim from the rejected grid.",
   "rejection_audits": [
@@ -51,5 +52,6 @@
   "shared_geometry_control": "geometry.json",
   "focused_repair": "curved_repair_controls.json",
   "private_replay": "curved_replay_audit.json",
-  "saved_grid_audit": "curved_grid_independent.json"
+  "saved_grid_audit": "curved_grid_independent.json",
+  "long_edge_replay": "curved_edge_geometry.json"
 }
