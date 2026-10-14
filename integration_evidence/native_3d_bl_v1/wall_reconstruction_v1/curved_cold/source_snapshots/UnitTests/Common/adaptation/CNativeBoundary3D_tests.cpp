@@ -1293,6 +1293,8 @@ TEST_CASE("Actual-field repair identifies a sliver point fixed on an artificial 
   for(const auto& f:seed.surface)if(std::any_of(boundary.begin(),boundary.end(),[&](Face b){return key(b)==key(f.v);}))partial.surface.push_back(f);
   std::vector<DonorCell> source;for(const auto& c:seed.cells){DonorCell d;d.cell=c;d.sensor.fill(Tensor{});source.push_back(d);}
   FrozenField target(source);Patch fresh;ConnectivityRepairReport report;
+  CHECK_FALSE(RepairMetricConnectivity(partial,target,reference,{},1000,fresh,report,reason,0));
+  CHECK(report.blocked_interior_vertex==42);CHECK(report.trials==0);CHECK(fresh.cells.empty());
   const bool progress=RepairMetricConnectivity(partial,target,reference,{},1000,fresh,report,reason,256);
   CHECK_FALSE(report.complete_shape);CHECK(report.blocked_interior_vertex==42);
   if(progress)CHECK(ValidateFixedInterface(partial.cells,fresh.cells,reason));

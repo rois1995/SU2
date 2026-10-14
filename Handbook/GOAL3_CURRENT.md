@@ -67,13 +67,14 @@ foot. All owned jobs are terminal. No new MPI or full regression.
 
 Read [the curved work and next blocker](GOAL3_CURVED_BL.md) and
 `wall_reconstruction_v1/curved_summary.json`. Keep prior successful evidence and
-new failures distinct. Early streamed exits retain bounded exact captures. The first saved curved patch
-is resolved with prioritized free-point removal:14 trials,33 cells,q .240152/J
-.056062; independent local geometry and exported-tensor arithmetic PASS. The full
-cold event still fails4096 work (6 private edits before the new interface hint,
-5 with it); hint effectiveness is unqualified. Five focused controls PASS52
-assertions. Whole-proposal minima can be worse than the first failing batch.
-No new MPI or physical CFD qualification. Partial/graph/mixed components and external-fluid pre-row curvature resolution
+new failures distinct. Early actual-field interface probes now import a specifically missing support star
+before exhausting repair. Its15-cell replay passes private shape in14 trials.
+Full cold run still rejects4096 work but now admits210 private edits/all8 wall
+reconstructions. Its1026-cell rejected grid has no shape violations; independent
+geometry/declared height/feet checks PASS.150 actual-target edges remain oversized
+(max3.860547), so no acceptance/release/CFD replacement. Saved-grid residual audit
+is reusable without remeshing. Five focused controls PASS56 assertions; no new MPI.
+Partial/graph/mixed components and external-fluid pre-row curvature resolution
 remain open. These field controls do not complete native curved BL or full Goal3.
 
 ## Static assessment reconciliation

@@ -1,0 +1,58 @@
+{
+  "status": "PASS_DIAGNOSIS_ONLY",
+  "scope": "Exact positive volumes, no positive-volume overlap and preserved artificial interface; independent q/J arithmetic from native-exported actual-centroid tensors. Does not independently validate the BL field, full composed edge lengths, whole domain or adaptation/CFD replacement.",
+  "rows": [
+    {
+      "file": "replay_coordinated_rejected.json",
+      "cells": 47,
+      "volume": "387174418533493788003134077748134053556008351905/1096126227998177188652763624537212264741949407232",
+      "q": 0.048878949713129935,
+      "j": 0.0051282001235638105,
+      "shape_deficit": 9.236183757435903,
+      "violating_cells": [
+        2000002,
+        2000003,
+        2000004,
+        2000011,
+        2000019,
+        2000023,
+        2000024,
+        2000027,
+        2000031,
+        2000032,
+        2000035,
+        2000036,
+        2000037,
+        2000038,
+        2000041,
+        2000042,
+        2000043,
+        2000044
+      ],
+      "maximum_native_arithmetic_difference": 1.1102230246251565e-16,
+      "input_sha256": "aa48a0d73eb01c9327b39cdd2737ae7a7b2ac18a28fb17e5e35d2a7dcb7f0709",
+      "sample_sha256": "93b3cbcc7af532e2c500fe6dc9d7a2809583681f2a971f0a61b5c4a5a9a240fc"
+    },
+    {
+      "file": "replay_repaired_rejected.json",
+      "cells": 35,
+      "volume": "387174418533493788003134077748134053556008351905/1096126227998177188652763624537212264741949407232",
+      "q": 0.18787691596228606,
+      "j": 0.03288224144451436,
+      "shape_deficit": 0.17275969046253015,
+      "violating_cells": [
+        3000006,
+        3000015,
+        3000026,
+        3000030
+      ],
+      "maximum_native_arithmetic_difference": 3.3306690738754696e-16,
+      "input_sha256": "a04431f882841f1b181bfc3f9891d858b33f65c309f82c3e135415389085fe8c",
+      "sample_sha256": "63b8a94bfaa6a052826ec73b8e69a81f3e87951ab426d91eff27de9f8affb78a"
+    }
+  ],
+  "native_receipt_sha256": "20789e656cdb2d6795f4f804c26170f1355c77b0eb74160e2fe6ec6a199d3f20",
+  "helper_sha256": "bac23095f284a70ada7e75e6a98bb891828f2950108b7aa415f0c2ff3d21c511",
+  "geometry_helper_sha256": "d587d7dea4391e6e77c118f5d15167d147b4bc40f72e811c0e6c75d3a1a2ee5e",
+  "predicate_helper_sha256": "26079385c071c3ad1b9c06ab3b862b4ff293367dc3c8d291acf0487089d062c5"
+}

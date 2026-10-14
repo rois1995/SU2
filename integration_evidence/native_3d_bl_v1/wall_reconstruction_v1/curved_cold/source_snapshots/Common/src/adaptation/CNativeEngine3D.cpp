@@ -1706,7 +1706,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
           bool passed=validate_private(candidate,choice.geometric ? MetricChange::GeometryRefine : MetricChange::Refine);
           if(!ready)return finish();
           const bool missing_closure=participating && retained_frame && frame==0 && wallSplit && !candidate && obstruction!=Face{};
-          const bool close_first=world.maximum(missing_closure);
+          bool close_first=world.maximum(missing_closure);
           if(missing_closure)preferred_obstruction={obstruction,3};
           const bool repair=!close_first && participating && candidate && !passed && certified.failure==MetricFailure::Shape &&
               fresh.cells.size()<=MaximumReplacementCells && !options.wall_heights.empty() && stats.global_work<stats.work_limit;
@@ -1720,7 +1720,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
               donors=source.ImportCells(repair ? old.cells : std::vector<Cell>{},options.memory_ceiling,
                   transfer_memory::Add(bytes(),directory.ResidentBytes(),private_scratch));
             }
-            CLocalFailure local;ConnectivityRepairReport report;bool repaired=false;
+            CLocalFailure local;ConnectivityRepairReport report;bool repaired=false,missing_metric_star=false;
             if(!donors.valid && !DonorCap(donors.reason))local.Set(1,0,donors.reason);
             if(!(ready=vote(local)))return finish();
             if(repair && donors.valid)try {
@@ -1729,7 +1729,13 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
               FieldAccounting accounting{stats,target};
               Patch proposal;std::string rejected;
               { Timer timer(stats.reconstruction_seconds,options.timings);CpuTimer cpu(stats.reconstruction_cpu_seconds,options.timings);
-                repaired=RepairMetricConnectivity(fresh,target,geometry,options.wall_heights,
+                // Probe the whole actual-field interface before exhausting repair on a fixed support point.
+                RepairMetricConnectivity(fresh,target,geometry,options.wall_heights,
+                    maximum_cell+1+offset,proposal,report,rejected,0);
+                missing_metric_star=report.blocked_interior_vertex!=UINT64_MAX;
+                if(missing_metric_star && !preferred_obstruction.count)
+                  preferred_obstruction={{{report.blocked_interior_vertex,0,0}},1};
+                if(!missing_metric_star)repaired=RepairMetricConnectivity(fresh,target,geometry,options.wall_heights,
                     maximum_cell+1+offset,proposal,report,rejected,repair_limit);
               }
               stats.wall_joint_trials+=report.trials;stats.wall_joint_moves+=report.moves;stats.wall_joint_removals+=report.removals;
@@ -1755,6 +1761,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
             }catch(const std::exception& e){local.Set(2,0,e.what());}
             stats.global_work+=CPassiveComm::Allreduce(uint64_t(report.trials),CPassiveComm::Op::SUM,world.comm);
             if(!(ready=vote(local)))return finish();
+            close_first=close_first || world.maximum(missing_metric_star);
             if(world.maximum(repaired)) {
               passed=validate_private(repaired,choice.geometric ? MetricChange::GeometryRefine : MetricChange::Refine);
               stats.wall_joint_accepted+=repaired && passed;

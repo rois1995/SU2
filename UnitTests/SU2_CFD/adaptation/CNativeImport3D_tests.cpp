@@ -1551,6 +1551,7 @@ TEST_CASE("Native3D production wall policy preserves sensor donors and RANS hist
 
 namespace {
 #include "fixtures/native_curved_wall_blockage.inc"
+#include "fixtures/native_curved_remaining.inc"
 }
 
 TEST_CASE("Cold native cylinder BL construction and release use the same original sensor and smooth policy", "[.][NativeCurvedBLConstruction3D]") {
@@ -1600,9 +1601,39 @@ TEST_CASE("Cold native cylinder BL construction and release use the same origina
   };
   save("curved_cylinder_initial_euler",input.cells);
   const auto captured_source=world.metadata(input.original);
+  if(const auto* filename=std::getenv("SU2_NATIVE_CURVED_GRID_AUDIT")) {
+    REQUIRE(world.size==1);auto cfg=text.str();const auto at=cfg.find("unused.su2");REQUIRE(at!=std::string::npos);cfg.replace(at,10,filename);
+    std::stringstream gridText(cfg);std::unique_ptr<CConfig> gridConfig;
+    {Mute mute;gridConfig=std::make_unique<CConfig>(gridText,SU2_COMPONENT::SU2_CFD,false);}
+    CSU2ASCIIMeshReaderFVM reader(gridConfig.get(),0,1);MeshSolution loaded(gridConfig.get(),reader,0);
+    auto authority=reference;const auto grid=ImportGeometry(*gridConfig,loaded.Fine(),nullptr,authority);
+    CHECK(authority.original==reference.original);Save(world,"audited_grid",grid.cells,input.original,reference);
+    FrozenField target(captured_source,compose,false,AssociatedExtensions(captured_source,*reference.original),options.edge_breakpoints);
+    std::ofstream cells("grid_samples.csv");cells<<std::setprecision(17)<<"cell,q,j,xx,xy,xz,yy,yz,zz\n";
+    std::map<Edge,std::pair<Point,Point>> edges;double q=1,j=1;size_t shapeFailures=0;
+    for(const auto& row:grid.cells) {
+      const auto& c=row.second.cell;const auto m=target.Query(Centroid(c)).target;
+      const auto shape=Measure({c.v[0].p,c.v[1].p,c.v[2].p,c.v[3].p},m);q=std::min(q,shape.mean_ratio);j=std::min(j,shape.minimum_scaled_jacobian);
+      shapeFailures+=shape.mean_ratio<MinimumMeanRatio || shape.minimum_scaled_jacobian<MinimumScaledJacobian;
+      cells<<c.id<<','<<shape.mean_ratio<<','<<shape.minimum_scaled_jacobian<<','<<m.xx<<','<<m.xy<<','<<m.xz<<','<<m.yy<<','<<m.yz<<','<<m.zz<<'\n';
+      for(unsigned a=0;a<4;++a)for(unsigned b=a+1;b<4;++b) {
+        const auto na=c.v[a],nb=c.v[b];const auto key=Edge{std::min(na.id,nb.id),std::max(na.id,nb.id)};
+        edges.emplace(key,na.id<nb.id?std::make_pair(na.p,nb.p):std::make_pair(nb.p,na.p));
+      }
+    }
+    std::ofstream lengths("grid_edges.csv");lengths<<std::setprecision(20)<<"a,b,length\n";long double maximum=0;size_t longEdges=0;
+    for(const auto& e:edges){const auto length=target.TargetEdgeLength(e.second.first,e.second.second);maximum=std::max(maximum,length);longEdges+=length>MaximumMetricEdge;lengths<<e.first[0]<<','<<e.first[1]<<','<<length<<'\n';}
+    REQUIRE(cells.good());REQUIRE(lengths.good());std::ofstream summary("grid_metric_summary.json");summary<<std::setprecision(17)
+        <<"{\"cells\":"<<grid.cells.size()<<",\"shape_failures\":"<<shapeFailures<<",\"q\":"<<q<<",\"j\":"<<j
+        <<",\"edges\":"<<edges.size()<<",\"oversized_edges\":"<<longEdges<<",\"maximum_length\":"<<maximum<<"}\n";REQUIRE(summary.good());
+    CHECK(Signature(world,input.cells,reference)==before);return;  // Read-only diagnostics; rejected mesh is never a CFD replacement.
+  }
   if(std::getenv("SU2_NATIVE_CURVED_REPLAY")) {
     REQUIRE(world.size==1);REQUIRE(EncodeReference(reference)==CurvedBlockedReference());
-    const auto old=CurvedBlockedWallPatch();const Edge edge{1,17};std::map<Id,Point> nodes;
+    const std::string selected=std::getenv("SU2_NATIVE_CURVED_REPLAY");
+    const bool remaining=selected=="remaining" || selected=="complete";
+    const auto old=remaining?CurvedRemainingWallPatch(selected=="complete"):CurvedBlockedWallPatch();
+    const Edge edge=remaining?Edge{4,14}:Edge{1,17};std::map<Id,Point> nodes;
     for(const auto& c:old.cells)for(auto n:c.v)nodes.emplace(n.id,n.p);
     const auto a=nodes.at(edge[0]),b=nodes.at(edge[1]);
     const Node point{1000000,{double(((long double)a.x+b.x)/2),double(((long double)a.y+b.y)/2),double(((long double)a.z+b.z)/2)}};

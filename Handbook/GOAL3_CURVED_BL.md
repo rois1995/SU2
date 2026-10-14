@@ -27,37 +27,32 @@ terminal. Current stage summary: `wall_reconstruction_v1/curved_summary.json`.
   (.70710678,.70710678,1). Off-wall proxy lookup could switch distinct interior
   closest points. Tangential interpolation now binds to the smooth closest foot;
   that removes the quadrature failure without relaxing target/gates.
-- Native cold construction still FAILS at4096 work. Bounded removal of free
-  interior vertices now joins flips/movement, retaining the actual frozen field,
-  fixed interface, current prescribed-height apices and complete-star geometry.
-  Each removal consumes the existing trial budget; no limits/gates were raised.
-- The exact saved20-cell blockage is replayable with the original reference and
-  freshly imported120-record sensor/extension source. Whole-proposal samples show
-  q .048290/J .005052, worse than the engine's first failing16-cell batch sample.
-  Prioritizing removal resolves that patch in14 trials:4 removals,3 flips,33 cells,
-  q .240152/J .056062 and zero shape deficit. This is private shape success, not
-  full composed-edge or whole adaptation/solution-transfer acceptance.
-- The independent replay audit verifies positive volumes, no positive-volume
-  overlap, unchanged artificial interface and q/J arithmetic from the exported
-  actual-query tensors. It does not independently qualify the BL field itself.
-  Evidence: `curved_replay.json`, `curved_replay_audit.json`, and the exact fixture
-  origin in `curved_replay_fixture.json`. Current native replay receipt is tied to
-  its recorded binary; subsequent diagnostic-hint changes are not silently covered.
-- Resolve an explicit retained-wall geometry obstruction before spending repair
-  trials on incomplete fallback fans. With prioritized retirement/closure, the
-  full cold target reached6 admitted private edits before rejection. Whole-patch
-  shape deficits now also identify a fixed, nonphysical interface vertex whose
-  complete star can be requested; with that hint the latest run reaches5 private
-  edits. This is not evidence of a general improvement from the hint.
-- Latest cold diagnostics: topology34 trials/5 accepted; joint4040 trials,
- 119 private moves/58 removals/5 admitted repairs. Last feature edge(4,14),
-  cell7359, representative q .146533/J .021848, old14/proposed31 cells. Representative
-  streamed failures are not the whole-proposal minima. Initial/rejected whole
-  grids, source/binary/config provenance and earlier failures remain inspectable.
-  No release or CFD replacement occurred.
-- Five focused controls PASS52 assertions: flips, private interface bounds,
-  interior sliver resolution, prescribed-height protection and artificial-interface
-  obstruction identification. No MPI/full regression or physical CFD campaign.
+- Early actual-field interface probing now precedes the repair sweep. The exact
+  remaining14-cell patch misses one tetrahedron from vertex71's star: with that
+  point fixed,256 trials leave shape deficit .172760; adding the authoritative
+  missing cell resolves the15-cell patch in14 trials (4 removals,3 flips,28 cells,
+  q .254308/J .056062). Both replay inputs and independent audits are preserved.
+- The full cold run still rejects4096 work, but now admits all8 retained wall
+  reconstructions and210 private edits, compared with5 edits before early probing.
+  Final private grid:1026 tetrahedra,260 nodes,166 physical faces. Native diagnostics:
+  joint2338 trials/246 moves/173 removals; no release or CFD replacement occurs.
+- The saved-grid audit reloads the rejected SU2 file and measures the original
+  sensor-plus-BL field without remeshing. All1026 cell shapes pass: qmin .210041,
+  Jmin .061128. Of1368 unique actual-target edges,150 exceed1.8; maximum3.860547.
+  These remain mandatory rejection gates; this is not an accepted adapted grid.
+- Independent exact geometry/exported-tensor arithmetic audit PASS in declared
+  scope: positive volumes, no positive-volume overlap (26110 conservative-box
+  candidate pairs checked), closed oriented ball skin,48 requested wall faces with
+  exact contained normal feet and altitude relative error≤1.67e-15. Native q/J
+  arithmetic agrees≤3.34e-16. It does not independently verify the BL composition,
+  full composed quadrature, lower-dimensional contacts or CFD/state transfer.
+- Reusable diagnostic folders: `curved_replay_remaining`, `curved_replay_complete`,
+  `curved_grid_audit`; receipts and `curved_grid_independent.json` pin inputs,
+  sources, binaries and helpers. The grid audit uses the original120-record source,
+  not a transported/coarse spread of the fine wall tensor.
+- Five focused controls PASS56 assertions, including zero-trial interface probing.
+  No MPI/full regression or physical CFD/performance campaign. Earlier first-patch
+ 14-trial shape success and all unsuccessful full runs remain recorded.
 - Single-sphere volume oracle PASS22936 assertions. Inflated proxy footprint
   partitioning had2752 charts and failed65536 points; removing it gave5 charts
   but still failed. Positive sphere-centred fans, where the centre is inside/on
@@ -67,14 +62,12 @@ terminal. Current stage summary: `wall_reconstruction_v1/curved_summary.json`.
 - The visible-wall/hidden thin-sphere oracle still FAILS the16384 subdivision
   bound. It is not qualified; do not infer interacting-layer robustness.
 
-Next: assess the remaining curved wall/transition block from the saved full target;
-point retirement and explicit closure resolve the first exact patch but do not yet
-complete the event. The interface-deficit hint is plausible, not qualified as a
-better construction policy. Preserve its comparison against the6-edit predecessor.
-Do not infer infeasibility or increase limits from local search failure. Interacting
-fan/subdivision remains a separate unresolved limitation. Exact local captured
-rejection audits remain in `curved_cavity_audit*.json`; input hashes locate the
-preserved current/archived captures.
+Next: resolve the saved grid's150 oversized edges while retaining its established
+geometry/height/shape. Many long edges are radial cap edges; others lie on the wall
+or in the interior. Inspect the balanced-point boundary and interior reconstruction
+paths against those actual failures. Do not raise limits or change the target.
+The completed star comparison establishes the need for early dependency admission;
+representative streamed failures still do not report whole-proposal minima.
 
 Full cold-grid success and independent curved whole-mesh audit, MPI/return/transfer/
 restart and physical RANS/performance gates remain required. Partial/graph/mixed

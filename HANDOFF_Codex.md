@@ -32,15 +32,15 @@ single-sphere radial fan/volume oracle PASS. Composed gradation remains uncertif
 Full curved cold construction still rejects at4096 work with120 cells; interacting
 thin-wall integration rejects at16384 subdivisions. Off-wall tangent lookup caused
 an earlier edge quadrature failure and was fixed by binding to the true foot.
-The first exact curved patch now passes private shape in14 trials (4 removals,
-3 flips,33 cells,q .240152/J .056062), with independent local geometry/quality
-arithmetic audit. Free-point retirement and geometry-first closure are integrated.
-Full cold target still rejects4096 work:6 private edits before interface-hint
-integration,5 in the latest run. The hint is not established as an improvement.
-Latest edge(4,14), cell7359, representative q .146533/J .021848; whole-patch minima
-can be worse than the first failing streamed batch. Five focused controls PASS52
-assertions. Next: resolve the remaining full curved construction/transition block,
-without raising limits. All failures, input/rejected grids, sources/
+Early interface probing now closes the verified missing vertex71 star before
+repair. The complete15-cell replay resolves in14 trials; independent audits retained.
+Full cold run still rejects4096 work after210 private edits/all8 wall reconstructions.
+Its1026-cell/260-node rejected grid passes all shape, declared height/feet and exact
+local geometry checks;150 of1368 actual-target edges remain oversized (max3.860547).
+No CFD replacement/release. Reusable saved-grid audit isolates those residuals
+without another construction run. Five focused controls PASS56 assertions.
+Next: resolve cap/wall/interior long-edge reconstruction on that saved grid,
+without raising limits or retargeting. All failures, input/rejected grids, sources/
 binaries/helpers and partial certificates are preserved. All owned jobs terminal.
 No new MPI/full regression or physical CFD campaign. Earlier qualification stays
 tied to its executed source/binary. Full Goal3 remains active and incomplete.

@@ -1551,6 +1551,7 @@ TEST_CASE("Native3D production wall policy preserves sensor donors and RANS hist
 
 namespace {
 #include "fixtures/native_curved_wall_blockage.inc"
+#include "fixtures/native_curved_remaining.inc"
 }
 
 TEST_CASE("Cold native cylinder BL construction and release use the same original sensor and smooth policy", "[.][NativeCurvedBLConstruction3D]") {
@@ -1602,7 +1603,10 @@ TEST_CASE("Cold native cylinder BL construction and release use the same origina
   const auto captured_source=world.metadata(input.original);
   if(std::getenv("SU2_NATIVE_CURVED_REPLAY")) {
     REQUIRE(world.size==1);REQUIRE(EncodeReference(reference)==CurvedBlockedReference());
-    const auto old=CurvedBlockedWallPatch();const Edge edge{1,17};std::map<Id,Point> nodes;
+    const std::string selected=std::getenv("SU2_NATIVE_CURVED_REPLAY");
+    const bool remaining=selected=="remaining" || selected=="complete";
+    const auto old=remaining?CurvedRemainingWallPatch(selected=="complete"):CurvedBlockedWallPatch();
+    const Edge edge=remaining?Edge{4,14}:Edge{1,17};std::map<Id,Point> nodes;
     for(const auto& c:old.cells)for(auto n:c.v)nodes.emplace(n.id,n.p);
     const auto a=nodes.at(edge[0]),b=nodes.at(edge[1]);
     const Node point{1000000,{double(((long double)a.x+b.x)/2),double(((long double)a.y+b.y)/2),double(((long double)a.z+b.z)/2)}};

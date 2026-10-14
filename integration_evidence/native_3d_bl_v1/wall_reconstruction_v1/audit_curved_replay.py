@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Exact local geometry and independent quality arithmetic using exported actual-query tensors."""
-import hashlib,itertools,json,math
+import hashlib,itertools,json,math,sys
 from fractions import Fraction as F
 from pathlib import Path
 from audit_curved_cavity import frame
@@ -9,7 +9,8 @@ HERE=Path(__file__).resolve().parent
 
 def sha(p):return hashlib.sha256(p.read_bytes()).hexdigest()
 def main():
- folder=HERE/'curved_replay';receipt_path=HERE/'curved_replay.json';receipt=json.loads(receipt_path.read_text());assert receipt['status']=='PASS'
+ stage=sys.argv[1] if len(sys.argv)>1 else 'curved_replay';assert stage in ('curved_replay','curved_replay_remaining','curved_replay_complete')
+ folder=HERE/stage;receipt_path=HERE/(stage+'.json');receipt=json.loads(receipt_path.read_text());assert receipt['status']=='PASS'
  for f in folder.glob('replay*.json'):assert sha(f)==receipt['artifacts'][f.name]
  old,on,interface,ov=frame(folder/'replay_original.json');rows=[]
  for sample_path in sorted(folder.glob('replay_*_samples.json')):
@@ -34,5 +35,5 @@ def main():
  report=dict(status='PASS_DIAGNOSIS_ONLY',scope='Exact positive volumes, no positive-volume overlap and preserved artificial interface; independent q/J arithmetic from native-exported actual-centroid tensors. Does not independently validate the BL field, full composed edge lengths, whole domain or adaptation/CFD replacement.',
     rows=rows,native_receipt_sha256=sha(receipt_path),helper_sha256=sha(Path(__file__)),geometry_helper_sha256=sha(HERE/'audit_curved_cavity.py'),
     predicate_helper_sha256=sha(HERE.parents[2]/'integration_evidence/native_3d_core_v1/audit_cavities.py'))
- (HERE/'curved_replay_audit.json').write_text(json.dumps(report,indent=2)+'\n');print(report['status'])
+ (HERE/(stage+'_audit.json')).write_text(json.dumps(report,indent=2)+'\n');print(report['status'])
 if __name__=='__main__':main()
