@@ -1,0 +1,25 @@
+{
+  "status": "PASS",
+  "returncode": 0,
+  "command": [
+    "taskset",
+    "-c",
+    "3",
+    "nice",
+    "-n",
+    "19",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver",
+    "[NativeFirstLayer3D],[NativeMetricMove3D]",
+    "--reporter",
+    "compact"
+  ],
+  "pins": {
+    "Common/include/adaptation/CNativeBoundary3D.hpp": "796f43c90234519b54eba8328903218c989ece3638e56e635a665d98e1a1a5d5",
+    "Common/src/adaptation/CNativeBoundary3D.cpp": "bf48862597183ef2e7667323727d0531a66b364b38c396590c2d6246db549446",
+    "UnitTests/Common/adaptation/CNativeBoundary3D_tests.cpp": "89f4568216e56f58f168ef7502cca50a1bd1706d671aef1314eca6e9797fc62d",
+    "binary": "41da60be79b1eebe380134925ea83ad5122dc8fab3a10e508c6b0857cd9343d1"
+  },
+  "log_sha256": "60111e1bb2cd5f21f097596e301d4e41b23859edd060d75d6442d811cfc93e29",
+  "elapsed_seconds": 5.354166844976135,
+  "scope": "Focused serial first-height/normal-foot certificate, wall-junction construction and movement; no MPI, production workflow, arbitrary curved/interacting BL or performance qualification."
+}

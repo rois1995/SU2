@@ -1,5 +1,18 @@
 # Goal3 production geometric policy and real RANS restart: local MPI PASS — 2026-10-14
 
+Current alignment follow-up: the previous coarsened BL meshes have one normal foot
+outside a wall triangle in each of six N/M combinations (independent exact-rational
+reproduction). Shared first-row validation now requires normal-foot containment,
+with centroid tilt retained as a separate diagnostic. Six focused serial checks
+and one independently audited production/restart case pass: BL58 cells, tilt0,
+minimum footprint barycentric1/3, released mesh6 cells, unchanged metric/geometry/
+height/sensor/current+BDF/output/restart gates. MPI and broader regressions are
+intentionally deferred to the connected wall-reconstruction milestone. Composed
+gradation remains incompatible with the narrow prescribed fade under the probed
+sensor transport bound; the target has not been changed. See
+[the current handbook](Handbook/GOAL3_CURRENT.md) and
+[serial evidence](integration_evidence/native_3d_bl_v1/alignment_audit_v1/summary.json).
+
 Working folder: /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated.
 Branch: codex/native-3d-bl; preceding published checkpoint555d2ee6f0.
 Cases: integration_evidence/native_3d_bl_v1/production_policy_v1.

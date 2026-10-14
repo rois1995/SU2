@@ -1013,7 +1013,27 @@ TEST_CASE("Native3D first-height certificate reports tangential tilt independent
   REQUIRE(ConstructFirstLayer(old,{100,{.5,.5,.5}},101,200,heights,reference,fresh,report,reason));
   for(auto& cell:fresh.cells)for(auto& node:cell.v)if(node.id==101)node.p.x+=.001;
   CHECK(CheckFirstHeight(fresh,heights,reference,report,reason));CHECK(report.maximum_tilt==Approx(.02).epsilon(1e-10));
-  CHECK(report.height_failures==0);
+  CHECK(report.height_failures==0);CHECK(report.footprint_failures==0);
+  // Isolate the positive wall tetrahedron so the footprint test does not invert its transition neighbours.
+  Patch child;
+  for(const auto& face:fresh.surface)for(const auto& cell:fresh.cells) {
+    const bool wall=std::all_of(face.v.begin(),face.v.end(),[&](Id id) {
+      return std::any_of(cell.v.begin(),cell.v.end(),[&](Node n){return n.id==id && n.p.z==0;});
+    });
+    if(wall && std::any_of(cell.v.begin(),cell.v.end(),[](Node n){return n.id==101;})) {
+      child.cells.push_back(cell);child.surface.push_back(face);
+    }
+  }
+  REQUIRE(child.cells.size()==1);fresh=std::move(child);
+  // A normal ray through the triangle edge is admissible; moving beyond it is not.
+  for(auto& cell:fresh.cells)for(auto& node:cell.v)if(node.id==101)node.p.x=node.p.y;
+  CHECK(CheckFirstHeight(fresh,heights,reference,report,reason));
+  CHECK(report.minimum_barycentric==Approx(0).margin(1e-15));
+  for(auto& cell:fresh.cells)for(auto& node:cell.v)if(node.id==101)node.p.x=node.p.y-.1;
+  CHECK_FALSE(CheckFirstHeight(fresh,heights,reference,report,reason));
+  CHECK(report.height_failures==0);CHECK(report.footprint_failures==1);
+  CHECK(report.minimum_barycentric==Approx(-.1));CHECK(reason.find("normal foot leaves")!=std::string::npos);
+  FirstHeightReport released;CHECK(CheckFirstHeight(fresh,{},reference,released,reason));CHECK(released.footprint_failures==0);
 }
 
 TEST_CASE("Native3D first layer handles wall junctions and distinguishes local clearance failure", "[NativeFirstLayer3D]") {

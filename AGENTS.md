@@ -11,6 +11,9 @@ steps over repeated small checkpoints.
 - Run appropriate broader regression at meaningful integration milestones and
   before declaring the integrated result validated. Never weaken acceptance gates
   or omit necessary correctness checks to satisfy this cadence.
+- Reserve MPI campaigns for substantial connected implementation milestones; do
+  not repeat them for each small local edit. Use focused serial checks during
+  development where they resolve a concrete risk.
 - Push reviewable checkpoints regularly. Clearly label incomplete or unvalidated
   work; a checkpoint does not itself require repeating a previously passing suite.
 - Updates should state progress toward the actual end-to-end goal and its remaining
@@ -48,3 +51,11 @@ or fixture identities. Solver compatibility and solution-transfer checks remain
 separate from mesh reconstruction. Wall-aware operators are allowed to enforce
 actual geometric constraints; limited fixture success does not establish general
 robustness. Qualify wider fields/geometries rather than adding scenario switches.
+
+## Handbook maintenance
+
+User instruction, 2026-10-14: keep HANDOFF_Codex.md current and concise. Put detailed
+current topics and accumulated history into smaller linked handbooks when the entry
+point grows. Preserve findings, failures and evidence; historical job/status notes
+must not be mistaken for current state. Update the current state in place rather
+than prepending repeated copies of prior updates.

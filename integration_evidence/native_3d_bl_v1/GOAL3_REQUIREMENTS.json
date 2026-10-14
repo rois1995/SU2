@@ -9,7 +9,7 @@
     "maximum_composed_edge": 1.8,
     "sensor": "immutable original P1; finer demands retained",
     "BL": "actual-query geometry; existing fade; no hard-normal reset",
-    "first_height": "prescribed; certify alignment and coverage separately",
+    "first_height": "Prescribed altitude and normal-foot containment in the actual wall triangle; centroid tilt and multilayer coverage audited separately.",
     "MPI_ranks": [
       1,
       2,
@@ -35,7 +35,7 @@
     {
       "id": "construction",
       "scope": "joint wall/near-wall/transition reconstruction with height/alignment/coverage and feasibility diagnostics",
-      "status": "Cold6-tet cube and saved89/100-cell joint repair plus BL release PASS MPI1/2/4 N=M under unchanged h0/q/J/full composed length and exact geometry/coverage gates. Curved/interacting walls, feature-marker seams, full M<N and production/CFD remain pending. Production actual RANS+coarsening preserves h0 but maximum physical tilt4.714; alignment control remains an explicit open gate."
+      "status": "Cold6-tet cube and saved89/100-cell joint repair plus BL release PASS MPI1/2/4 N=M under unchanged h0/q/J/full composed length and exact geometry/coverage gates. Curved/interacting walls, feature-marker seams, full M<N and production/CFD remain pending. Production actual RANS+coarsening preserves h0 but maximum physical tilt4.714; alignment control remains an explicit open gate. First-row normal-foot guard fixes the published coarsening defect in one independent serial production case (58 BL cells, tilt0); broader alignment/coverage and MPI under this stronger gate remain pending."
     },
     {
       "id": "gradation",
@@ -215,5 +215,16 @@
       "Single planar wall and near-identity bounded sensor, not arbitrary thin/curved/interacting/finer-sensor qualification",
       "Wall-policy construction memory admission remains a conservative model; no speedup/scaling/affordability claim"
     ]
-  }
+  },
+  "alignment_followup": {
+    "status": "PASS_SERIAL_LIMITED_SCOPE",
+    "evidence": "integration_evidence/native_3d_bl_v1/alignment_audit_v1/summary.json",
+    "BL_cells": 58,
+    "released_cells": 6,
+    "maximum_tilt": 0,
+    "minimum_footprint_barycentric": 0.3333333333333333,
+    "MPI": "pending connected milestone",
+    "scope": "One planar cube production case plus six focused first-row geometry/movement cases. Actual computed metric, conservative current+BDF/bounded-SA and SU2/CGNS/reference/restart checks; independent exact embedding, full composed metric, wall footprint and height. No new MPI, full regressions, general layer coverage, actual CFD accuracy or performance qualification."
+  },
+  "owned_jobs": "All terminal; production build, focused serial geometry, serial actual workflow and independent audit passed; no MPI campaign in alignment follow-up."
 }

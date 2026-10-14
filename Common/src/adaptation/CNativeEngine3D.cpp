@@ -475,7 +475,8 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     if(options.wall_heights.empty())return true;
     ++stats.height_checks;FirstHeightReport report;
     const bool valid=CheckFirstHeight(patch,options.wall_heights,geometry,report,reason);
-    stats.height_rejected+=!valid;return valid;
+    stats.height_rejected+=report.height_failures || report.missing_cells;
+    stats.footprint_rejected+=report.footprint_failures!=0;return valid;
   };
   auto geometry_trial=[&](bool valid) {
     ++stats.geometry_trials; stats.geometry_rejected+=!valid; return valid;

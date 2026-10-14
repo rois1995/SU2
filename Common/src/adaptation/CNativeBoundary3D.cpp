@@ -285,6 +285,21 @@ bool CheckFirstHeight(const Patch& patch,const std::map<int,double>& heights,con
       auto tangent=Delta(apex.p,center);const auto projection=Dot(tangent,normal);
       for(unsigned j=0;j<3;++j)tangent[j]-=projection*normal[j];
       report.maximum_tilt=std::max(report.maximum_tilt,double(Norm(tangent)/height->second));
+      // Normal-foot barycentrics use tangential areas, without rounding a projected point.
+      const std::array<Vector,3> relative{{Delta(a,apex.p),Delta(b,apex.p),Delta(c,apex.p)}};
+      long double minimum=1./3;bool outside=false;
+      for(unsigned j=0;j<3;++j) {
+        const auto& u=relative[(j+1)%3];const auto& v=relative[(j+2)%3];
+        const auto weight=Dot(Cross(u,v),normal)/area;
+        const auto tolerance=256*std::numeric_limits<long double>::epsilon()*std::max(1.L,Norm(u)*Norm(v)/area);
+        if(!std::isfinite(weight) || tolerance>1e-8L)
+          throw std::invalid_argument("Native3D first-row footprint cannot be resolved at cell "+std::to_string(cell));
+        minimum=std::min(minimum,weight);outside=outside || weight < -tolerance;
+      }
+      report.footprint_failures+=outside;
+      if(minimum<report.minimum_barycentric) {
+        report.minimum_barycentric=double(minimum);report.footprint_facet=face.facet;report.footprint_cell=cell;
+      }
       report.height_failures+=error>1e-8;
       if(error>report.maximum_relative_error) {
         report.maximum_relative_error=error;report.worst_facet=face.facet;report.worst_cell=cell;report.worst_apex=apex.p;
@@ -292,6 +307,9 @@ bool CheckFirstHeight(const Patch& patch,const std::map<int,double>& heights,con
     }
     if(report.height_failures)throw std::invalid_argument("Native3D prescribed height fails at facet "+std::to_string(report.worst_facet)+
         " cell "+std::to_string(report.worst_cell)+" relative error "+std::to_string(report.maximum_relative_error));
+    if(report.footprint_failures)throw std::invalid_argument("Native3D first-row normal foot leaves wall triangle at facet "+
+        std::to_string(report.footprint_facet)+" cell "+std::to_string(report.footprint_cell)+
+        " minimum barycentric "+std::to_string(report.minimum_barycentric));
     reason.clear();return true;
   }catch(const std::exception& error){reason=error.what();return false;}
 }

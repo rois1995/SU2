@@ -89,13 +89,15 @@ class PlanarReference {
   std::shared_ptr<CADTElemClass> search;
 };
 struct FirstHeightReport {
-  size_t wall_faces=0, height_failures=0, missing_cells=0;
-  double maximum_relative_error=0, maximum_tilt=0;
+  size_t wall_faces=0, height_failures=0, footprint_failures=0, missing_cells=0;
+  double maximum_relative_error=0, maximum_tilt=0, minimum_barycentric=1./3;
+  Id footprint_facet=0, footprint_cell=0;
   Id worst_facet=0, worst_cell=0;
   Point worst_apex{};
 };
 /*! Independent geometric first-row certificate on physical triangle children. Empty heights release
- *  the BL contract. Alignment is reported separately; metric quality/lengths and global coverage are caller duties. */
+ *  the BL contract. The normal foot must lie within its wall triangle; centroid tilt is reported
+ *  separately. Metric quality/lengths and global coverage are caller duties. */
 bool CheckFirstHeight(const Patch& patch,const std::map<int,double>& heights,const PlanarReference& reference,
                       FirstHeightReport& report,std::string& reason,KernelStats* stats=nullptr);
 /*! Joint fixed-interface background reconnection and wall-child carving. All new identities/ranges are

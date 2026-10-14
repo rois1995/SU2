@@ -1,0 +1,187 @@
+{
+  "status": "REPRODUCED_ALIGNMENT_DEFECT",
+  "scope": "Exact rational normal projection onto each declared planar wall triangle; independently verifies that the published coarsened meshes have one outside footprint. Centroid tilt alone is not the acceptance criterion.",
+  "frames": [
+    {
+      "file": "production_policy_v1/mpi1/policy_m1_s0.json",
+      "sha256": "2bcc0c9a195e3732052c0ad1ee6d2e331ff337e54f98f48b6855023312dbd331",
+      "rows": [
+        {
+          "facet": 0,
+          "cell": 0,
+          "face": [
+            0,
+            3,
+            1
+          ],
+          "apex": 8,
+          "minimum_barycentric": "6004799503160661/18014398509481984",
+          "outside": false
+        },
+        {
+          "facet": 0,
+          "cell": 27,
+          "face": [
+            0,
+            2,
+            3
+          ],
+          "apex": 8,
+          "minimum_barycentric": "-6004799503160661/18014398509481984",
+          "outside": true
+        }
+      ]
+    },
+    {
+      "file": "production_policy_v1/mpi2/policy_m1_s0.json",
+      "sha256": "c92e3a70c3e70f95dcee99649229d7d5f09347524403ac609a1672ebe46352df",
+      "rows": [
+        {
+          "facet": 0,
+          "cell": 14,
+          "face": [
+            0,
+            1,
+            7
+          ],
+          "apex": 4,
+          "minimum_barycentric": "6004799503160661/18014398509481984",
+          "outside": false
+        },
+        {
+          "facet": 0,
+          "cell": 27,
+          "face": [
+            0,
+            7,
+            6
+          ],
+          "apex": 4,
+          "minimum_barycentric": "-6004799503160661/18014398509481984",
+          "outside": true
+        }
+      ]
+    },
+    {
+      "file": "production_policy_v1/mpi2/policy_m2_s0.json",
+      "sha256": "0c060f6cdfd374f715526df0335a619416d32300fc4ce28dfec951d680012acf",
+      "rows": [
+        {
+          "facet": 0,
+          "cell": 19,
+          "face": [
+            0,
+            7,
+            6
+          ],
+          "apex": 4,
+          "minimum_barycentric": "-6004799503160661/18014398509481984",
+          "outside": true
+        },
+        {
+          "facet": 0,
+          "cell": 28,
+          "face": [
+            0,
+            1,
+            7
+          ],
+          "apex": 4,
+          "minimum_barycentric": "6004799503160661/18014398509481984",
+          "outside": false
+        }
+      ]
+    },
+    {
+      "file": "production_policy_v1/mpi4/policy_m1_s0.json",
+      "sha256": "162c6bce905289ec9a326f976120bd056c91d075d02b0136600b59ecd117b037",
+      "rows": [
+        {
+          "facet": 0,
+          "cell": 22,
+          "face": [
+            0,
+            6,
+            10
+          ],
+          "apex": 8,
+          "minimum_barycentric": "6004799503160661/18014398509481984",
+          "outside": false
+        },
+        {
+          "facet": 0,
+          "cell": 31,
+          "face": [
+            0,
+            10,
+            2
+          ],
+          "apex": 8,
+          "minimum_barycentric": "-6004799503160661/18014398509481984",
+          "outside": true
+        }
+      ]
+    },
+    {
+      "file": "production_policy_v1/mpi4/policy_m2_s0.json",
+      "sha256": "11775c42d6467f0d13aafa9f3ba6f0ebfe0e0cc0cc4405b5538053ff439e9a17",
+      "rows": [
+        {
+          "facet": 0,
+          "cell": 25,
+          "face": [
+            0,
+            10,
+            2
+          ],
+          "apex": 8,
+          "minimum_barycentric": "-6004799503160661/18014398509481984",
+          "outside": true
+        },
+        {
+          "facet": 0,
+          "cell": 28,
+          "face": [
+            0,
+            6,
+            10
+          ],
+          "apex": 8,
+          "minimum_barycentric": "6004799503160661/18014398509481984",
+          "outside": false
+        }
+      ]
+    },
+    {
+      "file": "production_policy_v1/mpi4/policy_m4_s0.json",
+      "sha256": "bbbe794dd3bc7ca40ead9ff500b1864a9d31fe35139182a04e70752d9feb2ff0",
+      "rows": [
+        {
+          "facet": 0,
+          "cell": 31,
+          "face": [
+            0,
+            10,
+            3
+          ],
+          "apex": 5,
+          "minimum_barycentric": "6004799503160661/18014398509481984",
+          "outside": false
+        },
+        {
+          "facet": 0,
+          "cell": 38,
+          "face": [
+            0,
+            7,
+            10
+          ],
+          "apex": 5,
+          "minimum_barycentric": "-6004799503160661/18014398509481984",
+          "outside": true
+        }
+      ]
+    }
+  ],
+  "helper_sha256": "5d068c56883bc966a332848b120e07d643a3015bae24671a366adf623d1be906"
+}
