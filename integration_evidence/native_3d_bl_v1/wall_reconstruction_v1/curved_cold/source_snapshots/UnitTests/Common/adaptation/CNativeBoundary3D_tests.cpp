@@ -1301,6 +1301,10 @@ TEST_CASE("Native wall split inserts coordinated height points without a common 
   auto sentinel=fresh;const auto before=Connectivity(sentinel);
   CHECK_FALSE(ReconstructWallSplit(aligned,{0,2},{1000,{.4,.4,0}},100,2000,heights,reference,sentinel,obstruction,reason));
   CHECK(Connectivity(sentinel)==before);
+  CHECK_FALSE(ReconstructWallSplit(aligned,{0,2},{1000,{.4,.4,0}},1001,2000,heights,reference,sentinel,obstruction,reason,nullptr,-1));
+  CHECK(Connectivity(sentinel)==before);
+  Patch planar;REQUIRE(ReconstructWallSplit(aligned,{0,2},{1000,{.4,.4,0}},1001,2000,heights,reference,planar,obstruction,reason,nullptr,.01));
+  CHECK(Connectivity(planar)==Connectivity(fresh));
   CHECK_FALSE(ReconstructWallSplit(EdgeStar(aligned,{0,2}),{0,2},{1000,{.4,.4,0}},1001,2000,heights,reference,sentinel,obstruction,reason));
   CHECK(Connectivity(sentinel)==before);
 }

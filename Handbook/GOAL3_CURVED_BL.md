@@ -1,7 +1,7 @@
 # Goal3 curved-wall BL: coupled geometry, target and construction
 
 NativeIntegrated, branch `codex/native-3d-bl`. Curved BL is not qualified.
-The current connected implementation is being built. Actual queries now support
+The connected implementation builds and links. Actual queries now support
 certified complete sphere, finite-cylinder and disk components. Partial/graph
 charts and markers mixing components still reject; this is not general CAD.
 
@@ -28,12 +28,26 @@ terminal. Current stage summary: `wall_reconstruction_v1/curved_summary.json`.
   closest points. Tangential interpolation now binds to the smooth closest foot;
   that removes the quadrature failure without relaxing target/gates.
 - Native cold construction still FAILS at4096 work,120 private cells/50 nodes:
-  main accepted0; topology trials8/accepted0; joint trials4071/private moves37/
-  accepted0. Wall16 triangles are unchanged; defect.07612 exceeds coupled.025.
-  Initial/rejected SU2/JSON/reference grids and config are inspectable. No release
-  or CFD replacement occurs. Partial independent geometry checks pass positive
-  cells, oriented incidence/skin and exact volume closure; disjointness/full
-  metric/curved-height acceptance is not thereby established.
+  main accepted0; coupled topology trials11/accepted0; joint trials4068/private
+  moves31/accepted0. The original16 wall triangles remain unchanged in the returned
+  rejected mesh. No release or CFD replacement occurs.
+- Early streamed work/time exits now retain the real feature/quality sample.
+  Bounded rank-local capture saves the exact old/proposed patch and reason; default
+  production calls do not write evidence. Latest feature is edge(1,17), cell2243:
+  q .16316864070501946, J .033442629663047924, old20/proposed42 cells.
+- Before the coupled change, an18/53-cell captured rejection had q .156010/J .028588.
+  Exact independent audits of both captures verify positive volumes, no positive-
+  volume overlap, oriented incidence and unchanged artificial interface. These are
+  partial local geometry certificates, not full smooth-wall/metric/event acceptance.
+- Curved perimeter edges of the incident requested wall faces can now be split
+  together before normal-row carving. Shared cylinder/disk rim midpoints project
+  through all incident authorities. Missing perimeter stars request specific
+  dependencies. Node/cell/work bounds and final gates are unchanged. A raw retained
+  proposal improves to q .179485/J .045541, but the full cold target still fails;
+  perimeter freedom alone does not resolve the transition connectivity.
+- Focused shared geometry controls PASS3 cases/1525 assertions, plus the refreshed
+  exact planar geometry audit. No new MPI or full regression; the cold failure is
+  retained as a required target, not waived by these controls.
 - Single-sphere volume oracle PASS22936 assertions. Inflated proxy footprint
   partitioning had2752 charts and failed65536 points; removing it gave5 charts
   but still failed. Positive sphere-centred fans, where the centre is inside/on
@@ -43,12 +57,14 @@ terminal. Current stage summary: `wall_reconstruction_v1/curved_summary.json`.
 - The visible-wall/hidden thin-sphere oracle still FAILS the16384 subdivision
   bound. It is not qualified; do not infer interacting-layer robustness.
 
-Next: fix early work-exit diagnosis so it retains the actual failed curved patch,
-metric residual and specific dependencies, then give that wall/transition
-reconstruction the needed coupled freedom. Current last metric/feature fields are
-unset on the cold budget exit: q1/J1 are defaults, not evidence. Do not increase
-budgets or add placement variants without the reproduced blocker. Address the
-interacting fan/subdivision limitation separately; preserve both complete targets.
+Next: use the reproduced curved patch to coordinate wall distribution and its
+transition topology beyond single-edge reconstruction. Do not repeatedly expand
+cavities or add placement variants without addressing that construction limit.
+The actual frozen target, strict shape/sliver/length gates and atomic rejection
+stay intact. Interacting fan/subdivision remains a separate unresolved limitation.
+Evidence: `wall_reconstruction_v1/curved_cavity_audit.json` and
+`curved_cavity_audit_before_perimeter.json`; input hashes locate the preserved
+current/archived captures. `audit_curved_cavity.py` reuses existing exact predicates.
 
 Full cold-grid success and independent curved whole-mesh audit, MPI/return/transfer/
 restart and physical RANS/performance gates remain required. Partial/graph/mixed
@@ -79,31 +95,18 @@ The formulas match native Measure; the proxy is not its spatially varying compos
 field or a proposed acceptance certificate. The .1 factor is an experiment setting,
 not a new production tolerance. Scale invariance passes R=.1,1,1000.
 
-## Next substantial implementation
+## Next missing construction capability
 
-Implement these together against a curved complete construction/removal target:
+Complete the wall/transition proposal on the known cold target, including the
+newly admitted perimeter stars and collective normal-row connectivity. Geometry,
+actual metric and prescribed first height must hold together; the failed proposal
+is not proof that the target is infeasible. Retain the broad target requirements.
 
-1. Finite analytic geometry authority supplies closest points and normals, with
-   marker/component/chart limits. Reuse projection and canonical charts; do not
-   silently substitute a facet or extrapolate beyond a chart. Begin with supported
-   radial geometry and retain explicit rejection for unsupported queries.
-2. The same actual-query curved composition feeds remeshing and complexity. Edge
-   band intersections and volume integration must resolve thin smooth regions even
-   when endpoint/midpoint or original-facet samples miss them. A point-query extension
-   with unchanged facet-band clipping is insufficient. Preserve original P1 sensor
-   donors, finer demands, fade and noise0; audit any additional curvature demand
-   before freezing rather than retuning a rejected target.
-3. Coordinate projected wall children, normal points and transition topology using
-   the retained-topology reconstruction and complete dependencies. Relate the frozen
-   geometric error to h0; diagnose smooth-wall clearance/height and facet altitude
-   separately. Avoid claiming that an independent Hausdorff tolerance gives a usable
-   thin first row. Any changed height contract must be explicit and qualified.
+Curvature resolution before first-row initialization is still needed where a
+coarse external-fluid wall would put its normal-row point across the smooth wall.
+The complete radial query/field/edge facilities above already exist; do not treat
+them as future implementation or repeat their primitive tests as milestones.
 
-Acceptance remains complete geometry/coverage, positive/conforming/disjoint tets,
-original frozen-field q/J/full edges, height and normal-foot checks, sensor transport,
-atomic refusal and repeat removal. Qualify curved integration against independent
-radial references, then MPI/transfer/restart at the connected milestone. Planar
-behavior must retain the existing evidence. Thin/feature/interacting layers and
-physical viscous accuracy remain separate required Goal3 checks.
-
-No production target, query, geometry or height behavior changed in this experiment.
+Also resolve interacting thin-volume integration within its declared accuracy/work
+policy and qualify composed gradation separately. Full geometry/MPI/transfer/RANS/
+restart/accuracy/performance gates remain in the requirement audit.

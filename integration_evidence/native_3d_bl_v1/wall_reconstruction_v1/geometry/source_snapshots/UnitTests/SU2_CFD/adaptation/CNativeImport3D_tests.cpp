@@ -10,6 +10,7 @@
 #include "../../../SU2_CFD/include/adaptation/CBarycentricTransfer.hpp"
 #include "../../../SU2_CFD/include/output/CMeshOutput.hpp"
 #include "../../../SU2_CFD/include/adaptation/CConservativeTransfer.hpp"
+#include "../../../SU2_CFD/include/adaptation/CBoundaryLayerMetric.hpp"
 #include "../../../Common/include/geometry/meshreader/CSU2ASCIIMeshReaderFVM.hpp"
 #include "../../../Common/include/geometry/meshreader/CCGNSMeshReaderFVM.hpp"
 #include "../../../Common/include/adaptation/CNativeRemesher3D.hpp"
@@ -117,9 +118,7 @@ void SaveStates(World& world,const std::string& name,const MeshSolution& donor,c
   SaveStates(world,name,Flow(world,donor.Fine(),*donor.solver[MESH_0][FLOW_SOL]),
              Flow(world,accepted.Fine(),*accepted.solver[MESH_0][FLOW_SOL],metric),scale);
 }
-void Save(World& world,const std::string& name,const Owned& local,const std::vector<DonorCell>& original,const ReferenceState& reference) {
-  const auto cells=world.metadata([&]{std::vector<OwnedCell> v;for(auto r:local)v.push_back(r.second);return v;}());
-  const auto source=world.metadata(original);if(world.rank)return;
+void SaveRecords(const std::string& name,const std::vector<OwnedCell>& cells,const std::vector<DonorCell>& source,const ReferenceState& reference) {
   std::map<Id,Node> nodes;for(auto c:cells)for(auto n:c.cell.v)nodes.emplace(n.id,n);
   std::ofstream out(name+".json");out<<std::setprecision(17)<<"{\"nodes\":[";bool comma=false;
   auto node=[&](Node n){out<<'['<<n.id<<','<<n.p.x<<','<<n.p.y<<','<<n.p.z<<']';};
@@ -136,6 +135,11 @@ void Save(World& world,const std::string& name,const Owned& local,const std::vec
   out<<"],\"original\":[";comma=false;
   for(auto d:source){if(comma)out<<',';comma=true;out<<"{\"vertices\":[";for(size_t k=0;k<4;++k){if(k)out<<',';auto n=d.cell.v[k];auto m=d.sensor[k];out<<'['<<n.id<<','<<n.p.x<<','<<n.p.y<<','<<n.p.z<<",["<<m.xx<<','<<m.xy<<','<<m.xz<<','<<m.yy<<','<<m.yz<<','<<m.zz<<"]]";}out<<"]}";}
   out<<"]}\n";CHECK(out.good());
+}
+
+void Save(World& world,const std::string& name,const Owned& local,const std::vector<DonorCell>& original,const ReferenceState& reference) {
+  const auto cells=world.metadata([&]{std::vector<OwnedCell> v;for(auto r:local)v.push_back(r.second);return v;}());
+  const auto source=world.metadata(original);if(!world.rank)SaveRecords(name,cells,source,reference);
 }
 
 auto Signature(World& world,const Owned& owned,const ReferenceState& reference) {
@@ -323,7 +327,9 @@ TEST_CASE("Native3D immutable reference encoding rejects malformed authority", "
   const auto text=EncodeReference(original);auto copy=DecodeReference(text);CHECK(EncodeReference(copy)==text);
   CHECK(copy.original!=original.original);CHECK(copy.facets.size()==original.facets.size());
   CHECK_THROWS(EncodeReference(ReferenceState{}));CHECK_THROWS(DecodeReference(text+"junk"));
-  CHECK_THROWS(DecodeReference(std::string(ReferenceFileLimit3D+1,'x')));
+  CHECK_THROWS(DecodeReference(text, 8*text.size()-1));
+  const auto large = text + std::string(1024*1024, ' ');
+  CHECK(EncodeReference(DecodeReference(large)) == text);
   auto wrong=text;wrong.replace(wrong.find("3D 1"),4,"3D 2");CHECK_THROWS(DecodeReference(wrong));
   wrong=text;wrong.replace(wrong.find('\n')+1,wrong.find('\n',wrong.find('\n')+1)-wrong.find('\n')-1,"0 0");CHECK_THROWS(DecodeReference(wrong));
   auto broken=original;broken.facets.pop_back();CHECK_THROWS(EncodeReference(broken));
@@ -743,10 +749,10 @@ TEST_CASE("Native returned geometry accepts empty point connectivity", "[NativeB
   }
 }
 
-// Separate death-test tag: the external local runner expects collective rejection, never a successful Catch exit.
+// Collective refusal is recoverable and must leave current/BDF state unpublished.
 TEST_CASE("Native3D acceptance veto retains current and BDF state before publication", "[NativePolicyVeto3D]") {
-  World world;const int veto=std::getenv("SU2_NATIVE3D_VETO_CALL") ? std::stoi(std::getenv("SU2_NATIVE3D_VETO_CALL")) : 2;
-  REQUIRE((veto==1 || veto==2));
+  World world;const int veto=std::getenv("SU2_NATIVE3D_VETO_CALL") ? std::stoi(std::getenv("SU2_NATIVE3D_VETO_CALL")) : 1;
+  REQUIRE(veto==1);
   if(!world.rank) {
     simplex_test::WriteSU2Mesh(BoxMesh(3,1,false),"veto_input.su2");
     std::ofstream cfg("veto.cfg");cfg<<"SOLVER= EULER\nMATH_PROBLEM= DIRECT\nMACH_NUMBER= 0.5\nCONV_NUM_METHOD_FLOW= ROE\nMUSCL_FLOW= NO\nMGLEVEL= 0\nMESH_FILENAME= veto_input.su2\n"
@@ -784,8 +790,16 @@ TEST_CASE("Native3D acceptance veto retains current and BDF state before publica
     }
     return true;
   };
-  CBarycentricTransfer transfer;driver->ReplaceMesh(remeshed,transfer);
-  FAIL("Expected collective acceptance veto before publication");
+  CBarycentricTransfer transfer;
+  CHECK_FALSE(driver->ReplaceMesh(remeshed,transfer));
+  CHECK(calls==1);CHECK(State(driver->Geometry(),driver->Solver())==before);
+  CHECK_FALSE(driver->Reference()->original);
+  remeshed.beforeAcceptance={};
+  remeshed.status=world.rank==0 ? CRemeshResult::Status::INCOMPLETE_QUALITY : CRemeshResult::Status::COMPLETE;
+  CHECK_FALSE(driver->ReplaceMesh(remeshed,transfer));
+  CHECK(State(driver->Geometry(),driver->Solver())==before);CHECK_FALSE(driver->Reference()->original);
+  remeshed.status=CRemeshResult::Status::COMPLETE;
+  REQUIRE(driver->ReplaceMesh(remeshed,transfer));CHECK(driver->Reference()->original);
 }
 
 TEST_CASE("Analytic native3D reference persists explicit geometry and requires a frozen runtime tolerance",
@@ -1400,6 +1414,9 @@ TEST_CASE("Resolved three-dimensional Euler vortex drives native curved adaptati
 
 TEST_CASE("Native3D production wall policy preserves sensor donors and RANS histories across worker counts", "[NativeBLPolicyRuntime3D]") {
   World world;const int workers=GENERATE(1,2,4);if(workers>world.size)return;
+  const auto* selected=std::getenv("SU2_NATIVE_POLICY_WORKERS");const auto only=selected?std::stoi(selected):0;
+  REQUIRE((only==0 || only==1 || only==2 || only==4));REQUIRE(only<=world.size);
+  if(only && workers!=only)return;
   const std::string name="policy_m"+std::to_string(workers);
   auto configText=[&](bool walls) {
     std::ostringstream cfg;
@@ -1483,9 +1500,10 @@ TEST_CASE("Native3D production wall policy preserves sensor donors and RANS hist
     for(unsigned long p=0;p<driver->Geometry().GetnPointDomain();++p) {
       const double expected=viscosity*SU2_TYPE::GetValue(driver->Geometry().nodes->GetCoord(p,2));
       const double lower=SU2_TYPE::GetValue(driver->Turbulence()->GetLowerLimit(0));
-      CHECK(turb->GetSolution(p,0)>=lower);CHECK(RelDiff(turb->GetSolution(p,0),std::max(lower,expected))<2e-10);
-      CHECK(RelDiff(turb->GetSolution_time_n(p,0),std::max(lower,expected))<2e-10);
-      CHECK(RelDiff(turb->GetSolution_time_n1(p,0),std::max(lower,expected*.9375))<2e-10);
+      // Normalize affine accuracy by its donor scale; the strict solver bound stays pointwise.
+      CHECK(turb->GetSolution(p,0)>=lower);CHECK(RelDiff(turb->GetSolution(p,0),std::max(lower,expected),viscosity)<2e-10);
+      CHECK(RelDiff(turb->GetSolution_time_n(p,0),std::max(lower,expected),viscosity)<2e-10);
+      CHECK(RelDiff(turb->GetSolution_time_n1(p,0),std::max(lower,expected*.9375),viscosity*.9375)<2e-10);
     }
     OutputRoundTrip(world,event,result.slices,accepted.cells,state,1.,[](const su2double*,double){return Tensor{1,0,0,1,0,1};},&input.original);
     WriteReference(event+".su2.native_ref",state);ReferenceState loaded;CHECK(LoadReference(event+".su2.native_ref",loaded));
@@ -1515,4 +1533,109 @@ TEST_CASE("Native3D production wall policy preserves sensor donors and RANS hist
   }
   REQUIRE(counts.size()==2);CHECK(counts[0]>6);CHECK(counts[1]<counts[0]);
   {Mute mute;driver->Finalize();driver.reset();}
+}
+
+TEST_CASE("Cold native cylinder BL construction and release use the same original sensor and smooth policy", "[.][NativeCurvedBLConstruction3D]") {
+  World world;const auto seed=PrimitiveMesh(false,false);
+  std::stringstream text("SOLVER= RANS\nKIND_TURB_MODEL= SA\nMACH_NUMBER= .2\nAOA= 90\nREYNOLDS_NUMBER= 1000\nREYNOLDS_LENGTH= 1\n"
+      "MESH_FORMAT= SU2\nMESH_FILENAME= unused.su2\nMARKER_FAR= (cap0,cap1)\nMARKER_HEATFLUX= (cylinder,0)\nMGLEVEL= 0\n"
+      "COMPUTE_METRIC= YES\nADAP_SENSOR= PRESSURE\nADAP_REMESHER= NATIVE_CAVITY\nADAP_SURFACE= YES\nADAP_HESSIAN_NOISE= 0\n"
+      "ADAP_BL_MARKER= (cylinder)\nADAP_BL_FIRST_HEIGHT= (.05)\nADAP_BL_GROWTH= (1.2)\nADAP_BL_THICKNESS= (.2)\nADAP_HAUSD= .04\n");
+  if(!world.rank) {
+    auto cfg=text.str();const std::string old="MESH_FILENAME= unused.su2";const auto at=cfg.find(old);REQUIRE(at!=std::string::npos);
+    cfg.replace(at,old.size(),"MESH_FILENAME= curved_cylinder_initial_euler.su2");std::ofstream out("curved_cylinder.cfg");out<<cfg;
+  }
+  std::unique_ptr<CConfig> config;{Mute mute;config=std::make_unique<CConfig>(text,SU2_COMPONENT::SU2_CFD,false);}
+  MeshSolution mesh(config.get(),seed,0);su2activematrix sensor(mesh.Fine().GetnPointDomain(),6);
+  for(unsigned long p=0;p<sensor.rows();++p)for(unsigned k=0;k<6;++k)sensor(p,k)=k==0||k==3||k==5?1.:0.;
+  ReferenceState reference;ImportGeometry(*config,mesh.Fine(),nullptr,reference);DeclarePrimitive(reference,false,false);
+  const auto input=ImportGeometry(*config,mesh.Fine(),&sensor,reference);const auto before=Signature(world,input.cells,reference);
+  auto layers=CBoundaryLayerMetric::FromNativeReference(reference,*config);
+  MetricComposition compose=[layers](Point p,Tensor s) {
+    CBoundaryLayerMetric::Tensor m;const su2double x[3]={p.x,p.y,p.z};
+    m.m[0][0]=s.xx;m.m[0][1]=m.m[1][0]=s.xy;m.m[0][2]=m.m[2][0]=s.xz;
+    m.m[1][1]=s.yy;m.m[1][2]=m.m[2][1]=s.yz;m.m[2][2]=s.zz;
+    layers->ApplyPoint(x,m,1.,nullptr,false);
+    return Tensor{SU2_TYPE::GetValue(m.m[0][0]),SU2_TYPE::GetValue(m.m[0][1]),SU2_TYPE::GetValue(m.m[0][2]),
+        SU2_TYPE::GetValue(m.m[1][1]),SU2_TYPE::GetValue(m.m[1][2]),SU2_TYPE::GetValue(m.m[2][2])};
+  };
+  EngineOptions options;options.surface_tolerance=.04;options.maximum_work=4096;options.timings=true;
+  for(unsigned marker=0;marker<reference.marker_names.size();++marker)if(reference.marker_names[marker]=="cylinder")options.wall_heights[marker]=.05;
+  REQUIRE(options.wall_heights.size()==1);
+  options.edge_breakpoints=[layers](Point a,Point b){return layers->EdgeBreakpoints({a.x,a.y,a.z},{b.x,b.y,b.z});};
+  auto save=[&](const std::string& name,const Owned& owned) {
+    Save(world,name,owned,input.original,reference);
+    std::vector<OwnedCell> local;for(const auto& row:owned)local.push_back(row.second);const auto all=world.metadata(local);
+    if(world.rank)return;
+    CSimplexMesh output;output.nDim=3;std::map<Id,unsigned long> ids;std::map<int,unsigned> markers;
+    const std::array<std::array<unsigned,3>,4> faces{{{{1,2,3}},{{0,3,2}},{{0,1,3}},{{0,2,1}}}};
+    for(const auto& row:all) {
+      for(auto n:row.cell.v){auto inserted=ids.emplace(n.id,ids.size());if(inserted.second)output.coord.insert(output.coord.end(),{n.p.x,n.p.y,n.p.z});output.elem.push_back(inserted.first->second);}
+      output.elemRef.push_back(0);
+      for(unsigned f=0;f<4;++f)if(row.physical[f].present) {
+        const auto marker=reference.original->Get(row.physical[f].facet).marker;auto inserted=markers.emplace(marker,markers.size());
+        if(inserted.second)output.markers.push_back({reference.marker_names.at(marker),marker,{}});
+        for(auto k:faces[f])output.markers[inserted.first->second].elem.push_back(ids.at(row.cell.v[k].id));
+      }
+    }
+    simplex_test::WriteSU2Mesh(output,name+".su2");std::ofstream sidecar(name+".su2.native_ref");sidecar<<EncodeReference(reference);
+  };
+  save("curved_cylinder_initial_euler",input.cells);
+  const auto captured_source=world.metadata(input.original);size_t captured=0;
+  options.rejected_trial=[&](const Patch& old,const Patch& fresh,Feature feature,const MetricDiagnosis& metric,
+                            bool geometry_valid,const std::string& reason) {
+    // One latest pair per worker bounds evidence size; the log retains the trial sequence.
+    const auto name="curved_rejected_patch_rank"+std::to_string(world.rank);
+    auto records=[](const Patch& patch) {
+      std::vector<OwnedCell> rows;
+      for(const auto& c:patch.cells) {
+        OwnedCell row;row.cell=c;
+        for(unsigned omit=0;omit<4;++omit) {
+          Face face{};unsigned at=0;for(unsigned k=0;k<4;++k)if(k!=omit)face[at++]=c.v[k].id;
+          std::sort(face.begin(),face.end());
+          for(const auto& f:patch.surface){auto key=f.v;std::sort(key.begin(),key.end());if(key==face)row.physical[omit]={true,f.facet};}
+        }
+        rows.push_back(row);
+      }
+      return rows;
+    };
+    SaveRecords(name+"_old",records(old),captured_source,reference);
+    SaveRecords(name+"_proposal",records(fresh),captured_source,reference);
+    std::ofstream out(name+"_diagnosis.json");out<<std::setprecision(17)
+        <<"{\"trial\":"<<++captured<<",\"feature\":["<<feature.vertices[0]<<','<<feature.vertices[1]<<','<<feature.vertices[2]
+        <<"],\"feature_count\":"<<feature.count<<",\"geometry_valid\":"<<(geometry_valid?"true":"false")
+        <<",\"metric_failure\":"<<unsigned(metric.failure)<<",\"q\":"<<metric.minimum_mean_ratio
+        <<",\"j\":"<<metric.minimum_scaled_jacobian<<",\"weakest_cell\":"<<metric.weakest_cell
+        <<",\"sliver_cell\":"<<metric.sliver_cell<<",\"reason\":"<<std::quoted(reason)<<"}\n";
+    REQUIRE(out.good());
+    std::cout<<"CURVED_REJECTED_TRIAL rank="<<world.rank<<" trial="<<captured<<" old="<<old.cells.size()<<" fresh="<<fresh.cells.size()
+        <<" geometry="<<geometry_valid<<" failure="<<unsigned(metric.failure)<<" q="<<metric.minimum_mean_ratio
+        <<" j="<<metric.minimum_scaled_jacobian<<" reason="<<reason<<std::endl;
+  };
+  const auto refined=Refine(world,input.cells,input.original,*reference.original,compose,options);
+  if(!world.rank)std::cout<<"CURVED_NATIVE3D refine valid="<<refined.valid<<" work="<<refined.stats.global_work<<" reason="<<refined.reason<<std::endl;
+  if(!world.rank) {
+    const auto& e=refined.stats;const auto& m=e.last_metric_rejection;
+    std::cout<<std::setprecision(17)<<"CURVED_NATIVE3D_DIAG accepted="<<e.accepted<<" rejected="<<e.rejected
+        <<" topology_trials="<<e.wall_topology_trials<<" topology_accepted="<<e.wall_topology_accepted
+        <<" joint_trials="<<e.wall_joint_trials<<" joint_moves="<<e.wall_joint_moves<<" joint_accepted="<<e.wall_joint_accepted
+        <<" geometry_rejected="<<e.geometry_rejected<<" shape_rejected="<<e.metric_shape_rejected
+        <<" failure="<<unsigned(m.failure)<<" q="<<m.minimum_mean_ratio<<" j="<<m.minimum_scaled_jacobian
+        <<" feature_count="<<e.last_rejected_feature.count<<" v0="<<e.last_rejected_feature.vertices[0]
+        <<" v1="<<e.last_rejected_feature.vertices[1]<<" v2="<<e.last_rejected_feature.vertices[2]
+        <<" x="<<e.last_rejected_cavity_centroid.x<<" y="<<e.last_rejected_cavity_centroid.y<<" z="<<e.last_rejected_cavity_centroid.z<<std::endl;
+  }
+  save(refined.valid?"curved_cylinder_BL":"curved_cylinder_BL_rejected",refined.cells);
+  CHECK(Signature(world,input.cells,reference)==before);INFO(refined.reason);REQUIRE(refined.valid);
+  const auto allOriginal=world.metadata(input.original);
+  FrozenField target(allOriginal,compose,false,AssociatedExtensions(allOriginal,*reference.original),options.edge_breakpoints);
+  for(const auto& row:refined.cells) {
+    PatchMetric measured;std::string reason;CHECK(ValidateMetricPatch({row.second.cell},target,measured,reason));
+    CHECK(target.Query(Centroid(row.second.cell)).sensor.xx==Approx(1.));
+  }
+  options.wall_heights.clear();options.edge_breakpoints={};options.rejected_trial={};options.maximum_work-=refined.stats.global_work;
+  const auto released=Coarsen(world,refined.cells,input.original,*reference.original,{},options);
+  if(!world.rank)std::cout<<"CURVED_NATIVE3D release valid="<<released.valid<<" work="<<released.stats.global_work<<" reason="<<released.reason<<std::endl;
+  save(released.valid?"curved_cylinder_released":"curved_cylinder_released_rejected",released.cells);
+  INFO(released.reason);REQUIRE(released.valid);
 }

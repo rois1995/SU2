@@ -118,9 +118,7 @@ void SaveStates(World& world,const std::string& name,const MeshSolution& donor,c
   SaveStates(world,name,Flow(world,donor.Fine(),*donor.solver[MESH_0][FLOW_SOL]),
              Flow(world,accepted.Fine(),*accepted.solver[MESH_0][FLOW_SOL],metric),scale);
 }
-void Save(World& world,const std::string& name,const Owned& local,const std::vector<DonorCell>& original,const ReferenceState& reference) {
-  const auto cells=world.metadata([&]{std::vector<OwnedCell> v;for(auto r:local)v.push_back(r.second);return v;}());
-  const auto source=world.metadata(original);if(world.rank)return;
+void SaveRecords(const std::string& name,const std::vector<OwnedCell>& cells,const std::vector<DonorCell>& source,const ReferenceState& reference) {
   std::map<Id,Node> nodes;for(auto c:cells)for(auto n:c.cell.v)nodes.emplace(n.id,n);
   std::ofstream out(name+".json");out<<std::setprecision(17)<<"{\"nodes\":[";bool comma=false;
   auto node=[&](Node n){out<<'['<<n.id<<','<<n.p.x<<','<<n.p.y<<','<<n.p.z<<']';};
@@ -137,6 +135,11 @@ void Save(World& world,const std::string& name,const Owned& local,const std::vec
   out<<"],\"original\":[";comma=false;
   for(auto d:source){if(comma)out<<',';comma=true;out<<"{\"vertices\":[";for(size_t k=0;k<4;++k){if(k)out<<',';auto n=d.cell.v[k];auto m=d.sensor[k];out<<'['<<n.id<<','<<n.p.x<<','<<n.p.y<<','<<n.p.z<<",["<<m.xx<<','<<m.xy<<','<<m.xz<<','<<m.yy<<','<<m.yz<<','<<m.zz<<"]]";}out<<"]}";}
   out<<"]}\n";CHECK(out.good());
+}
+
+void Save(World& world,const std::string& name,const Owned& local,const std::vector<DonorCell>& original,const ReferenceState& reference) {
+  const auto cells=world.metadata([&]{std::vector<OwnedCell> v;for(auto r:local)v.push_back(r.second);return v;}());
+  const auto source=world.metadata(original);if(!world.rank)SaveRecords(name,cells,source,reference);
 }
 
 auto Signature(World& world,const Owned& owned,const ReferenceState& reference) {
@@ -1578,6 +1581,37 @@ TEST_CASE("Cold native cylinder BL construction and release use the same origina
     simplex_test::WriteSU2Mesh(output,name+".su2");std::ofstream sidecar(name+".su2.native_ref");sidecar<<EncodeReference(reference);
   };
   save("curved_cylinder_initial_euler",input.cells);
+  const auto captured_source=world.metadata(input.original);size_t captured=0;
+  options.rejected_trial=[&](const Patch& old,const Patch& fresh,Feature feature,const MetricDiagnosis& metric,
+                            bool geometry_valid,const std::string& reason) {
+    // One latest pair per worker bounds evidence size; the log retains the trial sequence.
+    const auto name="curved_rejected_patch_rank"+std::to_string(world.rank);
+    auto records=[](const Patch& patch) {
+      std::vector<OwnedCell> rows;
+      for(const auto& c:patch.cells) {
+        OwnedCell row;row.cell=c;
+        for(unsigned omit=0;omit<4;++omit) {
+          Face face{};unsigned at=0;for(unsigned k=0;k<4;++k)if(k!=omit)face[at++]=c.v[k].id;
+          std::sort(face.begin(),face.end());
+          for(const auto& f:patch.surface){auto key=f.v;std::sort(key.begin(),key.end());if(key==face)row.physical[omit]={true,f.facet};}
+        }
+        rows.push_back(row);
+      }
+      return rows;
+    };
+    SaveRecords(name+"_old",records(old),captured_source,reference);
+    SaveRecords(name+"_proposal",records(fresh),captured_source,reference);
+    std::ofstream out(name+"_diagnosis.json");out<<std::setprecision(17)
+        <<"{\"trial\":"<<++captured<<",\"feature\":["<<feature.vertices[0]<<','<<feature.vertices[1]<<','<<feature.vertices[2]
+        <<"],\"feature_count\":"<<feature.count<<",\"geometry_valid\":"<<(geometry_valid?"true":"false")
+        <<",\"metric_failure\":"<<unsigned(metric.failure)<<",\"q\":"<<metric.minimum_mean_ratio
+        <<",\"j\":"<<metric.minimum_scaled_jacobian<<",\"weakest_cell\":"<<metric.weakest_cell
+        <<",\"sliver_cell\":"<<metric.sliver_cell<<",\"reason\":"<<std::quoted(reason)<<"}\n";
+    REQUIRE(out.good());
+    std::cout<<"CURVED_REJECTED_TRIAL rank="<<world.rank<<" trial="<<captured<<" old="<<old.cells.size()<<" fresh="<<fresh.cells.size()
+        <<" geometry="<<geometry_valid<<" failure="<<unsigned(metric.failure)<<" q="<<metric.minimum_mean_ratio
+        <<" j="<<metric.minimum_scaled_jacobian<<" reason="<<reason<<std::endl;
+  };
   const auto refined=Refine(world,input.cells,input.original,*reference.original,compose,options);
   if(!world.rank)std::cout<<"CURVED_NATIVE3D refine valid="<<refined.valid<<" work="<<refined.stats.global_work<<" reason="<<refined.reason<<std::endl;
   if(!world.rank) {
@@ -1599,7 +1633,7 @@ TEST_CASE("Cold native cylinder BL construction and release use the same origina
     PatchMetric measured;std::string reason;CHECK(ValidateMetricPatch({row.second.cell},target,measured,reason));
     CHECK(target.Query(Centroid(row.second.cell)).sensor.xx==Approx(1.));
   }
-  options.wall_heights.clear();options.edge_breakpoints={};options.maximum_work-=refined.stats.global_work;
+  options.wall_heights.clear();options.edge_breakpoints={};options.rejected_trial={};options.maximum_work-=refined.stats.global_work;
   const auto released=Coarsen(world,refined.cells,input.original,*reference.original,{},options);
   if(!world.rank)std::cout<<"CURVED_NATIVE3D release valid="<<released.valid<<" work="<<released.stats.global_work<<" reason="<<released.reason<<std::endl;
   save(released.valid?"curved_cylinder_released":"curved_cylinder_released_rejected",released.cells);

@@ -26,7 +26,7 @@
       "stage": "curved_cold",
       "status": "FAIL",
       "returncode": 1,
-      "receipt_sha256": "ffbf131e45b8e70568199d2d0707a9f82384b3283b39d44cb6a17e6836c15202",
+      "receipt_sha256": "c8f06408a1b0761ce7181cde20e599f1322e3687137a839920f535d2503b86d4",
       "scope": "Selected focused geometry/field/integration control or complete declared cold construction/removal probe. Curved stages use actual smooth reference and original sensors; cold case imports initialized RANS CFD geometry but does not run replacement/solution transfer or CFD iterations. Independent audit and full-goal qualification remain required; no performance claim."
     }
   ],
@@ -35,9 +35,16 @@
     "Original tangential lookup from the off-wall point made edge0,11 discontinuous; binding to the true smooth foot removed quadrature failure.",
     "Positive sphere-centred fans pass the spherical radial/volume oracle within unchanged limits (22936 assertions). Earlier facet/chord point-budget and fan work-budget failures are preserved.",
     "Visible-wall plus hidden thin-sphere test still exhausts the16384 subdivision budget; not qualified.",
-    "Complete cold cylinder still rejects at4096 work:120 cells/50 nodes, no accepted main edits,8 topology trials/0 accepted,4071 joint trials/37 private moves/0 accepted. Original wall16 triangles remain; defect.07612 exceeds height-coupled.025.",
-    "Last metric/feature diagnostics remain defaults on this early work-budget exit; q=1/J=1 are not measured proof. Fix early-exit dependency/patch diagnosis before choosing further curved reconstruction.",
-    "Sensor gradation probe ratio1, composed fade ratio30.65099; no correction or tensor spreading."
+    "Sensor gradation probe ratio1, composed fade ratio30.65099; no correction or tensor spreading.",
+    "Latest cold cylinder still rejects4096 work with120 private cells/50 nodes and no accepted main edit;11 topology trials/0 accepted;4068 joint trials/31 private moves/0 accepted.",
+    "Early streamed work/time exits retain exact failed patch, edge(1,17) and actual metric q .16316864070501946/J .033442629663047924 at cell2243. Old20/proposed42 captured cells; exact local geometry audit passes, no full metric acceptance.",
+    "Coupled curvature-unresolved wall perimeter splits and shared cylinder/disk feature projection improve a private raw proposal to q .179485/J .045541, but transition reconstruction remains blocked. Gates and limits unchanged.",
+    "Shared focused geometry controls PASS3 cases/1525 assertions and exact planar geometry audit; no new MPI/full regression."
   ],
-  "remaining": "Native curved wall/transition reconstruction and cold success, narrow/interacting integration, general geometry/features/fields, complete MPI N=M/M<N/transfer/restart, physical RANS/accuracy and complete lifecycle performance. No Goal3 completion or performance claim."
+  "remaining": "Native curved wall/transition reconstruction and cold success, narrow/interacting integration, general geometry/features/fields, complete MPI N=M/M<N/transfer/restart, physical RANS/accuracy and complete lifecycle performance. No Goal3 completion or performance claim.",
+  "rejection_audits": [
+    "curved_cavity_audit_before_perimeter.json",
+    "curved_cavity_audit.json"
+  ],
+  "shared_geometry_control": "geometry.json"
 }

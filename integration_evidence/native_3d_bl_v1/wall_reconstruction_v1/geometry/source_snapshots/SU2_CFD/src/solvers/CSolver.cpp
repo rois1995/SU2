@@ -2864,6 +2864,7 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
     std::vector<CBoundaryLayerMetric::IntegrationPoint3D> points;
     std::array<CBoundaryLayerMetric::Tensor,4> sensor;
     su2double core=-1;
+    bool sensorDependent=true;
   };
   vector<CellRule3D> integration3D;
   CLocalFailure quadratureFailure;
@@ -3097,12 +3098,15 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
                 nativeLayers->ApplySample(sample.wall,sample.sample,metric,frozenCore,nullptr,false);
               return SU2_TYPE::GetValue(density(metric));
             };
-            bool same=!cell.points.empty() && cell.core==frozenCore;
-            for(unsigned k=0;k<4;++k)for(unsigned i=0;i<3;++i)for(unsigned j=0;j<3;++j)
-              same=same && cell.sensor[k].m[i][j]==blMetric[cell.nodes[k]].m[i][j];
+            bool same=!cell.points.empty();
+            if(cell.sensorDependent) {
+              same=same && cell.core==frozenCore;
+              for(unsigned k=0;k<4;++k)for(unsigned i=0;i<3;++i)for(unsigned j=0;j<3;++j)
+                same=same && cell.sensor[k].m[i][j]==blMetric[cell.nodes[k]].m[i][j];
+            }
             if(same)++quadratureReused;
             else {
-              cell.points=nativeLayers->IntegrationRule3D(cell.coordinates,1.5,targetDensity);++quadratureBuilds;
+              cell.points=nativeLayers->IntegrationRule3D(cell.coordinates,1.5,targetDensity,&cell.sensorDependent);++quadratureBuilds;
               for(unsigned k=0;k<4;++k)cell.sensor[k]=blMetric[cell.nodes[k]];
               cell.core=frozenCore;
             }
@@ -3529,7 +3533,11 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
     SU2_MPI::Allreduce(&localSmallest, &smallest, 1, MPI_DOUBLE, MPI_MIN, SU2_MPI::GetComm());
 
     CBoundaryLayerMetric layers(*geometry, *config);
-    const auto reports = layers.Apply(coord, metric, smallest);
+    std::vector<CBoundaryLayerMetric::WallReport> reports;
+    CLocalFailure layerFailure;
+    try { reports = layers.Apply(coord, metric, smallest); }
+    catch(const std::exception& e) { layerFailure.Set(2,0,e.what()); }
+    CollectiveFailure(layerFailure,CURRENT_FUNCTION);
 
     su2double localValues[2] = {0.0, 0.0}, globalValues[2] = {0.0, 0.0};  // complexity, largest aspect ratio
     for (unsigned long iPoint = 0; iPoint < nPointDomain; ++iPoint) {

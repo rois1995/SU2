@@ -32,10 +32,13 @@ single-sphere radial fan/volume oracle PASS. Composed gradation remains uncertif
 Full curved cold construction still rejects at4096 work with120 cells; interacting
 thin-wall integration rejects at16384 subdivisions. Off-wall tangent lookup caused
 an earlier edge quadrature failure and was fixed by binding to the true foot.
-The cold wall remains unrefined;37 private moves produce no accepted main edit.
-Early budget exit does not retain representative metric/feature diagnosis yet.
-Next: reproduce that actual curved wall/transition blockage, fix diagnosis and
-construction, without raising limits. All failures, input/rejected grids, sources/
+The cold wall remains unrefined;31 private moves produce no accepted main edit.
+Early streamed exits now retain real diagnostics and bounded exact patch capture.
+Coupled curved perimeter/normal-row reconstruction is integrated but still fails
+strict shape/sliver gates. Latest edge(1,17), cell2243: q .163169/J .033443.
+Exact captured-patch audits and focused3-case/1525-assertion geometry controls pass
+in their limited scope. Next: complete joint wall/transition construction from that
+reproduced blockage, without raising limits. All failures, input/rejected grids, sources/
 binaries/helpers and partial certificates are preserved. All owned jobs terminal.
 No new MPI/full regression or physical CFD campaign. Earlier qualification stays
 tied to its executed source/binary. Full Goal3 remains active and incomplete.

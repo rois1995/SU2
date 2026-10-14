@@ -152,11 +152,14 @@ bool SplitSurfaceStrip(const Patch& old,Edge edge,Node point,const std::vector<s
 /*! Physical split and coordinated normal wall-point insertion into retained volume topology.
  * Visibility cavities grow only inside the complete admitted patch, across obstructing faces.
  * Completed wall children are protected; no common background point is required. Reserve one node
- * per requested physical wall face from first_wall_node. Caller certifies actual metric/progress,
+ * per requested physical wall face from first_wall_node. With positive surface_tolerance, also split
+ * unresolved curved perimeter edges of the two incident wall faces before constructing normal points.
+ * Perimeter points plus wall points share the128-node bound. Caller certifies actual metric/progress,
  * external clearance and versioned dependencies. Failed proposals leave fresh unchanged. */
 bool ReconstructWallSplit(const Patch& old,Edge edge,Node point,Id first_wall_node,Id first_cell,
                           const std::map<int,double>& heights,const PlanarReference& reference,
-                          Patch& fresh,Face& obstruction,std::string& reason,KernelStats* stats = nullptr);
+                          Patch& fresh,Face& obstruction,std::string& reason,KernelStats* stats = nullptr,
+                          double surface_tolerance = 0);
 /*! Complete edge star plus imported face neighbours; joint projected surface split and interior reconnection.
  * Placement tensor is a proposal proxy only. Caller must certify actual-query metric, geometry progress,
  * nonlocal clearance and complete versioned dependencies. Requested wall children and transition are carved

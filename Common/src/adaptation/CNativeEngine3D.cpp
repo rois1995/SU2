@@ -507,6 +507,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     }
     return valid;
   };
+  const bool observe_rejections=world.maximum(bool(options.rejected_trial));
   bool layer_active=false;Clock::time_point layer_started;
   auto finish=[&]() {
     if(layer_active && options.timings)stats.layer_seconds+=std::chrono::duration<double>(Clock::now()-layer_started).count();
@@ -1356,6 +1357,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       if (metric_needed && !old_measured) old_failure.Set(1,0,result.reason);
       if (!(ready=vote(old_failure))) return finish();
       auto validate_private=[&](bool candidate,MetricChange kind,bool no_new_oversized=false) {
+        certified={};
         candidate=geometric_change(candidate,kind);
         PatchMetric metric;
         const std::vector<Cell> empty;
@@ -1376,6 +1378,18 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
             metric_trial(valid,certified);
           }
         }
+        CLocalFailure observed;
+        if(chosen && !valid) {
+          stats.last_metric_rejection=certified;
+          stats.last_rejected_feature=repairing ? choice.feature : Feature{{choice.edge[0],choice.edge[1],0},2};
+          if(!old.cells.empty())stats.last_rejected_cavity_centroid=Centroid(old.cells.front());
+          last_rejection="feature "+std::to_string(stats.last_rejected_feature.count)+":"+
+              std::to_string(stats.last_rejected_feature.vertices[0])+": "+result.reason;
+          if(options.rejected_trial)try {
+            options.rejected_trial(old,fresh,stats.last_rejected_feature,certified,candidate,result.reason);
+          }catch(const std::exception& e){observed.Set(2,0,e.what());}
+        }
+        if(observe_rejections)ready=vote(observed);
         return valid;
       };
       approved=validate_private(metric_needed && old_measured && approved,choice.geometric ? MetricChange::GeometryRefine : intent);
@@ -1679,7 +1693,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
               if(retained_frame && frame==0 && wallSplit) {
                 ++stats.wall_topology_trials;
                 candidate=guarded_geometry(ReconstructWallSplit(old,choice.edge,point,maximum_node+2+node_offset,
-                    maximum_cell+1+offset,options.wall_heights,geometry,fresh,obstruction,result.reason));
+                    maximum_cell+1+offset,options.wall_heights,geometry,fresh,obstruction,result.reason,nullptr,options.surface_tolerance));
               } else if(!retained_frame || frame>0) {
                 candidate=guarded_geometry(ReconstructSplitPatch(old,choice.edge,point,{maximum_node+2+node_offset,{}},
                     frame>unsigned(retained_frame)?nearPlacement:placement,maximum_cell+1+offset,geometry,
@@ -1936,7 +1950,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     if(approved && !coarsening && !repairing && !repair_approved)
       for(const auto& cell:fresh.cells)for(auto node:cell.v)if(node.id==point.id)point=node;
     if (chosen && !approved) {
-      // A sample belongs to this finally rejected cavity, not a failed trial later rescued elsewhere.
+      // Keep the completed rejection consistent with the earlier private/budget-exit sample.
       stats.last_metric_rejection=certified;
       stats.last_rejected_feature=repairing ? choice.feature : Feature{{choice.edge[0],choice.edge[1],0},2};
       if (!old.cells.empty()) stats.last_rejected_cavity_centroid=Centroid(old.cells.front());

@@ -1201,7 +1201,12 @@ bool SplitSurfaceStrip(const Patch& old,Edge edge,Node point,const std::vector<s
       ++incident;
     }
     if(incident!=0 && incident!=2)throw std::invalid_argument("Native3D strip split needs a complete interior or physical boundary edge.");
-    if(curved) {
+    const auto a=nodes.at(edge[0]).p,b=nodes.at(edge[1]).p;
+    const Point midpoint{double(((long double)a.x+b.x)/2),double(((long double)a.y+b.y)/2),double(((long double)a.z+b.z)/2)};
+    if(curved && moves.empty() && point.p.x==midpoint.x && point.p.y==midpoint.y && point.p.z==midpoint.z) {
+      // A midpoint may cross analytic charts/markers only when every authority agrees on the projected feature.
+      point=ProjectSplitPoint(edge,point,nodes,physical,reference,stats);
+    } else if(curved) {
       for(const auto& row:physical)if(Has(row.second.v,edge[0]) && Has(row.second.v,edge[1]) && row.second.facet!=facet)
         throw std::invalid_argument("Native3D off-edge strip split crosses a chart or marker junction.");
       if(!reference.Analytic().count(facet) || reference.Analytic().at(facet).kind==AnalyticSurface::Kind::Disk)
@@ -1232,15 +1237,47 @@ bool SplitSurfaceStrip(const Patch& old,Edge edge,Node point,const std::vector<s
 }
 bool ReconstructWallSplit(const Patch& old,Edge edge,Node point,Id first_wall_node,Id first,
                           const std::map<int,double>& heights,const PlanarReference& reference,
-                          Patch& fresh,Face& obstruction,std::string& reason,KernelStats* stats) {
+                          Patch& fresh,Face& obstruction,std::string& reason,KernelStats* stats,double surface_tolerance) {
   obstruction={};
   try {
     Bounds(old);Endpoints(edge);
+    if(!std::isfinite(surface_tolerance) || surface_tolerance<0)
+      throw std::invalid_argument("Native3D coupled wall split has an invalid surface tolerance.");
     FirstHeightReport height;
     if(heights.empty() || !CheckFirstHeight(old,heights,reference,height,reason,stats))
       throw std::invalid_argument("Native3D retained wall split needs an admissible prescribed-height input: "+reason);
     Patch proposal;
     if(!SplitSurfaceStrip(old,edge,point,{},first,reference,proposal,reason,stats))throw std::invalid_argument(reason);
+    size_t perimeter_points=0;
+    if(surface_tolerance>0) {
+      const auto boundary=SkinMap(Incidence(old.cells,stats).Boundary());
+      const auto marked=CheckSurface(old,boundary,reference,stats);const auto original_nodes=Nodes(old.cells);
+      std::map<Edge,double> perimeter;
+      for(const auto& f:old.surface)if(Has(f.v,edge[0]) && Has(f.v,edge[1]) &&
+          heights.count(reference.Get(f.facet).marker) && reference.Analytic().count(f.facet)) {
+        const auto tolerance=std::min(surface_tolerance,.5*heights.at(reference.Get(f.facet).marker));
+        for(unsigned i=0;i<3;++i) {
+          Edge other{f.v[i],f.v[(i+1)%3]};std::sort(other.begin(),other.end());
+          auto selected=edge;std::sort(selected.begin(),selected.end());if(other==selected)continue;
+          const auto found=perimeter.emplace(other,tolerance);if(!found.second)found.first->second=std::min(found.first->second,tolerance);
+        }
+      }
+      for(const auto& row:perimeter) {
+        if(first_wall_node>UINT64_MAX-perimeter_points)throw std::invalid_argument("Native3D perimeter split identity overflows.");
+        const auto a=original_nodes.at(row.first[0]).p,b=original_nodes.at(row.first[1]).p;
+        Node mid{first_wall_node+perimeter_points,{double(((long double)a.x+b.x)/2),double(((long double)a.y+b.y)/2),double(((long double)a.z+b.z)/2)}};
+        const auto projected=ProjectSplitPoint(row.first,mid,original_nodes,marked,reference,stats);
+        if(Norm(Delta(projected.p,mid.p))<=row.second)continue;
+        for(const auto& f:boundary)if(Has(f.second,row.first[0]) && Has(f.second,row.first[1]) && !marked.count(f.first)) {
+          obstruction=f.second;throw std::invalid_argument("Native3D coupled perimeter split needs its complete physical edge star.");
+        }
+        Patch next;
+        if(!SplitSurfaceStrip(proposal,row.first,mid,{},first,reference,next,reason,stats))throw std::invalid_argument(reason);
+        proposal=std::move(next);++perimeter_points;
+      }
+    }
+    if(first_wall_node>UINT64_MAX-perimeter_points)throw std::invalid_argument("Native3D wall identities overflow after perimeter splits.");
+    first_wall_node+=perimeter_points;
     const auto skin=SkinMap(Incidence(proposal.cells,stats).Boundary());
     const auto physical=CheckSurface(proposal,skin,reference,stats);
     if(std::none_of(old.surface.begin(),old.surface.end(),[&](const auto& f) {
@@ -1248,7 +1285,7 @@ bool ReconstructWallSplit(const Patch& old,Edge edge,Node point,Id first_wall_no
     }))throw std::invalid_argument("Native3D retained wall split needs a requested physical wall edge.");
     std::vector<SurfaceFace> walls;
     for(const auto& row:physical)if(heights.count(reference.Get(row.second.facet).marker))walls.push_back(row.second);
-    if(walls.empty() || walls.size()>MaximumReplacementCells || first_wall_node>UINT64_MAX-(walls.size()-1))
+    if(walls.empty() || walls.size()+perimeter_points>MaximumReplacementCells || first_wall_node>UINT64_MAX-(walls.size()-1))
       throw std::invalid_argument("Native3D retained wall split exceeds reserved wall identities.");
     auto nodes=Nodes(proposal.cells);
     for(size_t i=0;i<walls.size();++i)if(nodes.count(first_wall_node+i))

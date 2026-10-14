@@ -18,6 +18,8 @@ struct EngineOptions {
   double surface_tolerance = 0;  // Analytic authority requires a positive frozen physical error ceiling.
   std::map<int,double> wall_heights;  // Frozen marker policy; empty releases the first-row constraint.
   MetricEdgeBreakpoints edge_breakpoints;  // Frozen geometry bands; required for composed target edge audits.
+  // Optional rank-local diagnostic; must not enter worker/world collectives or retain borrowed patches.
+  std::function<void(const Patch&,const Patch&,Feature,const MetricDiagnosis&,bool,const std::string&)> rejected_trial;
   bool timings = false;
   size_t candidate_batch = MaximumCandidateBatch;  // Internal control for paired correctness/work comparisons.
 };
@@ -38,7 +40,7 @@ struct EngineStats {
   double layer_seconds = 0;  // Exclusive first-row initialization before metric seeding.
   uint64_t geometry_trials = 0, geometry_rejected = 0, metric_trials = 0;
   uint64_t metric_shape_rejected = 0, metric_progress_rejected = 0, metric_measurement_rejected = 0;
-  MetricDiagnosis last_metric_rejection;
+  MetricDiagnosis last_metric_rejection;  // Most recent private failure, including work/time exits; not an infeasibility proof.
   Feature last_rejected_feature;
   Point last_rejected_cavity_centroid{};  // Representative cavity location, not an infeasibility certificate.
 
