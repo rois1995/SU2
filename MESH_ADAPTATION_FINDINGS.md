@@ -5139,3 +5139,11 @@ no independent runtime certificate claimed on mixed logs. Engine still one
 proposal/worker/round: next batched payload/reservation then private multi-edit
 engine integration. Default512 and repeated practical performance/fullGoal1
 remain open. No Goal2/curved/3DBL/physical-unsteady claim. Foreign work untouched.
+
+Saved-grid transition experiment: simultaneous two-point insertion/apex movement
+remained rejected at446 cells/279 oversized edges, excess162.661→144.871. Its
+benefit was not isolated, so the extra production retries were withdrawn; the
+engine is restored exactly to published3f323314fb. The strict resumable
+`curved_transition_complete` harness and closed source-pinned experiment remain.
+Next: field-residual-directed joint placement, not additional fixed move seeds
+or budget increases. See the curved handbook's rejected-experiment section.

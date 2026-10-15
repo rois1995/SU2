@@ -159,3 +159,29 @@ them as future implementation or repeat their primitive tests as milestones.
 Also resolve interacting thin-volume integration within its declared accuracy/work
 policy and qualify composed gradation separately. Full geometry/MPI/transfer/RANS/
 restart/accuracy/performance gates remain in the requirement audit.
+
+## Rejected combined-transition experiment
+
+The saved438-cell cylinder grid can now be resumed through the actual engine
+with `run.py curved_transition_complete`. It uses the original120 donor records,
+original geometry/BL/fade and4096-work/300-second limits. Final validity and zero
+oversized edges are mandatory; input and rejected output, complete residuals and
+source/build/binary provenance are retained. It does not qualify cold construction,
+CFD transfer, release/restart or physical accuracy.
+
+An experimental combined proposal reserved a separate second-insertion identity,
+kept interior-apex movement and transported its insertion point by original-cell
+barycentrics. It followed established candidates and retained full final gates.
+The saved-grid run remained rejected:8 edits/2 insertion transactions,446 cells,
+q .229233/J .056062,279 oversized edges, metric excess162.660529→144.870789,
+work3624, kernel time ceiling. The planar control passed. These results do not
+isolate the benefit of the new proposal, prove robust construction or establish
+speedup. Additional production retries were therefore withdrawn; the production
+engine is byte-identical to published3f323314fb. Exact experimental code remains
+in `curved_transition_complete/source_snapshots/Common/src/adaptation/CNativeEngine3D.cpp`.
+See `combined_transition_experiment.json` and the source-pinned rejected grid.
+
+Next: quality/length-directed joint placement against actual field residuals,
+with constrained geometry and bounded work, rather than more fixed move seeds.
+Do not repeat cold construction or increase budgets to hide this unresolved gap.
+All full Goal3 gates remain required; earlier planar MPI qualification is retained.

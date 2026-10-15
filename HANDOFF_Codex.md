@@ -94,3 +94,11 @@ and MPI campaigns at substantial connected milestones. Push reviewable checkpoin
 One owned heavy job, nice19/threads1, MPI<=4/build-j1; verify live handles before
 restarting. AdapNoExt, foreign ClusterResults, dependencies and other workers stay
 untouched. Euler-to-BL and BL-to-Euler are validation scenarios, never modes.
+
+Saved-grid transition experiment: simultaneous two-point insertion/apex movement
+remained rejected at446 cells/279 oversized edges, excess162.661→144.871. Its
+benefit was not isolated, so the extra production retries were withdrawn; the
+engine is restored exactly to published3f323314fb. The strict resumable
+`curved_transition_complete` harness and closed source-pinned experiment remain.
+Next: field-residual-directed joint placement, not additional fixed move seeds
+or budget increases. See the curved handbook's rejected-experiment section.

@@ -1628,14 +1628,15 @@ TEST_CASE("Cold native cylinder BL construction and release use the same origina
         <<",\"edges\":"<<edges.size()<<",\"oversized_edges\":"<<longEdges<<",\"maximum_length\":"<<maximum<<"}\n";REQUIRE(summary.good());
     if(std::getenv("SU2_NATIVE_CURVED_GRID_REFINE")) {
       const auto unchanged=Signature(world,grid.cells,reference);
-      options.maximum_rounds=1;
+      options.maximum_rounds=std::getenv("SU2_NATIVE_CURVED_GRID_COMPLETE")?0:1;
+      options.maximum_seconds=300;
       const auto partial=Refine(world,grid.cells,input.original,*reference.original,compose,options);
       std::cout<<"CURVED_GRID_REFINE accepted="<<partial.stats.accepted<<" inserted="<<partial.stats.inserted
           <<" work="<<partial.stats.global_work<<" stop="<<EngineStopName(partial.stats.stop)<<" reason="<<partial.reason<<std::endl;
-      save("curved_grid_partial_rejected",partial.cells);
+      save(partial.valid?"curved_grid_adapted":"curved_grid_partial_rejected",partial.cells);
       CHECK(Signature(world,grid.cells,reference)==unchanged);CHECK(Signature(world,input.cells,reference)==before);
-      REQUIRE(partial.stats.accepted==1);CHECK(partial.stats.inserted==1);
-      CHECK_FALSE(partial.valid);CHECK(partial.stats.stop==EngineStop::RoundBudget);
+      if(!std::getenv("SU2_NATIVE_CURVED_GRID_COMPLETE")){REQUIRE(partial.stats.accepted==1);CHECK(partial.stats.inserted==1);}
+      if(!std::getenv("SU2_NATIVE_CURVED_GRID_COMPLETE")){CHECK_FALSE(partial.valid);CHECK(partial.stats.stop==EngineStop::RoundBudget);}
       PatchMetric measured;size_t oversized=0;double minimum_q=1,minimum_j=1;long double excess=0;
       std::map<Edge,long double> output_edges;
       for(const auto& row:partial.cells) {
@@ -1646,11 +1647,13 @@ TEST_CASE("Cold native cylinder BL construction and release use the same origina
       for(const auto& e:output_edges) {oversized+=e.second>MaximumMetricEdge;excess+=std::pow(std::max(0.L,e.second-MaximumMetricEdge),2);}
       long double initial_excess=0;
       for(const auto& e:edges)initial_excess+=std::pow(std::max(0.L,target.TargetEdgeLength(e.second.first,e.second.second)-MaximumMetricEdge),2);
-      CHECK(minimum_q>=MinimumMeanRatio);CHECK(minimum_j>=MinimumScaledJacobian);CHECK(excess<initial_excess);CHECK(oversized>0);
+      CHECK(minimum_q>=MinimumMeanRatio);CHECK(minimum_j>=MinimumScaledJacobian);CHECK(excess<initial_excess);
       std::ofstream diagnosis("grid_refine_summary.json");diagnosis<<std::setprecision(17)<<"{\"accepted\":"<<partial.stats.accepted
           <<",\"cells\":"<<partial.cells.size()<<",\"q\":"<<minimum_q<<",\"j\":"<<minimum_j<<",\"oversized_edges\":"<<oversized
           <<",\"initial_excess\":"<<initial_excess<<",\"remaining_excess\":"<<excess<<",\"work\":"<<partial.stats.global_work<<"}\n";
-      REQUIRE(diagnosis.good());return;  // Real engine progress on the whole saved grid; final acceptance remains false.
+      REQUIRE(diagnosis.good());
+      if(std::getenv("SU2_NATIVE_CURVED_GRID_COMPLETE")){INFO(partial.reason);REQUIRE(partial.valid);CHECK(oversized==0);}else CHECK(oversized>0);
+      return;  // Saved-grid engine check; solver transfer/replacement and cold construction are separate gates.
     }
     if(std::getenv("SU2_NATIVE_CURVED_EDGE_REPLAY")) {
       REQUIRE(!edges.empty());const auto longest=std::max_element(edges.begin(),edges.end(),[&](const auto& a,const auto& b) {

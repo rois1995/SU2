@@ -125,3 +125,11 @@ Goal 3 completion. No external cluster submission is authorized by this handoff.
 
 The [requirement audit](../integration_evidence/native_3d_bl_v1/GOAL3_REQUIREMENTS.json)
 preserves the full objective; passing this fixture does not complete it.
+
+Saved-grid transition experiment: simultaneous two-point insertion/apex movement
+remained rejected at446 cells/279 oversized edges, excess162.661→144.871. Its
+benefit was not isolated, so the extra production retries were withdrawn; the
+engine is restored exactly to published3f323314fb. The strict resumable
+`curved_transition_complete` harness and closed source-pinned experiment remain.
+Next: field-residual-directed joint placement, not additional fixed move seeds
+or budget increases. See the curved handbook's rejected-experiment section.

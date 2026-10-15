@@ -70,6 +70,13 @@
       "returncode": 0,
       "receipt_sha256": "2c1a401bd81d51bf1fbbd9cbf8a7b395c18aa9bb1fac533b1c674d0b289c791d",
       "scope": "Selected focused geometry/field/integration control or complete declared cold construction/removal probe. Curved stages use actual smooth reference and original sensors; cold case imports initialized RANS CFD geometry but does not run replacement/solution transfer or CFD iterations. Independent audit and full-goal qualification remain required; no performance claim."
+    },
+    {
+      "stage": "curved_transition_complete",
+      "status": "FAIL",
+      "returncode": 1,
+      "receipt_sha256": "715de78852bfc4927da4f699576f3467efb4b1a8a2ade058315f6210bdab378f",
+      "scope": "Rejected combined-transition experiment; production changes withdrawn, exact snapshot retained. Not full adaptation/CFD/performance qualification."
     }
   ],
   "findings": [
@@ -92,7 +99,8 @@
     "Full earlier-policy cold experiment exits300s with52 edits/438 cells; residual audit finds no shape violations but281 oversized edges,max4.201315. Not a final-policy cold or performance qualification.",
     "Current recreated stronger planar control FAILS559-cell operator stagnation. Last PASS source substantially predates curved changes; cause not isolated. Ordering/gate restoration and surface-motion restriction did not fix it; restriction removed. Preserve explicit regression, do not claim current stronger-field success.",
     "Corrected contained-sphere reference factor8*pi accounts for both unsigned-distance shells; work-budget failure remains unqualified. Closed-form positive projective mapping worsens panel count12396 versus4032; not integrated.",
-    "Resolution-preserving backtracking after shape-only retirement progress rejection repairs stronger planar regression. Exact closure18\u219222\u219231; rejected added .036023 vs removed .003134; preserved alternate added0 in89 total trials. Complete independent MPI1/2/4 PASS591\u2192252/250/243, identical BL geometry. Current curved still300s/438 rejected with281 oversized edges; no broad full-goal/performance claim."
+    "Resolution-preserving backtracking after shape-only retirement progress rejection repairs stronger planar regression. Exact closure18\u219222\u219231; rejected added .036023 vs removed .003134; preserved alternate added0 in89 total trials. Complete independent MPI1/2/4 PASS591\u2192252/250/243, identical BL geometry. Current curved still300s/438 rejected with281 oversized edges; no broad full-goal/performance claim.",
+    "Combined movement/second insertion saved-grid experiment still rejects446 cells/279 oversized edges, excess162.660529\u2192144.870789. Net benefit not isolated; additional production search withdrawn. Strict resumable full-target harness retained, no weakening of completion."
   ],
   "remaining": "Complete coordinated curved transition reconstruction and interacting/gradation/geometry/M<N/current+BDF/return/restart/RANS/accuracy/performance gates; full Goal3 unchanged.",
   "rejection_audits": [
@@ -105,5 +113,6 @@
   "saved_grid_audit": "curved_grid_independent.json",
   "long_edge_replay": "curved_edge_geometry.json",
   "backtracking_evidence": "backtracking_validation.json",
-  "curved_residual_scope": "curved_residual_reuse.json"
+  "curved_residual_scope": "curved_residual_reuse.json",
+  "transition_experiment": "combined_transition_experiment.json"
 }
