@@ -10,28 +10,31 @@ constraints. User2026-10-15: if current recovery cannot deliver it, reconsider
 construction strategy before adding another local fallback. Local accepted patches
 and residual reductions are diagnosis, not capability milestones.
 
-The latest recovery fails that requirement. Independent branches/private carry
-accept the actual blocked boundary edit, but complete1402-cell runs reject:
-eager79 and staged30 long edges, versus published25. The staged1918-cell result
-passes independent exact geometry/no overlap/91 normal feet/height/exported-tensor
-q/J arithmetic;30 native full composed lengths still reject (15 cylinder/15 rim).
-Original sensor donors/reference stay unchanged. No infeasibility or speedup claim.
+The local-recovery strategy remains rejected and archived on
+`codex/native-3d-boundary-recovery-study` at39a1f487a628b72b896a0df1bd4069e7b7a610fa.
+Production C++ remains00e3. A different connected construction now produces a
+complete **prototype** candidate from the actual1402-cell target:1368 cells,
+native qmin .215225/Jmin .053451,2074 full edges all≤1.8 (Lmax1.795195).
+Independent exact embedding/no overlap/all vertex links/64 normal feet/height/
+authority and exported-tensor arithmetic pass. Original sensors/BL/fade/geometry/
+constraints remain unchanged. This is not integrated native runtime acceptance.
 
-Rejected source and complete evidence are pushed on
-`codex/native-3d-boundary-recovery-study`, commit
-`39a1f487a628b72b896a0df1bd4069e7b7a610fa`.
-This branch preserves the decision, receipts, source snapshots and inspectable grids
-without promoting that recovery implementation. Read
-[construction reassessment](Handbook/GOAL3_CONSTRUCTION_REASSESSMENT.md),
-[recovery evidence](Handbook/GOAL3_BOUNDARY_RECOVERY.md), and
-[verified summary](integration_evidence/native_3d_bl_v1/wall_reconstruction_v1/boundary_recovery_study_summary.json).
+Read [the connected construction and required native port](Handbook/GOAL3_REGION_CONSTRUCTION.md)
+and [its exact evidence](integration_evidence/native_3d_bl_v1/region_construction_v1/summary.json).
+Inspect `region_construction_v1/metric_region/candidate_validated.su2` or
+`candidate_metrics.vtu`. No CFD solution is fabricated. Earlier failed region
+proposals are retained; do not turn their partial checks into milestones.
 
-All owned jobs are terminal. The build-integrated-v2 binaries/objects currently
-belong to the study, not restored production sources. Rebuild only when a connected
-implementation needs validation; do not reuse study results as current-source
-qualification. To reproduce new study recipes, check out its pinned commit first.
-No new MPI/CFD run was performed for the rejected policy; the study MPI scaffold is
-compiled but unqualified. Installed production binaries were not changed.
+Next implement this complete surface/band/transition construction in native C++
+with actual FrozenField queries, existing configuration and bounded collective-safe
+MPI/atomic state handling. No proxies, saved tensors/grid, fixture dispatch or
+Python dependency may enter production. Validate the unchanged full target before
+calling the required milestone achieved. Full Goal3 remains open.
+
+All owned jobs are terminal. Existing build-integrated-v2 binaries belong to39a1f487,
+not restored production sources; the read-only native field oracle verifies that
+exact binary and captured source provenance. Rebuild only for the connected native
+implementation, then requalify affected checks. No new MPI/CFD run was performed.
 
 [Full remaining Goal3 gates](Handbook/GOAL3_CURRENT.md),
 [requirement audit](integration_evidence/native_3d_bl_v1/GOAL3_REQUIREMENTS.json),

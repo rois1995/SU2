@@ -1,0 +1,44 @@
+{
+  "status": "REJECTED_NATIVE_AUDIT_EXECUTION",
+  "returncode": 1,
+  "contract": {
+    "command": [
+      "taskset",
+      "-c",
+      "5",
+      "nice",
+      "-n",
+      "19",
+      "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver",
+      "[NativeCurvedBLConstruction3D]",
+      "--reporter",
+      "compact"
+    ],
+    "binary_sha256": "a0509b2c5f47a9a5a5cff1de8bf83c5c6344fd790f127e1e7735f3b57cc14dac",
+    "oracle_commit": "39a1f487a628b72b896a0df1bd4069e7b7a610fa",
+    "template_receipt_sha256": "fedf147f1a21a16ccf837bb1cee85fc08c0784eef6d03d5a507a6c3a38574c47",
+    "construction_sha256": "fabe2283fc10187b599f161f102eea79ec04d8c855f449161ab20a4e59464345",
+    "candidate_sha256": "a71fcb5892034e5136fdbebd8821be998b03955585d58f2b72e9d29e81e04599",
+    "helper_sha256": "15e5bc2881abb15a06c87858144600347af9846bbe4fa2f48b6c178be41a994d",
+    "environment": {
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1",
+      "MKL_NUM_THREADS": "1",
+      "SU2_NATIVE_CURVED_EVIDENCE": "1",
+      "SU2_NATIVE_CURVED_GRID_AUDIT": "candidate.su2"
+    }
+  },
+  "elapsed_seconds": 4.791184396017343,
+  "artifacts": {
+    "native.log": "4823733be0b253671e756ce75e6df8323834cc6a61d9ae0639c8d0ad58c22f4b",
+    "curved_cylinder_initial_euler.json": "d3276f21073135b712e272eabbe9c24024a5022ac0c3503e15d2b683a417c293",
+    "grid_edges.csv": "c850735b91e837a184c9db1706bb1d0ff75f9951effbb9a8d42fe984e7a38c1d",
+    "grid_samples.csv": "e364775cfffd771806f371289394113def34232349d74588a1f19e03f865ea3c",
+    "curved_cylinder_initial_euler.su2": "b8cc27428e73c1ab424a2247bba7e43c6ac90c7b52c7345b2662dd386f79e368",
+    "audited_grid.json": "60109ed2a43e4703eb99f5e30ad22804d662fcce33f8224aca126747e57e2615",
+    "curved_cylinder_initial_euler.su2.native_ref": "fc268e6d6bd77a2804f895aba388c07bfea2f2da6cb10f60256abd19dd8332c7",
+    "curved_cylinder.cfg": "042d47a83c636ff51a79e64f06005b3acc18435f7d26bb4945235be0cdc34f88",
+    "candidate.su2": "a71fcb5892034e5136fdbebd8821be998b03955585d58f2b72e9d29e81e04599"
+  },
+  "scope": "Read-only native actual-query centroid q/J and full geometry-resolved composed edge measurements of complete candidate, same original-P1 sensors/BL/fade/reference. Native test export success is not mesh acceptance. Separate independent embedding/height/geometry and actual native integration remain required; no CFD/MPI/transfer/restart or speedup claim."
+}

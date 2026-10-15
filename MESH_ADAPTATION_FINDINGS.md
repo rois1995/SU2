@@ -5346,3 +5346,17 @@ meaningful milestone to be a complete accepted curved mesh under unchanged
 constraints. Preserve the study and read
 [the construction reassessment](Handbook/GOAL3_CONSTRUCTION_REASSESSMENT.md)
 before implementation. Full Goal3 and all other gates remain active/incomplete.
+
+
+## 2026-10-15 — complete region-construction candidate, native port pending
+
+Replacing inherited volume connectivity and planning surface coarsening, face/edge
+bands, cap interiors and transition together produces1368 cells from the actual
+1402-cell frozen target. Final actual native qmin .215225/Jmin .053451, all2074 full
+edges admissible (max1.795195); independent exact embedding/no overlap/vertex links/
+64 feet/height/authority and exported-tensor arithmetic pass. No source policy or
+contract relaxed. This is a complete validated **prototype** candidate, not native
+engine construction or MPI/CFD/transfer/restart/performance qualification. Port the
+connected design with actual FrozenField callbacks; do not add another local
+fallback, load a saved grid, or promote proposal proxies into production. See
+[region construction](Handbook/GOAL3_REGION_CONSTRUCTION.md) and its pinned summary.

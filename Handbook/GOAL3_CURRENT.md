@@ -31,6 +31,15 @@ production policy and read [the construction reassessment](GOAL3_CONSTRUCTION_RE
 User2026-10-15 requires a complete accepted curved mesh under unchanged constraints;
 reconsider construction strategy before another local fallback. Full Goal3 stays open.
 
+## Whole-region proof — native implementation pending
+
+A different connected surface/band/transition construction produces a complete
+1368-cell candidate from the actual frozen1402-cell target. Native actual queries
+pass q/J and all2074 full composed edges; independent exact geometry/no overlap/
+423 vertex links/64 normal feet/height/authority checks pass. Production code is
+unchanged; Python construction/proposal proxies are not native integration or
+MPI/CFD qualification. Read [the required native port](GOAL3_REGION_CONSTRUCTION.md).
+
 ## Existing qualified scope
 
 - One actual-query geometric BL policy is shared by weights/refine/coarsen/thin

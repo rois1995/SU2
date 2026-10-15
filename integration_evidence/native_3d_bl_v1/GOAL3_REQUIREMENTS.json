@@ -235,7 +235,7 @@
     "scope": "One planar cube production case plus six focused first-row geometry/movement cases. Actual computed metric, conservative current+BDF/bounded-SA and SU2/CGNS/reference/restart checks; independent exact embedding, full composed metric, wall footprint and height. No new MPI, full regressions, general layer coverage, actual CFD accuracy or performance qualification."
   },
   "owned_jobs": {
-    "status": "all owned builds/runs/audits terminal; local build belongs to rejected study, not restored production source"
+    "status": "all owned prototype constructions/native read-only field audits/exact independent audits terminal; local binary still belongs to39a1f487 study"
   },
   "wall_reconstruction": {
     "status": "PASS_PLANAR_STRONGER_FIELD_LIMITED_SCOPE",
@@ -593,5 +593,20 @@
     "summary": "wall_reconstruction_v1/boundary_recovery_study_summary.json",
     "study_commit": "39a1f487a628b72b896a0df1bd4069e7b7a610fa",
     "production_source": "Unchanged00e3ee4fd81c41a58040f7c4559bacfdc1a34d49; rejected policy not promoted."
+  },
+  "region_construction": {
+    "status": "COMPLETE_VALIDATED_PROTOTYPE_NATIVE_PORT_PENDING",
+    "handbook": "Handbook/GOAL3_REGION_CONSTRUCTION.md",
+    "summary": "region_construction_v1/summary.json",
+    "input_cells": 1402,
+    "candidate_cells": 1368,
+    "native_q": 0.21522494699790076,
+    "native_j": 0.053450832270687115,
+    "oversized_edges": 0,
+    "full_edges": 2074,
+    "maximum_full_length": 1.795194775140255,
+    "independent": "Exact positive embedding/oriented connected skin/all423 vertex links/25091 overlap candidates/64 normal feet/height and authority/exported-tensor arithmetic PASS. Native full integration is not independent quadrature proof.",
+    "production": "Unchanged00e3. Python/SciPy design proxies and captured tensors remain research-only. No native engine construction, MPI/CFD/current-BDF/transfer/restart/accuracy/performance acceptance.",
+    "required_next": "Port connected construction into native C++ with actual frozen original-P1+geometric BL queries and existing configuration, collective-safe bounded dependencies/IDs/atomic rejection; then complete original unchanged full target before milestone claim. No saved candidate/proxy/fixture dispatch."
   }
 }
