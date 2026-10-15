@@ -26,7 +26,7 @@
  */
 
 #include "catch.hpp"
-#include "../../Common/include/toolboxes/ndflattener.hpp"
+#include "../../../Common/include/toolboxes/ndflattener.hpp"
 
 TEST_CASE("NdFlattener Test", "[NdFlattener]") {
   int rank_;

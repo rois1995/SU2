@@ -53,7 +53,7 @@ class CFVMFlowSolverBase : public CSolver {
   static constexpr size_t OMP_MAX_SIZE = 512; /*!< \brief Max chunk size for light point loops. */
   static constexpr size_t OMP_MIN_SIZE = 32;  /*!< \brief Min chunk size for edge loops (max is color group size). */
 
-  unsigned long omp_chunk_size; /*!< \brief Chunk size used in light point loops. */
+  unsigned long omp_chunk_size = 1; /*!< \brief Chunk size used in light point loops. */
 
   su2activevector EdgeMassFluxes;  /*!< \brief Mass fluxes across each edge, for discretization of transported scalars. */
 

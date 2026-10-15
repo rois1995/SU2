@@ -27,7 +27,7 @@
 
 #include "catch.hpp"
 #include <cstdint>
-#include "../../Common/include/toolboxes/random_toolbox.hpp"
+#include "../../../Common/include/toolboxes/random_toolbox.hpp"
 
 TEST_CASE("HashToUniform", "[Toolboxes]") {
   /*--- Basic checks: no zero, no >1 ---*/

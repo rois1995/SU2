@@ -62,6 +62,7 @@ void Primitives(unsigned short nDim, su2double rho, const su2double* vel, su2dou
 /*--- k changes neither the pressure nor the speed of sound: with the same density, velocity and pressure, the mass
  and momentum fluxes must not depend on k, and the energy flux changes only by the advected k. ---*/
 void CheckTkeIndependence(CNumerics& numerics, const CConfig* config, unsigned short nDim, bool uniformTke = false) {
+  numerics.SetSensor(0.0, 0.0);
   const su2double vel_i[3] = {0.8, 0.1, -0.05}, vel_j[3] = {0.6, -0.1, 0.05}, n[3] = {2.0 / 7, 3.0 / 7, 6.0 / 7};
   const su2double n2[2] = {0.6, 0.8};
   su2double Vi[10] = {0.0}, Vj[10] = {0.0};
