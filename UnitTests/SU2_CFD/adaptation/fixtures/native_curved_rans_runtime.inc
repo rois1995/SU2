@@ -79,6 +79,7 @@ TEST_CASE("Solved curved RANS survives native BL construction removal and restar
     INFO(event<<" stop="<<EngineStopName(native->Statistics().refine.stop));
     CHECK(State(driver->Geometry(),driver->Solver())==before);CHECK(State(driver->Geometry(),*driver->Turbulence())==beforeSA);
     REQUIRE(result.status==CRemeshResult::Status::COMPLETE);CHECK(native->Statistics().complete);CHECK(native->Statistics().workers==workers);
+    if(native->Statistics().refine.region_cells)CHECK(native->Statistics().coarsen.global_work==0);
     const double replaceStart=world.seconds();driver->ReplaceMesh(result,transfer);const double replaceTime=world.seconds()-replaceStart;
     CHECK(EncodeReference(*driver->Reference())==authority);SaveProjection(world,event,transfer);
     CHECK(transfer.GetSummary().nVarFlow==5);CHECK(transfer.GetSummary().projection.nField==12);

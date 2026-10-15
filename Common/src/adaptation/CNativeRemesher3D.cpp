@@ -329,6 +329,7 @@ CRemeshResult CNativeRemesher3D::Remesh(const CConfig& config, const CGeometry& 
           const auto begin = workers.seconds();
           auto refined = Refine(workers, working, *worker_source, *pending->state.original, composition, kernel);
           stats.refine = refined.stats;
+          const bool rebuilt_domain=refined.rebuilt_domain;
           valid = refined.valid;
           detail = refined.reason;
           working.swap(refined.cells);
@@ -345,7 +346,8 @@ CRemeshResult CNativeRemesher3D::Remesh(const CConfig& config, const CGeometry& 
               }
             }
           }
-          if (valid && kernel.maximum_work) {
+          // A complete domain reconstruction already resampled surface and volume in both metric directions.
+          if (valid && !rebuilt_domain && kernel.maximum_work) {
             const auto begin_coarse = workers.seconds();
             auto coarse = Coarsen(workers, working, *worker_source, *pending->state.original, composition, kernel);
             stats.coarsen = coarse.stats;

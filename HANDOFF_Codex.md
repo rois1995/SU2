@@ -4,15 +4,18 @@ Worktree `/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated`.
 Branch `codex/native-3d-bl`, based on Goal2
 `c43a8a3907ea2655e4ebbb6286ab16c3fa625d8b`. Full Goal3 ACTIVE/incomplete.
 The connected distributed-region-field checkpoint9bd5fb76e4 is qualified/pushed.
-The actual curved RANS workflow remains UNQUALIFIED. A connected cylindrical-annulus
-integration change is in progress: earlier one-prism controls pass, but rotated-cell
-and full-sector probes exposed projection/chord precision failures. Current source
-uses exact shared-base triangle intersections and positive projective ray/barycentric
-coordinates, with strict compensated products; build71336 stopped on a missing direct test include; corrected rebuild75373 is live
-(verify it), with production objects already compiled.
-Next controls `native_curved_volume_controls_v7`, then actual RANS n1/m1 v4 only on
-success. No MPI campaign before full serial acceptance. All prior failures are preserved.
-Read [current design/live handle/evidence/gates](Handbook/GOAL3_CURVED_RANS_RUNTIME.md).
+**The complete backend now accepts the curved meshes under unchanged gates.**
+`native_curved_rans_n1_m1_v5` advances real RANS/SA, computes the actual pressure
+metric, constructs1368 BL tetrahedra, replaces/transfers, writes SU2/CGNS and restarts,
+then remeshes to68 sensor-only cells and advances again. This is a mesh milestone;
+the full workflow test remains FAIL on four SA-integral conservation assertions.
+Flow totals/restart/native mesh gates pass. Solver turbulence bounds are documented
+as changing SA integrals, and their reported changes match the discrepancy in magnitude;
+independent diagnosis is pending. **Do not weaken the gate or report lifecycle PASS.**
+
+All owned jobs are terminal. The independent exact saved-mesh audit passes both
+complete meshes, physical flow/open-boundary ledger and exact flow/SA restart.
+SA integral differences remain explicitly reported. No current MPI campaign. See [current evidence and remaining gates](Handbook/GOAL3_CURVED_RANS_RUNTIME.md).
 Foreign results, AdapNoExt and dependencies remain untouched.
 
 **Complete curved meshes are accepted under unchanged constraints.** The original
@@ -44,12 +47,12 @@ remains one visible radial/caps region on one worker. Rebuild records2529..2567 
 no low communication cost, lifecycle speedup or scalable generation claim follows,
 especially under host contention.
 
-**Next connected work:** geometry-aligned cylindrical annulus integration, then actual
-curved RANS evolution and conservative
-current+BDF/SA transfer/restart with refreshed sources, reusing existing runtime
-fixtures. Current tests import actual CFD geometry but do not advance or transfer
-flow histories. Full Goal3 also needs stronger/interacting/exterior fields/geometry,
-high-ratio metric-driven multiple fronts, thin/composed-gradation limits, practical
+**Next connected work:** independently establish whether SA
+bounds fully account for the four conservation failures before changing any test.
+The backend now skips redundant incremental coarsening only when the engine explicitly
+returns a valid complete domain rebuild; ordinary incremental coarsening remains tested.
+Full Goal3 still needs actual curved N=M/M<N qualification, stronger/interacting/exterior
+fields/geometry, high-ratio multiple fronts, thin/composed-gradation limits, practical
 M6/viscous accuracy and complete lifecycle performance. Keep those gates intact.
 
 Previous cold24 ->1368 ->68 shared-work MPI1/2/4 proof and independent BL/released

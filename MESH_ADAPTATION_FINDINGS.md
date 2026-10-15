@@ -5483,3 +5483,28 @@ only afterward resumable MPI. Full Goal3 remains ACTIVE. Preserved evidence/stat
 `region_construction_v1/annular_integration_progress.json`; focused current handoff in
 Handbook/GOAL3_CURVED_RANS_RUNTIME.md. Raw advance timing includes automatic metric
 postprocessing and cannot be treated as CFD-only performance.
+
+
+## 2026-10-15 — complete curved backend mesh, lifecycle gate still open
+
+Positive annular complexity controls v7 pass3 families/877746 assertions, including
+all8 sectors and source permutations. Actual RANS metric construction now completes.
+Full backend v4 then exposed a coordination error: a complete bidirectional domain
+rebuild was followed by redundant incremental coarsening, which exhausted a dependency
+star bound. An explicit valid changed-domain result now prevents that redundant phase;
+ordinary incremental coarsening and atomic work/time refusal still pass their18-assertion
+focused control. No geometry/height/quality/edge/work constraints were changed.
+
+Actual RANS v5 completes24 ->1368 BL ->68 sensor-only cells, output/restart and further
+CFD steps. **Full workflow FAIL persists** on four SA-integral assertions; flow totals
+and other native checks pass. Solver bounds report200/56 limited values and SA integral
+changes matching the discrepancy in magnitude (~0.037%/~0.369%). Production permits this
+reported change, but no test gate is modified before independent accounting. This is
+a complete accepted mesh milestone, not full RANS/MPI/accuracy/performance qualification.
+The independent saved-mesh auditor passes both complete exact embeddings, wall height/feet,
+curved authority, physical flow/open ledger and exact flow/SA restart; it retains workflow
+failure and SA nonconservation explicitly. Height error<=5.14e-15, flow residual<=2.53e-15.
+
+See [current evidence/scope](Handbook/GOAL3_CURVED_RANS_RUNTIME.md). Earlier failure
+receipts are preserved, not superseded as if they passed. No new CFD/MPI campaign or
+local fallback is needed to investigate saved mesh geometry and conservation data.

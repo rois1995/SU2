@@ -1,0 +1,21 @@
+{
+  "status": "PENDING_FINAL_BUILD_OBJECT_VERIFICATION",
+  "prior_receipt_sha256": "8831b5eff9a5a294f23300e9e8ba59d05edba85b292267bdf16afcc18ed8fc15",
+  "source_pins": {
+    "Common/include/adaptation/CNativeMetric3D.hpp": "93f176bf626a0b2075b87cc30e80c2a0b481f82bfff29b3054c7ee92374d09e2",
+    "Common/src/adaptation/CNativeMetric3D.cpp": "4bc650d53b6dd9bee2670bfecabec6bf98798cd778addd36b87aba58d4d9026a",
+    "SU2_CFD/src/adaptation/CBoundaryLayerMetric.cpp": "4660cb89028f28c9dc9ae3237114326542a707680a19cf3fcb74b78d8df9e26f",
+    "SU2_CFD/include/adaptation/CBoundaryLayerMetric.hpp": "188bce108d44957af2833e974a487a7541aeab4e31ca8ddefb1fbaf4f454e416",
+    "UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp": "cf0b33797ea90eb80eeb46f41c4eab4573d53049e36b3a1f216f504ec7a86699"
+  },
+  "object_pins": {
+    "object:/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/Common/src/libSU2AccurateSum.a.p/adaptation_CNativePredicates2D.cpp.o": "65360cdee8d3cdcb6006b3607d606e50fa974debac2fe9812cc63e4740748d8a",
+    "object:/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/Common/src/libSU2AccurateSum.a.p/adaptation_CNativePredicates3D.cpp.o": "dbe995199c552f3bc9d22201fea280e381e46f5ec3522246eba570237557b212",
+    "object:/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/Common/src/libSU2AccurateSum.a.p/adaptation_CNativeTopology3D.cpp.o": "b5ae753bcc84256628d65fb794a6da5ae2b1674a9a8860f4225611dff7355148",
+    "object:/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/Common/src/libSU2AccurateSum.a.p/adaptation_CNativeMetric3D.cpp.o": "f367d446e2a22e5aaf72e1724e07199551bfbfb124d17f539de137c11de00a97",
+    "object:/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/libSU2core.a.p/adaptation_CBoundaryLayerMetric.cpp.o": "3bdb661e097eef8dc3ae21415e44c6a075d667bf250e9c0e3741beb0f55c9572"
+  },
+  "test_object": "integration_evidence/build-integrated-v2/UnitTests/test_driver.p/SU2_CFD_adaptation_BoundaryLayerMetric_tests.cpp.o",
+  "test_object_sha256": "f3686e2d8d1fd75c4efcaed191c3b1958b341bd3db80950c2fd7c966b3111121",
+  "scope": "v7 all-sector/independent prism/sphere/sheared moment evidence only. Following changes concern complete-domain engine/backend coordination and add no new quadrature arithmetic. Verify objects/test-body sources after build; not execution of v7 with the new binary or full-RANS/MPI qualification."
+}

@@ -96,6 +96,8 @@ struct EngineResult {
   std::vector<SplitRecord> splits;
   std::vector<Edge> collapses;  // Directed {retained, removed}; no split-history requirement.
   bool valid = false;
+  // A complete metric-driven domain replacement includes both refinement and coarsening.
+  bool rebuilt_domain = false;
   std::string reason;
   EngineStats stats;
 };

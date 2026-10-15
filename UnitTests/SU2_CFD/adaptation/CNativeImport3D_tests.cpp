@@ -2067,7 +2067,7 @@ TEST_CASE("Cold native cylinder BL construction and release use the same origina
         <<" x="<<e.last_rejected_cavity_centroid.x<<" y="<<e.last_rejected_cavity_centroid.y<<" z="<<e.last_rejected_cavity_centroid.z<<std::endl;
   }
   save(refined.valid?"curved_cylinder_BL":"curved_cylinder_BL_rejected",refined.cells);
-  CHECK(Signature(world,input.cells,reference)==before);INFO(refined.reason);REQUIRE(refined.valid);
+  CHECK(Signature(world,input.cells,reference)==before);INFO(refined.reason);REQUIRE(refined.valid);CHECK(refined.rebuilt_domain);
   if(std::getenv("SU2_NATIVE_CURVED_REFRESH_SOURCE")) {
     auto import_current=[&](const std::string& name) {
       SU2_MPI::Barrier(world.comm);auto cfg=text.str();const auto at=cfg.find("unused.su2");REQUIRE(at!=std::string::npos);cfg.replace(at,10,name+".su2");

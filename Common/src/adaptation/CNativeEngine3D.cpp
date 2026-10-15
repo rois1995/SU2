@@ -523,6 +523,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       }
       if(!vote(heightFailure)){result.valid=false;stats.stop=EngineStop::Failure;}
     }
+    if(!result.valid)result.rebuilt_domain=false;
     if (stats.stop==EngineStop::None) stats.stop=result.valid ? EngineStop::Complete : EngineStop::Failure;
     stats.final_owned_cells=working.size();
     stats.cached_measured_cells=selection.cells.size();
@@ -796,6 +797,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     }
     result.valid=world.maximum(complete);stats.global_work=CPassiveComm::Allreduce(stats.global_work,CPassiveComm::Op::MAX,world.comm);
     if(changed || (!coarsening && !declined)) {
+      result.rebuilt_domain=result.valid && changed;
       stats.stop=result.valid?EngineStop::Complete:EngineStop::Failure;result.reason.clear();return finish();
     }
     // Valid coarsening inputs and finer interior fields retain the existing volume search.

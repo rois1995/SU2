@@ -36,6 +36,9 @@ future sessions.
   not establish robust mesh generation and must not be reported as capability
   milestones. Keep private intermediate progress distinct from an admissible final
   mesh and a successful adaptation/solution-transfer workflow.
+- The next meaningful curved-construction milestone is a complete accepted mesh
+  under unchanged constraints. If the current recovery cannot deliver it, reconsider
+  the construction strategy before adding another local fallback.
 - When a strategy stalls on the difficult target, preserve the diagnosis and
   reconsider the construction or coordination it lacks. Do not keep adding local
   variants or raising limits without evidence that they address the blockage.
