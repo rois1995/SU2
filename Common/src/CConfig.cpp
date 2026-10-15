@@ -1158,8 +1158,11 @@ void CConfig::SetPointersNull() {
   Delta_UnstTimeND = 0.0;
   Total_UnstTime = 0.0;
   Total_UnstTimeND = 0.0;
+  Current_UnstTime = 0.0;
+  Current_UnstTimeND = 0.0;
 
   Kind_TimeNumScheme = EULER_IMPLICIT;
+  SetKind_ConvNumScheme(NONE, CENTERED::NONE, UPWIND::NONE, LIMITER::NONE, false, 0.0, NONE);
 
 }
 
@@ -9314,6 +9317,7 @@ void CConfig::SetGlobalParam(MAIN_SOLVER val_solver,
     default:
       break;
   }
+  if (residualOnly) Kind_TimeNumScheme = EULER_EXPLICIT;
 }
 
 const su2double* CConfig::GetPeriodicRotCenter(const string& val_marker) const {

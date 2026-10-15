@@ -142,6 +142,34 @@ void CIntegration::Space_Integration(CGeometry *geometry,
     }
   }
 
+  StrongBoundaryConditions(geometry, solver_container, numerics, config, RunTime_EqSystem);
+
+  /*--- Complete residuals for periodic boundary conditions. We loop over
+   the periodic BCs in matching pairs so that, in the event that there are
+   adjacent periodic markers, the repeated points will have their residuals
+   accumulated correctly during the communications. ---*/
+
+  if (config->GetnMarker_Periodic() > 0) {
+    solver_container[MainSolver]->BC_Periodic(geometry, solver_container, conv_bound_numerics, config);
+  }
+
+
+  for (iMarker = 0; iMarker < config->GetnMarker_All(); iMarker++) {
+    if (config->GetMarker_All_KindBC(iMarker)==SYMMETRY_PLANE)
+        solver_container[MainSolver]->BC_Sym_Plane(geometry, solver_container, conv_bound_numerics, visc_bound_numerics, config, iMarker);
+    else if (config->GetMarker_All_KindBC(iMarker)==EULER_WALL)
+        solver_container[MainSolver]->BC_Euler_Wall(geometry, solver_container, conv_bound_numerics, visc_bound_numerics, config, iMarker);
+  }
+  //AD::ResumePreaccumulation(pausePreacc);
+
+}
+
+void CIntegration::StrongBoundaryConditions(CGeometry* geometry, CSolver** solver_container,
+                                             CNumerics** numerics, CConfig* config, unsigned short RunTime_EqSystem) {
+  const auto MainSolver = config->GetContainerPosition(RunTime_EqSystem);
+  auto* conv_bound_numerics = numerics[CONV_BOUND_TERM + omp_get_thread_num()*MAX_TERMS];
+  auto* visc_bound_numerics = numerics[VISC_BOUND_TERM + omp_get_thread_num()*MAX_TERMS];
+  unsigned short iMarker;
   /*--- Modification of the system on the whole domain, like for a strong BC. ---*/
   solver_container[MainSolver]->Impose_Fixed_Values(geometry, config);
 
@@ -177,24 +205,6 @@ void CIntegration::Space_Integration(CGeometry *geometry,
         solver_container[MainSolver]->BC_Smoluchowski_Maxwell(geometry, solver_container, conv_bound_numerics, visc_bound_numerics, config, iMarker);
         break;
     }
-
-  /*--- Complete residuals for periodic boundary conditions. We loop over
-   the periodic BCs in matching pairs so that, in the event that there are
-   adjacent periodic markers, the repeated points will have their residuals
-   accumulated correctly during the communications. ---*/
-
-  if (config->GetnMarker_Periodic() > 0) {
-    solver_container[MainSolver]->BC_Periodic(geometry, solver_container, conv_bound_numerics, config);
-  }
-
-
-  for (iMarker = 0; iMarker < config->GetnMarker_All(); iMarker++) {
-    if (config->GetMarker_All_KindBC(iMarker)==SYMMETRY_PLANE)
-        solver_container[MainSolver]->BC_Sym_Plane(geometry, solver_container, conv_bound_numerics, visc_bound_numerics, config, iMarker);
-    else if (config->GetMarker_All_KindBC(iMarker)==EULER_WALL)
-        solver_container[MainSolver]->BC_Euler_Wall(geometry, solver_container, conv_bound_numerics, visc_bound_numerics, config, iMarker);
-  }
-  //AD::ResumePreaccumulation(pausePreacc);
 
 }
 

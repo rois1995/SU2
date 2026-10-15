@@ -66,6 +66,15 @@ if get_option('enable-tests')
         cpp_args: ['-fPIC', default_warning_flags, su2_cpp_args]
     )
     test('Catch2 test driver', test_driver)
+    # Keep full-driver MPI/OpenMP integration fixtures in a dedicated test executable.
+    newton_equation_tests = executable(
+        'newton_equation_tests',
+        files('SU2_CFD/newton_equations.cpp', 'test_driver.cpp'),
+        dependencies : [su2_cfd_dep, common_dep, su2_deps, catch2_dep],
+        cpp_args: ['-fPIC', default_warning_flags, su2_cpp_args]
+    )
+    test('Newton equation integration tests', newton_equation_tests)
+
     test('NEMO convergence field migration', python,
          args: files('SU2_CFD/output/check_nemo_convergence_migration.py') + [test_driver.full_path()],
          timeout: 300)

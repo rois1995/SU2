@@ -631,6 +631,11 @@ class CScalarSolver : public CSolver {
    * \brief Scalar solvers support OpenMP+MPI.
    */
   inline bool GetHasHybridParallel() const override { return true; }
+  bool GetConservative() const final { return Conservative; }
+  pair<passivedouble, passivedouble> GetSolutionBounds(unsigned short variable) const final {
+    return {SU2_TYPE::GetValue(lowerlimit[variable]), SU2_TYPE::GetValue(upperlimit[variable])};
+  }
+
 
   /*!
   * \brief Get the outer state for fluid interface nodes.

@@ -437,6 +437,7 @@ private:
 
   unsigned short nQuasiNewtonSamples;  /*!< \brief Number of samples used in quasi-Newton solution methods. */
   bool UseVectorization;       /*!< \brief Whether to use vectorized numerics schemes. */
+  bool residualOnly = false; /*!< \brief Suppress implicit assembly across equation switches in trial evaluations. */
   bool NewtonKrylov;           /*!< \brief Use a coupled Newton method to solve the flow equations. */
   NonlinearGlobalization::Options<su2double> sstNewtonOptions;
   array<unsigned short,4> NK_IntParam{{20, 3, 2, 0}}; /*!< \brief Integer parameters for NK method. */
@@ -2536,6 +2537,28 @@ public:
    * \param[in] val_kind_timeintscheme - Kind of time integration scheme.
    */
   void SetKind_TimeIntScheme(unsigned short val_kind_timeintscheme) { Kind_TimeNumScheme = val_kind_timeintscheme; }
+
+  struct EquationSettings {
+    unsigned short convection, time, fem;
+    CENTERED centered;
+    UPWIND upwind;
+    LIMITER limiter;
+    bool muscl, residualOnly;
+    su2double kappa, physicalTime, physicalTimeND;
+  };
+  EquationSettings GetEquationSettings() const {
+    return {Kind_ConvNumScheme, Kind_TimeNumScheme, Kind_FEM, Kind_Centered, Kind_Upwind, Kind_SlopeLimit,
+            MUSCL, residualOnly, MUSCL_Kappa, Current_UnstTime, Current_UnstTimeND};
+  }
+  void SetEquationSettings(const EquationSettings& state) {
+    SetKind_ConvNumScheme(state.convection, state.centered, state.upwind, state.limiter,
+                          state.muscl, state.kappa, state.fem);
+    Kind_TimeNumScheme = state.time;
+    residualOnly = state.residualOnly;
+    Current_UnstTime = state.physicalTime;
+    Current_UnstTimeND = state.physicalTimeND;
+  }
+  void SetResidualOnly(bool value) { residualOnly = value; }
 
   /*!
    * \brief Set the parameters of the convective numerical scheme.

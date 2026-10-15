@@ -133,9 +133,96 @@ Forward/reverse builds, the full integration/V&V matrix and the conditional
 features marked open above have not been validated on this combined base.
 No fully converged family matrix or Newton speedup is established here.
 
+## Shared equation state and residual interface
+
+`CNewtonEquationSet` is now used by the SST integration for trial installation and
+residual evaluation. It also evaluates native flow/SA, flow/SST, flow/SST/LM and
+incompressible flow/mixture-species groups in the integration tests. Equation
+selection is validated for empty, duplicate, unavailable and unsupported systems;
+NEMO is explicitly excluded. This is the residual/state foundation, **not yet a
+fully coupled Newton solve or a replacement of the two Newton algorithms**.
+
+For a Newton update the coordinates are `q = M_base*w`, where `w` is the stored
+solver state and `M_base` is the accepted density for conservative scalars, one
+otherwise. This is a fixed coordinate transformation during that update, not a
+claim that `q` equals the physical transported `rho_trial*phi_trial`. The native
+residual uses live trial density, mixture/transport properties, pressure and eddy
+viscosity; their cross derivatives remain in the residual. The common controller
+must use this same coordinate transformation for increments, scaling, mass terms
+and block preconditioner input/output. Native scalar solvers expose their own
+conservative flag and bounds, including signed SA bounds.
+
+All trial unknowns are installed before refreshing properties. Each evaluation
+communicates solutions, refreshes flow/turbulence/transition properties, installs
+strong values through the existing boundary routines, refreshes gradients again,
+and evaluates flow before auxiliaries so their characteristic boundary states
+are current. Runtime equation configuration is restored on return. Explicit
+residual mode survives native `SetGlobalParam` calls and preserves the assembled
+preconditioner matrices. Invalid/nonfinite ideal-gas flow probes and native flow
+restoration during primitive refresh return failure rather than silently forming
+a derivative in a projected direction. Model-specific admissibility and boundary
+constraint elimination for the final common operator remain to be completed.
+
+Snapshots own every active dependent solution and `Solution_Old`; physical-time
+history is never scratch. Each residual evaluation separately preserves the
+caller's current `Solution_Old`, including when a conventional outer update has
+replaced the preceding Newton history. Under-relaxation is restored on explicit
+rollback. Runtime equation settings have defined defaults before their first
+selection, so saving/restoring them does not read uninitialized configuration.
+Residual-work counters in SST diagnostics count the physical equation residuals
+performed by this interface, cumulatively in flow/turbulence/transition/species
+order. They do not yet count all conventional outer-iteration work.
+
+Validation/evidence in the parent `newton_krylov_refactor_20261015/` directory:
+
+- `equation_set_units_verified.log`: existing 78 supported unit cases, 102250
+  assertions, all pass. `equation_set_valgrind_verified.log`: zero memory errors
+  for that suite (leak analysis was disabled).
+- `equation_set_integration_verified_mpi.log`: three native-driver integration
+  cases pass on 2 MPI ranks x 2 OpenMP threads (7577 / 7102 assertions on the
+  ranks). `equation_set_integration_verified_serial.log`: 12475 assertions pass.
+  `equation_set_integration_valgrind_verified.log`: zero memory errors for the
+  serial integration suite (leak analysis was disabled). These check state mapping, exact
+  repeated trial/residual values, physical-time history, preserved matrix
+  diagonals, equation-config restoration, nonzero cross responses, centered
+  step-size sensitivity, an independent SST pressure derivative and invalid
+  flow-probe rejection. The integration executable is `UnitTests/newton_equation_tests`.
+- `equation_set_smoke_history_final/`: matched baseline/current 10-update SST smoke
+  controls, plus deliberately limited-linear-solve terminal recovery with exact
+  measured nodal rollback and a failure checkpoint. Ten updates are not a
+  convergence demonstration. The failure fixture now explicitly uses one linear
+  iteration and a maximum defect of 0.001; the old one-trial setting alone did
+  not force failure in the refreshed operator's first ten updates.
+- `equation_set_regressions_history_final/`: six conventional regression runs and six
+  configuration rejection checks. `equation_set_manifest.json` binds source,
+  binaries, logs and configuration/input hashes.
+
+Compatibility verification exposed pre-existing undefined inputs: the FVM base
+loop chunk had no default when hybrid initialization was not called, and the MSW
+TKE test omitted its sensor values. A chunk size of one is now the safe base
+fallback; normal flow constructors still assign their calculated chunk size.
+The test sensor is initialized explicitly. Several unit includes also resolved
+through the parent checkout; they now resolve inside this feature source.
+These changes affect shared initialization/test correctness, not NEMO Newton
+integration. The original stalled/Valgrind diagnostic logs are retained.
+
+The corrected-baseline binaries were archived as `baseline_7846e12020/` before
+reusing the build directory. Its manifest and the older prototype `control/`
+remain historical evidence; neither should be relabeled with the new source.
+
+Reproduce the native integration checks with:
+
+```sh
+OMP_NUM_THREADS=1 /path/to/build/UnitTests/newton_equation_tests
+OMP_NUM_THREADS=2 mpirun --bind-to none -n 2 /path/to/build/UnitTests/newton_equation_tests
+```
+
 ## Next implementation gate
 
-Complete and pin baseline validation, then replace the two integration algorithms
-with the common selected-equation residual/state contract. Implement coupled
-cross derivatives and block preconditioning before interpreting convergence
-benefits. Controller-only tests do not satisfy the final goal.
+Continue the broader baseline/conditional-feature audits. Use the shared equation
+interface to consolidate the two Newton algorithms into `CNewtonIntegration`,
+then add selection/group dispatch, consistent pseudo-time terms, full coupled
+products, block-diagonal/triangular preconditioning and model-specific feasible
+steps. Complete independent derivative/constraint/rollback tests before the
+converged family matrix and matched performance comparisons. The present native
+group residual tests do not establish a coupled Krylov solve.

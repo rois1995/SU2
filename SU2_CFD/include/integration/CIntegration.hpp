@@ -46,6 +46,9 @@ using namespace std;
  */
 class CIntegration {
 protected:
+  /*! \brief Enforce strong values before differentiating gradients, using the normal boundary implementations. */
+  void StrongBoundaryConditions(CGeometry*, CSolver**, CNumerics**, CConfig*, unsigned short);
+
   int rank,      /*!< \brief MPI Rank. */
   size;          /*!< \brief MPI Size. */
 

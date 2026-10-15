@@ -589,6 +589,15 @@ public:
    */
   inline virtual const su2double* GetLimiterReference() const { return nullptr; }
 
+  /*! \brief Whether a scalar's linear increment is in rho*phi while its stored solution is phi. */
+  virtual bool GetConservative() const { return false; }
+
+  /*! \brief Bounds on stored unknowns; signed model variants retain their own limits. */
+  virtual pair<passivedouble, passivedouble> GetSolutionBounds(unsigned short) const {
+    return {-std::numeric_limits<passivedouble>::infinity(), std::numeric_limits<passivedouble>::infinity()};
+  }
+
+
   /*!
    * \brief A virtual member.
    * \param[in] geometry - Geometrical definition of the problem.

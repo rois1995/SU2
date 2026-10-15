@@ -6,6 +6,7 @@
 #pragma once
 
 #include "CIntegration.hpp"
+#include "CNewtonEquationSet.hpp"
 #include "../../../Common/include/linear_algebra/CPreconditioner.hpp"
 #include "../../../Common/include/linear_algebra/CSysSolve.hpp"
 #include <memory>
@@ -40,7 +41,8 @@ class CSSTNewtonIntegration final : public CIntegration {
   std::unique_ptr<CPreconditioner<MixedScalar>> preconditioner;
   CSysSolve<Scalar> linearSolver;
   std::vector<double> oldRelaxation;
-  bool setup = false, failed = false;
+  std::unique_ptr<CNewtonEquationSet> equations;
+  bool setup = false, failed = false, residualValid = true;
   std::string failureMessage;
   double cfl = 0, eta = 0;
   unsigned attemptNumber = 0, trialNumber = 0;

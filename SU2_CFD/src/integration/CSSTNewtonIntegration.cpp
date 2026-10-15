@@ -86,6 +86,8 @@ void CSSTNewtonIntegration::Setup() {
   const auto kind = static_cast<ENUM_LINEAR_SOLVER_PREC>(config->GetKind_Linear_Solver_Prec());
   preconditioner.reset(CPreconditioner<MixedScalar>::Create(kind, solvers[TURB_SOL]->Jacobian, geometry, config));
   linearSolver.SetxIsZero(true);
+  equations = std::make_unique<CNewtonEquationSet>(geometry, solvers, numerics, config,
+                                                  std::vector<unsigned short>{RUNTIME_TURB_SYS});
   cfl = std::max(options.cflMin,
                  std::min(options.cflMax, SU2_TYPE::GetValue(config->GetCFL(MESH_0) * config->GetCFLRedCoeff_Turb())));
   eta = options.linearTolerance;
@@ -111,32 +113,15 @@ void CSSTNewtonIntegration::UpdateScale() {
 }
 
 void CSSTNewtonIntegration::Perturb(const CSysVector<Scalar>& vector, double step) {
-  for (unsigned long p = 0; p < geometry->GetnPoint(); ++p)
-    for (unsigned short v = 0; v < 2; ++v) {
-      const double delta =
-          step == 0 || geometry->nodes->GetSolidBoundary(p)
-              ? 0.0
-              : step * vector(p, v) * scale(p, v) / SU2_TYPE::GetValue(solvers[FLOW_SOL]->GetNodes()->GetDensity(p));
-      solvers[TURB_SOL]->GetNodes()->AddSolution(p, v, delta);
-    }
+  equations->SetTrial(vector, step, scale, [&](const CNewtonEquationSet::Block&, unsigned long p, unsigned short) {
+    return !geometry->nodes->GetSolidBoundary(p);
+  });
 }
 
-void CSSTNewtonIntegration::Residual(bool implicit) {
-  auto* solver = solvers[TURB_SOL];
-  const auto scheme = config->GetKind_TimeIntScheme();
-  config->SetGlobalParam(config->GetKind_Solver(), RUNTIME_TURB_SYS);
-  if (!implicit) config->SetKind_TimeIntScheme(EULER_EXPLICIT);
-  solver->InitiateComms(geometry, config, MPI_QUANTITIES::SOLUTION);
-  solver->CompleteComms(geometry, config, MPI_QUANTITIES::SOLUTION);
-  solver->Postprocessing(geometry, solvers, config, MESH_0);
-  for (unsigned long p = 0; p < geometry->GetnPoint(); ++p)
-    solvers[FLOW_SOL]->GetNodes()->SetEddyViscosity(p, solver->GetNodes()->GetmuT(p));
-  solver->Preprocessing(geometry, solvers, config, MESH_0, NO_RK_ITER, RUNTIME_TURB_SYS, false);
-  Space_Integration(geometry, solvers, numerics[TURB_SOL], config, MESH_0, NO_RK_ITER, RUNTIME_TURB_SYS);
-  config->SetKind_TimeIntScheme(scheme);
-}
+void CSSTNewtonIntegration::Residual(bool implicit) { residualValid = equations->EvaluateResiduals(implicit); }
 
 double CSSTNewtonIntegration::Merit(double step) const {
+  if (!residualValid) return std::numeric_limits<double>::infinity();
   double value = 0, invalid = 0;
   for (unsigned long p = 0; p < geometry->GetnPointDomain(); ++p)
     for (unsigned short v = 0; v < 2; ++v) {
@@ -199,6 +184,10 @@ void CSSTNewtonIntegration::MatrixFreeProduct(const CSysVector<Scalar>& u, CSysV
   }
   Perturb(u, h);
   Residual();
+  if (!residualValid) {
+    v = Scalar(std::numeric_limits<double>::quiet_NaN());
+    return;
+  }
   for (unsigned long p = 0; p < geometry->GetnPointDomain(); ++p) {
     const double diagonal = SU2_TYPE::GetValue(geometry->nodes->GetVolume(p) + geometry->nodes->GetPeriodicVolume(p)) /
                             std::max(EPS, SU2_TYPE::GetValue(solvers[TURB_SOL]->GetNodes()->GetDelta_Time(p)));
@@ -359,7 +348,8 @@ void CSSTNewtonIntegration::Log(const Attempt& attempt, const NonlinearGlobaliza
   if (out.tellp() == 0)
     out << "iteration,attempt,cfl,next_cfl,status,decision,linear_iterations,linear_target,reported_linear_residual,"
            "true_linear_defect,base_merit,merit,step,evaluations,slope,predicted_reduction,model_agreement,"
-           "rollback_state_error,rollback_merit_error,physical_merit,pseudo_time_merit\n";
+           "rollback_state_error,rollback_merit_error,physical_merit,pseudo_time_merit,flow_residual_evaluations,"
+           "turbulence_residual_evaluations,transition_residual_evaluations,species_residual_evaluations\n";
   out.precision(17);
   out << config->GetInnerIter() << ',' << attemptNumber << ',' << cfl << ',' << decision.nextCFL << ','
       << (attempt.linearFailure ? "LINEAR_FAILURE" : Name(attempt.search.status)) << ',' << Name(decision.reason) << ','
@@ -367,7 +357,9 @@ void CSSTNewtonIntegration::Log(const Attempt& attempt, const NonlinearGlobaliza
       << ',' << attempt.base << ',' << attempt.search.value << ',' << attempt.search.step << ','
       << attempt.search.evaluations << ',' << attempt.slope << ',' << attempt.prediction << ',' << attempt.agreement
       << ',' << attempt.rollbackStateError << ',' << attempt.rollbackMeritError << ',' << attempt.physicalMerit << ','
-      << options.pseudoTimeMerit << '\n';
+      << options.pseudoTimeMerit;
+  for (auto count : equations->GetResidualEvaluations()) out << ',' << count;
+  out << '\n';
 }
 
 void CSSTNewtonIntegration::MultiGrid_Iteration(CGeometry**** geometry_, CSolver***** solvers_,
@@ -385,6 +377,7 @@ void CSSTNewtonIntegration::MultiGrid_Iteration(CGeometry**** geometry_, CSolver
   solvers[TURB_SOL]->InitiateComms(geometry, config, MPI_QUANTITIES::SOLUTION);
   solvers[TURB_SOL]->CompleteComms(geometry, config, MPI_QUANTITIES::SOLUTION);
   solvers[TURB_SOL]->Set_OldSolution();
+  equations->Capture();
   UpdateScale();
   for (unsigned long p = 0; p < geometry->GetnPoint(); ++p)
     oldRelaxation[p] = SU2_TYPE::GetValue(solvers[TURB_SOL]->GetNodes()->GetUnderRelaxation(p));

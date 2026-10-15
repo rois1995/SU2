@@ -6,11 +6,11 @@ The current supported problem is steady, single-zone, compressible RANS with SST
 
 ## Nonlinear problem and acceptance
 
-Hold the mean-flow primitive state fixed during one SST update. Write the turbulence conservative unknowns as `q = rho * (k, omega)`, and the spatial SST residual as `R(q)`. The pseudo-time Newton system is
+Hold the stored mean-flow conservative state fixed during one SST update. Write the turbulence conservative unknowns as `q = rho * (k, omega)`, and the spatial SST residual as `R(q)`. The pseudo-time Newton system is
 
 `(J_R + D) delta_q = -R(q_old)`,
 
-where `D` is the nodal volume divided by the local pseudo-time step. Each residual evaluation refreshes SST gradients, reconstruction limiters, blending functions, cross diffusion, eddy viscosity and the eddy viscosity used by the mean-flow primitive state. Strong wall values are established before forming the differentiated base residual.
+where `D` is the nodal volume divided by the local pseudo-time step. `CNewtonEquationSet` now installs each trial from a saved base and refreshes flow primitives, gradients, SST blending functions, cross diffusion and eddy viscosity. Pressure responds to SST k at fixed total energy; the primitive state is refreshed during probes. Strong wall values are installed before the differentiated gradients and sources. Invalid flow probes are rejected. The two Newton algorithms remain separate; see `NewtonKrylovRefactor.md` for the common-interface milestone and its remaining requirements.
 
 The default `SST_NEWTON_PSEUDO_TIME_MERIT= YES` globalizes the implicit pseudo-time equation
 
@@ -36,7 +36,7 @@ For a failed search or an unacceptable true linear defect:
 2. Check exact nodal restoration and the configured relative merit restoration tolerance. Invalid base states or inconsistent restoration terminate recovery.
 3. If recovery is enabled and both its retry budget and CFL floor permit another attempt, contract SST CFL.
 4. Recompute the time step, implicit residual/Jacobian, pseudo-time diagonal, preconditioner and Newton direction. Tighten the requested linear tolerance, bounded by `SST_NEWTON_FORCING_MIN`.
-5. Repeat acceptance at the same base solution and with the same frozen scale and mean-flow primitive state.
+5. Repeat acceptance at the same base solution and with the same frozen scale and stored mean-flow conservative state.
 
 Failure never silently skips an SST update, freezes a limiter or accepts the least bad rejected trial. Recovery is bounded, including when CFL reaches its minimum.
 
@@ -86,6 +86,8 @@ Disabling line search retains the finite-state and true-linear-defect checks. An
 
 `sst_newton.csv` records every attempted direction: current/next CFL, line-search status, controller decision, Krylov iterations and requested/reported/true linear residuals, base/accepted merits, step, evaluations, slope, predicted reduction, model agreement, restoration errors and physical merit. `sst_newton_trials.csv` records each base, trial and rollback evaluation with both merits. These files append within a working directory; use a new directory for independent runs.
 
+The four `*_residual_evaluations` columns count physical residual evaluations by the shared interface, cumulatively for flow, turbulence, transition and species. They exclude conventional outer-iteration work. Even an SST-only probe evaluates flow to refresh auxiliary boundary data, so this cost must be counted in future comparisons.
+
 When recovery cannot continue, the integration returns a numerical-failure status. The iteration and driver veto convergence, force normal final output, and write an additional binary restart named `<RESTART_FILENAME>_sst_newton_failure.dat`, including when ordinary output is disabled. The executable finalizes normally, prints `Numerical Failure`, and returns a nonzero exit code. It does not call `MPI_Abort` for an exhausted numerical recovery. Invalid configuration is still reported through SU2's normal configuration-error path.
 
 The failure restart contains the restored SST base state and the mean-flow state held during that attempted SST update. It is an unconverged segregated state. Restarting initializes the controller again from configuration; diagnostic CSV records preserve the failed CFL, forcing and attempt history.
@@ -96,7 +98,9 @@ The reconstruction fallback can be discontinuous. Finite-difference products, de
 
 ## Recorded validation
 
-Validated with GCC 9.4, a release MPI/OpenMP build, and the epsilon branch at `732528ac56` as its baseline. Normal comparisons use two MPI ranks, one OpenMP thread, flow CFL 1000 and initial SST CFL 100. The limiter continues to update and turbulence MUSCL remains enabled.
+The following results are historical prototype evidence, before the corrected baseline and shared residual interface. They do not validate the current source. Current checks and artifacts are listed in `NewtonKrylovRefactor.md`.
+
+The prototype was validated with GCC 9.4, a release MPI/OpenMP build, and the epsilon branch at `732528ac56` as its baseline. Normal comparisons use two MPI ranks, one OpenMP thread, flow CFL 1000 and initial SST CFL 100. The limiter continues to update and turbulence MUSCL remains enabled.
 
 | NACA0012 case | Accepted SST updates | Recovered updates | Outcome |
 | --- | ---: | ---: | --- |

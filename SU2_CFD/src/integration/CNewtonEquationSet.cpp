@@ -1,0 +1,237 @@
+/*!
+ * \file CNewtonEquationSet.cpp
+ * \brief Grouped state installation and deterministic residual refresh for Newton-Krylov.
+ * \author SU2 Contributors
+ */
+#include "../../include/integration/CNewtonEquationSet.hpp"
+
+namespace {
+constexpr unsigned short runtimes[] = {RUNTIME_FLOW_SYS, RUNTIME_TURB_SYS, RUNTIME_TRANS_SYS, RUNTIME_SPECIES_SYS};
+
+class EquationSettingsGuard {
+  CConfig& config;
+  CConfig::EquationSettings settings;
+
+ public:
+  explicit EquationSettingsGuard(CConfig& c) : config(c), settings(c.GetEquationSettings()) { SU2_OMP_BARRIER }
+  ~EquationSettingsGuard() { SU2_OMP_SAFE_GLOBAL_ACCESS(config.SetEquationSettings(settings);) }
+};
+}  // namespace
+
+CNewtonEquationSet::CNewtonEquationSet(CGeometry* g, CSolver** s, CNumerics*** n, CConfig* c,
+                                       const std::vector<unsigned short>& selected)
+    : geometry(g), solvers(s), numerics(n), config(c) {
+  if (!geometry || !solvers || !solvers[FLOW_SOL] || !numerics || !config)
+    throw std::invalid_argument("Newton equation sets need geometry, flow, numerics and configuration");
+  density.resize(g->GetnPoint());
+  if (config->GetNEMOProblem())
+    throw std::invalid_argument("NEMO is excluded from the common Newton equation interface");
+  trialFlow.resize(g->GetnPoint() * s[FLOW_SOL]->GetnVar());
+  if (selected.empty()) throw std::invalid_argument("A Newton equation group cannot be empty");
+  for (auto runtime : selected) {
+    if (std::find(std::begin(runtimes), std::end(runtimes), runtime) == std::end(runtimes))
+      throw std::invalid_argument("Unsupported Newton equation system");
+    const auto slot = config->GetContainerPosition(runtime);
+    if (!solvers[slot]) throw std::invalid_argument("Selected Newton equation system is unavailable");
+    if (std::any_of(blocks.begin(), blocks.end(), [=](const Block& b) { return b.slot == slot; }))
+      throw std::invalid_argument("Duplicate equation in Newton group");
+    const auto count = solvers[slot]->GetnVar();
+    if (count > std::numeric_limits<unsigned short>::max() - variables)
+      throw std::invalid_argument("Newton group exceeds the vector variable-count range");
+    blocks.push_back({runtime, slot, variables, count, solvers[slot]});
+    variables += count;
+  }
+  for (auto runtime : runtimes) {
+    auto* solver = solvers[config->GetContainerPosition(runtime)];
+    if (!solver) continue;
+    const auto count = solver->GetnVar();
+    const auto entries = geometry->GetnPoint() * count;
+    snapshots.push_back({solver, count, std::vector<su2double>(entries), std::vector<su2double>(entries),
+                         std::vector<su2double>(entries),
+                         std::vector<su2double>(geometry->GetnPoint())});
+  }
+}
+
+void CNewtonEquationSet::Capture() {
+  SU2_OMP_FOR_STAT(1024)
+  for (auto p = 0ul; p < geometry->GetnPoint(); ++p) density[p] = solvers[FLOW_SOL]->GetNodes()->GetDensity(p);
+  END_SU2_OMP_FOR
+  for (auto& snapshot : snapshots) {
+    const auto* nodes = snapshot.solver->GetNodes();
+    SU2_OMP_FOR_STAT(1024)
+    for (auto p = 0ul; p < geometry->GetnPoint(); ++p) {
+      snapshot.relaxation[p] = nodes->GetUnderRelaxation(p);
+      for (auto v = 0u; v < snapshot.variables; ++v) {
+        const auto i = p * snapshot.variables + v;
+        snapshot.solution[i] = nodes->GetSolution(p, v);
+        snapshot.oldSolution[i] = nodes->GetSolution_Old(p, v);
+      }
+    }
+    END_SU2_OMP_FOR
+  }
+  SU2_OMP_SAFE_GLOBAL_ACCESS(captured = true;)
+}
+
+void CNewtonEquationSet::RestoreSolutions() {
+  assert(captured);
+  for (const auto& snapshot : snapshots) {
+    auto* nodes = snapshot.solver->GetNodes();
+    SU2_OMP_FOR_STAT(1024)
+    for (auto p = 0ul; p < geometry->GetnPoint(); ++p) {
+      for (auto v = 0u; v < snapshot.variables; ++v) {
+        const auto i = p * snapshot.variables + v;
+        nodes->SetSolution(p, v, snapshot.solution[i]);
+        nodes->SetSolution_Old(p, v, snapshot.oldSolution[i]);
+      }
+    }
+    END_SU2_OMP_FOR
+  }
+}
+
+void CNewtonEquationSet::Communicate() {
+  for (const auto& snapshot : snapshots) {
+    snapshot.solver->InitiateComms(geometry, config, MPI_QUANTITIES::SOLUTION);
+    snapshot.solver->CompleteComms(geometry, config, MPI_QUANTITIES::SOLUTION);
+  }
+}
+
+void CNewtonEquationSet::Refresh() {
+  SU2_OMP_SAFE_GLOBAL_ACCESS(config->SetGlobalParam(config->GetKind_Solver(), RUNTIME_FLOW_SYS);)
+  solvers[FLOW_SOL]->Preprocessing(geometry, solvers, config, MESH_0, NO_RK_ITER, RUNTIME_FLOW_SYS, true);
+  if (solvers[TRANS_SOL]) solvers[FLOW_SOL]->Friction_Forces(geometry, config);
+  if (solvers[TURB_SOL]) {
+    SU2_OMP_SAFE_GLOBAL_ACCESS(config->SetGlobalParam(config->GetKind_Solver(), RUNTIME_TURB_SYS);)
+    solvers[TURB_SOL]->Postprocessing(geometry, solvers, config, MESH_0);
+  }
+  if (solvers[TRANS_SOL]) {
+    SU2_OMP_SAFE_GLOBAL_ACCESS(config->SetGlobalParam(config->GetKind_Solver(), RUNTIME_TRANS_SYS);)
+    solvers[TRANS_SOL]->Postprocessing(geometry, solvers, config, MESH_0);
+  }
+  // Copy the newly computed eddy viscosity into the flow primitive/transport data.
+  SU2_OMP_SAFE_GLOBAL_ACCESS(config->SetGlobalParam(config->GetKind_Solver(), RUNTIME_FLOW_SYS);)
+  solvers[FLOW_SOL]->Preprocessing(geometry, solvers, config, MESH_0, NO_RK_ITER, RUNTIME_FLOW_SYS, true);
+}
+
+bool CNewtonEquationSet::CheckState(bool compareFlow) {
+  // shortcut: Full model and boundary constraints remain to be added before enabling coupled solves.
+  SU2_OMP_SAFE_GLOBAL_ACCESS(invalidCount = 0;)
+  double local = 0;
+  const auto* flow = solvers[FLOW_SOL]->GetNodes();
+  const auto nFlow = solvers[FLOW_SOL]->GetnVar();
+  const bool compressible = config->GetKind_Regime() == ENUM_REGIME::COMPRESSIBLE;
+  const bool ideal = config->GetKind_FluidModel() == STANDARD_AIR || config->GetKind_FluidModel() == IDEAL_GAS;
+  SU2_OMP_FOR_STAT(1024)
+  for (auto p = 0ul; p < geometry->GetnPointDomain(); ++p) {
+    for (auto v = 0u; v < nFlow; ++v) {
+      const auto value = flow->GetSolution(p, v);
+      if (!Armijo::IsFinite(SU2_TYPE::GetValue(value))) local += 1;
+      if (compareFlow && value != trialFlow[p * nFlow + v]) local += 1;
+    }
+    if (compressible) {
+      const auto rho = flow->GetSolution(p, 0);
+      if (!(rho > 0))
+        local += 1;
+      else if (ideal) {
+        auto internal = flow->GetSolution(p, nFlow - 1);
+        for (auto v = 1u; v <= geometry->GetnDim(); ++v) internal -= 0.5 * pow(flow->GetSolution(p, v), 2) / rho;
+        if (config->GetKind_Turb_Model() == TURB_MODEL::SST)
+          internal -= rho * solvers[TURB_SOL]->GetNodes()->GetSolution(p, 0);
+        if (!(internal > 0)) local += 1;
+      }
+    }
+  }
+  END_SU2_OMP_FOR
+  for (const auto& block : blocks) {
+    if (block.slot == FLOW_SOL) continue;
+    SU2_OMP_FOR_STAT(1024)
+    for (auto p = 0ul; p < geometry->GetnPointDomain(); ++p)
+      for (auto v = 0u; v < block.variables; ++v)
+        if (!Armijo::IsFinite(SU2_TYPE::GetValue(block.solver->GetNodes()->GetSolution(p, v)))) local += 1;
+    END_SU2_OMP_FOR
+  }
+  atomicAdd(local, invalidCount);
+  BEGIN_SU2_OMP_SAFE_GLOBAL_ACCESS {
+    double global = 0;
+    SU2_MPI::Allreduce(&invalidCount, &global, 1, MPI_DOUBLE, MPI_SUM, SU2_MPI::GetComm());
+    valid = global == 0;
+  }
+  END_SU2_OMP_SAFE_GLOBAL_ACCESS
+  return valid;
+}
+
+bool CNewtonEquationSet::EvaluateResiduals(bool implicit) {
+  EquationSettingsGuard guard(*config);
+  struct HistoryGuard {
+    CNewtonEquationSet& equations;
+    explicit HistoryGuard(CNewtonEquationSet& e) : equations(e) { equations.SaveHistory(); }
+    ~HistoryGuard() { equations.RestoreHistory(); }
+  } history(*this);
+  SU2_OMP_SAFE_GLOBAL_ACCESS(config->SetResidualOnly(true);)
+  Communicate();
+  if (!CheckState(false)) return false;
+  const auto* flow = solvers[FLOW_SOL]->GetNodes();
+  const auto nFlow = solvers[FLOW_SOL]->GetnVar();
+  SU2_OMP_FOR_STAT(1024)
+  for (auto p = 0ul; p < geometry->GetnPoint(); ++p)
+    for (auto v = 0u; v < nFlow; ++v) trialFlow[p * nFlow + v] = flow->GetSolution(p, v);
+  END_SU2_OMP_FOR
+  Refresh();
+  if (!CheckState(true)) return false;
+  // Strong wall/Dirichlet values must be installed before any differentiated gradient or source.
+  for (auto runtime : runtimes) {
+    const auto slot = config->GetContainerPosition(runtime);
+    if (!solvers[slot]) continue;
+    SU2_OMP_SAFE_GLOBAL_ACCESS(config->SetGlobalParam(config->GetKind_Solver(), runtime);)
+    StrongBoundaryConditions(geometry, solvers, numerics[slot], config, runtime);
+  }
+  Communicate();
+  Refresh();
+  // Flow first also refreshes characteristic boundary states consumed by auxiliary equations.
+  for (auto index = 0u; index < 4; ++index) {
+    const auto runtime = runtimes[index];
+    auto block = std::find_if(blocks.begin(), blocks.end(), [=](const Block& b) { return b.runtime == runtime; });
+    const bool selected = block != blocks.end();
+    if (!selected && runtime != RUNTIME_FLOW_SYS) continue;
+    const auto slot = config->GetContainerPosition(runtime);
+    SU2_OMP_SAFE_GLOBAL_ACCESS(config->SetResidualOnly(!implicit || !selected);
+                               config->SetGlobalParam(config->GetKind_Solver(), runtime);)
+    solvers[slot]->Preprocessing(geometry, solvers, config, MESH_0, NO_RK_ITER, runtime, false);
+    Space_Integration(geometry, solvers, numerics[slot], config, MESH_0, NO_RK_ITER, runtime);
+    SU2_OMP_SAFE_GLOBAL_ACCESS(++residualEvaluations[index];)
+  }
+  return true;
+}
+
+void CNewtonEquationSet::SaveHistory() {
+  for (auto& snapshot : snapshots) {
+    const auto* nodes = snapshot.solver->GetNodes();
+    SU2_OMP_FOR_STAT(1024)
+    for (auto p = 0ul; p < geometry->GetnPoint(); ++p)
+      for (auto v = 0u; v < snapshot.variables; ++v)
+        snapshot.evaluationHistory[p * snapshot.variables + v] = nodes->GetSolution_Old(p, v);
+    END_SU2_OMP_FOR
+  }
+}
+
+void CNewtonEquationSet::RestoreHistory() {
+  for (const auto& snapshot : snapshots) {
+    auto* nodes = snapshot.solver->GetNodes();
+    SU2_OMP_FOR_STAT(1024)
+    for (auto p = 0ul; p < geometry->GetnPoint(); ++p)
+      for (auto v = 0u; v < snapshot.variables; ++v)
+        nodes->SetSolution_Old(p, v, snapshot.evaluationHistory[p * snapshot.variables + v]);
+    END_SU2_OMP_FOR
+  }
+}
+
+bool CNewtonEquationSet::Restore() {
+  RestoreSolutions();
+  const bool restored = EvaluateResiduals();
+  for (const auto& snapshot : snapshots) {
+    auto* nodes = snapshot.solver->GetNodes();
+    SU2_OMP_FOR_STAT(1024)
+    for (auto p = 0ul; p < geometry->GetnPoint(); ++p) nodes->SetUnderRelaxation(p, snapshot.relaxation[p]);
+    END_SU2_OMP_FOR
+  }
+  return restored;
+}
