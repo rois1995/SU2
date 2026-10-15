@@ -2151,7 +2151,14 @@ void CSolver::AdaptCFLNumber(CGeometry **geometry,
 
 }
 
-void CSolver::RefreshResidualStatistics(const CGeometry* geometry, const CConfig* config) {
+bool CSolver::RefreshResidualStatistics(const CGeometry* geometry, const CConfig* config, bool abortOnFailure) {
+  std::vector<su2double> savedRMS, savedMax;
+  std::vector<unsigned long> savedPoint;
+  su2activematrix savedCoordinates;
+  if (!abortOnFailure) {
+    SU2_OMP_SAFE_GLOBAL_ACCESS(savedRMS = Residual_RMS; savedMax = Residual_Max;
+                               savedPoint = Point_Max; savedCoordinates = Point_Max_Coord;)
+  }
   std::vector<su2double> rms(nVar, 0.0), maximum(nVar, 0.0);
   std::vector<unsigned long> point(nVar, 0);
   SU2_OMP_FOR_STAT(1024)
@@ -2159,15 +2166,21 @@ void CSolver::RefreshResidualStatistics(const CGeometry* geometry, const CConfig
     for (auto v = 0u; v < nVar; ++v)
       ResidualReductions_PerThread(p, v, LinSysRes(p, v), rms.data(), maximum.data(), point.data());
   END_SU2_OMP_FOR
-  ResidualReductions_FromAllThreads(geometry, config, rms.data(), maximum.data(), point.data());
+  const bool valid = ResidualReductions_FromAllThreads(geometry, config, rms.data(), maximum.data(), point.data(),
+                                                       abortOnFailure);
+  if (!valid) {
+    SU2_OMP_SAFE_GLOBAL_ACCESS(Residual_RMS = std::move(savedRMS); Residual_Max = std::move(savedMax);
+                               Point_Max = std::move(savedPoint); Point_Max_Coord = std::move(savedCoordinates);)
+  }
+  return valid;
 }
 
-void CSolver::SetResidual_RMS(const CGeometry *geometry, const CConfig *config, bool force) {
+bool CSolver::SetResidual_RMS(const CGeometry *geometry, const CConfig *config, bool force, bool abortOnFailure) {
   SU2_ZONE_SCOPED
 
   /*--- On coarse levels the reduction is skipped for performance, unless MG_Smooth_EarlyExit
    *    needs it or the caller asks for it. ---*/
-  if (!force && geometry->GetMGLevel() != MESH_0 && !config->GetMGOptions().MG_Smooth_EarlyExit) return;
+  if (!force && geometry->GetMGLevel() != MESH_0 && !config->GetMGOptions().MG_Smooth_EarlyExit) return true;
 
   BEGIN_SU2_OMP_SAFE_GLOBAL_ACCESS {
 
@@ -2188,54 +2201,66 @@ void CSolver::SetResidual_RMS(const CGeometry *geometry, const CConfig *config, 
     Global_nPointDomain = geometry->GetnPointDomain();
   }
 
+  int invalid = 0;
   for (unsigned short iVar = 0; iVar < nVar; iVar++) {
-
     if (std::isnan(SU2_TYPE::GetValue(rbuf_res[iVar]))) {
-      SU2_MPI::Error("SU2 has diverged (NaN detected).", CURRENT_FUNCTION);
+      if (abortOnFailure) SU2_MPI::Error("SU2 has diverged (NaN detected).", CURRENT_FUNCTION);
+      invalid = 1;
+      continue;
     }
-
-    Residual_RMS[iVar] = max(EPS*EPS, sqrt(rbuf_res[iVar]/Global_nPointDomain));
-
-    if (log10(GetRes_RMS(iVar)) > 20.0) {
-      SU2_MPI::Error("SU2 has diverged (Residual > 10^20 detected).", CURRENT_FUNCTION);
+    rbuf_res[iVar] = max(EPS*EPS, sqrt(rbuf_res[iVar]/Global_nPointDomain));
+    if (log10(SU2_TYPE::GetValue(rbuf_res[iVar])) > 20.0) {
+      if (abortOnFailure) SU2_MPI::Error("SU2 has diverged (Residual > 10^20 detected).", CURRENT_FUNCTION);
+      invalid = 1;
     }
   }
+  if (!abortOnFailure) {
+    int globalInvalid = 0;
+    // Even reduced-communication Newton reporting must make the same failure decision on every rank.
+    SU2_MPI::Allreduce(&invalid, &globalInvalid, 1, MPI_INT, MPI_MAX, SU2_MPI::GetComm());
+    invalid = globalInvalid;
+  }
+  residualStatisticsValid = !invalid;
+  if (residualStatisticsValid) {
+    for (auto v = 0u; v < nVar; ++v) Residual_RMS[v] = rbuf_res[v];
 
-  /*--- Set the Maximum residual in all the processors. ---*/
+    /*--- Set the Maximum residual in all the processors. ---*/
 
-  if (config->GetComm_Level() == COMM_FULL) {
-    SU2_MPI::Allreduce(Residual_Max.data(), rbuf_res.data(), nVar, MPI_DOUBLE, MPI_MAX, SU2_MPI::GetComm());
-    for (unsigned short iVar = 0; iVar < nVar; iVar++) {
-      if (Residual_Max[iVar] < rbuf_res[iVar]) {
-        Point_Max[iVar] = 0;
-        for (unsigned short iDim = 0; iDim < nDim; iDim++) {
-          Point_Max_Coord(iVar, iDim) = std::numeric_limits<su2double>::lowest();
+    if (config->GetComm_Level() == COMM_FULL) {
+      SU2_MPI::Allreduce(Residual_Max.data(), rbuf_res.data(), nVar, MPI_DOUBLE, MPI_MAX, SU2_MPI::GetComm());
+      for (unsigned short iVar = 0; iVar < nVar; iVar++) {
+        if (Residual_Max[iVar] < rbuf_res[iVar]) {
+          Point_Max[iVar] = 0;
+          for (unsigned short iDim = 0; iDim < nDim; iDim++) {
+            Point_Max_Coord(iVar, iDim) = std::numeric_limits<su2double>::lowest();
+          }
         }
+        Residual_Max[iVar] = rbuf_res[iVar];
       }
-      Residual_Max[iVar] = rbuf_res[iVar];
+      vector<unsigned long> rbuf_point(nVar);
+      SU2_MPI::Allreduce(Point_Max.data(), rbuf_point.data(), nVar, MPI_UNSIGNED_LONG, MPI_MAX, SU2_MPI::GetComm());
+      // Tied residuals must report coordinates from the chosen point, not component-wise maxima of different points.
+      for (unsigned short iVar = 0; iVar < nVar; ++iVar)
+        if (Point_Max[iVar] != rbuf_point[iVar])
+          for (unsigned short iDim = 0; iDim < nDim; ++iDim)
+            Point_Max_Coord(iVar, iDim) = std::numeric_limits<su2double>::lowest();
+      SU2_MPI::Allreduce(Point_Max_Coord.data(), rbuf_res.data(), nVar*nDim, MPI_DOUBLE, MPI_MAX, SU2_MPI::GetComm());
+      Point_Max = std::move(rbuf_point);
+      for (unsigned short iVar = 0; iVar < nVar * nDim; iVar++) {
+        Point_Max_Coord.data()[iVar] = rbuf_res[iVar];
+      }
     }
-    vector<unsigned long> rbuf_point(nVar);
-    SU2_MPI::Allreduce(Point_Max.data(), rbuf_point.data(), nVar, MPI_UNSIGNED_LONG, MPI_MAX, SU2_MPI::GetComm());
-    // Tied residuals must report coordinates from the chosen point, not component-wise maxima of different points.
-    for (unsigned short iVar = 0; iVar < nVar; ++iVar)
-      if (Point_Max[iVar] != rbuf_point[iVar])
-        for (unsigned short iDim = 0; iDim < nDim; ++iDim)
-          Point_Max_Coord(iVar, iDim) = std::numeric_limits<su2double>::lowest();
-    SU2_MPI::Allreduce(Point_Max_Coord.data(), rbuf_res.data(), nVar*nDim, MPI_DOUBLE, MPI_MAX, SU2_MPI::GetComm());
-    Point_Max = std::move(rbuf_point);
-    for (unsigned short iVar = 0; iVar < nVar * nDim; iVar++) {
-      Point_Max_Coord.data()[iVar] = rbuf_res[iVar];
-    }
+
+    /*--- Floor the maximum residual like the RMS residual above, so an
+     *    exactly-zero residual (e.g. an inert species at a cold start)
+     *    cannot become a nonfinite log10 in screen or history output. ---*/
+
+    for (auto& residual : Residual_Max) residual = max(EPS*EPS, residual);
+
   }
-
-  /*--- Floor the maximum residual like the RMS residual above, so an
-   *    exactly-zero residual (e.g. an inert species at a cold start)
-   *    cannot become a nonfinite log10 in screen or history output. ---*/
-
-  for (auto& residual : Residual_Max) residual = max(EPS*EPS, residual);
-
   }
   END_SU2_OMP_SAFE_GLOBAL_ACCESS
+  return residualStatisticsValid;
 }
 
 void CSolver::SetResidual_BGS(const CGeometry *geometry, const CConfig *config) {

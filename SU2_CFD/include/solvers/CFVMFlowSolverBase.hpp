@@ -1016,7 +1016,8 @@ class CFVMFlowSolverBase : public CSolver {
         LinSysSol(iPoint, iVar) = 0.0;
 
         /*--- "Add" residual at (iPoint,iVar) to local residual variables. ---*/
-        ResidualReductions_PerThread(iPoint, iVar, LinSysRes(iPoint, iVar), resRMS, resMax, idxMax);
+        if (reportResidualStatistics)
+          ResidualReductions_PerThread(iPoint, iVar, LinSysRes(iPoint, iVar), resRMS, resMax, idxMax);
       }
     }
     END_SU2_OMP_FOR

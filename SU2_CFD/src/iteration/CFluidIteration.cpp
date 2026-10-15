@@ -308,6 +308,11 @@ bool CFluidIteration::Monitor(COutput* output, CIntegration**** integration, CGe
   StopTime = SU2_MPI::Wtime();
   UsedTime = StopTime - StartTime;
 
+  if (NewtonFailure(integration[val_iZone][val_iInst])) {
+    output->SetConvergence(false);
+    return true;
+  }
+
   /*--- Turbomachinery Specific Montior ---*/
   if (config[ZONE_0]->GetBoolTurbomachinery()){
     if (val_iZone == config[ZONE_0]->GetnZone()-1) {
@@ -347,11 +352,6 @@ bool CFluidIteration::Monitor(COutput* output, CIntegration**** integration, CGe
                            config[val_iZone]->GetInnerIter());
 
   auto StopCalc = output->GetConvergence();
-  if (NewtonFailure(integration[val_iZone][val_iInst])) {
-    output->SetConvergence(false);
-    return true;
-  }
-
   /*--- Never stop before the fine mesh is active. ---*/
   if (finestMesh != MESH_0) StopCalc = false;
 

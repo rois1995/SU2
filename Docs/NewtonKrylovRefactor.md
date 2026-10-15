@@ -96,9 +96,81 @@ controls. `run_production_dispatch_checks.py` records profile commands and
 binary/configuration hashes. The initial restart-filename assertion failed
 because the default was `restart`; the verified runner pins `restart_flow`.
 This was a harness failure: the initial failure restart was written correctly.
-Native residual-statistic abort thresholds, conditional boundary/model bounds,
-near-bound derivatives and larger production-layout repeatability still require
-the broader failure/derivative audits before the full goal can be completed.
+Native reporting failures are handled by the bounded path below. Conditional
+boundary/model bounds, near-bound derivatives and larger production-layout
+repeatability still need their stated audits before completing the full goal.
+
+## Bounded native residual reporting
+
+Equation-set evaluations now reject nonfinite residual entries collectively after
+native spatial assembly, including dependent flow residuals and final all-active
+evaluations. Finite-difference probes receive a failed evaluation rather than a
+numerical MPI abort or a projected derivative.
+
+`CSolver::RefreshResidualStatistics` supports a non-aborting call that returns a
+collective validity result. It retains the native NaN/excessive-RMS checks and
+restores previously published RMS, maxima, point indices and coordinates on
+failure. The failure decision is global even with `COMM_LEVEL=MINIMAL`. Ordinary
+native reporting keeps its default abort policy and existing valid arithmetic.
+
+The common controller reports its physical base before native preparation, then
+prepares each native matrix with provisional statistics deferred. Its physical
+right hand side remains independent of native sign changes and multigrid
+truncation data. Reporting validation precedes acceptance bookkeeping: an invalid
+trial restores the whole captured group and published base statistics before
+bounded CFL recovery. An invalid base stops immediately. Such attempts are
+recorded as `RESIDUAL_FAILURE`; forcing, accepted CFL handoff and reconstruction
+history are committed only after successful reporting.
+
+Final reporting validates every active named residual. A failure stops further
+updates, retains valid statistics and writes a failure restart. The driver skips
+convergence monitoring once Newton has declared failure. Other native setup and
+configuration errors retain their existing handling; this does not establish
+all conditional thermodynamic/boundary failure paths as audited.
+
+`[NewtonResidualFailure]` tests inject NaN, infinity, excessive finite values and
+sum-of-squares overflow into all four native equation families on one rank. They
+check FULL/MINIMAL communication, deferred preparation and restoration of the
+reporting policy. A nonlinear source test accepts the scaled Armijo merit while
+exceeding the native energy RMS limit, then verifies retry, exact rollback and
+restored statistics. Other tests poison provisional truncation data and compare
+against clean physical updates, or invalidate an unselected final residual and
+check finite restart fields through the actual driver.
+
+The self-contained CLI check needs no external mesh:
+
+```sh
+python3 TestCases/newton_krylov/check_residual_failures.py \
+  --binary /path/to/build/SU2_CFD/src/SU2_CFD --output /path/to/new-evidence
+```
+
+Optional `--before` records an older executable alongside the current one;
+`--ranks` and `--threads` select the layout. The cases include compressible SST,
+incompressible constant-density flow, explicit flow/SST, stiff mixture/species,
+and the ordinary native abort control. All Newton failure restarts are checked
+for finite solution data and exact state/merit restoration. Variable-density
+body force subtracts the operating density, so its freestream mixture case tests
+stiff linearization rather than an excessive physical base residual.
+
+Residual-reporting checkpoint evidence: **27 native cases / 43,029 assertions**
+pass serially; **27,717 / 22,571** pass on two ranks x two threads. The five
+focused failure cases pass **1,043 / 1,046** on two ranks x four threads.
+All **80 / 102,273** supported unit checks pass. Eighteen affected units pass
+forward syntax checks. Focused Valgrind reports zero errors; leaks are unchecked.
+Eight conventional six-iteration histories remain identical, all thirteen
+production profiles/thirteen configuration guards pass, and the existing SST
+10/10 acceptance and 7/8 failure controls retain exact restoration.
+
+Evidence is stored with the `residual_failure_` prefix in the parent workspace.
+Final native logs use `residual_failure_recovery_`; earlier uncommitted-stage
+fixtures are historical checks. The CLI runner records commands, binary/config
+hashes and finite restart fields. The archived compressible and constant-density
+executables abort MPI; the current Newton paths exit with bounded failure and
+finite checkpoints. The ordinary native control still aborts in both versions.
+The original mixture fixture expectation is retained as a harness diagnostic;
+its density-subtracted source has a stiff derivative and a finite base residual.
+Larger production-layout repeatability, conditional boundary/model bounds,
+periodic support and converged matched family comparisons remain open.
 
 ## Required final state
 

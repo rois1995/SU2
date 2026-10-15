@@ -43,7 +43,7 @@ class CNewtonIntegration final : public CIntegration {
     double agreement = std::numeric_limits<double>::quiet_NaN();
     double linearDefect = 0, reportedLinearResidual = 0, rollbackMeritError = 0, rollbackStateError = 0;
     unsigned linearIterations = 0;
-    bool linearFailure = false, startup = false, deflated = false;
+    bool linearFailure = false, residualFailure = false, startup = false, deflated = false;
     double reconstruction = 1, linearTarget = 0, toleranceFactor = 1, meanFlowResidual = 0;
     unsigned long preconditionerIterations = 0;
   };
@@ -96,6 +96,7 @@ class CNewtonIntegration final : public CIntegration {
   void SetCFL(double);
   void Perturb(const CSysVector<Scalar>&, double);
   void Residual(bool implicit = false);
+  bool RefreshStatistics(bool allEquations = false);
   double Merit(double step = 0) const;
   double Evaluate(double step, const char* phase);
   void Restore(Attempt&);

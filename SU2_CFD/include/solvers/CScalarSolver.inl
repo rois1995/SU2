@@ -503,7 +503,7 @@ void CScalarSolver<VariableType>::PrepareImplicitIteration(CGeometry* geometry, 
   /*--- Set shared residual variables to 0 and declare
    *    local ones for current thread to work on. ---*/
 
-  SetResToZero();
+  if (reportResidualStatistics) SetResToZero();
 
   su2double resMax[MAXNVAR] = {0.0}, resRMS[MAXNVAR] = {0.0};
   unsigned long idxMax[MAXNVAR] = {0};
@@ -530,7 +530,8 @@ void CScalarSolver<VariableType>::PrepareImplicitIteration(CGeometry* geometry, 
       LinSysSol(iPoint, iVar) = 0.0;
 
       /*--- "Add" residual at (iPoint,iVar) to local residual variables. ---*/
-      ResidualReductions_PerThread(iPoint, iVar, LinSysRes(iPoint, iVar), resRMS, resMax, idxMax);
+      if (reportResidualStatistics)
+        ResidualReductions_PerThread(iPoint, iVar, LinSysRes(iPoint, iVar), resRMS, resMax, idxMax);
     }
   }
   END_SU2_OMP_FOR

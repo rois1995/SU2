@@ -11,6 +11,7 @@
 #include "../../SU2_CFD/include/integration/CNewtonIntegration.hpp"
 #include "../../SU2_CFD/include/integration/CNewtonLegacyIntegration.hpp"
 #include "../../SU2_CFD/include/variables/CFlowVariable.hpp"
+#include "../../SU2_CFD/include/numerics/flow/flow_sources.hpp"
 #include "../../Common/include/linear_algebra/CSysSolve.hpp"
 #include <chrono>
 #include <filesystem>
@@ -32,6 +33,10 @@ class NewtonDriver : public CSinglezoneDriver {
   void OuterIteration() {
     iteration_container[0][0]->Iterate(output_container[0], integration_container, geometry_container, solver_container,
         numerics_container, config_container, surface_movement, grid_movement, FFDBox, 0, 0);
+  }
+  bool MonitorOuter() {
+    return iteration_container[0][0]->Monitor(output_container[0], integration_container, geometry_container,
+        solver_container, numerics_container, config_container, surface_movement, grid_movement, FFDBox, 0, 0);
   }
   void FlowIteration(CIntegration& integration) {
     Config()->SetGlobalParam(Config()->GetKind_Solver(), RUNTIME_FLOW_SYS);
@@ -96,10 +101,10 @@ const std::string species =
     "VISCOSITY_MODEL= CONSTANT_VISCOSITY\nMU_CONSTANT= 1.8551e-5,1.1e-5\n"
     "PRANDTL_LAM= 0.72,0.72\nPRANDTL_TURB= 0.9,0.9\nDIFFUSIVITY_CONSTANT= 1e-5\n";
 
-bool Residual(CNewtonEquationSet& equations, bool implicit = false) {
+bool Residual(CNewtonEquationSet& equations, bool implicit = false, bool allEquations = false) {
   bool valid = false;
   SU2_OMP_PARALLEL {
-    const bool result = equations.EvaluateResiduals(implicit);
+    const bool result = equations.EvaluateResiduals(implicit, allEquations);
     SU2_OMP_MASTER
     valid = result;
     END_SU2_OMP_MASTER
@@ -819,6 +824,269 @@ TEST_CASE("Production Newton failure stops remaining auxiliaries after exact gro
     CHECK(integration->GetLastAttempt().rollbackStateError == 0);
     equations->Pack(after);
     CHECK(MaxDifference(before, after) == 0);
+  }
+}
+
+TEST_CASE("Newton residual reporting rejects invalid data collectively and preserves published statistics", "[NewtonResidualFailure]") {
+  auto physics = species;
+  physics.replace(physics.find("INC_NAVIER_STOKES"), std::string("INC_NAVIER_STOKES").size(), "INC_RANS");
+  physics += "KIND_TURB_MODEL= SST\nKIND_TRANS_MODEL= LM\n";
+  for (const auto* comm : {"FULL", "MINIMAL"}) {
+    CAPTURE(comm);
+    Problem problem(physics + "COMM_LEVEL= " + comm + "\nCFL_NUMBER= 0.05\n");
+    auto& driver = *problem.driver;
+    auto equations = problem.Equations({RUNTIME_FLOW_SYS, RUNTIME_TURB_SYS, RUNTIME_TRANS_SYS, RUNTIME_SPECIES_SYS});
+    REQUIRE(Residual(*equations, true));
+    auto* geometry = driver.Geometry();
+    for (const auto& block : equations->GetBlocks()) {
+      driver.Config()->SetGlobalParam(driver.Config()->GetKind_Solver(), block.runtime);
+      SU2_OMP_PARALLEL { block.solver->SetTime_Step(geometry, driver.Solvers(), driver.Config(), MESH_0, 0); }
+      END_SU2_OMP_PARALLEL
+    }
+    auto statistics = [&](CSolver* solver) {
+      std::vector<double> values;
+      for (auto v = 0u; v < solver->GetnVar(); ++v) {
+        values.push_back(solver->GetRes_RMS(v));
+        values.push_back(solver->GetRes_Max(v));
+        values.push_back(solver->GetPoint_Max(v));
+        for (auto d = 0u; d < geometry->GetnDim(); ++d) values.push_back(solver->GetPoint_Max_Coord(v)[d]);
+      }
+      return values;
+    };
+    for (const auto& block : equations->GetBlocks()) {
+      CAPTURE(block.runtime);
+      auto* solver = block.solver;
+      for (auto p = 0ul; p < geometry->GetnPointDomain(); ++p)
+        for (auto v = 0u; v < block.variables; ++v)
+          solver->LinSysRes(p, v) = 0.125 * (1 + geometry->nodes->GetGlobalIndex(p) % 13 + v);
+      bool valid = false;
+      auto report = [&] {
+        SU2_OMP_PARALLEL {
+          const bool result = solver->RefreshResidualStatistics(geometry, driver.Config(), false);
+          SU2_OMP_MASTER
+          valid = result;
+          END_SU2_OMP_MASTER
+        }
+        END_SU2_OMP_PARALLEL
+      };
+      report();
+      REQUIRE(valid);
+      const auto published = statistics(solver);
+      for (double bad : {std::numeric_limits<double>::quiet_NaN(), std::numeric_limits<double>::infinity(), 1e30, 1e200}) {
+        CAPTURE(bad);
+        if (SU2_MPI::GetRank() == MASTER_NODE) solver->LinSysRes(0, 0) = bad;
+        report();
+        CHECK_FALSE(valid);
+        CHECK(statistics(solver) == published);
+        driver.Config()->SetGlobalParam(driver.Config()->GetKind_Solver(), block.runtime);
+        SU2_OMP_PARALLEL { solver->PrepareImplicitIteration(geometry, driver.Solvers(), driver.Config(), false); }
+        END_SU2_OMP_PARALLEL
+        CHECK(statistics(solver) == published);
+        report();
+        CHECK_FALSE(valid);  // Preparation must restore the reporting policy.
+        CHECK(statistics(solver) == published);
+      }
+    }
+  }
+}
+
+TEST_CASE("Newton preparation defers provisional truncation-residual reporting", "[NewtonResidualFailure]") {
+  for (const auto& physics : {std::string("SOLVER= NAVIER_STOKES\n"), sa,
+                              sst + "KIND_TRANS_MODEL= LM\n", species}) {
+    CAPTURE(physics);
+    Problem trial(physics + "CFL_NUMBER= 0.05\nLINEAR_SOLVER_PREC= ILU\n");
+    Problem control(physics + "CFL_NUMBER= 0.05\nLINEAR_SOLVER_PREC= ILU\n");
+    auto& actual = *trial.driver;
+    auto& expected = *control.driver;
+    std::vector<unsigned short> selected{RUNTIME_FLOW_SYS};
+    for (auto runtime : {RUNTIME_TURB_SYS, RUNTIME_TRANS_SYS, RUNTIME_SPECIES_SYS})
+      if (actual.Solvers()[actual.Config()->GetContainerPosition(runtime)]) selected.push_back(runtime);
+    if (SU2_MPI::GetRank() == MASTER_NODE)
+      actual.Solvers()[FLOW_SOL]->GetNodes()->GetResTruncError(0)[0] = std::numeric_limits<double>::quiet_NaN();
+    NonlinearGlobalization::Options<> options;
+    options.diagnostics = options.adaptCFL = options.adaptiveForcing = false;
+    CNewtonIntegration withTruncation(selected, options), reference(selected, options);
+    withTruncation.Iterate(actual.Geometry(), actual.Solvers(), actual.Numerics(), actual.Config());
+    reference.Iterate(expected.Geometry(), expected.Solvers(), expected.Numerics(), expected.Config());
+    INFO(withTruncation.GetNumericalFailureMessage());
+    REQUIRE_FALSE(withTruncation.GetNumericalFailure());
+    REQUIRE_FALSE(reference.GetNumericalFailure());
+    for (auto runtime : selected) {
+      const auto slot = actual.Config()->GetContainerPosition(runtime);
+      for (auto p = 0ul; p < actual.Geometry()->GetnPointDomain(); ++p)
+        for (auto v = 0u; v < actual.Solvers()[slot]->GetnVar(); ++v)
+          CHECK(actual.Solvers()[slot]->GetNodes()->GetSolution(p, v) == expected.Solvers()[slot]->GetNodes()->GetSolution(p, v));
+    }
+    if (SU2_MPI::GetRank() == MASTER_NODE)
+      CHECK(std::isnan(SU2_TYPE::GetValue(actual.Solvers()[FLOW_SOL]->GetNodes()->GetResTruncError(0)[0])));
+  }
+}
+
+TEST_CASE("Invalid native residuals reach bounded Newton failure with exact state restoration", "[NewtonResidualFailure]") {
+  auto physics = species;
+  physics.replace(physics.find("INC_NAVIER_STOKES"), std::string("INC_NAVIER_STOKES").size(), "INC_RANS");
+  physics += "KIND_TURB_MODEL= SST\nKIND_TRANS_MODEL= LM\nPYTHON_CUSTOM_SOURCE= YES\nCFL_NUMBER= 0.05\n";
+  for (auto runtime : {RUNTIME_FLOW_SYS, RUNTIME_TURB_SYS, RUNTIME_TRANS_SYS, RUNTIME_SPECIES_SYS})
+    for (double bad : {std::numeric_limits<double>::quiet_NaN(), std::numeric_limits<double>::infinity(), 1e30}) {
+      CAPTURE(runtime, bad);
+      Problem problem(physics);
+      auto& driver = *problem.driver;
+      const std::vector<unsigned short> selected{RUNTIME_FLOW_SYS, RUNTIME_TURB_SYS, RUNTIME_TRANS_SYS, RUNTIME_SPECIES_SYS};
+      auto equations = problem.Equations(selected);
+      REQUIRE(Residual(*equations, true));
+      equations->Capture();
+      auto before = MakeVector(driver, equations->GetnVar()), after = before;
+      equations->Pack(before);
+      if (SU2_MPI::GetRank() == MASTER_NODE) {
+        auto p = 0ul;
+        while (p < driver.Geometry()->GetnPointDomain() && driver.Geometry()->nodes->GetSolidBoundary(p)) ++p;
+        REQUIRE(p < driver.Geometry()->GetnPointDomain());
+        driver.Solvers()[driver.Config()->GetContainerPosition(runtime)]->GetNodes()->GetUserDefinedSource()(p, 0) =
+            -bad / driver.Geometry()->nodes->GetVolume(p);
+      }
+      CHECK(Residual(*equations) == std::isfinite(bad));
+      NonlinearGlobalization::Options<> options;
+      options.diagnostics = false;
+      options.maxRetries = 0;
+      CNewtonIntegration integration(selected, options);
+      integration.Iterate(driver.Geometry(), driver.Solvers(), driver.Numerics(), driver.Config());
+      REQUIRE(integration.GetNumericalFailure());
+      CHECK(integration.GetLastAttempt().residualFailure);
+      if (std::isfinite(bad)) CHECK(integration.GetLastAttempt().rollbackMeritError == 0);
+      CHECK(integration.GetLastAttempt().rollbackStateError == 0);
+      equations->Pack(after);
+      CHECK(MaxDifference(before, after) == 0);
+      for (const auto& block : equations->GetBlocks())
+        for (auto v = 0u; v < block.variables; ++v) CHECK(std::isfinite(SU2_TYPE::GetValue(block.solver->GetRes_RMS(v))));
+    }
+}
+
+TEST_CASE("A trial with invalid reporting restores the group before CFL recovery", "[NewtonResidualFailure]") {
+  class Source final : public CSourceBase_Flow {
+    const su2double* active;
+    double momentum, energy, amplitude;
+   public:
+    Source(const CConfig* config, const su2double* point, double points)
+        : CSourceBase_Flow(2, 4, config), active(point), momentum(point ? point[1] : 1),
+          energy(point ? point[3] : 1), amplitude(1e20 * std::sqrt(points)) {}
+    ResidualType<> ComputeResidual(const CConfig*) override {
+      for (auto v = 0u; v < 4; ++v) residual[v] = 0;
+      if (U_i == active) {
+        residual[1] = 0.9 * amplitude * (U_i[1] - 0.9 * momentum) / (0.1 * momentum);
+        residual[3] = 0.9 * amplitude * (U_i[3] - 0.9 * energy) / (0.1 * energy) +
+                      1.1 * amplitude * pow((U_i[1] - momentum) / (0.1 * momentum), 2);
+      }
+      return ResidualType<>(residual, jacobian, nullptr);
+    }
+  };
+  Problem problem("SOLVER= NAVIER_STOKES\nBODY_FORCE= YES\nCFL_NUMBER= 0.05\nLINEAR_SOLVER_PREC= ILU\n");
+  auto& driver = *problem.driver;
+  auto* flow = driver.Solvers()[FLOW_SOL];
+  const su2double* active = nullptr;
+  if (SU2_MPI::GetRank() == MASTER_NODE) {
+    auto p = 0ul;
+    while (p < driver.Geometry()->GetnPointDomain() && driver.Geometry()->nodes->GetSolidBoundary(p)) ++p;
+    REQUIRE(p < driver.Geometry()->GetnPointDomain());
+    active = flow->GetNodes()->GetSolution(p);
+  }
+  for (int thread = 0; thread < omp_get_max_threads(); ++thread) {
+    auto*& source = driver.Numerics()[FLOW_SOL][SOURCE_FIRST_TERM + thread * MAX_TERMS];
+    delete source;
+    source = new Source(driver.Config(), active, driver.Geometry()->GetGlobal_nPointDomain());
+  }
+  auto equations = problem.Equations({RUNTIME_FLOW_SYS});
+  REQUIRE(Residual(*equations, true));
+  equations->Capture();
+  auto before = MakeVector(driver, equations->GetnVar()), after = before;
+  equations->Pack(before);
+  NonlinearGlobalization::Options<> options;
+  options.diagnostics = options.adaptiveForcing = false;
+  options.maxRetries = 1;
+  CNewtonIntegration integration({RUNTIME_FLOW_SYS}, options);
+  integration.Iterate(driver.Geometry(), driver.Solvers(), driver.Numerics(), driver.Config());
+  INFO(integration.GetNumericalFailureMessage());
+  const auto& attempt = integration.GetLastAttempt();
+  INFO("defect=" << attempt.linearDefect << ", step=" << attempt.search.step << ", slope=" << attempt.slope);
+  REQUIRE(integration.GetNumericalFailure());
+  REQUIRE(attempt.residualFailure);
+  CHECK(attempt.linearDefect <= options.etaMax);
+  // The full step lowers scaled merit but exceeds the native energy RMS limit.
+  CHECK(attempt.search.step == 1);
+  CHECK(attempt.search.evaluations > 0);
+  CHECK(attempt.rollbackStateError == 0);
+  CHECK(attempt.rollbackMeritError == 0);
+  CHECK(flow->GetNodes()->GetLocalCFL(0) == Approx(0.05 * options.shrink));
+  CHECK(SU2_TYPE::GetValue(flow->GetRes_RMS(1)) == Approx(0.9e20).epsilon(1e-8));
+  CHECK(SU2_TYPE::GetValue(flow->GetRes_RMS(3)) == Approx(0.9e20).epsilon(1e-8));
+  equations->Pack(after);
+  CHECK(MaxDifference(before, after) == 0);
+}
+
+TEST_CASE("Final Newton reporting handles invalid unselected residuals and writes a finite restart", "[NewtonResidualFailure]") {
+  for (double bad : {std::numeric_limits<double>::quiet_NaN(), 1e30}) {
+    CAPTURE(bad);
+    unsigned long stamp = std::chrono::steady_clock::now().time_since_epoch().count();
+    SU2_MPI::Bcast(&stamp, 1, MPI_UNSIGNED_LONG, MASTER_NODE, SU2_MPI::GetComm());
+    const auto prefix = (std::filesystem::current_path() / ("su2_newton_residual_" + std::to_string(stamp))).string();
+    Problem problem(species + "PYTHON_CUSTOM_SOURCE= YES\nNEWTON_EQUATIONS= (FLOW)\n"
+        "NEWTON_ADAPT_CFL= NO\nNEWTON_DIAGNOSTICS= NO\nCFL_NUMBER= 0.05\nRESTART_FILENAME= " + prefix + "\n");
+    auto& driver = *problem.driver;
+    driver.OuterIteration();
+    auto* integration = driver.Integrations()[FLOW_SOL];
+    REQUIRE_FALSE(integration->GetNumericalFailure());
+    auto equations = problem.Equations({RUNTIME_FLOW_SYS, RUNTIME_SPECIES_SYS});
+    REQUIRE(Residual(*equations));
+    equations->Capture();
+    auto before = MakeVector(driver, equations->GetnVar()), after = before;
+    equations->Pack(before);
+    std::vector<double> published;
+    for (const auto& block : equations->GetBlocks())
+      for (auto v = 0u; v < block.variables; ++v) published.push_back(block.solver->GetRes_RMS(v));
+    if (SU2_MPI::GetRank() == MASTER_NODE) {
+      auto p = 0ul;
+      while (p < driver.Geometry()->GetnPointDomain() && driver.Geometry()->nodes->GetSolidBoundary(p)) ++p;
+      REQUIRE(p < driver.Geometry()->GetnPointDomain());
+      driver.Solvers()[SPECIES_SOL]->GetNodes()->GetUserDefinedSource()(p, 0) =
+          -bad / driver.Geometry()->nodes->GetVolume(p);
+    }
+    integration->RefreshAfterOuterIteration();
+    REQUIRE(integration->GetNumericalFailure());
+    equations->Pack(after);
+    CHECK(MaxDifference(before, after) == 0);
+    auto index = 0u;
+    for (const auto& block : equations->GetBlocks())
+      for (auto v = 0u; v < block.variables; ++v)
+        CHECK(SU2_TYPE::GetValue(block.solver->GetRes_RMS(v)) == published[index++]);
+    driver.OuterIteration();  // The invalid conventional species update must be skipped after failure.
+    equations->Pack(after);
+    CHECK(MaxDifference(before, after) == 0);
+    {
+      Silence silence;
+      CHECK(driver.MonitorOuter());
+      CHECK(driver.Monitor(0));
+      CHECK(driver.GetNumericalFailure());
+      driver.Output(0);
+    }
+    SU2_MPI::Barrier(SU2_MPI::GetComm());
+    {
+      const auto restart = prefix + "_newton_failure.dat";
+      std::ifstream input(restart, std::ios::binary);
+      REQUIRE(input.good());
+      int header[5];
+      input.read(reinterpret_cast<char*>(header), sizeof(header));
+      REQUIRE(header[0] == 535532);
+      REQUIRE(header[1] == 7);
+      REQUIRE(header[2] == 25);
+      input.seekg(header[1] * 33, std::ios::cur);
+      std::vector<double> data(header[1] * header[2]);
+      input.read(reinterpret_cast<char*>(data.data()), data.size() * sizeof(double));
+      REQUIRE(input.good());
+      for (double value : data) CHECK(std::isfinite(value));
+      input.close();
+    }
+    SU2_MPI::Barrier(SU2_MPI::GetComm());
+    if (SU2_MPI::GetRank() == MASTER_NODE) std::filesystem::remove(prefix + "_newton_failure.dat");
+    SU2_MPI::Barrier(SU2_MPI::GetComm());
   }
 }
 

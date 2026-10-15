@@ -262,7 +262,25 @@ bool CNewtonEquationSet::EvaluateResiduals(bool implicit, bool allEquations, dou
   for (auto e = 0ul; e < nextReconstruction.size(); ++e)
     nextReconstruction[e] = (*reconstructionHistory)[e];
   END_SU2_OMP_FOR
-  return true;
+  SU2_OMP_SAFE_GLOBAL_ACCESS(invalidCount = 0;)
+  double invalid = 0;
+  for (const auto& snapshot : snapshots) {
+    if (!allEquations && snapshot.slot != FLOW_SOL &&
+        std::none_of(blocks.begin(), blocks.end(), [&](const Block& b) { return b.slot == snapshot.slot; })) continue;
+    SU2_OMP_FOR_STAT(1024)
+    for (auto p = 0ul; p < geometry->GetnPointDomain(); ++p)
+      for (auto v = 0u; v < snapshot.variables; ++v)
+        if (!Armijo::IsFinite(SU2_TYPE::GetValue(snapshot.solver->LinSysRes(p, v)))) invalid = 1;
+    END_SU2_OMP_FOR
+  }
+  atomicAdd(invalid, invalidCount);
+  BEGIN_SU2_OMP_SAFE_GLOBAL_ACCESS {
+    double global = 0;
+    SU2_MPI::Allreduce(&invalidCount, &global, 1, MPI_DOUBLE, MPI_SUM, SU2_MPI::GetComm());
+    valid = global == 0;
+  }
+  END_SU2_OMP_SAFE_GLOBAL_ACCESS
+  return valid;
 }
 
 void CNewtonEquationSet::SaveHistory() {

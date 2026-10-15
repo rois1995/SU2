@@ -96,6 +96,7 @@ protected:
   su2double Min_CFL_Local;  /*!< \brief Minimum value of the CFL across all the control volumes. */
   su2double Avg_CFL_Local;  /*!< \brief Average value of the CFL across all the control volumes. */
   vector<su2double> Residual_RMS;      /*!< \brief Vector with the mean residual for each variable. */
+  bool reportResidualStatistics = true, residualStatisticsValid = true;
   vector<su2double> Residual_Max;      /*!< \brief Vector with the maximal residual for each variable. */
   vector<su2double> Residual_BGS;      /*!< \brief Vector with the mean residual for each variable for BGS subiterations. */
   vector<su2double> Residual_Max_BGS;  /*!< \brief Vector with the maximal residual for each variable for BGS subiterations. */
@@ -330,11 +331,13 @@ public:
    * \param[in] geometry - Geometrical definition of the problem.
    * \param[in] config - Definition of the particular problem.
    * \param[in] force - Reduce on a coarse level too, where it is skipped by default.
+   * \param[in] abortOnFailure - Abort for native divergence checks, or return a collective failure.
    */
-  void SetResidual_RMS(const CGeometry *geometry, const CConfig *config, bool force = false);
+  bool SetResidual_RMS(const CGeometry *geometry, const CConfig *config, bool force = false,
+                        bool abortOnFailure = true);
 
-  /*! \brief Report the current physical residual without modifying the matrix or correction. */
-  void RefreshResidualStatistics(const CGeometry* geometry, const CConfig* config);
+  /*! \brief Report the physical residual; non-aborting failure retains the last published statistics. */
+  bool RefreshResidualStatistics(const CGeometry* geometry, const CConfig* config, bool abortOnFailure = true);
 
   /*!
    * \brief Communicate the value of the max residual and RMS residual.
@@ -1492,6 +1495,14 @@ public:
   inline virtual void PrepareImplicitIteration(CGeometry *geometry,
                                                CSolver **solver_container,
                                                CConfig *config) { }
+
+  /*! \brief Newton prepares a preconditioner without publishing provisional residual statistics. */
+  void PrepareImplicitIteration(CGeometry* geometry, CSolver** solvers, CConfig* config, bool report) {
+    const bool previous = reportResidualStatistics;
+    SU2_OMP_SAFE_GLOBAL_ACCESS(reportResidualStatistics = report;)
+    PrepareImplicitIteration(geometry, solvers, config);
+    SU2_OMP_SAFE_GLOBAL_ACCESS(reportResidualStatistics = previous;)
+  }
 
   /*!
    * \brief A virtual member.
@@ -4472,8 +4483,12 @@ protected:
   /*!
    * \brief "Add" local residual variables of all threads to compute global residual variables.
    */
-  inline void ResidualReductions_FromAllThreads(const CGeometry* geometry, const CConfig* config, const su2double* resRMS, const su2double* resMax,
-                                                const unsigned long* idxMax){
+  inline bool ResidualReductions_FromAllThreads(const CGeometry* geometry, const CConfig* config, const su2double* resRMS, const su2double* resMax,
+                                                const unsigned long* idxMax, bool abortOnFailure = true){
+    if (!reportResidualStatistics) {
+      SU2_OMP_BARRIER
+      return true;
+    }
     SetResToZero();
 
     // Keep active arithmetic on its owning thread, in a fixed order, including tied maxima.
@@ -4487,7 +4502,7 @@ protected:
     }
 
     /*--- Compute the root mean square residual ---*/
-    SetResidual_RMS(geometry, config);
+    return SetResidual_RMS(geometry, config, false, abortOnFailure);
   }
 
   /*!

@@ -247,6 +247,16 @@ void CNewtonIntegration::Residual(bool implicit) {
   SU2_OMP_SAFE_GLOBAL_ACCESS(residualValid = valid;)
 }
 
+bool CNewtonIntegration::RefreshStatistics(bool allEquations) {
+  bool valid = true;
+  for (auto runtime : {RUNTIME_FLOW_SYS, RUNTIME_TURB_SYS, RUNTIME_TRANS_SYS, RUNTIME_SPECIES_SYS}) {
+    if (!allEquations && !IsNewtonEquation(runtime)) continue;
+    auto* solver = solvers[config->GetContainerPosition(runtime)];
+    if (solver && !solver->RefreshResidualStatistics(geometry, config, false)) valid = false;
+  }
+  return valid;
+}
+
 double CNewtonIntegration::Merit(double step) const {
   if (!residualValid) return std::numeric_limits<double>::infinity();
   double value = 0, invalid = 0;
@@ -344,7 +354,8 @@ CNewtonIntegration::Attempt CNewtonIntegration::SolveAttempt() {
   Residual(true);
   attempt.base = Merit();
   attempt.physicalMerit = attempt.search.value = attempt.base;
-  if (!Armijo::IsFinite(attempt.base)) {
+  if (!Armijo::IsFinite(attempt.base) || !RefreshStatistics()) {
+    attempt.residualFailure = true;
     Restore(attempt);
     return attempt;
   }
@@ -358,7 +369,7 @@ CNewtonIntegration::Attempt CNewtonIntegration::SolveAttempt() {
   for (const auto& block : equations->GetBlocks()) {
     SU2_OMP_SAFE_GLOBAL_ACCESS(config->SetGlobalParam(config->GetKind_Solver(), block.runtime);)
     if (block.solver->Jacobian.HasCoefficients())
-      block.solver->PrepareImplicitIteration(geometry, solvers, config);
+      block.solver->PrepareImplicitIteration(geometry, solvers, config, false);
   }
   for (const auto& block : equations->GetBlocks()) {
     SU2_OMP_FOR_STAT(1024)
@@ -386,6 +397,7 @@ CNewtonIntegration::Attempt CNewtonIntegration::SolveAttempt() {
   attempt.base = Merit();
   attempt.physicalMerit = attempt.search.value = attempt.base;
   if (!Armijo::IsFinite(attempt.base)) {
+    attempt.residualFailure = true;
     Restore(attempt);
     return attempt;
   }
@@ -533,7 +545,8 @@ void CNewtonIntegration::Log(const Attempt& attempt, const NonlinearGlobalizatio
            "startup,deflated,jacobian_reconstruction,tolerance_factor,native_linear_iterations\n";
   out.precision(17);
   out << config->GetInnerIter() << ',' << attemptNumber << ',' << cfl << ',' << decision.nextCFL << ','
-      << (attempt.linearFailure ? "LINEAR_FAILURE" : Name(attempt.search.status)) << ',' << Name(decision.reason) << ','
+      << (attempt.residualFailure ? "RESIDUAL_FAILURE" : attempt.linearFailure ? "LINEAR_FAILURE" : Name(attempt.search.status))
+      << ',' << Name(decision.reason) << ','
       << attempt.linearIterations << ',' << attempt.linearTarget << ',' << attempt.reportedLinearResidual << ','
       << attempt.linearDefect << ',' << attempt.base << ',' << attempt.search.value << ',' << attempt.search.step << ','
       << attempt.search.evaluations << ',' << attempt.slope << ',' << attempt.prediction << ',' << attempt.agreement
@@ -568,12 +581,8 @@ void CNewtonIntegration::Iterate(CGeometry* g, CSolver** s, CNumerics*** n, CCon
 void CNewtonIntegration::RefreshAfterOuterIteration() {
   if (!setup || failed) return;
   SU2_OMP_PARALLEL {
-    const bool valid = equations->EvaluateResiduals(false, true);
+    const bool valid = equations->EvaluateResiduals(false, true) && RefreshStatistics(true);
     if (valid) {
-      for (auto runtime : {RUNTIME_FLOW_SYS, RUNTIME_TURB_SYS, RUNTIME_TRANS_SYS, RUNTIME_SPECIES_SYS}) {
-        auto* solver = solvers[config->GetContainerPosition(runtime)];
-        if (solver) solver->RefreshResidualStatistics(geometry, config);
-      }
       const auto settings = config->GetEquationSettings();
       SU2_OMP_SAFE_GLOBAL_ACCESS(config->SetGlobalParam(config->GetKind_Solver(), RUNTIME_FLOW_SYS);)
       solvers[FLOW_SOL]->Postprocessing(geometry, solvers, config, MESH_0);
@@ -601,7 +610,13 @@ void CNewtonIntegration::Advance() {
   UpdateScale();
   for (unsigned index = 0;; ++index) {
     SU2_OMP_SAFE_GLOBAL_ACCESS(attemptNumber = index;)
-    const auto attempt = SolveAttempt();
+    auto attempt = SolveAttempt();
+    if (attempt.search.status == Armijo::Status::Accepted && !attempt.linearFailure && !RefreshStatistics()) {
+      attempt.residualFailure = true;
+      attempt.search.status = Armijo::Status::InvalidInput;
+      Restore(attempt);
+      if (!RefreshStatistics()) attempt.rollbackMeritError = std::numeric_limits<double>::infinity();
+    }
     SU2_OMP_SAFE_GLOBAL_ACCESS(lastAttempt = attempt;)
     using Reason = NonlinearGlobalization::RecoveryReason;
     if (attempt.search.status == Armijo::Status::Accepted && !attempt.linearFailure) {
@@ -611,7 +626,6 @@ void CNewtonIntegration::Advance() {
       SU2_OMP_SAFE_GLOBAL_ACCESS(
           cfl = next;
           eta = NonlinearGlobalization::Forcing(options, eta, attempt.base, attempt.search.value, attempt.search.step);)
-      for (const auto& block : equations->GetBlocks()) block.solver->RefreshResidualStatistics(geometry, config);
       if (std::find(systems.begin(), systems.end(), RUNTIME_FLOW_SYS) != systems.end()) {
         equations->CommitHistory();
         SU2_OMP_SAFE_GLOBAL_ACCESS(config->SetGlobalParam(config->GetKind_Solver(), RUNTIME_FLOW_SYS);)
@@ -622,7 +636,8 @@ void CNewtonIntegration::Advance() {
       }
       return;
     }
-    const bool invalidState = !Armijo::IsFinite(attempt.base) || !Armijo::IsFinite(attempt.rollbackMeritError) ||
+    const bool invalidState = (attempt.residualFailure && attempt.search.evaluations == 0) ||
+                              !Armijo::IsFinite(attempt.base) || !Armijo::IsFinite(attempt.rollbackMeritError) ||
                               attempt.rollbackStateError != 0 ||
                               attempt.rollbackMeritError >
                                   options.restoreTolerance * std::max(attempt.base, std::numeric_limits<double>::min());
@@ -633,7 +648,8 @@ void CNewtonIntegration::Advance() {
         failed = true;
         std::ostringstream message;
         message << "Newton recovery failed: " << Name(decision.reason) << ", "
-                << (attempt.linearFailure ? "LINEAR_FAILURE" : Name(attempt.search.status)) << " at iteration "
+                << (attempt.residualFailure ? "RESIDUAL_FAILURE" : attempt.linearFailure ? "LINEAR_FAILURE" : Name(attempt.search.status))
+                << " at iteration "
                 << config->GetInnerIter() << ", attempt " << index << ", CFL " << cfl;
         failureMessage = message.str();
       }
