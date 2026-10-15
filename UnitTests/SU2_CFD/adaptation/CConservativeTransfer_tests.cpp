@@ -28,6 +28,8 @@
 
 #include <algorithm>
 #include <cmath>
+#include <fstream>
+#include <iomanip>
 #include <random>
 
 #include "../../../SU2_CFD/include/adaptation/CConservativeTransfer.hpp"
@@ -1138,3 +1140,5 @@ TEST_CASE("Conservative transfer: high-speed states, coupled recovery", "[Adapta
     }
   }
 }
+
+#include "fixtures/native_saved_sa_projection.inc"

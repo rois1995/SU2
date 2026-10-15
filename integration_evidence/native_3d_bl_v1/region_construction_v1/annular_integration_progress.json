@@ -1,7 +1,7 @@
 {
-  "status": "PASS_ANNULAR_CONTROLS_AND_COMPLETE_CURVED_BACKEND_MESH_WORKFLOW_SA_GATE_OPEN",
+  "status": "PASS_ANNULAR_CONTROLS_AND_ACTUAL_CURVED_RANS_MPI_MATRIX_SCOPE_LIMITED",
   "full_goal_complete": false,
-  "scope": "Current v7 annular volume controls pass; actual serial pressure-derived RANS metric and complete native backend construction/removal accept1368/68 cells under unchanged constraints. Whole workflow test remains FAIL on four SA integral assertions; independent exact saved-mesh/flow/restart audit complete with workflow FAIL retained. No new MPI/general geometry/accuracy/performance qualification.",
+  "scope": "v7 annular controls and current actual short RANS MPI1/2/4 N=M/M<N lifecycle pass with unchanged production constraints. Independent mesh/flow/restart and raw SA projection/solver-floor replay qualify each case. Original failed receipts preserved; stronger sensors/general geometry/accuracy/performance remain open.",
   "case_statuses": {
     "native_curved_volume_controls_v2": "FAIL",
     "native_curved_volume_controls_v3": "FAIL",
@@ -13,7 +13,13 @@
     "native_curved_volume_controls_v7": "PASS",
     "native_curved_rans_n1_m1_v4": "FAIL",
     "native_curved_rans_n1_m1_v5": "FAIL",
-    "native_complete_domain_controls_v1": "PASS"
+    "native_complete_domain_controls_v1": "PASS",
+    "native_curved_rans_n1_m1_v6": "PASS",
+    "native_curved_rans_n2_m1_v6": "PASS",
+    "native_curved_rans_n2_m2_v6": "PASS",
+    "native_curved_rans_n4_m1_v6": "PASS",
+    "native_curved_rans_n4_m2_v6": "PASS",
+    "native_curved_rans_n4_m4_v6": "PASS"
   },
   "prior_prism_integral": {
     "points_across_three_cells": 4590,
@@ -24,7 +30,7 @@
   },
   "preserved_failures": "v2 redundant angular cuts; v3 incorrect unit-axial oracle; RANS v2/v3 rotated-cell angular/radial refusal; v6 all-sector/wall-first coordinate nonpositive-chord refusal. No bounds/field/geometry/accepted-mesh gates weakened.",
   "current_design": "Single complete cylinder, source cells within finite axial slab. Axis-centered projection; shared-base triangle intersection uses house exact orientation preserving common vertices. Positive projective ray blend with determinant/norm-squared angular Jacobian; ray-end barycentric interpolation and positive vertex-height chord interpolation. Compensated planar products use existing strict-arithmetic library. Per-event field, quadrature/geometry/resource gates retained.",
-  "next": "Independently establish SA bounds accounting before changing any gate; then actual curved MPI N=M/M<N workflow. Accepted complete curved mesh checkpoint and exact audit preserved. Wider Goal3 gates retained.",
+  "next": "Metric-driven volume core with several interior vertices/regions and conforming interfaces; complete accepted stronger-field curved target plus a distinct varying field, retaining all full Goal3 gates.",
   "artifacts": {
     "native_curved_volume_controls_v2.json": "c6ee007ea976fe3c0b706b30941ed81f1ea2401f99d5dfe6a43c97089be15dd1",
     "native_curved_volume_controls_v2/native.log": "9914fc834f81335e8e8e35ce32beb08e93f5277d2b73d52bc889b5d6a859c5a8",
@@ -433,7 +439,7 @@
     "test_families": 3,
     "scope": "Full-sector/source-permutation independent cylinder/sphere/rotated-sheared moments; exact v7 source/binary, preceding complete-domain API coordination fix."
   },
-  "current_runtime_blocker": "The complete domain rebuild flag avoids redundant coarsening; ordinary incremental path remains covered. RANS v5 completes both accepted meshes, restart and further CFD but retains four unchanged SA integral failures (~0.037%/~0.369%). Production solver-bounds policy reports corresponding changes; full independent bounds accounting remains open, no assertion modified.",
+  "current_runtime_blocker": "The SA discrepancy is independently explained by existing solver bounds; new test accounting is corrected and stricter, without production changes. All six v6 lifecycle variants pass. Remaining construction limitation is the proved one-kernel metric span, requiring several interior vertices/regions.",
   "complete_domain_coordination": {
     "source": "Common/include/adaptation/CNativeEngine3D.hpp",
     "semantics": "rebuilt_domain only for a valid changed complete region replacement; reset on final validation failure. Backend avoids subsequent incremental coarsening only for this result.",
@@ -447,5 +453,6 @@
     "status": "PASS_COMPLETE_CURVED_MESH",
     "workflow_status": "FAIL",
     "sha256": "edf21cb612fc1d3ee542d50b7358425f62511a270919d8728c281bd18e742784"
-  }
+  },
+  "lifecycle_summary": "rans_lifecycle_summary.json"
 }

@@ -1,0 +1,28 @@
+{
+  "status": "PROVED_SINGLE_KERNEL_CONSTRUCTION_LIMIT_NOT_GLOBAL_INFEASIBILITY",
+  "source": "Common/src/adaptation/CNativeRegion3D.cpp",
+  "source_sha256": "f6d3b3c6b8f4e7a5cf251b8222a5938d53b47fda28c70c82267a2085eaaee194",
+  "constant_original_P1_sensor": [
+    1,
+    0,
+    0,
+    1,
+    0,
+    16
+  ],
+  "cap_span": [
+    0,
+    1
+  ],
+  "minimum_possible_maximum_kernel_to_cap_sensor_distance": 2,
+  "maximum_accepted_composed_edge": 1.8,
+  "strict_exact_margin": "900719925474099/4503599627370496",
+  "assumptions": [
+    "The core spans the two unchanged end-cap planes z=0 and z=1.",
+    "One interior kernel is joined to the complete core boundary, including vertices on each end-cap plane.",
+    "Full composed metric dominates the immutable constant sensor at every edge point, as required by stable intersection."
+  ],
+  "proof": "For any points a on z=0 and b on z=1, ||b-a||_M >=4 from the axial component alone. For any kernel k, triangle inequality gives ||a-k||_M+||k-b||_M >=4. Thus one is at least2, above1.8. Actual composed edge lengths cannot be smaller because the field dominates the constant sensor. Surface refinement, moving the one kernel and local wall repair cannot resolve this construction obstruction.",
+  "scope": "Static exact-norm necessary condition on this construction strategy. Not an executed adaptation, a global target infeasibility certificate, or proof that a particular alternative meets all shape/height/work gates. Requires a metric-driven volume complex with several interior vertices/regions rather than another local fallback.",
+  "minimum_cap_to_cap_sensor_distance": 4
+}

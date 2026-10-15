@@ -1,72 +1,66 @@
 # Codex handoff — start here
 
-Worktree `/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated`.
-Branch `codex/native-3d-bl`, based on Goal2
-`c43a8a3907ea2655e4ebbb6286ab16c3fa625d8b`. Full Goal3 ACTIVE/incomplete.
-The connected distributed-region-field checkpoint9bd5fb76e4 is qualified/pushed.
-**The complete backend now accepts the curved meshes under unchanged gates.**
-`native_curved_rans_n1_m1_v5` advances real RANS/SA, computes the actual pressure
-metric, constructs1368 BL tetrahedra, replaces/transfers, writes SU2/CGNS and restarts,
-then remeshes to68 sensor-only cells and advances again. This is a mesh milestone;
-the full workflow test remains FAIL on four SA-integral conservation assertions.
-Flow totals/restart/native mesh gates pass. Solver turbulence bounds are documented
-as changing SA integrals, and their reported changes match the discrepancy in magnitude;
-independent diagnosis is pending. **Do not weaken the gate or report lifecycle PASS.**
+Worktree `/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated`, branch
+`codex/native-3d-bl`, Goal2 base `c43a8a3907ea2655e4ebbb6286ab16c3fa625d8b`.
+**Full Goal3 ACTIVE/incomplete.** All owned jobs are terminal. No cluster job/request.
+Foreign ClusterResults, AdapNoExt and dependencies remain untouched.
 
-All owned jobs are terminal. The independent exact saved-mesh audit passes both
-complete meshes, physical flow/open-boundary ledger and exact flow/SA restart.
-SA integral differences remain explicitly reported. No current MPI campaign. See [current evidence and remaining gates](Handbook/GOAL3_CURVED_RANS_RUNTIME.md).
-Foreign results, AdapNoExt and dependencies remain untouched.
+## Current qualified milestone
 
-**Complete curved meshes are accepted under unchanged constraints.** The original
-1402-cell difficult target completes with1368 cells/423 nodes, zero long edges,
-qmin .211386792/Jmin .052846703/Lmax1.795195. Final compatibility SU2/ref bytes and
-original donors match prior independent geometry/height/embedding evidence, explicitly
-reused. Rejected local recovery stays on `codex/native-3d-boundary-recovery-study`;
-do not resume its fallback chain.
+The actual short curved RANS/SA lifecycle now passes N/M1/1,2/1,2/2,4/1,4/2,4/4:
+24 coarse tetrahedra ->1368 BL cells ->68/70/74/70/72/72 sensor-only cells.
+Each case advances actual CFD, computes the pressure metric, remeshes/replaces,
+transfers current/BDF/SA, writes SU2/CGNS, performs actual restart and advances again.
+Independent exact geometry/embedding/height and physical flow/open-ledger/restart
+checks pass every case. Maximum flow conservation residual2.53e-15, SA nodal replay
+residual4.22e-15; BL complexity48.71302686078762..48.71302686078766 across ranks.
+[Complete source/build/binary/input/helper evidence](integration_evidence/native_3d_bl_v1/region_construction_v1/rans_lifecycle_summary.json),
+[workflow details and limits](Handbook/GOAL3_CURVED_RANS_RUNTIME.md).
 
-**Actual source refresh/removal/rebuild passes MPI1/2/4.** Original24-cell cylinder
-->1368 BL, import that actual mesh with affine sensors `diag(1+.02*z)` ->3072 donors
-->72 sensor-only cells, import again ->288 donors ->1368 BL. Rebuild qmin>=.33135,
-Jmin>=.09572/full Lmax1.795195; analytic sensor/composed target residual<=1.67e-14.
-Height.05/growth1.2/thickness.2/fade, geometry, q>=.20/J>=.05/L<=1.8 remain unchanged.
-Each refreshed event retains4096-work/300s; no shared4096 claim across this whole test.
+The original v5 receipt remains FAIL on four SA assertions. Independent reference
+projection and separate solver-floor replay prove their source: raw SA conserves,
+then existing bounds clip200/56 values. The test now checks exact flow totals and
+explicit SA correction, with actual field-scale normalization; production unchanged.
+Post-clipping SA integrals are **not** claimed invariant. Exact old executed Python
+helpers, failed receipt and raw states are preserved. Current cases end `_v6`.
 
-Inspect actual `refreshed_released.su2` and `refreshed_BL.su2`, each with `.native_ref`,
-in `integration_evidence/native_3d_bl_v1/region_construction_v1/native_refreshed_source_v2/`.
-No CFD solution is fabricated. [Design, gates and limits](Handbook/GOAL3_DISTRIBUTED_REGION_FIELD.md),
-[complete provenance](integration_evidence/native_3d_bl_v1/region_construction_v1/distributed_field_summary.json).
-The750-cell distributed analytic control passes point P1/composition, exact segment
-footprint/integral, bounded storage and refusal/recovery checks.
+Native geometry/h.05/growth1.2/thickness.2/fade, q>=.20/J>=.05/full L<=1.8,
+4096-work/300s remain unchanged. Native shape/edge gates are enforced; the actual-flow
+outputs do not yet have independent full composed-edge quadrature. These pressure
+sensors clip to the coarse bound: this is not stronger-flow-feature qualification.
+No converged viscous accuracy or lifecycle affordability/scaling claim.
 
-Whole-source256 donor admission is removed. Original donors remain distributed;
-each actual point/segment footprint and resident cache still fits256. Point memoization
-stores sensors only; BL composition runs at actual queries. All ranks use matching
-query/stop collectives on their existing MPI thread, including exceptions. Geometry
-remains one visible radial/caps region on one worker. Rebuild records2529..2567 imports;
-no low communication cost, lifecycle speedup or scalable generation claim follows,
-especially under host contention.
+## Next substantial construction step
 
-**Next connected work:** independently establish whether SA
-bounds fully account for the four conservation failures before changing any test.
-The backend now skips redundant incremental coarsening only when the engine explicitly
-returns a valid complete domain rebuild; ordinary incremental coarsening remains tested.
-Full Goal3 still needs actual curved N=M/M<N qualification, stronger/interacting/exterior
-fields/geometry, high-ratio multiple fronts, thin/composed-gradation limits, practical
-M6/viscous accuracy and complete lifecycle performance. Keep those gates intact.
+A source-linked exact certificate proves the current single-kernel core cannot
+resolve constant original-P1 sensor diag(1,1,16) over unit axial span: opposite-cap
+metric distance>=4 means some kernel edge>=2>1.8. More wall variants or moving the
+one kernel cannot fix this strategy. This is **not global target infeasibility**.
+`region_construction_v1/single_kernel_metric_span_certificate.json` preserves the proof.
 
-Previous cold24 ->1368 ->68 shared-work MPI1/2/4 proof and independent BL/released
-audits remain in [cold evidence](integration_evidence/native_3d_bl_v1/region_construction_v1/cold_summary.json).
-Previous primitive-runtime current+BDF/SU2/CGNS restart evidence retains its exact
-source/build scope; it does not qualify the new refreshed curved CFD workflow.
+Implement a metric-driven volume core with several interior vertices/regions and
+conforming shared interfaces, preserving coordinated wall/transition construction,
+actual original-P1/geometric queries, private validation and atomic publication.
+Use a complete accepted stronger-field curved mesh plus a distinct varying field as
+the next meaningful gate. No local-fallback chain, budget ladder, target reset or
+production Euler/BL mode. General/exterior/multiwall/high-ratio fronts, interacting
+thin integration/composed-gradation limits, M6/viscous accuracy and performance remain.
 
-[Full current scope](Handbook/GOAL3_CURRENT.md),
+## Prior qualified foundations
+
+Original1402-cell target ->1368 MPI1/2/4, plus cold24 ->1368 ->68 with shared work,
+are preserved in [region scope](Handbook/GOAL3_REGION_CONSTRUCTION.md) and
+[cold evidence](integration_evidence/native_3d_bl_v1/region_construction_v1/cold_summary.json).
+Actual source refresh1368 ->3072 donors ->72 cells ->288 donors ->1368 with affine
+sensors passes MPI1/2/4, target residual<=1.67e-14. Original donors stay distributed;
+actual query/segment footprint and resident cache<=256, no whole-source256 limit.
+[Distributed service scope/evidence](Handbook/GOAL3_DISTRIBUTED_REGION_FIELD.md).
+Current geometry still constructs one visible radial/caps region on one worker.
+
+[Full scope](Handbook/GOAL3_CURRENT.md),
 [requirement audit](integration_evidence/native_3d_bl_v1/GOAL3_REQUIREMENTS.json),
-[permanent rules](AGENTS.md), and
-[deferred SST/transition/non-ideal-gas questions](Handbook/FUTURE_PHYSICS_TRANSFER_QUESTIONS.md).
-
-One owned heavy job, nice19/threads1/build-j1/MPI<=4, bounded sampled affinity.
-Group substantial capability changes, reuse appropriately pinned evidence, preserve
-failures/inspectable meshes, avoid full suites after small edits and push regularly.
-No production Euler/BL modes, weaker gates, target resets, budget ladders or another
-local-fallback chain in place of complete construction.
+[permanent rules](AGENTS.md),
+[deferred SST/transition/nonideal questions](Handbook/FUTURE_PHYSICS_TRANSFER_QUESTIONS.md).
+One owned heavy job, nice19/threads1/build-j1/MPI<=4; announce full case folders.
+Group substantial changes; reuse appropriately pinned evidence, preserve failures,
+avoid repeated full suites after small edits, and push reviewable checkpoints.

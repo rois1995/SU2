@@ -38,6 +38,31 @@ multiple fronts. The source is no longer globally limited to256 donors, but each
 query footprint and resident cache still are. Geometry remains one visible radial/caps
 region on one worker. No CFD transfer, lifecycle speedup or scalability claim follows.
 
+## Actual curved workflow qualification
+
+The full actual short RANS/SA lifecycle passes N/M1/1,2/1,2/2,4/1,4/2,4/4 with
+24 ->1368 BL ->68..74 sensor-only cells. Actual CFD/pressure metrics, replacement,
+current/BDF/SA transfer, SU2/CGNS/reference reload and real restart pass; each output
+has independently checked exact geometry/height/embedding, physical flow/open ledger
+and flow/SA restart. Original v5 failure remains; separate reference raw projection
+plus solver-floor replay explains its SA changes at every node. The corrected test
+checks the documented accounting with stricter field scales; production unchanged.
+Post-clipping SA is not claimed exactly conservative. The pressure sensor clips to
+the coarse bound. See [full evidence/limits](GOAL3_CURVED_RANS_RUNTIME.md).
+
+The next construction limitation is proved: one core kernel cannot satisfy the1.8
+edge limit for constant axial sensor16 over unit span. A metric-driven core with
+several interior vertices/regions is the next substantial strategy change. No wall
+fallback ladder, target relaxation or goal narrowing. Current actual-flow full-edge
+independent quadrature, stronger fields, general geometry, accuracy/performance and
+other full Goal3 gates remain open. All owned jobs terminal.
+
+The matching practical M6 input is located at
+`/media/rausa/4TB/SU2_Versions/TestCasesForSSTIDDES/optimization_rans/steady_oneram6`,
+with545438 tetrahedra/96252 points and `solution_flow.csv`. Do not run it through the
+single visible-radial-region pilot as if a wing/exterior constructor were qualified.
+No M6 run is active. Keep true symmetry, actual SA physics and matching coordinates.
+
 ## Existing qualified scope
 
 - One actual-query geometric BL policy is shared by weights/refine/coarsen/thin

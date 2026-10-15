@@ -1034,19 +1034,30 @@ void SaveProjection(World& world,const std::string& name,const CConservativeTran
   const auto& s=transfer.GetSummary();const auto& p=s.projection;
   REQUIRE(s.nTimeLevels==2);REQUIRE(s.interpolateTimeN1);
   REQUIRE(p.targetTotal.size()==s.newIntegral.size());
+  REQUIRE(p.targetTotal.size()%s.nTimeLevels==0);
+  const size_t perLevel=p.targetTotal.size()/s.nTimeLevels;
+  REQUIRE(perLevel>=s.nVarFlow);const size_t nTurb=perLevel-s.nVarFlow;
+  REQUIRE(s.turbulenceChange.size()==s.nTimeLevels*nTurb);
   CHECK(std::abs(p.targetVolume-p.donorVolume-p.fillVolume+p.sliverVolume)<1e-10);
   for(size_t f=0;f<p.targetTotal.size();++f) {
-    CHECK(std::abs(s.newIntegral[f]-p.targetTotal[f])<=1e-10*std::max(1.,double(p.scale[f])));
-    CHECK(std::abs(p.targetTotal[f]-p.donorTotal[f]-p.fillOpen[f]+p.sliverOpen[f])<=1e-10*std::max(1.,double(p.scale[f])));
+    // Solver turbulence bounds are the documented exception; all changes must be accounted for.
+    const size_t variable=f%perLevel;const double scale=std::max(1e-300,double(p.scale[f]));
+    const double bounded=variable<s.nVarFlow?0:s.turbulenceChange[(f/perLevel)*nTurb+variable-s.nVarFlow]*scale;
+    if(bounded!=0)CHECK(s.nTurbLimited+s.nTurbLimitedStage2>0);
+    CHECK(std::abs(s.newIntegral[f]-p.targetTotal[f]-bounded)<=1e-10*scale);
+    CHECK(std::abs(p.targetTotal[f]-p.donorTotal[f]-p.fillOpen[f]+p.sliverOpen[f])<=1e-10*scale);
   }
   if(world.rank)return;
   std::ofstream out(name+"_projection.json");out<<std::setprecision(17)
     <<"{\"donor_volume\":"<<p.donorVolume<<",\"target_volume\":"<<p.targetVolume
-    <<",\"fill_volume\":"<<p.fillVolume<<",\"lost_volume\":"<<p.sliverVolume<<",\"time_levels\":"<<s.nTimeLevels;
+    <<",\"fill_volume\":"<<p.fillVolume<<",\"lost_volume\":"<<p.sliverVolume<<",\"time_levels\":"<<s.nTimeLevels
+    <<",\"flow_fields\":"<<s.nVarFlow<<",\"turbulence_limited\":"<<s.nTurbLimited
+    <<",\"turbulence_limited_stage2\":"<<s.nTurbLimitedStage2;
   auto values=[&](const char* key,const auto& v){out<<",\""<<key<<"\":[";for(size_t i=0;i<v.size();++i){if(i)out<<',';out<<v[i];}out<<']';};
   values("donor_total",p.donorTotal);values("target_total",p.targetTotal);values("new_total",s.newIntegral);
   values("fill",p.fill);values("lost",p.sliver);values("fill_open",p.fillOpen);values("lost_open",p.sliverOpen);
-  values("scale",p.scale);values("residual",p.residual);out<<"}\n";CHECK(out.good());
+  values("scale",p.scale);values("residual",p.residual);values("turbulence_bound_change",s.turbulenceChange);
+  out<<"}\n";CHECK(out.good());
 }
 void CheckPositiveFlow(const std::vector<FlowRecord>& records) {
   for(const auto& row:records)for(size_t level=0;level<3;++level) {

@@ -94,6 +94,14 @@ def main():
         report['flow_conservation_residual']=max(abs(v) for i,v in enumerate(residual) if i%6<5);assert report['flow_conservation_residual']<1e-10
         report['SA_integral_relative_changes']=[residual[5],residual[11]]
         report['all_projected_integrals_conserved']=max(map(abs,residual))<1e-10
+        if 'turbulence_bound_change' in p:
+            assert p['flow_fields']==5 and len(p['turbulence_bound_change'])==2
+            correction=max(abs(residual[f]-c) for f,c in zip((5,11),p['turbulence_bound_change']))
+            assert correction<1e-10
+            if any(p['turbulence_bound_change']):assert p['turbulence_limited']+p['turbulence_limited_stage2']>0
+            report['SA_reported_correction_residual']=correction
+            report['solver_bounds_accounted']=True
+        else:assert receipt['status']=='FAIL','Passing RANS workflow must export SA bounds accounting'
         for ext in ('SU2','CGNS'):
             reload=json.loads((case/(stem+'_written_'+ext+'_reload_target.json')).read_text())
             def signature(d):
@@ -111,6 +119,6 @@ def main():
     helpers=[Path(__file__).resolve(),HERE/'construct.py',ROOT/'integration_evidence/native_3d_core_v1/audit_cavities.py',ROOT/'integration_evidence/native_3d_core_v1/audit_coupled.py',HERE.parent/'alignment_audit_v1/baseline.py']
     out=dict(mesh_status='PASS_COMPLETE_CURVED_MESH',workflow_test_status=receipt['status'],frames=reports,flow_restart_residual=restartError,SA_restart_residual=saError,
              native_receipt_sha256=sha(receiptPath),helpers={str(p.relative_to(ROOT)):sha(p) for p in helpers},elapsed_seconds=time.monotonic()-started,
-             scope='Exact binary64 rational volumes, oriented manifold connected domain and vertex links, no tetrahedron interior overlap, wall normal feet/height, analytic curved node/chord checks. Independent physical P1 flow/SA integrals and flow conservation/open ledger, SU2/CGNS original-source equivalence and current/BDF flow/SA restart. Native metric shape/edge gates are separate, not independently integrated here. SA integral differences remain explicitly unconserved; this report does not turn the rejected workflow into a pass. No general geometry, accuracy or performance qualification.')
+             scope='Exact binary64 rational volumes, oriented manifold connected domain and vertex links, no tetrahedron interior overlap, wall normal feet/height, analytic curved node/chord checks. Independent physical P1 flow/SA integrals and flow conservation/open ledger, SU2/CGNS original-source equivalence and current/BDF flow/SA restart. Native metric shape/edge gates are separate, not independently integrated here. SA integral differences remain explicitly unconserved; this report does not turn the rejected workflow into a pass. SA solver-bound correction accounting is checked when exported; independent raw-projection/clipping replay is separate. No general geometry, accuracy or performance qualification.')
     (case/'independent_mesh.json').write_text(json.dumps(out,indent=2)+'\n');print(out['mesh_status'],'workflow',out['workflow_test_status'],flush=True)
 if __name__=='__main__':main()

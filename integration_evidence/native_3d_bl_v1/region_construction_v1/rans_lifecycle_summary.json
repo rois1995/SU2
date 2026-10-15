@@ -1,0 +1,495 @@
+{
+  "status": "PASS_ACTUAL_CURVED_RANS_LIFECYCLE_MPI_MATRIX_SCOPE_LIMITED",
+  "full_goal_complete": false,
+  "variants": [
+    {
+      "N": 1,
+      "M": 1,
+      "case": "native_curved_rans_n1_m1_v6",
+      "cells": [
+        1368,
+        68
+      ],
+      "sensor_residual": 0,
+      "independent_maximum_flow_conservation_residual": 2.5236916625814545e-15,
+      "independent_maximum_SA_correction_residual": 2.624636619152909e-15,
+      "independent_maximum_SA_raw_projection_residual": 1.9045456397424994e-15,
+      "independent_maximum_SA_bounded_node_residual": 4.214077562526701e-15,
+      "flow_restart_residual": 0.0,
+      "SA_restart_residual": 0.0,
+      "diagnostic_native_seconds_maximum_per_phase": [
+        {
+          "reference": 3.327000001718261e-06,
+          "import": 0.00013955699999712579,
+          "source": 0.0004436309999960031,
+          "weights": 0.001655734999999936,
+          "partition": 0.00011764099999567179,
+          "donor_migration": 5.079600000357232e-05,
+          "communicator": 4.156100000329843e-05,
+          "refine": 33.133551407000006,
+          "coarsen": 0.0,
+          "wait": 2.3475999995525854e-05,
+          "return": 0.00802752299999554,
+          "policy": 9.057500000153595e-05,
+          "total": 33.144278347000004
+        },
+        {
+          "reference": 0.0005261870000055069,
+          "import": 0.0029249760000027436,
+          "source": 0.013577087000001598,
+          "weights": 0.26199875799999006,
+          "partition": 0.008010077000008664,
+          "donor_migration": 0.0015911569999929043,
+          "communicator": 3.927400000236503e-05,
+          "refine": 2.774129540000004,
+          "coarsen": 0.0,
+          "wait": 4.702999987671319e-06,
+          "return": 0.015562645000002817,
+          "policy": 1.8599999407342693e-07,
+          "total": 3.0784192110000106
+        }
+      ],
+      "stage_summaries": [
+        {
+          "cells": 1368,
+          "workers": 1,
+          "sensor_residual": 0,
+          "flow_change": 3.048523815377102,
+          "solve_seconds": 31.445775276,
+          "metric_seconds": 15.700341351999999,
+          "remesh_seconds": 33.144438843,
+          "replace_seconds": 0.07297183599999357,
+          "output_seconds": 0.18694829799999013
+        },
+        {
+          "cells": 68,
+          "workers": 1,
+          "sensor_residual": 0,
+          "flow_change": 3.72333793940156,
+          "solve_seconds": 0.1751869669999877,
+          "metric_seconds": 0.06628598999999724,
+          "remesh_seconds": 3.0785922200000044,
+          "replace_seconds": 0.019657577999993237,
+          "output_seconds": 0.1238637879999942
+        }
+      ],
+      "post_solver_bounds_SA_integrals_exactly_conserved": false
+    },
+    {
+      "N": 2,
+      "M": 1,
+      "case": "native_curved_rans_n2_m1_v6",
+      "cells": [
+        1368,
+        70
+      ],
+      "sensor_residual": 0,
+      "independent_maximum_flow_conservation_residual": 2.498799569032835e-15,
+      "independent_maximum_SA_correction_residual": 2.4734446261998055e-15,
+      "independent_maximum_SA_raw_projection_residual": 2.6154640976781877e-15,
+      "independent_maximum_SA_bounded_node_residual": 3.670325618974869e-15,
+      "flow_restart_residual": 0.0,
+      "SA_restart_residual": 0.0,
+      "diagnostic_native_seconds_maximum_per_phase": [
+        {
+          "reference": 1.626499999929365e-05,
+          "import": 0.00023971699999947305,
+          "source": 0.00029143100000794675,
+          "weights": 0.0015916849999939586,
+          "partition": 0.00015129500000199414,
+          "donor_migration": 5.570599999771275e-05,
+          "communicator": 5.6431000004408816e-05,
+          "refine": 32.975827268,
+          "coarsen": 0.0,
+          "wait": 32.976692172999996,
+          "return": 0.008457690000000184,
+          "policy": 0.00011985300000105781,
+          "total": 32.989867491999995
+        },
+        {
+          "reference": 0.0006765969999946719,
+          "import": 0.0019281139999947072,
+          "source": 0.00720516099998747,
+          "weights": 0.18942530300000726,
+          "partition": 0.0034092430000072227,
+          "donor_migration": 0.0012806729999965683,
+          "communicator": 0.00031222800001273754,
+          "refine": 2.904539444000008,
+          "coarsen": 0.0,
+          "wait": 2.9047700009999886,
+          "return": 0.018308441000002063,
+          "policy": 4.09000008971816e-07,
+          "total": 3.178442426999993
+        }
+      ],
+      "stage_summaries": [
+        {
+          "cells": 1368,
+          "workers": 1,
+          "sensor_residual": 0,
+          "flow_change": 3.048524286618722,
+          "solve_seconds": 31.573861927,
+          "metric_seconds": 15.861889428999998,
+          "remesh_seconds": 32.98804506799999,
+          "replace_seconds": 0.028154280000009635,
+          "output_seconds": 0.17563911000000587
+        },
+        {
+          "cells": 70,
+          "workers": 1,
+          "sensor_residual": 0,
+          "flow_change": 3.723523303370385,
+          "solve_seconds": 0.10917567900000336,
+          "metric_seconds": 0.04155690599999673,
+          "remesh_seconds": 3.131099381999988,
+          "replace_seconds": 0.022412243000005105,
+          "output_seconds": 0.13091778800000498
+        }
+      ],
+      "post_solver_bounds_SA_integrals_exactly_conserved": false
+    },
+    {
+      "N": 2,
+      "M": 2,
+      "case": "native_curved_rans_n2_m2_v6",
+      "cells": [
+        1368,
+        74
+      ],
+      "sensor_residual": 0,
+      "independent_maximum_flow_conservation_residual": 1.970518683613806e-15,
+      "independent_maximum_SA_correction_residual": 2.0562978403360077e-15,
+      "independent_maximum_SA_raw_projection_residual": 2.6154640976781884e-15,
+      "independent_maximum_SA_bounded_node_residual": 3.806263604862826e-15,
+      "flow_restart_residual": 0.0,
+      "SA_restart_residual": 0.0,
+      "diagnostic_native_seconds_maximum_per_phase": [
+        {
+          "reference": 9.34900000260086e-06,
+          "import": 0.00016764200000096707,
+          "source": 0.0002847320000043396,
+          "weights": 0.001602173999998513,
+          "partition": 0.0010619430000033958,
+          "donor_migration": 7.64699999962204e-05,
+          "communicator": 3.4331000009046875e-05,
+          "refine": 33.503311059999994,
+          "coarsen": 0.0,
+          "wait": 1.2998000002539811e-05,
+          "return": 0.009055457999991745,
+          "policy": 9.343699999675437e-05,
+          "total": 33.517524166
+        },
+        {
+          "reference": 0.0007039649999995845,
+          "import": 0.0016357240000104412,
+          "source": 0.005084167000006801,
+          "weights": 0.21476935199999048,
+          "partition": 0.005223489000002246,
+          "donor_migration": 0.00090218799999775,
+          "communicator": 9.887499999194915e-05,
+          "refine": 3.2112273120000054,
+          "coarsen": 0.0,
+          "wait": 0.0010948110000015276,
+          "return": 0.010038156999996772,
+          "policy": 1.6299999572311208e-07,
+          "total": 3.4957635229999937
+        }
+      ],
+      "stage_summaries": [
+        {
+          "cells": 1368,
+          "workers": 2,
+          "sensor_residual": 0,
+          "flow_change": 3.048524286618722,
+          "solve_seconds": 31.792974625,
+          "metric_seconds": 15.818610724000003,
+          "remesh_seconds": 33.516019011,
+          "replace_seconds": 0.024824030000004882,
+          "output_seconds": 0.1794224430000071
+        },
+        {
+          "cells": 74,
+          "workers": 2,
+          "sensor_residual": 0,
+          "flow_change": 3.723523303370378,
+          "solve_seconds": 0.10397145599999646,
+          "metric_seconds": 0.037783181999998305,
+          "remesh_seconds": 3.4517654710000016,
+          "replace_seconds": 0.020593335000000934,
+          "output_seconds": 0.13029893899999934
+        }
+      ],
+      "post_solver_bounds_SA_integrals_exactly_conserved": false
+    },
+    {
+      "N": 4,
+      "M": 1,
+      "case": "native_curved_rans_n4_m1_v6",
+      "cells": [
+        1368,
+        70
+      ],
+      "sensor_residual": 0,
+      "independent_maximum_flow_conservation_residual": 1.4420811511255538e-15,
+      "independent_maximum_SA_correction_residual": 1.315354075659414e-15,
+      "independent_maximum_SA_raw_projection_residual": 1.8914738194453882e-15,
+      "independent_maximum_SA_bounded_node_residual": 2.582821731871204e-15,
+      "flow_restart_residual": 0.0,
+      "SA_restart_residual": 0.0,
+      "diagnostic_native_seconds_maximum_per_phase": [
+        {
+          "reference": 1.807400000330972e-05,
+          "import": 0.00022013099999895758,
+          "source": 0.0003043559999937884,
+          "weights": 0.0016454449999940834,
+          "partition": 0.00021200599999815495,
+          "donor_migration": 8.177500000527971e-05,
+          "communicator": 3.838599999994585e-05,
+          "refine": 33.898187304,
+          "coarsen": 0.0,
+          "wait": 33.899749754000005,
+          "return": 0.0136987040000065,
+          "policy": 0.00010895500000174252,
+          "total": 33.917987143999994
+        },
+        {
+          "reference": 0.0020431369999869275,
+          "import": 0.0011234690000065939,
+          "source": 0.0033341450000108352,
+          "weights": 0.15844649299999958,
+          "partition": 0.00200151299999618,
+          "donor_migration": 0.001936611000004973,
+          "communicator": 0.00033068999999841253,
+          "refine": 3.0614733959999967,
+          "coarsen": 0.0,
+          "wait": 3.063060667000002,
+          "return": 0.008753009000002976,
+          "policy": 7.610000096747171e-07,
+          "total": 3.2929907210000096
+        }
+      ],
+      "stage_summaries": [
+        {
+          "cells": 1368,
+          "workers": 1,
+          "sensor_residual": 0,
+          "flow_change": 3.048523817275715,
+          "solve_seconds": 35.226897273,
+          "metric_seconds": 16.535369212999996,
+          "remesh_seconds": 33.916814749000004,
+          "replace_seconds": 0.027265439999993646,
+          "output_seconds": 0.20030887900000494
+        },
+        {
+          "cells": 70,
+          "workers": 1,
+          "sensor_residual": 0,
+          "flow_change": 3.7235022437912164,
+          "solve_seconds": 0.0793469630000061,
+          "metric_seconds": 0.03128586400001154,
+          "remesh_seconds": 3.2419743519999997,
+          "replace_seconds": 0.027025948999991556,
+          "output_seconds": 0.1340895259999968
+        }
+      ],
+      "post_solver_bounds_SA_integrals_exactly_conserved": false
+    },
+    {
+      "N": 4,
+      "M": 2,
+      "case": "native_curved_rans_n4_m2_v6",
+      "cells": [
+        1368,
+        72
+      ],
+      "sensor_residual": 0,
+      "independent_maximum_flow_conservation_residual": 1.0107406341596046e-15,
+      "independent_maximum_SA_correction_residual": 1.023053169957322e-15,
+      "independent_maximum_SA_raw_projection_residual": 2.036971805556572e-15,
+      "independent_maximum_SA_bounded_node_residual": 1.631255830655497e-15,
+      "flow_restart_residual": 0.0,
+      "SA_restart_residual": 0.0,
+      "diagnostic_native_seconds_maximum_per_phase": [
+        {
+          "reference": 2.10120000048164e-05,
+          "import": 0.00023158599999817397,
+          "source": 0.0003224579999994148,
+          "weights": 0.001693203000002086,
+          "partition": 0.0009613819999998441,
+          "donor_migration": 8.332899999885512e-05,
+          "communicator": 3.402400000140915e-05,
+          "refine": 33.992673257999996,
+          "coarsen": 0.0,
+          "wait": 33.99489947800001,
+          "return": 0.010360473999995179,
+          "policy": 0.00011517899999802239,
+          "total": 34.01072675900001
+        },
+        {
+          "reference": 0.0006086960000004638,
+          "import": 0.0009718539999994391,
+          "source": 0.0034687070000103404,
+          "weights": 0.15449458099999447,
+          "partition": 0.007136415000005059,
+          "donor_migration": 0.0012959759999944254,
+          "communicator": 0.00015445800001145926,
+          "refine": 3.067045325999999,
+          "coarsen": 0.0,
+          "wait": 3.068977726,
+          "return": 0.01659465399998794,
+          "policy": 1.939999947353499e-07,
+          "total": 3.3100484340000094
+        }
+      ],
+      "stage_summaries": [
+        {
+          "cells": 1368,
+          "workers": 2,
+          "sensor_residual": 0,
+          "flow_change": 3.048523817275715,
+          "solve_seconds": 32.531307182,
+          "metric_seconds": 16.052047359,
+          "remesh_seconds": 34.009514287,
+          "replace_seconds": 0.019735737999994285,
+          "output_seconds": 0.18004545400000893
+        },
+        {
+          "cells": 72,
+          "workers": 2,
+          "sensor_residual": 0,
+          "flow_change": 3.723502243791202,
+          "solve_seconds": 0.14681241599998884,
+          "metric_seconds": 0.05790953000000343,
+          "remesh_seconds": 3.254306962000001,
+          "replace_seconds": 0.020104294000006462,
+          "output_seconds": 0.19418416599999944
+        }
+      ],
+      "post_solver_bounds_SA_integrals_exactly_conserved": false
+    },
+    {
+      "N": 4,
+      "M": 4,
+      "case": "native_curved_rans_n4_m4_v6",
+      "cells": [
+        1368,
+        72
+      ],
+      "sensor_residual": 0,
+      "independent_maximum_flow_conservation_residual": 1.2618210072348612e-15,
+      "independent_maximum_SA_correction_residual": 1.315354075659414e-15,
+      "independent_maximum_SA_raw_projection_residual": 1.8914738194453882e-15,
+      "independent_maximum_SA_bounded_node_residual": 1.6142635824195023e-15,
+      "flow_restart_residual": 0.0,
+      "SA_restart_residual": 0.0,
+      "diagnostic_native_seconds_maximum_per_phase": [
+        {
+          "reference": 5.0487999999404565e-05,
+          "import": 0.0003250709999988999,
+          "source": 0.0004477250000007871,
+          "weights": 0.0020766409999950497,
+          "partition": 0.0017633139999944092,
+          "donor_migration": 0.00011028699999826586,
+          "communicator": 5.4458999997564206e-05,
+          "refine": 35.076423512999995,
+          "coarsen": 0.0,
+          "wait": 0.002205753000012578,
+          "return": 0.016309543000005533,
+          "policy": 0.0001498310000016545,
+          "total": 35.102063785000006
+        },
+        {
+          "reference": 0.000681321999991269,
+          "import": 0.0011761009999986527,
+          "source": 0.0045411679999887156,
+          "weights": 0.3699561370000026,
+          "partition": 0.020891972000001147,
+          "donor_migration": 0.001740095000002384,
+          "communicator": 0.0001320220000025074,
+          "refine": 3.243075528999995,
+          "coarsen": 0.0,
+          "wait": 0.002133474999993723,
+          "return": 0.01281030299999486,
+          "policy": 6.020000000717118e-07,
+          "total": 3.703897374999997
+        }
+      ],
+      "stage_summaries": [
+        {
+          "cells": 1368,
+          "workers": 4,
+          "sensor_residual": 0,
+          "flow_change": 3.048523817275715,
+          "solve_seconds": 32.45459495,
+          "metric_seconds": 19.264551140000002,
+          "remesh_seconds": 35.10043494999999,
+          "replace_seconds": 0.02582536799999957,
+          "output_seconds": 0.24604161799999247
+        },
+        {
+          "cells": 72,
+          "workers": 4,
+          "sensor_residual": 0,
+          "flow_change": 3.723502243791245,
+          "solve_seconds": 0.06613621299999295,
+          "metric_seconds": 0.025159767000005218,
+          "remesh_seconds": 3.657466812999999,
+          "replace_seconds": 0.01934247500000197,
+          "output_seconds": 0.24814673499999174
+        }
+      ],
+      "post_solver_bounds_SA_integrals_exactly_conserved": false
+    }
+  ],
+  "test_binary_sha256": "b37601ce8ee1715c8f52e5fb8898a15e973b5b75726a6f383abae38d009b7431",
+  "initial_BL_complexity_MPI_minimum": 48.71302686078762,
+  "initial_BL_complexity_MPI_maximum": 48.71302686078766,
+  "unchanged_constraints": {
+    "h": 0.05,
+    "growth": 1.2,
+    "thickness": 0.2,
+    "hausdorff": 0.04,
+    "wall_surface_ceiling": 0.025,
+    "q_minimum": 0.2,
+    "J_minimum": 0.05,
+    "full_composed_length_maximum": 1.8,
+    "work_per_event": 4096,
+    "seconds_per_event": 300,
+    "hessian_noise": 0,
+    "sensor": "original P1 only; actual-query geometric BL/fade; finer demands retained"
+  },
+  "scope": "Actual short dual-time RANS/SA, full native BL construction and subsequent sensor-only remesh, N/M 1/1,2/1,2/2,4/1,4/2,4/4, atomic donor-state preservation, sensor-only return, strict native geometry/height/quality/full-edge gates, independent exact embedding/height/authority and physical flow/open ledger, SU2/CGNS/reference reload and real current/BDF flow/SA restart. Independent reference raw projection plus separate nodal solver-floor replay accounts for all SA changes. Post-bounds SA integrals are not claimed invariant.",
+  "limits": [
+    "One complete visible radial/caps region on one constructor worker.",
+    "The pressure-derived sensor is clipped to the coarse bound in this pilot; not a stronger-flow-feature adaptation proof.",
+    "Native shape/full-edge gates are enforced but not independently re-integrated for these actual-flow outputs.",
+    "Not general/exterior/multiwall/high-ratio/front or viscous-convergence/M6 qualification.",
+    "Diagnostic section clocks include the actual run; solve_seconds includes automatic metric calls. No CFD-only ratio, affordability or scaling claim.",
+    "The exact single-kernel span certificate identifies the next architectural limitation; it is not an executed stronger-field adaptation."
+  ],
+  "artifacts": {
+    "native_curved_rans_n1_m1_v6.json": "1d558b6984cf3c8fba40a5423d41b4d56e40680c150820c370a7d323e1b7772b",
+    "native_curved_rans_n1_m1_v6/independent_mesh.json": "7aebcfb520f79dd09d9bef8a871cc1c7373d962ec47dd14970714da10a3fa9f4",
+    "sa_projection_replay_v2.json": "d07cf43cbcc8006c4718b306aedf576826901e95fb90590a251dde0128c718e7",
+    "native_curved_rans_n2_m1_v6.json": "1d3cf17a57d4ceacc905ddb061e7ceaae4c6a27fd771b6d962bb0ac38d8d9730",
+    "native_curved_rans_n2_m1_v6/independent_mesh.json": "bed46de0f2c331b03b1aec417b900abc234c9c952aa333cca91f04bcc7654551",
+    "sa_projection_replay_v3.json": "f7c3ddacfbd8caed185f4a4d499f7c7fd90a130f7ce9b9827c4e7258ff755838",
+    "native_curved_rans_n2_m2_v6.json": "26e8bdae545cdf2139c644f7aa2a9c97cb334a2f54fa261deb5ec5d311970f4b",
+    "native_curved_rans_n2_m2_v6/independent_mesh.json": "19578a8865e2b76b866c9913f422f0841f07c8aa363b407797fa97716d42d00a",
+    "sa_projection_replay_v4.json": "c992729be9395cb23608b1b7293d345e750bcc9dc835e6b3a6cda4c97f7e9bc4",
+    "native_curved_rans_n4_m1_v6.json": "28a9c4711ee906e430afad8dc4f3bd3eb2fd38944b1f9642357a0dd3643d792b",
+    "native_curved_rans_n4_m1_v6/independent_mesh.json": "71e293d85589b9efd0aaa69c1d6161ee2cb2b5cff2af24d28710716d41fd38ab",
+    "sa_projection_replay_v5.json": "e699ace75858fe9baab0048b3d1a06f9b14400f9c5a7db0a36bd97ff0412d79b",
+    "native_curved_rans_n4_m2_v6.json": "776416d420f29b25ba3bc663f5e7e3db2045fe8bc0b3b8d12f30e343719c916a",
+    "native_curved_rans_n4_m2_v6/independent_mesh.json": "c11e6d20c0631720e6abf6e4b1e4de82e55235000614e02fa1f5b2615380f351",
+    "sa_projection_replay_v6.json": "4cd3dac34e0b51c7dc0697828d4abf81c53deb9ed8945fb86697ebe2baa23583",
+    "native_curved_rans_n4_m4_v6.json": "96dfee2e2526cbe5a2a1f09aef500b7694baf2cee1b75e3a896e57f02df4596e",
+    "native_curved_rans_n4_m4_v6/independent_mesh.json": "5b9bb8bbd915613e9572b9da29eea62fbe3bdd356f44ff5184164763a9fd154e",
+    "sa_projection_replay_v7.json": "f4854b67d054a6909de51222f4c7a4a8a8ade3ed20ece1fb10fab1af51311226",
+    "annular_reuse_after_SA_test_correction.json": "e907256cc01901a9e8c1028c0fdca7886d1d68cd1bba2861fc536fe6fba4bb65",
+    "single_kernel_metric_span_certificate.json": "f83a4f0e155c74cffa4f0600af4f7b2ff7a7ac41e63abe6558174463b5abc805",
+    "sa_projection_replay_v1.json": "2754bc35c86d2c956cad8b7aa8da982bb60c4eed0f5cd77fdbf7ea5982d36edb",
+    "runtime_reuse_check.log": "8a49bf0847b008380b6b0ab6a039e632614cdb8904644ebbeb5de763e1121b25"
+  },
+  "resumability_check": "PASS_VERIFIED_NATIVE_AND_SA_REUSE_NO_REEXECUTION"
+}

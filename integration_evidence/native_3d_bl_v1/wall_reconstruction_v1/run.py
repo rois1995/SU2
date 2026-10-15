@@ -42,6 +42,7 @@ def main():
  if case=='native_cold_field_v1':sources.append('integration_evidence/native_3d_bl_v1/region_construction_v1/construct.py')
  sources.append('UnitTests/SU2_CFD/adaptation/CNativeRemesher3D_tests.cpp')
  sources.append('UnitTests/SU2_CFD/adaptation/fixtures/native_curved_rans_runtime.inc')
+ sources.extend(['UnitTests/SU2_CFD/adaptation/CConservativeTransfer_tests.cpp','UnitTests/SU2_CFD/adaptation/fixtures/native_saved_sa_projection.inc','SU2_CFD/include/adaptation/CConservativeTransfer.hpp','SU2_CFD/src/adaptation/CConservativeTransfer.cpp'])
  sources.append('UnitTests/Common/adaptation/CNativeMetric3D_tests.cpp')
  sources.append('UnitTests/Common/adaptation/fixtures/native_bl_planar_wall.inc')
  sources.extend(['UnitTests/SU2_CFD/adaptation/fixtures/native_curved_wall_blockage.inc','UnitTests/SU2_CFD/adaptation/fixtures/native_curved_remaining.inc'])

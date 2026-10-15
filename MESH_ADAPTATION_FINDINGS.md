@@ -5508,3 +5508,35 @@ failure and SA nonconservation explicitly. Height error<=5.14e-15, flow residual
 See [current evidence/scope](Handbook/GOAL3_CURVED_RANS_RUNTIME.md). Earlier failure
 receipts are preserved, not superseded as if they passed. No new CFD/MPI campaign or
 local fallback is needed to investigate saved mesh geometry and conservation data.
+
+
+## 2026-10-15 — actual curved RANS lifecycle MPI matrix qualified, full Goal3 open
+
+The actual RANS/SA pilot now passes N/M1/1,2/1,2/2,4/1,4/2,4/4, with1368 BL cells
+and68/70/74/70/72/72 released cells. Each has an independent exact geometry/height/
+embedding, physical flow/open ledger and actual flow/SA current+BDF restart audit.
+Maximum flow conservation residual2.53e-15; initial BL complexity differs by<4e-14
+across ranks. Native shape/full-edge gates remain unchanged; actual-flow independent
+full composed-edge quadrature and stronger sensor/geometry qualification remain open.
+
+Saved-state reference projection and independent solver-floor replay prove the four
+original v5 SA discrepancies completely: raw projection conserves<=1.91e-15, then
+existing1e-16 floor reproduces all saved nodes<=4.22e-15 with200/56 clips. The new
+test's post-bounds zero-change requirement was wrong relative to production's existing
+contract. Corrected validation enforces flow conservation plus explicit SA correction
+accounting using actual scales, rather than max(1,scale). No production transfer or
+mesh gate changed. v5 remains FAIL; v6 is the new qualified scope. Post-clipping SA
+integrals are not claimed unchanged. All raw traces and exact old helpers preserved.
+
+A source-linked exact metric-span certificate identifies a structural next step:
+constant original-P1 diag(1,1,16) gives opposite-cap distance>=4. A single core kernel
+therefore has an edge>=2, above1.8, even before adding BL demand. Moving it or adding
+wall variants cannot solve this. It is not global target infeasibility. The next
+connected constructor needs several interior vertices/regions and conforming shared
+interfaces, with a complete stronger-field curved mesh as its gate.
+
+The matching M6 input is located, not launched. This radial short pilot does not
+prove converged viscous accuracy, general/exterior/interacting/high-ratio construction
+or affordability/scaling. Section profiles are retained; solve_seconds still includes
+automatic metric calls and is not CFD-only. All jobs terminal. Full Goal3 ACTIVE.
+Evidence index: `region_construction_v1/rans_lifecycle_summary.json` under native_3d_bl_v1.
