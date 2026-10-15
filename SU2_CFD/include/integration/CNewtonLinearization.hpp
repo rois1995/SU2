@@ -8,6 +8,7 @@
 #include "CNewtonEquationSet.hpp"
 #include "../../../Common/include/linear_algebra/CMatrixVectorProduct.hpp"
 #include "../../../Common/include/linear_algebra/CPreconditioner.hpp"
+#include "../../../Common/include/linear_algebra/CSysSolve.hpp"
 #include <memory>
 
 #if !defined(CODI_FORWARD_TYPE) && !defined(CODI_REVERSE_TYPE)
@@ -25,23 +26,32 @@ class CNewtonLinearization final : public CMatrixVectorProduct<passivedouble> {
   CConfig* config;
   const Vector *scale = nullptr, *diagonal = nullptr, *probeReference = nullptr;
   Vector baseResidual, baseState;
+  mutable Vector coarseProduct, previousProduct;
   std::vector<unsigned char> free;
-  double absoluteStep = 0, relativeStep = 0;
-  mutable double relative = 0;
+  double absoluteStep = 0, relativeStep = 0, reconstruction = 1;
+  bool physicalStep = false, refineStep = false;
+  mutable double relative = 0, stepResolution = 0;
 
  public:
   CNewtonLinearization(CNewtonEquationSet&, CGeometry*, CConfig*);
   template <class IsFree>
   bool SetBase(const Vector& scaling, const Vector& pseudoTime, double step, double relativeLimit, IsFree isFree,
-               const Vector* relativeReference = nullptr) {
+               const Vector* relativeReference = nullptr, double reconstructionFactor = 1.0,
+               bool physicalMetric = false, bool verifyStep = false) {
     assert(scaling.GetNVar() == equations.GetnVar() && pseudoTime.GetNVar() == equations.GetnVar());
     assert(scaling.GetNBlk() == geometry->GetnPoint() && pseudoTime.GetNBlk() == geometry->GetnPoint());
     assert(step > 0 && relativeLimit >= 0);
+    assert(reconstructionFactor >= 0 && reconstructionFactor <= 1);
     assert(!relativeReference || relativeReference->GetLocSize() == scaling.GetLocSize());
-    SU2_OMP_SAFE_GLOBAL_ACCESS(scale = &scaling; diagonal = &pseudoTime;
-                               probeReference = relativeReference; absoluteStep = step; relativeStep = relativeLimit;)
+    SU2_OMP_SAFE_GLOBAL_ACCESS(scale = &scaling; diagonal = &pseudoTime; probeReference = relativeReference;
+                               absoluteStep = step; relativeStep = relativeLimit; reconstruction = reconstructionFactor;
+                               physicalStep = physicalMetric; refineStep = verifyStep;
+                               if (verifyStep && coarseProduct.GetLocSize() != scaling.GetLocSize()) {
+                                 coarseProduct.Initialize(scaling.GetNBlk(), scaling.GetNBlkDomain(), scaling.GetNVar(), 0.0);
+                                 previousProduct.Initialize(scaling.GetNBlk(), scaling.GetNBlkDomain(), scaling.GetNVar(), 0.0);
+                               })
     // Use the same residual path for the reference and probes, avoiding implicit/explicit roundoff offsets.
-    if (!equations.EvaluateResiduals()) return false;
+    if (!equations.EvaluateResiduals(false, false, reconstruction)) return false;
     equations.Pack(baseState);
     equations.CopyResidual(baseResidual);
     for (const auto& block : equations.GetBlocks()) {
@@ -55,12 +65,15 @@ class CNewtonLinearization final : public CMatrixVectorProduct<passivedouble> {
   }
   bool SetBase(const Vector& scaling, const Vector& pseudoTime, double step, double relativeLimit) {
     return SetBase(scaling, pseudoTime, step, relativeLimit,
-            [](const CNewtonEquationSet::Block&, unsigned long, unsigned short) { return true; });
+                   [](const CNewtonEquationSet::Block&, unsigned long, unsigned short) { return true; });
   }
   /*! \brief False produces the scaled physical derivative, without the pseudo-time diagonal. */
   bool Apply(const Vector&, Vector&, bool pseudoTime = true) const;
   void operator()(const Vector& u, Vector& v) const override { Apply(u, v); }
-  const Vector& GetScale() const { assert(scale); return *scale; }
+  const Vector& GetScale() const {
+    assert(scale);
+    return *scale;
+  }
   unsigned short GetnVar() const { return equations.GetnVar(); }
   const std::vector<CNewtonEquationSet::Block>& GetBlocks() const { return equations.GetBlocks(); }
 };
@@ -73,17 +86,28 @@ class CNewtonBlockPreconditioner final : public CPreconditioner<passivedouble> {
   using Vector = CNewtonLinearization::Vector;
   struct Block {
     unsigned short offset, variables;
+    CSolver* solver;
+    std::unique_ptr<CSysSolve<Mixed>> linearSolver;
     std::unique_ptr<CPreconditioner<Mixed>> preconditioner;
     mutable CSysVector<Mixed> input, output;
   };
   const CNewtonLinearization& linearization;
   bool lowerTriangular;
+  unsigned innerIterations;
+  double innerTolerance;
+  CGeometry* geometry;
+  CConfig* config;
+  mutable unsigned long work = 0;
   std::vector<Block> blocks;
   mutable Vector coupling;
 
  public:
-  CNewtonBlockPreconditioner(const CNewtonLinearization&, CGeometry*, CConfig*, bool lower = false);
+  CNewtonBlockPreconditioner(const CNewtonLinearization&, CGeometry*, CConfig*, bool lower = false,
+                             unsigned innerIterations = 0, double innerTolerance = 0.1);
   void Build() override;
-  void operator()(const Vector&, Vector&) const override;
+  void operator()(const Vector& u, Vector& v) const override { Solve(u, v, innerIterations, innerTolerance); }
+  unsigned long Solve(const Vector&, Vector&, unsigned iterations, double tolerance) const;
+  void Multiply(const Vector&, Vector&) const;
+  unsigned long GetWork() const { return work; }
 };
 #endif

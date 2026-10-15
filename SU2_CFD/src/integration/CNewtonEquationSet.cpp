@@ -4,6 +4,7 @@
  * \author SU2 Contributors
  */
 #include "../../include/integration/CNewtonEquationSet.hpp"
+#include "../../include/variables/CFlowVariable.hpp"
 
 namespace {
 constexpr unsigned short runtimes[] = {RUNTIME_FLOW_SYS, RUNTIME_TURB_SYS, RUNTIME_TRANS_SYS, RUNTIME_SPECIES_SYS};
@@ -33,6 +34,12 @@ CNewtonEquationSet::CNewtonEquationSet(CGeometry* g, CSolver** s, CNumerics*** n
   if (config->GetNEMOProblem())
     throw std::invalid_argument("NEMO is excluded from the common Newton equation interface");
   trialFlow.resize(g->GetnPoint() * s[FLOW_SOL]->GetnVar());
+  if (auto* flow = dynamic_cast<CFlowVariable*>(s[FLOW_SOL]->GetNodes())) {
+    reconstructionHistory = &flow->NonPhysicalEdgeCounter;
+    acceptedReconstruction.resize(reconstructionHistory->size());
+    savedReconstruction.resize(reconstructionHistory->size());
+    nextReconstruction.resize(reconstructionHistory->size());
+  }
   if (selected.empty()) throw std::invalid_argument("A Newton equation group cannot be empty");
   for (auto runtime : selected) {
     if (std::find(std::begin(runtimes), std::end(runtimes), runtime) == std::end(runtimes))
@@ -76,11 +83,19 @@ void CNewtonEquationSet::Capture() {
     }
     END_SU2_OMP_FOR
   }
+  SU2_OMP_FOR_STAT(1024)
+  for (auto e = 0ul; e < acceptedReconstruction.size(); ++e)
+    acceptedReconstruction[e] = (*reconstructionHistory)[e];
+  END_SU2_OMP_FOR
   SU2_OMP_SAFE_GLOBAL_ACCESS(captured = true;)
 }
 
 void CNewtonEquationSet::RestoreSolutions() {
   assert(captured);
+  SU2_OMP_FOR_STAT(1024)
+  for (auto e = 0ul; e < acceptedReconstruction.size(); ++e)
+    (*reconstructionHistory)[e] = acceptedReconstruction[e];
+  END_SU2_OMP_FOR
   for (const auto& snapshot : snapshots) {
     auto* nodes = snapshot.solver->GetNodes();
     SU2_OMP_FOR_STAT(1024)
@@ -183,15 +198,16 @@ bool CNewtonEquationSet::CheckState(bool compareFlow) {
   return valid;
 }
 
-bool CNewtonEquationSet::EvaluateResiduals(bool implicit, bool allEquations) {
+bool CNewtonEquationSet::EvaluateResiduals(bool implicit, bool allEquations, double reconstruction) {
+  assert(reconstruction >= 0 && reconstruction <= 1);
   EquationSettingsGuard guard(*config);
   struct HistoryGuard {
     CNewtonEquationSet& equations;
     explicit HistoryGuard(CNewtonEquationSet& e) : equations(e) { equations.SaveHistory(); }
     ~HistoryGuard() { equations.RestoreHistory(); }
   } history(*this);
-  // A legacy Jacobian model must not change the physical residual or its grouped derivatives.
-  SU2_OMP_SAFE_GLOBAL_ACCESS(config->SetResidualOnly(true); config->SetNewtonKrylovRelaxation(1.0);)
+  // Physical evaluations use full reconstruction; only an explicit Jacobian-model request may relax it.
+  SU2_OMP_SAFE_GLOBAL_ACCESS(config->SetResidualOnly(true); config->SetNewtonKrylovRelaxation(reconstruction);)
   Communicate();
   if (!CheckState(false)) return false;
   const auto* flow = solvers[FLOW_SOL]->GetNodes();
@@ -239,10 +255,18 @@ bool CNewtonEquationSet::EvaluateResiduals(bool implicit, bool allEquations) {
     Space_Integration(geometry, solvers, numerics[slot], config, MESH_0, NO_RK_ITER, runtime);
     SU2_OMP_SAFE_GLOBAL_ACCESS(++residualEvaluations[index];)
   }
+  SU2_OMP_FOR_STAT(1024)
+  for (auto e = 0ul; e < nextReconstruction.size(); ++e)
+    nextReconstruction[e] = (*reconstructionHistory)[e];
+  END_SU2_OMP_FOR
   return true;
 }
 
 void CNewtonEquationSet::SaveHistory() {
+  SU2_OMP_FOR_STAT(1024)
+  for (auto e = 0ul; e < savedReconstruction.size(); ++e)
+    savedReconstruction[e] = (*reconstructionHistory)[e];
+  END_SU2_OMP_FOR
   for (auto& snapshot : snapshots) {
     const auto* nodes = snapshot.solver->GetNodes();
     SU2_OMP_FOR_STAT(1024)
@@ -254,6 +278,10 @@ void CNewtonEquationSet::SaveHistory() {
 }
 
 void CNewtonEquationSet::RestoreHistory() {
+  SU2_OMP_FOR_STAT(1024)
+  for (auto e = 0ul; e < savedReconstruction.size(); ++e)
+    (*reconstructionHistory)[e] = savedReconstruction[e];
+  END_SU2_OMP_FOR
   for (const auto& snapshot : snapshots) {
     auto* nodes = snapshot.solver->GetNodes();
     SU2_OMP_FOR_STAT(1024)
@@ -262,6 +290,14 @@ void CNewtonEquationSet::RestoreHistory() {
         nodes->SetSolution_Old(p, v, snapshot.evaluationHistory[p * snapshot.variables + v]);
     END_SU2_OMP_FOR
   }
+}
+
+void CNewtonEquationSet::CommitHistory() {
+  assert(captured && valid);
+  SU2_OMP_FOR_STAT(1024)
+  for (auto e = 0ul; e < nextReconstruction.size(); ++e)
+    (*reconstructionHistory)[e] = nextReconstruction[e];
+  END_SU2_OMP_FOR
 }
 
 bool CNewtonEquationSet::Restore() {
@@ -297,6 +333,10 @@ double CNewtonEquationSet::GetRestorationError() {
     }
     END_SU2_OMP_FOR
   }
+  SU2_OMP_FOR_STAT(1024)
+  for (auto e = 0ul; e < acceptedReconstruction.size(); ++e)
+    local = std::max(local, std::abs(double((*reconstructionHistory)[e]) - acceptedReconstruction[e]));
+  END_SU2_OMP_FOR
   atomicMax(local, invalidCount);
   BEGIN_SU2_OMP_SAFE_GLOBAL_ACCESS {
     double global = 0;

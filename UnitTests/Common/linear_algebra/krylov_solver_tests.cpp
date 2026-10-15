@@ -152,6 +152,22 @@ TEST_CASE("FGMRES monitoring frequency 0", "[LinearAlgebra]") {
   CHECK(res < 1e-10);
 }
 
+TEST_CASE("BCGSTAB reports the completed exact alpha step", "[LinearAlgebra]") {
+  auto config = MakeConfig("");
+  TestProduct matrix;
+  matrix.apply = [](const Vec& u, Vec& v) { v = Scalar(2) * u; };
+  const auto rhs = MakeRhs(5);
+  Vec solution(5, 5, 1, 0.0);
+  CSysSolve<Scalar> solver;
+  solver.SetxIsZero(true);
+  Scalar residual = -1;
+  const auto iterations = solver.BCGSTAB_LinSolver(rhs, solution, matrix, Identity(), 1e-8, 20,
+                                                  residual, false, config.get());
+  CHECK(iterations == 1);
+  CHECK(residual == 0);
+  CHECK(TrueResidual(matrix, rhs, solution) == 0);
+}
+
 TEST_CASE("Restarted FGMRES with relative tolerance", "[LinearAlgebra]") {
   /*--- The initial guess is close to the solution, so the tolerance relative to the initial residual
    * is much tighter than the same tolerance relative to |b|. ---*/

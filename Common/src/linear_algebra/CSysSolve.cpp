@@ -1210,7 +1210,10 @@ unsigned long CSysSolve<ScalarType>::BCGSTAB_LinSolver(const CSysVector<ScalarTy
     /*--- Calculate step-length omega, avoid division by 0. ---*/
 
     omega = A_x.squaredNorm();
-    if (omega == ScalarType(0)) break;
+    if (omega == ScalarType(0)) {
+      norm_r = r.norm();
+      break;
+    }
     omega = A_x.dot(r) / omega;
 
     /*--- Update solution and residual ---*/
@@ -1236,6 +1239,9 @@ unsigned long CSysSolve<ScalarType>::BCGSTAB_LinSolver(const CSysVector<ScalarTy
       }
     }
   }
+
+  // A break follows a completed alpha/omega step; the loop index is zero-based.
+  if (i < m) ++i;
 
   /*--- BCGSTAB does not reduce the residual monotonically, return the best iterate. ---*/
 

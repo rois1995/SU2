@@ -9,6 +9,7 @@
 #include "../../SU2_CFD/include/integration/CNewtonLinearization.hpp"
 #include "../../SU2_CFD/include/integration/CNewtonIntegration.hpp"
 #include "../../SU2_CFD/include/integration/CNewtonLegacyIntegration.hpp"
+#include "../../SU2_CFD/include/variables/CFlowVariable.hpp"
 #include "../../Common/include/linear_algebra/CSysSolve.hpp"
 #include <chrono>
 #include <filesystem>
@@ -1038,4 +1039,201 @@ TEST_CASE("Grouped physical residuals isolate legacy Jacobian relaxation", "[New
   CHECK(SU2_TYPE::GetValue(config->GetNewtonKrylovRelaxation()) == 0.25);
   REQUIRE(equations->Restore());
   CHECK(SU2_TYPE::GetValue(config->GetNewtonKrylovRelaxation()) == 0.25);
+}
+
+
+TEST_CASE("The common controller applies legacy flow direction policies", "[NewtonFlowPolicy]") {
+  struct Profile {
+    const char* integers;
+    const char* doubles;
+    bool startup, deflation, automatic;
+    const char* inner = "NONE";
+  };
+  for (const auto& profile : std::vector<Profile>{{"2,1,2,0", "1,0.1,-2,1e-6,1", true, false, false},
+                                                  {"0,2,1,0", "0,0.1,0,1e-6,0.5", false, false, false},
+                                                  {"0,2,1,1", "0,0.1,0,1e-6,1", false, true, false},
+                                                  {"0,0,1,0", "0,0.1,0,1e-6,-1", false, false, true},
+                                                  {"2,1,2,0", "1,0.1,-2,1e-6,1", true, false, false, "BCGSTAB"},
+                                                  {"2,2,2,0", "1,0.1,-2,1e-6,1", true, false, false, "SMOOTHER"},
+                                                  {"0,4,1,0", "0,0.1,0,1e-6,1", false, false, false, "BCGSTAB"},
+                                                  {"0,4,1,0", "0,0.1,0,1e-6,1", false, false, false, "SMOOTHER"}}) {
+    for (bool coupled : {false, true}) {
+      CAPTURE(profile.integers, profile.doubles, profile.inner, coupled);
+      const std::string physics = coupled ? sa : "SOLVER= NAVIER_STOKES\n";
+      Problem problem(
+          physics +
+              "NEWTON_KRYLOV= YES\nCFL_NUMBER= 0.05\nLINEAR_SOLVER_PREC= ILU\n"
+              "LINEAR_SOLVER_RESTART_FREQUENCY= 20\nLINEAR_SOLVER_RESTART_DEFLATION= 5\n"
+              "BODY_FORCE= YES\nBODY_FORCE_VECTOR= 0.1,0,0\n"
+              "LINEAR_SOLVER_ITER= " +
+              (profile.automatic ? std::string("1") : std::string("40")) +
+              "\nLINEAR_SOLVER_ERROR= " + (profile.automatic ? std::string("1e-12") : std::string("0.001")) +
+              "\nLINEAR_SOLVER_INNER= " + profile.inner + "\nNEWTON_KRYLOV_IPARAM= " + profile.integers + "\nNEWTON_KRYLOV_DPARAM= " + profile.doubles + "\n",
+          5, true);
+      auto& driver = *problem.driver;
+      NonlinearGlobalization::Options<> options;
+      options.adaptiveForcing = false;
+      options.adaptCFL = false;
+      options.diagnostics = false;
+      std::vector<unsigned short> systems{RUNTIME_FLOW_SYS};
+      if (coupled) systems.push_back(RUNTIME_TURB_SYS);
+      CNewtonIntegration integration(systems, options, coupled, "flow_policy", true);
+      double priorReconstruction = 1;
+      for (unsigned iteration = 0; iteration < 4; ++iteration) {
+        driver.Config()->SetInnerIter(iteration);
+        driver.Config()->SetNewtonKrylovRelaxation(0.73);
+        integration.Iterate(driver.Geometry(), driver.Solvers(), driver.Numerics(), driver.Config());
+        INFO(integration.GetNumericalFailureMessage());
+        const auto& attempt = integration.GetLastAttempt();
+        INFO("defect=" << attempt.linearDefect << ", base=" << attempt.base << ", target=" << attempt.linearTarget);
+        REQUIRE_FALSE(integration.GetNumericalFailure());
+        CHECK(attempt.search.status == Armijo::Status::Accepted);
+        CHECK(attempt.linearDefect <= options.etaMax);
+        CHECK(attempt.startup == (profile.startup && iteration < 2));
+        CHECK(attempt.deflated == (profile.deflation && !attempt.startup));
+        if (!attempt.startup && !profile.automatic)
+          CHECK(attempt.reconstruction == (std::string(profile.doubles).find("0.5") != std::string::npos ? 0.5 : 1.0));
+        if (profile.startup && !attempt.startup) {
+          CHECK(attempt.toleranceFactor > 1);
+          CHECK(attempt.toleranceFactor <= 2);
+        }
+        if (profile.automatic && iteration > 0) CHECK(attempt.reconstruction < priorReconstruction);
+        priorReconstruction = attempt.reconstruction;
+        CHECK(SU2_TYPE::GetValue(driver.Config()->GetNewtonKrylovRelaxation()) == 0.73);
+        if (attempt.startup)
+          CHECK(attempt.linearIterations > 0);
+        else if (profile.startup || profile.deflation || std::string(profile.integers).find("0,0") != 0)
+          CHECK(attempt.preconditionerIterations > 0);
+      }
+    }
+  }
+}
+
+TEST_CASE("Newton probes preserve reconstruction iteration history", "[NewtonEquations]") {
+  Problem problem("SOLVER= NAVIER_STOKES\n", 5, true);
+  auto& driver = *problem.driver;
+  auto* flow = dynamic_cast<CFlowVariable*>(driver.Solvers()[FLOW_SOL]->GetNodes());
+  REQUIRE(flow);
+  auto& counters = flow->NonPhysicalEdgeCounter;
+  REQUIRE(counters.size() > 0);
+  for (auto e = 0ul; e < counters.size(); ++e) counters[e] = 1 + e % 3;
+  const auto saved = counters;
+  auto equations = problem.Equations({RUNTIME_FLOW_SYS});
+  REQUIRE(Residual(*equations));
+  equations->Capture();
+  auto reference = MakeVector(driver, equations->GetnVar()), actual = reference;
+  equations->CopyResidual(reference);
+  for (unsigned repeat = 0; repeat < 3; ++repeat) {
+    REQUIRE(Residual(*equations));
+    equations->CopyResidual(actual);
+    CHECK(MaxDifference(reference, actual) == 0.0);
+    for (auto e = 0ul; e < counters.size(); ++e) CHECK(counters[e] == saved[e]);
+  }
+  auto direction = MakeVector(driver, equations->GetnVar()), scale = MakeVector(driver, equations->GetnVar(), 1);
+  for (auto p = 0ul; p < driver.Geometry()->GetnPoint(); ++p)
+    direction(p, 0) = -2 * flow->GetSolution(p, 0);
+  equations->SetTrial(direction, 1, scale);
+  CHECK_FALSE(Residual(*equations));
+  REQUIRE(equations->Restore());
+  CHECK(equations->GetRestorationError() == 0.0);
+  equations->CopyResidual(actual);
+  CHECK(MaxDifference(reference, actual) == 0.0);
+  equations->CommitHistory();
+  for (auto e = 0ul; e < counters.size(); ++e) CHECK(counters[e] == saved[e] - 1);
+}
+
+TEST_CASE("Reconstructed Newton products converge independently of the requested probe size", "[NewtonLinearization]") {
+  Problem problem("SOLVER= NAVIER_STOKES\nNEWTON_KRYLOV= YES\nNEWTON_KRYLOV_IPARAM= 0,0,1,0\n", 5, true);
+  auto& driver = *problem.driver;
+  auto* config = driver.Config();
+  auto* geometry = driver.Geometry();
+  auto* solver = driver.Solvers()[FLOW_SOL];
+  auto* nodes = solver->GetNodes();
+  for (auto p = 0ul; p < geometry->GetnPoint(); ++p) {
+    const double x = geometry->nodes->GetCoord(p, 0), y = geometry->nodes->GetCoord(p, 1);
+    nodes->SetSolution(p, 0, nodes->GetSolution(p, 0) * (1 + 0.02 * std::sin(0.7 + 1.3 * x + 3.9 * y)));
+    nodes->SetSolution(p, 1, nodes->GetSolution(p, 1) * (1 + 0.015 * std::cos(0.2 + 2.1 * x + 0.9 * y)));
+    nodes->SetSolution(p, 2, 0.03 * nodes->GetSolution(p, 1) * (0.8 + 0.2 * std::sin(0.6 + x + 2.3 * y)));
+    nodes->SetSolution(p, 3, nodes->GetSolution(p, 3) * (1 + 0.01 * std::cos(0.1 + 1.7 * x + 4.1 * y)));
+  }
+  solver->Jacobian.TrackPrescribedRows();
+  auto equations = problem.Equations({RUNTIME_FLOW_SYS});
+  REQUIRE(Residual(*equations, true));
+  REQUIRE(Residual(*equations, true));
+  equations->Capture();
+  auto scale = MakeVector(driver, equations->GetnVar()), probe = scale;
+  equations->BuildScales(scale, probe);
+  auto diagonal = MakeVector(driver, equations->GetnVar());
+  auto direction = diagonal, actual = diagonal, physical = diagonal;
+  auto isFree = [&](const CNewtonEquationSet::Block& b, unsigned long p, unsigned short v) {
+    return !b.solver->Jacobian.IsPrescribedRow(p, v);
+  };
+  for (auto p = 0ul; p < geometry->GetnPoint(); ++p)
+    for (auto j = 0u; j < solver->GetnVar(); ++j)
+      if (!solver->Jacobian.IsPrescribedRow(p, j))
+        direction(p, j) = 0.01 * (1 + j) * (1 + geometry->nodes->GetCoord(p, 0) + 0.3 * geometry->nodes->GetCoord(p, 1));
+  const double stateRMS = scale.norm() / std::sqrt(geometry->GetGlobal_nPointDomain());
+  config->SetNewtonKrylovRelaxation(0.73);
+  for (double reconstruction : {1.0, 0.25}) {
+    CAPTURE(reconstruction);
+    auto evaluate = [&](double h) {
+      auto residual = MakeVector(driver, equations->GetnVar());
+      bool valid = false;
+      SU2_OMP_PARALLEL {
+        equations->SetTrial(direction, h, scale, isFree);
+        const bool result = equations->EvaluateResiduals(false, false, reconstruction);
+        SU2_OMP_MASTER
+        valid = result;
+        END_SU2_OMP_MASTER
+        equations->CopyResidual(residual);
+      }
+      END_SU2_OMP_PARALLEL
+      REQUIRE(valid);
+      return residual;
+    };
+    auto reference = [&](double h) {
+      auto positive = evaluate(h), negative = evaluate(-h);
+      for (auto i = 0ul; i < positive.GetLocSize(); ++i) positive[i] = (positive[i] - negative[i]) / (2 * h * scale[i]);
+      return positive;
+    };
+    auto centered = reference(1e-5), refined = reference(5e-6);
+    centered -= refined;
+    CHECK(centered.norm() < 1e-4 * refined.norm());
+    for (double requested : {1e-4, 1e-6}) {
+      CAPTURE(requested);
+      evaluate(0);
+      CNewtonLinearization linearization(*equations, geometry, config);
+      bool validBase = false, validProduct = false;
+      SU2_OMP_PARALLEL {
+        const bool base = linearization.SetBase(scale, diagonal, requested * stateRMS, 1e-4, isFree, &probe,
+                                                reconstruction, true, true);
+        const bool product = base && linearization.Apply(direction, actual, false);
+        SU2_OMP_MASTER {
+          validBase = base;
+          validProduct = product;
+        }
+        END_SU2_OMP_MASTER
+      }
+      END_SU2_OMP_PARALLEL
+      REQUIRE(validBase);
+      REQUIRE(validProduct);
+      auto error = actual;
+      error -= refined;
+      INFO("relative centered error=" << error.norm() / refined.norm());
+      CHECK(error.norm() < 2e-4 * refined.norm());
+      CHECK(SU2_TYPE::GetValue(config->GetNewtonKrylovRelaxation()) == 0.73);
+    }
+    if (reconstruction == 1)
+      physical = actual;
+    else {
+      actual -= physical;
+      CHECK(actual.norm() > 1e-3 * physical.norm());
+    }
+  }
+  equations->SetTrial(direction, 0, scale, isFree);
+  CNewtonLinearization unresolved(*equations, geometry, config);
+  REQUIRE(unresolved.SetBase(scale, diagonal, 1e-20, 0, isFree));
+  CHECK_FALSE(unresolved.Apply(direction, actual));
+  REQUIRE(equations->Restore());
+  CHECK(equations->GetRestorationError() == 0.0);
 }

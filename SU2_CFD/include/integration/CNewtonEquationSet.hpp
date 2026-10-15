@@ -39,6 +39,8 @@ class CNewtonEquationSet : private CIntegration {
   bool captured = false, valid = true;
   double invalidCount = 0;
   std::vector<su2double> trialFlow;
+  su2vector<int8_t>* reconstructionHistory = nullptr;
+  std::vector<int8_t> acceptedReconstruction, savedReconstruction, nextReconstruction;
 
   void RestoreSolutions();
   void SaveHistory();
@@ -144,9 +146,11 @@ class CNewtonEquationSet : private CIntegration {
   }
 
   /*! \brief Rebuild dependent coefficients and all selected physical residuals, with no pseudo-time term. */
-  bool EvaluateResiduals(bool implicit = false, bool allEquations = false);
+  bool EvaluateResiduals(bool implicit = false, bool allEquations = false, double reconstruction = 1.0);
   /*! \brief Rebuild coefficients at the captured state; retain physical-time history and saved relaxation. */
   bool Restore();
+  /*! \brief Advance reconstruction iteration history once, after accepting a flow update. */
+  void CommitHistory();
   /*! \brief Collective maximum restoration error over all dependent solutions, iteration history and relaxation. */
   double GetRestorationError();
 };

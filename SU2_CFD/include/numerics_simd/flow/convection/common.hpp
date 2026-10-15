@@ -45,6 +45,7 @@
  * \param[in] V1st - Pair of compressible flow primitives for nodes i,j.
  * \param[in] vector_ij - Distance vector from i to j.
  * \param[in] solution - Entire solution container (a derived CVariable).
+ * \param[in] updateMask - Active SIMD lanes; padded edges must not advance iteration history.
  * \param[out] nonPhysical - Signals that the edge is treated as non-physical.
  * \return Pair of primitive variables.
  */
@@ -60,6 +61,7 @@ FORCEINLINE CPair<ReconVarType> reconstructPrimitives(const Int& iEdge,
                                                       const CPair<PrimVarType>& V1st,
                                                       const VectorDbl<nDim>& vector_ij,
                                                       const VariableType& solution,
+                                                      const Double& updateMask,
                                                       Double& nonPhysical) {
   static_assert(ReconVarType::nVar <= PrimVarType::nVar);
 
@@ -114,7 +116,7 @@ FORCEINLINE CPair<ReconVarType> reconstructPrimitives(const Int& iEdge,
     nonPhysical = fmax(neg_p_or_rho, neg_sound_speed);
     /*--- Handle SIMD dimensions 1 by 1. ---*/
     for (size_t k = 0; k < Double::Size; ++k) {
-      nonPhysical[k] = solution.UpdateNonPhysicalEdgeCounter(iEdge[k], nonPhysical[k]);
+      if (updateMask[k] != 0) nonPhysical[k] = solution.UpdateNonPhysicalEdgeCounter(iEdge[k], nonPhysical[k]);
       nonPhysical[k] = fmax(nonPhysical[k],
           fmax(solution.OutlierMitigation(iPoint[k]),
                solution.OutlierMitigation(jPoint[k])) / VariableType::MAX_OUTLIER_MITIGATION);

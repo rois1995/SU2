@@ -124,7 +124,7 @@ public:
     Double nonPhysical;
     auto V = reconstructPrimitives<CCompressiblePrimitives<nDim,nPrimVarGrad> >(
         iEdge, iPoint, jPoint, gamma, gasConst, muscl, umusclKappa, umusclRamp,
-        typeLimiter, V1st, vector_ij, solution, nonPhysical);
+        typeLimiter, V1st, vector_ij, solution, updateMask, nonPhysical);
 
     /*--- Compute conservative variables. ---*/
 

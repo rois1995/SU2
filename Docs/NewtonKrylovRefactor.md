@@ -4,7 +4,9 @@ The governing specification is `HANDOFF_NEWTONKRYLOV.md` in the parent workspace
 (confirmed by the user on 2026-10-15). The work is on `feature_LineSearch`, starting
 at `5615a8f5f6e9a7bfa88f0f279e1eadb7f89fe607`. The goal is still in progress.
 SST now uses the common selected-equation controller. Production flow still uses
-a temporary legacy compatibility class until its direction policies are migrated.
+a temporary legacy compatibility class. Its direction policies are implemented in
+the common controller and tested through the native API; production selection
+and native mass/explicit-diagonal compatibility remain unfinished.
 
 ## Required final state
 
@@ -490,3 +492,60 @@ regression and the larger-fixture layout checks while migrating the remaining
 direction policies. Full converged family and
 matched conventional/segregated/coupled comparisons remain required. NEMO
 integration remains excluded.
+
+
+## Common flow direction policies (2026-10-15)
+
+The common controller now accepts the legacy flow controls explicitly. Startup
+uses the assembled native approximate operator in the same scaled coordinates as
+the main solve. Subsequent directions use FGMRES or FGCRODR, with optional nested
+native FGMRES, BCGSTAB or fixed-count smoothing in each block preconditioner.
+Startup counters, automatic reconstruction relaxation and CFL handoff advance
+only after acceptance. The existing tolerance-relaxation and physical-state
+finite-difference metric are retained. These are direction policies within the
+shared attempt/search/recovery algorithm, rather than another nonlinear solve.
+
+A relaxed Jacobian model has its own reference residual and products. Physical
+right hand sides, true defects, merit values and directional slopes always use
+full reconstruction, restoring the caller's configuration afterward. Diagnostics
+record startup/deflation, reconstruction factor, tolerance factor and nested
+native iteration counts. The main coupled operator still evaluates physical
+cross derivatives; startup deliberately uses the native block approximation.
+
+The native MUSCL fixture exposed a finite-difference truncation problem: a small
+pressure perturbation can strongly change a tangential wall limiter. Flow groups
+with reconstruction now compare successive one-sided Richardson products,
+refining at most sixteen times until relative agreement reaches 5e-4. Failure to
+establish agreement rejects the direction. At least one free coordinate must
+have a representable perturbation; a sub-machine request cannot establish a zero
+derivative. Independent centered stencils at two sizes validate smooth,
+asymmetric physical and relaxed-model states, with relative error below 2e-4
+for requested nondimensional probe sizes 1e-4 and 1e-6. Native limiter ties are
+piecewise smooth: no unique centered derivative at a branch tie is claimed.
+Refinement adds residual work, which remains included in the evaluation counters;
+performance has not been established.
+
+Reconstruction's nonphysical-edge counters are iteration history. Residual probes
+preserve them, anchored trials restore them, and accepting a flow update commits
+the candidate counters once. Gradients and slope limiters remain live trial
+quantities. Auxiliary-only updates do not advance the external flow's counters.
+The seeded-history check also found that padded SIMD lanes updated an edge twice;
+passing the active-lane mask to reconstruction fixes this native behavior.
+BCGSTAB's exact alpha step previously reported zero iterations and the initial
+residual; it now reports the completed step and its actual residual. Both issues
+have detecting before/after checks.
+
+Validation includes sixteen four-update flow/flow-SA policy trajectories,
+independent physical/model derivatives, repeated/invalid probes and exact history
+restoration. All fourteen native cases pass serially and on two ranks x two
+threads; the three new cases also pass on two ranks x four threads. The supported
+unit selection now includes the new BCGSTAB case. Four legacy production profiles
+retain identical six-iteration histories, and SST success/failure restart controls
+retain their established outcomes. This is correctness evidence for short
+trajectories, not a converged family or performance comparison.
+
+Production flow remains routed to `CNewtonLegacyIntegration` until the native
+pseudo-time/mass mappings, explicit-diagonal fallback, dispatch/CFL ownership and
+whole-group failure output are integrated. The generic API still requires native
+implicit matrices. Keep this limitation explicit when continuing production
+selection; do not treat the common-policy milestone as completion of the goal.
