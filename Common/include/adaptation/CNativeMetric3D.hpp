@@ -23,6 +23,15 @@ struct PatchMetric {
 };
 /*! Proposal only: minimise the midpoint-metric spring energy around an original vertex. */
 Point MetricMeanPoint(Point origin,const std::vector<std::pair<Point,Tensor>>& neighbors);
+struct MetricShapeLinearization {
+  std::array<double,2> residual{};
+  std::array<std::array<std::array<double,3>,4>,2> derivative{};
+};
+/*! Proposal Jacobian of q/J hinges with a 1% interior aim at one actual centroid. Optional spatial
+ * tensor derivatives are dM/dx,dM/dy,dM/dz at that centroid; null means a constant tensor.
+ * Requires positive geometry/SPD metric. Final acceptance always remeasures the actual frozen field. */
+MetricShapeLinearization LinearizeMetricShape(const Tetrahedron& tet,const Tensor& metric,
+                                            const std::array<Tensor,3>* spatial=nullptr);
 struct MetricStats {
   uint64_t patches = 0, cells = 0, edges = 0, changes = 0, failures = 0;
   uint64_t edge_evaluations = 0, edge_reused = 0;

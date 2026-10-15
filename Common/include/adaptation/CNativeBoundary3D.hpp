@@ -188,6 +188,7 @@ std::vector<Id> SplitPatchApices(const Patch& patch,Edge edge,const std::map<Id,
 struct JointSplitReport {
   size_t trials=0, geometry_rejected=0, height_rejected=0, metric_rejected=0;
   size_t connectivity_trials=0, flips=0, moves=0;
+  size_t linearizations=0, metric_probes=0, linear_iterations=0, solve_trials=0;
   Id blocked_interior_vertex=UINT64_MAX;
   double initial_loss=0, best_loss=0, best_shape_loss=0;
   Patch best;  // Geometric/height-valid private proposal, including failed shape; never an accepted mesh.
@@ -202,8 +203,10 @@ struct JointSplitReport {
 bool PlaceSplitPatch(const Patch& old,Edge edge,Node point,const std::vector<std::pair<Id,Id>>& apices,Id first_cell,
                        FrozenField& target,const PlanarReference& reference,const std::map<int,double>& heights,
                        Patch& fresh,JointSplitReport& report,std::string& reason,size_t maximum_trials=128);
+constexpr size_t MetricPatchSolveScratchBytes = MaximumReplacementCells * 8192;
 struct ConnectivityRepairReport {
   size_t trials=0, flips=0, moves=0, removals=0, coordinated=0;
+  size_t linearizations=0, metric_probes=0, linear_iterations=0, solve_trials=0, solve_rejected=0;
   size_t move_geometry_rejected=0, move_height_rejected=0, move_loss_rejected=0;
   double before_loss=0, after_loss=0;
   bool complete_shape=false;

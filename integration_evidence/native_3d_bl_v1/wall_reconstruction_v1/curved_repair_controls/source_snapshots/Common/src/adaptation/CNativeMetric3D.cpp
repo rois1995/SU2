@@ -40,6 +40,74 @@ Point MetricMeanPoint(Point origin,const std::vector<std::pair<Point,Tensor>>& n
   return result;
 }
 
+
+MetricShapeLinearization LinearizeMetricShape(const Tetrahedron& tet,const Tensor& metric,
+                                            const std::array<Tensor,3>* spatial) {
+  const auto measured=Measure(tet,metric);
+  using V=std::array<long double,3>;using M=std::array<V,3>;
+  auto dot=[](V a,V b){long double q=0;for(unsigned j=0;j<3;++j)q+=a[j]*b[j];return q;};
+  auto sub=[](V a,V b){for(unsigned j=0;j<3;++j)a[j]-=b[j];return a;};
+  auto cross=[](V a,V b){return V{a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]};};
+  auto matrix=[](Tensor m,long double scale){return M{{{{m.xx/scale,m.xy/scale,m.xz/scale}},{{m.xy/scale,m.yy/scale,m.yz/scale}},{{m.xz/scale,m.yz/scale,m.zz/scale}}}};};
+  auto apply=[&](const M& a,V v){return V{dot(a[0],v),dot(a[1],v),dot(a[2],v)};};
+  const long double scale=std::max({std::abs(metric.xx),std::abs(metric.xy),std::abs(metric.xz),std::abs(metric.yy),std::abs(metric.yz),std::abs(metric.zz)});
+  const auto m=matrix(metric,scale);M l{},inverse{};
+  for(unsigned i=0;i<3;++i)for(unsigned j=0;j<=i;++j) {
+    auto q=m[i][j];for(unsigned k=0;k<j;++k)q=std::fma(-l[i][k],l[j][k],q);
+    if(i==j){if(!(q>0))throw std::invalid_argument("Unresolved metric shape Jacobian frame.");l[i][j]=std::sqrt(q);}else l[i][j]=q/l[j][j];
+  }
+  for(unsigned column=0;column<3;++column) {
+    V y{},x{};
+    for(unsigned i=0;i<3;++i){long double q=i==column?1:0;for(unsigned k=0;k<i;++k)q-=l[i][k]*y[k];y[i]=q/l[i][i];}
+    for(int i=2;i>=0;--i){long double q=y[i];for(unsigned k=i+1;k<3;++k)q-=l[k][i]*x[k];x[i]=q/l[i][i];}
+    for(unsigned i=0;i<3;++i)inverse[i][column]=x[i];
+  }
+  long double size=0;std::array<V,4> x{};
+  for(unsigned i=0;i<4;++i) {
+    x[i]={static_cast<long double>(tet[i].x)-tet[0].x,static_cast<long double>(tet[i].y)-tet[0].y,static_cast<long double>(tet[i].z)-tet[0].z};
+    for(auto value:x[i])size=std::max(size,std::abs(value));
+  }
+  if(!(size>0))throw std::invalid_argument("Degenerate metric shape Jacobian.");
+  for(auto& v:x)for(auto& value:v)value/=size;
+  const auto det=((Orientation(tet[0],tet[1],tet[2],tet[3])/size)/size)/size;
+  if(!(det>0))throw std::invalid_argument("Metric shape Jacobian needs positive geometry.");
+  std::array<V,4> volume{{{},cross(x[2],x[3]),cross(x[3],x[1]),cross(x[1],x[2])}};
+  for(unsigned j=0;j<3;++j)volume[0][j]=-volume[1][j]-volume[2][j]-volume[3][j];
+  long double squared=0;std::array<std::array<long double,4>,4> length{};unsigned corner=0;long double smallest=INFINITY;
+  for(unsigned i=0;i<4;++i)for(unsigned j=i+1;j<4;++j) {
+    const auto e=sub(x[i],x[j]);const auto value=dot(e,apply(m,e));
+    if(!(value>0))throw std::invalid_argument("Unresolved metric shape Jacobian edge.");
+    length[i][j]=length[j][i]=value;squared+=value;
+  }
+  for(unsigned i=0;i<4;++i) {
+    long double product=1;for(unsigned j=0;j<4;++j)if(i!=j)product*=std::sqrt(length[i][j]);
+    const auto value=1/product;if(value<smallest){smallest=value;corner=i;}
+  }
+  V q_spatial{},j_spatial{};
+  if(spatial)for(unsigned axis=0;axis<3;++axis) {
+    const auto dm=matrix((*spatial)[axis],scale);long double trace=0,ds=0,dl=0;
+    for(unsigned i=0;i<3;++i)for(unsigned j=0;j<3;++j)trace+=inverse[i][j]*dm[j][i];
+    for(unsigned i=0;i<4;++i)for(unsigned j=i+1;j<4;++j){const auto e=sub(x[i],x[j]);ds+=dot(e,apply(dm,e));}
+    for(unsigned j=0;j<4;++j)if(j!=corner){const auto e=sub(x[corner],x[j]);dl+=dot(e,apply(dm,e))/length[corner][j];}
+    q_spatial[axis]=(trace/3-ds/squared)/4;j_spatial[axis]=(trace-dl)/8;
+  }
+  MetricShapeLinearization result;const auto q_goal=1.01*MinimumMeanRatio,j_goal=1.01*MinimumScaledJacobian;
+  result.residual={std::max(0.,1-measured.mean_ratio/q_goal),std::max(0.,1-measured.minimum_scaled_jacobian/j_goal)};
+  for(unsigned i=0;i<4;++i) {
+    V ds{},dl{};
+    for(unsigned j=0;j<4;++j)if(j!=i){const auto e=apply(m,sub(x[i],x[j]));for(unsigned a=0;a<3;++a)ds[a]+=2*e[a]/(size*squared);}
+    if(i==corner){for(unsigned j=0;j<4;++j)if(j!=corner){const auto e=apply(m,sub(x[corner],x[j]));for(unsigned a=0;a<3;++a)dl[a]+=e[a]/(size*length[corner][j]);}}
+    else {const auto e=apply(m,sub(x[i],x[corner]));for(unsigned a=0;a<3;++a)dl[a]=e[a]/(size*length[corner][i]);}
+    for(unsigned a=0;a<3;++a) {
+      const auto dv=volume[i][a]/(size*det);
+      if(result.residual[0]>0)result.derivative[0][i][a]=double(-measured.mean_ratio/q_goal*((2.L/3)*dv-ds[a]+q_spatial[a]));
+      if(result.residual[1]>0)result.derivative[1][i][a]=double(-measured.minimum_scaled_jacobian/j_goal*(dv-dl[a]+j_spatial[a]));
+      for(unsigned r=0;r<2;++r)if(!std::isfinite(result.derivative[r][i][a]))throw std::invalid_argument("Nonfinite metric shape Jacobian.");
+    }
+  }
+  return result;
+}
+
 namespace {
 bool Same(Point a, Point b) { return a.x == b.x && a.y == b.y && a.z == b.z; }
 void Shape(const PatchMetric& m);

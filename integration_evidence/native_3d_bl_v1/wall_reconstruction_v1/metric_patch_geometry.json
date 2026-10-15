@@ -1,0 +1,94 @@
+{
+  "status": "PASS_LOCAL_GEOMETRY_ONLY",
+  "normal_feet": [
+    {
+      "facet": 8,
+      "cell": 2000027,
+      "face": [
+        16,
+        240,
+        408
+      ],
+      "apex": 1000001,
+      "minimum_barycentric": "3660868510922357172450941508801780398433888333/14041172075766436403247278983568174351342632960",
+      "outside": false
+    },
+    {
+      "facet": 8,
+      "cell": 2000038,
+      "face": [
+        16,
+        408,
+        1000000
+      ],
+      "apex": 1000002,
+      "minimum_barycentric": "64792345725637846026913250272/779441626561985034984796293565",
+      "outside": false
+    },
+    {
+      "facet": 8,
+      "cell": 2000046,
+      "face": [
+        16,
+        1000000,
+        423
+      ],
+      "apex": 1000003,
+      "minimum_barycentric": "991581564544496403776437838315006413084050616547858923241931/3952238583016670430347427391201850074720990962841120697484905",
+      "outside": false
+    },
+    {
+      "facet": 8,
+      "cell": 2000056,
+      "face": [
+        19,
+        423,
+        20
+      ],
+      "apex": 1000004,
+      "minimum_barycentric": "3351144246907606020756746113147/12471066024991771180065515986885",
+      "outside": false
+    },
+    {
+      "facet": 8,
+      "cell": 2000066,
+      "face": [
+        20,
+        1000000,
+        408
+      ],
+      "apex": 1000005,
+      "minimum_barycentric": "27594593099095899221491361120502906480881046881/112329376606131534652733827371066436108345671680",
+      "outside": false
+    },
+    {
+      "facet": 8,
+      "cell": 2000079,
+      "face": [
+        20,
+        423,
+        1000000
+      ],
+      "apex": 1000006,
+      "minimum_barycentric": "20154502908391448313165057596041423034949952379334969659373103/63235817328266731856983733873397398487312210940342661113727865",
+      "outside": false
+    }
+  ],
+  "native_status": "PASS",
+  "old_cells": 50,
+  "new_cells": 85,
+  "wall_faces": 6,
+  "maximum_height_relative_error": 3.0531133177191805e-15,
+  "interface_faces": 29,
+  "old_volume": "604692995245319077271862411539851940665404806171/17538019647970835018444217992595396235871190515712",
+  "new_volume": "621128775935789874514764633518813231842455835675/17538019647970835018444217992595396235871190515712",
+  "input_sha256": {
+    "wall_refit_original.json": "72884234f26fe19025ebfecb2ed5f74978e5d4a4d49e04ede30dffd29e6c8d60",
+    "metric_patch_repaired.json": "86cf057c849371b4f78b681af6236215b3b3bdbf01ca6570139c9d10030be6ed"
+  },
+  "native_receipt_sha256": "042ea631d12811146ec759586b01ab57287d219018a69f364991e96743a8474f",
+  "helper_sha256": "6af7292802d094e6eb56d5a28a7141d17f1b15bd757ab4bf0243477f24192380",
+  "geometry_helper_sha256": "d587d7dea4391e6e77c118f5d15167d147b4bc40f72e811c0e6c75d3a1a2ee5e",
+  "footprint_helper_sha256": "5d068c56883bc966a332848b120e07d643a3015bae24671a366adf623d1be906",
+  "scope": "Local wall normal feet/height, exact positive volumes, oriented manifold incidence, no positive-volume pair overlap, fixed artificial interface and unchanged original donors/reference. Volume equality is required for flat caps/interior only; curved projection changes physical skin/volume. Exact normal-foot containment is reported separately from the native numerical tolerance; a tiny negative weight still fails this exact audit. Native status is separate from geometric evidence; consult the native metric rejection when present. No whole-grid completion, independent smooth-wall/full-field integration, transfer or performance qualification."
+}

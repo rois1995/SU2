@@ -1,0 +1,106 @@
+{
+  "status": "LOCAL_METRIC_PATCH_ACCEPTED_FULL_CURVED_TARGET_STILL_REJECTED",
+  "base": "cbd9066b6a32ded5907245acc08994680d2a396e",
+  "bounds": {
+    "cavity_cells": 64,
+    "replacement_cells": 128,
+    "private_trials": 256,
+    "global_work": 4096,
+    "kernel_seconds": 300,
+    "minimum_q": 0.2,
+    "minimum_J": 0.05,
+    "maximum_composed_length": 1.8,
+    "additional_solve_scratch_bytes": 1048576
+  },
+  "proposal_only_quality_aim": {
+    "q": 0.202,
+    "J": 0.0505
+  },
+  "native_cases": {
+    "metric_derivative_controls": {
+      "path": "metric_derivative_controls.json",
+      "sha256": "34cad92fe466c0fa426634efc13fc17700bd30669f0d8738a8b7d60e41cd735e",
+      "status": "PASS"
+    },
+    "curved_repair_controls": {
+      "path": "curved_repair_controls.json",
+      "sha256": "e02aa7d7a0d803c248989d60c68d5aa65904c7b067bbdea5873728c59e973866",
+      "status": "PASS"
+    },
+    "curved_metric_patch_probe": {
+      "path": "curved_metric_patch_probe.json",
+      "sha256": "042ea631d12811146ec759586b01ab57287d219018a69f364991e96743a8474f",
+      "status": "PASS"
+    },
+    "curved_metric_complete": {
+      "path": "curved_metric_complete.json",
+      "sha256": "74e24b992b111631188437dfacc3e3c6e6547301531b8275f362844a146ee0c3",
+      "status": "FAIL"
+    },
+    "curved_joint_protocol_metric_mpi2": {
+      "path": "curved_joint_protocol_metric_mpi2.json",
+      "sha256": "b51410695081fe796147622c5e282ef7e861e135ce2577ffefe3f2f9ec765994",
+      "status": "PASS"
+    },
+    "curved_metric_residual": {
+      "path": "curved_metric_residual.json",
+      "sha256": "18ee18d7b74957eb1cc18e282070a34864c741db53e3efab2cbb871c9bcb08fe",
+      "status": "PASS"
+    }
+  },
+  "full_target": {
+    "accepted": 171,
+    "cells": 1984,
+    "q": 0.20001943538739836,
+    "j": 0.05000346259887065,
+    "oversized_edges": 25,
+    "metric_linearizations": 224,
+    "metric_probes": 7740,
+    "metric_linear_iterations": 1674,
+    "metric_solve_trials": 892,
+    "initial_excess": 1.5874507614028437,
+    "remaining_excess": 0.04191851515612673,
+    "work": 3985
+  },
+  "eager_scheduling_failure": [
+    {
+      "path": "curved_metric_complete_previous_1792074913068075017.json",
+      "sha256": "5dec827394c740d14a1c82344ef7358277a791e8053eaa4b6f87fd91a4d0174c"
+    }
+  ],
+  "local_geometry": {
+    "path": "metric_patch_geometry.json",
+    "sha256": "8074cc69ed5f3e0474905d1d3e714ce022531f70ef0a5134fcde24923fe04b2d"
+  },
+  "whole_geometry": {
+    "path": "metric_grid_independent.json",
+    "sha256": "94b422241cf88bd7d84b0ef6182d11bedb78cd524c49d3b12a195a96edd8049e"
+  },
+  "residual": {
+    "path": "metric_residual_classification.json",
+    "sha256": "7217aa55ff4c293aab0bdd115eea4079fa88bddc89f7003cd8c9987115c2dafb"
+  },
+  "MPI2_protocol": {
+    "path": "joint_protocol_metric_mpi2_audit.json",
+    "sha256": "f9495cae624e02ca05088e80cb8156733fbd4bfcb65b646095b74657b2fad65a"
+  },
+  "provenance": {
+    "primitive_and_final_differences": [
+      "test_binary",
+      "saved_grid_receipt",
+      "object:/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/Common/src/libSU2AccurateSum.a.p/adaptation_CNativeEngine3D.cpp.o",
+      "Common/src/libSU2AccurateSum.a",
+      "solver_binary",
+      "saved_grid",
+      "Common/src/adaptation/CNativeEngine3D.cpp"
+    ],
+    "scope": "Primitive/Jacobian/local patch stages use the first connected binary. All exercised constructor/metric/field/test objects are unchanged; final engine restores published scheduling and removes unused layer reservation. Exact final whole-target/MPI2/residual source pins and binary agree; per-stage differing binary/input/build provenance remains explicit. No blanket claim of one binary for all stages."
+  },
+  "scope": "470 derivative assertions and five repair controls pass. Actual50\u219285-cell replacement passes native frozen changed-edge/height/q/J and independent exact local geometry/feet. Same1402-cell target reaches1984 cells/25 long edges at3985 work/time budget, still rejected. Full geometry/no overlap/98 exact normal feet/height/exported-tensor arithmetic and bounded MPI2 donor-reference preservation pass. No accepted full curved grid, cold construction/removal, currentMPI4/M<N/current+BDF/SA/CFD/restart/accuracy or performance qualification.",
+  "next": "All25 native full-length residuals are physical (13 cylinder,12 cap junction). Diagnose their actual wall reconstruction and strategy-local admission/placement; add primary-size/quality/progress and phase-cost records before the next meaningful run. Preserve original target/gates; do not equate exhausted work/time with geometric infeasibility or raise limits without evidence.",
+  "alignment": {
+    "path": "metric_alignment.json",
+    "sha256": "68448c6909ce15f354cd216cf9736300e9a7b9404da1497b417421dd2631d769",
+    "scope": "Centroid tilt and smooth clearance diagnostics on changed first-row triangulations; no orthogonality, complete-layer or viscous accuracy certificate."
+  }
+}

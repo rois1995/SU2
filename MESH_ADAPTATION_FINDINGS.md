@@ -5302,3 +5302,33 @@ robustness success. Next connected implementation is an actual-query constrained
 coupled metric-quality patch solver integrated with private reconnection; detailed
 scope/evidence/acceptance in Handbook/GOAL3_PATCH_OPTIMIZATION.md. No field/geometry/
 height/quality/budget gate may be weakened. Full Goal3 remains active.
+
+
+## Coupled actual-query metric-quality patch optimization — 2026-10-15
+
+Analytic q/J geometry derivatives plus actual-centroid spatial metric sensitivity,
+height-tangent metric frames, matrix-free damped CG and joint foot projection now
+coordinate native private points before old reconnection/movement fallback. No
+nodal target average, field/fade/quality/height/geometry/length relaxation or new
+config/dependency. Existing budgets remain;1MiB scratch admitted explicitly.
+470 finite-difference assertions and five repair controls pass. The actual50-cell
+cylinder patch reaches85 cells in15 trials (10 linearizations/540 probes/116 CG
+iterations), q .202018793/J .050247126, full frozen changed-edge Refine and exact
+local geometry/feet PASS; no point retirement. This is a valid local replacement.
+
+With published scheduling, the same1402-cell full target reaches1984 cells/25
+oversized edges (baseline38),171 accepted edits/110 insertions, remaining excess
+.041918515 at300s/3985 of4096 work; still rejected. Entire independent geometry/
+no overlap/98 exact feet/height/exported-tensor arithmetic PASS. Residual groups
+13 cylinder/12 rim/0 interior. Bounded current MPI2/source-reference audit PASS;
+no accepted full mesh, cold construction/removal/currentMPI4/M<N/current+BDF/CFD/
+restart/accuracy/performance proof. No speedup claim from unlike stopping points.
+The first eager-scheduling coupled run regresses58 edges and is archived; eager
+scheduling is withdrawn. See Handbook/GOAL3_PATCH_OPTIMIZATION.md and the verified
+coupled_metric_summary.json. All owned jobs terminal; full Goal3 remains active.
+
+First-row diagnostics are separately preserved in metric_alignment.json: maximum
+centroid tangent-offset/altitude1.523 local/3.762 full (previous full2.215), minimum
+smooth unit-cylinder clearance/altitude .99493 full. Different triangulations and
+contained normal feet do not establish column orthogonality or layer-stack/viscous
+accuracy. No alignment completion claim accompanies the shape/height certificates.

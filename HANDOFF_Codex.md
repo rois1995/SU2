@@ -1,43 +1,34 @@
 # Codex handoff — start here
 
 Repository: `/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated`.
-Branch: `codex/native-3d-bl`, based on published Goal2
-`c43a8a3907ea2655e4ebbb6286ab16c3fa625d8b`. Goal3 is ACTIVE and incomplete.
+Branch: `codex/native-3d-bl`, based on Goal2
+`c43a8a3907ea2655e4ebbb6286ab16c3fa625d8b`. Full Goal3 ACTIVE and incomplete.
 
-The current difficult target is complete curved BL generation with unchanged
-original-P1 sensors, actual-query BL/fade, first height, geometry and metric gates.
-Planar construction/removal passes on the recorded MPI1/2/4 checkpoint; curved
-local repairs and bounded protocol checks are progress, not accepted generation.
+Current connected capability is constrained coupled metric-quality optimization
+inside native private repair. Actual-query original-P1+geometric BL/fade, geometry,
+first height, quality/full lengths/dependencies/atomic publication remain strict.
+Read [the implementation, evidence and remaining blocker](Handbook/GOAL3_PATCH_OPTIMIZATION.md).
 
-Current connected work adds finite curved-feature projection, joint wall-height/
-normal-foot fitting, directed visibility closure and complete topological stars.
-The strict same1402-cell original-field target makes96 edits to1832 cells, still
-rejecting38 oversized edges at4096 work (16 cylinder/20 rim/2 interior).
+The actual hard50-cell cylinder patch now passes frozen metric/height/progress
+with85 cells in15 trials. The same1402-cell full target reaches1984 cells/25 long
+edges (previous38), still rejecting at300s/3985 of4096 work. All25 remaining edges
+are physical:13 cylinder/12 rim; none interior. This is partial generation, not
+an accepted curved adapted grid or a speedup.
 
-Current focused geometry and MPI2 protocol/donor-reference checks pass. The entire
-1832-cell result independently passes positive/no-overlap geometry,84 exact feet,
-first height and exported-tensor shape arithmetic. Its38 lengths still reject.
-The isolated rim geometry succeeds but actual shape rejects; its exact-foot audit
-also flags a7.5e-18 weight within native numerical allowance. Read
-[the connected scope and remaining reconstruction limitation](Handbook/GOAL3_CURVED_FEATURE_REPAIR.md).
-No accepted curved generation, CFD/restart/M<N/currentMPI4 or performance claim.
-All owned jobs terminal; do not restart from stale receipts.
-Read [the previous capability and boundary restriction](Handbook/GOAL3_JOINT_CONNECTIVITY.md).
-Earlier [shared-apex](Handbook/GOAL3_SHARED_APEX_REFIT.md) and
-[support-selection](Handbook/GOAL3_SUPPORT_SELECTION.md) evidence remains preserved.
+470 derivative assertions/five repair controls pass. Independent local and whole
+geometry/no overlap/98 exact wall feet/height/exported-tensor arithmetic pass;
+bounded MPI2 donor/reference protocol passes. Cold curved construction/removal,
+currentMPI4/M<N/current+BDF/SA/CFD/restart/accuracy/performance remain unqualified.
+The earlier wall-front and eager-repair scheduling failures are preserved; eager
+scheduling is withdrawn. Current final engine uses published scheduling.
 
-Inspectable current cases are below
-`integration_evidence/native_3d_bl_v1/wall_reconstruction_v1/`:
-`curved_feature_complete`, `curved_feature_residual`, `curved_rim_refit_probe`,
-`curved_feature_controls`, `topology_hint_controls`, `geometry`, and
-`curved_joint_protocol_feature_mpi2`. Earlier rejected grids remain preserved.
-A folder or RUNNING receipt alone is not evidence of a live or completed job.
-
-A wall-front/scheduling study was rejected and preserved separately. The active
-production path is restored to the published baseline. Read [the study disposition
-and next coupled patch-optimization design](Handbook/GOAL3_PATCH_OPTIMIZATION.md).
-The current local binary is from the study; rebuild before executing active source.
-All owned jobs terminal. No rejected study is a current production improvement.
+Cases under `integration_evidence/native_3d_bl_v1/wall_reconstruction_v1/`:
+`metric_derivative_controls`, `curved_repair_controls`, `curved_metric_patch_probe`,
+`curved_metric_complete`, `curved_metric_residual`,
+`curved_joint_protocol_metric_mpi2`; inspect `coupled_metric_summary.json`.
+All owned jobs terminal. Final whole/MPI2/residual source/binary pins match;
+primitive/direct-patch stages use the documented earlier engine binary with
+unchanged exercised repair/metric objects. Verify relevant provenance on reuse.
 
 Read only the relevant handbook:
 

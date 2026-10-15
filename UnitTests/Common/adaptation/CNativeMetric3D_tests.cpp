@@ -297,3 +297,39 @@ TEST_CASE("Native3D metric movement honours directional stiffness without changi
   CHECK(graded.x==Approx(1./3));CHECK(graded.y==Approx(1./3));CHECK(graded.z==Approx(30.25/32.25));
   CHECK(neighbors.back().second.zz==30.25);CHECK_THROWS(MetricMeanPoint(origin,{}));
 }
+
+TEST_CASE("Native actual-centroid q/J Jacobian matches anisotropic spatial finite differences", "[NativeMetricJacobian3D]") {
+  for(double scale:{.01,1.,100.})for(double aspect:{1.,10.,100.})for(bool varying:{false,true}) {
+    Tetrahedron tet{{{2.3*scale,-1.4*scale,.7*scale},{3.4*scale,-1.36*scale,.7*scale},
+                     {2.45*scale,-.5*scale,.7*scale},{2.43*scale,-1.18*scale,(.7+.005/aspect)*scale}}};
+    const Tensor metric{4,.6,.2*aspect,3,.3*aspect,2*aspect*aspect};
+    std::array<Tensor,3> spatial{{{0,0,0,0,0,0},{0,0,0,0,0,0},{0,0,0,0,0,0}}};
+    if(varying) {
+      spatial[0].xx=.05/scale;spatial[1].yy=.07/scale;spatial[1].xz=.03*aspect/scale;
+      spatial[2].zz=.09*aspect*aspect*aspect/scale;
+    }
+    const auto linear=LinearizeMetricShape(tet,metric,&spatial);
+    CHECK(linear.residual[0]>0);CHECK(linear.residual[1]>0);
+    for(unsigned vertex=0;vertex<4;++vertex)for(unsigned axis=0;axis<3;++axis) {
+      const double h=1e-7*scale/(axis==2?aspect:1);auto plus=tet,minus=tet;
+      std::array<double*,3> high{{&plus[vertex].x,&plus[vertex].y,&plus[vertex].z}},low{{&minus[vertex].x,&minus[vertex].y,&minus[vertex].z}};
+      *high[axis]+=h;*low[axis]-=h;
+      const std::array<double,3> original{{tet[vertex].x,tet[vertex].y,tet[vertex].z}};
+      auto sample=[&](const Tetrahedron& t,double coordinate) {
+        const auto& d=spatial[axis];const long double a=(static_cast<long double>(coordinate)-original[axis])/4;
+        const Tensor m{double(metric.xx+a*d.xx),double(metric.xy+a*d.xy),double(metric.xz+a*d.xz),
+                       double(metric.yy+a*d.yy),double(metric.yz+a*d.yz),double(metric.zz+a*d.zz)};
+        return LinearizeMetricShape(t,m).residual;
+      };
+      const auto a=sample(plus,*high[axis]),b=sample(minus,*low[axis]);
+      for(unsigned row=0;row<2;++row) {
+        const auto fd=(a[row]-b[row])/(*high[axis]-*low[axis]);
+        INFO(scale);INFO(aspect);INFO(varying);INFO(vertex);INFO(axis);INFO(row);
+        CHECK(std::abs(fd-linear.derivative[row][vertex][axis])<=3e-5*std::max(1.,std::abs(fd)));
+      }
+    }
+  }
+  auto inverted=Single().v;std::swap(inverted[0],inverted[1]);
+  CHECK_THROWS(LinearizeMetricShape({inverted[0].p,inverted[1].p,inverted[2].p,inverted[3].p},{}));
+  const auto c=Single();CHECK_THROWS(LinearizeMetricShape({c.v[0].p,c.v[1].p,c.v[2].p,c.v[3].p},{-1,0,0,1,0,1}));
+}

@@ -185,7 +185,7 @@ Node ProjectSplitPoint(Edge edge,Node point,const std::map<Id,Node>& nodes,const
     }
     const Point midpoint{double((static_cast<long double>(a.p.x)+b.p.x)/2),double((static_cast<long double>(a.p.y)+b.p.y)/2),double((static_cast<long double>(a.p.z)+b.p.z)/2)};
     const bool rounded_midpoint=curved_edge && point.p.x==midpoint.x && point.p.y==midpoint.y && point.p.z==midpoint.z;
-    bool same_chart=false;
+    bool same_chart=false,curved_feature=false;
     if(cavity) {
       Id component=UINT64_MAX;unsigned incident=0;same_chart=true;
       for(const auto& f:physical)if(Has(f.second.v,edge[0]) && Has(f.second.v,edge[1])) {
@@ -194,9 +194,10 @@ Node ProjectSplitPoint(Edge edge,Node point,const std::map<Id,Node>& nodes,const
         ++incident;
       }
       same_chart=same_chart && incident==2;
+      curved_feature=curved_edge && incident==2 && !same_chart;
     }
-    // A cavity fan certifies its oriented border; a rounded insertion need not remain on the old interior diagonal.
-    if (nodes.count(point.id) || (!rounded_midpoint && !same_chart && !OnEdge(a.p, b.p, point.p, stats)) ||
+    // Same-chart fans certify their border; a curved feature instead certifies its finite projected parameter.
+    if (nodes.count(point.id) || (!rounded_midpoint && !same_chart && !curved_feature && !OnEdge(a.p, b.p, point.p, stats)) ||
         (point.p.x == a.p.x && point.p.y == a.p.y && point.p.z == a.p.z) ||
         (point.p.x == b.p.x && point.p.y == b.p.y && point.p.z == b.p.z))
       throw std::invalid_argument("Native 3D split point is not a distinct exact on-edge point.");
@@ -204,9 +205,14 @@ Node ProjectSplitPoint(Edge edge,Node point,const std::map<Id,Node>& nodes,const
       if(Has(f.second.v,edge[0]) && Has(f.second.v,edge[1]) && reference.Analytic().count(f.second.facet) &&
          (reference.Analytic().at(f.second.facet).kind==AnalyticSurface::Kind::Disk)==(pass==0))
         point.p=reference.Project(f.second.facet,point.p,stats);
-    for (const auto& f : physical)
-      if (Has(f.second.v,edge[0]) && Has(f.second.v,edge[1]) && !reference.Contains(f.second.facet,point.p,stats))
+    for (const auto& f : physical)if(Has(f.second.v,edge[0]) && Has(f.second.v,edge[1])) {
+      if(!reference.Contains(f.second.facet,point.p,stats))
         throw std::invalid_argument("Native3D projected split leaves an incident physical feature.");
+      const auto geometry=reference.Analytic().find(f.second.facet);
+      if(curved_feature && geometry!=reference.Analytic().end() && geometry->second.kind!=AnalyticSurface::Kind::Disk &&
+         !reference.OnProjectedEdge(f.second.facet,a.p,b.p,point.p,stats))
+        throw std::invalid_argument("Native3D projected split leaves the finite curved feature parameter.");
+    }
   return point;
 }
 Node ProjectMovePoint(Id vertex,Node point,const Skin& skin,const Physical& physical,
@@ -1215,9 +1221,14 @@ bool SplitSurfaceStrip(const Patch& old,Edge edge,Node point,const std::vector<s
     if(incident!=0 && incident!=2)throw std::invalid_argument("Native3D strip split needs a complete interior or physical boundary edge.");
     const auto a=nodes.at(edge[0]).p,b=nodes.at(edge[1]).p;
     const Point midpoint{double(((long double)a.x+b.x)/2),double(((long double)a.y+b.y)/2),double(((long double)a.z+b.z)/2)};
-    if(curved && moves.empty() && point.p.x==midpoint.x && point.p.y==midpoint.y && point.p.z==midpoint.z) {
-      // A midpoint may cross analytic charts/markers only when every authority agrees on the projected feature.
-      point=ProjectSplitPoint(edge,point,nodes,physical,reference,stats);
+    bool interior_moves=true,feature=false;
+    for(const auto& row:physical) {
+      for(Id id:row.second.v)interior_moves=interior_moves && !replacement.count(id);
+      if(Has(row.second.v,edge[0]) && Has(row.second.v,edge[1]))feature=feature || row.second.facet!=facet;
+    }
+    if(curved && interior_moves && (feature || (point.p.x==midpoint.x && point.p.y==midpoint.y && point.p.z==midpoint.z))) {
+      // Interior support motion does not change a physical feature or its authoritative projection.
+      point=ProjectSplitPoint(edge,point,nodes,physical,reference,stats,feature);
     } else if(curved) {
       for(const auto& row:physical)if(Has(row.second.v,edge[0]) && Has(row.second.v,edge[1]) && row.second.facet!=facet)
         throw std::invalid_argument("Native3D off-edge strip split crosses a chart or marker junction.");
@@ -1417,6 +1428,8 @@ bool PlaceSplitPatch(const Patch& old,Edge edge,Node point,const std::vector<std
           maximum_trials-report.trials,false,&movable);
       report.trials+=connectivity.trials;report.connectivity_trials=connectivity.trials;
       report.flips=connectivity.flips;report.moves=connectivity.moves;
+      report.linearizations=connectivity.linearizations;report.metric_probes=connectivity.metric_probes;
+      report.linear_iterations=connectivity.linear_iterations;report.solve_trials=connectivity.solve_trials;
       report.blocked_interior_vertex=connectivity.blocked_interior_vertex;
       if(progress) {
         for(const auto& apex:apices) {
@@ -1438,43 +1451,135 @@ bool PlaceSplitPatch(const Patch& old,Edge edge,Node point,const std::vector<std
     reason="Native3D joint placement/reconnection exhausted its shared trial budget without frozen metric progress: "+reason;return false;
   }catch(const std::exception& e){reason=e.what();return false;}
 }
+namespace {
+struct FootPlane { std::array<Point,3> p; Vector normal; long double area; };
+Point FitNormalFeet(Point origin,const std::array<Vector,3>& constrained,size_t rank,
+                    const std::vector<FootPlane>& planes) {
+  std::array<Vector,2> free{};size_t dimensions=0;
+  for(unsigned axis=0;axis<3 && dimensions<3-rank;++axis) {
+    Vector v{};v[axis]=1;
+    for(unsigned pass=0;pass<2;++pass) {
+      for(size_t k=0;k<rank;++k){const auto c=Dot(v,constrained[k]);for(unsigned j=0;j<3;++j)v[j]-=c*constrained[k][j];}
+      for(size_t k=0;k<dimensions;++k){const auto c=Dot(v,free[k]);for(unsigned j=0;j<3;++j)v[j]-=c*free[k][j];}
+    }
+    const auto norm=Norm(v);if(norm>64*std::numeric_limits<long double>::epsilon()) {
+      for(auto& x:v)x/=norm;free[dimensions++]=v;
+    }
+  }
+  struct Bound { std::array<long double,2> gradient{};long double value=0; };
+  std::vector<Bound> bounds;bool inside=true;
+  for(const auto& plane:planes)for(unsigned j=0;j<3;++j) {
+    const auto u=Delta(plane.p[(j+1)%3],origin),v=Delta(plane.p[(j+2)%3],origin);
+    const auto tolerance=256*std::numeric_limits<long double>::epsilon()*std::max(1.L,Norm(u)*Norm(v)/plane.area);
+    if(!std::isfinite(tolerance) || tolerance>1e-8L)throw std::invalid_argument("Native3D wall-foot fit cannot resolve its footprint.");
+    Bound bound;bound.value=Dot(Cross(u,v),plane.normal)/plane.area+tolerance;
+    const auto gradient=Cross(Delta(plane.p[(j+1)%3],plane.p[(j+2)%3]),plane.normal);
+    for(size_t k=0;k<dimensions;++k)bound.gradient[k]=Dot(gradient,free[k])/plane.area;
+    inside=inside && bound.value>=0;bounds.push_back(bound);
+  }
+  if(inside)return origin;
+  if(!dimensions)throw std::invalid_argument("Native3D retained height planes leave no normal-foot freedom.");
+  using Q=std::array<long double,2>;std::vector<Q> polygon;
+  for(auto p:planes.front().p) {
+    Q q{};for(size_t k=0;k<dimensions;++k)q[k]=Dot(Delta(p,origin),free[k]);polygon.push_back(q);
+  }
+  if(dimensions==1) {
+    const auto ends=std::minmax_element(polygon.begin(),polygon.end(),[](Q a,Q b){return a[0]<b[0];});
+    polygon={*ends.first,*ends.second};
+  }
+  for(const auto& bound:bounds) {
+    std::vector<Q> clipped;
+    for(size_t i=0;i<polygon.size();++i) {
+      const auto a=polygon[i],b=polygon[(i+1)%polygon.size()];
+      const auto x=bound.value+bound.gradient[0]*a[0]+bound.gradient[1]*a[1];
+      const auto y=bound.value+bound.gradient[0]*b[0]+bound.gradient[1]*b[1];
+      if(x>=0)clipped.push_back(a);
+      if((x>=0)!=(y>=0)) {const auto t=x/(x-y);clipped.push_back({a[0]+t*(b[0]-a[0]),a[1]+t*(b[1]-a[1])});}
+    }
+    polygon=std::move(clipped);if(polygon.empty())throw std::invalid_argument("Native3D retained height/normal-foot constraints have no common fit.");
+  }
+  auto square=[](Q q){return q[0]*q[0]+q[1]*q[1];};Q best=polygon.front(),center{};
+  for(size_t i=0;i<polygon.size();++i) {
+    const auto a=polygon[i],b=polygon[(i+1)%polygon.size()];Q edge{b[0]-a[0],b[1]-a[1]};
+    const auto norm=square(edge);const auto t=norm>0?std::clamp(-(a[0]*edge[0]+a[1]*edge[1])/norm,0.L,1.L):0.L;
+    const Q candidate{a[0]+t*edge[0],a[1]+t*edge[1]};if(square(candidate)<square(best))best=candidate;
+    for(unsigned j=0;j<2;++j)center[j]+=a[j]/polygon.size();
+  }
+  // A convex inward displacement avoids rounding a closest boundary fit outside the same closed footprint.
+  for(unsigned j=0;j<2;++j)best[j]+=64*std::numeric_limits<double>::epsilon()*(center[j]-best[j]);
+  Vector displacement{};for(size_t k=0;k<dimensions;++k)for(unsigned j=0;j<3;++j)displacement[j]+=best[k]*free[k][j];
+  return {double(origin.x+displacement[0]),double(origin.y+displacement[1]),double(origin.z+displacement[2])};
+}
+void RestorePatchPoints(Patch& proposal,const std::map<Id,Node>& wanted,Id first,std::string& reason,KernelStats* stats) {
+  for(const auto& row:wanted) {
+    const auto current=Nodes(proposal.cells);if(current.count(row.first))continue;
+    const auto coincident=std::find_if(current.begin(),current.end(),[&](const auto& n) {
+      return n.second.p.x==row.second.p.x && n.second.p.y==row.second.p.y && n.second.p.z==row.second.p.z;
+    });
+    if(coincident!=current.end()) {
+      for(auto& c:proposal.cells)for(auto& n:c.v)if(n.id==coincident->first)n=row.second;
+      for(auto& f:proposal.surface)for(auto& id:f.v)if(id==coincident->first)id=row.first;
+      continue;
+    }
+    std::vector<Cell> region;
+    for(const auto& c:proposal.cells) {
+      const auto volume=Orientation(c.v[0].p,c.v[1].p,c.v[2].p,c.v[3].p,stats);bool contains=true;
+      for(unsigned k=0;k<4;++k) {
+        auto v=c.v;v[k]=row.second;
+        contains=contains && Orientation(v[0].p,v[1].p,v[2].p,v[3].p,stats)>=-64*std::numeric_limits<double>::epsilon()*volume;
+      }
+      if(contains)region.push_back(c);
+    }
+    if(region.empty())throw std::invalid_argument("Native3D wall reconstruction lost interior point "+std::to_string(row.first));
+    std::vector<Cell> children;if(!Cone(region,row.second,first,children,reason,stats))throw std::invalid_argument(reason);
+    proposal.cells.erase(std::remove_if(proposal.cells.begin(),proposal.cells.end(),[&](const auto& c) {
+      return std::any_of(region.begin(),region.end(),[&](const auto& r){return r.id==c.id;});
+    }),proposal.cells.end());
+    proposal.cells.insert(proposal.cells.end(),children.begin(),children.end());
+    if(proposal.cells.size()>MaximumReplacementCells || first>UINT64_MAX-(proposal.cells.size()-1))
+      throw std::invalid_argument("Native3D wall point restoration exceeds replacement/identity budget.");
+    for(size_t k=0;k<proposal.cells.size();++k)proposal.cells[k].id=first+k;
+  }
+}
+}  // namespace
 bool RefitWallSplit(const Patch& old,Edge edge,Node point,Id first_apex,Id first,
                     const std::map<int,double>& heights,const PlanarReference& reference,
-                    Patch& fresh,std::string& reason,KernelStats* stats) {
+                    Patch& fresh,Feature& obstruction,std::string& reason,KernelStats* stats) {
+  obstruction={};
   try {
     Bounds(old);Endpoints(edge);FirstHeightReport height;
+    const Incidence index(old.cells,stats);const auto old_skin=index.Boundary();
+    ValidateSurfaceTopology(old_skin,true,4*MaximumReplacementCells,&obstruction);
     if(heights.empty() || !CheckFirstHeight(old,heights,reference,height,reason,stats))
       throw std::invalid_argument("Native3D wall refit needs an admissible prescribed-height input: "+reason);
-    const Incidence index(old.cells,stats);const auto skin=index.Boundary();std::set<Id> apices;
+    std::set<Id> apices;
     for(const auto& face:old.surface)if(Has(face.v,edge[0]) && Has(face.v,edge[1]) && heights.count(reference.Get(face.facet).marker))
       for(const auto& c:old.cells) {
         unsigned count=0;Id apex=0;for(auto n:c.v)if(Has(face.v,n.id))++count;else apex=n.id;
         if(count==3)apices.insert(apex);
       }
     if(apices.empty())throw std::invalid_argument("Native3D wall refit needs a requested physical wall edge.");
-    for(Id id:apices)for(auto face:skin)if(Has(face,id))
-      throw std::invalid_argument("Native3D wall refit needs complete free apex stars.");
-    Patch split;
-    if(!SplitSurfaceStrip(old,edge,point,{},first,reference,split,reason,stats))throw std::invalid_argument(reason);
+    for(Id id:apices)for(auto face:old_skin)if(Has(face,id))throw std::invalid_argument("Native3D wall refit needs complete free apex stars.");
+    Patch split;if(!SplitSurfaceStrip(old,edge,point,{},first,reference,split,reason,stats))throw std::invalid_argument(reason);
+    const auto skin=SkinMap(Incidence(split.cells,stats).Boundary());const auto physical=CheckSurface(split,skin,reference,stats);
     const auto nodes=Nodes(split.cells);std::vector<std::pair<Id,Node>> moves;size_t slot=0;
     for(Id id:apices) {
-      const auto origin=nodes.at(id).p;std::array<Vector,3> basis{};std::array<long double,3> offset{};size_t rank=0,planes=0;
+      const auto origin=nodes.at(id).p;std::array<Vector,3> basis{};std::array<long double,3> offset{};size_t rank=0;
+      std::vector<FootPlane> planes;
       for(const auto& face:split.surface) {
-        const auto h=heights.find(reference.Get(face.facet).marker);if(h==heights.end())continue;
-        bool owns=false;
+        const auto h=heights.find(reference.Get(face.facet).marker);if(h==heights.end())continue;bool owns=false;
         for(const auto& c:split.cells) {
           unsigned count=0;bool vertex=false;for(auto n:c.v){count+=Has(face.v,n.id);vertex=vertex || n.id==id;}
           owns=owns || (count==3 && vertex && !Has(face.v,id));
         }
-        if(!owns)continue;++planes;
-        const auto a=nodes.at(face.v[0]).p,b=nodes.at(face.v[1]).p,c=nodes.at(face.v[2]).p;
-        auto normal=Cross(Delta(b,a),Delta(c,a));const auto area=Norm(normal);
-        if(!(area>0))throw std::invalid_argument("Native3D wall refit has a degenerate height plane.");
-        for(auto& x:normal)x/=area;
-        auto value=Dot(normal,Delta(a,origin))-h->second;
+        if(!owns)continue;
+        FootPlane plane;for(unsigned k=0;k<3;++k)plane.p[k]=nodes.at(face.v[k]).p;
+        plane.normal=Cross(Delta(plane.p[1],plane.p[0]),Delta(plane.p[2],plane.p[0]));plane.area=Norm(plane.normal);
+        if(!(plane.area>0))throw std::invalid_argument("Native3D wall refit has a degenerate height plane.");
+        for(auto& x:plane.normal)x/=plane.area;planes.push_back(plane);auto normal=plane.normal;
+        auto value=Dot(normal,Delta(plane.p[0],origin))-h->second;
         for(unsigned pass=0;pass<2;++pass)for(size_t k=0;k<rank;++k) {
-          const auto component=Dot(normal,basis[k]);value-=component*offset[k];
-          for(unsigned j=0;j<3;++j)normal[j]-=component*basis[k][j];
+          const auto component=Dot(normal,basis[k]);value-=component*offset[k];for(unsigned j=0;j<3;++j)normal[j]-=component*basis[k][j];
         }
         const auto independent=Norm(normal);
         if(rank<3 && independent>64*std::numeric_limits<long double>::epsilon()) {
@@ -1482,18 +1587,42 @@ bool RefitWallSplit(const Patch& old,Edge edge,Node point,Id first_apex,Id first
         } else if(std::abs(value)>1e-12L*h->second)
           throw std::invalid_argument("Native3D retained apex has incompatible height planes; different connectivity is required.");
       }
-      if(!planes)throw std::invalid_argument("Native3D wall refit loses a height dependency.");
+      if(planes.empty())throw std::invalid_argument("Native3D wall refit loses a height dependency.");
       Vector displacement{};for(size_t k=0;k<rank;++k)for(unsigned j=0;j<3;++j)displacement[j]+=offset[k]*basis[k][j];
-      const Point p{double(origin.x+displacement[0]),double(origin.y+displacement[1]),double(origin.z+displacement[2])};
-      if(first_apex>UINT64_MAX-slot || nodes.count(first_apex+slot))
-        throw std::invalid_argument("Native3D wall refit exceeds reserved apex identities.");
-      if(p.x!=origin.x || p.y!=origin.y || p.z!=origin.z)moves.emplace_back(id,Node{first_apex+slot,p});
-      ++slot;
+      const auto p=FitNormalFeet({double(origin.x+displacement[0]),double(origin.y+displacement[1]),double(origin.z+displacement[2])},basis,rank,planes);
+      if(first_apex>UINT64_MAX-slot || nodes.count(first_apex+slot))throw std::invalid_argument("Native3D wall refit exceeds reserved apex identities.");
+      if(p.x!=origin.x || p.y!=origin.y || p.z!=origin.z)moves.emplace_back(id,Node{first_apex+slot,p});++slot;
     }
-    // Closest affine fits preserve tangent freedom; an outside foot rejects and other reconstruction paths remain available.
-    Patch proposal;
-    if(!SplitSurfaceStrip(old,edge,point,moves,first,reference,proposal,reason,stats) ||
-       !CheckFirstHeight(proposal,heights,reference,height,reason,stats))throw std::invalid_argument(reason);
+    Patch proposal=split;
+    for(const auto& move:moves) {
+      auto wanted=Nodes(proposal.cells);wanted.erase(move.first);const auto current=Nodes(proposal.cells);const Incidence global(proposal.cells,stats);
+      std::set<Id> region_ids;for(const auto& c:proposal.cells)if(std::any_of(c.v.begin(),c.v.end(),[&](Node n){return n.id==move.first;}))region_ids.insert(c.id);
+      if(region_ids.empty())throw std::invalid_argument("Native3D wall refit loses its moving vertex star.");
+      std::vector<Cell> region;
+      for(;;) {
+        region.clear();for(const auto& c:proposal.cells)if(region_ids.count(c.id))region.push_back(c);
+        if(region.size()>MaximumCavityCells)throw std::invalid_argument("Native3D wall refit visibility exceeds the cone input budget.");
+        Id neighbor=UINT64_MAX;
+        for(auto face:Incidence(region,stats).Boundary()) {
+          if(Orientation(move.second.p,current.at(face[0]).p,current.at(face[1]).p,current.at(face[2]).p,stats)>0)continue;
+          const auto adjacent=global.FaceCells(face);const auto outside=std::find_if(adjacent.begin(),adjacent.end(),[&](Id id){return !region_ids.count(id);});
+          if(outside==adjacent.end()) {
+            if(!physical.count(Key(face)))obstruction={face,3};
+            throw std::invalid_argument("Native3D wall-foot fit needs visibility across an admitted interface.");
+          }
+          neighbor=*outside;break;
+        }
+        if(neighbor==UINT64_MAX)break;region_ids.insert(neighbor);
+      }
+      std::vector<Cell> children;if(!Cone(region,move.second,first,children,reason,stats))throw std::invalid_argument(reason);
+      proposal.cells.erase(std::remove_if(proposal.cells.begin(),proposal.cells.end(),[&](const auto& c){return region_ids.count(c.id);}),proposal.cells.end());
+      proposal.cells.insert(proposal.cells.end(),children.begin(),children.end());
+      if(proposal.cells.size()>MaximumReplacementCells || first>UINT64_MAX-(proposal.cells.size()-1))throw std::invalid_argument("Native3D wall refit exceeds replacement/identity budget.");
+      for(size_t k=0;k<proposal.cells.size();++k)proposal.cells[k].id=first+k;
+      RestorePatchPoints(proposal,wanted,first,reason,stats);
+    }
+    proposal.surface.clear();Finish(old,proposal,skin,physical,reference,stats);
+    if(!CheckFirstHeight(proposal,heights,reference,height,reason,stats))throw std::invalid_argument(reason);
     fresh=std::move(proposal);reason.clear();return true;
   }catch(const std::exception& e){reason=e.what();return false;}
 }
@@ -1729,40 +1858,7 @@ bool ReconstructSplitPatch(const Patch& old,Edge edge,Node point,Node interior,c
       if(!ConstructFirstLayer(proposal,{interior.id+1,interior.p},interior.id+2,first,heights,reference,layer,report,reason,stats))
         throw std::invalid_argument(reason);
       proposal=std::move(layer);
-      std::set<Id> interface;
-      for(const auto& face:index.Boundary())interface.insert(face.begin(),face.end());
-      // Preserve existing interior resolution; all intermediate reconnections stay private.
-      for(const auto& row:nodes)if(!interface.count(row.first)) {
-        const auto current=Nodes(proposal.cells);if(current.count(row.first))continue;
-        const auto coincident=std::find_if(current.begin(),current.end(),[&](const auto& n) {
-          return n.second.p.x==row.second.p.x && n.second.p.y==row.second.p.y && n.second.p.z==row.second.p.z;
-        });
-        if(coincident!=current.end()) {
-          for(auto& c:proposal.cells)for(auto& n:c.v)if(n.id==coincident->first)n=row.second;
-          for(auto& f:proposal.surface)for(auto& id:f.v)if(id==coincident->first)id=row.first;
-          continue;
-        }
-        std::vector<Cell> region;
-        for(const auto& c:proposal.cells) {
-          const auto volume=Orientation(c.v[0].p,c.v[1].p,c.v[2].p,c.v[3].p,stats);bool contains=true;
-          for(unsigned k=0;k<4;++k) {
-            auto v=c.v;v[k]=row.second;
-            // Admission only: include near-coincident face/edge stars; Cone still requires strict positivity.
-            contains=contains && Orientation(v[0].p,v[1].p,v[2].p,v[3].p,stats)>=-64*std::numeric_limits<double>::epsilon()*volume;
-          }
-          if(contains)region.push_back(c);
-        }
-        if(region.empty())throw std::invalid_argument("Native3D joint wall lost interior point "+std::to_string(row.first));
-        std::vector<Cell> children;
-        if(!Cone(region,row.second,first,children,reason,stats))throw std::invalid_argument(reason);
-        proposal.cells.erase(std::remove_if(proposal.cells.begin(),proposal.cells.end(),[&](const auto& c) {
-          return std::any_of(region.begin(),region.end(),[&](const auto& r){return r.id==c.id;});
-        }),proposal.cells.end());
-        proposal.cells.insert(proposal.cells.end(),children.begin(),children.end());
-        if(proposal.cells.size()>MaximumReplacementCells)throw std::invalid_argument("Native3D joint wall point restoration exceeds replacement budget.");
-        if(first>UINT64_MAX-(proposal.cells.size()-1))throw std::invalid_argument("Native3D joint wall cell identities overflow.");
-        for(size_t k=0;k<proposal.cells.size();++k)proposal.cells[k].id=first+k;
-      }
+      RestorePatchPoints(proposal,nodes,first,reason,stats);
       proposal.surface.clear();
       Finish(old,proposal,skin,physical,reference,stats);
       if(!CheckFirstHeight(proposal,heights,reference,report,reason,stats))throw std::invalid_argument(reason);
@@ -1770,6 +1866,141 @@ bool ReconstructSplitPatch(const Patch& old,Edge edge,Node point,Node interior,c
     fresh.cells.swap(proposal.cells);fresh.surface.swap(proposal.surface);reason.clear();return true;
   }catch(const std::exception& e){if(wallObstruction!=Face{})obstruction=wallObstruction;reason=e.what();return false;}
 }
+
+namespace {
+std::map<Id,Vector> CoupledMetricDirection(const Patch& patch,FrozenField& target,
+    const std::map<int,double>& heights,const PlanarReference& reference,const std::set<Id>& fixed,
+    const std::set<Id>& active,ConnectivityRepairReport& report) {
+  struct Frame {
+    size_t first=0,count=0,rank=0;std::array<Vector,3> basis{},constraint{};std::vector<FootPlane> feet;Tensor metric;
+  };
+  struct Row { std::array<std::pair<size_t,long double>,12> entry{};size_t count=0;long double residual=0; };
+  const auto nodes=Nodes(patch.cells);std::map<Id,Frame> frames;size_t count=0;long double span=0;
+  for(const auto& row:nodes)span=std::max(span,Norm(Delta(row.second.p,nodes.begin()->second.p)));
+  if(!(span>0))return {};
+  std::map<Id,std::vector<FootPlane>> feet;
+  for(const auto& face:patch.surface)if(heights.count(reference.Get(face.facet).marker)) {
+    FootPlane plane;for(unsigned j=0;j<3;++j)plane.p[j]=nodes.at(face.v[j]).p;
+    plane.normal=Cross(Delta(plane.p[1],plane.p[0]),Delta(plane.p[2],plane.p[0]));plane.area=Norm(plane.normal);
+    for(auto& x:plane.normal)x/=plane.area;
+    for(const auto& c:patch.cells) {
+      unsigned matches=0;Id apex=0;for(auto n:c.v){matches+=Has(face.v,n.id);if(!Has(face.v,n.id))apex=n.id;}
+      if(matches==3)feet[apex].push_back(plane);
+    }
+  }
+  auto metricDot=[](Tensor m,Vector a,Vector b) {
+    return a[0]*(m.xx*b[0]+m.xy*b[1]+m.xz*b[2])+a[1]*(m.xy*b[0]+m.yy*b[1]+m.yz*b[2])+a[2]*(m.xz*b[0]+m.yz*b[1]+m.zz*b[2]);
+  };
+  for(const auto& row:nodes)if(!fixed.count(row.first)) {
+    Frame frame;frame.first=count;std::array<Vector,3> tangent{};const auto origin=row.second.p;
+    for(unsigned axis=0;axis<3;++axis) {
+      auto p=origin;if(axis==0)p.x=double(p.x+span);else if(axis==1)p.y=double(p.y+span);else p.z=double(p.z+span);
+      auto v=Delta(ConstrainMovePoint(patch,row.first,{row.first,p},heights,reference).p,origin);
+      for(unsigned pass=0;pass<2;++pass)for(size_t k=0;k<frame.count;++k) {
+        const auto q=Dot(v,tangent[k]);for(unsigned j=0;j<3;++j)v[j]-=q*tangent[k][j];
+      }
+      const auto norm=Norm(v);if(norm<=256*std::numeric_limits<double>::epsilon()*span)continue;
+      for(auto& x:v)x/=norm;tangent[frame.count++]=v;
+    }
+    if(!frame.count)continue;
+    for(unsigned axis=0;axis<3 && frame.rank<3-frame.count;++axis) {
+      Vector normal{};normal[axis]=1;
+      for(unsigned pass=0;pass<2;++pass) {
+        for(size_t k=0;k<frame.count;++k){const auto q=Dot(normal,tangent[k]);for(unsigned a=0;a<3;++a)normal[a]-=q*tangent[k][a];}
+        for(size_t k=0;k<frame.rank;++k){const auto q=Dot(normal,frame.constraint[k]);for(unsigned a=0;a<3;++a)normal[a]-=q*frame.constraint[k][a];}
+      }
+      const auto norm=Norm(normal);if(norm>256*std::numeric_limits<double>::epsilon()){for(auto& x:normal)x/=norm;frame.constraint[frame.rank++]=normal;}
+    }
+    if(frame.rank!=3-frame.count)throw std::invalid_argument("Unresolved wall tangent complement.");
+    frame.feet=feet[row.first];const auto metric=target.Query(origin).target;frame.metric=metric;
+    for(size_t k=0;k<frame.count;++k) {
+      auto v=tangent[k];for(unsigned pass=0;pass<2;++pass)for(size_t j=0;j<k;++j) {
+        const auto q=metricDot(metric,v,frame.basis[j]);for(unsigned a=0;a<3;++a)v[a]-=q*frame.basis[j][a];
+      }
+      const auto norm=std::sqrt(metricDot(metric,v,v));if(!(norm>0) || !std::isfinite(norm))throw std::invalid_argument("Unresolved constrained metric solve frame.");
+      for(auto& x:v)x/=norm;frame.basis[k]=v;
+    }
+    count+=frame.count;frames.emplace(row.first,frame);
+  }
+  if(!count)return {};
+  if(count>12*MaximumReplacementCells)throw std::invalid_argument("Native3D metric solve exceeds bounded variables.");
+  ++report.linearizations;std::vector<Row> rows;rows.reserve(2*patch.cells.size());
+  for(const auto& cell:patch.cells)if(active.count(cell.id) && std::any_of(cell.v.begin(),cell.v.end(),[&](Node n){return frames.count(n.id);})) {
+    const auto center=Centroid(cell);const auto metric=target.Query(center).target;
+    const auto volume=Orientation(cell.v[0].p,cell.v[1].p,cell.v[2].p,cell.v[3].p);
+    long double altitude=INFINITY;
+    for(unsigned opposite=0;opposite<4;++opposite) {
+      std::array<Point,3> f{};unsigned at=0;for(unsigned k=0;k<4;++k)if(k!=opposite)f[at++]=cell.v[k].p;
+      altitude=std::min(altitude,volume/Norm(Cross(Delta(f[1],f[0]),Delta(f[2],f[0]))));
+    }
+    std::array<Tensor,3> spatial{};
+    for(unsigned axis=0;axis<3;++axis) {
+      const auto value=axis==0?center.x:axis==1?center.y:center.z;
+      const auto diagonal=axis==0?metric.xx:axis==1?metric.yy:metric.zz;
+      const auto step=std::min(altitude/16,std::cbrt(std::numeric_limits<double>::epsilon())/std::sqrt(static_cast<long double>(diagonal)));
+      if(!(step>8*std::numeric_limits<double>::epsilon()*std::max(span,std::abs(static_cast<long double>(value)))))
+        throw std::invalid_argument("Native3D metric sensitivity step is not representable.");
+      auto plus=center,minus=center;double high=double(value+step),low=double(value-step);
+      if(axis==0){plus.x=high;minus.x=low;}else if(axis==1){plus.y=high;minus.y=low;}else{plus.z=high;minus.z=low;}
+      ++report.metric_probes;const auto a=target.Query(plus).target;
+      ++report.metric_probes;const auto b=target.Query(minus).target;
+      const long double inverse=1/(static_cast<long double>(high)-low);
+      spatial[axis]={double((a.xx-b.xx)*inverse),double((a.xy-b.xy)*inverse),double((a.xz-b.xz)*inverse),double((a.yy-b.yy)*inverse),double((a.yz-b.yz)*inverse),double((a.zz-b.zz)*inverse)};
+    }
+    const auto linear=LinearizeMetricShape({cell.v[0].p,cell.v[1].p,cell.v[2].p,cell.v[3].p},metric,&spatial);
+    for(unsigned r=0;r<2;++r)if(linear.residual[r]>0) {
+      Row row;row.residual=linear.residual[r];
+      for(unsigned k=0;k<4;++k) {
+        const auto found=frames.find(cell.v[k].id);if(found==frames.end())continue;const auto& frame=found->second;
+        const auto& d=linear.derivative[r][k];const Vector gradient{d[0],d[1],d[2]};
+        for(size_t j=0;j<frame.count;++j)row.entry[row.count++]={frame.first+j,Dot(gradient,frame.basis[j])};
+      }
+      rows.push_back(row);
+    }
+  }
+  std::vector<long double> diagonal(count),gradient(count),step(count),residual(count),z(count),direction(count),product(count);
+  for(const auto& row:rows)for(size_t k=0;k<row.count;++k) {
+    const auto e=row.entry[k];diagonal[e.first]+=e.second*e.second;gradient[e.first]+=e.second*row.residual;
+  }
+  const auto maximum=*std::max_element(diagonal.begin(),diagonal.end());if(!(maximum>0))return {};
+  auto regularizer=[&](size_t i){return 1e-3L*(diagonal[i]+maximum*1e-12L);};
+  auto dot=[](const auto& a,const auto& b){long double result=0;for(size_t i=0;i<a.size();++i)result+=a[i]*b[i];return result;};
+  for(size_t i=0;i<count;++i){residual[i]=-gradient[i];z[i]=residual[i]/(diagonal[i]+regularizer(i));direction[i]=z[i];}
+  auto rz=dot(residual,z);const auto initial=dot(residual,residual);if(!(initial>0))return {};
+  for(size_t iteration=0;iteration<count;++iteration) {
+    for(size_t i=0;i<count;++i)product[i]=regularizer(i)*direction[i];
+    for(const auto& row:rows) {
+      long double value=0;for(size_t k=0;k<row.count;++k)value+=row.entry[k].second*direction[row.entry[k].first];
+      for(size_t k=0;k<row.count;++k)product[row.entry[k].first]+=row.entry[k].second*value;
+    }
+    const auto denominator=dot(direction,product);if(!(denominator>0))break;
+    const auto alpha=rz/denominator;++report.linear_iterations;
+    for(size_t i=0;i<count;++i){step[i]+=alpha*direction[i];residual[i]-=alpha*product[i];}
+    if(dot(residual,residual)<=1e-16L*initial)break;
+    for(size_t i=0;i<count;++i)z[i]=residual[i]/(diagonal[i]+regularizer(i));
+    const auto next=dot(residual,z);if(!(next>0))break;const auto beta=next/rz;rz=next;
+    for(size_t i=0;i<count;++i)direction[i]=z[i]+beta*direction[i];
+  }
+  if(!(dot(step,gradient)<0))return {};
+  long double largest=0;
+  for(const auto& row:frames){long double norm=0;for(size_t k=0;k<row.second.count;++k)norm+=step[row.second.first+k]*step[row.second.first+k];largest=std::max(largest,std::sqrt(norm));}
+  const auto scale=largest>.5L?.5L/largest:1.L;std::map<Id,Vector> movement;
+  for(const auto& row:frames) {
+    Vector delta{};for(size_t k=0;k<row.second.count;++k)for(unsigned a=0;a<3;++a)delta[a]+=scale*step[row.second.first+k]*row.second.basis[k][a];
+    if(!std::isfinite(Norm(delta)))throw std::invalid_argument("Nonfinite coupled metric step.");
+    if(!row.second.feet.empty()) {
+      const auto origin=nodes.at(row.first).p;
+      const auto fitted=FitNormalFeet({double(origin.x+delta[0]),double(origin.y+delta[1]),double(origin.z+delta[2])},row.second.constraint,row.second.rank,row.second.feet);
+      delta=Delta(fitted,origin);
+    }
+    if(Norm(delta)>0)movement.emplace(row.first,delta);
+  }
+  largest=0;for(const auto& row:movement)largest=std::max(largest,std::sqrt(metricDot(frames.at(row.first).metric,row.second,row.second)));
+  if(largest>.5L)for(auto& row:movement)for(auto& x:row.second)x*=.5L/largest;
+  return movement;
+}
+}  // namespace
+
 bool RepairMetricConnectivity(const Patch& old,FrozenField& target,const PlanarReference& reference,
                               const std::map<int,double>& heights,Id first,Patch& fresh,
                               ConnectivityRepairReport& report,std::string& reason,size_t maximum_trials,bool retire_points,const std::set<Id>* movable) {
@@ -1802,6 +2033,29 @@ bool RepairMetricConnectivity(const Patch& old,FrozenField& target,const PlanarR
       std::vector<std::pair<double,Id>> order;
       for(const auto& row:deficits)if(row.second>0)order.emplace_back(-row.second,row.first);
       std::sort(order.begin(),order.end());
+      if(!order.empty())try {
+        std::set<Id> active;for(const auto& c:working.cells)if(loss(c)>0)active.insert(c.id);
+        const auto direction=CoupledMetricDirection(working,target,heights,reference,fixed,active,report);
+        if(!direction.empty())for(double fraction=1;fraction>std::numeric_limits<double>::epsilon() && report.trials<maximum_trials;fraction*=.5) {
+          ++report.trials;++report.solve_trials;Patch proposal=working;size_t moved=0;std::map<Id,Point> points;
+          for(const auto& row:direction) {
+            const auto origin=nodes.at(row.first).p;const auto& d=row.second;
+            const auto point=ConstrainMovePoint(working,row.first,{row.first,{double(origin.x+fraction*d[0]),double(origin.y+fraction*d[1]),double(origin.z+fraction*d[2])}},heights,reference).p;
+            if(point.x!=origin.x || point.y!=origin.y || point.z!=origin.z){points.emplace(row.first,point);++moved;}
+          }
+          if(!moved)break;
+          for(auto& c:proposal.cells)for(auto& n:c.v)if(points.count(n.id))n.p=points.at(n.id);
+          std::string rejected;
+          if(!ValidateFixedInterface(working.cells,proposal.cells,rejected,nullptr,MaximumReplacementCells)){++report.move_geometry_rejected;continue;}
+          if(!CheckFirstHeight(proposal,heights,reference,height,rejected)){++report.move_height_rejected;continue;}
+          losses.clear();double after=0;
+          try{after=total(proposal.cells);}catch(const std::exception&){losses.clear();++report.move_loss_rejected;continue;}
+          if(!(after==0 || after<report.after_loss*(1-1e-8)-1e-14)){losses.clear();++report.move_loss_rejected;continue;}
+          working=std::move(proposal);losses.clear();rejected_states.clear();report.moves+=moved;++report.coordinated;
+          report.after_loss=after;changed=true;break;
+        }
+      }catch(const std::exception&){++report.solve_rejected;}
+      if(changed)continue;
       // Rebuilt wall rows can leave obsolete interior support points that flips/movement cannot eliminate.
       std::set<Id> height_apices;
       for(const auto& f:working.surface)if(heights.count(reference.Get(f.facet).marker))for(const auto& c:working.cells) {

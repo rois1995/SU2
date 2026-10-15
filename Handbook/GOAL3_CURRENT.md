@@ -6,36 +6,20 @@ acceptance gates are preserved in [the requirement audit](../integration_evidenc
 
 ## Current construction work
 
-[Support selection](GOAL3_SUPPORT_SELECTION.md) describes the latest connected
-change and its actual failing target. Complete globally classified support avoids
-an unnecessary78-cell request: a26-cell free cover repairs the same interior
-patch. The minimum-cost search is bounded by eight apices/511 states, with unchanged
-64-cell admission and original geometry/height/shape/full composed-edge gates.
-Point-only placement is attempted first where no wall-apex reconstruction is needed.
-The [shared-apex wall refit](GOAL3_SHARED_APEX_REFIT.md) then advances the same1402-cell
-strict target88 insertions to1820 cells/46 long edges at4096 work. Local native and
-independent geometry/height plus bounded MPI2 protocol pass; full mesh still rejects.
+[Coupled actual-metric patch optimization](GOAL3_PATCH_OPTIMIZATION.md) now accepts
+the actual hard50→85-cell cylinder replacement in15 trials, with native frozen
+changed-edge progress/height/q/J and independent exact geometry/feet. The same
+strict1402-cell target reaches1984 cells/25 long edges (previous38), but rejects
+at300s/3985 of4096 work. All remaining lengths are physical:13 cylinder/12 rim,
+none interior. No complete curved generation or speedup follows.
 
-The saved1110-cell grid passes independent whole geometry/height/shape checks but
-has174 oversized edges. One bounded continuation reaches1402 cells/137 oversized
-edges; the new costed-support/cap run reaches1411 cells/133 long edges and still
-rejects at4096 work, after only two insertions. That is the preceding support-only
-result; the newer shared-apex result is1820 cells/46 long edges as stated above. Do not equate partial metric progress or private local
-success with a complete adapted mesh. See the support handbook for current runs.
-
-The [connected insertion/reconnection work](GOAL3_JOINT_CONNECTIVITY.md) now reaches
-1842 cells/40 long edges from the same1402-cell input at4096 work, with94 insertions,
-29 private flips/10 moves/three dependency expansions. It still rejects. Current
-MPI2 protocol and entire geometry/height/shape-arithmetic audits pass; remaining
-metric debt is dominated by cylinder and cap junctions. All owned jobs are terminal.
-
-The [curved-feature/height-foot/visibility repair](GOAL3_CURVED_FEATURE_REPAIR.md)
-now makes96 edits to1832 cells/38 long edges on the identical1402-cell strict
-input, still rejecting at4096 work. Geometry controls and bounded MPI2 protocol/
-donor-reference audit pass. Actual rim geometry succeeds; direct actual-metric
-shape rejects, and independent exact foot weight is negative7.5e-18 within native
-numerical allowance. Whole1832 independent geometry/no-overlap/84 exact feet/height and exported-tensor shape audit passes;38 lengths still reject. All owned jobs terminal. No final curved
-mesh, CFD or performance claim follows.
+470 Jacobian assertions/five repair controls, independent whole geometry/no overlap/
+98 exact feet/height/exported-tensor arithmetic, and bounded MPI2 donor-reference
+protocol pass in their declared scopes. Exact stage/object/binary provenance and
+preserved eager-scheduling regression are in the linked handbook/summary. Eager
+scheduling is withdrawn; the engine retains published scheduling. All owned jobs
+terminal. Next work must address the actual physical-wall reconstruction blocker
+with primary-progress and phase-cost evidence, not budget/fixture ladders.
 
 ## Existing qualified scope
 

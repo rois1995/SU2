@@ -1192,7 +1192,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     bool streamed=ready && (curved || (!sensors.valid && DonorCap(sensors.reason)));
     if (!ready || (!sensors.valid && !streamed)) { if (ready) result.reason=sensors.reason; return finish(); }
     const size_t private_scratch=transfer_memory::Add(transfer_memory::Bytes(imported.cells),
-        transfer_memory::Mul(MaximumReplacementCells,8192),MaximumFrozenFieldBytes);
+        transfer_memory::Mul(MaximumReplacementCells,8192),MaximumFrozenFieldBytes,MetricPatchSolveScratchBytes);
     if (streamed && !admit(private_scratch)) return finish();
     if (streamed) ++stats.private_query_retries;
     {
@@ -1494,6 +1494,8 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
               fresh,report,result.reason,std::min<uint64_t>(256,stats.work_limit-stats.global_work));
           stats.repair_proposals+=report.trials;stats.placement_trials+=report.trials;
           stats.placement_connectivity_trials+=report.connectivity_trials;stats.placement_flips+=report.flips;stats.placement_moves+=report.moves;
+          stats.metric_linearizations+=report.linearizations;stats.metric_probes+=report.metric_probes;
+          stats.metric_linear_iterations+=report.linear_iterations;stats.metric_solve_trials+=report.solve_trials;
           placement_obstruction=report.blocked_interior_vertex;
           if(!candidate && !report.best.cells.empty()){fresh=std::move(report.best);candidate=true;}
           candidate=guarded_geometry(candidate);
@@ -1944,6 +1946,8 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
                       maximum_cell+1+offset,proposal,report,rejected,repair_limit-repair_used,strategy==0);
                 }
                 stats.wall_joint_trials+=report.trials;stats.wall_joint_moves+=report.moves;stats.wall_joint_removals+=report.removals;
+                stats.metric_linearizations+=report.linearizations;stats.metric_probes+=report.metric_probes;
+                stats.metric_linear_iterations+=report.linear_iterations;stats.metric_solve_trials+=report.solve_trials;
                 if(repaired) {
                   std::map<Id,Point> previous;std::set<Id> used;
                   for(const auto& c:old.cells)for(auto n:c.v)previous.emplace(n.id,n.p);

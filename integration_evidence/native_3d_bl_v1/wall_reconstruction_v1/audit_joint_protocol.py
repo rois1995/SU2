@@ -10,7 +10,7 @@ def main():
  rows=[];binary=None;source=None
  stages=[('curved_joint_protocol',1),('curved_joint_protocol_mpi2',2),('curved_joint_protocol_mpi4',4)]
  if len(sys.argv)>1:
-  assert sys.argv[1] in ('curved_joint_protocol_cap_mpi2','curved_joint_protocol_refit_mpi2','curved_joint_protocol_connectivity_mpi2','curved_joint_protocol_feature_mpi2') and len(sys.argv)==2
+  assert sys.argv[1] in ('curved_joint_protocol_cap_mpi2','curved_joint_protocol_refit_mpi2','curved_joint_protocol_connectivity_mpi2','curved_joint_protocol_feature_mpi2','curved_joint_protocol_metric_mpi2') and len(sys.argv)==2
   stages=[(sys.argv[1],2)]
  for stage,ranks in stages:
   rp=HERE/(stage+'.json');r=json.loads(rp.read_text());folder=HERE/stage
@@ -35,5 +35,5 @@ def main():
   rows.append(dict(classified_vertices=int(classified.group(1)) if classified else 0,stage=stage,ranks=ranks,cells=cells,placement_trials=trials,placement_validated=validated,work=work,source_donors=len(before['original']),native_receipt_sha256=sha(rp)))
  report=dict(status='PASS_MPI_PROTOCOL_ONLY_REJECTED_MESHES',rows=rows,binary_sha256=binary,helper_sha256=sha(Path(__file__)),
   scope='Native matched MPI'+','.join(str(n) for _,n in stages)+' execution/work-bound/input-signature checks plus independent exact before/after donor/reference preservation; physical original donors agree across the checked stages. Different trajectories are retained. No final mesh acceptance, independent full geometry/metric, CFD/current-BDF transfer/restart, M<N or performance qualification.')
- (HERE/('joint_protocol_feature_mpi2_audit.json' if len(stages)==1 and stages[0][0]=='curved_joint_protocol_feature_mpi2' else 'joint_protocol_connectivity_mpi2_audit.json' if len(stages)==1 and stages[0][0]=='curved_joint_protocol_connectivity_mpi2' else 'joint_protocol_refit_mpi2_audit.json' if len(stages)==1 and stages[0][0]=='curved_joint_protocol_refit_mpi2' else 'joint_protocol_cap_mpi2_audit.json' if len(stages)==1 else 'joint_protocol_audit.json')).write_text(json.dumps(report,indent=2)+'\n');print(report['status'])
+ (HERE/('joint_protocol_metric_mpi2_audit.json' if len(stages)==1 and stages[0][0]=='curved_joint_protocol_metric_mpi2' else 'joint_protocol_feature_mpi2_audit.json' if len(stages)==1 and stages[0][0]=='curved_joint_protocol_feature_mpi2' else 'joint_protocol_connectivity_mpi2_audit.json' if len(stages)==1 and stages[0][0]=='curved_joint_protocol_connectivity_mpi2' else 'joint_protocol_refit_mpi2_audit.json' if len(stages)==1 and stages[0][0]=='curved_joint_protocol_refit_mpi2' else 'joint_protocol_cap_mpi2_audit.json' if len(stages)==1 else 'joint_protocol_audit.json')).write_text(json.dumps(report,indent=2)+'\n');print(report['status'])
 if __name__=='__main__':main()

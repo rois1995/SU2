@@ -1428,6 +1428,8 @@ bool PlaceSplitPatch(const Patch& old,Edge edge,Node point,const std::vector<std
           maximum_trials-report.trials,false,&movable);
       report.trials+=connectivity.trials;report.connectivity_trials=connectivity.trials;
       report.flips=connectivity.flips;report.moves=connectivity.moves;
+      report.linearizations=connectivity.linearizations;report.metric_probes=connectivity.metric_probes;
+      report.linear_iterations=connectivity.linear_iterations;report.solve_trials=connectivity.solve_trials;
       report.blocked_interior_vertex=connectivity.blocked_interior_vertex;
       if(progress) {
         for(const auto& apex:apices) {
@@ -1864,6 +1866,141 @@ bool ReconstructSplitPatch(const Patch& old,Edge edge,Node point,Node interior,c
     fresh.cells.swap(proposal.cells);fresh.surface.swap(proposal.surface);reason.clear();return true;
   }catch(const std::exception& e){if(wallObstruction!=Face{})obstruction=wallObstruction;reason=e.what();return false;}
 }
+
+namespace {
+std::map<Id,Vector> CoupledMetricDirection(const Patch& patch,FrozenField& target,
+    const std::map<int,double>& heights,const PlanarReference& reference,const std::set<Id>& fixed,
+    const std::set<Id>& active,ConnectivityRepairReport& report) {
+  struct Frame {
+    size_t first=0,count=0,rank=0;std::array<Vector,3> basis{},constraint{};std::vector<FootPlane> feet;Tensor metric;
+  };
+  struct Row { std::array<std::pair<size_t,long double>,12> entry{};size_t count=0;long double residual=0; };
+  const auto nodes=Nodes(patch.cells);std::map<Id,Frame> frames;size_t count=0;long double span=0;
+  for(const auto& row:nodes)span=std::max(span,Norm(Delta(row.second.p,nodes.begin()->second.p)));
+  if(!(span>0))return {};
+  std::map<Id,std::vector<FootPlane>> feet;
+  for(const auto& face:patch.surface)if(heights.count(reference.Get(face.facet).marker)) {
+    FootPlane plane;for(unsigned j=0;j<3;++j)plane.p[j]=nodes.at(face.v[j]).p;
+    plane.normal=Cross(Delta(plane.p[1],plane.p[0]),Delta(plane.p[2],plane.p[0]));plane.area=Norm(plane.normal);
+    for(auto& x:plane.normal)x/=plane.area;
+    for(const auto& c:patch.cells) {
+      unsigned matches=0;Id apex=0;for(auto n:c.v){matches+=Has(face.v,n.id);if(!Has(face.v,n.id))apex=n.id;}
+      if(matches==3)feet[apex].push_back(plane);
+    }
+  }
+  auto metricDot=[](Tensor m,Vector a,Vector b) {
+    return a[0]*(m.xx*b[0]+m.xy*b[1]+m.xz*b[2])+a[1]*(m.xy*b[0]+m.yy*b[1]+m.yz*b[2])+a[2]*(m.xz*b[0]+m.yz*b[1]+m.zz*b[2]);
+  };
+  for(const auto& row:nodes)if(!fixed.count(row.first)) {
+    Frame frame;frame.first=count;std::array<Vector,3> tangent{};const auto origin=row.second.p;
+    for(unsigned axis=0;axis<3;++axis) {
+      auto p=origin;if(axis==0)p.x=double(p.x+span);else if(axis==1)p.y=double(p.y+span);else p.z=double(p.z+span);
+      auto v=Delta(ConstrainMovePoint(patch,row.first,{row.first,p},heights,reference).p,origin);
+      for(unsigned pass=0;pass<2;++pass)for(size_t k=0;k<frame.count;++k) {
+        const auto q=Dot(v,tangent[k]);for(unsigned j=0;j<3;++j)v[j]-=q*tangent[k][j];
+      }
+      const auto norm=Norm(v);if(norm<=256*std::numeric_limits<double>::epsilon()*span)continue;
+      for(auto& x:v)x/=norm;tangent[frame.count++]=v;
+    }
+    if(!frame.count)continue;
+    for(unsigned axis=0;axis<3 && frame.rank<3-frame.count;++axis) {
+      Vector normal{};normal[axis]=1;
+      for(unsigned pass=0;pass<2;++pass) {
+        for(size_t k=0;k<frame.count;++k){const auto q=Dot(normal,tangent[k]);for(unsigned a=0;a<3;++a)normal[a]-=q*tangent[k][a];}
+        for(size_t k=0;k<frame.rank;++k){const auto q=Dot(normal,frame.constraint[k]);for(unsigned a=0;a<3;++a)normal[a]-=q*frame.constraint[k][a];}
+      }
+      const auto norm=Norm(normal);if(norm>256*std::numeric_limits<double>::epsilon()){for(auto& x:normal)x/=norm;frame.constraint[frame.rank++]=normal;}
+    }
+    if(frame.rank!=3-frame.count)throw std::invalid_argument("Unresolved wall tangent complement.");
+    frame.feet=feet[row.first];const auto metric=target.Query(origin).target;frame.metric=metric;
+    for(size_t k=0;k<frame.count;++k) {
+      auto v=tangent[k];for(unsigned pass=0;pass<2;++pass)for(size_t j=0;j<k;++j) {
+        const auto q=metricDot(metric,v,frame.basis[j]);for(unsigned a=0;a<3;++a)v[a]-=q*frame.basis[j][a];
+      }
+      const auto norm=std::sqrt(metricDot(metric,v,v));if(!(norm>0) || !std::isfinite(norm))throw std::invalid_argument("Unresolved constrained metric solve frame.");
+      for(auto& x:v)x/=norm;frame.basis[k]=v;
+    }
+    count+=frame.count;frames.emplace(row.first,frame);
+  }
+  if(!count)return {};
+  if(count>12*MaximumReplacementCells)throw std::invalid_argument("Native3D metric solve exceeds bounded variables.");
+  ++report.linearizations;std::vector<Row> rows;rows.reserve(2*patch.cells.size());
+  for(const auto& cell:patch.cells)if(active.count(cell.id) && std::any_of(cell.v.begin(),cell.v.end(),[&](Node n){return frames.count(n.id);})) {
+    const auto center=Centroid(cell);const auto metric=target.Query(center).target;
+    const auto volume=Orientation(cell.v[0].p,cell.v[1].p,cell.v[2].p,cell.v[3].p);
+    long double altitude=INFINITY;
+    for(unsigned opposite=0;opposite<4;++opposite) {
+      std::array<Point,3> f{};unsigned at=0;for(unsigned k=0;k<4;++k)if(k!=opposite)f[at++]=cell.v[k].p;
+      altitude=std::min(altitude,volume/Norm(Cross(Delta(f[1],f[0]),Delta(f[2],f[0]))));
+    }
+    std::array<Tensor,3> spatial{};
+    for(unsigned axis=0;axis<3;++axis) {
+      const auto value=axis==0?center.x:axis==1?center.y:center.z;
+      const auto diagonal=axis==0?metric.xx:axis==1?metric.yy:metric.zz;
+      const auto step=std::min(altitude/16,std::cbrt(std::numeric_limits<double>::epsilon())/std::sqrt(static_cast<long double>(diagonal)));
+      if(!(step>8*std::numeric_limits<double>::epsilon()*std::max(span,std::abs(static_cast<long double>(value)))))
+        throw std::invalid_argument("Native3D metric sensitivity step is not representable.");
+      auto plus=center,minus=center;double high=double(value+step),low=double(value-step);
+      if(axis==0){plus.x=high;minus.x=low;}else if(axis==1){plus.y=high;minus.y=low;}else{plus.z=high;minus.z=low;}
+      ++report.metric_probes;const auto a=target.Query(plus).target;
+      ++report.metric_probes;const auto b=target.Query(minus).target;
+      const long double inverse=1/(static_cast<long double>(high)-low);
+      spatial[axis]={double((a.xx-b.xx)*inverse),double((a.xy-b.xy)*inverse),double((a.xz-b.xz)*inverse),double((a.yy-b.yy)*inverse),double((a.yz-b.yz)*inverse),double((a.zz-b.zz)*inverse)};
+    }
+    const auto linear=LinearizeMetricShape({cell.v[0].p,cell.v[1].p,cell.v[2].p,cell.v[3].p},metric,&spatial);
+    for(unsigned r=0;r<2;++r)if(linear.residual[r]>0) {
+      Row row;row.residual=linear.residual[r];
+      for(unsigned k=0;k<4;++k) {
+        const auto found=frames.find(cell.v[k].id);if(found==frames.end())continue;const auto& frame=found->second;
+        const auto& d=linear.derivative[r][k];const Vector gradient{d[0],d[1],d[2]};
+        for(size_t j=0;j<frame.count;++j)row.entry[row.count++]={frame.first+j,Dot(gradient,frame.basis[j])};
+      }
+      rows.push_back(row);
+    }
+  }
+  std::vector<long double> diagonal(count),gradient(count),step(count),residual(count),z(count),direction(count),product(count);
+  for(const auto& row:rows)for(size_t k=0;k<row.count;++k) {
+    const auto e=row.entry[k];diagonal[e.first]+=e.second*e.second;gradient[e.first]+=e.second*row.residual;
+  }
+  const auto maximum=*std::max_element(diagonal.begin(),diagonal.end());if(!(maximum>0))return {};
+  auto regularizer=[&](size_t i){return 1e-3L*(diagonal[i]+maximum*1e-12L);};
+  auto dot=[](const auto& a,const auto& b){long double result=0;for(size_t i=0;i<a.size();++i)result+=a[i]*b[i];return result;};
+  for(size_t i=0;i<count;++i){residual[i]=-gradient[i];z[i]=residual[i]/(diagonal[i]+regularizer(i));direction[i]=z[i];}
+  auto rz=dot(residual,z);const auto initial=dot(residual,residual);if(!(initial>0))return {};
+  for(size_t iteration=0;iteration<count;++iteration) {
+    for(size_t i=0;i<count;++i)product[i]=regularizer(i)*direction[i];
+    for(const auto& row:rows) {
+      long double value=0;for(size_t k=0;k<row.count;++k)value+=row.entry[k].second*direction[row.entry[k].first];
+      for(size_t k=0;k<row.count;++k)product[row.entry[k].first]+=row.entry[k].second*value;
+    }
+    const auto denominator=dot(direction,product);if(!(denominator>0))break;
+    const auto alpha=rz/denominator;++report.linear_iterations;
+    for(size_t i=0;i<count;++i){step[i]+=alpha*direction[i];residual[i]-=alpha*product[i];}
+    if(dot(residual,residual)<=1e-16L*initial)break;
+    for(size_t i=0;i<count;++i)z[i]=residual[i]/(diagonal[i]+regularizer(i));
+    const auto next=dot(residual,z);if(!(next>0))break;const auto beta=next/rz;rz=next;
+    for(size_t i=0;i<count;++i)direction[i]=z[i]+beta*direction[i];
+  }
+  if(!(dot(step,gradient)<0))return {};
+  long double largest=0;
+  for(const auto& row:frames){long double norm=0;for(size_t k=0;k<row.second.count;++k)norm+=step[row.second.first+k]*step[row.second.first+k];largest=std::max(largest,std::sqrt(norm));}
+  const auto scale=largest>.5L?.5L/largest:1.L;std::map<Id,Vector> movement;
+  for(const auto& row:frames) {
+    Vector delta{};for(size_t k=0;k<row.second.count;++k)for(unsigned a=0;a<3;++a)delta[a]+=scale*step[row.second.first+k]*row.second.basis[k][a];
+    if(!std::isfinite(Norm(delta)))throw std::invalid_argument("Nonfinite coupled metric step.");
+    if(!row.second.feet.empty()) {
+      const auto origin=nodes.at(row.first).p;
+      const auto fitted=FitNormalFeet({double(origin.x+delta[0]),double(origin.y+delta[1]),double(origin.z+delta[2])},row.second.constraint,row.second.rank,row.second.feet);
+      delta=Delta(fitted,origin);
+    }
+    if(Norm(delta)>0)movement.emplace(row.first,delta);
+  }
+  largest=0;for(const auto& row:movement)largest=std::max(largest,std::sqrt(metricDot(frames.at(row.first).metric,row.second,row.second)));
+  if(largest>.5L)for(auto& row:movement)for(auto& x:row.second)x*=.5L/largest;
+  return movement;
+}
+}  // namespace
+
 bool RepairMetricConnectivity(const Patch& old,FrozenField& target,const PlanarReference& reference,
                               const std::map<int,double>& heights,Id first,Patch& fresh,
                               ConnectivityRepairReport& report,std::string& reason,size_t maximum_trials,bool retire_points,const std::set<Id>* movable) {
@@ -1896,6 +2033,29 @@ bool RepairMetricConnectivity(const Patch& old,FrozenField& target,const PlanarR
       std::vector<std::pair<double,Id>> order;
       for(const auto& row:deficits)if(row.second>0)order.emplace_back(-row.second,row.first);
       std::sort(order.begin(),order.end());
+      if(!order.empty())try {
+        std::set<Id> active;for(const auto& c:working.cells)if(loss(c)>0)active.insert(c.id);
+        const auto direction=CoupledMetricDirection(working,target,heights,reference,fixed,active,report);
+        if(!direction.empty())for(double fraction=1;fraction>std::numeric_limits<double>::epsilon() && report.trials<maximum_trials;fraction*=.5) {
+          ++report.trials;++report.solve_trials;Patch proposal=working;size_t moved=0;std::map<Id,Point> points;
+          for(const auto& row:direction) {
+            const auto origin=nodes.at(row.first).p;const auto& d=row.second;
+            const auto point=ConstrainMovePoint(working,row.first,{row.first,{double(origin.x+fraction*d[0]),double(origin.y+fraction*d[1]),double(origin.z+fraction*d[2])}},heights,reference).p;
+            if(point.x!=origin.x || point.y!=origin.y || point.z!=origin.z){points.emplace(row.first,point);++moved;}
+          }
+          if(!moved)break;
+          for(auto& c:proposal.cells)for(auto& n:c.v)if(points.count(n.id))n.p=points.at(n.id);
+          std::string rejected;
+          if(!ValidateFixedInterface(working.cells,proposal.cells,rejected,nullptr,MaximumReplacementCells)){++report.move_geometry_rejected;continue;}
+          if(!CheckFirstHeight(proposal,heights,reference,height,rejected)){++report.move_height_rejected;continue;}
+          losses.clear();double after=0;
+          try{after=total(proposal.cells);}catch(const std::exception&){losses.clear();++report.move_loss_rejected;continue;}
+          if(!(after==0 || after<report.after_loss*(1-1e-8)-1e-14)){losses.clear();++report.move_loss_rejected;continue;}
+          working=std::move(proposal);losses.clear();rejected_states.clear();report.moves+=moved;++report.coordinated;
+          report.after_loss=after;changed=true;break;
+        }
+      }catch(const std::exception&){++report.solve_rejected;}
+      if(changed)continue;
       // Rebuilt wall rows can leave obsolete interior support points that flips/movement cannot eliminate.
       std::set<Id> height_apices;
       for(const auto& f:working.surface)if(heights.count(reference.Get(f.facet).marker))for(const auto& c:working.cells) {

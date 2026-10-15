@@ -100,7 +100,7 @@
     "wall_reconstruction_v1/joint_connectivity_summary.json"
   ],
   "execution_state": {
-    "status": "All owned jobs terminal. Rejected wall-front/scheduling experiment preserved separately; active production remeshing path restored to c29ffa96b0. Existing local study binary must be rebuilt before active-source runs. Full Goal3 ACTIVE.",
+    "status": "All owned jobs terminal. Coupled native private patch passes; isolated full target still rejects25 physical long edges at300s/3985 work. Scoped geometry/MPI2 audits pass; full Goal3 ACTIVE.",
     "CFD_runs": 0,
     "production_MPI": "Current PASS N/M1/1,2/1,2/2; N/M4/1,4/2,4/4 remain required. Previous full matrix historical.",
     "independent_frames": 6
@@ -530,5 +530,34 @@
     "summary": "https://github.com/rois1995/SU2/tree/43d32f9b0bc6726b642bb65889d15fd14ba53ad1/integration_evidence/native_3d_bl_v1/wall_reconstruction_v1/wall_front_study_summary.json",
     "evidence": "Geometry/ownership pass; actual private shape loss improves but still rejects; full fixed-work result regresses38 to58 edges; revised actual engine round still accepts0 edits/623 work. No new MPI/performance proof.",
     "next": "Handbook/GOAL3_PATCH_OPTIMIZATION.md; implement and qualify coordinated actual-query metric-quality optimization with all original gates."
+  },
+  "coupled_metric_optimization": {
+    "status": "LOCAL_REPLACEMENT_PASS_FULL_TARGET_LENGTH_REJECTION",
+    "design": "Actual-centroid q/J geometry+spatial metric Jacobian; constrained metric-orthonormal variables; matrix-free damped coupled solve; joint foot projection and actual-field line search before existing reconnection fallback.",
+    "bounds": "Additional explicit1MiB scratch; same256 private trial/global4096 limits; no target/fade/accepted-quality/geometry/height/full-edge/identity/publication relaxation.",
+    "acceptance": "Derivative finite differences, existing repair controls, actual failed cylinder patch and unchanged strict1402-cell full target; full-goal qualification remains separately required.",
+    "handbook": "Handbook/GOAL3_PATCH_OPTIMIZATION.md",
+    "local": "470 derivative assertions and five repair controls/58 assertions PASS. Actual50\u219285-cell patch:15 trials/10 linearizations/540 probes/116 CG iterations, q .202018793/J .050247126, native height/frozen changed-edge progress PASS, no retirement.",
+    "full_failed_variant": "Eager scheduling plus optimizer still regresses to1765 cells/58 edges/4096 work. Its failure is preserved.",
+    "current": "Published scheduling restored; isolated full target and bounded MPI2 wrapper live. No final curved mesh/workflow/performance proof.",
+    "full_target": {
+      "accepted": 171,
+      "cells": 1984,
+      "q": 0.20001943538739836,
+      "j": 0.05000346259887065,
+      "oversized_edges": 25,
+      "metric_linearizations": 224,
+      "metric_probes": 7740,
+      "metric_linear_iterations": 1674,
+      "metric_solve_trials": 892,
+      "initial_excess": 1.5874507614028437,
+      "remaining_excess": 0.04191851515612673,
+      "work": 3985
+    },
+    "independent": "Local85-cell and entire1984-cell exact positive/no-overlap geometry/feet/height and exported-tensor arithmetic PASS;98 whole wall faces/height error5.41e-15. Full lengths native diagnostics;25 still reject.",
+    "MPI": "Bounded current MPI2 protocol/source-reference preservation PASS512 work/1744 rejected cells; not accepted distributed mesh/currentMPI4/M<N/current+BDF/CFD/restart/performance.",
+    "remaining": "All25 long edges physical:13 cylinder/12 rim/0 interior. Full-goal cold/fields/features/interacting/gradation/MPI/workflow/accuracy/performance gates intact.",
+    "summary": "wall_reconstruction_v1/coupled_metric_summary.json",
+    "alignment": "Diagnostics only: local/full maximum centroid tilt1.523/3.762 (previous2.215); minimum smooth clearance/altitude .99493 full. No column orthogonality, complete multilayer or viscous accuracy proof; see wall_reconstruction_v1/metric_alignment.json."
   }
 }

@@ -1666,6 +1666,8 @@ TEST_CASE("Cold native cylinder BL construction and release use the same origina
       std::cout<<"CURVED_GRID_REFINE accepted="<<partial.stats.accepted<<" inserted="<<partial.stats.inserted
           <<" classified_vertices="<<partial.stats.placement_classified_vertices<<" placement_trials="<<partial.stats.placement_trials<<" placement_validated="<<partial.stats.placement_validated
           <<" dependency_expansions="<<partial.stats.placement_dependency_expansions<<" connectivity_trials="<<partial.stats.placement_connectivity_trials<<" placement_flips="<<partial.stats.placement_flips<<" placement_moves="<<partial.stats.placement_moves
+          <<" metric_linearizations="<<partial.stats.metric_linearizations<<" metric_probes="<<partial.stats.metric_probes
+          <<" metric_linear_iterations="<<partial.stats.metric_linear_iterations<<" metric_solve_trials="<<partial.stats.metric_solve_trials
           <<" work="<<partial.stats.global_work<<" stop="<<EngineStopName(partial.stats.stop)<<" reason="<<partial.reason<<std::endl;
       save(partial.valid?"curved_grid_adapted":"curved_grid_partial_rejected",partial.cells);
       CHECK(Signature(world,grid.cells,reference)==unchanged);CHECK(Signature(world,input.cells,reference)==before);
@@ -1684,6 +1686,8 @@ TEST_CASE("Cold native cylinder BL construction and release use the same origina
       CHECK(minimum_q>=MinimumMeanRatio);CHECK(minimum_j>=MinimumScaledJacobian);CHECK(excess<initial_excess);
       std::ofstream diagnosis("grid_refine_summary.json");diagnosis<<std::setprecision(17)<<"{\"accepted\":"<<partial.stats.accepted
           <<",\"cells\":"<<partial.cells.size()<<",\"q\":"<<minimum_q<<",\"j\":"<<minimum_j<<",\"oversized_edges\":"<<oversized
+          <<",\"metric_linearizations\":"<<partial.stats.metric_linearizations<<",\"metric_probes\":"<<partial.stats.metric_probes
+          <<",\"metric_linear_iterations\":"<<partial.stats.metric_linear_iterations<<",\"metric_solve_trials\":"<<partial.stats.metric_solve_trials
           <<",\"initial_excess\":"<<initial_excess<<",\"remaining_excess\":"<<excess<<",\"work\":"<<partial.stats.global_work<<"}\n";
       REQUIRE(diagnosis.good());
       if(std::getenv("SU2_NATIVE_CURVED_GRID_COMPLETE")){INFO(partial.reason);REQUIRE(partial.valid);CHECK(oversized==0);}else CHECK(oversized>0);
@@ -1782,7 +1786,10 @@ TEST_CASE("Cold native cylinder BL construction and release use the same origina
         Patch fresh;Feature obstruction;std::string reason;bool built=false;
         for(unsigned growth=0;growth<12;++growth) {
           SaveRecords("wall_refit_original",PatchRecords(full),captured_source,reference);
-          built=RefitWallSplit(full,edge,point,1000001,2000000,options.wall_heights,*reference.original,fresh,obstruction,reason);
+          if(std::getenv("SU2_NATIVE_CURVED_METRIC_SOLVE")) {
+            Face face{};built=ReconstructWallSplit(full,edge,point,1000001,2000000,options.wall_heights,*reference.original,fresh,face,reason,nullptr,options.surface_tolerance);
+            obstruction=face==Face{}?Feature{}:Feature{face,3};
+          } else built=RefitWallSplit(full,edge,point,1000001,2000000,options.wall_heights,*reference.original,fresh,obstruction,reason);
           if(built || !obstruction.count)break;
           std::set<Id> admitted;for(const auto& c:full.cells)admitted.insert(c.id);
           std::vector<OwnedCell> missing;
@@ -1802,7 +1809,19 @@ TEST_CASE("Cold native cylinder BL construction and release use the same origina
         INFO(reason);REQUIRE(built);SaveRecords("wall_refit_proposal",PatchRecords(fresh),captured_source,reference);
         FirstHeightReport height;REQUIRE(CheckFirstHeight(fresh,options.wall_heights,*reference.original,height,reason));
         PatchMetric measured;MetricDiagnosis diagnosis;
-        const bool valid=ValidateMetricChange(full.cells,fresh.cells,MetricChange::Repair,target,measured,reason,nullptr,nullptr,&diagnosis) && diagnosis.size_progress;
+        const auto intent=std::getenv("SU2_NATIVE_CURVED_METRIC_SOLVE")?MetricChange::Refine:MetricChange::Repair;
+        bool valid=ValidateMetricChange(full.cells,fresh.cells,intent,target,measured,reason,nullptr,nullptr,&diagnosis) && diagnosis.size_progress;
+        if(std::getenv("SU2_NATIVE_CURVED_METRIC_SOLVE") && !valid && diagnosis.failure==MetricFailure::Shape) {
+          Patch repaired;ConnectivityRepairReport report;
+          const bool progress=RepairMetricConnectivity(fresh,target,*reference.original,options.wall_heights,3000000,repaired,report,reason,256);
+          std::cout<<"METRIC_PATCH_REPAIR progress="<<progress<<" trials="<<report.trials<<" flips="<<report.flips<<" moves="<<report.moves<<" removals="<<report.removals
+              <<" linearizations="<<report.linearizations<<" probes="<<report.metric_probes<<" linear_iterations="<<report.linear_iterations<<" solve_trials="<<report.solve_trials
+              <<" complete="<<report.complete_shape<<" before="<<report.before_loss<<" after="<<report.after_loss<<" blocked="<<report.blocked_interior_vertex<<" reason="<<reason<<std::endl;
+          if(progress) {
+            fresh=std::move(repaired);SaveRecords("metric_patch_repaired",PatchRecords(fresh),captured_source,reference);
+            valid=ValidateMetricChange(full.cells,fresh.cells,intent,target,measured,reason,nullptr,nullptr,&diagnosis) && diagnosis.size_progress;
+          }
+        }
         std::cout<<std::setprecision(17)<<"WALL_REFIT old="<<full.cells.size()<<" fresh="<<fresh.cells.size()<<" apices="<<apices.size()
             <<" valid="<<valid<<" q="<<diagnosis.minimum_mean_ratio<<" j="<<diagnosis.minimum_scaled_jacobian<<" reason="<<reason<<std::endl;
         std::ofstream out("wall_refit_metric.json");out<<std::setprecision(17)<<"{\"accepted\":"<<(valid?"true":"false")
