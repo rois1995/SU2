@@ -11,6 +11,8 @@
 #include "../../include/option_structure.hpp"
 #include <cmath>
 #include <functional>
+#include <iomanip>
+#include <sstream>
 #include <type_traits>
 #include <algorithm>
 #include <limits>
@@ -469,16 +471,22 @@ PlanarReference::ClosestSurface PlanarReference::ClosestAnalytic(Id id,Point p) 
     for(size_t j=0;j<3;++j){n[j]/=scale;foot[j]=g.extent.x*n[j];}
     if(Dot(physical,Delta(face.v[0].p,g.origin))<0)for(auto& x:n)x=-x;
   } else if(g.kind==AnalyticSurface::Kind::Cylinder || g.kind==AnalyticSurface::Kind::Disk) {
-    const auto axis=UnitAxis(g);const auto z=Dot(axis,q);Vector radial{};
-    for(size_t j=0;j<3;++j)radial[j]=q[j]-z*axis[j];const auto rho=Norm(radial);
+    const AxisFrame frame(g);const auto& axis=frame.axis;const auto z=Dot(axis,q);
+    auto radialProjection=[&](Vector p) {
+      const auto u=Dot(p,frame.u),v=Dot(p,frame.v);Vector r{};
+      for(size_t j=0;j<3;++j)r[j]=u*frame.u[j]+v*frame.v[j];return r;
+    };
+    // A radial basis avoids amplifying axial cancellation when a near-axis residual is normalized.
+    const auto radial=radialProjection(q);const auto rho=Norm(radial);
     if(g.kind==AnalyticSurface::Kind::Cylinder) {
       if(rho>0)n=radial;
-      else {n=Delta(face.v[0].p,g.origin);const auto t=Dot(n,axis);for(size_t j=0;j<3;++j)n[j]-=t*axis[j];}
-      const auto scale=Norm(n);for(auto& x:n)x/=scale;
+      else n=radialProjection(Delta(face.v[0].p,g.origin));
+      const auto scale=Norm(n);
+      if(!(scale>0 && std::isfinite(scale)))throw std::runtime_error("Unrepresentable native3D cylinder radial direction.");
+      for(auto& x:n)x/=scale;
       const auto level=std::clamp(z,0.L,static_cast<long double>(g.extent.y));
       for(size_t j=0;j<3;++j)foot[j]=g.extent.x*n[j]+level*axis[j];
-      auto original=Delta(face.v[0].p,g.origin);const auto t=Dot(original,axis);
-      for(size_t j=0;j<3;++j)original[j]-=t*axis[j];
+      const auto original=radialProjection(Delta(face.v[0].p,g.origin));
       if(Dot(physical,original)<0)for(auto& x:n)x=-x;
     } else {
       const auto scale=rho>g.extent.x?g.extent.x/rho:1.L;
@@ -493,7 +501,11 @@ PlanarReference::ClosestSurface PlanarReference::ClosestAnalytic(Id id,Point p) 
   result.normal={double(n[0]),double(n[1]),double(n[2])};
   result.direction=result.normal;
   if(result.distance>0)result.direction={double(separation[0]/result.distance),double(separation[1]/result.distance),double(separation[2]/result.distance)};
-  if(!std::isfinite(result.distance) || !Contains(id,result.point))throw std::runtime_error("Unrepresentable native3D smooth closest point.");
+  if(!std::isfinite(result.distance) || !Contains(id,result.point)) {
+    std::ostringstream why;why<<std::setprecision(17)<<"Unrepresentable native3D smooth closest point: authority="<<id
+        <<" query=("<<p.x<<','<<p.y<<','<<p.z<<") foot=("<<result.point.x<<','<<result.point.y<<','<<result.point.z<<')';
+    throw std::runtime_error(why.str());
+  }
   return result;
 }
 Point ScaleCylinder(const AnalyticSurface& g,Point p,double factor) {
@@ -1056,8 +1068,11 @@ Point PlanarReference::Project(Id id, Point p, KernelStats* stats) const {
       p={double(g.origin.x+g.extent.x*direction[0]/length),double(g.origin.y+g.extent.x*direction[1]/length),
          double(g.origin.z+g.extent.x*direction[2]/length)};
     } else if(g.kind==AnalyticSurface::Kind::Cylinder) {
-      const auto q=AxisFrame(g).Coordinates(g,p);const auto r=std::hypot(static_cast<long double>(q.x),q.y);
-      if(!(r>0))throw std::invalid_argument("Cylinder projection reaches its axis.");p=ScaleCylinder(g,p,double(g.extent.x/r));
+      const AxisFrame frame(g);const auto d=Delta(p,g.origin);
+      const auto x=Dot(d,frame.u),y=Dot(d,frame.v),z=Dot(d,frame.axis),r=std::hypot(x,y);
+      if(!(r>0))throw std::invalid_argument("Cylinder projection reaches its axis.");
+      Vector q{};for(size_t j=0;j<3;++j)q[j]=g.extent.x*(x*frame.u[j]+y*frame.v[j])/r+z*frame.axis[j];
+      p={double(g.origin.x+q[0]),double(g.origin.y+q[1]),double(g.origin.z+q[2])};
     } else if(g.kind==AnalyticSurface::Kind::Disk) {
       const auto a=UnitAxis(g),d=Delta(p,g.origin);const auto t=Dot(a,d);
       p={double(static_cast<long double>(p.x)-a[0]*t),double(static_cast<long double>(p.y)-a[1]*t),double(static_cast<long double>(p.z)-a[2]*t)};

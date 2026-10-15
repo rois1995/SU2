@@ -5600,3 +5600,27 @@ near-axis cancellation residuals: a tilted cylinder foot can acquire axial compo
 provides a stable radial basis for the next shared geometry fix. Rejected/retained
 grids and source/binary receipts are archived; no local remeshing fallback. Full
 Goal3 ACTIVE. Evidence: region_construction_v1/global_edge_summary.json.
+
+
+## 2026-10-16 — complete rotated stronger-field mesh under unchanged constraints
+
+Shared closest-point and cylinder projection now use the existing orthonormal
+AxisFrame, avoiding near-axis residual normalization errors. Finite bounds/radius/
+tolerance/orientation are unchanged; ScaleCylinder collar generation is untouched.
+Controls pass12 cases/1014 assertions, including finite cylinder/disk distances and
+near-axis projections. The complete same frozen rotated target is now accepted:
+3108 cells/2 core regions/4056 work, qmin.412100104/Jmin.156402454/Lmax1.645505430.
+
+Independent exact embedding/no overlap/all740 vertex links/168 wall heights-feet,
+analytic geometry and q/J arithmetic pass. Every exported original-P1 sensor is
+exact;252 pure-core cells/466 analytic full edges have residual<=1.95e-16. Source
+mesh/donor JSON is byte-identical across failed v4/v5/v9 and accepted v10. h.05,
+growth1.2/T.2/fade, Hausdorff.04/wall ceiling.025, q.20/J.05/L1.8/work4096/300s
+are unchanged. No fallback, reset or budget ladder. Accepted/rejected grids/ref,
+raw sensors and all receipts/source snapshots are preserved.
+
+These are frozen imposed stresses on initialized RANS geometry. Updated MPI/actual
+CFD/current+BDF/SA/SU2/CGNS/restart, independent remaining BL full edges, wider/
+high-ratio/exterior geometry, viscous accuracy and whole-lifecycle affordability
+remain full Goal3 gates. All owned jobs terminal; full Goal3 ACTIVE. Evidence:
+region_construction_v1/rotated_geometry_summary.json.

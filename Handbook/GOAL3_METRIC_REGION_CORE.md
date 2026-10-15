@@ -7,9 +7,12 @@ Varying v4 native/independent PASS:2894 cells/4 regions/work3924,
 qmin.212221616/Jmin.063340838/full Lmax1.763818409. Exact raw original-P1 sensor
 residual1.03e-16, including571 declared collar samples. Its input and accepted mesh
 are byte-identical to failed-fixture v3; only the test oracle/export changed.
-Rotated v4 FAILS composed-edge quadrature during111 surface-planning work, before
-any volume cells. Retained input and failure are archived; no local fallback or
-relaxation. Wrapper97418 and all builds are terminal.
+Rotated v4/v5 quadrature and v9 closest-point failures are preserved. Final v10
+passes full native and independent acceptance:3108 cells/2 regions/work4056,
+qmin.412100104/Jmin.156402454/Lmax1.645505430. All source/input bytes match those
+failed rotated attempts. Complete exact embedding/740 vertex links/168 wall
+height-feet/all raw P1 sensors pass; pure-core edge residual1.95e-16. All owned
+jobs/builds/audits terminal. [Current result](../integration_evidence/native_3d_bl_v1/region_construction_v1/rotated_geometry_summary.json).
 No new MPI or actual CFD/transfer/restart qualification yet.
 
 ## Complete accepted stronger target
@@ -122,3 +125,26 @@ interacting/high-ratio/multiwall support or scalable parallel construction.
 Wider full Goal3 fields/geometry, separate composed-gradation feasibility, independent
 BL full-field integration, updated current/BDF/SA/restart/SU2/CGNS, viscous/M6 accuracy
 and complete lifecycle affordability remain open. Keep all gates; no goal narrowing.
+
+## Completed shared geometry fix and next integration campaign
+
+The same represented near-axis query could produce a normalized radial vector with
+axial component.00069 under subtraction. ClosestAnalytic now constructs cylinder/
+disk radial vectors in the existing orthonormal frame; cylinder Project uses that
+frame directly too. Bounds, radius, orientation and tolerance stay; ScaleCylinder
+source-collar generation is untouched. New controls independently check finite tube
+and disk distances, normals and near-axis projection.12 cases/1014 assertions pass.
+
+The complete rotated frozen target now accepts3108 cells/4056 work and independently
+passes exact embedding/no positive overlap, all740 links,168 wall footprints/altitudes,
+analytic node/chord authority, q/J arithmetic and all original-P1 sensors.252 pure-core
+cells/466 edges have independent analytic full integrals (maximum error1.95e-16).
+The original mesh/donor JSON is byte-identical across rotated v4/v5/v9/v10. Remaining
+BL full edges are native; frozen stress fields do not prove actual CFD evolution,
+transfer/restart, accuracy or performance. The new scope is pinned in
+`region_construction_v1/rotated_geometry_summary.json`.
+
+Next validate original difficult construction/current fields across MPI1/2/4 and
+updated actual RANS N=M/M<N with transfer/reference/SU2/CGNS/restart. Reuse unaffected
+proof only with appropriate provenance. Full Goal3, high-ratio multi-front/exterior/
+interacting geometry and complete lifecycle affordability remain open.

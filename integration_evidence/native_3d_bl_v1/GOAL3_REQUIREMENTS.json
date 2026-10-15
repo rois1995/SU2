@@ -100,7 +100,7 @@
     "wall_reconstruction_v1/joint_connectivity_summary.json"
   ],
   "execution_state": {
-    "status": "Shared global edge controller passes11/129 and unchanged10000 cost gate at6688. Rotated v9 now rejects near-axis closest-point geometry during transition clearance (2037 work), not quadrature. Fix shared radial projection via existing AxisFrame then require complete rotated/MPI/CFD mesh. Full Goal3 ACTIVE.",
+    "status": "Stable shared AxisFrame geometry passes12/1014 and complete rotated3108/4056 mesh, with independent full geometry/height/raw sensor and pure-core metric audit. Identical original mesh/donors across rejections. Updated MPI/actual RANS/current+BDF/restart/wider geometry/performance pending. Full Goal3 ACTIVE.",
     "CFD_runs": 11,
     "CFD_run_scope": "Five corrected-config failed serial attempts v1..v5 plus six successful v6 N/M variants; initial invalid config retained separately.",
     "production_MPI": "Prior907646e00e actual-flow N/M1/1,2/1,2/2,4/1,4/2,4/4 PASS in its old-source scope. Updated front/core MPI and actual workflow are pending.",
@@ -236,7 +236,7 @@
     "scope": "One planar cube production case plus six focused first-row geometry/movement cases. Actual computed metric, conservative current+BDF/bounded-SA and SU2/CGNS/reference/restart checks; independent exact embedding, full composed metric, wall footprint and height. No new MPI, full regressions, general layer coverage, actual CFD accuracy or performance qualification."
   },
   "owned_jobs": {
-    "status": "All owned jobs/builds terminal. Global edge controls v9 PASS; rotated v9 FAIL preserved at closest-point transition clearance."
+    "status": "All owned builds/native cases/audits terminal. Controls v10 PASS12/1014, complete rotated v10 native+independent PASS. No cluster job/request."
   },
   "wall_reconstruction": {
     "status": "PASS_PLANAR_STRONGER_FIELD_LIMITED_SCOPE",
@@ -679,7 +679,7 @@
     "maximum_full_length": 1.6455054304780263,
     "same_input_across_rejections": true,
     "independent_scope": "Whole exact geometry/height/embedding and exported-tensor q/J, plus analytic pure-core full edges; BL edges remain native.",
-    "pending": "Rotated field integration, updated MPI and actual RANS/current+BDF/SA/restart/output, wider geometry/accuracy/performance. Prior907646 lifecycle is old-source only.",
+    "pending": "Original difficult/current field MPI1/2/4 and updated actual RANS N=M/M<N transfer/restart/output; independent remaining BL integrals, general/high-ratio/interacting/exterior geometry, accuracy and performance. Prior907646 matrix is old-source only.",
     "varying_v3": {
       "native_mesh": "ACCEPTED",
       "test_receipt": "FAIL_PRESERVED",
@@ -705,11 +705,26 @@
       "collar_sensor_samples": 571,
       "collar_analytic_delta": 4.721512400154063e-12
     },
-    "rotated_v4": "FAIL before volume generation: composed edge quadrature did not converge; input retained; no fallback or gate relaxation."
+    "rotated_v4": "FAIL before volume generation: composed edge quadrature did not converge; input retained; no fallback or gate relaxation.",
+    "rotated_v10": {
+      "native_status": "PASS",
+      "independent_status": "PASS_SCOPE_LIMITED",
+      "cells": 3108,
+      "regions": 2,
+      "work": 4056,
+      "q": 0.4121001040607129,
+      "J": 0.15640245362209307,
+      "maximum_full_length": 1.6455054304780266,
+      "source_identical_to_rejections": true,
+      "summary": "region_construction_v1/rotated_geometry_summary.json",
+      "maximum_exact_sensor_residual": 0,
+      "maximum_analytic_core_edge_residual": 1.9472260435201223e-16
+    }
   },
   "current_edge_controller": {
-    "status": "PASS_GLOBAL_ENDPOINT_INCLUSIVE_ERROR_CONTROLLER_CONTROLS_ROTATED_MESH_STILL_REJECTED",
+    "status": "PASS_CURRENT_EDGE_AND_GEOMETRY_CONTROLS_SCOPE_LIMITED",
     "evidence": "region_construction_v1/global_edge_summary.json",
-    "full_goal3_complete": false
+    "full_goal3_complete": false,
+    "current_geometry_evidence": "region_construction_v1/rotated_geometry_summary.json"
   }
 }

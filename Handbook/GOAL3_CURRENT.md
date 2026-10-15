@@ -4,7 +4,19 @@ Repository `/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated`, branch
 `codex/native-3d-bl`. Goal3 remains ACTIVE and incomplete. The full objective and
 acceptance gates are preserved in [the requirement audit](../integration_evidence/native_3d_bl_v1/GOAL3_REQUIREMENTS.json).
 
-## Current construction milestone
+## Current changed-source qualification
+
+The current AxisFrame closest/projection and global edge controller pass12 focused
+cases/1014 assertions and complete rotated stronger-field serial construction:
+3108 cells/2 core regions/4056 work, unchanged h/fade/geometry/q/J/full lengths.
+Independent exact whole geometry/height/links/all raw original-P1 sensors and
+pure-core analytic integrals pass. See
+[rotated source/evidence](../integration_evidence/native_3d_bl_v1/region_construction_v1/rotated_geometry_summary.json).
+Updated MPI and actual CFD/transfer/restart are pending. The earlier source-pinned
+MPI/CFD records below qualify their recorded versions, not this changed implementation.
+Full Goal3 remains ACTIVE with every remaining gate intact.
+
+## Recorded pre-front/core foundations
 
 The complete original1402-cell curved target is now accepted by the native engine on
 MPI1/2/4 under unchanged constraints:1368 cells,0 long edges, qmin>=.21137/Jmin>=.05284,
@@ -58,8 +70,9 @@ several interior regions/shared interfaces now accepts the complete constant tar
 in serial with independent geometry/height/embedding and pure-core metric audit.
 The varying mesh also independently accepts against exact frozen P1, including
 its declared finite collar. The new shared edge controller passes11 focused cases/129 assertions with6688
-microscopic calls (same10000 gate). Rotated geometry now rejects in transition
-clearance from near-axis closest-point cancellation; updated MPI/workflow checks
+microscopic calls (same10000 gate). A shared AxisFrame closest/projection fix now also accepts the complete rotated
+stronger target, with independent exact geometry/height/links/P1 and pure-core
+metric checks.12 focused cases/1014 assertions pass. Updated MPI/workflow checks
 remain pending. See the front/core handbook for current source/evidence scope. No wall
 fallback ladder, target relaxation or goal narrowing. Current actual-flow full-edge
 independent quadrature, stronger fields, general geometry, accuracy/performance and

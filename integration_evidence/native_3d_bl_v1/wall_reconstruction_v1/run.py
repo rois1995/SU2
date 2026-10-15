@@ -32,7 +32,7 @@ def main():
  if case in ('native_curved_volume_controls_v1','native_curved_volume_controls_v2','native_curved_volume_controls_v3','native_curved_volume_controls_v4','native_curved_volume_controls_v5','native_curved_volume_controls_v6','native_curved_volume_controls_v7'):selection='[NativeCylinderBLVolume3D],[NativeCurvedBLVolume3D]';expected=2
  if case in ('native_curved_volume_controls_v6','native_curved_volume_controls_v7'):selection+=',[NativeParallelBL3D]';expected=3
  if core:selection='[NativeRegionCore3D]';expected=1;ranks=int(core[2] or 1)
- if edge_controls:selection='[NativeComposite3D],[NativeBalancedSplit3D],[NativeLayeredField3D]';expected=11
+ if edge_controls:selection='[NativeComposite3D],[NativeBalancedSplit3D],[NativeLayeredField3D],[NativeSmoothClosest3D]';expected=12
  if case=='native_complete_domain_controls_v1':selection='[NativePolicyRuntime3D]';expected=1
  if case=='metric_derivative_controls':selection='[NativeMetricJacobian3D]';expected=1
  if case=='native_primitive_controls_v1':selection='[NativePrimitiveRuntime3D]';expected=1
@@ -48,7 +48,7 @@ def main():
  sources.append('UnitTests/SU2_CFD/adaptation/fixtures/native_curved_rans_runtime.inc')
  sources.append('UnitTests/SU2_CFD/adaptation/fixtures/native_region_core_fields.inc')
  sources.extend(['UnitTests/SU2_CFD/adaptation/CConservativeTransfer_tests.cpp','UnitTests/SU2_CFD/adaptation/fixtures/native_saved_sa_projection.inc','SU2_CFD/include/adaptation/CConservativeTransfer.hpp','SU2_CFD/src/adaptation/CConservativeTransfer.cpp'])
- sources.extend(['UnitTests/Common/adaptation/CNativeMetric3D_tests.cpp','UnitTests/Common/adaptation/CNativeField3D_tests.cpp'])
+ sources.extend(['UnitTests/Common/adaptation/CNativeMetric3D_tests.cpp','UnitTests/Common/adaptation/CNativeField3D_tests.cpp','UnitTests/Common/adaptation/fixtures/native_joint_obstruction.inc'])
  sources.append('UnitTests/Common/adaptation/fixtures/native_bl_planar_wall.inc')
  sources.extend(['UnitTests/SU2_CFD/adaptation/fixtures/native_curved_wall_blockage.inc','UnitTests/SU2_CFD/adaptation/fixtures/native_curved_remaining.inc'])
  pins={p:digest(ROOT/p) for p in sources}

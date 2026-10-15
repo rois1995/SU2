@@ -1,0 +1,106 @@
+{
+  "status": "COMPLETE_ROTATED_STRONGER_FIELD_CURVED_NATIVE_AND_INDEPENDENT_PASS_SCOPE_LIMITED",
+  "full_goal3_complete": false,
+  "base": "4179246ad2c8245de5aa412e3f059120fb9fb19f",
+  "native": {
+    "case": "native_core_rotated_v10",
+    "receipt_sha256": "835a799765b9ab5344086da9284c5aa310c8630060b41e2cf6eb68c435c95919",
+    "summary": {
+      "field": 2,
+      "regions": 2,
+      "work": 4056,
+      "cells": 3108,
+      "q": 0.4121001040607129,
+      "j": 0.15640245362209307,
+      "maximum_full_length": 1.6455054304780266,
+      "sensor_residual": 0,
+      "physical_sensor_samples": 2446,
+      "collar_sensor_samples": 662,
+      "collar_analytic_delta": 0
+    },
+    "elapsed_including_export_remeasurement_seconds": 108.33908164000604
+  },
+  "independent": {
+    "report_sha256": "3a851acbf3507dbda633a7dd40e1c9bfbaa859e46a9011be6216c9d4cb347ba1",
+    "report": {
+      "cells": 3108,
+      "nodes": 740,
+      "volume": 3.094929331314494,
+      "exact_overlap_pairs": 84270,
+      "vertex_links": 740,
+      "wall_height_faces": 168,
+      "maximum_height_relative_error": 1.27675647831893e-14,
+      "maximum_authority_node_error": 3.3306690738754696e-16,
+      "maximum_wall_chord_sag": 0.01116917377487181,
+      "sensor_audit": "Exact rational containment and original P1 interpolation, physical priority over declared collar, all exported centroid sensors.",
+      "physical_sensor_samples": 2446,
+      "collar_sensor_samples": 662,
+      "maximum_exact_original_sensor_residual": 0.0,
+      "status": "PASS_COMPLETE_STRONGER_FIELD_CURVED_REGION_SCOPE_LIMITED",
+      "field": 2,
+      "regions": 2,
+      "work": 4056,
+      "minimum_q": 0.4121001040607129,
+      "minimum_j": 0.1564024536220931,
+      "maximum_native_tensor_shape_difference": 4.440892098500626e-16,
+      "maximum_native_full_length": 1.6455054304780266,
+      "pure_core_cells": 252,
+      "pure_core_edges": 466,
+      "maximum_pure_core_tensor_residual": 0.0,
+      "maximum_analytic_core_edge_residual": 1.9472260435201223e-16,
+      "exports": {
+        "core_accepted.su2": {
+          "sha256": "a37cd30da90ba86d4becbf0a9fc2dbf9422055eeddbf5f91e04d6339fa4cdbea",
+          "reference_sha256": "f474ae6c2847e870dd41e3c7d5383f813be23a1653d8a29bac0b33ff8ae11fb0",
+          "unmeshed_surface_faces": 0
+        }
+      },
+      "native_receipt_sha256": "835a799765b9ab5344086da9284c5aa310c8630060b41e2cf6eb68c435c95919",
+      "helper_sha256": "c59a86f9ea39147b6457b7267c3391eb680566712ac27b61195c39a4a5656f7d",
+      "reused_geometry_helper_sha256": "ce4835aaae00628f9c9b1d04c486d4eb53e544fb2743074826d66e4c58ecf917",
+      "scope": "Complete native region, independently exact positive/oriented connected manifold geometry/every vertex link, no interior overlap, normal feet/height and analytic authority. Independent q/J arithmetic on exported actual-point tensors. Pure-core original P1 tensor and full-edge analytic integral independently checked where exact radial bounds prove the whole segment lies outside BL support. Remaining BL full lengths are native measurements, not independent whole-field quadrature. Frozen imposed sensor, not computed/graded CFD demand; no CFD transfer/restart/accuracy/general geometry/performance qualification."
+    }
+  },
+  "controls": {
+    "case": "native_global_edge_controls_v10",
+    "receipt_sha256": "7af0cc4cfee27bb5d7ca064bfd40a5cdf59e7ac648790d28ed751ca2141a1c1a",
+    "test_cases": 12,
+    "assertions": 1014
+  },
+  "unchanged_frozen_inputs": {
+    "native_core_rotated_v4": "0a39e67d846289d4b0dedf67769a56fe5c18aa6b31c8e1bdca58d5d42fdb756d",
+    "native_core_rotated_v5": "0a39e67d846289d4b0dedf67769a56fe5c18aa6b31c8e1bdca58d5d42fdb756d",
+    "native_core_rotated_v9": "0a39e67d846289d4b0dedf67769a56fe5c18aa6b31c8e1bdca58d5d42fdb756d",
+    "native_core_rotated_v10": "0a39e67d846289d4b0dedf67769a56fe5c18aa6b31c8e1bdca58d5d42fdb756d"
+  },
+  "unchanged_constraints": {
+    "height": 0.05,
+    "growth": 1.2,
+    "thickness": 0.2,
+    "fade": "unchanged",
+    "surface_tolerance": 0.04,
+    "wall_ceiling": 0.025,
+    "q_min": 0.2,
+    "J_min": 0.05,
+    "full_edge_limit": 1.8,
+    "work_limit": 4096,
+    "event_seconds": 300,
+    "noise": 0,
+    "P1_sensor": "original physical/collar donors unchanged",
+    "source_collar_ScaleCylinder": "unchanged"
+  },
+  "geometry_change": "Use existing orthonormal AxisFrame for closest cylinder/disk radial components and cylinder projection, preserving finite bounds/radius/tolerance/orientation; diagnostic errors now retain authority/query/foot. No mesh fallback or normal metric reset.",
+  "production_pins": {
+    "Common/src/adaptation/CNativeBoundary3D.cpp": "2da34851d7fb87a3dd8eb96da185d953b0aaa7b210b311ba4ef54401992f6e28",
+    "Common/src/adaptation/CNativeField3D.cpp": "76cde8efa4d62439e9cbc554e1ac8584c88d78b6150bafa09b9bf15d5e90b3cc",
+    "Common/src/adaptation/CNativeRegion3D.cpp": "cd3cd1b7ff93f4807d5e67cf0654e4476a58b8021f4c392db37acd6c66d3b324",
+    "UnitTests/Common/adaptation/CNativeBoundary3D_tests.cpp": "9bd4d8db32ba85e4a43ef2f2edfd506b6973d5531182d1a5794a6b4b70915acd"
+  },
+  "limits": [
+    "Frozen imposed original-P1 stress field on initialized RANS geometry; no new CFD evolution/solution transfer/restart in this fixture.",
+    "New MPI and actual current+BDF/SA/SU2/CGNS/restart qualification pending. Prior907646 actual RANS matrix retains old-source scope.",
+    "Only one complete visible radial wall/planar caps on one construction worker; exterior/interacting/high-ratio multi-front geometry not qualified.",
+    "Independent entire geometry/raw sensor/q/J and analytic pure-core edges; remaining BL edge lengths native, not independently re-integrated.",
+    "No viscous/M6 accuracy or whole-lifecycle affordability/scaling claim."
+  ]
+}

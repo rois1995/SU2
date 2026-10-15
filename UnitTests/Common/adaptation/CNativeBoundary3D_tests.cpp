@@ -1493,3 +1493,41 @@ TEST_CASE("Native interior insertion leaves the old diagonal only with a complet
   CHECK_FALSE(SplitSurfaceStrip(incomplete,{0,6},{8,{.5,.55,.45}},{},100,reference,fresh,reason));
   CHECK(Connectivity(fresh)==unchanged);CHECK(reason.find("complete edge star")!=std::string::npos);
 }
+
+TEST_CASE("Finite tilted cylinder and disk queries preserve authority near the axis", "[NativeSmoothClosest3D]") {
+  const auto reference=JointReference();const Id wall=reference.Canonical(8);REQUIRE(reference.CompleteAnalytic(wall));
+  const double q=1/std::sqrt(3.),v=1/std::sqrt(2.);const long double root=std::sqrt(3.L);
+  for(double t:{-.1,0.,.5,1.,1.1})for(double radius:{0.,1e-16,1e-12,.5,1.,1.2})for(unsigned k=0;k<4;++k) {
+    const double angle=k*std::acos(-1.)/2;
+    const Point p{2+t*q+radius*std::sin(angle)*2*v*q,
+      -1+t*q-radius*(std::cos(angle)*v+std::sin(angle)*v*q),
+      .5+t*q+radius*(std::cos(angle)*v-std::sin(angle)*v*q)};
+    const auto closest=reference.ClosestAnalytic(wall,p);CHECK(reference.Contains(wall,closest.point));
+    const long double x=(long double)p.x-2,y=(long double)p.y+1,z=(long double)p.z-.5;
+    const auto radial=std::sqrt(((x-y)*(x-y)+(y-z)*(y-z)+(z-x)*(z-x))/3),height=(x+y+z)/root;
+    const auto expected=std::hypot(radial-1,std::max({0.L,-height,height-1}));
+    CHECK(std::abs(closest.distance-expected)<2e-12L);
+    const auto n=closest.normal;CHECK(std::abs((n.x+n.y+n.z)/root)<2e-12L);
+    CHECK(std::hypot(n.x,n.y,n.z)==Approx(1).margin(2e-12));
+    const long double a=(long double)closest.point.x-2,b=(long double)closest.point.y+1,c=(long double)closest.point.z-.5;
+    CHECK(std::abs(std::sqrt(((a-b)*(a-b)+(b-c)*(b-c)+(c-a)*(c-a))/3)-1)<2e-12L);
+    CHECK((a+b+c)/root>=-2e-12L);CHECK((a+b+c)/root<=1+2e-12L);
+  }
+  for(double t:{.5,1.}) {
+    const Point p{2+t*q,-1+t*q,.5+t*q};const auto projected=reference.Project(wall,p);
+    CHECK(reference.Contains(wall,projected));
+    CHECK(std::hypot(projected.x-p.x,projected.y-p.y,projected.z-p.z)==Approx(reference.ClosestAnalytic(wall,p).distance).margin(2e-12));
+  }
+  CHECK_THROWS(reference.Project(wall,{2,-1,.5}));
+  CHECK_THROWS(reference.Project(wall,{2+1.1*q,-1+1.1*q,1.5+1.1*q}));
+  for(Id id:{Id(0),Id(24)}) {
+    id=reference.Canonical(id);REQUIRE(reference.CompleteAnalytic(id));const auto origin=reference.Analytic().at(id).origin;
+    for(double t:{-.2,0.,.2})for(double radius:{0.,.5,2.}) {
+      const Point p{origin.x+t*q,origin.y+t*q-radius*v,origin.z+t*q+radius*v};
+      const auto closest=reference.ClosestAnalytic(id,p);CHECK(reference.Contains(id,closest.point));
+      const long double x=(long double)p.x-origin.x,y=(long double)p.y-origin.y,z=(long double)p.z-origin.z;
+      const auto radial=std::sqrt(((x-y)*(x-y)+(y-z)*(y-z)+(z-x)*(z-x))/3);
+      CHECK(std::abs(closest.distance-std::hypot((x+y+z)/root,std::max(0.L,radial-1)))<2e-12L);
+    }
+  }
+}
