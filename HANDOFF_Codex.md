@@ -3,55 +3,58 @@
 Worktree `/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated`.
 Branch `codex/native-3d-bl`, based on Goal2
 `c43a8a3907ea2655e4ebbb6286ab16c3fa625d8b`. Full Goal3 ACTIVE/incomplete.
-**Complete cold/removal milestone achieved on MPI1/2/4:** original24-cell/18-node
-coarse cylinder ->1368 BL cells ->68 sensor-only cells. Total charged work3132/3172/3252
-under unchanged shared4096-work/300s limits. BL qmin>=.21137/Jmin>=.05284/Lmax1.795195;
-released qmin .33418/Jmin .19717/Lmax1.119412. Both physical boundaries and volume
-are rebuilt according to requested metric/height/geometry; no solver/testcase modes.
+The connected distributed-region-field checkpoint is qualified; all owned jobs are
+terminal. Verify HEAD/remote for its publication SHA. No cluster submission, messaging,
+foreign `ClusterResults/`, AdapNoExt or dependency modification.
 
-Inspect `region_construction_v1/native_cold_v3/curved_cylinder_BL.su2` and
-`curved_cylinder_released.su2`, each with `.native_ref` (prefix under
-`integration_evidence/native_3d_bl_v1/`). No CFD solution is fabricated.
-[Cold/removal proof and provenance](integration_evidence/native_3d_bl_v1/region_construction_v1/cold_summary.json),
-[focused handbook](Handbook/GOAL3_COLD_CONSTRUCTION.md).
+**Complete curved meshes are accepted under unchanged constraints.** The original
+1402-cell difficult target completes with1368 cells/423 nodes, zero long edges,
+qmin .211386792/Jmin .052846703/Lmax1.795195. Final compatibility SU2/ref bytes and
+original donors match prior independent geometry/height/embedding evidence, explicitly
+reused. Rejected local recovery stays on `codex/native-3d-boundary-recovery-study`;
+do not resume its fallback chain.
 
-Radial sampling now resolves newly created edges before volume construction;
-rejected surface collapses are reused only with unchanged endpoint-star versions.
-No-height policies test a metric-driven core; finer interior fields that need more
-than one cone retain the existing volume operators. Rejected generation work is
-counted and failures report locations/budgets. The preserved original976-cell cold
-proposal has58 long edges/16 bad cap cells; its field-export PASS is diagnosis only.
+**Actual source refresh/removal/rebuild passes MPI1/2/4.** Original24-cell cylinder
+->1368 BL, import that actual mesh with affine sensors `diag(1+.02*z)` ->3072 donors
+->72 sensor-only cells, import again ->288 donors ->1368 BL. Rebuild qmin>=.33135,
+Jmin>=.09572/full Lmax1.795195; analytic sensor/composed target residual<=1.67e-14.
+Height.05/growth1.2/thickness.2/fade, geometry, q>=.20/J>=.05/L<=1.8 remain unchanged.
+Each refreshed event retains4096-work/300s; no shared4096 claim across this whole test.
 
-Independent serial BL exact geometry/height/feet/tensor arithmetic and independent
-released exact geometry/constant-P1 metric audits on all3 outcomes pass. Original hard
-target still completes (`native_complete_v3`,2940 work); its SU2/ref are byte-identical
-to the prior independently audited result, with explicit verified reuse. Existing
-primitive-runtime transfer/BDF/SU2/CGNS restart checks pass2557 assertions; production
-objects/libraries and that test body are unchanged after later cold-harness logging,
-so reuse is recorded rather than claiming execution with the final harness binary.
+Inspect actual `refreshed_released.su2` and `refreshed_BL.su2`, each with `.native_ref`,
+in `integration_evidence/native_3d_bl_v1/region_construction_v1/native_refreshed_source_v2/`.
+No CFD solution is fabricated. [Design, gates and limits](Handbook/GOAL3_DISTRIBUTED_REGION_FIELD.md),
+[complete provenance](integration_evidence/native_3d_bl_v1/region_construction_v1/distributed_field_summary.json).
+The750-cell distributed analytic control passes point P1/composition, exact segment
+footprint/integral, bounded storage and refusal/recovery checks.
 
-Full Goal3 remains open. Next major capability: distributed original-field queries
-for complete regions, then actual curved RANS/current+BDF/transfer/restart and stronger
-fields/geometry. The regional256-original-donor bound is still real: larger sources
-retain incremental adaptation, which does not establish repeated whole-region BL
-rebuilding from a generated1368-cell CFD source. High thickness/height ratio targets
-also need metric-driven multiple fronts, not another local-fallback chain or a forced
-jump beyond the fade. Keep all full-goal physics/accuracy/performance gates intact.
-All owned jobs are terminal. The connected cold/removal batch is the current publication checkpoint;
-verify HEAD/remote for the final commit rather than assuming the earlier checkpoint.
+Whole-source256 donor admission is removed. Original donors remain distributed;
+each actual point/segment footprint and resident cache still fits256. Point memoization
+stores sensors only; BL composition runs at actual queries. All ranks use matching
+query/stop collectives on their existing MPI thread, including exceptions. Geometry
+remains one visible radial/caps region on one worker. Rebuild records2529..2567 imports;
+no low communication cost, lifecycle speedup or scalable generation claim follows,
+especially under host contention.
 
-The earlier native curved-target baseline and its inspectable quality VTU remain
-[archived with exact evidence](integration_evidence/native_3d_bl_v1/region_construction_v1/native_summary.json).
-The failed local-recovery strategy stays on `codex/native-3d-boundary-recovery-study`;
-do not resume its fallback chain. Foreign `ClusterResults/`, AdapNoExt and dependencies
-remain untouched; no cluster submission or messaging was performed.
+**Next connected capability:** actual curved RANS evolution and conservative
+current+BDF/SA transfer/restart with refreshed sources, reusing existing runtime
+fixtures. Current tests import actual CFD geometry but do not advance or transfer
+flow histories. Full Goal3 also needs stronger/interacting/exterior fields/geometry,
+high-ratio metric-driven multiple fronts, thin/composed-gradation limits, practical
+M6/viscous accuracy and complete lifecycle performance. Keep those gates intact.
 
-[Full remaining Goal3 gates](Handbook/GOAL3_CURRENT.md),
+Previous cold24 ->1368 ->68 shared-work MPI1/2/4 proof and independent BL/released
+audits remain in [cold evidence](integration_evidence/native_3d_bl_v1/region_construction_v1/cold_summary.json).
+Previous primitive-runtime current+BDF/SU2/CGNS restart evidence retains its exact
+source/build scope; it does not qualify the new refreshed curved CFD workflow.
+
+[Full current scope](Handbook/GOAL3_CURRENT.md),
 [requirement audit](integration_evidence/native_3d_bl_v1/GOAL3_REQUIREMENTS.json),
 [permanent rules](AGENTS.md), and
 [deferred SST/transition/non-ideal-gas questions](Handbook/FUTURE_PHYSICS_TRANSFER_QUESTIONS.md).
 
-One owned heavy job, nice19/threads1/build-j1/MPI≤4, bounded sampled affinity. No
-cluster submission or messaging. Leave AdapNoExt, foreign ClusterResults and
-dependencies untouched. No production Euler/BL modes, weaker gates, field/target
-resets, budget ladders or local-fallback chains in place of complete construction.
+One owned heavy job, nice19/threads1/build-j1/MPI<=4, bounded sampled affinity.
+Group substantial capability changes, reuse appropriately pinned evidence, preserve
+failures/inspectable meshes, avoid full suites after small edits and push regularly.
+No production Euler/BL modes, weaker gates, target resets, budget ladders or another
+local-fallback chain in place of complete construction.

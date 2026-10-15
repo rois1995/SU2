@@ -118,8 +118,9 @@ MPI2 qmin .211376950/Jmin .052844239; MPI4 qmin .211374367/Jmin .052843602.
 Construction work charges generated cells, surface edits/trials and junction trials:
 2996/3036/2908 of4096 respectively; time ceiling300s. Test walltimes40.7/37.8/37.4s
 include diagnostic work and are correctness evidence, not a lifecycle speedup/scaling
-comparison. One region is constructed on one worker; source import remains bounded
-at256 donors. Other workers participate in source transport and atomic publication.
+comparison. At this checkpoint one region was constructed on one worker with whole-source
+import bounded at256 donors. The subsequent distributed field service below removes
+that whole-source restriction; geometry remains on one worker with MPI publication.
 
 Serial independent exact checks pass all423 vertex links,25120 overlap-pair candidates,
 64 exact normal feet, first-height relative error5.14e-15, centroid tilt2.11e-15,
@@ -162,5 +163,7 @@ under shared4096/300s limits. See [the current cold/removal handbook](GOAL3_COLD
 Its surface planner closes newly created long edges, reuses unchanged failed stars,
 and omits the normal band when no altitude is requested. Original hard-target output
 SU2/ref bytes are unchanged, with current native metric checks and exact audit reuse.
-The regional source cap remains256; distributed queries, multiple fronts, general
-geometry and actual curved RANS remain full-goal work.
+The subsequent [distributed field service](GOAL3_DISTRIBUTED_REGION_FIELD.md) qualifies
+actual refreshed sources3072 ->72 cells ->288 refreshed donors ->1368 BL cells on
+MPI1/2/4, with mild affine sensors. Each actual footprint/resident cache still fits256.
+Multiple fronts, general geometry and actual curved RANS remain full-goal work.

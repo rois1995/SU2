@@ -45,6 +45,10 @@ class DonorImport {
   bool Build(const std::vector<DonorCell>& original, std::string& reason,
              size_t ceiling = SIZE_MAX, size_t caller_bytes = 0);
   DonorPatch Import(const std::vector<DonorRegion>& regions, size_t ceiling = SIZE_MAX, size_t caller_bytes = 0);
+  /*! Exact closed point/segment footprint, including every touching original/extension donor.
+   * Avoids importing the entire segment box when the frozen source is large. */
+  DonorPatch ImportSegments(const std::vector<std::array<Point,2>>& segments,
+                            size_t ceiling=SIZE_MAX,size_t caller_bytes=0);
   DonorPatch ImportCells(const std::vector<Cell>& cells, size_t ceiling = SIZE_MAX, size_t caller_bytes = 0);
   /*! Only covers these cells' actual centroids and six closed edge segments; not arbitrary interior queries.
    * Reconstruction callers must retain full-cell imports until every private query is known. */
@@ -61,7 +65,8 @@ class DonorImport {
   std::unique_ptr<CRankBoxTree> ranks;
   DonorImportStats stats;
   DonorPatch ImportRegions(const std::vector<DonorRegion>& regions, const std::vector<Cell>* cells,
-                          size_t ceiling, size_t caller_bytes, bool metric_queries = false);
+                          size_t ceiling, size_t caller_bytes, bool metric_queries = false,
+                          const std::vector<std::array<Point,2>>* segments = nullptr);
   bool Vote(const CLocalFailure& failure, std::string& reason);
   bool Admit(size_t bytes, size_t ceiling, std::string& reason);
 };

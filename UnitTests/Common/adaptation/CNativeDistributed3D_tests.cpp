@@ -7,6 +7,7 @@
 #include "catch.hpp"
 #include "../../../Common/include/adaptation/CNativeDistributed3D.hpp"
 #include "../../../Common/include/adaptation/CNativeDonor3D.hpp"
+#include "../../../Common/include/adaptation/CNativeRegionField3D.hpp"
 #include "../../../Common/include/adaptation/CNativeEngine3D.hpp"
 #include "../../../Common/include/adaptation/CNativeMetric3D.hpp"
 #include "../../../SU2_CFD/include/adaptation/CBoundaryLayerMetric.hpp"
@@ -2530,4 +2531,50 @@ TEST_CASE("Exact terminal planar wall patch diagnoses retained reconstruction", 
     }
   }
   REQUIRE(reconstructed);
+}
+
+
+TEST_CASE("Regional field service resolves large distributed sources and closes after refusal", "[NativeRegionField3D]") {
+  World world;const auto seed=Box();const unsigned n=5,side=n+1;
+  std::vector<DonorCell> original;Id next=0;
+  for(unsigned z=0;z<n;++z)for(unsigned y=0;y<n;++y)for(unsigned x=0;x<n;++x)
+    for(const auto& base:seed.patch.cells){
+      DonorCell d;d.cell.id=next++;
+      for(unsigned k=0;k<4;++k){const auto p=base.v[k].p;
+        const unsigned i=x+unsigned(p.x),j=y+unsigned(p.y),l=z+unsigned(p.z);
+        d.cell.v[k]={i+side*(j+side*l),{double(i)/n,double(j)/n,double(l)/n}};
+        const double value=1+d.cell.v[k].p.z;d.sensor[k]={value,0,0,value,0,value};
+      }
+      if(d.cell.id%world.size==unsigned(world.rank))original.push_back(d);
+    }
+  REQUIRE(next>MaximumDonors);DonorImport source(world);std::string reason;REQUIRE(source.Build(original,reason));
+  PlanarReference geometry(seed.facets);size_t compositions=0;
+  auto compose=[&](Point p,Tensor sensor){++compositions;sensor.xx+=4*p.y*p.y;return sensor;};
+  RegionFieldService points(world,source,geometry,compose,{},false,SIZE_MAX,0);
+  CLocalFailure failure;
+  try{points.Run([&](const RegionMetric& metric){
+    const Point p{.18,.22,.34};const auto a=metric.point(p),b=metric.point(p);
+    if(std::abs(a.xx-(1+p.z+4*p.y*p.y))>1e-13 || a.xx!=b.xx || std::abs(a.zz-(1+p.z))>1e-13 || compositions!=2)
+      throw std::runtime_error("Regional point memo changed sensor interpolation or skipped actual composition.");
+  });}catch(const std::exception& e){failure.Set(1,0,e.what());}
+  const auto point_error=world.elect(failure);INFO(point_error.message);REQUIRE_FALSE(point_error.any);
+  if(!world.rank){CHECK(points.Statistics().sensor_hits==1);CHECK(points.Statistics().maximum_resident<=MaximumDonors);}
+  RegionFieldService edges(world,source,geometry,{}, {},false,SIZE_MAX,0);
+  failure={};
+  try{edges.Run([&](const RegionMetric& metric){
+    const auto length=metric.edge({0,0,0},{1,1,1});const auto expected=std::sqrt(3.L)*2/3*(2*std::sqrt(2.L)-1);
+    if(std::abs(length-expected)>1e-12L || metric.edge({1,1,1},{0,0,0})!=length)
+      throw std::runtime_error("Regional exact segment source does not match the analytic affine sensor integral.");
+  });}catch(const std::exception& e){failure.Set(1,0,e.what());}
+  const auto edge_error=world.elect(failure);INFO(edge_error.message);REQUIRE_FALSE(edge_error.any);
+  if(!world.rank){CHECK(edges.Statistics().edge_hits==1);CHECK(edges.Statistics().maximum_resident<=MaximumDonors);}
+  CHECK(source.Statistics().maximum_patch<=MaximumDonors);
+  RegionFieldService denied(world,source,geometry,{}, {},false,SIZE_MAX,0);failure={};
+  try{denied.Run([&](const RegionMetric& metric){metric.point({-1,-1,-1});});}
+  catch(const std::exception& e){failure.Set(1,0,e.what());}
+  CHECK(world.elect(failure).any);
+  RegionFieldService resumed(world,source,geometry,{}, {},false,SIZE_MAX,0);failure={};
+  try{resumed.Run([&](const RegionMetric& metric){if(std::abs(metric.point({.2,.3,.4}).yy-1.4)>1e-13)throw std::runtime_error("Protocol did not recover after refusal.");});}
+  catch(const std::exception& e){failure.Set(1,0,e.what());}
+  CHECK_FALSE(world.elect(failure).any);
 }

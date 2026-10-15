@@ -5411,3 +5411,29 @@ radial/caps region is constructed on one worker; high-ratio multiple fronts, ext
 interacting regions, variable sensors, actual curved RANS and physical accuracy/
 performance remain full Goal3 work. See `Handbook/GOAL3_COLD_CONSTRUCTION.md` and
 `region_construction_v1/cold_summary.json` under `integration_evidence/native_3d_bl_v1`.
+
+
+## 2026-10-15 — distributed original-field service and actual source-refresh rebuilding
+
+Connected region queries no longer require whole original source<=256. Exact closed
+point/segment footprints reuse distributed indexes/imports, with footprint/residency
+<=256. Sensor-only point memoization recomposes geometric BL at actual queries;
+identical-edge reuse retains immutable event policy. Existing MPI threads close the
+protocol after exceptions; no global original-donor gather.
+
+Final serial/MPI2/4 workflow passes:24 ->1368 BL, refresh3072 donors ->72 sensor-only
+cells, refresh288 donors ->1368 BL. Mild affine sensor diag(1+.02*z), analytic target
+residual<=1.67e-14, rebuild qmin>=.33135/Jmin>=.09572/Lmax1.795195. All native geometry,
+no-overlap/height/quality/full-length gates unchanged;4096-work/300s per refreshed event,
+not shared across the complete multievent test. Final original1402-cell target accepts
+1368 cells,zero long edges/work2940; exact mesh/ref/source match prior independent
+geometry evidence with explicit reuse.750-cell analytic segment/point/refusal controls
+pass, including boxes>256 while actual footprints fit.
+
+Geometry remains one visible radial/caps region on one worker. Per-query footprints
+remain bounded; no general exterior/multiwall/high-ratio fronts, actual curved
+flow/history transfer/restart, viscous accuracy or speedup claim. Host contention
+prevents useful timing comparison. Next actual curved RANS/current+BDF/SA workflow.
+All owned jobs terminal; full Goal3 ACTIVE. Evidence/limits in
+`region_construction_v1/distributed_field_summary.json` under native_3d_bl_v1 and
+[field handbook](Handbook/GOAL3_DISTRIBUTED_REGION_FIELD.md).

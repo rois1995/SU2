@@ -27,8 +27,8 @@ PASS establishes execution/diagnosis, not admissible mesh generation.
   topology/geometry/no-overlap/metric validation. No Euler/RANS scenario dispatch.
 - A single height-free core cannot resolve all interior fields; actual metric failure
   declines that constructor and retains the existing volume operators. No target is
-  weakened. Domains beyond the256-original-donor regional admission also retain the
-  previously qualified incremental path rather than failing at a global box import.
+  weakened. The initial checkpoint retained incremental adaptation beyond256 original
+  donors; the subsequent field service replaces that whole-source restriction.
 - Count private generated cells/surface/junction work on rejection as well as success;
   checkpoint junction probes, distinguish budget exits and include failing coordinates.
 
@@ -76,7 +76,8 @@ CAD, exterior/holey domain decomposition, high-ratio multiband construction or
 parallel generation/scaling follows. Original sensor-only P1, finer requests, geometric
 BL/fade and h/q/J/length/geometry thresholds are unchanged. Stronger/variable sensors,
 interacting walls and real unsteady CFD/viscous accuracy remain full Goal3 gates.
-A1368-cell current CFD source usually exceeds the256 donor cap even though the frozen
-coarse-source oracle does not. Complete-region distributed field queries are therefore
-needed for repeated actual CFD rebuilding; the incremental-path preservation is a
-compatibility safeguard, not a solution to that remaining capability.
+The earlier whole-source256 cap is superseded by the
+[distributed original-field service](GOAL3_DISTRIBUTED_REGION_FIELD.md): serial/MPI2/4
+actual source refresh3072 ->72 cells, refresh288 ->1368 BL passes with mild affine
+sensors. Each actual footprint/resident cache still fits256; region construction
+remains on one worker. This does not establish curved CFD solution transfer/restart.

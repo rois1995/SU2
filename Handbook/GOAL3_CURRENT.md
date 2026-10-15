@@ -25,11 +25,18 @@ difficult-target acceptance is preserved; its mesh/ref bytes match the prior exa
 audit. [Cold/removal scope](GOAL3_COLD_CONSTRUCTION.md) and
 [provenance](../integration_evidence/native_3d_bl_v1/region_construction_v1/cold_summary.json).
 
-Full Goal3 remains open. Next address complete-region original-field queries beyond
-256 donors and actual curved RANS/current+BDF/transfer/restart, then materially
-different/stronger fields, interacting/exterior regions and high-ratio multiple fronts.
-Larger-source incremental compatibility is retained; it does not establish repeated
-whole-region CFD BL rebuilding. No lifecycle speedup/scalability claim follows.
+The subsequent distributed-field milestone passes serial/MPI2/4: actual1368-cell
+mesh ->3072 original donors ->72 sensor-only cells, refresh ->288 original donors
+->1368 accepted BL cells with affine sensors `diag(1+.02*z)`. Target residual<=1.67e-14;
+rebuild qmin>=.33135/Jmin>=.09572/full Lmax1.795195. Geometric BL is composed at each
+actual point query; memoized points retain sensors only. Exact segment imports avoid
+a whole-source gather. See [field service scope/evidence](GOAL3_DISTRIBUTED_REGION_FIELD.md).
+
+Full Goal3 remains open. Next qualify actual curved RANS/current+BDF/transfer/restart,
+then materially different/stronger fields, interacting/exterior regions and high-ratio
+multiple fronts. The source is no longer globally limited to256 donors, but each
+query footprint and resident cache still are. Geometry remains one visible radial/caps
+region on one worker. No CFD transfer, lifecycle speedup or scalability claim follows.
 
 ## Existing qualified scope
 
@@ -53,7 +60,7 @@ whole-region CFD BL rebuilding. No lifecycle speedup/scalability claim follows.
 
 ## Remaining full-goal gates
 
-Extend curved cold construction/removal beyond the qualified radial/constant-sensor pilot; stronger distinct fields;
+Extend curved cold construction/removal beyond the qualified radial/constant and mild-affine sensor pilots; stronger distinct fields;
 features/junctions/interacting layers and thin-volume quadrature; declared first-row
 alignment and coverage beyond necessary feet; compatible composed-gradation limits;
 current connected MPI1/2/4 N=M/M<N with conservative current+BDF/SA transfer, strict

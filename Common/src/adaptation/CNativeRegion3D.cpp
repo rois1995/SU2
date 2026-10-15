@@ -48,7 +48,7 @@ class Construction {
   const PlanarReference& geometry;
   const std::map<int, RegionWallPolicy>& policy;
   const double tolerance;
-  FrozenField& field;
+  const RegionMetric& field;
   const RegionLimits& limits;
   RegionReport& report;
   std::map<Id, Point> nodes;
@@ -59,7 +59,7 @@ class Construction {
   Patch fresh;
   std::vector<Junction> junctions;
   std::map<Edge, long double> lengths;
-  Construction(const PlanarReference& g, const std::map<int, RegionWallPolicy>& p, double t, FrozenField& f,
+  Construction(const PlanarReference& g, const std::map<int, RegionWallPolicy>& p, double t, const RegionMetric& f,
                const RegionLimits& l, RegionReport& r, Id n, Id c)
       : geometry(g), policy(p), tolerance(t), field(f), limits(l), report(r), next_node(n), next_cell(c) {}
   void Check() const {
@@ -105,7 +105,7 @@ class Construction {
   long double Length(Id a, Id b) {
     const auto k = Key(a, b);
     auto it = lengths.find(k);
-    if (it == lengths.end()) it = lengths.emplace(k, field.TargetEdgeLength(nodes.at(a), nodes.at(b))).first;
+    if (it == lengths.end()) it = lengths.emplace(k, field.edge(nodes.at(a), nodes.at(b))).first;
     return it->second;
   }
   Cell Tet(std::array<Id, 4> ids, Id id = 0) const {
@@ -115,7 +115,7 @@ class Construction {
     return c;
   }
   MetricMeasures Shape(const Cell& c) {
-    return Measure({c.v[0].p, c.v[1].p, c.v[2].p, c.v[3].p}, field.Query(Centroid(c)).target);
+    return Measure({c.v[0].p, c.v[1].p, c.v[2].p, c.v[3].p}, field.point(Centroid(c)));
   }
   double Score(const std::vector<std::array<Id, 4>>& cells, bool measure_edges = true) {
     double score = INFINITY;
@@ -634,7 +634,7 @@ class Construction {
 }  // namespace
 bool ConstructWallRegion(const std::vector<Facet>& skin, Point kernel, const PlanarReference& geometry,
                          const std::map<int, RegionWallPolicy>& policies, double tolerance, Id first_node,
-                         Id first_cell, FrozenField& target, const RegionLimits& limits, Patch& output,
+                         Id first_cell, const RegionMetric& target, const RegionLimits& limits, Patch& output,
                          RegionReport& report, std::string& reason) {
   report = {};
   try {

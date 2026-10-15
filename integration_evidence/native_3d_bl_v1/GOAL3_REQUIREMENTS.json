@@ -100,7 +100,7 @@
     "wall_reconstruction_v1/joint_connectivity_summary.json"
   ],
   "execution_state": {
-    "status": "One owned mechanism/phase diagnostic build and actual remaining-boundary replay. Published25-edge rejection retained; no adaptation decision or acceptance gate changed.",
+    "status": "Distributed source-refresh/removal/rebuild and hard-target compatibility pass; all owned jobs terminal. Next actual curved RANS/current+BDF/transfer/restart; full Goal3 ACTIVE.",
     "CFD_runs": 0,
     "production_MPI": "Current PASS N/M1/1,2/1,2/2; N/M4/1,4/2,4/4 remain required. Previous full matrix historical.",
     "independent_frames": 6
@@ -235,7 +235,7 @@
     "scope": "One planar cube production case plus six focused first-row geometry/movement cases. Actual computed metric, conservative current+BDF/bounded-SA and SU2/CGNS/reference/restart checks; independent exact embedding, full composed metric, wall footprint and height. No new MPI, full regressions, general layer coverage, actual CFD accuracy or performance qualification."
   },
   "owned_jobs": {
-    "status": "all owned prototype constructions/native read-only field audits/exact independent audits terminal; local binary still belongs to39a1f487 study"
+    "status": "All final build, serial/MPI2/4 field/source-refresh and hard-target compatibility checks terminal PASS; final source/binary pinned in distributed_field_summary.json."
   },
   "wall_reconstruction": {
     "status": "PASS_PLANAR_STRONGER_FIELD_LIMITED_SCOPE",
@@ -606,8 +606,8 @@
     "full_edges": 2074,
     "maximum_full_length": 1.795194775140255,
     "independent": "Serial exact embedding/no positive overlap/all423 vertex links/25120 overlap candidates/64 normal feet/height/authority and exported-tensor arithmetic PASS. Full length integration is native, not independent quadrature.",
-    "production": "Connected actual-field C++ whole-region construction and versioned MPI publication pass the original full target on1/2/4 ranks. Initial scope one visible radial wall/caps region and<=256 original donors, constructed on one worker. Rank outputs differ but all strict gates pass.",
-    "required_next": "Complete radial cold/removal pilot now passes MPI1/2/4 with independent evidence; extend regional field queries beyond256 original donors, qualify actual curved RANS/current+BDF/transfer/restart and stronger/interacting/exterior/high-ratio fields. Full accuracy/lifecycle performance gates remain active.",
+    "production": "Complete native region construction/versioned MPI publication accepts difficult target. Initial whole-source256 cap superseded by bounded distributed queries; geometry remains one visible radial/caps region on one worker.",
+    "required_next": "Actual curved RANS/current+BDF/transfer/restart using refreshed sources; stronger/interacting/exterior/high-ratio fronts, accuracy and lifecycle cost remain.",
     "native_summary": "region_construction_v1/native_summary.json",
     "prototype_summary": "region_construction_v1/summary.json"
   },
@@ -623,10 +623,32 @@
     "full_goal_complete": false,
     "remaining": [
       "One complete visible radial wall with planar caps; single worker constructs one admitted region.",
-      "Regional original source<=256 donors; larger sources retain incremental path, not a solution to repeated large-source CFD BL rebuilding.",
+      "Earlier whole-source256 cap superseded by distributed queries. Each actual footprint/resident cache<=256; no arbitrary footprint claim.",
       "Current fixed band/transition planning is not qualified for high thickness/height ratios; metric-driven multiple fronts remain needed.",
       "Rank-count BL connectivity/placement may differ while strict acceptance passes.",
       "Field-export PASS for the976-cell rejected initial candidate is diagnostic only, not mesh acceptance."
     ]
+  },
+  "distributed_region_field": {
+    "status": "PASS_DISTRIBUTED_REGION_FIELD_REFRESH_RELEASE_REBUILD_MPI1_2_4_SCOPE_LIMITED",
+    "full_goal_complete": false,
+    "final_cases": [
+      "native_refreshed_source_v2",
+      "native_region_field_controls_mpi2_v2",
+      "native_region_field_controls_mpi4_v2",
+      "native_refreshed_source_mpi2_v2",
+      "native_refreshed_source_mpi4_v2",
+      "native_field_compat_v2"
+    ],
+    "limits": [
+      "One visible radial wall/planar caps region constructed on one worker; not parallel region generation.",
+      "Each actual point/segment footprint and resident cache<=256; no arbitrary footprint claim.",
+      "Mild affine refreshed sensors only; stronger/interacting/exterior geometry and high-ratio multiple fronts remain.",
+      "MPI rank outputs may differ while all strict gates pass.",
+      "Host contention affects timings; no lifecycle performance/scaling claim.",
+      "Actual curved RANS/current+BDF/SA transfer/restart, practical M6/accuracy and full lifecycle cost remain full-goal gates."
+    ],
+    "summary": "region_construction_v1/distributed_field_summary.json",
+    "handbook": "Handbook/GOAL3_DISTRIBUTED_REGION_FIELD.md"
   }
 }

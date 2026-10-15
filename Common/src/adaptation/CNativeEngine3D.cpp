@@ -5,6 +5,7 @@
  * SU2 is free software under the GNU Lesser General Public License, version 2.1 or later.
  */
 #include "../../include/adaptation/CNativeEngine3D.hpp"
+#include "../../include/adaptation/CNativeRegionField3D.hpp"
 #include <chrono>
 #include <cmath>
 #include <ctime>
@@ -665,7 +666,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
   const auto global_original=CPassiveComm::Allreduce(uint64_t(original.size()),CPassiveComm::Op::SUM,world.comm);
   bool region_applicable=curved && !repairing && options.region_walls.size()<=1 &&
       options.region_walls.size()==options.wall_heights.size() &&
-      (!coarsening || options.wall_heights.empty()) && global_original<=MaximumDonors;
+      (!coarsening || options.wall_heights.empty());
   if(region_applicable) {
     std::set<Id> walls;
     if(!options.region_walls.empty()) {
@@ -694,7 +695,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     // shortcut: a bounded single-worker visible region; partition into connected regions for large sources.
     const size_t region_cells=stats.work_limit;
     const auto scratch=transfer_memory::Add(transfer_memory::Mul(global_input,8192),
-        transfer_memory::Mul(region_cells,16384),MaximumFrozenFieldBytes);
+        transfer_memory::Mul(region_cells,16384),RegionFieldWorkspaceBytes);
     if(!admit(scratch))return finish();
     std::vector<std::vector<OwnedCell>> buckets(world.size);
     try {buckets[0].reserve(working.size());for(const auto& row:working)buckets[0].push_back(row.second);}
@@ -710,15 +711,26 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       regions.push_back({lo.x,lo.y,lo.z,hi.x,hi.y,hi.z});
     }}catch(const std::exception& e){failure.Set(2,0,e.what());}
     if(!vote(failure))return finish();
-    const auto imported=source.Import(regions,options.memory_ceiling,transfer_memory::Add(bytes(),scratch));
+    DonorPatch imported;imported.valid=true;
+    if(global_original<=MaximumDonors)imported=source.Import(regions,options.memory_ceiling,transfer_memory::Add(bytes(),scratch));
     if(!imported.valid){result.reason=imported.reason;return finish();}
     RegionReport report;
-    try {if(!world.rank){
-      FrozenField target(imported.cells,composition,options.timings,AssociatedExtensions(imported.cells,geometry),options.edge_breakpoints);
-      FieldAccounting accounting{stats,target};bool already_valid=GeometryExcess(old,geometry,options.surface_tolerance,options.wall_heights)==0;
+    auto tick=[&](){if(options.maximum_seconds && std::chrono::duration<double>(Clock::now()-started).count()>=options.maximum_seconds)
+      throw std::runtime_error("Native3D region construction exhausts elapsed-time budget.");};
+    RegionFieldService service(world,source,geometry,composition,options.edge_breakpoints,options.timings,
+        options.memory_ceiling,transfer_memory::Add(bytes(),scratch,directory.ResidentBytes()),
+        [&](const FrozenField& field){FieldCounts(stats,field);},tick);
+    try {service.Run([&](const RegionMetric& target){
+      bool already_valid=GeometryExcess(old,geometry,options.surface_tolerance,options.wall_heights)==0;
       std::string why;
       if(already_valid)for(const auto& row:rows)if(!height_check(GeometryPatch(Imported{{row},true,{}}),why)){already_valid=false;break;}
-      if(already_valid)for(const auto& c:old.cells){PatchMetric metric;if(!ValidateMetricPatch({c},target,metric,why)){already_valid=false;break;}}
+      if(already_valid)for(const auto& c:old.cells){
+        const auto m=Measure({c.v[0].p,c.v[1].p,c.v[2].p,c.v[3].p},target.point(Centroid(c)));
+        if(m.mean_ratio<MinimumMeanRatio || m.minimum_scaled_jacobian<MinimumScaledJacobian){already_valid=false;break;}
+        for(unsigned a=0;a<4 && already_valid;++a)for(unsigned b=a+1;b<4;++b)
+          if(target.edge(c.v[a].p,c.v[b].p)>MaximumMetricEdge){already_valid=false;break;}
+        if(!already_valid)break;
+      }
       if(already_valid)complete=true;
       else {
         ++stats.region_attempts;std::map<Id,Point> points;for(const auto& c:old.cells)for(auto n:c.v)points.emplace(n.id,n.p);
@@ -753,7 +765,15 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
           complete=true;
         }
       }
-    }}catch(const std::exception& e){failure.Set(2,0,e.what());}
+    },imported.cells);}catch(const std::exception& e){failure.Set(2,0,e.what());}
+    const auto& field_stats=service.Statistics();
+    stats.region_field_points=field_stats.point_calls;stats.region_field_sensor_hits=field_stats.sensor_hits;
+    stats.region_field_interior_hits=field_stats.interior_hits;stats.region_field_edges=field_stats.edge_calls;
+    stats.region_field_edge_hits=field_stats.edge_hits;stats.region_field_imports=field_stats.imports;
+    stats.region_field_maximum_resident=field_stats.maximum_resident;
+    stats.field_requests+=field_stats.sensor_hits;stats.field_hits+=field_stats.sensor_hits;
+    if(composition)stats.field_compositions+=field_stats.sensor_hits;
+
     stats.region_surface_trials=report.surface_trials;stats.region_junction_trials=report.junction_trials;
     stats.global_work=CPassiveComm::Allreduce(uint64_t(report.generated_cells+report.surface_trials+report.junction_trials),CPassiveComm::Op::MAX,world.comm);
     if(!vote(failure)) {

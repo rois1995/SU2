@@ -8,6 +8,15 @@
 #include "CNativeBoundary3D.hpp"
 #include "CNativeField3D.hpp"
 namespace SU2Native3D {
+struct RegionMetric {
+  Metric point;
+  std::function<long double(Point, Point)> edge;
+  explicit RegionMetric(FrozenField& field)
+      : point([&field](Point p) { return field.Query(p).target; }),
+        edge([&field](Point a, Point b) { return field.TargetEdgeLength(a, b); }) {}
+  RegionMetric(Metric query, std::function<long double(Point, Point)> integral)
+      : point(std::move(query)), edge(std::move(integral)) {}
+};
 struct RegionWallPolicy {
   double height = 0, growth = 0, thickness = 0;
   template <class S>
@@ -35,6 +44,6 @@ struct RegionReport {
  * agreement and atomic publication belong to caller. */
 bool ConstructWallRegion(const std::vector<Facet>& skin, Point kernel, const PlanarReference& geometry,
                          const std::map<int, RegionWallPolicy>& policies, double surface_tolerance, Id first_node,
-                         Id first_cell, FrozenField& target, const RegionLimits& limits, Patch& output,
+                         Id first_cell, const RegionMetric& target, const RegionLimits& limits, Patch& output,
                          RegionReport& report, std::string& reason);
 }  // namespace SU2Native3D

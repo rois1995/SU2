@@ -7,6 +7,7 @@
 #include "TransferTestCase.hpp"
 #include "../../../Common/include/adaptation/CNativeImport3D.hpp"
 #include "../../../Common/include/adaptation/CNativeEngine3D.hpp"
+#include "../../../Common/include/adaptation/CNativeRegionField3D.hpp"
 #include "../../../SU2_CFD/include/adaptation/CBarycentricTransfer.hpp"
 #include "../../../SU2_CFD/include/output/CMeshOutput.hpp"
 #include "../../../SU2_CFD/include/adaptation/CConservativeTransfer.hpp"
@@ -1584,8 +1585,8 @@ TEST_CASE("Cold native cylinder BL construction and release use the same origina
   REQUIRE(options.wall_heights.size()==1);
   for(const auto& wall:options.wall_heights)options.region_walls[wall.first]={wall.second,1.2,.2};
   options.edge_breakpoints=[layers](Point a,Point b){return layers->EdgeBreakpoints({a.x,a.y,a.z},{b.x,b.y,b.z});};
-  auto save=[&](const std::string& name,const Owned& owned) {
-    Save(world,name,owned,input.original,reference);
+  auto save=[&](const std::string& name,const Owned& owned,const std::vector<DonorCell>* source=nullptr) {
+    Save(world,name,owned,source?*source:input.original,reference);
     std::vector<OwnedCell> local;for(const auto& row:owned)local.push_back(row.second);const auto all=world.metadata(local);
     if(world.rank)return;
     CSimplexMesh output;output.nDim=3;std::map<Id,unsigned long> ids;std::map<int,unsigned> markers;
@@ -2066,6 +2067,54 @@ TEST_CASE("Cold native cylinder BL construction and release use the same origina
   }
   save(refined.valid?"curved_cylinder_BL":"curved_cylinder_BL_rejected",refined.cells);
   CHECK(Signature(world,input.cells,reference)==before);INFO(refined.reason);REQUIRE(refined.valid);
+  if(std::getenv("SU2_NATIVE_CURVED_REFRESH_SOURCE")) {
+    auto import_current=[&](const std::string& name) {
+      SU2_MPI::Barrier(world.comm);auto cfg=text.str();const auto at=cfg.find("unused.su2");REQUIRE(at!=std::string::npos);cfg.replace(at,10,name+".su2");
+      std::stringstream inputText(cfg);std::unique_ptr<CConfig> c;
+      {Mute mute;c=std::make_unique<CConfig>(inputText,SU2_COMPONENT::SU2_CFD,false);}
+      CSU2ASCIIMeshReaderFVM reader(c.get(),0,1);MeshSolution mesh(c.get(),reader,0);
+      su2activematrix sensor(mesh.Fine().GetnPointDomain(),6);
+      for(unsigned long p=0;p<sensor.rows();++p){const double scale=1+.02*SU2_TYPE::GetValue(mesh.Fine().nodes->GetCoord(p,2));
+        for(unsigned k=0;k<6;++k)sensor(p,k)=k==0||k==3||k==5?scale:0;}
+      auto authority=reference;return ImportGeometry(*c,mesh.Fine(),&sensor,authority);
+    };
+    auto check_current=[&](const std::string& name,const ImportedGeometry& source,const EngineResult& result,bool layers) {
+      REQUIRE(result.valid);
+      const auto current=world.sum(source.original.size());CHECK(current>MaximumDonors);
+      const auto payloads=world.sum(result.stats.region_field_imports);CHECK(payloads>0);
+      CHECK(result.stats.region_field_maximum_resident<=MaximumDonors);
+      Save(world,name,result.cells,source.original,reference);
+      std::vector<OwnedCell> local;for(const auto& row:result.cells)local.push_back(row.second);auto cells=world.metadata(local);
+      DonorImport donors(world);std::string reason;REQUIRE(donors.Build(source.original,reason));
+      double residual=0,q=1,j=1;long double maximum=0;CLocalFailure failure;
+      RegionFieldService verifier(world,donors,*reference.original,layers?compose:MetricComposition{},layers?options.edge_breakpoints:MetricEdgeBreakpoints{},false,SIZE_MAX,0);
+      try{verifier.Run([&](const RegionMetric& metric){for(const auto& row:cells){
+        const auto& c=row.cell;const auto p=Centroid(c);const double scale=1+.02*p.z;
+        const auto actual=metric.point(p),expected=layers?compose(p,{scale,0,0,scale,0,scale}):Tensor{scale,0,0,scale,0,scale};
+        const double a[6]={actual.xx,actual.xy,actual.xz,actual.yy,actual.yz,actual.zz},b[6]={expected.xx,expected.xy,expected.xz,expected.yy,expected.yz,expected.zz};
+        for(unsigned k=0;k<6;++k)residual=std::max(residual,std::abs(a[k]-b[k])/(1+std::abs(b[k])));
+        const auto shape=Measure({c.v[0].p,c.v[1].p,c.v[2].p,c.v[3].p},actual);q=std::min(q,shape.mean_ratio);j=std::min(j,shape.minimum_scaled_jacobian);
+        for(unsigned a=0;a<4;++a)for(unsigned b=a+1;b<4;++b)maximum=std::max(maximum,metric.edge(c.v[a].p,c.v[b].p));
+      }});}catch(const std::exception& e){failure.Set(1,0,e.what());}
+      const auto rejected=world.elect(failure);INFO(rejected.message);REQUIRE_FALSE(rejected.any);
+      if(!world.rank){CHECK(residual<2e-12);CHECK(q>=MinimumMeanRatio);CHECK(j>=MinimumScaledJacobian);CHECK(maximum<=MaximumMetricEdge);
+        std::ofstream out(name+"_summary.json");out<<std::setprecision(17)<<"{\"original_donors\":"<<current<<",\"cells\":"<<cells.size()
+            <<",\"sensor_target_residual\":"<<residual<<",\"q\":"<<q<<",\"j\":"<<j<<",\"maximum_full_length\":"<<maximum
+            <<",\"work\":"<<result.stats.global_work<<",\"field_imports\":"<<result.stats.region_field_imports
+            <<",\"sensor_hits\":"<<result.stats.region_field_sensor_hits<<",\"interior_hits\":"<<result.stats.region_field_interior_hits
+            <<",\"edge_hits\":"<<result.stats.region_field_edge_hits<<",\"maximum_resident\":"<<result.stats.region_field_maximum_resident<<"}\n";REQUIRE(out.good());}
+    };
+    const auto current=import_current("curved_cylinder_BL");const auto signature=Signature(world,current.cells,reference);
+    auto release=options;release.wall_heights.clear();release.region_walls.clear();release.edge_breakpoints={};release.rejected_trial={};
+    const auto coarse=Coarsen(world,current.cells,current.original,*reference.original,{},release);
+    save(coarse.valid?"refreshed_released":"refreshed_release_rejected",coarse.cells,&current.original);
+    CHECK(Signature(world,current.cells,reference)==signature);INFO(coarse.reason);check_current("refreshed_release",current,coarse,false);
+    const auto updated=import_current("refreshed_released");const auto before=Signature(world,updated.cells,reference);
+    const auto rebuilt=Refine(world,updated.cells,updated.original,*reference.original,compose,options);
+    save(rebuilt.valid?"refreshed_BL":"refreshed_BL_rejected",rebuilt.cells,&updated.original);
+    CHECK(Signature(world,updated.cells,reference)==before);INFO(rebuilt.reason);check_current("refreshed_rebuild",updated,rebuilt,true);
+    return;  // Refreshed actual mesh sources with affine sensors, not CFD solution transfer or accuracy qualification.
+  }
   const auto allOriginal=world.metadata(input.original);
   FrozenField target(allOriginal,compose,false,AssociatedExtensions(allOriginal,*reference.original),options.edge_breakpoints);
   double layer_q=1,layer_j=1,layer_l=0;

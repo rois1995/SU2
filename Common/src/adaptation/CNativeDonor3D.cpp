@@ -40,10 +40,10 @@ int Server(const Authority& row, int size) {
 struct Request {
   DonorRegion region{};
   int caller = 0;
-  bool tetrahedral = false;
+  bool tetrahedral = false, segment = false;
   unsigned char query = 0;  // 0 full cell; bits0..6 select actual centroid and six closed edges.
   Tetrahedron tetra{};
-  template <class S> void Fields(S& s) { s(region, caller, tetrahedral, query, tetra); }
+  template <class S> void Fields(S& s) { s(region, caller, tetrahedral, segment, query, tetra); }
 };
 constexpr std::array<std::array<size_t, 2>, 6> QueryEdges{{{0,1},{0,2},{0,3},{1,2},{1,3},{2,3}}};
 DonorRegion Bounds(const Cell& cell) {
@@ -232,17 +232,21 @@ DonorPatch DonorImport::ImportCells(const std::vector<Cell>& cells, size_t ceili
 DonorPatch DonorImport::ImportMetricCells(const std::vector<Cell>& cells, size_t ceiling, size_t caller_bytes) {
   return ImportRegions({}, &cells, ceiling, caller_bytes, true);
 }
+DonorPatch DonorImport::ImportSegments(const std::vector<std::array<Point,2>>& segments,size_t ceiling,size_t caller_bytes) {
+  return ImportRegions({},nullptr,ceiling,caller_bytes,false,&segments);
+}
 DonorPatch DonorImport::ImportRegions(const std::vector<DonorRegion>& regions, const std::vector<Cell>* cells,
-                                    size_t ceiling, size_t caller_bytes, bool metric_queries) {
+                                    size_t ceiling, size_t caller_bytes, bool metric_queries,
+                                    const std::vector<std::array<Point,2>>* segments) {
   Timer timer(stats.import_seconds, timings);
   ++stats.imports;
   DonorPatch result;
   CLocalFailure failure;
   if (!initialized) failure.Set(1, 0, "Original donor source has not been frozen.");
-  const auto count = cells ? cells->size() : regions.size();
+  const auto count = segments ? segments->size() : cells ? cells->size() : regions.size();
   if (count > MaximumCavityCells) failure.Set(1, 0, "Too many original donor import regions.");
   if (!Vote(failure, result.reason)) { ++stats.rejected; return result; }
-  const auto baseline = transfer_memory::Add(caller_bytes, ResidentBytes(), cells ? transfer_memory::Bytes(*cells) : transfer_memory::Bytes(regions));
+  const auto baseline = transfer_memory::Add(caller_bytes, ResidentBytes(), segments ? transfer_memory::Bytes(*segments) : cells ? transfer_memory::Bytes(*cells) : transfer_memory::Bytes(regions));
   const auto route_peak = transfer_memory::Add(baseline, ranks->QueryBytes(),
       transfer_memory::Mul(world.size, sizeof(std::vector<Request>) + sizeof(unsigned char)),
       transfer_memory::GrowthBound(transfer_memory::Mul(count, world.size), sizeof(Request)));
@@ -264,7 +268,13 @@ DonorPatch DonorImport::ImportRegions(const std::vector<DonorRegion>& regions, c
       for (auto owner : owners) to[owner].push_back(request);
     };
     for (size_t i = 0; i < count; ++i) {
-      Request request; request.region = cells ? Bounds(cells->at(i)) : regions[i]; request.caller = world.rank;
+      Request request; request.caller = world.rank;
+      if(segments) {
+        const auto points=segments->at(i);
+        for(Point p:points)for(double x:{p.x,p.y,p.z})if(!std::isfinite(x))throw std::invalid_argument("Nonfinite original segment query.");
+        request.region=SegmentBounds(points[0],points[1]);request.tetra[0]=points[0];request.tetra[1]=points[1];
+        request.segment=true;request.tetrahedral=true;
+      } else request.region = cells ? Bounds(cells->at(i)) : regions[i];
       if (cells) {
         request.tetrahedral = filter_cells;
         for (size_t j = 0; j < 4; ++j) request.tetra[j] = cells->at(i).v[j].p;
@@ -311,7 +321,8 @@ DonorPatch DonorImport::ImportRegions(const std::vector<DonorRegion>& regions, c
     for (const auto& request : requests) {
       ++stats.owner_requests;
       if (request.caller < 0 || request.caller >= world.size) throw std::invalid_argument("Invalid donor request owner.");
-      if (request.query > 127 || (request.query && !request.tetrahedral))
+      if (request.query > 127 || (request.query && !request.tetrahedral) ||
+          (request.segment && (!request.tetrahedral || request.query)))
         throw std::invalid_argument("Invalid donor metric-query kind.");
       if (!index) continue;
       auto search = [&](const DonorRegion& b, unsigned char query) {
@@ -344,7 +355,8 @@ DonorPatch DonorImport::ImportRegions(const std::vector<DonorRegion>& regions, c
           if (set.size() > MaximumDonors) throw std::runtime_error("Original donor import exceeds patch budget.");
         }
       };
-      if (!request.query) search(request.region,0);
+      if (request.segment) search(request.region,2);
+      else if (!request.query) search(request.region,0);
       else for (size_t query = 0; query <= QueryEdges.size(); ++query) if (request.query & (1u << query)) {
         const Point a = query ? request.tetra[QueryEdges[query-1][0]] : Point{request.region[0],request.region[1],request.region[2]};
         const Point b = query ? request.tetra[QueryEdges[query-1][1]] : a;
