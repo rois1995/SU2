@@ -1461,3 +1461,24 @@ TEST_CASE("Replay actual wall seam blockage with retained and common-background 
     }
   }
 }
+
+TEST_CASE("Native interior insertion leaves the old diagonal only with a complete fixed-skin fan", "[NativeInteriorPlacement3D]") {
+  const auto old=Cube();const PlanarReference reference(Facets(old));Patch fresh;std::string reason;
+  auto seed=old;seed.surface.clear();const auto apices=SplitPatchApices(seed,{0,6});
+  REQUIRE(!apices.empty());CHECK(apices.size()<=8);
+  CHECK(std::find(apices.begin(),apices.end(),0)==apices.end());CHECK(std::find(apices.begin(),apices.end(),6)==apices.end());
+  for(const auto& c:seed.cells)CHECK(std::any_of(c.v.begin(),c.v.end(),[&](Node n){return std::find(apices.begin(),apices.end(),n.id)!=apices.end();}));
+  REQUIRE(SplitSurfaceStrip(old,{0,6},{8,{.5,.55,.45}},{},100,reference,fresh,reason));
+  CHECK(fresh.cells.size()==12);CHECK(ValidateFixedInterface(old.cells,fresh.cells,reason));
+  for(size_t i=0;i<fresh.cells.size();++i)for(size_t j=i+1;j<fresh.cells.size();++j)
+    CHECK(ConformingDisjoint(fresh.cells[i],fresh.cells[j]));
+  auto incomplete=old;incomplete.cells.pop_back();const auto skin=Incidence(incomplete.cells).Boundary();
+  incomplete.surface.erase(std::remove_if(incomplete.surface.begin(),incomplete.surface.end(),[&](const SurfaceFace& f) {
+    return std::find(skin.begin(),skin.end(),f.v)==skin.end();
+  }),incomplete.surface.end());
+  const auto unchanged=Connectivity(fresh);
+  CHECK_FALSE(SplitSurfaceStrip(old,{0,6},{8,{1.25,.55,.45}},{},100,reference,fresh,reason));
+  CHECK(Connectivity(fresh)==unchanged);
+  CHECK_FALSE(SplitSurfaceStrip(incomplete,{0,6},{8,{.5,.55,.45}},{},100,reference,fresh,reason));
+  CHECK(Connectivity(fresh)==unchanged);CHECK(reason.find("complete edge star")!=std::string::npos);
+}

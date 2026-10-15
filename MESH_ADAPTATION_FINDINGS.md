@@ -5162,3 +5162,22 @@ This is partial construction progress, not full curved capability or speedup.
 MPI integration, interior-transition blockage and every full Goal3 gate remain
 open. See Handbook/GOAL3_CURVED_BL.md and wall_reconstruction_v1/
 joint_placement_summary.json. Raw negative and positive evidence is preserved.
+
+## Interior point freedom and bounded MPI — 2026-10-15
+
+A complete interior fan can insert away from its old diagonal while preserving
+its entire skin. The actual remaining cylinder edge is repaired in4 trials on
+8→16 cells, with no apex movement; native actual-field/geometry/height gates and
+independent exact local geometry/donor/reference checks pass. Shared tentative
+cover selection excludes endpoints; complete imported stars still prove free
+apices. The first endpoint-selection rejection and larger coupled proof remain.
+
+The engine tries point-only placement before expensive support expansion and
+retains stationary identities. All bounded MPI1/2/4 cases execute the new path,
+preserve input and actual before/after original donors/reference, and stop at512
+work; trajectories differ with ownership. No final mesh or scaling claim.
+The strict saved473-cell target progresses165 edits/164 insertions to1110 cells,
+q .200176/J .050161, but174 oversized edges remain at4096 work. Metric excess
+142.380265→3.482566 is substantial partial progress, not accepted construction.
+See Handbook/GOAL3_INTERIOR_PLACEMENT.md and interior_placement_summary.json.
+Full Goal3 remains active; all original integration/physics/performance gates stay.

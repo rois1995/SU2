@@ -238,3 +238,7 @@ is untouched. No new full cold run, external cluster run or performance assessme
 All owned jobs terminal. Next: qualify matched MPI execution and extend coordinated
 reconstruction to the unresolved interior transition, without raising limits or
 repeating full cold runs for isolated changes.
+
+The current connected interior-placement/MPI qualification is described in
+[its smaller handbook](GOAL3_INTERIOR_PLACEMENT.md). The published cap and strict
+rejected-grid evidence above remains scoped to its pinned source/binary.

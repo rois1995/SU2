@@ -1,0 +1,42 @@
+{
+  "status": "INCOMPLETE_FULL_GRID_MPI_PROTOCOL_PASSES",
+  "private_replay": {
+    "path": "curved_interior_search.json",
+    "sha256": "686f2566eada24128784eedb4ba831d5a9740ddd9dee79deaeb47f48ec60ddb3",
+    "old_cells": 8,
+    "new_cells": 16,
+    "placement_trials": 4,
+    "apex_moves": 0,
+    "assertions": 158
+  },
+  "independent_private_geometry": {
+    "path": "interior_search_geometry.json",
+    "sha256": "49fa0f2a6cd4c90d63ae29a758b6847201c1207d1cc0bbca41ad478644a8b435"
+  },
+  "MPI_protocol": {
+    "path": "joint_protocol_audit.json",
+    "sha256": "06f06684cedcc1573fb930186f433fe56ea42defdd5f153819b660978a22c46d"
+  },
+  "strict_engine": {
+    "path": "curved_interior_engine.json",
+    "sha256": "3273947d7e6280f041ec62011be0e9f0dfdaff360024411f108a297ceee3c140",
+    "measurements": {
+      "accepted": 165,
+      "cells": 1110,
+      "q": 0.2001763935561326,
+      "j": 0.050160730646007325,
+      "oversized_edges": 174,
+      "initial_excess": 142.38026470882753,
+      "remaining_excess": 3.482565802448905,
+      "work": 4096
+    },
+    "placement_trials": 2920,
+    "placement_validated": 41,
+    "insertions": 164,
+    "stop": "work_budget"
+  },
+  "preserved_first_coupled_proof": "curved_interior_coupled_pass_v1.json",
+  "preserved_selection_failure": "curved_interior_endpoint_selection_rejected_v1.json",
+  "scope": "Complete fixed-interface interior off-diagonal insertion and native frozen-field private Refine, exact independent local geometry/donors/reference, and matched bounded MPI1/2/4 protocol/state/source preservation. Full target remains rejected at4096 work; no CFD/BDF transfer/restart, M<N, full independent composed-field mesh acceptance, speedup or performance qualification.",
+  "next": "Audit the1110-cell residual and test bounded original-field continuation to distinguish useful remaining repair from stagnation; retain cumulative work and do not infer physical infeasibility or simply raise limits."
+}

@@ -273,7 +273,7 @@
       "interacting_volume"
     ],
     "compile_failure": "wall_reconstruction_v1/curved_build_failure/receipt.json",
-    "remaining": "Coordinated cap placement has a private actual-field/geometry proof; integrated saved438 grid still rejects at473 cells/287 oversized edges. Need complete interior/curved transition construction, engine MPI qualification and every original Goal3 gate; no performance claim.",
+    "remaining": "Full original target still rejected at1110 cells/174 oversized edges despite165 edits and excess142.38\u21923.48. Need remaining construction, original-field continuation diagnosis and every original Goal3 acceptance/physics/performance gate.",
     "compile_failures": [
       "wall_reconstruction_v1/curved_build_failure/receipt.json",
       "wall_reconstruction_v1/curved_build_failure_2/receipt.json"
@@ -306,6 +306,44 @@
       },
       "summary": "wall_reconstruction_v1/joint_placement_summary.json",
       "remaining": "Interior-diagonal connectivity/placement blockage and all original Goal3 gates. Last cone rejection is a diagnostic endpoint, not proof of root cause or physical infeasibility."
+    },
+    "interior_placement": {
+      "status": "INCOMPLETE_FULL_GRID_MPI_PROTOCOL_PASSES",
+      "summary": "wall_reconstruction_v1/interior_placement_summary.json",
+      "private_replay": {
+        "path": "curved_interior_search.json",
+        "sha256": "686f2566eada24128784eedb4ba831d5a9740ddd9dee79deaeb47f48ec60ddb3",
+        "old_cells": 8,
+        "new_cells": 16,
+        "placement_trials": 4,
+        "apex_moves": 0,
+        "assertions": 158
+      },
+      "MPI_ranks": [
+        1,
+        2,
+        4
+      ],
+      "MPI_scope": "Bounded N=M protocol/state/source preservation only; rejected meshes, different ownership trajectories.",
+      "strict_engine": {
+        "path": "curved_interior_engine.json",
+        "sha256": "3273947d7e6280f041ec62011be0e9f0dfdaff360024411f108a297ceee3c140",
+        "measurements": {
+          "accepted": 165,
+          "cells": 1110,
+          "q": 0.2001763935561326,
+          "j": 0.050160730646007325,
+          "oversized_edges": 174,
+          "initial_excess": 142.38026470882753,
+          "remaining_excess": 3.482565802448905,
+          "work": 4096
+        },
+        "placement_trials": 2920,
+        "placement_validated": 41,
+        "insertions": 164,
+        "stop": "work_budget"
+      },
+      "next": "Audit the1110-cell residual and test bounded original-field continuation to distinguish useful remaining repair from stagnation; retain cumulative work and do not infer physical infeasibility or simply raise limits."
     }
   }
 }

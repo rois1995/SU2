@@ -523,6 +523,7 @@ CRemeshResult CNativeRemesher3D::Remesh(const CConfig& config, const CGeometry& 
              << " layer_published=" << e.layer_published << " height_checks=" << e.height_checks << " height_rejected=" << e.height_rejected << " footprint_rejected=" << e.footprint_rejected
              << " wall_reconstruction_trials=" << e.wall_reconstruction_trials << " wall_reconstruction_accepted=" << e.wall_reconstruction_accepted
              << " wall_joint_trials=" << e.wall_joint_trials << " wall_joint_moves=" << e.wall_joint_moves << " wall_joint_removals=" << e.wall_joint_removals << " wall_joint_accepted=" << e.wall_joint_accepted
+             << " placement_trials=" << e.placement_trials << " placement_validated=" << e.placement_validated
              << " wall_topology_trials=" << e.wall_topology_trials << " wall_topology_accepted=" << e.wall_topology_accepted
              << " geometry_trials=" << e.geometry_trials << " geometry_rejected=" << e.geometry_rejected << " metric_trials=" << e.metric_trials
              << " metric_shape_rejected=" << e.metric_shape_rejected << " metric_progress_rejected=" << e.metric_progress_rejected

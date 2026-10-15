@@ -1225,7 +1225,14 @@ bool SplitSurfaceStrip(const Patch& old,Edge edge,Node point,const std::vector<s
       point.p=reference.Project(facet,point.p,stats);
     } else {
       for(const auto& move:replacement)nodes.at(move.first)=move.second;
-      point=ProjectSplitPoint(edge,point,nodes,physical,reference,stats,true);
+      if(incident)point=ProjectSplitPoint(edge,point,nodes,physical,reference,stats,true);
+      else {
+        // A complete interior fan preserves its skin even when the inserted point leaves the old diagonal.
+        for(const auto& f:before)if(Has(f.second,edge[0]) && Has(f.second,edge[1]))
+          throw std::invalid_argument("Native3D interior insertion lacks a complete edge star.");
+        if(!(std::isfinite(point.p.x) && std::isfinite(point.p.y) && std::isfinite(point.p.z)))
+          throw std::invalid_argument("Native3D interior insertion has nonfinite coordinates.");
+      }
     }
     const Edge split{mapped(edge[0]).id,mapped(edge[1]).id};SplitSkin(split,point,skin,marked);
     Patch proposal;
@@ -1246,13 +1253,29 @@ bool SplitSurfaceStrip(const Patch& old,Edge edge,Node point,const std::vector<s
     fresh.cells.swap(proposal.cells);fresh.surface.swap(proposal.surface);reason.clear();return true;
   }catch(const std::exception& e){reason=e.what();return false;}
 }
-bool PlaceSurfaceSplit(const Patch& old,Edge edge,Node point,const std::vector<std::pair<Id,Id>>& apices,Id first,
+std::vector<Id> SplitPatchApices(const Patch& patch,Edge edge) {
+  Bounds(patch);Endpoints(edge);std::set<Id> fixed{edge[0],edge[1]};
+  for(const auto& f:patch.surface)fixed.insert(f.v.begin(),f.v.end());
+  std::vector<const Cell*> uncovered;
+  for(const auto& c:patch.cells)if(std::count_if(c.v.begin(),c.v.end(),[&](Node n){return n.id==edge[0] || n.id==edge[1];})==2)uncovered.push_back(&c);
+  std::vector<Id> apices;
+  while(!uncovered.empty() && apices.size()<8) {
+    std::map<Id,unsigned> counts;
+    for(const auto* c:uncovered)for(auto n:c->v)if(!fixed.count(n.id))++counts[n.id];
+    if(counts.empty())return {};
+    const auto selected=std::max_element(counts.begin(),counts.end(),[](const auto& a,const auto& b){return a.second<b.second;});
+    const Id id=selected->first;apices.push_back(id);
+    uncovered.erase(std::remove_if(uncovered.begin(),uncovered.end(),[&](const Cell* c){return std::any_of(c->v.begin(),c->v.end(),[&](Node n){return n.id==id;});}),uncovered.end());
+  }
+  return uncovered.empty()?apices:std::vector<Id>{};
+}
+bool PlaceSplitPatch(const Patch& old,Edge edge,Node point,const std::vector<std::pair<Id,Id>>& apices,Id first,
                        FrozenField& target,const PlanarReference& reference,const std::map<int,double>& heights,
                        Patch& fresh,JointSplitReport& report,std::string& reason,size_t maximum_trials) {
   report={};
   try {
     Bounds(old);Endpoints(edge);
-    if(apices.empty() || apices.size()>8)throw std::invalid_argument("Native3D joint placement exceeds its apex bound.");
+    if(apices.size()>8)throw std::invalid_argument("Native3D joint placement exceeds its apex bound.");
     if(!maximum_trials || maximum_trials>256)throw std::invalid_argument("Native3D joint placement exceeds its trial bound.");
     const auto nodes=Nodes(old.cells);const auto skin=SkinMap(Incidence(old.cells).Boundary());
     CheckSurface(old,skin,reference,nullptr);
@@ -1267,11 +1290,15 @@ bool PlaceSurfaceSplit(const Patch& old,Edge edge,Node point,const std::vector<s
     const Point a=nodes.at(edge[0]).p,b=nodes.at(edge[1]).p;
     auto tangent=Delta(b,a);const auto square=Dot(tangent,tangent),length=Norm(tangent);
     if(!(length>0))throw std::invalid_argument("Native3D joint placement has a degenerate edge.");
-    Vector normal{};
+    Vector normal{};bool boundary=false;
     for(const auto& f:old.surface)if(Has(f.v,edge[0]) && Has(f.v,edge[1])) {
-      normal=Cross(Delta(nodes.at(f.v[1]).p,nodes.at(f.v[0]).p),Delta(nodes.at(f.v[2]).p,nodes.at(f.v[0]).p));break;
+      boundary=true;normal=Cross(Delta(nodes.at(f.v[1]).p,nodes.at(f.v[0]).p),Delta(nodes.at(f.v[2]).p,nodes.at(f.v[0]).p));break;
     }
-    const auto n=Norm(normal);if(!(n>0))throw std::invalid_argument("Native3D joint placement needs a physical edge.");
+    if(!boundary) {
+      unsigned k=0;for(unsigned i=1;i<3;++i)if(std::abs(tangent[i])<std::abs(tangent[k]))k=i;
+      Vector seed{};seed[k]=1;normal=Cross(tangent,seed);
+    }
+    const auto n=Norm(normal);if(!(n>0))throw std::invalid_argument("Native3D joint placement has a degenerate frame.");
     for(unsigned i=0;i<3;++i){tangent[i]/=length;normal[i]/=n;}
     const std::array<Vector,3> basis{normal,tangent,Cross(normal,tangent)};
     std::vector<std::array<long double,3>> steps(apices.size());
@@ -1284,19 +1311,31 @@ bool PlaceSurfaceSplit(const Patch& old,Edge edge,Node point,const std::vector<s
         steps[k][i]=.25L/norm;
       }
     }
-    std::vector<long double> best(1+3*apices.size(),0);best[0]=Dot(Delta(point.p,a),Delta(b,a))/square;
+    const size_t point_dofs=boundary?1:3;std::array<long double,2> transverse{};
+    if(!boundary)for(unsigned i=0;i<2;++i) {
+      const auto d=basis[2*i];const Point end{double(point.p.x+d[0]),double(point.p.y+d[1]),double(point.p.z+d[2])};
+      const auto norm=MetricNorm(point.p,end,target.Query(point.p).target);
+      if(!(norm>0))throw std::invalid_argument("Native3D joint placement has an invalid insertion metric.");
+      transverse[i]=.25L/norm;
+    }
+    std::vector<long double> best(point_dofs+3*apices.size(),0);best[0]=Dot(Delta(point.p,a),Delta(b,a))/square;
     double best_loss=std::numeric_limits<double>::infinity();
     auto trial=[&](const std::vector<long double>& state) {
       if(report.trials>=maximum_trials)return false;
       ++report.trials;
       if(!(state[0]>0 && state[0]<1)){++report.geometry_rejected;return false;}
       Node inserted=point;inserted.p={double((1-state[0])*a.x+state[0]*b.x),double((1-state[0])*a.y+state[0]*b.y),double((1-state[0])*a.z+state[0]*b.z)};
+      if(!boundary) {
+        Vector offset{};for(unsigned i=0;i<2;++i)for(unsigned k=0;k<3;++k)offset[k]+=state[1+i]*transverse[i]*basis[2*i][k];
+        inserted.p={double(inserted.p.x+offset[0]),double(inserted.p.y+offset[1]),double(inserted.p.z+offset[2])};
+      }
       std::vector<std::pair<Id,Node>> moves;
       for(size_t i=0;i<apices.size();++i) {
         const auto origin=nodes.at(apices[i].first).p;Vector displacement{};
-        for(unsigned j=0;j<3;++j)for(unsigned k=0;k<3;++k)displacement[k]+=state[1+3*i+j]*basis[j][k]*steps[i][j];
+        for(unsigned j=0;j<3;++j)for(unsigned k=0;k<3;++k)displacement[k]+=state[point_dofs+3*i+j]*basis[j][k]*steps[i][j];
         Node moved{apices[i].second,{double(origin.x+displacement[0]),double(origin.y+displacement[1]),double(origin.z+displacement[2])}};
-        moved=ConstrainMovePoint(old,apices[i].first,moved,heights,reference);moves.emplace_back(apices[i].first,moved);
+        moved=ConstrainMovePoint(old,apices[i].first,moved,heights,reference);
+        if(moved.p.x!=origin.x || moved.p.y!=origin.y || moved.p.z!=origin.z)moves.emplace_back(apices[i].first,moved);
       }
       Patch proposal;
       if(!SplitSurfaceStrip(old,edge,inserted,moves,first,reference,proposal,reason)) {
@@ -1319,7 +1358,7 @@ bool PlaceSurfaceSplit(const Patch& old,Edge edge,Node point,const std::vector<s
       const double loss=100*shape+excess;
       if(report.trials==1)report.initial_loss=loss;
       if(!(loss<best_loss))return false;
-      best_loss=loss;report.best_loss=loss;report.best_shape_loss=shape;best=state;
+      best_loss=loss;report.best_loss=loss;report.best_shape_loss=shape;report.best=proposal;best=state;
       if(shape==0) {
         PatchMetric metric;
         if(ValidateMetricChange(old.cells,proposal.cells,MetricChange::Refine,target,metric,reason)) {
@@ -1334,10 +1373,10 @@ bool PlaceSurfaceSplit(const Patch& old,Edge edge,Node point,const std::vector<s
     std::vector<std::vector<int>> directions;
     for(size_t i=0;i<best.size();++i){std::vector<int> d(best.size(),0);d[i]=1;directions.push_back(std::move(d));}
     for(size_t i=0;i<apices.size();++i)for(int sign:{-1,1}) {
-      std::vector<int> d(best.size(),0);d[0]=1;d[1+3*i]=sign;directions.push_back(std::move(d));
+      std::vector<int> d(best.size(),0);d[0]=1;d[point_dofs+3*i]=sign;directions.push_back(std::move(d));
     }
-    for(int split:{-1,0,1}) {
-      std::vector<int> d(best.size(),0);d[0]=split;for(size_t i=0;i<apices.size();++i)d[1+3*i]=1;
+    if(!apices.empty())for(int split:{-1,0,1}) {
+      std::vector<int> d(best.size(),0);d[0]=split;for(size_t i=0;i<apices.size();++i)d[point_dofs+3*i]=1;
       directions.push_back(std::move(d));
     }
     long double step=1;

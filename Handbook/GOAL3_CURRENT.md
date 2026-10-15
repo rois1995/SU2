@@ -143,3 +143,12 @@ The strict saved438-cell run remains rejected:7 edits/5 insertions,473 cells,
 ceiling. No speedup/completion claim. Last reported cone blockage is an interior
 diagonal; MPI integration and all full Goal3 gates remain open. See the curved
 handbook and joint_placement_summary.json. All owned jobs terminal.
+
+Current interior continuation: off-diagonal point placement resolves the actual
+edge blockage in4 trials on8→16 cells, with158 assertions and independent exact
+local geometry proof. Bounded MPI1/2/4 protocol/source/state checks pass. The strict
+saved473-cell run remains rejected at1110 cells/174 oversized edges after165 edits;
+excess142.380265→3.482566,4096 work. No full mesh/CFD/performance qualification.
+Read [the smaller interior handbook](GOAL3_INTERIOR_PLACEMENT.md).
+Next: residual diagnosis and bounded original-field continuation, preserving total
+work and all full-goal gates. All owned jobs terminal; Goal3 remains ACTIVE.

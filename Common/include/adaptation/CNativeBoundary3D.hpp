@@ -141,7 +141,7 @@ bool InsertEdgeCavity(const Patch& old, Edge edge, Node point, Id first_cell, co
 /*! Inverse edge bisection: all removed-vertex incident cells must form paired children of the supplied endpoints.
  * Preserves original facets/markers and feature edges; this is not general boundary-vertex collapse. */
 /*! Simultaneous bounded (at most eight) complete-star vertex moves and a physical surface split.
- * Planar splits remain exact on-edge; curved splits require two faces on one analytic chart and may lie off-edge.
+ * Physical splits retain their finite chart; interior insertions may leave the old diagonal only inside a complete edge star.
  * Empty movement retains all old coordinates. All child faces preserve chart orientation;
  * artificial interface vertices stay fixed;
  * moved identities are caller-reserved and each incident reference/marker feature is preserved.
@@ -170,15 +170,20 @@ bool ReconstructSplitPatch(const Patch& old,Edge edge,Node point,Node interior,c
                            std::string& reason,KernelStats* stats = nullptr,
                            const std::map<int,double>& heights = {});
 class FrozenField;
+/*! Tentative bounded cover of split cells by non-endpoint vertices absent from the local physical skin.
+ * Actual complete-star import must still prove that every proposed apex is free; empty means no bounded cover. */
+std::vector<Id> SplitPatchApices(const Patch& patch,Edge edge);
 struct JointSplitReport {
   size_t trials=0, geometry_rejected=0, height_rejected=0, metric_rejected=0;
   double initial_loss=0, best_loss=0, best_shape_loss=0;
+  Patch best;  // Geometric/height-valid private proposal, including failed shape; never an accepted mesh.
 };
-/*! Bounded actual-field-directed placement of one surface split and up to eight free complete-star apices.
- * All trials reconstruct from the original patch; artificial interfaces and first-height constraints
+/*! Bounded actual-field-directed placement of one split and up to eight free complete-star apices.
+ * Surface points retain their chart; interior points have three spatial freedoms. All trials reconstruct
+ * from the original patch; artificial interfaces and first-height constraints
  * remain fixed. Proposal scores use midpoint lengths only; success requires full composed Refine
  * validation. Output is unchanged on failure; distributed admission and external clearance are caller duties. */
-bool PlaceSurfaceSplit(const Patch& old,Edge edge,Node point,const std::vector<std::pair<Id,Id>>& apices,Id first_cell,
+bool PlaceSplitPatch(const Patch& old,Edge edge,Node point,const std::vector<std::pair<Id,Id>>& apices,Id first_cell,
                        FrozenField& target,const PlanarReference& reference,const std::map<int,double>& heights,
                        Patch& fresh,JointSplitReport& report,std::string& reason,size_t maximum_trials=128);
 struct ConnectivityRepairReport {

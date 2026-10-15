@@ -1602,12 +1602,27 @@ TEST_CASE("Cold native cylinder BL construction and release use the same origina
   save("curved_cylinder_initial_euler",input.cells);
   const auto captured_source=world.metadata(input.original);
   if(const auto* filename=std::getenv("SU2_NATIVE_CURVED_GRID_AUDIT")) {
-    REQUIRE(world.size==1);auto cfg=text.str();const auto at=cfg.find("unused.su2");REQUIRE(at!=std::string::npos);cfg.replace(at,10,filename);
+    const bool protocol=std::getenv("SU2_NATIVE_CURVED_PROTOCOL");
+    if(!protocol)REQUIRE(world.size==1);auto cfg=text.str();const auto at=cfg.find("unused.su2");REQUIRE(at!=std::string::npos);cfg.replace(at,10,filename);
     std::stringstream gridText(cfg);std::unique_ptr<CConfig> gridConfig;
     {Mute mute;gridConfig=std::make_unique<CConfig>(gridText,SU2_COMPONENT::SU2_CFD,false);}
     CSU2ASCIIMeshReaderFVM reader(gridConfig.get(),0,1);MeshSolution loaded(gridConfig.get(),reader,0);
     auto authority=reference;const auto grid=ImportGeometry(*gridConfig,loaded.Fine(),nullptr,authority);
     CHECK(authority.original==reference.original);Save(world,"audited_grid",grid.cells,input.original,reference);
+    if(protocol) {
+      const auto untouched=Signature(world,grid.cells,reference);options.maximum_work=512;options.maximum_seconds=120;
+      const auto partial=Refine(world,grid.cells,input.original,*reference.original,compose,options);
+      save(partial.valid?"protocol_adapted":"protocol_rejected",partial.cells);
+      const auto trials=world.sum(partial.stats.placement_trials),validated=world.sum(partial.stats.placement_validated);
+      const auto count=world.sum(partial.cells.size());
+      if(!world.rank)std::cout<<"JOINT_PROTOCOL ranks="<<world.size<<" valid="<<partial.valid<<" cells="<<count
+          <<" placement_trials="<<trials<<" placement_validated="<<validated<<" work="<<partial.stats.global_work
+          <<" stop="<<EngineStopName(partial.stats.stop)<<" reason="<<partial.reason<<std::endl;
+      CHECK(Signature(world,grid.cells,reference)==untouched);CHECK(Signature(world,input.cells,reference)==before);
+      CHECK(partial.stats.global_work<=512);CHECK(trials>0);
+      INFO(partial.reason);CHECK((partial.valid || partial.stats.stop==EngineStop::WorkBudget));
+      return;  // Protocol/work-bound proof only; a rejected result never qualifies final mesh generation.
+    }
     FrozenField target(captured_source,compose,false,AssociatedExtensions(captured_source,*reference.original),options.edge_breakpoints);
     std::ofstream cells("grid_samples.csv");cells<<std::setprecision(17)<<"cell,q,j,xx,xy,xz,yy,yz,zz\n";
     std::map<Edge,std::pair<Point,Point>> edges;double q=1,j=1;size_t shapeFailures=0;
@@ -1632,6 +1647,7 @@ TEST_CASE("Cold native cylinder BL construction and release use the same origina
       options.maximum_seconds=300;
       const auto partial=Refine(world,grid.cells,input.original,*reference.original,compose,options);
       std::cout<<"CURVED_GRID_REFINE accepted="<<partial.stats.accepted<<" inserted="<<partial.stats.inserted
+          <<" placement_trials="<<partial.stats.placement_trials<<" placement_validated="<<partial.stats.placement_validated
           <<" work="<<partial.stats.global_work<<" stop="<<EngineStopName(partial.stats.stop)<<" reason="<<partial.reason<<std::endl;
       save(partial.valid?"curved_grid_adapted":"curved_grid_partial_rejected",partial.cells);
       CHECK(Signature(world,grid.cells,reference)==unchanged);CHECK(Signature(world,input.cells,reference)==before);
@@ -1657,7 +1673,7 @@ TEST_CASE("Cold native cylinder BL construction and release use the same origina
     }
     if(std::getenv("SU2_NATIVE_CURVED_EDGE_REPLAY")) {
       auto eligible=edges;
-      if(std::getenv("SU2_NATIVE_CURVED_JOINT_SEARCH")) {
+      if(std::getenv("SU2_NATIVE_CURVED_JOINT_SEARCH") && !std::getenv("SU2_NATIVE_CURVED_INTERIOR_SEARCH")) {
         std::map<Edge,std::vector<Id>> charts;
         for(const auto& row:grid.cells) {
           const auto& c=row.second.cell;
@@ -1689,17 +1705,9 @@ TEST_CASE("Cold native cylinder BL construction and release use the same origina
       const Node point{1000000,target.BalancedSplitPoint(longest->second.first,longest->second.second)};
       std::cout<<std::setprecision(17)<<"EDGE_REPLAY edge="<<edge[0]<<','<<edge[1]<<" star="<<old.cells.size()<<" point="<<point.p.x<<','<<point.p.y<<','<<point.p.z<<std::endl;
       if(std::getenv("SU2_NATIVE_CURVED_JOINT_SEARCH")) {
-        std::set<Id> physical;std::map<Id,unsigned> counts;
-        for(const auto& f:old.surface)physical.insert(f.v.begin(),f.v.end());
-        for(const auto& c:old.cells)for(auto v:c.v)if(!physical.count(v.id))++counts[v.id];
-        std::vector<std::pair<Id,Id>> apices;std::vector<Cell> uncovered=old.cells;
-        while(!uncovered.empty() && apices.size()<8) {
-          counts.clear();for(const auto& c:uncovered)for(auto n:c.v)if(!physical.count(n.id))++counts[n.id];
-          REQUIRE(!counts.empty());const auto selected=std::max_element(counts.begin(),counts.end(),[](const auto& a,const auto& b){return a.second<b.second;});
-          const Id apex=selected->first;apices.emplace_back(apex,1000001+apices.size());
-          uncovered.erase(std::remove_if(uncovered.begin(),uncovered.end(),[&](const Cell& c){return std::any_of(c.v.begin(),c.v.end(),[&](Node n){return n.id==apex;});}),uncovered.end());
-        }
-        REQUIRE(uncovered.empty());
+        const auto selected=SplitPatchApices(old,edge);REQUIRE(!selected.empty());
+        std::vector<std::pair<Id,Id>> apices;
+        for(Id id:selected)apices.emplace_back(id,1000001+apices.size());
         Patch full;
         for(const auto& row:grid.cells)if(std::any_of(row.second.cell.v.begin(),row.second.cell.v.end(),[&](Node n){return std::any_of(apices.begin(),apices.end(),[&](const auto& p){return n.id==p.first;});}) ||
             std::count_if(row.second.cell.v.begin(),row.second.cell.v.end(),[&](Node n){return n.id==edge[0] || n.id==edge[1];})==2) {
@@ -1707,16 +1715,18 @@ TEST_CASE("Cold native cylinder BL construction and release use the same origina
           const std::array<Face,4> faces{{{{c.v[1].id,c.v[2].id,c.v[3].id}},{{c.v[0].id,c.v[3].id,c.v[2].id}},{{c.v[0].id,c.v[1].id,c.v[3].id}},{{c.v[0].id,c.v[2].id,c.v[1].id}}}};
           for(unsigned f=0;f<4;++f)if(row.second.physical[f].present)full.surface.push_back({faces[f],row.second.physical[f].facet});
         }
+        if(std::getenv("SU2_NATIVE_CURVED_INTERIOR_SEARCH")){full=old;apices.clear();}
         SaveRecords("joint_original",PatchRecords(full),captured_source,reference);
         Patch fresh;JointSplitReport report;std::string reason;
-        const bool accepted=PlaceSurfaceSplit(full,edge,point,apices,2000000,target,*reference.original,options.wall_heights,fresh,report,reason,256);
+        const bool accepted=PlaceSplitPatch(full,edge,point,apices,2000000,target,*reference.original,options.wall_heights,fresh,report,reason,256);
         std::cout<<"JOINT_SEARCH cells="<<full.cells.size()<<" apices="<<apices.size()<<" accepted="<<accepted<<" trials="<<report.trials
             <<" geometry_rejected="<<report.geometry_rejected<<" height_rejected="<<report.height_rejected<<" metric_rejected="<<report.metric_rejected
             <<" shape_loss="<<report.best_shape_loss<<" initial="<<report.initial_loss<<" best="<<report.best_loss<<" reason="<<reason<<std::endl;
         if(accepted)SaveRecords("joint_private",PatchRecords(fresh),captured_source,reference);
+        else if(!report.best.cells.empty())SaveRecords("joint_best_rejected",PatchRecords(report.best),captured_source,reference);
         CHECK(report.trials<=256);
         const auto search_reason=reason;Patch rejected=full;JointSplitReport invalid;
-        CHECK_FALSE(PlaceSurfaceSplit(full,edge,point,apices,2000000,target,*reference.original,options.wall_heights,rejected,invalid,reason,0));
+        CHECK_FALSE(PlaceSplitPatch(full,edge,point,apices,2000000,target,*reference.original,options.wall_heights,rejected,invalid,reason,0));
         REQUIRE(rejected.cells.size()==full.cells.size());CHECK(rejected.surface.size()==full.surface.size());
         for(size_t i=0;i<full.cells.size();++i) {
           CHECK(rejected.cells[i].id==full.cells[i].id);
@@ -1874,6 +1884,7 @@ TEST_CASE("Cold native cylinder BL construction and release use the same origina
   if(!world.rank) {
     const auto& e=refined.stats;const auto& m=e.last_metric_rejection;
     std::cout<<std::setprecision(17)<<"CURVED_NATIVE3D_DIAG accepted="<<e.accepted<<" rejected="<<e.rejected
+        <<" placement_trials="<<e.placement_trials<<" placement_validated="<<e.placement_validated
         <<" topology_trials="<<e.wall_topology_trials<<" topology_accepted="<<e.wall_topology_accepted
         <<" joint_trials="<<e.wall_joint_trials<<" joint_moves="<<e.wall_joint_moves<<" joint_removals="<<e.wall_joint_removals<<" joint_accepted="<<e.wall_joint_accepted
         <<" geometry_rejected="<<e.geometry_rejected<<" shape_rejected="<<e.metric_shape_rejected
