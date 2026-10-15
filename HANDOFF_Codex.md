@@ -33,6 +33,12 @@ Inspectable current cases are below
 `curved_joint_protocol_feature_mpi2`. Earlier rejected grids remain preserved.
 A folder or RUNNING receipt alone is not evidence of a live or completed job.
 
+A wall-front/scheduling study was rejected and preserved separately. The active
+production path is restored to the published baseline. Read [the study disposition
+and next coupled patch-optimization design](Handbook/GOAL3_PATCH_OPTIMIZATION.md).
+The current local binary is from the study; rebuild before executing active source.
+All owned jobs terminal. No rejected study is a current production improvement.
+
 Read only the relevant handbook:
 
 - [Current implementation and full remaining gates](Handbook/GOAL3_CURRENT.md).

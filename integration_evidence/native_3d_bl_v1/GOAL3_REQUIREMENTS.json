@@ -100,7 +100,7 @@
     "wall_reconstruction_v1/joint_connectivity_summary.json"
   ],
   "execution_state": {
-    "status": "All owned jobs terminal. Connected full-target run still rejects38 edges; current scoped geometry and MPI2 protocol audits complete. Full Goal3 ACTIVE.",
+    "status": "All owned jobs terminal. Rejected wall-front/scheduling experiment preserved separately; active production remeshing path restored to c29ffa96b0. Existing local study binary must be rebuilt before active-source runs. Full Goal3 ACTIVE.",
     "CFD_runs": 0,
     "production_MPI": "Current PASS N/M1/1,2/1,2/2; N/M4/1,4/2,4/4 remain required. Previous full matrix historical.",
     "independent_frames": 6
@@ -522,5 +522,13 @@
     "MPI": "Bounded current MPI2 protocol PASS with512 work/1708 rejected cells. Independent donor/reference audit PASS; no accepted mesh, M<N/currentMPI4/current+BDF/CFD/restart/performance qualification.",
     "whole_grid_independent": "PASS exact positive volumes/no overlap/closed incidence/84 exact normal feet, altitude relative error1.8041e-15, exported-tensor q/J arithmetic.38 oversized native composed lengths still reject; no accepted event.",
     "summary": "wall_reconstruction_v1/curved_feature_summary.json"
+  },
+  "wall_front_study": {
+    "status": "REJECTED_WITH_PRODUCTION_PATH_RESTORED",
+    "branch": "codex/native-3d-wall-front-study",
+    "commit": "43d32f9b0bc6726b642bb65889d15fd14ba53ad1",
+    "summary": "https://github.com/rois1995/SU2/tree/43d32f9b0bc6726b642bb65889d15fd14ba53ad1/integration_evidence/native_3d_bl_v1/wall_reconstruction_v1/wall_front_study_summary.json",
+    "evidence": "Geometry/ownership pass; actual private shape loss improves but still rejects; full fixed-work result regresses38 to58 edges; revised actual engine round still accepts0 edits/623 work. No new MPI/performance proof.",
+    "next": "Handbook/GOAL3_PATCH_OPTIMIZATION.md; implement and qualify coordinated actual-query metric-quality optimization with all original gates."
   }
 }

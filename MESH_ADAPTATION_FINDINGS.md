@@ -5283,3 +5283,22 @@ pass with512 work/1708 rejected cells. No accepted curved/removal/currentMPI4/M<
 current+BDF/CFD/restart/viscous accuracy/performance qualification follows. Entire1832-cell independent geometry/no-overlap/84 exact feet/height and exported-
 tensor shape arithmetic PASS;38 lengths still reject. All owned jobs terminal.
 See Handbook/GOAL3_CURVED_FEATURE_REPAIR.md.
+
+
+## Rejected wall-front/scheduling study and next reconstruction step — 2026-10-15
+
+Published separately as `codex/native-3d-wall-front-study` at
+43d32f9b0bc6726b642bb65889d15fd14ba53ad1. Active production path restored to the
+c29ffa96b0 baseline. Native geometry/height on the actual50-cell cylinder patch
+succeeds;256 real private trials reduce loss1.452684612→.285096654, but q .12506/
+J .03664 still reject. Both selective/all-row numerical front experiments succeed
+geometrically on all16 cylinder edges, so geometry alone does not establish metric
+feasibility. Complete hint196 star union is64 cells, not beyond the admission bound.
+The full fixed4096-work comparison regresses38→58 long edges. A final strategy-
+scheduling revision still accepts no actual worst-edge edit at623 work; no repeated
+full campaign or MPI check is justified for that rejected strategy. Preserve all
+failed source-pinned evidence on the study branch. This is not an optimization or
+robustness success. Next connected implementation is an actual-query constrained,
+coupled metric-quality patch solver integrated with private reconnection; detailed
+scope/evidence/acceptance in Handbook/GOAL3_PATCH_OPTIMIZATION.md. No field/geometry/
+height/quality/budget gate may be weakened. Full Goal3 remains active.

@@ -1804,9 +1804,9 @@ TEST_CASE("Cold native cylinder BL construction and release use the same origina
         PatchMetric measured;MetricDiagnosis diagnosis;
         const bool valid=ValidateMetricChange(full.cells,fresh.cells,MetricChange::Repair,target,measured,reason,nullptr,nullptr,&diagnosis) && diagnosis.size_progress;
         std::cout<<std::setprecision(17)<<"WALL_REFIT old="<<full.cells.size()<<" fresh="<<fresh.cells.size()<<" apices="<<apices.size()
-            <<" valid="<<valid<<" q="<<measured.minimum_mean_ratio<<" j="<<measured.minimum_scaled_jacobian<<" reason="<<reason<<std::endl;
+            <<" valid="<<valid<<" q="<<diagnosis.minimum_mean_ratio<<" j="<<diagnosis.minimum_scaled_jacobian<<" reason="<<reason<<std::endl;
         std::ofstream out("wall_refit_metric.json");out<<std::setprecision(17)<<"{\"accepted\":"<<(valid?"true":"false")
-            <<",\"q\":"<<measured.minimum_mean_ratio<<",\"j\":"<<measured.minimum_scaled_jacobian<<",\"reason\":"<<std::quoted(reason)<<"}\n";REQUIRE(out.good());
+            <<",\"q\":"<<diagnosis.minimum_mean_ratio<<",\"j\":"<<diagnosis.minimum_scaled_jacobian<<",\"reason\":"<<std::quoted(reason)<<"}\n";REQUIRE(out.good());
         auto retained=fresh;const auto count=retained.cells.size();
         CHECK_FALSE(RefitWallSplit(full,edge,point,point.id,2000000,options.wall_heights,*reference.original,retained,obstruction,reason));CHECK(retained.cells.size()==count);
         CHECK_FALSE(RefitWallSplit(old,edge,point,1000001,2000000,options.wall_heights,*reference.original,retained,obstruction,reason));CHECK(retained.cells.size()==count);
