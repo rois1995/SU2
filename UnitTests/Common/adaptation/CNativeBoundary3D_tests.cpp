@@ -1231,6 +1231,10 @@ TEST_CASE("Joint same-chart boundary reconstruction accepts rounded points and p
   REQUIRE(ReconstructSplitPatch(old,{0,2},point,{9,{}},Tensor{},1000,reference,fresh,obstruction,reason));
   CHECK(double(Volume(fresh))==Approx(1).epsilon(1e-14));
   for(size_t i=0;i<fresh.cells.size();++i)for(size_t j=i+1;j<fresh.cells.size();++j)CHECK(ConformingDisjoint(fresh.cells[i],fresh.cells[j]));
+  std::vector<Cell> cells;REQUIRE(Cone(old.cells,{100,{.5,.5,.5}},10000,cells,reason));Patch inserted{cells,old.surface},strip;
+  REQUIRE(SplitSurfaceStrip(inserted,{0,2},point,{{100,{101,{.5,.5,.45}}}},20000,reference,strip,reason));
+  CHECK(double(Volume(strip))==Approx(1).epsilon(1e-14));
+  for(size_t i=0;i<strip.cells.size();++i)for(size_t j=i+1;j<strip.cells.size();++j)CHECK(ConformingDisjoint(strip.cells[i],strip.cells[j]));
   const auto saved=Connectivity(fresh);const PlanarReference junction(Facets(old));
   CHECK_FALSE(ReconstructSplitPatch(old,{0,2},point,{9,{}},Tensor{},2000,junction,fresh,obstruction,reason));
   CHECK(Connectivity(fresh)==saved);

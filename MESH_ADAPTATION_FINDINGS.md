@@ -1,26 +1,31 @@
 # Goal3 production geometric policy and real RANS restart: local MPI PASS — 2026-10-14
 
-Curved BL continuation: shared radial geometry/query, tangent curvature demand,
-actual bands/thin integration and physical height checks are built. Field4 controls
-and single-sphere radial/volume oracle PASS. Full cold-cylinder construction still
-rejects4096 work with120 cells; interacting thin-volume still rejects16384
-subdivisions. Off-wall tangential lookup was discontinuous and now binds to the
-true smooth foot. Composed gradation ratio30.65099 is separate from sensor ratio1.
-Early interface probing closes the verified missing support star before repair:
-14 cells/256 trials remain invalid;15 cells/14 trials pass private shape. Full cold
-run still rejects4096 work, now after210 private edits/all8 wall reconstructions.
-The1026-cell/260-node rejected grid passes shape, declared wall height/feet and
-independent geometry checks, but150 of1368 actual-target edges exceed1.8 (max3.860547).
-These length gates remain strict. Saved-grid audit isolates failures without a new
-construction run. Five focused controls PASS56 assertions; no CFD replacement.
-Longest cap-edge replay exposes exact-collinearity rejection of the rounded
-balanced point. Joint same-component cavities now admit it via oriented geometry;
-strict split/junction checks remain.2→14-cell common-fan growth still fails shape.
-Four focused geometry controls PASS1622 assertions/local geometry audit PASS scoped.
-Next: coordinated retained/transition reconstruction for long edges, preserving
-all frozen-field and geometry/height/shape contracts. Details/failures/grids are in
-[the curved handbook](Handbook/GOAL3_CURVED_BL.md). No full-goal or speedup claim.
+Curved BL continuation: certified radial queries, frozen tangent curvature demand,
+actual edge/thin integration and physical first-row clearance are built. Field
+controls and the single-sphere volume oracle pass on their recorded binaries;
+interacting thin-volume integration and composed gradation remain unqualified.
+Early support-star admission resolves the verified15-cell private wall blockage.
+The previous complete cold-cylinder run admitted210 edits/all8 wall reconstructions
+but rejected4096 work:1026 cells,150 oversized actual-target edges,max3.860547.
+That grid passes scoped shape/geometry/declared height checks and is preserved in
+`wall_reconstruction_v1/curved_cold_complete_rejected_v1`.
 
+The cap-edge replay now establishes a valid private retained proposal: simultaneous
+point placement/free-apex movement passes original-field refinement, while separate
+edits fail. Independent34→36-cell checks preserve artificial interface, volume and
+original sensor donors, with positive disjoint tetrahedra. The complete production
+mover union is54 cells, within the64-cell import bound. Production strip eligibility
+now uses local incident geometry, so flat caps remain eligible in curved domains;
+rounded same-chart insertion also supports volume moves. Four focused geometry
+controls PASS1716 assertions and their independent geometry/normal-foot audit PASS.
+The integrated cold run still times out at the420-second collector limit without
+returning/exporting a final mesh. Its logs/private pair and the earlier complete
+rejected grid are preserved separately. No release/CFD replacement, MPI or
+performance claim. The next missing capability is production coordinated layout
+and selection that realizes the private repair and resolves the full residual,
+not larger common fans or higher limits. All owned jobs terminal. Goal3 incomplete.
+
+Details and evidence: [curved handbook](Handbook/GOAL3_CURVED_BL.md).
 
 Current wall-reconstruction capability: retained volume topology, prescribed normal
 wall points and metric-directed dependency growth. The reproduced seam failure is

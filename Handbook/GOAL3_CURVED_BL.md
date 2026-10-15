@@ -32,7 +32,7 @@ terminal. Current stage summary: `wall_reconstruction_v1/curved_summary.json`.
   point fixed,256 trials leave shape deficit .172760; adding the authoritative
   missing cell resolves the15-cell patch in14 trials (4 removals,3 flips,28 cells,
   q .254308/J .056062). Both replay inputs and independent audits are preserved.
-- The full cold run still rejects4096 work, but now admits all8 retained wall
+- The previous complete cold run rejects4096 work, but admits all8 retained wall
   reconstructions and210 private edits, compared with5 edits before early probing.
   Final private grid:1026 tetrahedra,260 nodes,166 physical faces. Native diagnostics:
   joint2338 trials/246 moves/173 removals; no release or CFD replacement occurs.
@@ -47,7 +47,8 @@ terminal. Current stage summary: `wall_reconstruction_v1/curved_summary.json`.
   arithmetic agrees≤3.34e-16. It does not independently verify the BL composition,
   full composed quadrature, lower-dimensional contacts or CFD/state transfer.
 - Reusable diagnostic folders: `curved_replay_remaining`, `curved_replay_complete`,
-  `curved_grid_audit`; receipts and `curved_grid_independent.json` pin inputs,
+  `curved_grid_audit`; the complete rejected run is now
+  `curved_cold_complete_rejected_v1`, distinct from the newer timeout. Receipts and `curved_grid_independent.json` pin inputs,
   sources, binaries and helpers. The grid audit uses the original120-record source,
   not a transported/coarse spread of the fine wall tensor.
 - Five focused controls PASS56 assertions, including zero-trial interface probing.
@@ -70,21 +71,39 @@ before geometry. Joint same-component boundary reconstruction now permits the
 rounded/projected point and relies on its complete oriented cavity checks. Strict
 splitting, marker junctions, height, metric and external-clearance gates remain.
 
-Joint cap reconstruction now produces geometry and a specific obstructing face.
-Following actual neighboring faces grows2→14 cells, but the single common fan
-continues to fail shape (latest q .104424/J .015465). This rules out treating mere
-fan enlargement as the missing capability. Four focused shared geometry controls
-PASS1622 assertions, including rounded insertion, junction and atomicity checks;
-independent local replay geometry audit PASS in its stated scope. No full run/MPI
-or performance campaign after this change. Evidence: `curved_edge_replay.json`,
-`curved_edge_geometry.json`, inspectable old/grown/proposed JSON and source pins.
+Joint cap reconstruction produces geometry and a specific obstructing face.
+Following neighboring faces grows2→14 cells, but the common fan still fails shape
+(q .104424/J .015465). Changing the new point alone also fails. Full34-cell apex
+star admission permits retained splitting, but coarse single-axis moves fail.
+Simultaneous cap-point placement and free-apex depth movement passes the native
+unchanged-field refinement gate for13 of15 bounded proposals. The saved36-cell
+private replacement independently has positive volumes, oriented incidence and
+no positive-volume overlap; its artificial interface, volume and original sensor
+donors equal the34-cell source. This is private progress, not complete-mesh acceptance.
+Evidence: `curved_edge_replay.json`, `curved_edge_geometry.json`, old/grown/joint
+JSON and pinned sources/binary. Test-only placement parameters are not production
+modes or special handling of this fixture.
 
-Next: resolve the saved grid's150 oversized edges while retaining its established
-geometry/height/shape. Many long edges are radial cap edges; others lie on the wall
-or in the interior. The rounded cap insertion is now admitted; replace the failing common-fan
-layout with coordinated retained/transition topology against the actual long edges. Do not raise limits or change the target.
-The completed star comparison establishes the need for early dependency admission;
-representative streamed failures still do not report whole-proposal minima.
+For the saved edge, existing production mover selection requires a54-cell
+complete edge/mover union, within
+the64-cell bound. Eligibility now follows the edited edge's geometry rather than
+the domain-wide presence of curved walls; flat caps and interior patches can use
+coordinated strips, while curved wall edges retain the separate wall path. Rounded
+same-chart insertion also supports simultaneous volume moves. Four focused shared
+geometry controls PASS1716 assertions; refreshed independent geometry/normal-foot
+checks PASS in their scope. The latest full cold run times out at420 seconds
+(return124), with6828 recorded rejection observations and no final mesh export.
+These observations are not the engine work counter or unique mesh failures. There
+is no release/CFD replacement or end-to-end robustness/performance claim.
+
+Latest initial grid/private rejected pair/log: `curved_cold`. Earlier complete
+1026-cell rejected grid/receipt: `curved_cold_complete_rejected_v1`. Saved-grid
+residual replay can use that hash-verified complete evidence after an incomplete
+export. Do not associate its150 oversized edges with the newer partial run.
+Next: production joint layout/selection must realize the valid private repair and
+resolve the full cap/wall/interior residual under the unchanged target and gates.
+More common-fan growth, extra sweeps or larger budgets are not justified by these
+results. Keep representative streamed failures distinct from whole-proposal minima.
 
 Full cold-grid success and independent curved whole-mesh audit, MPI/return/transfer/
 restart and physical RANS/performance gates remain required. Partial/graph/mixed

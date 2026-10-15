@@ -55,27 +55,32 @@ step. Goal3 remains ACTIVE; this is not complete native BL generation.
 
 ## Current continuation
 
-The connected curved implementation now supplies certified radial queries,
-frozen tangent curvature demand, geometry-resolved bands/thin quadrature and
-physical first-row clearance, with height-coupled geometry error. Field4 controls
-PASS; the single-sphere radial integral/positive-volume oracle PASS. Composed
-ratio30.65099 remains uncertified. Full cold-cylinder construction rejects at4096
-work (120 cells/50 nodes, no accepted main edit); interacting thin-sphere volume
-integration rejects at16384 subdivisions. The earlier interior proxy lookup
-quadrature failure was fixed by binding tangential interpolation to the smooth
-foot. All owned jobs are terminal. No new MPI or full regression.
+Current continuation: certified radial queries, frozen tangent curvature demand,
+actual edge/thin integration and physical first-row clearance are built. Field
+controls and the single-sphere volume oracle pass on their recorded binaries;
+interacting thin-volume integration and composed gradation remain unqualified.
+Early support-star admission resolves the verified15-cell private wall blockage.
+The previous complete cold-cylinder run admitted210 edits/all8 wall reconstructions
+but rejected4096 work:1026 cells,150 oversized actual-target edges,max3.860547.
+That grid passes scoped shape/geometry/declared height checks and is preserved in
+`wall_reconstruction_v1/curved_cold_complete_rejected_v1`.
 
-Read [the curved work and next blocker](GOAL3_CURVED_BL.md) and
-`wall_reconstruction_v1/curved_summary.json`. Keep prior successful evidence and
-new failures distinct. Early actual-field interface probes now import a specifically missing support star
-before exhausting repair. Its15-cell replay passes private shape in14 trials.
-Full cold run still rejects4096 work but now admits210 private edits/all8 wall
-reconstructions. Its1026-cell rejected grid has no shape violations; independent
-geometry/declared height/feet checks PASS.150 actual-target edges remain oversized
-(max3.860547), so no acceptance/release/CFD replacement. Saved-grid residual audit
-is reusable without remeshing. Five focused controls PASS56 assertions; no new MPI.
-Partial/graph/mixed components and external-fluid pre-row curvature resolution
-remain open. These field controls do not complete native curved BL or full Goal3.
+The cap-edge replay now establishes a valid private retained proposal: simultaneous
+point placement/free-apex movement passes original-field refinement, while separate
+edits fail. Independent34→36-cell checks preserve artificial interface, volume and
+original sensor donors, with positive disjoint tetrahedra. The complete production
+mover union is54 cells, within the64-cell import bound. Production strip eligibility
+now uses local incident geometry, so flat caps remain eligible in curved domains;
+rounded same-chart insertion also supports volume moves. Four focused geometry
+controls PASS1716 assertions and their independent geometry/normal-foot audit PASS.
+The integrated cold run still times out at the420-second collector limit without
+returning/exporting a final mesh. Its logs/private pair and the earlier complete
+rejected grid are preserved separately. No release/CFD replacement, MPI or
+performance claim. The next missing capability is production coordinated layout
+and selection that realizes the private repair and resolves the full residual,
+not larger common fans or higher limits. All owned jobs terminal. Goal3 incomplete.
+
+Read [the curved handbook](GOAL3_CURVED_BL.md) for preserved failures and limits.
 
 ## Static assessment reconciliation
 

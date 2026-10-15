@@ -1,6 +1,9 @@
 {
+  "joint_interface_preserved": true,
+  "joint_volume_preserved": true,
+  "frozen_original_donors_preserved": true,
   "status": "PASS_LOCAL_GEOMETRY_ONLY",
-  "scope": "Exact positive volumes, oriented incidence and no positive-volume overlap of saved local proposals; not full actual-field/geometry authority or adaptation acceptance. Targeted fan growth remains metric-inadmissible.",
+  "scope": "Exact positive volumes, oriented incidence and no positive-volume overlap of saved local proposals; not full actual-field/geometry authority or adaptation acceptance. Targeted fan growth remains metric-inadmissible; the saved joint private proposal passed native original-field refinement checks, not final mesh acceptance.",
   "rows": [
     {
       "file": "edge_original.json",
@@ -36,9 +39,23 @@
       "volume": "1072678115061692570260525303076498885366331374109/5846006549323611672814739330865132078623730171904",
       "interface_faces": 20,
       "sha256": "3bed6894928f1c56c4cdb1c92bc23d565fe28ef63e7c066401eedd9878f16ae3"
+    },
+    {
+      "file": "edge_apex_old.json",
+      "cells": 34,
+      "volume": "851537297836606259040436032476996898114166147523/8769009823985417509222108996297698117935595257856",
+      "interface_faces": 32,
+      "sha256": "3170b22d70c29ce318a9b070de67823458ffc9b205a2a4c5bfcd3e695b378261"
+    },
+    {
+      "file": "edge_joint_private.json",
+      "cells": 36,
+      "volume": "851537297836606259040436032476996898114166147523/8769009823985417509222108996297698117935595257856",
+      "interface_faces": 32,
+      "sha256": "4bcb27109263850199077df045ad17008672d01af7fe40c6117281f59ed2cc0a"
     }
   ],
-  "native_receipt_sha256": "316820ca7f8749fd995365f84542c3dce1640ee34fa3d4ea7754948ef2267c55",
-  "helper_sha256": "1efb80bd5985fa1dcfef187b3f0112c069d094dbda7758f689bd1f4e3a7e507f",
+  "native_receipt_sha256": "dcf3150b64fb5b148fbc54837e396e80a2a146364455fb987d993bc6eee84b7c",
+  "helper_sha256": "965075e5675207f214d3837724cb05bea3a69b56a334528acf02173c31251b89",
   "geometry_helper_sha256": "d587d7dea4391e6e77c118f5d15167d147b4bc40f72e811c0e6c75d3a1a2ee5e"
 }

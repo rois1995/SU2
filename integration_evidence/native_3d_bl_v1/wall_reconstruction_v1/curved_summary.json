@@ -23,11 +23,18 @@
       "scope": "Selected focused geometry/field/integration control or complete declared cold construction/removal probe. Curved stages use actual smooth reference and original sensors; cold case imports initialized RANS CFD geometry but does not run replacement/solution transfer or CFD iterations. Independent audit and full-goal qualification remain required; no performance claim."
     },
     {
-      "stage": "curved_cold",
+      "stage": "curved_cold_complete_rejected_v1",
       "status": "FAIL",
       "returncode": 1,
       "receipt_sha256": "8bb976db67855a65e0fab954c80d6f9af3d993aa5408df3492e67bff1aba4787",
       "scope": "Selected focused geometry/field/integration control or complete declared cold construction/removal probe. Curved stages use actual smooth reference and original sensors; cold case imports initialized RANS CFD geometry but does not run replacement/solution transfer or CFD iterations. Independent audit and full-goal qualification remain required; no performance claim."
+    },
+    {
+      "stage": "curved_cold",
+      "status": "FAIL",
+      "returncode": 124,
+      "receipt_sha256": "3c1fe6951d856ba631403a6f59cfc18d79db6cf433c38863be70bc1e03a6954b",
+      "scope": "Latest local-flat coordinated strip integration: bounded collector timeout124, no final whole-grid export or adaptation acceptance; logs and latest private pair preserved."
     }
   ],
   "findings": [
@@ -42,9 +49,12 @@
     "Full event still rejects4096 work, after210 private edits/all8 wall reconstructions.1026 cells,260 nodes,166 physical faces; no release/CFD replacement.",
     "Saved-grid native residuals: no shape violations,qmin .210041/Jmin .061128;150 oversized edges of1368,max3.860547. Independent geometry/height/exported-tensor shape checks PASS scoped; length remains a rejection.",
     "Five focused controls PASS56 assertions. No new MPI/full regression/physical CFD/performance qualification.",
-    "Longest cap edge balanced point is not exactly collinear; strict split rejects. Joint same-chart cavities now admit it with full geometry checks; targeted2\u219214-cell common fan still fails shape. Four focused shared geometry controls PASS1622 assertions/local exact geometry audit PASS scoped; not full target acceptance."
+    "Longest cap edge balanced point is not exactly collinear; strict split rejects. Joint same-chart cavities now admit it with full geometry checks; targeted2\u219214-cell common fan still fails shape. Four focused shared geometry controls PASS1622 assertions/local exact geometry audit PASS scoped; not full target acceptance.",
+    "Cap insertion and free-apex movement together pass native unchanged-field refinement for13 of15 bounded proposals; separate point placement and coarse axial apex steps failed. Exact independent34-to36-cell audit passes positive volumes, oriented incidence, no positive-volume overlap, unchanged artificial interface and volume, and identical original sensor donors. This is private progress, not final length acceptance.",
+    "Production coordinated strip eligibility now follows incident edge geometry rather than the entire domain, retaining flat cap/interior freedom in curved domains. Rounded same-chart points are allowed with volume moves. Four focused geometry controls PASS1716 assertions and refreshed independent normal-foot/embedding audit PASS.",
+    "Latest unchanged cold target times out at420-second collector bound after6828 recorded rejection observations. The engine did not return a full mesh; no release, transfer or CFD replacement. Do not compare wall timings or claim end-to-end improvement. Previous complete1026-cell rejected grid is retained as curved_cold_complete_rejected_v1; saved-grid replay falls back to that hash-verified complete evidence."
   ],
-  "remaining": "Resolve oversized cap/wall/interior edges; preserve full original Goal3 scope including interacting/gradation/MPI/current+BDF/return/restart/RANS/accuracy/performance. No acceptance claim from the rejected grid.",
+  "remaining": "Production coupled layout/selection must realize the private cap repair and resolve all oversized edges under unchanged gates; full original Goal3 scope remains including interacting/gradation/MPI/current+BDF/return/restart/RANS/accuracy/performance.",
   "rejection_audits": [
     "curved_cavity_audit_before_perimeter.json",
     "curved_cavity_audit.json"

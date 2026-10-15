@@ -175,7 +175,7 @@ Physical CheckSurface(const Patch& patch, const Skin& skin, const PlanarReferenc
   return faces;
 }
 Node ProjectSplitPoint(Edge edge,Node point,const std::map<Id,Node>& nodes,const Physical& physical,
-                       const PlanarReference& reference,KernelStats* stats) {
+                       const PlanarReference& reference,KernelStats* stats,bool cavity=false) {
   const auto a=nodes.at(edge[0]),b=nodes.at(edge[1]);
     bool curved_edge=false;
     for(const auto& face:physical)if(Has(face.second.v,edge[0]) && Has(face.second.v,edge[1])) {
@@ -184,7 +184,18 @@ Node ProjectSplitPoint(Edge edge,Node point,const std::map<Id,Node>& nodes,const
     }
     const Point midpoint{double((static_cast<long double>(a.p.x)+b.p.x)/2),double((static_cast<long double>(a.p.y)+b.p.y)/2),double((static_cast<long double>(a.p.z)+b.p.z)/2)};
     const bool rounded_midpoint=curved_edge && point.p.x==midpoint.x && point.p.y==midpoint.y && point.p.z==midpoint.z;
-    if (nodes.count(point.id) || (!rounded_midpoint && !OnEdge(a.p, b.p, point.p, stats)) ||
+    bool same_chart=false;
+    if(cavity) {
+      Id component=UINT64_MAX;unsigned incident=0;same_chart=true;
+      for(const auto& f:physical)if(Has(f.second.v,edge[0]) && Has(f.second.v,edge[1])) {
+        const auto next=reference.Canonical(f.second.facet);
+        if(component==UINT64_MAX)component=next;else same_chart=same_chart && component==next;
+        ++incident;
+      }
+      same_chart=same_chart && incident==2;
+    }
+    // A cavity fan certifies its oriented border; a rounded insertion need not remain on the old interior diagonal.
+    if (nodes.count(point.id) || (!rounded_midpoint && !same_chart && !OnEdge(a.p, b.p, point.p, stats)) ||
         (point.p.x == a.p.x && point.p.y == a.p.y && point.p.z == a.p.z) ||
         (point.p.x == b.p.x && point.p.y == b.p.y && point.p.z == b.p.z))
       throw std::invalid_argument("Native 3D split point is not a distinct exact on-edge point.");
@@ -1214,7 +1225,7 @@ bool SplitSurfaceStrip(const Patch& old,Edge edge,Node point,const std::vector<s
       point.p=reference.Project(facet,point.p,stats);
     } else {
       for(const auto& move:replacement)nodes.at(move.first)=move.second;
-      point=ProjectSplitPoint(edge,point,nodes,physical,reference,stats);
+      point=ProjectSplitPoint(edge,point,nodes,physical,reference,stats,true);
     }
     const Edge split{mapped(edge[0]).id,mapped(edge[1]).id};SplitSkin(split,point,skin,marked);
     Patch proposal;
@@ -1369,7 +1380,7 @@ bool ReconstructSplitPatch(const Patch& old,Edge edge,Node point,Node interior,c
     if(std::none_of(physical.begin(),physical.end(),[&](const auto& f){return Has(f.second.v,edge[0]) && Has(f.second.v,edge[1]);}))
       throw std::invalid_argument("Native3D joint boundary split requires a physical edge.");
     if(nodes.count(interior.id) || interior.id==point.id)throw std::invalid_argument("Native3D joint insertion reuses a node identity.");
-    point=ProjectSplitPoint(edge,point,nodes,physical,reference,stats);
+    point=ProjectSplitPoint(edge,point,nodes,physical,reference,stats,true);
     SplitSkin(edge,point,skin,physical);nodes.emplace(point.id,point);
     long double wallViolation=-1;std::map<Face,Point> wallPoints;
     for(const auto& entry:physical) {

@@ -11,7 +11,7 @@ def digest(p):
 def main():
  stage=sys.argv[1];assert stage in ("geometry","sensor","sensor_mpi2","sensor_mpi4","curved_field","curved_volume","curved_cold","curved_replay","curved_replay_remaining","curved_replay_complete","curved_grid_audit","curved_edge_replay","curved_repair_controls","interacting_volume")
  ranks=2 if stage=="sensor_mpi2" else 4 if stage=="sensor_mpi4" else 1;selection="[NativeWallReconstruction3D],[NativeJointGeometry3D]" if stage=="geometry" else "[NativeFinerSensorBL3D]"
- expected=3 if stage=="geometry" else 1
+ expected=4 if stage=="geometry" else 1
  if stage.startswith("curved_") or stage=="interacting_volume":
   selection={"curved_field":"[NativeCurvedBL3D]","curved_volume":"[NativeCurvedBLVolume3D]","curved_cold":"[NativeCurvedBLConstruction3D]","curved_replay":"[NativeCurvedBLConstruction3D]","curved_replay_remaining":"[NativeCurvedBLConstruction3D]","curved_replay_complete":"[NativeCurvedBLConstruction3D]","curved_grid_audit":"[NativeCurvedBLConstruction3D]","curved_edge_replay":"[NativeCurvedBLConstruction3D]","curved_repair_controls":"[NativeConnectivity3D],[NativeConnectivityMove3D],[NativeConnectivityHeight3D],[NativeConnectivityInterface3D]","interacting_volume":"[NativeInteractingBLVolume3D]"}[stage]
   expected=5 if stage=="curved_repair_controls" else 4 if stage=="curved_field" else 1

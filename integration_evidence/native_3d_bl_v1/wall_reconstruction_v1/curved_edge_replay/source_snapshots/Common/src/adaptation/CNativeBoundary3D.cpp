@@ -1225,7 +1225,7 @@ bool SplitSurfaceStrip(const Patch& old,Edge edge,Node point,const std::vector<s
       point.p=reference.Project(facet,point.p,stats);
     } else {
       for(const auto& move:replacement)nodes.at(move.first)=move.second;
-      point=ProjectSplitPoint(edge,point,nodes,physical,reference,stats);
+      point=ProjectSplitPoint(edge,point,nodes,physical,reference,stats,moves.empty());
     }
     const Edge split{mapped(edge[0]).id,mapped(edge[1]).id};SplitSkin(split,point,skin,marked);
     Patch proposal;

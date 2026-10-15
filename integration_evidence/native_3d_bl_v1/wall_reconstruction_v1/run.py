@@ -21,8 +21,9 @@ def main():
  sources.extend(['UnitTests/SU2_CFD/adaptation/fixtures/native_curved_wall_blockage.inc','UnitTests/SU2_CFD/adaptation/fixtures/native_curved_remaining.inc'])
  pins={p:digest(ROOT/p) for p in sources}
  if stage in ('curved_grid_audit','curved_edge_replay'):
-  grid=HERE/'curved_cold/curved_cylinder_BL_rejected.su2';grid_receipt=json.loads((HERE/'curved_cold.json').read_text());assert grid_receipt['status']=='FAIL' and digest(grid)==grid_receipt['artifacts'][grid.name]
-  pins['saved_grid']=digest(grid);pins['saved_grid_receipt']=digest(HERE/'curved_cold.json')
+  grid_stage='curved_cold' if (HERE/'curved_cold/curved_cylinder_BL_rejected.su2').is_file() else 'curved_cold_complete_rejected_v1'
+  grid=HERE/grid_stage/'curved_cylinder_BL_rejected.su2';grid_receipt=json.loads((HERE/(grid_stage+'.json')).read_text());assert grid_receipt['status']=='FAIL' and digest(grid)==grid_receipt['artifacts'][grid.name]
+  pins['saved_grid']=digest(grid);pins['saved_grid_receipt']=digest(HERE/(grid_stage+'.json'))
  pins['build.ninja']=digest(BUILD/'build.ninja');pins['compile_commands.json']=digest(BUILD/'compile_commands.json');pins['test_binary']=digest(BINARY);pins['solver_binary']=digest(BUILD/'SU2_CFD/src/SU2_CFD')
  for library in ['Common/src/libSU2Common.a','Common/src/libSU2AccurateSum.a','SU2_CFD/src/libSU2core.a']:
   path=BUILD/library;pins[library]=digest(path)

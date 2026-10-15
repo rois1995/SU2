@@ -1399,7 +1399,14 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         return std::find(f.v.begin(),f.v.end(),choice.edge[0])!=f.v.end() && std::find(f.v.begin(),f.v.end(),choice.edge[1])!=f.v.end();
       });
       bool joint=chosen && !split_failed && (choice.geometric || composition) && !repairing && !coarsening && !approved;
-      bool strip=joint && composition && !curved && !choice.geometric;
+      bool flat_edge=true;
+      for(const auto& f:old.surface)if(std::find(f.v.begin(),f.v.end(),choice.edge[0])!=f.v.end() &&
+          std::find(f.v.begin(),f.v.end(),choice.edge[1])!=f.v.end()) {
+        const auto authority=geometry.Analytic().find(f.facet);
+        if(authority!=geometry.Analytic().end() && authority->second.kind!=AnalyticSurface::Kind::Disk)flat_edge=false;
+      }
+      // Flat caps/interior regions retain coordinated-strip freedom even in a domain with curved walls.
+      bool strip=joint && composition && flat_edge && !choice.geometric;
       std::vector<Id> wallApices;
       if(joint && boundary_edge)for(const auto& f:old.surface) {
         if(!options.wall_heights.count(geometry.Get(f.facet).marker) ||

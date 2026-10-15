@@ -1651,6 +1651,54 @@ TEST_CASE("Cold native cylinder BL construction and release use the same origina
             valid=ValidateMetricChange(old.cells,fresh.cells,MetricChange::Refine,target,measured,reason);}
         std::cout<<"EDGE_REPLAY op="<<op<<" geometry="<<geometry<<" valid="<<valid<<" q="<<measured.minimum_mean_ratio<<" j="<<measured.minimum_scaled_jacobian
             <<" obstruction="<<obstruction[0]<<','<<obstruction[1]<<','<<obstruction[2]<<" reason="<<reason<<std::endl;
+        if(op==1 && geometry && !valid) {
+          for(double fraction:{.05,.075,.1,.125,.15,.2,.25}) {
+            const auto a=longest->second.first,b=longest->second.second;
+            const Node trial{1000001,{double((1-(long double)fraction)*a.x+fraction*b.x),double((1-(long double)fraction)*a.y+fraction*b.y),double((1-(long double)fraction)*a.z+fraction*b.z)}};
+            Patch moved;bool accepted=false;const bool rebuilt=MoveVertex(fresh,point.id,trial,3000000,*reference.original,moved,reason);
+            if(rebuilt && CheckFirstHeight(moved,options.wall_heights,*reference.original,height,reason))
+              accepted=ValidateMetricChange(old.cells,moved.cells,MetricChange::Refine,target,measured,reason);
+            std::cout<<"EDGE_PLACEMENT fraction="<<fraction<<" geometry="<<rebuilt<<" valid="<<accepted<<" reason="<<reason<<std::endl;
+            if(accepted){SaveRecords("edge_placement_private",PatchRecords(moved),captured_source,reference);break;}
+          }
+        }
+        if(op==1 && geometry && !valid) {
+          std::map<Id,unsigned> incidence;std::set<Id> boundary;
+          for(const auto& f:old.surface)boundary.insert(f.v.begin(),f.v.end());
+          for(const auto& c:old.cells)for(auto n:c.v)if(!boundary.count(n.id))++incidence[n.id];
+          const auto selected=std::max_element(incidence.begin(),incidence.end(),[](const auto& a,const auto& b){return a.second<b.second;});
+          if(selected!=incidence.end()) {
+            const Id apex=selected->first;Patch full;
+            for(const auto& row:grid.cells)if(std::any_of(row.second.cell.v.begin(),row.second.cell.v.end(),[&](Node n){return n.id==apex;})) {
+              full.cells.push_back(row.second.cell);const auto& c=row.second.cell;const std::array<Face,4> faces{{{{c.v[1].id,c.v[2].id,c.v[3].id}},{{c.v[0].id,c.v[3].id,c.v[2].id}},{{c.v[0].id,c.v[1].id,c.v[3].id}},{{c.v[0].id,c.v[2].id,c.v[1].id}}}};
+              for(unsigned f=0;f<4;++f)if(row.second.physical[f].present)full.surface.push_back({faces[f],row.second.physical[f].facet});
+            }
+            SaveRecords("edge_apex_old",PatchRecords(full),captured_source,reference);Patch split;
+            if(SplitSurfaceStrip(full,edge,point,{},2000000,*reference.original,split,reason)) {
+              Point origin{};for(const auto& c:full.cells)for(auto n:c.v)if(n.id==apex)origin=n.p;
+              const auto m=target.Query(origin).target;
+              for(unsigned axis=0;axis<3;++axis)for(double sign:{-1.,1.})for(double fraction:{.25,.5,1.}) {
+                Point moved=origin;const auto step=sign*fraction/std::sqrt(axis==0?m.xx:axis==1?m.yy:m.zz);
+                if(axis==0)moved.x+=step;else if(axis==1)moved.y+=step;else moved.z+=step;
+                Patch candidate;bool accepted=false;const bool rebuilt=MoveVertex(split,apex,{1000001,moved},3000000,*reference.original,candidate,reason);
+                if(rebuilt && CheckFirstHeight(candidate,options.wall_heights,*reference.original,height,reason))accepted=ValidateMetricChange(full.cells,candidate.cells,MetricChange::Refine,target,measured,reason);
+                std::cout<<"EDGE_APEX cells="<<full.cells.size()<<" axis="<<axis<<" step="<<step<<" geometry="<<rebuilt<<" valid="<<accepted<<" reason="<<reason<<std::endl;
+                if(accepted)SaveRecords("edge_apex_private",PatchRecords(candidate),captured_source,reference);
+              }
+              for(double fraction:{.1,.125,.15,.175,.2})for(double dz:{-.015,-.03,-.06}) {
+                const auto a=longest->second.first,b=longest->second.second;
+                const Node inserted{1000000,{double((1-(long double)fraction)*a.x+fraction*b.x),double((1-(long double)fraction)*a.y+fraction*b.y),double((1-(long double)fraction)*a.z+fraction*b.z)}};
+                Patch base,moved;bool accepted=false;std::string rejected;
+                const bool split_ok=SplitSurfaceStrip(full,edge,inserted,{},2000000,*reference.original,base,rejected);
+                const Node changed{1000001,{origin.x,origin.y,origin.z+dz}};
+                const bool rebuilt=split_ok && MoveVertex(base,apex,changed,3000000,*reference.original,moved,rejected);
+                if(rebuilt && CheckFirstHeight(moved,options.wall_heights,*reference.original,height,rejected))accepted=ValidateMetricChange(full.cells,moved.cells,MetricChange::Refine,target,measured,rejected);
+                std::cout<<"EDGE_JOINT fraction="<<fraction<<" dz="<<dz<<" geometry="<<rebuilt<<" valid="<<accepted<<" reason="<<rejected<<std::endl;
+                if(accepted)SaveRecords("edge_joint_private",PatchRecords(moved),captured_source,reference);
+              }
+            } else std::cout<<"EDGE_APEX retained split rejected: "<<reason<<std::endl;
+          }
+        }
         if(op==2 && !valid) {
           std::set<Id> admitted;for(const auto& c:old.cells)admitted.insert(c.id);
           for(unsigned growth=0;growth<12 && obstruction!=Face{};++growth) {

@@ -1223,6 +1223,21 @@ TEST_CASE("Native3D uneven wall split replaces apices and transition together", 
 }
 
 
+TEST_CASE("Joint same-chart boundary reconstruction accepts rounded points and protects marker junctions", "[NativeJointGeometry3D]") {
+  const auto old=Cube();auto facets=Facets(old);
+  for(auto& f:facets)if(std::all_of(f.v.begin(),f.v.end(),[](Node n){return n.p.z==0;}))f.marker=70;
+  const PlanarReference reference(facets);const Node point{8,{.5,std::nextafter(.5,1.),0}};
+  Patch fresh;Face obstruction{};std::string reason;
+  REQUIRE(ReconstructSplitPatch(old,{0,2},point,{9,{}},Tensor{},1000,reference,fresh,obstruction,reason));
+  CHECK(double(Volume(fresh))==Approx(1).epsilon(1e-14));
+  for(size_t i=0;i<fresh.cells.size();++i)for(size_t j=i+1;j<fresh.cells.size();++j)CHECK(ConformingDisjoint(fresh.cells[i],fresh.cells[j]));
+  const auto saved=Connectivity(fresh);const PlanarReference junction(Facets(old));
+  CHECK_FALSE(ReconstructSplitPatch(old,{0,2},point,{9,{}},Tensor{},2000,junction,fresh,obstruction,reason));
+  CHECK(Connectivity(fresh)==saved);
+  CHECK_FALSE(ReconstructSplitPatch(old,{0,2},{8,{1.25,.5,0}},{9,{}},Tensor{},2000,reference,fresh,obstruction,reason));
+  CHECK(Connectivity(fresh)==saved);
+}
+
 TEST_CASE("Native3D private actual-field flips repair a slender internal edge", "[NativeConnectivity3D]") {
   const Node a{0,{0,0,0}},b{1,{1,0,0}},c{2,{0,1,0}},top{3,{.01,.01,.5}},bottom{4,{.01,.01,-.5}};
   Patch pair;

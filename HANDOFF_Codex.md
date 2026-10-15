@@ -25,32 +25,34 @@ The centroid-insertion experiment did not help and was removed; its evidence is
 preserved. Full physical/curved/interacting-wall qualification remains open.
 Full Goal3 remains incomplete.
 
-Current continuation: connected certified radial BL queries, frozen tangent
-curvature demand, actual edge/thin integration, per-wall hidden coverage and
-physical row-clearance checks are implemented and built. Field4 controls PASS;
-single-sphere radial fan/volume oracle PASS. Composed gradation remains uncertified.
-Full curved cold construction still rejects at4096 work with120 cells; interacting
-thin-wall integration rejects at16384 subdivisions. Off-wall tangent lookup caused
-an earlier edge quadrature failure and was fixed by binding to the true foot.
-Early interface probing now closes the verified missing vertex71 star before
-repair. The complete15-cell replay resolves in14 trials; independent audits retained.
-Full cold run still rejects4096 work after210 private edits/all8 wall reconstructions.
-Its1026-cell/260-node rejected grid passes all shape, declared height/feet and exact
-local geometry checks;150 of1368 actual-target edges remain oversized (max3.860547).
-No CFD replacement/release. Reusable saved-grid audit isolates those residuals
-without another construction run. Five focused controls PASS56 assertions.
-Longest cap-edge replay diagnoses a rounded point rejected by strict/joint split.
-Joint same-chart cavities now admit it through full geometry checks; strict split
-and junction checks remain. Targeted2→14-cell common-fan growth still fails metric
-shape. Four focused geometry controls PASS1622 assertions; local geometry audit
-PASS scoped. Next: retained/transition reconstruction for those long edges, rather
-than more fan enlargement, without raising limits or retargeting. All failures, input/rejected grids, sources/
-binaries/helpers and partial certificates are preserved. All owned jobs terminal.
-No new MPI/full regression or physical CFD campaign. Earlier qualification stays
-tied to its executed source/binary. Full Goal3 remains active and incomplete.
+Current continuation: certified radial queries, frozen tangent curvature demand,
+actual edge/thin integration and physical first-row clearance are built. Field
+controls and the single-sphere volume oracle pass on their recorded binaries;
+interacting thin-volume integration and composed gradation remain unqualified.
+Early support-star admission resolves the verified15-cell private wall blockage.
+The previous complete cold-cylinder run admitted210 edits/all8 wall reconstructions
+but rejected4096 work:1026 cells,150 oversized actual-target edges,max3.860547.
+That grid passes scoped shape/geometry/declared height checks and is preserved in
+`wall_reconstruction_v1/curved_cold_complete_rejected_v1`.
+
+The cap-edge replay now establishes a valid private retained proposal: simultaneous
+point placement/free-apex movement passes original-field refinement, while separate
+edits fail. Independent34→36-cell checks preserve artificial interface, volume and
+original sensor donors, with positive disjoint tetrahedra. The complete production
+mover union is54 cells, within the64-cell import bound. Production strip eligibility
+now uses local incident geometry, so flat caps remain eligible in curved domains;
+rounded same-chart insertion also supports volume moves. Four focused geometry
+controls PASS1716 assertions and their independent geometry/normal-foot audit PASS.
+The integrated cold run still times out at the420-second collector limit without
+returning/exporting a final mesh. Its logs/private pair and the earlier complete
+rejected grid are preserved separately. No release/CFD replacement, MPI or
+performance claim. The next missing capability is production coordinated layout
+and selection that realizes the private repair and resolves the full residual,
+not larger common fans or higher limits. All owned jobs terminal. Goal3 incomplete.
 
 Current inspectable case folders:
 `integration_evidence/native_3d_bl_v1/wall_reconstruction_v1/curved_cold`,
+`curved_cold_complete_rejected_v1`, `curved_edge_replay`,
 `curved_field`, `curved_volume`, `interacting_volume`.
 Earlier diagnostic: `integration_evidence/native_3d_bl_v1/curved_wall_feasibility_v1`.
 Latest qualified focused controls: `integration_evidence/native_3d_bl_v1/connectivity_replay_v1/integration`.
