@@ -12,6 +12,10 @@
 #include <sstream>
 #include <stdexcept>
 namespace SU2Native3D {
+long double CompensatedCross2D(long double ax,long double ay,long double bx,long double by) {
+  const auto p=ax*by,q=ay*bx;
+  return (p-q)+(std::fma(ax,by,-p)-std::fma(ay,bx,-q));
+}
 Point MetricMeanPoint(Point origin,const std::vector<std::pair<Point,Tensor>>& neighbors) {
   if(neighbors.empty() || neighbors.size()>4*MaximumCavityCells)
     throw std::invalid_argument("Native3D movement neighbor count exceeds bounds.");

@@ -4,14 +4,15 @@ Worktree `/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated`.
 Branch `codex/native-3d-bl`, based on Goal2
 `c43a8a3907ea2655e4ebbb6286ab16c3fa625d8b`. Full Goal3 ACTIVE/incomplete.
 The connected distributed-region-field checkpoint9bd5fb76e4 is qualified/pushed.
-The subsequent actual curved RANS/current+BDF/SA check compiles but exposes coarse-cell
-BL complexity quadrature exhaustion before remeshing. Extending the spherical radial
-fan to a certified cylinder-axis point also fails its volume control. Both failures
-and initial invalid-config refusal are preserved. Rejected production change restored
-to9bd5fb76e4; local binary still contains the rejected object and MUST be rebuilt.
-All owned jobs terminal. No new curved RANS runtime qualification.
-Read [failure evidence, next integration strategy and gates](Handbook/GOAL3_CURVED_RANS_RUNTIME.md). No cluster submission, messaging,
-foreign `ClusterResults/`, AdapNoExt or dependency modification.
+The actual curved RANS workflow remains UNQUALIFIED. A connected cylindrical-annulus
+integration change is in progress: earlier one-prism controls pass, but rotated-cell
+and full-sector probes exposed projection/chord precision failures. Current source
+uses exact shared-base triangle intersections and positive projective ray/barycentric
+coordinates, with strict compensated products; final build71336 is live (verify it).
+Next controls `native_curved_volume_controls_v7`, then actual RANS n1/m1 v4 only on
+success. No MPI campaign before full serial acceptance. All prior failures are preserved.
+Read [current design/live handle/evidence/gates](Handbook/GOAL3_CURVED_RANS_RUNTIME.md).
+Foreign results, AdapNoExt and dependencies remain untouched.
 
 **Complete curved meshes are accepted under unchanged constraints.** The original
 1402-cell difficult target completes with1368 cells/423 nodes, zero long edges,

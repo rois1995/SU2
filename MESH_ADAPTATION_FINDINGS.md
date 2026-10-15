@@ -5459,3 +5459,27 @@ partition, reusing projection/clipping and actual geometric/P1 density callbacks
 Independent positive-weight/volume/polar-density proof and complete actual RANS workflow
 remain required before any MPI matrix or runtime qualification. Full Goal3 ACTIVE;
 [diagnosis/design/evidence](Handbook/GOAL3_CURVED_RANS_RUNTIME.md).
+
+
+## 2026-10-15 — positive annular complexity construction in progress, not qualified
+
+Cylindrical axial-chord/polar-band construction removes the old point-budget failure
+on one prism: v4/v5 independent integral6.3295337206 vs6.3295357978,4590 retained points
+across3 cells, sphere/direct-point/convergence controls pass. Initial unit-axial oracle
+was incorrect because the actual wall tangential tensor is retained; corrected oracle
+checks direct point agreement and independent3D prism quadrature. No target was reset.
+
+Full actual RANS still rejects rotated cell6 before remeshing; expanded all-sector
+controls also expose subtractive chord failure. Standalone existing Polygon::Clip
+self-intersection moves/duplicates vertices in5/8 rotations. Preserve this diagnosis;
+current connected source replaces projected overlap with exact-orientation shared-base
+triangles and uses positive projective ray/radial barycentrics and vertex chord heights.
+Compensated products live in the strict common library. No epsilon ray merge, clamp,
+field/geometry/quality/length/tolerance/work/point limit relaxation.
+
+Current version under build, not yet qualified. Next all-sector/wall-first, independent
+prism/sphere and rotated/sheared moment controls, then complete actual serial RANS and
+only afterward resumable MPI. Full Goal3 remains ACTIVE. Preserved evidence/status in
+`region_construction_v1/annular_integration_progress.json`; focused current handoff in
+Handbook/GOAL3_CURVED_RANS_RUNTIME.md. Raw advance timing includes automatic metric
+postprocessing and cannot be treated as CFD-only performance.

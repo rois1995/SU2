@@ -1,15 +1,18 @@
 # Goal3 — actual curved RANS/native BL lifecycle
 
 Branch `codex/native-3d-bl`, qualified source-refresh baseline9bd5fb76e4.
-Full Goal3 ACTIVE/incomplete. The connected runtime check compiles, but the actual
-workflow is not accepted. Initial HMIN.1/height.05 config refusal is preserved; current
-HMIN.025 admits the request. Actual RANS step0 then fails BL complexity cell0 before
-remeshing. A cylinder-axis extension of the existing spherical fan also exhausts the
-unchanged65536-point limit in the new cylindrical volume control. All owned jobs are
-terminal. That unqualified production change is restored to published9bd5fb76e4;
-its exact source/build/binary/log receipt remains in the rejected control folder.
-The local build still contains that rejected experimental object: rebuild before any
-new run. No mesh/runtime/performance qualification follows from these failures.
+Full Goal3 ACTIVE/incomplete. The current positive projective annulus construction
+is under build and UNQUALIFIED. Earlier v4/v5 variants pass the one-prism independent
+integral and sphere controls, but actual RANS rotated-cell and expanded all-sector
+checks expose further projection/subtractive-chord issues. Do not reuse those earlier
+passes as proof of the current implementation or whole workflow.
+
+Current build handle71336 (verify the actual live handle/process before any restart),
+log `integration_evidence/build-integrated-v2/native-curved-rans-positive-coordinates-final-build.log`.
+Next v7 controls must pass all sectors/wall-first permutations, independent prism,
+sphere and rotated/sheared polynomial moments. Only then retry RANS n1/m1 v4.
+[Preserved source/binary/helper evidence and status](../integration_evidence/native_3d_bl_v1/region_construction_v1/annular_integration_progress.json).
+
 
 ## Missing capability
 
@@ -73,7 +76,7 @@ sensor engine tests bypassed that stage. Extending the positive sphere fan to a
 certified point on the cylinder axis also exhausts the same point budget. It is
 preserved, not promoted. Do not add another fallback or raise the bounds.
 
-## Next connected design: positive cylindrical annulus integration
+## Connected design under qualification: positive cylindrical annulus integration
 
 Use the existing convex tetrahedron entry/exit-face projection partition, with chords
 parallel to the authoritative cylinder axis. For a single complete cylindrical wall
@@ -101,3 +104,45 @@ then the complete actual curved RANS cycle under original mesh constraints. Only
 then MPI1/2/4 N=M/M<N, one resumable combination at a time. A local integration
 improvement alone is not the runtime milestone. The prepared cylinder oracle is
 currently unqualified because the rejected rule threw before completing it.
+
+
+Implementation now reuses the existing projected face-pair charts, physical edge-band
+roots, actual SamplePoints/ApplySample density and representable original-cell source
+queries. Tensor-product3/5 probes estimate each directional density and volume error;
+retained3-point rules keep weights positive. The largest unresolved direction is split
+under the same bounds. Summed volume errors must be<=1e-10 of the original volume,
+and actual volume closure<=2e-10; density error remains<=1e-4. No field relaxation.
+Preserved stages include v2 angular-duplicate refusal, v3 completion with the incorrect
+unit-axial reference, v4 corrected oracle PASS and RANS n1/m1 v2 rotated-cell refusal.
+Next focused folder is `native_curved_volume_controls_v5`, followed on success by
+`native_curved_rans_n1_m1_v3`. Prior failures/source/binary/helper receipts remain
+immutable. Absolute-angle subtraction is replaced by compensated ray predicates and
+local positive angular spans; exactly radial projected edges contribute only their
+endpoint rays, avoiding redundant circle-root angles.
+
+
+## Current geometric construction and exact failure evidence
+
+A standalone call to the existing Polygon::Clip shows self-clipping identical
+triangles moves/duplicates vertices in5 of8 rotations; sector2 moves the original
+axis point to about(1.435e-17,-8.786e-34). Source/output/header hash are preserved in
+`native_curved_rans_n1_m1_v3/projection_diagnosis.json`. Shared-base projected triangles
+now intersect by exact house orientation tests and the unique tighter-ray apex,
+preserving common source vertices for identical and nonidentical projections.
+The frame is centered on the cylinder axis, independent of source node ordering.
+
+Further all-sector checks exposed a nonpositive chord from subtracting near-boundary
+coordinates. The current design builds sectors with positive blends of geometric
+rays, conditioned only by exact powers of two. The angular Jacobian is
+`cross(ray0,ray1)/norm((1-t)*ray0+t*ray1)^2`. Closed ray-end barycentric coordinates
+and distances from both radial endpoints form positive original-triangle weights;
+axial heights interpolate positive chart vertex heights. This avoids subtracting
+nearly equal chord values or global angles. Strict CompensatedCross2D protects fma
+compensation from fast-math; exact binary high-cancellation sign controls are included.
+
+No tolerance merging, zero-height clamp, budget increase, field reset or acceptance
+relaxation.65536 points/16384 work and1e-4 density criterion remain; volume error and
+closure retain1e-10/2e-10 bounds. The current implementation still needs execution.
+Its advanced-stage clock includes Postprocess's legacy automatic metric calls under
+COMPUTE_METRIC=YES/ADAP_LOOP=NO; `solve_seconds` is therefore not CFD-only time.
+No lifecycle performance or affordability conclusion may use that raw denominator.

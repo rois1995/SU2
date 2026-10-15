@@ -1,0 +1,7 @@
+{
+  "scope": "Standalone existing house polygon clipping of identical projected triangles; not a CFD or mesh-acceptance check.",
+  "command": "c++ -std=c++17 -O2 -march=native -ffast-math -fno-finite-math-only -I <repository-root> projection_self_clip_probe.cpp -o <temporary-binary>; run temporary-binary",
+  "header": "SU2_CFD/include/adaptation/ConvexClipping.hpp",
+  "header_sha256": "f9a92bc81c3588dda386606d2ad6ab63f808af9831c7d8ec9ad3120b48ffa9cf",
+  "finding": "Identical triangle self-clipping changes geometry/duplicates vertices in sectors1,2,5,6,7. Sector2 moves original axis vertex0 to approximately(1.435e-17,-8.786e-34), producing a fake angular/radial sliver. Avoid self-intersection when common-edge third projected vertices are exactly equal."
+}

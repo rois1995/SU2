@@ -1408,7 +1408,11 @@ TEST_CASE("Curved BL gradation diagnosis keeps sensor and composed fields distin
 }
 
 
-TEST_CASE("Cylindrical axis fans resolve coarse prism cells against independent polar integration", "[.][NativeCylinderBLVolume3D]") {
+TEST_CASE("Cylindrical annulus integration resolves coarse prism cells against independent polar integration", "[.][NativeCylinderBLVolume3D]") {
+  const long double delta=std::ldexp(1.L,-40),det=std::ldexp(1.L,-80);
+  CHECK(SU2Native3D::CompensatedCross2D(1,1+delta,1-delta,1)==det);
+  CHECK(SU2Native3D::CompensatedCross2D(1-delta,1,1,1+delta)==-det);
+  CHECK(SU2Native3D::CompensatedCross2D(1,2,2,4)==0);
   const auto wall=AnalyticCylinderWall(.05,.2,.04);CBoundaryLayerMetric layers(3,{wall});
   const double angle=std::acos(-1.)/4,c=std::cos(angle),s=std::sin(angle);
   using P=std::array<double,3>;using T=std::array<P,4>;
@@ -1425,19 +1429,48 @@ TEST_CASE("Cylindrical axis fans resolve coarse prism cells against independent 
     double volume=0;for(const auto& p:rule){REQUIRE(p.weight>0);for(double v:p.barycentric)REQUIRE(v>=-1e-14);volume+=p.weight;measured+=p.weight*density(p);}
     CHECK(volume==Approx(s/6).epsilon(2e-10));points+=rule.size();
   }
-  // A unit-height triangular prism has polar measure r dr dtheta; its planar outer edge bounds r.
-  // This formula does not use fan rules, ApplySample or the production volume integration.
-  const double curvature=1.8/(2*std::sqrt(.025*1.975));
-  auto radial=[&](double r){const double distance=1-r,hn=std::max(.05,2*(.05+.2*distance)/2.2);
+  // Independent prism measure r dr dtheta dz. The retained wall tangential tensor varies with theta/z.
+  auto tangentLog=[&](double theta,double z) {
+    const double ct=std::cos(theta),st=std::sin(theta);const su2double x[3]={.975*ct,.975*st,z};
+    const auto sample=layers.Evaluate(0,x,1.);const auto& m=sample.full.m;
+    const double tx=-st,ty=ct;
+    const double aa=SU2_TYPE::GetValue(tx*tx*m[0][0]+2*tx*ty*m[0][1]+ty*ty*m[1][1]);
+    const double bb=SU2_TYPE::GetValue(tx*m[0][2]+ty*m[1][2]),cc=SU2_TYPE::GetValue(m[2][2]);
+    const double gap=std::hypot(aa-cc,2*bb),largest=.5*(aa+cc+gap),smallest=(aa*cc-bb*bb)/largest;
+    return .5*std::log(std::max(1.,largest)*std::max(1.,smallest));
+  };
+  auto radial=[&](double r,double tangent) {const double distance=1-r,hn=std::max(.05,2*(.05+.2*distance)/2.2);
     const double t=std::clamp((distance-.18)/.02,0.,1.),weight=distance>=.2?0:1-t*t*(3-2*t);
-    return r*std::pow(curvature/hn,weight);};
+    return std::exp(weight*(tangent-std::log(hn)));};
+  for(double theta:{.2*angle,.8*angle})for(double z:{.2,.7})for(double r:{.81,.9,.99}) {
+    Tensor metric;for(unsigned j=0;j<3;++j)metric.m[j][j]=1;const su2double x[3]={r*std::cos(theta),r*std::sin(theta),z};
+    layers.ApplyPoint(x,metric,1.,nullptr,false);su2double v[3][3],e[3],w[3];CBlasStructure::EigenDecomposition(metric.m,v,e,3,w);
+    CHECK(radial(r,tangentLog(theta,z))==Approx(SU2_TYPE::GetValue(sqrt(e[0]*e[1]*e[2]))).epsilon(2e-11));
+  }
   auto reference=[&](unsigned n) {double total=0;const double h=angle/n;
-    for(unsigned j=0;j<=n;++j){const double theta=h*j,end=std::cos(angle/2)/std::cos(theta-angle/2);double value=0;
-      const double cuts[5]={0,.8,.82,.975,end};
-      for(unsigned band=1;band<5;++band){const double left=std::min(cuts[band-1],end),right=std::min(cuts[band],end);if(!(right>left))continue;
-        const double step=(right-left)/n;double sum=0;for(unsigned k=0;k<=n;++k)sum+=(k==0||k==n?1:k%2?4:2)*radial(left+step*k);value+=step*sum/3;}
-      total+=(j==0||j==n?1:j%2?4:2)*value;}
+    for(unsigned j=0;j<=n;++j){const double theta=h*j,end=std::cos(angle/2)/std::cos(theta-angle/2);double axial=0;
+      for(unsigned z=0;z<=n;++z){const double tangent=tangentLog(theta,double(z)/n);double value=0;
+        const double cuts[5]={0,.8,.82,.975,end};
+        for(unsigned band=1;band<5;++band){const double left=std::min(cuts[band-1],end),right=std::min(cuts[band],end);if(!(right>left))continue;
+          constexpr unsigned nr=128;const double step=(right-left)/nr;double sum=0;
+          for(unsigned k=0;k<=nr;++k){const double r=left+step*k;sum+=(k==0||k==nr?1:k%2?4:2)*r*radial(r,tangent);}value+=step*sum/3;}
+        axial+=(z==0||z==n?1:z%2?4:2)*value;}
+      total+=(j==0||j==n?1:j%2?4:2)*axial/(3*n);}
     return h*total/3;};
-  const double coarse=reference(128),fine=reference(256);CHECK(coarse==Approx(fine).epsilon(2e-6));
-  INFO("points="<<points<<" native="<<measured<<" polar="<<fine);CHECK(measured==Approx(fine).epsilon(8e-4));
+  // Exercise the actual cyclic coarse-mesh sectors, including the periodic seam and reversed source orientation.
+  for(unsigned sector=1;sector<8;++sector) {
+    const double theta=sector*angle,next=((sector+1)%8)*angle;
+    const P b{std::cos(theta),std::sin(theta),0},d{std::cos(next),std::sin(next),0};
+    const P B{b[0],b[1],1},D{d[0],d[1],1};
+    for(T cell:std::array<T,3>{{{a,b,d,D},{a,b,B,D},{a,B,A,D}}}) {
+      std::swap(cell[0],cell[1]);  // A wall vertex first exercises source permutations and projection-frame independence.
+      const auto rule=layers.IntegrationRule3D(cell,1.5,[](const auto&){return 1.;});double volume=0;
+      for(const auto& p:rule){REQUIRE(p.weight>0);for(double v:p.barycentric)REQUIRE(v>=-1e-14);volume+=p.weight;}
+      CHECK(volume==Approx(s/6).epsilon(2e-10));
+    }
+  }
+  const double coarse=reference(64),fine=reference(128);CHECK(coarse==Approx(fine).epsilon(2e-6));
+  INFO("points="<<points<<" native="<<measured<<" independent_polar="<<fine);CHECK(measured==Approx(fine).epsilon(8e-4));
+  std::cout<<"CYLINDER_VOLUME points="<<points<<" native="<<std::setprecision(17)<<measured<<" independent_polar="<<fine<<" reference_delta="<<std::abs(coarse-fine)<<'\n';
+
 }

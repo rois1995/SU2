@@ -1435,6 +1435,7 @@ std::vector<CBoundaryLayerMetric::IntegrationPoint3D> CBoundaryLayerMetric::Inte
   struct ChordRule {
     Triangle entry,exit;
     std::array<std::array<double,2>,3> projection;
+    std::array<long double,3> axial{};
     long double area;
   };
   std::vector<ChordRule> charts;
@@ -1454,9 +1455,21 @@ std::vector<CBoundaryLayerMetric::IntegrationPoint3D> CBoundaryLayerMetric::Inte
   const auto normal=unit(cross(delta(wall[1],wall[0]),delta(wall[2],wall[0])));
   V axis{};axis[std::min_element(normal.begin(),normal.end(),[](auto a,auto b){return std::abs(a)<std::abs(b);})-normal.begin()]=1;
   const auto tangent=unit(cross(normal,axis)),second=cross(normal,tangent);
+  const SU2Native3D::AnalyticSurface* cylinder=nullptr;
+  if(walls.size()==1 && walls[0].authority && walls[0].authority->CompleteAnalytic(walls[0].authority_facet)) {
+    const auto& g=walls[0].authority->Analytic().at(walls[0].authority_facet);
+    if(g.kind==SU2Native3D::AnalyticSurface::Kind::Cylinder) {
+      const auto axial=unit({g.axis.x,g.axis.y,g.axis.z});bool inside=true;
+      for(const auto& p:tetrahedron){const auto z=((long double)p[0]-g.origin.x)*axial[0]+((long double)p[1]-g.origin.y)*axial[1]+((long double)p[2]-g.origin.z)*axial[2];inside=inside && z>=0 && z<=g.extent.y;}
+      if(inside)cylinder=&g;
+    }
+  }
   V direction{};bool conditioned=false;
+  if(cylinder){direction=unit({cylinder->axis.x,cylinder->axis.y,cylinder->axis.z});conditioned=true;
+    axis={};axis[std::min_element(direction.begin(),direction.end(),[](auto a,auto b){return std::abs(a)<std::abs(b);})-direction.begin()]=1;}
+
   // Nearly vertical source faces make projected barycentrics ill-conditioned after rotation.
-  for(const auto tilt:std::array<std::array<double,2>,5>{{{{0,0}},{{.031,.017}},{{-.017,.031}},{{-.031,-.017}},{{.017,-.031}}}}) {
+  if(!cylinder)for(const auto tilt:std::array<std::array<double,2>,5>{{{{0,0}},{{.031,.017}},{{-.017,.031}},{{-.031,-.017}},{{.017,-.031}}}}) {
     auto candidate=normal;for(unsigned j=0;j<3;++j)candidate[j]+=tilt[0]*tangent[j]+tilt[1]*second[j];candidate=unit(candidate);
     bool valid=true;
     for(unsigned opposite=0;opposite<4;++opposite) {
@@ -1469,22 +1482,24 @@ std::vector<CBoundaryLayerMetric::IntegrationPoint3D> CBoundaryLayerMetric::Inte
   }
   if(!conditioned)throw std::runtime_error("Native3D integration cannot condition the projected source faces.");
   const auto u=unit(cross(direction,axis)),v=cross(direction,u);
+  const BLPoint3D projectionOrigin=cylinder?BLPoint3D{cylinder->origin.x,cylinder->origin.y,cylinder->origin.z}:tetrahedron[0];
   std::array<std::array<double,2>,4> projected{};
   for(unsigned k=0;k<4;++k)for(unsigned j=0;j<3;++j) {
-    projected[k][0]+=double(((long double)tetrahedron[k][j]-tetrahedron[0][j])*u[j]);
-    projected[k][1]+=double(((long double)tetrahedron[k][j]-tetrahedron[0][j])*v[j]);
+    projected[k][0]+=double(((long double)tetrahedron[k][j]-projectionOrigin[j])*u[j]);
+    projected[k][1]+=double(((long double)tetrahedron[k][j]-projectionOrigin[j])*v[j]);
   }
-  struct FaceProjection { std::array<unsigned,3> vertices; convex_clip::Polygon polygon; bool entry; };
+  struct FaceProjection { std::array<unsigned,3> vertices; bool entry; };
   std::vector<FaceProjection> faces;
   for(unsigned opposite=0;opposite<4;++opposite) {
     FaceProjection f;unsigned next=0;for(unsigned k=0;k<4;++k)if(k!=opposite)f.vertices[next++]=k;
     const auto a=projected[f.vertices[0]],b=projected[f.vertices[1]],c=projected[f.vertices[2]];
-    const long double area=((long double)b[0]-a[0])*((long double)c[1]-a[1])-((long double)b[1]-a[1])*((long double)c[0]-a[0]);
+    const auto area=SU2Native2D::Orientation(a[0],a[1],b[0],b[1],c[0],c[1]);
     if(!area)continue;
     const auto orientation=BLDeterminant(tetrahedron[f.vertices[0]],tetrahedron[f.vertices[1]],tetrahedron[f.vertices[2]],tetrahedron[opposite]);
-    f.entry=(area>0)==(orientation>0);f.polygon.InitTriangle(a.data(),b.data(),c.data());faces.push_back(f);
+    f.entry=(area>0)==(orientation>0);faces.push_back(f);
   }
   auto endpoint=[&](const FaceProjection& face,const std::array<double,2>& q) {
+    for(unsigned j=0;j<3;++j)if(q==projected[face.vertices[j]]){std::array<double,4> result{};result[face.vertices[j]]=1;return result;}
     const auto a=projected[face.vertices[0]],b=projected[face.vertices[1]],c=projected[face.vertices[2]];
     const long double bx=(long double)b[0]-a[0],by=(long double)b[1]-a[1],cx=(long double)c[0]-a[0],cy=(long double)c[1]-a[1],
         qx=(long double)q[0]-a[0],qy=(long double)q[1]-a[1],det=bx*cy-by*cx;
@@ -1500,26 +1515,36 @@ std::vector<CBoundaryLayerMetric::IntegrationPoint3D> CBoundaryLayerMetric::Inte
       else entryOther=k;
     }
     for(auto k:exit.vertices)if(std::find(entry.vertices.begin(),entry.vertices.end(),k)==entry.vertices.end())exitOther=k;
-    const auto a=projected[common[0]],b=projected[common[1]];
-    auto side=[&](unsigned vertex) {
-      const auto q=projected[vertex];return ((long double)b[0]-a[0])*((long double)q[1]-a[1])-((long double)b[1]-a[1])*((long double)q[0]-a[0]);
-    };
-    // Opposite projected half-planes share only an edge, not a volume chart.
-    if((side(entryOther)>0)!=(side(exitOther)>0))continue;
-    auto overlap=entry.polygon;
-    for(int k=0;k<3;++k) {
-      const auto* a=exit.polygon.x[k];const auto* b=exit.polygon.x[(k+1)%3];
-      if(overlap.Clip(a[1]-b[1],b[0]-a[0],(b[1]-a[1])*a[0]-(b[0]-a[0])*a[1])<0)
-        throw std::runtime_error("Native3D projected face intersection exceeds capacity.");
+    auto a=projected[common[0]],b=projected[common[1]];const auto c=projected[entryOther],d=projected[exitOther];
+    auto orient=[](const auto& a,const auto& b,const auto& c){return SU2Native2D::Orientation(a[0],a[1],b[0],b[1],c[0],c[1]);};
+    const auto sideC=orient(a,b,c),sideD=orient(a,b,d);
+    // Shared-base triangles on opposite half-planes overlap only on their edge.
+    if((sideC>0)!=(sideD>0))continue;
+    if(sideC<0)std::swap(a,b);
+    auto contains=[&](const auto& top,const auto& point){return orient(b,top,point)>=0 && orient(top,a,point)>=0;};
+    std::array<double,2> apex;
+    if(contains(c,d))apex=d;
+    else if(contains(d,c))apex=c;
+    else {
+      // The tighter ray from each base endpoint bounds the unique triangular intersection.
+      const auto first=orient(a,c,d)>0?c:d,last=orient(b,c,d)<0?c:d;
+      const long double ux=(long double)first[0]-a[0],uy=(long double)first[1]-a[1],vx=(long double)last[0]-b[0],vy=(long double)last[1]-b[1];
+      const auto denominator=SU2Native3D::CompensatedCross2D(ux,uy,vx,vy);
+      if(!(denominator>0))throw std::runtime_error("Unresolved native3D projected edge intersection.");
+      const auto t=orient(a,b,last)/denominator;
+      if(!(t>0 && t<=1))throw std::runtime_error("Native3D projected intersection leaves its source edge.");
+      apex={double(a[0]+t*ux),double(a[1]+t*uy)};
     }
+    // Preserve the common vertices exactly; floating half-plane self-clipping creates artificial slivers.
+    convex_clip::Polygon overlap;overlap.InitTriangle(a.data(),b.data(),apex.data());
     // Separate small finite wall footprints before density probes; agreement of two rules can miss them.
     std::vector<convex_clip::Polygon> pieces{overlap};
     for(const auto& face:support) {
       if(walls[face.wall].authority)continue; // Facet footprints do not partition a smooth component.
       std::array<std::array<double,2>,3> footprint{};
       for(unsigned k=0;k<3;++k)for(unsigned j=0;j<3;++j) {
-        footprint[k][0]+=double(((long double)face.vertices[k][j]-tetrahedron[0][j])*u[j]);
-        footprint[k][1]+=double(((long double)face.vertices[k][j]-tetrahedron[0][j])*v[j]);
+        footprint[k][0]+=double(((long double)face.vertices[k][j]-projectionOrigin[j])*u[j]);
+        footprint[k][1]+=double(((long double)face.vertices[k][j]-projectionOrigin[j])*v[j]);
       }
       for(unsigned edge=0;edge<3;++edge) {
         const auto a=footprint[edge],b=footprint[(edge+1)%3];
@@ -1572,11 +1597,175 @@ std::vector<CBoundaryLayerMetric::IntegrationPoint3D> CBoundaryLayerMetric::Inte
       }
       const auto a=chart.projection[0],b=chart.projection[1],c=chart.projection[2];
       chart.area=.5*(((long double)b[0]-a[0])*((long double)c[1]-a[1])-((long double)b[1]-a[1])*((long double)c[0]-a[0]));
+      if(cylinder)for(unsigned j=0;j<3;++j) {
+        for(unsigned k=0;k<4;++k)for(unsigned d=0;d<3;++d)chart.axial[j]+=((long double)chart.exit[j][k]-chart.entry[j][k])*((long double)tetrahedron[k][d]-tetrahedron[0][d])*direction[d];
+        if(chart.axial[j]<0)throw std::runtime_error("Negative native3D cylindrical chart height.");
+      }
       if(chart.area>0)charts.push_back(chart);
       }
     }
   }
   if(charts.empty())throw std::runtime_error("Native3D parallel integration has no positive projected chart.");
+  if(cylinder) {
+    using P2=std::array<long double,2>;
+    P2 origin{};
+    const long double offset[3]={(long double)cylinder->origin.x-projectionOrigin[0],(long double)cylinder->origin.y-projectionOrigin[1],(long double)cylinder->origin.z-projectionOrigin[2]};
+    for(unsigned j=0;j<3;++j){origin[0]+=offset[j]*u[j];origin[1]+=offset[j]*v[j];}
+    auto wedge=[](P2 a,P2 b){return SU2Native3D::CompensatedCross2D(a[0],a[1],b[0],b[1]);};
+    auto minus=[](P2 a,P2 b){return P2{a[0]-b[0],a[1]-b[1]};};
+    long double radius=0;
+    for(const auto& p:projected)radius=std::max(radius,std::hypot(p[0]-origin[0],p[1]-origin[1]));
+    if(!(radius>0))throw std::runtime_error("Degenerate native3D cylindrical projection.");
+    const auto axial=unit({cylinder->axis.x,cylinder->axis.y,cylinder->axis.z});
+    BLPoint3D rayStart{},rayEnd{};
+    const double center[3]={cylinder->origin.x,cylinder->origin.y,cylinder->origin.z};
+    for(unsigned j=0;j<3;++j){rayStart[j]=double(center[j]+.5L*cylinder->extent.y*axial[j]);rayEnd[j]=double(rayStart[j]+radius*u[j]);}
+    auto cuts=EdgeBreakpoints(rayStart,rayEnd,std::max(2.,bandRatio),4);
+    std::vector<long double> levels;for(double t:cuts)levels.push_back(t*radius);
+    levels.front()=0;levels.back()=radius;
+    struct PolarPanel {
+      size_t chart,band;
+      P2 first,last;
+      std::array<std::array<long double,2>,3> bounds;
+      unsigned depth=0;
+      std::vector<IntegrationPoint3D> points;
+      long double value=0,volume=0,error=0,volumeError=0;
+      std::array<long double,3> directionError{},directionVolumeError{};
+    };
+    const double x3[3]={-.77459666924148337704,0,.77459666924148337704},w3[3]={5./9,8./9,5./9};
+    const double x5[5]={-.90617984593866399280,-.53846931010568309104,0,.53846931010568309104,.90617984593866399280};
+    const double w5[5]={.23692688505618908751,.47862867049936646804,128./225,.47862867049936646804,.23692688505618908751};
+    struct RadialInterval {
+      long double lo=0,hi=std::numeric_limits<long double>::infinity(),norm=0;
+      std::array<std::array<long double,3>,2> bary{};
+      bool valid=false;
+    };
+    auto radialRange=[&](const ChordRule& chart,P2 first,P2 last,long double t) {
+      RadialInterval range;const P2 ray{(1-t)*first[0]+t*last[0],(1-t)*first[1]+t*last[1]};range.norm=std::hypot(ray[0],ray[1]);
+      auto against=[&](P2 edge){return (1-t)*wedge(edge,first)+t*wedge(edge,last);};
+      int ends[2]={-1,-1};
+      for(unsigned j=0;j<3;++j){const P2 a{chart.projection[j][0]-origin[0],chart.projection[j][1]-origin[1]};
+        const P2 b{chart.projection[(j+1)%3][0]-origin[0],chart.projection[(j+1)%3][1]-origin[1]},edge=minus(b,a);
+        const auto denominator=against(edge),numerator=wedge(edge,a);
+        if(denominator>0){const auto hit=numerator*range.norm/denominator;if(hit>range.lo){range.lo=hit;ends[0]=j;}}
+        else if(denominator<0){const auto hit=numerator*range.norm/denominator;if(hit<range.hi){range.hi=hit;ends[1]=j;}}
+        else if(numerator>0)return range;
+      }
+      if(!(range.hi>range.lo) || !std::isfinite(range.hi))return range;
+      for(unsigned end=0;end<2;++end){
+        if(ends[end]<0) {
+          for(unsigned j=0;j<3;++j){const auto a=chart.projection[(j+1)%3],b=chart.projection[(j+2)%3];
+            range.bary[end][j]=wedge({a[0]-origin[0],a[1]-origin[1]},{b[0]-origin[0],b[1]-origin[1]})/(2*chart.area);}
+        } else {
+          const unsigned i=ends[end],j=(i+1)%3;
+          const P2 a{chart.projection[i][0]-origin[0],chart.projection[i][1]-origin[1]},b{chart.projection[j][0]-origin[0],chart.projection[j][1]-origin[1]};
+          const auto denominator=against(minus(b,a));range.bary[end][i]=against(b)/denominator;range.bary[end][j]=-against(a)/denominator;
+        }
+        long double sum=0;for(auto value:range.bary[end]){if(value<0 || !std::isfinite(value))throw std::runtime_error("Invalid native3D cylindrical ray-boundary coordinate.");sum+=value;}
+        if(!(sum>0))throw std::runtime_error("Empty native3D cylindrical ray-boundary coordinate.");
+        for(auto& value:range.bary[end])value/=sum;
+      }
+      range.valid=true;return range;
+    };
+    auto sample=[&](const PolarPanel& panel,const std::array<unsigned,3>& orders,bool retain) {
+      std::array<long double,2> integral{};const auto& chart=charts[panel.chart];
+      for(unsigned it=0;it<orders[0];++it){
+        const auto half=.5L*(panel.bounds[0][1]-panel.bounds[0][0]),middle=.5L*(panel.bounds[0][1]+panel.bounds[0][0]);
+        const auto fraction=middle+half*(orders[0]==3?x3[it]:x5[it]);const auto range=radialRange(chart,panel.first,panel.last,fraction);
+        const auto left=std::max(range.lo,levels[panel.band]),right=std::min(range.hi,levels[panel.band+1]);
+        if(!range.valid || !(right>left))throw std::runtime_error("Unresolved native3D cylindrical radial-band closure.");
+        const auto angularJacobian=wedge(panel.first,panel.last)/(range.norm*range.norm);
+        for(unsigned ir=0;ir<orders[1];++ir){
+          const auto rh=.5L*(panel.bounds[1][1]-panel.bounds[1][0]),rm=.5L*(panel.bounds[1][1]+panel.bounds[1][0]);
+          const auto fractionR=rm+rh*(orders[1]==3?x3[ir]:x5[ir]),r=left+(right-left)*fractionR;
+          const auto low=((range.hi-right)+(1-fractionR)*(right-left))/(range.hi-range.lo);
+          const auto high=((left-range.lo)+fractionR*(right-left))/(range.hi-range.lo);
+          std::array<long double,3> angular{};
+          for(unsigned j=0;j<3;++j)angular[j]=low*range.bary[0][j]+high*range.bary[1][j];
+          std::array<long double,4> entry{},exit{};long double length=0;
+          for(unsigned j=0;j<3;++j){length+=angular[j]*chart.axial[j];for(unsigned k=0;k<4;++k){entry[k]+=angular[j]*chart.entry[j][k];exit[k]+=angular[j]*chart.exit[j][k];}}
+          if(!(length>0))throw std::runtime_error("Nonpositive native3D cylindrical axial chord.");
+          for(unsigned iz=0;iz<orders[2];++iz){
+            const auto zh=.5L*(panel.bounds[2][1]-panel.bounds[2][0]),zm=.5L*(panel.bounds[2][1]+panel.bounds[2][0]);
+            const auto z=zm+zh*(orders[2]==3?x3[iz]:x5[iz]);std::array<double,4> parent{};
+            for(unsigned k=0;k<4;++k)parent[k]=double((1-z)*entry[k]+z*exit[k]);
+            BLPoint3D position{};SetBLSourceQuery(tetrahedron,originalSource,reversed,parent,position);
+            const auto weight=half*angularJacobian*rh*zh*(right-left)*r*length*
+                (orders[0]==3?w3[it]:w5[it])*(orders[1]==3?w3[ir]:w5[ir])*(orders[2]==3?w3[iz]:w5[iz]);
+            const double pointWeight=double(weight);
+            if(!(pointWeight>0) || !std::isfinite(pointWeight))throw std::runtime_error("Invalid native3D cylindrical quadrature weight.");
+            IntegrationPoint3D point{parent,pointWeight,SamplePoints({position[0],position[1],position[2]})};
+            integral[0]+=point.weight*probe(point);integral[1]+=point.weight;
+            if(retain)rule.push_back(std::move(point));
+          }
+        }
+      }
+      return integral;
+    };
+    std::map<size_t,PolarPanel> panels;std::priority_queue<std::pair<long double,size_t>> priority;
+    long double total=0,totalVolume=0,error=0,volumeError=0;size_t next=0,retained=0,work=0;
+    const auto expectedVolume=std::abs(BLDeterminant(tetrahedron[0],tetrahedron[1],tetrahedron[2],tetrahedron[3]))/6;
+    if(!(expectedVolume>0) || !std::isfinite(expectedVolume))throw std::runtime_error("Invalid native3D cylindrical source volume.");
+    long double densityScale=1;
+    auto score=[&](const PolarPanel& panel){return panel.error+1e6L*densityScale*panel.volumeError;};
+    auto add=[&](PolarPanel panel) {
+      if(++work>16384)throw std::runtime_error("Native3D cylindrical volume work budget exhausted.");
+      rule.clear();const auto low=sample(panel,{3,3,3},true);panel.points.swap(rule);panel.value=low[0];panel.volume=low[1];
+      for(unsigned axis=0;axis<3;++axis){std::array<unsigned,3> order{3,3,3};order[axis]=5;const auto high=sample(panel,order,false);
+        panel.directionError[axis]=std::abs(high[0]-low[0]);panel.directionVolumeError[axis]=std::abs(high[1]-low[1]);
+        panel.error+=panel.directionError[axis];panel.volumeError+=panel.directionVolumeError[axis];}
+      const auto high=sample(panel,{5,5,5},false);panel.error=std::max(panel.error,std::abs(high[0]-low[0]));
+      panel.volumeError=std::max(panel.volumeError,std::abs(high[1]-low[1]));
+      if(retained+panel.points.size()>65536)throw std::runtime_error("Native3D cylindrical volume point budget exhausted.");
+      retained+=panel.points.size();total+=panel.value;totalVolume+=panel.volume;error+=panel.error;volumeError+=panel.volumeError;
+      priority.emplace(score(panel),next);panels.emplace(next++,std::move(panel));
+    };
+    for(size_t at=0;at<charts.size();++at){const auto& chart=charts[at];std::vector<P2> rays{{1,0},{0,1},{-1,0},{0,-1}};
+      auto angle=[&](P2 p){if(p[0]!=0 || p[1]!=0)rays.push_back(p);};
+      for(unsigned j=0;j<3;++j){const P2 a{chart.projection[j][0]-origin[0],chart.projection[j][1]-origin[1]};
+        const P2 b{chart.projection[(j+1)%3][0]-origin[0],chart.projection[(j+1)%3][1]-origin[1]},edge=minus(b,a);angle(a);
+        // A radial edge contributes only its endpoint rays; recomputing circle roots creates duplicate ulp-wide angles.
+        if(wedge(a,b)==0)continue;
+        const auto square=edge[0]*edge[0]+edge[1]*edge[1],linear=2*(a[0]*edge[0]+a[1]*edge[1]);
+        if(!(square>0))throw std::runtime_error("Degenerate native3D cylindrical projected edge.");
+        for(auto level:levels){const auto constant=a[0]*a[0]+a[1]*a[1]-level*level,discriminant=linear*linear-4*square*constant;
+          if(discriminant<0)continue;
+          const auto root=std::sqrt(discriminant),q=-.5L*(linear+std::copysign(root,linear));
+          for(auto t:std::array<long double,2>{q?q/square:-linear/(2*square),q?constant/q:-linear/(2*square)})
+            if(t>0 && t<1)angle({a[0]+t*edge[0],a[1]+t*edge[1]});
+        }
+      }
+      // Sort rays directly; local sector angles preserve small offsets at the periodic seam.
+      auto upper=[](P2 p){return p[1]>0 || (p[1]==0 && p[0]>=0);};
+      // Powers of two condition the rays without changing their exact directions.
+      for(auto& ray:rays){int exponent=0;std::frexp(std::max(std::abs(ray[0]),std::abs(ray[1])),&exponent);for(auto& value:ray)value=std::ldexp(value,-exponent);}
+      std::sort(rays.begin(),rays.end(),[&](P2 a,P2 b){return upper(a)!=upper(b)?upper(a):wedge(a,b)>0;});
+      rays.erase(std::unique(rays.begin(),rays.end(),[&](P2 a,P2 b){return upper(a)==upper(b) && wedge(a,b)==0;}),rays.end());
+      for(size_t k=0;k<rays.size();++k){const auto first=rays[k],last=rays[(k+1)%rays.size()];
+        if(!(wedge(first,last)>0))throw std::runtime_error("Unresolved native3D cylindrical angular sector.");
+        const auto range=radialRange(chart,first,last,.5L);if(!range.valid)continue;
+        for(size_t band=0;band+1<levels.size();++band)if(std::min(range.hi,levels[band+1])>std::max(range.lo,levels[band]))
+          add(PolarPanel{at,band,first,last,{{{0,1},{0,1},{0,1}}}});
+      }
+    }
+    if(!(total>0) || panels.empty())throw std::runtime_error("Empty native3D cylindrical integration partition.");
+    densityScale=total/expectedVolume;priority={};for(const auto& row:panels)priority.emplace(score(row.second),row.first);
+    while(error>1e-4L*total || volumeError>1e-10L*expectedVolume || std::abs(totalVolume-expectedVolume)>2e-10L*expectedVolume){
+      if(priority.empty() || !(priority.top().first>0))throw std::runtime_error("Unresolved native3D cylindrical integration error.");
+      const auto selected=priority.top().second;priority.pop();auto panel=std::move(panels.at(selected));panels.erase(selected);
+      if(panel.depth>=32)throw std::runtime_error("Unresolved native3D cylindrical density after32 subdivisions.");
+      retained-=panel.points.size();panel.points.clear();total-=panel.value;totalVolume-=panel.volume;
+      error=std::max(0.L,error-panel.error);volumeError=std::max(0.L,volumeError-panel.volumeError);
+      unsigned split=0;long double largest=-1;
+      for(unsigned j=0;j<3;++j){const auto value=panel.directionError[j]+1e6L*densityScale*panel.directionVolumeError[j];if(value>largest){largest=value;split=j;}}
+      const auto middle=.5L*(panel.bounds[split][0]+panel.bounds[split][1]);
+      if(middle==panel.bounds[split][0] || middle==panel.bounds[split][1])throw std::runtime_error("Unrepresentable native3D cylindrical density split.");
+      for(unsigned side=0;side<2;++side){auto bounds=panel.bounds;bounds[split][1-side]=middle;add(PolarPanel{panel.chart,panel.band,panel.first,panel.last,bounds,panel.depth+1});}
+    }
+    rule.clear();rule.reserve(retained);for(auto& panel:panels)rule.insert(rule.end(),std::make_move_iterator(panel.second.points.begin()),std::make_move_iterator(panel.second.points.end()));
+    if(sensorDependent)*sensorDependent=true;
+    return rule;
+  }
   const double gauss[5]={-.90617984593866399280,-.53846931010568309104,0,.53846931010568309104,.90617984593866399280};
   const double weights[5]={.23692688505618908751,.47862867049936646804,128./225,.47862867049936646804,.23692688505618908751};
   const double gauss3[3]={-.77459666924148337704,0,.77459666924148337704},weights3[3]={5./9,8./9,5./9};

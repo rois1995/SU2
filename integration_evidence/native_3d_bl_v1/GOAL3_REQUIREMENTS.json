@@ -100,7 +100,7 @@
     "wall_reconstruction_v1/joint_connectivity_summary.json"
   ],
   "execution_state": {
-    "status": "Actual curved RANS probe compiles and runs first solve but fails coarse-cell geometric BL complexity before remeshing; axis-fan experiment also fails unchanged point cap and is not promoted. Next positive cylinder annulus integration, then full workflow/MPI. Full Goal3 ACTIVE.",
+    "status": "Positive projective cylindrical-annulus integration under build. Earlier one-prism controls pass; rotated-source/all-sector failures preserved. Current source unqualified, complete actual RANS workflow required before MPI.",
     "CFD_runs": 0,
     "production_MPI": "Current PASS N/M1/1,2/1,2/2; N/M4/1,4/2,4/4 remain required. Previous full matrix historical.",
     "independent_frames": 6
@@ -235,7 +235,7 @@
     "scope": "One planar cube production case plus six focused first-row geometry/movement cases. Actual computed metric, conservative current+BDF/bounded-SA and SU2/CGNS/reference/restart checks; independent exact embedding, full composed metric, wall footprint and height. No new MPI, full regressions, general layer coverage, actual CFD accuracy or performance qualification."
   },
   "owned_jobs": {
-    "status": "All owned builds and serial RANS/volume-control probes terminal. Production integration restored to9bd5fb76e4; local binary contains rejected axis-fan object and requires rebuild."
+    "status": "One nice19/j1 final connected build, handle71336; verify before restart. No numerical job active. Next v7 volume controls then RANS n1/m1 v4 only on success."
   },
   "wall_reconstruction": {
     "status": "PASS_PLANAR_STRONGER_FIELD_LIMITED_SCOPE",
@@ -652,15 +652,16 @@
     "handbook": "Handbook/GOAL3_DISTRIBUTED_REGION_FIELD.md"
   },
   "curved_RANS_runtime": {
-    "status": "UNQUALIFIED_COMPLEXITY_INTEGRATION_BLOCKER",
+    "status": "IN_PROGRESS_GEOMETRIC_COMPLEXITY_CONSTRUCTION_UNQUALIFIED",
     "handbook": "Handbook/GOAL3_CURVED_RANS_RUNTIME.md",
     "cases": [
       "native_curved_rans_v1",
       "native_curved_rans_n1_m1_v1",
       "native_curved_volume_controls_v1"
     ],
-    "production_change": "Rejected axis-fan extension restored; exact source preserved by failed control snapshot/receipt. New runtime and independent polar-volume tests retained as hidden failing controls.",
-    "next": "Positive cylinder-axis chords and polar cross-section/radial-band partition; unchanged targets, geometric/P1 composition, point/work/error/mesh gates. Complete actual workflow before MPI matrix.",
-    "complete": false
+    "production_change": "Connected positive projective cylindrical annulus and exact shared-base projection implementation under build, not yet qualified. Earlier failed variants and standalone clipping diagnosis preserved.",
+    "next": "Build completion, all-sector cylinder plus sphere and rotated/sheared moment controls v7, then complete native_curved_rans_n1_m1_v4. Actual RANS/MPI/accuracy/full lifecycle performance still required.",
+    "complete": false,
+    "progress": "region_construction_v1/annular_integration_progress.json"
   }
 }

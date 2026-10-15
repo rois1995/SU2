@@ -10,6 +10,8 @@
 #include <map>
 namespace SU2Native3D {
 constexpr double MaximumMetricEdge = 1.8;
+/*! Signed planar cross product with fma compensation, compiled in the strict-arithmetic library. */
+long double CompensatedCross2D(long double ax,long double ay,long double bx,long double by);
 struct EdgeMeasure {
   Point a, b;
   long double length = 0;
