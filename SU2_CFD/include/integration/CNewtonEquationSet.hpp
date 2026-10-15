@@ -24,7 +24,7 @@ class CNewtonEquationSet : private CIntegration {
  private:
   struct Snapshot {
     CSolver* solver;
-    unsigned short variables;
+    unsigned short slot, variables;
     std::vector<su2double> solution, oldSolution, evaluationHistory, relaxation;
   };
   CGeometry* geometry;
@@ -54,6 +54,41 @@ class CNewtonEquationSet : private CIntegration {
   const std::array<unsigned long, 4>& GetResidualEvaluations() const { return residualEvaluations; }
   /*! \brief Capture an accepted base after its residual/property refresh, fixing the scalar density factors. */
   void Capture();
+
+  template <class Scalar>
+  void BuildScales(CSysVector<Scalar>& scale, CSysVector<Scalar>& probe) const {
+    Pack(scale);
+    double velocity = 0;
+    for (auto d = 0u; d < geometry->GetnDim(); ++d)
+      velocity += pow(SU2_TYPE::GetValue(solvers[FLOW_SOL]->GetVelocity_Inf(d)), 2);
+    velocity = std::sqrt(velocity);
+    const bool compressible = config->GetKind_Regime() == ENUM_REGIME::COMPRESSIBLE;
+    const auto rhoInf = SU2_TYPE::GetValue(solvers[FLOW_SOL]->GetDensity_Inf());
+    for (const auto& block : blocks) {
+      const auto* reference = block.solver->GetLimiterReference();
+      SU2_OMP_FOR_STAT(1024)
+      for (auto p = 0ul; p < geometry->GetnPoint(); ++p)
+        for (auto v = 0u; v < block.variables; ++v) {
+          const auto j = block.offset + v;
+          const auto mass = SU2_TYPE::GetValue(MassFactor(block, p));
+          double ref = reference ? mass * std::abs(SU2_TYPE::GetValue(reference[v])) : 0;
+          if (block.slot == FLOW_SOL && v >= 1 && v <= geometry->GetnDim())
+            ref = velocity * (compressible ? SU2_TYPE::GetValue(density[p]) : 1.0);
+          if (block.slot == FLOW_SOL && v == 0 && !compressible) ref = rhoInf * velocity * velocity;
+          // Incompressible flow stores reference-relative enthalpy, which can be zero or negative at positive temperature.
+          if (block.slot == FLOW_SOL && v == block.variables - 1 && !compressible)
+            ref = std::abs(SU2_TYPE::GetValue(block.solver->GetNodes()->GetSpecificHeatCp(p) *
+                                             block.solver->GetNodes()->GetTemperature(p)));
+          scale(p, j) = std::max(std::abs(SU2_TYPE::GetValue(scale(p, j))), ref);
+          if (scale(p, j) == 0) scale(p, j) = 1;
+          probe(p, j) = scale(p, j);
+          if (block.slot == TURB_SOL && config->GetKind_Turb_Model() == TURB_MODEL::SST)
+            probe(p, j) = std::max(mass * std::abs(SU2_TYPE::GetValue(block.solver->GetNodes()->GetSolution_Old(p, v))),
+                                    ref * 1e-12);
+        }
+      END_SU2_OMP_FOR
+    }
+  }
 
   /*! \brief Restore every dependent solution and Solution_Old before installing all selected trial values. */
   template <class Scalar, class IsFree>
@@ -109,7 +144,9 @@ class CNewtonEquationSet : private CIntegration {
   }
 
   /*! \brief Rebuild dependent coefficients and all selected physical residuals, with no pseudo-time term. */
-  bool EvaluateResiduals(bool implicit = false);
+  bool EvaluateResiduals(bool implicit = false, bool allEquations = false);
   /*! \brief Rebuild coefficients at the captured state; retain physical-time history and saved relaxation. */
   bool Restore();
+  /*! \brief Collective maximum restoration error over all dependent solutions, iteration history and relaxation. */
+  double GetRestorationError();
 };

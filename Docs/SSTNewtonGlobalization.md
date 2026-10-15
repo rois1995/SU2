@@ -2,7 +2,7 @@
 
 `SST_NEWTON= YES` enables coefficient-aware matrix-free Newton-Krylov integration of the segregated SST equations. It includes Armijo backtracking, adaptive pseudo-time, bounded recovery, adaptive linear forcing, diagnostics and a graceful failure restart. The default is `NO`, which retains the existing turbulence integration.
 
-The current supported problem is steady, single-zone, compressible RANS with SST, implicit turbulence integration and no transition model, full-multigrid startup, CUDA or differentiation. MPI is supported. SST residual evaluations run outside an OpenMP team; the mean-flow solver retains its normal thread configuration. This implementation does not form a coupled mean-flow/SST Jacobian.
+The current supported problem is steady, single-zone, compressible RANS with SST, implicit turbulence integration and no transition model, full-multigrid startup, CUDA or differentiation. MPI is supported. The common controller evaluates residuals collectively in an OpenMP team. This configuration still advances SST as a segregated group; production coupled-group configuration is pending.
 
 ## Nonlinear problem and acceptance
 
@@ -10,7 +10,7 @@ Hold the stored mean-flow conservative state fixed during one SST update. Write 
 
 `(J_R + D) delta_q = -R(q_old)`,
 
-where `D` is the nodal volume divided by the local pseudo-time step. `CNewtonEquationSet` now installs each trial from a saved base and refreshes flow primitives, gradients, SST blending functions, cross diffusion and eddy viscosity. Pressure responds to SST k at fixed total energy; the primitive state is refreshed during probes. Strong wall values are installed before the differentiated gradients and sources. Invalid flow probes are rejected. The two Newton algorithms remain separate; see `NewtonKrylovRefactor.md` for the common-interface milestone and its remaining requirements.
+where `D` is the nodal volume divided by the local pseudo-time step. `CNewtonEquationSet` now installs each trial from a saved base and refreshes flow primitives, gradients, SST blending functions, cross diffusion and eddy viscosity. Pressure responds to SST k at fixed total energy; the primitive state is refreshed during probes. Strong wall values are installed before the differentiated gradients and sources. Invalid flow probes are rejected. `SST_NEWTON` now uses the shared `CNewtonIntegration` controller; the separate SST controller has been removed. The legacy flow factory still uses a temporary compatibility implementation. See `NewtonKrylovRefactor.md` for the migration status and remaining requirements.
 
 The default `SST_NEWTON_PSEUDO_TIME_MERIT= YES` globalizes the implicit pseudo-time equation
 
@@ -86,7 +86,7 @@ Disabling line search retains the finite-state and true-linear-defect checks. An
 
 `sst_newton.csv` records every attempted direction: current/next CFL, line-search status, controller decision, Krylov iterations and requested/reported/true linear residuals, base/accepted merits, step, evaluations, slope, predicted reduction, model agreement, restoration errors and physical merit. `sst_newton_trials.csv` records each base, trial and rollback evaluation with both merits. These files append within a working directory; use a new directory for independent runs.
 
-The four `*_residual_evaluations` columns count physical residual evaluations by the shared interface, cumulatively for flow, turbulence, transition and species. They exclude conventional outer-iteration work. Even an SST-only probe evaluates flow to refresh auxiliary boundary data, so this cost must be counted in future comparisons. The shared linearization evaluates an explicit base reference before each solve, so base and probe residuals follow the same numerical path; that work is included too. SST retains its existing field-relative probe reference separately from Newton scaling.
+The four `*_residual_evaluations` columns count physical residual evaluations by the shared interface, cumulatively for flow, turbulence, transition and species. They exclude conventional outer-iteration work. Even an SST-only probe evaluates flow to refresh auxiliary boundary data, so this cost must be counted in future comparisons. The shared linearization evaluates an explicit base reference before each solve, so base and probe residuals follow the same numerical path; that work is included too. The first controller call also assembles all active equations to discover native strong-row metadata. SST retains its existing field-relative probe reference separately from Newton scaling.
 
 When recovery cannot continue, the integration returns a numerical-failure status. The iteration and driver veto convergence, force normal final output, and write an additional binary restart named `<RESTART_FILENAME>_sst_newton_failure.dat`, including when ordinary output is disabled. The executable finalizes normally, prints `Numerical Failure`, and returns a nonzero exit code. It does not call `MPI_Abort` for an exhausted numerical recovery. Invalid configuration is still reported through SU2's normal configuration-error path.
 

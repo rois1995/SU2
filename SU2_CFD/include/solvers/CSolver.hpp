@@ -329,6 +329,9 @@ public:
    */
   void SetResidual_RMS(const CGeometry *geometry, const CConfig *config, bool force = false);
 
+  /*! \brief Report the current physical residual without modifying the matrix or correction. */
+  void RefreshResidualStatistics(const CGeometry* geometry, const CConfig* config);
+
   /*!
    * \brief Communicate the value of the max residual and RMS residual.
    * \param[in] val_iterlinsolver - Number of linear iterations.

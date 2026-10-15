@@ -42,11 +42,12 @@ CNewtonEquationSet::CNewtonEquationSet(CGeometry* g, CSolver** s, CNumerics*** n
     variables += count;
   }
   for (auto runtime : runtimes) {
-    auto* solver = solvers[config->GetContainerPosition(runtime)];
+    const auto slot = config->GetContainerPosition(runtime);
+    auto* solver = solvers[slot];
     if (!solver) continue;
     const auto count = solver->GetnVar();
     const auto entries = geometry->GetnPoint() * count;
-    snapshots.push_back({solver, count, std::vector<su2double>(entries), std::vector<su2double>(entries),
+    snapshots.push_back({solver, slot, count, std::vector<su2double>(entries), std::vector<su2double>(entries),
                          std::vector<su2double>(entries),
                          std::vector<su2double>(geometry->GetnPoint())});
   }
@@ -113,7 +114,7 @@ void CNewtonEquationSet::Refresh() {
 }
 
 bool CNewtonEquationSet::CheckState(bool compareFlow) {
-  // shortcut: Full model and boundary constraints remain to be added before enabling coupled solves.
+  // shortcut: Full model bounds and boundary transformations need validation before production group dispatch.
   SU2_OMP_SAFE_GLOBAL_ACCESS(invalidCount = 0;)
   double local = 0;
   const auto* flow = solvers[FLOW_SOL]->GetNodes();
@@ -139,14 +140,31 @@ bool CNewtonEquationSet::CheckState(bool compareFlow) {
         if (!(internal > 0)) local += 1;
       }
     }
+    if (!compressible && compareFlow) {
+      const auto temperature = SU2_TYPE::GetValue(flow->GetTemperature(p));
+      const auto rho = SU2_TYPE::GetValue(flow->GetDensity(p));
+      if (!(temperature > 0 && rho > 0) || !Armijo::IsFinite(temperature) || !Armijo::IsFinite(rho)) local += 1;
+    }
   }
   END_SU2_OMP_FOR
-  for (const auto& block : blocks) {
+  for (const auto& block : snapshots) {
     if (block.slot == FLOW_SOL) continue;
     SU2_OMP_FOR_STAT(1024)
-    for (auto p = 0ul; p < geometry->GetnPointDomain(); ++p)
-      for (auto v = 0u; v < block.variables; ++v)
-        if (!Armijo::IsFinite(SU2_TYPE::GetValue(block.solver->GetNodes()->GetSolution(p, v)))) local += 1;
+    for (auto p = 0ul; p < geometry->GetnPointDomain(); ++p) {
+      double sum = 0;
+      for (auto v = 0u; v < block.variables; ++v) {
+        const auto value = SU2_TYPE::GetValue(block.solver->GetNodes()->GetSolution(p, v));
+        if (!Armijo::IsFinite(value)) local += 1;
+        if (block.slot == TURB_SOL && config->GetKind_Turb_Model() == TURB_MODEL::SST &&
+            (v == 0 ? value < 0 : !(value > 0))) local += 1;
+        if (block.slot == TRANS_SOL && (v == 0 ? value < 0 : !(value > 0))) local += 1;
+        if (block.slot == SPECIES_SOL && config->GetKind_FluidModel() == FLUID_MIXTURE) {
+          if (!(value >= 0 && value <= 1)) local += 1;
+          sum += value;
+        }
+      }
+      if (sum > 1) local += 1;
+    }
     END_SU2_OMP_FOR
   }
   atomicAdd(local, invalidCount);
@@ -159,7 +177,7 @@ bool CNewtonEquationSet::CheckState(bool compareFlow) {
   return valid;
 }
 
-bool CNewtonEquationSet::EvaluateResiduals(bool implicit) {
+bool CNewtonEquationSet::EvaluateResiduals(bool implicit, bool allEquations) {
   EquationSettingsGuard guard(*config);
   struct HistoryGuard {
     CNewtonEquationSet& equations;
@@ -182,18 +200,33 @@ bool CNewtonEquationSet::EvaluateResiduals(bool implicit) {
     const auto slot = config->GetContainerPosition(runtime);
     if (!solvers[slot]) continue;
     SU2_OMP_SAFE_GLOBAL_ACCESS(config->SetGlobalParam(config->GetKind_Solver(), runtime);)
+    // Native strong routines prescribe iteration-old values; give them the live trial density and restore history on exit.
+    solvers[slot]->Set_OldSolution();
     StrongBoundaryConditions(geometry, solvers, numerics[slot], config, runtime);
+    auto* nodes = solvers[slot]->GetNodes();
+    SU2_OMP_FOR_STAT(1024)
+    for (auto p = 0ul; p < geometry->GetnPoint(); ++p)
+      for (auto v = 0u; v < solvers[slot]->GetnVar(); ++v)
+        if (solvers[slot]->Jacobian.IsPrescribedRow(p, v))
+          nodes->SetSolution(p, v, nodes->GetSolution_Old(p, v));
+    END_SU2_OMP_FOR
   }
   Communicate();
+  SU2_OMP_FOR_STAT(1024)
+  for (auto p = 0ul; p < geometry->GetnPoint(); ++p)
+    for (auto v = 0u; v < nFlow; ++v) trialFlow[p * nFlow + v] = flow->GetSolution(p, v);
+  END_SU2_OMP_FOR
   Refresh();
+  if (!CheckState(true)) return false;
   // Flow first also refreshes characteristic boundary states consumed by auxiliary equations.
   for (auto index = 0u; index < 4; ++index) {
     const auto runtime = runtimes[index];
     auto block = std::find_if(blocks.begin(), blocks.end(), [=](const Block& b) { return b.runtime == runtime; });
     const bool selected = block != blocks.end();
-    if (!selected && runtime != RUNTIME_FLOW_SYS) continue;
+    if (!selected && !allEquations && runtime != RUNTIME_FLOW_SYS) continue;
     const auto slot = config->GetContainerPosition(runtime);
-    SU2_OMP_SAFE_GLOBAL_ACCESS(config->SetResidualOnly(!implicit || !selected);
+    if (!solvers[slot]) continue;
+    SU2_OMP_SAFE_GLOBAL_ACCESS(config->SetResidualOnly(!implicit || (!selected && !allEquations));
                                config->SetGlobalParam(config->GetKind_Solver(), runtime);)
     solvers[slot]->Preprocessing(geometry, solvers, config, MESH_0, NO_RK_ITER, runtime, false);
     Space_Integration(geometry, solvers, numerics[slot], config, MESH_0, NO_RK_ITER, runtime);
@@ -234,4 +267,37 @@ bool CNewtonEquationSet::Restore() {
     END_SU2_OMP_FOR
   }
   return restored;
+}
+
+double CNewtonEquationSet::GetRestorationError() {
+  assert(captured);
+  SU2_OMP_SAFE_GLOBAL_ACCESS(invalidCount = 0;)
+  double local = 0;
+  auto compare = [&](const su2double& current, const su2double& saved) {
+    const double delta = SU2_TYPE::GetValue(current - saved);
+    local = Armijo::IsFinite(delta) ? std::max(local, std::abs(delta)) : std::numeric_limits<double>::infinity();
+  };
+  for (const auto& snapshot : snapshots) {
+    const auto* nodes = snapshot.solver->GetNodes();
+    SU2_OMP_FOR_STAT(1024)
+    for (auto p = 0ul; p < geometry->GetnPoint(); ++p) {
+      compare(nodes->GetUnderRelaxation(p), snapshot.relaxation[p]);
+      for (auto v = 0u; v < snapshot.variables; ++v) {
+        const auto j = p * snapshot.variables + v;
+        compare(nodes->GetSolution(p, v), snapshot.solution[j]);
+        compare(nodes->GetSolution_Old(p, v), snapshot.oldSolution[j]);
+      }
+    }
+    END_SU2_OMP_FOR
+  }
+  atomicMax(local, invalidCount);
+  BEGIN_SU2_OMP_SAFE_GLOBAL_ACCESS {
+    double global = 0;
+    SU2_MPI::Allreduce(&invalidCount, &global, 1, MPI_DOUBLE, MPI_MAX, SU2_MPI::GetComm());
+    invalidCount = global;
+  }
+  END_SU2_OMP_SAFE_GLOBAL_ACCESS
+  const double error = invalidCount;
+  SU2_OMP_BARRIER
+  return error;
 }

@@ -263,6 +263,7 @@ class CSysMatrix {
   /*!< \brief Maximum number of variables the matrix can handle. The static
    * size is needed for fast, per-thread, static memory allocation. */
   enum : size_t { MAXNVAR = 20 };
+  std::vector<unsigned char> prescribedRows; /*!< \brief Optional native strong-row metadata for matrix-free integration. */
 
   enum { OMP_MAX_SIZE_L = 8192 }; /*!< \brief Max. chunk size used in light parallel for loops. */
   enum { OMP_MAX_SIZE_H = 512 };  /*!< \brief Max. chunk size used in heavy parallel for loops. */
@@ -739,6 +740,11 @@ class CSysMatrix {
    * \brief Sets to zero all the entries of the sparse matrix.
    */
   void SetValZero();
+
+  void TrackPrescribedRows() { prescribedRows.assign(nPoint * nVar, 0); }
+  bool IsPrescribedRow(unsigned long point, unsigned short variable) const {
+    return !prescribedRows.empty() && prescribedRows[point * nVar + variable];
+  }
 
   /*!
    * \brief Sets to zero all the block diagonal entries of the sparse matrix.

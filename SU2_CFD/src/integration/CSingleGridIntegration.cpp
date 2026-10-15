@@ -26,7 +26,7 @@
  */
 
 #include "../../include/integration/CSingleGridIntegration.hpp"
-#include "../../include/integration/CSSTNewtonIntegration.hpp"
+#include "../../include/integration/CNewtonIntegration.hpp"
 #include "../../../Common/include/parallelization/omp_structure.hpp"
 
 
@@ -39,7 +39,10 @@ void CSingleGridIntegration::SingleGrid_Iteration(CGeometry ****geometry, CSolve
   SU2_ZONE_SCOPED
 
   if (RunTime_EqSystem == RUNTIME_TURB_SYS && config[iZone]->GetSSTNewtonOptions().enabled) {
-    if (!sstNewton) sstNewton = std::make_unique<CSSTNewtonIntegration>();
+    if (!sstNewton)
+      sstNewton = std::make_unique<CNewtonIntegration>(std::vector<unsigned short>{RUNTIME_TURB_SYS},
+          config[iZone]->GetSSTNewtonOptions().Passive([](const su2double& x) { return SU2_TYPE::GetValue(x); }),
+          false, "sst_newton");
     sstNewton->MultiGrid_Iteration(geometry, solver_container, numerics_container, config, RunTime_EqSystem, iZone, iInst);
     if (!sstNewton->GetNumericalFailure())
       for (unsigned short m = 0; m < config[iZone]->GetnMGLevels(); ++m) {

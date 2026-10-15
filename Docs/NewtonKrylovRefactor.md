@@ -3,7 +3,8 @@
 The governing specification is `HANDOFF_NEWTONKRYLOV.md` in the parent workspace
 (confirmed by the user on 2026-10-15). The work is on `feature_LineSearch`, starting
 at `5615a8f5f6e9a7bfa88f0f279e1eadb7f89fe607`. The goal is still in progress.
-The current flow and SST Newton implementations remain separate at this milestone.
+SST now uses the common selected-equation controller. Production flow still uses
+a temporary legacy compatibility class until its direction policies are migrated.
 
 ## Required final state
 
@@ -217,7 +218,7 @@ OMP_NUM_THREADS=1 /path/to/build/UnitTests/newton_equation_tests
 OMP_NUM_THREADS=2 mpirun --bind-to none -n 2 /path/to/build/UnitTests/newton_equation_tests
 ```
 
-## Shared grouped linearization and native block preconditioning
+## Shared grouped linearization and native block preconditioning (prior milestone)
 
 `CNewtonLinearization` now forms `S^-1 J_R S + D` for an equation group, using
 the fixed coordinates described above. All trial unknowns are installed together;
@@ -273,7 +274,7 @@ Four affected translation units passed forward syntax checks using the configure
 compile commands plus the CoDiPack/MeDiPack include paths. This is not a complete
 forward build/link/run or reverse-mode validation.
 
-Current evidence is recorded separately in `linearization_manifest.json` under
+Evidence for that prior milestone is recorded in `linearization_manifest.json` under
 the parent evidence directory. Four integration cases pass 14019 assertions
 serially, and 8491 / 7965 assertions on two MPI ranks with two threads. All twelve
 manufactured solves pass with both preconditioners; independent centered defects
@@ -289,12 +290,75 @@ control with seven extra retries are retained. Restoring SST's model-specific
 probe reference restores the matched ten-update, ten-attempt control. These
 remain correctness checks, not converged nonlinear or performance comparisons.
 
+## Shared nonlinear controller milestone
+
+`CNewtonIntegration` now owns one attempt, matrix-free/Krylov solve, feasible
+endpoint, Armijo search, forcing/CFL update, bounded recovery and diagnostic path
+for a selected group. `CSSTNewtonIntegration` is removed; `SST_NEWTON` constructs
+the common controller for turbulence. The public C++ `Iterate` entry point also
+supports individual flow, SA/SA_NEG, SST, LM and species, or one coupled group.
+Runtime equation selection/group dispatch is not yet exposed in configuration.
+
+The original flow implementation has moved verbatim, apart from its class name,
+to `CNewtonLegacyIntegration`. The factory still uses it for `NEWTON_KRYLOV`.
+This temporary compatibility path preserves startup iterations, nested solves,
+initial tolerance relaxation, deflation and Jacobian relaxation until those
+policies move into the common implementation. It is not the final one-controller
+architecture. Four matched six-iteration flow controls have identical history
+fields, including linear solver fields, against the archived preceding executable
+on two ranks with two threads. A source-equivalence audit checks the class move.
+
+Native implicit matrices now optionally track prescribed rows. This metadata,
+not a guessed wall-variable mask or numerical matrix entries, defines constrained
+rows and columns. Native strong routines that prescribe `Solution_Old` must also
+install their current boundary values before gradients and source evaluation.
+The residual interface saves and restores iteration history around that work.
+Static no-slip/heat-flux walls are checked; moving-wall, wall-function and strong
+composition/thermodynamic dependency ordering remain open audits.
+
+Every selected block's native under-relaxation/clipping endpoint is computed
+from the same accepted density before combining the endpoints. Scales distinguish
+incompressible reference-relative enthalpy, which may be negative at positive
+temperature, from physical temperature. Admissibility checks cover all dependent
+states, retain signed SA_NEG, and reject invalid SST/LM states and mixture mass
+fractions, including a sum above one. Full configured bounds and feasible
+finite-difference directions near model/domain boundaries remain open.
+
+Accepted residual statistics use the physical residual at the accepted state.
+A production segregated dispatcher must additionally refresh all active systems
+and observables after its last group. Pseudo-time currently uses a consistently
+defined volume/time-step diagonal; auditing native incompressible and low-Mach
+mass mappings remains necessary before comparing these modes.
+
+Final controller checks pass eight native cases: **15717 assertions** serial,
+and **9840 / 9240** on two MPI ranks with two OpenMP threads. They include the
+prior independent coupled linearized solves, fourteen short nonlinear trajectories
+(seven physics fixtures, segregated/coupled), and forced linear and late line-search
+failures with exact solution/relaxation restoration and untouched physical-time
+history. These short trajectories do not establish convergence. Valgrind reports
+zero memory errors with leak analysis disabled. The supported 78 unit cases /
+102250 assertions, six conventional regressions and six rejection guards pass.
+Corrected-baseline/current SST controls both accept ten updates in ten attempts;
+forced failure accepts seven, exits on attempt eight, restores exactly and writes
+a restart without a numerical-failure MPI abort.
+
+Evidence is bound in the parent directory's `controller_manifest.json` with
+archived binaries. Final native logs are `controller_native_complete_serial.log`,
+`controller_native_complete_mpi.log` and `controller_valgrind_complete.log`;
+other checks are in `controller_supported_units.log`,
+`controller_legacy_controls/`, `controller_smoke_validated/` and
+`controller_regressions_validated/`. Eight translation units pass forward syntax
+checks with commands saved in `controller_forward_syntax_commands.json`; this
+is not full AD linking/running, reverse-mode or GPU validation. Earlier logs and
+manifests remain historical.
+
 ## Next implementation gate
 
-Continue the broader baseline/conditional-feature audits. Use the shared equation
-interface to consolidate the two Newton algorithms into `CNewtonIntegration`,
-then add selection/group dispatch, consistent native pseudo-time terms and model-specific feasible
-steps. Complete independent derivative/constraint/rollback tests before the
-converged family matrix and matched performance comparisons. The present tests
-establish native coupled linearized solves with a chosen diagonal mass; they do
-not establish an end-to-end coupled nonlinear integration mode.
+Migrate the legacy flow direction policies, then expose validated selection and
+group dispatch with exactly-once advancement, final all-equation reporting and
+whole-group failure output. Complete the native mass, boundary/periodic,
+admissibility and conditional baseline audits. Address the handoff's ordered
+thread-reduction and larger-fixture repeatability checks: current 5x5 fixtures do
+not stress several 1024-point loop chunks per thread. Full converged family and
+matched conventional/segregated/coupled comparisons remain required. NEMO
+integration remains excluded.

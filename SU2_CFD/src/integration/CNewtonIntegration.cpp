@@ -1,404 +1,476 @@
 /*!
  * \file CNewtonIntegration.cpp
- * \brief Newton-Krylov integration.
- * \author P. Gomes
- * \version 8.5.0 "Harrier"
- *
- * SU2 Project Website: https://su2code.github.io
- *
- * The SU2 Project is maintained by the SU2 Foundation
- * (http://su2foundation.org)
- *
- * Copyright 2012-2026, SU2 Contributors (cf. AUTHORS.md)
- *
- * SU2 is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 2.1 of the License, or (at your option) any later version.
- *
- * SU2 is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with SU2. If not, see <http://www.gnu.org/licenses/>.
+ * \brief Globalized inexact Newton iteration for selected equation groups.
+ * \author rois1995
  */
-
 #include "../../include/integration/CNewtonIntegration.hpp"
 #include "../../../Common/include/linear_algebra/CMatrixVectorProduct.hpp"
+#include <fstream>
+#include <sstream>
 
-using Scalar = CNewtonIntegration::Scalar;
+#if defined(CODI_REVERSE_TYPE) || defined(CODI_FORWARD_TYPE)
+void CNewtonIntegration::MultiGrid_Iteration(CGeometry****, CSolver*****, CNumerics******, CConfig**, unsigned short,
+                                             unsigned short, unsigned short) {
+  SU2_MPI::Error("Common Newton integration requires a primal executable", CURRENT_FUNCTION);
+}
+#else
 
 namespace {
+using Scalar = CNewtonIntegration::Scalar;
+class Product final : public CMatrixVectorProduct<Scalar> {
+  CNewtonIntegration& integration;
 
-class CMatrixFreeProductWrapper final : public CMatrixVectorProduct<Scalar> {
-  CNewtonIntegration* integration;
-public:
-  CMatrixFreeProductWrapper(CNewtonIntegration* i) : integration(i) {}
-
-  /*!
-   * \brief Operator for the product operation.
-   */
-  inline void operator()(const CSysVector<Scalar>& u, CSysVector<Scalar>& v) const override {
-    integration->MatrixFreeProduct(u, v);
+ public:
+  explicit Product(CNewtonIntegration& instance) : integration(instance) {}
+  void operator()(const CSysVector<Scalar>& u, CSysVector<Scalar>& v) const override {
+    integration.MatrixFreeProduct(u, v);
   }
 };
+class Preconditioner final : public CPreconditioner<Scalar> {
+  const CNewtonIntegration& integration;
 
-class CPreconditionerWrapper final : public CPreconditioner<Scalar> {
-  const CNewtonIntegration* integration;
-public:
-  CPreconditionerWrapper(const CNewtonIntegration* i) : integration(i) {}
-
-  /*!
-   * \brief Operator for the preconditioning operation.
-   */
-  inline void operator()(const CSysVector<Scalar>& u, CSysVector<Scalar>& v) const override {
-    integration->Preconditioner(u, v);
-  }
+ public:
+  explicit Preconditioner(const CNewtonIntegration& instance) : integration(instance) {}
+  void operator()(const CSysVector<Scalar>& u, CSysVector<Scalar>& v) const override { integration.Precondition(u, v); }
 };
+const char* Name(Armijo::Status status) {
+  switch (status) {
+    case Armijo::Status::Accepted:
+      return "ACCEPTED";
+    case Armijo::Status::NonDescent:
+      return "NON_DESCENT";
+    case Armijo::Status::StepTooSmall:
+      return "STEP_TOO_SMALL";
+    case Armijo::Status::EvaluationLimit:
+      return "EVALUATION_LIMIT";
+    default:
+      return "INVALID_INPUT";
+  }
+}
+const char* Name(NonlinearGlobalization::RecoveryReason reason) {
+  using Reason = NonlinearGlobalization::RecoveryReason;
+  switch (reason) {
+    case Reason::Accepted:
+      return "ACCEPTED";
+    case Reason::Retry:
+      return "RETRY";
+    case Reason::RetryLimit:
+      return "RETRY_LIMIT";
+    case Reason::MinimumCFL:
+      return "MINIMUM_CFL";
+    case Reason::Disabled:
+      return "RECOVERY_DISABLED";
+    default:
+      return "INVALID_STATE";
+  }
+}
+}  // namespace
+
+double CNewtonIntegration::Reduce(double local, bool maximum) const {
+  SU2_OMP_SAFE_GLOBAL_ACCESS(reduction = 0;)
+  if (maximum)
+    atomicMax(local, reduction);
+  else
+    atomicAdd(local, reduction);
+  BEGIN_SU2_OMP_SAFE_GLOBAL_ACCESS {
+    double global = 0;
+    SU2_MPI::Allreduce(&reduction, &global, 1, MPI_DOUBLE, maximum ? MPI_MAX : MPI_SUM, SU2_MPI::GetComm());
+    reduction = global;
+  }
+  END_SU2_OMP_SAFE_GLOBAL_ACCESS
+  const double result = reduction;
+  SU2_OMP_BARRIER
+  return result;
 }
 
-CNewtonIntegration::~CNewtonIntegration() { delete preconditioner; }
+double CNewtonIntegration::CFLFactor(const CNewtonEquationSet::Block& block) const {
+  if (block.slot == TURB_SOL || block.slot == TRANS_SOL) return SU2_TYPE::GetValue(config->GetCFLRedCoeff_Turb());
+  if (block.slot == SPECIES_SOL) return SU2_TYPE::GetValue(config->GetCFLRedCoeff_Species());
+  return 1;
+}
 
 void CNewtonIntegration::Setup() {
-  SU2_ZONE_SCOPED
-
-  auto iparam = config->GetNewtonKrylovIntParam();
-  auto dparam = config->GetNewtonKrylovDblParam();
-
-  startupIters = iter = iparam[0];
-  startupResidual = dparam[0];
-  useDeflation = iparam[3] > 0;
-  precondIters = iparam[1];
-  precondTol = dparam[1];
-  tolRelaxFactor = iparam[2];
-  fullTolResidual = dparam[2];
-  finDiffStepND = SU2_TYPE::GetValue(dparam[3]);
-  nkRelaxation = fmin(SU2_TYPE::GetValue(dparam[4]), 1);
-  if (nkRelaxation < 0) {
-    autoRelaxation = true;
-    nkRelaxation = 1;
+  const auto error = options.Validate();
+  if (!error.empty()) throw std::invalid_argument(error);
+  if (config->GetTime_Marching() != TIME_MARCHING::STEADY || config->GetTime_Domain() ||
+      config->GetMultizone_Problem() || config->GetnZone() != 1 || config->GetCUDA() || config->GetnMarker_Periodic() ||
+      config->GetFinestMesh() != MESH_0)
+    throw std::invalid_argument(
+        "Common Newton currently requires steady primal single-zone CPU cases without periodic markers");
+  equations = std::make_unique<CNewtonEquationSet>(geometry, solvers, numerics, config, systems);
+  for (const auto& block : equations->GetBlocks()) {
+    const auto time = block.slot == FLOW_SOL ? config->GetKind_TimeIntScheme_Flow()
+                                             : block.slot == SPECIES_SOL ? config->GetKind_TimeIntScheme_Species()
+                                                                         : config->GetKind_TimeIntScheme_Turb();
+    if (time != EULER_IMPLICIT || !(CFLFactor(block) > 0))
+      throw std::invalid_argument("Selected Newton equations require implicit discretization and positive CFL factors");
   }
-
-  const auto nVar = solvers[FLOW_SOL]->GetnVar();
-  const auto nPoint = geometry->GetnPoint();
-  const auto nPointDomain = geometry->GetnPointDomain();
-
-  omp_chunk_size = computeStaticChunkSize(nPoint, omp_get_max_threads(), 1024);
-
-  LinSolver.SetxIsZero(true);
-
-  LinSysRes.Initialize(nPoint, nPointDomain, nVar, 0.0);
-  if (autoRelaxation || nkRelaxation < 1) {
-    LinSysResRelax.Initialize(nPoint, nPointDomain, nVar, 0.0);
+  for (auto runtime : {RUNTIME_FLOW_SYS, RUNTIME_TURB_SYS, RUNTIME_TRANS_SYS, RUNTIME_SPECIES_SYS}) {
+    auto* solver = solvers[config->GetContainerPosition(runtime)];
+    if (solver) solver->Jacobian.TrackPrescribedRows();
   }
-
-  if (!std::is_same<Scalar,su2double>::value) {
-    LinSysSol.Initialize(nPoint, nPointDomain, nVar, nullptr);
-  }
-
-  /*--- Check if the solver is able to provide a linear preconditioner. ---*/
-  if (config->GetKind_TimeIntScheme() != EULER_IMPLICIT) return;
-
-  const auto kindPrec = static_cast<ENUM_LINEAR_SOLVER_PREC>(config->GetKind_Linear_Solver_Prec());
-
-  preconditioner = CPreconditioner<MixedScalar>::Create(kindPrec, solvers[FLOW_SOL]->Jacobian, geometry, config);
-
-  if (!std::is_same<Scalar,MixedScalar>::value) {
-    precondIn.Initialize(nPoint, nPointDomain, nVar, nullptr);
-    precondOut.Initialize(nPoint, nPointDomain, nVar, nullptr);
-  }
-
-  /*--- Only possible with a preconditioner. ---*/
-  startupPeriod = (startupIters > 0) || (startupResidual < 0.0);
-
+  for (auto* vector : {&scale, &rhs, &correction, &direction, &product, &pseudoDiagonal, &probeReference, &baseState})
+    vector->Initialize(geometry->GetnPoint(), geometry->GetnPointDomain(), equations->GetnVar(), 0.0);
+  free.resize(geometry->GetnPoint() * equations->GetnVar(), true);
+  linearSolver.SetxIsZero(true);
+  linearization = std::make_unique<CNewtonLinearization>(*equations, geometry, config);
+  preconditioner = std::make_unique<CNewtonBlockPreconditioner>(*linearization, geometry, config, lowerTriangular);
+  const auto primary = std::min_element(
+      equations->GetBlocks().begin(), equations->GetBlocks().end(),
+      [](const CNewtonEquationSet::Block& a, const CNewtonEquationSet::Block& b) { return a.slot < b.slot; });
+  referenceCFLFactor = CFLFactor(*primary);
+  cfl = std::max(options.cflMin,
+                 std::min(options.cflMax, SU2_TYPE::GetValue(config->GetCFL(MESH_0)) * referenceCFLFactor));
+  eta = options.linearTolerance;
+  setup = true;
 }
 
-void CNewtonIntegration::PerturbSolution(const CSysVector<Scalar>& dir, Scalar mag) {
-  SU2_ZONE_SCOPED
-
-  SU2_OMP_FOR_STAT(omp_chunk_size)
-  for (auto iPoint = 0ul; iPoint < geometry->GetnPoint(); ++iPoint) {
-    SU2_OMP_SIMD
-    for (auto iVar = 0ul; iVar < solvers[FLOW_SOL]->GetnVar(); ++iVar)
-      solvers[FLOW_SOL]->GetNodes()->AddSolution(iPoint,iVar, mag*dir(iPoint,iVar));
-  }
-  END_SU2_OMP_FOR
-}
-
-void CNewtonIntegration::ComputeResiduals(ResEvalType type) {
-  SU2_ZONE_SCOPED
-
-  /*--- Save the default integration scheme, and force to explicit if required. ---*/
-  auto TimeIntScheme = config->GetKind_TimeIntScheme();
-  if (type == ResEvalType::EXPLICIT) {
-    SU2_OMP_SAFE_GLOBAL_ACCESS(config->SetKind_TimeIntScheme(EULER_EXPLICIT);)
-  }
-
-  solvers[FLOW_SOL]->Preprocessing(geometry, solvers, config, MESH_0, NO_RK_ITER, RUNTIME_FLOW_SYS, false);
-
-  if (type == ResEvalType::DEFAULT) {
-    solvers[FLOW_SOL]->SetTime_Step(geometry, solvers, config, MESH_0, config->GetTimeIter());
-  }
-
-  Space_Integration(geometry, solvers, numerics[FLOW_SOL], config, MESH_0, NO_RK_ITER, RUNTIME_FLOW_SYS);
-
-  /*--- Restore default. ---*/
-  if (type == ResEvalType::EXPLICIT) {
-    SU2_OMP_SAFE_GLOBAL_ACCESS(config->SetKind_TimeIntScheme(TimeIntScheme);)
-  }
-
-}
-
-void CNewtonIntegration::ComputeFinDiffStep() {
-  SU2_ZONE_SCOPED
-
-  static su2double rmsSol;
-  su2double rmsSol_loc = 0.0;
-
-  SU2_OMP_MASTER
-  rmsSol = 0.0;
-  END_SU2_OMP_MASTER
-
-  SU2_OMP_FOR_STAT(omp_chunk_size)
-  for (auto iPoint = 0ul; iPoint < geometry->GetnPointDomain(); ++iPoint)
-    for (auto iVar = 0ul; iVar < solvers[FLOW_SOL]->GetnVar(); ++iVar)
-      rmsSol_loc += pow(solvers[FLOW_SOL]->GetNodes()->GetSolution(iPoint,iVar), 2);
-  END_SU2_OMP_FOR
-
-  atomicAdd(rmsSol_loc, rmsSol);
-
-  BEGIN_SU2_OMP_SAFE_GLOBAL_ACCESS
-  {
-    su2double t = rmsSol;
-    SU2_MPI::Allreduce(&t, &rmsSol, 1, MPI_DOUBLE, MPI_SUM, SU2_MPI::GetComm());
-    finDiffStep = finDiffStepND * max(1.0, sqrt(SU2_TYPE::GetValue(rmsSol) / geometry->GetGlobal_nPointDomain()));
-  }
-  END_SU2_OMP_SAFE_GLOBAL_ACCESS
-}
-
-void CNewtonIntegration::MultiGrid_Iteration(CGeometry ****geometry_, CSolver *****solvers_, CNumerics ******numerics_,
-                                             CConfig **config_, unsigned short EqSystem, unsigned short iZone,
-                                             unsigned short iInst) {
-  SU2_ZONE_SCOPED
-
-  config = config_[iZone];
-  solvers = solvers_[iZone][iInst][MESH_0];
-  geometry = geometry_[iZone][iInst][MESH_0];
-  numerics = numerics_[iZone][iInst][MESH_0];
-
-  if (!setup) { Setup(); setup = true; }
-
-  /*--- Remove NK relaxation to compute the current residual. ---*/
-  config->SetNewtonKrylovRelaxation(1.0);
-
-  /*--- When using NK relaxation (not fully 2nd order Jacobian products) we need an additional
-   * residual evaluation that is used as the reference for finite differences. ---*/
-  LinSysRes0 = (!startupPeriod && nkRelaxation < 1) ? &LinSysResRelax : &LinSysRes;
-
-  SU2_OMP_PARALLEL_(if(solvers[FLOW_SOL]->GetHasHybridParallel())) {
-
-  /*--- Save the current solution to be able to perturb it. ---*/
-
-  solvers[FLOW_SOL]->Set_OldSolution();
-
-  /*--- Current residual. ---*/
-
-  ComputeResiduals(ResEvalType::DEFAULT);
-
-  /*--- Compute the approximate Jacobian for preconditioning. ---*/
-
-  solvers[FLOW_SOL]->PrepareImplicitIteration(geometry, solvers, config);
-
-  if (preconditioner) {
-    /*--- The Jacobian is normally uploaded by CSysMatrixVectorProduct, but the outer product
-     * here is matrix free, so nothing else would upload it for Build(). ---*/
-#ifdef SU2_ENABLE_CUDA_KERNELS
-    if constexpr (su2_gpu_capable_v<MixedScalar>) {
-      if (config->GetCUDA()) {
-        SU2_DEVICE_REGION(solvers[FLOW_SOL]->Jacobian.HtDTransfer();)
-      }
-    }
-#endif
-    preconditioner->Build();
-  }
-
-  auto CopyLinSysRes = [&](int sign, auto& dst) {
-    SU2_OMP_FOR_STAT(omp_chunk_size)
-    for (auto i = 0ul; i < dst.GetNElmDomain(); ++i)
-      dst[i] = sign * SU2_TYPE::GetValue(solvers[FLOW_SOL]->LinSysRes[i]);
+void CNewtonIntegration::SetCFL(double value) {
+  for (const auto& block : equations->GetBlocks()) {
+    const double native = value * CFLFactor(block) / referenceCFLFactor;
+    auto* nodes = block.solver->GetNodes();
+    SU2_OMP_FOR_STAT(1024)
+    for (auto p = 0ul; p < geometry->GetnPoint(); ++p) nodes->SetLocalCFL(p, native);
     END_SU2_OMP_FOR
-  };
-  CopyLinSysRes(1, LinSysRes);
-
-  if (!startupPeriod && nkRelaxation < 1) {
-    SU2_OMP_SAFE_GLOBAL_ACCESS(config->SetNewtonKrylovRelaxation(nkRelaxation);)
-    ComputeResiduals(ResEvalType::EXPLICIT);
-    // Here the sign was not flipped by PrepareImplicitIteration.
-    CopyLinSysRes(-1, LinSysResRelax);
+    SU2_OMP_SAFE_GLOBAL_ACCESS(block.solver->SetCFL_Local_Stats(native);)
   }
+}
 
-  su2double residual = 0.0;
-  for (auto iVar = 0ul; iVar < LinSysRes.GetNVar(); ++iVar)
-    residual += log10(solvers[FLOW_SOL]->GetRes_RMS(iVar)) / LinSysRes.GetNVar();
+void CNewtonIntegration::UpdateScale() { equations->BuildScales(scale, probeReference); }
 
-  /*--- Check if startup period should end after this iteration. ---*/
+void CNewtonIntegration::Perturb(const CSysVector<Scalar>& vector, double step) {
+  equations->SetTrial(vector, step, scale, [&](const CNewtonEquationSet::Block& b, unsigned long p, unsigned short v) {
+    return IsFree(b, p, v);
+  });
+}
 
-  bool endStartup = false;
+void CNewtonIntegration::Residual(bool implicit) {
+  const bool valid = equations->EvaluateResiduals(implicit);
+  SU2_OMP_SAFE_GLOBAL_ACCESS(residualValid = valid;)
+}
 
-  if (startupPeriod) {
-    BEGIN_SU2_OMP_SAFE_GLOBAL_ACCESS {
-      firstResidual = max(firstResidual, residual);
-      if (iter) iter -= 1;
-    }
-    END_SU2_OMP_SAFE_GLOBAL_ACCESS
-    endStartup = (iter == 0) && (residual - firstResidual < startupResidual);
-  }
-
-  /*--- The NK solves are expensive, the tolerance is relaxed while the residuals are high. ---*/
-
-  Scalar toleranceFactor = 1.0;
-
-  if (!startupPeriod && tolRelaxFactor > 1 && fullTolResidual < 0.0) {
-    SU2_OMP_SAFE_GLOBAL_ACCESS(firstResidual = max(firstResidual, residual);)
-    su2double x = (residual - firstResidual) / fullTolResidual;
-    toleranceFactor = 1.0 + (tolRelaxFactor-1)*max(0.0, 1.0-SU2_TYPE::GetValue(x));
-  }
-
-  /*--- Solve for the solution update. ---*/
-
-  auto iter = config->GetLinear_Solver_Iter();
-  Scalar eps = SU2_TYPE::GetValue(config->GetLinear_Solver_Error());
-
-  auto& linSysSol = GetSolutionVec(solvers[FLOW_SOL]->LinSysSol);
-
-  if (startupPeriod) {
-    iter = Preconditioner_impl(LinSysRes, linSysSol, iter, eps);
-  } else {
-    ComputeFinDiffStep();
-
-    eps *= toleranceFactor;
-    if (useDeflation) {
-      iter = LinSolver.FGCRODR_LinSolver(LinSysRes, linSysSol, CMatrixFreeProductWrapper(this),
-                                         CPreconditionerWrapper(this), eps, iter, eps, false, config);
-    } else {
-      iter = LinSolver.FGMRES_LinSolver(LinSysRes, linSysSol, CMatrixFreeProductWrapper(this),
-                                        CPreconditionerWrapper(this), eps, iter, eps, false, config);
-    }
-    /*--- Scale back the residual to trick the CFL adaptation. ---*/
-    eps /= toleranceFactor;
-  }
-  SetSolutionResult(solvers[FLOW_SOL]->LinSysSol);
-
-  BEGIN_SU2_OMP_SAFE_GLOBAL_ACCESS {
-    solvers[FLOW_SOL]->SetIterLinSolver(iter);
-    solvers[FLOW_SOL]->SetResLinSolver(eps);
-
-    if (!startupPeriod && autoRelaxation) {
-      const su2double adaptTol = config->GetCFL_Adapt() ? config->GetCFL_AdaptParam(4) : 0;
-      if (eps > fmax(config->GetLinear_Solver_Error(), adaptTol)) {
-        nkRelaxation *= 0.9;
-      } else if (eps < 0.9 * fmax(config->GetLinear_Solver_Error(), adaptTol)) {
-        nkRelaxation = fmin(fmax(nkRelaxation * 1.05, 0.05), 1);
+double CNewtonIntegration::Merit(double step) const {
+  if (!residualValid) return std::numeric_limits<double>::infinity();
+  double value = 0, invalid = 0;
+  for (const auto& block : equations->GetBlocks()) {
+    SU2_OMP_FOR_STAT(1024)
+    for (auto p = 0ul; p < geometry->GetnPointDomain(); ++p)
+      for (auto v = 0u; v < block.variables; ++v) {
+        const auto j = block.offset + v;
+        double r = SU2_TYPE::GetValue(block.solver->LinSysRes(p, v)) / scale(p, j);
+        if (options.pseudoTimeMerit && step != 0) r += step * pseudoDiagonal(p, j) * direction(p, j);
+        if (!Armijo::IsFinite(r))
+          invalid = 1;
+        else
+          value += 0.5 * r * r;
       }
-    }
-  }
-  END_SU2_OMP_SAFE_GLOBAL_ACCESS
-
-  /// TODO: Clever back-tracking and CFL adaptation based on residual reduction.
-
-  /*--- Update solution. ---*/
-
-  solvers[FLOW_SOL]->CompleteImplicitIteration(geometry, solvers, config);
-
-  /*--- Call the various post processings. ---*/
-
-  solvers[FLOW_SOL]->Preprocessing(geometry, solvers, config, MESH_0, NO_RK_ITER, RUNTIME_FLOW_SYS, true);
-
-  solvers[FLOW_SOL]->Postprocessing(geometry, solvers, config, MESH_0);
-
-  solvers[FLOW_SOL]->Pressure_Forces(geometry, config);
-  solvers[FLOW_SOL]->Momentum_Forces(geometry, config);
-  solvers[FLOW_SOL]->Friction_Forces(geometry, config);
-
-  /*--- At the end of the startup period the CFL is reset to the initial value. ---*/
-
-  if (endStartup) {
-    SU2_OMP_MASTER {
-      startupPeriod = false;
-      firstResidual = residual;
-      if (autoRelaxation) nkRelaxation = 0;
-    }
-    END_SU2_OMP_MASTER
-    SU2_OMP_FOR_STAT(omp_chunk_size)
-    for (auto iPoint = 0ul; iPoint < geometry->GetnPoint(); ++iPoint)
-      solvers[FLOW_SOL]->GetNodes()->SetLocalCFL(iPoint, config->GetCFL(MESH_0));
     END_SU2_OMP_FOR
   }
+  if (!Armijo::IsFinite(value)) invalid = 1;
+  const double anyInvalid = Reduce(invalid, true);
+  const double global = Reduce(value);
+  return anyInvalid ? std::numeric_limits<double>::infinity() : global;
+}
 
+double CNewtonIntegration::Evaluate(double step, const char* phase) {
+  Perturb(direction, step);
+  Residual();
+  const double physical = Merit();
+  const double value = Armijo::IsFinite(physical) && options.pseudoTimeMerit && step != 0 ? Merit(step) : physical;
+  if (options.diagnostics && rank == MASTER_NODE && omp_get_thread_num() == 0) {
+    std::ofstream out(prefix + "_trials.csv", std::ios::app);
+    if (out.tellp() == 0) out << "iteration,attempt,evaluation,phase,step,merit,physical_merit\n";
+    out.precision(17);
+    out << config->GetInnerIter() << ',' << attemptNumber << ',' << trialNumber++ << ',' << phase << ',' << step << ','
+        << value << ',' << physical << '\n';
   }
-  END_SU2_OMP_PARALLEL
+  return value;
 }
 
 void CNewtonIntegration::MatrixFreeProduct(const CSysVector<Scalar>& u, CSysVector<Scalar>& v) {
-  SU2_ZONE_SCOPED
+  const bool valid = linearization->Apply(u, v);
+  SU2_OMP_SAFE_GLOBAL_ACCESS(residualValid = valid;)
+}
 
-  Scalar factor = finDiffStep / u.norm();
+void CNewtonIntegration::Precondition(const CSysVector<Scalar>& u, CSysVector<Scalar>& v) const {
+  (*preconditioner)(u, v);
+}
 
-  PerturbSolution(u, factor);
+void CNewtonIntegration::Restore(Attempt& attempt) {
+  const bool valid = equations->Restore();
+  SU2_OMP_SAFE_GLOBAL_ACCESS(residualValid = valid;)
+  const double restored = Merit();
+  attempt.rollbackMeritError = std::abs(restored - attempt.base);
+  attempt.rollbackStateError = equations->GetRestorationError();
+}
 
-  ComputeResiduals(ResEvalType::EXPLICIT);
+void CNewtonIntegration::Endpoint() {
+  for (const auto& block : equations->GetBlocks()) {
+    // Each native limiter sees the same accepted density, before the independently limited endpoints are combined.
+    Perturb(direction, 0);
+    SU2_OMP_FOR_STAT(1024)
+    for (auto p = 0ul; p < geometry->GetnPoint(); ++p)
+      for (auto v = 0u; v < block.variables; ++v)
+        block.solver->LinSysSol(p, v) =
+            IsFree(block, p, v) ? correction(p, block.offset + v) * scale(p, block.offset + v) : 0;
+    END_SU2_OMP_FOR
+    SU2_OMP_SAFE_GLOBAL_ACCESS(config->SetGlobalParam(config->GetKind_Solver(), block.runtime);)
+    block.solver->CompleteImplicitIteration(geometry, solvers, config);
+    const auto* nodes = block.solver->GetNodes();
+    SU2_OMP_FOR_STAT(1024)
+    for (auto p = 0ul; p < geometry->GetnPoint(); ++p)
+      for (auto v = 0u; v < block.variables; ++v) {
+        const auto j = block.offset + v;
+        direction(p, j) =
+            IsFree(block, p, v)
+                ? (SU2_TYPE::GetValue(equations->MassFactor(block, p) * nodes->GetSolution(p, v)) - baseState(p, j)) /
+                      scale(p, j)
+                : 0;
+      }
+    END_SU2_OMP_FOR
+  }
+}
 
-  /*--- Finalize product. ---*/
-  factor = 1.0 / factor;
-
-  SU2_OMP_FOR_STAT(omp_chunk_size)
-  for (auto iPoint = 0ul; iPoint < geometry->GetnPointDomain(); ++iPoint) {
-    su2double delta = (geometry->nodes->GetVolume(iPoint) + geometry->nodes->GetPeriodicVolume(iPoint)) /
-                      max(EPS, solvers[FLOW_SOL]->GetNodes()->GetDelta_Time(iPoint));
-    SU2_OMP_SIMD
-    for (auto iVar = 0ul; iVar < LinSysRes0->GetNVar(); ++iVar) {
-      Scalar perturbRes = SU2_TYPE::GetValue(solvers[FLOW_SOL]->LinSysRes(iPoint,iVar));
-
-      /*--- The global residual had its sign flipped, so we add to get the difference. ---*/
-      v(iPoint,iVar) = (perturbRes + (*LinSysRes0)(iPoint,iVar)) * factor;
-
-      /*--- Pseudotime term of the true Jacobian. ---*/
-      v(iPoint,iVar) += SU2_TYPE::GetValue(delta) * u(iPoint,iVar);
+CNewtonIntegration::Attempt CNewtonIntegration::SolveAttempt() {
+  Attempt attempt;
+  SU2_OMP_SAFE_GLOBAL_ACCESS(trialNumber = 0;)
+  SetCFL(cfl);
+  Perturb(direction, 0);
+  Residual(true);
+  attempt.base = Merit();
+  attempt.physicalMerit = attempt.search.value = attempt.base;
+  if (!Armijo::IsFinite(attempt.base)) {
+    Restore(attempt);
+    return attempt;
+  }
+  // Flow time steps precede scalar time steps even if the requested group has a different packing order.
+  for (auto slot : {FLOW_SOL, TURB_SOL, TRANS_SOL, SPECIES_SOL})
+    for (const auto& block : equations->GetBlocks()) {
+      if (block.slot != slot) continue;
+      SU2_OMP_SAFE_GLOBAL_ACCESS(config->SetGlobalParam(config->GetKind_Solver(), block.runtime);)
+      block.solver->SetTime_Step(geometry, solvers, config, MESH_0, config->GetTimeIter());
     }
+  for (const auto& block : equations->GetBlocks()) {
+    SU2_OMP_FOR_STAT(1024)
+    for (auto p = 0ul; p < geometry->GetnPoint(); ++p)
+      for (auto v = 0u; v < block.variables; ++v) {
+        pseudoDiagonal(p, block.offset + v) =
+            SU2_TYPE::GetValue(geometry->nodes->GetVolume(p) + geometry->nodes->GetPeriodicVolume(p)) /
+            std::max(EPS, SU2_TYPE::GetValue(block.solver->GetNodes()->GetDelta_Time(p)));
+        free[p * equations->GetnVar() + block.offset + v] = !block.solver->Jacobian.IsPrescribedRow(p, v);
+      }
+    END_SU2_OMP_FOR
+  }
+  const bool valid = linearization->SetBase(
+      scale, pseudoDiagonal, options.fdStep * std::sqrt(equations->GetnVar() * geometry->GetGlobal_nPointDomain()),
+      options.relativeFDStep,
+      [&](const CNewtonEquationSet::Block& b, unsigned long p, unsigned short v) { return IsFree(b, p, v); },
+      &probeReference);
+  SU2_OMP_SAFE_GLOBAL_ACCESS(residualValid = valid;)
+  attempt.base = Merit();
+  attempt.physicalMerit = attempt.search.value = attempt.base;
+  if (!Armijo::IsFinite(attempt.base)) {
+    Restore(attempt);
+    return attempt;
+  }
+  // Keep the physical right hand side independently of native sign flips and pseudo-time assembly.
+  equations->CopyResidual(rhs);
+  SU2_OMP_FOR_STAT(1024)
+  for (auto i = 0ul; i < rhs.GetLocSize(); ++i) rhs[i] = -rhs[i] / scale[i];
+  END_SU2_OMP_FOR
+  for (const auto& block : equations->GetBlocks()) {
+    SU2_OMP_SAFE_GLOBAL_ACCESS(config->SetGlobalParam(config->GetKind_Solver(), block.runtime);)
+    block.solver->PrepareImplicitIteration(geometry, solvers, config);
+  }
+  if (attempt.base == 0) {
+    attempt.search = {Armijo::Status::Accepted, 0, 0, 0};
+    Residual();
+    return attempt;
+  }
+  preconditioner->Build();
+  correction = Scalar(0);
+  double residual = eta;
+  attempt.linearIterations = linearSolver.FGMRES_LinSolver(rhs, correction, Product(*this), Preconditioner(*this), eta,
+                                                           options.linearIterations, residual, false, config);
+  attempt.reportedLinearResidual = residual;
+  MatrixFreeProduct(correction, product);
+  double defect = 0, invalid = 0;
+  SU2_OMP_FOR_STAT(1024)
+  for (auto i = 0ul; i < rhs.GetNElmDomain(); ++i) {
+    const double r = product[i] - rhs[i];
+    if (!Armijo::IsFinite(r))
+      invalid = 1;
+    else
+      defect += r * r;
   }
   END_SU2_OMP_FOR
-
-  CSysMatrixComms::Initiate(v, geometry, config);
-  CSysMatrixComms::Complete(v, geometry, config);
+  const double anyInvalid = Reduce(invalid, true);
+  const double squaredDefect = Reduce(defect);
+  attempt.linearDefect = anyInvalid ? std::numeric_limits<double>::infinity() : std::sqrt(squaredDefect) / rhs.norm();
+  Perturb(direction, 0);
+  Residual();
+  if (!Armijo::IsFinite(attempt.linearDefect) || attempt.linearDefect > options.etaMax) {
+    attempt.linearFailure = true;
+    Restore(attempt);
+    return attempt;
+  }
+  Endpoint();
+  if (options.lineSearch)
+    Search(attempt);
+  else {
+    const double value = Evaluate(1, "TRIAL");
+    if (Armijo::IsFinite(value)) {
+      attempt.physicalMerit = Merit();
+      attempt.search = {Armijo::Status::Accepted, 1, value, 1};
+    } else
+      Restore(attempt);
+  }
+  for (const auto& block : equations->GetBlocks()) {
+    SU2_OMP_SAFE_GLOBAL_ACCESS(block.solver->SetIterLinSolver(attempt.linearIterations);
+                               block.solver->SetResLinSolver(attempt.linearDefect);)
+  }
+  return attempt;
 }
 
-void CNewtonIntegration::Preconditioner(const CSysVector<Scalar>& u, CSysVector<Scalar>& v) const {
-  SU2_ZONE_SCOPED
-
-  if (preconditioner) {
-    Scalar eps = SU2_TYPE::GetValue(precondTol);
-    Preconditioner_impl(u, v, precondIters, eps);
+void CNewtonIntegration::Search(Attempt& attempt) {
+  double relative = 0, invalid = 0;
+  SU2_OMP_FOR_STAT(1024)
+  for (auto i = 0ul; i < direction.GetNElmDomain(); ++i) {
+    if (!Armijo::IsFinite(direction[i]))
+      invalid = 1;
+    else
+      relative = std::max(relative, std::abs(direction[i]) / (1.0 + std::abs(baseState[i] / scale[i])));
   }
-  else {
-    /*--- Approximate diagonal preconditioner. ---*/
-
-    const bool dt1st = (config->GetTime_Marching() == TIME_MARCHING::DT_STEPPING_1ST);
-    const bool dt2nd = (config->GetTime_Marching() == TIME_MARCHING::DT_STEPPING_2ND);
-    const su2double dt = config->GetDelta_UnstTimeND() * (dt1st + 1.5 * dt2nd);
-
-    SU2_OMP_FOR_STAT(omp_chunk_size)
-    for (auto iPoint = 0ul; iPoint < geometry->GetnPointDomain(); ++iPoint) {
-      su2double delta = (solvers[FLOW_SOL]->GetNodes()->GetDelta_Time(iPoint) + dt) /
-                        (geometry->nodes->GetVolume(iPoint) + geometry->nodes->GetPeriodicVolume(iPoint));
-      SU2_OMP_SIMD
-      for (auto iVar = 0ul; iVar < u.GetNVar(); ++iVar)
-        v(iPoint,iVar) = SU2_TYPE::GetValue(delta) * u(iPoint,iVar);
+  END_SU2_OMP_FOR
+  invalid = Reduce(invalid, true);
+  relative = Reduce(relative, true);
+  Evaluate(0, "BASE");
+  if (!invalid && relative > 0) {
+    MatrixFreeProduct(direction, product);
+    double slope = 0, norm2 = 0;
+    SU2_OMP_FOR_STAT(1024)
+    for (auto i = 0ul; i < rhs.GetNElmDomain(); ++i) {
+      const double jp = product[i] - (options.pseudoTimeMerit ? 0.0 : pseudoDiagonal[i] * direction[i]);
+      slope -= rhs[i] * jp;
+      norm2 += jp * jp;
     }
     END_SU2_OMP_FOR
-
-    CSysMatrixComms::Initiate(v, geometry, config);
-    CSysMatrixComms::Complete(v, geometry, config);
+    attempt.slope = Reduce(slope);
+    attempt.productNorm2 = Reduce(norm2);
+  } else if (invalid)
+    attempt.slope = std::numeric_limits<double>::quiet_NaN();
+  const Armijo::Parameters parameters{options.armijo, options.interpolationMin, options.interpolationMax,
+                                      options.maxBacktracks};
+  attempt.search = Armijo::Search(
+      attempt.base, attempt.slope, relative > 0 ? options.stepTolerance / relative : 2,
+      [&](double alpha) { return Evaluate(alpha, "TRIAL"); }, [&] { Restore(attempt); }, parameters);
+  if (attempt.search.status == Armijo::Status::Accepted) {
+    attempt.physicalMerit = Merit();
+    const double alpha = attempt.search.step;
+    attempt.prediction = -alpha * attempt.slope - 0.5 * alpha * alpha * attempt.productNorm2;
+    if (attempt.prediction > 0) attempt.agreement = (attempt.base - attempt.search.value) / attempt.prediction;
+    for (const auto& block : equations->GetBlocks()) {
+      auto* nodes = block.solver->GetNodes();
+      SU2_OMP_FOR_STAT(1024)
+      for (auto p = 0ul; p < geometry->GetnPoint(); ++p)
+        nodes->SetUnderRelaxation(p, alpha * nodes->GetUnderRelaxation(p));
+      END_SU2_OMP_FOR
+    }
   }
 }
+
+void CNewtonIntegration::Log(const Attempt& attempt, const NonlinearGlobalization::Decision& decision) const {
+  if (!options.diagnostics || rank != MASTER_NODE || omp_get_thread_num() != 0) return;
+  std::ofstream out(prefix + ".csv", std::ios::app);
+  if (out.tellp() == 0)
+    out << "iteration,attempt,cfl,next_cfl,status,decision,linear_iterations,linear_target,reported_linear_residual,"
+           "true_linear_defect,base_merit,merit,step,evaluations,slope,predicted_reduction,model_agreement,"
+           "rollback_state_error,rollback_merit_error,physical_merit,pseudo_time_merit,flow_residual_evaluations,"
+           "turbulence_residual_evaluations,transition_residual_evaluations,species_residual_evaluations\n";
+  out.precision(17);
+  out << config->GetInnerIter() << ',' << attemptNumber << ',' << cfl << ',' << decision.nextCFL << ','
+      << (attempt.linearFailure ? "LINEAR_FAILURE" : Name(attempt.search.status)) << ',' << Name(decision.reason) << ','
+      << attempt.linearIterations << ',' << eta << ',' << attempt.reportedLinearResidual << ',' << attempt.linearDefect
+      << ',' << attempt.base << ',' << attempt.search.value << ',' << attempt.search.step << ','
+      << attempt.search.evaluations << ',' << attempt.slope << ',' << attempt.prediction << ',' << attempt.agreement
+      << ',' << attempt.rollbackStateError << ',' << attempt.rollbackMeritError << ',' << attempt.physicalMerit << ','
+      << options.pseudoTimeMerit;
+  for (auto count : equations->GetResidualEvaluations()) out << ',' << count;
+  out << '\n';
+}
+
+void CNewtonIntegration::MultiGrid_Iteration(CGeometry**** geometry, CSolver***** solvers, CNumerics****** numerics,
+                                             CConfig** config, unsigned short, unsigned short zone,
+                                             unsigned short instance) {
+  Iterate(geometry[zone][instance][MESH_0], solvers[zone][instance][MESH_0], numerics[zone][instance][MESH_0],
+          config[zone]);
+}
+
+void CNewtonIntegration::Iterate(CGeometry* g, CSolver** s, CNumerics*** n, CConfig* c) {
+  if (failed) return;
+  geometry = g;
+  solvers = s;
+  numerics = n;
+  config = c;
+  if (!setup) Setup();
+  const auto settings = config->GetEquationSettings();
+  SU2_OMP_PARALLEL { Advance(); }
+  END_SU2_OMP_PARALLEL
+  config->SetEquationSettings(settings);
+}
+
+void CNewtonIntegration::Advance() {
+  for (const auto& block : equations->GetBlocks()) block.solver->Set_OldSolution();
+  if (!constraintsReady) {
+    const bool valid = equations->EvaluateResiduals(true, true);
+    SU2_OMP_SAFE_GLOBAL_ACCESS(residualValid = valid; constraintsReady = true;)
+  }
+  Residual(true);
+  for (const auto& block : equations->GetBlocks()) block.solver->Set_OldSolution();
+  equations->Capture();
+  equations->Pack(baseState);
+  UpdateScale();
+  for (unsigned index = 0;; ++index) {
+    SU2_OMP_SAFE_GLOBAL_ACCESS(attemptNumber = index;)
+    const auto attempt = SolveAttempt();
+    SU2_OMP_SAFE_GLOBAL_ACCESS(lastAttempt = attempt;)
+    using Reason = NonlinearGlobalization::RecoveryReason;
+    if (attempt.search.status == Armijo::Status::Accepted && !attempt.linearFailure) {
+      const double next = NonlinearGlobalization::Adapt(options, cfl, attempt.agreement, attempt.search.step);
+      Log(attempt, {Reason::Accepted, next});
+      SU2_OMP_SAFE_GLOBAL_ACCESS(
+          cfl = next;
+          eta = NonlinearGlobalization::Forcing(options, eta, attempt.base, attempt.search.value, attempt.search.step);)
+      for (const auto& block : equations->GetBlocks()) block.solver->RefreshResidualStatistics(geometry, config);
+      if (std::find(systems.begin(), systems.end(), RUNTIME_FLOW_SYS) != systems.end()) {
+        SU2_OMP_SAFE_GLOBAL_ACCESS(config->SetGlobalParam(config->GetKind_Solver(), RUNTIME_FLOW_SYS);)
+        solvers[FLOW_SOL]->Postprocessing(geometry, solvers, config, MESH_0);
+        solvers[FLOW_SOL]->Pressure_Forces(geometry, config);
+        solvers[FLOW_SOL]->Momentum_Forces(geometry, config);
+        solvers[FLOW_SOL]->Friction_Forces(geometry, config);
+      }
+      return;
+    }
+    const bool invalidState = !Armijo::IsFinite(attempt.base) || !Armijo::IsFinite(attempt.rollbackMeritError) ||
+                              attempt.rollbackStateError != 0 ||
+                              attempt.rollbackMeritError >
+                                  options.restoreTolerance * std::max(attempt.base, std::numeric_limits<double>::min());
+    const auto decision = NonlinearGlobalization::Reject(options, cfl, index, invalidState);
+    Log(attempt, decision);
+    if (decision.reason != Reason::Retry) {
+      BEGIN_SU2_OMP_SAFE_GLOBAL_ACCESS {
+        failed = true;
+        std::ostringstream message;
+        message << "Newton recovery failed: " << Name(decision.reason) << ", "
+                << (attempt.linearFailure ? "LINEAR_FAILURE" : Name(attempt.search.status)) << " at iteration "
+                << config->GetInnerIter() << ", attempt " << index << ", CFL " << cfl;
+        failureMessage = message.str();
+      }
+      END_SU2_OMP_SAFE_GLOBAL_ACCESS
+      return;
+    }
+    SU2_OMP_SAFE_GLOBAL_ACCESS(cfl = decision.nextCFL;
+                               eta = std::max(options.etaMin, std::min(eta, options.linearTolerance) * options.shrink);)
+  }
+}
+#endif

@@ -2146,6 +2146,17 @@ void CSolver::AdaptCFLNumber(CGeometry **geometry,
 
 }
 
+void CSolver::RefreshResidualStatistics(const CGeometry* geometry, const CConfig* config) {
+  std::vector<su2double> rms(nVar, 0.0), maximum(nVar, 0.0);
+  std::vector<unsigned long> point(nVar, 0);
+  SU2_OMP_FOR_STAT(1024)
+  for (auto p = 0ul; p < geometry->GetnPointDomain(); ++p)
+    for (auto v = 0u; v < nVar; ++v)
+      ResidualReductions_PerThread(p, v, LinSysRes(p, v), rms.data(), maximum.data(), point.data());
+  END_SU2_OMP_FOR
+  ResidualReductions_FromAllThreads(geometry, config, rms.data(), maximum.data(), point.data());
+}
+
 void CSolver::SetResidual_RMS(const CGeometry *geometry, const CConfig *config, bool force) {
   SU2_ZONE_SCOPED
 

@@ -820,6 +820,7 @@ void CSysMatrix<ScalarType>::SetValZero() {
     if (mySize) memset(&arr[begin], 0, mySize);
   };
   zeroChunk(mat.d, nPoint * nVar * nEqn);
+  zeroChunk(prescribedRows.data(), prescribedRows.size());
   if (!quantized_mode) {
     zeroChunk(mat.l, mat.nnz_l * nVar * nEqn);
     zeroChunk(mat.u, mat.nnz_u * nVar * nEqn);
@@ -835,6 +836,11 @@ void CSysMatrix<ScalarType>::SetValZero() {
 template <class ScalarType>
 void CSysMatrix<ScalarType>::SetValDiagonalZero() {
   SU2_ZONE_SCOPED
+  if (!prescribedRows.empty()) {
+    SU2_OMP_FOR_STAT(omp_heavy_size)
+    for (auto i = 0ul; i < prescribedRows.size(); ++i) prescribedRows[i] = 0;
+    END_SU2_OMP_FOR
+  }
   SU2_OMP_FOR_STAT(omp_heavy_size)
   for (auto iVar = 0ul; iVar < nPointDomain * nVar * nEqn; ++iVar) mat.d[iVar] = 0;
   END_SU2_OMP_FOR
@@ -921,6 +927,10 @@ void CSysMatrix<ScalarType>::MatrixInverse(ScalarType* matrix, ScalarType* inver
 template <class ScalarType>
 void CSysMatrix<ScalarType>::DeleteValsRowi(unsigned long block_i, unsigned long row) {
   SU2_ZONE_SCOPED
+  if (!prescribedRows.empty()) {
+    SU2_OMP_ATOMIC_WRITE
+    prescribedRows[block_i * nVar + row] = 1;
+  }
   const auto blkSz = nVar * nEqn;
 
   auto* d = &mat.d[block_i * blkSz];
@@ -1630,6 +1640,12 @@ void CSysMatrix<ScalarType>::EnforceSolutionAtNode(const unsigned long node_i, c
 
   /*--- Set the diagonal block to the identity. ---*/
   SetVal2Diag(node_i, 1.0);
+
+  if (!prescribedRows.empty())
+    for (auto variable = 0u; variable < nVar; ++variable) {
+      SU2_OMP_ATOMIC_WRITE
+      prescribedRows[node_i * nVar + variable] = 1;
+    }
 
   /*--- Set known solution in rhs vector. ---*/
   b.SetBlock(node_i, x_i);

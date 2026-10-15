@@ -7,6 +7,7 @@
 #include "../../SU2_CFD/include/drivers/CSinglezoneDriver.hpp"
 #include "../../SU2_CFD/include/integration/CNewtonEquationSet.hpp"
 #include "../../SU2_CFD/include/integration/CNewtonLinearization.hpp"
+#include "../../SU2_CFD/include/integration/CNewtonIntegration.hpp"
 #include "../../Common/include/linear_algebra/CSysSolve.hpp"
 #include <chrono>
 #include <filesystem>
@@ -365,6 +366,9 @@ TEST_CASE("Grouped Newton products and block preconditioners solve a coupled lin
           if (block.slot == TURB_SOL && physics == sa + "SA_OPTIONS= NEGATIVE, WITHFT2\n")
             nodes->SetSolution(p, j, -0.5 * std::abs(nodes->GetSolution(p, j)));
         }
+    for (const auto& block : equations->GetBlocks()) block.solver->Jacobian.TrackPrescribedRows();
+    REQUIRE(Residual(*equations, true));
+    REQUIRE(Residual(*equations, true));
     REQUIRE(Residual(*equations, true));
     for (auto p = 0ul; p < geometry->GetnPointDomain(); ++p)
       if (!geometry->nodes->GetSolidBoundary(p)) CHECK(driver.Solvers()[FLOW_SOL]->GetNodes()->GetStrainMag(p) > 0);
@@ -385,12 +389,16 @@ TEST_CASE("Grouped Newton products and block preconditioners solve a coupled lin
         }
     auto diagonal = MakeVector(driver, equations->GetnVar(), 100.0);
     auto known = MakeVector(driver, equations->GetnVar());
-    for (auto p = 0ul; p < geometry->GetnPoint(); ++p)
-      if (!geometry->nodes->GetSolidBoundary(p))
-        for (auto j = 0u; j < equations->GetnVar(); ++j)
-          known(p, j) = 0.01 * (1.0 + j + geometry->nodes->GetCoord(p, 0));
-    auto isFree = [&](const CNewtonEquationSet::Block&, unsigned long p, unsigned short) {
-      return !geometry->nodes->GetSolidBoundary(p);
+    auto freeDofs = MakeVector(driver, equations->GetnVar());
+    for (const auto& block : equations->GetBlocks())
+      for (auto p = 0ul; p < geometry->GetnPoint(); ++p)
+        for (auto v = 0u; v < block.variables; ++v) {
+          const auto j = block.offset + v;
+          freeDofs(p, j) = !block.solver->Jacobian.IsPrescribedRow(p, v);
+          if (freeDofs(p, j)) known(p, j) = 0.01 * (1.0 + j + geometry->nodes->GetCoord(p, 0));
+        }
+    auto isFree = [&](const CNewtonEquationSet::Block& b, unsigned long p, unsigned short v) {
+      return freeDofs(p, b.offset + v) != 0;
     };
     CNewtonLinearization linearization(*equations, geometry, driver.Config());
     bool baseValid = false;
@@ -426,9 +434,9 @@ TEST_CASE("Grouped Newton products and block preconditioners solve a coupled lin
       equations->CopyResidual(negative);
       for (auto p = 0ul; p < geometry->GetnPoint(); ++p)
         for (auto j = 0u; j < equations->GetnVar(); ++j)
-          positive(p, j) = geometry->nodes->GetSolidBoundary(p)
-                               ? 101.0 * u(p, j)
-                               : (positive(p, j) - negative(p, j)) / (2e-5 * scale(p, j)) + 100.0 * u(p, j);
+          positive(p, j) = freeDofs(p, j)
+                               ? (positive(p, j) - negative(p, j)) / (2e-5 * scale(p, j)) + 100.0 * u(p, j)
+                               : 101.0 * u(p, j);
       return positive;
     };
     auto rhs = reference(known);
@@ -440,8 +448,8 @@ TEST_CASE("Grouped Newton products and block preconditioners solve a coupled lin
     CHECK(product.norm() == 0.0);
     CHECK(equations->GetResidualEvaluations() == counts);
     for (auto p = 0ul; p < geometry->GetnPoint(); ++p)
-      if (geometry->nodes->GetSolidBoundary(p))
-        for (auto j = 0u; j < equations->GetnVar(); ++j) zero(p, j) = 0.01;
+      for (auto j = 0u; j < equations->GetnVar(); ++j)
+        if (!freeDofs(p, j)) zero(p, j) = 0.01;
     apply(zero, product);
     for (auto i = 0ul; i < product.GetNElmDomain(); ++i) CHECK(product[i] == Approx(101.0 * zero[i]).margin(1e-12));
     for (const auto& block : equations->GetBlocks())
@@ -480,4 +488,210 @@ TEST_CASE("Grouped Newton products and block preconditioners solve a coupled lin
     }
     REQUIRE(equations->Restore());
   }
+}
+
+TEST_CASE("Native strong rows are tracked independently of the preconditioner values", "[NewtonController]") {
+  Problem problem(sst);
+  auto& driver = *problem.driver;
+  auto* geometry = driver.Geometry();
+  auto equations = problem.Equations({RUNTIME_FLOW_SYS, RUNTIME_TURB_SYS});
+  for (const auto& block : equations->GetBlocks()) block.solver->Jacobian.TrackPrescribedRows();
+  REQUIRE(Residual(*equations, true));
+  for (auto p = 0ul; p < geometry->GetnPointDomain(); ++p) {
+    const bool wall = geometry->nodes->GetSolidBoundary(p);
+    auto& flow = driver.Solvers()[FLOW_SOL]->Jacobian;
+    auto& turb = driver.Solvers()[TURB_SOL]->Jacobian;
+    CHECK_FALSE(flow.IsPrescribedRow(p, 0));
+    CHECK_FALSE(flow.IsPrescribedRow(p, 3));
+    CHECK(flow.IsPrescribedRow(p, 1) == wall);
+    CHECK(flow.IsPrescribedRow(p, 2) == wall);
+    CHECK(turb.IsPrescribedRow(p, 0) == wall);
+    CHECK(turb.IsPrescribedRow(p, 1) == wall);
+  }
+  REQUIRE(Residual(*equations));
+  auto& matrix = driver.Solvers()[TURB_SOL]->Jacobian;
+  for (auto p = 0ul; p < geometry->GetnPointDomain(); ++p)
+    CHECK(matrix.IsPrescribedRow(p, 0) == geometry->nodes->GetSolidBoundary(p));
+  SU2_OMP_PARALLEL { matrix.SetValDiagonalZero(); }
+  END_SU2_OMP_PARALLEL
+  for (auto p = 0ul; p < geometry->GetnPoint(); ++p) CHECK_FALSE(matrix.IsPrescribedRow(p, 0));
+  matrix.DeleteValsRowi(0, 0);
+  CHECK(matrix.IsPrescribedRow(0, 0));
+  SU2_OMP_PARALLEL { matrix.SetValZero(); }
+  END_SU2_OMP_PARALLEL
+  CHECK_FALSE(matrix.IsPrescribedRow(0, 0));
+  const su2double prescribed[2] = {0.0, 0.0};
+  matrix.EnforceSolutionAtNode(0, prescribed, driver.Solvers()[TURB_SOL]->LinSysRes);
+  CHECK(matrix.IsPrescribedRow(0, 0));
+  CHECK(matrix.IsPrescribedRow(0, 1));
+}
+
+TEST_CASE("One Newton controller advances native individual equations and coupled groups", "[NewtonController]") {
+  auto allPhysics = species;
+  allPhysics.replace(allPhysics.find("INC_NAVIER_STOKES"), std::string("INC_NAVIER_STOKES").size(), "INC_RANS");
+  allPhysics += "KIND_TURB_MODEL= SST\nKIND_TRANS_MODEL= LM\n";
+  for (const auto& physics : {std::string("SOLVER= NAVIER_STOKES\n"), sa, sa + "SA_OPTIONS= NEGATIVE, WITHFT2\n", sst,
+                              sst + "KIND_TRANS_MODEL= LM\n", species, allPhysics}) {
+    CAPTURE(physics);
+    for (bool coupled : {false, true}) {
+      CAPTURE(coupled);
+      Problem problem(physics + "CFL_NUMBER= 0.05\nLINEAR_SOLVER_PREC= ILU\n");
+      auto& driver = *problem.driver;
+      auto* geometry = driver.Geometry();
+      std::vector<unsigned short> selected = {RUNTIME_FLOW_SYS};
+      for (auto runtime : {RUNTIME_TURB_SYS, RUNTIME_TRANS_SYS, RUNTIME_SPECIES_SYS})
+        if (driver.Solvers()[driver.Config()->GetContainerPosition(runtime)]) selected.push_back(runtime);
+      auto equations = problem.Equations(selected);
+      if (physics.find("SA_OPTIONS= NEGATIVE") != std::string::npos)
+        for (auto p = 0ul; p < geometry->GetnPoint(); ++p)
+          driver.Solvers()[TURB_SOL]->GetNodes()->SetSolution(
+              p, 0, -0.5 * std::abs(driver.Solvers()[TURB_SOL]->GetNodes()->GetSolution(p, 0)));
+      REQUIRE(Residual(*equations));
+      driver.Config()->SetGlobalParam(driver.Config()->GetKind_Solver(), RUNTIME_FLOW_SYS);
+      SU2_OMP_PARALLEL {
+        driver.Solvers()[FLOW_SOL]->SetTime_Step(geometry, driver.Solvers(), driver.Config(), MESH_0, 0);
+      }
+      END_SU2_OMP_PARALLEL
+      NonlinearGlobalization::Options<> options;
+      options.diagnostics = false;
+      options.adaptCFL = false;
+      options.adaptiveForcing = false;
+      std::vector<std::unique_ptr<CNewtonIntegration>> controllers;
+      if (coupled)
+        controllers.emplace_back(std::make_unique<CNewtonIntegration>(selected, options, true));
+      else
+        for (auto runtime : selected)
+          controllers.emplace_back(std::make_unique<CNewtonIntegration>(std::vector<unsigned short>{runtime}, options));
+      for (unsigned iteration = 0; iteration < 3; ++iteration) {
+        driver.Config()->SetInnerIter(iteration);
+        for (auto& controller : controllers) {
+          controller->Iterate(geometry, driver.Solvers(), driver.Numerics(), driver.Config());
+          INFO(controller->GetNumericalFailureMessage());
+          INFO("base=" << controller->GetLastAttempt().base << ", slope=" << controller->GetLastAttempt().slope
+                       << ", defect=" << controller->GetLastAttempt().linearDefect
+                       << ", evaluations=" << controller->GetLastAttempt().search.evaluations);
+          REQUIRE_FALSE(controller->GetNumericalFailure());
+          const auto& attempt = controller->GetLastAttempt();
+          REQUIRE(attempt.search.status == Armijo::Status::Accepted);
+          CHECK(attempt.linearDefect <= options.etaMax);
+          if (attempt.base > 0)
+            CHECK(attempt.search.value <= attempt.base + options.armijo * attempt.search.step * attempt.slope);
+        }
+      }
+      for (auto p = 0ul; p < geometry->GetnPointDomain(); ++p)
+        if (geometry->nodes->GetSolidBoundary(p)) {
+          CHECK(driver.Solvers()[FLOW_SOL]->GetNodes()->GetSolution(p, 1) == 0.0);
+          CHECK(driver.Solvers()[FLOW_SOL]->GetNodes()->GetSolution(p, 2) == 0.0);
+        }
+      // The reported residual belongs to the final accepted state, independently recomputed here.
+      REQUIRE(Residual(*equations));
+      for (const auto& block : equations->GetBlocks())
+        for (auto v = 0u; v < block.variables; ++v) {
+          double local = 0, global = 0;
+          for (auto p = 0ul; p < geometry->GetnPointDomain(); ++p)
+            local += pow(SU2_TYPE::GetValue(block.solver->LinSysRes(p, v)), 2);
+          SU2_MPI::Allreduce(&local, &global, 1, MPI_DOUBLE, MPI_SUM, SU2_MPI::GetComm());
+          const auto expected = std::sqrt(global / geometry->GetGlobal_nPointDomain());
+          if (coupled || block.runtime == selected.back())
+            CHECK(SU2_TYPE::GetValue(block.solver->GetRes_RMS(v)) == Approx(expected).epsilon(1e-10).margin(1e-12));
+        }
+    }
+  }
+}
+
+TEST_CASE("A failed coupled Newton update restores every selected equation", "[NewtonController]") {
+  for (bool linearFailure : {true, false}) {
+    CAPTURE(linearFailure);
+    Problem problem(sst + std::string("CFL_NUMBER= ") + (linearFailure ? "100" : "0.05") +
+                    "\nLINEAR_SOLVER_PREC= ILU\n");
+    auto& driver = *problem.driver;
+    auto* geometry = driver.Geometry();
+    auto equations = problem.Equations({RUNTIME_FLOW_SYS, RUNTIME_TURB_SYS});
+    for (const auto& block : equations->GetBlocks()) {
+      block.solver->Jacobian.TrackPrescribedRows();
+      for (auto p = 0ul; p < geometry->GetnPoint(); ++p) block.solver->GetNodes()->SetUnderRelaxation(p, 0.37);
+      block.solver->GetNodes()->GetSolution_time_n().resize(geometry->GetnPoint(), block.variables) = 7.0;
+      block.solver->GetNodes()->GetSolution_time_n1().resize(geometry->GetnPoint(), block.variables) = 9.0;
+    }
+    REQUIRE(Residual(*equations, true));
+    REQUIRE(Residual(*equations, true));
+    equations->Capture();
+    auto base = MakeVector(driver, equations->GetnVar());
+    auto actual = MakeVector(driver, equations->GetnVar());
+    equations->Pack(base);
+    NonlinearGlobalization::Options<> options;
+    options.diagnostics = false;
+    if (linearFailure) {
+      options.linearIterations = 1;
+      options.etaMin = 1e-8;
+      options.linearTolerance = options.etaMax = 1e-6;
+    } else {
+      options.armijo = 0.99;
+      options.maxBacktracks = 1;
+    }
+    options.maxRetries = 0;
+    CNewtonIntegration controller({RUNTIME_FLOW_SYS, RUNTIME_TURB_SYS}, options, true);
+    controller.Iterate(geometry, driver.Solvers(), driver.Numerics(), driver.Config());
+    REQUIRE(controller.GetNumericalFailure());
+    CHECK(controller.GetLastAttempt().linearFailure == linearFailure);
+    if (!linearFailure) CHECK(controller.GetLastAttempt().search.status == Armijo::Status::EvaluationLimit);
+    CHECK(controller.GetLastAttempt().rollbackStateError == 0.0);
+    CHECK(controller.GetLastAttempt().rollbackMeritError == 0.0);
+    equations->Pack(actual);
+    CHECK(MaxDifference(base, actual) == 0.0);
+    for (const auto& block : equations->GetBlocks())
+      for (auto p = 0ul; p < geometry->GetnPoint(); ++p)
+        for (auto v = 0u; v < block.variables; ++v) {
+          CHECK(block.solver->GetNodes()->GetUnderRelaxation(p) == 0.37);
+          CHECK(block.solver->GetNodes()->GetSolution_time_n(p, v) == 7.0);
+          CHECK(block.solver->GetNodes()->GetSolution_time_n1(p, v) == 9.0);
+        }
+  }
+}
+
+TEST_CASE("Grouped physical checks respect enthalpy and composition domains", "[NewtonController]") {
+  auto mixture = species;
+  for (const auto& item : std::vector<std::pair<std::string, std::string>>{{"SPECIES_INIT", "0.4"},
+                                                                           {"MOLECULAR_WEIGHT", "24"},
+                                                                           {"SPECIFIC_HEAT_CP", "1200"},
+                                                                           {"MU_CONSTANT", "1.2e-5"},
+                                                                           {"PRANDTL_LAM", "0.72"},
+                                                                           {"PRANDTL_TURB", "0.9"}}) {
+    const auto start = mixture.find(item.first + "= ");
+    REQUIRE(start != std::string::npos);
+    mixture.insert(mixture.find('\n', start), "," + item.second);
+  }
+  Problem problem(mixture);
+  auto& driver = *problem.driver;
+  auto equations = problem.Equations({RUNTIME_FLOW_SYS, RUNTIME_SPECIES_SYS});
+  REQUIRE(Residual(*equations));
+  auto* nodes = driver.Solvers()[FLOW_SOL]->GetNodes();
+  for (auto p = 0ul; p < driver.Geometry()->GetnPoint(); ++p)
+    nodes->SetSolution(p, 3, -0.05 * nodes->GetSpecificHeatCp(p) * nodes->GetTemperature(p));
+  REQUIRE(Residual(*equations));
+  equations->Capture();
+  auto base = MakeVector(driver, equations->GetnVar());
+  auto actual = MakeVector(driver, equations->GetnVar());
+  auto scale = MakeVector(driver, equations->GetnVar(), 1.0);
+  auto direction = MakeVector(driver, equations->GetnVar());
+  equations->Pack(base);
+  for (auto p = 0ul; p < driver.Geometry()->GetnPointDomain(); ++p) {
+    CHECK(nodes->GetSolution(p, 3) < 0);
+    CHECK(nodes->GetTemperature(p) > 0);
+  }
+  for (double change : {-1.0, 1.0}) {
+    for (auto p = 0ul; p < driver.Geometry()->GetnPoint(); ++p) direction(p, 4) = change;
+    equations->SetTrial(direction, 1.0, scale);
+    CHECK_FALSE(Residual(*equations));
+    REQUIRE(equations->Restore());
+    equations->Pack(actual);
+    CHECK(MaxDifference(base, actual) == 0.0);
+  }
+  direction = passivedouble(0);
+  for (auto p = 0ul; p < driver.Geometry()->GetnPoint(); ++p) direction(p, 4) = direction(p, 5) = 0.2;
+  equations->SetTrial(direction, 1.0, scale);
+  CHECK_FALSE(Residual(*equations));
+  REQUIRE(equations->Restore());
+  equations->Pack(actual);
+  CHECK(MaxDifference(base, actual) == 0.0);
 }
