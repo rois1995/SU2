@@ -6,17 +6,17 @@
 #pragma once
 
 #include "CIntegration.hpp"
-#include "CNewtonEquationSet.hpp"
+#include "CNewtonLinearization.hpp"
 #include "../../../Common/include/linear_algebra/CPreconditioner.hpp"
 #include "../../../Common/include/linear_algebra/CSysSolve.hpp"
 #include <memory>
 
 class CSSTNewtonIntegration final : public CIntegration {
  public:
-  using Scalar = passivedouble;
-  using MixedScalar = su2mixedfloat;
   void MultiGrid_Iteration(CGeometry****, CSolver*****, CNumerics******, CConfig**, unsigned short, unsigned short,
                            unsigned short) override;
+#if !defined(CODI_FORWARD_TYPE) && !defined(CODI_REVERSE_TYPE)
+  using Scalar = passivedouble;
   bool GetNumericalFailure() const override { return failed; }
   const char* GetNumericalFailureMessage() const override { return failureMessage.c_str(); }
   void MatrixFreeProduct(const CSysVector<Scalar>&, CSysVector<Scalar>&);
@@ -36,12 +36,12 @@ class CSSTNewtonIntegration final : public CIntegration {
   CSolver** solvers = nullptr;
   CNumerics*** numerics = nullptr;
   NonlinearGlobalization::Options<> options;
-  CSysVector<Scalar> scale, rhs, correction, direction, product;
-  mutable CSysVector<MixedScalar> precIn, precOut;
-  std::unique_ptr<CPreconditioner<MixedScalar>> preconditioner;
+  CSysVector<Scalar> scale, rhs, correction, direction, product, pseudoDiagonal, probeReference;
   CSysSolve<Scalar> linearSolver;
   std::vector<double> oldRelaxation;
   std::unique_ptr<CNewtonEquationSet> equations;
+  std::unique_ptr<CNewtonLinearization> linearization;
+  std::unique_ptr<CNewtonBlockPreconditioner> preconditioner;
   bool setup = false, failed = false, residualValid = true;
   std::string failureMessage;
   double cfl = 0, eta = 0;
@@ -58,4 +58,5 @@ class CSSTNewtonIntegration final : public CIntegration {
   Attempt SolveAttempt();
   void Search(Attempt&);
   void Log(const Attempt&, const NonlinearGlobalization::Decision&) const;
+#endif
 };

@@ -78,16 +78,14 @@ const char* Name(NonlinearGlobalization::RecoveryReason reason) {
 
 void CSSTNewtonIntegration::Setup() {
   options = config->GetSSTNewtonOptions().Passive([](const su2double& x) { return SU2_TYPE::GetValue(x); });
-  for (auto* vector : {&scale, &rhs, &correction, &direction, &product})
+  for (auto* vector : {&scale, &rhs, &correction, &direction, &product, &pseudoDiagonal, &probeReference})
     vector->Initialize(geometry->GetnPoint(), geometry->GetnPointDomain(), 2, 0.0);
-  precIn.Initialize(geometry->GetnPoint(), geometry->GetnPointDomain(), 2, 0.0);
-  precOut.Initialize(geometry->GetnPoint(), geometry->GetnPointDomain(), 2, 0.0);
   oldRelaxation.resize(geometry->GetnPoint());
-  const auto kind = static_cast<ENUM_LINEAR_SOLVER_PREC>(config->GetKind_Linear_Solver_Prec());
-  preconditioner.reset(CPreconditioner<MixedScalar>::Create(kind, solvers[TURB_SOL]->Jacobian, geometry, config));
   linearSolver.SetxIsZero(true);
   equations = std::make_unique<CNewtonEquationSet>(geometry, solvers, numerics, config,
                                                   std::vector<unsigned short>{RUNTIME_TURB_SYS});
+  linearization = std::make_unique<CNewtonLinearization>(*equations, geometry, config);
+  preconditioner = std::make_unique<CNewtonBlockPreconditioner>(*linearization, geometry, config);
   cfl = std::max(options.cflMin,
                  std::min(options.cflMax, SU2_TYPE::GetValue(config->GetCFL(MESH_0) * config->GetCFLRedCoeff_Turb())));
   eta = options.linearTolerance;
@@ -159,56 +157,11 @@ double CSSTNewtonIntegration::Evaluate(double step, const char* phase) {
 }
 
 void CSSTNewtonIntegration::MatrixFreeProduct(const CSysVector<Scalar>& u, CSysVector<Scalar>& v) {
-  const double norm = u.norm();
-  if (norm == 0) {
-    v = Scalar(0);
-    return;
-  }
-  double relative = 0;
-  const auto* ref = solvers[TURB_SOL]->GetLimiterReference();
-  for (unsigned long p = 0; p < geometry->GetnPointDomain(); ++p) {
-    if (geometry->nodes->GetSolidBoundary(p)) continue;
-    const double rho = SU2_TYPE::GetValue(solvers[FLOW_SOL]->GetNodes()->GetDensity(p));
-    for (unsigned short j = 0; j < 2; ++j) {
-      const double field = std::max(std::abs(SU2_TYPE::GetValue(solvers[TURB_SOL]->GetNodes()->GetSolution_Old(p)[j])),
-                                    std::abs(SU2_TYPE::GetValue(ref[j])) * 1e-12);
-      if (field > 0) relative = std::max(relative, std::abs(u(p, j) * scale(p, j) / (rho * field)));
-    }
-  }
-  relative = Maximum(relative);
-  double h = options.fdStep * std::sqrt(2.0 * geometry->GetGlobal_nPointDomain()) / norm;
-  if (relative > 0) h = std::min(h, options.relativeFDStep / relative);
-  if (!(h > 0) || !Armijo::IsFinite(h)) {
-    v = Scalar(std::numeric_limits<double>::quiet_NaN());
-    return;
-  }
-  Perturb(u, h);
-  Residual();
-  if (!residualValid) {
-    v = Scalar(std::numeric_limits<double>::quiet_NaN());
-    return;
-  }
-  for (unsigned long p = 0; p < geometry->GetnPointDomain(); ++p) {
-    const double diagonal = SU2_TYPE::GetValue(geometry->nodes->GetVolume(p) + geometry->nodes->GetPeriodicVolume(p)) /
-                            std::max(EPS, SU2_TYPE::GetValue(solvers[TURB_SOL]->GetNodes()->GetDelta_Time(p)));
-    for (unsigned short j = 0; j < 2; ++j) {
-      const double r = SU2_TYPE::GetValue(solvers[TURB_SOL]->LinSysRes(p, j)) / scale(p, j);
-      v(p, j) = (r + rhs(p, j)) / h + diagonal * u(p, j);
-      if (geometry->nodes->GetSolidBoundary(p)) v(p, j) = (1.0 + diagonal) * u(p, j);
-    }
-  }
-  CSysMatrixComms::Initiate(v, geometry, config);
-  CSysMatrixComms::Complete(v, geometry, config);
+  residualValid = linearization->Apply(u, v);
 }
 
 void CSSTNewtonIntegration::Precondition(const CSysVector<Scalar>& u, CSysVector<Scalar>& v) const {
-  if (!preconditioner) {
-    v = u;
-    return;
-  }
-  for (unsigned long i = 0; i < u.GetLocSize(); ++i) precIn[i] = u[i] * scale[i];
-  (*preconditioner)(precIn, precOut);
-  for (unsigned long i = 0; i < u.GetLocSize(); ++i) v[i] = precOut[i] / scale[i];
+  (*preconditioner)(u, v);
 }
 
 void CSSTNewtonIntegration::Restore(Attempt& attempt) {
@@ -239,6 +192,26 @@ CSSTNewtonIntegration::Attempt CSSTNewtonIntegration::SolveAttempt() {
     return attempt;
   }
   solver->SetTime_Step(geometry, solvers, config, MESH_0, config->GetTimeIter());
+  const auto* reference = solver->GetLimiterReference();
+  for (auto p = 0ul; p < geometry->GetnPoint(); ++p)
+    for (auto v = 0u; v < 2; ++v) {
+      pseudoDiagonal(p, v) = SU2_TYPE::GetValue(geometry->nodes->GetVolume(p) + geometry->nodes->GetPeriodicVolume(p)) /
+                             std::max(EPS, SU2_TYPE::GetValue(solver->GetNodes()->GetDelta_Time(p)));
+      probeReference(p, v) = SU2_TYPE::GetValue(solvers[FLOW_SOL]->GetNodes()->GetDensity(p)) *
+          std::max(std::abs(SU2_TYPE::GetValue(solver->GetNodes()->GetSolution_Old(p, v))),
+                   std::abs(SU2_TYPE::GetValue(reference[v])) * 1e-12);
+    }
+  residualValid = linearization->SetBase(scale, pseudoDiagonal,
+                         options.fdStep * std::sqrt(2.0 * geometry->GetGlobal_nPointDomain()),
+                         options.relativeFDStep, [&](const CNewtonEquationSet::Block&, unsigned long p, unsigned short) {
+                           return !geometry->nodes->GetSolidBoundary(p);
+                         }, &probeReference);
+  attempt.base = Merit();
+  attempt.physicalMerit = attempt.search.value = attempt.base;
+  if (!Armijo::IsFinite(attempt.base)) {
+    Restore(attempt);
+    return attempt;
+  }
   solver->PrepareImplicitIteration(geometry, solvers, config);
   for (unsigned long i = 0; i < rhs.GetNElmDomain(); ++i) rhs[i] = SU2_TYPE::GetValue(solver->LinSysRes[i]) / scale[i];
   if (attempt.base == 0) {

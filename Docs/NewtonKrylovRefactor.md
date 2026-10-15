@@ -217,12 +217,84 @@ OMP_NUM_THREADS=1 /path/to/build/UnitTests/newton_equation_tests
 OMP_NUM_THREADS=2 mpirun --bind-to none -n 2 /path/to/build/UnitTests/newton_equation_tests
 ```
 
+## Shared grouped linearization and native block preconditioning
+
+`CNewtonLinearization` now forms `S^-1 J_R S + D` for an equation group, using
+the fixed coordinates described above. All trial unknowns are installed together;
+the physical product therefore includes the off-diagonal blocks. `D` is a supplied
+diagonal pseudo-time operator. The SST caller supplies its existing volume/time
+diagonal. The native coupled integration tests deliberately choose `D = 100 I`;
+they do not validate the native incompressible or low-Mach preconditioned mass
+matrices. Those mappings remain a requirement for the common controller.
+
+The reference residual and probes use the same explicit path. This avoids an
+implicit/explicit roundoff offset amplified by the finite-difference quotient,
+while preserving the assembled native matrices. Newton scaling and probe
+references are separate: the default relative probe reference uses the physical
+scale, including at valid zero gauge pressure or zero species. SST supplies its
+existing field-relative reference. Trial installation and the selected constraint
+mask are shared; masked columns do not perturb the state and masked rows use an
+identity equation. This tests the algebra of a supplied mask, not the completeness
+of native boundary-constraint elimination.
+
+`CNewtonBlockPreconditioner` uses the existing native preconditioner for each
+diagonal equation block, with scaling applied at its input and output. Its lower
+triangular mode subtracts the full matrix-free coupling action of previously
+solved blocks before the next diagonal solve. Each additional block therefore
+costs a grouped residual probe per preconditioner application. This is a measured
+cost to include in comparisons; no performance benefit is presumed. It leaves
+all cross blocks in the outer operator. SST now delegates its product and
+preconditioning to these shared classes; its nonlinear controller and the legacy
+flow Newton algorithm have not yet been consolidated.
+
+The native tests solve manufactured linearized systems using FGMRES, with right
+hand sides and final defects checked by a separate centered residual stencil.
+Fixtures cover SA, SA_NEG at negative working-variable values, SST, SST/LM,
+variable-density mixture species, and all four equation blocks together (flow,
+SST, LM and eight transported species, 16 variables per point). Smooth reference
+states have nonzero strain and interior intermittency; model kinks are not a
+claim of a unique centered derivative. The tests also cover zero products without
+residual work, constrained rows/columns, and rejected invalid products.
+
+The buffer audit found that `CSysMatrix::MAXNVAR=20` applies to each native matrix
+and is already enforced in `CSysMatrix::Initialize`. The grouped product and
+preconditioner do not create a group-sized matrix: their state/Krylov vectors,
+masks and `CSysMatrixComms` packets use the actual total group width. Existing
+model limits still apply: dynamic scalar edge fluxes currently allow eight
+variables (`numerics/util.hpp::MaxScalarVar`), and `CFluidScalar` allows sixteen
+mixture components. Neither limit was enlarged to construct a wider test. The
+largest native group tested here has 16 variables; groups wider than 20 were not
+tested. Periodic transformations remain a separate open gate.
+
+The new primal classes are excluded from differentiated builds, as SST Newton
+already is. The SST header also excludes passive workspaces in that branch, so a
+forward build does not acquire references to unavailable passive-vector symbols.
+Four affected translation units passed forward syntax checks using the configured
+compile commands plus the CoDiPack/MeDiPack include paths. This is not a complete
+forward build/link/run or reverse-mode validation.
+
+Current evidence is recorded separately in `linearization_manifest.json` under
+the parent evidence directory. Four integration cases pass 14019 assertions
+serially, and 8491 / 7965 assertions on two MPI ranks with two threads. All twelve
+manufactured solves pass with both preconditioners; independent centered defects
+are below 1.2e-6 in these fixtures. Valgrind reports zero memory errors (leak
+analysis disabled). The existing 78 cases / 102250 assertions, six conventional
+runs and six configuration guards also pass.
+
+See `linearization_native_signed_serial.log`,
+`linearization_native_signed_mpi.log`, `linearization_valgrind_signed.log`,
+`linearization_supported_validated.log`, `linearization_smoke_validated/` and
+`linearization_regressions_validated/`. Earlier failed fixtures and the smoke
+control with seven extra retries are retained. Restoring SST's model-specific
+probe reference restores the matched ten-update, ten-attempt control. These
+remain correctness checks, not converged nonlinear or performance comparisons.
+
 ## Next implementation gate
 
 Continue the broader baseline/conditional-feature audits. Use the shared equation
 interface to consolidate the two Newton algorithms into `CNewtonIntegration`,
-then add selection/group dispatch, consistent pseudo-time terms, full coupled
-products, block-diagonal/triangular preconditioning and model-specific feasible
+then add selection/group dispatch, consistent native pseudo-time terms and model-specific feasible
 steps. Complete independent derivative/constraint/rollback tests before the
-converged family matrix and matched performance comparisons. The present native
-group residual tests do not establish a coupled Krylov solve.
+converged family matrix and matched performance comparisons. The present tests
+establish native coupled linearized solves with a chosen diagonal mass; they do
+not establish an end-to-end coupled nonlinear integration mode.

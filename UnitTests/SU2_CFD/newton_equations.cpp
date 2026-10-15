@@ -6,9 +6,12 @@
 #include "catch.hpp"
 #include "../../SU2_CFD/include/drivers/CSinglezoneDriver.hpp"
 #include "../../SU2_CFD/include/integration/CNewtonEquationSet.hpp"
+#include "../../SU2_CFD/include/integration/CNewtonLinearization.hpp"
+#include "../../Common/include/linear_algebra/CSysSolve.hpp"
 #include <chrono>
 #include <filesystem>
 #include <fstream>
+#include <sstream>
 
 namespace {
 using Vector = CSysVector<passivedouble>;
@@ -308,4 +311,173 @@ TEST_CASE("Invalid Newton trials are rejected without silently projecting a deri
   REQUIRE(equations->Restore());
   equations->Pack(actual);
   CHECK(MaxDifference(base, actual) == 0.0);
+  CNewtonLinearization linearization(*equations, driver.Geometry(), driver.Config());
+  auto diagonal = MakeVector(driver, equations->GetnVar());
+  REQUIRE(linearization.SetBase(scale, diagonal, 1e20, 0));
+  CHECK_FALSE(linearization.Apply(direction, actual));
+  for (auto i = 0ul; i < actual.GetLocSize(); ++i) CHECK(std::isnan(actual[i]));
+  REQUIRE(equations->Restore());
+}
+
+TEST_CASE("Grouped Newton products and block preconditioners solve a coupled linearization", "[NewtonLinearization]") {
+  auto allEquations = species;
+  allEquations.replace(allEquations.find("INC_NAVIER_STOKES"), std::string("INC_NAVIER_STOKES").size(), "INC_RANS");
+  allEquations += "KIND_TURB_MODEL= SST\nKIND_TRANS_MODEL= LM\n";
+  // Scalar edge fluxes currently support eight transported species; exercise all four equation blocks together.
+  for (const auto& item : std::vector<std::pair<std::string, double>>{
+           {"SPECIES_INIT", 0.02}, {"MOLECULAR_WEIGHT", 20.0}, {"SPECIFIC_HEAT_CP", 1000.0},
+           {"MU_CONSTANT", 1e-5}, {"PRANDTL_LAM", 0.72}, {"PRANDTL_TURB", 0.9}}) {
+    const auto count = item.first == "SPECIES_INIT" ? 8 : 9;
+    std::ostringstream values;
+    for (int j = 0; j < count; ++j) values << (j ? "," : "") << item.second;
+    const auto begin = allEquations.find(item.first + "= ");
+    REQUIRE(begin != std::string::npos);
+    allEquations.replace(begin, allEquations.find('\n', begin) - begin, item.first + "= " + values.str());
+  }
+  unsigned family = 0;
+  for (const auto& physics : {sa, sa + "SA_OPTIONS= NEGATIVE, WITHFT2\n", sst,
+                             sst + "KIND_TRANS_MODEL= LM\n", species, allEquations}) {
+    ++family;
+    CAPTURE(physics);
+    Problem problem(physics + "LINEAR_SOLVER_PREC= ILU\n");
+    auto& driver = *problem.driver;
+    auto* geometry = driver.Geometry();
+    std::vector<unsigned short> selected = {RUNTIME_FLOW_SYS};
+    for (auto runtime : {RUNTIME_TURB_SYS, RUNTIME_TRANS_SYS, RUNTIME_SPECIES_SYS})
+      if (driver.Solvers()[driver.Config()->GetContainerPosition(runtime)]) selected.push_back(runtime);
+    auto equations = problem.Equations(selected);
+    if (physics == allEquations) {
+      CHECK(equations->GetnVar() == 16);
+      CHECK(equations->GetBlocks().size() == 4);
+    }
+    for (const auto& block : equations->GetBlocks())
+      for (auto p = 0ul; p < geometry->GetnPoint(); ++p)
+        for (auto j = 0u; j < block.variables; ++j) {
+          auto* nodes = block.solver->GetNodes();
+          nodes->SetSolution(p, j, nodes->GetSolution(p, j) * (1.0 + 0.05 * geometry->nodes->GetCoord(p, 0)));
+          // Strain magnitude is not differentiable at zero; use a nonuniform velocity for smooth references.
+          if (block.slot == FLOW_SOL && j == 1)
+            nodes->SetSolution(p, j, nodes->GetSolution(p, j) *
+                (1.0 + 0.07 * geometry->nodes->GetCoord(p, 0) + 0.03 * geometry->nodes->GetCoord(p, 1)));
+          if (block.slot == FLOW_SOL && j == 2) nodes->SetSolution(p, j, 0.02 * nodes->GetSolution(p, 1));
+          if (block.slot == TRANS_SOL && j == 0)
+            nodes->SetSolution(p, j, 0.5 * (1.0 + 0.05 * geometry->nodes->GetCoord(p, 0)));
+          if (block.slot == TURB_SOL && physics == sa + "SA_OPTIONS= NEGATIVE, WITHFT2\n")
+            nodes->SetSolution(p, j, -0.5 * std::abs(nodes->GetSolution(p, j)));
+        }
+    REQUIRE(Residual(*equations, true));
+    for (auto p = 0ul; p < geometry->GetnPointDomain(); ++p)
+      if (!geometry->nodes->GetSolidBoundary(p)) CHECK(driver.Solvers()[FLOW_SOL]->GetNodes()->GetStrainMag(p) > 0);
+    equations->Capture();
+    auto scale = MakeVector(driver, equations->GetnVar());
+    equations->Pack(scale);
+    for (const auto& block : equations->GetBlocks())
+      for (auto p = 0ul; p < geometry->GetnPoint(); ++p)
+        for (auto j = 0u; j < block.variables; ++j) {
+          const auto index = block.offset + j;
+          double ref = 0;
+          if (block.slot == FLOW_SOL && j >= 1 && j <= geometry->GetnDim())
+            ref = std::abs(scale(p, block.offset + 1));
+          else if (block.solver->GetLimiterReference())
+            ref = SU2_TYPE::GetValue(equations->MassFactor(block, p) * block.solver->GetLimiterReference()[j]);
+          scale(p, index) = std::max(std::abs(scale(p, index)), std::abs(ref));
+          if (scale(p, index) == 0) scale(p, index) = 1.0;
+        }
+    auto diagonal = MakeVector(driver, equations->GetnVar(), 100.0);
+    auto known = MakeVector(driver, equations->GetnVar());
+    for (auto p = 0ul; p < geometry->GetnPoint(); ++p)
+      if (!geometry->nodes->GetSolidBoundary(p))
+        for (auto j = 0u; j < equations->GetnVar(); ++j)
+          known(p, j) = 0.01 * (1.0 + j + geometry->nodes->GetCoord(p, 0));
+    auto isFree = [&](const CNewtonEquationSet::Block&, unsigned long p, unsigned short) {
+      return !geometry->nodes->GetSolidBoundary(p);
+    };
+    CNewtonLinearization linearization(*equations, geometry, driver.Config());
+    bool baseValid = false;
+    SU2_OMP_PARALLEL {
+      const bool valid = linearization.SetBase(scale, diagonal, 1e-6, 1e-4, isFree);
+      SU2_OMP_MASTER
+      baseValid = valid;
+      END_SU2_OMP_MASTER
+    }
+    END_SU2_OMP_PARALLEL
+    REQUIRE(baseValid);
+    auto product = MakeVector(driver, equations->GetnVar());
+    auto apply = [&](const Vector& u, Vector& v) {
+      bool valid = false;
+      SU2_OMP_PARALLEL {
+        const bool result = linearization.Apply(u, v);
+        SU2_OMP_MASTER
+        valid = result;
+        END_SU2_OMP_MASTER
+      }
+      END_SU2_OMP_PARALLEL
+      REQUIRE(valid);
+    };
+    // Independent centered residual stencil, including scaling and the chosen pseudo-time mass.
+    auto reference = [&](const Vector& u) {
+      auto positive = MakeVector(driver, equations->GetnVar());
+      auto negative = MakeVector(driver, equations->GetnVar());
+      equations->SetTrial(u, 1e-5, scale, isFree);
+      REQUIRE(Residual(*equations));
+      equations->CopyResidual(positive);
+      equations->SetTrial(u, -1e-5, scale, isFree);
+      REQUIRE(Residual(*equations));
+      equations->CopyResidual(negative);
+      for (auto p = 0ul; p < geometry->GetnPoint(); ++p)
+        for (auto j = 0u; j < equations->GetnVar(); ++j)
+          positive(p, j) = geometry->nodes->GetSolidBoundary(p)
+                               ? 101.0 * u(p, j)
+                               : (positive(p, j) - negative(p, j)) / (2e-5 * scale(p, j)) + 100.0 * u(p, j);
+      return positive;
+    };
+    auto rhs = reference(known);
+    apply(known, product);
+    CHECK(MaxDifference(rhs, product) < 1e-4 * std::max(1.0, SU2_TYPE::GetValue(rhs.norm())));
+    auto zero = MakeVector(driver, equations->GetnVar());
+    const auto counts = equations->GetResidualEvaluations();
+    apply(zero, product);
+    CHECK(product.norm() == 0.0);
+    CHECK(equations->GetResidualEvaluations() == counts);
+    for (auto p = 0ul; p < geometry->GetnPoint(); ++p)
+      if (geometry->nodes->GetSolidBoundary(p))
+        for (auto j = 0u; j < equations->GetnVar(); ++j) zero(p, j) = 0.01;
+    apply(zero, product);
+    for (auto i = 0ul; i < product.GetNElmDomain(); ++i) CHECK(product[i] == Approx(101.0 * zero[i]).margin(1e-12));
+    for (const auto& block : equations->GetBlocks())
+      for (auto p = 0ul; p < geometry->GetnPointDomain(); ++p) block.solver->Jacobian.AddVal2Diag(p, 100.0);
+    for (bool triangular : {false, true}) {
+      CAPTURE(triangular);
+      CNewtonBlockPreconditioner preconditioner(linearization, geometry, driver.Config(), triangular);
+      auto solution = MakeVector(driver, equations->GetnVar());
+      CSysSolve<passivedouble> krylov;
+      krylov.SetxIsZero(true);
+      unsigned iterations = 0;
+      double reported = 0;
+      SU2_OMP_PARALLEL {
+        preconditioner.Build();
+        double residual = 1e-6;
+        const auto used = krylov.FGMRES_LinSolver(rhs, solution, linearization, preconditioner, 1e-6, 80,
+                                                 residual, false, driver.Config());
+        SU2_OMP_MASTER {
+          iterations = used;
+          reported = residual;
+        }
+        END_SU2_OMP_MASTER
+      }
+      END_SU2_OMP_PARALLEL
+      CHECK(iterations > 0);
+      CHECK(iterations <= 80);
+      CHECK(reported < 1e-5);
+      auto actual = reference(solution);
+      actual -= rhs;
+      const double defect = SU2_TYPE::GetValue(actual.norm() / rhs.norm());
+      CHECK(defect < 1e-4);
+      if (SU2_MPI::GetRank() == MASTER_NODE)
+        std::cout << "Newton linearization: family=" << family << ", variables=" << equations->GetnVar()
+                  << ", lower=" << triangular << ", iterations=" << iterations << ", reported=" << reported
+                  << ", centered_defect=" << defect << '\n';
+    }
+    REQUIRE(equations->Restore());
+  }
 }
