@@ -1611,17 +1611,22 @@ TEST_CASE("Cold native cylinder BL construction and release use the same origina
     CHECK(authority.original==reference.original);Save(world,"audited_grid",grid.cells,input.original,reference);
     if(protocol) {
       const auto untouched=Signature(world,grid.cells,reference);options.maximum_work=512;options.maximum_seconds=120;
+      const bool branches=std::getenv("SU2_NATIVE_CURVED_REQUIRE_BRANCHES");if(branches)options.stagnation_window=1;
       const auto partial=Refine(world,grid.cells,input.original,*reference.original,compose,options);
       save(partial.valid?"protocol_adapted":"protocol_rejected",partial.cells);
       const auto trials=world.sum(partial.stats.placement_trials),validated=world.sum(partial.stats.placement_validated);
       const auto classified=world.sum(partial.stats.placement_classified_vertices);
       const auto connectivity=world.sum(partial.stats.placement_connectivity_trials);
       const auto count=world.sum(partial.cells.size());
+      const auto backtracks=world.sum(partial.stats.dependency_backtracks),continuations=world.sum(partial.stats.private_continuations);
+      const auto linearizations=world.sum(partial.stats.metric_linearizations);
       if(!world.rank)std::cout<<"JOINT_PROTOCOL ranks="<<world.size<<" valid="<<partial.valid<<" cells="<<count
           <<" classified_vertices="<<classified<<" placement_trials="<<trials<<" placement_validated="<<validated<<" work="<<partial.stats.global_work
-          <<" stop="<<EngineStopName(partial.stats.stop)<<" connectivity_trials="<<connectivity<<" reason="<<partial.reason<<std::endl;
+          <<" stop="<<EngineStopName(partial.stats.stop)<<" connectivity_trials="<<connectivity
+          <<" dependency_backtracks="<<backtracks<<" private_continuations="<<continuations<<" metric_linearizations="<<linearizations<<" reason="<<partial.reason<<std::endl;
       CHECK(Signature(world,grid.cells,reference)==untouched);CHECK(Signature(world,input.cells,reference)==before);
-      CHECK(partial.stats.global_work<=512);CHECK(trials>0);
+      CHECK(partial.stats.global_work<=512);
+      if(branches){CHECK(backtracks>0);CHECK(continuations>0);CHECK(linearizations>0);}else CHECK(trials>0);
       INFO(partial.reason);CHECK((partial.valid || partial.stats.stop==EngineStop::WorkBudget));
       return;  // Protocol/work-bound proof only; a rejected result never qualifies final mesh generation.
     }
@@ -1646,14 +1651,29 @@ TEST_CASE("Cold native cylinder BL construction and release use the same origina
     if(std::getenv("SU2_NATIVE_CURVED_GRID_REFINE")) {
       const auto unchanged=Signature(world,grid.cells,reference);
       options.maximum_rounds=std::getenv("SU2_NATIVE_CURVED_GRID_COMPLETE")?0:1;
+      if(std::getenv("SU2_NATIVE_CURVED_RECOVERY_PROBE")){options.maximum_rounds=2;options.stagnation_window=1;}
       options.maximum_seconds=300;
       Patch rejected_old,rejected_proposal;Feature rejected_feature;MetricDiagnosis rejected_metric;
       std::string rejected_reason;bool rejected_geometry=false;size_t rejected_count=0;
+      std::ofstream trace;if(std::getenv("SU2_NATIVE_CURVED_TRACE")){trace.open("grid_rejections.jsonl");REQUIRE(trace.good());}
+      Patch best_old,best_proposal;double best_shape=0;
       options.rejected_trial=[&](const Patch& old,const Patch& fresh,Feature feature,const MetricDiagnosis& metric,bool geometry,const std::string& reason) {
         rejected_old=old;rejected_proposal=fresh;rejected_feature=feature;rejected_metric=metric;
         rejected_reason=reason;rejected_geometry=geometry;++rejected_count;
+        if(trace.is_open() && geometry && metric.failure==MetricFailure::Shape) {
+          const double shape=std::min(metric.minimum_mean_ratio/MinimumMeanRatio,metric.minimum_scaled_jacobian/MinimumScaledJacobian);
+          if(shape>best_shape){best_shape=shape;best_old=old;best_proposal=fresh;}
+        }
+        if(trace.is_open())trace<<std::setprecision(17)<<"{\"trial\":"<<rejected_count<<",\"old_cells\":"<<old.cells.size()<<",\"fresh_cells\":"<<fresh.cells.size()
+            <<",\"feature\":["<<feature.vertices[0]<<','<<feature.vertices[1]<<','<<feature.vertices[2]<<"],\"count\":"<<feature.count
+            <<",\"geometry\":"<<(geometry?"true":"false")<<",\"metric_failure\":"<<unsigned(metric.failure)
+            <<",\"q\":"<<metric.minimum_mean_ratio<<",\"j\":"<<metric.minimum_scaled_jacobian<<",\"reason\":"<<std::quoted(reason)<<"}\n";
       };
       const auto partial=Refine(world,grid.cells,input.original,*reference.original,compose,options);
+      if(!best_proposal.cells.empty()) {
+        SaveRecords("saved_grid_best_rejected_old",PatchRecords(best_old),captured_source,reference);
+        SaveRecords("saved_grid_best_rejected_proposal",PatchRecords(best_proposal),captured_source,reference);
+      }
       if(rejected_count) {
         SaveRecords("saved_grid_last_rejected_old",PatchRecords(rejected_old),captured_source,reference);
         SaveRecords("saved_grid_last_rejected_proposal",PatchRecords(rejected_proposal),captured_source,reference);
@@ -1671,7 +1691,7 @@ TEST_CASE("Cold native cylinder BL construction and release use the same origina
           <<" work="<<partial.stats.global_work<<" stop="<<EngineStopName(partial.stats.stop)<<" reason="<<partial.reason<<std::endl;
       save(partial.valid?"curved_grid_adapted":"curved_grid_partial_rejected",partial.cells);
       CHECK(Signature(world,grid.cells,reference)==unchanged);CHECK(Signature(world,input.cells,reference)==before);
-      if(!std::getenv("SU2_NATIVE_CURVED_GRID_COMPLETE")){REQUIRE(partial.stats.accepted==1);CHECK(partial.stats.inserted==1);}
+      if(!std::getenv("SU2_NATIVE_CURVED_GRID_COMPLETE")){CHECK(partial.stats.accepted==1);CHECK(partial.stats.inserted==1);}
       if(!std::getenv("SU2_NATIVE_CURVED_GRID_COMPLETE")){CHECK_FALSE(partial.valid);CHECK(partial.stats.stop==EngineStop::RoundBudget);}
       PatchMetric measured;size_t oversized=0;double minimum_q=1,minimum_j=1;long double excess=0;
       std::map<Edge,long double> output_edges;
@@ -1688,7 +1708,26 @@ TEST_CASE("Cold native cylinder BL construction and release use the same origina
           <<",\"cells\":"<<partial.cells.size()<<",\"q\":"<<minimum_q<<",\"j\":"<<minimum_j<<",\"oversized_edges\":"<<oversized
           <<",\"metric_linearizations\":"<<partial.stats.metric_linearizations<<",\"metric_probes\":"<<partial.stats.metric_probes
           <<",\"metric_linear_iterations\":"<<partial.stats.metric_linear_iterations<<",\"metric_solve_trials\":"<<partial.stats.metric_solve_trials
-          <<",\"initial_excess\":"<<initial_excess<<",\"remaining_excess\":"<<excess<<",\"work\":"<<partial.stats.global_work<<"}\n";
+          <<",\"initial_excess\":"<<initial_excess<<",\"remaining_excess\":"<<excess<<",\"work\":"<<partial.stats.global_work;
+      const auto& st=partial.stats;
+      diagnosis<<",\"progress\":{\"size\":"<<st.size_progress<<",\"quality\":"<<st.quality_progress<<",\"removals\":"<<st.cell_removals<<",\"geometry\":"<<st.geometry_progress
+          <<",\"recovery_starts\":"<<st.recovery_starts<<",\"windows\":"<<st.progress_windows<<",\"stagnant\":"<<st.stagnant_windows<<"}";
+      diagnosis<<",\"mechanisms\":{\"wall_topology_trials\":"<<st.wall_topology_trials<<",\"wall_topology_accepted\":"<<st.wall_topology_accepted
+          <<",\"wall_joint_trials\":"<<st.wall_joint_trials<<",\"wall_joint_accepted\":"<<st.wall_joint_accepted
+          <<",\"dependency_backtracks\":"<<st.dependency_backtracks<<",\"private_continuations\":"<<st.private_continuations
+          <<",\"fallback_accepted\":"<<st.fallback_accepted<<",\"metric_shape_rejected\":"<<st.metric_shape_rejected<<",\"metric_progress_rejected\":"<<st.metric_progress_rejected<<"}";
+      auto seconds=[&](const char* name,const std::map<std::string,double>& values) {
+        diagnosis<<",\""<<name<<"\":{";bool comma=false;for(const auto& row:values){if(comma)diagnosis<<',';comma=true;diagnosis<<std::quoted(row.first)<<':'<<row.second;}diagnosis<<'}';
+      };
+      seconds("engine_phase_seconds",{{"initialization",st.initialization_seconds},{"layer",st.layer_seconds},{"seed",st.seed_seconds},{"selection",st.selection_seconds},
+          {"dependency",st.dependency_seconds},{"reservation",st.reservation_seconds},{"donor",st.donor_seconds},{"reconstruction",st.reconstruction_seconds},{"metric",st.metric_seconds},
+          {"routing",st.routing_seconds},{"publication",st.publication_seconds},{"update",st.update_seconds},{"completion",st.completion_seconds},{"other",st.other_seconds}});
+      seconds("nested_field_seconds",{{"build",st.field_build_seconds},{"query",st.field_query_seconds},{"search",st.field_search_seconds},{"interpolation",st.field_interpolation_seconds},
+          {"composition",st.field_composition_seconds},{"edge_trace",st.edge_trace_seconds},{"edge_integral",st.edge_integral_seconds},{"edge_geometry",st.edge_geometry_seconds},{"edge_composition",st.edge_composition_seconds}});
+      diagnosis<<",\"engine_total_seconds\":"<<st.total_seconds<<",\"engine_cpu_seconds\":"<<st.process_cpu_seconds
+          <<",\"field_requests\":"<<st.field_requests<<",\"field_edges\":"<<st.field_edges<<",\"tracked_calls\":"<<st.tracked_calls<<",\"tracked_bytes\":"<<st.tracked_bytes
+          <<",\"maximum_work_bytes\":"<<st.maximum_work_bytes<<"}\n";
+      if(trace.is_open()){trace.close();REQUIRE(trace.good());}
       REQUIRE(diagnosis.good());
       if(std::getenv("SU2_NATIVE_CURVED_GRID_COMPLETE")){INFO(partial.reason);REQUIRE(partial.valid);CHECK(oversized==0);}else CHECK(oversized>0);
       return;  // Saved-grid engine check; solver transfer/replacement and cold construction are separate gates.

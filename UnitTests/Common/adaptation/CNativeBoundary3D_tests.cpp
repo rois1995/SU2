@@ -85,6 +85,41 @@ TEST_CASE("Native 3D complete internal edge star splits and reverses with fixed 
   CHECK(Connectivity(coarsened) == Connectivity(old));
   CHECK(ValidateFixedInterface(old.cells, coarsened.cells, reason));
 }
+TEST_CASE("Native private physical replacement survives exact dependency extension", "[NativePrivateExtension3D]") {
+  const auto cube=Cube();const PlanarReference reference(Facets(cube));
+  const auto old=EdgeStar(cube,{0,1});Patch replacement,joined;std::string reason;
+  REQUIRE(old.cells.size()==2);
+  REQUIRE(SplitEdge(old,{0,1},{100,{.5,0,0}},1000,reference,replacement,reason));
+  REQUIRE(ExtendPrivatePatch(old,replacement,cube,2000,reference,joined,reason));
+  CHECK(joined.cells.size()==8);
+  long double volume=0;
+  for(size_t i=0;i<joined.cells.size();++i) {
+    const auto& c=joined.cells[i];CHECK(c.id==2000+i);
+    const auto determinant=Orientation(c.v[0].p,c.v[1].p,c.v[2].p,c.v[3].p);
+    CHECK(determinant>0);volume+=determinant/6;
+    for(size_t j=0;j<i;++j)CHECK(ConformingDisjoint(c,joined.cells[j]));
+  }
+  CHECK(double(volume)==Approx(1));
+  const auto unchanged=Connectivity(joined);const auto first=joined.cells.front().id;
+  auto reject=[&](const Patch& candidate,const Patch& expanded,Id id) {
+    CHECK_FALSE(ExtendPrivatePatch(old,candidate,expanded,id,reference,joined,reason));
+    CHECK_FALSE(reason.empty());CHECK(Connectivity(joined)==unchanged);CHECK(joined.cells.front().id==first);
+  };
+  SECTION("Unchanged dependencies are mandatory") {
+    auto expanded=cube;expanded.cells.erase(std::find_if(expanded.cells.begin(),expanded.cells.end(),
+        [&](const Cell& c){return c.id==old.cells.front().id;}));
+    reject(replacement,expanded,2000);
+    expanded=cube;for(auto& c:expanded.cells)for(auto& n:c.v)if(n.id==6)n.p.z+=.01;
+    reject(replacement,expanded,2000);
+  }
+  SECTION("Private artificial interfaces cannot move") {
+    auto moved=replacement;for(auto& c:moved.cells)for(auto& n:c.v)if(n.id==6)n.p.z+=.01;
+    reject(moved,cube,2000);
+  }
+  SECTION("Identity overflow and empty admission leave output intact") {
+    reject(replacement,cube,UINT64_MAX);reject(replacement,old,2000);
+  }
+}
 TEST_CASE("Native 3D planar physical edge edits retain facets and marker junctions", "[NativeMesh3D]") {
   for (double height : {1., 1e-4, 1e-8}) {
     const auto cube = Cube(height);

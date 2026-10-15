@@ -1,0 +1,6 @@
+CURVED_GRID_REFINE accepted=0 inserted=0 classified_vertices=0 placement_trials=0 placement_validated=0 dependency_expansions=0 connectivity_trials=0 placement_flips=0 placement_moves=0 metric_linearizations=0 metric_probes=0 metric_linear_iterations=0 metric_solve_trials=0 work=3 stop=round_budget reason=Native 3D adaptation round limit reached before cached metric size/shape gates were satisfied. Last local rejection: edge 1,5: Native 3D cone obstructed by interface face 1,252,309 at apex 251.
+../../UnitTests/SU2_CFD/adaptation/CNativeImport3D_tests.cpp:1679: failed: partial.stats.accepted==1 for: 0 == 1
+../../UnitTests/SU2_CFD/adaptation/CNativeImport3D_tests.cpp:1679: failed: partial.stats.inserted==1 for: 0 == 1
+../../UnitTests/SU2_CFD/adaptation/CNativeImport3D_tests.cpp:1691: failed: excess<initial_excess for: 0.0419185 < 0.0419185
+Failed 1 test case, failed 3 assertions.
+

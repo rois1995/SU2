@@ -203,6 +203,12 @@ struct JointSplitReport {
 bool PlaceSplitPatch(const Patch& old,Edge edge,Node point,const std::vector<std::pair<Id,Id>>& apices,Id first_cell,
                        FrozenField& target,const PlanarReference& reference,const std::map<int,double>& heights,
                        Patch& fresh,JointSplitReport& report,std::string& reason,size_t maximum_trials=128);
+/*! Join an already geometry-certified private physical replacement with newly admitted accepted cells.
+ * accepted must be an exact subset of expanded; artificial interface coordinates/triangles stay exact.
+ * The caller retains the physical-edit certificate, complete versioned dependencies and metric/height gates.
+ * Cell IDs are freshly reserved; failure leaves joined unchanged. No accepted state is modified. */
+bool ExtendPrivatePatch(const Patch& accepted,const Patch& replacement,const Patch& expanded,Id first_cell,
+                        const PlanarReference& reference,Patch& joined,std::string& reason);
 constexpr size_t MetricPatchSolveScratchBytes = MaximumReplacementCells * 8192;
 struct ConnectivityRepairReport {
   size_t trials=0, flips=0, moves=0, removals=0, coordinated=0;

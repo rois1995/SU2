@@ -1867,6 +1867,64 @@ bool ReconstructSplitPatch(const Patch& old,Edge edge,Node point,Node interior,c
   }catch(const std::exception& e){if(wallObstruction!=Face{})obstruction=wallObstruction;reason=e.what();return false;}
 }
 
+
+bool ExtendPrivatePatch(const Patch& accepted,const Patch& replacement,const Patch& expanded,Id first,
+                        const PlanarReference& reference,Patch& joined,std::string& reason) {
+  try {
+    Bounds(accepted);Bounds(expanded);
+    if(replacement.cells.empty() || replacement.cells.size()>MaximumReplacementCells)
+      throw std::invalid_argument("Native3D continuation replacement exceeds bounds.");
+    const auto old_nodes=Nodes(accepted.cells),new_nodes=Nodes(replacement.cells);
+    const auto old_skin=SkinMap(Incidence(accepted.cells).Boundary()),new_skin=SkinMap(Incidence(replacement.cells).Boundary());
+    const auto old_physical=CheckSurface(accepted,old_skin,reference,nullptr),new_physical=CheckSurface(replacement,new_skin,reference,nullptr);
+    const auto expanded_skin=SkinMap(Incidence(expanded.cells).Boundary());
+    const auto expanded_physical=CheckSurface(expanded,expanded_skin,reference,nullptr);
+    std::map<Face,Face> a,b;
+    for(const auto& f:old_skin)if(!old_physical.count(f.first))a.emplace(f);
+    for(const auto& f:new_skin)if(!new_physical.count(f.first))b.emplace(f);
+    if(a!=b)throw std::invalid_argument("Native3D continuation changes its artificial interface.");
+    for(const auto& f:a)for(Id id:f.first) {
+      const auto x=old_nodes.at(id).p,y=new_nodes.at(id).p;
+      if(x.x!=y.x || x.y!=y.y || x.z!=y.z)throw std::invalid_argument("Native3D continuation moves an interface point.");
+    }
+    for(const auto& f:old_physical) {
+      const auto found=expanded_physical.find(f.first);
+      if(found==expanded_physical.end() || found->second.facet!=f.second.facet)
+        throw std::invalid_argument("Native3D continuation loses an accepted physical face.");
+    }
+    std::map<Id,const Cell*> prior,all;
+    for(const auto& c:accepted.cells)if(!prior.emplace(c.id,&c).second)throw std::invalid_argument("Duplicate continuation source cell.");
+    for(const auto& c:expanded.cells)if(!all.emplace(c.id,&c).second)throw std::invalid_argument("Duplicate continuation expanded cell.");
+    for(const auto& row:prior) {
+      const auto found=all.find(row.first);if(found==all.end())throw std::invalid_argument("Native3D continuation drops an accepted dependency.");
+      for(unsigned k=0;k<4;++k) {
+        const auto x=row.second->v[k],y=found->second->v[k];
+        if(x.id!=y.id || x.p.x!=y.p.x || x.p.y!=y.p.y || x.p.z!=y.p.z)
+          throw std::invalid_argument("Native3D continuation changes an accepted dependency.");
+      }
+    }
+    Patch proposal=replacement;std::vector<Cell> added;
+    for(const auto& c:expanded.cells)if(!prior.count(c.id)){added.push_back(c);proposal.cells.push_back(c);}
+    if(added.empty() || proposal.cells.size()>MaximumReplacementCells || first>UINT64_MAX-(proposal.cells.size()-1))
+      throw std::invalid_argument("Native3D continuation exceeds replacement/identity bounds or admits no cells.");
+    for(const auto& c:replacement.cells)for(const auto& d:added)if(!ConformingDisjoint(c,d))
+      throw std::invalid_argument("Native3D continuation overlaps a newly admitted cell.");
+    for(const auto& f:expanded.surface)if(!old_physical.count(Key(f.v)))proposal.surface.push_back(f);
+    for(size_t k=0;k<proposal.cells.size();++k)proposal.cells[k].id=first+k;
+    const auto skin=SkinMap(Incidence(proposal.cells).Boundary());CheckSurface(proposal,skin,reference,nullptr);
+    if(!ValidatePrescribedInterface(expanded.cells,proposal.cells,SkinVector(skin),reason,nullptr,MaximumCavityCells))return false;
+    // Native physical constructors certify the changed skin; only the unchanged union is added here.
+    for(const auto& c:proposal.cells)if(!(Orientation(c.v[0].p,c.v[1].p,c.v[2].p,c.v[3].p)>0))
+      throw std::invalid_argument("Native3D continuation contains a nonpositive cell.");
+    for(const auto& n:Nodes(added)) {
+      const auto found=new_nodes.find(n.first);if(found==new_nodes.end())continue;
+      const auto x=n.second.p,y=found->second.p;
+      if(x.x!=y.x || x.y!=y.y || x.z!=y.z)throw std::invalid_argument("Native3D continuation changes a shared point identity.");
+    }
+    joined=std::move(proposal);reason.clear();return true;
+  }catch(const std::exception& e){reason=e.what();return false;}
+}
+
 namespace {
 std::map<Id,Vector> CoupledMetricDirection(const Patch& patch,FrozenField& target,
     const std::map<int,double>& heights,const PlanarReference& reference,const std::set<Id>& fixed,

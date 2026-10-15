@@ -1,58 +1,35 @@
-# Codex handoff — start here
+# Codex handoff — rejected recovery study
 
-Repository: `/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated`.
-Branch: `codex/native-3d-bl`, based on Goal2
-`c43a8a3907ea2655e4ebbb6286ab16c3fa625d8b`. Full Goal3 ACTIVE and incomplete.
+Worktree `/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated`.
+Current branch `codex/native-3d-boundary-recovery-study`, based on published
+`codex/native-3d-bl` checkpoint00e3ee4fd81c41a58040f7c4559bacfdc1a34d49.
+Full Goal3 remains ACTIVE/incomplete; Goal2 remains complete.
 
-Current connected capability is constrained coupled metric-quality optimization
-inside native private repair. Actual-query original-P1+geometric BL/fade, geometry,
-first height, quality/full lengths/dependencies/atomic publication remain strict.
-Read [the implementation, evidence and remaining blocker](Handbook/GOAL3_PATCH_OPTIMIZATION.md).
+This branch preserves a **rejected construction/recovery strategy** and its source,
+receipts, inspectable grids and independent diagnosis. Do not promote its policy.
+Actual blocked-edge repair accepts, but unchanged full curved target rejects:
+eager79 long edges; staged30 versus published25. Independent1918-cell geometry/
+no-overlap/91 exact normal feet/height/exported-tensor arithmetic passes; full
+lengths still reject. All owned builds, runs and audits terminal. New MPI scaffold
+is compiled but unqualified; no CFD/transfer/restart/performance claim.
 
-The actual hard50-cell cylinder patch now passes frozen metric/height/progress
-with85 cells in15 trials. The same1402-cell full target reaches1984 cells/25 long
-edges (previous38), still rejecting at300s/3985 of4096 work. All25 remaining edges
-are physical:13 cylinder/12 rim; none interior. This is partial generation, not
-an accepted curved adapted grid or a speedup.
+The next meaningful milestone is a **complete accepted curved mesh under unchanged
+constraints**. User2026-10-15: if current recovery cannot deliver it, reconsider
+construction strategy before another local fallback. Read
+[the construction reassessment](Handbook/GOAL3_CONSTRUCTION_REASSESSMENT.md),
+[recovery evidence](Handbook/GOAL3_BOUNDARY_RECOVERY.md), and
+[the verified summary](integration_evidence/native_3d_bl_v1/wall_reconstruction_v1/boundary_recovery_study_summary.json).
+Do not turn local accepted edits/residual reductions into capability milestones.
 
-470 derivative assertions/five repair controls pass. Independent local and whole
-geometry/no overlap/98 exact wall feet/height/exported-tensor arithmetic pass;
-bounded MPI2 donor/reference protocol passes. Cold curved construction/removal,
-currentMPI4/M<N/current+BDF/SA/CFD/restart/accuracy/performance remain unqualified.
-The earlier wall-front and eager-repair scheduling failures are preserved; eager
-scheduling is withdrawn. Current final engine uses published scheduling.
+The production branch should retain00e3 code plus the preserved decision/evidence.
+The existing build-integrated-v2 binary belongs to this study, not restored00e3
+sources. Check source/build provenance before use; defer rebuild until a connected
+implementation needs validation. Installed production binaries were not changed.
 
-Cases under `integration_evidence/native_3d_bl_v1/wall_reconstruction_v1/`:
-`metric_derivative_controls`, `curved_repair_controls`, `curved_metric_patch_probe`,
-`curved_metric_complete`, `curved_metric_residual`,
-`curved_joint_protocol_metric_mpi2`; inspect `coupled_metric_summary.json`.
-All owned jobs terminal. Final whole/MPI2/residual source/binary pins match;
-primitive/direct-patch stages use the documented earlier engine binary with
-unchanged exercised repair/metric objects. Verify relevant provenance on reuse.
-
-Read only the relevant handbook:
-
-- [Current implementation and full remaining gates](Handbook/GOAL3_CURRENT.md).
-- [Coupled curved-feature and wall-foot repair](Handbook/GOAL3_CURVED_FEATURE_REPAIR.md).
-- [Joint insertion and private connectivity repair](Handbook/GOAL3_JOINT_CONNECTIVITY.md).
-- [Coordinated shared-apex refit, qualified scope](Handbook/GOAL3_SHARED_APEX_REFIT.md).
-- [Support selection and latest curved progress](Handbook/GOAL3_SUPPORT_SELECTION.md).
-- [Interior placement](Handbook/GOAL3_INTERIOR_PLACEMENT.md).
-- [Curved BL policy and earlier failures](Handbook/GOAL3_CURVED_BL.md).
-- [Resolution-preserving planar reconstruction](Handbook/GOAL3_RESOLUTION_BACKTRACKING.md).
-- [Static assessment reconciliation](Handbook/STATIC_ASSESSMENT_2.md).
-- [Full requirement audit](integration_evidence/native_3d_bl_v1/GOAL3_REQUIREMENTS.json).
-- [Deferred SST/transition/non-ideal-gas questions](Handbook/FUTURE_PHYSICS_TRANSFER_QUESTIONS.md).
-- [Completed goals](Handbook/COMPLETED_GOALS.md) and [preserved history](Handbook/History/INDEX.md).
-- [Permanent implementation and validation rules](AGENTS.md).
-
-Pursue complete capabilities against actual difficult failures. Group connected
-changes; use focused checks to resolve risks, broader/MPI checks at substantial
-milestones, and reuse evidence only within verified provenance and scope. Preserve
-failures, update these linked handbooks, and push reviewable checkpoints regularly.
-
-One owned heavy job; build-j1/MPI<=4, nice19/threads1, sampled bounded affinity.
-Use task-local build temporary storage. Inspect processes outside the restricted
-sandbox before restarting: a sandbox-local process list missed a live build once.
-Never terminate unrelated work. AdapNoExt, foreign ClusterResults and dependencies
-stay untouched. No production Euler/BL mode dispatch, relaxed gates or target resets.
+[Full remaining Goal3 gates](Handbook/GOAL3_CURRENT.md),
+[requirement audit](integration_evidence/native_3d_bl_v1/GOAL3_REQUIREMENTS.json),
+[permanent rules](AGENTS.md), and
+[deferred SST/transition/non-ideal-gas questions](Handbook/FUTURE_PHYSICS_TRANSFER_QUESTIONS.md).
+One owned heavy job, nice19/threads1/build-j1/MPI≤4, bounded affinity. No cluster
+submission or messaging. Leave AdapNoExt, foreign ClusterResults and dependencies
+untouched. No production Euler/BL modes, weaker gates, target resets or budget ladders.
