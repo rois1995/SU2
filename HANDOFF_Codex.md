@@ -8,7 +8,8 @@ The actual curved RANS workflow remains UNQUALIFIED. A connected cylindrical-ann
 integration change is in progress: earlier one-prism controls pass, but rotated-cell
 and full-sector probes exposed projection/chord precision failures. Current source
 uses exact shared-base triangle intersections and positive projective ray/barycentric
-coordinates, with strict compensated products; final build71336 is live (verify it).
+coordinates, with strict compensated products; build71336 stopped on a missing direct test include; corrected rebuild75373 is live
+(verify it), with production objects already compiled.
 Next controls `native_curved_volume_controls_v7`, then actual RANS n1/m1 v4 only on
 success. No MPI campaign before full serial acceptance. All prior failures are preserved.
 Read [current design/live handle/evidence/gates](Handbook/GOAL3_CURVED_RANS_RUNTIME.md).

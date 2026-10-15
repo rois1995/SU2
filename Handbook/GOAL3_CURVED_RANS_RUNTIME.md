@@ -7,8 +7,9 @@ integral and sphere controls, but actual RANS rotated-cell and expanded all-sect
 checks expose further projection/subtractive-chord issues. Do not reuse those earlier
 passes as proof of the current implementation or whole workflow.
 
-Current build handle71336 (verify the actual live handle/process before any restart),
-log `integration_evidence/build-integrated-v2/native-curved-rans-positive-coordinates-final-build.log`.
+Build71336 terminated on a missing direct test include for CompensatedCross2D; the
+production objects compiled. The include is corrected; final j1 rebuild75373 is live.
+Verify the actual live handle/process before any restart. Current log `integration_evidence/build-integrated-v2/native-curved-rans-positive-coordinates-rebuild.log`.
 Next v7 controls must pass all sectors/wall-first permutations, independent prism,
 sphere and rotated/sheared polynomial moments. Only then retry RANS n1/m1 v4.
 [Preserved source/binary/helper evidence and status](../integration_evidence/native_3d_bl_v1/region_construction_v1/annular_integration_progress.json).

@@ -1,0 +1,50 @@
+ninja: Entering directory `integration_evidence/build-integrated-v2'
+[1/20] Compiling C++ object Common/src/libSU2AccurateSum.a.p/adaptation_CNativeBoundary3D.cpp.o
+[2/20] Compiling C++ object Common/src/libSU2AccurateSum.a.p/adaptation_CNativeMetric3D.cpp.o
+[3/20] Compiling C++ object Common/src/libSU2AccurateSum.a.p/adaptation_CNativeRegion3D.cpp.o
+[4/20] Compiling C++ object Common/src/libSU2AccurateSum.a.p/adaptation_CNativeEngine3D.cpp.o
+[5/20] Compiling C++ object Common/src/libSU2AccurateSum.a.p/adaptation_CNativePartition3D.cpp.o
+[6/20] Compiling C++ object Common/src/libSU2Common.a.p/adaptation_CNativeRemesher3D.cpp.o
+[7/20] Compiling C++ object SU2_CFD/src/libSU2core.a.p/drivers_CSinglezoneDriver.cpp.o
+[8/20] Compiling C++ object SU2_CFD/src/libSU2core.a.p/adaptation_CBoundaryLayerMetric.cpp.o
+[9/20] Linking static target Common/src/libSU2AccurateSum.a
+[10/20] Linking static target Common/src/libSU2Common.a
+[11/20] Linking static target SU2_CFD/src/libSU2core.a
+[12/20] Compiling C++ object UnitTests/test_driver.p/SU2_CFD_adaptation_BoundaryLayerMetric_tests.cpp.o
+FAILED: [code=1] UnitTests/test_driver.p/SU2_CFD_adaptation_BoundaryLayerMetric_tests.cpp.o 
+c++ -IUnitTests/test_driver.p -IUnitTests -I../../UnitTests -ISU2_CFD/src -I../../SU2_CFD/src -ICommon/src -I../../Common/src -I../../externals/CLI11 -I../../externals/eigen -I../../externals/cgns/adf -I../../externals/cgns/adfh -Iexternals/cgns -I../../externals/cgns -Iexternals/cgns/hdf5 -I../../externals/cgns/hdf5 -I../../externals/metis/include -I../../externals/metis/GKlib -I../../externals/metis/libmetis -I../../externals/parmetis/include -I../../externals/parmetis/libparmetis -I../../externals/mel -I../../externals/catch2 -I/usr/lib/x86_64-linux-gnu/openmpi/include/openmpi -I/usr/lib/x86_64-linux-gnu/openmpi/include -fdiagnostics-color=always -D_GLIBCXX_ASSERTIONS=1 -D_FILE_OFFSET_BITS=64 -std=c++17 -O2 -g -pthread -fPIC -Wno-empty-body -Wno-ignored-qualifiers -Wno-unused-parameter -Wno-deprecated-declarations -Wno-error=cast-function-type -Wno-cast-function-type -Wno-error=stringop-truncation -Wno-stringop-truncation -Wno-error=missing-field-initializers -Wno-missing-field-initializers -Wno-error=class-memaccess -Wno-class-memaccess -Wno-overloaded-virtual -Wno-array-bounds -march=native -ffast-math -fno-finite-math-only -DHAVE_CGNS -DHAVE_MPI -DHAVE_METIS -DHAVE_PARMETIS -DHAVE_MMG -MD -MQ UnitTests/test_driver.p/SU2_CFD_adaptation_BoundaryLayerMetric_tests.cpp.o -MF UnitTests/test_driver.p/SU2_CFD_adaptation_BoundaryLayerMetric_tests.cpp.o.d -o UnitTests/test_driver.p/SU2_CFD_adaptation_BoundaryLayerMetric_tests.cpp.o -c ../../UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp
+In file included from ../../UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp:27:
+../../UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp: In function ‘void C_A_T_C_H_T_E_S_T_84()’:
+../../UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp:1413:22: error: ‘CompensatedCross2D’ is not a member of ‘SU2Native3D’
+ 1413 |   CHECK(SU2Native3D::CompensatedCross2D(1,1+delta,1-delta,1)==det);
+      |                      ^~~~~~~~~~~~~~~~~~
+In file included from ../../UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp:27:
+../../UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp:1413:22: error: ‘CompensatedCross2D’ is not a member of ‘SU2Native3D’
+ 1413 |   CHECK(SU2Native3D::CompensatedCross2D(1,1+delta,1-delta,1)==det);
+      |                      ^~~~~~~~~~~~~~~~~~
+../../UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp:1413:22: error: ‘CompensatedCross2D’ is not a member of ‘SU2Native3D’
+ 1413 |   CHECK(SU2Native3D::CompensatedCross2D(1,1+delta,1-delta,1)==det);
+      |                      ^~~~~~~~~~~~~~~~~~
+In file included from ../../UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp:27:
+../../UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp:1414:22: error: ‘CompensatedCross2D’ is not a member of ‘SU2Native3D’
+ 1414 |   CHECK(SU2Native3D::CompensatedCross2D(1-delta,1,1,1+delta)==-det);
+      |                      ^~~~~~~~~~~~~~~~~~
+In file included from ../../UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp:27:
+../../UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp:1414:22: error: ‘CompensatedCross2D’ is not a member of ‘SU2Native3D’
+ 1414 |   CHECK(SU2Native3D::CompensatedCross2D(1-delta,1,1,1+delta)==-det);
+      |                      ^~~~~~~~~~~~~~~~~~
+../../UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp:1414:22: error: ‘CompensatedCross2D’ is not a member of ‘SU2Native3D’
+ 1414 |   CHECK(SU2Native3D::CompensatedCross2D(1-delta,1,1,1+delta)==-det);
+      |                      ^~~~~~~~~~~~~~~~~~
+In file included from ../../UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp:27:
+../../UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp:1415:22: error: ‘CompensatedCross2D’ is not a member of ‘SU2Native3D’
+ 1415 |   CHECK(SU2Native3D::CompensatedCross2D(1,2,2,4)==0);
+      |                      ^~~~~~~~~~~~~~~~~~
+In file included from ../../UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp:27:
+../../UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp:1415:22: error: ‘CompensatedCross2D’ is not a member of ‘SU2Native3D’
+ 1415 |   CHECK(SU2Native3D::CompensatedCross2D(1,2,2,4)==0);
+      |                      ^~~~~~~~~~~~~~~~~~
+../../UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp:1415:22: error: ‘CompensatedCross2D’ is not a member of ‘SU2Native3D’
+ 1415 |   CHECK(SU2Native3D::CompensatedCross2D(1,2,2,4)==0);
+      |                      ^~~~~~~~~~~~~~~~~~
+ninja: build stopped: subcommand failed.
