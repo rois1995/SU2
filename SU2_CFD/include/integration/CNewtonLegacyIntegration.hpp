@@ -70,6 +70,7 @@ private:
   bool autoRelaxation = false;
   bool useDeflation = false;
   Scalar finDiffStepND = 0.0;
+  std::vector<su2double> finDiffPartials;
   Scalar finDiffStep = 0.0; /*!< \brief Based on RMS(solution), used in matrix-free products. */
   Scalar nkRelaxation = 1.0;
   unsigned long omp_chunk_size; /*!< \brief Chunk size used in light point loops. */

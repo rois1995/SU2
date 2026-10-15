@@ -299,7 +299,7 @@ the common controller for turbulence. The public C++ `Iterate` entry point also
 supports individual flow, SA/SA_NEG, SST, LM and species, or one coupled group.
 Runtime equation selection/group dispatch is not yet exposed in configuration.
 
-The original flow implementation has moved verbatim, apart from its class name,
+At this milestone the original flow implementation moved verbatim, apart from its class name,
 to `CNewtonLegacyIntegration`. The factory still uses it for `NEWTON_KRYLOV`.
 This temporary compatibility path preserves startup iterations, nested solves,
 initial tolerance relaxation, deflation and Jacobian relaxation until those
@@ -352,13 +352,63 @@ checks with commands saved in `controller_forward_syntax_commands.json`; this
 is not full AD linking/running, reverse-mode or GPU validation. Earlier logs and
 manifests remain historical.
 
+## Ordered reductions and larger-layout audit
+
+The common controller now sums thread partials by thread index, following the
+existing vector-dot pattern. The temporary legacy flow finite-difference norm
+uses the same ordering. Native residual statistics accumulate on their owning
+threads in a fixed order, preserving active arithmetic ownership. Tied MPI
+maxima now report coordinates from the selected point. This changes shared
+residual reporting; it does not introduce NEMO integration into the refactor.
+The legacy source-equivalence claim above applies to the preceding controller
+milestone, before this norm-ordering correction.
+
+A hidden `[NewtonRepeatability]` native test uses a nonuniform 193x193 flow/SA
+fixture, with at least three 1024-point chunks per participating thread on every
+rank. It checks repeated physical residuals and Jacobian products, one accepted
+coupled update, forced linear/late-search failures, exact restoration and intact
+physical-time history. A synthetic reduction with three small contributions and
+one large contribution detects reordered addition; tied maximum points and their
+coordinates are checked too. A separately linked control restoring only the old
+unordered statistics merge fails 12 RMS assertions and the maximum-point checks.
+The production executable/source are not replaced for that detecting control.
+
+Three runs each of 1x1, 1x4, 2x1, 2x4 and 4x2 complete their native assertions.
+Actual thread counts, owned-point counts, binary/configuration/state/partition
+hashes and attempt/trial records are saved. Preconditioner partitions are fixed
+to one, with ILU level scheduling enabled; MPI partitioning still changes across
+layouts. At identical installed states, residuals and products match exactly.
+Matrices, time steps and native preconditioner actions reconstructed after
+restoring the initial state also match exactly in these samples.
+
+**Full solve repeatability is not established.** The 2x4 and 4x2 repeats have
+accepted-state differences: maximum relative L2 **6.45e-9**, maximum absolute
+**0.06037** in stored energy coordinates. A forced search-failure
+solve uses two versus three Krylov iterations in the 2x4 repeats, changing its
+residual-evaluation count by one. Accept/reject outcomes, step lengths, CFL and
+exact rollback remain consistent. The audit runner intentionally returns nonzero
+for the bitwise mismatch. Initial-state operator/preconditioner snapshots do not
+locate the first divergence inside the solve. Earlier diagnostic runs, including
+a warm-up variant that matched in three 1x4 samples, are retained; they do not
+resolve this finding. Do not describe tolerance agreement as bitwise determinism.
+
+Authoritative artifacts are `ordered_repeatability_native_actions/results.json`
+and `comparison.json` in the parent evidence directory. The runner and analysis
+scripts preserve exact comparisons and numerical differences separately. The
+standard eight native cases still pass 15717 assertions serially and 9840 / 9240
+on two ranks with two threads. Valgrind reports zero memory errors (leaks not
+checked), 78 supported unit cases / 102250 assertions pass, all four legacy flow
+controls remain identical, and the SST controls plus six conventional/six guard
+regressions pass. Eight affected translation units pass forward syntax checks.
+The new `ordered_manifest.json` binds this source, archived binaries and evidence.
+There is no MPI/OpenMP race-detector or converged-layout validation yet.
+
 ## Next implementation gate
 
 Migrate the legacy flow direction policies, then expose validated selection and
 group dispatch with exactly-once advancement, final all-equation reporting and
 whole-group failure output. Complete the native mass, boundary/periodic,
-admissibility and conditional baseline audits. Address the handoff's ordered
-thread-reduction and larger-fixture repeatability checks: current 5x5 fixtures do
-not stress several 1024-point loop chunks per thread. Full converged family and
+admissibility and conditional baseline audits. Trace the remaining solve-path variation with fixed-layout Krylov input/output
+comparisons; larger-fixture evidence now supplements the small integration tests. Full converged family and
 matched conventional/segregated/coupled comparisons remain required. NEMO
 integration remains excluded.

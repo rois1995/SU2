@@ -2211,6 +2211,11 @@ void CSolver::SetResidual_RMS(const CGeometry *geometry, const CConfig *config, 
     }
     vector<unsigned long> rbuf_point(nVar);
     SU2_MPI::Allreduce(Point_Max.data(), rbuf_point.data(), nVar, MPI_UNSIGNED_LONG, MPI_MAX, SU2_MPI::GetComm());
+    // Tied residuals must report coordinates from the chosen point, not component-wise maxima of different points.
+    for (unsigned short iVar = 0; iVar < nVar; ++iVar)
+      if (Point_Max[iVar] != rbuf_point[iVar])
+        for (unsigned short iDim = 0; iDim < nDim; ++iDim)
+          Point_Max_Coord(iVar, iDim) = std::numeric_limits<su2double>::lowest();
     SU2_MPI::Allreduce(Point_Max_Coord.data(), rbuf_res.data(), nVar*nDim, MPI_DOUBLE, MPI_MAX, SU2_MPI::GetComm());
     Point_Max = std::move(rbuf_point);
     for (unsigned short iVar = 0; iVar < nVar * nDim; iVar++) {

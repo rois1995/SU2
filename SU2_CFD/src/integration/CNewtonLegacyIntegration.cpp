@@ -154,12 +154,7 @@ void CNewtonLegacyIntegration::ComputeResiduals(ResEvalType type) {
 void CNewtonLegacyIntegration::ComputeFinDiffStep() {
   SU2_ZONE_SCOPED
 
-  static su2double rmsSol;
   su2double rmsSol_loc = 0.0;
-
-  SU2_OMP_MASTER
-  rmsSol = 0.0;
-  END_SU2_OMP_MASTER
 
   SU2_OMP_FOR_STAT(omp_chunk_size)
   for (auto iPoint = 0ul; iPoint < geometry->GetnPointDomain(); ++iPoint)
@@ -167,11 +162,12 @@ void CNewtonLegacyIntegration::ComputeFinDiffStep() {
       rmsSol_loc += pow(solvers[FLOW_SOL]->GetNodes()->GetSolution(iPoint,iVar), 2);
   END_SU2_OMP_FOR
 
-  atomicAdd(rmsSol_loc, rmsSol);
+  finDiffPartials[omp_get_thread_num()] = rmsSol_loc;
 
   BEGIN_SU2_OMP_SAFE_GLOBAL_ACCESS
   {
-    su2double t = rmsSol;
+    su2double t = finDiffPartials[0], rmsSol = 0;
+    for (int thread = 1; thread < omp_get_num_threads(); ++thread) t += finDiffPartials[thread];
     SU2_MPI::Allreduce(&t, &rmsSol, 1, MPI_DOUBLE, MPI_SUM, SU2_MPI::GetComm());
     finDiffStep = finDiffStepND * max(1.0, sqrt(SU2_TYPE::GetValue(rmsSol) / geometry->GetGlobal_nPointDomain()));
   }
@@ -189,6 +185,7 @@ void CNewtonLegacyIntegration::MultiGrid_Iteration(CGeometry ****geometry_, CSol
   numerics = numerics_[iZone][iInst][MESH_0];
 
   if (!setup) { Setup(); setup = true; }
+  finDiffPartials.resize(omp_get_max_threads());
 
   /*--- Remove NK relaxation to compute the current residual. ---*/
   config->SetNewtonKrylovRelaxation(1.0);

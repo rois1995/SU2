@@ -4471,13 +4471,15 @@ protected:
                                                 const unsigned long* idxMax){
     SetResToZero();
 
-    SU2_OMP_CRITICAL
-    for (unsigned short iVar = 0; iVar < nVar; iVar++) {
-      Residual_RMS[iVar] += resRMS[iVar];
-      AddRes_Max(iVar, resMax[iVar], geometry->nodes->GetGlobalIndex(idxMax[iVar]), geometry->nodes->GetCoord(idxMax[iVar]));
+    // Keep active arithmetic on its owning thread, in a fixed order, including tied maxima.
+    for (int thread = 0; thread < omp_get_num_threads(); ++thread) {
+      if (omp_get_thread_num() == thread)
+        for (unsigned short iVar = 0; iVar < nVar; ++iVar) {
+          Residual_RMS[iVar] += resRMS[iVar];
+          AddRes_Max(iVar, resMax[iVar], geometry->nodes->GetGlobalIndex(idxMax[iVar]), geometry->nodes->GetCoord(idxMax[iVar]));
+        }
+      SU2_OMP_BARRIER
     }
-    END_SU2_OMP_CRITICAL
-    SU2_OMP_BARRIER
 
     /*--- Compute the root mean square residual ---*/
     SetResidual_RMS(geometry, config);

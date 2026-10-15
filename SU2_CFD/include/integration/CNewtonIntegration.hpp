@@ -55,6 +55,7 @@ class CNewtonIntegration final : public CIntegration {
   std::string failureMessage;
   double cfl = 0, eta = 0, referenceCFLFactor = 1;
   mutable double reduction = 0;
+  mutable std::vector<double> reductionPartials;
   unsigned attemptNumber = 0, trialNumber = 0;
 
   double Reduce(double, bool maximum = false) const;

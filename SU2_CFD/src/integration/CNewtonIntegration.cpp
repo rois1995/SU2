@@ -67,15 +67,13 @@ const char* Name(NonlinearGlobalization::RecoveryReason reason) {
 }  // namespace
 
 double CNewtonIntegration::Reduce(double local, bool maximum) const {
-  SU2_OMP_SAFE_GLOBAL_ACCESS(reduction = 0;)
-  if (maximum)
-    atomicMax(local, reduction);
-  else
-    atomicAdd(local, reduction);
+  reductionPartials[omp_get_thread_num()] = local;
   BEGIN_SU2_OMP_SAFE_GLOBAL_ACCESS {
-    double global = 0;
-    SU2_MPI::Allreduce(&reduction, &global, 1, MPI_DOUBLE, maximum ? MPI_MAX : MPI_SUM, SU2_MPI::GetComm());
-    reduction = global;
+    // Thread arrival order must not change globalization decisions.
+    double combined = reductionPartials[0];
+    for (int thread = 1; thread < omp_get_num_threads(); ++thread)
+      combined = maximum ? std::max(combined, reductionPartials[thread]) : combined + reductionPartials[thread];
+    SU2_MPI::Allreduce(&combined, &reduction, 1, MPI_DOUBLE, maximum ? MPI_MAX : MPI_SUM, SU2_MPI::GetComm());
   }
   END_SU2_OMP_SAFE_GLOBAL_ACCESS
   const double result = reduction;
@@ -414,6 +412,7 @@ void CNewtonIntegration::Iterate(CGeometry* g, CSolver** s, CNumerics*** n, CCon
   config = c;
   if (!setup) Setup();
   const auto settings = config->GetEquationSettings();
+  reductionPartials.resize(omp_get_max_threads());
   SU2_OMP_PARALLEL { Advance(); }
   END_SU2_OMP_PARALLEL
   config->SetEquationSettings(settings);

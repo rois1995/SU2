@@ -36,14 +36,15 @@ class Silence {
 struct Problem {
   std::string path;
   std::unique_ptr<NewtonDriver> driver;
-  explicit Problem(const std::string& physics) {
+  explicit Problem(const std::string& physics, unsigned cells = 5) {
     const auto stamp = std::chrono::steady_clock::now().time_since_epoch().count();
     path = (std::filesystem::temp_directory_path() /
             ("su2_newton_" + std::to_string(stamp) + "_" + std::to_string(SU2_MPI::GetRank()) + ".cfg"))
                .string();
     {
       std::ofstream config(path);
-      config << "MESH_FORMAT= RECTANGLE\nMESH_BOX_SIZE= 5,5,5\nMESH_BOX_LENGTH= 1,1,1\n"
+      config << "MESH_FORMAT= RECTANGLE\nMESH_BOX_SIZE= " << cells << "," << cells
+             << ",5\nMESH_BOX_LENGTH= 1,1,1\n"
                 "MARKER_HEATFLUX= (y_minus, 0)\nMARKER_FAR= (x_minus,x_plus,y_plus)\n"
                 "MACH_NUMBER= 0.2\nREYNOLDS_NUMBER= 1e6\nMUSCL_FLOW= NO\nMUSCL_TURB= NO\n"
                 "MUSCL_SPECIES= NO\nMGLEVEL= 0\nOUTPUT_FILES= NONE\n"
@@ -694,4 +695,225 @@ TEST_CASE("Grouped physical checks respect enthalpy and composition domains", "[
   REQUIRE(equations->Restore());
   equations->Pack(actual);
   CHECK(MaxDifference(base, actual) == 0.0);
+}
+
+
+TEST_CASE("Large native Newton groups repeat states and decisions", "[.][NewtonRepeatability]") {
+  Problem problem(sa + "CFL_NUMBER= 0.05\nLINEAR_SOLVER_PREC= ILU\n"
+                       "LINEAR_SOLVER_PREC_THREADS= 1\nLINEAR_SOLVER_ILU_LEVEL_SCHEDULING= YES\n", 193);
+  auto& driver = *problem.driver;
+  auto* geometry = driver.Geometry();
+  auto equations = problem.Equations({RUNTIME_FLOW_SYS, RUNTIME_TURB_SYS});
+  const auto variables = equations->GetnVar();
+  int threads = 0;
+  std::vector<unsigned long> counts(omp_get_max_threads(), 0);
+  SU2_OMP_PARALLEL {
+    SU2_OMP_MASTER
+    threads = omp_get_num_threads();
+    END_SU2_OMP_MASTER
+    SU2_OMP_FOR_STAT(1024)
+    for (auto p = 0ul; p < geometry->GetnPointDomain(); ++p) ++counts[omp_get_thread_num()];
+    END_SU2_OMP_FOR
+  }
+  END_SU2_OMP_PARALLEL
+  REQUIRE(geometry->GetnPointDomain() >= 4096ul * threads);
+  for (int thread = 0; thread < threads; ++thread) REQUIRE(counts[thread] >= 3072);
+  std::ofstream metadata("newton_repeatability_" + std::to_string(SU2_MPI::GetRank()) + ".csv");
+  metadata.precision(17);
+  metadata << "rank,threads,owned_points,global_points,preconditioner_parts,ilu_levels\n"
+           << SU2_MPI::GetRank() << ',' << threads << ',' << geometry->GetnPointDomain() << ','
+           << geometry->GetGlobal_nPointDomain() << ",1,1\n";
+  metadata << "thread,owned_points\n";
+  for (int thread = 0; thread < threads; ++thread) metadata << thread << ',' << counts[thread] << '\n';
+  const auto artifactPrefix = "newton_repeatability_" + std::to_string(SU2_MPI::GetRank());
+  std::filesystem::copy_file(problem.path, artifactPrefix + ".cfg");
+  std::ofstream partition(artifactPrefix + "_partition.bin", std::ios::binary);
+  for (auto p = 0ul; p < geometry->GetnPointDomain(); ++p) {
+    const auto index = geometry->nodes->GetGlobalIndex(p);
+    partition.write(reinterpret_cast<const char*>(&index), sizeof(index));
+    for (auto d = 0u; d < geometry->GetnDim(); ++d) {
+      const double coordinate = geometry->nodes->GetCoord(p, d);
+      partition.write(reinterpret_cast<const char*>(&coordinate), sizeof(coordinate));
+    }
+  }
+  REQUIRE(partition.good());
+  for (const auto& block : equations->GetBlocks()) block.solver->Jacobian.TrackPrescribedRows();
+  for (auto p = 0ul; p < geometry->GetnPoint(); ++p) {
+    const double x = geometry->nodes->GetCoord(p, 0), y = geometry->nodes->GetCoord(p, 1);
+    const double wave = std::sin(6.283185307179586 * x) * std::sin(3.141592653589793 * y);
+    auto* flow = driver.Solvers()[FLOW_SOL]->GetNodes();
+    flow->SetSolution(p, 1, flow->GetSolution(p, 1) + 0.001 * flow->GetSolution(p, 0) * wave);
+    auto* turb = driver.Solvers()[TURB_SOL]->GetNodes();
+    turb->SetSolution(p, 0, turb->GetSolution(p, 0) * (1 + 0.2 * wave));
+  }
+  REQUIRE(Residual(*equations, true));
+  REQUIRE(Residual(*equations, true));
+  REQUIRE(Residual(*equations));
+  auto base = MakeVector(driver, variables), residual = base, reference = base;
+  auto scale = base, probe = base, input = base, product = base, productReference = base;
+  auto diagonal = MakeVector(driver, variables, 100.0);
+  auto save = [&](const std::string& name, const Vector& vector) {
+    std::ofstream out("newton_repeatability_" + std::to_string(SU2_MPI::GetRank()) + "_" + name + ".bin",
+                      std::ios::binary);
+    for (auto i = 0ul; i < vector.GetNElmDomain(); ++i) {
+      const double value = vector[i];
+      out.write(reinterpret_cast<const char*>(&value), sizeof(value));
+    }
+    REQUIRE(out.good());
+  };
+  SU2_OMP_PARALLEL {
+    equations->Capture();
+    equations->BuildScales(scale, probe);
+  }
+  END_SU2_OMP_PARALLEL
+  equations->Pack(base);
+  equations->CopyResidual(reference);
+  save("initial", base);
+  save("residual", reference);
+  for (auto p = 0ul; p < geometry->GetnPoint(); ++p)
+    for (auto v = 0u; v < variables; ++v)
+      input(p, v) = 0.1 * std::sin(geometry->nodes->GetCoord(p, 0) + 2 * geometry->nodes->GetCoord(p, 1) + v);
+  CNewtonLinearization linearization(*equations, geometry, driver.Config());
+  bool valid = false;
+  SU2_OMP_PARALLEL {
+    const bool result = linearization.SetBase(
+        scale, diagonal, 1e-8 * std::sqrt(variables * geometry->GetGlobal_nPointDomain()), 1e-4,
+        [](const CNewtonEquationSet::Block& b, unsigned long p, unsigned short v) {
+          return !b.solver->Jacobian.IsPrescribedRow(p, v);
+        },
+        &probe);
+    SU2_OMP_MASTER
+    valid = result;
+    END_SU2_OMP_MASTER
+  }
+  END_SU2_OMP_PARALLEL
+  REQUIRE(valid);
+  for (unsigned repeat = 0; repeat < 3; ++repeat) {
+    REQUIRE(equations->Restore());
+    REQUIRE(Residual(*equations));
+    equations->CopyResidual(residual);
+    INFO("physical residual difference = " << std::scientific << MaxDifference(reference, residual));
+    CHECK(MaxDifference(reference, residual) == 0.0);
+    SU2_OMP_PARALLEL {
+      const bool result = linearization.Apply(input, product);
+      SU2_OMP_MASTER
+      valid = result;
+      END_SU2_OMP_MASTER
+    }
+    END_SU2_OMP_PARALLEL
+    REQUIRE(valid);
+    if (repeat == 0) productReference = product;
+    CHECK(MaxDifference(productReference, product) == 0.0);
+  }
+  save("product", productReference);
+  REQUIRE(equations->Restore());
+
+  NonlinearGlobalization::Options<> options;
+  options.adaptCFL = options.adaptiveForcing = false;
+  CNewtonIntegration accepted({RUNTIME_FLOW_SYS, RUNTIME_TURB_SYS}, options, false, "repeat_accepted");
+  accepted.Iterate(geometry, driver.Solvers(), driver.Numerics(), driver.Config());
+  INFO(accepted.GetNumericalFailureMessage());
+  REQUIRE_FALSE(accepted.GetNumericalFailure());
+  REQUIRE(accepted.GetLastAttempt().search.status == Armijo::Status::Accepted);
+  equations->Pack(base);
+  save("accepted", base);
+  for (const auto& block : equations->GetBlocks()) {
+    for (auto p = 0ul; p < geometry->GetnPoint(); ++p) block.solver->GetNodes()->SetUnderRelaxation(p, 0.37);
+    block.solver->GetNodes()->GetSolution_time_n().resize(geometry->GetnPoint(), block.variables) = 7.0;
+    block.solver->GetNodes()->GetSolution_time_n1().resize(geometry->GetnPoint(), block.variables) = 9.0;
+  }
+  for (bool linearFailure : {true, false}) {
+    auto settings = options;
+    settings.maxRetries = 0;
+    if (linearFailure) {
+      settings.linearIterations = 1;
+      settings.etaMin = 1e-16;
+      settings.linearTolerance = settings.etaMax = 1e-14;
+    } else {
+      settings.armijo = 0.99;
+      settings.maxBacktracks = 1;
+    }
+    CNewtonIntegration failed({RUNTIME_FLOW_SYS, RUNTIME_TURB_SYS}, settings, false,
+                              linearFailure ? "repeat_linear_failure" : "repeat_search_failure");
+    failed.Iterate(geometry, driver.Solvers(), driver.Numerics(), driver.Config());
+    REQUIRE(failed.GetNumericalFailure());
+    CHECK(failed.GetLastAttempt().linearFailure == linearFailure);
+    CHECK(failed.GetLastAttempt().rollbackStateError == 0.0);
+    CHECK(failed.GetLastAttempt().rollbackMeritError == 0.0);
+    equations->Pack(residual);
+    CHECK(MaxDifference(base, residual) == 0.0);
+    double historyError = 0;
+    for (const auto& block : equations->GetBlocks())
+      for (auto p = 0ul; p < geometry->GetnPoint(); ++p) {
+        historyError = std::max(historyError,
+                                std::abs(SU2_TYPE::GetValue(block.solver->GetNodes()->GetUnderRelaxation(p)) - 0.37));
+        for (auto v = 0u; v < block.variables; ++v) {
+          historyError = std::max(
+              historyError, std::abs(SU2_TYPE::GetValue(block.solver->GetNodes()->GetSolution_time_n(p, v)) - 7.0));
+          historyError = std::max(
+              historyError, std::abs(SU2_TYPE::GetValue(block.solver->GetNodes()->GetSolution_time_n1(p, v)) - 9.0));
+        }
+      }
+    CHECK(historyError == 0.0);
+  }
+  REQUIRE(equations->Restore());
+  REQUIRE(Residual(*equations, true));
+  for (const auto& block : equations->GetBlocks()) {
+    driver.Config()->SetGlobalParam(driver.Config()->GetKind_Solver(), block.runtime);
+    SU2_OMP_PARALLEL {
+      block.solver->SetTime_Step(geometry, driver.Solvers(), driver.Config(), MESH_0, 0);
+      block.solver->PrepareImplicitIteration(geometry, driver.Solvers(), driver.Config());
+    }
+    END_SU2_OMP_PARALLEL
+  }
+  auto timeStep = MakeVector(driver, variables);
+  std::ofstream matrix(artifactPrefix + "_matrix.bin", std::ios::binary);
+  for (const auto& block : equations->GetBlocks())
+    for (auto p = 0ul; p < geometry->GetnPointDomain(); ++p) {
+      for (auto v = 0u; v < block.variables; ++v)
+        timeStep(p, block.offset + v) = SU2_TYPE::GetValue(block.solver->GetNodes()->GetDelta_Time(p));
+      for (auto neighbor = 0u; neighbor <= geometry->nodes->GetnPoint(p); ++neighbor) {
+        const auto q = neighbor == 0 ? p : geometry->nodes->GetPoint(p, neighbor - 1);
+        const auto view = block.solver->Jacobian.GetBlockView(p, q);
+        for (auto v = 0u; v < block.variables; ++v)
+          for (auto w = 0u; w < block.variables; ++w) {
+            const double value = SU2_TYPE::GetValue(view(v, w));
+            matrix.write(reinterpret_cast<const char*>(&value), sizeof(value));
+          }
+      }
+    }
+  REQUIRE(matrix.good());
+  save("time_step", timeStep);
+  CNewtonBlockPreconditioner native(linearization, geometry, driver.Config());
+  SU2_OMP_PARALLEL {
+    native.Build();
+    native(input, product);
+  }
+  END_SU2_OMP_PARALLEL
+  save("preconditioned", product);
+
+  auto* flow = driver.Solvers()[FLOW_SOL];
+  for (auto p = 0ul; p < geometry->GetnPointDomain(); ++p) {
+    flow->LinSysRes(p, 0) = p == 0 ? 1e8 : (p % 1024 == 0 && p < 1024ul * threads ? 1.0 : 0.0);
+    for (auto v = 1u; v < flow->GetnVar(); ++v) flow->LinSysRes(p, v) = 1;
+  }
+  double local = 1e16, global = 0;
+  // Three small partials added before 1e16 give a different answer than this specified thread order.
+  for (int thread = 1; thread < threads; ++thread) local += 1;
+  SU2_MPI::Allreduce(&local, &global, 1, MPI_DOUBLE, MPI_SUM, SU2_MPI::GetComm());
+  const double expected = std::sqrt(global / geometry->GetGlobal_nPointDomain());
+  unsigned long localPoint = geometry->nodes->GetGlobalIndex(0), selectedPoint = 0;
+  SU2_MPI::Allreduce(&localPoint, &selectedPoint, 1, MPI_UNSIGNED_LONG, MPI_MAX, SU2_MPI::GetComm());
+  double localCoord[2], expectedCoord[2];
+  for (auto d = 0u; d < 2; ++d)
+    localCoord[d] = localPoint == selectedPoint ? SU2_TYPE::GetValue(geometry->nodes->GetCoord(0, d))
+                                                : std::numeric_limits<double>::lowest();
+  SU2_MPI::Allreduce(localCoord, expectedCoord, 2, MPI_DOUBLE, MPI_MAX, SU2_MPI::GetComm());
+  for (unsigned repeat = 0; repeat < 32; ++repeat) {
+    SU2_OMP_PARALLEL { flow->RefreshResidualStatistics(geometry, driver.Config()); }
+    END_SU2_OMP_PARALLEL
+    CHECK(SU2_TYPE::GetValue(flow->GetRes_RMS(0)) == expected);
+    CHECK(flow->GetPoint_Max(1) == selectedPoint);
+    for (auto d = 0u; d < 2; ++d) CHECK(SU2_TYPE::GetValue(flow->GetPoint_Max_Coord(1)[d]) == expectedCoord[d]);
+  }
 }
