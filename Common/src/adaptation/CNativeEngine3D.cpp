@@ -1106,7 +1106,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     const auto epoch=transfer_memory::Add(transfer_memory::Mul(round,world.size),world.rank);
     const auto token=transfer_memory::Add(transfer_memory::Mul(epoch,options.candidate_batch),slot);
     const auto offset=transfer_memory::Mul(token,MaximumReplacementCells);
-    const size_t node_stride=!options.wall_heights.empty() ? MaximumReplacementCells+3 : composition ? 4 : curved ? 2 : 1;
+    const size_t node_stride=!options.wall_heights.empty() ? MaximumReplacementCells+3 : composition ? 9 : curved ? 2 : 1;
     const auto node_offset=transfer_memory::Mul(token,node_stride);
     Point splitPosition{};bool split_failed=false;
     const bool physical_edge=chosen && std::any_of(imported.cells.begin(),imported.cells.end(),[&](const OwnedCell& c) {
@@ -1681,6 +1681,98 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
           if(!(ready=vote(failure)))return finish();
           const bool passed=validate_private(candidate,MetricChange::Refine,!normalTrial);
           if(strip && !approved)approved=passed;
+          if(!ready)return finish();
+        }
+        bool search=strip && boundary_edge && !approved;
+        std::vector<Id> apices;
+        if(search)try {
+          std::set<Id> physical;for(const auto& f:old.surface)physical.insert(f.v.begin(),f.v.end());
+          std::vector<Cell> uncovered;
+          for(const auto& c:old.cells)if(std::count_if(c.v.begin(),c.v.end(),[&](Node n){return n.id==choice.edge[0] || n.id==choice.edge[1];})==2)uncovered.push_back(c);
+          while(!uncovered.empty() && apices.size()<8) {
+            std::map<Id,unsigned> counts;
+            for(const auto& c:uncovered)for(auto n:c.v)if(!physical.count(n.id))++counts[n.id];
+            if(counts.empty())break;
+            const auto selected=std::max_element(counts.begin(),counts.end(),[](const auto& a,const auto& b){return a.second<b.second;});
+            const Id apex=selected->first;apices.push_back(apex);
+            uncovered.erase(std::remove_if(uncovered.begin(),uncovered.end(),[&](const Cell& c){return std::any_of(c.v.begin(),c.v.end(),[&](Node n){return n.id==apex;});}),uncovered.end());
+          }
+          search=!apices.empty() && uncovered.empty();
+        }catch(const std::exception& e){failure.Set(2,0,e.what());}
+        if(!(ready=vote(failure)))return finish();
+        if(world.maximum(search)) {
+          if(stats.global_work>=stats.work_limit){stats.stop=EngineStop::WorkBudget;result.reason="Native3D joint placement exhausted the global work budget.";return finish();}
+          if(options.maximum_seconds && world.maximum(std::chrono::duration<double>(Clock::now()-started).count()>=options.maximum_seconds)) {
+            stats.stop=EngineStop::TimeBudget;result.reason="Native3D joint placement exhausted the elapsed budget.";return finish();
+          }
+          std::vector<Feature> features;
+          if(search) {
+            features.push_back({{choice.edge[0],choice.edge[1],0},2});
+            for(Id id:movers)features.push_back({{id,0,0},1});
+            for(Id id:apices)features.push_back({{id,0,0},1});
+          }
+          Dependencies joined;
+          {Timer timer(stats.dependency_seconds,options.timings);
+            joined=directory.Lookup(features,options.memory_ceiling,transfer_memory::Add(bytes(),source.ResidentBytes(),private_scratch));}
+          if(!joined.valid) {
+            if(joined.reason=="Native 3D dependency star exceeds budget." || joined.reason=="Native 3D dependency union exceeds budget.")search=false;
+            else failure.Set(1,0,joined.reason);
+          }
+          if(!(ready=vote(failure)))return finish();
+          if(!search){joined.valid=true;joined.cells.clear();}
+          Imported more;
+          {Timer timer(stats.dependency_seconds,options.timings);
+            more=directory.Fetch(joined,working,options.memory_ceiling,transfer_memory::Add(bytes(),source.ResidentBytes(),private_scratch));}
+          if(!more.valid){result.reason=more.reason;return finish();}
+          if(search)try {
+            for(const auto& dep:dependencies.cells) {
+              const auto found=std::find_if(joined.cells.begin(),joined.cells.end(),[&](const auto& d){return d.cell==dep.cell;});
+              if(found==joined.cells.end() || found->version!=dep.version || found->owner!=dep.owner)
+                throw std::runtime_error("Native3D joint placement lost a complete/versioned dependency.");
+            }
+            dependencies=std::move(joined);imported=std::move(more);old=GeometryPatch(imported);reuse.clear();
+            for(const auto& c:old.cells)selection.Cached(c,reuse);
+          }catch(const std::exception& e){failure.Set(2,0,e.what());}
+          if(!(ready=vote(failure)))return finish();
+          bool reserved=false;
+          {Timer timer(stats.reservation_seconds,options.timings);
+            reserved=directory.Reserve(imported,search || approved,result.reason,options.memory_ceiling,transfer_memory::Add(bytes(),source.ResidentBytes(),private_scratch));}
+          if((search || approved) && !reserved) {
+            if(result.reason=="Native 3D conflicting dependency reservation.") {
+              ++stats.conflicts;search=false;approved=false;
+            } else failure.Set(1,0,"Native3D joint placement lost its complete-star reservation: "+result.reason);
+          }
+          if(!(ready=vote(failure)))return finish();
+          PatchMetric expanded_before;
+          const bool measured=measure_private(search?old.cells:empty,expanded_before,false,reuse);
+          if(search && measured)before=std::move(expanded_before);
+          if(!ready)return finish();
+          if(search && !measured)failure.Set(1,0,result.reason);
+          if(!(ready=vote(failure)))return finish();
+          DonorPatch support;
+          {Timer timer(stats.donor_seconds,options.timings);++stats.donor_batches;
+            support=source.ImportCells(search?old.cells:empty,options.memory_ceiling,transfer_memory::Add(bytes(),directory.ResidentBytes(),private_scratch));}
+          if(!support.valid) {
+            if(DonorCap(support.reason))search=false;
+            else {result.reason=support.reason;return finish();}
+          }
+          bool candidate=false;JointSplitReport report;
+          if(search)try {
+            Timer timer(stats.reconstruction_seconds,options.timings);CpuTimer cpu(stats.reconstruction_cpu_seconds,options.timings);
+            const auto components=AssociatedExtensions(support.cells,geometry);
+            FrozenField target(std::move(support.cells),composition,options.timings,components,options.edge_breakpoints);
+            FieldAccounting accounting{stats,target};std::vector<std::pair<Id,Id>> reserved_apices;
+            for(size_t i=0;i<apices.size();++i)reserved_apices.emplace_back(apices[i],maximum_node+2+i+node_offset);
+            candidate=PlaceSurfaceSplit(old,choice.edge,point,reserved_apices,maximum_cell+1+offset,target,geometry,options.wall_heights,
+                fresh,report,result.reason,std::min<uint64_t>(256,stats.work_limit-stats.global_work));
+            stats.repair_proposals+=report.trials;candidate=guarded_geometry(candidate);
+          }catch(const std::exception& e){failure.Set(2,0,e.what());}
+          if(!(ready=vote(failure)))return finish();
+          stats.global_work+=world.maximum(report.trials);
+          const auto retained_metric=certified;
+          const bool passed=validate_private(candidate,MetricChange::Refine);
+          if(search && !approved)approved=passed;
+          else if(!search)certified=retained_metric;
           if(!ready)return finish();
         }
         if(strip && approved){cavity_inserted=true;joint=false;}

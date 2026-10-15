@@ -170,6 +170,17 @@ bool ReconstructSplitPatch(const Patch& old,Edge edge,Node point,Node interior,c
                            std::string& reason,KernelStats* stats = nullptr,
                            const std::map<int,double>& heights = {});
 class FrozenField;
+struct JointSplitReport {
+  size_t trials=0, geometry_rejected=0, height_rejected=0, metric_rejected=0;
+  double initial_loss=0, best_loss=0, best_shape_loss=0;
+};
+/*! Bounded actual-field-directed placement of one surface split and up to eight free complete-star apices.
+ * All trials reconstruct from the original patch; artificial interfaces and first-height constraints
+ * remain fixed. Proposal scores use midpoint lengths only; success requires full composed Refine
+ * validation. Output is unchanged on failure; distributed admission and external clearance are caller duties. */
+bool PlaceSurfaceSplit(const Patch& old,Edge edge,Node point,const std::vector<std::pair<Id,Id>>& apices,Id first_cell,
+                       FrozenField& target,const PlanarReference& reference,const std::map<int,double>& heights,
+                       Patch& fresh,JointSplitReport& report,std::string& reason,size_t maximum_trials=128);
 struct ConnectivityRepairReport {
   size_t trials=0, flips=0, moves=0, removals=0, coordinated=0;
   size_t move_geometry_rejected=0, move_height_rejected=0, move_loss_rejected=0;

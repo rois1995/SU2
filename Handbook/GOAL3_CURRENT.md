@@ -133,3 +133,13 @@ engine is restored exactly to published3f323314fb. The strict resumable
 `curved_transition_complete` harness and closed source-pinned experiment remain.
 Next: field-residual-directed joint placement, not additional fixed move seeds
 or budget increases. See the curved handbook's rejected-experiment section.
+
+Joint-placement continuation: coordinated cap split/apex placement passes its
+focused replay (169 trials,32→38 cells,569 assertions) and independent exact local
+geometry audit. The single-apex failure is preserved. Engine integration retains
+complete versioned-star admission/reservation and shared work/final gates.
+The strict saved438-cell run remains rejected:7 edits/5 insertions,473 cells,
+287 oversized edges, excess162.660529→142.380265, work1131 before its kernel time
+ceiling. No speedup/completion claim. Last reported cone blockage is an interior
+diagonal; MPI integration and all full Goal3 gates remain open. See the curved
+handbook and joint_placement_summary.json. All owned jobs terminal.

@@ -1,0 +1,31 @@
+{
+  "status": "PASS_PRIVATE_REPLACEMENT_FULL_GRID_INCOMPLETE",
+  "private_native_receipt": {
+    "path": "curved_joint_search.json",
+    "sha256": "29b0a57a55a5e12eb9e4f7cacbf0c84b0c4adc33a5ec6953cff45c8a850507d0"
+  },
+  "private_geometry_audit": {
+    "path": "joint_search_geometry.json",
+    "sha256": "af6abe51def80b4023372ef98324f02e25c013efda1f838f440964efbf0ffb29"
+  },
+  "single_apex_rejection": {
+    "path": "curved_joint_single_apex_rejected_v1.json",
+    "sha256": "c496202797237d554d9d6a425a8b959b59ea1c271a5f22895726d514f915ce07"
+  },
+  "engine_receipt": {
+    "path": "curved_joint_engine.json",
+    "sha256": "6efbcf064788e56e71bff6f3c53e71957d919b50d5d3ee072c8fdbba9d68047f"
+  },
+  "engine_result": {
+    "accepted": 7,
+    "cells": 473,
+    "q": 0.21715264385633948,
+    "j": 0.05105358735627044,
+    "oversized_edges": 287,
+    "initial_excess": 162.6605293045342,
+    "remaining_excess": 142.38026470882753,
+    "work": 1131
+  },
+  "scope": "Native actual-field private repair and independent exact local geometry pass. The integrated saved438-cell run remains rejected; no full construction, MPI, CFD transfer/restart, performance or speedup qualification. Frozen sensor/BL/fade/height/quality/full-edge gates unchanged.",
+  "remaining": "Interior-diagonal connectivity/placement blockage and all original Goal3 gates. Last cone rejection is a diagnostic endpoint, not proof of root cause or physical infeasibility."
+}

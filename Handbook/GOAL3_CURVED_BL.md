@@ -185,3 +185,56 @@ Next: quality/length-directed joint placement against actual field residuals,
 with constrained geometry and bounded work, rather than more fixed move seeds.
 Do not repeat cold construction or increase budgets to hide this unresolved gap.
 All full Goal3 gates remain required; earlier planar MPI qualification is retained.
+
+## Field-directed joint placement
+
+A bounded prototype reconstructs a same-chart physical split and up to eight
+free complete-star apices from the original cavity. Directions use the physical
+edge tangent, face normal and perpendicular, with actual-metric step lengths.
+Paired fraction/normal and collective apex directions allow coordinated motion.
+Centroid shape and midpoint lengths choose proposals only; acceptance requires
+geometry, first height/footprints and the full original-field Refine gate.
+
+The single-apex experiment failed after145 trials. It controlled only two of six
+split tetrahedra. Its complete source-pinned negative evidence is preserved in
+`wall_reconstruction_v1/curved_joint_single_apex_rejected_v1`.
+The connected variant selects a greedy free-apex cover of all split cells and
+admits all their complete stars. On the saved438-cell cylinder's longest eligible
+flat cap edge (3.860547), three apices/32 original cells yield38 replacement cells
+in169 trials; the focused test passes569 assertions. No height/field/gate/limit
+relaxation. The whole-grid longest edges4.201315 are interior diagonals, outside
+this surface-specific proposal.
+
+Independent exact arithmetic qualifies positive volumes, oriented incidence,
+no positive-volume overlap, identical artificial interface/coordinates, identical
+cavity volume and unchanged original donors/reference. Read
+`wall_reconstruction_v1/joint_search_geometry.json`; the actual-field native stage
+is `curved_joint_search.json`. These are local replacement proofs, not final mesh,
+CFD transfer, independent full-field integration or performance qualification.
+
+Engine integration runs established proposals first, then admits/reserves the
+complete cover-star expansion. Search trials share the unchanged global work
+ceiling; original sensors are imported for the actual candidate region. Its
+local FrozenField is released before streamed final validation, retaining one
+field workspace. Composition reserves up to eight moved-apex IDs plus the split;
+height-constrained existing131-ID reservations are unchanged. Inactive ranks keep
+their prior metric measurements; provisional accepted candidates participate in
+expanded reservations and conflicts reject safely.
+
+The strict saved438-cell run remains rejected at the300-second kernel ceiling:
+7 edits/5 insertions,473 cells, q .217153/J .051054,287 oversized edges,
+excess162.660529→142.380265, work1131. More oversized edges can coexist with lower
+excess during private progress; whole-grid zero oversized edges is still mandatory.
+No CFD replacement occurred. The last report names interior edge14,47, a cone
+apex120 and retained interface face14,45,93. The face is not physical and has two
+global neighboring cells. This last fallback failure is not proof of root cause
+or target infeasibility; capture/replay the actual obstructed reconstruction before
+choosing further cavity/placement changes. Complete engine MPI qualification,
+full curved construction/removal/transfer and the original Goal3 gates remain open.
+
+Read `wall_reconstruction_v1/joint_placement_summary.json` and the closed
+`curved_joint_engine` receipt/output. The previous rejected two-insertion experiment
+is untouched. No new full cold run, external cluster run or performance assessment.
+All owned jobs terminal. Next: qualify matched MPI execution and extend coordinated
+reconstruction to the unresolved interior transition, without raising limits or
+repeating full cold runs for isolated changes.

@@ -5147,3 +5147,18 @@ engine is restored exactly to published3f323314fb. The strict resumable
 `curved_transition_complete` harness and closed source-pinned experiment remain.
 Next: field-residual-directed joint placement, not additional fixed move seeds
 or budget increases. See the curved handbook's rejected-experiment section.
+
+## Coordinated cap placement — 2026-10-15
+
+A complete free-apex cover replaces an insufficient single-apex repair on the
+saved438-cell curved target. Three apices/32 old cells yield38 admissible private
+cells in169 trials, with569 native assertions and independent exact embedding,
+fixed-interface, volume and donor/reference checks. The real engine now admits
+complete versioned cover stars and runs bounded field-directed placement after
+established proposals fail; metric/height/geometry/final gates remain unchanged.
+Its strict saved-grid run still rejects:473 cells/287 oversized edges,
+excess162.660529→142.380265,7 edits/5 insertions, work1131 before time ceiling.
+This is partial construction progress, not full curved capability or speedup.
+MPI integration, interior-transition blockage and every full Goal3 gate remain
+open. See Handbook/GOAL3_CURVED_BL.md and wall_reconstruction_v1/
+joint_placement_summary.json. Raw negative and positive evidence is preserved.

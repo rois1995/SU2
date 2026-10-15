@@ -1656,7 +1656,26 @@ TEST_CASE("Cold native cylinder BL construction and release use the same origina
       return;  // Saved-grid engine check; solver transfer/replacement and cold construction are separate gates.
     }
     if(std::getenv("SU2_NATIVE_CURVED_EDGE_REPLAY")) {
-      REQUIRE(!edges.empty());const auto longest=std::max_element(edges.begin(),edges.end(),[&](const auto& a,const auto& b) {
+      auto eligible=edges;
+      if(std::getenv("SU2_NATIVE_CURVED_JOINT_SEARCH")) {
+        std::map<Edge,std::vector<Id>> charts;
+        for(const auto& row:grid.cells) {
+          const auto& c=row.second.cell;
+          const std::array<Face,4> faces{{{{c.v[1].id,c.v[2].id,c.v[3].id}},{{c.v[0].id,c.v[3].id,c.v[2].id}},{{c.v[0].id,c.v[1].id,c.v[3].id}},{{c.v[0].id,c.v[2].id,c.v[1].id}}}};
+          for(unsigned f=0;f<4;++f)if(row.second.physical[f].present)for(unsigned k=0;k<3;++k) {
+            const auto a=faces[f][k],b=faces[f][(k+1)%3];charts[{std::min(a,b),std::max(a,b)}].push_back(row.second.physical[f].facet);
+          }
+        }
+        for(auto it=eligible.begin();it!=eligible.end();) {
+          const auto found=charts.find(it->first);bool flat=false;
+          if(found!=charts.end() && found->second.size()==2 && found->second[0]==found->second[1]) {
+            const auto g=reference.original->Analytic().find(found->second[0]);
+            flat=g==reference.original->Analytic().end() || g->second.kind==AnalyticSurface::Kind::Disk;
+          }
+          if(!flat)it=eligible.erase(it);else ++it;
+        }
+      }
+      REQUIRE(!eligible.empty());const auto longest=std::max_element(eligible.begin(),eligible.end(),[&](const auto& a,const auto& b) {
         return target.TargetEdgeLength(a.second.first,a.second.second)<target.TargetEdgeLength(b.second.first,b.second.second);
       });
       const auto edge=longest->first;Patch old;
@@ -1669,6 +1688,48 @@ TEST_CASE("Cold native cylinder BL construction and release use the same origina
       REQUIRE(!old.cells.empty());SaveRecords("edge_original",PatchRecords(old),captured_source,reference);
       const Node point{1000000,target.BalancedSplitPoint(longest->second.first,longest->second.second)};
       std::cout<<std::setprecision(17)<<"EDGE_REPLAY edge="<<edge[0]<<','<<edge[1]<<" star="<<old.cells.size()<<" point="<<point.p.x<<','<<point.p.y<<','<<point.p.z<<std::endl;
+      if(std::getenv("SU2_NATIVE_CURVED_JOINT_SEARCH")) {
+        std::set<Id> physical;std::map<Id,unsigned> counts;
+        for(const auto& f:old.surface)physical.insert(f.v.begin(),f.v.end());
+        for(const auto& c:old.cells)for(auto v:c.v)if(!physical.count(v.id))++counts[v.id];
+        std::vector<std::pair<Id,Id>> apices;std::vector<Cell> uncovered=old.cells;
+        while(!uncovered.empty() && apices.size()<8) {
+          counts.clear();for(const auto& c:uncovered)for(auto n:c.v)if(!physical.count(n.id))++counts[n.id];
+          REQUIRE(!counts.empty());const auto selected=std::max_element(counts.begin(),counts.end(),[](const auto& a,const auto& b){return a.second<b.second;});
+          const Id apex=selected->first;apices.emplace_back(apex,1000001+apices.size());
+          uncovered.erase(std::remove_if(uncovered.begin(),uncovered.end(),[&](const Cell& c){return std::any_of(c.v.begin(),c.v.end(),[&](Node n){return n.id==apex;});}),uncovered.end());
+        }
+        REQUIRE(uncovered.empty());
+        Patch full;
+        for(const auto& row:grid.cells)if(std::any_of(row.second.cell.v.begin(),row.second.cell.v.end(),[&](Node n){return std::any_of(apices.begin(),apices.end(),[&](const auto& p){return n.id==p.first;});}) ||
+            std::count_if(row.second.cell.v.begin(),row.second.cell.v.end(),[&](Node n){return n.id==edge[0] || n.id==edge[1];})==2) {
+          full.cells.push_back(row.second.cell);const auto& c=row.second.cell;
+          const std::array<Face,4> faces{{{{c.v[1].id,c.v[2].id,c.v[3].id}},{{c.v[0].id,c.v[3].id,c.v[2].id}},{{c.v[0].id,c.v[1].id,c.v[3].id}},{{c.v[0].id,c.v[2].id,c.v[1].id}}}};
+          for(unsigned f=0;f<4;++f)if(row.second.physical[f].present)full.surface.push_back({faces[f],row.second.physical[f].facet});
+        }
+        SaveRecords("joint_original",PatchRecords(full),captured_source,reference);
+        Patch fresh;JointSplitReport report;std::string reason;
+        const bool accepted=PlaceSurfaceSplit(full,edge,point,apices,2000000,target,*reference.original,options.wall_heights,fresh,report,reason,256);
+        std::cout<<"JOINT_SEARCH cells="<<full.cells.size()<<" apices="<<apices.size()<<" accepted="<<accepted<<" trials="<<report.trials
+            <<" geometry_rejected="<<report.geometry_rejected<<" height_rejected="<<report.height_rejected<<" metric_rejected="<<report.metric_rejected
+            <<" shape_loss="<<report.best_shape_loss<<" initial="<<report.initial_loss<<" best="<<report.best_loss<<" reason="<<reason<<std::endl;
+        if(accepted)SaveRecords("joint_private",PatchRecords(fresh),captured_source,reference);
+        CHECK(report.trials<=256);
+        const auto search_reason=reason;Patch rejected=full;JointSplitReport invalid;
+        CHECK_FALSE(PlaceSurfaceSplit(full,edge,point,apices,2000000,target,*reference.original,options.wall_heights,rejected,invalid,reason,0));
+        REQUIRE(rejected.cells.size()==full.cells.size());CHECK(rejected.surface.size()==full.surface.size());
+        for(size_t i=0;i<full.cells.size();++i) {
+          CHECK(rejected.cells[i].id==full.cells[i].id);
+          for(unsigned k=0;k<4;++k) {
+            CHECK(rejected.cells[i].v[k].id==full.cells[i].v[k].id);
+            CHECK(rejected.cells[i].v[k].p.x==full.cells[i].v[k].p.x);
+            CHECK(rejected.cells[i].v[k].p.y==full.cells[i].v[k].p.y);
+            CHECK(rejected.cells[i].v[k].p.z==full.cells[i].v[k].p.z);
+          }
+        }
+        INFO(search_reason);REQUIRE(accepted);
+        CHECK(Signature(world,input.cells,reference)==before);return;
+      }
       for(unsigned op=0;op<3;++op) {
         Patch fresh;Face obstruction{};std::string reason;
         const bool geometry=op==0?SplitEdge(old,edge,point,2000000,*reference.original,fresh,reason):
