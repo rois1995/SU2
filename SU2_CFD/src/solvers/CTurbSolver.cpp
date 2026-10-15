@@ -255,10 +255,12 @@ void CTurbSolver::Impose_Fixed_Values(const CGeometry *geometry, const CConfig *
         nodes->SetSolution_Old(iPoint, Solution_Inf);
         nodes->SetSolution(iPoint, Solution_Inf);
         LinSysRes.SetBlock_Zero(iPoint);
-        if (implicit) {
-          /*--- Change rows of the Jacobian (includes 1 in the diagonal) ---*/
-          for(unsigned long iVar=0; iVar<nVar; iVar++)
+        /*--- Change rows of the Jacobian (includes 1 in the diagonal) ---*/
+        for(unsigned long iVar=0; iVar<nVar; iVar++) {
+          if (implicit)
             Jacobian.DeleteValsRowi(iPoint, iVar);
+          else
+            Jacobian.MarkPrescribedRow(iPoint, iVar);
         }
       }
     }

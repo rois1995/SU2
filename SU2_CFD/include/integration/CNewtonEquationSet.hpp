@@ -25,7 +25,7 @@ class CNewtonEquationSet : private CIntegration {
   struct Snapshot {
     CSolver* solver;
     unsigned short slot, variables;
-    std::vector<su2double> solution, oldSolution, evaluationHistory, relaxation;
+    std::vector<su2double> solution, oldSolution, evaluationHistory, relaxation, boundarySolution, boundaryInput;
   };
   CGeometry* geometry;
   CSolver** solvers;
@@ -47,6 +47,8 @@ class CNewtonEquationSet : private CIntegration {
   void RestoreHistory();
   void Communicate();
   void Refresh();
+  void InstallStrongValues(CSolver*) const;
+  void StrongState(unsigned short runtime);
   bool CheckState(bool compareFlow);
 
  public:

@@ -549,7 +549,7 @@ void CSpeciesFlameletSolver::BC_Isothermal_Wall_Generic(CGeometry* geometry, CSo
                                                         CNumerics* conv_numerics, CNumerics* visc_numerics,
                                                         CConfig* config, unsigned short val_marker, bool cht_mode) {
   SU2_ZONE_SCOPED
-  const bool implicit = config->GetKind_TimeIntScheme_Flow() == EULER_IMPLICIT;
+  const bool implicit = config->GetKind_TimeIntScheme() == EULER_IMPLICIT;
   const string Marker_Tag = config->GetMarker_All_TagBound(val_marker);
   CFluidModel* fluid_model_local = solver_container[FLOW_SOL]->GetFluidModel();
   auto* flowNodes = su2staticcast_p<CFlowVariable*>(solver_container[FLOW_SOL]->GetNodes());
@@ -589,6 +589,8 @@ void CSpeciesFlameletSolver::BC_Isothermal_Wall_Generic(CGeometry* geometry, CSo
 
         if (implicit) {
           Jacobian.DeleteValsRowi(iPoint, I_ENTH);
+        } else {
+          Jacobian.MarkPrescribedRow(iPoint, I_ENTH);
         }
       } else {
         /*--- Weak BC formulation. ---*/

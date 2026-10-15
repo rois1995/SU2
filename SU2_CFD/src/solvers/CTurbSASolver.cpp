@@ -567,6 +567,7 @@ void CTurbSASolver::BC_HeatFlux_Wall(CGeometry *geometry, CSolver **solver_conta
       /*--- Includes 1 in the diagonal ---*/
 
       if (implicit) Jacobian.DeleteValsRowi(iPoint, 0);
+      else Jacobian.MarkPrescribedRow(iPoint, 0);
       continue;
     }
 
@@ -974,10 +975,9 @@ void CTurbSASolver::SetTurbVars_WF(CGeometry *geometry, CSolver **solver_contain
       /*--- Solve for the new value of nu_tilde given the eddy viscosity and using a Newton method.
        * f(nu_til) = nu_til^4 - nu_t*(nu_til^3 + cv1^3*nu^3) has a single positive root, which is larger than nu_t,
        * and f is increasing and convex for nu_til > nu_t, so the iteration converges from any start >= nu_t.
-       * Start from the value imposed at the previous iteration, not from the wall node: with wall functions the
-       * wall value is free and tends to zero (f' = 0) or below, e.g. after a restart without wall functions. ---*/
+       * A transport-based starting guess makes the finite-tolerance solve independent of iteration history. ---*/
 
-      const su2double nu_til_start = max(nodes->GetSolution(iPoint_Neighbor,0), Eddy_Visc/Density_Normal);
+      const su2double nu_til_start = max(Kin_Visc_Normal, Eddy_Visc/Density_Normal);
       su2double nu_til = 0.0;
       su2double nu_til_old = nu_til_start;
 
@@ -1013,6 +1013,7 @@ void CTurbSASolver::SetTurbVars_WF(CGeometry *geometry, CSolver **solver_contain
       /*--- includes 1 in the diagonal ---*/
 
       if (implicit) Jacobian.DeleteValsRowi(iPoint_Neighbor, 0);
+      else Jacobian.MarkPrescribedRow(iPoint_Neighbor, 0);
     }
   }
 }

@@ -63,10 +63,12 @@ struct Problem {
     {
       std::ofstream config(path);
       config << "MESH_FORMAT= " << (threeD ? "BOX" : "RECTANGLE") << "\nMESH_BOX_SIZE= " << cells << "," << cells
-             << ",5\nMESH_BOX_LENGTH= 1,1,1\nMARKER_HEATFLUX= (y_minus, 0)\n";
+             << ",5\nMESH_BOX_LENGTH= 1,1,1\n";
+      if (physics.find("MARKER_HEATFLUX=") == std::string::npos) config << "MARKER_HEATFLUX= (y_minus, 0)\n";
       if (physics.find("MARKER_FAR=") == std::string::npos)
         config << "MARKER_FAR= (x_minus,x_plus,y_plus" << (threeD ? ",z_minus,z_plus" : "") << ")\n";
-      config << "MACH_NUMBER= 0.2\nREYNOLDS_NUMBER= 1e6\nMUSCL_FLOW= "
+      if (physics.find("REYNOLDS_NUMBER=") == std::string::npos) config << "REYNOLDS_NUMBER= 1e6\n";
+      config << "MACH_NUMBER= 0.2\nMUSCL_FLOW= "
              << (muscl ? "YES" : "NO")
              << "\nMUSCL_TURB= NO\n"
                 "MUSCL_SPECIES= NO\nMGLEVEL= 0\nOUTPUT_FILES= NONE\n"
@@ -551,6 +553,206 @@ TEST_CASE("Native strong rows are tracked independently of the preconditioner va
   matrix.EnforceSolutionAtNode(0, prescribed, driver.Solvers()[TURB_SOL]->LinSysRes);
   CHECK(matrix.IsPrescribedRow(0, 0));
   CHECK(matrix.IsPrescribedRow(0, 1));
+}
+
+TEST_CASE("Manufactured Dirichlet boundaries mark rows before reconstruction", "[NewtonBoundaries]") {
+  for (bool explicitFlow : {false, true}) {
+    CAPTURE(explicitFlow);
+    Problem problem(std::string("SOLVER= NAVIER_STOKES\nMARKER_HEATFLUX= NONE\nMARKER_FAR= NONE\n") +
+                    "MARKER_CUSTOM= (x_minus,x_plus,y_minus,y_plus)\n"
+                    "KIND_VERIFICATION_SOLUTION= MMS_NS_UNIT_QUAD\nREF_DIMENSIONALIZATION= DIMENSIONAL\n"
+                    "VISCOSITY_MODEL= CONSTANT_VISCOSITY\nMU_CONSTANT= 1.716e-5\n"
+                    "CONDUCTIVITY_MODEL= CONSTANT_PRANDTL\n" +
+                    (explicitFlow ? "TIME_DISCRE_FLOW= EULER_EXPLICIT\n" : ""));
+    auto& driver = *problem.driver;
+    auto* geometry = driver.Geometry();
+    auto* solver = driver.Solvers()[FLOW_SOL];
+    auto* nodes = solver->GetNodes();
+    auto equations = problem.Equations({RUNTIME_FLOW_SYS});
+    std::vector<bool> boundary(geometry->GetnPoint(), false);
+    for (auto m = 0u; m < driver.Config()->GetnMarker_All(); ++m)
+      if (driver.Config()->GetMarker_All_KindBC(m) == CUSTOM_BOUNDARY)
+        for (auto vertex = 0ul; vertex < geometry->nVertex[m]; ++vertex)
+          boundary[geometry->vertex[m][vertex]->GetNode()] = true;
+    for (auto p = 0ul; p < geometry->GetnPoint(); ++p)
+      for (auto v = 0u; v < solver->GetnVar(); ++v) nodes->SetSolution(p, v, 1.01 * nodes->GetSolution(p, v));
+    REQUIRE(Residual(*equations));
+    for (auto p = 0ul; p < geometry->GetnPointDomain(); ++p)
+      for (auto v = 0u; v < solver->GetnVar(); ++v)
+        CHECK(solver->Jacobian.IsPrescribedRow(p, v) == boundary[p]);
+    auto reference = MakeVector(driver, equations->GetnVar()), repeated = reference;
+    equations->CopyResidual(reference);
+    REQUIRE(Residual(*equations));
+    equations->CopyResidual(repeated);
+    CHECK(MaxDifference(reference, repeated) == 0.0);
+  }
+}
+
+TEST_CASE("Turbulence constraints are present on the first physical residual", "[NewtonBoundaries]") {
+  for (const auto& physics : {sa, sa + "SA_OPTIONS= NEGATIVE, WITHFT2\n", sst})
+    for (bool fixed : {false, true})
+      for (bool implicit : {false, true}) {
+        CAPTURE(physics, fixed, implicit);
+        Problem problem(physics + (fixed ? "TURB_FIXED_VALUES= YES\nTURB_FIXED_VALUES_DOMAIN= 0.51\n" : ""));
+        auto& driver = *problem.driver;
+        auto* geometry = driver.Geometry();
+        auto* solver = driver.Solvers()[TURB_SOL];
+        auto* nodes = solver->GetNodes();
+        auto equations = problem.Equations({RUNTIME_FLOW_SYS, RUNTIME_TURB_SYS});
+        std::vector<double> reference(solver->GetnVar());
+        for (auto v = 0u; v < solver->GetnVar(); ++v) {
+          double local = 0;
+          for (auto p = 0ul; p < geometry->GetnPointDomain(); ++p)
+            if (!geometry->nodes->GetSolidBoundary(p)) local = std::max(local, SU2_TYPE::GetValue(nodes->GetSolution(p, v)));
+          SU2_MPI::Allreduce(&local, &reference[v], 1, MPI_DOUBLE, MPI_MAX, SU2_MPI::GetComm());
+        }
+        for (auto p = 0ul; p < geometry->GetnPoint(); ++p)
+          for (auto v = 0u; v < solver->GetnVar(); ++v) {
+            nodes->SetSolution(p, v, reference[v] * (1.1 + 0.05 * geometry->nodes->GetCoord(p, 0)));
+            nodes->SetSolution_Old(p, v, 0.41 + v);
+          }
+        REQUIRE(Residual(*equations, implicit));
+        for (auto p = 0ul; p < geometry->GetnPointDomain(); ++p)
+          for (auto v = 0u; v < solver->GetnVar(); ++v) {
+            const bool wall = geometry->nodes->GetSolidBoundary(p);
+            const bool prescribed = wall || (fixed && geometry->nodes->GetCoord(p, 0) < 0.51);
+            CHECK(solver->Jacobian.IsPrescribedRow(p, v) == prescribed);
+            CHECK(nodes->GetSolution_Old(p, v) == 0.41 + v);
+            if (wall && v == 0) CHECK(nodes->GetSolution(p, v) == 0.0);
+            if (!wall && prescribed) CHECK(nodes->GetSolution(p, v) == reference[v]);
+            if (!prescribed)
+              CHECK(nodes->GetSolution(p, v) == reference[v] * (1.1 + 0.05 * geometry->nodes->GetCoord(p, 0)));
+          }
+        auto first = MakeVector(driver, equations->GetnVar()), repeated = first;
+        equations->CopyResidual(first);
+        REQUIRE(Residual(*equations, implicit));
+        equations->CopyResidual(repeated);
+        CHECK(MaxDifference(first, repeated) == 0.0);
+      }
+}
+
+TEST_CASE("Native wall-function constraints settle before Newton residual assembly", "[NewtonBoundaries]") {
+  auto incRans = incompressible;
+  incRans.replace(0, incRans.find('\n'), "SOLVER= INC_RANS");
+  for (const auto& profile : std::vector<std::pair<std::string, unsigned>>{
+           {sa, 10000}, {sst, 10000}, {incRans + "KIND_TURB_MODEL= SA\n", 10000},
+           {incRans + "KIND_TURB_MODEL= SST\n", 10000}, {sa, 1000000}, {sst, 1000000}}) {
+    const auto& physics = profile.first;
+    CAPTURE(physics, profile.second);
+    Problem problem(physics + "MARKER_WALL_FUNCTIONS= (y_minus, STANDARD_WALL_FUNCTION)\nREYNOLDS_NUMBER= " +
+                    std::to_string(profile.second) + "\n");
+    auto& driver = *problem.driver;
+    auto* geometry = driver.Geometry();
+    auto* solver = driver.Solvers()[TURB_SOL];
+    auto* flow = driver.Solvers()[FLOW_SOL]->GetNodes();
+    for (auto p = 0ul; p < geometry->GetnPoint(); ++p) {
+      const auto x = geometry->nodes->GetCoord(p, 0), y = geometry->nodes->GetCoord(p, 1);
+      flow->SetSolution(p, 1, flow->GetSolution(p, 1) * (1 + 0.1 * x + 0.05 * y));
+      flow->SetSolution(p, 2, 0.02 * flow->GetSolution(p, 1));
+    }
+    auto equations = problem.Equations({RUNTIME_FLOW_SYS, RUNTIME_TURB_SYS});
+    REQUIRE(Residual(*equations, true));
+    unsigned long local = 0, prescribed = 0;
+    for (auto p = 0ul; p < geometry->GetnPointDomain(); ++p)
+      if (solver->Jacobian.IsPrescribedRow(p, 0)) ++local;
+    SU2_MPI::Allreduce(&local, &prescribed, 1, MPI_UNSIGNED_LONG, MPI_SUM, SU2_MPI::GetComm());
+    REQUIRE(prescribed > 0);
+    REQUIRE(Residual(*equations));
+    equations->Capture();
+    auto state = MakeVector(driver, equations->GetnVar()), residual = state, repeated = state;
+    equations->Pack(state);
+    equations->CopyResidual(residual);
+    for (bool implicit : {false, true, false}) {
+      REQUIRE(Residual(*equations, implicit));
+      equations->Pack(repeated);
+      CHECK(MaxDifference(state, repeated) == 0.0);
+      equations->CopyResidual(repeated);
+      const auto difference = MaxDifference(residual, repeated);
+      const auto roundoff = 64 * std::numeric_limits<double>::epsilon() * std::max(1.0, SU2_TYPE::GetValue(residual.norm()));
+      CHECK(difference <= (implicit ? roundoff : 0.0));
+    }
+    auto scale = MakeVector(driver, equations->GetnVar(), 1.0), diagonal = repeated;
+    auto direction = MakeVector(driver, equations->GetnVar()), product = direction;
+    diagonal = passivedouble(0);
+    for (auto p = 0ul; p < geometry->GetnPoint(); ++p)
+      if (!driver.Solvers()[FLOW_SOL]->Jacobian.IsPrescribedRow(p, 1))
+        direction(p, 1) = 0.01 * geometry->nodes->GetCoord(p, 1);
+    CNewtonLinearization linearization(*equations, geometry, driver.Config());
+    REQUIRE(linearization.SetBase(scale, diagonal, 1e-7, 1e-4,
+        [](const CNewtonEquationSet::Block& b, unsigned long p, unsigned short v) {
+          return !b.solver->Jacobian.IsPrescribedRow(p, v);
+        }));
+    bool validProduct = false;
+    SU2_OMP_PARALLEL {
+      const bool valid = linearization.Apply(direction, product, false);
+      SU2_OMP_MASTER
+      validProduct = valid;
+      END_SU2_OMP_MASTER
+    }
+    END_SU2_OMP_PARALLEL
+    REQUIRE(validProduct);
+    for (double step : {1e-3, 5e-4}) {
+      auto positive = residual, negative = residual;
+      for (double sign : {-1.0, 1.0}) {
+        equations->SetTrial(direction, sign * step, scale);
+        REQUIRE(Residual(*equations));
+        equations->CopyResidual(sign > 0 ? positive : negative);
+      }
+      positive -= negative;
+      positive /= 2 * step;
+      CHECK(MaxDifference(product, positive) < 1e-3 * std::max(1.0, SU2_TYPE::GetValue(positive.norm())));
+    }
+    REQUIRE(equations->Restore());
+    for (auto p = 0ul; p < geometry->GetnPoint(); ++p)
+      for (auto d = 1u; d <= geometry->GetnDim(); ++d) flow->SetSolution(p, d, 0.0);
+    REQUIRE(Residual(*equations));
+    for (auto p = 0ul; p < geometry->GetnPointDomain(); ++p)
+      for (auto v = 0u; v < solver->GetnVar(); ++v) {
+        CHECK_FALSE(solver->Jacobian.IsPrescribedRow(p, v));
+        CHECK(equations->MassFactor(equations->GetBlocks().back(), p) * solver->GetNodes()->GetSolution(p, v) ==
+              state(p, equations->GetBlocks().back().offset + v));
+      }
+    for (auto m = 0u; m < driver.Config()->GetnMarker_All(); ++m)
+      if (driver.Config()->GetMarker_All_KindBC(m) == HEAT_FLUX)
+        for (auto vertex = 0ul; vertex < geometry->nVertex[m]; ++vertex) {
+          const auto p = geometry->vertex[m][vertex]->GetNode();
+          CHECK(driver.Solvers()[FLOW_SOL]->GetYPlus(m, vertex) < driver.Config()->GetwallModel_MinYPlus());
+          CHECK(driver.Solvers()[FLOW_SOL]->GetEddyViscWall(m, vertex) == 0.0);
+          CHECK(driver.Solvers()[FLOW_SOL]->GetUTau(m, vertex) == 0.0);
+          CHECK(flow->GetTau_Wall(p) == -1.0);
+        }
+  }
+}
+
+TEST_CASE("Unsettled boundary states fail finitely and restore the accepted group", "[NewtonBoundaries]") {
+  auto physics = incompressible;
+  physics.replace(0, physics.find('\n'), "SOLVER= INC_RANS");
+  Problem problem(physics + "KIND_TURB_MODEL= SST\nWALLMODEL_RELFAC= 0.001\n"
+                            "MARKER_WALL_FUNCTIONS= (y_minus, STANDARD_WALL_FUNCTION)\n");
+  auto& driver = *problem.driver;
+  auto* geometry = driver.Geometry();
+  auto* flow = driver.Solvers()[FLOW_SOL]->GetNodes();
+  for (auto p = 0ul; p < geometry->GetnPoint(); ++p)
+    for (auto d = 1u; d <= geometry->GetnDim(); ++d) flow->SetSolution(p, d, 0.0);
+  auto equations = problem.Equations({RUNTIME_FLOW_SYS, RUNTIME_TURB_SYS});
+  REQUIRE(Residual(*equations));
+  equations->Capture();
+  auto base = MakeVector(driver, equations->GetnVar()), actual = base;
+  auto direction = MakeVector(driver, equations->GetnVar()), scale = MakeVector(driver, equations->GetnVar(), 1.0);
+  equations->Pack(base);
+  for (auto p = 0ul; p < geometry->GetnPoint(); ++p)
+    if (!geometry->nodes->GetSolidBoundary(p)) direction(p, 1) = 1.0;
+  equations->SetTrial(direction, 1.0, scale);
+  bool valid;
+  {
+    Silence silence;
+    valid = Residual(*equations);
+  }
+  CHECK_FALSE(valid);
+  REQUIRE(equations->Restore());
+  equations->Pack(actual);
+  CHECK(MaxDifference(base, actual) == 0.0);
+  CHECK(equations->GetRestorationError() == 0.0);
 }
 
 TEST_CASE("Species strong boundaries precede reconstruction without changing probe matrices", "[NewtonBoundaries]") {
@@ -1256,8 +1458,13 @@ TEST_CASE("One Newton controller advances native individual equations and couple
   auto allPhysics = species;
   allPhysics.replace(allPhysics.find("INC_NAVIER_STOKES"), std::string("INC_NAVIER_STOKES").size(), "INC_RANS");
   allPhysics += "KIND_TURB_MODEL= SST\nKIND_TRANS_MODEL= LM\n";
+  auto incRans = incompressible;
+  incRans.replace(0, incRans.find('\n'), "SOLVER= INC_RANS");
+  const std::string wallFunctions = "MARKER_WALL_FUNCTIONS= (y_minus, STANDARD_WALL_FUNCTION)\nREYNOLDS_NUMBER= 1e4\n";
   for (const auto& physics : {std::string("SOLVER= NAVIER_STOKES\n"), sa, sa + "SA_OPTIONS= NEGATIVE, WITHFT2\n", sst,
-                              sst + "KIND_TRANS_MODEL= LM\n", species, allPhysics}) {
+                              sst + "KIND_TRANS_MODEL= LM\n", species, allPhysics, sa + wallFunctions, sst + wallFunctions,
+                              incRans + "KIND_TURB_MODEL= SA\n" + wallFunctions,
+                              incRans + "KIND_TURB_MODEL= SST\n" + wallFunctions}) {
     CAPTURE(physics);
     for (bool coupled : {false, true}) {
       CAPTURE(coupled);

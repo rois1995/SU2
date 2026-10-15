@@ -63,7 +63,8 @@ CNewtonEquationSet::CNewtonEquationSet(CGeometry* g, CSolver** s, CNumerics*** n
     const auto entries = geometry->GetnPoint() * count;
     snapshots.push_back({solver, slot, count, std::vector<su2double>(entries), std::vector<su2double>(entries),
                          std::vector<su2double>(entries),
-                         std::vector<su2double>(geometry->GetnPoint())});
+                         std::vector<su2double>(geometry->GetnPoint()), std::vector<su2double>(entries),
+                         std::vector<su2double>(entries)});
   }
 }
 
@@ -140,6 +141,24 @@ void CNewtonEquationSet::Refresh() {
   }
 }
 
+void CNewtonEquationSet::InstallStrongValues(CSolver* solver) const {
+  auto* nodes = solver->GetNodes();
+  SU2_OMP_FOR_STAT(1024)
+  for (auto p = 0ul; p < geometry->GetnPoint(); ++p)
+    for (auto v = 0u; v < solver->GetnVar(); ++v)
+      if (solver->Jacobian.IsPrescribedRow(p, v)) nodes->SetSolution(p, v, nodes->GetSolution_Old(p, v));
+  END_SU2_OMP_FOR
+}
+
+void CNewtonEquationSet::StrongState(unsigned short runtime) {
+  const auto slot = config->GetContainerPosition(runtime);
+  if (!solvers[slot]) return;
+  SU2_OMP_SAFE_GLOBAL_ACCESS(config->SetGlobalParam(config->GetKind_Solver(), runtime);)
+  solvers[slot]->Set_OldSolution();
+  StrongBoundaryConditions(geometry, solvers, numerics[slot], config, runtime);
+  InstallStrongValues(solvers[slot]);
+}
+
 bool CNewtonEquationSet::CheckState(bool compareFlow) {
   // shortcut: Full model bounds and boundary transformations need validation before production group dispatch.
   SU2_OMP_SAFE_GLOBAL_ACCESS(invalidCount = 0;)
@@ -207,8 +226,6 @@ bool CNewtonEquationSet::CheckState(bool compareFlow) {
 bool CNewtonEquationSet::EvaluateResiduals(bool implicit, bool allEquations, double reconstruction) {
   assert(reconstruction >= 0 && reconstruction <= 1);
   EquationSettingsGuard guard(*config);
-  if (implicit)
-    for (const auto& snapshot : snapshots) snapshot.solver->Jacobian.ClearPrescribedRows();
   struct HistoryGuard {
     CNewtonEquationSet& equations;
     explicit HistoryGuard(CNewtonEquationSet& e) : equations(e) { equations.SaveHistory(); }
@@ -216,6 +233,19 @@ bool CNewtonEquationSet::EvaluateResiduals(bool implicit, bool allEquations, dou
   } history(*this);
   // Physical evaluations use full reconstruction; only an explicit Jacobian-model request may relax it.
   SU2_OMP_SAFE_GLOBAL_ACCESS(config->SetResidualOnly(true); config->SetNewtonKrylovRelaxation(reconstruction);)
+  Communicate();
+  if (!CheckState(false)) return false;
+  for (auto& snapshot : snapshots) {
+    snapshot.solver->Jacobian.ClearPrescribedRows();
+    const auto* nodes = snapshot.solver->GetNodes();
+    SU2_OMP_FOR_STAT(1024)
+    for (auto p = 0ul; p < geometry->GetnPoint(); ++p)
+      for (auto v = 0u; v < snapshot.variables; ++v)
+        snapshot.boundaryInput[p * snapshot.variables + v] = nodes->GetSolution(p, v);
+    END_SU2_OMP_FOR
+  }
+  // Composition and no-slip values precede the first thermodynamic/wall-function refresh.
+  for (auto runtime : {RUNTIME_SPECIES_SYS, RUNTIME_FLOW_SYS}) StrongState(runtime);
   Communicate();
   if (!CheckState(false)) return false;
   const auto* flow = solvers[FLOW_SOL]->GetNodes();
@@ -226,29 +256,59 @@ bool CNewtonEquationSet::EvaluateResiduals(bool implicit, bool allEquations, dou
   END_SU2_OMP_FOR
   Refresh();
   if (!CheckState(true)) return false;
-  // Strong wall/Dirichlet values must be installed before any differentiated gradient or source.
-  for (auto runtime : runtimes) {
-    const auto slot = config->GetContainerPosition(runtime);
-    if (!solvers[slot]) continue;
-    SU2_OMP_SAFE_GLOBAL_ACCESS(config->SetGlobalParam(config->GetKind_Solver(), runtime);)
-    // Native strong routines prescribe iteration-old values; give them the live trial density and restore history on exit.
-    solvers[slot]->Set_OldSolution();
-    StrongBoundaryConditions(geometry, solvers, numerics[slot], config, runtime);
-    auto* nodes = solvers[slot]->GetNodes();
+  // Coupled strong values must settle with their properties before any differentiated gradient or source.
+  bool constrained = false;
+  for (unsigned sweep = 0; sweep < 200; ++sweep) {
+    for (auto& snapshot : snapshots) {
+      snapshot.solver->Jacobian.ClearPrescribedRows();
+      const auto* nodes = snapshot.solver->GetNodes();
+      SU2_OMP_FOR_STAT(1024)
+      for (auto p = 0ul; p < geometry->GetnPoint(); ++p)
+        for (auto v = 0u; v < snapshot.variables; ++v)
+          snapshot.boundarySolution[p * snapshot.variables + v] = nodes->GetSolution(p, v);
+      END_SU2_OMP_FOR
+    }
+    for (auto runtime : runtimes) StrongState(runtime);
+    // A conditional row that becomes free must retain the supplied trial value.
+    for (const auto& snapshot : snapshots) {
+      auto* nodes = snapshot.solver->GetNodes();
+      SU2_OMP_FOR_STAT(1024)
+      for (auto p = 0ul; p < geometry->GetnPoint(); ++p)
+        for (auto v = 0u; v < snapshot.variables; ++v)
+          if (!snapshot.solver->Jacobian.IsPrescribedRow(p, v))
+            nodes->SetSolution(p, v, snapshot.boundaryInput[p * snapshot.variables + v]);
+      END_SU2_OMP_FOR
+    }
+    Communicate();
     SU2_OMP_FOR_STAT(1024)
     for (auto p = 0ul; p < geometry->GetnPoint(); ++p)
-      for (auto v = 0u; v < solvers[slot]->GetnVar(); ++v)
-        if (solvers[slot]->Jacobian.IsPrescribedRow(p, v))
-          nodes->SetSolution(p, v, nodes->GetSolution_Old(p, v));
+      for (auto v = 0u; v < nFlow; ++v) trialFlow[p * nFlow + v] = flow->GetSolution(p, v);
     END_SU2_OMP_FOR
+    Refresh();
+    if (!CheckState(true)) return false;
+    SU2_OMP_SAFE_GLOBAL_ACCESS(invalidCount = 0;)
+    double changed = 0;
+    for (const auto& snapshot : snapshots) {
+      const auto* nodes = snapshot.solver->GetNodes();
+      SU2_OMP_FOR_STAT(1024)
+      for (auto p = 0ul; p < geometry->GetnPointDomain(); ++p)
+        for (auto v = 0u; v < snapshot.variables; ++v)
+          if (nodes->GetSolution(p, v) != snapshot.boundarySolution[p * snapshot.variables + v]) changed = 1;
+      END_SU2_OMP_FOR
+    }
+    atomicAdd(changed, invalidCount);
+    BEGIN_SU2_OMP_SAFE_GLOBAL_ACCESS {
+      double global = 0;
+      SU2_MPI::Allreduce(&invalidCount, &global, 1, MPI_DOUBLE, MPI_SUM, SU2_MPI::GetComm());
+      valid = global == 0;
+    }
+    END_SU2_OMP_SAFE_GLOBAL_ACCESS
+    if (valid) {
+      constrained = true;
+      break;
+    }
   }
-  Communicate();
-  SU2_OMP_FOR_STAT(1024)
-  for (auto p = 0ul; p < geometry->GetnPoint(); ++p)
-    for (auto v = 0u; v < nFlow; ++v) trialFlow[p * nFlow + v] = flow->GetSolution(p, v);
-  END_SU2_OMP_FOR
-  Refresh();
-  if (!CheckState(true)) return false;
+  if (!constrained) return false;
   // Flow first also refreshes characteristic boundary states consumed by auxiliary equations.
   for (auto index = 0u; index < 4; ++index) {
     const auto runtime = runtimes[index];
@@ -261,6 +321,7 @@ bool CNewtonEquationSet::EvaluateResiduals(bool implicit, bool allEquations, dou
                                config->SetGlobalParam(config->GetKind_Solver(), runtime);)
     solvers[slot]->Preprocessing(geometry, solvers, config, MESH_0, NO_RK_ITER, runtime, false);
     Space_Integration(geometry, solvers, numerics[slot], config, MESH_0, NO_RK_ITER, runtime);
+    InstallStrongValues(solvers[slot]);
     SU2_OMP_SAFE_GLOBAL_ACCESS(++residualEvaluations[index];)
   }
   SU2_OMP_FOR_STAT(1024)

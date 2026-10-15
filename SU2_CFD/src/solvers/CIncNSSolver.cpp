@@ -110,7 +110,7 @@ void CIncNSSolver::Preprocessing(CGeometry *geometry, CSolver **solver_container
   /*--- Compute the TauWall from the wall functions ---*/
 
   if (wall_functions) {
-    SU2_OMP_SAFE_GLOBAL_ACCESS(SetTau_Wall_WF(geometry, solver_container, config);)
+    SetTau_Wall_WF(geometry, solver_container, config);
   }
 
   /*--- Compute recovered pressure and temperature for streamwise periodic flow ---*/
@@ -834,13 +834,17 @@ void CIncNSSolver::SetTau_Wall_WF(CGeometry *geometry, CSolver **solver_containe
       /*--- Automatic switch off when y+ < "limit" according to Nichols & Nelson (2004) ---*/
 
       if (Y_Plus_Start < config->GetwallModel_MinYPlus()) {
+        YPlus[iMarker][iVertex] = Y_Plus_Start;
+        EddyViscWall[iMarker][iVertex] = 0.0;
+        UTau[iMarker][iVertex] = 0.0;
+        nodes->SetTau_Wall(iPoint, -1.0);
         smallYPlusCounter++;
         continue;
       }
 
-      /*--- Convergence criterium for the Newton solver, note that 1e-10 is too large ---*/
+      /*--- Retain the absolute tolerance, with a roundoff floor for large y+. ---*/
       const su2double tol = 1e-12;
-      while (fabs(diff) > tol) {
+      while (fabs(diff) > max(tol, 64 * numeric_limits<passivedouble>::epsilon() * fabs(Y_Plus))) {
 
         /*--- Friction velocity and u+ ---*/
 
@@ -915,7 +919,9 @@ void CIncNSSolver::SetTau_Wall_WF(CGeometry *geometry, CSolver **solver_containe
       SU2_MPI::Allreduce(&globalCounter1, &notConvergedCounter, 1, MPI_UNSIGNED_LONG, MPI_SUM, SU2_MPI::GetComm());
       SU2_MPI::Allreduce(&globalCounter2, &smallYPlusCounter, 1, MPI_UNSIGNED_LONG, MPI_SUM, SU2_MPI::GetComm());
 
-      const bool write_iter = (config->GetTimeIter() % config->GetVolumeOutputFrequency(0) == 0);
+      const auto frequency = config->GetnVolumeOutputFrequencies() ? config->GetVolumeOutputFrequency(0)
+                                                                  : config->GetScreen_Wrt_Freq(2);
+      const bool write_iter = frequency && (config->GetTimeIter() % frequency == 0);
       if (rank == MASTER_NODE && write_iter) {
         if (notConvergedCounter)
           cout << "Warning: Computation of wall coefficients (y+) did not converge in "

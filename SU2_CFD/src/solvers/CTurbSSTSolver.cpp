@@ -533,6 +533,9 @@ void CTurbSSTSolver::BC_HeatFlux_Wall(CGeometry *geometry, CSolver **solver_cont
       /*--- Change rows of the Jacobian (includes 1 in the diagonal) ---*/
       Jacobian.DeleteValsRowi(iPoint, 0);
       Jacobian.DeleteValsRowi(iPoint, 1);
+    } else {
+      Jacobian.MarkPrescribedRow(iPoint, 0);
+      Jacobian.MarkPrescribedRow(iPoint, 1);
     }
   }
   END_SU2_OMP_FOR
@@ -596,6 +599,9 @@ void CTurbSSTSolver::SetTurbVars_WF(CGeometry *geometry, CSolver **solver_contai
       /*--- includes 1 in the diagonal ---*/
       Jacobian.DeleteValsRowi(iPoint_Neighbor, 0);
       Jacobian.DeleteValsRowi(iPoint_Neighbor, 1);
+    } else {
+      Jacobian.MarkPrescribedRow(iPoint_Neighbor, 0);
+      Jacobian.MarkPrescribedRow(iPoint_Neighbor, 1);
     }
   }
 }

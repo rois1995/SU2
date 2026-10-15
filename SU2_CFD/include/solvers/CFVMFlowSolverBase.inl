@@ -1544,10 +1544,11 @@ void CFVMFlowSolverBase<V, R>::BC_Custom(CGeometry* geometry, CSolver** solver_c
 
         /*--- Adjust rows of the Jacobian (includes 1 in the diagonal) ---*/
 
-        if (implicit) {
-          for (iVar = 0; iVar < nVar; iVar++) {
+        for (iVar = 0; iVar < nVar; iVar++) {
+          if (implicit)
             Jacobian.DeleteValsRowi(iPoint, iVar);
-          }
+          else
+            Jacobian.MarkPrescribedRow(iPoint, iVar);
         }
       }
     }
