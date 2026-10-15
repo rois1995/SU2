@@ -7,6 +7,7 @@
 #pragma once
 #include "CNativeDonor3D.hpp"
 #include "CNativeMetric3D.hpp"
+#include "CNativeRegion3D.hpp"
 namespace SU2Native3D {
 constexpr double CoarseningMetricEdge = .9;  // Frozen candidate hysteresis; final upper/shape gates remain strict.
 constexpr size_t MaximumCandidateBatch = 8;
@@ -17,6 +18,7 @@ struct EngineOptions {
   double maximum_seconds = 0;  // Optional kernel elapsed ceiling, checked at collective safe points.
   double surface_tolerance = 0;  // Analytic authority requires a positive frozen physical error ceiling.
   std::map<int,double> wall_heights;  // Frozen marker policy; empty releases the first-row constraint.
+  std::map<int,RegionWallPolicy> region_walls;  // Same existing frozen BL configuration; no scenario selection.
   MetricEdgeBreakpoints edge_breakpoints;  // Frozen geometry bands; required for composed target edge audits.
   // Optional rank-local diagnostic; must not enter worker/world collectives or retain borrowed patches.
   std::function<void(const Patch&,const Patch&,Feature,const MetricDiagnosis&,bool,const std::string&)> rejected_trial;
@@ -36,6 +38,7 @@ struct EngineStats {
   EngineStop stop = EngineStop::None;
   uint64_t global_work = 0, work_limit = 0, progress_windows = 0, stagnant_windows = 0, search_windows = 0;
   uint64_t size_progress = 0, quality_progress = 0, cell_removals = 0, geometry_progress = 0;
+  uint64_t region_attempts=0, region_cells=0, region_surface_trials=0, region_junction_trials=0;
   uint64_t layer_published = 0, height_checks = 0, height_rejected = 0, footprint_rejected = 0;
   double layer_seconds = 0;  // Exclusive first-row initialization before metric seeding.
   uint64_t geometry_trials = 0, geometry_rejected = 0, metric_trials = 0;

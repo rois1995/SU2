@@ -305,6 +305,8 @@ std::unique_ptr<CRemesher> CSinglezoneDriver::MakeRemesher() {
           const auto marker=std::find(state.marker_names.begin(),state.marker_names.end(),layer.marker);
           if(marker==state.marker_names.end())throw std::invalid_argument("Native3D BL marker has no retained geometry.");
           control.wall_heights[int(marker-state.marker_names.begin())]=SU2_TYPE::GetValue(layer.firstHeight);
+          control.region_walls[int(marker-state.marker_names.begin())]={SU2_TYPE::GetValue(layer.firstHeight),
+              SU2_TYPE::GetValue(layer.growth),SU2_TYPE::GetValue(layer.thickness)};
         }
         control.caller_bytes=transfer_memory::Add(control.caller_bytes,layers->StorageBytes());
         control.edge_breakpoints=[layers](SU2Native3D::Point a,SU2Native3D::Point b) {

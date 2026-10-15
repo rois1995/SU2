@@ -1581,6 +1581,7 @@ TEST_CASE("Cold native cylinder BL construction and release use the same origina
   EngineOptions options;options.surface_tolerance=.04;options.maximum_work=4096;options.timings=true;
   for(unsigned marker=0;marker<reference.marker_names.size();++marker)if(reference.marker_names[marker]=="cylinder")options.wall_heights[marker]=.05;
   REQUIRE(options.wall_heights.size()==1);
+  for(const auto& wall:options.wall_heights)options.region_walls[wall.first]={wall.second,1.2,.2};
   options.edge_breakpoints=[layers](Point a,Point b){return layers->EdgeBreakpoints({a.x,a.y,a.z},{b.x,b.y,b.z});};
   auto save=[&](const std::string& name,const Owned& owned) {
     Save(world,name,owned,input.original,reference);
@@ -1610,20 +1611,29 @@ TEST_CASE("Cold native cylinder BL construction and release use the same origina
     auto authority=reference;const auto grid=ImportGeometry(*gridConfig,loaded.Fine(),nullptr,authority);
     CHECK(authority.original==reference.original);Save(world,"audited_grid",grid.cells,input.original,reference);
     if(protocol) {
-      const auto untouched=Signature(world,grid.cells,reference);options.maximum_work=512;options.maximum_seconds=120;
+      const auto untouched=Signature(world,grid.cells,reference);options.maximum_work=4096;options.maximum_seconds=300;
       const auto partial=Refine(world,grid.cells,input.original,*reference.original,compose,options);
       save(partial.valid?"protocol_adapted":"protocol_rejected",partial.cells);
-      const auto trials=world.sum(partial.stats.placement_trials),validated=world.sum(partial.stats.placement_validated);
-      const auto classified=world.sum(partial.stats.placement_classified_vertices);
-      const auto connectivity=world.sum(partial.stats.placement_connectivity_trials);
-      const auto count=world.sum(partial.cells.size());
-      if(!world.rank)std::cout<<"JOINT_PROTOCOL ranks="<<world.size<<" valid="<<partial.valid<<" cells="<<count
-          <<" classified_vertices="<<classified<<" placement_trials="<<trials<<" placement_validated="<<validated<<" work="<<partial.stats.global_work
-          <<" stop="<<EngineStopName(partial.stats.stop)<<" connectivity_trials="<<connectivity<<" reason="<<partial.reason<<std::endl;
+      const auto attempts=world.sum(partial.stats.region_attempts),count=world.sum(partial.cells.size());
+      if(!world.rank)std::cout<<"REGION_PROTOCOL ranks="<<world.size<<" valid="<<partial.valid<<" cells="<<count
+          <<" region_attempts="<<attempts<<" work="<<partial.stats.global_work
+          <<" stop="<<EngineStopName(partial.stats.stop)<<" reason="<<partial.reason<<std::endl;
       CHECK(Signature(world,grid.cells,reference)==untouched);CHECK(Signature(world,input.cells,reference)==before);
-      CHECK(partial.stats.global_work<=512);CHECK(trials>0);
-      INFO(partial.reason);CHECK((partial.valid || partial.stats.stop==EngineStop::WorkBudget));
-      return;  // Protocol/work-bound proof only; a rejected result never qualifies final mesh generation.
+      CHECK(partial.stats.global_work<=4096);CHECK(attempts==1);INFO(partial.reason);REQUIRE(partial.valid);
+      FrozenField target(captured_source,compose,false,AssociatedExtensions(captured_source,*reference.original),options.edge_breakpoints);
+      double q=1,j=1;long double maximum=0;
+      for(const auto& row:partial.cells) {
+        PatchMetric measured;std::string reason;
+        REQUIRE(ValidateMetricPatch({row.second.cell},target,measured,reason));
+        q=std::min(q,measured.minimum_mean_ratio);j=std::min(j,measured.minimum_scaled_jacobian);maximum=std::max(maximum,measured.maximum_length);
+      }
+      q=CPassiveComm::Allreduce(q,CPassiveComm::Op::MIN,world.comm);j=CPassiveComm::Allreduce(j,CPassiveComm::Op::MIN,world.comm);
+      // Passive wire scalar is double; the strict long-double edge gate has already run above on every cell.
+      const auto length=CPassiveComm::Allreduce(double(maximum),CPassiveComm::Op::MAX,world.comm);
+      if(!world.rank){std::ofstream out("region_summary.json");out<<std::setprecision(17)<<"{\"valid\":true,\"ranks\":"<<world.size
+          <<",\"cells\":"<<count<<",\"q\":"<<q<<",\"j\":"<<j<<",\"maximum_full_length\":"<<length
+          <<",\"work\":"<<partial.stats.global_work<<"}\n";REQUIRE(out.good());}
+      return;  // Complete construction/publication only; CFD transfer and restart remain separate gates.
     }
     FrozenField target(captured_source,compose,false,AssociatedExtensions(captured_source,*reference.original),options.edge_breakpoints);
     std::ofstream cells("grid_samples.csv");cells<<std::setprecision(17)<<"cell,q,j,xx,xy,xz,yy,yz,zz\n";
@@ -1686,6 +1696,8 @@ TEST_CASE("Cold native cylinder BL construction and release use the same origina
       CHECK(minimum_q>=MinimumMeanRatio);CHECK(minimum_j>=MinimumScaledJacobian);CHECK(excess<initial_excess);
       std::ofstream diagnosis("grid_refine_summary.json");diagnosis<<std::setprecision(17)<<"{\"accepted\":"<<partial.stats.accepted
           <<",\"cells\":"<<partial.cells.size()<<",\"q\":"<<minimum_q<<",\"j\":"<<minimum_j<<",\"oversized_edges\":"<<oversized
+          <<",\"region_attempts\":"<<partial.stats.region_attempts<<",\"region_cells\":"<<partial.stats.region_cells
+          <<",\"region_surface_trials\":"<<partial.stats.region_surface_trials<<",\"region_junction_trials\":"<<partial.stats.region_junction_trials
           <<",\"metric_linearizations\":"<<partial.stats.metric_linearizations<<",\"metric_probes\":"<<partial.stats.metric_probes
           <<",\"metric_linear_iterations\":"<<partial.stats.metric_linear_iterations<<",\"metric_solve_trials\":"<<partial.stats.metric_solve_trials
           <<",\"initial_excess\":"<<initial_excess<<",\"remaining_excess\":"<<excess<<",\"work\":"<<partial.stats.global_work<<"}\n";
@@ -2058,7 +2070,7 @@ TEST_CASE("Cold native cylinder BL construction and release use the same origina
     PatchMetric measured;std::string reason;CHECK(ValidateMetricPatch({row.second.cell},target,measured,reason));
     CHECK(target.Query(Centroid(row.second.cell)).sensor.xx==Approx(1.));
   }
-  options.wall_heights.clear();options.edge_breakpoints={};options.rejected_trial={};options.maximum_work-=refined.stats.global_work;
+  options.wall_heights.clear();options.region_walls.clear();options.edge_breakpoints={};options.rejected_trial={};options.maximum_work-=refined.stats.global_work;
   const auto released=Coarsen(world,refined.cells,input.original,*reference.original,{},options);
   if(!world.rank)std::cout<<"CURVED_NATIVE3D release valid="<<released.valid<<" work="<<released.stats.global_work<<" reason="<<released.reason<<std::endl;
   save(released.valid?"curved_cylinder_released":"curved_cylinder_released_rejected",released.cells);

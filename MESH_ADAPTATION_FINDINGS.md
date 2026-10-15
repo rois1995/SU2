@@ -5360,3 +5360,27 @@ engine construction or MPI/CFD/transfer/restart/performance qualification. Port 
 connected design with actual FrozenField callbacks; do not add another local
 fallback, load a saved grid, or promote proposal proxies into production. See
 [region construction](Handbook/GOAL3_REGION_CONSTRUCTION.md) and its pinned summary.
+
+
+## 2026-10-15 — complete native curved-target construction accepted
+
+The connected native region constructor replaces inherited volume connectivity by
+coordinating physical surface sampling, exact-height wall face apices, shared-edge
+band triangulations, planar junctions, transition and visible core. All proposals
+use actual frozen original-P1 sensor/geometric-BL queries; no Python, saved candidate,
+coarse-cell wall tensor interpolation or relaxed constraints enters production.
+The original1402-cell target now passes native construction/versioned publication
+on MPI1/2/4:1368 cells/423 nodes/64 wall faces,0 long edges, Lmax1.795195,
+qmin>=.21137/Jmin>=.05284, charged work2996/3036/2908<=4096 and300s limit.
+Independent serial exact geometry, all vertex links, no positive overlap, feet/height,
+authority and exported-tensor arithmetic pass. First512-face primitive-admission
+rejection and full private mesh are preserved; region validation reuses the unchanged
+height predicate per incident cell, keeping primitive64/128 limits unchanged.
+
+Rank-count results have different admissible connectivity/placement, despite equal
+input coordinates and normalized original donors/geometry. This is strict acceptance
+consistency, not bitwise output or transported-metric proof. One admitted visible
+radial/caps region is constructed on one worker with bounded original-source import;
+no general parallel region mesher, cold/removal/CFD/restart/accuracy or speedup claim.
+Full Goal3 remains open. See `Handbook/GOAL3_REGION_CONSTRUCTION.md` and
+`integration_evidence/native_3d_bl_v1/region_construction_v1/native_summary.json`.

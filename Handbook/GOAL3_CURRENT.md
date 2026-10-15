@@ -4,41 +4,25 @@ Repository `/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated`, branch
 `codex/native-3d-bl`. Goal3 remains ACTIVE and incomplete. The full objective and
 acceptance gates are preserved in [the requirement audit](../integration_evidence/native_3d_bl_v1/GOAL3_REQUIREMENTS.json).
 
-## Current construction work
+## Current construction milestone
 
-[Coupled actual-metric patch optimization](GOAL3_PATCH_OPTIMIZATION.md) now accepts
-the actual hard50→85-cell cylinder replacement in15 trials, with native frozen
-changed-edge progress/height/q/J and independent exact geometry/feet. The same
-strict1402-cell target reaches1984 cells/25 long edges (previous38), but rejects
-at300s/3985 of4096 work. All remaining lengths are physical:13 cylinder/12 rim,
-none interior. No complete curved generation or speedup follows.
+The complete original1402-cell curved target is now accepted by the native engine on
+MPI1/2/4 under unchanged constraints:1368 cells,0 long edges, qmin>=.21137/Jmin>=.05284,
+full length max1.795195. Independent serial exact geometry/height/embedding/tensor
+arithmetic passes. [Construction/limits](GOAL3_REGION_CONSTRUCTION.md) and
+[native provenance/results](../integration_evidence/native_3d_bl_v1/region_construction_v1/native_summary.json).
 
-470 Jacobian assertions/five repair controls, independent whole geometry/no overlap/
-98 exact feet/height/exported-tensor arithmetic, and bounded MPI2 donor-reference
-protocol pass in their declared scopes. Exact stage/object/binary provenance and
-preserved eager-scheduling regression are in the linked handbook/summary. Eager
-scheduling is withdrawn; the engine retains published scheduling. All owned jobs
-terminal. Next work must address the actual physical-wall reconstruction blocker
-with primary-progress and phase-cost evidence, not budget/fixture ladders.
+This replaces the previously blocked local-repair path for admitted visible radial
+regions. The rejected local recovery remains separately archived. Construction is
+currently one bounded region on one worker, with MPI source transport/versioned
+publication. Rank outputs have different admissible triangulations/placements; do
+not claim bitwise deterministic meshes or transported-metric qualification.
 
-## Rejected recovery and required next milestone
-
-The independent-branch/partial-continuation recovery can accept one actual blocked
-edit, but the complete unchanged target still rejects: eager79 and staged30 long
-edges, versus published25. This is not the next milestone. Preserve the rejected
-implementation on `codex/native-3d-boundary-recovery-study`; retain published00e3
-production policy and read [the construction reassessment](GOAL3_CONSTRUCTION_REASSESSMENT.md).
-User2026-10-15 requires a complete accepted curved mesh under unchanged constraints;
-reconsider construction strategy before another local fallback. Full Goal3 stays open.
-
-## Whole-region proof — native implementation pending
-
-A different connected surface/band/transition construction produces a complete
-1368-cell candidate from the actual frozen1402-cell target. Native actual queries
-pass q/J and all2074 full composed edges; independent exact geometry/no overlap/
-423 vertex links/64 normal feet/height/authority checks pass. Production code is
-unchanged; Python construction/proposal proxies are not native integration or
-MPI/CFD qualification. Read [the required native port](GOAL3_REGION_CONSTRUCTION.md).
+The mesh milestone is achieved; full Goal3 remains open. Next qualify complete
+coarse cold construction and removal, then CFD/current+BDF/transfer/restart and
+materially different fields/geometries. Existing performance, physics, wider geometry
+and full-workflow acceptance gates remain intact. No lifecycle speedup or scalability
+claim follows from the correctness test walltimes.
 
 ## Existing qualified scope
 

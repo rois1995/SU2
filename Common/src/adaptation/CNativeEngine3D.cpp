@@ -443,8 +443,8 @@ struct FieldAccounting {
   ~FieldAccounting() { FieldCounts(stats,field); }
 };
 struct HeightPolicyRow {
-  int marker=0;double height=0;
-  template<class S>void Fields(S& s){s(marker,height);}
+  int marker=0;double height=0,growth=0,thickness=0;
+  template<class S>void Fields(S& s){s(marker,height,growth,thickness);}
 };
 EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorCell>& original,
                    const PlanarReference& geometry, MetricComposition composition, EngineOptions options, MetricChange intent) {
@@ -475,7 +475,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
   };
   size_t batch_bytes=0;
   auto bytes=[&]() {
-    return transfer_memory::Add(options.caller_bytes,MapBytes(options.wall_heights),accepted_bytes,batch_bytes,MapBytes(working),
+    return transfer_memory::Add(options.caller_bytes,MapBytes(options.wall_heights),MapBytes(options.region_walls),accepted_bytes,batch_bytes,MapBytes(working),
         transfer_memory::Bytes(original),transfer_memory::Bytes(initial),transfer_memory::Bytes(result.splits),transfer_memory::Bytes(result.collapses),
         selection.Bytes(),MapBytes(retired_edges));
   };
@@ -508,8 +508,10 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     return valid;
   };
   const bool observe_rejections=world.maximum(bool(options.rejected_trial));
-  bool layer_active=false;Clock::time_point layer_started;
+  bool layer_active=false,region_active=false;Clock::time_point layer_started,region_started;
   auto finish=[&]() {
+    if(region_active && options.timings)stats.reconstruction_seconds+=std::chrono::duration<double>(Clock::now()-region_started).count();
+    region_active=false;
     if(layer_active && options.timings)stats.layer_seconds+=std::chrono::duration<double>(Clock::now()-layer_started).count();
     layer_active=false;
     if(result.valid && !options.wall_heights.empty()) {
@@ -595,6 +597,12 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     if (mode_lo!=mode_hi) failure.Set(1,0,"Native 3D adaptation intent differs across workers.");
     if(options.wall_heights.size()>MaximumDirectoryFeatures)
       failure.Set(1,0,"Native3D wall-height policy exceeds bounded marker count.");
+    for(const auto& row:options.region_walls) {
+      const auto h=options.wall_heights.find(row.first);const auto p=row.second;
+      if(h==options.wall_heights.end() || h->second!=p.height || !(p.growth>=1 && p.thickness>=p.height) ||
+          !std::isfinite(p.height+p.growth+p.thickness))
+        failure.Set(1,0,"Native3D region/height policies are inconsistent or invalid.");
+    }
     for(const auto& h:options.wall_heights)if(!(h.second>0) || !std::isfinite(h.second))
       failure.Set(1,0,"Native3D wall-height policy is nonfinite/nonpositive.");
     ready=vote(failure);
@@ -602,7 +610,11 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         transfer_memory::Mul(transfer_memory::Mul(world.size,options.wall_heights.size()),2*sizeof(HeightPolicyRow))));
     if(ready) {
       std::vector<std::vector<HeightPolicyRow>> to(world.size);
-      for(auto& peer:to)for(const auto& h:options.wall_heights)peer.push_back({h.first,h.second});
+      for(auto& peer:to)for(const auto& h:options.wall_heights) {
+        const auto p=options.region_walls.find(h.first);
+        peer.push_back({h.first,h.second,p==options.region_walls.end()?0:p->second.growth,
+                        p==options.region_walls.end()?0:p->second.thickness});
+      }
       bool admitted=false;
       const auto rows=world.exchange(to,&admitted,options.memory_ceiling,bytes());
       if(!admitted){result.reason="Native3D wall-height policy exchange exceeds budget.";ready=false;}
@@ -610,7 +622,11 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         if(rows.size()!=size_t(world.size)*options.wall_heights.size())failure.Set(1,0,"Native3D wall-height policies differ across workers.");
         else for(size_t i=0;i<rows.size();++i) {
           auto h=options.wall_heights.begin();std::advance(h,i%options.wall_heights.size());
-          if(rows[i].marker!=h->first || rows[i].height!=h->second)failure.Set(1,0,"Native3D wall-height policies differ across workers.");
+          const auto p=options.region_walls.find(h->first);
+          if(rows[i].marker!=h->first || rows[i].height!=h->second ||
+             rows[i].growth!=(p==options.region_walls.end()?0:p->second.growth) ||
+             rows[i].thickness!=(p==options.region_walls.end()?0:p->second.thickness))
+            failure.Set(1,0,"Native3D wall-height/region policies differ across workers.");
         }
         ready=vote(failure);
       }
@@ -645,6 +661,101 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         transfer_memory::Add(bytes(),directory.ResidentBytes()));
   }
   if (!ready) return finish();
+  // A complete visible radial region is constructed as one transaction, never as a larger local cavity.
+  bool region_applicable=curved && !coarsening && !repairing && options.region_walls.size()==1;
+  if(region_applicable) {
+    std::set<Id> walls;
+    const auto policy=options.region_walls.begin()->second;
+    const double g=policy.growth,requested=.9*MaximumMetricEdge;
+    const double depth=g==1?policy.height*requested:policy.height*(.5*(g-1)+.5*(g+1)*std::expm1((requested-.5)*2*(g-1)/(g+1)))/(g-1);
+    region_applicable=std::isfinite(depth) && depth>policy.height && depth<policy.thickness;
+    for(const auto& row:geometry.Facets()) {
+      const Id id=geometry.Canonical(row.first);const auto a=geometry.Analytic().find(id);
+      if(!geometry.CompleteAnalytic(id) || a==geometry.Analytic().end()) {region_applicable=false;break;}
+      if(options.region_walls.count(row.second.marker)) {
+        walls.insert(id);
+        region_applicable=region_applicable && (a->second.kind==AnalyticSurface::Kind::Cylinder || a->second.kind==AnalyticSurface::Kind::Sphere);
+      } else region_applicable=region_applicable && a->second.kind==AnalyticSurface::Kind::Disk;
+    }
+    region_applicable=region_applicable && walls.size()==1;
+  }
+  const int region_lo=CPassiveComm::Allreduce(int(region_applicable),CPassiveComm::Op::MIN,world.comm);
+  const int region_hi=CPassiveComm::Allreduce(int(region_applicable),CPassiveComm::Op::MAX,world.comm);
+  if(region_lo!=region_hi){result.reason="Native3D region applicability differs across workers.";return finish();}
+  if(region_applicable) {
+    region_active=true;region_started=Clock::now();CLocalFailure failure;
+    const size_t global_input=CPassiveComm::Allreduce(working.size(),CPassiveComm::Op::SUM,world.comm);
+    // shortcut: a bounded single-worker visible region; partition into connected regions for large sources.
+    const size_t region_cells=stats.work_limit;
+    const auto scratch=transfer_memory::Add(transfer_memory::Mul(global_input,8192),
+        transfer_memory::Mul(region_cells,16384),MaximumFrozenFieldBytes);
+    if(!admit(scratch))return finish();
+    std::vector<std::vector<OwnedCell>> buckets(world.size);
+    try {buckets[0].reserve(working.size());for(const auto& row:working)buckets[0].push_back(row.second);}
+    catch(const std::exception& e){failure.Set(2,0,e.what());}
+    if(!vote(failure))return finish();bool admitted=false;
+    auto rows=world.exchange(buckets,&admitted,options.memory_ceiling,transfer_memory::Add(bytes(),scratch));
+    if(!admitted){result.reason="Native3D region input exchange exceeds storage.";return finish();}
+    std::vector<DonorRegion> regions;Patch old,fresh;std::vector<OwnedCell> replacement;bool complete=false;
+    try {if(!world.rank){
+      std::sort(rows.begin(),rows.end(),[](const OwnedCell& a,const OwnedCell& b){return a.cell.id<b.cell.id;});
+      old=GeometryPatch(Imported{rows,true,{}});Point lo=rows.front().cell.v[0].p,hi=lo;
+      for(const auto& c:old.cells)for(auto n:c.v){lo={std::min(lo.x,n.p.x),std::min(lo.y,n.p.y),std::min(lo.z,n.p.z)};hi={std::max(hi.x,n.p.x),std::max(hi.y,n.p.y),std::max(hi.z,n.p.z)};}
+      regions.push_back({lo.x,lo.y,lo.z,hi.x,hi.y,hi.z});
+    }}catch(const std::exception& e){failure.Set(2,0,e.what());}
+    if(!vote(failure))return finish();
+    const auto imported=source.Import(regions,options.memory_ceiling,transfer_memory::Add(bytes(),scratch));
+    if(!imported.valid){result.reason=imported.reason;return finish();}
+    RegionReport report;
+    try {if(!world.rank){
+      FrozenField target(imported.cells,composition,options.timings,AssociatedExtensions(imported.cells,geometry),options.edge_breakpoints);
+      FieldAccounting accounting{stats,target};bool already_valid=GeometryExcess(old,geometry,options.surface_tolerance,options.wall_heights)==0;
+      std::string why;
+      if(already_valid)for(const auto& row:rows)if(!height_check(GeometryPatch(Imported{{row},true,{}}),why)){already_valid=false;break;}
+      if(already_valid)for(const auto& c:old.cells){PatchMetric metric;if(!ValidateMetricPatch({c},target,metric,why)){already_valid=false;break;}}
+      if(already_valid)complete=true;
+      else {
+        ++stats.region_attempts;std::map<Id,Point> points;for(const auto& c:old.cells)for(auto n:c.v)points.emplace(n.id,n.p);
+        std::vector<Facet> skin;for(auto f:old.surface){Facet face;face.id=f.facet;face.marker=geometry.Get(f.facet).marker;for(unsigned k=0;k<3;++k)face.v[k]={f.v[k],points.at(f.v[k])};skin.push_back(face);}
+        std::sort(skin.begin(),skin.end(),[](const Facet& a,const Facet& b){return Key({a.v[0].id,a.v[1].id,a.v[2].id})<Key({b.v[0].id,b.v[1].id,b.v[2].id});});
+        // Surface integrals give one partition-independent region kernel.
+        const Point origin=old.cells.front().v[0].p;long double volume=0,x=0,y=0,z=0;
+        for(const auto& f:skin){const auto a=f.v[0].p,b=f.v[1].p,c=f.v[2].p;const long double v=Orientation(origin,a,b,c);
+          volume+=v;x+=v*((long double)origin.x+a.x+b.x+c.x)/4;y+=v*((long double)origin.y+a.y+b.y+c.y)/4;z+=v*((long double)origin.z+a.z+b.z+c.z)/4;}
+        if(!(volume>0))throw std::runtime_error("Native3D region has nonpositive closed volume.");const Point kernel{double(x/volume),double(y/volume),double(z/volume)};
+        if(maximum_node==UINT64_MAX||maximum_cell==UINT64_MAX)throw std::overflow_error("Native3D region identity reservation overflows.");
+        RegionLimits limits;limits.maximum_cells=region_cells;limits.maximum_work=stats.work_limit;
+        if(options.rejected_trial)limits.rejected=[&](const Patch& candidate,const std::string& why) {
+          options.rejected_trial(old,candidate,{},MetricDiagnosis{},false,why);
+        };
+        limits.checkpoint=[&](){if(options.maximum_seconds && std::chrono::duration<double>(Clock::now()-started).count()>=options.maximum_seconds)
+            throw std::runtime_error("Native3D region construction exhausts elapsed-time budget.");};
+        if(!ConstructWallRegion(skin,kernel,geometry,options.region_walls,options.surface_tolerance,maximum_node+1,maximum_cell+1,target,limits,fresh,report,result.reason))
+          throw std::runtime_error(result.reason);
+        stats.global_work=fresh.cells.size()+report.surface_trials+report.junction_trials;
+        if(stats.global_work>stats.work_limit)throw std::runtime_error("Native3D region construction exceeds global event work.");
+        std::map<Face,Id> physical;for(auto f:fresh.surface)physical.emplace(Key(f.v),f.facet);
+        for(const auto& c:fresh.cells){OwnedCell row;row.cell=c;const auto faces=Faces(c);for(unsigned f=0;f<4;++f){auto found=physical.find(Key(faces[f]));if(found!=physical.end())row.physical[f]={true,found->second};}replacement.push_back(row);}
+        complete=true;
+      }
+    }}catch(const std::exception& e){failure.Set(2,0,e.what());}
+    stats.region_surface_trials=report.surface_trials;stats.region_junction_trials=report.junction_trials;
+    if(!vote(failure))return finish();
+    const bool changed=world.maximum(!replacement.empty());
+    if(changed) {
+      std::vector<std::vector<OwnedCell>> to(world.size);
+      try {for(auto row:replacement)to[row.cell.id%world.size].push_back(row);}catch(const std::exception& e){failure.Set(2,0,e.what());}
+      if(!vote(failure))return finish();
+      const auto added=world.exchange(to,&admitted,options.memory_ceiling,transfer_memory::Add(bytes(),scratch));
+      if(!admitted){result.reason="Native3D region result exchange exceeds storage.";return finish();}
+      std::vector<Dependency> removed;try{for(const auto& row:working)removed.push_back({row.first,row.second.version,world.rank});}catch(const std::exception& e){failure.Set(2,0,e.what());}
+      if(!vote(failure))return finish();
+      if(!directory.Publish(working,removed,added,true,result.reason,options.memory_ceiling,transfer_memory::Add(bytes(),scratch)))return finish();
+      if(!world.rank)++stats.accepted;stats.maximum_owned=std::max(stats.maximum_owned,working.size());stats.region_cells=CPassiveComm::Allreduce(working.size(),CPassiveComm::Op::SUM,world.comm);
+    }
+    result.valid=world.maximum(complete);stats.global_work=CPassiveComm::Allreduce(stats.global_work,CPassiveComm::Op::MAX,world.comm);
+    stats.stop=result.valid?EngineStop::Complete:EngineStop::Failure;result.reason.clear();return finish();
+  }
   if(!options.wall_heights.empty()) {
     layer_active=true;layer_started=Clock::now();
     CLocalFailure failure;
