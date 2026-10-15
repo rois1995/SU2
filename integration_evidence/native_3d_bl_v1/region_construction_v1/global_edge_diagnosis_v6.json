@@ -1,0 +1,39 @@
+{
+  "status": "ROOT_CAUSE_REPRODUCED_NEW_CONTROLLER_UNQUALIFIED",
+  "failed_case": "native_core_rotated_v5",
+  "failed_receipt_sha256": "e19d5d3659dbd8c0532959fa9fa72bdd29a75e54a453e4196f3df5e5aaaf3254",
+  "frozen_target_unchanged": true,
+  "evidence": {
+    "edge": [
+      [
+        2,
+        -1.7071067811865475,
+        1.2071067811865475
+      ],
+      [
+        2.3124597141037824,
+        -1.8095113394900795,
+        0.997051625386297
+      ]
+    ],
+    "source_begin": 0,
+    "source_width": 1,
+    "panel": [
+      6.829120602347416e-13,
+      6.829259380225494e-13
+    ],
+    "local_integral": 3.01508532772835e-17,
+    "local_indicator": 5.68610546236117e-24,
+    "local_allowance": 3.016473106509131e-26,
+    "depth": 20,
+    "native_work": 111,
+    "volume_cells": 0
+  },
+  "controller": "Initialize source/geometric panels, sum actual-width Gauss3/5 estimates and indicators, refine the largest unresolved error. Depth-capped residuals remain in the total. Accept only total indicator<=1e-9*abs(total)+1e-12;65,536 point calls and depth20 retained. Heap/growth is included in existing fixed-memory admission; no target, geometry, BL policy, mesh-quality, work/time or memory-ceiling relaxation.",
+  "limits": "Embedded Gaussian differences are error indicators, not rigorous enclosures. Thin strong/noisy controls and independent mesh/sensor checks required; full independent BL quadrature remains open.",
+  "next": [
+    "11 focused existing/new edge/rotation/physical-collar/balanced-placement controls",
+    "Complete same frozen rotated mesh with independent audit",
+    "Current construction fields and MPI/CFD lifecycle qualification"
+  ]
+}

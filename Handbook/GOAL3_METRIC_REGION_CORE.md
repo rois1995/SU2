@@ -81,6 +81,36 @@ Every complete native accepted case must receive its own independent audit. Only
 then a meaningful MPI/update/workflow campaign; do not repeat unaffected quadrature
 or broad suites for small source/metadata edits.
 
+## Shared edge integration followup
+
+Rotated v5 locates the original failure: a1.39e-17 endpoint panel has Gauss3/5
+indicator5.69e-24 but a3.02e-26 local allowance. The global controller sums errors
+across all source/geometric intervals. New v6 control catches a separate interior
+Gaussian blind spot (jump length error.000151 with indicator0). Endpoint-inclusive
+Lobatto v7 catches it, but reversed1e-9 band still exhausts evaluations because
+rounding maps its cut to norm57.56 on the adjacent coarse interval. Adjacent-double
+root brackets resolve that localization. v8 passes all correctness checks but fails
+the existing10000-composition gate at14133. All failures and exact snapshots remain.
+
+Final v9 reuses frozen endpoint/centre values only within one edge, starts with
+Lobatto3/5 and upgrades unresolved panels to5/7 before binary refinement. It passes
+all11 focused cases/129 assertions, including actual microscopic BL/finer demand,
+rotation, source/collar priority, balanced placement, thin/noisy controls and strict
+unresolved rejection. Microscopic control uses6688 calls; unchanged gate10000.
+The70-digit positive-weight/moments checks for3/5/7 also pass. Global1e-9 relative/
+1e-12 absolute indicator tolerance,65536 evaluations/depth20, geometry cuts and
+caller memory ceiling remain. Heap/growth is accounted. No field/height/geometry/
+mesh gate changed. These are estimators, not arbitrary-function enclosures or an
+independent full curved-BL integral proof. No wall-time speedup claim.
+
+Rotated v9 now reaches2037 work/609 planning trials then fails transition clearance,
+not quadrature. Near-axis subtraction contaminates the normalized radial vector
+in ClosestAnalytic, moving a tilted cylinder foot off its authority.0 core regions;
+private and retained grids/reference exported, never certified. Existing AxisFrame
+supplies the orthonormal radial basis needed to fix the shared geometry operation.
+No local mesh fallback or tolerance relaxation. All owned jobs terminal.
+[Complete evidence](../integration_evidence/native_3d_bl_v1/region_construction_v1/global_edge_summary.json).
+
 ## Remaining construction limits
 
 Boundary separators need one cycle and visible child kernels. Unresolved fixed

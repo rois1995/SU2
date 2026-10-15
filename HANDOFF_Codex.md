@@ -11,8 +11,16 @@ qmin.212222/Jmin.063341/full Lmax1.763819. Exact all-sensor original-P1 replay
 residual1.03e-16; its input and accepted mesh bytes match the preserved v3
 analytic-collar oracle failure. Rotated v4 FAILS existing composed-edge quadrature
 before any volume construction (111 planning work); input retained. No new fallback.
-All owned jobs/builds are terminal. Updated MPI and actual CFD/transfer/restart
-qualification are pending. Full Goal3 remains open.
+The new global endpoint-inclusive/root-bracketed edge controller passes11 controls/
+129 assertions and the unchanged10000-call gate (6688 vs14133 fixed-order calls).
+Rotated v9 gets through quadrature but rejects during transition clearance:
+ClosestAnalytic normalizes cancellation-contaminated radial residuals near the
+axis, producing a foot outside the finite tilted cylinder.2037 work/609 planning
+trials,0 core regions. Rejected and retained grids/reference are preserved.
+All owned jobs/builds terminal. Next use existing AxisFrame for a stable radial
+projection, add finite/near-axis controls, then finish the same complete rotated
+mesh and updated MPI/CFD/current+BDF/SA/restart. Full Goal3 remains open.
+[Current edge evidence](integration_evidence/native_3d_bl_v1/region_construction_v1/global_edge_summary.json).
 No cluster job/request.
 Foreign ClusterResults, AdapNoExt and dependencies remain untouched.
 
@@ -54,8 +62,8 @@ one kernel cannot fix this strategy. This is **not global target infeasibility**
 The implemented metric-driven volume core now uses several interior regions and
 conforming shared interfaces. The identical stronger constant target is complete
 and independently accepted. Constant and varying fields now independently accept complete meshes. Diagnose
-the rotated composed-edge integrator failure without changing the target or mesh
-gates, then qualify rotated geometry and the updated MPI/RANS lifecycle.
+the remaining rotated closest-point geometry failure without changing authority
+or mesh gates, then qualify the complete rotated mesh and updated MPI/RANS lifecycle.
 [Source-pinned result index](integration_evidence/native_3d_bl_v1/region_construction_v1/front_core_summary.json). No local-fallback chain, budget ladder, target reset or
 production Euler/BL mode. General/exterior/multiwall/high-ratio fronts, interacting
 thin integration/composed-gradation limits, M6/viscous accuracy and performance remain.

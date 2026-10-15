@@ -383,3 +383,31 @@ TEST_CASE("Full target split placement admits bounded biased proposals without c
   CHECK_THROWS(field.BalancedSplitPoint({0,0,0},{1,0,0},0));CHECK_THROWS(field.BalancedSplitPoint({0,0,0},{1,0,0},1));
   CHECK(field.Query({.55,0,0}).sensor.xx==1);
 }
+
+TEST_CASE("Composed edge error accounting resolves thin strong fields and tiny noisy panels", "[NativeComposite3D]") {
+  auto donor=Single();donor.sensor.fill({1,0,0,1,0,1});
+  const Point a{0,0,0},b{0,0,1};
+  const double width=1e-13,frequency=1e18;
+  FrozenField noisy({donor},[=](Point p,Tensor m) {
+    if(p.z<width)m.zz=std::pow(1+.2*(1+std::sin(frequency*p.z)),2);return m;
+  },false,{},[=](Point,Point){return std::vector<double>{0,width,1};});
+  const long double exact=1+.2L*width+.2L*(1-std::cos((long double)frequency*width))/frequency;
+  CHECK(std::abs(noisy.TargetEdgeLength(a,b)-exact)<1e-12L);
+  CHECK(noisy.Statistics().edge_compositions<100);
+  CHECK(noisy.Query({0,0,width/2}).sensor.zz==1);
+  for(const double thin:{1e-6,1e-9})for(const bool reverse:{false,true}) {
+    FrozenField strong({donor},[=](Point p,Tensor m){m.zz=std::pow(1+(2/thin)*std::max(0.,1-p.z/thin),2);return m;},false,{},
+        [=](Point first,Point last){return std::vector<double>{0,(thin-first.z)/(last.z-first.z),1};});
+    const auto length=strong.TargetEdgeLength(reverse?b:a,reverse?a:b);
+    CHECK(std::abs(length-2)<3e-9L);
+    CHECK(strong.SensorEdgeLength(a,b)==1);
+  }
+  FrozenField polynomial({donor},[](Point p,Tensor m){m.zz=std::pow(1+std::pow(p.z,8),2);return m;},false,{},
+      [](Point,Point){return std::vector<double>{0,1};});
+  CHECK(std::abs(polynomial.TargetEdgeLength(a,b)-10.L/9)<1e-12L);
+  FrozenField unresolved({donor},[](Point p,Tensor m){if(p.z>1/std::sqrt(2.))m.zz=9;return m;},false,{},
+      [](Point,Point){return std::vector<double>{0,1};});
+  CHECK_THROWS(unresolved.TargetEdgeLength(a,b));
+  CHECK(unresolved.Statistics().edge_compositions<=65536);
+  CHECK(unresolved.Statistics().edge_failures==1);
+}

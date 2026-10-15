@@ -1,0 +1,34 @@
+{
+  "status": "PRE_FIX_FORMULA_DEFECT_REPRODUCED",
+  "native_case": "native_core_rotated_v9",
+  "native_failure": "Unrepresentable native3D smooth closest point.",
+  "scope": "Independent long-double reproduction of old formula at represented near-axis points. Exact production failed query not yet logged; transition clearance scans cap centres on this axis.",
+  "origin": [
+    2,
+    -1,
+    0.5
+  ],
+  "raw_axis": [
+    1,
+    1,
+    1
+  ],
+  "point_construction": "binary64 origin+t*(1/sqrt(3),1/sqrt(3),1/sqrt(3))",
+  "examples": [
+    {
+      "t": 0.5,
+      "radial_norm": 1.8129866343629632e-16,
+      "normal_axial_component": 0.00017263348892818255,
+      "projected_height": 0.5001726334889284,
+      "projected_radius": 0.9999999850988393
+    },
+    {
+      "t": 1,
+      "radial_norm": 9.064935197984985e-17,
+      "normal_axial_component": 0.0006905338013664197,
+      "projected_height": 1.0006905338013665,
+      "projected_radius": 0.9999997615815062
+    }
+  ],
+  "next": "Construct radial component from existing orthonormal AxisFrame u/v coordinates before normalization. Preserve axis/end bounds/radius/tolerance/orientation and geometric BL composition."
+}

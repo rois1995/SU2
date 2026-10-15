@@ -16,8 +16,8 @@ class CADTElemClass;
 namespace SU2Native3D {
 class PlanarReference;
 constexpr size_t MaximumDonors = MaximumSegmentDonors, MaximumSensorSamples = 2048, MaximumGeometricEdgeCuts = 65536;
-// Imported records/indexes, bounded sensor cache and exact layered segment scratch; excludes CFD/allocator/RSS.
-constexpr size_t MaximumFrozenFieldBytes = MaximumDonors * 12288 + MaximumSensorSamples * 256 + MaximumGeometricEdgeCuts * sizeof(double);
+// Imported records/indexes, sensor cache, exact segment scratch and global edge heap/growth; excludes CFD/RSS.
+constexpr size_t MaximumFrozenFieldBytes = MaximumDonors * 12288 + MaximumSensorSamples * 256 + MaximumGeometricEdgeCuts * (sizeof(double)+64);
 using Metric = std::function<Tensor(Point)>;
 using MetricComposition = std::function<Tensor(Point, Tensor)>;
 using MetricEdgeBreakpoints = std::function<std::vector<double>(Point, Point)>;

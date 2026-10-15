@@ -100,7 +100,7 @@
     "wall_reconstruction_v1/joint_connectivity_summary.json"
   ],
   "execution_state": {
-    "status": "Complete constant and varying serial native+independent meshes PASS under unchanged constraints. Rotated v4 FAILS composed edge quadrature before volume cells. All owned jobs terminal; updated MPI/CFD unqualified. Full Goal3 ACTIVE.",
+    "status": "Shared global edge controller passes11/129 and unchanged10000 cost gate at6688. Rotated v9 now rejects near-axis closest-point geometry during transition clearance (2037 work), not quadrature. Fix shared radial projection via existing AxisFrame then require complete rotated/MPI/CFD mesh. Full Goal3 ACTIVE.",
     "CFD_runs": 11,
     "CFD_run_scope": "Five corrected-config failed serial attempts v1..v5 plus six successful v6 N/M variants; initial invalid config retained separately.",
     "production_MPI": "Prior907646e00e actual-flow N/M1/1,2/1,2/2,4/1,4/2,4/4 PASS in its old-source scope. Updated front/core MPI and actual workflow are pending.",
@@ -236,7 +236,7 @@
     "scope": "One planar cube production case plus six focused first-row geometry/movement cases. Actual computed metric, conservative current+BDF/bounded-SA and SU2/CGNS/reference/restart checks; independent exact embedding, full composed metric, wall footprint and height. No new MPI, full regressions, general layer coverage, actual CFD accuracy or performance qualification."
   },
   "owned_jobs": {
-    "status": "All owned jobs/builds terminal. Wrapper97418: varying native+independent PASS, rotated native FAIL preserved. No restart or cluster request."
+    "status": "All owned jobs/builds terminal. Global edge controls v9 PASS; rotated v9 FAIL preserved at closest-point transition clearance."
   },
   "wall_reconstruction": {
     "status": "PASS_PLANAR_STRONGER_FIELD_LIMITED_SCOPE",
@@ -706,5 +706,10 @@
       "collar_analytic_delta": 4.721512400154063e-12
     },
     "rotated_v4": "FAIL before volume generation: composed edge quadrature did not converge; input retained; no fallback or gate relaxation."
+  },
+  "current_edge_controller": {
+    "status": "PASS_GLOBAL_ENDPOINT_INCLUSIVE_ERROR_CONTROLLER_CONTROLS_ROTATED_MESH_STILL_REJECTED",
+    "evidence": "region_construction_v1/global_edge_summary.json",
+    "full_goal3_complete": false
   }
 }

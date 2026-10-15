@@ -1,0 +1,68 @@
+{
+  "status": "PASS_GLOBAL_ENDPOINT_INCLUSIVE_ERROR_CONTROLLER_CONTROLS_ROTATED_MESH_STILL_REJECTED",
+  "full_goal3_complete": false,
+  "controls": {
+    "cases": 11,
+    "assertions": 129,
+    "microscopic_compositions": 6688,
+    "same_gate": 10000,
+    "prior_fixed_high_order": 14133,
+    "wall_time_speedup_claim": false
+  },
+  "cases": {
+    "native_core_rotated_v5": {
+      "status": "FAIL",
+      "receipt_sha256": "e19d5d3659dbd8c0532959fa9fa72bdd29a75e54a453e4196f3df5e5aaaf3254",
+      "elapsed_including_test_export_seconds": 2.3044445120031014,
+      "native_log": "REGION_CORE field=2 valid=0 regions=0 work=111 trials=0 surface_trials=111 junction_trials=0 reason=Native 3D composed edge quadrature did not converge: edge=(2,-1.70710678118654746172,1.20710678118654746172)..(2.3124597141037823711,-1.80951133949007947344,0.997051625386296991316) source_begin=0 source_width=1 panel=6.82912060234741602471e-13,6.82925938022549416928e-13 three=3.01508475911780352024e-17 five=3.01508532772834975636e-17 error=5.68610546236116970105e-24 allowance=3.01647310650913120195e-26\n../../UnitTests/SU2_CFD/adaptation/fixtures/native_region_core_fields.inc:52: failed: result.valid for: false with 1 message: 'Native 3D composed edge quadrature did not converge: edge=(2,-1.70710678118654746172,1.20710678118654746172)..(2.3124597141037823711,-1.80951133949007947344,0.997051625386296991316) source_begin=0 source_width=1 panel=6.82912060234741602471e-13,6.82925938022549416928e-13 three=3.01508475911780352024e-17 five=3.01508532772834975636e-17 error=5.68610546236116970105e-24 allowance=3.01647310650913120195e-26'\nFailed 1 test case, failed 1 assertion.\n\n"
+    },
+    "native_global_edge_controls_v6": {
+      "status": "FAIL",
+      "receipt_sha256": "1940beb3409f43df3308ed8b007b35606fc2799b51823d76456b6e9cbafff340",
+      "elapsed_including_test_export_seconds": 2.8858915170421824,
+      "native_log": "../../UnitTests/Common/adaptation/CNativeField3D_tests.cpp:407: failed: expected exception, got none; expression was: unresolved.TargetEdgeLength(a,b)\n../../UnitTests/Common/adaptation/CNativeField3D_tests.cpp:409: failed: unresolved.Statistics().edge_failures==1 for: 0 == 1\nFailed 1 test case, failed 2 assertions.\n\n"
+    },
+    "native_global_edge_controls_v7": {
+      "status": "FAIL",
+      "receipt_sha256": "9ae19e09b5a038a258b1d6f5c772a68682a85be18b93eeb148f690f4973b2aa1",
+      "elapsed_including_test_export_seconds": 2.990505006047897,
+      "native_log": "../../UnitTests/Common/adaptation/CNativeField3D_tests.cpp:387: failed: unexpected exception with message: 'Native 3D composed edge evaluation budget exhausted.'; expression was: {Unknown expression after the reported line}\nFailed 1 test case, failed 1 assertion.\n\n"
+    },
+    "native_global_edge_controls_v8": {
+      "status": "FAIL",
+      "receipt_sha256": "41c4f32a2b34d6f8d419e46f316822b598884b3455faa8f3c9a90cf29bb33817",
+      "elapsed_including_test_export_seconds": 3.06650760199409,
+      "native_log": "../../UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp:932: failed: field.Statistics().compositions<10000 for: 14133 (0x3735) < 10000 (0x2710)\nFailed 1 test case, failed 1 assertion.\n\n"
+    },
+    "native_global_edge_controls_v9": {
+      "status": "PASS",
+      "receipt_sha256": "eed1b53c827f5dceef03b98e6827f00746eafe39c0f8dec5f5d18834eaffa5e0",
+      "elapsed_including_test_export_seconds": 3.002623055013828,
+      "native_log": "Passed all 11 test cases with 129 assertions.\n\n"
+    },
+    "native_core_rotated_v9": {
+      "status": "FAIL",
+      "receipt_sha256": "6ad413d91aea9f39bd3b395ca78cc9c089c87f9d66d2116af8ed845b365bf5f6",
+      "elapsed_including_test_export_seconds": 4.771312384051271,
+      "native_log": "REGION_CORE field=2 valid=0 regions=0 work=2037 trials=0 surface_trials=609 junction_trials=0 reason=Unrepresentable native3D smooth closest point.\n../../UnitTests/SU2_CFD/adaptation/fixtures/native_region_core_fields.inc:52: failed: result.valid for: false with 1 message: 'Unrepresentable native3D smooth closest point.'\nFailed 1 test case, failed 1 assertion.\n\n"
+    }
+  },
+  "composition_count_log_sha256": "737fad9c2d1dd6252db6947f566e4ed3c8249abf7c634bc050a1b14a7638cccd",
+  "limits": {
+    "global_relative_error_indicator": 1e-09,
+    "global_absolute_error_indicator": 1e-12,
+    "maximum_point_evaluations": 65536,
+    "maximum_binary_depth": 20,
+    "maximum_geometry_cuts": 65536,
+    "caller_memory_ceiling": "unchanged; heap and reallocation growth included in accounting",
+    "mesh_target_geometry_height_q_J_edge_work_time": "unchanged"
+  },
+  "implementation": "Rounded-root brackets; endpoint-inclusive nested Lobatto3/5, upgrade dominant-error panels to5/7, then bisect. Reuse only identical frozen abscissa values within the same edge. Capped residuals remain in summed error. No target interpolation/coarsening or cross-query BL cache.",
+  "coefficient_check": {
+    "file": "global_edge_lobatto_moments.json",
+    "sha256": "e11ddcbbccc5c7c0b45bfd0eeff8f19864d82aae166306e441c361cbd8d46514"
+  },
+  "rejection": "Rotated v9 passes quadrature and surface planning, then closest analytic cylinder query fails during transition clearance.2037 work/609 surface trials; no core regions. Rejected private grid and retained input exported; not accepted or certified.",
+  "next": "Use existing orthonormal AxisFrame to prevent near-axis cancellation from contaminating cylinder foot/normal, add finite-cylinder controls, then complete same rotated mesh and updated MPI/CFD campaign.",
+  "limits_of_evidence": "Lobatto differences are indicators, not rigorous arbitrary-field enclosures. Mandatory geometry bands retained. Independent complete curved BL integration, wider geometry, current MPI/CFD/restart and lifecycle affordability still open."
+}

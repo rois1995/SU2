@@ -1,0 +1,54 @@
+../../UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp:921: passed: SU2_TYPE::GetValue(sample.metric.m[2][2])==Approx(std::pow(h0,-2*w)).epsilon(1e-8) for: 999999999999.9990234375
+==
+Approx( 999999999999.9990234375 ) with 1 message: 'z=0 weight=1 fullzz=1e+12'
+../../UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp:922: passed: compose({.125,.125,z},{1,0,0,1,0,1}).zz==Approx(std::pow(h0,-2*w)).epsilon(1e-8) for: 999999999999.9990234375
+==
+Approx( 999999999999.9990234375 ) with 1 message: 'z=0 weight=1 fullzz=1e+12'
+../../UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp:921: passed: SU2_TYPE::GetValue(sample.metric.m[2][2])==Approx(std::pow(h0,-2*w)).epsilon(1e-8) for: 999999999999.9990234375
+==
+Approx( 999999999999.9990234375 ) with 1 message: 'z=0.005 weight=1 fullzz=1e+12'
+../../UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp:922: passed: compose({.125,.125,z},{1,0,0,1,0,1}).zz==Approx(std::pow(h0,-2*w)).epsilon(1e-8) for: 999999999999.9990234375
+==
+Approx( 999999999999.9990234375 ) with 1 message: 'z=0.005 weight=1 fullzz=1e+12'
+../../UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp:921: passed: SU2_TYPE::GetValue(sample.metric.m[2][2])==Approx(std::pow(h0,-2*w)).epsilon(1e-8) for: 999999999999.9990234375
+==
+Approx( 999999999999.9990234375 ) with 1 message: 'z=0.009 weight=1 fullzz=1e+12'
+../../UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp:922: passed: compose({.125,.125,z},{1,0,0,1,0,1}).zz==Approx(std::pow(h0,-2*w)).epsilon(1e-8) for: 999999999999.9990234375
+==
+Approx( 999999999999.9990234375 ) with 1 message: 'z=0.009 weight=1 fullzz=1e+12'
+../../UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp:921: passed: SU2_TYPE::GetValue(sample.metric.m[2][2])==Approx(std::pow(h0,-2*w)).epsilon(1e-8) for: 461317574560.3833618164
+==
+Approx( 461317574560.3833618164 ) with 1 message: 'z=0.0091 weight=0.972 fullzz=1e+12'
+../../UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp:922: passed: compose({.125,.125,z},{1,0,0,1,0,1}).zz==Approx(std::pow(h0,-2*w)).epsilon(1e-8) for: 461317574560.3833618164
+==
+Approx( 461317574560.3833618164 ) with 1 message: 'z=0.0091 weight=0.972 fullzz=1e+12'
+../../UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp:921: passed: SU2_TYPE::GetValue(sample.metric.m[2][2])==Approx(std::pow(h0,-2*w)).epsilon(1e-8) for: 1000000.0000000368
+==
+Approx( 1000000.000000051 ) with 1 message: 'z=0.0095 weight=0.5 fullzz=1e+12'
+../../UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp:922: passed: compose({.125,.125,z},{1,0,0,1,0,1}).zz==Approx(std::pow(h0,-2*w)).epsilon(1e-8) for: 1000000.000000037
+==
+Approx( 1000000.000000051 ) with 1 message: 'z=0.0095 weight=0.5 fullzz=1e+12'
+../../UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp:921: passed: SU2_TYPE::GetValue(sample.metric.m[2][2])==Approx(std::pow(h0,-2*w)).epsilon(1e-8) for: 2.1677041048 == Approx( 2.1677041048 ) with 1 message: 'z=0.0099 weight=0.028 fullzz=1e+12'
+../../UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp:922: passed: compose({.125,.125,z},{1,0,0,1,0,1}).zz==Approx(std::pow(h0,-2*w)).epsilon(1e-8) for: 2.1677041048 == Approx( 2.1677041048 ) with 1 message: 'z=0.0099 weight=0.028 fullzz=1e+12'
+../../UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp:922: passed: compose({.125,.125,z},{1,0,0,1,0,1}).zz==Approx(std::pow(h0,-2*w)).epsilon(1e-8) for: 1.0 == Approx( 1.0 ) with 1 message: 'z=0.01 weight=0 fullzz=0'
+../../UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp:924: passed: double(field.TargetEdgeLength(a,b))==Approx(expected).epsilon(2e-9) for: 9148.1963264073
+==
+Approx( 9148.1963264072 )
+../../UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp:925: passed: double(field.TargetEdgeLength(b,a))==Approx(expected).epsilon(2e-9) for: 9148.1963264073
+==
+Approx( 9148.1963264072 )
+../../UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp:926: passed: double(field.SensorEdgeLength(a,b))==Approx(.6).epsilon(1e-14) for: 0.6 == Approx( 0.6 )
+../../UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp:928: passed: balanced.z<thickness for: 0.0045740982 < 0.01
+../../UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp:929: passed: double(field.TargetEdgeLength(a,balanced))==Approx(double(field.TargetEdgeLength(balanced,b))).epsilon(3e-8) for: 4574.0981632036
+==
+Approx( 4574.0981632036 )
+../../UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp:930: passed: field.Query({.125,.125,.1}).sensor.zz==1 for: 1.0 == 1
+../../UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp:931: passed: field.Query({.125,.125,.1}).target.zz==Approx(1) for: 1.0 == Approx( 1.0 )
+../../UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp:932: passed: field.Statistics().compositions<10000 for: 6688 (0x1a20) < 10000 (0x2710)
+../../UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp:933: passed: field.Statistics().edge_compositions>0 for: 6676 (0x1a14) > 0
+../../UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp:934: passed: field.Statistics().edge_geometry_seconds>0 for: 0.001835478 > 0
+../../UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp:935: passed: field.Statistics().edge_composition_seconds>0 for: 0.01565246 > 0
+../../UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp:938: passed: double(finer.TargetEdgeLength(a,b))==Approx(.6e7).epsilon(1e-12) for: 6000000.0 == Approx( 6000000.0 )
+../../UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp:940: passed: missing.TargetEdgeLength(a,b)
+Passed 1 test case with 26 assertions.
+

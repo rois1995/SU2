@@ -12,6 +12,8 @@
 #include <chrono>
 #include <cmath>
 #include <map>
+#include <iomanip>
+#include <sstream>
 #include <stdexcept>
 #include <type_traits>
 
@@ -212,50 +214,108 @@ long double FrozenField::EdgeLength(Point a, Point b, bool composed) {
       for (size_t i = 0; i < cuts.size(); ++i)
         if (!std::isfinite(cuts[i]) || (i && !(cuts[i] > cuts[i-1])))
           throw std::invalid_argument("Unordered native 3D geometric edge breakpoints.");
+      // Enclose each rounded geometry root before endpoint-inclusive quadrature sees it.
+      std::vector<double> enclosed;enclosed.reserve(std::min(MaximumGeometricEdgeCuts,3*cuts.size()));
+      auto retain=[&](double t) {
+        if(!enclosed.empty() && t<=enclosed.back())return;
+        if(enclosed.size()==MaximumGeometricEdgeCuts)throw std::runtime_error("Native 3D geometric root brackets exceed work budget.");
+        enclosed.push_back(t);
+      };
+      for(auto cut:cuts) {
+        if(cut>0 && cut<1)retain(std::nextafter(cut,0.));
+        retain(cut);
+        if(cut>0 && cut<1)retain(std::nextafter(cut,1.));
+      }
+      cuts.swap(enclosed);
     }
     long double total = 0;
-    size_t evaluations = 0;
-    for (const auto& piece : pieces) {
-      const auto& donor = donors[candidates[piece.donor]];
-      if (donor.extension_component!=UINT64_MAX) ++stats.extended_edge_pieces;
-      if (composed) {
-        auto value = [&](long double t) {
-          if (++evaluations > 65536) throw std::runtime_error("Native 3D composed edge evaluation budget exhausted.");
-          const auto parameter = piece.begin + t*piece.width;
-          Point p{double((1-parameter)*a.x+parameter*b.x), double((1-parameter)*a.y+parameter*b.y),
-                  double((1-parameter)*a.z+parameter*b.z)};
-          std::array<long double,4> weights;
-          for (unsigned k=0;k<4;++k) weights[k]=(1-t)*piece.begin_weights[k]+t*piece.end_weights[k];
-          Tensor target;
-          {
-            Timer timer(stats.edge_composition_seconds,timings);
-            ++stats.compositions; ++stats.edge_compositions;
-            target=composition(p,Blend(donor,weights));
-          }
-          ValidateTensor(target,&stats.kernel);
-          return MetricNorm(a,b,target,&stats.kernel);
-        };
-        auto integrate = [&](auto&& self,long double low,long double high,unsigned depth) -> long double {
-          const auto middle=(low+high)/2, half=(high-low)/2;
-          const long double v=value(middle);
-          const auto three=half*((8.L/9)*v+(5.L/9)*(value(middle-half*std::sqrt(3.L/5))+value(middle+half*std::sqrt(3.L/5))));
-          const auto five=half*((128.L/225)*v
-              +.47862867049936646804L*(value(middle-half*.53846931010568309104L)+value(middle+half*.53846931010568309104L))
-              +.23692688505618908751L*(value(middle-half*.90617984593866399280L)+value(middle+half*.90617984593866399280L)));
-          if (std::abs(five-three) <= 1e-9L*std::abs(five)+1e-12L*(high-low)) return five;
-          if (depth >= 20) throw std::runtime_error("Native 3D composed edge quadrature did not converge.");
-          return self(self,low,middle,depth+1)+self(self,middle,high,depth+1);
-        };
-        long double low=0;
-        for (const auto cut : cuts) {
-          if (cut <= piece.begin || cut >= piece.end) continue;
+    if (composed) {
+      struct Panel {
+        size_t piece;
+        long double low, high, value, error, first, middle, last;
+        unsigned depth;
+        bool high_order;
+        bool operator<(const Panel& other) const { return error < other.error; }
+      };
+      static_assert(sizeof(Panel)<=160,"Composed edge heap exceeds admitted workspace per panel.");
+      size_t evaluations=0;
+      auto value = [&](size_t index,long double t) {
+        if (++evaluations > 65536) throw std::runtime_error("Native 3D composed edge evaluation budget exhausted.");
+        const auto& piece=pieces[index];const auto& donor=donors[candidates[piece.donor]];
+        const auto parameter=piece.begin+t*piece.width;
+        Point p{double((1-parameter)*a.x+parameter*b.x),double((1-parameter)*a.y+parameter*b.y),
+                double((1-parameter)*a.z+parameter*b.z)};
+        std::array<long double,4> weights;
+        for(unsigned k=0;k<4;++k)weights[k]=(1-t)*piece.begin_weights[k]+t*piece.end_weights[k];
+        Tensor target;
+        {
+          Timer timer(stats.edge_composition_seconds,timings);
+          ++stats.compositions;++stats.edge_compositions;
+          target=composition(p,Blend(donor,weights));
+        }
+        ValidateTensor(target,&stats.kernel);
+        return MetricNorm(a,b,target,&stats.kernel);
+      };
+      const auto fiveNode=std::sqrt(3.L/7),root=std::sqrt(15.L);
+      const auto sevenInner=std::sqrt((15.L-2*root)/33),sevenOuter=std::sqrt((15.L+2*root)/33);
+      auto measure = [&](size_t index,long double low,long double high,unsigned depth,long double first,long double last) {
+        const auto middle=(low+high)/2,half=(high-low)/2;
+        if(!(middle>low && middle<high))throw std::runtime_error("Native 3D composed edge panel is unrepresentable.");
+        const auto v=value(index,middle),ends=first+last;
+        // Nested endpoint-inclusive rules retain frozen samples only within this edge integral.
+        const auto three=half*(ends/3+(4.L/3)*v);
+        const auto five=half*(ends/10+(32.L/45)*v
+            +(49.L/90)*(value(index,middle-half*fiveNode)+value(index,middle+half*fiveNode)));
+        const auto width=pieces[index].width;
+        return Panel{index,low,high,width*five,width*std::abs(five-three),first,v,last,depth,false};
+      };
+      long double error=0;
+      std::vector<Panel> pending;
+      auto retain = [&](Panel panel) {
+        total+=panel.value;error+=panel.error;
+        pending.push_back(panel);std::push_heap(pending.begin(),pending.end());
+      };
+      for(size_t index=0;index<pieces.size();++index) {
+        const auto& piece=pieces[index];
+        if(donors[candidates[piece.donor]].extension_component!=UINT64_MAX)++stats.extended_edge_pieces;
+        long double low=0,first=value(index,0);
+        for(const auto cut:cuts) {
+          if(cut<=piece.begin || cut>=piece.end)continue;
           const auto high=std::clamp((cut-piece.begin)/piece.width,0.L,1.L);
-          if (high>low) total+=piece.width*integrate(integrate,low,high,0);
+          if(high>low) {
+            const auto last=value(index,high);retain(measure(index,low,high,0,first,last));first=last;
+          }
           low=high;
         }
-        if (low<1) total+=piece.width*integrate(integrate,low,1,0);
-        continue;
+        if(low<1)retain(measure(index,low,1,0,first,value(index,1)));
       }
+      // The error budget belongs to the whole edge, including tiny source/geometric panels.
+      while(error>1e-9L*std::abs(total)+1e-12L) {
+        if(pending.empty()) {
+          std::ostringstream why;why<<std::setprecision(21)<<"Native 3D composed edge quadrature did not converge: edge=("
+              <<a.x<<','<<a.y<<','<<a.z<<")..("<<b.x<<','<<b.y<<','<<b.z<<") integral="<<total<<" error="<<error
+              <<" allowance="<<(1e-9L*std::abs(total)+1e-12L)<<" evaluations="<<evaluations;
+          throw std::runtime_error(why.str());
+        }
+        std::pop_heap(pending.begin(),pending.end());auto panel=pending.back();pending.pop_back();
+        if(!panel.high_order) {
+          const auto middle=(panel.low+panel.high)/2,half=(panel.high-panel.low)/2;
+          const auto seven=pieces[panel.piece].width*half*((panel.first+panel.last)/21+(256.L/525)*panel.middle
+              +((124+7*root)/350)*(value(panel.piece,middle-half*sevenInner)+value(panel.piece,middle+half*sevenInner))
+              +((124-7*root)/350)*(value(panel.piece,middle-half*sevenOuter)+value(panel.piece,middle+half*sevenOuter)));
+          total-=panel.value;error=std::max(0.L,error-panel.error);
+          panel.error=std::abs(seven-panel.value);panel.value=seven;panel.high_order=true;retain(panel);continue;
+        }
+        if(panel.depth>=20)continue; // Its unresolved error stays in the total; other panels may still improve.
+        const auto middle=(panel.low+panel.high)/2;
+        const auto left=measure(panel.piece,panel.low,middle,panel.depth+1,panel.first,panel.middle),
+                   right=measure(panel.piece,middle,panel.high,panel.depth+1,panel.middle,panel.last);
+        total-=panel.value;error=std::max(0.L,error-panel.error);
+        retain(left);retain(right);
+      }
+    } else for (const auto& piece : pieces) {
+      const auto& donor = donors[candidates[piece.donor]];
+      if (donor.extension_component!=UINT64_MAX) ++stats.extended_edge_pieces;
       const auto first = MetricNorm(a, b, Blend(donor, piece.begin_weights), &stats.kernel);
       const auto last = MetricNorm(a, b, Blend(donor, piece.end_weights), &stats.kernel);
       const auto largest = std::max(first, last), r = std::min(first, last) / largest;

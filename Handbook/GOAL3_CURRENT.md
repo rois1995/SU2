@@ -57,8 +57,10 @@ edge limit for constant axial sensor16 over unit span. A metric-driven core with
 several interior regions/shared interfaces now accepts the complete constant target
 in serial with independent geometry/height/embedding and pure-core metric audit.
 The varying mesh also independently accepts against exact frozen P1, including
-its declared finite collar. Rotated geometry currently rejects in composed-edge
-quadrature before volume generation; updated MPI/workflow checks remain pending. No wall
+its declared finite collar. The new shared edge controller passes11 focused cases/129 assertions with6688
+microscopic calls (same10000 gate). Rotated geometry now rejects in transition
+clearance from near-axis closest-point cancellation; updated MPI/workflow checks
+remain pending. See the front/core handbook for current source/evidence scope. No wall
 fallback ladder, target relaxation or goal narrowing. Current actual-flow full-edge
 independent quadrature, stronger fields, general geometry, accuracy/performance and
 other full Goal3 gates remain open. The live job state is in HANDOFF_Codex.md; older workflow jobs are terminal.

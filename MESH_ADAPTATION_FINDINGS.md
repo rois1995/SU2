@@ -5574,3 +5574,29 @@ These are initialized RANS/frozen imposed sensor constructions, not CFD/graded-s
 or MPI/performance qualification of the new source. The prior907646e00e actual RANS
 MPI matrix retains its old-source scope. Full Goal3 ACTIVE. See
 [front/core handbook](Handbook/GOAL3_METRIC_REGION_CORE.md).
+
+
+## 2026-10-16 — bounded whole-edge quadrature, current rotated geometry blocker
+
+The original rotated rejection was a tiny local quadrature allowance, not exhausted
+mesh feasibility. The connected controller now brackets rounded geometry roots,
+uses endpoint-inclusive nested Lobatto3/5->5/7, and sums physical-width errors over
+the complete edge. Depth-capped errors stay in the total. Global1e-9/1e-12,
+65536 evaluations/depth20, geometry-cut and caller memory ceilings remain; extra
+heap/growth is admitted. P1 donors, actual-query BL/finer requests/fade and mesh
+height/geometry/q/J/length/work/time are unchanged.
+
+Own controls exposed and preserve both a Gaussian interior-jump blind spot and
+rounded-root stiffness on the reversed1e-9 band. Final v9 passes11 cases/129
+assertions and the unchanged10000-composition gate at6688 vs14133 fixed-order.
+This is deterministic query-count improvement, not wall-time/scaling qualification.
+Independent70-digit coefficient moments pass; full independent curved-BL quadrature
+remains open. No complete-mesh claim follows from these controls alone.
+
+Rotated v9 now gets through edge/surface planning, then rejects transition clearance
+at2037 work/609 planning trials, before core generation. ClosestAnalytic normalizes
+near-axis cancellation residuals: a tilted cylinder foot can acquire axial component
+~.00069 and radius.99999976, outside its unchanged authority. The existing AxisFrame
+provides a stable radial basis for the next shared geometry fix. Rejected/retained
+grids and source/binary receipts are archived; no local remeshing fallback. Full
+Goal3 ACTIVE. Evidence: region_construction_v1/global_edge_summary.json.
