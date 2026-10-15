@@ -32,9 +32,11 @@ rebuild qmin>=.33135/Jmin>=.09572/full Lmax1.795195. Geometric BL is composed at
 actual point query; memoized points retain sensors only. Exact segment imports avoid
 a whole-source gather. See [field service scope/evidence](GOAL3_DISTRIBUTED_REGION_FIELD.md).
 
-Full Goal3 remains open. Next qualify actual curved RANS/current+BDF/transfer/restart,
-then materially different/stronger fields, interacting/exterior regions and high-ratio
-multiple fronts. The source is no longer globally limited to256 donors, but each
+Full Goal3 remains open. The actual curved RANS/current+BDF/transfer/restart
+milestone below is qualified only for its recorded old constructor. The current
+stronger-field construction strategy and its distinct-field checks are described
+in [the metric-directed front/core handbook](GOAL3_METRIC_REGION_CORE.md).
+Interacting/exterior regions and high-ratio multiple fronts remain open. The source is no longer globally limited to256 donors, but each
 query footprint and resident cache still are. Geometry remains one visible radial/caps
 region on one worker. No CFD transfer, lifecycle speedup or scalability claim follows.
 
@@ -52,10 +54,14 @@ the coarse bound. See [full evidence/limits](GOAL3_CURVED_RANS_RUNTIME.md).
 
 The next construction limitation is proved: one core kernel cannot satisfy the1.8
 edge limit for constant axial sensor16 over unit span. A metric-driven core with
-several interior vertices/regions is the next substantial strategy change. No wall
+several interior regions/shared interfaces now accepts the complete constant target
+in serial with independent geometry/height/embedding and pure-core metric audit.
+The varying mesh also independently accepts against exact frozen P1, including
+its declared finite collar. Rotated geometry currently rejects in composed-edge
+quadrature before volume generation; updated MPI/workflow checks remain pending. No wall
 fallback ladder, target relaxation or goal narrowing. Current actual-flow full-edge
 independent quadrature, stronger fields, general geometry, accuracy/performance and
-other full Goal3 gates remain open. All owned jobs terminal.
+other full Goal3 gates remain open. The live job state is in HANDOFF_Codex.md; older workflow jobs are terminal.
 
 The matching practical M6 input is located at
 `/media/rausa/4TB/SU2_Versions/TestCasesForSSTIDDES/optimization_rans/steady_oneram6`,

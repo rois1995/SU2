@@ -754,12 +754,12 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         if(!constructed) {
           // A height-free cone cannot resolve every interior field; retain the existing volume operators there.
           core_declined=options.region_walls.empty() && !report.exhausted_work &&
-              (report.minimum_quality<MinimumMeanRatio || report.minimum_jacobian<MinimumScaledJacobian ||
+              (report.unresolved_core || report.minimum_quality<MinimumMeanRatio || report.minimum_jacobian<MinimumScaledJacobian ||
                report.maximum_edge>MaximumMetricEdge);
           if(!core_declined)throw std::runtime_error(result.reason);
           last_rejection=result.reason;
         } else {
-          stats.global_work=fresh.cells.size()+report.surface_trials+report.junction_trials;
+          stats.global_work=fresh.cells.size()+report.surface_trials+report.junction_trials+report.core_trials;
           if(stats.global_work>stats.work_limit)throw std::runtime_error("Native3D region construction exceeds global event work.");
           std::map<Face,Id> physical;for(auto f:fresh.surface)physical.emplace(Key(f.v),f.facet);
           for(const auto& c:fresh.cells){OwnedCell row;row.cell=c;const auto faces=Faces(c);for(unsigned f=0;f<4;++f){auto found=physical.find(Key(faces[f]));if(found!=physical.end())row.physical[f]={true,found->second};}replacement.push_back(row);}
@@ -776,7 +776,8 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     if(composition)stats.field_compositions+=field_stats.sensor_hits;
 
     stats.region_surface_trials=report.surface_trials;stats.region_junction_trials=report.junction_trials;
-    stats.global_work=CPassiveComm::Allreduce(uint64_t(report.generated_cells+report.surface_trials+report.junction_trials),CPassiveComm::Op::MAX,world.comm);
+    stats.region_core_trials=report.core_trials;stats.region_core_regions=report.core_regions;
+    stats.global_work=CPassiveComm::Allreduce(uint64_t(report.generated_cells+report.surface_trials+report.junction_trials+report.core_trials),CPassiveComm::Op::MAX,world.comm);
     if(!vote(failure)) {
       if(world.maximum(report.exhausted_work))stats.stop=EngineStop::WorkBudget;
       else if(options.maximum_seconds && world.maximum(std::chrono::duration<double>(Clock::now()-started).count()>=options.maximum_seconds))stats.stop=EngineStop::TimeBudget;

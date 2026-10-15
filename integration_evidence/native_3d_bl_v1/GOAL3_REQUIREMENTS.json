@@ -100,10 +100,10 @@
     "wall_reconstruction_v1/joint_connectivity_summary.json"
   ],
   "execution_state": {
-    "status": "Actual short curved RANS lifecycle MPI matrix independently PASS in its declared radial/coarse-sensor scope. All owned jobs terminal; full Goal3 ACTIVE. Next metric-driven volume core with several interior vertices/regions, not another local fallback.",
+    "status": "Complete constant and varying serial native+independent meshes PASS under unchanged constraints. Rotated v4 FAILS composed edge quadrature before volume cells. All owned jobs terminal; updated MPI/CFD unqualified. Full Goal3 ACTIVE.",
     "CFD_runs": 11,
     "CFD_run_scope": "Five corrected-config failed serial attempts v1..v5 plus six successful v6 N/M variants; initial invalid config retained separately.",
-    "production_MPI": "Current actual-flow N/M1/1,2/1,2/2,4/1,4/2,4/4 PASS with independent mesh/flow/SA/restart accounting. This does not establish general geometry or stronger flow sensors.",
+    "production_MPI": "Prior907646e00e actual-flow N/M1/1,2/1,2/2,4/1,4/2,4/4 PASS in its old-source scope. Updated front/core MPI and actual workflow are pending.",
     "independent_frames": 12
   },
   "coupled_engine_checkpoint": {
@@ -236,7 +236,7 @@
     "scope": "One planar cube production case plus six focused first-row geometry/movement cases. Actual computed metric, conservative current+BDF/bounded-SA and SU2/CGNS/reference/restart checks; independent exact embedding, full composed metric, wall footprint and height. No new MPI, full regressions, general layer coverage, actual CFD accuracy or performance qualification."
   },
   "owned_jobs": {
-    "status": "Build75373 completed PASS. One sequential low-priority controls-v7/RANS-v4 wrapper live, handle73802. Actual RANS stage starts only if all expanded controls pass; no MPI campaign before full serial acceptance."
+    "status": "All owned jobs/builds terminal. Wrapper97418: varying native+independent PASS, rotated native FAIL preserved. No restart or cluster request."
   },
   "wall_reconstruction": {
     "status": "PASS_PLANAR_STRONGER_FIELD_LIMITED_SCOPE",
@@ -653,17 +653,11 @@
     "handbook": "Handbook/GOAL3_DISTRIBUTED_REGION_FIELD.md"
   },
   "curved_RANS_runtime": {
-    "status": "IN_PROGRESS_GEOMETRIC_COMPLEXITY_CONSTRUCTION_UNQUALIFIED",
+    "status": "RECORDED_907646_SCOPE_LIMITED_PASS_SEE_ACTUAL_CURVED_RANS",
     "handbook": "Handbook/GOAL3_CURVED_RANS_RUNTIME.md",
-    "cases": [
-      "native_curved_rans_v1",
-      "native_curved_rans_n1_m1_v1",
-      "native_curved_volume_controls_v1"
-    ],
-    "production_change": "Connected positive projective cylindrical annulus and exact shared-base projection implementation under build, not yet qualified. Earlier failed variants and standalone clipping diagnosis preserved.",
-    "next": "Build completion, all-sector cylinder plus sphere and rotated/sheared moment controls v7, then complete native_curved_rans_n1_m1_v4. Actual RANS/MPI/accuracy/full lifecycle performance still required.",
-    "complete": false,
-    "progress": "region_construction_v1/annular_integration_progress.json"
+    "evidence": "region_construction_v1/rans_lifecycle_summary.json",
+    "current_constructor_qualified": false,
+    "next": "Qualify changed front/core using distinct complete fields then updated actual RANS workflow. Existing controls-v7 thin-volume evidence is separately scoped; no unnecessary repeat."
   },
   "actual_curved_RANS": {
     "status": "PASS_SCOPE_LIMITED",
@@ -672,5 +666,45 @@
     "post_bounds_SA_exact_integral_conservation": false,
     "SA_change": "Existing explicit solver-bounds exception, independently replayed nodewise and integrated; raw projector is conservative.",
     "next_strategy_proof": "region_construction_v1/single_kernel_metric_span_certificate.json"
+  },
+  "current_front_core": {
+    "status": "COMPLETE_CONSTANT_AND_VARYING_CURVED_NATIVE_MESHES_SERIAL_SCOPE_LIMITED",
+    "full_goal_complete": false,
+    "case": "region_construction_v1/native_core_constant_v3",
+    "cells": 3108,
+    "regions": 2,
+    "work": 4056,
+    "q": 0.4121001040607134,
+    "J": 0.15640245362210647,
+    "maximum_full_length": 1.6455054304780263,
+    "same_input_across_rejections": true,
+    "independent_scope": "Whole exact geometry/height/embedding and exported-tensor q/J, plus analytic pure-core full edges; BL edges remain native.",
+    "pending": "Rotated field integration, updated MPI and actual RANS/current+BDF/SA/restart/output, wider geometry/accuracy/performance. Prior907646 lifecycle is old-source only.",
+    "varying_v3": {
+      "native_mesh": "ACCEPTED",
+      "test_receipt": "FAIL_PRESERVED",
+      "cells": 2894,
+      "regions": 4,
+      "work": 3924,
+      "q": 0.21222161559532413,
+      "J": 0.06334083836832076,
+      "maximum_full_length": 1.7638184091495561,
+      "diagnosis": "Exact rational original P1 replay: physical analytic residual0, declared exterior collar differs4.721535218666347e-12 from analytic continuation, matching measured4.721512400154063e-12. Correct oracle against actual frozen source, do not relax2e-12 or production gates."
+    },
+    "summary": "region_construction_v1/front_core_summary.json",
+    "varying_v4": {
+      "field": 1,
+      "regions": 4,
+      "work": 3924,
+      "cells": 2894,
+      "q": 0.21222161559532413,
+      "j": 0.06334083836832076,
+      "maximum_full_length": 1.7638184091495561,
+      "sensor_residual": 1.8859764493147156e-16,
+      "physical_sensor_samples": 2323,
+      "collar_sensor_samples": 571,
+      "collar_analytic_delta": 4.721512400154063e-12
+    },
+    "rotated_v4": "FAIL before volume generation: composed edge quadrature did not converge; input retained; no fallback or gate relaxation."
   }
 }

@@ -5540,3 +5540,37 @@ prove converged viscous accuracy, general/exterior/interacting/high-ratio constr
 or affordability/scaling. Section profiles are retained; solve_seconds still includes
 automatic metric calls and is not CFD-only. All jobs terminal. Full Goal3 ACTIVE.
 Evidence index: `region_construction_v1/rans_lifecycle_summary.json` under native_3d_bl_v1.
+
+
+## 2026-10-16 — complete stronger-field front/core construction, serial scope
+
+A single-kernel core cannot fit diag(1,1,16) over unit axial span. Initial hierarchy
+v1 still hit4096-work before core decomposition because edge-bisected walls had206
+triangles. Reconsidered construction now samples the complete cylindrical chart
+from geometry and actual metric, places axial/free transition points by integrated
+length, and decomposes the core using volume-balanced vertex-sublevel regions with
+shared interfaces. Prescribed altitude, target/fade/finer demands and every final
+geometry/q/J/full-length/work/time gate are unchanged. No local fallback ladder.
+
+The complete identical constant target now accepts3108 cells/2 core regions, qmin
+.412100104/Jmin.156402454/Lmax1.645505431,4056 work. Independent exact whole-mesh
+geometry/embedding/height, exported-tensor q/J and analytic pure-core full edges pass.
+Input hashes are identical across v1/v2/v3; v2's invisible-child rejection and v1's
+partial budget rejection are preserved with inspectable SU2/ref/JSON. Pure-core
+edge error<=1.24e-16. BL edge integrals remain native measurements in this audit.
+
+The varying field now also independently accepts2894 cells/4 core regions/work3924,
+qmin.212221616/Jmin.063340838/full Lmax1.763818409. The original v3 test compared
+declared finite-collar P1 against analytic continuation and remains FAIL. Exact
+rational replay accounts for its4.72e-12 discrepancy; v4 preserves identical input
+and mesh bytes, retains2e-12 tolerance and independently checks every raw sensor
+against its saved donor (maximum1.03e-16). Physical-donor priority is verified.
+
+Rotated v4 rejects composed-edge quadrature after111 surface-planning work, before
+volume cells exist. Retained grid/reference and failed receipt are preserved. This
+is a separate shared field-integration limitation; no mesh-placement fallback,
+geometry/target/tolerance/budget change follows from it. All owned jobs terminal.
+These are initialized RANS/frozen imposed sensor constructions, not CFD/graded-sensor/current+BDF/restart
+or MPI/performance qualification of the new source. The prior907646e00e actual RANS
+MPI matrix retains its old-source scope. Full Goal3 ACTIVE. See
+[front/core handbook](Handbook/GOAL3_METRIC_REGION_CORE.md).

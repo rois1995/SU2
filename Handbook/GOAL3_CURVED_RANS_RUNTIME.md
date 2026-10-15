@@ -2,8 +2,11 @@
 
 Branch `codex/native-3d-bl`; full Goal3 ACTIVE/incomplete.
 Prior qualified source-refresh baseline9bd5fb76e4 remains separately scoped.
+This lifecycle matrix qualifies the907646e00e constructor. The subsequent
+[metric-directed front/core change](GOAL3_METRIC_REGION_CORE.md) needs its own
+updated workflow campaign; do not promote these old-source receipts to it.
 
-## Current outcome
+## Recorded outcome at907646e00e
 
 The complete actual short RANS/SA lifecycle passes all six N/M combinations:
 1/1,2/1,2/2,4/1,4/2,4/4, each with independent saved-data audit and SA projection replay.

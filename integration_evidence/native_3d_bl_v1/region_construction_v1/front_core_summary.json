@@ -1,0 +1,284 @@
+{
+  "status": "COMPLETE_CONSTANT_AND_VARYING_CURVED_NATIVE_MESHES_SERIAL_SCOPE_LIMITED",
+  "full_goal3_complete": false,
+  "source_base": "907646e00e982f78f934b9704a55d56e96a97e74",
+  "constraints": {
+    "first_height": 0.05,
+    "growth": 1.2,
+    "thickness": 0.2,
+    "fade": "unchanged",
+    "surface_tolerance": 0.04,
+    "wall_ceiling": 0.025,
+    "q_min": 0.2,
+    "J_min": 0.05,
+    "maximum_full_edge": 1.8,
+    "event_work": 4096,
+    "event_seconds": 300,
+    "sensor": "immutable original-P1 with declared finite collar; actual-query geometric BL; no hard-normal reset"
+  },
+  "cases": {
+    "native_core_constant_v1": {
+      "receipt": "native_core_constant_v1.json",
+      "receipt_sha256": "6be39345f09c86ca8aa0966540725eb18980963e5d7d526291449ff6da819a06",
+      "native_test_status": "FAIL",
+      "elapsed_including_test_export_seconds": 5.323881468968466,
+      "scope": "Selected focused geometry/field/integration control or complete declared cold construction/removal probe. Curved stages use actual smooth reference and original sensors; cold case imports initialized RANS CFD geometry but does not run replacement/solution transfer or CFD iterations. Independent audit and full-goal qualification remain required; no performance claim.",
+      "core_rejection.txt": {
+        "sha256": "813fc1af91c43da33e77438f1d49836abd03de92179b1ad5155b6f9aa5a9a313",
+        "data": "Region construction exceeds admitted cells/work.\n"
+      },
+      "core_construction_rejected.su2": "0be2a9d721982e4b18b3f9c3bd3df8f1a8a66ab1278d085ec6bca2288ade28d0",
+      "core_construction_rejected.su2.native_ref": "fc268e6d6bd77a2804f895aba388c07bfea2f2da6cb10f60256abd19dd8332c7",
+      "core_input_retained.su2": "a11cd57295b8a39be9d9cc3584818e349e6fb9803af0850c6acb09fd0914934a",
+      "core_input_retained.su2.native_ref": "fc268e6d6bd77a2804f895aba388c07bfea2f2da6cb10f60256abd19dd8332c7"
+    },
+    "native_core_constant_v2": {
+      "receipt": "native_core_constant_v2.json",
+      "receipt_sha256": "8168dafe157486903ac0a19dd5fce904c07d3818e123625b7e7bc1770ecd9831",
+      "native_test_status": "FAIL",
+      "elapsed_including_test_export_seconds": 6.092402833048254,
+      "scope": "Complete initialized-RANS geometry native construction with a stronger frozen original-P1 sensor, actual geometric BL/fade, unchanged geometry/h/q/J/full-edge/work/time gates, source-preserving publication and exported field/mesh records. Independent audit remains separate. No CFD evolution, solution transfer/restart, general geometry or performance qualification.",
+      "core_independent.json": {
+        "sha256": "ee2ebdc3e9f7c7a7679b019a355c09e0956484d4fa4d33b3111e6ab91c06f2fc",
+        "data": {
+          "status": "REJECTED_INSPECTION_ONLY",
+          "scope": "No accepted certificate. Exported rejected private volume may be incomplete; physical faces without an admitted volume node are counted, not silently certified. Raw JSON and original failed receipt remain unchanged.",
+          "exports": {
+            "core_construction_rejected.su2": {
+              "sha256": "4426e998b9aefa97307ed570502d1f1d5b9b6d4589be2f4cd47c9d63e538e4c7",
+              "reference_sha256": "fc268e6d6bd77a2804f895aba388c07bfea2f2da6cb10f60256abd19dd8332c7",
+              "unmeshed_surface_faces": 0
+            },
+            "core_input_retained.su2": {
+              "sha256": "a11cd57295b8a39be9d9cc3584818e349e6fb9803af0850c6acb09fd0914934a",
+              "reference_sha256": "fc268e6d6bd77a2804f895aba388c07bfea2f2da6cb10f60256abd19dd8332c7",
+              "unmeshed_surface_faces": 0
+            }
+          },
+          "native_receipt_sha256": "8168dafe157486903ac0a19dd5fce904c07d3818e123625b7e7bc1770ecd9831",
+          "helper_sha256": "357b1ea7db12e4ed0522679fe0c3dbb7a03cf4e651b0eea807726681f7ad01c4"
+        }
+      },
+      "core_rejection.txt": {
+        "sha256": "f2662b225ca71f0f7848c51b839b4b1b1a239e5353cd117b0b1c13da8d0c018d",
+        "data": "Region core separator lacks a visible child kernel.\n"
+      },
+      "core_construction_rejected.su2": "4426e998b9aefa97307ed570502d1f1d5b9b6d4589be2f4cd47c9d63e538e4c7",
+      "core_construction_rejected.su2.native_ref": "fc268e6d6bd77a2804f895aba388c07bfea2f2da6cb10f60256abd19dd8332c7",
+      "core_input_retained.su2": "a11cd57295b8a39be9d9cc3584818e349e6fb9803af0850c6acb09fd0914934a",
+      "core_input_retained.su2.native_ref": "fc268e6d6bd77a2804f895aba388c07bfea2f2da6cb10f60256abd19dd8332c7"
+    },
+    "native_core_constant_v3": {
+      "receipt": "native_core_constant_v3.json",
+      "receipt_sha256": "74dfa8186790370291284cb5dfbe28239d17e54bba3b091221a6da2db61297bd",
+      "native_test_status": "PASS",
+      "elapsed_including_test_export_seconds": 100.17151711310726,
+      "scope": "Complete initialized-RANS geometry native construction with a stronger frozen original-P1 sensor, actual geometric BL/fade, unchanged geometry/h/q/J/full-edge/work/time gates, source-preserving publication and exported field/mesh records. Independent audit remains separate. No CFD evolution, solution transfer/restart, general geometry or performance qualification.",
+      "core_summary.json": {
+        "sha256": "5ab7440798d3ab1993ae9a05a7cb56fcecce135807db306076c7ae4a5029d71d",
+        "data": {
+          "field": 0,
+          "regions": 2,
+          "work": 4056,
+          "cells": 3108,
+          "q": 0.4121001040607134,
+          "j": 0.15640245362210647,
+          "maximum_full_length": 1.6455054304780263,
+          "sensor_residual": 0
+        }
+      },
+      "core_independent.json": {
+        "sha256": "866f538da014714f6351e6f29ee2da95612c77d486be4141ba2bbe7837e2ec3d",
+        "data": {
+          "cells": 3108,
+          "nodes": 740,
+          "volume": 3.094929331314494,
+          "exact_overlap_pairs": 62560,
+          "vertex_links": 740,
+          "wall_height_faces": 168,
+          "maximum_height_relative_error": 3.3306690738754696e-15,
+          "maximum_authority_node_error": 1.1102230246251565e-16,
+          "maximum_wall_chord_sag": 0.011169173774871588,
+          "status": "PASS_COMPLETE_STRONGER_FIELD_CURVED_REGION_SCOPE_LIMITED",
+          "field": 0,
+          "regions": 2,
+          "work": 4056,
+          "minimum_q": 0.4121001040607134,
+          "minimum_j": 0.15640245362210647,
+          "maximum_native_tensor_shape_difference": 4.440892098500626e-16,
+          "maximum_native_full_length": 1.6455054304780263,
+          "pure_core_cells": 252,
+          "pure_core_edges": 466,
+          "maximum_pure_core_tensor_residual": 0.0,
+          "maximum_analytic_core_edge_residual": 1.2335811384861027e-16,
+          "exports": {
+            "core_accepted.su2": {
+              "sha256": "9d0730255e565593cde6848bad0aa3967655970eed88ddc13e4e58f17582b5ca",
+              "reference_sha256": "fc268e6d6bd77a2804f895aba388c07bfea2f2da6cb10f60256abd19dd8332c7",
+              "unmeshed_surface_faces": 0
+            }
+          },
+          "native_receipt_sha256": "74dfa8186790370291284cb5dfbe28239d17e54bba3b091221a6da2db61297bd",
+          "helper_sha256": "357b1ea7db12e4ed0522679fe0c3dbb7a03cf4e651b0eea807726681f7ad01c4",
+          "reused_geometry_helper_sha256": "ce4835aaae00628f9c9b1d04c486d4eb53e544fb2743074826d66e4c58ecf917",
+          "scope": "Complete native region, independently exact positive/oriented connected manifold geometry/every vertex link, no interior overlap, normal feet/height and analytic authority. Independent q/J arithmetic on exported actual-point tensors. Pure-core original P1 tensor and full-edge analytic integral independently checked where exact radial bounds prove the whole segment lies outside BL support. Remaining BL full lengths are native measurements, not independent whole-field quadrature. Frozen imposed sensor, not computed/graded CFD demand; no CFD transfer/restart/accuracy/general geometry/performance qualification."
+        }
+      },
+      "core_accepted.su2": "9d0730255e565593cde6848bad0aa3967655970eed88ddc13e4e58f17582b5ca",
+      "core_accepted.su2.native_ref": "fc268e6d6bd77a2804f895aba388c07bfea2f2da6cb10f60256abd19dd8332c7"
+    },
+    "native_core_varying_v3": {
+      "receipt": "native_core_varying_v3.json",
+      "receipt_sha256": "d4aa3ddd00006bc342cc334b35236e86bcb8e63d9ad70495757aab5928f5fa47",
+      "native_test_status": "FAIL",
+      "elapsed_including_test_export_seconds": 95.13769152609166,
+      "scope": "Complete initialized-RANS geometry native construction with a stronger frozen original-P1 sensor, actual geometric BL/fade, unchanged geometry/h/q/J/full-edge/work/time gates, source-preserving publication and exported field/mesh records. Independent audit remains separate. No CFD evolution, solution transfer/restart, general geometry or performance qualification.",
+      "core_summary.json": {
+        "sha256": "210e096dc99ad39b91d779c43dbc389fb6611a48e6f2a73febf33353eac7551f",
+        "data": {
+          "field": 1,
+          "regions": 4,
+          "work": 3924,
+          "cells": 2894,
+          "q": 0.21222161559532413,
+          "j": 0.06334083836832076,
+          "maximum_full_length": 1.7638184091495561,
+          "sensor_residual": 4.721512400154063e-12
+        }
+      },
+      "core_independent.json": {
+        "sha256": "57e3445d9f2d4015e7dd3ed1a010f6914d6ea72e00623d9c34d691e876cd28ad",
+        "data": {
+          "status": "REJECTED_INSPECTION_ONLY",
+          "scope": "No accepted certificate. Exported rejected private volume may be incomplete; physical faces without an admitted volume node are counted, not silently certified. Raw JSON and original failed receipt remain unchanged.",
+          "exports": {
+            "core_accepted.su2": {
+              "sha256": "2927dd20b7c97e6be268183ad6dfbfcdb1d456644a111fe47c2a39779db8ea38",
+              "reference_sha256": "fc268e6d6bd77a2804f895aba388c07bfea2f2da6cb10f60256abd19dd8332c7",
+              "unmeshed_surface_faces": 0
+            }
+          },
+          "native_receipt_sha256": "d4aa3ddd00006bc342cc334b35236e86bcb8e63d9ad70495757aab5928f5fa47",
+          "helper_sha256": "c59a86f9ea39147b6457b7267c3391eb680566712ac27b61195c39a4a5656f7d"
+        }
+      },
+      "core_accepted.su2": "2927dd20b7c97e6be268183ad6dfbfcdb1d456644a111fe47c2a39779db8ea38",
+      "core_accepted.su2.native_ref": "fc268e6d6bd77a2804f895aba388c07bfea2f2da6cb10f60256abd19dd8332c7"
+    },
+    "native_core_varying_v4": {
+      "receipt": "native_core_varying_v4.json",
+      "receipt_sha256": "8a2e4e211ab94a7a2c4291eb483482b3008f9fa741f91bf080ac3d9b70378719",
+      "native_test_status": "PASS",
+      "elapsed_including_test_export_seconds": 95.3866446679458,
+      "scope": "Complete initialized-RANS geometry native construction with a stronger frozen original-P1 sensor, actual geometric BL/fade, unchanged geometry/h/q/J/full-edge/work/time gates, source-preserving publication and exported field/mesh records. Independent audit remains separate. No CFD evolution, solution transfer/restart, general geometry or performance qualification.",
+      "core_summary.json": {
+        "sha256": "966a900de98c23ba5bdcbcf1c1297d98726fb634f4568a9328c5551f204987c6",
+        "data": {
+          "field": 1,
+          "regions": 4,
+          "work": 3924,
+          "cells": 2894,
+          "q": 0.21222161559532413,
+          "j": 0.06334083836832076,
+          "maximum_full_length": 1.7638184091495561,
+          "sensor_residual": 1.8859764493147156e-16,
+          "physical_sensor_samples": 2323,
+          "collar_sensor_samples": 571,
+          "collar_analytic_delta": 4.721512400154063e-12
+        }
+      },
+      "core_independent.json": {
+        "sha256": "197c25e1617c2731671e7b44b39afaf6723d589b06450232b0be1c422cebb671",
+        "data": {
+          "cells": 2894,
+          "nodes": 674,
+          "volume": 3.084644957444493,
+          "exact_overlap_pairs": 65020,
+          "vertex_links": 674,
+          "wall_height_faces": 152,
+          "maximum_height_relative_error": 4.440892098500626e-15,
+          "maximum_authority_node_error": 1.1102230246251565e-16,
+          "maximum_wall_chord_sag": 0.013638696597277788,
+          "sensor_audit": "Exact rational containment and original P1 interpolation, physical priority over declared collar, all exported centroid sensors.",
+          "physical_sensor_samples": 2323,
+          "collar_sensor_samples": 571,
+          "maximum_exact_original_sensor_residual": 1.024385248840903e-16,
+          "status": "PASS_COMPLETE_STRONGER_FIELD_CURVED_REGION_SCOPE_LIMITED",
+          "field": 1,
+          "regions": 4,
+          "work": 3924,
+          "minimum_q": 0.21222161559532413,
+          "minimum_j": 0.06334083836832077,
+          "maximum_native_tensor_shape_difference": 4.440892098500626e-16,
+          "maximum_native_full_length": 1.7638184091495561,
+          "pure_core_cells": 310,
+          "pure_core_edges": 508,
+          "maximum_pure_core_tensor_residual": 1.024385248840903e-16,
+          "maximum_analytic_core_edge_residual": 1.98983775719783e-15,
+          "exports": {
+            "core_accepted.su2": {
+              "sha256": "2927dd20b7c97e6be268183ad6dfbfcdb1d456644a111fe47c2a39779db8ea38",
+              "reference_sha256": "fc268e6d6bd77a2804f895aba388c07bfea2f2da6cb10f60256abd19dd8332c7",
+              "unmeshed_surface_faces": 0
+            }
+          },
+          "native_receipt_sha256": "8a2e4e211ab94a7a2c4291eb483482b3008f9fa741f91bf080ac3d9b70378719",
+          "helper_sha256": "c59a86f9ea39147b6457b7267c3391eb680566712ac27b61195c39a4a5656f7d",
+          "reused_geometry_helper_sha256": "ce4835aaae00628f9c9b1d04c486d4eb53e544fb2743074826d66e4c58ecf917",
+          "scope": "Complete native region, independently exact positive/oriented connected manifold geometry/every vertex link, no interior overlap, normal feet/height and analytic authority. Independent q/J arithmetic on exported actual-point tensors. Pure-core original P1 tensor and full-edge analytic integral independently checked where exact radial bounds prove the whole segment lies outside BL support. Remaining BL full lengths are native measurements, not independent whole-field quadrature. Frozen imposed sensor, not computed/graded CFD demand; no CFD transfer/restart/accuracy/general geometry/performance qualification."
+        }
+      },
+      "core_accepted.su2": "2927dd20b7c97e6be268183ad6dfbfcdb1d456644a111fe47c2a39779db8ea38",
+      "core_accepted.su2.native_ref": "fc268e6d6bd77a2804f895aba388c07bfea2f2da6cb10f60256abd19dd8332c7"
+    },
+    "native_core_rotated_v4": {
+      "receipt": "native_core_rotated_v4.json",
+      "receipt_sha256": "04e0025532737b13e0af909e9ba1c7a5c91c682256e1fdc7431907d398b04f13",
+      "native_test_status": "FAIL",
+      "elapsed_including_test_export_seconds": 2.2627551599871367,
+      "scope": "Complete initialized-RANS geometry native construction with a stronger frozen original-P1 sensor, actual geometric BL/fade, unchanged geometry/h/q/J/full-edge/work/time gates, source-preserving publication and exported field/mesh records. Independent audit remains separate. No CFD evolution, solution transfer/restart, general geometry or performance qualification.",
+      "core_independent.json": {
+        "sha256": "904ffa731c1bf9421d5528af9a2ac9f25bc8d809d2680ac8dd40533c0f4f013b",
+        "data": {
+          "status": "REJECTED_INSPECTION_ONLY",
+          "scope": "No accepted certificate. Exported rejected private volume may be incomplete; physical faces without an admitted volume node are counted, not silently certified. Raw JSON and original failed receipt remain unchanged.",
+          "exports": {
+            "core_input_retained.su2": {
+              "sha256": "23e1e9535bca97cf63acce1487d225c46234f2c04e1056bc29b4d073d4f23334",
+              "reference_sha256": "f474ae6c2847e870dd41e3c7d5383f813be23a1653d8a29bac0b33ff8ae11fb0",
+              "unmeshed_surface_faces": 0
+            }
+          },
+          "native_receipt_sha256": "04e0025532737b13e0af909e9ba1c7a5c91c682256e1fdc7431907d398b04f13",
+          "helper_sha256": "c59a86f9ea39147b6457b7267c3391eb680566712ac27b61195c39a4a5656f7d"
+        }
+      },
+      "core_input_retained.su2": "23e1e9535bca97cf63acce1487d225c46234f2c04e1056bc29b4d073d4f23334",
+      "core_input_retained.su2.native_ref": "f474ae6c2847e870dd41e3c7d5383f813be23a1653d8a29bac0b33ff8ae11fb0"
+    }
+  },
+  "preserved_input": {
+    "constant_v1_v2_v3_identical": true,
+    "varying_v3_v4_input_and_accepted_mesh_identical": true
+  },
+  "scoped_constant_reuse": {
+    "unchanged_production_archive_objects": 337,
+    "solver_unchanged": true,
+    "constructor_source_unchanged": true,
+    "test_executable_changed": "Raw-sensor export and physical-vs-collar oracle correction only; exact constant-case original auditor is archived and hash matched. This is production-object-scoped reuse, not a whole new binary rerun."
+  },
+  "pending": [
+    "Rotated field fails existing composed edge quadrature before volume generation; no geometry/target/tolerance/work changes or fallback introduced.",
+    "Updated MPI and actual CFD/current+BDF/SA/restart/SU2/CGNS campaign.",
+    "General exterior/interacting/high-ratio geometry, independent BL full-edge quadrature, viscous accuracy and complete lifecycle affordability."
+  ],
+  "source_files": {
+    "Common/include/adaptation/CNativeRegion3D.hpp": "49f87e062640a2ce587156341a7d57b49fd7109146d5635f3d449f1b50e0901f",
+    "Common/src/adaptation/CNativeRegion3D.cpp": "cd3cd1b7ff93f4807d5e67cf0654e4476a58b8021f4c392db37acd6c66d3b324",
+    "Common/include/adaptation/CNativeEngine3D.hpp": "cb29359ceaf6ca7adfe2b198dc758f91c1fcf0ec6852ec1855ccd0874c57ade9",
+    "Common/src/adaptation/CNativeEngine3D.cpp": "67200f8cd7ba4b0ee7e313c999559cf54ee979d359fbe282463c88ddf669db27",
+    "Common/src/adaptation/CNativeRemesher3D.cpp": "c85bd594a9d56432d4569a65544c09eb28fd2afda920dc1e94619cf4922c6c94",
+    "UnitTests/SU2_CFD/adaptation/fixtures/native_region_core_fields.inc": "cad66f2ab8d1e459e4675920403263e96334449de3c75f74c1212e99881e7b9a",
+    "integration_evidence/native_3d_bl_v1/region_construction_v1/audit_region_core.py": "c59a86f9ea39147b6457b7267c3391eb680566712ac27b61195c39a4a5656f7d"
+  }
+}

@@ -2165,3 +2165,5 @@ TEST_CASE("Cold native cylinder BL construction and release use the same origina
 }
 
 #include "fixtures/native_curved_rans_runtime.inc"
+
+#include "fixtures/native_region_core_fields.inc"

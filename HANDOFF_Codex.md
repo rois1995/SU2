@@ -2,10 +2,23 @@
 
 Worktree `/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated`, branch
 `codex/native-3d-bl`, Goal2 base `c43a8a3907ea2655e4ebbb6286ab16c3fa625d8b`.
-**Full Goal3 ACTIVE/incomplete.** All owned jobs are terminal. No cluster job/request.
+**Full Goal3 ACTIVE/incomplete.** Prior actual RANS MPI lifecycle checkpoint907646e00e
+is pushed. Current front/core strategy independently accepts the stronger constant
+sensor16 in serial:3108 cells,2 core regions, qmin.41210/Jmin.15640/full Lmax1.64551,
+4056-work<=4096, unchanged h/fade/geometry. Source inputs match both rejected attempts
+byte-for-byte. Varying v4 native and independent audit PASS:2894 cells/4 regions/work3924,
+qmin.212222/Jmin.063341/full Lmax1.763819. Exact all-sensor original-P1 replay
+residual1.03e-16; its input and accepted mesh bytes match the preserved v3
+analytic-collar oracle failure. Rotated v4 FAILS existing composed-edge quadrature
+before any volume construction (111 planning work); input retained. No new fallback.
+All owned jobs/builds are terminal. Updated MPI and actual CFD/transfer/restart
+qualification are pending. Full Goal3 remains open.
+No cluster job/request.
 Foreign ClusterResults, AdapNoExt and dependencies remain untouched.
 
-## Current qualified milestone
+Current design/limits/live evidence: [multi-region construction](Handbook/GOAL3_METRIC_REGION_CORE.md).
+
+## Prior qualified milestone (907646e00e)
 
 The actual short curved RANS/SA lifecycle now passes N/M1/1,2/1,2/2,4/1,4/2,4/4:
 24 coarse tetrahedra ->1368 BL cells ->68/70/74/70/72/72 sensor-only cells.
@@ -30,7 +43,7 @@ outputs do not yet have independent full composed-edge quadrature. These pressur
 sensors clip to the coarse bound: this is not stronger-flow-feature qualification.
 No converged viscous accuracy or lifecycle affordability/scaling claim.
 
-## Next substantial construction step
+## Current construction strategy and next gate
 
 A source-linked exact certificate proves the current single-kernel core cannot
 resolve constant original-P1 sensor diag(1,1,16) over unit axial span: opposite-cap
@@ -38,11 +51,12 @@ metric distance>=4 means some kernel edge>=2>1.8. More wall variants or moving t
 one kernel cannot fix this strategy. This is **not global target infeasibility**.
 `region_construction_v1/single_kernel_metric_span_certificate.json` preserves the proof.
 
-Implement a metric-driven volume core with several interior vertices/regions and
-conforming shared interfaces, preserving coordinated wall/transition construction,
-actual original-P1/geometric queries, private validation and atomic publication.
-Use a complete accepted stronger-field curved mesh plus a distinct varying field as
-the next meaningful gate. No local-fallback chain, budget ladder, target reset or
+The implemented metric-driven volume core now uses several interior regions and
+conforming shared interfaces. The identical stronger constant target is complete
+and independently accepted. Constant and varying fields now independently accept complete meshes. Diagnose
+the rotated composed-edge integrator failure without changing the target or mesh
+gates, then qualify rotated geometry and the updated MPI/RANS lifecycle.
+[Source-pinned result index](integration_evidence/native_3d_bl_v1/region_construction_v1/front_core_summary.json). No local-fallback chain, budget ladder, target reset or
 production Euler/BL mode. General/exterior/multiwall/high-ratio fronts, interacting
 thin integration/composed-gradation limits, M6/viscous accuracy and performance remain.
 

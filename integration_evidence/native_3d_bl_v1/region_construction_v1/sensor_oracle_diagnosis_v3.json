@@ -1,0 +1,33 @@
+{
+  "status": "TEST_ORACLE_ERROR_EXACT_ORIGINAL_P1_REPLAY",
+  "case": "native_core_varying_v3",
+  "preserve_receipt_status": "FAIL",
+  "mesh_native_status": "ACCEPTED",
+  "production_changed": false,
+  "tolerance_changed": false,
+  "raw_sensor_export": "Absent in v3; v4 adds all raw sensors and query donor keys for direct independent comparison.",
+  "exact_affine_difference": {
+    "maximum": 4.721535218666347e-12,
+    "cell": 654,
+    "point": [
+      0.3742607550404933,
+      0.8873743902971757,
+      0.028744061787923176
+    ],
+    "donor": [
+      2,
+      3,
+      21,
+      30
+    ],
+    "extension": true,
+    "exact_P1_sensor_zz": 4.689857482937021,
+    "analytic_continuation_zz": 4.689857482910156,
+    "physical_samples": 2323,
+    "collar_samples": 571,
+    "maximum_physical_difference": 0
+  },
+  "native_reported": 4.721512400154063e-12,
+  "reason": "The finite radial/cap collar keeps frozen original boundary sensors at shifted coordinates. Continuing4+24*z analytically outside the physical original tetrahedra is a different target. Independent replay used rational determinants and physical-donor priority on every exported centroid; native all-sensor residual matches the exact predicted analytic difference.",
+  "next": "Keep physical analytic check and2e-12 tolerance; audit every exported sensor directly against exact rational P1 in the saved original donor, including collar containment and physical priority."
+}

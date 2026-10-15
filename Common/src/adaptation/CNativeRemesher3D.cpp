@@ -540,6 +540,7 @@ CRemeshResult CNativeRemesher3D::Remesh(const CConfig& config, const CGeometry& 
              << " sample_v1=" << e.last_rejected_feature.vertices[1] << " sample_v2=" << e.last_rejected_feature.vertices[2]
              << " sample_x=" << e.last_rejected_cavity_centroid.x << " sample_y=" << e.last_rejected_cavity_centroid.y << " sample_z=" << e.last_rejected_cavity_centroid.z
              << " batch_reserved=" << e.batch_reserved << " rounds=" << e.rounds << " attempted=" << e.attempted << " accepted=" << e.accepted
+             << " region_core_trials=" << e.region_core_trials << " region_core_regions=" << e.region_core_regions
              << " region_field_points=" << e.region_field_points << " region_sensor_hits=" << e.region_field_sensor_hits
              << " region_interior_hits=" << e.region_field_interior_hits << " region_field_edges=" << e.region_field_edges
              << " region_edge_hits=" << e.region_field_edge_hits << " region_field_imports=" << e.region_field_imports

@@ -8,6 +8,7 @@
 #include "../../include/adaptation/CNativeMetric3D.hpp"
 #include "Eigen/Dense"
 #include <algorithm>
+#include <deque>
 #include <cmath>
 #include <set>
 #include <sstream>
@@ -65,7 +66,7 @@ class Construction {
   void Check() const {
     if (limits.checkpoint) limits.checkpoint();
     if (fresh.cells.size() > limits.maximum_cells || nodes.size() > 4 * limits.maximum_cells ||
-        fresh.cells.size() + report.surface_trials + report.junction_trials > limits.maximum_work) {
+        fresh.cells.size() + report.surface_trials + report.junction_trials + report.core_trials > limits.maximum_work) {
       report.exhausted_work = true;
       throw std::runtime_error("Region construction exceeds admitted cells/work.");
     }
@@ -131,6 +132,17 @@ class Construction {
     }
     return score;
   }
+  Point Balanced(Point a,Point b) {
+    const auto total=field.edge(a,b);
+    if (!(total>0) || !std::isfinite(total)) throw std::runtime_error("Region transition has no finite metric span.");
+    double lo=0,hi=1,t=.5;
+    for (unsigned iteration=0;iteration<16;++iteration) {
+      Check();const auto p=Add(Mul(a,1-t),Mul(b,t));const auto length=field.edge(a,p);
+      if (std::abs(length-.5L*total)<=1e-10L*total) return p;
+      if (length<.5L*total) lo=t;else hi=t;t=.5*(lo+hi);
+    }
+    return Add(Mul(a,1-t),Mul(b,t));
+  }
   void Append(const std::array<Id, 4>& ids) {
     Check();
     if (next_cell == UINT64_MAX) throw std::overflow_error("Region cell IDs exhausted.");
@@ -143,6 +155,123 @@ class Construction {
     const double tol =
         policy.count(geometry.Get(f.facet).marker) ? std::min(tolerance, .5 * Height(f.facet)) : tolerance;
     return geometry.SurfaceError(f.facet, p) <= tol;
+  }
+  bool SampleCylinder() {
+    Id wall=UINT64_MAX; std::map<int,Id> cap;
+    for (auto f:faces) {
+      if (Wall(f.facet)) wall=geometry.Canonical(f.facet);
+      else cap.emplace(geometry.Get(f.facet).marker,f.facet);
+    }
+    if (wall==UINT64_MAX || geometry.Analytic().at(wall).kind!=AnalyticSurface::Kind::Cylinder) return false;
+    const auto g=geometry.Analytic().at(wall);const double radius=g.extent.x,height=g.extent.y;
+    if (!(radius>0 && height>0) || cap.size()!=2) throw std::runtime_error("Cylindrical front needs two admitted caps.");
+    const Point axis=Unit(g.axis);std::array<Id,2> ends{UINT64_MAX,UINT64_MAX};
+    for (auto f:cap) for (unsigned k=0;k<2;++k) if (geometry.Contains(f.second,Add(g.origin,Mul(axis,k*height)))) {
+      if (ends[k]!=UINT64_MAX) throw std::runtime_error("Cylindrical front has ambiguous cap authority.");
+      ends[k]=f.second;
+    }
+    if (ends[0]==UINT64_MAX || ends[1]==UINT64_MAX || ends[0]==ends[1])
+      throw std::runtime_error("Cylindrical front caps do not close its declared axial interval.");
+    Point radial{};
+    for (auto f:faces) if (Wall(f.facet)) {radial=Sub(nodes.at(f.v[0]),g.origin);break;}
+    const Point u=Unit(Sub(radial,Mul(axis,Dot(radial,axis)))),v=Cross(axis,u);
+    const double pi=std::acos(-1.),error=policy.empty()?tolerance:std::min(tolerance,.5*Height(wall));
+    const double half=std::acos(std::max(-1.,1-std::min(error/radius,1.)));
+    if (!(half>0)) throw std::runtime_error("Cylindrical front curvature is unresolved in binary64.");
+    const double curvature=std::ceil(pi/half);
+    if (!std::isfinite(curvature) || curvature>static_cast<long double>(limits.maximum_work) || limits.maximum_work<3) {
+      report.exhausted_work=true;throw std::runtime_error("Cylindrical curvature sampling exceeds admitted work.");
+    }
+    size_t angular=std::max(size_t(3),size_t(curvature)),axial=1;
+    double around=0,along=0;
+    for (size_t i=0;i<angular;++i) for (unsigned k=0;k<3;++k) {
+      ++report.surface_trials;Check();
+      const double a=2*pi*i/angular;const Point r=Add(Mul(u,std::cos(a)),Mul(v,std::sin(a))),t=Add(Mul(u,-std::sin(a)),Mul(v,std::cos(a)));
+      const Point p=Add(Add(g.origin,Mul(axis,.5*k*height)),Mul(r,radius));const auto m=field.point(p);
+      around=std::max(around,double(MetricNorm({},Mul(t,2*pi*radius),m)));
+      along=std::max(along,double(MetricNorm({},Mul(axis,height),m)));
+    }
+    const double aim=.9*MaximumMetricEdge;
+    if (!std::isfinite(around+along) || std::max(around,along)>aim*limits.maximum_work)
+      throw std::runtime_error("Cylindrical front metric demand exceeds admitted sampling work.");
+    auto count=[&](double demand) {
+      const double n=std::ceil(demand/aim);
+      if (!std::isfinite(n) || n>static_cast<long double>(limits.maximum_work)) {
+        report.exhausted_work=true;throw std::runtime_error("Cylindrical metric sampling exceeds admitted work.");
+      }
+      return size_t(n);
+    };
+    angular=std::max(angular,count(around));axial=std::max(axial,count(along));
+    for (;;) {
+      Check();
+      if (angular>limits.maximum_work/(axial+1)) {report.exhausted_work=true;throw std::runtime_error("Cylindrical front sampling exceeds admitted work.");}
+      nodes.clear();faces.clear();tags.clear();lengths.clear();caps=cap;
+      auto position=[&](size_t i,double z) {
+        const double a=2*pi*i/angular;
+        Point p=Add(Add(g.origin,Mul(axis,z)),Mul(Add(Mul(u,std::cos(a)),Mul(v,std::sin(a))),radius));
+        if (z==0 || z==height) p=geometry.Project(ends[z==height],p);
+        return p;
+      };
+      auto cumulative=[&](double z) {
+        long double length=0;
+        for (size_t i=0;i<angular;++i) {Check();length+=field.edge(position(i,0),position(i,z));}
+        return length;
+      };
+      const long double total=cumulative(height);
+      if (!(total>0) || !std::isfinite(total)) throw std::runtime_error("Cylindrical front has no finite metric span.");
+      std::vector<double> levels(axial+1);levels.back()=height;
+      for (size_t j=1;j<axial;++j) {
+        ++report.surface_trials;Check();const long double target=total*j/axial;
+        double lo=0,hi=height,z=height*j/axial;
+        for (unsigned iteration=0;iteration<16;++iteration) {
+          const auto value=cumulative(z);
+          if (std::abs(value-target)<=1e-10L*total) break;
+          if (value<target) lo=z;else hi=z;
+          z=.5*(lo+hi);
+        }
+        if (!(z>levels[j-1] && z<height)) throw std::runtime_error("Cylindrical metric front has unrepresentable axial spacing.");
+        levels[j]=z;
+      }
+      std::vector<Id> ids(angular*(axial+1));
+      for (size_t j=0;j<=axial;++j) for (size_t i=0;i<angular;++i) {
+        ++report.surface_trials;Check();
+        ids[j*angular+i]=New(position(i,levels[j]));
+        if (j==0 || j==axial) tags[ids[j*angular+i]].insert(geometry.Get(ends[j==axial]).marker);
+      }
+      bool valid=true,geometry_failure=false;long double azimuth=0,longitudinal=0;
+      for (size_t j=0;j<axial;++j) for (size_t i=0;i<angular;++i) {
+        const Id a=ids[j*angular+i],b=ids[j*angular+(i+1)%angular],c=ids[(j+1)*angular+(i+1)%angular],d=ids[(j+1)*angular+i];
+        azimuth=std::max({azimuth,Length(a,b),Length(d,c)});longitudinal=std::max({longitudinal,Length(a,d),Length(b,c)});
+        const Face choices[2][2]={{Face{a,b,c},Face{a,c,d}},{Face{a,b,d},Face{b,c,d}}};
+        double best=-INFINITY;unsigned selected=0;
+        for (unsigned choice=0;choice<2;++choice) {
+          double score=INFINITY;
+          for (auto f:choices[choice]) {
+            const SurfaceFace face{f,wall};if (!SurfaceValid(face)) {geometry_failure=true;score=-INFINITY;break;}
+            for (unsigned k=0;k<3;++k) score=std::min(score,double(MaximumMetricEdge/Length(f[k],f[(k+1)%3])));
+            if (!policy.empty()) {
+              const Point p=Sub(Center(face),Mul(Normal(face),Height(wall)));const auto m=Measure({p,nodes.at(f[0]),nodes.at(f[1]),nodes.at(f[2])},field.point(Mul(Add(Add(p,nodes.at(f[0])),Add(nodes.at(f[1]),nodes.at(f[2]))),.25)));
+              score=std::min({score,m.mean_ratio/MinimumMeanRatio,m.minimum_scaled_jacobian/MinimumScaledJacobian});
+            }
+          }
+          if (score>best) {best=score;selected=choice;}
+        }
+        valid=valid && best>=1;
+        for (auto f:choices[selected]) faces.push_back({f,wall});
+      }
+      if (valid) {
+        for (unsigned end=0;end<2;++end) {
+          const Id center=New(geometry.Project(ends[end],Add(g.origin,Mul(axis,end*height))));
+          for (size_t i=0;i<angular;++i) {
+            Face f{center,ids[end*axial*angular+i],ids[end*axial*angular+(i+1)%angular]};
+            if (!end) std::swap(f[1],f[2]);faces.push_back({f,ends[end]});
+          }
+        }
+        return true;
+      }
+      // Refine the whole sampling direction, rather than retaining edge-split diagonal points.
+      if (geometry_failure || azimuth>longitudinal) ++angular;else ++axial;
+    }
   }
   void SplitSurface() {
     // Planar cap interiors are rebuilt; close the radial sampling over all new edges.
@@ -529,6 +658,129 @@ class Construction {
     }
     lengths.clear();
   }
+  void Core(const std::vector<SurfaceFace>& skin, Id apex) {
+    struct Region { Id apex; std::vector<SurfaceFace> skin; std::vector<Cell> cells; };
+    const size_t band = fresh.cells.size();
+    Region initial{apex, skin, {}};
+    std::map<Id, Cell> cells;
+    for (auto f : skin) {
+      Append({apex, f.v[0], f.v[1], f.v[2]});
+      initial.cells.push_back(fresh.cells.back());
+      cells.emplace(fresh.cells.back().id, fresh.cells.back());
+    }
+    report.core_regions = 1;
+    std::deque<Region> pending; pending.push_back(std::move(initial));
+    while (!pending.empty()) {
+      ++report.core_trials; Check();
+      auto region = std::move(pending.front()); pending.pop_front();
+      bool resolved = true;
+      for (const auto& c : region.cells) {
+        if (!(Orientation(c.v[0].p,c.v[1].p,c.v[2].p,c.v[3].p)>0))
+          throw std::runtime_error("Region core has no positive initial fan.");
+        const auto m = Shape(c);
+        resolved = resolved && m.mean_ratio>=MinimumMeanRatio && m.minimum_scaled_jacobian>=MinimumScaledJacobian;
+        for (unsigned a=0;a<4;++a) for (unsigned b=a+1;b<4;++b)
+          if (Length(c.v[a].id,c.v[b].id)>MaximumMetricEdge) resolved=false;
+      }
+      if (resolved) continue;
+      report.unresolved_core=true;
+      for (const auto& edge:Links(region.skin)) if (Length(edge.first[0],edge.first[1])>MaximumMetricEdge) {
+        std::ostringstream why;why<<"Region core needs shared-interface remeshing at edge "<<edge.first[0]<<','<<edge.first[1];
+        throw std::runtime_error(why.str());
+      }
+      // A separator changes the volume complex; it never changes the wall/transition interface.
+      const Point origin=nodes.at(region.apex); std::set<Id> vertices;
+      for (auto f:region.skin) for (Id n:f.v) vertices.insert(n);
+      double scale=0;
+      for (Id n:vertices) scale=std::max(scale,Norm(Sub(nodes.at(n),origin)));
+      if (!(scale>0)) throw std::runtime_error("Region core has no finite extent.");
+      Eigen::Matrix3d covariance=Eigen::Matrix3d::Zero();
+      for (Id n:vertices) {
+        const auto p=Mul(Sub(nodes.at(n),origin),1/scale); const Eigen::Vector3d x(p.x,p.y,p.z);
+        covariance.noalias()+=x*x.transpose()/double(vertices.size());
+      }
+      const auto m=field.point(origin); ValidateTensor(m);
+      Eigen::Matrix3d metric; metric<<m.xx,m.xy,m.xz,m.xy,m.yy,m.yz,m.xz,m.yz,m.zz;
+      metric/=metric.cwiseAbs().maxCoeff(); Eigen::LLT<Eigen::Matrix3d> factor(metric);
+      if (factor.info()!=Eigen::Success) throw std::runtime_error("Region core metric frame cannot be factored.");
+      const Eigen::Matrix3d root=factor.matrixL();
+      Eigen::SelfAdjointEigenSolver<Eigen::Matrix3d> principal(root.transpose()*covariance*root);
+      if (principal.info()!=Eigen::Success) throw std::runtime_error("Region core metric extent cannot be resolved.");
+      const Eigen::Vector3d normal=root*principal.eigenvectors().col(2);
+      const Point axis=Unit({normal[0],normal[1],normal[2]});
+      std::map<Id,long double> level;
+      for (Id n:vertices) {const auto p=Sub(nodes.at(n),origin);const long double z=(long double)axis.x*p.x+(long double)axis.y*p.y+(long double)axis.z*p.z;level[n]=z;}
+      std::vector<std::pair<long double,long double>> volume_order;long double volume=0;
+      for (auto f:region.skin) {
+        const long double z=std::max({level.at(f.v[0]),level.at(f.v[1]),level.at(f.v[2])});
+        const long double v=Orientation(origin,nodes.at(f.v[0]),nodes.at(f.v[1]),nodes.at(f.v[2]));
+        volume_order.push_back({z,v});volume+=v;
+      }
+      std::sort(volume_order.begin(),volume_order.end());
+      long double cut=0,best=INFINITY,left=0;
+      for (size_t i=1;i<volume_order.size();++i) {
+        left+=volume_order[i-1].second;
+        if (!(volume_order[i-1].first<volume_order[i].first)) continue;
+        const long double imbalance=std::abs(left-.5L*volume);
+        if (imbalance<best) {best=imbalance;cut=(volume_order[i-1].first+volume_order[i].first)/2;}
+      }
+      std::array<Region,2> children; std::vector<unsigned> part;
+      for (auto f:region.skin) {
+        const unsigned group=std::max({level.at(f.v[0]),level.at(f.v[1]),level.at(f.v[2])})>cut;
+        part.push_back(group);children[group].skin.push_back(f);
+      }
+      if (children[0].skin.empty() || children[1].skin.empty())
+        throw std::runtime_error("Region core metric separator has an empty side.");
+      std::vector<std::pair<Id,Id>> loop;
+      for (const auto& row:Links(region.skin)) {
+        if (row.second.size()!=2) throw std::runtime_error("Region core boundary is not closed.");
+        auto a=row.second[0],b=row.second[1];
+        if (a.a!=b.b || a.b!=b.a) throw std::runtime_error("Region core boundary orientations disagree.");
+        if (part[a.face]==part[b.face]) continue;
+        if (part[a.face]) std::swap(a,b);
+        loop.push_back({a.a,a.b});
+        children[0].skin.push_back({{region.apex,a.b,a.a},0});
+        children[1].skin.push_back({{region.apex,a.a,a.b},0});
+      }
+      VerifyLoop(loop);
+      // The old positive fan supplies volume-weighted interior proposals on each side.
+      for (unsigned group=0;group<2;++group) {
+        long double volume=0,x=0,y=0,z=0;
+        for (size_t i=0;i<region.skin.size();++i) if (part[i]==group) {
+          const auto f=region.skin[i];const auto a=nodes.at(f.v[0]),b=nodes.at(f.v[1]),c=nodes.at(f.v[2]);
+          const long double v=Orientation(origin,a,b,c); volume+=v;
+          x+=v*(((long double)a.x-origin.x)+((long double)b.x-origin.x)+((long double)c.x-origin.x))/4;
+          y+=v*(((long double)a.y-origin.y)+((long double)b.y-origin.y)+((long double)c.y-origin.y))/4;
+          z+=v*(((long double)a.z-origin.z)+((long double)b.z-origin.z)+((long double)c.z-origin.z))/4;
+        }
+        if (!(volume>0)) throw std::runtime_error("Region core separator has nonpositive volume.");
+        const Point point{double(origin.x+x/volume),double(origin.y+y/volume),double(origin.z+z/volume)};
+        std::vector<Face> boundary;
+        for (auto f:children[group].skin) {
+          boundary.push_back(f.v);
+          if (!(Orientation(point,nodes.at(f.v[0]),nodes.at(f.v[1]),nodes.at(f.v[2]))>0)) {
+            std::ostringstream why;why<<std::setprecision(17)<<"Region core separator lacks a visible child kernel at ("<<point.x<<','<<point.y<<','<<point.z
+              <<") across face "<<f.v[0]<<','<<f.v[1]<<','<<f.v[2]<<" of parent "<<region.apex;
+            throw std::runtime_error(why.str());
+          }
+        }
+        ValidateSurfaceTopology(boundary,true,4*limits.maximum_cells);
+        children[group].apex=New(point);
+        for (auto f:children[group].skin) {
+          ++report.core_trials; Check();
+          if (next_cell==UINT64_MAX) throw std::overflow_error("Region core cell IDs exhausted.");
+          children[group].cells.push_back(Tet({children[group].apex,f.v[0],f.v[1],f.v[2]},next_cell++));
+        }
+      }
+      for (const auto& c:region.cells) cells.erase(c.id);
+      for (auto& child:children) for (const auto& c:child.cells) cells.emplace(c.id,c);
+      fresh.cells.resize(band);
+      for (const auto& row:cells) fresh.cells.push_back(row.second);
+      report.generated_cells=fresh.cells.size(); ++report.core_regions; Check();
+      for (auto& child:children) pending.push_back(std::move(child));
+    }
+    report.unresolved_core=false;
+  }
   void Validate() {
     Check();
     const Incidence topology(fresh.cells);
@@ -637,6 +889,7 @@ bool ConstructWallRegion(const std::vector<Facet>& skin, Point kernel, const Pla
                          Id first_cell, const RegionMetric& target, const RegionLimits& limits, Patch& output,
                          RegionReport& report, std::string& reason) {
   report = {};
+  Construction c(geometry, policies, tolerance, target, limits, report, first_node, first_cell);
   try {
     if (policies.size() > 1 || !(tolerance > 0) || !limits.maximum_cells || !limits.maximum_work)
       throw std::runtime_error(
@@ -645,7 +898,6 @@ bool ConstructWallRegion(const std::vector<Facet>& skin, Point kernel, const Pla
     if (!policies.empty() && (!(p.height > 0 && p.growth >= 1 && p.thickness > p.height) ||
                               !std::isfinite(p.height + p.growth + p.thickness)))
       throw std::runtime_error("Invalid region wall policy.");
-    Construction c(geometry, policies, tolerance, target, limits, report, first_node, first_cell);
     std::set<Id> wall_authorities;
     for (const auto& f : skin) {
       if (!geometry.CompleteAnalytic(f.id))
@@ -674,21 +926,18 @@ bool ConstructWallRegion(const std::vector<Facet>& skin, Point kernel, const Pla
     std::vector<Face> original_skin;
     for (auto f : c.faces) original_skin.push_back(f.v);
     ValidateDomainSurfaceTopology(original_skin);
-    c.SplitSurface();
-    c.CoarsenSurface(kernel);
+    if (!c.SampleCylinder()) {
+      c.SplitSurface();
+      c.CoarsenSurface(kernel);
+    }
     for (auto f : c.faces)
       if (!(Dot(c.Normal(f), Sub(kernel, c.nodes.at(f.v[0]))) < 0))
         throw std::runtime_error("Region lacks a visible interior kernel.");
     if (policies.empty()) {
       const Id core = c.New(kernel);
-      for (const auto& face : c.faces) c.Append({core, face.v[0], face.v[1], face.v[2]});
       c.fresh.surface = c.faces;
-      try {
-        c.Validate();
-      } catch (const std::exception& e) {
-        if (limits.rejected) limits.rejected(c.fresh, e.what());
-        throw;
-      }
+      c.Core(c.faces,core);
+      c.Validate();
       output = std::move(c.fresh);
       reason.clear();
       return true;
@@ -774,7 +1023,7 @@ bool ConstructWallRegion(const std::vector<Facet>& skin, Point kernel, const Pla
         wall.push_back(f);
         SurfaceFace mapped = f;
         for (auto& n : mapped.v) n = last.at(n);
-        apices.push_back(c.New(Mul(Add(c.Center(f), c.Center(mapped)), .5)));
+        apices.push_back(c.New(c.Balanced(c.Center(f),c.Center(mapped))));
       }
     for (const auto& loop : rim)
       for (auto row : loop.second) side2[Key(row[0], row[1])] = row[2];
@@ -786,21 +1035,15 @@ bool ConstructWallRegion(const std::vector<Facet>& skin, Point kernel, const Pla
     }
     const Id core = c.New(kernel);
     close(final, kernel, &last);
-    for (auto f : final) {
-      c.Append({core, f.v[0], f.v[1], f.v[2]});
-      if (!c.Wall(f.facet)) c.fresh.surface.push_back(f);
-    }
+    for (auto f : final) if (!c.Wall(f.facet)) c.fresh.surface.push_back(f);
     c.PlaceJunctions();
-    try {
-      c.Validate();
-    } catch (const std::exception& e) {
-      if (limits.rejected) limits.rejected(c.fresh, e.what());
-      throw;
-    }
+    c.Core(final,core);
+    c.Validate();
     output = std::move(c.fresh);
     reason.clear();
     return true;
   } catch (const std::exception& e) {
+    if (limits.rejected && !c.fresh.cells.empty()) limits.rejected(c.fresh,e.what());
     reason = e.what();
     return false;
   }
