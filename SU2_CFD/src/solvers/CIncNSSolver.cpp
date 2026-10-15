@@ -507,7 +507,8 @@ void CIncNSSolver::BC_Wall_Generic(const CGeometry *geometry, const CConfig *con
     if (implicit) {
       for (unsigned short iVar = 1; iVar <= nDim; iVar++)
         Jacobian.DeleteValsRowi(iPoint, iVar);
-    }
+    } else
+      for (auto iVar = 1u; iVar <= nDim; ++iVar) Jacobian.MarkPrescribedRow(iPoint, iVar);
 
     if (!energy) continue;
 
@@ -666,6 +667,9 @@ void CIncNSSolver::BC_ConjugateHeat_Interface(CGeometry *geometry, CSolver **sol
       for (unsigned short iVar = 1; iVar <= nDim; iVar++)
         Jacobian.DeleteValsRowi(iPoint, iVar);
       if (energy) Jacobian.DeleteValsRowi(iPoint, nDim + 1);
+    } else {
+      for (auto iVar = 1u; iVar <= nDim; ++iVar) Jacobian.MarkPrescribedRow(iPoint, iVar);
+      if (energy) Jacobian.MarkPrescribedRow(iPoint, nDim + 1);
     }
 
     if (!energy) continue;

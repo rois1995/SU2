@@ -59,6 +59,7 @@ CNewtonEquationSet::CNewtonEquationSet(CGeometry* g, CSolver** s, CNumerics*** n
     auto* solver = solvers[slot];
     if (!solver) continue;
     const auto count = solver->GetnVar();
+    solver->Jacobian.TrackPrescribedRows(geometry->GetnPoint(), count);
     const auto entries = geometry->GetnPoint() * count;
     snapshots.push_back({solver, slot, count, std::vector<su2double>(entries), std::vector<su2double>(entries),
                          std::vector<su2double>(entries),
@@ -201,6 +202,8 @@ bool CNewtonEquationSet::CheckState(bool compareFlow) {
 bool CNewtonEquationSet::EvaluateResiduals(bool implicit, bool allEquations, double reconstruction) {
   assert(reconstruction >= 0 && reconstruction <= 1);
   EquationSettingsGuard guard(*config);
+  if (implicit)
+    for (const auto& snapshot : snapshots) snapshot.solver->Jacobian.ClearPrescribedRows();
   struct HistoryGuard {
     CNewtonEquationSet& equations;
     explicit HistoryGuard(CNewtonEquationSet& e) : equations(e) { equations.SaveHistory(); }

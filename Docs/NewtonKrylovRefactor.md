@@ -6,7 +6,8 @@ at `5615a8f5f6e9a7bfa88f0f279e1eadb7f89fe607`. The goal is still in progress.
 SST now uses the common selected-equation controller. Production flow still uses
 a temporary legacy compatibility class. Its direction policies are implemented in
 the common controller and tested through the native API; production selection
-and explicit-diagonal compatibility remain unfinished. Native pseudo-time
+remains unfinished. Explicit-flow diagonal compatibility is now tested through
+the same native API. Native pseudo-time
 mappings now include the dense incompressible and low-Mach blocks.
 
 ## Required final state
@@ -614,3 +615,40 @@ recorded separately. This is a sampled repeatability check, not universal race
 certification or a fully converged comparison. Concurrent verification jobs
 caused substantial scheduling contention; their elapsed times are not solver
 performance measurements.
+
+
+## Explicit flow without a native sparse matrix
+
+The common controller supports FLOW configured with `EULER_EXPLICIT`, preserving
+legacy Newton's raw `(volume + periodic volume)/dt` diagonal preconditioner. It
+skips native implicit preparation and startup for that block. Scalar equations
+selected for Newton still require implicit discretization. The full physical
+matrix-free operator and native mass retain all flow/scalar cross derivatives
+and dense incompressible/low-Mach mass; the diagonal is only a preconditioner.
+
+`CSysMatrix` can track prescribed rows without allocating coefficients. The
+metadata has its own point/variable dimensions, and native explicit strong
+boundary paths mark the same rows as their implicit counterparts. Equation-set
+construction enables tracking for dependent equations. An implicit preparation
+clears and refreshes the metadata; physical probes retain preparation-only
+constraints. Frozen coordinates use identity preconditioning. Conventional
+solvers without tracking remain unaffected.
+
+Verification: all nineteen native cases pass (25,516 assertions serial;
+17,975 / 13,456 on two ranks x two threads). Three explicit-focused cases pass
+1,088 / 1,154 assertions on two ranks x four threads. Tests include metadata
+without coefficients, 2D/3D compressible and mixture diagonal actions, delayed
+OpenMP producers, and four accepted updates for seven flow/model families in
+both segregated and coupled configurations. Every accepted attempt checks the
+true physical defect and Armijo inequality; flow matrix storage remains absent.
+All 79 supported unit cases / 102,253 assertions pass. The explicit cases have
+zero Valgrind errors (leaks unchecked); eight affected units pass forward syntax.
+Eight conventional and
+four legacy implicit profiles retain their six-iteration histories; a separate
+archived/current legacy explicit-flow pair also matches exactly. These are
+correctness checks, not converged comparisons or production factory migration.
+
+Evidence uses the `explicit_metadata_` prefix in the parent workspace's
+`newton_krylov_refactor_20261015/`; the compatibility script records the source
+configurations and binary/history hashes. Conditional boundary semantics and
+near-bound derivatives still require the broader audits listed above.

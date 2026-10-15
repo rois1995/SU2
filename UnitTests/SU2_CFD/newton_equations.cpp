@@ -542,6 +542,137 @@ TEST_CASE("Native strong rows are tracked independently of the preconditioner va
   CHECK(matrix.IsPrescribedRow(0, 1));
 }
 
+TEST_CASE("Explicit solvers track prescribed rows without sparse coefficients", "[NewtonExplicit]") {
+  CSysMatrix<su2mixedfloat> matrix;
+  matrix.MarkPrescribedRow(0, 0);
+  CHECK_FALSE(matrix.HasCoefficients());
+  matrix.TrackPrescribedRows(7, 4);
+  SU2_OMP_PARALLEL {
+    SU2_OMP_FOR_STAT(1)
+    for (auto p = 0ul; p < 7; ++p) matrix.MarkPrescribedRow(p, p % 4);
+    END_SU2_OMP_FOR
+  }
+  END_SU2_OMP_PARALLEL
+  for (auto p = 0ul; p < 7; ++p)
+    for (auto v = 0u; v < 4; ++v) CHECK(matrix.IsPrescribedRow(p, v) == (v == p % 4));
+  SU2_OMP_PARALLEL { matrix.ClearPrescribedRows(); }
+  END_SU2_OMP_PARALLEL
+  for (auto p = 0ul; p < 7; ++p)
+    for (auto v = 0u; v < 4; ++v) CHECK_FALSE(matrix.IsPrescribedRow(p, v));
+  CHECK_FALSE(matrix.HasCoefficients());
+}
+
+TEST_CASE("Explicit Newton preconditioning retains the native volume over dt diagonal", "[NewtonExplicit]") {
+  for (bool threeD : {false, true})
+    for (const auto& physics : {std::string("SOLVER= NAVIER_STOKES\n"), species}) {
+      CAPTURE(physics, threeD);
+      Problem problem(physics + "TIME_DISCRE_FLOW= EULER_EXPLICIT\nCFL_NUMBER= 0.05\n"
+                                  "LINEAR_SOLVER_PREC= ILU\nLINEAR_SOLVER_INNER= BCGSTAB\n",
+                      5, false, threeD);
+      auto& driver = *problem.driver;
+      auto* geometry = driver.Geometry();
+      auto* flow = driver.Solvers()[FLOW_SOL];
+      REQUIRE_FALSE(flow->Jacobian.HasCoefficients());
+      auto equations = problem.Equations({RUNTIME_FLOW_SYS});
+      REQUIRE(Residual(*equations, true));
+      equations->Capture();
+      SU2_OMP_PARALLEL {
+        flow->SetTime_Step(geometry, driver.Solvers(), driver.Config(), MESH_0, 0);
+      }
+      END_SU2_OMP_PARALLEL
+      auto scale = MakeVector(driver, flow->GetnVar()), input = scale, actual = scale, expected = scale;
+      auto product = scale, delayed = scale;
+      auto diagonal = MakeVector(driver, flow->GetnVar(), 1);
+      for (auto p = 0ul; p < geometry->GetnPoint(); ++p) {
+        const double delta = p < geometry->GetnPointDomain()
+                                 ? SU2_TYPE::GetValue(geometry->nodes->GetVolume(p)) /
+                                       SU2_TYPE::GetValue(flow->GetNodes()->GetDelta_Time(p))
+                                 : 1;
+        for (auto v = 0u; v < flow->GetnVar(); ++v) {
+          scale(p, v) = 0.5 + v;
+          input(p, v) = 0.125 * (v + 1);
+          expected(p, v) = input(p, v) / (flow->Jacobian.IsPrescribedRow(p, v) ? 1 : delta);
+        }
+      }
+      CNewtonLinearization linearization(*equations, geometry, driver.Config());
+      REQUIRE(linearization.SetBase(
+          scale, diagonal, 1e-7, 1e-4,
+          [](const CNewtonEquationSet::Block& b, unsigned long p, unsigned short v) {
+            return !b.solver->Jacobian.IsPrescribedRow(p, v);
+          }));
+      CNewtonBlockPreconditioner preconditioner(linearization, geometry, driver.Config(), false, 2);
+      const int threads = std::min(4, omp_get_max_threads());
+      SU2_OMP_PARALLEL_ON(threads) {
+        preconditioner.Build();
+        if (threads > 1 && omp_get_thread_num() == threads - 1)
+          std::this_thread::sleep_for(std::chrono::milliseconds(40));
+        delayed = input;
+        preconditioner(delayed, actual);
+        preconditioner.Multiply(actual, product);
+      }
+      END_SU2_OMP_PARALLEL
+      CHECK(MaxDifference(actual, expected) < 1e-12);
+      CHECK(MaxDifference(product, input) < 1e-12);
+      CHECK(preconditioner.GetWork() == 0);
+      CHECK_FALSE(flow->Jacobian.HasCoefficients());
+      for (auto p = 0ul; p < geometry->GetnPointDomain(); ++p)
+        for (auto v = 1u; v <= geometry->GetnDim(); ++v)
+          CHECK(flow->Jacobian.IsPrescribedRow(p, v) == geometry->nodes->GetSolidBoundary(p));
+    }
+}
+
+TEST_CASE("The common Newton controller accepts explicit flow and implicit scalar groups", "[NewtonExplicit]") {
+  for (const auto& physics : {std::string("SOLVER= NAVIER_STOKES\n"),
+                             std::string("SOLVER= NAVIER_STOKES\nLOW_MACH_PREC= YES\n"),
+                             incompressible, sa, sst, sst + "KIND_TRANS_MODEL= LM\n", species})
+    for (bool coupled : {false, true}) {
+      CAPTURE(physics, coupled);
+      Problem problem(physics + "TIME_DISCRE_FLOW= EULER_EXPLICIT\nNEWTON_KRYLOV= YES\n"
+                                  "CFL_NUMBER= 0.05\nLINEAR_SOLVER_PREC= ILU\nLINEAR_SOLVER_ITER= 80\n"
+                                  "LINEAR_SOLVER_ERROR= 0.001\nLINEAR_SOLVER_RESTART_FREQUENCY= 20\n"
+                                  "LINEAR_SOLVER_RESTART_DEFLATION= 5\nNEWTON_KRYLOV_IPARAM= 2,2,2,1\n"
+                                  "NEWTON_KRYLOV_DPARAM= 1,0.1,-2,1e-6,1\n",
+                      5, true);
+      auto& driver = *problem.driver;
+      auto* flow = driver.Solvers()[FLOW_SOL];
+      REQUIRE_FALSE(flow->Jacobian.HasCoefficients());
+      std::vector<unsigned short> systems{RUNTIME_FLOW_SYS};
+      for (auto runtime : {RUNTIME_TURB_SYS, RUNTIME_TRANS_SYS, RUNTIME_SPECIES_SYS})
+        if (driver.Solvers()[driver.Config()->GetContainerPosition(runtime)]) systems.push_back(runtime);
+      NonlinearGlobalization::Options<> options;
+      options.adaptCFL = options.adaptiveForcing = options.diagnostics = false;
+      std::vector<std::unique_ptr<CNewtonIntegration>> controllers;
+      if (coupled)
+        controllers.emplace_back(std::make_unique<CNewtonIntegration>(systems, options, true, "explicit", true));
+      else
+        for (auto runtime : systems)
+          controllers.emplace_back(std::make_unique<CNewtonIntegration>(
+              std::vector<unsigned short>{runtime}, options, false, "explicit", runtime == RUNTIME_FLOW_SYS));
+      for (unsigned iteration = 0; iteration < 4; ++iteration) {
+        driver.Config()->SetInnerIter(iteration);
+        for (auto& controller : controllers) {
+          controller->Iterate(driver.Geometry(), driver.Solvers(), driver.Numerics(), driver.Config());
+          INFO(controller->GetNumericalFailureMessage());
+          const auto& attempt = controller->GetLastAttempt();
+          INFO("defect=" << attempt.linearDefect << ", base=" << attempt.base << ", target=" << attempt.linearTarget);
+          REQUIRE_FALSE(controller->GetNumericalFailure());
+          CHECK(attempt.search.status == Armijo::Status::Accepted);
+          CHECK(attempt.linearDefect <= options.etaMax);
+          CHECK_FALSE(attempt.startup);
+          if (attempt.base > 0)
+            CHECK(attempt.search.value <= attempt.base + options.armijo * attempt.search.step * attempt.slope);
+          CHECK_FALSE(flow->Jacobian.HasCoefficients());
+        }
+      }
+      for (auto p = 0ul; p < driver.Geometry()->GetnPointDomain(); ++p)
+        if (driver.Geometry()->nodes->GetSolidBoundary(p))
+          for (auto v = 1u; v <= driver.Geometry()->GetnDim(); ++v) {
+            CHECK(flow->Jacobian.IsPrescribedRow(p, v));
+            CHECK(flow->GetNodes()->GetSolution(p, v) == 0);
+          }
+    }
+}
+
 TEST_CASE("One Newton controller advances native individual equations and coupled groups", "[NewtonController]") {
   auto allPhysics = species;
   allPhysics.replace(allPhysics.find("INC_NAVIER_STOKES"), std::string("INC_NAVIER_STOKES").size(), "INC_RANS");

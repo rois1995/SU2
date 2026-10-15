@@ -104,7 +104,7 @@ void CNewtonIntegration::ConfigureFlow() {
   flow.fullToleranceDrop = SU2_TYPE::GetValue(values[2]);
   flow.automatic = values[4] < 0;
   flow.reconstruction = flow.automatic ? 1 : std::min(1.0, SU2_TYPE::GetValue(values[4]));
-  flow.startup = flow.remaining || flow.startupDrop < 0;
+  flow.startup = (flow.remaining || flow.startupDrop < 0) && config->GetKind_TimeIntScheme_Flow() == EULER_IMPLICIT;
   flow.linearIterations = config->GetLinear_Solver_Iter();
   flow.linearTolerance = SU2_TYPE::GetValue(config->GetLinear_Solver_Error());
   if (!(values[3] > 0 && flow.innerTolerance >= 0 && flow.linearTolerance >= 0 && flow.linearTolerance < 1) ||
@@ -197,12 +197,8 @@ void CNewtonIntegration::Setup() {
     const auto time = block.slot == FLOW_SOL ? config->GetKind_TimeIntScheme_Flow()
                                              : block.slot == SPECIES_SOL ? config->GetKind_TimeIntScheme_Species()
                                                                          : config->GetKind_TimeIntScheme_Turb();
-    if (time != EULER_IMPLICIT || !(CFLFactor(block) > 0))
-      throw std::invalid_argument("Selected Newton equations require implicit discretization and positive CFL factors");
-  }
-  for (auto runtime : {RUNTIME_FLOW_SYS, RUNTIME_TURB_SYS, RUNTIME_TRANS_SYS, RUNTIME_SPECIES_SYS}) {
-    auto* solver = solvers[config->GetContainerPosition(runtime)];
-    if (solver) solver->Jacobian.TrackPrescribedRows();
+    if ((time != EULER_IMPLICIT && block.slot != FLOW_SOL) || !(CFLFactor(block) > 0))
+      throw std::invalid_argument("Newton scalar equations require implicit discretization; all selected CFL factors must be positive");
   }
   for (auto* vector : {&scale, &rhs, &correction, &direction, &product, &pseudoDirection, &probeReference, &baseState})
     vector->Initialize(geometry->GetnPoint(), geometry->GetnPointDomain(), equations->GetnVar(), 0.0);
@@ -360,7 +356,8 @@ CNewtonIntegration::Attempt CNewtonIntegration::SolveAttempt() {
     }
   for (const auto& block : equations->GetBlocks()) {
     SU2_OMP_SAFE_GLOBAL_ACCESS(config->SetGlobalParam(config->GetKind_Solver(), block.runtime);)
-    block.solver->PrepareImplicitIteration(geometry, solvers, config);
+    if (block.solver->Jacobian.HasCoefficients())
+      block.solver->PrepareImplicitIteration(geometry, solvers, config);
   }
   for (const auto& block : equations->GetBlocks()) {
     SU2_OMP_FOR_STAT(1024)

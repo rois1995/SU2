@@ -191,10 +191,12 @@ CNewtonBlockPreconditioner::CNewtonBlockPreconditioner(const CNewtonLinearizatio
     auto& block = blocks.back();
     block.offset = b.offset;
     block.solver = b.solver;
-    block.linearSolver = std::make_unique<CSysSolve<Mixed>>();
-    block.linearSolver->SetxIsZero(true);
     block.variables = b.variables;
-    block.preconditioner.reset(CPreconditioner<Mixed>::Create(kind, b.solver->Jacobian, geometry, config));
+    if (b.solver->Jacobian.HasCoefficients()) {
+      block.linearSolver = std::make_unique<CSysSolve<Mixed>>();
+      block.linearSolver->SetxIsZero(true);
+      block.preconditioner.reset(CPreconditioner<Mixed>::Create(kind, b.solver->Jacobian, geometry, config));
+    }
     block.input.Initialize(geometry->GetnPoint(), geometry->GetnPointDomain(), b.variables, 0.0);
     block.output.Initialize(geometry->GetnPoint(), geometry->GetnPointDomain(), b.variables, 0.0);
   }
@@ -204,7 +206,7 @@ CNewtonBlockPreconditioner::CNewtonBlockPreconditioner(const CNewtonLinearizatio
 void CNewtonBlockPreconditioner::Build() {
   SU2_OMP_SAFE_GLOBAL_ACCESS(work = 0;)
   for (auto& block : blocks) {
-    if (linearization.UsesNativeMass()) {
+    if (linearization.UsesNativeMass() && block.solver->Jacobian.HasCoefficients()) {
       // Native pseudo-time assembly can reintroduce couplings into a prescribed row.
       SU2_OMP_FOR_STAT(1024)
       for (auto p = 0ul; p < geometry->GetnPointDomain(); ++p)
@@ -240,7 +242,19 @@ unsigned long CNewtonBlockPreconditioner::Solve(const Vector& u, Vector& v, unsi
       }
     END_SU2_OMP_FOR
     const auto inner = config->GetKind_Linear_Solver_Inner();
-    if (!block.preconditioner)
+    if (!block.solver->Jacobian.HasCoefficients()) {
+      SU2_OMP_FOR_STAT(1024)
+      for (auto p = 0ul; p < u.GetNBlk(); ++p) {
+        const double delta = p < u.GetNBlkDomain()
+                                 ? SU2_TYPE::GetValue(geometry->nodes->GetVolume(p) + geometry->nodes->GetPeriodicVolume(p)) /
+                                       SU2_TYPE::GetValue(block.solver->GetNodes()->GetDelta_Time(p))
+                                 : 1.0;
+        for (auto j = 0u; j < block.variables; ++j)
+          block.output(p, j) = block.input(p, j) /
+                               (linearization.IsFree(p, block.offset + j) ? delta : 1.0);
+      }
+      END_SU2_OMP_FOR
+    } else if (!block.preconditioner)
       block.output = block.input;
     else if (!iterations || (iterations == 1 && inner == LINEAR_SOLVER_INNER::SMOOTHER))
       (*block.preconditioner)(block.input, block.output);
@@ -283,8 +297,22 @@ void CNewtonBlockPreconditioner::Multiply(const Vector& u, Vector& v) const {
       for (auto j = 0u; j < block.variables; ++j)
         block.input(p, j) = u(p, block.offset + j) * scale(p, block.offset + j);
     END_SU2_OMP_FOR
-    CSysMatrixVectorProduct<Mixed> matrix(block.solver->Jacobian, geometry, config);
-    matrix(block.input, block.output);
+    if (block.solver->Jacobian.HasCoefficients()) {
+      CSysMatrixVectorProduct<Mixed> matrix(block.solver->Jacobian, geometry, config);
+      matrix(block.input, block.output);
+    } else {
+      SU2_OMP_FOR_STAT(1024)
+      for (auto p = 0ul; p < u.GetNBlk(); ++p) {
+        const double delta = p < u.GetNBlkDomain()
+                                 ? SU2_TYPE::GetValue(geometry->nodes->GetVolume(p) + geometry->nodes->GetPeriodicVolume(p)) /
+                                       SU2_TYPE::GetValue(block.solver->GetNodes()->GetDelta_Time(p))
+                                 : 1.0;
+        for (auto j = 0u; j < block.variables; ++j)
+          block.output(p, j) = block.input(p, j) *
+                               (linearization.IsFree(p, block.offset + j) ? delta : 1.0);
+      }
+      END_SU2_OMP_FOR
+    }
     SU2_OMP_FOR_STAT(1024)
     for (auto p = 0ul; p < u.GetNBlk(); ++p)
       for (auto j = 0u; j < block.variables; ++j)

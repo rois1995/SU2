@@ -927,10 +927,7 @@ void CSysMatrix<ScalarType>::MatrixInverse(ScalarType* matrix, ScalarType* inver
 template <class ScalarType>
 void CSysMatrix<ScalarType>::DeleteValsRowi(unsigned long block_i, unsigned long row) {
   SU2_ZONE_SCOPED
-  if (!prescribedRows.empty()) {
-    SU2_OMP_ATOMIC_WRITE
-    prescribedRows[block_i * nVar + row] = 1;
-  }
+  MarkPrescribedRow(block_i, row);
   const auto blkSz = nVar * nEqn;
 
   auto* d = &mat.d[block_i * blkSz];
@@ -1641,11 +1638,7 @@ void CSysMatrix<ScalarType>::EnforceSolutionAtNode(const unsigned long node_i, c
   /*--- Set the diagonal block to the identity. ---*/
   SetVal2Diag(node_i, 1.0);
 
-  if (!prescribedRows.empty())
-    for (auto variable = 0u; variable < nVar; ++variable) {
-      SU2_OMP_ATOMIC_WRITE
-      prescribedRows[node_i * nVar + variable] = 1;
-    }
+  for (auto variable = 0u; variable < nVar; ++variable) MarkPrescribedRow(node_i, variable);
 
   /*--- Set known solution in rhs vector. ---*/
   b.SetBlock(node_i, x_i);

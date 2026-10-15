@@ -2484,6 +2484,9 @@ void CIncEulerSolver::BC_Far_Field(CGeometry *geometry, CSolver **solver_contain
             Jacobian.DeleteValsRowi(iPoint, iDim+1);
           if (config->GetEnergy_Equation())
             Jacobian.DeleteValsRowi(iPoint, nDim+1);
+        } else {
+          for (auto d = 0u; d < nDim; ++d) Jacobian.MarkPrescribedRow(iPoint, d + 1);
+          if (config->GetEnergy_Equation()) Jacobian.MarkPrescribedRow(iPoint, nDim + 1);
         }
 
       } else {
@@ -2777,6 +2780,9 @@ void CIncEulerSolver::BC_Inlet(CGeometry *geometry, CSolver **solver_container,
           Jacobian.DeleteValsRowi(iPoint, iDim+1);
         if (inlet_enthalpy)
           Jacobian.DeleteValsRowi(iPoint, nDim+1);
+      } else {
+        for (auto d = 0u; d < nDim; ++d) Jacobian.MarkPrescribedRow(iPoint, d + 1);
+        if (inlet_enthalpy) Jacobian.MarkPrescribedRow(iPoint, nDim + 1);
       }
 
     } else {

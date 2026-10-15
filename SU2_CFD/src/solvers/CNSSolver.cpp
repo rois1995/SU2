@@ -580,7 +580,8 @@ void CNSSolver::BC_HeatFlux_Wall_Generic(const CGeometry* geometry, const CConfi
       for (auto iVar = 1u; iVar <= nDim; iVar++) {
         Jacobian.DeleteValsRowi(iPoint, iVar);
       }
-    }
+    } else
+      for (auto iVar = 1u; iVar <= nDim; ++iVar) Jacobian.MarkPrescribedRow(iPoint, iVar);
   }
   END_SU2_OMP_FOR
 
@@ -773,7 +774,8 @@ void CNSSolver::BC_Isothermal_Wall_Generic(CGeometry *geometry, CSolver **solver
       for (auto iVar = 1u; iVar <= nDim; iVar++) {
         Jacobian.DeleteValsRowi(iPoint, iVar);
       }
-    }
+    } else
+      for (auto iVar = 1u; iVar <= nDim; ++iVar) Jacobian.MarkPrescribedRow(iPoint, iVar);
   }
   END_SU2_OMP_FOR
 

@@ -263,6 +263,7 @@ class CSysMatrix {
   /*!< \brief Maximum number of variables the matrix can handle. The static
    * size is needed for fast, per-thread, static memory allocation. */
   enum : size_t { MAXNVAR = 20 };
+  unsigned short prescribedVariables = 0;
   std::vector<unsigned char> prescribedRows; /*!< \brief Optional native strong-row metadata for matrix-free integration. */
 
   enum { OMP_MAX_SIZE_L = 8192 }; /*!< \brief Max. chunk size used in light parallel for loops. */
@@ -741,10 +742,26 @@ class CSysMatrix {
    */
   void SetValZero();
 
-  void TrackPrescribedRows() { prescribedRows.assign(nPoint * nVar, 0); }
-  bool IsPrescribedRow(unsigned long point, unsigned short variable) const {
-    return !prescribedRows.empty() && prescribedRows[point * nVar + variable];
+  /*! \brief Optional strong-row metadata; explicit solvers can track it without sparse matrix storage. */
+  void TrackPrescribedRows(unsigned long points = 0, unsigned short variables = 0) {
+    prescribedVariables = variables ? variables : nVar;
+    prescribedRows.assign((points ? points : nPoint) * prescribedVariables, 0);
   }
+  void ClearPrescribedRows() {
+    SU2_OMP_FOR_STAT(1024)
+    for (auto i = 0ul; i < prescribedRows.size(); ++i) prescribedRows[i] = 0;
+    END_SU2_OMP_FOR
+  }
+  void MarkPrescribedRow(unsigned long point, unsigned short variable) {
+    if (prescribedRows.empty()) return;
+    assert(variable < prescribedVariables && point * prescribedVariables + variable < prescribedRows.size());
+    SU2_OMP_ATOMIC_WRITE
+    prescribedRows[point * prescribedVariables + variable] = 1;
+  }
+  bool IsPrescribedRow(unsigned long point, unsigned short variable) const {
+    return !prescribedRows.empty() && prescribedRows[point * prescribedVariables + variable];
+  }
+  bool HasCoefficients() const { return mat.d != nullptr; }
 
   /*!
    * \brief Sets to zero all the block diagonal entries of the sparse matrix.
