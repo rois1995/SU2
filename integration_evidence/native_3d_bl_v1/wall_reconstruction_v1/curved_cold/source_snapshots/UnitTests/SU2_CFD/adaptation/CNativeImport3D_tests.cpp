@@ -1626,6 +1626,32 @@ TEST_CASE("Cold native cylinder BL construction and release use the same origina
     REQUIRE(cells.good());REQUIRE(lengths.good());std::ofstream summary("grid_metric_summary.json");summary<<std::setprecision(17)
         <<"{\"cells\":"<<grid.cells.size()<<",\"shape_failures\":"<<shapeFailures<<",\"q\":"<<q<<",\"j\":"<<j
         <<",\"edges\":"<<edges.size()<<",\"oversized_edges\":"<<longEdges<<",\"maximum_length\":"<<maximum<<"}\n";REQUIRE(summary.good());
+    if(std::getenv("SU2_NATIVE_CURVED_GRID_REFINE")) {
+      const auto unchanged=Signature(world,grid.cells,reference);
+      options.maximum_rounds=1;
+      const auto partial=Refine(world,grid.cells,input.original,*reference.original,compose,options);
+      std::cout<<"CURVED_GRID_REFINE accepted="<<partial.stats.accepted<<" inserted="<<partial.stats.inserted
+          <<" work="<<partial.stats.global_work<<" stop="<<EngineStopName(partial.stats.stop)<<" reason="<<partial.reason<<std::endl;
+      save("curved_grid_partial_rejected",partial.cells);
+      CHECK(Signature(world,grid.cells,reference)==unchanged);CHECK(Signature(world,input.cells,reference)==before);
+      REQUIRE(partial.stats.accepted==1);CHECK(partial.stats.inserted==1);
+      CHECK_FALSE(partial.valid);CHECK(partial.stats.stop==EngineStop::RoundBudget);
+      PatchMetric measured;size_t oversized=0;double minimum_q=1,minimum_j=1;long double excess=0;
+      std::map<Edge,long double> output_edges;
+      for(const auto& row:partial.cells) {
+        measured=MeasureMetricCells({row.second.cell},target);minimum_q=std::min(minimum_q,measured.minimum_mean_ratio);
+        minimum_j=std::min(minimum_j,measured.minimum_scaled_jacobian);
+        for(const auto& e:measured.edges)output_edges.emplace(e.first,e.second.length);
+      }
+      for(const auto& e:output_edges) {oversized+=e.second>MaximumMetricEdge;excess+=std::pow(std::max(0.L,e.second-MaximumMetricEdge),2);}
+      long double initial_excess=0;
+      for(const auto& e:edges)initial_excess+=std::pow(std::max(0.L,target.TargetEdgeLength(e.second.first,e.second.second)-MaximumMetricEdge),2);
+      CHECK(minimum_q>=MinimumMeanRatio);CHECK(minimum_j>=MinimumScaledJacobian);CHECK(excess<initial_excess);CHECK(oversized>0);
+      std::ofstream diagnosis("grid_refine_summary.json");diagnosis<<std::setprecision(17)<<"{\"accepted\":"<<partial.stats.accepted
+          <<",\"cells\":"<<partial.cells.size()<<",\"q\":"<<minimum_q<<",\"j\":"<<minimum_j<<",\"oversized_edges\":"<<oversized
+          <<",\"initial_excess\":"<<initial_excess<<",\"remaining_excess\":"<<excess<<",\"work\":"<<partial.stats.global_work<<"}\n";
+      REQUIRE(diagnosis.good());return;  // Real engine progress on the whole saved grid; final acceptance remains false.
+    }
     if(std::getenv("SU2_NATIVE_CURVED_EDGE_REPLAY")) {
       REQUIRE(!edges.empty());const auto longest=std::max_element(edges.begin(),edges.end(),[&](const auto& a,const auto& b) {
         return target.TargetEdgeLength(a.second.first,a.second.second)<target.TargetEdgeLength(b.second.first,b.second.second);
@@ -1778,6 +1804,7 @@ TEST_CASE("Cold native cylinder BL construction and release use the same origina
         <<" geometry="<<geometry_valid<<" failure="<<unsigned(metric.failure)<<" q="<<metric.minimum_mean_ratio
         <<" j="<<metric.minimum_scaled_jacobian<<" reason="<<reason<<std::endl;
   };
+  options.maximum_seconds=300;  // Return/save private progress before the collector's hard timeout.
   const auto refined=Refine(world,input.cells,input.original,*reference.original,compose,options);
   if(!world.rank)std::cout<<"CURVED_NATIVE3D refine valid="<<refined.valid<<" work="<<refined.stats.global_work<<" reason="<<refined.reason<<std::endl;
   if(!world.rank) {

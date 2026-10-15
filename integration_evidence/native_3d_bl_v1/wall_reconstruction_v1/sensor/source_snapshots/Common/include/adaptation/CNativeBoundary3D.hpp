@@ -7,6 +7,7 @@
 #pragma once
 #include "CNativeCavity3D.hpp"
 #include <map>
+#include <limits>
 #include <memory>
 #include <set>
 class CADTElemClass;
@@ -55,10 +56,16 @@ class PlanarReference {
   explicit PlanarReference(std::vector<Facet> facets, size_t ceiling = SIZE_MAX,
                            std::map<Id, AnalyticSurface> analytic = {});
   const std::map<Id, AnalyticSurface>& Analytic() const { return analytic; }
+  bool CompleteAnalytic(Id facet) const { return complete_analytic.count(Canonical(facet)); }
+  struct ClosestSurface { Point point, normal, direction; double distance=0; };
+  /*! Exact radial/finite-axis closest point on a certified complete sphere, cylinder or disk.
+   * Partial charts and graph surfaces reject; normal is physically oriented, direction points towards the query. */
+  ClosestSurface ClosestAnalytic(Id facet,Point p) const;
   /*! Projection must remain in the original finite chart; unsupported feature intersections reject. */
   Point Project(Id facet, Point p, KernelStats* stats = nullptr) const;
   bool OnProjectedEdge(Id facet, Point a, Point b, Point p, KernelStats* stats = nullptr) const;
   const Facet& Get(Id id) const;
+  const std::map<Id,Facet>& Facets() const { return facets; }
   /*! Requested resident map/vector storage; allocator metadata and constructor scratch are separate. */
   size_t ResidentBytes() const;
   /*! Conservative reference construction peak, including the house local box index. */
@@ -90,6 +97,10 @@ class PlanarReference {
 };
 struct FirstHeightReport {
   size_t wall_faces=0, height_failures=0, footprint_failures=0, missing_cells=0;
+  size_t reference_clearance_failures=0;
+  double minimum_reference_clearance_ratio=std::numeric_limits<double>::infinity();
+  Id reference_clearance_facet=0,reference_clearance_cell=0;
+  Point reference_clearance_apex{};
   double maximum_relative_error=0, maximum_tilt=0, minimum_barycentric=1./3;
   Id footprint_facet=0, footprint_cell=0;
   Id worst_facet=0, worst_cell=0;
@@ -141,11 +152,14 @@ bool SplitSurfaceStrip(const Patch& old,Edge edge,Node point,const std::vector<s
 /*! Physical split and coordinated normal wall-point insertion into retained volume topology.
  * Visibility cavities grow only inside the complete admitted patch, across obstructing faces.
  * Completed wall children are protected; no common background point is required. Reserve one node
- * per requested physical wall face from first_wall_node. Caller certifies actual metric/progress,
+ * per requested physical wall face from first_wall_node. With positive surface_tolerance, also split
+ * unresolved curved perimeter edges of the two incident wall faces before constructing normal points.
+ * Perimeter points plus wall points share the128-node bound. Caller certifies actual metric/progress,
  * external clearance and versioned dependencies. Failed proposals leave fresh unchanged. */
 bool ReconstructWallSplit(const Patch& old,Edge edge,Node point,Id first_wall_node,Id first_cell,
                           const std::map<int,double>& heights,const PlanarReference& reference,
-                          Patch& fresh,Face& obstruction,std::string& reason,KernelStats* stats = nullptr);
+                          Patch& fresh,Face& obstruction,std::string& reason,KernelStats* stats = nullptr,
+                          double surface_tolerance = 0);
 /*! Complete edge star plus imported face neighbours; joint projected surface split and interior reconnection.
  * Placement tensor is a proposal proxy only. Caller must certify actual-query metric, geometry progress,
  * nonlocal clearance and complete versioned dependencies. Requested wall children and transition are carved
@@ -157,12 +171,13 @@ bool ReconstructSplitPatch(const Patch& old,Edge edge,Node point,Node interior,c
                            const std::map<int,double>& heights = {});
 class FrozenField;
 struct ConnectivityRepairReport {
-  size_t trials=0, flips=0, moves=0, coordinated=0;
+  size_t trials=0, flips=0, moves=0, removals=0, coordinated=0;
   size_t move_geometry_rejected=0, move_height_rejected=0, move_loss_rejected=0;
   double before_loss=0, after_loss=0;
   bool complete_shape=false;
+  Id blocked_interior_vertex=UINT64_MAX;  // Actual-field deficit at an artificial interface; dependency hint, not infeasibility.
 };
-/*! Up to128 constructed private cells; bounded two/three/four-tet flips and interior movement in the actual frozen field. Returns a strictly
+/*! Up to128 constructed private cells; bounded two/three/four-tet flips, unconstrained interior removal and movement in the actual frozen field. Returns a strictly
  * improved private replacement, possibly still inadmissible; unchanged output on failure.
  * Fixed interface coordinates and requested first height/footprints remain mandatory. Caller admits
  * the complete original dependencies and validates full composed edges/progress before publication. */

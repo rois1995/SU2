@@ -1486,7 +1486,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
           else {result.reason=donors.reason;return finish();}
         }
         std::array<Point,3> splits{};Edge extraEdge{};Node extraPoint,offEdgePoint;bool extraSplit=false;
-        std::array<std::vector<std::pair<Id,Node>>,3> moveSeeds;
+        std::array<std::vector<std::pair<Id,Node>>,3> moveSeeds;std::vector<std::pair<Id,Node>> normalMoves;
         if(strip)try {
           Timer timer(stats.metric_seconds,options.timings);CpuTimer cpu(stats.metric_cpu_seconds,options.timings);
           const auto components=AssociatedExtensions(donors.cells,geometry);
@@ -1520,6 +1520,36 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
                 proposal=ConstrainMovePoint(old,id,proposal,options.wall_heights,geometry);
               }
               moveSeeds[damping].emplace_back(id,proposal);
+            }
+          }
+          if(boundary_edge) {
+            std::vector<SurfaceFace> incident;
+            for(const auto& f:old.surface)if(std::find(f.v.begin(),f.v.end(),choice.edge[0])!=f.v.end() &&
+                std::find(f.v.begin(),f.v.end(),choice.edge[1])!=f.v.end())incident.push_back(f);
+            if(incident.size()==2 && geometry.Canonical(incident[0].facet)==geometry.Canonical(incident[1].facet)) {
+              const auto a=nodes.at(incident[0].v[0]).p,b=nodes.at(incident[0].v[1]).p,c=nodes.at(incident[0].v[2]).p;
+              const long double u[3]={(long double)b.x-a.x,(long double)b.y-a.y,(long double)b.z-a.z};
+              const long double v[3]={(long double)c.x-a.x,(long double)c.y-a.y,(long double)c.z-a.z};
+              std::array<long double,3> normal{{u[1]*v[2]-u[2]*v[1],u[2]*v[0]-u[0]*v[2],u[0]*v[1]-u[1]*v[0]}};
+              const auto norm=std::hypot(normal[0],normal[1],normal[2]);
+              if(!(norm>0))throw std::runtime_error("Native3D strip has a degenerate physical face.");
+              for(auto& x:normal)x/=norm;
+              std::vector<std::pair<Id,Node>> inward;
+              for(size_t i=0;i<movers.size();++i) {
+                const Id id=movers[i];
+                if(std::any_of(old.surface.begin(),old.surface.end(),[&](const auto& f){return std::find(f.v.begin(),f.v.end(),id)!=f.v.end();}))continue;
+                const auto origin=nodes.at(id).p;const auto m=target.Query(origin).target;
+                const auto side=normal[0]*((long double)origin.x-a.x)+normal[1]*((long double)origin.y-a.y)+normal[2]*((long double)origin.z-a.z);
+                const auto quadratic=m.xx*normal[0]*normal[0]+m.yy*normal[1]*normal[1]+m.zz*normal[2]*normal[2]+
+                    2*(m.xy*normal[0]*normal[1]+m.xz*normal[0]*normal[2]+m.yz*normal[1]*normal[2]);
+                if(!(quadratic>0) || !std::isfinite(quadratic))throw std::runtime_error("Native3D strip normal metric is unrepresentable.");
+                if(side==0)continue;
+                const auto step=std::copysign(.25L/std::sqrt(quadratic),side);
+                Node proposal{maximum_node+2+i+node_offset,{double(origin.x+step*normal[0]),double(origin.y+step*normal[1]),double(origin.z+step*normal[2])}};
+                inward.emplace_back(id,ConstrainMovePoint(old,id,proposal,options.wall_heights,geometry));
+              }
+              // A fixed cap's free apex can need depth freedom without moving its neighboring surface points.
+              normalMoves=std::move(inward);
             }
           }
           if(boundary_edge)for(size_t i=0;i<movers.size();++i) {
@@ -1583,25 +1613,28 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         }catch(const std::exception& e){failure.Set(2,0,e.what());}
         if(!(ready=vote(failure)))return finish();
         const unsigned frameCount=world.maximum(strip?unsigned(frames.size()):0);
-        // Bounded complete proposals; reject new oversized edges while allowing untouched residuals elsewhere.
-        for(unsigned trial=0;trial<36*frameCount && world.maximum(strip && !approved);++trial) {
+        const unsigned originalTrials=36*frameCount;
+        const unsigned normalTrials=world.maximum(strip && !normalMoves.empty() ? 12u : 0u);
+        // Preserve the established search before a bounded cap-depth escape using the shared refinement progress gate.
+        for(unsigned trial=0;trial<originalTrials+normalTrials && world.maximum(strip && !approved);++trial) {
           if(stats.global_work>=stats.work_limit){stats.stop=EngineStop::WorkBudget;result.reason="Native3D joint strip exhausted the global work budget.";return finish();}
           ++stats.global_work;
           if(options.maximum_seconds && world.maximum(std::chrono::duration<double>(Clock::now()-started).count()>=options.maximum_seconds)) {
             stats.stop=EngineStop::TimeBudget;result.reason="Native3D joint strip exhausted the elapsed budget.";return finish();
           }
-          bool candidate=false;
-          if(strip && !approved && trial/36<frames.size())try {
-            const unsigned slotTrial=trial%36;
+          bool candidate=false;const bool normalTrial=trial>=originalTrials;
+          const unsigned frame=normalTrial?0:trial/36;
+          if(strip && !approved && frame<frames.size() && (!normalTrial || !normalMoves.empty()))try {
+            const unsigned slotTrial=normalTrial?12*((trial-originalTrials)/4)+(trial-originalTrials)%4:trial%36;
             Timer timer(stats.reconstruction_seconds,options.timings);CpuTimer cpu(stats.reconstruction_cpu_seconds,options.timings);
-            ++stats.repair_proposals;auto moves=moveSeeds[(slotTrial%12)/4];const double alpha=std::array<double,4>{{1.,.5,.25,.125}}[slotTrial%4];
+            ++stats.repair_proposals;auto moves=normalTrial?normalMoves:moveSeeds[(slotTrial%12)/4];const double alpha=std::array<double,4>{{1.,.5,.25,.125}}[slotTrial%4];
             for(auto& move:moves) {
               Point origin{};bool found=false;for(const auto& c:old.cells)for(auto n:c.v)if(n.id==move.first){origin=n.p;found=true;}
               if(!found)throw std::runtime_error("Native3D joint strip misses a moved identity.");
               const auto q=move.second.p;
               move.second.p={double(origin.x+alpha*((long double)q.x-origin.x)),double(origin.y+alpha*((long double)q.y-origin.y)),double(origin.z+alpha*((long double)q.z-origin.z))};
             }
-            if(trial>=36)moves.erase(std::remove_if(moves.begin(),moves.end(),[&](const auto& move){
+            if(!normalTrial && trial>=36)moves.erase(std::remove_if(moves.begin(),moves.end(),[&](const auto& move){
               return std::none_of(old.surface.begin(),old.surface.end(),[&](const auto& f){return std::find(f.v.begin(),f.v.end(),move.first)!=f.v.end();});
             }),moves.end());
             point.p=splits[slotTrial/12];
@@ -1620,8 +1653,8 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
               return false;
             }),moves.end());
             if(!moves.empty()) {
-              candidate=SplitSurfaceStrip(frames[trial/36],choice.edge,point,moves,maximum_cell+1+offset,geometry,fresh,result.reason);
-              if(candidate && extraFrames[trial/36]) {
+              candidate=SplitSurfaceStrip(frames[frame],choice.edge,point,moves,maximum_cell+1+offset,geometry,fresh,result.reason);
+              if(candidate && extraFrames[frame]) {
                 Patch star;
                 for(const auto& c:fresh.cells) {
                   unsigned count=0;for(auto n:c.v)count+=n.id==extraEdge[0] || n.id==extraEdge[1];
@@ -1630,7 +1663,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
                 const auto skin=Incidence(star.cells).Boundary();
                 for(const auto& f:fresh.surface)if(std::any_of(skin.begin(),skin.end(),[&](Face face){return Key(face)==Key(f.v);}))star.surface.push_back(f);
                 Patch children;
-                candidate=extraFrames[trial/36]==2 ?
+                candidate=extraFrames[frame]==2 ?
                     InsertEdgeCavity(star,extraEdge,offEdgePoint,maximum_cell+1+offset,geometry,children,result.reason) :
                     SplitEdge(star,extraEdge,extraPoint,maximum_cell+1+offset,geometry,children,result.reason);
                 if(candidate) {
@@ -1646,7 +1679,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
             }
           }catch(const std::exception& e){failure.Set(2,0,e.what());}
           if(!(ready=vote(failure)))return finish();
-          const bool passed=validate_private(candidate,MetricChange::Refine,true);
+          const bool passed=validate_private(candidate,MetricChange::Refine,!normalTrial);
           if(strip && !approved)approved=passed;
           if(!ready)return finish();
         }

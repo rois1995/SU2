@@ -1,0 +1,30 @@
+{
+  "status": "PASS_ENGINE_PROGRESS_GEOMETRY_ONLY",
+  "scope": "Reused identical independently audited base; exact positive local volumes/incidence/no positive-volume overlap, fixed interface/volume, unchanged exterior coordinates/facets/donors, local-to-exterior overlap checks, prescribed wall altitude and normal feet. Native metric progress remains partial; no independent field/edge quadrature or CFD/transfer acceptance.",
+  "removed_cells": 34,
+  "added_cells": 36,
+  "unchanged_cells": 992,
+  "exterior_pair_candidates": 1224,
+  "maximum_height_relative_error": 1.6653345369377348e-15,
+  "native_metrics": {
+    "accepted": 1,
+    "cells": 1028,
+    "q": 0.2100406571278547,
+    "j": 0.058245444923815844,
+    "oversized_edges": 151,
+    "initial_excess": 39.44133184615518,
+    "remaining_excess": 35.232156113661084,
+    "work": 76
+  },
+  "native_receipt_sha256": "cf0d63128e14fea47dffee22b79aa9c65983061a3c2f5d0cd8aa3a300b222516",
+  "base_audit_sha256": "e6c185607db0e0ff0699d9a46af965b07c868a971fe7d2fe3050222270e25731",
+  "input_sha256": {
+    "old": "768ecc021973ec14aa2b832f9f99fef362f0af0181e7b0b0b5dd23a39e5723be",
+    "new": "b8bf88976df5f95718c76c4ee192fd540d6f53989aa25a5f9f353b7544709167"
+  },
+  "helper_sha256": "254a16753b2b7390ab6751795bfca07f8895bc47562d2264206a3a6eec656a61",
+  "predicates_sha256": "26079385c071c3ad1b9c06ab3b862b4ff293367dc3c8d291acf0487089d062c5",
+  "cavity_helper_sha256": "d587d7dea4391e6e77c118f5d15167d147b4bc40f72e811c0e6c75d3a1a2ee5e",
+  "geometry_reused_from_report_sha256": "a7e3d98e0bc224131ed7e6aec1e7f62983902a5969f47a18131ee80f26bb924b",
+  "reuse_reason": "Identical old/new geometry, reference and donor JSON hashes and unchanged audit/predicate helpers; no repeated geometric predicates. Native runtime receipt/metrics refreshed for the established-search-first fallback."
+}

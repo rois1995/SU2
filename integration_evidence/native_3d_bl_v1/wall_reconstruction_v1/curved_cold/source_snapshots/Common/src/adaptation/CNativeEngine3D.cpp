@@ -1356,7 +1356,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       CLocalFailure old_failure;
       if (metric_needed && !old_measured) old_failure.Set(1,0,result.reason);
       if (!(ready=vote(old_failure))) return finish();
-      auto validate_private=[&](bool candidate,MetricChange kind,bool no_new_oversized=false) {
+      auto validate_private=[&](bool candidate,MetricChange kind) {
         certified={};
         candidate=geometric_change(candidate,kind);
         PatchMetric metric;
@@ -1367,14 +1367,6 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
           if (candidate) {
             const auto effective=(kind==MetricChange::Repair && geometric_progress) ? MetricChange::GeometryRepair : kind;
             if (measured) valid=ValidateMetricChange(old.cells.size(),before,fresh.cells.size(),metric,effective,result.reason,&certified);
-            if(valid && no_new_oversized)for(const auto& edge:metric.edges)if(edge.second.length>MaximumMetricEdge) {
-              const auto previous=before.edges.find(edge.first);
-              auto same=[](Point a,Point b){return a.x==b.x && a.y==b.y && a.z==b.z;};
-              if(previous==before.edges.end() || !same(previous->second.a,edge.second.a) || !same(previous->second.b,edge.second.b)) {
-                valid=false;certified.failure=MetricFailure::Progress;
-                result.reason="Native3D joint strip introduces a new oversized edge.";break;
-              }
-            }
             metric_trial(valid,certified);
           }
         }
@@ -1522,6 +1514,36 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
               moveSeeds[damping].emplace_back(id,proposal);
             }
           }
+          if(boundary_edge) {
+            std::vector<SurfaceFace> incident;
+            for(const auto& f:old.surface)if(std::find(f.v.begin(),f.v.end(),choice.edge[0])!=f.v.end() &&
+                std::find(f.v.begin(),f.v.end(),choice.edge[1])!=f.v.end())incident.push_back(f);
+            if(incident.size()==2 && geometry.Canonical(incident[0].facet)==geometry.Canonical(incident[1].facet)) {
+              const auto a=nodes.at(incident[0].v[0]).p,b=nodes.at(incident[0].v[1]).p,c=nodes.at(incident[0].v[2]).p;
+              const long double u[3]={(long double)b.x-a.x,(long double)b.y-a.y,(long double)b.z-a.z};
+              const long double v[3]={(long double)c.x-a.x,(long double)c.y-a.y,(long double)c.z-a.z};
+              std::array<long double,3> normal{{u[1]*v[2]-u[2]*v[1],u[2]*v[0]-u[0]*v[2],u[0]*v[1]-u[1]*v[0]}};
+              const auto norm=std::hypot(normal[0],normal[1],normal[2]);
+              if(!(norm>0))throw std::runtime_error("Native3D strip has a degenerate physical face.");
+              for(auto& x:normal)x/=norm;
+              std::vector<std::pair<Id,Node>> inward;
+              for(size_t i=0;i<movers.size();++i) {
+                const Id id=movers[i];
+                if(std::any_of(old.surface.begin(),old.surface.end(),[&](const auto& f){return std::find(f.v.begin(),f.v.end(),id)!=f.v.end();}))continue;
+                const auto origin=nodes.at(id).p;const auto m=target.Query(origin).target;
+                const auto side=normal[0]*((long double)origin.x-a.x)+normal[1]*((long double)origin.y-a.y)+normal[2]*((long double)origin.z-a.z);
+                const auto quadratic=m.xx*normal[0]*normal[0]+m.yy*normal[1]*normal[1]+m.zz*normal[2]*normal[2]+
+                    2*(m.xy*normal[0]*normal[1]+m.xz*normal[0]*normal[2]+m.yz*normal[1]*normal[2]);
+                if(!(quadratic>0) || !std::isfinite(quadratic))throw std::runtime_error("Native3D strip normal metric is unrepresentable.");
+                if(side==0)continue;
+                const auto step=std::copysign(.25L/std::sqrt(quadratic),side);
+                Node proposal{maximum_node+2+i+node_offset,{double(origin.x+step*normal[0]),double(origin.y+step*normal[1]),double(origin.z+step*normal[2])}};
+                inward.emplace_back(id,ConstrainMovePoint(old,id,proposal,options.wall_heights,geometry));
+              }
+              // A fixed cap's free apex can need depth freedom without moving its neighboring surface points.
+              if(!inward.empty())moveSeeds[0]=std::move(inward);
+            }
+          }
           if(boundary_edge)for(size_t i=0;i<movers.size();++i) {
             const Id id=movers[i];
             if(std::any_of(old.surface.begin(),old.surface.end(),[&](const auto& f){return std::find(f.v.begin(),f.v.end(),id)!=f.v.end();}))continue;
@@ -1583,7 +1605,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         }catch(const std::exception& e){failure.Set(2,0,e.what());}
         if(!(ready=vote(failure)))return finish();
         const unsigned frameCount=world.maximum(strip?unsigned(frames.size()):0);
-        // Bounded complete proposals; reject new oversized edges while allowing untouched residuals elsewhere.
+        // Joint refinement uses the shared strict changed-edge progress gate; completion still bounds every edge.
         for(unsigned trial=0;trial<36*frameCount && world.maximum(strip && !approved);++trial) {
           if(stats.global_work>=stats.work_limit){stats.stop=EngineStop::WorkBudget;result.reason="Native3D joint strip exhausted the global work budget.";return finish();}
           ++stats.global_work;
@@ -1646,7 +1668,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
             }
           }catch(const std::exception& e){failure.Set(2,0,e.what());}
           if(!(ready=vote(failure)))return finish();
-          const bool passed=validate_private(candidate,MetricChange::Refine,true);
+          const bool passed=validate_private(candidate,MetricChange::Refine);
           if(strip && !approved)approved=passed;
           if(!ready)return finish();
         }

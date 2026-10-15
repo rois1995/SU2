@@ -1374,7 +1374,8 @@ TEST_CASE("Visible wall samples cannot hide an enclosed thin spherical second wa
     for(unsigned k=0;k<=n;++k)sum+=(k==0||k==n?1:k%2?4:2)*integrand(left+h*k);
     return h*sum/3;
   };
-  const double expected=8./6+4*std::acos(-1.)*(integral(0,5e-6)+integral(5e-6,2.7e-5)+integral(2.7e-5,3e-5));
+  // The enclosed sphere has both shells: (r-d)^2+(r+d)^2 = 2*(r*r+d*d).
+  const double expected=8./6+8*std::acos(-1.)*(integral(0,5e-6)+integral(5e-6,2.7e-5)+integral(2.7e-5,3e-5));
   const auto rule=layers.IntegrationRule3D(cell,1.5,density);double volume=0,measured=0;bool found=false;
   for(const auto& p:rule) {
     volume+=p.weight;measured+=p.weight*density(p);
