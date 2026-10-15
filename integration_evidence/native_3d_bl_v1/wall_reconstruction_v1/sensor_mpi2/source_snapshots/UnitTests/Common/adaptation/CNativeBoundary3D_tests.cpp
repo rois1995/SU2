@@ -1223,6 +1223,25 @@ TEST_CASE("Native3D uneven wall split replaces apices and transition together", 
 }
 
 
+TEST_CASE("Joint same-chart boundary reconstruction accepts rounded points and protects marker junctions", "[NativeJointGeometry3D]") {
+  const auto old=Cube();auto facets=Facets(old);
+  for(auto& f:facets)if(std::all_of(f.v.begin(),f.v.end(),[](Node n){return n.p.z==0;}))f.marker=70;
+  const PlanarReference reference(facets);const Node point{8,{.5,std::nextafter(.5,1.),0}};
+  Patch fresh;Face obstruction{};std::string reason;
+  REQUIRE(ReconstructSplitPatch(old,{0,2},point,{9,{}},Tensor{},1000,reference,fresh,obstruction,reason));
+  CHECK(double(Volume(fresh))==Approx(1).epsilon(1e-14));
+  for(size_t i=0;i<fresh.cells.size();++i)for(size_t j=i+1;j<fresh.cells.size();++j)CHECK(ConformingDisjoint(fresh.cells[i],fresh.cells[j]));
+  std::vector<Cell> cells;REQUIRE(Cone(old.cells,{100,{.5,.5,.5}},10000,cells,reason));Patch inserted{cells,old.surface},strip;
+  REQUIRE(SplitSurfaceStrip(inserted,{0,2},point,{{100,{101,{.5,.5,.45}}}},20000,reference,strip,reason));
+  CHECK(double(Volume(strip))==Approx(1).epsilon(1e-14));
+  for(size_t i=0;i<strip.cells.size();++i)for(size_t j=i+1;j<strip.cells.size();++j)CHECK(ConformingDisjoint(strip.cells[i],strip.cells[j]));
+  const auto saved=Connectivity(fresh);const PlanarReference junction(Facets(old));
+  CHECK_FALSE(ReconstructSplitPatch(old,{0,2},point,{9,{}},Tensor{},2000,junction,fresh,obstruction,reason));
+  CHECK(Connectivity(fresh)==saved);
+  CHECK_FALSE(ReconstructSplitPatch(old,{0,2},{8,{1.25,.5,0}},{9,{}},Tensor{},2000,reference,fresh,obstruction,reason));
+  CHECK(Connectivity(fresh)==saved);
+}
+
 TEST_CASE("Native3D private actual-field flips repair a slender internal edge", "[NativeConnectivity3D]") {
   const Node a{0,{0,0,0}},b{1,{1,0,0}},c{2,{0,1,0}},top{3,{.01,.01,.5}},bottom{4,{.01,.01,-.5}};
   Patch pair;
@@ -1273,17 +1292,54 @@ TEST_CASE("Native3D saved wall proposal replays bounded actual-field connectivit
            <<" L="<<double(metric.maximum_length)<<" reason="<<reason<<"\n";
 }
 
-TEST_CASE("Native joint repair moves an interior sliver vertex without stale shape scores", "[NativeConnectivityMove3D]") {
+TEST_CASE("Native joint repair resolves an interior sliver vertex without stale shape scores", "[NativeConnectivityMove3D]") {
   const auto seed=Cube();const PlanarReference reference(Facets(seed));std::vector<Cell> inserted;std::string reason;
   REQUIRE(Cone(seed.cells,{42,{.43,.37,.0001}},100,inserted,reason));Patch old{inserted,seed.surface};
   std::vector<DonorCell> source;for(const auto& c:seed.cells){DonorCell d;d.cell=c;d.sensor.fill(Tensor{});source.push_back(d);}
   FrozenField target(source);Patch fresh;ConnectivityRepairReport report;
   REQUIRE(RepairMetricConnectivity(old,target,reference,{},1000,fresh,report,reason,256));
-  CHECK(report.moves>0);CHECK(report.complete_shape);CHECK(report.after_loss==0);
+  CHECK(report.moves+report.removals>0);CHECK(report.complete_shape);CHECK(report.after_loss==0);
   CHECK(ValidateFixedInterface(old.cells,fresh.cells,reason));PatchMetric metric;
   REQUIRE(ValidateMetricPatch(fresh.cells,target,metric,reason));
   // Re-evaluation from coordinates must agree with the cached completion certificate.
   CHECK(metric.minimum_mean_ratio>=MinimumMeanRatio);CHECK(metric.minimum_scaled_jacobian>=MinimumScaledJacobian);
+}
+
+TEST_CASE("Actual-field repair identifies a sliver point fixed on an artificial interface", "[NativeConnectivityInterface3D]") {
+  const auto seed=Cube();const PlanarReference reference(Facets(seed));std::vector<Cell> inserted;std::string reason;
+  REQUIRE(Cone(seed.cells,{42,{.43,.37,.0001}},100,inserted,reason));inserted.pop_back();Patch partial;partial.cells=inserted;
+  auto key=[](Face f){std::sort(f.begin(),f.end());return f;};const auto boundary=Incidence(partial.cells).Boundary();
+  for(const auto& f:seed.surface)if(std::any_of(boundary.begin(),boundary.end(),[&](Face b){return key(b)==key(f.v);}))partial.surface.push_back(f);
+  std::vector<DonorCell> source;for(const auto& c:seed.cells){DonorCell d;d.cell=c;d.sensor.fill(Tensor{});source.push_back(d);}
+  FrozenField target(source);Patch fresh;ConnectivityRepairReport report;
+  CHECK_FALSE(RepairMetricConnectivity(partial,target,reference,{},1000,fresh,report,reason,0));
+  CHECK(report.blocked_interior_vertex==42);CHECK(report.trials==0);CHECK(fresh.cells.empty());
+  const bool progress=RepairMetricConnectivity(partial,target,reference,{},1000,fresh,report,reason,256);
+  CHECK_FALSE(report.complete_shape);CHECK(report.blocked_interior_vertex==42);
+  if(progress)CHECK(ValidateFixedInterface(partial.cells,fresh.cells,reason));
+}
+
+TEST_CASE("Private interior repair retains prescribed wall height despite admissible geometric collapse", "[NativeConnectivityHeight3D]") {
+  const auto seed=Cube();const PlanarReference reference(Facets(seed));std::map<int,double> heights;
+  for(const auto& f:Facets(seed))if(std::all_of(f.v.begin(),f.v.end(),[](Node n){return n.p.z==0;}))heights[f.marker]=.01;
+  Patch aligned;FirstHeightReport height;std::string reason;
+  REQUIRE(ConstructFirstLayer(seed,{100,{.5,.5,.5}},101,200,heights,reference,aligned,height,reason));
+  Patch star;
+  for(const auto& c:aligned.cells)if(std::any_of(c.v.begin(),c.v.end(),[](Node n){return n.id==101;}))star.cells.push_back(c);
+  for(const auto& f:aligned.surface)if(std::any_of(star.cells.begin(),star.cells.end(),[&](const Cell& c) {
+    unsigned count=0;for(auto n:c.v)count+=std::find(f.v.begin(),f.v.end(),n.id)!=f.v.end();return count==3;
+  }))star.surface.push_back(f);
+  Patch collapsed;REQUIRE(CollapseVertex(star,101,100,10000,reference,collapsed,reason));
+  Patch unchecked;unchecked.surface=aligned.surface;
+  for(const auto& c:aligned.cells)if(std::none_of(c.v.begin(),c.v.end(),[](Node n){return n.id==101;}))unchecked.cells.push_back(c);
+  unchecked.cells.insert(unchecked.cells.end(),collapsed.cells.begin(),collapsed.cells.end());
+  REQUIRE_FALSE(CheckFirstHeight(unchecked,heights,reference,height,reason));
+  std::vector<DonorCell> source;for(const auto& c:seed.cells){DonorCell d;d.cell=c;d.sensor.fill(Tensor{});source.push_back(d);}
+  FrozenField target(source);Patch repaired=aligned;ConnectivityRepairReport report;
+  const bool progress=RepairMetricConnectivity(aligned,target,reference,heights,20000,repaired,report,reason,256);
+  INFO(reason);REQUIRE(CheckFirstHeight(repaired,heights,reference,height,reason));
+  CHECK(ValidateFixedInterface(aligned.cells,repaired.cells,reason));
+  if(!progress)CHECK(Connectivity(repaired)==Connectivity(aligned));
 }
 
 TEST_CASE("Native wall split inserts coordinated height points without a common background", "[NativeWallReconstruction3D]") {
@@ -1301,6 +1357,10 @@ TEST_CASE("Native wall split inserts coordinated height points without a common 
   auto sentinel=fresh;const auto before=Connectivity(sentinel);
   CHECK_FALSE(ReconstructWallSplit(aligned,{0,2},{1000,{.4,.4,0}},100,2000,heights,reference,sentinel,obstruction,reason));
   CHECK(Connectivity(sentinel)==before);
+  CHECK_FALSE(ReconstructWallSplit(aligned,{0,2},{1000,{.4,.4,0}},1001,2000,heights,reference,sentinel,obstruction,reason,nullptr,-1));
+  CHECK(Connectivity(sentinel)==before);
+  Patch planar;REQUIRE(ReconstructWallSplit(aligned,{0,2},{1000,{.4,.4,0}},1001,2000,heights,reference,planar,obstruction,reason,nullptr,.01));
+  CHECK(Connectivity(planar)==Connectivity(fresh));
   CHECK_FALSE(ReconstructWallSplit(EdgeStar(aligned,{0,2}),{0,2},{1000,{.4,.4,0}},1001,2000,heights,reference,sentinel,obstruction,reason));
   CHECK(Connectivity(sentinel)==before);
 }

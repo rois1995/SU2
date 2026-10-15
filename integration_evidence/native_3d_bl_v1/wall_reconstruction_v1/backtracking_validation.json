@@ -1,0 +1,79 @@
+{
+  "status": "PASS_PLANAR_MPI_CONSTRUCTION_REMOVAL",
+  "scope": "Original six-cell scalar sensor4+12*x, original BL height/growth/fade, independent geometry/coverage/full field/edges/height; identical BL geometry across1/2/4. No current+BDF/CFD/restart/physical convergence or performance qualification.",
+  "cases": [
+    {
+      "stage": "sensor",
+      "native_receipt_sha256": "2c1a401bd81d51bf1fbbd9cbf8a7b395c18aa9bb1fac533b1c674d0b289c791d",
+      "independent_audit_sha256": "e15e163625efb83bf67ab6ed3c0c73f348e8223829fab80f66a41ebe00958a4c",
+      "frames": [
+        {
+          "cells": 591,
+          "q": 0.21304430234585578,
+          "j": 0.050376966452977484,
+          "length": 1.7987346332397784,
+          "height_error": 0.0,
+          "maximum_tilt": 1.0540925533894596
+        },
+        {
+          "cells": 252,
+          "q": 0.21881050289467496,
+          "j": 0.09330087202171343,
+          "length": 1.7987346332397893,
+          "height_error": 0,
+          "maximum_tilt": 0
+        }
+      ]
+    },
+    {
+      "stage": "sensor_mpi2",
+      "native_receipt_sha256": "495c8489f9a2b573f22b2904c6ee93167a7a08789e6daa06979e86902da431ad",
+      "independent_audit_sha256": "5ff00cf0cb8c29cf6c2a68a64370cadab40a68bffa79986fd64d3e3389a62c07",
+      "frames": [
+        {
+          "cells": 591,
+          "q": 0.21304430234585578,
+          "j": 0.050376966452977484,
+          "length": 1.7987346332397784,
+          "height_error": 0.0,
+          "maximum_tilt": 1.0540925533894596
+        },
+        {
+          "cells": 250,
+          "q": 0.21881050289467496,
+          "j": 0.09330087202171343,
+          "length": 1.7987346332397893,
+          "height_error": 0,
+          "maximum_tilt": 0
+        }
+      ]
+    },
+    {
+      "stage": "sensor_mpi4",
+      "native_receipt_sha256": "d715be01c9e7499481462c50fb764b34a676581fdf2ed3cacfa8b4962fa2ca77",
+      "independent_audit_sha256": "83b1ce4539c8eed06c67ab4572d0cd9d576d23422da807885c772dbb997e4c04",
+      "frames": [
+        {
+          "cells": 591,
+          "q": 0.21304430234585578,
+          "j": 0.050376966452977484,
+          "length": 1.7987346332397784,
+          "height_error": 0.0,
+          "maximum_tilt": 1.0540925533894596
+        },
+        {
+          "cells": 243,
+          "q": 0.21881050289467496,
+          "j": 0.09330087202171343,
+          "length": 1.7987346332397893,
+          "height_error": 0,
+          "maximum_tilt": 0
+        }
+      ]
+    }
+  ],
+  "global_work_limit": 4096,
+  "maximum_joint_repair_trials": 256,
+  "diagnosed_rejected_retirement": "planar_wall_retirement_rejected_v1",
+  "negative_debt": "planar_wall_repaired_debt.json"
+}

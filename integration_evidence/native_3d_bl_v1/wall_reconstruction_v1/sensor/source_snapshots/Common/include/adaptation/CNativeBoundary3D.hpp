@@ -180,10 +180,11 @@ struct ConnectivityRepairReport {
 /*! Up to128 constructed private cells; bounded two/three/four-tet flips, unconstrained interior removal and movement in the actual frozen field. Returns a strictly
  * improved private replacement, possibly still inadmissible; unchanged output on failure.
  * Fixed interface coordinates and requested first height/footprints remain mandatory. Caller admits
- * the complete original dependencies and validates full composed edges/progress before publication. */
+ * the complete original dependencies and validates full composed edges/progress before publication.
+ * Disable retirement when backtracking a shape repair that destroys frozen size resolution. */
 bool RepairMetricConnectivity(const Patch& old,FrozenField& target,const PlanarReference& reference,
                               const std::map<int,double>& heights,Id first_cell,Patch& fresh,
-                              ConnectivityRepairReport& report,std::string& reason,size_t maximum_trials=64);
+                              ConnectivityRepairReport& report,std::string& reason,size_t maximum_trials=64,bool retire_points=true);
 bool UndoEdgeSplit(const Patch& old, Id point, Edge endpoints, Id first_cell, const PlanarReference& reference,
                    Patch& fresh, std::string& reason, KernelStats* stats = nullptr);
 /*! Contracts a vertex to an existing neighbor in its complete admitted vertex star, without split history.

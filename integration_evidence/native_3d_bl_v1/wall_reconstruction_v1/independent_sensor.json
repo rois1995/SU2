@@ -1,35 +1,59 @@
 {
-  "status": "REJECTED_PROGRESS",
+  "status": "PASS_SERIAL_LIMITED_SCOPE",
   "MPI_ranks": 1,
   "frames": [
     {
-      "file": "independent_finer_grouped_coupled_BL_rejected_n1.json",
-      "cells": 559,
-      "points": 151,
-      "physical_faces": 152,
+      "file": "independent_finer_grouped_coupled_BL_n1.json",
+      "cells": 591,
+      "points": 157,
+      "physical_faces": 154,
       "volume": "1",
       "minimum_mean_ratio": 0.21304430234585578,
-      "minimum_scaled_jacobian": 0.05255247169220739,
-      "maximum_length": 1.855980613945043,
+      "minimum_scaled_jacobian": 0.050376966452977484,
+      "maximum_length": 1.7987346332397784,
       "longest_edge": [
-        3,
-        8399
+        1,
+        32503
       ],
       "markers": {
         "11": 136,
-        "10": 16
+        "10": 18
       },
       "strict_metric_gate": false,
-      "height_faces": 16,
+      "height_faces": 18,
       "max_relative_height_error": 0.0,
       "max_tilt": 1.0540925533894596,
       "minimum_footprint_barycentric": 0.0,
-      "full_target_valid": false
+      "full_target_valid": true
+    },
+    {
+      "file": "independent_finer_grouped_released_Euler_n1.json",
+      "cells": 252,
+      "points": 76,
+      "physical_faces": 102,
+      "volume": "1",
+      "minimum_mean_ratio": 0.21881050289467496,
+      "minimum_scaled_jacobian": 0.09330087202171343,
+      "maximum_length": 1.7987346332397893,
+      "longest_edge": [
+        1,
+        32503
+      ],
+      "markers": {
+        "11": 84,
+        "10": 18
+      },
+      "strict_metric_gate": false,
+      "height_faces": 0,
+      "max_relative_height_error": 0,
+      "max_tilt": 0,
+      "minimum_footprint_barycentric": 0.3333333333333333,
+      "full_target_valid": true
     }
   ],
-  "native_status": "FAIL",
+  "native_status": "PASS",
   "log": "native.log",
-  "log_sha256": "e354f2bc5cf361e31392fc837b22cbd29ae02472f9af1762b15aed4a1711880c",
+  "log_sha256": "d55a88f27d373c70c6d92fe69b4c017a77c5e1525fb999d7763d03bd36bd181b",
   "helper_sha256": "6c327b7d7249eeb880181ed7f3ad5eb64f4a2fdf3a72db15b88c96983df8361d",
   "reused_auditor_sha256": "1822427476ecb5687aaa06f3e7a3cc8f31cde53166fd0c711449eedf7c7c7a50",
   "scope": "Declared cube source diag(4+12*x), exact geometry/coverage and independent composed square-wall field/core4/fade/full edges/shape/height. Failed native progress remains rejected even if some local checks pass. MPI scope is the declared N=M engine rank count; no CFD/transfer, physical accuracy or performance qualification."

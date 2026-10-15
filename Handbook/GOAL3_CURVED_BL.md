@@ -84,49 +84,36 @@ Evidence: `curved_edge_replay.json`, `curved_edge_geometry.json`, old/grown/join
 JSON and pinned sources/binary. Test-only placement parameters are not production
 modes or special handling of this fixture.
 
-Current continuation: curved BL generation remains incomplete and a recreated
-stronger planar control now fails. Historical MPI1/2/4 success remains valid on
-its recorded older source; it is not current-runtime qualification.
+Current continuation: the stronger planar regression is repaired and independently
+qualified on MPI1/2/4. Exact wall-patch replay showed that shape-only retirement
+removed required size resolution: after geometric closure18→22 cells and complete
+support-star admission→31, a40-cell shape-valid proposal added .036023 edge excess
+while removing only .003134. The frozen gate correctly rejected it.
 
-The final cap-normal fallback preserves established strip proposals/gates first,
-then admits12 bounded complete proposals using actual geometry/metric spacing and
-the shared changed-edge progress gate. The unchanged1026-cell saved-grid engine
-probe PASS: one edit in76 work,34→36 changed cells,1028 total cells; native excess
-39.4413→35.2322 (10.7% lower), qmin .210041/Jmin .058245. Oversized edges150→151;
-final acceptance correctly remains false. Independent geometric proof was reused
-only after identical old/new geometry/reference/donor hashes and helper checks.
-Interface/volume/first-height/feet and absence of positive-volume overlap remain
-certified in the stated scope; no independent curved field/edge/CFD qualification.
+Native now backtracks from that rejection and retries without point retirement,
+using only the unspent part of the original256-trial allocation. No field, height,
+quality, length, global work or commit gate changed. The exact replacement passes
+in19+70 trials, q .209831/J .051600, with added excess0. Complete construction/removal
+and independent original-field/geometry/height audits PASS: MPI1/2/4 gives591 BL
+cells→252/250/243 sensor-only cells. BL coordinates/connectivity/markers are exactly
+identical across ranks; qmin .213044,Jmin .050377,Lmax1.798735, altitude error0,
+contained normal feet. Maximum centroid tilt1.05409 remains a reported alignment
+limit; this does not qualify a complete orthogonal layer stack.
 
-A preceding first-choice/global-progress policy experiment failed full cold
-construction at the300-second kernel ceiling after52 edits/all8 wall reconstructions.
-Its438-cell rejected grid has no native shape violations (q .229233/J .056062),
-but281 of624 edges exceed1.8,max4.201315. That run is tied to its earlier policy
-snapshot, not the final fallback policy. The kernel now returns/saves progress
-before the collector deadline. Input/rejected grids/private pairs/receipts preserved.
-No complete cold rerun after the final policy reconciliation; no MPI/performance claim.
+The full curved cold run still returns the300-second kernel limit after52 edits/
+all8 wall reconstructions, with438 rejected cells. Its SU2 grid is byte-identical
+to the preceding recorded residual audit; unchanged relevant query/field sources
+were checked before reusing those measurements: no native shape failures,281 of624
+edges oversized,max4.201315. Full curved acceptance/removal/CFD replacement remains
+unqualified. The earlier cap-depth probe and negative angular experiment remain
+scoped historical evidence, not full mesh generation or performance results.
 
-The stronger planar reproduction fails (559 cells, operator stagnation) even after
-restoring existing strip ordering/gates and testing a surface-motion restriction.
-Matching the last PASS receipt reveals a much older pre-curved source. Causality is
-not isolated; the ineffective restriction was removed. Failed policy/order/current
-stages and the earlier successful evidence are preserved. This is an explicit open
-regression requiring repair before broad capability qualification. Independent
-audit confirms valid geometry, altitude/normal feet and q .213044/J .052552,
-but length1.855981 remains on a wall edge. Its two first-row owners and complete
-edge/apex-star union are recorded in `wall_reconstruction_v1/planar_wall_residual.json`.
-The next diagnosis should replay that complete constrained boundary patch.
-Next substantial step: actual-target-aware coordinated transition reconstruction,
-including point-retirement/dependency choices and combined support insertion/motion;
-do not accumulate cap-placement variants or repeat cold runs before that gap is addressed.
-
-The interacting thin-sphere reference now correctly includes both unsigned-distance
-shells (8*pi integral). Its previous work-budget failure remains open; this is a
-reference correction, not an integration success. A closed-form angular probe
-found projective sampling worse (12396 versus4032 panels), so it was not integrated.
-Composed gradation, interacting volume, wider geometry, MPI/transfer/restart,
-physical RANS/accuracy and complete performance gates remain open. All owned jobs
-terminal. Goal3 ACTIVE and incomplete.
+Read [resolution-preserving reconstruction and the current gates](GOAL3_RESOLUTION_BACKTRACKING.md).
+No broad regression, CFD/transfer/restart campaign or performance assessment was
+run for this milestone. Native engine N=M1/2/4 is qualified for this declared planar
+field; M<N/current+BDF/SA/restart and wider fields/geometries still need integration
+qualification. Interacting thin-volume/composed gradation/physical RANS/M6/accuracy/
+performance gates remain open. All owned jobs terminal. Goal3 ACTIVE and incomplete.
 
 Full cold-grid success and independent curved whole-mesh audit, MPI/return/transfer/
 restart and physical RANS/performance gates remain required. Partial/graph/mixed

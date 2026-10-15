@@ -9,19 +9,22 @@ def digest(p):
   for block in iter(lambda:f.read(1024*1024),b''):h.update(block)
  return h.hexdigest()
 def main():
- stage=sys.argv[1];assert stage in ("geometry","sensor","sensor_mpi2","sensor_mpi4","curved_field","curved_volume","curved_cold","curved_replay","curved_replay_remaining","curved_replay_complete","curved_grid_audit","curved_cold_residual","curved_grid_refine","curved_edge_replay","curved_repair_controls","interacting_volume")
+ stage=sys.argv[1];assert stage in ("geometry","planar_wall_replay","sensor","sensor_mpi2","sensor_mpi4","curved_field","curved_volume","curved_cold","curved_replay","curved_replay_remaining","curved_replay_complete","curved_grid_audit","curved_cold_residual","curved_grid_refine","curved_edge_replay","curved_repair_controls","interacting_volume")
  ranks=2 if stage=="sensor_mpi2" else 4 if stage=="sensor_mpi4" else 1;selection="[NativeWallReconstruction3D],[NativeJointGeometry3D]" if stage=="geometry" else "[NativeFinerSensorBL3D]"
  expected=4 if stage=="geometry" else 1
+ if stage=="planar_wall_replay":selection="[NativePlanarWallReplay3D]"
  if stage.startswith("curved_") or stage=="interacting_volume":
   selection={"curved_field":"[NativeCurvedBL3D]","curved_volume":"[NativeCurvedBLVolume3D]","curved_cold":"[NativeCurvedBLConstruction3D]","curved_replay":"[NativeCurvedBLConstruction3D]","curved_replay_remaining":"[NativeCurvedBLConstruction3D]","curved_replay_complete":"[NativeCurvedBLConstruction3D]","curved_grid_audit":"[NativeCurvedBLConstruction3D]","curved_cold_residual":"[NativeCurvedBLConstruction3D]","curved_grid_refine":"[NativeCurvedBLConstruction3D]","curved_edge_replay":"[NativeCurvedBLConstruction3D]","curved_repair_controls":"[NativeConnectivity3D],[NativeConnectivityMove3D],[NativeConnectivityHeight3D],[NativeConnectivityInterface3D]","interacting_volume":"[NativeInteractingBLVolume3D]"}[stage]
   expected=5 if stage=="curved_repair_controls" else 4 if stage=="curved_field" else 1
  check=subprocess.run(['/tmp/native-build-tools/ninja','-C',str(BUILD),'-n','UnitTests/test_driver','SU2_CFD/src/SU2_CFD'],stdout=subprocess.PIPE,stderr=subprocess.STDOUT,universal_newlines=True,timeout=30)
  assert check.returncode==0 and 'ninja: no work to do.' in check.stdout,check.stdout
  sources=['UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp','Common/include/adaptation/CNativeMetric3D.hpp','UnitTests/Common/adaptation/CNativeDistributed3D_tests.cpp','Common/src/adaptation/CNativeDistributed3D.cpp','Common/include/adaptation/CNativeField3D.hpp','Common/src/adaptation/CNativeField3D.cpp','Common/src/adaptation/CNativeMetric3D.cpp','Common/include/adaptation/CNativeBoundary3D.hpp','Common/src/adaptation/CNativeBoundary3D.cpp','UnitTests/Common/adaptation/CNativeBoundary3D_tests.cpp','Common/include/adaptation/CNativeRemesher3D.hpp','Common/src/adaptation/CNativeRemesher3D.cpp','Common/include/adaptation/CNativeEngine3D.hpp','Common/src/adaptation/CNativeEngine3D.cpp','Common/src/adaptation/CNativeImport3D.cpp','Common/src/adaptation/CNativeReferenceIO3D.cpp','SU2_CFD/include/adaptation/CBoundaryLayerMetric.hpp','SU2_CFD/src/adaptation/CBoundaryLayerMetric.cpp','SU2_CFD/src/drivers/CSinglezoneDriver.cpp','SU2_CFD/src/solvers/CSolver.cpp','UnitTests/SU2_CFD/adaptation/CNativeImport3D_tests.cpp',str(Path(__file__).resolve().relative_to(ROOT))]
+ sources.append('UnitTests/Common/adaptation/fixtures/native_bl_planar_wall.inc')
  sources.extend(['UnitTests/SU2_CFD/adaptation/fixtures/native_curved_wall_blockage.inc','UnitTests/SU2_CFD/adaptation/fixtures/native_curved_remaining.inc'])
  pins={p:digest(ROOT/p) for p in sources}
  if stage in ('curved_grid_audit','curved_cold_residual','curved_grid_refine','curved_edge_replay'):
   grid_stage='curved_cold' if (HERE/'curved_cold/curved_cylinder_BL_rejected.su2').is_file() else 'curved_cold_complete_rejected_v1'
+  if stage=='curved_grid_refine':grid_stage='curved_cold_complete_rejected_v1'
   grid=HERE/grid_stage/'curved_cylinder_BL_rejected.su2';grid_receipt=json.loads((HERE/(grid_stage+'.json')).read_text());assert grid_receipt['status']=='FAIL' and digest(grid)==grid_receipt['artifacts'][grid.name]
   pins['saved_grid']=digest(grid);pins['saved_grid_receipt']=digest(HERE/(grid_stage+'.json'))
  pins['build.ninja']=digest(BUILD/'build.ninja');pins['compile_commands.json']=digest(BUILD/'compile_commands.json');pins['test_binary']=digest(BINARY);pins['solver_binary']=digest(BUILD/'SU2_CFD/src/SU2_CFD')

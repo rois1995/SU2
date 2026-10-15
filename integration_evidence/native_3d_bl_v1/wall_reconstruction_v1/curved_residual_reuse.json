@@ -1,0 +1,27 @@
+{
+  "status": "REUSED_RECORDED_NATIVE_RESIDUALS",
+  "scope": "Byte-identical saved SU2 grid and unchanged original-field/query/import/test sources; retained measurements from their executed binary, not a new current-binary full field/geometry/CFD qualification. Boundary changes are confined to the unrelated private-repair retirement switch.",
+  "grid_sha256": "65123d85cb0f1c3322f0a9211bf353de6d902bdb371c8c33b4ed751c15af732c",
+  "original_receipt_sha256": "5845616ad77326215a8379759264c4152c08cddf6cdaf1b208be382e8be711d9",
+  "current_cold_receipt_sha256": "b2dea0113745b8a6145790c57eb777b4bec51c01462687ad9c2e4c33340d493f",
+  "query_source_sha256": {
+    "Common/include/adaptation/CNativeField3D.hpp": "499f68029e6d53682c038fd741b9ec675053984620da54d7f45b9d8a4accb94b",
+    "Common/src/adaptation/CNativeField3D.cpp": "8350bc2d8910d3ecb03bb0fc3fdf316e83f6f4b98f3c5908a1878db2a4fcdfd0",
+    "Common/include/adaptation/CNativeMetric3D.hpp": "f64dc4bb61b0b6b1038e6b9edd26404f00b712ba38bc0f2e97745e8e04f2f37b",
+    "Common/src/adaptation/CNativeMetric3D.cpp": "573f114309e86c2446df91daaef513288da90238e026c237fb2787e9e12eacc5",
+    "Common/src/adaptation/CNativeImport3D.cpp": "309312373ecadb8483e4c54b1b9c78c32c63ff525fc7230bd7ecebaaf172cf99",
+    "Common/src/adaptation/CNativeReferenceIO3D.cpp": "7e1b4d596755f7f8ef6547f89530e09eebc0a05bdb18fde8e0c05ff9bf25bb5c",
+    "SU2_CFD/include/adaptation/CBoundaryLayerMetric.hpp": "188bce108d44957af2833e974a487a7541aeab4e31ca8ddefb1fbaf4f454e416",
+    "SU2_CFD/src/adaptation/CBoundaryLayerMetric.cpp": "9fd3cf647353916dac92e3314fd2ee688e4f1a91214c1099bdb2b3214973c9fa",
+    "UnitTests/SU2_CFD/adaptation/CNativeImport3D_tests.cpp": "8cec263a05fc7b7ceb85f94d3f6b83443ae5e65800ae8e59e546ebf9c1eb419a"
+  },
+  "measurements": {
+    "cells": 438,
+    "shape_failures": 0,
+    "q": 0.2292327973425877,
+    "j": 0.056061855917441415,
+    "edges": 624,
+    "oversized_edges": 281,
+    "maximum_length": 4.201314851523682
+  }
+}

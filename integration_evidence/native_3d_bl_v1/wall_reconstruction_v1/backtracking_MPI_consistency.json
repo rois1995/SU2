@@ -1,0 +1,21 @@
+{
+  "status": "PASS_IDENTICAL_BL_GEOMETRY",
+  "scope": "Exact BL coordinates/connectivity/markers on MPI1/2/4; coarsening may have different admissible meshes. Not CFD/transfer or performance qualification.",
+  "inputs": [
+    {
+      "ranks": 1,
+      "file": "sensor/independent_finer_grouped_coupled_BL_n1.json",
+      "sha256": "e8f34812bec1c568266fb894fabee8070524fc62b1fa4319caa6f1fe200fbb0c"
+    },
+    {
+      "ranks": 2,
+      "file": "sensor_mpi2/independent_finer_grouped_coupled_BL_n2.json",
+      "sha256": "b62aedc2be81d97db7a71eb4005fa0a49a03c232c7891fdd65bef5c15e481a8b"
+    },
+    {
+      "ranks": 4,
+      "file": "sensor_mpi4/independent_finer_grouped_coupled_BL_n4.json",
+      "sha256": "a73f9d9b34eab256c4607ec8bf17cab3dee5a2c02a17fea2807ca14ad95a3326"
+    }
+  ]
+}

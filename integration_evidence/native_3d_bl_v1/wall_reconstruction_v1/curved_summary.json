@@ -1,5 +1,5 @@
 {
-  "status": "INCOMPLETE_CURVED_MILESTONE",
+  "status": "PLANAR_BACKTRACKING_PASS_CURVED_INCOMPLETE",
   "stages": [
     {
       "stage": "curved_field",
@@ -33,8 +33,8 @@
       "stage": "curved_cold",
       "status": "FAIL",
       "returncode": 1,
-      "receipt_sha256": "89df207d78dd7e7f8ca96b3314af1b56d4a16fd0b31ea699eb9e71dd257e90f0",
-      "scope": "Earlier first-choice/global-progress policy experiment returns kernel time budget300s;438-cell rejected mesh exported. Final appended fallback was not cold-rerun."
+      "receipt_sha256": "b2dea0113745b8a6145790c57eb777b4bec51c01462687ad9c2e4c33340d493f",
+      "scope": "Current backtracking integration, kernel300s ceiling;438 rejected cells, byte-identical to recorded residual input, no final curved acceptance."
     },
     {
       "stage": "curved_grid_refine",
@@ -66,9 +66,9 @@
     },
     {
       "stage": "sensor",
-      "status": "FAIL",
-      "returncode": 1,
-      "receipt_sha256": "dfa17c87d65f15365d31b5402ca08692ff6f6051fe547e950cc78e5c339cc2cf",
+      "status": "PASS",
+      "returncode": 0,
+      "receipt_sha256": "2c1a401bd81d51bf1fbbd9cbf8a7b395c18aa9bb1fac533b1c674d0b289c791d",
       "scope": "Selected focused geometry/field/integration control or complete declared cold construction/removal probe. Curved stages use actual smooth reference and original sensors; cold case imports initialized RANS CFD geometry but does not run replacement/solution transfer or CFD iterations. Independent audit and full-goal qualification remain required; no performance claim."
     }
   ],
@@ -91,9 +91,10 @@
     "Final actual-engine cap fallback follows original proposals/gates; unchanged1026-cell input admits one34-to36-cell edit in76 work, lowers excess39.4413 to35.2322, leaves151 oversized edges. Independent geometry proof reused only for identical geometry/donor/reference hashes and helpers.",
     "Full earlier-policy cold experiment exits300s with52 edits/438 cells; residual audit finds no shape violations but281 oversized edges,max4.201315. Not a final-policy cold or performance qualification.",
     "Current recreated stronger planar control FAILS559-cell operator stagnation. Last PASS source substantially predates curved changes; cause not isolated. Ordering/gate restoration and surface-motion restriction did not fix it; restriction removed. Preserve explicit regression, do not claim current stronger-field success.",
-    "Corrected contained-sphere reference factor8*pi accounts for both unsigned-distance shells; work-budget failure remains unqualified. Closed-form positive projective mapping worsens panel count12396 versus4032; not integrated."
+    "Corrected contained-sphere reference factor8*pi accounts for both unsigned-distance shells; work-budget failure remains unqualified. Closed-form positive projective mapping worsens panel count12396 versus4032; not integrated.",
+    "Resolution-preserving backtracking after shape-only retirement progress rejection repairs stronger planar regression. Exact closure18\u219222\u219231; rejected added .036023 vs removed .003134; preserved alternate added0 in89 total trials. Complete independent MPI1/2/4 PASS591\u2192252/250/243, identical BL geometry. Current curved still300s/438 rejected with281 oversized edges; no broad full-goal/performance claim."
   ],
-  "remaining": "Restore the exposed stronger planar regression and implement complete coordinated transition reconstruction; full Goal3 unchanged including all cold/curved/interacting/gradation/MPI/current+BDF/return/restart/RANS/accuracy/performance gates.",
+  "remaining": "Complete coordinated curved transition reconstruction and interacting/gradation/geometry/M<N/current+BDF/return/restart/RANS/accuracy/performance gates; full Goal3 unchanged.",
   "rejection_audits": [
     "curved_cavity_audit_before_perimeter.json",
     "curved_cavity_audit.json"
@@ -102,5 +103,7 @@
   "focused_repair": "curved_repair_controls.json",
   "private_replay": "curved_replay_audit.json",
   "saved_grid_audit": "curved_grid_independent.json",
-  "long_edge_replay": "curved_edge_geometry.json"
+  "long_edge_replay": "curved_edge_geometry.json",
+  "backtracking_evidence": "backtracking_validation.json",
+  "curved_residual_scope": "curved_residual_reuse.json"
 }

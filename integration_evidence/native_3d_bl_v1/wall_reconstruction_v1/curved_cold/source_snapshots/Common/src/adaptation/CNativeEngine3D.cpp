@@ -1356,7 +1356,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       CLocalFailure old_failure;
       if (metric_needed && !old_measured) old_failure.Set(1,0,result.reason);
       if (!(ready=vote(old_failure))) return finish();
-      auto validate_private=[&](bool candidate,MetricChange kind) {
+      auto validate_private=[&](bool candidate,MetricChange kind,bool no_new_oversized=false) {
         certified={};
         candidate=geometric_change(candidate,kind);
         PatchMetric metric;
@@ -1367,6 +1367,14 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
           if (candidate) {
             const auto effective=(kind==MetricChange::Repair && geometric_progress) ? MetricChange::GeometryRepair : kind;
             if (measured) valid=ValidateMetricChange(old.cells.size(),before,fresh.cells.size(),metric,effective,result.reason,&certified);
+            if(valid && no_new_oversized)for(const auto& edge:metric.edges)if(edge.second.length>MaximumMetricEdge) {
+              const auto previous=before.edges.find(edge.first);
+              auto same=[](Point a,Point b){return a.x==b.x && a.y==b.y && a.z==b.z;};
+              if(previous==before.edges.end() || !same(previous->second.a,edge.second.a) || !same(previous->second.b,edge.second.b)) {
+                valid=false;certified.failure=MetricFailure::Progress;
+                result.reason="Native3D joint strip introduces a new oversized edge.";break;
+              }
+            }
             metric_trial(valid,certified);
           }
         }
@@ -1478,7 +1486,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
           else {result.reason=donors.reason;return finish();}
         }
         std::array<Point,3> splits{};Edge extraEdge{};Node extraPoint,offEdgePoint;bool extraSplit=false;
-        std::array<std::vector<std::pair<Id,Node>>,3> moveSeeds;
+        std::array<std::vector<std::pair<Id,Node>>,3> moveSeeds;std::vector<std::pair<Id,Node>> normalMoves;
         if(strip)try {
           Timer timer(stats.metric_seconds,options.timings);CpuTimer cpu(stats.metric_cpu_seconds,options.timings);
           const auto components=AssociatedExtensions(donors.cells,geometry);
@@ -1541,7 +1549,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
                 inward.emplace_back(id,ConstrainMovePoint(old,id,proposal,options.wall_heights,geometry));
               }
               // A fixed cap's free apex can need depth freedom without moving its neighboring surface points.
-              if(!inward.empty())moveSeeds[0]=std::move(inward);
+              normalMoves=std::move(inward);
             }
           }
           if(boundary_edge)for(size_t i=0;i<movers.size();++i) {
@@ -1605,25 +1613,28 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         }catch(const std::exception& e){failure.Set(2,0,e.what());}
         if(!(ready=vote(failure)))return finish();
         const unsigned frameCount=world.maximum(strip?unsigned(frames.size()):0);
-        // Joint refinement uses the shared strict changed-edge progress gate; completion still bounds every edge.
-        for(unsigned trial=0;trial<36*frameCount && world.maximum(strip && !approved);++trial) {
+        const unsigned originalTrials=36*frameCount;
+        const unsigned normalTrials=world.maximum(strip && !normalMoves.empty() ? 12u : 0u);
+        // Preserve the established search before a bounded cap-depth escape using the shared refinement progress gate.
+        for(unsigned trial=0;trial<originalTrials+normalTrials && world.maximum(strip && !approved);++trial) {
           if(stats.global_work>=stats.work_limit){stats.stop=EngineStop::WorkBudget;result.reason="Native3D joint strip exhausted the global work budget.";return finish();}
           ++stats.global_work;
           if(options.maximum_seconds && world.maximum(std::chrono::duration<double>(Clock::now()-started).count()>=options.maximum_seconds)) {
             stats.stop=EngineStop::TimeBudget;result.reason="Native3D joint strip exhausted the elapsed budget.";return finish();
           }
-          bool candidate=false;
-          if(strip && !approved && trial/36<frames.size())try {
-            const unsigned slotTrial=trial%36;
+          bool candidate=false;const bool normalTrial=trial>=originalTrials;
+          const unsigned frame=normalTrial?0:trial/36;
+          if(strip && !approved && frame<frames.size() && (!normalTrial || !normalMoves.empty()))try {
+            const unsigned slotTrial=normalTrial?12*((trial-originalTrials)/4)+(trial-originalTrials)%4:trial%36;
             Timer timer(stats.reconstruction_seconds,options.timings);CpuTimer cpu(stats.reconstruction_cpu_seconds,options.timings);
-            ++stats.repair_proposals;auto moves=moveSeeds[(slotTrial%12)/4];const double alpha=std::array<double,4>{{1.,.5,.25,.125}}[slotTrial%4];
+            ++stats.repair_proposals;auto moves=normalTrial?normalMoves:moveSeeds[(slotTrial%12)/4];const double alpha=std::array<double,4>{{1.,.5,.25,.125}}[slotTrial%4];
             for(auto& move:moves) {
               Point origin{};bool found=false;for(const auto& c:old.cells)for(auto n:c.v)if(n.id==move.first){origin=n.p;found=true;}
               if(!found)throw std::runtime_error("Native3D joint strip misses a moved identity.");
               const auto q=move.second.p;
               move.second.p={double(origin.x+alpha*((long double)q.x-origin.x)),double(origin.y+alpha*((long double)q.y-origin.y)),double(origin.z+alpha*((long double)q.z-origin.z))};
             }
-            if(trial>=36)moves.erase(std::remove_if(moves.begin(),moves.end(),[&](const auto& move){
+            if(!normalTrial && trial>=36)moves.erase(std::remove_if(moves.begin(),moves.end(),[&](const auto& move){
               return std::none_of(old.surface.begin(),old.surface.end(),[&](const auto& f){return std::find(f.v.begin(),f.v.end(),move.first)!=f.v.end();});
             }),moves.end());
             point.p=splits[slotTrial/12];
@@ -1642,8 +1653,8 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
               return false;
             }),moves.end());
             if(!moves.empty()) {
-              candidate=SplitSurfaceStrip(frames[trial/36],choice.edge,point,moves,maximum_cell+1+offset,geometry,fresh,result.reason);
-              if(candidate && extraFrames[trial/36]) {
+              candidate=SplitSurfaceStrip(frames[frame],choice.edge,point,moves,maximum_cell+1+offset,geometry,fresh,result.reason);
+              if(candidate && extraFrames[frame]) {
                 Patch star;
                 for(const auto& c:fresh.cells) {
                   unsigned count=0;for(auto n:c.v)count+=n.id==extraEdge[0] || n.id==extraEdge[1];
@@ -1652,7 +1663,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
                 const auto skin=Incidence(star.cells).Boundary();
                 for(const auto& f:fresh.surface)if(std::any_of(skin.begin(),skin.end(),[&](Face face){return Key(face)==Key(f.v);}))star.surface.push_back(f);
                 Patch children;
-                candidate=extraFrames[trial/36]==2 ?
+                candidate=extraFrames[frame]==2 ?
                     InsertEdgeCavity(star,extraEdge,offEdgePoint,maximum_cell+1+offset,geometry,children,result.reason) :
                     SplitEdge(star,extraEdge,extraPoint,maximum_cell+1+offset,geometry,children,result.reason);
                 if(candidate) {
@@ -1668,7 +1679,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
             }
           }catch(const std::exception& e){failure.Set(2,0,e.what());}
           if(!(ready=vote(failure)))return finish();
-          const bool passed=validate_private(candidate,MetricChange::Refine);
+          const bool passed=validate_private(candidate,MetricChange::Refine,!normalTrial);
           if(strip && !approved)approved=passed;
           if(!ready)return finish();
         }
@@ -1742,62 +1753,72 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
           if(world.maximum(repair)) {
             const auto repair_limit=std::min<uint64_t>(256,(stats.work_limit-stats.global_work)/
                 CPassiveComm::Allreduce(uint64_t(repair),CPassiveComm::Op::SUM,world.comm));
-            // Movement needs the whole admitted domain, not donors for the previous proposal's queries.
-            DonorPatch donors;
-            { Timer timer(stats.donor_seconds,options.timings);
-              ++stats.donor_batches;
-              donors=source.ImportCells(repair ? old.cells : std::vector<Cell>{},options.memory_ceiling,
-                  transfer_memory::Add(bytes(),directory.ResidentBytes(),private_scratch));
-            }
-            CLocalFailure local;ConnectivityRepairReport report;bool repaired=false,missing_metric_star=false;
-            if(!donors.valid && !DonorCap(donors.reason))local.Set(1,0,donors.reason);
-            if(!(ready=vote(local)))return finish();
-            if(repair && donors.valid)try {
-              const auto components=AssociatedExtensions(donors.cells,geometry);
-              FrozenField target(std::move(donors.cells),composition,options.timings,components,options.edge_breakpoints);
-              FieldAccounting accounting{stats,target};
-              Patch proposal;std::string rejected;
-              { Timer timer(stats.reconstruction_seconds,options.timings);CpuTimer cpu(stats.reconstruction_cpu_seconds,options.timings);
-                // Probe the whole actual-field interface before exhausting repair on a fixed support point.
-                RepairMetricConnectivity(fresh,target,geometry,options.wall_heights,
-                    maximum_cell+1+offset,proposal,report,rejected,0);
-                missing_metric_star=report.blocked_interior_vertex!=UINT64_MAX;
-                if(missing_metric_star && !preferred_obstruction.count)
-                  preferred_obstruction={{{report.blocked_interior_vertex,0,0}},1};
-                if(!missing_metric_star)repaired=RepairMetricConnectivity(fresh,target,geometry,options.wall_heights,
-                    maximum_cell+1+offset,proposal,report,rejected,repair_limit);
+            Patch repair_seed;if(repair)repair_seed=fresh;
+            uint64_t repair_used=0;bool retry=repair;
+            for(unsigned strategy=0;strategy<2 && world.maximum(retry);++strategy) {
+              const bool active=retry;if(strategy && active)fresh=repair_seed;
+              // Movement needs the whole admitted domain, not donors for the previous proposal's queries.
+              DonorPatch donors;
+              { Timer timer(stats.donor_seconds,options.timings);
+                ++stats.donor_batches;
+                donors=source.ImportCells(active ? old.cells : std::vector<Cell>{},options.memory_ceiling,
+                    transfer_memory::Add(bytes(),directory.ResidentBytes(),private_scratch));
               }
-              stats.wall_joint_trials+=report.trials;stats.wall_joint_moves+=report.moves;stats.wall_joint_removals+=report.removals;
-              if(repaired) {
-                std::map<Id,Point> previous;std::set<Id> used;
-                for(const auto& c:old.cells)for(auto n:c.v)previous.emplace(n.id,n.p);
-                for(const auto& c:proposal.cells)for(auto n:c.v)used.insert(n.id);
-                std::map<Id,Id> renamed;size_t cursor=0;const Id first_node=maximum_node+1+node_offset;
-                for(const auto& c:proposal.cells)for(auto n:c.v) {
-                  const auto found=previous.find(n.id);
-                  if(found==previous.end() || renamed.count(n.id))continue;
-                  const auto p=found->second;
-                  if(p.x==n.p.x && p.y==n.p.y && p.z==n.p.z)continue;
-                  while(cursor<node_stride && used.count(first_node+cursor))++cursor;
-                  if(cursor==node_stride)throw std::invalid_argument("Native3D joint movement exceeds reserved node identities.");
-                  renamed.emplace(n.id,first_node+cursor);used.insert(first_node+cursor++);
+              CLocalFailure local;ConnectivityRepairReport report;bool repaired=false,missing_metric_star=false;
+              if(!donors.valid && !DonorCap(donors.reason))local.Set(1,0,donors.reason);
+              if(!(ready=vote(local)))return finish();
+              if(active && donors.valid)try {
+                const auto components=AssociatedExtensions(donors.cells,geometry);
+                FrozenField target(std::move(donors.cells),composition,options.timings,components,options.edge_breakpoints);
+                FieldAccounting accounting{stats,target};
+                Patch proposal;std::string rejected;
+                { Timer timer(stats.reconstruction_seconds,options.timings);CpuTimer cpu(stats.reconstruction_cpu_seconds,options.timings);
+                  // Probe the whole actual-field interface before exhausting repair on a fixed support point.
+                  RepairMetricConnectivity(fresh,target,geometry,options.wall_heights,
+                      maximum_cell+1+offset,proposal,report,rejected,0);
+                  missing_metric_star=report.blocked_interior_vertex!=UINT64_MAX;
+                  if(missing_metric_star && !preferred_obstruction.count)
+                    preferred_obstruction={{{report.blocked_interior_vertex,0,0}},1};
+                  if(!missing_metric_star)repaired=RepairMetricConnectivity(fresh,target,geometry,options.wall_heights,
+                      maximum_cell+1+offset,proposal,report,rejected,repair_limit-repair_used,strategy==0);
                 }
-                // Fresh identities invalidate selection reuse and preserve transfer's unchanged-node contract.
-                for(auto& c:proposal.cells)for(auto& n:c.v)if(renamed.count(n.id))n.id=renamed.at(n.id);
-                for(auto& f:proposal.surface)for(auto& id:f.v)if(renamed.count(id))id=renamed.at(id);
-                fresh=std::move(proposal);repaired=guarded_geometry(true);
+                stats.wall_joint_trials+=report.trials;stats.wall_joint_moves+=report.moves;stats.wall_joint_removals+=report.removals;
+                if(repaired) {
+                  std::map<Id,Point> previous;std::set<Id> used;
+                  for(const auto& c:old.cells)for(auto n:c.v)previous.emplace(n.id,n.p);
+                  for(const auto& c:proposal.cells)for(auto n:c.v)used.insert(n.id);
+                  std::map<Id,Id> renamed;size_t cursor=0;const Id first_node=maximum_node+1+node_offset;
+                  for(const auto& c:proposal.cells)for(auto n:c.v) {
+                    const auto found=previous.find(n.id);
+                    if(found==previous.end() || renamed.count(n.id))continue;
+                    const auto p=found->second;
+                    if(p.x==n.p.x && p.y==n.p.y && p.z==n.p.z)continue;
+                    while(cursor<node_stride && used.count(first_node+cursor))++cursor;
+                    if(cursor==node_stride)throw std::invalid_argument("Native3D joint movement exceeds reserved node identities.");
+                    renamed.emplace(n.id,first_node+cursor);used.insert(first_node+cursor++);
+                  }
+                  // Fresh identities invalidate selection reuse and preserve transfer's unchanged-node contract.
+                  for(auto& c:proposal.cells)for(auto& n:c.v)if(renamed.count(n.id))n.id=renamed.at(n.id);
+                  for(auto& f:proposal.surface)for(auto& id:f.v)if(renamed.count(id))id=renamed.at(id);
+                  fresh=std::move(proposal);repaired=guarded_geometry(true);
+                }
+              }catch(const std::exception& e){local.Set(2,0,e.what());}
+              repair_used+=report.trials;
+              stats.global_work+=CPassiveComm::Allreduce(uint64_t(report.trials),CPassiveComm::Op::SUM,world.comm);
+              if(!(ready=vote(local)))return finish();
+              close_first=close_first || world.maximum(missing_metric_star);
+              if(world.maximum(repaired)) {
+                const bool accepted=validate_private(repaired,choice.geometric ? MetricChange::GeometryRefine : MetricChange::Refine);
+                if(active)passed=accepted;
+                stats.wall_joint_accepted+=repaired && accepted;
+                if(!ready)return finish();
               }
-            }catch(const std::exception& e){local.Set(2,0,e.what());}
-            stats.global_work+=CPassiveComm::Allreduce(uint64_t(report.trials),CPassiveComm::Op::SUM,world.comm);
-            if(!(ready=vote(local)))return finish();
-            close_first=close_first || world.maximum(missing_metric_star);
-            if(world.maximum(repaired)) {
-              passed=validate_private(repaired,choice.geometric ? MetricChange::GeometryRefine : MetricChange::Refine);
-              stats.wall_joint_accepted+=repaired && passed;
-              if(!ready)return finish();
+              if(active && !passed && report.blocked_interior_vertex!=UINT64_MAX && !preferred_obstruction.count)
+                preferred_obstruction={{{report.blocked_interior_vertex,0,0}},1};
+              // Shape-only retirement may lose required size resolution; backtrack within the same trial allocation.
+              retry=active && strategy==0 && repaired && !passed && report.complete_shape && report.removals &&
+                  certified.failure==MetricFailure::Progress && repair_used<repair_limit;
             }
-            if(repair && !passed && report.blocked_interior_vertex!=UINT64_MAX && !preferred_obstruction.count)
-              preferred_obstruction={{{report.blocked_interior_vertex,0,0}},1};
           }
           if(participating && !passed)try {
             if(candidate && certified.failure==MetricFailure::Shape) {

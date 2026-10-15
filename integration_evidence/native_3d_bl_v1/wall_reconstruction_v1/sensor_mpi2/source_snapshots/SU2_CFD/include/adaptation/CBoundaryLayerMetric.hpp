@@ -29,6 +29,7 @@
 #include <memory>
 #include <functional>
 #include <array>
+#include <cstdint>
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -39,7 +40,7 @@
 class CConfig;
 class CGeometry;
 namespace SU2NativeBoundary2D { struct ReferenceState; }
-namespace SU2Native3D { struct ReferenceState; }
+namespace SU2Native3D { struct ReferenceState; class PlanarReference; }
 
 /*!
  * \class CBoundaryLayerMetric
@@ -85,6 +86,9 @@ class CBoundaryLayerMetric {
     std::vector<su2double> coord;    /*!< \brief Coordinates of the wall points (nDim per point). */
     std::vector<unsigned long> conn; /*!< \brief Points of the faces (2D: 2 per line; 3D: 4 per face, a triangle
                                           repeats its last point). 3D faces must be oriented consistently. */
+    std::shared_ptr<const SU2Native3D::PlanarReference> authority;
+    uint64_t authority_facet=0; /*!< Complete analytic component; absent authority keeps faceted behavior. */
+    double surface_tolerance=0; /*!< Frozen physical geometry ceiling, tightened relative to first height. */
   };
 
   /*!

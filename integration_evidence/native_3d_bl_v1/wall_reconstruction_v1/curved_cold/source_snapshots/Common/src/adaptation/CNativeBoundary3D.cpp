@@ -1521,7 +1521,7 @@ bool ReconstructSplitPatch(const Patch& old,Edge edge,Node point,Node interior,c
 }
 bool RepairMetricConnectivity(const Patch& old,FrozenField& target,const PlanarReference& reference,
                               const std::map<int,double>& heights,Id first,Patch& fresh,
-                              ConnectivityRepairReport& report,std::string& reason,size_t maximum_trials) {
+                              ConnectivityRepairReport& report,std::string& reason,size_t maximum_trials,bool retire_points) {
   report={};
   try {
     if(old.cells.empty() || old.cells.size()>MaximumReplacementCells || maximum_trials>4096)
@@ -1557,7 +1557,7 @@ bool RepairMetricConnectivity(const Patch& old,FrozenField& target,const PlanarR
         if(count==3)height_apices.insert(apex);
       }
       for(const auto& row:order) {
-        if(changed || report.trials>=maximum_trials)break;
+        if(!retire_points || changed || report.trials>=maximum_trials)break;
         const Id point=row.second;if(height_apices.count(point))continue;
         std::set<Id> neighbors;std::vector<size_t> selected;Patch star;
         for(size_t i=0;i<working.cells.size();++i)if(std::any_of(working.cells[i].v.begin(),working.cells[i].v.end(),[&](Node n){return n.id==point;})) {
