@@ -10,6 +10,7 @@
 #include "../../include/adt/CADTElemClass.hpp"
 #include "../../include/option_structure.hpp"
 #include <cmath>
+#include <functional>
 #include <type_traits>
 #include <algorithm>
 #include <limits>
@@ -175,7 +176,7 @@ Physical CheckSurface(const Patch& patch, const Skin& skin, const PlanarReferenc
   return faces;
 }
 Node ProjectSplitPoint(Edge edge,Node point,const std::map<Id,Node>& nodes,const Physical& physical,
-                       const PlanarReference& reference,KernelStats* stats) {
+                       const PlanarReference& reference,KernelStats* stats,bool cavity=false) {
   const auto a=nodes.at(edge[0]),b=nodes.at(edge[1]);
     bool curved_edge=false;
     for(const auto& face:physical)if(Has(face.second.v,edge[0]) && Has(face.second.v,edge[1])) {
@@ -184,7 +185,18 @@ Node ProjectSplitPoint(Edge edge,Node point,const std::map<Id,Node>& nodes,const
     }
     const Point midpoint{double((static_cast<long double>(a.p.x)+b.p.x)/2),double((static_cast<long double>(a.p.y)+b.p.y)/2),double((static_cast<long double>(a.p.z)+b.p.z)/2)};
     const bool rounded_midpoint=curved_edge && point.p.x==midpoint.x && point.p.y==midpoint.y && point.p.z==midpoint.z;
-    if (nodes.count(point.id) || (!rounded_midpoint && !OnEdge(a.p, b.p, point.p, stats)) ||
+    bool same_chart=false;
+    if(cavity) {
+      Id component=UINT64_MAX;unsigned incident=0;same_chart=true;
+      for(const auto& f:physical)if(Has(f.second.v,edge[0]) && Has(f.second.v,edge[1])) {
+        const auto next=reference.Canonical(f.second.facet);
+        if(component==UINT64_MAX)component=next;else same_chart=same_chart && component==next;
+        ++incident;
+      }
+      same_chart=same_chart && incident==2;
+    }
+    // A cavity fan certifies its oriented border; a rounded insertion need not remain on the old interior diagonal.
+    if (nodes.count(point.id) || (!rounded_midpoint && !same_chart && !OnEdge(a.p, b.p, point.p, stats)) ||
         (point.p.x == a.p.x && point.p.y == a.p.y && point.p.z == a.p.z) ||
         (point.p.x == b.p.x && point.p.y == b.p.y && point.p.z == b.p.z))
       throw std::invalid_argument("Native 3D split point is not a distinct exact on-edge point.");
@@ -1214,7 +1226,14 @@ bool SplitSurfaceStrip(const Patch& old,Edge edge,Node point,const std::vector<s
       point.p=reference.Project(facet,point.p,stats);
     } else {
       for(const auto& move:replacement)nodes.at(move.first)=move.second;
-      point=ProjectSplitPoint(edge,point,nodes,physical,reference,stats);
+      if(incident)point=ProjectSplitPoint(edge,point,nodes,physical,reference,stats,true);
+      else {
+        // A complete interior fan preserves its skin even when the inserted point leaves the old diagonal.
+        for(const auto& f:before)if(Has(f.second,edge[0]) && Has(f.second,edge[1]))
+          throw std::invalid_argument("Native3D interior insertion lacks a complete edge star.");
+        if(!(std::isfinite(point.p.x) && std::isfinite(point.p.y) && std::isfinite(point.p.z)))
+          throw std::invalid_argument("Native3D interior insertion has nonfinite coordinates.");
+      }
     }
     const Edge split{mapped(edge[0]).id,mapped(edge[1]).id};SplitSkin(split,point,skin,marked);
     Patch proposal;
@@ -1233,6 +1252,249 @@ bool SplitSurfaceStrip(const Patch& old,Edge edge,Node point,const std::vector<s
     }
     Finish(old,proposal,skin,marked,reference,stats);
     fresh.cells.swap(proposal.cells);fresh.surface.swap(proposal.surface);reason.clear();return true;
+  }catch(const std::exception& e){reason=e.what();return false;}
+}
+std::vector<Id> SplitPatchApices(const Patch& patch,Edge edge,const std::map<Id,size_t>* costs) {
+  Bounds(patch);Endpoints(edge);std::set<Id> fixed{edge[0],edge[1]};
+  for(const auto& f:patch.surface)fixed.insert(f.v.begin(),f.v.end());
+  std::vector<Edge> pairs;
+  for(const auto& c:patch.cells)if(std::count_if(c.v.begin(),c.v.end(),[&](Node n){return n.id==edge[0] || n.id==edge[1];})==2) {
+    Edge pair{};unsigned i=0;for(auto n:c.v)if(n.id!=edge[0] && n.id!=edge[1])pair[i++]=n.id;
+    pairs.push_back(pair);
+  }
+  if(pairs.empty())return {};
+  std::map<Id,uint64_t> covered;std::map<Id,size_t> weight;
+  for(size_t i=0;i<pairs.size();++i)for(Id id:pairs[i]) {
+    if(fixed.count(id) || (costs && (!costs->count(id) || !costs->at(id))))continue;
+    covered[id]|=uint64_t(1)<<i;weight[id]=costs?costs->at(id):1;
+  }
+  const uint64_t all=pairs.size()==64?UINT64_MAX:(uint64_t(1)<<pairs.size())-1;
+  std::vector<Id> chosen,best;size_t best_cost=SIZE_MAX;
+  std::function<void(uint64_t,size_t)> visit=[&](uint64_t mask,size_t cost) {
+    if(mask==all) {
+      auto sorted=chosen;std::sort(sorted.begin(),sorted.end());
+      if(cost<best_cost || (cost==best_cost && (best.empty() || sorted<best))){best_cost=cost;best=std::move(sorted);}
+      return;
+    }
+    if(chosen.size()==8 || cost>=best_cost)return;
+    size_t i=0;while(mask&(uint64_t(1)<<i))++i;auto options=pairs[i];
+    auto value=[&](Id id){return weight.count(id)?weight.at(id):SIZE_MAX;};
+    if(std::make_pair(value(options[1]),options[1])<std::make_pair(value(options[0]),options[0]))std::swap(options[0],options[1]);
+    for(Id id:options)if(covered.count(id) && weight.at(id)<=SIZE_MAX-cost) {
+      chosen.push_back(id);visit(mask|covered.at(id),cost+weight.at(id));chosen.pop_back();
+    }
+  };
+  visit(0,0);return best;
+}
+bool PlaceSplitPatch(const Patch& old,Edge edge,Node point,const std::vector<std::pair<Id,Id>>& apices,Id first,
+                       FrozenField& target,const PlanarReference& reference,const std::map<int,double>& heights,
+                       Patch& fresh,JointSplitReport& report,std::string& reason,size_t maximum_trials) {
+  report={};
+  try {
+    Bounds(old);Endpoints(edge);
+    if(apices.size()>8)throw std::invalid_argument("Native3D joint placement exceeds its apex bound.");
+    if(!maximum_trials || maximum_trials>256)throw std::invalid_argument("Native3D joint placement exceeds its trial bound.");
+    const auto nodes=Nodes(old.cells);const auto skin=SkinMap(Incidence(old.cells).Boundary());
+    CheckSurface(old,skin,reference,nullptr);
+    std::set<Id> selected,reserved{point.id};
+    for(const auto& apex:apices) {
+      if(!selected.insert(apex.first).second || !reserved.insert(apex.second).second || nodes.count(apex.second))
+        throw std::invalid_argument("Native3D joint placement repeats an apex or reserved identity.");
+      nodes.at(apex.first);
+      for(const auto& f:skin)if(Has(f.second,apex.first))
+        throw std::invalid_argument("Native3D joint placement needs complete free apex stars.");
+    }
+    const Point a=nodes.at(edge[0]).p,b=nodes.at(edge[1]).p;
+    auto tangent=Delta(b,a);const auto square=Dot(tangent,tangent),length=Norm(tangent);
+    if(!(length>0))throw std::invalid_argument("Native3D joint placement has a degenerate edge.");
+    Vector normal{};bool boundary=false;
+    for(const auto& f:old.surface)if(Has(f.v,edge[0]) && Has(f.v,edge[1])) {
+      boundary=true;normal=Cross(Delta(nodes.at(f.v[1]).p,nodes.at(f.v[0]).p),Delta(nodes.at(f.v[2]).p,nodes.at(f.v[0]).p));break;
+    }
+    if(!boundary) {
+      unsigned k=0;for(unsigned i=1;i<3;++i)if(std::abs(tangent[i])<std::abs(tangent[k]))k=i;
+      Vector seed{};seed[k]=1;normal=Cross(tangent,seed);
+    }
+    const auto n=Norm(normal);if(!(n>0))throw std::invalid_argument("Native3D joint placement has a degenerate frame.");
+    for(unsigned i=0;i<3;++i){tangent[i]/=length;normal[i]/=n;}
+    const std::array<Vector,3> basis{normal,tangent,Cross(normal,tangent)};
+    std::vector<std::array<long double,3>> steps(apices.size());
+    for(size_t k=0;k<apices.size();++k) {
+      const auto origin=nodes.at(apices[k].first).p;const auto metric=target.Query(origin).target;
+      for(unsigned i=0;i<3;++i) {
+        const Point end{double(origin.x+basis[i][0]),double(origin.y+basis[i][1]),double(origin.z+basis[i][2])};
+        const auto norm=MetricNorm(origin,end,metric);
+        if(!(norm>0))throw std::invalid_argument("Native3D joint placement has an invalid directional metric.");
+        steps[k][i]=.25L/norm;
+      }
+    }
+    const size_t point_dofs=boundary?1:3;std::array<long double,2> transverse{};
+    if(!boundary)for(unsigned i=0;i<2;++i) {
+      const auto d=basis[2*i];const Point end{double(point.p.x+d[0]),double(point.p.y+d[1]),double(point.p.z+d[2])};
+      const auto norm=MetricNorm(point.p,end,target.Query(point.p).target);
+      if(!(norm>0))throw std::invalid_argument("Native3D joint placement has an invalid insertion metric.");
+      transverse[i]=.25L/norm;
+    }
+    std::vector<long double> best(point_dofs+3*apices.size(),0);best[0]=Dot(Delta(point.p,a),Delta(b,a))/square;
+    double best_loss=std::numeric_limits<double>::infinity();
+    const size_t placement_limit=(maximum_trials+1)/2;
+    auto score=[&](const Patch& proposal) {
+      double shape=0,excess=0;std::set<Edge> measured;
+      for(const auto& c:proposal.cells) {
+        const auto m=Measure({c.v[0].p,c.v[1].p,c.v[2].p,c.v[3].p},target.Query(Centroid(c)).target);
+        shape+=std::pow(std::max(0.,1-m.mean_ratio/MinimumMeanRatio),2)+
+               std::pow(std::max(0.,1-m.minimum_scaled_jacobian/MinimumScaledJacobian),2);
+        for(unsigned j=0;j<4;++j)for(unsigned k=j+1;k<4;++k) {
+          const auto u=c.v[j],v=c.v[k];
+          if(!measured.insert({std::min(u.id,v.id),std::max(u.id,v.id)}).second)continue;
+          const Point mid{double(((long double)u.p.x+v.p.x)/2),double(((long double)u.p.y+v.p.y)/2),double(((long double)u.p.z+v.p.z)/2)};
+          excess+=std::pow(std::max(0.L,MetricNorm(u.p,v.p,target.Query(mid).target)-MaximumMetricEdge),2);
+        }
+      }
+      return std::make_pair(shape,100*shape+excess);
+    };
+    auto trial=[&](const std::vector<long double>& state) {
+      if(report.trials>=placement_limit)return false;
+      ++report.trials;
+      if(!(state[0]>0 && state[0]<1)){++report.geometry_rejected;return false;}
+      Node inserted=point;inserted.p={double((1-state[0])*a.x+state[0]*b.x),double((1-state[0])*a.y+state[0]*b.y),double((1-state[0])*a.z+state[0]*b.z)};
+      if(!boundary) {
+        Vector offset{};for(unsigned i=0;i<2;++i)for(unsigned k=0;k<3;++k)offset[k]+=state[1+i]*transverse[i]*basis[2*i][k];
+        inserted.p={double(inserted.p.x+offset[0]),double(inserted.p.y+offset[1]),double(inserted.p.z+offset[2])};
+      }
+      std::vector<std::pair<Id,Node>> moves;
+      for(size_t i=0;i<apices.size();++i) {
+        const auto origin=nodes.at(apices[i].first).p;Vector displacement{};
+        for(unsigned j=0;j<3;++j)for(unsigned k=0;k<3;++k)displacement[k]+=state[point_dofs+3*i+j]*basis[j][k]*steps[i][j];
+        Node moved{apices[i].second,{double(origin.x+displacement[0]),double(origin.y+displacement[1]),double(origin.z+displacement[2])}};
+        moved=ConstrainMovePoint(old,apices[i].first,moved,heights,reference);
+        if(moved.p.x!=origin.x || moved.p.y!=origin.y || moved.p.z!=origin.z)moves.emplace_back(apices[i].first,moved);
+      }
+      Patch proposal;
+      if(!SplitSurfaceStrip(old,edge,inserted,moves,first,reference,proposal,reason)) {
+        ++report.geometry_rejected;return false;
+      }
+      FirstHeightReport height;
+      if(!CheckFirstHeight(proposal,heights,reference,height,reason)){++report.height_rejected;return false;}
+      const auto measured=score(proposal);const double shape=measured.first,loss=measured.second;
+      if(report.trials==1)report.initial_loss=loss;
+      if(!(loss<best_loss))return false;
+      best_loss=loss;report.best_loss=loss;report.best_shape_loss=shape;report.best=proposal;best=state;
+      if(shape==0) {
+        PatchMetric metric;
+        if(ValidateMetricChange(old.cells,proposal.cells,MetricChange::Refine,target,metric,reason)) {
+          fresh=std::move(proposal);return true;
+        }
+        ++report.metric_rejected;
+      }
+      return false;
+    };
+    if(trial(best)){reason.clear();return true;}
+    // Paired fraction/normal directions cross a blockage that either independent displacement can worsen.
+    std::vector<std::vector<int>> directions;
+    for(size_t i=0;i<best.size();++i){std::vector<int> d(best.size(),0);d[i]=1;directions.push_back(std::move(d));}
+    for(size_t i=0;i<apices.size();++i)for(int sign:{-1,1}) {
+      std::vector<int> d(best.size(),0);d[0]=1;d[point_dofs+3*i]=sign;directions.push_back(std::move(d));
+    }
+    if(!apices.empty())for(int split:{-1,0,1}) {
+      std::vector<int> d(best.size(),0);d[0]=split;for(size_t i=0;i<apices.size();++i)d[point_dofs+3*i]=1;
+      directions.push_back(std::move(d));
+    }
+    long double step=1;
+    while(report.trials<placement_limit && step>=1.L/128) {
+      const auto start=best_loss;
+      for(const auto& direction:directions)for(int sign:{-1,1}) {
+        auto state=best;for(size_t i=0;i<state.size();++i)state[i]+=sign*step*direction[i]*(i==0?.25L:1.L);
+        if(trial(state)){reason.clear();return true;}
+      }
+      if(!(best_loss<start))step/=2;
+    }
+    if(!report.best.cells.empty() && report.best_shape_loss>0 && report.trials<maximum_trials) {
+      const auto present=Nodes(report.best.cells);std::set<Id> movable{point.id};
+      for(const auto& apex:apices)movable.insert(present.count(apex.second)?apex.second:apex.first);
+      Patch repaired;ConnectivityRepairReport connectivity;
+      const bool progress=RepairMetricConnectivity(report.best,target,reference,heights,first,repaired,connectivity,reason,
+          maximum_trials-report.trials,false,&movable);
+      report.trials+=connectivity.trials;report.connectivity_trials=connectivity.trials;
+      report.flips=connectivity.flips;report.moves=connectivity.moves;
+      report.blocked_interior_vertex=connectivity.blocked_interior_vertex;
+      if(progress) {
+        for(const auto& apex:apices) {
+          const auto origin=nodes.at(apex.first).p;
+          for(auto& c:repaired.cells)for(auto& n:c.v)if(n.id==apex.first || n.id==apex.second)
+            n.id=(n.p.x==origin.x && n.p.y==origin.y && n.p.z==origin.z)?apex.first:apex.second;
+        }
+        const auto measured=score(repaired);
+        if(measured.second<best_loss) {
+          best_loss=measured.second;report.best_loss=best_loss;report.best_shape_loss=measured.first;report.best=repaired;
+        }
+        PatchMetric metric;
+        if(ValidateMetricChange(old.cells,repaired.cells,MetricChange::Refine,target,metric,reason)) {
+          fresh=std::move(repaired);reason.clear();return true;
+        }
+        ++report.metric_rejected;
+      }
+    }
+    reason="Native3D joint placement/reconnection exhausted its shared trial budget without frozen metric progress: "+reason;return false;
+  }catch(const std::exception& e){reason=e.what();return false;}
+}
+bool RefitWallSplit(const Patch& old,Edge edge,Node point,Id first_apex,Id first,
+                    const std::map<int,double>& heights,const PlanarReference& reference,
+                    Patch& fresh,std::string& reason,KernelStats* stats) {
+  try {
+    Bounds(old);Endpoints(edge);FirstHeightReport height;
+    if(heights.empty() || !CheckFirstHeight(old,heights,reference,height,reason,stats))
+      throw std::invalid_argument("Native3D wall refit needs an admissible prescribed-height input: "+reason);
+    const Incidence index(old.cells,stats);const auto skin=index.Boundary();std::set<Id> apices;
+    for(const auto& face:old.surface)if(Has(face.v,edge[0]) && Has(face.v,edge[1]) && heights.count(reference.Get(face.facet).marker))
+      for(const auto& c:old.cells) {
+        unsigned count=0;Id apex=0;for(auto n:c.v)if(Has(face.v,n.id))++count;else apex=n.id;
+        if(count==3)apices.insert(apex);
+      }
+    if(apices.empty())throw std::invalid_argument("Native3D wall refit needs a requested physical wall edge.");
+    for(Id id:apices)for(auto face:skin)if(Has(face,id))
+      throw std::invalid_argument("Native3D wall refit needs complete free apex stars.");
+    Patch split;
+    if(!SplitSurfaceStrip(old,edge,point,{},first,reference,split,reason,stats))throw std::invalid_argument(reason);
+    const auto nodes=Nodes(split.cells);std::vector<std::pair<Id,Node>> moves;size_t slot=0;
+    for(Id id:apices) {
+      const auto origin=nodes.at(id).p;std::array<Vector,3> basis{};std::array<long double,3> offset{};size_t rank=0,planes=0;
+      for(const auto& face:split.surface) {
+        const auto h=heights.find(reference.Get(face.facet).marker);if(h==heights.end())continue;
+        bool owns=false;
+        for(const auto& c:split.cells) {
+          unsigned count=0;bool vertex=false;for(auto n:c.v){count+=Has(face.v,n.id);vertex=vertex || n.id==id;}
+          owns=owns || (count==3 && vertex && !Has(face.v,id));
+        }
+        if(!owns)continue;++planes;
+        const auto a=nodes.at(face.v[0]).p,b=nodes.at(face.v[1]).p,c=nodes.at(face.v[2]).p;
+        auto normal=Cross(Delta(b,a),Delta(c,a));const auto area=Norm(normal);
+        if(!(area>0))throw std::invalid_argument("Native3D wall refit has a degenerate height plane.");
+        for(auto& x:normal)x/=area;
+        auto value=Dot(normal,Delta(a,origin))-h->second;
+        for(unsigned pass=0;pass<2;++pass)for(size_t k=0;k<rank;++k) {
+          const auto component=Dot(normal,basis[k]);value-=component*offset[k];
+          for(unsigned j=0;j<3;++j)normal[j]-=component*basis[k][j];
+        }
+        const auto independent=Norm(normal);
+        if(rank<3 && independent>64*std::numeric_limits<long double>::epsilon()) {
+          for(auto& x:normal)x/=independent;basis[rank]=normal;offset[rank++]=value/independent;
+        } else if(std::abs(value)>1e-12L*h->second)
+          throw std::invalid_argument("Native3D retained apex has incompatible height planes; different connectivity is required.");
+      }
+      if(!planes)throw std::invalid_argument("Native3D wall refit loses a height dependency.");
+      Vector displacement{};for(size_t k=0;k<rank;++k)for(unsigned j=0;j<3;++j)displacement[j]+=offset[k]*basis[k][j];
+      const Point p{double(origin.x+displacement[0]),double(origin.y+displacement[1]),double(origin.z+displacement[2])};
+      if(first_apex>UINT64_MAX-slot || nodes.count(first_apex+slot))
+        throw std::invalid_argument("Native3D wall refit exceeds reserved apex identities.");
+      if(p.x!=origin.x || p.y!=origin.y || p.z!=origin.z)moves.emplace_back(id,Node{first_apex+slot,p});
+      ++slot;
+    }
+    // Closest affine fits preserve tangent freedom; an outside foot rejects and other reconstruction paths remain available.
+    Patch proposal;
+    if(!SplitSurfaceStrip(old,edge,point,moves,first,reference,proposal,reason,stats) ||
+       !CheckFirstHeight(proposal,heights,reference,height,reason,stats))throw std::invalid_argument(reason);
+    fresh=std::move(proposal);reason.clear();return true;
   }catch(const std::exception& e){reason=e.what();return false;}
 }
 bool ReconstructWallSplit(const Patch& old,Edge edge,Node point,Id first_wall_node,Id first,
@@ -1369,7 +1631,7 @@ bool ReconstructSplitPatch(const Patch& old,Edge edge,Node point,Node interior,c
     if(std::none_of(physical.begin(),physical.end(),[&](const auto& f){return Has(f.second.v,edge[0]) && Has(f.second.v,edge[1]);}))
       throw std::invalid_argument("Native3D joint boundary split requires a physical edge.");
     if(nodes.count(interior.id) || interior.id==point.id)throw std::invalid_argument("Native3D joint insertion reuses a node identity.");
-    point=ProjectSplitPoint(edge,point,nodes,physical,reference,stats);
+    point=ProjectSplitPoint(edge,point,nodes,physical,reference,stats,true);
     SplitSkin(edge,point,skin,physical);nodes.emplace(point.id,point);
     long double wallViolation=-1;std::map<Face,Point> wallPoints;
     for(const auto& entry:physical) {
@@ -1510,7 +1772,7 @@ bool ReconstructSplitPatch(const Patch& old,Edge edge,Node point,Node interior,c
 }
 bool RepairMetricConnectivity(const Patch& old,FrozenField& target,const PlanarReference& reference,
                               const std::map<int,double>& heights,Id first,Patch& fresh,
-                              ConnectivityRepairReport& report,std::string& reason,size_t maximum_trials) {
+                              ConnectivityRepairReport& report,std::string& reason,size_t maximum_trials,bool retire_points,const std::set<Id>* movable) {
   report={};
   try {
     if(old.cells.empty() || old.cells.size()>MaximumReplacementCells || maximum_trials>4096)
@@ -1534,6 +1796,7 @@ bool RepairMetricConnectivity(const Patch& old,FrozenField& target,const PlanarR
       bool changed=false;
       const auto nodes=Nodes(working.cells);
       std::set<Id> fixed;for(const auto& f:skin)fixed.insert(f.second.begin(),f.second.end());
+      if(movable)for(const auto& row:nodes)if(!movable->count(row.first))fixed.insert(row.first);
       std::map<Id,double> deficits;
       for(const auto& c:working.cells)for(auto n:c.v)if(!fixed.count(n.id))deficits[n.id]+=loss(c);
       std::vector<std::pair<double,Id>> order;
@@ -1546,7 +1809,7 @@ bool RepairMetricConnectivity(const Patch& old,FrozenField& target,const PlanarR
         if(count==3)height_apices.insert(apex);
       }
       for(const auto& row:order) {
-        if(changed || report.trials>=maximum_trials)break;
+        if(!retire_points || changed || report.trials>=maximum_trials)break;
         const Id point=row.second;if(height_apices.count(point))continue;
         std::set<Id> neighbors;std::vector<size_t> selected;Patch star;
         for(size_t i=0;i<working.cells.size();++i)if(std::any_of(working.cells[i].v.begin(),working.cells[i].v.end(),[&](Node n){return n.id==point;})) {

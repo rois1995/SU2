@@ -184,6 +184,8 @@ class FrozenField;
 std::vector<Id> SplitPatchApices(const Patch& patch,Edge edge,const std::map<Id,size_t>* costs=nullptr);
 struct JointSplitReport {
   size_t trials=0, geometry_rejected=0, height_rejected=0, metric_rejected=0;
+  size_t connectivity_trials=0, flips=0, moves=0;
+  Id blocked_interior_vertex=UINT64_MAX;
   double initial_loss=0, best_loss=0, best_shape_loss=0;
   Patch best;  // Geometric/height-valid private proposal, including failed shape; never an accepted mesh.
 };
@@ -191,7 +193,9 @@ struct JointSplitReport {
  * Surface points retain their chart; interior points have three spatial freedoms. All trials reconstruct
  * from the original patch; artificial interfaces and first-height constraints
  * remain fixed. Proposal scores use midpoint lengths only; success requires full composed Refine
- * validation. Output is unchanged on failure; distributed admission and external clearance are caller duties. */
+ * validation. Placement reserves half of the shared trial bound for optional point-preserving private
+ * reconnection; only the split and admitted apices may move, using their reserved identities.
+ * Output is unchanged on failure; distributed admission and external clearance are caller duties. */
 bool PlaceSplitPatch(const Patch& old,Edge edge,Node point,const std::vector<std::pair<Id,Id>>& apices,Id first_cell,
                        FrozenField& target,const PlanarReference& reference,const std::map<int,double>& heights,
                        Patch& fresh,JointSplitReport& report,std::string& reason,size_t maximum_trials=128);
@@ -206,10 +210,11 @@ struct ConnectivityRepairReport {
  * improved private replacement, possibly still inadmissible; unchanged output on failure.
  * Fixed interface coordinates and requested first height/footprints remain mandatory. Caller admits
  * the complete original dependencies and validates full composed edges/progress before publication.
- * Disable retirement when backtracking a shape repair that destroys frozen size resolution. */
+ * Disable retirement when backtracking a shape repair that destroys frozen size resolution.
+ * An optional movable set restricts point displacement/removal, without restricting fixed-skin flips. */
 bool RepairMetricConnectivity(const Patch& old,FrozenField& target,const PlanarReference& reference,
                               const std::map<int,double>& heights,Id first_cell,Patch& fresh,
-                              ConnectivityRepairReport& report,std::string& reason,size_t maximum_trials=64,bool retire_points=true);
+                              ConnectivityRepairReport& report,std::string& reason,size_t maximum_trials=64,bool retire_points=true,const std::set<Id>* movable=nullptr);
 bool UndoEdgeSplit(const Patch& old, Id point, Edge endpoints, Id first_cell, const PlanarReference& reference,
                    Patch& fresh, std::string& reason, KernelStats* stats = nullptr);
 /*! Contracts a vertex to an existing neighbor in its complete admitted vertex star, without split history.

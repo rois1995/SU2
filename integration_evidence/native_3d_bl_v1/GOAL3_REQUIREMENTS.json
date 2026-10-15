@@ -96,10 +96,11 @@
     "wall_reconstruction_v1/stronger_field_MPI_consistency.json",
     "connectivity_replay_v1/visibility_fixture.json",
     "wall_reconstruction_v1/support_selection_summary.json",
-    "wall_reconstruction_v1/shared_apex_refit_summary.json"
+    "wall_reconstruction_v1/shared_apex_refit_summary.json",
+    "wall_reconstruction_v1/joint_connectivity_summary.json"
   ],
   "execution_state": {
-    "status": "All owned jobs terminal. Shared-apex refit private/native/independent geometry and bounded MPI2 PASS; full1820-cell curved result rejects46 metric edges. Full Goal3 ACTIVE.",
+    "status": "All owned jobs terminal. Connected insertion/reconnection/dependency admission improves the strict same1402-cell target to1842 cells/40 oversized edges, still rejected. Full Goal3 ACTIVE.",
     "CFD_runs": 0,
     "production_MPI": "Current PASS N/M1/1,2/1,2/2; N/M4/1,4/2,4/4 remain required. Previous full matrix historical.",
     "independent_frames": 6
@@ -447,5 +448,41 @@
     "independent_whole_grid": "PASS exact positive volumes/no positive overlap/closed oriented ball skin,76 wall faces with feet and relative first-height error3.06e-15; q/J independently recomputed from exported tensors. The46 long edges still reject the event.",
     "MPI": "Current MPI2 bounded protocol+before/after original donors/reference PASS:512 work,1653 rejected cells,335 placement trials/21 validated. Current MPI4/M<N/current+BDF/SA/CFD/restart/performance not refreshed.",
     "summary": "wall_reconstruction_v1/shared_apex_refit_summary.json"
+  },
+  "joint_connectivity": {
+    "status": "PARTIAL_WHOLE_CONSTRUCTION_STRICT_TARGET_REJECTED",
+    "source_checkpoint": "c289837b2e99877ba502ac139d1b4813ce695a01",
+    "actual_failure": "Worst interior edge of1820-cell source: point4 cells/253 trials/loss1.19998 and coupled28 cells/256 trials/loss .107093 reject before the metric gate. Preserved under curved_refit_interior_point/cover previous receipts.",
+    "design": "Share existing256 trials between placement and point-preserving private flips/restricted movement; same FrozenField and complete reserved edge/apex dependencies/identities; final full metric/geometry/height gates unchanged.",
+    "qualification": "Pending focused actual failure, prior passing cover, movement-mask/repair controls, strict same1402-cell target and bounded MPI2. No full-goal closure.",
+    "intermediate_controls": "Earlier26-cell cover PASS129 total/one flip/464 assertions; five focused repair/movement-mask controls PASS. Hard28-cell shape still rejected after three flips, with a fixed nonphysical interface vertex in the bad cell.",
+    "dependency_evidence": "Global source confirms blocked vertex184 is free;12-cell star expands union28\u219236 below64. Actual-field hint admission now classifies full versioned stars and retries with at most eight admitted apices and unchanged global4096 work.",
+    "current_controls": "Current final-binary26-cell actual cover PASS129 trials including one flip; five focused repair/movement-mask controls PASS. Isolated36-cell hardest interior probe still rejects; full global evolution improves further.",
+    "strict_engine": {
+      "input_cells": 1402,
+      "accepted": 94,
+      "cells": 1842,
+      "q": 0.2007931040538064,
+      "j": 0.05022384726911901,
+      "oversized_edges": 40,
+      "initial_excess": 1.5874507614028437,
+      "remaining_excess": 0.06559657076018213,
+      "work": 4096,
+      "insertions": 94,
+      "connectivity_trials": 907,
+      "flips": 29,
+      "moves": 10,
+      "dependency_expansions": 3
+    },
+    "residual": "40 oversized edges:16 cylinder,22 cylinder/cap junction,2 interior; maximum interior1.811106875, overall1.948298940. Original donors/reference preserved.",
+    "independent_whole_grid": {
+      "status": "REJECTED_LENGTH_TARGET_GEOMETRY_SHAPE_PASS",
+      "cells": 1842,
+      "wall_faces": 82,
+      "maximum_height_relative_error": 3.0531133177191805e-15,
+      "pair_candidates": 60042
+    },
+    "MPI": "Current bounded MPI2 protocol and independent before/after source/reference audit PASS; current MPI4/M<N/current+BDF/CFD/restart and performance unrefreshed.",
+    "summary": "wall_reconstruction_v1/joint_connectivity_summary.json"
   }
 }

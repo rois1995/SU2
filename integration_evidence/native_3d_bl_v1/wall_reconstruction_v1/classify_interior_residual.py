@@ -8,8 +8,8 @@ HERE=Path(__file__).resolve().parent
 def sha(p):return hashlib.sha256(p.read_bytes()).hexdigest()
 def main():
  stage=sys.argv[1] if len(sys.argv)>1 else 'curved_interior_residual'
- assert stage in ('curved_interior_residual','curved_reconnection_probe','curved_wall_refit_residual')
- parent_stage='curved_interior_engine' if stage=='curved_interior_residual' else 'curved_wall_refit_complete' if stage=='curved_wall_refit_residual' else 'curved_interior_continue'
+ assert stage in ('curved_interior_residual','curved_reconnection_probe','curved_wall_refit_residual','curved_joint_connectivity_residual')
+ parent_stage='curved_joint_connectivity_complete' if stage=='curved_joint_connectivity_residual' else 'curved_interior_engine' if stage=='curved_interior_residual' else 'curved_wall_refit_complete' if stage=='curved_wall_refit_residual' else 'curved_interior_continue'
  folder=HERE/stage;rp=HERE/(stage+'.json');receipt=json.loads(rp.read_text());assert receipt['status'] in ('PASS','FAIL')
  for name in ('audited_grid.json','grid_edges.csv','grid_metric_summary.json'):assert sha(folder/name)==receipt['artifacts'][name]
  data=json.loads((folder/'audited_grid.json').read_text());summary=json.loads((folder/'grid_metric_summary.json').read_text())
@@ -32,5 +32,5 @@ def main():
   groups={k:dict(count=len(v),maximum_csv=str(max(v)),median_csv=str(statistics.median(v))) for k,v in sorted(groups.items())},
   squared_excess_from_csv=str(excess),native_receipt_sha256=sha(rp),helper_sha256=sha(Path(__file__)),original_donors_and_reference_unchanged=True,
   scope='The complete residual export precedes any separately failed local replay; receipt failure is preserved. Classifies native original-field full composed-edge lengths against the actual binary64 1.8 threshold. Export arithmetic agrees with the previous engine result. Independent geometry/height/quality audit is separate; no independent composed integration, accepted mesh, CFD or performance claim.')
- (HERE/('interior_residual_classification.json' if stage=='curved_interior_residual' else 'refit_residual_classification.json' if stage=='curved_wall_refit_residual' else 'continued_residual_classification.json')).write_text(json.dumps(report,indent=2)+'\n');print(report['status'])
+ (HERE/('interior_residual_classification.json' if stage=='curved_interior_residual' else 'joint_connectivity_residual_classification.json' if stage=='curved_joint_connectivity_residual' else 'refit_residual_classification.json' if stage=='curved_wall_refit_residual' else 'continued_residual_classification.json')).write_text(json.dumps(report,indent=2)+'\n');print(report['status'])
 if __name__=='__main__':main()

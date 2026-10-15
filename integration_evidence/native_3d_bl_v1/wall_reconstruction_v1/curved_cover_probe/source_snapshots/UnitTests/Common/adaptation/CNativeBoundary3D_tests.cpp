@@ -1297,6 +1297,14 @@ TEST_CASE("Native joint repair resolves an interior sliver vertex without stale 
   REQUIRE(Cone(seed.cells,{42,{.43,.37,.0001}},100,inserted,reason));Patch old{inserted,seed.surface};
   std::vector<DonorCell> source;for(const auto& c:seed.cells){DonorCell d;d.cell=c;d.sensor.fill(Tensor{});source.push_back(d);}
   FrozenField target(source);Patch fresh;ConnectivityRepairReport report;
+  const std::set<Id> immobile;Patch fixed;
+  const bool fixed_progress=RepairMetricConnectivity(old,target,reference,{},1000,fixed,report,reason,64,false,&immobile);
+  CHECK(report.moves==0);CHECK(report.removals==0);
+  if(fixed_progress)for(const auto& c:fixed.cells)for(auto n:c.v) {
+    bool unchanged=false;for(const auto& donor:old.cells)for(auto v:donor.v)if(v.id==n.id)
+      unchanged=unchanged || (v.p.x==n.p.x && v.p.y==n.p.y && v.p.z==n.p.z);
+    CHECK(unchanged);
+  }
   REQUIRE(RepairMetricConnectivity(old,target,reference,{},1000,fresh,report,reason,256));
   CHECK(report.moves+report.removals>0);CHECK(report.complete_shape);CHECK(report.after_loss==0);
   CHECK(ValidateFixedInterface(old.cells,fresh.cells,reason));PatchMetric metric;

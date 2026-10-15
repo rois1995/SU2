@@ -1,0 +1,65 @@
+{
+  "status": "PARTIAL_CONSTRUCTION_WITH_STRICT_METRIC_REJECTION",
+  "shared_trial_limit": 256,
+  "cavity_cell_limit": 64,
+  "apex_limit": 8,
+  "global_work_limit": 4096,
+  "current_passing_cover": {
+    "path": "curved_cover_probe.json",
+    "sha256": "96ad759bc89b48fd4006b26de0586f2bb4cfdefe79ad3c6a1dff2be1a3584294"
+  },
+  "current_focused_controls": {
+    "path": "curved_repair_controls.json",
+    "sha256": "bcf5806a2a4ad7a8aad9a4a72cea36996a04e8f0da6387b6f5f4c07a8d4488b5"
+  },
+  "isolated_point_failure": {
+    "path": "curved_refit_interior_point.json",
+    "sha256": "f481f6dee4e64dc0e9e6bdc2f14cb191d8c9853089759dde3feb06c590e5d199"
+  },
+  "isolated_cover_failure": {
+    "path": "curved_refit_interior_cover.json",
+    "sha256": "ced0c721596fde528c015e28bfe74193af1c1be20372debdebfe75727f2d5d27"
+  },
+  "targeted_dependency_probe": {
+    "path": "curved_refit_interior_dependencies.json",
+    "sha256": "7e05e9a8265be7acf0874990b8d718ff3f38bd80277c5815811fb8fbffebc371"
+  },
+  "strict_engine": {
+    "path": "curved_joint_connectivity_complete.json",
+    "sha256": "be775dc912f4e678e0e36c8da8b9a2b73ae95d24828101dce1258baef3625dcf",
+    "input_cells": 1402,
+    "measurements": {
+      "accepted": 94,
+      "cells": 1842,
+      "q": 0.2007931040538064,
+      "j": 0.05022384726911901,
+      "oversized_edges": 40,
+      "initial_excess": 1.5874507614028437,
+      "remaining_excess": 0.06559657076018213,
+      "work": 4096
+    },
+    "insertions": 94,
+    "private_connectivity_trials": 907,
+    "private_flips": 29,
+    "private_moves": 10,
+    "dependency_expansions": 3
+  },
+  "residual": {
+    "path": "curved_joint_connectivity_residual.json",
+    "sha256": "8a80f345ff503371cfa4d746e049b8a76a82922163b8132c1536604d950fd448"
+  },
+  "residual_classification": {
+    "path": "joint_connectivity_residual_classification.json",
+    "sha256": "672a07137094993017d4f7ec232eca51bafcabc381a0d791eaa3684b6663f821"
+  },
+  "independent_whole_grid": {
+    "path": "joint_connectivity_grid_independent.json",
+    "sha256": "d58ddba855dce9f28db5ac23d5e588b80d5127262aec5d6f1906c2c7930e90ad"
+  },
+  "MPI2_protocol": {
+    "path": "joint_protocol_connectivity_mpi2_audit.json",
+    "sha256": "e5c805c78df5c43439f483e6e92d2c590046b859c15d4eee3e93b2c4ab22877d"
+  },
+  "scope": "Current actual native cover and five focused repair controls PASS; source-pinned isolated hardest interior/dependency probes still reject. Strict same1402-cell whole target improves94 insertions to1842 cells but rejects40 metric edges at4096 work. Independent full geometry/height/exported-tensor arithmetic and bounded current MPI2/source-reference preservation PASS. No accepted curved mesh, M<N/current+BDF/SA/CFD/restart/currentMPI4/accuracy/performance qualification.",
+  "next": "Verify and correct the shared curved projection restriction for simultaneous interior apex movement on actual remaining cylinder/rim cavities; retain finite authority/geometry/height/metric gates. No unchanged-budget continuation."
+}

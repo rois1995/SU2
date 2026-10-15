@@ -1420,6 +1420,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       }
       std::sort(wallApices.begin(),wallApices.end());wallApices.erase(std::unique(wallApices.begin(),wallApices.end()),wallApices.end());
       bool wallSplit=joint && !wallApices.empty();
+      Id placement_obstruction=UINT64_MAX;
       auto place_patch=[&](bool search,const std::vector<Id>& apices) {
         if(!world.maximum(search))return true;
         if(stats.global_work>=stats.work_limit){stats.stop=EngineStop::WorkBudget;result.reason="Native3D joint placement exhausted the global work budget.";return false;}
@@ -1489,6 +1490,8 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
           candidate=PlaceSplitPatch(old,choice.edge,point,reserved_apices,maximum_cell+1+offset,target,geometry,options.wall_heights,
               fresh,report,result.reason,std::min<uint64_t>(256,stats.work_limit-stats.global_work));
           stats.repair_proposals+=report.trials;stats.placement_trials+=report.trials;
+          stats.placement_connectivity_trials+=report.connectivity_trials;stats.placement_flips+=report.flips;stats.placement_moves+=report.moves;
+          placement_obstruction=report.blocked_interior_vertex;
           if(!candidate && !report.best.cells.empty()){fresh=std::move(report.best);candidate=true;}
           candidate=guarded_geometry(candidate);
         }catch(const std::exception& e){failure.Set(2,0,e.what());}
@@ -1803,7 +1806,36 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         }
       }
       if(!(ready=vote(failure)))return finish();
-      if(!place_patch(search,apices))return finish();
+      for(unsigned attempt=0;attempt<8 && world.maximum(search && !approved);++attempt) {
+        placement_obstruction=UINT64_MAX;
+        if(!place_patch(search,apices))return finish();
+        bool expand=search && !approved && stats.global_work<stats.work_limit && apices.size()<8 &&
+            placement_obstruction!=UINT64_MAX && placement_obstruction!=choice.edge[0] && placement_obstruction!=choice.edge[1] &&
+            std::find(apices.begin(),apices.end(),placement_obstruction)==apices.end();
+        if(!world.maximum(expand))break;
+        {Timer timer(stats.dependency_seconds,options.timings);
+          const std::vector<Feature> hints=expand?std::vector<Feature>{{{{placement_obstruction,0,0}},1}}:std::vector<Feature>{};
+          auto metadata=directory.LookupBatch(hints,options.memory_ceiling,transfer_memory::Add(bytes(),source.ResidentBytes(),private_scratch));
+          if(!metadata.valid){result.reason=metadata.reason;return finish();}
+          auto payload=directory.FetchBatch(metadata,working,options.memory_ceiling,transfer_memory::Add(bytes(),source.ResidentBytes(),private_scratch));
+          if(!payload.valid){result.reason=payload.reason;return finish();}
+          if(expand)try {
+            const auto& star=payload.candidates.at(0);
+            if(!star.valid) {
+              if(star.reason=="Native 3D dependency star exceeds budget.")expand=false;
+              else throw std::runtime_error(star.reason);
+            } else {
+              ++stats.placement_classified_vertices;bool physical=false;
+              for(const auto& row:star.cells)for(unsigned f=0;f<4;++f)
+                physical=physical || (row.physical[f].present && row.cell.v[f].id!=placement_obstruction);
+              expand=!physical;
+            }
+            if(expand){apices.push_back(placement_obstruction);++stats.placement_dependency_expansions;}
+          }catch(const std::exception& e){failure.Set(2,0,e.what());}
+        }
+        if(!(ready=vote(failure)))return finish();
+        search=expand;
+      }
       joint=joint && boundary_edge;
       Tensor placement,nearPlacement;
       if(world.maximum(joint)) {

@@ -5231,3 +5231,26 @@ The entire1820-cell rejected result independently passes exact positive-volume/
 no-overlap/closed-skin geometry,76 wall normal feet and first height (relative
 error3.06e-15), plus exported-tensor q/J arithmetic. Its46 oversized edges still
 reject. All owned jobs terminal; full Goal3 remains active.
+
+## Joint insertion, reconnection and actual-field dependencies — 2026-10-15
+
+Private placement now shares its original256 trials with point-preserving flips
+and constrained movement. Only the inserted point/admitted complete-star apices
+can move; stationary identities are preserved and moved old apices use reserved
+fresh IDs. Failed actual-field reconstruction can request its specific free
+interface vertex star, globally classified through existing versioned Directory
+batches. Eight-apex/64-cell/global4096-work bounds and all original field/gates stay.
+The actual blocker expands28→36 through a12-cell star; that isolated probe still
+rejects, so no general feasibility claim follows from imported support.
+
+The same1402-cell full target makes94 insertions to1842 cells,40 oversized edges
+(previous46), excess1.587451→.065597 (previous remainder .188121), with907 private
+connectivity trials/29 flips/10 moves/three expansions. Maximum interior length
+falls2.125178→1.811107; remaining groups16 cylinder/22 rim/2 interior. Native
+previously-passing cover and focused repair guards pass on the final binary.
+Independent whole geometry/no-overlap/82 wall feet/height/exported-tensor arithmetic
+and bounded current MPI2/source-reference audit pass. Mesh still rejects lengths.
+Full curved construction/removal, wider fields/geometries, currentMPI4/M<N/CFD/BDF/
+restart/accuracy/performance remain open. The shared curved-projection guard's
+restriction on simultaneous interior-apex movement is the next actual rim suspect
+to verify. See Handbook/GOAL3_JOINT_CONNECTIVITY.md; all owned jobs terminal.

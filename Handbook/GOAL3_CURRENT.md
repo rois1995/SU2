@@ -23,6 +23,12 @@ rejects at4096 work, after only two insertions. That is the preceding support-on
 result; the newer shared-apex result is1820 cells/46 long edges as stated above. Do not equate partial metric progress or private local
 success with a complete adapted mesh. See the support handbook for current runs.
 
+The [connected insertion/reconnection work](GOAL3_JOINT_CONNECTIVITY.md) now reaches
+1842 cells/40 long edges from the same1402-cell input at4096 work, with94 insertions,
+29 private flips/10 moves/three dependency expansions. It still rejects. Current
+MPI2 protocol and entire geometry/height/shape-arithmetic audits pass; remaining
+metric debt is dominated by cylinder and cap junctions. All owned jobs are terminal.
+
 ## Existing qualified scope
 
 - One actual-query geometric BL policy is shared by weights/refine/coarsen/thin

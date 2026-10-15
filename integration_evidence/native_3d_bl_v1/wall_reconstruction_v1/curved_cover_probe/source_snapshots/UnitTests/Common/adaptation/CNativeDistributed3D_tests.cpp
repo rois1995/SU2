@@ -729,6 +729,8 @@ void EngineReport(const EngineResult& result, World& world, const std::string& l
        << " selection_edge_evaluations=" << s.edge_evaluations << " selection_edge_reused=" << s.edge_reused
        << " wall_reconstruction_trials=" << s.wall_reconstruction_trials << " wall_reconstruction_accepted=" << s.wall_reconstruction_accepted
        << " wall_joint_trials=" << s.wall_joint_trials << " wall_joint_moves=" << s.wall_joint_moves << " wall_joint_removals=" << s.wall_joint_removals << " wall_joint_accepted=" << s.wall_joint_accepted
+       << " placement_connectivity_trials=" << s.placement_connectivity_trials << " placement_flips=" << s.placement_flips << " placement_moves=" << s.placement_moves
+       << " placement_dependency_expansions=" << s.placement_dependency_expansions
        << " placement_classified_vertices=" << s.placement_classified_vertices
              << " placement_trials=" << s.placement_trials << " placement_validated=" << s.placement_validated
        << " wall_topology_trials=" << s.wall_topology_trials << " wall_topology_accepted=" << s.wall_topology_accepted

@@ -1615,10 +1615,11 @@ TEST_CASE("Cold native cylinder BL construction and release use the same origina
       save(partial.valid?"protocol_adapted":"protocol_rejected",partial.cells);
       const auto trials=world.sum(partial.stats.placement_trials),validated=world.sum(partial.stats.placement_validated);
       const auto classified=world.sum(partial.stats.placement_classified_vertices);
+      const auto connectivity=world.sum(partial.stats.placement_connectivity_trials);
       const auto count=world.sum(partial.cells.size());
       if(!world.rank)std::cout<<"JOINT_PROTOCOL ranks="<<world.size<<" valid="<<partial.valid<<" cells="<<count
           <<" classified_vertices="<<classified<<" placement_trials="<<trials<<" placement_validated="<<validated<<" work="<<partial.stats.global_work
-          <<" stop="<<EngineStopName(partial.stats.stop)<<" reason="<<partial.reason<<std::endl;
+          <<" stop="<<EngineStopName(partial.stats.stop)<<" connectivity_trials="<<connectivity<<" reason="<<partial.reason<<std::endl;
       CHECK(Signature(world,grid.cells,reference)==untouched);CHECK(Signature(world,input.cells,reference)==before);
       CHECK(partial.stats.global_work<=512);CHECK(trials>0);
       INFO(partial.reason);CHECK((partial.valid || partial.stats.stop==EngineStop::WorkBudget));
@@ -1664,6 +1665,7 @@ TEST_CASE("Cold native cylinder BL construction and release use the same origina
       }
       std::cout<<"CURVED_GRID_REFINE accepted="<<partial.stats.accepted<<" inserted="<<partial.stats.inserted
           <<" classified_vertices="<<partial.stats.placement_classified_vertices<<" placement_trials="<<partial.stats.placement_trials<<" placement_validated="<<partial.stats.placement_validated
+          <<" dependency_expansions="<<partial.stats.placement_dependency_expansions<<" connectivity_trials="<<partial.stats.placement_connectivity_trials<<" placement_flips="<<partial.stats.placement_flips<<" placement_moves="<<partial.stats.placement_moves
           <<" work="<<partial.stats.global_work<<" stop="<<EngineStopName(partial.stats.stop)<<" reason="<<partial.reason<<std::endl;
       save(partial.valid?"curved_grid_adapted":"curved_grid_partial_rejected",partial.cells);
       CHECK(Signature(world,grid.cells,reference)==unchanged);CHECK(Signature(world,input.cells,reference)==before);
@@ -1777,8 +1779,31 @@ TEST_CASE("Cold native cylinder BL construction and release use the same origina
         if((std::getenv("SU2_NATIVE_CURVED_INTERIOR_SEARCH") && !std::getenv("SU2_NATIVE_CURVED_COUPLED_COVER")) || std::getenv("SU2_NATIVE_CURVED_POINT_ONLY")){full=old;apices.clear();}
         SaveRecords("joint_original",PatchRecords(full),captured_source,reference);
         Patch fresh;JointSplitReport report;std::string reason;
-        const bool accepted=PlaceSplitPatch(full,edge,point,apices,2000000,target,*reference.original,options.wall_heights,fresh,report,reason,256);
+        bool accepted=false;size_t cumulative=0;
+        for(unsigned attempt=0;attempt<8;++attempt) {
+          SaveRecords("joint_original",PatchRecords(full),captured_source,reference);
+          accepted=PlaceSplitPatch(full,edge,point,apices,2000000,target,*reference.original,options.wall_heights,fresh,report,reason,std::min<size_t>(256,4096-cumulative));
+          cumulative+=report.trials;
+          if(accepted || !std::getenv("SU2_NATIVE_CURVED_ADMIT_HINTS") || report.blocked_interior_vertex==UINT64_MAX || apices.size()==8)break;
+          const Id hint=report.blocked_interior_vertex;
+          if(hint==edge[0] || hint==edge[1] || std::any_of(apices.begin(),apices.end(),[&](const auto& p){return p.first==hint;}))break;
+          bool physical=false;for(const auto& row:grid.cells)for(unsigned f=0;f<4;++f)if(row.second.physical[f].present && row.second.cell.v[f].id!=hint)
+            physical=physical || std::any_of(row.second.cell.v.begin(),row.second.cell.v.end(),[&](Node n){return n.id==hint;});
+          if(physical)break;
+          std::set<Id> admitted;for(const auto& c:full.cells)admitted.insert(c.id);
+          for(const auto& row:grid.cells)if(std::any_of(row.second.cell.v.begin(),row.second.cell.v.end(),[&](Node n){return n.id==hint;}))admitted.insert(row.first);
+          if(admitted.size()>MaximumCavityCells)break;
+          apices.emplace_back(hint,1000001+apices.size());full={};
+          for(Id id:admitted) {
+            const auto& row=grid.cells.at(id);full.cells.push_back(row.cell);const auto& c=row.cell;
+            const std::array<Face,4> faces{{{{c.v[1].id,c.v[2].id,c.v[3].id}},{{c.v[0].id,c.v[3].id,c.v[2].id}},{{c.v[0].id,c.v[1].id,c.v[3].id}},{{c.v[0].id,c.v[2].id,c.v[1].id}}}};
+            for(unsigned f=0;f<4;++f)if(row.physical[f].present)full.surface.push_back({faces[f],row.physical[f].facet});
+          }
+          std::cout<<"JOINT_DEPENDENCY vertex="<<hint<<" cells="<<full.cells.size()<<" cumulative_work="<<cumulative<<std::endl;
+        }
+        CHECK(cumulative<=4096);
         std::cout<<"JOINT_SEARCH cells="<<full.cells.size()<<" apices="<<apices.size()<<" accepted="<<accepted<<" trials="<<report.trials
+            <<" connectivity_trials="<<report.connectivity_trials<<" flips="<<report.flips<<" moves="<<report.moves<<" blocked_vertex="<<report.blocked_interior_vertex
             <<" geometry_rejected="<<report.geometry_rejected<<" height_rejected="<<report.height_rejected<<" metric_rejected="<<report.metric_rejected
             <<" shape_loss="<<report.best_shape_loss<<" initial="<<report.initial_loss<<" best="<<report.best_loss<<" reason="<<reason<<std::endl;
         if(accepted)SaveRecords("joint_private",PatchRecords(fresh),captured_source,reference);
