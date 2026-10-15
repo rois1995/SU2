@@ -21,7 +21,7 @@ The isolated rim geometry succeeds but actual shape rejects; its exact-foot audi
 also flags a7.5e-18 weight within native numerical allowance. Read
 [the connected scope and remaining reconstruction limitation](Handbook/GOAL3_CURVED_FEATURE_REPAIR.md).
 No accepted curved generation, CFD/restart/M<N/currentMPI4 or performance claim.
-All owned jobs terminal; do not restart from stale receipts.
+The wall-front experiment preserves a fixed-work full-target regression (58 long edges); a corrected strategy-scheduling engine replay is now running in session30204; see [its evidence and acceptance](Handbook/GOAL3_WALL_FRONT.md). Verify actual handles before restarting.
 Read [the previous capability and boundary restriction](Handbook/GOAL3_JOINT_CONNECTIVITY.md).
 Earlier [shared-apex](Handbook/GOAL3_SHARED_APEX_REFIT.md) and
 [support-selection](Handbook/GOAL3_SUPPORT_SELECTION.md) evidence remains preserved.

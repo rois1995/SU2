@@ -1,0 +1,38 @@
+{
+  "status": "REJECTED_PRODUCTION_STRATEGY_STUDY",
+  "base": "c29ffa96b0a9550cd6df82c56c79aa20ad2e93be",
+  "cases": {
+    "geometry": {
+      "receipt_sha256": "c245b254e46556c7b3da4744902bf780f047fe4dcfb7a4dc2c784ac827add79e",
+      "status": "PASS",
+      "test_binary": "a5cd19133170365fe1265c2c04ff45d8bbca448fa5500b5398693116c7bd66df",
+      "scope": "Selected focused geometry/field/integration control or complete declared cold construction/removal probe. Curved stages use actual smooth reference and original sensors; cold case imports initialized RANS CFD geometry but does not run replacement/solution transfer or CFD iterations. Independent audit and full-goal qualification remain required; no performance claim."
+    },
+    "curved_wall_front_probe": {
+      "receipt_sha256": "95bdfc4f88cc217e7665ce0ae92cbe4e66278b72e51af445bf2c0c70f3bb3cc1",
+      "status": "FAIL",
+      "test_binary": "a5cd19133170365fe1265c2c04ff45d8bbca448fa5500b5398693116c7bd66df",
+      "scope": "Frozen-field saved-grid diagnosis or bounded real-engine repair; PASS establishes the declared partial-progress check, not final mesh acceptance. Selected focused geometry/field/integration control or complete declared cold construction/removal probe. Curved stages use actual smooth reference and original sensors; cold case imports initialized RANS CFD geometry but does not run replacement/solution transfer or CFD iterations. Independent audit and full-goal qualification remain required; no performance claim."
+    },
+    "curved_front_complete": {
+      "receipt_sha256": "a7049818557ece0af927af5da7da0723428e4d6dac6dfd56275df73494a92fda",
+      "status": "FAIL",
+      "test_binary": "a5cd19133170365fe1265c2c04ff45d8bbca448fa5500b5398693116c7bd66df",
+      "scope": "Complete original-field refinement of the saved rejected grid is required; no cold-start, CFD transfer, restart or performance qualification. Frozen-field saved-grid diagnosis or bounded real-engine repair; PASS establishes the declared partial-progress check, not final mesh acceptance. Selected focused geometry/field/integration control or complete declared cold construction/removal probe. Curved stages use actual smooth reference and original sensors; cold case imports initialized RANS CFD geometry but does not run replacement/solution transfer or CFD iterations. Independent audit and full-goal qualification remain required; no performance claim."
+    },
+    "curved_front_residual_step": {
+      "receipt_sha256": "9eaecd76f45eb0bd32d6eac7e3a766bb545d599989e6e40516c5bc7deca53b01",
+      "status": "FAIL",
+      "test_binary": "be9a542616275f4ae4d80e8d0664dd392858f2267ea1c619bb7ae528798130da",
+      "scope": "Frozen-field saved-grid diagnosis or bounded real-engine repair; PASS establishes the declared partial-progress check, not final mesh acceptance. Selected focused geometry/field/integration control or complete declared cold construction/removal probe. Curved stages use actual smooth reference and original sensors; cold case imports initialized RANS CFD geometry but does not run replacement/solution transfer or CFD iterations. Independent audit and full-goal qualification remain required; no performance claim."
+    },
+    "curved_front_residual_step_previous_1792072555396887428": {
+      "receipt_sha256": "2c7364a0cd413a9c1084aa6662608a727c4487e5896c99da495b967ed251b55c",
+      "status": "FAIL",
+      "test_binary": "a5cd19133170365fe1265c2c04ff45d8bbca448fa5500b5398693116c7bd66df"
+    }
+  },
+  "result": "Geometry controls pass and local256-trial repair reduces actual cylinder loss1.452684612 to .285096654, but q/J still reject. Fixed4096-work full target regresses38 to58 edges. Trying all admitted alternatives before growth still rejects the actual one-round worst edge with identical623 work/zero edits. No full target rerun after that failed precondition.",
+  "decision": "Preserve experiments on a separate study branch. Withdraw production scheduling/front activation from active codex/native-3d-bl. Retain truthful diagnostics and next coupled metric-quality optimization design.",
+  "limits": "No accepted curved mesh, new MPI qualification, CFD/restart/current+BDF/accuracy/performance proof; no guard/target/budget change."
+}

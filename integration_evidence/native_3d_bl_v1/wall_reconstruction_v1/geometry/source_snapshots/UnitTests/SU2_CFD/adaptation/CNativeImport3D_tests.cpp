@@ -1782,7 +1782,10 @@ TEST_CASE("Cold native cylinder BL construction and release use the same origina
         Patch fresh;Feature obstruction;std::string reason;bool built=false;
         for(unsigned growth=0;growth<12;++growth) {
           SaveRecords("wall_refit_original",PatchRecords(full),captured_source,reference);
-          built=RefitWallSplit(full,edge,point,1000001,2000000,options.wall_heights,*reference.original,fresh,obstruction,reason);
+          if(std::getenv("SU2_NATIVE_CURVED_WALL_FRONT")) {
+            Face face{};built=ReconstructWallSplit(full,edge,point,1000001,2000000,options.wall_heights,*reference.original,fresh,face,reason,nullptr,options.surface_tolerance,true);
+            obstruction=face==Face{}?Feature{}:Feature{face,3};
+          } else built=RefitWallSplit(full,edge,point,1000001,2000000,options.wall_heights,*reference.original,fresh,obstruction,reason);
           if(built || !obstruction.count)break;
           std::set<Id> admitted;for(const auto& c:full.cells)admitted.insert(c.id);
           std::vector<OwnedCell> missing;
@@ -1802,11 +1805,30 @@ TEST_CASE("Cold native cylinder BL construction and release use the same origina
         INFO(reason);REQUIRE(built);SaveRecords("wall_refit_proposal",PatchRecords(fresh),captured_source,reference);
         FirstHeightReport height;REQUIRE(CheckFirstHeight(fresh,options.wall_heights,*reference.original,height,reason));
         PatchMetric measured;MetricDiagnosis diagnosis;
-        const bool valid=ValidateMetricChange(full.cells,fresh.cells,MetricChange::Repair,target,measured,reason,nullptr,nullptr,&diagnosis) && diagnosis.size_progress;
+        const auto intent=std::getenv("SU2_NATIVE_CURVED_WALL_FRONT")?MetricChange::Refine:MetricChange::Repair;
+        bool valid=ValidateMetricChange(full.cells,fresh.cells,intent,target,measured,reason,nullptr,nullptr,&diagnosis) && diagnosis.size_progress;
+        if(std::getenv("SU2_NATIVE_CURVED_WALL_FRONT") && !valid && diagnosis.failure==MetricFailure::Shape) {
+          const auto seed=fresh;Patch unused;ConnectivityRepairReport hint;
+          std::string rejected;RepairMetricConnectivity(seed,target,*reference.original,options.wall_heights,3000000,unused,hint,rejected,0);
+          std::cout<<"WALL_FRONT_HINT blocked="<<hint.blocked_interior_vertex<<std::endl;
+          size_t used=0;
+          for(unsigned strategy=0;strategy<2 && used<256;++strategy) {
+            Patch repaired;ConnectivityRepairReport repair;
+            const bool progress=RepairMetricConnectivity(seed,target,*reference.original,options.wall_heights,3000000,repaired,repair,rejected,256-used,strategy==0);used+=repair.trials;
+            std::cout<<"WALL_FRONT_REPAIR strategy="<<strategy<<" progress="<<progress<<" trials="<<repair.trials
+                <<" flips="<<repair.flips<<" moves="<<repair.moves<<" removals="<<repair.removals<<" complete="<<repair.complete_shape
+                <<" before="<<repair.before_loss<<" after="<<repair.after_loss<<" blocked="<<repair.blocked_interior_vertex<<" reason="<<rejected<<std::endl;
+            if(progress) {
+              fresh=std::move(repaired);SaveRecords("wall_front_repaired",PatchRecords(fresh),captured_source,reference);
+              valid=ValidateMetricChange(full.cells,fresh.cells,intent,target,measured,reason,nullptr,nullptr,&diagnosis) && diagnosis.size_progress;
+            }
+            if(valid || !progress || !repair.complete_shape || !repair.removals || diagnosis.failure!=MetricFailure::Progress)break;
+          }
+        }
         std::cout<<std::setprecision(17)<<"WALL_REFIT old="<<full.cells.size()<<" fresh="<<fresh.cells.size()<<" apices="<<apices.size()
-            <<" valid="<<valid<<" q="<<measured.minimum_mean_ratio<<" j="<<measured.minimum_scaled_jacobian<<" reason="<<reason<<std::endl;
+            <<" valid="<<valid<<" q="<<diagnosis.minimum_mean_ratio<<" j="<<diagnosis.minimum_scaled_jacobian<<" reason="<<reason<<std::endl;
         std::ofstream out("wall_refit_metric.json");out<<std::setprecision(17)<<"{\"accepted\":"<<(valid?"true":"false")
-            <<",\"q\":"<<measured.minimum_mean_ratio<<",\"j\":"<<measured.minimum_scaled_jacobian<<",\"reason\":"<<std::quoted(reason)<<"}\n";REQUIRE(out.good());
+            <<",\"q\":"<<diagnosis.minimum_mean_ratio<<",\"j\":"<<diagnosis.minimum_scaled_jacobian<<",\"reason\":"<<std::quoted(reason)<<"}\n";REQUIRE(out.good());
         auto retained=fresh;const auto count=retained.cells.size();
         CHECK_FALSE(RefitWallSplit(full,edge,point,point.id,2000000,options.wall_heights,*reference.original,retained,obstruction,reason));CHECK(retained.cells.size()==count);
         CHECK_FALSE(RefitWallSplit(old,edge,point,1000001,2000000,options.wall_heights,*reference.original,retained,obstruction,reason));CHECK(retained.cells.size()==count);

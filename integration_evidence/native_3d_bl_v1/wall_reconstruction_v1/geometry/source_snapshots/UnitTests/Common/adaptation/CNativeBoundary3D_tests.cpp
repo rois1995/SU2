@@ -1367,6 +1367,23 @@ TEST_CASE("Native wall split inserts coordinated height points without a common 
   CHECK(Connectivity(sentinel)==before);
   CHECK_FALSE(ReconstructWallSplit(aligned,{0,2},{1000,{.4,.4,0}},1001,2000,heights,reference,sentinel,obstruction,reason,nullptr,-1));
   CHECK(Connectivity(sentinel)==before);
+  Patch preserving;
+  REQUIRE(ReconstructWallSplit(aligned,{0,1},{1000,{.4,0,0}},1001,2000,heights,reference,preserving,obstruction,reason,nullptr,0,true));
+  REQUIRE(CheckFirstHeight(preserving,heights,reference,height,reason));
+  size_t retained_rows=0;
+  for(const auto& face:aligned.surface)if(heights.count(reference.Get(face.facet).marker) &&
+      !(std::find(face.v.begin(),face.v.end(),0)!=face.v.end() && std::find(face.v.begin(),face.v.end(),1)!=face.v.end())) {
+    auto owner=[&](const Patch& p) {
+      Id apex=UINT64_MAX;
+      for(const auto& c:p.cells) {
+        unsigned count=0;Id opposite=0;for(auto n:c.v){count+=std::find(face.v.begin(),face.v.end(),n.id)!=face.v.end();if(std::find(face.v.begin(),face.v.end(),n.id)==face.v.end())opposite=n.id;}
+        if(count==3){CHECK(apex==UINT64_MAX);apex=opposite;}
+      }
+      REQUIRE(apex!=UINT64_MAX);return apex;
+    };
+    CHECK(owner(aligned)==owner(preserving));++retained_rows;
+  }
+  CHECK(retained_rows>0);SaveCurved(preserving,reference,"wall_split_preserving");
   Patch planar;REQUIRE(ReconstructWallSplit(aligned,{0,2},{1000,{.4,.4,0}},1001,2000,heights,reference,planar,obstruction,reason,nullptr,.01));
   CHECK(Connectivity(planar)==Connectivity(fresh));
   CHECK_FALSE(ReconstructWallSplit(EdgeStar(aligned,{0,2}),{0,2},{1000,{.4,.4,0}},1001,2000,heights,reference,sentinel,obstruction,reason));

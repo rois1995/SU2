@@ -1,0 +1,8 @@
+EDGE_REPLAY edge=16,20 star=4 point=-0.8154931568489171,0.54489510677581876,0.75
+WALL_REFIT_GEOMETRY old=50 apices=2 built=1 reason=
+WALL_FRONT_HINT blocked=196
+WALL_FRONT_REPAIR strategy=0 progress=1 trials=256 flips=2 moves=4 removals=1 complete=0 before=1.4526846119573926 after=0.28509665398984196 blocked=196 reason=
+WALL_REFIT old=50 fresh=70 apices=2 valid=0 q=0.12506160796155996 j=0.036637573312268211 reason=Native 3D metric shape/sliver failure: q=0.12506160796155996 at cell 3000060, J=0.036637573312268211 at cell 3000059.
+../../UnitTests/SU2_CFD/adaptation/CNativeImport3D_tests.cpp:1835: failed: valid for: false with 2 messages: '' and 'Native3D wall refit needs complete free apex stars.'
+Failed 1 test case, failed 1 assertion.
+

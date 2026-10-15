@@ -1626,7 +1626,7 @@ bool RefitWallSplit(const Patch& old,Edge edge,Node point,Id first_apex,Id first
 }
 bool ReconstructWallSplit(const Patch& old,Edge edge,Node point,Id first_wall_node,Id first,
                           const std::map<int,double>& heights,const PlanarReference& reference,
-                          Patch& fresh,Face& obstruction,std::string& reason,KernelStats* stats,double surface_tolerance) {
+                          Patch& fresh,Face& obstruction,std::string& reason,KernelStats* stats,double surface_tolerance,bool preserve_rows) {
   obstruction={};
   try {
     Bounds(old);Endpoints(edge);
@@ -1679,8 +1679,15 @@ bool ReconstructWallSplit(const Patch& old,Edge edge,Node point,Id first_wall_no
     auto nodes=Nodes(proposal.cells);
     for(size_t i=0;i<walls.size();++i)if(nodes.count(first_wall_node+i))
       throw std::invalid_argument("Native3D retained wall split reuses a node identity.");
-    std::set<Face> protected_faces;
+    std::set<Face> protected_faces,unchanged;
+    for(const auto& face:old.surface)unchanged.insert(Key(face.v));
+    Patch row;row.cells=proposal.cells;
+    for(const auto& face:walls)if(preserve_rows && unchanged.count(Key(face.v))) {
+      row.surface={face};FirstHeightReport measured;std::string rejected;
+      if(CheckFirstHeight(row,heights,reference,measured,rejected,stats))protected_faces.insert(Key(face.v));
+    }
     for(size_t at=0;at<walls.size();++at) {
+      if(protected_faces.count(Key(walls[at].v)))continue;
       const auto face=walls[at];nodes=Nodes(proposal.cells);
       const auto a=nodes.at(face.v[0]).p,b=nodes.at(face.v[1]).p,c=nodes.at(face.v[2]).p;
       auto normal=Cross(Delta(b,a),Delta(c,a));const auto area=Norm(normal);
