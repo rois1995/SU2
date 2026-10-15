@@ -9,7 +9,112 @@ CFL ownership, final physical residuals and group failure output are wired into
 the native driver. A compatibility class remains for legacy execution modes
 outside this migration. Dense native pseudo-time mappings and explicit-flow
 preconditioning are supported. The full goal remains in progress: converged
-matched family comparisons and the conditional-feature audits below are pending.
+matched auxiliary-family comparisons and the conditional-feature audits below are
+pending. The first converged manufactured mean-flow comparison is recorded below.
+
+## Independent restart reports and converged manufactured flow
+
+`TestCases/newton_krylov/report_state.py` loads a saved binary or ASCII restart in
+a separate native test process and evaluates every available FLOW/TURB/TRANS/
+SPECIES physical residual without taking a solver step. This avoids changing the
+conventional solver's caches or comparing its pre-update history with Newton's
+accepted-state history. The hidden `[NewtonStateReport]` native test reports native
+RMS/maxima, RMS of `R/S` using `CNewtonEquationSet::BuildScales`, volume integrals
+of packed unknowns, total mass and native force/heat quantities. It also reports
+the largest state-scaled change from raw restart values to native strong boundary
+values; this projection is explicit rather than silently included in residuals.
+The script redirects history output, checks config/restart hashes before and after,
+and saves the command, executable/input hashes, status and elapsed time.
+
+Both shared SU2 restart readers previously copied the filename into a 100-byte
+stack buffer. They now use the input string directly. A binary replay initially
+detected the overflow; the regression check covers long binary/ASCII paths,
+1x1 versus 2x2 reporting, unchanged solver output files and agreement with the
+coupled accepted-state history. Native SST's earlier history differs from its
+independent final physical report by up to 0.00781 in log10 RMS; the coupled
+history agrees within 4.5e-10. Native strong-value projection is nonzero, while
+the coupled restart needs no projection. Neither comparison claims convergence
+for this four-update SST fixture.
+
+The mixed flow/SST/LM/species replay detected two further native restart bugs.
+Species skipped flow and turbulence columns but omitted the two transition
+unknowns, loading LM gamma/Re_theta as species fractions. LM unconditionally
+read two derived intermittencies immediately after its solution fields, although
+the default restart contains no such fields. This crossed into species/the next
+point and read beyond the final record. Species now also skips transition fields,
+and LM derives its auxiliary intermittencies through native postprocessing.
+Species restart postprocessing refreshes LM too, including coarse grids. Both
+loaders reject missing solution fields before indexing them. The regression
+covers all nine physical residuals in variable-density flow/SST/LM/species,
+binary/ASCII parity, 1x1/2x2 parity and truncated-field rejection. The saved
+pre-fix executable gives a Valgrind invalid read in `CTransLMSolver::LoadRestart`
+and fails the physical replay; both formats pass with zero memory errors after
+the fixes. A conventional MGLEVEL=1 mixed restart also takes one finite update
+under Valgrind without memory errors, exercising coarse-grid postprocessing.
+SA replay also matches its accepted-state history within 4.6e-10.
+
+```sh
+python3 TestCases/newton_krylov/check_state_report.py \
+  --binary /path/to/build/SU2_CFD/src/SU2_CFD \
+  --reporter /path/to/build/UnitTests/newton_equation_tests --output /path/to/new-checks
+
+python3 TestCases/newton_krylov/compare_manufactured_flow.py \
+  --binary /path/to/build/SU2_CFD/src/SU2_CFD \
+  --reporter /path/to/build/UnitTests/newton_equation_tests \
+  --output /path/to/new-comparison --ranks 2 --threads 2
+```
+
+The self-contained comparison uses an 81-point unit square, dimensional
+Navier–Stokes MMS, first-order Roe, native CUSTOM Dirichlet values, ILU,
+`MGLEVEL=0`, fixed CFL 10 and all four flow residuals in the stopping condition.
+Every run uses the same corrected executable. All four native RMS values must
+be below 1e-6, followed by an independent final restart check requiring raw RMS
+below 1e-6, state-scaled RMS below 1e-9 and zero boundary projection. The
+configured Newton step floor is 1e-14: the default 3.67e-11 floor stopped the
+initial pilot at energy log10 RMS -5.61, before the requested -6 threshold.
+The true linear-defect acceptance bound remains 0.1. A smaller step floor is
+a case setting, not evidence that the default converges to arbitrary tolerances.
+
+Results on 2026-10-16, including MPI launch in elapsed time:
+
+| Ranks x threads | Method | Updates | Flow residual assemblies | Outer Krylov iterations | Seconds | Peak rank RSS, KiB |
+| --- | --- | ---: | ---: | ---: | ---: | ---: |
+| 1x1 | Native | 67 | 67 | 536 | 0.439 | 24660 |
+| 1x1 | Segregated Newton | 69 | 831 | 209 | 0.468 | 24604 |
+| 1x1 | Coupled Newton | 69 | 831 | 209 | 0.467 | 24688 |
+| 2x2 | Native | 67 | 67 | 993 | 0.467 | 25388 |
+| 2x2 | Segregated Newton | 69 | 975 | 353 | 0.527 | 24276 |
+| 2x2 | Coupled Newton | 69 | 975 | 353 | 0.569 | 24628 |
+
+No inner Krylov iterations are used. Residual assembly counts exclude the
+independent reporting process; native counts follow the single implicit
+`MG_PRE_SMOOTH=1` pass, while Newton counters include the final all-active
+physical refresh after the last diagnostic row. Each solver rank is measured
+with `/usr/bin/time`; RSS is the maximum rank value, not the launcher's memory.
+These are single timing samples on a tiny mesh and establish no speedup.
+
+All six independent maximum state-scaled RMS values are below 1.19e-10.
+Newton's maximum pointwise component difference from the native final solution,
+scaled by that component's maximum magnitude, is below 1.90e-11. Total mass is
+1.08219592821 in all runs. Native force/heat quantities are zero for these
+unmonitored CUSTOM boundaries; the packed volume integrals and pointwise state
+comparison supply the nontrivial final-state checks. Full raw/scaled residuals,
+quantities, work, memory and hashes are committed in
+`Docs/NewtonKrylovMMSResults.json`. FLOW alone has one block, so its segregated
+and coupled flags describe the same equation group. Turbulence, active transition
+and species still require their own converged matched comparisons.
+
+Evidence in the parent workspace uses `state_report_` and
+`manufactured_converged_final_{1x1,2x2}`. All 33 native cases pass on 1x1 and
+2x2, and all 80 supported ordinary unit cases pass. Long-path binary and ASCII
+reporting each produce zero Valgrind memory errors, with leaks unchecked.
+All three changed production translation units pass forward syntax checks;
+this does not establish full AD/reverse/mixed-precision/GPU execution.
+The initial 265-character-path test instead exposes an overflow inside this
+installation's OpenMPI `mca_sharedfp_lockedfile` backend; the retained stack
+identifies the external library. The verified SU2 regression uses paths above
+100 characters within that backend's capacity. The known 1x2 mixture/MUSCL
+startup failure is unchanged and remains open.
 
 ## Production selection and dispatch
 

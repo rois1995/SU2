@@ -1,0 +1,511 @@
+{
+  "date": "2026-10-16",
+  "source_base_commit": "913cd906c30c640359ef8b5894ef99cd0463dd42",
+  "source_sha256": {
+    "SU2_CFD/src/solvers/CSolver.cpp": "c40bd694239364adbe7efce4c42fddb15dd6268ec77982fd556f4386f623d172",
+    "UnitTests/SU2_CFD/newton_equations.cpp": "735ed7b94fa73a49a2e9a7ad6fcfeaac5edcc1030ce85e9183a7cee9802f2a26",
+    "TestCases/newton_krylov/report_state.py": "990d1bee026fafe6755e23fc4584640ffd2e4c66b2bbc1822a61d6780807d114",
+    "TestCases/newton_krylov/check_state_report.py": "775ae253576253e60ff39c6d8d402b71480a00065c89bc5062661e5e4f4521ca",
+    "TestCases/newton_krylov/compare_manufactured_flow.py": "4b85f4e526a87392ea39da26037267b65b19503845971563d2f2ae3bd35a1544",
+    "SU2_CFD/src/solvers/CSpeciesSolver.cpp": "6db0390c2309617786da0b4ac1f5a9252b391612056e8041f769ba54d5cfb4f0",
+    "SU2_CFD/src/solvers/CTransLMSolver.cpp": "02cf67f0317c880a40eb1407b0a8ce315e3bf1734f867c0c72632ed603c7114d"
+  },
+  "stopping": {
+    "all_four_native_log10_rms_max": -6,
+    "independent_raw_rms_max": 1e-06,
+    "independent_state_scaled_rms_max": 1e-09,
+    "maximum_updates": 2000,
+    "step_tolerance": 1e-14,
+    "cfl": 10,
+    "adaptive_cfl": false
+  },
+  "limits": [
+    "First-order 81-point manufactured laminar flow only; no turbulence, transition or species convergence evidence.",
+    "FLOW is a single block; segregated and coupled selection flags therefore produce the same problem.",
+    "Single samples, launch-inclusive times; the problem is too small to establish speedup.",
+    "Native residual assembly counts follow the single implicit MGLEVEL=0, MG_PRE_SMOOTH=1 pass; Newton counts include the final physical refresh. Independent reporting is outside timing and solve counts."
+  ],
+  "layouts": [
+    {
+      "layout": "1x1",
+      "binary_sha256": "81b7bafd6bc2ffb576bd032163c751efd15fa6c12eb42761e45824129655ff1c",
+      "reporter_sha256": "396704a0784a4a8cbc68bd54c0ce9c75c0ce366a54c19a11fcceeb47d0a7dbbb",
+      "full_evidence": "newton_krylov_refactor_20261015/manufactured_converged_final_1x1",
+      "full_results_sha256": "275307694a43ca203408a83d38bd049f9f75a41c8d7d74544621a87373f5485a",
+      "runs": [
+        {
+          "mode": "native",
+          "exit_code": 0,
+          "wall_seconds": 0.43948962294962257,
+          "config_sha256": "cb22d1ff7b2d2a5fd1c6858fa574a82302a6f66e1da7cb67712ac59d0ae17bbe",
+          "rank_resources": [
+            {
+              "max_rss_kib": 24660,
+              "user_seconds": 0.03,
+              "system_seconds": 0.02
+            }
+          ],
+          "max_rank_rss_kib": 24660,
+          "updates": 67,
+          "last_history_log10_rms": [
+            -10.03847702,
+            -8.192175094,
+            -7.984885356,
+            -6.02160802
+          ],
+          "outer_krylov_iterations": 536,
+          "inner_krylov_iterations": 0,
+          "flow_residual_assemblies": 67,
+          "physical": {
+            "points": 81,
+            "systems": {
+              "flow": {
+                "rms": [
+                  6.048699928931548e-11,
+                  4.311758296541796e-09,
+                  6.974265544514949e-09,
+                  7.339651945672802e-07
+                ],
+                "maximum": [
+                  4.428805100431532e-10,
+                  2.8338718038867228e-08,
+                  4.540129339147825e-08,
+                  3.746186848729849e-06
+                ],
+                "normalized_rms": [
+                  6.830963988687003e-11,
+                  5.879205105794166e-11,
+                  8.449736588261743e-11,
+                  2.8977163997413314e-12
+                ],
+                "projection_max": [
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "packed_integral": [
+                  1.0821959282095004,
+                  89.483399353403,
+                  90.65467486493085,
+                  247503.6151894441
+                ]
+              }
+            },
+            "quantities": {
+              "mass": 1.0821959282095004,
+              "drag": 0,
+              "lift": 0,
+              "moment_z": 0,
+              "heat_flux": 0
+            }
+          },
+          "state_difference_from_native": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "mode": "segregated",
+          "exit_code": 0,
+          "wall_seconds": 0.4682529849233106,
+          "config_sha256": "00b5834767ae552b9322fb753c48486b5afa057da0b8a132127085c41ea6af06",
+          "rank_resources": [
+            {
+              "max_rss_kib": 24604,
+              "user_seconds": 0.14,
+              "system_seconds": 0.02
+            }
+          ],
+          "max_rank_rss_kib": 24604,
+          "updates": 69,
+          "last_history_log10_rms": [
+            -10.03699298,
+            -8.141765013,
+            -8.013654523,
+            -6.050751405
+          ],
+          "outer_krylov_iterations": 209,
+          "inner_krylov_iterations": 0,
+          "flow_residual_assemblies": 831,
+          "attempts": 69,
+          "physical": {
+            "points": 81,
+            "systems": {
+              "flow": {
+                "rms": [
+                  9.183474358365863e-11,
+                  7.214977595040823e-09,
+                  9.690484183780356e-09,
+                  8.897102514148964e-07
+                ],
+                "maximum": [
+                  6.092025772730381e-10,
+                  4.519438334682491e-08,
+                  6.165032573335338e-08,
+                  5.148263880982995e-06
+                ],
+                "normalized_rms": [
+                  1.0290179330058327e-10,
+                  1.00359741157752e-10,
+                  1.18104617993149e-10,
+                  3.5379635413615154e-12
+                ],
+                "projection_max": [
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "packed_integral": [
+                  1.0821959282109552,
+                  89.48339935353508,
+                  90.65467486513123,
+                  247503.6151894446
+                ]
+              }
+            },
+            "quantities": {
+              "mass": 1.0821959282109552,
+              "drag": 0,
+              "lift": 0,
+              "moment_z": 0,
+              "heat_flux": 0
+            }
+          },
+          "state_difference_from_native": [
+            1.681686856058637e-11,
+            1.8639841945983712e-11,
+            1.551287176067773e-11,
+            7.131637356342105e-13
+          ]
+        },
+        {
+          "mode": "coupled",
+          "exit_code": 0,
+          "wall_seconds": 0.4674014600459486,
+          "config_sha256": "53a79f8458faaf85603faa4ddaa973dd188b709cc7e3c1f422bb46a48f0c3d35",
+          "rank_resources": [
+            {
+              "max_rss_kib": 24688,
+              "user_seconds": 0.12,
+              "system_seconds": 0.03
+            }
+          ],
+          "max_rank_rss_kib": 24688,
+          "updates": 69,
+          "last_history_log10_rms": [
+            -10.03699298,
+            -8.141765013,
+            -8.013654523,
+            -6.050751405
+          ],
+          "outer_krylov_iterations": 209,
+          "inner_krylov_iterations": 0,
+          "flow_residual_assemblies": 831,
+          "attempts": 69,
+          "physical": {
+            "points": 81,
+            "systems": {
+              "flow": {
+                "rms": [
+                  9.183474358365863e-11,
+                  7.214977595040823e-09,
+                  9.690484183780356e-09,
+                  8.897102514148964e-07
+                ],
+                "maximum": [
+                  6.092025772730381e-10,
+                  4.519438334682491e-08,
+                  6.165032573335338e-08,
+                  5.148263880982995e-06
+                ],
+                "normalized_rms": [
+                  1.0290179330058327e-10,
+                  1.00359741157752e-10,
+                  1.18104617993149e-10,
+                  3.5379635413615154e-12
+                ],
+                "projection_max": [
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "packed_integral": [
+                  1.0821959282109552,
+                  89.48339935353508,
+                  90.65467486513123,
+                  247503.6151894446
+                ]
+              }
+            },
+            "quantities": {
+              "mass": 1.0821959282109552,
+              "drag": 0,
+              "lift": 0,
+              "moment_z": 0,
+              "heat_flux": 0
+            }
+          },
+          "state_difference_from_native": [
+            1.681686856058637e-11,
+            1.8639841945983712e-11,
+            1.551287176067773e-11,
+            7.131637356342105e-13
+          ]
+        }
+      ]
+    },
+    {
+      "layout": "2x2",
+      "binary_sha256": "81b7bafd6bc2ffb576bd032163c751efd15fa6c12eb42761e45824129655ff1c",
+      "reporter_sha256": "396704a0784a4a8cbc68bd54c0ce9c75c0ce366a54c19a11fcceeb47d0a7dbbb",
+      "full_evidence": "newton_krylov_refactor_20261015/manufactured_converged_final_2x2",
+      "full_results_sha256": "116663c912fff3577e1ca6a3bdcd442bb8ad67180be83ec327720e00b24d8f8b",
+      "runs": [
+        {
+          "mode": "native",
+          "exit_code": 0,
+          "wall_seconds": 0.466933140065521,
+          "config_sha256": "cb22d1ff7b2d2a5fd1c6858fa574a82302a6f66e1da7cb67712ac59d0ae17bbe",
+          "rank_resources": [
+            {
+              "max_rss_kib": 25388,
+              "user_seconds": 0.22,
+              "system_seconds": 0.02
+            },
+            {
+              "max_rss_kib": 24280,
+              "user_seconds": 0.14,
+              "system_seconds": 0.02
+            }
+          ],
+          "max_rank_rss_kib": 25388,
+          "updates": 67,
+          "last_history_log10_rms": [
+            -10.03847308,
+            -8.192163319,
+            -7.984890944,
+            -6.02152336
+          ],
+          "outer_krylov_iterations": 993,
+          "inner_krylov_iterations": 0,
+          "flow_residual_assemblies": 67,
+          "physical": {
+            "points": 81,
+            "systems": {
+              "flow": {
+                "rms": [
+                  6.048640529370768e-11,
+                  4.311266744532545e-09,
+                  6.9740068704817784e-09,
+                  7.335363545469136e-07
+                ],
+                "maximum": [
+                  4.42866299188438e-10,
+                  2.8334170565358363e-08,
+                  4.539583642326761e-08,
+                  3.7541030906140804e-06
+                ],
+                "normalized_rms": [
+                  6.830895059627922e-11,
+                  5.878463309994086e-11,
+                  8.44941853745562e-11,
+                  2.8957293825387826e-12
+                ],
+                "projection_max": [
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "packed_integral": [
+                  1.0821959282095002,
+                  89.48339935340303,
+                  90.65467486493083,
+                  247503.61518944413
+                ]
+              }
+            },
+            "quantities": {
+              "mass": 1.0821959282095002,
+              "drag": 0,
+              "lift": 0,
+              "moment_z": 0,
+              "heat_flux": 0
+            }
+          },
+          "state_difference_from_native": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "mode": "segregated",
+          "exit_code": 0,
+          "wall_seconds": 0.5266759800724685,
+          "config_sha256": "00b5834767ae552b9322fb753c48486b5afa057da0b8a132127085c41ea6af06",
+          "rank_resources": [
+            {
+              "max_rss_kib": 24276,
+              "user_seconds": 0.3,
+              "system_seconds": 0.03
+            },
+            {
+              "max_rss_kib": 24260,
+              "user_seconds": 0.3,
+              "system_seconds": 0.04
+            }
+          ],
+          "max_rank_rss_kib": 24276,
+          "updates": 69,
+          "last_history_log10_rms": [
+            -10.03376995,
+            -8.138284157,
+            -8.011022399,
+            -6.047836836
+          ],
+          "outer_krylov_iterations": 353,
+          "inner_krylov_iterations": 0,
+          "flow_residual_assemblies": 975,
+          "attempts": 69,
+          "physical": {
+            "points": 81,
+            "systems": {
+              "flow": {
+                "rms": [
+                  9.251881300792382e-11,
+                  7.273037774025147e-09,
+                  9.749393537145784e-09,
+                  8.957012161151395e-07
+                ],
+                "maximum": [
+                  6.131061214276201e-10,
+                  4.5489059630199336e-08,
+                  6.202412805578206e-08,
+                  5.181791493669152e-06
+                ],
+                "normalized_rms": [
+                  1.0365560451594329e-10,
+                  1.0114552170703052e-10,
+                  1.188261809760296e-10,
+                  3.5630493080235823e-12
+                ],
+                "projection_max": [
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "packed_integral": [
+                  1.0821959282109905,
+                  89.4833993535381,
+                  90.65467486513498,
+                  247503.6151894448
+                ]
+              }
+            },
+            "quantities": {
+              "mass": 1.0821959282109905,
+              "drag": 0,
+              "lift": 0,
+              "moment_z": 0,
+              "heat_flux": 0
+            }
+          },
+          "state_difference_from_native": [
+            1.7176443883706572e-11,
+            1.8994933541904383e-11,
+            1.5851041179456655e-11,
+            7.228637238535973e-13
+          ]
+        },
+        {
+          "mode": "coupled",
+          "exit_code": 0,
+          "wall_seconds": 0.5691994510125369,
+          "config_sha256": "53a79f8458faaf85603faa4ddaa973dd188b709cc7e3c1f422bb46a48f0c3d35",
+          "rank_resources": [
+            {
+              "max_rss_kib": 24628,
+              "user_seconds": 0.3,
+              "system_seconds": 0.03
+            },
+            {
+              "max_rss_kib": 24616,
+              "user_seconds": 0.3,
+              "system_seconds": 0.04
+            }
+          ],
+          "max_rank_rss_kib": 24628,
+          "updates": 69,
+          "last_history_log10_rms": [
+            -10.03376995,
+            -8.138284157,
+            -8.011022399,
+            -6.047836836
+          ],
+          "outer_krylov_iterations": 353,
+          "inner_krylov_iterations": 0,
+          "flow_residual_assemblies": 975,
+          "attempts": 69,
+          "physical": {
+            "points": 81,
+            "systems": {
+              "flow": {
+                "rms": [
+                  9.251881300792382e-11,
+                  7.273037774025147e-09,
+                  9.749393537145784e-09,
+                  8.957012161151395e-07
+                ],
+                "maximum": [
+                  6.131061214276201e-10,
+                  4.5489059630199336e-08,
+                  6.202412805578206e-08,
+                  5.181791493669152e-06
+                ],
+                "normalized_rms": [
+                  1.0365560451594329e-10,
+                  1.0114552170703052e-10,
+                  1.188261809760296e-10,
+                  3.5630493080235823e-12
+                ],
+                "projection_max": [
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "packed_integral": [
+                  1.0821959282109905,
+                  89.4833993535381,
+                  90.65467486513498,
+                  247503.6151894448
+                ]
+              }
+            },
+            "quantities": {
+              "mass": 1.0821959282109905,
+              "drag": 0,
+              "lift": 0,
+              "moment_z": 0,
+              "heat_flux": 0
+            }
+          },
+          "state_difference_from_native": [
+            1.7176443883706572e-11,
+            1.8994933541904383e-11,
+            1.5851041179456655e-11,
+            7.228637238535973e-13
+          ]
+        }
+      ]
+    }
+  ]
+}

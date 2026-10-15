@@ -218,9 +218,10 @@ void CSpeciesSolver::LoadRestart(CGeometry** geometry, CSolver*** solver, CConfi
       Read_SU2_Restart_ASCII(geometry[MESH_0], config, restart_filename);
     }
 
-    /*--- Skip flow variables and turbulence variables. ---*/
+    /*--- Species follow flow, turbulence and transition solution fields. ---*/
 
     unsigned short skipVars = nDim + solver[MESH_0][FLOW_SOL]->GetnVar() + config->GetnTurbVar();
+    if (solver[MESH_0][TRANS_SOL]) skipVars += solver[MESH_0][TRANS_SOL]->GetnVar();
 
     /*--- Adjust the number of solution variables in the incompressible
      restart. We always carry a space in nVar for the energy equation in the
@@ -234,7 +235,9 @@ void CSpeciesSolver::LoadRestart(CGeometry** geometry, CSolver*** solver, CConfi
 
     /*--- for the flamelet model, the temperature is saved to file, but the energy equation is off ---*/
 
-   if (incompressible && ((!energy) && (!weakly_coupled_heat))) skipVars--;
+    if (incompressible && ((!energy) && (!weakly_coupled_heat))) skipVars--;
+    if (skipVars + nVar > Restart_Vars[1])
+      SU2_MPI::Error("The solution file has insufficient species fields.", CURRENT_FUNCTION);
 
     /*--- Load data from the restart into correct containers. ---*/
 
@@ -281,6 +284,8 @@ void CSpeciesSolver::LoadRestart(CGeometry** geometry, CSolver*** solver, CConfi
   // at the start of the Iteration sets the updated eddy-visc into the Flow-Solvers Primitives.
   if (config->GetKind_Turb_Model() != TURB_MODEL::NONE)
     solver[MESH_0][TURB_SOL]->Postprocessing(geometry[MESH_0], solver[MESH_0], config, MESH_0);
+  if (solver[MESH_0][TRANS_SOL])
+    solver[MESH_0][TRANS_SOL]->Postprocessing(geometry[MESH_0], solver[MESH_0], config, MESH_0);
   // For feature_multicomp this Scalar-Pre only computes the laminar contribution to mass diffusivity
   solver[MESH_0][SPECIES_SOL]->Preprocessing(geometry[MESH_0], solver[MESH_0], config, MESH_0, NO_RK_ITER,
                                              RUNTIME_SPECIES_SYS, false);
@@ -298,6 +303,8 @@ void CSpeciesSolver::LoadRestart(CGeometry** geometry, CSolver*** solver, CConfi
 
     if (config->GetKind_Turb_Model() != TURB_MODEL::NONE)
       solver[iMesh][TURB_SOL]->Postprocessing(geometry[iMesh], solver[iMesh], config, iMesh);
+    if (solver[iMesh][TRANS_SOL])
+      solver[iMesh][TRANS_SOL]->Postprocessing(geometry[iMesh], solver[iMesh], config, iMesh);
 
     solver[iMesh][SPECIES_SOL]->Preprocessing(geometry[iMesh], solver[iMesh], config, iMesh, NO_RK_ITER,
                                               RUNTIME_SPECIES_SYS, false);

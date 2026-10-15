@@ -527,6 +527,8 @@ void CTransLMSolver::LoadRestart(CGeometry** geometry, CSolver*** solver, CConfi
     const bool weakly_coupled_heat = config->GetWeakly_Coupled_Heat();
 
     if (incompressible && ((!energy) && (!weakly_coupled_heat))) skipVars--;
+    if (skipVars + nVar > Restart_Vars[1])
+      SU2_MPI::Error("The solution file has insufficient transition fields.", CURRENT_FUNCTION);
 
     /*--- Load data from the restart into correct containers. ---*/
 
@@ -543,8 +545,7 @@ void CTransLMSolver::LoadRestart(CGeometry** geometry, CSolver*** solver, CConfi
 
         const auto index = counter * Restart_Vars[1] + skipVars;
         for (auto iVar = 0u; iVar < nVar; iVar++) nodes->SetSolution(iPoint_Local, iVar, Restart_Data[index + iVar]);
-        nodes->SetIntermittencySep(iPoint_Local,  Restart_Data[index + 2]);
-        nodes->SetIntermittencyEff(iPoint_Local,  Restart_Data[index + 3]);
+        // Derived intermittencies are recomputed in Postprocessing; default restarts contain only solution fields.
 
         /*--- Increment the overall counter for how many points have been loaded. ---*/
         counter++;

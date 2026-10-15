@@ -14,8 +14,10 @@
 #include "../../SU2_CFD/include/numerics/flow/flow_sources.hpp"
 #include "../../Common/include/linear_algebra/CSysSolve.hpp"
 #include <chrono>
+#include <cstdlib>
 #include <filesystem>
 #include <fstream>
+#include <iomanip>
 #include <sstream>
 #include <thread>
 
@@ -2438,5 +2440,110 @@ TEST_CASE("Newton merit and slopes retain the complete native mass action", "[Ne
         REQUIRE(equations->Restore());
         CHECK(equations->GetRestorationError() == 0.0);
       }
+  }
+}
+
+TEST_CASE("Report physical residuals from an independent restart", "[.][NewtonStateReport]") {
+  const auto* configPath = std::getenv("SU2_NK_REPORT_CONFIG");
+  const auto* outputPath = std::getenv("SU2_NK_REPORT_OUTPUT");
+  REQUIRE(configPath);
+  REQUIRE(outputPath);
+  std::string path(configPath);
+  NewtonDriver driver(&path[0]);
+  auto* config = driver.Config();
+  auto* geometry = driver.Geometry();
+  auto** solvers = driver.Solvers();
+  REQUIRE(config->GetRestart());
+  REQUIRE(config->GetnMGLevels() == 0);
+  REQUIRE(config->GetTime_Marching() == TIME_MARCHING::STEADY);
+  REQUIRE(config->GetComm_Level() == COMM_FULL);
+  std::vector<unsigned short> selected{RUNTIME_FLOW_SYS};
+  for (auto runtime : {RUNTIME_TURB_SYS, RUNTIME_TRANS_SYS, RUNTIME_SPECIES_SYS})
+    if (solvers[config->GetContainerPosition(runtime)]) selected.push_back(runtime);
+  CNewtonEquationSet equations(geometry, solvers, driver.Numerics(), config, selected);
+  const auto count = equations.GetnVar();
+  std::vector<double> raw(geometry->GetnPointDomain() * count);
+  for (const auto& block : equations.GetBlocks())
+    for (auto p = 0ul; p < geometry->GetnPointDomain(); ++p)
+      for (auto v = 0u; v < block.variables; ++v)
+        raw[p * count + block.offset + v] = block.solver->GetNodes()->GetSolution(p, v);
+  REQUIRE(Residual(equations, false, true));
+  equations.Capture();
+  auto scale = MakeVector(driver, count), probe = scale;
+  equations.BuildScales(scale, probe);
+  std::vector<double> localRMS(count, 0), normalizedRMS(count), localProjection(count, 0), projection(count);
+  std::vector<double> localIntegral(count, 0), integral(count);
+  double localMass = 0, mass = 0;
+  for (auto p = 0ul; p < geometry->GetnPointDomain(); ++p) {
+    const auto volume = geometry->nodes->GetVolume(p);
+    localMass += volume * solvers[FLOW_SOL]->GetNodes()->GetDensity(p);
+    for (const auto& block : equations.GetBlocks())
+      for (auto v = 0u; v < block.variables; ++v) {
+        const auto j = block.offset + v;
+        const double nativeMass = equations.MassFactor(block, p);
+        const double value = block.solver->GetNodes()->GetSolution(p, v);
+        localRMS[j] += pow(block.solver->LinSysRes(p, v) / scale(p, j), 2);
+        localProjection[j] = std::max(localProjection[j],
+            std::abs(value - raw[p * count + j]) * nativeMass / scale(p, j));
+        localIntegral[j] += volume * nativeMass * value;
+      }
+  }
+  SU2_MPI::Allreduce(localRMS.data(), normalizedRMS.data(), count, MPI_DOUBLE, MPI_SUM, SU2_MPI::GetComm());
+  SU2_MPI::Allreduce(localProjection.data(), projection.data(), count, MPI_DOUBLE, MPI_MAX, SU2_MPI::GetComm());
+  SU2_MPI::Allreduce(localIntegral.data(), integral.data(), count, MPI_DOUBLE, MPI_SUM, SU2_MPI::GetComm());
+  SU2_MPI::Allreduce(&localMass, &mass, 1, MPI_DOUBLE, MPI_SUM, SU2_MPI::GetComm());
+  for (auto& value : normalizedRMS) value = std::sqrt(value / geometry->GetGlobal_nPointDomain());
+  bool statisticsValid = false;
+  SU2_OMP_PARALLEL {
+    bool valid = true;
+    for (const auto& block : equations.GetBlocks())
+      valid = block.solver->RefreshResidualStatistics(geometry, config, false) && valid;
+    SU2_OMP_SAFE_GLOBAL_ACCESS(config->SetGlobalParam(config->GetKind_Solver(), RUNTIME_FLOW_SYS);)
+    solvers[FLOW_SOL]->Postprocessing(geometry, solvers, config, MESH_0);
+    solvers[FLOW_SOL]->Pressure_Forces(geometry, config);
+    solvers[FLOW_SOL]->Momentum_Forces(geometry, config);
+    solvers[FLOW_SOL]->Friction_Forces(geometry, config);
+    SU2_OMP_MASTER
+    statisticsValid = valid;
+    END_SU2_OMP_MASTER
+  }
+  END_SU2_OMP_PARALLEL
+  REQUIRE(statisticsValid);
+  const std::vector<double> quantities{mass, solvers[FLOW_SOL]->GetTotal_CD(), solvers[FLOW_SOL]->GetTotal_CL(),
+                                      solvers[FLOW_SOL]->GetTotal_CMz(), solvers[FLOW_SOL]->GetTotal_HeatFlux()};
+  for (const auto& values : {normalizedRMS, projection, integral, quantities})
+    for (auto value : values) REQUIRE(std::isfinite(value));
+  if (SU2_MPI::GetRank() == MASTER_NODE) {
+    std::ofstream output(outputPath);
+    REQUIRE(output.good());
+    output << std::setprecision(17);
+    auto array = [&](unsigned n, auto get) {
+      output << '[';
+      for (auto v = 0u; v < n; ++v) output << (v ? "," : "") << get(v);
+      output << ']';
+    };
+    output << "{\"points\":" << geometry->GetGlobal_nPointDomain() << ",\"systems\":{";
+    for (auto b = 0u; b < equations.GetBlocks().size(); ++b) {
+      const auto& block = equations.GetBlocks()[b];
+      const char* name = block.slot == FLOW_SOL ? "flow" : block.slot == TURB_SOL ? "turbulence" :
+                         block.slot == TRANS_SOL ? "transition" : "species";
+      output << (b ? "," : "") << '\"' << name << "\":{\"rms\":";
+      array(block.variables, [&](unsigned v) { return block.solver->GetRes_RMS(v); });
+      output << ",\"maximum\":";
+      array(block.variables, [&](unsigned v) { return block.solver->GetRes_Max(v); });
+      output << ",\"normalized_rms\":";
+      array(block.variables, [&](unsigned v) { return normalizedRMS[block.offset + v]; });
+      output << ",\"projection_max\":";
+      array(block.variables, [&](unsigned v) { return projection[block.offset + v]; });
+      output << ",\"packed_integral\":";
+      array(block.variables, [&](unsigned v) { return integral[block.offset + v]; });
+      output << '}';
+    }
+    output << "},\"quantities\":{";
+    const char* names[] = {"mass", "drag", "lift", "moment_z", "heat_flux"};
+    for (auto i = 0u; i < quantities.size(); ++i)
+      output << (i ? "," : "") << '\"' << names[i] << "\":" << quantities[i];
+    output << "}}\n";
+    REQUIRE(output.good());
   }
 }
