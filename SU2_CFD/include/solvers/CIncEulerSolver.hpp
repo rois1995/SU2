@@ -65,9 +65,10 @@ protected:
    * \param[in] config - Definition of the particular problem.
    * \param[in] delta - Volume over delta time, does not matter for explicit.
    * \param[out] preconditioner - The preconditioner matrix.
+   * \param[in] implicit - Build the implicit pseudo-time mass, or its explicit inverse.
    */
   void SetPreconditioner(const CConfig *config, unsigned long iPoint,
-                         su2double delta, su2activematrix& preconditioner) const;
+                         su2double delta, su2activematrix& preconditioner, bool implicit) const;
 
   /*!
    * \brief Compute a pressure sensor switch.
@@ -171,6 +172,10 @@ protected:
                                const su2double val_dist_ij_2);
 
 public:
+  /*! \brief Native implicit pseudo-time matrix, independent of the current residual-evaluation mode. */
+  void GetPseudoTimeMatrix(const CConfig*, unsigned long point, su2double volumeOverStep,
+                          su2activematrix& matrix) const override;
+
   CIncEulerSolver() = delete;
 
   /*!

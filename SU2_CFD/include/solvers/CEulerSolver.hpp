@@ -491,6 +491,10 @@ public:
                      unsigned short RunTime_EqSystem,
                      bool Output) override;
 
+  /*! \brief Native implicit pseudo-time matrix, independent of the current residual-evaluation mode. */
+  void GetPseudoTimeMatrix(const CConfig*, unsigned long point, su2double volumeOverStep,
+                          su2activematrix& matrix) const override;
+
   /*!
    * \brief Compute the preconditioner for convergence acceleration by Roe-Turkel method.
    * \param[in] config - Definition of the particular problem.

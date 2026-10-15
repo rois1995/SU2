@@ -188,6 +188,10 @@ void CNewtonIntegration::Setup() {
       config->GetFinestMesh() != MESH_0)
     throw std::invalid_argument(
         "Common Newton currently requires steady primal single-zone CPU cases without periodic markers");
+  if (config->GetKind_Regime() == ENUM_REGIME::INCOMPRESSIBLE &&
+      config->GetKind_Incomp_System() == INCOMP_SYSTEM::PRESSURE_BASED &&
+      std::find(systems.begin(), systems.end(), RUNTIME_FLOW_SYS) != systems.end())
+    throw std::invalid_argument("Newton flow groups require the density-based incompressible formulation");
   equations = std::make_unique<CNewtonEquationSet>(geometry, solvers, numerics, config, systems);
   for (const auto& block : equations->GetBlocks()) {
     const auto time = block.slot == FLOW_SOL ? config->GetKind_TimeIntScheme_Flow()
@@ -200,10 +204,11 @@ void CNewtonIntegration::Setup() {
     auto* solver = solvers[config->GetContainerPosition(runtime)];
     if (solver) solver->Jacobian.TrackPrescribedRows();
   }
-  for (auto* vector : {&scale, &rhs, &correction, &direction, &product, &pseudoDiagonal, &probeReference, &baseState})
+  for (auto* vector : {&scale, &rhs, &correction, &direction, &product, &pseudoDirection, &probeReference, &baseState})
     vector->Initialize(geometry->GetnPoint(), geometry->GetnPointDomain(), equations->GetnVar(), 0.0);
   free.resize(geometry->GetnPoint() * equations->GetnVar(), true);
   linearSolver.SetxIsZero(true);
+  pseudoTime = std::make_unique<CNewtonPseudoTime>(*equations, geometry, config);
   linearization = std::make_unique<CNewtonLinearization>(*equations, geometry, config);
   directionOperator = linearization.get();
   if (legacyFlowControls && (flow.automatic || flow.reconstruction < 1))
@@ -254,7 +259,7 @@ double CNewtonIntegration::Merit(double step) const {
       for (auto v = 0u; v < block.variables; ++v) {
         const auto j = block.offset + v;
         double r = SU2_TYPE::GetValue(block.solver->LinSysRes(p, v)) / scale(p, j);
-        if (options.pseudoTimeMerit && step != 0) r += step * pseudoDiagonal(p, j) * direction(p, j);
+        if (options.pseudoTimeMerit && step != 0) r += step * pseudoDirection(p, j);
         if (!Armijo::IsFinite(r))
           invalid = 1;
         else
@@ -354,15 +359,20 @@ CNewtonIntegration::Attempt CNewtonIntegration::SolveAttempt() {
       block.solver->SetTime_Step(geometry, solvers, config, MESH_0, config->GetTimeIter());
     }
   for (const auto& block : equations->GetBlocks()) {
+    SU2_OMP_SAFE_GLOBAL_ACCESS(config->SetGlobalParam(config->GetKind_Solver(), block.runtime);)
+    block.solver->PrepareImplicitIteration(geometry, solvers, config);
+  }
+  for (const auto& block : equations->GetBlocks()) {
     SU2_OMP_FOR_STAT(1024)
     for (auto p = 0ul; p < geometry->GetnPoint(); ++p)
-      for (auto v = 0u; v < block.variables; ++v) {
-        pseudoDiagonal(p, block.offset + v) =
-            SU2_TYPE::GetValue(geometry->nodes->GetVolume(p) + geometry->nodes->GetPeriodicVolume(p)) /
-            std::max(EPS, SU2_TYPE::GetValue(block.solver->GetNodes()->GetDelta_Time(p)));
+      for (auto v = 0u; v < block.variables; ++v)
         free[p * equations->GetnVar() + block.offset + v] = !block.solver->Jacobian.IsPrescribedRow(p, v);
-      }
     END_SU2_OMP_FOR
+  }
+  if (!pseudoTime->Build(scale, free)) {
+    attempt.linearFailure = true;
+    Restore(attempt);
+    return attempt;
   }
   const double probeStep =
       legacyFlowControls
@@ -371,9 +381,9 @@ CNewtonIntegration::Attempt CNewtonIntegration::SolveAttempt() {
   const bool verifyStep = config->GetMUSCL_Flow() &&
                           std::find(systems.begin(), systems.end(), RUNTIME_FLOW_SYS) != systems.end();
   const bool valid = linearization->SetBase(
-      scale, pseudoDiagonal, probeStep, options.relativeFDStep,
+      scale, pseudoTime->GetDiagonal(), probeStep, options.relativeFDStep,
       [&](const CNewtonEquationSet::Block& b, unsigned long p, unsigned short v) { return IsFree(b, p, v); },
-      &probeReference, 1.0, legacyFlowControls, verifyStep);
+      &probeReference, 1.0, legacyFlowControls, verifyStep, pseudoTime.get());
   SU2_OMP_SAFE_GLOBAL_ACCESS(residualValid = valid;)
   attempt.base = Merit();
   attempt.physicalMerit = attempt.search.value = attempt.base;
@@ -386,10 +396,6 @@ CNewtonIntegration::Attempt CNewtonIntegration::SolveAttempt() {
   SU2_OMP_FOR_STAT(1024)
   for (auto i = 0ul; i < rhs.GetLocSize(); ++i) rhs[i] = -rhs[i] / scale[i];
   END_SU2_OMP_FOR
-  for (const auto& block : equations->GetBlocks()) {
-    SU2_OMP_SAFE_GLOBAL_ACCESS(config->SetGlobalParam(config->GetKind_Solver(), block.runtime);)
-    block.solver->PrepareImplicitIteration(geometry, solvers, config);
-  }
   PrepareFlow(attempt);
   attempt.linearTarget = legacyFlowControls && flow.linearTolerance == 0 ? 0 : eta * attempt.toleranceFactor;
   if (attempt.startup) attempt.linearTarget = flow.linearTolerance;
@@ -401,9 +407,9 @@ CNewtonIntegration::Attempt CNewtonIntegration::SolveAttempt() {
   SU2_OMP_SAFE_GLOBAL_ACCESS(directionOperator = linearization.get(); nativeDirection = attempt.startup;)
   if (modelLinearization && attempt.reconstruction < 1) {
     const bool modelValid = modelLinearization->SetBase(
-        scale, pseudoDiagonal, probeStep, options.relativeFDStep,
+        scale, pseudoTime->GetDiagonal(), probeStep, options.relativeFDStep,
         [&](const CNewtonEquationSet::Block& b, unsigned long p, unsigned short v) { return IsFree(b, p, v); },
-        &probeReference, attempt.reconstruction, true, verifyStep);
+        &probeReference, attempt.reconstruction, true, verifyStep, pseudoTime.get());
     if (!modelValid) {
       attempt.linearFailure = true;
       Restore(attempt);
@@ -453,6 +459,7 @@ CNewtonIntegration::Attempt CNewtonIntegration::SolveAttempt() {
     return attempt;
   }
   Endpoint();
+  pseudoTime->Apply(direction, pseudoDirection);
   if (options.lineSearch)
     Search(attempt);
   else {
@@ -488,7 +495,7 @@ void CNewtonIntegration::Search(Attempt& attempt) {
     double slope = 0, norm2 = 0;
     SU2_OMP_FOR_STAT(1024)
     for (auto i = 0ul; i < rhs.GetNElmDomain(); ++i) {
-      const double jp = product[i] - (options.pseudoTimeMerit ? 0.0 : pseudoDiagonal[i] * direction[i]);
+      const double jp = product[i] - (options.pseudoTimeMerit ? 0.0 : pseudoDirection[i]);
       slope -= rhs[i] * jp;
       norm2 += jp * jp;
     }

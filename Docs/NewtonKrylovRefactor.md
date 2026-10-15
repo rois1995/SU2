@@ -6,7 +6,8 @@ at `5615a8f5f6e9a7bfa88f0f279e1eadb7f89fe607`. The goal is still in progress.
 SST now uses the common selected-equation controller. Production flow still uses
 a temporary legacy compatibility class. Its direction policies are implemented in
 the common controller and tested through the native API; production selection
-and native mass/explicit-diagonal compatibility remain unfinished.
+and explicit-diagonal compatibility remain unfinished. Native pseudo-time
+mappings now include the dense incompressible and low-Mach blocks.
 
 ## Required final state
 
@@ -544,8 +545,72 @@ retain identical six-iteration histories, and SST success/failure restart contro
 retain their established outcomes. This is correctness evidence for short
 trajectories, not a converged family or performance comparison.
 
-Production flow remains routed to `CNewtonLegacyIntegration` until the native
-pseudo-time/mass mappings, explicit-diagonal fallback, dispatch/CFL ownership and
-whole-group failure output are integrated. The generic API still requires native
+Production flow remains routed to `CNewtonLegacyIntegration` until the
+explicit-diagonal fallback, dispatch/CFL ownership and whole-group failure output
+are integrated. The generic API still requires native
 implicit matrices. Keep this limitation explicit when continuing production
 selection; do not treat the common-policy milestone as completion of the goal.
+
+
+## Native pseudo-time mappings (2026-10-15)
+
+`CNewtonPseudoTime` freezes the native per-equation pseudo-time action at each
+accepted base and applies it in the same scaled coordinates as the grouped
+operator. Ordinary compressible flow and native scalar equations retain their
+scalar diagonal. Incompressible, low-Mach and Roe-Turkel flow retain their full
+native flow block, transformed as `S^-1 M S`. These blocks remain diagonal between
+equation systems; density/species/turbulence cross derivatives stay live in the
+physical residual. This is steady pseudo-time regularization in the defined
+fixed coordinates, rather than a physical-time integration scheme.
+
+Native dense flow preparation and the common mapping now call the same
+`CSolver::GetPseudoTimeMatrix` support. Incompressible implicit mass construction
+uses an explicit mode argument, so a residual-only probe cannot accidentally
+select the explicit inverse. Native conventional implicit, explicit and
+pressure-based behavior is checked against the preceding executable.
+
+Prescribed coordinates are eliminated from the mass action. Constraints are
+read after native implicit preparation, and the preconditioner restores identity
+rows after native mass assembly can reintroduce couplings. The same frozen mass
+is used in products, true defects, pseudo-time merit and directional slopes. Its
+action on the actual feasible endpoint is cached for merit trials. Nonpositive
+or nonfinite pseudo-time coefficients cause a collective direction failure.
+The arbitrary-diagonal linearization API remains available for independent
+linear-system references.
+
+Twenty 2D/3D model/dimension combinations compare the action against native
+Jacobian additions, including reordered flow/SA, flow/SST, flow/SST/LM and
+incompressible mixture groups. Relative differences are about 2e-16. The tests
+verify off-diagonal contributions, residual-only mode independence, prescribed
+rows and a bad time step on one MPI rank. Independent centered scalar-merit
+references cover both merit choices and both flow-control policies. An isolated
+control retaining full products while using a diagonal-only merit fails six
+assertions. The flow-policy trajectories now cover flow, SA, SST, LM and mixture
+species: forty four-update trajectories, not converged CFD comparisons.
+
+The pressure-based native matrix is covered as a compatibility reference.
+Newton flow groups explicitly require the density-based incompressible
+formulation because a pressure-based iteration carries additional
+pressure-correction state. This restriction does not alter conventional
+pressure-based runs. Explicit-diagonal Newton support, production selection and
+exactly-once group dispatch remain implementation gates. Moving/conditional
+boundary constraints, near-bound derivative behavior and broader model support
+still need their stated audits before a full support claim.
+
+
+Native-mass checkpoint verification: sixteen native cases / 23,830 assertions
+pass serially; 16,866 / 12,372 assertions pass on two ranks x two threads. The
+three focused mass/policy cases pass 6,824 / 2,934 assertions on two ranks x four
+threads. All 79 supported unit cases / 102,253 assertions pass. Valgrind reports
+zero memory errors (leaks unchecked), and eight affected translation units pass
+forward syntax checks. Eight conventional profiles and four legacy-flow profiles
+retain identical six-iteration histories. SST acceptance and bounded-failure
+restart controls and all six conventional regressions/six guards pass.
+
+The final 37,249-point flow/SA fixture is repeated three times in each of five
+layouts (1x1, 1x4, 2x1, 2x4, 4x2). Fields, products, native actions, decisions and
+telemetry match exactly within each sampled layout; cross-layout differences are
+recorded separately. This is a sampled repeatability check, not universal race
+certification or a fully converged comparison. Concurrent verification jobs
+caused substantial scheduling contention; their elapsed times are not solver
+performance measurements.

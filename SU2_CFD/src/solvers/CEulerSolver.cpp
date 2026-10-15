@@ -2562,7 +2562,7 @@ void CEulerSolver::PrepareImplicitIteration(CGeometry *geometry, CSolver**, CCon
     }
 
     FORCEINLINE const su2activematrix& operator() (const CConfig* config, unsigned long iPoint, su2double delta) {
-      solver->SetPreconditioner(config, iPoint, delta, matrix);
+      solver->GetPseudoTimeMatrix(config, iPoint, delta, matrix);
       return matrix;
     }
 
@@ -2732,6 +2732,14 @@ void CEulerSolver::IdentifySolutionOutliers(const CConfig *config, unsigned long
     }
     END_SU2_OMP_FOR
   }
+}
+
+void CEulerSolver::GetPseudoTimeMatrix(const CConfig* config, unsigned long point, su2double delta,
+                                          su2activematrix& matrix) const {
+  if (config->Low_Mach_Preconditioning() || config->GetKind_Upwind_Flow() == UPWIND::TURKEL)
+    SetPreconditioner(config, point, delta, matrix);
+  else
+    CSolver::GetPseudoTimeMatrix(config, point, delta, matrix);
 }
 
 void CEulerSolver::SetPreconditioner(const CConfig *config, unsigned long iPoint,

@@ -2101,7 +2101,7 @@ FORCEINLINE void CIncEulerSolver::Explicit_Iteration(CGeometry *geometry, CSolve
     }
 
     FORCEINLINE void compute(const CConfig* config, unsigned long iPoint) {
-      solver->SetPreconditioner(config, iPoint, 1.0, matrix);
+      solver->SetPreconditioner(config, iPoint, 1.0, matrix, false);
     }
 
     FORCEINLINE su2double apply(unsigned short iVar, const su2double* res, const su2double* resTrunc) const {
@@ -2148,16 +2148,7 @@ void CIncEulerSolver::PrepareImplicitIteration(CGeometry *geometry, CSolver**, C
     }
 
     FORCEINLINE const su2activematrix& operator() (const CConfig* config, unsigned long iPoint, su2double delta) {
-      if (solver->pressure_based) {
-        /*--- The Jacobian of the pressure-based solver is per unit velocity and enthalpy, the
-         *    pseudo-time term is rho*V/dt (the continuity row is deleted below). ---*/
-        matrix = su2double(0.0);
-        matrix(0,0) = delta;
-        for (auto iVar = 1ul; iVar < matrix.rows(); iVar++)
-          matrix(iVar,iVar) = solver->nodes->GetDensity(iPoint) * delta;
-      } else {
-        solver->SetPreconditioner(config, iPoint, delta, matrix);
-      }
+      solver->GetPseudoTimeMatrix(config, iPoint, delta, matrix);
       return matrix;
     }
 
@@ -2256,8 +2247,18 @@ void CIncEulerSolver::SetRangePressure(CGeometry *geometry, CSolver **solver_con
 
 }
 
+void CIncEulerSolver::GetPseudoTimeMatrix(const CConfig* config, unsigned long point, su2double delta,
+                                             su2activematrix& matrix) const {
+  if (pressure_based) {
+    matrix = su2double(0);
+    matrix(0, 0) = delta;
+    for (auto v = 1u; v < nVar; ++v) matrix(v, v) = nodes->GetDensity(point) * delta;
+  } else
+    SetPreconditioner(config, point, delta, matrix, true);
+}
+
 void CIncEulerSolver::SetPreconditioner(const CConfig *config, unsigned long iPoint,
-                                        su2double delta, su2activematrix& Preconditioner) const {
+                                        su2double delta, su2activematrix& Preconditioner, bool implicit) const {
   SU2_ZONE_SCOPED
 
   unsigned short iDim, jDim, iVar, jVar;
@@ -2266,7 +2267,6 @@ void CIncEulerSolver::SetPreconditioner(const CConfig *config, unsigned long iPo
   su2double  Velocity[MAXNDIM] = {0.0};
 
   bool variable_density = (config->GetVariable_Density_Model());
-  bool implicit         = (config->GetKind_TimeIntScheme() == EULER_IMPLICIT);
   bool energy           = config->GetEnergy_Equation();
 
   /*--- Access the primitive variables at this node. ---*/

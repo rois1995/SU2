@@ -53,6 +53,11 @@
 #include "../../include/CMarkerProfileReaderFVM.hpp"
 
 
+void CSolver::GetPseudoTimeMatrix(const CConfig*, unsigned long, su2double delta, su2activematrix& matrix) const {
+  matrix = su2double(0);
+  for (auto v = 0u; v < nVar; ++v) matrix(v, v) = delta;
+}
+
 CSolver::CSolver(LINEAR_SOLVER_MODE linear_solver_mode) : System(linear_solver_mode) {
   SU2_ZONE_SCOPED
 

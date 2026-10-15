@@ -51,10 +51,11 @@ class CNewtonIntegration final : public CIntegration {
   CGeometry* geometry = nullptr;
   CSolver** solvers = nullptr;
   CNumerics*** numerics = nullptr;
-  CSysVector<Scalar> scale, rhs, correction, direction, product, pseudoDiagonal, probeReference, baseState;
+  CSysVector<Scalar> scale, rhs, correction, direction, product, pseudoDirection, probeReference, baseState;
   CSysSolve<Scalar> linearSolver;
   std::unique_ptr<CNewtonEquationSet> equations;
   std::unique_ptr<CNewtonLinearization> linearization, modelLinearization;
+  std::unique_ptr<CNewtonPseudoTime> pseudoTime;
   CNewtonLinearization* directionOperator = nullptr;
   struct FlowPolicy {
     bool startup = false, deflation = false, automatic = false;

@@ -235,6 +235,10 @@ public:
     return base_nodes;
   }
 
+  /*! \brief Native pseudo-time matrix in the solver's linear-increment coordinates; output is preallocated nVar x nVar. */
+  virtual void GetPseudoTimeMatrix(const CConfig*, unsigned long point, su2double volumeOverStep,
+                                  su2activematrix& matrix) const;
+
   bool HasPeriodicRotation(const CConfig& config) const;
 
   /*!

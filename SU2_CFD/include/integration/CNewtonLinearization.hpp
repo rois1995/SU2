@@ -12,6 +12,27 @@
 #include <memory>
 
 #if !defined(CODI_FORWARD_TYPE) && !defined(CODI_REVERSE_TYPE)
+/*! \brief Frozen native pseudo-time action in scaled group coordinates, with prescribed coordinates eliminated. */
+class CNewtonPseudoTime final {
+ public:
+  using Vector = CSysVector<passivedouble>;
+
+ private:
+  const CNewtonEquationSet& equations;
+  CGeometry* geometry;
+  CConfig* config;
+  Vector diagonal;
+  su2passivematrix flowMatrix;
+  unsigned short flowOffset = 0, flowVariables = 0;
+  int invalid = 0;
+
+ public:
+  CNewtonPseudoTime(const CNewtonEquationSet&, CGeometry*, CConfig*);
+  bool Build(const Vector& scale, const std::vector<unsigned char>& free);
+  void Apply(const Vector&, Vector&, bool add = false) const;
+  const Vector& GetDiagonal() const { return diagonal; }
+};
+
 /*! \brief A = S^-1 J_R S + D in the equation set's fixed coordinates.
  * SetBase refreshes an explicit residual at the captured base, preserving the native implicit matrices.
  * Positive finite scale and the diagonal remain alive and fixed until the next SetBase. Methods are OpenMP collective.
@@ -25,6 +46,7 @@ class CNewtonLinearization final : public CMatrixVectorProduct<passivedouble> {
   CGeometry* geometry;
   CConfig* config;
   const Vector *scale = nullptr, *diagonal = nullptr, *probeReference = nullptr;
+  const CNewtonPseudoTime* nativeMass = nullptr;
   Vector baseResidual, baseState;
   mutable Vector coarseProduct, previousProduct;
   std::vector<unsigned char> free;
@@ -37,7 +59,7 @@ class CNewtonLinearization final : public CMatrixVectorProduct<passivedouble> {
   template <class IsFree>
   bool SetBase(const Vector& scaling, const Vector& pseudoTime, double step, double relativeLimit, IsFree isFree,
                const Vector* relativeReference = nullptr, double reconstructionFactor = 1.0,
-               bool physicalMetric = false, bool verifyStep = false) {
+               bool physicalMetric = false, bool verifyStep = false, const CNewtonPseudoTime* mass = nullptr) {
     assert(scaling.GetNVar() == equations.GetnVar() && pseudoTime.GetNVar() == equations.GetnVar());
     assert(scaling.GetNBlk() == geometry->GetnPoint() && pseudoTime.GetNBlk() == geometry->GetnPoint());
     assert(step > 0 && relativeLimit >= 0);
@@ -46,6 +68,7 @@ class CNewtonLinearization final : public CMatrixVectorProduct<passivedouble> {
     SU2_OMP_SAFE_GLOBAL_ACCESS(scale = &scaling; diagonal = &pseudoTime; probeReference = relativeReference;
                                absoluteStep = step; relativeStep = relativeLimit; reconstruction = reconstructionFactor;
                                physicalStep = physicalMetric; refineStep = verifyStep;
+                               nativeMass = mass;
                                if (verifyStep && coarseProduct.GetLocSize() != scaling.GetLocSize()) {
                                  coarseProduct.Initialize(scaling.GetNBlk(), scaling.GetNBlkDomain(), scaling.GetNVar(), 0.0);
                                  previousProduct.Initialize(scaling.GetNBlk(), scaling.GetNBlkDomain(), scaling.GetNVar(), 0.0);
@@ -75,6 +98,8 @@ class CNewtonLinearization final : public CMatrixVectorProduct<passivedouble> {
     return *scale;
   }
   unsigned short GetnVar() const { return equations.GetnVar(); }
+  bool UsesNativeMass() const { return nativeMass != nullptr; }
+  bool IsFree(unsigned long p, unsigned short v) const { return free[p * equations.GetnVar() + v]; }
   const std::vector<CNewtonEquationSet::Block>& GetBlocks() const { return equations.GetBlocks(); }
 };
 

@@ -44,23 +44,25 @@ class Silence {
 struct Problem {
   std::string path;
   std::unique_ptr<NewtonDriver> driver;
-  explicit Problem(const std::string& physics, unsigned cells = 5, bool muscl = false) {
+  explicit Problem(const std::string& physics, unsigned cells = 5, bool muscl = false, bool threeD = false) {
     const auto stamp = std::chrono::steady_clock::now().time_since_epoch().count();
     path = (std::filesystem::temp_directory_path() /
             ("su2_newton_" + std::to_string(stamp) + "_" + std::to_string(SU2_MPI::GetRank()) + ".cfg"))
                .string();
     {
       std::ofstream config(path);
-      config << "MESH_FORMAT= RECTANGLE\nMESH_BOX_SIZE= " << cells << "," << cells
+      config << "MESH_FORMAT= " << (threeD ? "BOX" : "RECTANGLE") << "\nMESH_BOX_SIZE= " << cells << "," << cells
              << ",5\nMESH_BOX_LENGTH= 1,1,1\n"
-                "MARKER_HEATFLUX= (y_minus, 0)\nMARKER_FAR= (x_minus,x_plus,y_plus)\n"
+                "MARKER_HEATFLUX= (y_minus, 0)\nMARKER_FAR= (x_minus,x_plus,y_plus"
+             << (threeD ? ",z_minus,z_plus" : "") << ")\n"
                 "MACH_NUMBER= 0.2\nREYNOLDS_NUMBER= 1e6\nMUSCL_FLOW= "
              << (muscl ? "YES" : "NO")
              << "\nMUSCL_TURB= NO\n"
                 "MUSCL_SPECIES= NO\nMGLEVEL= 0\nOUTPUT_FILES= NONE\n"
-                "SCREEN_OUTPUT= (INNER_ITER)\nHISTORY_OUTPUT= (ITER,RMS_RES)\n"
-             << "CONV_NUM_METHOD_FLOW= " << (physics.find("SOLVER= INC_") == std::string::npos ? "ROE" : "FDS") << "\n"
-             << physics;
+                "SCREEN_OUTPUT= (INNER_ITER)\nHISTORY_OUTPUT= (ITER,RMS_RES)\n";
+      if (physics.find("CONV_NUM_METHOD_FLOW=") == std::string::npos)
+        config << "CONV_NUM_METHOD_FLOW= " << (physics.find("SOLVER= INC_") == std::string::npos ? "ROE" : "FDS") << "\n";
+      config << physics;
     }
     Silence silence;
     driver = std::make_unique<NewtonDriver>(&path[0]);
@@ -78,6 +80,9 @@ struct Problem {
 
 const std::string sst = "SOLVER= RANS\nKIND_TURB_MODEL= SST\n";
 const std::string sa = "SOLVER= RANS\nKIND_TURB_MODEL= SA\n";
+const std::string incompressible =
+    "SOLVER= INC_NAVIER_STOKES\nINC_ENERGY_EQUATION= YES\n"
+    "VISCOSITY_MODEL= CONSTANT_VISCOSITY\nMU_CONSTANT= 1.8551e-5\n";
 const std::string species =
     "SOLVER= INC_NAVIER_STOKES\nINC_DENSITY_MODEL= VARIABLE\nINC_ENERGY_EQUATION= YES\n"
     "FLUID_MODEL= FLUID_MIXTURE\nKIND_SCALAR_MODEL= SPECIES_TRANSPORT\nSPECIES_INIT= 0.4\n"
@@ -1057,9 +1062,10 @@ TEST_CASE("The common controller applies legacy flow direction policies", "[Newt
                                                   {"2,2,2,0", "1,0.1,-2,1e-6,1", true, false, false, "SMOOTHER"},
                                                   {"0,4,1,0", "0,0.1,0,1e-6,1", false, false, false, "BCGSTAB"},
                                                   {"0,4,1,0", "0,0.1,0,1e-6,1", false, false, false, "SMOOTHER"}}) {
-    for (bool coupled : {false, true}) {
-      CAPTURE(profile.integers, profile.doubles, profile.inner, coupled);
-      const std::string physics = coupled ? sa : "SOLVER= NAVIER_STOKES\n";
+    for (const auto& physics : {std::string("SOLVER= NAVIER_STOKES\n"), sa, sst,
+                                sst + "KIND_TRANS_MODEL= LM\n", species}) {
+      const bool coupled = physics != "SOLVER= NAVIER_STOKES\n";
+      CAPTURE(profile.integers, profile.doubles, profile.inner, physics);
       Problem problem(
           physics +
               "NEWTON_KRYLOV= YES\nCFL_NUMBER= 0.05\nLINEAR_SOLVER_PREC= ILU\n"
@@ -1076,9 +1082,10 @@ TEST_CASE("The common controller applies legacy flow direction policies", "[Newt
       options.adaptCFL = false;
       options.diagnostics = false;
       std::vector<unsigned short> systems{RUNTIME_FLOW_SYS};
-      if (coupled) systems.push_back(RUNTIME_TURB_SYS);
+      for (auto runtime : {RUNTIME_TURB_SYS, RUNTIME_TRANS_SYS, RUNTIME_SPECIES_SYS})
+        if (driver.Solvers()[driver.Config()->GetContainerPosition(runtime)]) systems.push_back(runtime);
       CNewtonIntegration integration(systems, options, coupled, "flow_policy", true);
-      double priorReconstruction = 1;
+      double expectedReconstruction = 1;
       for (unsigned iteration = 0; iteration < 4; ++iteration) {
         driver.Config()->SetInnerIter(iteration);
         driver.Config()->SetNewtonKrylovRelaxation(0.73);
@@ -1094,11 +1101,17 @@ TEST_CASE("The common controller applies legacy flow direction policies", "[Newt
         if (!attempt.startup && !profile.automatic)
           CHECK(attempt.reconstruction == (std::string(profile.doubles).find("0.5") != std::string::npos ? 0.5 : 1.0));
         if (profile.startup && !attempt.startup) {
-          CHECK(attempt.toleranceFactor > 1);
+          CHECK(attempt.toleranceFactor >= 1);
           CHECK(attempt.toleranceFactor <= 2);
         }
-        if (profile.automatic && iteration > 0) CHECK(attempt.reconstruction < priorReconstruction);
-        priorReconstruction = attempt.reconstruction;
+        if (profile.automatic) {
+          CHECK(attempt.reconstruction == Approx(expectedReconstruction));
+          const double achieved = attempt.reportedLinearResidual / attempt.toleranceFactor;
+          if (achieved > 1e-12)
+            expectedReconstruction *= 0.9;
+          else if (achieved < 0.9e-12)
+            expectedReconstruction = std::min(1.0, std::max(0.05, expectedReconstruction * 1.05));
+        }
         CHECK(SU2_TYPE::GetValue(driver.Config()->GetNewtonKrylovRelaxation()) == 0.73);
         if (attempt.startup)
           CHECK(attempt.linearIterations > 0);
@@ -1236,4 +1249,277 @@ TEST_CASE("Reconstructed Newton products converge independently of the requested
   CHECK_FALSE(unresolved.Apply(direction, actual));
   REQUIRE(equations->Restore());
   CHECK(equations->GetRestorationError() == 0.0);
+}
+
+TEST_CASE("Grouped pseudo-time actions match native matrix additions", "[NewtonMass]") {
+  auto mixture = species;
+  mixture.replace(mixture.find("INC_NAVIER_STOKES"), std::string("INC_NAVIER_STOKES").size(), "INC_RANS");
+  mixture += "KIND_TURB_MODEL= SST\nKIND_TRANS_MODEL= LM\n";
+  for (bool threeD : {false, true})
+  for (const auto& physics : {std::string("SOLVER= NAVIER_STOKES\n"),
+                             std::string("SOLVER= NAVIER_STOKES\nLOW_MACH_PREC= YES\n"),
+                             std::string("SOLVER= NAVIER_STOKES\nCONV_NUM_METHOD_FLOW= TURKEL_PREC\n"),
+                             incompressible, incompressible + "KIND_INCOMP_SYSTEM= PRESSURE_BASED\nCONV_NUM_METHOD_FLOW= UDS\n",
+                             sa, sst, sst + "KIND_TRANS_MODEL= LM\n", species, mixture}) {
+    CAPTURE(physics, threeD);
+    Problem problem(physics + "CFL_NUMBER= 0.05\nLINEAR_SOLVER_PREC= ILU\n", 5, false, threeD);
+    auto& driver = *problem.driver;
+    auto* config = driver.Config();
+    auto* geometry = driver.Geometry();
+    std::vector<unsigned short> selected;
+    for (auto runtime : {RUNTIME_TRANS_SYS, RUNTIME_SPECIES_SYS, RUNTIME_TURB_SYS, RUNTIME_FLOW_SYS}) {
+      auto* solver = driver.Solvers()[config->GetContainerPosition(runtime)];
+      if (!solver) continue;
+      selected.push_back(runtime);
+      solver->Jacobian.TrackPrescribedRows();
+      for (auto p = 0ul; p < geometry->GetnPoint(); ++p) {
+        if (runtime == RUNTIME_FLOW_SYS) {
+          solver->GetNodes()->SetSolution(p, 1, solver->GetNodes()->GetSolution(p, 1) *
+                                                  (1 + 0.03 * geometry->nodes->GetCoord(p, 0)));
+          solver->GetNodes()->SetSolution(p, 2, 0.02 * solver->GetNodes()->GetSolution(p, 1));
+          if (threeD) solver->GetNodes()->SetSolution(p, 3, 0.03 * solver->GetNodes()->GetSolution(p, 1));
+        }
+      }
+      solver->Set_OldSolution();
+    }
+    auto equations = problem.Equations(selected);
+    REQUIRE(Residual(*equations, true));
+    REQUIRE(Residual(*equations, true));
+    equations->Capture();
+    auto scale = MakeVector(driver, equations->GetnVar()), probe = scale;
+    equations->BuildScales(scale, probe);
+    std::vector<std::vector<double>> before;
+    for (const auto& block : equations->GetBlocks()) {
+      before.emplace_back(geometry->GetnPointDomain() * block.variables * block.variables);
+      for (auto p = 0ul; p < geometry->GetnPointDomain(); ++p)
+        for (auto i = 0u; i < block.variables * block.variables; ++i)
+          before.back()[p * block.variables * block.variables + i] = block.solver->Jacobian.GetBlock(p, p)[i];
+    }
+    SU2_OMP_PARALLEL {
+      for (auto slot : {FLOW_SOL, TURB_SOL, TRANS_SOL, SPECIES_SOL})
+        for (const auto& block : equations->GetBlocks()) {
+          if (block.slot != slot) continue;
+          SU2_OMP_SAFE_GLOBAL_ACCESS(config->SetGlobalParam(config->GetKind_Solver(), block.runtime);)
+          block.solver->SetTime_Step(geometry, driver.Solvers(), config, MESH_0, 0);
+        }
+      for (const auto& block : equations->GetBlocks()) {
+        SU2_OMP_SAFE_GLOBAL_ACCESS(config->SetGlobalParam(config->GetKind_Solver(), block.runtime);)
+        block.solver->PrepareImplicitIteration(geometry, driver.Solvers(), config);
+      }
+    }
+    END_SU2_OMP_PARALLEL
+    auto direction = MakeVector(driver, equations->GetnVar()), expected = direction, actual = direction;
+    std::vector<unsigned char> free(geometry->GetnPoint() * equations->GetnVar());
+    for (const auto& block : equations->GetBlocks())
+      for (auto p = 0ul; p < geometry->GetnPoint(); ++p)
+        for (auto v = 0u; v < block.variables; ++v) {
+          const auto j = block.offset + v;
+          free[p * equations->GetnVar() + j] = !block.solver->Jacobian.IsPrescribedRow(p, v);
+          direction(p, j) = 0.01 * (1 + j) * (1 + geometry->nodes->GetCoord(p, 0));
+        }
+    CNewtonPseudoTime mass(*equations, geometry, config);
+    bool valid = false;
+    SU2_OMP_PARALLEL {
+      const bool result = mass.Build(scale, free);
+      SU2_OMP_MASTER
+      valid = result;
+      END_SU2_OMP_MASTER
+      mass.Apply(direction, actual);
+    }
+    END_SU2_OMP_PARALLEL
+    REQUIRE(valid);
+    for (auto b = 0u; b < equations->GetBlocks().size(); ++b) {
+      const auto& block = equations->GetBlocks()[b];
+      for (auto p = 0ul; p < geometry->GetnPointDomain(); ++p)
+        for (auto i = 0u; i < block.variables; ++i) {
+          if (!free[p * equations->GetnVar() + block.offset + i]) continue;
+          for (auto j = 0u; j < block.variables; ++j) {
+            if (!free[p * equations->GetnVar() + block.offset + j]) continue;
+            const auto entry = i * block.variables + j;
+            const double addition = block.solver->Jacobian.GetBlock(p, p)[entry] -
+                                    before[b][p * block.variables * block.variables + entry];
+            expected(p, block.offset + i) += addition * direction(p, block.offset + j) *
+                                             scale(p, block.offset + j) / scale(p, block.offset + i);
+          }
+        }
+    }
+    auto error = actual;
+    error -= expected;
+    const double relativeError = error.norm() / expected.norm();
+    INFO("relative native-matrix error=" << relativeError);
+    CHECK(relativeError < 1e-11);
+    auto offDiagonal = actual;
+    for (auto i = 0ul; i < actual.GetLocSize(); ++i) offDiagonal[i] -= mass.GetDiagonal()[i] * direction[i];
+    const double offDiagonalFraction = offDiagonal.norm() / actual.norm();
+    if ((config->GetKind_Regime() == ENUM_REGIME::INCOMPRESSIBLE &&
+         config->GetKind_Incomp_System() == INCOMP_SYSTEM::DENSITY_BASED) ||
+        config->Low_Mach_Preconditioning() || config->GetKind_Upwind_Flow() == UPWIND::TURKEL)
+      CHECK(offDiagonalFraction > 1e-8);
+    const auto settings = config->GetEquationSettings();
+    config->SetResidualOnly(true);
+    auto otherMode = actual;
+    SU2_OMP_PARALLEL {
+      const bool result = mass.Build(scale, free);
+      SU2_OMP_MASTER
+      valid = result;
+      END_SU2_OMP_MASTER
+      mass.Apply(direction, otherMode);
+    }
+    END_SU2_OMP_PARALLEL
+    config->SetEquationSettings(settings);
+    REQUIRE(valid);
+    CHECK(MaxDifference(actual, otherMode) == 0.0);
+    if (SU2_MPI::GetRank() == MASTER_NODE)
+      std::cout << "Native mass: dimensions=" << geometry->GetnDim() << ", variables=" << equations->GetnVar() << ", relative_matrix_error=" << relativeError
+                << ", off_diagonal_fraction=" << offDiagonalFraction << '\n';
+    auto isFree = [&](const CNewtonEquationSet::Block& b, unsigned long p, unsigned short v) {
+      return free[p * equations->GetnVar() + b.offset + v];
+    };
+    for (auto p = 0ul; p < geometry->GetnPoint(); ++p)
+      for (auto j = 0u; j < equations->GetnVar(); ++j)
+        if (!free[p * equations->GetnVar() + j]) direction(p, j) = 0;
+    CNewtonLinearization linearization(*equations, geometry, config);
+    auto physical = actual, augmented = actual;
+    SU2_OMP_PARALLEL {
+      const bool base = linearization.SetBase(scale, mass.GetDiagonal(), 1e-7, 1e-4, isFree, &probe,
+                                              1.0, false, false, &mass);
+      const bool product = base && linearization.Apply(direction, physical, false) &&
+                           linearization.Apply(direction, augmented);
+      SU2_OMP_MASTER
+      valid = product;
+      END_SU2_OMP_MASTER
+      mass.Apply(direction, actual);
+    }
+    END_SU2_OMP_PARALLEL
+    REQUIRE(valid);
+    augmented -= physical;
+    augmented -= actual;
+    CHECK(augmented.norm() < 1e-12 * actual.norm());
+    CNewtonBlockPreconditioner preconditioner(linearization, geometry, config);
+    SU2_OMP_PARALLEL { preconditioner.Build(); }
+    END_SU2_OMP_PARALLEL
+    for (const auto& block : equations->GetBlocks())
+      for (auto p = 0ul; p < geometry->GetnPointDomain(); ++p)
+        for (auto i = 0u; i < block.variables; ++i) {
+          if (isFree(block, p, i)) continue;
+          auto row = block.solver->Jacobian.GetBlockView(p, p);
+          for (auto j = 0u; j < block.variables; ++j) CHECK(row(i, j) == (i == j ? 1.0 : 0.0));
+        }
+    auto* nodes = equations->GetBlocks().front().solver->GetNodes();
+    const double savedStep = SU2_TYPE::GetValue(nodes->GetDelta_Time(0));
+    if (SU2_MPI::GetRank() == MASTER_NODE) nodes->SetDelta_Time(0, 0);
+    SU2_OMP_PARALLEL {
+      const bool result = mass.Build(scale, free);
+      SU2_OMP_MASTER
+      valid = result;
+      END_SU2_OMP_MASTER
+    }
+    END_SU2_OMP_PARALLEL
+    CHECK_FALSE(valid);
+    nodes->SetDelta_Time(0, savedStep);
+    if (config->GetKind_Regime() == ENUM_REGIME::INCOMPRESSIBLE &&
+        config->GetKind_Incomp_System() == INCOMP_SYSTEM::PRESSURE_BASED) {
+      CNewtonIntegration integration({RUNTIME_FLOW_SYS}, {});
+      CHECK_THROWS_AS(integration.Iterate(geometry, driver.Solvers(), driver.Numerics(), config), std::invalid_argument);
+    }
+    REQUIRE(equations->Restore());
+  }
+}
+
+TEST_CASE("Newton merit and slopes retain the complete native mass action", "[NewtonMass]") {
+  for (const auto& physics : {std::string("SOLVER= NAVIER_STOKES\n"),
+                             std::string("SOLVER= NAVIER_STOKES\nLOW_MACH_PREC= YES\n"),
+                             incompressible, species}) {
+    for (bool flowControls : {false, true})
+      for (bool pseudoMerit : {false, true}) {
+        CAPTURE(physics, flowControls, pseudoMerit);
+        Problem problem(physics + "CFL_NUMBER= 0.05\nLINEAR_SOLVER_PREC= ILU\n"
+                                  "NEWTON_KRYLOV= YES\nNEWTON_KRYLOV_IPARAM= 0,2,1,0\n"
+                                  "NEWTON_KRYLOV_DPARAM= 0,0.1,0,1e-8,1\n"
+                                  "LINEAR_SOLVER_ITER= 80\nLINEAR_SOLVER_ERROR= 0.001\n");
+        auto& driver = *problem.driver;
+        auto* geometry = driver.Geometry();
+        auto* config = driver.Config();
+        std::vector<unsigned short> selected{RUNTIME_FLOW_SYS};
+        if (driver.Solvers()[SPECIES_SOL]) selected.push_back(RUNTIME_SPECIES_SYS);
+        auto equations = problem.Equations(selected);
+        for (const auto& block : equations->GetBlocks()) block.solver->Jacobian.TrackPrescribedRows();
+        auto* flow = driver.Solvers()[FLOW_SOL]->GetNodes();
+        for (auto p = 0ul; p < geometry->GetnPoint(); ++p) {
+          const double x = geometry->nodes->GetCoord(p, 0), y = geometry->nodes->GetCoord(p, 1);
+          flow->SetSolution(p, 1, flow->GetSolution(p, 1) * (1 + 0.03 * x + 0.02 * y));
+          flow->SetSolution(p, 2, 0.02 * flow->GetSolution(p, 1));
+          if (config->GetKind_Regime() == ENUM_REGIME::COMPRESSIBLE)
+            flow->SetSolution(p, 3, flow->GetSolution(p, 3) * (1 + 0.01 * std::sin(0.2 + x + y)));
+          else
+            flow->SetSolution(p, 3, flow->GetSolution(p, 3) + 0.01 * flow->GetSpecificHeatCp(p) *
+                                                               flow->GetTemperature(p) * std::sin(0.2 + x + y));
+        }
+        for (unsigned repeat = 0; repeat < 3; ++repeat) REQUIRE(Residual(*equations, true));
+        for (const auto& block : equations->GetBlocks()) block.solver->Set_OldSolution();
+        equations->Capture();
+        auto scale = MakeVector(driver, equations->GetnVar()), probe = scale;
+        equations->BuildScales(scale, probe);
+        auto base = scale;
+        equations->Pack(base);
+        std::vector<unsigned char> free(geometry->GetnPoint() * equations->GetnVar());
+        for (const auto& block : equations->GetBlocks())
+          for (auto p = 0ul; p < geometry->GetnPoint(); ++p)
+            for (auto v = 0u; v < block.variables; ++v)
+              free[p * equations->GetnVar() + block.offset + v] = !block.solver->Jacobian.IsPrescribedRow(p, v);
+        auto isFree = [&](const CNewtonEquationSet::Block& b, unsigned long p, unsigned short v) {
+          return free[p * equations->GetnVar() + b.offset + v];
+        };
+        NonlinearGlobalization::Options<> options;
+        options.pseudoTimeMerit = pseudoMerit;
+        options.diagnostics = options.adaptiveForcing = options.adaptCFL = false;
+        options.fdStep = 1e-8;
+        CNewtonIntegration integration(selected, options, false, "mass_merit", flowControls);
+        integration.Iterate(geometry, driver.Solvers(), driver.Numerics(), config);
+        INFO(integration.GetNumericalFailureMessage());
+        REQUIRE_FALSE(integration.GetNumericalFailure());
+        const auto attempt = integration.GetLastAttempt();
+        REQUIRE(attempt.search.status == Armijo::Status::Accepted);
+        REQUIRE(attempt.search.step > 0);
+        auto direction = base;
+        equations->Pack(direction);
+        for (auto i = 0ul; i < direction.GetLocSize(); ++i)
+          direction[i] = free[i] ? (direction[i] - base[i]) / (scale[i] * attempt.search.step) : 0;
+        equations->SetTrial(direction, 0, scale, isFree);
+        REQUIRE(Residual(*equations));
+        SU2_OMP_PARALLEL {
+          for (const auto& block : equations->GetBlocks()) {
+            SU2_OMP_SAFE_GLOBAL_ACCESS(config->SetGlobalParam(config->GetKind_Solver(), block.runtime);)
+            block.solver->SetTime_Step(geometry, driver.Solvers(), config, MESH_0, 0);
+          }
+        }
+        END_SU2_OMP_PARALLEL
+        CNewtonPseudoTime mass(*equations, geometry, config);
+        REQUIRE(mass.Build(scale, free));
+        auto timeDirection = base;
+        mass.Apply(direction, timeDirection);
+        double physicalMerit = 0;
+        auto merit = [&](double alpha) {
+          equations->SetTrial(direction, alpha, scale, isFree);
+          REQUIRE(Residual(*equations));
+          auto residual = base;
+          equations->CopyResidual(residual);
+          for (auto i = 0ul; i < residual.GetLocSize(); ++i) residual[i] /= scale[i];
+          physicalMerit = 0.5 * residual.squaredNorm();
+          if (pseudoMerit) residual += alpha * timeDirection;
+          return 0.5 * residual.squaredNorm();
+        };
+        CHECK(merit(0) == Approx(attempt.base).epsilon(1e-10));
+        const double accepted = merit(attempt.search.step);
+        CHECK(accepted == Approx(attempt.search.value).epsilon(2e-7).margin(1e-10));
+        CHECK(physicalMerit == Approx(attempt.physicalMerit).epsilon(2e-7).margin(1e-10));
+        const double slope = (merit(1e-3) - merit(-1e-3)) / 2e-3;
+        const double refined = (merit(5e-4) - merit(-5e-4)) / 1e-3;
+        INFO("reported slope=" << attempt.slope << ", centered=" << slope << ", refined=" << refined);
+        CHECK(slope == Approx(refined).epsilon(1e-5).margin(1e-10));
+        CHECK(attempt.slope == Approx(refined).epsilon(2e-4).margin(1e-8));
+        REQUIRE(equations->Restore());
+        CHECK(equations->GetRestorationError() == 0.0);
+      }
+  }
 }

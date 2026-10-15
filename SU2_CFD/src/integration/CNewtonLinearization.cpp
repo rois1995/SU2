@@ -6,6 +6,74 @@
 #include "../../include/integration/CNewtonLinearization.hpp"
 
 #if !defined(CODI_FORWARD_TYPE) && !defined(CODI_REVERSE_TYPE)
+CNewtonPseudoTime::CNewtonPseudoTime(const CNewtonEquationSet& e, CGeometry* g, CConfig* c)
+    : equations(e), geometry(g), config(c), diagonal(g->GetnPoint(), g->GetnPointDomain(), e.GetnVar(), 0.0) {
+  for (const auto& block : equations.GetBlocks())
+    if (block.slot == FLOW_SOL && (c->GetKind_Regime() == ENUM_REGIME::INCOMPRESSIBLE ||
+                                  c->Low_Mach_Preconditioning() || c->GetKind_Upwind_Flow() == UPWIND::TURKEL)) {
+      flowOffset = block.offset;
+      flowVariables = block.variables;
+      flowMatrix.resize(g->GetnPointDomain(), flowVariables * flowVariables) = 0.0;
+    }
+}
+
+bool CNewtonPseudoTime::Build(const Vector& scale, const std::vector<unsigned char>& free) {
+  assert(scale.GetNVar() == equations.GetnVar() && scale.GetNBlk() == geometry->GetnPoint());
+  assert(free.size() == scale.GetLocSize());
+  SU2_OMP_SAFE_GLOBAL_ACCESS(invalid = 0;)
+  for (const auto& block : equations.GetBlocks()) {
+    su2activematrix native(block.variables, block.variables);
+    int localInvalid = 0;
+    SU2_OMP_FOR_STAT(1024)
+    for (auto p = 0ul; p < geometry->GetnPointDomain(); ++p) {
+      const double step = SU2_TYPE::GetValue(block.solver->GetNodes()->GetDelta_Time(p));
+      const double volume = SU2_TYPE::GetValue(geometry->nodes->GetVolume(p) + geometry->nodes->GetPeriodicVolume(p));
+      const double delta = step > 0 ? volume / step : 0;
+      if (!(delta > 0) || !Armijo::IsFinite(delta)) localInvalid = 1;
+      for (auto v = 0u; v < block.variables; ++v)
+        diagonal(p, block.offset + v) = free[p * equations.GetnVar() + block.offset + v] ? delta : 0;
+      if (block.slot != FLOW_SOL || !flowVariables) continue;
+      block.solver->GetPseudoTimeMatrix(config, p, delta, native);
+      for (auto i = 0u; i < block.variables; ++i)
+        for (auto j = 0u; j < block.variables; ++j) {
+          const auto row = block.offset + i, column = block.offset + j;
+          const double value = SU2_TYPE::GetValue(native(i, j)) * scale(p, column) / scale(p, row);
+          if (!Armijo::IsFinite(value)) localInvalid = 1;
+          flowMatrix(p, i * block.variables + j) =
+              free[p * equations.GetnVar() + row] && free[p * equations.GetnVar() + column] ? value : 0;
+          if (i == j) diagonal(p, row) = flowMatrix(p, i * block.variables + j);
+        }
+    }
+    END_SU2_OMP_FOR
+    atomicMax(localInvalid, invalid);
+  }
+  BEGIN_SU2_OMP_SAFE_GLOBAL_ACCESS {
+    int global = 0;
+    SU2_MPI::Allreduce(&invalid, &global, 1, MPI_INT, MPI_MAX, SU2_MPI::GetComm());
+    invalid = global;
+  }
+  END_SU2_OMP_SAFE_GLOBAL_ACCESS
+  return invalid == 0;
+}
+
+void CNewtonPseudoTime::Apply(const Vector& u, Vector& v, bool add) const {
+  assert(u.GetNVar() == equations.GetnVar() && v.GetNVar() == equations.GetnVar());
+  SU2_OMP_BARRIER
+  SU2_OMP_FOR_STAT(1024)
+  for (auto p = 0ul; p < geometry->GetnPointDomain(); ++p)
+    for (auto i = 0u; i < equations.GetnVar(); ++i) {
+      double value = diagonal(p, i) * u(p, i);
+      if (i >= flowOffset && i < flowOffset + flowVariables) {
+        value = 0;
+        const auto row = i - flowOffset;
+        for (auto j = 0u; j < flowVariables; ++j)
+          value += flowMatrix(p, row * flowVariables + j) * u(p, flowOffset + j);
+      }
+      v(p, i) = (add ? v(p, i) : 0.0) + value;
+    }
+  END_SU2_OMP_FOR
+}
+
 CNewtonLinearization::CNewtonLinearization(CNewtonEquationSet& e, CGeometry* g, CConfig* c)
     : equations(e),
       geometry(g),
@@ -95,7 +163,9 @@ bool CNewtonLinearization::Apply(const Vector& u, Vector& v, bool pseudoTime) co
     SU2_OMP_BARRIER
     return false;
   }
-  if (pseudoTime) {
+  if (pseudoTime && nativeMass)
+    nativeMass->Apply(u, v, true);
+  else if (pseudoTime) {
     SU2_OMP_FOR_STAT(1024)
     for (auto i = 0ul; i < u.GetNElmDomain(); ++i) v[i] += (*diagonal)[i] * u[i];
     END_SU2_OMP_FOR
@@ -133,8 +203,17 @@ CNewtonBlockPreconditioner::CNewtonBlockPreconditioner(const CNewtonLinearizatio
 
 void CNewtonBlockPreconditioner::Build() {
   SU2_OMP_SAFE_GLOBAL_ACCESS(work = 0;)
-  for (auto& block : blocks)
+  for (auto& block : blocks) {
+    if (linearization.UsesNativeMass()) {
+      // Native pseudo-time assembly can reintroduce couplings into a prescribed row.
+      SU2_OMP_FOR_STAT(1024)
+      for (auto p = 0ul; p < geometry->GetnPointDomain(); ++p)
+        for (auto v = 0u; v < block.variables; ++v)
+          if (!linearization.IsFree(p, block.offset + v)) block.solver->Jacobian.DeleteValsRowi(p, v);
+      END_SU2_OMP_FOR
+    }
     if (block.preconditioner) block.preconditioner->Build();
+  }
 }
 
 unsigned long CNewtonBlockPreconditioner::Solve(const Vector& u, Vector& v, unsigned iterations,
