@@ -1520,7 +1520,8 @@ public:
    * \param[in] config - Definition of the particular problem.
    * \param[in] solver_container - Container vector with all the solutions.
    */
-  void AdaptCFLNumber(CGeometry **geometry, CSolver ***solver_container, CConfig *config);
+  void AdaptCFLNumber(CGeometry **geometry, CSolver ***solver_container, CConfig *config,
+                       const std::array<bool, MAX_SOLS>& newton = {});
 
   /*!
    * \brief Identify points where the solution is an outlier (physics-specific concept)

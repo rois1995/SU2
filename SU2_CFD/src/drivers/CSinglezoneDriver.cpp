@@ -207,7 +207,8 @@ void CSinglezoneDriver::Output(unsigned long TimeIter) {
                                                                TimeIter, StopCalc);
   if (numericalFailure) {
     output_container[ZONE_0]->WriteFailureRestart(geometry_container[ZONE_0][INST_0][MESH_0],
-        config_container[ZONE_0], solver_container[ZONE_0][INST_0][MESH_0]);
+        config_container[ZONE_0], solver_container[ZONE_0][INST_0][MESH_0],
+        config_container[ZONE_0]->GetSSTNewtonOptions().enabled ? "_sst_newton_failure" : "_newton_failure");
     wrote_files = true;
   }
 
@@ -267,13 +268,20 @@ bool CSinglezoneDriver::Monitor(unsigned long TimeIter){
 
   nInnerIter = config_container[ZONE_0]->GetnInner_Iter();
   InnerIter  = config_container[ZONE_0]->GetInnerIter();
-  if (config_container[ZONE_0]->GetSSTNewtonOptions().enabled &&
-      integration_container[ZONE_0][INST_0][TURB_SOL]->GetNumericalFailure()) {
+  CIntegration* failedIntegration = nullptr;
+  for (auto i = 0u; i < MAX_SOLS; ++i) {
+    auto* integration = integration_container[ZONE_0][INST_0][i];
+    if (integration && integration->GetNumericalFailure()) {
+      failedIntegration = integration;
+      break;
+    }
+  }
+  if (failedIntegration) {
     numericalFailure = StopCalc = true;
     output_container[ZONE_0]->SetConvergence(false);
     IterCount += InnerIter+1;
     if (rank == MASTER_NODE)
-      cout << "\n" << integration_container[ZONE_0][INST_0][TURB_SOL]->GetNumericalFailureMessage()
+      cout << "\n" << failedIntegration->GetNumericalFailureMessage()
            << "\nWriting a failure restart and stopping without convergence.\n";
     return true;
   }

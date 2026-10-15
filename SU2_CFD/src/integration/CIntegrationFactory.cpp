@@ -29,10 +29,11 @@
 #include "../../include/integration/CSingleGridIntegration.hpp"
 #include "../../include/integration/CMultiGridIntegration.hpp"
 #include "../../include/integration/CNewtonLegacyIntegration.hpp"
+#include "../../include/integration/CNewtonIntegration.hpp"
 #include "../../include/integration/CStructuralIntegration.hpp"
 #include "../../include/integration/CFEM_DG_Integration.hpp"
 
-CIntegration** CIntegrationFactory::CreateIntegrationContainer(MAIN_SOLVER kindMainSolver,
+CIntegration** CIntegrationFactory::CreateIntegrationContainer(CConfig* config,
                                                                const CSolver* const* solver_container){
   SU2_ZONE_SCOPED
 
@@ -43,6 +44,36 @@ CIntegration** CIntegrationFactory::CreateIntegrationContainer(MAIN_SOLVER kindM
       const SolverMetaData &solverInfo = CSolverFactory::GetSolverMeta(solver_container[iSol]);
       integration[iSol] = CreateIntegration(solverInfo.integrationType);
     }
+  }
+
+  auto selected = config->GetNewtonEquations();
+  if (selected.empty() && config->GetNewtonKrylov()) {
+    // shortcut: Keep the old implementation for execution modes outside the steady primal CPU migration.
+#if !defined(CODI_FORWARD_TYPE) && !defined(CODI_REVERSE_TYPE)
+    if (!config->GetNEMOProblem() && config->GetTime_Marching() == TIME_MARCHING::STEADY &&
+        !config->GetTime_Domain() && !config->GetMultizone_Problem() && config->GetnZone() == 1 &&
+        !config->GetCUDA() && !config->GetnMarker_Periodic() && config->GetMGCycle() != MG_CYCLE::FULL &&
+        !config->GetContinuous_Adjoint() && !config->GetDiscrete_Adjoint() && config->GetDirectDiff() == NO_DERIVATIVE &&
+        config->GetKind_Incomp_System() != INCOMP_SYSTEM::PRESSURE_BASED)
+      selected = {RUNTIME_FLOW_SYS};
+#endif
+  }
+  const auto options = config->GetNewtonOptions().Passive([](const su2double& x) { return SU2_TYPE::GetValue(x); });
+  // Native iteration order determines the group's first dispatch, independently of its packing order.
+  const std::pair<unsigned short, const char*> order[] = {{RUNTIME_FLOW_SYS, "flow"}, {RUNTIME_TRANS_SYS, "trans"},
+                                                         {RUNTIME_TURB_SYS, "turb"}, {RUNTIME_SPECIES_SYS, "species"}};
+  for (const auto& equation : order) {
+    const auto runtime = equation.first;
+    if (std::find(selected.begin(), selected.end(), runtime) == selected.end()) continue;
+    const auto slot = config->GetContainerPosition(runtime);
+    if (!solver_container[slot]) SU2_MPI::Error("Unavailable equation in NEWTON_EQUATIONS", CURRENT_FUNCTION);
+    const auto group = config->GetNewtonCoupled() ? selected : std::vector<unsigned short>{runtime};
+    const bool flowControls = config->GetNewtonKrylov() &&
+                              std::find(group.begin(), group.end(), RUNTIME_FLOW_SYS) != group.end();
+    delete integration[slot];
+    integration[slot] = new CNewtonIntegration(group, options, config->GetNewtonBlockLower(),
+        config->GetNewtonCoupled() ? "newton_coupled" : std::string("newton_") + equation.second, flowControls);
+    if (config->GetNewtonCoupled()) break;
   }
 
   return integration;
@@ -64,7 +95,7 @@ CIntegration* CIntegrationFactory::CreateIntegration(INTEGRATION_TYPE integratio
       integration = new CMultiGridIntegration();
       break;
     case INTEGRATION_TYPE::NEWTON:
-      // shortcut: Preserve legacy flow options until their direction policy is migrated to the common controller.
+      // Compatibility for execution modes not handled by the common controller's factory selection.
       integration = new CNewtonLegacyIntegration();
       break;
     case INTEGRATION_TYPE::STRUCTURAL:

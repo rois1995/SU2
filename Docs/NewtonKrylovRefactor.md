@@ -3,12 +3,102 @@
 The governing specification is `HANDOFF_NEWTONKRYLOV.md` in the parent workspace
 (confirmed by the user on 2026-10-15). The work is on `feature_LineSearch`, starting
 at `5615a8f5f6e9a7bfa88f0f279e1eadb7f89fe607`. The goal is still in progress.
-SST now uses the common selected-equation controller. Production flow still uses
-a temporary legacy compatibility class. Its direction policies are implemented in
-the common controller and tested through the native API; production selection
-remains unfinished. Explicit-flow diagonal compatibility is now tested through
-the same native API. Native pseudo-time
-mappings now include the dense incompressible and low-Mach blocks.
+Production steady primal CPU flow and selected flow/SA/SST/LM/species groups now
+use the common controller. Equation selection, segregated versus coupled solves,
+CFL ownership, final physical residuals and group failure output are wired into
+the native driver. A compatibility class remains for legacy execution modes
+outside this migration. Dense native pseudo-time mappings and explicit-flow
+preconditioning are supported. The full goal remains in progress: converged
+matched family comparisons and the conditional-feature audits below are pending.
+
+## Production selection and dispatch
+
+For an available flow/SST/LM configuration:
+
+```ini
+NEWTON_EQUATIONS= (FLOW,TURB,TRANS)
+NEWTON_COUPLED= YES
+NEWTON_BLOCK_LOWER= YES
+```
+
+`NEWTON_COUPLED= NO` advances the same selected equations in separate Newton
+solves. FLOW, TURB, TRANS and SPECIES can be selected independently; unselected
+equations retain their native updates. The list order determines packing and
+lower block preconditioning. The earliest native dispatch owns a coupled group,
+using the native FLOW, TRANS, TURB, SPECIES iteration order. Group members are
+skipped in later native hooks, so each equation advances once.
+
+The generic `NEWTON_*` controls in `config_template.cfg` configure globalization,
+forcing, finite differences, Krylov work and diagnostics. `NEWTON_KRYLOV= YES`
+without an explicit selection selects common FLOW in eligible steady primal CPU
+cases and retains its existing integer/double direction controls. To use those
+controls with an explicit group, include FLOW in the selection. `SST_NEWTON`
+retains its separate legacy settings and delegates to the same common algorithm;
+combining it with explicit `NEWTON_EQUATIONS` is rejected.
+
+Explicit selections currently require steady primal single-zone CPU execution
+without periodic markers, with `MGLEVEL=0`. New auxiliary selections do not yet
+restrict updated scalars for multigrid flow; the SST legacy wrapper retains its
+existing restriction. Pressure-based incompressible
+selection is guarded because its separate correction iteration is not integrated
+here. Native conventional pressure-based behavior is retained. Selected scalars
+require implicit discretization; FLOW can use the explicit diagonal fallback.
+Unavailable, duplicate and unknown equations, conflicting legacy selections,
+unsupported execution modes and invalid numerical controls fail configuration.
+NEMO integration is excluded. AD/reverse/mixed-precision/GPU execution is not
+established by the syntax checks or primal runs.
+
+Each common controller owns the selected equations' CFL. Native flow adaptation
+continues for unselected flow and does not overwrite selected scalar CFLs.
+Unselected auxiliaries follow the accepted flow controller's CFL. After all
+updates and native outlier-flag updates, one common owner refreshes every active
+named equation's physical residual/statistics and flow forces at the final state.
+This prevents earlier segregated residuals from describing an intermediate state.
+
+A failed group restores its captured state and stops remaining auxiliary updates.
+The driver reports non-convergence, exits nonzero and writes all active restart
+fields with `_newton_failure`; the SST alias keeps `_sst_newton_failure`.
+Diagnostics use `newton_coupled.csv` for a group, or `newton_flow.csv`,
+`newton_trans.csv`, `newton_turb.csv`, `newton_species.csv` for separate owners,
+with matching `_trials.csv` files. Rows report physical defects, merit, accepted
+steps, recovery decisions, residual work and native/outer linear iterations.
+
+The production dispatch tests compare complete states and CFLs against direct
+controller calls for 24 configurations over three updates, including explicit
+flow, reverse packing, segregated/coupled solves, LM and mixture/turbulence/
+transition groups. Independent final residual sums check every active equation.
+Auxiliary-only tests also verify native flow CFL adaptation continues while
+selected CFLs remain owned; failure tests check exact rollback and skipped
+remaining auxiliaries. These short checks do not establish final convergence or
+performance. Historical checkpoints below retain their original evidence scope.
+
+Production-checkpoint verification (2026-10-15): 22 native cases / 41,700
+assertions pass serially; 26,671 / 21,528 assertions pass on two ranks x two
+threads. Three production cases pass 8,072 / 8,696 assertions on two ranks x
+four threads. All 80 supported unit cases / 102,273 assertions pass. Fourteen
+affected translation units pass forward syntax checks; the final configuration
+guard has a separate forward recheck. Focused production Valgrind reports zero
+memory errors, with leaks unchecked.
+
+Thirteen executable profiles cover legacy flow selection, individual auxiliary
+systems, partial/full coupled groups, segregated groups and explicit flow.
+Thirteen config guards pass. A forced group failure restores exactly, exits
+nonzero without numerical MPI abort and writes all eleven restart fields for
+flow/SST/LM/species plus coordinates. Eight conventional profiles keep identical
+six-iteration histories. The SST alias accepts 10/10 updates in baseline/current
+controls; its forced failure accepts seven and fails on attempt eight with exact
+restoration and its legacy restart suffix.
+
+Evidence uses `production_dispatch_` in the parent workspace's
+`newton_krylov_refactor_20261015/`. Final native logs use `monitored_` (nonzero wall
+drag); earlier native fixtures and executables are retained as historical
+controls. `run_production_dispatch_checks.py` records profile commands and
+binary/configuration hashes. The initial restart-filename assertion failed
+because the default was `restart`; the verified runner pins `restart_flow`.
+This was a harness failure: the initial failure restart was written correctly.
+Native residual-statistic abort thresholds, conditional boundary/model bounds,
+near-bound derivatives and larger production-layout repeatability still require
+the broader failure/derivative audits before the full goal can be completed.
 
 ## Required final state
 
@@ -78,7 +168,7 @@ The original executable and unit driver are preserved under the parent workspace
 must not be relabeled as validation of changed source. A separate build/evidence
 directory is used for all new runs.
 
-## Reproduction and validation status
+## Corrected-baseline reproduction and historical verification
 
 The candidate is not yet an accepted convergence-comparison baseline. Record the
 actual outcomes below; missing checks in the table above remain open requirements.
@@ -138,7 +228,7 @@ Forward/reverse builds, the full integration/V&V matrix and the conditional
 features marked open above have not been validated on this combined base.
 No fully converged family matrix or Newton speedup is established here.
 
-## Shared equation state and residual interface
+## Shared equation state and residual interface (prior milestone)
 
 `CNewtonEquationSet` is now used by the SST integration for trial installation and
 residual evaluation. It also evaluates native flow/SA, flow/SST, flow/SST/LM and
@@ -294,7 +384,7 @@ control with seven extra retries are retained. Restoring SST's model-specific
 probe reference restores the matched ten-update, ten-attempt control. These
 remain correctness checks, not converged nonlinear or performance comparisons.
 
-## Shared nonlinear controller milestone
+## Shared nonlinear controller (prior milestone)
 
 `CNewtonIntegration` now owns one attempt, matrix-free/Krylov solve, feasible
 endpoint, Armijo search, forcing/CFL update, bounded recovery and diagnostic path
@@ -484,7 +574,7 @@ and `legacy_policy_regressions/` in the parent evidence directory. Both affected
 translation units pass forward syntax checks; full differentiated executables
 and mixed-precision execution remain unchecked.
 
-## Next implementation gate
+## Prior implementation gates (superseded by production selection above)
 
 Migrate the legacy flow direction policies, then expose validated selection and
 group dispatch with exactly-once advancement, final all-equation reporting and
@@ -496,7 +586,7 @@ matched conventional/segregated/coupled comparisons remain required. NEMO
 integration remains excluded.
 
 
-## Common flow direction policies (2026-10-15)
+## Common flow direction policies (prior milestone, 2026-10-15)
 
 The common controller now accepts the legacy flow controls explicitly. Startup
 uses the assembled native approximate operator in the same scaled coordinates as
@@ -553,7 +643,7 @@ implicit matrices. Keep this limitation explicit when continuing production
 selection; do not treat the common-policy milestone as completion of the goal.
 
 
-## Native pseudo-time mappings (2026-10-15)
+## Native pseudo-time mappings (prior milestone, 2026-10-15)
 
 `CNewtonPseudoTime` freezes the native per-equation pseudo-time action at each
 accepted base and applies it in the same scaled coordinates as the grouped
@@ -617,7 +707,7 @@ caused substantial scheduling contention; their elapsed times are not solver
 performance measurements.
 
 
-## Explicit flow without a native sparse matrix
+## Explicit flow without a native sparse matrix (prior milestone)
 
 The common controller supports FLOW configured with `EULER_EXPLICIT`, preserving
 legacy Newton's raw `(volume + periodic volume)/dt` diagonal preconditioner. It

@@ -439,7 +439,10 @@ private:
   bool UseVectorization;       /*!< \brief Whether to use vectorized numerics schemes. */
   bool residualOnly = false; /*!< \brief Suppress implicit assembly across equation switches in trial evaluations. */
   bool NewtonKrylov;           /*!< \brief Use a coupled Newton method to solve the flow equations. */
-  NonlinearGlobalization::Options<su2double> sstNewtonOptions;
+  NonlinearGlobalization::Options<su2double> sstNewtonOptions, newtonOptions;
+  unsigned short nNewtonEquations = 0;
+  unsigned short* NewtonEquations = nullptr;
+  bool NewtonCoupled = false, NewtonBlockLower = false;
   array<unsigned short,4> NK_IntParam{{20, 3, 2, 0}}; /*!< \brief Integer parameters for NK method. */
   array<su2double,5> NK_DblParam{{-2.0, 0.1, -3.0, 1e-4, 1.0}}; /*!< \brief Floating-point parameters for NK method. */
   su2double NK_Relaxation = 1.0;
@@ -4545,6 +4548,13 @@ public:
    */
   bool GetNewtonKrylov(void) const { return NewtonKrylov; }
   const NonlinearGlobalization::Options<su2double>& GetSSTNewtonOptions() const { return sstNewtonOptions; }
+  const NonlinearGlobalization::Options<su2double>& GetNewtonOptions() const { return newtonOptions; }
+  vector<unsigned short> GetNewtonEquations() const {
+    if (!nNewtonEquations) return {};
+    return {NewtonEquations, NewtonEquations + nNewtonEquations};
+  }
+  bool GetNewtonCoupled() const { return NewtonCoupled; }
+  bool GetNewtonBlockLower() const { return NewtonBlockLower; }
 
   /*!
    * \brief Get Newton-Krylov integer parameters.

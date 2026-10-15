@@ -1907,10 +1907,10 @@ void CSolver::ResetCFLAdapt() {
 
 void CSolver::AdaptCFLNumber(CGeometry **geometry,
                              CSolver   ***solver_container,
-                             CConfig   *config) {
+                             CConfig   *config, const std::array<bool, MAX_SOLS>& newton) {
   SU2_ZONE_SCOPED
 
-  if (config->GetCFL_Adapt() != YES) return;
+  if (config->GetCFL_Adapt() != YES || newton[FLOW_SOL]) return;
 
   /* Adapt the CFL number on all multigrid levels using an
    exponential progression with under-relaxation approach. */
@@ -2111,10 +2111,10 @@ void CSolver::AdaptCFLNumber(CGeometry **geometry,
 
       CFL *= CFLFactor;
       solverFlow->GetNodes()->SetLocalCFL(iPoint, CFL);
-      if ((iMesh == MESH_0) && solverTurb) {
+      if ((iMesh == MESH_0) && solverTurb && !newton[TURB_SOL]) {
         solverTurb->GetNodes()->SetLocalCFL(iPoint, CFL * CFLTurbReduction);
       }
-      if ((iMesh == MESH_0) && solverSpecies) {
+      if ((iMesh == MESH_0) && solverSpecies && !newton[SPECIES_SOL]) {
         solverSpecies->GetNodes()->SetLocalCFL(iPoint, CFL * CFLSpeciesReduction);
       }
 

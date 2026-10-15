@@ -28,6 +28,30 @@
 #include "../../include/iteration/CFluidIteration.hpp"
 #include "../../include/output/COutput.hpp"
 
+namespace {
+bool NewtonFailure(CIntegration* const* integration) {
+  for (auto i = 0u; i < MAX_SOLS; ++i)
+    if (integration[i] && integration[i]->GetNumericalFailure()) return true;
+  return false;
+}
+
+bool AdvanceEquation(CIntegration* const* integration, CConfig* config, unsigned short runtime) {
+  const auto* candidate = integration[config->GetContainerPosition(runtime)];
+  for (auto i = 0u; i < MAX_SOLS; ++i)
+    if (integration[i] && integration[i] != candidate && integration[i]->IsNewtonEquation(runtime)) return false;
+  return true;
+}
+
+std::array<bool, MAX_SOLS> NewtonOwnership(CIntegration* const* integration, CConfig* config) {
+  std::array<bool, MAX_SOLS> owned{};
+  for (auto i = 0u; i < MAX_SOLS; ++i)
+    if (integration[i])
+      for (auto runtime : {RUNTIME_FLOW_SYS, RUNTIME_TURB_SYS, RUNTIME_TRANS_SYS, RUNTIME_SPECIES_SYS})
+        if (integration[i]->IsNewtonEquation(runtime)) owned[config->GetContainerPosition(runtime)] = true;
+  return owned;
+}
+}  // namespace
+
 void CFluidIteration::Preprocess(COutput* output, CIntegration**** integration, CGeometry**** geometry,
                                  CSolver***** solver, CNumerics****** numerics, CConfig** config,
                                  CSurfaceMovement** surface_movement, CVolumetricMovement*** grid_movement,
@@ -86,16 +110,55 @@ void CFluidIteration::Iterate(COutput* output, CIntegration**** integration, CGe
 
   const bool fmg_cfl_ramp = integration[val_iZone][val_iInst][FLOW_SOL]->GetFullMG_CFLRamp();
 
+  auto** integrations = integration[val_iZone][val_iInst];
+  if (NewtonFailure(integrations)) return;
+  auto owned = NewtonOwnership(integrations, config[val_iZone]);
+  if (owned[FLOW_SOL]) {
+    // Unselected auxiliaries use the flow controller's CFL; selected groups keep their own accepted CFL.
+    auto* fine = geometry[val_iZone][val_iInst][MESH_0];
+    auto** solvers = solver[val_iZone][val_iInst][MESH_0];
+    SU2_OMP_PARALLEL {
+      for (auto slot : {TURB_SOL, TRANS_SOL, SPECIES_SOL}) {
+        if (!solvers[slot] || owned[slot]) continue;
+        const auto factor = slot == SPECIES_SOL ? config[val_iZone]->GetCFLRedCoeff_Species()
+                                                : config[val_iZone]->GetCFLRedCoeff_Turb();
+        SU2_OMP_FOR_STAT(1024)
+        for (auto p = 0ul; p < fine->GetnPoint(); ++p)
+          solvers[slot]->GetNodes()->SetLocalCFL(p, solvers[FLOW_SOL]->GetNodes()->GetLocalCFL(p) * factor);
+        END_SU2_OMP_FOR
+      }
+    }
+    END_SU2_OMP_PARALLEL
+  }
+
   /*--- If the flow integration is not fully coupled, run the various single grid integrations. ---*/
   CommonAuxiliarySolvers(integration, geometry, solver, numerics, config, val_iZone, val_iInst, main_solver, frozen_visc);
+  if (NewtonFailure(integrations)) return;
+  owned = NewtonOwnership(integrations, config[val_iZone]);
+  CIntegration* newtonRefresh = nullptr;
+  for (auto i = 0u; i < MAX_SOLS; ++i) {
+    if (!integrations[i]) continue;
+    for (auto runtime : {RUNTIME_FLOW_SYS, RUNTIME_TURB_SYS, RUNTIME_TRANS_SYS, RUNTIME_SPECIES_SYS})
+      if (integrations[i]->IsNewtonEquation(runtime)) newtonRefresh = integrations[i];
+    if (newtonRefresh) break;
+  }
+  if (newtonRefresh) {
+    SU2_OMP_PARALLEL
+    if (!disc_adj)
+      solver[val_iZone][val_iInst][MESH_0][FLOW_SOL]->IdentifySolutionOutliers(config[val_iZone], InnerIter);
+    END_SU2_OMP_PARALLEL
+    newtonRefresh->RefreshAfterOuterIteration();
+  }
+  if (NewtonFailure(integrations)) return;
 
   /*--- Adapt the CFL number using an exponential progression with under-relaxation approach.
         The Full-MG startup owns the CFL while it ramps, so leave it alone until then. ---*/
   SU2_OMP_PARALLEL
   if (!disc_adj && config[val_iZone]->GetFinestMesh() == MESH_0 && !fmg_cfl_ramp) {
     solver[val_iZone][val_iInst][MESH_0][FLOW_SOL]->AdaptCFLNumber(geometry[val_iZone][val_iInst],
-                                                                   solver[val_iZone][val_iInst], config[val_iZone]);
-    solver[val_iZone][val_iInst][MESH_0][FLOW_SOL]->IdentifySolutionOutliers(config[val_iZone], InnerIter);
+                                                                   solver[val_iZone][val_iInst], config[val_iZone], owned);
+    if (!newtonRefresh)
+      solver[val_iZone][val_iInst][MESH_0][FLOW_SOL]->IdentifySolutionOutliers(config[val_iZone], InnerIter);
   }
   END_SU2_OMP_PARALLEL
 
@@ -123,23 +186,31 @@ void CFluidIteration::CommonAuxiliarySolvers(CIntegration**** integration, CGeom
 
     /*--- Solve transition model ---*/
 
-    if (config[val_iZone]->GetKind_Trans_Model() == TURB_TRANS_MODEL::LM) {
+    if (config[val_iZone]->GetKind_Trans_Model() == TURB_TRANS_MODEL::LM &&
+        AdvanceEquation(integration[val_iZone][val_iInst], config[val_iZone], RUNTIME_TRANS_SYS)) {
       config[val_iZone]->SetGlobalParam(main_solver, RUNTIME_TRANS_SYS);
       integration[val_iZone][val_iInst][TRANS_SOL]->SingleGrid_Iteration(geometry, solver, numerics, config,
                                                                          RUNTIME_TRANS_SYS, val_iZone, val_iInst);
+      if (NewtonFailure(integration[val_iZone][val_iInst])) return;
     }
 
     /*--- Solve the turbulence model ---*/
 
-    config[val_iZone]->SetGlobalParam(main_solver, RUNTIME_TURB_SYS);
-    integration[val_iZone][val_iInst][TURB_SOL]->SingleGrid_Iteration(geometry, solver, numerics, config,
-                                                                      RUNTIME_TURB_SYS, val_iZone, val_iInst);
+    if (AdvanceEquation(integration[val_iZone][val_iInst], config[val_iZone], RUNTIME_TURB_SYS)) {
+      config[val_iZone]->SetGlobalParam(main_solver, RUNTIME_TURB_SYS);
+      integration[val_iZone][val_iInst][TURB_SOL]->SingleGrid_Iteration(geometry, solver, numerics, config,
+                                                                        RUNTIME_TURB_SYS, val_iZone, val_iInst);
+      if (NewtonFailure(integration[val_iZone][val_iInst])) return;
+    }
   }
 
   if (config[val_iZone]->GetKind_Species_Model() != SPECIES_MODEL::NONE) {
-    config[val_iZone]->SetGlobalParam(main_solver, RUNTIME_SPECIES_SYS);
-    integration[val_iZone][val_iInst][SPECIES_SOL]->SingleGrid_Iteration(geometry, solver, numerics, config,
-                                                                         RUNTIME_SPECIES_SYS, val_iZone, val_iInst);
+    if (AdvanceEquation(integration[val_iZone][val_iInst], config[val_iZone], RUNTIME_SPECIES_SYS)) {
+      config[val_iZone]->SetGlobalParam(main_solver, RUNTIME_SPECIES_SYS);
+      integration[val_iZone][val_iInst][SPECIES_SOL]->SingleGrid_Iteration(geometry, solver, numerics, config,
+                                                                           RUNTIME_SPECIES_SYS, val_iZone, val_iInst);
+      if (NewtonFailure(integration[val_iZone][val_iInst])) return;
+    }
 
     // This only applies if mixture properties are used. But this also doesn't hurt if done w/out mixture properties.
     // In case of turbulence, the Turb-Post computes the correct eddy viscosity based on mixture-density and
@@ -276,8 +347,7 @@ bool CFluidIteration::Monitor(COutput* output, CIntegration**** integration, CGe
                            config[val_iZone]->GetInnerIter());
 
   auto StopCalc = output->GetConvergence();
-  if (config[val_iZone]->GetSSTNewtonOptions().enabled &&
-      integration[val_iZone][val_iInst][TURB_SOL]->GetNumericalFailure()) {
+  if (NewtonFailure(integration[val_iZone][val_iInst])) {
     output->SetConvergence(false);
     return true;
   }

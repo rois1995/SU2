@@ -89,6 +89,8 @@ public:
   virtual ~CIntegration(void) = default;
   virtual bool GetNumericalFailure() const { return false; }
   virtual const char* GetNumericalFailureMessage() const { return ""; }
+  virtual bool IsNewtonEquation(unsigned short) const { return false; }
+  virtual void RefreshAfterOuterIteration() {}
 
   /*!
    * \brief Save the geometry at different time steps.

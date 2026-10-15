@@ -74,6 +74,12 @@ public:
   const char* GetNumericalFailureMessage() const override {
     return sstNewton ? sstNewton->GetNumericalFailureMessage() : "";
   }
+  bool IsNewtonEquation(unsigned short runtime) const override {
+    return sstNewton && sstNewton->IsNewtonEquation(runtime);
+  }
+  void RefreshAfterOuterIteration() override {
+    if (sstNewton) sstNewton->RefreshAfterOuterIteration();
+  }
 
   /*!
    * \brief Do the numerical integration (implicit) of the turbulence solver.

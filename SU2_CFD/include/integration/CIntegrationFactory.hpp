@@ -44,11 +44,11 @@ class CIntegrationFactory{
 
   /*!
    * \brief Create the integration container based on the current main solver
-   * \param[in] kindSolver       - The kind of main solver
+   * \param[in] config           - Solver configuration and Newton equation selection
    * \param[in] solver_container - The solver container
    * \return                  - Pointer to the allocated integration container
    */
-  static CIntegration** CreateIntegrationContainer(MAIN_SOLVER kindSolver, const CSolver * const *solver_container);
+  static CIntegration** CreateIntegrationContainer(CConfig* config, const CSolver * const *solver_container);
 
   /*!
    * \brief Create a new integration instance based on the current sub solver

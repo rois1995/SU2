@@ -13,6 +13,7 @@ void CNewtonIntegration::MultiGrid_Iteration(CGeometry****, CSolver*****, CNumer
                                              unsigned short, unsigned short) {
   SU2_MPI::Error("Common Newton integration requires a primal executable", CURRENT_FUNCTION);
 }
+void CNewtonIntegration::RefreshAfterOuterIteration() {}
 #else
 
 namespace {
@@ -185,12 +186,12 @@ void CNewtonIntegration::Setup() {
   if (!error.empty()) throw std::invalid_argument(error);
   if (config->GetTime_Marching() != TIME_MARCHING::STEADY || config->GetTime_Domain() ||
       config->GetMultizone_Problem() || config->GetnZone() != 1 || config->GetCUDA() || config->GetnMarker_Periodic() ||
+      config->GetContinuous_Adjoint() || config->GetDiscrete_Adjoint() || config->GetDirectDiff() != NO_DERIVATIVE ||
       config->GetFinestMesh() != MESH_0)
     throw std::invalid_argument(
         "Common Newton currently requires steady primal single-zone CPU cases without periodic markers");
   if (config->GetKind_Regime() == ENUM_REGIME::INCOMPRESSIBLE &&
-      config->GetKind_Incomp_System() == INCOMP_SYSTEM::PRESSURE_BASED &&
-      std::find(systems.begin(), systems.end(), RUNTIME_FLOW_SYS) != systems.end())
+      config->GetKind_Incomp_System() == INCOMP_SYSTEM::PRESSURE_BASED)
     throw std::invalid_argument("Newton flow groups require the density-based incompressible formulation");
   equations = std::make_unique<CNewtonEquationSet>(geometry, solvers, numerics, config, systems);
   for (const auto& block : equations->GetBlocks()) {
@@ -562,6 +563,29 @@ void CNewtonIntegration::Iterate(CGeometry* g, CSolver** s, CNumerics*** n, CCon
   SU2_OMP_PARALLEL { Advance(); }
   END_SU2_OMP_PARALLEL
   config->SetEquationSettings(settings);
+}
+
+void CNewtonIntegration::RefreshAfterOuterIteration() {
+  if (!setup || failed) return;
+  SU2_OMP_PARALLEL {
+    const bool valid = equations->EvaluateResiduals(false, true);
+    if (valid) {
+      for (auto runtime : {RUNTIME_FLOW_SYS, RUNTIME_TURB_SYS, RUNTIME_TRANS_SYS, RUNTIME_SPECIES_SYS}) {
+        auto* solver = solvers[config->GetContainerPosition(runtime)];
+        if (solver) solver->RefreshResidualStatistics(geometry, config);
+      }
+      const auto settings = config->GetEquationSettings();
+      SU2_OMP_SAFE_GLOBAL_ACCESS(config->SetGlobalParam(config->GetKind_Solver(), RUNTIME_FLOW_SYS);)
+      solvers[FLOW_SOL]->Postprocessing(geometry, solvers, config, MESH_0);
+      solvers[FLOW_SOL]->Pressure_Forces(geometry, config);
+      solvers[FLOW_SOL]->Momentum_Forces(geometry, config);
+      solvers[FLOW_SOL]->Friction_Forces(geometry, config);
+      SU2_OMP_SAFE_GLOBAL_ACCESS(config->SetEquationSettings(settings);)
+    } else {
+      SU2_OMP_SAFE_GLOBAL_ACCESS(failed = true; failureMessage = "Newton final-state residual refresh failed";)
+    }
+  }
+  END_SU2_OMP_PARALLEL
 }
 
 void CNewtonIntegration::Advance() {

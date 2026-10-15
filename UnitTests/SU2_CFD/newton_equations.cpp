@@ -5,6 +5,7 @@
  */
 #include "catch.hpp"
 #include "../../SU2_CFD/include/drivers/CSinglezoneDriver.hpp"
+#include "../../SU2_CFD/include/iteration/CIteration.hpp"
 #include "../../SU2_CFD/include/integration/CNewtonEquationSet.hpp"
 #include "../../SU2_CFD/include/integration/CNewtonLinearization.hpp"
 #include "../../SU2_CFD/include/integration/CNewtonIntegration.hpp"
@@ -27,6 +28,11 @@ class NewtonDriver : public CSinglezoneDriver {
   CGeometry* Geometry() { return geometry_container[0][0][0]; }
   CSolver** Solvers() { return solver_container[0][0][0]; }
   CNumerics*** Numerics() { return numerics_container[0][0][0]; }
+  CIntegration** Integrations() { return integration_container[0][0]; }
+  void OuterIteration() {
+    iteration_container[0][0]->Iterate(output_container[0], integration_container, geometry_container, solver_container,
+        numerics_container, config_container, surface_movement, grid_movement, FFDBox, 0, 0);
+  }
   void FlowIteration(CIntegration& integration) {
     Config()->SetGlobalParam(Config()->GetKind_Solver(), RUNTIME_FLOW_SYS);
     integration.MultiGrid_Iteration(geometry_container, solver_container, numerics_container, config_container,
@@ -671,6 +677,149 @@ TEST_CASE("The common Newton controller accepts explicit flow and implicit scala
             CHECK(flow->GetNodes()->GetSolution(p, v) == 0);
           }
     }
+}
+
+TEST_CASE("Production Newton dispatch matches one direct advance per selected group", "[NewtonProduction]") {
+  auto mixture = species;
+  mixture.replace(mixture.find("INC_NAVIER_STOKES"), std::string("INC_NAVIER_STOKES").size(), "INC_RANS");
+  mixture += "KIND_TURB_MODEL= SST\nKIND_TRANS_MODEL= LM\n";
+  for (const auto& physics : {std::string("SOLVER= NAVIER_STOKES\n"), sa, sst,
+                             sst + "KIND_TRANS_MODEL= LM\n", species, mixture})
+    for (bool explicitFlow : {false, true})
+      for (bool coupled : {false, true}) {
+        CAPTURE(physics, explicitFlow, coupled);
+        std::string selected = "FLOW";
+        if (physics.find("KIND_TURB_MODEL") != std::string::npos) selected = "TURB," + selected;
+        if (physics.find("KIND_TRANS_MODEL") != std::string::npos) selected = "TRANS," + selected;
+        if (physics.find("SPECIES_TRANSPORT") != std::string::npos) selected = "SPECIES," + selected;
+        const auto settings = physics + "NEWTON_EQUATIONS= (" + selected + ")\nNEWTON_COUPLED= " +
+            (coupled ? "YES" : "NO") + "\nNEWTON_BLOCK_LOWER= YES\nNEWTON_DIAGNOSTICS= NO\n"
+            "NEWTON_ADAPT_CFL= NO\nNEWTON_ADAPTIVE_FORCING= NO\nCFL_NUMBER= 0.05\nMARKER_MONITORING= (y_minus)\n"
+            "CFL_REDUCTION_TURB= 0.7\nCFL_REDUCTION_SPECIES= 0.4\nCFL_ADAPT= YES\n"
+            "CFL_ADAPT_PARAM= (0.5,2,0.001,100,0.01,0)\nLINEAR_SOLVER_PREC= ILU\n" +
+            (explicitFlow ? "TIME_DISCRE_FLOW= EULER_EXPLICIT\n" : "");
+        Problem production(settings), reference(settings);
+        auto& actual = *production.driver;
+        auto& expected = *reference.driver;
+        std::vector<unsigned short> systems;
+        for (auto runtime : {RUNTIME_FLOW_SYS, RUNTIME_TRANS_SYS, RUNTIME_TURB_SYS, RUNTIME_SPECIES_SYS})
+          if (actual.Solvers()[actual.Config()->GetContainerPosition(runtime)]) systems.push_back(runtime);
+        for (auto runtime : systems) {
+          unsigned owners = 0;
+          for (auto slot = 0u; slot < MAX_SOLS; ++slot)
+            if (actual.Integrations()[slot]) owners += actual.Integrations()[slot]->IsNewtonEquation(runtime);
+          CHECK(owners == 1);
+        }
+        for (unsigned iteration = 0; iteration < 3; ++iteration) {
+          actual.Config()->SetInnerIter(iteration);
+          expected.Config()->SetInnerIter(iteration);
+          actual.OuterIteration();
+          CNewtonIntegration* first = nullptr;
+          for (auto runtime : systems) {
+            const auto slot = expected.Config()->GetContainerPosition(runtime);
+            auto* integration = dynamic_cast<CNewtonIntegration*>(expected.Integrations()[slot]);
+            if (!integration) continue;
+            if (!first) first = integration;
+            integration->Iterate(expected.Geometry(), expected.Solvers(), expected.Numerics(), expected.Config());
+          }
+          REQUIRE(first);
+          first->RefreshAfterOuterIteration();
+          for (auto slot = 0u; slot < MAX_SOLS; ++slot)
+            if (actual.Integrations()[slot]) {
+              INFO(actual.Integrations()[slot]->GetNumericalFailureMessage());
+              REQUIRE_FALSE(actual.Integrations()[slot]->GetNumericalFailure());
+            }
+          for (auto runtime : systems) {
+            const auto slot = actual.Config()->GetContainerPosition(runtime);
+            auto* a = actual.Solvers()[slot];
+            auto* b = expected.Solvers()[slot];
+            for (auto p = 0ul; p < actual.Geometry()->GetnPointDomain(); ++p) {
+              CHECK(a->GetNodes()->GetLocalCFL(p) == b->GetNodes()->GetLocalCFL(p));
+              for (auto v = 0u; v < a->GetnVar(); ++v)
+                CHECK(a->GetNodes()->GetSolution(p, v) == b->GetNodes()->GetSolution(p, v));
+            }
+          }
+        }
+        auto equations = production.Equations(systems);
+        std::vector<double> reported;
+        for (const auto& block : equations->GetBlocks())
+          for (auto v = 0u; v < block.variables; ++v) reported.push_back(block.solver->GetRes_RMS(v));
+        auto* flow = actual.Solvers()[FLOW_SOL];
+        const double drag = SU2_TYPE::GetValue(flow->GetTotal_CD()), lift = SU2_TYPE::GetValue(flow->GetTotal_CL());
+        CHECK(drag != 0);
+        REQUIRE(Residual(*equations));
+        auto index = 0u;
+        for (const auto& block : equations->GetBlocks())
+          for (auto v = 0u; v < block.variables; ++v) {
+            double local = 0, global = 0;
+            for (auto p = 0ul; p < actual.Geometry()->GetnPointDomain(); ++p)
+              local += pow(SU2_TYPE::GetValue(block.solver->LinSysRes(p, v)), 2);
+            SU2_MPI::Allreduce(&local, &global, 1, MPI_DOUBLE, MPI_SUM, SU2_MPI::GetComm());
+            CHECK(reported[index++] == Approx(std::sqrt(global / actual.Geometry()->GetGlobal_nPointDomain()))
+                                          .epsilon(1e-10).margin(1e-12));
+          }
+        actual.Config()->SetGlobalParam(actual.Config()->GetKind_Solver(), RUNTIME_FLOW_SYS);
+        SU2_OMP_PARALLEL {
+          flow->Postprocessing(actual.Geometry(), actual.Solvers(), actual.Config(), MESH_0);
+          flow->Pressure_Forces(actual.Geometry(), actual.Config());
+          flow->Momentum_Forces(actual.Geometry(), actual.Config());
+          flow->Friction_Forces(actual.Geometry(), actual.Config());
+        }
+        END_SU2_OMP_PARALLEL
+        CHECK(drag == Approx(SU2_TYPE::GetValue(flow->GetTotal_CD())).epsilon(1e-10).margin(1e-12));
+        CHECK(lift == Approx(SU2_TYPE::GetValue(flow->GetTotal_CL())).epsilon(1e-10).margin(1e-12));
+      }
+}
+
+TEST_CASE("Auxiliary Newton ownership survives native flow CFL adaptation", "[NewtonProduction]") {
+  for (const auto& physics : {sa, sst + "KIND_TRANS_MODEL= LM\n", species}) {
+    CAPTURE(physics);
+    const auto selected = physics == species ? "SPECIES" : (physics == sa ? "TURB" : "TURB,TRANS");
+    Problem problem(physics + "NEWTON_EQUATIONS= (" + selected + ")\nNEWTON_COUPLED= YES\n"
+        "NEWTON_DIAGNOSTICS= NO\nNEWTON_ADAPT_CFL= NO\nCFL_NUMBER= 0.05\n"
+        "CFL_REDUCTION_TURB= 0.7\nCFL_REDUCTION_SPECIES= 0.4\nCFL_ADAPT= YES\n"
+        "CFL_ADAPT_PARAM= (0.5,2,0.001,100,0.01,0)\nLINEAR_SOLVER_PREC= ILU\n");
+    auto& driver = *problem.driver;
+    for (unsigned iteration = 0; iteration < 3; ++iteration) {
+      driver.Config()->SetInnerIter(iteration);
+      driver.OuterIteration();
+      for (auto slot = 0u; slot < MAX_SOLS; ++slot)
+        if (driver.Integrations()[slot]) REQUIRE_FALSE(driver.Integrations()[slot]->GetNumericalFailure());
+      for (auto runtime : driver.Config()->GetNewtonEquations()) {
+        auto* solver = driver.Solvers()[driver.Config()->GetContainerPosition(runtime)];
+        const double cfl = 0.05 * (runtime == RUNTIME_SPECIES_SYS ? 0.4 : 0.7);
+        for (auto p = 0ul; p < driver.Geometry()->GetnPointDomain(); ++p)
+          CHECK(solver->GetNodes()->GetLocalCFL(p) == Approx(cfl));
+      }
+      CHECK(driver.Solvers()[FLOW_SOL]->GetNodes()->GetLocalCFL(0) != Approx(0.05));
+    }
+  }
+}
+
+TEST_CASE("Production Newton failure stops remaining auxiliaries after exact group rollback", "[NewtonProduction]") {
+  for (bool coupled : {false, true}) {
+    CAPTURE(coupled);
+    Problem problem(sst + "KIND_TRANS_MODEL= LM\nNEWTON_EQUATIONS= (FLOW" +
+        std::string(coupled ? ",TURB,TRANS" : "") + ")\nNEWTON_COUPLED= YES\n"
+        "NEWTON_DIAGNOSTICS= NO\nNEWTON_RETRIES= 0\nNEWTON_LINEAR_ITER= 1\n"
+        "NEWTON_LINEAR_TOL= 1e-8\nNEWTON_FORCING_MIN= 1e-10\nNEWTON_FORCING_MAX= 1e-8\n"
+        "CFL_NUMBER= 100\nLINEAR_SOLVER_PREC= ILU\n");
+    auto& driver = *problem.driver;
+    auto equations = problem.Equations({RUNTIME_FLOW_SYS, RUNTIME_TURB_SYS, RUNTIME_TRANS_SYS});
+    REQUIRE(Residual(*equations, true));
+    REQUIRE(Residual(*equations, true));
+    equations->Capture();
+    auto before = MakeVector(driver, equations->GetnVar()), after = before;
+    equations->Pack(before);
+    driver.OuterIteration();
+    auto* integration = dynamic_cast<CNewtonIntegration*>(driver.Integrations()[FLOW_SOL]);
+    REQUIRE(integration);
+    REQUIRE(integration->GetNumericalFailure());
+    CHECK(integration->GetLastAttempt().linearFailure);
+    CHECK(integration->GetLastAttempt().rollbackStateError == 0);
+    equations->Pack(after);
+    CHECK(MaxDifference(before, after) == 0);
+  }
 }
 
 TEST_CASE("One Newton controller advances native individual equations and coupled groups", "[NewtonController]") {

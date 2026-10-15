@@ -1888,33 +1888,42 @@ void CConfig::SetConfig_Options() {
   /* DESCRIPTION: Use a Newton-Krylov method. */
   addBoolOption("NEWTON_KRYLOV", NewtonKrylov, false);
   addBoolOption("SST_NEWTON", sstNewtonOptions.enabled, false);
-  addBoolOption("SST_NEWTON_LINE_SEARCH", sstNewtonOptions.lineSearch, true);
-  addBoolOption("SST_NEWTON_RECOVERY", sstNewtonOptions.recovery, true);
-  addBoolOption("SST_NEWTON_ADAPT_CFL", sstNewtonOptions.adaptCFL, true);
-  addBoolOption("SST_NEWTON_ADAPTIVE_FORCING", sstNewtonOptions.adaptiveForcing, true);
-  addBoolOption("SST_NEWTON_DIAGNOSTICS", sstNewtonOptions.diagnostics, true);
-  addBoolOption("SST_NEWTON_PSEUDO_TIME_MERIT", sstNewtonOptions.pseudoTimeMerit, true);
-  addDoubleOption("SST_NEWTON_ARMIJO", sstNewtonOptions.armijo, 0.0001);
-  addDoubleOption("SST_NEWTON_RESTORE_TOL", sstNewtonOptions.restoreTolerance, 1e-10);
-  addDoubleOption("SST_NEWTON_STEP_TOL", sstNewtonOptions.stepTolerance, 3.666852862501036e-11);
-  addDoubleOption("SST_NEWTON_INTERPOLATION_MIN", sstNewtonOptions.interpolationMin, 0.1);
-  addDoubleOption("SST_NEWTON_INTERPOLATION_MAX", sstNewtonOptions.interpolationMax, 0.5);
-  addDoubleOption("SST_NEWTON_CFL_MIN", sstNewtonOptions.cflMin, 0.001);
-  addDoubleOption("SST_NEWTON_CFL_MAX", sstNewtonOptions.cflMax, 1000000);
-  addDoubleOption("SST_NEWTON_CFL_SHRINK", sstNewtonOptions.shrink, 0.25);
-  addDoubleOption("SST_NEWTON_CFL_GROW", sstNewtonOptions.grow, 2);
-  addDoubleOption("SST_NEWTON_MODEL_POOR", sstNewtonOptions.poorAgreement, 0.25);
-  addDoubleOption("SST_NEWTON_MODEL_GOOD", sstNewtonOptions.goodAgreement, 0.75);
-  addDoubleOption("SST_NEWTON_FD_STEP", sstNewtonOptions.fdStep, 1e-8);
-  addDoubleOption("SST_NEWTON_FD_RELATIVE_STEP", sstNewtonOptions.relativeFDStep, 0.0001);
-  addDoubleOption("SST_NEWTON_LINEAR_TOL", sstNewtonOptions.linearTolerance, 0.001);
-  addDoubleOption("SST_NEWTON_FORCING_MIN", sstNewtonOptions.etaMin, 0.00001);
-  addDoubleOption("SST_NEWTON_FORCING_MAX", sstNewtonOptions.etaMax, 0.1);
-  addDoubleOption("SST_NEWTON_FORCING_GAMMA", sstNewtonOptions.forcingGamma, 0.9);
-  addDoubleOption("SST_NEWTON_FORCING_POWER", sstNewtonOptions.forcingPower, 1.5);
-  addUnsignedShortOption("SST_NEWTON_BACKTRACKS", sstNewtonOptions.maxBacktracks, 20);
-  addUnsignedShortOption("SST_NEWTON_RETRIES", sstNewtonOptions.maxRetries, 16);
-  addUnsignedShortOption("SST_NEWTON_LINEAR_ITER", sstNewtonOptions.linearIterations, 80);
+  static const map<string, unsigned short> newtonSystems{{"FLOW", RUNTIME_FLOW_SYS}, {"TURB", RUNTIME_TURB_SYS},
+                                                 {"TRANS", RUNTIME_TRANS_SYS}, {"SPECIES", RUNTIME_SPECIES_SYS}};
+  addEnumListOption("NEWTON_EQUATIONS", nNewtonEquations, NewtonEquations, newtonSystems);
+  addBoolOption("NEWTON_COUPLED", NewtonCoupled, false);
+  addBoolOption("NEWTON_BLOCK_LOWER", NewtonBlockLower, false);
+  auto addNewtonOptions = [&](const string& prefix, NonlinearGlobalization::Options<su2double>& options) {
+    addBoolOption(prefix + "LINE_SEARCH", options.lineSearch, true);
+    addBoolOption(prefix + "RECOVERY", options.recovery, true);
+    addBoolOption(prefix + "ADAPT_CFL", options.adaptCFL, true);
+    addBoolOption(prefix + "ADAPTIVE_FORCING", options.adaptiveForcing, true);
+    addBoolOption(prefix + "DIAGNOSTICS", options.diagnostics, true);
+    addBoolOption(prefix + "PSEUDO_TIME_MERIT", options.pseudoTimeMerit, true);
+    addDoubleOption(prefix + "ARMIJO", options.armijo, 0.0001);
+    addDoubleOption(prefix + "RESTORE_TOL", options.restoreTolerance, 1e-10);
+    addDoubleOption(prefix + "STEP_TOL", options.stepTolerance, 3.666852862501036e-11);
+    addDoubleOption(prefix + "INTERPOLATION_MIN", options.interpolationMin, 0.1);
+    addDoubleOption(prefix + "INTERPOLATION_MAX", options.interpolationMax, 0.5);
+    addDoubleOption(prefix + "CFL_MIN", options.cflMin, 0.001);
+    addDoubleOption(prefix + "CFL_MAX", options.cflMax, 1000000);
+    addDoubleOption(prefix + "CFL_SHRINK", options.shrink, 0.25);
+    addDoubleOption(prefix + "CFL_GROW", options.grow, 2);
+    addDoubleOption(prefix + "MODEL_POOR", options.poorAgreement, 0.25);
+    addDoubleOption(prefix + "MODEL_GOOD", options.goodAgreement, 0.75);
+    addDoubleOption(prefix + "FD_STEP", options.fdStep, 1e-8);
+    addDoubleOption(prefix + "FD_RELATIVE_STEP", options.relativeFDStep, 0.0001);
+    addDoubleOption(prefix + "LINEAR_TOL", options.linearTolerance, 0.001);
+    addDoubleOption(prefix + "FORCING_MIN", options.etaMin, 0.00001);
+    addDoubleOption(prefix + "FORCING_MAX", options.etaMax, 0.1);
+    addDoubleOption(prefix + "FORCING_GAMMA", options.forcingGamma, 0.9);
+    addDoubleOption(prefix + "FORCING_POWER", options.forcingPower, 1.5);
+    addUnsignedShortOption(prefix + "BACKTRACKS", options.maxBacktracks, 20);
+    addUnsignedShortOption(prefix + "RETRIES", options.maxRetries, 16);
+    addUnsignedShortOption(prefix + "LINEAR_ITER", options.linearIterations, 80);
+  };
+  addNewtonOptions("SST_NEWTON_", sstNewtonOptions);
+  addNewtonOptions("NEWTON_", newtonOptions);
   /* DESCRIPTION: Integer parameters {startup iters, precond iters, initial tolerance relaxation}. */
   addUShortArrayOption("NEWTON_KRYLOV_IPARAM", NK_IntParam.size(), true, NK_IntParam.data());
   /* DESCRIPTION: Double parameters {startup residual drop, precond tolerance, full tolerance residual drop, findiff step, NK relaxation}. */
@@ -3712,6 +3721,51 @@ void CConfig::SetPostprocessing(SU2_COMPONENT val_software, unsigned short val_i
 #if defined(CODI_REVERSE_TYPE) || defined(CODI_FORWARD_TYPE)
     SU2_MPI::Error("SST_NEWTON is not available in differentiation executables", CURRENT_FUNCTION);
 #endif
+  }
+
+  const auto newtonError = newtonOptions.Passive([](const su2double& x) { return SU2_TYPE::GetValue(x); }).Validate();
+  if (!newtonError.empty()) SU2_MPI::Error(newtonError, CURRENT_FUNCTION);
+  if (nNewtonEquations) {
+    if (nMGLevels != 0)
+      SU2_MPI::Error("NEWTON_EQUATIONS currently requires MGLEVEL= 0", CURRENT_FUNCTION);
+    if (Kind_Solver != MAIN_SOLVER::EULER && Kind_Solver != MAIN_SOLVER::NAVIER_STOKES &&
+        Kind_Solver != MAIN_SOLVER::RANS && Kind_Solver != MAIN_SOLVER::INC_EULER &&
+        Kind_Solver != MAIN_SOLVER::INC_NAVIER_STOKES && Kind_Solver != MAIN_SOLVER::INC_RANS)
+      SU2_MPI::Error("NEWTON_EQUATIONS requires a supported fluid solver", CURRENT_FUNCTION);
+    if (sstOptions.enabled)
+      SU2_MPI::Error("Select either SST_NEWTON or NEWTON_EQUATIONS", CURRENT_FUNCTION);
+    if (GetNEMOProblem() || TimeMarching != TIME_MARCHING::STEADY || Time_Domain || nZone != 1 ||
+        Multizone_Problem || Enable_Cuda || Kind_MGCycle == MG_CYCLE::FULL ||
+        ContinuousAdjoint || DiscreteAdjoint || DirectDiff != NO_DERIVATIVE || nMarker_PerBound)
+      SU2_MPI::Error("NEWTON_EQUATIONS requires steady primal single-zone CPU cases without periodic markers or full-MG startup",
+                     CURRENT_FUNCTION);
+#if defined(CODI_REVERSE_TYPE) || defined(CODI_FORWARD_TYPE)
+    SU2_MPI::Error("NEWTON_EQUATIONS requires a primal executable", CURRENT_FUNCTION);
+#endif
+    bool hasFlow = false;
+    for (auto i = 0u; i < nNewtonEquations; ++i) {
+      const auto equation = NewtonEquations[i];
+      for (auto j = 0u; j < i; ++j)
+        if (NewtonEquations[j] == equation) SU2_MPI::Error("Duplicate equation in NEWTON_EQUATIONS", CURRENT_FUNCTION);
+      hasFlow |= equation == RUNTIME_FLOW_SYS;
+      if ((equation == RUNTIME_TURB_SYS && Kind_Turb_Model == TURB_MODEL::NONE) ||
+          (equation == RUNTIME_TRANS_SYS && Kind_Trans_Model != TURB_TRANS_MODEL::LM) ||
+          (equation == RUNTIME_SPECIES_SYS && Kind_Species_Model == SPECIES_MODEL::NONE))
+        SU2_MPI::Error("Unavailable equation in NEWTON_EQUATIONS", CURRENT_FUNCTION);
+      if ((equation == RUNTIME_SPECIES_SYS && Kind_TimeIntScheme_Species != EULER_IMPLICIT) ||
+          ((equation == RUNTIME_TURB_SYS || equation == RUNTIME_TRANS_SYS) && Kind_TimeIntScheme_Turb != EULER_IMPLICIT))
+        SU2_MPI::Error("Selected Newton scalar equations require implicit discretization", CURRENT_FUNCTION);
+      const double factor = equation == RUNTIME_FLOW_SYS ? 1.0 : SU2_TYPE::GetValue(
+          equation == RUNTIME_SPECIES_SYS ? CFLRedCoeff_Species : CFLRedCoeff_Turb);
+      if (!(factor > 0) || !Armijo::IsFinite(factor))
+        SU2_MPI::Error("Selected Newton CFL reduction factors must be finite and positive", CURRENT_FUNCTION);
+    }
+    if (NewtonKrylov && !hasFlow)
+      SU2_MPI::Error("NEWTON_KRYLOV selects FLOW; include FLOW in NEWTON_EQUATIONS or set NEWTON_KRYLOV= NO", CURRENT_FUNCTION);
+    if (Kind_Incomp_System == INCOMP_SYSTEM::PRESSURE_BASED)
+      SU2_MPI::Error("NEWTON_EQUATIONS requires the density-based incompressible formulation", CURRENT_FUNCTION);
+  } else if (NewtonCoupled || NewtonBlockLower) {
+    SU2_MPI::Error("NEWTON_COUPLED and NEWTON_BLOCK_LOWER require NEWTON_EQUATIONS", CURRENT_FUNCTION);
   }
 
   unsigned short iCFL, iMarker;

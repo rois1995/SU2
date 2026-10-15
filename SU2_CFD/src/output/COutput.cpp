@@ -867,12 +867,12 @@ bool COutput::GetCauchyCorrectedTimeConvergence(const CConfig *config){
   return TimeConvergence;
 }
 
-void COutput::WriteFailureRestart(CGeometry* geometry, CConfig* config, CSolver** solvers) {
+void COutput::WriteFailureRestart(CGeometry* geometry, CConfig* config, CSolver** solvers, const std::string& suffix) {
   AllocateDataSorters(config, geometry);
   LoadDataIntoSorter(config, geometry, solvers);
   volumeDataSorter->SortOutputData();
   if (volumeDataSorterCompact) volumeDataSorterCompact->SortOutputData();
-  WriteToFile(config, geometry, OUTPUT_TYPE::RESTART_BINARY, config->GetRestart_FileName()+"_sst_newton_failure");
+  WriteToFile(config, geometry, OUTPUT_TYPE::RESTART_BINARY, config->GetRestart_FileName() + suffix);
 }
 
 bool COutput::SetResultFiles(CGeometry *geometry, CConfig *config, CSolver** solver_container,

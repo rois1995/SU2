@@ -657,7 +657,8 @@ public:
    * \param[in] fileName - The file name. If empty, the filenames are automatically determined.
    */
   void WriteToFile(CConfig *config, CGeometry *geometry, OUTPUT_TYPE format, string fileName = "");
-  void WriteFailureRestart(CGeometry* geometry, CConfig* config, CSolver** solvers);
+  void WriteFailureRestart(CGeometry* geometry, CConfig* config, CSolver** solvers,
+                            const std::string& suffix = "_newton_failure");
 
 protected:
 

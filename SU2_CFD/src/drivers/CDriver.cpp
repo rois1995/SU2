@@ -1227,9 +1227,7 @@ void CDriver::InitializeIntegration(CConfig *config, CSolver **solver, CIntegrat
   if (rank == MASTER_NODE)
     cout << endl <<"----------------- Integration Preprocessing ( Zone " << config->GetiZone() <<" ) ------------------" << endl;
 
-  MAIN_SOLVER kindMainSolver = config->GetKind_Solver();
-
-  integration = CIntegrationFactory::CreateIntegrationContainer(kindMainSolver, solver);
+  integration = CIntegrationFactory::CreateIntegrationContainer(config, solver);
 
 }
 

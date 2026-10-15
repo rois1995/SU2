@@ -27,6 +27,14 @@ class CNewtonIntegration final : public CIntegration {
         prefix(std::move(diagnostics)) {}
   void MultiGrid_Iteration(CGeometry****, CSolver*****, CNumerics******, CConfig**, unsigned short, unsigned short,
                            unsigned short) override;
+  void SingleGrid_Iteration(CGeometry**** g, CSolver***** s, CNumerics****** n, CConfig** c, unsigned short runtime,
+                            unsigned short zone, unsigned short instance) override {
+    MultiGrid_Iteration(g, s, n, c, runtime, zone, instance);
+  }
+  bool IsNewtonEquation(unsigned short runtime) const override {
+    return std::find(systems.begin(), systems.end(), runtime) != systems.end();
+  }
+  void RefreshAfterOuterIteration() override;
 #if !defined(CODI_FORWARD_TYPE) && !defined(CODI_REVERSE_TYPE)
   using Scalar = passivedouble;
   struct Attempt {

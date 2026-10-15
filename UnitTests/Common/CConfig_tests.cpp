@@ -46,6 +46,30 @@ TEST_CASE("SST Newton named options are parsed with an inactive legacy default",
   REQUIRE_FALSE(options.adaptiveForcing);
 }
 
+TEST_CASE("Common Newton selection grouping and controls are independent", "[globalization][config]") {
+  for (bool coupled : {false, true}) {
+    std::stringstream input;
+    input << "SOLVER= RANS\nKIND_TURB_MODEL= SST\nKIND_TRANS_MODEL= LM\n"
+             "MESH_FORMAT= BOX\nMGLEVEL= 0\nMACH_NUMBER= 0.15\nREYNOLDS_NUMBER= 6e6\n"
+             "NEWTON_EQUATIONS= (TRANS,TURB)\nNEWTON_RETRIES= 3\nNEWTON_CFL_MIN= 0.01\n"
+             "NEWTON_ARMIJO= 0.0002\nNEWTON_ADAPTIVE_FORCING= NO\nNEWTON_BLOCK_LOWER= YES\n"
+             "NEWTON_COUPLED= " << (coupled ? "YES" : "NO") << "\n";
+    CConfig config(input, SU2_COMPONENT::SU2_CFD, false);
+    const std::vector<unsigned short> expected{RUNTIME_TRANS_SYS, RUNTIME_TURB_SYS};
+    CHECK(config.GetNewtonEquations() == expected);
+    CHECK(config.GetNewtonCoupled() == coupled);
+    CHECK(config.GetNewtonBlockLower());
+    CHECK_FALSE(config.GetNewtonKrylov());
+    const auto options = config.GetNewtonOptions().Passive([](const su2double& x) { return SU2_TYPE::GetValue(x); });
+    CHECK(options.maxRetries == 3);
+    CHECK(options.cflMin == 0.01);
+    CHECK(options.armijo == 0.0002);
+    CHECK_FALSE(options.adaptiveForcing);
+    CHECK(config.GetSSTNewtonOptions().maxRetries == 16);
+    CHECK_FALSE(config.GetSSTNewtonOptions().enabled);
+  }
+}
+
 TEST_CASE("SST production and compressibility options remain independent", "[Config][SST]") {
   for (const std::string production : {"VORTICITY", "KATO-LAUNDER"}) {
     for (const std::string correction : {"COMPRESSIBILITY-WILCOX", "COMPRESSIBILITY-SARKAR"}) {
