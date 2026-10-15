@@ -1,0 +1,17 @@
+WARNING: Setting WINDOW_START_ITER = RESTART_ITER for meaningful running average.
+
+
+Error in "void CConfig::SetPostprocessing(SU2_COMPONENT, short unsigned int, short unsigned int)": 
+-------------------------------------------------------------------------
+ADAP_BL_FIRST_HEIGHT= 0.05 is below the minimum size 0.1 of the metric (ADAP_HMIN, ADAP_HMINS), lower it (ADAP_BL_MARKER cylinder).
+------------------------------ Error Exit -------------------------------
+
+
+--------------------------------------------------------------------------
+MPI_ABORT was invoked on rank 0 in communicator MPI_COMM_WORLD
+with errorcode 1.
+
+NOTE: invoking MPI_ABORT causes Open MPI to kill all MPI processes.
+You may or may not see output from other processes, depending on
+exactly when Open MPI kills them.
+--------------------------------------------------------------------------

@@ -1055,12 +1055,13 @@ void CheckPositiveFlow(const std::vector<FlowRecord>& records) {
   }
 }
 std::unique_ptr<TetraDriver> ReloadCurved(World& world,std::unique_ptr<TetraDriver> driver,
-                                        const std::string& name,const std::string& mesh,const std::string& format) {
+                                        const std::string& name,const std::string& mesh,const std::string& format,
+                                        const std::string& configuration = {}) {
   driver->Config().SetTimeIter(2);const auto before=State(driver->Geometry(),driver->Solver());
   const auto expected=Flow(world,driver->Geometry(),driver->Solver());driver->WriteTimeHistoryRestarts();
   CHECK(State(driver->Geometry(),driver->Solver())==before);
   if(!world.rank) {
-    std::ifstream input(name+".cfg");std::string text((std::istreambuf_iterator<char>(input)),{});
+    std::ifstream input(name+".cfg");std::string text=configuration.empty()?std::string((std::istreambuf_iterator<char>(input)),{}):configuration;
     const std::string original="MESH_FILENAME= "+name+".su2";const auto at=text.find(original);REQUIRE(at!=std::string::npos);
     text.replace(at,original.size(),"MESH_FILENAME= "+mesh);
     const std::string oldformat="MESH_FORMAT= SU2";const auto f=text.find(oldformat);REQUIRE(f!=std::string::npos);
@@ -2151,3 +2152,5 @@ TEST_CASE("Cold native cylinder BL construction and release use the same origina
   }
 
 }
+
+#include "fixtures/native_curved_rans_runtime.inc"

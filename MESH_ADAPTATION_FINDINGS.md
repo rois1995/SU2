@@ -5437,3 +5437,25 @@ prevents useful timing comparison. Next actual curved RANS/current+BDF/SA workfl
 All owned jobs terminal; full Goal3 ACTIVE. Evidence/limits in
 `region_construction_v1/distributed_field_summary.json` under native_3d_bl_v1 and
 [field handbook](Handbook/GOAL3_DISTRIBUTED_REGION_FIELD.md).
+
+
+## 2026-10-15 — actual curved RANS exposes the complexity integration gap
+
+New hidden NativeCurvedRANS3D control connects actual dual-time RANS/SA evolution,
+computed pressure metric, full native backend/transfer, SU2/CGNS restart and subsequent
+sensor-only remeshing. It is NOT qualified: after initial inconsistent HMIN.1/height.05
+config refusal (corrected to HMIN.025), actual step0 reaches geometric complexity
+cell0 and exhausts the original parallel-chord radial quadrature point budget.
+Engine-only frozen-field success bypassed this metric-construction stage.
+
+A certified cylinder-axis extension of the existing positive sphere fan also exhausts
+65536 points in the prepared independent coarse-prism volume control. Do not promote
+it or raise bounds: production CBoundaryLayerMetric.cpp is restored to9bd5fb76e4.
+Exact failed source/build/binary/log receipts are preserved. All jobs terminal; local
+binary needs rebuilding because it still includes the rejected experimental object.
+
+Next connected design is positive axial chords with polar cross-section/radial-band
+partition, reusing projection/clipping and actual geometric/P1 density callbacks.
+Independent positive-weight/volume/polar-density proof and complete actual RANS workflow
+remain required before any MPI matrix or runtime qualification. Full Goal3 ACTIVE;
+[diagnosis/design/evidence](Handbook/GOAL3_CURVED_RANS_RUNTIME.md).

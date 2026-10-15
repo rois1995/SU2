@@ -100,7 +100,7 @@
     "wall_reconstruction_v1/joint_connectivity_summary.json"
   ],
   "execution_state": {
-    "status": "Distributed source-refresh/removal/rebuild and hard-target compatibility pass; all owned jobs terminal. Next actual curved RANS/current+BDF/transfer/restart; full Goal3 ACTIVE.",
+    "status": "Actual curved RANS probe compiles and runs first solve but fails coarse-cell geometric BL complexity before remeshing; axis-fan experiment also fails unchanged point cap and is not promoted. Next positive cylinder annulus integration, then full workflow/MPI. Full Goal3 ACTIVE.",
     "CFD_runs": 0,
     "production_MPI": "Current PASS N/M1/1,2/1,2/2; N/M4/1,4/2,4/4 remain required. Previous full matrix historical.",
     "independent_frames": 6
@@ -235,7 +235,7 @@
     "scope": "One planar cube production case plus six focused first-row geometry/movement cases. Actual computed metric, conservative current+BDF/bounded-SA and SU2/CGNS/reference/restart checks; independent exact embedding, full composed metric, wall footprint and height. No new MPI, full regressions, general layer coverage, actual CFD accuracy or performance qualification."
   },
   "owned_jobs": {
-    "status": "All final build, serial/MPI2/4 field/source-refresh and hard-target compatibility checks terminal PASS; final source/binary pinned in distributed_field_summary.json."
+    "status": "All owned builds and serial RANS/volume-control probes terminal. Production integration restored to9bd5fb76e4; local binary contains rejected axis-fan object and requires rebuild."
   },
   "wall_reconstruction": {
     "status": "PASS_PLANAR_STRONGER_FIELD_LIMITED_SCOPE",
@@ -650,5 +650,17 @@
     ],
     "summary": "region_construction_v1/distributed_field_summary.json",
     "handbook": "Handbook/GOAL3_DISTRIBUTED_REGION_FIELD.md"
+  },
+  "curved_RANS_runtime": {
+    "status": "UNQUALIFIED_COMPLEXITY_INTEGRATION_BLOCKER",
+    "handbook": "Handbook/GOAL3_CURVED_RANS_RUNTIME.md",
+    "cases": [
+      "native_curved_rans_v1",
+      "native_curved_rans_n1_m1_v1",
+      "native_curved_volume_controls_v1"
+    ],
+    "production_change": "Rejected axis-fan extension restored; exact source preserved by failed control snapshot/receipt. New runtime and independent polar-volume tests retained as hidden failing controls.",
+    "next": "Positive cylinder-axis chords and polar cross-section/radial-band partition; unchanged targets, geometric/P1 composition, point/work/error/mesh gates. Complete actual workflow before MPI matrix.",
+    "complete": false
   }
 }

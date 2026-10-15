@@ -3,8 +3,14 @@
 Worktree `/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated`.
 Branch `codex/native-3d-bl`, based on Goal2
 `c43a8a3907ea2655e4ebbb6286ab16c3fa625d8b`. Full Goal3 ACTIVE/incomplete.
-The connected distributed-region-field checkpoint is qualified; all owned jobs are
-terminal. Verify HEAD/remote for its publication SHA. No cluster submission, messaging,
+The connected distributed-region-field checkpoint9bd5fb76e4 is qualified/pushed.
+The subsequent actual curved RANS/current+BDF/SA check compiles but exposes coarse-cell
+BL complexity quadrature exhaustion before remeshing. Extending the spherical radial
+fan to a certified cylinder-axis point also fails its volume control. Both failures
+and initial invalid-config refusal are preserved. Rejected production change restored
+to9bd5fb76e4; local binary still contains the rejected object and MUST be rebuilt.
+All owned jobs terminal. No new curved RANS runtime qualification.
+Read [failure evidence, next integration strategy and gates](Handbook/GOAL3_CURVED_RANS_RUNTIME.md). No cluster submission, messaging,
 foreign `ClusterResults/`, AdapNoExt or dependency modification.
 
 **Complete curved meshes are accepted under unchanged constraints.** The original
@@ -36,7 +42,8 @@ remains one visible radial/caps region on one worker. Rebuild records2529..2567 
 no low communication cost, lifecycle speedup or scalable generation claim follows,
 especially under host contention.
 
-**Next connected capability:** actual curved RANS evolution and conservative
+**Next connected work:** geometry-aligned cylindrical annulus integration, then actual
+curved RANS evolution and conservative
 current+BDF/SA transfer/restart with refreshed sources, reusing existing runtime
 fixtures. Current tests import actual CFD geometry but do not advance or transfer
 flow histories. Full Goal3 also needs stronger/interacting/exterior fields/geometry,
