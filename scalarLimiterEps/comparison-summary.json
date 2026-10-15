@@ -1,0 +1,1157 @@
+{
+  "metadata": {
+    "develop": "3aa1a95558f0af7ff43ccc3ec2fe403aff655811",
+    "muscl": "a3968c94950c18314a61e76703022883071cf655",
+    "epsilon": "f1b5967a57cba9d1aa1eea9d33d33ca07531d6f6",
+    "compiler": "GCC 9.4.0",
+    "build_options": [
+      "release",
+      "skylake",
+      "MPI enabled",
+      "OpenMP enabled; OMP_NUM_THREADS=1",
+      "CGNS/TecIO disabled"
+    ],
+    "ranks": 2,
+    "method": "Identical historical numerical configs for each variant; add RMS/MAX/linear residual history diagnostics. Compare iterations, not concurrent wall times.",
+    "muscl_binary_note": "Saved eef97f4ae5 binary; Common/SU2_CFD sources are identical to a3968c9495. Intervening changes only affect test references and new unit-file author attribution."
+  },
+  "main_comparisons": [
+    {
+      "variant": "develop",
+      "case": "sa_naca",
+      "source_sha": "3aa1a95558f0af7ff43ccc3ec2fe403aff655811",
+      "iterations": 272,
+      "converged": true,
+      "target_rms_density": -12.0,
+      "last": {
+        "Time_Iter": 0.0,
+        "Outer_Iter": 0.0,
+        "Inner_Iter": 271.0,
+        "rms[Rho]": -12.0024902,
+        "rms[RhoU]": -11.81500551,
+        "rms[RhoV]": -12.12021981,
+        "rms[RhoE]": -11.65571838,
+        "rms[nu]": -15.26181464,
+        "max[Rho]": -10.22822775,
+        "max[RhoU]": -9.936751675,
+        "max[RhoV]": -10.55170835,
+        "max[RhoE]": -9.74478166,
+        "max[nu]": -13.85016156,
+        "Linear_Solver_Iterations": 20.0,
+        "LinSolRes": -1.488382753,
+        "LinSolIterTurb": 20.0,
+        "LinSolResTurb": -4.640167192,
+        "RefForce": 0.01575,
+        "CD": 0.01645075939,
+        "CL": 1.083298535,
+        "CSF": 0.0,
+        "CMx": 0.0,
+        "CMy": 0.0,
+        "CMz": -0.004654459775,
+        "CFx": -0.1719119811,
+        "CFy": 1.06969744,
+        "CFz": 0.0,
+        "CEff": 65.85097437,
+        "Buffet": 0.03925368515
+      }
+    },
+    {
+      "variant": "muscl",
+      "case": "sa_naca",
+      "source_sha": "a3968c94950c18314a61e76703022883071cf655",
+      "iterations": 272,
+      "converged": true,
+      "target_rms_density": -12.0,
+      "last": {
+        "Time_Iter": 0.0,
+        "Outer_Iter": 0.0,
+        "Inner_Iter": 271.0,
+        "rms[Rho]": -12.00241726,
+        "rms[RhoU]": -11.81498272,
+        "rms[RhoV]": -12.1203246,
+        "rms[RhoE]": -11.6556001,
+        "rms[nu]": -15.26181432,
+        "max[Rho]": -10.22800599,
+        "max[RhoU]": -9.936658318,
+        "max[RhoV]": -10.55194651,
+        "max[RhoE]": -9.744704511,
+        "max[nu]": -13.85016186,
+        "Linear_Solver_Iterations": 20.0,
+        "LinSolRes": -1.4888936,
+        "LinSolIterTurb": 20.0,
+        "LinSolResTurb": -4.64016077,
+        "RefForce": 0.01575,
+        "CD": 0.01645075939,
+        "CL": 1.083298535,
+        "CSF": 0.0,
+        "CMx": 0.0,
+        "CMy": 0.0,
+        "CMz": -0.004654459774,
+        "CFx": -0.1719119811,
+        "CFy": 1.06969744,
+        "CFz": 0.0,
+        "CEff": 65.85097439,
+        "Buffet": 0.03925368515
+      }
+    },
+    {
+      "variant": "epsilon",
+      "case": "sa_naca",
+      "source_sha": "f1b5967a57cba9d1aa1eea9d33d33ca07531d6f6",
+      "iterations": 268,
+      "converged": true,
+      "target_rms_density": -12.0,
+      "last": {
+        "Time_Iter": 0.0,
+        "Outer_Iter": 0.0,
+        "Inner_Iter": 267.0,
+        "rms[Rho]": -12.00129825,
+        "rms[RhoU]": -11.83223171,
+        "rms[RhoV]": -12.21924774,
+        "rms[RhoE]": -11.67268683,
+        "rms[nu]": -14.30250384,
+        "max[Rho]": -10.23303635,
+        "max[RhoU]": -9.937049933,
+        "max[RhoV]": -10.58754127,
+        "max[RhoE]": -9.755277211,
+        "max[nu]": -12.6810394,
+        "Linear_Solver_Iterations": 20.0,
+        "LinSolRes": -1.508625874,
+        "LinSolIterTurb": 20.0,
+        "LinSolResTurb": -5.920090611,
+        "RefForce": 0.01575,
+        "CD": 0.01640976864,
+        "CL": 1.082377267,
+        "CSF": 0.0,
+        "CMx": 0.0,
+        "CMy": 0.0,
+        "CMz": -0.004837072679,
+        "CFx": -0.1717923726,
+        "CFy": 1.068783051,
+        "CFz": 0.0,
+        "CEff": 65.95932526,
+        "Buffet": 0.03925368515
+      }
+    },
+    {
+      "variant": "develop",
+      "case": "sst_flatplate",
+      "source_sha": "3aa1a95558f0af7ff43ccc3ec2fe403aff655811",
+      "iterations": 10000,
+      "converged": false,
+      "target_rms_density": -12.0,
+      "last": {
+        "Time_Iter": 0.0,
+        "Outer_Iter": 0.0,
+        "Inner_Iter": 9999.0,
+        "rms[Rho]": -10.71387924,
+        "rms[RhoU]": -8.179601503,
+        "rms[RhoV]": -8.933625667,
+        "rms[RhoE]": -5.183803933,
+        "rms[k]": -5.511485165,
+        "rms[w]": 2.168077453,
+        "max[Rho]": -8.991059575,
+        "max[RhoU]": -6.479600006,
+        "max[RhoV]": -7.208195776,
+        "max[RhoE]": -3.462270518,
+        "max[k]": -4.138911934,
+        "max[w]": 3.761019548,
+        "Linear_Solver_Iterations": 10.0,
+        "LinSolRes": -2.563315449,
+        "LinSolIterTurb": 3.0,
+        "LinSolResTurb": -6.064876069,
+        "RefForce": 6409.460359,
+        "CD": 0.002810590412,
+        "CL": -0.1882680937,
+        "CSF": 0.0,
+        "CMx": 0.0,
+        "CMy": 0.0,
+        "CMz": -0.1407374659,
+        "CFx": 0.002810590412,
+        "CFy": -0.1882680937,
+        "CFz": 0.0,
+        "CEff": -66.98524726,
+        "Buffet": null
+      }
+    },
+    {
+      "variant": "muscl",
+      "case": "sst_flatplate",
+      "source_sha": "a3968c94950c18314a61e76703022883071cf655",
+      "iterations": 10000,
+      "converged": false,
+      "target_rms_density": -12.0,
+      "last": {
+        "Time_Iter": 0.0,
+        "Outer_Iter": 0.0,
+        "Inner_Iter": 9999.0,
+        "rms[Rho]": -8.933080493,
+        "rms[RhoU]": -6.71987326,
+        "rms[RhoV]": -6.319829179,
+        "rms[RhoE]": -3.452615874,
+        "rms[k]": -5.373738224,
+        "rms[w]": 2.168076476,
+        "max[Rho]": -7.343058125,
+        "max[RhoU]": -5.043437757,
+        "max[RhoV]": -4.806144918,
+        "max[RhoE]": -1.866197928,
+        "max[k]": -3.602906922,
+        "max[w]": 3.761019549,
+        "Linear_Solver_Iterations": 10.0,
+        "LinSolRes": -2.973664236,
+        "LinSolIterTurb": 3.0,
+        "LinSolResTurb": -6.040989087,
+        "RefForce": 6409.460359,
+        "CD": 0.002810572963,
+        "CL": -0.1882680939,
+        "CSF": 0.0,
+        "CMx": 0.0,
+        "CMy": 0.0,
+        "CMz": -0.1407374658,
+        "CFx": 0.002810572963,
+        "CFy": -0.1882680939,
+        "CFz": 0.0,
+        "CEff": -66.98566318,
+        "Buffet": null
+      }
+    },
+    {
+      "variant": "epsilon",
+      "case": "sst_flatplate",
+      "source_sha": "f1b5967a57cba9d1aa1eea9d33d33ca07531d6f6",
+      "iterations": 758,
+      "converged": true,
+      "target_rms_density": -12.0,
+      "last": {
+        "Time_Iter": 0.0,
+        "Outer_Iter": 0.0,
+        "Inner_Iter": 757.0,
+        "rms[Rho]": -12.00550304,
+        "rms[RhoU]": -9.09062338,
+        "rms[RhoV]": -9.276348103,
+        "rms[RhoE]": -6.508256534,
+        "rms[k]": -8.243717981,
+        "rms[w]": -2.567271574,
+        "max[Rho]": -10.53383042,
+        "max[RhoU]": -7.709516242,
+        "max[RhoV]": -8.04339857,
+        "max[RhoE]": -4.967181892,
+        "max[k]": -6.778679923,
+        "max[w]": -0.7821429702,
+        "Linear_Solver_Iterations": 10.0,
+        "LinSolRes": -1.350740603,
+        "LinSolIterTurb": 7.0,
+        "LinSolResTurb": -6.224598905,
+        "RefForce": 6409.460359,
+        "CD": 0.002810561139,
+        "CL": -0.1882681077,
+        "CSF": 0.0,
+        "CMx": 0.0,
+        "CMy": 0.0,
+        "CMz": -0.1407374726,
+        "CFx": 0.002810561139,
+        "CFy": -0.1882681077,
+        "CFz": 0.0,
+        "CEff": -66.98594992,
+        "Buffet": null
+      }
+    },
+    {
+      "variant": "develop",
+      "case": "sst_naca",
+      "source_sha": "3aa1a95558f0af7ff43ccc3ec2fe403aff655811",
+      "iterations": 10000,
+      "converged": false,
+      "target_rms_density": -11.0,
+      "last": {
+        "Time_Iter": 0.0,
+        "Outer_Iter": 0.0,
+        "Inner_Iter": 9999.0,
+        "rms[Rho]": -9.794840143,
+        "rms[RhoU]": -9.672347032,
+        "rms[RhoV]": -9.685665322,
+        "rms[RhoE]": -9.238436407,
+        "rms[k]": -7.737085887,
+        "rms[w]": -3.539484191,
+        "max[Rho]": -8.149604434,
+        "max[RhoU]": -8.319921932,
+        "max[RhoV]": -8.211859245,
+        "max[RhoE]": -7.601491358,
+        "max[k]": -6.438866411,
+        "max[w]": -1.959772537,
+        "Linear_Solver_Iterations": 20.0,
+        "LinSolRes": -2.473924996,
+        "LinSolIterTurb": 20.0,
+        "LinSolResTurb": -6.986122141,
+        "RefForce": 0.01575,
+        "CD": 0.01566171754,
+        "CL": 1.073121587,
+        "CSF": 0.0,
+        "CMx": 0.0,
+        "CMy": 0.0,
+        "CMz": -0.007117752855,
+        "CFx": -0.1709218272,
+        "CFy": 1.059538088,
+        "CFz": 0.0,
+        "CEff": 68.51876779,
+        "Buffet": 0.03925368515
+      }
+    },
+    {
+      "variant": "muscl",
+      "case": "sst_naca",
+      "source_sha": "a3968c94950c18314a61e76703022883071cf655",
+      "iterations": 467,
+      "converged": true,
+      "target_rms_density": -11.0,
+      "last": {
+        "Time_Iter": 0.0,
+        "Outer_Iter": 0.0,
+        "Inner_Iter": 466.0,
+        "rms[Rho]": -11.00091462,
+        "rms[RhoU]": -10.81284518,
+        "rms[RhoV]": -11.23214929,
+        "rms[RhoE]": -10.65967405,
+        "rms[k]": -9.918427709,
+        "rms[w]": -3.333463786,
+        "max[Rho]": -9.214917447,
+        "max[RhoU]": -8.915702286,
+        "max[RhoV]": -9.553404367,
+        "max[RhoE]": -8.742353882,
+        "max[k]": -8.341642973,
+        "max[w]": -1.398782954,
+        "Linear_Solver_Iterations": 20.0,
+        "LinSolRes": -1.846588697,
+        "LinSolIterTurb": 20.0,
+        "LinSolResTurb": -8.293888084,
+        "RefForce": 0.01575,
+        "CD": 0.01584384823,
+        "CL": 1.069811237,
+        "CSF": 0.0,
+        "CMx": 0.0,
+        "CMy": 0.0,
+        "CMz": -0.007517729482,
+        "CFx": -0.1701676272,
+        "CFy": 1.056309656,
+        "CFz": 0.0,
+        "CEff": 67.52218411,
+        "Buffet": 0.03925368515
+      }
+    },
+    {
+      "variant": "epsilon",
+      "case": "sst_naca",
+      "source_sha": "f1b5967a57cba9d1aa1eea9d33d33ca07531d6f6",
+      "iterations": 10000,
+      "converged": false,
+      "target_rms_density": -11.0,
+      "last": {
+        "Time_Iter": 0.0,
+        "Outer_Iter": 0.0,
+        "Inner_Iter": 9999.0,
+        "rms[Rho]": -10.00337746,
+        "rms[RhoU]": -9.759242346,
+        "rms[RhoV]": -9.948256919,
+        "rms[RhoE]": -9.459223142,
+        "rms[k]": -10.21405591,
+        "rms[w]": -4.798040454,
+        "max[Rho]": -8.30714933,
+        "max[RhoU]": -7.863830072,
+        "max[RhoV]": -8.297689608,
+        "max[RhoE]": -7.757508899,
+        "max[k]": -8.486120711,
+        "max[w]": -3.101907753,
+        "Linear_Solver_Iterations": 20.0,
+        "LinSolRes": -2.277583959,
+        "LinSolIterTurb": 20.0,
+        "LinSolResTurb": -7.742722212,
+        "RefForce": 0.01575,
+        "CD": 0.01573998739,
+        "CL": 1.070539902,
+        "CSF": 0.0,
+        "CMx": 0.0,
+        "CMy": 0.0,
+        "CMz": -0.007485704697,
+        "CFx": -0.1703964415,
+        "CFy": 1.057009215,
+        "CFz": 0.0,
+        "CEff": 68.01402538,
+        "Buffet": 0.03925368515
+      }
+    }
+  ],
+  "controls": [
+    {
+      "variant": "epsilon_controls",
+      "case": "sst_naca",
+      "name": "sst_naca_cfl100",
+      "source_sha": "f1b5967a57cba9d1aa1eea9d33d33ca07531d6f6",
+      "binary_sha256": "fc40e5e7d05b6813f7a883ce2cec352e149650282e119c0af84385d439dc9559",
+      "changes": {
+        "CFL_NUMBER": "100"
+      },
+      "exit_code": 0,
+      "target_rms_density": -11.0,
+      "iterations": 10000,
+      "last": {
+        "Time_Iter": 0.0,
+        "Outer_Iter": 0.0,
+        "Inner_Iter": 9999.0,
+        "rms[Rho]": -10.00142194,
+        "rms[RhoU]": -9.671219371,
+        "rms[RhoV]": -9.936045049,
+        "rms[RhoE]": -9.429850449,
+        "rms[k]": -10.43015087,
+        "rms[w]": -4.825634771,
+        "max[Rho]": -8.184121458,
+        "max[RhoU]": -7.759501967,
+        "max[RhoV]": -8.363395397,
+        "max[RhoE]": -7.60907823,
+        "max[k]": -8.77486597,
+        "max[w]": -3.061164316,
+        "Linear_Solver_Iterations": 20.0,
+        "LinSolRes": -6.033244455,
+        "LinSolIterTurb": 12.0,
+        "LinSolResTurb": -10.10919115,
+        "RefForce": 0.01575,
+        "CD": 0.01574018504,
+        "CL": 1.070533216,
+        "CSF": 0.0,
+        "CMx": 0.0,
+        "CMy": 0.0,
+        "CMz": -0.007486699705,
+        "CFx": -0.1703950859,
+        "CFy": 1.057002666,
+        "CFz": 0.0,
+        "CEff": 68.0127466,
+        "Buffet": 0.03925368515
+      },
+      "converged": false,
+      "tail_density_range": [
+        -10.25810753,
+        -9.98614577
+      ]
+    },
+    {
+      "variant": "epsilon_controls",
+      "case": "sst_naca",
+      "name": "sst_naca_firstorder",
+      "source_sha": "f1b5967a57cba9d1aa1eea9d33d33ca07531d6f6",
+      "binary_sha256": "fc40e5e7d05b6813f7a883ce2cec352e149650282e119c0af84385d439dc9559",
+      "changes": {
+        "MUSCL_TURB": "NO"
+      },
+      "exit_code": 0,
+      "target_rms_density": -11.0,
+      "iterations": 448,
+      "last": {
+        "Time_Iter": 0.0,
+        "Outer_Iter": 0.0,
+        "Inner_Iter": 447.0,
+        "rms[Rho]": -11.00504708,
+        "rms[RhoU]": -10.81117502,
+        "rms[RhoV]": -11.23230434,
+        "rms[RhoE]": -10.65777895,
+        "rms[k]": -14.84138261,
+        "rms[w]": -4.740302039,
+        "max[Rho]": -9.212806185,
+        "max[RhoU]": -8.913565813,
+        "max[RhoV]": -9.550921595,
+        "max[RhoE]": -8.740097204,
+        "max[k]": -13.36914366,
+        "max[w]": -3.269066226,
+        "Linear_Solver_Iterations": 20.0,
+        "LinSolRes": -1.980063544,
+        "LinSolIterTurb": 20.0,
+        "LinSolResTurb": -9.23119556,
+        "RefForce": 0.01575,
+        "CD": 0.0157748194,
+        "CL": 1.070412668,
+        "CSF": 0.0,
+        "CMx": 0.0,
+        "CMy": 0.0,
+        "CMz": -0.007590688055,
+        "CFx": -0.1703400447,
+        "CFy": 1.056889963,
+        "CFz": 0.0,
+        "CEff": 67.85577959,
+        "Buffet": 0.03925368515
+      },
+      "converged": true,
+      "tail_density_range": [
+        -11.00504708,
+        -10.46900902
+      ]
+    },
+    {
+      "variant": "epsilon_controls",
+      "case": "sst_naca",
+      "name": "sst_naca_frozen500",
+      "source_sha": "f1b5967a57cba9d1aa1eea9d33d33ca07531d6f6",
+      "binary_sha256": "fc40e5e7d05b6813f7a883ce2cec352e149650282e119c0af84385d439dc9559",
+      "changes": {
+        "LIMITER_ITER": "500"
+      },
+      "exit_code": 0,
+      "target_rms_density": -11.0,
+      "iterations": 620,
+      "last": {
+        "Time_Iter": 0.0,
+        "Outer_Iter": 0.0,
+        "Inner_Iter": 619.0,
+        "rms[Rho]": -11.00716121,
+        "rms[RhoU]": -10.38306333,
+        "rms[RhoV]": -10.4470452,
+        "rms[RhoE]": -10.39207723,
+        "rms[k]": -10.20696702,
+        "rms[w]": -2.951734929,
+        "max[Rho]": -9.819109042,
+        "max[RhoU]": -9.178929825,
+        "max[RhoV]": -9.220511252,
+        "max[RhoE]": -9.203707126,
+        "max[k]": -8.491194193,
+        "max[w]": -0.9976542916,
+        "Linear_Solver_Iterations": 20.0,
+        "LinSolRes": -1.746662127,
+        "LinSolIterTurb": 20.0,
+        "LinSolResTurb": -8.596545632,
+        "RefForce": 0.01575,
+        "CD": 0.01574607399,
+        "CL": 1.070484257,
+        "CSF": 0.0,
+        "CMx": 0.0,
+        "CMy": 0.0,
+        "CMz": -0.007492015881,
+        "CFx": -0.1703807847,
+        "CFy": 1.056955473,
+        "CFz": 0.0,
+        "CEff": 67.98420087,
+        "Buffet": 0.03925368515
+      },
+      "converged": true,
+      "tail_density_range": [
+        -11.00716121,
+        -10.16776119
+      ]
+    },
+    {
+      "variant": "epsilon_controls",
+      "case": "sst_naca",
+      "name": "sst_naca_venkat01",
+      "source_sha": "f1b5967a57cba9d1aa1eea9d33d33ca07531d6f6",
+      "binary_sha256": "fc40e5e7d05b6813f7a883ce2cec352e149650282e119c0af84385d439dc9559",
+      "changes": {
+        "VENKAT_LIMITER_COEFF": "0.1",
+        "ITER": "2000"
+      },
+      "exit_code": 0,
+      "target_rms_density": -11.0,
+      "iterations": 2000,
+      "last": {
+        "Time_Iter": 0.0,
+        "Outer_Iter": 0.0,
+        "Inner_Iter": 1999.0,
+        "rms[Rho]": -10.1178384,
+        "rms[RhoU]": -10.039931,
+        "rms[RhoV]": -10.04168466,
+        "rms[RhoE]": -9.564898467,
+        "rms[k]": -9.85686445,
+        "rms[w]": -3.927165524,
+        "max[Rho]": -8.507844839,
+        "max[RhoU]": -8.638577139,
+        "max[RhoV]": -8.443712924,
+        "max[RhoE]": -7.956071476,
+        "max[k]": -8.254831507,
+        "max[w]": -1.990795632,
+        "Linear_Solver_Iterations": 20.0,
+        "LinSolRes": -2.055499999,
+        "LinSolIterTurb": 20.0,
+        "LinSolResTurb": -7.938995465,
+        "RefForce": 0.01575,
+        "CD": 0.01574094774,
+        "CL": 1.070189005,
+        "CSF": 0.0,
+        "CMx": 0.0,
+        "CMy": 0.0,
+        "CMz": -0.007536029827,
+        "CFx": -0.1703345632,
+        "CFy": 1.056663817,
+        "CFz": 0.0,
+        "CEff": 67.9875839,
+        "Buffet": 0.03925368515
+      },
+      "converged": false,
+      "tail_density_range": [
+        -10.21016199,
+        -10.01080502
+      ]
+    }
+  ],
+  "observations": [
+    "SA: 272 develop / 272 PR2956 / 268 epsilon iterations to density target -12.",
+    "SST flat plate: neither baseline reaches -12 in 10000; epsilon reaches it in 758.",
+    "SST NACA0012: develop and epsilon miss -11 at 10000; PR2956 reaches it in 467.",
+    "SST NACA0012 has MUSCL_TURB=YES, VENKATAKRISHNAN, coefficient0.03, LIMITER_ITER99999, fixedCFL1000.",
+    "Freezing the stored limiter after500 yields620 iterations; first-order turbulence yields448.",
+    "CFL100 misses the target after10000; coefficient0.1 misses it after2000.",
+    "Increasing the linear-solver cap to100 still misses the density target in a matched500-step restarted probe, despite relative flow linear residuals around1e-10."
+  ],
+  "mechanism_evidence": {
+    "restart_snapshot": {
+      "Limiter_TKE": {
+        "max_change": 0.10262048244476318,
+        "mean_change": 8.372021693503484e-05,
+        "max_change_point": 7122,
+        "coordinates": [
+          2.2840287685394287,
+          0.06305937469005585,
+          0.0
+        ],
+        "step1": 0.2783636152744293,
+        "step2": 0.3809840977191925,
+        "changed_points_gt_1e-5": 819
+      },
+      "Limiter_Omega": {
+        "max_change": 0.0018165111541748047,
+        "mean_change": 2.845957396857557e-06,
+        "max_change_point": 958,
+        "coordinates": [
+          0.0001885250094346702,
+          -0.0029439327772706747,
+          0.0
+        ],
+        "step1": 0.6913359761238098,
+        "step2": 0.6931524872779846,
+        "changed_points_gt_1e-5": 283
+      },
+      "Turb_Kin_Energy": {
+        "max_change": 4.993751645088196e-06,
+        "mean_change": 4.2705798897202385e-09,
+        "max_change_point": 733,
+        "coordinates": [
+          0.00023196458641905338,
+          -0.0029352603014558554,
+          0.0
+        ],
+        "step1": 0.00013273238437250257,
+        "step2": 0.00013772613601759076,
+        "changed_points_gt_1e-5": 0
+      },
+      "Omega": {
+        "max_change": 7.67578125,
+        "mean_change": 0.014487775973975658,
+        "max_change_point": 286,
+        "coordinates": [
+          2.03069703275105e-05,
+          -0.000923513900488615,
+          0.0
+        ],
+        "step1": 54854.67578125,
+        "step2": 54847.0,
+        "changed_points_gt_1e-5": 2227
+      },
+      "Residual_Density": {
+        "max_change": 7.2877588408459815e-09,
+        "mean_change": 1.0961138247056468e-11,
+        "max_change_point": 6219,
+        "coordinates": [
+          1.6699447631835938,
+          0.02223549410700798,
+          0.0
+        ],
+        "step1": -2.978678192988582e-09,
+        "step2": 4.3090806478573995e-09,
+        "changed_points_gt_1e-5": 0
+      },
+      "largest_density_residuals": [
+        {
+          "point": 7123,
+          "coordinates": [
+            2.5923783779144287,
+            0.06191393733024597,
+            0.0
+          ],
+          "residual": 8.299876341766321e-09,
+          "limiter_k_change": -0.060012638568878174,
+          "limiter_omega_change": 3.5762786865234375e-07,
+          "k": 2.898728901357117e-08,
+          "omega": 0.10433898121118546
+        },
+        {
+          "point": 7122,
+          "coordinates": [
+            2.2840287685394287,
+            0.06305937469005585,
+            0.0
+          ],
+          "residual": -7.189760342640739e-09,
+          "limiter_k_change": 0.10262048244476318,
+          "limiter_omega_change": -5.424022674560547e-06,
+          "k": 4.495842347296275e-07,
+          "omega": 0.13145984709262848
+        },
+        {
+          "point": 6897,
+          "coordinates": [
+            2.2839648723602295,
+            0.04774453490972519,
+            0.0
+          ],
+          "residual": 4.669871156437466e-09,
+          "limiter_k_change": -0.0010769367218017578,
+          "limiter_omega_change": 5.960464477539063e-08,
+          "k": 8.313238453183658e-08,
+          "omega": 0.15093331038951874
+        },
+        {
+          "point": 6219,
+          "coordinates": [
+            1.6699447631835938,
+            0.02223549410700798,
+            0.0
+          ],
+          "residual": 4.3090806478573995e-09,
+          "limiter_k_change": -0.05523478984832764,
+          "limiter_omega_change": 6.771087646484375e-05,
+          "k": 3.6534456171466445e-07,
+          "omega": 0.2203792780637741
+        },
+        {
+          "point": 730,
+          "coordinates": [
+            0.0011274255812168121,
+            -0.00596290547400713,
+            0.0
+          ],
+          "residual": 3.2310361053333736e-09,
+          "limiter_k_change": 0.025607764720916748,
+          "limiter_omega_change": 5.2809715270996094e-05,
+          "k": 5.321517528500408e-05,
+          "omega": 8600.927734375
+        },
+        {
+          "point": 6898,
+          "coordinates": [
+            2.5923373699188232,
+            0.04690636321902275,
+            0.0
+          ],
+          "residual": -3.1032543201803264e-09,
+          "limiter_k_change": -0.00024902820587158203,
+          "limiter_omega_change": -3.5762786865234375e-07,
+          "k": 2.0000009981480105e-10,
+          "omega": 0.07035018503665924
+        },
+        {
+          "point": 7573,
+          "coordinates": [
+            2.5925846099853516,
+            0.10786521434783936,
+            0.0
+          ],
+          "residual": -2.3967894335896744e-09,
+          "limiter_k_change": 0.0003342628479003906,
+          "limiter_omega_change": -2.086162567138672e-06,
+          "k": 3.1853094242251245e-06,
+          "omega": 0.33121341466903687
+        },
+        {
+          "point": 507,
+          "coordinates": [
+            0.0004518600180745125,
+            -0.0038100823294371367,
+            0.0
+          ],
+          "residual": 2.3230843915200694e-09,
+          "limiter_k_change": 0.0038753747940063477,
+          "limiter_omega_change": -1.7523765563964844e-05,
+          "k": 4.411631744005717e-05,
+          "omega": 19620.1640625
+        },
+        {
+          "point": 6220,
+          "coordinates": [
+            1.8329437971115112,
+            0.0216195210814476,
+            0.0
+          ],
+          "residual": -2.260800657793993e-09,
+          "limiter_k_change": 0.027996599674224854,
+          "limiter_omega_change": 6.556510925292969e-07,
+          "k": 6.03357719342057e-08,
+          "omega": 0.2162754237651825
+        },
+        {
+          "point": 508,
+          "coordinates": [
+            0.00025727509637363255,
+            -0.002930343383923173,
+            0.0
+          ],
+          "residual": 2.160173151466438e-09,
+          "limiter_k_change": -0.0016870498657226562,
+          "limiter_omega_change": 2.3305416107177734e-05,
+          "k": 0.00011183306924067438,
+          "omega": 18695.44921875
+        }
+      ]
+    },
+    "positivity_switches": {
+      "note": "Postprocessed LS reconstruction validated against exported limiter values; export uses float32.",
+      "validation": [
+        {
+          "max_wake_limiter_error": 3.129970593818143e-08
+        },
+        {
+          "max_wake_limiter_error": 5.2421107454847515e-08
+        }
+      ],
+      "wake_faces": 2398,
+      "switch_count": 9,
+      "switches": [
+        {
+          "edge": [
+            5995,
+            6220
+          ],
+          "side": 1,
+          "before": -8.710641444831365e-09,
+          "after": 5.976904574993517e-09,
+          "coordinates": [
+            1.83294377163995,
+            0.02161952132672908
+          ]
+        },
+        {
+          "edge": [
+            6672,
+            6897
+          ],
+          "side": 1,
+          "before": 1.283086126421724e-08,
+          "after": -1.7540371610353353e-08,
+          "coordinates": [
+            2.28396495952764,
+            0.04774453587204877
+          ]
+        },
+        {
+          "edge": [
+            5092,
+            5317
+          ],
+          "side": 1,
+          "before": -9.651957735560413e-09,
+          "after": 1.0393553274249132e-08,
+          "coordinates": [
+            1.431524398573,
+            0.007690099923159998
+          ]
+        },
+        {
+          "edge": [
+            5769,
+            5994
+          ],
+          "side": 1,
+          "before": -6.522525205559778e-09,
+          "after": 1.1366800268142402e-09,
+          "coordinates": [
+            1.66992173126942,
+            0.01678734905123229
+          ]
+        },
+        {
+          "edge": [
+            7122,
+            7123
+          ],
+          "side": 0,
+          "before": 2.56916806058352e-08,
+          "after": -8.674262589883313e-09,
+          "coordinates": [
+            2.28402881411551,
+            0.06305937652710325
+          ]
+        },
+        {
+          "edge": [
+            5094,
+            5095
+          ],
+          "side": 0,
+          "before": -2.0278654207591022e-10,
+          "after": 1.492885970075548e-10,
+          "coordinates": [
+            1.66989629316105,
+            0.00544819718708905
+          ]
+        },
+        {
+          "edge": [
+            6898,
+            7123
+          ],
+          "side": 1,
+          "before": 2.8575249453985644e-08,
+          "after": -4.226971473508457e-08,
+          "coordinates": [
+            2.59237831387653,
+            0.06191393835898568
+          ]
+        },
+        {
+          "edge": [
+            5316,
+            5317
+          ],
+          "side": 0,
+          "before": -6.171556668051803e-09,
+          "after": 7.477358267946018e-09,
+          "coordinates": [
+            1.34536164948586,
+            0.008011714386619578
+          ]
+        },
+        {
+          "edge": [
+            7124,
+            7125
+          ],
+          "side": 1,
+          "before": 7.005571931756276e-10,
+          "after": -4.7195114105656244e-11,
+          "coordinates": [
+            3.44548970852764,
+            0.06023927008356984
+          ]
+        }
+      ]
+    }
+  },
+  "interpretation": "The failure is localized to a nonlinear cycle accompanying continuously updated turbulence reconstruction in the wake. k limiter variation and positivity fallback switches are observed. Freezing the stored limiter restores density convergence. Lowering CFL, increasing the coefficient, solving the approximate Jacobian more accurately, and continuous face clipping alone do not restore the target in the tested budgets. The convective Jacobian omits reconstruction dependence, which is a plausible contributor; a robust production correction has not been validated.",
+  "limitations": [
+    "Stopping criterion is RMS density, not all turbulence residuals.",
+    "Concurrent wall times are not comparable; report iteration counts.",
+    "Experimental bound changes are isolated binaries; production branches are unchanged.",
+    "Interrupted runs and the failed long-path restart probe are retained separately and excluded from comparisons."
+  ],
+  "diagnostics": [
+    {
+      "variant": "epsilon_diagnostics",
+      "case": "sst_naca",
+      "name": "current_stall_original1000_shortpath",
+      "source_sha": "f1b5967a57cba9d1aa1eea9d33d33ca07531d6f6",
+      "binary_sha256": "fc40e5e7d05b6813f7a883ce2cec352e149650282e119c0af84385d439dc9559",
+      "changes": {
+        "RESTART_SOL": "YES",
+        "SOLUTION_FILENAME": "solution_probe",
+        "ITER": "1000",
+        "VOLUME_OUTPUT": "(COORDINATES, SOLUTION, RESIDUAL, LIMITER)"
+      },
+      "exit_code": 0,
+      "target_rms_density": -11.0,
+      "iterations": 1000,
+      "last": {
+        "Time_Iter": 0.0,
+        "Outer_Iter": 0.0,
+        "Inner_Iter": 999.0,
+        "rms[Rho]": -9.973425964,
+        "rms[RhoU]": -9.768143183,
+        "rms[RhoV]": -9.932372112,
+        "rms[RhoE]": -9.42858968,
+        "rms[k]": -10.21397525,
+        "rms[w]": -4.599233038,
+        "max[Rho]": -8.301897576,
+        "max[RhoU]": -7.87274379,
+        "max[RhoV]": -8.283816326,
+        "max[RhoE]": -7.750909741,
+        "max[k]": -8.486084576,
+        "max[w]": -2.83534098,
+        "Linear_Solver_Iterations": 20.0,
+        "LinSolRes": -2.195382413,
+        "LinSolIterTurb": 20.0,
+        "LinSolResTurb": -7.421615236,
+        "RefForce": 0.01575,
+        "CD": 0.01574135617,
+        "CL": 1.070535349,
+        "CSF": 0.0,
+        "CMx": 0.0,
+        "CMy": 0.0,
+        "CMz": -0.007486601198,
+        "CFx": -0.170394303,
+        "CFy": 1.05700497,
+        "CFz": 0.0,
+        "CEff": 68.00782205,
+        "Buffet": 0.03925368515
+      },
+      "converged": false,
+      "tail_density_range": [
+        -10.06339184,
+        -9.777165549
+      ]
+    },
+    {
+      "variant": "epsilon_diagnostics",
+      "case": "sst_naca",
+      "name": "current_stall_continuous_bounds_shortpath",
+      "source_sha": "f1b5967a57+isolated-continuous-SST-bounds-probe",
+      "binary_sha256": "9a84835a4d073b0f8a8c3922fd9e8dbbebbd26bd75a212d94a49d6013d0b633b",
+      "changes": {
+        "RESTART_SOL": "YES",
+        "SOLUTION_FILENAME": "solution_probe",
+        "ITER": "1000",
+        "VOLUME_OUTPUT": "(COORDINATES, SOLUTION, RESIDUAL, LIMITER)"
+      },
+      "exit_code": 0,
+      "target_rms_density": -11.0,
+      "iterations": 1000,
+      "last": {
+        "Time_Iter": 0.0,
+        "Outer_Iter": 0.0,
+        "Inner_Iter": 999.0,
+        "rms[Rho]": -10.20360657,
+        "rms[RhoU]": -10.01262967,
+        "rms[RhoV]": -10.06411502,
+        "rms[RhoE]": -9.647439926,
+        "rms[k]": -9.907793807,
+        "rms[w]": -4.081184677,
+        "max[Rho]": -8.624105076,
+        "max[RhoU]": -8.627532106,
+        "max[RhoV]": -8.628251221,
+        "max[RhoE]": -8.076072872,
+        "max[k]": -8.400313114,
+        "max[w]": -2.505983019,
+        "Linear_Solver_Iterations": 20.0,
+        "LinSolRes": -2.629944184,
+        "LinSolIterTurb": 20.0,
+        "LinSolResTurb": -7.216803395,
+        "RefForce": 0.01575,
+        "CD": 0.01571377582,
+        "CL": 1.070865329,
+        "CSF": 0.0,
+        "CMx": 0.0,
+        "CMy": 0.0,
+        "CMz": -0.007449647115,
+        "CFx": -0.1704787646,
+        "CFy": 1.057325147,
+        "CFz": 0.0,
+        "CEff": 68.14818673,
+        "Buffet": 0.03925368515
+      },
+      "converged": false,
+      "tail_density_range": [
+        -10.53638285,
+        -9.995075694
+      ]
+    },
+    {
+      "variant": "epsilon_diagnostics",
+      "case": "sst_naca",
+      "name": "current_stall_continuous_k_bounds",
+      "source_sha": "f1b5967a57+isolated-continuous-k-bounds-probe",
+      "binary_sha256": "740352ea7dc4f937cd4553026673a05fefcd75b9d303a0f741ec6af2cf73fd87",
+      "changes": {
+        "RESTART_SOL": "YES",
+        "SOLUTION_FILENAME": "solution_probe",
+        "ITER": "1000",
+        "VOLUME_OUTPUT": "(COORDINATES, SOLUTION, RESIDUAL, LIMITER)"
+      },
+      "exit_code": 0,
+      "target_rms_density": -11.0,
+      "iterations": 1000,
+      "last": {
+        "Time_Iter": 0.0,
+        "Outer_Iter": 0.0,
+        "Inner_Iter": 999.0,
+        "rms[Rho]": -10.3699955,
+        "rms[RhoU]": -10.22306922,
+        "rms[RhoV]": -10.27836851,
+        "rms[RhoE]": -9.812354018,
+        "rms[k]": -9.914155862,
+        "rms[w]": -3.432535389,
+        "max[Rho]": -8.773159358,
+        "max[RhoU]": -8.856875563,
+        "max[RhoV]": -8.718500865,
+        "max[RhoE]": -8.22644089,
+        "max[k]": -8.404337096,
+        "max[w]": -1.360036008,
+        "Linear_Solver_Iterations": 20.0,
+        "LinSolRes": -1.807633296,
+        "LinSolIterTurb": 20.0,
+        "LinSolResTurb": -8.358834983,
+        "RefForce": 0.01575,
+        "CD": 0.01571718277,
+        "CL": 1.070814324,
+        "CSF": 0.0,
+        "CMx": 0.0,
+        "CMy": 0.0,
+        "CMz": -0.007455829035,
+        "CFx": -0.1704665526,
+        "CFy": 1.057275509,
+        "CFz": 0.0,
+        "CEff": 68.13016939,
+        "Buffet": 0.03925368515
+      },
+      "converged": false,
+      "tail_density_range": [
+        -10.48109343,
+        -9.937097876
+      ]
+    },
+    {
+      "variant": "epsilon_diagnostics",
+      "case": "sst_naca",
+      "name": "current_stall_linear100",
+      "source_sha": "f1b5967a57cba9d1aa1eea9d33d33ca07531d6f6",
+      "binary_sha256": "fc40e5e7d05b6813f7a883ce2cec352e149650282e119c0af84385d439dc9559",
+      "changes": {
+        "RESTART_SOL": "YES",
+        "SOLUTION_FILENAME": "solution_probe",
+        "ITER": "500",
+        "LINEAR_SOLVER_ITER": "100"
+      },
+      "exit_code": 0,
+      "target_rms_density": -11.0,
+      "iterations": 500,
+      "last": {
+        "Time_Iter": 0.0,
+        "Outer_Iter": 0.0,
+        "Inner_Iter": 499.0,
+        "rms[Rho]": -9.953879677,
+        "rms[RhoU]": -9.753839802,
+        "rms[RhoV]": -9.923208563,
+        "rms[RhoE]": -9.408814896,
+        "rms[k]": -10.21461176,
+        "rms[w]": -4.702063744,
+        "max[Rho]": -8.306047414,
+        "max[RhoU]": -7.869059513,
+        "max[RhoV]": -8.293626111,
+        "max[RhoE]": -7.75600172,
+        "max[k]": -8.486115634,
+        "max[w]": -2.923486444,
+        "Linear_Solver_Iterations": 100.0,
+        "LinSolRes": -9.86826853,
+        "LinSolIterTurb": 32.0,
+        "LinSolResTurb": -10.26813999,
+        "RefForce": 0.01575,
+        "CD": 0.01574053283,
+        "CL": 1.070538871,
+        "CSF": 0.0,
+        "CMx": 0.0,
+        "CMy": 0.0,
+        "CMz": -0.007485978389,
+        "CFx": -0.1703957253,
+        "CFy": 1.057008295,
+        "CFz": 0.0,
+        "CEff": 68.01160306,
+        "Buffet": 0.03925368515
+      },
+      "converged": false,
+      "tail_density_range": [
+        -10.05254525,
+        -9.77645774
+      ]
+    }
+  ]
+}
