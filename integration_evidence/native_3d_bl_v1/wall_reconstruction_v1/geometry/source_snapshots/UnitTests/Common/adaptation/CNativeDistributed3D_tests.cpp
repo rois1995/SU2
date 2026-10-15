@@ -729,6 +729,10 @@ void EngineReport(const EngineResult& result, World& world, const std::string& l
        << " selection_edge_evaluations=" << s.edge_evaluations << " selection_edge_reused=" << s.edge_reused
        << " wall_reconstruction_trials=" << s.wall_reconstruction_trials << " wall_reconstruction_accepted=" << s.wall_reconstruction_accepted
        << " wall_joint_trials=" << s.wall_joint_trials << " wall_joint_moves=" << s.wall_joint_moves << " wall_joint_removals=" << s.wall_joint_removals << " wall_joint_accepted=" << s.wall_joint_accepted
+       << " placement_connectivity_trials=" << s.placement_connectivity_trials << " placement_flips=" << s.placement_flips << " placement_moves=" << s.placement_moves
+       << " placement_dependency_expansions=" << s.placement_dependency_expansions
+       << " placement_classified_vertices=" << s.placement_classified_vertices
+             << " placement_trials=" << s.placement_trials << " placement_validated=" << s.placement_validated
        << " wall_topology_trials=" << s.wall_topology_trials << " wall_topology_accepted=" << s.wall_topology_accepted
        << " field_requests=" << s.field_requests
        << " field_hits=" << s.field_hits << " field_misses=" << s.field_misses
@@ -2282,6 +2286,7 @@ TEST_CASE("Native3D engine elects inconsistent wall-height policies before chang
 namespace {
 #include "fixtures/native_bl_corner.inc"
 #include "fixtures/native_bl_cold.inc"
+#include "fixtures/native_bl_planar_wall.inc"
 void CoupledBL(bool grouped,unsigned replay=0,double strength=1) {
   World world;auto fixture=Box();const auto donorFixture=fixture;
   if(replay)fixture.patch=replay==2?BLColdObstruction():BLCornerObstruction();
@@ -2450,4 +2455,79 @@ TEST_CASE("Native first-row owners construct disjoint wall cells concurrently", 
   for(const auto& row:result.cells) {FirstHeightReport report;std::string reason;
     CHECK(CheckFirstHeight(PatchOf({row.second}),options.wall_heights,reference,report,reason));
   }
+}
+
+TEST_CASE("Exact terminal planar wall patch diagnoses retained reconstruction", "[.][NativePlanarWallReplay3D]") {
+  World world;REQUIRE(world.size==1);auto fixture=Box();
+  for(auto& f:fixture.facets)f.marker=std::all_of(f.v.begin(),f.v.end(),[](Node n){return n.p.z==0;})?10:11;
+  const PlanarReference reference(fixture.facets);const auto old=BLPlanarWallObstruction();REQUIRE(old.cells.size()==18);
+  auto donors=Uniform(Partition(Rows(fixture.patch),world),{4,0,0,4,0,4});
+  for(auto& d:donors)for(size_t i=0;i<4;++i){const auto q=4+12*d.cell.v[i].p.x;d.sensor[i]={q,0,0,q,0,q};}
+  CBoundaryLayerMetric::Wall wall;wall.layer={"wall",.1,1.2,.3};wall.coord={0,0,0,1,0,0,1,1,0,0,1,0};wall.conn={0,1,2,2,0,2,3,3};
+  CBoundaryLayerMetric layers(3,{wall});
+  MetricComposition compose=[&](Point p,Tensor sensor) {
+    CBoundaryLayerMetric::Tensor m;m.m[0][0]=sensor.xx;m.m[1][1]=sensor.yy;m.m[2][2]=sensor.zz;
+    const su2double x[3]={p.x,p.y,p.z};layers.ApplyPoint(x,m,4.,nullptr,false);
+    return Tensor{SU2_TYPE::GetValue(m.m[0][0]),SU2_TYPE::GetValue(m.m[0][1]),SU2_TYPE::GetValue(m.m[0][2]),
+        SU2_TYPE::GetValue(m.m[1][1]),SU2_TYPE::GetValue(m.m[1][2]),SU2_TYPE::GetValue(m.m[2][2])};
+  };
+  FrozenField target(donors,compose,false,{},[&](Point a,Point b){return layers.EdgeBreakpoints({a.x,a.y,a.z},{b.x,b.y,b.z});});
+  const auto working=BLPlanarWallWorking();
+  const Edge edge{3,8399};std::map<Id,Node> nodes;Id maximum_node=0,maximum_cell=0;
+  for(const auto& c:working.cells){maximum_cell=std::max(maximum_cell,c.id);for(auto n:c.v){nodes.emplace(n.id,n);maximum_node=std::max(maximum_node,n.id);}}
+  const Node point{maximum_node+1,target.BalancedSplitPoint(nodes.at(edge[0]).p,nodes.at(edge[1]).p)};
+  const std::map<int,double> heights{{10,.1}};FirstHeightReport height;std::string reason;
+  REQUIRE(CheckFirstHeight(old,heights,reference,height,reason));
+  MeshRecords("planar_wall_replay_old",world,Partition(Rows(old),world));
+  bool reconstructed=false;
+  for(unsigned frame=0;frame<2;++frame) {
+    Patch admitted=old;
+    for(unsigned growth=0;growth<12;++growth) {
+      Patch fresh;Face obstruction{};PatchMetric metric;MetricDiagnosis diagnosis;Id blocked=UINT64_MAX;
+      const bool geometric=frame==0?ReconstructWallSplit(admitted,edge,point,maximum_node+2,maximum_cell+1,heights,reference,fresh,obstruction,reason):
+          ReconstructSplitPatch(admitted,edge,point,{maximum_node+2,{}},target.Query(Centroid(admitted.cells.front())).target,maximum_cell+1,reference,fresh,obstruction,reason,nullptr,heights);
+      bool valid=geometric && ValidateMetricChange(admitted.cells,fresh.cells,MetricChange::Refine,target,metric,reason,nullptr,nullptr,&diagnosis);
+      std::cout<<std::setprecision(17)<<"PLANAR_WALL_REPLAY frame="<<frame<<" growth="<<growth<<" old="<<admitted.cells.size()<<" geometry="<<geometric<<" valid="<<valid
+          <<" cells="<<fresh.cells.size()<<" q="<<metric.minimum_mean_ratio<<" j="<<metric.minimum_scaled_jacobian
+          <<" failure="<<unsigned(diagnosis.failure)<<" removed="<<diagnosis.removed_excess<<" added="<<diagnosis.added_excess
+          <<" obstruction="<<obstruction[0]<<','<<obstruction[1]<<','<<obstruction[2]<<" reason="<<reason<<std::endl;
+      if(geometric && !valid && diagnosis.failure==MetricFailure::Shape) {
+        Patch repaired;ConnectivityRepairReport report;
+        RepairMetricConnectivity(fresh,target,reference,heights,maximum_cell+1,repaired,report,reason,0);blocked=report.blocked_interior_vertex;
+        if(blocked==UINT64_MAX) {
+          const bool progress=RepairMetricConnectivity(fresh,target,reference,heights,maximum_cell+1,repaired,report,reason,256);
+          blocked=report.blocked_interior_vertex;
+          std::cout<<"PLANAR_WALL_REPAIR frame="<<frame<<" growth="<<growth<<" progress="<<progress<<" complete="<<report.complete_shape<<" trials="<<report.trials
+              <<" removals="<<report.removals<<" flips="<<report.flips<<" moves="<<report.moves<<" blocked="<<blocked<<" reason="<<reason<<std::endl;
+          if(progress) {
+            valid=ValidateMetricChange(admitted.cells,repaired.cells,MetricChange::Refine,target,metric,reason,nullptr,nullptr,&diagnosis);
+            std::cout<<"PLANAR_WALL_REPAIRED valid="<<valid<<" q="<<metric.minimum_mean_ratio<<" j="<<metric.minimum_scaled_jacobian
+                <<" failure="<<unsigned(diagnosis.failure)<<" removed="<<diagnosis.removed_excess<<" added="<<diagnosis.added_excess<<" reason="<<reason<<std::endl;
+            if(!valid && report.complete_shape && report.removals && diagnosis.failure==MetricFailure::Progress && report.trials<256) {
+              Patch preserved;ConnectivityRepairReport alternate;
+              const bool retried=RepairMetricConnectivity(fresh,target,reference,heights,maximum_cell+1,preserved,alternate,reason,256-report.trials,false);
+              std::cout<<"PLANAR_WALL_PRESERVE progress="<<retried<<" complete="<<alternate.complete_shape<<" trials="<<alternate.trials<<" flips="<<alternate.flips<<" moves="<<alternate.moves<<" reason="<<reason<<std::endl;
+              if(retried){repaired=std::move(preserved);valid=ValidateMetricChange(admitted.cells,repaired.cells,MetricChange::Refine,target,metric,reason,nullptr,nullptr,&diagnosis);}
+              std::cout<<"PLANAR_WALL_ALTERNATE valid="<<valid<<" q="<<metric.minimum_mean_ratio<<" j="<<metric.minimum_scaled_jacobian
+                  <<" failure="<<unsigned(diagnosis.failure)<<" removed="<<diagnosis.removed_excess<<" added="<<diagnosis.added_excess<<" reason="<<reason<<std::endl;
+              blocked=alternate.blocked_interior_vertex;
+            }
+            fresh=std::move(repaired);
+          }
+        } else std::cout<<"PLANAR_WALL_HINT vertex="<<blocked<<std::endl;
+      }
+      if(geometric)MeshRecords("planar_wall_replay_frame"+std::to_string(frame)+"_growth"+std::to_string(growth),world,Partition(Rows(fresh),world));
+      if(valid){reconstructed=true;std::cout<<"PLANAR_WALL_SUCCESS frame="<<frame<<" growth="<<growth<<std::endl;break;}
+      std::set<Id> ids;for(const auto& c:admitted.cells)ids.insert(c.id);const auto previous=ids.size();
+      for(const auto& c:working.cells)if(!ids.count(c.id)) {
+        unsigned count=0;for(auto n:c.v)count+=std::find(obstruction.begin(),obstruction.end(),n.id)!=obstruction.end();
+        const bool vertex=blocked!=UINT64_MAX && std::any_of(c.v.begin(),c.v.end(),[&](Node n){return n.id==blocked;});
+        if(vertex || (blocked==UINT64_MAX && obstruction!=Face{} && count==3)){ids.insert(c.id);admitted.cells.push_back(c);}
+      }
+      if(ids.size()==previous || ids.size()>MaximumCavityCells)break;
+      const auto boundary=Incidence(admitted.cells).Boundary();admitted.surface.clear();
+      for(const auto& f:working.surface)if(std::any_of(boundary.begin(),boundary.end(),[&](Face q){return Key(q)==Key(f.v);}))admitted.surface.push_back(f);
+    }
+  }
+  REQUIRE(reconstructed);
 }

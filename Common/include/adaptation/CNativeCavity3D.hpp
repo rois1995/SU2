@@ -11,9 +11,10 @@
 namespace SU2Native3D {
 constexpr size_t MaximumCavityCells = 64;
 constexpr size_t MaximumReplacementCells = 128;
-/*! Throws unless bounded triangles form a connected manifold sphere/disk with valid vertex links. */
+/*! Throws unless bounded triangles form a connected manifold sphere/disk with valid vertex links.
+ * Optional closure identifies a nonmanifold edge or pinched vertex whose full star must be admitted. */
 void ValidateSurfaceTopology(const std::vector<Face>& triangles, bool closed,
-                             size_t maximum = 4 * MaximumReplacementCells);
+                             size_t maximum = 4 * MaximumReplacementCells, Feature* closure = nullptr);
 /*! Closed oriented manifold domain skin; components and genus are unrestricted.
  * Caller admits global reference storage and supplies an embedded accepted boundary. */
 void ValidateDomainSurfaceTopology(const std::vector<Face>& triangles);

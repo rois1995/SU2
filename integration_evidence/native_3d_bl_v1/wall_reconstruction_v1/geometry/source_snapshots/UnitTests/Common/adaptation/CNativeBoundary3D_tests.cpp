@@ -1297,6 +1297,14 @@ TEST_CASE("Native joint repair resolves an interior sliver vertex without stale 
   REQUIRE(Cone(seed.cells,{42,{.43,.37,.0001}},100,inserted,reason));Patch old{inserted,seed.surface};
   std::vector<DonorCell> source;for(const auto& c:seed.cells){DonorCell d;d.cell=c;d.sensor.fill(Tensor{});source.push_back(d);}
   FrozenField target(source);Patch fresh;ConnectivityRepairReport report;
+  const std::set<Id> immobile;Patch fixed;
+  const bool fixed_progress=RepairMetricConnectivity(old,target,reference,{},1000,fixed,report,reason,64,false,&immobile);
+  CHECK(report.moves==0);CHECK(report.removals==0);
+  if(fixed_progress)for(const auto& c:fixed.cells)for(auto n:c.v) {
+    bool unchanged=false;for(const auto& donor:old.cells)for(auto v:donor.v)if(v.id==n.id)
+      unchanged=unchanged || (v.p.x==n.p.x && v.p.y==n.p.y && v.p.z==n.p.z);
+    CHECK(unchanged);
+  }
   REQUIRE(RepairMetricConnectivity(old,target,reference,{},1000,fresh,report,reason,256));
   CHECK(report.moves+report.removals>0);CHECK(report.complete_shape);CHECK(report.after_loss==0);
   CHECK(ValidateFixedInterface(old.cells,fresh.cells,reason));PatchMetric metric;
@@ -1460,4 +1468,28 @@ TEST_CASE("Replay actual wall seam blockage with retained and common-background 
       if(included.size()==before || included.size()>MaximumCavityCells)break;
     }
   }
+}
+
+TEST_CASE("Native interior insertion leaves the old diagonal only with a complete fixed-skin fan", "[NativeInteriorPlacement3D]") {
+  const auto old=Cube();const PlanarReference reference(Facets(old));Patch fresh;std::string reason;
+  auto seed=old;seed.surface.clear();const auto apices=SplitPatchApices(seed,{0,6});
+  REQUIRE(!apices.empty());CHECK(apices.size()<=8);
+  CHECK(std::find(apices.begin(),apices.end(),0)==apices.end());CHECK(std::find(apices.begin(),apices.end(),6)==apices.end());
+  for(const auto& c:seed.cells)CHECK(std::any_of(c.v.begin(),c.v.end(),[&](Node n){return std::find(apices.begin(),apices.end(),n.id)!=apices.end();}));
+  const std::map<Id,size_t> costs{{1,100},{2,1},{3,1},{4,1},{5,1},{7,1}};
+  CHECK((SplitPatchApices(seed,{0,6},&costs)==std::vector<Id>{2,5,7}));
+  const std::map<Id,size_t> unavailable;CHECK(SplitPatchApices(seed,{0,6},&unavailable).empty());
+  REQUIRE(SplitSurfaceStrip(old,{0,6},{8,{.5,.55,.45}},{},100,reference,fresh,reason));
+  CHECK(fresh.cells.size()==12);CHECK(ValidateFixedInterface(old.cells,fresh.cells,reason));
+  for(size_t i=0;i<fresh.cells.size();++i)for(size_t j=i+1;j<fresh.cells.size();++j)
+    CHECK(ConformingDisjoint(fresh.cells[i],fresh.cells[j]));
+  auto incomplete=old;incomplete.cells.pop_back();const auto skin=Incidence(incomplete.cells).Boundary();
+  incomplete.surface.erase(std::remove_if(incomplete.surface.begin(),incomplete.surface.end(),[&](const SurfaceFace& f) {
+    return std::find(skin.begin(),skin.end(),f.v)==skin.end();
+  }),incomplete.surface.end());
+  const auto unchanged=Connectivity(fresh);
+  CHECK_FALSE(SplitSurfaceStrip(old,{0,6},{8,{1.25,.55,.45}},{},100,reference,fresh,reason));
+  CHECK(Connectivity(fresh)==unchanged);
+  CHECK_FALSE(SplitSurfaceStrip(incomplete,{0,6},{8,{.5,.55,.45}},{},100,reference,fresh,reason));
+  CHECK(Connectivity(fresh)==unchanged);CHECK(reason.find("complete edge star")!=std::string::npos);
 }

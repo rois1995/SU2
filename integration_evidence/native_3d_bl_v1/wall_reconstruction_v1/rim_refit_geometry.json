@@ -1,0 +1,58 @@
+{
+  "status": "FAIL_EXACT_NORMAL_FOOT",
+  "normal_feet": [
+    {
+      "facet": 8,
+      "cell": 2000003,
+      "face": [
+        23,
+        414,
+        262
+      ],
+      "apex": 1000001,
+      "minimum_barycentric": "-840958765620751256895084268529/112329376606131586885215517778454752605943889920",
+      "outside": true
+    },
+    {
+      "facet": 8,
+      "cell": 2000019,
+      "face": [
+        244,
+        1000000,
+        414
+      ],
+      "apex": 1000001,
+      "minimum_barycentric": "314531773383310168461186755161/7020586037883217099326720129682233150383587328",
+      "outside": false
+    },
+    {
+      "facet": 8,
+      "cell": 2000023,
+      "face": [
+        262,
+        414,
+        1000000
+      ],
+      "apex": 1000001,
+      "minimum_barycentric": "840958765620751256895084268529/56164688303065793442607758889227376302971944960",
+      "outside": false
+    }
+  ],
+  "native_status": "FAIL",
+  "old_cells": 31,
+  "new_cells": 29,
+  "wall_faces": 3,
+  "maximum_height_relative_error": 6.938893903907228e-16,
+  "interface_faces": 16,
+  "old_volume": "542940212539175026821492631402925214792745363369/35076039295941670036888435985190792471742381031424",
+  "new_volume": "553897399666155646704308507783315933749176051625/35076039295941670036888435985190792471742381031424",
+  "input_sha256": {
+    "wall_refit_original.json": "991ff0feebed1a49bcf3e7e361d6544a2198f4341ee5a2e9390a74292c9ebbc5",
+    "wall_refit_proposal.json": "025f2d2598da613ba03416f72d77a2cae77baec567987c0f0e43023de49ca9dd"
+  },
+  "native_receipt_sha256": "5c57b38456c484be5713a693f9483210b8def21ea8ca55a1fb46e215a137f99c",
+  "helper_sha256": "0dbf3169d949512d1e58dccde861dbeb6c644da1f8e89c6d0497aa062225eb35",
+  "geometry_helper_sha256": "d587d7dea4391e6e77c118f5d15167d147b4bc40f72e811c0e6c75d3a1a2ee5e",
+  "footprint_helper_sha256": "5d068c56883bc966a332848b120e07d643a3015bae24671a366adf623d1be906",
+  "scope": "Local wall normal feet/height, exact positive volumes, oriented manifold incidence, no positive-volume pair overlap, fixed artificial interface and unchanged original donors/reference. Volume equality is required for flat caps/interior only; curved projection changes physical skin/volume. Exact normal-foot containment is reported separately from the native numerical tolerance; a tiny negative weight still fails this exact audit. Native status is separate from geometric evidence; consult the native metric rejection when present. No whole-grid completion, independent smooth-wall/full-field integration, transfer or performance qualification."
+}

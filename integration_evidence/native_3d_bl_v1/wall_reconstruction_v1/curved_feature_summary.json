@@ -1,0 +1,92 @@
+{
+  "status": "PARTIAL_CURVED_FEATURE_CAPABILITY_STRICT_FINAL_REJECTION",
+  "base": "4f58365ebe72f1084318cf500dca9c418e326b46",
+  "unchanged_bounds": {
+    "admitted_cells": 64,
+    "replacement_cells": 128,
+    "private_trials": 256,
+    "global_work": 4096,
+    "minimum_q": 0.2,
+    "minimum_J": 0.05,
+    "maximum_composed_length": 1.8
+  },
+  "native_cases": {
+    "topology_hint_controls": {
+      "path": "topology_hint_controls.json",
+      "sha256": "af065c045555b65deb4f68a58bd2b648b7ac4968a05cc21eeb11c9fcfb2e85de",
+      "status": "PASS"
+    },
+    "geometry": {
+      "path": "geometry.json",
+      "sha256": "18e1efbf9c6ab2a746ad9e09bbbf43d10b15e8b90e57480dc2f8691de16dee24",
+      "status": "PASS"
+    },
+    "curved_feature_controls": {
+      "path": "curved_feature_controls.json",
+      "sha256": "476dac165b5997f7eb1a2c8c180a0d3746f475fa477dca777187259c27b14722",
+      "status": "PASS"
+    },
+    "curved_rim_refit_probe": {
+      "path": "curved_rim_refit_probe.json",
+      "sha256": "5c57b38456c484be5713a693f9483210b8def21ea8ca55a1fb46e215a137f99c",
+      "status": "FAIL"
+    },
+    "curved_feature_complete": {
+      "path": "curved_feature_complete.json",
+      "sha256": "731bdfd8043d186cc9cbf825be5e21b7ac73caf50370e1cb445160ad851b5f31",
+      "status": "FAIL"
+    },
+    "curved_feature_residual": {
+      "path": "curved_feature_residual.json",
+      "sha256": "c7a89b4a612e0fa68182fd692906371cd3b9b70db7497a49bf9c46c91dae42b8",
+      "status": "PASS"
+    },
+    "curved_joint_protocol_feature_mpi2": {
+      "path": "curved_joint_protocol_feature_mpi2.json",
+      "sha256": "68981b4dfafbd6ba43599d5bd89d4534cdc00df237090d6fd67d6e8e5690dad3",
+      "status": "PASS"
+    }
+  },
+  "full_target": {
+    "accepted": 96,
+    "cells": 1832,
+    "q": 0.20110161226077267,
+    "j": 0.05022384726911901,
+    "oversized_edges": 38,
+    "initial_excess": 1.5874507614028437,
+    "remaining_excess": 0.06532558487889244,
+    "work": 4096
+  },
+  "residual": {
+    "path": "feature_residual_classification.json",
+    "sha256": "ab7ab205a63b4ff2d3b9939974d289b5add9e2ac391c8bb3e337762ed8d66449"
+  },
+  "whole_grid_independent": {
+    "path": "feature_grid_independent.json",
+    "sha256": "ba07ee5beb659cad0296d8b71e3d91073fc0121b2b9534a750171a872d1c5f1a"
+  },
+  "MPI2_protocol_independent": {
+    "path": "joint_protocol_feature_mpi2_audit.json",
+    "sha256": "5960f104bdd25728b3ef011d034fc0cd2b305005a8c3ba7aa03960530b592a79"
+  },
+  "isolated_exact_rim_foot_failure": {
+    "path": "rim_refit_geometry.json",
+    "sha256": "14116e6b69fc55785dfecd72e822c6e328bb6e10ea43fb9fa2c6e95286f5de2c"
+  },
+  "geometric_witness": {
+    "path": "rim_fit_visibility.json",
+    "sha256": "7fee3967469d082914e0f9d17d05d52cab2d88b2afd4ea1d559d69461731fb37"
+  },
+  "geometric_witness_provenance": {
+    "path": "rim_fit_visibility_provenance.json",
+    "sha256": "2403414dcc5acea8588cef93f9c3e3157ca268aaa1a0c0baae765a163eb86236"
+  },
+  "native_build_scope": "All seven stages use one identical recorded test binary and current C++/fixture hashes; collector count/selection additions retain exact source snapshots and distinct receipts. No refreshed full regression.",
+  "scope": "Actual rim geometry/height numeric bound now succeeds; isolated actual metric shape and strict exact foot still fail. Complete unchanged1402-cell target advances96 edits to1832 cells,38 oversized edges, strict rejection4096. Entire result independently passes positive volume/no-overlap/closed incidence/exact feet/height and native-exported-tensor quality arithmetic; full-edge integration remains native diagnostics. MPI2 is bounded protocol/donor-reference proof only. No accepted curved mesh/removal, wider geometries/currentMPI4/M<N/current+BDF/SA/CFD/restart/accuracy/performance qualification.",
+  "next": "Address coordinated cylinder-wall/transition reconstruction using the actual residual; do not repeat unchanged budget continuations or treat fitting old shared apices as sufficient general reconstruction.",
+  "previous_geometry_archive": {
+    "folder": "geometry_previous_1792070069410868720",
+    "receipt": "geometry_previous_1792070069410868720.json",
+    "scope": "Previous canonical geometry folder/receipt preserved together, including its inspectable audit inputs; use this archive to resolve old receipt hashes."
+  }
+}

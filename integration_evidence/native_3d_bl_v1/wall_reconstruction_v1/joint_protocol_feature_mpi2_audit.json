@@ -1,0 +1,19 @@
+{
+  "status": "PASS_MPI_PROTOCOL_ONLY_REJECTED_MESHES",
+  "rows": [
+    {
+      "classified_vertices": 5,
+      "stage": "curved_joint_protocol_feature_mpi2",
+      "ranks": 2,
+      "cells": 1708,
+      "placement_trials": 286,
+      "placement_validated": 24,
+      "work": 512,
+      "source_donors": 120,
+      "native_receipt_sha256": "68981b4dfafbd6ba43599d5bd89d4534cdc00df237090d6fd67d6e8e5690dad3"
+    }
+  ],
+  "binary_sha256": "d63a37ea948350fe41ac9438ce77ed65b7d0ef7b6bbf8b5688a68af0aa44c4cd",
+  "helper_sha256": "e2fef4a78df32084acfc7164a5ad9502362081fa0d3bc3abda71f05ecda198ac",
+  "scope": "Native matched MPI2 execution/work-bound/input-signature checks plus independent exact before/after donor/reference preservation; physical original donors agree across the checked stages. Different trajectories are retained. No final mesh acceptance, independent full geometry/metric, CFD/current-BDF transfer/restart, M<N or performance qualification."
+}

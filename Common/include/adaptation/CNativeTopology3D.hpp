@@ -11,6 +11,11 @@
 namespace SU2Native3D {
 using Face = std::array<Id, 3>;
 using Edge = std::array<Id, 2>;
+struct Feature {
+  std::array<Id, 3> vertices{};
+  unsigned count = 0;  // 1 vertex, 2 edge, 3 face. Empty feature lists are inactive callers.
+  template <class S> void Fields(S& s) { s(vertices, count); }
+};
 struct FaceUse {
   Face key;
   Id cell;

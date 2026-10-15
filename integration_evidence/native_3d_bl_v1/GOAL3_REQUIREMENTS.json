@@ -100,7 +100,7 @@
     "wall_reconstruction_v1/joint_connectivity_summary.json"
   ],
   "execution_state": {
-    "status": "All owned jobs terminal. Connected insertion/reconnection/dependency admission improves the strict same1402-cell target to1842 cells/40 oversized edges, still rejected. Full Goal3 ACTIVE.",
+    "status": "All owned jobs terminal. Connected full-target run still rejects38 edges; current scoped geometry and MPI2 protocol audits complete. Full Goal3 ACTIVE.",
     "CFD_runs": 0,
     "production_MPI": "Current PASS N/M1/1,2/1,2/2; N/M4/1,4/2,4/4 remain required. Previous full matrix historical.",
     "independent_frames": 6
@@ -484,5 +484,43 @@
     },
     "MPI": "Current bounded MPI2 protocol and independent before/after source/reference audit PASS; current MPI4/M<N/current+BDF/CFD/restart and performance unrefreshed.",
     "summary": "wall_reconstruction_v1/joint_connectivity_summary.json"
+  },
+  "curved_feature_repair": {
+    "status": "PARTIAL_FULL_TARGET_PROGRESS_STRICT_REJECTION",
+    "baseline": "Actual24-cell rim rejects projection with interior support; after correcting projection it fails closest normal foot. Geometry-only witness fits height/feet, closes26\u219233 constructed cells/original24\u219231, reinserts one original point and gives29 positive tets.",
+    "design": "Finite two-authority curved feature projection; tangent half-space foot fitting; actual face visibility/dependency closure; shared point restoration; existing compound Repair with compulsory strict size progress instead of simple Refine tet-count monotonicity.",
+    "gates": "Original .20/.05 shape, geometry/height/full lengths/actual-field/fade and64/128/256/4096 bounds retained. Compound Repair requires strict changed-edge progress; simple Refine tet-count policy unchanged.",
+    "topology_evidence": "Native visibility admission27 cells has a four-face edge link. Complete edge413,416 star adds four cells to31, matching the geometry witness. Existing validator returns typed edge/vertex closure hints; same manifold invariant.",
+    "native_rim": {
+      "admitted_original_cells": 31,
+      "proposal_cells": 29,
+      "native_geometry_height_pass": true,
+      "metric_pass": false,
+      "minimum_q": 0.01470452901384215,
+      "minimum_J": 0.0010683206342325248,
+      "direct_replay_excludes_engine_connectivity_repair": true
+    },
+    "exact_rim_foot": {
+      "status": "FAIL_EXACT_NORMAL_FOOT",
+      "minimum_barycentric": -7.486543511849659e-18,
+      "native_numerical_bound_pass": true,
+      "report": "wall_reconstruction_v1/rim_refit_geometry.json"
+    },
+    "full_target": {
+      "input_cells": 1402,
+      "accepted": 96,
+      "cells": 1832,
+      "q": 0.20110161226077267,
+      "j": 0.05022384726911901,
+      "oversized_edges": 38,
+      "initial_excess": 1.5874507614028437,
+      "remaining_excess": 0.06532558487889244,
+      "work": 4096,
+      "accepted_final_mesh": false
+    },
+    "focused_controls": "Topology1/9 assertions, existing wall4/1716, curved+marker11/616 natively pass. First curved collector expected10 and falsely failed exit0; receipt preserved.",
+    "MPI": "Bounded current MPI2 protocol PASS with512 work/1708 rejected cells. Independent donor/reference audit PASS; no accepted mesh, M<N/currentMPI4/current+BDF/CFD/restart/performance qualification.",
+    "whole_grid_independent": "PASS exact positive volumes/no overlap/closed incidence/84 exact normal feet, altitude relative error1.8041e-15, exported-tensor q/J arithmetic.38 oversized native composed lengths still reject; no accepted event.",
+    "summary": "wall_reconstruction_v1/curved_feature_summary.json"
   }
 }

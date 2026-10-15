@@ -1356,7 +1356,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       CLocalFailure old_failure;
       if (metric_needed && !old_measured) old_failure.Set(1,0,result.reason);
       if (!(ready=vote(old_failure))) return finish();
-      auto validate_private=[&](bool candidate,MetricChange kind,bool no_new_oversized=false) {
+      auto validate_private=[&](bool candidate,MetricChange kind,bool no_new_oversized=false,bool strict_size=false) {
         certified={};
         candidate=geometric_change(candidate,kind);
         PatchMetric metric;
@@ -1374,6 +1374,9 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
                 valid=false;certified.failure=MetricFailure::Progress;
                 result.reason="Native3D joint strip introduces a new oversized edge.";break;
               }
+            }
+            if(valid && strict_size && !certified.size_progress) {
+              valid=false;certified.failure=MetricFailure::Progress;result.reason="Native3D compound wall repair does not reduce frozen changed-edge excess.";
             }
             metric_trial(valid,certified);
           }
@@ -1868,7 +1871,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         if(options.maximum_seconds && world.maximum(std::chrono::duration<double>(Clock::now()-started).count()>=options.maximum_seconds)) {
           stats.stop=EngineStop::TimeBudget;result.reason="Native3D joint repair exhausted the elapsed budget.";return finish();
         }
-        bool candidate=false;Face obstruction{};Feature preferred_obstruction;
+        bool candidate=false;Face obstruction{};Feature refit_obstruction,preferred_obstruction;
         const bool retained_frame=world.maximum(joint && wallSplit);
         const unsigned retained_frames=retained_frame?2:0;
         const unsigned frames=(world.maximum(joint && !choice.geometric)?2:1)+retained_frames;
@@ -1885,7 +1888,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
               if(retained_frame && frame<retained_frames && wallSplit) {
                 ++stats.wall_topology_trials;
                 if(frame==0)candidate=guarded_geometry(RefitWallSplit(old,choice.edge,point,maximum_node+2+node_offset,
-                    maximum_cell+1+offset,options.wall_heights,geometry,fresh,result.reason));
+                    maximum_cell+1+offset,options.wall_heights,geometry,fresh,refit_obstruction,result.reason));
                 else candidate=guarded_geometry(ReconstructWallSplit(old,choice.edge,point,maximum_node+2+node_offset,
                     maximum_cell+1+offset,options.wall_heights,geometry,fresh,obstruction,result.reason,nullptr,options.surface_tolerance));
               } else if(!retained_frame || frame>=retained_frames) {
@@ -1897,11 +1900,15 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
             ready=vote(failure);
           }
           if(!ready)return finish();
-          bool passed=validate_private(candidate,choice.geometric ? MetricChange::GeometryRefine : MetricChange::Refine);
+          const bool compound_refit=retained_frame && frame==0;
+          auto validate_joint=[&](bool available){return validate_private(available,compound_refit?MetricChange::Repair:
+              choice.geometric?MetricChange::GeometryRefine:MetricChange::Refine,false,compound_refit && !choice.geometric);};
+          bool passed=validate_joint(candidate);
           if(!ready)return finish();
-          const bool missing_closure=participating && retained_frame && frame==1 && wallSplit && !candidate && obstruction!=Face{};
+          const bool missing_closure=participating && retained_frame && frame<retained_frames && wallSplit && !candidate &&
+              (compound_refit?refit_obstruction.count>0:obstruction!=Face{});
           bool close_first=world.maximum(missing_closure);
-          if(missing_closure)preferred_obstruction={obstruction,3};
+          if(missing_closure)preferred_obstruction=compound_refit?refit_obstruction:Feature{obstruction,3};
           const bool repair=!close_first && participating && candidate && !passed && certified.failure==MetricFailure::Shape &&
               fresh.cells.size()<=MaximumReplacementCells && !options.wall_heights.empty() && stats.global_work<stats.work_limit;
           if(world.maximum(repair)) {
@@ -1962,7 +1969,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
               if(!(ready=vote(local)))return finish();
               close_first=close_first || world.maximum(missing_metric_star);
               if(world.maximum(repaired)) {
-                const bool accepted=validate_private(repaired,choice.geometric ? MetricChange::GeometryRefine : MetricChange::Refine);
+                const bool accepted=validate_joint(repaired);
                 if(active)passed=accepted;
                 stats.wall_joint_accepted+=repaired && accepted;
                 if(!ready)return finish();

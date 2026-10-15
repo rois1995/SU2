@@ -1,0 +1,135 @@
+{
+  "status": "DOUBLE_GEOMETRY_VISIBILITY_WITNESS_ONLY",
+  "edge": [
+    244,
+    262
+  ],
+  "apex": 415,
+  "fit": {
+    "rank": 2,
+    "height_residual": 2.220446049250313e-15,
+    "foot_feasible": true,
+    "minimum_barycentric": -4.163336342344337e-16,
+    "displacement": 0.1017637990551472
+  },
+  "fitted_point": [
+    -0.7896949753925264,
+    0.5276573130294929,
+    0.24371975892264797
+  ],
+  "initial_split_cells": 26,
+  "initial_minimum_volume": 0.00015277204968504942,
+  "retained_fit_minimum_volume": -6.053016219497013e-06,
+  "closed_cells": 33,
+  "new_cone_cells": 29,
+  "minimum_cone_volume": 1.5743249000828608e-06,
+  "history": [
+    {
+      "face": [
+        416,
+        244,
+        414
+      ],
+      "admitted_cell": 1735,
+      "cells": 27
+    },
+    {
+      "face": [
+        416,
+        413,
+        414
+      ],
+      "admitted_cell": 1736,
+      "cells": 28
+    },
+    {
+      "face": [
+        416,
+        96,
+        101
+      ],
+      "admitted_cell": 1739,
+      "cells": 29
+    },
+    {
+      "face": [
+        416,
+        96,
+        413
+      ],
+      "admitted_cell": 1751,
+      "cells": 30
+    },
+    {
+      "face": [
+        202,
+        413,
+        416
+      ],
+      "admitted_cell": 1749,
+      "cells": 31
+    },
+    {
+      "face": [
+        416,
+        323,
+        244
+      ],
+      "admitted_cell": 1756,
+      "cells": 32
+    },
+    {
+      "face": [
+        416,
+        101,
+        323
+      ],
+      "admitted_cell": 1757,
+      "cells": 33
+    }
+  ],
+  "reinserted_points": [
+    416
+  ],
+  "wall_checks": [
+    {
+      "face": [
+        428,
+        262,
+        414
+      ],
+      "apex": 415,
+      "height": 0.050000000000000024,
+      "minimum_barycentric": 1.3322676295501878e-15
+    },
+    {
+      "face": [
+        244,
+        428,
+        414
+      ],
+      "apex": 415,
+      "height": 0.04999999999999999,
+      "minimum_barycentric": -7.95616395743175e-17
+    },
+    {
+      "face": [
+        414,
+        262,
+        23
+      ],
+      "apex": 415,
+      "height": 0.05000000000000002,
+      "minimum_barycentric": -4.841239656191009e-16
+    }
+  ],
+  "source_receipt_sha256": "5b1656af7e36dd7b9c627f0f96612b3a3ec59df84fea36213ced1e3ac890e606",
+  "input_sha256": {
+    "audited_grid.json": "238d93c9ae685480da3575b0931dc781986ba3471bf8f3f009d719eed53fab33",
+    "wall_refit_original.json": "f53e1b16b12e17359711fe10e3ec3ce2fdc2c86ef8179419b4cec6a4e963aa06",
+    "native.log": "8214ebf8c204bafe25fc2215108e83fab8d7adc6ad98773bae00b46cdd8146e3"
+  },
+  "helper_sha256": "14417cfd2fddb53dbf1dde6998424b2e2edb84b2baa2a97354bc10ee2b2df00f",
+  "fit_helper_sha256": "6bf9b5ae414c609a166d72d6584c1dc185dd7907871920f42d0610bdc868bed4",
+  "scope": "Actual unit-cylinder rim fixture, projected geometric midpoint and double precision only. Height/foot feasibility plus specific face visibility closure without interior retirement. Not native/exact geometry/quality/full-edge acceptance, MPI, CFD or performance qualification."
+}

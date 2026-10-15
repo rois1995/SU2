@@ -30,11 +30,6 @@ struct Dependency {
   int owner = 0;
   template <class S> void Fields(S& s) { s(cell, version, owner); }
 };
-struct Feature {
-  std::array<Id, 3> vertices{};
-  unsigned count = 0;  // 1 vertex, 2 edge, 3 face. Empty feature lists are inactive callers.
-  template <class S> void Fields(S& s) { s(vertices, count); }
-};
 struct Dependencies {
   std::vector<Dependency> cells;
   bool valid = false;

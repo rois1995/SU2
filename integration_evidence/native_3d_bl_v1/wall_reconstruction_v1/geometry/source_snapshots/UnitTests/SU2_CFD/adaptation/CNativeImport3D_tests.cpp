@@ -1602,12 +1602,29 @@ TEST_CASE("Cold native cylinder BL construction and release use the same origina
   save("curved_cylinder_initial_euler",input.cells);
   const auto captured_source=world.metadata(input.original);
   if(const auto* filename=std::getenv("SU2_NATIVE_CURVED_GRID_AUDIT")) {
-    REQUIRE(world.size==1);auto cfg=text.str();const auto at=cfg.find("unused.su2");REQUIRE(at!=std::string::npos);cfg.replace(at,10,filename);
+    const bool protocol=std::getenv("SU2_NATIVE_CURVED_PROTOCOL");
+    if(!protocol)REQUIRE(world.size==1);auto cfg=text.str();const auto at=cfg.find("unused.su2");REQUIRE(at!=std::string::npos);cfg.replace(at,10,filename);
     std::stringstream gridText(cfg);std::unique_ptr<CConfig> gridConfig;
     {Mute mute;gridConfig=std::make_unique<CConfig>(gridText,SU2_COMPONENT::SU2_CFD,false);}
     CSU2ASCIIMeshReaderFVM reader(gridConfig.get(),0,1);MeshSolution loaded(gridConfig.get(),reader,0);
     auto authority=reference;const auto grid=ImportGeometry(*gridConfig,loaded.Fine(),nullptr,authority);
     CHECK(authority.original==reference.original);Save(world,"audited_grid",grid.cells,input.original,reference);
+    if(protocol) {
+      const auto untouched=Signature(world,grid.cells,reference);options.maximum_work=512;options.maximum_seconds=120;
+      const auto partial=Refine(world,grid.cells,input.original,*reference.original,compose,options);
+      save(partial.valid?"protocol_adapted":"protocol_rejected",partial.cells);
+      const auto trials=world.sum(partial.stats.placement_trials),validated=world.sum(partial.stats.placement_validated);
+      const auto classified=world.sum(partial.stats.placement_classified_vertices);
+      const auto connectivity=world.sum(partial.stats.placement_connectivity_trials);
+      const auto count=world.sum(partial.cells.size());
+      if(!world.rank)std::cout<<"JOINT_PROTOCOL ranks="<<world.size<<" valid="<<partial.valid<<" cells="<<count
+          <<" classified_vertices="<<classified<<" placement_trials="<<trials<<" placement_validated="<<validated<<" work="<<partial.stats.global_work
+          <<" stop="<<EngineStopName(partial.stats.stop)<<" connectivity_trials="<<connectivity<<" reason="<<partial.reason<<std::endl;
+      CHECK(Signature(world,grid.cells,reference)==untouched);CHECK(Signature(world,input.cells,reference)==before);
+      CHECK(partial.stats.global_work<=512);CHECK(trials>0);
+      INFO(partial.reason);CHECK((partial.valid || partial.stats.stop==EngineStop::WorkBudget));
+      return;  // Protocol/work-bound proof only; a rejected result never qualifies final mesh generation.
+    }
     FrozenField target(captured_source,compose,false,AssociatedExtensions(captured_source,*reference.original),options.edge_breakpoints);
     std::ofstream cells("grid_samples.csv");cells<<std::setprecision(17)<<"cell,q,j,xx,xy,xz,yy,yz,zz\n";
     std::map<Edge,std::pair<Point,Point>> edges;double q=1,j=1;size_t shapeFailures=0;
@@ -1626,8 +1643,80 @@ TEST_CASE("Cold native cylinder BL construction and release use the same origina
     REQUIRE(cells.good());REQUIRE(lengths.good());std::ofstream summary("grid_metric_summary.json");summary<<std::setprecision(17)
         <<"{\"cells\":"<<grid.cells.size()<<",\"shape_failures\":"<<shapeFailures<<",\"q\":"<<q<<",\"j\":"<<j
         <<",\"edges\":"<<edges.size()<<",\"oversized_edges\":"<<longEdges<<",\"maximum_length\":"<<maximum<<"}\n";REQUIRE(summary.good());
+    if(std::getenv("SU2_NATIVE_CURVED_GRID_REFINE")) {
+      const auto unchanged=Signature(world,grid.cells,reference);
+      options.maximum_rounds=std::getenv("SU2_NATIVE_CURVED_GRID_COMPLETE")?0:1;
+      options.maximum_seconds=300;
+      Patch rejected_old,rejected_proposal;Feature rejected_feature;MetricDiagnosis rejected_metric;
+      std::string rejected_reason;bool rejected_geometry=false;size_t rejected_count=0;
+      options.rejected_trial=[&](const Patch& old,const Patch& fresh,Feature feature,const MetricDiagnosis& metric,bool geometry,const std::string& reason) {
+        rejected_old=old;rejected_proposal=fresh;rejected_feature=feature;rejected_metric=metric;
+        rejected_reason=reason;rejected_geometry=geometry;++rejected_count;
+      };
+      const auto partial=Refine(world,grid.cells,input.original,*reference.original,compose,options);
+      if(rejected_count) {
+        SaveRecords("saved_grid_last_rejected_old",PatchRecords(rejected_old),captured_source,reference);
+        SaveRecords("saved_grid_last_rejected_proposal",PatchRecords(rejected_proposal),captured_source,reference);
+        std::ofstream out("saved_grid_last_rejected_diagnosis.json");out<<std::setprecision(17)<<"{\"trials\":"<<rejected_count
+            <<",\"feature\":["<<rejected_feature.vertices[0]<<','<<rejected_feature.vertices[1]<<','<<rejected_feature.vertices[2]
+            <<"],\"count\":"<<rejected_feature.count<<",\"geometry\":"<<(rejected_geometry?"true":"false")
+            <<",\"metric_failure\":"<<unsigned(rejected_metric.failure)<<",\"q\":"<<rejected_metric.minimum_mean_ratio
+            <<",\"j\":"<<rejected_metric.minimum_scaled_jacobian<<",\"reason\":"<<std::quoted(rejected_reason)<<"}\n";REQUIRE(out.good());
+      }
+      std::cout<<"CURVED_GRID_REFINE accepted="<<partial.stats.accepted<<" inserted="<<partial.stats.inserted
+          <<" classified_vertices="<<partial.stats.placement_classified_vertices<<" placement_trials="<<partial.stats.placement_trials<<" placement_validated="<<partial.stats.placement_validated
+          <<" dependency_expansions="<<partial.stats.placement_dependency_expansions<<" connectivity_trials="<<partial.stats.placement_connectivity_trials<<" placement_flips="<<partial.stats.placement_flips<<" placement_moves="<<partial.stats.placement_moves
+          <<" work="<<partial.stats.global_work<<" stop="<<EngineStopName(partial.stats.stop)<<" reason="<<partial.reason<<std::endl;
+      save(partial.valid?"curved_grid_adapted":"curved_grid_partial_rejected",partial.cells);
+      CHECK(Signature(world,grid.cells,reference)==unchanged);CHECK(Signature(world,input.cells,reference)==before);
+      if(!std::getenv("SU2_NATIVE_CURVED_GRID_COMPLETE")){REQUIRE(partial.stats.accepted==1);CHECK(partial.stats.inserted==1);}
+      if(!std::getenv("SU2_NATIVE_CURVED_GRID_COMPLETE")){CHECK_FALSE(partial.valid);CHECK(partial.stats.stop==EngineStop::RoundBudget);}
+      PatchMetric measured;size_t oversized=0;double minimum_q=1,minimum_j=1;long double excess=0;
+      std::map<Edge,long double> output_edges;
+      for(const auto& row:partial.cells) {
+        measured=MeasureMetricCells({row.second.cell},target);minimum_q=std::min(minimum_q,measured.minimum_mean_ratio);
+        minimum_j=std::min(minimum_j,measured.minimum_scaled_jacobian);
+        for(const auto& e:measured.edges)output_edges.emplace(e.first,e.second.length);
+      }
+      for(const auto& e:output_edges) {oversized+=e.second>MaximumMetricEdge;excess+=std::pow(std::max(0.L,e.second-MaximumMetricEdge),2);}
+      long double initial_excess=0;
+      for(const auto& e:edges)initial_excess+=std::pow(std::max(0.L,target.TargetEdgeLength(e.second.first,e.second.second)-MaximumMetricEdge),2);
+      CHECK(minimum_q>=MinimumMeanRatio);CHECK(minimum_j>=MinimumScaledJacobian);CHECK(excess<initial_excess);
+      std::ofstream diagnosis("grid_refine_summary.json");diagnosis<<std::setprecision(17)<<"{\"accepted\":"<<partial.stats.accepted
+          <<",\"cells\":"<<partial.cells.size()<<",\"q\":"<<minimum_q<<",\"j\":"<<minimum_j<<",\"oversized_edges\":"<<oversized
+          <<",\"initial_excess\":"<<initial_excess<<",\"remaining_excess\":"<<excess<<",\"work\":"<<partial.stats.global_work<<"}\n";
+      REQUIRE(diagnosis.good());
+      if(std::getenv("SU2_NATIVE_CURVED_GRID_COMPLETE")){INFO(partial.reason);REQUIRE(partial.valid);CHECK(oversized==0);}else CHECK(oversized>0);
+      return;  // Saved-grid engine check; solver transfer/replacement and cold construction are separate gates.
+    }
     if(std::getenv("SU2_NATIVE_CURVED_EDGE_REPLAY")) {
-      REQUIRE(!edges.empty());const auto longest=std::max_element(edges.begin(),edges.end(),[&](const auto& a,const auto& b) {
+      auto eligible=edges;
+      if((std::getenv("SU2_NATIVE_CURVED_JOINT_SEARCH") && !std::getenv("SU2_NATIVE_CURVED_INTERIOR_SEARCH")) || std::getenv("SU2_NATIVE_CURVED_WALL_REFIT")) {
+        std::map<Edge,std::vector<Id>> charts;
+        for(const auto& row:grid.cells) {
+          const auto& c=row.second.cell;
+          const std::array<Face,4> faces{{{{c.v[1].id,c.v[2].id,c.v[3].id}},{{c.v[0].id,c.v[3].id,c.v[2].id}},{{c.v[0].id,c.v[1].id,c.v[3].id}},{{c.v[0].id,c.v[2].id,c.v[1].id}}}};
+          for(unsigned f=0;f<4;++f)if(row.second.physical[f].present)for(unsigned k=0;k<3;++k) {
+            const auto a=faces[f][k],b=faces[f][(k+1)%3];charts[{std::min(a,b),std::max(a,b)}].push_back(row.second.physical[f].facet);
+          }
+        }
+        for(auto it=eligible.begin();it!=eligible.end();) {
+          const auto found=charts.find(it->first);bool flat=false;
+          if(std::getenv("SU2_NATIVE_CURVED_WALL_REFIT")) {
+            if(std::getenv("SU2_NATIVE_CURVED_RIM_REFIT"))flat=found!=charts.end() && found->second.size()==2 &&
+                reference.original->Canonical(found->second[0])!=reference.original->Canonical(found->second[1]) &&
+                std::any_of(found->second.begin(),found->second.end(),[&](Id facet){return options.wall_heights.count(reference.original->Get(facet).marker);});
+            else flat=found!=charts.end() && found->second.size()==2 &&
+                reference.original->Canonical(found->second[0])==reference.original->Canonical(found->second[1]) &&
+                std::all_of(found->second.begin(),found->second.end(),[&](Id facet){return options.wall_heights.count(reference.original->Get(facet).marker);});
+          } else if(found!=charts.end() && found->second.size()==2 && found->second[0]==found->second[1]) {
+            const auto g=reference.original->Analytic().find(found->second[0]);
+            flat=g==reference.original->Analytic().end() || g->second.kind==AnalyticSurface::Kind::Disk;
+          }
+          if(!flat)it=eligible.erase(it);else ++it;
+        }
+      }
+      REQUIRE(!eligible.empty());const auto longest=std::max_element(eligible.begin(),eligible.end(),[&](const auto& a,const auto& b) {
         return target.TargetEdgeLength(a.second.first,a.second.second)<target.TargetEdgeLength(b.second.first,b.second.second);
       });
       const auto edge=longest->first;Patch old;
@@ -1640,6 +1729,155 @@ TEST_CASE("Cold native cylinder BL construction and release use the same origina
       REQUIRE(!old.cells.empty());SaveRecords("edge_original",PatchRecords(old),captured_source,reference);
       const Node point{1000000,target.BalancedSplitPoint(longest->second.first,longest->second.second)};
       std::cout<<std::setprecision(17)<<"EDGE_REPLAY edge="<<edge[0]<<','<<edge[1]<<" star="<<old.cells.size()<<" point="<<point.p.x<<','<<point.p.y<<','<<point.p.z<<std::endl;
+      if(std::getenv("SU2_NATIVE_CURVED_WALL_REFIT")) {
+        std::set<Id> apices;
+        for(const auto& f:old.surface)if(options.wall_heights.count(reference.original->Get(f.facet).marker) &&
+            std::find(f.v.begin(),f.v.end(),edge[0])!=f.v.end() && std::find(f.v.begin(),f.v.end(),edge[1])!=f.v.end())
+          for(const auto& c:old.cells) {
+            unsigned count=0;Id apex=0;for(auto n:c.v)if(std::find(f.v.begin(),f.v.end(),n.id)!=f.v.end())++count;else apex=n.id;
+            if(count==3)apices.insert(apex);
+          }
+        REQUIRE(!apices.empty());std::vector<OwnedCell> support;
+        for(const auto& row:grid.cells)if(std::any_of(row.second.cell.v.begin(),row.second.cell.v.end(),[&](Node n){return apices.count(n.id);}) ||
+            std::count_if(row.second.cell.v.begin(),row.second.cell.v.end(),[&](Node n){return n.id==edge[0] || n.id==edge[1];})==2)support.push_back(row.second);
+        Patch full;
+        for(const auto& row:support) {
+          full.cells.push_back(row.cell);const auto& c=row.cell;
+          const std::array<Face,4> faces{{{{c.v[1].id,c.v[2].id,c.v[3].id}},{{c.v[0].id,c.v[3].id,c.v[2].id}},{{c.v[0].id,c.v[1].id,c.v[3].id}},{{c.v[0].id,c.v[2].id,c.v[1].id}}}};
+          for(unsigned f=0;f<4;++f)if(row.physical[f].present)full.surface.push_back({faces[f],row.physical[f].facet});
+        }
+        REQUIRE(full.cells.size()<=MaximumCavityCells);SaveRecords("wall_refit_original",PatchRecords(full),captured_source,reference);
+        if(std::getenv("SU2_NATIVE_CURVED_RIM_REFIT")) {
+          REQUIRE(apices.size()==1);Node support{};bool found=false;
+          for(const auto& c:full.cells)for(auto n:c.v)if(n.id==*apices.begin()){support=n;found=true;}
+          REQUIRE(found);const auto original=support.id;support.id=1000001;std::string reason;Patch controls;
+          const auto a=longest->second.first,b=longest->second.second;
+          for(long double fraction:{.25L,.5L,.75L}) {
+            const Node proposal{point.id,{double((1-fraction)*a.x+fraction*b.x),double((1-fraction)*a.y+fraction*b.y),double((1-fraction)*a.z+fraction*b.z)}};
+            const bool valid=SplitSurfaceStrip(full,edge,proposal,{{original,support}},2000000,*reference.original,controls,reason);
+            INFO(reason);REQUIRE(valid);
+            Point inserted{};bool present=false;for(const auto& c:controls.cells)for(auto n:c.v)if(n.id==point.id){inserted=n.p;present=true;}
+            REQUIRE(present);
+            for(const auto& f:old.surface)if(std::find(f.v.begin(),f.v.end(),edge[0])!=f.v.end() && std::find(f.v.begin(),f.v.end(),edge[1])!=f.v.end()) {
+              CHECK(reference.original->Contains(f.facet,inserted));
+              const auto g=reference.original->Analytic().find(f.facet);
+              if(g!=reference.original->Analytic().end() && g->second.kind!=AnalyticSurface::Kind::Disk)
+                CHECK(reference.original->OnProjectedEdge(f.facet,a,b,inserted));
+            }
+          }
+          const auto untouched=controls;
+          const Node beyond{point.id,{double(-.25L*a.x+1.25L*b.x),double(-.25L*a.y+1.25L*b.y),double(-.25L*a.z+1.25L*b.z)}};
+          CHECK_FALSE(SplitSurfaceStrip(full,edge,beyond,{{original,support}},2000000,*reference.original,controls,reason));
+          REQUIRE(controls.cells.size()==untouched.cells.size());
+          for(size_t i=0;i<controls.cells.size();++i) {
+            CHECK(controls.cells[i].id==untouched.cells[i].id);
+            for(unsigned k=0;k<4;++k) {
+              CHECK(controls.cells[i].v[k].id==untouched.cells[i].v[k].id);
+              CHECK(controls.cells[i].v[k].p.x==untouched.cells[i].v[k].p.x);
+              CHECK(controls.cells[i].v[k].p.y==untouched.cells[i].v[k].p.y);
+              CHECK(controls.cells[i].v[k].p.z==untouched.cells[i].v[k].p.z);
+            }
+          }
+        }
+        Patch fresh;Feature obstruction;std::string reason;bool built=false;
+        for(unsigned growth=0;growth<12;++growth) {
+          SaveRecords("wall_refit_original",PatchRecords(full),captured_source,reference);
+          built=RefitWallSplit(full,edge,point,1000001,2000000,options.wall_heights,*reference.original,fresh,obstruction,reason);
+          if(built || !obstruction.count)break;
+          std::set<Id> admitted;for(const auto& c:full.cells)admitted.insert(c.id);
+          std::vector<OwnedCell> missing;
+          for(const auto& row:grid.cells)if(!admitted.count(row.first) &&
+              std::count_if(row.second.cell.v.begin(),row.second.cell.v.end(),[&](Node n){return std::find(obstruction.vertices.begin(),obstruction.vertices.begin()+obstruction.count,n.id)!=obstruction.vertices.begin()+obstruction.count;})==obstruction.count)
+            missing.push_back(row.second);
+          if(missing.empty() || full.cells.size()+missing.size()>MaximumCavityCells)break;
+          for(const auto& row:missing) {
+            full.cells.push_back(row.cell);const auto& c=row.cell;
+            const std::array<Face,4> faces{{{{c.v[1].id,c.v[2].id,c.v[3].id}},{{c.v[0].id,c.v[3].id,c.v[2].id}},{{c.v[0].id,c.v[1].id,c.v[3].id}},{{c.v[0].id,c.v[2].id,c.v[1].id}}}};
+            for(unsigned f=0;f<4;++f)if(row.physical[f].present)full.surface.push_back({faces[f],row.physical[f].facet});
+          }
+          std::cout<<"WALL_REFIT_DEPENDENCY feature="<<obstruction.vertices[0]<<','<<obstruction.vertices[1]<<','<<obstruction.vertices[2]
+              <<" count="<<obstruction.count<<" cells="<<full.cells.size()<<std::endl;
+        }
+        std::cout<<"WALL_REFIT_GEOMETRY old="<<full.cells.size()<<" apices="<<apices.size()<<" built="<<built<<" reason="<<reason<<std::endl;
+        INFO(reason);REQUIRE(built);SaveRecords("wall_refit_proposal",PatchRecords(fresh),captured_source,reference);
+        FirstHeightReport height;REQUIRE(CheckFirstHeight(fresh,options.wall_heights,*reference.original,height,reason));
+        PatchMetric measured;MetricDiagnosis diagnosis;
+        const bool valid=ValidateMetricChange(full.cells,fresh.cells,MetricChange::Repair,target,measured,reason,nullptr,nullptr,&diagnosis) && diagnosis.size_progress;
+        std::cout<<std::setprecision(17)<<"WALL_REFIT old="<<full.cells.size()<<" fresh="<<fresh.cells.size()<<" apices="<<apices.size()
+            <<" valid="<<valid<<" q="<<measured.minimum_mean_ratio<<" j="<<measured.minimum_scaled_jacobian<<" reason="<<reason<<std::endl;
+        std::ofstream out("wall_refit_metric.json");out<<std::setprecision(17)<<"{\"accepted\":"<<(valid?"true":"false")
+            <<",\"q\":"<<measured.minimum_mean_ratio<<",\"j\":"<<measured.minimum_scaled_jacobian<<",\"reason\":"<<std::quoted(reason)<<"}\n";REQUIRE(out.good());
+        auto retained=fresh;const auto count=retained.cells.size();
+        CHECK_FALSE(RefitWallSplit(full,edge,point,point.id,2000000,options.wall_heights,*reference.original,retained,obstruction,reason));CHECK(retained.cells.size()==count);
+        CHECK_FALSE(RefitWallSplit(old,edge,point,1000001,2000000,options.wall_heights,*reference.original,retained,obstruction,reason));CHECK(retained.cells.size()==count);
+        CHECK(Signature(world,input.cells,reference)==before);INFO(reason);CHECK(valid);return;
+      }
+      if(std::getenv("SU2_NATIVE_CURVED_JOINT_SEARCH")) {
+        std::map<Id,size_t> costs;
+        if(std::getenv("SU2_NATIVE_CURVED_COUPLED_COVER")) {
+          std::set<Id> physical;for(const auto& row:grid.cells)for(unsigned f=0;f<4;++f)if(row.second.physical[f].present)
+            for(unsigned k=0;k<4;++k)if(k!=f)physical.insert(row.second.cell.v[k].id);
+          for(const auto& row:grid.cells)for(auto n:row.second.cell.v)if(!physical.count(n.id))++costs[n.id];
+        }
+        const auto selected=SplitPatchApices(old,edge,std::getenv("SU2_NATIVE_CURVED_COUPLED_COVER")?&costs:nullptr);
+        REQUIRE((!selected.empty() || (std::getenv("SU2_NATIVE_CURVED_INTERIOR_SEARCH") && !std::getenv("SU2_NATIVE_CURVED_COUPLED_COVER")) || std::getenv("SU2_NATIVE_CURVED_POINT_ONLY")));
+        std::vector<std::pair<Id,Id>> apices;
+        for(Id id:selected)apices.emplace_back(id,1000001+apices.size());
+        Patch full;
+        for(const auto& row:grid.cells)if(std::any_of(row.second.cell.v.begin(),row.second.cell.v.end(),[&](Node n){return std::any_of(apices.begin(),apices.end(),[&](const auto& p){return n.id==p.first;});}) ||
+            std::count_if(row.second.cell.v.begin(),row.second.cell.v.end(),[&](Node n){return n.id==edge[0] || n.id==edge[1];})==2) {
+          full.cells.push_back(row.second.cell);const auto& c=row.second.cell;
+          const std::array<Face,4> faces{{{{c.v[1].id,c.v[2].id,c.v[3].id}},{{c.v[0].id,c.v[3].id,c.v[2].id}},{{c.v[0].id,c.v[1].id,c.v[3].id}},{{c.v[0].id,c.v[2].id,c.v[1].id}}}};
+          for(unsigned f=0;f<4;++f)if(row.second.physical[f].present)full.surface.push_back({faces[f],row.second.physical[f].facet});
+        }
+        if((std::getenv("SU2_NATIVE_CURVED_INTERIOR_SEARCH") && !std::getenv("SU2_NATIVE_CURVED_COUPLED_COVER")) || std::getenv("SU2_NATIVE_CURVED_POINT_ONLY")){full=old;apices.clear();}
+        SaveRecords("joint_original",PatchRecords(full),captured_source,reference);
+        Patch fresh;JointSplitReport report;std::string reason;
+        bool accepted=false;size_t cumulative=0;
+        for(unsigned attempt=0;attempt<8;++attempt) {
+          SaveRecords("joint_original",PatchRecords(full),captured_source,reference);
+          accepted=PlaceSplitPatch(full,edge,point,apices,2000000,target,*reference.original,options.wall_heights,fresh,report,reason,std::min<size_t>(256,4096-cumulative));
+          cumulative+=report.trials;
+          if(accepted || !std::getenv("SU2_NATIVE_CURVED_ADMIT_HINTS") || report.blocked_interior_vertex==UINT64_MAX || apices.size()==8)break;
+          const Id hint=report.blocked_interior_vertex;
+          if(hint==edge[0] || hint==edge[1] || std::any_of(apices.begin(),apices.end(),[&](const auto& p){return p.first==hint;}))break;
+          bool physical=false;for(const auto& row:grid.cells)for(unsigned f=0;f<4;++f)if(row.second.physical[f].present && row.second.cell.v[f].id!=hint)
+            physical=physical || std::any_of(row.second.cell.v.begin(),row.second.cell.v.end(),[&](Node n){return n.id==hint;});
+          if(physical)break;
+          std::set<Id> admitted;for(const auto& c:full.cells)admitted.insert(c.id);
+          for(const auto& row:grid.cells)if(std::any_of(row.second.cell.v.begin(),row.second.cell.v.end(),[&](Node n){return n.id==hint;}))admitted.insert(row.first);
+          if(admitted.size()>MaximumCavityCells)break;
+          apices.emplace_back(hint,1000001+apices.size());full={};
+          for(Id id:admitted) {
+            const auto& row=grid.cells.at(id);full.cells.push_back(row.cell);const auto& c=row.cell;
+            const std::array<Face,4> faces{{{{c.v[1].id,c.v[2].id,c.v[3].id}},{{c.v[0].id,c.v[3].id,c.v[2].id}},{{c.v[0].id,c.v[1].id,c.v[3].id}},{{c.v[0].id,c.v[2].id,c.v[1].id}}}};
+            for(unsigned f=0;f<4;++f)if(row.physical[f].present)full.surface.push_back({faces[f],row.physical[f].facet});
+          }
+          std::cout<<"JOINT_DEPENDENCY vertex="<<hint<<" cells="<<full.cells.size()<<" cumulative_work="<<cumulative<<std::endl;
+        }
+        CHECK(cumulative<=4096);
+        std::cout<<"JOINT_SEARCH cells="<<full.cells.size()<<" apices="<<apices.size()<<" accepted="<<accepted<<" trials="<<report.trials
+            <<" connectivity_trials="<<report.connectivity_trials<<" flips="<<report.flips<<" moves="<<report.moves<<" blocked_vertex="<<report.blocked_interior_vertex
+            <<" geometry_rejected="<<report.geometry_rejected<<" height_rejected="<<report.height_rejected<<" metric_rejected="<<report.metric_rejected
+            <<" shape_loss="<<report.best_shape_loss<<" initial="<<report.initial_loss<<" best="<<report.best_loss<<" reason="<<reason<<std::endl;
+        if(accepted)SaveRecords("joint_private",PatchRecords(fresh),captured_source,reference);
+        else if(!report.best.cells.empty())SaveRecords("joint_best_rejected",PatchRecords(report.best),captured_source,reference);
+        CHECK(report.trials<=256);
+        const auto search_reason=reason;Patch rejected=full;JointSplitReport invalid;
+        CHECK_FALSE(PlaceSplitPatch(full,edge,point,apices,2000000,target,*reference.original,options.wall_heights,rejected,invalid,reason,0));
+        REQUIRE(rejected.cells.size()==full.cells.size());CHECK(rejected.surface.size()==full.surface.size());
+        for(size_t i=0;i<full.cells.size();++i) {
+          CHECK(rejected.cells[i].id==full.cells[i].id);
+          for(unsigned k=0;k<4;++k) {
+            CHECK(rejected.cells[i].v[k].id==full.cells[i].v[k].id);
+            CHECK(rejected.cells[i].v[k].p.x==full.cells[i].v[k].p.x);
+            CHECK(rejected.cells[i].v[k].p.y==full.cells[i].v[k].p.y);
+            CHECK(rejected.cells[i].v[k].p.z==full.cells[i].v[k].p.z);
+          }
+        }
+        INFO(search_reason);REQUIRE(accepted);
+        CHECK(Signature(world,input.cells,reference)==before);return;
+      }
       for(unsigned op=0;op<3;++op) {
         Patch fresh;Face obstruction{};std::string reason;
         const bool geometry=op==0?SplitEdge(old,edge,point,2000000,*reference.original,fresh,reason):
@@ -1778,11 +2016,13 @@ TEST_CASE("Cold native cylinder BL construction and release use the same origina
         <<" geometry="<<geometry_valid<<" failure="<<unsigned(metric.failure)<<" q="<<metric.minimum_mean_ratio
         <<" j="<<metric.minimum_scaled_jacobian<<" reason="<<reason<<std::endl;
   };
+  options.maximum_seconds=300;  // Return/save private progress before the collector's hard timeout.
   const auto refined=Refine(world,input.cells,input.original,*reference.original,compose,options);
   if(!world.rank)std::cout<<"CURVED_NATIVE3D refine valid="<<refined.valid<<" work="<<refined.stats.global_work<<" reason="<<refined.reason<<std::endl;
   if(!world.rank) {
     const auto& e=refined.stats;const auto& m=e.last_metric_rejection;
     std::cout<<std::setprecision(17)<<"CURVED_NATIVE3D_DIAG accepted="<<e.accepted<<" rejected="<<e.rejected
+        <<" placement_trials="<<e.placement_trials<<" placement_validated="<<e.placement_validated
         <<" topology_trials="<<e.wall_topology_trials<<" topology_accepted="<<e.wall_topology_accepted
         <<" joint_trials="<<e.wall_joint_trials<<" joint_moves="<<e.wall_joint_moves<<" joint_removals="<<e.wall_joint_removals<<" joint_accepted="<<e.wall_joint_accepted
         <<" geometry_rejected="<<e.geometry_rejected<<" shape_rejected="<<e.metric_shape_rejected

@@ -29,6 +29,14 @@ The [connected insertion/reconnection work](GOAL3_JOINT_CONNECTIVITY.md) now rea
 MPI2 protocol and entire geometry/height/shape-arithmetic audits pass; remaining
 metric debt is dominated by cylinder and cap junctions. All owned jobs are terminal.
 
+The [curved-feature/height-foot/visibility repair](GOAL3_CURVED_FEATURE_REPAIR.md)
+now makes96 edits to1832 cells/38 long edges on the identical1402-cell strict
+input, still rejecting at4096 work. Geometry controls and bounded MPI2 protocol/
+donor-reference audit pass. Actual rim geometry succeeds; direct actual-metric
+shape rejects, and independent exact foot weight is negative7.5e-18 within native
+numerical allowance. Whole1832 independent geometry/no-overlap/84 exact feet/height and exported-tensor shape audit passes;38 lengths still reject. All owned jobs terminal. No final curved
+mesh, CFD or performance claim follows.
+
 ## Existing qualified scope
 
 - One actual-query geometric BL policy is shared by weights/refine/coarsen/thin

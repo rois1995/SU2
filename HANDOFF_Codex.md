@@ -9,29 +9,34 @@ original-P1 sensors, actual-query BL/fade, first height, geometry and metric gat
 Planar construction/removal passes on the recorded MPI1/2/4 checkpoint; curved
 local repairs and bounded protocol checks are progress, not accepted generation.
 
-Current connected work combines shared-apex wall refitting, private insertion/
-reconnection and actual-field-directed complete-star admission. The strict same
-1402-cell original-field target now makes94 insertions to1842 cells, but still
-rejects40 oversized edges at4096 work. Remaining groups:16 cylinder,22 cylinder/
-cap junction,2 interior. Field, height, geometry and quality gates are unchanged.
+Current connected work adds finite curved-feature projection, joint wall-height/
+normal-foot fitting, directed visibility closure and complete topological stars.
+The strict same1402-cell original-field target makes96 edits to1832 cells, still
+rejecting38 oversized edges at4096 work (16 cylinder/20 rim/2 interior).
 
-Current focused/native/MPI2 protocol and independent entire geometry/height/shape
-arithmetic checks pass within their scope. No accepted curved mesh or CFD/restart/
-M<N/currentMPI4/performance qualification follows. All owned jobs are terminal.
-Read [the current capability and next boundary restriction](Handbook/GOAL3_JOINT_CONNECTIVITY.md).
+Current focused geometry and MPI2 protocol/donor-reference checks pass. The entire
+1832-cell result independently passes positive/no-overlap geometry,84 exact feet,
+first height and exported-tensor shape arithmetic. Its38 lengths still reject.
+The isolated rim geometry succeeds but actual shape rejects; its exact-foot audit
+also flags a7.5e-18 weight within native numerical allowance. Read
+[the connected scope and remaining reconstruction limitation](Handbook/GOAL3_CURVED_FEATURE_REPAIR.md).
+No accepted curved generation, CFD/restart/M<N/currentMPI4 or performance claim.
+All owned jobs terminal; do not restart from stale receipts.
+Read [the previous capability and boundary restriction](Handbook/GOAL3_JOINT_CONNECTIVITY.md).
 Earlier [shared-apex](Handbook/GOAL3_SHARED_APEX_REFIT.md) and
 [support-selection](Handbook/GOAL3_SUPPORT_SELECTION.md) evidence remains preserved.
 
 Inspectable current cases are below
 `integration_evidence/native_3d_bl_v1/wall_reconstruction_v1/`:
-`curved_joint_connectivity_complete`, `curved_joint_connectivity_residual`,
-`curved_refit_interior_dependencies`, `curved_cover_probe`, `curved_repair_controls`,
-and `curved_joint_protocol_connectivity_mpi2`.
+`curved_feature_complete`, `curved_feature_residual`, `curved_rim_refit_probe`,
+`curved_feature_controls`, `topology_hint_controls`, `geometry`, and
+`curved_joint_protocol_feature_mpi2`. Earlier rejected grids remain preserved.
 A folder or RUNNING receipt alone is not evidence of a live or completed job.
 
 Read only the relevant handbook:
 
 - [Current implementation and full remaining gates](Handbook/GOAL3_CURRENT.md).
+- [Coupled curved-feature and wall-foot repair](Handbook/GOAL3_CURVED_FEATURE_REPAIR.md).
 - [Joint insertion and private connectivity repair](Handbook/GOAL3_JOINT_CONNECTIVITY.md).
 - [Coordinated shared-apex refit, qualified scope](Handbook/GOAL3_SHARED_APEX_REFIT.md).
 - [Support selection and latest curved progress](Handbook/GOAL3_SUPPORT_SELECTION.md).

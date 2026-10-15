@@ -5254,3 +5254,32 @@ Full curved construction/removal, wider fields/geometries, currentMPI4/M<N/CFD/B
 restart/accuracy/performance remain open. The shared curved-projection guard's
 restriction on simultaneous interior-apex movement is the next actual rim suspect
 to verify. See Handbook/GOAL3_JOINT_CONNECTIVITY.md; all owned jobs terminal.
+
+
+## Curved-feature projection, constrained feet and visibility closure — 2026-10-15
+
+The real rim split balanced point is the exact chord midpoint. Its former
+projection rejection was caused by simultaneous interior support motion. A finite
+two-authority feature projection now permits that combination while checking all
+incident geometry and the finite arc. Height-plane fitting additionally needs
+normal-foot half-spaces; visibility closure then admits three actual faces and
+the full nonmanifold-edge star to31 original cells. Shared original-point
+restoration produces29 positive native tets, height/foot numerical-bound PASS.
+The direct replay still rejects actual-field q=.014704529/J=.001068321, so it is
+not an accepted operator proposal. Exact rational foot audit also finds one
+-7.4865e-18 weight; retain this failure separately from native numerical tolerance.
+
+The complete original-field1402-cell engine run makes96 edits to1832 cells,
+38 oversized edges, remaining squared excess .065325585 at the same4096 budget
+(previous94/1842/40/.065596571). Shape q=.201101612/J=.050223847 remains admissible;
+final lengths still fail. Residual groups16 cylinder/20 junction/2 interior,
+maximum1.948298940. Original donors/reference are unchanged. Small improvements
+do not establish sufficient wall/transition reconstruction freedom.
+
+Typed closure1/9, existing wall controls4/1716 and curved+marker11/616 pass;
+first curved collector incorrectly expected10 but native exit0/11 passing cases
+is preserved. Current bounded MPI2 protocol and independent donor/reference audit
+pass with512 work/1708 rejected cells. No accepted curved/removal/currentMPI4/M<N/
+current+BDF/CFD/restart/viscous accuracy/performance qualification follows. Entire1832-cell independent geometry/no-overlap/84 exact feet/height and exported-
+tensor shape arithmetic PASS;38 lengths still reject. All owned jobs terminal.
+See Handbook/GOAL3_CURVED_FEATURE_REPAIR.md.

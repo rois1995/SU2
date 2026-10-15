@@ -185,3 +185,13 @@ TEST_CASE("Native 3D domain skin separates global topology from cavity bounds", 
   CHECK_NOTHROW(ValidateDomainSurfaceTopology(skin));
   CHECK_THROWS(ValidateSurfaceTopology(skin,true));
 }
+
+TEST_CASE("Cavity closure identifies complete edge and vertex stars before reconstruction", "[NativeClosureHint3D]") {
+  const std::vector<Face> first{{1,2,3},{0,3,2},{0,1,3},{0,2,1}};
+  auto edge=first;for(auto f:std::vector<Face>{{1,4,5},{0,5,4},{0,1,5},{0,4,1}})edge.push_back(f);
+  Feature closure;CHECK_THROWS(ValidateSurfaceTopology(edge,true,32,&closure));
+  CHECK(closure.count==2);CHECK(closure.vertices[0]==0);CHECK(closure.vertices[1]==1);
+  auto vertex=first;for(auto f:std::vector<Face>{{4,5,6},{0,6,5},{0,4,6},{0,5,4}})vertex.push_back(f);
+  CHECK_THROWS(ValidateSurfaceTopology(vertex,true,32,&closure));CHECK(closure.count==1);CHECK(closure.vertices[0]==0);
+  CHECK_NOTHROW(ValidateSurfaceTopology(first,true,32,&closure));CHECK(closure.count==0);
+}
