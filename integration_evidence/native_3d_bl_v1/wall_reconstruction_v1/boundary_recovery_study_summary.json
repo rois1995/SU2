@@ -1,0 +1,110 @@
+{
+  "status": "REJECTED_STRATEGY_COMPLETE_CURVED_MESH_NOT_ACHIEVED",
+  "study_branch": "codex/native-3d-boundary-recovery-study",
+  "production_policy": "Retain00e3 native production implementation; do not promote this study.",
+  "stages": [
+    {
+      "stage": "private_extension_controls",
+      "status": "PASS",
+      "receipt_sha256": "19cba8d4fa1188084cb0fadf5a72224876f240d4a8081a53dc62acbb6bed9903",
+      "binary": "3a10bd2f38250cdaa07592998fe4c1421c430d39d51b4ea75b426a50c5368ced"
+    },
+    {
+      "stage": "curved_boundary_patch_probe",
+      "status": "FAIL",
+      "receipt_sha256": "013f8d3ef986e9baada9c670c78d539989ae4ec1991146c9adee1ffba5f75718",
+      "binary": "781b9fa067392ae10ad915ec3f3996453e3adb98a9618ad71fcd9df35e6c8895"
+    },
+    {
+      "stage": "curved_boundary_step",
+      "status": "PASS",
+      "receipt_sha256": "f459740fcda092208e2ff4a1e1e3fad4e815dd5d2925e33d2834b23c9cf73942",
+      "binary": "3a10bd2f38250cdaa07592998fe4c1421c430d39d51b4ea75b426a50c5368ced"
+    },
+    {
+      "stage": "curved_boundary_complete",
+      "status": "FAIL",
+      "receipt_sha256": "069f5467c0e111c82de1def2b62c5537d738c2a28ef17ce4278a26bbfe754c30",
+      "binary": "a0509b2c5f47a9a5a5cff1de8bf83c5c6344fd790f127e1e7735f3b57cc14dac"
+    },
+    {
+      "stage": "curved_boundary_residual",
+      "status": "PASS",
+      "receipt_sha256": "fedf147f1a21a16ccf837bb1cee85fc08c0784eef6d03d5a507a6c3a38574c47",
+      "binary": "a0509b2c5f47a9a5a5cff1de8bf83c5c6344fd790f127e1e7735f3b57cc14dac"
+    }
+  ],
+  "final_stats": {
+    "accepted": 107,
+    "cells": 1918,
+    "q": 0.20001943538739836,
+    "j": 0.05000346259887065,
+    "oversized_edges": 30,
+    "metric_linearizations": 191,
+    "metric_probes": 8448,
+    "metric_linear_iterations": 1633,
+    "metric_solve_trials": 1525,
+    "initial_excess": 1.5874507614028437,
+    "remaining_excess": 0.0426469507014944,
+    "work": 4096,
+    "progress": {
+      "size": 106,
+      "quality": 26,
+      "removals": 0,
+      "geometry": 0,
+      "recovery_starts": 1,
+      "windows": 2,
+      "stagnant": 0
+    },
+    "mechanisms": {
+      "wall_topology_trials": 292,
+      "wall_topology_accepted": 26,
+      "wall_joint_trials": 1475,
+      "wall_joint_accepted": 5,
+      "dependency_backtracks": 4,
+      "private_continuations": 3,
+      "fallback_accepted": 1,
+      "metric_shape_rejected": 390,
+      "metric_progress_rejected": 37
+    },
+    "engine_phase_seconds": {
+      "completion": 0,
+      "dependency": 0.023294989000000012,
+      "donor": 0.2044111729999998,
+      "initialization": 0.004547313,
+      "layer": 0.000255219,
+      "metric": 62.49477948299997,
+      "other": 88.12356171800002,
+      "publication": 0.025251581000000002,
+      "reconstruction": 7.728128671000012,
+      "reservation": 0.004265067000000003,
+      "routing": 0.0056347750000000025,
+      "seed": 4.452811479,
+      "selection": 0.0013831310000000003,
+      "update": 5.690922320999999
+    },
+    "nested_field_seconds": {
+      "build": 0.0935710940000003,
+      "composition": 0.5930122400000003,
+      "edge_composition": 26.79753459300003,
+      "edge_geometry": 4.54026375900001,
+      "edge_integral": 33.73923813400005,
+      "edge_trace": 39.04707244799992,
+      "interpolation": 0.024750145000000362,
+      "query": 0.9344782660000004,
+      "search": 0.16192344299999997
+    },
+    "engine_total_seconds": 168.75924692,
+    "engine_cpu_seconds": 167.802897,
+    "field_requests": 200748,
+    "field_edges": 158774,
+    "tracked_calls": 41799,
+    "tracked_bytes": 137176904,
+    "maximum_work_bytes": 39222696
+  },
+  "independent_sha256": "91f3558d575069db3536001963f62adda6727888f52eebad9bd0b55cac57a0d1",
+  "residual_sha256": "180fa5323252a4590e797f35a74ee7902dbb3f59002fd82b1f8812b29b9163d9",
+  "same_full_input_metric_policy_and_acceptance_constants": true,
+  "qualification": "Independent exact1918-cell embedding/positive/no-overlap/91 normal feet/height and exported-tensor q/J arithmetic pass;30 full composed native lengths still reject. No new MPI, CFD/current-BDF transfer/restart/accuracy or speedup qualification. Local control and patch PASS receipts use their recorded earlier binary/source snapshots; not full-mesh milestones.",
+  "next": "Reconsider coordinated wall-region and transition construction before any further local fallback; next meaningful milestone is a complete accepted curved mesh under unchanged constraints."
+}

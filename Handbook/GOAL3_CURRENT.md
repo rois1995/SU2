@@ -21,6 +21,16 @@ scheduling is withdrawn; the engine retains published scheduling. All owned jobs
 terminal. Next work must address the actual physical-wall reconstruction blocker
 with primary-progress and phase-cost evidence, not budget/fixture ladders.
 
+## Rejected recovery and required next milestone
+
+The independent-branch/partial-continuation recovery can accept one actual blocked
+edit, but the complete unchanged target still rejects: eager79 and staged30 long
+edges, versus published25. This is not the next milestone. Preserve the rejected
+implementation on `codex/native-3d-boundary-recovery-study`; retain published00e3
+production policy and read [the construction reassessment](GOAL3_CONSTRUCTION_REASSESSMENT.md).
+User2026-10-15 requires a complete accepted curved mesh under unchanged constraints;
+reconsider construction strategy before another local fallback. Full Goal3 stays open.
+
 ## Existing qualified scope
 
 - One actual-query geometric BL policy is shared by weights/refine/coarsen/thin

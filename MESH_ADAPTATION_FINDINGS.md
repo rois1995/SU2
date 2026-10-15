@@ -5332,3 +5332,17 @@ centroid tangent-offset/altitude1.523 local/3.762 full (previous full2.215), min
 smooth unit-cylinder clearance/altitude .99493 full. Different triangulations and
 contained normal feet do not establish column orthogonality or layer-stack/viscous
 accuracy. No alignment completion claim accompanies the shape/height certificates.
+
+
+## 2026-10-15 — complete curved target rejects the recovery strategy
+
+Independent branches/private continuation repair the actual blocked edge, but both
+whole-policy attempts FAIL under unchanged1402-cell field/constraints/bounds:
+eager1706 cells/79 long edges/excess .401508; staged1918/30/.042646951 at4096 work,
+versus published1984/25/.041918515. No full-mesh or speedup claim. Final residuals
+are15 cylinder/15 rim/0 interior; original donors/reference unchanged. Do not
+promote this recovery policy or add another local fallback. User requires the next
+meaningful milestone to be a complete accepted curved mesh under unchanged
+constraints. Preserve the study and read
+[the construction reassessment](Handbook/GOAL3_CONSTRUCTION_REASSESSMENT.md)
+before implementation. Full Goal3 and all other gates remain active/incomplete.
