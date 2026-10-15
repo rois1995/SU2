@@ -205,6 +205,11 @@ void CSinglezoneDriver::Output(unsigned long TimeIter) {
                                                                config_container[ZONE_0],
                                                                solver_container[ZONE_0][INST_0][MESH_0],
                                                                TimeIter, StopCalc);
+  if (numericalFailure) {
+    output_container[ZONE_0]->WriteFailureRestart(geometry_container[ZONE_0][INST_0][MESH_0],
+        config_container[ZONE_0], solver_container[ZONE_0][INST_0][MESH_0]);
+    wrote_files = true;
+  }
 
   /*--- Save iteration solution for libROM ---*/
   if (config_container[MESH_0]->GetSave_libROM()) {
@@ -262,6 +267,16 @@ bool CSinglezoneDriver::Monitor(unsigned long TimeIter){
 
   nInnerIter = config_container[ZONE_0]->GetnInner_Iter();
   InnerIter  = config_container[ZONE_0]->GetInnerIter();
+  if (config_container[ZONE_0]->GetSSTNewtonOptions().enabled &&
+      integration_container[ZONE_0][INST_0][TURB_SOL]->GetNumericalFailure()) {
+    numericalFailure = StopCalc = true;
+    output_container[ZONE_0]->SetConvergence(false);
+    IterCount += InnerIter+1;
+    if (rank == MASTER_NODE)
+      cout << "\n" << integration_container[ZONE_0][INST_0][TURB_SOL]->GetNumericalFailureMessage()
+           << "\nWriting a failure restart and stopping without convergence.\n";
+    return true;
+  }
   nTimeIter  = config_container[ZONE_0]->GetnTime_Iter();
   MaxTime    = config_container[ZONE_0]->GetMax_Time();
   CurTime    = output_container[ZONE_0]->GetHistoryFieldValue("CUR_TIME");

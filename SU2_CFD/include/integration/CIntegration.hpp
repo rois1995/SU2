@@ -84,6 +84,8 @@ public:
    * \brief Destructor of the class.
    */
   virtual ~CIntegration(void) = default;
+  virtual bool GetNumericalFailure() const { return false; }
+  virtual const char* GetNumericalFailureMessage() const { return ""; }
 
   /*!
    * \brief Save the geometry at different time steps.

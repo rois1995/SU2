@@ -26,6 +26,7 @@
  */
 
 #include "CIntegration.hpp"
+#include <memory>
 
 /*!
  * \class CSingleGridIntegration
@@ -35,6 +36,7 @@
  */
 class CSingleGridIntegration final : public CIntegration {
 private:
+  std::unique_ptr<CIntegration> sstNewton;
   /*!
    * \brief Restrict solution from fine grid to a coarse grid.
    * \param[in] RunTime_EqSystem - System of equations which is going to be solved.
@@ -68,6 +70,10 @@ public:
    * \brief Constructor of the class.
    */
   CSingleGridIntegration();
+  bool GetNumericalFailure() const override { return sstNewton && sstNewton->GetNumericalFailure(); }
+  const char* GetNumericalFailureMessage() const override {
+    return sstNewton ? sstNewton->GetNumericalFailureMessage() : "";
+  }
 
   /*!
    * \brief Do the numerical integration (implicit) of the turbulence solver.

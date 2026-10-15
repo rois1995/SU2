@@ -142,6 +142,7 @@ int main(int argc, char *argv[]) {
   /*--- Launch the main external loop of the solver. ---*/
 
   driver->StartSolver();
+  const bool numerical_failure = driver->GetNumericalFailure();
 
   /*--- Finalize solver, delete all the containers, close history file, exit SU2. ---*/
 
@@ -158,6 +159,6 @@ int main(int argc, char *argv[]) {
   /*--- Finalize OpenMP. ---*/
   omp_finalize();
 
-  return EXIT_SUCCESS;
+  return numerical_failure ? EXIT_FAILURE : EXIT_SUCCESS;
 
 }

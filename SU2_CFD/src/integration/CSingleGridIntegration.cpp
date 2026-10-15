@@ -26,6 +26,7 @@
  */
 
 #include "../../include/integration/CSingleGridIntegration.hpp"
+#include "../../include/integration/CSSTNewtonIntegration.hpp"
 #include "../../../Common/include/parallelization/omp_structure.hpp"
 
 
@@ -37,6 +38,18 @@ void CSingleGridIntegration::SingleGrid_Iteration(CGeometry ****geometry, CSolve
                                                   unsigned short iInst) {
   SU2_ZONE_SCOPED
 
+  if (RunTime_EqSystem == RUNTIME_TURB_SYS && config[iZone]->GetSSTNewtonOptions().enabled) {
+    if (!sstNewton) sstNewton = std::make_unique<CSSTNewtonIntegration>();
+    sstNewton->MultiGrid_Iteration(geometry, solver_container, numerics_container, config, RunTime_EqSystem, iZone, iInst);
+    if (!sstNewton->GetNumericalFailure())
+      for (unsigned short m = 0; m < config[iZone]->GetnMGLevels(); ++m) {
+        SetRestricted_Solution(RunTime_EqSystem, solver_container[iZone][iInst][m][TURB_SOL],
+            solver_container[iZone][iInst][m+1][TURB_SOL], geometry[iZone][iInst][m], geometry[iZone][iInst][m+1], config[iZone]);
+        SetRestricted_EddyVisc(RunTime_EqSystem, solver_container[iZone][iInst][m][TURB_SOL],
+            solver_container[iZone][iInst][m+1][TURB_SOL], geometry[iZone][iInst][m], geometry[iZone][iInst][m+1], config[iZone]);
+      }
+    return;
+  }
   const unsigned short Solver_Position = config[iZone]->GetContainerPosition(RunTime_EqSystem);
 
   /*--- Start an OpenMP parallel region covering the entire iteration. ---*/

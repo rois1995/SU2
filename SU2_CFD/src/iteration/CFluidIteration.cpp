@@ -276,6 +276,11 @@ bool CFluidIteration::Monitor(COutput* output, CIntegration**** integration, CGe
                            config[val_iZone]->GetInnerIter());
 
   auto StopCalc = output->GetConvergence();
+  if (config[val_iZone]->GetSSTNewtonOptions().enabled &&
+      integration[val_iZone][val_iInst][TURB_SOL]->GetNumericalFailure()) {
+    output->SetConvergence(false);
+    return true;
+  }
 
   /*--- Never stop before the fine mesh is active. ---*/
   if (finestMesh != MESH_0) StopCalc = false;

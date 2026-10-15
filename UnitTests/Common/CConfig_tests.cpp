@@ -30,6 +30,22 @@
 #include <string>
 #include "../../Common/include/CConfig.hpp"
 
+TEST_CASE("SST Newton named options are parsed with an inactive legacy default", "[globalization][config]") {
+  std::stringstream input("SOLVER= RANS\nKIND_TURB_MODEL= SST\nMESH_FORMAT= BOX\nMACH_NUMBER= 0.15\nREYNOLDS_NUMBER= 6e6\n"
+      "SST_NEWTON_RETRIES= 3\nSST_NEWTON_CFL_MIN= 0.01\nSST_NEWTON_ARMIJO= 0.0002\n"
+      "SST_NEWTON_ADAPTIVE_FORCING= NO\n");
+  CConfig config(input, SU2_COMPONENT::SU2_CFD, false);
+  const auto options = config.GetSSTNewtonOptions().Passive([](const su2double& x) { return SU2_TYPE::GetValue(x); });
+  REQUIRE_FALSE(options.enabled);
+  REQUIRE(options.recovery);
+  REQUIRE(options.lineSearch);
+  REQUIRE(options.pseudoTimeMerit);
+  REQUIRE(options.maxRetries == 3);
+  REQUIRE(options.cflMin == 0.01);
+  REQUIRE(options.armijo == 0.0002);
+  REQUIRE_FALSE(options.adaptiveForcing);
+}
+
 namespace {
 
 /*--- Minimal incompressible case on a box mesh, the options under test are appended to it. ---*/

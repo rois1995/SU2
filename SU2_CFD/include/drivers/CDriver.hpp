@@ -64,6 +64,7 @@ class CDriver : public CDriverBase {
   su2double MDOFs;   /*!< \brief Total number of DOFs in millions in the calculation (including ghost points).*/
   su2double MDOFsDomain; /*!< \brief Total number of DOFs in millions in the calculation (excluding ghost points).*/
 
+  bool numericalFailure = false;
   bool StopCalc,   /*!< \brief Stop computation flag.*/
       mixingplane, /*!< \brief mixing-plane simulation flag.*/
       fsi,         /*!< \brief FSI simulation flag.*/
@@ -81,6 +82,7 @@ class CDriver : public CDriverBase {
   bool dry_run;                      /*!< \brief Flag if SU2_CFD was started as dry-run via "SU2_CFD -d <config>.cfg" */
 
  public:
+  bool GetNumericalFailure() const { return numericalFailure; }
   /*!
    * \brief Constructor of the class.
    * \param[in] confFile - Configuration file name.

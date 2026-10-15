@@ -1884,6 +1884,34 @@ void CConfig::SetConfig_Options() {
 
   /* DESCRIPTION: Use a Newton-Krylov method. */
   addBoolOption("NEWTON_KRYLOV", NewtonKrylov, false);
+  addBoolOption("SST_NEWTON", sstNewtonOptions.enabled, false);
+  addBoolOption("SST_NEWTON_LINE_SEARCH", sstNewtonOptions.lineSearch, true);
+  addBoolOption("SST_NEWTON_RECOVERY", sstNewtonOptions.recovery, true);
+  addBoolOption("SST_NEWTON_ADAPT_CFL", sstNewtonOptions.adaptCFL, true);
+  addBoolOption("SST_NEWTON_ADAPTIVE_FORCING", sstNewtonOptions.adaptiveForcing, true);
+  addBoolOption("SST_NEWTON_DIAGNOSTICS", sstNewtonOptions.diagnostics, true);
+  addBoolOption("SST_NEWTON_PSEUDO_TIME_MERIT", sstNewtonOptions.pseudoTimeMerit, true);
+  addDoubleOption("SST_NEWTON_ARMIJO", sstNewtonOptions.armijo, 0.0001);
+  addDoubleOption("SST_NEWTON_RESTORE_TOL", sstNewtonOptions.restoreTolerance, 1e-10);
+  addDoubleOption("SST_NEWTON_STEP_TOL", sstNewtonOptions.stepTolerance, 3.666852862501036e-11);
+  addDoubleOption("SST_NEWTON_INTERPOLATION_MIN", sstNewtonOptions.interpolationMin, 0.1);
+  addDoubleOption("SST_NEWTON_INTERPOLATION_MAX", sstNewtonOptions.interpolationMax, 0.5);
+  addDoubleOption("SST_NEWTON_CFL_MIN", sstNewtonOptions.cflMin, 0.001);
+  addDoubleOption("SST_NEWTON_CFL_MAX", sstNewtonOptions.cflMax, 1000000);
+  addDoubleOption("SST_NEWTON_CFL_SHRINK", sstNewtonOptions.shrink, 0.25);
+  addDoubleOption("SST_NEWTON_CFL_GROW", sstNewtonOptions.grow, 2);
+  addDoubleOption("SST_NEWTON_MODEL_POOR", sstNewtonOptions.poorAgreement, 0.25);
+  addDoubleOption("SST_NEWTON_MODEL_GOOD", sstNewtonOptions.goodAgreement, 0.75);
+  addDoubleOption("SST_NEWTON_FD_STEP", sstNewtonOptions.fdStep, 1e-8);
+  addDoubleOption("SST_NEWTON_FD_RELATIVE_STEP", sstNewtonOptions.relativeFDStep, 0.0001);
+  addDoubleOption("SST_NEWTON_LINEAR_TOL", sstNewtonOptions.linearTolerance, 0.001);
+  addDoubleOption("SST_NEWTON_FORCING_MIN", sstNewtonOptions.etaMin, 0.00001);
+  addDoubleOption("SST_NEWTON_FORCING_MAX", sstNewtonOptions.etaMax, 0.1);
+  addDoubleOption("SST_NEWTON_FORCING_GAMMA", sstNewtonOptions.forcingGamma, 0.9);
+  addDoubleOption("SST_NEWTON_FORCING_POWER", sstNewtonOptions.forcingPower, 1.5);
+  addUnsignedShortOption("SST_NEWTON_BACKTRACKS", sstNewtonOptions.maxBacktracks, 20);
+  addUnsignedShortOption("SST_NEWTON_RETRIES", sstNewtonOptions.maxRetries, 16);
+  addUnsignedShortOption("SST_NEWTON_LINEAR_ITER", sstNewtonOptions.linearIterations, 80);
   /* DESCRIPTION: Integer parameters {startup iters, precond iters, initial tolerance relaxation}. */
   addUShortArrayOption("NEWTON_KRYLOV_IPARAM", NK_IntParam.size(), true, NK_IntParam.data());
   /* DESCRIPTION: Double parameters {startup residual drop, precond tolerance, full tolerance residual drop, findiff step, NK relaxation}. */
@@ -3668,6 +3696,20 @@ void CConfig::SetnZone(){
 }
 
 void CConfig::SetPostprocessing(SU2_COMPONENT val_software, unsigned short val_izone, unsigned short val_nDim) {
+  const auto sstOptions = sstNewtonOptions.Passive([](const su2double& x) { return SU2_TYPE::GetValue(x); });
+  const auto sstOptionError = sstOptions.Validate();
+  if (!sstOptionError.empty()) SU2_MPI::Error(sstOptionError, CURRENT_FUNCTION);
+  if (sstOptions.enabled) {
+    if (Kind_Solver != MAIN_SOLVER::RANS || Kind_Turb_Model != TURB_MODEL::SST ||
+        TimeMarching != TIME_MARCHING::STEADY || Time_Domain || nZone != 1 || Multizone_Problem ||
+        Kind_Trans_Model != TURB_TRANS_MODEL::NONE || Enable_Cuda || Kind_MGCycle == MG_CYCLE::FULL ||
+        Kind_TimeIntScheme_Turb != EULER_IMPLICIT || ContinuousAdjoint || DiscreteAdjoint || DirectDiff != NO_DERIVATIVE)
+      SU2_MPI::Error("SST_NEWTON requires steady single-zone compressible SST without transition, CUDA or full-MG startup",
+                     CURRENT_FUNCTION);
+#if defined(CODI_REVERSE_TYPE) || defined(CODI_FORWARD_TYPE)
+    SU2_MPI::Error("SST_NEWTON is not available in differentiation executables", CURRENT_FUNCTION);
+#endif
+  }
 
   unsigned short iCFL, iMarker;
   bool ideal_gas = ((Kind_FluidModel == STANDARD_AIR) ||

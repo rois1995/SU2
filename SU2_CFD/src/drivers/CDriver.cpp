@@ -530,7 +530,8 @@ void CDriver::Finalize() {
   /*--- Exit the solver cleanly ---*/
 
   if (rank == MASTER_NODE)
-    cout << endl <<"------------------------- Exit Success (SU2_CFD) ------------------------" << endl << endl;
+    cout << endl << (numericalFailure ? "---------------------- Numerical Failure (SU2_CFD) ----------------------" :
+                                       "------------------------- Exit Success (SU2_CFD) ------------------------") << endl << endl;
 
 }
 

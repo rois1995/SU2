@@ -867,6 +867,14 @@ bool COutput::GetCauchyCorrectedTimeConvergence(const CConfig *config){
   return TimeConvergence;
 }
 
+void COutput::WriteFailureRestart(CGeometry* geometry, CConfig* config, CSolver** solvers) {
+  AllocateDataSorters(config, geometry);
+  LoadDataIntoSorter(config, geometry, solvers);
+  volumeDataSorter->SortOutputData();
+  if (volumeDataSorterCompact) volumeDataSorterCompact->SortOutputData();
+  WriteToFile(config, geometry, OUTPUT_TYPE::RESTART_BINARY, config->GetRestart_FileName()+"_sst_newton_failure");
+}
+
 bool COutput::SetResultFiles(CGeometry *geometry, CConfig *config, CSolver** solver_container,
                               unsigned long iter, bool force_writing) {
 
