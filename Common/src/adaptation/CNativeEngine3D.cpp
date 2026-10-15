@@ -662,20 +662,26 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
   }
   if (!ready) return finish();
   // A complete visible radial region is constructed as one transaction, never as a larger local cavity.
-  bool region_applicable=curved && !coarsening && !repairing && options.region_walls.size()==1;
+  const auto global_original=CPassiveComm::Allreduce(uint64_t(original.size()),CPassiveComm::Op::SUM,world.comm);
+  bool region_applicable=curved && !repairing && options.region_walls.size()<=1 &&
+      options.region_walls.size()==options.wall_heights.size() &&
+      (!coarsening || options.wall_heights.empty()) && global_original<=MaximumDonors;
   if(region_applicable) {
     std::set<Id> walls;
-    const auto policy=options.region_walls.begin()->second;
-    const double g=policy.growth,requested=.9*MaximumMetricEdge;
-    const double depth=g==1?policy.height*requested:policy.height*(.5*(g-1)+.5*(g+1)*std::expm1((requested-.5)*2*(g-1)/(g+1)))/(g-1);
-    region_applicable=std::isfinite(depth) && depth>policy.height && depth<policy.thickness;
+    if(!options.region_walls.empty()) {
+      const auto policy=options.region_walls.begin()->second;
+      const double g=policy.growth,requested=.9*MaximumMetricEdge;
+      const double depth=g==1?policy.height*requested:policy.height*(.5*(g-1)+.5*(g+1)*std::expm1((requested-.5)*2*(g-1)/(g+1)))/(g-1);
+      region_applicable=std::isfinite(depth) && depth>policy.height && depth<policy.thickness;
+    }
     for(const auto& row:geometry.Facets()) {
       const Id id=geometry.Canonical(row.first);const auto a=geometry.Analytic().find(id);
       if(!geometry.CompleteAnalytic(id) || a==geometry.Analytic().end()) {region_applicable=false;break;}
-      if(options.region_walls.count(row.second.marker)) {
+      const bool radial=a->second.kind==AnalyticSurface::Kind::Cylinder || a->second.kind==AnalyticSurface::Kind::Sphere;
+      if(radial) {
         walls.insert(id);
-        region_applicable=region_applicable && (a->second.kind==AnalyticSurface::Kind::Cylinder || a->second.kind==AnalyticSurface::Kind::Sphere);
-      } else region_applicable=region_applicable && a->second.kind==AnalyticSurface::Kind::Disk;
+        region_applicable=region_applicable && (options.region_walls.empty() || options.region_walls.count(row.second.marker));
+      } else region_applicable=region_applicable && a->second.kind==AnalyticSurface::Kind::Disk && !options.region_walls.count(row.second.marker);
     }
     region_applicable=region_applicable && walls.size()==1;
   }
@@ -696,7 +702,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     if(!vote(failure))return finish();bool admitted=false;
     auto rows=world.exchange(buckets,&admitted,options.memory_ceiling,transfer_memory::Add(bytes(),scratch));
     if(!admitted){result.reason="Native3D region input exchange exceeds storage.";return finish();}
-    std::vector<DonorRegion> regions;Patch old,fresh;std::vector<OwnedCell> replacement;bool complete=false;
+    std::vector<DonorRegion> regions;Patch old,fresh;std::vector<OwnedCell> replacement;bool complete=false,core_declined=false;
     try {if(!world.rank){
       std::sort(rows.begin(),rows.end(),[](const OwnedCell& a,const OwnedCell& b){return a.cell.id<b.cell.id;});
       old=GeometryPatch(Imported{rows,true,{}});Point lo=rows.front().cell.v[0].p,hi=lo;
@@ -730,17 +736,32 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         };
         limits.checkpoint=[&](){if(options.maximum_seconds && std::chrono::duration<double>(Clock::now()-started).count()>=options.maximum_seconds)
             throw std::runtime_error("Native3D region construction exhausts elapsed-time budget.");};
-        if(!ConstructWallRegion(skin,kernel,geometry,options.region_walls,options.surface_tolerance,maximum_node+1,maximum_cell+1,target,limits,fresh,report,result.reason))
-          throw std::runtime_error(result.reason);
-        stats.global_work=fresh.cells.size()+report.surface_trials+report.junction_trials;
-        if(stats.global_work>stats.work_limit)throw std::runtime_error("Native3D region construction exceeds global event work.");
-        std::map<Face,Id> physical;for(auto f:fresh.surface)physical.emplace(Key(f.v),f.facet);
-        for(const auto& c:fresh.cells){OwnedCell row;row.cell=c;const auto faces=Faces(c);for(unsigned f=0;f<4;++f){auto found=physical.find(Key(faces[f]));if(found!=physical.end())row.physical[f]={true,found->second};}replacement.push_back(row);}
-        complete=true;
+        const bool constructed=ConstructWallRegion(skin,kernel,geometry,options.region_walls,options.surface_tolerance,
+            maximum_node+1,maximum_cell+1,target,limits,fresh,report,result.reason);
+        if(!constructed) {
+          // A height-free cone cannot resolve every interior field; retain the existing volume operators there.
+          core_declined=options.region_walls.empty() && !report.exhausted_work &&
+              (report.minimum_quality<MinimumMeanRatio || report.minimum_jacobian<MinimumScaledJacobian ||
+               report.maximum_edge>MaximumMetricEdge);
+          if(!core_declined)throw std::runtime_error(result.reason);
+          last_rejection=result.reason;
+        } else {
+          stats.global_work=fresh.cells.size()+report.surface_trials+report.junction_trials;
+          if(stats.global_work>stats.work_limit)throw std::runtime_error("Native3D region construction exceeds global event work.");
+          std::map<Face,Id> physical;for(auto f:fresh.surface)physical.emplace(Key(f.v),f.facet);
+          for(const auto& c:fresh.cells){OwnedCell row;row.cell=c;const auto faces=Faces(c);for(unsigned f=0;f<4;++f){auto found=physical.find(Key(faces[f]));if(found!=physical.end())row.physical[f]={true,found->second};}replacement.push_back(row);}
+          complete=true;
+        }
       }
     }}catch(const std::exception& e){failure.Set(2,0,e.what());}
     stats.region_surface_trials=report.surface_trials;stats.region_junction_trials=report.junction_trials;
-    if(!vote(failure))return finish();
+    stats.global_work=CPassiveComm::Allreduce(uint64_t(report.generated_cells+report.surface_trials+report.junction_trials),CPassiveComm::Op::MAX,world.comm);
+    if(!vote(failure)) {
+      if(world.maximum(report.exhausted_work))stats.stop=EngineStop::WorkBudget;
+      else if(options.maximum_seconds && world.maximum(std::chrono::duration<double>(Clock::now()-started).count()>=options.maximum_seconds))stats.stop=EngineStop::TimeBudget;
+      return finish();
+    }
+    const bool declined=world.maximum(core_declined);
     const bool changed=world.maximum(!replacement.empty());
     if(changed) {
       std::vector<std::vector<OwnedCell>> to(world.size);
@@ -754,7 +775,12 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       if(!world.rank)++stats.accepted;stats.maximum_owned=std::max(stats.maximum_owned,working.size());stats.region_cells=CPassiveComm::Allreduce(working.size(),CPassiveComm::Op::SUM,world.comm);
     }
     result.valid=world.maximum(complete);stats.global_work=CPassiveComm::Allreduce(stats.global_work,CPassiveComm::Op::MAX,world.comm);
-    stats.stop=result.valid?EngineStop::Complete:EngineStop::Failure;result.reason.clear();return finish();
+    if(changed || (!coarsening && !declined)) {
+      stats.stop=result.valid?EngineStop::Complete:EngineStop::Failure;result.reason.clear();return finish();
+    }
+    // Valid coarsening inputs and finer interior fields retain the existing volume search.
+    if(options.timings)stats.reconstruction_seconds+=std::chrono::duration<double>(Clock::now()-region_started).count();
+    region_active=false;result.valid=false;result.reason.clear();
   }
   if(!options.wall_heights.empty()) {
     layer_active=true;layer_started=Clock::now();

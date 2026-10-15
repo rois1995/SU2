@@ -18,11 +18,18 @@ currently one bounded region on one worker, with MPI source transport/versioned
 publication. Rank outputs have different admissible triangulations/placements; do
 not claim bitwise deterministic meshes or transported-metric qualification.
 
-The mesh milestone is achieved; full Goal3 remains open. Next qualify complete
-coarse cold construction and removal, then CFD/current+BDF/transfer/restart and
-materially different fields/geometries. Existing performance, physics, wider geometry
-and full-workflow acceptance gates remain intact. No lifecycle speedup or scalability
-claim follows from the correctness test walltimes.
+The subsequent cold/removal milestone now passes MPI1/2/4: original24-cell cylinder
+->1368 BL ->68 sensor-only cells, shared work3132/3172/3252<=4096 and300s limit.
+Independent serial BL and all3 released geometry/constant-P1 checks pass. Original
+difficult-target acceptance is preserved; its mesh/ref bytes match the prior exact
+audit. [Cold/removal scope](GOAL3_COLD_CONSTRUCTION.md) and
+[provenance](../integration_evidence/native_3d_bl_v1/region_construction_v1/cold_summary.json).
+
+Full Goal3 remains open. Next address complete-region original-field queries beyond
+256 donors and actual curved RANS/current+BDF/transfer/restart, then materially
+different/stronger fields, interacting/exterior regions and high-ratio multiple fronts.
+Larger-source incremental compatibility is retained; it does not establish repeated
+whole-region CFD BL rebuilding. No lifecycle speedup/scalability claim follows.
 
 ## Existing qualified scope
 
@@ -46,7 +53,7 @@ claim follows from the correctness test walltimes.
 
 ## Remaining full-goal gates
 
-Complete curved construction/removal from coarse input; stronger distinct fields;
+Extend curved cold construction/removal beyond the qualified radial/constant-sensor pilot; stronger distinct fields;
 features/junctions/interacting layers and thin-volume quadrature; declared first-row
 alignment and coverage beyond necessary feet; compatible composed-gradation limits;
 current connected MPI1/2/4 N=M/M<N with conservative current+BDF/SA transfer, strict

@@ -19,6 +19,7 @@
 #include "../../../SU2_CFD/include/drivers/CSinglezoneDriver.hpp"
 #include "../../../SU2_CFD/include/solvers/CTurbSolver.hpp"
 #include <iomanip>
+#include <chrono>
 #include <cstdlib>
 #include <numeric>
 using namespace SU2Native3D;
@@ -2048,6 +2049,7 @@ TEST_CASE("Cold native cylinder BL construction and release use the same origina
         <<" j="<<metric.minimum_scaled_jacobian<<" reason="<<reason<<std::endl;
   };
   options.maximum_seconds=300;  // Return/save private progress before the collector's hard timeout.
+  const auto cold_started=std::chrono::steady_clock::now();
   const auto refined=Refine(world,input.cells,input.original,*reference.original,compose,options);
   if(!world.rank)std::cout<<"CURVED_NATIVE3D refine valid="<<refined.valid<<" work="<<refined.stats.global_work<<" reason="<<refined.reason<<std::endl;
   if(!world.rank) {
@@ -2066,13 +2068,37 @@ TEST_CASE("Cold native cylinder BL construction and release use the same origina
   CHECK(Signature(world,input.cells,reference)==before);INFO(refined.reason);REQUIRE(refined.valid);
   const auto allOriginal=world.metadata(input.original);
   FrozenField target(allOriginal,compose,false,AssociatedExtensions(allOriginal,*reference.original),options.edge_breakpoints);
+  double layer_q=1,layer_j=1,layer_l=0;
   for(const auto& row:refined.cells) {
     PatchMetric measured;std::string reason;CHECK(ValidateMetricPatch({row.second.cell},target,measured,reason));
     CHECK(target.Query(Centroid(row.second.cell)).sensor.xx==Approx(1.));
+    layer_q=std::min(layer_q,measured.minimum_mean_ratio);layer_j=std::min(layer_j,measured.minimum_scaled_jacobian);
+    layer_l=std::max(layer_l,double(measured.maximum_length));
   }
   options.wall_heights.clear();options.region_walls.clear();options.edge_breakpoints={};options.rejected_trial={};options.maximum_work-=refined.stats.global_work;
+  options.maximum_seconds=CPassiveComm::Allreduce(300-std::chrono::duration<double>(std::chrono::steady_clock::now()-cold_started).count(),CPassiveComm::Op::MIN,world.comm);
+  REQUIRE(options.maximum_seconds>0);
   const auto released=Coarsen(world,refined.cells,input.original,*reference.original,{},options);
   if(!world.rank)std::cout<<"CURVED_NATIVE3D release valid="<<released.valid<<" work="<<released.stats.global_work<<" reason="<<released.reason<<std::endl;
   save(released.valid?"curved_cylinder_released":"curved_cylinder_released_rejected",released.cells);
   INFO(released.reason);REQUIRE(released.valid);
+  FrozenField sensorOnly(allOriginal,{},false,AssociatedExtensions(allOriginal,*reference.original));
+  double release_q=1,release_j=1,release_l=0;
+  for(const auto& row:released.cells) {
+    PatchMetric measured;std::string reason;REQUIRE(ValidateMetricPatch({row.second.cell},sensorOnly,measured,reason));
+    release_q=std::min(release_q,measured.minimum_mean_ratio);release_j=std::min(release_j,measured.minimum_scaled_jacobian);
+    release_l=std::max(release_l,double(measured.maximum_length));
+  }
+  layer_q=CPassiveComm::Allreduce(layer_q,CPassiveComm::Op::MIN,world.comm);layer_j=CPassiveComm::Allreduce(layer_j,CPassiveComm::Op::MIN,world.comm);
+  release_q=CPassiveComm::Allreduce(release_q,CPassiveComm::Op::MIN,world.comm);release_j=CPassiveComm::Allreduce(release_j,CPassiveComm::Op::MIN,world.comm);
+  layer_l=CPassiveComm::Allreduce(layer_l,CPassiveComm::Op::MAX,world.comm);release_l=CPassiveComm::Allreduce(release_l,CPassiveComm::Op::MAX,world.comm);
+  const auto layer_count=world.sum(refined.cells.size()),release_count=world.sum(released.cells.size());
+  CHECK(release_count<layer_count);CHECK(refined.stats.global_work+released.stats.global_work<=4096);
+  if(!world.rank) {
+    std::ofstream out("cold_summary.json");out<<std::setprecision(17)<<"{\"ranks\":"<<world.size<<",\"layer_cells\":"<<layer_count
+        <<",\"released_cells\":"<<release_count<<",\"layer_q\":"<<layer_q<<",\"layer_j\":"<<layer_j<<",\"layer_maximum_length\":"<<layer_l
+        <<",\"release_q\":"<<release_q<<",\"release_j\":"<<release_j<<",\"release_maximum_length\":"<<release_l
+        <<",\"construction_work\":"<<refined.stats.global_work<<",\"removal_work\":"<<released.stats.global_work<<"}\n";REQUIRE(out.good());
+  }
+
 }

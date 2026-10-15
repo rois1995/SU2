@@ -3,48 +3,48 @@
 Worktree `/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated`.
 Branch `codex/native-3d-bl`, based on Goal2
 `c43a8a3907ea2655e4ebbb6286ab16c3fa625d8b`. Full Goal3 ACTIVE/incomplete.
-**Curved-target milestone achieved:** the native engine now constructs and accepts the
-complete original1402-cell curved target under unchanged constraints on MPI1/2/4.
-All give1368 cells/423 nodes/64 wall faces;0 long edges, Lmax1.795194775. Serial
-qmin .211386792/Jmin .052846703; independent exact geometry/all vertex links/no
-positive overlap/normal feet/height/authority and exported-tensor arithmetic pass.
-Construction work2996/3036/2908, within4096;300s ceiling unchanged. This is **not
-full Goal3 completion**, cold construction, CFD transfer/restart, wider physics or
-performance qualification.
+**Complete cold/removal milestone achieved on MPI1/2/4:** original24-cell/18-node
+coarse cylinder ->1368 BL cells ->68 sensor-only cells. Total charged work3132/3172/3252
+under unchanged shared4096-work/300s limits. BL qmin>=.21137/Jmin>=.05284/Lmax1.795195;
+released qmin .33418/Jmin .19717/Lmax1.119412. Both physical boundaries and volume
+are rebuilt according to requested metric/height/geometry; no solver/testcase modes.
 
-Inspect the actual native result:
-`integration_evidence/native_3d_bl_v1/region_construction_v1/native_complete_v1/curved_grid_adapted.su2`
-and its unchanged `.native_ref` authority sidecar, or `accepted_metrics.vtu` in the
-same case folder. VTU fields are measured mesh quality, not fabricated CFD output.
-Read [native outcome/provenance](integration_evidence/native_3d_bl_v1/region_construction_v1/native_summary.json)
-and [construction details/limits](Handbook/GOAL3_REGION_CONSTRUCTION.md).
+Inspect `region_construction_v1/native_cold_v3/curved_cylinder_BL.su2` and
+`curved_cylinder_released.su2`, each with `.native_ref` (prefix under
+`integration_evidence/native_3d_bl_v1/`). No CFD solution is fabricated.
+[Cold/removal proof and provenance](integration_evidence/native_3d_bl_v1/region_construction_v1/cold_summary.json),
+[focused handbook](Handbook/GOAL3_COLD_CONSTRUCTION.md).
 
-The connected C++ constructor plans surface edits, exact-height wall apices,
-shared interfaces and a closed transition/core using actual frozen queries, without
-Python/proxy/saved-grid dependencies. Existing config supplies height/growth/thickness.
-The engine stages a bounded visible region on one worker, imports original source
-through the bounded protocol and uses existing versioned MPI publication. Initial
-scope: one complete radial wall with planar caps, visible ball, <=256 imported donors.
-This is MPI-aware publication, **not parallel region construction/scaling**.
+Radial sampling now resolves newly created edges before volume construction;
+rejected surface collapses are reused only with unchanged endpoint-star versions.
+No-height policies test a metric-driven core; finer interior fields that need more
+than one cone retain the existing volume operators. Rejected generation work is
+counted and failures report locations/budgets. The preserved original976-cell cold
+proposal has58 long edges/16 bad cap cells; its field-export PASS is diagnosis only.
 
-MPI outputs have different admissible triangulations/placements; qmin differs by
-~1.25e-5. Inputs have equal coordinates and normalized donors/geometry. Do not claim
-bitwise deterministic output or transported-metric qualification. All ranks pass
-strict shape/height/geometry/full-length gates and accepted-input immutability.
+Independent serial BL exact geometry/height/feet/tensor arithmetic and independent
+released exact geometry/constant-P1 metric audits on all3 outcomes pass. Original hard
+target still completes (`native_complete_v3`,2940 work); its SU2/ref are byte-identical
+to the prior independently audited result, with explicit verified reuse. Existing
+primitive-runtime transfer/BDF/SU2/CGNS restart checks pass2557 assertions; production
+objects/libraries and that test body are unchanged after later cold-harness logging,
+so reuse is recorded rather than claiming execution with the final harness binary.
 
-The first native attempt rejected the primitive512-face height-check limit; its
-complete private candidate and receipt remain archived. Region validation now checks
-the whole skin/topology and applies the same height/foot predicate per incident cell.
-Primitive64/128 limits and all physical acceptance thresholds remain unchanged.
+Full Goal3 remains open. Next major capability: distributed original-field queries
+for complete regions, then actual curved RANS/current+BDF/transfer/restart and stronger
+fields/geometry. The regional256-original-donor bound is still real: larger sources
+retain incremental adaptation, which does not establish repeated whole-region BL
+rebuilding from a generated1368-cell CFD source. High thickness/height ratio targets
+also need metric-driven multiple fronts, not another local-fallback chain or a forced
+jump beyond the fade. Keep all full-goal physics/accuracy/performance gates intact.
+All owned jobs are terminal. The connected cold/removal batch is the current publication checkpoint;
+verify HEAD/remote for the final commit rather than assuming the earlier checkpoint.
 
-Next: qualify complete coarse cold construction and removal on the supported geometry,
-then full CFD/current+BDF transfer/restart and materially different fields/geometries.
-Preserve every full Goal3 gate; do not extend the old local-fallback chain or infer
-large-domain support from this visible-region result. Rejected recovery remains
-archived on `codex/native-3d-boundary-recovery-study` at39a1f487.
-All owned jobs are terminal. Current build/binary/source provenance is pinned in the
-native receipts; older39a1f487 prototype-only oracle binaries have been superseded.
-Foreign `ClusterResults/` and dependencies remain untouched; no cluster run was started.
+The earlier native curved-target baseline and its inspectable quality VTU remain
+[archived with exact evidence](integration_evidence/native_3d_bl_v1/region_construction_v1/native_summary.json).
+The failed local-recovery strategy stays on `codex/native-3d-boundary-recovery-study`;
+do not resume its fallback chain. Foreign `ClusterResults/`, AdapNoExt and dependencies
+remain untouched; no cluster submission or messaging was performed.
 
 [Full remaining Goal3 gates](Handbook/GOAL3_CURRENT.md),
 [requirement audit](integration_evidence/native_3d_bl_v1/GOAL3_REQUIREMENTS.json),

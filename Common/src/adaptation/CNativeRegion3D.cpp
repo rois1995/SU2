@@ -10,6 +10,8 @@
 #include <algorithm>
 #include <cmath>
 #include <set>
+#include <sstream>
+#include <iomanip>
 #include <limits>
 #include <stdexcept>
 
@@ -63,8 +65,10 @@ class Construction {
   void Check() const {
     if (limits.checkpoint) limits.checkpoint();
     if (fresh.cells.size() > limits.maximum_cells || nodes.size() > 4 * limits.maximum_cells ||
-        fresh.cells.size() + report.surface_trials + report.junction_trials > limits.maximum_work)
-      throw std::runtime_error("Region construction exceeds admitted cells/surface work.");
+        fresh.cells.size() + report.surface_trials + report.junction_trials > limits.maximum_work) {
+      report.exhausted_work = true;
+      throw std::runtime_error("Region construction exceeds admitted cells/work.");
+    }
   }
   Id New(Point p) {
     Check();
@@ -72,7 +76,11 @@ class Construction {
     nodes.emplace(next_node, p);
     return next_node++;
   }
-  bool Wall(Id f) const { return policy.count(geometry.Get(f).marker); }
+  bool Wall(Id f) const {
+    if (!policy.empty()) return policy.count(geometry.Get(f).marker);
+    const auto kind = geometry.Analytic().at(geometry.Canonical(f)).kind;
+    return kind == AnalyticSurface::Kind::Cylinder || kind == AnalyticSurface::Kind::Sphere;
+  }
   double Height(Id f) const { return policy.at(geometry.Get(f).marker).height; }
   std::array<Point, 3> Triangle(const SurfaceFace& f) const {
     return {nodes.at(f.v[0]), nodes.at(f.v[1]), nodes.at(f.v[2])};
@@ -127,50 +135,69 @@ class Construction {
     Check();
     if (next_cell == UINT64_MAX) throw std::overflow_error("Region cell IDs exhausted.");
     fresh.cells.push_back(Tet(ids, next_cell++));
+    report.generated_cells = fresh.cells.size();
   }
   bool SurfaceValid(const SurfaceFace& f) {
     const auto p = Triangle(f);
     if (!geometry.ContainsFace(f.facet, p)) return false;
-    const double tol = Wall(f.facet) ? std::min(tolerance, .5 * Height(f.facet)) : tolerance;
+    const double tol =
+        policy.count(geometry.Get(f.facet).marker) ? std::min(tolerance, .5 * Height(f.facet)) : tolerance;
     return geometry.SurfaceError(f.facet, p) <= tol;
   }
   void SplitSurface() {
-    const auto edges = Links(faces);
-    std::vector<Edge> marked;
-    for (const auto& row : edges)
-      if (Length(row.first[0], row.first[1]) > MaximumMetricEdge) marked.push_back(row.first);
-    for (auto e : marked) {
+    // Planar cap interiors are rebuilt; close the radial sampling over all new edges.
+    for (;;) {
       Check();
-      ++report.surface_trials;
-      const auto uses = Links(faces).at(e);
-      if (uses.size() != 2) throw std::runtime_error("Region surface is not closed.");
-      Point p = Mul(Add(nodes.at(e[0]), nodes.at(e[1])), .5);
-      std::vector<Id> charts;
-      for (const auto& u : uses) charts.push_back(faces[u.face].facet);
-      std::stable_sort(charts.begin(), charts.end(), [&](Id a, Id b) {
-        return geometry.Analytic().at(geometry.Canonical(a)).kind == AnalyticSurface::Kind::Disk &&
-               geometry.Analytic().at(geometry.Canonical(b)).kind != AnalyticSurface::Kind::Disk;
-      });
-      for (Id f : charts) p = geometry.Project(f, p);
-      for (Id f : charts)
-        if (!geometry.Contains(f, p)) throw std::runtime_error("Region split leaves its declared feature.");
-      const Id mid = New(p);
-      std::vector<SurfaceFace> next;
-      for (size_t i = 0; i < faces.size(); ++i) {
-        bool hit = false;
-        for (auto u : uses)
-          if (u.face == i) {
-            hit = true;
-            Id c = 0;
-            for (Id n : faces[i].v)
-              if (n != e[0] && n != e[1]) c = n;
-            next.push_back({{u.a, mid, c}, faces[i].facet});
-            next.push_back({{mid, u.b, c}, faces[i].facet});
-          }
-        if (!hit) next.push_back(faces[i]);
+      const auto edges = Links(faces);
+      std::set<Edge> marked;
+      for (const auto& row : edges) {
+        bool radial = false;
+        for (auto use : row.second) radial = radial || Wall(faces[use.face].facet);
+        if (radial && Length(row.first[0], row.first[1]) > MaximumMetricEdge) marked.insert(row.first);
       }
-      faces.swap(next);
-      ++report.surface_splits;
+      for (const auto& face : faces)
+        if (Wall(face.facet) && !SurfaceValid(face)) {
+          Edge longest = Key(face.v[0], face.v[1]);
+          for (unsigned k = 1; k < 3; ++k) {
+            const auto edge = Key(face.v[k], face.v[(k + 1) % 3]);
+            if (Length(edge[0], edge[1]) > Length(longest[0], longest[1])) longest = edge;
+          }
+          marked.insert(longest);
+        }
+      if (marked.empty()) return;
+      for (auto e : marked) {
+        Check();
+        ++report.surface_trials;
+        const auto uses = Links(faces).at(e);
+        if (uses.size() != 2) throw std::runtime_error("Region surface is not closed.");
+        Point p = Mul(Add(nodes.at(e[0]), nodes.at(e[1])), .5);
+        std::vector<Id> charts;
+        for (const auto& u : uses) charts.push_back(faces[u.face].facet);
+        std::stable_sort(charts.begin(), charts.end(), [&](Id a, Id b) {
+          return geometry.Analytic().at(geometry.Canonical(a)).kind == AnalyticSurface::Kind::Disk &&
+                 geometry.Analytic().at(geometry.Canonical(b)).kind != AnalyticSurface::Kind::Disk;
+        });
+        for (Id f : charts) p = geometry.Project(f, p);
+        for (Id f : charts)
+          if (!geometry.Contains(f, p)) throw std::runtime_error("Region split leaves its declared feature.");
+        const Id mid = New(p);
+        std::vector<SurfaceFace> next;
+        for (size_t i = 0; i < faces.size(); ++i) {
+          bool hit = false;
+          for (auto u : uses)
+            if (u.face == i) {
+              hit = true;
+              Id c = 0;
+              for (Id n : faces[i].v)
+                if (n != e[0] && n != e[1]) c = n;
+              next.push_back({{u.a, mid, c}, faces[i].facet});
+              next.push_back({{mid, u.b, c}, faces[i].facet});
+            }
+          if (!hit) next.push_back(faces[i]);
+        }
+        faces.swap(next);
+        ++report.surface_splits;
+      }
     }
   }
   void CoarsenSurface(Point kernel) {
@@ -184,6 +211,8 @@ class Construction {
         c.first->second = std::min(c.first->second, f.facet);
         for (Id n : f.v) tags[n].insert(m);
       }
+    std::map<Id, size_t> versions;
+    std::map<std::pair<Id, Id>, std::pair<size_t, size_t>> blocked;
     for (;;) {
       Check();
       const auto edges = Links(wall);
@@ -210,6 +239,11 @@ class Construction {
           std::set_intersection(neighbors[removed].begin(), neighbors[removed].end(), neighbors[retained].begin(),
                                 neighbors[retained].end(), std::inserter(shared, shared.end()));
           if (opposite != shared) continue;
+          const auto directed = std::make_pair(removed, retained);
+          const auto stamp = std::make_pair(versions[removed], versions[retained]);
+          const auto rejected = blocked.find(directed);
+          if (rejected != blocked.end() && rejected->second == stamp) continue;
+          blocked[directed] = stamp;
           ++report.surface_trials;
           Check();
           std::vector<SurfaceFace> next;
@@ -235,7 +269,7 @@ class Construction {
                   Length(f.v[k], f.v[(k + 1) % 3]) > .95 * MaximumMetricEdge)
                 valid = false;
             if (!valid) break;
-            const Point apex = Sub(Center(f), Mul(Normal(f), Height(f.facet)));
+            const Point apex = policy.empty() ? kernel : Sub(Center(f), Mul(Normal(f), Height(f.facet)));
             Cell c;
             c.v[0] = {UINT64_MAX, apex};
             for (unsigned k = 0; k < 3; ++k) c.v[k + 1] = {f.v[k], nodes.at(f.v[k])};
@@ -251,6 +285,11 @@ class Construction {
           for (auto f : next)
             if (!keys.insert(Key(f.v)).second) valid = false;
           if (!valid) continue;
+          std::set<Id> changed_nodes{retained};
+          for (const auto& face : wall)
+            if (std::find(face.v.begin(), face.v.end(), removed) != face.v.end())
+              changed_nodes.insert(face.v.begin(), face.v.end());
+          for (Id n : changed_nodes) ++versions[n];
           wall.swap(next);
           ++report.surface_collapses;
           changed = true;
@@ -444,7 +483,7 @@ class Construction {
       for (Id n : j.quad) diameter = std::max(diameter, Norm(Sub(nodes.at(n), origin)));
       auto evaluate = [&](Point point) {
         ++report.junction_trials;
-        if (limits.checkpoint) limits.checkpoint();
+        Check();
         point = geometry.Project(j.facet, point);
         for (unsigned k = 0; k < 4; ++k)
           if (Dot(Cross(Sub(nodes.at(j.quad[(k + 1) % 4]), nodes.at(j.quad[k])), Sub(point, nodes.at(j.quad[k]))),
@@ -552,8 +591,13 @@ class Construction {
       const auto m = Shape(c);
       report.minimum_quality = std::min(report.minimum_quality, m.mean_ratio);
       report.minimum_jacobian = std::min(report.minimum_jacobian, m.minimum_scaled_jacobian);
-      if (m.mean_ratio < MinimumMeanRatio || m.minimum_scaled_jacobian < MinimumScaledJacobian)
-        throw std::runtime_error("Region fails actual-centroid quality/sliver target.");
+      if (m.mean_ratio < MinimumMeanRatio || m.minimum_scaled_jacobian < MinimumScaledJacobian) {
+        const auto x = Centroid(c);
+        std::ostringstream reason;
+        reason << std::setprecision(17) << "Region actual-centroid shape failure at cell " << c.id << " centroid ("
+               << x.x << ',' << x.y << ',' << x.z << "): q=" << m.mean_ratio << ", J=" << m.minimum_scaled_jacobian;
+        throw std::runtime_error(reason.str());
+      }
       Box box{c.v[0].p, c.v[0].p};
       for (auto n : c.v) {
         box.lo = {std::min(box.lo.x, n.p.x), std::min(box.lo.y, n.p.y), std::min(box.lo.z, n.p.z)};
@@ -564,7 +608,14 @@ class Construction {
         for (unsigned b = a + 1; b < 4; ++b) {
           const auto l = Length(c.v[a].id, c.v[b].id);
           report.maximum_edge = std::max(report.maximum_edge, l);
-          if (l > MaximumMetricEdge) throw std::runtime_error("Region fails full composed edge target.");
+          if (l > MaximumMetricEdge) {
+            const auto x = c.v[a], y = c.v[b];
+            std::ostringstream reason;
+            reason << std::setprecision(20) << "Region full metric edge " << x.id << ',' << y.id << " has length " << l
+                   << " at (" << x.p.x << ',' << x.p.y << ',' << x.p.z << ") -> (" << y.p.x << ',' << y.p.y << ','
+                   << y.p.z << ')';
+            throw std::runtime_error(reason.str());
+          }
         }
     }
     for (size_t i = 0; i < fresh.cells.size(); ++i) {
@@ -587,10 +638,12 @@ bool ConstructWallRegion(const std::vector<Facet>& skin, Point kernel, const Pla
                          RegionReport& report, std::string& reason) {
   report = {};
   try {
-    if (policies.size() != 1 || !(tolerance > 0) || !limits.maximum_cells || !limits.maximum_work)
-      throw std::runtime_error("Region construction needs one wall policy and positive admission limits.");
-    const auto p = policies.begin()->second;
-    if (!(p.height > 0 && p.growth >= 1 && p.thickness > p.height) || !std::isfinite(p.height + p.growth + p.thickness))
+    if (policies.size() > 1 || !(tolerance > 0) || !limits.maximum_cells || !limits.maximum_work)
+      throw std::runtime_error(
+          "Region construction supports at most one wall policy and needs positive admission limits.");
+    const auto p = policies.empty() ? RegionWallPolicy{} : policies.begin()->second;
+    if (!policies.empty() && (!(p.height > 0 && p.growth >= 1 && p.thickness > p.height) ||
+                              !std::isfinite(p.height + p.growth + p.thickness)))
       throw std::runtime_error("Invalid region wall policy.");
     Construction c(geometry, policies, tolerance, target, limits, report, first_node, first_cell);
     std::set<Id> wall_authorities;
@@ -626,6 +679,20 @@ bool ConstructWallRegion(const std::vector<Facet>& skin, Point kernel, const Pla
     for (auto f : c.faces)
       if (!(Dot(c.Normal(f), Sub(kernel, c.nodes.at(f.v[0]))) < 0))
         throw std::runtime_error("Region lacks a visible interior kernel.");
+    if (policies.empty()) {
+      const Id core = c.New(kernel);
+      for (const auto& face : c.faces) c.Append({core, face.v[0], face.v[1], face.v[2]});
+      c.fresh.surface = c.faces;
+      try {
+        c.Validate();
+      } catch (const std::exception& e) {
+        if (limits.rejected) limits.rejected(c.fresh, e.what());
+        throw;
+      }
+      output = std::move(c.fresh);
+      reason.clear();
+      return true;
+    }
     const double requested = .9 * MaximumMetricEdge,
                  depth = p.growth == 1 ? p.height * requested
                                        : p.height *

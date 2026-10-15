@@ -22,14 +22,17 @@ struct RegionLimits {
 };
 struct RegionReport {
   size_t surface_splits = 0, surface_collapses = 0, surface_trials = 0, junction_trials = 0;
+  size_t generated_cells = 0;
+  bool exhausted_work = false;
   double minimum_quality = 1, minimum_jacobian = 1;
   long double maximum_edge = 0;
 };
 /*! Private whole-region construction, independent of primitive cavity limits. Declared complete radial
  * wall and planar caps must enclose a visible ball; other geometries explicitly reject. No accepted
- * state is mutated. New IDs start at caller-reserved global maxima; unchanged retained nodes keep IDs.
- * Uses actual original-P1/composed queries throughout, followed by whole-region embedding/height/metric
- * validation. Distributed dependency admission, policy agreement and atomic publication belong to caller. */
+ * state is mutated. Empty height policies omit the normal band and test the metric-driven core. New IDs start at
+ * caller-reserved global maxima; unchanged retained nodes keep IDs. Uses actual original-P1/composed queries
+ * throughout, followed by whole-region embedding/height/metric validation. Distributed dependency admission, policy
+ * agreement and atomic publication belong to caller. */
 bool ConstructWallRegion(const std::vector<Facet>& skin, Point kernel, const PlanarReference& geometry,
                          const std::map<int, RegionWallPolicy>& policies, double surface_tolerance, Id first_node,
                          Id first_cell, FrozenField& target, const RegionLimits& limits, Patch& output,

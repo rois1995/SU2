@@ -5384,3 +5384,30 @@ radial/caps region is constructed on one worker with bounded original-source imp
 no general parallel region mesher, cold/removal/CFD/restart/accuracy or speedup claim.
 Full Goal3 remains open. See `Handbook/GOAL3_REGION_CONSTRUCTION.md` and
 `integration_evidence/native_3d_bl_v1/region_construction_v1/native_summary.json`.
+
+
+## 2026-10-15 — complete native cold construction/removal under unchanged gates
+
+The same general region constructor now closes radial surface sampling over newly
+created edges and can omit its normal band when no first height is requested.
+Endpoint-star versions prevent repeating an unchanged rejected surface collapse.
+The original24-cell cylinder now becomes1368 accepted BL cells, then68 accepted
+sensor-only cells on MPI1/2/4. Shared work3132/3172/3252<=4096, shared300s deadline;
+BL qmin>=.21137/Jmin>=.05284/Lmax1.795195, released qmin .33418/Jmin .19717/Lmax1.119412.
+No Euler/RANS transition mode, sensor/BL/fade reset, weaker physical gate or cavity
+limit increase was introduced. The original hard target is preserved with2940 work;
+its mesh/ref bytes exactly match the prior independently audited output.
+
+Independent serial BL exact geometry/height/feet/tensor arithmetic and all3 released
+geometry/constant original-P1 checks pass. Earlier976-cell cold rejection (58 long
+edges/16 bad cap cells), raw source provenance and inspectable SU2 remain retained.
+Primitive-runtime transfer/BDF and SU2/CGNS restart2557-assertion evidence is reused
+only after checking unchanged production sources/objects/libraries and test body.
+
+Regional source admission is still<=256 donors; larger sources retain the previously
+qualified incremental path. Complete-region distributed original-field queries are
+needed for repeated actual CFD rebuilding after the1368-cell event. One visible
+radial/caps region is constructed on one worker; high-ratio multiple fronts, exterior/
+interacting regions, variable sensors, actual curved RANS and physical accuracy/
+performance remain full Goal3 work. See `Handbook/GOAL3_COLD_CONSTRUCTION.md` and
+`region_construction_v1/cold_summary.json` under `integration_evidence/native_3d_bl_v1`.

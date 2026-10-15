@@ -150,8 +150,17 @@ The former Python construction remains a separate immutable proof and its origin
 `summary.json`/hashes are preserved.
 
 The required curved-target mesh milestone is achieved. Full Goal3 is ACTIVE/incomplete:
-coarse cold construction/removal, materially different/finer sensors and geometries,
+cold construction/removal beyond the now-qualified radial pilot, materially different/finer sensors and geometries,
 nonstar/multiwall regions, full CFD/current+BDF transfer/restart/transported metrics,
 real RANS accuracy and complete lifecycle cost/scaling remain outstanding. Initial
 production applicability is one visible ball, one complete radial wall and planar
 caps; do not claim a general parallel region mesher from this result.
+
+
+The subsequent complete24 ->1368 ->68 cold/removal workflow is qualified on MPI1/2/4
+under shared4096/300s limits. See [the current cold/removal handbook](GOAL3_COLD_CONSTRUCTION.md).
+Its surface planner closes newly created long edges, reuses unchanged failed stars,
+and omits the normal band when no altitude is requested. Original hard-target output
+SU2/ref bytes are unchanged, with current native metric checks and exact audit reuse.
+The regional source cap remains256; distributed queries, multiple fronts, general
+geometry and actual curved RANS remain full-goal work.
