@@ -1770,9 +1770,38 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       }
       bool search=joint && composition && flat_edge && !choice.geometric && wallApices.empty() && !approved;
       std::vector<Id> apices;
-      if(search)try {
-        apices=SplitPatchApices(old,choice.edge);search=!apices.empty();
-      }catch(const std::exception& e){failure.Set(2,0,e.what());}
+      if(world.maximum(search)) {
+        std::vector<Id> candidates;std::vector<Feature> features;
+        if(search)try {
+          std::set<Id> physical,vertices;
+          for(const auto& f:old.surface)physical.insert(f.v.begin(),f.v.end());
+          for(const auto& c:old.cells)if(std::count_if(c.v.begin(),c.v.end(),[&](Node n){return n.id==choice.edge[0] || n.id==choice.edge[1];})==2)
+            for(auto n:c.v)if(n.id!=choice.edge[0] && n.id!=choice.edge[1] && !physical.count(n.id))vertices.insert(n.id);
+          candidates.assign(vertices.begin(),vertices.end());for(Id id:candidates)features.push_back({{{id,0,0}},1});
+        }catch(const std::exception& e){failure.Set(2,0,e.what());}
+        if(!(ready=vote(failure)))return finish();
+        {Timer timer(stats.dependency_seconds,options.timings);
+          auto metadata=directory.LookupBatch(features,options.memory_ceiling,transfer_memory::Add(bytes(),source.ResidentBytes(),private_scratch));
+          if(!metadata.valid){result.reason=metadata.reason;return finish();}
+          auto payload=directory.FetchBatch(metadata,working,options.memory_ceiling,transfer_memory::Add(bytes(),source.ResidentBytes(),private_scratch));
+          if(!payload.valid){result.reason=payload.reason;return finish();}
+          if(search)try {
+            std::map<Id,size_t> costs;
+            for(size_t i=0;i<candidates.size();++i) {
+              const auto& star=payload.candidates.at(i);
+              if(!star.valid) {
+                if(star.reason=="Native 3D dependency star exceeds budget.")continue;
+                throw std::runtime_error(star.reason);
+              }
+              ++stats.placement_classified_vertices;bool physical=false;
+              for(const auto& row:star.cells)for(unsigned f=0;f<4;++f)
+                physical=physical || (row.physical[f].present && row.cell.v[f].id!=candidates[i]);
+              if(!physical)costs.emplace(candidates[i],star.cells.size());
+            }
+            apices=SplitPatchApices(old,choice.edge,&costs);search=!apices.empty();
+          }catch(const std::exception& e){failure.Set(2,0,e.what());}
+        }
+      }
       if(!(ready=vote(failure)))return finish();
       if(!place_patch(search,apices))return finish();
       joint=joint && boundary_edge;

@@ -171,8 +171,10 @@ bool ReconstructSplitPatch(const Patch& old,Edge edge,Node point,Node interior,c
                            const std::map<int,double>& heights = {});
 class FrozenField;
 /*! Tentative bounded cover of split cells by non-endpoint vertices absent from the local physical skin.
- * Actual complete-star import must still prove that every proposed apex is free; empty means no bounded cover. */
-std::vector<Id> SplitPatchApices(const Patch& patch,Edge edge);
+ * Optional costs contain only globally admitted free candidates; missing entries are unavailable.
+ * Minimum total cost within eight apices; at most511 binary search states. Complete stars remain caller duties.
+ * Empty means no bounded cover. */
+std::vector<Id> SplitPatchApices(const Patch& patch,Edge edge,const std::map<Id,size_t>* costs=nullptr);
 struct JointSplitReport {
   size_t trials=0, geometry_rejected=0, height_rejected=0, metric_rejected=0;
   double initial_loss=0, best_loss=0, best_shape_loss=0;

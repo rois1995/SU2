@@ -1468,6 +1468,9 @@ TEST_CASE("Native interior insertion leaves the old diagonal only with a complet
   REQUIRE(!apices.empty());CHECK(apices.size()<=8);
   CHECK(std::find(apices.begin(),apices.end(),0)==apices.end());CHECK(std::find(apices.begin(),apices.end(),6)==apices.end());
   for(const auto& c:seed.cells)CHECK(std::any_of(c.v.begin(),c.v.end(),[&](Node n){return std::find(apices.begin(),apices.end(),n.id)!=apices.end();}));
+  const std::map<Id,size_t> costs{{1,100},{2,1},{3,1},{4,1},{5,1},{7,1}};
+  CHECK((SplitPatchApices(seed,{0,6},&costs)==std::vector<Id>{2,5,7}));
+  const std::map<Id,size_t> unavailable;CHECK(SplitPatchApices(seed,{0,6},&unavailable).empty());
   REQUIRE(SplitSurfaceStrip(old,{0,6},{8,{.5,.55,.45}},{},100,reference,fresh,reason));
   CHECK(fresh.cells.size()==12);CHECK(ValidateFixedInterface(old.cells,fresh.cells,reason));
   for(size_t i=0;i<fresh.cells.size();++i)for(size_t j=i+1;j<fresh.cells.size();++j)

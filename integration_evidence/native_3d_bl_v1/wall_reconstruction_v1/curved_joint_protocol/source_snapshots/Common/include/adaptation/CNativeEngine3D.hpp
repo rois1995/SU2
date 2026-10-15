@@ -60,6 +60,7 @@ struct EngineStats {
   size_t donor_maximum_patch = 0;
   double donor_search_seconds = 0, donor_filter_seconds = 0;  // Nested in import/search.
   uint64_t repair_proposals = 0, moved = 0, reconnected = 0, inserted = 0;
+  uint64_t placement_classified_vertices = 0;
   uint64_t placement_trials = 0, placement_validated = 0;  // Bounded joint placement; validation precedes publication/clearance.
   uint64_t repair_fallbacks = 0, fallback_accepted = 0, recovery_starts = 0;
   uint64_t wall_reconstruction_trials = 0, wall_reconstruction_accepted = 0;

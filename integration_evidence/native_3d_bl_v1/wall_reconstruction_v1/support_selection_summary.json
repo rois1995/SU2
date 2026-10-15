@@ -1,0 +1,77 @@
+{
+  "status": "LOCAL_REPAIRS_AND_PROTOCOL_PASS_FULL_CURVED_GENERATION_FAIL",
+  "original_sensor_donors": 120,
+  "support_diagnosis": {
+    "path": "cover_diagnosis.json",
+    "sha256": "225f6f8a148bf695c336def255ee3295ec3154fbe41d49340f6e6fd2a74d9c0d"
+  },
+  "private_cover": {
+    "path": "curved_cover_probe.json",
+    "sha256": "0b7d39ff26dc928071e2eeaafa2fa620417929f7be53de736c51171fd6732c40"
+  },
+  "cover_geometry": {
+    "path": "cover_geometry.json",
+    "sha256": "f7a93cfd66734715d3a8fd07a556b33805fa7b86f4ba445107cc99807c250b46"
+  },
+  "cap_cover": {
+    "path": "curved_cap_cover_probe.json",
+    "sha256": "4170d61978cc60e7b06de2d2cc459e94f1819113de75c85a3a9e65e887412fd4"
+  },
+  "cap_cover_geometry": {
+    "path": "cap_cover_geometry.json",
+    "sha256": "ea9fdbae1d04bc79ba2319344e6670d3907ba62b44721688f5fc3d735d9613a7"
+  },
+  "cap_point": {
+    "path": "curved_cap_point_probe.json",
+    "sha256": "cadaa795aebd73164243c0e96d5457adb33f0c8690f64dea8fa77332cb64fbb7"
+  },
+  "cap_point_geometry": {
+    "path": "cap_point_geometry.json",
+    "sha256": "1dad978d4ec82e9c5e41cfe62a39ce5313e29ba3f7fe20bfe6f1656230ebbf69"
+  },
+  "final_cap_MPI2": {
+    "path": "joint_protocol_cap_mpi2_audit.json",
+    "sha256": "b856c8dc96b50e4fc25a1d7d250a10a77a21e9820b7a4d6069eb1a381e1960cd"
+  },
+  "strict_generation": {
+    "path": "curved_costed_complete.json",
+    "sha256": "3f461c0f79d1a49ae28d3dc823317eb07f9c3698861aa933fcb8b109e048acb8",
+    "measurements": {
+      "accepted": 2,
+      "cells": 1411,
+      "q": 0.2001763935561326,
+      "j": 0.05022384726911901,
+      "oversized_edges": 133,
+      "initial_excess": 1.5874507614028437,
+      "remaining_excess": 1.4459444759752156,
+      "work": 4096
+    },
+    "input_cells": 1402,
+    "placement_trials": 1062,
+    "placement_validated": 2,
+    "stop": "work_budget",
+    "scope": "New costed support/cap algorithm on the same original frozen field, strict4096-work attempt. Mesh reload/search reset; not cold/single-event completion."
+  },
+  "preserved_continuation": {
+    "path": "curved_interior_continue.json",
+    "sha256": "6a9ce9e5ab61a290cd4ba647f1f86322dab12aa73c23165e72690f5794e2fe84"
+  },
+  "independent_1110_grid": {
+    "path": "interior_grid_independent.json",
+    "sha256": "dd6c248b10402e22b96af54bb977c4a67c8ef8327f0c0306abd0eb6bce76b7af"
+  },
+  "residual_1110": {
+    "path": "interior_residual_classification.json",
+    "sha256": "cee891453c05f76ee6355d474fd54935a414682443ed76f21f8e76a2078bb0a6"
+  },
+  "residual_1402": {
+    "path": "continued_residual_classification.json",
+    "sha256": "cf4aad669f72a030b7aba4d07c43618a88b2a386433752202cf26835ee9c46cd"
+  },
+  "scope": "Local native actual-field Refine and independent exact private geometry pass; bounded source-pinned costed MPI1/2/4 plus final-cap MPI2 protocol/state preservation pass. Final curved mesh remains rejected. No CFD/current+BDF transfer/restart/M<N, independent full composed integration or performance qualification.",
+  "next": "Capture the actual saved-grid rejected dependencies/proposals using the existing rejection callback, then address coordinated geometry/connectivity limitations on those patches. The last rejection alone does not prove global infeasibility. Do not raise limits or continue whole-grid budget ladders.",
+  "costed_MPI124": {
+    "path": "joint_protocol_costed_cover_audit.json",
+    "sha256": "de181bc2ffece5722f9c115e25a8313c4d01251b638c63ecf0421be036febc8d"
+  }
+}

@@ -94,10 +94,11 @@
     "production_policy_v1/summary.json",
     "wall_reconstruction_v1/summary.json",
     "wall_reconstruction_v1/stronger_field_MPI_consistency.json",
-    "connectivity_replay_v1/visibility_fixture.json"
+    "connectivity_replay_v1/visibility_fixture.json",
+    "wall_reconstruction_v1/support_selection_summary.json"
   ],
   "execution_state": {
-    "status": "all owned jobs terminal; curved field/single-sphere volume PASS, full cold/interacting volume FAIL; no new MPI or physical CFD",
+    "status": "All owned jobs terminal; connected support/cap local and protocol checks PASS, strict final curved grid remains rejected1411 cells/133 oversized edges. Full Goal3 active.",
     "CFD_runs": 0,
     "production_MPI": "Current PASS N/M1/1,2/1,2/2; N/M4/1,4/2,4/4 remain required. Previous full matrix historical.",
     "independent_frames": 6
@@ -231,7 +232,9 @@
     "MPI": "pending connected milestone",
     "scope": "One planar cube production case plus six focused first-row geometry/movement cases. Actual computed metric, conservative current+BDF/bounded-SA and SU2/CGNS/reference/restart checks; independent exact embedding, full composed metric, wall footprint and height. No new MPI, full regressions, general layer coverage, actual CFD accuracy or performance qualification."
   },
-  "owned_jobs": [],
+  "owned_jobs": {
+    "status": "all owned jobs terminal; no cluster job"
+  },
   "wall_reconstruction": {
     "status": "PASS_PLANAR_STRONGER_FIELD_LIMITED_SCOPE",
     "evidence": "integration_evidence/native_3d_bl_v1/wall_reconstruction_v1/summary.json",
@@ -345,5 +348,64 @@
       },
       "next": "Audit the1110-cell residual and test bounded original-field continuation to distinguish useful remaining repair from stagnation; retain cumulative work and do not infer physical infeasibility or simply raise limits."
     }
+  },
+  "support_selection": {
+    "status": "LOCAL_RECONSTRUCTION_PASS_FULL_CURVED_GENERATION_OPEN",
+    "evidence": "integration_evidence/native_3d_bl_v1/wall_reconstruction_v1",
+    "saved_input_cells": 1402,
+    "saved_input_oversized_edges": 137,
+    "preceding_continuation": {
+      "work_from_473_cell_chain": 8192,
+      "accepted_edits": 206,
+      "remaining_excess": 1.587450761,
+      "scope": "Two bounded invocations with mesh reload/search reset; rejected, not cold or single-event completion."
+    },
+    "actual_support_blockage": {
+      "greedy_cells": 78,
+      "admission_limit": 64,
+      "costed_cells": 26,
+      "apices": 2,
+      "placement_trials": 132,
+      "new_cells": 30
+    },
+    "native_private": "PASS464 assertions; unchanged actual-field Refine/shape/height/geometry gates",
+    "independent_private": "PASS exact positive volumes, no positive-volume overlap, fixed interface, equal volume, original donors/reference. This cavity has no wall face.",
+    "costed_source_MPI": {
+      "ranks": [
+        1,
+        2,
+        4
+      ],
+      "status": "PASS_PROTOCOL_ONLY_REJECTED_MESHES",
+      "cells": [
+        533,
+        596,
+        549
+      ],
+      "classified_vertices": [
+        7,
+        6,
+        8
+      ],
+      "work_each": 512,
+      "audit": "wall_reconstruction_v1/joint_protocol_costed_cover_audit.json",
+      "scope": "Before final cap point-only eligibility change; source/binary/artifact snapshots pinned. No final mesh/CFD/M<N/performance qualification."
+    },
+    "final_cap_followup": "PASS3\u21926 cells/2 trials/73 assertions and independent local geometry; final-cap MPI2 protocol and actual before/after original donor/reference audit PASS. Costed MPI1/4 remain scoped to preceding binary.",
+    "strict_generation": {
+      "status": "FAIL_WORK_BUDGET",
+      "input_cells": 1402,
+      "accepted": 2,
+      "cells": 1411,
+      "q": 0.2001763935561326,
+      "j": 0.05022384726911901,
+      "oversized_edges": 133,
+      "initial_excess": 1.5874507614028437,
+      "remaining_excess": 1.4459444759752156,
+      "work": 4096,
+      "placement_trials": 1062,
+      "placement_validated": 2
+    },
+    "limits": "Eight apices/511 bounded search states, individually bounded complete versioned stars, final64-cell admission, unchanged field/shape/height/full-edge/work limits. Minimum sum of star costs does not guarantee minimum union cardinality."
   }
 }

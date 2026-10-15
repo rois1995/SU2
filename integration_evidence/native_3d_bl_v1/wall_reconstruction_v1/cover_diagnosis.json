@@ -1,0 +1,32 @@
+{
+  "status": "GREEDY_SUPPORT_BLOCKAGE_REPRODUCED",
+  "edge": [
+    145,
+    242
+  ],
+  "old_cells": 4,
+  "greedy": {
+    "vertices": [
+      137,
+      198,
+      287
+    ],
+    "cells": 78
+  },
+  "best": {
+    "vertices": [
+      198,
+      287
+    ],
+    "cost": 26,
+    "cells": 26
+  },
+  "free_star_costs": {
+    "137": 62,
+    "198": 16,
+    "287": 10
+  },
+  "native_receipt_sha256": "bb117b9ebca62212552e0702affd49ce80172d7ac332944de597af60ade39e0b",
+  "helper_sha256": "1094f49106578e80cdc4830693aee1ba88f70d5ed1cae277fbc33ceb750b9ad5",
+  "scope": "Independent exhaustive cover enumeration on source-pinned actual mesh; global physical vertices are excluded from authoritative surface records. Reproduces an oversized greedy dependency set and a smaller admissible set. This is a support-selection diagnosis, not proof of metric reconstruction or final mesh acceptance."
+}

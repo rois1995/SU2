@@ -12,7 +12,9 @@ from baseline import footprints
 
 def sha(p):return hashlib.sha256(p.read_bytes()).hexdigest()
 def main():
- folder=HERE/'curved_grid_audit';rp=HERE/'curved_grid_audit.json';receipt=json.loads(rp.read_text());assert receipt['status']=='PASS'
+ stage=sys.argv[1] if len(sys.argv)>1 else 'curved_grid_audit'
+ assert stage in ('curved_grid_audit','curved_interior_residual')
+ folder=HERE/stage;rp=HERE/(stage+'.json');receipt=json.loads(rp.read_text());assert receipt['status']=='PASS'
  for name in ['audited_grid.json','grid_samples.csv','grid_edges.csv','grid_metric_summary.json']:assert sha(folder/name)==receipt['artifacts'][name]
  data=json.loads((folder/'audited_grid.json').read_text());nodes={r[0]:tuple(map(F,r[1:])) for r in data['nodes']};uses=collections.defaultdict(list);volume=F(0);tets=[];boxes=[]
  samples={int(r['cell']):r for r in csv.DictReader((folder/'grid_samples.csv').open())};qmin=jmin=1.;difference=0.;bad=[]
@@ -40,7 +42,8 @@ def main():
  for r in rows:
   a,b,c=[nodes[n] for n in r['face']];normal=cross(sub(b,a),sub(c,a));height=abs(float(dot(sub(nodes[r['apex']],a),normal)))/math.sqrt(float(dot(normal,normal)));maximum=max(maximum,abs(height-.05)/.05)
  assert maximum<=1e-10
+ assert not bad,'native-exported field has inadmissible shape/sliver'
  lengths=list(csv.DictReader((folder/'grid_edges.csv').open()));oversized=[r for r in lengths if float(r['length'])>1.8];assert oversized
  report=dict(status='REJECTED_LENGTH_TARGET_GEOMETRY_SHAPE_PASS',scope='Exact positive volumes, no positive-volume overlap, oriented closed ball skin, exact normal feet and declared altitude; independent q/J arithmetic from native-exported actual-centroid tensors. Full composed lengths are native diagnostics, not independent quadrature proof. Oversized edges reject the event; no CFD/transfer qualification.',cells=len(tets),nodes=len(nodes),volume=str(volume),pair_candidates=candidates,minimum_q=qmin,minimum_j=jmin,shape_failures=bad,wall_faces=len(rows),maximum_height_relative_error=maximum,maximum_native_shape_difference=difference,oversized_edges=len(oversized),maximum_native_length=max(float(r['length']) for r in lengths),native_receipt_sha256=sha(rp),helper_sha256=sha(Path(__file__)),predicates_sha256=sha(ROOT/'integration_evidence/native_3d_core_v1/audit_cavities.py'),surface_helper_sha256=sha(ROOT/'integration_evidence/native_3d_core_v1/audit_coupled.py'),footprint_helper_sha256=sha(HERE.parent/'alignment_audit_v1/baseline.py'))
- (HERE/'curved_grid_independent.json').write_text(json.dumps(report,indent=2)+'\n');print(report['status'])
+ (HERE/('curved_grid_independent.json' if stage=='curved_grid_audit' else 'interior_grid_independent.json')).write_text(json.dumps(report,indent=2)+'\n');print(report['status'])
 if __name__=='__main__':main()

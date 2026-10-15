@@ -5181,3 +5181,30 @@ q .200176/J .050161, but174 oversized edges remain at4096 work. Metric excess
 142.380265→3.482566 is substantial partial progress, not accepted construction.
 See Handbook/GOAL3_INTERIOR_PLACEMENT.md and interior_placement_summary.json.
 Full Goal3 remains active; all original integration/physics/performance gates stay.
+
+## Costed complete-star support — 2026-10-15
+
+The strict curved continuation still rejects at1402 cells/137 long edges. Its
+actual worst interior point-only replay fails, while the greedy support requests
+78 cells against64 admission. Independent enumeration identifies a26-cell free
+cover. Shared bounded minimum-cost selection and MPI authoritative complete-star
+physical classification now admit that same patch:132 placement trials,26→30
+cells,464 native assertions and independent exact local embedding/interface/volume/
+donor/reference checks pass. No wall face is present in that patch; it does not
+add global first-height qualification.
+
+Costed-source MPI1/2/4 protocol checks PASS with classified vertices7/6/8 and512
+work each; all output meshes remain rejected. Their exact receipts/source/binary
+snapshots are preserved in joint_protocol_costed_cover_audit.json. The final cap
+point-only eligibility change has a separate follow-up; do not attribute this
+older matrix to a different binary. No changed target, limit or production mode.
+Full curved generation/removal/CFD/transfer/restart/accuracy/performance remain open.
+See Handbook/GOAL3_SUPPORT_SELECTION.md and the full requirement audit.
+
+Final-cap follow-up: the3-cell edge star alone passes3→6 in2 trials/73 assertions
+with independent exact local geometry; MPI2 protocol/donor/reference checks pass
+on the final binary. Strict whole-grid `curved_costed_complete` still FAILS:
+1402→1411 cells,2 insertions,133 oversized edges, excess1.587451→1.445944 at4096
+work. The bounded support fix is insufficient for complete generation. Preserve
+this failure and inspect actual rejected dependencies/proposals before further
+operator changes; do not raise limits or infer infeasibility from the last fallback.

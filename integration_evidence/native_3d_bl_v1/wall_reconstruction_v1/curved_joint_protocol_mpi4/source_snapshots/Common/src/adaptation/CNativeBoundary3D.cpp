@@ -10,6 +10,7 @@
 #include "../../include/adt/CADTElemClass.hpp"
 #include "../../include/option_structure.hpp"
 #include <cmath>
+#include <functional>
 #include <type_traits>
 #include <algorithm>
 #include <limits>
@@ -1253,21 +1254,37 @@ bool SplitSurfaceStrip(const Patch& old,Edge edge,Node point,const std::vector<s
     fresh.cells.swap(proposal.cells);fresh.surface.swap(proposal.surface);reason.clear();return true;
   }catch(const std::exception& e){reason=e.what();return false;}
 }
-std::vector<Id> SplitPatchApices(const Patch& patch,Edge edge) {
+std::vector<Id> SplitPatchApices(const Patch& patch,Edge edge,const std::map<Id,size_t>* costs) {
   Bounds(patch);Endpoints(edge);std::set<Id> fixed{edge[0],edge[1]};
   for(const auto& f:patch.surface)fixed.insert(f.v.begin(),f.v.end());
-  std::vector<const Cell*> uncovered;
-  for(const auto& c:patch.cells)if(std::count_if(c.v.begin(),c.v.end(),[&](Node n){return n.id==edge[0] || n.id==edge[1];})==2)uncovered.push_back(&c);
-  std::vector<Id> apices;
-  while(!uncovered.empty() && apices.size()<8) {
-    std::map<Id,unsigned> counts;
-    for(const auto* c:uncovered)for(auto n:c->v)if(!fixed.count(n.id))++counts[n.id];
-    if(counts.empty())return {};
-    const auto selected=std::max_element(counts.begin(),counts.end(),[](const auto& a,const auto& b){return a.second<b.second;});
-    const Id id=selected->first;apices.push_back(id);
-    uncovered.erase(std::remove_if(uncovered.begin(),uncovered.end(),[&](const Cell* c){return std::any_of(c->v.begin(),c->v.end(),[&](Node n){return n.id==id;});}),uncovered.end());
+  std::vector<Edge> pairs;
+  for(const auto& c:patch.cells)if(std::count_if(c.v.begin(),c.v.end(),[&](Node n){return n.id==edge[0] || n.id==edge[1];})==2) {
+    Edge pair{};unsigned i=0;for(auto n:c.v)if(n.id!=edge[0] && n.id!=edge[1])pair[i++]=n.id;
+    pairs.push_back(pair);
   }
-  return uncovered.empty()?apices:std::vector<Id>{};
+  if(pairs.empty())return {};
+  std::map<Id,uint64_t> covered;std::map<Id,size_t> weight;
+  for(size_t i=0;i<pairs.size();++i)for(Id id:pairs[i]) {
+    if(fixed.count(id) || (costs && (!costs->count(id) || !costs->at(id))))continue;
+    covered[id]|=uint64_t(1)<<i;weight[id]=costs?costs->at(id):1;
+  }
+  const uint64_t all=pairs.size()==64?UINT64_MAX:(uint64_t(1)<<pairs.size())-1;
+  std::vector<Id> chosen,best;size_t best_cost=SIZE_MAX;
+  std::function<void(uint64_t,size_t)> visit=[&](uint64_t mask,size_t cost) {
+    if(mask==all) {
+      auto sorted=chosen;std::sort(sorted.begin(),sorted.end());
+      if(cost<best_cost || (cost==best_cost && (best.empty() || sorted<best))){best_cost=cost;best=std::move(sorted);}
+      return;
+    }
+    if(chosen.size()==8 || cost>=best_cost)return;
+    size_t i=0;while(mask&(uint64_t(1)<<i))++i;auto options=pairs[i];
+    auto value=[&](Id id){return weight.count(id)?weight.at(id):SIZE_MAX;};
+    if(std::make_pair(value(options[1]),options[1])<std::make_pair(value(options[0]),options[0]))std::swap(options[0],options[1]);
+    for(Id id:options)if(covered.count(id) && weight.at(id)<=SIZE_MAX-cost) {
+      chosen.push_back(id);visit(mask|covered.at(id),cost+weight.at(id));chosen.pop_back();
+    }
+  };
+  visit(0,0);return best;
 }
 bool PlaceSplitPatch(const Patch& old,Edge edge,Node point,const std::vector<std::pair<Id,Id>>& apices,Id first,
                        FrozenField& target,const PlanarReference& reference,const std::map<int,double>& heights,

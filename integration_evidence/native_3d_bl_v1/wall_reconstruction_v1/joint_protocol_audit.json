@@ -2,16 +2,18 @@
   "status": "PASS_MPI_PROTOCOL_ONLY_REJECTED_MESHES",
   "rows": [
     {
+      "classified_vertices": 7,
       "stage": "curved_joint_protocol",
       "ranks": 1,
       "cells": 533,
-      "placement_trials": 325,
+      "placement_trials": 333,
       "placement_validated": 6,
       "work": 512,
       "source_donors": 120,
-      "native_receipt_sha256": "b7d72342e5af3b4f4308ce75a99e89357f6d42946152e9a148d5b7d415f686b0"
+      "native_receipt_sha256": "469473e6f3f14d2e5852aa5920fc683f89be0ad875d749cab223f8e814695f27"
     },
     {
+      "classified_vertices": 6,
       "stage": "curved_joint_protocol_mpi2",
       "ranks": 2,
       "cells": 596,
@@ -19,20 +21,21 @@
       "placement_validated": 15,
       "work": 512,
       "source_donors": 120,
-      "native_receipt_sha256": "215a24fd74658a3f3ebe388285e68c705e0f9efffe15bfac26289fc9ea8dc3c2"
+      "native_receipt_sha256": "d34264758315b4c75e8f12387dbf63d7d5f78539cbdaadea44f94a9c73dbac91"
     },
     {
+      "classified_vertices": 8,
       "stage": "curved_joint_protocol_mpi4",
       "ranks": 4,
       "cells": 549,
-      "placement_trials": 408,
-      "placement_validated": 8,
+      "placement_trials": 409,
+      "placement_validated": 7,
       "work": 512,
       "source_donors": 120,
-      "native_receipt_sha256": "553b2d6c0f94f984a64ee8463a29ab49ceafcce404561c207d5bf467badc4213"
+      "native_receipt_sha256": "1c5f07516187c42fcef75acc9e0b48549ef2fe559daa7e6f9f07e4cadd079b87"
     }
   ],
-  "binary_sha256": "4951e44b118b7f8052decb9647fb4cd98399264162c58c58e77041f62a3d8129",
-  "helper_sha256": "3ab9d65f4e9900b6bd3b81181bdcaafe6c22f5a40114f9a704d3b81a2d5a7ee1",
+  "binary_sha256": "4839d70e55cb75ee8347a1309ec3d6af56cc1b5cc65740197dc04b38fb68d2b9",
+  "helper_sha256": "f567eff23f008641c238d6756743e0e5eab3b7e493d7e786377107aba259e75b",
   "scope": "Native matched MPI1/2/4 execution/work-bound/input-signature checks plus independent exact before/after donor/reference preservation and identical physical original donors across rank counts. Different trajectories are retained. No final mesh acceptance, independent full geometry/metric, CFD/current-BDF transfer/restart, M<N or performance qualification."
 }

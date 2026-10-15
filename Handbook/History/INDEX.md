@@ -26,3 +26,10 @@ order; `manifest.json` gives ranges and hashes.
 | earlier_integration | [earlier_integration_03.md](earlier_integration_03.md) | 5873–6287 | 27996 |
 | earlier_integration | [earlier_integration_04.md](earlier_integration_04.md) | 6288–6714 | 29778 |
 | earlier_integration | [earlier_integration_05.md](earlier_integration_05.md) | 6715–6798 | 6354 |
+
+## Preserved before support-selection checkpoint (2026-10-15)
+
+These later snapshots are separate from the original line-range archive above.
+
+- [Handoff](goal3_handoff_before_support_selection.md).
+- [Goal 3 state](goal3_current_before_support_selection.md).
