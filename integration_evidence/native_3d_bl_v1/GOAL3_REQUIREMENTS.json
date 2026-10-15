@@ -95,10 +95,11 @@
     "wall_reconstruction_v1/summary.json",
     "wall_reconstruction_v1/stronger_field_MPI_consistency.json",
     "connectivity_replay_v1/visibility_fixture.json",
-    "wall_reconstruction_v1/support_selection_summary.json"
+    "wall_reconstruction_v1/support_selection_summary.json",
+    "wall_reconstruction_v1/shared_apex_refit_summary.json"
   ],
   "execution_state": {
-    "status": "All owned jobs terminal; connected support/cap local and protocol checks PASS, strict final curved grid remains rejected1411 cells/133 oversized edges. Full Goal3 active.",
+    "status": "All owned jobs terminal. Shared-apex refit private/native/independent geometry and bounded MPI2 PASS; full1820-cell curved result rejects46 metric edges. Full Goal3 ACTIVE.",
     "CFD_runs": 0,
     "production_MPI": "Current PASS N/M1/1,2/1,2/2; N/M4/1,4/2,4/4 remain required. Previous full matrix historical.",
     "independent_frames": 6
@@ -407,5 +408,44 @@
       "placement_validated": 2
     },
     "limits": "Eight apices/511 bounded search states, individually bounded complete versioned stars, final64-cell admission, unchanged field/shape/height/full-edge/work limits. Minimum sum of star costs does not guarantee minimum union cardinality."
+  },
+  "shared_apex_refit": {
+    "status": "PARTIAL_CONSTRUCTION_STRICT_FINAL_MESH_REJECTED",
+    "rationale": "The preceding strict costed run rejects1411 cells/133 long edges. Geometry-only source-pinned thought experiment fits all32 oversized pure-cylinder1402-input edges, with normal feet and positive changed tetrahedra; this is not native/exact/metric qualification.",
+    "design": "Refit complete existing free-apex stars to all new wall-height planes after projected edge split; stationary IDs retained, moved IDs fresh; existing exact atomic split/height/foot/geometry and original-field validation plus prior reconstruction strategies remain.",
+    "evidence": "wall_reconstruction_v1/curved_wall_plane_probe/report.json",
+    "planned_native": [
+      "curved_wall_refit_probe",
+      "curved_wall_refit_complete"
+    ],
+    "remaining": "All full-goal gates retained. Closest affine fit is one bounded proposal; footprint rejection may still require tangent freedom or different connectivity.",
+    "native_private": {
+      "old_cells": 36,
+      "new_cells": 40,
+      "apices": 2,
+      "minimum_quality": 0.21925471545260483,
+      "minimum_scaled_jacobian": 0.06852218982022688,
+      "assertions": 26,
+      "scope": "Actual worst requested-wall edge; full frozen-field Refine and native geometry/height checks plus invalid-ID/incomplete-star controls."
+    },
+    "independent_private": "PASS exact positive volumes, oriented manifold/no positive overlap, fixed interface, unchanged original donors/reference, four local wall faces, maximum height relative error9.72e-16. Curved projection changes physical volume.",
+    "strict_engine": {
+      "input_cells": 1402,
+      "accepted": 88,
+      "cells": 1820,
+      "q": 0.2007931040538064,
+      "j": 0.05022384726911901,
+      "oversized_edges": 46,
+      "initial_excess": 1.5874507614028437,
+      "remaining_excess": 0.1881213337516294,
+      "work": 4096,
+      "insertions": 88,
+      "placement_trials": 3528,
+      "placement_validated": 35
+    },
+    "residual": "46 oversized edges:18 cylinder,24 cylinder/cap junction,4 interior; no cap-only oversized edge; maximum2.1251780102267803. Native composed integration, not independent quadrature.",
+    "independent_whole_grid": "PASS exact positive volumes/no positive overlap/closed oriented ball skin,76 wall faces with feet and relative first-height error3.06e-15; q/J independently recomputed from exported tensors. The46 long edges still reject the event.",
+    "MPI": "Current MPI2 bounded protocol+before/after original donors/reference PASS:512 work,1653 rejected cells,335 placement trials/21 validated. Current MPI4/M<N/current+BDF/SA/CFD/restart/performance not refreshed.",
+    "summary": "wall_reconstruction_v1/shared_apex_refit_summary.json"
   }
 }

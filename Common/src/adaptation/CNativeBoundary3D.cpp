@@ -1408,6 +1408,65 @@ bool PlaceSplitPatch(const Patch& old,Edge edge,Node point,const std::vector<std
     reason="Native3D joint placement exhausted its bounded search without frozen metric progress.";return false;
   }catch(const std::exception& e){reason=e.what();return false;}
 }
+bool RefitWallSplit(const Patch& old,Edge edge,Node point,Id first_apex,Id first,
+                    const std::map<int,double>& heights,const PlanarReference& reference,
+                    Patch& fresh,std::string& reason,KernelStats* stats) {
+  try {
+    Bounds(old);Endpoints(edge);FirstHeightReport height;
+    if(heights.empty() || !CheckFirstHeight(old,heights,reference,height,reason,stats))
+      throw std::invalid_argument("Native3D wall refit needs an admissible prescribed-height input: "+reason);
+    const Incidence index(old.cells,stats);const auto skin=index.Boundary();std::set<Id> apices;
+    for(const auto& face:old.surface)if(Has(face.v,edge[0]) && Has(face.v,edge[1]) && heights.count(reference.Get(face.facet).marker))
+      for(const auto& c:old.cells) {
+        unsigned count=0;Id apex=0;for(auto n:c.v)if(Has(face.v,n.id))++count;else apex=n.id;
+        if(count==3)apices.insert(apex);
+      }
+    if(apices.empty())throw std::invalid_argument("Native3D wall refit needs a requested physical wall edge.");
+    for(Id id:apices)for(auto face:skin)if(Has(face,id))
+      throw std::invalid_argument("Native3D wall refit needs complete free apex stars.");
+    Patch split;
+    if(!SplitSurfaceStrip(old,edge,point,{},first,reference,split,reason,stats))throw std::invalid_argument(reason);
+    const auto nodes=Nodes(split.cells);std::vector<std::pair<Id,Node>> moves;size_t slot=0;
+    for(Id id:apices) {
+      const auto origin=nodes.at(id).p;std::array<Vector,3> basis{};std::array<long double,3> offset{};size_t rank=0,planes=0;
+      for(const auto& face:split.surface) {
+        const auto h=heights.find(reference.Get(face.facet).marker);if(h==heights.end())continue;
+        bool owns=false;
+        for(const auto& c:split.cells) {
+          unsigned count=0;bool vertex=false;for(auto n:c.v){count+=Has(face.v,n.id);vertex=vertex || n.id==id;}
+          owns=owns || (count==3 && vertex && !Has(face.v,id));
+        }
+        if(!owns)continue;++planes;
+        const auto a=nodes.at(face.v[0]).p,b=nodes.at(face.v[1]).p,c=nodes.at(face.v[2]).p;
+        auto normal=Cross(Delta(b,a),Delta(c,a));const auto area=Norm(normal);
+        if(!(area>0))throw std::invalid_argument("Native3D wall refit has a degenerate height plane.");
+        for(auto& x:normal)x/=area;
+        auto value=Dot(normal,Delta(a,origin))-h->second;
+        for(unsigned pass=0;pass<2;++pass)for(size_t k=0;k<rank;++k) {
+          const auto component=Dot(normal,basis[k]);value-=component*offset[k];
+          for(unsigned j=0;j<3;++j)normal[j]-=component*basis[k][j];
+        }
+        const auto independent=Norm(normal);
+        if(rank<3 && independent>64*std::numeric_limits<long double>::epsilon()) {
+          for(auto& x:normal)x/=independent;basis[rank]=normal;offset[rank++]=value/independent;
+        } else if(std::abs(value)>1e-12L*h->second)
+          throw std::invalid_argument("Native3D retained apex has incompatible height planes; different connectivity is required.");
+      }
+      if(!planes)throw std::invalid_argument("Native3D wall refit loses a height dependency.");
+      Vector displacement{};for(size_t k=0;k<rank;++k)for(unsigned j=0;j<3;++j)displacement[j]+=offset[k]*basis[k][j];
+      const Point p{double(origin.x+displacement[0]),double(origin.y+displacement[1]),double(origin.z+displacement[2])};
+      if(first_apex>UINT64_MAX-slot || nodes.count(first_apex+slot))
+        throw std::invalid_argument("Native3D wall refit exceeds reserved apex identities.");
+      if(p.x!=origin.x || p.y!=origin.y || p.z!=origin.z)moves.emplace_back(id,Node{first_apex+slot,p});
+      ++slot;
+    }
+    // Closest affine fits preserve tangent freedom; an outside foot rejects and other reconstruction paths remain available.
+    Patch proposal;
+    if(!SplitSurfaceStrip(old,edge,point,moves,first,reference,proposal,reason,stats) ||
+       !CheckFirstHeight(proposal,heights,reference,height,reason,stats))throw std::invalid_argument(reason);
+    fresh=std::move(proposal);reason.clear();return true;
+  }catch(const std::exception& e){reason=e.what();return false;}
+}
 bool ReconstructWallSplit(const Patch& old,Edge edge,Node point,Id first_wall_node,Id first,
                           const std::map<int,double>& heights,const PlanarReference& reference,
                           Patch& fresh,Face& obstruction,std::string& reason,KernelStats* stats,double surface_tolerance) {

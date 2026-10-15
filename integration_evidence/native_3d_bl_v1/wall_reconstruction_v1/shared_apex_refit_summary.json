@@ -1,0 +1,62 @@
+{
+  "status": "PARTIAL_CURVED_CONSTRUCTION_PROGRESS_FULL_TARGET_REJECTED",
+  "geometry_thought_experiment": {
+    "path": "curved_wall_plane_probe/report.json",
+    "sha256": "40c63beb2f9a34696d4719b486ae0105effd03f2003c27fa3dd4d512fa555135"
+  },
+  "native_private": {
+    "path": "curved_wall_refit_probe.json",
+    "sha256": "3d5f15d6845004f8a4e1012e89310600796d8fc27ccdfacdc7c161ecac61ab8f"
+  },
+  "independent_private": {
+    "path": "wall_refit_geometry.json",
+    "sha256": "ec259250c514d46de7c2d8d0000f75fac27f482d56e2f34d079e77949f823d1e"
+  },
+  "strict_engine": {
+    "path": "curved_wall_refit_complete.json",
+    "sha256": "cd278cc1a2663942abfa3ee8b5f004f648eb2ad8cdacba962ed95ac50240c3e0",
+    "measurements": {
+      "accepted": 88,
+      "cells": 1820,
+      "q": 0.2007931040538064,
+      "j": 0.05022384726911901,
+      "oversized_edges": 46,
+      "initial_excess": 1.5874507614028437,
+      "remaining_excess": 0.1881213337516294,
+      "work": 4096
+    },
+    "placement_trials": 3528,
+    "placement_validated": 35,
+    "insertions": 88
+  },
+  "residual": {
+    "path": "curved_wall_refit_residual.json",
+    "sha256": "06f3517fe7c9ae56d247721d8a30aeaf88668b8a261a36bdc0b7c53e1a349413"
+  },
+  "residual_classification": {
+    "path": "refit_residual_classification.json",
+    "sha256": "003232d871fc6246e1efa759efe993912f446d0488d16ad47050c50f92c14dfa"
+  },
+  "MPI2_protocol": {
+    "path": "joint_protocol_refit_mpi2_audit.json",
+    "sha256": "294abdaf8bc051ad3df82a9b82e0db4aede47e1c556e22fd74ba45a4dabce525"
+  },
+  "last_actual_rejection": {
+    "path": "curved_wall_refit_complete/saved_grid_last_rejected_diagnosis.json",
+    "sha256": "dc1300f9f91df5cd6b750747aaed51164017cc216c4f194b28b15b2f82c4aabc",
+    "cells": 56,
+    "physical_faces": 9,
+    "feature": [
+      88,
+      97
+    ],
+    "interior_endpoints": true,
+    "old_patch_present_in_final_return": true
+  },
+  "scope": "Native actual-field private refinement and exact independent local geometry/height pass; same1402-cell strict original-field run improves88 insertions to1820 cells, but46 oversized edges remain at4096 work. Final-current MPI2 bounded protocol and source/reference preservation pass; current MPI4/M<N/CFD/BDF transfer/restart and full curved construction/removal/accuracy/performance remain open. No accepted mesh, speedup or global feasibility claim.",
+  "independent_whole_grid": {
+    "path": "refit_grid_independent.json",
+    "sha256": "32967922a5caea8f79c7cdce8f7cbaf45cec12620ca3861b1c44a976ca8fc2bf"
+  },
+  "next": "Diagnose the four remaining interior and42 wall/junction residuals on their actual source-pinned cavities. Coordinate private insertion/reconnection/constrained movement where inherited connectivity blocks the candidate; do not infer infeasibility, relax gates or repeat work-budget continuations."
+}

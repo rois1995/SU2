@@ -12,11 +12,15 @@ an unnecessary78-cell request: a26-cell free cover repairs the same interior
 patch. The minimum-cost search is bounded by eight apices/511 states, with unchanged
 64-cell admission and original geometry/height/shape/full composed-edge gates.
 Point-only placement is attempted first where no wall-apex reconstruction is needed.
+The [shared-apex wall refit](GOAL3_SHARED_APEX_REFIT.md) then advances the same1402-cell
+strict target88 insertions to1820 cells/46 long edges at4096 work. Local native and
+independent geometry/height plus bounded MPI2 protocol pass; full mesh still rejects.
 
 The saved1110-cell grid passes independent whole geometry/height/shape checks but
 has174 oversized edges. One bounded continuation reaches1402 cells/137 oversized
 edges; the new costed-support/cap run reaches1411 cells/133 long edges and still
-rejects at4096 work, after only two insertions. All owned jobs are terminal. Do not equate partial metric progress or private local
+rejects at4096 work, after only two insertions. That is the preceding support-only
+result; the newer shared-apex result is1820 cells/46 long edges as stated above. Do not equate partial metric progress or private local
 success with a complete adapted mesh. See the support handbook for current runs.
 
 ## Existing qualified scope

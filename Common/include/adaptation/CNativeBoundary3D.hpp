@@ -149,6 +149,13 @@ bool InsertEdgeCavity(const Patch& old, Edge edge, Node point, Id first_cell, co
 bool SplitSurfaceStrip(const Patch& old,Edge edge,Node point,const std::vector<std::pair<Id,Node>>& moves,
                        Id first_cell,const PlanarReference& reference,Patch& fresh,std::string& reason,
                        KernelStats* stats = nullptr);
+/*! Project a physical wall split and jointly refit its existing free apices to all new height planes.
+ * Complete edge/apex stars are required. Stationary identities are retained; moved apices use consecutive
+ * reserved IDs. Closest affine fits must pass all normal-foot, height and geometry checks; caller still
+ * certifies the actual metric, nonlocal clearance and versioned dependencies. Failure leaves fresh unchanged. */
+bool RefitWallSplit(const Patch& old,Edge edge,Node point,Id first_apex,Id first_cell,
+                    const std::map<int,double>& heights,const PlanarReference& reference,
+                    Patch& fresh,std::string& reason,KernelStats* stats = nullptr);
 /*! Physical split and coordinated normal wall-point insertion into retained volume topology.
  * Visibility cavities grow only inside the complete admitted patch, across obstructing faces.
  * Completed wall children are protected; no common background point is required. Reserve one node

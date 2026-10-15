@@ -1838,7 +1838,8 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         }
         bool candidate=false;Face obstruction{};Feature preferred_obstruction;
         const bool retained_frame=world.maximum(joint && wallSplit);
-        const unsigned frames=(world.maximum(joint && !choice.geometric)?2:1)+unsigned(retained_frame);
+        const unsigned retained_frames=retained_frame?2:0;
+        const unsigned frames=(world.maximum(joint && !choice.geometric)?2:1)+retained_frames;
         for(unsigned frame=0;frame<frames;++frame) {
           const bool participating=joint && !approved;candidate=false;
           {
@@ -1849,13 +1850,15 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
                 return options.wall_heights.count(geometry.Get(f.facet).marker);
               });
               stats.wall_reconstruction_trials+=wall;
-              if(retained_frame && frame==0 && wallSplit) {
+              if(retained_frame && frame<retained_frames && wallSplit) {
                 ++stats.wall_topology_trials;
-                candidate=guarded_geometry(ReconstructWallSplit(old,choice.edge,point,maximum_node+2+node_offset,
+                if(frame==0)candidate=guarded_geometry(RefitWallSplit(old,choice.edge,point,maximum_node+2+node_offset,
+                    maximum_cell+1+offset,options.wall_heights,geometry,fresh,result.reason));
+                else candidate=guarded_geometry(ReconstructWallSplit(old,choice.edge,point,maximum_node+2+node_offset,
                     maximum_cell+1+offset,options.wall_heights,geometry,fresh,obstruction,result.reason,nullptr,options.surface_tolerance));
-              } else if(!retained_frame || frame>0) {
+              } else if(!retained_frame || frame>=retained_frames) {
                 candidate=guarded_geometry(ReconstructSplitPatch(old,choice.edge,point,{maximum_node+2+node_offset,{}},
-                    frame>unsigned(retained_frame)?nearPlacement:placement,maximum_cell+1+offset,geometry,
+                    frame>retained_frames?nearPlacement:placement,maximum_cell+1+offset,geometry,
                     fresh,obstruction,result.reason,nullptr,options.wall_heights));
               }
             }catch(const std::exception& e){failure.Set(2,0,e.what());}
@@ -1864,7 +1867,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
           if(!ready)return finish();
           bool passed=validate_private(candidate,choice.geometric ? MetricChange::GeometryRefine : MetricChange::Refine);
           if(!ready)return finish();
-          const bool missing_closure=participating && retained_frame && frame==0 && wallSplit && !candidate && obstruction!=Face{};
+          const bool missing_closure=participating && retained_frame && frame==1 && wallSplit && !candidate && obstruction!=Face{};
           bool close_first=world.maximum(missing_closure);
           if(missing_closure)preferred_obstruction={obstruction,3};
           const bool repair=!close_first && participating && candidate && !passed && certified.failure==MetricFailure::Shape &&
@@ -1959,7 +1962,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
           }catch(const std::exception& e){failure.Set(2,0,e.what());}
           if(!(ready=vote(failure)))return finish();
           if(participating) {
-            stats.wall_topology_accepted+=passed && retained_frame && frame==0 && wallSplit;
+            stats.wall_topology_accepted+=passed && retained_frame && frame<retained_frames && wallSplit;
             approved=passed;
             if(passed && std::any_of(old.surface.begin(),old.surface.end(),[&](const auto& f) {
               return options.wall_heights.count(geometry.Get(f.facet).marker);

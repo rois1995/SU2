@@ -14,7 +14,11 @@ versioned MPI stars, select a minimum-cost bounded free cover, and avoid importi
 stationary support when a point-only placement suffices. The actual failed greedy
 request needed78 cells; a valid26-cell cover passes the unchanged local contracts.
 The new strict costed-support run still rejects at1411 cells/133 long edges,
-after only two insertions and4096 work. All owned jobs are terminal.
+after only two insertions and4096 work. A connected shared-apex wall refit is
+now qualified locally and on the bounded MPI2 protocol. Its strict same-input
+run advances88 insertions to1820 cells but still rejects46 long edges at4096 work.
+The entire rejected grid independently passes geometry/height/shape checks. All
+owned jobs are terminal. Read [the current refit scope and next blockage](Handbook/GOAL3_SHARED_APEX_REFIT.md).
 Read [support selection](Handbook/GOAL3_SUPPORT_SELECTION.md) for exact source-pinned
 positive/negative evidence and current qualification scope.
 
@@ -27,6 +31,7 @@ A folder or RUNNING receipt alone is not evidence of a live or completed job.
 Read only the relevant handbook:
 
 - [Current implementation and full remaining gates](Handbook/GOAL3_CURRENT.md).
+- [Coordinated shared-apex refit, currently under validation](Handbook/GOAL3_SHARED_APEX_REFIT.md).
 - [Support selection and latest curved progress](Handbook/GOAL3_SUPPORT_SELECTION.md).
 - [Interior placement](Handbook/GOAL3_INTERIOR_PLACEMENT.md).
 - [Curved BL policy and earlier failures](Handbook/GOAL3_CURVED_BL.md).

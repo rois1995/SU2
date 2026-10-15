@@ -5208,3 +5208,26 @@ on the final binary. Strict whole-grid `curved_costed_complete` still FAILS:
 work. The bounded support fix is insufficient for complete generation. Preserve
 this failure and inspect actual rejected dependencies/proposals before further
 operator changes; do not raise limits or infer infeasibility from the last fallback.
+
+## Shared-apex curved wall refit — 2026-10-15
+
+A geometry-only source-pinned experiment finds feasible shared height-plane/foot
+placements for all32 oversized pure-cylinder edges of the actual1402-cell input.
+Native now offers a general complete-star wall split with coordinated existing
+apex refitting before the previous retained/common-background reconstructions.
+Fresh identities mark moved apices; original field, fade and all final gates stay.
+The worst wall-edge private case passes36→40 cells, q .219255/J .068522 and26
+assertions; independent exact geometry and local first height/feet pass.
+
+Strict same-input construction advances88 insertions to1820 cells but still
+rejects46 long edges at4096 work, excess1.587451→.188121. Residuals:18 cylinder,
+24 rim junction,4 interior; no cap-only long edges. Current MPI2 bounded protocol
+and independent before/after donor/reference checks pass. Full curved generation,
+current MPI4/M<N/CFD/current+BDF/restart/viscous accuracy/performance remain open.
+Latest real rejected interior patch/feature is preserved once at return, avoiding
+per-trial disk serialization. See Handbook/GOAL3_SHARED_APEX_REFIT.md.
+
+The entire1820-cell rejected result independently passes exact positive-volume/
+no-overlap/closed-skin geometry,76 wall normal feet and first height (relative
+error3.06e-15), plus exported-tensor q/J arithmetic. Its46 oversized edges still
+reject. All owned jobs terminal; full Goal3 remains active.

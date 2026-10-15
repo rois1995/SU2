@@ -1,0 +1,20 @@
+{
+  "status": "PASS_LOCAL_GEOMETRY_ONLY",
+  "native_status": "PASS",
+  "old_cells": 36,
+  "new_cells": 40,
+  "wall_faces": 4,
+  "maximum_height_relative_error": 9.71445146547012e-16,
+  "interface_faces": 20,
+  "old_volume": "1170900607995876430659813352719811418603985244288255133716487155/39492109375708945011719260381376412119585660775205916720366616576",
+  "new_volume": "1244920783789023947926631055000054952832480743773288046061591539/39492109375708945011719260381376412119585660775205916720366616576",
+  "input_sha256": {
+    "wall_refit_original.json": "e63ebf976af8ea817bccce85a4fc37ce5cce95739c882b00b07706d36f1d8451",
+    "wall_refit_proposal.json": "3898daff931d65b8e1f687c9994ffeceac9a3a6dc82681e86d2fe1cefa825d54"
+  },
+  "native_receipt_sha256": "3d5f15d6845004f8a4e1012e89310600796d8fc27ccdfacdc7c161ecac61ab8f",
+  "helper_sha256": "6a30f887eb133471bbae835523ca419fca5b5711fcadcde824761d5a10e7cf99",
+  "geometry_helper_sha256": "d587d7dea4391e6e77c118f5d15167d147b4bc40f72e811c0e6c75d3a1a2ee5e",
+  "footprint_helper_sha256": "5d068c56883bc966a332848b120e07d643a3015bae24671a366adf623d1be906",
+  "scope": "Local wall normal feet/height, exact positive volumes, oriented manifold incidence, no positive-volume pair overlap, fixed artificial interface and unchanged original donors/reference. Volume equality is required for flat caps/interior only; curved projection changes physical skin/volume. Native status is separate from geometric evidence; consult the native metric rejection when present. No whole-grid completion, independent smooth-wall/full-field integration, transfer or performance qualification."
+}
