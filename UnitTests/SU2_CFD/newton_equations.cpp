@@ -8,6 +8,7 @@
 #include "../../SU2_CFD/include/integration/CNewtonEquationSet.hpp"
 #include "../../SU2_CFD/include/integration/CNewtonLinearization.hpp"
 #include "../../SU2_CFD/include/integration/CNewtonIntegration.hpp"
+#include "../../SU2_CFD/include/integration/CNewtonLegacyIntegration.hpp"
 #include "../../Common/include/linear_algebra/CSysSolve.hpp"
 #include <chrono>
 #include <filesystem>
@@ -25,6 +26,11 @@ class NewtonDriver : public CSinglezoneDriver {
   CGeometry* Geometry() { return geometry_container[0][0][0]; }
   CSolver** Solvers() { return solver_container[0][0][0]; }
   CNumerics*** Numerics() { return numerics_container[0][0][0]; }
+  void FlowIteration(CIntegration& integration) {
+    Config()->SetGlobalParam(Config()->GetKind_Solver(), RUNTIME_FLOW_SYS);
+    integration.MultiGrid_Iteration(geometry_container, solver_container, numerics_container, config_container,
+                                    RUNTIME_FLOW_SYS, 0, 0);
+  }
 };
 
 class Silence {
@@ -37,7 +43,7 @@ class Silence {
 struct Problem {
   std::string path;
   std::unique_ptr<NewtonDriver> driver;
-  explicit Problem(const std::string& physics, unsigned cells = 5) {
+  explicit Problem(const std::string& physics, unsigned cells = 5, bool muscl = false) {
     const auto stamp = std::chrono::steady_clock::now().time_since_epoch().count();
     path = (std::filesystem::temp_directory_path() /
             ("su2_newton_" + std::to_string(stamp) + "_" + std::to_string(SU2_MPI::GetRank()) + ".cfg"))
@@ -47,7 +53,9 @@ struct Problem {
       config << "MESH_FORMAT= RECTANGLE\nMESH_BOX_SIZE= " << cells << "," << cells
              << ",5\nMESH_BOX_LENGTH= 1,1,1\n"
                 "MARKER_HEATFLUX= (y_minus, 0)\nMARKER_FAR= (x_minus,x_plus,y_plus)\n"
-                "MACH_NUMBER= 0.2\nREYNOLDS_NUMBER= 1e6\nMUSCL_FLOW= NO\nMUSCL_TURB= NO\n"
+                "MACH_NUMBER= 0.2\nREYNOLDS_NUMBER= 1e6\nMUSCL_FLOW= "
+             << (muscl ? "YES" : "NO")
+             << "\nMUSCL_TURB= NO\n"
                 "MUSCL_SPECIES= NO\nMGLEVEL= 0\nOUTPUT_FILES= NONE\n"
                 "SCREEN_OUTPUT= (INNER_ITER)\nHISTORY_OUTPUT= (ITER,RMS_RES)\n"
              << "CONV_NUM_METHOD_FLOW= " << (physics.find("SOLVER= INC_") == std::string::npos ? "ROE" : "FDS") << "\n"
@@ -963,4 +971,71 @@ TEST_CASE("Native Newton block preconditioning waits for every input producer", 
     END_SU2_OMP_PARALLEL
     CHECK(MaxDifference(expected, actual) == 0.0);
   }
+}
+
+TEST_CASE("Legacy Newton preconditioning waits for every input producer", "[NewtonLinearization]") {
+  for (const auto& policy : {"TIME_DISCRE_FLOW= EULER_EXPLICIT\nNEWTON_KRYLOV_IPARAM= 0,0,1,0\n",
+                             "TIME_DISCRE_FLOW= EULER_IMPLICIT\nNEWTON_KRYLOV_IPARAM= 0,0,1,0\n",
+                             "TIME_DISCRE_FLOW= EULER_IMPLICIT\nNEWTON_KRYLOV_IPARAM= 0,2,1,0\n"}) {
+    CAPTURE(policy);
+    Problem problem(std::string("SOLVER= NAVIER_STOKES\nNEWTON_KRYLOV= YES\nCFL_NUMBER= 0.05\n") +
+                    "LINEAR_SOLVER_PREC= ILU\nNEWTON_KRYLOV_DPARAM= 0,0.1,0,1e-6,1\n" + policy);
+    auto& driver = *problem.driver;
+    CNewtonLegacyIntegration integration;
+    {
+      Silence silence;
+      driver.FlowIteration(integration);
+    }
+    const int threads = std::min(4, omp_get_max_threads());
+    auto known = MakeVector(driver, driver.Solvers()[FLOW_SOL]->GetnVar(), 0.125);
+    auto delayed = MakeVector(driver, known.GetNVar()), actual = delayed, expected = delayed;
+    SU2_OMP_PARALLEL_ON(threads) { integration.Preconditioner(known, expected); }
+    END_SU2_OMP_PARALLEL
+    SU2_OMP_PARALLEL_ON(threads) {
+      if (threads > 1 && omp_get_thread_num() == threads - 1)
+        std::this_thread::sleep_for(std::chrono::milliseconds(40));
+      delayed = known;
+      integration.Preconditioner(delayed, actual);
+    }
+    END_SU2_OMP_PARALLEL
+    CHECK(MaxDifference(expected, actual) == 0.0);
+  }
+}
+
+TEST_CASE("Grouped physical residuals isolate legacy Jacobian relaxation", "[NewtonEquations]") {
+  Problem problem("SOLVER= NAVIER_STOKES\n", 5, true);
+  auto& driver = *problem.driver;
+  auto* config = driver.Config();
+  auto* geometry = driver.Geometry();
+  auto* nodes = driver.Solvers()[FLOW_SOL]->GetNodes();
+  for (auto p = 0ul; p < geometry->GetnPoint(); ++p)
+    for (auto v = 0u; v < driver.Solvers()[FLOW_SOL]->GetnVar(); ++v)
+      nodes->SetSolution(p, v,
+                         nodes->GetSolution(p, v) *
+                             (1 + 0.02 * std::sin(geometry->nodes->GetCoord(p, 0) + geometry->nodes->GetCoord(p, 1))));
+  auto equations = problem.Equations({RUNTIME_FLOW_SYS});
+  auto reference = MakeVector(driver, equations->GetnVar()), actual = reference;
+  for (bool implicit : {false, true}) {
+    CAPTURE(implicit);
+    config->SetNewtonKrylovRelaxation(1.0);
+    REQUIRE(Residual(*equations, implicit));
+    equations->CopyResidual(reference);
+    for (double relaxation : {0.25, 0.0, 1.0}) {
+      CAPTURE(relaxation);
+      config->SetNewtonKrylovRelaxation(relaxation);
+      REQUIRE(Residual(*equations, implicit));
+      CHECK(SU2_TYPE::GetValue(config->GetNewtonKrylovRelaxation()) == relaxation);
+      equations->CopyResidual(actual);
+      CHECK(MaxDifference(reference, actual) == 0.0);
+    }
+  }
+  config->SetNewtonKrylovRelaxation(0.25);
+  equations->Capture();
+  auto scale = MakeVector(driver, equations->GetnVar(), 1.0), direction = MakeVector(driver, equations->GetnVar());
+  for (auto p = 0ul; p < geometry->GetnPoint(); ++p) direction(p, 0) = -2 * nodes->GetSolution(p, 0);
+  equations->SetTrial(direction, 1.0, scale);
+  CHECK_FALSE(Residual(*equations));
+  CHECK(SU2_TYPE::GetValue(config->GetNewtonKrylovRelaxation()) == 0.25);
+  REQUIRE(equations->Restore());
+  CHECK(SU2_TYPE::GetValue(config->GetNewtonKrylovRelaxation()) == 0.25);
 }

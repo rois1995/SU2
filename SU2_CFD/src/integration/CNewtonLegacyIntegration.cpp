@@ -374,6 +374,9 @@ void CNewtonLegacyIntegration::MatrixFreeProduct(const CSysVector<Scalar>& u, CS
 void CNewtonLegacyIntegration::Preconditioner(const CSysVector<Scalar>& u, CSysVector<Scalar>& v) const {
   SU2_ZONE_SCOPED
 
+  // The diagonal fallback and mixed-precision copies consume nowait vectors with another schedule.
+  SU2_OMP_BARRIER
+
   if (preconditioner) {
     Scalar eps = SU2_TYPE::GetValue(precondTol);
     Preconditioner_impl(u, v, precondIters, eps);

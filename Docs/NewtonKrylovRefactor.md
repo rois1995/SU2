@@ -445,12 +445,48 @@ directory. `producer_manifest.json` binds the committed fix, archived binaries,
 before/after tests and repeatability results. Earlier failed audits remain
 historical; do not overwrite their manifests or describe them as passes.
 
+## Legacy policy boundaries before consolidation
+
+The legacy explicit diagonal preconditioner also consumed a `nowait` input with
+a different point schedule. A matching entry barrier fixes its delayed-producer
+regression (approximately 2.30e-5 error before, exact afterward). The same entry
+protects mixed-precision input copies; a complete mixed-precision build has not
+been run. The detecting test covers explicit diagonal, implicit weak and implicit
+nested preconditioning in the current precision build.
+
+The equation-set residual guard now saves/restores the legacy reconstruction
+relaxation setting and evaluates the full physical reconstruction. Previously,
+leaving that setting at 0.25 or zero changed the physical residual consumed by
+the common controller: the nonuniform MUSCL fixture detects differences of about
+8575 and 11433 respectively. A Jacobian model knob must not alter the physical
+merit or true grouped derivatives. The regression now checks explicit probes,
+implicit assembly and restoration of the caller setting after a rejected invalid
+trial. Legacy flow still applies its own direction-policy relaxation outside
+this shared physical-residual interface; migrating that policy remains required.
+
+The native suite passes **11 cases / 15749 assertions** serial and **9872 / 9272**
+on two ranks with two threads. The two focused cases additionally pass on one
+and two ranks with four threads. Supported units remain 78 / 102250 and Valgrind
+reports zero memory errors, with leak checking disabled. Exact repeated-layout
+and legacy controls are recorded with this source; no converged or full AD/GPU
+claim follows from these checks.
+
+Evidence uses `legacy_policy_manifest.json`, with before controls preserved in
+`legacy_producer_prebarrier/` and `legacy_relaxation_pre_guard/`. Current checks
+are `legacy_policy_native_{serial,mpi}.log`, `legacy_policy_valgrind.log`,
+`legacy_policy_supported_units.log`, `legacy_policy_focused_{serial,mpi}.log`,
+`legacy_policy_repeatability/`, `legacy_policy_controls/`, `legacy_policy_smoke/`
+and `legacy_policy_regressions/` in the parent evidence directory. Both affected
+translation units pass forward syntax checks; full differentiated executables
+and mixed-precision execution remain unchecked.
+
 ## Next implementation gate
 
 Migrate the legacy flow direction policies, then expose validated selection and
 group dispatch with exactly-once advancement, final all-equation reporting and
 whole-group failure output. Complete the native mass, boundary/periodic,
-admissibility and conditional baseline audits. Retain the delayed-producer regression and the larger-fixture layout checks
-while migrating the remaining direction policies. Full converged family and
+admissibility and conditional baseline audits. Retain the delayed-producer
+regression and the larger-fixture layout checks while migrating the remaining
+direction policies. Full converged family and
 matched conventional/segregated/coupled comparisons remain required. NEMO
 integration remains excluded.

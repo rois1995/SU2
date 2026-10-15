@@ -11,10 +11,16 @@ constexpr unsigned short runtimes[] = {RUNTIME_FLOW_SYS, RUNTIME_TURB_SYS, RUNTI
 class EquationSettingsGuard {
   CConfig& config;
   CConfig::EquationSettings settings;
+  su2double relaxation;
 
  public:
-  explicit EquationSettingsGuard(CConfig& c) : config(c), settings(c.GetEquationSettings()) { SU2_OMP_BARRIER }
-  ~EquationSettingsGuard() { SU2_OMP_SAFE_GLOBAL_ACCESS(config.SetEquationSettings(settings);) }
+  explicit EquationSettingsGuard(CConfig& c)
+      : config(c), settings(c.GetEquationSettings()), relaxation(c.GetNewtonKrylovRelaxation()) {
+    SU2_OMP_BARRIER
+  }
+  ~EquationSettingsGuard() {
+    SU2_OMP_SAFE_GLOBAL_ACCESS(config.SetEquationSettings(settings); config.SetNewtonKrylovRelaxation(relaxation);)
+  }
 };
 }  // namespace
 
@@ -184,7 +190,8 @@ bool CNewtonEquationSet::EvaluateResiduals(bool implicit, bool allEquations) {
     explicit HistoryGuard(CNewtonEquationSet& e) : equations(e) { equations.SaveHistory(); }
     ~HistoryGuard() { equations.RestoreHistory(); }
   } history(*this);
-  SU2_OMP_SAFE_GLOBAL_ACCESS(config->SetResidualOnly(true);)
+  // A legacy Jacobian model must not change the physical residual or its grouped derivatives.
+  SU2_OMP_SAFE_GLOBAL_ACCESS(config->SetResidualOnly(true); config->SetNewtonKrylovRelaxation(1.0);)
   Communicate();
   if (!CheckState(false)) return false;
   const auto* flow = solvers[FLOW_SOL]->GetNodes();
