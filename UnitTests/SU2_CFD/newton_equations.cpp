@@ -13,6 +13,7 @@
 #include <filesystem>
 #include <fstream>
 #include <sstream>
+#include <thread>
 
 namespace {
 using Vector = CSysVector<passivedouble>;
@@ -915,5 +916,51 @@ TEST_CASE("Large native Newton groups repeat states and decisions", "[.][NewtonR
     CHECK(SU2_TYPE::GetValue(flow->GetRes_RMS(0)) == expected);
     CHECK(flow->GetPoint_Max(1) == selectedPoint);
     for (auto d = 0u; d < 2; ++d) CHECK(SU2_TYPE::GetValue(flow->GetPoint_Max_Coord(1)[d]) == expectedCoord[d]);
+  }
+}
+
+TEST_CASE("Native Newton block preconditioning waits for every input producer", "[NewtonLinearization]") {
+  Problem problem(sa + "LINEAR_SOLVER_PREC= ILU\n");
+  auto& driver = *problem.driver;
+  auto* geometry = driver.Geometry();
+  auto equations = problem.Equations({RUNTIME_FLOW_SYS, RUNTIME_TURB_SYS});
+  for (const auto& block : equations->GetBlocks()) block.solver->Jacobian.TrackPrescribedRows();
+  REQUIRE(Residual(*equations, true));
+  REQUIRE(Residual(*equations, true));
+  equations->Capture();
+  const auto variables = equations->GetnVar();
+  auto scale = MakeVector(driver, variables), probe = scale;
+  equations->BuildScales(scale, probe);
+  auto diagonal = MakeVector(driver, variables, 100.0);
+  for (const auto& block : equations->GetBlocks())
+    for (auto p = 0ul; p < geometry->GetnPointDomain(); ++p) block.solver->Jacobian.AddVal2Diag(p, 100.0);
+  CNewtonLinearization linearization(*equations, geometry, driver.Config());
+  REQUIRE(linearization.SetBase(
+      scale, diagonal, 1e-8 * std::sqrt(variables * geometry->GetGlobal_nPointDomain()), 1e-4,
+      [](const CNewtonEquationSet::Block& b, unsigned long p, unsigned short v) {
+        return !b.solver->Jacobian.IsPrescribedRow(p, v);
+      },
+      &probe));
+  const int threads = std::min(4, omp_get_max_threads());
+  auto known = MakeVector(driver, variables, 0.125);
+  auto delayed = MakeVector(driver, variables), actual = delayed, expected = delayed;
+  for (bool lower : {false, true}) {
+    CAPTURE(lower, threads);
+    CNewtonBlockPreconditioner preconditioner(linearization, geometry, driver.Config(), lower);
+    SU2_OMP_PARALLEL_ON(threads) {
+      preconditioner.Build();
+      preconditioner(known, expected);
+    }
+    END_SU2_OMP_PARALLEL
+    delayed = passivedouble(0);
+    SU2_OMP_PARALLEL_ON(threads) {
+      if (threads > 1 && omp_get_thread_num() == threads - 1)
+        std::this_thread::sleep_for(std::chrono::milliseconds(40));
+      // CSysVector producers use nowait; the consumer changes the work partition to native point blocks.
+      delayed = known;
+      preconditioner(delayed, actual);
+    }
+    END_SU2_OMP_PARALLEL
+    CHECK(MaxDifference(expected, actual) == 0.0);
   }
 }

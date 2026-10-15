@@ -89,6 +89,8 @@ void CNewtonBlockPreconditioner::Build() {
 }
 
 void CNewtonBlockPreconditioner::operator()(const Vector& u, Vector& v) const {
+  // Vector producers use nowait with a different partition than the native block loops.
+  SU2_OMP_BARRIER
   const auto& scale = linearization.GetScale();
   v = passivedouble(0);
   for (auto index = 0u; index < blocks.size(); ++index) {

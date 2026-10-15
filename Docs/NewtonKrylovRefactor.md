@@ -352,7 +352,7 @@ checks with commands saved in `controller_forward_syntax_commands.json`; this
 is not full AD linking/running, reverse-mode or GPU validation. Earlier logs and
 manifests remain historical.
 
-## Ordered reductions and larger-layout audit
+## Ordered reductions and larger-layout audit (prior milestone)
 
 The common controller now sums thread partials by thread index, following the
 existing vector-dot pattern. The temporary legacy flow finite-difference norm
@@ -403,12 +403,54 @@ regressions pass. Eight affected translation units pass forward syntax checks.
 The new `ordered_manifest.json` binds this source, archived binaries and evidence.
 There is no MPI/OpenMP race-detector or converged-layout validation yet.
 
+## Block-preconditioner synchronization correction
+
+The remaining hybrid variation above came from the block preconditioner's input
+handoff. `CSysVector` assignments deliberately use `nowait`; their documentation
+requires consumers with another work schedule to synchronize first. FGMRES
+normalizes a basis vector with such an assignment. The block preconditioner then
+copied it with native 1024-point loops, allowing fast threads to read unfinished
+parts of the vector. A single entry barrier in the shared block preconditioner
+fulfills that contract for both diagonal and lower-triangular modes.
+
+A focused native regression deliberately delays the last producer before the
+vector assignment. Both preconditioner modes fail before the fix, with a maximum
+error of approximately 0.001612 against the synchronized reference; both pass
+exactly afterward. The old detecting executable, source and failing log are
+preserved in `producer_prebarrier/`. An isolated trace executable also made
+three 2x4 solves identical because its snapshot barriers synchronized the inputs;
+that was diagnostic evidence, not the production fix.
+
+With the uninstrumented production correction, **all three repetitions of all
+five layouts (1x1, 1x4, 2x1, 2x4, 4x2) now match exactly** in saved configurations,
+partitions, initial/accepted fields, residuals, products, reconstructed native
+actions and attempt/trial diagnostics. This includes the previously differing
+Krylov counts and evaluation counts. Cross-layout differences are recorded
+separately; native MPI preconditioners need not be mathematically identical.
+These are fixed-layout samples of one flow/SA fixture, not universal determinism
+or converged-layout evidence.
+
+The standard native suite passes **9 cases / 15722 assertions** serial and
+**9845 / 9245** on two ranks with two threads. The delayed-producer case additionally
+passes with four threads on one and two ranks. Valgrind reports no memory errors
+(leak checking disabled). The 78 supported unit cases / 102250 assertions pass.
+The legacy flow/SST controls and conventional regressions are recorded separately.
+The affected translation unit passes a forward syntax check; complete AD/GPU
+and MPI/OpenMP race-detector coverage remain open.
+
+Current evidence is `producer_barrier_repeatability/{results,comparison}.json`,
+`producer_regression_{old,fixed,fixed_mpi}.log`, `producer_native_{serial,mpi}.log`,
+`producer_valgrind.log` and `producer_supported_units.log` in the parent evidence
+directory. `producer_manifest.json` binds the committed fix, archived binaries,
+before/after tests and repeatability results. Earlier failed audits remain
+historical; do not overwrite their manifests or describe them as passes.
+
 ## Next implementation gate
 
 Migrate the legacy flow direction policies, then expose validated selection and
 group dispatch with exactly-once advancement, final all-equation reporting and
 whole-group failure output. Complete the native mass, boundary/periodic,
-admissibility and conditional baseline audits. Trace the remaining solve-path variation with fixed-layout Krylov input/output
-comparisons; larger-fixture evidence now supplements the small integration tests. Full converged family and
+admissibility and conditional baseline audits. Retain the delayed-producer regression and the larger-fixture layout checks
+while migrating the remaining direction policies. Full converged family and
 matched conventional/segregated/coupled comparisons remain required. NEMO
 integration remains excluded.
