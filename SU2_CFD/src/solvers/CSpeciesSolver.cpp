@@ -366,6 +366,7 @@ void CSpeciesSolver::BC_Inlet(CGeometry* geometry, CSolver** solver_container, C
   const string Marker_Tag = config->GetMarker_All_TagBound(val_marker);
 
   if (config->GetMarker_StrongBC(Marker_Tag)) {
+    const bool implicit = config->GetKind_TimeIntScheme() == EULER_IMPLICIT;
     SU2_OMP_FOR_STAT(OMP_MIN_SIZE)
     for (auto iVertex = 0u; iVertex < geometry->nVertex[val_marker]; iVertex++) {
       const auto iPoint = geometry->vertex[val_marker][iVertex]->GetNode();
@@ -377,7 +378,10 @@ void CSpeciesSolver::BC_Inlet(CGeometry* geometry, CSolver** solver_container, C
 
         /*--- Includes 1 in the diagonal ---*/
         for (auto iVar = 0u; iVar < nVar; iVar++) {
-          Jacobian.DeleteValsRowi(iPoint, iVar);
+          if (implicit)
+            Jacobian.DeleteValsRowi(iPoint, iVar);
+          else
+            Jacobian.MarkPrescribedRow(iPoint, iVar);
         }
       }
     }
@@ -425,7 +429,7 @@ void CSpeciesSolver::BC_HeatFlux_Wall(CGeometry* geometry, CSolver** solver_cont
 void CSpeciesSolver::BC_Wall_Generic(CGeometry* geometry, CSolver** solver_container,
                                                         CConfig* config, unsigned short val_marker) {
   SU2_ZONE_SCOPED
-  const bool implicit = config->GetKind_TimeIntScheme_Flow() == EULER_IMPLICIT;
+  const bool implicit = config->GetKind_TimeIntScheme() == EULER_IMPLICIT;
   const bool py_custom = config->GetMarker_All_PyCustom(val_marker);
 
   string Marker_Tag = config->GetMarker_All_TagBound(val_marker);
@@ -466,6 +470,8 @@ void CSpeciesSolver::BC_Wall_Generic(CGeometry* geometry, CSolver** solver_conta
           LinSysRes(iPoint, iVar) = 0.0;
           if (implicit) {
             Jacobian.DeleteValsRowi(iPoint, iVar);
+          } else {
+            Jacobian.MarkPrescribedRow(iPoint, iVar);
           }
         break;
       }
@@ -528,6 +534,7 @@ void CSpeciesSolver::BC_Outlet(CGeometry* geometry, CSolver** solver_container, 
   const string Marker_Tag = config->GetMarker_All_TagBound(val_marker);
 
   if (config->GetMarker_StrongBC(Marker_Tag)) {
+    const bool implicit = config->GetKind_TimeIntScheme() == EULER_IMPLICIT;
     /*--- Strong zero flux Neumann boundary condition at the outlet ---*/
     SU2_OMP_FOR_STAT(OMP_MIN_SIZE)
     for (auto iVertex = 0u; iVertex < geometry->nVertex[val_marker]; iVertex++) {
@@ -542,7 +549,10 @@ void CSpeciesSolver::BC_Outlet(CGeometry* geometry, CSolver** solver_container, 
 
         /*--- Includes 1 on the diagonal ---*/
         for (auto iVar = 0u; iVar < nVar; iVar++) {
-          Jacobian.DeleteValsRowi(iPoint, iVar);
+          if (implicit)
+            Jacobian.DeleteValsRowi(iPoint, iVar);
+          else
+            Jacobian.MarkPrescribedRow(iPoint, iVar);
         }
       }
     }

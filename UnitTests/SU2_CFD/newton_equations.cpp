@@ -63,10 +63,10 @@ struct Problem {
     {
       std::ofstream config(path);
       config << "MESH_FORMAT= " << (threeD ? "BOX" : "RECTANGLE") << "\nMESH_BOX_SIZE= " << cells << "," << cells
-             << ",5\nMESH_BOX_LENGTH= 1,1,1\n"
-                "MARKER_HEATFLUX= (y_minus, 0)\nMARKER_FAR= (x_minus,x_plus,y_plus"
-             << (threeD ? ",z_minus,z_plus" : "") << ")\n"
-                "MACH_NUMBER= 0.2\nREYNOLDS_NUMBER= 1e6\nMUSCL_FLOW= "
+             << ",5\nMESH_BOX_LENGTH= 1,1,1\nMARKER_HEATFLUX= (y_minus, 0)\n";
+      if (physics.find("MARKER_FAR=") == std::string::npos)
+        config << "MARKER_FAR= (x_minus,x_plus,y_plus" << (threeD ? ",z_minus,z_plus" : "") << ")\n";
+      config << "MACH_NUMBER= 0.2\nREYNOLDS_NUMBER= 1e6\nMUSCL_FLOW= "
              << (muscl ? "YES" : "NO")
              << "\nMUSCL_TURB= NO\n"
                 "MUSCL_SPECIES= NO\nMGLEVEL= 0\nOUTPUT_FILES= NONE\n"
@@ -551,6 +551,168 @@ TEST_CASE("Native strong rows are tracked independently of the preconditioner va
   matrix.EnforceSolutionAtNode(0, prescribed, driver.Solvers()[TURB_SOL]->LinSysRes);
   CHECK(matrix.IsPrescribedRow(0, 0));
   CHECK(matrix.IsPrescribedRow(0, 1));
+}
+
+TEST_CASE("Species strong boundaries precede reconstruction without changing probe matrices", "[NewtonBoundaries]") {
+  for (bool explicitFlow : {false, true}) {
+    for (bool strong : {false, true}) {
+      CAPTURE(explicitFlow, strong);
+      Problem problem(species + "MARKER_FAR= (y_plus)\nINC_INLET_TYPE= VELOCITY_INLET\n"
+                                "MARKER_INLET= (x_minus, 300, 1, 1, 0, 0)\n"
+                                "MARKER_INLET_SPECIES= (x_minus, 0.75)\n"
+                                "INC_OUTLET_TYPE= PRESSURE_OUTLET\nMARKER_OUTLET= (x_plus, 0)\n"
+                                "MARKER_WALL_SPECIES= (y_minus, VALUE, 0.65)\n" +
+                      (strong ? "MARKER_SPECIES_STRONG_BC= (x_minus, x_plus)\n" : "") +
+                      (explicitFlow ? "TIME_DISCRE_FLOW= EULER_EXPLICIT\n" : ""));
+      auto& driver = *problem.driver;
+      auto* geometry = driver.Geometry();
+      auto* config = driver.Config();
+      auto* solver = driver.Solvers()[SPECIES_SOL];
+      auto* nodes = solver->GetNodes();
+      auto equations = problem.Equations({RUNTIME_FLOW_SYS, RUNTIME_SPECIES_SYS});
+      auto initialize = [&]() {
+        for (auto p = 0ul; p < geometry->GetnPoint(); ++p)
+          nodes->SetSolution(p, 0, 0.2 + 0.1 * geometry->nodes->GetCoord(p, 0) +
+                                        0.05 * geometry->nodes->GetCoord(p, 1));
+      };
+      auto prescribe = [&]() {
+        if (strong)
+          for (auto m = 0u; m < config->GetnMarker_All(); ++m)
+            for (auto v = 0ul; v < geometry->nVertex[m]; ++v) {
+              const auto p = geometry->vertex[m][v]->GetNode();
+              if (config->GetMarker_All_KindBC(m) == INLET_FLOW) nodes->SetSolution(p, 0, 0.75);
+              if (config->GetMarker_All_KindBC(m) == OUTLET_FLOW)
+                nodes->SetSolution(p, 0, nodes->GetSolution(geometry->vertex[m][v]->GetNormal_Neighbor(), 0));
+            }
+        for (auto p = 0ul; p < geometry->GetnPoint(); ++p)
+          if (geometry->nodes->GetSolidBoundary(p)) nodes->SetSolution(p, 0, 0.65);
+      };
+      initialize();
+      solver->Set_OldSolution();
+      // The first evaluation must discover prescribed rows without a previous implicit assembly.
+      REQUIRE(Residual(*equations));
+      auto actual = MakeVector(driver, equations->GetnVar()), reference = actual;
+      equations->CopyResidual(actual);
+      std::vector<double> values(geometry->GetnPoint()), gradients(2 * geometry->GetnPoint());
+      for (auto p = 0ul; p < geometry->GetnPoint(); ++p) {
+        values[p] = nodes->GetSolution(p, 0);
+        for (auto d = 0u; d < 2; ++d) gradients[2 * p + d] = nodes->GetGradient(p, 0, d);
+      }
+      initialize();
+      prescribe();
+      for (auto p = 0ul; p < geometry->GetnPointDomain(); ++p) {
+        CHECK(values[p] == nodes->GetSolution(p, 0));
+        const auto x = geometry->nodes->GetCoord(p, 0);
+        CHECK(solver->Jacobian.IsPrescribedRow(p, 0) ==
+              (geometry->nodes->GetSolidBoundary(p) || (strong && (x == 0 || x == 1))));
+      }
+      REQUIRE(Residual(*equations));
+      equations->CopyResidual(reference);
+      CHECK(MaxDifference(actual, reference) == 0.0);
+      for (auto p = 0ul; p < geometry->GetnPointDomain(); ++p)
+        for (auto d = 0u; d < 2; ++d) CHECK(gradients[2 * p + d] == nodes->GetGradient(p, 0, d));
+
+      REQUIRE(Residual(*equations, true));
+      equations->Capture();
+      const auto speciesOffset = equations->GetBlocks().back().offset;
+      auto scale = MakeVector(driver, equations->GetnVar(), 1.0), diagonal = actual;
+      auto direction = MakeVector(driver, equations->GetnVar()), product = direction;
+      diagonal = passivedouble(0);
+      for (auto p = 0ul; p < geometry->GetnPoint(); ++p)
+        if (!solver->Jacobian.IsPrescribedRow(p, 0))
+          direction(p, speciesOffset) = 0.01 * driver.Solvers()[FLOW_SOL]->GetNodes()->GetDensity(p) *
+                                        (1 + geometry->nodes->GetCoord(p, 1));
+      CNewtonLinearization linearization(*equations, geometry, config);
+      REQUIRE(linearization.SetBase(scale, diagonal, 1e-7, 1e-4,
+          [](const CNewtonEquationSet::Block& b, unsigned long p, unsigned short v) {
+            return !b.solver->Jacobian.IsPrescribedRow(p, v);
+          }));
+      bool validProduct = false;
+      SU2_OMP_PARALLEL {
+        const bool valid = linearization.Apply(direction, product, false);
+        SU2_OMP_MASTER
+        validProduct = valid;
+        END_SU2_OMP_MASTER
+      }
+      END_SU2_OMP_PARALLEL
+      REQUIRE(validProduct);
+      for (double step : {1e-3, 5e-4}) {
+        auto positive = actual, negative = actual;
+        for (double sign : {-1.0, 1.0}) {
+          equations->SetTrial(direction, sign * step, scale);
+          REQUIRE(Residual(*equations));
+          if (strong)
+            for (auto m = 0u; m < config->GetnMarker_All(); ++m)
+              if (config->GetMarker_All_KindBC(m) == OUTLET_FLOW)
+                for (auto vertex = 0ul; vertex < geometry->nVertex[m]; ++vertex) {
+                  const auto p = geometry->vertex[m][vertex]->GetNode();
+                  if (geometry->nodes->GetDomain(p) && !geometry->nodes->GetSolidBoundary(p))
+                    CHECK(nodes->GetSolution(p, 0) ==
+                          nodes->GetSolution(geometry->vertex[m][vertex]->GetNormal_Neighbor(), 0));
+                }
+          equations->CopyResidual(sign > 0 ? positive : negative);
+        }
+        positive -= negative;
+        positive /= 2 * step;
+        CHECK(MaxDifference(product, positive) < 1e-4 * std::max(1.0, SU2_TYPE::GetValue(positive.norm())));
+      }
+      REQUIRE(equations->Restore());
+      // Make row deletion observable even when the prepared row was already an identity.
+      for (auto p = 0ul; p < geometry->GetnPointDomain(); ++p) solver->Jacobian.GetBlock(p, p)[0] += 0.25;
+      std::vector<double> matrix;
+      for (const auto& block : equations->GetBlocks())
+        if (block.solver->Jacobian.HasCoefficients())
+          for (auto p = 0ul; p < geometry->GetnPointDomain(); ++p)
+            for (auto q = 0ul; q < geometry->GetnPoint(); ++q)
+              if (const auto* entry = block.solver->Jacobian.GetBlock(p, q))
+                matrix.insert(matrix.end(), entry, entry + block.variables * block.variables);
+      REQUIRE(Residual(*equations));
+      auto i = 0ul;
+      for (const auto& block : equations->GetBlocks())
+        if (block.solver->Jacobian.HasCoefficients())
+          for (auto p = 0ul; p < geometry->GetnPointDomain(); ++p)
+            for (auto q = 0ul; q < geometry->GetnPoint(); ++q)
+              if (const auto* entry = block.solver->Jacobian.GetBlock(p, q))
+                for (auto j = 0u; j < block.variables * block.variables; ++j) CHECK(entry[j] == matrix[i++]);
+    }
+  }
+}
+
+TEST_CASE("Mixture residuals refresh dependent species gradients on skewed cells", "[NewtonBoundaries]") {
+  for (const auto& selected : std::vector<std::vector<unsigned short>>{
+           {RUNTIME_FLOW_SYS}, {RUNTIME_SPECIES_SYS}, {RUNTIME_FLOW_SYS, RUNTIME_SPECIES_SYS}}) {
+    CAPTURE(selected.size(), selected.front());
+    Problem problem(species);
+    auto& driver = *problem.driver;
+    auto* geometry = driver.Geometry();
+    auto* nodes = driver.Solvers()[SPECIES_SOL]->GetNodes();
+    for (auto p = 0ul; p < geometry->GetnPoint(); ++p) {
+      const auto x = geometry->nodes->GetCoord(p, 0), y = geometry->nodes->GetCoord(p, 1);
+      geometry->nodes->SetCoord(p, 0, x + 0.2 * y);
+      nodes->SetSolution(p, 0, 0.2 + 0.1 * x + 0.05 * y);
+    }
+    {
+      Silence silence;
+      SU2_OMP_PARALLEL {
+        geometry->SetControlVolume(driver.Config(), UPDATE);
+        geometry->SetBoundControlVolume(driver.Config(), UPDATE);
+      }
+      END_SU2_OMP_PARALLEL
+    }
+    auto equations = problem.Equations(selected);
+    auto reference = MakeVector(driver, equations->GetnVar()), actual = reference;
+    // Orthogonal cells cancel the transverse gradient in the corrected diffusion flux.
+    REQUIRE(Residual(*equations));
+    REQUIRE(Residual(*equations));
+    equations->CopyResidual(reference);
+    for (double poison : {-1000.0, 1000.0}) {
+      for (auto p = 0ul; p < geometry->GetnPoint(); ++p)
+        for (auto d = 0u; d < 2; ++d) nodes->GetGradient(p)(0, d) = poison;
+      REQUIRE(Residual(*equations));
+      equations->CopyResidual(actual);
+      CHECK(MaxDifference(reference, actual) == 0.0);
+    }
+  }
 }
 
 TEST_CASE("Explicit solvers track prescribed rows without sparse coefficients", "[NewtonExplicit]") {

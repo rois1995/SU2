@@ -104,7 +104,8 @@ void CIntegration::Space_Integration(CGeometry *geometry,
         solver_container[MainSolver]->BC_Engine_Inflow(geometry, solver_container, conv_bound_numerics, visc_bound_numerics, config, iMarker);
         break;
       case INLET_FLOW:
-        solver_container[MainSolver]->BC_Inlet(geometry, solver_container, conv_bound_numerics, visc_bound_numerics, config, iMarker);
+        if (!(MainSolver == SPECIES_SOL && config->GetMarker_StrongBC(config->GetMarker_All_TagBound(iMarker))))
+          solver_container[MainSolver]->BC_Inlet(geometry, solver_container, conv_bound_numerics, visc_bound_numerics, config, iMarker);
         break;
       case ACTDISK_OUTLET:
         solver_container[MainSolver]->BC_ActDisk_Outlet(geometry, solver_container, conv_bound_numerics, visc_bound_numerics, config, iMarker);
@@ -116,7 +117,8 @@ void CIntegration::Space_Integration(CGeometry *geometry,
         solver_container[MainSolver]->BC_Supersonic_Inlet(geometry, solver_container, conv_bound_numerics, visc_bound_numerics, config, iMarker);
         break;
       case OUTLET_FLOW:
-        solver_container[MainSolver]->BC_Outlet(geometry, solver_container, conv_bound_numerics, visc_bound_numerics, config, iMarker);
+        if (!(MainSolver == SPECIES_SOL && config->GetMarker_StrongBC(config->GetMarker_All_TagBound(iMarker))))
+          solver_container[MainSolver]->BC_Outlet(geometry, solver_container, conv_bound_numerics, visc_bound_numerics, config, iMarker);
         break;
       case SUPERSONIC_OUTLET:
         solver_container[MainSolver]->BC_Supersonic_Outlet(geometry, solver_container, conv_bound_numerics, visc_bound_numerics, config, iMarker);
@@ -170,6 +172,16 @@ void CIntegration::StrongBoundaryConditions(CGeometry* geometry, CSolver** solve
   auto* conv_bound_numerics = numerics[CONV_BOUND_TERM + omp_get_thread_num()*MAX_TERMS];
   auto* visc_bound_numerics = numerics[VISC_BOUND_TERM + omp_get_thread_num()*MAX_TERMS];
   unsigned short iMarker;
+  // Conditional species Dirichlet/Neumann rows precede wall constraints, as in the native boundary pass.
+  if (MainSolver == SPECIES_SOL)
+    for (iMarker = 0; iMarker < config->GetnMarker_All(); ++iMarker) {
+      if (!config->GetMarker_StrongBC(config->GetMarker_All_TagBound(iMarker))) continue;
+      if (config->GetMarker_All_KindBC(iMarker) == INLET_FLOW)
+        solver_container[MainSolver]->BC_Inlet(geometry, solver_container, conv_bound_numerics, visc_bound_numerics, config, iMarker);
+      if (config->GetMarker_All_KindBC(iMarker) == OUTLET_FLOW)
+        solver_container[MainSolver]->BC_Outlet(geometry, solver_container, conv_bound_numerics, visc_bound_numerics, config, iMarker);
+    }
+
   /*--- Modification of the system on the whole domain, like for a strong BC. ---*/
   solver_container[MainSolver]->Impose_Fixed_Values(geometry, config);
 

@@ -133,6 +133,11 @@ void CNewtonEquationSet::Refresh() {
   // Copy the newly computed eddy viscosity into the flow primitive/transport data.
   SU2_OMP_SAFE_GLOBAL_ACCESS(config->SetGlobalParam(config->GetKind_Solver(), RUNTIME_FLOW_SYS);)
   solvers[FLOW_SOL]->Preprocessing(geometry, solvers, config, MESH_0, NO_RK_ITER, RUNTIME_FLOW_SYS, true);
+  // Mixture flow fluxes consume species gradients even when species is outside the Newton group.
+  if (solvers[SPECIES_SOL]) {
+    SU2_OMP_SAFE_GLOBAL_ACCESS(config->SetGlobalParam(config->GetKind_Solver(), RUNTIME_SPECIES_SYS);)
+    solvers[SPECIES_SOL]->Preprocessing(geometry, solvers, config, MESH_0, NO_RK_ITER, RUNTIME_SPECIES_SYS, true);
+  }
 }
 
 bool CNewtonEquationSet::CheckState(bool compareFlow) {
