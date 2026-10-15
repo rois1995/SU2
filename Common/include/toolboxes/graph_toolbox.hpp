@@ -732,14 +732,17 @@ su2double coloringEfficiency(const SparsePattern& coloring, int numThreads, int 
 /*!
  * \brief Compute the levels for the lower part of a sparse pattern.
  * For example, corresponding to the dependencies of forward substitution.
+ * \param[in] pattern - Lower part of a sparse pattern.
+ * \param[in] nRows - Compute the levels only for the first nRows rows (e.g. excluding halos), by default all.
+ * \note The first rows only depend on each other, the levels of the other rows do not affect them.
  */
 template <class T>
-T computeLevels(const T& pattern) {
+T computeLevels(const T& pattern, unsigned long nRows = std::numeric_limits<unsigned long>::max()) {
   using Index = typename T::IndexType;
 
   std::vector<std::vector<Index>> levels;
   {
-    const auto n = pattern.getOuterSize();
+    const auto n = static_cast<Index>(std::min<unsigned long>(pattern.getOuterSize(), nRows));
     su2vector<int> level(n);
     for (Index i = 0; i < n; ++i) {
       level(i) = 0;

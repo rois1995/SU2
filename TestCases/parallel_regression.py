@@ -241,6 +241,14 @@ def main():
     channel.test_vals = [3.612169, 0.104888, 0.172110, 1.000000]
     test_list.append(channel)
 
+    # Channel, FGMRES without preconditioner (halo values of the Krylov basis)
+    channel_identity           = TestCase('channel_identity')
+    channel_identity.cfg_dir   = "euler/channel"
+    channel_identity.cfg_file  = "inv_channel_identity.cfg"
+    channel_identity.test_iter = 10
+    channel_identity.test_vals = [-2.045798, 3.462237, 10.000000, -0.706853]
+    test_list.append(channel_identity)
+
     # NACA0012, native SU2 binary mesh format (.su2b)
     # First, SU2_DEF converts mesh_NACA0012_inv.su2 into the native SU2 binary
     # mesh format. The regression case below then loads that freshly generated
@@ -360,6 +368,14 @@ def main():
     flatplate.test_iter = 100
     flatplate.test_vals = [-8.165135, -2.690978, 0.001084, 0.036277, 2.361500, -2.325300, 0.000000, 0.000000]
     test_list.append(flatplate)
+
+    # Laminar flat plate with the WALL_DISTANCE limiter
+    flatplate_wall_limiter           = TestCase('flatplate_wall_limiter')
+    flatplate_wall_limiter.cfg_dir   = "navierstokes/flatplate"
+    flatplate_wall_limiter.cfg_file  = "lam_flatplate_wall_limiter.cfg"
+    flatplate_wall_limiter.test_iter = 20
+    flatplate_wall_limiter.test_vals = [-5.373432, 0.105283, 0.001249, 0.027725, 2.361600, -2.333900, 0.000000, 0.000000]
+    test_list.append(flatplate_wall_limiter)
 
     # Supersonic laminar flat plate
     flatplate_supersonic           = TestCase('flatplate_supersonic')
@@ -592,7 +608,7 @@ def main():
     turb_naca0012_sst_muscl_edge.cfg_dir = "rans/naca0012"
     turb_naca0012_sst_muscl_edge.cfg_file = "turb_NACA0012_sst_muscl_edge.cfg"
     turb_naca0012_sst_muscl_edge.test_iter = 10
-    turb_naca0012_sst_muscl_edge.test_vals = [-6.437377, -9.458944, -3.235607, 1.076770, 0.014867, -3.483369, 0.000000]
+    turb_naca0012_sst_muscl_edge.test_vals = [-7.395492, -9.461721, -2.848756, 1.074672, 0.014912, -2.784876, 0.000000]
     turb_naca0012_sst_muscl_edge.timeout = 3200
     test_list.append(turb_naca0012_sst_muscl_edge)
 
@@ -700,6 +716,14 @@ def main():
     axi_rans_air_nozzle_restart.test_vals_aarch64 = [-14.143310, -9.163287, -10.858232, -5.787715, 0.000000]
     axi_rans_air_nozzle_restart.tol       = 0.0001
     test_list.append(axi_rans_air_nozzle_restart)
+
+    # Riemann DENSITY_VELOCITY inlet with SST: k of the node in the energy of the boundary state
+    axi_rans_air_nozzle_density_velocity = TestCase('axi_rans_air_nozzle_density_velocity')
+    axi_rans_air_nozzle_density_velocity.cfg_dir = "axisymmetric_rans/air_nozzle"
+    axi_rans_air_nozzle_density_velocity.cfg_file = "air_nozzle_density_velocity.cfg"
+    axi_rans_air_nozzle_density_velocity.test_iter = 10
+    axi_rans_air_nozzle_density_velocity.test_vals = [-1.879323, 4.022709, 0.514084, 4.414617, 702.55, 702.55]
+    test_list.append(axi_rans_air_nozzle_density_velocity)
 
     #################################
     ## Compressible RANS Restart  ###

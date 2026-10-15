@@ -46,6 +46,24 @@ TEST_CASE("SST Newton named options are parsed with an inactive legacy default",
   REQUIRE_FALSE(options.adaptiveForcing);
 }
 
+TEST_CASE("SST production and compressibility options remain independent", "[Config][SST]") {
+  for (const std::string production : {"VORTICITY", "KATO-LAUNDER"}) {
+    for (const std::string correction : {"COMPRESSIBILITY-WILCOX", "COMPRESSIBILITY-SARKAR"}) {
+      for (const bool reverse : {false, true}) {
+        std::stringstream input;
+        input << "SOLVER= RANS\nKIND_TURB_MODEL= SST\nREYNOLDS_NUMBER= 1e6\n";
+        input << "SST_OPTIONS= (" << (reverse ? correction : production) << ", "
+              << (reverse ? production : correction) << ")\n";
+        CConfig config(input, SU2_COMPONENT::SU2_CFD, false);
+        const auto options = config.GetSSTParsedOptions();
+        CHECK(options.production == (production == "VORTICITY" ? SST_OPTIONS::V : SST_OPTIONS::KL));
+        CHECK(options.compWilcox == (correction == "COMPRESSIBILITY-WILCOX"));
+        CHECK(options.compSarkar == (correction == "COMPRESSIBILITY-SARKAR"));
+      }
+    }
+  }
+}
+
 namespace {
 
 /*--- Minimal incompressible case on a box mesh, the options under test are appended to it. ---*/

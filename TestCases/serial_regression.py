@@ -98,6 +98,14 @@ def main():
     channel.test_vals = [-1.906687, 3.625653, -0.011054, 0.205254, 1.000000]
     test_list.append(channel)
 
+    # Channel, identity preconditioner on the corrected Newton-Krylov baseline
+    channel_identity           = TestCase('channel_identity')
+    channel_identity.cfg_dir   = "euler/channel"
+    channel_identity.cfg_file  = "inv_channel_identity.cfg"
+    channel_identity.test_iter = 10
+    channel_identity.test_vals = [-2.045800, 3.462235, 10.000000, -0.706834]
+    test_list.append(channel_identity)
+
     # NACA0012
     naca0012           = TestCase('naca0012')
     naca0012.cfg_dir   = "euler/naca0012"
@@ -379,6 +387,14 @@ def main():
     axi_rans_air_nozzle_restart.test_vals_aarch64 = [-14.143715, -9.170705, -10.848554, -5.776746, 0.000000]
     axi_rans_air_nozzle_restart.tol       = 0.0001
     test_list.append(axi_rans_air_nozzle_restart)
+
+    # Riemann DENSITY_VELOCITY inlet with SST: k of the node in the energy of the boundary state
+    axi_rans_air_nozzle_density_velocity = TestCase('axi_rans_air_nozzle_density_velocity')
+    axi_rans_air_nozzle_density_velocity.cfg_dir = "axisymmetric_rans/air_nozzle"
+    axi_rans_air_nozzle_density_velocity.cfg_file = "air_nozzle_density_velocity.cfg"
+    axi_rans_air_nozzle_density_velocity.test_iter = 10
+    axi_rans_air_nozzle_density_velocity.test_vals = [-1.879849, 4.023872, 0.501157, 4.419530, 704.80, 704.80]
+    test_list.append(axi_rans_air_nozzle_density_velocity)
 
     # Axisymmetric air nozzle species
     axi_rans_air_nozzle_species           = TestCase('axi_rans_air_nozzle_species')

@@ -510,6 +510,12 @@ unsigned long CSysSolve<ScalarType>::FGMRES_LinSolver(const CSysVector<ScalarTyp
 
   V[0] /= -beta;
 
+  /*--- Without preconditioning, V is the basis for the matrix-vector products, the halo values of V[0] must be
+   * made consistent since they come from b. With preconditioning, Z is the basis and this is done by the
+   * preconditioner. The other vectors of V are consistent because they come from matrix-vector products. ---*/
+
+  if (!flexible) precond(V[0], V[0]);
+
   /*--- Initialize the RHS of the reduced system ---*/
 
   g[0] = beta;
@@ -631,20 +637,30 @@ unsigned long CSysSolve<ScalarType>::RFGMRES_LinSolver(const CSysVector<ScalarTy
                                                        const CConfig* config) const {
   const auto restartIter = config->GetLinear_Solver_Restart_Frequency();
 
-  BEGIN_SU2_OMP_SAFE_GLOBAL_ACCESS {
-    xIsZero = false;
-    tol_type = LinearToleranceType::ABSOLUTE;
-  }
-  END_SU2_OMP_SAFE_GLOBAL_ACCESS
+  /*--- The restarts start from the current solution. With an absolute tolerance they all normalize the
+   * residual by |b|. With a relative tolerance, each one normalizes by its initial residual, therefore
+   * the tolerance is scaled by the residual reduction achieved by the previous restarts. ---*/
+  const bool relative = (tol_type == LinearToleranceType::RELATIVE);
+  const bool initialXIsZero = xIsZero;
+  ScalarType reduction = 1.0;
 
   auto totalIter = 0ul;
   while (totalIter < MaxIter) {
     /*--- Enforce a hard limit on total number of iterations ---*/
     auto iterLimit = min(restartIter, MaxIter - totalIter);
-    auto iter = FGMRES_LinSolver(b, x, mat_vec, precond, tol, iterLimit, residual, monitoring, config);
+    auto iter = FGMRES_LinSolver(b, x, mat_vec, precond, tol / reduction, iterLimit, residual, monitoring, config);
     totalIter += iter;
+    if (relative) {
+      reduction *= residual;
+      residual = reduction;
+    }
+    SU2_OMP_SAFE_GLOBAL_ACCESS(xIsZero = false;)
     if (residual <= tol || iter < iterLimit) break;
   }
+
+  /*--- Restore the setting of the caller. ---*/
+  SU2_OMP_SAFE_GLOBAL_ACCESS(xIsZero = initialXIsZero;)
+
   return totalIter;
 }
 
@@ -702,6 +718,11 @@ unsigned long CSysSolve<ScalarType>::FGCRODR_LinSolverImpl(const CSysVector<Scal
     END_SU2_OMP_SAFE_GLOBAL_ACCESS
   }
 
+  /*--- The deflation vectors from a previous solve may not leave room for new directions if the subspace is
+   * now smaller (e.g. max_iter decreased), keep the first ones (associated with the smallest Ritz values). ---*/
+
+  SU2_OMP_SAFE_GLOBAL_ACCESS(k = min(k, m - 1);)
+
   /*--- Hessenberg matrix. See FGMRES for parallelization notes. ---*/
 
   su2matrix<ScalarType> H(m + 1, m);
@@ -719,6 +740,10 @@ unsigned long CSysSolve<ScalarType>::FGCRODR_LinSolverImpl(const CSysVector<Scal
   } else {
     r = b;
   }
+
+  /*--- Make the halo values of r consistent, see FGMRES. ---*/
+
+  if (!flexible) precond(r, r);
 
   /*--- We don't store the part of W that is equal to V explicitly, W(:, k:m) = V(:, k:m). ---*/
   auto GetW = [&](auto i) -> auto& { return i < k ? W[i] : V[i]; };
@@ -876,14 +901,15 @@ unsigned long CSysSolve<ScalarType>::FGCRODR_LinSolverImpl(const CSysVector<Scal
       }
     }
 
-    /*--- Update the solution and residual. The latter is only required if we restart. ---*/
+    /*--- Update the solution and residual. The latter is only required if we restart.
+     * If the orthogonalization failed before adding any direction (m == k), there is nothing to update. ---*/
 
-    LinearCombination(nestedParallel, m, GetZ, y, x, true);
+    if (m > k) LinearCombination(nestedParallel, m, GetZ, y, x, true);
     if (!converged) LinearCombination(nestedParallel, m + 1, V, rls, r);
 
     /*--- Update deflation vectors. ---*/
 
-    if (deflation == 0) {
+    if (deflation == 0 || m == k) {
       if (converged) break;
       continue;
     }
@@ -893,7 +919,7 @@ unsigned long CSysSolve<ScalarType>::FGCRODR_LinSolverImpl(const CSysVector<Scal
     EigenMatrix VW = EigenMatrix::Identity(m + 1, m);
     {
       /*--- Part of VW known from previous cycle. See notes near the end of the outer loop. ---*/
-      if (same_mat && k > 0) VW.topLeftCorner(k, k) = VkWk;
+      if (same_mat && k > 0) VW.topLeftCorner(k, k) = VkWk.topLeftCorner(k, k);
 
       /*--- Rest of VW. Either V[k] * Wk or the entire V * Wk depending on the mode.
        * When the matrix stays constant, V[k+1:m+1] are orthogonal to Wk, but when it changes,

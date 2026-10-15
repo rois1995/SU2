@@ -136,6 +136,16 @@ def main():
     cylinder_lowmach.test_vals_aarch64 = [-6.830996, -1.368850, -0.143956, 73.963354, 0]
     test_list.append(cylinder_lowmach)
 
+    # Laminar NACA0012, ILU with level scheduling on MPI ranks with threads (the levels must not include halo rows)
+    lam_naca0012_ilu_levels           = TestCase('lam_naca0012_ilu_levels')
+    lam_naca0012_ilu_levels.cfg_dir   = "navierstokes/naca0012"
+    lam_naca0012_ilu_levels.cfg_file  = "lam_NACA0012_ilu_levels.cfg"
+    lam_naca0012_ilu_levels.test_iter = 10
+    lam_naca0012_ilu_levels.test_vals = [-5.068107, 0.455066, 0.019407, 5.751685]
+    lam_naca0012_ilu_levels.command   = TestCase.Command("mpirun -n 2", "SU2_CFD", "-t 2")
+    lam_naca0012_ilu_levels.enabled_with_tsan = False
+    test_list.append(lam_naca0012_ilu_levels)
+
     # 2D Poiseuille flow (body force driven with periodic inlet / outlet)
     poiseuille           = TestCase('poiseuille')
     poiseuille.cfg_dir   = "navierstokes/poiseuille"

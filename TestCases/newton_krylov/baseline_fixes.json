@@ -1,0 +1,238 @@
+{
+  "starting_commit": "5615a8f5f6e9a7bfa88f0f279e1eadb7f89fe607",
+  "corrections": [
+    {
+      "commit": "8d96b78d70d3c6b42954e4baac443c240c5e744c",
+      "subject": "Communicate the result of the identity preconditioner",
+      "excluded_paths": [
+        "UnitTests/meson.build"
+      ]
+    },
+    {
+      "commit": "caeebe2669fa9a3b5c659c0b2f34ee67515058b3",
+      "subject": "Compute the ILU levels only for the domain rows",
+      "excluded_paths": [
+        "UnitTests/meson.build"
+      ]
+    },
+    {
+      "commit": "a9b9339828293f981cf06ac399e8b336816ccecb",
+      "subject": "Limit the recycled FGCRODR subspace to the size of the next solve",
+      "excluded_paths": [
+        "UnitTests/meson.build"
+      ]
+    },
+    {
+      "commit": "52378aca05d0a7dd3a4a9dea1b9558d0365568a9",
+      "subject": "Fix FGCRODR when the orthogonalization fails right after a restart",
+      "excluded_paths": [
+        "UnitTests/meson.build"
+      ]
+    },
+    {
+      "commit": "97c5d583f5ef51a8785ef1230bca8a13c87601f1",
+      "subject": "Respect the relative tolerance in restarted FGMRES",
+      "excluded_paths": [
+        "UnitTests/meson.build"
+      ]
+    },
+    {
+      "commit": "42d241a63bf9d58ee3b7a9beef26b319026cadc4",
+      "subject": "Fix the type of the linear solver monitoring frequency",
+      "excluded_paths": [
+        "UnitTests/meson.build"
+      ]
+    },
+    {
+      "commit": "f6683944dc049976158f75cf06209371d0e27707",
+      "subject": "Reject FGCRODR deflations that leave no room for new directions",
+      "excluded_paths": [
+        "UnitTests/meson.build"
+      ]
+    },
+    {
+      "commit": "285ea29c2c51afb0661008facf780daafafab1df",
+      "subject": "Use the size of U to zero the quantized U scales",
+      "excluded_paths": [
+        "UnitTests/meson.build"
+      ]
+    },
+    {
+      "commit": "eb5d695c5f86eafa2bc3ab6acf185f792e97d595",
+      "subject": "Add unit tests for the FGCRODR and restarted FGMRES fixes",
+      "excluded_paths": [
+        "UnitTests/meson.build"
+      ]
+    },
+    {
+      "commit": "d1cf7ea33b69ce5279b38c4953015decdee0d805",
+      "subject": "Fix the internal energy of the under-relaxation factor",
+      "excluded_paths": [
+        "UnitTests/meson.build"
+      ]
+    },
+    {
+      "commit": "3062a0482225d6a8788fedda52ca68aee965f268",
+      "subject": "Materialize AD densities in compressible under-relaxation",
+      "adaptation": "Density values are already materialized as const su2double in d1cf7ea33b on this base. Imported the derivative test; merged Meson registrations separately."
+    },
+    {
+      "commit": "a59d8275319156dd3a580c2c7d36783f62c49269",
+      "subject": "Compute HLLC on moving grids in the frame of the face, fix its Jacobians",
+      "excluded_paths": [
+        "UnitTests/meson.build"
+      ]
+    },
+    {
+      "commit": "a277f59157ab2142ca06a47e5e8a046f270a0da0",
+      "subject": "Use wave strengths that match the 3D P matrix in L2Roe, LMRoe and the explicit general-gas Roe",
+      "excluded_paths": [
+        "UnitTests/meson.build"
+      ]
+    },
+    {
+      "commit": "ffc5bafc7a489f00dbe4be78e02e0eaf874acf1b",
+      "subject": "Clear the whole Jacobian in the non-physical guard of the general-gas Roe scheme",
+      "excluded_paths": [
+        "UnitTests/meson.build"
+      ]
+    },
+    {
+      "commit": "c333a18ebd6c26c584e24088fedfe9b1c9364af5",
+      "subject": "Check the MUSCL face states before evaluating the fluid model",
+      "excluded_paths": [
+        "UnitTests/meson.build"
+      ]
+    },
+    {
+      "commit": "536c8d8578fe6128b0492963357474f80a2dd62a",
+      "subject": "Use 0.5 instead of the integer division 1/2 in the axisymmetric source Jacobian",
+      "excluded_paths": [
+        "UnitTests/meson.build"
+      ]
+    },
+    {
+      "commit": "df8f9787cdea64283d369dfd773793b10c63557c",
+      "subject": "Read the Riemann boundary kind in BC_TurboRiemann",
+      "excluded_paths": [
+        "UnitTests/meson.build"
+      ]
+    },
+    {
+      "commit": "b29368df17aee204414315e1d3160ac29bad6c82",
+      "subject": "Reject combinations of source terms that share one numerics object",
+      "excluded_paths": [
+        "UnitTests/meson.build"
+      ]
+    },
+    {
+      "commit": "ca7aee08ccbe731300bbd1e036af55141f00b43d",
+      "subject": "Reduce the minimum pressure with MPI_MIN",
+      "excluded_paths": [
+        "UnitTests/meson.build"
+      ]
+    },
+    {
+      "commit": "583c32afd6953e52afb4cddd83551a6a576a362e",
+      "subject": "Add the incompressible grid-motion Jacobian once, with the variable-density terms",
+      "excluded_paths": [
+        "UnitTests/meson.build"
+      ]
+    },
+    {
+      "commit": "c0dc0cee396ba32632edde575713d7629c8c652c",
+      "subject": "Include the SST k of the total energy in the convective numerics",
+      "excluded_paths": [
+        "UnitTests/meson.build"
+      ]
+    },
+    {
+      "commit": "3eb9dc89be1cc001d2ef714d4df5149f7539b76b",
+      "subject": "Use the k of the boundary node in the boundary states of the compressible solver",
+      "excluded_paths": [
+        "UnitTests/meson.build"
+      ]
+    },
+    {
+      "commit": "8536636377cbf7237192a84a5eef5b87c87a0266",
+      "subject": "Include the SST k in the pressure of the axisymmetric source, remove a wrong viscous term",
+      "excluded_paths": [
+        "UnitTests/meson.build"
+      ]
+    },
+    {
+      "commit": "580800a8ec34eafd88fb43d57eca214b56dd1d3a",
+      "subject": "Apply the SST compressibility corrections together with the production modifiers",
+      "excluded_paths": [
+        "UnitTests/meson.build"
+      ]
+    },
+    {
+      "commit": "a002e777053715f19f9e00e41f49db05dd527999",
+      "subject": "Check the SST free-stream values and markers, fix the omega of the turbo inlet",
+      "excluded_paths": [
+        "UnitTests/meson.build"
+      ]
+    },
+    {
+      "commit": "37dcfedd0e07553af04066473fb386fb6af1516c",
+      "subject": "Add a regression test of the Riemann DENSITY_VELOCITY inlet with SST",
+      "excluded_paths": [
+        "UnitTests/meson.build"
+      ]
+    },
+    {
+      "commit": "75621f9687fb263e39782a502a456381ccc6b9fc",
+      "subject": "Keep the flow van Albada edge limiter form for flow variables",
+      "excluded_paths": [
+        "UnitTests/meson.build"
+      ]
+    },
+    {
+      "commit": "30c52aa29c2ba06be456ceab8bd6ce45816515a8",
+      "subject": "Restore V&V and axial stage references and update the edge limiter test",
+      "excluded_paths": [
+        "UnitTests/meson.build"
+      ]
+    },
+    {
+      "commit": "8e2b3aa1c4e93a9df18a9fd2b62995af5351cb27",
+      "subject": "Fix the sign of the Nishikawa R4 limiter on the side of the neighbor minimum",
+      "excluded_paths": [
+        "UnitTests/meson.build"
+      ]
+    },
+    {
+      "commit": "5657a4728ead09381a5bfb748f0b66944cc93eee",
+      "subject": "Compute the wall distance for the WALL_DISTANCE slope limiter",
+      "excluded_paths": [
+        "UnitTests/meson.build"
+      ]
+    },
+    {
+      "commit": "e16616e23707ead7dc723d13a2fa85fc333ff0f7",
+      "subject": "Reject SHARP_EDGES and WALL_DISTANCE limiters with a zero width",
+      "excluded_paths": [
+        "UnitTests/meson.build"
+      ]
+    },
+    {
+      "commit": "36f4e474a0d897c2b332970496bcd6b10b9f2a20",
+      "subject": "Compute the wall distance for the WALL_DISTANCE limiter of the heat equation",
+      "excluded_paths": [
+        "UnitTests/meson.build"
+      ]
+    }
+  ],
+  "diagnostic_hllc": {
+    "source": "pr2943_hllc_cause_20261012/enthalpy-only-diagnostic.patch",
+    "sha256": "dc3f03c3521c3ea12f81a4d17406c009059d2e85d3f39b805b8caa1be091f8a0",
+    "adaptation": "Use the enthalpy overload with the held-fixed SST k argument. Extend the independent reconstructed-face test to k=0 and k=0.15."
+  },
+  "additional_adaptations": [
+    "Register the under-relaxation value check in the primal suite and retain derivative checks for AD builds.",
+    "Add owned-row ILU scheduling, valid-then-invalid general Roe, axisymmetric source finite differences, and SST option-order tests.",
+    "Refresh the identity-channel reference for the combined base and register separate serial/parallel values without changing tolerances.",
+    "Keep pending broader regression and conditional-dependency audits explicit in Docs/NewtonKrylovRefactor.md."
+  ]
+}

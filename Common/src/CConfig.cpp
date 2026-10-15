@@ -2204,7 +2204,7 @@ void CConfig::SetConfig_Options() {
   addDoubleArrayOption("JST_SENSOR_COEFF", 2, false, jst_coeff);
   /*!\brief LAX_SENSOR_COEFF \n DESCRIPTION: 1st order artificial dissipation coefficients for the Lax-Friedrichs method. \ingroup Config*/
   addDoubleOption("LAX_SENSOR_COEFF", Kappa_1st_Flow, 0.15);
-  /*!\brief USE_ACCURATE_FLUX_JACOBIANS \n DESCRIPTION: Use numerically computed Jacobians for AUSM+up(2) and SLAU(2) \ingroup Config*/
+  /*!\brief USE_ACCURATE_FLUX_JACOBIANS \n DESCRIPTION: Use numerically computed Jacobians for AUSM+up(2) and SLAU(2), exact Jacobians (for fixed wave speeds) for HLLC \ingroup Config*/
   addBoolOption("USE_ACCURATE_FLUX_JACOBIANS", Use_Accurate_Jacobians, false);
   /*!\brief CENTRAL_JACOBIAN_FIX_FACTOR \n DESCRIPTION: Improve the numerical properties (diagonal dominance) of the global Jacobian matrix, 3 to 4 is "optimum" (central schemes) \ingroup Config*/
   addDoubleOption("CENTRAL_JACOBIAN_FIX_FACTOR", Cent_Jac_Fix_Factor, 4.0);
@@ -4020,6 +4020,18 @@ void CConfig::SetPostprocessing(SU2_COMPONENT val_software, unsigned short val_i
   if (!MUSCL_AdjFlow || (Kind_ConvNumScheme_AdjFlow == SPACE_CENTERED)) Kind_SlopeLimit_AdjFlow = LIMITER::NONE;
   if (!MUSCL_AdjTurb || (Kind_ConvNumScheme_AdjTurb == SPACE_CENTERED)) Kind_SlopeLimit_AdjTurb = LIMITER::NONE;
 
+  /*--- The SHARP_EDGES and WALL_DISTANCE limiters are first order within a distance proportional to
+   * VENKAT_LIMITER_COEFF * ADJ_SHARP_LIMITER_COEFF, with a zero width they are first order everywhere. ---*/
+  for (const auto kind : {Kind_SlopeLimit_Flow, Kind_SlopeLimit_Turb, Kind_SlopeLimit_Species, Kind_SlopeLimit_Heat,
+                          Kind_SlopeLimit_AdjFlow, Kind_SlopeLimit_AdjTurb}) {
+    if ((kind == LIMITER::SHARP_EDGES || kind == LIMITER::WALL_DISTANCE) &&
+        !(Venkat_LimiterCoeff > 0.0 && AdjSharp_LimiterCoeff > 0.0)) {
+      SU2_MPI::Error("The SHARP_EDGES and WALL_DISTANCE slope limiters need VENKAT_LIMITER_COEFF > 0 and\n"
+                     "ADJ_SHARP_LIMITER_COEFF > 0 (they set the width of the region limited to first order).",
+                     CURRENT_FUNCTION);
+    }
+  }
+
   /*--- Set the default for thrust in ActDisk ---*/
 
   if ((Kind_ActDisk == NET_THRUST) || (Kind_ActDisk == BC_THRUST)
@@ -4269,6 +4281,19 @@ void CConfig::SetPostprocessing(SU2_COMPONENT val_software, unsigned short val_i
   if (IluOptions.GPUSweeps == 0) {
     SU2_MPI::Error("LINEAR_SOLVER_ILU_GPU_SWEEPS must be at least 1; 0 sweeps never factorizes the preconditioner.",
                    CURRENT_FUNCTION);
+  }
+
+  /*--- Each cycle of FGCRODR adds restart - deflation new directions, and a complex pair of Ritz vectors can take
+   * one more deflation vector than requested, so at least two directions are needed. ---*/
+
+  if (Linear_Solver_Restart_Deflation + 1 >= Linear_Solver_Restart_Frequency) {
+    for (const auto kind : {Kind_Linear_Solver, Kind_DiscAdj_Linear_Solver, Kind_Deform_Linear_Solver,
+                            Kind_Grad_Linear_Solver, Kind_Poisson_Linear_Solver}) {
+      if (kind == FGCRODR) {
+        SU2_MPI::Error("FGCRODR requires LINEAR_SOLVER_RESTART_DEFLATION < LINEAR_SOLVER_RESTART_FREQUENCY - 1.",
+                       CURRENT_FUNCTION);
+      }
+    }
   }
 
   Radiation = (Kind_Radiation != RADIATION_MODEL::NONE);
@@ -4641,6 +4666,36 @@ void CConfig::SetPostprocessing(SU2_COMPONENT val_software, unsigned short val_i
   /*--- Set the boolean flag if we are in a rotating frame (source term). ---*/
 
   Rotating_Frame = (Kind_GridMovement == ROTATING_FRAME);
+
+  /*--- The finite volume flow solvers apply these source terms with a single numerics object, which is built
+   for only one of them: combinations would apply one source several times and ignore the others. Only these
+   solvers (and their discrete adjoints) are checked: e.g. elasticity uses BODY_FORCE and GRAVITY_FORCE together. ---*/
+
+  if (GetFluidProblem() && !GetNEMOProblem()) {
+    const bool inc = (Kind_Regime == ENUM_REGIME::INCOMPRESSIBLE);
+    const int nSources = int(Body_Force) + int(Rotating_Frame) + int(Axisymmetric) + int(GravityForce && !inc) +
+                         int(inc && Kind_DensityModel == INC_DENSITYMODEL::BOUSSINESQ) +
+                         int(inc && Kind_Streamwise_Periodic != ENUM_STREAMWISE_PERIODIC::NONE);
+    if (nSources > 1) {
+      SU2_MPI::Error("Only one of BODY_FORCE, GRID_MOVEMENT= ROTATING_FRAME, AXISYMMETRIC, GRAVITY_FORCE (compressible), "
+                     "INC_DENSITY_MODEL= BOUSSINESQ and KIND_STREAMWISE_PERIODIC (incompressible) can be used at a time.",
+                     CURRENT_FUNCTION);
+    }
+  }
+
+  /*--- The second source object, for radiation, the energy correction of incompressible streamwise periodic flow
+   (without periodic temperature) or vorticity confinement, is also built for only one of them. ---*/
+
+  if (GetFluidProblem() && !GetNEMOProblem()) {
+    const bool inc = (Kind_Regime == ENUM_REGIME::INCOMPRESSIBLE);
+    const bool periodicOutlet = inc && Kind_Streamwise_Periodic != ENUM_STREAMWISE_PERIODIC::NONE && Energy_Equation &&
+                                !Streamwise_Periodic_Temperature;
+    if (int(Radiation) + int(periodicOutlet) + int(VorticityConfinement) > 1) {
+      SU2_MPI::Error("Only one of RADIATION, the energy correction of KIND_STREAMWISE_PERIODIC (incompressible, "
+                     "STREAMWISE_PERIODIC_TEMPERATURE= NO) and VORTICITY_CONFINEMENT can be used at a time.",
+                     CURRENT_FUNCTION);
+    }
+  }
 
   /*--- In case the grid movement parameters have not been declared in the
    config file, set them equal to zero for safety. Also check to make sure
@@ -5017,6 +5072,14 @@ void CConfig::SetPostprocessing(SU2_COMPONENT val_software, unsigned short val_i
       Kind_Solver == MAIN_SOLVER::NEMO_EULER ||
       Kind_Solver == MAIN_SOLVER::FEM_EULER)
     Kind_Turb_Model = TURB_MODEL::NONE;
+
+  /*--- SST has no engine or actuator-disk boundary conditions: the faces would get no turbulence flux at all.
+   Checked after the turbulence model of Euler zones is cleared (multizone). ---*/
+  if (Kind_Turb_Model == TURB_MODEL::SST &&
+      (nMarker_EngineInflow + nMarker_EngineExhaust + nMarker_ActDiskInlet + nMarker_ActDiskOutlet) > 0) {
+    SU2_MPI::Error("MARKER_ENGINE_INFLOW, MARKER_ENGINE_EXHAUST and MARKER_ACTDISK are not supported with the SST model.",
+                   CURRENT_FUNCTION);
+  }
 
   Kappa_2nd_Flow = jst_coeff[0];
   Kappa_4th_Flow = jst_coeff[1];
@@ -6720,16 +6783,12 @@ void CConfig::SetOutput(SU2_COMPONENT val_software, unsigned short val_izone) {
                 cout << "\nperturbing the Reynold's Stress Matrix towards " << eig_val_comp << " component turbulence";
                 if (uq_permute) cout << " (permuting eigenvectors)";
                 break;
-              case SST_OPTIONS::COMP_Wilcox:
-                cout << " with compressibility correction of Wilcox";
-                break;
-              case SST_OPTIONS::COMP_Sarkar:
-                cout << " with compressibility correction of Sarkar";
-                break;
               default:
                 cout << " with no production modification";
                 break;
             }
+            if (sstParsedOptions.compWilcox) cout << ", with compressibility correction of Wilcox";
+            if (sstParsedOptions.compSarkar) cout << ", with compressibility correction of Sarkar";
 
             if (sstParsedOptions.dll){
               cout << "\nusing non dimensional lower limits relative to infinity values clipping by Coefficients:" ;

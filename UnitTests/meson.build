@@ -15,6 +15,14 @@ su2_cfd_tests = files(['Common/CConfig_tests.cpp',
                        'Common/containers/CLookupTable_tests.cpp',
                        'Common/toolboxes/multilayer_perceptron/CLookUp_ANN_tests.cpp',
                        'SU2_CFD/numerics/CNumerics_tests.cpp',
+                       'SU2_CFD/numerics/flow_sources_tests.cpp',
+                       'SU2_CFD/numerics/hllc_jacobian_tests.cpp',
+                       'SU2_CFD/numerics/roe_contact_tests.cpp',
+                       'SU2_CFD/numerics/roe_tke_tests.cpp',
+                       'SU2_CFD/numerics/ausm_tke_tests.cpp',
+                       'SU2_CFD/limiters.cpp',
+                       'Common/linear_algebra/krylov_solver_tests.cpp',
+                       'SU2_CFD/solvers/under_relaxation_ad_tests.cpp',
                        'SU2_CFD/fluid/CFluidModel_tests.cpp',
                        'SU2_CFD/output/CNEMOCompOutput_tests.cpp',
                        'SU2_CFD/output/COutput_convergence_tests.cpp',
@@ -34,11 +42,13 @@ su2_cfd_tests = files(['Common/CConfig_tests.cpp',
 su2_cfd_tests_ad = files(['Common/simple_ad_test.cpp',
                           'SU2_CFD/scalar_limiter_eps.cpp',
                           'SU2_CFD/fluid/CFluidModel_tests_AD.cpp',
-                          'Common/toolboxes/multilayer_perceptron/MLP_Jacobian_tests.cpp'])
+                          'Common/toolboxes/multilayer_perceptron/MLP_Jacobian_tests.cpp',
+                          'SU2_CFD/solvers/under_relaxation_ad_tests.cpp'])
 
 # Forward-mode (direct differentiation) tests:
 su2_cfd_tests_dd = files(['Common/simple_directdiff_test.cpp',
-                          'SU2_CFD/scalar_limiter_eps.cpp'])
+                          'SU2_CFD/scalar_limiter_eps.cpp',
+                          'SU2_CFD/solvers/under_relaxation_ad_tests.cpp'])
 
 # -------------------------------------------------------------------------
 # End of unit test listings
