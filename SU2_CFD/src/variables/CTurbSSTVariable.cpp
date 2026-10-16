@@ -78,6 +78,8 @@ void CTurbSSTVariable::SetBlendingFunc(unsigned long iPoint, su2double val_visco
   arg2 = max(arg2A, arg2B);
   arg1 = min(arg2, 4.0*val_density*sigma_om2*Solution(iPoint,0) / (CDkw(iPoint)*val_dist*val_dist+EPS*EPS));
   F1(iPoint) = tanh(pow(arg1, 4.0));
+  // The k=0 viscous-wall condition retains the inner k-omega branch.
+  if (val_dist == 0.0) F1(iPoint) = 1.0;
 
   /*--- F2 ---*/
 

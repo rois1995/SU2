@@ -1691,7 +1691,7 @@ void CFlowOutput::LoadVolumeDataScalar(const CConfig* config, const CSolver* con
   }
 
   if (config->GetSAParsedOptions().bc) {
-    SetVolumeOutputValue("INTERMITTENCY", iPoint, Node_Turb->GetIntermittencyEff(iPoint));
+    SetVolumeOutputValue("INTERMITTENCY", iPoint, Node_Turb->GetIntermittency(iPoint));
   }
 
   switch (config->GetKind_Trans_Model()) {

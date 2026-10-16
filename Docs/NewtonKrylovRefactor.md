@@ -9,9 +9,9 @@ CFL ownership, final physical residuals and group failure output are wired into
 the native driver. A compatibility class remains for legacy execution modes
 outside this migration. Dense native pseudo-time mappings and explicit-flow
 preconditioning are supported. The full goal remains in progress: converged
-matched SA-BC/SST/LM/species comparisons and the conditional-feature audits below
-are pending. Converged manufactured mean-flow and ordinary SA comparisons are
-recorded below.
+matched nontrivial LM/species comparisons and the conditional-feature audits
+below are pending. Converged manufactured mean-flow, ordinary SA, SA-BC and SST
+comparisons are recorded below.
 
 ## Independent restart reports and converged manufactured flow
 
@@ -103,8 +103,8 @@ comparison supply the nontrivial final-state checks. Full raw/scaled residuals,
 quantities, work, memory and hashes are committed in
 `Docs/NewtonKrylovMMSResults.json`. FLOW alone has one block, so its segregated
 and coupled flags describe the same equation group. The following SA comparison
-has separate flow and turbulence blocks; active transition, SST and species
-still require their own converged matched comparisons.
+has separate flow and turbulence blocks. SA-BC and SST comparisons follow it;
+nontrivial LM and species still require their own converged matched comparisons.
 
 Evidence in the parent workspace uses `state_report_` and
 `manufactured_converged_final_{1x1,2x2}`. All 33 native cases pass on 1x1 and
@@ -216,7 +216,106 @@ remain under `auxiliary_convergence_pilot_sa*`: CFL2 reached the 10000-update ca
 in all methods; CFL100 reached the cap in native mode while both Newton modes
 met the preliminary -8 thresholds. The final common-CFL20 comparison tightens
 the threshold to -10 and checks every final variable and physical quantity.
-This covers ordinary SA. SA BC transition, SST, nontrivial LM and species, model
+This checkpoint covers ordinary SA; the following checkpoint adds SA-BC and SST.
+
+## Converged SA-BC and SST, including native wall/output fixes
+
+The independent final-state comparison exposed two shared native defects. SA-BC
+stores its production intermittency through `SetIntermittency`; its volume
+export instead read the LM-only `GetIntermittencyEff`, returning zero. The shared
+scalar output loader now reads the SA field. A detecting test seeds nonuniform
+values and exercises the real loader for compressible and incompressible SA-BC.
+
+SST's blending expression gave F1=0 at the exact k=0, wall-distance=0 boundary.
+The conventional solver's small positive k clipping masked this, giving F1=1,
+while Newton imposed the native zero-k wall value exactly. The shared blending
+function now explicitly sets F1=1 at zero wall distance. This retains the inner
+k-omega branch at the wall, consistent with the [SST boundary conditions and
+blending definition](https://tmbwg.github.io/turbmodels/sst.html) and Menter's
+description of F1=1 near the wall ([NASA TM103975, printed page 4](https://ntrs.nasa.gov/api/citations/19930013620/downloads/19930013620.pdf#page=8)).
+Both methods use this corrected native function. No residual threshold was
+relaxed. A saved conventional restart previously gave independent omega RMS
+4.19997e-4 despite a history near 4e-11; the same restart now gives 4.39543e-11.
+The wall test checks exact k=0 and F1=F2=1 in both flow formulations.
+
+`[NewtonStateReport]` also reports `transition_activity` for SA-BC and LM:
+minimum, maximum, arithmetic mean and counts below 0.1, in [0.1,0.9], and above
+0.9 over owned non-solid-wall points. Halos and solid-wall values are excluded.
+SA-BC uses its computed production intermittency; LM uses stored transported
+gamma, not the derived effective intermittency. Nonfinite values fail collectively.
+The matched transition runner requires nonempty low and high bands and agreement
+of min/max/mean within 1e-6. Binary/ASCII and layout report checks include this
+object; configurations without transition retain their previous report schema.
+
+The converged SA-BC case has 72 sampled free points: 7 below 0.1, 65 above 0.9,
+minimum 8.34124e-5, maximum 1 and mean 0.90267673. It exercises transition
+suppression but has no resolved intermediate-band cell. A separate smooth
+coupled derivative fixture sets native gamma=0.5 and checks the production
+product against two centered step sizes per equation block. Relative errors are
+7.4e-8 for flow and 2.32e-6 for SA, with the existing 2e-4 tolerance. The first
+zero-crossflow fixture crossed the scalar upwind switch at zero normal flux and
+gave a 3.015% centered/forward mismatch. Its source, executable and failed log
+are preserved. Nonzero smooth crossflow removes that nondifferentiable tie;
+the operator and derivative tolerances are unchanged.
+
+Both convergence fixtures reuse the 81-point first-order compressible flat plate,
+Re=1e5, Mach=0.2, cold starts, native ILU, MGLEVEL=0 and common fixed CFL20.
+SA-BC uses `SA_OPTIONS=BCM`, with all five history residuals below -10. SST
+requires all six below -11: native wall-k clipping can slightly shift the
+independent physical residual when stopping at -10. Independent final raw RMS
+must be <=1e-10 and state-scaled RMS <=1e-9 for every active variable in both
+cases. Relative pointwise component and physical-quantity differences must be
+<=1e-6. Explicit native boundary projection is <=1e-8 for SA-BC and <=1e-7 for
+SST (observed SST k: 2.67e-8); Newton projection is zero. Every accepted Newton
+row must meet Armijo, true linear defect <=0.1 and exact rollback.
+
+```sh
+python3 TestCases/newton_krylov/compare_sa_bc_flatplate.py \
+  --binary /path/to/build/SU2_CFD/src/SU2_CFD \
+  --reporter /path/to/build/UnitTests/newton_equation_tests \
+  --output /path/to/new-bc-comparison --ranks 2 --threads 2
+
+python3 TestCases/newton_krylov/compare_sst_flatplate.py \
+  --binary /path/to/build/SU2_CFD/src/SU2_CFD \
+  --reporter /path/to/build/UnitTests/newton_equation_tests \
+  --output /path/to/new-sst-comparison --ranks 2 --threads 2
+```
+
+All twelve final runs pass:
+
+| Model | Ranks x threads | Method | Updates | Total residual assemblies | Outer Krylov iterations | Seconds | Peak rank RSS, KiB |
+| --- | --- | --- | ---: | ---: | ---: | ---: | ---: |
+| SA-BC | 1x1 | Native | 3334 | 6668 | 34802 | 1.621 | 25228 |
+| SA-BC | 1x1 | Segregated Newton | 2933 | 102053 | 20106 | 11.217 | 25420 |
+| SA-BC | 1x1 | Coupled Newton | 2933 | 110356 | 14390 | 10.048 | 25356 |
+| SA-BC | 2x2 | Native | 3334 | 6668 | 60985 | 2.222 | 25676 |
+| SA-BC | 2x2 | Segregated Newton | 2933 | 111614 | 29420 | 13.472 | 25296 |
+| SA-BC | 2x2 | Coupled Newton | 2933 | 146368 | 23393 | 13.368 | 25172 |
+| SST | 1x1 | Native | 3488 | 6976 | 38141 | 1.669 | 25372 |
+| SST | 1x1 | Segregated Newton | 3119 | 108957 | 21621 | 14.863 | 25412 |
+| SST | 1x1 | Coupled Newton | 3119 | 117612 | 15367 | 14.080 | 25224 |
+| SST | 2x2 | Native | 3488 | 6976 | 66054 | 2.427 | 26064 |
+| SST | 2x2 | Segregated Newton | 3119 | 124909 | 34458 | 18.078 | 25316 |
+| SST | 2x2 | Coupled Newton | 3119 | 156432 | 25072 | 17.437 | 25704 |
+
+The work/memory accounting matches the ordinary SA comparison above; there is
+no inner Krylov work. Newton uses fewer updates, more residual work and more
+time on these fixtures. Single samples on a coarse mesh establish no production
+speedup, scaling or discretization accuracy. Maximum independent state-scaled
+RMS is 1.123e-10 for SA-BC and 1.794e-11 for SST. Maximum component-state
+differences are 8.493e-7 and 4.535e-8; maximum physical-quantity differences are
+3.350e-7 and 1.689e-8. Wall forces are nonzero. Full residuals, quantities,
+activity, state errors, work, resources and hashes are committed in
+`Docs/NewtonKrylovTransitionResults.json`.
+
+Evidence uses `transition_converged_{bc,sst}_{1x1,2x2}` in the parent workspace.
+Both native fixes first fail their detecting tests on the preceding executable
+(60 failed assertions), then pass (2 cases/84 assertions). All 36 native cases
+pass on 1x1/1x2 (49503 assertions) and 2x2/2x4 (31431/25851 per rank).
+All 80/102273 supported ordinary tests and restart-report checks pass. Focused
+Valgrind covers transition and boundary cases (9/6514) with zero memory errors,
+leaks unchecked. Both changed production translation units pass forward syntax.
+Full AD/reverse/mixed/GPU execution, nontrivial LM/species convergence, model
 admissibility/near-bound probes and the other conditional audits remain open.
 
 ## Production selection and dispatch

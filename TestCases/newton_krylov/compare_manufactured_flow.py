@@ -94,6 +94,7 @@ def main(case=MMS_CASE):
     variables = sum(len(names) for names in case['fields'].values())
     reference = None
     reference_quantities = None
+    reference_activity = None
     for mode, settings in [('native', ''), ('segregated', selection),
                             ('coupled', selection + 'NEWTON_COUPLED= YES\n' + lower)]:
         directory = output / mode
@@ -163,6 +164,19 @@ def main(case=MMS_CASE):
             assert max(physical['normalized_rms']) <= case['normalized_rms']
             assert max(physical['projection_max']) <= (case['projection'] if mode == 'native' else 0)
         run['physical'] = report
+        if case.get('transition_model'):
+            activity = report['transition_activity']
+            assert activity['model'] == case['transition_model']
+            assert activity['sampled_points'] > 0
+            assert activity['gamma_below_0_1'] > 0 and activity['gamma_above_0_9'] > 0, activity
+            assert 0 <= activity['gamma_min'] <= activity['gamma_mean'] <= activity['gamma_max']
+            if case['transition_model'] == 'SA_BC':
+                assert activity['gamma_max'] <= 1
+            if reference_activity is None:
+                reference_activity = activity
+            run['transition_activity_difference_from_native'] = {
+                key: abs(activity[key] - reference_activity[key]) for key in ['gamma_min', 'gamma_max', 'gamma_mean']}
+            assert max(run['transition_activity_difference_from_native'].values()) <= case['quantity_tolerance']
         fields, solution = state(restart, 2 + variables)
         if reference is None:
             reference = fields, solution

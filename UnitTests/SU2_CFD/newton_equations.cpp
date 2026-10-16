@@ -12,6 +12,7 @@
 #include "../../SU2_CFD/include/integration/CNewtonLegacyIntegration.hpp"
 #include "../../SU2_CFD/include/variables/CFlowVariable.hpp"
 #include "../../SU2_CFD/include/numerics/flow/flow_sources.hpp"
+#include "../../SU2_CFD/include/output/CFlowOutput.hpp"
 #include "../../Common/include/linear_algebra/CSysSolve.hpp"
 #include <chrono>
 #include <cstdlib>
@@ -52,6 +53,28 @@ class Silence {
 
  public:
   ~Silence() { std::cout.rdbuf(old); }
+};
+
+class ScalarOutput : public CFlowOutput {
+ public:
+  ScalarOutput(CConfig* config, unsigned short dimensions) : CFlowOutput(config, dimensions, false) {}
+  void SetVolumeOutputFields(CConfig* config) override {
+    SetVolumeOutputFieldsScalarSolution(config);
+    SetVolumeOutputFieldsScalarResidual(config);
+    SetVolumeOutputFieldsScalarPrimitive(config);
+    SetVolumeOutputFieldsScalarLimiter(config);
+    SetVolumeOutputFieldsScalarSource(config);
+    SetVolumeOutputFieldsScalarLookup(config);
+    SetVolumeOutputFieldsScalarMisc(config);
+  }
+  void LoadVolumeData(CConfig* config, CGeometry* geometry, CSolver** solvers, unsigned long p) override {
+    LoadVolumeDataScalar(config, solvers, geometry, p);
+  }
+  void LoadSurfaceData(CConfig*, CGeometry*, CSolver**, unsigned long, unsigned short, unsigned long) override {}
+  su2double Intermittency(unsigned long p) {
+    this->buildFieldIndexCache = true;
+    return this->GetVolumeOutputValue("INTERMITTENCY", p);
+  }
 };
 
 struct Problem {
@@ -2458,6 +2481,146 @@ TEST_CASE("Newton merit and slopes retain the complete native mass action", "[Ne
   }
 }
 
+TEST_CASE("SA BC output uses the native production intermittency", "[NewtonTransition]") {
+  auto incSA = incompressible;
+  incSA.replace(incSA.find("INC_NAVIER_STOKES"), std::string("INC_NAVIER_STOKES").size(), "INC_RANS");
+  incSA += "KIND_TURB_MODEL= SA\n";
+  for (const auto& physics : {sa, incSA}) {
+    CAPTURE(physics);
+    Problem problem(physics + "SA_OPTIONS= BCM\nVOLUME_OUTPUT= (SOLUTION,INTERMITTENCY)\n");
+    auto& driver = *problem.driver;
+    auto* geometry = driver.Geometry();
+    auto* config = driver.Config();
+    auto* nodes = driver.Solvers()[TURB_SOL]->GetNodes();
+    auto equations = problem.Equations({RUNTIME_FLOW_SYS, RUNTIME_TURB_SYS});
+    REQUIRE(Residual(*equations));
+    for (auto p = 0ul; p < geometry->GetnPoint(); ++p)
+      nodes->SetIntermittency(p, 0.15 + 0.6 * geometry->nodes->GetCoord(p, 0));
+    auto check = [&](auto& output) {
+      {
+        Silence silence;
+        output.PreprocessVolumeOutput(config);
+        output.LoadData(geometry, config, driver.Solvers());
+      }
+      for (auto p = 0ul; p < geometry->GetnPointDomain(); ++p)
+        CHECK(output.Intermittency(p) == nodes->GetIntermittency(p));
+    };
+    ScalarOutput output(config, geometry->GetnDim());
+    check(output);
+  }
+}
+
+TEST_CASE("SST viscous wall blending retains the zero-k boundary limit", "[NewtonTransition]") {
+  auto incSST = incompressible;
+  incSST.replace(incSST.find("INC_NAVIER_STOKES"), std::string("INC_NAVIER_STOKES").size(), "INC_RANS");
+  incSST += "KIND_TURB_MODEL= SST\n";
+  for (const auto& physics : {sst, incSST}) {
+    CAPTURE(physics);
+    Problem problem(physics);
+    auto& driver = *problem.driver;
+    auto* geometry = driver.Geometry();
+    auto* nodes = driver.Solvers()[TURB_SOL]->GetNodes();
+    auto equations = problem.Equations({RUNTIME_FLOW_SYS, RUNTIME_TURB_SYS});
+    REQUIRE(Residual(*equations));
+    for (auto p = 0ul; p < geometry->GetnPointDomain(); ++p)
+      if (geometry->nodes->GetSolidBoundary(p)) {
+        CHECK(nodes->GetSolution(p, 0) == 0.0);
+        CHECK(nodes->GetF1blending(p) == 1.0);
+        CHECK(nodes->GetF2blending(p) == 1.0);
+      }
+  }
+}
+
+TEST_CASE("Coupled SA BC products differentiate partially active transition", "[NewtonTransition]") {
+  Problem problem(sa + "SA_OPTIONS= BCM\nREYNOLDS_NUMBER= 1e3\n");
+  auto& driver = *problem.driver;
+  auto* geometry = driver.Geometry();
+  auto* config = driver.Config();
+  auto* flow = driver.Solvers()[FLOW_SOL]->GetNodes();
+  auto* turb = driver.Solvers()[TURB_SOL]->GetNodes();
+  auto equations = problem.Equations({RUNTIME_FLOW_SYS, RUNTIME_TURB_SYS});
+  REQUIRE(Residual(*equations));
+  const double nu = SU2_TYPE::GetValue(config->GetViscosity_FreeStreamND() / config->GetDensity_FreeStreamND());
+  const double chi = 0.005 * config->GetNuFactor_FreeStream();
+  const double term2 = std::sqrt(50 * pow(chi, 4) / (pow(chi, 3) + pow(7.1, 3)));
+  const double critical = 803.73 * pow(100 * config->GetTurbulenceIntensity_FreeStream() + 0.6067, -1.027);
+  const double reTheta = critical * (1 + 0.002 * pow(std::log(2.0) - term2, 2));
+  const double shear = reTheta * 2.193 * nu / 0.25;
+  for (auto p = 0ul; p < geometry->GetnPoint(); ++p) {
+    const auto rho = flow->GetSolution(p, 0);
+    auto energy = flow->GetSolution(p, 3);
+    for (auto v = 1u; v <= 2; ++v) energy -= 0.5 * pow(flow->GetSolution(p, v), 2) / rho;
+    const auto u = shear * geometry->nodes->GetCoord(p, 1);
+    flow->SetSolution(p, 1, rho * u);
+    // Nonzero crossflow keeps scalar upwinding away from its zero-flux switch.
+    flow->SetSolution(p, 2, 0.02 * rho * u);
+    flow->SetSolution(p, 3, energy + 0.5 * rho * u * u * (1 + 0.02 * 0.02));
+  }
+  REQUIRE(Residual(*equations));
+  double localGamma = 0, gamma = 0;
+  for (auto p = 0ul; p < geometry->GetnPointDomain(); ++p)
+    if (geometry->nodes->GetCoord(p, 0) == 0.5 && geometry->nodes->GetCoord(p, 1) == 0.5)
+      localGamma = turb->GetIntermittency(p);
+  SU2_MPI::Allreduce(&localGamma, &gamma, 1, MPI_DOUBLE, MPI_SUM, SU2_MPI::GetComm());
+  CHECK(gamma == Approx(0.5).epsilon(1e-6));
+  equations->Capture();
+  auto scale = MakeVector(driver, equations->GetnVar()), probe = scale, direction = scale;
+  equations->BuildScales(scale, probe);
+  auto isFree = [](const CNewtonEquationSet::Block& block, unsigned long p, unsigned short v) {
+    return !block.solver->Jacobian.IsPrescribedRow(p, v);
+  };
+  direction = 0.0;
+  for (const auto& block : equations->GetBlocks())
+    for (auto p = 0ul; p < geometry->GetnPoint(); ++p)
+      for (auto v = 0u; v < block.variables; ++v)
+        if (isFree(block, p, v))
+          direction(p, block.offset + v) = 0.01 * (1 + block.offset + v) *
+              std::sin(0.2 + geometry->nodes->GetCoord(p, 0) + 2 * geometry->nodes->GetCoord(p, 1));
+  auto centered = [&](double h) {
+    auto positive = scale, negative = scale;
+    equations->SetTrial(direction, h, scale, isFree);
+    REQUIRE(Residual(*equations));
+    equations->CopyResidual(positive);
+    equations->SetTrial(direction, -h, scale, isFree);
+    REQUIRE(Residual(*equations));
+    equations->CopyResidual(negative);
+    for (auto i = 0ul; i < positive.GetLocSize(); ++i) positive[i] = (positive[i] - negative[i]) / (2 * h * scale[i]);
+    return positive;
+  };
+  const auto reference = centered(5e-6);
+  auto coarse = centered(1e-5);
+  coarse -= reference;
+  CHECK(coarse.norm() < 1e-5 * reference.norm());
+  REQUIRE(equations->Restore());
+  auto diagonal = MakeVector(driver, equations->GetnVar()), actual = diagonal;
+  CNewtonLinearization linearization(*equations, geometry, config);
+  bool valid = false;
+  SU2_OMP_PARALLEL {
+    const bool base = linearization.SetBase(scale, diagonal, 1e-7, 1e-4, isFree, &probe);
+    const bool product = base && linearization.Apply(direction, actual, false);
+    SU2_OMP_MASTER
+    valid = product;
+    END_SU2_OMP_MASTER
+  }
+  END_SU2_OMP_PARALLEL
+  REQUIRE(valid);
+  for (const auto& block : equations->GetBlocks()) {
+    auto error = actual, expected = reference;
+    auto refinement = coarse;
+    for (auto p = 0ul; p < geometry->GetnPoint(); ++p)
+      for (auto j = 0u; j < equations->GetnVar(); ++j) {
+        const bool included = j >= block.offset && j < block.offset + block.variables;
+        error(p, j) = included ? actual(p, j) - reference(p, j) : 0;
+        expected(p, j) = included ? reference(p, j) : 0;
+        if (!included) refinement(p, j) = 0;
+      }
+    INFO("runtime=" << block.runtime << ", relative centered error=" << error.norm() / expected.norm());
+    CHECK(refinement.norm() < 1e-5 * expected.norm());
+    CHECK(error.norm() < 2e-4 * expected.norm());
+  }
+  REQUIRE(equations->Restore());
+}
+
 TEST_CASE("Report physical residuals from an independent restart", "[.][NewtonStateReport]") {
   const auto* configPath = std::getenv("SU2_NK_REPORT_CONFIG");
   const auto* outputPath = std::getenv("SU2_NK_REPORT_OUTPUT");
@@ -2528,6 +2691,34 @@ TEST_CASE("Report physical residuals from an independent restart", "[.][NewtonSt
                                       solvers[FLOW_SOL]->GetTotal_CMz(), solvers[FLOW_SOL]->GetTotal_HeatFlux()};
   for (const auto& values : {normalizedRMS, projection, integral, quantities})
     for (auto value : values) REQUIRE(std::isfinite(value));
+  const bool bc = config->GetSAParsedOptions().bc;
+  const bool lm = config->GetKind_Trans_Model() == TURB_TRANS_MODEL::LM;
+  double gammaMin = 0, gammaMax = 0, gammaMean = 0;
+  unsigned long activity[4] = {};
+  if (bc || lm) {
+    const auto* nodes = solvers[bc ? TURB_SOL : TRANS_SOL]->GetNodes();
+    double minimum = std::numeric_limits<double>::max(), maximum = -minimum, sum = 0;
+    unsigned long local[4] = {};
+    int invalid = 0, globalInvalid = 0;
+    for (auto p = 0ul; p < geometry->GetnPointDomain(); ++p) {
+      if (geometry->nodes->GetSolidBoundary(p)) continue;
+      const double value = bc ? nodes->GetIntermittency(p) : nodes->GetSolution(p, 0);
+      if (!std::isfinite(value)) invalid = 1;
+      minimum = std::min(minimum, value);
+      maximum = std::max(maximum, value);
+      sum += value;
+      ++local[0];
+      ++local[value < 0.1 ? 1 : value <= 0.9 ? 2 : 3];
+    }
+    SU2_MPI::Allreduce(&invalid, &globalInvalid, 1, MPI_INT, MPI_MAX, SU2_MPI::GetComm());
+    REQUIRE(globalInvalid == 0);
+    SU2_MPI::Allreduce(&minimum, &gammaMin, 1, MPI_DOUBLE, MPI_MIN, SU2_MPI::GetComm());
+    SU2_MPI::Allreduce(&maximum, &gammaMax, 1, MPI_DOUBLE, MPI_MAX, SU2_MPI::GetComm());
+    SU2_MPI::Allreduce(&sum, &gammaMean, 1, MPI_DOUBLE, MPI_SUM, SU2_MPI::GetComm());
+    SU2_MPI::Allreduce(local, activity, 4, MPI_UNSIGNED_LONG, MPI_SUM, SU2_MPI::GetComm());
+    if (activity[0]) gammaMean /= activity[0];
+    else gammaMin = gammaMax = gammaMean = 0;
+  }
   if (SU2_MPI::GetRank() == MASTER_NODE) {
     std::ofstream output(outputPath);
     REQUIRE(output.good());
@@ -2558,7 +2749,13 @@ TEST_CASE("Report physical residuals from an independent restart", "[.][NewtonSt
     const char* names[] = {"mass", "drag", "lift", "moment_z", "heat_flux"};
     for (auto i = 0u; i < quantities.size(); ++i)
       output << (i ? "," : "") << '\"' << names[i] << "\":" << quantities[i];
-    output << "}}\n";
+    output << '}';
+    if (bc || lm)
+      output << ",\"transition_activity\":{\"model\":\"" << (bc ? "SA_BC" : "LM")
+             << "\",\"gamma_min\":" << gammaMin << ",\"gamma_max\":" << gammaMax << ",\"gamma_mean\":" << gammaMean
+             << ",\"sampled_points\":" << activity[0] << ",\"gamma_below_0_1\":" << activity[1]
+             << ",\"gamma_0_1_to_0_9\":" << activity[2] << ",\"gamma_above_0_9\":" << activity[3] << '}';
+    output << "}\n";
     REQUIRE(output.good());
   }
 }

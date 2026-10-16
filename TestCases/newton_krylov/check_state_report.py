@@ -13,7 +13,9 @@ from report_state import option, sha
 
 
 def close(left, right):
-    if isinstance(left, dict):
+    if isinstance(left, str):
+        assert left == right
+    elif isinstance(left, dict):
         assert left.keys() == right.keys()
         for key in left:
             close(left[key], right[key])

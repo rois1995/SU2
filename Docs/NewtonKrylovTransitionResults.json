@@ -1,0 +1,1540 @@
+{
+  "date": "2026-10-16",
+  "source_base_commit": "b0b922ebfb8f9d28abeed5f24a0d6d1a1043844a",
+  "source_sha256": {
+    "SU2_CFD/src/output/CFlowOutput.cpp": "38815850dbcbc3d858b21de7ce492a67d71bc745968770f86a66d73e942d8023",
+    "SU2_CFD/src/variables/CTurbSSTVariable.cpp": "d2b10ed99a5d7327f8f0965d59137b3817a9a16684fdc33475864089fd582af5",
+    "UnitTests/SU2_CFD/newton_equations.cpp": "b51d0361ca13b6a06f3d58ef7a70be82cc969f19848427a93da036dc184f985f",
+    "TestCases/newton_krylov/check_state_report.py": "9013ea83c71ffc80ce0ca0475dd8b5c3b95b13c0baba88febe725c3395a4ede6",
+    "TestCases/newton_krylov/compare_manufactured_flow.py": "0a194fcfcd30b13b67c794ef2acb4ef0673f2828e7943ad7263ce0febd32171b",
+    "TestCases/newton_krylov/compare_sa_bc_flatplate.py": "b53943b93c0ce42adea3914be8e876ef96438e252265201c1fd5277362fd0e00",
+    "TestCases/newton_krylov/compare_sst_flatplate.py": "ddd678c884d9b9ee63e3549e6823e26e77ac50a9d89f2edddb0df9e255ca0bd2",
+    "TestCases/newton_krylov/compare_sa_flatplate.py": "ffb46bc081c64e56e02e33a0ee228e23d53f338e235018f970c3119a4ae88528",
+    "TestCases/newton_krylov/report_state.py": "990d1bee026fafe6755e23fc4584640ffd2e4c66b2bbc1822a61d6780807d114"
+  },
+  "criteria": {
+    "independent_raw_rms_all_variables": 1e-10,
+    "independent_state_scaled_rms_all_variables": 1e-09,
+    "maximum_relative_component_state_difference": 1e-06,
+    "maximum_relative_quantity_difference": 1e-06,
+    "maximum_absolute_transition_activity_difference": 1e-06,
+    "maximum_newton_boundary_projection": 0,
+    "maximum_updates": 10000,
+    "common_fixed_cfl": 20,
+    "newton_step_floor": 1e-14,
+    "maximum_true_linear_defect": 0.1
+  },
+  "limits": [
+    "81-point first-order compressible flat plates at Re=1e5; no discretization accuracy claim.",
+    "SA-BC final free nodes occupy low and high gamma bands; no resolved middle-band node or transition-front accuracy claim. A separate smooth derivative fixture checks gamma=0.5.",
+    "Single launch-inclusive timing samples; no production speedup or parallel-scaling claim.",
+    "LM, species, model admissibility/near-bound probes and conditional-feature audits remain open.",
+    "Native residual assembly counts follow one implicit pass per equation per update. Newton totals include dependency assemblies and final all-active refresh. Independent reports are outside solve timing/work."
+  ],
+  "families": [
+    {
+      "model": "SA_BC",
+      "history_log10_rms_stop_all_variables": -10,
+      "maximum_native_boundary_projection": 1e-08,
+      "layouts": [
+        {
+          "binary_sha256": "32fd155cbc36f53a7241ed6660d6b067bec944fd3d72ce105bed80fb0645bc3b",
+          "reporter_sha256": "f3c1ddb8bd9bb804d2f195642c55085e57f955b62663ee72e46785b5a1b5b57d",
+          "runner_sha256": "b53943b93c0ce42adea3914be8e876ef96438e252265201c1fd5277362fd0e00",
+          "comparison_driver_sha256": "0a194fcfcd30b13b67c794ef2acb4ef0673f2828e7943ad7263ce0febd32171b",
+          "report_script_sha256": "990d1bee026fafe6755e23fc4584640ffd2e4c66b2bbc1822a61d6780807d114",
+          "ranks": 1,
+          "threads": 1,
+          "case": "81-point compressible flow/SA-BC flat plate, Re=1e5, first-order Roe",
+          "layout": "1x1",
+          "full_evidence": "newton_krylov_refactor_20261015/transition_converged_bc_1x1",
+          "full_results_sha256": "503d3d02f0c3db419525986732aa134d98fae505214622a8c0a0cef38d0de41e",
+          "runs": [
+            {
+              "mode": "native",
+              "exit_code": 0,
+              "wall_seconds": 1.620674635982141,
+              "config_sha256": "37cb0e9b462d464f6f2d0bbbe211ac38f441ee74c8b39be79c70af56c3f353ed",
+              "rank_resources": [
+                {
+                  "max_rss_kib": 25228,
+                  "user_seconds": 1.03,
+                  "system_seconds": 0.18
+                }
+              ],
+              "max_rank_rss_kib": 25228,
+              "updates": 3334,
+              "last_history_log10_rms": [
+                -10.82748332,
+                -11.18842708,
+                -11.70541059,
+                -10.00150928,
+                -16.6769976
+              ],
+              "outer_krylov_iterations": 34802,
+              "inner_krylov_iterations": 0,
+              "residual_assemblies": {
+                "flow": 3334,
+                "turbulence": 3334
+              },
+              "flow_residual_assemblies": 3334,
+              "physical": {
+                "points": 81,
+                "systems": {
+                  "flow": {
+                    "rms": [
+                      1.481049133679207e-11,
+                      6.450820951672255e-12,
+                      1.961689389824552e-12,
+                      9.920668623055212e-11
+                    ],
+                    "maximum": [
+                      9.751509028163487e-11,
+                      5.466512804585011e-11,
+                      6.091434527656512e-12,
+                      6.853967513231109e-10
+                    ],
+                    "normalized_rms": [
+                      2.201386575680445e-11,
+                      5.7959892524064116e-12,
+                      1.9761326199965415e-12,
+                      2.413614381405614e-12
+                    ],
+                    "projection_max": [
+                      0,
+                      0,
+                      0,
+                      0
+                    ],
+                    "packed_integral": [
+                      0.9854341728091177,
+                      0.9694087516694079,
+                      -0.01769605303107296,
+                      44.87202565041856
+                    ]
+                  },
+                  "turbulence": {
+                    "rms": [
+                      2.1188200464452353e-17
+                    ],
+                    "maximum": [
+                      9.981386867762106e-17
+                    ],
+                    "normalized_rms": [
+                      1.1226685603981954e-10
+                    ],
+                    "projection_max": [
+                      6.666666666666665e-10
+                    ],
+                    "packed_integral": [
+                      1.436914684005541e-07
+                    ]
+                  }
+                },
+                "quantities": {
+                  "mass": 0.9854341728091177,
+                  "drag": 0.00020023107778249444,
+                  "lift": 0.5500091972068604,
+                  "moment_z": 0.6846061011514354,
+                  "heat_flux": 0
+                },
+                "transition_activity": {
+                  "model": "SA_BC",
+                  "gamma_min": 8.341238899889358e-05,
+                  "gamma_max": 1,
+                  "gamma_mean": 0.9026767328452612,
+                  "sampled_points": 72,
+                  "gamma_below_0_1": 7,
+                  "gamma_0_1_to_0_9": 0,
+                  "gamma_above_0_9": 65
+                }
+              },
+              "transition_activity_difference_from_native": {
+                "gamma_min": 0.0,
+                "gamma_max": 0,
+                "gamma_mean": 0.0
+              },
+              "state_difference_from_native": [
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0
+              ],
+              "quantity_difference_from_native": {
+                "mass": 0.0,
+                "drag": 0.0,
+                "lift": 0.0,
+                "moment_z": 0.0,
+                "heat_flux": 0.0
+              },
+              "report_manifest_sha256": "66f7587ee20f550f43d00c4547fcfd75263eac3520c304ba62fe8d351d76ce57"
+            },
+            {
+              "mode": "segregated",
+              "exit_code": 0,
+              "wall_seconds": 11.216919903992675,
+              "config_sha256": "78c9340a0866eae073619121da966e9d06bd070feaf84c7dc54be19197823a0a",
+              "rank_resources": [
+                {
+                  "max_rss_kib": 25420,
+                  "user_seconds": 9.09,
+                  "system_seconds": 1.63
+                }
+              ],
+              "max_rank_rss_kib": 25420,
+              "updates": 2933,
+              "last_history_log10_rms": [
+                -10.12369979,
+                -10.85477262,
+                -10.99319243,
+                -10.00010718,
+                -17.43123668
+              ],
+              "outer_krylov_iterations": 20106,
+              "inner_krylov_iterations": 0,
+              "residual_assemblies": {
+                "flow": 69969,
+                "turbulence": 32084
+              },
+              "attempts": 5866,
+              "flow_residual_assemblies": 69969,
+              "physical": {
+                "points": 81,
+                "systems": {
+                  "flow": {
+                    "rms": [
+                      7.521426438994944e-11,
+                      1.3970996281072786e-11,
+                      1.0157985092718147e-11,
+                      9.997532471502874e-11
+                    ],
+                    "maximum": [
+                      5.001924273671842e-10,
+                      7.006965146993949e-11,
+                      3.071773441371094e-11,
+                      3.608551594742968e-10
+                    ],
+                    "normalized_rms": [
+                      1.119485194664799e-10,
+                      1.2561013509832982e-11,
+                      1.024201853419293e-11,
+                      2.3264731054667446e-12
+                    ],
+                    "projection_max": [
+                      0,
+                      0,
+                      0,
+                      0
+                    ],
+                    "packed_integral": [
+                      0.9854341927913519,
+                      0.9694087421916039,
+                      -0.017696042055113884,
+                      44.87202577310089
+                    ]
+                  },
+                  "turbulence": {
+                    "rms": [
+                      3.7047876768588845e-18
+                    ],
+                    "maximum": [
+                      1.760983193061946e-17
+                    ],
+                    "normalized_rms": [
+                      1.963614806139683e-11
+                    ],
+                    "projection_max": [
+                      0
+                    ],
+                    "packed_integral": [
+                      1.4369146964092727e-07
+                    ]
+                  }
+                },
+                "quantities": {
+                  "mass": 0.9854341927913519,
+                  "drag": 0.00020023101071701854,
+                  "lift": 0.5500090235393079,
+                  "moment_z": 0.6846059773267402,
+                  "heat_flux": 0
+                },
+                "transition_activity": {
+                  "model": "SA_BC",
+                  "gamma_min": 8.341238994113986e-05,
+                  "gamma_max": 1,
+                  "gamma_mean": 0.9026767386345446,
+                  "sampled_points": 72,
+                  "gamma_below_0_1": 7,
+                  "gamma_0_1_to_0_9": 0,
+                  "gamma_above_0_9": 65
+                }
+              },
+              "transition_activity_difference_from_native": {
+                "gamma_min": 9.422462809993704e-13,
+                "gamma_max": 0,
+                "gamma_mean": 5.789283386015143e-09
+              },
+              "state_difference_from_native": [
+                8.491902987204113e-07,
+                9.698975935986556e-08,
+                1.629405274355299e-07,
+                2.001273630772894e-08,
+                9.840328432194723e-08
+              ],
+              "quantity_difference_from_native": {
+                "mass": 2.0277594132615354e-08,
+                "drag": 3.349403930540263e-07,
+                "lift": 3.1575390617449285e-07,
+                "moment_z": 1.8086998488002364e-07,
+                "heat_flux": 0.0
+              },
+              "report_manifest_sha256": "eca99972e1e567e94c205b5554c603b10276a38517d89e2e98d589fb6bed5d01"
+            },
+            {
+              "mode": "coupled",
+              "exit_code": 0,
+              "wall_seconds": 10.048167594941333,
+              "config_sha256": "dbd69b793785693025b2d4611559a07da563a20bdf9586af5a990f369136388a",
+              "rank_resources": [
+                {
+                  "max_rss_kib": 25356,
+                  "user_seconds": 8.33,
+                  "system_seconds": 1.26
+                }
+              ],
+              "max_rank_rss_kib": 25356,
+              "updates": 2933,
+              "last_history_log10_rms": [
+                -10.12369804,
+                -10.85476909,
+                -10.99319025,
+                -10.00010566,
+                -17.43123778
+              ],
+              "outer_krylov_iterations": 14390,
+              "inner_krylov_iterations": 0,
+              "residual_assemblies": {
+                "flow": 55178,
+                "turbulence": 55178
+              },
+              "attempts": 2933,
+              "flow_residual_assemblies": 55178,
+              "physical": {
+                "points": 81,
+                "systems": {
+                  "flow": {
+                    "rms": [
+                      7.521456629051085e-11,
+                      1.3971110090246779e-11,
+                      1.0158036086097337e-11,
+                      9.997567279393405e-11
+                    ],
+                    "maximum": [
+                      5.001943584938837e-10,
+                      7.006978504364714e-11,
+                      3.0718923349178014e-11,
+                      3.6086095604601553e-10
+                    ],
+                    "normalized_rms": [
+                      1.1194897696361792e-10,
+                      1.2561117393944166e-11,
+                      1.0242069026994466e-11,
+                      2.3264828593717843e-12
+                    ],
+                    "projection_max": [
+                      0,
+                      0,
+                      0,
+                      0
+                    ],
+                    "packed_integral": [
+                      0.9854341927914524,
+                      0.9694087421915567,
+                      -0.017696042055059164,
+                      44.872025773101505
+                    ]
+                  },
+                  "turbulence": {
+                    "rms": [
+                      3.704778259151542e-18
+                    ],
+                    "maximum": [
+                      1.7609764928989845e-17
+                    ],
+                    "normalized_rms": [
+                      1.963613590949018e-11
+                    ],
+                    "projection_max": [
+                      0
+                    ],
+                    "packed_integral": [
+                      1.4369146964093445e-07
+                    ]
+                  }
+                },
+                "quantities": {
+                  "mass": 0.9854341927914524,
+                  "drag": 0.00020023101071668135,
+                  "lift": 0.5500090235384375,
+                  "moment_z": 0.6846059773261186,
+                  "heat_flux": 0
+                },
+                "transition_activity": {
+                  "model": "SA_BC",
+                  "gamma_min": 8.341238994113986e-05,
+                  "gamma_max": 1,
+                  "gamma_mean": 0.9026767386345758,
+                  "sampled_points": 72,
+                  "gamma_below_0_1": 7,
+                  "gamma_0_1_to_0_9": 0,
+                  "gamma_above_0_9": 65
+                }
+              },
+              "transition_activity_difference_from_native": {
+                "gamma_min": 9.422462809993704e-13,
+                "gamma_max": 0,
+                "gamma_mean": 5.789314583282135e-09
+              },
+              "state_difference_from_native": [
+                8.491945644656743e-07,
+                9.699024661219632e-08,
+                1.6294134544668633e-07,
+                2.0012836705582994e-08,
+                9.840385487349379e-08
+              ],
+              "quantity_difference_from_native": {
+                "mass": 2.0277696092935486e-08,
+                "drag": 3.3494207704274263e-07,
+                "lift": 3.1575548872048613e-07,
+                "moment_z": 1.8087089286765395e-07,
+                "heat_flux": 0.0
+              },
+              "report_manifest_sha256": "6a8a1a3eec5b38ce53d8916cb41e619dd0c2867e946c7940300c37db426fb029"
+            }
+          ]
+        },
+        {
+          "binary_sha256": "32fd155cbc36f53a7241ed6660d6b067bec944fd3d72ce105bed80fb0645bc3b",
+          "reporter_sha256": "f3c1ddb8bd9bb804d2f195642c55085e57f955b62663ee72e46785b5a1b5b57d",
+          "runner_sha256": "b53943b93c0ce42adea3914be8e876ef96438e252265201c1fd5277362fd0e00",
+          "comparison_driver_sha256": "0a194fcfcd30b13b67c794ef2acb4ef0673f2828e7943ad7263ce0febd32171b",
+          "report_script_sha256": "990d1bee026fafe6755e23fc4584640ffd2e4c66b2bbc1822a61d6780807d114",
+          "ranks": 2,
+          "threads": 2,
+          "case": "81-point compressible flow/SA-BC flat plate, Re=1e5, first-order Roe",
+          "layout": "2x2",
+          "full_evidence": "newton_krylov_refactor_20261015/transition_converged_bc_2x2",
+          "full_results_sha256": "76076bbb57df411399ee85c600b04c88c65b87cb430d99941f3a213fae2dcb63",
+          "runs": [
+            {
+              "mode": "native",
+              "exit_code": 0,
+              "wall_seconds": 2.2216534089529887,
+              "config_sha256": "37cb0e9b462d464f6f2d0bbbe211ac38f441ee74c8b39be79c70af56c3f353ed",
+              "rank_resources": [
+                {
+                  "max_rss_kib": 24876,
+                  "user_seconds": 3.32,
+                  "system_seconds": 0.26
+                },
+                {
+                  "max_rss_kib": 25676,
+                  "user_seconds": 3.32,
+                  "system_seconds": 0.23
+                }
+              ],
+              "max_rank_rss_kib": 25676,
+              "updates": 3334,
+              "last_history_log10_rms": [
+                -10.82748369,
+                -11.18842496,
+                -11.70541002,
+                -10.00151001,
+                -16.67699781
+              ],
+              "outer_krylov_iterations": 60985,
+              "inner_krylov_iterations": 0,
+              "residual_assemblies": {
+                "flow": 3334,
+                "turbulence": 3334
+              },
+              "flow_residual_assemblies": 3334,
+              "physical": {
+                "points": 81,
+                "systems": {
+                  "flow": {
+                    "rms": [
+                      1.4810481812059898e-11,
+                      6.450860029917393e-12,
+                      1.9617345755850927e-12,
+                      9.92077937313473e-11
+                    ],
+                    "maximum": [
+                      9.751511702077095e-11,
+                      5.4665128117636155e-11,
+                      6.091497107509446e-12,
+                      6.85403856763174e-10
+                    ],
+                    "normalized_rms": [
+                      2.2013841719053625e-11,
+                      5.796027080520519e-12,
+                      1.976178600847396e-12,
+                      2.413640947364552e-12
+                    ],
+                    "projection_max": [
+                      0,
+                      0,
+                      0,
+                      0
+                    ],
+                    "packed_integral": [
+                      0.9854341728091147,
+                      0.9694087516694092,
+                      -0.0176960530310746,
+                      44.87202565041856
+                    ]
+                  },
+                  "turbulence": {
+                    "rms": [
+                      2.1188190031806996e-17
+                    ],
+                    "maximum": [
+                      9.98138190467843e-17
+                    ],
+                    "normalized_rms": [
+                      1.122667922990894e-10
+                    ],
+                    "projection_max": [
+                      6.666666666666665e-10
+                    ],
+                    "packed_integral": [
+                      1.4369146840055374e-07
+                    ]
+                  }
+                },
+                "quantities": {
+                  "mass": 0.9854341728091147,
+                  "drag": 0.0002002310777825047,
+                  "lift": 0.5500091972068852,
+                  "moment_z": 0.6846061011514555,
+                  "heat_flux": 0
+                },
+                "transition_activity": {
+                  "model": "SA_BC",
+                  "gamma_min": 8.341238899889358e-05,
+                  "gamma_max": 1,
+                  "gamma_mean": 0.9026767328452604,
+                  "sampled_points": 72,
+                  "gamma_below_0_1": 7,
+                  "gamma_0_1_to_0_9": 0,
+                  "gamma_above_0_9": 65
+                }
+              },
+              "transition_activity_difference_from_native": {
+                "gamma_min": 0.0,
+                "gamma_max": 0,
+                "gamma_mean": 0.0
+              },
+              "state_difference_from_native": [
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0
+              ],
+              "quantity_difference_from_native": {
+                "mass": 0.0,
+                "drag": 0.0,
+                "lift": 0.0,
+                "moment_z": 0.0,
+                "heat_flux": 0.0
+              },
+              "report_manifest_sha256": "f70d23d4ec6532dbbcbbf22aa2e569652ffd21406319b912f6e80f062513d8b9"
+            },
+            {
+              "mode": "segregated",
+              "exit_code": 0,
+              "wall_seconds": 13.471709643024951,
+              "config_sha256": "78c9340a0866eae073619121da966e9d06bd070feaf84c7dc54be19197823a0a",
+              "rank_resources": [
+                {
+                  "max_rss_kib": 25040,
+                  "user_seconds": 22.73,
+                  "system_seconds": 2.48
+                },
+                {
+                  "max_rss_kib": 25296,
+                  "user_seconds": 23.48,
+                  "system_seconds": 1.99
+                }
+              ],
+              "max_rank_rss_kib": 25296,
+              "updates": 2933,
+              "last_history_log10_rms": [
+                -10.12369115,
+                -10.85435485,
+                -10.99362995,
+                -10.0007496,
+                -17.43122067
+              ],
+              "outer_krylov_iterations": 29420,
+              "inner_krylov_iterations": 0,
+              "residual_assemblies": {
+                "flow": 79283,
+                "turbulence": 32331
+              },
+              "attempts": 5866,
+              "flow_residual_assemblies": 79283,
+              "physical": {
+                "points": 81,
+                "systems": {
+                  "flow": {
+                    "rms": [
+                      7.521576009453031e-11,
+                      1.3984442137031246e-11,
+                      1.0147756770126848e-11,
+                      9.982754674911536e-11
+                    ],
+                    "maximum": [
+                      5.00200062400198e-10,
+                      7.014386467496525e-11,
+                      3.0686974193061626e-11,
+                      3.5889068068306954e-10
+                    ],
+                    "normalized_rms": [
+                      1.1195139111889812e-10,
+                      1.2573012408270458e-11,
+                      1.0231672071779729e-11,
+                      2.322359876496171e-12
+                    ],
+                    "projection_max": [
+                      0,
+                      0,
+                      0,
+                      0
+                    ],
+                    "packed_integral": [
+                      0.9854341927921564,
+                      0.9694087421910756,
+                      -0.017696042054631395,
+                      44.87202577310631
+                    ]
+                  },
+                  "turbulence": {
+                    "rms": [
+                      3.704924231472296e-18
+                    ],
+                    "maximum": [
+                      1.7610425019118662e-17
+                    ],
+                    "normalized_rms": [
+                      1.963689490813597e-11
+                    ],
+                    "projection_max": [
+                      0
+                    ],
+                    "packed_integral": [
+                      1.4369146964102947e-07
+                    ]
+                  }
+                },
+                "quantities": {
+                  "mass": 0.9854341927921564,
+                  "drag": 0.0002002310107141294,
+                  "lift": 0.55000902353182,
+                  "moment_z": 0.6846059773213413,
+                  "heat_flux": 0
+                },
+                "transition_activity": {
+                  "model": "SA_BC",
+                  "gamma_min": 8.341238994113986e-05,
+                  "gamma_max": 1,
+                  "gamma_mean": 0.9026767386349156,
+                  "sampled_points": 72,
+                  "gamma_below_0_1": 7,
+                  "gamma_0_1_to_0_9": 0,
+                  "gamma_above_0_9": 65
+                }
+              },
+              "transition_activity_difference_from_native": {
+                "gamma_min": 9.422462809993704e-13,
+                "gamma_max": 0,
+                "gamma_mean": 5.78965519970609e-09
+              },
+              "state_difference_from_native": [
+                8.492195928088194e-07,
+                9.699474145666266e-08,
+                1.6294679557459569e-07,
+                2.0013614643868305e-08,
+                9.840906635624085e-08
+              ],
+              "quantity_difference_from_native": {
+                "mass": 2.02784135330666e-08,
+                "drag": 3.3495487346180534e-07,
+                "lift": 3.1576756552458305e-07,
+                "moment_z": 1.8087790037854235e-07,
+                "heat_flux": 0.0
+              },
+              "report_manifest_sha256": "f533cdbe287e6825844e00ae206b72ce49070bc91e1339f51389484460e1ff2d"
+            },
+            {
+              "mode": "coupled",
+              "exit_code": 0,
+              "wall_seconds": 13.367910703993402,
+              "config_sha256": "dbd69b793785693025b2d4611559a07da563a20bdf9586af5a990f369136388a",
+              "rank_resources": [
+                {
+                  "max_rss_kib": 24848,
+                  "user_seconds": 22.6,
+                  "system_seconds": 2.19
+                },
+                {
+                  "max_rss_kib": 25172,
+                  "user_seconds": 23.16,
+                  "system_seconds": 1.97
+                }
+              ],
+              "max_rank_rss_kib": 25172,
+              "updates": 2933,
+              "last_history_log10_rms": [
+                -10.12368706,
+                -10.85434996,
+                -10.99362123,
+                -10.00075495,
+                -17.43121431
+              ],
+              "outer_krylov_iterations": 23393,
+              "inner_krylov_iterations": 0,
+              "residual_assemblies": {
+                "flow": 73184,
+                "turbulence": 73184
+              },
+              "attempts": 2933,
+              "flow_residual_assemblies": 73184,
+              "physical": {
+                "points": 81,
+                "systems": {
+                  "flow": {
+                    "rms": [
+                      7.521646788202606e-11,
+                      1.3984599781500757e-11,
+                      1.0147960516541324e-11,
+                      9.982631769131584e-11
+                    ],
+                    "maximum": [
+                      5.00204703192072e-10,
+                      7.014390110415825e-11,
+                      3.068727216273533e-11,
+                      3.588703078262934e-10
+                    ],
+                    "normalized_rms": [
+                      1.119524415904754e-10,
+                      1.2573149469710322e-11,
+                      1.0231879198061782e-11,
+                      2.3223237771295114e-12
+                    ],
+                    "projection_max": [
+                      0,
+                      0,
+                      0,
+                      0
+                    ],
+                    "packed_integral": [
+                      0.985434192792394,
+                      0.9694087421909645,
+                      -0.017696042054500927,
+                      44.87202577310774
+                    ]
+                  },
+                  "turbulence": {
+                    "rms": [
+                      3.7049784536363824e-18
+                    ],
+                    "maximum": [
+                      1.761064835788405e-17
+                    ],
+                    "normalized_rms": [
+                      1.963717238438192e-11
+                    ],
+                    "projection_max": [
+                      0
+                    ],
+                    "packed_integral": [
+                      1.436914696410508e-07
+                    ]
+                  }
+                },
+                "quantities": {
+                  "mass": 0.985434192792394,
+                  "drag": 0.00020023101071333084,
+                  "lift": 0.5500090235297812,
+                  "moment_z": 0.6846059773198795,
+                  "heat_flux": 0
+                },
+                "transition_activity": {
+                  "model": "SA_BC",
+                  "gamma_min": 8.341238994125089e-05,
+                  "gamma_max": 1,
+                  "gamma_mean": 0.9026767386349887,
+                  "sampled_points": 72,
+                  "gamma_below_0_1": 7,
+                  "gamma_0_1_to_0_9": 0,
+                  "gamma_above_0_9": 65
+                }
+              },
+              "transition_activity_difference_from_native": {
+                "gamma_min": 9.423573033018329e-13,
+                "gamma_max": 0,
+                "gamma_mean": 5.78972825238111e-09
+              },
+              "state_difference_from_native": [
+                8.492297221767465e-07,
+                9.699589936092556e-08,
+                1.6294873581297667e-07,
+                2.001385287114628e-08,
+                9.841049595756927e-08
+              ],
+              "quantity_difference_from_native": {
+                "mass": 2.0278654632608126e-08,
+                "drag": 3.3495886156402174e-07,
+                "lift": 3.1577127239634586e-07,
+                "moment_z": 1.808800356657594e-07,
+                "heat_flux": 0.0
+              },
+              "report_manifest_sha256": "b1f121f68c3127b99543d0a7b0d3fca3765d33b95e0a5da18a9dc66544c68b6e"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "model": "SST",
+      "history_log10_rms_stop_all_variables": -11,
+      "maximum_native_boundary_projection": 1e-07,
+      "layouts": [
+        {
+          "binary_sha256": "32fd155cbc36f53a7241ed6660d6b067bec944fd3d72ce105bed80fb0645bc3b",
+          "reporter_sha256": "f3c1ddb8bd9bb804d2f195642c55085e57f955b62663ee72e46785b5a1b5b57d",
+          "runner_sha256": "ddd678c884d9b9ee63e3549e6823e26e77ac50a9d89f2edddb0df9e255ca0bd2",
+          "comparison_driver_sha256": "0a194fcfcd30b13b67c794ef2acb4ef0673f2828e7943ad7263ce0febd32171b",
+          "report_script_sha256": "990d1bee026fafe6755e23fc4584640ffd2e4c66b2bbc1822a61d6780807d114",
+          "ranks": 1,
+          "threads": 1,
+          "case": "81-point compressible flow/SST flat plate, Re=1e5, first-order Roe",
+          "layout": "1x1",
+          "full_evidence": "newton_krylov_refactor_20261015/transition_converged_sst_1x1",
+          "full_results_sha256": "20c12a0491f1e42bfa57abe58cf12457ec33931aae08e4b8557f92ce59255694",
+          "runs": [
+            {
+              "mode": "native",
+              "exit_code": 0,
+              "wall_seconds": 1.669456389034167,
+              "config_sha256": "e178ef0b206f62358637843e6e14e22baff43566b650819ac169a0935d0bd061",
+              "rank_resources": [
+                {
+                  "max_rss_kib": 25372,
+                  "user_seconds": 1.18,
+                  "system_seconds": 0.14
+                }
+              ],
+              "max_rank_rss_kib": 25372,
+              "updates": 3488,
+              "last_history_log10_rms": [
+                -11.83106836,
+                -12.18698492,
+                -12.70044664,
+                -11.00119392,
+                -15.34143939,
+                -11.40172611
+              ],
+              "outer_krylov_iterations": 38141,
+              "inner_krylov_iterations": 0,
+              "residual_assemblies": {
+                "flow": 3488,
+                "turbulence": 3488
+              },
+              "flow_residual_assemblies": 3488,
+              "physical": {
+                "points": 81,
+                "systems": {
+                  "flow": {
+                    "rms": [
+                      1.5428492156119534e-12,
+                      1.0287489339212784e-12,
+                      6.475551303516628e-13,
+                      2.2222235571668075e-11
+                    ],
+                    "maximum": [
+                      1.0102151252566575e-11,
+                      6.193786245540611e-12,
+                      2.2577495428777183e-12,
+                      1.0953418727588371e-10
+                    ],
+                    "normalized_rms": [
+                      2.121761927667797e-12,
+                      9.345309928686415e-13,
+                      6.603200830451056e-13,
+                      5.18358245653844e-13
+                    ],
+                    "projection_max": [
+                      0,
+                      0,
+                      0,
+                      0
+                    ],
+                    "packed_integral": [
+                      0.986385998962292,
+                      0.9691232401921244,
+                      -0.01732062095673855,
+                      44.87676596615321
+                    ]
+                  },
+                  "turbulence": {
+                    "rms": [
+                      6.67460389039483e-14,
+                      2.6944068349235298e-11
+                    ],
+                    "maximum": [
+                      4.697858313300329e-13,
+                      9.312006721273747e-11
+                    ],
+                    "normalized_rms": [
+                      1.7935468594045033e-11,
+                      7.339074946391515e-13
+                    ],
+                    "projection_max": [
+                      2.6666666666666664e-08,
+                      3.0642155479654314e-14
+                    ],
+                    "packed_integral": [
+                      0.001576673275685425,
+                      16.289192420174423
+                    ]
+                  }
+                },
+                "quantities": {
+                  "mass": 0.986385998962292,
+                  "drag": 0.00019654248439658138,
+                  "lift": 0.5452003992834075,
+                  "moment_z": 0.6807021392445111,
+                  "heat_flux": 0
+                }
+              },
+              "state_difference_from_native": [
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0
+              ],
+              "quantity_difference_from_native": {
+                "mass": 0.0,
+                "drag": 0.0,
+                "lift": 0.0,
+                "moment_z": 0.0,
+                "heat_flux": 0.0
+              },
+              "report_manifest_sha256": "1e5f0896dad7b5ce42a024e28ded574811b4e2591f52a0eee6f7c3de519b3f7d"
+            },
+            {
+              "mode": "segregated",
+              "exit_code": 0,
+              "wall_seconds": 14.862655524979346,
+              "config_sha256": "06ca039e934820f14d78540a8303b67ccaddfc55445fcc426f26665cfa200b2c",
+              "rank_resources": [
+                {
+                  "max_rss_kib": 25412,
+                  "user_seconds": 12.74,
+                  "system_seconds": 1.65
+                }
+              ],
+              "max_rank_rss_kib": 25412,
+              "updates": 3119,
+              "last_history_log10_rms": [
+                -11.28946042,
+                -12.01444296,
+                -12.15068249,
+                -11.15754701,
+                -14.952572,
+                -11.00018163
+              ],
+              "outer_krylov_iterations": 21621,
+              "inner_krylov_iterations": 0,
+              "residual_assemblies": {
+                "flow": 74646,
+                "turbulence": 34311
+              },
+              "attempts": 6238,
+              "flow_residual_assemblies": 74646,
+              "physical": {
+                "points": 81,
+                "systems": {
+                  "flow": {
+                    "rms": [
+                      5.134989791125773e-12,
+                      9.672907689929848e-13,
+                      7.068341301835063e-13,
+                      6.957496447984591e-12
+                    ],
+                    "maximum": [
+                      3.4262699231610294e-11,
+                      4.852139523503496e-12,
+                      2.1231220686428794e-12,
+                      2.5095625311990707e-11
+                    ],
+                    "normalized_rms": [
+                      7.131900907141487e-12,
+                      8.725240097310036e-13,
+                      7.125807535192811e-13,
+                      1.6184052946153818e-13
+                    ],
+                    "projection_max": [
+                      0,
+                      0,
+                      0,
+                      0
+                    ],
+                    "packed_integral": [
+                      0.9863860000103475,
+                      0.969123239706145,
+                      -0.01732062037794578,
+                      44.87676597257424
+                    ]
+                  },
+                  "turbulence": {
+                    "rms": [
+                      1.1153932204412558e-15,
+                      9.995818683806944e-12
+                    ],
+                    "maximum": [
+                      4.295132974871212e-15,
+                      4.2075287698395414e-11
+                    ],
+                    "normalized_rms": [
+                      2.9954145109954597e-13,
+                      2.6760677813598187e-13
+                    ],
+                    "projection_max": [
+                      0,
+                      0
+                    ],
+                    "packed_integral": [
+                      0.0015766732750823879,
+                      16.289192418247886
+                    ]
+                  }
+                },
+                "quantities": {
+                  "mass": 0.9863860000103475,
+                  "drag": 0.0001965424811465488,
+                  "lift": 0.5452003900801121,
+                  "moment_z": 0.6807021328035454,
+                  "heat_flux": 0
+                }
+              },
+              "state_difference_from_native": [
+                4.53384831082415e-08,
+                5.012950873275798e-09,
+                8.487111146227396e-09,
+                1.0439806953996098e-09,
+                3.134460594612819e-08,
+                3.469928541289093e-09
+              ],
+              "quantity_difference_from_native": {
+                "mass": 1.062520689012562e-09,
+                "drag": 1.6536030758271286e-08,
+                "lift": 1.68805733820692e-08,
+                "moment_z": 9.462238001590406e-09,
+                "heat_flux": 0.0
+              },
+              "report_manifest_sha256": "e03fd4c2624a578ed723a8a4b7606be9558b5ab2ce4d7af89b0bcb015cab5e26"
+            },
+            {
+              "mode": "coupled",
+              "exit_code": 0,
+              "wall_seconds": 14.080018200096674,
+              "config_sha256": "e82d3deecf5468db60eff02f0dccdebdd8f70b82c884d78eebda42a5c333df59",
+              "rank_resources": [
+                {
+                  "max_rss_kib": 25224,
+                  "user_seconds": 11.95,
+                  "system_seconds": 1.61
+                }
+              ],
+              "max_rank_rss_kib": 25224,
+              "updates": 3119,
+              "last_history_log10_rms": [
+                -11.289399,
+                -12.01441419,
+                -12.15054179,
+                -11.15750319,
+                -14.95257424,
+                -11.00003163
+              ],
+              "outer_krylov_iterations": 15367,
+              "inner_krylov_iterations": 0,
+              "residual_assemblies": {
+                "flow": 58806,
+                "turbulence": 58806
+              },
+              "attempts": 3119,
+              "flow_residual_assemblies": 58806,
+              "physical": {
+                "points": 81,
+                "systems": {
+                  "flow": {
+                    "rms": [
+                      5.135716042086572e-12,
+                      9.673548397240064e-13,
+                      7.070631651728928e-13,
+                      6.958198416143257e-12
+                    ],
+                    "maximum": [
+                      3.4267489141940645e-11,
+                      4.852803922594795e-12,
+                      2.123776005183214e-12,
+                      2.5101890699505067e-11
+                    ],
+                    "normalized_rms": [
+                      7.132909570762033e-12,
+                      8.725797970729898e-13,
+                      7.128121255796021e-13,
+                      1.6185889346693732e-13
+                    ],
+                    "projection_max": [
+                      0,
+                      0,
+                      0,
+                      0
+                    ],
+                    "packed_integral": [
+                      0.9863860000105588,
+                      0.9691232397060459,
+                      -0.01732062037782802,
+                      44.87676597257554
+                    ]
+                  },
+                  "turbulence": {
+                    "rms": [
+                      1.115387456394173e-15,
+                      9.999271656284202e-12
+                    ],
+                    "maximum": [
+                      4.296942237246547e-15,
+                      4.209392556742131e-11
+                    ],
+                    "normalized_rms": [
+                      2.995354556044217e-13,
+                      2.676989938603514e-13
+                    ],
+                    "projection_max": [
+                      0,
+                      0
+                    ],
+                    "packed_integral": [
+                      0.0015766732750823649,
+                      16.289192418247413
+                    ]
+                  }
+                },
+                "quantities": {
+                  "mass": 0.9863860000105588,
+                  "drag": 0.00019654248114589005,
+                  "lift": 0.5452003900782365,
+                  "moment_z": 0.6807021328022318,
+                  "heat_flux": 0
+                }
+              },
+              "state_difference_from_native": [
+                4.5347472318980935e-08,
+                5.0139722496771155e-09,
+                8.488839156566661e-09,
+                1.0441926923295723e-09,
+                3.134460594612819e-08,
+                3.4706545419475523e-09
+              ],
+              "quantity_difference_from_native": {
+                "mass": 1.0627348804566907e-09,
+                "drag": 1.6539382508108095e-08,
+                "lift": 1.6884013604747443e-08,
+                "moment_z": 9.46416779702809e-09,
+                "heat_flux": 0.0
+              },
+              "report_manifest_sha256": "6f09f95c1b5cfef92d02d2e9410651942773e43eddcca1e50a043a48b075eb79"
+            }
+          ]
+        },
+        {
+          "binary_sha256": "32fd155cbc36f53a7241ed6660d6b067bec944fd3d72ce105bed80fb0645bc3b",
+          "reporter_sha256": "f3c1ddb8bd9bb804d2f195642c55085e57f955b62663ee72e46785b5a1b5b57d",
+          "runner_sha256": "ddd678c884d9b9ee63e3549e6823e26e77ac50a9d89f2edddb0df9e255ca0bd2",
+          "comparison_driver_sha256": "0a194fcfcd30b13b67c794ef2acb4ef0673f2828e7943ad7263ce0febd32171b",
+          "report_script_sha256": "990d1bee026fafe6755e23fc4584640ffd2e4c66b2bbc1822a61d6780807d114",
+          "ranks": 2,
+          "threads": 2,
+          "case": "81-point compressible flow/SST flat plate, Re=1e5, first-order Roe",
+          "layout": "2x2",
+          "full_evidence": "newton_krylov_refactor_20261015/transition_converged_sst_2x2",
+          "full_results_sha256": "b360a906c1f84b83d1aefd1d3effda7127ba760e65735e8bd197b8d1ba28b79c",
+          "runs": [
+            {
+              "mode": "native",
+              "exit_code": 0,
+              "wall_seconds": 2.4270600699819624,
+              "config_sha256": "e178ef0b206f62358637843e6e14e22baff43566b650819ac169a0935d0bd061",
+              "rank_resources": [
+                {
+                  "max_rss_kib": 26064,
+                  "user_seconds": 3.67,
+                  "system_seconds": 0.29
+                },
+                {
+                  "max_rss_kib": 25668,
+                  "user_seconds": 3.73,
+                  "system_seconds": 0.23
+                }
+              ],
+              "max_rank_rss_kib": 26064,
+              "updates": 3488,
+              "last_history_log10_rms": [
+                -11.83106634,
+                -12.18694318,
+                -12.70040956,
+                -11.0011752,
+                -15.34141368,
+                -11.40171103
+              ],
+              "outer_krylov_iterations": 66054,
+              "inner_krylov_iterations": 0,
+              "residual_assemblies": {
+                "flow": 3488,
+                "turbulence": 3488
+              },
+              "flow_residual_assemblies": 3488,
+              "physical": {
+                "points": 81,
+                "systems": {
+                  "flow": {
+                    "rms": [
+                      1.5428468440521399e-12,
+                      1.0287942949481145e-12,
+                      6.476159994538166e-13,
+                      2.2224253319370394e-11
+                    ],
+                    "maximum": [
+                      1.010243367367998e-11,
+                      6.1942308090889115e-12,
+                      2.2581936320875684e-12,
+                      1.095567248032836e-10
+                    ],
+                    "normalized_rms": [
+                      2.1217445880477245e-12,
+                      9.345691223792669e-13,
+                      6.603831246154935e-13,
+                      5.184028497115396e-13
+                    ],
+                    "projection_max": [
+                      0,
+                      0,
+                      0,
+                      0
+                    ],
+                    "packed_integral": [
+                      0.9863859989622918,
+                      0.9691232401921257,
+                      -0.017320620956739283,
+                      44.87676596615321
+                    ]
+                  },
+                  "turbulence": {
+                    "rms": [
+                      6.674605417845283e-14,
+                      2.694401209004355e-11
+                    ],
+                    "maximum": [
+                      4.697858855401416e-13,
+                      9.312006721273747e-11
+                    ],
+                    "normalized_rms": [
+                      1.7935472730307383e-11,
+                      7.339060218229331e-13
+                    ],
+                    "projection_max": [
+                      2.6666666666666667e-08,
+                      3.0642155479654314e-14
+                    ],
+                    "packed_integral": [
+                      0.0015766732756854259,
+                      16.289192420174437
+                    ]
+                  }
+                },
+                "quantities": {
+                  "mass": 0.9863859989622918,
+                  "drag": 0.00019654248439658268,
+                  "lift": 0.5452003992834112,
+                  "moment_z": 0.6807021392445121,
+                  "heat_flux": 0
+                }
+              },
+              "state_difference_from_native": [
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0
+              ],
+              "quantity_difference_from_native": {
+                "mass": 0.0,
+                "drag": 0.0,
+                "lift": 0.0,
+                "moment_z": 0.0,
+                "heat_flux": 0.0
+              },
+              "report_manifest_sha256": "3662bdb1447b316811dc7837cbcaf053cc3f66e77be1474f482442fdf0efe669"
+            },
+            {
+              "mode": "segregated",
+              "exit_code": 0,
+              "wall_seconds": 18.0783950521145,
+              "config_sha256": "06ca039e934820f14d78540a8303b67ccaddfc55445fcc426f26665cfa200b2c",
+              "rank_resources": [
+                {
+                  "max_rss_kib": 25316,
+                  "user_seconds": 30.57,
+                  "system_seconds": 2.93
+                },
+                {
+                  "max_rss_kib": 25168,
+                  "user_seconds": 31.2,
+                  "system_seconds": 2.51
+                }
+              ],
+              "max_rank_rss_kib": 25316,
+              "updates": 3119,
+              "last_history_log10_rms": [
+                -11.28943908,
+                -12.01398345,
+                -12.15107149,
+                -11.15815425,
+                -14.95260058,
+                -11.00010157
+              ],
+              "outer_krylov_iterations": 34458,
+              "inner_krylov_iterations": 0,
+              "residual_assemblies": {
+                "flow": 87483,
+                "turbulence": 37426
+              },
+              "attempts": 6238,
+              "flow_residual_assemblies": 87483,
+              "physical": {
+                "points": 81,
+                "systems": {
+                  "flow": {
+                    "rms": [
+                      5.1352420889383934e-12,
+                      9.683147525325476e-13,
+                      7.062013021433651e-13,
+                      6.947775100768963e-12
+                    ],
+                    "maximum": [
+                      3.426426560559394e-11,
+                      4.8575501260250675e-12,
+                      2.1211051002363503e-12,
+                      2.4953980830473566e-11
+                    ],
+                    "normalized_rms": [
+                      7.132281780804313e-12,
+                      8.734430188200547e-13,
+                      7.119401629174735e-13,
+                      1.6156488573795516e-13
+                    ],
+                    "projection_max": [
+                      0,
+                      0,
+                      0,
+                      0
+                    ],
+                    "packed_integral": [
+                      0.9863860000104399,
+                      0.969123239706092,
+                      -0.01732062037789163,
+                      44.87676597257483
+                    ]
+                  },
+                  "turbulence": {
+                    "rms": [
+                      1.1153198204167812e-15,
+                      9.997661618033846e-12
+                    ],
+                    "maximum": [
+                      4.294836513339673e-15,
+                      4.207291459668028e-11
+                    ],
+                    "normalized_rms": [
+                      2.995183902854268e-13,
+                      2.676559800030361e-13
+                    ],
+                    "projection_max": [
+                      0,
+                      0
+                    ],
+                    "packed_integral": [
+                      0.0015766732750823805,
+                      16.289192418247715
+                    ]
+                  }
+                },
+                "quantities": {
+                  "mass": 0.9863860000104399,
+                  "drag": 0.00019654248114624894,
+                  "lift": 0.5452003900792766,
+                  "moment_z": 0.6807021328029549,
+                  "heat_flux": 0
+                }
+              },
+              "state_difference_from_native": [
+                4.534213342279554e-08,
+                5.013470045317083e-09,
+                8.487834946533745e-09,
+                1.0440773346572114e-09,
+                3.134460594612819e-08,
+                3.470282363058877e-09
+              ],
+              "quantity_difference_from_native": {
+                "mass": 1.062614447012015e-09,
+                "drag": 1.653756306951364e-08,
+                "lift": 1.6882112868481272e-08,
+                "moment_z": 9.463106996696205e-09,
+                "heat_flux": 0.0
+              },
+              "report_manifest_sha256": "3a3b23d7eb8608cb40eeea318662cab9b8a324ad60c8ea33b30916876e0cb3dc"
+            },
+            {
+              "mode": "coupled",
+              "exit_code": 0,
+              "wall_seconds": 17.436924990965053,
+              "config_sha256": "e82d3deecf5468db60eff02f0dccdebdd8f70b82c884d78eebda42a5c333df59",
+              "rank_resources": [
+                {
+                  "max_rss_kib": 25704,
+                  "user_seconds": 30.26,
+                  "system_seconds": 2.98
+                },
+                {
+                  "max_rss_kib": 25116,
+                  "user_seconds": 30.67,
+                  "system_seconds": 2.9
+                }
+              ],
+              "max_rank_rss_kib": 25704,
+              "updates": 3119,
+              "last_history_log10_rms": [
+                -11.28942312,
+                -12.01407011,
+                -12.1510443,
+                -11.15814564,
+                -14.95257744,
+                -11.00004113
+              ],
+              "outer_krylov_iterations": 25072,
+              "inner_krylov_iterations": 0,
+              "residual_assemblies": {
+                "flow": 78216,
+                "turbulence": 78216
+              },
+              "attempts": 3119,
+              "flow_residual_assemblies": 78216,
+              "physical": {
+                "points": 81,
+                "systems": {
+                  "flow": {
+                    "rms": [
+                      5.1354307618042204e-12,
+                      9.68121544740297e-13,
+                      7.062455084129931e-13,
+                      6.947912750601593e-12
+                    ],
+                    "maximum": [
+                      3.426536513567464e-11,
+                      4.8566550087114635e-12,
+                      2.1210718999329498e-12,
+                      2.4964651141679353e-11
+                    ],
+                    "normalized_rms": [
+                      7.1325551945408815e-12,
+                      8.732640391827853e-13,
+                      7.119862094219603e-13,
+                      1.6157206592604744e-13
+                    ],
+                    "projection_max": [
+                      0,
+                      0,
+                      0,
+                      0
+                    ],
+                    "packed_integral": [
+                      0.9863860000104959,
+                      0.9691232397060651,
+                      -0.017320620377860613,
+                      44.8767659725752
+                    ]
+                  },
+                  "turbulence": {
+                    "rms": [
+                      1.1153792373839983e-15,
+                      9.999052934854496e-12
+                    ],
+                    "maximum": [
+                      4.296676268901109e-15,
+                      4.209101123198167e-11
+                    ],
+                    "normalized_rms": [
+                      2.9953332597604716e-13,
+                      2.676930894292197e-13
+                    ],
+                    "projection_max": [
+                      0,
+                      0
+                    ],
+                    "packed_integral": [
+                      0.001576673275082378,
+                      16.289192418247637
+                    ]
+                  }
+                },
+                "quantities": {
+                  "mass": 0.9863860000104959,
+                  "drag": 0.00019654248114607376,
+                  "lift": 0.5452003900787592,
+                  "moment_z": 0.6807021328025958,
+                  "heat_flux": 0
+                }
+              },
+              "state_difference_from_native": [
+                4.5344519972061015e-08,
+                5.013739967971164e-09,
+                8.488293790645566e-09,
+                1.0441342154214449e-09,
+                3.134460594612819e-08,
+                3.470476103596245e-09
+              ],
+              "quantity_difference_from_native": {
+                "mass": 1.0626712870957171e-09,
+                "drag": 1.6538454377907126e-08,
+                "lift": 1.6883061811163917e-08,
+                "moment_z": 9.463634461067863e-09,
+                "heat_flux": 0.0
+              },
+              "report_manifest_sha256": "a0dd3f068ae0526be21b67a4f3d1163707ac3f7a569605f9cc22e454372ea490"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
