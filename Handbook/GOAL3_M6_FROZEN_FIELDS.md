@@ -1,7 +1,7 @@
 # Goal3 — actual frozen M6 fields and the primary integration strategy
 
 Full Goal3 ACTIVE/incomplete. Published producer/header restored exactly to
-977691bc4e after the failed primary-column experiment. All owned jobs terminal.
+977691bc4e after the failed primary-column and cell-ledger experiments. All owned jobs terminal.
 Current executable still contains the withdrawn experiment: rebuild with the
 next connected change; never treat it as restored-source proof. The complete M6 mesh has never entered native construction.
 
@@ -76,16 +76,61 @@ Read-only debugger receipts expose two mechanisms:
  The sampled panel value1.57e-12/error5.99e-23 cannot bound an unsampled fine
  wall contribution. Never dismiss hidden support from tiny sampled values alone.
 
-NEXT: replace nested per-ray stopping with a coupled cell-wide angular/radial
-error ledger. Retain the geometric hidden-support guard and existing tolerances,
-point/work/depth bounds and physical metric. Test the3 exact fields before CFD.
-A future release of an unresolved support guard requires a conservative bound,
-not another chart fallback or a looser tolerance. No such bound is claimed now.
+## Cell-wide ledger also rejected
+
+The subsequent connected controller retained the original chart routing/support
+guard and physical field. All angular/radial contributions shared one cell error
+ledger, with aggregate radial1e-5*(fine+comparison) and total1e-4*fine estimates.
+Global/work/depth/point bounds remained unchanged. Comparison rays retained only
+scalar estimates and wall-hit lists; fine rays retained positive3/5-point sets.
+Finite weights/radial values/errors were checked before heap insertion and cached
+priority entries carried revisions. This is numerical estimation, not enclosure.
+
+The3 actual fields fail, preserved under captured_cells_v1/cell_ledger_v1:
+329 point cap65424/panel1074,947699 callbacks/22.53s;157 point cap65430/panel776,
+949117 callbacks/89.45s;88 timeout90s. These contended low-priority diagnostic
+wall times do not establish performance. No accepted rule/mesh/transfer follows.
+
+One read-only GDB failure state shows current partial mass.260515, angular
+estimate1.75884e-5 and radial2.61199e-4, no unresolved support,65424 points.
+Angular selection continued even after its reserved allocation was satisfied.
+The scheduling eligibility fix is captured and asserted against those exact
+values; nevertheless v2 still fails329 (65497/panel1078/948270 callbacks/21.69s),
+157 (65430/panel776/949117 callbacks/84.81s),88 timeout90s. Both sources/results
+are preserved. No more queue weight/chart/local fallback variants now.
+
+The GDB run shared a testcase cwd and left two CSV streams unflushed. Original
+saved hashes exposed this; both exact CSVs were recovered from previously completed
+v2 files matching those hashes. The original receipts remain unchanged, and the
+recovery record preserves the empty debugger outputs. Future debugger cwd must
+be separate. Debugger maximum RSS includes symbols/GDB; it is not native RSS.
+
+Producer/header restored exactly977691/11a539. Test executable contains ledgerv2;
+CFD executable contains the earlier rejected parallel route. Neither is proof of
+restored-source runtime behavior. Rebuild with the next connected implementation.
+All owned jobs terminal. No broad regression or MPI/CFD campaign for these failures.
+
+NEXT: reassess representation and whole-complexity error allocation before another
+implementation. A complete original-P1 first-trial field checkpoint would allow
+whole-mesh offline integration without repeating CFD. Its passive extraction is
+not yet implemented. Current cell fixtures remain exact useful counterexamples.
+Uniform per-cell relative accuracy may be inappropriate for a global scalar sum,
+but changing allocation is not permission to lose thin-band mass or weaken mesh
+acceptance. The existing scale solver stops at1e-6 while quadrature uses a1e-4
+numerical indicator; any new design must account for both and independently check
+accuracy. Unobserved BL support needs conservative mass handling. No such mass
+certificate or global accuracy guarantee is established by these experiments.
 
 ## Independent assistance and unresolved mechanisms
 
-Both read-only Claude reviews returned confirmed claude-opus-5-5, high then medium,
-with no nested agents/permission denials. The second is CLAUDE_CAPTURED_REVIEW.md.
+Three completed read-only Claude reviews confirm claude-opus-5-5: high, medium,
+then medium (CLAUDE_LEDGER_REVIEW.md). No nested agents/permission denials; the
+ledger review had all tools disabled. Its material findings were addressed before
+actual-field checks, without treating review as validation. A fourth structural
+high-effort request timed out360s with no returned review; saved attempt records
+its provisional157-timeout and omitted1e-6-scale-tolerance prompt errata. Do not
+attribute any global-budget conclusion to that incomplete attempt. The second
+completed review is CLAUDE_CAPTURED_REVIEW.md.
 It confirms the parallel chart geometry is not mathematically hidden-only, but
 predicts reuse may not suffice. Suggested nearest-feature cuts are an experiment,
 not established proof. Per-triangle face/edge/vertex Voronoi planes alone do not
@@ -94,8 +139,8 @@ may matter. Rejecting valid concave fields is not a way to complete the goal.
 RotateNormal already handles unoriented normals; no transport-sign bug was found.
 
 Nested radial/angle error allocation, nearest-feature crossings, excessive base
-cuts and sensor-intersection kinks remain distinct possible causes. The withdrawn experiment and exact error-budget states motivate a
-coupled global error ledger; no successful implementation is claimed yet.
+cuts and sensor-intersection kinks remain distinct possible causes. Both withdrawn strategies and exact budget states motivate structural
+reassessment; no successful whole-M6 integration is claimed.
 
 The old frozen_sensor.csv checkpoint is a2D unit fixture. A generic whole-trial3D
 export was not found. Current cell replay avoids further CFD for these targets;

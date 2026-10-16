@@ -1,0 +1,914 @@
+We need a structural design review, not another local fallback. No tools, no agents, no edits. Propose ONE defensible next architecture for robust and affordable thin BL complexity integration on coarse3D tetrahedral meshes. Separate mathematical guarantees from heuristics; if unknown say so.
+SU2 native remeshing target is frozen original-P1 sensor intersected at actual point with geometric BL. firstHeight2e-6/growth1.2/thickness.01 fade last10%; sensor finer demands retained. No target/geometry/fade/first-height changes or coarse-cell spreading. Actual M6 coarse grid303359tets,120step RANS restart; trial1 targetcomplexity100000, core.056676963474793819. Whole-event first local quadrature failures block BEFORE remeshing.
+Current implementation independently targets every source tetra with retained positive rule<=65536points, estimated relative error1e-4, radial1e-5, depth32/sharedwork16384. Frozen actual fields are available so no CFD runs needed. Initial interval-relative solve failed nearest-feature jump(width1e-10) even tiny absolute error; ray-total budget fixesunit field but actualfieldsstillfail. Parallel wall-normal primary alsofails. New cell-wide ledger removes independent per-ray stopping, retains geometric guard; still329failspointcap65424/1074angular panels/947699 densitycalls22s,157timeouts90s. No larger budgets or chart retry ladders. Missing BL support guard cannotbeignoredjustbecausepointprobesare small.
+Questions: Is insisting on uniformly tiny relative accuracy in EVERY source tetra the wrong integration abstraction when only their global complexity sum is used? If global-error allocation is appropriate, specify safe support handling including hidden microscopic layers, interactions and original-P1 discontinuities, positive reusable quadrature, MPI convergence and bounded memory/work. How would you obtain affordable conservative mass/error certificates without evaluating every sampled tensor or inventing a falsely rigorous Gauss-difference bound? Is a wall-normal correction decomposition (sensor integral + integral of density increase) materially better, and what exact geometry/overlap pitfalls block a small robust implementation? Select one next design or a decisive evidence-gathering step; don't give a wishlist. Keep the declared1e-4 global accuracy requirement, not just permission to ignore errors. We need preservationofmeshacceptancegates and actual-query policy, serial andMPI.
+Actual frozen counterexamples:
+{
+  "global_cell": 329,
+  "nodes": [
+    35390,
+    35392,
+    55696,
+    55768
+  ],
+  "coordinates": [
+    [
+      0.1570524776285571,
+      0.2481512146199483,
+      0.02691667856598783
+    ],
+    [
+      0.1655778861069223,
+      0.2488709047848888,
+      0.05217907196282225
+    ],
+    [
+      0.15967028937641,
+      0.2286908637093972,
+      0.03157265513406676
+    ],
+    [
+      0.1697487457299657,
+      0.2342740111476171,
+      0.0287510731404378
+    ]
+  ],
+  "core": 0.05667696347479382,
+  "complexity_trial": 1,
+  "log_scale": -0.47810758149935007,
+  "raw_sensor": [
+    [
+      [
+        3205.0197049048443,
+        -545.7764701545117,
+        -993.4685196835718
+      ],
+      [
+        -545.7764701545117,
+        1985.1033377824149,
+        573.5844258571533
+      ],
+      [
+        -993.4685196835718,
+        573.5844258571533,
+        7161.358067850801
+      ]
+    ],
+    [
+      [
+        2137.2844899062884,
+        -378.2974403740261,
+        -1356.4168590445051
+      ],
+      [
+        -378.2974403740262,
+        1291.4728397053193,
+        517.7685614178156
+      ],
+      [
+        -1356.416859044505,
+        517.7685614178156,
+        4235.554604228061
+      ]
+    ],
+    [
+      [
+        2404.5841338177756,
+        -557.6904144607643,
+        -1426.5036018408537
+      ],
+      [
+        -557.6904144607644,
+        2104.4427528384294,
+        778.3522998822481
+      ],
+      [
+        -1426.5036018408537,
+        778.3522998822481,
+        8024.1195369163925
+      ]
+    ],
+    [
+      [
+        2492.913891854574,
+        -30.751800903083435,
+        -1163.1032440758954
+      ],
+      [
+        -30.751800903083435,
+        1951.1994616086733,
+        940.8657769858763
+      ],
+      [
+        -1163.1032440758956,
+        940.8657769858764,
+        8734.985269375768
+      ]
+    ]
+  ],
+  "maximum_sensor_asymmetry": 2.2737367544323206e-13,
+  "wall_tolerance": 1.731565003102164e-14,
+  "vertex_distances": [
+    0.009784316262877481,
+    0.03230553382548692,
+    0.011019569627342041,
+    0.00716876336292044
+  ],
+  "edge_midpoint_distances": [
+    0.020938537181572233,
+    0.010305452045205313,
+    0.008143918127839657,
+    0.021662551725551402,
+    0.01973714859738162,
+    0.00909416648924683
+  ],
+  "face_centroid_distances": [
+    0.016831288941266963,
+    0.009039771459439998,
+    0.016133755666318337,
+    0.017569499796080693
+  ],
+  "edges": [
+    [
+      0,
+      1
+    ],
+    [
+      0,
+      2
+    ],
+    [
+      0,
+      3
+    ],
+    [
+      1,
+      2
+    ],
+    [
+      1,
+      3
+    ],
+    [
+      2,
+      3
+    ]
+  ],
+  "faces": [
+    [
+      1,
+      2,
+      3
+    ],
+    [
+      0,
+      2,
+      3
+    ],
+    [
+      0,
+      1,
+      3
+    ],
+    [
+      0,
+      1,
+      2
+    ]
+  ],
+  "vertex_contacts": [],
+  "scope": "Actual recorded runtime trial/core/nodal tensors and exact coordinates; complete original native wall orientation retained. Independent point/edge-midpoint/face-centroid distances are diagnostics, not a proof of complete entity contact. Raw roundoff asymmetry is preserved, not symmetrized.",
+  "sha256": {
+    "captured": "30021144b3b6345b37c86e460bb7f12a7567fab0b7e319389b4757b2fc0574f4",
+    "fixture": "2d15d275a7e4cafe145130a675641dfe90f373824b6debaa5a02d5ac8b1aba86",
+    "helper": "bafad5cd9d068e1110ac59f8806f3746bea691fc2952bcc25d89bf83f95f8820",
+    "oracle": "b4af4cc0844cb180449829cecb62221aa4bb69b0a66fdb4128a3fbc6e92256bd"
+  }
+}
+
+{
+  "global_cell": 157,
+  "nodes": [
+    16095,
+    45625,
+    49638,
+    50432
+  ],
+  "coordinates": [
+    [
+      0.6930305180951096,
+      1.170901984685721,
+      -0.01264464988225317
+    ],
+    [
+      0.6963343354741206,
+      1.174552569157051,
+      -0.01696805124685989
+    ],
+    [
+      0.6913005199406684,
+      1.173723576199161,
+      -0.02450305810723676
+    ],
+    [
+      0.6895856134308039,
+      1.178555154190633,
+      -0.01649071970879366
+    ]
+  ],
+  "core": 0.05667696347479382,
+  "complexity_trial": 1,
+  "log_scale": -0.47810758149935007,
+  "raw_sensor": [
+    [
+      [
+        3907.761391378369,
+        -1576.0148247463371,
+        1025.91299207602
+      ],
+      [
+        -1576.014824746337,
+        2990.2555144387334,
+        -651.1404579779202
+      ],
+      [
+        1025.9129920760201,
+        -651.1404579779202,
+        29170.8735926704
+      ]
+    ],
+    [
+      [
+        3637.260844757201,
+        -1694.708310974115,
+        1230.5038773484127
+      ],
+      [
+        -1694.7083109741152,
+        3024.5101601079473,
+        -1260.0681063306522
+      ],
+      [
+        1230.5038773484127,
+        -1260.0681063306524,
+        27452.863815921737
+      ]
+    ],
+    [
+      [
+        3620.206543570959,
+        -1654.407541346674,
+        3020.2217925142027
+      ],
+      [
+        -1654.407541346674,
+        2797.94793226985,
+        -2165.086843566444
+      ],
+      [
+        3020.2217925142027,
+        -2165.086843566444,
+        18834.924828353283
+      ]
+    ],
+    [
+      [
+        4619.551909926503,
+        -2253.01989097147,
+        2011.5270863118085
+      ],
+      [
+        -2253.01989097147,
+        3785.4253813949995,
+        -920.8441017929879
+      ],
+      [
+        2011.5270863118085,
+        -920.8441017929879,
+        22482.815978580176
+      ]
+    ]
+  ],
+  "maximum_sensor_asymmetry": 2.2737367544323206e-13,
+  "wall_tolerance": 1.731565003102164e-14,
+  "vertex_distances": [
+    0.0,
+    0.0040650401143283565,
+    0.012218399274538046,
+    0.0057052457509026225
+  ],
+  "edge_midpoint_distances": [
+    0.002032520057164166,
+    0.006109199637269023,
+    0.0028526228754513277,
+    0.008140715324433237,
+    0.00474344518221606,
+    0.008941431113803607
+  ],
+  "face_centroid_distances": [
+    0.007219716743766319,
+    0.005960954075869069,
+    0.0031622967881440277,
+    0.005427143549622162
+  ],
+  "edges": [
+    [
+      0,
+      1
+    ],
+    [
+      0,
+      2
+    ],
+    [
+      0,
+      3
+    ],
+    [
+      1,
+      2
+    ],
+    [
+      1,
+      3
+    ],
+    [
+      2,
+      3
+    ]
+  ],
+  "faces": [
+    [
+      1,
+      2,
+      3
+    ],
+    [
+      0,
+      2,
+      3
+    ],
+    [
+      0,
+      1,
+      3
+    ],
+    [
+      0,
+      1,
+      2
+    ]
+  ],
+  "vertex_contacts": [
+    0
+  ],
+  "scope": "Actual recorded runtime trial/core/nodal tensors and exact coordinates; complete original native wall orientation retained. Independent point/edge-midpoint/face-centroid distances are diagnostics, not a proof of complete entity contact. Raw roundoff asymmetry is preserved, not symmetrized.",
+  "sha256": {
+    "captured": "eb4aab628d0631c6b1e1544551d54027554ee9c80233ea2b814503dae4a216d1",
+    "fixture": "58a19246fba88a4d51b0e1878fb0658e98226f58ebce39d52006b8ffd07cd1a3",
+    "helper": "bafad5cd9d068e1110ac59f8806f3746bea691fc2952bcc25d89bf83f95f8820",
+    "oracle": "b4af4cc0844cb180449829cecb62221aa4bb69b0a66fdb4128a3fbc6e92256bd"
+  }
+}
+
+{
+  "global_cell": 88,
+  "nodes": [
+    25047,
+    25054,
+    39046,
+    39047
+  ],
+  "coordinates": [
+    [
+      0.824620011777925,
+      0.0831683274618855,
+      0.01112895436278559
+    ],
+    [
+      0.8316139884373595,
+      0.08009791866229805,
+      0.01059999308499806
+    ],
+    [
+      0.8309147966659968,
+      0.08728771357060558,
+      0.005969188683407624
+    ],
+    [
+      0.8342256940490367,
+      0.0900399911646063,
+      0.01496274685782154
+    ]
+  ],
+  "core": 0.05667696347479382,
+  "complexity_trial": 1,
+  "log_scale": -0.47810758149935007,
+  "raw_sensor": [
+    [
+      [
+        7580.850791300489,
+        -1572.1785930267436,
+        -473.05439749690095
+      ],
+      [
+        -1572.1785930267436,
+        1929.6927366007692,
+        106.23779462337389
+      ],
+      [
+        -473.05439749690095,
+        106.2377946233739,
+        14040.163689405224
+      ]
+    ],
+    [
+      [
+        7834.793225125125,
+        -1625.4180756462688,
+        -673.9245768508786
+      ],
+      [
+        -1625.4180756462688,
+        1919.5045677453454,
+        41.22237613121681
+      ],
+      [
+        -673.9245768508787,
+        41.22237613121682,
+        15942.246360577035
+      ]
+    ],
+    [
+      [
+        10013.292031803021,
+        -2318.469503962512,
+        -1209.3784029576777
+      ],
+      [
+        -2318.469503962512,
+        1940.45897451847,
+        72.59318320409447
+      ],
+      [
+        -1209.3784029576773,
+        72.59318320409449,
+        21909.23769060193
+      ]
+    ],
+    [
+      [
+        5973.240571061453,
+        -1255.8690856214428,
+        -949.1846853096471
+      ],
+      [
+        -1255.869085621443,
+        1409.0231251405414,
+        137.35127834710448
+      ],
+      [
+        -949.1846853096471,
+        137.3512783471045,
+        13282.90407933219
+      ]
+    ]
+  ],
+  "maximum_sensor_asymmetry": 4.547473508864641e-13,
+  "wall_tolerance": 1.731565003102164e-14,
+  "vertex_distances": [
+    0.00990412352021011,
+    0.010475790730891152,
+    0.005417284960241037,
+    0.014677220409663197
+  ],
+  "edge_midpoint_distances": [
+    0.010124131642140703,
+    0.0076607107712013175,
+    0.012276562301100928,
+    0.00790726074506916,
+    0.012562226159917374,
+    0.010036890985610902
+  ],
+  "face_centroid_distances": [
+    0.010163409281804002,
+    0.009990139521811882,
+    0.011632416634688569,
+    0.00855518495141149
+  ],
+  "edges": [
+    [
+      0,
+      1
+    ],
+    [
+      0,
+      2
+    ],
+    [
+      0,
+      3
+    ],
+    [
+      1,
+      2
+    ],
+    [
+      1,
+      3
+    ],
+    [
+      2,
+      3
+    ]
+  ],
+  "faces": [
+    [
+      1,
+      2,
+      3
+    ],
+    [
+      0,
+      2,
+      3
+    ],
+    [
+      0,
+      1,
+      3
+    ],
+    [
+      0,
+      1,
+      2
+    ]
+  ],
+  "vertex_contacts": [],
+  "scope": "Actual recorded runtime trial/core/nodal tensors and exact coordinates; complete original native wall orientation retained. Independent point/edge-midpoint/face-centroid distances are diagnostics, not a proof of complete entity contact. Raw roundoff asymmetry is preserved, not symmetrized.",
+  "sha256": {
+    "captured": "81f4f804c08d7ded7e20d4f6c5f877906b46af505bec8856273e5923821b0027",
+    "fixture": "e6b45d9c7ca2359c05e2a1be727f456be370637ed765b76707c5cace880c49bd",
+    "helper": "bafad5cd9d068e1110ac59f8806f3746bea691fc2952bcc25d89bf83f95f8820",
+    "oracle": "b4af4cc0844cb180449829cecb62221aa4bb69b0a66fdb4128a3fbc6e92256bd"
+  }
+}
+
+
+Actual field evaluation:
+CBoundaryLayerMetric::Sample CBoundaryLayerMetric::Evaluate(unsigned short iWall, const su2double* X,
+                                                            su2double coreEigenvalue) {
+  const auto& wall = walls[iWall];
+  auto& d = *data[iWall];
+  Sample sample;
+  if (!d.adt) return sample;
+  auto x = [&](unsigned long iPoint) { return &wall.coord[iPoint * nDim]; };
+
+  unsigned short markerID = 0;
+  unsigned long id = 0;
+  int rankID = 0;
+  su2double adtDistance = 0.0;
+  SU2Native3D::PlanarReference::ClosestSurface smooth;
+  su2double lookup[3]={X[0],X[1],nDim==3?X[2]:su2double(0.)};
+  if(wall.authority) {
+    smooth=wall.authority->ClosestAnalytic(wall.authority_facet,
+        {SU2_TYPE::GetValue(X[0]),SU2_TYPE::GetValue(X[1]),SU2_TYPE::GetValue(X[2])});
+    lookup[0]=smooth.point.x;lookup[1]=smooth.point.y;lookup[2]=smooth.point.z;
+  }
+  // Tangential interpolation belongs to the physical foot, not an interior proxy Voronoi branch.
+  d.adt->DetermineNearestElement(lookup, adtDistance, markerID, id, rankID);
+
+  su2double tangentSize[3][3] = {{0.0}};  // 3D: size tensor (squared sizes) on the tangent plane
+  su2double ht = 0.0, tangent[3] = {0.0};  // 2D
+  su2double geometricNormal[3] = {0.0};
+
+  if (nDim == 2) {
+    /*--- Exact distance to a segment, parameter of the closest point. ---*/
+    auto segmentDistance = [&](unsigned long iSeg, su2double& along) {
+      const auto* a = x(d.elem[2 * iSeg]);
+      const auto* b = x(d.elem[2 * iSeg + 1]);
+      along = SegmentParameter(2, a, b, X);
+      const su2double r[2] = {X[0] - a[0] - along * (b[0] - a[0]), X[1] - a[1] - along * (b[1] - a[1])};
+      return sqrt(r[0] * r[0] + r[1] * r[1]);
+    };
+    su2double along = 0.0;
+    su2double best = segmentDistance(id, along);
+
+    /*--- At a vertex the closest point is shared by its two segments: the segment whose midpoint is nearer is taken
+     *    (the rule of the Python version in exact arithmetic, whose search visits the segments by the distance of their
+     *    midpoints); the two distances are compared with a relative tolerance of 1e-12, so the choice does not depend
+     *    on round-off. ---*/
+    if (along == 0.0 || along == 1.0) {
+      const auto vertex = d.elem[2 * id + (along == 1.0 ? 1 : 0)];
+      auto midDistance = [&](unsigned long iSeg) {
+        const auto* a = x(d.elem[2 * iSeg]);
+        const auto* b = x(d.elem[2 * iSeg + 1]);
+        return pow(X[0] - 0.5 * (a[0] + b[0]), 2) + pow(X[1] - 0.5 * (a[1] + b[1]), 2);
+      };
+      for (const auto other : d.segments[vertex]) {
+        if (other == id) continue;
+        su2double alongOther = 0.0;
+        const su2double dist = segmentDistance(other, alongOther);
+        const bool tie = fabs(dist - best) <= 1e-12 * best;
+        if ((dist < best && !tie) || (tie && midDistance(other) < midDistance(id))) {
+          id = other;
+          best = min(best, dist);
+          along = alongOther;
+        }
+      }
+    }
+    sample.distance = best;
+
+    const auto* a = x(d.elem[2 * id]);
+    const auto* b = x(d.elem[2 * id + 1]);
+    const su2double length = d.length[id];
+    const su2double t[2] = {(b[0] - a[0]) / length, (b[1] - a[1]) / length};
+    su2double n[2] = {-t[1], t[0]};
+    const su2double radial[2] = {X[0] - a[0] - along * (b[0] - a[0]), X[1] - a[1] - along * (b[1] - a[1])};
+    const su2double radius = sqrt(radial[0] * radial[0] + radial[1] * radial[1]);
+    if (along == 0.0 || along == 1.0) {
+      if (radius > 1e-12 * length) {
+        n[0] = radial[0] / radius;
+        n[1] = radial[1] / radius;
+      } else {
+        const auto& vn = d.vertexNormal[d.elem[2 * id + (along > 0.5 ? 1 : 0)]];
+        n[0] = vn[0];
+        n[1] = vn[1];
+      }
+    }
+    sample.normal[0] = n[0];
+    sample.normal[1] = n[1];
+    tangent[0] = -n[1];
+    tangent[1] = n[0];
+
+    /*--- Tangential size: length of the closest segment, limited near the vertices where the wall turns. ---*/
+    ht = length;
+    /*--- Corner searches use the existing face radius: the reference chord already avoids crossing features. ---*/
+    const su2double radiusSearch = 0.5 * length;
+    const long ci = static_cast<long>(floor(SU2_TYPE::GetValue(X[0] / d.cell)));
+    const long cj = static_cast<long>(floor(SU2_TYPE::GetValue(X[1] / d.cell)));
+    su2double limited = ht;
+    for (long i = ci - 1; i <= ci + 1; ++i) {
+      for (long j = cj - 1; j <= cj + 1; ++j) {
+        const auto it = d.grid.find(std::make_pair(i, j));
+        if (it == d.grid.end()) continue;
+        for (const auto iCorner : it->second) {
+          const auto* c = x(d.corner[iCorner]);
+          const su2double r = sqrt(pow(X[0] - c[0], 2) + pow(X[1] - c[1], 2));
+          if (r <= radiusSearch) limited = min(limited, max(d.h0, 2.0 * r / d.turn[iCorner]));
+        }
+      }
+    }
+    ht = limited;
+  } else {
+    /*--- The ADT's tolerant triangle test is a seed, not an authoritative closest facet. ---*/
+    const auto* query=wall.authority?lookup:X;
+    auto closest=[&](unsigned long face,su2double (&weights)[3],su2double (&point)[3]) {
+      const auto* t=&d.elem[3*face];ClosestPointTriangle(x(t[0]),x(t[1]),x(t[2]),query,weights);
+      for(unsigned j=0;j<3;++j){point[j]=0;for(unsigned k=0;k<3;++k)point[j]+=weights[k]*x(t[k])[j];}
+      su2double distance2=0;for(unsigned j=0;j<3;++j)distance2+=pow(query[j]-point[j],2);
+      return distance2;
+    };
+    su2double w[3],projected[3];auto dist2=closest(id,w,projected);
+    std::vector<unsigned long> candidates;
+    d.adt->DetermineElementsWithinDistance(query,sqrt(dist2)+d.tolerance,candidates);
+    std::sort(candidates.begin(),candidates.end());
+    for(auto other:candidates)if(other!=id) {
+      su2double weights[3],point[3];const auto distance2=closest(other,weights,point);
+      if(distance2<dist2 || (distance2==dist2 && other<id)) {
+        id=other;dist2=distance2;std::copy(weights,weights+3,w);std::copy(point,point+3,projected);
+      }
+    }
+    const auto* t = &d.elem[3 * id];
+    sample.distance = sqrt(dist2);
+    if(wall.authority) {
+      sample.distance=smooth.distance;
+      projected[0]=smooth.point.x;projected[1]=smooth.point.y;projected[2]=smooth.point.z;
+      geometricNormal[0]=smooth.normal.x;geometricNormal[1]=smooth.normal.y;geometricNormal[2]=smooth.normal.z;
+    }
+
+    /*--- Normal: of the face, of an edge, of a vertex, or towards the point if it is off the wall. ---*/
+    Vec3 n = d.faceNormal[id];
+    unsigned short nZero = 0, kMin = 0, kMax = 0;
+    for (unsigned short k = 0; k < 3; ++k) {
+      if (w[k] <= 1e-10) ++nZero;
+      if (w[k] < w[kMin]) kMin = k;
+      if (w[k] > w[kMax]) kMax = k;
+    }
+    if (nZero == 1) n = d.edgeNormal[id][kMin];
+    if (nZero >= 2) n = d.vertexNormal[t[kMax]];
+    if(wall.authority)n={smooth.normal.x,smooth.normal.y,smooth.normal.z};
+    if (sample.distance > d.tolerance) {
+      if(wall.authority)n={smooth.direction.x,smooth.direction.y,smooth.direction.z};
+      else for (unsigned short iDim = 0; iDim < 3; ++iDim) n[iDim] = (X[iDim] - projected[iDim]) / sample.distance;
+    }
+    for (unsigned short iDim = 0; iDim < 3; ++iDim) sample.normal[iDim] = n[iDim];
+
+    /*--- Size tensor: barycentric mean of the logarithms of the vertex tensors, rotated to this normal; then its
+     *    projection on the tangent plane. ---*/
+    su2double logC[3][3] = {{0.0}};
+    for (unsigned short k = 0; k < 3; ++k) {
+      su2double R[3][3], rotated[3][3];
+      RotateNormal(d.vertexNormal[t[k]].data(), n.data(), R);
+      Rotate(R, d.vertexLog[t[k]].m, rotated);
+      for (int i = 0; i < 3; ++i)
+        for (int j = 0; j < 3; ++j) logC[i][j] += w[k] * rotated[i][j];
+    }
+    su2double C[3][3], P[3][3], PC[3][3];
+    Spectral(3, logC, C, [](su2double v) { return exp(v); });
+    for (int i = 0; i < 3; ++i)
+      for (int j = 0; j < 3; ++j) P[i][j] = (i == j ? 1.0 : 0.0) - n[i] * n[j];
+    for (int i = 0; i < 3; ++i)
+      for (int j = 0; j < 3; ++j) {
+        PC[i][j] = 0.0;
+        for (int k = 0; k < 3; ++k) PC[i][j] += P[i][k] * C[k][j];
+      }
+    for (int i = 0; i < 3; ++i)
+      for (int j = 0; j < 3; ++j) {
+        tangentSize[i][j] = 0.0;
+        for (int k = 0; k < 3; ++k) tangentSize[i][j] += PC[i][k] * P[k][j];
+      }
+  }
+
+  sample.weight = FadeWeight(sample.distance, d.full, d.width);
+  if (!(sample.weight > 0.0)) return sample;
+
+  /*--- Wall-normal size of geometric rows: harmonic mean of the two rows around the point, at least h0. ---*/
+  sample.hn = max(d.h0, 2.0 * (d.h0 + (d.growth - 1.0) * sample.distance) / (d.growth + 1.0));
+
+  auto& M = sample.full.m;
+  if (nDim == 2) {
+    for (int i = 0; i < 2; ++i)
+      for (int j = 0; j < 2; ++j)
+        M[i][j] = tangent[i] * tangent[j] / (ht * ht) + sample.normal[i] * sample.normal[j] / pow(sample.hn, 2);
+  } else {
+    double curvature=0;std::array<double,3> direction{};const std::array<double,3>* curvedDirection=nullptr;
+    if(wall.authority) {
+      const auto& g=wall.authority->Analytic().at(wall.authority_facet);
+      if(g.kind!=SU2Native3D::AnalyticSurface::Kind::Disk) {
+        const long double epsilon=std::min(wall.surface_tolerance,.5*SU2_TYPE::GetValue(d.h0));
+        const long double radius=g.extent.x,e=std::min(epsilon,radius);
+        const long double chord=2*std::sqrt(e*(2*radius-e));
+        curvature=double(std::pow(SU2Native3D::MaximumMetricEdge/chord,2));
+        if(g.kind==SU2Native3D::AnalyticSurface::Kind::Cylinder) {
+          const double norm=std::hypot(g.axis.x,g.axis.y,g.axis.z);
+          const double a[3]={g.axis.x/norm,g.axis.y/norm,g.axis.z/norm};
+          direction[0]=a[1]*SU2_TYPE::GetValue(geometricNormal[2])-a[2]*SU2_TYPE::GetValue(geometricNormal[1]);
+          direction[1]=a[2]*SU2_TYPE::GetValue(geometricNormal[0])-a[0]*SU2_TYPE::GetValue(geometricNormal[2]);
+          direction[2]=a[0]*SU2_TYPE::GetValue(geometricNormal[1])-a[1]*SU2_TYPE::GetValue(geometricNormal[0]);
+          curvedDirection=&direction;
+        }
+      }
+    }
+    WallMetric3D(tangentSize,sample,curvature,curvedDirection);
+  }
+
+  /*--- Fade: eigenvalues interpolated in logarithm towards the isotropic core metric. ---*/
+  if (sample.weight < 1.0) {
+    const su2double w = sample.weight;
+    if (nDim == 3)
+      Spectral(3, sample.logarithm.m, sample.metric.m, [&](su2double v) { return exp(w*v + (1-w)*log(coreEigenvalue)); });
+    else
+      Spectral(2, M, sample.metric.m, [&](su2double v) { return exp(w*log(v) + (1-w)*log(coreEigenvalue)); });
+  } else {
+    sample.metric = sample.full;
+  }
+  return sample;
+}
+
+std::vector<CBoundaryLayerMetric::WallReport> CBoundaryLayerMetric::Apply(const std::vector<su2double>& coord,
+                                                                          std::vector<Tensor>& metric,
+                                                                          su2double coreEigenvalue) {
+  std::vector<WallReport> reports(walls.size());
+  const auto nPoint = metric.size();
+
+  for (unsigned short iWall = 0; iWall < walls.size(); ++iWall) reports[iWall].name = walls[iWall].layer.marker;
+  for (auto iPoint = 0ul; iPoint < nPoint; ++iPoint)
+    ApplyPoint(&coord[iPoint * nDim], metric[iPoint], coreEigenvalue, &reports);
+  return reports;
+}
+
+double CBoundaryLayerMetric::CoreEigenvalue2D(double xx, double xy, double yy) {
+  const double scale=std::max({std::abs(xx),std::abs(xy),std::abs(yy)});
+  const double largest=.5*(xx/scale+yy/scale+std::hypot((xx-yy)/scale,2*xy/scale));
+  return scale*static_cast<double>(SU2Native2D::NormalizedDeterminant(xx,xy,yy))/largest;
+}
+
+std::shared_ptr<CBoundaryLayerMetric> CBoundaryLayerMetric::FromNativeReference(
+    const SU2NativeBoundary2D::ReferenceState& reference, const CConfig& config) {
+  if (!reference.original) throw std::invalid_argument("Native BL composition needs original geometry.");
+  std::vector<Wall> walls;
+  for (unsigned short b = 0; b < config.GetnAdap_BL(); ++b) {
+    Wall wall;
+    wall.layer = config.GetAdap_BL(b);
+    std::map<uint64_t, unsigned long> points;
+    for (const auto& component : reference.original->Components()) {
+      if (reference.marker_names.at(component.marker) != wall.layer.marker) continue;
+      for (size_t k = 1; k < component.nodes.size(); ++k)
+        for (const auto node : {component.nodes[k - 1], component.nodes[k]}) {
+          auto insertion = points.emplace(node.id, points.size());
+          if (insertion.second) { wall.coord.push_back(node.p.x); wall.coord.push_back(node.p.y); }
+          wall.conn.push_back(insertion.first->second);
+        }
+    }
+    walls.push_back(std::move(wall));
+  }
+  return std::make_shared<CBoundaryLayerMetric>(2, std::move(walls), config.GetAdap_Angle());
+}
+
+std::shared_ptr<CBoundaryLayerMetric> CBoundaryLayerMetric::FromNativeReference(
+    const SU2Native3D::ReferenceState& reference, const CConfig& config) {
+  if (!reference.original) throw std::invalid_argument("Native3D BL needs immutable original geometry.");
+  std::vector<Wall> walls;
+  for (unsigned short b=0;b<config.GetnAdap_BL();++b) {
+    Wall wall;wall.layer=config.GetAdap_BL(b);
+    std::map<uint64_t,unsigned long> points;
+    bool faceted=false;std::set<uint64_t> components;
+    for(const auto& face:reference.facets) {
+      if(reference.marker_names.at(face.marker)!=wall.layer.marker) continue;
+      if(reference.original->Analytic().count(face.id))components.insert(reference.original->Canonical(face.id));
+      else faceted=true;
+      for(const auto& node:face.v) {
+        auto insertion=points.emplace(node.id,points.size());
+        if(insertion.second) {
+          wall.coord.push_back(node.p.x);wall.coord.push_back(node.p.y);wall.coord.push_back(node.p.z);
+        }
+        wall.conn.push_back(insertion.first->second);
+      }
+      wall.conn.push_back(wall.conn.back());
+    }
+    if(wall.conn.empty()) throw std::invalid_argument("Native3D BL marker has no original wall faces: "+wall.layer.marker);
+    if(!components.empty()) {
+      if(faceted || components.size()!=1)throw std::invalid_argument("Native3D analytic BL marker needs one complete component; split physical components into separate markers.");
+      wall.authority=reference.original;wall.authority_facet=*components.begin();
+      if(!wall.authority->CompleteAnalytic(wall.authority_facet))throw std::invalid_argument("Native3D analytic BL partial/graph component is unsupported.");
+      wall.surface_tolerance=SU2_TYPE::GetValue(config.GetAdap_Hausd());
+    }
+    walls.push_back(std::move(wall));
+  }
+  return std::make_shared<CBoundaryLayerMetric>(3,std::move(walls),config.GetAdap_Angle());
+}
+void CBoundaryLayerMetric::ApplySample(unsigned short wall, const Sample& sample, Tensor& metric,
+                                      su2double coreEigenvalue, std::vector<WallReport>* reports,
+                                      bool useTangentialFloor) {
+  if (!(sample.weight > 0.0)) return;
+  Tensor faded = sample.full;
+  if (sample.weight < 1.0) {
+    if (nDim == 3)
+      Spectral(3, sample.logarithm.m, faded.m, [&](su2double value) {
+        return exp(sample.weight*value + (1-sample.weight)*log(coreEigenvalue));
+      });
+    else
+      Spectral(2, sample.full.m, faded.m, [&](su2double value) {
+        return exp(sample.weight*log(value) + (1-sample.weight)*log(coreEigenvalue));
+      });
+  }
+  su2double C[3][3] = {{0.0}};
+  CSolver::IntersectMetrics(nDim, metric.m, faded.m, C);
+  bool changed = false;
+  for (unsigned short i = 0; i < nDim; ++i)
+    for (unsigned short j = 0; j < nDim; ++j) {
+      const auto value = 0.5 * (C[i][j] + C[j][i]);
+      changed = changed || (value != metric.m[i][j]);
+      metric.m[i][j] = value;
+    }
+  su2double vec[3][3], val[3], work[3];
+  bool floor = false;
+  if (reports || (useTangentialFloor && sample.weight == 1.0)) {
+    CBlasStructure::EigenDecomposition(sample.full.m, vec, val, nDim, work);
+    floor = useTangentialFloor && sample.weight == 1.0 && TangentialFloor(sample, val, data[wall]->h0, metric);
+  }
+  if (reports) {
+    auto& report = reports->at(wall);
+    ++report.nPoint; report.nChanged += changed; report.nFloor += floor;
+    report.maxAspectRatio = max(report.maxAspectRatio,
+        sqrt(*std::max_element(val, val + nDim) / *std::min_element(val, val + nDim)));
+  }
+}
+
+
+Actual integration caller:
+        if(nDim==3) {
+          CLocalFailure integrationFailure;
+          const auto integrationStart=SU2_MPI::Wtime();
+          size_t quadratureBytes=0;
+          localQuadraturePoints=0;
+          for(auto& cell:integration3D)try {
+            auto targetDensity=[&](const CBoundaryLayerMetric::IntegrationPoint3D& point) {
+              CBoundaryLayerMetric::Tensor metric;
+              for(unsigned k=0;k<4;++k)for(unsigned i=0;i<3;++i)for(unsigned j=0;j<3;++j)
+                metric.m[i][j]+=point.barycentric[k]*blMetric[cell.nodes[k]].m[i][j];
+              for(const auto& sample:point.samples)
+                nativeLayers->ApplySample(sample.wall,sample.sample,metric,frozenCore,nullptr,false);
+              return SU2_TYPE::GetValue(density(metric));
+            };
+            bool same=!cell.points.empty();
+            if(cell.sensorDependent) {
+              same=same && cell.core==frozenCore;
+              for(unsigned k=0;k<4;++k)for(unsigned i=0;i<3;++i)for(unsigned j=0;j<3;++j)
+                same=same && cell.sensor[k].m[i][j]==blMetric[cell.nodes[k]].m[i][j];
+            }
+            if(same)++quadratureReused;
+            else {
+              cell.points=nativeLayers->IntegrationRule3D(cell.coordinates,1.5,targetDensity,&cell.sensorDependent);++quadratureBuilds;
+  

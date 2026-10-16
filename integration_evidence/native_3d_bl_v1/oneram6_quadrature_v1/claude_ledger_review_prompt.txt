@@ -1,0 +1,320 @@
+Review this C++ change for correctness, unsafe edge cases, error-estimate accounting, stale priority entries, support guards, performance and positive quadrature. You have no tools; do not attempt tools, agents, or edits. Give only material actionable findings, distinguish numerical error indicators from rigorous bounds.
+Context: integration of sqrt(det(sensor P1 intersected with actual-query geometric boundary-layer tensor)) on a coarse tetrahedron. Native complete wing RANS failing fields88/157/329 saved. Previous per-ray relative tolerance oversolves small weighted rays. This change retains existing geometric chart and strict unresolved hidden-wall guard; replaces nested solves with coupled cell angular and radial queues. Global fine positive rule limited65536 points, comparison65536 per angular panel; work16384 angular additions/radial splits, depth32, unchanged. Seven retained angular rays (positive degree5 weights),12 higher-degree angular probes. Each ray3 vs5, upgrading5 vs7 once then bisection. Ray totals and weights include angular geometric measure. Old per-ray error<=1e-5*rayValue now aggregate radError<=1e-5*(cellFine+cellComparison); overall abs(fine-comparison)+both radial estimates<=1e-4*cellFine. Numerical estimates only, no rigorous guarantee. We preserve independent accuracy tests. No target/geometry/fade/height changes.
+Patch:
+diff --git a/SU2_CFD/src/adaptation/CBoundaryLayerMetric.cpp b/SU2_CFD/src/adaptation/CBoundaryLayerMetric.cpp
+index 75e118ba1d..99ad20235a 100644
+--- a/SU2_CFD/src/adaptation/CBoundaryLayerMetric.cpp
++++ b/SU2_CFD/src/adaptation/CBoundaryLayerMetric.cpp
+@@ -1824,144 +1824,180 @@ std::vector<CBoundaryLayerMetric::IntegrationPoint3D> CBoundaryLayerMetric::Inte
+   const double comparisonWeights[12]={.116786275726379,.116786275726379,.116786275726379,
+       .050844906370207,.050844906370207,.050844906370207,
+       .082851075618374,.082851075618374,.082851075618374,.082851075618374,.082851075618374,.082851075618374};
+-  size_t retained=rule.size(),nextPanel=0;
+-  double totalValue=0,totalError=0;
+-  auto integrate=[&](const Column3D& chart,const Triangle& triangle,double fraction,bool fine,std::vector<IntegrationPoint3D>& points,double& radialError,std::array<double,3>* vertexValues=nullptr) {
+-      double integral=0;
+-      for(unsigned corner=0;corner<(fine?7u:12u);++corner) {
+-        const double before=integral;
+-        std::array<double,3> angular{};
+-        for(unsigned j=0;j<3;++j)for(unsigned k=0;k<3;++k)
+-          angular[j]+=triangle[k][j]*(fine?faceBary[corner][k]:comparisonBary[corner][k]);
+-        std::array<double,4> entry{},exit{};BLPoint3D start{},end{};
+-        for(unsigned k=0;k<4;++k) {
+-          for(unsigned j=0;j<3;++j){entry[k]+=angular[j]*chart.entry[j][k];exit[k]+=angular[j]*chart.exit[j][k];}
+-          for(unsigned j=0;j<3;++j){start[j]+=entry[k]*tetrahedron[k][j];end[j]+=exit[k]*tetrahedron[k][j];}
+-        }
+-        long double length=0;for(unsigned j=0;j<3;++j)length+=angular[j]*chart.axial[j];
+-        if(!(length>0))throw std::runtime_error("Native3D parallel integration chord has nonpositive length: length="+std::to_string(double(length))+" chart_area="+std::to_string(double(chart.area)));
+-        const auto jacobian=chart.area*fraction*length*(fine?faceWeights[corner]:comparisonWeights[corner]);
+-        // Sub-ulp endpoints can round to one point; retain their positive barycentric measure.
+-        const auto cuts=start==end?std::vector<double>{0,1}:EdgeBreakpoints(start,end,std::max(2.,bandRatio),4);
+-        auto radial=[&](double left,double right,unsigned order,std::vector<IntegrationPoint3D>& samples) {
+-          double value=0;const double half=.5*(right-left),center=.5*(right+left);
+-          for(unsigned g=0;g<order;++g) {
+-            const double t=center+half*(order==7?gauss7[g]:(order==5?gauss[g]:gauss3[g]));
+-            std::array<double,4> parent{};BLPoint3D position{};
+-            for(unsigned k=0;k<4;++k) {
+-              parent[k]=(1-t)*entry[k]+t*exit[k];
+-              for(unsigned j=0;j<3;++j)position[j]+=parent[k]*tetrahedron[k][j];
+-            }
+-            SetBLSourceQuery(tetrahedron,originalSource,reversed,parent,position);
+-            const double collapse=chart.collapsed?(1-t)*(1-t):1.;
+-            IntegrationPoint3D point{parent,double(jacobian*half*collapse*(order==7?weights7[g]:(order==5?weights[g]:weights3[g]))),
+-                SamplePoints({position[0],position[1],position[2]})};
+-            value+=point.weight*probe(point);samples.push_back(std::move(point));
+-          }
+-          return value;
+-        };
+-        struct RadialPanel {
+-          double left,right,value,error,comparison;
+-          unsigned depth;
+-          bool upgraded=false;
+-          std::vector<IntegrationPoint3D> points,comparisonPoints;
+-        };
+-        std::map<size_t,RadialPanel> radialPanels;
+-        std::priority_queue<std::pair<double,size_t>> radialPriority;
+-        size_t nextRadial=0,rayPoints=0;double rayValue=0,rayError=0;
+-        auto retain=[&](RadialPanel panel) {
+-          rayPoints+=panel.points.size();
+-          if((fine?retained:0)+points.size()+rayPoints>65536)
+-            throw std::runtime_error("Native3D BL column point budget exhausted: retained="+std::to_string(retained)+
+-                " panel="+std::to_string(nextPanel)+" ray="+std::to_string(corner));
+-          rayValue+=panel.value;rayError+=panel.error;
+-          radialPriority.emplace(panel.error,nextRadial);radialPanels.emplace(nextRadial++,std::move(panel));
+-        };
+-        auto addRadial=[&](double left,double right,unsigned depth) {
+-          RadialPanel panel{left,right,0,0,0,depth};
+-          panel.value=radial(left,right,3,panel.points);
+-          panel.comparison=radial(left,right,5,panel.comparisonPoints);
+-          panel.error=std::abs(panel.comparison-panel.value);retain(std::move(panel));
+-        };
+-        for(size_t band=1;band<cuts.size();++band)addRadial(cuts[band-1],cuts[band],0);
+-        // A nearest-feature jump needs a ray-integral error budget, not relative accuracy on an infinitesimal interval.
+-        while(rayError>1e-5*rayValue) {
+-          const auto selected=radialPriority.top().second;radialPriority.pop();
+-          auto panel=std::move(radialPanels.at(selected));radialPanels.erase(selected);
+-          rayValue-=panel.value;rayError=std::max(0.,rayError-panel.error);rayPoints-=panel.points.size();
+-          if(!panel.upgraded) {
+-            std::vector<IntegrationPoint3D> higherPoints;
+-            const auto higher=radial(panel.left,panel.right,7,higherPoints);
+-            panel.value=panel.comparison;panel.error=std::abs(higher-panel.comparison);
+-            panel.points=std::move(panel.comparisonPoints);panel.upgraded=true;retain(std::move(panel));continue;
+-          }
+-          if(panel.depth>=32)throw std::runtime_error("Native3D BL ray density remains unresolved after32 subdivisions: value="+
+-              std::to_string(rayValue)+" error="+std::to_string(rayError+panel.error));
+-          if(++visited>16384)throw std::runtime_error("Native3D BL radial quadrature work budget exhausted: retained="+std::to_string(retained)+
+-              " panels="+std::to_string(nextPanel)+" cones="+std::to_string(charts.size())+" ray="+std::to_string(corner));
+-          const double middle=.5*(panel.left+panel.right);
+-          if(middle==panel.left || middle==panel.right)throw std::runtime_error("Unrepresentable native3D radial subdivision.");
+-          addRadial(panel.left,middle,panel.depth+1);addRadial(middle,panel.right,panel.depth+1);
+-        }
+-        radialError+=rayError;integral+=rayValue;
+-        for(auto& panel:radialPanels)points.insert(points.end(),std::make_move_iterator(panel.second.points.begin()),std::make_move_iterator(panel.second.points.end()));
+-        if(vertexValues && corner>=4)(*vertexValues)[corner-4]=(integral-before)/double(chart.area*fraction*faceWeights[corner]);
+-      }
+-      return integral;
+-    };
++  struct RadialPanel {
++    double left,right,value,error,comparison;
++    unsigned depth;
++    bool upgraded=false;
++    std::vector<IntegrationPoint3D> points,comparisonPoints;
++  };
++  struct Ray {
++    std::array<double,4> entry{},exit{};
++    long double jacobian=0;
++    double value=0,error=0;
++    size_t count=0,next=0;
++    std::vector<size_t> sampled;
++    std::map<size_t,RadialPanel> intervals;
++    std::priority_queue<std::pair<double,size_t>> priority;
++  };
+   struct Panel {
+     size_t cone;
+     Triangle triangle;
+     double fraction;
+     unsigned depth;
+-    std::vector<IntegrationPoint3D> fine;
+-    double value,error;
+-    bool unresolved=false;
++    std::array<Ray,19> rays;
++    double value=0,comparison=0,angularError=0,radialError=0;
++    size_t count=0,revision=0;
++    bool unresolved=false,geometryChecked=false;
++    std::vector<bool> possible;
+     std::array<double,3> vertexValues{};
+   };
+-  size_t unresolved=0;
++  size_t retained=0,nextPanel=0,unresolved=0;
++  double totalValue=0,totalComparison=0,totalAngularError=0,totalRadialError=0;
+   std::map<size_t,Panel> panels;
+-  std::priority_queue<std::pair<double,size_t>> priority;
+-  for(const auto& point:rule)totalValue+=point.weight*probe(point);
+-  auto add=[&](size_t cone,const Triangle& triangle,double fraction,unsigned depth) {
+-    if(++visited>16384)throw std::runtime_error("Native3D BL angular quadrature work budget exhausted: retained="+std::to_string(retained)+
+-        " panels="+std::to_string(nextPanel)+" cones="+std::to_string(charts.size())+" estimated_error="+std::to_string(totalError)+" density="+std::to_string(totalValue));
+-    Panel panel{cone,triangle,fraction,depth,{},0,0};std::vector<IntegrationPoint3D> coarse;
+-    double highRadialError=0,lowRadialError=0;
+-    panel.value=integrate(charts[cone],triangle,fraction,true,panel.fine,highRadialError,&panel.vertexValues);
+-    const auto low=integrate(charts[cone],triangle,fraction,false,coarse,lowRadialError);
+-    panel.error=std::abs(panel.value-low)+highRadialError+lowRadialError;
++  using Priority=std::priority_queue<std::pair<double,std::pair<size_t,size_t>>>;
++  Priority angularPriority,radialPriority;
++  auto radial=[&](const Panel& panel,const Ray& ray,double left,double right,unsigned order,
++                  std::vector<IntegrationPoint3D>& samples) {
++    double value=0;const double half=.5*(right-left),center=.5*(right+left);
++    for(unsigned g=0;g<order;++g) {
++      const double t=center+half*(order==7?gauss7[g]:(order==5?gauss[g]:gauss3[g]));
++      std::array<double,4> parent{};BLPoint3D position{};
++      for(unsigned k=0;k<4;++k) {
++        parent[k]=(1-t)*ray.entry[k]+t*ray.exit[k];
++        for(unsigned j=0;j<3;++j)position[j]+=parent[k]*tetrahedron[k][j];
++      }
++      SetBLSourceQuery(tetrahedron,originalSource,reversed,parent,position);
++      const double collapse=charts[panel.cone].collapsed?(1-t)*(1-t):1.;
++      IntegrationPoint3D point{parent,double(ray.jacobian*half*collapse*(order==7?weights7[g]:(order==5?weights[g]:weights3[g]))),
++          SamplePoints({position[0],position[1],position[2]})};
++      value+=point.weight*probe(point);samples.push_back(std::move(point));
++    }
++    return value;
++  };
++  auto retainRadial=[&](Ray& ray,RadialPanel interval) {
++    ray.count+=interval.points.size();
++    if(ray.count>65536)throw std::runtime_error("Native3D BL column ray point budget exhausted.");
++    for(const auto& point:interval.points)for(const auto& sample:point.samples)++ray.sampled[sample.wall];
++    ray.value+=interval.value;ray.error+=interval.error;
++    ray.priority.emplace(interval.error,ray.next);ray.intervals.emplace(ray.next++,std::move(interval));
++  };
++  auto addRadial=[&](Panel& panel,Ray& ray,double left,double right,unsigned depth) {
++    RadialPanel interval{left,right,0,0,0,depth};
++    interval.value=radial(panel,ray,left,right,3,interval.points);
++    interval.comparison=radial(panel,ray,left,right,5,interval.comparisonPoints);
++    interval.error=std::abs(interval.comparison-interval.value);retainRadial(ray,std::move(interval));
++  };
++  auto removeTotals=[&](const Panel& panel) {
++    retained-=panel.count;unresolved-=panel.unresolved;
++    totalValue-=panel.value;totalComparison-=panel.comparison;
++    totalAngularError=std::max(0.,totalAngularError-panel.angularError);
++    totalRadialError=std::max(0.,totalRadialError-panel.radialError);
++  };
++  auto publish=[&](size_t id,Panel& panel) {
++    panel.value=panel.comparison=panel.radialError=0;panel.count=0;
++    size_t comparisonCount=0;
+     std::vector<bool> sampled(walls.size(),false);
+-    for(const auto* points:{&panel.fine,&coarse})for(const auto& point:*points)for(const auto& s:point.samples)sampled[s.wall]=true;
+-    if(std::any_of(support.begin(),support.end(),[&](const auto& f){return !sampled[f.wall];})) {
++    for(unsigned k=0;k<panel.rays.size();++k) {
++      const auto& ray=panel.rays[k];panel.radialError+=ray.error;
++      if(k<7){panel.value+=ray.value;panel.count+=ray.count;}
++      else {panel.comparison+=ray.value;comparisonCount+=ray.count;}
++      for(unsigned w=0;w<walls.size();++w)sampled[w]=sampled[w] || ray.sampled[w];
++    }
++    if(retained+panel.count>65536 || comparisonCount>65536)
++      throw std::runtime_error("Native3D BL column point budget exhausted: retained="+std::to_string(retained)+
++          " panel="+std::to_string(id)+" fine="+std::to_string(panel.count)+" comparison="+std::to_string(comparisonCount));
++    panel.angularError=std::abs(panel.value-panel.comparison);
++    for(unsigned k=0;k<3;++k)panel.vertexValues[k]=panel.rays[k+4].value/
++        double(charts[panel.cone].area*panel.fraction*faceWeights[k+4]);
++    if(!panel.geometryChecked && std::any_of(support.begin(),support.end(),[&](const auto& f){return !sampled[f.wall];})) {
+       std::array<BLPoint3D,6> boundary{};
+       for(unsigned side=0;side<2;++side)for(unsigned p=0;p<3;++p)for(unsigned j=0;j<3;++j)for(unsigned k=0;k<4;++k)for(unsigned v=0;v<3;++v)
+-        boundary[3*side+p][j]+=triangle[p][v]*(side?charts[cone].exit[v][k]:charts[cone].entry[v][k])*tetrahedron[k][j];
++        boundary[3*side+p][j]+=panel.triangle[p][v]*(side?charts[panel.cone].exit[v][k]:charts[panel.cone].entry[v][k])*tetrahedron[k][j];
+       const std::array<BLTetrahedron,3> regions{{{boundary[0],boundary[1],boundary[2],boundary[5]},
+           {boundary[0],boundary[1],boundary[4],boundary[5]},{boundary[0],boundary[3],boundary[4],boundary[5]}}};
+-      for(const auto& face:support)if(!sampled[face.wall])for(const auto& region:regions) {
++      panel.possible.assign(walls.size(),false);
++      for(const auto& face:support)for(const auto& region:regions) {
+         if(BLDeterminant(region[0],region[1],region[2],region[3])==0)continue;
+         const auto& wall=walls[face.wall];
+         if(wall.authority ? MayIntersectSmoothBand(region,*wall.authority,wall.authority_facet,SU2_TYPE::GetValue(data[face.wall]->thickness)) :
+-            MayIntersectWallBand(region,face.vertices,face.thickness*(1-1e-12)))panel.unresolved=true;
++            MayIntersectWallBand(region,face.vertices,face.thickness*(1-1e-12)))panel.possible[face.wall]=true;
+       }
++      panel.geometryChecked=true;
++    }
++    panel.unresolved=false;
++    if(panel.geometryChecked)for(unsigned w=0;w<walls.size();++w)panel.unresolved=panel.unresolved || (panel.possible[w] && !sampled[w]);
++    totalValue+=panel.value;totalComparison+=panel.comparison;
++    totalAngularError+=panel.angularError;totalRadialError+=panel.radialError;
++    retained+=panel.count;unresolved+=panel.unresolved;++panel.revision;
++    angularPriority.push({panel.unresolved?std::numeric_limits<double>::infinity():panel.angularError,{id,panel.revision}});
++    radialPriority.push({panel.radialError,{id,panel.revision}});
++  };
++  auto add=[&](size_t cone,const Triangle& triangle,double fraction,unsigned depth) {
++    if(++visited>16384)throw std::runtime_error("Native3D BL angular quadrature work budget exhausted: retained="+std::to_string(retained)+
++        " panels="+std::to_string(nextPanel)+" cones="+std::to_string(charts.size()));
++    Panel panel{cone,triangle,fraction,depth,{}};
++    const auto& chart=charts[cone];
++    for(unsigned corner=0;corner<panel.rays.size();++corner) {
++      auto& ray=panel.rays[corner];ray.sampled.assign(walls.size(),0);
++      const bool fine=corner<7;const auto index=fine?corner:corner-7;
++      std::array<double,3> angular{};
++      for(unsigned j=0;j<3;++j)for(unsigned k=0;k<3;++k)
++        angular[j]+=triangle[k][j]*(fine?faceBary[index][k]:comparisonBary[index][k]);
++      BLPoint3D start{},end{};
++      for(unsigned k=0;k<4;++k) {
++        for(unsigned j=0;j<3;++j){ray.entry[k]+=angular[j]*chart.entry[j][k];ray.exit[k]+=angular[j]*chart.exit[j][k];}
++        for(unsigned j=0;j<3;++j){start[j]+=ray.entry[k]*tetrahedron[k][j];end[j]+=ray.exit[k]*tetrahedron[k][j];}
++      }
++      long double length=0;for(unsigned j=0;j<3;++j)length+=angular[j]*chart.axial[j];
++      if(!(length>0))throw std::runtime_error("Native3D parallel integration chord has nonpositive length.");
++      ray.jacobian=chart.area*fraction*length*(fine?faceWeights[index]:comparisonWeights[index]);
++      // Sub-ulp endpoints can round to one point; retain their positive barycentric measure.
++      const auto cuts=start==end?std::vector<double>{0,1}:EdgeBreakpoints(start,end,std::max(2.,bandRatio),4);
++      for(size_t band=1;band<cuts.size();++band)addRadial(panel,ray,cuts[band-1],cuts[band],0);
++    }
++    publish(nextPanel,panel);panels.emplace(nextPanel++,std::move(panel));
++  };
++  auto select=[&](Priority& priority) {
++    while(!priority.empty()) {
++      const auto candidate=priority.top().second;priority.pop();const auto found=panels.find(candidate.first);
++      if(found!=panels.end() && found->second.revision==candidate.second)return candidate.first;
+     }
+-    unresolved+=panel.unresolved;
+-    totalValue+=panel.value;totalError+=panel.error;
+-    retained+=panel.fine.size();priority.emplace(panel.unresolved?std::numeric_limits<double>::infinity():panel.error,nextPanel);
+-    panels.emplace(nextPanel++,std::move(panel));
++    throw std::runtime_error("Native3D BL cell error queue is unresolved.");
+   };
+   const Triangle initial{{{{1,0,0,0}},{{0,1,0,0}},{{0,0,1,0}}}};
+   for(size_t k=0;k<charts.size();++k)add(k,initial,1.,0);
+   if(panels.empty() || !(totalValue>0) || !std::isfinite(totalValue))throw std::runtime_error("Invalid native3D BL column integral.");
+-  while(unresolved || totalError>1e-4*totalValue) {
+-    if(priority.empty())throw std::runtime_error("Native3D BL angular error queue is unresolved.");
+-    const auto selected=priority.top().second;priority.pop();
+-    auto panel=std::move(panels.at(selected));panels.erase(selected);
+-    if(panel.depth>=32)throw std::runtime_error("Native3D BL angular density remains unresolved after 32 subdivisions.");
+-    unresolved-=panel.unresolved;
+-    totalValue-=panel.value;totalError=std::max(0.,totalError-panel.error);retained-=panel.fine.size();
+-    panel.fine.clear();panel.fine.shrink_to_fit();
++  // Allocate radial error across the complete cell, rather than oversolving each small weighted ray.
++  while(unresolved || totalAngularError+totalRadialError>1e-4*totalValue ||
++        totalRadialError>1e-5*(totalValue+totalComparison)) {
++    if(totalRadialError>1e-5*(totalValue+totalComparison)) {
++      const auto selected=select(radialPriority);auto& panel=panels.at(selected);removeTotals(panel);
++      unsigned worst=0;
++      for(unsigned k=1;k<panel.rays.size();++k)
++        if(panel.rays[k].priority.top().first>panel.rays[worst].priority.top().first)worst=k;
++      auto& ray=panel.rays[worst];const auto intervalId=ray.priority.top().second;ray.priority.pop();
++      auto interval=std::move(ray.intervals.at(intervalId));ray.intervals.erase(intervalId);
++      ray.value-=interval.value;ray.error=std::max(0.,ray.error-interval.error);ray.count-=interval.points.size();
++      for(const auto& point:interval.points)for(const auto& sample:point.samples)--ray.sampled[sample.wall];
++      if(!interval.upgraded) {
++        std::vector<IntegrationPoint3D> higherPoints;
++        const auto higher=radial(panel,ray,interval.left,interval.right,7,higherPoints);
++        interval.value=interval.comparison;interval.error=std::abs(higher-interval.comparison);
++        interval.points=std::move(interval.comparisonPoints);interval.upgraded=true;retainRadial(ray,std::move(interval));
++      } else {
++        if(interval.depth>=32)throw std::runtime_error("Native3D BL radial density remains unresolved after32 subdivisions: cell="+
++            std::to_string(totalValue+panel.value)+" radial_error="+std::to_string(totalRadialError+panel.radialError));
++        if(++visited>16384)throw std::runtime_error("Native3D BL radial quadrature work budget exhausted: retained="+std::to_string(retained)+
++            " panels="+std::to_string(nextPanel)+" cones="+std::to_string(charts.size())+" ray="+std::to_string(worst));
++        const double middle=.5*(interval.left+interval.right);
++        if(middle==interval.left || middle==interval.right)throw std::runtime_error("Unrepresentable native3D radial subdivision.");
++        addRadial(panel,ray,interval.left,middle,interval.depth+1);addRadial(panel,ray,middle,interval.right,interval.depth+1);
++      }
++      publish(selected,panel);continue;
++    }
++    const auto selected=select(angularPriority);auto panel=std::move(panels.at(selected));panels.erase(selected);
++    if(panel.depth>=32)throw std::runtime_error("Native3D BL angular density remains unresolved after32 subdivisions.");
++    removeTotals(panel);
+     unsigned a=0,b=1;long double longest=0;
+     for(unsigned i=0;i<3;++i)for(unsigned j=i+1;j<3;++j) {
+       long double length=0;
+@@ -1981,11 +2017,14 @@ std::vector<CBoundaryLayerMetric::IntegrationPoint3D> CBoundaryLayerMetric::Inte
+     }
+     std::array<double,4> midpoint{};for(unsigned k=0;k<4;++k)midpoint[k]=.5*panel.triangle[a][k]+.5*panel.triangle[b][k];
+     if(midpoint==panel.triangle[a] || midpoint==panel.triangle[b])throw std::runtime_error("Unrepresentable native3D angular subdivision.");
++    // Release discarded rays before constructing both children; no partial rule is returned on failure.
++    panel.rays={};
+     for(const auto vertex:{a,b}) {
+       auto child=panel.triangle;child[vertex]=midpoint;add(panel.cone,child,.5*panel.fraction,panel.depth+1);
+     }
+   }
+-  for(auto& entry:panels)rule.insert(rule.end(),std::make_move_iterator(entry.second.fine.begin()),std::make_move_iterator(entry.second.fine.end()));
++  for(auto& entry:panels)for(unsigned k=0;k<7;++k)for(auto& interval:entry.second.rays[k].intervals)
++    rule.insert(rule.end(),std::make_move_iterator(interval.second.points.begin()),std::make_move_iterator(interval.second.points.end()));
+   return rule;
+ }
+ 

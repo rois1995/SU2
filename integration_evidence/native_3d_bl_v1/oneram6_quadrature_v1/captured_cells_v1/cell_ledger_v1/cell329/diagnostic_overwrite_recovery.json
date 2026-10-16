@@ -1,0 +1,15 @@
+{
+  "reason": "GDB quit before stream destructors flushed replay diagnostic CSVs in the same cwd. Original result hashes exposed the overwrite. Both exact bytes recovered from already-completed v2 artifacts matching original hashes; original receipt unchanged. Future debugger runs use a separate cwd.",
+  "repairs": [
+    {
+      "artifact": "replay_samples.csv",
+      "sha256": "eac2b46d069290958a0f6b2acd24a69fdfd473a9cd7b6feb6ccbce4df2bd795b",
+      "recovered_byte_identical_from": "cell_ledger_v2/cell329/replay_samples.csv"
+    },
+    {
+      "artifact": "replay_rule_150.csv",
+      "sha256": "3d2a0fd962bd8852f4a2c75c4493e0c9f9333bd95f09a3c7dbb6794ada4aed18",
+      "recovered_byte_identical_from": "cell_ledger_v2/cell329/replay_rule_150.csv"
+    }
+  ]
+}

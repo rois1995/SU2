@@ -5993,3 +5993,27 @@ Next: coupled cell-wide angular/radial allocation under unchanged physical field
 geometry/height, hidden-support guard, tolerances and work/point/depth limits.
 No further CFD needed for these3 frozen fields; no accepted M6 grid or speedup.
 See Handbook/GOAL3_M6_FROZEN_FIELDS.md and captured_cells_v1/*/parallel_*.
+
+
+## 2026-10-16 — cell-wide ledger fails the actual frozen M6 fields
+
+A connected cell-wide angular/radial ledger replaces independent per-ray stopping
+without changing the physical field, chart selection/support guards or limits.
+The read-only Opus5.5/medium patch review exposes scheduling/memory/finite-key
+issues, addressed before actual checks. All3 actual fields still fail. One GDB
+state then proves angular work continued after its reserved allocation was met;
+the eligibility correction still fails329/157 by point budget and88 by90s timeout.
+Both exact producers, completed-case source/build/input/artifact pins, raw results,
+review/disposition and diagnosis remain in captured_cells_v1/cell_ledger_v1|v2.
+No broad regression, new MPI or CFD campaign for the rejected implementation.
+Published producer/header restored byte-for-byte977691/11a539. Current executables
+contain rejected experiments; next runtime use needs a connected rebuild.
+
+This rejects queue coordination alone as the M6 solution. Reassess geometric/error
+representation and global scalar-complexity allocation with a complete frozen trial
+checkpoint before another local variant. No target/first-height/fade/acceptance
+relaxation. Hidden support cannot be dismissed from tiny probes. Scale-solver1e-6
+and quadrature1e-4 numerical indicators need explicit treatment in any new design.
+A structural Opus/high request timed out without a review; no conclusion is credited
+to it. Full Goal3 remains ACTIVE; no accepted adapted M6 grid or speedup claim.
+See Handbook/GOAL3_M6_FROZEN_FIELDS.md for exact failure counts and next evidence.

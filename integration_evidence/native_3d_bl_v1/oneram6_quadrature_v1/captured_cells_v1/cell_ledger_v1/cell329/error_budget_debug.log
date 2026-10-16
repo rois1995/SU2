@@ -1,0 +1,124 @@
+Catchpoint 1 (throw)
+[Thread debugging using libthread_db enabled]
+Using host libthread_db library "/lib/x86_64-linux-gnu/libthread_db.so.1".
+[Detaching after fork from child process 3537269]
+[New Thread 0x7ffff760b700 (LWP 3537280)]
+[New Thread 0x7ffff6c56700 (LWP 3537281)]
+
+Thread 1 "test_driver" hit Catchpoint 1 (exception thrown), 0x00007ffff7d06662 in __cxa_throw () from /lib/x86_64-linux-gnu/libstdc++.so.6
+#0  0x00007ffff7d06662 in __cxa_throw () from /lib/x86_64-linux-gnu/libstdc++.so.6
+#1  0x000055555576e786 in CBoundaryLayerMetric::<lambda(size_t, CBoundaryLayerMetric::IntegrationColumns3D(const BLTetrahedron&, const std::vector<CBoundaryLayerMetric::Column3D>&, const std::vector<CBoundaryLayerMetric::SupportFace3D>&, double, const IntegrationDensity3D&)::Panel&)>::operator()(size_t, CBoundaryLayerMetric::Panel &) const (__closure=<optimized out>, id=1074, panel=...) at /usr/include/c++/9/ext/new_allocator.h:89
+#2  0x00005555563193b1 in CBoundaryLayerMetric::<lambda(size_t, const Triangle&, double, unsigned int)>::operator()(size_t, const CBoundaryLayerMetric::Panel::Triangle &, double, unsigned int) const (__closure=0x7fffffff6410, cone=<optimized out>, triangle=..., fraction=6.103515625e-05, depth=<optimized out>) at ../../SU2_CFD/src/adaptation/CBoundaryLayerMetric.cpp:1976
+#3  0x000055555631bf8d in CBoundaryLayerMetric::IntegrationColumns3D(std::array<std::array<double, 3ul>, 4ul> const&, std::vector<CBoundaryLayerMetric::Column3D, std::allocator<CBoundaryLayerMetric::Column3D> > const&, std::vector<CBoundaryLayerMetric::SupportFace3D, std::allocator<CBoundaryLayerMetric::SupportFace3D> > const&, double, std::function<double (CBoundaryLayerMetric::IntegrationPoint3D const&)> const&) (this=<optimized out>, tetrahedron=..., charts=..., support=..., bandRatio=<optimized out>, probe=...) at ../../SU2_CFD/src/adaptation/CBoundaryLayerMetric.cpp:2045
+#4  0x000055555631d114 in CBoundaryLayerMetric::IntegrationRule3DVisible(std::array<std::array<double, 3ul>, 4ul> const&, std::vector<CBoundaryLayerMetric::SupportFace3D, std::allocator<CBoundaryLayerMetric::SupportFace3D> > const&, double, std::function<double (CBoundaryLayerMetric::IntegrationPoint3D const&)> const&) (this=0x7fffffffa8d0, tetrahedron=..., support={...}, bandRatio=1.5, density=...) at /usr/include/c++/9/bits/stl_uninitialized.h:82
+#5  0x000055555631e19e in CBoundaryLayerMetric::IntegrationRule3D(std::array<std::array<double, 3ul>, 4ul> const&, double, std::function<double (CBoundaryLayerMetric::IntegrationPoint3D const&)>, bool*) (this=this@entry=0x7fffffffa8d0, tetrahedron=..., bandRatio=<optimized out>, bandRatio@entry=1.5, density=..., sensorDependent=sensorDependent@entry=0x7fffffffa7d8) at /usr/include/c++/9/new:174
+[
+  {
+    "frame": "CBoundaryLayerMetric::<lambda(size_t, CBoundaryLayerMetric::IntegrationColumns3D(const BLTetrahedron&, const std::vector<CBoundaryLayerMetric::Column3D>&, const std::vector<CBoundaryLayerMetric::SupportFace3D>&, double, const IntegrationDensity3D&)::Panel&)>::operator()(size_t, CBoundaryLayerMetric::Panel &) const",
+    "values": {
+      "visited": 1075.0,
+      "nextPanel": 1074.0
+    }
+  },
+  {
+    "frame": "CBoundaryLayerMetric::<lambda(size_t, const Triangle&, double, unsigned int)>::operator()(size_t, const CBoundaryLayerMetric::Panel::Triangle &, double, unsigned int) const",
+    "values": {
+      "totalValue": 0.26051504521900337,
+      "totalComparison": 0.2605164073841111,
+      "totalAngularError": 1.7588389609968984e-05,
+      "totalRadialError": 0.0002611991463003953,
+      "unresolved": 0.0,
+      "retained": 65424.0,
+      "visited": 1075.0,
+      "nextPanel": 1074.0,
+      "panel.cone": 0.0,
+      "panel.fraction": 6.103515625e-05,
+      "panel.depth": 14.0,
+      "panel.value": 1.4907437352306112e-05,
+      "panel.comparison": 1.4894258901745718e-05,
+      "panel.angularError": 0.0,
+      "panel.radialError": 4.288171165715486e-08,
+      "panel.count": 126.0,
+      "panel.unresolved": 0.0
+    },
+    "triangle": [
+      [
+        0.57421875,
+        0.125,
+        0.30078125
+      ],
+      [
+        0.23828125,
+        0.34375,
+        0.41796875
+      ],
+      [
+        0.166015625,
+        0.390625,
+        0.443359375
+      ]
+    ]
+  },
+  {
+    "frame": "CBoundaryLayerMetric::IntegrationColumns3D(std::array<std::array<double, 3ul>, 4ul> const&, std::vector<CBoundaryLayerMetric::Column3D, std::allocator<CBoundaryLayerMetric::Column3D> > const&, std::vector<CBoundaryLayerMetric::SupportFace3D, std::allocator<CBoundaryLayerMetric::SupportFace3D> > const&, double, std::function<double (CBoundaryLayerMetric::IntegrationPoint3D const&)> const&)",
+    "values": {
+      "totalValue": 0.26051504521900337,
+      "totalComparison": 0.2605164073841111,
+      "totalAngularError": 1.7588389609968984e-05,
+      "totalRadialError": 0.0002611991463003953,
+      "unresolved": 0.0,
+      "retained": 65424.0,
+      "visited": 1075.0,
+      "nextPanel": 1074.0,
+      "panel.cone": 0.0,
+      "panel.fraction": 0.0001220703125,
+      "panel.depth": 13.0,
+      "panel.value": 2.932572034613157e-05,
+      "panel.comparison": 2.91938187456005e-05,
+      "panel.angularError": 1.319016005310743e-07,
+      "panel.radialError": 8.327917643837064e-08,
+      "panel.count": 126.0,
+      "panel.unresolved": 0.0
+    },
+    "triangle": [
+      [
+        0.57421875,
+        0.125,
+        0.30078125
+      ],
+      [
+        0.23828125,
+        0.34375,
+        0.41796875
+      ],
+      [
+        0.09375,
+        0.4375,
+        0.46875
+      ]
+    ]
+  }
+]
+	Command being timed: "gdb --nx --nh --batch -x ../capture_error_budget.gdb --args /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver [NativeFacetedVolumeReplay3D] --abort --reporter compact"
+	User time (seconds): 43.01
+	System time (seconds): 0.37
+	Percent of CPU this job got: 99%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:43.77
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 1063688
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 2
+	Minor (reclaiming a frame) page faults: 220698
+	Voluntary context switches: 1415
+	Involuntary context switches: 1646
+	Swaps: 0
+	File system inputs: 0
+	File system outputs: 40
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0

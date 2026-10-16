@@ -53,18 +53,21 @@ integration defect and passes7 controls plus full-unit22/32; it is not a full M6
 All4 normal reference charts now agree4.432e-5; radial16/24 change1.223e-7.
 Actual v2 runtime failures88/157/329 have exact first-trial sensor/core/coordinate
 records and closed-wall replays. Cell329 reproduces the native failure verbatim
-in6.23s without CFD. No candidate/accepted mesh/transfer. The primary wall-normal-column experiment failed all3 actual fields and was
-withdrawn; producer/header are byte-identical to published977691bc4e. Current
-binaries still contain the rejected experiment; rebuild with the next connected
-change before use. No owned CFD/build/model job remains. Exact error-budget
-states distinguish per-ray oversolving from conservative hidden-support guards.
-Next: cell-wide angular/radial error allocation, preserving hidden support and
-all physical/work/point constraints; qualify actual fields before further CFD.
+in6.23s without CFD. No candidate/accepted mesh/transfer. The primary wall-normal-column experiment and the subsequent cell-wide error
+ledger both fail all3 actual fields and are withdrawn. Cell329/157 exceed65536
+points;88 times out90s. Correcting a demonstrated queue eligibility bug does not
+fix the decisive failure. Producer/header are byte-identical to977691bc4e/11a539;
+current test/CFD executables reflect different rejected experiments and require
+rebuild before use. No owned CFD/build/model job remains. No new broad/MPI suite.
+Next: integration representation/global error-budget reassessment using a complete
+frozen first-trial field checkpoint, not another local queue/chart/budget variant.
 [Current exact-field/replay/design/live state](Handbook/GOAL3_M6_FROZEN_FIELDS.md),
 [earlier thin integration and rejected experiments](Handbook/GOAL3_M6_THIN_INTEGRATION.md),
 [actual initial M6 flow/inspectable files](Handbook/GOAL3_ONERA_M6.md).
 Full Goal3 stays active; full tensor accuracy, actual M6 construction and lifecycle
-cost remain unproven. Both model-confirmed read-only Opus reviews are preserved.
+cost remain unproven. Three completed model-confirmed read-only Opus reviews are preserved; a fourth
+high-effort structural request timed out without returning a review. User authorizes
+Claude Code assistance with Opus5.5 at medium/high effort; keep reviews read-only.
 [Whole-cap construction and scoped earlier proof](Handbook/GOAL3_WHOLE_CAP_CONSTRUCTION.md).
 
 The earlier cap-operator attempt failed3731 trials/30 cap faces; it was withdrawn

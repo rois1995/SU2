@@ -1,0 +1,17 @@
+{
+  "model": "claude-opus-5-5",
+  "effort": "medium",
+  "tools": [],
+  "scope": "Read-only supplied patch, not validation. Findings addressed in ledger_v1 before actual tests; later v2 eligibility correction separately recorded. Both attempts rejected.",
+  "review_sha256": "c381dfc4c7a01f7d92b271793dfc152a487d1000116ac74c27dbd42ad03ea0e8",
+  "reviewed_diff_prompt_sha256": "58025c34984ead617177b6386024fef7025a7401e4a09bd4dcfd9f6b8148e41e",
+  "disposition": {
+    "1_existing_rule": "Not applicable: IntegrationColumns3D declares its empty local rule immediately on entry and does not append until completion. No inherited quadrature exists.",
+    "2_nonfinite_heap": "Validate positive finite radial values/errors before inserting heap keys, positive finite weights, and finite aggregate estimates. Existing probe validates callback values.",
+    "3_scheduling": "Choose largest individual radial contribution versus angular contribution; unresolved support keeps angular priority infinite. No forced completion of every ray before angular decisions.",
+    "4_memory": "Comparison rays retain scalar estimates and wall-hit lists only; sample payloads released. Retained fine rays cache5-point sets until upgrade. Memory remains work-bounded, not equal to returned-point count; measurement pending.",
+    "5_vertex_values": "Heuristic split direction only, never acceptance/geometry/target. No per-ray tolerance reintroduced.",
+    "6_queues_totals": "At least two cuts required before ray queues. Long-double ray/cell totals reduce cancellation; estimates remain nonrigorous. Revision queue matching is unchanged."
+  },
+  "completed_ledger_v1_producer_sha256": "dd1b3e6d72bda25d723f988fbcb9c68716bbf6643ea1a54aa71ee3a71ad76f16"
+}
