@@ -9,6 +9,7 @@
 #include "Eigen/Dense"
 #include <algorithm>
 #include <deque>
+#include <chrono>
 #include <cmath>
 #include <set>
 #include <sstream>
@@ -39,6 +40,21 @@ struct Use {
   Id a, b;
 };
 using Edges = std::map<Edge, std::vector<Use>>;
+class PhaseClock {
+  using Clock = std::chrono::steady_clock;
+  bool enabled;
+  double* elapsed = nullptr;
+  Clock::time_point start{};
+ public:
+  explicit PhaseClock(bool enabled) : enabled(enabled) {}
+  void Set(double& next) {
+    if (!enabled) return;
+    const auto now = Clock::now();
+    if (elapsed) *elapsed += std::chrono::duration<double>(now-start).count();
+    elapsed = &next; start = now;
+  }
+  ~PhaseClock() { if (elapsed) *elapsed += std::chrono::duration<double>(Clock::now()-start).count(); }
+};
 struct Junction {
   Id node, facet;
   std::array<Id, 4> quad;
@@ -66,7 +82,7 @@ class Construction {
   void Check() const {
     if (limits.checkpoint) limits.checkpoint();
     if (fresh.cells.size() > limits.maximum_cells || nodes.size() > 4 * limits.maximum_cells ||
-        fresh.cells.size() + report.surface_trials + report.junction_trials + report.core_trials > limits.maximum_work) {
+        fresh.cells.size() + report.surface_trials + report.junction_trials + report.core_trials + report.front_trials > limits.maximum_work) {
       report.exhausted_work = true;
       throw std::runtime_error("Region construction exceeds admitted cells/work.");
     }
@@ -889,6 +905,8 @@ bool ConstructWallRegion(const std::vector<Facet>& skin, Point kernel, const Pla
                          Id first_cell, const RegionMetric& target, const RegionLimits& limits, Patch& output,
                          RegionReport& report, std::string& reason) {
   report = {};
+  PhaseClock clock(limits.timings);
+  clock.Set(report.sampling_seconds);
   Construction c(geometry, policies, tolerance, target, limits, report, first_node, first_cell);
   try {
     if (policies.size() > 1 || !(tolerance > 0) || !limits.maximum_cells || !limits.maximum_work)
@@ -936,7 +954,9 @@ bool ConstructWallRegion(const std::vector<Facet>& skin, Point kernel, const Pla
     if (policies.empty()) {
       const Id core = c.New(kernel);
       c.fresh.surface = c.faces;
+      clock.Set(report.core_seconds);
       c.Core(c.faces,core);
+      clock.Set(report.validation_seconds);
       c.Validate();
       output = std::move(c.fresh);
       reason.clear();
@@ -951,6 +971,7 @@ bool ConstructWallRegion(const std::vector<Facet>& skin, Point kernel, const Pla
                                              (p.growth - 1);
     if (!(depth > p.height && depth < p.thickness))
       throw std::runtime_error("Region first band does not fit the requested thickness.");
+    clock.Set(report.first_band_seconds);
     auto flow = c.Fit(c.faces, depth);
     auto front = c.MapFront(c.faces, flow, 1);
     kernel = flow.Apply(kernel);
@@ -993,51 +1014,89 @@ bool ConstructWallRegion(const std::vector<Facet>& skin, Point kernel, const Pla
       }
     };
     close(inner, kernel, nullptr);
-    flow = c.Fit(inner, p.thickness);
-    std::set<Id> ids;
-    for (auto f : inner)
-      for (Id n : f.v) ids.insert(n);
-    auto clearance = [&](double step) {
-      double d = INFINITY;
-      for (Id n : ids)
-        d = std::min(d, geometry.ClosestAnalytic(*wall_authorities.begin(), flow.Apply(c.nodes.at(n), step)).distance);
-      return d;
-    };
-    if (!(clearance(1) > p.thickness * (1 + 1e-10)))
-      throw std::runtime_error("Region transition cannot reach outside the original BL fade.");
-    double lo = 0, hi = 1;
-    for (unsigned k = 0; k < 48; ++k) {
-      const double mid = .5 * (lo + hi);
-      if (clearance(mid) >= p.thickness * (1 + 1e-10))
-        hi = mid;
-      else
-        lo = mid;
-    }
-    const auto last = c.MapFront(inner, flow, hi);
-    kernel = flow.Apply(kernel, hi);
-    wall.clear();
-    apices.clear();
-    std::map<Edge, Id> side2;
-    for (auto f : inner)
-      if (c.Wall(f.facet)) {
-        wall.push_back(f);
-        SurfaceFace mapped = f;
-        for (auto& n : mapped.v) n = last.at(n);
-        apices.push_back(c.New(c.Balanced(c.Center(f),c.Center(mapped))));
+    clock.Set(report.transition_seconds);
+    for (;;) {
+      c.Check();
+      flow = c.Fit(inner, p.thickness);
+      std::set<Id> ids;
+      for (auto f : inner) for (Id n : f.v) ids.insert(n);
+      auto clearance = [&](double step) {
+        double distance = INFINITY;
+        for (Id n : ids)
+          distance = std::min(distance, geometry.ClosestAnalytic(*wall_authorities.begin(),
+              flow.Apply(c.nodes.at(n), step)).distance);
+        return distance;
+      };
+      const double before = clearance(0);
+      if (!(clearance(1) > p.thickness * (1 + 1e-10)))
+        throw std::runtime_error("Region transition cannot reach outside the original BL fade.");
+      double lo = 0, hi = 1;
+      for (unsigned k = 0; k < 48; ++k) {
+        const double mid = .5 * (lo + hi);
+        if (clearance(mid) >= p.thickness * (1 + 1e-10)) hi = mid;
+        else lo = mid;
       }
-    for (const auto& loop : rim)
-      for (auto row : loop.second) side2[Key(row[0], row[1])] = row[2];
-    c.Band(wall, last, apices, side2, false);
-    std::vector<SurfaceFace> final;
-    for (auto f : wall) {
-      for (auto& n : f.v) n = last.at(n);
-      final.push_back(f);
+      const double terminal = hi;
+      auto span = [&](double step) {
+        ++report.front_trials; c.Check();
+        long double maximum = 0;
+        std::map<Id, std::set<Id>> caps;
+        std::set<Id> moving;
+        for (auto f : inner) for (Id n : f.v)
+          if (c.Wall(f.facet)) moving.insert(n); else caps[n].insert(f.facet);
+        for (Id n : moving) {
+          c.Check();
+          const auto a = c.nodes.at(n); auto b = flow.Apply(a, step);
+          for (Id f : caps[n]) b = geometry.Project(f, b);
+          if (Norm(Sub(a,b)) > 0) maximum = std::max(maximum, target.edge(a,b));
+        }
+        if (!std::isfinite(maximum)) throw std::runtime_error("Region front has no finite metric span.");
+        return maximum;
+      };
+      double step = terminal;
+      if (span(step) > requested) {
+        lo = 0; hi = step;
+        for (unsigned iteration = 0; iteration < 24; ++iteration) {
+          const double mid = .5 * (lo + hi);
+          const auto length = span(mid);
+          if (length <= requested) lo = mid; else hi = mid;
+          if (length <= requested && length >= requested*(1-1e-6)) break;
+        }
+        step = lo;
+      }
+      if (!(step > 0) || !(clearance(step) > before))
+        throw std::runtime_error("Region metric-directed front cannot make representable inward progress.");
+      const auto last = c.MapFront(inner, flow, step);
+      kernel = flow.Apply(kernel, step);
+      wall.clear(); apices.clear();
+      std::map<Edge, Id> side2;
+      for (auto f : inner) if (c.Wall(f.facet)) {
+        wall.push_back(f); SurfaceFace mapped = f;
+        for (auto& n : mapped.v) n = last.at(n);
+        apices.push_back(c.New(c.Balanced(c.Center(f), c.Center(mapped))));
+      }
+      for (const auto& loop : rim)
+        for (auto row : loop.second) side2[Key(row[0], row[1])] = row[2];
+      c.Band(wall, last, apices, side2, false);
+      ++report.transition_fronts;
+      inner.clear();
+      for (auto f : wall) {
+        for (auto& n : f.v) n = last.at(n);
+        inner.push_back(f);
+      }
+      for (auto& loop : rim) for (auto& row : loop.second) {
+        row[0] = last.at(row[0]); row[1] = last.at(row[1]);
+      }
+      close(inner, kernel, nullptr);
+      if (step == terminal) break;
     }
-    const Id core = c.New(kernel);
-    close(final, kernel, &last);
-    for (auto f : final) if (!c.Wall(f.facet)) c.fresh.surface.push_back(f);
+    for (auto f : inner) if (!c.Wall(f.facet)) c.fresh.surface.push_back(f);
+    clock.Set(report.junction_seconds);
     c.PlaceJunctions();
-    c.Core(final,core);
+    const Id core = c.New(kernel);
+    clock.Set(report.core_seconds);
+    c.Core(inner,core);
+    clock.Set(report.validation_seconds);
     c.Validate();
     output = std::move(c.fresh);
     reason.clear();

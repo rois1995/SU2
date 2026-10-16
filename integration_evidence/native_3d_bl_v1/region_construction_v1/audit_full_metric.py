@@ -41,8 +41,8 @@ def intersection(a, b):
 
 
 class CylinderField:
-    def __init__(self, case):
-        data = json.loads((case / 'core_accepted.json').read_text())
+    def __init__(self, case, data_name='core_accepted.json'):
+        data = json.loads((case / data_name).read_text())
         config = dict(line.split('=', 1) for line in (case / 'core.cfg').read_text().splitlines() if '=' in line)
         config = {k.strip(): v.strip() for k, v in config.items()}
         def scalar(key):

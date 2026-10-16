@@ -4,20 +4,28 @@ Worktree `/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated`, branch
 `codex/native-3d-bl`, Goal2 base `c43a8a3907ea2655e4ebbb6286ab16c3fa625d8b`.
 **Full Goal3 ACTIVE/incomplete.** Preserve its full
 [scope and gates](integration_evidence/native_3d_bl_v1/GOAL3_REQUIREMENTS.json).
-Current campaign: original1402 target passes native+independent geometry MPI1/2/4
-(836 cells/q.36310/J.11218/L1.77440/work1098); source/input equivalent. Thin-volume
-controls pass3/877746. Actual current-source serial RANS/SA passes24->836->48,
-current/BDF conservation/SA-accounting, SU2/CGNS/restart and independent mesh/flow/
-SA replay_v20. Pressure sensor clips coarse; this is not viscous accuracy proof.
-Stronger rotated MPI2/4 now pass native+independent audits with3108 cells/4056 work,
-matching the serial accepted case. Current varying field also passes MPI1/2/4 with2896
-cells/4 regions/3930 work, q.20593/J.06020/L1.76382. Ten of15 integration cases
-were independently complete when the remaining actual RANS MPI matrix started.
-Full independent rotated metric audit passes3108 tensors/all4120 edges; v3 includes
-exact edge-set coverage and convergence control. One sequential actual RANS N/M
-native/audit/SA wrapper is live (session10410; verify before restart). Its manifest
-saves each completed case; no build/cluster job. No cluster job/request.
-[Resumable planned/current cases](integration_evidence/native_3d_bl_v1/region_construction_v1/current_integration_v11.json).
+The pre-intermediate-front campaign is complete15/15: original/rotated/varying
+fields pass native+independent geometry/source MPI1/2/4; thin controls pass3/877746.
+Actual RANS/SA N/M1/1,2/1,2/2,4/1,4/2,4/4 passes24->836->48, current+BDF/SA accounting,
+SU2/CGNS/reference/restart and independent audits/replays. All prior native/audit
+jobs are terminal; phase clocks are saved diagnostics, not a CFD-only ratio.
+[Qualified campaign](integration_evidence/native_3d_bl_v1/region_construction_v1/current_integration_v11.json),
+[actual MPI lifecycle](integration_evidence/native_3d_bl_v1/region_construction_v1/rans_lifecycle_v11.json).
+Current connected front extension compiled successfully; all owned jobs are terminal.
+Original stronger rotatedv12 accepts3108 cells/work4057, independently passes geometry/
+height/P1, and exactly matches every geometric cell/target sample/full edge of the
+fully auditedv10 numerical reference. High-ratio native_front_constant_v1 rejects
+at work4097>4096 after3 private fronts/3367 cells; input is independently identical.
+The fixed Band needs840 cells per front. Even full1.8 radial steps need>=4 more
+bands: >=4200 cells before core/planning, so this strategy cannot fit4096.
+[Current result and next action](integration_evidence/native_3d_bl_v1/region_construction_v1/metric_fronts_v1_summary.json).
+Next reconsider coordinated transition connectivity/front distribution/core
+interface; do not add local fallbacks, tweak step size or increase the budget.
+Prisms remain rejected (direct L2.026>1.8; two-step q.185/J.0308). The metric-apex
+hypothesis is ruled out: old apex shapes pass at36 intervals, but full curved
+diagonals reach2.042;42 intervals give1.783. No apex change enters production.
+Six regional phase clocks are instrumented; no updated MPI/actual RANS/profile
+qualification of the new source yet. No build/native/audit/cluster job is live.
 Foreign `ClusterResults/`, AdapNoExt and dependencies remain untouched.
 
 ## Current complete curved-mesh milestone
@@ -64,8 +72,9 @@ accuracy where practical, and complete adaptation/CFD lifecycle affordability.
 Current radial construction remains one generation worker; do not claim general
 geometry, structured layers, scaling or performance from these frozen pilots.
 Goal4 starts only after full Goal3 completion.
-The next connected construction design and its proved span obstruction are in
-[metric-driven fronts](Handbook/GOAL3_METRIC_FRONTS.md); no multi-front implementation yet.
+The connected front design and proved span/cell-cost obstructions are in
+[metric-driven fronts](Handbook/GOAL3_METRIC_FRONTS.md). No complete accepted
+high-ratio multi-front mesh has yet been demonstrated.
 
 [Full current qualification](Handbook/GOAL3_CURRENT.md),
 [distributed immutable source service](Handbook/GOAL3_DISTRIBUTED_REGION_FIELD.md),

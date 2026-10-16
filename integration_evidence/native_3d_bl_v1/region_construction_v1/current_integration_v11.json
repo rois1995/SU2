@@ -1,5 +1,5 @@
 {
-  "status": "IN_PROGRESS_NOT_WHOLE_CAMPAIGN_PASS",
+  "status": "ALL_PLANNED_INTEGRATION_CASES_COMPLETE_FULL_GOAL3_INCOMPLETE",
   "full_goal3_complete": false,
   "production_commit": "bafb4d695490dd98a1f6df57700f480fdbd04da1",
   "policy": "One owned nice19/threads1 task; MPI<=4, sequential native then independent case audit. Preserve failures and independent completed stages. No profiling/scaling claim from local runs.",
@@ -263,22 +263,166 @@
         "collar_analytic_delta": 4.721512400154063e-12
       },
       "independent_scope": "Complete native region, independently exact positive/oriented connected manifold geometry/every vertex link, no interior overlap, normal feet/height and analytic authority. Independent q/J arithmetic on exported actual-point tensors. Pure-core original P1 tensor and full-edge analytic integral independently checked where exact radial bounds prove the whole segment lies outside BL support. Remaining BL full lengths are native measurements, not independent whole-field quadrature. Frozen imposed sensor, not computed/graded CFD demand; no CFD transfer/restart/accuracy/general geometry/performance qualification."
+    },
+    "native_curved_rans_n2_m1_v11": {
+      "native_receipt_sha256": "349456cfee43f3a5965ac40c355ab60f43bb868928e2e182770d90030b69b3f8",
+      "independent_sha256": "852c25da8a40db40f0728664eb3f81e80cb147781b59a3aa69d12dd499c41807",
+      "SA_replay": "sa_projection_replay_v21",
+      "SA_replay_receipt_sha256": "66cc99e8b7f038e5a9556c29941e61b2c661c7ddce3d2e91739a4e2945217771",
+      "meshes": [
+        {
+          "cells": 836,
+          "workers": 1,
+          "sensor_residual": 0,
+          "flow_change": 3.048524286618722,
+          "solve_seconds": 32.207544834,
+          "metric_seconds": 16.420005396,
+          "remesh_seconds": 18.859805419000004,
+          "replace_seconds": 0.018568769000012253,
+          "output_seconds": 0.11917945199999735
+        },
+        {
+          "cells": 48,
+          "workers": 1,
+          "sensor_residual": 0,
+          "flow_change": 3.408242966248288,
+          "solve_seconds": 0.08001545599999815,
+          "metric_seconds": 0.03858536500000298,
+          "remesh_seconds": 1.5544220209999935,
+          "replace_seconds": 0.02458835900000622,
+          "output_seconds": 0.11969452099999955
+        }
+      ]
+    },
+    "native_curved_rans_n2_m2_v11": {
+      "native_receipt_sha256": "d31454d9b1a17a84e0936344a01612bce5a9deaffbc9ea09172049cdce3fb148",
+      "independent_sha256": "479e0c5f6bfb7c0dc53fbf5f869908e6e620bc6304013a78412da30dfbd5ab36",
+      "SA_replay": "sa_projection_replay_v22",
+      "SA_replay_receipt_sha256": "2fb26bfbf228d6bd898897cb8cf1461daf9b764835397b38f0b08f152b5a75cb",
+      "meshes": [
+        {
+          "cells": 836,
+          "workers": 2,
+          "sensor_residual": 0,
+          "flow_change": 3.048524286618722,
+          "solve_seconds": 32.84258193,
+          "metric_seconds": 16.274258302999996,
+          "remesh_seconds": 19.108160179000002,
+          "replace_seconds": 0.018219845999993822,
+          "output_seconds": 0.12329229000000907
+        },
+        {
+          "cells": 48,
+          "workers": 2,
+          "sensor_residual": 0,
+          "flow_change": 3.4082429662483307,
+          "solve_seconds": 0.08132697700000335,
+          "metric_seconds": 0.038566785000000436,
+          "remesh_seconds": 1.5143745740000014,
+          "replace_seconds": 0.013539145999999391,
+          "output_seconds": 0.09098970700000564
+        }
+      ]
+    },
+    "native_curved_rans_n4_m1_v11": {
+      "native_receipt_sha256": "5a784febc098d41be453162d9a50fec8418d92b5dacc949d06a8179613456755",
+      "independent_sha256": "fce63b7f119e24ed984126eb48e6e7ab353d10ace7462cb86b73fc8ed19062f4",
+      "SA_replay": "sa_projection_replay_v23",
+      "SA_replay_receipt_sha256": "13f4c117b84b2968ba7ffb32a5506cf05c8a0ad09393dd9a648cf454fedf0e3f",
+      "meshes": [
+        {
+          "cells": 836,
+          "workers": 1,
+          "sensor_residual": 0,
+          "flow_change": 3.048523817275715,
+          "solve_seconds": 33.48501803,
+          "metric_seconds": 16.148563009,
+          "remesh_seconds": 18.590389544000004,
+          "replace_seconds": 0.03785066599999709,
+          "output_seconds": 0.1332427240000129
+        },
+        {
+          "cells": 48,
+          "workers": 1,
+          "sensor_residual": 0,
+          "flow_change": 3.4082427342729886,
+          "solve_seconds": 0.04315013999999451,
+          "metric_seconds": 0.014696004999990464,
+          "remesh_seconds": 1.5634079069999984,
+          "replace_seconds": 0.01339903200000947,
+          "output_seconds": 0.10230955599999447
+        }
+      ]
+    },
+    "native_curved_rans_n4_m2_v11": {
+      "native_receipt_sha256": "34987105f30a7947ac1ff69df37d7bbf4d0b8349ef46426a0fc08204f48de14a",
+      "independent_sha256": "b0bf8a57eb58393f5752c5f4b64e6cbd93227ede25f8e370d45e87f072e24357",
+      "SA_replay": "sa_projection_replay_v24",
+      "SA_replay_receipt_sha256": "8d03d6859eb492d781b9742c3658599031da47ffaea72e9a1c5fcd0ab993e5b7",
+      "meshes": [
+        {
+          "cells": 836,
+          "workers": 2,
+          "sensor_residual": 0,
+          "flow_change": 3.048523817275715,
+          "solve_seconds": 32.539107626,
+          "metric_seconds": 16.149779695000007,
+          "remesh_seconds": 19.049134275,
+          "replace_seconds": 0.01637895499999331,
+          "output_seconds": 0.13910980400000028
+        },
+        {
+          "cells": 48,
+          "workers": 2,
+          "sensor_residual": 0,
+          "flow_change": 3.4082427342729673,
+          "solve_seconds": 0.04383109199999069,
+          "metric_seconds": 0.016814101999997888,
+          "remesh_seconds": 1.5129053580000118,
+          "replace_seconds": 0.018775223999995205,
+          "output_seconds": 0.10017286099999012
+        }
+      ]
+    },
+    "native_curved_rans_n4_m4_v11": {
+      "native_receipt_sha256": "96168c60d6d9b50612640da40cfa5c8137d777bb058cf988e0dbb0b76a39d10d",
+      "independent_sha256": "fc5a61ed7a468ec8a899ea347cf406c791df57ce8cdc425d225315ed8f8fdd1c",
+      "SA_replay": "sa_projection_replay_v25",
+      "SA_replay_receipt_sha256": "703f71a8c2c0733df753a1e349d8f3949f7e8e65e506e86da49569512a12caf3",
+      "meshes": [
+        {
+          "cells": 836,
+          "workers": 4,
+          "sensor_residual": 0,
+          "flow_change": 3.048523817275715,
+          "solve_seconds": 32.460013938,
+          "metric_seconds": 15.945179685,
+          "remesh_seconds": 18.985965345000004,
+          "replace_seconds": 0.014187594999995667,
+          "output_seconds": 0.1206789740000005
+        },
+        {
+          "cells": 48,
+          "workers": 4,
+          "sensor_residual": 0,
+          "flow_change": 3.4082427342729673,
+          "solve_seconds": 0.05564710499999137,
+          "metric_seconds": 0.015322916000002351,
+          "remesh_seconds": 1.4721508500000056,
+          "replace_seconds": 0.01292122099999915,
+          "output_seconds": 0.10060088100000542
+        }
+      ]
     }
   },
-  "current": "native_curved_rans_n2_m1_v11 native, independent mesh/flow/restart and sa_projection_replay_v21",
+  "current": null,
   "limits": "Frozen-field stress controls and short RANS workflow do not prove arbitrary geometry, thin interacting/multiple fronts, viscous accuracy or affordability. Full Goal3 remains intact.",
   "original_target_MPI_summary": {
     "path": "original_target_mpi_v11.json",
     "sha256": "b695ad34cfb2a142d88985d0fa38893a525f0726c09e13ab5a306277b0c9e28c"
   },
-  "next": "Remaining planned actual RANS MPI N/M cases, then metric-driven intermediate-front construction.",
-  "remaining": [
-    "native_curved_rans_n2_m1_v11",
-    "native_curved_rans_n2_m2_v11",
-    "native_curved_rans_n4_m1_v11",
-    "native_curved_rans_n4_m2_v11",
-    "native_curved_rans_n4_m4_v11"
-  ],
+  "next": "Frozen qualified pre-front campaign; see successor evidence for current construction work.",
+  "remaining": [],
   "milestone": {
     "status": "COMPLETE_ACCEPTED_CURVED_MESH_UNDER_UNCHANGED_CONSTRAINTS",
     "serial_case": "native_core_rotated_v10",
@@ -314,12 +458,15 @@
     "evidence": "full_metric_audit_v3/native_core_rotated_v10.json",
     "sha256": "c46f5a791d15bf5c74e56110337d90281814f1cb7b62ba53265e4df0ddb3b5a8",
     "coverage": "full_metric_audit_v3/coverage.json",
-    "coverage_sha256": "2b517742419ea5cd0e2d90c73b0e7edf91e28d7c2d598f947758961b88cb3d62",
+    "coverage_sha256": "5ee581207ccdeda2567e51b7e7bc6007b32db79e6096d88bfb2a6fc331309711",
     "scope": "Saved constant original-P1 sensor including collars; wall covariance/log interpolation/analytic cylinder/growth/fade and Cholesky-frame intersection reconstructed independently with NumPy. All exported centroid target tensors compared and every full edge integrated by independent adaptive Gauss-Legendre16/32 quadrature split at physical growth/fade shells and eight seeded panels per shell. Error estimates are numerical indicators, not rigorous enclosures. No varying sensor, general geometry, CFD, performance or full Goal3 qualification."
   },
   "next_construction_design": {
     "path": "../../../Handbook/GOAL3_METRIC_FRONTS.md",
     "normal_span_evidence": "normal_span_design_v1/result.json",
     "scope": "Connected design and checked span obstruction only; no multi-front implementation."
-  }
+  },
+  "provenance_verified_before_next_construction_change": true,
+  "all_cases_independently_complete": true,
+  "successor_evidence": "metric_fronts_v1_summary.json"
 }

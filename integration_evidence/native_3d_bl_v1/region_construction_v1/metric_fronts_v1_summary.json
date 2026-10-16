@@ -1,0 +1,56 @@
+{
+  "status": "PARTIAL_ORIGINAL_CURVED_PASS_HIGH_RATIO_REJECTED_FIXED_BAND_WORK_OBSTRUCTION",
+  "full_goal3_complete": false,
+  "build_log": "build_metric_fronts_v1.log",
+  "build_log_sha256": "f5806f2fb5629166e6ef7927149316fee46064846ead65bca664583ed3ea37d0",
+  "qualified_pre_change_campaign": "current_integration_v11.json",
+  "accepted": {
+    "case": "native_core_rotated_v12",
+    "native_receipt_sha256": "8cb15184b22238f4ff7f25f693f6ece0e9979689494b69d89c3c4a8a2ce44e03",
+    "independent_sha256": "540764772591ebb2d8cc1e5e92d01ca5aa8272a507b915526ca6334abc53e422",
+    "full_metric_reference_reuse_sha256": "085de04d5255fe4c8ac9bfa566861cdf3105d24d820a339f902b9a009d984c89",
+    "summary": {
+      "field": 2,
+      "regions": 2,
+      "work": 4057,
+      "transition_fronts": 1,
+      "front_trials": 1,
+      "first_height": 0.05,
+      "length": 1,
+      "cells": 3108,
+      "q": 0.4121001040607129,
+      "j": 0.15640245362209307,
+      "maximum_full_length": 1.6455054304780266,
+      "sensor_residual": 0,
+      "physical_sensor_samples": 2446,
+      "collar_sensor_samples": 662,
+      "collar_analytic_delta": 0
+    }
+  },
+  "rejected": {
+    "case": "native_front_constant_v1",
+    "native_receipt_sha256": "78efb6b4a422989435828f17a8601ee3b779768a3fd57238adbe381f8f04b15c",
+    "inspection_sha256": "6494a24955957b8e4563917ad2fb60012a0a476a21b04f7705c4f01b414606f2",
+    "cost_obstruction": "construction_cost_lower_bound.json",
+    "cost_obstruction_sha256": "d7740d1ce23d135ffe2c4f311d7c6fe20a03c26e13e63300d519c02364aa6731",
+    "first_height": 0.01,
+    "thickness": 0.2,
+    "cylinder_length": 0.2,
+    "work_limit": 4096,
+    "charged_work_at_rejection": 4097,
+    "private_generated_cells": 3367,
+    "completed_private_transition_fronts": 3,
+    "front_trials": 88,
+    "surface_trials": 642,
+    "retained_input_identical": true
+  },
+  "discarded_proposals": {
+    "single_prism": "front_prism_design_v1/result.json",
+    "double_prism": "front_prism_design_v2/result.json",
+    "metric_apex_shape": "metric_apex_design_v1/result.json",
+    "surface_edge_cause": "metric_apex_design_v1/full_edge_diagnosis.json"
+  },
+  "next": "Reconsider replicated fixed-topology bands: coordinate transition connectivity/front distribution with a metric-compliant core interface. Prototype whole high-ratio candidates from saved data; no extra local fallback, radial-step tweak or budget increase.",
+  "clocks": "Sampling/first band/transition/junction/core/validation instrumentation added to backend statistics; updated actual RANS profiling not performed.",
+  "scope": "Native source compiles and original complete difficult rotated mesh passes unchanged q/J/height/geometry/full-edge/work/time constraints, with independent geometry/source audit and exact geometric-sample/edge equivalence to complete independent numerical metric reference. High-ratio case remains rejected. No updated MPI/actual RANS/high-ratio acceptance/general geometry/affordability qualification of changed constructor."
+}

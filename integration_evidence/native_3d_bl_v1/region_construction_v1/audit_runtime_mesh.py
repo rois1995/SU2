@@ -11,7 +11,7 @@ from audit_cavities import determinant,sub,dot,cross,overlap
 from audit_coupled import connected,surface
 from baseline import footprints
 
-def mesh(data,geometry,layers):
+def mesh(data,geometry,layers,first_height=.05):
     nodes={n[0]:tuple(map(F,n[1:])) for n in data['nodes']}
     assert len(nodes)==len(data['nodes']) and len(set(nodes.values()))==len(nodes)
     assert len({c['id'] for c in data['cells']})==len(data['cells'])
@@ -41,7 +41,7 @@ def mesh(data,geometry,layers):
     if layers:assert feet and all(not r['outside'] for r in feet)
     for r in feet:
         a,b,c=[nodes[n] for n in r['face']];n=cross(sub(b,a),sub(c,a))
-        h=abs(float(dot(sub(nodes[r['apex']],a),n)))/math.sqrt(float(dot(n,n)));height=max(height,abs(h-.05)/.05)
+        h=abs(float(dot(sub(nodes[r['apex']],a),n)))/math.sqrt(float(dot(n,n)));height=max(height,abs(h-first_height)/first_height)
     assert height<=1e-10
     error=sag=0.
     for f in data['surface']:

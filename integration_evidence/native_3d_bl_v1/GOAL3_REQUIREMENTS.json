@@ -50,12 +50,12 @@
     {
       "id": "MPI_transfer",
       "scope": "N=M/M<N, complete dependencies, atomic rejection; conservative current+BDF, positivity and turbulence",
-      "status": "Current actual serial n1_m1_v11 independently passes current+BDF physical-flow conservation/open ledger/positivity, sensor-only transport, accounted bounded-SA and exact flow/SA restart; raw SA replay_v20 passes. Prior907646 six-way actual MPI N/M matrix is old-source evidence; updated MPI lifecycle pending. Post-bound SA integrals are not invariant; broader physics remains open."
+      "status": "Qualified pre-intermediate-front source passes all six actual RANS/SA N/M1/1,2/1,2/2,4/1,4/2,4/4 through independent mesh/flow/current+BDF/SA-accounting/SU2/CGNS/reference/restart audits and raw SA replaysv20..v25. Intermediate-front source changes are not yet qualified. Post-bound SA integrals are not invariant. Pressure sensors clip coarse; no converged viscous/M6/affordability proof."
     },
     {
       "id": "workflow",
       "scope": "Euler-to-BL / BL-to-Euler, actual small 3D RANS/M6 where practical; SU2+CGNS/reference/restart",
-      "status": "Current-source serial RANS/SA24->836->48 passes native lifecycle and independent mesh/flow/restart/SA replay. Prior v6 six-way MPI N/M matrix retains exact old-source scope; current MPI lifecycle pending. Pressure sensors clip coarse; no converged viscous or M6 accuracy proof."
+      "status": "Qualified pre-intermediate-front source passes all six actual RANS/SA N/M1/1,2/1,2/2,4/1,4/2,4/4 through independent mesh/flow/current+BDF/SA-accounting/SU2/CGNS/reference/restart audits and raw SA replaysv20..v25. Intermediate-front source changes are not yet qualified. Post-bound SA integrals are not invariant. Pressure sensors clip coarse; no converged viscous/M6/affordability proof."
     },
     {
       "id": "viscous_accuracy",
@@ -100,9 +100,9 @@
     "wall_reconstruction_v1/joint_connectivity_summary.json"
   ],
   "execution_state": {
-    "status": "Current independent rotated metric3108 tensors/all4120 edges PASS; original/rotated/varying fields pass MPI1/2/4. Ten of15 integration cases complete at start of remaining actual RANS N/M matrix; manifest updates each complete native/independent/SA case. Full Goal3 ACTIVE/incomplete.",
-    "CFD_runs": 12,
-    "CFD_run_scope": "Five corrected-config failed serial attempts v1..v5 plus six successful v6 N/M variants and current n1_m1_v11; initial invalid config retained separately.",
+    "status": "Qualified pre-front campaign15/15 PASS. Intermediate-front source compiles; complete original rotatedv12 passes native+independent geometry/P1 and exact full-metric-reference reuse. High-ratio case rejects at4096-work ceiling; fixed Band needs>=4200 cells before core/planning. Reconsider coordinated transition/core construction, no budget/step tweak or local fallback. Full Goal3 ACTIVE/incomplete.",
+    "CFD_runs": 17,
+    "CFD_run_scope": "Five corrected-config failed v1..v5 plus six qualified v6 actual N/M cases and six qualified v11 actual N/M cases; initial invalid config separately retained.",
     "production_MPI": "Current-source original target and stronger rotated frozen field pass MPI1/2/4. Actual current-source RANS n1_m1_v11 passes; prior907646e00e actual-flow N/M1/1,2/1,2/2,4/1,4/2,4/4 retains old-source scope. Updated actual MPI lifecycle pending.",
     "independent_frames": 12
   },
@@ -236,7 +236,7 @@
     "scope": "One planar cube production case plus six focused first-row geometry/movement cases. Actual computed metric, conservative current+BDF/bounded-SA and SU2/CGNS/reference/restart checks; independent exact embedding, full composed metric, wall footprint and height. No new MPI, full regressions, general layer coverage, actual CFD accuracy or performance qualification."
   },
   "owned_jobs": {
-    "status": "One sequential actual RANS MPI N/M native/independent/SA wrapper, session10410. All varying-field and full-metric audits terminal PASS. No build/cluster job."
+    "status": "All owned build/native/audit/replay/diagnosis jobs terminal. No cluster job/request."
   },
   "wall_reconstruction": {
     "status": "PASS_PLANAR_STRONGER_FIELD_LIMITED_SCOPE",
@@ -733,5 +733,8 @@
     "coverage": "region_construction_v1/full_metric_audit_v3/coverage.json",
     "scope": "Saved constant original-P1 sensor including collars; wall covariance/log interpolation/analytic cylinder/growth/fade and Cholesky-frame intersection reconstructed independently with NumPy. All exported centroid target tensors compared and every full edge integrated by independent adaptive Gauss-Legendre16/32 quadrature split at physical growth/fade shells and eight seeded panels per shell. Error estimates are numerical indicators, not rigorous enclosures. No varying sensor, general geometry, CFD, performance or full Goal3 qualification."
   },
-  "next_construction_design": "../../../Handbook/GOAL3_METRIC_FRONTS.md"
+  "next_construction_design": "../../Handbook/GOAL3_METRIC_FRONTS.md",
+  "qualified_pre_front_campaign": "region_construction_v1/current_integration_v11.json",
+  "qualified_actual_RANS_MPI_lifecycle": "region_construction_v1/rans_lifecycle_v11.json",
+  "intermediate_front_evidence": "region_construction_v1/metric_fronts_v1_summary.json"
 }

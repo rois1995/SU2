@@ -8,7 +8,7 @@ def coverage(rows,expected):
     assert len(actual)==len(expected) and len(set(actual))==len(actual) and set(actual)==expected
 report=json.loads((HERE/'native_core_rotated_v10.json').read_text());assert report['status']=='PASS_INDEPENDENT_COMPLETE_CYLINDER_METRIC_SCOPE_LIMITED'
 assert all(sha(CASE/p)==h for p,h in report['contract']['inputs'].items())
-assert sha(HERE.parent/'audit_full_metric.py')==report['contract']['helpers']['audit_full_metric.py']
+assert sha(HERE/'audit_full_metric_executed.py')==report['contract']['helpers']['audit_full_metric.py']
 assert sha(HERE/'native_core_rotated_v10_edges.csv')==report['edge_csv_sha256']
 data=json.loads((CASE/'core_accepted.json').read_text());expected={tuple(sorted((c['nodes'][i],c['nodes'][j]))) for c in data['cells'] for i in range(4) for j in range(i+1,4)}
 rows=list(csv.DictReader((HERE/'native_core_rotated_v10_edges.csv').open()));coverage(rows,expected)

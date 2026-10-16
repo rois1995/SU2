@@ -2,8 +2,9 @@
 
 Full Goal3 remains active. This is the next construction step after the complete
 accepted curved-mesh milestone, not a new goal or a replacement for its gates.
-The current production constructor still has two bands; no multiple-front
-implementation is claimed here.
+The qualified MPI/actual RANS checkpoint still has two bands. The intermediate-
+front extension compiles and preserves the complete original target, but its
+high-ratio case is rejected. No accepted high-ratio multi-front mesh is claimed.
 
 ## Limitation established before implementation
 
@@ -66,3 +67,48 @@ Measure front count, cell count, field/edge calls and work before optimizing. Ke
 construction planning/bands/core/validation clocks separate when measuring runtime;
 include metric/partition/migration/return/rebuild/transfer/output for affordability.
 No scaling or adaptation/CFD ratio follows from a small local correctness run.
+
+## Saved complete-target prism assessment
+
+`front_prism_design_v1` retains the accepted first row and core and replaces the
+transition with ordered3-tet prisms. Complete face conformity and actual-centroid
+q/J pass, but eight critical full edges reach2.026214617>1.8; preserve the rejected
+2184-cell proposal/reference. A two-step proposalv2 has2688 cells and critical
+full edges<=1.71741, but actual-centroid qmin.185057/Jmin.030779 fail. Neither is
+accepted or a full embedding audit. These bounded saved-mesh checks took under
+a second apiece, without new SU2 runs. The production change therefore retains
+the established coordinated star-band construction instead of adding prism
+connectivity. Full-field-controlled advancement, positive progress and event
+work/time/cell admission limit the sequence; final validation remains unchanged.
+
+## Native intermediate-front result and next strategy
+
+The extension uses actual composed radial-prefix integrals, positive inward
+progress and charged front trials, reusing Band/first row/core/final gates. It
+compiles. Original rotatedv12 independently accepts3108 cells/work4057 with exactly
+the same geometric tetrahedra, actual q/J/tensors and full edges as auditedv10;
+all frozen source/reference bytes match. The complete independent numerical metric
+reference is reused by explicit exact comparison, not by assuming similar output.
+
+High-ratio height.01/T.2/length.2 fails at4097 charged work before completing the
+next band. Three private fronts/3367 cells are saved as rejected; retained input
+is independently identical. There are84 physical wall triangles and each current
+Band costs840 tetrahedra. The unfaded remaining normal span requires at least4
+more bands even at full1.8 radial allowance:4200 cells already exceed4096 before
+core/sampling/planning. See `native_front_constant_v1/construction_cost_lower_bound.json`.
+A larger step alone cannot fix this construction-class obstruction.
+
+The metric-nearest wall-apex hypothesis was checked independently rather than
+added to production: original apex shapes already pass at36 angular intervals.
+Both full surface diagonals are too long there (best-around maximum2.04172);42
+intervals give1.78315. The frozen field genuinely requires the denser wall, so
+apex placement does not remove this sampling cost. The source and gates stay.
+
+The next connected design must reduce transition cost while coordinating its
+point distribution/connectivity with the core interface. The failed simple
+prisms show why efficient cell counts alone are insufficient: direct prisms
+violate lengths and shorter steps violate actual q/J near the fade. Investigate
+whole-front distribution and terminal-core placement together on saved complete
+meshes before another native build. Do not add local fallback ladders or increase
+work/time. Six production phase clocks now separate sampling/first-band/transition/
+junction/core/validation; new MPI/actual RANS/profile qualification remains pending.

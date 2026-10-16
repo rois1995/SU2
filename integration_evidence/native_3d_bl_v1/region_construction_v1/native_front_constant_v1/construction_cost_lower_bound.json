@@ -1,0 +1,17 @@
+{
+  "status": "PASS_FIXED_BAND_BUDGET_OBSTRUCTION",
+  "physical_wall_triangles": 84,
+  "wall_rim_edges": 84,
+  "wall_interior_edges": 84,
+  "cells_per_existing_band": 840,
+  "first_front_minimum_radius": 0.9825292713635918,
+  "unfaded_metric_span_remaining_lower_bound": "6.745120002109393715610985944479481662640586410957801089746836881855445",
+  "minimum_additional_fronts_with_unchanged_edge_limit": 4,
+  "minimum_cells_before_core_and_planning": 4200,
+  "event_work_limit": 4096,
+  "retained_input_identical": true,
+  "input_rejection_sha256": "f44137c6c73409adf9bffda80a78c9f72d4ca3cd49f56b6e98ffebfee92196c8",
+  "native_receipt_sha256": "78efb6b4a422989435828f17a8601ee3b779768a3fd57238adbe381f8f04b15c",
+  "helper_sha256": "81b6524f29d66cc8dee9f7ed5ab967d5da6952c032f6f36643012372b3d74a07",
+  "scope": "This constant-sensor cylinder keeps all wall-front edges/topology and uses the existing coordinated Band. Every additional band costs840 tetrahedra. Even using the full1.8 radial-edge allowance, at least4 further bands are required after the first;4200 cells already exceed4096 before core/sampling/front work. The outer fade is omitted, so the normal span is a lower bound. This proves an obstruction to this fixed-topology band strategy, not physical mesh infeasibility or a universal cell lower bound. More efficient connectivity/front distribution/core coupling is required; changing1.62 to1.8 alone cannot close this case."
+}

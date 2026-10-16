@@ -1,0 +1,18 @@
+{
+  "status": "PASS_EXACT_GEOMETRIC_SAMPLE_AND_EDGE_REFERENCE_REUSE",
+  "cells": 3108,
+  "full_edges": 4120,
+  "old_native_receipt_sha256": "835a799765b9ab5344086da9284c5aa310c8630060b41e2cf6eb68c435c95919",
+  "new_native_receipt_sha256": "8cb15184b22238f4ff7f25f693f6ece0e9979689494b69d89c3c4a8a2ce44e03",
+  "new_independent_geometry_sha256": "540764772591ebb2d8cc1e5e92d01ca5aa8272a507b915526ca6334abc53e422",
+  "full_metric_reference_sha256": "c46f5a791d15bf5c74e56110337d90281814f1cb7b62ba53265e4df0ddb3b5a8",
+  "coverage_sha256": "5ee581207ccdeda2567e51b7e7bc6007b32db79e6096d88bfb2a6fc331309711",
+  "helper_sha256": "bd8a87124be77149c953d1c6fd30c61c5bb0cb3c66464bd6759a86c27879ad43",
+  "unchanged_composition_source_pins": {
+    "Common/src/adaptation/CNativeField3D.cpp": "76cde8efa4d62439e9cbc554e1ac8584c88d78b6150bafa09b9bf15d5e90b3cc",
+    "Common/src/adaptation/CNativeBoundary3D.cpp": "2da34851d7fb87a3dd8eb96da185d953b0aaa7b210b311ba4ef54401992f6e28",
+    "SU2_CFD/src/adaptation/CBoundaryLayerMetric.cpp": "4660cb89028f28c9dc9ae3237114326542a707680a19cf3fcb74b78d8df9e26f",
+    "SU2_CFD/src/solvers/CSolver.cpp": "42f5d1d80fba485ba632cc982b95f600e2a676f9905d72a73fc094bd1b80cf5c"
+  },
+  "scope": "New constructor candidate has exactly equal geometric tetrahedra, actual centroid q/J/tensors, full geometric edge sets and native lengths, original frozen sensors and original reference. Reuse the separately executed complete independent numerical metric reference for this exact constant-sensor cylinder; independent new-source geometry/height/source audit also passes. Does not qualify high-ratio, MPI/CFD, general geometry or affordability of the changed constructor."
+}

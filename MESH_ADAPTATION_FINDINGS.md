@@ -5650,3 +5650,34 @@ exact helpers. Batchedv3 completes all edges without another SU2 run or any
 production/target/gate change. Full Goal3 stays open: nonconstant-field references,
 high-ratio/multiple/interacting fronts, gradation feasibility, practical viscous
 accuracy and whole-lifecycle affordability are not proved by this cylinder.
+
+
+## 2026-10-16 — complete MPI workflow, fixed-band high-ratio obstruction
+
+The pre-front integration campaign completes15/15 with exact source/build/binary/
+artifact provenance. Six actual short RANS/SA N/M combinations pass24->836->48,
+independent geometry/height/source, physical current+BDF conservation/open ledger,
+explicit bounded-SA corrections, SU2/CGNS/reference and exact restart. Existing
+phase clocks are preserved diagnostics, not a CFD-only ratio or scaling proof.
+
+The subsequent connected intermediate-front source compiles and preserves the
+complete original rotated target:3108 cells/work4057, independently accepted
+geometry/P1 and exact geometric-cell/actual-tensor/full-edge identity with audited
+v10. The full independent numerical metric reference is reused by exact checks.
+High-ratio h.01/T.2/length.2 is rejected at the same4096 work limit after3 private
+fronts/3367 cells. Retained input is independently identical; rejected SU2/ref/JSON
+are preserved. Each Band costs840 tets; >=4 more fronts require>=4200 cells even
+before core/planning. This is a fixed-topology construction obstruction, not
+physical infeasibility. Larger radial steps alone cannot fix it.
+
+Cheap saved-mesh alternatives are retained rejected: direct3-tet prisms meet
+centroid shape but have full L2.026>1.8; two-step prisms meet critical lengths but
+q.185/J.0308 fail. Metric-nearest apex placement does not explain wall density:
+existing apex q/J already pass at36 intervals, but best full surface diagonals
+reach2.042;42 intervals give1.783. No apex change/fallback/target relaxation follows.
+Next coordinate transition distribution/connectivity and terminal-core placement
+as one construction strategy, using complete saved high-ratio candidates before
+another build. Six regional clocks are instrumented; changed-source MPI/actual
+RANS/high-ratio acceptance/affordability remain unqualified. Full Goal3 ACTIVE.
+Evidence: region_construction_v1/metric_fronts_v1_summary.json and
+Handbook/GOAL3_METRIC_FRONTS.md.

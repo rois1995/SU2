@@ -11,7 +11,8 @@ def digest(p):
 def main():
  case=sys.argv[1]
  runtime=re.fullmatch(r'native_curved_rans_n([124])_m([124])_v[0-9]+',case)
- core=re.fullmatch(r'native_core_(constant|varying|rotated)(?:_mpi([24]))?_v[0-9]+',case)
+ layered=re.fullmatch(r'native_front_(constant|varying|rotated)(?:_mpi([24]))?_v[0-9]+',case)
+ core=layered or re.fullmatch(r'native_core_(constant|varying|rotated)(?:_mpi([24]))?_v[0-9]+',case)
  edge_controls=re.fullmatch(r'native_global_edge_controls_v[0-9]+',case)
  if runtime:assert int(runtime[2])<=int(runtime[1])
  recipes={'native_core_constant_v1':'geometry','native_core_varying_v1':'geometry','native_core_rotated_v1':'geometry','native_complete_domain_controls_v1':'geometry','native_curved_volume_controls_v7':'geometry','native_curved_volume_controls_v6':'geometry','native_curved_volume_controls_v5':'geometry','native_curved_volume_controls_v4':'geometry','native_curved_volume_controls_v3':'geometry','native_curved_volume_controls_v2':'geometry','native_curved_volume_controls_v1':'geometry','native_curved_rans_v1':'geometry','native_curved_rans_mpi2_v1':'geometry','native_curved_rans_mpi4_v1':'geometry','native_region_field_controls_mpi2_v2':'geometry','native_region_field_controls_mpi4_v2':'geometry','native_region_field_controls_v2':'geometry','native_refreshed_source_v2':'curved_cold','native_refreshed_source_mpi2_v2':'curved_cold','native_refreshed_source_mpi4_v2':'curved_cold','native_field_compat_v2':'curved_feature_complete','native_region_field_controls_v1':'geometry','native_refreshed_source_v1':'curved_cold','native_refreshed_source_mpi2_v1':'curved_cold','native_refreshed_source_mpi4_v1':'curved_cold','native_field_compat_v1':'curved_feature_complete','native_cold_v3':'curved_cold','native_cold_mpi2_v3':'curved_cold','native_cold_mpi4_v3':'curved_cold','native_complete_v3':'curved_feature_complete','native_complete_field_v3':'curved_grid_audit','native_cold_bl_field_v3':'curved_grid_audit','native_cold_v2':'curved_cold','native_complete_v2':'curved_feature_complete','native_primitive_controls_v1':'geometry','native_cold_field_v1':'curved_grid_audit','native_cold_v1':'curved_cold','native_complete_field_v1':'curved_grid_audit','native_complete_mpi2':'curved_joint_protocol_feature_mpi2','native_complete_mpi4':'curved_joint_protocol_mpi4','native_complete_v1':'curved_feature_complete','metric_derivative_controls':'geometry','curved_metric_patch_probe':'curved_current_wall_refit_probe','curved_metric_complete':'curved_feature_complete','curved_metric_residual':'curved_feature_residual','curved_joint_protocol_metric_mpi2':'curved_joint_protocol_feature_mpi2'}
@@ -114,8 +115,10 @@ def main():
  if case=='curved_metric_patch_probe':env['SU2_NATIVE_CURVED_METRIC_SOLVE']='1'
  if case.startswith('native_curved_rans'):env['SU2_NATIVE_POLICY_WORKERS']=runtime[2] if runtime else str(ranks)
  if case.startswith('native_refreshed_source'):env['SU2_NATIVE_CURVED_REFRESH_SOURCE']='1'
+ env.pop('SU2_NATIVE_FRONT_HEIGHT',None);env.pop('SU2_NATIVE_FRONT_LENGTH',None)
  if core:env['SU2_NATIVE_CORE_FIELD']=str({'constant':0,'varying':1,'rotated':2}[core[1]])
- contract={'recipe':stage,'pins':pins,'command':command,'MPI_ranks':ranks,'environment':{k:v for k,v in env.items() if k.startswith('SU2_NATIVE_CURVED_') or k in ('SU2_NATIVE_CORE_FIELD','SU2_NATIVE_POLICY_WORKERS','OMP_NUM_THREADS','OPENBLAS_NUM_THREADS','MKL_NUM_THREADS','OMPI_MCA_mpi_yield_when_idle')}}
+ if layered:env.update(SU2_NATIVE_FRONT_HEIGHT='.01',SU2_NATIVE_FRONT_LENGTH='.2')
+ contract={'recipe':stage,'pins':pins,'command':command,'MPI_ranks':ranks,'environment':{k:v for k,v in env.items() if k.startswith('SU2_NATIVE_CURVED_') or k in ('SU2_NATIVE_CORE_FIELD','SU2_NATIVE_FRONT_HEIGHT','SU2_NATIVE_FRONT_LENGTH','SU2_NATIVE_POLICY_WORKERS','OMP_NUM_THREADS','OPENBLAS_NUM_THREADS','MKL_NUM_THREADS','OMPI_MCA_mpi_yield_when_idle')}}
  destination=HERE.parent/'region_construction_v1' if case.startswith('native_') else HERE
  record=destination/(case+'.json');folder=destination/case
  if case in field_sources:

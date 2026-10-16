@@ -16,14 +16,22 @@ all4120 full edges pass. Maximum normalized tensor residual8.90e-14 and native
 length difference5.43e-10; independent maximum edge1.645505430478027.
 [Metric evidence](../integration_evidence/native_3d_bl_v1/region_construction_v1/full_metric_audit_v3/native_core_rotated_v10.json).
 
-The original difficult1402 target passes MPI1/2/4 with836 accepted cells. Varying
-field passes MPI1/2/4 with2896 cells/4 regions/3930 work. Current actual serial RANS
-passes24->836->48 including current+BDF/SA, SU2/CGNS/reference and restart.
-Updated actual MPI RANS N/M qualification is underway; see
-[resumable campaign](../integration_evidence/native_3d_bl_v1/region_construction_v1/current_integration_v11.json).
-The earlier records below retain their exact old-source scope. Full Goal3 remains
-ACTIVE with high-ratio/multiple-front/interacting geometry, broader independent
-metric references, gradation limits, viscous accuracy and affordability still open.
+The qualified pre-front campaign is complete15/15: original and stronger rotated/
+varying targets MPI1/2/4, thin controls, and actual RANS/SA N/M1/1,2/1,2/2,4/1,4/2,4/4
+with24->836->48 and independent current+BDF/SA-accounting/SU2/CGNS/restart audits.
+It is exact prior-source evidence, not automatic qualification of later changes.
+[Qualified actual lifecycle](../integration_evidence/native_3d_bl_v1/region_construction_v1/rans_lifecycle_v11.json).
+
+The subsequent intermediate-front source compiles and preserves the complete
+original rotated target (3108 cells/work4057). Independent geometry/P1 passes, and
+exact geometry/sample/edge identity permits reuse of the complete numerical metric
+reference. High-ratio height.01/T.2/length.2 remains rejected at the unchanged work
+limit. Each current Band costs840 cells; >=4 further bands are necessary, yielding
+>=4200 cells before core/planning, already beyond4096. Changing the step alone is
+insufficient. [Current result](../integration_evidence/native_3d_bl_v1/region_construction_v1/metric_fronts_v1_summary.json),
+[construction strategy](GOAL3_METRIC_FRONTS.md). Updated MPI/actual RANS/profile
+qualification of this changed source is pending; all owned jobs are terminal.
+Full Goal3 remains ACTIVE with every remaining gate intact.
 
 ## Recorded pre-front/core foundations
 

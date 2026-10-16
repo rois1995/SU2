@@ -743,7 +743,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
           volume+=v;x+=v*((long double)origin.x+a.x+b.x+c.x)/4;y+=v*((long double)origin.y+a.y+b.y+c.y)/4;z+=v*((long double)origin.z+a.z+b.z+c.z)/4;}
         if(!(volume>0))throw std::runtime_error("Native3D region has nonpositive closed volume.");const Point kernel{double(x/volume),double(y/volume),double(z/volume)};
         if(maximum_node==UINT64_MAX||maximum_cell==UINT64_MAX)throw std::overflow_error("Native3D region identity reservation overflows.");
-        RegionLimits limits;limits.maximum_cells=region_cells;limits.maximum_work=stats.work_limit;
+        RegionLimits limits;limits.maximum_cells=region_cells;limits.maximum_work=stats.work_limit;limits.timings=options.timings;
         if(options.rejected_trial)limits.rejected=[&](const Patch& candidate,const std::string& why) {
           options.rejected_trial(old,candidate,{},MetricDiagnosis{},false,why);
         };
@@ -759,7 +759,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
           if(!core_declined)throw std::runtime_error(result.reason);
           last_rejection=result.reason;
         } else {
-          stats.global_work=fresh.cells.size()+report.surface_trials+report.junction_trials+report.core_trials;
+          stats.global_work=fresh.cells.size()+report.surface_trials+report.junction_trials+report.core_trials+report.front_trials;
           if(stats.global_work>stats.work_limit)throw std::runtime_error("Native3D region construction exceeds global event work.");
           std::map<Face,Id> physical;for(auto f:fresh.surface)physical.emplace(Key(f.v),f.facet);
           for(const auto& c:fresh.cells){OwnedCell row;row.cell=c;const auto faces=Faces(c);for(unsigned f=0;f<4;++f){auto found=physical.find(Key(faces[f]));if(found!=physical.end())row.physical[f]={true,found->second};}replacement.push_back(row);}
@@ -777,7 +777,11 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
 
     stats.region_surface_trials=report.surface_trials;stats.region_junction_trials=report.junction_trials;
     stats.region_core_trials=report.core_trials;stats.region_core_regions=report.core_regions;
-    stats.global_work=CPassiveComm::Allreduce(uint64_t(report.generated_cells+report.surface_trials+report.junction_trials+report.core_trials),CPassiveComm::Op::MAX,world.comm);
+    stats.region_transition_fronts=report.transition_fronts;stats.region_front_trials=report.front_trials;
+    stats.region_sampling_seconds=report.sampling_seconds;stats.region_first_band_seconds=report.first_band_seconds;
+    stats.region_transition_seconds=report.transition_seconds;stats.region_junction_seconds=report.junction_seconds;
+    stats.region_core_seconds=report.core_seconds;stats.region_validation_seconds=report.validation_seconds;
+    stats.global_work=CPassiveComm::Allreduce(uint64_t(report.generated_cells+report.surface_trials+report.junction_trials+report.core_trials+report.front_trials),CPassiveComm::Op::MAX,world.comm);
     if(!vote(failure)) {
       if(world.maximum(report.exhausted_work))stats.stop=EngineStop::WorkBudget;
       else if(options.maximum_seconds && world.maximum(std::chrono::duration<double>(Clock::now()-started).count()>=options.maximum_seconds))stats.stop=EngineStop::TimeBudget;

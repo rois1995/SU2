@@ -1193,7 +1193,7 @@ TEST_CASE("Solved three-dimensional Euler pressure supplies repeated native curv
 }
 
 namespace {
-CSimplexMesh PrimitiveMesh(bool sphere,bool tilted) {
+CSimplexMesh PrimitiveMesh(bool sphere,bool tilted,double length=1) {
   CSimplexMesh mesh;mesh.nDim=3;
   auto add=[&](Point p){const auto id=mesh.GetnPoint();mesh.coord.insert(mesh.coord.end(),{p.x,p.y,p.z});return id;};
   if(sphere) {
@@ -1205,8 +1205,8 @@ CSimplexMesh PrimitiveMesh(bool sphere,bool tilted) {
     const Point axis=tilted?Point{q,q,q}:Point{0,0,1},u=tilted?Point{0,-s,s}:Point{1,0,0},v=tilted?Point{2*s*q,-s*q,-s*q}:Point{0,1,0};
     const Point origin=tilted?Point{2,-1,.5}:Point{0,0,0};
     for(int level=0;level<2;++level) {
-      add({origin.x+level*axis.x,origin.y+level*axis.y,origin.z+level*axis.z});
-      for(int i=0;i<8;++i){const auto a=i*std::acos(-1.)/4;add({origin.x+std::cos(a)*u.x+std::sin(a)*v.x+level*axis.x,origin.y+std::cos(a)*u.y+std::sin(a)*v.y+level*axis.y,origin.z+std::cos(a)*u.z+std::sin(a)*v.z+level*axis.z});}
+      add({origin.x+level*length*axis.x,origin.y+level*length*axis.y,origin.z+level*length*axis.z});
+      for(int i=0;i<8;++i){const auto a=i*std::acos(-1.)/4;add({origin.x+std::cos(a)*u.x+std::sin(a)*v.x+level*length*axis.x,origin.y+std::cos(a)*u.y+std::sin(a)*v.y+level*length*axis.y,origin.z+std::cos(a)*u.z+std::sin(a)*v.z+level*length*axis.z});}
     }
     for(unsigned long i=1;i<=8;++i) {
       std::array<unsigned long,3> triangle{0,i,i==8?1:i+1};std::sort(triangle.begin(),triangle.end());
@@ -1229,15 +1229,15 @@ CSimplexMesh PrimitiveMesh(bool sphere,bool tilted) {
   for(auto row:boundary){CSimplexMesh::Marker marker;marker.name=row.first;marker.elem=row.second;mesh.markers.push_back(std::move(marker));}
   return mesh;
 }
-void DeclarePrimitive(ReferenceState& state,bool sphere,bool tilted) {
-  AnalyticSurface g;g.kind=sphere?AnalyticSurface::Kind::Sphere:AnalyticSurface::Kind::Cylinder;g.extent=sphere?Point{1,0,0}:Point{1,1,0};
+void DeclarePrimitive(ReferenceState& state,bool sphere,bool tilted,double length=1) {
+  AnalyticSurface g;g.kind=sphere?AnalyticSurface::Kind::Sphere:AnalyticSurface::Kind::Cylinder;g.extent=sphere?Point{1,0,0}:Point{1,length,0};
   if(tilted && !sphere){g.origin={2,-1,.5};g.axis={1,1,1};}
   std::map<Id,AnalyticSurface> curves;
   for(auto f:state.facets) {
     auto local=g;const auto name=state.marker_names.at(f.marker);
     if(name=="cap0" || name=="cap1") {
       local.kind=AnalyticSurface::Kind::Disk;local.extent.y=0;
-      if(name=="cap1") {const auto l=std::hypot(g.axis.x,g.axis.y,g.axis.z);local.origin={g.origin.x+g.axis.x/l,g.origin.y+g.axis.y/l,g.origin.z+g.axis.z/l};}
+      if(name=="cap1") {const auto l=std::hypot(g.axis.x,g.axis.y,g.axis.z);local.origin={g.origin.x+length*g.axis.x/l,g.origin.y+length*g.axis.y/l,g.origin.z+length*g.axis.z/l};}
     }
     curves.emplace(f.id,local);
   }

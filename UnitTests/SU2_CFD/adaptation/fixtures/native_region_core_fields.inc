@@ -2,11 +2,15 @@
 TEST_CASE("Metric-directed regional core resolves stronger curved sensor fields", "[.][NativeRegionCore3D]") {
   World world;const char* selected=std::getenv("SU2_NATIVE_CORE_FIELD");const int kind=selected?std::stoi(selected):0;
   REQUIRE(kind>=0);REQUIRE(kind<=2);const bool tilted=kind==2;
-  const auto seed=PrimitiveMesh(false,tilted);
+  const auto* selected_height=std::getenv("SU2_NATIVE_FRONT_HEIGHT");
+  const auto* selected_length=std::getenv("SU2_NATIVE_FRONT_LENGTH");
+  const double height=selected_height?std::stod(selected_height):.05,length=selected_length?std::stod(selected_length):1.;
+  REQUIRE(height>0);REQUIRE(height<.2);REQUIRE(length>0);
+  const auto seed=PrimitiveMesh(false,tilted,length);
   std::stringstream text("SOLVER= RANS\nKIND_TURB_MODEL= SA\nMACH_NUMBER= .2\nREYNOLDS_NUMBER= 1000\nREYNOLDS_LENGTH= 1\n"
     "MESH_FORMAT= SU2\nMESH_FILENAME= core_initial.su2\nMARKER_FAR= (cap0,cap1)\nMARKER_HEATFLUX= (cylinder,0)\nMGLEVEL= 0\n"
     "COMPUTE_METRIC= YES\nADAP_SENSOR= PRESSURE\nADAP_REMESHER= NATIVE_CAVITY\nADAP_SURFACE= YES\nADAP_HESSIAN_NOISE= 0\n"
-    "ADAP_BL_MARKER= (cylinder)\nADAP_BL_FIRST_HEIGHT= (.05)\nADAP_BL_GROWTH= (1.2)\nADAP_BL_THICKNESS= (.2)\nADAP_HAUSD= .04\n");
+    "ADAP_BL_MARKER= (cylinder)\nADAP_BL_FIRST_HEIGHT= ("+std::to_string(height)+")\nADAP_BL_GROWTH= (1.2)\nADAP_BL_THICKNESS= (.2)\nADAP_HAUSD= .04\n");
   if(!world.rank){simplex_test::WriteSU2Mesh(seed,"core_initial.su2");std::ofstream cfg("core.cfg");cfg<<text.str();}
   std::unique_ptr<CConfig> config;{Mute mute;config=std::make_unique<CConfig>(text,SU2_COMPONENT::SU2_CFD,false);}
   MeshSolution mesh(config.get(),seed,0);su2activematrix sensor(mesh.Fine().GetnPointDomain(),6);
@@ -21,7 +25,7 @@ TEST_CASE("Metric-directed regional core resolves stronger curved sensor fields"
     const auto* x=mesh.Fine().nodes->GetCoord(p);const auto m=expected({SU2_TYPE::GetValue(x[0]),SU2_TYPE::GetValue(x[1]),SU2_TYPE::GetValue(x[2])});
     const std::array<double,6> packed{m.xx,m.xy,m.xz,m.yy,m.yz,m.zz};for(unsigned k=0;k<6;++k)sensor(p,k)=packed[k];
   }
-  ReferenceState reference;ImportGeometry(*config,mesh.Fine(),nullptr,reference);DeclarePrimitive(reference,false,tilted);
+  ReferenceState reference;ImportGeometry(*config,mesh.Fine(),nullptr,reference);DeclarePrimitive(reference,false,tilted,length);
   const auto input=ImportGeometry(*config,mesh.Fine(),&sensor,reference);const auto before=Signature(world,input.cells,reference);
   const auto source=world.metadata(input.original);Save(world,"core_initial",input.cells,input.original,reference);
   WriteReference("core_initial.su2.native_ref",reference);
@@ -35,7 +39,7 @@ TEST_CASE("Metric-directed regional core resolves stronger curved sensor fields"
   };
   EngineOptions options;options.surface_tolerance=.04;options.maximum_work=4096;options.maximum_seconds=300;options.timings=true;
   for(unsigned marker=0;marker<reference.marker_names.size();++marker)if(reference.marker_names[marker]=="cylinder") {
-    options.wall_heights[marker]=.05;options.region_walls[marker]={.05,1.2,.2};
+    options.wall_heights[marker]=height;options.region_walls[marker]={height,1.2,.2};
   }
   options.edge_breakpoints=[layers](Point a,Point b){return layers->EdgeBreakpoints({a.x,a.y,a.z},{b.x,b.y,b.z});};
   options.rejected_trial=[&](const Patch&,const Patch& candidate,Feature,const MetricDiagnosis&,bool,const std::string& why) {
@@ -45,11 +49,12 @@ TEST_CASE("Metric-directed regional core resolves stronger curved sensor fields"
   const auto result=Refine(world,input.cells,input.original,*reference.original,compose,options);
   Save(world,result.valid?"core_accepted":"core_input_retained",result.cells,input.original,reference);
   CHECK(Signature(world,input.cells,reference)==before);
-  const auto regions=world.maximum(result.stats.region_core_regions),work=world.maximum(result.stats.global_work);
+  const auto regions=world.maximum(result.stats.region_core_regions),work=world.maximum(result.stats.global_work),
+    fronts=world.maximum(result.stats.region_transition_fronts),frontTrials=world.maximum(result.stats.region_front_trials);
   if(!world.rank)std::cout<<"REGION_CORE field="<<kind<<" valid="<<result.valid<<" regions="<<regions<<" work="<<work
     <<" trials="<<result.stats.region_core_trials<<" surface_trials="<<result.stats.region_surface_trials
-    <<" junction_trials="<<result.stats.region_junction_trials<<" reason="<<result.reason<<std::endl;
-  INFO(result.reason);REQUIRE(result.valid);CHECK(result.rebuilt_domain);CHECK(regions>1);CHECK(work<=4096);
+    <<" junction_trials="<<result.stats.region_junction_trials<<" fronts="<<fronts<<" front_trials="<<frontTrials<<" reason="<<result.reason<<std::endl;
+  INFO(result.reason);REQUIRE(result.valid);CHECK(result.rebuilt_domain);CHECK(regions>=1);if(length==1)CHECK(regions>1);if(height<.05)CHECK(fronts>1);CHECK(work<=4096);
   std::vector<OwnedCell> local;for(auto row:result.cells)local.push_back(row.second);const auto all=world.metadata(local);
   if(world.rank)return;
   FrozenField field(source,compose,false,AssociatedExtensions(source,*reference.original),options.edge_breakpoints);
@@ -82,6 +87,6 @@ TEST_CASE("Metric-directed regional core resolves stronger curved sensor fields"
   for(auto row:edges){const auto l=field.TargetEdgeLength(row.second.first,row.second.second);CHECK(l<=MaximumMetricEdge);maximum=std::max(maximum,l);edgesOut<<row.first[0]<<','<<row.first[1]<<','<<l<<'\n';}
   CHECK(minimumQ>=MinimumMeanRatio);CHECK(minimumJ>=MinimumScaledJacobian);CHECK(residual<2e-12);CHECK(physicalSamples>0);CHECK(sensors.good());CHECK(samples.good());CHECK(edgesOut.good());
   std::ofstream out("core_summary.json");out<<std::setprecision(17)<<"{\"field\":"<<kind<<",\"regions\":"<<regions<<",\"work\":"<<work
-    <<",\"cells\":"<<all.size()<<",\"q\":"<<minimumQ<<",\"j\":"<<minimumJ<<",\"maximum_full_length\":"<<maximum<<",\"sensor_residual\":"<<residual<<",\"physical_sensor_samples\":"<<physicalSamples
+    <<",\"transition_fronts\":"<<fronts<<",\"front_trials\":"<<frontTrials<<",\"first_height\":"<<height<<",\"length\":"<<length<<",\"cells\":"<<all.size()<<",\"q\":"<<minimumQ<<",\"j\":"<<minimumJ<<",\"maximum_full_length\":"<<maximum<<",\"sensor_residual\":"<<residual<<",\"physical_sensor_samples\":"<<physicalSamples
     <<",\"collar_sensor_samples\":"<<collarSamples<<",\"collar_analytic_delta\":"<<collarAnalyticDelta<<"}\n";CHECK(out.good());
 }

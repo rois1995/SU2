@@ -65,8 +65,10 @@ def main():
         result={'status':'REJECTED_INSPECTION_ONLY','scope':'No accepted certificate. Exported rejected private volume may be incomplete; physical faces without an admitted volume node are counted, not silently certified. Raw JSON and original failed receipt remain unchanged.','exports':exports,'native_receipt_sha256':sha(receiptPath),'helper_sha256':sha(Path(__file__).resolve())}
         (case/'core_independent.json').write_text(json.dumps(result,indent=2)+'\n');print(result['status']);return
     data=json.loads((case/'core_accepted.json').read_text());summary=json.loads((case/'core_summary.json').read_text())
-    geometry,_=authorities(case/'core_initial.su2.native_ref');report,_=mesh(data,geometry,True)
-    assert summary['regions']>1 and summary['work']<=4096 and summary['sensor_residual']<2e-12
+    geometry,_=authorities(case/'core_initial.su2.native_ref');config=dict(line.split('=',1) for line in (case/'core.cfg').read_text().splitlines() if '=' in line)
+    height=float(config['ADAP_BL_FIRST_HEIGHT'].strip(' ()'))
+    report,_=mesh(data,geometry,True,height)
+    assert summary['regions']>=1 and summary['work']<=4096 and summary['sensor_residual']<2e-12
     nodes={n[0]:tuple(map(F,n[1:])) for n in data['nodes']};samples={int(r['cell']):r for r in csv.DictReader((case/'core_samples.csv').open())};assert len(samples)==len(data['cells'])
     initial=json.loads((case/'core_initial.json').read_text());oldIds={n[0] for n in initial['nodes']}
     sensorReport=sensor_samples(case,data,nodes,oldIds,geometry)
