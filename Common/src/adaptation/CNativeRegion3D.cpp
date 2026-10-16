@@ -6,6 +6,7 @@
  */
 #include "../../include/adaptation/CNativeRegion3D.hpp"
 #include "../../include/adaptation/CNativeMetric3D.hpp"
+#include "../../include/adaptation/CNativeMesh2D.hpp"
 #include "Eigen/Dense"
 #include <algorithm>
 #include <deque>
@@ -35,6 +36,23 @@ Edge Key(Id a, Id b) { return a < b ? Edge{a, b} : Edge{b, a}; }
 Face Key(Face f) {
   std::sort(f.begin(), f.end());
   return f;
+}
+// Proposal-only tangential envelope uses the solver's stable sum-whitening construction; the 3D field stays frozen.
+Eigen::Matrix2d CapIntersection(Eigen::Matrix2d a,const Eigen::Matrix2d& b) {
+  if(a==b)return a;
+  const double scale=std::max(a.cwiseAbs().maxCoeff(),b.cwiseAbs().maxCoeff());
+  if(!(scale>0) || !a.allFinite() || !b.allFinite())throw std::runtime_error("Prismatic cap metric is not finite.");
+  Eigen::SelfAdjointEigenSolver<Eigen::Matrix2d> sum(a/scale+b/scale);
+  if(sum.info()!=Eigen::Success || !(sum.eigenvalues().minCoeff()>0))throw std::runtime_error("Prismatic cap metric sum is not SPD.");
+  const Eigen::Matrix2d root=sum.eigenvectors()*sum.eigenvalues().cwiseSqrt().asDiagonal()*sum.eigenvectors().transpose(),
+      inverse=sum.eigenvectors()*sum.eigenvalues().cwiseSqrt().cwiseInverse().asDiagonal()*sum.eigenvectors().transpose();
+  Eigen::Matrix2d relative=inverse*(a/scale)*inverse;relative=.5*(relative+relative.transpose()).eval();
+  Eigen::SelfAdjointEigenSolver<Eigen::Matrix2d> eig(relative);
+  if(eig.info()!=Eigen::Success)throw std::runtime_error("Prismatic cap metric eigensolve failed.");
+  const Eigen::Vector2d values=eig.eigenvalues().cwiseMax(Eigen::Vector2d::Ones()-eig.eigenvalues());
+  Eigen::Matrix2d out=scale*root*eig.eigenvectors()*values.asDiagonal()*eig.eigenvectors().transpose()*root;
+  out=.5*(out+out.transpose()).eval();if(!out.allFinite())throw std::runtime_error("Prismatic cap envelope overflows.");
+  return out;
 }
 struct Use {
   size_t face;
@@ -674,6 +692,132 @@ class Construction {
       }
     }
   }
+  void ConstructPrismaticCap(std::vector<SurfaceFace>& base,const PrismaticChart& chart,const std::vector<double>& levels) {
+    namespace Cap=SU2Native2D;
+    PhaseClock timer(limits.timings);timer.Set(report.cap_seconds);
+    Point axis{1,0,0};if(std::abs(chart.direction.y)<std::abs(chart.direction.x))axis={0,1,0};
+    if(std::abs(chart.direction.z)<std::abs(Dot(axis,chart.direction)))axis={0,0,1};
+    const Point u=Unit(Sub(axis,Mul(chart.direction,Dot(axis,chart.direction)))),v=Cross(chart.direction,u);
+    auto project=[&](Point p){p=Sub(p,chart.origin);return Cap::Point{Dot(p,u),Dot(p,v)};};
+    auto lift=[&](Cap::Point p){return geometry.Project(chart.base,Add(chart.origin,Add(Mul(u,p.x),Mul(v,p.y))));};
+    auto at=[&](Point p,double z){return Add(p,Mul(chart.direction,z));};
+    const Cap::Metric metric=[&](Cap::Point p) {
+      Check();Eigen::Matrix2d envelope;bool first=true;
+      for(double z:levels) {
+        const auto m=field.point(at(lift(p),z));
+        auto apply=[&](Point d){return Point{m.xx*d.x+m.xy*d.y+m.xz*d.z,m.xy*d.x+m.yy*d.y+m.yz*d.z,m.xz*d.x+m.yz*d.y+m.zz*d.z};};
+        Eigen::Matrix2d tangent;tangent<<Dot(u,apply(u)),Dot(u,apply(v)),Dot(v,apply(u)),Dot(v,apply(v));
+        envelope=first?tangent:CapIntersection(envelope,tangent);first=false;
+      }
+      const Cap::Tensor result{envelope(0,0),envelope(0,1),envelope(1,1)};
+      if(!(Cap::NormalizedDeterminant(result.xx,result.xy,result.yy)>0))throw std::runtime_error("Prismatic cap tangent metric is not SPD.");
+      return result;
+    };
+    auto charge=[&](){++report.surface_trials;Check();};
+    auto admit=[&](size_t count) {
+      const size_t factor=3*(levels.size()-1);
+      if(count>limits.maximum_cells/factor || count*factor+report.surface_trials+report.junction_trials+report.core_trials+report.front_trials>limits.maximum_work) {
+        report.exhausted_work=true;throw std::runtime_error("Whole prismatic cap/front proposal exceeds admitted work/cells.");
+      }
+    };
+    std::vector<Cap::Triangle> seed;
+    Eigen::Matrix2d average=Eigen::Matrix2d::Zero();double area=0;
+    for(auto f:base) {
+      auto t=Cap::triangle({f.v[0],project(nodes.at(f.v[0])),0},{f.v[1],project(nodes.at(f.v[1])),0},{f.v[2],project(nodes.at(f.v[2])),0});
+      const double weight=double(Cap::area(t));if(!(weight>0))throw std::runtime_error("Prismatic cap source is degenerate.");
+      const auto m=metric(Cap::centroid(t));Eigen::Matrix2d matrix;matrix<<m.xx,m.xy,m.xy,m.yy;
+      average+=weight*matrix;area+=weight;seed.push_back(t);
+    }
+    // shortcut: one average-metric proposal chart; unresolved localized demands reject at full-region validation.
+    average/=area;Eigen::LLT<Eigen::Matrix2d> factor(average);
+    if(factor.info()!=Eigen::Success)throw std::runtime_error("Prismatic cap proposal chart is not SPD.");
+    const Eigen::Matrix2d transform=factor.matrixU(),inverse=transform.inverse();
+    const Cap::Tensor chart_metric{average(0,0),average(0,1),average(1,1)};
+    const Cap::Metric uniform=[&](Cap::Point){Check();return chart_metric;};
+    std::vector<Cap::Node> polygon;
+    if(!Cap::star_polygon(seed,UINT64_MAX,polygon))throw std::runtime_error("Prismatic cap requires one simple boundary loop.");
+    constexpr double spacing=.85;
+    std::vector<Cap::Node> boundary,sites;
+    auto span=[&](Cap::Point a,Cap::Point b) {
+      if(a.x==b.x && a.y==b.y)return 0.L;
+      long double maximum=0;for(double z:levels){Check();maximum=std::max(maximum,field.edge(at(lift(a),z),at(lift(b),z)));}
+      return maximum;
+    };
+    for(size_t k=0;k<polygon.size();++k) {
+      const auto a=polygon[k],b=polygon[(k+1)%polygon.size()];boundary.push_back(a);
+      const auto total=span(a.p,b.p),count=std::ceil(total/spacing);
+      if(!(count>=1 && count<=limits.maximum_work)){report.exhausted_work=true;throw std::runtime_error("Prismatic cap boundary sampling exceeds admitted work.");}
+      for(size_t j=1;j<size_t(count);++j) {
+        charge();double lo=0,hi=1;
+        for(unsigned iteration=0;iteration<32;++iteration) {
+          const double t=.5*(lo+hi);if(span(a.p,a.p+(b.p-a.p)*t)<total*j/count)lo=t;else hi=t;
+        }
+        const auto p=a.p+(b.p-a.p)*(.5*(lo+hi));const Id id=New(lift(p));boundary.push_back({id,p,0});
+      }
+      admit(boundary.size()>2?boundary.size()-2:1);
+    }
+    std::vector<Cap::Triangle> cap;
+    if(!Cap::ear_clip(boundary,uniform,cap))throw std::runtime_error("Prismatic cap boundary cannot be triangulated.");
+    Eigen::Vector2d low=Eigen::Vector2d::Constant(INFINITY),high=-low;
+    for(auto n:polygon){const Eigen::Vector2d p=transform*Eigen::Vector2d(n.p.x,n.p.y);low=low.cwiseMin(p);high=high.cwiseMax(p);}
+    auto index=[&](double value) {
+      if(!std::isfinite(value) || std::abs(value)>double(limits.maximum_work)) {
+        report.exhausted_work=true;throw std::runtime_error("Prismatic cap lattice exceeds admitted work.");
+      }
+      return int64_t(value);
+    };
+    const double row_height=spacing*std::sqrt(3.)/2;
+    const auto i0=index(std::floor(low[0]/spacing)-1),i1=index(std::ceil(high[0]/spacing)+1),
+               j0=index(std::floor(low[1]/row_height)-1),j1=index(std::ceil(high[1]/row_height)+1);
+    for(auto j=j0;j<=j1;++j)for(auto i=i0;i<=i1;++i) {
+      charge();const Eigen::Vector2d q=inverse*(spacing*Eigen::Vector2d(i+.5*((j%2+2)%2)+.25,j*std::sqrt(3.)/2+.25));
+      const Cap::Point p{q[0],q[1]};bool inside=false;
+      for(auto t:seed)if(Cap::orient(t.v[0].p,t.v[1].p,p)>=0 && Cap::orient(t.v[1].p,t.v[2].p,p)>=0 && Cap::orient(t.v[2].p,t.v[0].p,p)>=0){inside=true;break;}
+      if(!inside)continue;
+      const auto m=metric(p);bool near=false;
+      for(size_t k=0;k<polygon.size();++k) {
+        const auto a=polygon[k].p,d=polygon[(k+1)%polygon.size()].p-a,r=p-a;
+        const double t=std::max(0.,std::min(1.,(r.x*(m.xx*d.x+m.xy*d.y)+r.y*(m.xy*d.x+m.yy*d.y))/m.quadratic(d)));
+        if(m.quadratic(r-d*t)<std::pow(.45*spacing,2)){near=true;break;}
+      }
+      if(near)continue;
+      admit(cap.size()+2*(sites.size()+1));sites.push_back({New(lift(p)),p,0});
+    }
+    // Construct connectivity for the complete point set, independent of inherited cap edges.
+    for(auto n:sites) {
+      charge();std::vector<Cap::Triangle> old,next;
+      for(auto t:cap) {
+        if(Cap::orient(t.v[0].p,t.v[1].p,n.p)>=0 && Cap::orient(t.v[1].p,t.v[2].p,n.p)>=0 && Cap::orient(t.v[2].p,t.v[0].p,n.p)>=0)old.push_back(t);
+        else next.push_back(t);
+      }
+      if(old.empty())throw std::runtime_error("Prismatic cap site leaves its complete containing cavity.");
+      for(const auto& edge:Cap::boundary(old)) {
+        const auto a=edge.second.first,b=edge.second.second;
+        if(Cap::orient(a.p,b.p,n.p)>0)next.push_back(Cap::triangle(a,b,n));
+      }
+      cap.swap(next);admit(cap.size());
+    }
+    for(;;) {
+      Check();bool changed=false;std::map<Cap::Edge,std::vector<size_t>> stars;
+      for(size_t k=0;k<cap.size();++k)for(unsigned j=0;j<3;++j)stars[Cap::edge(cap[k].v[j].id,cap[k].v[(j+1)%3].id)].push_back(k);
+      for(const auto& star:stars) {
+        Check();if(star.second.size()!=2)continue;
+        const auto i=star.second[0],j=star.second[1];std::vector<Cap::Triangle> old{cap[i],cap[j]};
+        const auto vertices=Cap::nodes(old);std::vector<Cap::Node> other;
+        for(const auto& n:vertices)if(n.first!=star.first.first && n.first!=star.first.second)other.push_back(n.second);
+        if(other.size()!=2)throw std::runtime_error("Prismatic cap edge has an invalid complete star.");
+        const auto a=vertices.at(star.first.first),b=vertices.at(star.first.second),c=other[0],d=other[1];
+        if(!Cap::Opposite(Cap::orient(c.p,d.p,a.p),Cap::orient(c.p,d.p,b.p)))continue;
+        const auto first=Cap::triangle(c,d,a),second=Cap::triangle(d,c,b);
+        if(std::min(Cap::quality(first,metric),Cap::quality(second,metric))<=Cap::min_quality(old,metric)+1e-7)continue;
+        charge();admit(cap.size());std::string why;
+        if(!Cap::validate_replacement(old,{first,second},why))throw std::runtime_error("Prismatic cap reconnection is invalid: "+why);
+        cap[i]=first;cap[j]=second;changed=true;break;
+      }
+      if(!changed)break;
+    }
+    admit(cap.size());base.clear();for(auto t:cap)base.push_back({{t.v[0].id,t.v[1].id,t.v[2].id},chart.base});
+  }
   void PrismaticFronts(const PrismaticChart& chart,PhaseClock& clock) {
     // shortcut: a certified right prism with wall policies only on its opposite caps; nonprismatic junctions need a regional decomposition.
     std::vector<SurfaceFace> base;
@@ -722,30 +866,7 @@ class Construction {
       levels.push_back(last);if(last<chart.gap)levels.push_back(chart.gap);
       }
 
-      for(;;) {
-        Check();std::set<Edge> marked;
-        for(const auto& edge:Links(base))for(double z:levels) {
-          Check();if(field.edge(point(edge.first[0],z),point(edge.first[1],z))>.8L*MaximumMetricEdge){marked.insert(edge.first);break;}
-        }
-        if(marked.empty())break;
-        for(auto edge:marked) {
-          ++report.surface_trials;Check();const auto uses=Links(base).at(edge);
-          const Id mid=New(geometry.Project(chart.base,Mul(Add(nodes.at(edge[0]),nodes.at(edge[1])),.5)));
-          std::vector<SurfaceFace> next;
-          for(size_t i=0;i<base.size();++i) {
-            bool hit=false;
-            for(auto use:uses)if(use.face==i) {
-              hit=true;Id other=0;for(Id n:base[i].v)if(n!=edge[0] && n!=edge[1])other=n;
-              next.push_back({{use.a,mid,other},base[i].facet});next.push_back({{mid,use.b,other},base[i].facet});
-            }
-            if(!hit)next.push_back(base[i]);
-          }
-          base.swap(next);
-          if(base.size()>limits.maximum_cells/(3*(levels.size()-1))) {
-            report.exhausted_work=true;throw std::runtime_error("Prismatic cap refinement exceeds admitted transition cells.");
-          }
-        }
-      }
+      ConstructPrismaticCap(base,chart,levels);
       // New columns can expose a stronger original sensor; close both directions before constructing cells.
       vertices.clear();for(auto f:base)for(Id n:f.v)vertices.insert(n);
       bool divided=false;

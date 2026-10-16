@@ -240,7 +240,11 @@ long double FrozenField::EdgeLength(Point a, Point b, bool composed) {
       static_assert(sizeof(Panel)<=160,"Composed edge heap exceeds admitted workspace per panel.");
       size_t evaluations=0;
       auto value = [&](size_t index,long double t) {
-        if (++evaluations > 65536) throw std::runtime_error("Native 3D composed edge evaluation budget exhausted.");
+        if (++evaluations > 65536) {
+          std::ostringstream why;why<<std::setprecision(21)<<"Native 3D composed edge evaluation budget exhausted: edge=("
+              <<a.x<<','<<a.y<<','<<a.z<<")..("<<b.x<<','<<b.y<<','<<b.z<<") piece="<<index<<" parameter="<<t;
+          throw std::runtime_error(why.str());
+        }
         const auto& piece=pieces[index];const auto& donor=donors[candidates[piece.donor]];
         const auto parameter=piece.begin+t*piece.width;
         Point p{double((1-parameter)*a.x+parameter*b.x),double((1-parameter)*a.y+parameter*b.y),

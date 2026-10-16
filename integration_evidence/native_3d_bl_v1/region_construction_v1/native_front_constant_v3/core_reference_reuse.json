@@ -1,0 +1,27 @@
+{
+  "status": "PASS_COMPLETE_UNCHANGED_CYLINDER_REFERENCE_WITH_NEW_NATIVE_TENSOR_AND_EDGE_CHECKS",
+  "cells": 2877,
+  "full_edges": 4727,
+  "maximum_new_tensor_relative_change": 1.4003515362386202e-15,
+  "new_point_reference_relative_bound": 1.063956424208579e-14,
+  "maximum_shape_recomputation_error": 4.551914400963142e-15,
+  "maximum_full_length": 1.7831488561463442,
+  "maximum_native_relative_edge_difference": 4.985265939928052e-09,
+  "identical_model_mesh_inputs": {
+    "core_accepted.json": "1d886dcfdf114732651d0559d4416a384e2d4319c0a650f9e16d662e01ec0ade",
+    "core_initial.json": "bd7b66476cf0fb3a9537dff588df47d3dd6f14c8fd77c5ff34568a9822fcdc9f",
+    "core.cfg": "d6a6ac2346bdd235722776a859fe7fab3039e8af6562ce417bef126f1dc13530",
+    "core_initial.su2.native_ref": "e34ff7992d2cb74898ebc8fa1cb80ba02641bed422e302833d0b0ddd75a4d50d",
+    "core_sensors.csv": "8df741d115806f794efbb2fd6e7b67340bad76ae8d9b7a27e65520373d2114bd"
+  },
+  "old_native_receipt_sha256": "070552c9e3ba3399ad907f6d1a826d5d443aced373ed6c3abb1952bf0daad953",
+  "new_native_receipt_sha256": "dd5c3c19980e5bbfbdbc47ea2f96c25c91fc5f892aca592e66272e4dfe5f8c7f",
+  "geometry_reference_sha256": "f0e171cad02d4f37c88af27873cd16d492b266f0898e931022e47c42526baed6",
+  "full_metric_reference": "integration_evidence/native_3d_bl_v1/region_construction_v1/full_metric_audit_v4/native_front_constant_v2.json",
+  "full_metric_reference_sha256": "fbc976983122ae66fbd390907267764cd6373d8e8a2ca9bd2b4449cd63d51233",
+  "edge_reference_sha256": "978f0f25f7af2f2319e9f39f8f2c3558ab9c2644b3ba23ac7e839016ea29f5d0",
+  "helper_sha256": "0046787be45a71b4d94f5b7ae1f2af7bcb5469137f3fb40178b0fe724cf60647",
+  "export_sha256": "324ed7404d40913aedb1774f3813dbf987b6ff5bd208ae1714efd2fe81b64120",
+  "numpy_version": "1.24.4",
+  "scope": "Bit-identical complete finite mesh/geometry/original sensors/config and unchanged independent physical-model helper. Exact geometry/height/links/no overlap proof reused. Every new actual tensor is compared to the old independently bounded sample; triangle inequality plus a numerical guard transfers the reference tolerance. Every new shape is recomputed; full edge coverage and native/reference residuals checked anew. The production closest-facet source changed: no unchanged-composition-source or identical-native-output claim. Reuses independent numerical quadrature, not rigorous enclosures or a wider geometry/MPI/CFD/performance certificate."
+}

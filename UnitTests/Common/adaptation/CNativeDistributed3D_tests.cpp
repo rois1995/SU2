@@ -2405,7 +2405,8 @@ void CoupledBL(bool grouped,unsigned replay=0,double strength=1,bool opposing=fa
     Owned rejected;for(auto row:Rows(rejectedRegion))rejected.emplace(row.cell.id,row);
     if(world.maximum(!rejected.empty())){exportMesh(rejected,"private_region_rejected");MeshRecords(prefix+"private_region_rejected",world,rejected);}
     const auto attempts=world.maximum(refined.stats.region_attempts),fronts=world.maximum(refined.stats.region_transition_fronts);
-    if(!world.rank)std::cout<<"PRISMATIC_RESULT valid="<<refined.valid<<" region_attempts="<<attempts<<" fronts="<<fronts<<std::endl;
+    const auto capTrials=world.maximum(refined.stats.region_surface_trials);const double capSeconds=CPassiveComm::Allreduce(refined.stats.region_cap_seconds,CPassiveComm::Op::MAX,world.comm);
+    if(!world.rank)std::cout<<"PRISMATIC_RESULT valid="<<refined.valid<<" region_attempts="<<attempts<<" fronts="<<fronts<<" surface_trials="<<capTrials<<" cap_nested_s="<<capSeconds<<std::endl;
     CHECK(attempts==(saved_patch?0:1));
   }
   EngineReport(refined,world,prefix+"coupled_BL");Log(world,"BL result: "+refined.reason+"\n");

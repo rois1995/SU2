@@ -956,15 +956,25 @@ CBoundaryLayerMetric::Sample CBoundaryLayerMetric::Evaluate(unsigned short iWall
     }
     ht = limited;
   } else {
-    /*--- Closest point of the nearest triangle and its barycentric weights. ---*/
+    /*--- The ADT's tolerant triangle test is a seed, not an authoritative closest facet. ---*/
+    const auto* query=wall.authority?lookup:X;
+    auto closest=[&](unsigned long face,su2double (&weights)[3],su2double (&point)[3]) {
+      const auto* t=&d.elem[3*face];ClosestPointTriangle(x(t[0]),x(t[1]),x(t[2]),query,weights);
+      for(unsigned j=0;j<3;++j){point[j]=0;for(unsigned k=0;k<3;++k)point[j]+=weights[k]*x(t[k])[j];}
+      su2double distance2=0;for(unsigned j=0;j<3;++j)distance2+=pow(query[j]-point[j],2);
+      return distance2;
+    };
+    su2double w[3],projected[3];auto dist2=closest(id,w,projected);
+    std::vector<unsigned long> candidates;
+    d.adt->DetermineElementsWithinDistance(query,sqrt(dist2)+d.tolerance,candidates);
+    std::sort(candidates.begin(),candidates.end());
+    for(auto other:candidates)if(other!=id) {
+      su2double weights[3],point[3];const auto distance2=closest(other,weights,point);
+      if(distance2<dist2 || (distance2==dist2 && other<id)) {
+        id=other;dist2=distance2;std::copy(weights,weights+3,w);std::copy(point,point+3,projected);
+      }
+    }
     const auto* t = &d.elem[3 * id];
-    su2double w[3];
-    ClosestPointTriangle(x(t[0]), x(t[1]), x(t[2]), wall.authority?lookup:X, w);
-    su2double projected[3] = {0.0};
-    for (unsigned short k = 0; k < 3; ++k)
-      for (unsigned short iDim = 0; iDim < 3; ++iDim) projected[iDim] += w[k] * x(t[k])[iDim];
-    su2double dist2 = 0.0;
-    for (unsigned short iDim = 0; iDim < 3; ++iDim) dist2 += pow(X[iDim] - projected[iDim], 2);
     sample.distance = sqrt(dist2);
     if(wall.authority) {
       sample.distance=smooth.distance;

@@ -1,0 +1,153 @@
+ninja: Entering directory `integration_evidence/build-integrated-v2'
+[1/2] Compiling C++ object UnitTests/test_driver.p/SU2_CFD_adaptation_BoundaryLayerMetric_tests.cpp.o
+FAILED: [code=1] UnitTests/test_driver.p/SU2_CFD_adaptation_BoundaryLayerMetric_tests.cpp.o 
+c++ -IUnitTests/test_driver.p -IUnitTests -I../../UnitTests -ISU2_CFD/src -I../../SU2_CFD/src -ICommon/src -I../../Common/src -I../../externals/CLI11 -I../../externals/eigen -I../../externals/cgns/adf -I../../externals/cgns/adfh -Iexternals/cgns -I../../externals/cgns -Iexternals/cgns/hdf5 -I../../externals/cgns/hdf5 -I../../externals/metis/include -I../../externals/metis/GKlib -I../../externals/metis/libmetis -I../../externals/parmetis/include -I../../externals/parmetis/libparmetis -I../../externals/mel -I../../externals/catch2 -I/usr/lib/x86_64-linux-gnu/openmpi/include/openmpi -I/usr/lib/x86_64-linux-gnu/openmpi/include -fdiagnostics-color=always -D_GLIBCXX_ASSERTIONS=1 -D_FILE_OFFSET_BITS=64 -std=c++17 -O2 -g -pthread -fPIC -Wno-empty-body -Wno-ignored-qualifiers -Wno-unused-parameter -Wno-deprecated-declarations -Wno-error=cast-function-type -Wno-cast-function-type -Wno-error=stringop-truncation -Wno-stringop-truncation -Wno-error=missing-field-initializers -Wno-missing-field-initializers -Wno-error=class-memaccess -Wno-class-memaccess -Wno-overloaded-virtual -Wno-array-bounds -march=native -ffast-math -fno-finite-math-only -DHAVE_CGNS -DHAVE_MPI -DHAVE_METIS -DHAVE_PARMETIS -DHAVE_MMG -MD -MQ UnitTests/test_driver.p/SU2_CFD_adaptation_BoundaryLayerMetric_tests.cpp.o -MF UnitTests/test_driver.p/SU2_CFD_adaptation_BoundaryLayerMetric_tests.cpp.o.d -o UnitTests/test_driver.p/SU2_CFD_adaptation_BoundaryLayerMetric_tests.cpp.o -c ../../UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp
+../../UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp: In function ‘void C_A_T_C_H_T_E_S_T_87()’:
+../../UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp:1484:9: error: reference to ‘Tensor’ is ambiguous
+ 1484 |   const Tensor sensor{193,.25*std::sqrt(3.)*252,0,67,0,4};
+      |         ^~~~~~
+../../UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp:53:7: note: candidates are: ‘using Tensor = struct CBoundaryLayerMetric::Tensor’
+   53 | using Tensor = CBoundaryLayerMetric::Tensor;
+      |       ^~~~~~
+In file included from ../../UnitTests/SU2_CFD/adaptation/../../../Common/include/adaptation/CNativeField3D.hpp:8,
+                 from ../../UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp:38:
+../../UnitTests/SU2_CFD/adaptation/../../../Common/include/adaptation/CNativeMesh3D.hpp:21:8: note:                 ‘struct SU2Native3D::Tensor’
+   21 | struct Tensor {
+      |        ^~~~~~
+../../UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp:1485:9: error: reference to ‘Tensor’ is ambiguous
+ 1485 |   const Tensor expected{sensor.xx,sensor.xy,0,sensor.yy,0,100};
+      |         ^~~~~~
+../../UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp:53:7: note: candidates are: ‘using Tensor = struct CBoundaryLayerMetric::Tensor’
+   53 | using Tensor = CBoundaryLayerMetric::Tensor;
+      |       ^~~~~~
+In file included from ../../UnitTests/SU2_CFD/adaptation/../../../Common/include/adaptation/CNativeField3D.hpp:8,
+                 from ../../UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp:38:
+../../UnitTests/SU2_CFD/adaptation/../../../Common/include/adaptation/CNativeMesh3D.hpp:21:8: note:                 ‘struct SU2Native3D::Tensor’
+   21 | struct Tensor {
+      |        ^~~~~~
+../../UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp:1487:57: error: reference to ‘Tensor’ is ambiguous
+ 1487 |   double maximum_error=0;size_t queries=0;Point worst{};Tensor worst_tensor{};
+      |                                                         ^~~~~~
+../../UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp:53:7: note: candidates are: ‘using Tensor = struct CBoundaryLayerMetric::Tensor’
+   53 | using Tensor = CBoundaryLayerMetric::Tensor;
+      |       ^~~~~~
+In file included from ../../UnitTests/SU2_CFD/adaptation/../../../Common/include/adaptation/CNativeField3D.hpp:8,
+                 from ../../UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp:38:
+../../UnitTests/SU2_CFD/adaptation/../../../Common/include/adaptation/CNativeMesh3D.hpp:21:8: note:                 ‘struct SU2Native3D::Tensor’
+   21 | struct Tensor {
+      |        ^~~~~~
+../../UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp:1488:34: error: reference to ‘Tensor’ is ambiguous
+ 1488 |   const auto compose=[&](Point p,Tensor input) {
+      |                                  ^~~~~~
+../../UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp:53:7: note: candidates are: ‘using Tensor = struct CBoundaryLayerMetric::Tensor’
+   53 | using Tensor = CBoundaryLayerMetric::Tensor;
+      |       ^~~~~~
+In file included from ../../UnitTests/SU2_CFD/adaptation/../../../Common/include/adaptation/CNativeField3D.hpp:8,
+                 from ../../UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp:38:
+../../UnitTests/SU2_CFD/adaptation/../../../Common/include/adaptation/CNativeMesh3D.hpp:21:8: note:                 ‘struct SU2Native3D::Tensor’
+   21 | struct Tensor {
+      |        ^~~~~~
+../../UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp:1488:34: error: ‘Tensor’ has not been declared
+ 1488 |   const auto compose=[&](Point p,Tensor input) {
+      |                                  ^~~~~~
+../../UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp: In lambda function:
+../../UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp:1490:21: error: request for member ‘xx’ in ‘input’, which is of non-class type ‘int’
+ 1490 |     m.m[0][0]=input.xx;m.m[0][1]=m.m[1][0]=input.xy;m.m[0][2]=m.m[2][0]=input.xz;
+      |                     ^~
+../../UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp:1490:50: error: request for member ‘xy’ in ‘input’, which is of non-class type ‘int’
+ 1490 |     m.m[0][0]=input.xx;m.m[0][1]=m.m[1][0]=input.xy;m.m[0][2]=m.m[2][0]=input.xz;
+      |                                                  ^~
+../../UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp:1490:79: error: request for member ‘xz’ in ‘input’, which is of non-class type ‘int’
+ 1490 |     m.m[0][0]=input.xx;m.m[0][1]=m.m[1][0]=input.xy;m.m[0][2]=m.m[2][0]=input.xz;
+      |                                                                               ^~
+../../UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp:1491:21: error: request for member ‘yy’ in ‘input’, which is of non-class type ‘int’
+ 1491 |     m.m[1][1]=input.yy;m.m[1][2]=m.m[2][1]=input.yz;m.m[2][2]=input.zz;
+      |                     ^~
+../../UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp:1491:50: error: request for member ‘yz’ in ‘input’, which is of non-class type ‘int’
+ 1491 |     m.m[1][1]=input.yy;m.m[1][2]=m.m[2][1]=input.yz;m.m[2][2]=input.zz;
+      |                                                  ^~
+../../UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp:1491:69: error: request for member ‘zz’ in ‘input’, which is of non-class type ‘int’
+ 1491 |     m.m[1][1]=input.yy;m.m[1][2]=m.m[2][1]=input.yz;m.m[2][2]=input.zz;
+      |                                                                     ^~
+../../UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp:1493:11: error: reference to ‘Tensor’ is ambiguous
+ 1493 |     const Tensor result{SU2_TYPE::GetValue(m.m[0][0]),SU2_TYPE::GetValue(m.m[0][1]),SU2_TYPE::GetValue(m.m[0][2]),
+      |           ^~~~~~
+../../UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp:53:7: note: candidates are: ‘using Tensor = struct CBoundaryLayerMetric::Tensor’
+   53 | using Tensor = CBoundaryLayerMetric::Tensor;
+      |       ^~~~~~
+In file included from ../../UnitTests/SU2_CFD/adaptation/../../../Common/include/adaptation/CNativeField3D.hpp:8,
+                 from ../../UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp:38:
+../../UnitTests/SU2_CFD/adaptation/../../../Common/include/adaptation/CNativeMesh3D.hpp:21:8: note:                 ‘struct SU2Native3D::Tensor’
+   21 | struct Tensor {
+      |        ^~~~~~
+../../UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp:1495:43: error: ‘result’ was not declared in this scope
+ 1495 |     const double error=std::max({std::abs(result.xx-expected.xx),std::abs(result.xy-expected.xy),std::abs(result.xz),
+      |                                           ^~~~~~
+../../UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp:1495:53: error: ‘expected’ was not declared in this scope; did you mean ‘execle’?
+ 1495 |     const double error=std::max({std::abs(result.xx-expected.xx),std::abs(result.xy-expected.xy),std::abs(result.xz),
+      |                                                     ^~~~~~~~
+      |                                                     execle
+../../UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp:1496:93: error: no matching function for call to ‘max(<brace-enclosed initializer list>)’
+ 1496 |         std::abs(result.yy-expected.yy),std::abs(result.yz),std::abs(result.zz-expected.zz)});
+      |                                                                                             ^
+In file included from /usr/include/c++/9/bits/char_traits.h:39,
+                 from /usr/include/c++/9/string:40,
+                 from ../../externals/catch2/catch.hpp:477,
+                 from ../../UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp:27:
+/usr/include/c++/9/bits/stl_algobase.h:222:5: note: candidate: ‘template<class _Tp> constexpr const _Tp& std::max(const _Tp&, const _Tp&)’
+  222 |     max(const _Tp& __a, const _Tp& __b)
+      |     ^~~
+/usr/include/c++/9/bits/stl_algobase.h:222:5: note:   template argument deduction/substitution failed:
+../../UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp:1496:93: note:   candidate expects 2 arguments, 1 provided
+ 1496 |         std::abs(result.yy-expected.yy),std::abs(result.yz),std::abs(result.zz-expected.zz)});
+      |                                                                                             ^
+In file included from /usr/include/c++/9/bits/char_traits.h:39,
+                 from /usr/include/c++/9/string:40,
+                 from ../../externals/catch2/catch.hpp:477,
+                 from ../../UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp:27:
+/usr/include/c++/9/bits/stl_algobase.h:268:5: note: candidate: ‘template<class _Tp, class _Compare> constexpr const _Tp& std::max(const _Tp&, const _Tp&, _Compare)’
+  268 |     max(const _Tp& __a, const _Tp& __b, _Compare __comp)
+      |     ^~~
+/usr/include/c++/9/bits/stl_algobase.h:268:5: note:   template argument deduction/substitution failed:
+../../UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp:1496:93: note:   candidate expects 3 arguments, 1 provided
+ 1496 |         std::abs(result.yy-expected.yy),std::abs(result.yz),std::abs(result.zz-expected.zz)});
+      |                                                                                             ^
+In file included from /usr/include/c++/9/functional:65,
+                 from ../../externals/catch2/catch.hpp:3483,
+                 from ../../UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp:27:
+/usr/include/c++/9/bits/stl_algo.h:3462:5: note: candidate: ‘template<class _Tp> constexpr _Tp std::max(std::initializer_list<_Tp>)’
+ 3462 |     max(initializer_list<_Tp> __l)
+      |     ^~~
+/usr/include/c++/9/bits/stl_algo.h:3462:5: note:   template argument deduction/substitution failed:
+/usr/include/c++/9/bits/stl_algo.h:3468:5: note: candidate: ‘template<class _Tp, class _Compare> constexpr _Tp std::max(std::initializer_list<_Tp>, _Compare)’
+ 3468 |     max(initializer_list<_Tp> __l, _Compare __comp)
+      |     ^~~
+/usr/include/c++/9/bits/stl_algo.h:3468:5: note:   template argument deduction/substitution failed:
+../../UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp:1497:57: error: ‘worst_tensor’ was not declared in this scope
+ 1497 |     if(error>maximum_error){maximum_error=error;worst=p;worst_tensor=result;}
+      |                                                         ^~~~~~~~~~~~
+../../UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp: In function ‘void C_A_T_C_H_T_E_S_T_87()’:
+../../UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp:1503:49: error: ‘sensor’ was not declared in this scope
+ 1503 |     compose({(1-t)*a.x+t*b.x,(1-t)*a.y+t*b.y,0},sensor);
+      |                                                 ^~~~~~
+../../UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp:1505:104: error: ‘sensor’ was not declared in this scope
+ 1505 |   DonorCell donor;donor.cell={0,{{{0,{0,0,0}},{1,{1,0,0}},{2,{0,1,0}},{3,{0,0,1}}}}};donor.sensor.fill(sensor);
+      |                                                                                                        ^~~~~~
+../../UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp:1506:127: error: no matching function for call to ‘SU2Native3D::FrozenField::FrozenField(<brace-enclosed initializer list>, const C_A_T_C_H_T_E_S_T_87()::<lambda(SU2Native3D::Point, int)>&, bool, <brace-enclosed initializer list>, C_A_T_C_H_T_E_S_T_87()::<lambda(SU2Native3D::Point, SU2Native3D::Point)>)’
+ 1506 |   FrozenField field({donor},compose,false,{},[&](Point p,Point q){return layers.EdgeBreakpoints({p.x,p.y,p.z},{q.x,q.y,q.z});});
+      |                                                                                                                               ^
+In file included from ../../UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp:38:
+../../UnitTests/SU2_CFD/adaptation/../../../Common/include/adaptation/CNativeField3D.hpp:65:12: note: candidate: ‘SU2Native3D::FrozenField::FrozenField(std::vector<SU2Native3D::DonorCell>, SU2Native3D::MetricComposition, bool, std::vector<long unsigned int>, SU2Native3D::MetricEdgeBreakpoints)’
+   65 |   explicit FrozenField(std::vector<DonorCell> original, MetricComposition composition = {}, bool timings = false,
+      |            ^~~~~~~~~~~
+../../UnitTests/SU2_CFD/adaptation/../../../Common/include/adaptation/CNativeField3D.hpp:65:75: note:   no known conversion for argument 2 from ‘const C_A_T_C_H_T_E_S_T_87()::<lambda(SU2Native3D::Point, int)>’ to ‘SU2Native3D::MetricComposition’ {aka ‘std::function<SU2Native3D::Tensor(SU2Native3D::Point, SU2Native3D::Tensor)>’}
+   65 |   explicit FrozenField(std::vector<DonorCell> original, MetricComposition composition = {}, bool timings = false,
+      |                                                         ~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~
+../../UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp:1509:102: error: ‘expected’ was not declared in this scope; did you mean ‘execle’?
+ 1509 |   std::cout<<std::setprecision(21)<<"PLANAR_TANGENT_EDGE length="<<length<<" exact="<<MetricNorm(a,b,expected)
+      |                                                                                                      ^~~~~~~~
+      |                                                                                                      execle
+../../UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp:1511:22: error: ‘worst_tensor’ was not declared in this scope
+ 1511 |       <<") tensor="<<worst_tensor.xx<<','<<worst_tensor.xy<<','<<worst_tensor.xz<<','<<worst_tensor.yy<<','<<worst_tensor.yz<<','<<worst_tensor.zz<<std::endl;
+      |                      ^~~~~~~~~~~~
+ninja: build stopped: subcommand failed.

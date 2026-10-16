@@ -1,0 +1,307 @@
+{
+  "status": "PASS_DECLARED_CAP_AND_SHARED_QUERY_CORRECTNESS_BATCH_BACKEND_CHECKS_PENDING",
+  "baseline": "c103aa9cf33e30b30f1a3c77a3732042101b3807",
+  "completed": {
+    "native_planar_tangent_edge_v2": {
+      "native_receipt_sha256": "47182e0f27fde089952684a61a2d488cf93460d25c4ddef0c0d7d59c64a3afa5",
+      "ranks": 1,
+      "scope": "Selected focused geometry/field/integration control or complete declared cold construction/removal probe. Curved stages use actual smooth reference and original sensors; cold case imports initialized RANS CFD geometry but does not run replacement/solution transfer or CFD iterations. Independent audit and full-goal qualification remain required; no performance claim.",
+      "engine_sections": []
+    },
+    "native_prism_tangential_v4": {
+      "native_receipt_sha256": "f38d2e2bd08ab8c83791eb6002a520215c7bdc678d5b759195f4fd14838af8b0",
+      "ranks": 1,
+      "scope": "Complete regional single-wall .1/g1.2/T.3 fade with original P1 scalar4*(1+3*x) I, crossing normal diag(4,4,4+96*(1-|x-z|)), constant30degree tangent256:4, or affine varying/rotating tangent tensors, actual geometric composition, original source/height/q/J/full-edge/work/time and native removal gates. Direct engine control, not actual CFD/backend/transfer/restart.",
+      "independent_receipt_sha256": "a78dbfc0b6a06fe46044bfd1408ccc46bba99bf50de68e5bcd0e3e2aa1889297",
+      "independent_status": "PASS_COMPLETE_REGIONAL_SINGLE_WALL_ORIGINAL_FIELD_GEOMETRY_AND_FULL_EDGES",
+      "frames": [
+        {
+          "file": "coupled_BL_independent.json",
+          "cells": 1248,
+          "points": 400,
+          "physical_faces": 640,
+          "volume": "1",
+          "minimum_mean_ratio": 0.35791093577206684,
+          "minimum_scaled_jacobian": 0.15352293669784672,
+          "maximum_length": 1.699959305949229,
+          "longest_edge": [
+            130,
+            133
+          ],
+          "markers": {
+            "0": 536,
+            "1": 104
+          },
+          "strict_metric_gate": true,
+          "first_height_faces": 104,
+          "maximum_height_relative_error": 0.0,
+          "wall_normal_first_edges": 80,
+          "full_composed_edges": 1967,
+          "layers": true,
+          "input_sha256": "4c744fec72ba13128979cfd0a0c61c79d532417cf2c4d0a0089a6c14a52f659d"
+        },
+        {
+          "file": "released_Euler_independent.json",
+          "cells": 447,
+          "points": 164,
+          "physical_faces": 280,
+          "volume": "1",
+          "minimum_mean_ratio": 0.3088590729776696,
+          "minimum_scaled_jacobian": 0.13392333975530718,
+          "maximum_length": 1.799434127856669,
+          "longest_edge": [
+            69,
+            206
+          ],
+          "markers": {
+            "0": 224,
+            "1": 56
+          },
+          "strict_metric_gate": true,
+          "layers": false,
+          "input_sha256": "36192a702ca1e29e898169c7151ca04967d34739502a46663c8448ff32d46667"
+        }
+      ],
+      "engine_sections": [
+        {
+          "rank": "0",
+          "valid": "1",
+          "final": "1248",
+          "global_work": "1646",
+          "total_s": "33.263416108000001",
+          "stop": "complete"
+        },
+        {
+          "rank": "0",
+          "valid": "1",
+          "final": "447",
+          "global_work": "628",
+          "total_s": "2.0218985819999999",
+          "stop": "complete"
+        }
+      ]
+    },
+    "native_prism_rotating_v1": {
+      "native_receipt_sha256": "f2fdcf4bf66cee8bde91c487901a0cb1609b8ff9cd0f522bad5dcd5043ed8c01",
+      "ranks": 1,
+      "scope": "Complete regional single-wall .1/g1.2/T.3 fade with original P1 scalar4*(1+3*x) I, crossing normal diag(4,4,4+96*(1-|x-z|)), constant30degree tangent256:4, or affine varying/rotating tangent tensors, actual geometric composition, original source/height/q/J/full-edge/work/time and native removal gates. Direct engine control, not actual CFD/backend/transfer/restart.",
+      "independent_receipt_sha256": "b9e1b7920d451051fd150569e08f5325ca685de66e8fba5638caa03b127821d2",
+      "independent_status": "PASS_COMPLETE_REGIONAL_SINGLE_WALL_ORIGINAL_FIELD_GEOMETRY_AND_FULL_EDGES",
+      "frames": [
+        {
+          "file": "coupled_BL_independent.json",
+          "cells": 2112,
+          "points": 550,
+          "physical_faces": 688,
+          "volume": "1",
+          "minimum_mean_ratio": 0.4314916448677228,
+          "minimum_scaled_jacobian": 0.18262907462450087,
+          "maximum_length": 1.6096674735765533,
+          "longest_edge": [
+            219,
+            288
+          ],
+          "markers": {
+            "0": 512,
+            "1": 176
+          },
+          "strict_metric_gate": true,
+          "first_height_faces": 176,
+          "maximum_height_relative_error": 0.0,
+          "wall_normal_first_edges": 110,
+          "full_composed_edges": 3005,
+          "layers": true,
+          "input_sha256": "29a0929d860ab57b1e74df84c4ddd5e459ead2a05871491c5df58709022d9db0"
+        },
+        {
+          "file": "released_Euler_independent.json",
+          "cells": 722,
+          "points": 222,
+          "physical_faces": 336,
+          "volume": "1",
+          "minimum_mean_ratio": 0.41393408060281156,
+          "minimum_scaled_jacobian": 0.16488831560212075,
+          "maximum_length": 1.7983032469430749,
+          "longest_edge": [
+            156,
+            193
+          ],
+          "markers": {
+            "0": 231,
+            "1": 105
+          },
+          "strict_metric_gate": true,
+          "layers": false,
+          "input_sha256": "a460a1aa7a79204de9828c4cd9fd3fb5c21d0f7f459caf34b393111871684bd0"
+        }
+      ],
+      "engine_sections": [
+        {
+          "rank": "0",
+          "valid": "1",
+          "final": "2112",
+          "global_work": "2728",
+          "total_s": "60.457937754",
+          "stop": "complete"
+        },
+        {
+          "rank": "0",
+          "valid": "1",
+          "final": "722",
+          "global_work": "877",
+          "total_s": "2.857089802",
+          "stop": "complete"
+        }
+      ]
+    },
+    "native_prism_rotating_mpi4_v1": {
+      "native_receipt_sha256": "df0080caddee8d4e49019317ee341754c710ba400c9883a5fec9b83dcdd6936c",
+      "ranks": 4,
+      "scope": "Complete regional single-wall .1/g1.2/T.3 fade with original P1 scalar4*(1+3*x) I, crossing normal diag(4,4,4+96*(1-|x-z|)), constant30degree tangent256:4, or affine varying/rotating tangent tensors, actual geometric composition, original source/height/q/J/full-edge/work/time and native removal gates. Direct engine control, not actual CFD/backend/transfer/restart.",
+      "independent_receipt_sha256": "d2ef382b80a33075f98e5edea68d74f8d1449ee094de8d9dac971b575757fc00",
+      "independent_status": "PASS_COMPLETE_REGIONAL_SINGLE_WALL_ORIGINAL_FIELD_GEOMETRY_AND_FULL_EDGES",
+      "frames": [
+        {
+          "file": "coupled_BL_independent.json",
+          "cells": 2112,
+          "points": 550,
+          "physical_faces": 688,
+          "volume": "1",
+          "minimum_mean_ratio": 0.4314916448677228,
+          "minimum_scaled_jacobian": 0.18262907462450087,
+          "maximum_length": 1.6096674735765533,
+          "longest_edge": [
+            219,
+            288
+          ],
+          "markers": {
+            "0": 512,
+            "1": 176
+          },
+          "strict_metric_gate": true,
+          "first_height_faces": 176,
+          "maximum_height_relative_error": 0.0,
+          "wall_normal_first_edges": 110,
+          "full_composed_edges": 3005,
+          "layers": true,
+          "input_sha256": "29a0929d860ab57b1e74df84c4ddd5e459ead2a05871491c5df58709022d9db0"
+        },
+        {
+          "file": "released_Euler_independent.json",
+          "cells": 700,
+          "points": 215,
+          "physical_faces": 326,
+          "volume": "1",
+          "minimum_mean_ratio": 0.3446480048429369,
+          "minimum_scaled_jacobian": 0.1428875084111752,
+          "maximum_length": 1.7983032469430749,
+          "longest_edge": [
+            156,
+            193
+          ],
+          "markers": {
+            "0": 226,
+            "1": 100
+          },
+          "strict_metric_gate": true,
+          "layers": false,
+          "input_sha256": "d71abc8d808259ccb888805896623c2a24610a0d5e39c4a704624ac89ae32804"
+        }
+      ],
+      "engine_sections": [
+        {
+          "rank": "0",
+          "valid": "1",
+          "final": "528",
+          "global_work": "2728",
+          "total_s": "70.881118852",
+          "stop": "complete"
+        },
+        {
+          "rank": "1",
+          "valid": "1",
+          "final": "528",
+          "global_work": "2728",
+          "total_s": "70.881198420999993",
+          "stop": "complete"
+        },
+        {
+          "rank": "2",
+          "valid": "1",
+          "final": "528",
+          "global_work": "2728",
+          "total_s": "70.881201879000002",
+          "stop": "complete"
+        },
+        {
+          "rank": "3",
+          "valid": "1",
+          "final": "528",
+          "global_work": "2728",
+          "total_s": "70.881197978000003",
+          "stop": "complete"
+        },
+        {
+          "rank": "0",
+          "valid": "1",
+          "final": "161",
+          "global_work": "1430",
+          "total_s": "3.880264639",
+          "stop": "complete"
+        },
+        {
+          "rank": "1",
+          "valid": "1",
+          "final": "173",
+          "global_work": "1430",
+          "total_s": "3.8802628270000001",
+          "stop": "complete"
+        },
+        {
+          "rank": "2",
+          "valid": "1",
+          "final": "183",
+          "global_work": "1430",
+          "total_s": "3.880263942",
+          "stop": "complete"
+        },
+        {
+          "rank": "3",
+          "valid": "1",
+          "final": "183",
+          "global_work": "1430",
+          "total_s": "3.8802634710000001",
+          "stop": "complete"
+        }
+      ]
+    },
+    "native_front_constant_v3": {
+      "native_receipt_sha256": "dd5c3c19980e5bbfbdbc47ea2f96c25c91fc5f892aca592e66272e4dfe5f8c7f",
+      "ranks": 1,
+      "scope": "Complete initialized-RANS geometry native construction with a stronger frozen original-P1 sensor, actual geometric BL/fade, unchanged geometry/h/q/J/full-edge/work/time gates, source-preserving publication and exported field/mesh records. Independent audit remains separate. No CFD evolution, solution transfer/restart, general geometry or performance qualification.",
+      "independent_receipt_sha256": "28783a61262f87339dbe3ddd8326b33a6ce00b240bccd20048c70e69f6aa9af5",
+      "independent_status": "PASS_COMPLETE_UNCHANGED_CYLINDER_REFERENCE_WITH_NEW_NATIVE_TENSOR_AND_EDGE_CHECKS",
+      "curved_cells": 2877,
+      "curved_full_edges": 4727,
+      "engine_sections": []
+    },
+    "native_global_edge_controls_v2": {
+      "native_receipt_sha256": "bf19a19630690aed8065cdbb6e338148aacfc849ce3d5507b010d2cc2df09eb3",
+      "ranks": 1,
+      "scope": "Focused actual geometric BL edge-band/rotation controls, original-P1 physical/collar priority and exact sensor edges, metric-balanced placements, global composed-edge error with tiny noise and high-demand thin bands. No complete mesh, MPI/CFD/restart/accuracy or performance qualification.",
+      "engine_sections": []
+    }
+  },
+  "remaining_batch": [
+    "actual initialized planar RANS/SA N4/M2 backend/refinement/removal/current+BDF/output/restart",
+    "actual evolved curved RANS/SA N4/M2 workflow and scoped independent audits",
+    "opposing-wall regression under the new primary cap construction"
+  ],
+  "preserved_failures": [
+    "interacting_walls_v1/native_prism_tangential_v1.json",
+    "interacting_walls_v1/native_prism_tangential_v2.json",
+    "interacting_walls_v1/native_prism_tangential_v3.json",
+    "interacting_walls_v1/native_planar_tangent_edge_v1.json"
+  ],
+  "scope": "Complete declared planar stress meshes plus current unchanged high-ratio curved acceptance; exact model/mesh reference reuse rechecks every changed native tensor/shape/full edge. Existing work/time/height/q/J/geometry/full-metric/finer/original-P1/fade constraints retained. New source/binary/object pins checked current for all completed runs. Scoped batch only: full Goal3, wider curved geometry/features/interaction/gradation/viscous/M6/lifecycle affordability remain incomplete. No speedup/scaling claim."
+}

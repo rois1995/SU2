@@ -16,8 +16,9 @@ of the private cap. No private cap snapshot was captured.
 
 The attempt did not deliver the required milestone. Its production changes were
 withdrawn after verifying all50 failed-case artifacts and exact experimental
-source snapshots. Five production files are byte-identical to the qualified
-baseline. The complete patch, original sources, logs, receipt and negative grids
+source snapshots. At c103aa9cf3 five production files were byte-identical to the qualified
+baseline; the subsequent connected construction is described in
+[the whole-cap book](GOAL3_WHOLE_CAP_CONSTRUCTION.md). The complete patch, original sources, logs, receipt and negative grids
 remain preserved. Stronger tangent-field tests and their independent oracle stay.
 Read `rejected_strategy.json` for exact hashes and scope.
 
@@ -27,8 +28,9 @@ representable redistributions with only6.7e-12 final drift and zero size deficit
 This demonstrates available nonprogress work, not attribution of the3731 native
 attempts. It does not justify another local recovery campaign.
 
-Built test/solver binaries still represent the archived experiment. Rebuild before
-any future execution; do not qualify restored production from those binaries.
+At withdrawal the built test/solver binaries still represented the archived
+experiment. Later builds/results belong to their own pinned receipts; do not
+qualify restored production from the experimental binaries.
 No fresh MPI/CFD campaign or performance assessment was run for this decision.
 
 ## Feasibility evidence and its limits

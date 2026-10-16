@@ -1,0 +1,37 @@
+{
+  "status": "PASS_SAVED_REJECTED_CANDIDATE_INDEPENDENT_GEOMETRY_AND_FULL_FIELD_ONLY",
+  "field": "TANGENTIAL",
+  "frames": [
+    {
+      "file": "private_region_rejected_independent.json",
+      "cells": 1248,
+      "points": 400,
+      "physical_faces": 640,
+      "volume": "1",
+      "minimum_mean_ratio": 0.35791093577206684,
+      "minimum_scaled_jacobian": 0.15352293669784672,
+      "maximum_length": 1.699959305949229,
+      "longest_edge": [
+        130,
+        133
+      ],
+      "markers": {
+        "0": 536,
+        "1": 104
+      },
+      "strict_metric_gate": true,
+      "first_height_faces": 104,
+      "maximum_height_relative_error": 0.0,
+      "wall_normal_first_edges": 80,
+      "full_composed_edges": 1967,
+      "layers": true,
+      "input_sha256": "4c744fec72ba13128979cfd0a0c61c79d532417cf2c4d0a0089a6c14a52f659d"
+    }
+  ],
+  "native_receipt_sha256": "376527298f92a3209766aa0a5cf6f165b465297c35f958698cac3e3bb8079d00",
+  "reference_input_sha256": "30ace31249e242b4595479dc5d60a7530e8f519359c6d9b4c42a33df232ab7e2",
+  "helper_sha256": "fd6a09b7a163a5a6a88d48a7fe1e4a4ea2f5e69952eb07dd401b82e4cd37fd75",
+  "geometry_helper_sha256": "1822427476ecb5687aaa06f3e7a3cc8f31cde53166fd0c711449eedf7c7c7a50",
+  "elapsed_seconds": 49.49880077200942,
+  "scope": "Same finite unit-box geometry with only the lower wall constrained h.1/g1.2/T.3. Independent analytic planar BL/fade plus the declared exact six-tet original-P1 scalar, crossing-normal, constant rotated tangent256:4, or affine varying/rotating tangent tensor; each original tet stays on one side of x=z, proving the crossing formula affine there. Tangent inverse-covariance eigenvalues<=1.5 and fade core4 are dominated by the sensor. Exact whole embedding/finite authority/links/height/normal columns, all q/J and every full numerical BL edge, analytic piecewise original-sensor edges after removal. Numerical error indicators are not enclosures. No actual CFD/transport/restart, arbitrary tangential-field alignment, general geometry or affordability qualification. Native workflow remains FAIL; this audits only the saved complete rejected construction, not acceptance, coarsening or transfer."
+}

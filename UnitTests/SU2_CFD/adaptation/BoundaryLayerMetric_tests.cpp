@@ -1475,3 +1475,41 @@ TEST_CASE("Cylindrical annulus integration resolves coarse prism cells against i
   std::cout<<"CYLINDER_VOLUME points="<<points<<" native="<<std::setprecision(17)<<measured<<" independent_polar="<<fine<<" reference_delta="<<std::abs(coarse-fine)<<'\n';
 
 }
+
+TEST_CASE("Planar wall preserves a finer rotated tangent field across its source diagonal", "[NativePlanarTangentEdge3D]") {
+  using namespace SU2Native3D;
+  using Tensor = SU2Native3D::Tensor;
+  CBoundaryLayerMetric::Wall wall;wall.layer={"wall",.1,1.2,.3};
+  wall.coord={0,0,0,1,0,0,1,1,0,0,1,0};wall.conn={0,1,2,2,0,2,3,3};
+  CBoundaryLayerMetric layers(3,{wall});
+  const Tensor sensor{193,.25*std::sqrt(3.)*252,0,67,0,4};
+  const Tensor expected{sensor.xx,sensor.xy,0,sensor.yy,0,100};
+  const Point a{.235294117708690464497,0,0},b{0,.299999999930150806904,0};
+  double maximum_error=0;size_t queries=0;Point worst{};Tensor worst_tensor{};
+  const auto compose=[&](Point p,Tensor input) {
+    ++queries;CBoundaryLayerMetric::Tensor m;
+    m.m[0][0]=input.xx;m.m[0][1]=m.m[1][0]=input.xy;m.m[0][2]=m.m[2][0]=input.xz;
+    m.m[1][1]=input.yy;m.m[1][2]=m.m[2][1]=input.yz;m.m[2][2]=input.zz;
+    const su2double x[3]={p.x,p.y,p.z};layers.ApplyPoint(x,m,4,nullptr,false);
+    const Tensor result{SU2_TYPE::GetValue(m.m[0][0]),SU2_TYPE::GetValue(m.m[0][1]),SU2_TYPE::GetValue(m.m[0][2]),
+        SU2_TYPE::GetValue(m.m[1][1]),SU2_TYPE::GetValue(m.m[1][2]),SU2_TYPE::GetValue(m.m[2][2])};
+    const double error=std::max({std::abs(result.xx-expected.xx),std::abs(result.xy-expected.xy),std::abs(result.xz),
+        std::abs(result.yy-expected.yy),std::abs(result.yz),std::abs(result.zz-expected.zz)});
+    if(error>maximum_error){maximum_error=error;worst=p;worst_tensor=result;}
+    return result;
+  };
+  const double crossing=a.x/(a.x+b.y);
+  for(unsigned k=0;k<64;++k)for(double sign:{-1.,1.}) {
+    const double t=crossing+sign*std::ldexp(.1,-int(k));
+    compose({(1-t)*a.x+t*b.x,(1-t)*a.y+t*b.y,0},sensor);
+  }
+  DonorCell donor;donor.cell={0,{{{0,{0,0,0}},{1,{1,0,0}},{2,{0,1,0}},{3,{0,0,1}}}}};donor.sensor.fill(sensor);
+  FrozenField field({donor},compose,false,{},[&](Point p,Point q){return layers.EdgeBreakpoints({p.x,p.y,p.z},{q.x,q.y,q.z});});
+  long double length=0;std::string failure;
+  try {length=field.TargetEdgeLength(a,b);}catch(const std::exception& e){failure=e.what();}
+  std::cout<<std::setprecision(21)<<"PLANAR_TANGENT_EDGE length="<<length<<" exact="<<MetricNorm(a,b,expected)
+      <<" queries="<<queries<<" maximum_tensor_error="<<maximum_error<<" worst=("<<worst.x<<','<<worst.y<<','<<worst.z
+      <<") tensor="<<worst_tensor.xx<<','<<worst_tensor.xy<<','<<worst_tensor.xz<<','<<worst_tensor.yy<<','<<worst_tensor.yz<<','<<worst_tensor.zz<<std::endl;
+  INFO(failure);CHECK(failure.empty());CHECK(maximum_error<2e-10);
+  if(failure.empty())CHECK(std::abs(length-MetricNorm(a,b,expected))<1e-9L);
+}

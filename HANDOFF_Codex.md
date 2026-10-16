@@ -4,135 +4,91 @@ Worktree `/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated`, branch
 `codex/native-3d-bl`, Goal2 base `c43a8a3907ea2655e4ebbb6286ab16c3fa625d8b`.
 **Full Goal3 ACTIVE/incomplete.** Preserve its full
 [scope and gates](integration_evidence/native_3d_bl_v1/GOAL3_REQUIREMENTS.json).
+Published c103aa9cf3 preserves the failed cap strategy and qualified production
+baseline69833b2a3f. Current working source below is a connected construction change.
 
-## Current milestone and live work
+## Current connected work
 
-The high-ratio curved target now has a complete native accepted mesh under the
-original constraints: 2877 tetrahedra, eight transition fronts, work3771<=4096,
-qmin.223148627/Jmin.060674227/full Lmax1.783148856<=1.8. Height.01, growth1.2,
-thickness.2, length.2, Hausdorff.04/wall ceiling.005, original sensor/fade and300s
-remain unchanged. Independent exact geometry/embedding/links/height/original-P1
-and all2877 actual tensors/all4727 full metric edges pass. The reference is
-independent numerical quadrature, not a rigorous enclosure.
-[Accepted grid](integration_evidence/native_3d_bl_v1/region_construction_v1/native_front_constant_v2/core_accepted.su2).
+Whole-cap point distribution replaces inherited midpoint cap refinement in the
+certified right-prism constructor. Boundary full-metric equidistribution, one
+proposal chart, native polygon triangulation/containing-cavity insertion/local
+reconnection and shared3D front closure produce the complete region. No fallback
+or increased work/time/gate. Original-P1 sensor-only donors and actual-query
+geometric BL/finer/fade remain. Offline SciPy is not a production dependency.
 
-This follows a construction change, not another recovery fallback: preserve the
-first band, build coherently staggered metric-spaced free fronts, and coarsen the
-terminal front together with every incident transition/core cell. The earlier
-fixed840-cells-per-band strategy was proved unable to fit4096. Its failure and
-rejected alternatives remain preserved.
-[Design, evidence and limitations](Handbook/GOAL3_COARSENED_METRIC_FRONTS.md).
-The new rotated and spatially varying serial cases also independently accept
-2448/2284 cells, work3259/3120. Native metrics and geometry/source are checked;
-full independent varying-BL quadrature remains open. Regional validation takes
-44–66s locally; the attempted passive sampler arrived after completion and was
-explicitly skipped. Zero region-service counters in these small direct-source
-fixtures do not mean zero metric evaluations.
+The first complete1248-cell candidate failed native full-edge evaluation; independent
+exact geometry/height/all1967 full numerical edges pass q.357911/J.153523/L1.699959.
+Focused replay found the ADT's tolerant facet choice can produce a false in-plane
+normal near a coplanar wall diagonal: tensor error96/Mzz100->4. Shared Evaluate now
+rechecks actual closest points in the conservative nearest-distance envelope.
+The same frozen edge passes with tensor error2.56e-13 and length error6.6e-16,
+without changing sensors, normal/fade formulas, quadrature tolerance or65536 bound.
+This corrects geometric facet selection; it is not a hard-normal reset.
 
-Changed-source high-ratio MPI2/4 native and independent geometry/source audits
-now pass2877 cells/work3771 with the same gate extrema. Floating coordinates/IDs
-differ; do not reuse the serial full numerical metric certificate for MPI.
-Actual `native_curved_rans_n4_m2_v12` now passes24->621->48 with independent
-geometry/current+BDF/open-ledger/SU2/CGNS/reference/restart audits. Separate
-`sa_projection_replay_v26` verifies raw projection and every solver-floor
-correction; post-bounds SA is not exactly conservative. New-source actual RANS
-qualification is N4/M2 only; the earlier six-way matrix retains pre-front scope.
-[Complete current milestone receipt](integration_evidence/native_3d_bl_v1/region_construction_v1/coarsened_fronts_v1_summary.json).
-The next connected capability now accepts the overlapping opposing-wall target:
-`interacting_walls_v1/native_opposing_v3` passes6->1920 BL->250 sensor-only,
-construction/removal work2309/1269. Independent exact geometry/height/all2674
-full composed edges and all20 complete front-slab coverage pass. BL q.467316/
-J.193160/L1.668063; all46 wall-node normal edges exist, but centroid tilt13.1762
-is separately recorded. The baseline local path exhausted4096 with30 private
-cells and no accepted metric repair. The primary geometry-certified prismatic
-constructor joins two prescribed rows without requiring a BL-free core.
-Source/build/binary, failed admission/audit attempts and accepted grids are saved.
-[Current interacting-wall capability](Handbook/GOAL3_INTERACTING_WALLS.md).
-Next qualify actual backend refinement/coarsening/transfer/restart and a single-
-wall/fade field using region_walls metadata (the older direct single-wall control
-leaves that metadata empty and therefore does not exercise the new primary path).
-Also test rotated/localized tangential demands. Direct engine Coarsen is not the
-full backend sequence. Do not assume one overlapping scalar case proves all admitted
-prisms; maximum-prefix spacing and inherited cap triangulation need these stresses.
-The earlier c032 opposing construction passes MPI1/2/4. Its MPI4 removal refusal
-(4084 proposals/496 cells), followed by the967 duplicate-only refusal (4091/319),
-remain preserved. Complete-star selection now closes that removal gate; see below.
-Current-source curved RANS N4/M2 v13 also passes24->621->48 with independent
-current+BDF/open-ledger, explicit SA-floor replayv27, SU2/CGNS/reference/restart.
-Actual prismatic backend/CFD workflow is still unqualified. A passive rank0
-profile (1398 samples, compressed raw data) identifies metric-stage MPI waits and
-exact contact arithmetic as significant costs; no extra CFD run or speedup claim.
-The connected complete-star selection now closes strict retained-BL removal:
-MPI4 1920->250 cells/work1619, zero final reservation conflicts; independent exact
-geometry/links/no overlap/full original field pass q.306655/J.102558/L1.783027.
-Metadata5390 considered/3771 deferred after2704 duplicate suppressions; planning
-.145s nested in9.07s local removal. These are diagnostic timings, not a speedup.
-MPI2 completes1920->230/work1344 with zero final conflicts, independently all gates.
-Its suite FAIL from an incorrect duplicate-only counter expectation is preserved;
-separate corrected controls pass on identical production sources/libraries/solver,
-with exact sole-test-change proof. No accepted engine result was rerun for this.
-Focused planning/legacy batch/refusal controls pass serial and MPI4; the first
-fixed-record transport error is preserved and corrected with separate reply types.
-The actual initialized planar RANS/SA N4/M2 backend now passes6->24->6, independently
-all full composed edges/geometry/height/complete normal slabs/current+BDF flow,
-transported sensor0, SU2/CGNS/reference and real restart. Native checks bounded SA;
-post-bounds exact SA conservation is not claimed. No planar CFD evolution/viscous
-accuracy follows. Independent finite sensor gradation passes; composed ratio24.5184
-still violates HGRAD1.3 and remains uncorrected before freezing.
-[Current design/results](Handbook/GOAL3_SELECTION_WORK.md),
-[complete scoped receipt](integration_evidence/native_3d_bl_v1/interacting_walls_v1/selection_work_v2_summary.json).
-Next focus rotating/localized tangential targets and nonprismatic feature/junction
-construction, then evolved viscous accuracy and complete lifecycle affordability.
-The stronger rotated tangential cap attempt FAILS:3731 cap attempts,30 private
-faces, projected length3.095056 and no complete replacement. The unchanged six-cell
-input is retained. Its source-pinned archive/50 artifact hashes are verified; the
-failed production replacement was withdrawn, restoring all five production files
-byte-for-byte to69833b2a3f. Stronger test inputs/oracle and all evidence remain.
-Do not continue the local redistribution/retry plan: reconsider coordinated metric-
-directed point distribution, connectivity and complete front closure first. The
-independent1248-cell planar witness supports mathematical feasibility only; it is
-neither a native nor a curved-mesh acceptance certificate. The next meaningful
-curved milestone remains a complete accepted whole mesh under unchanged gates.
-Built binaries still contain the failed experiment: rebuild before any future run.
-All owned jobs terminal. [Current decision/evidence](Handbook/GOAL3_TANGENTIAL_CAPS.md).
-Full Goal3 remains active/incomplete.
+Current native and independent full audits pass constant/rotating planar demands:
+6->1248->447 and6->2112->722, work1646/628 and2728/877. MPI4 rotating passes
+6->2112->700, independently; constructed geometry exactly equals serial. Local
+constant cap4.63s nested in33.26s construction; no speedup/scaling claim.
+Unchanged curved high-ratio v3 accepts2877/eight fronts/work3771. Bit-identical
+model/mesh lets the complete independent reference transfer after checking all2877
+new tensors/shapes and4727 edges, bound1.064e-14/edge residual4.986e-9. Existing
+12 edge/geometry controls and the new edge regression pass. All current source/
+binary/object/artifact pins checked in tangential_caps_v2/validation.json.
+All owned jobs terminal. Next actual planar/curved RANS N4/M2 backend/transfer/
+output/restart and opposing-wall qualification. No wider curved capability or
+full Goal3 completion; no local fallback or increased limits.
+[Current source/design/evidence](Handbook/GOAL3_WHOLE_CAP_CONSTRUCTION.md).
 
+The earlier cap-operator attempt failed3731 trials/30 cap faces; it was withdrawn
+at c103. All50 artifact hashes/exact source snapshots are verified and preserved.
+The six-cell returned SU2 file is the unchanged input, not a private-cap snapshot.
+[Failure and strategy decision](Handbook/GOAL3_TANGENTIAL_CAPS.md).
 
+## Qualified foundations and scope
 
-## Qualified prior foundations
+High-ratio curved cylinder:2877 cells/eight fronts/work3771, q.223149/J.060674/
+full L1.783149, height.01/g1.2/T.2/length.2 and4096/300s unchanged. Independent
+exact geometry/height/original-P1 and all2877 tensors/all4727 numerical edges pass.
+Rotated/varying serial2448/2284 also pass native/exact geometry/source audits;
+full independent nonconstant BL integrals remain open. MPI2/4 high-ratio native/
+geometry pass with different coordinates/IDs; no serial full-metric proof reuse.
+[Accepted curved grid](integration_evidence/native_3d_bl_v1/region_construction_v1/native_front_constant_v2/core_accepted.su2),
+[construction and limits](Handbook/GOAL3_COARSENED_METRIC_FRONTS.md).
+These are prior-source receipts, not automatic proof for the current metric change.
 
-The pre-front campaign is complete15/15: original/rotated/varying frozen fields
-native+independent geometry/source MPI1/2/4; thin controls3/877746. Actual RANS/SA
-N/M1/1,2/1,2/2,4/1,4/2,4/4 passes24->836->48 with independent physical current+BDF,
-explicit bounded-SA correction accounting, SU2/CGNS/reference and real restart.
-Post-bounds SA is not exactly conservative; pressure metrics clip coarse, so no
-viscous accuracy or affordability claim follows.
-[Qualified campaign](integration_evidence/native_3d_bl_v1/region_construction_v1/current_integration_v11.json),
-[actual MPI lifecycle](integration_evidence/native_3d_bl_v1/region_construction_v1/rans_lifecycle_v11.json).
+Published complete-star coordination closes retained opposing-wall removal:
+MPI4 1920->250/work1619, MPI2->230/work1344, zero final conflicts, independent
+full fields/exact geometry. Earlier work-budget and transport failures stay saved.
+Actual initialized planar RANS/SA N4/M2 backend6->24->6 passes independent geometry/
+height/full edges/current+BDF flow, transported sensor0, SU2/CGNS/reference/restart.
+It does not evolve CFD or establish post-floor exact SA conservation. Sensor
+gradation passes;44 composed probes violate HGRAD1.3, max24.5184, uncorrected.
+[Qualified selection/backend evidence](Handbook/GOAL3_SELECTION_WORK.md).
 
-Shared geometry AxisFrame and globally controlled edge quadrature are retained.
-Original stronger rotated3108-cell mesh has an independent complete numerical
-metric reference. Failed/interrupted references and the fixed-band obstruction
-are historical evidence, not current blockers for the accepted high-ratio case.
-[Earlier construction investigation](Handbook/GOAL3_METRIC_FRONTS.md).
+Earlier evolved curved RANS N4/M2 v13 passes24->621->48 with current+BDF/open ledger,
+SA-floor replayv27, both outputs/reference and restart. Post-bounds SA is not
+exactly conservative; pressure demand clips coarse. No viscous accuracy follows.
+The full15-case/six N/M actual campaign is pre-front source only.
+[Curved RANS history](Handbook/GOAL3_CURVED_RANS_RUNTIME.md),
+[full earlier campaign](integration_evidence/native_3d_bl_v1/region_construction_v1/current_integration_v11.json).
+Rank0 passive1398 samples identify metric-stage MPI waits and exact contacts;
+no critical-rank/scaling/affordability claim. No extra profiling CFD run.
 
-## Full remaining scope and working rules
+## Full remaining scope and rules
 
-Certified constructive classes are one inward cylinder with planar caps and
-finite right prisms with requested walls on opposite caps, each on one worker.
-The cylinder retains one terminal coarsening pass and a heuristic BL-free core.
-This does not establish general/exterior/interacting geometry, arbitrary aspect
-ratios, structured layers or scalable parallel generation. Wider geometry/features,
-independent nonconstant BL integrals, separate composed-gradation feasibility,
-repeated retained-BL updates, viscous/M6 accuracy and complete lifecycle cost remain.
-Goal4 starts only after full Goal3 completion.
+Constructive classes remain one inward cylinder with planar caps and finite
+right prisms, on one generation worker. One terminal cylinder coarsening and a
+heuristic positive BL-free core remain limits, not general mesh-generation proof.
+General features/junctions/nonprismatic/exterior geometry, interactions, combined
+gradation, independent varying BL integrals, repeated retained-BL updates,
+viscous/M6 accuracy and complete lifecycle affordability remain. Goal4 is inactive.
 
 [Requirement audit](integration_evidence/native_3d_bl_v1/GOAL3_REQUIREMENTS.json),
-[current qualification/history](Handbook/GOAL3_CURRENT.md),
+[current history](Handbook/GOAL3_CURRENT.md),
 [distributed source service](Handbook/GOAL3_DISTRIBUTED_REGION_FIELD.md),
 [deferred SST/transition/nonideal questions](Handbook/FUTURE_PHYSICS_TRANSFER_QUESTIONS.md).
 One owned heavy task, nice19/threads1/build-j1/MPI<=4; announce full case folders,
-inspect contention and live handles, preserve resumable evidence and failures.
-Group connected work, avoid repeated full suites and fallback/budget ladders,
-maintain handbooks and push reviewable checkpoints. See [permanent rules](AGENTS.md).
+check host contention and live handles, preserve resumable evidence/failures.
+Group connected capability changes, avoid fallback/budget ladders and unnecessary
+regressions; maintain handbooks and push reviewable checkpoints. See [rules](AGENTS.md).
 Foreign `ClusterResults/`, AdapNoExt and dependencies remain untouched.

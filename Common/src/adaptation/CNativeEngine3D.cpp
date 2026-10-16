@@ -824,6 +824,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     stats.region_surface_trials=report.surface_trials;stats.region_junction_trials=report.junction_trials;
     stats.region_core_trials=report.core_trials;stats.region_core_regions=report.core_regions;
     stats.region_transition_fronts=report.transition_fronts;stats.region_front_trials=report.front_trials;
+    stats.region_cap_seconds=report.cap_seconds;
     stats.region_sampling_seconds=report.sampling_seconds;stats.region_first_band_seconds=report.first_band_seconds;
     stats.region_transition_seconds=report.transition_seconds;stats.region_junction_seconds=report.junction_seconds;
     stats.region_core_seconds=report.core_seconds;stats.region_validation_seconds=report.validation_seconds;

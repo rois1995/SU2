@@ -12,7 +12,9 @@ from baseline import footprints
 def sha(p):return hashlib.sha256(p.read_bytes()).hexdigest()
 def main():
     started=time.monotonic();case=HERE/sys.argv[1];rp=case.with_suffix('.json');r=json.loads(rp.read_text())
-    assert r['status']=='PASS' and all(sha(case/p)==h for p,h in r['artifacts'].items())
+    diagnostic=len(sys.argv)==3 and sys.argv[2]=='--rejected-construction'
+    assert len(sys.argv)==2 or diagnostic
+    assert r['status']==('FAIL' if diagnostic else 'PASS') and all(sha(case/p)==h for p,h in r['artifacts'].items())
     kind=r['contract']['environment']['SU2_NATIVE_PRISM_SENSOR'];assert kind in ('SCALAR','CROSSING','TANGENTIAL','ROTATING');crossing=kind=='CROSSING'
     prior=HERE/'native_opposing_v3';proof=json.loads((prior/'independent.json').read_text());reference=prior/proof['frames'][0]['file'];assert sha(reference)==proof['frames'][0]['input_sha256']
     template=copy.deepcopy(json.loads(reference.read_text()))
@@ -59,7 +61,8 @@ def main():
                 assert error<2e-8;total+=value
         return total
     prefix='regional_'+{'SCALAR':'','CROSSING':'crossing_','TANGENTIAL':'tangential_','ROTATING':'rotating_'}[kind]+'finer_grouped_';reports=[]
-    for stage,layers in [('coupled_BL',True),('released_Euler',False)]:
+    stages=[('private_region_rejected',True)] if diagnostic else [('coupled_BL',True),('released_Euler',False)]
+    for stage,layers in stages:
         nodes,cells=records(case/'native.log',prefix+stage);data=dict(template,nodes=[[n]+p for n,p in sorted(nodes.items())],cells=[{'id':c['id'],'nodes':c['nodes']} for c in cells],surface=[f for c in cells for f in c['surface']]);path=case/(stage+'_independent.json');path.write_text(json.dumps(data,separators=(',',':'))+'\n')
         report,_=frame(path,True,True,lambda original,p:metric(original,p,layers),lambda original,a,b:length(tuple(a),tuple(b),layers))
         assert F(report['volume'])==1
@@ -73,8 +76,11 @@ def main():
             assert min(p[2] for p in nodes.values() if p[2]>0)>=.1-1e-12
             report.update(first_height_faces=len(feet),maximum_height_relative_error=height,wall_normal_first_edges=aligned,full_composed_edges=len(pairs))
         report.update(layers=layers,input_sha256=sha(path));reports.append(report)
-    assert reports[1]['cells']<reports[0]['cells']
+    if not diagnostic:assert reports[1]['cells']<reports[0]['cells']
     out={'status':'PASS_COMPLETE_REGIONAL_SINGLE_WALL_ORIGINAL_FIELD_GEOMETRY_AND_FULL_EDGES','field':kind,'frames':reports,'native_receipt_sha256':sha(rp),'reference_input_sha256':sha(reference),'helper_sha256':sha(Path(__file__)),'geometry_helper_sha256':sha(ROOT/'integration_evidence/native_3d_core_v1/audit_coupled.py'),'elapsed_seconds':time.monotonic()-started,
         'scope':'Same finite unit-box geometry with only the lower wall constrained h.1/g1.2/T.3. Independent analytic planar BL/fade plus the declared exact six-tet original-P1 scalar, crossing-normal, constant rotated tangent256:4, or affine varying/rotating tangent tensor; each original tet stays on one side of x=z, proving the crossing formula affine there. Tangent inverse-covariance eigenvalues<=1.5 and fade core4 are dominated by the sensor. Exact whole embedding/finite authority/links/height/normal columns, all q/J and every full numerical BL edge, analytic piecewise original-sensor edges after removal. Numerical error indicators are not enclosures. No actual CFD/transport/restart, arbitrary tangential-field alignment, general geometry or affordability qualification.'}
-    (case/'independent.json').write_text(json.dumps(out,indent=2)+'\n');print(out['status'],flush=True)
+    if diagnostic:
+        out['status']='PASS_SAVED_REJECTED_CANDIDATE_INDEPENDENT_GEOMETRY_AND_FULL_FIELD_ONLY'
+        out['scope']+=' Native workflow remains FAIL; this audits only the saved complete rejected construction, not acceptance, coarsening or transfer.'
+    (case/('rejected_independent.json' if diagnostic else 'independent.json')).write_text(json.dumps(out,indent=2)+'\n');print(out['status'],flush=True)
 if __name__=='__main__':main()

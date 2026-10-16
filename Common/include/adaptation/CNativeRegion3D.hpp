@@ -34,6 +34,7 @@ struct RegionReport {
   size_t surface_splits = 0, surface_collapses = 0, surface_trials = 0, junction_trials = 0;
   size_t generated_cells = 0, core_trials = 0, core_regions = 0;
   size_t transition_fronts = 0, front_trials = 0;
+  double cap_seconds = 0;  // Nested in sampling: whole-cap point distribution and connectivity.
   double sampling_seconds = 0, first_band_seconds = 0, transition_seconds = 0;
   double junction_seconds = 0, core_seconds = 0, validation_seconds = 0;
   bool exhausted_work = false, unresolved_core = false;

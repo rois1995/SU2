@@ -5834,3 +5834,40 @@ ladder. The next curved milestone remains complete accepted whole-mesh construct
 with independent checks; prior2877-cell cylinder proof retains its limited scope.
 No new MPI/CFD/performance run; full Goal3 ACTIVE/incomplete.
 Read Handbook/GOAL3_TANGENTIAL_CAPS.md and tangential_caps_v1/rejected_strategy.json.
+
+
+## 2026-10-16 — complete metric-directed caps and corrected closest-facet queries
+
+The replacement primary cap constructor distributes the whole point set before
+reconnecting native triangles and shared normal fronts. It replaces inherited
+midpoint cap refinement, rather than adding another local recovery. Original-P1
+actual-query geometry/finer/fade and all height/quality/full-edge/work/time gates
+remain. Constant rotated256:4 demand now natively and independently passes
+6->1248 BL->447 sensor-only, work1646/628, q.357911/J.153523/L1.699959 in BL.
+Affine varying/rotating demand passes6->2112->722, work2728/877, independently
+q.431492/J.182629/L1.609667. MPI4 passes6->2112->700, independently; its
+constructed numeric geometry/boundary equals serial exactly. One generation worker,
+one average proposal chart and one simple prism cap loop remain explicit limits.
+
+This also exposed a shared geometric-query defect. The first complete candidate
+failed65536 composed-edge evaluations. Its saved whole geometry/field audit passed,
+while a focused actual-wall replay found a false in-plane normal near a coplanar
+facet diagonal: target normal component100->4, tensor error96. The tolerant ADT
+triangle distance is now only a seed; all candidates within its recomputed actual
+closest-distance envelope are compared before barycentrics/normal/fade. The same
+regression passes with tensor error2.56e-13 and integral error6.6e-16. No normal
+reset, target regularization, tolerance change or global ADT behavior change.
+Failure receipts/source snapshots/rejected grids are preserved.
+
+The unchanged curved high-ratio case accepts2877/eight fronts/work3771 on this
+source. Exact model/mesh/source inputs match the qualified independent reference;
+all2877 new tensors/shapes and4727 edge results rechecked, point bound1.064e-14
+and edge residual4.986e-9. Exact geometry/height and full numerical integral proof
+are reused with verified complete coverage, not unchanged-production-source claims.
+Existing12 edge/geometry controls plus one new edge regression pass. Constant
+construction33.26s includes cap4.63s; rotating60.46s includes cap6.75s. These are
+local diagnostics, not speedups over rejected runs or affordability/scaling proof.
+Actual planar/curved RANS and opposing-wall checks remain for this source.
+Full Goal3 ACTIVE/incomplete. See Handbook/GOAL3_WHOLE_CAP_CONSTRUCTION.md and
+tangential_caps_v2/validation.json; all completed current source/binary/object pins
+were verified before this checkpoint.

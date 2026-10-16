@@ -545,6 +545,7 @@ CRemeshResult CNativeRemesher3D::Remesh(const CConfig& config, const CGeometry& 
              << " batch_reserved=" << e.batch_reserved << " rounds=" << e.rounds << " attempted=" << e.attempted << " accepted=" << e.accepted
              << " region_core_trials=" << e.region_core_trials << " region_core_regions=" << e.region_core_regions
              << " region_transition_fronts=" << e.region_transition_fronts << " region_front_trials=" << e.region_front_trials
+             << " region_cap_nested_s=" << e.region_cap_seconds
              << " region_sampling_s=" << e.region_sampling_seconds << " region_first_band_s=" << e.region_first_band_seconds
              << " region_transition_s=" << e.region_transition_seconds << " region_junction_s=" << e.region_junction_seconds
              << " region_core_s=" << e.region_core_seconds << " region_validation_s=" << e.region_validation_seconds
