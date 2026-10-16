@@ -1563,6 +1563,47 @@ TEST_CASE("Replay a complete faceted wall volume-integration input without CFD",
     CBlasStructure::EigenDecomposition(metric.m,vectors,values,3,workspace);
     return SU2_TYPE::GetValue(std::sqrt(values[0]*values[1]*values[2]));
   };
+  if(const char* queries=std::getenv("SU2_NATIVE_BL_QUERY_POINTS")) {
+    std::ifstream points(queries,std::ios::binary|std::ios::ate);REQUIRE(bool(points));
+    const auto bytes=static_cast<std::streamoff>(points.tellg());
+    REQUIRE(bytes>0);REQUIRE(bytes%std::streamoff(4*sizeof(double))==0);REQUIRE(bytes<=32000000);
+    const size_t count=size_t(bytes)/(4*sizeof(double));points.seekg(0);
+    std::ofstream values("point_values.f64",std::ios::binary);REQUIRE(bool(values));
+    SU2Native3D::Tetrahedron source;
+    for(unsigned k=0;k<4;++k)source[k]={cell[k][0],cell[k][1],cell[k][2]};
+    const bool reversed=SU2Native3D::Orientation(source[0],source[1],source[2],source[3])<0;
+    if(reversed)std::swap(source[1],source[2]);
+    for(size_t row=0;row<count;++row) {
+      std::array<double,4> requested;points.read(reinterpret_cast<char*>(requested.data()),sizeof(requested));
+      double sum=0;for(auto b:requested) {
+        if(!std::isfinite(b) || b<0 || b>1)throw std::invalid_argument("Invalid frozen point-query barycentrics.");
+        sum+=b;
+      }
+      if(std::abs(sum-1)>2e-12)throw std::invalid_argument("Frozen point-query weights do not sum to one.");
+      std::array<double,3> coordinates;
+      for(unsigned j=0;j<3;++j) {
+        long double x=cell[0][j];
+        for(unsigned k=1;k<4;++k)x+=(long double)requested[k]*((long double)cell[k][j]-cell[0][j]);
+        coordinates[j]=double(x);
+      }
+      const SU2Native3D::Point position{coordinates[0],coordinates[1],coordinates[2]};
+      std::array<long double,4> actual;
+      if(!SU2Native3D::Barycentric(source,position,actual))throw std::invalid_argument("Rounded frozen query leaves its original source cell.");
+      if(reversed)std::swap(actual[1],actual[2]);
+      CBoundaryLayerMetric::IntegrationPoint3D query{};query.weight=1;
+      for(unsigned k=0;k<4;++k)query.barycentric[k]=double(actual[k]);
+      query.samples=layers.SamplePoints({position.x,position.y,position.z});
+      double output[6];for(unsigned k=0;k<4;++k)output[k]=query.barycentric[k];
+      output[4]=targetDensity(query);output[5]=-1;
+      if(!(output[4]>0) || !std::isfinite(output[4]))throw std::runtime_error("Invalid frozen point-query density.");
+      for(const auto& sample:query.samples)output[5]=SU2_TYPE::GetValue(sample.sample.distance);
+      values.write(reinterpret_cast<const char*>(output),sizeof(output));
+      if(!points || !values)throw std::runtime_error("Frozen point-query I/O failed.");
+    }
+    values.close();REQUIRE(bool(values));
+    std::cout<<"FACETED_POINT_REPLAY count="<<count<<" target_version="<<version<<" columns=b0,b1,b2,b3,target_density,active_wall_distance\n";
+    return;
+  }
   std::array<double,4> nodal{};
   for(unsigned k=0;k<4;++k)nodal[k]=SU2_TYPE::GetValue(layers.Evaluate(0,cell[k].data(),1.).distance);
   std::ofstream samples("replay_samples.csv");samples<<std::setprecision(17)<<"mask,x,y,z,actual_distance,linear_distance,error\n";

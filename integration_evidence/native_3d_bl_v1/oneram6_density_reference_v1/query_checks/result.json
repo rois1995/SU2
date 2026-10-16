@@ -1,0 +1,155 @@
+{
+  "scope": "Test-only point-query interface, not an independent full-density integral or mesh acceptance.",
+  "valid": {
+    "full_unit22": {
+      "exit_code": 0,
+      "seconds": 0.49080576794222,
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "nice",
+        "-n",
+        "19",
+        "timeout",
+        "--kill-after=5s",
+        "120s",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver",
+        "[NativeFacetedVolumeReplay3D]",
+        "--abort",
+        "--reporter",
+        "compact"
+      ],
+      "query_sha256": "15a709cdffad23c762c2e4d806e5cc53aaf08fefa9c2ca48941e38882250c44c",
+      "values_sha256": "f59777555e07343b83c866cd1aced6100c70e49ec74801f3e7f797ac2c9f5741",
+      "log_sha256": "49bdfef0a3b7e3100d5455b505a3bf03ccebb309c880d12d9b292e32d978ac3e",
+      "maximum_density_relative_difference": 9.50794998288984e-13,
+      "maximum_barycentric_roundtrip": 2.7755575615628914e-17,
+      "rule_sha256": "397351d96ae352ab7ea4ac2329076542cad6f46c0a1841d9c30b1a50bd0f96d3",
+      "identity": {
+        "integration_evidence/native_3d_bl_v1/oneram6_density_reference_v1/reference.py": "425361900f2cde66f90e0a95579fbd39125bd8ad50c9881bea199aa7a1a1989c",
+        "UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp": "77b346c880c18216fe08249811a94988bdd2d6b9c220db04180770ffa4bd9ef0",
+        "SU2_CFD/src/adaptation/CBoundaryLayerMetric.cpp": "d99585715a3325c92b3383a90fc063a23c6bc059aaf7faafbd8263babcbcf4f3",
+        "SU2_CFD/include/adaptation/CBoundaryLayerMetric.hpp": "b39486b0ffedd311bd030483296ef507c33a94d9a55434671ba39204f0a18496",
+        "SU2_CFD/src/solvers/CSolver.cpp": "2baa41a768791e027ecc075ff980d4e86904560d3aeb743dc41d352cfcaddc77",
+        "Common/include/linear_algebra/blas_structure.hpp": "34273feae289c1e816259cedc7f5a449d273b72a8b4b9f4e16e0a8aad7897446",
+        "integration_evidence/build-integrated-v2/build.ninja": "961bf33a26c0dfa69d2652675a193a8fb0919f1653c918680701fe3c68568de8",
+        "integration_evidence/build-integrated-v2/meson-info/intro-buildoptions.json": "59377c452909959635fa25c06589f97be7916c19148364113dd1a62ab38e9a5c",
+        "integration_evidence/build-integrated-v2/SU2_CFD/src/libSU2core.a.p/adaptation_CBoundaryLayerMetric.cpp.o": "14c42dd8441ba90b9338b703969484690ae30addd75261c791bf1eb0dc4fc9bc",
+        "integration_evidence/build-integrated-v2/UnitTests/test_driver": "8a22b04a0709db9b493b7373726a0f392aa97b19f275d3954a355288b15afe2c",
+        "integration_evidence/native_3d_bl_v1/oneram6_quadrature_v1/cell22_probe/native_wall_unit.dat": "0edba4c3b1c3902358fc3b86a1bcbf84e6fccd0b8f9d3a2c177d9b09e9d6d0b6"
+      }
+    },
+    "normal13": {
+      "exit_code": 0,
+      "seconds": 0.4844528359826654,
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "nice",
+        "-n",
+        "19",
+        "timeout",
+        "--kill-after=5s",
+        "120s",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver",
+        "[NativeFacetedVolumeReplay3D]",
+        "--abort",
+        "--reporter",
+        "compact"
+      ],
+      "query_sha256": "cd4c06c010eb70193123085720a59d999d774eae3e60046e8ca471803aa94488",
+      "values_sha256": "76d4e3db48b3849952dbcbdd1098164862668c85158eebf46611f091945aa6bf",
+      "log_sha256": "804c0ee4fcddc17a2544d2f7523d9e3b514926e2a5b06eecb9e4a33859ff6670",
+      "maximum_density_relative_difference": 0.0,
+      "maximum_barycentric_roundtrip": 0.0,
+      "rule_sha256": "7cfc76bc626f3e4c3b00977da267fffe69638ac0a50c973ead77988461942f7b",
+      "identity": {
+        "integration_evidence/native_3d_bl_v1/oneram6_density_reference_v1/reference.py": "425361900f2cde66f90e0a95579fbd39125bd8ad50c9881bea199aa7a1a1989c",
+        "UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp": "77b346c880c18216fe08249811a94988bdd2d6b9c220db04180770ffa4bd9ef0",
+        "SU2_CFD/src/adaptation/CBoundaryLayerMetric.cpp": "d99585715a3325c92b3383a90fc063a23c6bc059aaf7faafbd8263babcbcf4f3",
+        "SU2_CFD/include/adaptation/CBoundaryLayerMetric.hpp": "b39486b0ffedd311bd030483296ef507c33a94d9a55434671ba39204f0a18496",
+        "SU2_CFD/src/solvers/CSolver.cpp": "2baa41a768791e027ecc075ff980d4e86904560d3aeb743dc41d352cfcaddc77",
+        "Common/include/linear_algebra/blas_structure.hpp": "34273feae289c1e816259cedc7f5a449d273b72a8b4b9f4e16e0a8aad7897446",
+        "integration_evidence/build-integrated-v2/build.ninja": "961bf33a26c0dfa69d2652675a193a8fb0919f1653c918680701fe3c68568de8",
+        "integration_evidence/build-integrated-v2/meson-info/intro-buildoptions.json": "59377c452909959635fa25c06589f97be7916c19148364113dd1a62ab38e9a5c",
+        "integration_evidence/build-integrated-v2/SU2_CFD/src/libSU2core.a.p/adaptation_CBoundaryLayerMetric.cpp.o": "14c42dd8441ba90b9338b703969484690ae30addd75261c791bf1eb0dc4fc9bc",
+        "integration_evidence/build-integrated-v2/UnitTests/test_driver": "8a22b04a0709db9b493b7373726a0f392aa97b19f275d3954a355288b15afe2c",
+        "integration_evidence/native_3d_bl_v1/oneram6_quadrature_v1/wing_cell13.dat": "444d511a48a4978aca45bcdcd6ebb73f710c0464fc170b1358f9e9466c768954"
+      }
+    }
+  },
+  "invalid": {
+    "bad_size": {
+      "exit_code": 1,
+      "seconds": 0.4693826480070129,
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "nice",
+        "-n",
+        "19",
+        "timeout",
+        "--kill-after=5s",
+        "120s",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver",
+        "[NativeFacetedVolumeReplay3D]",
+        "--abort",
+        "--reporter",
+        "compact"
+      ],
+      "query_sha256": "272f78036db6721f7cf7444315e5f6360426d14c3d446d6ae8a89ef70d134002",
+      "values_sha256": null,
+      "log_sha256": "5904fb2815456a38e71282c33cf0501128d65c372923ee264f32fe41c69f87de"
+    },
+    "bad_sum": {
+      "exit_code": 1,
+      "seconds": 0.5023165870225057,
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "nice",
+        "-n",
+        "19",
+        "timeout",
+        "--kill-after=5s",
+        "120s",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver",
+        "[NativeFacetedVolumeReplay3D]",
+        "--abort",
+        "--reporter",
+        "compact"
+      ],
+      "query_sha256": "5e5c794534608bdcc5f3c19fd8d94ad66ab3aedaeb79694b00adab9d1df8e25f",
+      "values_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "log_sha256": "2190a9c9aef865009333d3cb499aa46f38d0bb513cedd1243579f4e91cbb8400"
+    },
+    "nonfinite": {
+      "exit_code": 1,
+      "seconds": 0.4548130730399862,
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "nice",
+        "-n",
+        "19",
+        "timeout",
+        "--kill-after=5s",
+        "120s",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver",
+        "[NativeFacetedVolumeReplay3D]",
+        "--abort",
+        "--reporter",
+        "compact"
+      ],
+      "query_sha256": "e12a16d026c188795af8d101f40811b950948fd1e727bddcbd129437e71d94d9",
+      "values_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "log_sha256": "dd8320f2770ea17c92343a9b0dae5f35858308de450c88c10bf9832252e03d0e"
+    }
+  },
+  "status": "PASS_POINT_INTERFACE_CHECKS"
+}

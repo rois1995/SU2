@@ -6017,3 +6017,28 @@ and quadrature1e-4 numerical indicators need explicit treatment in any new desig
 A structural Opus/high request timed out without a review; no conclusion is credited
 to it. Full Goal3 remains ACTIVE; no accepted adapted M6 grid or speedup claim.
 See Handbook/GOAL3_M6_FROZEN_FIELDS.md for exact failure counts and next evidence.
+
+
+## 2026-10-16 — complete actual M6 field, exact owner/halo replay and references
+
+Read-only4-rank capture before the first volume quadrature exports all61330 nodes
+and303359 cells after one step from the existing120-step restart. Producer/header
+restored and CFD/test binaries freshly built. Decoder proves original coordinates,
+unique ownership/hosted-cell completeness and exact3 previous failing-cell tensor/
+core/scale match. Preserve raw owner AND halo forms (upper6 exchange explains
+2.02e-16 relative asymmetry differences); NPZ supports exact hosting-rank replay.
+No complexity integral/remesher/candidate/transfer. No performance claim from47s
+including debuggers. Three original neighborhoods now have sensor-input VTUs.
+
+Independent sensor-only P1 mass Q18=152994.20094, analytic diagnostic bounds
+142421.03244..154272.45539. Q4 differs4.04e-4, and no tetrahedron has raw constant
+sensors. These are first-trial sensor results, not full BL or a complexity floor.
+Conservative whole-wing box excludes90253 cells;213106 remain possible support.
+
+A bounded point-query mode in the existing hidden replay enables independent
+quadrature without the native adaptive controller/CFD. Saved point samples and
+malformed inputs pass. Positive Duffy24/48/72, two apexes, all3 actual fields
+complete.157 stabilizes~1e-6;329/88 are being refined independently, not retargeted.
+These are independent quadrature checks using the native physical law, not an
+independent tensor implementation or rigorous enclosures. See current handbook
+Handbook/GOAL3_M6_COMPLEXITY_REASSESSMENT.md. Full Goal3 remains ACTIVE.

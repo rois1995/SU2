@@ -1,9 +1,11 @@
 # Goal3 — actual frozen M6 fields and the primary integration strategy
 
-Full Goal3 ACTIVE/incomplete. Published producer/header restored exactly to
-977691bc4e after the failed primary-column and cell-ledger experiments. All owned jobs terminal.
-Current executable still contains the withdrawn experiment: rebuild with the
-next connected change; never treat it as restored-source proof. The complete M6 mesh has never entered native construction.
+Full Goal3 ACTIVE/incomplete. Current work has moved to the
+[complete first-trial checkpoint and integration reassessment](GOAL3_M6_COMPLEXITY_REASSESSMENT.md).
+Production producer/header restored and binaries freshly rebuilt; a test-only
+point-query extension supports independent references. Historical failed/stale
+binary notes below refer to412230, superseded by that rebuild. The complete M6
+mesh has never entered native construction.
 
 ## Exact actual-field counterexamples
 
@@ -112,8 +114,7 @@ All owned jobs terminal. No broad regression or MPI/CFD campaign for these failu
 
 NEXT: reassess representation and whole-complexity error allocation before another
 implementation. A complete original-P1 first-trial field checkpoint would allow
-whole-mesh offline integration without repeating CFD. Its passive extraction is
-not yet implemented. Current cell fixtures remain exact useful counterexamples.
+whole-mesh offline integration without repeating CFD. Its passive extraction now passes in oneram6_frozen_field_v1; see the current reassessment handbook. Current cell fixtures remain exact useful counterexamples.
 Uniform per-cell relative accuracy may be inappropriate for a global scalar sum,
 but changing allocation is not permission to lose thin-band mass or weaken mesh
 acceptance. The existing scale solver stops at1e-6 while quadrature uses a1e-4
@@ -144,8 +145,8 @@ reassessment; no successful whole-M6 integration is claimed.
 
 The old frozen_sensor.csv checkpoint is a2D unit fixture. A generic whole-trial3D
 export was not found. Current cell replay avoids further CFD for these targets;
-a future compact full-trial checkpoint could enable a whole-mesh quadrature scan
-without repeated flow setup. It is NOT implemented or requested from the cluster.
+a complete compact first-trial checkpoint now enables whole-mesh offline work
+without repeated flow setup; see the current reassessment handbook. No cluster request.
 
 Full geometry/features/interactions/gradation/transfer/accuracy/lifecycle cost and
 all original Goal3 acceptance gates stay open. No accepted M6 grid or speedup claim.

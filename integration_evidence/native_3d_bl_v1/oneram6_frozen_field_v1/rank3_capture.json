@@ -1,0 +1,40 @@
+{
+  "state": "COMPLETE_PRE_QUADRATURE_RAW_CAPTURE",
+  "rank": 3,
+  "size": 4,
+  "pid": 3571081,
+  "points": 16340,
+  "owned_points": 15499,
+  "complexity_trial": 1,
+  "core": 0.05667696347479382,
+  "log_scale": -0.47810758149935007,
+  "byteorder": "little",
+  "tensor_bytes": 72,
+  "gdb": "9.2",
+  "source_frames": [
+    "CSolver::<lambda(su2double)>::operator()(su2double) const",
+    "CSolver::<lambda(su2double&, su2double&, bool&, bool)>::operator()(su2double &, su2double &, bool &, bool) const",
+    "CSolver::ComputeMetric"
+  ],
+  "files": {
+    "rank3_sensor.f64": {
+      "bytes": 1176480,
+      "sha256": "74b93d0c394bc8b7836ac8b7b733dda676046f0ce636faf09d4274cdca28cf91"
+    },
+    "rank3_global.u64": {
+      "bytes": 130720,
+      "sha256": "0baaa6ac45466cd15e50a15bb7771e42bb830b15b9d52b6fec427832b5c2b737"
+    },
+    "rank3_coordinates.f64": {
+      "bytes": 392160,
+      "sha256": "fa81f227c8ccecdc6c2c5fca452c96c273757e3b2db372b381b1f92cad543420"
+    },
+    "rank3_domain.u8": {
+      "bytes": 16340,
+      "sha256": "9825222405aff8cb62b3ceef79f80905e16862f6c337369fdc06f5670188d98a"
+    }
+  },
+  "helper_sha256": "53f87b807edf01a13f8d95dcc464d24f6dc5525c18aacbec64b39353bdca62cd",
+  "provenance_sha256": "9ded2d4424f01d787f6dc4352217fa9a867707ec742bcb6ac99f9a631ebbab5a",
+  "scope": "Read-only memory extraction at first IntegrationRule3D entry; no inferior function calls. Sensor-only after gradation, before BL integration/final normalization/remeshing. Not an accepted adaptation."
+}

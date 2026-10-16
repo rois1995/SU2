@@ -1,0 +1,100 @@
+{
+  "status": "PASS_EXACT_COMPLETE_FIRST_TRIAL_FIELD_CAPTURE",
+  "points": 61330,
+  "cells": 303359,
+  "complexity_trial": 1,
+  "core": 0.05667696347479382,
+  "log_scale": -0.47810758149935007,
+  "ranks": [
+    {
+      "rank": 0,
+      "points": 15953,
+      "owned": 15032,
+      "owned_cells": 74871,
+      "maximum_absolute_owner_difference": 1.2221335055073723e-12,
+      "maximum_relative_owner_difference": 1.2040035157691262e-16,
+      "bitwise_equal_to_owners": false
+    },
+    {
+      "rank": 1,
+      "points": 17092,
+      "owned": 15777,
+      "owned_cells": 78226,
+      "maximum_absolute_owner_difference": 4.547473508864641e-12,
+      "maximum_relative_owner_difference": 2.0230634803584796e-16,
+      "bitwise_equal_to_owners": false
+    },
+    {
+      "rank": 2,
+      "points": 15682,
+      "owned": 15022,
+      "owned_cells": 77132,
+      "maximum_absolute_owner_difference": 2.7284841053187847e-12,
+      "maximum_relative_owner_difference": 1.2013110454562466e-16,
+      "bitwise_equal_to_owners": false
+    },
+    {
+      "rank": 3,
+      "points": 16340,
+      "owned": 15499,
+      "owned_cells": 73130,
+      "maximum_absolute_owner_difference": 2.7284841053187847e-12,
+      "maximum_relative_owner_difference": 1.235710315548234e-16,
+      "bitwise_equal_to_owners": false
+    }
+  ],
+  "previous_cells": [
+    {
+      "cell": 88,
+      "host_rank": 3,
+      "raw9_coefficients_match_previous_capture_exactly": true,
+      "previous_capture_sha256": "81f4f804c08d7ded7e20d4f6c5f877906b46af505bec8856273e5923821b0027"
+    },
+    {
+      "cell": 157,
+      "host_rank": 1,
+      "raw9_coefficients_match_previous_capture_exactly": true,
+      "previous_capture_sha256": "eb4aab628d0631c6b1e1544551d54027554ee9c80233ea2b814503dae4a216d1"
+    },
+    {
+      "cell": 329,
+      "host_rank": 0,
+      "raw9_coefficients_match_previous_capture_exactly": true,
+      "previous_capture_sha256": "30021144b3b6345b37c86e460bb7f12a7567fab0b7e319389b4757b2fc0574f4"
+    }
+  ],
+  "original_coordinates_bitwise_equal": true,
+  "complete_unique_owned_cover": true,
+  "raw_owner_and_halo_9_coefficients_preserved": true,
+  "ownership": "CSolver uses OwnedSimplices: owner of the smallest global vertex; sorted4 node IDs. Every cell has all4 nodes present on that rank. Replay must use that rank raw matrix, not substitute owner coefficients for halos.",
+  "halo_difference": "Expected roundoff: SetMetricMat transmits upper6; GetMetricMat reconstructs symmetric halo matrices. Raw owned spectral recomposition can be slightly asymmetric. Both representations retained, no tensor repairs.",
+  "scope": "Complete runtime first-trial sensor after gradation, before any complexity quadrature/remeshing/final normalization. One initial CFD step from saved120-step state. MPI consistency at one4-rank partition, not scaling, mesh acceptance, transfer, final metric or full-goal qualification.",
+  "sha256": {
+    "rank0_sensor.f64": "d0097e77340ff321d9388fb52314e320adc7b0626f91f41d34ce61f5a5cb7724",
+    "rank0_global.u64": "32894f95191d936c4e0d3fa410183c6220c201bb48339490e5634b770d107730",
+    "rank0_coordinates.f64": "de516d3f241aa155a88122a5ef8aa6c9ad6bb9e155a036cfb2f327eb5bb28a87",
+    "rank0_domain.u8": "46c286e3ec1cb281511a800026446f590fc22772e9ca4d4e5177b48a1ffb2323",
+    "rank0_capture.json": "355e0e117e5ab7a0df797c486a37933c8fa98b454268c97ae15543dc5f3d90a9",
+    "rank1_sensor.f64": "8e62f34f8a14ae4990b0bc427a8c8d124ed1a7333ac67b726143721d2eb94c58",
+    "rank1_global.u64": "79392cd6f21004da76a332c3beacf406ded65ed7f1f6792270e298502d099b6f",
+    "rank1_coordinates.f64": "82679db0ef78750244ec1d5ff11e0c4da9dc28f988258b6337f1c6f8e6bcedf8",
+    "rank1_domain.u8": "f3642fe75026a495c7a249f48a152361d2028efed4cb67cd1a976279cc731023",
+    "rank1_capture.json": "ec5929fe7ba8a39732ba519d00305cbee99f7adbcce2ecb763592ec7e00f2ecf",
+    "rank2_sensor.f64": "5eb3d79302773b88a6b5a63512da2f0edff690c65571af8600be00e5ca938c01",
+    "rank2_global.u64": "8f20848153227c142e633daa4589f1c02725c6fa93aa486e2d37fcff38e8c7a0",
+    "rank2_coordinates.f64": "2bc20e973618e56aef954a23944483a1b9d1fd26258c3b10fa94d4932810f36a",
+    "rank2_domain.u8": "dff5d6f4a074064a9ea0f0fff2b44f1708494824dbeb4b696f2a4e95a88abe49",
+    "rank2_capture.json": "effed2982b8ff56bca713a0202618d673a3174525478f021e38f31007c1e4423",
+    "rank3_sensor.f64": "74b93d0c394bc8b7836ac8b7b733dda676046f0ce636faf09d4274cdca28cf91",
+    "rank3_global.u64": "0baaa6ac45466cd15e50a15bb7771e42bb830b15b9d52b6fec427832b5c2b737",
+    "rank3_coordinates.f64": "fa81f227c8ccecdc6c2c5fca452c96c273757e3b2db372b381b1f92cad543420",
+    "rank3_domain.u8": "9825222405aff8cb62b3ceef79f80905e16862f6c337369fdc06f5670188d98a",
+    "rank3_capture.json": "a1a113c64bafa665c3015f0301524debc8e2d43e09a150bd6efeb7439d35b726",
+    "frozen_trial.npz": "7f05f56cb19f1aaaa06207fc1aa0c999b17283fed48aef8a613316377b1c4d5b",
+    "decode_capture.py": "ed91d5bb4224e46a5c54610e814a1bb64ece1777666b829533b3dd68ae45c515",
+    "capcheck.py": "2721ed023a67fe1cdb05da4e9f3b521b36ee9339413c77e2b54ee25587bbdd2a",
+    "ownership_source": "cd13b7ff7864be86ad9181b8285b267209107b3409d7dc984b10f1c86c8f88fd",
+    "halo_metric_storage_source": "4c6021e632175366f541f5e46d2d3a05c637cb30c71f478de57dcfc7f8660c06"
+  },
+  "full_goal3_complete": false
+}

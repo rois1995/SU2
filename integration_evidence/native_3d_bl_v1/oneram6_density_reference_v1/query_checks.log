@@ -1,0 +1,12 @@
+Traceback (most recent call last):
+  File "integration_evidence/native_3d_bl_v1/oneram6_density_reference_v1/reference.py", line 142, in <module>
+    if sys.argv[1:]==['check']:check()
+  File "integration_evidence/native_3d_bl_v1/oneram6_density_reference_v1/reference.py", line 73, in check
+    rule_sha256=sha(rule),identity=identity(fixture));report['valid'][label]=data
+  File "integration_evidence/native_3d_bl_v1/oneram6_density_reference_v1/reference.py", line 32, in identity
+    return {str(p.relative_to(ROOT)):sha(p) for p in paths}
+  File "integration_evidence/native_3d_bl_v1/oneram6_density_reference_v1/reference.py", line 32, in <dictcomp>
+    return {str(p.relative_to(ROOT)):sha(p) for p in paths}
+  File "/usr/lib/python3.8/pathlib.py", line 908, in relative_to
+    raise ValueError("{!r} does not start with {!r}"
+ValueError: 'integration_evidence/native_3d_bl_v1/oneram6_density_reference_v1/reference.py' does not start with '/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated'

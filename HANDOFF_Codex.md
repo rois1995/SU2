@@ -56,11 +56,14 @@ records and closed-wall replays. Cell329 reproduces the native failure verbatim
 in6.23s without CFD. No candidate/accepted mesh/transfer. The primary wall-normal-column experiment and the subsequent cell-wide error
 ledger both fail all3 actual fields and are withdrawn. Cell329/157 exceed65536
 points;88 times out90s. Correcting a demonstrated queue eligibility bug does not
-fix the decisive failure. Producer/header are byte-identical to977691bc4e/11a539;
-current test/CFD executables reflect different rejected experiments and require
-rebuild before use. No owned CFD/build/model job remains. No new broad/MPI suite.
-Next: integration representation/global error-budget reassessment using a complete
-frozen first-trial field checkpoint, not another local queue/chart/budget variant.
+fix the decisive failure. Production metric source remains977691/412230 and fresh baseline binaries now
+match it. Complete4-rank pre-quadrature checkpoint captures61330 points/303359
+cells; all3 failing fields match exactly. Both owner and halo raw tensors retained.
+Sensor-only Q18 mass152994 (bounds142421..154272), not full BL/final normalization.
+Test-only point-query interface passes saved samples and malformed inputs.
+Independent full-density157 reference stabilizes~1e-6;329/88 need refinement.
+One owned serial reference batch11887 live; no CFD/build/MPI/model job.
+[Current whole-field checkpoint and reassessment](Handbook/GOAL3_M6_COMPLEXITY_REASSESSMENT.md).
 [Current exact-field/replay/design/live state](Handbook/GOAL3_M6_FROZEN_FIELDS.md),
 [earlier thin integration and rejected experiments](Handbook/GOAL3_M6_THIN_INTEGRATION.md),
 [actual initial M6 flow/inspectable files](Handbook/GOAL3_ONERA_M6.md).

@@ -1,0 +1,9 @@
+Breakpoint 1 at 0x2cee10: file ../../SU2_CFD/src/adaptation/CBoundaryLayerMetric.cpp, line 1266.
+[Thread debugging using libthread_db enabled]
+Using host libthread_db library "/lib/x86_64-linux-gnu/libthread_db.so.1".
+[New Thread 0x7ffff763a700 (LWP 3571131)]
+[New Thread 0x7ffff6c85700 (LWP 3571162)]
+
+Thread 1 "SU2_CFD" hit Breakpoint 1, CBoundaryLayerMetric::IntegrationRule3D(std::array<std::array<double, 3ul>, 4ul> const&, double, std::function<double (CBoundaryLayerMetric::IntegrationPoint3D const&)>, bool*) (this=this@entry=0x55555b094600, tetrahedron=..., bandRatio=bandRatio@entry=1.5, density=..., sensorDependent=sensorDependent@entry=0x7fffe45ff1d8) at ../../SU2_CFD/src/adaptation/CBoundaryLayerMetric.cpp:1266
+1266	    const std::array<std::array<double,3>,4>& tetrahedron,double bandRatio,IntegrationDensity3D density,bool* sensorDependent) {
+FROZEN_FIELD_CAPTURE 2 15682 15022 0.05667696347479382 -0.47810758149935007
