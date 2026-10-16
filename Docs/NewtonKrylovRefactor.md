@@ -9,8 +9,9 @@ CFL ownership, final physical residuals and group failure output are wired into
 the native driver. A compatibility class remains for legacy execution modes
 outside this migration. Dense native pseudo-time mappings and explicit-flow
 preconditioning are supported. The full goal remains in progress: converged
-matched auxiliary-family comparisons and the conditional-feature audits below are
-pending. The first converged manufactured mean-flow comparison is recorded below.
+matched SA-BC/SST/LM/species comparisons and the conditional-feature audits below
+are pending. Converged manufactured mean-flow and ordinary SA comparisons are
+recorded below.
 
 ## Independent restart reports and converged manufactured flow
 
@@ -101,8 +102,9 @@ unmonitored CUSTOM boundaries; the packed volume integrals and pointwise state
 comparison supply the nontrivial final-state checks. Full raw/scaled residuals,
 quantities, work, memory and hashes are committed in
 `Docs/NewtonKrylovMMSResults.json`. FLOW alone has one block, so its segregated
-and coupled flags describe the same equation group. Turbulence, active transition
-and species still require their own converged matched comparisons.
+and coupled flags describe the same equation group. The following SA comparison
+has separate flow and turbulence blocks; active transition, SST and species
+still require their own converged matched comparisons.
 
 Evidence in the parent workspace uses `state_report_` and
 `manufactured_converged_final_{1x1,2x2}`. All 33 native cases pass on 1x1 and
@@ -113,8 +115,109 @@ this does not establish full AD/reverse/mixed-precision/GPU execution.
 The initial 265-character-path test instead exposes an overflow inside this
 installation's OpenMPI `mca_sharedfp_lockedfile` backend; the retained stack
 identifies the external library. The verified SU2 regression uses paths above
-100 characters within that backend's capacity. The known 1x2 mixture/MUSCL
-startup failure is unchanged and remains open.
+100 characters within that backend's capacity. The initially recorded 1x2
+mixture/MUSCL startup failure is resolved by the preconditioning change below.
+
+## Lower-block MUSCL preconditioning
+
+The legacy startup-SMOOTHER mixture case failed at iteration 1 on one MPI rank
+with two OpenMP threads. A trace found the first failed product inside lower
+block preconditioning, with no pseudo-time term: the correction's physical norm
+was 1.13e-49, its derivative norm 5.17e-50, and successive refined products still
+differed by 8.48e-52 after sixteen halvings. The fixed-count smoother subsequently
+requested corrections down to roughly 1e-141. Failure of this relative derivative
+test in an approximate preconditioner propagated NaNs into the direction and
+exhausted CFL recovery. Changing the augmented operator norm would not address
+this physical-only preconditioner call.
+
+Lower-block coupling now uses a single admissible forward probe. The full
+matrix-free operator, directional slope and true linear-defect calculation keep
+their existing configured Richardson verification and 5e-4 agreement threshold.
+The true defect acceptance bound stays 0.1; the failing case is retained. This
+changes preconditioner accuracy and work, and can change Krylov iteration counts.
+Failed/nonfinite/inadmissible probes still fail through the existing bounded
+path. No physical derivative is projected or accepted by a relaxed defect check.
+
+The independent centered-reference fixture checks both probe paths for requested
+steps 1e-4/1e-6 and physical/relaxed reconstruction. Verified products remain
+within 2e-4 of the reference, approximate products within 1e-2. Calling the
+approximate path between two verified products leaves the latter bitwise equal.
+The existing failing policy case now completes all 1290 assertions on 1x2.
+All 33 native cases pass on 1x1 and 1x2 (49404 assertions), 2x2 and 2x4
+(31368/25796 assertions per rank). All 80 supported ordinary cases pass.
+Four affected integration translation units pass forward syntax checks; full
+AD/reverse/mixed-precision/GPU execution remains unverified.
+
+Evidence uses `threaded_muscl_` in the parent workspace. Before-fix failures,
+temporary diagnostic source/executables and traces are retained alongside the
+final checks. The full 2x4 suite was slow but completed: live stack samples
+showed it advancing through different solvers and tests, not a deadlock.
+Focused `[NewtonFlowPolicy],[NewtonLinearization]` Valgrind coverage passes five
+cases / 2750 assertions with two threads and `OMP_WAIT_POLICY=PASSIVE`, with zero
+memory errors and leaks unchecked. The preceding default-wait run timed out at
+180 seconds and supplies no completed memory result; its partial log is retained.
+Generic production CLI controls also accept four updates of a reverse-packed
+flow/SST/LM/species MUSCL group on 1x2 and 2x4, with maximum true defects below
+2.7e-5, valid Armijo bounds and finite eleven-field restarts. These controls are
+not convergence evidence. All six manufactured-flow comparisons pass again
+with the shared comparison driver; the original numerical record above remains
+bound to its original executable.
+
+## Converged flow and SA comparison
+
+`compare_sa_flatplate.py` uses the same comparison driver as the manufactured
+case. It generates an 81-point compressible flat-plate problem at Re=1e5,
+Mach 0.2, first-order Roe, native adiabatic no-slip/far-field boundaries, ILU,
+MGLEVEL=0 and fixed CFL 20. It compares native updates, segregated FLOW/TURB
+Newton and a coupled FLOW/TURB group with lower-block preconditioning. All
+five native residuals must reach log10 RMS -10 before the 10000-update cap.
+Every final state is independently replayed: raw RMS <=1e-10, state-scaled RMS
+<=1e-9, component-scaled pointwise state difference <=1e-6 and relative
+mass/drag/lift/moment/heat difference <=1e-6 from the native solution. Native SA
+clips its prescribed wall zero to EPS; the reporter records the resulting
+3.34e-12 scaled projection explicitly. Newton restarts need no projection.
+
+```sh
+python3 TestCases/newton_krylov/compare_sa_flatplate.py \
+  --binary /path/to/build/SU2_CFD/src/SU2_CFD \
+  --reporter /path/to/build/UnitTests/newton_equation_tests \
+  --output /path/to/new-sa-comparison --ranks 2 --threads 2
+```
+
+All six runs pass the same criteria on the same corrected executable:
+
+| Ranks x threads | Method | Updates | Total physical residual assemblies | Total outer Krylov iterations | Seconds | Peak rank RSS, KiB |
+| --- | --- | ---: | ---: | ---: | ---: | ---: |
+| 1x1 | Native | 3327 | 6654 | 36381 | 1.420 | 25252 |
+| 1x1 | Segregated Newton | 2927 | 101869 | 20079 | 10.746 | 25076 |
+| 1x1 | Coupled Newton | 2927 | 110128 | 14360 | 9.597 | 25368 |
+| 2x2 | Native | 3327 | 6654 | 63031 | 2.227 | 25216 |
+| 2x2 | Segregated Newton | 2927 | 111400 | 29366 | 13.225 | 25136 |
+| 2x2 | Coupled Newton | 2927 | 146064 | 23344 | 13.936 | 25040 |
+
+Residual counts sum flow and SA assemblies, including dependent flow assemblies
+during scalar probes and the final physical refresh. Native counts follow one
+implicit spatial pass per equation per update. Krylov counts sum both equations
+or the coupled solve; no inner Krylov iterations are used. The separate physical
+report is outside measured solve time/work. Memory is measured per solver rank.
+Newton takes fewer nonlinear updates and more residual work, and is slower on
+this coarse problem. Single launch-inclusive timing samples do not establish
+production performance or parallel scaling.
+
+Maximum independent state-scaled RMS is below 1.12e-10; the largest relative
+component-state difference is below 8.47e-7. Relative drag/lift/moment differences
+are below 3.34e-7, with nonzero wall forces; mass differs by less than 2.03e-8
+relatively. Full raw/scaled residuals, integrals, quantities, state errors, work,
+rank resources and hashes are committed in `Docs/NewtonKrylovSAResults.json`.
+The mesh is a convergence fixture and establishes no discretization accuracy.
+
+Evidence uses `threaded_muscl_converged_{mms,sa}_{1x1,2x2}`. Earlier SA pilots
+remain under `auxiliary_convergence_pilot_sa*`: CFL2 reached the 10000-update cap
+in all methods; CFL100 reached the cap in native mode while both Newton modes
+met the preliminary -8 thresholds. The final common-CFL20 comparison tightens
+the threshold to -10 and checks every final variable and physical quantity.
+This covers ordinary SA. SA BC transition, SST, nontrivial LM and species, model
+admissibility/near-bound probes and the other conditional audits remain open.
 
 ## Production selection and dispatch
 
@@ -782,8 +885,8 @@ native iteration counts. The main coupled operator still evaluates physical
 cross derivatives; startup deliberately uses the native block approximation.
 
 The native MUSCL fixture exposed a finite-difference truncation problem: a small
-pressure perturbation can strongly change a tangential wall limiter. Flow groups
-with reconstruction now compare successive one-sided Richardson products,
+pressure perturbation can strongly change a tangential wall limiter. Operator
+products with reconstruction compare successive one-sided Richardson products,
 refining at most sixteen times until relative agreement reaches 5e-4. Failure to
 establish agreement rejects the direction. At least one free coordinate must
 have a representable perturbation; a sub-machine request cannot establish a zero

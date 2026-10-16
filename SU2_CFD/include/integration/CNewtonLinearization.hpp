@@ -90,8 +90,10 @@ class CNewtonLinearization final : public CMatrixVectorProduct<passivedouble> {
     return SetBase(scaling, pseudoTime, step, relativeLimit,
                    [](const CNewtonEquationSet::Block&, unsigned long, unsigned short) { return true; });
   }
-  /*! \brief False produces the scaled physical derivative, without the pseudo-time diagonal. */
-  bool Apply(const Vector&, Vector&, bool pseudoTime = true) const;
+  /*! \brief False produces the scaled physical derivative, without the pseudo-time diagonal.
+   * Preconditioner coupling can omit step verification; operator and defect products retain it.
+   */
+  bool Apply(const Vector&, Vector&, bool pseudoTime = true, bool verifyStep = true) const;
   void operator()(const Vector& u, Vector& v) const override { Apply(u, v); }
   const Vector& GetScale() const {
     assert(scale);

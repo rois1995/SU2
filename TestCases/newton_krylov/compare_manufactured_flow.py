@@ -47,6 +47,13 @@ SCREEN_OUTPUT= (INNER_ITER,RMS_DENSITY,RMS_ENERGY)
 HISTORY_OUTPUT= (ITER,RMS_RES,LINSOL)
 '''
 
+MMS_CASE = {'config': CONFIG, 'name': '81-point dimensional Navier-Stokes MMS, first-order Roe',
+            'fields': {'flow': ['rms[Rho]', 'rms[RhoU]', 'rms[RhoV]', 'rms[RhoE]']},
+            'raw_rms': 1e-6, 'normalized_rms': 1e-9, 'projection': 0, 'state_tolerance': 2e-8,
+            'quantity_tolerance': 2e-8, 'max_updates': 2000,
+            'limits': 'FLOW alone: segregated and coupled flags describe the same single equation group. '
+                      'Launch-inclusive timings on a tiny case do not establish speedup.'}
+
 
 def rows(path):
     with path.open() as stream:
@@ -54,18 +61,18 @@ def rows(path):
                 for row in csv.DictReader(stream)]
 
 
-def state(path):
+def state(path, expected_variables=6):
     with path.open('rb') as stream:
         magic, variables, points, _, _ = struct.unpack('5i', stream.read(20))
-        assert magic == 535532 and variables == 6 and points == 81
+        assert magic == 535532 and variables == expected_variables and points == 81
         fields = [stream.read(33).split(b'\0')[0].decode() for _ in range(variables)]
         values = struct.unpack(str(points * variables) + 'd', stream.read(points * variables * 8))
     assert all(math.isfinite(value) for value in values)
     return fields, {values[p:p + 2]: values[p + 2:p + variables] for p in range(0, len(values), variables)}
 
 
-def main():
-    parser = argparse.ArgumentParser(description=__doc__)
+def main(case=MMS_CASE):
+    parser = argparse.ArgumentParser(description=case['name'])
     parser.add_argument('--binary', required=True, type=Path)
     parser.add_argument('--reporter', required=True, type=Path)
     parser.add_argument('--output', required=True, type=Path)
@@ -78,17 +85,21 @@ def main():
     output = args.output.resolve()
     output.mkdir(parents=True, exist_ok=False)
     result = {'binary_sha256': sha(binary), 'reporter_sha256': sha(reporter),
-              'runner_sha256': sha(Path(__file__)), 'ranks': args.ranks, 'threads': args.threads,
-              'case': '81-point dimensional Navier-Stokes MMS, first-order Roe',
-              'limits': 'FLOW alone: segregated and coupled flags describe the same single equation group. '
-                        'Launch-inclusive timings on a tiny case do not establish speedup.', 'runs': []}
+              'runner_sha256': sha(Path(sys.argv[0]).resolve()), 'comparison_driver_sha256': sha(Path(__file__)),
+              'report_script_sha256': sha(Path(__file__).with_name('report_state.py')),
+              'ranks': args.ranks, 'threads': args.threads, 'case': case['name'], 'limits': case['limits'], 'runs': []}
+    tags = {'flow': 'FLOW', 'turbulence': 'TURB', 'transition': 'TRANS', 'species': 'SPECIES'}
+    selection = 'NEWTON_EQUATIONS= (' + ','.join(tags[system] for system in case['fields']) + ')\n'
+    lower = 'NEWTON_BLOCK_LOWER= YES\n' if len(case['fields']) > 1 else ''
+    variables = sum(len(names) for names in case['fields'].values())
     reference = None
-    for mode, selection in [('native', ''), ('segregated', 'NEWTON_EQUATIONS= FLOW\n'),
-                             ('coupled', 'NEWTON_EQUATIONS= FLOW\nNEWTON_COUPLED= YES\n')]:
+    reference_quantities = None
+    for mode, settings in [('native', ''), ('segregated', selection),
+                            ('coupled', selection + 'NEWTON_COUPLED= YES\n' + lower)]:
         directory = output / mode
         directory.mkdir()
         config = directory / 'run.cfg'
-        config.write_text(CONFIG + selection)
+        config.write_text(case['config'] + settings)
         # Measure each solver rank rather than the MPI launcher's memory.
         measured = 'exec /usr/bin/time -f \'{"max_rss_kib":%M,"user_seconds":%U,"system_seconds":%S}\' ' \
                    '-o "resource_rank_${OMPI_COMM_WORLD_RANK}.json" "$@"'
@@ -109,48 +120,65 @@ def main():
         run['max_rank_rss_kib'] = max(row['max_rss_kib'] for row in resources)
         history = rows(directory / 'history.csv')
         run['updates'] = len(history)
-        assert len(history) < 2000, 'Iteration cap reached'
-        run['last_history_log10_rms'] = [float(history[-1][key]) for key in
-                                       ['rms[Rho]', 'rms[RhoU]', 'rms[RhoV]', 'rms[RhoE]']]
-        assert max(run['last_history_log10_rms']) <= -6
-        run['outer_krylov_iterations'] = sum(int(row['Linear_Solver_Iterations']) for row in history)
+        assert len(history) < case['max_updates'], 'Iteration cap reached'
+        run['last_history_log10_rms'] = [float(history[-1][key]) for names in case['fields'].values() for key in names]
+        assert max(run['last_history_log10_rms']) <= math.log10(case['raw_rms'])
+        run['outer_krylov_iterations'] = sum(int(value) for row in history for key, value in row.items()
+                                           if key == 'Linear_Solver_Iterations' or key.startswith('LinSolIter'))
         run['inner_krylov_iterations'] = 0
-        run['flow_residual_assemblies'] = len(history)
-        if selection:
-            attempts = rows(directory / ('newton_' + ('flow' if mode == 'segregated' else 'coupled') + '.csv'))
-            accepted = [row for row in attempts if row['decision'] == 'ACCEPTED']
-            assert len(accepted) == len(history)
-            for row in accepted:
-                assert math.isfinite(float(row['true_linear_defect'])) and float(row['true_linear_defect']) <= 0.1
-                assert float(row['merit']) <= float(row['base_merit']) + 1e-4 * float(row['step']) * float(row['slope'])
-            assert all(float(row['rollback_state_error']) == 0 for row in attempts)
+        run['residual_assemblies'] = {system: len(history) for system in case['fields']}
+        if settings:
+            attempts, groups = [], set()
+            # The final accepted logs precede the last all-active physical refresh.
+            run['residual_assemblies'] = {system: 1 for system in case['fields']}
+            for path in directory.glob('newton_*.csv'):
+                if path.stem.endswith('_trials'):
+                    continue
+                groups.add(path.stem)
+                group = rows(path)
+                accepted = [row for row in group if row['decision'] == 'ACCEPTED']
+                assert len(accepted) == len(history), path
+                for row in accepted:
+                    assert math.isfinite(float(row['true_linear_defect'])) and float(row['true_linear_defect']) <= 0.1
+                    assert float(row['merit']) <= float(row['base_merit']) + 1e-4 * float(row['step']) * float(row['slope'])
+                assert all(float(row['rollback_state_error']) == 0 for row in group)
+                for system in case['fields']:
+                    run['residual_assemblies'][system] += int(group[-1][system + '_residual_evaluations'])
+                attempts.extend(group)
+            assert groups == ({'newton_coupled'} if mode == 'coupled' else
+                              {'newton_' + tags[system].lower() for system in case['fields']})
             run['attempts'] = len(attempts)
             run['outer_krylov_iterations'] = sum(int(row['linear_iterations']) for row in attempts)
             run['inner_krylov_iterations'] = sum(int(row['native_linear_iterations']) for row in attempts)
-            # The final accepted log precedes the last all-active physical refresh.
-            run['flow_residual_assemblies'] = int(attempts[-1]['flow_residual_evaluations']) + 1
+        run['flow_residual_assemblies'] = run['residual_assemblies']['flow']
         destination = output / (mode + '_physical')
         restart = directory / 'restart_flow.dat'
         subprocess.run([sys.executable, str(Path(__file__).with_name('report_state.py')), '--reporter', str(reporter),
                         '--config', str(config), '--restart', str(restart), '--output', str(destination),
                         '--ranks', str(args.ranks), '--threads', str(args.threads)], check=True, timeout=150)
         report = json.loads((destination / 'report.json').read_text())
-        assert set(report['systems']) == {'flow'}
-        physical = report['systems']['flow']
-        assert max(physical['rms']) <= 1e-6 and max(physical['normalized_rms']) <= 1e-9
-        assert max(physical['projection_max']) == 0
+        assert set(report['systems']) == set(case['fields'])
+        for physical in report['systems'].values():
+            assert max(physical['rms']) <= case['raw_rms']
+            assert max(physical['normalized_rms']) <= case['normalized_rms']
+            assert max(physical['projection_max']) <= (case['projection'] if mode == 'native' else 0)
         run['physical'] = report
-        fields, solution = state(restart)
+        fields, solution = state(restart, 2 + variables)
         if reference is None:
             reference = fields, solution
+            reference_quantities = report['quantities']
         assert fields == reference[0] and solution.keys() == reference[1].keys()
         run['state_difference_from_native'] = [max(abs(solution[p][v] - reference[1][p][v]) for p in solution) /
-            max(abs(reference[1][p][v]) for p in solution) for v in range(4)]
-        assert max(run['state_difference_from_native']) <= 2e-8
+            max(abs(reference[1][p][v]) for p in solution) for v in range(variables)]
+        assert max(run['state_difference_from_native']) <= case['state_tolerance']
+        run['quantity_difference_from_native'] = {key: abs(value - reference_quantities[key]) /
+            max(abs(reference_quantities[key]), 1e-12) for key, value in report['quantities'].items()}
+        assert max(run['quantity_difference_from_native'].values()) <= case['quantity_tolerance']
         run['evidence_sha256'] = {str(p.relative_to(output)): sha(p) for p in sorted(directory.iterdir()) if p.is_file()}
         run['report_manifest_sha256'] = sha(destination / 'manifest.json')
         (output / 'results.json').write_text(json.dumps(result, indent=2) + '\n')
-        print(mode, 'converged:', run['updates'], 'updates, physical normalized RMS', physical['normalized_rms'], flush=True)
+        print(mode, 'converged:', run['updates'], 'updates, physical normalized RMS',
+              {system: values['normalized_rms'] for system, values in report['systems'].items()}, flush=True)
 
 
 if __name__ == '__main__':

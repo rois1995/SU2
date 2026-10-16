@@ -82,8 +82,9 @@ CNewtonLinearization::CNewtonLinearization(CNewtonEquationSet& e, CGeometry* g, 
       baseState(baseResidual),
       free(g->GetnPoint() * e.GetnVar(), true) {}
 
-bool CNewtonLinearization::Apply(const Vector& u, Vector& v, bool pseudoTime) const {
+bool CNewtonLinearization::Apply(const Vector& u, Vector& v, bool pseudoTime, bool verifyStep) const {
   assert(scale && diagonal && u.GetNVar() == equations.GetnVar() && v.GetNVar() == equations.GetnVar());
+  const bool refine = refineStep && verifyStep;
   double norm;
   if (physicalStep) {
     SU2_OMP_BARRIER
@@ -128,7 +129,7 @@ bool CNewtonLinearization::Apply(const Vector& u, Vector& v, bool pseudoTime) co
     return false;
   }
   bool converged = false;
-  for (unsigned refinement = 0; refinement <= (refineStep ? 16u : 0u); ++refinement) {
+  for (unsigned refinement = 0; refinement <= (refine ? 16u : 0u); ++refinement) {
     // A rounded-away perturbation cannot establish a zero derivative.
     if (stepResolution > 0 && h * stepResolution < 1) break;
     equations.SetTrial(u, h, *scale, [&](const CNewtonEquationSet::Block& b, unsigned long p, unsigned short variable) {
@@ -139,7 +140,7 @@ bool CNewtonLinearization::Apply(const Vector& u, Vector& v, bool pseudoTime) co
     SU2_OMP_FOR_STAT(1024)
     for (auto i = 0ul; i < u.GetNElmDomain(); ++i) {
       const double fine = free[i] ? (v[i] - baseResidual[i]) / (h * (*scale)[i]) : u[i];
-      if (refineStep) {
+      if (refine) {
         v[i] = refinement ? 2 * fine - coarseProduct[i] : fine;
         coarseProduct[i] = fine;
         previousProduct[i] = v[i] - (refinement ? previousProduct[i] : 0.0);
@@ -147,9 +148,9 @@ bool CNewtonLinearization::Apply(const Vector& u, Vector& v, bool pseudoTime) co
         v[i] = fine;
     }
     END_SU2_OMP_FOR
-    const double error = refineStep ? previousProduct.norm() : 0;
-    const double magnitude = refineStep ? v.norm() : 0;
-    if (!refineStep || (refinement > 1 && error <= 5e-4 * magnitude)) {
+    const double error = refine ? previousProduct.norm() : 0;
+    const double magnitude = refine ? v.norm() : 0;
+    if (!refine || (refinement > 1 && error <= 5e-4 * magnitude)) {
       converged = true;
       break;
     }
@@ -227,7 +228,8 @@ unsigned long CNewtonBlockPreconditioner::Solve(const Vector& u, Vector& v, unsi
   v = passivedouble(0);
   for (auto index = 0u; index < blocks.size(); ++index) {
     const auto& block = blocks[index];
-    if (lowerTriangular && index && !linearization.Apply(v, coupling, false)) {
+    // Lower coupling is approximate; the outer operator and true defect use verified physical products.
+    if (lowerTriangular && index && !linearization.Apply(v, coupling, false, false)) {
       v = passivedouble(std::numeric_limits<double>::quiet_NaN());
       SU2_OMP_BARRIER
       SU2_OMP_SAFE_GLOBAL_ACCESS(work += total;)

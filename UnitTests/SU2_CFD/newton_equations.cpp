@@ -2153,6 +2153,21 @@ TEST_CASE("Reconstructed Newton products converge independently of the requested
       error -= refined;
       INFO("relative centered error=" << error.norm() / refined.norm());
       CHECK(error.norm() < 2e-4 * refined.norm());
+      const auto verified = actual;
+      auto approximate = actual;
+      SU2_OMP_PARALLEL {
+        const bool model = linearization.Apply(direction, approximate, false, false);
+        const bool product = model && linearization.Apply(direction, actual, false);
+        SU2_OMP_MASTER
+        validProduct = product;
+        END_SU2_OMP_MASTER
+      }
+      END_SU2_OMP_PARALLEL
+      REQUIRE(validProduct);
+      error = approximate;
+      error -= refined;
+      CHECK(error.norm() < 1e-2 * refined.norm());
+      CHECK(MaxDifference(actual, verified) == 0.0);
       CHECK(SU2_TYPE::GetValue(config->GetNewtonKrylovRelaxation()) == 0.73);
     }
     if (reconstruction == 1)
