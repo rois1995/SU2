@@ -471,6 +471,14 @@ def main():
     periodic2d.test_vals = [-3.266248, -0.617784, -0.620252, 2.216476, -1.007761, -1035.000000]
     test_list.append(periodic2d)
 
+    # 3D rotational periodic pipe sector with nodes on the rotation axis
+    periodic3d_axis           = TestCase('periodic3d_axis')
+    periodic3d_axis.cfg_dir = "navierstokes/periodic3D_axis"
+    periodic3d_axis.cfg_file = "config.cfg"
+    periodic3d_axis.test_iter = 100
+    periodic3d_axis.test_vals = [-3.353165, 0.157501, 2.051458, -9.594400, -9.594400]
+    test_list.append(periodic3d_axis)
+
     ##########################
     ### Compressible RANS  ###
     ##########################
@@ -905,6 +913,14 @@ def main():
     inc_heatTransfer_BC.test_iter = 50
     inc_heatTransfer_BC.test_vals = [-8.904266, -7.745636, -8.064003, -1.079197, -1671.000000]
     test_list.append(inc_heatTransfer_BC)
+
+    # 2D pin array, periodic with a body force, flow and weakly coupled heat equation
+    inc_periodic_weak_heat           = TestCase('inc_periodic_weak_heat')
+    inc_periodic_weak_heat.cfg_dir = "incomp_navierstokes/streamwise_periodic/chtPinArray_2d"
+    inc_periodic_weak_heat.cfg_file = "periodic_weak_heat.cfg"
+    inc_periodic_weak_heat.test_iter = 10
+    inc_periodic_weak_heat.test_vals = [-4.712559, -5.747243, -5.751727, 873.702714]
+    test_list.append(inc_periodic_weak_heat)
 
     ############################
     ### Incompressible RANS  ###

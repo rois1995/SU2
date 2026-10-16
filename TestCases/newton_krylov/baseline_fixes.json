@@ -222,6 +222,76 @@
       "excluded_paths": [
         "UnitTests/meson.build"
       ]
+    },
+    {
+      "commit": "9a1489a77e18759141fb66ecda222457cf2bfde0",
+      "subject": "Treat periodic points on the rotation axis as points with N copies",
+      "adaptation": "Merged with existing Newton and rotation/limiter changes; see periodic integration notes in Docs/NewtonKrylovRefactor.md."
+    },
+    {
+      "commit": "1925a8ef318b185ebf13bd09fb43222ff1f79f7b",
+      "subject": "Complete periodic slip normals and refresh donor volumes after mesh updates",
+      "adaptation": "Merged with existing Newton and rotation/limiter changes; see periodic integration notes in Docs/NewtonKrylovRefactor.md."
+    },
+    {
+      "commit": "6481f6949defeceae9026af0eb38787f5f3e0f76",
+      "subject": "Avoid shadowing periodic axis communication indices",
+      "adaptation": "Merged with existing Newton and rotation/limiter changes; see periodic integration notes in Docs/NewtonKrylovRefactor.md."
+    },
+    {
+      "commit": "bf973d4f7f386b71d3403b011ce7d790be0d23eb",
+      "subject": "Count the periodic volume and neighbors once with flow and heat solvers",
+      "adaptation": "Merged with existing Newton and rotation/limiter changes; see periodic integration notes in Docs/NewtonKrylovRefactor.md."
+    },
+    {
+      "commit": "cd4b42b7b2fe7bcff940eb94b3ceb464a1fd05e6",
+      "subject": "Update the number of neighbors of halo points after the periodic count",
+      "adaptation": "Merged with existing Newton and rotation/limiter changes; see periodic integration notes in Docs/NewtonKrylovRefactor.md."
+    },
+    {
+      "commit": "908a3c45b243c0c4dfc5013565f7dd1104a59c9a",
+      "subject": "Fix the pressure sensor of the MSW scheme at periodic points",
+      "adaptation": "Merged with existing Newton and rotation/limiter changes; see periodic integration notes in Docs/NewtonKrylovRefactor.md."
+    },
+    {
+      "commit": "f289001b97d34c2428cc8623581116197bc61569",
+      "subject": "Complete intersecting periodic stencils and inherit coarse boundary flags",
+      "adaptation": "Merged with existing Newton and rotation/limiter changes; see periodic integration notes in Docs/NewtonKrylovRefactor.md."
+    },
+    {
+      "commit": "afb78422e81e7492141bf5d0996aa5301ba46142",
+      "subject": "Avoid shadowing intersecting periodic communication indices",
+      "adaptation": "Merged with existing Newton and rotation/limiter changes; see periodic integration notes in Docs/NewtonKrylovRefactor.md."
+    },
+    {
+      "commit": "a99faf7cb180a4e8a43c251af069b9b052b33250",
+      "subject": "Complete periodic implicit products, solves, and reverse coupling",
+      "adaptation": "Merged with existing Newton and rotation/limiter changes; see periodic integration notes in Docs/NewtonKrylovRefactor.md."
+    },
+    {
+      "commit": "9f9b20cf61332f555cd1ecadd205931082e1a0c4",
+      "subject": "Use precision-aware Krylov checks in the periodic operator testcase",
+      "adaptation": "Merged with existing Newton and rotation/limiter changes; see periodic integration notes in Docs/NewtonKrylovRefactor.md."
+    },
+    {
+      "commit": "39b17680934bdd72f27a8cd2594c934ba8f120ea",
+      "subject": "Fix inverse periodic affine transformations for FV and FEM",
+      "adaptation": "Merged with existing Newton and rotation/limiter changes; see periodic integration notes in Docs/NewtonKrylovRefactor.md."
+    },
+    {
+      "commit": "811dcb00325c87bb2e25bfe007487d15b7b272c2",
+      "subject": "Search independent translated wall images in periodic wall-distance queries",
+      "adaptation": "Merged with existing Newton and rotation/limiter changes; see periodic integration notes in Docs/NewtonKrylovRefactor.md."
+    },
+    {
+      "commit": "b57a663144c6b74cafacb5073bfecea7b65275cf",
+      "subject": "Reject periodic combinations without solver boundary support",
+      "adaptation": "Merged with existing Newton and rotation/limiter changes; see periodic integration notes in Docs/NewtonKrylovRefactor.md."
+    },
+    {
+      "commit": "522998ab888d8fed22bcf97eb2f0796db5d19d4b",
+      "subject": "Address periodic support review feedback",
+      "adaptation": "Merged with existing Newton and rotation/limiter changes; see periodic integration notes in Docs/NewtonKrylovRefactor.md."
     }
   ],
   "diagnostic_hllc": {
@@ -233,6 +303,44 @@
     "Register the under-relaxation value check in the primal suite and retain derivative checks for AD builds.",
     "Add owned-row ILU scheduling, valid-then-invalid general Roe, axisymmetric source finite differences, and SST option-order tests.",
     "Refresh the identity-channel reference for the combined base and register separate serial/parallel values without changing tolerances.",
-    "Keep pending broader regression and conditional-dependency audits explicit in Docs/NewtonKrylovRefactor.md."
+    "Keep pending broader regression and conditional-dependency audits explicit in Docs/NewtonKrylovRefactor.md.",
+    "Retain existing HasPeriodicRotation and AD/config/Meson registrations; combine axis and intersecting-edge classification.",
+    "Keep UnitQuadTestCase default coloring while adding explicit true-partition mode for imported periodic tests.",
+    "Retain the three known periodic finite-iteration reference mismatches pending broader baseline qualification; no tolerance or reference was changed to hide them.",
+    "Further species/flamelet work is deferred. Streamwise periodic dependencies are audited separately; common Newton periodic guards remain until operator integration is validated."
+  ],
+  "periodic_branches": [
+    {
+      "branch": "fork/fix_periodic_rotation",
+      "commit": "ff482b387549b10501c2370262f94ceab56abe07"
+    },
+    {
+      "branch": "fork/fix_periodic_axis",
+      "commit": "05fa2185bf85407ab84f4c60e216efadd565e7ff"
+    },
+    {
+      "branch": "fork/fix_periodic_counts",
+      "commit": "b38ec5174691ba91fb678c92f7790f7c6e8e5189"
+    },
+    {
+      "branch": "fork/fix_periodic_implicit",
+      "commit": "4db1d1c3f6babb639f3e66b51f8d259c4b5aaf60"
+    },
+    {
+      "branch": "fork/fix_periodic_transforms",
+      "commit": "4d3cc812b92045885765249db64ccd8b3b5fc6c6"
+    },
+    {
+      "branch": "fork/fix_periodic_wall_distance",
+      "commit": "0f0c9c567f56b39b1b773b9a544d2c332e72fefa"
+    },
+    {
+      "branch": "fork/fix_periodic_support",
+      "commit": "c973996e308e81c4571170ae0d9efe87f94501de"
+    },
+    {
+      "branch": "fork/fix_streamwise_periodic",
+      "commit": "4d62254696512c740a7b0189d625b489575160be"
+    }
   ]
 }

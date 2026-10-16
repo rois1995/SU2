@@ -1,5 +1,66 @@
 # Common globalized Newton–Krylov refactor
 
+## Periodic baseline corrections, 2026-10-16
+
+The fork's current periodic branches were fetched and audited before changing
+the common Newton periodic path. Fourteen existing correction/review commits
+from `fix_periodic_axis`, `fix_periodic_counts`, `fix_periodic_implicit`,
+`fix_periodic_transforms`, `fix_periodic_wall_distance` and
+`fix_periodic_support` are integrated. Exact source commits and all eight
+audited branch tips are pinned in `TestCases/newton_krylov/baseline_fixes.json`.
+The rotation/limiter corrections already in the develop-derived base are
+retained. Streamwise dependencies require a separate applicability audit.
+
+The native implicit operator keeps partial periodic rows and uses
+`K = P*A*P + (I-P)`, where P averages equivalent periodic copies and rotates
+momentum. This includes matching off-diagonal dependencies and its transpose.
+Additional corrections cover axis copies, intersecting stencils, slip normals,
+volume refresh, inverse affine transforms and translated wall-distance queries.
+Unsupported periodic continuous-adjoint, radiation and elasticity configurations
+fail explicitly. Existing Newton row metadata, scalar updates, limiter scaling
+and native pseudo-time interfaces are preserved.
+
+Conflict resolutions combine axis edge classification with the new intersecting
+weights, retain `HasPeriodicRotation`, combine independent tests/AD registrations
+and keep the existing default unit-fixture coloring with the imported partitioned
+mode. The final support branch's removal of temporary test helpers is honored.
+An unrelated backscatter reference edit from an older branch base is excluded.
+
+All 13 periodic/limiter cases pass on 1x1, 1x2, 2x2 and 2x4 layouts (3259
+assertions serial, 2418/2322 per MPI rank). The existing 49 native Newton cases
+also pass all four layouts. The combined 88-case unit selection passes 105424
+assertions; periodic Valgrind passes with zero errors (leaks unchecked). Three
+existing CLI checks and 13 affected production forward-syntax units pass.
+Forward syntax does not establish AD runtime. An initial ordinary-unit launch
+used an empty cwd and aborted on fixture lookup; the identical command passes
+from the established fixture directory. Both outcomes are retained.
+
+The native DG affine regression and three support guards pass. Three registered
+finite-iteration histories do not match the combined baseline: the 2D sector,
+3D axis sector and weakly coupled periodic heat case. Their references and
+tolerances have **not** been changed. Identical short archived/current controls
+show that the 2D reference matches the archived executable and changes with the
+complete operator; axis/heat references already differ on the pre-import base.
+These are open reference/applicability checks, not converged comparisons.
+
+A separate 2D sector endpoint check uses the same controls in the archived and
+corrected native executables: velocity-based nondimensionalization, CFL100,
+FGMRES50, tolerance1e-4 and all four flow RMS residuals below -10. Independent
+restart reports must have raw and normalized RMS below 1e-9 and state agreement
+within 1e-6. All four runs pass. Archived/current update counts are 1349/1049
+serial and 1349/2229 on 2x2; maximum state discrepancy is 9.40e-8, maximum
+normalized RMS is 1.207e-11. The corrected runs cost more wall time here;
+this is correctness evidence, with no general performance claim. Full commands,
+inputs, hashes, failures and reports are retained under the parent artifact
+directory's `periodic_*` records; the committed summary and exact native
+configuration are in `Docs/NewtonKrylovPeriodicBaselineResults.json`.
+
+This is a baseline integration checkpoint. The common Newton periodic guards
+remain in place until scaled matrix-free products, residual/state closure,
+pseudo-time mappings, strong constraints and recovery are integrated and tested
+against this corrected native operator. Larger production configurations,
+remaining reference applicability and streamwise policy are still open.
+
 ## Current priority, 2026-10-16
 
 The user has narrowed the current delivery to mean flow, turbulence and existing
