@@ -26,6 +26,7 @@ class CNewtonEquationSet : private CIntegration {
     CSolver* solver;
     unsigned short slot, variables;
     std::vector<su2double> solution, oldSolution, evaluationHistory, relaxation, boundarySolution, boundaryInput;
+    std::vector<unsigned char> prescribed;
   };
   CGeometry* geometry;
   CSolver** solvers;
@@ -49,7 +50,7 @@ class CNewtonEquationSet : private CIntegration {
   void Refresh();
   void InstallStrongValues(CSolver*) const;
   void StrongState(unsigned short runtime);
-  bool CheckState(bool compareFlow);
+  bool CheckState(bool compareFlow, bool modelBounds = false);
 
  public:
   CNewtonEquationSet(CGeometry*, CSolver**, CNumerics***, CConfig*, const std::vector<unsigned short>& runtimes);
@@ -58,6 +59,11 @@ class CNewtonEquationSet : private CIntegration {
   const std::array<unsigned long, 4>& GetResidualEvaluations() const { return residualEvaluations; }
   /*! \brief Capture an accepted base after its residual/property refresh, fixing the scalar density factors. */
   void Capture();
+
+  /*! \brief Construct feasible perturbations a,b with a-b=direction on free coordinates. */
+  bool FeasibleProbes(const CSysVector<passivedouble>& direction, const CSysVector<passivedouble>& scale,
+                      double step, const std::vector<unsigned char>& free, CSysVector<passivedouble>& a,
+                      CSysVector<passivedouble>& b, bool& shifted);
 
   template <class Scalar>
   void BuildScales(CSysVector<Scalar>& scale, CSysVector<Scalar>& probe) const {
@@ -153,6 +159,6 @@ class CNewtonEquationSet : private CIntegration {
   bool Restore();
   /*! \brief Advance reconstruction iteration history once, after accepting a flow update. */
   void CommitHistory();
-  /*! \brief Collective maximum restoration error over all dependent solutions, iteration history and relaxation. */
+  /*! \brief Collective maximum restoration error over dependent state, row metadata, history and relaxation. */
   double GetRestorationError();
 };

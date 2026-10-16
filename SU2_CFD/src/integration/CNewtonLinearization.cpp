@@ -84,6 +84,7 @@ CNewtonLinearization::CNewtonLinearization(CNewtonEquationSet& e, CGeometry* g, 
 
 bool CNewtonLinearization::Apply(const Vector& u, Vector& v, bool pseudoTime, bool verifyStep) const {
   assert(scale && diagonal && u.GetNVar() == equations.GetnVar() && v.GetNVar() == equations.GetnVar());
+  assert(&u != &v);
   const bool refine = refineStep && verifyStep;
   double norm;
   if (physicalStep) {
@@ -103,7 +104,8 @@ bool CNewtonLinearization::Apply(const Vector& u, Vector& v, bool pseudoTime, bo
   for (auto i = 0ul; i < u.GetNElmDomain(); ++i) {
     if (!free[i] || u[i] == 0) continue;
     const double change = u[i] * (*scale)[i];
-    const double spacing = std::abs(std::nextafter(baseState[i], change > 0 ? INFINITY : -INFINITY) - baseState[i]);
+    const double spacing = std::max(std::abs(std::nextafter(baseState[i], INFINITY) - baseState[i]),
+                                    std::abs(std::nextafter(baseState[i], -INFINITY) - baseState[i]));
     resolution = std::max(resolution, std::abs(change) / spacing);
     // Zero gauge pressure and zero species are valid coordinates; use their physical scale for relative probes.
     const auto reference =
@@ -128,18 +130,42 @@ bool CNewtonLinearization::Apply(const Vector& u, Vector& v, bool pseudoTime, bo
     SU2_OMP_BARRIER
     return false;
   }
-  bool converged = false;
-  for (unsigned refinement = 0; refinement <= (refine ? 16u : 0u); ++refinement) {
-    // A rounded-away perturbation cannot establish a zero derivative.
-    if (stepResolution > 0 && h * stepResolution < 1) break;
-    equations.SetTrial(u, h, *scale, [&](const CNewtonEquationSet::Block& b, unsigned long p, unsigned short variable) {
+  auto probe = [&](double step) {
+    bool shifted = false;
+    if (!equations.FeasibleProbes(u, *scale, step, free, v, probeWork, shifted)) return false;
+    auto isFree = [&](const CNewtonEquationSet::Block& b, unsigned long p, unsigned short variable) {
       return free[p * equations.GetnVar() + b.offset + variable];
-    });
-    if (!equations.EvaluateResiduals(false, false, reconstruction)) break;
+    };
+    if (shifted) {
+      equations.SetTrial(probeWork, step, *scale, isFree);
+      if (!equations.EvaluateResiduals(false, false, reconstruction)) return false;
+      equations.CopyResidual(probeWork);
+    }
+    // Directions are no longer needed after SetTrial, so their storage can hold residuals.
+    equations.SetTrial(v, step, *scale, isFree);
+    if (!equations.EvaluateResiduals(false, false, reconstruction)) return false;
     equations.CopyResidual(v);
     SU2_OMP_FOR_STAT(1024)
+    for (auto i = 0ul; i < u.GetNElmDomain(); ++i)
+      v[i] = free[i] ? (v[i] - (shifted ? probeWork[i] : baseResidual[i])) / (step * (*scale)[i]) : u[i];
+    END_SU2_OMP_FOR
+    return true;
+  };
+  bool sampled = false;
+  for (auto attempt = 0u; attempt <= 16; ++attempt) {
+    if (stepResolution > 0 && std::abs(h) * stepResolution < 1) break;
+    if (probe(h)) { sampled = true; break; }
+    if (probe(-h)) { h = -h; sampled = true; break; }
+    h *= 0.5;
+  }
+  bool converged = false;
+  for (unsigned refinement = 0; sampled && refinement <= (refine ? 16u : 0u); ++refinement) {
+    // A rounded-away perturbation cannot establish a zero derivative.
+    if (stepResolution > 0 && std::abs(h) * stepResolution < 1) break;
+    if (refinement && !probe(h)) break;
+    SU2_OMP_FOR_STAT(1024)
     for (auto i = 0ul; i < u.GetNElmDomain(); ++i) {
-      const double fine = free[i] ? (v[i] - baseResidual[i]) / (h * (*scale)[i]) : u[i];
+      const double fine = v[i];
       if (refine) {
         v[i] = refinement ? 2 * fine - coarseProduct[i] : fine;
         coarseProduct[i] = fine;

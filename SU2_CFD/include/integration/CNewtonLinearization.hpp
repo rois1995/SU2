@@ -48,7 +48,7 @@ class CNewtonLinearization final : public CMatrixVectorProduct<passivedouble> {
   const Vector *scale = nullptr, *diagonal = nullptr, *probeReference = nullptr;
   const CNewtonPseudoTime* nativeMass = nullptr;
   Vector baseResidual, baseState;
-  mutable Vector coarseProduct, previousProduct;
+  mutable Vector coarseProduct, previousProduct, probeWork;
   std::vector<unsigned char> free;
   double absoluteStep = 0, relativeStep = 0, reconstruction = 1;
   bool physicalStep = false, refineStep = false;
@@ -81,7 +81,8 @@ class CNewtonLinearization final : public CMatrixVectorProduct<passivedouble> {
       SU2_OMP_FOR_STAT(1024)
       for (auto p = 0ul; p < geometry->GetnPoint(); ++p)
         for (auto v = 0u; v < block.variables; ++v)
-          free[p * equations.GetnVar() + block.offset + v] = isFree(block, p, v);
+          free[p * equations.GetnVar() + block.offset + v] =
+              isFree(block, p, v) && !block.solver->Jacobian.IsPrescribedRow(p, v);
       END_SU2_OMP_FOR
     }
     return true;

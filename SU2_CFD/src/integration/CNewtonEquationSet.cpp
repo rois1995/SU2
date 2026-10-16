@@ -64,7 +64,7 @@ CNewtonEquationSet::CNewtonEquationSet(CGeometry* g, CSolver** s, CNumerics*** n
     snapshots.push_back({solver, slot, count, std::vector<su2double>(entries), std::vector<su2double>(entries),
                          std::vector<su2double>(entries),
                          std::vector<su2double>(geometry->GetnPoint()), std::vector<su2double>(entries),
-                         std::vector<su2double>(entries)});
+                         std::vector<su2double>(entries), std::vector<unsigned char>(entries)});
   }
 }
 
@@ -81,6 +81,7 @@ void CNewtonEquationSet::Capture() {
         const auto i = p * snapshot.variables + v;
         snapshot.solution[i] = nodes->GetSolution(p, v);
         snapshot.oldSolution[i] = nodes->GetSolution_Old(p, v);
+        snapshot.prescribed[i] = snapshot.solver->Jacobian.IsPrescribedRow(p, v);
       }
     }
     END_SU2_OMP_FOR
@@ -92,6 +93,132 @@ void CNewtonEquationSet::Capture() {
   SU2_OMP_SAFE_GLOBAL_ACCESS(captured = true;)
 }
 
+bool CNewtonEquationSet::FeasibleProbes(const CSysVector<passivedouble>& direction,
+                                       const CSysVector<passivedouble>& scale, double step,
+                                       const std::vector<unsigned char>& free, CSysVector<passivedouble>& a,
+                                       CSysVector<passivedouble>& b, bool& shifted) {
+  assert(captured && step != 0 && free.size() == direction.GetLocSize());
+  const bool compressible = config->GetKind_Regime() == ENUM_REGIME::COMPRESSIBLE;
+  auto limits = [&](const Block& block, unsigned short v) {
+    auto bounds = block.solver->GetSolutionBounds(v);
+    if (block.slot == SPECIES_SOL && config->GetKind_FluidModel() == FLUID_MIXTURE) {
+      bounds.first = std::max(0.0, bounds.first);
+      bounds.second = std::min(1.0, bounds.second);
+    }
+    if (block.slot == FLOW_SOL && compressible && v == 0) bounds.first = 0;
+    return bounds;
+  };
+  auto inside = [&](const Block& block, unsigned short v, double value) {
+    const auto bounds = limits(block, v);
+    return Armijo::IsFinite(value) && value >= bounds.first && value <= bounds.second &&
+           (!(block.slot == FLOW_SOL && compressible && v == 0) || value > 0);
+  };
+  auto snapshot = [&](const Block& block) -> const Snapshot& {
+    return *std::find_if(snapshots.begin(), snapshots.end(),
+                         [&](const Snapshot& s) { return s.solver == block.solver; });
+  };
+  SU2_OMP_SAFE_GLOBAL_ACCESS(invalidCount = 0;)
+  double local = 0;
+  for (const auto& block : blocks) {
+    const auto& base = snapshot(block).solution;
+    const bool mixture = block.slot == SPECIES_SOL && config->GetKind_FluidModel() == FLUID_MIXTURE;
+    SU2_OMP_FOR_STAT(1024)
+    for (auto p = 0ul; p < geometry->GetnPointDomain(); ++p) {
+      double sum = 0;
+      for (auto v = 0u; v < block.variables; ++v) {
+        const auto j = block.offset + v;
+        const bool active = free[p * variables + j];
+        const double value = SU2_TYPE::GetValue(base[p * block.variables + v]) +
+                             (active ? step * direction(p, j) * scale(p, j) /
+                                           SU2_TYPE::GetValue(MassFactor(block, p)) : 0);
+        if (active && !inside(block, v, value)) local = 1;
+        if (mixture) sum += value;
+      }
+      if (mixture && sum > 1) local = 1;
+    }
+    END_SU2_OMP_FOR
+  }
+  atomicMax(local, invalidCount);
+  BEGIN_SU2_OMP_SAFE_GLOBAL_ACCESS {
+    double global = 0;
+    SU2_MPI::Allreduce(&invalidCount, &global, 1, MPI_DOUBLE, MPI_MAX, SU2_MPI::GetComm());
+    invalidCount = global;
+  }
+  END_SU2_OMP_SAFE_GLOBAL_ACCESS
+  shifted = invalidCount != 0;
+  a = direction;
+  if (!shifted) {
+    SU2_OMP_BARRIER
+    return true;
+  }
+  SU2_OMP_SAFE_GLOBAL_ACCESS(
+      if (b.GetLocSize() != direction.GetLocSize())
+        b.Initialize(geometry->GetnPoint(), geometry->GetnPointDomain(), variables, 0.0);
+      invalidCount = 0;)
+  b = passivedouble(0);
+  SU2_OMP_BARRIER
+  local = 0;
+  for (const auto& block : blocks) {
+    const auto& base = snapshot(block).solution;
+    const bool mixture = block.slot == SPECIES_SOL && config->GetKind_FluidModel() == FLUID_MIXTURE;
+    SU2_OMP_FOR_STAT(1024)
+    for (auto p = 0ul; p < geometry->GetnPointDomain(); ++p) {
+      const double mass = SU2_TYPE::GetValue(MassFactor(block, p));
+      for (auto v = 0u; v < block.variables; ++v) {
+        const auto j = block.offset + v;
+        if (!free[p * variables + j]) {
+          a(p, j) = 0;
+          continue;
+        }
+        const double value = SU2_TYPE::GetValue(base[p * block.variables + v]);
+        const double change = step * direction(p, j) * scale(p, j) / mass;
+        if (!inside(block, v, value + change)) {
+          a(p, j) = 0;
+          b(p, j) = -direction(p, j);
+          if (!inside(block, v, value - change)) local = 1;
+        }
+      }
+      if (!mixture) continue;
+      auto value = [&](const CSysVector<passivedouble>& probe, unsigned short v) {
+        return SU2_TYPE::GetValue(base[p * block.variables + v]) +
+               step * probe(p, block.offset + v) * scale(p, block.offset + v) / mass;
+      };
+      double sumA = 0, sumB = 0;
+      for (auto v = 0u; v < block.variables; ++v) {
+        sumA += value(a, v);
+        sumB += value(b, v);
+      }
+      double excess = std::max(sumA, sumB) - 1;
+      if (excess > 0) {
+        // A common inward shift preserves a-b while leaving room for the implicit last species.
+        excess += 32 * std::numeric_limits<double>::epsilon() * block.variables;
+        for (auto v = 0u; v < block.variables && excess > 0; ++v) {
+          const auto j = block.offset + v;
+          if (!free[p * variables + j]) continue;
+          const double capacity = 0.5 * std::max(0.0, std::min(value(a, v), value(b, v)) - limits(block, v).first);
+          const double inward = std::min(excess, capacity);
+          const double correction = inward * mass / (step * scale(p, j));
+          a(p, j) -= correction;
+          b(p, j) -= correction;
+          excess -= inward;
+        }
+        if (excess > 0) local = 1;
+      }
+    }
+    END_SU2_OMP_FOR
+  }
+  atomicMax(local, invalidCount);
+  BEGIN_SU2_OMP_SAFE_GLOBAL_ACCESS {
+    double global = 0;
+    SU2_MPI::Allreduce(&invalidCount, &global, 1, MPI_DOUBLE, MPI_MAX, SU2_MPI::GetComm());
+    invalidCount = global;
+  }
+  END_SU2_OMP_SAFE_GLOBAL_ACCESS
+  const bool feasible = invalidCount == 0;
+  SU2_OMP_BARRIER
+  return feasible;
+}
+
 void CNewtonEquationSet::RestoreSolutions() {
   assert(captured);
   SU2_OMP_FOR_STAT(1024)
@@ -100,12 +227,14 @@ void CNewtonEquationSet::RestoreSolutions() {
   END_SU2_OMP_FOR
   for (const auto& snapshot : snapshots) {
     auto* nodes = snapshot.solver->GetNodes();
+    snapshot.solver->Jacobian.ClearPrescribedRows();
     SU2_OMP_FOR_STAT(1024)
     for (auto p = 0ul; p < geometry->GetnPoint(); ++p) {
       for (auto v = 0u; v < snapshot.variables; ++v) {
         const auto i = p * snapshot.variables + v;
         nodes->SetSolution(p, v, snapshot.solution[i]);
         nodes->SetSolution_Old(p, v, snapshot.oldSolution[i]);
+        if (snapshot.prescribed[i]) snapshot.solver->Jacobian.MarkPrescribedRow(p, v);
       }
     }
     END_SU2_OMP_FOR
@@ -159,8 +288,7 @@ void CNewtonEquationSet::StrongState(unsigned short runtime) {
   InstallStrongValues(solvers[slot]);
 }
 
-bool CNewtonEquationSet::CheckState(bool compareFlow) {
-  // shortcut: Full model bounds and boundary transformations need validation before production group dispatch.
+bool CNewtonEquationSet::CheckState(bool compareFlow, bool modelBounds) {
   SU2_OMP_SAFE_GLOBAL_ACCESS(invalidCount = 0;)
   double local = 0;
   const auto* flow = solvers[FLOW_SOL]->GetNodes();
@@ -201,6 +329,10 @@ bool CNewtonEquationSet::CheckState(bool compareFlow) {
       for (auto v = 0u; v < block.variables; ++v) {
         const auto value = SU2_TYPE::GetValue(block.solver->GetNodes()->GetSolution(p, v));
         if (!Armijo::IsFinite(value)) local += 1;
+        if (modelBounds && !block.solver->Jacobian.IsPrescribedRow(p, v)) {
+          const auto bounds = block.solver->GetSolutionBounds(v);
+          if (!(value >= bounds.first && value <= bounds.second)) local += 1;
+        }
         if (block.slot == TURB_SOL && config->GetKind_Turb_Model() == TURB_MODEL::SST &&
             (v == 0 ? value < 0 : !(value > 0))) local += 1;
         if (block.slot == TRANS_SOL && (v == 0 ? value < 0 : !(value > 0))) local += 1;
@@ -285,7 +417,8 @@ bool CNewtonEquationSet::EvaluateResiduals(bool implicit, bool allEquations, dou
       for (auto v = 0u; v < nFlow; ++v) trialFlow[p * nFlow + v] = flow->GetSolution(p, v);
     END_SU2_OMP_FOR
     Refresh();
-    if (!CheckState(true)) return false;
+    // Exact strong data take precedence over numerical clipping floors.
+    if (!CheckState(true, true)) return false;
     SU2_OMP_SAFE_GLOBAL_ACCESS(invalidCount = 0;)
     double changed = 0;
     for (const auto& snapshot : snapshots) {
@@ -416,6 +549,8 @@ double CNewtonEquationSet::GetRestorationError() {
         const auto j = p * snapshot.variables + v;
         compare(nodes->GetSolution(p, v), snapshot.solution[j]);
         compare(nodes->GetSolution_Old(p, v), snapshot.oldSolution[j]);
+        if (snapshot.solver->Jacobian.IsPrescribedRow(p, v) != bool(snapshot.prescribed[j]))
+          local = std::max(local, 1.0);
       }
     }
     END_SU2_OMP_FOR

@@ -761,6 +761,7 @@ class CSysMatrix {
   bool IsPrescribedRow(unsigned long point, unsigned short variable) const {
     return !prescribedRows.empty() && prescribedRows[point * prescribedVariables + variable];
   }
+  bool TracksPrescribedRows() const { return !prescribedRows.empty(); }
   bool HasCoefficients() const { return mat.d != nullptr; }
 
   /*!

@@ -2481,6 +2481,319 @@ TEST_CASE("Newton merit and slopes retain the complete native mass action", "[Ne
   }
 }
 
+TEST_CASE("Native scalar updates preserve prescribed values before clipping", "[NewtonBounds]") {
+  const auto wallSpecies = species + "SPECIES_CLIPPING= YES\nSPECIES_CLIPPING_MIN= 0.1\n"
+                                     "SPECIES_CLIPPING_MAX= 0.9\nMARKER_WALL_SPECIES= (y_minus,VALUE,0)\n";
+  for (const auto& physics : {sa, sa + "SA_OPTIONS= NEGATIVE, WITHFT2\n", sst, wallSpecies})
+    for (bool explicitScalar : {false, true}) {
+      CAPTURE(physics, explicitScalar);
+      const bool transport = physics == wallSpecies;
+      Problem problem(physics + "CFL_NUMBER= 0.05\n" + (explicitScalar ?
+          (transport ? "TIME_DISCRE_SPECIES= EULER_EXPLICIT\n" : "TIME_DISCRE_TURB= EULER_EXPLICIT\n") : ""));
+      auto& driver = *problem.driver;
+      auto* geometry = driver.Geometry();
+      driver.OuterIteration();  // Exercise ordinary native tracking, without creating a Newton equation set.
+      const auto runtime = transport ? RUNTIME_SPECIES_SYS : RUNTIME_TURB_SYS;
+      auto* solver = driver.Solvers()[driver.Config()->GetContainerPosition(runtime)];
+      auto* nodes = solver->GetNodes();
+      std::vector<double> prescribed(geometry->GetnPointDomain() * solver->GetnVar());
+      for (auto p = 0ul; p < geometry->GetnPointDomain(); ++p)
+        for (auto v = 0u; v < solver->GetnVar(); ++v) {
+          const bool wall = geometry->nodes->GetSolidBoundary(p);
+          CHECK(solver->Jacobian.IsPrescribedRow(p, v) == wall);
+          if (wall) {
+            if (v == 0) {
+              CHECK(nodes->GetSolution(p, v) == 0);
+              nodes->SetSolution(p, v, 0);
+            }
+            prescribed[p * solver->GetnVar() + v] = nodes->GetSolution_Old(p, v);
+          } else {
+            const auto lower = solver->GetSolutionBounds(v).first;
+            nodes->SetSolution(p, v, lower >= 0 ? 0.5 * lower : -1e-8);
+            nodes->SetSolution_Old(p, v, nodes->GetSolution(p, v));
+          }
+        }
+      solver->LinSysSol = 0.0;
+      driver.Config()->SetGlobalParam(driver.Config()->GetKind_Solver(), runtime);
+      SU2_OMP_PARALLEL { solver->CompleteImplicitIteration(geometry, driver.Solvers(), driver.Config()); }
+      END_SU2_OMP_PARALLEL
+      for (auto p = 0ul; p < geometry->GetnPointDomain(); ++p)
+        for (auto v = 0u; v < solver->GetnVar(); ++v)
+          if (geometry->nodes->GetSolidBoundary(p))
+            CHECK(nodes->GetSolution(p, v) == prescribed[p * solver->GetnVar() + v]);
+          else
+            CHECK(nodes->GetSolution(p, v) == std::max(solver->GetSolutionBounds(v).first, -1e-8));
+    }
+}
+
+TEST_CASE("Newton admissibility uses model scalar bounds on free rows", "[NewtonBounds]") {
+  auto incSST = incompressible;
+  incSST.replace(incSST.find("INC_NAVIER_STOKES"), std::string("INC_NAVIER_STOKES").size(), "INC_RANS");
+  incSST += "KIND_TURB_MODEL= SST\n";
+  const auto dll = incSST + "SST_OPTIONS= DIMENSIONLESS_LIMIT\nLOWER_LIMIT_K_FACTOR= 0.2\n"
+                           "LOWER_LIMIT_OMEGA_FACTOR= 0.3\n";
+  const auto clipping = "SPECIES_CLIPPING= YES\nSPECIES_CLIPPING_MIN= 0.2\nSPECIES_CLIPPING_MAX= 0.6\n";
+  const auto passive = incompressible + "KIND_SCALAR_MODEL= SPECIES_TRANSPORT\nSPECIES_INIT= 0.4\n"
+                                      "DIFFUSIVITY_CONSTANT= 1e-5\n";
+  struct Profile {
+    std::string physics;
+    unsigned short runtime, variable;
+    bool lower, upper, signedValue;
+  };
+  const std::vector<Profile> profiles = {
+      {sa, RUNTIME_TURB_SYS, 0, true, false, false},
+      {sa + "SA_OPTIONS= NEGATIVE, WITHFT2\n", RUNTIME_TURB_SYS, 0, false, false, true},
+      {incSST, RUNTIME_TURB_SYS, 0, true, true, false},
+      {incSST, RUNTIME_TURB_SYS, 1, true, true, false},
+      {dll, RUNTIME_TURB_SYS, 0, true, true, false},
+      {dll, RUNTIME_TURB_SYS, 1, true, true, false},
+      {sst + "KIND_TRANS_MODEL= LM\n", RUNTIME_TRANS_SYS, 0, true, true, false},
+      {sst + "KIND_TRANS_MODEL= LM\n", RUNTIME_TRANS_SYS, 1, true, true, false},
+      {species + clipping, RUNTIME_SPECIES_SYS, 0, true, true, false},
+      {passive + "SPECIES_CLIPPING= YES\nSPECIES_CLIPPING_MIN= -0.2\nSPECIES_CLIPPING_MAX= 0.6\n",
+       RUNTIME_SPECIES_SYS, 0, true, true, true},
+      {passive + "SPECIES_CLIPPING= NO\n", RUNTIME_SPECIES_SYS, 0, false, false, true}};
+  for (const auto& profile : profiles)
+    for (bool selected : {false, true}) {
+      CAPTURE(profile.physics, profile.variable, selected);
+      Problem problem(profile.physics);
+      auto& driver = *problem.driver;
+      auto* geometry = driver.Geometry();
+      auto* solver = driver.Solvers()[driver.Config()->GetContainerPosition(profile.runtime)];
+      const auto bounds = solver->GetSolutionBounds(profile.variable);
+      auto equations = problem.Equations(selected ? std::vector<unsigned short>{RUNTIME_FLOW_SYS, profile.runtime}
+                                                  : std::vector<unsigned short>{RUNTIME_FLOW_SYS});
+      REQUIRE(Residual(*equations));
+      equations->Capture();
+      auto before = MakeVector(driver, equations->GetnVar()), after = before;
+      equations->Pack(before);
+      auto check = [&](double value, bool expected) {
+        CAPTURE(value, expected, bounds.first, bounds.second);
+        for (auto p = 0ul; p < geometry->GetnPoint(); ++p)
+          if (geometry->nodes->GetCoord(p, 0) == 0.5 && geometry->nodes->GetCoord(p, 1) == 0.5)
+            solver->GetNodes()->SetSolution(p, profile.variable, value);
+        CHECK(Residual(*equations) == expected);
+        REQUIRE(equations->Restore());
+        equations->Pack(after);
+        CHECK(MaxDifference(before, after) == 0);
+      };
+      if (profile.lower) {
+        check(bounds.first >= 0 ? 0.5 * bounds.first : bounds.first - 0.1, false);
+        check(bounds.first, true);
+      }
+      if (profile.upper) {
+        check(bounds.second + 0.01 * std::max(1.0, std::abs(bounds.second)), false);
+        check(bounds.second, true);
+      }
+      if (profile.signedValue) check(-1e-8, true);
+    }
+}
+
+TEST_CASE("Bounded scalar products retain the requested direction at mixed limits", "[NewtonBoundProbes]") {
+  Problem problem(incompressible + "KIND_SCALAR_MODEL= SPECIES_TRANSPORT\nSPECIES_INIT= 0.4\n"
+      "DIFFUSIVITY_CONSTANT= 1e-5\nSPECIES_CLIPPING= YES\nSPECIES_CLIPPING_MIN= 0.2\n"
+      "SPECIES_CLIPPING_MAX= 0.6\n");
+  auto& driver = *problem.driver;
+  auto* geometry = driver.Geometry();
+  auto* nodes = driver.Solvers()[SPECIES_SOL]->GetNodes();
+  auto equations = problem.Equations({RUNTIME_SPECIES_SYS});
+  REQUIRE(Residual(*equations));
+  equations->Capture();
+  auto scale = MakeVector(driver, equations->GetnVar(), 1.0), diagonal = MakeVector(driver, equations->GetnVar());
+  auto direction = diagonal;
+  for (auto p = 0ul; p < geometry->GetnPoint(); ++p)
+    direction(p, 0) = 0.1 * (1 + geometry->nodes->GetCoord(p, 0) + 0.3 * geometry->nodes->GetCoord(p, 1));
+  auto centered = [&](double h) {
+    auto positive = diagonal, negative = diagonal;
+    equations->SetTrial(direction, h, scale);
+    REQUIRE(Residual(*equations));
+    equations->CopyResidual(positive);
+    equations->SetTrial(direction, -h, scale);
+    REQUIRE(Residual(*equations));
+    equations->CopyResidual(negative);
+    for (auto i = 0ul; i < positive.GetLocSize(); ++i) positive[i] = (positive[i] - negative[i]) / (2 * h);
+    return positive;
+  };
+  const auto reference = centered(5e-5);
+  auto refinement = centered(1e-4);
+  refinement -= reference;
+  REQUIRE(reference.norm() > 0);
+  CHECK(refinement.norm() < 1e-8 * reference.norm());
+  REQUIRE(equations->Restore());
+  auto isFree = [](const CNewtonEquationSet::Block& block, unsigned long p, unsigned short v) {
+    return !block.solver->Jacobian.IsPrescribedRow(p, v);
+  };
+  for (const std::string pattern : {"interior", "lower", "upper", "mixed"}) {
+    for (auto p = 0ul; p < geometry->GetnPoint(); ++p) {
+      const bool high = pattern == "upper" || (pattern == "mixed" && geometry->nodes->GetCoord(p, 0) >= 0.5);
+      nodes->SetSolution(p, 0, pattern == "interior" ? 0.4 : high ? 0.6 : 0.2);
+      direction(p, 0) = (pattern == "lower" ? -0.1 : 0.1) *
+                       (1 + geometry->nodes->GetCoord(p, 0) + 0.3 * geometry->nodes->GetCoord(p, 1));
+    }
+    REQUIRE(Residual(*equations));
+    equations->Capture();
+    if (pattern != "interior") {
+      equations->SetTrial(direction, 1e-5, scale);
+      CHECK_FALSE(Residual(*equations));
+      REQUIRE(equations->Restore());
+      if (pattern == "mixed") {
+        equations->SetTrial(direction, -1e-5, scale);
+        CHECK_FALSE(Residual(*equations));
+        REQUIRE(equations->Restore());
+      }
+    }
+    for (bool verified : {false, true}) {
+      CAPTURE(pattern, verified);
+      CNewtonLinearization linearization(*equations, geometry, driver.Config());
+      auto actual = diagonal;
+      bool valid = false;
+      SU2_OMP_PARALLEL {
+        const bool base = linearization.SetBase(scale, diagonal, 1e-6, 1e-4, isFree, nullptr, 1.0, false, verified);
+        const bool product = base && linearization.Apply(direction, actual, false);
+        SU2_OMP_MASTER
+        valid = product;
+        END_SU2_OMP_MASTER
+      }
+      END_SU2_OMP_PARALLEL
+      CHECK(valid);
+      if (valid) {
+        const double sign = pattern == "lower" ? -1 : 1;
+        for (auto i = 0ul; i < actual.GetLocSize(); ++i) actual[i] -= sign * reference[i];
+        CHECK(actual.norm() < 2e-6 * reference.norm());
+      }
+      REQUIRE(equations->Restore());
+    }
+  }
+}
+
+TEST_CASE("Coupled mixture probes preserve directions at a simplex vertex", "[NewtonBoundProbes]") {
+  auto physics = species;
+  for (const auto& option : std::vector<std::pair<std::string, std::string>>{
+           {"SPECIES_INIT", "1,0"}, {"MOLECULAR_WEIGHT", "28.96,16.043,32"},
+           {"SPECIFIC_HEAT_CP", "1009.39,2225,1100"}, {"MU_CONSTANT", "1.8551e-5,1.1e-5,2e-5"},
+           {"PRANDTL_LAM", "0.72,0.72,0.72"}, {"PRANDTL_TURB", "0.9,0.9,0.9"}}) {
+    const auto start = physics.find(option.first + "=");
+    physics.replace(start, physics.find('\n', start) - start, option.first + "= " + option.second);
+  }
+  Problem problem(physics);
+  auto& driver = *problem.driver;
+  auto* geometry = driver.Geometry();
+  auto* flow = driver.Solvers()[FLOW_SOL]->GetNodes();
+  for (auto p = 0ul; p < geometry->GetnPoint(); ++p)
+    flow->SetSolution(p, 2, 0.02 * flow->GetSolution(p, 1));
+  auto equations = problem.Equations({RUNTIME_FLOW_SYS, RUNTIME_SPECIES_SYS});
+  REQUIRE(Residual(*equations));
+  equations->Capture();
+  auto scale = MakeVector(driver, equations->GetnVar()), reference = scale;
+  equations->BuildScales(scale, reference);
+  auto direction = MakeVector(driver, equations->GetnVar()), other = direction, diagonal = direction;
+  std::vector<unsigned char> free(direction.GetLocSize());
+  for (const auto& block : equations->GetBlocks())
+    for (auto p = 0ul; p < geometry->GetnPoint(); ++p)
+      for (auto v = 0u; v < block.variables; ++v) {
+        const auto j = block.offset + v;
+        free[p * equations->GetnVar() + j] = !block.solver->Jacobian.IsPrescribedRow(p, v);
+        if (!free[p * equations->GetnVar() + j]) continue;
+        direction(p, j) = block.slot == SPECIES_SOL ? 0.1 * (v + 1) : 0.01 * (v + 1);
+        other(p, j) = block.slot == SPECIES_SOL ? (v ? 0.05 : -0.15) : -0.5 * direction(p, j);
+      }
+  for (double h : {1e-5, 5e-6}) {
+    auto a = direction, b = direction, stateA = direction, stateB = direction;
+    bool valid = false, shifted = false;
+    SU2_OMP_PARALLEL {
+      bool moved = false;
+      const bool result = equations->FeasibleProbes(direction, scale, h, free, a, b, moved);
+      SU2_OMP_MASTER
+      valid = result;
+      shifted = moved;
+      END_SU2_OMP_MASTER
+    }
+    END_SU2_OMP_PARALLEL
+    REQUIRE(valid);
+    CHECK(shifted);
+    equations->SetTrial(a, h, scale);
+    REQUIRE(Residual(*equations));
+    equations->Pack(stateA);
+    equations->SetTrial(b, h, scale);
+    REQUIRE(Residual(*equations));
+    equations->Pack(stateB);
+    for (auto i = 0ul; i < stateA.GetNElmDomain(); ++i)
+      CHECK((stateA[i] - stateB[i]) / (h * scale[i]) == Approx(direction[i]).margin(1e-8));
+    REQUIRE(equations->Restore());
+  }
+  CNewtonLinearization linearization(*equations, geometry, driver.Config());
+  auto isFree = [&](const CNewtonEquationSet::Block& block, unsigned long p, unsigned short v) {
+    return free[p * equations->GetnVar() + block.offset + v] != 0;
+  };
+  auto apply = [&](const Vector& u) {
+    auto result = diagonal;
+    bool valid = false;
+    SU2_OMP_PARALLEL {
+      const bool base = linearization.SetBase(scale, diagonal, 1e-6, 1e-4, isFree, &reference, 1.0, false, true);
+      const bool product = base && linearization.Apply(u, result, false);
+      SU2_OMP_MASTER
+      valid = product;
+      END_SU2_OMP_MASTER
+    }
+    END_SU2_OMP_PARALLEL
+    REQUIRE(valid);
+    REQUIRE(equations->Restore());
+    return result;
+  };
+  auto sum = direction;
+  sum += other;
+  auto error = apply(direction), second = apply(other), expected = apply(sum);
+  error += second;
+  error -= expected;
+  for (const auto& block : equations->GetBlocks()) {
+    auto blockError = error, blockReference = expected;
+    for (auto p = 0ul; p < geometry->GetnPoint(); ++p)
+      for (auto j = 0u; j < equations->GetnVar(); ++j)
+        if (j < block.offset || j >= block.offset + block.variables) blockError(p, j) = blockReference(p, j) = 0;
+    REQUIRE(blockReference.norm() > 0);
+    INFO("runtime=" << block.runtime << ", relative additivity error=" << blockError.norm() / blockReference.norm());
+    CHECK(blockError.norm() < 2e-4 * blockReference.norm());
+  }
+}
+
+TEST_CASE("Newton trial restoration restores prescribed row metadata", "[NewtonBounds]") {
+  for (const auto& physics : {sa, sst, species}) {
+    CAPTURE(physics);
+    Problem problem(physics);
+    auto& driver = *problem.driver;
+    auto* geometry = driver.Geometry();
+    std::vector<unsigned short> selected{RUNTIME_FLOW_SYS};
+    for (auto slot : {TURB_SOL, SPECIES_SOL})
+      if (driver.Solvers()[slot]) selected.push_back(slot == TURB_SOL ? RUNTIME_TURB_SYS : RUNTIME_SPECIES_SYS);
+    auto equations = problem.Equations(selected);
+    REQUIRE(Residual(*equations));
+    equations->Capture();
+    std::vector<std::vector<unsigned char>> original;
+    for (const auto& block : equations->GetBlocks()) {
+      original.emplace_back(geometry->GetnPoint() * block.variables);
+      for (auto p = 0ul; p < geometry->GetnPoint(); ++p)
+        for (auto v = 0u; v < block.variables; ++v)
+          original.back()[p * block.variables + v] = block.solver->Jacobian.IsPrescribedRow(p, v);
+      SU2_OMP_PARALLEL { block.solver->Jacobian.ClearPrescribedRows(); }
+      END_SU2_OMP_PARALLEL
+      for (auto p = 0ul; p < geometry->GetnPoint(); ++p)
+        for (auto v = 0u; v < block.variables; ++v)
+          if (!original.back()[p * block.variables + v]) block.solver->Jacobian.MarkPrescribedRow(p, v);
+    }
+    auto zero = MakeVector(driver, equations->GetnVar()), scale = MakeVector(driver, equations->GetnVar(), 1.0);
+    equations->SetTrial(zero, 0, scale);
+    auto index = 0u;
+    for (const auto& block : equations->GetBlocks()) {
+      for (auto p = 0ul; p < geometry->GetnPointDomain(); ++p)
+        for (auto v = 0u; v < block.variables; ++v)
+          CHECK(block.solver->Jacobian.IsPrescribedRow(p, v) == (original[index][p * block.variables + v] != 0));
+      ++index;
+    }
+    REQUIRE(equations->Restore());
+    CHECK(equations->GetRestorationError() == 0);
+  }
+}
+
 TEST_CASE("Resolved Newton groups wait and resume without consuming startup", "[NewtonConvergence]") {
   for (bool coupled : {false, true})
     for (const std::string monitor : {"RMS_DENSITY,RMS_MOMENTUM-X,RMS_MOMENTUM-Y,RMS_ENERGY,RMS_NU_TILDE",

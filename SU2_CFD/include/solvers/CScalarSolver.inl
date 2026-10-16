@@ -114,6 +114,12 @@ template <class VariableType>
 void CScalarSolver<VariableType>::CommonPreprocessing(CGeometry *geometry, const CConfig *config, const bool Output) {
   SU2_ZONE_SCOPED
 
+  if (!Output) {
+    SU2_OMP_SAFE_GLOBAL_ACCESS(
+        if (!Jacobian.TracksPrescribedRows()) Jacobian.TrackPrescribedRows(nPoint, nVar);)
+    Jacobian.ClearPrescribedRows();
+  }
+
   /*--- Define booleans that are solver specific through CConfig's GlobalParams which have to be set in CFluidIteration
    * before calling these solver functions. ---*/
   const bool implicit = (config->GetKind_TimeIntScheme() == EULER_IMPLICIT);
@@ -563,6 +569,10 @@ void CScalarSolver<VariableType>::CompleteImplicitIteration(CGeometry* geometry,
         const su2double density = flowNodes->GetDensity(iPoint);
 
         for (unsigned short iVar = 0; iVar < nVar; iVar++) {
+          if (Jacobian.IsPrescribedRow(iPoint, iVar)) {
+            nodes->SetSolution(iPoint, iVar, nodes->GetSolution_Old(iPoint, iVar));
+            continue;
+          }
           nodes->AddClippedSolution(iPoint, iVar, nodes->GetUnderRelaxation(iPoint) * LinSysSol(iPoint, iVar),
                                     lowerlimit[iVar], upperlimit[iVar], density, density);
         }
@@ -572,6 +582,10 @@ void CScalarSolver<VariableType>::CompleteImplicitIteration(CGeometry* geometry,
       SU2_OMP_FOR_STAT(omp_chunk_size)
       for (unsigned long iPoint = 0; iPoint < nPointDomain; iPoint++) {
         for (unsigned short iVar = 0; iVar < nVar; iVar++) {
+          if (Jacobian.IsPrescribedRow(iPoint, iVar)) {
+            nodes->SetSolution(iPoint, iVar, nodes->GetSolution_Old(iPoint, iVar));
+            continue;
+          }
           nodes->AddClippedSolution(iPoint, iVar, nodes->GetUnderRelaxation(iPoint) * LinSysSol(iPoint, iVar),
                                     lowerlimit[iVar], upperlimit[iVar]);
         }

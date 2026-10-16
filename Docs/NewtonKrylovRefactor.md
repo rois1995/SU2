@@ -10,8 +10,118 @@ the native driver. A compatibility class remains for legacy execution modes
 outside this migration. Dense native pseudo-time mappings and explicit-flow
 preconditioning are supported. Converged matched comparisons now cover generated
 mean-flow, ordinary SA, SA-BC, SST, active LM and variable-density species
-fixtures. The full goal remains in progress: model bounds, near-bound finite
-differences, flamelet runtime and the conditional-feature audits below are open.
+fixtures. Model bounds and feasible near-bound probes now have focused native
+coverage. The full goal remains in progress: flamelet runtime and the
+conditional-feature and production-layout audits below are open.
+
+## Model bounds, exact strong values and feasible derivatives
+
+The common equation interface now checks each scalar solver's
+`GetSolutionBounds`, including dependent scalar systems outside the selected
+group. This covers standard versus signed SA, configured SST floors, LM's
+native intermittency upper bound of 5 and configured passive/species clipping.
+Mixture fractions additionally require nonnegative transported and implicit
+last fractions. Signed passive scalars and SA_NEG remain supported.
+
+Existing physical guards run before property evaluation. Model clipping bounds
+are checked after refreshing strong boundary data and their row metadata.
+Prescribed rows can therefore retain exact native boundary values below a
+numerical clipping floor, such as wall SA=0 or SST k=0. This does not exempt
+them from physical admissibility. The ordinary native scalar update now tracks
+these rows too and installs their prescribed `Solution_Old` exactly before
+clipping free unknowns. This matters because the existing clipping operation
+adds the correction to `Solution_Old`, not to the current solution. Merely
+skipping the update would leave SA's previous wall value in place.
+
+The conventional baseline changes accordingly. Sixteen matched two-update
+native runs cover implicit and explicit SA, signed SA, SST and clipped mixture
+species. Old SA walls were EPS, SST k walls were 1e-10 and prescribed species
+zero became the configured 0.1 floor. Corrected runs retain zero exactly;
+signed SA's already exact zero is a control. These runs demonstrate the
+boundary correction, not convergence. The original and corrected executables,
+configurations, restarts and hashes remain in
+`model_native_wall_before_after/` under the parent artifact directory.
+
+A single signed finite-difference step need not be feasible when different
+unknowns touch opposite bounds, or at a mixture simplex vertex. The derivative
+now constructs feasible endpoint directions `a,b` such that `a-b=u` on free
+coordinates and samples
+`(R(q+h*S*a)-R(q+h*S*b))/(h*S)`. Ordinary feasible forward probes still use
+the captured base residual. For active box bounds, each component uses the
+feasible side; mixture endpoints receive the same inward shift to leave room
+for the implicit last fraction. Coordinates use the captured scalar density
+factor, so varying mixture density does not change the requested difference.
+The requested direction is never clipped or projected. If both endpoints
+cannot fit, the existing bounded search reduces the step and can fail cleanly.
+Physical checks still validate each complete endpoint. Richardson refinement,
+Armijo and true linear-defect tolerances are unchanged. One extra vector is
+allocated lazily only when a shifted pair is needed.
+
+Trial snapshots now include prescribed-row metadata. Every trial restores it
+along with current and old solutions, and the rollback error includes mask
+differences. This prevents the final derivative probe's conditional boundary
+mask from changing the native correction at the accepted base state.
+
+Five focused native tests cover ordinary implicit/explicit clipping, selected
+and unselected model bounds, box-bound products against an independent centered
+linear-scalar reference, coupled variable-density mixture vertices, and row
+metadata rollback. Detecting runs separately retain 34/244 model-bound
+failures, 6/38 box-probe failures and 400/409 metadata-rollback failures.
+The corrected focused suite passes all 1558 assertions. The initial native
+test draft set only the current free value; that was an invalid clipping
+control because clipping reads `Solution_Old`. Its failures are retained but
+are not counted as independent detecting evidence.
+
+The first mixture additivity fixture put a velocity jump at exactly zero
+normal upwind velocity. Its flow additivity error was 6.54%, while its species
+error was 6.53e-9. That switch has no unique smooth linear derivative. The
+retained replacement uses nonzero crossflow, keeps the same 2e-4 test bound,
+and obtains flow/species additivity errors 2.56e-8/1.73e-8. Direct checks of
+the actual packed endpoint difference also verify the requested direction.
+The failed fixture, source and executable remain archived separately.
+
+All 42 native cases pass on 1x1 and 1x2 (51119 assertions), and on 2x2 and
+2x4 (32455/26819 assertions per rank). The 80 supported ordinary cases pass
+102273 assertions. Focused Valgrind passes 15 cases/8130 assertions with zero
+memory errors; leaks are unchecked. Restart-report, species-boundary and
+residual-failure CLI checks pass. Twelve affected production translation units,
+including all native scalar instantiations and CSysMatrix, pass forward syntax;
+this does not establish AD runtime support.
+
+All 36 matched converged comparisons pass on this final executable on 1x1/2x2.
+Outer counts remain MMS 67/69/69, SA 3327/2927/2927, SA-BC 3334/2933/2933,
+SST 3488/3058/3119, species 81/82/82 and LM 1416/1414/5615, in
+native/segregated/coupled order. Original physical and agreement thresholds are
+unchanged. Maximum independent state-scaled RMS is 1.189e-10; maximum
+within-family component/quantity difference is 8.493e-7/3.350e-7 (SA-BC).
+Direct layout comparisons give maxima 3.172e-10/2.915e-11. The corrected native
+baseline differs from the preceding native checkpoint by at most
+3.135e-8/7.606e-10; exact old-native parity is not claimed. Full measurements,
+criteria, work, per-rank resources and hashes are in
+`Docs/NewtonKrylovModelBoundsResults.json`. Timings increased even for native
+solves compared with the preceding session; these single samples do not isolate
+code-change cost. Coupled LM still takes more updates and work than native or
+segregated solving.
+
+The preserved Re=1000 LM native configuration also closes its independent
+residual gap. Identical configuration bytes and the same 2496 iterations now
+give Re-theta RMS 3.678e-13 instead of 1.084e-10. Every raw component is below
+1e-10 and every state-scaled component below 1.028e-11. Evaluating the old
+restart with the current reporter gives exactly its old physical report, so
+the change comes from the native prescribed-row correction, not the reporter.
+This isolates the shared correction as a whole; it does not separate wall-k
+clipping from other prescribed-value roundoff.
+
+A 125-point 3D flow/SST/LM/eight-scalar stress case exercises 17 combined
+variables and three genuine accepted updates on 1x1 under Valgrind and 2x2.
+Maximum true linear defects are 4.024e-7 and 6.990e-5, respectively, with
+finite restart fields and zero Valgrind errors. This is a buffer/execution
+check, not convergence evidence. The attempted 28-variable configuration is
+retained: after fixing its wall-option syntax, the existing native scalar
+edge-flux guard rejects 20 scalars because `MaxScalarVar=8`. No capacity was
+increased. CSysMatrix's separate 20-variable scratch limit applies per native
+matrix; the common operator packs its combined group dynamically. The native
+cap prevents a production group larger than 20 with these four equation types.
 
 ## Resolved groups during segregated convergence
 
