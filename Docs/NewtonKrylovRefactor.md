@@ -1,5 +1,49 @@
 # Common globalized Newton–Krylov refactor
 
+## Three-dimensional periodic flat-plate comparisons, 2026-10-16
+
+`compare_periodic_flatplate.py` extrudes the established flat-plate fixtures into
+a 9x9x3 box with a 0.2 span and translated periodic spanwise faces. Five degrees
+of SU2's three-dimensional angle of attack introduces crossflow parallel to the
+wall. Model selection uses `--model SA`, `SA_BC`, `SST` or `LM`; the usual binary,
+reporter, output, rank and thread arguments belong to the shared comparison
+runner. The mesh is generated, so no external mesh data are required.
+
+The restart reader now uses every spatial coordinate. Its former `(x,y)` keys
+silently reduced a 243-point three-dimensional restart to 81 entries. An explicit
+dimension and a uniqueness check retain all unknowns. Existing two-dimensional
+periodic restarts parse identically, and the full two-dimensional manufactured
+comparison still passes at 67/69/69 updates.
+`python3 TestCases/newton_krylov/check_restart_reader.py` independently checks
+binary record offsets and preserves two distinct spanwise points with identical
+`(x,y)` coordinates; the previous reader fails this regression.
+
+The common three-dimensional stop requires every active history RMS below
+`1e-12`, independently recomputed raw RMS below `1e-12` and normalized RMS below
+`1e-11`. State and quantity comparisons retain their `1e-6` limits. The initial
+SA trial at the weaker `1e-10` stop passed residual checks but failed state
+agreement with a density difference of about `1e-5`; that failure and its exact
+runner sources are retained separately. Tightening the common stopping criterion
+resolved the discrepancy without changing Newton acceptance tolerances.
+
+All six SA comparisons pass on 1x1 and 2x2 layouts: native/segregated/coupled
+update counts are 5294/4838/4838 on both. Maximum state difference from native is
+`1.03e-7`, with serial/MPI agreement within `3.6e-11`; periodic face copies agree
+exactly. All six flow/SST/LM comparisons also pass at 1961/1960/7799 updates on
+both layouts. Intermittency spans approximately 0.172 to 1.002, with 51 of 216
+sampled free points in the partially active band. State differences from native
+stay below `6.6e-10`, and serial/MPI differences below `8.9e-12`. Periodic face
+copies again agree exactly. Separate SA-BC and SST-only periodic fixtures are
+available but are not yet qualified by this matrix. Commands, source and binary
+hashes, counters, memory, physical residuals, quantities and failures are recorded
+in `Docs/NewtonKrylovPeriodicFlatplateResults.json`.
+
+These are coarse nonlinear-solver comparisons with translated periodic faces,
+not axis, rotational-periodic, transition-front accuracy or production speedup
+qualifications. Coupled LM retains the recovered CFL of five under these fixed
+CFL controls and needs substantially more updates than the other modes. The
+compiled Newton implementation is unchanged by this comparison work.
+
 ## Periodic preconditioning and resolved mass actions, 2026-10-16
 
 The periodic block preconditioner now applies

@@ -61,14 +61,19 @@ def rows(path):
                 for row in csv.DictReader(stream)]
 
 
-def state(path, expected_variables=6, expected_points=81):
+def state(path, expected_variables=6, expected_points=81, dimensions=2):
+    """Use every coordinate in the point key, including distinct spanwise periodic copies."""
+    assert dimensions in (2, 3) and expected_variables > dimensions
     with path.open('rb') as stream:
         magic, variables, points, _, _ = struct.unpack('5i', stream.read(20))
         assert magic == 535532 and variables == expected_variables and points == expected_points
         fields = [stream.read(33).split(b'\0')[0].decode() for _ in range(variables)]
         values = struct.unpack(str(points * variables) + 'd', stream.read(points * variables * 8))
     assert all(math.isfinite(value) for value in values)
-    return fields, {values[p:p + 2]: values[p + 2:p + variables] for p in range(0, len(values), variables)}
+    solution = {values[p:p + dimensions]: values[p + dimensions:p + variables]
+                for p in range(0, len(values), variables)}
+    assert len(solution) == points, 'Restart coordinates must identify each stored point uniquely'
+    return fields, solution
 
 
 def main(case=MMS_CASE):
@@ -87,7 +92,8 @@ def main(case=MMS_CASE):
     result = {'binary_sha256': sha(binary), 'reporter_sha256': sha(reporter),
               'runner_sha256': sha(Path(sys.argv[0]).resolve()), 'comparison_driver_sha256': sha(Path(__file__)),
               'report_script_sha256': sha(Path(__file__).with_name('report_state.py')),
-              'ranks': args.ranks, 'threads': args.threads, 'case': case['name'], 'limits': case['limits'], 'runs': [],
+              'ranks': args.ranks, 'threads': args.threads, 'dimensions': case.get('dimensions', 2),
+              'case': case['name'], 'limits': case['limits'], 'runs': [],
               'input_sha256': case.get('input_sha256', {}),
               'environment': {key: os.environ[key] for key in
                               ['TMPDIR', 'OMPI_MCA_orte_tmpdir_base', 'OMPI_MCA_io', 'OMP_WAIT_POLICY']
@@ -96,6 +102,7 @@ def main(case=MMS_CASE):
     selection = 'NEWTON_EQUATIONS= (' + ','.join(tags[system] for system in case['fields']) + ')\n'
     lower = 'NEWTON_BLOCK_LOWER= YES\n' if len(case['fields']) > 1 else ''
     variables = sum(len(names) for names in case['fields'].values())
+    dimensions = case.get('dimensions', 2)
     reference = None
     reference_quantities = None
     reference_activity = None
@@ -205,14 +212,14 @@ def main(case=MMS_CASE):
             run['transition_activity_difference_from_native'] = {
                 key: abs(activity[key] - reference_activity[key]) for key in ['gamma_min', 'gamma_max', 'gamma_mean']}
             assert max(run['transition_activity_difference_from_native'].values()) <= case['quantity_tolerance']
-        fields, solution = state(restart, 2 + variables, case.get('points', 81))
+        fields, solution = state(restart, dimensions + variables, case.get('points', 81), dimensions)
         if case.get('minimum_progress_range'):
-            j = fields[2:].index('ProgressVariable')
+            j = fields[dimensions:].index('ProgressVariable')
             values = [row[j] for row in solution.values()]
             run['progress_range'] = [min(values), max(values)]
             assert max(values) - min(values) >= case['minimum_progress_range']
         if case.get('minimum_species_range'):
-            indices = [j for j, name in enumerate(fields[2:]) if name.startswith('Species_')]
+            indices = [j for j, name in enumerate(fields[dimensions:]) if name.startswith('Species_')]
             assert len(indices) == len(case['fields']['species'])
             interior = [values for point, values in solution.items() if all(0 < x < 1 for x in point)]
             assert interior
