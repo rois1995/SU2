@@ -1,0 +1,261 @@
+{
+  "status": "IN_PROGRESS_NOT_WHOLE_CAMPAIGN_PASS",
+  "full_goal3_complete": false,
+  "production_commit": "bafb4d695490dd98a1f6df57700f480fdbd04da1",
+  "policy": "One owned nice19/threads1 task; MPI<=4, sequential native then independent case audit. Preserve failures and independent completed stages. No profiling/scaling claim from local runs.",
+  "planned": [
+    {
+      "case": "native_complete_v11",
+      "purpose": "original_target",
+      "ranks": 1
+    },
+    {
+      "case": "native_complete_mpi2_v11",
+      "purpose": "original_target",
+      "ranks": 2
+    },
+    {
+      "case": "native_complete_mpi4_v11",
+      "purpose": "original_target",
+      "ranks": 4
+    },
+    {
+      "case": "native_curved_volume_controls_v11",
+      "purpose": "thin_integration_controls",
+      "ranks": 1
+    },
+    {
+      "case": "native_curved_rans_n1_m1_v11",
+      "purpose": "actual_RANS",
+      "ranks": 1
+    },
+    {
+      "case": "native_core_rotated_mpi2_v11",
+      "purpose": "stronger_rotated",
+      "ranks": 2
+    },
+    {
+      "case": "native_core_rotated_mpi4_v11",
+      "purpose": "stronger_rotated",
+      "ranks": 4
+    },
+    {
+      "case": "native_core_varying_v11",
+      "purpose": "stronger_varying",
+      "ranks": 1
+    },
+    {
+      "case": "native_core_varying_mpi2_v11",
+      "purpose": "stronger_varying",
+      "ranks": 2
+    },
+    {
+      "case": "native_core_varying_mpi4_v11",
+      "purpose": "stronger_varying",
+      "ranks": 4
+    },
+    {
+      "case": "native_curved_rans_n2_m1_v11",
+      "purpose": "actual_RANS",
+      "ranks": 2
+    },
+    {
+      "case": "native_curved_rans_n2_m2_v11",
+      "purpose": "actual_RANS",
+      "ranks": 2
+    },
+    {
+      "case": "native_curved_rans_n4_m1_v11",
+      "purpose": "actual_RANS",
+      "ranks": 4
+    },
+    {
+      "case": "native_curved_rans_n4_m2_v11",
+      "purpose": "actual_RANS",
+      "ranks": 4
+    },
+    {
+      "case": "native_curved_rans_n4_m4_v11",
+      "purpose": "actual_RANS",
+      "ranks": 4
+    }
+  ],
+  "completed": {
+    "native_complete_v11": {
+      "native_receipt_sha256": "bb5fd72cbcf9a4709592450394b5e45e9ada30dc9d8c0483353616a5f49d84b6",
+      "audit_sha256": "40637097f8f64e23015f50c30691108fc665bb1bf31f64f11699fe9c96d31d91",
+      "native_summary": {
+        "valid": true,
+        "ranks": 1,
+        "cells": 836,
+        "q": 0.36309846567165843,
+        "j": 0.11217798662177733,
+        "maximum_full_length": 1.7744023509144322,
+        "work": 1098
+      },
+      "canonical": {
+        "mesh": "6a6f56180ee2af6eb6b4042104df75eb943726647b093601471ce37f1d622ec9",
+        "surface": "281d1ede96fb713da1779cb00e5b46985d3ab9939a88fe09234e6d52e5ef6098",
+        "source": "3fc751c983918329354ee38dcd0843f68fab28354d5b5089ede07e46e22d3c21"
+      }
+    },
+    "native_complete_mpi2_v11": {
+      "native_receipt_sha256": "3ec8d8f75a05610d7c8b1908cbc690973b5c5fb2df5b9ec2f50b140fae6f1fdd",
+      "audit_sha256": "b55220229a74cc17b98a225886b6ca0d89103f12229730c9dbe0c7da5b800983",
+      "native_summary": {
+        "valid": true,
+        "ranks": 2,
+        "cells": 836,
+        "q": 0.36309846567165843,
+        "j": 0.11217798662177733,
+        "maximum_full_length": 1.7744023509144322,
+        "work": 1098
+      },
+      "canonical": {
+        "mesh": "80a599a3efcd9337f04b4b7e5398102ffd6f708ee707e766a8b676d36a4aabc2",
+        "surface": "60e94542606bfb99c313328f725a117333c0e3de0c03a0a7c62149c869e8a0d5",
+        "source": "3fc751c983918329354ee38dcd0843f68fab28354d5b5089ede07e46e22d3c21"
+      }
+    },
+    "native_complete_mpi4_v11": {
+      "native_receipt_sha256": "deababcac1e50a1eb298d05e590bab5182527280556aa0b725a9f4e74e11e0ff",
+      "audit_sha256": "2921cb559f79f84a5c8be2c3e17341a7662e137fdead7db4396586ca84d13bf1",
+      "native_summary": {
+        "valid": true,
+        "ranks": 4,
+        "cells": 836,
+        "q": 0.36309846567165827,
+        "j": 0.11217798662177723,
+        "maximum_full_length": 1.7744023509144327,
+        "work": 1098
+      },
+      "canonical": {
+        "mesh": "80a599a3efcd9337f04b4b7e5398102ffd6f708ee707e766a8b676d36a4aabc2",
+        "surface": "60e94542606bfb99c313328f725a117333c0e3de0c03a0a7c62149c869e8a0d5",
+        "source": "3fc751c983918329354ee38dcd0843f68fab28354d5b5089ede07e46e22d3c21"
+      }
+    },
+    "native_curved_volume_controls_v11": {
+      "native_receipt_sha256": "e16985fa153d2d31950a7ea158d41cc9b11c4d83feb904c76abf936fcdb390a1",
+      "families": 3,
+      "assertions": 877746,
+      "independent_prism_value": 6.329535797822723,
+      "native_prism_value": 6.329533722492272
+    },
+    "native_curved_rans_n1_m1_v11": {
+      "native_receipt_sha256": "4facb6586c568a57b45cacd7388c1d5b5050c3285623cc7f93b869b6cf6e5d6e",
+      "independent_sha256": "8f917dfee9e8e2b67bc2b06f66b8ea7ad3336d7bc2cefbcf3d8ef74654fae19a",
+      "SA_replay": "sa_projection_replay_v20",
+      "SA_replay_receipt_sha256": "28c6b0403044b0b1f551f61509d17b54f622d5ed8912d6aef23803fc50966a17",
+      "meshes": [
+        {
+          "cells": 836,
+          "workers": 1,
+          "sensor_residual": 0,
+          "flow_change": 3.048523815377102,
+          "solve_seconds": 31.846419266999998,
+          "metric_seconds": 15.901994528999996,
+          "remesh_seconds": 18.436633230999995,
+          "replace_seconds": 0.023678554999989387,
+          "output_seconds": 0.12882461700000647
+        },
+        {
+          "cells": 48,
+          "workers": 1,
+          "sensor_residual": 0,
+          "flow_change": 3.4082430002165154,
+          "solve_seconds": 0.12058416099999647,
+          "metric_seconds": 0.048924892000002274,
+          "remesh_seconds": 1.5495831270000053,
+          "replace_seconds": 0.013651186000004145,
+          "output_seconds": 0.09375645599999416
+        }
+      ],
+      "flow_restart_residual": 0.0,
+      "SA_restart_residual": 0.0
+    },
+    "native_core_rotated_mpi2_v11": {
+      "native_receipt_sha256": "13178b649face4b80827809dc0f116d24e48f5196907735ae6a9ad9009c14bca",
+      "independent_sha256": "13a5c77136907ae6a4342c6ec83b74c03d794736d8f2f765927fe68aaaef008c",
+      "native_summary": {
+        "field": 2,
+        "regions": 2,
+        "work": 4056,
+        "cells": 3108,
+        "q": 0.4121001040607129,
+        "j": 0.15640245362209307,
+        "maximum_full_length": 1.6455054304780266,
+        "sensor_residual": 0,
+        "physical_sensor_samples": 2446,
+        "collar_sensor_samples": 662,
+        "collar_analytic_delta": 0
+      },
+      "independent_scope": "Complete native region, independently exact positive/oriented connected manifold geometry/every vertex link, no interior overlap, normal feet/height and analytic authority. Independent q/J arithmetic on exported actual-point tensors. Pure-core original P1 tensor and full-edge analytic integral independently checked where exact radial bounds prove the whole segment lies outside BL support. Remaining BL full lengths are native measurements, not independent whole-field quadrature. Frozen imposed sensor, not computed/graded CFD demand; no CFD transfer/restart/accuracy/general geometry/performance qualification."
+    },
+    "native_core_rotated_mpi4_v11": {
+      "native_receipt_sha256": "67c18687651bf90483057daaa6a5bc5167590fbccaa7c0d8c27c76cd0ddea951",
+      "independent_sha256": "013224086365e8fe50639f78a67ee0ea6de0966f3f82baba9871656bb95fa982",
+      "native_summary": {
+        "field": 2,
+        "regions": 2,
+        "work": 4056,
+        "cells": 3108,
+        "q": 0.4121001040607129,
+        "j": 0.15640245362209299,
+        "maximum_full_length": 1.645505430478027,
+        "sensor_residual": 0,
+        "physical_sensor_samples": 2446,
+        "collar_sensor_samples": 662,
+        "collar_analytic_delta": 0
+      },
+      "independent_scope": "Complete native region, independently exact positive/oriented connected manifold geometry/every vertex link, no interior overlap, normal feet/height and analytic authority. Independent q/J arithmetic on exported actual-point tensors. Pure-core original P1 tensor and full-edge analytic integral independently checked where exact radial bounds prove the whole segment lies outside BL support. Remaining BL full lengths are native measurements, not independent whole-field quadrature. Frozen imposed sensor, not computed/graded CFD demand; no CFD transfer/restart/accuracy/general geometry/performance qualification."
+    }
+  },
+  "current": null,
+  "limits": "Frozen-field stress controls and short RANS workflow do not prove arbitrary geometry, thin interacting/multiple fronts, viscous accuracy or affordability. Full Goal3 remains intact.",
+  "original_target_MPI_summary": {
+    "path": "original_target_mpi_v11.json",
+    "sha256": "b695ad34cfb2a142d88985d0fa38893a525f0726c09e13ab5a306277b0c9e28c"
+  },
+  "next": "native_core_varying_v11; no process has been launched for this case.",
+  "remaining": [
+    "native_core_varying_v11",
+    "native_core_varying_mpi2_v11",
+    "native_core_varying_mpi4_v11",
+    "native_curved_rans_n2_m1_v11",
+    "native_curved_rans_n2_m2_v11",
+    "native_curved_rans_n4_m1_v11",
+    "native_curved_rans_n4_m2_v11",
+    "native_curved_rans_n4_m4_v11"
+  ],
+  "milestone": {
+    "status": "COMPLETE_ACCEPTED_CURVED_MESH_UNDER_UNCHANGED_CONSTRAINTS",
+    "serial_case": "native_core_rotated_v10",
+    "MPI_cases": [
+      "native_core_rotated_mpi2_v11",
+      "native_core_rotated_mpi4_v11"
+    ],
+    "constraints": {
+      "height": 0.05,
+      "growth": 1.2,
+      "thickness": 0.2,
+      "fade": "unchanged",
+      "surface_tolerance": 0.04,
+      "wall_ceiling": 0.025,
+      "q_min": 0.2,
+      "J_min": 0.05,
+      "full_edge_limit": 1.8,
+      "work_limit": 4096,
+      "event_seconds": 300,
+      "noise": 0,
+      "P1_sensor": "original physical/collar donors unchanged",
+      "source_collar_ScaleCylinder": "unchanged"
+    },
+    "scope": "One complete cylindrical radial region with planar caps and a stronger original-P1 frozen field; independent full geometry and raw sensor audits, native full composed lengths plus independent pure-core lengths. Not full Goal3 completion."
+  },
+  "existing_runtime_sections": {
+    "path": "native_curved_rans_n1_m1_v11/reported_sections.json",
+    "sha256": "c7e19dcc133171a396c09f34e90aea414fbdbfc4c4148b2fd646b3463a9ba985",
+    "status": "DIAGNOSTIC_ONLY_NO_CFD_ONLY_RATIO_OR_SCALING_CLAIM"
+  }
+}

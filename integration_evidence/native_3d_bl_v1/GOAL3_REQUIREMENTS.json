@@ -100,10 +100,10 @@
     "wall_reconstruction_v1/joint_connectivity_summary.json"
   ],
   "execution_state": {
-    "status": "Stable shared AxisFrame geometry passes12/1014 and complete rotated3108/4056 mesh, with independent full geometry/height/raw sensor and pure-core metric audit. Identical original mesh/donors across rejections. Updated MPI/actual RANS/current+BDF/restart/wider geometry/performance pending. Full Goal3 ACTIVE.",
-    "CFD_runs": 11,
-    "CFD_run_scope": "Five corrected-config failed serial attempts v1..v5 plus six successful v6 N/M variants; initial invalid config retained separately.",
-    "production_MPI": "Prior907646e00e actual-flow N/M1/1,2/1,2/2,4/1,4/2,4/4 PASS in its old-source scope. Updated front/core MPI and actual workflow are pending.",
+    "status": "Complete stronger rotated3108-cell curved mesh passes serial/MPI2/MPI4 native and independent audit with unchanged gates. Current original target MPI1/2/4, thin controls and actual serial RANS lifecycle pass. Seven of15 current integration cases complete; varying-field and actual RANS MPI N/M remain. Full Goal3 ACTIVE/incomplete.",
+    "CFD_runs": 12,
+    "CFD_run_scope": "Five corrected-config failed serial attempts v1..v5 plus six successful v6 N/M variants and current n1_m1_v11; initial invalid config retained separately.",
+    "production_MPI": "Current-source original target and stronger rotated frozen field pass MPI1/2/4. Actual current-source RANS n1_m1_v11 passes; prior907646e00e actual-flow N/M1/1,2/1,2/2,4/1,4/2,4/4 retains old-source scope. Updated actual MPI lifecycle pending.",
     "independent_frames": 12
   },
   "coupled_engine_checkpoint": {
@@ -236,7 +236,7 @@
     "scope": "One planar cube production case plus six focused first-row geometry/movement cases. Actual computed metric, conservative current+BDF/bounded-SA and SU2/CGNS/reference/restart checks; independent exact embedding, full composed metric, wall footprint and height. No new MPI, full regressions, general layer coverage, actual CFD accuracy or performance qualification."
   },
   "owned_jobs": {
-    "status": "All owned builds/native cases/audits terminal. Controls v10 PASS12/1014, complete rotated v10 native+independent PASS. No cluster job/request."
+    "status": "All owned builds/native cases/independent audits terminal; no cluster job/request. Current campaign has7 completed and8 unlaunched cases."
   },
   "wall_reconstruction": {
     "status": "PASS_PLANAR_STRONGER_FIELD_LIMITED_SCOPE",
@@ -726,5 +726,6 @@
     "evidence": "region_construction_v1/global_edge_summary.json",
     "full_goal3_complete": false,
     "current_geometry_evidence": "region_construction_v1/rotated_geometry_summary.json"
-  }
+  },
+  "current_integration_campaign": "region_construction_v1/current_integration_v11.json"
 }

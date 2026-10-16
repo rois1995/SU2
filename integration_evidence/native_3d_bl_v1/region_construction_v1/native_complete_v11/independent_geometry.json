@@ -1,0 +1,36 @@
+{
+  "cells": 836,
+  "nodes": 269,
+  "volume": 3.084644957444493,
+  "exact_overlap_pairs": 15014,
+  "vertex_links": 269,
+  "wall_height_faces": 38,
+  "maximum_height_relative_error": 3.469446951953614e-15,
+  "maximum_authority_node_error": 1.1102230246251565e-16,
+  "maximum_wall_chord_sag": 0.013638696597277788,
+  "status": "PASS_EXACT_PUBLISHED_REGION_GEOMETRY_SCOPE_LIMITED",
+  "contract": {
+    "native_receipt_sha256": "bb5fd72cbcf9a4709592450394b5e45e9ada30dc9d8c0483353616a5f49d84b6",
+    "helpers": {
+      "integration_evidence/native_3d_bl_v1/region_construction_v1/audit_published_region.py": "e2e42978c57e636a7834c71cddeedc5c3970c240de67afea3a68d9ebddc07faf",
+      "integration_evidence/native_3d_bl_v1/region_construction_v1/audit_runtime_mesh.py": "ce4835aaae00628f9c9b1d04c486d4eb53e544fb2743074826d66e4c58ecf917",
+      "integration_evidence/native_3d_bl_v1/region_construction_v1/construct.py": "b605340df7090b54a0703fa5e6a97eec282d8eae61438e986e8b4579a7d5a1f7",
+      "integration_evidence/native_3d_core_v1/audit_cavities.py": "26079385c071c3ad1b9c06ab3b862b4ff293367dc3c8d291acf0487089d062c5",
+      "integration_evidence/native_3d_core_v1/audit_coupled.py": "1822427476ecb5687aaa06f3e7a3cc8f31cde53166fd0c711449eedf7c7c7a50",
+      "integration_evidence/native_3d_bl_v1/alignment_audit_v1/baseline.py": "5d068c56883bc966a332848b120e07d643a3015bae24671a366adf623d1be906"
+    },
+    "accepted_mesh_sha256": "28025e64323903ee41307c6b2439fe4ed5fb39f922081035bee09582a02544bb"
+  },
+  "native_metric_summary": {
+    "valid": true,
+    "ranks": 1,
+    "cells": 836,
+    "q": 0.36309846567165843,
+    "j": 0.11217798662177733,
+    "maximum_full_length": 1.7744023509144322,
+    "work": 1098
+  },
+  "unchanged_frozen_donors_and_reference": true,
+  "elapsed_seconds": 22.926307354005985,
+  "scope": "Whole native MPI-published difficult target: exact positive volumes, oriented connected manifold skin/every vertex link, no interior overlap, exact wall feet/height, analytic nodes/chords; frozen donors/reference identical. q/J and full composed edges were strictly remeasured natively, not independently re-integrated here. No actual CFD/transfer/restart/accuracy/performance qualification."
+}

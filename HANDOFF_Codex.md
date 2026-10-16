@@ -4,7 +4,16 @@ Worktree `/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated`, branch
 `codex/native-3d-bl`, Goal2 base `c43a8a3907ea2655e4ebbb6286ab16c3fa625d8b`.
 **Full Goal3 ACTIVE/incomplete.** Preserve its full
 [scope and gates](integration_evidence/native_3d_bl_v1/GOAL3_REQUIREMENTS.json).
-All owned builds/native cases/audits are terminal; no cluster job/request.
+Current campaign: original1402 target passes native+independent geometry MPI1/2/4
+(836 cells/q.36310/J.11218/L1.77440/work1098); source/input equivalent. Thin-volume
+controls pass3/877746. Actual current-source serial RANS/SA passes24->836->48,
+current/BDF conservation/SA-accounting, SU2/CGNS/restart and independent mesh/flow/
+SA replay_v20. Pressure sensor clips coarse; this is not viscous accuracy proof.
+Stronger rotated MPI2/4 now pass native+independent audits with3108 cells/4056 work,
+matching the serial accepted case. All owned builds/native cases/audits are terminal.
+Seven of15 current integration cases are complete; remaining varying-field and actual
+RANS MPI N/M cases are pending. No cluster job/request.
+[Resumable planned/current cases](integration_evidence/native_3d_bl_v1/region_construction_v1/current_integration_v11.json).
 Foreign `ClusterResults/`, AdapNoExt and dependencies remain untouched.
 
 ## Current complete curved-mesh milestone
@@ -40,8 +49,9 @@ Pressure sensors clip to the coarse bound; post-bounds SA has explicitly account
 solver-floor corrections and is not claimed exactly conserved.
 [Actual RANS evidence/limits](Handbook/GOAL3_CURVED_RANS_RUNTIME.md).
 
-Next qualify the original difficult target/current fields across MPI1/2/4 and then
-the updated actual RANS N=M/M<N transfer/output/restart workflow. Keep the full
+Next qualify the remaining varying-field MPI cases and updated actual RANS
+N=M/M<N transfer/output/restart workflow. Original-target and stronger-rotated
+MPI1/2/4 qualification is complete in its recorded scope. Keep the full
 Goal3 gates: high-ratio metric-driven multiple fronts, general/exterior/interacting
 regions, independent remaining BL integrals, composed-gradation limits, viscous/M6
 accuracy where practical, and complete adaptation/CFD lifecycle affordability.

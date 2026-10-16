@@ -1,0 +1,38 @@
+{
+  "cells": 3108,
+  "nodes": 740,
+  "volume": 3.094929331314494,
+  "exact_overlap_pairs": 84270,
+  "vertex_links": 740,
+  "wall_height_faces": 168,
+  "maximum_height_relative_error": 1.27675647831893e-14,
+  "maximum_authority_node_error": 3.3306690738754696e-16,
+  "maximum_wall_chord_sag": 0.01116917377487181,
+  "sensor_audit": "Exact rational containment and original P1 interpolation, physical priority over declared collar, all exported centroid sensors.",
+  "physical_sensor_samples": 2446,
+  "collar_sensor_samples": 662,
+  "maximum_exact_original_sensor_residual": 0.0,
+  "status": "PASS_COMPLETE_STRONGER_FIELD_CURVED_REGION_SCOPE_LIMITED",
+  "field": 2,
+  "regions": 2,
+  "work": 4056,
+  "minimum_q": 0.4121001040607129,
+  "minimum_j": 0.1564024536220931,
+  "maximum_native_tensor_shape_difference": 4.440892098500626e-16,
+  "maximum_native_full_length": 1.6455054304780266,
+  "pure_core_cells": 252,
+  "pure_core_edges": 466,
+  "maximum_pure_core_tensor_residual": 0.0,
+  "maximum_analytic_core_edge_residual": 1.9472260435201223e-16,
+  "exports": {
+    "core_accepted.su2": {
+      "sha256": "761ed2bc69382c614eb6015baa1226b72de1895e6c14a32eb294e8f3baca80b5",
+      "reference_sha256": "ccb12522c5268f198126741a35cf487209dec22ebf4a1fb32b9c2192d93dd03a",
+      "unmeshed_surface_faces": 0
+    }
+  },
+  "native_receipt_sha256": "13178b649face4b80827809dc0f116d24e48f5196907735ae6a9ad9009c14bca",
+  "helper_sha256": "c59a86f9ea39147b6457b7267c3391eb680566712ac27b61195c39a4a5656f7d",
+  "reused_geometry_helper_sha256": "ce4835aaae00628f9c9b1d04c486d4eb53e544fb2743074826d66e4c58ecf917",
+  "scope": "Complete native region, independently exact positive/oriented connected manifold geometry/every vertex link, no interior overlap, normal feet/height and analytic authority. Independent q/J arithmetic on exported actual-point tensors. Pure-core original P1 tensor and full-edge analytic integral independently checked where exact radial bounds prove the whole segment lies outside BL support. Remaining BL full lengths are native measurements, not independent whole-field quadrature. Frozen imposed sensor, not computed/graded CFD demand; no CFD transfer/restart/accuracy/general geometry/performance qualification."
+}

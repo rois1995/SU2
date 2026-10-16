@@ -148,3 +148,33 @@ Next validate original difficult construction/current fields across MPI1/2/4 and
 updated actual RANS N=M/M<N with transfer/reference/SU2/CGNS/restart. Reuse unaffected
 proof only with appropriate provenance. Full Goal3, high-ratio multi-front/exterior/
 interacting geometry and complete lifecycle affordability remain open.
+
+## Current integration checkpoint: complete accepted meshes
+
+The complete stronger rotated target now passes native and independent audits on
+MPI1/2/4 (serialv10, MPI2/4v11), with3108 cells/2 core regions/4056 work. qmin
+.412100104, Jmin.156402454 and full composed Lmax1.645505431 meet the unchanged
+q.20/J.05/L1.8/4096-work/300s gates. Height.05, growth1.2, thickness.2, fade,
+geometry.04 and wall ceiling.025 remain unchanged. All raw original-P1 centroid
+sensors match; exact whole embedding, links, wall feet/height and analytic geometry
+pass. This reaches the agreed complete curved-mesh milestone, not full Goal3.
+Remaining BL-edge lengths are measured natively; only pure-core full integrals are
+independent. Mesh bytes differ across ranks; matching constraints/results are not
+a bitwise-identity claim. There is no additional local construction fallback.
+
+The original1402-cell difficult protocol independently passes MPI1/2/4 with836
+accepted cells, and current-source serial actual RANS passes24->836->48 with
+current+BDF flow, explicitly accounted SA floor corrections, SU2/CGNS/reference
+reload and restart. Thin-volume controls pass3 families/877746 assertions. Seven
+of15 planned integration cases are complete; varying-field and actual RANS MPI
+N/M cases remain. See [resumable campaign](../integration_evidence/native_3d_bl_v1/region_construction_v1/current_integration_v11.json).
+
+The existing accepted serial RANS log has been summarized without another CFD run
+in `native_curved_rans_n1_m1_v11/reported_sections.json`. Native exclusive phase
+sums include partition/migration/communicator/return; nested metrics must not be
+added again. Reconstruction dominates that pilot's native construction clock,
+while complexity/gradation/audit dominates its metric clock. Reconstruction and
+metric subphases are not yet independently isolated. The fixture solve clock
+includes automatic metric calls, so it cannot establish a CFD-only ratio, scaling,
+speedup or unsteady affordability. These diagnostics do not replace the remaining
+full-goal geometry, interacting/high-ratio fronts, gradation and viscous checks.
