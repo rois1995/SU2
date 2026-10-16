@@ -1,0 +1,9 @@
+FIELD 0 32 128.33887043595314 {"complete": false, "cells": 32, "total_cells": 303359, "value": 80.13943224757087, "indicator": 0.06424538401861607, "evaluations": 70698, "limited_cells": 6, "unresolved_support": 0, "provenance_sha256": "5742876237933ce112a184d8d365db44ab7f0b25f5a5550bf8980e3f765399a9", "indicator_is_proven_bound": false}
+FIELD 32 32 88.66110342589673 {"complete": false, "cells": 64, "total_cells": 303359, "value": 231.71753257724262, "indicator": null, "evaluations": 186206, "limited_cells": 16, "unresolved_support": 2, "provenance_sha256": "5742876237933ce112a184d8d365db44ab7f0b25f5a5550bf8980e3f765399a9", "indicator_is_proven_bound": false}
+FIELD 64 30 53.058082810021006 {"complete": false, "cells": 94, "total_cells": 303359, "value": 353.8785307770966, "indicator": null, "evaluations": 285146, "limited_cells": 25, "unresolved_support": 2, "provenance_sha256": "5742876237933ce112a184d8d365db44ab7f0b25f5a5550bf8980e3f765399a9", "indicator_is_proven_bound": false}
+Traceback (most recent call last):
+  File "integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/field_run.py", line 70, in <module>
+    if __name__=='__main__':main()
+  File "integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/field_run.py", line 67, in main
+    if run.returncode or len(parts)!=len(records):raise RuntimeError('Incomplete block retained: '+str(case))
+RuntimeError: Incomplete block retained: /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/field_v2/batch000064

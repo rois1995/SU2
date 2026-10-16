@@ -5,6 +5,11 @@
  * SU2 is free software under the GNU Lesser General Public License, version 2.1 or later.
  */
 #include "TransferTestCase.hpp"
+#include "../../../SU2_CFD/include/drivers/CSinglezoneDriver.hpp"
+#include <fstream>
+#include <iomanip>
+#include <cstdlib>
+#include <map>
 #include "../../../Common/include/adaptation/CNativeRemesher3D.hpp"
 #include "../../../Common/include/adaptation/CNativeReferenceIO3D.hpp"
 #include "../../../SU2_CFD/include/output/CMeshOutput.hpp"
@@ -230,4 +235,54 @@ TEST_CASE("Native3D configured work and time ceilings preserve CFD and BDF donor
     CHECK(stats.refine.global_work+stats.coarsen.global_work<=2048);
     CHECK(stats.coarsen.work_limit==2048-stats.refine.global_work);
   }
+}
+
+
+TEST_CASE("Native3D remeshes an externally frozen original sensor field without advancing CFD", "[.][NativeFrozenVolume3D]") {
+  World world;
+  const auto* configFile=std::getenv("SU2_NATIVE_FROZEN_CONFIG");
+  const auto* sensorFile=std::getenv("SU2_NATIVE_FROZEN_SENSOR3D");
+  REQUIRE(configFile);REQUIRE(sensorFile);
+  class FrozenDriver : public CSinglezoneDriver {
+   public:
+    using CSinglezoneDriver::CSinglezoneDriver;
+    CConfig& Config(){return *config_container[ZONE_0];}
+    CGeometry& Geometry(){return *geometry_container[ZONE_0][INST_0][MESH_0];}
+    std::unique_ptr<CRemesher> Backend(){return MakeRemesher();}
+  };
+  FrozenDriver driver(const_cast<char*>(configFile),1,SU2_MPI::GetComm());
+  auto& geometry=driver.Geometry();REQUIRE(geometry.GetnDim()==3);
+  std::ifstream input(sensorFile,std::ios::binary);uint64_t count=0;input.read(reinterpret_cast<char*>(&count),8);
+  REQUIRE(count>0);REQUIRE(count<=10000000);
+  struct Record {std::array<double,3> x;std::array<double,9> m;};std::map<uint64_t,Record> original;
+  for(uint64_t k=0;k<count;++k) {
+    uint64_t id=0;Record r;input.read(reinterpret_cast<char*>(&id),8);
+    input.read(reinterpret_cast<char*>(r.x.data()),3*8);input.read(reinterpret_cast<char*>(r.m.data()),9*8);
+    REQUIRE(bool(input));REQUIRE(original.emplace(id,r).second);
+  }
+  REQUIRE(input.peek()==std::char_traits<char>::eof());
+  su2activematrix sensor(geometry.GetnPointDomain(),6);
+  for(unsigned long p=0;p<sensor.rows();++p) {
+    const auto found=original.find(geometry.nodes->GetGlobalIndex(p));REQUIRE(found!=original.end());
+    const auto& r=found->second;
+    for(unsigned j=0;j<3;++j)REQUIRE(SU2_TYPE::GetValue(geometry.nodes->GetCoord(p,j))==r.x[j]);
+    const unsigned upper[6]={0,1,2,4,5,8};for(unsigned j=0;j<6;++j)sensor(p,j)=r.m[upper[j]];
+  }
+  REQUIRE(world.sum(uint64_t(sensor.rows()))==count);
+  auto backend=driver.Backend();const auto* native=dynamic_cast<CNativeRemesher3D*>(backend.get());REQUIRE(native);
+  const auto start=SU2_MPI::Wtime();auto result=backend->Remesh(driver.Config(),geometry,sensor);
+  const auto elapsed=CPassiveComm::Allreduce(SU2_MPI::Wtime()-start,CPassiveComm::Op::MAX);
+  const auto& stats=native->Statistics();CHECK(stats.complete==(result.status==CRemeshResult::Status::COMPLETE));
+  if(world.rank==0) {
+    std::ofstream out("construction_result.json");out<<std::setprecision(17)
+      <<"{\"accepted\":"<<(stats.complete?"true":"false")<<",\"seconds\":"<<elapsed
+      <<",\"initial_cells\":"<<stats.initial_cells<<",\"final_cells\":"<<stats.final_cells
+      <<",\"workers\":"<<stats.workers<<",\"normalization_accuracy_established\":false,\"CFD_steps\":0}\n";
+    REQUIRE(bool(out));
+  }
+  if(stats.complete) {
+    MeshSolution candidate(&driver.Config(),result.slices,0);
+    CMeshOutput::WriteMesh(&driver.Config(),&candidate.Fine(),"frozen_geometry_accepted");
+  }
+  driver.Finalize();
 }

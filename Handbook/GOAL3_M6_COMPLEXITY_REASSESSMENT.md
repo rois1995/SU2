@@ -1,3 +1,7 @@
+Current status supersedes historical live-job notes below: reference stages are
+terminal; follow [uncertainty experiment](GOAL3_UNCERTAINTY_COMPLEXITY.md) for the
+current policy, construction failure and remaining requirements.
+
 # Goal3 — complete M6 frozen field and integration reassessment
 
 Full Goal3 ACTIVE/incomplete. Working branch codex/native-3d-bl. All physical

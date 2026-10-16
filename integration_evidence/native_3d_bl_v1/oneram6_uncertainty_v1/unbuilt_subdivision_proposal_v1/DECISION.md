@@ -1,0 +1,1 @@
+Withdrawn before compilation on 2026-10-16. User prioritizes uncertainty-aware normalization, distributed absolute-error work allocation, and geometry reuse before further subdivision. Includes an unvalidated conservative root-screening proposal; neither proposal is active. Historical completed subdivision results are retained separately.

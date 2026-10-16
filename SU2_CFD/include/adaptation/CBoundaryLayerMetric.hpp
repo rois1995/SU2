@@ -216,6 +216,17 @@ class CBoundaryLayerMetric {
       const std::array<std::array<double,3>,4>& tetrahedron, double bandRatio = 1.5,
       IntegrationDensity3D density = {}, bool* sensorDependent = nullptr);
 
+  struct ComplexityEstimate3D {
+    double value=0, indicator=0;
+    size_t evaluations=0, panels=0;
+    bool limited=false, unresolvedSupport=false;
+  };
+  /*! Bounded scalar estimate of the actual-query field. Indicator is heuristic, NOT an error bound.
+   *  An unsampled possible wall support has infinite uncertainty. Complete parent contributions
+   *  survive an exhausted refinement budget. No rule from this interface certifies a mesh. */
+  ComplexityEstimate3D EstimateComplexity3D(const std::array<std::array<double,3>,4>& tetrahedron,
+      IntegrationDensity3D density, size_t maximumEvaluations=8192);
+
   /*! Sorted chord parameters resolving every faceted-wall distance band in 2D/3D.
    *  Face/edge/vertex offset intersections detect a thin band even when both endpoints
    *  and the midpoint are outside it. Used with actual-point composition, never nodal BL tensors. */
@@ -230,6 +241,11 @@ class CBoundaryLayerMetric {
                    std::vector<WallReport>* reports = nullptr, bool useTangentialFloor = true);
 
  private:
+  std::vector<double> EdgeBreakpointsImpl(const std::array<double,3>& a,const std::array<double,3>& b,
+      double bandRatio,unsigned fadeBands,bool localFeatureCuts);
+  std::vector<IntegrationPoint3D> IntegrationRule3DImpl(
+      const std::array<std::array<double,3>,4>& tetrahedron, double bandRatio,
+      IntegrationDensity3D density, bool* sensorDependent, ComplexityEstimate3D* estimate, size_t maximumEvaluations);
   std::vector<IntegrationPoint2D> IntegrationRule2DImpl(
       const std::array<std::array<double, 2>, 3>& triangle, double bandRatio, unsigned depth);
   struct SupportFace3D {
@@ -245,10 +261,11 @@ class CBoundaryLayerMetric {
     bool collapsed=false;
   };
   std::vector<IntegrationPoint3D> IntegrationRule3DVisible(const std::array<std::array<double,3>,4>& tetrahedron,
-      const std::vector<SupportFace3D>& support,double bandRatio,const IntegrationDensity3D& density);
+      const std::vector<SupportFace3D>& support,double bandRatio,const IntegrationDensity3D& density,
+      ComplexityEstimate3D* estimate=nullptr, size_t maximumEvaluations=0);
   std::vector<IntegrationPoint3D> IntegrationColumns3D(const std::array<std::array<double,3>,4>& tetrahedron,
       const std::vector<Column3D>& columns,const std::vector<SupportFace3D>& support,double bandRatio,
-      const IntegrationDensity3D& density);
+      const IntegrationDensity3D& density, ComplexityEstimate3D* estimate=nullptr, size_t maximumEvaluations=0);
   struct WallData;
   void Build();
 

@@ -6042,3 +6042,17 @@ complete.157 stabilizes~1e-6;329/88 are being refined independently, not retarge
 These are independent quadrature checks using the native physical law, not an
 independent tensor implementation or rigorous enclosures. See current handbook
 Handbook/GOAL3_M6_COMPLEXITY_REASSESSMENT.md. Full Goal3 remains ACTIVE.
+
+
+2026-10-16 uncertainty experiment: completed independent difficult-cell references
+(88/329 order128,157 order72) show the raw integration indicator can underestimate
+actual error by1.91x. Integration-only subdivision is neither monotone in error nor
+uniformly cheaper. Conditioned scalar fan keeps complete positive estimates and
+explicit unresolved support, but the full frozen field is not integrated yet
+(159/303359 cells in300s; geometry-root preparation dominates some cells).
+An actual frozen first-trial M6 backend replay on4 ranks starts remeshing but
+rejects a composed edge integral during first-layer initialization; no accepted
+mesh or transfer follows. This is not a normalized-target or volume-integration
+success. Next priorities are uncertainty-aware scale solving, distributed absolute
+error and geometry reuse. Three-element30P30N coarse2D joins validation scope.
+See Handbook/GOAL3_UNCERTAINTY_COMPLEXITY.md for receipts and unchanged gates.

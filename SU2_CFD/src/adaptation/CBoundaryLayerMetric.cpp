@@ -1239,12 +1239,14 @@ bool MayIntersectWallBand(const BLTetrahedron& tet,const std::array<BLPoint3D,3>
   return true;
 }
 void SetBLSourceQuery(const BLTetrahedron& source,const SU2Native3D::Tetrahedron& positive,bool reversed,
-                      std::array<double,4>& parent,BLPoint3D& position) {
+                      std::array<double,4>& parent,BLPoint3D& position,
+                      double inwardScale=std::numeric_limits<double>::epsilon()) {
   for(auto w:parent)if(!std::isfinite(w) || w < -64*std::numeric_limits<double>::epsilon())
     throw std::runtime_error("Native3D BL integration has invalid original barycentrics.");
   const auto requested=parent;
   for(unsigned attempt=0;attempt<8;++attempt) {
-    const double inward=attempt?std::ldexp(std::numeric_limits<double>::epsilon(),attempt+3):0;
+    const double inward=attempt?std::ldexp(inwardScale,attempt+3):0;
+    if(inward>=.5)break;
     for(unsigned j=0;j<3;++j) {
       long double x=source[0][j];
       for(unsigned k=1;k<4;++k)x+=((1-inward)*requested[k]+inward*.25)*((long double)source[k][j]-source[0][j]);
@@ -1264,6 +1266,23 @@ void SetBLSourceQuery(const BLTetrahedron& source,const SU2Native3D::Tetrahedron
 
 std::vector<CBoundaryLayerMetric::IntegrationPoint3D> CBoundaryLayerMetric::IntegrationRule3D(
     const std::array<std::array<double,3>,4>& tetrahedron,double bandRatio,IntegrationDensity3D density,bool* sensorDependent) {
+  return IntegrationRule3DImpl(tetrahedron,bandRatio,std::move(density),sensorDependent,nullptr,0);
+}
+
+CBoundaryLayerMetric::ComplexityEstimate3D CBoundaryLayerMetric::EstimateComplexity3D(
+    const std::array<std::array<double,3>,4>& tetrahedron,IntegrationDensity3D density,size_t maximumEvaluations) {
+  if(!density || maximumEvaluations<64 || maximumEvaluations>65536)
+    throw std::invalid_argument("Invalid bounded native3D complexity control.");
+  ComplexityEstimate3D estimate;
+  IntegrationRule3DImpl(tetrahedron,1.5,std::move(density),nullptr,&estimate,maximumEvaluations);
+  if(!(estimate.value>0) || !std::isfinite(estimate.value) || std::isnan(estimate.indicator) || estimate.indicator<0)
+    throw std::runtime_error("Invalid bounded native3D complexity result.");
+  return estimate;
+}
+
+std::vector<CBoundaryLayerMetric::IntegrationPoint3D> CBoundaryLayerMetric::IntegrationRule3DImpl(
+    const std::array<std::array<double,3>,4>& tetrahedron,double bandRatio,IntegrationDensity3D density,
+    bool* sensorDependent,ComplexityEstimate3D* estimate,size_t maximumEvaluations) {
   if(nDim!=3 || !std::isfinite(bandRatio) || !(bandRatio>1))
     throw std::invalid_argument("Invalid native3D BL volume quadrature.");
   for(const auto& p:tetrahedron)for(auto x:p)if(!std::isfinite(x))
@@ -1310,6 +1329,27 @@ std::vector<CBoundaryLayerMetric::IntegrationPoint3D> CBoundaryLayerMetric::Inte
     if(!(value>0) || !std::isfinite(value))throw std::runtime_error("Native3D BL quadrature density is nonfinite/nonpositive.");
     return value;
   };
+  if(estimate && support.empty()) {
+    SU2Native3D::Tetrahedron source;for(unsigned k=0;k<4;++k)source[k]={tetrahedron[k][0],tetrahedron[k][1],tetrahedron[k][2]};
+    const bool reversed=SU2Native3D::Orientation(source[0],source[1],source[2],source[3])<0;
+    if(reversed)std::swap(source[1],source[2]);
+    const double volume=std::abs(BLDeterminant(tetrahedron[0],tetrahedron[1],tetrahedron[2],tetrahedron[3]))/6;
+    auto value=[&](std::array<double,4> b) {
+      BLPoint3D p{};SetBLSourceQuery(tetrahedron,source,reversed,b,p);
+      IntegrationPoint3D q{b,1,{}};++estimate->evaluations;return probe(q);
+    };
+    const double a=(5+3*std::sqrt(5.))/20,b=(5-std::sqrt(5.))/20;
+    double lower=0;for(unsigned i=0;i<4;++i){std::array<double,4> beta{{b,b,b,b}};beta[i]=a;lower+=volume*.25*value(beta);}
+    const double x3[3]={.5*(1-.77459666924148337704),.5,.5*(1+.77459666924148337704)},w3[3]={5./18,4./9,5./18};
+    const double x2[2]={.5*(1-.57735026918962576451),.5*(1+.57735026918962576451)};
+    for(unsigned i=0;i<3;++i)for(unsigned j=0;j<3;++j)for(unsigned k=0;k<2;++k) {
+      const auto u=x3[i],v=x3[j],w=x2[k];
+      estimate->value+=volume*3*u*u*v*w3[i]*w3[j]*value({1-u,u*(1-v),u*v*(1-w),u*v*w});
+    }
+    estimate->indicator=std::abs(estimate->value-lower);estimate->panels=1;return {};
+  }
+  // Scalar complexity needs a positive covering, not the strict projected-chart closure.
+  if(estimate)return IntegrationRule3DVisible(tetrahedron,support,bandRatio,probe,estimate,maximumEvaluations);
   // Positive radial fans avoid a spherical silhouette in parallel-chord coordinates.
   SU2Native3D::Tetrahedron fanSource;
   for(unsigned k=0;k<4;++k)fanSource[k]={tetrahedron[k][0],tetrahedron[k][1],tetrahedron[k][2]};
@@ -1420,7 +1460,7 @@ std::vector<CBoundaryLayerMetric::IntegrationPoint3D> CBoundaryLayerMetric::Inte
   std::vector<IntegrationPoint3D> rule;
   if(!hiddenSupport) {
     if(sensorDependent)*sensorDependent=bool(density);
-    return IntegrationRule3DVisible(tetrahedron,support,bandRatio,probe);
+    return IntegrationRule3DVisible(tetrahedron,support,bandRatio,probe,estimate,maximumEvaluations);
   }
   SU2Native3D::Tetrahedron originalSource;
   for(unsigned k=0;k<4;++k)originalSource[k]={tetrahedron[k][0],tetrahedron[k][1],tetrahedron[k][2]};
@@ -1755,12 +1795,12 @@ std::vector<CBoundaryLayerMetric::IntegrationPoint3D> CBoundaryLayerMetric::Inte
     }
     columns.push_back(std::move(column));
   }
-  return IntegrationColumns3D(tetrahedron,columns,support,bandRatio,probe);
+  return IntegrationColumns3D(tetrahedron,columns,support,bandRatio,probe,estimate,maximumEvaluations);
 }
 
 std::vector<CBoundaryLayerMetric::IntegrationPoint3D> CBoundaryLayerMetric::IntegrationRule3DVisible(
     const BLTetrahedron& tetrahedron,const std::vector<SupportFace3D>& support,double bandRatio,
-    const IntegrationDensity3D& density) {
+    const IntegrationDensity3D& density,ComplexityEstimate3D* estimate,size_t maximumEvaluations) {
   unsigned opposite=0;double best=std::numeric_limits<double>::infinity();
   for(unsigned short wall=0;wall<walls.size();++wall)if(data[wall]->adt) {
     std::array<double,4> distances;
@@ -1778,12 +1818,12 @@ std::vector<CBoundaryLayerMetric::IntegrationPoint3D> CBoundaryLayerMetric::Inte
     for(unsigned j=0;j<3;++j)column.projection[next][j]=tetrahedron[k][j]-tetrahedron[opposite][j];
     ++next;
   }
-  return IntegrationColumns3D(tetrahedron,{column},support,bandRatio,density);
+  return IntegrationColumns3D(tetrahedron,{column},support,bandRatio,density,estimate,maximumEvaluations);
 }
 
 std::vector<CBoundaryLayerMetric::IntegrationPoint3D> CBoundaryLayerMetric::IntegrationColumns3D(
     const BLTetrahedron& tetrahedron,const std::vector<Column3D>& charts,const std::vector<SupportFace3D>& support,
-    double bandRatio,const IntegrationDensity3D& probe) {
+    double bandRatio,const IntegrationDensity3D& probe,ComplexityEstimate3D* estimate,size_t maximumEvaluations) {
   using Triangle=std::array<std::array<double,4>,3>;
   SU2Native3D::Tetrahedron originalSource;
   for(unsigned k=0;k<4;++k)originalSource[k]={tetrahedron[k][0],tetrahedron[k][1],tetrahedron[k][2]};
@@ -1824,6 +1864,148 @@ std::vector<CBoundaryLayerMetric::IntegrationPoint3D> CBoundaryLayerMetric::Inte
   const double comparisonWeights[12]={.116786275726379,.116786275726379,.116786275726379,
       .050844906370207,.050844906370207,.050844906370207,
       .082851075618374,.082851075618374,.082851075618374,.082851075618374,.082851075618374,.082851075618374};
+  if(estimate) {
+    // Only complete coverings are published; a failed child transaction leaves its parent intact.
+    struct WorkLimit {};
+    auto evaluate=[&](IntegrationPoint3D& point) {
+      if(estimate->evaluations==maximumEvaluations)throw WorkLimit{};
+      ++estimate->evaluations;return probe(point);
+    };
+    long double coordinateScale=0,minimumAltitude=std::numeric_limits<long double>::infinity();
+    const auto determinant=std::abs(BLDeterminant(tetrahedron[0],tetrahedron[1],tetrahedron[2],tetrahedron[3]));
+    for(const auto& p:tetrahedron)for(auto x:p)coordinateScale=std::max(coordinateScale,std::abs((long double)x));
+    for(unsigned f=0;f<4;++f) {
+      long double u[3],v[3];for(unsigned j=0;j<3;++j) {
+        u[j]=(long double)tetrahedron[(f+2)%4][j]-tetrahedron[(f+1)%4][j];
+        v[j]=(long double)tetrahedron[(f+3)%4][j]-tetrahedron[(f+1)%4][j];
+      }
+      const auto area=std::hypot(u[1]*v[2]-u[2]*v[1],u[2]*v[0]-u[0]*v[2],u[0]*v[1]-u[1]*v[0]);
+      minimumAltitude=std::min(minimumAltitude,determinant/area);
+    }
+    const double inwardScale=double(std::numeric_limits<double>::epsilon()*std::max(1.L,coordinateScale/minimumAltitude));
+    auto position=[&](std::array<double,4>& b) {
+      BLPoint3D p{};SetBLSourceQuery(tetrahedron,originalSource,reversed,b,p,inwardScale);return p;
+    };
+    const double volume=std::abs(BLDeterminant(tetrahedron[0],tetrahedron[1],tetrahedron[2],tetrahedron[3]))/6;
+    // A complete positive fallback is retained only with infinite uncertainty if band seeding cannot finish.
+    const double qa=(5+3*std::sqrt(5.))/20,qb=(5-std::sqrt(5.))/20;
+    double seed=0;
+    for(unsigned i=0;i<4;++i) {
+      std::array<double,4> b{{qb,qb,qb,qb}};b[i]=qa;const auto p=position(b);
+      IntegrationPoint3D q{b,volume/4,SamplePoints({p[0],p[1],p[2]})};seed+=q.weight*evaluate(q);
+    }
+    struct ScalarPanel {
+      size_t chart;Triangle triangle;double fraction,value=0,error=0;unsigned depth;
+      bool unresolved=false;std::array<double,3> vertexValues{};
+    };
+    auto sample=[&](ScalarPanel& panel,bool fine,std::vector<bool>& sampled,double& radialError) {
+      const auto& chart=charts[panel.chart];double value=0;
+      for(unsigned at=0;at<(fine?7u:12u);++at) {
+        std::array<double,3> angular{};
+        for(unsigned j=0;j<3;++j)for(unsigned k=0;k<3;++k)
+          angular[j]+=panel.triangle[k][j]*(fine?faceBary[at][k]:comparisonBary[at][k]);
+        std::array<double,4> entry{},exit{};
+        for(unsigned k=0;k<4;++k)for(unsigned j=0;j<3;++j) {
+          entry[k]+=angular[j]*chart.entry[j][k];exit[k]+=angular[j]*chart.exit[j][k];
+        }
+        BLPoint3D start{},end{};
+        for(unsigned j=0;j<3;++j) {
+          long double a=tetrahedron[0][j],b=a;
+          for(unsigned k=1;k<4;++k) {
+            const long double delta=(long double)tetrahedron[k][j]-tetrahedron[0][j];
+            a+=(long double)entry[k]*delta;b+=(long double)exit[k]*delta;
+          }
+          start[j]=double(a);end[j]=double(b);
+        }
+        long double length=0;for(unsigned j=0;j<3;++j)length+=angular[j]*chart.axial[j];
+        if(!(length>0))throw std::runtime_error("Nonpositive bounded-complexity chord.");
+        const auto jacobian=chart.area*panel.fraction*length*(fine?faceWeights[at]:comparisonWeights[at]);
+        const auto cuts=start==end?std::vector<double>{0,1}:EdgeBreakpointsImpl(start,end,2.,4,true);
+        double ray=0;
+        for(size_t k=1;k<cuts.size();++k) {
+          double sums[2]={};const double half=.5*(cuts[k]-cuts[k-1]),center=.5*(cuts[k]+cuts[k-1]);
+          for(unsigned order:{3u,5u})for(unsigned g=0;g<order;++g) {
+            const double t=center+half*(order==3?gauss3[g]:gauss[g]);std::array<double,4> parent{};
+            for(unsigned j=0;j<4;++j)parent[j]=(1-t)*entry[j]+t*exit[j];
+            const auto p=position(parent);
+            const double weight=double(jacobian*half*(chart.collapsed?(1-t)*(1-t):1)*(order==3?weights3[g]:weights[g]));
+            if(!(weight>0) || !std::isfinite(weight))throw std::runtime_error("Invalid bounded-complexity weight.");
+            IntegrationPoint3D q{parent,weight,SamplePoints({p[0],p[1],p[2]})};
+            for(const auto& s:q.samples)sampled[s.wall]=true;
+            sums[order==5]+=weight*evaluate(q);
+          }
+          radialError+=std::abs(sums[1]-sums[0]);ray+=sums[1];
+        }
+        value+=ray;
+        if(fine && at>=4)panel.vertexValues[at-4]=ray/double(chart.area*panel.fraction*faceWeights[at]);
+      }
+      return value;
+    };
+    auto build=[&](size_t chart,const Triangle& triangle,double fraction,unsigned depth) {
+      ScalarPanel p{chart,triangle,fraction,0,0,depth};std::vector<bool> sampled(walls.size(),false);
+      double radialError=0;p.value=sample(p,true,sampled,radialError);
+      const auto comparison=sample(p,false,sampled,radialError);p.error=std::abs(p.value-comparison)+radialError;
+      // Preserve the existing geometric guard against agreement of two rules that miss a thin footprint.
+      std::array<BLPoint3D,6> boundary{};
+      for(unsigned side=0;side<2;++side)for(unsigned v=0;v<3;++v)for(unsigned k=0;k<4;++k)for(unsigned j=0;j<3;++j)
+        for(unsigned t=0;t<3;++t)boundary[3*side+v][j]+=triangle[v][t]*(side?charts[chart].exit[t][k]:charts[chart].entry[t][k])*tetrahedron[k][j];
+      const std::array<BLTetrahedron,3> regions{{{boundary[0],boundary[1],boundary[2],boundary[5]},
+        {boundary[0],boundary[1],boundary[4],boundary[5]},{boundary[0],boundary[3],boundary[4],boundary[5]}}};
+      for(const auto& f:support)if(!sampled[f.wall])for(const auto& r:regions) {
+        if(BLDeterminant(r[0],r[1],r[2],r[3])==0)continue;
+        const auto& w=walls[f.wall];
+        p.unresolved=p.unresolved || (w.authority?MayIntersectSmoothBand(r,*w.authority,w.authority_facet,SU2_TYPE::GetValue(data[f.wall]->thickness)):
+            MayIntersectWallBand(r,f.vertices,f.thickness*(1-1e-12)));
+      }
+      return p;
+    };
+    std::vector<ScalarPanel> panels;
+    const Triangle initial{{{{1,0,0,0}},{{0,1,0,0}},{{0,0,1,0}}}};
+    try {for(size_t c=0;c<charts.size();++c)panels.push_back(build(c,initial,1.,0));}
+    catch(const WorkLimit&) {
+      estimate->value=seed;estimate->indicator=std::numeric_limits<double>::infinity();
+      estimate->limited=estimate->unresolvedSupport=true;return {};
+    }
+    auto publish=[&]() {
+      estimate->value=estimate->indicator=0;estimate->unresolvedSupport=false;estimate->panels=panels.size();
+      for(const auto& p:panels) {
+        estimate->value+=p.value;estimate->indicator+=p.error;estimate->unresolvedSupport|=p.unresolved;
+      }
+      if(estimate->unresolvedSupport)estimate->indicator=std::numeric_limits<double>::infinity();
+    };
+    for(;;) {
+      publish();
+      if(!estimate->unresolvedSupport && estimate->indicator<=1e-3*estimate->value)break;
+      size_t selected=0;double worst=-1;
+      for(size_t i=0;i<panels.size();++i) {
+        const auto error=panels[i].unresolved?std::numeric_limits<double>::infinity():panels[i].error;
+        if(error>worst){worst=error;selected=i;}
+      }
+      const auto parent=panels[selected];
+      if(parent.depth==32){estimate->limited=true;break;}
+      unsigned first=0,last=1;double difference=0;
+      for(unsigned i=0;i<3;++i)for(unsigned j=i+1;j<3;++j) {
+        double score=std::abs(parent.vertexValues[i]-parent.vertexValues[j]);
+        if(parent.unresolved) {
+          score=0;for(unsigned d=0;d<3;++d) {
+            long double delta=0;for(unsigned k=0;k<3;++k)delta+=((long double)parent.triangle[i][k]-parent.triangle[j][k])*charts[parent.chart].projection[k][d];
+            score+=double(delta*delta);
+          }
+        }
+        if(score>difference){difference=score;first=i;last=j;}
+      }
+      auto a=parent.triangle,b=a;std::array<double,4> middle{};
+      for(unsigned k=0;k<4;++k)middle[k]=.5*(a[first][k]+a[last][k]);
+      if(middle==a[first] || middle==a[last]){estimate->limited=true;break;}
+      a[first]=middle;b[last]=middle;
+      try {
+        auto left=build(parent.chart,a,.5*parent.fraction,parent.depth+1);
+        auto right=build(parent.chart,b,.5*parent.fraction,parent.depth+1);
+        panels[selected]=std::move(left);panels.push_back(std::move(right));
+      }catch(const WorkLimit&){estimate->limited=true;break;}
+    }
+    publish();return {};
+  }
   size_t retained=rule.size(),nextPanel=0;
   double totalValue=0,totalError=0;
   auto integrate=[&](const Column3D& chart,const Triangle& triangle,double fraction,bool fine,std::vector<IntegrationPoint3D>& points,double& radialError,std::array<double,3>* vertexValues=nullptr) {
@@ -1991,6 +2173,11 @@ std::vector<CBoundaryLayerMetric::IntegrationPoint3D> CBoundaryLayerMetric::Inte
 
 std::vector<double> CBoundaryLayerMetric::EdgeBreakpoints(
     const std::array<double, 3>& a, const std::array<double, 3>& b, double bandRatio, unsigned fadeBands) {
+  return EdgeBreakpointsImpl(a,b,bandRatio,fadeBands,false);
+}
+
+std::vector<double> CBoundaryLayerMetric::EdgeBreakpointsImpl(
+    const std::array<double,3>& a,const std::array<double,3>& b,double bandRatio,unsigned fadeBands,bool localFeatureCuts) {
   if (!std::isfinite(bandRatio) || !(bandRatio > 1.0) || !fadeBands || fadeBands>256)
     throw std::invalid_argument("Invalid native BL edge band ratio/fade partition.");
   using Vector = std::array<long double, 3>;
@@ -2142,26 +2329,46 @@ std::vector<double> CBoundaryLayerMetric::EdgeBreakpoints(
     std::vector<unsigned long> faces;
     d.adt->DetermineIntersectingElements(low,high,faces);
     std::sort(faces.begin(),faces.end());
+    const auto globalRoot=validRoot;
     for (const auto face : faces) {
       const unsigned count = nDim == 2 ? 2 : 3;
       Vector x[3]{};
       for (unsigned k = 0; k < count; ++k)
         for (unsigned j = 0; j < nDim; ++j)
           x[k][j] = SU2_TYPE::GetValue(walls[wall].coord[nDim*d.elem[count*face+k]+j]);
-      // All feature roots are retained; extra cuts are harmless and avoid fragile Voronoi predicates.
+      double featureLevel=0;
+      if(localFeatureCuts && nDim==3)validRoot=[&,globalRoot](double t) {
+        su2double p[3],vertices[3][3],weights[3];
+        for(unsigned j=0;j<3;++j) {
+          p[j]=(1-t)*a[j]+t*b[j];for(unsigned k=0;k<3;++k)vertices[k][j]=double(x[k][j]);
+        }
+        ClosestPointTriangle(vertices[0],vertices[1],vertices[2],p,weights);
+        long double distance2=0,scale=0;
+        for(unsigned j=0;j<3;++j) {
+          su2double closest=0;for(unsigned k=0;k<3;++k)closest+=weights[k]*vertices[k][j];
+          const long double delta=p[j]-closest;distance2+=delta*delta;
+          scale=std::max(scale,std::max(std::abs((long double)a[j]),std::abs((long double)b[j])));
+        }
+        if(std::abs(std::sqrt(distance2)-featureLevel)>std::max(128*std::numeric_limits<double>::epsilon()*scale,
+            1e-10L*std::max(h0,featureLevel)))return false;
+        return globalRoot(t);
+      };
+      // Reject feature extensions cheaply before the shared nearest-wall admission, only for scalar complexity.
       for (unsigned k = 0; k < count; ++k) {
         Vector r{};
         for (unsigned j = 0; j < nDim; ++j) r[j] = a[j]-x[k][j];
-        for (const auto level : levels)
-          roots(dot(chord,chord),2*dot(r,chord),dot(r,r)-static_cast<long double>(level)*level);
+        for (const auto level : levels) {
+          featureLevel=level;roots(dot(chord,chord),2*dot(r,chord),dot(r,r)-static_cast<long double>(level)*level);
+        }
         if (nDim == 2 && k == 1) continue;
         Vector edge{};
         for (unsigned j = 0; j < nDim; ++j) edge[j] = x[(k+1)%count][j]-x[k][j];
         const auto ee = dot(edge,edge), re = dot(r,edge)/ee, ce = dot(chord,edge)/ee;
         Vector rp{}, cp{};
         for (unsigned j = 0; j < nDim; ++j) { rp[j]=r[j]-re*edge[j]; cp[j]=chord[j]-ce*edge[j]; }
-        for (const auto level : levels)
-          roots(dot(cp,cp),2*dot(rp,cp),dot(rp,rp)-static_cast<long double>(level)*level);
+        for (const auto level : levels) {
+          featureLevel=level;roots(dot(cp,cp),2*dot(rp,cp),dot(rp,rp)-static_cast<long double>(level)*level);
+        }
       }
       if (nDim == 3) {
         Vector u{},v{},normal{},r{};
@@ -2169,7 +2376,7 @@ std::vector<double> CBoundaryLayerMetric::EdgeBreakpoints(
         normal={u[1]*v[2]-u[2]*v[1],u[2]*v[0]-u[0]*v[2],u[0]*v[1]-u[1]*v[0]};
         const auto nn=std::sqrt(dot(normal,normal)), slope=dot(chord,normal), offset=dot(r,normal);
         if (slope) for (const auto level : levels) {
-          retain((level*nn-offset)/slope); retain((-level*nn-offset)/slope);
+          featureLevel=level;retain((level*nn-offset)/slope); retain((-level*nn-offset)/slope);
         }
       }
     }

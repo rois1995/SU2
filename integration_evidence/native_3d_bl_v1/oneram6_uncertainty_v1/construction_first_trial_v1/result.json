@@ -1,0 +1,36 @@
+{
+  "exit_code": 0,
+  "seconds": 348.2161647200119,
+  "command": [
+    "taskset",
+    "-c",
+    "0-3",
+    "nice",
+    "-n",
+    "19",
+    "timeout",
+    "--kill-after=10s",
+    "420s",
+    "mpirun",
+    "-np",
+    "4",
+    "--bind-to",
+    "none",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver",
+    "[NativeFrozenVolume3D]",
+    "--abort",
+    "--reporter",
+    "compact"
+  ],
+  "log_sha256": "28288b6715e1e47936baf33e4dd408abe3db65b977763a0e7d1d814777289c9d",
+  "provenance_sha256": "9014ec4013ada92efaad0c909322926ed181b68eff263779119a62d54792d09b",
+  "construction": {
+    "accepted": false,
+    "seconds": 104.58732216299998,
+    "initial_cells": 303359,
+    "final_cells": 0,
+    "workers": 4,
+    "normalization_accuracy_established": false,
+    "CFD_steps": 0
+  }
+}

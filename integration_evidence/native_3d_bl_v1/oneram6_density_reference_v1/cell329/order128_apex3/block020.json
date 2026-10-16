@@ -1,0 +1,67 @@
+{
+  "complete": true,
+  "provenance_sha256": "c98250bf70445f70cb0e56a85293ad74ca29618b2e83bf33d4a58f59140bd08c",
+  "index": 20,
+  "queries": 65536,
+  "integral": "0.0011931196664632207722",
+  "mass": "3.7804971312972711264e-10",
+  "first": [
+    "9.327051317738557284e-12",
+    "9.3270513177384728505e-12",
+    "9.327051317738473453e-12",
+    "3.5006855917651160877e-10"
+  ],
+  "second": [
+    [
+      "3.4820846243582619579e-13",
+      "1.7410423121791309068e-13",
+      "1.7410423121791311625e-13",
+      "8.630634392866904877e-12"
+    ],
+    [
+      "1.741042312179130906e-13",
+      "3.482084624358209567e-13",
+      "1.7410423121791206818e-13",
+      "8.630634392866826731e-12"
+    ],
+    [
+      "1.7410423121791311615e-13",
+      "1.7410423121791206826e-13",
+      "3.482084624358209823e-13",
+      "8.63063439286682728e-12"
+    ],
+    [
+      "8.630634392866904871e-12",
+      "8.630634392866826725e-12",
+      "8.6306343928668272795e-12",
+      "3.2417665599791104986e-10"
+    ]
+  ],
+  "minimum_density": 428252.3244536762,
+  "maximum_density": 3468984.056691225,
+  "minimum_active_distance": 0.007273019861499473,
+  "maximum_barycentric_roundtrip": 1.6375789613221059e-15,
+  "call": {
+    "exit_code": 0,
+    "seconds": 0.8258490579901263,
+    "command": [
+      "taskset",
+      "-c",
+      "0",
+      "nice",
+      "-n",
+      "19",
+      "timeout",
+      "--kill-after=5s",
+      "120s",
+      "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver",
+      "[NativeFacetedVolumeReplay3D]",
+      "--abort",
+      "--reporter",
+      "compact"
+    ],
+    "query_sha256": "14d30feaaa5cefc67abfd65e89407afd18ca745ee49f3dd4d85b72ea0f7d5b8c",
+    "values_sha256": "2ab40da164d1554b3bfe25e0090731fb8624e57e2db626eee3867df3d682a688",
+    "log_sha256": "59b331dc82b0e94e96fafdad5cf940f999e7a0bea573052699156b690e2da8f5"
+  }
+}

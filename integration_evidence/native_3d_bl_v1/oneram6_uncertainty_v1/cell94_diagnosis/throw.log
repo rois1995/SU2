@@ -1,0 +1,24 @@
+Catchpoint 1 (throw)
+[Thread debugging using libthread_db enabled]
+Using host libthread_db library "/lib/x86_64-linux-gnu/libthread_db.so.1".
+[Detaching after fork from child process 3796920]
+[New Thread 0x7ffff760b700 (LWP 3796928)]
+[New Thread 0x7ffff6c56700 (LWP 3796937)]
+
+Thread 1 "test_driver" hit Catchpoint 1 (exception thrown), 0x00007ffff7d06662 in __cxa_throw () from /lib/x86_64-linux-gnu/libstdc++.so.6
+#0  0x00007ffff7d06662 in __cxa_throw () from /lib/x86_64-linux-gnu/libstdc++.so.6
+#1  0x0000555555770636 in (anonymous namespace)::SetBLSourceQuery (source=..., positive=..., reversed=<optimized out>, parent=..., position=...) at ../../SU2_CFD/src/adaptation/CBoundaryLayerMetric.cpp:1259
+#2  0x000055555632319b in CBoundaryLayerMetric::<lambda(std::array<double, 4>&)>::operator() (b=..., __closure=<optimized out>) at ../../SU2_CFD/src/adaptation/CBoundaryLayerMetric.cpp:1873
+#3  CBoundaryLayerMetric::<lambda(CBoundaryLayerMetric::IntegrationColumns3D(const BLTetrahedron&, const std::vector<CBoundaryLayerMetric::Column3D>&, const std::vector<CBoundaryLayerMetric::SupportFace3D>&, double, const IntegrationDensity3D&, CBoundaryLayerMetric::ComplexityEstimate3D*, size_t)::ScalarPanel&, bool, std::vector<bool, std::allocator<bool> >&, double&)>::operator()(CBoundaryLayerMetric::ScalarPanel &, bool, std::vector<bool, std::allocator<bool> > &, double &) const (__closure=0x7fffffff84c0, panel=..., fine=true, sampled=std::vector<bool> of length 1, capacity 64 = {...}, radialError=@0x7fffffff80b8: 0) at ../../SU2_CFD/src/adaptation/CBoundaryLayerMetric.cpp:1916
+#4  0x0000555556323777 in CBoundaryLayerMetric::<lambda(size_t, const Triangle&, double, unsigned int)>::operator()(size_t, const CBoundaryLayerMetric::ScalarPanel::Triangle &, double, unsigned int) const (__closure=0x7fffffff8450, chart=0, triangle=..., fraction=<optimized out>, depth=<optimized out>) at ../../SU2_CFD/src/adaptation/CBoundaryLayerMetric.cpp:1932
+#5  0x0000555556327e47 in CBoundaryLayerMetric::IntegrationColumns3D(std::array<std::array<double, 3ul>, 4ul> const&, std::vector<CBoundaryLayerMetric::Column3D, std::allocator<CBoundaryLayerMetric::Column3D> > const&, std::vector<CBoundaryLayerMetric::SupportFace3D, std::allocator<CBoundaryLayerMetric::SupportFace3D> > const&, double, std::function<double (CBoundaryLayerMetric::IntegrationPoint3D const&)> const&, CBoundaryLayerMetric::ComplexityEstimate3D*, unsigned long) (this=<optimized out>, tetrahedron=..., charts=std::vector of length 1, capacity 1 = {...}, support=std::vector of length 1058, capacity 2048 = {...}, bandRatio=<optimized out>, probe=..., estimate=<optimized out>, maximumEvaluations=<optimized out>) at ../../SU2_CFD/src/adaptation/CBoundaryLayerMetric.cpp:1950
+#6  0x000055555632983b in CBoundaryLayerMetric::IntegrationRule3DVisible(std::array<std::array<double, 3ul>, 4ul> const&, std::vector<CBoundaryLayerMetric::SupportFace3D, std::allocator<CBoundaryLayerMetric::SupportFace3D> > const&, double, std::function<double (CBoundaryLayerMetric::IntegrationPoint3D const&)> const&, CBoundaryLayerMetric::ComplexityEstimate3D*, unsigned long) (this=0x7fffffffa900, tetrahedron=..., support=std::vector of length 1058, capacity 2048 = {...}, bandRatio=1.5, density=..., estimate=0x7fffffffa3c0, maximumEvaluations=8192) at /usr/include/c++/9/bits/stl_uninitialized.h:82
+#1  0x0000555555770636 in (anonymous namespace)::SetBLSourceQuery (source=..., positive=..., reversed=<optimized out>, parent=..., position=...) at ../../SU2_CFD/src/adaptation/CBoundaryLayerMetric.cpp:1259
+1259	  throw std::runtime_error("Native3D BL quadrature cannot place a representable original-cell sample.");
+requested = {_M_elems = {0.33333333333333215, 0.33333333333333215, 0.33333333333333215, 3.4000759302360045e-15}}
+$1 = <optimized out>
+$2 = (const SU2Native3D::Tetrahedron &) @0x7fffffff86e0: {_M_elems = {{x = 1.131467018248409, y = 1.1982391476378249, z = -2.2182331845218151e-16}, {x = 1.13275757546815, y = 1.198073228052901, z = -2.218233487708181e-16}, {x = 1.132347236023004, y = 1.197914493631093, z = -0.00083644811493057119}, {x = 1.132930914210116, y = 1.198657557957286, z = -0.001120285446803508}}}
+$3 = <optimized out>
+$4 = (std::array<double, 4> &) @0x7fffffff7fc0: {_M_elems = {0.33333333333333215, 0.33333333333333215, 0.33333333333333215, 3.4000759302360045e-15}}
+$5 = {_M_elems = {0.33333333333333215, 0.33333333333333215, 0.33333333333333215, 3.4000759302360045e-15}}
+$6 = ((anonymous namespace)::BLPoint3D &) @0x7fffffff7f40: {_M_elems = {1.1321906099131878, 1.1980756231072729, -0.00027881603831038897}}

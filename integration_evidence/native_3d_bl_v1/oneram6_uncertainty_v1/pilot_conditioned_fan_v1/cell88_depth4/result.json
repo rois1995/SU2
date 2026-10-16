@@ -1,0 +1,34 @@
+{
+  "exit_code": 0,
+  "elapsed_seconds": 62.85694800899364,
+  "command": [
+    "taskset",
+    "-c",
+    "0",
+    "nice",
+    "-n",
+    "19",
+    "timeout",
+    "--kill-after=5s",
+    "180s",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver",
+    "[NativeFacetedVolumeReplay3D]",
+    "--abort",
+    "--reporter",
+    "compact"
+  ],
+  "provenance_sha256": "aef944e8319444e4fb4a0a7366eb648b47728da151d0a0a53c3f0fb6939ef022",
+  "log_sha256": "59adea70810cf3a0e00443241a295792350382ee6b6fe619144b02145816ace1",
+  "estimate": {
+    "value": 4.689761448562149,
+    "indicator": 0.01010758369575454,
+    "evaluations": 105604,
+    "panels": 80,
+    "limited_cells": 12,
+    "unresolved_support": 0,
+    "subcells": 16,
+    "budget_per_cell": 8192,
+    "seconds": 54.120345271000005,
+    "indicator_is_proven_bound": false
+  }
+}

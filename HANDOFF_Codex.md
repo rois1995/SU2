@@ -2,7 +2,7 @@
 
 Worktree `/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated`, branch
 `codex/native-3d-bl`, Goal2 base `c43a8a3907ea2655e4ebbb6286ab16c3fa625d8b`.
-**Full Goal3 ACTIVE/incomplete.** Preserve its full
+**Full Goal3 incomplete; uncertainty experiment authorized 2026-10-16.** Preserve its full
 [scope and gates](integration_evidence/native_3d_bl_v1/GOAL3_REQUIREMENTS.json).
 Published4f5c8a9c6a includes whole-cap construction, closest-facet correction,
 admissible cap/front retention and the QLS workspace fix. Current work addresses
@@ -61,8 +61,16 @@ match it. Complete4-rank pre-quadrature checkpoint captures61330 points/303359
 cells; all3 failing fields match exactly. Both owner and halo raw tensors retained.
 Sensor-only Q18 mass152994 (bounds142421..154272), not full BL/final normalization.
 Test-only point-query interface passes saved samples and malformed inputs.
-Independent full-density157 reference stabilizes~1e-6;329/88 need refinement.
-One owned serial reference batch11887 live; no CFD/build/MPI/model job.
+Independent full-density references88/329 at128 and157 at72 now complete; final
+chart gaps<1e-6. No reference job remains. Current bounded-complexity experiment
+is experimental, not yet production normalization; see
+[uncertainty work and remaining gates](Handbook/GOAL3_UNCERTAINTY_COMPLEXITY.md).
+Conditioned scalar fan and strict controls pass;159-cell prefix is incomplete and
+expensive. Construction-only MPI4 replay is terminal rejected by a first-layer
+composed edge integral, separately from volume integration. No owned job remains.
+User now prioritizes uncertain normalization/global error/geometry reuse; unbuilt
+subdivision extension withdrawn. Three-element30P30N coarse2D added to validation.
+Production normalization remains unchanged; no M6 mesh or full-field integral yet.
 [Current whole-field checkpoint and reassessment](Handbook/GOAL3_M6_COMPLEXITY_REASSESSMENT.md).
 [Current exact-field/replay/design/live state](Handbook/GOAL3_M6_FROZEN_FIELDS.md),
 [earlier thin integration and rejected experiments](Handbook/GOAL3_M6_THIN_INTEGRATION.md),

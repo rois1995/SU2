@@ -1563,6 +1563,103 @@ TEST_CASE("Replay a complete faceted wall volume-integration input without CFD",
     CBlasStructure::EigenDecomposition(metric.m,vectors,values,3,workspace);
     return SU2_TYPE::GetValue(std::sqrt(values[0]*values[1]*values[2]));
   };
+  struct ReplayEstimate {double value=0,indicator=0;size_t evaluations=0,panels=0,limited=0,unresolved=0,subcells=0;};
+  auto estimateSubcells=[&](size_t budget,unsigned depth) {
+    if(depth>6)throw std::invalid_argument("Frozen integration subdivision depth exceeds6.");
+    using Bary=std::array<double,4>;using Subcell=std::array<Bary,4>;
+    std::vector<Subcell> parts{Subcell{{{{1,0,0,0}},{{0,1,0,0}},{{0,0,1,0}},{{0,0,0,1}}}}};
+    auto coordinates=[&](const Subcell& part) {
+      std::array<std::array<double,3>,4> x{};
+      for(unsigned k=0;k<4;++k)for(unsigned j=0;j<3;++j) {
+        long double v=cell[0][j];for(unsigned a=1;a<4;++a)v+=(long double)part[k][a]*((long double)cell[a][j]-cell[0][j]);x[k][j]=double(v);
+      }
+      return x;
+    };
+    for(unsigned d=0;d<depth;++d) {
+      std::vector<Subcell> next;
+      for(const auto& part:parts) {
+        const auto x=coordinates(part);unsigned a=0,b=1;double longest=0;
+        for(unsigned i=0;i<4;++i)for(unsigned j=i+1;j<4;++j) {
+          double length=0;for(unsigned k=0;k<3;++k)length+=(x[i][k]-x[j][k])*(x[i][k]-x[j][k]);
+          if(length>longest){longest=length;a=i;b=j;}
+        }
+        Bary mid{};for(unsigned k=0;k<4;++k)mid[k]=.5*(part[a][k]+part[b][k]);
+        auto left=part,right=part;left[a]=mid;right[b]=mid;next.push_back(left);next.push_back(right);
+      }
+      parts=std::move(next);
+    }
+    ReplayEstimate total;total.subcells=parts.size();
+    for(const auto& part:parts) {
+      const auto x=coordinates(part);
+      auto originalDensity=[&](const CBoundaryLayerMetric::IntegrationPoint3D& query) {
+        auto original=query;original.barycentric={};
+        for(unsigned k=0;k<4;++k)for(unsigned j=0;j<4;++j)original.barycentric[k]+=query.barycentric[j]*part[j][k];
+        return targetDensity(original);
+      };
+      const auto result=layers.EstimateComplexity3D(x,originalDensity,budget);
+      total.value+=result.value;total.indicator+=result.indicator;total.evaluations+=result.evaluations;total.panels+=result.panels;
+      total.limited+=result.limited;total.unresolved+=result.unresolvedSupport;
+    }
+    return total;
+  };
+  if(const char* records=std::getenv("SU2_NATIVE_BL_FIELD")) {
+    REQUIRE(version==2);std::ifstream field(records,std::ios::binary|std::ios::ate);REQUIRE(bool(field));
+    const auto bytes=static_cast<std::streamoff>(field.tellg());field.seekg(0);uint64_t count=0;
+    field.read(reinterpret_cast<char*>(&count),sizeof(count));REQUIRE(count>0);REQUIRE(count<=1000000);
+    REQUIRE(bytes==std::streamoff(8+count*(8+48*8)));
+    const size_t budget=std::getenv("SU2_NATIVE_BL_COMPLEXITY")?std::stoul(std::getenv("SU2_NATIVE_BL_COMPLEXITY")):8192;
+    const auto rank=SU2_MPI::GetRank(),ranks=SU2_MPI::GetSize();
+    std::ofstream out("field_estimates_rank"+std::to_string(rank)+".csv");
+    out<<std::setprecision(17)<<"cell,value,indicator,evaluations,panels,limited,unresolved_support,seconds\n";
+    double local[3]={},global[3]={};int localFailure=0,globalFailure=0;
+    for(uint64_t row=0;row<count;++row) {
+      uint64_t id=0;double coefficients[48];field.read(reinterpret_cast<char*>(&id),8);field.read(reinterpret_cast<char*>(coefficients),sizeof(coefficients));
+      REQUIRE(bool(field));
+      if(row%ranks==uint64_t(rank) && !localFailure) {
+      unsigned at=0;
+      for(auto& p:cell)for(auto& x:p)x=coefficients[at++];
+      for(auto& m:sensor)for(auto& r:m.m)for(auto& x:r)x=coefficients[at++];
+      const auto start=std::chrono::steady_clock::now();
+      const unsigned depth=std::getenv("SU2_NATIVE_BL_SUBDIVISIONS")?std::stoul(std::getenv("SU2_NATIVE_BL_SUBDIVISIONS")):0;
+      ReplayEstimate e;
+      try {e=estimateSubcells(budget,depth);}
+      catch(const std::exception& error) {
+        localFailure=1;std::cerr<<"FROZEN_FIELD_FAILURE rank="<<rank<<" cell="<<id<<" reason="<<error.what()<<std::endl;
+      }
+      if(!localFailure) {
+      out<<id<<','<<e.value<<','<<e.indicator<<','<<e.evaluations<<','<<e.panels<<','<<e.limited<<','<<e.unresolved<<','
+         <<std::chrono::duration<double>(std::chrono::steady_clock::now()-start).count()<<std::endl;
+      REQUIRE(e.evaluations<=budget*e.subcells);REQUIRE(bool(out));
+      local[0]+=e.value;local[1]+=e.indicator;local[2]+=e.evaluations;
+      }
+      }
+      if((row+1)%64==0 || row+1==count) {
+        SU2_MPI::Allreduce(&localFailure,&globalFailure,1,MPI_INT,MPI_MAX,SU2_MPI::GetComm());
+        if(globalFailure)break;
+      }
+    }
+    REQUIRE(globalFailure==0);
+    SU2_MPI::Allreduce(local,global,3,MPI_DOUBLE,MPI_SUM,SU2_MPI::GetComm());
+    if(rank==0) {
+      std::ofstream summary("field_global.json");summary<<std::setprecision(17)<<"{\"value\":"<<global[0]<<",\"indicator\":";
+      if(std::isfinite(global[1]))summary<<global[1];else summary<<"null";
+      summary<<",\"evaluations\":"<<global[2]<<",\"ranks\":"<<ranks<<"}\n";
+    }
+    return;
+  }
+  if(const char* control=std::getenv("SU2_NATIVE_BL_COMPLEXITY")) {
+    const size_t budget=std::stoul(control);
+    const unsigned depth=std::getenv("SU2_NATIVE_BL_SUBDIVISIONS")?std::stoul(std::getenv("SU2_NATIVE_BL_SUBDIVISIONS")):0;
+    const auto start=std::chrono::steady_clock::now();const auto total=estimateSubcells(budget,depth);
+    std::ofstream out("complexity_estimate.json");out<<std::setprecision(17)
+      <<"{\"value\":"<<total.value<<",\"indicator\":";
+    if(std::isfinite(total.indicator))out<<total.indicator;else out<<"null";
+    out<<",\"evaluations\":"<<total.evaluations<<",\"panels\":"<<total.panels<<",\"limited_cells\":"<<total.limited
+       <<",\"unresolved_support\":"<<total.unresolved<<",\"subcells\":"<<total.subcells<<",\"budget_per_cell\":"<<budget
+       <<",\"seconds\":"<<std::chrono::duration<double>(std::chrono::steady_clock::now()-start).count()
+       <<",\"indicator_is_proven_bound\":false}\n";
+    REQUIRE(bool(out));CHECK(total.value>0);CHECK(total.evaluations<=budget*total.subcells);return;
+  }
   if(const char* queries=std::getenv("SU2_NATIVE_BL_QUERY_POINTS")) {
     std::ifstream points(queries,std::ios::binary|std::ios::ate);REQUIRE(bool(points));
     const auto bytes=static_cast<std::streamoff>(points.tellg());
@@ -1671,4 +1768,24 @@ TEST_CASE("Replay a complete faceted wall volume-integration input without CFD",
         <<" seconds="<<std::chrono::duration<double>(std::chrono::steady_clock::now()-begin).count()<<" reason="<<reason<<'\n';
     INFO(reason);CHECK(complete);
   }
+}
+
+TEST_CASE("Bounded complexity keeps complete positive estimates and explicit uncertainty", "[NativeComplexityEstimate3D]") {
+  CBoundaryLayerMetric::Wall wall;wall.layer.marker="wall";wall.layer.firstHeight=.01;wall.layer.growth=1.2;wall.layer.thickness=.1;
+  wall.coord={-2,0,-2,2,0,-2,2,0,2,-2,0,2};wall.conn={0,1,2,3};
+  CBoundaryLayerMetric layers(3,{wall});
+  const std::array<std::array<double,3>,4> near{{{{0,0,0}},{{.1,0,0}},{{0,.05,0}},{{0,0,.1}}}};
+  const double volume=.1*.05*.1/6;
+  auto polynomial=[](const auto& q){double v=1;for(auto b:q.barycentric)v+=b*b;return v;};
+  const auto result=layers.EstimateComplexity3D(near,polynomial);
+  CHECK(result.value==Approx(1.4*volume).epsilon(1e-10));CHECK(result.indicator<1e-10*result.value);
+  CHECK_FALSE(result.unresolvedSupport);CHECK(result.evaluations<=8192);
+  auto far=near;for(auto& p:far)p[1]+=1;
+  const auto outside=layers.EstimateComplexity3D(far,polynomial);
+  CHECK(outside.value==Approx(1.4*volume).epsilon(1e-10));CHECK(outside.evaluations==22);
+  const auto limited=layers.EstimateComplexity3D(near,polynomial,64);
+  CHECK(limited.limited);CHECK(limited.value>0);CHECK(std::isinf(limited.indicator));CHECK(limited.evaluations==64);
+  CHECK_THROWS(layers.EstimateComplexity3D(near,polynomial,63));
+  CHECK_THROWS(layers.EstimateComplexity3D(near,[](const auto&){return -1.;}));
+  CHECK_THROWS(layers.EstimateComplexity3D(near,[](const auto&){return std::numeric_limits<double>::quiet_NaN();}));
 }
