@@ -1,0 +1,977 @@
+{
+  "base_commit": "f29b762ae67cf2ebeaaa6e0ba8a6e1e3239f4038",
+  "status": "Converged periodic mean-flow comparisons pass all three modes on serial and MPI/OpenMP layouts.",
+  "scope": "Mean flow, SA, SST and existing transition; this sector endpoint qualifies FLOW only.",
+  "preconditioner": "S^-1*(P*M^-1*P+(I-P))*S; full residual and derivative directions remain unprojected.",
+  "derivative_verification": "Richardson physical difference relative to requested J or J+D; threshold5e-4 unchanged. Physical-merit J*p verified independently. True linear defect<=.1 unchanged.",
+  "native_counts": {
+    "1x1": [
+      {
+        "assertions": 104338,
+        "cases": 55
+      }
+    ],
+    "1x2": [
+      {
+        "assertions": 104338,
+        "cases": 55
+      }
+    ],
+    "2x2": [
+      {
+        "assertions": 61942,
+        "cases": 55
+      },
+      {
+        "assertions": 55730,
+        "cases": 55
+      }
+    ],
+    "2x4": [
+      {
+        "assertions": 61942,
+        "cases": 55
+      },
+      {
+        "assertions": 55730,
+        "cases": 55
+      }
+    ]
+  },
+  "ordinary_counts": [
+    {
+      "assertions": 105424,
+      "cases": 88
+    }
+  ],
+  "valgrind": {
+    "counts": [
+      {
+        "assertions": 41290,
+        "cases": 6
+      }
+    ],
+    "errors": 0,
+    "leaks_checked": false
+  },
+  "checks": [
+    {
+      "name": "mass_resolution_review_native_1x1",
+      "command": [
+        "mpirun",
+        "--bind-to",
+        "none",
+        "-n",
+        "1",
+        "/media/rausa/4TB/SU2_Versions/SU2_v850_Develop_FixCGNSOutput/newton_krylov_refactor_20261015/build/UnitTests/newton_equation_tests"
+      ],
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_v850_Develop_FixCGNSOutput/newton_krylov_refactor_20261015/equation_set_verification_work/native_mpi",
+      "threads": 1,
+      "exit_code": 0,
+      "elapsed_seconds": 3.285117605002597
+    },
+    {
+      "name": "mass_resolution_review_native_1x2",
+      "command": [
+        "mpirun",
+        "--bind-to",
+        "none",
+        "-n",
+        "1",
+        "/media/rausa/4TB/SU2_Versions/SU2_v850_Develop_FixCGNSOutput/newton_krylov_refactor_20261015/build/UnitTests/newton_equation_tests"
+      ],
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_v850_Develop_FixCGNSOutput/newton_krylov_refactor_20261015/equation_set_verification_work/native_mpi",
+      "threads": 2,
+      "exit_code": 0,
+      "elapsed_seconds": 9.683292925939895
+    },
+    {
+      "name": "mass_resolution_review_native_2x2",
+      "command": [
+        "mpirun",
+        "--bind-to",
+        "none",
+        "-n",
+        "2",
+        "/media/rausa/4TB/SU2_Versions/SU2_v850_Develop_FixCGNSOutput/newton_krylov_refactor_20261015/build/UnitTests/newton_equation_tests"
+      ],
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_v850_Develop_FixCGNSOutput/newton_krylov_refactor_20261015/equation_set_verification_work/native_mpi",
+      "threads": 2,
+      "exit_code": 0,
+      "elapsed_seconds": 14.539492979994975
+    },
+    {
+      "name": "mass_resolution_review_native_2x4",
+      "command": [
+        "mpirun",
+        "--bind-to",
+        "none",
+        "-n",
+        "2",
+        "/media/rausa/4TB/SU2_Versions/SU2_v850_Develop_FixCGNSOutput/newton_krylov_refactor_20261015/build/UnitTests/newton_equation_tests"
+      ],
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_v850_Develop_FixCGNSOutput/newton_krylov_refactor_20261015/equation_set_verification_work/native_mpi",
+      "threads": 4,
+      "exit_code": 0,
+      "elapsed_seconds": 40.04452405299526
+    },
+    {
+      "name": "mass_resolution_review_supported",
+      "command": [
+        "/media/rausa/4TB/SU2_Versions/SU2_v850_Develop_FixCGNSOutput/newton_krylov_refactor_20261015/build/UnitTests/test_driver",
+        "--input-file",
+        "/media/rausa/4TB/SU2_Versions/SU2_v850_Develop_FixCGNSOutput/newton_krylov_refactor_20261015/periodic_baseline_supported_units.txt"
+      ],
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_v850_Develop_FixCGNSOutput/newton_krylov_refactor_20261015/equation_set_verification_work/units",
+      "threads": 1,
+      "exit_code": 0,
+      "elapsed_seconds": 0.7791784768924117
+    },
+    {
+      "name": "mass_resolution_review_valgrind",
+      "command": [
+        "valgrind",
+        "--error-exitcode=99",
+        "--leak-check=no",
+        "/media/rausa/4TB/SU2_Versions/SU2_v850_Develop_FixCGNSOutput/newton_krylov_refactor_20261015/build/UnitTests/newton_equation_tests",
+        "[NewtonPeriodic],[NewtonPeriodicMass],[NewtonPeriodicProducts],[NewtonPeriodicOwner],[NewtonPeriodicPreconditioner],[NewtonMassResolution]"
+      ],
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_v850_Develop_FixCGNSOutput/newton_krylov_refactor_20261015/equation_set_verification_work/native_mpi",
+      "threads": 1,
+      "exit_code": 0,
+      "elapsed_seconds": 22.906264103017747
+    },
+    {
+      "name": "mass_resolution_review_report_checks",
+      "command": [
+        "python3",
+        "/media/rausa/4TB/SU2_Versions/SU2_v850_Develop_FixCGNSOutput/scalar_limiter_sst_globalization_20261015/source/TestCases/newton_krylov/check_state_report.py",
+        "--binary",
+        "/media/rausa/4TB/SU2_Versions/SU2_v850_Develop_FixCGNSOutput/newton_krylov_refactor_20261015/build/SU2_CFD/src/SU2_CFD",
+        "--output",
+        "/media/rausa/4TB/SU2_Versions/SU2_v850_Develop_FixCGNSOutput/newton_krylov_refactor_20261015/mass_resolution_review_report_checks",
+        "--reporter",
+        "/media/rausa/4TB/SU2_Versions/SU2_v850_Develop_FixCGNSOutput/newton_krylov_refactor_20261015/build/UnitTests/newton_equation_tests"
+      ],
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_v850_Develop_FixCGNSOutput",
+      "threads": 1,
+      "exit_code": 0,
+      "elapsed_seconds": 7.991074591991492
+    },
+    {
+      "name": "mass_resolution_review_species_boundaries",
+      "command": [
+        "python3",
+        "/media/rausa/4TB/SU2_Versions/SU2_v850_Develop_FixCGNSOutput/scalar_limiter_sst_globalization_20261015/source/TestCases/newton_krylov/check_species_boundaries.py",
+        "--binary",
+        "/media/rausa/4TB/SU2_Versions/SU2_v850_Develop_FixCGNSOutput/newton_krylov_refactor_20261015/build/SU2_CFD/src/SU2_CFD",
+        "--output",
+        "/media/rausa/4TB/SU2_Versions/SU2_v850_Develop_FixCGNSOutput/newton_krylov_refactor_20261015/mass_resolution_review_species_boundaries"
+      ],
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_v850_Develop_FixCGNSOutput",
+      "threads": 1,
+      "exit_code": 0,
+      "elapsed_seconds": 2.81906531797722
+    },
+    {
+      "name": "mass_resolution_review_residual_failures",
+      "command": [
+        "python3",
+        "/media/rausa/4TB/SU2_Versions/SU2_v850_Develop_FixCGNSOutput/scalar_limiter_sst_globalization_20261015/source/TestCases/newton_krylov/check_residual_failures.py",
+        "--binary",
+        "/media/rausa/4TB/SU2_Versions/SU2_v850_Develop_FixCGNSOutput/newton_krylov_refactor_20261015/build/SU2_CFD/src/SU2_CFD",
+        "--output",
+        "/media/rausa/4TB/SU2_Versions/SU2_v850_Develop_FixCGNSOutput/newton_krylov_refactor_20261015/mass_resolution_review_residual_failures"
+      ],
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_v850_Develop_FixCGNSOutput",
+      "threads": 1,
+      "exit_code": 0,
+      "elapsed_seconds": 11.474856678047217
+    }
+  ],
+  "forward_syntax": [
+    {
+      "translation_unit": "SU2_CFD/src/integration/CNewtonLinearization.cpp",
+      "command": [
+        "g++-9",
+        "-ISU2_CFD/src/libSU2core.a.p",
+        "-ISU2_CFD/src",
+        "-I../../scalar_limiter_sst_globalization_20261015/source/SU2_CFD/src",
+        "-I../../scalar_limiter_sst_globalization_20261015/source/externals/CLI11",
+        "-I../../scalar_limiter_sst_globalization_20261015/source/externals/eigen",
+        "-I../../scalar_limiter_sst_globalization_20261015/source/externals/metis/include",
+        "-I../../scalar_limiter_sst_globalization_20261015/source/externals/metis/GKlib",
+        "-I../../scalar_limiter_sst_globalization_20261015/source/externals/metis/libmetis",
+        "-I../../scalar_limiter_sst_globalization_20261015/source/externals/parmetis/include",
+        "-I../../scalar_limiter_sst_globalization_20261015/source/externals/parmetis/libparmetis",
+        "-I../../scalar_limiter_sst_globalization_20261015/source/externals/mel",
+        "-ICommon/src",
+        "-I../../scalar_limiter_sst_globalization_20261015/source/Common/src",
+        "-I/usr/lib/x86_64-linux-gnu/openmpi/include/openmpi",
+        "-I/usr/lib/x86_64-linux-gnu/openmpi/include",
+        "-fdiagnostics-color=always",
+        "-DNDEBUG",
+        "-D_FILE_OFFSET_BITS=64",
+        "-std=c++17",
+        "-O3",
+        "-fPIC",
+        "-fopenmp",
+        "-pthread",
+        "-Wno-empty-body",
+        "-Wno-ignored-qualifiers",
+        "-Wno-unused-parameter",
+        "-Wno-deprecated-declarations",
+        "-Wno-error=cast-function-type",
+        "-Wno-cast-function-type",
+        "-Wno-error=stringop-truncation",
+        "-Wno-stringop-truncation",
+        "-Wno-error=missing-field-initializers",
+        "-Wno-missing-field-initializers",
+        "-Wno-error=class-memaccess",
+        "-Wno-class-memaccess",
+        "-Wno-overloaded-virtual",
+        "-Wno-array-bounds",
+        "-march=skylake",
+        "-ffast-math",
+        "-fno-finite-math-only",
+        "-DHAVE_MPI",
+        "-DHAVE_METIS",
+        "-DHAVE_PARMETIS",
+        "-DEIGEN_DONT_PARALLELIZE",
+        "/media/rausa/4TB/SU2_Versions/SU2_v850_Develop_FixCGNSOutput/scalar_limiter_sst_globalization_20261015/source/SU2_CFD/src/integration/CNewtonLinearization.cpp",
+        "-fsyntax-only",
+        "-DCODI_FORWARD_TYPE",
+        "-I/media/rausa/4TB/SU2_Versions/SU2_v850_Develop_FixCGNSOutput/scalar_limiter_sst_globalization_20261015/source/externals/codi/include",
+        "-I/media/rausa/4TB/SU2_Versions/SU2_v850_Develop_FixCGNSOutput/scalar_limiter_sst_globalization_20261015/source/externals/medi/include",
+        "-I/media/rausa/4TB/SU2_Versions/SU2_v850_Develop_FixCGNSOutput/scalar_limiter_sst_globalization_20261015/source/externals/medi/src"
+      ],
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_v850_Develop_FixCGNSOutput/newton_krylov_refactor_20261015/build",
+      "exit_code": 0,
+      "elapsed_seconds": 4.892225085990503
+    },
+    {
+      "translation_unit": "SU2_CFD/src/integration/CNewtonIntegration.cpp",
+      "command": [
+        "g++-9",
+        "-ISU2_CFD/src/libSU2core.a.p",
+        "-ISU2_CFD/src",
+        "-I../../scalar_limiter_sst_globalization_20261015/source/SU2_CFD/src",
+        "-I../../scalar_limiter_sst_globalization_20261015/source/externals/CLI11",
+        "-I../../scalar_limiter_sst_globalization_20261015/source/externals/eigen",
+        "-I../../scalar_limiter_sst_globalization_20261015/source/externals/metis/include",
+        "-I../../scalar_limiter_sst_globalization_20261015/source/externals/metis/GKlib",
+        "-I../../scalar_limiter_sst_globalization_20261015/source/externals/metis/libmetis",
+        "-I../../scalar_limiter_sst_globalization_20261015/source/externals/parmetis/include",
+        "-I../../scalar_limiter_sst_globalization_20261015/source/externals/parmetis/libparmetis",
+        "-I../../scalar_limiter_sst_globalization_20261015/source/externals/mel",
+        "-ICommon/src",
+        "-I../../scalar_limiter_sst_globalization_20261015/source/Common/src",
+        "-I/usr/lib/x86_64-linux-gnu/openmpi/include/openmpi",
+        "-I/usr/lib/x86_64-linux-gnu/openmpi/include",
+        "-fdiagnostics-color=always",
+        "-DNDEBUG",
+        "-D_FILE_OFFSET_BITS=64",
+        "-std=c++17",
+        "-O3",
+        "-fPIC",
+        "-fopenmp",
+        "-pthread",
+        "-Wno-empty-body",
+        "-Wno-ignored-qualifiers",
+        "-Wno-unused-parameter",
+        "-Wno-deprecated-declarations",
+        "-Wno-error=cast-function-type",
+        "-Wno-cast-function-type",
+        "-Wno-error=stringop-truncation",
+        "-Wno-stringop-truncation",
+        "-Wno-error=missing-field-initializers",
+        "-Wno-missing-field-initializers",
+        "-Wno-error=class-memaccess",
+        "-Wno-class-memaccess",
+        "-Wno-overloaded-virtual",
+        "-Wno-array-bounds",
+        "-march=skylake",
+        "-ffast-math",
+        "-fno-finite-math-only",
+        "-DHAVE_MPI",
+        "-DHAVE_METIS",
+        "-DHAVE_PARMETIS",
+        "-DEIGEN_DONT_PARALLELIZE",
+        "/media/rausa/4TB/SU2_Versions/SU2_v850_Develop_FixCGNSOutput/scalar_limiter_sst_globalization_20261015/source/SU2_CFD/src/integration/CNewtonIntegration.cpp",
+        "-fsyntax-only",
+        "-DCODI_FORWARD_TYPE",
+        "-I/media/rausa/4TB/SU2_Versions/SU2_v850_Develop_FixCGNSOutput/scalar_limiter_sst_globalization_20261015/source/externals/codi/include",
+        "-I/media/rausa/4TB/SU2_Versions/SU2_v850_Develop_FixCGNSOutput/scalar_limiter_sst_globalization_20261015/source/externals/medi/include",
+        "-I/media/rausa/4TB/SU2_Versions/SU2_v850_Develop_FixCGNSOutput/scalar_limiter_sst_globalization_20261015/source/externals/medi/src"
+      ],
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_v850_Develop_FixCGNSOutput/newton_krylov_refactor_20261015/build",
+      "exit_code": 0,
+      "elapsed_seconds": 4.881901882938109
+    },
+    {
+      "translation_unit": "SU2_CFD/src/integration/CIntegrationFactory.cpp",
+      "command": [
+        "g++-9",
+        "-ISU2_CFD/src/libSU2core.a.p",
+        "-ISU2_CFD/src",
+        "-I../../scalar_limiter_sst_globalization_20261015/source/SU2_CFD/src",
+        "-I../../scalar_limiter_sst_globalization_20261015/source/externals/CLI11",
+        "-I../../scalar_limiter_sst_globalization_20261015/source/externals/eigen",
+        "-I../../scalar_limiter_sst_globalization_20261015/source/externals/metis/include",
+        "-I../../scalar_limiter_sst_globalization_20261015/source/externals/metis/GKlib",
+        "-I../../scalar_limiter_sst_globalization_20261015/source/externals/metis/libmetis",
+        "-I../../scalar_limiter_sst_globalization_20261015/source/externals/parmetis/include",
+        "-I../../scalar_limiter_sst_globalization_20261015/source/externals/parmetis/libparmetis",
+        "-I../../scalar_limiter_sst_globalization_20261015/source/externals/mel",
+        "-ICommon/src",
+        "-I../../scalar_limiter_sst_globalization_20261015/source/Common/src",
+        "-I/usr/lib/x86_64-linux-gnu/openmpi/include/openmpi",
+        "-I/usr/lib/x86_64-linux-gnu/openmpi/include",
+        "-fdiagnostics-color=always",
+        "-DNDEBUG",
+        "-D_FILE_OFFSET_BITS=64",
+        "-std=c++17",
+        "-O3",
+        "-fPIC",
+        "-fopenmp",
+        "-pthread",
+        "-Wno-empty-body",
+        "-Wno-ignored-qualifiers",
+        "-Wno-unused-parameter",
+        "-Wno-deprecated-declarations",
+        "-Wno-error=cast-function-type",
+        "-Wno-cast-function-type",
+        "-Wno-error=stringop-truncation",
+        "-Wno-stringop-truncation",
+        "-Wno-error=missing-field-initializers",
+        "-Wno-missing-field-initializers",
+        "-Wno-error=class-memaccess",
+        "-Wno-class-memaccess",
+        "-Wno-overloaded-virtual",
+        "-Wno-array-bounds",
+        "-march=skylake",
+        "-ffast-math",
+        "-fno-finite-math-only",
+        "-DHAVE_MPI",
+        "-DHAVE_METIS",
+        "-DHAVE_PARMETIS",
+        "-DEIGEN_DONT_PARALLELIZE",
+        "/media/rausa/4TB/SU2_Versions/SU2_v850_Develop_FixCGNSOutput/scalar_limiter_sst_globalization_20261015/source/SU2_CFD/src/integration/CIntegrationFactory.cpp",
+        "-fsyntax-only",
+        "-DCODI_FORWARD_TYPE",
+        "-I/media/rausa/4TB/SU2_Versions/SU2_v850_Develop_FixCGNSOutput/scalar_limiter_sst_globalization_20261015/source/externals/codi/include",
+        "-I/media/rausa/4TB/SU2_Versions/SU2_v850_Develop_FixCGNSOutput/scalar_limiter_sst_globalization_20261015/source/externals/medi/include",
+        "-I/media/rausa/4TB/SU2_Versions/SU2_v850_Develop_FixCGNSOutput/scalar_limiter_sst_globalization_20261015/source/externals/medi/src"
+      ],
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_v850_Develop_FixCGNSOutput/newton_krylov_refactor_20261015/build",
+      "exit_code": 0,
+      "elapsed_seconds": 4.9748192159458995
+    }
+  ],
+  "binary_sha256": {
+    "SU2_CFD/src/SU2_CFD": "1e0f119b20ed30d3ee276722f378a130fcb54c31dae7901da33f39f36de24575",
+    "UnitTests/test_driver": "48ccfad867e566b02aff8064d73c044896b90262520680bf3011126177e38725",
+    "UnitTests/newton_equation_tests": "ad63493138954de35bcbb695533c7c158330fe3471d1d1a9715254b1e1853692"
+  },
+  "convergence_reporter_sha256": "0687a720b202317126a77d4fa88ac7e44f25a39a9e4b4ac8a0d02065de87be22",
+  "reporter_note": "Both reporter binaries are archived. After convergence timing, only finite/nonzero assertions were added to the preconditioner test; final full suites and CLI checks use the rebuilt reporter.",
+  "source_sha256": {
+    "Docs/NewtonKrylovRefactor.md": "5d6aecfd4f6b08af3dbb1745c76f033b4386a91f51b07d9f2c4e2dffff2d1d05",
+    "SU2_CFD/include/integration/CNewtonLinearization.hpp": "a1f3e1303f72eb06a24400c71aba12c96efa0c69d323cc356327288de2e9cb4f",
+    "SU2_CFD/src/integration/CNewtonIntegration.cpp": "425a4599697589f6261a8d882a81e7f213e8be7a942d81e34385bef2a9efc4af",
+    "SU2_CFD/src/integration/CNewtonLinearization.cpp": "e443652315baab5d63a61d2b9e37d9353779cbc594fe015124d6f8d71ccdc987",
+    "TestCases/newton_krylov/compare_manufactured_flow.py": "282feeb427cb5532efc69fcd9fd56cbc754c1b14b0b9cc215611ed7e26a86cfe",
+    "TestCases/newton_krylov/compare_periodic_flow.py": "15a81230ada2b7bfe01aad2492b34d1ea1a0b35b552918b2e410b1116315c44e",
+    "UnitTests/SU2_CFD/newton_equations.cpp": "dc21ad0d0536aa5d104e5a05da53b7646cbe594bf49c06ef8d00e7d820cd3eec"
+  },
+  "detecting_evidence": [
+    {
+      "archive": "periodic_preconditioner_detect_archive",
+      "failures": 32,
+      "assertions": 112,
+      "controls_passed": 80
+    },
+    {
+      "archive": "mass_resolution_resolved_detect_archive",
+      "failures": 4,
+      "assertions": 20,
+      "controls_passed": 16
+    }
+  ],
+  "saved_state_probes": [
+    {
+      "cfl": "0.390625",
+      "command": [
+        "mpirun",
+        "--bind-to",
+        "none",
+        "-n",
+        "1",
+        "/media/rausa/4TB/SU2_Versions/SU2_v850_Develop_FixCGNSOutput/newton_krylov_refactor_20261015/build/SU2_CFD/src/SU2_CFD",
+        "run.cfg"
+      ],
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_v850_Develop_FixCGNSOutput/newton_krylov_refactor_20261015/mass_resolution_restart_fixed/cfl_0_390625",
+      "environment": {
+        "OMP_NUM_THREADS": "1",
+        "OMP_WAIT_POLICY": "PASSIVE",
+        "TMPDIR": "/media/rausa/4TB/SU2_Versions/SU2_v850_Develop_FixCGNSOutput/newton_krylov_refactor_20261015/mpi_tmp",
+        "OMPI_MCA_orte_tmpdir_base": "/media/rausa/4TB/SU2_Versions/SU2_v850_Develop_FixCGNSOutput/newton_krylov_refactor_20261015/mpi_tmp",
+        "OMPI_MCA_io": "romio321"
+      },
+      "binary_sha256": "1e0f119b20ed30d3ee276722f378a130fcb54c31dae7901da33f39f36de24575",
+      "exit_code": 0,
+      "elapsed_seconds": 0.6606696429662406,
+      "trace": []
+    },
+    {
+      "cfl": "100",
+      "command": [
+        "mpirun",
+        "--bind-to",
+        "none",
+        "-n",
+        "1",
+        "/media/rausa/4TB/SU2_Versions/SU2_v850_Develop_FixCGNSOutput/newton_krylov_refactor_20261015/build/SU2_CFD/src/SU2_CFD",
+        "run.cfg"
+      ],
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_v850_Develop_FixCGNSOutput/newton_krylov_refactor_20261015/mass_resolution_restart_fixed/cfl_100",
+      "environment": {
+        "OMP_NUM_THREADS": "1",
+        "OMP_WAIT_POLICY": "PASSIVE",
+        "TMPDIR": "/media/rausa/4TB/SU2_Versions/SU2_v850_Develop_FixCGNSOutput/newton_krylov_refactor_20261015/mpi_tmp",
+        "OMPI_MCA_orte_tmpdir_base": "/media/rausa/4TB/SU2_Versions/SU2_v850_Develop_FixCGNSOutput/newton_krylov_refactor_20261015/mpi_tmp",
+        "OMPI_MCA_io": "romio321"
+      },
+      "binary_sha256": "1e0f119b20ed30d3ee276722f378a130fcb54c31dae7901da33f39f36de24575",
+      "exit_code": 0,
+      "elapsed_seconds": 0.8742073239991441,
+      "trace": []
+    },
+    {
+      "cfl": "0.001",
+      "command": [
+        "mpirun",
+        "--bind-to",
+        "none",
+        "-n",
+        "1",
+        "/media/rausa/4TB/SU2_Versions/SU2_v850_Develop_FixCGNSOutput/newton_krylov_refactor_20261015/build/SU2_CFD/src/SU2_CFD",
+        "run.cfg"
+      ],
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_v850_Develop_FixCGNSOutput/newton_krylov_refactor_20261015/mass_resolution_restart_fixed/cfl_0_001",
+      "environment": {
+        "OMP_NUM_THREADS": "1",
+        "OMP_WAIT_POLICY": "PASSIVE",
+        "TMPDIR": "/media/rausa/4TB/SU2_Versions/SU2_v850_Develop_FixCGNSOutput/newton_krylov_refactor_20261015/mpi_tmp",
+        "OMPI_MCA_orte_tmpdir_base": "/media/rausa/4TB/SU2_Versions/SU2_v850_Develop_FixCGNSOutput/newton_krylov_refactor_20261015/mpi_tmp",
+        "OMPI_MCA_io": "romio321"
+      },
+      "binary_sha256": "1e0f119b20ed30d3ee276722f378a130fcb54c31dae7901da33f39f36de24575",
+      "exit_code": 0,
+      "elapsed_seconds": 0.4587583439424634,
+      "trace": []
+    }
+  ],
+  "physical_merit_probes": [
+    {
+      "cfl": "0.390625",
+      "command": [
+        "mpirun",
+        "--bind-to",
+        "none",
+        "-n",
+        "1",
+        "/media/rausa/4TB/SU2_Versions/SU2_v850_Develop_FixCGNSOutput/newton_krylov_refactor_20261015/build/SU2_CFD/src/SU2_CFD",
+        "run.cfg"
+      ],
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_v850_Develop_FixCGNSOutput/newton_krylov_refactor_20261015/mass_resolution_restart_physical/cfl_0_390625",
+      "environment": {
+        "OMP_NUM_THREADS": "1",
+        "OMP_WAIT_POLICY": "PASSIVE",
+        "TMPDIR": "/media/rausa/4TB/SU2_Versions/SU2_v850_Develop_FixCGNSOutput/newton_krylov_refactor_20261015/mpi_tmp",
+        "OMPI_MCA_orte_tmpdir_base": "/media/rausa/4TB/SU2_Versions/SU2_v850_Develop_FixCGNSOutput/newton_krylov_refactor_20261015/mpi_tmp",
+        "OMPI_MCA_io": "romio321"
+      },
+      "binary_sha256": "1e0f119b20ed30d3ee276722f378a130fcb54c31dae7901da33f39f36de24575",
+      "exit_code": 1,
+      "elapsed_seconds": 2.4594350040424615,
+      "trace": [],
+      "merit": "physical_only",
+      "statuses": [
+        "INVALID_INPUT"
+      ],
+      "accepted_steps": 0,
+      "maximum_rollback_error": 0.0,
+      "failure_restart_bytes": 77018
+    },
+    {
+      "cfl": "100",
+      "command": [
+        "mpirun",
+        "--bind-to",
+        "none",
+        "-n",
+        "1",
+        "/media/rausa/4TB/SU2_Versions/SU2_v850_Develop_FixCGNSOutput/newton_krylov_refactor_20261015/build/SU2_CFD/src/SU2_CFD",
+        "run.cfg"
+      ],
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_v850_Develop_FixCGNSOutput/newton_krylov_refactor_20261015/mass_resolution_restart_physical/cfl_100",
+      "environment": {
+        "OMP_NUM_THREADS": "1",
+        "OMP_WAIT_POLICY": "PASSIVE",
+        "TMPDIR": "/media/rausa/4TB/SU2_Versions/SU2_v850_Develop_FixCGNSOutput/newton_krylov_refactor_20261015/mpi_tmp",
+        "OMPI_MCA_orte_tmpdir_base": "/media/rausa/4TB/SU2_Versions/SU2_v850_Develop_FixCGNSOutput/newton_krylov_refactor_20261015/mpi_tmp",
+        "OMPI_MCA_io": "romio321"
+      },
+      "binary_sha256": "1e0f119b20ed30d3ee276722f378a130fcb54c31dae7901da33f39f36de24575",
+      "exit_code": 1,
+      "elapsed_seconds": 3.056889872997999,
+      "trace": [],
+      "merit": "physical_only",
+      "statuses": [
+        "INVALID_INPUT"
+      ],
+      "accepted_steps": 0,
+      "maximum_rollback_error": 0.0,
+      "failure_restart_bytes": 77018
+    },
+    {
+      "cfl": "0.001",
+      "command": [
+        "mpirun",
+        "--bind-to",
+        "none",
+        "-n",
+        "1",
+        "/media/rausa/4TB/SU2_Versions/SU2_v850_Develop_FixCGNSOutput/newton_krylov_refactor_20261015/build/SU2_CFD/src/SU2_CFD",
+        "run.cfg"
+      ],
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_v850_Develop_FixCGNSOutput/newton_krylov_refactor_20261015/mass_resolution_restart_physical/cfl_0_001",
+      "environment": {
+        "OMP_NUM_THREADS": "1",
+        "OMP_WAIT_POLICY": "PASSIVE",
+        "TMPDIR": "/media/rausa/4TB/SU2_Versions/SU2_v850_Develop_FixCGNSOutput/newton_krylov_refactor_20261015/mpi_tmp",
+        "OMPI_MCA_orte_tmpdir_base": "/media/rausa/4TB/SU2_Versions/SU2_v850_Develop_FixCGNSOutput/newton_krylov_refactor_20261015/mpi_tmp",
+        "OMPI_MCA_io": "romio321"
+      },
+      "binary_sha256": "1e0f119b20ed30d3ee276722f378a130fcb54c31dae7901da33f39f36de24575",
+      "exit_code": 1,
+      "elapsed_seconds": 2.505088523030281,
+      "trace": [],
+      "merit": "physical_only",
+      "statuses": [
+        "INVALID_INPUT"
+      ],
+      "accepted_steps": 0,
+      "maximum_rollback_error": 0.0,
+      "failure_restart_bytes": 77018
+    }
+  ],
+  "comparisons": [
+    {
+      "ranks": 1,
+      "threads": 1,
+      "results": "mass_resolution_sector_ilu_1x1/results.json",
+      "results_sha256": "e32f62d8f4beee055207adadd1913d7fa7eae9382eb8bfbee2eeed1853247908",
+      "environment": {
+        "TMPDIR": "/media/rausa/4TB/SU2_Versions/SU2_v850_Develop_FixCGNSOutput/newton_krylov_refactor_20261015/mpi_tmp",
+        "OMPI_MCA_orte_tmpdir_base": "/media/rausa/4TB/SU2_Versions/SU2_v850_Develop_FixCGNSOutput/newton_krylov_refactor_20261015/mpi_tmp",
+        "OMPI_MCA_io": "romio321",
+        "OMP_WAIT_POLICY": "PASSIVE"
+      },
+      "input_sha256": {
+        "/media/rausa/4TB/SU2_Versions/SU2_v850_Develop_FixCGNSOutput/scalar_limiter_sst_globalization_20261015/source/TestCases/navierstokes/periodic2D/config.cfg": "6fc16cf20a4935f26bd770f06a2246c51207f837873fc66217cc1a50913f85f1",
+        "/media/rausa/4TB/SU2_Versions/SU2_v850_Develop_FixCGNSOutput/scalar_limiter_sst_globalization_20261015/source/TestCases/navierstokes/periodic2D/sector.su2": "28ec24ed38b1f10a9bc449b1191ec182245edb13aa285f5a042cfadfa1411fbc",
+        "/media/rausa/4TB/SU2_Versions/SU2_v850_Develop_FixCGNSOutput/scalar_limiter_sst_globalization_20261015/source/TestCases/navierstokes/periodic2D/inlet.dat": "f1945da32ecbb443e333bc51c10e311d855f043e12464dc328b18288705c622c"
+      },
+      "resume": null,
+      "runs": [
+        {
+          "mode": "native",
+          "updates": 843,
+          "wall_seconds": 55.50323437899351,
+          "max_rank_rss_kib": 33836,
+          "outer_krylov_iterations": 42150,
+          "inner_krylov_iterations": 0,
+          "residual_assemblies": {
+            "flow": 843
+          },
+          "last_history_log10_rms": [
+            -12.39724792,
+            -11.15910454,
+            -11.00414518,
+            -10.00123128
+          ],
+          "state_difference_from_native": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "quantity_difference_from_native": {
+            "mass": 0.0,
+            "drag": 0.0,
+            "lift": 0.0,
+            "moment_z": 0.0,
+            "heat_flux": 0.0
+          },
+          "maximum_raw_rms": 9.738616450146976e-11,
+          "maximum_normalized_rms": 6.783127516225094e-12
+        },
+        {
+          "mode": "segregated",
+          "updates": 72,
+          "wall_seconds": 85.85589870600961,
+          "max_rank_rss_kib": 38292,
+          "outer_krylov_iterations": 7962,
+          "inner_krylov_iterations": 0,
+          "residual_assemblies": {
+            "flow": 25553
+          },
+          "last_history_log10_rms": [
+            -12.18306413,
+            -10.70369205,
+            -10.22782659,
+            -10.05200977
+          ],
+          "state_difference_from_native": [
+            2.096449008892896e-08,
+            5.198802580851865e-07,
+            4.1336859853771975e-07,
+            1.773401247836342e-08
+          ],
+          "quantity_difference_from_native": {
+            "mass": 7.199827559519873e-09,
+            "drag": 0.0,
+            "lift": 0.0,
+            "moment_z": 0.0,
+            "heat_flux": 0.0
+          },
+          "maximum_raw_rms": 8.871360561691575e-11,
+          "maximum_normalized_rms": 4.1135992410249065e-11,
+          "maximum_accepted_true_defect": 0.07064651740941298,
+          "maximum_rollback_error": 0.0
+        },
+        {
+          "mode": "coupled",
+          "updates": 72,
+          "wall_seconds": 85.07887722598389,
+          "max_rank_rss_kib": 38520,
+          "outer_krylov_iterations": 7962,
+          "inner_krylov_iterations": 0,
+          "residual_assemblies": {
+            "flow": 25553
+          },
+          "last_history_log10_rms": [
+            -12.18306413,
+            -10.70369205,
+            -10.22782659,
+            -10.05200977
+          ],
+          "state_difference_from_native": [
+            2.096449008892896e-08,
+            5.198802580851865e-07,
+            4.1336859853771975e-07,
+            1.773401247836342e-08
+          ],
+          "quantity_difference_from_native": {
+            "mass": 7.199827559519873e-09,
+            "drag": 0.0,
+            "lift": 0.0,
+            "moment_z": 0.0,
+            "heat_flux": 0.0
+          },
+          "maximum_raw_rms": 8.871360561691575e-11,
+          "maximum_normalized_rms": 4.1135992410249065e-11,
+          "maximum_accepted_true_defect": 0.07064651740941298,
+          "maximum_rollback_error": 0.0
+        }
+      ]
+    },
+    {
+      "ranks": 2,
+      "threads": 2,
+      "results": "mass_resolution_sector_ilu_2x2/results.json",
+      "results_sha256": "00f728d795942ff70e3fcbb464a0e16b5fc22091de24ef9591e80c0ac0528bac",
+      "environment": {
+        "TMPDIR": "/media/rausa/4TB/SU2_Versions/SU2_v850_Develop_FixCGNSOutput/newton_krylov_refactor_20261015/mpi_tmp",
+        "OMPI_MCA_orte_tmpdir_base": "/media/rausa/4TB/SU2_Versions/SU2_v850_Develop_FixCGNSOutput/newton_krylov_refactor_20261015/mpi_tmp",
+        "OMPI_MCA_io": "romio321",
+        "OMP_WAIT_POLICY": "PASSIVE"
+      },
+      "input_sha256": {
+        "/media/rausa/4TB/SU2_Versions/SU2_v850_Develop_FixCGNSOutput/scalar_limiter_sst_globalization_20261015/source/TestCases/navierstokes/periodic2D/config.cfg": "6fc16cf20a4935f26bd770f06a2246c51207f837873fc66217cc1a50913f85f1",
+        "/media/rausa/4TB/SU2_Versions/SU2_v850_Develop_FixCGNSOutput/scalar_limiter_sst_globalization_20261015/source/TestCases/navierstokes/periodic2D/sector.su2": "28ec24ed38b1f10a9bc449b1191ec182245edb13aa285f5a042cfadfa1411fbc",
+        "/media/rausa/4TB/SU2_Versions/SU2_v850_Develop_FixCGNSOutput/scalar_limiter_sst_globalization_20261015/source/TestCases/navierstokes/periodic2D/inlet.dat": "f1945da32ecbb443e333bc51c10e311d855f043e12464dc328b18288705c622c"
+      },
+      "resume": {
+        "script_sha256": "8d7ada1447f992f2635efe78e12956e3c69f36e636fd9b19dde6fd5169a4d845",
+        "executed_main_sha256": "9d976378ad4d5295e81d25b7015ce5ab9dfa2ff95142a554c5d6cfe4b494a805",
+        "original_results_sha256": "9a71dc6b2af6be19f40a3d1146b9be6367f0d1e224fbc6dfd04241b254b1e752",
+        "interrupted_directory": "coupled_interrupted",
+        "wrapper_exit_code": 143
+      },
+      "runs": [
+        {
+          "mode": "native",
+          "updates": 6469,
+          "wall_seconds": 199.8730172360083,
+          "max_rank_rss_kib": 29820,
+          "outer_krylov_iterations": 323450,
+          "inner_krylov_iterations": 0,
+          "residual_assemblies": {
+            "flow": 6469
+          },
+          "last_history_log10_rms": [
+            -12.36576439,
+            -11.39362642,
+            -10.99615542,
+            -10.00063285
+          ],
+          "state_difference_from_native": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "quantity_difference_from_native": {
+            "mass": 0.0,
+            "drag": 0.0,
+            "lift": 0.0,
+            "moment_z": 0.0,
+            "heat_flux": 0.0
+          },
+          "maximum_raw_rms": 9.938581436040707e-11,
+          "maximum_normalized_rms": 7.148913845447975e-12
+        },
+        {
+          "mode": "segregated",
+          "updates": 227,
+          "wall_seconds": 257.37043010198977,
+          "max_rank_rss_kib": 32700,
+          "outer_krylov_iterations": 26652,
+          "inner_krylov_iterations": 0,
+          "residual_assemblies": {
+            "flow": 83800
+          },
+          "last_history_log10_rms": [
+            -12.14324113,
+            -10.68481177,
+            -10.20182938,
+            -10.00347021
+          ],
+          "state_difference_from_native": [
+            2.2189445171210562e-08,
+            5.577987922302243e-07,
+            4.430287842481147e-07,
+            1.876158595746075e-08
+          ],
+          "quantity_difference_from_native": {
+            "mass": 7.569718865915013e-09,
+            "drag": 0.0,
+            "lift": 0.0,
+            "moment_z": 0.0,
+            "heat_flux": 0.0
+          },
+          "maximum_raw_rms": 9.920413898237996e-11,
+          "maximum_normalized_rms": 4.356566398536631e-11,
+          "maximum_accepted_true_defect": 0.0992443857056171,
+          "maximum_rollback_error": 0.0
+        },
+        {
+          "mode": "coupled",
+          "updates": 227,
+          "wall_seconds": 141.6167865820462,
+          "max_rank_rss_kib": 32444,
+          "outer_krylov_iterations": 26652,
+          "inner_krylov_iterations": 0,
+          "residual_assemblies": {
+            "flow": 83800
+          },
+          "last_history_log10_rms": [
+            -12.14324113,
+            -10.68481177,
+            -10.20182938,
+            -10.00347021
+          ],
+          "state_difference_from_native": [
+            2.2189445171210562e-08,
+            5.577987922302243e-07,
+            4.430287842481147e-07,
+            1.876158595746075e-08
+          ],
+          "quantity_difference_from_native": {
+            "mass": 7.569718865915013e-09,
+            "drag": 0.0,
+            "lift": 0.0,
+            "moment_z": 0.0,
+            "heat_flux": 0.0
+          },
+          "maximum_raw_rms": 9.920413898237996e-11,
+          "maximum_normalized_rms": 4.356566398536631e-11,
+          "maximum_accepted_true_defect": 0.0992443857056171,
+          "maximum_rollback_error": 0.0
+        }
+      ]
+    }
+  ],
+  "retained_interruption": {
+    "wrapper_exit_code": 143,
+    "last_history": "          0,           0,         212,      -11.77508545,      -10.31664966,      -9.833657242,      -9.635364891,                        80,      -1.670204642",
+    "children_exited": true,
+    "cause": "SIGTERM ended the outer wrapper; signal origin not established. Not the solver subprocess600s timeout.",
+    "retained_directory": "/media/rausa/4TB/SU2_Versions/SU2_v850_Develop_FixCGNSOutput/newton_krylov_refactor_20261015/mass_resolution_sector_ilu_2x2/coupled_interrupted"
+  },
+  "cross_layout": {
+    "native": {
+      "state_relative": [
+        4.561725112195387e-10,
+        7.324687630480029e-09,
+        7.543080192234507e-09,
+        3.888456395231964e-10
+      ]
+    },
+    "segregated": {
+      "state_relative": [
+        1.6543263781236028e-09,
+        3.7859498711945e-08,
+        3.060401162057587e-08,
+        1.3945515710630428e-09
+      ]
+    },
+    "coupled": {
+      "state_relative": [
+        1.6543263781236028e-09,
+        3.7859498711945e-08,
+        3.060401162057587e-08,
+        1.3945515710630428e-09
+      ]
+    }
+  },
+  "native_lusgs_check": {
+    "command": [
+      "mpirun",
+      "--bind-to",
+      "none",
+      "-n",
+      "2",
+      "/media/rausa/4TB/SU2_Versions/SU2_v850_Develop_FixCGNSOutput/newton_krylov_refactor_20261015/build/SU2_CFD/src/SU2_CFD",
+      "run.cfg"
+    ],
+    "cwd": "/media/rausa/4TB/SU2_Versions/SU2_v850_Develop_FixCGNSOutput/newton_krylov_refactor_20261015/mass_resolution_native_lusgs_2x2",
+    "environment": {
+      "OMP_NUM_THREADS": "2",
+      "OMP_WAIT_POLICY": "PASSIVE",
+      "TMPDIR": "/media/rausa/4TB/SU2_Versions/SU2_v850_Develop_FixCGNSOutput/newton_krylov_refactor_20261015/mpi_tmp",
+      "OMPI_MCA_orte_tmpdir_base": "/media/rausa/4TB/SU2_Versions/SU2_v850_Develop_FixCGNSOutput/newton_krylov_refactor_20261015/mpi_tmp",
+      "OMPI_MCA_io": "romio321"
+    },
+    "exit_code": 0,
+    "wall_seconds": 41.32455593300983,
+    "binary_sha256": "1e0f119b20ed30d3ee276722f378a130fcb54c31dae7901da33f39f36de24575",
+    "updates": 2229,
+    "physical": {
+      "points": 1600,
+      "systems": {
+        "flow": {
+          "rms": [
+            4.118548623200667e-13,
+            5.9109767923217675e-12,
+            1.3139956392841033e-11,
+            9.939076900572493e-11
+          ],
+          "maximum": [
+            2.8272219634861706e-12,
+            2.3646862246096134e-11,
+            4.4504344653972794e-11,
+            7.585581052182988e-10
+          ],
+          "normalized_rms": [
+            4.1325909798516684e-13,
+            5.923937710335889e-12,
+            9.668008769864884e-12,
+            5.57018827675329e-13
+          ],
+          "projection_max": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "packed_integral": [
+            0.0733889972839578,
+            -0.015237091929238207,
+            0.11278877642223685,
+            13.132721745103424
+          ]
+        }
+      },
+      "quantities": {
+        "mass": 0.0733889972839578,
+        "drag": 0,
+        "lift": 0,
+        "moment_z": 0,
+        "heat_flux": 0
+      }
+    },
+    "report_command": [
+      "python3",
+      "/media/rausa/4TB/SU2_Versions/SU2_v850_Develop_FixCGNSOutput/scalar_limiter_sst_globalization_20261015/source/TestCases/newton_krylov/report_state.py",
+      "--reporter",
+      "/media/rausa/4TB/SU2_Versions/SU2_v850_Develop_FixCGNSOutput/newton_krylov_refactor_20261015/build/UnitTests/newton_equation_tests",
+      "--config",
+      "/media/rausa/4TB/SU2_Versions/SU2_v850_Develop_FixCGNSOutput/newton_krylov_refactor_20261015/mass_resolution_native_lusgs_2x2/run.cfg",
+      "--restart",
+      "/media/rausa/4TB/SU2_Versions/SU2_v850_Develop_FixCGNSOutput/newton_krylov_refactor_20261015/mass_resolution_native_lusgs_2x2/restart_flow.dat",
+      "--output",
+      "/media/rausa/4TB/SU2_Versions/SU2_v850_Develop_FixCGNSOutput/newton_krylov_refactor_20261015/mass_resolution_native_lusgs_2x2/physical",
+      "--ranks",
+      "2",
+      "--threads",
+      "2"
+    ],
+    "reporter_sha256": "0687a720b202317126a77d4fa88ac7e44f25a39a9e4b4ac8a0d02065de87be22"
+  },
+  "review": {
+    "model": "claude-opus-5-5",
+    "effort": "high",
+    "tools_enabled": false,
+    "proven_bugs": 0,
+    "halo_concern": {
+      "disposition": "No affected consumer found: owned-only feasibility checks and an exchange before residual state validation protect these consumers.",
+      "evidence": [
+        "CNewtonEquationSet.cpp:145,185 FeasibleProbes loops GetnPointDomain",
+        "CNewtonEquationSet.cpp:482-483 Communicate precedes CheckState in EvaluateResiduals"
+      ]
+    },
+    "physical_merit_concern": {
+      "disposition": "Expected strict validation, not a production defect. Default pseudo-time probes pass; physical-only J*p can remain unresolved and must be rejected.",
+      "configuration": "NEWTON_PSEUDO_TIME_MERIT defaults YES; successful three restart probes retain YES.",
+      "verification": "All three physical-only saved-state probes reject INVALID_INPUT with zero accepted steps, exact rollback and nonempty failure restarts; default pseudo-time probes accept."
+    },
+    "physical_preconditioner_test": {
+      "disposition": "Added finite and nonzero physical correction assertions. All55cases pass four layouts; six focused cases pass Valgrind0errors and three CLI checks pass."
+    },
+    "mass_test_scope": {
+      "disposition": "This regression establishes a resolved full J+D product and catches the old gate; separate product tests validate the physical derivative.",
+      "fixture": "MUSCL_FLOW=NO; homogeneous scaling preserves velocity/temperature, leaving zero viscous gradients. No physical-only accuracy claim from mass-dominated relative norm."
+    }
+  },
+  "review_result_sha256": "4d66aad7482d455c92cd8a1f6d10e9d9d37065f84488d3a24363d4170c8f4eb9",
+  "archive": "periodic_resolved_1e0f119b20ed",
+  "retained_prior_archives": [
+    "periodic_common_initial_ef407ae13a9f",
+    "periodic_projected_d09cc23ca788",
+    "mass_resolution_detect_archive",
+    "mass_resolution_resolved_detect_archive"
+  ],
+  "limitations": [
+    "Fewer outer updates do not establish a speedup. Serial Newton is slower; MPI wall times vary widely across equivalent single-group modes.",
+    "FLOW-only segregated/coupled modes both contain one group.",
+    "Sector mass quantity is integrated domain mass; zero unmonitored forces do not qualify aerodynamic outputs.",
+    "Converged periodic turbulence/transition and axis/intersection production endpoints remain open.",
+    "Three old finite-iteration periodic reference mismatches remain open, with unchanged references/tolerances.",
+    "Periodic streamwise/species and further flamelet/NEMO work are deferred.",
+    "Forward syntax only; AD runtime, reverse/mixed/GPU and leak analysis remain unqualified."
+  ]
+}

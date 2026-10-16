@@ -181,6 +181,11 @@ bool CNewtonLinearization::Apply(const Vector& u, Vector& v, bool pseudoTime, bo
     h *= 0.5;
   }
   bool converged = false;
+  if (refine && pseudoTime) {
+    SU2_OMP_SAFE_GLOBAL_ACCESS(
+        if (probeWork.GetLocSize() != u.GetLocSize())
+          probeWork.Initialize(u.GetNBlk(), u.GetNBlkDomain(), u.GetNVar(), 0.0);)
+  }
   for (unsigned refinement = 0; sampled && refinement <= (refine ? 16u : 0u); ++refinement) {
     /*--- A rounded-away perturbation cannot establish a zero derivative. ---*/
     if (stepResolution > 0 && std::abs(h) * stepResolution < 1) break;
@@ -197,7 +202,19 @@ bool CNewtonLinearization::Apply(const Vector& u, Vector& v, bool pseudoTime, bo
     }
     END_SU2_OMP_FOR
     const double error = refine ? previousProduct.norm() : 0;
-    const double magnitude = refine ? v.norm() : 0;
+    double magnitude = refine && !pseudoTime ? v.norm() : 0;
+    if (refine && pseudoTime) {
+      /*--- Verify the operator being solved: near-null physical modes are resolved by the frozen mass action. ---*/
+      if (nativeMass) {
+        nativeMass->Apply(u, probeWork);
+        probeWork += v;
+      } else {
+        SU2_OMP_FOR_STAT(1024)
+        for (auto i = 0ul; i < u.GetNElmDomain(); ++i) probeWork[i] = v[i] + (*diagonal)[i] * u[i];
+        END_SU2_OMP_FOR
+      }
+      magnitude = probeWork.norm();
+    }
     if (!refine || (refinement > 1 && error <= 5e-4 * magnitude)) {
       converged = true;
       break;
@@ -250,6 +267,8 @@ CNewtonBlockPreconditioner::CNewtonBlockPreconditioner(const CNewtonLinearizatio
     block.output.Initialize(geometry->GetnPoint(), geometry->GetnPointDomain(), b.variables, 0.0);
   }
   if (lower) coupling.Initialize(geometry->GetnPoint(), geometry->GetnPointDomain(), l.GetnVar(), 0.0);
+  if (config->GetnMarker_Periodic())
+    periodicRHS.Initialize(geometry->GetnPoint(), geometry->GetnPointDomain(), l.GetnVar(), 0.0);
 }
 
 void CNewtonBlockPreconditioner::Build() {
@@ -272,6 +291,13 @@ unsigned long CNewtonBlockPreconditioner::Solve(const Vector& u, Vector& v, unsi
   /*--- Vector producers use nowait with a different partition than the native block loops. ---*/
   SU2_OMP_BARRIER
   const auto& scale = linearization.GetScale();
+  const bool periodic = config->GetnMarker_Periodic();
+  if (periodic) {
+    /*--- Native partial-cell solves approximate physical modes; keep consistency modes for the identity below. ---*/
+    periodicRHS = u;
+    linearization.ProjectPeriodic(periodicRHS);
+  }
+  const auto& rightHandSide = periodic ? periodicRHS : u;
   unsigned long total = 0;
   v = passivedouble(0);
   for (auto index = 0u; index < blocks.size(); ++index) {
@@ -288,7 +314,7 @@ unsigned long CNewtonBlockPreconditioner::Solve(const Vector& u, Vector& v, unsi
       for (auto j = 0u; j < block.variables; ++j) {
         const auto column = block.offset + j;
         const double cross = lowerTriangular && index ? coupling(p, column) : 0;
-        block.input(p, j) = (u(p, column) - cross) * scale(p, column);
+        block.input(p, j) = (rightHandSide(p, column) - cross) * scale(p, column);
       }
     END_SU2_OMP_FOR
     const auto inner = config->GetKind_Linear_Solver_Inner();
@@ -333,6 +359,14 @@ unsigned long CNewtonBlockPreconditioner::Solve(const Vector& u, Vector& v, unsi
       for (auto j = 0u; j < block.variables; ++j)
         v(p, block.offset + j) = SU2_TYPE::GetValue(block.output(p, j)) / scale(p, block.offset + j);
     END_SU2_OMP_FOR
+    /*--- Lower coupling must consume the consistent corrections of the preceding blocks. ---*/
+    if (periodic && lowerTriangular && index + 1 < blocks.size()) linearization.ProjectPeriodic(v);
+  }
+  if (periodic) {
+    /*--- Apply S^-1*(P*M^-1*P+(I-P))*S, retaining all arbitrary input directions. ---*/
+    linearization.ProjectPeriodic(v);
+    v += u - periodicRHS;
+    SU2_OMP_BARRIER
   }
   SU2_OMP_SAFE_GLOBAL_ACCESS(work += total;)
   return total;

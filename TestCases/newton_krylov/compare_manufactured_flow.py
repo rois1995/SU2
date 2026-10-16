@@ -90,7 +90,8 @@ def main(case=MMS_CASE):
               'ranks': args.ranks, 'threads': args.threads, 'case': case['name'], 'limits': case['limits'], 'runs': [],
               'input_sha256': case.get('input_sha256', {}),
               'environment': {key: os.environ[key] for key in
-                              ['TMPDIR', 'OMPI_MCA_orte_tmpdir_base', 'OMP_WAIT_POLICY'] if key in os.environ}}
+                              ['TMPDIR', 'OMPI_MCA_orte_tmpdir_base', 'OMPI_MCA_io', 'OMP_WAIT_POLICY']
+                              if key in os.environ}}
     tags = {'flow': 'FLOW', 'turbulence': 'TURB', 'transition': 'TRANS', 'species': 'SPECIES'}
     selection = 'NEWTON_EQUATIONS= (' + ','.join(tags[system] for system in case['fields']) + ')\n'
     lower = 'NEWTON_BLOCK_LOWER= YES\n' if len(case['fields']) > 1 else ''

@@ -118,6 +118,7 @@ class CNewtonLinearization final : public CMatrixVectorProduct<passivedouble> {
   }
   /*!
    * \brief Differentiate the full physical residual along the supplied scaled direction.
+   * \details Refinement measures relative error against the requested operator, J_F or J_F plus frozen mass.
    * \param[in] pseudoTime - Include the frozen pseudo-time action when true.
    * \param[in] verifyStep - Permit the configured probe refinement; only approximate preconditioner coupling omits it.
    * \return False, with a nonfinite output, if no feasible, resolved derivative can be obtained.
@@ -127,6 +128,11 @@ class CNewtonLinearization final : public CMatrixVectorProduct<passivedouble> {
   const Vector& GetScale() const {
     assert(scale);
     return *scale;
+  }
+  /*! \brief Apply S^-1*P*S to a preconditioner vector; full derivative directions remain unprojected. */
+  void ProjectPeriodic(Vector& vector) const {
+    assert(scale);
+    equations.ProjectPeriodic(vector, scale);
   }
   unsigned short GetnVar() const { return equations.GetnVar(); }
   bool UsesNativeMass() const { return nativeMass != nullptr; }
@@ -140,6 +146,7 @@ class CNewtonLinearization final : public CMatrixVectorProduct<passivedouble> {
  * \details Each matrix retains its native block size; the full group never enters CSysMatrix scratch buffers.
  * Native matrices approximate the full operator. In particular, periodic P*A*P+(I-P) is a preconditioner,
  * while arbitrary trial directions remain present in the residual derivative used for acceptance.
+ * Its approximate inverse preserves this structure as P*M^-1*P+(I-P), with scaling undone around P.
  */
 class CNewtonBlockPreconditioner final : public CPreconditioner<passivedouble> {
   using Mixed = su2mixedfloat;
@@ -159,7 +166,7 @@ class CNewtonBlockPreconditioner final : public CPreconditioner<passivedouble> {
   CConfig* config;
   mutable unsigned long work = 0;
   std::vector<Block> blocks;
-  mutable Vector coupling;
+  mutable Vector coupling, periodicRHS;
 
  public:
   CNewtonBlockPreconditioner(const CNewtonLinearization&, CGeometry*, CConfig*, bool lower = false,

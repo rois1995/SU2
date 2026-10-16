@@ -14,11 +14,11 @@ def sector_case():
     config = '\n'.join(line for line in config_path.read_text().splitlines()
                        if not re.match(r'^\s*INNER_ITER\s*=', line)) + '\n'
 
-    # Retain the qualified native controls; Newton uses its existing bounded CFL adaptation.
+    # Use ILU in all three modes; Newton retains its existing bounded CFL adaptation.
     settings = {
         'MESH_FILENAME': str(mesh), 'INLET_FILENAME': str(inlet),
         'REF_DIMENSIONALIZATION': 'FREESTREAM_VEL_EQ_ONE', 'MGLEVEL': '0',
-        'LINEAR_SOLVER_ITER': '50', 'LINEAR_SOLVER_ERROR': '1e-4',
+        'LINEAR_SOLVER_PREC': 'ILU', 'LINEAR_SOLVER_ITER': '50', 'LINEAR_SOLVER_ERROR': '1e-4',
         'ITER': '20000', 'CONV_STARTITER': '5',
         'CONV_FIELD': '(RMS_DENSITY,RMS_MOMENTUM-X,RMS_MOMENTUM-Y,RMS_ENERGY)',
         'CONV_RESIDUAL_MINVAL': '-10', 'OUTPUT_FILES': 'RESTART',

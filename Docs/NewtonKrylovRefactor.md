@@ -1,5 +1,55 @@
 # Common globalized Newton–Krylov refactor
 
+## Periodic preconditioning and resolved mass actions, 2026-10-16
+
+The periodic block preconditioner now applies
+`S^-1*(P*M^-1*P+(I-P))*S`. It projects the right-hand side and native correction
+in physical coordinates, and retains the consistency component through the
+identity action. Lower block coupling consumes projected preceding corrections.
+Full residual derivatives still retain arbitrary directions. An independent
+translation/rotation test detects the previous mixing of these subspaces and
+checks exact rollback with flow, SA, SST, LM and anisotropic scaling.
+
+Derivative refinement now measures its physical Richardson difference against
+the requested operator, either `J_F` or `J_F+D`. A captured periodic near-null
+mode had a physical product and cancellation error of about `4e-6`, while its
+frozen mass action had norm about one. Measuring relative accuracy against the
+physical product alone rejected a resolved `J_F+D` action and exhausted CFL
+recovery. The existing `5e-4` verification threshold and `0.1` true linear-defect
+limit are unchanged. Physical-merit searches independently verify `J_F*p`,
+avoiding subtraction of a dominant mass action from an already formed product.
+The analytic near-null regression detects the old metric on both serial and
+MPI layouts; all three saved-state CFL probes now accept an update.
+
+All 55 native cases pass on 1x1, 1x2, 2x2 and 2x4 layouts: 104338 assertions
+on each single-rank layout and 61942/55730 per MPI rank. All 88 supported ordinary
+cases pass 105424 assertions. The six focused cases pass 41290 assertions under
+Valgrind with zero errors (leaks unchecked); the three CLI checks and three
+affected forward-mode syntax checks pass. AD runtime remains unqualified.
+The sector comparison uses identical ILU settings in all three modes and the
+installed ROMIO backend; its environment is included in the result record.
+All six sector comparisons now converge with every flow RMS below `1e-10`,
+independently recomputed raw RMS below `1e-10` and normalized RMS below `1e-9`.
+Native/segregated/coupled update counts are 843/72/72 on 1x1 and 6469/227/227
+on 2x2. State differences from native stay below `5.6e-7`; serial/MPI differences
+stay below `3.8e-8`. Recorded rollbacks are exact and accepted true linear defects
+remain below `0.1`. This FLOW-only case has one group in both Newton modes and
+qualifies neither periodic turbulence/transition endpoints nor general speedups.
+Serial timings are about 56/86/85 seconds; MPI timings are about 200/257/142
+seconds. The wide timing variation between equivalent single-group modes makes
+performance conclusions premature. The externally interrupted first MPI coupled
+run is retained separately; only that case was resumed with the same validation.
+Current commands, hashes and limitations are in
+`Docs/NewtonKrylovPeriodicResolvedResults.json`; the earlier common-periodic
+ledger below remains historical evidence.
+
+These endpoints use the default pseudo-time merit. Physical-only merit still
+rejects all three captured near-null saved-state probes because their physical
+slopes cannot be resolved. Those controlled failures accept no step, restore
+state exactly and write nonempty failure restarts; no unresolved slope is
+accepted. The separate native MPI LU-SGS check converges in 2229 updates and
+passes the same independent residual limits.
+
 ## Common Newton periodic equations and code documentation, 2026-10-16
 
 The shared equation interface now retains periodic copies as explicit unknowns.

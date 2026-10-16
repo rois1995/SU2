@@ -560,6 +560,154 @@ TEST_CASE("Periodic driver groups accept updates and restore failed solves", "[N
       }
 }
 
+TEST_CASE("Periodic block preconditioners preserve physical and consistency subspaces", "[NewtonPeriodicPreconditioner]") {
+  /*--- Preserve the native augmented structure: project physical solves and keep (I-P) as an identity. ---*/
+  for (const auto& physics : {std::string("SOLVER= NAVIER_STOKES\n"), sa, sst, sst + "KIND_TRANS_MODEL= LM\n"})
+    for (bool rotation : {false, true})
+      for (bool lower : {false, true}) {
+        CAPTURE(physics, rotation, lower);
+        const auto boundary = rotation
+            ? "MARKER_FAR= (y_minus,y_plus,z_minus,z_plus)\n"
+              "MARKER_PERIODIC= (x_minus,x_plus,0,0.5,0.5,90,0,0,1,0,0)\n"
+            : "MARKER_FAR= (y_minus,y_plus)\nMARKER_PERIODIC= (x_minus,x_plus,0,0,0,0,0,0,1,0,0)\n";
+        Problem problem(physics + "MARKER_HEATFLUX= NONE\nLINEAR_SOLVER_PREC= ILU\n" + boundary,
+                        5, false, rotation);
+        auto& driver = *problem.driver;
+        auto* geometry = driver.Geometry();
+        auto* config = driver.Config();
+        auto* flow = driver.Solvers()[FLOW_SOL]->GetNodes();
+        std::vector<unsigned short> selected{RUNTIME_FLOW_SYS};
+        for (auto runtime : {RUNTIME_TURB_SYS, RUNTIME_TRANS_SYS})
+          if (driver.Solvers()[config->GetContainerPosition(runtime)]) selected.push_back(runtime);
+
+        /*--- Use consistent shear/swirl and interior intermittency to avoid unrelated zero-norm/cap derivatives. ---*/
+        for (auto p = 0ul; p < geometry->GetnPoint(); ++p) {
+          const double y = geometry->nodes->GetCoord(p, 1), momentum = flow->GetSolution(p, 1);
+          if (rotation) {
+            flow->SetSolution(p, 2, -0.05 * momentum * (geometry->nodes->GetCoord(p, 2) - 0.5));
+            flow->SetSolution(p, 3, 0.05 * momentum * (y - 0.5));
+          } else {
+            flow->SetSolution(p, 1, momentum * (1 + 0.1 * y));
+          }
+          if (driver.Solvers()[TRANS_SOL]) driver.Solvers()[TRANS_SOL]->GetNodes()->SetSolution(p, 0, 0.8);
+        }
+        auto equations = problem.Equations(selected);
+        REQUIRE(Residual(*equations, true));
+        equations->Capture();
+        for (const auto& block : equations->GetBlocks())
+          for (auto p = 0ul; p < geometry->GetnPoint(); ++p) block.solver->GetNodes()->SetDelta_Time(p, 0.1);
+        SU2_OMP_PARALLEL {
+          for (const auto& block : equations->GetBlocks()) {
+            SU2_OMP_SAFE_GLOBAL_ACCESS(config->SetGlobalParam(config->GetKind_Solver(), block.runtime);)
+            block.solver->PrepareImplicitIteration(geometry, driver.Solvers(), config, false);
+          }
+        }
+        END_SU2_OMP_PARALLEL
+        auto scale = MakeVector(driver, equations->GetnVar()), reference = scale, raw = scale;
+        equations->BuildScales(scale, reference);
+        for (auto p = 0ul; p < geometry->GetnPoint(); ++p)
+          for (auto v = 0u; v < equations->GetnVar(); ++v) {
+            const double x = geometry->nodes->GetCoord(p, 0), y = geometry->nodes->GetCoord(p, 1);
+            scale(p, v) *= 1 + 0.2 * x + 0.1 * v;
+            raw(p, v) = scale(p, v) * std::sin(0.3 + x + 0.2 * y + 0.17 * v);
+          }
+        const auto averaged = PeriodicReference(driver, *equations, raw, rotation);
+        std::vector<unsigned char> free(scale.GetLocSize(), true);
+        CNewtonPseudoTime mass(*equations, geometry, config);
+        REQUIRE(mass.Build(scale, free));
+        CNewtonLinearization linearization(*equations, geometry, config);
+        REQUIRE(linearization.SetBase(scale, mass.GetDiagonal(), 1e-7, 1e-5,
+            [](const CNewtonEquationSet::Block&, unsigned long, unsigned short) { return true; },
+            nullptr, 1.0, false, false, &mass));
+        CNewtonBlockPreconditioner preconditioner(linearization, geometry, config, lower);
+        SU2_OMP_PARALLEL { preconditioner.Build(); }
+        END_SU2_OMP_PARALLEL
+        for (bool consistency : {false, true}) {
+          CAPTURE(consistency);
+          Vector physical = averaged;
+          if (consistency) physical = raw - averaged;
+          auto input = raw, actual = raw;
+          for (auto i = 0ul; i < input.GetLocSize(); ++i) input[i] = physical[i] / scale[i];
+          SU2_OMP_PARALLEL { preconditioner(input, actual); }
+          END_SU2_OMP_PARALLEL
+          for (auto i = 0ul; i < actual.GetLocSize(); ++i) actual[i] *= scale[i];
+          const auto projected = PeriodicReference(driver, *equations, actual, rotation);
+          Vector expected = consistency ? physical : projected;
+          for (auto i = 0ul; i < actual.GetLocSize(); ++i) {
+            actual[i] /= scale[i];
+            expected[i] /= scale[i];
+          }
+          /*--- Require a useful inverse action as well as preservation of the physical subspace. ---*/
+          if (!consistency) {
+            const double correction = actual.norm();
+            CHECK(std::isfinite(correction));
+            CHECK(correction > 1e-12 * input.norm());
+          }
+          CHECK(MaxDifference(actual, expected) < 1e-11 * std::max(1.0, expected.norm()));
+        }
+        REQUIRE(equations->Restore());
+        CHECK(equations->GetRestorationError() == 0);
+      }
+}
+
+TEST_CASE("Derivative verification resolves mass-dominated physical null modes", "[NewtonMassResolution]") {
+  /*--- Scaling a nearly uniform periodic state gives J_R*w=R(w), tiny compared with the frozen mass action. ---*/
+  for (unsigned cells : {6, 8}) {
+    Problem problem("SOLVER= NAVIER_STOKES\nMARKER_HEATFLUX= NONE\nMARKER_FAR= NONE\n"
+                    "MARKER_PERIODIC= (x_minus,x_plus,0,0,0,0,0,0,1,0,0,"
+                    "y_minus,y_plus,0,0,0,0,0,0,0,1,0)\n", cells);
+    auto& driver = *problem.driver;
+    auto* geometry = driver.Geometry();
+    auto* config = driver.Config();
+    auto* nodes = driver.Solvers()[FLOW_SOL]->GetNodes();
+    for (auto p = 0ul; p < geometry->GetnPoint(); ++p) {
+      const double x = geometry->nodes->GetCoord(p, 0), y = geometry->nodes->GetCoord(p, 1);
+      const double factor = 1 + 1e-9 * std::sin(2 * PI_NUMBER * x) * std::cos(2 * PI_NUMBER * y);
+      for (auto v = 0u; v < driver.Solvers()[FLOW_SOL]->GetnVar(); ++v)
+        nodes->SetSolution(p, v, factor * nodes->GetSolution(p, v));
+      nodes->SetDelta_Time(p, 0.1);
+    }
+    auto equations = problem.Equations({RUNTIME_FLOW_SYS});
+    REQUIRE(Residual(*equations, true));
+    equations->Capture();
+    auto scale = MakeVector(driver, equations->GetnVar()), reference = scale, direction = scale;
+    equations->BuildScales(scale, reference);
+    equations->Pack(direction);
+    for (auto i = 0ul; i < direction.GetLocSize(); ++i) direction[i] /= scale[i];
+    std::vector<unsigned char> free(scale.GetLocSize(), true);
+    CNewtonPseudoTime mass(*equations, geometry, config);
+    REQUIRE(mass.Build(scale, free));
+    for (bool nativeMass : {false, true}) {
+      CAPTURE(cells, nativeMass);
+      CNewtonLinearization linearization(*equations, geometry, config);
+      /*--- This homogeneous direction permits a larger probe without truncation error, reducing flux cancellation. ---*/
+      REQUIRE(linearization.SetBase(scale, mass.GetDiagonal(), 1e-5, 1e-5,
+          [](const CNewtonEquationSet::Block&, unsigned long, unsigned short) { return true; },
+          nullptr, 1.0, false, true, nativeMass ? &mass : nullptr));
+      auto expected = scale, action = scale, actual = scale;
+      equations->CopyResidual(expected);
+      if (nativeMass) mass.Apply(direction, action);
+      for (auto i = 0ul; i < expected.GetLocSize(); ++i)
+        expected[i] = expected[i] / scale[i] +
+                      (nativeMass ? action[i] : mass.GetDiagonal()[i] * direction[i]);
+      /*--- Accuracy belongs to J_R+D here; a relative test against J_R alone cannot resolve this valid mode. ---*/
+      bool valid = false;
+      SU2_OMP_PARALLEL {
+        const bool result = linearization.Apply(direction, actual);
+        SU2_OMP_SAFE_GLOBAL_ACCESS(valid = result;)
+      }
+      END_SU2_OMP_PARALLEL
+      CHECK(valid);
+      if (valid) {
+        actual -= expected;
+        CHECK(actual.norm() < 1e-5 * expected.norm());
+      }
+      REQUIRE(equations->Restore());
+      CHECK(equations->GetRestorationError() == 0);
+    }
+  }
+}
+
 TEST_CASE("Newton equation groups map native and conservative scalar increments", "[NewtonEquations]") {
   for (const auto& physics :
        {sa, sa + "SA_OPTIONS= NEGATIVE, WITHFT2\n", sst, sst + "KIND_TRANS_MODEL= LM\n", species}) {

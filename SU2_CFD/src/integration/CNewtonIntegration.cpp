@@ -520,11 +520,13 @@ void CNewtonIntegration::Search(Attempt& attempt) {
   relative = Reduce(relative, true);
   Evaluate(0, "BASE");
   if (!invalid && relative > 0) {
-    MatrixFreeProduct(direction, product);
+    /*--- Physical merit needs its own verified J*p, without subtracting a dominant mass action afterward. ---*/
+    const bool valid = linearization->Apply(direction, product, options.pseudoTimeMerit);
+    SU2_OMP_SAFE_GLOBAL_ACCESS(residualValid = valid;)
     double slope = 0, norm2 = 0;
     SU2_OMP_FOR_STAT(1024)
     for (auto i = 0ul; i < rhs.GetNElmDomain(); ++i) {
-      const double jp = product[i] - (options.pseudoTimeMerit ? 0.0 : pseudoDirection[i]);
+      const double jp = product[i];
       slope -= rhs[i] * jp;
       norm2 += jp * jp;
     }
