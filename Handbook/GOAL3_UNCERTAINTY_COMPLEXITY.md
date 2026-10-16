@@ -167,3 +167,59 @@ The prepared SU2 input is30P30N_coarse_tri.su2 there. No CFD configuration, sens
 field, adapted mesh or accepted airfoil workflow yet. The3D coarse file contains
 8634195 hexes and requires separate input/construction qualification; the native
 backend currently rejects non-tetrahedral cells.
+
+
+## Shared uncertainty policy — replay qualified, production not enabled
+
+The dimension-independent CComplexityNormalization.hpp controller starts with cheap
+estimates, brackets only when the heuristic uncertainty interval has a definite sign,
+and asks for tighter integration at the same scale only for ambiguous trials. It
+requires |C-target|+uncertainty <= the requested absolute tolerance for its estimated
+success status. Unreduced uncertainty is explicitly integration_limited; neither
+interval overlap nor a stagnating estimate establishes an exact root. Work is capped
+by24 global callback trials in the replay. Production CSolver.cpp is unchanged.
+
+The frozen-field replay keeps original per-cell P1 tensors and current geometric
+composition at every query. Geometry-only workspaces survive scale trials; density
+values do not. Local cells within half the globally largest eligible absolute error
+are refined without gathering cells. At most8 priority rounds per callback and one
+bounded8192-query refinement per cell/scale; complete parent estimates remain. A
+512MiB/rank retention-accounting cap excludes allocator/transient overhead and RSS.
+The experimental guard4 is empirical, NOT a proven or globally calibrated bound.
+Uniform scaling of the original sensor/core in this replay does NOT reproduce the
+production eigenvalue bounds and sensor regradation. These are explicitly separate
+remaining integration steps, not hidden assumptions in the evidence.
+
+normalization_policy_v1: controller25 assertions PASS. Three actual original M6
+cells88/157/329 on1/4 ranks agree exactly in status, scale, C and uncertainty:
+logScale1.8868171230877364, C10.103643924254474, guarded uncertainty.22167625143275033,
+target10, requested1%,8 trials,56680 density calls,23 cell estimates,554 prepared/
+744 reused chords,133480 accounted bytes,37 reductions/rank. Status is correctly
+integration_limited: a1.0364% nominal discrepancy plus2.2168% estimated uncertainty
+cannot establish1% accuracy. Cold preparation2.159 accumulated seconds vs density
+.0518s on1 rank; whole replay2.658s, not a cluster scaling/lifecycle speedup claim.
+Four-rank malformed input with only one owner's degenerate cell is collectively
+rejected. No CFD, mesh construction, transfer or original-donor refit occurs.
+
+Cheap complete band seeds are also recorded against independent references in
+seed_reference_v1:88 error4.9501%,157 .5782%,3291.9791%; the raw157 indicator again
+underestimates its error (ratio.9092). Complete full-field seed attempt
+ global_seed_np4_v1 stopped at2555/303359 cells in233.57s, C8256.67697/raw indicator
+34.59980,1471704 density queries,zero limited/unknown cells in this PREFIX ONLY.
+For its first1869 measured cells, accumulated preparation373.84s vs density1.107s:
+cold geometric preparation is still the practical bottleneck, even when the scale
+solver does not request unnecessary final accuracy. This is not the total BL mass.
+
+seed_screen_v1 tried a conservative nearby-facet distance upper-bound screen before
+exact global roots. All3 seed results were unchanged, but88 .2003s->.2090s and the
+other changes were small/inconsistent. The extra implementation is WITHDRAWN; its
+complete source, timings and decision remain. Rebuilding the restored core was
+explicitly forced after detecting copy-preserved source timestamps; the qualified
+new controller run uses the restored baseline core, not the screening trial.
+
+The next unresolved capability is a complete affordable original-field integral
+with credible global uncertainty;3-cell allocation/root controls cannot establish
+it. Do not activate a production tolerance from these samples or add another
+subdivision/limit variant without a structural justification. Reassessment after
+actual refinement remains unavailable because construction independently rejects
+a composed first-layer edge integral. Report these as separate limitations.

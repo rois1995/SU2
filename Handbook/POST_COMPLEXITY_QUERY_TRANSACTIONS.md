@@ -36,3 +36,14 @@ Current geometry-reuse evidence is linked from GOAL3_UNCERTAINTY_COMPLEXITY.md.
 The constructor, source query infrastructure, shared-edge cache, transaction
 batches, transfer support and partition reports still require a focused inventory
 before choosing concrete changes. No implementation of this follow-up has begun.
+
+
+Correctness conditions for the eventual package: edge entries must retain required
+integration accuracy as well as endpoint/field/geometry identity. Failed searches
+must separate geometric rejection from incomplete donor support, work exhaustion
+and temporary reservation conflicts. Transfer weights are shareable only for the
+same donor/receiver geometry; histories on different moving meshes need their own
+geometry treatment. Partition weights should separate useful work from MPI waits.
+
+The final requested suggestion-by-suggestion report is tracked in
+SUGGESTION_OUTCOME_LEDGER.md; it is not yet a completed-work report.

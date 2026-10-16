@@ -17,31 +17,39 @@ def sha(p):
 def pins():
  paths=[Path(__file__).resolve(),BINARY,BUILD/'build.ninja',BUILD/'meson-info/intro-buildoptions.json',
         ROOT/'SU2_CFD/src/adaptation/CBoundaryLayerMetric.cpp',ROOT/'SU2_CFD/include/adaptation/CBoundaryLayerMetric.hpp',
-        ROOT/'UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp']
+        ROOT/'UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp',
+        ROOT/'Common/include/adaptation/CComplexityNormalization.hpp',ROOT/'SU2_CFD/src/solvers/CSolver.cpp']
  return {str(p.relative_to(ROOT)):sha(p) for p in paths}
-def invoke(folder,env,fixture):
+def invoke(folder,env,fixture,ranks=1,test_filter='[NativeFacetedVolumeReplay3D]',expected_failure=False):
+ assert ranks in (1,2,4)
  folder.mkdir(parents=True,exist_ok=True)
- identity={'pins':pins(),'fixture':sha(fixture),'parameters':env}
+ identity={'pins':pins(),'fixture':sha(fixture),'parameters':env,'ranks':ranks,'test_filter':test_filter,'expected_failure':expected_failure}
  proof=folder/'provenance.json'
  if proof.exists():assert json.loads(proof.read_text())==identity,'Provenance changed: '+str(folder)
  else:proof.write_text(json.dumps(identity,indent=2)+'\n')
  result=folder/'result.json'
  if result.exists():
-  saved=json.loads(result.read_text());assert saved['exit_code']==0
+  saved=json.loads(result.read_text())
+  assert saved['provenance_sha256']==sha(proof) and saved['log_sha256']==sha(folder/'run.log')
+  assert (0<saved['exit_code']<124) if expected_failure else saved['exit_code']==0
+  if 'normalization_sha256' in saved:assert saved['normalization_sha256']==sha(folder/'normalization.json')
   print('REUSE',folder,flush=True);return saved
  environment=dict(os.environ,OMP_NUM_THREADS='1',OPENBLAS_NUM_THREADS='1',MKL_NUM_THREADS='1',
                   TMPDIR=str(BUILD/'compile-tmp'),SU2_NATIVE_BL_REPLAY=str(fixture),**env)
- command=['taskset','-c','0','nice','-n','19','timeout','--kill-after=5s','180s',str(BINARY),
-          '[NativeFacetedVolumeReplay3D]','--abort','--reporter','compact']
+ base=[str(BINARY),test_filter,'--abort','--reporter','compact']
+ if ranks>1:base=['mpirun','-np',str(ranks),'--bind-to','none']+base
+ command=['taskset','-c','0' if ranks==1 else '0-'+str(ranks-1),'nice','-n','19','timeout','--kill-after=5s','180s']+base
  start=time.monotonic()
  with (folder/'run.log').open('w') as log:
   run=subprocess.run(command,cwd=str(folder),env=environment,stdout=log,stderr=subprocess.STDOUT)
  report={'exit_code':run.returncode,'elapsed_seconds':time.monotonic()-start,'command':command,
          'provenance_sha256':sha(proof),'log_sha256':sha(folder/'run.log')}
  if (folder/'complexity_estimate.json').exists():report['estimate']=json.loads((folder/'complexity_estimate.json').read_text())
+ if (folder/'normalization.json').exists():
+  report['normalization']=json.loads((folder/'normalization.json').read_text());report['normalization_sha256']=sha(folder/'normalization.json')
  (folder/'result.json').write_text(json.dumps(report,indent=2)+'\n')
  print(folder.name,json.dumps(report.get('estimate',report)),flush=True)
- if run.returncode:raise RuntimeError('Failed '+str(folder))
+ if not ((0<run.returncode<124) if expected_failure else run.returncode==0):raise RuntimeError('Failed '+str(folder))
  return report
 def pilot():
  summary=[]

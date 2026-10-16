@@ -72,7 +72,16 @@ User now prioritizes uncertain normalization/global error/geometry reuse; unbuil
 subdivision extension withdrawn. Geometry-only support/chord reuse is qualified on
 all3 difficult fields (bit-identical estimates when sensor/core change);18 focused3D
 and8 existing2D controls pass. Owner reductions agree on1/4 ranks for3 cells only.
-Production normalizer/global error allocator still pending. Three-element30P30N
+Production normalizer remains unchanged. Shared uncertainty search and MPI-local
+absolute-error allocation now pass25 focused assertions and a3-cell frozen replay
+on1/4 ranks. Both report integration_limited at1%: C10.10364 ±.22168 for target10,
+8 trials/56680 queries; no exact root claim. Owner-only bad input rejects collectively.
+Whole-field cheap seed stopped at2555/303359 cells because cold geometric preparation
+dominates; receipts preserved. Scalar root screening showed no useful gain and is
+withdrawn. Restored core rebuilt explicitly; no owned job remains. Whole-field mass,
+production coupling/calibrated uncertainty and accepted M6 construction remain open.
+Final suggestion-by-suggestion outcome report requested; keep
+[its working ledger](Handbook/SUGGESTION_OUTCOME_LEDGER.md) current. Three-element30P30N
 planar input extracted/validated in integration_evidence/native_3d_bl_v1/three_element_input_v1;
 its source"2D"CGNS was a single hex layer. No airfoil adaptation/CFD run yet.
 Production normalization remains unchanged; no M6 mesh or full-field integral yet.

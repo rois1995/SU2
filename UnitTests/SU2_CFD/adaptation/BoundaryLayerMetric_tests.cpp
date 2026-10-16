@@ -36,6 +36,7 @@
 #include <cstdlib>
 #include <chrono>
 
+#include "../../../Common/include/adaptation/CComplexityNormalization.hpp"
 #include "../../../Common/include/CConfig.hpp"
 #include "../../../Common/include/adaptation/CNativeImport2D.hpp"
 #include "../../../Common/include/adaptation/CNativeField3D.hpp"
@@ -1563,7 +1564,11 @@ TEST_CASE("Replay a complete faceted wall volume-integration input without CFD",
     CBlasStructure::EigenDecomposition(metric.m,vectors,values,3,workspace);
     return SU2_TYPE::GetValue(std::sqrt(values[0]*values[1]*values[2]));
   };
-  struct ReplayEstimate {double value=0,indicator=0;size_t evaluations=0,panels=0,limited=0,unresolved=0,subcells=0;};
+  struct ReplayEstimate {
+    double value=0,indicator=0,preparation=0,density=0;
+    size_t evaluations=0,panels=0,limited=0,unresolved=0,subcells=0,chords=0;
+  };
+  const double absoluteTolerance=std::getenv("SU2_NATIVE_BL_ABSOLUTE")?std::stod(std::getenv("SU2_NATIVE_BL_ABSOLUTE")):-1;
   auto estimateSubcells=[&](size_t budget,unsigned depth) {
     if(depth>6)throw std::invalid_argument("Frozen integration subdivision depth exceeds6.");
     using Bary=std::array<double,4>;using Subcell=std::array<Bary,4>;
@@ -1596,9 +1601,10 @@ TEST_CASE("Replay a complete faceted wall volume-integration input without CFD",
         for(unsigned k=0;k<4;++k)for(unsigned j=0;j<4;++j)original.barycentric[k]+=query.barycentric[j]*part[j][k];
         return targetDensity(original);
       };
-      const auto result=layers.EstimateComplexity3D(x,originalDensity,budget);
+      const auto result=layers.EstimateComplexity3D(x,originalDensity,budget,absoluteTolerance);
       total.value+=result.value;total.indicator+=result.indicator;total.evaluations+=result.evaluations;total.panels+=result.panels;
       total.limited+=result.limited;total.unresolved+=result.unresolvedSupport;
+      total.preparation+=result.preparationSeconds;total.density+=result.densitySeconds;total.chords+=result.preparedChords;
     }
     return total;
   };
@@ -1609,8 +1615,114 @@ TEST_CASE("Replay a complete faceted wall volume-integration input without CFD",
     REQUIRE(bytes==std::streamoff(8+count*(8+48*8)));
     const size_t budget=std::getenv("SU2_NATIVE_BL_COMPLEXITY")?std::stoul(std::getenv("SU2_NATIVE_BL_COMPLEXITY")):8192;
     const auto rank=SU2_MPI::GetRank(),ranks=SU2_MPI::GetSize();
+    if(const char* requestedTarget=std::getenv("SU2_NATIVE_BL_NORMALIZE")) {
+      struct FrozenCell {
+        uint64_t id=0;
+        decltype(cell) coordinates;
+        decltype(sensor) originalSensor;
+        std::shared_ptr<CBoundaryLayerMetric::ComplexityWorkspace3D> workspace;
+        CBoundaryLayerMetric::ComplexityEstimate3D estimate;
+        bool spent=false;
+      };
+      std::vector<FrozenCell> owned;
+      const auto slots=std::max<uint64_t>(1,(count+ranks-1)/ranks);
+      const auto bytesPerCell=std::min<size_t>(size_t(4)<<20,(size_t(512)<<20)/slots);
+      int failure=0,globalFailure=0;unsigned reductions=0;
+      for(uint64_t row=0;row<count;++row) {
+        uint64_t id;double coefficients[48];field.read(reinterpret_cast<char*>(&id),8);
+        field.read(reinterpret_cast<char*>(coefficients),sizeof(coefficients));REQUIRE(bool(field));
+        if(row%ranks!=uint64_t(rank))continue;
+        FrozenCell item;item.id=id;unsigned at=0;
+        for(auto& p:item.coordinates)for(auto& x:p)x=coefficients[at++];
+        for(auto& m:item.originalSensor)for(auto& r:m.m)for(auto& v:r)v=coefficients[at++];
+        try {item.workspace=layers.PrepareComplexity3D(item.coordinates,bytesPerCell);}
+        catch(const std::exception& e){failure=1;std::cerr<<"NORMALIZATION_INPUT cell="<<id<<" reason="<<e.what()<<std::endl;}
+        owned.push_back(std::move(item));
+      }
+      SU2_MPI::Allreduce(&failure,&globalFailure,1,MPI_INT,MPI_MAX,SU2_MPI::GetComm());++reductions;
+      REQUIRE(globalFailure==0);
+      const double originalCore=core,target=std::stod(requestedTarget);
+      const double rtol=std::getenv("SU2_NATIVE_BL_NORMALIZE_RTOL")?std::stod(std::getenv("SU2_NATIVE_BL_NORMALIZE_RTOL")):.01;
+      // Empirical guard for the saved reference samples, NOT a proven global error multiplier.
+      constexpr double guard=4;
+      double lastScale=NAN,localStats[6]={};
+      std::ofstream trace;
+      if(rank==0){trace.open("normalization_trace.csv");trace<<std::setprecision(17)<<"log_scale,requested_absolute,value,raw_indicator,priority_rounds\n";}
+      auto assess=[&](double logScale,double requested) {
+        const bool fresh=logScale!=lastScale;
+        const double scale=std::exp(logScale);core=originalCore*scale;
+        auto update=[&](FrozenCell& item,double allocation) {
+          cell=item.coordinates;sensor=item.originalSensor;
+          for(auto& m:sensor)for(auto& r:m.m)for(auto& v:r)v*=scale;
+          try {
+            item.estimate=layers.EstimateComplexity3D(cell,targetDensity,budget,allocation,item.workspace.get());
+            const auto& e=item.estimate;
+            localStats[0]+=e.evaluations;localStats[1]+=e.preparationSeconds;localStats[2]+=e.densitySeconds;
+            ++localStats[3];localStats[4]+=e.preparedChords;localStats[5]+=e.reusedChords;
+          }catch(const std::exception& error) {
+            failure=1;std::cerr<<"NORMALIZATION_FIELD cell="<<item.id<<" reason="<<error.what()<<std::endl;
+          }
+        };
+        if(fresh) {
+          lastScale=logScale;
+          for(auto& item:owned){update(item,1e300);item.spent=item.estimate.limited;}
+        }
+        auto reduce=[&]() {
+          SU2_MPI::Allreduce(&failure,&globalFailure,1,MPI_INT,MPI_MAX,SU2_MPI::GetComm());++reductions;
+          if(globalFailure)throw std::runtime_error("Collective frozen-field normalization evaluation failed.");
+          double local[2]={},global[2];
+          for(const auto& item:owned){local[0]+=item.estimate.value;local[1]+=item.estimate.indicator;}
+          SU2_MPI::Allreduce(local,global,2,MPI_DOUBLE,MPI_SUM,SU2_MPI::GetComm());++reductions;
+          return SU2Complexity::Estimate{global[0],global[1]};
+        };
+        auto global=reduce();unsigned rounds=0;
+        // A coarse interval suffices to bracket the target; only ambiguous trials need accuracy work.
+        while(guard*global.uncertainty>requested &&
+              std::abs(global.value-target)<=guard*global.uncertainty && rounds<8) {
+          double maximum=0,globalMaximum=0;
+          for(const auto& item:owned)if(!item.spent)maximum=std::max(maximum,item.estimate.indicator);
+          SU2_MPI::Allreduce(&maximum,&globalMaximum,1,MPI_DOUBLE,MPI_MAX,SU2_MPI::GetComm());++reductions;
+          if(!(globalMaximum>0) || (std::isinf(global.uncertainty) && !std::isinf(globalMaximum)))break;
+          for(auto& item:owned)if(!item.spent && SU2Complexity::SelectError(item.estimate.indicator,globalMaximum)) {
+            update(item,0);item.spent=true;
+          }
+          ++rounds;global=reduce();
+        }
+        if(rank==0)trace<<logScale<<','<<requested<<','<<global.value<<','<<global.uncertainty<<','<<rounds<<std::endl;
+        return SU2Complexity::Estimate{global.value,guard*global.uncertainty};
+      };
+      const auto start=std::chrono::steady_clock::now();
+      const auto result=SU2Complexity::Normalize(target,-std::log(64.),std::log(64.),0,rtol,24,assess);
+      if(rank==0){trace.flush();if(!trace)failure=1;}
+      SU2_MPI::Allreduce(&failure,&globalFailure,1,MPI_INT,MPI_MAX,SU2_MPI::GetComm());++reductions;
+      REQUIRE(globalFailure==0);
+      double globalStats[6];SU2_MPI::Allreduce(localStats,globalStats,6,MPI_DOUBLE,MPI_SUM,SU2_MPI::GetComm());++reductions;
+      unsigned long localBytes=0,globalBytes=0;
+      for(const auto& item:owned)localBytes+=item.estimate.cachedBytes;
+      SU2_MPI::Allreduce(&localBytes,&globalBytes,1,MPI_UNSIGNED_LONG,MPI_SUM,SU2_MPI::GetComm());++reductions;
+      if(rank==0) {
+        const char* statuses[]={"estimated_tolerance","integration_limited","outside_bracket","trial_limit"};
+        std::ofstream out("normalization.json");out<<std::setprecision(17)
+          <<"{\"status\":\""<<statuses[unsigned(result.status)]<<"\",\"log_scale\":"<<result.logScale
+          <<",\"value\":"<<result.estimate.value<<",\"uncertainty\":";
+        if(std::isfinite(result.estimate.uncertainty))out<<result.estimate.uncertainty;else out<<"null";
+        out<<",\"target\":"<<target<<",\"relative_tolerance\":"<<rtol<<",\"trials\":"<<result.trials
+          <<",\"cells\":"<<count<<",\"ranks\":"<<ranks<<",\"evaluations\":"<<globalStats[0]
+          <<",\"preparation_seconds_sum\":"<<globalStats[1]<<",\"density_seconds_sum\":"<<globalStats[2]
+          <<",\"cell_estimates\":"<<globalStats[3]<<",\"prepared_chords\":"<<globalStats[4]
+          <<",\"reused_chords\":"<<globalStats[5]<<",\"cached_bytes_sum\":"<<globalBytes
+          <<",\"reductions_per_rank\":"<<reductions<<",\"indicator_guard\":"<<guard
+          <<",\"seconds\":"<<std::chrono::duration<double>(std::chrono::steady_clock::now()-start).count()
+          <<",\"proven_error_bound\":false,\"production_regradation\":false,\"CFD_steps\":0,\"mesh_constructed\":false}\n";
+        REQUIRE(bool(out));
+      }
+      CHECK(result.trials<=24);
+      if(result.status==SU2Complexity::Status::EstimatedTolerance)
+        CHECK(std::abs(result.estimate.value-target)+result.estimate.uncertainty<=rtol*target);
+      return;
+    }
     std::ofstream out("field_estimates_rank"+std::to_string(rank)+".csv");
-    out<<std::setprecision(17)<<"cell,value,indicator,evaluations,panels,limited,unresolved_support,seconds\n";
+    out<<std::setprecision(17)<<"cell,value,indicator,evaluations,panels,limited,unresolved_support,seconds,preparation_seconds,density_seconds,prepared_chords\n";
     double local[3]={},global[3]={};int localFailure=0,globalFailure=0;
     for(uint64_t row=0;row<count;++row) {
       uint64_t id=0;double coefficients[48];field.read(reinterpret_cast<char*>(&id),8);field.read(reinterpret_cast<char*>(coefficients),sizeof(coefficients));
@@ -1628,7 +1740,7 @@ TEST_CASE("Replay a complete faceted wall volume-integration input without CFD",
       }
       if(!localFailure) {
       out<<id<<','<<e.value<<','<<e.indicator<<','<<e.evaluations<<','<<e.panels<<','<<e.limited<<','<<e.unresolved<<','
-         <<std::chrono::duration<double>(std::chrono::steady_clock::now()-start).count()<<std::endl;
+         <<std::chrono::duration<double>(std::chrono::steady_clock::now()-start).count()<<','<<e.preparation<<','<<e.density<<','<<e.chords<<std::endl;
       REQUIRE(e.evaluations<=budget*e.subcells);REQUIRE(bool(out));
       local[0]+=e.value;local[1]+=e.indicator;local[2]+=e.evaluations;
       }
@@ -1838,4 +1950,33 @@ TEST_CASE("Bounded complexity keeps complete positive estimates and explicit unc
   CHECK_THROWS(layers.EstimateComplexity3D(near,polynomial,63));
   CHECK_THROWS(layers.EstimateComplexity3D(near,[](const auto&){return -1.;}));
   CHECK_THROWS(layers.EstimateComplexity3D(near,[](const auto&){return std::numeric_limits<double>::quiet_NaN();}));
+}
+
+
+TEST_CASE("Global complexity search respects integration uncertainty and bounded work", "[NativeComplexityNormalization]") {
+  using namespace SU2Complexity;
+  for(unsigned dimension:{2u,3u}) {
+    std::vector<double> requests;
+    const auto r=Normalize(20,-10,10,0,.001,32,[&](double x,double requested) {
+      requests.push_back(requested);return Estimate{7+3*std::exp(.5*dimension*x),std::min(.2,.5*requested)};
+    });
+    CHECK(r.status==Status::EstimatedTolerance);
+    CHECK(std::abs(r.estimate.value-20)+r.estimate.uncertainty<=.02);
+    CHECK(*std::min_element(requests.begin(),requests.end())<requests.front());CHECK(r.trials<=32);
+  }
+  const auto limited=Normalize(10,-1,1,0,.001,16,[](double,double){return Estimate{10,1};});
+  CHECK(limited.status==Status::IntegrationLimited);CHECK(limited.trials==2);
+  const auto unknown=Normalize(10,-1,1,0,.001,16,[](double,double){return Estimate{10,INFINITY};});
+  CHECK(unknown.status==Status::IntegrationLimited);CHECK(unknown.trials==2);
+  const auto outside=Normalize(100,-10,-5,-8,.001,16,[](double x,double){return Estimate{5+std::exp(x),.001};});
+  CHECK(outside.status==Status::OutsideBracket);
+  const auto ceiling=Normalize(10,-1,1,0,.001,1,[](double x,double){return Estimate{std::exp(x),0};});
+  CHECK(ceiling.status==Status::TrialLimit);CHECK(ceiling.trials==1);
+  CHECK(SelectError(4,8));CHECK_FALSE(SelectError(3.99,8));CHECK_FALSE(SelectError(1,INFINITY));
+  CHECK(SelectError(INFINITY,INFINITY));CHECK_FALSE(SelectError(0,0));CHECK_THROWS(SelectError(-1,1));
+  CHECK_THROWS(Normalize(10,-1,1,0,.001,16,[](double,double){return Estimate{-1,1};}));
+  CHECK_THROWS(Normalize(10,-1,1,0,.001,16,[](double,double){return Estimate{10,-1};}));
+  CHECK_THROWS(Normalize(0,-1,1,0,.001,16,[](double,double){return Estimate{10,0};}));
+  CHECK_THROWS(Normalize(std::numeric_limits<double>::denorm_min(),-1,1,0,.001,16,
+                       [](double,double){return Estimate{10,0};}));
 }

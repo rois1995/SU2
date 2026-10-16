@@ -6068,3 +6068,15 @@ Production normalization/global error allocation and full frozen-field coverage
 are still pending; the raw uncertainty indicator remains heuristic and can
 underestimate157. The 30P30N planar cap is now a validated triangular test input,
 not an adapted result. See current uncertainty handbook for evidence and limits.
+
+
+Uncertainty-policy checkpoint: shared scale controller passes25 focused assertions;
+MPI1/4 original3-cell replay agrees exactly in C/scale/guarded uncertainty/status.
+Target10 at1% yields10.1036439243 ±.2216762514 after8 trials/56680 queries and reports
+integration_limited, not an exact root. Absolute-error selection requires37 reductions/
+rank; bad input on one owner rejects collectively. Original P1 field/geometric
+composition and production normalizer remain unchanged. Full-field cheap seed reached
+2555/303359 cells in233.57s only; cold preparation dominates. Extra scalar root
+screening gave no useful gain and was withdrawn, with evidence preserved. Neither
+whole-field accuracy nor accepted M6 mesh/transfer is established. Final user-requested
+suggestion/outcome report is tracked in Handbook/SUGGESTION_OUTCOME_LEDGER.md.

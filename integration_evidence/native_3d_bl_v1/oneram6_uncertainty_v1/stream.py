@@ -13,7 +13,8 @@ def main():
  folder=HERE/label;folder.mkdir(exist_ok=True)
  selection=set(json.loads(Path(sys.argv[5]).read_text())) if len(sys.argv)>5 else None
  identity={'producer':pins(),'runner_sha256':sha(Path(__file__).resolve()),'manifest_sha256':sha(HERE/'field_inputs/manifest.json'),
-           'fixture_sha256':sha(OLD/'cell329/replay.dat'),'budget':8192,'subdivision_depth':depth,'ranks':ranks}
+           'fixture_sha256':sha(OLD/'cell329/replay.dat'),'budget':8192,'subdivision_depth':depth,'ranks':ranks,
+           'absolute_tolerance':os.environ.get('SU2_NATIVE_BL_ABSOLUTE','-1')}
  proof=folder/'provenance.json'
  if proof.exists():assert json.loads(proof.read_text())==identity,'Different source/input/binary; preserve this evidence and select another folder.'
  else:proof.write_text(json.dumps(identity,indent=2)+'\n')
