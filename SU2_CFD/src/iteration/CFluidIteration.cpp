@@ -96,6 +96,15 @@ void CFluidIteration::Iterate(COutput* output, CIntegration**** integration, CGe
   const auto InnerIter = config[val_iZone]->GetInnerIter();
   const auto TimeIter = config[val_iZone]->GetTimeIter();
 
+  const auto monitoredResiduals = output->GetResidualConvFields();
+  const bool rmsTarget = std::any_of(monitoredResiduals.begin(), monitoredResiduals.end(),
+                                    [](const auto& field) { return field.first.compare(0, 4, "RMS_") == 0; });
+  auto** integrations = integration[val_iZone][val_iInst];
+  for (auto i = 0u; i < MAX_SOLS; ++i)
+    if (integrations[i])
+      integrations[i]->SetResidualTolerance(
+          rmsTarget ? std::pow(10.0, SU2_TYPE::GetValue(config[val_iZone]->GetMinLogResidual())) : 0);
+
   /*--- Update global parameters ---*/
 
   const auto main_solver = config[val_iZone]->GetKind_Solver();
@@ -110,7 +119,6 @@ void CFluidIteration::Iterate(COutput* output, CIntegration**** integration, CGe
 
   const bool fmg_cfl_ramp = integration[val_iZone][val_iInst][FLOW_SOL]->GetFullMG_CFLRamp();
 
-  auto** integrations = integration[val_iZone][val_iInst];
   if (NewtonFailure(integrations)) return;
   auto owned = NewtonOwnership(integrations, config[val_iZone]);
   if (owned[FLOW_SOL]) {

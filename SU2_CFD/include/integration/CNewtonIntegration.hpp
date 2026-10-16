@@ -15,6 +15,7 @@ class CNewtonIntegration final : public CIntegration {
   NonlinearGlobalization::Options<> options;
   bool lowerTriangular, legacyFlowControls;
   std::string prefix;
+  double residualTolerance = 0;
 
  public:
   CNewtonIntegration() : CNewtonIntegration({RUNTIME_FLOW_SYS}, {}, false, "newton", true) {}
@@ -35,6 +36,9 @@ class CNewtonIntegration final : public CIntegration {
     return std::find(systems.begin(), systems.end(), runtime) != systems.end();
   }
   void RefreshAfterOuterIteration() override;
+  void SetResidualTolerance(double tolerance) override {
+    residualTolerance = std::isfinite(tolerance) && tolerance > 0 ? tolerance : 0;
+  }
 #if !defined(CODI_FORWARD_TYPE) && !defined(CODI_REVERSE_TYPE)
   using Scalar = passivedouble;
   struct Attempt {

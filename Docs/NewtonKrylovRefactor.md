@@ -8,10 +8,128 @@ use the common controller. Equation selection, segregated versus coupled solves,
 CFL ownership, final physical residuals and group failure output are wired into
 the native driver. A compatibility class remains for legacy execution modes
 outside this migration. Dense native pseudo-time mappings and explicit-flow
-preconditioning are supported. The full goal remains in progress: converged
-matched nontrivial LM comparisons and the conditional-feature audits below are
-pending. Converged manufactured mean-flow, ordinary SA, SA-BC, SST and
-variable-density species comparisons are recorded below.
+preconditioning are supported. Converged matched comparisons now cover generated
+mean-flow, ordinary SA, SA-BC, SST, active LM and variable-density species
+fixtures. The full goal remains in progress: model bounds, near-bound finite
+differences, flamelet runtime and the conditional-feature audits below are open.
+
+## Resolved groups during segregated convergence
+
+A group can reach the requested physical tolerance while another group still
+needs updates. Previously, only exactly zero merit permitted a stationary
+iteration. Further tiny corrections eventually failed STEP_TOO_SMALL or
+NON_DESCENT and exhausted recovery, even though that group's residual was
+already resolved. This stopped the dimensional species pilot and active LM
+pilot described below.
+
+`CFluidIteration` now forwards the physical RMS target only when output has at
+least one validated, registered RMS convergence field. Coefficient-only
+monitoring and ignored invalid residual selectors do not enable this path.
+Before preparing a linear solve, the common controller requires every native
+component RMS in the group to meet the target. It also requires
+`sqrt(2 * merit / global_points)` to meet that target, using the existing
+state-scaled merit. This norm bounds every component's scaled RMS and prevents
+small scalar units from hiding a significant residual. These checks are
+stricter than checking the configured subset of raw history fields alone.
+
+A resolved group keeps its state and reports an accepted zero step. Native
+timesteps are still refreshed for dependent equations. Startup counters,
+automatic reconstruction, CFL adaptation and forcing remain unchanged during
+that stationary iteration. Fresh physical residuals are checked again after
+dependent updates, so the group resumes solving when needed. Global stopping
+still belongs to native output monitoring; this does not bypass its other
+fields or CONV_STARTITER.
+
+CSV rows identify stationary groups with status `RESOLVED`, decision `ACCEPTED`,
+step zero, unchanged merit and zero Krylov/trial work. Their linear defect is
+NaN because no linear solve was attempted. The existing exact-zero path uses
+the same diagnostics. Nonzero accepted directions retain the unchanged Armijo,
+derivative and true linear-defect requirements. The comparison runner reports
+stationary iterations and nonzero updates separately for every group, so an
+outer iteration is not mistaken for a nonlinear state update.
+
+The detecting test drives the actual production hooks for FLOW and coupled
+FLOW/SA. It balances native sources to leave a controlled small nonzero
+residual, checks unchanged state and no solver work, then raises a non-density
+residual and verifies resumed solving with the original startup window intact.
+For coupled SA, that raised residual is below the raw target but above the
+scaled target. Valid RMS, coefficient-only and ignored-invalid-field policies
+are tested separately. The corrected final fixture fails 12/56 assertions on
+a fresh original-controller build; the final test adds the unavailable-defect
+assertion and passes 58/58 on 1x1 and both 2x2 ranks. The initial fixture omitted
+the legacy startup enable flag; its startup expectation was invalid, and its
+failed logs remain separate from the corrected detecting evidence.
+
+Both production failures now pass without changing their physical thresholds.
+The dimensional species comparison takes 127 native or 130 Newton outer
+iterations. Its segregated species group is stationary for 71 iterations and
+actually updates 59 times; flow updates 130 times. The previously failing LM
+case now passes all three methods on 1x1 and 2x2 using
+`compare_lm_flatplate.py`: compressible SST/LM, Re=500, common fixed CFL20,
+turbulence/transition factor 0.5, native ILU and first-order Roe. All eight
+history residuals must reach -11; independent raw RMS <=1e-10, state-scaled RMS
+<=1e-9, pointwise-state/quantity agreement <=1e-6 and the original explicit
+boundary-projection limits are unchanged.
+
+```sh
+python3 TestCases/newton_krylov/compare_lm_flatplate.py \
+  --binary /path/to/build/SU2_CFD/src/SU2_CFD \
+  --reporter /path/to/build/UnitTests/newton_equation_tests \
+  --output /path/to/new-lm-comparison --ranks 2 --threads 2
+```
+
+| Ranks x threads | Method | Outer iterations | Total residual assemblies | Outer Krylov iterations | Seconds | Peak rank RSS, KiB |
+| --- | --- | ---: | ---: | ---: | ---: | ---: |
+| 1x1 | Native | 1416 | 4248 | 17096 | 0.969 | 25824 |
+| 1x1 | Segregated Newton | 1414 | 60392 | 6434 | 8.445 | 25928 |
+| 1x1 | Coupled Newton | 5615 | 207474 | 6205 | 21.339 | 26028 |
+| 2x2 | Native | 1416 | 4248 | 32428 | 1.369 | 25748 |
+| 2x2 | Segregated Newton | 1414 | 67232 | 10985 | 10.661 | 25524 |
+| 2x2 | Coupled Newton | 5615 | 255093 | 11496 | 28.424 | 25676 |
+
+In both layouts, segregated flow updates 610 times and waits 804; turbulence
+updates 962 times and waits 452; transition updates all 1414 times. Coupled LM
+uses 5615 nonzero updates. This is a measured convergence/work/time regression
+for coupling, not a performance benefit. There are no inner Krylov iterations.
+Work and per-rank memory use the same accounting as the earlier comparisons;
+independent reporting is outside solve timing/work.
+
+LM's 72 free points include 17 partially active and 55 high-intermittency points:
+minimum gamma 0.17334744, maximum 1.00196241, mean 0.88491046. All methods retain
+these band counts. Maximum differences in activity statistics are below 6e-12.
+Maximum independent state-scaled RMS is 3.097e-11, component-state difference
+2.468e-8 and relative physical-quantity difference 1.203e-10. Wall forces are
+nonzero. This coarse low-Reynolds-number fixture validates nonlinear convergence
+and activity, not a resolved transition front or physical accuracy.
+
+All **36 final matched runs** on this same corrected executable pass:
+
+| Fixture | Layouts | Native outer iterations | Segregated outer iterations | Coupled outer iterations |
+| --- | --- | ---: | ---: | ---: |
+| Manufactured flow | 1x1, 2x2 | 67 | 69 | 69 |
+| Ordinary SA | 1x1, 2x2 | 3327 | 2927 | 2927 |
+| SA-BC | 1x1, 2x2 | 3334 | 2933 | 2933 |
+| SST | 1x1, 2x2 | 3488 | 3058 | 3119 |
+| Variable-density species | 1x1, 2x2 | 81 | 82 | 82 |
+| Active SST/LM | 1x1, 2x2 | 1416 | 1414 | 5615 |
+
+Every physical residual, quantity, activity statistic, component-state error,
+group update count, work counter, rank resource and provenance record is in
+`Docs/NewtonKrylovResolvedGroupResults.json`. Direct 1x1/2x2 comparisons for each
+method give maximum component-state difference 3.172e-10 and quantity difference
+2.915e-11. Twelve comparisons against preceding native results retain the same
+iteration counts, with state differences below 1.424e-14 and quantities below
+1.150e-15. The old tables below retain their original executable bindings; they
+are historical checkpoints, not relabeled results for this implementation.
+Full restart fields are preserved in the referenced evidence directories.
+
+All 37 native tests pass on 1x1/1x2 (49561 assertions) and 2x2/2x4
+(31489/25909 per rank). All 80/102273 supported ordinary tests pass. Focused
+Valgrind covers convergence, transition and boundaries (10/6572), zero memory
+errors, leaks unchecked. Restart-report, species-boundary and residual-failure
+CLI checks pass. Four affected production units pass forward syntax. Evidence
+uses the `resolved_group_` prefix in the parent workspace. Full AD/reverse/
+mixed/GPU execution and the model-bound/conditional audits remain unproved.
 
 ## Independent restart reports and converged manufactured flow
 
@@ -380,9 +498,10 @@ points include 17 with gamma in [0.1,0.9] and 55 above 0.9, minimum 0.17335;
 every independent residual passes the same raw/scaled criteria. Segregated
 Newton fails at iteration 1007: flow residuals are already below 4e-14, while
 transition gamma is still about 1.6e-9. Flow recovery ends STEP_TOO_SMALL at
-minimum CFL. This is not a matched converged LM result. The controller currently
-accepts a stationary group only for exactly zero merit; handling already
-resolved groups while other groups continue is the next implementation issue.
+minimum CFL. This was not a matched converged LM result. The resolved-group
+implementation and final converged comparisons at the top of this document now
+address this failure; this paragraph records the preserved preceding
+executable's behavior.
 
 Earlier LM Re=1e5 reaches the 10000-update cap with clipped wall gamma and nearly
 fully turbulent free nodes; Re=1e3 with turbulence factor 0.05 also reaches the

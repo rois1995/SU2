@@ -2481,6 +2481,69 @@ TEST_CASE("Newton merit and slopes retain the complete native mass action", "[Ne
   }
 }
 
+TEST_CASE("Resolved Newton groups wait and resume without consuming startup", "[NewtonConvergence]") {
+  for (bool coupled : {false, true})
+    for (const std::string monitor : {"RMS_DENSITY,RMS_MOMENTUM-X,RMS_MOMENTUM-Y,RMS_ENERGY,RMS_NU_TILDE",
+                                      "DRAG", "RMS_NOT_REGISTERED"}) {
+      CAPTURE(coupled, monitor);
+      Problem problem(sa + "PYTHON_CUSTOM_SOURCE= YES\nNEWTON_EQUATIONS= (FLOW" +
+          (coupled ? std::string(",TURB)\nNEWTON_COUPLED= YES\n") : ")\n") +
+          "NEWTON_ADAPT_CFL= NO\nNEWTON_ADAPTIVE_FORCING= NO\nNEWTON_DIAGNOSTICS= NO\n"
+          "NEWTON_KRYLOV= YES\nNEWTON_KRYLOV_IPARAM= 1,0,1,0\nCFL_NUMBER= 0.05\nLINEAR_SOLVER_PREC= ILU\n"
+          "NEWTON_KRYLOV_DPARAM= 1,0.1,0,1e-6,1\n"
+          "CONV_FIELD= (" + monitor + ")\nCONV_RESIDUAL_MINVAL= -4\n");
+      auto& driver = *problem.driver;
+      auto* geometry = driver.Geometry();
+      const auto selected = coupled ? std::vector<unsigned short>{RUNTIME_FLOW_SYS, RUNTIME_TURB_SYS}
+                                    : std::vector<unsigned short>{RUNTIME_FLOW_SYS};
+      auto equations = problem.Equations(selected);
+      REQUIRE(Residual(*equations));
+      auto scale = MakeVector(driver, equations->GetnVar()), reference = scale;
+      equations->BuildScales(scale, reference);
+      for (const auto& block : equations->GetBlocks())
+        for (auto p = 0ul; p < geometry->GetnPointDomain(); ++p)
+          for (auto v = 0u; v < block.variables; ++v)
+            block.solver->GetNodes()->GetUserDefinedSource()(p, v) =
+                (block.solver->LinSysRes(p, v) - 1e-6 * std::min(1.0, scale(p, block.offset + v))) /
+                geometry->nodes->GetVolume(p);
+      auto before = MakeVector(driver, equations->GetnVar()), after = before;
+      equations->Pack(before);
+      driver.OuterIteration();
+      auto* controller = dynamic_cast<CNewtonIntegration*>(driver.Integrations()[FLOW_SOL]);
+      REQUIRE(controller);
+      INFO(controller->GetNumericalFailureMessage());
+      REQUIRE_FALSE(controller->GetNumericalFailure());
+      const auto idle = controller->GetLastAttempt();
+      CHECK(idle.base > 0);
+      equations->Pack(after);
+      if (monitor != "DRAG" && monitor != "RMS_NOT_REGISTERED") {
+        CHECK(idle.search.status == Armijo::Status::Accepted);
+        CHECK(idle.search.step == 0);
+        CHECK(idle.search.value == idle.base);
+        CHECK(idle.search.evaluations == 0);
+        CHECK(idle.linearIterations == 0);
+        CHECK(std::isnan(idle.linearDefect));
+        CHECK(MaxDifference(before, after) == 0);
+        // A scalar residual can be small in raw units and unresolved in scaled units.
+        const auto& block = equations->GetBlocks().back();
+        for (auto p = 0ul; p < geometry->GetnPointDomain(); ++p)
+          block.solver->GetNodes()->GetUserDefinedSource()(p, block.variables - 1) +=
+              (coupled ? 1e-6 : 1e-2) / geometry->nodes->GetVolume(p);
+        driver.Config()->SetInnerIter(1);
+        driver.OuterIteration();
+        INFO(controller->GetNumericalFailureMessage());
+        REQUIRE_FALSE(controller->GetNumericalFailure());
+        CHECK(controller->GetLastAttempt().startup);
+        CHECK(controller->GetLastAttempt().search.step > 0);
+        CHECK(controller->GetLastAttempt().linearIterations > 0);
+      } else {
+        CHECK(idle.search.step > 0);
+        CHECK(idle.linearIterations > 0);
+        CHECK(MaxDifference(before, after) > 0);
+      }
+    }
+}
+
 TEST_CASE("SA BC output uses the native production intermittency", "[NewtonTransition]") {
   auto incSA = incompressible;
   incSA.replace(incSA.find("INC_NAVIER_STOKES"), std::string("INC_NAVIER_STOKES").size(), "INC_RANS");

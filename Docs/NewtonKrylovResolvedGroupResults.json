@@ -1,0 +1,5297 @@
+{
+  "date": "2026-10-16",
+  "source_base_commit": "bef35fbd3bf9fe96c72b3cc08f67060bab5ecde3",
+  "source_sha256": {
+    "SU2_CFD/include/integration/CIntegration.hpp": "09550442af600950d5a26f22c9a1218b4e785c8f52c481da6ad79872b87b4fbc",
+    "SU2_CFD/include/integration/CNewtonIntegration.hpp": "845f1fefdc081e2edee4bc50306106181c45abc61866073ea4deec9b0dd84dfe",
+    "SU2_CFD/src/integration/CNewtonIntegration.cpp": "e9168dd8b57facde6b92f55144d8e8f721f9513a78655cb136a806db75f93a85",
+    "SU2_CFD/src/iteration/CFluidIteration.cpp": "453900657b6f778db622c0e2176ec072edcdac8ef372476e6ee1f4ace56102aa",
+    "TestCases/newton_krylov/check_species_boundaries.py": "d74d4eb0f8ccdea46da10c645c7b0890e51d338a3279c825250ef8cc3a802fcd",
+    "TestCases/newton_krylov/compare_lm_flatplate.py": "272f5a7624b8323c3987160f33ce8dc2c192133e24981b810cdf0760b7e66b9c",
+    "TestCases/newton_krylov/compare_manufactured_flow.py": "01d7c3ed4f9dae8b8cdea3a2ad203c1360b5cf49a60af06786c06e7faab8ca91",
+    "TestCases/newton_krylov/compare_sa_bc_flatplate.py": "b53943b93c0ce42adea3914be8e876ef96438e252265201c1fd5277362fd0e00",
+    "TestCases/newton_krylov/compare_sa_flatplate.py": "ffb46bc081c64e56e02e33a0ee228e23d53f338e235018f970c3119a4ae88528",
+    "TestCases/newton_krylov/compare_species_mixture.py": "a1400b817351e7b4ec27cc4a02e4766eb9abf68bc91059d79af8b19ddda2b0a0",
+    "TestCases/newton_krylov/compare_sst_flatplate.py": "ddd678c884d9b9ee63e3549e6823e26e77ac50a9d89f2edddb0df9e255ca0bd2",
+    "TestCases/newton_krylov/report_state.py": "990d1bee026fafe6755e23fc4584640ffd2e4c66b2bbc1822a61d6780807d114",
+    "UnitTests/SU2_CFD/newton_equations.cpp": "f89402dfdae08189f81724b61e45d0f26f7481fa1f311f0506a0964d48c1b842"
+  },
+  "stationary_policy": "At least one validated RMS convergence field; every native group component RMS and sqrt(2*merit/global_points) must meet its target. RESOLVED rows have zero step, unchanged merit, no Krylov/trial work and unavailable (NaN) linear defect. All nonzero accepted directions retain true defect <=0.1.",
+  "limits": [
+    "81-point generated fixtures, no discretization accuracy or production speedup/scaling claim.",
+    "Species uses artificial transport coefficients; LM uses a low-Reynolds-number fixture with partial intermittency, not transition-front validation.",
+    "Native clipping/explicit boundary projection and broader model-bound/near-bound feasibility audits remain open.",
+    "Full AD/reverse/mixed/GPU execution is not established by forward syntax checks."
+  ],
+  "families": [
+    {
+      "family": "mms",
+      "case": "81-point dimensional Navier-Stokes MMS, first-order Roe",
+      "limits": "FLOW alone: segregated and coupled flags describe the same single equation group. Launch-inclusive timings on a tiny case do not establish speedup.",
+      "criteria": {
+        "raw_rms": 1e-06,
+        "normalized_rms": 1e-09,
+        "projection": 0,
+        "state_tolerance": 2e-08,
+        "quantity_tolerance": 2e-08,
+        "max_updates": 2000
+      },
+      "layouts": [
+        {
+          "binary_sha256": "52f701094258a665ef56399f89b599a566f1fe64f4b75c3c944e7342262acc53",
+          "reporter_sha256": "2e8f5ca13a66b7f9dc8c0053e96e44d0b8be6e8190b2f22e3c2ae6b7fd3ee2f6",
+          "runner_sha256": "01d7c3ed4f9dae8b8cdea3a2ad203c1360b5cf49a60af06786c06e7faab8ca91",
+          "comparison_driver_sha256": "01d7c3ed4f9dae8b8cdea3a2ad203c1360b5cf49a60af06786c06e7faab8ca91",
+          "report_script_sha256": "990d1bee026fafe6755e23fc4584640ffd2e4c66b2bbc1822a61d6780807d114",
+          "ranks": 1,
+          "threads": 1,
+          "case": "81-point dimensional Navier-Stokes MMS, first-order Roe",
+          "layout": "1x1",
+          "full_evidence": "newton_krylov_refactor_20261015/resolved_group_converged_mms_1x1",
+          "full_results_sha256": "0ad2cdad76380fe1b6a3a30df2cad9e13cdf583bba63f8a975c8299d54d771b2",
+          "runs": [
+            {
+              "mode": "native",
+              "exit_code": 0,
+              "wall_seconds": 0.4168778749881312,
+              "config_sha256": "cb22d1ff7b2d2a5fd1c6858fa574a82302a6f66e1da7cb67712ac59d0ae17bbe",
+              "rank_resources": [
+                {
+                  "max_rss_kib": 24488,
+                  "user_seconds": 0.04,
+                  "system_seconds": 0.0
+                }
+              ],
+              "max_rank_rss_kib": 24488,
+              "updates": 67,
+              "last_history_log10_rms": [
+                -10.03847702,
+                -8.192175094,
+                -7.984885356,
+                -6.02160802
+              ],
+              "outer_krylov_iterations": 536,
+              "inner_krylov_iterations": 0,
+              "residual_assemblies": {
+                "flow": 67
+              },
+              "flow_residual_assemblies": 67,
+              "physical": {
+                "points": 81,
+                "systems": {
+                  "flow": {
+                    "rms": [
+                      6.048699928931548e-11,
+                      4.311758296541796e-09,
+                      6.974265544514949e-09,
+                      7.339651945672802e-07
+                    ],
+                    "maximum": [
+                      4.428805100431532e-10,
+                      2.8338718038867228e-08,
+                      4.540129339147825e-08,
+                      3.746186848729849e-06
+                    ],
+                    "normalized_rms": [
+                      6.830963988687003e-11,
+                      5.879205105794166e-11,
+                      8.449736588261743e-11,
+                      2.8977163997413314e-12
+                    ],
+                    "projection_max": [
+                      0,
+                      0,
+                      0,
+                      0
+                    ],
+                    "packed_integral": [
+                      1.0821959282095004,
+                      89.483399353403,
+                      90.65467486493085,
+                      247503.6151894441
+                    ]
+                  }
+                },
+                "quantities": {
+                  "mass": 1.0821959282095004,
+                  "drag": 0,
+                  "lift": 0,
+                  "moment_z": 0,
+                  "heat_flux": 0
+                }
+              },
+              "state_difference_from_native": [
+                0.0,
+                0.0,
+                0.0,
+                0.0
+              ],
+              "quantity_difference_from_native": {
+                "mass": 0.0,
+                "drag": 0.0,
+                "lift": 0.0,
+                "moment_z": 0.0,
+                "heat_flux": 0.0
+              },
+              "report_manifest_sha256": "567508ff16752c684b09da92a18a74127594756e580e02ab0852506edda07a20"
+            },
+            {
+              "mode": "segregated",
+              "exit_code": 0,
+              "wall_seconds": 0.47284117608796805,
+              "config_sha256": "4cac11d3928426d6650d66916950c3d7860b9cc90275e9f9d2fba1d61152e46c",
+              "rank_resources": [
+                {
+                  "max_rss_kib": 24348,
+                  "user_seconds": 0.12,
+                  "system_seconds": 0.04
+                }
+              ],
+              "max_rank_rss_kib": 24348,
+              "updates": 69,
+              "last_history_log10_rms": [
+                -10.03699298,
+                -8.141765013,
+                -8.013654523,
+                -6.050751405
+              ],
+              "outer_krylov_iterations": 209,
+              "inner_krylov_iterations": 0,
+              "residual_assemblies": {
+                "flow": 831
+              },
+              "stationary_group_iterations": {
+                "newton_flow": 0
+              },
+              "nonzero_group_updates": {
+                "newton_flow": 69
+              },
+              "attempts": 69,
+              "flow_residual_assemblies": 831,
+              "physical": {
+                "points": 81,
+                "systems": {
+                  "flow": {
+                    "rms": [
+                      9.183474358365863e-11,
+                      7.214977595040823e-09,
+                      9.690484183780356e-09,
+                      8.897102514148964e-07
+                    ],
+                    "maximum": [
+                      6.092025772730381e-10,
+                      4.519438334682491e-08,
+                      6.165032573335338e-08,
+                      5.148263880982995e-06
+                    ],
+                    "normalized_rms": [
+                      1.0290179330058327e-10,
+                      1.00359741157752e-10,
+                      1.18104617993149e-10,
+                      3.5379635413615154e-12
+                    ],
+                    "projection_max": [
+                      0,
+                      0,
+                      0,
+                      0
+                    ],
+                    "packed_integral": [
+                      1.0821959282109552,
+                      89.48339935353508,
+                      90.65467486513123,
+                      247503.6151894446
+                    ]
+                  }
+                },
+                "quantities": {
+                  "mass": 1.0821959282109552,
+                  "drag": 0,
+                  "lift": 0,
+                  "moment_z": 0,
+                  "heat_flux": 0
+                }
+              },
+              "state_difference_from_native": [
+                1.681686856058637e-11,
+                1.8639841945983712e-11,
+                1.551287176067773e-11,
+                7.131637356342105e-13
+              ],
+              "quantity_difference_from_native": {
+                "mass": 1.3443372069194903e-12,
+                "drag": 0.0,
+                "lift": 0.0,
+                "moment_z": 0.0,
+                "heat_flux": 0.0
+              },
+              "report_manifest_sha256": "ea005948b9bcd323a564bf5161fe49851d0189159f4cb0a6af2755134e417055"
+            },
+            {
+              "mode": "coupled",
+              "exit_code": 0,
+              "wall_seconds": 0.5171462979633361,
+              "config_sha256": "340bb4f906160398c39863dbf4280013a8feb8a4592e13a465ed4cee6cbba76f",
+              "rank_resources": [
+                {
+                  "max_rss_kib": 24516,
+                  "user_seconds": 0.13,
+                  "system_seconds": 0.03
+                }
+              ],
+              "max_rank_rss_kib": 24516,
+              "updates": 69,
+              "last_history_log10_rms": [
+                -10.03699298,
+                -8.141765013,
+                -8.013654523,
+                -6.050751405
+              ],
+              "outer_krylov_iterations": 209,
+              "inner_krylov_iterations": 0,
+              "residual_assemblies": {
+                "flow": 831
+              },
+              "stationary_group_iterations": {
+                "newton_coupled": 0
+              },
+              "nonzero_group_updates": {
+                "newton_coupled": 69
+              },
+              "attempts": 69,
+              "flow_residual_assemblies": 831,
+              "physical": {
+                "points": 81,
+                "systems": {
+                  "flow": {
+                    "rms": [
+                      9.183474358365863e-11,
+                      7.214977595040823e-09,
+                      9.690484183780356e-09,
+                      8.897102514148964e-07
+                    ],
+                    "maximum": [
+                      6.092025772730381e-10,
+                      4.519438334682491e-08,
+                      6.165032573335338e-08,
+                      5.148263880982995e-06
+                    ],
+                    "normalized_rms": [
+                      1.0290179330058327e-10,
+                      1.00359741157752e-10,
+                      1.18104617993149e-10,
+                      3.5379635413615154e-12
+                    ],
+                    "projection_max": [
+                      0,
+                      0,
+                      0,
+                      0
+                    ],
+                    "packed_integral": [
+                      1.0821959282109552,
+                      89.48339935353508,
+                      90.65467486513123,
+                      247503.6151894446
+                    ]
+                  }
+                },
+                "quantities": {
+                  "mass": 1.0821959282109552,
+                  "drag": 0,
+                  "lift": 0,
+                  "moment_z": 0,
+                  "heat_flux": 0
+                }
+              },
+              "state_difference_from_native": [
+                1.681686856058637e-11,
+                1.8639841945983712e-11,
+                1.551287176067773e-11,
+                7.131637356342105e-13
+              ],
+              "quantity_difference_from_native": {
+                "mass": 1.3443372069194903e-12,
+                "drag": 0.0,
+                "lift": 0.0,
+                "moment_z": 0.0,
+                "heat_flux": 0.0
+              },
+              "report_manifest_sha256": "523b382d3af09544a8ced34fca85df853e9e6e5872ece64822b02e6c13009bae"
+            }
+          ]
+        },
+        {
+          "binary_sha256": "52f701094258a665ef56399f89b599a566f1fe64f4b75c3c944e7342262acc53",
+          "reporter_sha256": "2e8f5ca13a66b7f9dc8c0053e96e44d0b8be6e8190b2f22e3c2ae6b7fd3ee2f6",
+          "runner_sha256": "01d7c3ed4f9dae8b8cdea3a2ad203c1360b5cf49a60af06786c06e7faab8ca91",
+          "comparison_driver_sha256": "01d7c3ed4f9dae8b8cdea3a2ad203c1360b5cf49a60af06786c06e7faab8ca91",
+          "report_script_sha256": "990d1bee026fafe6755e23fc4584640ffd2e4c66b2bbc1822a61d6780807d114",
+          "ranks": 2,
+          "threads": 2,
+          "case": "81-point dimensional Navier-Stokes MMS, first-order Roe",
+          "layout": "2x2",
+          "full_evidence": "newton_krylov_refactor_20261015/resolved_group_converged_mms_2x2",
+          "full_results_sha256": "123d09816ca3cce02cf33f994d8705495e16f5993f04d5ee1acf8090e31b5807",
+          "runs": [
+            {
+              "mode": "native",
+              "exit_code": 0,
+              "wall_seconds": 0.4176133000291884,
+              "config_sha256": "cb22d1ff7b2d2a5fd1c6858fa574a82302a6f66e1da7cb67712ac59d0ae17bbe",
+              "rank_resources": [
+                {
+                  "max_rss_kib": 24864,
+                  "user_seconds": 0.09,
+                  "system_seconds": 0.01
+                },
+                {
+                  "max_rss_kib": 25084,
+                  "user_seconds": 0.09,
+                  "system_seconds": 0.01
+                }
+              ],
+              "max_rank_rss_kib": 25084,
+              "updates": 67,
+              "last_history_log10_rms": [
+                -10.03847308,
+                -8.192163319,
+                -7.984890944,
+                -6.02152336
+              ],
+              "outer_krylov_iterations": 993,
+              "inner_krylov_iterations": 0,
+              "residual_assemblies": {
+                "flow": 67
+              },
+              "flow_residual_assemblies": 67,
+              "physical": {
+                "points": 81,
+                "systems": {
+                  "flow": {
+                    "rms": [
+                      6.048640529370768e-11,
+                      4.311266744532545e-09,
+                      6.9740068704817784e-09,
+                      7.335363545469136e-07
+                    ],
+                    "maximum": [
+                      4.42866299188438e-10,
+                      2.8334170565358363e-08,
+                      4.539583642326761e-08,
+                      3.7541030906140804e-06
+                    ],
+                    "normalized_rms": [
+                      6.830895059627922e-11,
+                      5.878463309994086e-11,
+                      8.44941853745562e-11,
+                      2.8957293825387826e-12
+                    ],
+                    "projection_max": [
+                      0,
+                      0,
+                      0,
+                      0
+                    ],
+                    "packed_integral": [
+                      1.0821959282095002,
+                      89.48339935340303,
+                      90.65467486493083,
+                      247503.61518944413
+                    ]
+                  }
+                },
+                "quantities": {
+                  "mass": 1.0821959282095002,
+                  "drag": 0,
+                  "lift": 0,
+                  "moment_z": 0,
+                  "heat_flux": 0
+                }
+              },
+              "state_difference_from_native": [
+                0.0,
+                0.0,
+                0.0,
+                0.0
+              ],
+              "quantity_difference_from_native": {
+                "mass": 0.0,
+                "drag": 0.0,
+                "lift": 0.0,
+                "moment_z": 0.0,
+                "heat_flux": 0.0
+              },
+              "report_manifest_sha256": "1c7041a2111d99898fa6bc8ed0188eba7e028658e39c08281b7a0b62e226d9a9"
+            },
+            {
+              "mode": "segregated",
+              "exit_code": 0,
+              "wall_seconds": 0.6688008059281856,
+              "config_sha256": "4cac11d3928426d6650d66916950c3d7860b9cc90275e9f9d2fba1d61152e46c",
+              "rank_resources": [
+                {
+                  "max_rss_kib": 24580,
+                  "user_seconds": 0.39,
+                  "system_seconds": 0.06
+                },
+                {
+                  "max_rss_kib": 24380,
+                  "user_seconds": 0.46,
+                  "system_seconds": 0.04
+                }
+              ],
+              "max_rank_rss_kib": 24580,
+              "updates": 69,
+              "last_history_log10_rms": [
+                -10.03376995,
+                -8.138284157,
+                -8.011022399,
+                -6.047836836
+              ],
+              "outer_krylov_iterations": 353,
+              "inner_krylov_iterations": 0,
+              "residual_assemblies": {
+                "flow": 975
+              },
+              "stationary_group_iterations": {
+                "newton_flow": 0
+              },
+              "nonzero_group_updates": {
+                "newton_flow": 69
+              },
+              "attempts": 69,
+              "flow_residual_assemblies": 975,
+              "physical": {
+                "points": 81,
+                "systems": {
+                  "flow": {
+                    "rms": [
+                      9.251881300792382e-11,
+                      7.273037774025147e-09,
+                      9.749393537145784e-09,
+                      8.957012161151395e-07
+                    ],
+                    "maximum": [
+                      6.131061214276201e-10,
+                      4.5489059630199336e-08,
+                      6.202412805578206e-08,
+                      5.181791493669152e-06
+                    ],
+                    "normalized_rms": [
+                      1.0365560451594329e-10,
+                      1.0114552170703052e-10,
+                      1.188261809760296e-10,
+                      3.5630493080235823e-12
+                    ],
+                    "projection_max": [
+                      0,
+                      0,
+                      0,
+                      0
+                    ],
+                    "packed_integral": [
+                      1.0821959282109905,
+                      89.4833993535381,
+                      90.65467486513498,
+                      247503.6151894448
+                    ]
+                  }
+                },
+                "quantities": {
+                  "mass": 1.0821959282109905,
+                  "drag": 0,
+                  "lift": 0,
+                  "moment_z": 0,
+                  "heat_flux": 0
+                }
+              },
+              "state_difference_from_native": [
+                1.7176443883706572e-11,
+                1.8994933541904383e-11,
+                1.5851041179456655e-11,
+                7.228637238535973e-13
+              ],
+              "quantity_difference_from_native": {
+                "mass": 1.377165954341212e-12,
+                "drag": 0.0,
+                "lift": 0.0,
+                "moment_z": 0.0,
+                "heat_flux": 0.0
+              },
+              "report_manifest_sha256": "7a590ab2126613d1162b881f800e5140ac2f4bf54fecea3775c780dc49abf497"
+            },
+            {
+              "mode": "coupled",
+              "exit_code": 0,
+              "wall_seconds": 0.6252798129571602,
+              "config_sha256": "340bb4f906160398c39863dbf4280013a8feb8a4592e13a465ed4cee6cbba76f",
+              "rank_resources": [
+                {
+                  "max_rss_kib": 24800,
+                  "user_seconds": 0.36,
+                  "system_seconds": 0.03
+                },
+                {
+                  "max_rss_kib": 24516,
+                  "user_seconds": 0.38,
+                  "system_seconds": 0.02
+                }
+              ],
+              "max_rank_rss_kib": 24800,
+              "updates": 69,
+              "last_history_log10_rms": [
+                -10.03376995,
+                -8.138284157,
+                -8.011022399,
+                -6.047836836
+              ],
+              "outer_krylov_iterations": 353,
+              "inner_krylov_iterations": 0,
+              "residual_assemblies": {
+                "flow": 975
+              },
+              "stationary_group_iterations": {
+                "newton_coupled": 0
+              },
+              "nonzero_group_updates": {
+                "newton_coupled": 69
+              },
+              "attempts": 69,
+              "flow_residual_assemblies": 975,
+              "physical": {
+                "points": 81,
+                "systems": {
+                  "flow": {
+                    "rms": [
+                      9.251881300792382e-11,
+                      7.273037774025147e-09,
+                      9.749393537145784e-09,
+                      8.957012161151395e-07
+                    ],
+                    "maximum": [
+                      6.131061214276201e-10,
+                      4.5489059630199336e-08,
+                      6.202412805578206e-08,
+                      5.181791493669152e-06
+                    ],
+                    "normalized_rms": [
+                      1.0365560451594329e-10,
+                      1.0114552170703052e-10,
+                      1.188261809760296e-10,
+                      3.5630493080235823e-12
+                    ],
+                    "projection_max": [
+                      0,
+                      0,
+                      0,
+                      0
+                    ],
+                    "packed_integral": [
+                      1.0821959282109905,
+                      89.4833993535381,
+                      90.65467486513498,
+                      247503.6151894448
+                    ]
+                  }
+                },
+                "quantities": {
+                  "mass": 1.0821959282109905,
+                  "drag": 0,
+                  "lift": 0,
+                  "moment_z": 0,
+                  "heat_flux": 0
+                }
+              },
+              "state_difference_from_native": [
+                1.7176443883706572e-11,
+                1.8994933541904383e-11,
+                1.5851041179456655e-11,
+                7.228637238535973e-13
+              ],
+              "quantity_difference_from_native": {
+                "mass": 1.377165954341212e-12,
+                "drag": 0.0,
+                "lift": 0.0,
+                "moment_z": 0.0,
+                "heat_flux": 0.0
+              },
+              "report_manifest_sha256": "337e7f81882ee76d8785d66734c6d62772462a54a0ebcbcd0af11fd4aa24cc3e"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "family": "sa",
+      "case": "81-point compressible flow/SA flat plate, Re=1e5, first-order Roe",
+      "limits": "Coarse generated mesh; no discretization-accuracy or production speedup claim. Single launch-inclusive timing samples; all five physical residuals must converge.",
+      "criteria": {
+        "raw_rms": 1e-10,
+        "normalized_rms": 1e-09,
+        "projection": 1e-08,
+        "state_tolerance": 1e-06,
+        "quantity_tolerance": 1e-06,
+        "max_updates": 10000
+      },
+      "layouts": [
+        {
+          "binary_sha256": "52f701094258a665ef56399f89b599a566f1fe64f4b75c3c944e7342262acc53",
+          "reporter_sha256": "2e8f5ca13a66b7f9dc8c0053e96e44d0b8be6e8190b2f22e3c2ae6b7fd3ee2f6",
+          "runner_sha256": "ffb46bc081c64e56e02e33a0ee228e23d53f338e235018f970c3119a4ae88528",
+          "comparison_driver_sha256": "01d7c3ed4f9dae8b8cdea3a2ad203c1360b5cf49a60af06786c06e7faab8ca91",
+          "report_script_sha256": "990d1bee026fafe6755e23fc4584640ffd2e4c66b2bbc1822a61d6780807d114",
+          "ranks": 1,
+          "threads": 1,
+          "case": "81-point compressible flow/SA flat plate, Re=1e5, first-order Roe",
+          "layout": "1x1",
+          "full_evidence": "newton_krylov_refactor_20261015/resolved_group_converged_sa_1x1",
+          "full_results_sha256": "4cc3c7a11012aa6d0035acf3170c8cce8ff191b1277dd4530d8003649e82f2c7",
+          "runs": [
+            {
+              "mode": "native",
+              "exit_code": 0,
+              "wall_seconds": 1.5186585660558194,
+              "config_sha256": "eb1e6d69dbc5874e2ea9db1a3e38277f4f847dec00a87dcc078adacb295bbcd8",
+              "rank_resources": [
+                {
+                  "max_rss_kib": 25200,
+                  "user_seconds": 1.03,
+                  "system_seconds": 0.1
+                }
+              ],
+              "max_rank_rss_kib": 25200,
+              "updates": 3327,
+              "last_history_log10_rms": [
+                -10.82714015,
+                -11.1878941,
+                -11.70486492,
+                -10.0010562,
+                -15.76440694
+              ],
+              "outer_krylov_iterations": 36381,
+              "inner_krylov_iterations": 0,
+              "residual_assemblies": {
+                "flow": 3327,
+                "turbulence": 3327
+              },
+              "flow_residual_assemblies": 3327,
+              "physical": {
+                "points": 81,
+                "systems": {
+                  "flow": {
+                    "rms": [
+                      1.482205100204165e-11,
+                      6.458540853659135e-12,
+                      1.9642997796080312e-12,
+                      9.930756805299318e-11
+                    ],
+                    "maximum": [
+                      9.756711928719623e-11,
+                      5.472830032887435e-11,
+                      6.098216473555073e-12,
+                      6.861068845260643e-10
+                    ],
+                    "normalized_rms": [
+                      2.2004594945994862e-11,
+                      5.803488625676658e-12,
+                      1.9787565176256945e-12,
+                      2.4161342227461293e-12
+                    ],
+                    "projection_max": [
+                      0,
+                      0,
+                      0,
+                      0
+                    ],
+                    "packed_integral": [
+                      0.9854543106069562,
+                      0.9694000573508067,
+                      -0.017687281284171255,
+                      44.87211843249338
+                    ]
+                  },
+                  "turbulence": {
+                    "rms": [
+                      1.7693304916563872e-16
+                    ],
+                    "maximum": [
+                      1.0951077216814036e-15
+                    ],
+                    "normalized_rms": [
+                      4.4972885611340385e-12
+                    ],
+                    "projection_max": [
+                      3.3333333333333327e-12
+                    ],
+                    "packed_integral": [
+                      2.8732244058076404e-05
+                    ]
+                  }
+                },
+                "quantities": {
+                  "mass": 0.9854543106069562,
+                  "drag": 0.0002001536413205803,
+                  "lift": 0.5498870480764548,
+                  "moment_z": 0.6845125438399833,
+                  "heat_flux": 0
+                }
+              },
+              "state_difference_from_native": [
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0
+              ],
+              "quantity_difference_from_native": {
+                "mass": 0.0,
+                "drag": 0.0,
+                "lift": 0.0,
+                "moment_z": 0.0,
+                "heat_flux": 0.0
+              },
+              "report_manifest_sha256": "6c8f583316e5d6b12563262dbfc78dbb13662ef5fcbb78a1591d1c01d35eca46"
+            },
+            {
+              "mode": "segregated",
+              "exit_code": 0,
+              "wall_seconds": 10.246836071950383,
+              "config_sha256": "fecf7ba2ac7efe53b06270deb07482593d57eda98e1cf1bbf476a6faebaeeac5",
+              "rank_resources": [
+                {
+                  "max_rss_kib": 25364,
+                  "user_seconds": 8.43,
+                  "system_seconds": 1.43
+                }
+              ],
+              "max_rank_rss_kib": 25364,
+              "updates": 2927,
+              "last_history_log10_rms": [
+                -10.12414506,
+                -10.85500981,
+                -10.99342586,
+                -10.0003417,
+                -14.43615445
+              ],
+              "outer_krylov_iterations": 19749,
+              "inner_krylov_iterations": 0,
+              "residual_assemblies": {
+                "flow": 68520,
+                "turbulence": 30709
+              },
+              "stationary_group_iterations": {
+                "newton_turb": 165,
+                "newton_flow": 0
+              },
+              "nonzero_group_updates": {
+                "newton_turb": 2762,
+                "newton_flow": 2927
+              },
+              "attempts": 5854,
+              "flow_residual_assemblies": 68520,
+              "physical": {
+                "points": 81,
+                "systems": {
+                  "flow": {
+                    "rms": [
+                      7.513718799865266e-11,
+                      1.3963368139055502e-11,
+                      1.0152526722145195e-11,
+                      9.992135176829726e-11
+                    ],
+                    "maximum": [
+                      4.995625836558184e-10,
+                      7.003107815872767e-11,
+                      3.0696511244064206e-11,
+                      3.60629317871391e-10
+                    ],
+                    "normalized_rms": [
+                      1.1169878197634293e-10,
+                      1.2555071803298473e-11,
+                      1.0236469016142784e-11,
+                      2.3251850511380003e-12
+                    ],
+                    "projection_max": [
+                      0,
+                      0,
+                      0,
+                      0
+                    ],
+                    "packed_integral": [
+                      0.9854543305239624,
+                      0.9694000479035209,
+                      -0.017687270339487096,
+                      44.87211855481047
+                    ]
+                  },
+                  "turbulence": {
+                    "rms": [
+                      3.663072808977029e-15
+                    ],
+                    "maximum": [
+                      1.7369998399648616e-14
+                    ],
+                    "normalized_rms": [
+                      9.75786743232882e-11
+                    ],
+                    "projection_max": [
+                      0
+                    ],
+                    "packed_integral": [
+                      2.8732244366845456e-05
+                    ]
+                  }
+                },
+                "quantities": {
+                  "mass": 0.9854543305239624,
+                  "drag": 0.00020015357456437224,
+                  "lift": 0.5498868748812451,
+                  "moment_z": 0.6845124204004248,
+                  "heat_flux": 0
+                }
+              },
+              "state_difference_from_native": [
+                8.463184400107802e-07,
+                9.669224507866945e-08,
+                1.6241628278810064e-07,
+                1.9948880675331322e-08,
+                1.2725196576429505e-07
+              ],
+              "quantity_difference_from_native": {
+                "mass": 2.0210988922640426e-08,
+                "drag": 3.3352482435097796e-07,
+                "lift": 3.1496506479888993e-07,
+                "moment_z": 1.8033206195353348e-07,
+                "heat_flux": 0.0
+              },
+              "report_manifest_sha256": "394c30b30cfe8dbc426d1f8b96e1ae98bb04cd30079a0724c24edd30e242cd6f"
+            },
+            {
+              "mode": "coupled",
+              "exit_code": 0,
+              "wall_seconds": 9.39491996599827,
+              "config_sha256": "9bf11593f196aa55e87d0887016a8eac8e9e312eae35b4e35d87abf99b385c76",
+              "rank_resources": [
+                {
+                  "max_rss_kib": 25112,
+                  "user_seconds": 7.87,
+                  "system_seconds": 1.07
+                }
+              ],
+              "max_rank_rss_kib": 25112,
+              "updates": 2927,
+              "last_history_log10_rms": [
+                -10.12414665,
+                -10.85500191,
+                -10.99342792,
+                -10.0003465,
+                -15.13404013
+              ],
+              "outer_krylov_iterations": 14360,
+              "inner_krylov_iterations": 0,
+              "residual_assemblies": {
+                "flow": 55064,
+                "turbulence": 55064
+              },
+              "stationary_group_iterations": {
+                "newton_coupled": 0
+              },
+              "nonzero_group_updates": {
+                "newton_coupled": 2927
+              },
+              "attempts": 2927,
+              "flow_residual_assemblies": 55064,
+              "physical": {
+                "points": 81,
+                "systems": {
+                  "flow": {
+                    "rms": [
+                      7.513691326349362e-11,
+                      1.3963622171632107e-11,
+                      1.0152478480373238e-11,
+                      9.992024752385915e-11
+                    ],
+                    "maximum": [
+                      4.995605321691252e-10,
+                      7.00319351121248e-11,
+                      3.0695604837071964e-11,
+                      3.6062057031142295e-10
+                    ],
+                    "normalized_rms": [
+                      1.1169840019541769e-10,
+                      1.2555298805606207e-11,
+                      1.0236419413186976e-11,
+                      2.325156233612319e-12
+                    ],
+                    "projection_max": [
+                      0,
+                      0,
+                      0,
+                      0
+                    ],
+                    "packed_integral": [
+                      0.985454330523576,
+                      0.9694000479036954,
+                      -0.017687270339671997,
+                      44.87211855480862
+                    ]
+                  },
+                  "turbulence": {
+                    "rms": [
+                      7.344459982941857e-16
+                    ],
+                    "maximum": [
+                      3.4815151597487382e-15
+                    ],
+                    "normalized_rms": [
+                      1.9523775844911163e-11
+                    ],
+                    "projection_max": [
+                      0
+                    ],
+                    "packed_integral": [
+                      2.87322443375928e-05
+                    ]
+                  }
+                },
+                "quantities": {
+                  "mass": 0.985454330523576,
+                  "drag": 0.0002001535745658213,
+                  "lift": 0.5498868748836243,
+                  "moment_z": 0.6845124204021945,
+                  "heat_flux": 0
+                }
+              },
+              "state_difference_from_native": [
+                8.463022624186881e-07,
+                9.669015930939192e-08,
+                1.624141642421163e-07,
+                1.9948560765071956e-08,
+                1.1454797483097769e-07
+              ],
+              "quantity_difference_from_native": {
+                "mass": 2.0210596862239033e-08,
+                "drag": 3.335175845960626e-07,
+                "lift": 3.149607380777022e-07,
+                "moment_z": 1.8032947661668732e-07,
+                "heat_flux": 0.0
+              },
+              "report_manifest_sha256": "3ea0810d813177764b61af32c275faedbbca64e864e805ee6673f6b211226443"
+            }
+          ]
+        },
+        {
+          "binary_sha256": "52f701094258a665ef56399f89b599a566f1fe64f4b75c3c944e7342262acc53",
+          "reporter_sha256": "2e8f5ca13a66b7f9dc8c0053e96e44d0b8be6e8190b2f22e3c2ae6b7fd3ee2f6",
+          "runner_sha256": "ffb46bc081c64e56e02e33a0ee228e23d53f338e235018f970c3119a4ae88528",
+          "comparison_driver_sha256": "01d7c3ed4f9dae8b8cdea3a2ad203c1360b5cf49a60af06786c06e7faab8ca91",
+          "report_script_sha256": "990d1bee026fafe6755e23fc4584640ffd2e4c66b2bbc1822a61d6780807d114",
+          "ranks": 2,
+          "threads": 2,
+          "case": "81-point compressible flow/SA flat plate, Re=1e5, first-order Roe",
+          "layout": "2x2",
+          "full_evidence": "newton_krylov_refactor_20261015/resolved_group_converged_sa_2x2",
+          "full_results_sha256": "d5b2b510f8d7291265319b8c30e7b02fda73bd395a0cb855026aed0cef920d1f",
+          "runs": [
+            {
+              "mode": "native",
+              "exit_code": 0,
+              "wall_seconds": 1.9724253870081156,
+              "config_sha256": "eb1e6d69dbc5874e2ea9db1a3e38277f4f847dec00a87dcc078adacb295bbcd8",
+              "rank_resources": [
+                {
+                  "max_rss_kib": 25032,
+                  "user_seconds": 2.91,
+                  "system_seconds": 0.26
+                },
+                {
+                  "max_rss_kib": 25264,
+                  "user_seconds": 2.99,
+                  "system_seconds": 0.21
+                }
+              ],
+              "max_rank_rss_kib": 25264,
+              "updates": 3327,
+              "last_history_log10_rms": [
+                -10.82714063,
+                -11.18790049,
+                -11.70484543,
+                -10.00106503,
+                -15.76441024
+              ],
+              "outer_krylov_iterations": 63031,
+              "inner_krylov_iterations": 0,
+              "residual_assemblies": {
+                "flow": 3327,
+                "turbulence": 3327
+              },
+              "flow_residual_assemblies": 3327,
+              "physical": {
+                "points": 81,
+                "systems": {
+                  "flow": {
+                    "rms": [
+                      1.4822047283872947e-11,
+                      6.458614120021126e-12,
+                      1.9642670644902313e-12,
+                      9.930752237871712e-11
+                    ],
+                    "maximum": [
+                      9.756709275134806e-11,
+                      5.4729632673583896e-11,
+                      6.0978280551621646e-12,
+                      6.861157666787206e-10
+                    ],
+                    "normalized_rms": [
+                      2.200458837151974e-11,
+                      5.803555189786682e-12,
+                      1.9787233518831443e-12,
+                      2.4161259927187207e-12
+                    ],
+                    "projection_max": [
+                      0,
+                      0,
+                      0,
+                      0
+                    ],
+                    "packed_integral": [
+                      0.9854543106069535,
+                      0.9694000573508075,
+                      -0.01768728128417334,
+                      44.87211843249337
+                    ]
+                  },
+                  "turbulence": {
+                    "rms": [
+                      1.7693244428389707e-16
+                    ],
+                    "maximum": [
+                      1.0951077216814036e-15
+                    ],
+                    "normalized_rms": [
+                      4.497270747616735e-12
+                    ],
+                    "projection_max": [
+                      3.3333333333333327e-12
+                    ],
+                    "packed_integral": [
+                      2.8732244058076363e-05
+                    ]
+                  }
+                },
+                "quantities": {
+                  "mass": 0.9854543106069535,
+                  "drag": 0.00020015364132058958,
+                  "lift": 0.5498870480764764,
+                  "moment_z": 0.6845125438400003,
+                  "heat_flux": 0
+                }
+              },
+              "state_difference_from_native": [
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0
+              ],
+              "quantity_difference_from_native": {
+                "mass": 0.0,
+                "drag": 0.0,
+                "lift": 0.0,
+                "moment_z": 0.0,
+                "heat_flux": 0.0
+              },
+              "report_manifest_sha256": "901d95fed541809a46737f661c2a5072c7924e14a0283d7921672433ed0a0297"
+            },
+            {
+              "mode": "segregated",
+              "exit_code": 0,
+              "wall_seconds": 12.774756341939792,
+              "config_sha256": "fecf7ba2ac7efe53b06270deb07482593d57eda98e1cf1bbf476a6faebaeeac5",
+              "rank_resources": [
+                {
+                  "max_rss_kib": 24868,
+                  "user_seconds": 21.94,
+                  "system_seconds": 2.32
+                },
+                {
+                  "max_rss_kib": 24972,
+                  "user_seconds": 22.57,
+                  "system_seconds": 1.92
+                }
+              ],
+              "max_rank_rss_kib": 24972,
+              "updates": 2927,
+              "last_history_log10_rms": [
+                -10.1241368,
+                -10.85459586,
+                -10.99386506,
+                -10.00099061,
+                -14.43614102
+              ],
+              "outer_krylov_iterations": 29036,
+              "inner_krylov_iterations": 0,
+              "residual_assemblies": {
+                "flow": 77807,
+                "turbulence": 30953
+              },
+              "stationary_group_iterations": {
+                "newton_turb": 165,
+                "newton_flow": 0
+              },
+              "nonzero_group_updates": {
+                "newton_turb": 2762,
+                "newton_flow": 2927
+              },
+              "attempts": 5854,
+              "flow_residual_assemblies": 77807,
+              "physical": {
+                "points": 81,
+                "systems": {
+                  "flow": {
+                    "rms": [
+                      7.51386177179759e-11,
+                      1.3976683856576692e-11,
+                      1.014226470943648e-11,
+                      9.977216357591063e-11
+                    ],
+                    "maximum": [
+                      4.99569659619982e-10,
+                      7.010387235995008e-11,
+                      3.066468725188885e-11,
+                      3.5866483317803814e-10
+                    ],
+                    "normalized_rms": [
+                      1.1170154417496504e-10,
+                      1.2566963226225545e-11,
+                      1.0226088048101592e-11,
+                      2.3210415583149585e-12
+                    ],
+                    "projection_max": [
+                      0,
+                      0,
+                      0,
+                      0
+                    ],
+                    "packed_integral": [
+                      0.9854543305247423,
+                      0.9694000479030063,
+                      -0.017687270339018107,
+                      44.872118554815714
+                    ]
+                  },
+                  "turbulence": {
+                    "rms": [
+                      3.663186066339578e-15
+                    ],
+                    "maximum": [
+                      1.737029184362528e-14
+                    ],
+                    "normalized_rms": [
+                      9.758206852215039e-11
+                    ],
+                    "projection_max": [
+                      0
+                    ],
+                    "packed_integral": [
+                      2.8732244366870023e-05
+                    ]
+                  }
+                },
+                "quantities": {
+                  "mass": 0.9854543305247423,
+                  "drag": 0.00020015357456157261,
+                  "lift": 0.5498868748739735,
+                  "moment_z": 0.6845124203951839,
+                  "heat_flux": 0
+                }
+              },
+              "state_difference_from_native": [
+                8.463466712832545e-07,
+                9.669710015111446e-08,
+                1.6242235564909452e-07,
+                1.994973391444031e-08,
+                1.2725806662548975e-07
+              ],
+              "quantity_difference_from_native": {
+                "mass": 2.021178307027537e-08,
+                "drag": 3.33538858054071e-07,
+                "lift": 3.149783278246145e-07,
+                "moment_z": 1.8033974319366062e-07,
+                "heat_flux": 0.0
+              },
+              "report_manifest_sha256": "a2506cfaa026b5f9b7e8af803a77d2697d96d5d2063aef47c8ce1e52dc4a1ac8"
+            },
+            {
+              "mode": "coupled",
+              "exit_code": 0,
+              "wall_seconds": 13.00933549797628,
+              "config_sha256": "9bf11593f196aa55e87d0887016a8eac8e9e312eae35b4e35d87abf99b385c76",
+              "rank_resources": [
+                {
+                  "max_rss_kib": 25208,
+                  "user_seconds": 22.22,
+                  "system_seconds": 2.43
+                },
+                {
+                  "max_rss_kib": 24848,
+                  "user_seconds": 22.34,
+                  "system_seconds": 2.45
+                }
+              ],
+              "max_rank_rss_kib": 25208,
+              "updates": 2927,
+              "last_history_log10_rms": [
+                -10.1241357,
+                -10.85458091,
+                -10.99385774,
+                -10.00099935,
+                -15.13401724
+              ],
+              "outer_krylov_iterations": 23344,
+              "inner_krylov_iterations": 0,
+              "residual_assemblies": {
+                "flow": 73032,
+                "turbulence": 73032
+              },
+              "stationary_group_iterations": {
+                "newton_coupled": 0
+              },
+              "nonzero_group_updates": {
+                "newton_coupled": 2927
+              },
+              "attempts": 2927,
+              "flow_residual_assemblies": 73032,
+              "physical": {
+                "points": 81,
+                "systems": {
+                  "flow": {
+                    "rms": [
+                      7.513880808808616e-11,
+                      1.3977164796953624e-11,
+                      1.0142435548216134e-11,
+                      9.977015464619295e-11
+                    ],
+                    "maximum": [
+                      4.995707869191908e-10,
+                      7.010619341996094e-11,
+                      3.0664840575440216e-11,
+                      3.5864324354826886e-10
+                    ],
+                    "normalized_rms": [
+                      1.1170185495204143e-10,
+                      1.2567381126164445e-11,
+                      1.0226263733381831e-11,
+                      2.3209870437028e-12
+                    ],
+                    "projection_max": [
+                      0,
+                      0,
+                      0,
+                      0
+                    ],
+                    "packed_integral": [
+                      0.985454330524512,
+                      0.9694000479031066,
+                      -0.017687270339116754,
+                      44.872118554814804
+                    ]
+                  },
+                  "turbulence": {
+                    "rms": [
+                      7.344847101860995e-16
+                    ],
+                    "maximum": [
+                      3.4816935660632537e-15
+                    ],
+                    "normalized_rms": [
+                      1.9524770522325875e-11
+                    ],
+                    "projection_max": [
+                      0
+                    ],
+                    "packed_integral": [
+                      2.873224433761587e-05
+                    ]
+                  }
+                },
+                "quantities": {
+                  "mass": 0.985454330524512,
+                  "drag": 0.00020015357456249663,
+                  "lift": 0.5498868748750085,
+                  "moment_z": 0.6845124203959927,
+                  "heat_flux": 0
+                }
+              },
+              "state_difference_from_native": [
+                8.463371693145761e-07,
+                9.669577641137643e-08,
+                1.6242151259625452e-07,
+                1.994957054983621e-08,
+                1.1455450788036708e-07
+              ],
+              "quantity_difference_from_native": {
+                "mass": 2.021154941128902e-08,
+                "drag": 3.33534241543997e-07,
+                "lift": 3.149764455090927e-07,
+                "moment_z": 1.8033856162660136e-07,
+                "heat_flux": 0.0
+              },
+              "report_manifest_sha256": "0c0c9c457b1a397c0130388ea9f8788bec46dc31b20bff63e3079fdeb4c32f12"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "family": "bc",
+      "case": "81-point compressible flow/SA-BC flat plate, Re=1e5, first-order Roe",
+      "limits": "Coarse generated mesh; no discretization-accuracy or production speedup claim. Single launch-inclusive timing samples; all five physical residuals must converge.",
+      "criteria": {
+        "raw_rms": 1e-10,
+        "normalized_rms": 1e-09,
+        "projection": 1e-08,
+        "state_tolerance": 1e-06,
+        "quantity_tolerance": 1e-06,
+        "max_updates": 10000
+      },
+      "layouts": [
+        {
+          "binary_sha256": "52f701094258a665ef56399f89b599a566f1fe64f4b75c3c944e7342262acc53",
+          "reporter_sha256": "2e8f5ca13a66b7f9dc8c0053e96e44d0b8be6e8190b2f22e3c2ae6b7fd3ee2f6",
+          "runner_sha256": "b53943b93c0ce42adea3914be8e876ef96438e252265201c1fd5277362fd0e00",
+          "comparison_driver_sha256": "01d7c3ed4f9dae8b8cdea3a2ad203c1360b5cf49a60af06786c06e7faab8ca91",
+          "report_script_sha256": "990d1bee026fafe6755e23fc4584640ffd2e4c66b2bbc1822a61d6780807d114",
+          "ranks": 1,
+          "threads": 1,
+          "case": "81-point compressible flow/SA-BC flat plate, Re=1e5, first-order Roe",
+          "layout": "1x1",
+          "full_evidence": "newton_krylov_refactor_20261015/resolved_group_converged_bc_1x1",
+          "full_results_sha256": "e20a6d2c745f0984b5f48ccc65026834a408c81977fa734ab166a91b90a65dca",
+          "runs": [
+            {
+              "mode": "native",
+              "exit_code": 0,
+              "wall_seconds": 1.4203417190583423,
+              "config_sha256": "37cb0e9b462d464f6f2d0bbbe211ac38f441ee74c8b39be79c70af56c3f353ed",
+              "rank_resources": [
+                {
+                  "max_rss_kib": 25136,
+                  "user_seconds": 1.0,
+                  "system_seconds": 0.09
+                }
+              ],
+              "max_rank_rss_kib": 25136,
+              "updates": 3334,
+              "last_history_log10_rms": [
+                -10.82748332,
+                -11.18842708,
+                -11.70541059,
+                -10.00150928,
+                -16.6769976
+              ],
+              "outer_krylov_iterations": 34802,
+              "inner_krylov_iterations": 0,
+              "residual_assemblies": {
+                "flow": 3334,
+                "turbulence": 3334
+              },
+              "flow_residual_assemblies": 3334,
+              "physical": {
+                "points": 81,
+                "systems": {
+                  "flow": {
+                    "rms": [
+                      1.481049133679207e-11,
+                      6.450820951672255e-12,
+                      1.961689389824552e-12,
+                      9.920668623055212e-11
+                    ],
+                    "maximum": [
+                      9.751509028163487e-11,
+                      5.466512804585011e-11,
+                      6.091434527656512e-12,
+                      6.853967513231109e-10
+                    ],
+                    "normalized_rms": [
+                      2.201386575680445e-11,
+                      5.7959892524064116e-12,
+                      1.9761326199965415e-12,
+                      2.413614381405614e-12
+                    ],
+                    "projection_max": [
+                      0,
+                      0,
+                      0,
+                      0
+                    ],
+                    "packed_integral": [
+                      0.9854341728091177,
+                      0.9694087516694079,
+                      -0.01769605303107296,
+                      44.87202565041856
+                    ]
+                  },
+                  "turbulence": {
+                    "rms": [
+                      2.1188200464452353e-17
+                    ],
+                    "maximum": [
+                      9.981386867762106e-17
+                    ],
+                    "normalized_rms": [
+                      1.1226685603981954e-10
+                    ],
+                    "projection_max": [
+                      6.666666666666665e-10
+                    ],
+                    "packed_integral": [
+                      1.436914684005541e-07
+                    ]
+                  }
+                },
+                "quantities": {
+                  "mass": 0.9854341728091177,
+                  "drag": 0.00020023107778249444,
+                  "lift": 0.5500091972068604,
+                  "moment_z": 0.6846061011514354,
+                  "heat_flux": 0
+                },
+                "transition_activity": {
+                  "model": "SA_BC",
+                  "gamma_min": 8.341238899889358e-05,
+                  "gamma_max": 1,
+                  "gamma_mean": 0.9026767328452612,
+                  "sampled_points": 72,
+                  "gamma_below_0_1": 7,
+                  "gamma_0_1_to_0_9": 0,
+                  "gamma_above_0_9": 65
+                }
+              },
+              "transition_activity_difference_from_native": {
+                "gamma_min": 0.0,
+                "gamma_max": 0,
+                "gamma_mean": 0.0
+              },
+              "state_difference_from_native": [
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0
+              ],
+              "quantity_difference_from_native": {
+                "mass": 0.0,
+                "drag": 0.0,
+                "lift": 0.0,
+                "moment_z": 0.0,
+                "heat_flux": 0.0
+              },
+              "report_manifest_sha256": "33a70c2cc4aa8eb3d22d2bf3cbff8eb94ceeb60a2c750c59439d3d4e7f6493a4"
+            },
+            {
+              "mode": "segregated",
+              "exit_code": 0,
+              "wall_seconds": 10.497699802042916,
+              "config_sha256": "78c9340a0866eae073619121da966e9d06bd070feaf84c7dc54be19197823a0a",
+              "rank_resources": [
+                {
+                  "max_rss_kib": 25528,
+                  "user_seconds": 8.69,
+                  "system_seconds": 1.44
+                }
+              ],
+              "max_rank_rss_kib": 25528,
+              "updates": 2933,
+              "last_history_log10_rms": [
+                -10.12369983,
+                -10.85477385,
+                -10.99319109,
+                -10.00010655,
+                -16.75249718
+              ],
+              "outer_krylov_iterations": 19778,
+              "inner_krylov_iterations": 0,
+              "residual_assemblies": {
+                "flow": 68657,
+                "turbulence": 30772
+              },
+              "stationary_group_iterations": {
+                "newton_turb": 164,
+                "newton_flow": 0
+              },
+              "nonzero_group_updates": {
+                "newton_turb": 2769,
+                "newton_flow": 2933
+              },
+              "attempts": 5866,
+              "flow_residual_assemblies": 68657,
+              "physical": {
+                "points": 81,
+                "systems": {
+                  "flow": {
+                    "rms": [
+                      7.521425701677066e-11,
+                      1.3970956679161872e-11,
+                      1.0158016466251148e-11,
+                      9.997546979797492e-11
+                    ],
+                    "maximum": [
+                      5.001921586205707e-10,
+                      7.006998106739992e-11,
+                      3.071803628185378e-11,
+                      3.6085160664542154e-10
+                    ],
+                    "normalized_rms": [
+                      1.1194852596718876e-10,
+                      1.2560968752990087e-11,
+                      1.0242049630587193e-11,
+                      2.3264742943940103e-12
+                    ],
+                    "projection_max": [
+                      0,
+                      0,
+                      0,
+                      0
+                    ],
+                    "packed_integral": [
+                      0.9854341927913516,
+                      0.9694087421916039,
+                      -0.0176960420551142,
+                      44.872025773100894
+                    ]
+                  },
+                  "turbulence": {
+                    "rms": [
+                      1.768083687323825e-17
+                    ],
+                    "maximum": [
+                      8.408777556955891e-17
+                    ],
+                    "normalized_rms": [
+                      9.384009642513692e-11
+                    ],
+                    "projection_max": [
+                      0
+                    ],
+                    "packed_integral": [
+                      1.4369146978191215e-07
+                    ]
+                  }
+                },
+                "quantities": {
+                  "mass": 0.9854341927913516,
+                  "drag": 0.00020023101071701857,
+                  "lift": 0.550009023539313,
+                  "moment_z": 0.6846059773267432,
+                  "heat_flux": 0
+                },
+                "transition_activity": {
+                  "model": "SA_BC",
+                  "gamma_min": 8.34123900155248e-05,
+                  "gamma_max": 1,
+                  "gamma_mean": 0.9026767386345497,
+                  "sampled_points": 72,
+                  "gamma_below_0_1": 7,
+                  "gamma_0_1_to_0_9": 0,
+                  "gamma_above_0_9": 65
+                }
+              },
+              "transition_activity_difference_from_native": {
+                "gamma_min": 1.0166312236492558e-12,
+                "gamma_max": 0,
+                "gamma_mean": 5.789288493041056e-09
+              },
+              "state_difference_from_native": [
+                8.491902980591751e-07,
+                9.698975838846937e-08,
+                1.6294052448371272e-07,
+                2.0012735582310918e-08,
+                1.1054336189468871e-07
+              ],
+              "quantity_difference_from_native": {
+                "mass": 2.0277593794625345e-08,
+                "drag": 3.3494039291865747e-07,
+                "lift": 3.157538968891465e-07,
+                "moment_z": 1.8086998050144423e-07,
+                "heat_flux": 0.0
+              },
+              "report_manifest_sha256": "361091da765e71964100db27834cc6b9e2c78d1912a5a7284a56aa7f4dedc487"
+            },
+            {
+              "mode": "coupled",
+              "exit_code": 0,
+              "wall_seconds": 9.661701414035633,
+              "config_sha256": "dbd69b793785693025b2d4611559a07da563a20bdf9586af5a990f369136388a",
+              "rank_resources": [
+                {
+                  "max_rss_kib": 25320,
+                  "user_seconds": 7.99,
+                  "system_seconds": 1.29
+                }
+              ],
+              "max_rank_rss_kib": 25320,
+              "updates": 2933,
+              "last_history_log10_rms": [
+                -10.12369804,
+                -10.85476909,
+                -10.99319025,
+                -10.00010566,
+                -17.43123778
+              ],
+              "outer_krylov_iterations": 14390,
+              "inner_krylov_iterations": 0,
+              "residual_assemblies": {
+                "flow": 55178,
+                "turbulence": 55178
+              },
+              "stationary_group_iterations": {
+                "newton_coupled": 0
+              },
+              "nonzero_group_updates": {
+                "newton_coupled": 2933
+              },
+              "attempts": 2933,
+              "flow_residual_assemblies": 55178,
+              "physical": {
+                "points": 81,
+                "systems": {
+                  "flow": {
+                    "rms": [
+                      7.521456629051085e-11,
+                      1.3971110090246779e-11,
+                      1.0158036086097337e-11,
+                      9.997567279393405e-11
+                    ],
+                    "maximum": [
+                      5.001943584938837e-10,
+                      7.006978504364714e-11,
+                      3.0718923349178014e-11,
+                      3.6086095604601553e-10
+                    ],
+                    "normalized_rms": [
+                      1.1194897696361792e-10,
+                      1.2561117393944166e-11,
+                      1.0242069026994466e-11,
+                      2.3264828593717843e-12
+                    ],
+                    "projection_max": [
+                      0,
+                      0,
+                      0,
+                      0
+                    ],
+                    "packed_integral": [
+                      0.9854341927914524,
+                      0.9694087421915567,
+                      -0.017696042055059164,
+                      44.872025773101505
+                    ]
+                  },
+                  "turbulence": {
+                    "rms": [
+                      3.704778259151542e-18
+                    ],
+                    "maximum": [
+                      1.7609764928989845e-17
+                    ],
+                    "normalized_rms": [
+                      1.963613590949018e-11
+                    ],
+                    "projection_max": [
+                      0
+                    ],
+                    "packed_integral": [
+                      1.4369146964093445e-07
+                    ]
+                  }
+                },
+                "quantities": {
+                  "mass": 0.9854341927914524,
+                  "drag": 0.00020023101071668135,
+                  "lift": 0.5500090235384375,
+                  "moment_z": 0.6846059773261186,
+                  "heat_flux": 0
+                },
+                "transition_activity": {
+                  "model": "SA_BC",
+                  "gamma_min": 8.341238994113986e-05,
+                  "gamma_max": 1,
+                  "gamma_mean": 0.9026767386345758,
+                  "sampled_points": 72,
+                  "gamma_below_0_1": 7,
+                  "gamma_0_1_to_0_9": 0,
+                  "gamma_above_0_9": 65
+                }
+              },
+              "transition_activity_difference_from_native": {
+                "gamma_min": 9.422462809993704e-13,
+                "gamma_max": 0,
+                "gamma_mean": 5.789314583282135e-09
+              },
+              "state_difference_from_native": [
+                8.491945644656743e-07,
+                9.699024661219632e-08,
+                1.6294134544668633e-07,
+                2.0012836705582994e-08,
+                9.840385487349379e-08
+              ],
+              "quantity_difference_from_native": {
+                "mass": 2.0277696092935486e-08,
+                "drag": 3.3494207704274263e-07,
+                "lift": 3.1575548872048613e-07,
+                "moment_z": 1.8087089286765395e-07,
+                "heat_flux": 0.0
+              },
+              "report_manifest_sha256": "ce8fdaa0e51d38fc44fa9d2b5c5f82ee19f113e15511dfa5fbc9edfa2ab7a34a"
+            }
+          ]
+        },
+        {
+          "binary_sha256": "52f701094258a665ef56399f89b599a566f1fe64f4b75c3c944e7342262acc53",
+          "reporter_sha256": "2e8f5ca13a66b7f9dc8c0053e96e44d0b8be6e8190b2f22e3c2ae6b7fd3ee2f6",
+          "runner_sha256": "b53943b93c0ce42adea3914be8e876ef96438e252265201c1fd5277362fd0e00",
+          "comparison_driver_sha256": "01d7c3ed4f9dae8b8cdea3a2ad203c1360b5cf49a60af06786c06e7faab8ca91",
+          "report_script_sha256": "990d1bee026fafe6755e23fc4584640ffd2e4c66b2bbc1822a61d6780807d114",
+          "ranks": 2,
+          "threads": 2,
+          "case": "81-point compressible flow/SA-BC flat plate, Re=1e5, first-order Roe",
+          "layout": "2x2",
+          "full_evidence": "newton_krylov_refactor_20261015/resolved_group_converged_bc_2x2",
+          "full_results_sha256": "a6dede455b692e8889c82af1f019737cbf053eb9275af10994708fabd0d8b249",
+          "runs": [
+            {
+              "mode": "native",
+              "exit_code": 0,
+              "wall_seconds": 2.023900647996925,
+              "config_sha256": "37cb0e9b462d464f6f2d0bbbe211ac38f441ee74c8b39be79c70af56c3f353ed",
+              "rank_resources": [
+                {
+                  "max_rss_kib": 25644,
+                  "user_seconds": 2.98,
+                  "system_seconds": 0.29
+                },
+                {
+                  "max_rss_kib": 25088,
+                  "user_seconds": 3.1,
+                  "system_seconds": 0.22
+                }
+              ],
+              "max_rank_rss_kib": 25644,
+              "updates": 3334,
+              "last_history_log10_rms": [
+                -10.82748369,
+                -11.18842496,
+                -11.70541002,
+                -10.00151001,
+                -16.67699781
+              ],
+              "outer_krylov_iterations": 60985,
+              "inner_krylov_iterations": 0,
+              "residual_assemblies": {
+                "flow": 3334,
+                "turbulence": 3334
+              },
+              "flow_residual_assemblies": 3334,
+              "physical": {
+                "points": 81,
+                "systems": {
+                  "flow": {
+                    "rms": [
+                      1.4810481812059898e-11,
+                      6.450860029917393e-12,
+                      1.9617345755850927e-12,
+                      9.92077937313473e-11
+                    ],
+                    "maximum": [
+                      9.751511702077095e-11,
+                      5.4665128117636155e-11,
+                      6.091497107509446e-12,
+                      6.85403856763174e-10
+                    ],
+                    "normalized_rms": [
+                      2.2013841719053625e-11,
+                      5.796027080520519e-12,
+                      1.976178600847396e-12,
+                      2.413640947364552e-12
+                    ],
+                    "projection_max": [
+                      0,
+                      0,
+                      0,
+                      0
+                    ],
+                    "packed_integral": [
+                      0.9854341728091147,
+                      0.9694087516694092,
+                      -0.0176960530310746,
+                      44.87202565041856
+                    ]
+                  },
+                  "turbulence": {
+                    "rms": [
+                      2.1188190031806996e-17
+                    ],
+                    "maximum": [
+                      9.98138190467843e-17
+                    ],
+                    "normalized_rms": [
+                      1.122667922990894e-10
+                    ],
+                    "projection_max": [
+                      6.666666666666665e-10
+                    ],
+                    "packed_integral": [
+                      1.4369146840055374e-07
+                    ]
+                  }
+                },
+                "quantities": {
+                  "mass": 0.9854341728091147,
+                  "drag": 0.0002002310777825047,
+                  "lift": 0.5500091972068852,
+                  "moment_z": 0.6846061011514555,
+                  "heat_flux": 0
+                },
+                "transition_activity": {
+                  "model": "SA_BC",
+                  "gamma_min": 8.341238899889358e-05,
+                  "gamma_max": 1,
+                  "gamma_mean": 0.9026767328452604,
+                  "sampled_points": 72,
+                  "gamma_below_0_1": 7,
+                  "gamma_0_1_to_0_9": 0,
+                  "gamma_above_0_9": 65
+                }
+              },
+              "transition_activity_difference_from_native": {
+                "gamma_min": 0.0,
+                "gamma_max": 0,
+                "gamma_mean": 0.0
+              },
+              "state_difference_from_native": [
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0
+              ],
+              "quantity_difference_from_native": {
+                "mass": 0.0,
+                "drag": 0.0,
+                "lift": 0.0,
+                "moment_z": 0.0,
+                "heat_flux": 0.0
+              },
+              "report_manifest_sha256": "6cb5f7cf2d7642c1007accb62ede44b52695993c6c31706fc2eee52369208967"
+            },
+            {
+              "mode": "segregated",
+              "exit_code": 0,
+              "wall_seconds": 12.509180244989693,
+              "config_sha256": "78c9340a0866eae073619121da966e9d06bd070feaf84c7dc54be19197823a0a",
+              "rank_resources": [
+                {
+                  "max_rss_kib": 25224,
+                  "user_seconds": 21.51,
+                  "system_seconds": 2.2
+                },
+                {
+                  "max_rss_kib": 25104,
+                  "user_seconds": 21.74,
+                  "system_seconds": 2.22
+                }
+              ],
+              "max_rank_rss_kib": 25224,
+              "updates": 2933,
+              "last_history_log10_rms": [
+                -10.12369117,
+                -10.85435482,
+                -10.99363247,
+                -10.00075457,
+                -16.75248188
+              ],
+              "outer_krylov_iterations": 29092,
+              "inner_krylov_iterations": 0,
+              "residual_assemblies": {
+                "flow": 77971,
+                "turbulence": 31019
+              },
+              "stationary_group_iterations": {
+                "newton_turb": 164,
+                "newton_flow": 0
+              },
+              "nonzero_group_updates": {
+                "newton_turb": 2769,
+                "newton_flow": 2933
+              },
+              "attempts": 5866,
+              "flow_residual_assemblies": 77971,
+              "physical": {
+                "points": 81,
+                "systems": {
+                  "flow": {
+                    "rms": [
+                      7.521575755000655e-11,
+                      1.3984443380631672e-11,
+                      1.014769795420975e-11,
+                      9.982640370608543e-11
+                    ],
+                    "maximum": [
+                      5.001998848485397e-10,
+                      7.014474591449105e-11,
+                      3.068728989177019e-11,
+                      3.5888313106485813e-10
+                    ],
+                    "normalized_rms": [
+                      1.1195139578424925e-10,
+                      1.2573011086216581e-11,
+                      1.023161304674331e-11,
+                      2.3223315159109377e-12
+                    ],
+                    "projection_max": [
+                      0,
+                      0,
+                      0,
+                      0
+                    ],
+                    "packed_integral": [
+                      0.9854341927921565,
+                      0.9694087421910766,
+                      -0.017696042054631583,
+                      44.87202577310631
+                    ]
+                  },
+                  "turbulence": {
+                    "rms": [
+                      1.768145991534681e-17
+                    ],
+                    "maximum": [
+                      8.409051725969922e-17
+                    ],
+                    "normalized_rms": [
+                      9.384348218559228e-11
+                    ],
+                    "projection_max": [
+                      0
+                    ],
+                    "packed_integral": [
+                      1.4369146978203293e-07
+                    ]
+                  }
+                },
+                "quantities": {
+                  "mass": 0.9854341927921565,
+                  "drag": 0.0002002310107141294,
+                  "lift": 0.5500090235318187,
+                  "moment_z": 0.6846059773213411,
+                  "heat_flux": 0
+                },
+                "transition_activity": {
+                  "model": "SA_BC",
+                  "gamma_min": 8.341239001563583e-05,
+                  "gamma_max": 1,
+                  "gamma_mean": 0.9026767386349172,
+                  "sampled_points": 72,
+                  "gamma_below_0_1": 7,
+                  "gamma_0_1_to_0_9": 0,
+                  "gamma_above_0_9": 65
+                }
+              },
+              "transition_activity_difference_from_native": {
+                "gamma_min": 1.0167422459517184e-12,
+                "gamma_max": 0,
+                "gamma_mean": 5.789656754018324e-09
+              },
+              "state_difference_from_native": [
+                8.492195926986133e-07,
+                9.699474242805887e-08,
+                1.6294679807916785e-07,
+                2.0013614934035515e-08,
+                1.1054953765525018e-07
+              ],
+              "quantity_difference_from_native": {
+                "mass": 2.0278413645729937e-08,
+                "drag": 3.3495487346180534e-07,
+                "lift": 3.1576756794684735e-07,
+                "moment_z": 1.8087790070288157e-07,
+                "heat_flux": 0.0
+              },
+              "report_manifest_sha256": "d312fe82af7d0632502685dfb2df5257872b0885c82d74a5030fe7d93e211859"
+            },
+            {
+              "mode": "coupled",
+              "exit_code": 0,
+              "wall_seconds": 11.856688294094056,
+              "config_sha256": "dbd69b793785693025b2d4611559a07da563a20bdf9586af5a990f369136388a",
+              "rank_resources": [
+                {
+                  "max_rss_kib": 25092,
+                  "user_seconds": 20.49,
+                  "system_seconds": 2.15
+                },
+                {
+                  "max_rss_kib": 25272,
+                  "user_seconds": 20.59,
+                  "system_seconds": 2.11
+                }
+              ],
+              "max_rank_rss_kib": 25272,
+              "updates": 2933,
+              "last_history_log10_rms": [
+                -10.12368706,
+                -10.85434996,
+                -10.99362123,
+                -10.00075495,
+                -17.43121431
+              ],
+              "outer_krylov_iterations": 23393,
+              "inner_krylov_iterations": 0,
+              "residual_assemblies": {
+                "flow": 73184,
+                "turbulence": 73184
+              },
+              "stationary_group_iterations": {
+                "newton_coupled": 0
+              },
+              "nonzero_group_updates": {
+                "newton_coupled": 2933
+              },
+              "attempts": 2933,
+              "flow_residual_assemblies": 73184,
+              "physical": {
+                "points": 81,
+                "systems": {
+                  "flow": {
+                    "rms": [
+                      7.521646788202606e-11,
+                      1.3984599781500757e-11,
+                      1.0147960516541324e-11,
+                      9.982631769131584e-11
+                    ],
+                    "maximum": [
+                      5.00204703192072e-10,
+                      7.014390110415825e-11,
+                      3.068727216273533e-11,
+                      3.588703078262934e-10
+                    ],
+                    "normalized_rms": [
+                      1.119524415904754e-10,
+                      1.2573149469710322e-11,
+                      1.0231879198061782e-11,
+                      2.3223237771295114e-12
+                    ],
+                    "projection_max": [
+                      0,
+                      0,
+                      0,
+                      0
+                    ],
+                    "packed_integral": [
+                      0.985434192792394,
+                      0.9694087421909645,
+                      -0.017696042054500927,
+                      44.87202577310774
+                    ]
+                  },
+                  "turbulence": {
+                    "rms": [
+                      3.7049784536363824e-18
+                    ],
+                    "maximum": [
+                      1.761064835788405e-17
+                    ],
+                    "normalized_rms": [
+                      1.963717238438192e-11
+                    ],
+                    "projection_max": [
+                      0
+                    ],
+                    "packed_integral": [
+                      1.436914696410508e-07
+                    ]
+                  }
+                },
+                "quantities": {
+                  "mass": 0.985434192792394,
+                  "drag": 0.00020023101071333084,
+                  "lift": 0.5500090235297812,
+                  "moment_z": 0.6846059773198795,
+                  "heat_flux": 0
+                },
+                "transition_activity": {
+                  "model": "SA_BC",
+                  "gamma_min": 8.341238994125089e-05,
+                  "gamma_max": 1,
+                  "gamma_mean": 0.9026767386349887,
+                  "sampled_points": 72,
+                  "gamma_below_0_1": 7,
+                  "gamma_0_1_to_0_9": 0,
+                  "gamma_above_0_9": 65
+                }
+              },
+              "transition_activity_difference_from_native": {
+                "gamma_min": 9.423573033018329e-13,
+                "gamma_max": 0,
+                "gamma_mean": 5.78972825238111e-09
+              },
+              "state_difference_from_native": [
+                8.492297221767465e-07,
+                9.699589936092556e-08,
+                1.6294873581297667e-07,
+                2.001385287114628e-08,
+                9.841049595756927e-08
+              ],
+              "quantity_difference_from_native": {
+                "mass": 2.0278654632608126e-08,
+                "drag": 3.3495886156402174e-07,
+                "lift": 3.1577127239634586e-07,
+                "moment_z": 1.808800356657594e-07,
+                "heat_flux": 0.0
+              },
+              "report_manifest_sha256": "d55bff93068aedd92b3aa2c77723629bba6efb7ba6c06d14a157f56af1e97965"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "family": "sst",
+      "case": "81-point compressible flow/SST flat plate, Re=1e5, first-order Roe",
+      "limits": "Coarse generated mesh; no discretization-accuracy or production speedup claim. All six history residuals reach -11; independent final physical RMS must be below 1e-10.",
+      "criteria": {
+        "raw_rms": 1e-10,
+        "normalized_rms": 1e-09,
+        "projection": 1e-07,
+        "state_tolerance": 1e-06,
+        "quantity_tolerance": 1e-06,
+        "max_updates": 10000
+      },
+      "layouts": [
+        {
+          "binary_sha256": "52f701094258a665ef56399f89b599a566f1fe64f4b75c3c944e7342262acc53",
+          "reporter_sha256": "2e8f5ca13a66b7f9dc8c0053e96e44d0b8be6e8190b2f22e3c2ae6b7fd3ee2f6",
+          "runner_sha256": "ddd678c884d9b9ee63e3549e6823e26e77ac50a9d89f2edddb0df9e255ca0bd2",
+          "comparison_driver_sha256": "01d7c3ed4f9dae8b8cdea3a2ad203c1360b5cf49a60af06786c06e7faab8ca91",
+          "report_script_sha256": "990d1bee026fafe6755e23fc4584640ffd2e4c66b2bbc1822a61d6780807d114",
+          "ranks": 1,
+          "threads": 1,
+          "case": "81-point compressible flow/SST flat plate, Re=1e5, first-order Roe",
+          "layout": "1x1",
+          "full_evidence": "newton_krylov_refactor_20261015/resolved_group_converged_sst_1x1",
+          "full_results_sha256": "6bdb1efd657c1bd4a8a8a271519904bf9cda3e1675bfdd0662e2cb9977012da4",
+          "runs": [
+            {
+              "mode": "native",
+              "exit_code": 0,
+              "wall_seconds": 1.6201076979050413,
+              "config_sha256": "e178ef0b206f62358637843e6e14e22baff43566b650819ac169a0935d0bd061",
+              "rank_resources": [
+                {
+                  "max_rss_kib": 25320,
+                  "user_seconds": 1.12,
+                  "system_seconds": 0.18
+                }
+              ],
+              "max_rank_rss_kib": 25320,
+              "updates": 3488,
+              "last_history_log10_rms": [
+                -11.83106836,
+                -12.18698492,
+                -12.70044664,
+                -11.00119392,
+                -15.34143939,
+                -11.40172611
+              ],
+              "outer_krylov_iterations": 38141,
+              "inner_krylov_iterations": 0,
+              "residual_assemblies": {
+                "flow": 3488,
+                "turbulence": 3488
+              },
+              "flow_residual_assemblies": 3488,
+              "physical": {
+                "points": 81,
+                "systems": {
+                  "flow": {
+                    "rms": [
+                      1.5428492156119534e-12,
+                      1.0287489339212784e-12,
+                      6.475551303516628e-13,
+                      2.2222235571668075e-11
+                    ],
+                    "maximum": [
+                      1.0102151252566575e-11,
+                      6.193786245540611e-12,
+                      2.2577495428777183e-12,
+                      1.0953418727588371e-10
+                    ],
+                    "normalized_rms": [
+                      2.121761927667797e-12,
+                      9.345309928686415e-13,
+                      6.603200830451056e-13,
+                      5.18358245653844e-13
+                    ],
+                    "projection_max": [
+                      0,
+                      0,
+                      0,
+                      0
+                    ],
+                    "packed_integral": [
+                      0.986385998962292,
+                      0.9691232401921244,
+                      -0.01732062095673855,
+                      44.87676596615321
+                    ]
+                  },
+                  "turbulence": {
+                    "rms": [
+                      6.67460389039483e-14,
+                      2.6944068349235298e-11
+                    ],
+                    "maximum": [
+                      4.697858313300329e-13,
+                      9.312006721273747e-11
+                    ],
+                    "normalized_rms": [
+                      1.7935468594045033e-11,
+                      7.339074946391515e-13
+                    ],
+                    "projection_max": [
+                      2.6666666666666664e-08,
+                      3.0642155479654314e-14
+                    ],
+                    "packed_integral": [
+                      0.001576673275685425,
+                      16.289192420174423
+                    ]
+                  }
+                },
+                "quantities": {
+                  "mass": 0.986385998962292,
+                  "drag": 0.00019654248439658138,
+                  "lift": 0.5452003992834075,
+                  "moment_z": 0.6807021392445111,
+                  "heat_flux": 0
+                }
+              },
+              "state_difference_from_native": [
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0
+              ],
+              "quantity_difference_from_native": {
+                "mass": 0.0,
+                "drag": 0.0,
+                "lift": 0.0,
+                "moment_z": 0.0,
+                "heat_flux": 0.0
+              },
+              "report_manifest_sha256": "ee337335053a0fa997e86671183f17d457551c9fdadb69e3b90cc0c1a167e8b5"
+            },
+            {
+              "mode": "segregated",
+              "exit_code": 0,
+              "wall_seconds": 14.171091852011159,
+              "config_sha256": "06ca039e934820f14d78540a8303b67ccaddfc55445fcc426f26665cfa200b2c",
+              "rank_resources": [
+                {
+                  "max_rss_kib": 25304,
+                  "user_seconds": 11.95,
+                  "system_seconds": 1.85
+                }
+              ],
+              "max_rank_rss_kib": 25304,
+              "updates": 3058,
+              "last_history_log10_rms": [
+                -11.14887223,
+                -11.87378428,
+                -12.01010792,
+                -11.01694508,
+                -15.0991104,
+                -11.12629335
+              ],
+              "outer_krylov_iterations": 21184,
+              "inner_krylov_iterations": 0,
+              "residual_assemblies": {
+                "flow": 73160,
+                "turbulence": 33640
+              },
+              "stationary_group_iterations": {
+                "newton_turb": 0,
+                "newton_flow": 2
+              },
+              "nonzero_group_updates": {
+                "newton_turb": 3058,
+                "newton_flow": 3056
+              },
+              "attempts": 6116,
+              "flow_residual_assemblies": 73160,
+              "physical": {
+                "points": 81,
+                "systems": {
+                  "flow": {
+                    "rms": [
+                      7.097865500539301e-12,
+                      1.3372595745086693e-12,
+                      9.769944199176658e-13,
+                      9.617338981251383e-12
+                    ],
+                    "maximum": [
+                      4.735920961223151e-11,
+                      6.706746269458108e-12,
+                      2.934551598710077e-12,
+                      3.4676550571418295e-11
+                    ],
+                    "normalized_rms": [
+                      9.858164944458316e-12,
+                      1.2062516418938986e-12,
+                      9.849378624266853e-13,
+                      2.2370682933298424e-13
+                    ],
+                    "projection_max": [
+                      0,
+                      0,
+                      0,
+                      0
+                    ],
+                    "packed_integral": [
+                      0.9863860005893484,
+                      0.9691232394339477,
+                      -0.01732062005573962,
+                      44.87676597615317
+                    ]
+                  },
+                  "turbulence": {
+                    "rms": [
+                      7.959569834273582e-16,
+                      7.476643053320648e-12
+                    ],
+                    "maximum": [
+                      3.4833365982226902e-15,
+                      3.444868001967194e-11
+                    ],
+                    "normalized_rms": [
+                      2.1347134966839922e-13,
+                      2.0012186816032532e-13
+                    ],
+                    "projection_max": [
+                      0,
+                      0
+                    ],
+                    "packed_integral": [
+                      0.0015766732750491204,
+                      16.28919241717488
+                    ]
+                  }
+                },
+                "quantities": {
+                  "mass": 0.9863860005893484,
+                  "drag": 0.00019654247933994113,
+                  "lift": 0.5452003849322696,
+                  "moment_z": 0.680702129202662,
+                  "heat_flux": 0
+                }
+              },
+              "state_difference_from_native": [
+                6.999145650710611e-08,
+                7.818152480623056e-09,
+                1.320194292800745e-08,
+                1.6245493063645873e-09,
+                3.134460594612819e-08,
+                5.455999139417309e-09
+              ],
+              "quantity_difference_from_native": {
+                "mass": 1.6495129606979686e-09,
+                "drag": 2.572797561822048e-08,
+                "lift": 2.6322684012189964e-08,
+                "moment_z": 1.4752192537733958e-08,
+                "heat_flux": 0.0
+              },
+              "report_manifest_sha256": "2c68af3ff127ed86edf45948e00de87196fa53142894fe0d96da2ddf4ce4ab79"
+            },
+            {
+              "mode": "coupled",
+              "exit_code": 0,
+              "wall_seconds": 13.603313633007929,
+              "config_sha256": "e82d3deecf5468db60eff02f0dccdebdd8f70b82c884d78eebda42a5c333df59",
+              "rank_resources": [
+                {
+                  "max_rss_kib": 25500,
+                  "user_seconds": 11.58,
+                  "system_seconds": 1.59
+                }
+              ],
+              "max_rank_rss_kib": 25500,
+              "updates": 3119,
+              "last_history_log10_rms": [
+                -11.289399,
+                -12.01441419,
+                -12.15054179,
+                -11.15750319,
+                -14.95257424,
+                -11.00003163
+              ],
+              "outer_krylov_iterations": 15367,
+              "inner_krylov_iterations": 0,
+              "residual_assemblies": {
+                "flow": 58806,
+                "turbulence": 58806
+              },
+              "stationary_group_iterations": {
+                "newton_coupled": 0
+              },
+              "nonzero_group_updates": {
+                "newton_coupled": 3119
+              },
+              "attempts": 3119,
+              "flow_residual_assemblies": 58806,
+              "physical": {
+                "points": 81,
+                "systems": {
+                  "flow": {
+                    "rms": [
+                      5.135716042086572e-12,
+                      9.673548397240064e-13,
+                      7.070631651728928e-13,
+                      6.958198416143257e-12
+                    ],
+                    "maximum": [
+                      3.4267489141940645e-11,
+                      4.852803922594795e-12,
+                      2.123776005183214e-12,
+                      2.5101890699505067e-11
+                    ],
+                    "normalized_rms": [
+                      7.132909570762033e-12,
+                      8.725797970729898e-13,
+                      7.128121255796021e-13,
+                      1.6185889346693732e-13
+                    ],
+                    "projection_max": [
+                      0,
+                      0,
+                      0,
+                      0
+                    ],
+                    "packed_integral": [
+                      0.9863860000105588,
+                      0.9691232397060459,
+                      -0.01732062037782802,
+                      44.87676597257554
+                    ]
+                  },
+                  "turbulence": {
+                    "rms": [
+                      1.115387456394173e-15,
+                      9.999271656284202e-12
+                    ],
+                    "maximum": [
+                      4.296942237246547e-15,
+                      4.209392556742131e-11
+                    ],
+                    "normalized_rms": [
+                      2.995354556044217e-13,
+                      2.676989938603514e-13
+                    ],
+                    "projection_max": [
+                      0,
+                      0
+                    ],
+                    "packed_integral": [
+                      0.0015766732750823649,
+                      16.289192418247413
+                    ]
+                  }
+                },
+                "quantities": {
+                  "mass": 0.9863860000105588,
+                  "drag": 0.00019654248114589005,
+                  "lift": 0.5452003900782365,
+                  "moment_z": 0.6807021328022318,
+                  "heat_flux": 0
+                }
+              },
+              "state_difference_from_native": [
+                4.5347472318980935e-08,
+                5.0139722496771155e-09,
+                8.488839156566661e-09,
+                1.0441926923295723e-09,
+                3.134460594612819e-08,
+                3.4706545419475523e-09
+              ],
+              "quantity_difference_from_native": {
+                "mass": 1.0627348804566907e-09,
+                "drag": 1.6539382508108095e-08,
+                "lift": 1.6884013604747443e-08,
+                "moment_z": 9.46416779702809e-09,
+                "heat_flux": 0.0
+              },
+              "report_manifest_sha256": "dc1c17a50f69b92b1dfc51b498dd9d34eebea76203e0100b17a2f965911799c3"
+            }
+          ]
+        },
+        {
+          "binary_sha256": "52f701094258a665ef56399f89b599a566f1fe64f4b75c3c944e7342262acc53",
+          "reporter_sha256": "2e8f5ca13a66b7f9dc8c0053e96e44d0b8be6e8190b2f22e3c2ae6b7fd3ee2f6",
+          "runner_sha256": "ddd678c884d9b9ee63e3549e6823e26e77ac50a9d89f2edddb0df9e255ca0bd2",
+          "comparison_driver_sha256": "01d7c3ed4f9dae8b8cdea3a2ad203c1360b5cf49a60af06786c06e7faab8ca91",
+          "report_script_sha256": "990d1bee026fafe6755e23fc4584640ffd2e4c66b2bbc1822a61d6780807d114",
+          "ranks": 2,
+          "threads": 2,
+          "case": "81-point compressible flow/SST flat plate, Re=1e5, first-order Roe",
+          "layout": "2x2",
+          "full_evidence": "newton_krylov_refactor_20261015/resolved_group_converged_sst_2x2",
+          "full_results_sha256": "2887955a4ca1d76ae9e80c2ebdf69195ac266195e5eae1e41f92142e632a5dc9",
+          "runs": [
+            {
+              "mode": "native",
+              "exit_code": 0,
+              "wall_seconds": 2.2718302379362285,
+              "config_sha256": "e178ef0b206f62358637843e6e14e22baff43566b650819ac169a0935d0bd061",
+              "rank_resources": [
+                {
+                  "max_rss_kib": 25284,
+                  "user_seconds": 3.37,
+                  "system_seconds": 0.29
+                },
+                {
+                  "max_rss_kib": 25124,
+                  "user_seconds": 3.55,
+                  "system_seconds": 0.22
+                }
+              ],
+              "max_rank_rss_kib": 25284,
+              "updates": 3488,
+              "last_history_log10_rms": [
+                -11.83106634,
+                -12.18694318,
+                -12.70040956,
+                -11.0011752,
+                -15.34141368,
+                -11.40171103
+              ],
+              "outer_krylov_iterations": 66054,
+              "inner_krylov_iterations": 0,
+              "residual_assemblies": {
+                "flow": 3488,
+                "turbulence": 3488
+              },
+              "flow_residual_assemblies": 3488,
+              "physical": {
+                "points": 81,
+                "systems": {
+                  "flow": {
+                    "rms": [
+                      1.5428468440521399e-12,
+                      1.0287942949481145e-12,
+                      6.476159994538166e-13,
+                      2.2224253319370394e-11
+                    ],
+                    "maximum": [
+                      1.010243367367998e-11,
+                      6.1942308090889115e-12,
+                      2.2581936320875684e-12,
+                      1.095567248032836e-10
+                    ],
+                    "normalized_rms": [
+                      2.1217445880477245e-12,
+                      9.345691223792669e-13,
+                      6.603831246154935e-13,
+                      5.184028497115396e-13
+                    ],
+                    "projection_max": [
+                      0,
+                      0,
+                      0,
+                      0
+                    ],
+                    "packed_integral": [
+                      0.9863859989622918,
+                      0.9691232401921257,
+                      -0.017320620956739283,
+                      44.87676596615321
+                    ]
+                  },
+                  "turbulence": {
+                    "rms": [
+                      6.674605417845283e-14,
+                      2.694401209004355e-11
+                    ],
+                    "maximum": [
+                      4.697858855401416e-13,
+                      9.312006721273747e-11
+                    ],
+                    "normalized_rms": [
+                      1.7935472730307383e-11,
+                      7.339060218229331e-13
+                    ],
+                    "projection_max": [
+                      2.6666666666666667e-08,
+                      3.0642155479654314e-14
+                    ],
+                    "packed_integral": [
+                      0.0015766732756854259,
+                      16.289192420174437
+                    ]
+                  }
+                },
+                "quantities": {
+                  "mass": 0.9863859989622918,
+                  "drag": 0.00019654248439658268,
+                  "lift": 0.5452003992834112,
+                  "moment_z": 0.6807021392445121,
+                  "heat_flux": 0
+                }
+              },
+              "state_difference_from_native": [
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0
+              ],
+              "quantity_difference_from_native": {
+                "mass": 0.0,
+                "drag": 0.0,
+                "lift": 0.0,
+                "moment_z": 0.0,
+                "heat_flux": 0.0
+              },
+              "report_manifest_sha256": "9be48b086b8c8baf33269c387138837a83b2bce9f1e97b9f8f943600758aa578"
+            },
+            {
+              "mode": "segregated",
+              "exit_code": 0,
+              "wall_seconds": 17.13768527796492,
+              "config_sha256": "06ca039e934820f14d78540a8303b67ccaddfc55445fcc426f26665cfa200b2c",
+              "rank_resources": [
+                {
+                  "max_rss_kib": 25556,
+                  "user_seconds": 29.5,
+                  "system_seconds": 3.37
+                },
+                {
+                  "max_rss_kib": 25476,
+                  "user_seconds": 30.14,
+                  "system_seconds": 2.86
+                }
+              ],
+              "max_rank_rss_kib": 25556,
+              "updates": 3058,
+              "last_history_log10_rms": [
+                -11.14885103,
+                -11.87341569,
+                -12.01051764,
+                -11.01760091,
+                -15.09908672,
+                -11.12614278
+              ],
+              "outer_krylov_iterations": 33771,
+              "inner_krylov_iterations": 0,
+              "residual_assemblies": {
+                "flow": 85747,
+                "turbulence": 36694
+              },
+              "stationary_group_iterations": {
+                "newton_turb": 0,
+                "newton_flow": 2
+              },
+              "nonzero_group_updates": {
+                "newton_turb": 3058,
+                "newton_flow": 3056
+              },
+              "attempts": 6116,
+              "flow_residual_assemblies": 85747,
+              "physical": {
+                "points": 81,
+                "systems": {
+                  "flow": {
+                    "rms": [
+                      7.098212122063607e-12,
+                      1.338395028917705e-12,
+                      9.76073136860195e-13,
+                      9.602826574930779e-12
+                    ],
+                    "maximum": [
+                      4.736123453597148e-11,
+                      6.715031308779373e-12,
+                      2.9315614910911062e-12,
+                      3.448917144715721e-11
+                    ],
+                    "normalized_rms": [
+                      9.858698975129998e-12,
+                      1.2072691991394526e-12,
+                      9.84005700127912e-13,
+                      2.2330636888166266e-13
+                    ],
+                    "projection_max": [
+                      0,
+                      0,
+                      0,
+                      0
+                    ],
+                    "packed_integral": [
+                      0.9863860005894719,
+                      0.9691232394338767,
+                      -0.017320620055668146,
+                      44.87676597615396
+                    ]
+                  },
+                  "turbulence": {
+                    "rms": [
+                      7.960003960015078e-16,
+                      7.47923571220651e-12
+                    ],
+                    "maximum": [
+                      3.483506004812141e-15,
+                      3.4451316799355425e-11
+                    ],
+                    "normalized_rms": [
+                      2.1348030107209717e-13,
+                      2.0019138899087337e-13
+                    ],
+                    "projection_max": [
+                      0,
+                      0
+                    ],
+                    "packed_integral": [
+                      0.0015766732750491152,
+                      16.2891924171747
+                    ]
+                  }
+                },
+                "quantities": {
+                  "mass": 0.9863860005894719,
+                  "drag": 0.00019654247933953997,
+                  "lift": 0.5452003849311476,
+                  "moment_z": 0.680702129201871,
+                  "heat_flux": 0
+                }
+              },
+              "state_difference_from_native": [
+                6.999630846705827e-08,
+                7.818846985370991e-09,
+                1.3202900867290743e-08,
+                1.6246783038120464e-09,
+                3.134460594612819e-08,
+                5.456472571440009e-09
+              ],
+              "quantity_difference_from_native": {
+                "mass": 1.6496382339913558e-09,
+                "drag": 2.573002329685662e-08,
+                "lift": 2.6324748878885497e-08,
+                "moment_z": 1.4753356090865483e-08,
+                "heat_flux": 0.0
+              },
+              "report_manifest_sha256": "7c29b2bf1470d25a086ce2c1c7de4ee74e90a7e721bd7745330b4d0f494ea3b7"
+            },
+            {
+              "mode": "coupled",
+              "exit_code": 0,
+              "wall_seconds": 17.48752989899367,
+              "config_sha256": "e82d3deecf5468db60eff02f0dccdebdd8f70b82c884d78eebda42a5c333df59",
+              "rank_resources": [
+                {
+                  "max_rss_kib": 24964,
+                  "user_seconds": 30.59,
+                  "system_seconds": 2.96
+                },
+                {
+                  "max_rss_kib": 24940,
+                  "user_seconds": 30.84,
+                  "system_seconds": 2.9
+                }
+              ],
+              "max_rank_rss_kib": 24964,
+              "updates": 3119,
+              "last_history_log10_rms": [
+                -11.28942312,
+                -12.01407011,
+                -12.1510443,
+                -11.15814564,
+                -14.95257744,
+                -11.00004113
+              ],
+              "outer_krylov_iterations": 25072,
+              "inner_krylov_iterations": 0,
+              "residual_assemblies": {
+                "flow": 78216,
+                "turbulence": 78216
+              },
+              "stationary_group_iterations": {
+                "newton_coupled": 0
+              },
+              "nonzero_group_updates": {
+                "newton_coupled": 3119
+              },
+              "attempts": 3119,
+              "flow_residual_assemblies": 78216,
+              "physical": {
+                "points": 81,
+                "systems": {
+                  "flow": {
+                    "rms": [
+                      5.1354307618042204e-12,
+                      9.68121544740297e-13,
+                      7.062455084129931e-13,
+                      6.947912750601593e-12
+                    ],
+                    "maximum": [
+                      3.426536513567464e-11,
+                      4.8566550087114635e-12,
+                      2.1210718999329498e-12,
+                      2.4964651141679353e-11
+                    ],
+                    "normalized_rms": [
+                      7.1325551945408815e-12,
+                      8.732640391827853e-13,
+                      7.119862094219603e-13,
+                      1.6157206592604744e-13
+                    ],
+                    "projection_max": [
+                      0,
+                      0,
+                      0,
+                      0
+                    ],
+                    "packed_integral": [
+                      0.9863860000104959,
+                      0.9691232397060651,
+                      -0.017320620377860613,
+                      44.8767659725752
+                    ]
+                  },
+                  "turbulence": {
+                    "rms": [
+                      1.1153792373839983e-15,
+                      9.999052934854496e-12
+                    ],
+                    "maximum": [
+                      4.296676268901109e-15,
+                      4.209101123198167e-11
+                    ],
+                    "normalized_rms": [
+                      2.9953332597604716e-13,
+                      2.676930894292197e-13
+                    ],
+                    "projection_max": [
+                      0,
+                      0
+                    ],
+                    "packed_integral": [
+                      0.001576673275082378,
+                      16.289192418247637
+                    ]
+                  }
+                },
+                "quantities": {
+                  "mass": 0.9863860000104959,
+                  "drag": 0.00019654248114607376,
+                  "lift": 0.5452003900787592,
+                  "moment_z": 0.6807021328025958,
+                  "heat_flux": 0
+                }
+              },
+              "state_difference_from_native": [
+                4.5344519972061015e-08,
+                5.013739967971164e-09,
+                8.488293790645566e-09,
+                1.0441342154214449e-09,
+                3.134460594612819e-08,
+                3.470476103596245e-09
+              ],
+              "quantity_difference_from_native": {
+                "mass": 1.0626712870957171e-09,
+                "drag": 1.6538454377907126e-08,
+                "lift": 1.6883061811163917e-08,
+                "moment_z": 9.463634461067863e-09,
+                "heat_flux": 0.0
+              },
+              "report_manifest_sha256": "fc0b3f1241ada0a9d8de2a658ad9aac42deab7a9f2a1e4582d30e8da8b502677"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "family": "species",
+      "case": "81-point variable-density mixture/species wall diffusion, first-order FDS",
+      "limits": "Generated variable-density two-component mixture with artificial transport coefficients; no physical validation or production speedup claim. All five physical residuals must converge.",
+      "criteria": {
+        "raw_rms": 1e-10,
+        "normalized_rms": 1e-09,
+        "projection": 1e-08,
+        "state_tolerance": 1e-06,
+        "quantity_tolerance": 1e-06,
+        "max_updates": 10000
+      },
+      "layouts": [
+        {
+          "binary_sha256": "52f701094258a665ef56399f89b599a566f1fe64f4b75c3c944e7342262acc53",
+          "reporter_sha256": "2e8f5ca13a66b7f9dc8c0053e96e44d0b8be6e8190b2f22e3c2ae6b7fd3ee2f6",
+          "runner_sha256": "a1400b817351e7b4ec27cc4a02e4766eb9abf68bc91059d79af8b19ddda2b0a0",
+          "comparison_driver_sha256": "01d7c3ed4f9dae8b8cdea3a2ad203c1360b5cf49a60af06786c06e7faab8ca91",
+          "report_script_sha256": "990d1bee026fafe6755e23fc4584640ffd2e4c66b2bbc1822a61d6780807d114",
+          "ranks": 1,
+          "threads": 1,
+          "case": "81-point variable-density mixture/species wall diffusion, first-order FDS",
+          "layout": "1x1",
+          "full_evidence": "newton_krylov_refactor_20261015/resolved_group_converged_species_1x1",
+          "full_results_sha256": "1277f74cbc6ea56988c34ecff42bca4fe1ef861ffd50fe79d7b4d08b38c8171a",
+          "runs": [
+            {
+              "mode": "native",
+              "exit_code": 0,
+              "wall_seconds": 0.46836233302019536,
+              "config_sha256": "c399a3fef0719225e49e7d6ccc1117dba0d19b3c0fa496be4ae087c8d35b39f5",
+              "rank_resources": [
+                {
+                  "max_rss_kib": 24920,
+                  "user_seconds": 0.05,
+                  "system_seconds": 0.02
+                }
+              ],
+              "max_rank_rss_kib": 24920,
+              "updates": 81,
+              "last_history_log10_rms": [
+                -11.20530326,
+                -10.87016214,
+                -11.53253512,
+                -10.0262639,
+                -11.70387385
+              ],
+              "outer_krylov_iterations": 1118,
+              "inner_krylov_iterations": 0,
+              "residual_assemblies": {
+                "flow": 81,
+                "species": 81
+              },
+              "flow_residual_assemblies": 81,
+              "physical": {
+                "points": 81,
+                "systems": {
+                  "flow": {
+                    "rms": [
+                      5.12773336631288e-12,
+                      1.1577042817344814e-11,
+                      2.906447302256452e-12,
+                      7.758834986052633e-11
+                    ],
+                    "maximum": [
+                      1.5732151692482432e-11,
+                      4.3536368954377735e-11,
+                      6.043226682961311e-12,
+                      3.5818415055540936e-10
+                    ],
+                    "normalized_rms": [
+                      5.12773336631288e-12,
+                      1.1560999933328033e-11,
+                      2.906447302256452e-12,
+                      1.8789092970458486e-12
+                    ],
+                    "projection_max": [
+                      0,
+                      0,
+                      0,
+                      0
+                    ],
+                    "packed_integral": [
+                      0.02854313047136514,
+                      0.912861496982,
+                      0.018337205647462034,
+                      0.3570222400581661
+                    ]
+                  },
+                  "species": {
+                    "rms": [
+                      1.4488213164959672e-12
+                    ],
+                    "maximum": [
+                      4.411110365865056e-12
+                    ],
+                    "normalized_rms": [
+                      5.006777506572958e-12
+                    ],
+                    "projection_max": [
+                      1.4802973661668756e-16
+                    ],
+                    "packed_integral": [
+                      0.32657573659608163
+                    ]
+                  }
+                },
+                "quantities": {
+                  "mass": 0.9669045752166867,
+                  "drag": 0.1550248960768042,
+                  "lift": -0.07180115560086338,
+                  "moment_z": -0.02031590303713085,
+                  "heat_flux": 0
+                }
+              },
+              "interior_species_range": [
+                [
+                  0.24997305736099745,
+                  0.5577746095029269
+                ]
+              ],
+              "state_difference_from_native": [
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0
+              ],
+              "quantity_difference_from_native": {
+                "mass": 0.0,
+                "drag": 0.0,
+                "lift": 0.0,
+                "moment_z": 0.0,
+                "heat_flux": 0.0
+              },
+              "report_manifest_sha256": "e1857b18047f7d6fa66d23b540fa35d9df48245d4854ffc5b85e1b01b27fa9d5"
+            },
+            {
+              "mode": "segregated",
+              "exit_code": 0,
+              "wall_seconds": 0.9187176149571314,
+              "config_sha256": "97055a0f5f0549a10c11899cca04e7a6217aaa375aee97e44a351e3241c65c63",
+              "rank_resources": [
+                {
+                  "max_rss_kib": 24912,
+                  "user_seconds": 0.53,
+                  "system_seconds": 0.07
+                }
+              ],
+              "max_rank_rss_kib": 24912,
+              "updates": 82,
+              "last_history_log10_rms": [
+                -11.6127228,
+                -12.26950727,
+                -12.48146275,
+                -10.01863106,
+                -10.50347082
+              ],
+              "outer_krylov_iterations": 703,
+              "inner_krylov_iterations": 0,
+              "residual_assemblies": {
+                "flow": 1961,
+                "species": 781
+              },
+              "stationary_group_iterations": {
+                "newton_species": 23,
+                "newton_flow": 0
+              },
+              "nonzero_group_updates": {
+                "newton_species": 59,
+                "newton_flow": 82
+              },
+              "attempts": 164,
+              "flow_residual_assemblies": 1961,
+              "physical": {
+                "points": 81,
+                "systems": {
+                  "flow": {
+                    "rms": [
+                      2.439367287670734e-12,
+                      5.376414383846102e-13,
+                      3.3001771028182253e-13,
+                      9.580075738871167e-11
+                    ],
+                    "maximum": [
+                      1.1735254911923731e-11,
+                      2.4596279873945193e-12,
+                      9.201795412878272e-13,
+                      4.425467561755283e-10
+                    ],
+                    "normalized_rms": [
+                      2.439367287670734e-12,
+                      5.357351438493465e-13,
+                      3.3001771028182253e-13,
+                      2.3294603608993836e-12
+                    ],
+                    "projection_max": [
+                      0,
+                      0,
+                      0,
+                      0
+                    ],
+                    "packed_integral": [
+                      0.0285431302053332,
+                      0.9128614966786527,
+                      0.018337205568056306,
+                      0.3570222394748585
+                    ]
+                  },
+                  "species": {
+                    "rms": [
+                      3.137105904412787e-11
+                    ],
+                    "maximum": [
+                      1.1707169955688101e-10
+                    ],
+                    "normalized_rms": [
+                      8.111329322470394e-11
+                    ],
+                    "projection_max": [
+                      0
+                    ],
+                    "packed_integral": [
+                      0.3265757370694367
+                    ]
+                  }
+                },
+                "quantities": {
+                  "mass": 0.9669045754372247,
+                  "drag": 0.15502489598012822,
+                  "lift": -0.07180115512111962,
+                  "moment_z": -0.020315902946615144,
+                  "heat_flux": 0
+                }
+              },
+              "interior_species_range": [
+                [
+                  0.24997305736736222,
+                  0.55777460936598
+                ]
+              ],
+              "state_difference_from_native": [
+                4.69656654684291e-09,
+                6.611553362517011e-10,
+                4.797530077419193e-09,
+                2.7288914036976356e-08,
+                2.7924283626153588e-09
+              ],
+              "quantity_difference_from_native": {
+                "mass": 2.2808665708422326e-10,
+                "drag": 6.236157883623896e-10,
+                "lift": 6.681560409344755e-09,
+                "moment_z": 4.455411402394398e-09,
+                "heat_flux": 0.0
+              },
+              "report_manifest_sha256": "b85e62da017b21be9d6c6a828e4989d3f1bc0dc410023b2b318519c42943c038"
+            },
+            {
+              "mode": "coupled",
+              "exit_code": 0,
+              "wall_seconds": 0.9683837270131335,
+              "config_sha256": "63f33aa0aa6130d2add4adecc730fe5b93cb715415933f4b5bd00e2db3743991",
+              "rank_resources": [
+                {
+                  "max_rss_kib": 25124,
+                  "user_seconds": 0.53,
+                  "system_seconds": 0.06
+                }
+              ],
+              "max_rank_rss_kib": 25124,
+              "updates": 82,
+              "last_history_log10_rms": [
+                -11.60867008,
+                -12.2937544,
+                -12.45436656,
+                -10.01508368,
+                -12.82163963
+              ],
+              "outer_krylov_iterations": 502,
+              "inner_krylov_iterations": 0,
+              "residual_assemblies": {
+                "flow": 1743,
+                "species": 1743
+              },
+              "stationary_group_iterations": {
+                "newton_coupled": 0
+              },
+              "nonzero_group_updates": {
+                "newton_coupled": 82
+              },
+              "attempts": 82,
+              "flow_residual_assemblies": 1743,
+              "physical": {
+                "points": 81,
+                "systems": {
+                  "flow": {
+                    "rms": [
+                      2.4622373788349332e-12,
+                      5.084468931350139e-13,
+                      3.512638335922507e-13,
+                      9.658647488765451e-11
+                    ],
+                    "maximum": [
+                      1.1835826847143675e-11,
+                      2.4103219420368305e-12,
+                      9.58102060145613e-13,
+                      4.461886704425356e-10
+                    ],
+                    "normalized_rms": [
+                      2.4622373788349332e-12,
+                      5.066396681841229e-13,
+                      3.512638335922507e-13,
+                      2.348577822245692e-12
+                    ],
+                    "projection_max": [
+                      0,
+                      0,
+                      0,
+                      0
+                    ],
+                    "packed_integral": [
+                      0.028543130377588852,
+                      0.9128614968231462,
+                      0.018337205597877403,
+                      0.35702223945365436
+                    ]
+                  },
+                  "species": {
+                    "rms": [
+                      1.5078577313217285e-13
+                    ],
+                    "maximum": [
+                      5.05318877019878e-13
+                    ],
+                    "normalized_rms": [
+                      4.4109901704484153e-13
+                    ],
+                    "projection_max": [
+                      0
+                    ],
+                    "packed_integral": [
+                      0.3265757366052477
+                    ]
+                  }
+                },
+                "quantities": {
+                  "mass": 0.9669045752320455,
+                  "drag": 0.1550248960405434,
+                  "lift": -0.07180115543275896,
+                  "moment_z": -0.02031590301232286,
+                  "heat_flux": 0
+                }
+              },
+              "interior_species_range": [
+                [
+                  0.2499730573816112,
+                  0.557774609485361
+                ]
+              ],
+              "state_difference_from_native": [
+                2.313861733892397e-09,
+                2.229078383088576e-10,
+                3.4970037537072723e-09,
+                2.8498821916000962e-08,
+                1.966293054304439e-10
+              ],
+              "quantity_difference_from_native": {
+                "mass": 1.5884530610709387e-11,
+                "drag": 2.339030751569618e-10,
+                "lift": 2.341249494758782e-09,
+                "moment_z": 1.2211118034506975e-09,
+                "heat_flux": 0.0
+              },
+              "report_manifest_sha256": "3b6398e2716d075afba42ba2ce2e7401ae18e6b3c072751f0907636a2ef29c4a"
+            }
+          ]
+        },
+        {
+          "binary_sha256": "52f701094258a665ef56399f89b599a566f1fe64f4b75c3c944e7342262acc53",
+          "reporter_sha256": "2e8f5ca13a66b7f9dc8c0053e96e44d0b8be6e8190b2f22e3c2ae6b7fd3ee2f6",
+          "runner_sha256": "a1400b817351e7b4ec27cc4a02e4766eb9abf68bc91059d79af8b19ddda2b0a0",
+          "comparison_driver_sha256": "01d7c3ed4f9dae8b8cdea3a2ad203c1360b5cf49a60af06786c06e7faab8ca91",
+          "report_script_sha256": "990d1bee026fafe6755e23fc4584640ffd2e4c66b2bbc1822a61d6780807d114",
+          "ranks": 2,
+          "threads": 2,
+          "case": "81-point variable-density mixture/species wall diffusion, first-order FDS",
+          "layout": "2x2",
+          "full_evidence": "newton_krylov_refactor_20261015/resolved_group_converged_species_2x2",
+          "full_results_sha256": "2bff27a99165f703a63d03c9d0610e37abc6978521576fd4df054fd9df2d7afb",
+          "runs": [
+            {
+              "mode": "native",
+              "exit_code": 0,
+              "wall_seconds": 0.46702489198651165,
+              "config_sha256": "c399a3fef0719225e49e7d6ccc1117dba0d19b3c0fa496be4ae087c8d35b39f5",
+              "rank_resources": [
+                {
+                  "max_rss_kib": 25304,
+                  "user_seconds": 0.2,
+                  "system_seconds": 0.01
+                },
+                {
+                  "max_rss_kib": 25020,
+                  "user_seconds": 0.22,
+                  "system_seconds": 0.01
+                }
+              ],
+              "max_rank_rss_kib": 25304,
+              "updates": 81,
+              "last_history_log10_rms": [
+                -11.20529715,
+                -10.87016119,
+                -11.53253927,
+                -10.02622984,
+                -11.70387675
+              ],
+              "outer_krylov_iterations": 1977,
+              "inner_krylov_iterations": 0,
+              "residual_assemblies": {
+                "flow": 81,
+                "species": 81
+              },
+              "flow_residual_assemblies": 81,
+              "physical": {
+                "points": 81,
+                "systems": {
+                  "flow": {
+                    "rms": [
+                      5.1277837467215265e-12,
+                      1.1577055142886767e-11,
+                      2.90642018348581e-12,
+                      7.759449944017405e-11
+                    ],
+                    "maximum": [
+                      1.5732123936906817e-11,
+                      4.3536563243407045e-11,
+                      6.043157727703141e-12,
+                      3.582018536528507e-10
+                    ],
+                    "normalized_rms": [
+                      5.1277837467215265e-12,
+                      1.1561012427818072e-11,
+                      2.90642018348581e-12,
+                      1.8790314923045146e-12
+                    ],
+                    "projection_max": [
+                      0,
+                      0,
+                      0,
+                      0
+                    ],
+                    "packed_integral": [
+                      0.028543130471359097,
+                      0.9128614969819978,
+                      0.01833720564746065,
+                      0.3570222400578754
+                    ]
+                  },
+                  "species": {
+                    "rms": [
+                      1.4488226484094504e-12
+                    ],
+                    "maximum": [
+                      4.411214449273615e-12
+                    ],
+                    "normalized_rms": [
+                      5.006762883409347e-12
+                    ],
+                    "projection_max": [
+                      1.4802973661668756e-16
+                    ],
+                    "packed_integral": [
+                      0.3265757365960845
+                    ]
+                  }
+                },
+                "quantities": {
+                  "mass": 0.9669045752166929,
+                  "drag": 0.15502489607680275,
+                  "lift": -0.07180115560085908,
+                  "moment_z": -0.02031590303713169,
+                  "heat_flux": 0
+                }
+              },
+              "interior_species_range": [
+                [
+                  0.24997305736099748,
+                  0.5577746095029282
+                ]
+              ],
+              "state_difference_from_native": [
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0
+              ],
+              "quantity_difference_from_native": {
+                "mass": 0.0,
+                "drag": 0.0,
+                "lift": 0.0,
+                "moment_z": 0.0,
+                "heat_flux": 0.0
+              },
+              "report_manifest_sha256": "cc9d83d475e56172ea408e32b6a2015fbbc6522619fb3469a2288d140b92f9b7"
+            },
+            {
+              "mode": "segregated",
+              "exit_code": 0,
+              "wall_seconds": 0.9691118879709393,
+              "config_sha256": "97055a0f5f0549a10c11899cca04e7a6217aaa375aee97e44a351e3241c65c63",
+              "rank_resources": [
+                {
+                  "max_rss_kib": 24644,
+                  "user_seconds": 0.93,
+                  "system_seconds": 0.13
+                },
+                {
+                  "max_rss_kib": 24940,
+                  "user_seconds": 0.97,
+                  "system_seconds": 0.09
+                }
+              ],
+              "max_rank_rss_kib": 24940,
+              "updates": 82,
+              "last_history_log10_rms": [
+                -11.61193264,
+                -12.26953397,
+                -12.47957254,
+                -10.01759724,
+                -10.50265676
+              ],
+              "outer_krylov_iterations": 1048,
+              "inner_krylov_iterations": 0,
+              "residual_assemblies": {
+                "flow": 2306,
+                "species": 875
+              },
+              "stationary_group_iterations": {
+                "newton_species": 23,
+                "newton_flow": 0
+              },
+              "nonzero_group_updates": {
+                "newton_species": 59,
+                "newton_flow": 82
+              },
+              "attempts": 164,
+              "flow_residual_assemblies": 2306,
+              "physical": {
+                "points": 81,
+                "systems": {
+                  "flow": {
+                    "rms": [
+                      2.4438095785684475e-12,
+                      5.37608380803056e-13,
+                      3.31457199106359e-13,
+                      9.602907783030041e-11
+                    ],
+                    "maximum": [
+                      1.1757978969531135e-11,
+                      2.463227538607171e-12,
+                      9.232533357619865e-13,
+                      4.435261167496762e-10
+                    ],
+                    "normalized_rms": [
+                      2.4438095785684475e-12,
+                      5.357025557980328e-13,
+                      3.31457199106359e-13,
+                      2.334893668107166e-12
+                    ],
+                    "projection_max": [
+                      0,
+                      0,
+                      0,
+                      0
+                    ],
+                    "packed_integral": [
+                      0.028543130204200105,
+                      0.9128614966778124,
+                      0.018337205567790366,
+                      0.3570222394688312
+                    ]
+                  },
+                  "species": {
+                    "rms": [
+                      3.1429917477425416e-11
+                    ],
+                    "maximum": [
+                      1.1711059205721241e-10
+                    ],
+                    "normalized_rms": [
+                      8.132465436187626e-11
+                    ],
+                    "projection_max": [
+                      0
+                    ],
+                    "packed_integral": [
+                      0.3265757370719866
+                    ]
+                  }
+                },
+                "quantities": {
+                  "mass": 0.9669045754384659,
+                  "drag": 0.15502489597988572,
+                  "lift": -0.0718011551190272,
+                  "moment_z": -0.02031590294607172,
+                  "heat_flux": 0
+                }
+              },
+              "interior_species_range": [
+                [
+                  0.24997305736779465,
+                  0.5577746093693234
+                ]
+              ],
+              "state_difference_from_native": [
+                4.709545798750376e-09,
+                6.634791838252088e-10,
+                4.8083882428675024e-09,
+                2.760003282480306e-08,
+                2.802140741664516e-09
+              ],
+              "quantity_difference_from_native": {
+                "mass": 2.2936382662291572e-10,
+                "drag": 6.251707461809274e-10,
+                "lift": 6.710642411229786e-09,
+                "moment_z": 4.482201378242153e-09,
+                "heat_flux": 0.0
+              },
+              "report_manifest_sha256": "79205678df73de313e68de138e076cb781da9abf8a94fdb7746c6e779781924a"
+            },
+            {
+              "mode": "coupled",
+              "exit_code": 0,
+              "wall_seconds": 0.8683590599102899,
+              "config_sha256": "63f33aa0aa6130d2add4adecc730fe5b93cb715415933f4b5bd00e2db3743991",
+              "rank_resources": [
+                {
+                  "max_rss_kib": 24856,
+                  "user_seconds": 1.0,
+                  "system_seconds": 0.11
+                },
+                {
+                  "max_rss_kib": 24656,
+                  "user_seconds": 0.99,
+                  "system_seconds": 0.12
+                }
+              ],
+              "max_rank_rss_kib": 24856,
+              "updates": 82,
+              "last_history_log10_rms": [
+                -11.60814276,
+                -12.29380155,
+                -12.45321407,
+                -10.01433605,
+                -12.82088858
+              ],
+              "outer_krylov_iterations": 748,
+              "inner_krylov_iterations": 0,
+              "residual_assemblies": {
+                "flow": 2235,
+                "species": 2235
+              },
+              "stationary_group_iterations": {
+                "newton_coupled": 0
+              },
+              "nonzero_group_updates": {
+                "newton_coupled": 82
+              },
+              "attempts": 82,
+              "flow_residual_assemblies": 2235,
+              "physical": {
+                "points": 81,
+                "systems": {
+                  "flow": {
+                    "rms": [
+                      2.465228823239532e-12,
+                      5.083916962433827e-13,
+                      3.5219722596529324e-13,
+                      9.675288974640968e-11
+                    ],
+                    "maximum": [
+                      1.1851665455238011e-11,
+                      2.414762834135331e-12,
+                      9.598759775301252e-13,
+                      4.4689148473491197e-10
+                    ],
+                    "normalized_rms": [
+                      2.465228823239532e-12,
+                      5.065883049128508e-13,
+                      3.5219722596529324e-13,
+                      2.352515201330274e-12
+                    ],
+                    "projection_max": [
+                      0,
+                      0,
+                      0,
+                      0
+                    ],
+                    "packed_integral": [
+                      0.028543130377585324,
+                      0.9128614968230615,
+                      0.018337205597884505,
+                      0.3570222394496351
+                    ]
+                  },
+                  "species": {
+                    "rms": [
+                      1.5104676170890125e-13
+                    ],
+                    "maximum": [
+                      5.064620597905467e-13
+                    ],
+                    "normalized_rms": [
+                      4.4216359854647495e-13
+                    ],
+                    "projection_max": [
+                      0
+                    ],
+                    "packed_integral": [
+                      0.3265757366053428
+                    ]
+                  }
+                },
+                "quantities": {
+                  "mass": 0.9669045752321621,
+                  "drag": 0.15502489604051065,
+                  "lift": -0.07180115543288128,
+                  "moment_z": -0.02031590301248693,
+                  "heat_flux": 0
+                }
+              },
+              "interior_species_range": [
+                [
+                  0.24997305738161915,
+                  0.5577746094853876
+                ]
+              ],
+              "state_difference_from_native": [
+                2.3151898918653505e-09,
+                2.2303151014510915e-10,
+                3.4958834074720097e-09,
+                2.8719917678358305e-08,
+                1.9660480650903386e-10
+              ],
+              "quantity_difference_from_native": {
+                "mass": 1.599866407483423e-11,
+                "drag": 2.3410503168192704e-10,
+                "lift": 2.3394860003569327e-09,
+                "moment_z": 1.2130771844678148e-09,
+                "heat_flux": 0.0
+              },
+              "report_manifest_sha256": "2674e9dcf8ab3eb3c18f5b2cd698ebd7b1aef2f4eff9068cf73c66c1347b69d2"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "family": "lm",
+      "case": "81-point compressible flow/SST/LM flat plate, Re=500, first-order Roe",
+      "limits": "Coarse low-Reynolds-number transition fixture; no physical validation or transition-front accuracy claim. All eight physical residuals must converge, with partial and high free-node intermittency.",
+      "criteria": {
+        "raw_rms": 1e-10,
+        "normalized_rms": 1e-09,
+        "projection": 1e-07,
+        "state_tolerance": 1e-06,
+        "quantity_tolerance": 1e-06,
+        "max_updates": 10000
+      },
+      "layouts": [
+        {
+          "binary_sha256": "52f701094258a665ef56399f89b599a566f1fe64f4b75c3c944e7342262acc53",
+          "reporter_sha256": "2e8f5ca13a66b7f9dc8c0053e96e44d0b8be6e8190b2f22e3c2ae6b7fd3ee2f6",
+          "runner_sha256": "272f5a7624b8323c3987160f33ce8dc2c192133e24981b810cdf0760b7e66b9c",
+          "comparison_driver_sha256": "01d7c3ed4f9dae8b8cdea3a2ad203c1360b5cf49a60af06786c06e7faab8ca91",
+          "report_script_sha256": "990d1bee026fafe6755e23fc4584640ffd2e4c66b2bbc1822a61d6780807d114",
+          "ranks": 1,
+          "threads": 1,
+          "case": "81-point compressible flow/SST/LM flat plate, Re=500, first-order Roe",
+          "layout": "1x1",
+          "full_evidence": "newton_krylov_refactor_20261015/resolved_group_converged_lm_1x1",
+          "full_results_sha256": "5f39e0d5b7238b084572a84f919a689e383cb0b9aacfb02d264d5ba63299eeb8",
+          "runs": [
+            {
+              "mode": "native",
+              "exit_code": 0,
+              "wall_seconds": 0.9686866640113294,
+              "config_sha256": "ae831d3481398aa3e5a7c5034ecec88a89b7696c7e3c061b9179bf30532ea5a2",
+              "rank_resources": [
+                {
+                  "max_rss_kib": 25824,
+                  "user_seconds": 0.59,
+                  "system_seconds": 0.08
+                }
+              ],
+              "max_rank_rss_kib": 25824,
+              "updates": 1416,
+              "last_history_log10_rms": [
+                -15.95365828,
+                -15.21680361,
+                -15.36245033,
+                -14.14885687,
+                -16.26698226,
+                -14.99057718,
+                -11.0037775,
+                -13.62686638
+              ],
+              "outer_krylov_iterations": 17096,
+              "inner_krylov_iterations": 0,
+              "residual_assemblies": {
+                "flow": 1416,
+                "turbulence": 1416,
+                "transition": 1416
+              },
+              "flow_residual_assemblies": 1416,
+              "physical": {
+                "points": 81,
+                "systems": {
+                  "flow": {
+                    "rms": [
+                      2.117979862664541e-13,
+                      2.1336406055454222e-13,
+                      7.118879020882514e-13,
+                      1.3668475246033995e-11
+                    ],
+                    "maximum": [
+                      5.322547957931079e-13,
+                      7.822700820447892e-13,
+                      2.4069635173873394e-12,
+                      3.970554440790863e-11
+                    ],
+                    "normalized_rms": [
+                      2.2596094769808146e-13,
+                      2.003202058836567e-13,
+                      7.292403722283604e-13,
+                      3.1123164538541207e-13
+                    ],
+                    "projection_max": [
+                      0,
+                      0,
+                      0,
+                      0
+                    ],
+                    "packed_integral": [
+                      0.9894024965595966,
+                      0.9692135462553282,
+                      -0.01894123751010918,
+                      44.85106076299707
+                    ]
+                  },
+                  "turbulence": {
+                    "rms": [
+                      1.1421190075939097e-13,
+                      6.099570512663849e-12
+                    ],
+                    "maximum": [
+                      6.152048754662896e-13,
+                      2.0535906308793983e-11
+                    ],
+                    "normalized_rms": [
+                      3.0963772361101524e-11,
+                      5.163805883167402e-13
+                    ],
+                    "projection_max": [
+                      2.6666666666666664e-08,
+                      1.7811895517078502e-12
+                    ],
+                    "packed_integral": [
+                      0.0034546938490771202,
+                      8.60177546842105
+                    ]
+                  },
+                  "transition": {
+                    "rms": [
+                      9.774231544976084e-12,
+                      3.110741846807436e-11
+                    ],
+                    "maximum": [
+                      4.8789470232727793e-11,
+                      2.032603946267031e-10
+                    ],
+                    "normalized_rms": [
+                      1.0130104806786326e-11,
+                      2.385433374523241e-13
+                    ],
+                    "projection_max": [
+                      0,
+                      0
+                    ],
+                    "packed_integral": [
+                      0.8299727610829857,
+                      118.07693131270092
+                    ]
+                  }
+                },
+                "quantities": {
+                  "mass": 0.9894024965595966,
+                  "drag": 0.03623044521897978,
+                  "lift": 0.5803907523017635,
+                  "moment_z": 0.7066613052459196,
+                  "heat_flux": 0
+                },
+                "transition_activity": {
+                  "model": "LM",
+                  "gamma_min": 0.17334743808611994,
+                  "gamma_max": 1.0019624113317107,
+                  "gamma_mean": 0.8849104583045738,
+                  "sampled_points": 72,
+                  "gamma_below_0_1": 0,
+                  "gamma_0_1_to_0_9": 17,
+                  "gamma_above_0_9": 55
+                }
+              },
+              "transition_activity_difference_from_native": {
+                "gamma_min": 0.0,
+                "gamma_max": 0.0,
+                "gamma_mean": 0.0
+              },
+              "state_difference_from_native": [
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0
+              ],
+              "quantity_difference_from_native": {
+                "mass": 0.0,
+                "drag": 0.0,
+                "lift": 0.0,
+                "moment_z": 0.0,
+                "heat_flux": 0.0
+              },
+              "report_manifest_sha256": "c8981d637fb57bfa2eb9de8004bb990c73eed78de8c0ba4542e002b69c68f030"
+            },
+            {
+              "mode": "segregated",
+              "exit_code": 0,
+              "wall_seconds": 8.445230826968327,
+              "config_sha256": "97c380c7537cdb22ea76e062771e9a020fdf15c955a79eb1911d3976f571c12a",
+              "rank_resources": [
+                {
+                  "max_rss_kib": 25928,
+                  "user_seconds": 7.2,
+                  "system_seconds": 0.81
+                }
+              ],
+              "max_rank_rss_kib": 25928,
+              "updates": 1414,
+              "last_history_log10_rms": [
+                -12.85004954,
+                -12.4145125,
+                -12.73015769,
+                -11.08953659,
+                -13.5148201,
+                -12.60622051,
+                -11.00097737,
+                -14.08387893
+              ],
+              "outer_krylov_iterations": 6434,
+              "inner_krylov_iterations": 0,
+              "residual_assemblies": {
+                "flow": 34251,
+                "turbulence": 11949,
+                "transition": 14192
+              },
+              "stationary_group_iterations": {
+                "newton_trans": 0,
+                "newton_turb": 452,
+                "newton_flow": 804
+              },
+              "nonzero_group_updates": {
+                "newton_trans": 1414,
+                "newton_turb": 962,
+                "newton_flow": 610
+              },
+              "attempts": 4242,
+              "flow_residual_assemblies": 34251,
+              "physical": {
+                "points": 81,
+                "systems": {
+                  "flow": {
+                    "rms": [
+                      1.4123764276326773e-13,
+                      3.8502373229695337e-13,
+                      1.8614111483659564e-13,
+                      8.136982968218112e-12
+                    ],
+                    "maximum": [
+                      9.504341758059809e-13,
+                      3.322790827209321e-12,
+                      9.35695965154082e-13,
+                      6.57089935848093e-11
+                    ],
+                    "normalized_rms": [
+                      1.4616109158797607e-13,
+                      3.5109038902116696e-13,
+                      1.904070537367387e-13,
+                      1.8559094667295832e-13
+                    ],
+                    "projection_max": [
+                      0,
+                      0,
+                      0,
+                      0
+                    ],
+                    "packed_integral": [
+                      0.9894024965608342,
+                      0.9692135462555421,
+                      -0.018941237509501045,
+                      44.851060763001364
+                    ]
+                  },
+                  "turbulence": {
+                    "rms": [
+                      3.0561868512233193e-14,
+                      2.476164469763102e-13
+                    ],
+                    "maximum": [
+                      1.9267888066304417e-13,
+                      1.6870949082203879e-12
+                    ],
+                    "normalized_rms": [
+                      8.41193320217061e-12,
+                      2.5828726658274772e-14
+                    ],
+                    "projection_max": [
+                      0,
+                      0
+                    ],
+                    "packed_integral": [
+                      0.0034546938474845647,
+                      8.601775468235004
+                    ]
+                  },
+                  "transition": {
+                    "rms": [
+                      9.977520482430297e-12,
+                      8.24367893622709e-15
+                    ],
+                    "maximum": [
+                      4.9741349358650364e-11,
+                      4.303501999203263e-14
+                    ],
+                    "normalized_rms": [
+                      1.0340405969363762e-11,
+                      5.626296206731169e-17
+                    ],
+                    "projection_max": [
+                      0,
+                      0
+                    ],
+                    "packed_integral": [
+                      0.8299727610998414,
+                      118.0769313133756
+                    ]
+                  }
+                },
+                "quantities": {
+                  "mass": 0.9894024965608342,
+                  "drag": 0.036230445218667945,
+                  "lift": 0.5803907523434891,
+                  "moment_z": 0.7066613052571099,
+                  "heat_flux": 0
+                },
+                "transition_activity": {
+                  "model": "LM",
+                  "gamma_min": 0.17334743809059353,
+                  "gamma_max": 1.0019624113318835,
+                  "gamma_mean": 0.8849104583068292,
+                  "sampled_points": 72,
+                  "gamma_below_0_1": 0,
+                  "gamma_0_1_to_0_9": 17,
+                  "gamma_above_0_9": 55
+                }
+              },
+              "transition_activity_difference_from_native": {
+                "gamma_min": 4.473588166575837e-12,
+                "gamma_max": 1.7275070263167436e-13,
+                "gamma_mean": 2.2554180745260055e-12
+              },
+              "state_difference_from_native": [
+                4.629130166689324e-11,
+                6.4359526591662095e-12,
+                2.1522170606595117e-11,
+                2.6729271670640817e-12,
+                2.4679128424642865e-08,
+                5.729167093356472e-11,
+                4.405308619476578e-10,
+                1.910904544635427e-10
+              ],
+              "quantity_difference_from_native": {
+                "mass": 1.2509333988501547e-12,
+                "drag": 8.60695721945566e-12,
+                "lift": 7.1892294615844e-11,
+                "moment_z": 1.5835409196786432e-11,
+                "heat_flux": 0.0
+              },
+              "report_manifest_sha256": "e3d73d2f7738f5e9c4d1daecfa816b3bd53b50b5c2cd9154ef3f912f2bec0604"
+            },
+            {
+              "mode": "coupled",
+              "exit_code": 0,
+              "wall_seconds": 21.338869401952252,
+              "config_sha256": "6c31a0ce393c70bf723a07a0bcc201385807b91943d13dc680e5272d61a6cdbe",
+              "rank_resources": [
+                {
+                  "max_rss_kib": 26028,
+                  "user_seconds": 18.58,
+                  "system_seconds": 2.37
+                }
+              ],
+              "max_rank_rss_kib": 26028,
+              "updates": 5615,
+              "last_history_log10_rms": [
+                -15.88242104,
+                -15.31310211,
+                -15.35182851,
+                -14.03095973,
+                -16.37011823,
+                -15.18722287,
+                -11.00012636,
+                -13.62001186
+              ],
+              "outer_krylov_iterations": 6205,
+              "inner_krylov_iterations": 0,
+              "residual_assemblies": {
+                "flow": 69158,
+                "turbulence": 69158,
+                "transition": 69158
+              },
+              "stationary_group_iterations": {
+                "newton_coupled": 0
+              },
+              "nonzero_group_updates": {
+                "newton_coupled": 5615
+              },
+              "attempts": 5616,
+              "flow_residual_assemblies": 69158,
+              "physical": {
+                "points": 81,
+                "systems": {
+                  "flow": {
+                    "rms": [
+                      1.3109283648520308e-16,
+                      4.862928529183363e-16,
+                      4.448068746910903e-16,
+                      9.311942119532975e-15
+                    ],
+                    "maximum": [
+                      6.106226635438361e-16,
+                      1.8317053603056355e-15,
+                      2.1226611776874876e-15,
+                      3.6728758055770694e-14
+                    ],
+                    "normalized_rms": [
+                      1.320111987133543e-16,
+                      4.767306765282967e-16,
+                      4.477051362124641e-16,
+                      2.074600355401643e-16
+                    ],
+                    "projection_max": [
+                      0,
+                      0,
+                      0,
+                      0
+                    ],
+                    "packed_integral": [
+                      0.9894024965596796,
+                      0.9692135462555125,
+                      -0.01894123750993031,
+                      44.8510607629955
+                    ]
+                  },
+                  "turbulence": {
+                    "rms": [
+                      4.264634029135457e-17,
+                      6.497961491358337e-16
+                    ],
+                    "maximum": [
+                      2.738694687698384e-16,
+                      4.440892098500626e-15
+                    ],
+                    "normalized_rms": [
+                      1.1739124229108403e-14,
+                      1.2323531354974913e-16
+                    ],
+                    "projection_max": [
+                      0,
+                      0
+                    ],
+                    "packed_integral": [
+                      0.0034546938474674755,
+                      8.6017754683216
+                    ]
+                  },
+                  "transition": {
+                    "rms": [
+                      9.997090941789779e-12,
+                      2.3987674085920297e-14
+                    ],
+                    "maximum": [
+                      4.984358747544019e-11,
+                      1.7361112547575885e-13
+                    ],
+                    "normalized_rms": [
+                      1.0360706554929411e-11,
+                      1.487690286860381e-16
+                    ],
+                    "projection_max": [
+                      0,
+                      0
+                    ],
+                    "packed_integral": [
+                      0.8299727611017333,
+                      118.07693131331568
+                    ]
+                  }
+                },
+                "quantities": {
+                  "mass": 0.9894024965596796,
+                  "drag": 0.03623044521924883,
+                  "lift": 0.5803907523715307,
+                  "moment_z": 0.7066613052795572,
+                  "heat_flux": 0
+                },
+                "transition_activity": {
+                  "model": "LM",
+                  "gamma_min": 0.1733474380920586,
+                  "gamma_max": 1.0019624113316994,
+                  "gamma_mean": 0.8849104583074566,
+                  "sampled_points": 72,
+                  "gamma_below_0_1": 0,
+                  "gamma_0_1_to_0_9": 17,
+                  "gamma_above_0_9": 55
+                }
+              },
+              "transition_activity_difference_from_native": {
+                "gamma_min": 5.938666225446809e-12,
+                "gamma_max": 1.1324274851176597e-14,
+                "gamma_mean": 2.8828051057416815e-12
+              },
+              "state_difference_from_native": [
+                1.1552345294137703e-11,
+                9.798218639398274e-12,
+                1.242475068564286e-11,
+                2.1762115848140522e-12,
+                2.4679128424642865e-08,
+                1.982013202424102e-11,
+                4.82976823405073e-10,
+                1.934332783600907e-10
+              ],
+              "quantity_difference_from_native": {
+                "mass": 8.39341749497592e-14,
+                "drag": 7.426038256056382e-12,
+                "lift": 1.2020727716090125e-10,
+                "moment_z": 4.760064963283515e-11,
+                "heat_flux": 0.0
+              },
+              "report_manifest_sha256": "7a03655ba773d3c9ca98e97d7828e967994b59434569983a7ba5492e68adee2f"
+            }
+          ]
+        },
+        {
+          "binary_sha256": "52f701094258a665ef56399f89b599a566f1fe64f4b75c3c944e7342262acc53",
+          "reporter_sha256": "2e8f5ca13a66b7f9dc8c0053e96e44d0b8be6e8190b2f22e3c2ae6b7fd3ee2f6",
+          "runner_sha256": "272f5a7624b8323c3987160f33ce8dc2c192133e24981b810cdf0760b7e66b9c",
+          "comparison_driver_sha256": "01d7c3ed4f9dae8b8cdea3a2ad203c1360b5cf49a60af06786c06e7faab8ca91",
+          "report_script_sha256": "990d1bee026fafe6755e23fc4584640ffd2e4c66b2bbc1822a61d6780807d114",
+          "ranks": 2,
+          "threads": 2,
+          "case": "81-point compressible flow/SST/LM flat plate, Re=500, first-order Roe",
+          "layout": "2x2",
+          "full_evidence": "newton_krylov_refactor_20261015/resolved_group_converged_lm_2x2",
+          "full_results_sha256": "2f4c69131485d21a41e247b44722793f78afbff6287bc70d5a05e6f8d3e64f58",
+          "runs": [
+            {
+              "mode": "native",
+              "exit_code": 0,
+              "wall_seconds": 1.368934458005242,
+              "config_sha256": "ae831d3481398aa3e5a7c5034ecec88a89b7696c7e3c061b9179bf30532ea5a2",
+              "rank_resources": [
+                {
+                  "max_rss_kib": 25576,
+                  "user_seconds": 1.71,
+                  "system_seconds": 0.17
+                },
+                {
+                  "max_rss_kib": 25748,
+                  "user_seconds": 1.71,
+                  "system_seconds": 0.14
+                }
+              ],
+              "max_rank_rss_kib": 25748,
+              "updates": 1416,
+              "last_history_log10_rms": [
+                -15.99182172,
+                -15.2227166,
+                -15.30275475,
+                -14.1466771,
+                -16.26704507,
+                -15.05526187,
+                -11.00377721,
+                -13.62197909
+              ],
+              "outer_krylov_iterations": 32428,
+              "inner_krylov_iterations": 0,
+              "residual_assemblies": {
+                "flow": 1416,
+                "turbulence": 1416,
+                "transition": 1416
+              },
+              "flow_residual_assemblies": 1416,
+              "physical": {
+                "points": 81,
+                "systems": {
+                  "flow": {
+                    "rms": [
+                      2.118000101027181e-13,
+                      2.1332222467410002e-13,
+                      7.119089087086611e-13,
+                      1.3668616977284683e-11
+                    ],
+                    "maximum": [
+                      5.32242652728776e-13,
+                      7.818572178575067e-13,
+                      2.4065194281774893e-12,
+                      3.970465622948893e-11
+                    ],
+                    "normalized_rms": [
+                      2.2596061861903822e-13,
+                      2.0028699495537757e-13,
+                      7.292614227089727e-13,
+                      3.1123222317351766e-13
+                    ],
+                    "projection_max": [
+                      0,
+                      0,
+                      0,
+                      0
+                    ],
+                    "packed_integral": [
+                      0.9894024965595971,
+                      0.9692135462553286,
+                      -0.0189412375101093,
+                      44.851060762997065
+                    ]
+                  },
+                  "turbulence": {
+                    "rms": [
+                      1.1421187599233287e-13,
+                      6.0996329777742305e-12
+                    ],
+                    "maximum": [
+                      6.152046526966245e-13,
+                      2.053548997515975e-11
+                    ],
+                    "normalized_rms": [
+                      3.0963765656122736e-11,
+                      5.163717187414183e-13
+                    ],
+                    "projection_max": [
+                      2.6666666666666664e-08,
+                      1.7807791078446407e-12
+                    ],
+                    "packed_integral": [
+                      0.0034546938490771202,
+                      8.60177546842105
+                    ]
+                  },
+                  "transition": {
+                    "rms": [
+                      9.774238001084535e-12,
+                      3.1107417646005464e-11
+                    ],
+                    "maximum": [
+                      4.878950395819162e-11,
+                      2.0325718885771948e-10
+                    ],
+                    "normalized_rms": [
+                      1.0130111478228443e-11,
+                      2.3854392310464145e-13
+                    ],
+                    "projection_max": [
+                      0,
+                      0
+                    ],
+                    "packed_integral": [
+                      0.8299727610829859,
+                      118.0769313127009
+                    ]
+                  }
+                },
+                "quantities": {
+                  "mass": 0.9894024965595971,
+                  "drag": 0.03623044521897974,
+                  "lift": 0.5803907523017633,
+                  "moment_z": 0.7066613052459201,
+                  "heat_flux": 0
+                },
+                "transition_activity": {
+                  "model": "LM",
+                  "gamma_min": 0.17334743808612046,
+                  "gamma_max": 1.0019624113317105,
+                  "gamma_mean": 0.8849104583045738,
+                  "sampled_points": 72,
+                  "gamma_below_0_1": 0,
+                  "gamma_0_1_to_0_9": 17,
+                  "gamma_above_0_9": 55
+                }
+              },
+              "transition_activity_difference_from_native": {
+                "gamma_min": 0.0,
+                "gamma_max": 0.0,
+                "gamma_mean": 0.0
+              },
+              "state_difference_from_native": [
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0
+              ],
+              "quantity_difference_from_native": {
+                "mass": 0.0,
+                "drag": 0.0,
+                "lift": 0.0,
+                "moment_z": 0.0,
+                "heat_flux": 0.0
+              },
+              "report_manifest_sha256": "85912a4d934977de71bcba3953100c8e47596a67459a6f568ed01a1e772e6b27"
+            },
+            {
+              "mode": "segregated",
+              "exit_code": 0,
+              "wall_seconds": 10.66104561300017,
+              "config_sha256": "97c380c7537cdb22ea76e062771e9a020fdf15c955a79eb1911d3976f571c12a",
+              "rank_resources": [
+                {
+                  "max_rss_kib": 25348,
+                  "user_seconds": 18.32,
+                  "system_seconds": 1.82
+                },
+                {
+                  "max_rss_kib": 25524,
+                  "user_seconds": 18.84,
+                  "system_seconds": 1.46
+                }
+              ],
+              "max_rank_rss_kib": 25524,
+              "updates": 1414,
+              "last_history_log10_rms": [
+                -12.84998401,
+                -12.41442948,
+                -12.73011338,
+                -11.08943083,
+                -13.51472587,
+                -12.60130207,
+                -11.00079054,
+                -14.1008576
+              ],
+              "outer_krylov_iterations": 10985,
+              "inner_krylov_iterations": 0,
+              "residual_assemblies": {
+                "flow": 38802,
+                "turbulence": 12846,
+                "transition": 15584
+              },
+              "stationary_group_iterations": {
+                "newton_trans": 0,
+                "newton_turb": 452,
+                "newton_flow": 804
+              },
+              "nonzero_group_updates": {
+                "newton_trans": 1414,
+                "newton_turb": 962,
+                "newton_flow": 610
+              },
+              "attempts": 4242,
+              "flow_residual_assemblies": 38802,
+              "physical": {
+                "points": 81,
+                "systems": {
+                  "flow": {
+                    "rms": [
+                      1.4125895373506196e-13,
+                      3.850973371246055e-13,
+                      1.8616010815409182e-13,
+                      8.138964724634098e-12
+                    ],
+                    "maximum": [
+                      9.507117315621372e-13,
+                      3.323225714253232e-12,
+                      9.352518759442319e-13,
+                      6.572502015290277e-11
+                    ],
+                    "normalized_rms": [
+                      1.461813730842267e-13,
+                      3.5115778837958604e-13,
+                      1.9042697721089444e-13,
+                      1.8563859707317842e-13
+                    ],
+                    "projection_max": [
+                      0,
+                      0,
+                      0,
+                      0
+                    ],
+                    "packed_integral": [
+                      0.9894024965608341,
+                      0.9692135462555446,
+                      -0.01894123750950112,
+                      44.851060763001335
+                    ]
+                  },
+                  "turbulence": {
+                    "rms": [
+                      3.056849979447663e-14,
+                      2.5043667836419176e-13
+                    ],
+                    "maximum": [
+                      1.9278084987736643e-13,
+                      1.659117287999834e-12
+                    ],
+                    "normalized_rms": [
+                      8.41377189966264e-12,
+                      2.624433025809826e-14
+                    ],
+                    "projection_max": [
+                      0,
+                      0
+                    ],
+                    "packed_integral": [
+                      0.003454693847484683,
+                      8.601775468235035
+                    ]
+                  },
+                  "transition": {
+                    "rms": [
+                      9.98181366583696e-12,
+                      7.92761229033115e-15
+                    ],
+                    "maximum": [
+                      4.977660668495148e-11,
+                      3.8719027983802334e-14
+                    ],
+                    "normalized_rms": [
+                      1.0344856286990045e-11,
+                      5.512405563281364e-17
+                    ],
+                    "projection_max": [
+                      0,
+                      0
+                    ],
+                    "packed_integral": [
+                      0.8299727611001383,
+                      118.07693131337555
+                    ]
+                  }
+                },
+                "quantities": {
+                  "mass": 0.9894024965608341,
+                  "drag": 0.03623044521866787,
+                  "lift": 0.5803907523434878,
+                  "moment_z": 0.7066613052571068,
+                  "heat_flux": 0
+                },
+                "transition_activity": {
+                  "model": "LM",
+                  "gamma_min": 0.17334743809078662,
+                  "gamma_max": 1.001962411331884,
+                  "gamma_mean": 0.8849104583068419,
+                  "sampled_points": 72,
+                  "gamma_below_0_1": 0,
+                  "gamma_0_1_to_0_9": 17,
+                  "gamma_above_0_9": 55
+                }
+              },
+              "transition_activity_difference_from_native": {
+                "gamma_min": 4.6661563501970704e-12,
+                "gamma_max": 1.7341683644644945e-13,
+                "gamma_mean": 2.2680746170067323e-12
+              },
+              "state_difference_from_native": [
+                4.629330243870622e-11,
+                6.43773645979237e-12,
+                2.152199539170493e-11,
+                2.6743770082265164e-12,
+                2.467912842464284e-08,
+                5.7294034615162046e-11,
+                4.4866271965336986e-10,
+                1.9108511214355175e-10
+              ],
+              "quantity_difference_from_native": {
+                "mass": 1.2502601300671344e-12,
+                "drag": 8.607914824842793e-12,
+                "lift": 7.18903817269494e-11,
+                "moment_z": 1.583038173362631e-11,
+                "heat_flux": 0.0
+              },
+              "report_manifest_sha256": "ceb6ee34f24e155771bee3df3403dd00de06924e0e6e5ad744b0acaa43d7c366"
+            },
+            {
+              "mode": "coupled",
+              "exit_code": 0,
+              "wall_seconds": 28.424006762099452,
+              "config_sha256": "6c31a0ce393c70bf723a07a0bcc201385807b91943d13dc680e5272d61a6cdbe",
+              "rank_resources": [
+                {
+                  "max_rss_kib": 25676,
+                  "user_seconds": 50.81,
+                  "system_seconds": 4.24
+                },
+                {
+                  "max_rss_kib": 25348,
+                  "user_seconds": 51.03,
+                  "system_seconds": 4.11
+                }
+              ],
+              "max_rank_rss_kib": 25676,
+              "updates": 5615,
+              "last_history_log10_rms": [
+                -16.03292705,
+                -15.38183409,
+                -15.40472197,
+                -14.21538219,
+                -16.41248788,
+                -15.07494529,
+                -11.00022192,
+                -13.61933796
+              ],
+              "outer_krylov_iterations": 11496,
+              "inner_krylov_iterations": 0,
+              "residual_assemblies": {
+                "flow": 85031,
+                "turbulence": 85031,
+                "transition": 85031
+              },
+              "stationary_group_iterations": {
+                "newton_coupled": 0
+              },
+              "nonzero_group_updates": {
+                "newton_coupled": 5615
+              },
+              "attempts": 5616,
+              "flow_residual_assemblies": 85031,
+              "physical": {
+                "points": 81,
+                "systems": {
+                  "flow": {
+                    "rms": [
+                      9.269855220053052e-17,
+                      4.1511259111766906e-16,
+                      3.9380210608009704e-16,
+                      6.090007309532269e-15
+                    ],
+                    "maximum": [
+                      2.3592239273284576e-16,
+                      1.2073675392798577e-15,
+                      1.8108344684852895e-15,
+                      1.4691806798916573e-14
+                    ],
+                    "normalized_rms": [
+                      9.354428445299747e-17,
+                      4.027748028029002e-16,
+                      3.9581130203789557e-16,
+                      1.3575580359678268e-16
+                    ],
+                    "projection_max": [
+                      0,
+                      0,
+                      0,
+                      0
+                    ],
+                    "packed_integral": [
+                      0.9894024965596795,
+                      0.969213546255513,
+                      -0.01894123750993041,
+                      44.851060762995516
+                    ]
+                  },
+                  "turbulence": {
+                    "rms": [
+                      3.868228480056649e-17,
+                      8.415011414051354e-16
+                    ],
+                    "maximum": [
+                      2.54679090316845e-16,
+                      5.023759186428833e-15
+                    ],
+                    "normalized_rms": [
+                      1.0649469451470143e-14,
+                      1.1212931901110328e-16
+                    ],
+                    "projection_max": [
+                      0,
+                      0
+                    ],
+                    "packed_integral": [
+                      0.0034546938474674777,
+                      8.601775468321602
+                    ]
+                  },
+                  "transition": {
+                    "rms": [
+                      9.994891330551981e-12,
+                      2.402492498621136e-14
+                    ],
+                    "maximum": [
+                      4.98340003228623e-11,
+                      1.7898182935738305e-13
+                    ],
+                    "normalized_rms": [
+                      1.0358427342738978e-11,
+                      1.464133150463113e-16
+                    ],
+                    "projection_max": [
+                      0,
+                      0
+                    ],
+                    "packed_integral": [
+                      0.8299727611015775,
+                      118.07693131331563
+                    ]
+                  }
+                },
+                "quantities": {
+                  "mass": 0.9894024965596795,
+                  "drag": 0.03623044521924882,
+                  "lift": 0.5803907523715307,
+                  "moment_z": 0.7066613052795576,
+                  "heat_flux": 0
+                },
+                "transition_activity": {
+                  "model": "LM",
+                  "gamma_min": 0.1733474380919562,
+                  "gamma_max": 1.001962411331699,
+                  "gamma_mean": 0.8849104583074499,
+                  "sampled_points": 72,
+                  "gamma_below_0_1": 0,
+                  "gamma_0_1_to_0_9": 17,
+                  "gamma_above_0_9": 55
+                }
+              },
+              "transition_activity_difference_from_native": {
+                "gamma_min": 5.835748551064057e-12,
+                "gamma_max": 1.1546319456101628e-14,
+                "gamma_mean": 2.876032745291468e-12
+              },
+              "state_difference_from_native": [
+                1.1552122986158482e-11,
+                9.800200640094009e-12,
+                1.2425363937758525e-11,
+                2.1756316483490786e-12,
+                2.467912842464284e-08,
+                1.9819564740657675e-11,
+                4.78547399216355e-10,
+                1.9343342274711744e-10
+              ],
+              "quantity_difference_from_native": {
+                "mass": 8.32609061667397e-14,
+                "drag": 7.426995861443512e-12,
+                "lift": 1.2020765973868024e-10,
+                "moment_z": 4.760064963283512e-11,
+                "heat_flux": 0.0
+              },
+              "report_manifest_sha256": "38bd2a50cca3a54005be26b3b5ee4fc86f3a21aef3039b9c379c35960cebf697"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "layout_parity": [
+    {
+      "family": "mms",
+      "mode": "native",
+      "state_difference_2x2_from_1x1": [
+        3.34022594630935e-16,
+        1.0667415574034416e-15,
+        5.419381711200683e-16,
+        3.433624148455515e-16
+      ],
+      "quantity_difference_2x2_from_1x1": {
+        "mass": 2.0517967138575862e-16,
+        "drag": 0.0,
+        "lift": 0.0,
+        "moment_z": 0.0,
+        "heat_flux": 0.0
+      }
+    },
+    {
+      "family": "mms",
+      "mode": "segregated",
+      "state_difference_2x2_from_1x1": [
+        3.5974233441751703e-13,
+        3.5495825322620006e-13,
+        3.382778064131467e-13,
+        9.614147615675443e-15
+      ],
+      "quantity_difference_2x2_from_1x1": {
+        "mass": 3.262356775029176e-14,
+        "drag": 0.0,
+        "lift": 0.0,
+        "moment_z": 0.0,
+        "heat_flux": 0.0
+      }
+    },
+    {
+      "family": "mms",
+      "mode": "coupled",
+      "state_difference_2x2_from_1x1": [
+        3.5974233441751703e-13,
+        3.5495825322620006e-13,
+        3.382778064131467e-13,
+        9.614147615675443e-15
+      ],
+      "quantity_difference_2x2_from_1x1": {
+        "mass": 3.262356775029176e-14,
+        "drag": 0.0,
+        "lift": 0.0,
+        "moment_z": 0.0,
+        "heat_flux": 0.0
+      }
+    },
+    {
+      "family": "sa",
+      "mode": "native",
+      "state_difference_2x2_from_1x1": [
+        1.2475328861107618e-13,
+        1.0880584959618611e-14,
+        3.113140792789602e-14,
+        3.4820164284756584e-15,
+        1.7293542941517264e-14
+      ],
+      "quantity_difference_2x2_from_1x1": {
+        "mass": 2.7038648371828097e-15,
+        "drag": 4.631406410390349e-14,
+        "lift": 3.9168637910404836e-14,
+        "moment_z": 2.481534112066727e-14,
+        "heat_flux": 0.0
+      }
+    },
+    {
+      "family": "sa",
+      "mode": "segregated",
+      "state_difference_2x2_from_1x1": [
+        2.9633093057282827e-11,
+        4.844192236766098e-12,
+        6.04173030980443e-12,
+        8.497570939899957e-13,
+        6.083566875411382e-12
+      ],
+      "quantity_difference_2x2_from_1x1": {
+        "mass": 7.91443754054524e-13,
+        "drag": 1.3987393709482163e-11,
+        "lift": 1.3223861264115071e-11,
+        "moment_z": 7.65642617117114e-12,
+        "heat_flux": 0.0
+      }
+    },
+    {
+      "family": "sa",
+      "mode": "coupled",
+      "state_difference_2x2_from_1x1": [
+        3.4782141634451934e-11,
+        5.60622183536768e-12,
+        7.317223606162373e-12,
+        1.0063027495158522e-12,
+        6.515755098094332e-12
+      ],
+      "quantity_difference_2x2_from_1x1": {
+        "mass": 9.498451658984068e-13,
+        "drag": 1.6610639425673375e-11,
+        "lift": 1.5668267699832752e-11,
+        "moment_z": 9.060196211216483e-12,
+        "heat_flux": 0.0
+      }
+    },
+    {
+      "family": "bc",
+      "mode": "native",
+      "state_difference_2x2_from_1x1": [
+        1.2861045087254983e-13,
+        1.4570942905586683e-14,
+        2.2809496433921743e-14,
+        3.4820064990125917e-15,
+        2.8123304821423486e-14
+      ],
+      "quantity_difference_2x2_from_1x1": {
+        "mass": 3.041910103384013e-15,
+        "drag": 5.1304800923357335e-14,
+        "lift": 4.521559980796138e-14,
+        "moment_z": 2.9352698890526386e-14,
+        "heat_flux": 0.0
+      }
+    },
+    {
+      "family": "bc",
+      "mode": "segregated",
+      "state_difference_2x2_from_1x1": [
+        3.0426013815785325e-11,
+        4.969469034448458e-12,
+        6.250786709238164e-12,
+        8.758697195934166e-13,
+        6.147636573946003e-12
+      ],
+      "quantity_difference_2x2_from_1x1": {
+        "mass": 8.16809177864264e-13,
+        "drag": 1.442924319711186e-11,
+        "lift": 1.3625846417757037e-11,
+        "moment_z": 7.890850170948486e-12,
+        "heat_flux": 0.0
+      }
+    },
+    {
+      "family": "bc",
+      "mode": "coupled",
+      "state_difference_2x2_from_1x1": [
+        3.502909964525102e-11,
+        5.638178226231873e-12,
+        7.367557677958546e-12,
+        1.012683558516167e-12,
+        6.612960117143454e-12
+      ],
+      "quantity_difference_2x2_from_1x1": {
+        "mass": 9.554977430987744e-13,
+        "drag": 1.673322210001121e-11,
+        "lift": 1.5738465243734197e-11,
+        "moment_z": 9.113447060240796e-12,
+        "heat_flux": 0.0
+      }
+    },
+    {
+      "family": "sst",
+      "mode": "native",
+      "state_difference_2x2_from_1x1": [
+        1.2886573013715351e-14,
+        5.0708013049946484e-15,
+        1.0065572626255196e-14,
+        5.804159615670852e-16,
+        5.981164615798987e-15,
+        5.999777987946447e-15
+      ],
+      "quantity_difference_2x2_from_1x1": {
+        "mass": 1.1255462119222544e-16,
+        "drag": 6.619650763940559e-15,
+        "lift": 6.923616139472649e-15,
+        "moment_z": 1.4678971381985385e-15,
+        "heat_flux": 0.0
+      }
+    },
+    {
+      "family": "sst",
+      "mode": "segregated",
+      "state_difference_2x2_from_1x1": [
+        4.839073367993076e-12,
+        6.894339509910004e-13,
+        9.545251403242161e-13,
+        1.2841703150494424e-13,
+        2.408098435925986e-13,
+        4.722898631777339e-13
+      ],
+      "quantity_difference_2x2_from_1x1": {
+        "mass": 1.2516073855930044e-13,
+        "drag": 2.041059038060656e-12,
+        "lift": 2.0579431337444278e-12,
+        "moment_z": 1.1620852515504816e-12,
+        "heat_flux": 0.0
+      }
+    },
+    {
+      "family": "sst",
+      "mode": "coupled",
+      "state_difference_2x2_from_1x1": [
+        2.9652334885121515e-12,
+        2.3735250819337666e-13,
+        5.487800768804293e-13,
+        5.905732409184115e-14,
+        9.637831165848928e-14,
+        1.7958051088963022e-13
+      ],
+      "quantity_difference_2x2_from_1x1": {
+        "mass": 6.37059155270971e-14,
+        "drag": 9.347498670849587e-13,
+        "lift": 9.587172157351484e-13,
+        "moment_z": 5.348038624118077e-13,
+        "heat_flux": 0.0
+      }
+    },
+    {
+      "family": "species",
+      "mode": "native",
+      "state_difference_2x2_from_1x1": [
+        9.818089684895246e-14,
+        1.6991434893495245e-14,
+        2.088090071758026e-13,
+        1.0518672143239127e-11,
+        8.585724723767877e-15
+      ],
+      "quantity_difference_2x2_from_1x1": {
+        "mass": 6.430054316898407e-15,
+        "drag": 9.31005256921864e-15,
+        "lift": 5.991706100578068e-14,
+        "moment_z": 4.132753345190948e-14,
+        "heat_flux": 0.0
+      }
+    },
+    {
+      "family": "species",
+      "mode": "segregated",
+      "state_difference_2x2_from_1x1": [
+        1.3262416382463398e-11,
+        2.441282048724279e-12,
+        1.670035220226306e-11,
+        3.1710200552087916e-10,
+        1.0101771271327683e-11
+      ],
+      "quantity_difference_2x2_from_1x1": {
+        "mass": 1.2835995927180725e-12,
+        "drag": 1.5642678720767186e-12,
+        "lift": 2.914191914034762e-11,
+        "moment_z": 2.6748648433663976e-11,
+        "heat_flux": 0.0
+      }
+    },
+    {
+      "family": "species",
+      "mode": "coupled",
+      "state_difference_2x2_from_1x1": [
+        2.1249308869099973e-12,
+        3.1928841903257936e-13,
+        3.1186416412984342e-12,
+        2.270789796749437e-10,
+        1.450691418843538e-13
+      ],
+      "quantity_difference_2x2_from_1x1": {
+        "mass": 1.2056351843993003e-13,
+        "drag": 2.1126657758168503e-13,
+        "lift": 1.703577344972212e-12,
+        "moment_z": 8.07594652614593e-12,
+        "heat_flux": 0.0
+      }
+    },
+    {
+      "family": "lm",
+      "mode": "native",
+      "state_difference_2x2_from_1x1": [
+        5.5576994804907595e-16,
+        3.765801321882175e-15,
+        5.689008465826652e-15,
+        4.3495234873032356e-16,
+        3.4249170755899593e-15,
+        5.672835833529524e-16,
+        1.423842422139549e-14,
+        1.8770313481526114e-15
+      ],
+      "quantity_difference_2x2_from_1x1": {
+        "mass": 5.610573191828824e-16,
+        "drag": 1.1491264645468172e-15,
+        "lift": 3.8257777892640044e-16,
+        "moment_z": 6.284328950139963e-16,
+        "heat_flux": 0.0
+      }
+    },
+    {
+      "family": "lm",
+      "mode": "segregated",
+      "state_difference_2x2_from_1x1": [
+        9.003473158394606e-15,
+        6.540602295864033e-15,
+        7.172859567231599e-15,
+        1.4498411624372283e-15,
+        6.264387389013984e-13,
+        1.2385691570065077e-14,
+        1.2705771428939273e-11,
+        6.353029177148681e-15
+      ],
+      "quantity_difference_2x2_from_1x1": {
+        "mass": 1.1221146383643612e-16,
+        "drag": 2.1067318516872976e-15,
+        "lift": 2.2954666733933763e-15,
+        "moment_z": 4.399030265028314e-15,
+        "heat_flux": 0.0
+      }
+    },
+    {
+      "family": "lm",
+      "mode": "coupled",
+      "state_difference_2x2_from_1x1": [
+        7.780779272686567e-16,
+        2.1802007652851118e-15,
+        8.481495778232658e-15,
+        5.799364649750268e-16,
+        8.358938238197634e-14,
+        1.0400199028105502e-15,
+        4.782836282524768e-12,
+        3.4652886420729803e-15
+      ],
+      "quantity_difference_2x2_from_1x1": {
+        "mass": 1.1221146383656707e-16,
+        "drag": 1.915210774230473e-16,
+        "lift": 0.0,
+        "moment_z": 6.284328949840825e-16,
+        "heat_flux": 0.0
+      }
+    }
+  ],
+  "native_parity": [
+    {
+      "family": "mms",
+      "layout": "1x1",
+      "reference": "newton_krylov_refactor_20261015/threaded_muscl_converged_mms_1x1",
+      "reference_layout": "1x1",
+      "updates": 67,
+      "state_difference": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "quantity_difference": {
+        "mass": 0.0,
+        "drag": 0.0,
+        "lift": 0.0,
+        "moment_z": 0.0,
+        "heat_flux": 0.0
+      }
+    },
+    {
+      "family": "mms",
+      "layout": "2x2",
+      "reference": "newton_krylov_refactor_20261015/threaded_muscl_converged_mms_2x2",
+      "reference_layout": "2x2",
+      "updates": 67,
+      "state_difference": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "quantity_difference": {
+        "mass": 0.0,
+        "drag": 0.0,
+        "lift": 0.0,
+        "moment_z": 0.0,
+        "heat_flux": 0.0
+      }
+    },
+    {
+      "family": "sa",
+      "layout": "1x1",
+      "reference": "newton_krylov_refactor_20261015/threaded_muscl_converged_sa_1x1",
+      "reference_layout": "1x1",
+      "updates": 3327,
+      "state_difference": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "quantity_difference": {
+        "mass": 0.0,
+        "drag": 0.0,
+        "lift": 0.0,
+        "moment_z": 0.0,
+        "heat_flux": 0.0
+      }
+    },
+    {
+      "family": "sa",
+      "layout": "2x2",
+      "reference": "newton_krylov_refactor_20261015/threaded_muscl_converged_sa_2x2",
+      "reference_layout": "2x2",
+      "updates": 3327,
+      "state_difference": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "quantity_difference": {
+        "mass": 0.0,
+        "drag": 0.0,
+        "lift": 0.0,
+        "moment_z": 0.0,
+        "heat_flux": 0.0
+      }
+    },
+    {
+      "family": "bc",
+      "layout": "1x1",
+      "reference": "newton_krylov_refactor_20261015/transition_converged_bc_1x1",
+      "reference_layout": "1x1",
+      "updates": 3334,
+      "state_difference": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "quantity_difference": {
+        "mass": 0.0,
+        "drag": 0.0,
+        "lift": 0.0,
+        "moment_z": 0.0,
+        "heat_flux": 0.0
+      }
+    },
+    {
+      "family": "bc",
+      "layout": "2x2",
+      "reference": "newton_krylov_refactor_20261015/transition_converged_bc_2x2",
+      "reference_layout": "2x2",
+      "updates": 3334,
+      "state_difference": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "quantity_difference": {
+        "mass": 0.0,
+        "drag": 0.0,
+        "lift": 0.0,
+        "moment_z": 0.0,
+        "heat_flux": 0.0
+      }
+    },
+    {
+      "family": "sst",
+      "layout": "1x1",
+      "reference": "newton_krylov_refactor_20261015/transition_converged_sst_1x1",
+      "reference_layout": "1x1",
+      "updates": 3488,
+      "state_difference": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "quantity_difference": {
+        "mass": 0.0,
+        "drag": 0.0,
+        "lift": 0.0,
+        "moment_z": 0.0,
+        "heat_flux": 0.0
+      }
+    },
+    {
+      "family": "sst",
+      "layout": "2x2",
+      "reference": "newton_krylov_refactor_20261015/transition_converged_sst_2x2",
+      "reference_layout": "2x2",
+      "updates": 3488,
+      "state_difference": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "quantity_difference": {
+        "mass": 0.0,
+        "drag": 0.0,
+        "lift": 0.0,
+        "moment_z": 0.0,
+        "heat_flux": 0.0
+      }
+    },
+    {
+      "family": "species",
+      "layout": "1x1",
+      "reference": "newton_krylov_refactor_20261015/species_converged_final_1x1",
+      "reference_layout": "1x1",
+      "updates": 81,
+      "state_difference": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "quantity_difference": {
+        "mass": 0.0,
+        "drag": 0.0,
+        "lift": 0.0,
+        "moment_z": 0.0,
+        "heat_flux": 0.0
+      }
+    },
+    {
+      "family": "species",
+      "layout": "2x2",
+      "reference": "newton_krylov_refactor_20261015/species_converged_final_2x2",
+      "reference_layout": "2x2",
+      "updates": 81,
+      "state_difference": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "quantity_difference": {
+        "mass": 0.0,
+        "drag": 0.0,
+        "lift": 0.0,
+        "moment_z": 0.0,
+        "heat_flux": 0.0
+      }
+    },
+    {
+      "family": "lm",
+      "layout": "1x1",
+      "reference": "newton_krylov_refactor_20261015/lm_family_re500_pilot_1x1",
+      "reference_layout": "1x1",
+      "updates": 1416,
+      "state_difference": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "quantity_difference": {
+        "mass": 0.0,
+        "drag": 0.0,
+        "lift": 0.0,
+        "moment_z": 0.0,
+        "heat_flux": 0.0
+      }
+    },
+    {
+      "family": "lm",
+      "layout": "2x2",
+      "reference": "newton_krylov_refactor_20261015/lm_family_re500_pilot_1x1",
+      "reference_layout": "1x1",
+      "updates": 1416,
+      "state_difference": [
+        5.5576994804907595e-16,
+        3.765801321882175e-15,
+        5.689008465826652e-15,
+        4.3495234873032356e-16,
+        3.4249170755899593e-15,
+        5.672835833529524e-16,
+        1.423842422139549e-14,
+        1.8770313481526114e-15
+      ],
+      "quantity_difference": {
+        "mass": 5.610573191828824e-16,
+        "drag": 1.1491264645468172e-15,
+        "lift": 3.8257777892640044e-16,
+        "moment_z": 6.284328950139963e-16,
+        "heat_flux": 0.0
+      }
+    }
+  ]
+}

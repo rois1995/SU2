@@ -130,6 +130,8 @@ def main(case=MMS_CASE):
         run['residual_assemblies'] = {system: len(history) for system in case['fields']}
         if settings:
             attempts, groups = [], set()
+            run['stationary_group_iterations'] = {}
+            run['nonzero_group_updates'] = {}
             # The final accepted logs precede the last all-active physical refresh.
             run['residual_assemblies'] = {system: 1 for system in case['fields']}
             for path in directory.glob('newton_*.csv'):
@@ -139,8 +141,16 @@ def main(case=MMS_CASE):
                 group = rows(path)
                 accepted = [row for row in group if row['decision'] == 'ACCEPTED']
                 assert len(accepted) == len(history), path
+                stationary = [row for row in accepted if float(row['step']) == 0]
+                run['stationary_group_iterations'][path.stem] = len(stationary)
+                run['nonzero_group_updates'][path.stem] = len(accepted) - len(stationary)
+                for row in stationary:
+                    assert row['status'] == 'RESOLVED' and math.isnan(float(row['true_linear_defect']))
+                    assert int(row['linear_iterations']) == 0 and int(row['evaluations']) == 0
+                    assert float(row['slope']) == 0 and float(row['merit']) == float(row['base_merit'])
                 for row in accepted:
-                    assert math.isfinite(float(row['true_linear_defect'])) and float(row['true_linear_defect']) <= 0.1
+                    if float(row['step']) > 0:
+                        assert math.isfinite(float(row['true_linear_defect'])) and float(row['true_linear_defect']) <= 0.1
                     assert float(row['merit']) <= float(row['base_merit']) + 1e-4 * float(row['step']) * float(row['slope'])
                 assert all(float(row['rollback_state_error']) == 0 for row in group)
                 for system in case['fields']:

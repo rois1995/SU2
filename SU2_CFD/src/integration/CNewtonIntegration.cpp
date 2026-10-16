@@ -155,7 +155,7 @@ void CNewtonIntegration::PrepareFlow(Attempt& attempt) {
 }
 
 double CNewtonIntegration::CommitFlow(const Attempt& attempt, double nextCFL) {
-  if (!legacyFlowControls) return nextCFL;
+  if (!legacyFlowControls || attempt.search.step == 0) return nextCFL;
   BEGIN_SU2_OMP_SAFE_GLOBAL_ACCESS {
     if (attempt.startup) {
       if (flow.remaining) --flow.remaining;
@@ -366,6 +366,17 @@ CNewtonIntegration::Attempt CNewtonIntegration::SolveAttempt() {
       SU2_OMP_SAFE_GLOBAL_ACCESS(config->SetGlobalParam(config->GetKind_Solver(), block.runtime);)
       block.solver->SetTime_Step(geometry, solvers, config, MESH_0, config->GetTimeIter());
     }
+  // Small scalar units must not hide a significant state-scaled residual.
+  bool resolved = residualTolerance > 0 &&
+                  std::sqrt(attempt.base / geometry->GetGlobal_nPointDomain()) <= residualTolerance / std::sqrt(2.0);
+  for (const auto& block : equations->GetBlocks())
+    for (auto v = 0u; v < block.variables; ++v)
+      resolved = resolved && block.solver->GetRes_RMS(v) <= residualTolerance;
+  if (resolved) {
+    attempt.search = {Armijo::Status::Accepted, 0, attempt.base, 0};
+    attempt.linearDefect = std::numeric_limits<double>::quiet_NaN();
+    return attempt;
+  }
   for (const auto& block : equations->GetBlocks()) {
     SU2_OMP_SAFE_GLOBAL_ACCESS(config->SetGlobalParam(config->GetKind_Solver(), block.runtime);)
     if (block.solver->Jacobian.HasCoefficients())
@@ -411,6 +422,7 @@ CNewtonIntegration::Attempt CNewtonIntegration::SolveAttempt() {
   if (attempt.startup) attempt.linearTarget = flow.linearTolerance;
   if (attempt.base == 0) {
     attempt.search = {Armijo::Status::Accepted, 0, 0, 0};
+    attempt.linearDefect = std::numeric_limits<double>::quiet_NaN();
     Residual();
     return attempt;
   }
@@ -544,8 +556,10 @@ void CNewtonIntegration::Log(const Attempt& attempt, const NonlinearGlobalizatio
            "turbulence_residual_evaluations,transition_residual_evaluations,species_residual_evaluations,"
            "startup,deflated,jacobian_reconstruction,tolerance_factor,native_linear_iterations\n";
   out.precision(17);
+  const bool resolved = attempt.search.status == Armijo::Status::Accepted && attempt.search.step == 0;
   out << config->GetInnerIter() << ',' << attemptNumber << ',' << cfl << ',' << decision.nextCFL << ','
-      << (attempt.residualFailure ? "RESIDUAL_FAILURE" : attempt.linearFailure ? "LINEAR_FAILURE" : Name(attempt.search.status))
+      << (attempt.residualFailure ? "RESIDUAL_FAILURE" : attempt.linearFailure ? "LINEAR_FAILURE" :
+          resolved ? "RESOLVED" : Name(attempt.search.status))
       << ',' << Name(decision.reason) << ','
       << attempt.linearIterations << ',' << attempt.linearTarget << ',' << attempt.reportedLinearResidual << ','
       << attempt.linearDefect << ',' << attempt.base << ',' << attempt.search.value << ',' << attempt.search.step << ','
@@ -625,7 +639,8 @@ void CNewtonIntegration::Advance() {
       Log(attempt, {Reason::Accepted, next});
       SU2_OMP_SAFE_GLOBAL_ACCESS(
           cfl = next;
-          eta = NonlinearGlobalization::Forcing(options, eta, attempt.base, attempt.search.value, attempt.search.step);)
+          if (attempt.search.step > 0)
+            eta = NonlinearGlobalization::Forcing(options, eta, attempt.base, attempt.search.value, attempt.search.step);)
       if (std::find(systems.begin(), systems.end(), RUNTIME_FLOW_SYS) != systems.end()) {
         equations->CommitHistory();
         SU2_OMP_SAFE_GLOBAL_ACCESS(config->SetGlobalParam(config->GetKind_Solver(), RUNTIME_FLOW_SYS);)

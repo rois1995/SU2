@@ -106,7 +106,12 @@ RESTART_FILENAME= restart_flow
                 with path.open() as stream:
                     attempts = list(csv.DictReader(stream))
                 assert len(attempts) == 4 and all(row['decision'] == 'ACCEPTED' for row in attempts), path
-                assert all(float(row['true_linear_defect']) <= 0.1 for row in attempts), path
+                for row in attempts:
+                    if row['status'] == 'RESOLVED':
+                        assert float(row['step']) == 0 and int(row['linear_iterations']) == 0
+                        assert math.isnan(float(row['true_linear_defect']))
+                    else:
+                        assert float(row['true_linear_defect']) <= 0.1, path
                 groups[path.stem] = len(attempts)
             expected = {'species_only': {'newton_species'}, 'segregated': {'newton_flow', 'newton_species'},
                         'coupled': {'newton_coupled'}, 'explicit_flow': {'newton_coupled'}}

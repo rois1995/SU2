@@ -91,6 +91,8 @@ public:
   virtual const char* GetNumericalFailureMessage() const { return ""; }
   virtual bool IsNewtonEquation(unsigned short) const { return false; }
   virtual void RefreshAfterOuterIteration() {}
+  /*! \brief Physical RMS target from validated output monitoring; zero disables stationary Newton groups. */
+  virtual void SetResidualTolerance(double) {}
 
   /*!
    * \brief Save the geometry at different time steps.
