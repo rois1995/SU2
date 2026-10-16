@@ -1,5 +1,11 @@
 # Common globalized Newton–Krylov refactor
 
+The [final qualification](NewtonKrylovQualification.md) records the completed
+architecture audit, final family/layout checks, isolated native-reference changes
+and empty-rank output fix. The [performance report](../TestCases/newton_krylov/PERFORMANCE.md)
+contains the matched repeated measurements. Sections below retain historical
+checkpoints and their then-open work; they are not the current completion status.
+
 ## Rotation-axis qualification, 2026-10-16
 
 `compare_periodic_axis.py` uses the existing 187-point laminar pipe sector with

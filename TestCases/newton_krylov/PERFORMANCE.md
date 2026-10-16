@@ -1,5 +1,11 @@
 # Newton–Krylov performance assessment, 16 October 2026
 
+The subsequent [final qualification](../../Docs/NewtonKrylovQualification.md)
+adds family/layout and native-baseline checks plus an empty-rank MPI output fix.
+All numerical solver and geometry objects remain identical to this report's
+`a3fcc53d2e6` endpoint; the later binary differs only in the shared output helper.
+No writer timing improvement is claimed.
+
 The implemented changes reduce segregated Newton compute-loop time by 29–34% on the serial SA/SST/active-LM fixtures and 12–17% on their 2x2 layouts. Outer and Krylov iteration counts are unchanged. Native remains about 7–11 times faster on these fixed-CFL cases. The periodic-axis fixture retains its existing Newton advantage. These are small-mesh measurements, not a production-size or scaling claim.
 
 Three source commits were pushed to `rois1995/SU2:feature_LineSearch`, immediately after each commit:

@@ -468,7 +468,8 @@ def main():
     periodic2d.cfg_dir = "navierstokes/periodic2D"
     periodic2d.cfg_file = "config.cfg"
     periodic2d.test_iter = 100
-    periodic2d.test_vals = [-3.266248, -0.617784, -0.620252, 2.216476, -1.007761, -1035.000000]
+    # Complete periodic rows use PAP+I-P; the legacy partial-row references are retained in the qualification evidence.
+    periodic2d.test_vals = [-2.749889, -0.078200, -0.052556, 2.731392, -0.001883, -2514.800000]
     test_list.append(periodic2d)
 
     # 3D rotational periodic pipe sector with nodes on the rotation axis
@@ -476,7 +477,7 @@ def main():
     periodic3d_axis.cfg_dir = "navierstokes/periodic3D_axis"
     periodic3d_axis.cfg_file = "config.cfg"
     periodic3d_axis.test_iter = 100
-    periodic3d_axis.test_vals = [-3.353165, 0.157501, 2.051458, -9.594400, -9.594400]
+    periodic3d_axis.test_vals = [-3.423367, -0.370731, 1.987021, -8.113400, -8.113400]
     test_list.append(periodic3d_axis)
 
     ##########################
@@ -730,7 +731,8 @@ def main():
     axi_rans_air_nozzle_density_velocity.cfg_dir = "axisymmetric_rans/air_nozzle"
     axi_rans_air_nozzle_density_velocity.cfg_file = "air_nozzle_density_velocity.cfg"
     axi_rans_air_nozzle_density_velocity.test_iter = 10
-    axi_rans_air_nozzle_density_velocity.test_vals = [-1.879323, 4.022709, 0.514084, 4.414617, 702.55, 702.55]
+    # Preserve exact prescribed SST wall values and the inner k-omega blending limit.
+    axi_rans_air_nozzle_density_velocity.test_vals = [-1.879310, 4.022717, 0.544361, 4.457020, 702.56, 702.56]
     test_list.append(axi_rans_air_nozzle_density_velocity)
 
     #################################
@@ -919,7 +921,7 @@ def main():
     inc_periodic_weak_heat.cfg_dir = "incomp_navierstokes/streamwise_periodic/chtPinArray_2d"
     inc_periodic_weak_heat.cfg_file = "periodic_weak_heat.cfg"
     inc_periodic_weak_heat.test_iter = 10
-    inc_periodic_weak_heat.test_vals = [-4.712559, -5.747243, -5.751727, 873.702714]
+    inc_periodic_weak_heat.test_vals = [-6.125121, -5.651670, -7.181485, 75.768123]
     test_list.append(inc_periodic_weak_heat)
 
     ############################

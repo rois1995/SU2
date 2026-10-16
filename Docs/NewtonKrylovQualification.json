@@ -1,0 +1,380 @@
+{
+  "numerical_source": "a3fcc53d2e6fd0831c1a332f90e02a9b1db0a6a5",
+  "requirements": [
+    {
+      "number": 1,
+      "title": "One common algorithm",
+      "finding": "CNewtonIntegration owns Krylov, true-defect checks, Armijo, forcing, CFL recovery and diagnostics. CSSTNewtonIntegration is removed. CNewtonLegacyIntegration remains only for explicitly unmigrated execution modes.",
+      "sources": [
+        "SU2_CFD/src/integration/CNewtonIntegration.cpp",
+        "SU2_CFD/src/integration/CIntegrationFactory.cpp",
+        "SU2_CFD/include/integration/CNewtonEquationSet.hpp"
+      ],
+      "tests": [
+        "NewtonController",
+        "NewtonFlowPolicy",
+        "NewtonProduction"
+      ],
+      "status": "verified by inspected source and final qualification evidence"
+    },
+    {
+      "number": 2,
+      "title": "Selection and grouping",
+      "finding": "Configuration validation is separate from coupled/segregated ownership. Native dispatch order differs from packing order; each selected equation has exactly one owner.",
+      "sources": [
+        "Common/src/CConfig.cpp",
+        "SU2_CFD/src/integration/CIntegrationFactory.cpp",
+        "SU2_CFD/src/iteration/CFluidIteration.cpp"
+      ],
+      "tests": [
+        "NewtonProduction",
+        "NewtonExplicit",
+        "NewtonController"
+      ],
+      "status": "verified by inspected source and final qualification evidence"
+    },
+    {
+      "number": 3,
+      "title": "Full cross derivatives",
+      "finding": "All selected unknowns are installed before refreshed physical residual evaluation. Independent centered references check cross-block responses, including variable-density species and all four blocks.",
+      "sources": [
+        "SU2_CFD/src/integration/CNewtonEquationSet.cpp",
+        "SU2_CFD/src/integration/CNewtonLinearization.cpp"
+      ],
+      "tests": [
+        "NewtonEquations",
+        "NewtonLinearization",
+        "NewtonTransition",
+        "NewtonPeriodicProducts"
+      ],
+      "status": "verified by inspected source and final qualification evidence"
+    },
+    {
+      "number": 4,
+      "title": "Coupled preconditioning",
+      "finding": "Native per-equation matrices provide block diagonal or lower coupling actions. The acceptance operator and true defect retain the full derivative independently of preconditioning.",
+      "sources": [
+        "SU2_CFD/src/integration/CNewtonLinearization.cpp",
+        "SU2_CFD/src/integration/CNewtonIntegration.cpp"
+      ],
+      "tests": [
+        "NewtonLinearization",
+        "NewtonPeriodicPreconditioner"
+      ],
+      "status": "verified by inspected source and final qualification evidence"
+    },
+    {
+      "number": 5,
+      "title": "State and mass coordinates",
+      "finding": "Fixed base density maps scalar q=M_base*w; live trial density remains in the physical residual. Native dense/projected mass, scales and prescribed rows are handled consistently.",
+      "sources": [
+        "SU2_CFD/include/integration/CNewtonEquationSet.hpp",
+        "SU2_CFD/src/integration/CNewtonLinearization.cpp"
+      ],
+      "tests": [
+        "NewtonEquations",
+        "NewtonMass",
+        "NewtonPeriodicMass",
+        "NewtonPeriodicAxis"
+      ],
+      "status": "verified by inspected source and final qualification evidence"
+    },
+    {
+      "number": 6,
+      "title": "Trial refresh and exact rollback",
+      "finding": "Primary values, old solutions, row masks, relaxation, numerical reconstruction history and configuration settings are captured/restored. Physical-time histories stay intact. All live dependent properties and boundary closure are rebuilt.",
+      "sources": [
+        "SU2_CFD/src/integration/CNewtonEquationSet.cpp",
+        "SU2_CFD/src/integration/CNewtonIntegration.cpp"
+      ],
+      "tests": [
+        "NewtonBoundaries",
+        "NewtonController",
+        "NewtonResidualFailure",
+        "NewtonRepeatability"
+      ],
+      "status": "verified by inspected source and final qualification evidence"
+    },
+    {
+      "number": 7,
+      "title": "Model-specific admissibility",
+      "finding": "Native scalar bounds distinguish signed SA, SST, LM and composition. Feasible shifted probes retain the requested direction rather than clipping it. Thermodynamic and last-fraction diffusivity admission remain live.",
+      "sources": [
+        "SU2_CFD/include/solvers/CScalarSolver.hpp",
+        "SU2_CFD/src/integration/CNewtonEquationSet.cpp"
+      ],
+      "tests": [
+        "NewtonBounds",
+        "NewtonBoundProbes",
+        "NewtonProperties",
+        "NewtonTransition"
+      ],
+      "status": "verified by inspected source and final qualification evidence"
+    },
+    {
+      "number": 8,
+      "title": "MPI/OpenMP and integration",
+      "finding": "Periodic copies and rotations remain explicit unknowns. All collectives and failure decisions share group ownership. Native matrices remain per-system blocks, avoiding a packed MAXNVAR=20 matrix; scalar native capacity remains guarded.",
+      "sources": [
+        "SU2_CFD/src/integration/CNewtonEquationSet.cpp",
+        "SU2_CFD/src/integration/CNewtonLinearization.cpp",
+        "SU2_CFD/src/iteration/CFluidIteration.cpp",
+        "Common/include/linear_algebra/CSysMatrix.hpp"
+      ],
+      "tests": [
+        "NewtonProduction",
+        "NewtonPeriodic",
+        "NewtonPeriodicOwner",
+        "NewtonPeriodicAxis",
+        "NewtonRepeatability"
+      ],
+      "status": "verified by inspected source and final qualification evidence"
+    },
+    {
+      "number": 9,
+      "title": "Detecting correctness tests",
+      "finding": "Final suite passes 56 native cases on four MPI/OpenMP layouts, 91 supported ordinary cases, dedicated gradient/cache and writer tests, CLI failure/restart checks and zero-error Valgrind checks. The 37249-point accepted/failure fixture repeats three times on all five specified layouts.",
+      "sources": [
+        "UnitTests/SU2_CFD/newton_equations.cpp",
+        "UnitTests/SU2_CFD/gradients.cpp",
+        "UnitTests/Common/linear_algebra/krylov_solver_tests.cpp"
+      ],
+      "tests": [
+        "checks_io_fixed/results.json",
+        "supported_final.log",
+        "empty_writer/unit_{1,2,4}/log.txt",
+        "repeatability/results.json",
+        "../performance_20261016/lazy_krylov_checks3/results.json"
+      ],
+      "status": "verified by inspected source and final qualification evidence"
+    },
+    {
+      "number": 10,
+      "title": "Converged family comparisons",
+      "finding": "Final SA/SST/active-LM/axis repeated medians and fresh mean-flow/SA-BC/basic-species/periodic-SA/periodic-LM endpoints pass. All three modes pass on 1x1 and 2x2; SA additionally passes 1x4, 2x1, 2x4 and 4x2, with full-field, quantity and physical residual checks.",
+      "sources": [
+        "TestCases/newton_krylov/compare_manufactured_flow.py",
+        "TestCases/newton_krylov/compare_sa_bc_flatplate.py",
+        "TestCases/newton_krylov/compare_species_mixture.py",
+        "TestCases/newton_krylov/compare_periodic_flatplate.py"
+      ],
+      "tests": [
+        "family_checks.json",
+        "performance_20261016/benchmark_final_summary.json",
+        "layout_checks.json",
+        "repeatability/results.json"
+      ],
+      "status": "verified by inspected source and final qualification evidence"
+    }
+  ],
+  "source_sha256": {
+    "Common/include/linear_algebra/CSysMatrix.hpp": "7a70391e923b72dc854904142879a02c9e7c8586209f1527dfaf19f685fcbff3",
+    "Common/src/CConfig.cpp": "9b08b816aa722bdcf85c67c716f2f23c9ba368672f7dfd38bc3820c322b8751a",
+    "SU2_CFD/include/integration/CNewtonEquationSet.hpp": "63d22fd2b3e08dbb548809434b91c1c3c5ba9cdd34e0ce344632cf979f729be8",
+    "SU2_CFD/include/solvers/CScalarSolver.hpp": "93cfedbb9c6278bb921f1c3cbd8575b7ec62aa215aca64b3e483a0f2e3b8f92c",
+    "SU2_CFD/src/integration/CIntegrationFactory.cpp": "6948ca13c03dd88dad8382b28c6abd894a9015145af18ce899658dbe3ed38746",
+    "SU2_CFD/src/integration/CNewtonEquationSet.cpp": "07f0b96ac2713ec2503acf3ee97e1ef84118b903b53bf0ba0c84ff07d1e6fe8f",
+    "SU2_CFD/src/integration/CNewtonIntegration.cpp": "f13e175d9cd20a4bacf935cf83b12d1ef7b1cae674028936fbde11c9ba1423f9",
+    "SU2_CFD/src/integration/CNewtonLinearization.cpp": "e443652315baab5d63a61d2b9e37d9353779cbc594fe015124d6f8d71ccdc987",
+    "SU2_CFD/src/iteration/CFluidIteration.cpp": "453900657b6f778db622c0e2176ec072edcdac8ef372476e6ee1f4ace56102aa",
+    "TestCases/newton_krylov/compare_manufactured_flow.py": "fb170b938067cbc0104b56c29e8d1796551abc1018e368750162c8bb5ece2b15",
+    "TestCases/newton_krylov/compare_periodic_flatplate.py": "8694a309e468eb7037935cd19a137150cd6909a8d21735b55be1e2060049310c",
+    "TestCases/newton_krylov/compare_sa_bc_flatplate.py": "b53943b93c0ce42adea3914be8e876ef96438e252265201c1fd5277362fd0e00",
+    "TestCases/newton_krylov/compare_species_mixture.py": "a1400b817351e7b4ec27cc4a02e4766eb9abf68bc91059d79af8b19ddda2b0a0",
+    "UnitTests/Common/linear_algebra/krylov_solver_tests.cpp": "de4f1f37c99b703a490283c3471957184eac9b9f399a6e559a7990b8748ddc94",
+    "UnitTests/SU2_CFD/gradients.cpp": "87c32d57c7dda5f1c280774aea21ab6416ad353cb810962bb049e93c32c2f251",
+    "UnitTests/SU2_CFD/newton_equations.cpp": "6a562e178f4b52643cc2a869cefa8cdc93edc408fa66c8c9225e87ec4bd49a80",
+    "SU2_CFD/src/output/filewriter/CParallelFileWriter.cpp": "a1df404ab3ad1cbf8c5a157b9cf6e6b628596a547dbb42ccdfe5f3aad4b45297",
+    "UnitTests/SU2_CFD/output/CFileWriter_tests.cpp": "c9b72d22beef656c268793b3954a7254892d06a759f74685af0dda9eff6f0c94",
+    "UnitTests/meson.build": "050f223462e5cb94fad54e66f8771ec233c5668b88d74a294f836a1651c7b97d",
+    "TestCases/parallel_regression.py": "78ca8e5fcd98d684fa92f65309314be460b1e3b8a4a2f6264ac52235742796f0",
+    "config_template.cfg": "8b186dd940f6e43e195663c1e9a50eebfddd9ff8c6408fc334c056c57b4cfdf5"
+  },
+  "remaining_required_audit": [],
+  "limits": [
+    "Steady primal CPU migration; unsteady, adjoint, multizone, GPU, pressure-based incompressible and periodic species/streamwise selection are explicitly excluded from the common mode.",
+    "No further flamelet feature scope or NEMO integration.",
+    "No OpenMP/MPI race-detector certification.",
+    "Larger repeatability is an accepted-step/failure fixture, not a converged larger-mesh performance result."
+  ],
+  "io_source_commit": "b621a12bf473115ae4b66a40da20c5048342ba8b",
+  "binaries": {
+    "SU2_CFD": "185fbc3d8758d34ffa8af71b3d37759823cb2caf0947b5ae6c236d8892fa08f7",
+    "test_driver": "842f0c8251450d9b6159b9ca84146d6dc9ca0fd8c1d2241bdc2ad651fbb7772c",
+    "newton_equation_tests": "feb54bd3d765da0429eec36e7bcbf690d87ae3c497eb27dbb9e6451793fb9506"
+  },
+  "evidence_root": "/media/rausa/4TB/SU2_Versions/SU2_v850_Develop_FixCGNSOutput/newton_krylov_refactor_20261015/goal_completion_20261016",
+  "performance_evidence_root": "/media/rausa/4TB/SU2_Versions/SU2_v850_Develop_FixCGNSOutput/newton_krylov_refactor_20261015/performance_20261016",
+  "evidence_sha256": {
+    "family_checks.json": "87825fb6fa6392603c4fe9d48ccfe56b9a4717a3f4d34a66d2feb1212902f766",
+    "layout_checks.json": "a6fcae6782a276ca31a3bf1c27218aee4d32cffe0182bad5a621cf66ca909399",
+    "repeatability/results.json": "9a9d6da4941d0d7b9fffd81c853fced41ce00eb1bd73a3ea11ac48914aa95d6c",
+    "repeatability_command.json": "502be738b7e3e03e590e3be592c68f63b325daf25c27cd8a708c9cc39b0f53f6",
+    "baseline_qualified/results.json": "21b18e728b378dfd94db12b171cdad8fc5be555912ce2cdda9ac2656e2937ea4",
+    "registered_periodic_qualified/results.json": "e4e48ef86c4bfd329a7babab98f7fbeef72ff0153cb9816da1bf372cad75fe66",
+    "checks_io_fixed/results.json": "0ced9283ab72ce76318923a0d927fd06bf8bf8a04f5d1f901aa1e18e9928ce71",
+    "supported_units_final.txt": "f781932cce8a4a9b6e360366a8243c3b10331c562ad6fb1379a92aff3f61a45c",
+    "supported_final.log": "58029362a22f2e585a016378cb0b1d996eb3b95a5ca2cf70389b728fd7c38841",
+    "empty_writer/before_corrected_results.json": "8e824a22ce7df2e1a5f1c3518af3beb08baa2a1e1c31cc0c018b1a08f5e849e4",
+    "empty_writer/after_results.json": "d391ba0b50fffa84e52d3919edc6a7c0ccf92fb90fbdf387bd0eda20cccc5bad",
+    "empty_writer/production_object_comparison.json": "65dcf26d272f9575a4c2496388dbf9441541bfde01e63faa6abc80623efdd22b",
+    "final_io/manifest.json": "ae8c7b7113376367b26eaf2888f88da0382fb302980a1c977d244ec95fff6b6b",
+    "native_reference/results_3.json": "4f7cb50e11e9ab35d1f9bcc9f59f2a774df665d6f5e4c12c8b7eff532e33bcc4",
+    "native_reference/manifest_3.json": "d10f812e115eb6cfea0fde5928fba39890c0a8188978e07e3433e8d61da7e6b8",
+    "nozzle_attribution/results.json": "48310df35d6b65604d23a5c97cad7ee0594f178ec3a2320fdb46e35ec092054f",
+    "nozzle_wall_control/results.json": "a2c12da9e46f2550c7b982b1be46bb3d381b591ec2b6f8d0aecad1c42edb7cfe",
+    "nozzle_boundary_control/results.json": "c57c271e320efd30b39b1aeeb0adec5420c5f71ef6c02f50818595256076d39e",
+    "nozzle_boundary_control/build_commands.json": "29bb13514224dbd6465a5ecb3c8ca5055d7c505fa65d943c984246a83347d6f1",
+    "vtu_output_checks.json": "6a0299083d79e9e9620042c7829b0fc8424558eb4f7869cfe164b7ba98488ebc",
+    "baseline_final/results.json": "4b28c6d7c14fef5c06cfbedb9c3dfdf0ff7dac0911897eefee2a138617620202",
+    "baseline_io_fixed/results.json": "514b0a8ba03d146dc9978e0ccdcb85d893fcf1a21110e1bf834a5ce22abdd165",
+    "native_reference/initial_timeout.json": "7089a0dfb05fcff10bd5a42c5b348df7ba67abf9eca2f65f4481e01c1e0ec501",
+    "native_reference/round2_io_timeout.json": "6c7dc23b30f1d9a77df456f1f894f4be29fa5b9310bb8b2fbc40d710cc3155ef",
+    "check_nozzle_wall.py": "c992c7b91d88cc0bff81fa3a26009e074703751fe0ae5aa1bda5e7ee2f746366",
+    "check_nozzle_boundaries.py": "61a005d1b888ff9ad2c270a4ab85550fe46f805ee871a3952c1669b310e6dcab",
+    "check_vtu_output.py": "c5fe632c3db104708b2c54ac08a146c23d6832cfc018fc0f7b0ac8075f94b629",
+    "qualify_baseline_complete.py": "e179c7003309065599a181fd680edda6baebd60c85e78d58d61da90560fb552f",
+    "supported_clean.log": "4b015b5c2d7f567a8e83a4fe979d0ffc4add8800a219c3a53676b95d06b40c96",
+    "supported_clean_fixture.log": "c18c677770d96417eba69d880121131e8ebc6851bda030f91041de63979978b8"
+  },
+  "performance_evidence_sha256": {
+    "benchmark_final_summary.json": "c485ceb9d4e4bb6a83bddaf82d28c8178058fa8b4425db2c5e106497da9d3576",
+    "report.md": "43eb263b819da1a162bbb02157373b09c08b1309c4691a0a0ae2b838f1d5b46b",
+    "final/manifest.json": "ff2eb01435a5de549dc810657401b6c136d238740bf419783a4707d849bb2718",
+    "papers/jacobian_review.md": "11b7438460edff852792d804ad0dff8daf0b7f415fd0846cf93fe8367702c150"
+  },
+  "endpoint_summary": [
+    {
+      "model": "mms",
+      "layout": "1x1",
+      "updates": [
+        67,
+        69,
+        69
+      ],
+      "maximum_state_relative": 1.8639841945983712e-11,
+      "maximum_quantity_difference": 1.3443372069194903e-12,
+      "maximum_raw_rms": 8.897102514148964e-07,
+      "maximum_normalized_rms": 1.18104617993149e-10
+    },
+    {
+      "model": "mms",
+      "layout": "2x2",
+      "updates": [
+        67,
+        69,
+        69
+      ],
+      "maximum_state_relative": 1.8994933541904383e-11,
+      "maximum_quantity_difference": 1.377165954341212e-12,
+      "maximum_raw_rms": 8.957012161151395e-07,
+      "maximum_normalized_rms": 1.188261809760296e-10
+    },
+    {
+      "model": "species",
+      "layout": "1x1",
+      "updates": [
+        81,
+        82,
+        82
+      ],
+      "maximum_state_relative": 2.8498827652545848e-08,
+      "maximum_quantity_difference": 6.6815582832555075e-09,
+      "maximum_raw_rms": 9.658647488765451e-11,
+      "maximum_normalized_rms": 8.111329322470394e-11
+    },
+    {
+      "model": "species",
+      "layout": "2x2",
+      "updates": [
+        81,
+        82,
+        82
+      ],
+      "maximum_state_relative": 2.8719914810085943e-08,
+      "maximum_quantity_difference": 6.710642411229786e-09,
+      "maximum_raw_rms": 9.675288974640968e-11,
+      "maximum_normalized_rms": 8.132465436187626e-11
+    },
+    {
+      "model": "bc",
+      "layout": "1x1",
+      "updates": [
+        3334,
+        2933,
+        2933
+      ],
+      "maximum_state_relative": 8.491945644656743e-07,
+      "maximum_quantity_difference": 3.3494207704274263e-07,
+      "maximum_raw_rms": 9.997567279393405e-11,
+      "maximum_normalized_rms": 1.1213130496458385e-10
+    },
+    {
+      "model": "bc",
+      "layout": "2x2",
+      "updates": [
+        3334,
+        2933,
+        2933
+      ],
+      "maximum_state_relative": 8.492297221767465e-07,
+      "maximum_quantity_difference": 3.3495886156402174e-07,
+      "maximum_raw_rms": 9.982640370608543e-11,
+      "maximum_normalized_rms": 1.1213124035809968e-10
+    },
+    {
+      "model": "periodic_sa",
+      "layout": "1x1",
+      "updates": [
+        5294,
+        4838,
+        4838
+      ],
+      "maximum_state_relative": 1.0206124475899098e-07,
+      "maximum_quantity_difference": 7.168808464989e-08,
+      "maximum_raw_rms": 9.99675545077427e-13,
+      "maximum_normalized_rms": 1.0729906658594505e-12
+    },
+    {
+      "model": "periodic_sa",
+      "layout": "2x2",
+      "updates": [
+        5294,
+        4838,
+        4838
+      ],
+      "maximum_state_relative": 1.0210796023063804e-07,
+      "maximum_quantity_difference": 7.17239083292814e-08,
+      "maximum_raw_rms": 9.994236669533517e-13,
+      "maximum_normalized_rms": 1.073243096034535e-12
+    },
+    {
+      "model": "periodic_lm",
+      "layout": "1x1",
+      "updates": [
+        1961,
+        1960,
+        7799
+      ],
+      "maximum_state_relative": 6.559631908642508e-10,
+      "maximum_quantity_difference": 7.888647690993443e-11,
+      "maximum_raw_rms": 9.995768732903381e-13,
+      "maximum_normalized_rms": 1.0358301225262977e-12
+    },
+    {
+      "model": "periodic_lm",
+      "layout": "2x2",
+      "updates": [
+        1961,
+        1960,
+        7799
+      ],
+      "maximum_state_relative": 6.553821070024998e-10,
+      "maximum_quantity_difference": 7.888805216631977e-11,
+      "maximum_raw_rms": 9.995759677708427e-13,
+      "maximum_normalized_rms": 1.035829229436776e-12
+    }
+  ],
+  "cross_layout_state_maximum": 2.537316511085859e-10,
+  "interpretation": "Numerical solver and geometry objects remain identical to the a3 performance endpoint; only the common file-output object changes. Single added family/layout checks are correctness evidence, not repeated performance measurements. Historical failures remain archived. Documentation/reference changes do not alter solver criteria."
+}
