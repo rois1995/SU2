@@ -65,6 +65,11 @@ class CNewtonLinearization final : public CMatrixVectorProduct<passivedouble> {
     assert(step > 0 && relativeLimit >= 0);
     assert(reconstructionFactor >= 0 && reconstructionFactor <= 1);
     assert(!relativeReference || relativeReference->GetLocSize() == scaling.GetLocSize());
+    // Normalized flame gradients can be sensitive even with first-order reconstruction.
+    verifyStep = verifyStep || (config->GetKind_Species_Model() == SPECIES_MODEL::FLAMELET &&
+        config->GetFlameletParsedOptions().thickenedflame_correction &&
+        std::any_of(equations.GetBlocks().begin(), equations.GetBlocks().end(),
+                    [](const CNewtonEquationSet::Block& block) { return block.slot == SPECIES_SOL; }));
     SU2_OMP_SAFE_GLOBAL_ACCESS(scale = &scaling; diagonal = &pseudoTime; probeReference = relativeReference;
                                absoluteStep = step; relativeStep = relativeLimit; reconstruction = reconstructionFactor;
                                physicalStep = physicalMetric; refineStep = verifyStep;

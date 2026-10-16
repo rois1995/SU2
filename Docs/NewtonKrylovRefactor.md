@@ -11,8 +11,141 @@ outside this migration. Dense native pseudo-time mappings and explicit-flow
 preconditioning are supported. Converged matched comparisons now cover generated
 mean-flow, ordinary SA, SA-BC, SST, active LM and variable-density species
 fixtures. Model bounds and feasible near-bound probes now have focused native
-coverage. The full goal remains in progress: flamelet runtime and the
+coverage. Flamelet source, coefficient, halo and output checks now have a
+matched reacting-front comparison. The full goal remains in progress: the
 conditional-feature and production-layout audits below are open.
+
+## Flamelet physical coefficients, halos and source coordinates
+
+Flamelet trial evaluations now derive thickening from the current progress,
+temperature and velocity gradients. The native outer-iteration relaxation of
+flame thickness is numerical history: residual, finite-difference and implicit
+matrix refreshes preserve that history while recomputing the physical target.
+This distinction retains the coefficient's cross derivatives and makes restart
+residual reports independent of unrecorded numerical relaxation history. Native
+output refreshes also preserve history. Scalar gradients are refreshed before
+coefficients and sources, and thread extrema/gradients are combined before MPI
+reductions. A uniform hot field has no resolvable flame front and uses the
+default thickness, avoiding division by zero. The normalized-gradient coefficient
+can still switch nonsmoothly as a front appears or ignition changes; a unique
+smooth derivative is not claimed at those switches. The convergence fixture
+uses the same nonuniform native flame-front initialization in every mode.
+
+The thickening factor also uses the owning point's complete cell volume on
+MPI halos. Local halo geometry contains partial cells; computing diffusion
+coefficients from those partial volumes made halo coefficients half their owner
+values in the regression. An identical serial restart then had species scaled
+RMS 1.51e-6 on two ranks despite ~1e-14 on one rank, while the owned coefficients
+and flow residuals agreed. A single scalar volume work vector now uses the
+existing halo exchange before computing thickening. It is allocated only when
+thickening is active and refreshed each preprocessing call, preserving geometry
+and allowing volumes to change. Halo coefficients are checked against values
+collected independently from the owning ranks.
+
+The stored auxiliary consumption coefficient includes the same inverse
+thickening factor as the source residual. Its native implicit diagonal divides
+by live density because the native correction uses `rho*phi` coordinates.
+Step refinement is also required for thickened-flamelet products with first-order
+reconstruction. Near a uniform hot field, unrefined products had scalar/coupled
+centered defects of 0.326/0.320. Existing Richardson refinement passes the same
+2e-4 reference bound; centered-reference refinement is checked independently.
+The full physical operator and true linear defect use verified products, while
+approximate lower preconditioning can retain its cheaper coupling action.
+Transported flamelet enthalpy uses `rho*Cp*T` for its reference scale, including
+when signed enthalpy crosses zero. This scaling is distinct from physical
+admissibility.
+
+A synthetic affine LUT checks properties, sources and lookups independently.
+Its temperature is `300+100*p+5*h`, with `Cp=0.2` so `Cp*dT/dh=1`.
+An earlier draft supplied Cp=1000, inconsistent with this affine fixture and
+its native inverse-enthalpy iteration; all twelve rows failed the fixture
+identity check. Correcting Cp and conductivity together
+preserves Prandtl number and thermal diffusivity. Runs with that inconsistent
+draft remain archived and are excluded from the final comparison evidence.
+Focused tests exercise ordinary native and Newton preprocessing, repeatability,
+implicit assembly, selected FLOW/SPECIES/coupled ownership, live coefficients,
+centered products, rollback, halo ownership and nonmaster gradient contributions.
+The latest focused suite passes five cases and 5134 assertions serial, with a
+matching MPI/OpenMP run. The independent product case covers domain lengths
+0.05 and 0.005 and checks flow and species blocks separately against a refined
+centered reference. Its first stretched draft had nearly tied gradient maxima
+and failed its own reference refinement check; the apparent 16.9% error from
+that invalid reference is excluded. The corrected profile separates the
+extrema across y and passes the original 2e-4 product and 1e-5 reference bounds.
+
+`compare_flamelet.py` uses an 81-point stretched rectangle and affine progress,
+transported enthalpy and auxiliary-trace data. The reacting fixture's progress
+source is `10*(1-p)+0.02*h`; it must produce at least 0.005 progress variation.
+All methods start from the same native nonuniform flame-front initialization.
+Every physical residual must reach log10 RMS -13, followed by an independent
+restart check below raw RMS 1e-12 and normalized RMS 1e-9. State and quantity
+agreement limits remain 1e-6. The independent report additionally requires no
+table misses, positive diffusion, active thickening, and thickness consistent
+with the history output. The output getter reports the thickness actually used;
+a separate derived field keeps it distinct from native relaxation history.
+A later native update is checked against the original history after all trials.
+
+| Ranks x threads | Native updates | Segregated updates | Coupled updates |
+| --- | ---: | ---: | ---: |
+| 1x1 | 3025 | 16 | 15 |
+| 2x2 | 3025 | 18 | 17 |
+
+The progress range is approximately 0.41664 to 0.42502; maximum diffusivity is
+0.02925865 for the base value 0.02. All six physical residuals pass, and the
+largest state discrepancy from the conventional solution is 9.53e-10. The
+largest cross-layout discrepancy is 1.64e-10. These are synthetic data and a
+coarse generated mesh, not physical flame validation or a production speedup.
+
+The original weak-source fixture, `0.1*(1-p)+0.02*h`, remains an unresolved
+stress case. Its serial three-method comparison converges, but coupled MPI
+hits the 180-second and then 600-second harness wall limits. At the latter
+limit it has made 4038 updates; this is not an iteration cap or a successful
+comparison. Recent retry records show reported Krylov convergence followed by
+large true defects, which the controller correctly rejects. None reached the
+linear iteration limit. The reacting fixture is a separate convergence case;
+its success does not fix or relabel that weak-front failure. The failed source,
+executables, data, configs and logs remain archived. Replaying the weak restart
+uses its archived LUT, since the final fixture now has the stronger source.
+The harness records failed timed-out modes explicitly; an intentional timeout
+self-check verifies that their command, configuration hash and logs survive.
+
+Final release checks pass all 47 native cases on 1x1 and 1x2 (59103 assertions)
+and on 2x2 and 2x4 (36819/31029 per rank). The 80 ordinary cases pass 102273
+assertions. Focused Valgrind passes 20 cases/13338 assertions with zero errors;
+leaks are unchecked. Restart-report, species-boundary and residual-failure CLI
+checks pass. Thirteen affected translation units pass forward syntax, including
+CConfig and the active volume work vector; this does not establish AD runtime.
+
+All 42 matched runs across seven families and both layouts pass on the final
+executable. The preceding six families keep their model-bounds checkpoint's
+iteration counts. Maximum normalized RMS is 1.188262e-10; maximum state/quantity
+discrepancies from their conventional controls are 8.492298e-7/3.349589e-7.
+Complete commands, per-system residual counts, outer/inner Krylov work, rank RSS,
+wall times, physical states and hashes are in
+`Docs/NewtonKrylovFlameletResults.json`.
+
+| Ranks x threads | Method | Updates | Residual assemblies | Outer Krylov iterations | Seconds | Peak rank RSS, KiB |
+| --- | --- | ---: | ---: | ---: | ---: | ---: |
+| 1x1 | native | 3025 | 6050 | 12100 | 1.572 | 25284 |
+| 1x1 | segregated | 16 | 1128 | 330 | 0.776 | 25432 |
+| 1x1 | coupled | 15 | 2072 | 210 | 0.869 | 25600 |
+| 2x2 | native | 3025 | 6050 | 66663 | 9.247 | 25512 |
+| 2x2 | segregated | 18 | 3347 | 896 | 2.973 | 25320 |
+| 2x2 | coupled | 17 | 6440 | 732 | 4.480 | 25488 |
+
+Native Krylov counts describe conventional implicit linear solves; Newton counts
+describe outer matrix-free solves. Inner Krylov work is zero in these runs.
+Residual counts exclude the independent restart reports.
+
+Timings are single launch-inclusive samples on a tiny synthetic problem. They
+do not establish a production speedup. Source, binaries, configs, tests and
+failed intermediate evidence are preserved in the parent artifact directory's
+`flamelet_63d439765714/` archive and `flamelet_manifest.json`.
+
+LUT-domain admission, preferential diffusion, moving/CHT and periodic integration,
+broader production layouts and AD runtime remain outside this milestone's
+established support. The weak-front MPI timeout remains unresolved. NEMO remains
+excluded; the full refactor goal is still active.
 
 ## Model bounds, exact strong values and feasible derivatives
 

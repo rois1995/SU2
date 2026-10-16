@@ -85,10 +85,12 @@ class CNewtonEquationSet : private CIntegration {
           if (block.slot == FLOW_SOL && v >= 1 && v <= geometry->GetnDim())
             ref = velocity * (compressible ? SU2_TYPE::GetValue(density[p]) : 1.0);
           if (block.slot == FLOW_SOL && v == 0 && !compressible) ref = rhoInf * velocity * velocity;
-          // Incompressible flow stores reference-relative enthalpy, which can be zero or negative at positive temperature.
-          if (block.slot == FLOW_SOL && v == block.variables - 1 && !compressible)
-            ref = std::abs(SU2_TYPE::GetValue(block.solver->GetNodes()->GetSpecificHeatCp(p) *
-                                             block.solver->GetNodes()->GetTemperature(p)));
+          // Flow and transported flamelet enthalpy can cross zero at finite temperature.
+          const bool enthalpy = (block.slot == FLOW_SOL && v == block.variables - 1) ||
+              (block.slot == SPECIES_SOL && config->GetKind_Species_Model() == SPECIES_MODEL::FLAMELET && v == 1);
+          if (enthalpy && !compressible)
+            ref = mass * std::abs(SU2_TYPE::GetValue(solvers[FLOW_SOL]->GetNodes()->GetSpecificHeatCp(p) *
+                                                    solvers[FLOW_SOL]->GetNodes()->GetTemperature(p)));
           scale(p, j) = std::max(std::abs(SU2_TYPE::GetValue(scale(p, j))), ref);
           if (scale(p, j) == 0) scale(p, j) = 1;
           probe(p, j) = scale(p, j);

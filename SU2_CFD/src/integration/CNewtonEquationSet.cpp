@@ -364,7 +364,8 @@ bool CNewtonEquationSet::EvaluateResiduals(bool implicit, bool allEquations, dou
     ~HistoryGuard() { equations.RestoreHistory(); }
   } history(*this);
   // Physical evaluations use full reconstruction; only an explicit Jacobian-model request may relax it.
-  SU2_OMP_SAFE_GLOBAL_ACCESS(config->SetResidualOnly(true); config->SetNewtonKrylovRelaxation(reconstruction);)
+  SU2_OMP_SAFE_GLOBAL_ACCESS(config->SetResidualOnly(true); config->SetFrozenIterationHistory(true);
+                             config->SetNewtonKrylovRelaxation(reconstruction);)
   Communicate();
   if (!CheckState(false)) return false;
   for (auto& snapshot : snapshots) {

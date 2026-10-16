@@ -11,6 +11,7 @@
 #include "../../SU2_CFD/include/integration/CNewtonIntegration.hpp"
 #include "../../SU2_CFD/include/integration/CNewtonLegacyIntegration.hpp"
 #include "../../SU2_CFD/include/variables/CFlowVariable.hpp"
+#include "../../SU2_CFD/include/variables/CSpeciesFlameletVariable.hpp"
 #include "../../SU2_CFD/include/numerics/flow/flow_sources.hpp"
 #include "../../SU2_CFD/include/output/CFlowOutput.hpp"
 #include "../../Common/include/linear_algebra/CSysSolve.hpp"
@@ -80,7 +81,8 @@ class ScalarOutput : public CFlowOutput {
 struct Problem {
   std::string path;
   std::unique_ptr<NewtonDriver> driver;
-  explicit Problem(const std::string& physics, unsigned cells = 5, bool muscl = false, bool threeD = false) {
+  explicit Problem(const std::string& physics, unsigned cells = 5, bool muscl = false, bool threeD = false,
+                   double lengthX = 1.0) {
     const auto stamp = std::chrono::steady_clock::now().time_since_epoch().count();
     path = (std::filesystem::temp_directory_path() /
             ("su2_newton_" + std::to_string(stamp) + "_" + std::to_string(SU2_MPI::GetRank()) + ".cfg"))
@@ -88,7 +90,7 @@ struct Problem {
     {
       std::ofstream config(path);
       config << "MESH_FORMAT= " << (threeD ? "BOX" : "RECTANGLE") << "\nMESH_BOX_SIZE= " << cells << "," << cells
-             << ",5\nMESH_BOX_LENGTH= 1,1,1\n";
+             << ",5\nMESH_BOX_LENGTH= " << lengthX << ",1,1\n";
       if (physics.find("MARKER_HEATFLUX=") == std::string::npos) config << "MARKER_HEATFLUX= (y_minus, 0)\n";
       if (physics.find("MARKER_FAR=") == std::string::npos)
         config << "MARKER_FAR= (x_minus,x_plus,y_plus" << (threeD ? ",z_minus,z_plus" : "") << ")\n";
@@ -127,6 +129,18 @@ const std::string species =
     "MOLECULAR_WEIGHT= 28.96,16.043\nSPECIFIC_HEAT_CP= 1009.39,2225\n"
     "VISCOSITY_MODEL= CONSTANT_VISCOSITY\nMU_CONSTANT= 1.8551e-5,1.1e-5\n"
     "PRANDTL_LAM= 0.72,0.72\nPRANDTL_TURB= 0.9,0.9\nDIFFUSIVITY_CONSTANT= 1e-5\n";
+
+const std::string flamelet =
+    "SOLVER= INC_NAVIER_STOKES\nINC_DENSITY_MODEL= FLAMELET\nINC_DENSITY_INIT= 1\n"
+    "INC_VELOCITY_INIT= 1,0.02,0\nINC_TEMPERATURE_INIT= 300\nINC_NONDIM= DIMENSIONAL\n"
+    "FLUID_MODEL= FLUID_FLAMELET\nKIND_SCALAR_MODEL= FLAMELET\nINTERPOLATION_METHOD= LUT\n"
+    "FILENAMES_INTERPOLATOR= " SU2_UNIT_TEST_SOURCE_DIR "/SU2_CFD/fluid/newton_flamelet.drg\n"
+    "CONTROLLING_VARIABLE_NAMES= ProgressVariable,EnthalpyTot\n"
+    "CONTROLLING_VARIABLE_SOURCE_NAMES= PVSource,NULL\nUSER_SCALAR_NAMES= Trace\n"
+    "USER_SOURCE_NAMES= TraceProd,TraceCons\nLOOKUP_NAMES= HeatRelease\nSPECIES_INIT= 0.4,0,0.1\n"
+    "DIFFUSIVITY_MODEL= FLAMELET\nVISCOSITY_MODEL= FLAMELET\nCONDUCTIVITY_MODEL= FLAMELET\n"
+    "FLAME_INIT_METHOD= NONE\nFLAME_INIT_IGNITION= 320\nSPECIES_CLIPPING= NO\n"
+    "PREFERENTIAL_DIFFUSION= NO\n";
 
 bool Residual(CNewtonEquationSet& equations, bool implicit = false, bool allEquations = false) {
   bool valid = false;
@@ -220,7 +234,8 @@ TEST_CASE("Newton equation groups map native and conservative scalar increments"
 }
 
 TEST_CASE("Grouped residuals refresh cross derivatives independently of trial order", "[NewtonEquations]") {
-  for (const auto& physics : {sa, sst, sst + "KIND_TRANS_MODEL= LM\n", species}) {
+  for (const auto& physics : {sa, sst, sst + "KIND_TRANS_MODEL= LM\n", species,
+                             flamelet + "THICKENED_FLAME_CORRECTION= NO\n"}) {
     CAPTURE(physics);
     Problem problem(physics);
     auto& driver = *problem.driver;
@@ -285,6 +300,7 @@ TEST_CASE("Grouped residuals refresh cross derivatives independently of trial or
       CHECK(restored.limiter == settings.limiter);
       CHECK(restored.muscl == settings.muscl);
       CHECK(restored.residualOnly == settings.residualOnly);
+      CHECK(restored.frozenIterationHistory == settings.frozenIterationHistory);
       CHECK(restored.kappa == settings.kappa);
       CHECK(restored.physicalTime == settings.physicalTime);
       CHECK(restored.physicalTimeND == settings.physicalTimeND);
@@ -391,7 +407,8 @@ TEST_CASE("Grouped Newton products and block preconditioners solve a coupled lin
   }
   unsigned family = 0;
   for (const auto& physics : {sa, sa + "SA_OPTIONS= NEGATIVE, WITHFT2\n", sst,
-                             sst + "KIND_TRANS_MODEL= LM\n", species, allEquations}) {
+                             sst + "KIND_TRANS_MODEL= LM\n", species, allEquations,
+                             flamelet + "THICKENED_FLAME_CORRECTION= NO\n"}) {
     ++family;
     CAPTURE(physics);
     Problem problem(physics + "LINEAR_SOLVER_PREC= ILU\n");
@@ -2573,6 +2590,7 @@ TEST_CASE("Newton admissibility uses model scalar bounds on free rows", "[Newton
           if (geometry->nodes->GetCoord(p, 0) == 0.5 && geometry->nodes->GetCoord(p, 1) == 0.5)
             solver->GetNodes()->SetSolution(p, profile.variable, value);
         CHECK(Residual(*equations) == expected);
+        CHECK_FALSE(driver.Config()->GetFrozenIterationHistory());
         REQUIRE(equations->Restore());
         equations->Pack(after);
         CHECK(MaxDifference(before, after) == 0);
@@ -2791,6 +2809,484 @@ TEST_CASE("Newton trial restoration restores prescribed row metadata", "[NewtonB
     }
     REQUIRE(equations->Restore());
     CHECK(equations->GetRestorationError() == 0);
+  }
+}
+
+TEST_CASE("Flamelet trial refreshes preserve history and affine LUT properties", "[NewtonFlamelet]") {
+  for (bool thickened : {false, true}) {
+    CAPTURE(thickened);
+    Problem problem(flamelet + "THICKENED_FLAME_CORRECTION= " + (thickened ? "YES\n" : "NO\n"),
+                    9, false, false, 0.05);
+    auto& driver = *problem.driver;
+    auto* geometry = driver.Geometry();
+    auto* solver = driver.Solvers()[SPECIES_SOL];
+    auto* nodes = solver->GetNodes();
+    auto* flow = driver.Solvers()[FLOW_SOL]->GetNodes();
+    auto equations = problem.Equations({RUNTIME_FLOW_SYS, RUNTIME_SPECIES_SYS});
+    auto setProfile = [&](bool sharp) {
+      for (auto p = 0ul; p < geometry->GetnPoint(); ++p) {
+        const double x = geometry->nodes->GetCoord(p, 0) / 0.05, y = geometry->nodes->GetCoord(p, 1);
+        nodes->SetSolution(p, 0, sharp ? 0.4 + 0.18 * std::sin(2 * PI_NUMBER * x) + 0.02 * y
+                                      : 0.4 + 0.14 * std::sin(2 * PI_NUMBER * x + 0.2) + 0.01 * y);
+        nodes->SetSolution(p, 1, 0.05 * x - 0.02 * y);
+        nodes->SetSolution(p, 2, 0.1 + 0.04 * y);
+      }
+    };
+    setProfile(true);
+    REQUIRE(Residual(*equations));
+    REQUIRE(Residual(*equations));
+    const auto settings = driver.Config()->GetEquationSettings();
+    SU2_OMP_PARALLEL {
+      solver->Preprocessing(geometry, driver.Solvers(), driver.Config(), MESH_0, NO_RK_ITER,
+                            RUNTIME_SPECIES_SYS, false);
+    }
+    END_SU2_OMP_PARALLEL
+    driver.Config()->SetEquationSettings(settings);
+    setProfile(false);
+    REQUIRE(Residual(*equations));
+    equations->Capture();
+    auto before = MakeVector(driver, equations->GetnVar()), after = before;
+    equations->CopyResidual(before);
+    std::vector<double> diffusivity(geometry->GetnPoint());
+    double localFactor = 1, factor = 0;
+    for (auto p = 0ul; p < geometry->GetnPointDomain(); ++p) {
+      diffusivity[p] = SU2_TYPE::GetValue(nodes->GetDiffusivity(p, 0));
+      localFactor = std::max(localFactor, diffusivity[p] / 0.02);
+      const auto progress = SU2_TYPE::GetValue(nodes->GetSolution(p, 0));
+      const auto enthalpy = SU2_TYPE::GetValue(nodes->GetSolution(p, 1));
+      const auto trace = SU2_TYPE::GetValue(nodes->GetSolution(p, 2));
+      const auto F = diffusivity[p] / 0.02;
+      CHECK(flow->GetTemperature(p) == Approx(300 + 100 * progress + 5 * enthalpy));
+      CHECK(flow->GetDensity(p) == Approx(1 + 0.2 * progress + 0.05 * enthalpy));
+      CHECK(flow->GetSpecificHeatCp(p) == Approx(0.2));
+      CHECK(5 * flow->GetSpecificHeatCp(p) == Approx(1));
+      CHECK(flow->GetLaminarViscosity(p) == Approx(0.01));
+      CHECK(nodes->GetScalarLookups(p)[0] == Approx(20 * progress + 3 * enthalpy));
+      CHECK(nodes->GetScalarSources(p)[0] == Approx((10 * (1 - progress) + 0.02 * enthalpy) / F));
+      CHECK(nodes->GetScalarSources(p)[1] == 0);
+      CHECK(nodes->GetScalarSources(p)[2] == Approx((0.05 + 0.01 * progress - 0.2 * trace) / F));
+      CHECK(static_cast<CSpeciesFlameletVariable*>(nodes)->GetAuxSourceCons(p, 0) == Approx(-0.2 / F));
+    }
+    SU2_MPI::Allreduce(&localFactor, &factor, 1, MPI_DOUBLE, MPI_MAX, SU2_MPI::GetComm());
+    if (thickened) REQUIRE(factor > 1.01);
+    else CHECK(factor == Approx(1));
+    driver.Config()->SetGlobalParam(driver.Config()->GetKind_Solver(), RUNTIME_SPECIES_SYS);
+    SU2_OMP_PARALLEL {
+      solver->Jacobian.SetValZero();
+      solver->LinSysRes = 0.0;
+      solver->Source_Residual(geometry, driver.Solvers(), driver.Numerics()[SPECIES_SOL], driver.Config(), MESH_0);
+    }
+    END_SU2_OMP_PARALLEL
+    driver.Config()->SetEquationSettings(settings);
+    for (auto p = 0ul; p < geometry->GetnPointDomain(); ++p) {
+      const double F = diffusivity[p] / 0.02;
+      const double expected = 0.2 * SU2_TYPE::GetValue(geometry->nodes->GetVolume(p)) /
+                              (F * SU2_TYPE::GetValue(flow->GetDensity(p)));
+      CHECK(solver->Jacobian.GetBlockView(p, p)(2, 2) == Approx(expected).epsilon(1e-10));
+    }
+    REQUIRE(Residual(*equations));
+    equations->CopyResidual(after);
+    after -= before;
+    INFO("relative repeated residual error=" << after.norm() / std::max(before.norm(), 1.0));
+    CHECK(after.norm() < 1e-12 * std::max(before.norm(), 1.0));
+    for (auto p = 0ul; p < geometry->GetnPointDomain(); ++p)
+      CHECK(nodes->GetDiffusivity(p, 0) == Approx(diffusivity[p]).epsilon(1e-12));
+    REQUIRE(equations->Restore());
+    equations->CopyResidual(after);
+    after -= before;
+    CHECK(after.norm() < 1e-12 * std::max(before.norm(), 1.0));
+    CHECK(equations->GetRestorationError() == 0);
+    REQUIRE(Residual(*equations, true));
+    equations->CopyResidual(after);
+    after -= before;
+    INFO("relative implicit refresh error=" << after.norm() / std::max(before.norm(), 1.0));
+    CHECK(after.norm() < 1e-12 * std::max(before.norm(), 1.0));
+    CHECK_FALSE(driver.Config()->GetFrozenIterationHistory());
+  }
+}
+
+TEST_CASE("Flamelet physical thickness follows trial fields without advancing native history", "[NewtonFlameletLive]") {
+  for (const auto& selected : std::vector<std::vector<unsigned short>>{
+           {RUNTIME_FLOW_SYS}, {RUNTIME_SPECIES_SYS}, {RUNTIME_FLOW_SYS, RUNTIME_SPECIES_SYS}}) {
+    CAPTURE(selected.size(), selected.front());
+    Problem problem(flamelet + "THICKENED_FLAME_CORRECTION= YES\n", 9, false, false, 0.05);
+    auto& driver = *problem.driver;
+    auto* geometry = driver.Geometry();
+    auto* solver = driver.Solvers()[SPECIES_SOL];
+    auto* nodes = solver->GetNodes();
+    auto* flow = driver.Solvers()[FLOW_SOL]->GetNodes();
+    auto equations = problem.Equations(selected);
+    for (auto p = 0ul; p < geometry->GetnPoint(); ++p) {
+      const double x = geometry->nodes->GetCoord(p, 0) / 0.05, y = geometry->nodes->GetCoord(p, 1);
+      nodes->SetSolution(p, 0, 0.4 + 0.18 * std::sin(2 * PI_NUMBER * x + 0.17) + 0.02 * y * y);
+      nodes->SetSolution(p, 1, 0.0);
+    }
+    REQUIRE(Residual(*equations, false, true));
+    const auto settings = driver.Config()->GetEquationSettings();
+    SU2_OMP_PARALLEL {
+      solver->Preprocessing(geometry, driver.Solvers(), driver.Config(), MESH_0, NO_RK_ITER,
+                            RUNTIME_SPECIES_SYS, false);
+    }
+    END_SU2_OMP_PARALLEL
+    driver.Config()->SetEquationSettings(settings);
+    const double nativeHistory = SU2_TYPE::GetValue(solver->GetFlameThickness());
+    REQUIRE(Residual(*equations, false, true));
+    equations->Capture();
+    auto scale = MakeVector(driver, equations->GetnVar(), 1), direction = scale;
+    direction = 0.0;
+    for (const auto& block : equations->GetBlocks())
+      for (auto p = 0ul; p < geometry->GetnPoint(); ++p) {
+        const double x = geometry->nodes->GetCoord(p, 0) / 0.05, y = geometry->nodes->GetCoord(p, 1);
+        if (block.slot == FLOW_SOL && !block.solver->Jacobian.IsPrescribedRow(p, 2))
+          direction(p, block.offset + 2) = 0.3 * std::sin(0.2 + x + y);
+        if (block.slot == SPECIES_SOL)
+          direction(p, block.offset) = 0.1 * std::sin(0.3 + 3 * x + y) * equations->MassFactor(block, p);
+      }
+    // h=0 makes grad(T) parallel to grad(progress), giving an independent scalar reference.
+    auto checkTarget = [&]() {
+      double extrema[2] = {}, minimum = 1, global[2] = {}, globalMinimum = 1;
+      for (auto p = 0ul; p < geometry->GetnPointDomain(); ++p) {
+        const double progress = SU2_TYPE::GetValue(nodes->GetSolution(p, 0));
+        extrema[1] = std::max(extrema[1], progress);
+        minimum = std::min(minimum, progress);
+        double weighted = 0, gradient2 = 0;
+        for (auto d = 0u; d < geometry->GetnDim(); ++d) {
+          const double gradient = SU2_TYPE::GetValue(nodes->GetGradient(p, 0, d));
+          const double velocity = SU2_TYPE::GetValue(flow->GetVelocity(p, d));
+          weighted += gradient * gradient * velocity * velocity;
+          gradient2 += gradient * gradient;
+        }
+        extrema[0] = std::max(extrema[0], weighted /
+            ((SU2_TYPE::GetValue(flow->GetVelocity2(p)) + EPS) * std::max(std::sqrt(gradient2), EPS)));
+      }
+      SU2_MPI::Allreduce(extrema, global, 2, MPI_DOUBLE, MPI_MAX, SU2_MPI::GetComm());
+      SU2_MPI::Allreduce(&minimum, &globalMinimum, 1, MPI_DOUBLE, MPI_MIN, SU2_MPI::GetComm());
+      const double thickness = (global[1] - globalMinimum) / (global[0] + EPS);
+      REQUIRE(thickness > 0);
+      CHECK(solver->GetFlameThickness() == Approx(std::min(1.0, thickness)).epsilon(1e-8));
+      double factor = 1;
+      for (auto p = 0ul; p < geometry->GetnPointDomain(); ++p) {
+        const double expected = std::max(1.0, SU2_TYPE::GetValue(geometry->nodes->GetVolume(p)) /
+                                             (thickness * thickness));
+        factor = std::max(factor, expected);
+        CHECK(nodes->GetDiffusivity(p, 0) == Approx(0.02 * expected).epsilon(1e-8));
+      }
+      double globalFactor = 1;
+      SU2_MPI::Allreduce(&factor, &globalFactor, 1, MPI_DOUBLE, MPI_MAX, SU2_MPI::GetComm());
+      REQUIRE(globalFactor > 1.01);
+      return globalFactor;
+    };
+    std::vector<double> factors;
+    for (double step : {0.0, 1.0, -1.0, 0.0}) {
+      equations->SetTrial(direction, step, scale);
+      REQUIRE(Residual(*equations, false, true));
+      factors.push_back(checkTarget());
+    }
+    CHECK(std::abs(factors[1] - factors[2]) > 1e-5);
+    CHECK(factors.front() == Approx(factors.back()).epsilon(1e-12));
+    REQUIRE(equations->Restore());
+    CHECK(equations->GetRestorationError() == 0);
+    auto isFree = [](const CNewtonEquationSet::Block& block, unsigned long p, unsigned short v) {
+      return !block.solver->Jacobian.IsPrescribedRow(p, v);
+    };
+    auto centered = [&](double step) {
+      auto positive = scale, negative = scale;
+      equations->SetTrial(direction, step, scale, isFree);
+      REQUIRE(Residual(*equations));
+      equations->CopyResidual(positive);
+      equations->SetTrial(direction, -step, scale, isFree);
+      REQUIRE(Residual(*equations));
+      equations->CopyResidual(negative);
+      positive -= negative;
+      positive *= 0.5 / step;
+      return positive;
+    };
+    const auto reference = centered(5e-6);
+    auto refinement = centered(1e-5);
+    refinement -= reference;
+    CHECK(refinement.norm() < 1e-5 * reference.norm());
+    REQUIRE(equations->Restore());
+    auto diagonal = MakeVector(driver, equations->GetnVar()), product = diagonal;
+    CNewtonLinearization linearization(*equations, geometry, driver.Config());
+    bool valid = false;
+    SU2_OMP_PARALLEL {
+      const bool base = linearization.SetBase(scale, diagonal, 1e-7, 1e-4, isFree);
+      const bool applied = base && linearization.Apply(direction, product, false);
+      SU2_OMP_MASTER
+      valid = applied;
+      END_SU2_OMP_MASTER
+    }
+    END_SU2_OMP_PARALLEL
+    REQUIRE(valid);
+    product -= reference;
+    INFO("active thickening centered product defect=" << product.norm() / reference.norm());
+    CHECK(product.norm() < 2e-4 * reference.norm());
+    REQUIRE(equations->Restore());
+    for (auto p = 0ul; p < geometry->GetnPoint(); ++p) nodes->SetSolution(p, 0, 1.0);
+    REQUIRE(Residual(*equations, false, true));
+    for (auto p = 0ul; p < geometry->GetnPointDomain(); ++p)
+      CHECK(nodes->GetDiffusivity(p, 0) == Approx(0.02));
+    SU2_OMP_PARALLEL {
+      solver->Preprocessing(geometry, driver.Solvers(), driver.Config(), MESH_0, NO_RK_ITER,
+                            RUNTIME_SPECIES_SYS, false);
+    }
+    END_SU2_OMP_PARALLEL
+    driver.Config()->SetEquationSettings(settings);
+    REQUIRE(std::isfinite(SU2_TYPE::GetValue(solver->GetFlameThickness())));
+    REQUIRE(solver->GetFlameThickness() > 0);
+    // A native update after all trials must relax from the original history, not from any trial target.
+    CHECK(solver->GetFlameThickness() == Approx(0.95 * nativeHistory + 0.05).epsilon(1e-12));
+    for (auto p = 0ul; p < geometry->GetnPointDomain(); ++p) {
+      CHECK(std::isfinite(SU2_TYPE::GetValue(nodes->GetDiffusivity(p, 0))));
+      CHECK(nodes->GetDiffusivity(p, 0) >= 0.02);
+    }
+  }
+}
+
+TEST_CASE("Flamelet probes resolve coupled gradients near a uniform hot field", "[NewtonFlameletProbe]") {
+  for (double lengthX : {0.05, 0.005}) for (bool coupled : {false, true}) {
+    CAPTURE(lengthX, coupled);
+    Problem problem(flamelet + "THICKENED_FLAME_CORRECTION= YES\n", 9, false, false, lengthX);
+    auto& driver = *problem.driver;
+    auto* geometry = driver.Geometry();
+    auto* nodes = driver.Solvers()[SPECIES_SOL]->GetNodes();
+    auto equations = problem.Equations(coupled ? std::vector<unsigned short>{RUNTIME_FLOW_SYS, RUNTIME_SPECIES_SYS}
+                                             : std::vector<unsigned short>{RUNTIME_SPECIES_SYS});
+    for (auto p = 0ul; p < geometry->GetnPoint(); ++p) {
+      const double x = geometry->nodes->GetCoord(p, 0) / lengthX, y = geometry->nodes->GetCoord(p, 1);
+      // Separate gradient extrema across y so centered references do not cross a nearly tied maximum.
+      nodes->SetSolution(p, 0, 0.4 + 1e-5 * ((1 + 0.2 * y) * std::sin(2 * PI_NUMBER * x + 0.17) + 0.1 * y * y));
+      nodes->SetSolution(p, 1, 0.0);
+    }
+    REQUIRE(Residual(*equations));
+    equations->Capture();
+    auto scale = MakeVector(driver, equations->GetnVar()), probe = scale, direction = scale;
+    equations->BuildScales(scale, probe);
+    direction = 0.0;
+    auto isFree = [](const CNewtonEquationSet::Block& block, unsigned long p, unsigned short v) {
+      return !block.solver->Jacobian.IsPrescribedRow(p, v);
+    };
+    for (const auto& block : equations->GetBlocks())
+      for (auto p = 0ul; p < geometry->GetnPoint(); ++p) {
+        const double x = geometry->nodes->GetCoord(p, 0) / lengthX, y = geometry->nodes->GetCoord(p, 1);
+        if (block.slot == SPECIES_SOL) {
+          direction(p, block.offset) = 0.01 * std::sin(0.3 + 3 * x + y);
+          direction(p, block.offset + 1) = 0.1 * std::sin(0.4 + x + 2 * y);
+        }
+      }
+    auto centered = [&](double step) {
+      auto positive = scale, negative = scale;
+      equations->SetTrial(direction, step, scale, isFree);
+      REQUIRE(Residual(*equations));
+      equations->CopyResidual(positive);
+      equations->SetTrial(direction, -step, scale, isFree);
+      REQUIRE(Residual(*equations));
+      equations->CopyResidual(negative);
+      for (auto i = 0ul; i < positive.GetLocSize(); ++i)
+        positive[i] = (positive[i] - negative[i]) / (2 * step * scale[i]);
+      return positive;
+    };
+    const auto reference = centered(5e-9);
+    auto refinement = centered(1e-8);
+    refinement -= reference;
+    REQUIRE(reference.norm() > 0);
+    CHECK(refinement.norm() < 1e-5 * reference.norm());
+    REQUIRE(equations->Restore());
+    auto diagonal = MakeVector(driver, equations->GetnVar()), product = diagonal;
+    CNewtonLinearization linearization(*equations, geometry, driver.Config());
+    bool valid = false;
+    SU2_OMP_PARALLEL {
+      const double step = 1e-7 * std::sqrt(equations->GetnVar() * geometry->GetGlobal_nPointDomain());
+      const bool base = linearization.SetBase(scale, diagonal, step, 1e-4, isFree, &probe);
+      const bool applied = base && linearization.Apply(direction, product, false);
+      SU2_OMP_MASTER
+      valid = applied;
+      END_SU2_OMP_MASTER
+    }
+    END_SU2_OMP_PARALLEL
+    REQUIRE(valid);
+    product -= reference;
+    INFO("near-uniform thickening centered defect=" << product.norm() / reference.norm());
+    CHECK(product.norm() < 2e-4 * reference.norm());
+    for (const auto& block : equations->GetBlocks()) {
+      auto error = product, expected = reference;
+      for (auto p = 0ul; p < geometry->GetnPoint(); ++p)
+        for (auto j = 0u; j < equations->GetnVar(); ++j)
+          if (j < block.offset || j >= block.offset + block.variables) error(p, j) = expected(p, j) = 0;
+      INFO("runtime=" << block.runtime << ", block centered defect=" << error.norm() / expected.norm());
+      CHECK(error.norm() < 2e-4 * expected.norm());
+    }
+    REQUIRE(equations->Restore());
+    CHECK(equations->GetRestorationError() == 0);
+  }
+}
+
+TEST_CASE("Flame thickness uses extrema from every native worker", "[NewtonFlameletReduction]") {
+  Problem problem(flamelet + "THICKENED_FLAME_CORRECTION= YES\n", 33, false, false, 1e-6);
+  auto& driver = *problem.driver;
+  auto* geometry = driver.Geometry();
+  auto* solver = driver.Solvers()[SPECIES_SOL];
+  auto* nodes = solver->GetNodes();
+  auto* flow = driver.Solvers()[FLOW_SOL]->GetNodes();
+  auto equations = problem.Equations({RUNTIME_FLOW_SYS, RUNTIME_SPECIES_SYS});
+  for (auto p = 0ul; p < geometry->GetnPoint(); ++p) {
+    const double x = geometry->nodes->GetCoord(p, 0) / 1e-6;
+    nodes->SetSolution(p, 0, 0.2 + 0.4 * x);
+  }
+  // Match the native scalar light-loop partition to isolate a nonmaster contribution.
+  const auto chunk = computeStaticChunkSize(geometry->GetnPoint(), omp_get_max_threads(), 512);
+  SU2_OMP_PARALLEL {
+    SU2_OMP_FOR_STAT(chunk)
+    for (auto p = 0ul; p < geometry->GetnPointDomain(); ++p) {
+      // Only nonmaster workers contribute to the projected gradient in a threaded run.
+      const bool moving = omp_get_num_threads() == 1 || omp_get_thread_num() != 0;
+      flow->SetSolution(p, 1, moving ? 1.0 : 0.0);
+      flow->SetSolution(p, 2, 0.0);
+    }
+    END_SU2_OMP_FOR
+  }
+  END_SU2_OMP_PARALLEL
+  REQUIRE(Residual(*equations));
+  REQUIRE(Residual(*equations));
+  const auto settings = driver.Config()->GetEquationSettings();
+  SU2_OMP_PARALLEL {
+    solver->Preprocessing(geometry, driver.Solvers(), driver.Config(), MESH_0, NO_RK_ITER,
+                          RUNTIME_SPECIES_SYS, false);
+  }
+  END_SU2_OMP_PARALLEL
+  driver.Config()->SetEquationSettings(settings);
+  // T=300+100*progress and h=0 make grad(T) parallel to grad(progress).
+  double maxima[2] = {}, minimum = 1, globalMaxima[2] = {}, globalMinimum = 1;
+  for (auto p = 0ul; p < geometry->GetnPointDomain(); ++p) {
+    const double progress = SU2_TYPE::GetValue(nodes->GetSolution(p, 0));
+    maxima[1] = std::max(maxima[1], progress);
+    minimum = std::min(minimum, progress);
+    double weighted = 0, gradient2 = 0;
+    for (auto d = 0u; d < geometry->GetnDim(); ++d) {
+      const double gradient = SU2_TYPE::GetValue(nodes->GetGradient(p, 0, d));
+      const double velocity = SU2_TYPE::GetValue(flow->GetVelocity(p, d));
+      weighted += gradient * gradient * velocity * velocity;
+      gradient2 += gradient * gradient;
+    }
+    const double velocity2 = SU2_TYPE::GetValue(flow->GetVelocity2(p));
+    const double projected = weighted / ((velocity2 + EPS) * std::max(std::sqrt(gradient2), EPS));
+    maxima[0] = std::max(maxima[0], projected);
+  }
+  SU2_MPI::Allreduce(maxima, globalMaxima, 2, MPI_DOUBLE, MPI_MAX, SU2_MPI::GetComm());
+  SU2_MPI::Allreduce(&minimum, &globalMinimum, 1, MPI_DOUBLE, MPI_MIN, SU2_MPI::GetComm());
+  const double thickness = (globalMaxima[1] - globalMinimum) / (globalMaxima[0] + EPS);
+  REQUIRE(thickness > 0);
+  double maximumFactor = 1, globalFactor = 0;
+  for (auto p = 0ul; p < geometry->GetnPointDomain(); ++p) {
+    const double volume = SU2_TYPE::GetValue(geometry->nodes->GetVolume(p));
+    const double factor = std::max(1.0, volume / (thickness * thickness));
+    maximumFactor = std::max(maximumFactor, factor);
+    CHECK(nodes->GetDiffusivity(p, 0) == Approx(0.02 * factor).epsilon(1e-8));
+  }
+  SU2_MPI::Allreduce(&maximumFactor, &globalFactor, 1, MPI_DOUBLE, MPI_MAX, SU2_MPI::GetComm());
+  REQUIRE(globalFactor > 1.01);
+  std::vector<double> localDiffusivity(geometry->GetGlobal_nPointDomain(), 0), ownerDiffusivity(localDiffusivity.size());
+  for (auto p = 0ul; p < geometry->GetnPointDomain(); ++p)
+    localDiffusivity[geometry->nodes->GetGlobalIndex(p)] = SU2_TYPE::GetValue(nodes->GetDiffusivity(p, 0));
+  SU2_MPI::Allreduce(localDiffusivity.data(), ownerDiffusivity.data(), ownerDiffusivity.size(), MPI_DOUBLE, MPI_SUM,
+                     SU2_MPI::GetComm());
+  for (auto p = geometry->GetnPointDomain(); p < geometry->GetnPoint(); ++p) {
+    INFO("halo=" << geometry->nodes->GetGlobalIndex(p));
+    CHECK(nodes->GetDiffusivity(p, 0) == Approx(ownerDiffusivity[geometry->nodes->GetGlobalIndex(p)]).epsilon(1e-10));
+  }
+}
+
+TEST_CASE("Newton flamelet groups use the physical target without changing native history", "[NewtonFlameletOwner]") {
+  const std::vector<std::vector<unsigned short>> groups = {
+      {RUNTIME_FLOW_SYS}, {RUNTIME_SPECIES_SYS}, {RUNTIME_FLOW_SYS, RUNTIME_SPECIES_SYS}};
+  for (const auto& selected : groups) {
+    CAPTURE(selected.size(), selected.front());
+    auto prepare = [&](Problem& problem) {
+      auto& driver = *problem.driver;
+      auto* geometry = driver.Geometry();
+      auto* solver = driver.Solvers()[SPECIES_SOL];
+      auto* nodes = solver->GetNodes();
+      auto equations = problem.Equations(selected);
+      for (bool sharp : {true, false}) {
+        for (auto p = 0ul; p < geometry->GetnPoint(); ++p) {
+          const double x = geometry->nodes->GetCoord(p, 0) / 0.05, y = geometry->nodes->GetCoord(p, 1);
+          nodes->SetSolution(p, 0, sharp ? 0.4 + 0.18 * std::sin(2 * PI_NUMBER * x) + 0.02 * y
+                                        : 0.4 + 0.14 * std::sin(2 * PI_NUMBER * x + 0.2) + 0.01 * y);
+          nodes->SetSolution(p, 1, 0.05 * x - 0.02 * y);
+          nodes->SetSolution(p, 2, 0.1 + 0.04 * y);
+        }
+        REQUIRE(Residual(*equations));
+        if (sharp) {
+          const auto settings = driver.Config()->GetEquationSettings();
+          SU2_OMP_PARALLEL {
+            solver->Preprocessing(geometry, driver.Solvers(), driver.Config(), MESH_0, NO_RK_ITER,
+                                  RUNTIME_SPECIES_SYS, false);
+          }
+          END_SU2_OMP_PARALLEL
+          driver.Config()->SetEquationSettings(settings);
+        }
+      }
+      for (auto slot : {FLOW_SOL, SPECIES_SOL}) driver.Solvers()[slot]->Set_OldSolution();
+      REQUIRE(Residual(*equations, true));
+      if (std::find(selected.begin(), selected.end(), RUNTIME_FLOW_SYS) == selected.end()) {
+        const auto settings = driver.Config()->GetEquationSettings();
+        SU2_OMP_PARALLEL {
+          SU2_OMP_SAFE_GLOBAL_ACCESS(driver.Config()->SetGlobalParam(driver.Config()->GetKind_Solver(), RUNTIME_FLOW_SYS);)
+          driver.Solvers()[FLOW_SOL]->SetTime_Step(geometry, driver.Solvers(), driver.Config(), MESH_0, 0);
+        }
+        END_SU2_OMP_PARALLEL
+        driver.Config()->SetEquationSettings(settings);
+      }
+      return equations;
+    };
+    const auto config = flamelet + "THICKENED_FLAME_CORRECTION= YES\nCFL_NUMBER= 0.05\nLINEAR_SOLVER_PREC= ILU\n";
+    Problem reference(config, 9, false, false, 0.05);
+    auto equations = prepare(reference);
+    equations->Capture();
+    auto scale = MakeVector(*reference.driver, equations->GetnVar()), probe = scale, residual = scale;
+    equations->BuildScales(scale, probe);
+    equations->CopyResidual(residual);
+    for (auto i = 0ul; i < residual.GetLocSize(); ++i) residual[i] /= scale[i];
+    const double expectedMerit = 0.5 * residual.squaredNorm();
+    double minimumEnthalpyScale = std::numeric_limits<double>::infinity(), maximumEnthalpyScale = 0;
+    for (const auto& block : equations->GetBlocks())
+      if (block.slot == SPECIES_SOL)
+        for (auto p = 0ul; p < reference.driver->Geometry()->GetnPointDomain(); ++p) {
+          minimumEnthalpyScale = std::min(minimumEnthalpyScale, scale(p, block.offset + 1));
+          maximumEnthalpyScale = std::max(maximumEnthalpyScale, scale(p, block.offset + 1));
+          const auto* flow = reference.driver->Solvers()[FLOW_SOL]->GetNodes();
+          const double thermal = SU2_TYPE::GetValue(equations->MassFactor(block, p) *
+              flow->GetSpecificHeatCp(p) * flow->GetTemperature(p));
+          CHECK(scale(p, block.offset + 1) == Approx(thermal).epsilon(1e-12));
+        }
+    INFO("enthalpy scales=" << minimumEnthalpyScale << ".." << maximumEnthalpyScale);
+    Problem actual(config, 9, false, false, 0.05);
+    auto prepared = prepare(actual);
+    CHECK(prepared->GetnVar() == equations->GetnVar());
+    NonlinearGlobalization::Options<> options;
+    options.adaptCFL = options.adaptiveForcing = options.diagnostics = false;
+    CNewtonIntegration integration(selected, options);
+    integration.Iterate(actual.driver->Geometry(), actual.driver->Solvers(), actual.driver->Numerics(),
+                        actual.driver->Config());
+    INFO(integration.GetNumericalFailureMessage());
+    const auto attempt = integration.GetLastAttempt();
+    INFO("iterations=" << attempt.linearIterations << ", reported=" << attempt.reportedLinearResidual
+                        << ", true defect=" << attempt.linearDefect << ", merit=" << attempt.base);
+    REQUIRE_FALSE(integration.GetNumericalFailure());
+    CHECK(attempt.base == Approx(expectedMerit).epsilon(1e-11));
+    REQUIRE(attempt.search.status == Armijo::Status::Accepted);
+    REQUIRE(attempt.search.step > 0);
+    CHECK(attempt.linearIterations > 0);
+    CHECK(attempt.linearDefect <= options.etaMax);
+    const auto acceptedThickness = actual.driver->Solvers()[SPECIES_SOL]->GetFlameThickness();
+    auto accepted = MakeVector(*actual.driver, prepared->GetnVar()), refreshed = accepted;
+    prepared->CopyResidual(accepted);
+    REQUIRE(Residual(*prepared, false, true));
+    CHECK(actual.driver->Solvers()[SPECIES_SOL]->GetFlameThickness() == acceptedThickness);
+    prepared->CopyResidual(refreshed);
+    refreshed -= accepted;
+    CHECK(refreshed.norm() < 1e-12 * std::max(accepted.norm(), 1.0));
+    CHECK_FALSE(actual.driver->Config()->GetFrozenIterationHistory());
   }
 }
 
@@ -3095,6 +3591,35 @@ TEST_CASE("Report physical residuals from an independent restart", "[.][NewtonSt
     if (activity[0]) gammaMean /= activity[0];
     else gammaMin = gammaMax = gammaMean = 0;
   }
+  const bool flameletModel = config->GetKind_Species_Model() == SPECIES_MODEL::FLAMELET;
+  std::vector<double> minimumDiffusivity, maximumDiffusivity;
+  unsigned long pointsOutsideTable = 0;
+  if (flameletModel) {
+    const auto* nodes = solvers[SPECIES_SOL]->GetNodes();
+    const auto variables = solvers[SPECIES_SOL]->GetnVar();
+    std::vector<double> localMinimum(variables, std::numeric_limits<double>::infinity()), localMaximum(variables, 0);
+    minimumDiffusivity.resize(variables);
+    maximumDiffusivity.resize(variables);
+    unsigned long localOutside = 0;
+    const double thickness = SU2_TYPE::GetValue(solvers[SPECIES_SOL]->GetFlameThickness());
+    int invalid = !std::isfinite(thickness) || !(thickness > 0), globalInvalid = 0;
+    for (auto p = 0ul; p < geometry->GetnPointDomain(); ++p) {
+      localOutside += nodes->GetTableMisses(p) != 0;
+      for (auto v = 0u; v < variables; ++v) {
+        const double value = SU2_TYPE::GetValue(nodes->GetDiffusivity(p, v));
+        if (!std::isfinite(value) || !(value > 0)) invalid = 1;
+        else {
+          localMinimum[v] = std::min(localMinimum[v], value);
+          localMaximum[v] = std::max(localMaximum[v], value);
+        }
+      }
+    }
+    SU2_MPI::Allreduce(&invalid, &globalInvalid, 1, MPI_INT, MPI_MAX, SU2_MPI::GetComm());
+    REQUIRE(globalInvalid == 0);
+    SU2_MPI::Allreduce(localMinimum.data(), minimumDiffusivity.data(), variables, MPI_DOUBLE, MPI_MIN, SU2_MPI::GetComm());
+    SU2_MPI::Allreduce(localMaximum.data(), maximumDiffusivity.data(), variables, MPI_DOUBLE, MPI_MAX, SU2_MPI::GetComm());
+    SU2_MPI::Allreduce(&localOutside, &pointsOutsideTable, 1, MPI_UNSIGNED_LONG, MPI_SUM, SU2_MPI::GetComm());
+  }
   if (SU2_MPI::GetRank() == MASTER_NODE) {
     std::ofstream output(outputPath);
     REQUIRE(output.good());
@@ -3131,6 +3656,14 @@ TEST_CASE("Report physical residuals from an independent restart", "[.][NewtonSt
              << "\",\"gamma_min\":" << gammaMin << ",\"gamma_max\":" << gammaMax << ",\"gamma_mean\":" << gammaMean
              << ",\"sampled_points\":" << activity[0] << ",\"gamma_below_0_1\":" << activity[1]
              << ",\"gamma_0_1_to_0_9\":" << activity[2] << ",\"gamma_above_0_9\":" << activity[3] << '}';
+    if (flameletModel) {
+      output << ",\"flamelet_transport\":{\"diffusivity_min\":";
+      array(minimumDiffusivity.size(), [&](unsigned v) { return minimumDiffusivity[v]; });
+      output << ",\"diffusivity_max\":";
+      array(maximumDiffusivity.size(), [&](unsigned v) { return maximumDiffusivity[v]; });
+      output << ",\"points_outside_table\":" << pointsOutsideTable
+             << ",\"thickness\":" << solvers[SPECIES_SOL]->GetFlameThickness() << '}';
+    }
     output << "}\n";
     REQUIRE(output.good());
   }

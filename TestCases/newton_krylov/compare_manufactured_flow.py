@@ -107,13 +107,19 @@ def main(case=MMS_CASE):
         command = ['mpirun', '--bind-to', 'none', '-n', str(args.ranks), '/bin/sh', '-c', measured,
                    'measure', str(binary), config.name]
         started = time.perf_counter()
+        timed_out = False
         with (directory / 'log.txt').open('w') as log:
-            process = subprocess.run(command, cwd=directory, env=dict(os.environ, OMP_NUM_THREADS=str(args.threads)),
-                                     stdout=log, stderr=subprocess.STDOUT, timeout=180)
-        run = {'mode': mode, 'command': command, 'exit_code': process.returncode,
+            try:
+                process = subprocess.run(command, cwd=directory, env=dict(os.environ, OMP_NUM_THREADS=str(args.threads)),
+                                         stdout=log, stderr=subprocess.STDOUT, timeout=case.get('wall_timeout', 180))
+            except subprocess.TimeoutExpired:
+                timed_out = True
+        run = {'mode': mode, 'command': command, 'exit_code': None if timed_out else process.returncode,
+               'timed_out': timed_out, 'wall_timeout_seconds': case.get('wall_timeout', 180),
                'wall_seconds': time.perf_counter() - started, 'config_sha256': sha(config)}
         result['runs'].append(run)
         (output / 'results.json').write_text(json.dumps(result, indent=2) + '\n')
+        assert not timed_out, 'Wall-time limit reached: ' + str(directory)
         assert process.returncode == 0, directory
         resources = [json.loads((directory / ('resource_rank_%d.json' % rank)).read_text())
                      for rank in range(args.ranks)]
@@ -174,6 +180,13 @@ def main(case=MMS_CASE):
             assert max(physical['normalized_rms']) <= case['normalized_rms']
             assert max(physical['projection_max']) <= (case['projection'] if mode == 'native' else 0)
         run['physical'] = report
+        if case.get('flamelet_diffusivity'):
+            transport = report['flamelet_transport']
+            assert transport['points_outside_table'] == 0
+            assert math.isfinite(transport['thickness']) and 0 < transport['thickness'] < 1
+            assert abs(float(history[-1]['flamethickness']) - transport['thickness']) <= 1e-9
+            assert min(transport['diffusivity_min']) >= case['flamelet_diffusivity'] * (1 - 1e-10)
+            assert max(transport['diffusivity_max']) > 1.01 * case['flamelet_diffusivity'], transport
         if case.get('transition_model'):
             activity = report['transition_activity']
             assert activity['model'] == case['transition_model']
@@ -189,6 +202,11 @@ def main(case=MMS_CASE):
                 key: abs(activity[key] - reference_activity[key]) for key in ['gamma_min', 'gamma_max', 'gamma_mean']}
             assert max(run['transition_activity_difference_from_native'].values()) <= case['quantity_tolerance']
         fields, solution = state(restart, 2 + variables)
+        if case.get('minimum_progress_range'):
+            j = fields[2:].index('ProgressVariable')
+            values = [row[j] for row in solution.values()]
+            run['progress_range'] = [min(values), max(values)]
+            assert max(values) - min(values) >= case['minimum_progress_range']
         if case.get('minimum_species_range'):
             indices = [j for j, name in enumerate(fields[2:]) if name.startswith('Species_')]
             assert len(indices) == len(case['fields']['species'])

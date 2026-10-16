@@ -71,7 +71,8 @@ if get_option('enable-tests')
         'newton_equation_tests',
         files('SU2_CFD/newton_equations.cpp', 'test_driver.cpp'),
         dependencies : [su2_cfd_dep, common_dep, su2_deps, catch2_dep],
-        cpp_args: ['-fPIC', default_warning_flags, su2_cpp_args]
+        cpp_args: ['-fPIC', default_warning_flags, su2_cpp_args,
+                   '-DSU2_UNIT_TEST_SOURCE_DIR="' + meson.current_source_dir() + '"']
     )
     test('Newton equation integration tests', newton_equation_tests)
 

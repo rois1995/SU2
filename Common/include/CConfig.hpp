@@ -438,6 +438,7 @@ private:
   unsigned short nQuasiNewtonSamples;  /*!< \brief Number of samples used in quasi-Newton solution methods. */
   bool UseVectorization;       /*!< \brief Whether to use vectorized numerics schemes. */
   bool residualOnly = false; /*!< \brief Suppress implicit assembly across equation switches in trial evaluations. */
+  bool frozenIterationHistory = false; /*!< \brief Hold outer model history during residual and matrix evaluations. */
   bool NewtonKrylov;           /*!< \brief Use a coupled Newton method to solve the flow equations. */
   NonlinearGlobalization::Options<su2double> sstNewtonOptions, newtonOptions;
   unsigned short nNewtonEquations = 0;
@@ -2546,22 +2547,25 @@ public:
     CENTERED centered;
     UPWIND upwind;
     LIMITER limiter;
-    bool muscl, residualOnly;
+    bool muscl, residualOnly, frozenIterationHistory;
     su2double kappa, physicalTime, physicalTimeND;
   };
   EquationSettings GetEquationSettings() const {
     return {Kind_ConvNumScheme, Kind_TimeNumScheme, Kind_FEM, Kind_Centered, Kind_Upwind, Kind_SlopeLimit,
-            MUSCL, residualOnly, MUSCL_Kappa, Current_UnstTime, Current_UnstTimeND};
+            MUSCL, residualOnly, frozenIterationHistory, MUSCL_Kappa, Current_UnstTime, Current_UnstTimeND};
   }
   void SetEquationSettings(const EquationSettings& state) {
     SetKind_ConvNumScheme(state.convection, state.centered, state.upwind, state.limiter,
                           state.muscl, state.kappa, state.fem);
     Kind_TimeNumScheme = state.time;
     residualOnly = state.residualOnly;
+    frozenIterationHistory = state.frozenIterationHistory;
     Current_UnstTime = state.physicalTime;
     Current_UnstTimeND = state.physicalTimeND;
   }
   void SetResidualOnly(bool value) { residualOnly = value; }
+  bool GetFrozenIterationHistory() const { return frozenIterationHistory; }
+  void SetFrozenIterationHistory(bool value) { frozenIterationHistory = value; }
 
   /*!
    * \brief Set the parameters of the convective numerical scheme.

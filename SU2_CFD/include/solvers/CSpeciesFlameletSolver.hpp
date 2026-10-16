@@ -39,7 +39,9 @@ class CSpeciesFlameletSolver final : public CSpeciesSolver {
  private:
   const su2double default_flame_thickness{1.0};
   su2double global_flame_thickness;
+  su2double applied_flame_thickness{1.0};
   bool calc_flame_thickness{false};
+  CSysVector<su2double> flame_volume;
   FluidFlamelet_ParsedOptions flamelet_config_options;
   bool include_mixture_fraction = false; /*!< \brief include mixture fraction as a controlling variable. */
   /*!< \brief Number of points outside the manifold domain, shared across OpenMP threads so it can be
@@ -116,11 +118,11 @@ class CSpeciesFlameletSolver final : public CSpeciesSolver {
   
   /*!
    * \brief Calculate correction factor for flame propagation on coarse grids.
-   * \param[in] geometry - Geometrical definition of the problem.
    * \param[in] iPoint - node ID.
+   * \param[in] flame_thickness - current physical or native relaxed thickness.
    * \return - flame thickness correction factor.
    */                                              
-  su2double ThickenedFlameCorrection(const CGeometry* geometry, unsigned long iPoint) const;   
+  su2double ThickenedFlameCorrection(unsigned long iPoint, su2double flame_thickness) const;
 
   /*!
    * \brief Approximate the minimum flame thickness value used for the thickened flame model.
@@ -238,5 +240,5 @@ class CSpeciesFlameletSolver final : public CSpeciesSolver {
    * \brief Obtain the overall flame thickness value.
    * \return flame thickness value.
    */
-  su2double GetFlameThickness() const override {return global_flame_thickness;}
+  su2double GetFlameThickness() const override {return applied_flame_thickness;}
 };
