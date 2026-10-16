@@ -1,0 +1,9 @@
+{
+  "status": "FAIL_AUDIT_FACET_ALIAS_ASSUMPTION",
+  "native_status": "PASS_REUSED_NO_SOLVER_RERUN",
+  "failure": "assert f['facet'] not in facets; existing exports canonicalize some coplanar face aliases",
+  "receipt_sha256": "0f69d18ce2142605c120c6852d656fa99bd05e2867014f9a1ca5af29c31e1c2d",
+  "helper_snapshot_sha256": "c5c491c5155d437ccec28eec2b89248c810e942dab1e3d9bd4885069c1f75f71",
+  "snapshot_scope": "Reconstructed original helper before the known alias fix; no runtime hash had been captured before its early assertion. Native receipt/artifacts remain independently pinned.",
+  "correction": "Reconstruct the same finite coplanar union with explicit synthetic child IDs and retained canonical root IDs; no production/field/geometry/gate change."
+}

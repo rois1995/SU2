@@ -665,6 +665,8 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
   if (!ready) return finish();
   // A complete visible radial region is constructed as one transaction, never as a larger local cavity.
   const auto global_original=CPassiveComm::Allreduce(uint64_t(original.size()),CPassiveComm::Op::SUM,world.comm);
+  const bool prismatic=!repairing && options.region_walls.size()==options.wall_heights.size() &&
+      (!coarsening || options.wall_heights.empty()) && PrismaticWallRegion(geometry,options.region_walls);
   bool region_applicable=curved && !repairing && options.region_walls.size()<=1 &&
       options.region_walls.size()==options.wall_heights.size() &&
       (!coarsening || options.wall_heights.empty());
@@ -687,11 +689,19 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     }
     region_applicable=region_applicable && walls.size()==1;
   }
+  region_applicable=region_applicable || prismatic;
   const int region_lo=CPassiveComm::Allreduce(int(region_applicable),CPassiveComm::Op::MIN,world.comm);
   const int region_hi=CPassiveComm::Allreduce(int(region_applicable),CPassiveComm::Op::MAX,world.comm);
   if(region_lo!=region_hi){result.reason="Native3D region applicability differs across workers.";return finish();}
   if(region_applicable) {
     region_active=true;region_started=Clock::now();CLocalFailure failure;
+    // Fresh regional identities must also exceed frozen donor identities after earlier coarsening.
+    for(const auto& donor:original) {
+      maximum_cell=std::max(maximum_cell,donor.cell.id);
+      for(auto node:donor.cell.v)maximum_node=std::max(maximum_node,node.id);
+    }
+    maximum_node=CPassiveComm::Allreduce(maximum_node,CPassiveComm::Op::MAX,world.comm);
+    maximum_cell=CPassiveComm::Allreduce(maximum_cell,CPassiveComm::Op::MAX,world.comm);
     const size_t global_input=CPassiveComm::Allreduce(working.size(),CPassiveComm::Op::SUM,world.comm);
     // shortcut: a bounded single-worker visible region; partition into connected regions for large sources.
     const size_t region_cells=stats.work_limit;

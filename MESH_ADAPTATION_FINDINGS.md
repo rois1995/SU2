@@ -5715,3 +5715,29 @@ nonconservative. All planned current integration stages are complete; all owned
 jobs terminal. Full Goal3 remains incomplete. Current evidence is
 region_construction_v1/coarsened_fronts_v1_summary.json. No production change was
 needed after publishedf9a6af4a09 to pass these integration checks.
+
+
+## 2026-10-16 — complete overlapping opposite-wall construction
+
+Existing local operators exhaust4096 work on the unchanged six-tet unit-gap
+h.02/g1.2/T.6-per-wall/frozen sensor4*(1+3*x) I target, leaving30 private cells
+and no accepted metric repair. A complete independently audited1920-cell proposal
+establishes feasibility. The new geometry-certified finite-right-prism constructor
+joins both prescribed rows through shared actual-metric fronts, with cap refinement,
+coherent volume/side triangulation, bounded planning and the unchanged whole-region
+validator/source service/atomic publication. No BL-free core is required.
+
+Native serial6->1920 BL->250 sensor-only now passes, work2309/1269. Independent
+exact embedding/manifold/finite geometry/height/source field/full edges pass:
+BL q.467316/J.193160/L1.668063 across2674 edges; removal q.254034/J.121529/
+L1.779941. Exact front coverage certifies all20 height slabs,46 wall-node normal
+edges and minimum off-wall clearance.02; centroid tilt13.1762 remains separate.
+The admission Project API misuse and audit facet-alias assumption are preserved
+failures, corrected without changing target/gates or repeating accepted native work.
+
+This is an aligned finite right-prism class on one worker. MPI and actual backend
+Refine-then-Coarsen/current-BDF/CFD/restart on this geometry remain pending; direct
+engine Coarsen success is not full workflow proof. Perpendicular/nonprismatic wall
+junctions, arbitrary interaction/exterior geometry, viscous accuracy and complete
+lifecycle affordability remain full Goal3 gates. See interacting_walls_v1/summary.json
+and Handbook/GOAL3_INTERACTING_WALLS.md. Full Goal3 remains active/incomplete.

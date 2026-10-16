@@ -2288,20 +2288,25 @@ namespace {
 #include "fixtures/native_bl_corner.inc"
 #include "fixtures/native_bl_cold.inc"
 #include "fixtures/native_bl_planar_wall.inc"
-void CoupledBL(bool grouped,unsigned replay=0,double strength=1) {
+void CoupledBL(bool grouped,unsigned replay=0,double strength=1,bool opposing=false) {
   World world;auto fixture=Box();const auto donorFixture=fixture;
   if(replay)fixture.patch=replay==2?BLColdObstruction():BLCornerObstruction();
-  if(grouped)for(auto& f:fixture.facets)f.marker=std::all_of(f.v.begin(),f.v.end(),[](Node n){return n.p.z==0;})?10:11;
-  const PlanarReference reference(fixture.facets);const std::string prefix=std::string(strength>1?"finer_":"")+(replay==2?"cold_replay_":replay?"replay_":"")+std::string(grouped?"grouped_":"");
+  if(grouped)for(auto& f:fixture.facets)f.marker=std::all_of(f.v.begin(),f.v.end(),[](Node n){return n.p.z==0;})?10:
+      opposing && std::all_of(f.v.begin(),f.v.end(),[](Node n){return n.p.z==1;})?12:11;
+  const PlanarReference reference(fixture.facets);const std::string prefix=std::string(opposing?"opposing_":"")+std::string(strength>1?"finer_":"")+(replay==2?"cold_replay_":replay?"replay_":"")+std::string(grouped?"grouped_":"");
   const auto input=Partition(Rows(fixture.patch),world),saved=input;
   auto original=Uniform(Partition(Rows(donorFixture.patch),world),{strength,0,0,strength,0,strength});
   auto allOriginal=Uniform(Partition(Rows(donorFixture.patch),World(MPI_COMM_SELF)),{strength,0,0,strength,0,strength});
   if(strength>1)for(auto* source:{&original,&allOriginal})for(auto& donor:*source)for(size_t k=0;k<4;++k) {
     const auto value=strength*(1+3*donor.cell.v[k].p.x);donor.sensor[k]={value,0,0,value,0,value};
   }
-  CBoundaryLayerMetric::Wall wall;wall.layer={"wall",.1,1.2,.3};
+  const double first=opposing?.02:.1,thickness=opposing?.6:.3;
+  CBoundaryLayerMetric::Wall wall;wall.layer={"wall",first,1.2,thickness};
   wall.coord={0,0,0,1,0,0,1,1,0,0,1,0};wall.conn={0,1,2,2,0,2,3,3};
-  CBoundaryLayerMetric layers(3,{wall});
+  std::vector<CBoundaryLayerMetric::Wall> walls{wall};
+  if(opposing){auto second=wall;second.layer.marker="opposite";for(size_t k=2;k<second.coord.size();k+=3)second.coord[k]=1;
+    second.conn={0,2,1,1,0,3,2,2};walls.push_back(std::move(second));}
+  CBoundaryLayerMetric layers(3,std::move(walls));
   const auto compose=[&](Point p,Tensor sensor) {
     CBoundaryLayerMetric::Tensor m;
     m.m[0][0]=sensor.xx;m.m[0][1]=m.m[1][0]=sensor.xy;m.m[0][2]=m.m[2][0]=sensor.xz;
@@ -2313,7 +2318,11 @@ void CoupledBL(bool grouped,unsigned replay=0,double strength=1) {
   EngineOptions options;options.timings=true;options.maximum_seconds=300;options.maximum_work=4096;
   options.edge_breakpoints=[&](Point a,Point b){return layers.EdgeBreakpoints({a.x,a.y,a.z},{b.x,b.y,b.z});};
   for(const auto& face:fixture.facets)
-    if(std::all_of(face.v.begin(),face.v.end(),[](Node n){return n.p.z==0;}))options.wall_heights[face.marker]=.1;
+    if(std::all_of(face.v.begin(),face.v.end(),[](Node n){return n.p.z==0;}) ||
+       (opposing && std::all_of(face.v.begin(),face.v.end(),[](Node n){return n.p.z==1;}))) {
+      options.wall_heights[face.marker]=first;
+      if(opposing)options.region_walls[face.marker]={first,1.2,thickness};
+    }
   auto exportMesh=[&](const Owned& owned,const std::string& name) {
     const auto rows=Gather(world,owned);if(world.rank)return;
     CSimplexMesh mesh;mesh.nDim=3;std::map<Id,unsigned long> nodes;std::map<int,size_t> markers;
@@ -2330,8 +2339,17 @@ void CoupledBL(bool grouped,unsigned replay=0,double strength=1) {
     }
     simplex_test::WriteSU2Mesh(mesh,prefix+name+"_n"+std::to_string(world.size)+".su2");
   };
+  Patch rejectedRegion;
+  if(opposing)options.rejected_trial=[&](const Patch&,const Patch& candidate,Feature,const MetricDiagnosis&,bool,const std::string&) {rejectedRegion=candidate;};
   exportMesh(input,replay?"saved_BL_input":"initial_euler");
   const auto refined=Refine(world,input,original,reference,compose,options);
+  if(opposing) {
+    Owned rejected;for(auto row:Rows(rejectedRegion))rejected.emplace(row.cell.id,row);
+    if(world.maximum(!rejected.empty())){exportMesh(rejected,"private_region_rejected");MeshRecords(prefix+"private_region_rejected",world,rejected);}
+    const auto attempts=world.maximum(refined.stats.region_attempts),fronts=world.maximum(refined.stats.region_transition_fronts);
+    if(!world.rank)std::cout<<"PRISMATIC_RESULT valid="<<refined.valid<<" region_attempts="<<attempts<<" fronts="<<fronts<<std::endl;
+    CHECK(attempts==1);
+  }
   EngineReport(refined,world,prefix+"coupled_BL");Log(world,"BL result: "+refined.reason+"\n");
   exportMesh(refined.cells,refined.valid?"constructed_BL":"constructed_BL_rejected");
   CHECK(Bytes(input)==Bytes(saved));
@@ -2359,11 +2377,11 @@ void CoupledBL(bool grouped,unsigned replay=0,double strength=1) {
   }
   CHECK_FALSE(world.maximum(!height));
   INFO(refined.reason);REQUIRE(refined.valid);CHECK_FALSE(world.maximum(!metric));
-  if(strength>1) {
+  if(strength>1 && !opposing) {
     CHECK(world.sum(int(refined.stats.wall_reconstruction_trials))>0);
     CHECK(world.sum(int(refined.stats.wall_reconstruction_accepted))>0);
   }
-  options.wall_heights.clear();options.edge_breakpoints={};
+  options.wall_heights.clear();options.region_walls.clear();options.edge_breakpoints={};
   const auto coarse=Coarsen(world,refined.cells,original,reference,{},options);
   EngineReport(coarse,world,prefix+"released_Euler");Log(world,"Euler result: "+coarse.reason+"\n");
   exportMesh(coarse.cells,coarse.valid?"released_euler":"released_euler_rejected");
@@ -2432,6 +2450,29 @@ TEST_CASE("Native composed BL startup preserves original geometry across MPI wor
 
 TEST_CASE("Native3D finer original sensor reconstructs wall children and releases the layer", "[.][NativeFinerSensorBL3D]") {
   CoupledBL(true,0,4.);
+}
+
+TEST_CASE("Native3D overlapping opposing wall layers reach a complete finer-sensor mesh", "[.][NativeOpposingBL3D]") {
+  CoupledBL(true,0,4.,true);
+}
+
+TEST_CASE("Prismatic admission certifies opposite caps and rejects slanted sides and wall junctions", "[NativePrismaticAdmission3D]") {
+  auto fixture=Box();
+  for(auto& f:fixture.facets)f.marker=std::all_of(f.v.begin(),f.v.end(),[](Node n){return n.p.z==0;})?10:
+      std::all_of(f.v.begin(),f.v.end(),[](Node n){return n.p.z==1;})?12:11;
+  const std::map<int,RegionWallPolicy> walls{{10,{.02,1.2,.6}},{12,{.02,1.2,.6}}};
+  const PlanarReference geometry(fixture.facets);CHECK(PrismaticWallRegion(geometry,walls));
+  CHECK_FALSE(PrismaticWallRegion(geometry,{}));
+  auto junction=walls;junction.emplace(11,RegionWallPolicy{.02,1.2,.6});CHECK_FALSE(PrismaticWallRegion(geometry,junction));
+  auto shear=fixture;for(auto& f:shear.facets)for(auto& n:f.v)n.p.x+=n.p.y;
+  CHECK(PrismaticWallRegion(PlanarReference(shear.facets),walls));
+  auto slanted=fixture;for(auto& f:slanted.facets)for(auto& n:f.v)n.p.x+=.25*n.p.z;
+  CHECK_FALSE(PrismaticWallRegion(PlanarReference(slanted.facets),walls));
+  Patch sentinel;sentinel.cells.push_back({123,{}});RegionReport report;RegionLimits limits;limits.maximum_cells=4096;limits.maximum_work=4096;
+  auto incompatible=walls;for(auto& p:incompatible)p.second.height=.6;
+  const RegionMetric metric([](Point){return Tensor{1,0,0,1,0,1};},[](Point a,Point b){return (long double)std::hypot(a.x-b.x,a.y-b.y,a.z-b.z);});
+  std::string reason;CHECK_FALSE(ConstructWallRegion(fixture.facets,{.5,.5,.5},geometry,incompatible,.04,8,6,metric,limits,sentinel,report,reason));
+  CHECK(reason.find("geometry-height incompatibility")!=std::string::npos);CHECK(sentinel.cells.size()==1);CHECK(sentinel.cells.front().id==123);
 }
 
 TEST_CASE("Native first-row owners construct disjoint wall cells concurrently", "[NativeFirstLayerConcurrency3D]") {

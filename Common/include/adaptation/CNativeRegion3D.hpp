@@ -40,8 +40,12 @@ struct RegionReport {
   double minimum_quality = 1, minimum_jacobian = 1;
   long double maximum_edge = 0;
 };
+/*! Geometry-only admission for a finite right prism with requested walls confined to its opposite caps. */
+bool PrismaticWallRegion(const PlanarReference& geometry,const std::map<int,RegionWallPolicy>& policies);
 /*! Private whole-region construction, independent of primitive cavity limits. Declared complete radial
- * wall and planar caps must enclose a visible ball; other geometries explicitly reject. No accepted
+ * wall and planar caps must enclose a visible ball. A certified planar right prism instead joins
+ * opposing requested rows through full-metric-spaced shared fronts, including overlapping BL support.
+ * Other geometries explicitly reject. No accepted
  * state is mutated. Empty height policies omit the normal band and test the metric-driven core. New IDs start at
  * caller-reserved global maxima; unchanged retained nodes keep IDs. Uses actual original-P1/composed queries
  * throughout. The volume core uses metric-directed shared-interface subregions, followed by whole-region

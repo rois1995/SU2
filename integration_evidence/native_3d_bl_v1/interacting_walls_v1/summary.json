@@ -1,0 +1,136 @@
+{
+  "status": "COMPLETE_NATIVE_OPPOSING_CONSTRUCTION_REMOVAL_SERIAL_INDEPENDENT_PASS_MPI_WORKFLOW_PENDING",
+  "full_goal3_complete": false,
+  "baseline": {
+    "case": "native_opposing_v1",
+    "native_receipt_sha256": "aa6ac43c383fa6851b7c897edb134b3140d582c5f2835547d101938a44e0392d",
+    "status": "FAIL",
+    "elapsed_seconds": 17.832936960970983,
+    "work": 4096,
+    "retained_private_cells": 30,
+    "accepted_metric_repairs": 0
+  },
+  "proposal": {
+    "report_sha256": "31e860839cacded4ebb9855ac3102b207911fa0e3348b65746ad74e39b658880",
+    "summary": {
+      "file": "candidate.json",
+      "cells": 1920,
+      "points": 525,
+      "physical_faces": 704,
+      "volume": "1",
+      "minimum_mean_ratio": 0.581909235792323,
+      "minimum_scaled_jacobian": 0.281381424516489,
+      "maximum_length": 1.668062303234493,
+      "longest_edge": [
+        28,
+        59
+      ],
+      "markers": {
+        "1": 32,
+        "0": 640,
+        "2": 32
+      },
+      "strict_metric_gate": true,
+      "status": "PASS_COMPLETE_INDEPENDENT_OPPOSING_WALL_PROPOSAL_NOT_NATIVE_ACCEPTED",
+      "first_height": 0.02,
+      "thickness": 0.6,
+      "normal_intervals": 20,
+      "first_height_faces": 64,
+      "maximum_height_relative_error": 8.881784197001252e-16,
+      "normal_span": 19.660942183661035,
+      "nodes_sha256": "aca16f7ff60566d5f241bd0a932ba2e7eb168baa68a73a9af5da6a82aa315386",
+      "source_native_receipt_sha256": "aa6ac43c383fa6851b7c897edb134b3140d582c5f2835547d101938a44e0392d",
+      "native_failure_model_check": {
+        "cells": 30,
+        "q_error": 1.27675647831893e-15,
+        "J_error": 5.77871084317394e-14,
+        "full_length_error": 2.0605739337042905e-13
+      },
+      "helper_sha256": "66df73b2741328d2118c2c42008b3bcb7752ddba879c4036ff89e2c299c25284",
+      "geometry_helper_sha256": "1822427476ecb5687aaa06f3e7a3cc8f31cde53166fd0c711449eedf7c7c7a50",
+      "elapsed_seconds": 26.45276530191768,
+      "scope": "Independent complete unit-gap feasibility witness under the same geometry, immutable affine original-P1, two actual planar BL/growth/fade and height/q/J/full-length gates. Exact rational embedding/manifold/links/finite convex facets and no positive overlap, analytic field and independent full-edge quadrature. Not production reconstruction, charged native work/time, MPI, CFD, general geometry or affordability acceptance."
+    }
+  },
+  "handbook": "../../../Handbook/GOAL3_INTERACTING_WALLS.md",
+  "production_state": "Connected finite-right-prism construction compiled and independently accepted on the unchanged complete overlapping-wall target; existing sensor-only Coarsen removes the layer. MPI/actual backend/current+BDF/CFD/restart for this geometry remain pending.",
+  "next": "Require complete native acceptance of the unchanged overlapping-wall target and its removal, independent field/embedding audits and affected MPI/workflow gates. No local fallback/budget ladder.",
+  "accepted": {
+    "case": "native_opposing_v3",
+    "native_receipt_sha256": "0f69d18ce2142605c120c6852d656fa99bd05e2867014f9a1ca5af29c31e1c2d",
+    "independent_sha256": "01d6dd4adc945f33915f8e07309552249353b0f5a2f87226ce4aee0a198c71c2",
+    "front_coverage_sha256": "4704a1c833aa31079fe5caeef9fbd4d2013af024038996163f9926f80b3ad8ff",
+    "frames": [
+      {
+        "file": "opposing_finer_grouped_coupled_BL_independent.json",
+        "cells": 1920,
+        "points": 483,
+        "physical_faces": 544,
+        "volume": "1",
+        "minimum_mean_ratio": 0.4673160150867968,
+        "minimum_scaled_jacobian": 0.19316019857871727,
+        "maximum_length": 1.6680628605896526,
+        "longest_edge": [
+          44,
+          65
+        ],
+        "markers": {
+          "1": 32,
+          "0": 480,
+          "2": 32
+        },
+        "strict_metric_gate": true,
+        "first_height_faces": 64,
+        "maximum_height_relative_error": 8.881784197001252e-16,
+        "maximum_centroid_tilt": 13.176156917368248,
+        "wall_normal_first_row_edges": 46,
+        "minimum_nonwall_node_clearance": 0.02,
+        "full_metric_edges": 2674,
+        "coverage": "Complete positive prismatic first bands, normal edges at every wall node, no nonwall node below h0; centroid tilt is reported separately.",
+        "layers": true,
+        "input_sha256": "30ace31249e242b4595479dc5d60a7530e8f519359c6d9b4c42a33df232ab7e2"
+      },
+      {
+        "file": "opposing_finer_grouped_released_Euler_independent.json",
+        "cells": 250,
+        "points": 81,
+        "physical_faces": 120,
+        "volume": "1",
+        "minimum_mean_ratio": 0.25403353903772996,
+        "minimum_scaled_jacobian": 0.12152913872130901,
+        "maximum_length": 1.779940682690269,
+        "longest_edge": [
+          77,
+          298
+        ],
+        "markers": {
+          "2": 22,
+          "0": 78,
+          "1": 20
+        },
+        "strict_metric_gate": true,
+        "layers": false,
+        "input_sha256": "ce937a14178b5d365b6e735768e5402a0dfd96f4f5f33c2324fe903edba8f7d8"
+      }
+    ],
+    "construction_work": 2309,
+    "removal_work": 1269,
+    "normal_intervals": 20,
+    "maximum_away_from_wall_interval_growth": 1.195816686011579
+  },
+  "build_logs": {
+    "build_prismatic_fronts_v1.log": "f5806f2fb5629166e6ef7927149316fee46064846ead65bca664583ed3ea37d0",
+    "build_native_opposing_v1.log": "716a228666cc0ee478201a72dfd35062867b1a043369af6a207b89b775d4fb14",
+    "build_prismatic_projection_v1.log": "e4f01ec0d23c0f20382f5991a31671d1b052fc93a7a9cceeae18f1c48e587e14",
+    "build_prismatic_fronts_admission_v1.log": "e4f01ec0d23c0f20382f5991a31671d1b052fc93a7a9cceeae18f1c48e587e14"
+  },
+  "source_sha256": {
+    "Common/src/adaptation/CNativeRegion3D.cpp": "1136f028eca22b697cccf6187e9a0dc195cc85a6d89d689c62701b4fc824d207",
+    "Common/src/adaptation/CNativeEngine3D.cpp": "55e4795e5c24dea7856f5ebe06e145cd685f3ab9f8103d6e846b908260ad725c",
+    "Common/include/adaptation/CNativeRegion3D.hpp": "73d64db167fc3ad6078bb7dc9834120f25a6f8f1172c75bf084b6002dc58ed50"
+  },
+  "preserved_failures": {
+    "admission_api_misuse": "native_opposing_v2.json",
+    "independent_alias_parse": "native_opposing_v3/independent_alias_failed_v1.json"
+  }
+}

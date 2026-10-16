@@ -38,7 +38,20 @@ geometry/current+BDF/open-ledger/SU2/CGNS/reference/restart audits. Separate
 correction; post-bounds SA is not exactly conservative. New-source actual RANS
 qualification is N4/M2 only; the earlier six-way matrix retains pre-front scope.
 [Complete current milestone receipt](integration_evidence/native_3d_bl_v1/region_construction_v1/coarsened_fronts_v1_summary.json).
-All owned native/build/audit/replay jobs are terminal. Full Goal3 is not complete.
+The next connected capability now accepts the overlapping opposing-wall target:
+`interacting_walls_v1/native_opposing_v3` passes6->1920 BL->250 sensor-only,
+construction/removal work2309/1269. Independent exact geometry/height/all2674
+full composed edges and all20 complete front-slab coverage pass. BL q.467316/
+J.193160/L1.668063; all46 wall-node normal edges exist, but centroid tilt13.1762
+is separately recorded. The baseline local path exhausted4096 with30 private
+cells and no accepted metric repair. The primary geometry-certified prismatic
+constructor joins two prescribed rows without requiring a BL-free core.
+Source/build/binary, failed admission/audit attempts and accepted grids are saved.
+[Current interacting-wall capability](Handbook/GOAL3_INTERACTING_WALLS.md).
+Next qualify MPI and the actual backend refinement/coarsening/transfer/restart
+sequence on this geometry; direct engine Coarsen is not that full workflow.
+All owned native/build/audit jobs are currently terminal. Full Goal3 remains active.
+
 
 ## Qualified prior foundations
 

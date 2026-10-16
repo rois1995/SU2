@@ -61,6 +61,55 @@ struct Junction {
   std::array<Id, 4> quad;
   std::vector<size_t> cells;
 };
+struct PrismaticChart {
+  Id base=0,top=0;
+  Point origin{},direction{};
+  double gap=0;
+};
+bool PrismChart(const PlanarReference& geometry,const std::map<int,RegionWallPolicy>& policies,PrismaticChart& chart) {
+  if(policies.empty() || !geometry.Analytic().empty() || geometry.Facets().empty())return false;
+  const Facet* base=nullptr;
+  for(const auto& row:geometry.Facets())if(policies.count(row.second.marker)){base=&row.second;break;}
+  if(!base)return false;
+  chart.base=geometry.Canonical(base->id);chart.origin=base->v[0].p;
+  chart.direction=Mul(Unit(Cross(Sub(base->v[1].p,chart.origin),Sub(base->v[2].p,chart.origin))),-1);
+  double scale=0;
+  for(const auto& row:geometry.Facets())for(auto n:row.second.v) {
+    scale=std::max(scale,Norm(Sub(n.p,chart.origin)));
+    chart.gap=std::max(chart.gap,Dot(Sub(n.p,chart.origin),chart.direction));
+  }
+  const double roundoff=256*std::numeric_limits<double>::epsilon()*scale;
+  if(!(chart.gap>roundoff))return false;
+  Id top=UINT64_MAX;
+  for(const auto& row:geometry.Facets()) {
+    const auto& f=row.second;const auto normal=Unit(Cross(Sub(f.v[1].p,f.v[0].p),Sub(f.v[2].p,f.v[0].p)));
+    const auto alignment=Dot(normal,chart.direction);
+    bool lower=true,upper=true;
+    for(auto n:f.v) {
+      const auto z=Dot(Sub(n.p,chart.origin),chart.direction);
+      lower=lower && std::abs(z)<=roundoff;upper=upper && std::abs(z-chart.gap)<=roundoff;
+    }
+    if(lower) {if(alignment>-.999999999999 || geometry.Canonical(f.id)!=chart.base)return false;}
+    else if(upper) {
+      const Id root=geometry.Canonical(f.id);
+      if(alignment<.999999999999 || (top!=UINT64_MAX && top!=root))return false;
+      top=root;
+    }
+    else if(std::abs(alignment)>256*std::numeric_limits<double>::epsilon() || policies.count(f.marker))return false;
+  }
+  if(top==UINT64_MAX)return false;chart.top=top;
+  try {
+    for(const auto& row:geometry.Facets())for(auto n:row.second.v) {
+      const auto z=Dot(Sub(n.p,chart.origin),chart.direction);
+      if(z < -roundoff || z>chart.gap+roundoff)return false;
+      const auto lower=Sub(n.p,Mul(chart.direction,z)),upper=Add(n.p,Mul(chart.direction,chart.gap-z));
+      if(!geometry.Contains(chart.base,lower) || !geometry.Contains(chart.top,upper))return false;
+    }
+    for(const auto& row:geometry.Facets())if(geometry.Canonical(row.first)==chart.base)
+      for(auto n:row.second.v)if(!geometry.Contains(chart.top,Add(n.p,Mul(chart.direction,chart.gap))))return false;
+  }catch(const std::exception&){return false;}
+  return true;
+}
 class Construction {
  public:
   const PlanarReference& geometry;
@@ -625,6 +674,119 @@ class Construction {
       }
     }
   }
+  void PrismaticFronts(const PrismaticChart& chart,PhaseClock& clock) {
+    // shortcut: a certified right prism with wall policies only on its opposite caps; nonprismatic junctions need a regional decomposition.
+    std::vector<SurfaceFace> base;
+    for(const auto& row:geometry.Facets())if(geometry.Canonical(row.first)==chart.base) {
+      if(base.size()>=limits.maximum_cells/3){report.exhausted_work=true;throw std::runtime_error("Prismatic source triangulation exceeds admitted transition cells.");}
+      SurfaceFace f;f.facet=row.first;
+      for(unsigned k=0;k<3;++k){const auto n=row.second.v[k];
+        if(n.id>=next_node)throw std::runtime_error("Prismatic new identities overlap the original cap.");
+        nodes.emplace(n.id,n.p);f.v[k]=n.id;}
+      Check();
+      base.push_back(f);
+    }
+    const auto bottom=policy.find(geometry.Get(chart.base).marker),top=policy.find(geometry.Get(chart.top).marker);
+    const double first=bottom==policy.end()?0:bottom->second.height,
+                 last=chart.gap-(top==policy.end()?0:top->second.height);
+    if(!(first<last))throw std::runtime_error("Prismatic geometry-height incompatibility: opposite prescribed rows leave no transition interval.");
+    auto point=[&](Id n,double z){return Add(nodes.at(n),Mul(chart.direction,z));};
+    std::vector<double> levels;
+    for(;;) {
+      Check();std::set<Id> vertices;for(auto f:base)for(Id n:f.v)vertices.insert(n);
+      auto prefix=[&](double z) {
+        ++report.front_trials;Check();long double maximum=0;
+        for(Id n:vertices){Check();const auto length=field.edge(point(n,first),point(n,z));
+          if(!(length>0) || !std::isfinite(length))throw std::runtime_error("Prismatic column has no finite metric span.");
+          maximum=std::max(maximum,length);}
+        return maximum;
+      };
+      const auto total=prefix(last);const auto count=std::ceil(total/(.55L*MaximumMetricEdge));
+      if(!(count>=1) || count>limits.maximum_work){report.exhausted_work=true;throw std::runtime_error("Prismatic front span exceeds admitted work.");}
+      const size_t intervals=size_t(count);
+      if(intervals>limits.maximum_cells/(3*base.size())) {
+        report.exhausted_work=true;throw std::runtime_error("Prismatic normal intervals exceed admitted transition cells.");
+      }
+      levels.clear();if(first>0)levels.push_back(0);levels.push_back(first);
+      for(size_t j=1;j<intervals;++j) {
+        const auto wanted=total*j/intervals;double lo=levels.back(),hi=last;
+        for(unsigned iteration=0;iteration<24;++iteration) {
+          const double z=.5*(lo+hi);const auto value=prefix(z);
+          if(value<=wanted)lo=z;else hi=z;
+          if(value<=wanted && wanted-value<=1e-7L*total)break;
+        }
+        if(!(lo>levels.back() && lo<last))throw std::runtime_error("Prismatic front makes no representable progress.");
+        levels.push_back(lo);
+      }
+      levels.push_back(last);if(last<chart.gap)levels.push_back(chart.gap);
+      bool refined=false;
+      for(;;) {
+        Check();std::set<Edge> marked;
+        for(const auto& edge:Links(base))for(double z:levels) {
+          Check();if(field.edge(point(edge.first[0],z),point(edge.first[1],z))>.8L*MaximumMetricEdge){marked.insert(edge.first);break;}
+        }
+        if(marked.empty())break;
+        for(auto edge:marked) {
+          ++report.surface_trials;Check();const auto uses=Links(base).at(edge);
+          const Id mid=New(geometry.Project(chart.base,Mul(Add(nodes.at(edge[0]),nodes.at(edge[1])),.5)));
+          std::vector<SurfaceFace> next;
+          for(size_t i=0;i<base.size();++i) {
+            bool hit=false;
+            for(auto use:uses)if(use.face==i) {
+              hit=true;Id other=0;for(Id n:base[i].v)if(n!=edge[0] && n!=edge[1])other=n;
+              next.push_back({{use.a,mid,other},base[i].facet});next.push_back({{mid,use.b,other},base[i].facet});
+            }
+            if(!hit)next.push_back(base[i]);
+          }
+          base.swap(next);refined=true;
+        }
+      }
+      // New columns can expose a stronger original sensor; close both directions before constructing cells.
+      vertices.clear();for(auto f:base)for(Id n:f.v)vertices.insert(n);
+      bool normal_valid=true;
+      for(Id n:vertices)for(size_t k=1;k<levels.size();++k) {
+        Check();const auto length=field.edge(point(n,levels[k-1]),point(n,levels[k]));
+        const bool wall=(first>0 && k==1) || (last<chart.gap && k+1==levels.size());
+        if(wall && length>MaximumMetricEdge)throw std::runtime_error("Prismatic prescribed-height column exceeds the original metric length; this layout cannot satisfy both constraints.");
+        if(!wall && length>.55L*MaximumMetricEdge*(1+1e-6L))normal_valid=false;
+      }
+      if(normal_valid)break;
+      if(!refined)throw std::runtime_error("Prismatic maximum-prefix layout does not bound every local metric interval.");
+    }
+    if(base.size()>limits.maximum_cells/(3*(levels.size()-1))) {
+      report.exhausted_work=true;throw std::runtime_error("Prismatic complete transition exceeds admitted cells.");
+    }
+    std::map<Id,std::vector<Id>> columns;
+    for(auto f:base)for(Id n:f.v)if(!columns.count(n)) {
+      auto& column=columns[n];column.push_back(n);
+      for(size_t k=1;k<levels.size();++k)column.push_back(New(point(n,levels[k])));
+    }
+    clock.Set(report.transition_seconds);
+    for(size_t layer=1;layer<levels.size();++layer) {
+      for(auto f:base) {
+        auto order=f.v;std::sort(order.begin(),order.end());
+        const Id a=columns.at(order[0])[layer-1],b=columns.at(order[1])[layer-1],c=columns.at(order[2])[layer-1],
+          aa=columns.at(order[0])[layer],bb=columns.at(order[1])[layer],cc=columns.at(order[2])[layer];
+        int orientation=0;
+        for(auto ids:std::array<std::array<Id,4>,3>{{{a,b,c,cc},{a,b,cc,bb},{a,bb,cc,aa}}}) {
+          const auto cell=Tet(ids);const auto volume=Orientation(cell.v[0].p,cell.v[1].p,cell.v[2].p,cell.v[3].p);
+          if(!volume)throw std::runtime_error("Prismatic transition has an unresolvable tetrahedron.");
+          const int sign=volume>0?1:-1;
+          if(orientation && sign!=orientation)throw std::runtime_error("Prismatic transition folds within a prism.");
+          orientation=sign;if(sign<0)std::swap(ids[0],ids[1]);Append(ids);
+        }
+      }
+      ++report.transition_fronts;
+    }
+    std::set<int> markers;for(const auto& row:geometry.Facets())markers.insert(row.second.marker);
+    for(auto face:Incidence(fresh.cells).Boundary()) {
+      std::array<Point,3> triangle{nodes.at(face[0]),nodes.at(face[1]),nodes.at(face[2])};Id facet=0;bool found=false;
+      for(int marker:markers)if(geometry.FindFace(marker,triangle,facet)){found=true;break;}
+      if(!found)throw std::runtime_error("Prismatic physical face leaves the finite original authority.");
+      fresh.surface.push_back({face,facet});
+    }
+    report.core_regions=1;
+  }
   void MetricCylinderFronts(std::vector<SurfaceFace>& wall, const std::map<Id,Id>& first,
                             std::map<int,std::vector<std::array<Id,3>>>& rim,
                             const RegionWallPolicy& policy, Point& kernel) {
@@ -1042,6 +1204,9 @@ class Construction {
   }
 };
 }  // namespace
+bool PrismaticWallRegion(const PlanarReference& geometry,const std::map<int,RegionWallPolicy>& policies) {
+  PrismaticChart chart;return PrismChart(geometry,policies,chart);
+}
 bool ConstructWallRegion(const std::vector<Facet>& skin, Point kernel, const PlanarReference& geometry,
                          const std::map<int, RegionWallPolicy>& policies, double tolerance, Id first_node,
                          Id first_cell, const RegionMetric& target, const RegionLimits& limits, Patch& output,
@@ -1051,6 +1216,14 @@ bool ConstructWallRegion(const std::vector<Facet>& skin, Point kernel, const Pla
   clock.Set(report.sampling_seconds);
   Construction c(geometry, policies, tolerance, target, limits, report, first_node, first_cell);
   try {
+    PrismaticChart prism;
+    if(PrismChart(geometry,policies,prism)) {
+      if(!limits.maximum_cells || !limits.maximum_work)throw std::runtime_error("Prismatic construction requires positive admission limits.");
+      for(const auto& p:policies)if(!(p.second.height>0 && p.second.growth>=1 && p.second.thickness>=p.second.height) ||
+          !std::isfinite(p.second.height+p.second.growth+p.second.thickness))throw std::runtime_error("Invalid prismatic wall policy.");
+      c.PrismaticFronts(prism,clock);clock.Set(report.validation_seconds);c.Validate();
+      output=std::move(c.fresh);reason.clear();return true;
+    }
     if (policies.size() > 1 || !(tolerance > 0) || !limits.maximum_cells || !limits.maximum_work)
       throw std::runtime_error(
           "Region construction supports at most one wall policy and needs positive admission limits.");

@@ -35,7 +35,7 @@
     {
       "id": "construction",
       "scope": "joint wall/near-wall/transition reconstruction with height/alignment/coverage and feasibility diagnostics",
-      "status": "Changed primary coordinated front/coarsened-core strategy accepts high-ratio h.01/T.2/length.2:2877 cells/eight fronts/work3771, q.223149/J.060674/full L1.783149. Rotated/varying serial accept2448/2284 cells. Independent exact embedding/height/authority/original P1 pass; all4727 high-ratio full edges independently numerically integrated. Unchanged gates; one cylinder/two caps/one worker/heuristic BL-free core. High-ratio native/independent geometry MPI1/2/4 and representative actual RANS N4/M2 pass. General/interacting/exterior regions remain."
+      "status": "Changed primary coordinated front/coarsened-core strategy accepts high-ratio h.01/T.2/length.2:2877 cells/eight fronts/work3771, q.223149/J.060674/full L1.783149. Rotated/varying serial accept2448/2284 cells. Independent exact embedding/height/authority/original P1 pass; all4727 high-ratio full edges independently numerically integrated. Unchanged gates; one cylinder/two caps/one worker/heuristic BL-free core. High-ratio native/independent geometry MPI1/2/4 and representative actual RANS N4/M2 pass. General/interacting/exterior regions remain. New finite-right-prism joined fronts independently accept overlapping two-wall serial6->1920->250, strict original target/gates, work2309/1269. All20 height slabs/all46 wall-node normal edges independently covered; centroid tilt13.1762 is separate. MPI/actual backend removal/current-BDF/CFD/restart on this geometry remain pending; nonprismatic/perpendicular interactions remain."
     },
     {
       "id": "gradation",
@@ -45,7 +45,7 @@
     {
       "id": "geometry",
       "scope": "planar/curved/features/junctions/interacting layers; refine/coarsen and geometry authority",
-      "status": "New coarsened-front high-ratio, rotated and varying serial fields independently pass exact whole positive/oriented connected manifold, every vertex link/no overlap/wall feet-height/analytic geometry/source. Earlier full MPI workflow retains pre-front source scope; changed-source high-ratio MPI2/4 and actual RANS N4/M2 independently pass. Wider features/interacting/exterior geometry remain."
+      "status": "New coarsened-front high-ratio, rotated and varying serial fields independently pass exact whole positive/oriented connected manifold, every vertex link/no overlap/wall feet-height/analytic geometry/source. Earlier full MPI workflow retains pre-front source scope; changed-source high-ratio MPI2/4 and actual RANS N4/M2 independently pass. Wider features/interacting/exterior geometry remain. New opposing planar wall serial case independently proves all finite reference coverage, volume1, no overlap/every link, both heights and original composed field; not general interaction or actual prismatic workflow."
     },
     {
       "id": "MPI_transfer",
@@ -70,7 +70,7 @@
     {
       "id": "publication",
       "scope": "preserved provenance/failures/inspectable artifacts and pushed final checkpoint",
-      "status": "Accepted high-ratio construction plus serial evidence published atf9a6af4a096f9796115f9fc8a04fa235aaaaaccf on codex/native-3d-bl. Current MPI2/4 and representative actual RANS N4/M2/replay evidence completed and being published separately; no production changes since that commit. Full Goal3 remains active; all failures/provenance retained."
+      "status": "Accepted high-ratio construction plus serial evidence published atf9a6af4a096f9796115f9fc8a04fa235aaaaaccf on codex/native-3d-bl. Current MPI2/4 and representative actual RANS N4/M2/replay evidence completed and being published separately; no production changes since that commit. Full Goal3 remains active; all failures/provenance retained. New prismatic implementation and complete serial evidence are being published separately with native v1/v2 failures and audit correction retained."
     }
   ],
   "exclusions": [
@@ -98,7 +98,8 @@
     "wall_reconstruction_v1/support_selection_summary.json",
     "wall_reconstruction_v1/shared_apex_refit_summary.json",
     "wall_reconstruction_v1/joint_connectivity_summary.json",
-    "region_construction_v1/coarsened_fronts_v1_summary.json"
+    "region_construction_v1/coarsened_fronts_v1_summary.json",
+    "interacting_walls_v1/summary.json"
   ],
   "execution_state": {
     "status": "Qualified pre-front campaign15/15 PASS. Intermediate-front source compiles; complete original rotatedv12 passes native+independent geometry/P1 and exact full-metric-reference reuse. High-ratio case rejects at4096-work ceiling; fixed Band needs>=4200 cells before core/planning. Reconsider coordinated transition/core construction, no budget/step tweak or local fallback. Full Goal3 ACTIVE/incomplete.",
@@ -738,5 +739,6 @@
   "qualified_pre_front_campaign": "region_construction_v1/current_integration_v11.json",
   "qualified_actual_RANS_MPI_lifecycle": "region_construction_v1/rans_lifecycle_v11.json",
   "intermediate_front_evidence": "region_construction_v1/metric_fronts_v1_summary.json",
-  "current_coarsened_fronts": "region_construction_v1/coarsened_fronts_v1_summary.json"
+  "current_coarsened_fronts": "region_construction_v1/coarsened_fronts_v1_summary.json",
+  "interacting_wall_construction": "interacting_walls_v1/summary.json"
 }
