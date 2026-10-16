@@ -1,0 +1,1144 @@
+/*!
+ * \file CConservativeTransfer_tests.cpp
+ * \brief Unit tests for the conservative P1 solution transfer (supermesh, mesh adaptation).
+ * \version 8.5.0 "Harrier"
+ *
+ * SU2 Project Website: https://su2code.github.io
+ *
+ * The SU2 Project is maintained by the SU2 Foundation
+ * (http://su2foundation.org)
+ *
+ * Copyright 2012-2026, SU2 Contributors (cf. AUTHORS.md)
+ *
+ * SU2 is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ *
+ * SU2 is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with SU2. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+#include "catch.hpp"
+
+#include <algorithm>
+#include <cmath>
+#include <fstream>
+#include <iomanip>
+#include <random>
+
+#include "../../../SU2_CFD/include/adaptation/CConservativeTransfer.hpp"
+#include "../../../SU2_CFD/include/adaptation/ConvexClipping.hpp"
+#include "TransferTestCase.hpp"
+
+using namespace transfer_test;
+
+namespace {
+
+using convex_clip::Polygon;
+using convex_clip::Polyhedron;
+
+passivedouble TriangleArea(const passivedouble* a, const passivedouble* b, const passivedouble* c) {
+  return 0.5 * fabs((b[0] - a[0]) * (c[1] - a[1]) - (b[1] - a[1]) * (c[0] - a[0]));
+}
+
+passivedouble TetVolume(const passivedouble* a, const passivedouble* b, const passivedouble* c,
+                        const passivedouble* d) {
+  passivedouble u[3], v[3], w[3];
+  for (int i = 0; i < 3; ++i) {
+    u[i] = b[i] - a[i];
+    v[i] = c[i] - a[i];
+    w[i] = d[i] - a[i];
+  }
+  return fabs(u[0] * (v[1] * w[2] - v[2] * w[1]) - u[1] * (v[0] * w[2] - v[2] * w[0]) +
+              u[2] * (v[0] * w[1] - v[1] * w[0])) /
+         6.0;
+}
+
+/*--- Half-planes / half-spaces lambda_k >= 0 of a triangle / tetrahedron (inward normal, offset). ---*/
+void TrianglePlanes(const passivedouble (*p)[2], passivedouble (*plane)[3]) {
+  const passivedouble sign =
+      ((p[1][0] - p[0][0]) * (p[2][1] - p[0][1]) - (p[1][1] - p[0][1]) * (p[2][0] - p[0][0])) > 0 ? 1 : -1;
+  for (int k = 0; k < 3; ++k) {
+    const auto* a = p[(k + 1) % 3];
+    const auto* b = p[(k + 2) % 3];
+    /*--- Left of a -> b (counter-clockwise) is inside. ---*/
+    plane[k][0] = -(b[1] - a[1]) * sign;
+    plane[k][1] = (b[0] - a[0]) * sign;
+    plane[k][2] = -(plane[k][0] * a[0] + plane[k][1] * a[1]);
+  }
+}
+
+void TetPlanes(const passivedouble (*p)[3], passivedouble (*plane)[4]) {
+  for (int k = 0; k < 4; ++k) {
+    const auto* a = p[(k + 1) % 4];
+    const auto* b = p[(k + 2) % 4];
+    const auto* c = p[(k + 3) % 4];
+    passivedouble u[3], v[3], n[3];
+    for (int i = 0; i < 3; ++i) {
+      u[i] = b[i] - a[i];
+      v[i] = c[i] - a[i];
+    }
+    n[0] = u[1] * v[2] - u[2] * v[1];
+    n[1] = u[2] * v[0] - u[0] * v[2];
+    n[2] = u[0] * v[1] - u[1] * v[0];
+    passivedouble d = -(n[0] * a[0] + n[1] * a[1] + n[2] * a[2]);
+    if (n[0] * p[k][0] + n[1] * p[k][1] + n[2] * p[k][2] + d < 0) {
+      for (int i = 0; i < 3; ++i) n[i] = -n[i];
+      d = -d;
+    }
+    for (int i = 0; i < 3; ++i) plane[k][i] = n[i];
+    plane[k][3] = d;
+  }
+}
+
+/*--- Projection with default options on a donor/target pair of meshes, the fields given per donor point. ---*/
+struct ProjectionCase {
+  std::unique_ptr<CConfig> config;
+  std::unique_ptr<MeshSolution> donor, target;
+};
+
+std::vector<passivedouble> DonorValues(const CGeometry& geometry, unsigned short nField,
+                                       const std::function<void(const su2double*, passivedouble*)>& field) {
+  std::vector<passivedouble> values(geometry.GetnPoint() * nField);
+  for (auto iPoint = 0ul; iPoint < geometry.GetnPoint(); ++iPoint)
+    field(geometry.nodes->GetCoord(iPoint), &values[iPoint * nField]);
+  return values;
+}
+
+passivedouble Total(const CGeometry& geometry, const std::vector<passivedouble>& values, unsigned short nField,
+                    unsigned short f) {
+  passivedouble total = 0.0;
+  for (auto iPoint = 0ul; iPoint < geometry.GetnPoint(); ++iPoint)
+    total += values[iPoint * nField + f] * SU2_TYPE::GetValue(geometry.nodes->GetVolume(iPoint));
+  return total;
+}
+
+passivedouble Scale(const CGeometry& geometry, const std::vector<passivedouble>& values, unsigned short nField,
+                    unsigned short f) {
+  passivedouble total = 0.0;
+  for (auto iPoint = 0ul; iPoint < geometry.GetnPoint(); ++iPoint)
+    total += fabs(values[iPoint * nField + f]) * SU2_TYPE::GetValue(geometry.nodes->GetVolume(iPoint));
+  return total;
+}
+
+}  // namespace
+
+TEST_CASE("Convex clipping: polygons", "[Adaptation]") {
+  const passivedouble p0[] = {0.0, 0.0}, p1[] = {1.0, 0.0}, p2[] = {0.0, 1.0};
+  passivedouble area = 0.0, c[2] = {};
+
+  /*--- Either orientation, the area is positive. ---*/
+  Polygon poly;
+  poly.InitTriangle(p0, p2, p1);
+  poly.Moments(area, c);
+  CHECK(area == Approx(0.5).epsilon(1e-15));
+  CHECK(c[0] == Approx(1.0 / 3.0).epsilon(1e-15));
+
+  /*--- x >= 0.25: a triangle of legs 0.75. ---*/
+  poly.InitTriangle(p0, p1, p2);
+  poly.Clip(1.0, 0.0, -0.25);
+  poly.Moments(area, c);
+  CHECK(area == Approx(0.28125).epsilon(1e-15));
+  CHECK(c[0] == Approx(0.5).epsilon(1e-14));
+  CHECK(c[1] == Approx(0.25).epsilon(1e-14));
+
+  /*--- Degenerate planes: through a vertex (keeps all), along an edge with the triangle inside (keeps all), along an
+   *    edge with the triangle outside (empty), through two vertices cutting nothing. ---*/
+  poly.InitTriangle(p0, p1, p2);
+  poly.Clip(-1.0, -1.0, 1.0);  // x + y <= 1: edge p1-p2, inside
+  poly.Clip(1.0, 0.0, 0.0);    // x >= 0: edge p0-p2
+  poly.Clip(1.0, 1.0, 0.0);    // x + y >= 0: through p0 only
+  poly.Moments(area, c);
+  CHECK(area == Approx(0.5).epsilon(1e-15));
+  poly.Clip(-1.0, 0.0, 0.0);  // x <= 0: only the edge p0-p2 is left
+  poly.Moments(area, c);
+  CHECK(fabs(area) < 1e-16);
+
+  /*--- Random pairs: |A n B| clipping A by B equals clipping B by A; triangles shifted by a large offset (local
+   *    coordinates matter: the caller removes it). ---*/
+  std::mt19937 gen(7);
+  std::uniform_real_distribution<passivedouble> dist(-1.0, 1.0);
+  for (int i = 0; i < 2000; ++i) {
+    passivedouble A[3][2], B[3][2], planeA[3][3], planeB[3][3];
+    for (int k = 0; k < 3; ++k)
+      for (int d = 0; d < 2; ++d) {
+        A[k][d] = dist(gen);
+        B[k][d] = (i % 3 == 0) ? A[k][d] : 0.5 * dist(gen);  // every third pair: identical triangles
+      }
+    if (i % 3 == 1) {  // shared edge
+      for (int d = 0; d < 2; ++d) {
+        B[0][d] = A[0][d];
+        B[1][d] = A[1][d];
+      }
+    }
+    TrianglePlanes(A, planeA);
+    TrianglePlanes(B, planeB);
+    Polygon ab, ba;
+    ab.InitTriangle(A[0], A[1], A[2]);
+    ba.InitTriangle(B[0], B[1], B[2]);
+    for (int k = 0; k < 3; ++k) {
+      ab.Clip(planeB[k][0], planeB[k][1], planeB[k][2]);
+      ba.Clip(planeA[k][0], planeA[k][1], planeA[k][2]);
+    }
+    passivedouble areaAB = 0.0, areaBA = 0.0, cAB[2], cBA[2];
+    ab.Moments(areaAB, cAB);
+    ba.Moments(areaBA, cBA);
+    CHECK(areaAB >= -1e-15);
+    CHECK(fabs(areaAB - areaBA) < 1e-14);
+    if (i % 3 == 0) CHECK(fabs(areaAB - TriangleArea(A[0], A[1], A[2])) < 1e-14);
+  }
+}
+
+TEST_CASE("Convex clipping: polyhedra", "[Adaptation]") {
+  const passivedouble q0[] = {0, 0, 0}, q1[] = {1, 0, 0}, q2[] = {0, 1, 0}, q3[] = {0, 0, 1};
+  const passivedouble* unit[4] = {q0, q1, q2, q3};
+  const passivedouble* flipped[4] = {q0, q2, q1, q3};
+  passivedouble volume = 0.0, c[3] = {};
+
+  Polyhedron poly;
+  poly.InitTetrahedron(flipped);
+  poly.Moments(volume, c);
+  CHECK(volume == Approx(1.0 / 6.0).epsilon(1e-15));
+  CHECK(c[2] == Approx(0.25).epsilon(1e-14));
+
+  /*--- x >= 0.5: a tetrahedron of edges 0.5. ---*/
+  poly.InitTetrahedron(unit);
+  poly.Clip(1, 0, 0, -0.5);
+  poly.Moments(volume, c);
+  CHECK(volume == Approx(1.0 / 48.0).epsilon(1e-14));
+  CHECK(c[0] == Approx(0.625).epsilon(1e-14));
+
+  /*--- Degenerate planes: a face plane with the tetrahedron inside, through an edge, through a vertex: no change;
+   *    the face plane with the tetrahedron outside: empty. ---*/
+  poly.InitTetrahedron(unit);
+  poly.Clip(0, 0, 1, 0);     // z >= 0 (face)
+  poly.Clip(-1, -1, -1, 1);  // x + y + z <= 1 (face)
+  poly.Clip(1, 1, 0, 0);     // x + y >= 0 (edge q0-q3)
+  poly.Clip(1, 1, 1, 0);     // x + y + z >= 0 (vertex q0)
+  poly.Moments(volume, c);
+  CHECK(volume == Approx(1.0 / 6.0).epsilon(1e-14));
+  poly.Clip(0, 0, -1, 0);  // z <= 0: only the face is left
+  poly.Moments(volume, c);
+  CHECK(fabs(volume) < 1e-16);
+
+  /*--- Random pairs: clipping A by B equals clipping B by A; identical tetrahedra; tetrahedra sharing a face. ---*/
+  std::mt19937 gen(11);
+  std::uniform_real_distribution<passivedouble> dist(-1.0, 1.0);
+  for (int i = 0; i < 2000; ++i) {
+    passivedouble A[4][3], B[4][3], planeA[4][4], planeB[4][4];
+    for (int k = 0; k < 4; ++k)
+      for (int d = 0; d < 3; ++d) {
+        A[k][d] = dist(gen);
+        B[k][d] = (i % 3 == 0) ? A[k][d] : 0.6 * dist(gen);
+      }
+    if (i % 3 == 1)
+      for (int k = 0; k < 3; ++k)
+        for (int d = 0; d < 3; ++d) B[k][d] = A[k][d];
+    TetPlanes(A, planeA);
+    TetPlanes(B, planeB);
+    const passivedouble* pa[4] = {A[0], A[1], A[2], A[3]};
+    const passivedouble* pb[4] = {B[0], B[1], B[2], B[3]};
+    Polyhedron ab, ba;
+    ab.InitTetrahedron(pa);
+    ba.InitTetrahedron(pb);
+    for (int k = 0; k < 4; ++k) {
+      REQUIRE(ab.Clip(planeB[k][0], planeB[k][1], planeB[k][2], planeB[k][3]) >= 0);
+      REQUIRE(ba.Clip(planeA[k][0], planeA[k][1], planeA[k][2], planeA[k][3]) >= 0);
+    }
+    passivedouble vAB = 0.0, vBA = 0.0, cAB[3], cBA[3];
+    ab.Moments(vAB, cAB);
+    ba.Moments(vBA, cBA);
+    CHECK(vAB >= -1e-15);
+    CHECK(fabs(vAB - vBA) < 1e-14);
+    if (i % 3 == 0) CHECK(fabs(vAB - TetVolume(A[0], A[1], A[2], A[3])) < 1e-14);
+  }
+
+  /*--- Partition: a tetrahedron inside the unit cube against the Kuhn tetrahedra of a 3x3x3 grid of the cube: the
+   *    pieces add up to its volume and first moment. ---*/
+  const passivedouble T[4][3] = {{0.1, 0.15, 0.2}, {0.9, 0.3, 0.25}, {0.35, 0.85, 0.1}, {0.4, 0.45, 0.95}};
+  passivedouble planeT[4][4];
+  TetPlanes(T, planeT);
+  const int n = 3;
+  const int kuhn[6][4] = {{0, 1, 3, 7}, {0, 1, 5, 7}, {0, 2, 3, 7}, {0, 2, 6, 7}, {0, 4, 5, 7}, {0, 4, 6, 7}};
+  passivedouble sum = 0.0, moment[3] = {};
+  for (int i = 0; i < n; ++i)
+    for (int j = 0; j < n; ++j)
+      for (int k = 0; k < n; ++k)
+        for (const auto& tet : kuhn) {
+          passivedouble corner[4][3];
+          for (int v = 0; v < 4; ++v) {
+            corner[v][0] = (i + (tet[v] & 1)) / passivedouble(n);
+            corner[v][1] = (j + ((tet[v] >> 1) & 1)) / passivedouble(n);
+            corner[v][2] = (k + ((tet[v] >> 2) & 1)) / passivedouble(n);
+          }
+          const passivedouble* pc[4] = {corner[0], corner[1], corner[2], corner[3]};
+          Polyhedron piece;
+          piece.InitTetrahedron(pc);
+          for (int p = 0; p < 4; ++p) piece.Clip(planeT[p][0], planeT[p][1], planeT[p][2], planeT[p][3]);
+          passivedouble v = 0.0, cp[3];
+          piece.Moments(v, cp);
+          sum += v;
+          for (int d = 0; d < 3; ++d) moment[d] += v * cp[d];
+        }
+  const passivedouble vT = TetVolume(T[0], T[1], T[2], T[3]);
+  CHECK(fabs(sum - vT) < 1e-15);
+  for (int d = 0; d < 3; ++d) CHECK(fabs(moment[d] / sum - 0.25 * (T[0][d] + T[1][d] + T[2][d] + T[3][d])) < 1e-14);
+}
+
+TEST_CASE("Convex clipping: tiny polytopes far from the origin", "[Adaptation]") {
+  /*--- A triangle / tetrahedron of size h at distance L from the origin (h/L down to 1e-11): the measure and the
+   *    centroid are those of its vertices (the differences of the vertex coordinates are exact here), unclipped and
+   *    clipped by the planes of a large simplex that contains it; cut in half by a plane through it. About the origin
+   *    the moments cancel (zero area for the review's triangle (1,1), (1+1e-8,1), (1,1+1e-8)). ---*/
+  for (const passivedouble L : {1.0, 1e3}) {
+    for (const passivedouble h : {1e-8, 1e-6, 1e-4}) {
+      INFO("L " << L << ", h " << h);
+      /*--- The vertices are stored first, the reference measure uses their exact differences (volatile: -ffast-math
+       *    would fold (L + h) - L into h). ---*/
+      volatile passivedouble stored[3] = {L + h, L + 2 * h, L + 3 * h};
+      const passivedouble a[] = {L, L, L};
+      const passivedouble b[] = {stored[0], L, L}, c[] = {L, stored[1], L}, d[] = {L, L, stored[2]};
+      const passivedouble hx = b[0] - a[0], hy = c[1] - a[1], hz = d[2] - a[2];
+
+      /*--- 2D, alone and inside the big triangle (0,0), (4L,0), (0,4L). ---*/
+      const passivedouble big2[3][2] = {{0.0, 0.0}, {4 * L, 0.0}, {0.0, 4 * L}};
+      passivedouble plane2[3][3];
+      TrianglePlanes(big2, plane2);
+      for (const bool clipped : {false, true}) {
+        Polygon poly;
+        poly.InitTriangle(a, b, c);
+        if (clipped)
+          for (int k = 0; k < 3; ++k) poly.Clip(plane2[k][0], plane2[k][1], plane2[k][2]);
+        passivedouble area = 0.0, centroid[2];
+        poly.Moments(area, centroid);
+        CHECK(fabs(area - 0.5 * hx * hy) < 1e-14 * 0.5 * hx * hy);
+        CHECK(fabs(centroid[0] - (L + hx / 3)) < 1e-15 * L + 1e-12 * h);
+        CHECK(fabs(centroid[1] - (L + hy / 3)) < 1e-15 * L + 1e-12 * h);
+      }
+      /*--- Cut by the line x = L + hx/2: the part left of it has 3/4 of the area (the cut itself is as accurate as the
+       *    plane offset, about eps L / h). ---*/
+      const passivedouble cutTol = 1e-14 * L / h;
+      {
+        Polygon poly;
+        poly.InitTriangle(a, b, c);
+        poly.Clip(-1.0, 0.0, L + 0.5 * hx);
+        passivedouble area = 0.0, centroid[2];
+        poly.Moments(area, centroid);
+        CHECK(fabs(area - 0.375 * hx * hy) < cutTol * hx * hy);
+      }
+
+      /*--- 3D, alone and inside the big tetrahedron. ---*/
+      const passivedouble big3[4][3] = {{0, 0, 0}, {6 * L, 0, 0}, {0, 6 * L, 0}, {0, 0, 6 * L}};
+      passivedouble plane3[4][4];
+      TetPlanes(big3, plane3);
+      const passivedouble* p[4] = {a, b, c, d};
+      const passivedouble volume = hx * hy * hz / 6.0;
+      for (const bool clipped : {false, true}) {
+        Polyhedron poly;
+        poly.InitTetrahedron(p);
+        if (clipped)
+          for (int k = 0; k < 4; ++k) REQUIRE(poly.Clip(plane3[k][0], plane3[k][1], plane3[k][2], plane3[k][3]) >= 0);
+        passivedouble v = 0.0, centroid[3];
+        poly.Moments(v, centroid);
+        CHECK(fabs(v - volume) < 1e-14 * volume);
+        CHECK(fabs(centroid[0] - (L + hx / 4)) < 1e-15 * L + 1e-12 * h);
+        CHECK(fabs(centroid[1] - (L + hy / 4)) < 1e-15 * L + 1e-12 * h);
+        CHECK(fabs(centroid[2] - (L + hz / 4)) < 1e-15 * L + 1e-12 * h);
+      }
+      {
+        Polyhedron poly;
+        poly.InitTetrahedron(p);
+        poly.Clip(-1.0, 0.0, 0.0, L + 0.5 * hx);  // x <= L + hx/2: 7/8 of the tetrahedron
+        passivedouble v = 0.0, centroid[3];
+        poly.Moments(v, centroid);
+        CHECK(fabs(v - 0.875 * volume) < cutTol * volume);
+      }
+    }
+  }
+}
+
+TEST_CASE("Conservative projection: tiny donor elements far from the frame origin", "[Adaptation]") {
+  /*--- Large coarsening ratio: the target has 2 (2D) / 1 (3D) cells per unit length, the donor is graded towards the
+   *    centre c of a target cell (x' = c -+ |x - c|^p / |end - c|^(p-1) on each side of c; smallest cells about 1e-6
+   *    in 2D, 8e-5 in 3D), both translated by 1e3. Each overlap is computed in the frame of the first vertex of the
+   *    coarse target element, at a distance of 0.3-0.9 from the tiny donor elements, which the target diagonals also
+   *    cut. Every donor element must be covered exactly (no false S_d / S_n), an affine field reproduced, the totals
+   *    kept (to 1e-12: at the offset 1e3 the SU2 control volumes of the tiny cells carry a round-off of ~1e-13). ---*/
+  for (const unsigned short nDim : {2, 3}) {
+    SECTION("nDim " + std::to_string(nDim)) {
+      auto config = MakeConfig(nDim, "SOLVER= EULER\n");
+      const passivedouble offset = 1e3, exponent = (nDim == 2) ? 6.0 : 8.0;
+      const passivedouble upper[] = {nDim == 2 ? 2.0 : 1.0, 1.0, 1.0};
+      const passivedouble centre2D[] = {1.25, 0.75}, centre3D[] = {0.5, 0.5, 0.5};
+      const auto* centre = (nDim == 2) ? centre2D : centre3D;
+      auto graded = BoxMesh(nDim, nDim == 2 ? 8 : 6, false);
+      for (auto iPoint = 0ul; iPoint < graded.GetnPoint(); ++iPoint)
+        for (unsigned short iDim = 0; iDim < nDim; ++iDim) {
+          auto& x = graded.coord[iPoint * nDim + iDim];
+          const passivedouble c = centre[iDim], end = (x < c) ? c : upper[iDim] - c;
+          const passivedouble d = std::pow(fabs(x - c), exponent) / std::pow(end, exponent - 1.0);
+          x = offset + ((x < c) ? c - d : c + d);
+        }
+      auto coarse = BoxMesh(nDim, nDim == 2 ? 2 : 1, false);
+      for (auto& x : coarse.coord) x += offset;
+
+      MeshSolution donor(config.get(), graded, 0);
+      MeshSolution target(config.get(), coarse, 0);
+      CConservativeProjection projection(donor.Fine(), donor.markerTags, target.Fine(), target.markerTags, {});
+      const unsigned short nField = 2;
+      auto field = [nDim, offset](const su2double* x, passivedouble* v) {
+        v[0] = 1.0;
+        v[1] = 3.0;
+        for (unsigned short iDim = 0; iDim < nDim; ++iDim) v[1] += (iDim + 1.5) * SU2_TYPE::GetValue(x[iDim] - offset);
+      };
+      const auto values = DonorValues(donor.Fine(), nField, field);
+      std::vector<passivedouble> result;
+      projection.Project(nField, values, result);
+      const auto& s = projection.GetSummary();
+
+      const passivedouble domain = (nDim == 2) ? 2.0 : 1.0;
+      INFO("slivers " << s.nSliverElems << ", fill " << s.nFillPieces << ", max uncovered " << s.maxUncovered
+                       << ", supermesh defects " << s.supermeshDefect[0] << " " << s.supermeshDefect[1]);
+      CHECK(s.nSliverElems == 0);
+      CHECK(s.nFillPieces == 0);
+      CHECK(fabs(s.overlapVolume - domain) < 1e-13 * domain);
+      CHECK(fabs(s.donorVolume - domain) < 1e-13 * domain);
+      for (unsigned short f = 0; f < nField; ++f) {
+        CHECK(fabs(s.supermeshDefect[f]) < 1e-12);
+        CHECK(s.nLimited[f] == 0);
+        const passivedouble scale = Scale(donor.Fine(), values, nField, f);
+        CHECK(fabs(Total(target.Fine(), result, nField, f) - Total(donor.Fine(), values, nField, f)) < 1e-12 * scale);
+      }
+      passivedouble maxError = 0.0;
+      for (auto iPoint = 0ul; iPoint < target.Fine().GetnPoint(); ++iPoint) {
+        passivedouble exact[2];
+        field(target.Fine().nodes->GetCoord(iPoint), exact);
+        for (unsigned short f = 0; f < nField; ++f) maxError = std::max(maxError, fabs(result[iPoint * nField + f] - exact[f]));
+      }
+      CHECK(maxError < 1e-10);
+    }
+  }
+}
+
+TEST_CASE("Conservative projection: supermesh and mass matrix", "[Adaptation]") {
+  for (const unsigned short nDim : {2, 3}) {
+    SECTION("nDim " + std::to_string(nDim)) {
+      auto config = MakeConfig(nDim, "SOLVER= EULER\n");
+      MeshSolution donor(config.get(), BoxMesh(nDim, 4, true), 0);
+      MeshSolution target(config.get(), BoxMesh(nDim, 6, true), 0);
+      CConservativeProjection projection(donor.Fine(), donor.markerTags, target.Fine(), target.markerTags, {});
+      const auto values = DonorValues(donor.Fine(), 1, [](const su2double* x, passivedouble* v) { v[0] = 1.0; });
+      std::vector<passivedouble> result;
+      projection.Project(1, values, result);
+      const auto& s = projection.GetSummary();
+
+      /*--- Supermesh measure = domain measure (both meshes), nothing uncovered. ---*/
+      const passivedouble domain = (nDim == 2) ? 2.0 : 1.0;
+      CHECK(fabs(s.overlapVolume - domain) < 1e-14 * domain);
+      CHECK(fabs(s.targetVolume - domain) < 1e-14 * domain);
+      CHECK(fabs(s.donorVolume - domain) < 1e-14 * domain);
+      CHECK(fabs(s.targetCV - domain) < 1e-14 * domain);
+      CHECK(s.nFillPieces == 0);
+      CHECK(s.nSliverElems == 0);
+      CHECK(s.nElemOutside == 0);
+      CHECK(s.maxUncovered < 1e-12);
+      CHECK(fabs(s.supermeshDefect[0]) < 1e-14);
+      CHECK(s.nPairs > target.Fine().GetnElem());
+
+      /*--- Mass matrix: symmetric, rows (= columns) sum to the SU2 control volumes, strictly diagonally dominant. ---*/
+      std::vector<unsigned long> rowPtr, col;
+      std::vector<passivedouble> value;
+      projection.GetMassMatrix(rowPtr, col, value);
+      passivedouble maxRowError = 0.0, maxAsym = 0.0, minDominance = 1e300;
+      for (auto i = 0ul; i + 1 < rowPtr.size(); ++i) {
+        passivedouble sum = 0.0, diag = 0.0, off = 0.0;
+        for (auto p = rowPtr[i]; p < rowPtr[i + 1]; ++p) {
+          sum += value[p];
+          if (col[p] == i) {
+            diag = value[p];
+          } else {
+            off += value[p];
+            const auto j = col[p];
+            const auto q = std::lower_bound(col.begin() + rowPtr[j], col.begin() + rowPtr[j + 1], i) - col.begin();
+            maxAsym = std::max(maxAsym, fabs(value[q] - value[p]) / value[p]);
+          }
+        }
+        const passivedouble cv = SU2_TYPE::GetValue(target.Fine().nodes->GetVolume(i));
+        maxRowError = std::max(maxRowError, fabs(sum - cv) / cv);
+        minDominance = std::min(minDominance, diag / off);
+      }
+      CHECK(maxRowError < 1e-13);
+      CHECK(maxAsym < 1e-14);
+      CHECK(minDominance > 1.0);
+
+      /*--- Constant field: exact. ---*/
+      passivedouble maxError = 0.0;
+      for (const auto v : result) maxError = std::max(maxError, fabs(v - 1.0));
+      CHECK(maxError < 1e-13);
+    }
+  }
+}
+
+TEST_CASE("Conservative projection: random fields keep their totals", "[Adaptation]") {
+  for (const unsigned short nDim : {2, 3}) {
+    for (const passivedouble tolerance : {2e-3, 0.0}) {
+      SECTION("nDim " + std::to_string(nDim) + ", limiter tolerance " + std::to_string(tolerance)) {
+        auto config = MakeConfig(nDim, "SOLVER= EULER\n");
+        MeshSolution donor(config.get(), BoxMesh(nDim, 5, true), 0);
+        MeshSolution target(config.get(), BoxMesh(nDim, 3, true), 0);
+        CConservativeProjection::Options options;
+        options.limiterTolerance = tolerance;
+        CConservativeProjection projection(donor.Fine(), donor.markerTags, target.Fine(), target.markerTags, options);
+
+        const unsigned short nField = 3;
+        std::mt19937 gen(3);
+        std::uniform_real_distribution<passivedouble> dist(-1.0, 1.0);
+        auto values = DonorValues(donor.Fine(), nField, [&](const su2double*, passivedouble* v) {
+          v[0] = dist(gen);        // random, sign changes
+          v[1] = 5.0 + dist(gen);  // random, positive
+          v[2] = 1e3 * dist(gen) * dist(gen);
+        });
+        std::vector<passivedouble> result;
+        projection.Project(nField, values, result);
+        const auto& s = projection.GetSummary();
+        for (unsigned short f = 0; f < nField; ++f) {
+          const passivedouble donorTotal = Total(donor.Fine(), values, nField, f);
+          const passivedouble newTotal = Total(target.Fine(), result, nField, f);
+          const passivedouble scale = Scale(donor.Fine(), values, nField, f);
+          CHECK(fabs(newTotal - donorTotal) < 1e-14 * scale);
+          CHECK(fabs(s.supermeshDefect[f]) < 1e-14);
+          CHECK_FALSE(s.infeasible[f]);
+          /*--- Global bounds of the donor, widened by the tolerance. ---*/
+          passivedouble lo = 1e300, hi = -1e300;
+          for (auto iPoint = 0ul; iPoint < donor.Fine().GetnPoint(); ++iPoint) {
+            lo = std::min(lo, values[iPoint * nField + f]);
+            hi = std::max(hi, values[iPoint * nField + f]);
+          }
+          for (auto iPoint = 0ul; iPoint < target.Fine().GetnPoint(); ++iPoint) {
+            CHECK(result[iPoint * nField + f] >= lo - tolerance * (hi - lo) - 1e-12 * (hi - lo));
+            CHECK(result[iPoint * nField + f] <= hi + tolerance * (hi - lo) + 1e-12 * (hi - lo));
+          }
+        }
+      }
+    }
+  }
+}
+
+TEST_CASE("Conservative projection: identity and limiter bounds", "[Adaptation]") {
+  for (const unsigned short nDim : {2, 3}) {
+    SECTION("nDim " + std::to_string(nDim)) {
+      auto config = MakeConfig(nDim, "SOLVER= EULER\n");
+      MeshSolution donor(config.get(), BoxMesh(nDim, 5, true), 0);
+      std::mt19937 gen(5);
+      std::uniform_real_distribution<passivedouble> dist(-1.0, 1.0);
+      const auto random = DonorValues(donor.Fine(), 1, [&](const su2double*, passivedouble* v) { v[0] = dist(gen); });
+
+      /*--- Same mesh: the identity (the limiter changes nothing). ---*/
+      {
+        CConservativeProjection same(donor.Fine(), donor.markerTags, donor.Fine(), donor.markerTags, {});
+        std::vector<passivedouble> result;
+        same.Project(1, random, result);
+        passivedouble maxError = 0.0;
+        for (auto i = 0ul; i < result.size(); ++i) maxError = std::max(maxError, fabs(result[i] - random[i]));
+        CHECK(maxError < 1e-12);
+        CHECK(same.GetSummary().nLimited[0] == 0);
+      }
+
+      /*--- A step (values 0 and 1, the jump across x = 0.53): the unlimited projection over- and undershoots, the
+       *    limited one (tolerance 0) stays in [0, 1] and within the values of the donor points near each new point
+       *    (a superset of its donor elements), with the same total. ---*/
+      MeshSolution target(config.get(), BoxMesh(nDim, 7, true), 0);
+      const auto step = DonorValues(donor.Fine(), 1, [](const su2double* x, passivedouble* v) {
+        v[0] = SU2_TYPE::GetValue(x[0]) < 0.53 ? 1.0 : 0.0;
+      });
+      CConservativeProjection::Options noLimiter, hard;
+      noLimiter.limiter = false;
+      hard.limiterTolerance = 0.0;
+      std::vector<passivedouble> raw, limited;
+      CConservativeProjection(donor.Fine(), donor.markerTags, target.Fine(), target.markerTags, noLimiter)
+          .Project(1, step, raw);
+      CConservativeProjection projection(donor.Fine(), donor.markerTags, target.Fine(), target.markerTags, hard);
+      projection.Project(1, step, limited);
+      CHECK(projection.GetSummary().nLimited[0] > 0);
+
+      const passivedouble total = Total(donor.Fine(), step, 1, 0);
+      CHECK(fabs(Total(target.Fine(), raw, 1, 0) - total) < 1e-14 * total);
+      CHECK(fabs(Total(target.Fine(), limited, 1, 0) - total) < 1e-14 * total);
+      const passivedouble rawMin = *std::min_element(raw.begin(), raw.end());
+      const passivedouble rawMax = *std::max_element(raw.begin(), raw.end());
+      CHECK((rawMin < -1e-3 || rawMax > 1.0 + 1e-3));
+      const passivedouble radius = 1.5 * (1.0 / 5 + 1.0 / 7) * sqrt(nDim);
+      for (auto iPoint = 0ul; iPoint < target.Fine().GetnPoint(); ++iPoint) {
+        const auto* x = target.Fine().nodes->GetCoord(iPoint);
+        passivedouble lo = 1e300, hi = -1e300;
+        for (auto jPoint = 0ul; jPoint < donor.Fine().GetnPoint(); ++jPoint) {
+          const auto* y = donor.Fine().nodes->GetCoord(jPoint);
+          passivedouble d2 = 0.0;
+          for (unsigned short iDim = 0; iDim < nDim; ++iDim) d2 += SU2_TYPE::GetValue(pow(x[iDim] - y[iDim], 2));
+          if (sqrt(d2) > radius) continue;
+          lo = std::min(lo, step[jPoint]);
+          hi = std::max(hi, step[jPoint]);
+        }
+        CHECK(limited[iPoint] >= lo - 1e-14);
+        CHECK(limited[iPoint] <= hi + 1e-14);
+      }
+    }
+  }
+}
+
+TEST_CASE("Conservative transfer: affine and constant flow fields", "[Adaptation]") {
+  /*--- Where the two domains coincide, an affine field is reproduced exactly (u_h^A = u, so S_j = integral of u over
+   *    C_j, which the nodal values of u satisfy: M u = S); the error is that of the linear solver. ---*/
+  for (const unsigned short nDim : {2, 3}) {
+    for (const bool constant : {false, true}) {
+      SECTION("nDim " + std::to_string(nDim) + (constant ? ", constant" : ", affine")) {
+        auto config = MakeConfig(nDim, "SOLVER= EULER\n");
+        MeshSolution donor(config.get(), BoxMesh(nDim, 4, true), 2);
+        const Field field = constant ? Field([nDim](const su2double*, su2double* U) {
+          const su2double x0[3] = {0.3, 0.4, 0.5};
+          AffineFlow(nDim)(x0, U);
+        })
+                                     : AffineFlow(nDim);
+        donor.SetField(FLOW_SOL, field);
+
+        MeshSolution target(config.get(), BoxMesh(nDim, 6, true), 2);
+        CConservativeTransfer transfer;
+        {
+          Mute mute;
+          transfer.Transfer(config.get(), donor.Donor(), target.geometry, target.solver);
+        }
+        const auto& summary = transfer.GetSummary();
+        CHECK(summary.nFlowFixed == 0);
+        CHECK(summary.projection.nFillPieces == 0);
+        for (unsigned short f = 0; f < nDim + 2; ++f) {
+          CHECK(fabs(summary.relativeDefect[f]) < 1e-13);
+          CHECK(summary.projection.nLimited[f] == 0);
+        }
+        CHECK(transfer.GetReport().conservationDefect < 1e-13);
+
+        const auto* nodes = target.solver[MESH_0][FLOW_SOL]->GetNodes();
+        passivedouble maxDiff = 0.0, maxPressureDiff = 0.0;
+        for (auto iPoint = 0ul; iPoint < target.Fine().GetnPoint(); ++iPoint) {
+          su2double exact[MAXVAR] = {}, U[MAXVAR] = {};
+          field(target.Fine().nodes->GetCoord(iPoint), exact);
+          for (unsigned short iVar = 0; iVar < nDim + 2; ++iVar) {
+            U[iVar] = nodes->GetSolution(iPoint, iVar);
+            maxDiff = max(maxDiff, RelDiff(U[iVar], exact[iVar]));
+          }
+          maxPressureDiff =
+              max(maxPressureDiff, RelDiff(nodes->GetPressure(iPoint), IdealGasPressure(nDim, config->GetGamma(), U)));
+        }
+        CHECK(maxDiff < (constant ? 1e-13 : 1e-11));
+        CHECK(maxPressureDiff < 1e-12);
+        CheckCoarseLevels(target, FLOW_SOL);
+      }
+    }
+  }
+}
+
+TEST_CASE("Conservative transfer: donor without marker names (one rank)", "[Adaptation]") {
+  /*--- Developer calls may leave CMeshDonor::markerTags empty on one rank: the donor boundary faces are then unnamed
+   *    and only take part in the search of the nearest face (fill of the new fluid outside the donor). Box: affine
+   *    field exact as with the names. Disk/ball with its boundary inscribed in the circle/sphere: fill pieces, totals
+   *    kept (walls), values close to those of the transfer with the names. ---*/
+  for (const unsigned short nDim : {2, 3}) {
+    for (const bool round : {false, true}) {
+      SECTION("nDim " + std::to_string(nDim) + (round ? ", disk/ball" : ", box")) {
+        auto config = round ? MakeRoundConfig("SOLVER= EULER\n", "MARKER_EULER= (round_a, round_b)\n")
+                            : MakeConfig(nDim, "SOLVER= EULER\n");
+        const unsigned short nMG = round ? 0 : 2;
+        MeshSolution donor(config.get(), round ? simplex_test::MakeRoundMesh(nDim, 4, 1.0) : BoxMesh(nDim, 4, true),
+                           nMG);
+        const Field field =
+            round ? Field([nDim](const su2double* x, su2double* U) { SmoothFlow(nDim, x, U); }) : AffineFlow(nDim);
+        donor.SetField(FLOW_SOL, field);
+        const auto mesh = round ? simplex_test::MakeRoundMesh(nDim, 6, 1.0) : BoxMesh(nDim, 6, true);
+        MeshSolution unnamedTarget(config.get(), mesh, nMG), namedTarget(config.get(), mesh, nMG);
+
+        auto transfer = [&](bool named, MeshSolution& target, passivedouble& defect) {
+          auto donorData = donor.Donor();
+          if (!named) donorData.markerTags.clear();
+          CConservativeTransfer conservative;
+          {
+            Mute mute;
+            conservative.Transfer(config.get(), donorData, target.geometry, target.solver);
+          }
+          defect = conservative.GetReport().conservationDefect;
+          return conservative.GetSummary();
+        };
+        passivedouble defect = 0.0, namedDefect = 0.0;
+        const auto summary = transfer(false, unnamedTarget, defect);
+        const auto namedSummary = transfer(true, namedTarget, namedDefect);
+        CHECK(summary.nPoint == unnamedTarget.Fine().GetnPoint());
+        CHECK(summary.nFlowFixed == 0);
+        CHECK(defect < 1e-12);
+        CHECK(summary.projection.nFillPieces == namedSummary.projection.nFillPieces);
+        CHECK((summary.projection.nFillPieces > 0) == round);
+
+        /*--- Box: all variables; disk/ball: the density (h about 0.5 on the coarse donor, as in the curved test). ---*/
+        const auto* nodes = unnamedTarget.solver[MESH_0][FLOW_SOL]->GetNodes();
+        const auto* namedNodes = namedTarget.solver[MESH_0][FLOW_SOL]->GetNodes();
+        const unsigned short nVarChecked = round ? 1 : nDim + 2;
+        passivedouble maxDiff = 0.0, maxNamedDiff = 0.0;
+        for (auto iPoint = 0ul; iPoint < unnamedTarget.Fine().GetnPoint(); ++iPoint) {
+          su2double exact[MAXVAR] = {};
+          field(unnamedTarget.Fine().nodes->GetCoord(iPoint), exact);
+          for (unsigned short iVar = 0; iVar < nVarChecked; ++iVar) {
+            maxDiff = max(maxDiff, RelDiff(nodes->GetSolution(iPoint, iVar), exact[iVar]));
+            maxNamedDiff =
+                max(maxNamedDiff, RelDiff(nodes->GetSolution(iPoint, iVar), namedNodes->GetSolution(iPoint, iVar)));
+          }
+        }
+        if (round) {
+          /*--- The fill takes the nearest donor face of any marker instead of the same marker. ---*/
+          CHECK(maxDiff < 0.1);
+          CHECK(maxNamedDiff < 5e-3);
+        } else {
+          CHECK(maxDiff < 1e-11);
+          CHECK(maxNamedDiff < 1e-12);
+          CheckCoarseLevels(unnamedTarget, FLOW_SOL);
+        }
+      }
+    }
+  }
+}
+
+TEST_CASE("Conservative transfer: smooth field converges at second order", "[Adaptation]") {
+  /*--- Smooth (not affine) field from a mesh to a finer one, two refinements: the maximum nodal error drops by about 4
+   *    per halving of the sizes, the totals are exact. ---*/
+  const unsigned short nDim = 2;
+  auto config = MakeConfig(nDim, "SOLVER= EULER\n");
+  std::vector<passivedouble> errors;
+  for (const unsigned long n : {8ul, 16ul}) {
+    MeshSolution donor(config.get(), BoxMesh(nDim, n, true), 0);
+    MeshSolution target(config.get(), BoxMesh(nDim, n + n / 2, true), 0);
+    donor.SetField(FLOW_SOL, [](const su2double* x, su2double* U) { SmoothFlow(2, x, U); });
+    CConservativeTransfer transfer;
+    {
+      Mute mute;
+      transfer.Transfer(config.get(), donor.Donor(), target.geometry, target.solver);
+    }
+    for (unsigned short f = 0; f < nDim + 2; ++f) CHECK(fabs(transfer.GetSummary().relativeDefect[f]) < 1e-13);
+    const auto* nodes = target.solver[MESH_0][FLOW_SOL]->GetNodes();
+    passivedouble maxError = 0.0;
+    for (auto iPoint = 0ul; iPoint < target.Fine().GetnPoint(); ++iPoint) {
+      su2double exact[MAXVAR] = {};
+      SmoothFlow(2, target.Fine().nodes->GetCoord(iPoint), exact);
+      maxError = std::max(maxError, RelDiff(nodes->GetSolution(iPoint, 0), exact[0]));
+    }
+    errors.push_back(maxError);
+  }
+  CHECK(errors[0] < 2e-3);
+  CHECK(errors[0] / errors[1] > 3.0);
+}
+
+TEST_CASE("Conservative transfer: curved boundary outside the donor", "[Adaptation]") {
+  /*--- Donor disk/ball with its boundary inscribed in the circle/sphere, new mesh finer with its boundary points on
+   *    it: new fluid outside the donor (S_n) and donor fluid outside the new domain (S_d). BOUNDARY and GLOBAL: the
+   *    totals are the donor's; a constant field becomes the constant times the volume ratio with GLOBAL. NONE: the
+   *    totals change by exactly the S_n minus the S_d content, a constant field stays the same constant. The
+   *    supermesh defect is round-off in every case. ---*/
+  for (const unsigned short nDim : {2, 3}) {
+    using Rule = CConservativeProjection::SliverRule;
+    const std::vector<std::pair<Rule, bool>> rules = {{Rule::BOUNDARY, false},
+                                                      {Rule::GLOBAL, false},
+                                                      {Rule::NONE, false},
+                                                      {Rule::CLOSED, false},
+                                                      {Rule::CLOSED, true}};
+    for (const auto& ruleCase : rules) {
+      const auto rule = ruleCase.first;
+      const bool openBoundary = ruleCase.second;
+      /*--- CLOSED: like GLOBAL at walls, like NONE at open boundaries. ---*/
+      const bool global = rule == Rule::GLOBAL || (rule == Rule::CLOSED && !openBoundary);
+      const bool none = rule == Rule::NONE || (rule == Rule::CLOSED && openBoundary);
+      const string name =
+          rule == Rule::BOUNDARY
+              ? "boundary"
+              : rule == Rule::GLOBAL
+                    ? "global"
+                    : rule == Rule::NONE ? "none" : openBoundary ? "closed, open markers" : "closed, walls";
+      SECTION("nDim " + std::to_string(nDim) + ", " + name) {
+        auto config = MakeRoundConfig("SOLVER= EULER\n", "MARKER_EULER= (round_a, round_b)\n");
+        MeshSolution donor(config.get(), simplex_test::MakeRoundMesh(nDim, 4, 1.0), 0);
+        MeshSolution target(config.get(), simplex_test::MakeRoundMesh(nDim, 6, 1.0), 0);
+        CConservativeProjection::Options options;
+        options.sliverRule = rule;
+        options.absoluteLimit = 0.02;
+        if (openBoundary) options.openMarkers = {"round_a", "round_b"};
+        CConservativeProjection projection(donor.Fine(), donor.markerTags, target.Fine(), target.markerTags, options);
+
+        const unsigned short nField = nDim + 3;
+        auto values = DonorValues(donor.Fine(), nField, [nDim](const su2double* x, passivedouble* v) {
+          su2double U[MAXVAR];
+          SmoothFlow(nDim, x, U);
+          for (unsigned short f = 0; f < nDim + 2; ++f) v[f] = SU2_TYPE::GetValue(U[f]);
+          v[nDim + 2] = 2.0;  // constant
+        });
+        std::vector<passivedouble> result;
+        projection.Project(nField, values, result);
+        const auto& s = projection.GetSummary();
+        CHECK(s.nFillPieces > 0);
+        CHECK(s.nSliverElems > 0);
+        CHECK(s.fillVolume > 0.0);
+        CHECK(s.sliverVolume > 0.0);
+        CHECK(s.nInteriorFill == 0);
+        /*--- Measures: covered + S_n = new domain, covered + S_d = donor domain. ---*/
+        CHECK(fabs(s.overlapVolume + s.fillVolume - s.targetVolume) < 1e-12 * s.targetVolume);
+        CHECK(fabs(s.overlapVolume + s.sliverVolume - s.donorVolume) < 1e-12 * s.donorVolume);
+        for (unsigned short f = 0; f < nField; ++f) {
+          const passivedouble scale = Scale(donor.Fine(), values, nField, f);
+          const passivedouble expected =
+              Total(donor.Fine(), values, nField, f) + (none ? s.fill[f] - s.sliver[f] : 0.0);
+          CHECK(fabs(Total(target.Fine(), result, nField, f) - expected) < 1e-13 * scale);
+          if (none) CHECK(fabs(s.fill[f] - s.sliver[f]) > 1e-6 * scale);
+          CHECK(fabs(s.supermeshDefect[f]) < 1e-13);
+        }
+        /*--- Constant field. ---*/
+        const passivedouble ratio = s.donorCV / s.targetCV;
+        passivedouble maxDev = 0.0;
+        for (auto iPoint = 0ul; iPoint < target.Fine().GetnPoint(); ++iPoint) {
+          const auto v = result[iPoint * nField + nDim + 2];
+          maxDev = std::max(maxDev, global ? fabs(v - 2.0 * ratio) : fabs(v - 2.0) / 2.0);
+        }
+        if (global || none) {
+          CHECK(maxDev < 1e-12);
+        } else {
+          CHECK(maxDev < 0.5);
+        }
+        /*--- Smooth fields: close to the exact values (the donor is coarse, h about 0.5). ---*/
+        passivedouble maxError = 0.0;
+        for (auto iPoint = 0ul; iPoint < target.Fine().GetnPoint(); ++iPoint) {
+          su2double exact[MAXVAR];
+          SmoothFlow(nDim, target.Fine().nodes->GetCoord(iPoint), exact);
+          maxError = std::max(maxError, RelDiff(result[iPoint * nField], exact[0]));
+        }
+        CHECK(maxError < 0.1);
+      }
+    }
+  }
+}
+
+TEST_CASE("Conservative transfer: time history and turbulence", "[Adaptation]") {
+  /*--- U^n (solution and Solution_time_n) and U^(n-1) affine and different; SA: nu_tilde affine (transferred itself,
+   *    exact); SST: k and omega affine, rho k and rho omega transferred (quadratic, not exact) with their totals. ---*/
+  using Getter = su2activematrix& (*)(CVariable*);
+  const Getter getters[] = {[](CVariable* n) -> su2activematrix& { return n->GetSolution(); },
+                            [](CVariable* n) -> su2activematrix& { return n->GetSolution_time_n(); },
+                            [](CVariable* n) -> su2activematrix& { return n->GetSolution_time_n1(); }};
+  /*--- With RANS the lower side is a no-slip wall: momentum zero there (affine in y), as the solver imposes it. ---*/
+  auto flowField = [](unsigned short nDim, int level, bool wall) {
+    return Field([nDim, level, wall](const su2double* x, su2double* U) {
+      AffineFlow(nDim)(x, U);
+      U[0] *= 1.0 + 0.05 * level;
+      U[1] += 7.0 * level * x[1];
+      U[nDim + 1] += 1e3 * level * x[0];
+      if (wall) {
+        U[1] = (300.0 + 7.0 * level) * x[1];
+        U[2] = (-50.0 - 3.0 * level) * x[1];
+      }
+    });
+  };
+  auto turbField = [](bool sst, int level) {
+    return Field([sst, level](const su2double* x, su2double* v) {
+      if (sst) {
+        v[0] = 1e-3 + 2e-4 * x[0] + 1e-4 * level * x[1];
+        v[1] = 1e3 + 100.0 * x[1] - 50.0 * level * x[0];
+      } else {
+        v[0] = 1e-4 + 2e-5 * x[0] - (1e-5 + 1e-6 * level) * x[1];
+      }
+    });
+  };
+  const std::vector<string> cases = {
+      "SOLVER= EULER\nTIME_MARCHING= DUAL_TIME_STEPPING-2ND_ORDER\n",
+      "SOLVER= EULER\nTIME_MARCHING= DUAL_TIME_STEPPING-1ST_ORDER\n",
+      "SOLVER= RANS\nREYNOLDS_NUMBER= 1e6\nKIND_TURB_MODEL= SA\nTIME_MARCHING= DUAL_TIME_STEPPING-2ND_ORDER\n",
+      "SOLVER= RANS\nREYNOLDS_NUMBER= 1e6\nKIND_TURB_MODEL= SST\nTIME_MARCHING= DUAL_TIME_STEPPING-2ND_ORDER\n"};
+  for (const auto& options : cases) {
+    SECTION(options) {
+      const unsigned short nDim = 2;
+      auto config = MakeConfig(nDim, options + "TIME_DOMAIN= YES\nTIME_STEP= 1e-3\nTIME_ITER= 10\n");
+      const bool rans = config->GetKind_Solver() == MAIN_SOLVER::RANS;
+      const bool sst = rans && config->GetKind_Turb_Model() == TURB_MODEL::SST;
+      const bool secondOrder = config->GetTime_Marching() == TIME_MARCHING::DT_STEPPING_2ND;
+      std::vector<unsigned short> solvers = {FLOW_SOL};
+      if (rans) solvers.push_back(TURB_SOL);
+      MeshSolution donor(config.get(), BoxMesh(nDim, 4, true), 2);
+      for (int level = 0; level < 3; ++level) {
+        for (const auto iSol : solvers) {
+          auto& array = getters[level](donor.solver[MESH_0][iSol]->GetNodes());
+          const int fieldLevel = level == 0 ? 1 : level;
+          const auto field = (iSol == FLOW_SOL) ? flowField(nDim, fieldLevel, rans) : turbField(sst, fieldLevel);
+          su2double values[MAXVAR] = {};
+          for (auto iPoint = 0ul; iPoint < donor.Fine().GetnPoint(); ++iPoint) {
+            field(donor.Fine().nodes->GetCoord(iPoint), values);
+            for (unsigned short iVar = 0; iVar < array.cols(); ++iVar) array(iPoint, iVar) = values[iVar];
+          }
+        }
+      }
+      MeshSolution target(config.get(), BoxMesh(nDim, 6, true), 2);
+      CConservativeTransfer transfer;
+      {
+        Mute mute;
+        transfer.Transfer(config.get(), donor.Donor(), target.geometry, target.solver);
+      }
+      const auto& summary = transfer.GetSummary();
+      CHECK(summary.nTimeLevels == 2);
+      CHECK(summary.interpolateTimeN1 == secondOrder);
+      CHECK(summary.nFlowFixed == 0);
+      CHECK(summary.nHistoryFixed == 0);
+      CHECK(summary.nTurbLimited == 0);
+      for (const auto defect : summary.relativeDefect) CHECK(fabs(defect) < 1e-12);
+      CHECK(summary.relativeDefect.size() == (secondOrder ? 2u : 1u) * (nDim + 2 + (rans ? (sst ? 2 : 1) : 0)));
+
+      for (int level = 0; level < 3; ++level) {
+        const int expected = (level == 2 && secondOrder) ? 2 : 1;
+        for (const auto iSol : solvers) {
+          INFO("level " << level << ", solver " << iSol);
+          const auto field = (iSol == FLOW_SOL) ? flowField(nDim, expected, rans) : turbField(sst, expected);
+          const auto& array = getters[level](target.solver[MESH_0][iSol]->GetNodes());
+          passivedouble maxDiff = 0.0;
+          for (auto iPoint = 0ul; iPoint < target.Fine().GetnPoint(); ++iPoint) {
+            su2double exact[MAXVAR] = {};
+            field(target.Fine().nodes->GetCoord(iPoint), exact);
+            for (unsigned short iVar = 0; iVar < array.cols(); ++iVar)
+              maxDiff = max(maxDiff, RelDiff(array(iPoint, iVar), exact[iVar], 1e-6));
+          }
+          /*--- rho k is quadratic: second-order error, the rest is exact. ---*/
+          CHECK(maxDiff < ((iSol == TURB_SOL && sst) ? 1e-2 : 1e-11));
+          if (level == 0) continue;
+          for (unsigned short iMesh = 1; iMesh <= target.nMGLevels; ++iMesh) {
+            const auto& fine = getters[level](target.solver[iMesh - 1][iSol]->GetNodes());
+            const auto& coarse = getters[level](target.solver[iMesh][iSol]->GetNodes());
+            su2activematrix restricted = coarse;
+            CSolver::MultigridRestriction(*target.geometry[iMesh - 1], fine, *target.geometry[iMesh], restricted);
+            passivedouble maxCoarse = 0.0;
+            for (auto iPoint = 0ul; iPoint < target.geometry[iMesh]->GetnPointDomain(); ++iPoint)
+              for (unsigned short iVar = 0; iVar < coarse.cols(); ++iVar)
+                maxCoarse = max(maxCoarse, RelDiff(coarse(iPoint, iVar), restricted(iPoint, iVar), 1e-6));
+            CHECK(maxCoarse < 1e-14);
+          }
+        }
+      }
+    }
+  }
+}
+
+TEST_CASE("Conservative transfer: inadmissible projected state", "[Adaptation]") {
+  /*--- Donor with zero total energy (negative pressure) at one point: the projected states near it are not admissible;
+   *    they are recovered (blended towards the mean of a patch), every state is admissible afterwards and the totals
+   *    are kept. ---*/
+  const unsigned short nDim = 2;
+  auto config = MakeConfig(nDim, "SOLVER= EULER\n");
+  MeshSolution donor(config.get(), BoxMesh(nDim, 4, false), 0);
+  donor.SetField(FLOW_SOL, AffineFlow(nDim));
+  auto* donorNodes = donor.solver[MESH_0][FLOW_SOL]->GetNodes();
+  for (auto iPoint = 0ul; iPoint < donor.Fine().GetnPoint(); ++iPoint) {
+    const auto* x = donor.Fine().nodes->GetCoord(iPoint);
+    if (fabs(x[0] - 1.0) < 1e-12 && fabs(x[1] - 0.5) < 1e-12) donorNodes->SetSolution(iPoint, nDim + 1, 0.0);
+  }
+  MeshSolution target(config.get(), BoxMesh(nDim, 8, false), 0);
+  CConservativeTransfer transfer;
+  {
+    Mute mute;
+    transfer.Transfer(config.get(), donor.Donor(), target.geometry, target.solver);
+  }
+  const auto& summary = transfer.GetSummary();
+  CHECK(summary.nFlowFixed >= 1);
+  CHECK(summary.nRecoveryPatches >= 1);
+  auto* fluidModel = target.solver[MESH_0][FLOW_SOL]->GetFluidModel();
+  const auto* nodes = target.solver[MESH_0][FLOW_SOL]->GetNodes();
+  for (auto iPoint = 0ul; iPoint < target.Fine().GetnPoint(); ++iPoint) {
+    su2double U[MAXVAR] = {};
+    for (unsigned short iVar = 0; iVar < nDim + 2; ++iVar) U[iVar] = nodes->GetSolution(iPoint, iVar);
+    CHECK(CBarycentricTransfer::AdmissibleState(*fluidModel, nDim, U));
+  }
+  for (unsigned short f = 0; f < nDim + 2; ++f) CHECK(fabs(summary.relativeDefect[f]) < 1e-12);
+}
+
+TEST_CASE("Conservative transfer: no-slip wall points", "[Adaptation]") {
+  /*--- Heat-flux walls on a disk/ball, donor momentum zero on the wall: the projected wall momentum is not zero (the
+   *    control volume of a wall point reaches into the moving fluid); the transfer sets it to zero, as the solver
+   *    imposes it, and redistributes it, so the momentum totals stay exact. ---*/
+  for (const unsigned short nDim : {2, 3}) {
+    SECTION("nDim " + std::to_string(nDim)) {
+      auto config = MakeRoundConfig("SOLVER= NAVIER_STOKES\nREYNOLDS_NUMBER= 1e6\n",
+                                    "MARKER_HEATFLUX= (round_a, 0.0, round_b, 0.0)\n");
+      MeshSolution donor(config.get(), simplex_test::MakeRoundMesh(nDim, 6, 1.0), 0);
+      MeshSolution target(config.get(), simplex_test::MakeRoundMesh(nDim, 5, 1.0), 0);
+      donor.SetField(FLOW_SOL, [nDim](const su2double* x, su2double* U) { SmoothFlow(nDim, x, U); });
+      auto* donorNodes = donor.solver[MESH_0][FLOW_SOL]->GetNodes();
+      for (unsigned short iMarker = 0; iMarker < donor.Fine().GetnMarker(); ++iMarker)
+        for (auto iVertex = 0ul; iVertex < donor.Fine().GetnVertex(iMarker); ++iVertex)
+          for (unsigned short iDim = 0; iDim < nDim; ++iDim)
+            donorNodes->SetSolution(donor.Fine().vertex[iMarker][iVertex]->GetNode(), iDim + 1, 0.0);
+
+      CConservativeTransfer transfer;
+      {
+        Mute mute;
+        transfer.Transfer(config.get(), donor.Donor(), target.geometry, target.solver);
+      }
+      const auto& summary = transfer.GetSummary();
+      CHECK(summary.nWallPoints > 0);
+      CHECK(summary.maxWallMomentum > 1.0);
+      for (unsigned short f = 0; f < nDim + 2; ++f) CHECK(fabs(summary.relativeDefect[f]) < 1e-13);
+      const auto* nodes = target.solver[MESH_0][FLOW_SOL]->GetNodes();
+      passivedouble maxMomentum = 0.0;
+      for (unsigned short iMarker = 0; iMarker < target.Fine().GetnMarker(); ++iMarker)
+        for (auto iVertex = 0ul; iVertex < target.Fine().GetnVertex(iMarker); ++iVertex)
+          for (unsigned short iDim = 0; iDim < nDim; ++iDim)
+            maxMomentum = std::max(maxMomentum, SU2_TYPE::GetValue(fabs(nodes->GetSolution(
+                                                    target.Fine().vertex[iMarker][iVertex]->GetNode(), iDim + 1))));
+      CHECK(maxMomentum == 0.0);
+    }
+  }
+}
+
+TEST_CASE("Conservative transfer: SST kinetic energy in the admissibility", "[Adaptation]") {
+  /*--- The review's two states A and B on alternating donor points (U^n, and U^(n-1) the other way round), 2nd-order
+   *    dual time stepping. The solver subtracts k from the internal energy: every final state (solution and history)
+   *    must be admissible with it, with a positive pressure in the solver, and the flow totals kept. ---*/
+  const unsigned short nDim = 2;
+  auto config = MakeConfig(nDim,
+                           "SOLVER= RANS\nREYNOLDS_NUMBER= 1e6\nKIND_TURB_MODEL= SST\nTIME_DOMAIN= YES\n"
+                           "TIME_MARCHING= DUAL_TIME_STEPPING-2ND_ORDER\nTIME_STEP= 1e-3\nTIME_ITER= 10\n");
+  MeshSolution donor(config.get(), BoxMesh(nDim, 4, false), 1);
+  SetTwoStates(donor, nDim, 4);
+  MeshSolution target(config.get(), BoxMesh(nDim, 6, true), 1);
+  CConservativeTransfer transfer;
+  {
+    Mute mute;
+    transfer.Transfer(config.get(), donor.Donor(), target.geometry, target.solver);
+  }
+  const auto& summary = transfer.GetSummary();
+  for (int level = 0; level < 2; ++level) {
+    INFO("level " << level);
+    passivedouble minEnergy, maxDeviation;
+    JointEnergyRange(target, nDim, level, minEnergy, maxDeviation);
+    CHECK(minEnergy > 0.0);
+    for (unsigned short f = 0; f < nDim + 2; ++f) CHECK(fabs(summary.relativeDefect[level * (nDim + 4) + f]) < 1e-12);
+  }
+  const auto* nodes = target.solver[MESH_0][FLOW_SOL]->GetNodes();
+  for (auto iPoint = 0ul; iPoint < target.Fine().GetnPoint(); ++iPoint) CHECK(nodes->GetPressure(iPoint) > 0.0);
+}
+
+TEST_CASE("Conservative transfer: donor state not admissible with k", "[Adaptation]") {
+  /*--- SST, affine flow and turbulence; at the donor point nearest to (1, 0.5) k is twice the internal energy of its
+   *    flow state (admissible without k, not with it). The projected states near it are not admissible with k: they
+   *    must be recovered, every final state admissible with k subtracted, the flow totals kept. ---*/
+  const unsigned short nDim = 2;
+  auto config = MakeConfig(nDim, "SOLVER= RANS\nREYNOLDS_NUMBER= 1e6\nKIND_TURB_MODEL= SST\n");
+  MeshSolution donor(config.get(), BoxMesh(nDim, 4, false), 0);
+  donor.SetField(FLOW_SOL, AffineFlow(nDim));
+  donor.SetField(TURB_SOL, [](const su2double* x, su2double* v) {
+    v[0] = 1.0 + 0.1 * x[0] - 0.2 * x[1];
+    v[1] = 1e3 + 100.0 * x[0] + 50.0 * x[1];
+  });
+  auto* donorFlow = donor.solver[MESH_0][FLOW_SOL]->GetNodes();
+  auto* donorTurb = donor.solver[MESH_0][TURB_SOL]->GetNodes();
+  for (auto iPoint = 0ul; iPoint < donor.Fine().GetnPoint(); ++iPoint) {
+    const auto* x = donor.Fine().nodes->GetCoord(iPoint);
+    if (fabs(x[0] - 1.0) > 1e-12 || fabs(x[1] - 0.5) > 1e-12) continue;
+    su2double U[MAXVAR];
+    for (unsigned short iVar = 0; iVar < nDim + 2; ++iVar) U[iVar] = donorFlow->GetSolution(iPoint, iVar);
+    donorTurb->SetSolution(iPoint, 0, 2.0 * InternalEnergy(nDim, U, 0.0));
+  }
+  MeshSolution target(config.get(), BoxMesh(nDim, 8, false), 0);
+  CConservativeTransfer transfer;
+  {
+    Mute mute;
+    transfer.Transfer(config.get(), donor.Donor(), target.geometry, target.solver);
+  }
+  const auto& summary = transfer.GetSummary();
+  CHECK(summary.nFlowFixed >= 1);
+  const auto* flow = target.solver[MESH_0][FLOW_SOL]->GetNodes();
+  const auto* turb = target.solver[MESH_0][TURB_SOL]->GetNodes();
+  for (auto iPoint = 0ul; iPoint < target.Fine().GetnPoint(); ++iPoint) {
+    su2double V[MAXVAR];
+    for (unsigned short iVar = 0; iVar < nDim + 2; ++iVar) V[iVar] = flow->GetSolution(iPoint, iVar);
+    CHECK(InternalEnergy(nDim, V, turb->GetSolution(iPoint, 0)) > 0.0);
+    CHECK(flow->GetPressure(iPoint) > 0.0);
+  }
+  for (unsigned short f = 0; f < nDim + 2; ++f) CHECK(fabs(summary.relativeDefect[f]) < 1e-12);
+}
+
+TEST_CASE("Conservative transfer: high-speed states, coupled recovery", "[Adaptation]") {
+  /*--- Valid high-speed donor states: momentum jumps (tanh) with a small internal energy (a fraction of the kinetic
+   *    energy per unit mass far from the jumps), U^n and a shifted U^(n-1). The projection to another mesh over- and
+   *    undershoots the momentum, the limiter bounds each variable separately, so states with the kinetic energy above
+   *    the total energy appear. The recovery must leave every state of both time levels admissible and keep the
+   *    totals of every flow variable. Before the coupled recovery, the per-variable redistribution and the second
+   *    fallback (the control-volume mean) lost up to 1.2e-3 of the totals in every case. ---*/
+  const unsigned short nDim = 2;
+  struct StressCase {
+    passivedouble energy, width;
+    unsigned long nDonor, nTarget;
+  };
+  const std::vector<StressCase> cases = {{1e-3, 0.02, 12, 7}, {1e-4, 0.01, 16, 7}, {1e-5, 0.005, 16, 9},
+                                         {1e-5, 0.03, 9, 16}, {1e-6, 0.002, 20, 11}};
+  for (const auto& test : cases) {
+    SECTION("energy " + std::to_string(test.energy) + ", width " + std::to_string(test.width) + ", n " +
+            std::to_string(test.nDonor) + " -> " + std::to_string(test.nTarget)) {
+      auto config = MakeConfig(nDim,
+                               "SOLVER= EULER\nTIME_DOMAIN= YES\nTIME_MARCHING= DUAL_TIME_STEPPING-2ND_ORDER\n"
+                               "TIME_STEP= 1e-3\nTIME_ITER= 10\n");
+      auto field = [&test](passivedouble shift) {
+        return Field([&test, shift](const su2double* x, su2double* U) {
+          const su2double rho = 1.0 + 0.3 * x[1];
+          const su2double u = tanh((x[0] - 1.0 - shift) / test.width) - 0.5 * tanh((x[0] - 0.4 + shift) / test.width);
+          const su2double v = 0.5 * tanh((x[1] - 0.5 - shift) / test.width);
+          U[0] = rho;
+          U[1] = rho * u;
+          U[2] = rho * v;
+          U[3] = rho * (0.5 * (u * u + v * v) + test.energy);
+        });
+      };
+      MeshSolution donor(config.get(), BoxMesh(nDim, test.nDonor, true), 0);
+      auto* donorNodes = donor.solver[MESH_0][FLOW_SOL]->GetNodes();
+      for (auto iPoint = 0ul; iPoint < donor.Fine().GetnPoint(); ++iPoint) {
+        su2double Un[MAXVAR], Un1[MAXVAR];
+        field(0.0)(donor.Fine().nodes->GetCoord(iPoint), Un);
+        field(0.03)(donor.Fine().nodes->GetCoord(iPoint), Un1);
+        for (unsigned short iVar = 0; iVar < nDim + 2; ++iVar) {
+          donorNodes->GetSolution()(iPoint, iVar) = Un[iVar];
+          donorNodes->GetSolution_time_n()(iPoint, iVar) = Un[iVar];
+          donorNodes->GetSolution_time_n1()(iPoint, iVar) = Un1[iVar];
+        }
+      }
+      MeshSolution target(config.get(), BoxMesh(nDim, test.nTarget, true), 0);
+      CConservativeTransfer transfer;
+      {
+        Mute mute;
+        transfer.Transfer(config.get(), donor.Donor(), target.geometry, target.solver);
+      }
+      const auto& summary = transfer.GetSummary();
+      INFO("fixed " << summary.nFlowFixed << " / " << summary.nHistoryFixed << ", patches " << summary.nRecoveryPatches
+                    << ", rings " << summary.maxRecoveryRing);
+      CHECK(summary.nFlowFixed + summary.nHistoryFixed > 0);
+      /*--- With the smaller internal energies the mean of the first ring is not admissible: grown patches (the
+       *    secondary recovery) are exercised. ---*/
+      if (test.energy < 5e-5) CHECK(summary.maxRecoveryRing >= 2);
+      auto* fluidModel = target.solver[MESH_0][FLOW_SOL]->GetFluidModel();
+      auto* nodes = target.solver[MESH_0][FLOW_SOL]->GetNodes();
+      unsigned long nBad = 0;
+      for (auto iPoint = 0ul; iPoint < target.Fine().GetnPoint(); ++iPoint) {
+        su2double U[MAXVAR], V[MAXVAR];
+        for (unsigned short iVar = 0; iVar < nDim + 2; ++iVar) {
+          U[iVar] = nodes->GetSolution(iPoint, iVar);
+          V[iVar] = nodes->GetSolution_time_n1()(iPoint, iVar);
+        }
+        nBad += !CBarycentricTransfer::AdmissibleState(*fluidModel, nDim, U);
+        nBad += !CBarycentricTransfer::AdmissibleState(*fluidModel, nDim, V);
+      }
+      CHECK(nBad == 0);
+      for (unsigned short f = 0; f < 2 * (nDim + 2); ++f) CHECK(fabs(summary.relativeDefect[f]) < 1e-12);
+    }
+  }
+}
+
+#include "fixtures/native_saved_sa_projection.inc"

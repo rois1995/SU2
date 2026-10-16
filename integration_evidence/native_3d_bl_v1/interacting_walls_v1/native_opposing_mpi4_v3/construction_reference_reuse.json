@@ -1,0 +1,39 @@
+{
+  "status": "PASS_EXACT_CONSTRUCTION_REFERENCE_REUSE_REMOVAL_REJECTED",
+  "native_workflow_status": "FAIL",
+  "native_receipt_sha256": "b96a1bafbff4b4e437e9a623f07c943464954b3572d7a76c45ca671179271078",
+  "equivalent_complete_input_sha256": "30ace31249e242b4595479dc5d60a7530e8f519359c6d9b4c42a33df232ab7e2",
+  "old_independent_audit_sha256": "01d6dd4adc945f33915f8e07309552249353b0f5a2f87226ce4aee0a198c71c2",
+  "old_front_coverage_sha256": "4704a1c833aa31079fe5caeef9fbd4d2013af024038996163f9926f80b3ad8ff",
+  "construction_frame": {
+    "file": "opposing_finer_grouped_coupled_BL_independent.json",
+    "cells": 1920,
+    "points": 483,
+    "physical_faces": 544,
+    "volume": "1",
+    "minimum_mean_ratio": 0.4673160150867968,
+    "minimum_scaled_jacobian": 0.19316019857871727,
+    "maximum_length": 1.6680628605896526,
+    "longest_edge": [
+      44,
+      65
+    ],
+    "markers": {
+      "1": 32,
+      "0": 480,
+      "2": 32
+    },
+    "strict_metric_gate": true,
+    "first_height_faces": 64,
+    "maximum_height_relative_error": 8.881784197001252e-16,
+    "maximum_centroid_tilt": 13.176156917368248,
+    "wall_normal_first_row_edges": 46,
+    "minimum_nonwall_node_clearance": 0.02,
+    "full_metric_edges": 2674,
+    "coverage": "Complete positive prismatic first bands, normal edges at every wall node, no nonwall node below h0; centroid tilt is reported separately.",
+    "layers": true,
+    "input_sha256": "30ace31249e242b4595479dc5d60a7530e8f519359c6d9b4c42a33df232ab7e2"
+  },
+  "normal_intervals": 20,
+  "scope": "Native BL generation/publication passes all four ranks. The complete independently auditable geometry/facets/source field input is byte-identical to serial, and independent metric/edge callback bodies are unchanged; reuse the exact whole embedding/height/all2674 full composed edges/slab certificate for construction only. Whole native removal workflow remains FAIL; rejected 496-cell state is not promoted."
+}

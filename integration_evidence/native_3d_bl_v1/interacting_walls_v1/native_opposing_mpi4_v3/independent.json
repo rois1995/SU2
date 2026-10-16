@@ -1,0 +1,65 @@
+{
+  "status": "PASS_CONSTRUCTION_ONLY_NATIVE_REMOVAL_REJECTED",
+  "native_workflow_status": "FAIL",
+  "frames": [
+    {
+      "file": "opposing_finer_grouped_coupled_BL_independent.json",
+      "cells": 1920,
+      "points": 483,
+      "physical_faces": 544,
+      "volume": "1",
+      "minimum_mean_ratio": 0.4673160150867968,
+      "minimum_scaled_jacobian": 0.19316019857871727,
+      "maximum_length": 1.6680628605896526,
+      "longest_edge": [
+        44,
+        65
+      ],
+      "markers": {
+        "1": 32,
+        "0": 480,
+        "2": 32
+      },
+      "strict_metric_gate": true,
+      "first_height_faces": 64,
+      "maximum_height_relative_error": 8.881784197001252e-16,
+      "maximum_centroid_tilt": 13.176156917368248,
+      "wall_normal_first_row_edges": 46,
+      "minimum_nonwall_node_clearance": 0.02,
+      "full_metric_edges": 2674,
+      "coverage": "Complete positive prismatic first bands, normal edges at every wall node, no nonwall node below h0; centroid tilt is reported separately.",
+      "layers": true,
+      "input_sha256": "30ace31249e242b4595479dc5d60a7530e8f519359c6d9b4c42a33df232ab7e2",
+      "exact_reference_reuse_sha256": "a0b4766d31ed6ffe06308cfe096f41529493eb198ca5f288813bf67ce6c86452"
+    },
+    {
+      "file": "opposing_finer_grouped_released_Euler_rejected_independent.json",
+      "cells": 496,
+      "points": 142,
+      "physical_faces": 188,
+      "volume": "1",
+      "minimum_mean_ratio": 0.2078277414589149,
+      "minimum_scaled_jacobian": 0.056364718306713094,
+      "maximum_length": 1.781147819248974,
+      "longest_edge": [
+        13,
+        115
+      ],
+      "markers": {
+        "0": 136,
+        "2": 28,
+        "1": 24
+      },
+      "strict_metric_gate": false,
+      "layers": false,
+      "input_sha256": "191f6b9347eb2d5ce92ec63cb093fcbbd6c5090560703aa3952c7694c07c5fb6"
+    }
+  ],
+  "native_receipt_sha256": "b96a1bafbff4b4e437e9a623f07c943464954b3572d7a76c45ca671179271078",
+  "baseline_native_receipt_sha256": "aa6ac43c383fa6851b7c897edb134b3140d582c5f2835547d101938a44e0392d",
+  "helper_sha256": "d298cd7c0b25425db6cc1a07bade7b51fc1fb4939aef0eca249638b05605eb06",
+  "geometry_helper_sha256": "1822427476ecb5687aaa06f3e7a3cc8f31cde53166fd0c711449eedf7c7c7a50",
+  "feet_helper_sha256": "5d068c56883bc966a332848b120e07d643a3015bae24671a366adf623d1be906",
+  "elapsed_seconds": 18.62877514201682,
+  "scope": "Whole exact binary64 geometry/finite facets/manifold/links/positive-volume/no-overlap/volume1 and height/normal-column/coverage diagnostics. Independent analytic two-planar-wall BL plus exact original affine P1 and full-edge numerical quadrature for every constructed edge; independent original P1 arithmetic/analytic full edges after removal. Native actual-query tensor/edge validation is separately required by the fixture. Rejected removal frames have geometry and measured residuals only; their metric gates are not asserted or promoted. Phase-specific4096 work controls, not proof of shared backend event budget. No CFD/transport/restart/general geometry or affordability qualification."
+}

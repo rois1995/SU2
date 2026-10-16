@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "integration_evidence/native_3d_bl_v1/interacting_walls_v1/audit_native.py", line 105, in <module>
+    if __name__=='__main__':main()
+  File "integration_evidence/native_3d_bl_v1/interacting_walls_v1/audit_native.py", line 73, in main
+    nodes,cells=records(case/'native.log',name);surface=[f for c in cells for f in c['surface']]
+  File "integration_evidence/native_3d_bl_v1/interacting_walls_v1/audit_native.py", line 19, in records
+    n=int(tokens[4+4*k]);point=list(map(float,tokens[5+4*k:8+4*k]));ids.append(n)
+ValueError: invalid literal for int() with base 10: '66\x1b[0;37m../../UnitTests/Common/adaptation/CNativeDistributed3D_tests.cpp:2389:\x1b[0m\x1b[1;31m'

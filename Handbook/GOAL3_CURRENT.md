@@ -4,6 +4,18 @@ Repository `/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated`, branch
 `codex/native-3d-bl`. Goal3 remains ACTIVE and incomplete. The full objective and
 acceptance gates are preserved in [the requirement audit](../integration_evidence/native_3d_bl_v1/GOAL3_REQUIREMENTS.json).
 
+## Current interacting-wall extension
+
+The new [joined prismatic fronts](GOAL3_INTERACTING_WALLS.md) construct the full
+overlapping two-wall target on MPI1/2/4, independently1920 cells/work2309/q.467316/
+J.193160/L1.668063, with exact20-slab/first-height/normal-edge coverage. Direct
+removal accepts1/2 ranks;4 ranks rejects a496-cell state at proposal work4084,
+even though independent geometry/source/full metric gates pass. Preserve that
+native failure and audit completion semantics before another operator fallback.
+Actual current-source curved RANS N4/M2 v13 passes; actual prismatic backend/CFD,
+rotated tangential fields, wider junctions and full performance remain unqualified.
+All owned jobs are terminal. Full Goal3 remains active.
+
 ## Current changed-source qualification
 
 The complete high-ratio curved native mesh now accepts2877 cells/eight fronts/

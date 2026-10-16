@@ -1,5 +1,5 @@
 {
-  "status": "COMPLETE_NATIVE_OPPOSING_CONSTRUCTION_REMOVAL_SERIAL_INDEPENDENT_PASS_MPI_WORKFLOW_PENDING",
+  "status": "MPI1_2_COMPLETE_MPI4_CONSTRUCTION_PASS_REMOVAL_SEARCH_BUDGET_REJECTED",
   "full_goal3_complete": false,
   "baseline": {
     "case": "native_opposing_v1",
@@ -53,8 +53,8 @@
     }
   },
   "handbook": "../../../Handbook/GOAL3_INTERACTING_WALLS.md",
-  "production_state": "Connected finite-right-prism construction compiled and independently accepted on the unchanged complete overlapping-wall target; existing sensor-only Coarsen removes the layer. MPI/actual backend/current+BDF/CFD/restart for this geometry remain pending.",
-  "next": "Require complete native acceptance of the unchanged overlapping-wall target and its removal, independent field/embedding audits and affected MPI/workflow gates. No local fallback/budget ladder.",
+  "production_state": "Published75777343c1 connected prismatic generation accepts the unchanged complete overlapping-wall target MPI1/2/4. Direct removal accepts1/2 but4 ranks rejects after its search budget despite an independently admissible private mesh. Current changed-source curved RANS N4/M2 passes; actual prismatic backend/CFD remains unqualified.",
+  "next": "Audit coarsening completion policy against unchanged hard mesh gates and bounded-work contract; independently valid MPI4 private mesh is still rejected. Then qualify actual prismatic backend Refine-before-Coarsen/current+BDF/CFD/restart, rotated/localized tangential sensors and wider junction geometry. Use sampled exact-contact/metric-wait costs for substantive performance work, not another local collapse fallback.",
   "accepted": {
     "case": "native_opposing_v3",
     "native_receipt_sha256": "0f69d18ce2142605c120c6852d656fa99bd05e2867014f9a1ca5af29c31e1c2d",
@@ -132,5 +132,194 @@
   "preserved_failures": {
     "admission_api_misuse": "native_opposing_v2.json",
     "independent_alias_parse": "native_opposing_v3/independent_alias_failed_v1.json"
+  },
+  "production_commit": "75777343c1c6e7f733a7f721c2634f4053295156",
+  "planned_integration": [
+    "native_opposing_mpi2_v3",
+    "native_opposing_mpi4_v3",
+    "native_curved_rans_n4_m2_v13"
+  ],
+  "integration_completed": {
+    "native_opposing_mpi2_v3": {
+      "native_workflow_status": "PASS",
+      "native_receipt_sha256": "062c9380a10a0e4e96d9c942a82be52835bca2d8f3d39fdf8dd6057d76619ad4",
+      "independent_status": "PASS_COMPLETE_OPPOSING_CONSTRUCTION_REMOVAL_GEOMETRY_AND_FULL_FIELD_SCOPE_LIMITED",
+      "independent_sha256": "2d426a807343fbcd180836efea2010fa175c1dab0b45a67160b9eecbfd27e3a1",
+      "front_coverage_sha256": "56898014dbcd42901d8e36decfcd534a442b19e22ba3e5a9c83dcb5181bfcbe5",
+      "frames": [
+        {
+          "file": "opposing_finer_grouped_coupled_BL_independent.json",
+          "cells": 1920,
+          "points": 483,
+          "physical_faces": 544,
+          "volume": "1",
+          "minimum_mean_ratio": 0.4673160150867968,
+          "minimum_scaled_jacobian": 0.19316019857871727,
+          "maximum_length": 1.6680628605896526,
+          "longest_edge": [
+            44,
+            65
+          ],
+          "markers": {
+            "1": 32,
+            "0": 480,
+            "2": 32
+          },
+          "strict_metric_gate": true,
+          "first_height_faces": 64,
+          "maximum_height_relative_error": 8.881784197001252e-16,
+          "maximum_centroid_tilt": 13.176156917368248,
+          "wall_normal_first_row_edges": 46,
+          "minimum_nonwall_node_clearance": 0.02,
+          "full_metric_edges": 2674,
+          "coverage": "Complete positive prismatic first bands, normal edges at every wall node, no nonwall node below h0; centroid tilt is reported separately.",
+          "layers": true,
+          "input_sha256": "30ace31249e242b4595479dc5d60a7530e8f519359c6d9b4c42a33df232ab7e2"
+        },
+        {
+          "file": "opposing_finer_grouped_released_Euler_independent.json",
+          "cells": 230,
+          "points": 77,
+          "physical_faces": 120,
+          "volume": "1",
+          "minimum_mean_ratio": 0.20389219154526758,
+          "minimum_scaled_jacobian": 0.06984456022157506,
+          "maximum_length": 1.7981211593399824,
+          "longest_edge": [
+            36,
+            114
+          ],
+          "markers": {
+            "2": 22,
+            "0": 76,
+            "1": 22
+          },
+          "strict_metric_gate": true,
+          "layers": false,
+          "input_sha256": "b43c006c2505e3233710c7bb0cc90797e1f19e200c30f382401517e452f034c6"
+        }
+      ],
+      "stage_root_counters": [
+        {
+          "case": "opposing_finer_grouped_coupled_BL",
+          "global_work": "2309",
+          "work_limit": "4096",
+          "valid": "1",
+          "stop": "complete",
+          "total_s": "49.847729115"
+        },
+        {
+          "case": "opposing_finer_grouped_released_Euler",
+          "global_work": "2720",
+          "work_limit": "4096",
+          "valid": "1",
+          "stop": "complete",
+          "total_s": "7.767595204"
+        }
+      ]
+    },
+    "native_opposing_mpi4_v3": {
+      "native_workflow_status": "FAIL",
+      "native_receipt_sha256": "b96a1bafbff4b4e437e9a623f07c943464954b3572d7a76c45ca671179271078",
+      "independent_status": "PASS_CONSTRUCTION_ONLY_NATIVE_REMOVAL_REJECTED",
+      "independent_sha256": "0683cc833b1240b687c95a6e4a3ae83cd349c61be5a41c08aedb452a6d53eb2c",
+      "front_coverage_sha256": "069fdc61ab1c4596db84a82adf86c105cf57dcddc9ffc33e186ef3ac88cb8b48",
+      "frames": [
+        {
+          "file": "opposing_finer_grouped_coupled_BL_independent.json",
+          "cells": 1920,
+          "points": 483,
+          "physical_faces": 544,
+          "volume": "1",
+          "minimum_mean_ratio": 0.4673160150867968,
+          "minimum_scaled_jacobian": 0.19316019857871727,
+          "maximum_length": 1.6680628605896526,
+          "longest_edge": [
+            44,
+            65
+          ],
+          "markers": {
+            "1": 32,
+            "0": 480,
+            "2": 32
+          },
+          "strict_metric_gate": true,
+          "first_height_faces": 64,
+          "maximum_height_relative_error": 8.881784197001252e-16,
+          "maximum_centroid_tilt": 13.176156917368248,
+          "wall_normal_first_row_edges": 46,
+          "minimum_nonwall_node_clearance": 0.02,
+          "full_metric_edges": 2674,
+          "coverage": "Complete positive prismatic first bands, normal edges at every wall node, no nonwall node below h0; centroid tilt is reported separately.",
+          "layers": true,
+          "input_sha256": "30ace31249e242b4595479dc5d60a7530e8f519359c6d9b4c42a33df232ab7e2",
+          "exact_reference_reuse_sha256": "a0b4766d31ed6ffe06308cfe096f41529493eb198ca5f288813bf67ce6c86452"
+        },
+        {
+          "file": "opposing_finer_grouped_released_Euler_rejected_independent.json",
+          "cells": 496,
+          "points": 142,
+          "physical_faces": 188,
+          "volume": "1",
+          "minimum_mean_ratio": 0.2078277414589149,
+          "minimum_scaled_jacobian": 0.056364718306713094,
+          "maximum_length": 1.781147819248974,
+          "longest_edge": [
+            13,
+            115
+          ],
+          "markers": {
+            "0": 136,
+            "2": 28,
+            "1": 24
+          },
+          "strict_metric_gate": false,
+          "layers": false,
+          "input_sha256": "191f6b9347eb2d5ce92ec63cb093fcbbd6c5090560703aa3952c7694c07c5fb6"
+        }
+      ],
+      "stage_root_counters": [
+        {
+          "case": "opposing_finer_grouped_coupled_BL",
+          "global_work": "2309",
+          "work_limit": "4096",
+          "valid": "1",
+          "stop": "complete",
+          "total_s": "50.559001909000003"
+        },
+        {
+          "case": "opposing_finer_grouped_released_Euler",
+          "global_work": "4084",
+          "work_limit": "4096",
+          "valid": "0",
+          "stop": "work_budget",
+          "total_s": "7.0088383329999999"
+        }
+      ],
+      "all_inspected_mesh_geometry_quality_and_length_gates_met": true,
+      "construction_exact_reference_reuse_sha256": "a0b4766d31ed6ffe06308cfe096f41529493eb198ca5f288813bf67ce6c86452",
+      "reason": "Native coarsening cannot admit another proposal batch at work4084 under4096. Remaining private496-cell mesh independently satisfies finite geometry/embedding/height-free source metric gates, but the native workflow stays FAIL. Optional collapse-search completion vs hard mesh validity must be reviewed; no promotion/budget increase."
+    },
+    "native_curved_rans_n4_m2_v13": {
+      "native_workflow_status": "PASS",
+      "native_receipt_sha256": "6caf3324e7b4645a6235f4a305642876dd635aa190efd8e06d2a3d3fec627dc2",
+      "independent_sha256": "b9548ad8f169dfbb3c00c0df140f6db6be83923c264fafad28fd5a89ee41f154",
+      "section_clocks_sha256": "faff345e513e875df50c6bcfdc39f40f3f7db94ccb67510061ef854ced2a208b",
+      "SA_replay_receipt_sha256": "35d4807d7e1270b4b33306e744d4e8186b8b45696744717b49d294932d38a2a0",
+      "mesh_sequence": [
+        24,
+        621,
+        48
+      ],
+      "post_bounds_SA_exactly_conserved": false,
+      "scope": "Current changed-source actual curved RANS N4/M2 integration control, not actual prismatic CFD workflow."
+    }
+  },
+  "all_planned_workflows_pass": false,
+  "all_planned_case_verdicts_saved": true,
+  "profile": {
+    "report": "profile_curved_bridge_v1/processed_result.json",
+    "sha256": "9308a11559f59fc9fae3a22a92930414aa2dc10e476499e5951cc10592dbc4ce",
+    "scope": "1398 rank0 user-space CPU samples during the already required curved RANS control; includes initialization, metric construction and MPI waits through first BL remesh. Root-only diagnosis, not scaling/CFD ratio/whole critical-path attribution."
   }
 }

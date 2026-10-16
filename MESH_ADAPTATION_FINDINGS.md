@@ -5741,3 +5741,23 @@ engine Coarsen success is not full workflow proof. Perpendicular/nonprismatic wa
 junctions, arbitrary interaction/exterior geometry, viscous accuracy and complete
 lifecycle affordability remain full Goal3 gates. See interacting_walls_v1/summary.json
 and Handbook/GOAL3_INTERACTING_WALLS.md. Full Goal3 remains active/incomplete.
+
+
+Subsequent MPI qualification: opposing1920-cell generation/work2309 passes1/2/4
+ranks with identical complete serialized geometry/source-model input. Direct
+removal passes1/2 ranks (250/230 cells), but4 ranks stops before another proposal
+batch atwork4084<=4096, leaving496 cells. Independent exact finite geometry/no
+overlap/links/volume1 and full sensor q.207828/J.056365/L1.781148 pass for this
+rejected state. Native workflow remains FAIL. Next audit optional coarsening
+search completion vs hard mesh validity and refusal/atomicity contracts; do not
+add retries or silently promote the rejected mesh. Rejected stdout interleaving
+is preserved; independent geometry uses the intact SU2 file.
+
+Current-source curved RANS N4/M2 v13/SA replayv27 passes24->621->48, physical
+current+BDF/open-ledger, accounted SA floor changes, SU2/CGNS/reference and restart.
+Passive sampling of this already required run captures1398 rank0 samples/zero
+losses: metric-stage collective waiting and exact tetra contact arithmetic are
+substantial. Initial expected-SIGINT misclassification is preserved/corrected
+offline; no extra CFD run or speedup claim. Full actual prismatic workflow,
+rotated/localized tangential fields and wider geometry remain pending. All owned
+jobs terminal. Evidence: interacting_walls_v1/summary.json and linked handbook.

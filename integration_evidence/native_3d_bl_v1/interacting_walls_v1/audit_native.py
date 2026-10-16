@@ -24,6 +24,27 @@ def records(path,label):
         result.append({'id':cell,'nodes':ids,'surface':surface})
     assert result;return nodes,result
 
+def rejected_su2(path,facets,groups,names):
+    lines=path.read_text().splitlines();e=next(i for i,l in enumerate(lines) if l.startswith('NELEM='));count=int(lines[e].split('=')[1])
+    cells=[{'id':i,'nodes':list(map(int,lines[e+1+i].split()[1:5])),'surface':[]} for i in range(count)]
+    assert all(lines[e+1+i].split()[0]=='10' for i in range(count))
+    n=next(i for i,l in enumerate(lines) if l.startswith('NPOIN='));nodes={i:list(map(float,lines[n+1+i].split()[:3])) for i in range(int(lines[n].split('=')[1]))}
+    at=next(i for i,l in enumerate(lines) if l.startswith('NMARK='))+1;physical={}
+    while at<len(lines):
+        marker=names.index(lines[at].split('=')[1].strip());count=int(lines[at+1].split('=')[1]);at+=2
+        for line in lines[at:at+count]:
+            values=list(map(int,line.split()));assert values[0]==5 and len(values)==4
+            face=values[1:];matches=[min(ids) for (axis,value),ids in groups.items() if facets[min(ids)]['marker']==marker and all(nodes[n][axis]==value for n in face)]
+            assert len(matches)==1;key=tuple(sorted(face));assert key not in physical;physical[key]=matches[0]
+        at+=count
+    used=set()
+    for c in cells:
+        a,b,d,e=c['nodes']
+        for f in ((b,d,e),(a,e,d),(a,b,e),(a,d,b)):
+            key=tuple(sorted(f))
+            if key in physical:c['surface'].append({'nodes':list(f),'facet':physical[key]});assert key not in used;used.add(key)
+    assert used==set(physical);return nodes,cells
+
 def metric(original,p):
     x,y,z=map(float,p);s=4+12*x;distance=min(z,1-z);hn=max(.02,2*(.02+.2*distance)/2.2)
     return tuple(map(F,(s,0.,0.,s,0.,max(s,1/(hn*hn)))))
@@ -37,7 +58,7 @@ def edge(a,b):
 
 def main():
     start=time.monotonic();case=HERE/sys.argv[1];receiptPath=case.with_suffix('.json');receipt=json.loads(receiptPath.read_text())
-    assert receipt['status']=='PASS' and all(sha(case/p)==v for p,v in receipt['artifacts'].items())
+    assert receipt['status'] in ('PASS','FAIL') and all(sha(case/p)==v for p,v in receipt['artifacts'].items())
     baseline=HERE/'native_opposing_v1';oldReceipt=baseline.with_suffix('.json');old=json.loads(oldReceipt.read_text());assert old['status']=='FAIL'
     assert all(sha(baseline/p)==v for p,v in old['artifacts'].items())
     initial='opposing_finer_grouped_initial_euler_n'+str(receipt['contract']['MPI_ranks'])+'.su2'
@@ -65,13 +86,29 @@ def main():
     groups=collections.defaultdict(list)
     for f in facets.values():
         points=[v[1:] for v in f['vertices']];axis=next(k for k in range(3) if len({p[k] for p in points})==1);groups[axis,points[0][axis]].append(f['id'])
-    reports=[]
-    for name,layers in [('opposing_finer_grouped_coupled_BL',True),('opposing_finer_grouped_released_Euler',False)]:
-        nodes,cells=records(case/'native.log',name);surface=[f for c in cells for f in c['surface']]
+    engines=[dict(x.split('=',1) for x in l.split()[1:]) for l in (case/'native.log').read_text().splitlines() if l.startswith('ENGINE ')]
+    constructed=[e for e in engines if e['case']=='opposing_finer_grouped_coupled_BL']
+    assert len(constructed)==receipt['contract']['MPI_ranks'] and all(e['valid']=='1' for e in constructed)
+    reports=[];complete=receipt['status']=='PASS'
+    for name,layers in [('opposing_finer_grouped_coupled_BL',True),('opposing_finer_grouped_released_Euler'+('' if complete else '_rejected'),False)]:
+        if not complete and not layers:
+            nodes,cells=rejected_su2(case/('opposing_finer_grouped_released_euler_rejected_n'+str(receipt['contract']['MPI_ranks'])+'.su2'),facets,groups,names)
+        else:nodes,cells=records(case/'native.log',name)
+        surface=[f for c in cells for f in c['surface']]
         data={'nodes':[[n]+p for n,p in sorted(nodes.items())],'cells':[{'id':c['id'],'nodes':c['nodes']} for c in cells],
             'surface':surface,'facets':list(facets.values()),'facet_groups':list(groups.values()),'marker_names':names,'original':original}
         path=case/(name+'_independent.json');path.write_text(json.dumps(data,separators=(',',':'))+'\n')
-        report,checked=frame(path,True,True,metric if layers else None,(lambda original,a,b:edge(tuple(a),tuple(b))) if layers else None)
+        reuse=case/'construction_reference_reuse.json'
+        if layers and reuse.exists():
+            saved=json.loads(reuse.read_text());serial=HERE/'native_opposing_v3'
+            assert saved['status']=='PASS_EXACT_CONSTRUCTION_REFERENCE_REUSE_REMOVAL_REJECTED'
+            assert saved['native_receipt_sha256']==sha(receiptPath) and saved['equivalent_complete_input_sha256']==sha(path)
+            assert saved['old_independent_audit_sha256']==sha(serial/'independent.json') and saved['old_front_coverage_sha256']==sha(serial/'front_coverage.json')
+            executed=(serial/'audit_native_executed.py').read_text();current=Path(__file__).read_text()
+            assert executed[executed.index('def metric('):executed.index('def main(')]==current[current.index('def metric('):current.index('def main(')]
+            report=dict(saved['construction_frame']);report['exact_reference_reuse_sha256']=sha(reuse)
+        else:
+            report,checked=frame(path,layers or complete,layers or complete,metric if layers else None,(lambda original,a,b:edge(tuple(a),tuple(b))) if layers else None)
         assert F(report['volume'])==1
         if layers:
             allEdges={tuple(sorted((c['nodes'][i],c['nodes'][j]))) for c in cells for i,j in itertools.combinations(range(4),2)}
@@ -93,10 +130,10 @@ def main():
                 full_metric_edges=len(allEdges),coverage='Complete positive prismatic first bands, normal edges at every wall node, no nonwall node below h0; centroid tilt is reported separately.')
         report['layers']=layers;report['input_sha256']=sha(path);reports.append(report)
     assert reports[1]['cells']<reports[0]['cells']
-    result={'status':'PASS_COMPLETE_OPPOSING_CONSTRUCTION_REMOVAL_GEOMETRY_AND_FULL_FIELD_SCOPE_LIMITED','frames':reports,
+    result={'status':'PASS_COMPLETE_OPPOSING_CONSTRUCTION_REMOVAL_GEOMETRY_AND_FULL_FIELD_SCOPE_LIMITED' if complete else 'PASS_CONSTRUCTION_ONLY_NATIVE_REMOVAL_REJECTED','native_workflow_status':receipt['status'],'frames':reports,
         'native_receipt_sha256':sha(receiptPath),'baseline_native_receipt_sha256':sha(oldReceipt),'helper_sha256':sha(Path(__file__)),
         'geometry_helper_sha256':sha(ROOT/'integration_evidence/native_3d_core_v1/audit_coupled.py'),
         'feet_helper_sha256':sha(ROOT/'integration_evidence/native_3d_bl_v1/alignment_audit_v1/baseline.py'),'elapsed_seconds':time.monotonic()-start,
-        'scope':'Whole exact binary64 geometry/finite facets/manifold/links/positive-volume/no-overlap/volume1 and height/normal-column/coverage diagnostics. Independent analytic two-planar-wall BL plus exact original affine P1 and full-edge numerical quadrature for every constructed edge; independent original P1 arithmetic/analytic full edges after removal. Native actual-query tensor/edge validation is separately required by the fixture. Phase-specific4096 work controls, not proof of shared backend event budget. No CFD/transport/restart/general geometry or affordability qualification.'}
+        'scope':'Whole exact binary64 geometry/finite facets/manifold/links/positive-volume/no-overlap/volume1 and height/normal-column/coverage diagnostics. Independent analytic two-planar-wall BL plus exact original affine P1 and full-edge numerical quadrature for every constructed edge; independent original P1 arithmetic/analytic full edges after removal. Native actual-query tensor/edge validation is separately required by the fixture. Rejected removal frames have geometry and measured residuals only; their metric gates are not asserted or promoted. Phase-specific4096 work controls, not proof of shared backend event budget. No CFD/transport/restart/general geometry or affordability qualification.'}
     (case/'independent.json').write_text(json.dumps(result,indent=2)+'\n');print(result['status'],flush=True)
 if __name__=='__main__':main()

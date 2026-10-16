@@ -84,3 +84,75 @@ the actual backend's Refine-then-Coarsen removal sequence, refreshed source/curr
 BDF transfer/restart, or shared-event control for this prismatic geometry. Those
 are required next, alongside MPI and wider nonprismatic/perpendicular junctions.
 No complete full-Goal3 or affordability claim follows from this accepted class.
+
+
+## MPI qualification and the remaining removal failure
+
+Production75777343c1 is published. Opposing BL generation accepts1920 cells/
+work2309 on MPI1/2/4. Serialized complete mesh/finite reference/original-source
+model is byte-identical; explicit equality and unchanged independent callbacks
+reuse the complete serial proof for MPI4 construction. MPI2 direct removal
+accepts230 cells independently. MPI4 removal rejects at4084 proposal work before
+another batch fits4096, leaving496 private cells. Independent exact finite
+geometry/embedding/volume1, every link, q.207827741/J.056364718 and all full sensor
+edges<=1.781147819 pass for that rejected state. This is a search-budget refusal,
+not evidence that the metric or geometry is infeasible. Native receipt remains
+FAIL; the audit reports construction-only acceptance and rejected-state inspection.
+MPI rejection messages corrupt some rejected MESH stdout lines; the intact regular
+SU2 export is used for rejected geometry. Original traces are kept. Positive
+serial/MPI2 audits retain their exact executed helper snapshots.
+
+Next inspect the actual coarsening completion/work policy: the optimizer's remaining
+short-edge agenda is not automatically an unmet hard mesh constraint. Do not
+promote this saved result or weaken any gate; establish whether a general bounded
+coarsening completion proof is consistent with the API, mandatory refusal/atomic
+state tests, requested complexity and useful coarsening before changing code.
+This is preferable to adding another collapse fallback without diagnosing why
+valid geometry still receives a native rejection.
+
+Current-source curved RANS N4/M2 v13 independently passes24->621->48, physical
+current+BDF/open-ledger, explicit SA-floor replayv27, SU2/CGNS/reference and real
+restart. It is a curved integration guard, not the missing actual prismatic
+backend workflow. Direct engine Coarsen is different from the backend's Refine-
+then-Coarsen sequence. Qualify that workflow plus rotated/localized tangential
+sensors next; the present imposed sensor is affine isotropic. Cap triangulation
+is inherited/refined and shared across fronts, so arbitrary anisotropic surface
+alignment, tangential coarsening and localization efficiency are not established.
+Do not substitute another easy geometry pilot for these known limitations.
+
+## Performance evidence and next useful direction
+
+profile_curved_bridge_v1 samples the already required curved RANS rank0 process
+until its first native refinement report:1398 samples/no losses. Its original
+helper misclassified the expected self-SIGINT return code-2; offline reports parse
+the valid data. Both original and corrected receipts remain; no CFD/profile rerun.
+Raw data is verified and compressed. About60.7% of inclusive root CPU samples are
+under ComputeMetric, mostly Allreduce/failure-election waiting. Other ranks are
+not sampled, so their critical numerical work is unresolved. Exact integer contact
+projection/ConformingDisjoint is another substantial sampled cost. These are
+inclusive overlapping CPU samples, not phase wall-time percentages or speedups.
+
+Saved first curved regional validation is10.26s inside11.34s refinement. A useful
+shared-kernel optimization to assess later is an exact-predicate face-halfspace
+filter before full multiprecision tetrahedron contact: strict separation, or
+separation with only common-ID vertices on the plane, proves intersection is
+confined to the permitted shared simplex. Existing robust Orientation may provide
+that proof cheaply. Keep the complete old exact contact path otherwise; test
+shared-face/edge/vertex, nonconforming coplanar contact and extreme-scale cases
+before any complete-mesh/performance comparison. This is an unimplemented design,
+not a measured gain or permission to relax contact checks. Do not prioritize point-
+interpolation micro-caches from evaluation counts alone.
+
+All planned current cases have saved verdicts, with one native workflow failure;
+all owned jobs are terminal. Full Goal3 remains active and incomplete.
+
+
+Important next-field gate: new geometry admission also covers one requested wall.
+The old CoupledBL single-wall test does not populate region_walls, so it continues
+to exercise the old local path and cannot qualify the new one-wall regional path.
+Test its known h.1/T.3/finer original-P1 field with actual region metadata before
+claiming broad prismatic integration, alongside actual backend and rotated/localized
+tangential fields. A maximum cumulative column prefix does not mathematically
+bound each difference interval when the maximizing column changes; the current
+constructor explicitly checks every resulting local interval and can reject.
+This is an unqualified layout limit, not proof that such fields are infeasible.

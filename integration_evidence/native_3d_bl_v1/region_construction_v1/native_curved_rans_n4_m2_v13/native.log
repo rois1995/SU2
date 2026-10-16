@@ -1,0 +1,1093 @@
+WARNING: Setting WINDOW_START_ITER = RESTART_ITER for meaningful running average.
+
+Parsing config file for zone 0
+WARNING: Setting WINDOW_START_ITER = RESTART_ITER for meaningful running average.
+
+----------------- Physical Case Definition ( Zone 0 ) -------------------
+Compressible RANS equations.
+Turbulence model: Spalart-Allmaras-noft2
+Hybrid RANS/LES: No Hybrid RANS/LES
+Mach number: 0.2.
+Angle of attack (AoA): 90 deg, and angle of sideslip (AoS): 0 deg.
+Reynolds number: 1000. Reference length 1.
+No restart solution, use the values at infinity (freestream).
+Dimensional simulation.
+The reference area is 1 m^2.
+The semi-span will be computed using the max y(3D) value.
+The reference length is 1 m.
+Input mesh file name: curved_rans_m2.su2
+
+--------------- Space Numerical Integration ( Zone 0 ) ------------------
+Roe (with entropy fix = 0.001) solver for the flow inviscid terms.
+Standard Roe without low-dissipation function.
+First order integration in space.
+Scalar upwind solver for the turbulence model.
+First order integration in space.
+Average of gradients with correction (viscous flow terms).
+Average of gradients with correction (viscous turbulence terms).
+Gradient for upwind reconstruction: Green-Gauss.
+Gradient for viscous and source terms: Green-Gauss.
+
+--------------- Time Numerical Integration  ( Zone 0 ) ------------------
+Unsteady simulation, dual time stepping strategy (second order in time).
+Unsteady time step provided by the user (s): 0.001.
+Euler implicit method for the flow equations.
+FGMRES is used for solving the linear system.
+Using ILU(0) preconditioning.
+Convergence criteria of the linear solver: 1e-06.
+Max number of linear iterations: 10.
+No CFL adaptation.
+Courant-Friedrichs-Lewy number:      0.5
+Euler implicit time integration for the turbulence model.
+
+------------------ Convergence Criteria  ( Zone 0 ) ---------------------
+Maximum number of solver subiterations: 3.
+Maximum number of physical time-steps: 10.
+Begin convergence monitoring at iteration 5.
+Residual minimum value: 1e-14.
+Cauchy series min. value: 1e-10.
+Number of Cauchy elements: 100.
+Begin windowed time average at iteration 0.
+
+-------------------- Output Information ( Zone 0 ) ----------------------
+File writing frequency: 
++------------------------------------+
+|                     File| Frequency|
++------------------------------------+
+|                  RESTART|         1|
+|                 PARAVIEW|         1|
++------------------------------------+
+Writing the convergence history file every 0 inner iterations.
+Writing the convergence history file every 1 time iterations.
+Writing the screen convergence history every 1 inner iterations.
+Writing the screen convergence history every 1 time iterations.
+The tabular file format is CSV (.csv).
+Convergence history file name: curved_rans_m2_history.
+Forces breakdown file name: forces_breakdown.dat.
+Surface file name: surface.
+Volume file name: curved_rans_m2_solution.
+Restart file name: curved_rans_m2_flow.
+
+------------- Config File Boundary Information ( Zone 0 ) ---------------
++-----------------------------------------------------------------------+
+|                        Marker Type|                        Marker Name|
++-----------------------------------------------------------------------+
+|                          Far-field|                               cap0|
+|                                   |                               cap1|
++-----------------------------------------------------------------------+
+|                     Heat flux wall|                           cylinder|
++-----------------------------------------------------------------------+
+
+-------------------- Output Preprocessing ( Zone 0 ) --------------------
+
+WARNING: SURFACE_PRESSURE_DROP can only be computed for at least 2 surfaces (outlet, inlet, ...)
+
+Screen output fields: TIME_ITER, INNER_ITER, RMS_DENSITY, RMS_MOMENTUM-X, RMS_MOMENTUM-Y, RMS_ENERGY
+History output group(s): ITER, CUR_TIME, RMS_RES
+Convergence field(s): RMS_DENSITY
+Warning: No (valid) fields chosen for time convergence monitoring. Time convergence monitoring inactive.
+Volume output fields: COORDINATES, SOLUTION, PRIMITIVE
+
+------------------- Geometry Preprocessing ( Zone 0 ) -------------------
+Three dimensional problem.
+18 grid points before partitioning.
+24 volume elements before partitioning.
+3 surface markers.
+8 boundary elements in index 0 (Marker = cap0).
+8 boundary elements in index 1 (Marker = cap1).
+16 boundary elements in index 2 (Marker = cylinder).
+Executing the partitioning functions.
+Building the graph adjacency structure.
+Calling ParMETIS... graph partitioning complete (33 edge cuts).
+Distributing ParMETIS coloring.
+Rebalancing vertices.
+Rebalancing volume element connectivity.
+Rebalancing markers and surface elements.
+54 vertices including ghost points. 
+59 interior elements including halo cells. 
+59 tetrahedra.
+Establishing MPI communication patterns.
+Setting point connectivity.
+Renumbering points (Reverse Cuthill McKee Ordering).
+Recomputing point connectivity.
+Setting element connectivity.
+Checking the numerical grid orientation.
+All volume elements are correctly oriented.
+There has been a re-orientation of 59 TRIANGLE surface elements.
+Identifying edges and vertices.
+Setting the control volume structure.
+Volume of the computational grid: 6.95322.
+Searching for the closest normal neighbors to the surfaces.
+Storing a mapping from global to local point index.
+Compute the surface curvature.
+Max K: 10.7033. Mean K: 8.05619. Standard deviation K: 2.21205.
+Computing mesh quality statistics for the dual control volumes.
++--------------------------------------------------------------+
+|           Mesh Quality Metric|        Minimum|        Maximum|
++--------------------------------------------------------------+
+|    Orthogonality Angle (deg.)|        63.8748|        76.1992|
+|     CV Face Area Aspect Ratio|        1.78885|        7.15542|
+|           CV Sub-Volume Ratio|              1|              1|
+|                     CV Volume|      0.0589256|       0.707107|
++--------------------------------------------------------------+
+Finding max control volume width.
+Communicating number of neighbors.
+NATIVE3D_STAGE stage=cfd_geometry_initial rank=0 ranks=4 time_iter=0 total=0.0015426459999999999 other=2.4230000000005289e-06 cpu=0.001526 cpu_other=2.000000000000157e-06 process_peak_rss=28655616 partition=0.00057615399999999973 partition_cpu=0.00057600000000000001 migration=0.00031400500000000001 migration_cpu=0.00030899999999999998 preprocess=0.00065006399999999968 preprocess_cpu=0.00063899999999999992
+NATIVE3D_STAGE stage=cfd_geometry_initial rank=1 ranks=4 time_iter=0 total=0.0015535839999999993 other=2.0079999999995241e-06 cpu=0.0015529999999999999 cpu_other=9.9999999999991589e-07 process_peak_rss=28237824 partition=0.00058491299999999941 partition_cpu=0.00058500000000000002 migration=0.00030747400000000029 migration_cpu=0.00030699999999999998 preprocess=0.00065918900000000013 preprocess_cpu=0.00066
+NATIVE3D_STAGE stage=cfd_geometry_initial rank=2 ranks=4 time_iter=0 total=0.0015550289999999994 other=2.6729999999999116e-06 cpu=0.001415 cpu_other=2.000000000000157e-06 process_peak_rss=27914240 partition=0.00058516899999999997 partition_cpu=0.00057399999999999997 migration=0.00030801199999999987 migration_cpu=0.00026499999999999999 preprocess=0.00065917499999999969 preprocess_cpu=0.00057399999999999997
+NATIVE3D_STAGE stage=cfd_geometry_initial rank=3 ranks=4 time_iter=0 total=0.0015550720000000002 other=1.8520000000001036e-06 cpu=0.001552 cpu_other=1.0000000000000243e-06 process_peak_rss=27742208 partition=0.00058551899999999962 partition_cpu=0.00058299999999999997 migration=0.00030913399999999997 migration_cpu=0.00030899999999999998 preprocess=0.00065856700000000053 preprocess_cpu=0.00065899999999999997
+Semi-span length = -1e+10 m.
+Wetted area = 0 m^2.
+Area projection in the x-plane = 0 m^2, y-plane = 0 m^2, z-plane = 0 m^2.
+Max. coordinate in the x-direction = -1e+10 m, y-direction = -1e+10 m, z-direction = -1e+10 m.
+Min. coordinate in the x-direction = 1e+10 m, y-direction = 1e+10 m, z-direction = 1e+10 m.
+Computing wall distances.
+
+-------------------- Solver Preprocessing ( Zone 0 ) --------------------
+Viscous flow: Computing pressure using the ideal gas law
+based on the free-stream temperature and a density computed
+from the Reynolds number.
+Force coefficients computed using free-stream values.
+
+-- Models:
++------------------------------------------------------------------------------+
+|          Viscosity Model|        Conductivity Model|              Fluid Model|
++------------------------------------------------------------------------------+
+|               SUTHERLAND|          CONSTANT_PRANDTL|             STANDARD_AIR|
++------------------------------------------------------------------------------+
+-- Fluid properties:
++------------------------------------------------------------------------------+
+|                  Name|    Dim. value|    Ref. value|      Unit|Non-dim. value|
++------------------------------------------------------------------------------+
+|        Ref. Viscosity|     1.716e-05|             1|   N.s/m^2|     1.716e-05|
+|      Sutherland Temp.|        273.15|             1|         K|        273.15|
+|     Sutherland Const.|         110.4|             1|         K|         110.4|
++------------------------------------------------------------------------------+
+|        Prandtl (Lam.)|             -|             -|         -|          0.72|
+|       Prandtl (Turb.)|             -|             -|         -|           0.9|
++------------------------------------------------------------------------------+
+|          Gas Constant|       287.058|             1|  N.m/kg.K|       287.058|
+|      Spec. Heat Ratio|             -|             -|         -|           1.4|
++------------------------------------------------------------------------------+
+-- Initial and free-stream conditions:
++------------------------------------------------------------------------------+
+|                  Name|    Dim. value|    Ref. value|      Unit|Non-dim. value|
++------------------------------------------------------------------------------+
+|       Static Pressure|       21.7462|             1|        Pa|       21.7462|
+|               Density|   0.000262902|             1|    kg/m^3|   0.000262902|
+|           Temperature|        288.15|             1|         K|        288.15|
+|          Total Energy|        209105|             1|   m^2/s^2|        209105|
+|            Velocity-X|   4.16744e-15|             1|       m/s|   4.16744e-15|
+|            Velocity-Y|             0|             1|       m/s|             0|
+|            Velocity-Z|       68.0594|             1|       m/s|       68.0594|
+|    Velocity Magnitude|       68.0594|             1|       m/s|       68.0594|
++------------------------------------------------------------------------------+
+|             Viscosity|    1.7893e-05|             1|   N.s/m^2|    1.7893e-05|
+|          Conductivity|             -|             1|   W/m^2.K|             -|
+|     Turb. Kin. Energy|       17.3703|             1|   m^2/s^2|       17.3703|
+|     Spec. Dissipation|       25.5223|             1|       1/s|       25.5223|
++------------------------------------------------------------------------------+
+|           Mach Number|             -|             -|         -|           0.2|
+|       Reynolds Number|             -|             -|         -|          1000|
++------------------------------------------------------------------------------+
+-- Unsteady conditions
++------------------------------------------------------------------------------+
+|                  Name|    Dim. value|    Ref. value|      Unit|Non-dim. value|
++------------------------------------------------------------------------------+
+|            Total Time|             1|             1|         s|             1|
+|             Time Step|         0.001|             1|         s|         0.001|
++------------------------------------------------------------------------------+
+Initialize Jacobian structure (Navier-Stokes). MG level: 0.
+Initialize Jacobian structure (SA model).
+
+------------------- Numerics Preprocessing ( Zone 0 ) -------------------
+
+----------------- Integration Preprocessing ( Zone 0 ) ------------------
+
+------------------- Iteration Preprocessing ( Zone 0 ) ------------------
+Euler/Navier-Stokes/RANS fluid iteration.
++-----------------------------------------------------------------------------+
+|   Time_Iter|  Inner_Iter|    rms[Rho]|   rms[RhoU]|   rms[RhoV]|   rms[RhoE]|
++-----------------------------------------------------------------------------+
+|           0|           0|   -2.697884|   -2.364744|   -1.730719|    2.764339|
+|           0|           1|   -2.829770|   -2.554576|   -1.907130|    2.634238|
+|           0|           2|   -2.960697|   -2.754415|   -2.091573|    2.505135|
+
+----------------------------- Compute Metric ----------------------------
+Hessian recovery: 7.354e-05 s (maximum rank time).
+Sensor-only donor metric statistics:
+Minimum density: 1.
+Maximum density: 1.
+Maximum cell AR: 1.
+Mesh complexity after native constraints: 48.713 (ADAP_COMPLEXITY= 1).
+Sensor metric complexity before gradation: 2.82843.
+Sensor-only donor complexity after gradation: 2.82843.
+Native geometric integration: 114183 points, preparation 0.00019802 s.
+Native3D target-density quadrature: 16.2801 s (maximum accumulated rank time), 48 cell rule builds, 0 exact-target reuses.
+Native metric work: 2 complexity trials, 2 total gradation sweeps, 36 owned-point visits; gradation 0.000102763 s, halo 6.0333e-05 s, sweep reductions 1.107e-05 s (maximum accumulated rank times).
+Native gradation tensor updates: 0 of 36 owned-point visits.
+Native sensor gradation: 1 sweeps, fixed point reached, maximum transported-metric ratio 1, directed edges above 1+1e-5: 0.
+Native composed nodal audit: maximum transported-metric ratio 10.2489, directed edges above 1+1e-5: 72. Sensor gradation is not a combined-field certificate.
+WARNING: Composed geometric BL transport violations remain; no nodal wall correction is spread.
+WARNING: Geometric BL complexity target 1 is outside the attainable bounds; integrated complexity 48.713. BL and finer sensor demands are retained.
+NATIVE3D_STAGE stage=metric_build rank=0 ranks=4 time_iter=0 total=16.455933874999999 other=9.6399999982565987e-06 cpu=15.667596999999999 cpu_other=9.9999999996214228e-06 process_peak_rss=31625216 sensor_frames=9.081099999999967e-05 sensor_frames_cpu=9.0999999999999989e-05 geometry_rule=0.00018173500000000058 geometry_rule_cpu=0.00018199999999999998 complexity_gradation_audit=16.455535287 complexity_gradation_audit_cpu=15.667223999999999 publication=0.00011227199999908066 publication_cpu=8.599999999999999e-05 halo=4.1300000006572191e-06 halo_cpu=3.9999999999999998e-06 nested_gradation=9.7084000001856907e-05 nested_gradation_halo=3.8226000000918248e-05 nested_gradation_reduction=1.1069999999335778e-05 complexity=48.713026860787643 bracketed=0
+NATIVE3D_STAGE stage=metric_build rank=1 ranks=4 time_iter=0 total=16.455940428999998 other=1.5035999997081717e-05 cpu=15.607878999999999 cpu_other=1.4999999999432134e-05 process_peak_rss=31485952 sensor_frames=7.4237999999999041e-05 sensor_frames_cpu=7.3999999999999996e-05 geometry_rule=0.00020101800000000072 geometry_rule_cpu=0.00020099999999999998 complexity_gradation_audit=16.455535073 complexity_gradation_audit_cpu=15.607474999999999 publication=1.4106000001845587e-05 publication_cpu=1.2999999999999999e-05 halo=0.00010095800000087252 halo_cpu=0.000101 nested_gradation=0.00010269899999926224 nested_gradation_halo=4.6504000000169299e-05 nested_gradation_reduction=7.3379999996348033e-06 complexity=48.713026860787643 bracketed=0
+NATIVE3D_STAGE stage=metric_build rank=2 ranks=4 time_iter=0 total=16.455972103000001 other=2.6455000000424889e-05 cpu=15.927131999999999 cpu_other=2.600000000185787e-05 process_peak_rss=69971968 sensor_frames=0.00010560499999999994 sensor_frames_cpu=6.7000000000000002e-05 geometry_rule=0.00016925399999999889 geometry_rule_cpu=0.00016899999999999999 complexity_gradation_audit=16.455535734999998 complexity_gradation_audit_cpu=15.926808999999999 publication=1.3731000002792371e-05 publication_cpu=1.2999999999999999e-05 halo=0.00012132299999834117 halo_cpu=4.8000000000000001e-05 nested_gradation=9.4164000000063197e-05 nested_gradation_halo=6.0332999998635728e-05 nested_gradation_reduction=8.3960000001326307e-06 complexity=48.713026860787643 bracketed=0
+NATIVE3D_STAGE stage=metric_build rank=3 ranks=4 time_iter=0 total=16.455942109999999 other=1.6469999998491858e-05 cpu=15.628483999999998 cpu_other=1.699999999971169e-05 process_peak_rss=31068160 sensor_frames=9.4768000000000283e-05 sensor_frames_cpu=9.4999999999999992e-05 geometry_rule=0.00018080000000000006 geometry_rule_cpu=0.00017999999999999998 complexity_gradation_audit=16.455535185000002 complexity_gradation_audit_cpu=15.628077999999999 publication=1.3560999999384649e-05 publication_cpu=1.2999999999999999e-05 halo=0.00010132599999934655 halo_cpu=0.000101 nested_gradation=0.00010276300000100491 nested_gradation_halo=4.7504999999503639e-05 nested_gradation_reduction=4.7130000009332207e-06 complexity=48.713026860787643 bracketed=0
+NATIVE3D_STAGE stage=metric rank=0 ranks=4 time_iter=0 total=16.456091604000001 other=6.2100000164377889e-07 cpu=15.667753999999999 cpu_other=9.9999999925159955e-07 process_peak_rss=31625216 setup=1.6429999999990896e-06 setup_cpu=9.9999999999999995e-07 sensors=7.8800000000156523e-07 sensors_cpu=9.9999999999999995e-07 hessian=4.2920999999999584e-05 hessian_cpu=4.2999999999999995e-05 construction=16.456045630999999 construction_cpu=15.667707999999999
+NATIVE3D_STAGE stage=metric rank=1 ranks=4 time_iter=0 total=16.456095457 other=4.1100000203186937e-07 cpu=15.608032999999999 cpu_other=0 process_peak_rss=31485952 setup=5.3139999999993193e-06 setup_cpu=3.9999999999999998e-06 sensors=2.1949999999999747e-06 sensors_cpu=1.9999999999999999e-06 hessian=7.2965000000001223e-05 hessian_cpu=7.2999999999999999e-05 construction=16.456014571999997 construction_cpu=15.607953999999999
+NATIVE3D_STAGE stage=metric rank=2 ranks=4 time_iter=0 total=16.463820891999998 other=2.5359999966667601e-06 cpu=15.934889 cpu_other=1.0000000010279564e-06 process_peak_rss=69971968 setup=5.5019999999992436e-06 setup_cpu=1.9999999999999999e-06 sensors=2.026000000000458e-06 sensors_cpu=1.9999999999999999e-06 hessian=7.4486999999999817e-05 hessian_cpu=7.4999999999999993e-05 construction=16.463736341000001 construction_cpu=15.934809
+NATIVE3D_STAGE stage=metric rank=3 ranks=4 time_iter=0 total=16.456095469999998 other=6.0300000015445221e-07 cpu=15.628635999999998 cpu_other=9.9999999925159955e-07 process_peak_rss=31068160 setup=4.432000000000394e-06 setup_cpu=3.0000000000000001e-06 sensors=1.4449999999992247e-06 sensors_cpu=9.9999999999999995e-07 hessian=7.4618000000000254e-05 hessian_cpu=7.4999999999999993e-05 construction=16.456014371999999 construction_cpu=15.628556
+Metric computed in 16.4639 s.
++-----------------------------------------------------------------------------+
+|   Time_Iter|  Inner_Iter|    rms[Rho]|   rms[RhoU]|   rms[RhoV]|   rms[RhoE]|
++-----------------------------------------------------------------------------+
+|           1|           0|   -2.766064|   -2.474152|   -1.805754|    2.694742|
+|           1|           1|   -2.899602|   -2.661869|   -1.987650|    2.563318|
+|           1|           2|   -3.031660|   -2.846187|   -2.178837|    2.433449|
+
+----------------------------- Compute Metric ----------------------------
+Hessian recovery: 8.6024e-05 s (maximum rank time).
+Sensor-only donor metric statistics:
+Minimum density: 1.
+Maximum density: 1.
+Maximum cell AR: 1.
+Mesh complexity after native constraints: 48.713 (ADAP_COMPLEXITY= 1).
+Sensor metric complexity before gradation: 2.82843.
+Sensor-only donor complexity after gradation: 2.82843.
+Native geometric integration: 114183 points, preparation 0.000134234 s.
+Native3D target-density quadrature: 16.0084 s (maximum accumulated rank time), 48 cell rule builds, 0 exact-target reuses.
+Native metric work: 2 complexity trials, 2 total gradation sweeps, 36 owned-point visits; gradation 4.279e-05 s, halo 1.1372e-05 s, sweep reductions 9.041e-06 s (maximum accumulated rank times).
+Native gradation tensor updates: 0 of 36 owned-point visits.
+Native sensor gradation: 1 sweeps, fixed point reached, maximum transported-metric ratio 1, directed edges above 1+1e-5: 0.
+Native composed nodal audit: maximum transported-metric ratio 10.2489, directed edges above 1+1e-5: 72. Sensor gradation is not a combined-field certificate.
+WARNING: Composed geometric BL transport violations remain; no nodal wall correction is spread.
+WARNING: Geometric BL complexity target 1 is outside the attainable bounds; integrated complexity 48.713. BL and finer sensor demands are retained.
+NATIVE3D_STAGE stage=metric_build rank=0 ranks=4 time_iter=1 total=16.182092727999997 other=4.1863999996394341e-05 cpu=14.942888999999999 cpu_other=4.1999999998765247e-05 process_peak_rss=31625216 sensor_frames=3.7618000000350094e-05 sensor_frames_cpu=3.7999999999999995e-05 geometry_rule=0.00013665699999876324 geometry_rule_cpu=0.000137 complexity_gradation_audit=16.181717093 complexity_gradation_audit_cpu=14.942516999999999 publication=0.00015267500000248901 publication_cpu=0.00014899999999999999 halo=6.8209999994905957e-06 halo_cpu=6.0000000000000002e-06 nested_gradation=4.0978000001246073e-05 nested_gradation_halo=1.1371999999454374e-05 nested_gradation_reduction=3.5089999990134402e-06 complexity=48.713026860787657 bracketed=0
+NATIVE3D_STAGE stage=metric_build rank=1 ranks=4 time_iter=1 total=16.182111923000004 other=5.4974000001095646e-05 cpu=15.569898999999999 cpu_other=5.4999999999694182e-05 process_peak_rss=31485952 sensor_frames=4.6474000001239801e-05 sensor_frames_cpu=4.6999999999999997e-05 geometry_rule=0.00013544500000151061 geometry_rule_cpu=0.000135 complexity_gradation_audit=16.181717862999996 complexity_gradation_audit_cpu=15.569507999999999 publication=3.8091000000406439e-05 publication_cpu=3.4999999999999997e-05 halo=0.0001190760000042701 halo_cpu=0.00011899999999999999 nested_gradation=4.1716000001912334e-05 nested_gradation_halo=1.1066999999087557e-05 nested_gradation_reduction=8.0069999981446927e-06 complexity=48.713026860787657 bracketed=0
+NATIVE3D_STAGE stage=metric_build rank=2 ranks=4 time_iter=1 total=16.182194931000002 other=2.3480000002962242e-05 cpu=16.020987999999999 cpu_other=2.3000000002326715e-05 process_peak_rss=71041024 sensor_frames=4.6139000001943486e-05 sensor_frames_cpu=3.8999999999999999e-05 geometry_rule=0.00013577399999675777 geometry_rule_cpu=0.000135 complexity_gradation_audit=16.181732585000002 complexity_gradation_audit_cpu=16.020703999999999 publication=2.418100000056711e-05 publication_cpu=2.3e-05 halo=0.00023277199999682807 halo_cpu=6.3999999999999997e-05 nested_gradation=4.2790000001957651e-05 nested_gradation_halo=1.1343000000607617e-05 nested_gradation_reduction=9.040999998433108e-06 complexity=48.713026860787657 bracketed=0
+NATIVE3D_STAGE stage=metric_build rank=3 ranks=4 time_iter=1 total=16.182117028 other=5.2508000003115285e-05 cpu=15.858419999999999 cpu_other=5.199999999838667e-05 process_peak_rss=31068160 sensor_frames=4.5304000000356837e-05 sensor_frames_cpu=4.4999999999999996e-05 geometry_rule=0.00013667600000033531 geometry_rule_cpu=0.000137 complexity_gradation_audit=16.181718140999998 complexity_gradation_audit_cpu=15.858056999999999 publication=3.7992000002873283e-05 publication_cpu=3.4999999999999997e-05 halo=0.00012640699999622029 halo_cpu=9.3999999999999994e-05 nested_gradation=4.2006000001038046e-05 nested_gradation_halo=1.1181000001414532e-05 nested_gradation_reduction=3.5250000038899998e-06 complexity=48.713026860787657 bracketed=0
+NATIVE3D_STAGE stage=metric rank=0 ranks=4 time_iter=1 total=16.182336685999999 other=1.3089999981730216e-06 cpu=14.94313 cpu_other=2.0000000002795559e-06 process_peak_rss=31625216 setup=1.5900000001067838e-06 setup_cpu=9.9999999999999995e-07 sensors=7.6099999901657611e-07 sensors_cpu=9.9999999999999995e-07 hessian=3.1441000000853592e-05 hessian_cpu=2.9e-05 construction=16.182301585000001 construction_cpu=14.943097
+NATIVE3D_STAGE stage=metric rank=1 ranks=4 time_iter=1 total=16.182384990000003 other=8.8239999982420159e-06 cpu=15.570170999999998 cpu_other=7.0000000000902673e-06 process_peak_rss=31485952 setup=2.666000000317581e-06 setup_cpu=9.9999999999999995e-07 sensors=1.7710000008719362e-06 sensors_cpu=1.9999999999999999e-06 hessian=8.7608000001182518e-05 hessian_cpu=8.7999999999999998e-05 construction=16.182284121000002 construction_cpu=15.570072999999999
+NATIVE3D_STAGE stage=metric rank=2 ranks=4 time_iter=1 total=16.193076839999996 other=3.4360000000788204e-06 cpu=16.031724000000001 cpu_other=2.0000000020559128e-06 process_peak_rss=71041024 setup=1.4119999995898525e-06 setup_cpu=9.9999999999999995e-07 sensors=1.1309999976560903e-06 sensors_cpu=9.9999999999999995e-07 hessian=8.7451000002403134e-05 hessian_cpu=6.8999999999999997e-05 construction=16.192983409999997 construction_cpu=16.031651
+NATIVE3D_STAGE stage=metric rank=3 ranks=4 time_iter=1 total=16.182389020999999 other=6.6499999960001333e-06 cpu=15.858690999999999 cpu_other=5.999999999062311e-06 process_peak_rss=31068160 setup=2.0450000022265158e-06 setup_cpu=9.9999999999999995e-07 sensors=1.765000000375494e-06 sensors_cpu=1.9999999999999999e-06 hessian=8.7213000000474494e-05 hessian_cpu=8.7000000000000001e-05 construction=16.182291348 construction_cpu=15.858594999999999
+Metric computed in 16.1931 s.
++-----------------------------------------------------------------------+
+|        File Writing Summary       |              Filename             |
++-----------------------------------------------------------------------+
+|SU2 binary restart                 |curved_rans_m2_flow_00001.dat      |
+|                                   |                     (10.0428 MB/s)|
+|Paraview                           |curved_rans_m2_solution_00001.vtu  |
+|                                   |                     (13.0073 MB/s)|
++-----------------------------------------------------------------------+
+
+----------------------------- Compute Metric ----------------------------
+Hessian recovery: 4.2452e-05 s (maximum rank time).
+Sensor-only donor metric statistics:
+Minimum density: 1.
+Maximum density: 1.
+Maximum cell AR: 1.
+Mesh complexity after native constraints: 48.713 (ADAP_COMPLEXITY= 1).
+Sensor metric complexity before gradation: 2.82843.
+Sensor-only donor complexity after gradation: 2.82843.
+Native geometric integration: 114183 points, preparation 0.000151727 s.
+Native3D target-density quadrature: 16.2332 s (maximum accumulated rank time), 48 cell rule builds, 0 exact-target reuses.
+Native metric work: 2 complexity trials, 2 total gradation sweeps, 36 owned-point visits; gradation 4.4421e-05 s, halo 1.3318e-05 s, sweep reductions 7.771e-06 s (maximum accumulated rank times).
+Native gradation tensor updates: 0 of 36 owned-point visits.
+Native sensor gradation: 1 sweeps, fixed point reached, maximum transported-metric ratio 1, directed edges above 1+1e-5: 0.
+Native composed nodal audit: maximum transported-metric ratio 10.2489, directed edges above 1+1e-5: 72. Sensor gradation is not a combined-field certificate.
+WARNING: Composed geometric BL transport violations remain; no nodal wall correction is spread.
+WARNING: Geometric BL complexity target 1 is outside the attainable bounds; integrated complexity 48.713. BL and finer sensor demands are retained.
+NATIVE3D_STAGE stage=metric_build rank=0 ranks=4 time_iter=1 total=16.405855260999999 other=9.2949999981328801e-06 cpu=15.853676 cpu_other=8.9999999985934664e-06 process_peak_rss=33140736 sensor_frames=6.2927000001877786e-05 sensor_frames_cpu=4.1999999999999998e-05 geometry_rule=0.000154277999996566 geometry_rule_cpu=0.000154 complexity_gradation_audit=16.405513137 complexity_gradation_audit_cpu=15.853403 publication=0.00011120199999936631 publication_cpu=6.3999999999999997e-05 halo=4.4220000035011253e-06 halo_cpu=3.9999999999999998e-06 nested_gradation=4.4248000001800847e-05 nested_gradation_halo=1.276300000796482e-05 nested_gradation_reduction=3.4569999982636546e-06 complexity=48.713026860787657 bracketed=0
+NATIVE3D_STAGE stage=metric_build rank=1 ranks=4 time_iter=1 total=16.405861802000004 other=1.3780000003293935e-05 cpu=15.918526999999999 cpu_other=1.4000000001956892e-05 process_peak_rss=33153024 sensor_frames=6.6209999999955471e-05 sensor_frames_cpu=6.5999999999999992e-05 geometry_rule=0.00015425699999838116 geometry_rule_cpu=0.000155 complexity_gradation_audit=16.405513373000005 complexity_gradation_audit_cpu=15.918178999999999 publication=1.5966999995953302e-05 publication_cpu=1.4999999999999999e-05 halo=9.8215000001289354e-05 halo_cpu=9.7999999999999997e-05 nested_gradation=4.4420999998351363e-05 nested_gradation_halo=1.3317999993489593e-05 nested_gradation_reduction=7.4510000018790379e-06 complexity=48.713026860787657 bracketed=0
+NATIVE3D_STAGE stage=metric_build rank=2 ranks=4 time_iter=1 total=16.405861518999998 other=1.3247999994803195e-05 cpu=16.089089999999999 cpu_other=1.3000000002705292e-05 process_peak_rss=71831552 sensor_frames=6.6553000003466423e-05 sensor_frames_cpu=6.5999999999999992e-05 geometry_rule=0.00015374299999848517 geometry_rule_cpu=0.000154 complexity_gradation_audit=16.405513401999997 complexity_gradation_audit_cpu=16.088743999999998 publication=1.523400000280617e-05 publication_cpu=1.4e-05 halo=9.9339000001918976e-05 halo_cpu=9.8999999999999994e-05 nested_gradation=4.2639000000121996e-05 nested_gradation_halo=1.1872999991169308e-05 nested_gradation_reduction=7.7709999999342472e-06 complexity=48.713026860787657 bracketed=0
+NATIVE3D_STAGE stage=metric_build rank=3 ranks=4 time_iter=1 total=16.405861939999994 other=1.3606999999637992e-05 cpu=15.576068999999999 cpu_other=1.3999999998404178e-05 process_peak_rss=33009664 sensor_frames=6.6366999995182141e-05 sensor_frames_cpu=6.5999999999999992e-05 geometry_rule=0.00015394900000131884 geometry_rule_cpu=0.000154 complexity_gradation_audit=16.405513920000004 complexity_gradation_audit_cpu=15.575721999999999 publication=1.5018999995675131e-05 publication_cpu=1.4e-05 halo=9.9077999998087307e-05 halo_cpu=9.8999999999999994e-05 nested_gradation=4.3970000000115306e-05 nested_gradation_halo=1.2777000002017758e-05 nested_gradation_reduction=2.4560000042583852e-06 complexity=48.713026860787657 bracketed=0
+NATIVE3D_STAGE stage=metric rank=0 ranks=4 time_iter=1 total=16.405946832000005 other=5.6100000023207031e-07 cpu=15.853766999999999 cpu_other=0 process_peak_rss=33140736 setup=1.4940000028218492e-06 setup_cpu=9.9999999999999995e-07 sensors=1.3410000008207135e-06 sensors_cpu=9.9999999999999995e-07 hessian=3.1118999999080188e-05 hessian_cpu=3.1000000000000001e-05 construction=16.405912317000002 construction_cpu=15.853733999999999
+NATIVE3D_STAGE stage=metric rank=1 ranks=4 time_iter=1 total=16.405952214999999 other=7.2499999959063643e-07 cpu=15.918616 cpu_other=1.0000000010279564e-06 process_peak_rss=33153024 setup=3.5850000017489947e-06 setup_cpu=1.9999999999999999e-06 sensors=3.6699999981237852e-06 sensors_cpu=3.9999999999999998e-06 hessian=4.3130000001667668e-05 hessian_cpu=4.2999999999999995e-05 construction=16.405901104999998 construction_cpu=15.918565999999998
+NATIVE3D_STAGE stage=metric rank=2 ranks=4 time_iter=1 total=16.414134386000001 other=4.173999997192368e-06 cpu=16.097270999999999 cpu_other=2.9999999995311555e-06 process_peak_rss=71831552 setup=3.718000002095323e-06 setup_cpu=9.9999999999999995e-07 sensors=2.9200000000173532e-06 sensors_cpu=3.0000000000000001e-06 hessian=4.3525000002375691e-05 hessian_cpu=4.3999999999999999e-05 construction=16.414080048999999 construction_cpu=16.09722
+NATIVE3D_STAGE stage=metric rank=3 ranks=4 time_iter=1 total=16.405951895999998 other=7.2899999992159792e-07 cpu=15.576156999999998 cpu_other=0 process_peak_rss=33009664 setup=3.4659999954556042e-06 setup_cpu=1.9999999999999999e-06 sensors=3.2440000055089513e-06 sensors_cpu=3.0000000000000001e-06 hessian=4.2957999994541751e-05 hessian_cpu=4.2999999999999995e-05 construction=16.405901499000002 construction_cpu=15.576108999999999
+Metric computed in 16.4143 s.
+NATIVE3D rank=0 ranks=4 workers=2 complete=1 detailed=1 total=11.349711260999996 other=0.00084544399999941788 cpu=11.170432 idle_cpu=0 support=3.1125999996106657e-05 reference=3.7660000003825189e-05 import=0.00038820799999683686 source=0.00045859499999778564 weights=0.0020622460000012666 partition=0.0015383240000019782 donor_migration=0.0002962040000014099 communicator=7.1427999998263658e-05 refine=11.337103339999999 coarsen=0 wait=0.0010957639999986668 return=0.0056388200000014876 policy=0.00014410200000014584 initial=24 final=621 refine_accepted=1 coarsen_accepted=0 tracked_bytes=415680 tracked_calls=192 nested_tracked_collectives=0.002133949999979734 tracked_import_bytes=1080 tracked_import_calls=6 nested_tracked_import=4.4547999998201249e-05 tracked_parent_bytes=37744 tracked_parent_calls=151 nested_tracked_parent=0.0017096819999764534 tracked_worker_bytes=376856 tracked_worker_calls=35 nested_tracked_worker=0.00037972000000507933 native_bound=86764032 process_peak_rss=36794368
+NATIVE3D rank=1 ranks=4 workers=2 complete=1 detailed=1 total=11.351848052000001 other=0.00083678600000069991 cpu=11.223626999999999 idle_cpu=0 support=0.0021611680000006572 reference=4.9435000001096796e-05 import=0.00038776399999562727 source=0.00045844699999975091 weights=0.0020620640000004187 partition=0.0015430110000025365 donor_migration=0.00028912999999874955 communicator=7.1643999994819296e-05 refine=11.337117263000003 coarsen=0 wait=0.0011077990000032401 return=0.0056198509999987323 policy=0.00014369000000158394 initial=24 final=621 refine_accepted=0 coarsen_accepted=0 tracked_bytes=269584 tracked_calls=192 nested_tracked_collectives=11.336655453000049 tracked_import_bytes=432 tracked_import_calls=6 nested_tracked_import=4.7343999995064223e-05 tracked_parent_bytes=37968 tracked_parent_calls=151 nested_tracked_parent=0.0018816420000575818 tracked_worker_bytes=231184 tracked_worker_calls=35 nested_tracked_worker=11.334726466999996 native_bound=86755296 process_peak_rss=34926592
+NATIVE3D rank=2 ranks=4 workers=2 complete=1 detailed=1 total=11.351829380000005 other=5.9159999999280899e-05 cpu=0.091534999999999991 idle_cpu=0.078725000000000003 support=0.0021695370000003322 reference=3.6159000003976871e-05 import=0.00038963799999436333 source=0.00046695200000357318 weights=0.0020614270000010038 partition=0.001535910999997725 donor_migration=0.00029127100000181372 communicator=5.4438999995909398e-05 refine=0 coarsen=0 wait=11.339018890000006 return=0.005603600000000597 policy=0.00014239600000109931 initial=24 final=621 refine_accepted=0 coarsen_accepted=0 tracked_bytes=1129528 tracked_calls=157 nested_tracked_collectives=0.0011073559999630334 tracked_import_bytes=7896 tracked_import_calls=6 nested_tracked_import=3.7786000000039621e-05 tracked_parent_bytes=1121632 tracked_parent_calls=151 nested_tracked_parent=0.0010695699999629937 tracked_worker_bytes=0 tracked_worker_calls=0 nested_tracked_worker=0 native_bound=10633428 process_peak_rss=71831552
+NATIVE3D rank=3 ranks=4 workers=2 complete=1 detailed=1 total=11.351832078000001 other=0.0011261089999976548 cpu=0.096225999999999992 idle_cpu=0.082456000000000002 support=0.0021695730000033109 reference=4.0040999998325333e-05 import=0.0003880260000030944 source=0.00045808600000185606 weights=0.0020640429999971843 partition=0.0015327739999975165 donor_migration=0.0002921790000058877 communicator=6.3094999994461887e-05 refine=0 coarsen=0 wait=11.337952874000003 return=0.0056014230000016596 policy=0.00014385499999747253 initial=24 final=621 refine_accepted=0 coarsen_accepted=0 tracked_bytes=1248 tracked_calls=157 nested_tracked_collectives=0.0017552689999789095 tracked_import_bytes=576 tracked_import_calls=6 nested_tracked_import=4.7476999995410551e-05 tracked_parent_bytes=672 tracked_parent_calls=151 nested_tracked_parent=0.001707791999983499 tracked_worker_bytes=0 tracked_worker_calls=0 nested_tracked_worker=0 native_bound=10081103 process_peak_rss=33009664
+NATIVE3D_DETAIL stage=import rank=0 ranks=4 workers=2 complete=1 total=0.00038789499999580812 points=5.7175000002018805e-05 cells=2.1050999997385134e-05 faces=0.00025552100000680866 source=0 query=0 reader=0 other=5.4147999989595519e-05 requests=0 hits=0 misses=0 invalid_queries=0 failures=0 evictions=0 compositions=0 batches=0 retries=0 nested_field_build=0 nested_search=0 nested_interpolation=0 nested_composition=0 tracked_bytes=1080 tracked_calls=6 nested_tracked_collectives=4.4547999998201249e-05 native_bound=72396
+NATIVE3D_DETAIL stage=weights rank=0 ranks=4 workers=2 complete=1 total=0.0020614790000053063 points=0 cells=0 faces=0 source=0 query=0.002042841000005069 reader=0 other=1.8638000000237298e-05 requests=0 hits=0 misses=0 invalid_queries=0 failures=0 evictions=0 compositions=0 batches=3 retries=0 nested_field_build=0 nested_search=0 nested_interpolation=0 nested_composition=0 tracked_bytes=0 tracked_calls=22 nested_tracked_collectives=0.0001933640000260084 native_bound=10079516
+NATIVE3D_DETAIL stage=return rank=0 ranks=4 workers=2 complete=1 total=0.0056380569999987529 points=0 cells=0 faces=0 source=0.00031582299999399766 query=0.0045168040000049814 reader=0.00057863600000018778 other=0.00022679399999958605 requests=213 hits=0 misses=213 invalid_queries=0 failures=0 evictions=0 compositions=0 batches=14 retries=0 nested_field_build=0.00089022900000000009 nested_search=0.00088333999999999993 nested_interpolation=3.1776000000000002e-05 nested_composition=0 tracked_bytes=37488 tracked_calls=102 nested_tracked_collectives=0.0010302929999639332 native_bound=10703447
+NATIVE3D_DETAIL stage=source rank=0 ranks=4 workers=2 complete=1 build=0.00045004700000000002 imports=0.0007313240000000001 requests=0 candidates=0 payloads=0 maximum_patch=0 nested_routing=1.125e-06 nested_search=1.28e-06 nested_filter=0 nested_exchange=0.000251053
+NATIVE3D_DETAIL stage=partition rank=0 ranks=4 workers=2 complete=1 total=0.0015218300000015006 graph=0.00037605099999638014 parmetis=0.00099823200000059842 migration=0.00012995499999846061 other=1.7592000006061426e-05 nested_directory=0.00021538600000070574 moved=24 arcs=64 cells_before=0 cells_after=13 work_before=0 work_after=225
+NATIVE3D_DETAIL stage=refine rank=0 ranks=4 workers=2 complete=1 total=11.337022210000001 initialization=0.00090381599999999999 seed=0 first_layer=0 selection=0 dependency=0 reservation=0 donor=0 reconstruction=11.335597283 metric=0 routing=0 publication=0 update=0 completion=0 other=0.00052111100000118427 tracked_bytes=376856 tracked_calls=35 nested_tracked_collectives=0.00037972000000507933 directory_elections=17 nested_directory_election=0.00018241700000000001 process_cpu=11.158868 private_reconstruction_cpu=0 private_metric_cpu=0 private_measurement_cpu=0 batch_rounds=0 batch_candidates=0 stop=complete global_work=871 work_limit=4096 progress_windows=0 stagnant_windows=0 search_windows=0 size_progress=0 quality_progress=0 cell_removals=0 layer_published=0 height_checks=310 height_rejected=0 footprint_rejected=0 wall_reconstruction_trials=0 wall_reconstruction_accepted=0 wall_joint_trials=0 wall_joint_moves=0 wall_joint_removals=0 wall_joint_accepted=0 placement_connectivity_trials=0 placement_flips=0 placement_moves=0 placement_dependency_expansions=0 placement_classified_vertices=0 placement_trials=0 placement_validated=0 wall_topology_trials=0 wall_topology_accepted=0 geometry_trials=0 geometry_rejected=0 metric_trials=0 metric_shape_rejected=0 metric_progress_rejected=0 metric_measurement_rejected=0 sample_metric_present=0 sample_q=1 sample_j=1 sample_cell=0 sample_sliver=0 sample_feature=0 sample_v0=0 sample_v1=0 sample_v2=0 sample_x=0 sample_y=0 sample_z=0 batch_reserved=0 rounds=0 attempted=0 accepted=1 region_core_trials=1 region_core_regions=1 region_transition_fronts=2 region_front_trials=26 region_sampling_s=0.47559119500000002 region_first_band_s=0.223566073 region_transition_s=0.32773898400000001 region_junction_s=0.00108143 region_core_s=0.047629825000000001 region_validation_s=10.258062956 region_field_points=0 region_sensor_hits=0 region_interior_hits=0 region_field_edges=0 region_edge_hits=0 region_field_imports=0 region_maximum_resident=120 rejected=0 conflicts=0 requests=1594 hits=369 misses=1225 invalid_queries=0 failures=0 evictions=0 compositions=229943 edge_evaluations=0 collapse_geometry_checks=0 collapse_filtered=0 collapse_orientation_checks=0 collapse_orientation_filtered=0 collapse_reactivated=0 changed_star_scans=1284 changed_vertices_sent=222 changed_vertices_received=226 nested_change_notifications=0.000101677 nested_collapse_orientation=0 nested_collapse_geometry=0 edge_reused=0 moved=0 reconnected=0 inserted=0 maximum_donor_patch=120 maximum_owned=310 final_owned_cells=310 cached_measured_cells=0 cached_invalid_cells=0 remaining_edges=0 remaining_repairs=0 nested_field_build=0.00010008199999999999 nested_field_query=0.0089569189999999937 nested_cache=0.0012670420000000016 nested_search=0.0023157749999999995 nested_interpolation=0.00028944300000000034 nested_composition=0.0046426160000000091 nested_edge_geometry=0.07887222099999984 nested_edge_composition=0.65621797099999879 nested_edge=1.5796218069999997 nested_edge_search=0.0054642489999999939 nested_edge_trace=0.77533705399999975 nested_edge_integral=0.79819879300000018 donor_reused=0 edge_separated=32799 donor_batches=0 donor_candidates=67 donor_filtered=0 donor_box_filtered=0 donor_payloads=120 nested_donor_search=2.2642000000000001e-05 nested_donor_filter=0 batch_retries=0 query_retries=0 private_query_retries=0 native_bound=86764032
+NATIVE3D_DETAIL stage=coarsen rank=0 ranks=4 workers=2 complete=1 total=0 initialization=0 seed=0 first_layer=0 selection=0 dependency=0 reservation=0 donor=0 reconstruction=0 metric=0 routing=0 publication=0 update=0 completion=0 other=0 tracked_bytes=0 tracked_calls=0 nested_tracked_collectives=0 directory_elections=0 nested_directory_election=0 process_cpu=0 private_reconstruction_cpu=0 private_metric_cpu=0 private_measurement_cpu=0 batch_rounds=0 batch_candidates=0 stop=none global_work=0 work_limit=0 progress_windows=0 stagnant_windows=0 search_windows=0 size_progress=0 quality_progress=0 cell_removals=0 layer_published=0 height_checks=0 height_rejected=0 footprint_rejected=0 wall_reconstruction_trials=0 wall_reconstruction_accepted=0 wall_joint_trials=0 wall_joint_moves=0 wall_joint_removals=0 wall_joint_accepted=0 placement_connectivity_trials=0 placement_flips=0 placement_moves=0 placement_dependency_expansions=0 placement_classified_vertices=0 placement_trials=0 placement_validated=0 wall_topology_trials=0 wall_topology_accepted=0 geometry_trials=0 geometry_rejected=0 metric_trials=0 metric_shape_rejected=0 metric_progress_rejected=0 metric_measurement_rejected=0 sample_metric_present=0 sample_q=1 sample_j=1 sample_cell=0 sample_sliver=0 sample_feature=0 sample_v0=0 sample_v1=0 sample_v2=0 sample_x=0 sample_y=0 sample_z=0 batch_reserved=0 rounds=0 attempted=0 accepted=0 region_core_trials=0 region_core_regions=0 region_transition_fronts=0 region_front_trials=0 region_sampling_s=0 region_first_band_s=0 region_transition_s=0 region_junction_s=0 region_core_s=0 region_validation_s=0 region_field_points=0 region_sensor_hits=0 region_interior_hits=0 region_field_edges=0 region_edge_hits=0 region_field_imports=0 region_maximum_resident=0 rejected=0 conflicts=0 requests=0 hits=0 misses=0 invalid_queries=0 failures=0 evictions=0 compositions=0 edge_evaluations=0 collapse_geometry_checks=0 collapse_filtered=0 collapse_orientation_checks=0 collapse_orientation_filtered=0 collapse_reactivated=0 changed_star_scans=0 changed_vertices_sent=0 changed_vertices_received=0 nested_change_notifications=0 nested_collapse_orientation=0 nested_collapse_geometry=0 edge_reused=0 moved=0 reconnected=0 inserted=0 maximum_donor_patch=0 maximum_owned=0 final_owned_cells=0 cached_measured_cells=0 cached_invalid_cells=0 remaining_edges=0 remaining_repairs=0 nested_field_build=0 nested_field_query=0 nested_cache=0 nested_search=0 nested_interpolation=0 nested_composition=0 nested_edge_geometry=0 nested_edge_composition=0 nested_edge=0 nested_edge_search=0 nested_edge_trace=0 nested_edge_integral=0 donor_reused=0 edge_separated=0 donor_batches=0 donor_candidates=0 donor_filtered=0 donor_box_filtered=0 donor_payloads=0 nested_donor_search=0 nested_donor_filter=0 batch_retries=0 query_retries=0 private_query_retries=0 native_bound=0
+NATIVE3D_DETAIL stage=import rank=1 ranks=4 workers=2 complete=1 total=0.00038746399999922687 points=6.1313999999867974e-05 cells=2.1445999998093157e-05 faces=0.00025595500000008542 source=0 query=0 reader=0 other=4.874900000118032e-05 requests=0 hits=0 misses=0 invalid_queries=0 failures=0 evictions=0 compositions=0 batches=0 retries=0 nested_field_build=0 nested_search=0 nested_interpolation=0 nested_composition=0 tracked_bytes=432 tracked_calls=6 nested_tracked_collectives=4.7343999995064223e-05 native_bound=68196
+NATIVE3D_DETAIL stage=weights rank=1 ranks=4 workers=2 complete=1 total=0.0020614559999998505 points=0 cells=0 faces=0 source=0 query=0.0020407239999897797 reader=0 other=2.0732000010070806e-05 requests=0 hits=0 misses=0 invalid_queries=0 failures=0 evictions=0 compositions=0 batches=3 retries=0 nested_field_build=0 nested_search=0 nested_interpolation=0 nested_composition=0 tracked_bytes=0 tracked_calls=22 nested_tracked_collectives=0.00019938600001268014 native_bound=10079516
+NATIVE3D_DETAIL stage=return rank=1 ranks=4 workers=2 complete=1 total=0.0056188620000057199 points=0 cells=0 faces=0 source=0.00031650900000101956 query=0.0045168300000000272 reader=0.00056874700000264511 other=0.00021677600000202801 requests=213 hits=0 misses=213 invalid_queries=0 failures=0 evictions=0 compositions=0 batches=14 retries=0 nested_field_build=0.00087353599999999995 nested_search=0.00088795800000000011 nested_interpolation=3.1857000000000003e-05 nested_composition=0 tracked_bytes=37488 tracked_calls=102 nested_tracked_collectives=0.001099520000032328 native_bound=10703163
+NATIVE3D_DETAIL stage=source rank=1 ranks=4 workers=2 complete=1 build=0.00044997400000000001 imports=0.00073330599999999998 requests=0 candidates=0 payloads=0 maximum_patch=0 nested_routing=2.199e-06 nested_search=1.3819999999999999e-06 nested_filter=0 nested_exchange=0.00024372099999999999
+NATIVE3D_DETAIL stage=partition rank=1 ranks=4 workers=2 complete=1 total=0.0015276040000031799 graph=0.00037624700000549183 parmetis=0.00099867899999850351 migration=0.00012925000000052478 other=2.3427999998659743e-05 nested_directory=0.00021435299999694735 moved=24 arcs=64 cells_before=0 cells_after=11 work_before=0 work_after=191
+NATIVE3D_DETAIL stage=refine rank=1 ranks=4 workers=2 complete=1 total=11.337020484 initialization=0.00092329399999999996 seed=0 first_layer=0 selection=0 dependency=0 reservation=0 donor=0 reconstruction=11.335596987000001 metric=0 routing=0 publication=0 update=0 completion=0 other=0.00050020299999964379 tracked_bytes=231184 tracked_calls=35 nested_tracked_collectives=11.334726466999996 directory_elections=17 nested_directory_election=3.9866000000000008e-05 process_cpu=11.209894 private_reconstruction_cpu=0 private_metric_cpu=0 private_measurement_cpu=0 batch_rounds=0 batch_candidates=0 stop=complete global_work=871 work_limit=4096 progress_windows=0 stagnant_windows=0 search_windows=0 size_progress=0 quality_progress=0 cell_removals=0 layer_published=0 height_checks=311 height_rejected=0 footprint_rejected=0 wall_reconstruction_trials=0 wall_reconstruction_accepted=0 wall_joint_trials=0 wall_joint_moves=0 wall_joint_removals=0 wall_joint_accepted=0 placement_connectivity_trials=0 placement_flips=0 placement_moves=0 placement_dependency_expansions=0 placement_classified_vertices=0 placement_trials=0 placement_validated=0 wall_topology_trials=0 wall_topology_accepted=0 geometry_trials=0 geometry_rejected=0 metric_trials=0 metric_shape_rejected=0 metric_progress_rejected=0 metric_measurement_rejected=0 sample_metric_present=0 sample_q=1 sample_j=1 sample_cell=0 sample_sliver=0 sample_feature=0 sample_v0=0 sample_v1=0 sample_v2=0 sample_x=0 sample_y=0 sample_z=0 batch_reserved=0 rounds=0 attempted=0 accepted=0 region_core_trials=0 region_core_regions=0 region_transition_fronts=0 region_front_trials=0 region_sampling_s=0 region_first_band_s=0 region_transition_s=0 region_junction_s=0 region_core_s=0 region_validation_s=0 region_field_points=0 region_sensor_hits=0 region_interior_hits=0 region_field_edges=0 region_edge_hits=0 region_field_imports=0 region_maximum_resident=0 rejected=0 conflicts=0 requests=0 hits=0 misses=0 invalid_queries=0 failures=0 evictions=0 compositions=0 edge_evaluations=0 collapse_geometry_checks=0 collapse_filtered=0 collapse_orientation_checks=0 collapse_orientation_filtered=0 collapse_reactivated=0 changed_star_scans=1296 changed_vertices_sent=228 changed_vertices_received=224 nested_change_notifications=9.5409999999999996e-05 nested_collapse_orientation=0 nested_collapse_geometry=0 edge_reused=0 moved=0 reconnected=0 inserted=0 maximum_donor_patch=0 maximum_owned=311 final_owned_cells=311 cached_measured_cells=0 cached_invalid_cells=0 remaining_edges=0 remaining_repairs=0 nested_field_build=0 nested_field_query=0 nested_cache=0 nested_search=0 nested_interpolation=0 nested_composition=0 nested_edge_geometry=0 nested_edge_composition=0 nested_edge=0 nested_edge_search=0 nested_edge_trace=0 nested_edge_integral=0 donor_reused=0 edge_separated=0 donor_batches=0 donor_candidates=53 donor_filtered=0 donor_box_filtered=0 donor_payloads=0 nested_donor_search=1.8638999999999999e-05 nested_donor_filter=0 batch_retries=0 query_retries=0 private_query_retries=0 native_bound=86755296
+NATIVE3D_DETAIL stage=coarsen rank=1 ranks=4 workers=2 complete=1 total=0 initialization=0 seed=0 first_layer=0 selection=0 dependency=0 reservation=0 donor=0 reconstruction=0 metric=0 routing=0 publication=0 update=0 completion=0 other=0 tracked_bytes=0 tracked_calls=0 nested_tracked_collectives=0 directory_elections=0 nested_directory_election=0 process_cpu=0 private_reconstruction_cpu=0 private_metric_cpu=0 private_measurement_cpu=0 batch_rounds=0 batch_candidates=0 stop=none global_work=0 work_limit=0 progress_windows=0 stagnant_windows=0 search_windows=0 size_progress=0 quality_progress=0 cell_removals=0 layer_published=0 height_checks=0 height_rejected=0 footprint_rejected=0 wall_reconstruction_trials=0 wall_reconstruction_accepted=0 wall_joint_trials=0 wall_joint_moves=0 wall_joint_removals=0 wall_joint_accepted=0 placement_connectivity_trials=0 placement_flips=0 placement_moves=0 placement_dependency_expansions=0 placement_classified_vertices=0 placement_trials=0 placement_validated=0 wall_topology_trials=0 wall_topology_accepted=0 geometry_trials=0 geometry_rejected=0 metric_trials=0 metric_shape_rejected=0 metric_progress_rejected=0 metric_measurement_rejected=0 sample_metric_present=0 sample_q=1 sample_j=1 sample_cell=0 sample_sliver=0 sample_feature=0 sample_v0=0 sample_v1=0 sample_v2=0 sample_x=0 sample_y=0 sample_z=0 batch_reserved=0 rounds=0 attempted=0 accepted=0 region_core_trials=0 region_core_regions=0 region_transition_fronts=0 region_front_trials=0 region_sampling_s=0 region_first_band_s=0 region_transition_s=0 region_junction_s=0 region_core_s=0 region_validation_s=0 region_field_points=0 region_sensor_hits=0 region_interior_hits=0 region_field_edges=0 region_edge_hits=0 region_field_imports=0 region_maximum_resident=0 rejected=0 conflicts=0 requests=0 hits=0 misses=0 invalid_queries=0 failures=0 evictions=0 compositions=0 edge_evaluations=0 collapse_geometry_checks=0 collapse_filtered=0 collapse_orientation_checks=0 collapse_orientation_filtered=0 collapse_reactivated=0 changed_star_scans=0 changed_vertices_sent=0 changed_vertices_received=0 nested_change_notifications=0 nested_collapse_orientation=0 nested_collapse_geometry=0 edge_reused=0 moved=0 reconnected=0 inserted=0 maximum_donor_patch=0 maximum_owned=0 final_owned_cells=0 cached_measured_cells=0 cached_invalid_cells=0 remaining_edges=0 remaining_repairs=0 nested_field_build=0 nested_field_query=0 nested_cache=0 nested_search=0 nested_interpolation=0 nested_composition=0 nested_edge_geometry=0 nested_edge_composition=0 nested_edge=0 nested_edge_search=0 nested_edge_trace=0 nested_edge_integral=0 donor_reused=0 edge_separated=0 donor_batches=0 donor_candidates=0 donor_filtered=0 donor_box_filtered=0 donor_payloads=0 nested_donor_search=0 nested_donor_filter=0 batch_retries=0 query_retries=0 private_query_retries=0 native_bound=0
+NATIVE3D_DETAIL stage=import rank=2 ranks=4 workers=2 complete=1 total=0.00038833700000395766 points=6.3759999996193528e-05 cells=1.5916000002391684e-05 faces=0.00025575600000138365 source=0 query=0 reader=0 other=5.2905000003988789e-05 requests=0 hits=0 misses=0 invalid_queries=0 failures=0 evictions=0 compositions=0 batches=0 retries=0 nested_field_build=0 nested_search=0 nested_interpolation=0 nested_composition=0 tracked_bytes=7896 tracked_calls=6 nested_tracked_collectives=3.7786000000039621e-05 native_bound=416576
+NATIVE3D_DETAIL stage=weights rank=2 ranks=4 workers=2 complete=1 total=0.0020601370000008501 points=0 cells=0 faces=0 source=0 query=0.0020339750000033519 reader=0 other=2.6161999997498242e-05 requests=120 hits=65 misses=55 invalid_queries=0 failures=0 evictions=0 compositions=120 batches=3 retries=0 nested_field_build=0.00019902799999999999 nested_search=0.00042756500000000008 nested_interpolation=9.2110000000000004e-06 nested_composition=0.000327108 tracked_bytes=126384 tracked_calls=22 nested_tracked_collectives=8.7578999995230333e-05 native_bound=10480812
+NATIVE3D_DETAIL stage=return rank=2 ranks=4 workers=2 complete=1 total=0.0056021939999979509 points=0 cells=0 faces=0 source=0.00031587800000210109 query=0.0045276479999856178 reader=0.00056160599999799388 other=0.00019706200001223806 requests=0 hits=0 misses=0 invalid_queries=0 failures=0 evictions=0 compositions=0 batches=14 retries=0 nested_field_build=0 nested_search=0 nested_interpolation=0 nested_composition=0 tracked_bytes=849136 tracked_calls=102 nested_tracked_collectives=0.00055044799996295524 native_bound=10388415
+NATIVE3D_DETAIL stage=source rank=2 ranks=4 workers=2 complete=1 build=0.00045059199999999998 imports=0.00082347299999999991 requests=120 candidates=3096 payloads=306 maximum_patch=105 nested_routing=4.5546999999999996e-05 nested_search=0.00035745200000000002 nested_filter=0 nested_exchange=0.00029832700000000003
+NATIVE3D_DETAIL stage=partition rank=2 ranks=4 workers=2 complete=1 total=0.0015196350000010739 graph=0.00037752900000498357 parmetis=0.00099171600000147464 migration=0.00012868499999996175 other=2.1704999994653917e-05 nested_directory=0.00021433999999942444 moved=24 arcs=64 cells_before=24 cells_after=0 work_before=416 work_after=0
+NATIVE3D_DETAIL stage=refine rank=2 ranks=4 workers=2 complete=1 total=0 initialization=0 seed=0 first_layer=0 selection=0 dependency=0 reservation=0 donor=0 reconstruction=0 metric=0 routing=0 publication=0 update=0 completion=0 other=0 tracked_bytes=0 tracked_calls=0 nested_tracked_collectives=0 directory_elections=0 nested_directory_election=0 process_cpu=0 private_reconstruction_cpu=0 private_metric_cpu=0 private_measurement_cpu=0 batch_rounds=0 batch_candidates=0 stop=none global_work=0 work_limit=0 progress_windows=0 stagnant_windows=0 search_windows=0 size_progress=0 quality_progress=0 cell_removals=0 layer_published=0 height_checks=0 height_rejected=0 footprint_rejected=0 wall_reconstruction_trials=0 wall_reconstruction_accepted=0 wall_joint_trials=0 wall_joint_moves=0 wall_joint_removals=0 wall_joint_accepted=0 placement_connectivity_trials=0 placement_flips=0 placement_moves=0 placement_dependency_expansions=0 placement_classified_vertices=0 placement_trials=0 placement_validated=0 wall_topology_trials=0 wall_topology_accepted=0 geometry_trials=0 geometry_rejected=0 metric_trials=0 metric_shape_rejected=0 metric_progress_rejected=0 metric_measurement_rejected=0 sample_metric_present=0 sample_q=1 sample_j=1 sample_cell=0 sample_sliver=0 sample_feature=0 sample_v0=0 sample_v1=0 sample_v2=0 sample_x=0 sample_y=0 sample_z=0 batch_reserved=0 rounds=0 attempted=0 accepted=0 region_core_trials=0 region_core_regions=0 region_transition_fronts=0 region_front_trials=0 region_sampling_s=0 region_first_band_s=0 region_transition_s=0 region_junction_s=0 region_core_s=0 region_validation_s=0 region_field_points=0 region_sensor_hits=0 region_interior_hits=0 region_field_edges=0 region_edge_hits=0 region_field_imports=0 region_maximum_resident=0 rejected=0 conflicts=0 requests=0 hits=0 misses=0 invalid_queries=0 failures=0 evictions=0 compositions=0 edge_evaluations=0 collapse_geometry_checks=0 collapse_filtered=0 collapse_orientation_checks=0 collapse_orientation_filtered=0 collapse_reactivated=0 changed_star_scans=0 changed_vertices_sent=0 changed_vertices_received=0 nested_change_notifications=0 nested_collapse_orientation=0 nested_collapse_geometry=0 edge_reused=0 moved=0 reconnected=0 inserted=0 maximum_donor_patch=0 maximum_owned=0 final_owned_cells=0 cached_measured_cells=0 cached_invalid_cells=0 remaining_edges=0 remaining_repairs=0 nested_field_build=0 nested_field_query=0 nested_cache=0 nested_search=0 nested_interpolation=0 nested_composition=0 nested_edge_geometry=0 nested_edge_composition=0 nested_edge=0 nested_edge_search=0 nested_edge_trace=0 nested_edge_integral=0 donor_reused=0 edge_separated=0 donor_batches=0 donor_candidates=0 donor_filtered=0 donor_box_filtered=0 donor_payloads=0 nested_donor_search=0 nested_donor_filter=0 batch_retries=0 query_retries=0 private_query_retries=0 native_bound=0
+NATIVE3D_DETAIL stage=coarsen rank=2 ranks=4 workers=2 complete=1 total=0 initialization=0 seed=0 first_layer=0 selection=0 dependency=0 reservation=0 donor=0 reconstruction=0 metric=0 routing=0 publication=0 update=0 completion=0 other=0 tracked_bytes=0 tracked_calls=0 nested_tracked_collectives=0 directory_elections=0 nested_directory_election=0 process_cpu=0 private_reconstruction_cpu=0 private_metric_cpu=0 private_measurement_cpu=0 batch_rounds=0 batch_candidates=0 stop=none global_work=0 work_limit=0 progress_windows=0 stagnant_windows=0 search_windows=0 size_progress=0 quality_progress=0 cell_removals=0 layer_published=0 height_checks=0 height_rejected=0 footprint_rejected=0 wall_reconstruction_trials=0 wall_reconstruction_accepted=0 wall_joint_trials=0 wall_joint_moves=0 wall_joint_removals=0 wall_joint_accepted=0 placement_connectivity_trials=0 placement_flips=0 placement_moves=0 placement_dependency_expansions=0 placement_classified_vertices=0 placement_trials=0 placement_validated=0 wall_topology_trials=0 wall_topology_accepted=0 geometry_trials=0 geometry_rejected=0 metric_trials=0 metric_shape_rejected=0 metric_progress_rejected=0 metric_measurement_rejected=0 sample_metric_present=0 sample_q=1 sample_j=1 sample_cell=0 sample_sliver=0 sample_feature=0 sample_v0=0 sample_v1=0 sample_v2=0 sample_x=0 sample_y=0 sample_z=0 batch_reserved=0 rounds=0 attempted=0 accepted=0 region_core_trials=0 region_core_regions=0 region_transition_fronts=0 region_front_trials=0 region_sampling_s=0 region_first_band_s=0 region_transition_s=0 region_junction_s=0 region_core_s=0 region_validation_s=0 region_field_points=0 region_sensor_hits=0 region_interior_hits=0 region_field_edges=0 region_edge_hits=0 region_field_imports=0 region_maximum_resident=0 rejected=0 conflicts=0 requests=0 hits=0 misses=0 invalid_queries=0 failures=0 evictions=0 compositions=0 edge_evaluations=0 collapse_geometry_checks=0 collapse_filtered=0 collapse_orientation_checks=0 collapse_orientation_filtered=0 collapse_reactivated=0 changed_star_scans=0 changed_vertices_sent=0 changed_vertices_received=0 nested_change_notifications=0 nested_collapse_orientation=0 nested_collapse_geometry=0 edge_reused=0 moved=0 reconnected=0 inserted=0 maximum_donor_patch=0 maximum_owned=0 final_owned_cells=0 cached_measured_cells=0 cached_invalid_cells=0 remaining_edges=0 remaining_repairs=0 nested_field_build=0 nested_field_query=0 nested_cache=0 nested_search=0 nested_interpolation=0 nested_composition=0 nested_edge_geometry=0 nested_edge_composition=0 nested_edge=0 nested_edge_search=0 nested_edge_trace=0 nested_edge_integral=0 donor_reused=0 edge_separated=0 donor_batches=0 donor_candidates=0 donor_filtered=0 donor_box_filtered=0 donor_payloads=0 nested_donor_search=0 nested_donor_filter=0 batch_retries=0 query_retries=0 private_query_retries=0 native_bound=0
+NATIVE3D_DETAIL stage=import rank=3 ranks=4 workers=2 complete=1 total=0.0003871820000043158 points=6.4209000001369532e-05 cells=1.7150000005017318e-05 faces=0.00025575600000138365 source=0 query=0 reader=0 other=5.0066999996545292e-05 requests=0 hits=0 misses=0 invalid_queries=0 failures=0 evictions=0 compositions=0 batches=0 retries=0 nested_field_build=0 nested_search=0 nested_interpolation=0 nested_composition=0 tracked_bytes=576 tracked_calls=6 nested_tracked_collectives=4.7476999995410551e-05 native_bound=69572
+NATIVE3D_DETAIL stage=weights rank=3 ranks=4 workers=2 complete=1 total=0.0020626630000037949 points=0 cells=0 faces=0 source=0 query=0.0020350420000099234 reader=0 other=2.7620999993871465e-05 requests=0 hits=0 misses=0 invalid_queries=0 failures=0 evictions=0 compositions=0 batches=3 retries=0 nested_field_build=0 nested_search=0 nested_interpolation=0 nested_composition=0 tracked_bytes=0 tracked_calls=22 nested_tracked_collectives=0.00019655100003035386 native_bound=10079516
+NATIVE3D_DETAIL stage=return rank=3 ranks=4 workers=2 complete=1 total=0.0056001089999995202 points=0 cells=0 faces=0 source=0.00031567900000339932 query=0.0045288859999956799 reader=0.00056165299999832996 other=0.00019389100000211101 requests=0 hits=0 misses=0 invalid_queries=0 failures=0 evictions=0 compositions=0 batches=14 retries=0 nested_field_build=0 nested_search=0 nested_interpolation=0 nested_composition=0 tracked_bytes=0 tracked_calls=102 nested_tracked_collectives=0.0010247559999783107 native_bound=10080239
+NATIVE3D_DETAIL stage=source rank=3 ranks=4 workers=2 complete=1 build=0.000449894 imports=0.00073193200000000003 requests=0 candidates=0 payloads=0 maximum_patch=0 nested_routing=1.4950000000000001e-06 nested_search=5.8500000000000001e-07 nested_filter=0 nested_exchange=0.000258201
+NATIVE3D_DETAIL stage=partition rank=3 ranks=4 workers=2 complete=1 total=0.0015190660000001799 graph=0.00037655100000222319 parmetis=0.00099506499999790776 migration=0.00012872699999633141 other=1.8723000003717516e-05 nested_directory=0.00021396599999690125 moved=24 arcs=64 cells_before=0 cells_after=0 work_before=0 work_after=0
+NATIVE3D_DETAIL stage=refine rank=3 ranks=4 workers=2 complete=1 total=0 initialization=0 seed=0 first_layer=0 selection=0 dependency=0 reservation=0 donor=0 reconstruction=0 metric=0 routing=0 publication=0 update=0 completion=0 other=0 tracked_bytes=0 tracked_calls=0 nested_tracked_collectives=0 directory_elections=0 nested_directory_election=0 process_cpu=0 private_reconstruction_cpu=0 private_metric_cpu=0 private_measurement_cpu=0 batch_rounds=0 batch_candidates=0 stop=none global_work=0 work_limit=0 progress_windows=0 stagnant_windows=0 search_windows=0 size_progress=0 quality_progress=0 cell_removals=0 layer_published=0 height_checks=0 height_rejected=0 footprint_rejected=0 wall_reconstruction_trials=0 wall_reconstruction_accepted=0 wall_joint_trials=0 wall_joint_moves=0 wall_joint_removals=0 wall_joint_accepted=0 placement_connectivity_trials=0 placement_flips=0 placement_moves=0 placement_dependency_expansions=0 placement_classified_vertices=0 placement_trials=0 placement_validated=0 wall_topology_trials=0 wall_topology_accepted=0 geometry_trials=0 geometry_rejected=0 metric_trials=0 metric_shape_rejected=0 metric_progress_rejected=0 metric_measurement_rejected=0 sample_metric_present=0 sample_q=1 sample_j=1 sample_cell=0 sample_sliver=0 sample_feature=0 sample_v0=0 sample_v1=0 sample_v2=0 sample_x=0 sample_y=0 sample_z=0 batch_reserved=0 rounds=0 attempted=0 accepted=0 region_core_trials=0 region_core_regions=0 region_transition_fronts=0 region_front_trials=0 region_sampling_s=0 region_first_band_s=0 region_transition_s=0 region_junction_s=0 region_core_s=0 region_validation_s=0 region_field_points=0 region_sensor_hits=0 region_interior_hits=0 region_field_edges=0 region_edge_hits=0 region_field_imports=0 region_maximum_resident=0 rejected=0 conflicts=0 requests=0 hits=0 misses=0 invalid_queries=0 failures=0 evictions=0 compositions=0 edge_evaluations=0 collapse_geometry_checks=0 collapse_filtered=0 collapse_orientation_checks=0 collapse_orientation_filtered=0 collapse_reactivated=0 changed_star_scans=0 changed_vertices_sent=0 changed_vertices_received=0 nested_change_notifications=0 nested_collapse_orientation=0 nested_collapse_geometry=0 edge_reused=0 moved=0 reconnected=0 inserted=0 maximum_donor_patch=0 maximum_owned=0 final_owned_cells=0 cached_measured_cells=0 cached_invalid_cells=0 remaining_edges=0 remaining_repairs=0 nested_field_build=0 nested_field_query=0 nested_cache=0 nested_search=0 nested_interpolation=0 nested_composition=0 nested_edge_geometry=0 nested_edge_composition=0 nested_edge=0 nested_edge_search=0 nested_edge_trace=0 nested_edge_integral=0 donor_reused=0 edge_separated=0 donor_batches=0 donor_candidates=0 donor_filtered=0 donor_box_filtered=0 donor_payloads=0 nested_donor_search=0 nested_donor_filter=0 batch_retries=0 query_retries=0 private_query_retries=0 native_bound=0
+NATIVE3D_DETAIL stage=coarsen rank=3 ranks=4 workers=2 complete=1 total=0 initialization=0 seed=0 first_layer=0 selection=0 dependency=0 reservation=0 donor=0 reconstruction=0 metric=0 routing=0 publication=0 update=0 completion=0 other=0 tracked_bytes=0 tracked_calls=0 nested_tracked_collectives=0 directory_elections=0 nested_directory_election=0 process_cpu=0 private_reconstruction_cpu=0 private_metric_cpu=0 private_measurement_cpu=0 batch_rounds=0 batch_candidates=0 stop=none global_work=0 work_limit=0 progress_windows=0 stagnant_windows=0 search_windows=0 size_progress=0 quality_progress=0 cell_removals=0 layer_published=0 height_checks=0 height_rejected=0 footprint_rejected=0 wall_reconstruction_trials=0 wall_reconstruction_accepted=0 wall_joint_trials=0 wall_joint_moves=0 wall_joint_removals=0 wall_joint_accepted=0 placement_connectivity_trials=0 placement_flips=0 placement_moves=0 placement_dependency_expansions=0 placement_classified_vertices=0 placement_trials=0 placement_validated=0 wall_topology_trials=0 wall_topology_accepted=0 geometry_trials=0 geometry_rejected=0 metric_trials=0 metric_shape_rejected=0 metric_progress_rejected=0 metric_measurement_rejected=0 sample_metric_present=0 sample_q=1 sample_j=1 sample_cell=0 sample_sliver=0 sample_feature=0 sample_v0=0 sample_v1=0 sample_v2=0 sample_x=0 sample_y=0 sample_z=0 batch_reserved=0 rounds=0 attempted=0 accepted=0 region_core_trials=0 region_core_regions=0 region_transition_fronts=0 region_front_trials=0 region_sampling_s=0 region_first_band_s=0 region_transition_s=0 region_junction_s=0 region_core_s=0 region_validation_s=0 region_field_points=0 region_sensor_hits=0 region_interior_hits=0 region_field_edges=0 region_edge_hits=0 region_field_imports=0 region_maximum_resident=0 rejected=0 conflicts=0 requests=0 hits=0 misses=0 invalid_queries=0 failures=0 evictions=0 compositions=0 edge_evaluations=0 collapse_geometry_checks=0 collapse_filtered=0 collapse_orientation_checks=0 collapse_orientation_filtered=0 collapse_reactivated=0 changed_star_scans=0 changed_vertices_sent=0 changed_vertices_received=0 nested_change_notifications=0 nested_collapse_orientation=0 nested_collapse_geometry=0 edge_reused=0 moved=0 reconnected=0 inserted=0 maximum_donor_patch=0 maximum_owned=0 final_owned_cells=0 cached_measured_cells=0 cached_invalid_cells=0 remaining_edges=0 remaining_repairs=0 nested_field_build=0 nested_field_query=0 nested_cache=0 nested_search=0 nested_interpolation=0 nested_composition=0 nested_edge_geometry=0 nested_edge_composition=0 nested_edge=0 nested_edge_search=0 nested_edge_trace=0 nested_edge_integral=0 donor_reused=0 edge_separated=0 donor_batches=0 donor_candidates=0 donor_filtered=0 donor_box_filtered=0 donor_payloads=0 nested_donor_search=0 nested_donor_filter=0 batch_retries=0 query_retries=0 private_query_retries=0 native_bound=0
+
+---------------------------- Replace the Mesh ---------------------------
+Three dimensional problem.
+213 grid points before partitioning.
+621 volume elements before partitioning.
+3 surface markers.
+153 boundary elements in index 0 (Marker = cap0).
+153 boundary elements in index 1 (Marker = cap1).
+38 boundary elements in index 2 (Marker = cylinder).
+Executing the partitioning functions.
+Building the graph adjacency structure.
+Calling ParMETIS... graph partitioning complete (139 edge cuts).
+Distributing ParMETIS coloring.
+Rebalancing vertices.
+Rebalancing volume element connectivity.
+Rebalancing markers and surface elements.
+314 vertices including ghost points. 
+769 interior elements including halo cells. 
+769 tetrahedra.
+Establishing MPI communication patterns.
+Setting point connectivity.
+Renumbering points (Reverse Cuthill McKee Ordering).
+Recomputing point connectivity.
+Setting element connectivity.
+Checking the numerical grid orientation.
+All volume elements are correctly oriented.
+There has been a re-orientation of 429 TRIANGLE surface elements.
+Identifying edges and vertices.
+Setting the control volume structure.
+Volume of the computational grid: 4.71768.
+Searching for the closest normal neighbors to the surfaces.
+Storing a mapping from global to local point index.
+Compute the surface curvature.
+Max K: 19.6686. Mean K: 4.86738. Standard deviation K: 6.58199.
+Computing mesh quality statistics for the dual control volumes.
++--------------------------------------------------------------+
+|           Mesh Quality Metric|        Minimum|        Maximum|
++--------------------------------------------------------------+
+|    Orthogonality Angle (deg.)|        15.9025|         77.541|
+|     CV Face Area Aspect Ratio|        1.88423|        41.7014|
+|           CV Sub-Volume Ratio|        1.09687|         9.1361|
+|                     CV Volume|    0.000761368|       0.263952|
++--------------------------------------------------------------+
+Finding max control volume width.
+Communicating number of neighbors.
+NATIVE3D_STAGE stage=cfd_geometry_return rank=0 ranks=4 time_iter=1 total=0.015082847999998705 other=1.1119999996367369e-06 cpu=0.014830999999999999 cpu_other=-1.7347234759768071e-18 process_peak_rss=37199872 partition=0.0012530799999979081 partition_cpu=0.001225 migration=0.011658735000004583 migration_cpu=0.011561 preprocess=0.0021699209999965774 preprocess_cpu=0.0020449999999999999
+NATIVE3D_STAGE stage=cfd_geometry_return rank=1 ranks=4 time_iter=1 total=0.015118934999996725 other=1.0759999966580835e-06 cpu=0.015096 cpu_other=1.0000000000010001e-06 process_peak_rss=34930688 partition=0.0012639699999965615 partition_cpu=0.0012639999999999999 migration=0.011690827999998987 migration_cpu=0.011668 preprocess=0.0021630610000045181 preprocess_cpu=0.002163
+NATIVE3D_STAGE stage=cfd_geometry_return rank=2 ranks=4 time_iter=1 total=0.015114017000001922 other=1.3350000003242712e-06 cpu=0.0057369999999999999 cpu_other=1.0000000000001327e-06 process_peak_rss=71831552 partition=0.0012605189999987942 partition_cpu=0.001261 migration=0.011689576999998508 migration_cpu=0.0023119999999999998 preprocess=0.0021625860000042962 preprocess_cpu=0.002163
+NATIVE3D_STAGE stage=cfd_geometry_return rank=3 ranks=4 time_iter=1 total=0.015116841000001102 other=8.7600000142629142e-07 cpu=0.013968 cpu_other=1.7347234759768071e-18 process_peak_rss=34394112 partition=0.0012619999999969878 partition_cpu=0.0012619999999999999 migration=0.011690049000002034 migration_cpu=0.010546999999999999 preprocess=0.0021639160000006541 preprocess_cpu=0.0021589999999999999
+Wetted area = 0 m^2.
+Area projection in the x-plane = 0 m^2, y-plane = 0 m^2, z-plane = 0 m^2.
+Max. coordinate in the x-direction = -1e+10 m, y-direction = -1e+10 m, z-direction = -1e+10 m.
+Min. coordinate in the x-direction = 1e+10 m, y-direction = 1e+10 m, z-direction = 1e+10 m.
+Computing wall distances.
+
+-------------------- Solver Preprocessing ( Zone 0 ) --------------------
+Viscous flow: Computing pressure using the ideal gas law
+based on the free-stream temperature and a density computed
+from the Reynolds number.
+Force coefficients computed using free-stream values.
+
+-- Models:
++------------------------------------------------------------------------------+
+|          Viscosity Model|        Conductivity Model|              Fluid Model|
++------------------------------------------------------------------------------+
+|               SUTHERLAND|          CONSTANT_PRANDTL|             STANDARD_AIR|
++------------------------------------------------------------------------------+
+-- Fluid properties:
++------------------------------------------------------------------------------+
+|                  Name|    Dim. value|    Ref. value|      Unit|Non-dim. value|
++------------------------------------------------------------------------------+
+|        Ref. Viscosity|     1.716e-05|             1|   N.s/m^2|     1.716e-05|
+|      Sutherland Temp.|        273.15|             1|         K|        273.15|
+|     Sutherland Const.|         110.4|             1|         K|         110.4|
++------------------------------------------------------------------------------+
+|        Prandtl (Lam.)|             -|             -|         -|          0.72|
+|       Prandtl (Turb.)|             -|             -|         -|           0.9|
++------------------------------------------------------------------------------+
+|          Gas Constant|       287.058|             1|  N.m/kg.K|       287.058|
+|      Spec. Heat Ratio|             -|             -|         -|           1.4|
++------------------------------------------------------------------------------+
+-- Initial and free-stream conditions:
++------------------------------------------------------------------------------+
+|                  Name|    Dim. value|    Ref. value|      Unit|Non-dim. value|
++------------------------------------------------------------------------------+
+|       Static Pressure|       21.7462|             1|        Pa|       21.7462|
+|               Density|   0.000262902|             1|    kg/m^3|   0.000262902|
+|           Temperature|        288.15|             1|         K|        288.15|
+|          Total Energy|        209105|             1|   m^2/s^2|        209105|
+|            Velocity-X|   4.16744e-15|             1|       m/s|   4.16744e-15|
+|            Velocity-Y|             0|             1|       m/s|             0|
+|            Velocity-Z|       68.0594|             1|       m/s|       68.0594|
+|    Velocity Magnitude|       68.0594|             1|       m/s|       68.0594|
++------------------------------------------------------------------------------+
+|             Viscosity|    1.7893e-05|             1|   N.s/m^2|    1.7893e-05|
+|          Conductivity|             -|             1|   W/m^2.K|             -|
+|     Turb. Kin. Energy|       17.3703|             1|   m^2/s^2|       17.3703|
+|     Spec. Dissipation|       25.5223|             1|       1/s|       25.5223|
++------------------------------------------------------------------------------+
+|           Mach Number|             -|             -|         -|           0.2|
+|       Reynolds Number|             -|             -|         -|          1000|
++------------------------------------------------------------------------------+
+-- Unsteady conditions
++------------------------------------------------------------------------------+
+|                  Name|    Dim. value|    Ref. value|      Unit|Non-dim. value|
++------------------------------------------------------------------------------+
+|            Total Time|             1|             1|         s|             1|
+|             Time Step|         0.001|             1|         s|         0.001|
++------------------------------------------------------------------------------+
+Initialize Jacobian structure (Navier-Stokes). MG level: 0.
+Initialize Jacobian structure (SA model).
+
+------------------- Solution Transfer (conservative P1) -------------------
+Distributed conservative transfer on 4 rank(s): import groups 1, imported donor elements 96 (largest per rank / mean 1); planned memory per rank (largest): resident and coverage 0 MB, import 0 MB (ceiling 2048 MB).
+Supermesh of 621 new and 24 donor elements: 1784 overlapping pairs (3855 clipped), measure 2.826e+00 of 3.085e+00 (new) and 2.828e+00 (donor).
+New domain outside the donor (S_n): 1050 parts of control volumes at 140 points (396 of points on no marker), measure 2.582e-01, filled with the closest donor values (max distance 3.376e-01, 3.376e-01 of the face); new elements outside the donor: 44.
+Donor domain outside the new one (S_d): 24 donor elements, measure 1.968e-03, at walls and symmetry planes content kept (the difference to the S_n content there spread over the new domain by volume), at open boundaries the totals follow the domain.
+Largest uncovered fraction of a control-volume piece: 1.000e+00.
+Per field: S_n content and S_d content (relative to sum |u| V), correction spread over the domain, supermesh defect (round-off), CG iterations and true residual, values limited:
+             Density:  9.174e-02  7.002e-04 -8.165e-02 -3.639e-16   17  3.553e-14     213  bounds relaxed (213 values, largest 7.620e-01 of the range), rest spread by volume
+          Momentum-x:  0.000e+00 -9.230e-06 -9.216e-06  2.364e-15   19  3.051e-14      35
+          Momentum-y:  0.000e+00 -1.061e-05 -1.058e-05  2.527e-15   19  3.062e-14      42
+          Momentum-z:  0.000e+00  8.120e-06  8.071e-06 -1.759e-15   18  9.567e-14      58
+              Energy:  9.170e-02  7.002e-04 -8.161e-02 -4.242e-16   17  4.845e-14     213  bounds relaxed (213 values, largest 5.056e-01 of the range), rest spread by volume
+            Nu_Tilde:  1.366e-16  8.244e-06  8.196e-06 -1.811e-15   18  9.289e-14      59
+       Density (n-1):  9.154e-02  6.983e-04 -8.148e-02 -3.187e-16   16  8.957e-14     213  bounds relaxed (213 values, largest 1.713e+00 of the range), rest spread by volume
+    Momentum-x (n-1):  0.000e+00 -9.987e-06 -9.964e-06  2.497e-15   19  3.021e-14      38
+    Momentum-y (n-1):  0.000e+00 -1.071e-05 -1.067e-05  2.626e-15   19  3.065e-14      42
+    Momentum-z (n-1):  0.000e+00  8.114e-06  8.065e-06 -1.591e-15   18  9.583e-14      58
+        Energy (n-1):  9.136e-02  6.972e-04 -8.131e-02 -5.055e-16   17  2.299e-14     213  bounds relaxed (213 values, largest 1.358e+00 of the range), rest spread by volume
+      Nu_Tilde (n-1):  1.353e-16  8.172e-06  8.124e-06 -1.781e-15   18  9.454e-14      58
+No-slip wall points: 38, projected momentum set to zero (largest 3.403e-05), redistributed over the other points.
+States not admissible after the projection (stage 1 predicate, k_lo floor with SST): 0, U^(n-1): 0; recovered by blending 0 patch(es) towards their mean state (up to 0 neighbour rings), integrals kept.
+Turbulence values limited to the bounds of the solver: 138 (after the recovery: 0); turbulence integral change of the bounds steps: 4.647e-04 4.611e-04.
+Time history: Solution_time_n = the solution (U^n, projected once), Solution_time_n1 = U^(n-1) projected on the same supermesh.
+Domain volume: donor 2.828e+00, new 3.085e+00, relative change 9.059e-02.
+Change of the integrals (sum of value x control volume), relative to the donor integral (momentum: to the norm of the donor momentum integral):
+             Density: 9.393e-03
+          Momentum-x: 9.021e-12
+          Momentum-y: 8.255e-11
+          Momentum-z: -4.885e-08
+              Energy: 9.391e-03
+            Nu_Tilde: 4.647e-04
+       Density (n-1): 9.370e-03
+    Momentum-x (n-1): 7.538e-12
+    Momentum-y (n-1): 4.441e-11
+    Momentum-z (n-1): -4.888e-08
+        Energy (n-1): 9.354e-03
+      Nu_Tilde (n-1): 4.611e-04
+Time: setup 0.00486 s, import 0.0001577 s, supermesh 0.003663 s, coverage and slivers 0.0001012 s, solve 0.001001 s, limiter 0.000305 s, total 0.0106 s.
+
+------------------- Numerics Preprocessing ( Zone 0 ) -------------------
+
+----------------- Integration Preprocessing ( Zone 0 ) ------------------
+
+------------------- Iteration Preprocessing ( Zone 0 ) ------------------
+Euler/Navier-Stokes/RANS fluid iteration.
+The problem uses the new mesh: 213 points, 0 multigrid levels.
+Mesh replaced in 0.0267958 s (solution transfer 0.0107452 s).
+Mesh replacement seconds geometry-build/check-wall-distance/solver-init/transfer/finalize (maximum across ranks, exclusive scopes): 0.015336 0.000235143 0.000409216 0.0107452 0.000144013
+NATIVE3D_STAGE stage=replace rank=0 ranks=4 time_iter=1 total=0.026812169999999469 other=1.1657999998249124e-05 cpu=0.026369 cpu_other=1.1000000000000593e-05 process_peak_rss=37199872 geometry=0.015341003999999714 geometry_cpu=0.015057999999999998 geometry_checks=0.00022084999999805177 geometry_checks_cpu=0.00020099999999999998 solver=0.00040836299999824632 solver_cpu=0.00036899999999999997 transfer=0.010746242999999822 transfer_cpu=0.010645999999999999 finalize=8.4052000005385707e-05 finalize_cpu=8.3999999999999995e-05
+NATIVE3D_STAGE stage=replace rank=1 ranks=4 time_iter=1 total=0.027204099999998732 other=7.1423999997932697e-05 cpu=0.027181 cpu_other=7.0999999999998148e-05 process_peak_rss=35692544 geometry=0.015731763000005117 geometry_cpu=0.015709000000000001 geometry_checks=0.00023230000000040718 geometry_checks_cpu=0.000232 solver=0.00040683199999591579 solver_cpu=0.00040699999999999997 transfer=0.010638270000001171 transfer_cpu=0.010638999999999999 finalize=0.00012351099999818871 finalize_cpu=0.00012299999999999998
+NATIVE3D_STAGE stage=replace rank=2 ranks=4 time_iter=1 total=0.02720959499999509 other=5.247699999699762e-05 cpu=0.017831 cpu_other=5.1999999999999963e-05 process_peak_rss=71831552 geometry=0.015732835999997974 geometry_cpu=0.0063549999999999995 geometry_checks=0.00023514800000157265 geometry_checks_cpu=0.00023499999999999999 solver=0.00040762500000113278 solver_cpu=0.000408 transfer=0.010637529999996787 transfer_cpu=0.010638 finalize=0.00014397900000062691 finalize_cpu=0.00014300000000000001
+NATIVE3D_STAGE stage=replace rank=3 ranks=4 time_iter=1 total=0.027207134000001076 other=6.5790000000731652e-05 cpu=0.021693 cpu_other=6.6000000000000086e-05 process_peak_rss=35508224 geometry=0.015734590000000992 geometry_cpu=0.014586999999999999 geometry_checks=0.00023115100000126176 geometry_checks_cpu=0.00023099999999999998 solver=0.00040797699999473025 solver_cpu=0.000408 transfer=0.010650086000005388 transfer_cpu=0.0062839999999999997 finalize=0.00011753999999797315 finalize_cpu=0.000117
+Writing the adapted mesh of cycle 1: curved_rans_m2_mesh_00001.su2.
+NATIVE3D_STAGE stage=mesh_output rank=0 ranks=4 time_iter=1 total=0.0027718280000001982 other=2.5529999945206328e-06 cpu=0.0027139999999999998 cpu_other=9.9999999999969905e-07 process_peak_rss=47955968 mesh=0.0016845980000042005 mesh_cpu=0.0016279999999999999 reference=0.0010846770000014772 reference_cpu=0.001085
+NATIVE3D_STAGE stage=mesh_output rank=1 ranks=4 time_iter=1 total=0.00551877600000239 other=2.6009999984921706e-06 cpu=0.0055179999999999995 cpu_other=9.9999999999926537e-07 process_peak_rss=45924352 mesh=0.0044096820000021353 mesh_cpu=0.0044120000000000001 reference=0.0011064930000017625 reference_cpu=0.0011049999999999999
+NATIVE3D_STAGE stage=mesh_output rank=2 ranks=4 time_iter=1 total=0.0055742799999976 other=1.034999996818442e-06 cpu=0.0055729999999999998 cpu_other=9.9999999999926537e-07 process_peak_rss=75829248 mesh=0.0044645329999966066 mesh_cpu=0.0044650000000000002 reference=0.001108712000004175 reference_cpu=0.0011069999999999999
+NATIVE3D_STAGE stage=mesh_output rank=3 ranks=4 time_iter=1 total=0.0055116230000038513 other=3.2889999985741269e-06 cpu=0.0050720000000000001 cpu_other=1.0000000000010001e-06 process_peak_rss=45490176 mesh=0.0043944109999998204 mesh_cpu=0.0043949999999999996 reference=0.0011139230000054567 reference_cpu=0.00067599999999999995
++-----------------------------------------------------------------------+
+|        File Writing Summary       |              Filename             |
++-----------------------------------------------------------------------+
+|SU2 binary restart                 |curved_rans_m2_flow_00002.dat      |
+|                                   |                         (112 MB/s)|
++-----------------------------------------------------------------------+
++-----------------------------------------------------------------------+
+|        File Writing Summary       |              Filename             |
++-----------------------------------------------------------------------+
+|SU2 binary restart                 |curved_rans_m2_flow_00001.dat      |
+|                                   |                     (144.243 MB/s)|
++-----------------------------------------------------------------------+
+WARNING: Setting WINDOW_START_ITER = RESTART_ITER for meaningful running average.
+
+Parsing config file for zone 0
+WARNING: Setting WINDOW_START_ITER = RESTART_ITER for meaningful running average.
+
+----------------- Physical Case Definition ( Zone 0 ) -------------------
+Compressible RANS equations.
+Turbulence model: Spalart-Allmaras-noft2
+Hybrid RANS/LES: No Hybrid RANS/LES
+Mach number: 0.2.
+Angle of attack (AoA): 90 deg, and angle of sideslip (AoS): 0 deg.
+Reynolds number: 1000. Reference length 1.
+Reading and writing binary SU2 native restart files.
+Read flow solution from: curved_rans_m2_flow.
+Dimensional simulation.
+The reference area is 1 m^2.
+The semi-span will be computed using the max y(3D) value.
+The reference length is 1 m.
+Input mesh file name: curved_rans_m2_s0_written_CGNS.cgns
+
+--------------- Space Numerical Integration ( Zone 0 ) ------------------
+Roe (with entropy fix = 0.001) solver for the flow inviscid terms.
+Standard Roe without low-dissipation function.
+First order integration in space.
+Scalar upwind solver for the turbulence model.
+First order integration in space.
+Average of gradients with correction (viscous flow terms).
+Average of gradients with correction (viscous turbulence terms).
+Gradient for upwind reconstruction: Green-Gauss.
+Gradient for viscous and source terms: Green-Gauss.
+
+--------------- Time Numerical Integration  ( Zone 0 ) ------------------
+Unsteady simulation, dual time stepping strategy (second order in time).
+Unsteady time step provided by the user (s): 0.001.
+Euler implicit method for the flow equations.
+FGMRES is used for solving the linear system.
+Using ILU(0) preconditioning.
+Convergence criteria of the linear solver: 1e-06.
+Max number of linear iterations: 10.
+No CFL adaptation.
+Courant-Friedrichs-Lewy number:      0.5
+Euler implicit time integration for the turbulence model.
+
+------------------ Convergence Criteria  ( Zone 0 ) ---------------------
+Maximum number of solver subiterations: 3.
+Maximum number of physical time-steps: 10.
+Begin convergence monitoring at iteration 5.
+Residual minimum value: 1e-14.
+Cauchy series min. value: 1e-10.
+Number of Cauchy elements: 100.
+Begin windowed time average at iteration 3.
+
+-------------------- Output Information ( Zone 0 ) ----------------------
+File writing frequency: 
++------------------------------------+
+|                     File| Frequency|
++------------------------------------+
+|                  RESTART|         1|
+|                 PARAVIEW|         1|
++------------------------------------+
+Writing the convergence history file every 0 inner iterations.
+Writing the convergence history file every 1 time iterations.
+Writing the screen convergence history every 1 inner iterations.
+Writing the screen convergence history every 1 time iterations.
+The tabular file format is CSV (.csv).
+Convergence history file name: curved_rans_m2_history.
+Forces breakdown file name: forces_breakdown.dat.
+Surface file name: surface.
+Volume file name: curved_rans_m2_solution.
+Restart file name: curved_rans_m2_flow.
+
+------------- Config File Boundary Information ( Zone 0 ) ---------------
++-----------------------------------------------------------------------+
+|                        Marker Type|                        Marker Name|
++-----------------------------------------------------------------------+
+|                          Far-field|                               cap0|
+|                                   |                               cap1|
++-----------------------------------------------------------------------+
+|                     Heat flux wall|                           cylinder|
++-----------------------------------------------------------------------+
+
+-------------------- Output Preprocessing ( Zone 0 ) --------------------
+
+WARNING: SURFACE_PRESSURE_DROP can only be computed for at least 2 surfaces (outlet, inlet, ...)
+
+Screen output fields: TIME_ITER, INNER_ITER, RMS_DENSITY, RMS_MOMENTUM-X, RMS_MOMENTUM-Y, RMS_ENERGY
+History output group(s): ITER, CUR_TIME, RMS_RES
+Convergence field(s): RMS_DENSITY
+Warning: No (valid) fields chosen for time convergence monitoring. Time convergence monitoring inactive.
+Volume output fields: COORDINATES, SOLUTION, PRIMITIVE
+
+------------------- Geometry Preprocessing ( Zone 0 ) -------------------
+Reading the CGNS file: curved_rans_m2_s0_written_CGNS.cgns.
+CGNS file contains 1 database(s).
+Database 1, Base:  cell dimension of 3, physical dimension of 3.
+1 total zone(s).
+Zone 1, Zone: 213 total vertices, 621 total elements.
+Loading CoordinateX values into linear partitions.
+Loading CoordinateY values into linear partitions.
+Loading CoordinateZ values into linear partitions.
+Distributing connectivity across all ranks.
+Number of connectivity sections is 4.
+Section Tetrahedra contains 621 elements of type Tetrahedron.
+Section cap0 contains 153 elements of type Triangle.
+Section cap1 contains 153 elements of type Triangle.
+Section cylinder contains 38 elements of type Triangle.
+Loading volume section Tetrahedra from file.
+Loading surface section cap0 from file.
+Loading surface section cap1 from file.
+Loading surface section cylinder from file.
+Three dimensional problem.
+213 grid points before partitioning.
+621 volume elements before partitioning.
+3 surface markers.
+153 boundary elements in index 0 (Marker = cap0).
+153 boundary elements in index 1 (Marker = cap1).
+38 boundary elements in index 2 (Marker = cylinder).
+Executing the partitioning functions.
+Building the graph adjacency structure.
+Calling ParMETIS... graph partitioning complete (139 edge cuts).
+Distributing ParMETIS coloring.
+Rebalancing vertices.
+Rebalancing volume element connectivity.
+Rebalancing markers and surface elements.
+314 vertices including ghost points. 
+769 interior elements including halo cells. 
+769 tetrahedra.
+Establishing MPI communication patterns.
+Setting point connectivity.
+Renumbering points (Reverse Cuthill McKee Ordering).
+Recomputing point connectivity.
+Setting element connectivity.
+Checking the numerical grid orientation.
+All volume elements are correctly oriented.
+All surface elements are correctly oriented.
+Identifying edges and vertices.
+Setting the control volume structure.
+Volume of the computational grid: 4.71768.
+Searching for the closest normal neighbors to the surfaces.
+Storing a mapping from global to local point index.
+Compute the surface curvature.
+Max K: 19.6686. Mean K: 4.86738. Standard deviation K: 6.58199.
+Computing mesh quality statistics for the dual control volumes.
++--------------------------------------------------------------+
+|           Mesh Quality Metric|        Minimum|        Maximum|
++--------------------------------------------------------------+
+|    Orthogonality Angle (deg.)|        15.9025|         77.541|
+|     CV Face Area Aspect Ratio|        1.88423|        41.7014|
+|           CV Sub-Volume Ratio|        1.09687|         9.1361|
+|                     CV Volume|    0.000761368|       0.263952|
++--------------------------------------------------------------+
+Finding max control volume width.
+Communicating number of neighbors.
+NATIVE3D_STAGE stage=cfd_geometry_initial rank=0 ranks=4 time_iter=0 total=0.0044324930000030349 other=2.281999996966988e-06 cpu=0.0040460000000000001 cpu_other=2.0000000000002655e-06 process_peak_rss=47955968 partition=0.0014326990000057549 partition_cpu=0.0013619999999999999 migration=0.00083430599999445576 migration_cpu=0.00076199999999999998 preprocess=0.0021632060000058573 preprocess_cpu=0.0019199999999999998
+NATIVE3D_STAGE stage=cfd_geometry_initial rank=1 ranks=4 time_iter=0 total=0.0045588870000017323 other=1.4969999995173566e-06 cpu=0.004555 cpu_other=1.0000000000001327e-06 process_peak_rss=45924352 partition=0.0015009419999998386 partition_cpu=0.0014969999999999998 migration=0.00088419800000139048 migration_cpu=0.00088399999999999991 preprocess=0.0021722500000009859 preprocess_cpu=0.002173
+NATIVE3D_STAGE stage=cfd_geometry_initial rank=2 ranks=4 time_iter=0 total=0.0045332629999990104 other=2.5430000007986564e-06 cpu=0.0045319999999999996 cpu_other=1.9999999999998318e-06 process_peak_rss=75829248 partition=0.0014861410000008846 partition_cpu=0.0014859999999999999 migration=0.00088164099999943346 migration_cpu=0.00088099999999999995 preprocess=0.0021629379999978937 preprocess_cpu=0.002163
+NATIVE3D_STAGE stage=cfd_geometry_initial rank=3 ranks=4 time_iter=0 total=0.0045533659999961174 other=1.7999999997186933e-06 cpu=0.0045519999999999996 cpu_other=1.0000000000001327e-06 process_peak_rss=45490176 partition=0.00149514999999667 partition_cpu=0.0014939999999999999 migration=0.00088216400000362682 migration_cpu=0.00088199999999999997 preprocess=0.0021742519999961019 preprocess_cpu=0.0021749999999999999
+Semi-span length = -1e+10 m.
+Wetted area = 0 m^2.
+Area projection in the x-plane = 0 m^2, y-plane = 0 m^2, z-plane = 0 m^2.
+Max. coordinate in the x-direction = -1e+10 m, y-direction = -1e+10 m, z-direction = -1e+10 m.
+Min. coordinate in the x-direction = 1e+10 m, y-direction = 1e+10 m, z-direction = 1e+10 m.
+Computing wall distances.
+
+-------------------- Solver Preprocessing ( Zone 0 ) --------------------
+Viscous flow: Computing pressure using the ideal gas law
+based on the free-stream temperature and a density computed
+from the Reynolds number.
+Force coefficients computed using free-stream values.
+
+-- Models:
++------------------------------------------------------------------------------+
+|          Viscosity Model|        Conductivity Model|              Fluid Model|
++------------------------------------------------------------------------------+
+|               SUTHERLAND|          CONSTANT_PRANDTL|             STANDARD_AIR|
++------------------------------------------------------------------------------+
+-- Fluid properties:
++------------------------------------------------------------------------------+
+|                  Name|    Dim. value|    Ref. value|      Unit|Non-dim. value|
++------------------------------------------------------------------------------+
+|        Ref. Viscosity|     1.716e-05|             1|   N.s/m^2|     1.716e-05|
+|      Sutherland Temp.|        273.15|             1|         K|        273.15|
+|     Sutherland Const.|         110.4|             1|         K|         110.4|
++------------------------------------------------------------------------------+
+|        Prandtl (Lam.)|             -|             -|         -|          0.72|
+|       Prandtl (Turb.)|             -|             -|         -|           0.9|
++------------------------------------------------------------------------------+
+|          Gas Constant|       287.058|             1|  N.m/kg.K|       287.058|
+|      Spec. Heat Ratio|             -|             -|         -|           1.4|
++------------------------------------------------------------------------------+
+-- Initial and free-stream conditions:
++------------------------------------------------------------------------------+
+|                  Name|    Dim. value|    Ref. value|      Unit|Non-dim. value|
++------------------------------------------------------------------------------+
+|       Static Pressure|       21.7462|             1|        Pa|       21.7462|
+|               Density|   0.000262902|             1|    kg/m^3|   0.000262902|
+|           Temperature|        288.15|             1|         K|        288.15|
+|          Total Energy|        209105|             1|   m^2/s^2|        209105|
+|            Velocity-X|   4.16744e-15|             1|       m/s|   4.16744e-15|
+|            Velocity-Y|             0|             1|       m/s|             0|
+|            Velocity-Z|       68.0594|             1|       m/s|       68.0594|
+|    Velocity Magnitude|       68.0594|             1|       m/s|       68.0594|
++------------------------------------------------------------------------------+
+|             Viscosity|    1.7893e-05|             1|   N.s/m^2|    1.7893e-05|
+|          Conductivity|             -|             1|   W/m^2.K|             -|
+|     Turb. Kin. Energy|       17.3703|             1|   m^2/s^2|       17.3703|
+|     Spec. Dissipation|       25.5223|             1|       1/s|       25.5223|
++------------------------------------------------------------------------------+
+|           Mach Number|             -|             -|         -|           0.2|
+|       Reynolds Number|             -|             -|         -|          1000|
++------------------------------------------------------------------------------+
+-- Unsteady conditions
++------------------------------------------------------------------------------+
+|                  Name|    Dim. value|    Ref. value|      Unit|Non-dim. value|
++------------------------------------------------------------------------------+
+|            Total Time|             1|             1|         s|             1|
+|             Time Step|         0.001|             1|         s|         0.001|
++------------------------------------------------------------------------------+
+Initialize Jacobian structure (Navier-Stokes). MG level: 0.
+Initialize Jacobian structure (SA model).
+
+------------------- Numerics Preprocessing ( Zone 0 ) -------------------
+
+----------------- Integration Preprocessing ( Zone 0 ) ------------------
+
+------------------- Iteration Preprocessing ( Zone 0 ) ------------------
+Euler/Navier-Stokes/RANS fluid iteration.
++-----------------------------------------------------------------------------+
+|   Time_Iter|  Inner_Iter|    rms[Rho]|   rms[RhoU]|   rms[RhoV]|   rms[RhoE]|
++-----------------------------------------------------------------------------+
+|           3|           0|   -3.452636|   -1.945222|   -1.951326|    2.014208|
+|           3|           1|   -3.570632|   -2.088054|   -2.086732|    1.896471|
+|           3|           2|   -3.684690|   -2.223560|   -2.215469|    1.782881|
+
+----------------------------- Compute Metric ----------------------------
+Hessian recovery: 0.000244904 s (maximum rank time).
+Sensor-only donor metric statistics:
+Minimum density: 1.
+Maximum density: 1.
+Maximum cell AR: 1.
+Mesh complexity after native constraints: 3.08464 (ADAP_COMPLEXITY= 1).
+Sensor metric complexity before gradation: 3.08464.
+Sensor-only donor complexity after gradation: 3.08464.
+Native geometric integration: 0 points, preparation 2.419e-06 s.
+Native metric work: 4 complexity trials, 51 total gradation sweeps, 7203 owned-point visits; gradation 0.0151181 s, halo 0.000324826 s, sweep reductions 0.0066427 s (maximum accumulated rank times).
+Native gradation tensor updates: 4642 of 7203 owned-point visits.
+Native sensor gradation: 1 sweeps, fixed point reached, maximum transported-metric ratio 1, directed edges above 1+1e-5: 0.
+Native composed nodal audit: maximum transported-metric ratio 1, directed edges above 1+1e-5: 0. Sensor gradation is not a combined-field certificate.
+WARNING: The mesh complexity 3.08464 differs from ADAP_COMPLEXITY= 1, which cannot be reached with the bounds ADAP_HMIN, ADAP_HMAX and ADAP_ARMAX. The metric has the largest sizes (ADAP_HMAX) everywhere.
+NATIVE3D_STAGE stage=metric_build rank=0 ranks=4 time_iter=3 total=0.016072309999998424 other=1.0686999999620639e-05 cpu=0.015685000000000001 cpu_other=9.9999999999995925e-06 process_peak_rss=48123904 sensor_frames=5.6936999996537452e-05 sensor_frames_cpu=5.6999999999999996e-05 geometry_rule=5.4590000004850481e-06 geometry_rule_cpu=6.0000000000000002e-06 complexity_gradation_audit=0.015710439999999437 complexity_gradation_audit_cpu=0.015505 publication=0.00028155500000082156 publication_cpu=9.9999999999999991e-05 halo=7.232000001522465e-06 halo_cpu=6.9999999999999999e-06 nested_gradation=0.015118081000004224 nested_gradation_halo=0.00030881900003265628 nested_gradation_reduction=0.0058822169999785956 complexity=3.0846449574444894 bracketed=0
+NATIVE3D_STAGE stage=metric_build rank=1 ranks=4 time_iter=3 total=0.016093588000003933 other=1.7029000005663875e-05 cpu=0.016094000000000001 cpu_other=1.7000000000003124e-05 process_peak_rss=45924352 sensor_frames=7.4465000004408921e-05 sensor_frames_cpu=7.4999999999999993e-05 geometry_rule=3.7729999959879024e-06 geometry_rule_cpu=3.9999999999999998e-06 complexity_gradation_audit=0.015709860000001186 complexity_gradation_audit_cpu=0.015709999999999998 publication=2.3630000001162443e-05 publication_cpu=2.3e-05 halo=0.00026483099999552451 halo_cpu=0.00026499999999999999 nested_gradation=0.015020266000007609 nested_gradation_halo=0.00032482600002481377 nested_gradation_reduction=0.0012261479999864378 complexity=3.0846449574444894 bracketed=0
+NATIVE3D_STAGE stage=metric_build rank=2 ranks=4 time_iter=3 total=0.015851392999998382 other=3.4694000000001779e-05 cpu=0.015851000000000001 cpu_other=3.4000000000002778e-05 process_peak_rss=75874304 sensor_frames=7.4130999998089919e-05 sensor_frames_cpu=7.3999999999999996e-05 geometry_rule=4.387000004157926e-06 geometry_rule_cpu=4.9999999999999996e-06 complexity_gradation_audit=0.015709757999999852 complexity_gradation_audit_cpu=0.015709999999999998 publication=2.3163000001602541e-05 publication_cpu=2.3e-05 halo=5.2599999946778553e-06 halo_cpu=4.9999999999999996e-06 nested_gradation=0.015017229999990889 nested_gradation_halo=0.000309765999979561 nested_gradation_reduction=0.0025448310000086849 complexity=3.0846449574444894 bracketed=0
+NATIVE3D_STAGE stage=metric_build rank=3 ranks=4 time_iter=3 total=0.016096785999998531 other=1.9833999999718799e-05 cpu=0.015667999999999998 cpu_other=1.9999999999999185e-05 process_peak_rss=45490176 sensor_frames=7.3567000001162342e-05 sensor_frames_cpu=7.3999999999999996e-05 geometry_rule=4.7019999982467198e-06 geometry_rule_cpu=4.9999999999999996e-06 complexity_gradation_audit=0.015710810000001629 complexity_gradation_audit_cpu=0.015281999999999999 publication=2.2475999998050611e-05 publication_cpu=2.1999999999999999e-05 halo=0.00026539699999972299 halo_cpu=0.00026499999999999999 nested_gradation=0.015019463999998095 nested_gradation_halo=0.00032276599998937172 nested_gradation_reduction=0.0066426959999859037 complexity=3.0846449574444894 bracketed=0
+NATIVE3D_STAGE stage=metric rank=0 ranks=4 time_iter=3 total=0.016346861999998907 other=8.6100000373789953e-07 cpu=0.015900000000000001 cpu_other=1.0000000000010001e-06 process_peak_rss=48123904 setup=1.5339999990260367e-06 setup_cpu=9.9999999999999995e-07 sensors=1.7749999940974703e-06 sensors_cpu=1.9999999999999999e-06 hessian=0.00012967900000404597 hessian_cpu=0.00011899999999999999 construction=0.016213012999998 construction_cpu=0.015776999999999999
+NATIVE3D_STAGE stage=metric rank=1 ranks=4 time_iter=3 total=0.016418680999997548 other=6.6399999809618748e-07 cpu=0.016416999999999998 cpu_other=-3.4694469519536142e-18 process_peak_rss=45924352 setup=3.5329999974464954e-06 setup_cpu=1.9999999999999999e-06 sensors=1.7480000025216214e-06 sensors_cpu=1.9999999999999999e-06 hessian=0.00024615099999891754 hessian_cpu=0.00024599999999999996 construction=0.016166585000000566 construction_cpu=0.016167000000000001
+NATIVE3D_STAGE stage=metric rank=2 ranks=4 time_iter=3 total=0.016415006999999093 other=1.5439999998534404e-06 cpu=0.016364999999999998 cpu_other=9.9999999999753064e-07 process_peak_rss=75874304 setup=1.8240000017044622e-06 setup_cpu=9.9999999999999995e-07 sensors=1.3749999965284587e-06 sensors_cpu=1.9999999999999999e-06 hessian=0.00024656100000441938 hessian_cpu=0.00024599999999999996 construction=0.016163702999996588 construction_cpu=0.016115000000000001
+NATIVE3D_STAGE stage=metric rank=3 ranks=4 time_iter=3 total=0.016416279999994288 other=9.5399999366918564e-07 cpu=0.015986 cpu_other=1.0000000000010001e-06 process_peak_rss=45490176 setup=3.032999998708874e-06 setup_cpu=1.9999999999999999e-06 sensors=1.8799999992324956e-06 sensors_cpu=1.9999999999999999e-06 hessian=0.00024662599999913937 hessian_cpu=0.00024699999999999999 construction=0.016163787000003538 construction_cpu=0.015733999999999998
+Metric computed in 0.016428 s.
++-----------------------------------------------------------------------------+
+|   Time_Iter|  Inner_Iter|    rms[Rho]|   rms[RhoU]|   rms[RhoV]|   rms[RhoE]|
++-----------------------------------------------------------------------------+
+|           4|           0|   -3.574187|   -2.104218|   -2.098635|    1.894167|
+|           4|           1|   -3.684668|   -2.214379|   -2.210181|    1.784737|
+|           4|           2|   -3.791674|   -2.292079|   -2.296033|    1.679118|
+
+----------------------------- Compute Metric ----------------------------
+Hessian recovery: 0.000181641 s (maximum rank time).
+Sensor-only donor metric statistics:
+Minimum density: 1.
+Maximum density: 1.
+Maximum cell AR: 1.
+Mesh complexity after native constraints: 3.08464 (ADAP_COMPLEXITY= 1).
+Sensor metric complexity before gradation: 3.08464.
+Sensor-only donor complexity after gradation: 3.08464.
+Native geometric integration: 0 points, preparation 3.459e-06 s.
+Native metric work: 4 complexity trials, 52 total gradation sweeps, 7155 owned-point visits; gradation 0.0141589 s, halo 0.000513756 s, sweep reductions 0.00489355 s (maximum accumulated rank times).
+Native gradation tensor updates: 4180 of 7155 owned-point visits.
+Native sensor gradation: 1 sweeps, fixed point reached, maximum transported-metric ratio 1, directed edges above 1+1e-5: 0.
+Native composed nodal audit: maximum transported-metric ratio 1, directed edges above 1+1e-5: 0. Sensor gradation is not a combined-field certificate.
+WARNING: The mesh complexity 3.08464 differs from ADAP_COMPLEXITY= 1, which cannot be reached with the bounds ADAP_HMIN, ADAP_HMAX and ADAP_ARMAX. The metric has the largest sizes (ADAP_HMAX) everywhere.
+NATIVE3D_STAGE stage=metric_build rank=0 ranks=4 time_iter=4 total=0.015031341000003806 other=1.3140000000078089e-05 cpu=0.014808999999999999 cpu_other=1.3999999999998389e-05 process_peak_rss=48123904 sensor_frames=8.6527000000558019e-05 sensor_frames_cpu=8.599999999999999e-05 geometry_rule=4.4889999983865891e-06 geometry_rule_cpu=4.9999999999999996e-06 complexity_gradation_audit=0.014661654000001079 complexity_gradation_audit_cpu=0.014593999999999999 publication=0.0002483620000006681 publication_cpu=9.3999999999999994e-05 halo=1.7169000003036672e-05 halo_cpu=1.5999999999999999e-05 nested_gradation=0.014156713000005539 nested_gradation_halo=0.00050333700004046023 nested_gradation_reduction=0.0033903790000024969 complexity=3.0846449574444899 bracketed=0
+NATIVE3D_STAGE stage=metric_build rank=1 ranks=4 time_iter=4 total=0.015055056999997873 other=2.5831999998615629e-05 cpu=0.015054999999999999 cpu_other=2.5999999999999981e-05 process_peak_rss=45924352 sensor_frames=0.00010281599999473201 sensor_frames_cpu=0.000103 geometry_rule=3.9250000014590114e-06 geometry_rule_cpu=3.9999999999999998e-06 complexity_gradation_audit=0.014661156000002507 complexity_gradation_audit_cpu=0.014662 publication=2.1411999995279984e-05 publication_cpu=1.9999999999999998e-05 halo=0.00023991600000528024 halo_cpu=0.00023999999999999998 nested_gradation=0.014156650000003879 nested_gradation_halo=0.00051375599993974674 nested_gradation_reduction=0.0015252599999726613 complexity=3.0846449574444899 bracketed=0
+NATIVE3D_STAGE stage=metric_build rank=2 ranks=4 time_iter=4 total=0.014825109000000225 other=2.970099999544118e-05 cpu=0.014813 cpu_other=2.8999999999999512e-05 process_peak_rss=75874304 sensor_frames=0.00010228500000408758 sensor_frames_cpu=0.000102 geometry_rule=4.6219999987329174e-06 geometry_rule_cpu=4.9999999999999996e-06 complexity_gradation_audit=0.014661146000001679 complexity_gradation_audit_cpu=0.01465 publication=2.1375999999406758e-05 publication_cpu=2.0999999999999999e-05 halo=5.9790000008774769e-06 halo_cpu=6.0000000000000002e-06 nested_gradation=0.014158139999999264 nested_gradation_halo=0.0004971330000032026 nested_gradation_reduction=0.0030890879999390108 complexity=3.0846449574444899 bracketed=0
+NATIVE3D_STAGE stage=metric_build rank=3 ranks=4 time_iter=4 total=0.015061660999997173 other=3.0929999994100399e-05 cpu=0.014626999999999999 cpu_other=3.1000000000001512e-05 process_peak_rss=45490176 sensor_frames=0.00010098100000277554 sensor_frames_cpu=0.000101 geometry_rule=5.5739999993420497e-06 geometry_rule_cpu=4.9999999999999996e-06 complexity_gradation_audit=0.014661504999999408 complexity_gradation_audit_cpu=0.014228999999999999 publication=2.1558999996784678e-05 publication_cpu=1.9999999999999998e-05 halo=0.00024111200000476174 halo_cpu=0.00024099999999999998 nested_gradation=0.01415886799999555 nested_gradation_halo=0.00035075900002823346 nested_gradation_reduction=0.004893553000037798 complexity=3.0846449574444899 bracketed=0
+NATIVE3D_STAGE stage=metric rank=0 ranks=4 time_iter=4 total=0.015331537000001561 other=9.54000000774613e-07 cpu=0.015049 cpu_other=0 process_peak_rss=48123904 setup=1.3989999985142276e-06 setup_cpu=1.9999999999999999e-06 sensors=1.525000001834087e-06 sensors_cpu=9.9999999999999995e-07 hessian=0.00013141499999846928 hessian_cpu=0.000121 construction=0.015196244000001968 construction_cpu=0.014924999999999999
+NATIVE3D_STAGE stage=metric rank=1 ranks=4 time_iter=4 total=0.015331382999995924 other=1.2379999958511689e-06 cpu=0.01533 cpu_other=1.0000000000010001e-06 process_peak_rss=45924352 setup=3.0459999962317852e-06 setup_cpu=1.9999999999999999e-06 sensors=2.3790000014400903e-06 sensors_cpu=1.9999999999999999e-06 hessian=0.00018136999999995851 hessian_cpu=0.00018199999999999998 construction=0.015143350000002442 construction_cpu=0.015142999999999998
+NATIVE3D_STAGE stage=metric rank=2 ranks=4 time_iter=4 total=0.015330521000002761 other=1.7970000030231859e-06 cpu=0.015318 cpu_other=1.0000000000010001e-06 process_peak_rss=75874304 setup=3.0519999967282274e-06 setup_cpu=1.9999999999999999e-06 sensors=1.4790000051334573e-06 sensors_cpu=1.9999999999999999e-06 hessian=0.0001817819999985204 hessian_cpu=0.00018199999999999998 construction=0.015142410999999356 construction_cpu=0.015130999999999999
+NATIVE3D_STAGE stage=metric rank=3 ranks=4 time_iter=4 total=0.015335063000001981 other=1.0199999991300501e-06 cpu=0.014898999999999999 cpu_other=9.9999999999926537e-07 process_peak_rss=45490176 setup=2.8880000044750886e-06 setup_cpu=9.9999999999999995e-07 sensors=1.9999999949504854e-06 sensors_cpu=1.9999999999999999e-06 hessian=0.00018401900000242222 hessian_cpu=0.000184 construction=0.015145136000001003 construction_cpu=0.014711
+Metric computed in 0.0154109 s.
++-----------------------------------------------------------------------+
+|        File Writing Summary       |              Filename             |
++-----------------------------------------------------------------------+
+|SU2 binary restart                 |curved_rans_m2_flow_00004.dat      |
+|                                   |                     (108.254 MB/s)|
+|Paraview                           |curved_rans_m2_solution_00004.vtu  |
+|                                   |                      (59.084 MB/s)|
++-----------------------------------------------------------------------+
+
+----------------------------- Compute Metric ----------------------------
+Hessian recovery: 0.000176434 s (maximum rank time).
+Sensor-only donor metric statistics:
+Minimum density: 1.
+Maximum density: 1.
+Maximum cell AR: 1.
+Mesh complexity after native constraints: 3.08464 (ADAP_COMPLEXITY= 1).
+Sensor metric complexity before gradation: 3.08464.
+Sensor-only donor complexity after gradation: 3.08464.
+Native geometric integration: 0 points, preparation 2.4908e-05 s.
+Native metric work: 4 complexity trials, 52 total gradation sweeps, 7155 owned-point visits; gradation 0.0143875 s, halo 0.00127649 s, sweep reductions 0.00465721 s (maximum accumulated rank times).
+Native gradation tensor updates: 4180 of 7155 owned-point visits.
+Native sensor gradation: 1 sweeps, fixed point reached, maximum transported-metric ratio 1, directed edges above 1+1e-5: 0.
+Native composed nodal audit: maximum transported-metric ratio 1, directed edges above 1+1e-5: 0. Sensor gradation is not a combined-field certificate.
+WARNING: The mesh complexity 3.08464 differs from ADAP_COMPLEXITY= 1, which cannot be reached with the bounds ADAP_HMIN, ADAP_HMAX and ADAP_ARMAX. The metric has the largest sizes (ADAP_HMAX) everywhere.
+NATIVE3D_STAGE stage=metric_build rank=0 ranks=4 time_iter=4 total=0.015418269999997847 other=7.3009999965734096e-06 cpu=0.014076999999999999 cpu_other=7.0000000000000617e-06 process_peak_rss=48123904 sensor_frames=6.4897999997981515e-05 sensor_frames_cpu=6.4999999999999994e-05 geometry_rule=2.7289000001928798e-05 geometry_rule_cpu=2.8e-05 complexity_gradation_audit=0.01488288499999868 complexity_gradation_audit_cpu=0.013873 publication=0.00042632899999972551 publication_cpu=9.4999999999999992e-05 halo=9.568000002957433e-06 halo_cpu=9.0000000000000002e-06 nested_gradation=0.014386274000017352 nested_gradation_halo=0.00048499100000043427 nested_gradation_reduction=0.0038899849999793901 complexity=3.0846449574444899 bracketed=0
+NATIVE3D_STAGE stage=metric_build rank=1 ranks=4 time_iter=4 total=0.015454199999993534 other=1.1747999998590331e-05 cpu=0.015417 cpu_other=1.1000000000000593e-05 process_peak_rss=45924352 sensor_frames=9.8921999999390664e-05 sensor_frames_cpu=9.8999999999999994e-05 geometry_rule=2.730399999961719e-05 geometry_rule_cpu=2.6999999999999999e-05 complexity_gradation_audit=0.014881859999995584 complexity_gradation_audit_cpu=0.014846 publication=2.166499999844973e-05 publication_cpu=2.0999999999999999e-05 halo=0.00041270100000190268 halo_cpu=0.00041299999999999996 nested_gradation=0.014385092000011923 nested_gradation_halo=0.0010929150000009713 nested_gradation_reduction=0.0016771440000056259 complexity=3.0846449574444899 bracketed=0
+NATIVE3D_STAGE stage=metric_build rank=2 ranks=4 time_iter=4 total=0.015078352999999822 other=4.4989999999245356e-05 cpu=0.015077999999999999 cpu_other=4.4999999999999901e-05 process_peak_rss=75874304 sensor_frames=0.00012106900000219412 sensor_frames_cpu=0.000121 geometry_rule=4.4539999990433898e-06 geometry_rule_cpu=3.9999999999999998e-06 complexity_gradation_audit=0.014882274999997946 complexity_gradation_audit_cpu=0.014884 publication=2.1676999999442614e-05 publication_cpu=1.9999999999999998e-05 halo=3.8880000019503314e-06 halo_cpu=3.9999999999999998e-06 nested_gradation=0.014387545000005275 nested_gradation_halo=0.00048343199998868158 nested_gradation_reduction=0.0038543000000004213 complexity=3.0846449574444899 bracketed=0
+NATIVE3D_STAGE stage=metric_build rank=3 ranks=4 time_iter=4 total=0.01545630300000056 other=1.3504999998303902e-05 cpu=0.014801 cpu_other=1.4000000000001858e-05 process_peak_rss=45490176 sensor_frames=0.0001213430000035487 sensor_frames_cpu=0.000121 geometry_rule=4.1379999942137147e-06 geometry_rule_cpu=3.9999999999999998e-06 complexity_gradation_audit=0.014882427999999948 complexity_gradation_audit_cpu=0.014228999999999999 publication=2.1370000006015744e-05 publication_cpu=1.9999999999999998e-05 halo=0.00041351899999853003 halo_cpu=0.00041299999999999996 nested_gradation=0.014386534000003337 nested_gradation_halo=0.0012764930000344066 nested_gradation_reduction=0.0046572080000117921 complexity=3.0846449574444899 bracketed=0
+NATIVE3D_STAGE stage=metric rank=0 ranks=4 time_iter=4 total=0.015669832000000383 other=8.6700000423434176e-07 cpu=0.014256 cpu_other=0 process_peak_rss=48123904 setup=1.657999995074988e-06 setup_cpu=9.9999999999999995e-07 sensors=2.7620000011552293e-06 sensors_cpu=3.0000000000000001e-06 hessian=0.00014368500000472295 hessian_cpu=0.000116 construction=0.015520859999995196 construction_cpu=0.014135999999999999
+NATIVE3D_STAGE stage=metric rank=1 ranks=4 time_iter=4 total=0.015674572999998304 other=7.8000000058864316e-07 cpu=0.015636000000000001 cpu_other=0 process_peak_rss=45924352 setup=1.8519999969157652e-06 setup_cpu=9.9999999999999995e-07 sensors=4.387000004157926e-06 sensors_cpu=3.9999999999999998e-06 hessian=0.00017787899999888168 hessian_cpu=0.00017799999999999999 construction=0.01548967499999776 construction_cpu=0.015453
+NATIVE3D_STAGE stage=metric rank=2 ranks=4 time_iter=4 total=0.015675072999997042 other=7.5399999843739351e-07 cpu=0.015674 cpu_other=3.4694469519536142e-18 process_peak_rss=75874304 setup=2.3899999987975207e-06 setup_cpu=1.9999999999999999e-06 sensors=4.1260000003262576e-06 sensors_cpu=3.9999999999999998e-06 hessian=0.00017838200000142024 hessian_cpu=0.00017799999999999999 construction=0.01548942099999806 construction_cpu=0.015489999999999999
+NATIVE3D_STAGE stage=metric rank=3 ranks=4 time_iter=4 total=0.015675309999998888 other=5.9899999627077705e-07 cpu=0.015018999999999999 cpu_other=9.9999999999926537e-07 process_peak_rss=45490176 setup=2.8259999993451856e-06 setup_cpu=9.9999999999999995e-07 sensors=3.8149999994629979e-06 sensors_cpu=3.9999999999999998e-06 hessian=0.0001783410000015806 hessian_cpu=0.00017899999999999999 construction=0.015489729000002228 construction_cpu=0.014834
+Metric computed in 0.0157317 s.
+NATIVE3D rank=0 ranks=4 workers=2 complete=1 detailed=1 total=1.6242389489999951 other=0.00094658100000089007 cpu=1.57972 idle_cpu=0 support=2.1952999993857247e-05 reference=0.00064177600000192569 import=0.00065336499999801845 source=0.0069381679999978019 weights=0.13485943300000258 partition=0.050872427999998138 donor_migration=0.00056061499999771058 communicator=0.00011975800000385561 refine=1.4105487189999977 coarsen=0 wait=0.0011046440000015423 return=0.016970688999997208 policy=8.20000003898258e-07 initial=621 final=48 refine_accepted=1 coarsen_accepted=0 tracked_bytes=7174944 tracked_calls=1972 nested_tracked_collectives=0.015725919000061594 tracked_import_bytes=59832 tracked_import_calls=6 nested_tracked_import=6.753000000259135e-05 tracked_parent_bytes=5641176 tracked_parent_calls=694 nested_tracked_parent=0.0080041140000091104 tracked_worker_bytes=1473936 tracked_worker_calls=1272 nested_tracked_worker=0.0076542750000498927 native_bound=111571890 process_peak_rss=48381952
+NATIVE3D rank=1 ranks=4 workers=2 complete=1 detailed=1 total=1.6503159889999992 other=0.013151287999995986 cpu=1.648919 idle_cpu=0 support=0.026102326999996706 reference=0.00064126400000219519 import=0.00065361600000102271 source=0.0069358520000051271 weights=0.13486024099999838 partition=0.050845685999995283 donor_migration=0.00060427500000059808 communicator=0.00010286700000250448 refine=1.4104987260000001 coarsen=0 wait=0.0011281739999944307 return=0.0047915100000039956 policy=1.6300000282853944e-07 initial=621 final=48 refine_accepted=0 coarsen_accepted=0 tracked_bytes=6739368 tracked_calls=1972 nested_tracked_collectives=1.3053657320001122 tracked_import_bytes=52896 tracked_import_calls=6 nested_tracked_import=7.4914000002479497e-05 tracked_parent_bytes=5094480 tracked_parent_calls=694 nested_tracked_parent=0.041312254999965603 tracked_worker_bytes=1591992 tracked_worker_calls=1272 nested_tracked_worker=1.2639785630001441 native_bound=111586062 process_peak_rss=46854144
+NATIVE3D rank=2 ranks=4 workers=2 complete=1 detailed=1 total=1.6504754429999977 other=5.0221000002181881e-05 cpu=0.21635499999999999 idle_cpu=0.011153999999999999 support=0.026266864000000112 reference=0.00063755299999712634 import=0.00065400100000090333 source=0.0069346829999972215 weights=0.1348600120000043 partition=0.05083322799999479 donor_migration=0.00053219300000506564 communicator=0.00016134399999856441 refine=0 coarsen=0 wait=1.4125857450000012 return=0.0169588669999996 policy=7.3199999661710535e-07 initial=621 final=48 refine_accepted=0 coarsen_accepted=0 tracked_bytes=4651480 tracked_calls=700 nested_tracked_collectives=0.0090576000000908152 tracked_import_bytes=46752 tracked_import_calls=6 nested_tracked_import=8.3740000000886994e-05 tracked_parent_bytes=4604728 tracked_parent_calls=694 nested_tracked_parent=0.0089738600000899282 tracked_worker_bytes=0 tracked_worker_calls=0 nested_tracked_worker=0 native_bound=11670428 process_peak_rss=75874304
+NATIVE3D rank=3 ranks=4 workers=2 complete=1 detailed=1 total=1.6503844130000047 other=0.013486686999989672 cpu=0.112716 idle_cpu=0.010957999999999999 support=0.026109281000003648 reference=0.00063421400000152062 import=0.00065369200000020555 source=0.0069355190000024436 weights=0.13485927400000008 partition=0.050866636999998605 donor_migration=0.0004994029999991767 communicator=0.0001599670000089759 refine=0 coarsen=0 wait=1.4113943120000059 return=0.0047843179999986774 policy=1.1089999958358021e-06 initial=621 final=48 refine_accepted=0 coarsen_accepted=0 tracked_bytes=5004040 tracked_calls=700 nested_tracked_collectives=0.086320290000145405 tracked_import_bytes=52392 tracked_import_calls=6 nested_tracked_import=7.2682999999074127e-05 tracked_parent_bytes=4951648 tracked_parent_calls=694 nested_tracked_parent=0.086247607000146331 tracked_worker_bytes=0 tracked_worker_calls=0 nested_tracked_worker=0 native_bound=11774580 process_peak_rss=45490176
+NATIVE3D_DETAIL stage=import rank=0 ranks=4 workers=2 complete=1 total=0.00065267699999793649 points=5.6868000001486507e-05 cells=3.6402999995743812e-05 faces=0.00047344799999393672 source=0 query=0 reader=0 other=8.5958000006769453e-05 requests=0 hits=0 misses=0 invalid_queries=0 failures=0 evictions=0 compositions=0 batches=0 retries=0 nested_field_build=0 nested_search=0 nested_interpolation=0 nested_composition=0 tracked_bytes=59832 tracked_calls=6 nested_tracked_collectives=6.753000000259135e-05 native_bound=2688628
+NATIVE3D_DETAIL stage=weights rank=0 ranks=4 workers=2 complete=1 total=0.13485675799999797 points=0 cells=0 faces=0 source=0 query=0.13452283300002676 reader=0 other=0.0003339249999712024 requests=880 hits=99 misses=781 invalid_queries=0 failures=0 evictions=0 compositions=0 batches=90 retries=2 nested_field_build=0.011400898 nested_search=0.0087802530000000018 nested_interpolation=0.000139023 nested_composition=0 tracked_bytes=4510176 tracked_calls=628 nested_tracked_collectives=0.0059446299999805774 native_bound=11711732
+NATIVE3D_DETAIL stage=return rank=0 ranks=4 workers=2 complete=1 total=0.016968777999998963 points=0 cells=0 faces=0 source=0.0022075980000053619 query=0.0023500050000109241 reader=0.00014005799999949886 other=0.012271116999983178 requests=27 hits=0 misses=27 invalid_queries=0 failures=0 evictions=0 compositions=0 batches=5 retries=1 nested_field_build=0.000644218 nested_search=0.00031003800000000006 nested_interpolation=4.4929999999999992e-06 nested_composition=0 tracked_bytes=473008 tracked_calls=39 nested_tracked_collectives=0.00068364700000955736 native_bound=11928175
+NATIVE3D_DETAIL stage=source rank=0 ranks=4 workers=2 complete=1 build=0.0069176919999999996 imports=0.057390663000000001 requests=1336 candidates=26402 payloads=11984 maximum_patch=205 nested_routing=0.00075704500000000024 nested_search=0.012727552999999997 nested_filter=0 nested_exchange=0.013032254999999998
+NATIVE3D_DETAIL stage=partition rank=0 ranks=4 workers=2 complete=1 total=0.050870577000004857 graph=0.04585921500000012 parmetis=0.0038567279999952575 migration=0.0010012049999943429 other=0.00015342900001513726 nested_directory=0.00037544100000275193 moved=396 arcs=2140 cells_before=176 cells_after=304 work_before=1565 work_after=2661
+NATIVE3D_DETAIL stage=refine rank=0 ranks=4 workers=2 complete=1 total=1.410451871 initialization=0.0052866520000000002 seed=0 first_layer=0 selection=0 dependency=0 reservation=0 donor=0 reconstruction=1.404973816 metric=0 routing=0 publication=0 update=0 completion=0 other=0.00019140300000008992 tracked_bytes=1473936 tracked_calls=1272 nested_tracked_collectives=0.0076542750000498927 directory_elections=14 nested_directory_election=0.00060831000000000004 process_cpu=1.397327 private_reconstruction_cpu=0 private_metric_cpu=0 private_measurement_cpu=0 batch_rounds=0 batch_candidates=0 stop=complete global_work=109 work_limit=4096 progress_windows=0 stagnant_windows=0 search_windows=0 size_progress=0 quality_progress=0 cell_removals=0 layer_published=0 height_checks=0 height_rejected=0 footprint_rejected=0 wall_reconstruction_trials=0 wall_reconstruction_accepted=0 wall_joint_trials=0 wall_joint_moves=0 wall_joint_removals=0 wall_joint_accepted=0 placement_connectivity_trials=0 placement_flips=0 placement_moves=0 placement_dependency_expansions=0 placement_classified_vertices=0 placement_trials=0 placement_validated=0 wall_topology_trials=0 wall_topology_accepted=0 geometry_trials=0 geometry_rejected=0 metric_trials=0 metric_shape_rejected=0 metric_progress_rejected=0 metric_measurement_rejected=0 sample_metric_present=0 sample_q=1 sample_j=1 sample_cell=0 sample_sliver=0 sample_feature=0 sample_v0=0 sample_v1=0 sample_v2=0 sample_x=0 sample_y=0 sample_z=0 batch_reserved=0 rounds=0 attempted=0 accepted=1 region_core_trials=1 region_core_regions=1 region_transition_fronts=0 region_front_trials=0 region_sampling_s=0.18535280800000001 region_first_band_s=0 region_transition_s=0 region_junction_s=0 region_core_s=0.24108676400000001 region_validation_s=0.97243200900000004 region_field_points=133 region_sensor_hits=48 region_interior_hits=17 region_field_edges=122 region_edge_hits=12 region_field_imports=178 region_maximum_resident=256 rejected=0 conflicts=0 requests=200 hits=48 misses=152 invalid_queries=0 failures=57 evictions=0 compositions=0 edge_evaluations=0 collapse_geometry_checks=0 collapse_filtered=0 collapse_orientation_checks=0 collapse_orientation_filtered=0 collapse_reactivated=0 changed_star_scans=0 changed_vertices_sent=0 changed_vertices_received=0 nested_change_notifications=0 nested_collapse_orientation=0 nested_collapse_geometry=0 edge_reused=0 moved=0 reconnected=0 inserted=0 maximum_donor_patch=85 maximum_owned=304 final_owned_cells=24 cached_measured_cells=0 cached_invalid_cells=0 remaining_edges=0 remaining_repairs=0 nested_field_build=0.047790083999999997 nested_field_query=0.0017323940000000002 nested_cache=0.00015227899999999998 nested_search=0.0011700280000000007 nested_interpolation=2.5310000000000003e-05 nested_composition=0 nested_edge_geometry=0 nested_edge_composition=0 nested_edge=0.207815524 nested_edge_search=0.00045429500000000007 nested_edge_trace=0.20648420199999998 nested_edge_integral=0.00078652200000000022 donor_reused=0 edge_separated=1386 donor_batches=0 donor_candidates=7766 donor_filtered=5840 donor_box_filtered=2632 donor_payloads=3199 nested_donor_search=0.075865418999999976 nested_donor_filter=0.0688423640000001 batch_retries=0 query_retries=0 private_query_retries=0 native_bound=111571890
+NATIVE3D_DETAIL stage=coarsen rank=0 ranks=4 workers=2 complete=1 total=0 initialization=0 seed=0 first_layer=0 selection=0 dependency=0 reservation=0 donor=0 reconstruction=0 metric=0 routing=0 publication=0 update=0 completion=0 other=0 tracked_bytes=0 tracked_calls=0 nested_tracked_collectives=0 directory_elections=0 nested_directory_election=0 process_cpu=0 private_reconstruction_cpu=0 private_metric_cpu=0 private_measurement_cpu=0 batch_rounds=0 batch_candidates=0 stop=none global_work=0 work_limit=0 progress_windows=0 stagnant_windows=0 search_windows=0 size_progress=0 quality_progress=0 cell_removals=0 layer_published=0 height_checks=0 height_rejected=0 footprint_rejected=0 wall_reconstruction_trials=0 wall_reconstruction_accepted=0 wall_joint_trials=0 wall_joint_moves=0 wall_joint_removals=0 wall_joint_accepted=0 placement_connectivity_trials=0 placement_flips=0 placement_moves=0 placement_dependency_expansions=0 placement_classified_vertices=0 placement_trials=0 placement_validated=0 wall_topology_trials=0 wall_topology_accepted=0 geometry_trials=0 geometry_rejected=0 metric_trials=0 metric_shape_rejected=0 metric_progress_rejected=0 metric_measurement_rejected=0 sample_metric_present=0 sample_q=1 sample_j=1 sample_cell=0 sample_sliver=0 sample_feature=0 sample_v0=0 sample_v1=0 sample_v2=0 sample_x=0 sample_y=0 sample_z=0 batch_reserved=0 rounds=0 attempted=0 accepted=0 region_core_trials=0 region_core_regions=0 region_transition_fronts=0 region_front_trials=0 region_sampling_s=0 region_first_band_s=0 region_transition_s=0 region_junction_s=0 region_core_s=0 region_validation_s=0 region_field_points=0 region_sensor_hits=0 region_interior_hits=0 region_field_edges=0 region_edge_hits=0 region_field_imports=0 region_maximum_resident=0 rejected=0 conflicts=0 requests=0 hits=0 misses=0 invalid_queries=0 failures=0 evictions=0 compositions=0 edge_evaluations=0 collapse_geometry_checks=0 collapse_filtered=0 collapse_orientation_checks=0 collapse_orientation_filtered=0 collapse_reactivated=0 changed_star_scans=0 changed_vertices_sent=0 changed_vertices_received=0 nested_change_notifications=0 nested_collapse_orientation=0 nested_collapse_geometry=0 edge_reused=0 moved=0 reconnected=0 inserted=0 maximum_donor_patch=0 maximum_owned=0 final_owned_cells=0 cached_measured_cells=0 cached_invalid_cells=0 remaining_edges=0 remaining_repairs=0 nested_field_build=0 nested_field_query=0 nested_cache=0 nested_search=0 nested_interpolation=0 nested_composition=0 nested_edge_geometry=0 nested_edge_composition=0 nested_edge=0 nested_edge_search=0 nested_edge_trace=0 nested_edge_integral=0 donor_reused=0 edge_separated=0 donor_batches=0 donor_candidates=0 donor_filtered=0 donor_box_filtered=0 donor_payloads=0 nested_donor_search=0 nested_donor_filter=0 batch_retries=0 query_retries=0 private_query_retries=0 native_bound=0
+NATIVE3D_DETAIL stage=import rank=1 ranks=4 workers=2 complete=1 total=0.00065223099999656142 points=6.1555999998574862e-05 cells=3.6262000001840988e-05 faces=0.00047362000000106264 source=0 query=0 reader=0 other=8.0792999995082937e-05 requests=0 hits=0 misses=0 invalid_queries=0 failures=0 evictions=0 compositions=0 batches=0 retries=0 nested_field_build=0 nested_search=0 nested_interpolation=0 nested_composition=0 tracked_bytes=52896 tracked_calls=6 nested_tracked_collectives=7.4914000002479497e-05 native_bound=2401884
+NATIVE3D_DETAIL stage=weights rank=1 ranks=4 workers=2 complete=1 total=0.13485732599999523 points=0 cells=0 faces=0 source=0 query=0.10196383399999576 reader=0 other=0.032893491999999469 requests=775 hits=81 misses=694 invalid_queries=0 failures=0 evictions=0 compositions=0 batches=90 retries=2 nested_field_build=0.0088245029999999992 nested_search=0.0076185980000000007 nested_interpolation=0.00012080399999999998 nested_composition=0 tracked_bytes=4074128 tracked_calls=628 nested_tracked_collectives=0.039184542999954886 native_bound=11535784
+NATIVE3D_DETAIL stage=return rank=1 ranks=4 workers=2 complete=1 total=0.0047876309999992372 points=0 cells=0 faces=0 source=0.0022087190000021906 query=0.0023506860000068741 reader=0.00011932900000033442 other=0.00010889699998983815 requests=27 hits=0 misses=27 invalid_queries=0 failures=0 evictions=0 compositions=0 batches=5 retries=1 nested_field_build=0.00064009399999999991 nested_search=0.00030858900000000001 nested_interpolation=1.2384000000000002e-05 nested_composition=0 tracked_bytes=435296 tracked_calls=39 nested_tracked_collectives=0.00070903600000349343 native_bound=11768595
+NATIVE3D_DETAIL stage=source rank=1 ranks=4 workers=2 complete=1 build=0.0069175410000000001 imports=0.070743427999999969 requests=1387 candidates=24126 payloads=10743 maximum_patch=204 nested_routing=0.00074908099999999986 nested_search=0.0096423089999999965 nested_filter=0 nested_exchange=0.012928599999999998
+NATIVE3D_DETAIL stage=partition rank=1 ranks=4 workers=2 complete=1 total=0.050844034000000704 graph=0.045858973000001413 parmetis=0.0038564060000041422 migration=0.0010006999999987443 other=0.00012795499999640469 nested_directory=0.0003776970000046731 moved=396 arcs=2140 cells_before=155 cells_after=317 work_before=1325 work_after=2809
+NATIVE3D_DETAIL stage=refine rank=1 ranks=4 workers=2 complete=1 total=1.4104514530000001 initialization=0.0054492359999999997 seed=0 first_layer=0 selection=0 dependency=0 reservation=0 donor=0 reconstruction=1.4049742300000001 metric=0 routing=0 publication=0 update=0 completion=0 other=2.7986999999951578e-05 tracked_bytes=1591992 tracked_calls=1272 nested_tracked_collectives=1.2639785630001441 directory_elections=14 nested_directory_election=3.3594999999999993e-05 process_cpu=1.410223 private_reconstruction_cpu=0 private_metric_cpu=0 private_measurement_cpu=0 batch_rounds=0 batch_candidates=0 stop=complete global_work=109 work_limit=4096 progress_windows=0 stagnant_windows=0 search_windows=0 size_progress=0 quality_progress=0 cell_removals=0 layer_published=0 height_checks=0 height_rejected=0 footprint_rejected=0 wall_reconstruction_trials=0 wall_reconstruction_accepted=0 wall_joint_trials=0 wall_joint_moves=0 wall_joint_removals=0 wall_joint_accepted=0 placement_connectivity_trials=0 placement_flips=0 placement_moves=0 placement_dependency_expansions=0 placement_classified_vertices=0 placement_trials=0 placement_validated=0 wall_topology_trials=0 wall_topology_accepted=0 geometry_trials=0 geometry_rejected=0 metric_trials=0 metric_shape_rejected=0 metric_progress_rejected=0 metric_measurement_rejected=0 sample_metric_present=0 sample_q=1 sample_j=1 sample_cell=0 sample_sliver=0 sample_feature=0 sample_v0=0 sample_v1=0 sample_v2=0 sample_x=0 sample_y=0 sample_z=0 batch_reserved=0 rounds=0 attempted=0 accepted=0 region_core_trials=0 region_core_regions=0 region_transition_fronts=0 region_front_trials=0 region_sampling_s=0 region_first_band_s=0 region_transition_s=0 region_junction_s=0 region_core_s=0 region_validation_s=0 region_field_points=0 region_sensor_hits=0 region_interior_hits=0 region_field_edges=0 region_edge_hits=0 region_field_imports=178 region_maximum_resident=0 rejected=0 conflicts=0 requests=0 hits=0 misses=0 invalid_queries=0 failures=0 evictions=0 compositions=0 edge_evaluations=0 collapse_geometry_checks=0 collapse_filtered=0 collapse_orientation_checks=0 collapse_orientation_filtered=0 collapse_reactivated=0 changed_star_scans=0 changed_vertices_sent=0 changed_vertices_received=0 nested_change_notifications=0 nested_collapse_orientation=0 nested_collapse_geometry=0 edge_reused=0 moved=0 reconnected=0 inserted=0 maximum_donor_patch=0 maximum_owned=317 final_owned_cells=24 cached_measured_cells=0 cached_invalid_cells=0 remaining_edges=0 remaining_repairs=0 nested_field_build=0 nested_field_query=0 nested_cache=0 nested_search=0 nested_interpolation=0 nested_composition=0 nested_edge_geometry=0 nested_edge_composition=0 nested_edge=0 nested_edge_search=0 nested_edge_trace=0 nested_edge_integral=0 donor_reused=0 edge_separated=0 donor_batches=0 donor_candidates=7957 donor_filtered=5858 donor_box_filtered=3019 donor_payloads=0 nested_donor_search=0.074365310000000018 nested_donor_filter=0.06829762800000018 batch_retries=0 query_retries=0 private_query_retries=0 native_bound=111586062
+NATIVE3D_DETAIL stage=coarsen rank=1 ranks=4 workers=2 complete=1 total=0 initialization=0 seed=0 first_layer=0 selection=0 dependency=0 reservation=0 donor=0 reconstruction=0 metric=0 routing=0 publication=0 update=0 completion=0 other=0 tracked_bytes=0 tracked_calls=0 nested_tracked_collectives=0 directory_elections=0 nested_directory_election=0 process_cpu=0 private_reconstruction_cpu=0 private_metric_cpu=0 private_measurement_cpu=0 batch_rounds=0 batch_candidates=0 stop=none global_work=0 work_limit=0 progress_windows=0 stagnant_windows=0 search_windows=0 size_progress=0 quality_progress=0 cell_removals=0 layer_published=0 height_checks=0 height_rejected=0 footprint_rejected=0 wall_reconstruction_trials=0 wall_reconstruction_accepted=0 wall_joint_trials=0 wall_joint_moves=0 wall_joint_removals=0 wall_joint_accepted=0 placement_connectivity_trials=0 placement_flips=0 placement_moves=0 placement_dependency_expansions=0 placement_classified_vertices=0 placement_trials=0 placement_validated=0 wall_topology_trials=0 wall_topology_accepted=0 geometry_trials=0 geometry_rejected=0 metric_trials=0 metric_shape_rejected=0 metric_progress_rejected=0 metric_measurement_rejected=0 sample_metric_present=0 sample_q=1 sample_j=1 sample_cell=0 sample_sliver=0 sample_feature=0 sample_v0=0 sample_v1=0 sample_v2=0 sample_x=0 sample_y=0 sample_z=0 batch_reserved=0 rounds=0 attempted=0 accepted=0 region_core_trials=0 region_core_regions=0 region_transition_fronts=0 region_front_trials=0 region_sampling_s=0 region_first_band_s=0 region_transition_s=0 region_junction_s=0 region_core_s=0 region_validation_s=0 region_field_points=0 region_sensor_hits=0 region_interior_hits=0 region_field_edges=0 region_edge_hits=0 region_field_imports=0 region_maximum_resident=0 rejected=0 conflicts=0 requests=0 hits=0 misses=0 invalid_queries=0 failures=0 evictions=0 compositions=0 edge_evaluations=0 collapse_geometry_checks=0 collapse_filtered=0 collapse_orientation_checks=0 collapse_orientation_filtered=0 collapse_reactivated=0 changed_star_scans=0 changed_vertices_sent=0 changed_vertices_received=0 nested_change_notifications=0 nested_collapse_orientation=0 nested_collapse_geometry=0 edge_reused=0 moved=0 reconnected=0 inserted=0 maximum_donor_patch=0 maximum_owned=0 final_owned_cells=0 cached_measured_cells=0 cached_invalid_cells=0 remaining_edges=0 remaining_repairs=0 nested_field_build=0 nested_field_query=0 nested_cache=0 nested_search=0 nested_interpolation=0 nested_composition=0 nested_edge_geometry=0 nested_edge_composition=0 nested_edge=0 nested_edge_search=0 nested_edge_trace=0 nested_edge_integral=0 donor_reused=0 edge_separated=0 donor_batches=0 donor_candidates=0 donor_filtered=0 donor_box_filtered=0 donor_payloads=0 nested_donor_search=0 nested_donor_filter=0 batch_retries=0 query_retries=0 private_query_retries=0 native_bound=0
+NATIVE3D_DETAIL stage=import rank=2 ranks=4 workers=2 complete=1 total=0.0006521700000021724 points=5.9586999995531187e-05 cells=3.5738000001117598e-05 faces=0.00047393800000605779 source=0 query=0 reader=0 other=8.2906999999465825e-05 requests=0 hits=0 misses=0 invalid_queries=0 failures=0 evictions=0 compositions=0 batches=0 retries=0 nested_field_build=0 nested_search=0 nested_interpolation=0 nested_composition=0 tracked_bytes=46752 tracked_calls=6 nested_tracked_collectives=8.3740000000886994e-05 native_bound=2126360
+NATIVE3D_DETAIL stage=weights rank=2 ranks=4 workers=2 complete=1 total=0.13485793000000257 points=0 cells=0 faces=0 source=0 query=0.13451673299996258 reader=0 other=0.00034119700003998332 requests=680 hits=49 misses=631 invalid_queries=0 failures=0 evictions=0 compositions=0 batches=90 retries=2 nested_field_build=0.0085770919999999997 nested_search=0.0071736940000000022 nested_interpolation=0.00013535199999999999 nested_composition=0 tracked_bytes=3676688 tracked_calls=628 nested_tracked_collectives=0.0067622320000921832 native_bound=11368652
+NATIVE3D_DETAIL stage=return rank=2 ranks=4 workers=2 complete=1 total=0.016956708999998682 points=0 cells=0 faces=0 source=0.0022070949999957179 query=0.0023530809999954272 reader=0.00011778199999668004 other=0.012278751000010857 requests=0 hits=0 misses=0 invalid_queries=0 failures=0 evictions=0 compositions=0 batches=5 retries=1 nested_field_build=0 nested_search=0 nested_interpolation=0 nested_composition=0 tracked_bytes=411744 tracked_calls=39 nested_tracked_collectives=0.00071357100001989693 native_bound=11237095
+NATIVE3D_DETAIL stage=source rank=2 ranks=4 workers=2 complete=1 build=0.0069174450000000004 imports=0.056013463000000013 requests=1213 candidates=21964 payloads=9891 maximum_patch=211 nested_routing=0.000742018 nested_search=0.009056508999999999 nested_filter=0 nested_exchange=0.013562584000000003
+NATIVE3D_DETAIL stage=partition rank=2 ranks=4 workers=2 complete=1 total=0.05083137899999457 graph=0.04585906500000192 parmetis=0.0038570620000015765 migration=0.0010012290000034341 other=0.00011402299998763965 nested_directory=0.00037487400000202342 moved=396 arcs=2140 cells_before=136 cells_after=0 work_before=1230 work_after=0
+NATIVE3D_DETAIL stage=refine rank=2 ranks=4 workers=2 complete=1 total=0 initialization=0 seed=0 first_layer=0 selection=0 dependency=0 reservation=0 donor=0 reconstruction=0 metric=0 routing=0 publication=0 update=0 completion=0 other=0 tracked_bytes=0 tracked_calls=0 nested_tracked_collectives=0 directory_elections=0 nested_directory_election=0 process_cpu=0 private_reconstruction_cpu=0 private_metric_cpu=0 private_measurement_cpu=0 batch_rounds=0 batch_candidates=0 stop=none global_work=0 work_limit=0 progress_windows=0 stagnant_windows=0 search_windows=0 size_progress=0 quality_progress=0 cell_removals=0 layer_published=0 height_checks=0 height_rejected=0 footprint_rejected=0 wall_reconstruction_trials=0 wall_reconstruction_accepted=0 wall_joint_trials=0 wall_joint_moves=0 wall_joint_removals=0 wall_joint_accepted=0 placement_connectivity_trials=0 placement_flips=0 placement_moves=0 placement_dependency_expansions=0 placement_classified_vertices=0 placement_trials=0 placement_validated=0 wall_topology_trials=0 wall_topology_accepted=0 geometry_trials=0 geometry_rejected=0 metric_trials=0 metric_shape_rejected=0 metric_progress_rejected=0 metric_measurement_rejected=0 sample_metric_present=0 sample_q=1 sample_j=1 sample_cell=0 sample_sliver=0 sample_feature=0 sample_v0=0 sample_v1=0 sample_v2=0 sample_x=0 sample_y=0 sample_z=0 batch_reserved=0 rounds=0 attempted=0 accepted=0 region_core_trials=0 region_core_regions=0 region_transition_fronts=0 region_front_trials=0 region_sampling_s=0 region_first_band_s=0 region_transition_s=0 region_junction_s=0 region_core_s=0 region_validation_s=0 region_field_points=0 region_sensor_hits=0 region_interior_hits=0 region_field_edges=0 region_edge_hits=0 region_field_imports=0 region_maximum_resident=0 rejected=0 conflicts=0 requests=0 hits=0 misses=0 invalid_queries=0 failures=0 evictions=0 compositions=0 edge_evaluations=0 collapse_geometry_checks=0 collapse_filtered=0 collapse_orientation_checks=0 collapse_orientation_filtered=0 collapse_reactivated=0 changed_star_scans=0 changed_vertices_sent=0 changed_vertices_received=0 nested_change_notifications=0 nested_collapse_orientation=0 nested_collapse_geometry=0 edge_reused=0 moved=0 reconnected=0 inserted=0 maximum_donor_patch=0 maximum_owned=0 final_owned_cells=0 cached_measured_cells=0 cached_invalid_cells=0 remaining_edges=0 remaining_repairs=0 nested_field_build=0 nested_field_query=0 nested_cache=0 nested_search=0 nested_interpolation=0 nested_composition=0 nested_edge_geometry=0 nested_edge_composition=0 nested_edge=0 nested_edge_search=0 nested_edge_trace=0 nested_edge_integral=0 donor_reused=0 edge_separated=0 donor_batches=0 donor_candidates=0 donor_filtered=0 donor_box_filtered=0 donor_payloads=0 nested_donor_search=0 nested_donor_filter=0 batch_retries=0 query_retries=0 private_query_retries=0 native_bound=0
+NATIVE3D_DETAIL stage=coarsen rank=2 ranks=4 workers=2 complete=1 total=0 initialization=0 seed=0 first_layer=0 selection=0 dependency=0 reservation=0 donor=0 reconstruction=0 metric=0 routing=0 publication=0 update=0 completion=0 other=0 tracked_bytes=0 tracked_calls=0 nested_tracked_collectives=0 directory_elections=0 nested_directory_election=0 process_cpu=0 private_reconstruction_cpu=0 private_metric_cpu=0 private_measurement_cpu=0 batch_rounds=0 batch_candidates=0 stop=none global_work=0 work_limit=0 progress_windows=0 stagnant_windows=0 search_windows=0 size_progress=0 quality_progress=0 cell_removals=0 layer_published=0 height_checks=0 height_rejected=0 footprint_rejected=0 wall_reconstruction_trials=0 wall_reconstruction_accepted=0 wall_joint_trials=0 wall_joint_moves=0 wall_joint_removals=0 wall_joint_accepted=0 placement_connectivity_trials=0 placement_flips=0 placement_moves=0 placement_dependency_expansions=0 placement_classified_vertices=0 placement_trials=0 placement_validated=0 wall_topology_trials=0 wall_topology_accepted=0 geometry_trials=0 geometry_rejected=0 metric_trials=0 metric_shape_rejected=0 metric_progress_rejected=0 metric_measurement_rejected=0 sample_metric_present=0 sample_q=1 sample_j=1 sample_cell=0 sample_sliver=0 sample_feature=0 sample_v0=0 sample_v1=0 sample_v2=0 sample_x=0 sample_y=0 sample_z=0 batch_reserved=0 rounds=0 attempted=0 accepted=0 region_core_trials=0 region_core_regions=0 region_transition_fronts=0 region_front_trials=0 region_sampling_s=0 region_first_band_s=0 region_transition_s=0 region_junction_s=0 region_core_s=0 region_validation_s=0 region_field_points=0 region_sensor_hits=0 region_interior_hits=0 region_field_edges=0 region_edge_hits=0 region_field_imports=0 region_maximum_resident=0 rejected=0 conflicts=0 requests=0 hits=0 misses=0 invalid_queries=0 failures=0 evictions=0 compositions=0 edge_evaluations=0 collapse_geometry_checks=0 collapse_filtered=0 collapse_orientation_checks=0 collapse_orientation_filtered=0 collapse_reactivated=0 changed_star_scans=0 changed_vertices_sent=0 changed_vertices_received=0 nested_change_notifications=0 nested_collapse_orientation=0 nested_collapse_geometry=0 edge_reused=0 moved=0 reconnected=0 inserted=0 maximum_donor_patch=0 maximum_owned=0 final_owned_cells=0 cached_measured_cells=0 cached_invalid_cells=0 remaining_edges=0 remaining_repairs=0 nested_field_build=0 nested_field_query=0 nested_cache=0 nested_search=0 nested_interpolation=0 nested_composition=0 nested_edge_geometry=0 nested_edge_composition=0 nested_edge=0 nested_edge_search=0 nested_edge_trace=0 nested_edge_integral=0 donor_reused=0 edge_separated=0 donor_batches=0 donor_candidates=0 donor_filtered=0 donor_box_filtered=0 donor_payloads=0 nested_donor_search=0 nested_donor_filter=0 batch_retries=0 query_retries=0 private_query_retries=0 native_bound=0
+NATIVE3D_DETAIL stage=import rank=3 ranks=4 workers=2 complete=1 total=0.00065300899999698458 points=5.6600999997158397e-05 cells=3.590700000444258e-05 faces=0.00047439200000098936 source=0 query=0 reader=0 other=8.6108999994394253e-05 requests=0 hits=0 misses=0 invalid_queries=0 failures=0 evictions=0 compositions=0 batches=0 retries=0 nested_field_build=0 nested_search=0 nested_interpolation=0 nested_composition=0 tracked_bytes=52392 tracked_calls=6 nested_tracked_collectives=7.2682999999074127e-05 native_bound=2382260
+NATIVE3D_DETAIL stage=weights rank=3 ranks=4 workers=2 complete=1 total=0.13485683799999748 points=0 cells=0 faces=0 source=0 query=0.10205823399996206 reader=0 other=0.032798604000035425 requests=770 hits=64 misses=706 invalid_queries=0 failures=0 evictions=0 compositions=0 batches=90 retries=2 nested_field_build=0.0087603799999999999 nested_search=0.0092248650000000005 nested_interpolation=0.00012350199999999997 nested_composition=0 tracked_bytes=3925992 tracked_calls=628 nested_tracked_collectives=0.039020155000166312 native_bound=11508892
+NATIVE3D_DETAIL stage=return rank=3 ranks=4 workers=2 complete=1 total=0.0047814890000026367 points=0 cells=0 faces=0 source=0.0022093780000034258 query=0.0023535750000078792 reader=0.00011801099999786402 other=0.00010052499999346765 requests=0 hits=0 misses=0 invalid_queries=0 failures=0 evictions=0 compositions=0 batches=5 retries=1 nested_field_build=0 nested_search=0 nested_interpolation=0 nested_composition=0 tracked_bytes=454512 tracked_calls=39 nested_tracked_collectives=0.00066691099998195114 native_bound=11374095
+NATIVE3D_DETAIL stage=source rank=3 ranks=4 workers=2 complete=1 build=0.0069172019999999999 imports=0.072217402999999986 requests=1240 candidates=23395 payloads=10789 maximum_patch=199 nested_routing=0.00080889699999999983 nested_search=0.0098636149999999975 nested_filter=0 nested_exchange=0.012862218000000009
+NATIVE3D_DETAIL stage=partition rank=3 ranks=4 workers=2 complete=1 total=0.05086457699999869 graph=0.045858732999995766 parmetis=0.0038572540000032518 migration=0.0010012049999943429 other=0.00014738500000532895 nested_directory=0.00037977699999913739 moved=396 arcs=2140 cells_before=154 cells_after=0 work_before=1350 work_after=0
+NATIVE3D_DETAIL stage=refine rank=3 ranks=4 workers=2 complete=1 total=0 initialization=0 seed=0 first_layer=0 selection=0 dependency=0 reservation=0 donor=0 reconstruction=0 metric=0 routing=0 publication=0 update=0 completion=0 other=0 tracked_bytes=0 tracked_calls=0 nested_tracked_collectives=0 directory_elections=0 nested_directory_election=0 process_cpu=0 private_reconstruction_cpu=0 private_metric_cpu=0 private_measurement_cpu=0 batch_rounds=0 batch_candidates=0 stop=none global_work=0 work_limit=0 progress_windows=0 stagnant_windows=0 search_windows=0 size_progress=0 quality_progress=0 cell_removals=0 layer_published=0 height_checks=0 height_rejected=0 footprint_rejected=0 wall_reconstruction_trials=0 wall_reconstruction_accepted=0 wall_joint_trials=0 wall_joint_moves=0 wall_joint_removals=0 wall_joint_accepted=0 placement_connectivity_trials=0 placement_flips=0 placement_moves=0 placement_dependency_expansions=0 placement_classified_vertices=0 placement_trials=0 placement_validated=0 wall_topology_trials=0 wall_topology_accepted=0 geometry_trials=0 geometry_rejected=0 metric_trials=0 metric_shape_rejected=0 metric_progress_rejected=0 metric_measurement_rejected=0 sample_metric_present=0 sample_q=1 sample_j=1 sample_cell=0 sample_sliver=0 sample_feature=0 sample_v0=0 sample_v1=0 sample_v2=0 sample_x=0 sample_y=0 sample_z=0 batch_reserved=0 rounds=0 attempted=0 accepted=0 region_core_trials=0 region_core_regions=0 region_transition_fronts=0 region_front_trials=0 region_sampling_s=0 region_first_band_s=0 region_transition_s=0 region_junction_s=0 region_core_s=0 region_validation_s=0 region_field_points=0 region_sensor_hits=0 region_interior_hits=0 region_field_edges=0 region_edge_hits=0 region_field_imports=0 region_maximum_resident=0 rejected=0 conflicts=0 requests=0 hits=0 misses=0 invalid_queries=0 failures=0 evictions=0 compositions=0 edge_evaluations=0 collapse_geometry_checks=0 collapse_filtered=0 collapse_orientation_checks=0 collapse_orientation_filtered=0 collapse_reactivated=0 changed_star_scans=0 changed_vertices_sent=0 changed_vertices_received=0 nested_change_notifications=0 nested_collapse_orientation=0 nested_collapse_geometry=0 edge_reused=0 moved=0 reconnected=0 inserted=0 maximum_donor_patch=0 maximum_owned=0 final_owned_cells=0 cached_measured_cells=0 cached_invalid_cells=0 remaining_edges=0 remaining_repairs=0 nested_field_build=0 nested_field_query=0 nested_cache=0 nested_search=0 nested_interpolation=0 nested_composition=0 nested_edge_geometry=0 nested_edge_composition=0 nested_edge=0 nested_edge_search=0 nested_edge_trace=0 nested_edge_integral=0 donor_reused=0 edge_separated=0 donor_batches=0 donor_candidates=0 donor_filtered=0 donor_box_filtered=0 donor_payloads=0 nested_donor_search=0 nested_donor_filter=0 batch_retries=0 query_retries=0 private_query_retries=0 native_bound=0
+NATIVE3D_DETAIL stage=coarsen rank=3 ranks=4 workers=2 complete=1 total=0 initialization=0 seed=0 first_layer=0 selection=0 dependency=0 reservation=0 donor=0 reconstruction=0 metric=0 routing=0 publication=0 update=0 completion=0 other=0 tracked_bytes=0 tracked_calls=0 nested_tracked_collectives=0 directory_elections=0 nested_directory_election=0 process_cpu=0 private_reconstruction_cpu=0 private_metric_cpu=0 private_measurement_cpu=0 batch_rounds=0 batch_candidates=0 stop=none global_work=0 work_limit=0 progress_windows=0 stagnant_windows=0 search_windows=0 size_progress=0 quality_progress=0 cell_removals=0 layer_published=0 height_checks=0 height_rejected=0 footprint_rejected=0 wall_reconstruction_trials=0 wall_reconstruction_accepted=0 wall_joint_trials=0 wall_joint_moves=0 wall_joint_removals=0 wall_joint_accepted=0 placement_connectivity_trials=0 placement_flips=0 placement_moves=0 placement_dependency_expansions=0 placement_classified_vertices=0 placement_trials=0 placement_validated=0 wall_topology_trials=0 wall_topology_accepted=0 geometry_trials=0 geometry_rejected=0 metric_trials=0 metric_shape_rejected=0 metric_progress_rejected=0 metric_measurement_rejected=0 sample_metric_present=0 sample_q=1 sample_j=1 sample_cell=0 sample_sliver=0 sample_feature=0 sample_v0=0 sample_v1=0 sample_v2=0 sample_x=0 sample_y=0 sample_z=0 batch_reserved=0 rounds=0 attempted=0 accepted=0 region_core_trials=0 region_core_regions=0 region_transition_fronts=0 region_front_trials=0 region_sampling_s=0 region_first_band_s=0 region_transition_s=0 region_junction_s=0 region_core_s=0 region_validation_s=0 region_field_points=0 region_sensor_hits=0 region_interior_hits=0 region_field_edges=0 region_edge_hits=0 region_field_imports=0 region_maximum_resident=0 rejected=0 conflicts=0 requests=0 hits=0 misses=0 invalid_queries=0 failures=0 evictions=0 compositions=0 edge_evaluations=0 collapse_geometry_checks=0 collapse_filtered=0 collapse_orientation_checks=0 collapse_orientation_filtered=0 collapse_reactivated=0 changed_star_scans=0 changed_vertices_sent=0 changed_vertices_received=0 nested_change_notifications=0 nested_collapse_orientation=0 nested_collapse_geometry=0 edge_reused=0 moved=0 reconnected=0 inserted=0 maximum_donor_patch=0 maximum_owned=0 final_owned_cells=0 cached_measured_cells=0 cached_invalid_cells=0 remaining_edges=0 remaining_repairs=0 nested_field_build=0 nested_field_query=0 nested_cache=0 nested_search=0 nested_interpolation=0 nested_composition=0 nested_edge_geometry=0 nested_edge_composition=0 nested_edge=0 nested_edge_search=0 nested_edge_trace=0 nested_edge_integral=0 donor_reused=0 edge_separated=0 donor_batches=0 donor_candidates=0 donor_filtered=0 donor_box_filtered=0 donor_payloads=0 nested_donor_search=0 nested_donor_filter=0 batch_retries=0 query_retries=0 private_query_retries=0 native_bound=0
+
+---------------------------- Replace the Mesh ---------------------------
+Three dimensional problem.
+27 grid points before partitioning.
+48 volume elements before partitioning.
+3 surface markers.
+12 boundary elements in index 0 (Marker = cap0).
+12 boundary elements in index 1 (Marker = cap1).
+24 boundary elements in index 2 (Marker = cylinder).
+Executing the partitioning functions.
+Building the graph adjacency structure.
+Calling ParMETIS... graph partitioning complete (52 edge cuts).
+Distributing ParMETIS coloring.
+Rebalancing vertices.
+Rebalancing volume element connectivity.
+Rebalancing markers and surface elements.
+82 vertices including ghost points. 
+116 interior elements including halo cells. 
+116 tetrahedra.
+Establishing MPI communication patterns.
+Setting point connectivity.
+Renumbering points (Reverse Cuthill McKee Ordering).
+Recomputing point connectivity.
+Setting element connectivity.
+Checking the numerical grid orientation.
+All volume elements are correctly oriented.
+There has been a re-orientation of 80 TRIANGLE surface elements.
+Identifying edges and vertices.
+Setting the control volume structure.
+Volume of the computational grid: 6.91667.
+Searching for the closest normal neighbors to the surfaces.
+Storing a mapping from global to local point index.
+Compute the surface curvature.
+Max K: 10.6873. Mean K: 8.2101. Standard deviation K: 1.83321.
+Computing mesh quality statistics for the dual control volumes.
++--------------------------------------------------------------+
+|           Mesh Quality Metric|        Minimum|        Maximum|
++--------------------------------------------------------------+
+|    Orthogonality Angle (deg.)|        63.6396|        83.6545|
+|     CV Face Area Aspect Ratio|        2.82843|        16.9706|
+|           CV Sub-Volume Ratio|              1|              2|
+|                     CV Volume|         0.0625|           0.75|
++--------------------------------------------------------------+
+Finding max control volume width.
+Communicating number of neighbors.
+NATIVE3D_STAGE stage=cfd_geometry_return rank=0 ranks=4 time_iter=4 total=0.0023050570000009429 other=6.7399999892359119e-07 cpu=0.0016849999999999999 cpu_other=-1.0842021724855044e-19 process_peak_rss=48381952 partition=0.0012229149999996025 partition_cpu=0.00060300000000000002 migration=0.00027676999999926011 migration_cpu=0.00027700000000000001 preprocess=0.00080469800000315672 preprocess_cpu=0.00080499999999999994
+NATIVE3D_STAGE stage=cfd_geometry_return rank=1 ranks=4 time_iter=4 total=0.0023332560000000058 other=8.7599999432086406e-07 cpu=0.002333 cpu_other=1.0000000000003496e-06 process_peak_rss=46854144 partition=0.0012465980000015975 partition_cpu=0.0012469999999999998 migration=0.0002808119999997416 migration_cpu=0.00027999999999999998 preprocess=0.00080497000000434582 preprocess_cpu=0.00080499999999999994
+NATIVE3D_STAGE stage=cfd_geometry_return rank=2 ranks=4 time_iter=4 total=0.0022908319999999094 other=8.1999999679283064e-07 cpu=0.0021609999999999997 cpu_other=-2.1684043449710089e-19 process_peak_rss=75874304 partition=0.001195932000001676 partition_cpu=0.0011709999999999999 migration=0.00028483500000220374 migration_cpu=0.00024699999999999999 preprocess=0.00080924499999923682 preprocess_cpu=0.00074299999999999995
+NATIVE3D_STAGE stage=cfd_geometry_return rank=3 ranks=4 time_iter=4 total=0.0023331669999961946 other=7.57999998768355e-07 cpu=0.002333 cpu_other=2.1684043449710089e-19 process_peak_rss=45490176 partition=0.0012461780000023737 partition_cpu=0.0012469999999999998 migration=0.00028491399999808209 migration_cpu=0.00028399999999999996 preprocess=0.00080131699999697048 preprocess_cpu=0.00080199999999999998
+Wetted area = 0 m^2.
+Area projection in the x-plane = 0 m^2, y-plane = 0 m^2, z-plane = 0 m^2.
+Max. coordinate in the x-direction = -1e+10 m, y-direction = -1e+10 m, z-direction = -1e+10 m.
+Min. coordinate in the x-direction = 1e+10 m, y-direction = 1e+10 m, z-direction = 1e+10 m.
+Computing wall distances.
+
+-------------------- Solver Preprocessing ( Zone 0 ) --------------------
+Viscous flow: Computing pressure using the ideal gas law
+based on the free-stream temperature and a density computed
+from the Reynolds number.
+Force coefficients computed using free-stream values.
+
+-- Models:
++------------------------------------------------------------------------------+
+|          Viscosity Model|        Conductivity Model|              Fluid Model|
++------------------------------------------------------------------------------+
+|               SUTHERLAND|          CONSTANT_PRANDTL|             STANDARD_AIR|
++------------------------------------------------------------------------------+
+-- Fluid properties:
++------------------------------------------------------------------------------+
+|                  Name|    Dim. value|    Ref. value|      Unit|Non-dim. value|
++------------------------------------------------------------------------------+
+|        Ref. Viscosity|     1.716e-05|             1|   N.s/m^2|     1.716e-05|
+|      Sutherland Temp.|        273.15|             1|         K|        273.15|
+|     Sutherland Const.|         110.4|             1|         K|         110.4|
++------------------------------------------------------------------------------+
+|        Prandtl (Lam.)|             -|             -|         -|          0.72|
+|       Prandtl (Turb.)|             -|             -|         -|           0.9|
++------------------------------------------------------------------------------+
+|          Gas Constant|       287.058|             1|  N.m/kg.K|       287.058|
+|      Spec. Heat Ratio|             -|             -|         -|           1.4|
++------------------------------------------------------------------------------+
+-- Initial and free-stream conditions:
++------------------------------------------------------------------------------+
+|                  Name|    Dim. value|    Ref. value|      Unit|Non-dim. value|
++------------------------------------------------------------------------------+
+|       Static Pressure|       21.7462|             1|        Pa|       21.7462|
+|               Density|   0.000262902|             1|    kg/m^3|   0.000262902|
+|           Temperature|        288.15|             1|         K|        288.15|
+|          Total Energy|        209105|             1|   m^2/s^2|        209105|
+|            Velocity-X|   4.16744e-15|             1|       m/s|   4.16744e-15|
+|            Velocity-Y|             0|             1|       m/s|             0|
+|            Velocity-Z|       68.0594|             1|       m/s|       68.0594|
+|    Velocity Magnitude|       68.0594|             1|       m/s|       68.0594|
++------------------------------------------------------------------------------+
+|             Viscosity|    1.7893e-05|             1|   N.s/m^2|    1.7893e-05|
+|          Conductivity|             -|             1|   W/m^2.K|             -|
+|     Turb. Kin. Energy|       17.3703|             1|   m^2/s^2|       17.3703|
+|     Spec. Dissipation|       25.5223|             1|       1/s|       25.5223|
++------------------------------------------------------------------------------+
+|           Mach Number|             -|             -|         -|           0.2|
+|       Reynolds Number|             -|             -|         -|          1000|
++------------------------------------------------------------------------------+
+-- Unsteady conditions
++------------------------------------------------------------------------------+
+|                  Name|    Dim. value|    Ref. value|      Unit|Non-dim. value|
++------------------------------------------------------------------------------+
+|            Total Time|             1|             1|         s|             1|
+|             Time Step|         0.001|             1|         s|         0.001|
++------------------------------------------------------------------------------+
+Initialize Jacobian structure (Navier-Stokes). MG level: 0.
+Initialize Jacobian structure (SA model).
+
+------------------- Solution Transfer (conservative P1) -------------------
+Distributed conservative transfer on 4 rank(s): import groups 1, imported donor elements 2125 (largest per rank / mean 1.17); planned memory per rank (largest): resident and coverage 0 MB, import 0 MB (ceiling 2048 MB).
+Supermesh of 48 new and 621 donor elements: 2656 overlapping pairs (6406 clipped), measure 2.995e+00 of 3.000e+00 (new) and 3.085e+00 (donor).
+New domain outside the donor (S_n): 110 parts of control volumes at 22 points (0 of points on no marker), measure 4.740e-03, filled with the closest donor values (max distance 4.592e-03, 4.361e-03 of the face); new elements outside the donor: 0.
+Donor domain outside the new one (S_d): 257 donor elements, measure 8.939e-02, at walls and symmetry planes content kept (the difference to the S_n content there spread over the new domain by volume), at open boundaries the totals follow the domain.
+Largest uncovered fraction of a control-volume piece: 8.421e-03.
+Per field: S_n content and S_d content (relative to sum |u| V), correction spread over the domain, supermesh defect (round-off), CG iterations and true residual, values limited:
+             Density:  1.538e-03  2.900e-02  2.746e-02 -5.998e-16   13  6.372e-14       7
+          Momentum-x:  0.000e+00  6.567e-04  6.567e-04  4.943e-17   16  5.776e-14       0
+          Momentum-y:  0.000e+00 -8.601e-05 -8.601e-05  1.944e-16   16  7.247e-14       0
+          Momentum-z:  0.000e+00  6.027e-04  6.027e-04 -8.196e-16   15  1.183e-14       2
+              Energy:  1.532e-03  2.888e-02  2.735e-02 -7.307e-17   14  1.060e-14       1
+            Nu_Tilde:  2.443e-18  3.034e-04  3.034e-04 -1.213e-15   15  1.911e-14      20
+       Density (n-1):  1.542e-03  2.909e-02  2.755e-02 -3.818e-16   13  4.569e-14      25  bounds relaxed (27 values, largest 1.101e-01 of the range), rest spread by volume
+    Momentum-x (n-1):  0.000e+00  6.845e-04  6.845e-04  1.093e-16   16  3.596e-14       0
+    Momentum-y (n-1):  0.000e+00 -1.001e-04 -1.001e-04  3.791e-16   16  3.870e-14       0
+    Momentum-z (n-1):  0.000e+00  4.543e-04  4.543e-04 -7.540e-16   14  4.308e-14       1
+        Energy (n-1):  1.538e-03  2.901e-02  2.747e-02 -6.611e-16   13  2.851e-14      19  bounds relaxed (27 values, largest 2.157e-02 of the range), rest spread by volume
+      Nu_Tilde (n-1):  2.478e-18  3.010e-04  3.010e-04 -1.252e-15   15  1.892e-14      22
+No-slip wall points: 24, projected momentum set to zero (largest 2.407e-03), redistributed over the other points.
+The limiter bounds could not hold the removed wall momentum of 2 momentum field(s): the rest was spread over the domain by volume (totals exact).
+States not admissible after the projection (stage 1 predicate, k_lo floor with SST): 0, U^(n-1): 0; recovered by blending 0 patch(es) towards their mean state (up to 0 neighbour rings), integrals kept.
+Turbulence values limited to the bounds of the solver: 41 (after the recovery: 0); turbulence integral change of the bounds steps: 3.523e-03 3.781e-03.
+Time history: Solution_time_n = the solution (U^n, projected once), Solution_time_n1 = U^(n-1) projected on the same supermesh.
+Domain volume: donor 3.085e+00, new 3.000e+00, relative change -2.744e-02.
+Change of the integrals (sum of value x control volume), relative to the donor integral (momentum: to the norm of the donor momentum integral):
+             Density: 0.000e+00
+          Momentum-x: -1.667e-19
+          Momentum-y: 0.000e+00
+          Momentum-z: -1.707e-16
+              Energy: 0.000e+00
+            Nu_Tilde: 3.523e-03
+       Density (n-1): 0.000e+00
+    Momentum-x (n-1): 0.000e+00
+    Momentum-y (n-1): -3.826e-19
+    Momentum-z (n-1): 0.000e+00
+        Energy (n-1): 0.000e+00
+      Nu_Tilde (n-1): 3.781e-03
+Time: setup 0.0004182 s, import 0.0005557 s, supermesh 0.006418 s, coverage and slivers 0.0007183 s, solve 0.0008665 s, limiter 0.0003605 s, total 0.009997 s.
+
+------------------- Numerics Preprocessing ( Zone 0 ) -------------------
+
+----------------- Integration Preprocessing ( Zone 0 ) ------------------
+
+------------------- Iteration Preprocessing ( Zone 0 ) ------------------
+Euler/Navier-Stokes/RANS fluid iteration.
+The problem uses the new mesh: 27 points, 0 multigrid levels.
+Mesh replaced in 0.0132534 s (solution transfer 0.0101461 s).
+Mesh replacement seconds geometry-build/check-wall-distance/solver-init/transfer/finalize (maximum across ranks, exclusive scopes): 0.00253472 0.000167562 0.000274764 0.0101461 0.000191565
+NATIVE3D_STAGE stage=replace rank=0 ranks=4 time_iter=4 total=0.0132765409999962 other=1.2661999996055329e-05 cpu=0.012579 cpu_other=1.3000000000000858e-05 process_peak_rss=48381952 geometry=0.0025452189999981556 geometry_cpu=0.0018479999999999998 geometry_checks=0.00015734000000122705 geometry_checks_cpu=0.00015699999999999999 solver=0.00027399399999694651 solver_cpu=0.00027399999999999999 transfer=0.01014687700000394 transfer_cpu=0.010147 finalize=0.00014044899999987592 finalize_cpu=0.00013999999999999999
+NATIVE3D_STAGE stage=replace rank=1 ranks=4 time_iter=4 total=0.014254229000002283 other=8.3422999999527292e-05 cpu=0.014253999999999999 cpu_other=8.2999999999999741e-05 process_peak_rss=46854144 geometry=0.003523177000005262 geometry_cpu=0.0035229999999999997 geometry_checks=0.00016683499999459173 geometry_checks_cpu=0.00016699999999999999 solver=0.00027396100000487422 solver_cpu=0.00027399999999999999 transfer=0.010023861999997052 transfer_cpu=0.010024 finalize=0.00018297100000097544 finalize_cpu=0.000183
+NATIVE3D_STAGE stage=replace rank=2 ranks=4 time_iter=4 total=0.01424939500000022 other=7.5635999998269199e-05 cpu=0.013552 cpu_other=2.3000000000000451e-05 process_peak_rss=75874304 geometry=0.0035164929999993433 geometry_cpu=0.0029789999999999999 geometry_checks=0.00016757600000261164 geometry_checks_cpu=0.00014199999999999998 solver=0.00027394800000024588 solver_cpu=0.00024800000000000001 transfer=0.010024156000000062 transfer_cpu=0.0099689999999999987 finalize=0.00019158599999968828 finalize_cpu=0.00019099999999999998
+NATIVE3D_STAGE stage=replace rank=3 ranks=4 time_iter=4 total=0.014254463000000328 other=9.0083999999990283e-05 cpu=0.012697 cpu_other=9.0000000000001537e-05 process_peak_rss=45490176 geometry=0.0035233689999998319 geometry_cpu=0.0035229999999999997 geometry_checks=0.00016650999999967553 geometry_checks_cpu=0.00016699999999999999 solver=0.00027406399999563291 solver_cpu=0.00027399999999999999 transfer=0.010024934000000485 transfer_cpu=0.0084679999999999998 finalize=0.0001755020000047125 finalize_cpu=0.000175
+Writing the adapted mesh of cycle 2: curved_rans_m2_mesh_00002.su2.
+NATIVE3D_STAGE stage=mesh_output rank=0 ranks=4 time_iter=4 total=0.0019204410000028815 other=1.0760000037635109e-06 cpu=0.0019189999999999999 cpu_other=9.9999999999991589e-07 process_peak_rss=48685056 mesh=0.0010696360000039817 mesh_cpu=0.0010679999999999999 reference=0.00084972899999513629 reference_cpu=0.00084999999999999995
+NATIVE3D_STAGE stage=mesh_output rank=1 ranks=4 time_iter=4 total=0.025389781999997751 other=7.1200000206772529e-07 cpu=0.025388999999999998 cpu_other=-3.4694469519536142e-18 process_peak_rss=46854144 mesh=0.02452732999999796 mesh_cpu=0.024527 reference=0.00086173999999772377 reference_cpu=0.00086199999999999992
+NATIVE3D_STAGE stage=mesh_output rank=2 ranks=4 time_iter=4 total=0.025393506000000343 other=5.5900000006658956e-07 cpu=0.025270999999999998 cpu_other=1.0000000000010001e-06 process_peak_rss=75874304 mesh=0.024528899999999965 mesh_cpu=0.024406999999999998 reference=0.00086404700000031198 reference_cpu=0.00086299999999999994
+NATIVE3D_STAGE stage=mesh_output rank=3 ranks=4 time_iter=4 total=0.025340887000005807 other=4.6300000633436866e-07 cpu=0.025339999999999998 cpu_other=-3.4694469519536142e-18 process_peak_rss=45490176 mesh=0.02447779599999933 mesh_cpu=0.024478 reference=0.00086262800000014295 reference_cpu=0.00086199999999999992
++-----------------------------------------------------------------------------+
+|   Time_Iter|  Inner_Iter|    rms[Rho]|   rms[RhoU]|   rms[RhoV]|   rms[RhoE]|
++-----------------------------------------------------------------------------+
+|           5|           0|   -2.889966|   -2.095066|   -2.383676|    2.566784|
+|           5|           1|   -2.983064|   -2.261407|   -2.558929|    2.472072|
+|           5|           2|   -3.077465|   -2.430974|   -2.731375|    2.376688|
+
+----------------------------- Compute Metric ----------------------------
+Hessian recovery: 0.000178363 s (maximum rank time).
+Sensor-only donor metric statistics:
+Minimum density: 1.
+Maximum density: 1.
+Maximum cell AR: 1.
+Mesh complexity after native constraints: 3 (ADAP_COMPLEXITY= 1).
+Sensor metric complexity before gradation: 3.
+Sensor-only donor complexity after gradation: 3.
+Native geometric integration: 0 points, preparation 2.273e-06 s.
+Native metric work: 2 complexity trials, 4 total gradation sweeps, 92 owned-point visits; gradation 9.2691e-05 s, halo 1.8414e-05 s, sweep reductions 2.6894e-05 s (maximum accumulated rank times).
+Native gradation tensor updates: 8 of 92 owned-point visits.
+Native sensor gradation: 1 sweeps, fixed point reached, maximum transported-metric ratio 1, directed edges above 1+1e-5: 0.
+Native composed nodal audit: maximum transported-metric ratio 1, directed edges above 1+1e-5: 0. Sensor gradation is not a combined-field certificate.
+WARNING: The mesh complexity 3 differs from ADAP_COMPLEXITY= 1, which cannot be reached with the bounds ADAP_HMIN, ADAP_HMAX and ADAP_ARMAX. The metric has the largest sizes (ADAP_HMAX) everywhere.
+NATIVE3D_STAGE stage=metric_build rank=0 ranks=4 time_iter=5 total=0.00021095900000034362 other=4.8519999964469207e-06 cpu=0.00021099999999999998 cpu_other=5.0000000000000131e-06 process_peak_rss=48685056 sensor_frames=1.9432000001984306e-05 sensor_frames_cpu=1.9999999999999998e-05 geometry_rule=4.7690000002376109e-06 geometry_rule_cpu=3.9999999999999998e-06 complexity_gradation_audit=0.00014773400000223091 complexity_gradation_audit_cpu=0.00014799999999999999 publication=3.2014999995055859e-05 publication_cpu=3.1999999999999999e-05 halo=2.15700000438801e-06 halo_cpu=1.9999999999999999e-06 nested_gradation=8.1205999997280287e-05 nested_gradation_halo=7.2330000051579191e-06 nested_gradation_reduction=1.2497999996696763e-05 complexity=2.9999999999999996 bracketed=0
+NATIVE3D_STAGE stage=metric_build rank=1 ranks=4 time_iter=5 total=0.00021790299999935314 other=6.3979999964658418e-06 cpu=0.00021799999999999999 cpu_other=5.9999999999999832e-06 process_peak_rss=46854144 sensor_frames=2.5657000001899632e-05 sensor_frames_cpu=2.5999999999999998e-05 geometry_rule=4.1150000029688272e-06 geometry_rule_cpu=3.9999999999999998e-06 complexity_gradation_audit=0.00014814499999715736 complexity_gradation_audit_cpu=0.00014799999999999999 publication=1.03039999999055e-05 publication_cpu=9.9999999999999991e-06 halo=2.3284000000955984e-05 halo_cpu=2.4000000000000001e-05 nested_gradation=9.2434999999113643e-05 nested_gradation_halo=1.7718000002275858e-05 nested_gradation_reduction=1.0676999998793235e-05 complexity=2.9999999999999996 bracketed=0
+NATIVE3D_STAGE stage=metric_build rank=2 ranks=4 time_iter=5 total=0.00021766100000064625 other=6.5730000002872657e-06 cpu=0.00020899999999999998 cpu_other=7.0000000000000075e-06 process_peak_rss=75874304 sensor_frames=2.5542999999572658e-05 sensor_frames_cpu=2.4999999999999998e-05 geometry_rule=3.6690000015937585e-06 geometry_rule_cpu=3.9999999999999998e-06 complexity_gradation_audit=0.00014829299999519208 complexity_gradation_audit_cpu=0.00013999999999999999 publication=9.6320000011473894e-06 publication_cpu=9.0000000000000002e-06 halo=2.3951000002853107e-05 halo_cpu=2.4000000000000001e-05 nested_gradation=8.1738999995195627e-05 nested_gradation_halo=7.7659999959678316e-06 nested_gradation_reduction=4.3960000013498757e-06 complexity=2.9999999999999996 bracketed=0
+NATIVE3D_STAGE stage=metric_build rank=3 ranks=4 time_iter=5 total=0.00021775499999421299 other=6.0319999946045755e-06 cpu=0.00021699999999999999 cpu_other=6.0000000000000103e-06 process_peak_rss=45490176 sensor_frames=2.5648999994132282e-05 sensor_frames_cpu=2.4999999999999998e-05 geometry_rule=3.9630000046031455e-06 geometry_rule_cpu=3.9999999999999998e-06 complexity_gradation_audit=0.00014840299999718809 complexity_gradation_audit_cpu=0.00014899999999999999 publication=9.8419999972065852e-06 publication_cpu=9.0000000000000002e-06 halo=2.3866000006478316e-05 halo_cpu=2.4000000000000001e-05 nested_gradation=9.2691000006084323e-05 nested_gradation_halo=1.841399999591431e-05 nested_gradation_reduction=2.6894000001220775e-05 complexity=2.9999999999999996 bracketed=0
+NATIVE3D_STAGE stage=metric rank=0 ranks=4 time_iter=5 total=0.00039204099999778919 other=4.039999978999731e-07 cpu=0.00035500000000000001 cpu_other=1.0000000000000243e-06 process_peak_rss=48685056 setup=1.4429999950493766e-06 setup_cpu=9.9999999999999995e-07 sensors=8.5900000357241879e-07 sensors_cpu=9.9999999999999995e-07 hessian=0.000123138999995831 hessian_cpu=8.599999999999999e-05 construction=0.00026619600000543642 construction_cpu=0.00026600000000000001
+NATIVE3D_STAGE stage=metric rank=1 ranks=4 time_iter=5 total=0.00044210200000094346 other=5.2300000419336357e-07 cpu=0.00044199999999999996 cpu_other=9.999999999999701e-07 process_peak_rss=46854144 setup=1.898999997251849e-06 setup_cpu=9.9999999999999995e-07 sensors=1.1360000016225058e-06 sensors_cpu=1.9999999999999999e-06 hessian=0.00018079499999856807 hessian_cpu=0.00017999999999999998 construction=0.00025774899999930767 construction_cpu=0.00025799999999999998
+NATIVE3D_STAGE stage=metric rank=2 ranks=4 time_iter=5 total=0.00044273599999655744 other=7.2799999628614387e-07 cpu=0.00035099999999999997 cpu_other=0 process_peak_rss=75874304 setup=2.8879999995012895e-05 setup_cpu=1.9999999999999999e-06 sensors=9.4100000325170186e-07 sensors_cpu=9.9999999999999995e-07 hessian=0.00015238200000311508 hessian_cpu=0.000113 construction=0.00025980499999889162 construction_cpu=0.00023499999999999999
+NATIVE3D_STAGE stage=metric rank=3 ranks=4 time_iter=5 total=0.00043890299999560511 other=9.0999999713403668e-07 cpu=0.00043899999999999999 cpu_other=1.0000000000000243e-06 process_peak_rss=45490176 setup=1.3769999966939395e-06 setup_cpu=9.9999999999999995e-07 sensors=7.9099999794607356e-07 sensors_cpu=9.9999999999999995e-07 hessian=0.00018016799999998057 hessian_cpu=0.00017999999999999998 construction=0.0002556570000038505 construction_cpu=0.00025599999999999999
+Metric computed in 0.000423742 s.
++-----------------------------------------------------------------------+
+|        File Writing Summary       |              Filename             |
++-----------------------------------------------------------------------+
+|SU2 binary restart                 |curved_rans_m2_flow_00005.dat      |
+|                                   |                     (21.2617 MB/s)|
+|Paraview                           |curved_rans_m2_solution_00005.vtu  |
+|                                   |                     (18.6712 MB/s)|
++-----------------------------------------------------------------------+
+[1;32mPassed 1 test case with 8454 assertions.[0m
+
+[1;32mPassed 1 test case with 8428 assertions.[0m
+
+[1;32mPassed 1 test case with 8440 assertions.[0m
+
+[1;32mPassed 1 test case with 8463 assertions.[0m
+

@@ -1,0 +1,25 @@
+{
+  "status": "SAMPLING_UNAVAILABLE",
+  "case": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/region_construction_v1/native_curved_rans_n4_m2_v13",
+  "helper_sha256": "9fe65e63d8ffd7e479ce00e3a0522981878a2a731670b53d77c97fe486412794",
+  "pid": 2462467,
+  "process_start_ticks": "76559513",
+  "attachment_age_seconds": 0.1600000000325963,
+  "record_command": [
+    "perf",
+    "record",
+    "-e",
+    "cpu-clock:u",
+    "-F",
+    "49",
+    "--call-graph",
+    "dwarf,4096",
+    "-p",
+    "2462467",
+    "-o",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/interacting_walls_v1/profile_curved_bridge_v1/perf.data"
+  ],
+  "native_marker": "NATIVE3D_DETAIL stage=refine rank=0 ranks=4 workers=2 complete=1 total=11.337022210000001 initialization=0.00090381599999999999 seed=0 first_layer=0 selection=0 dependency=0 reservation=0 donor=0 reconstruction=11.335597283 metric=0 routing=0 publication=0 update=0 completion=0 other=0.00052111100000118427 tracked_bytes=376856 tracked_calls=35 nested_tracked_collectives=0.00037972000000507933 directory_elections=17 nested_directory_election=0.00018241700000000001 process_cpu=11.158868 private_reconstruction_cpu=0 private_metric_cpu=0 private_measurement_cpu=0 batch_rounds=0 batch_candidates=0 stop=complete global_work=871 work_limit=4096 progress_windows=0 stagnant_windows=0 search_windows=0 size_progress=0 quality_progress=0 cell_removals=0 layer_published=0 height_checks=310 height_rejected=0 footprint_rejected=0 wall_reconstruction_trials=0 wall_reconstruction_accepted=0 wall_joint_trials=0 wall_joint_moves=0 wall_joint_removals=0 wall_joint_accepted=0 placement_connectivity_trials=0 placement_flips=0 placement_moves=0 placement_dependency_expansions=0 placement_classified_vertices=0 placement_trials=0 placement_validated=0 wall_topology_trials=0 wall_topology_accepted=0 geometry_trials=0 geometry_rejected=0 metric_trials=0 metric_shape_rejected=0 metric_progress_rejected=0 metric_measurement_rejected=0 sample_metric_present=0 sample_q=1 sample_j=1 sample_cell=0 sample_sliver=0 sample_feature=0 sample_v0=0 sample_v1=0 sample_v2=0 sample_x=0 sample_y=0 sample_z=0 batch_reserved=0 rounds=0 attempted=0 accepted=1 region_core_trials=1 region_core_regions=1 region_transition_fronts=2 region_front_trials=26 region_sampling_s=0.47559119500000002 region_first_band_s=0.223566073 region_transition_s=0.32773898400000001 region_junction_s=0.00108143 region_core_s=0.047629825000000001 region_validation_s=10.258062956 region_field_points=0 region_sensor_hits=0 region_interior_hits=0 region_field_edges=0 region_edge_hits=0 region_field_imports=0 region_maximum_resident=120 rejected=0 conflicts=0 requests=1594 hits=369 misses=1225 invalid_queries=0 failures=0 evictions=0 compositions=229943 edge_evaluations=0 collapse_geometry_checks=0 collapse_filtered=0 collapse_orientation_checks=0 collapse_orientation_filtered=0 collapse_reactivated=0 changed_star_scans=1284 changed_vertices_sent=222 changed_vertices_received=226 nested_change_notifications=0.000101677 nested_collapse_orientation=0 nested_collapse_geometry=0 edge_reused=0 moved=0 reconnected=0 inserted=0 maximum_donor_patch=120 maximum_owned=310 final_owned_cells=310 cached_measured_cells=0 cached_invalid_cells=0 remaining_edges=0 remaining_repairs=0 nested_field_build=0.00010008199999999999 nested_field_query=0.0089569189999999937 nested_cache=0.0012670420000000016 nested_search=0.0023157749999999995 nested_interpolation=0.00028944300000000034 nested_composition=0.0046426160000000091 nested_edge_geometry=0.07887222099999984 nested_edge_composition=0.65621797099999879 nested_edge=1.5796218069999997 nested_edge_search=0.0054642489999999939 nested_edge_trace=0.77533705399999975 nested_edge_integral=0.79819879300000018 donor_reused=0 edge_separated=32799 donor_batches=0 donor_candidates=67 donor_filtered=0 donor_box_filtered=0 donor_payloads=120 nested_donor_search=2.2642000000000001e-05 nested_donor_filter=0 batch_retries=0 query_retries=0 private_query_retries=0 native_bound=86764032",
+  "sampler_returncode": -2,
+  "elapsed_seconds": 386.60249198798556
+}

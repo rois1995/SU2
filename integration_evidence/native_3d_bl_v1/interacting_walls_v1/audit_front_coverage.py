@@ -8,7 +8,7 @@ from audit_cavities import determinant
 
 def sha(p):return hashlib.sha256(p.read_bytes()).hexdigest()
 case=HERE/sys.argv[1];auditPath=case/'independent.json';audit=json.loads(auditPath.read_text())
-assert audit['status']=='PASS_COMPLETE_OPPOSING_CONSTRUCTION_REMOVAL_GEOMETRY_AND_FULL_FIELD_SCOPE_LIMITED'
+assert audit['status'] in ('PASS_COMPLETE_OPPOSING_CONSTRUCTION_REMOVAL_GEOMETRY_AND_FULL_FIELD_SCOPE_LIMITED','PASS_CONSTRUCTION_ONLY_NATIVE_REMOVAL_REJECTED')
 path=case/audit['frames'][0]['file'];assert sha(path)==audit['frames'][0]['input_sha256']
 data=json.loads(path.read_text());nodes={n[0]:tuple(map(F,n[1:])) for n in data['nodes']};levels=sorted({p[2] for p in nodes.values()});index={z:i for i,z in enumerate(levels)}
 assert levels[0]==0 and levels[-1]==1;volumes=collections.defaultdict(F);counts=collections.Counter()

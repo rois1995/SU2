@@ -48,9 +48,26 @@ cells and no accepted metric repair. The primary geometry-certified prismatic
 constructor joins two prescribed rows without requiring a BL-free core.
 Source/build/binary, failed admission/audit attempts and accepted grids are saved.
 [Current interacting-wall capability](Handbook/GOAL3_INTERACTING_WALLS.md).
-Next qualify MPI and the actual backend refinement/coarsening/transfer/restart
-sequence on this geometry; direct engine Coarsen is not that full workflow.
-All owned native/build/audit jobs are currently terminal. Full Goal3 remains active.
+Next qualify actual backend refinement/coarsening/transfer/restart and a single-
+wall/fade field using region_walls metadata (the older direct single-wall control
+leaves that metadata empty and therefore does not exercise the new primary path).
+Also test rotated/localized tangential demands. Direct engine Coarsen is not the
+full backend sequence. Do not assume one overlapping scalar case proves all admitted
+prisms; maximum-prefix spacing and inherited cap triangulation need these stresses.
+Current-source opposing construction passes MPI1/2/4; its complete serialized
+mesh/reference/source model is exactly identical across ranks. Direct removal
+passes1/2 ranks (250/230 cells), but MPI4 stops at proposal work4084 before another
+batch can fit4096. Its496-cell rejected mesh independently meets exact finite
+geometry/embedding and original-sensor q.207828/J.056365/L1.781148. Keep the native
+FAIL; optional coarsening agenda vs hard valid-mesh completion is the next policy
+audit, not a reason to add collapse retries or increase budgets.
+Current-source curved RANS N4/M2 v13 also passes24->621->48 with independent
+current+BDF/open-ledger, explicit SA-floor replayv27, SU2/CGNS/reference/restart.
+Actual prismatic backend/CFD workflow is still unqualified. A passive rank0
+profile (1398 samples, compressed raw data) identifies metric-stage MPI waits and
+exact contact arithmetic as significant costs; no extra CFD run or speedup claim.
+All owned build/native/audit/profiler/replay jobs are terminal. Full Goal3 active.
+
 
 
 ## Qualified prior foundations

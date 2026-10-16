@@ -35,7 +35,7 @@
     {
       "id": "construction",
       "scope": "joint wall/near-wall/transition reconstruction with height/alignment/coverage and feasibility diagnostics",
-      "status": "Changed primary coordinated front/coarsened-core strategy accepts high-ratio h.01/T.2/length.2:2877 cells/eight fronts/work3771, q.223149/J.060674/full L1.783149. Rotated/varying serial accept2448/2284 cells. Independent exact embedding/height/authority/original P1 pass; all4727 high-ratio full edges independently numerically integrated. Unchanged gates; one cylinder/two caps/one worker/heuristic BL-free core. High-ratio native/independent geometry MPI1/2/4 and representative actual RANS N4/M2 pass. General/interacting/exterior regions remain. New finite-right-prism joined fronts independently accept overlapping two-wall serial6->1920->250, strict original target/gates, work2309/1269. All20 height slabs/all46 wall-node normal edges independently covered; centroid tilt13.1762 is separate. MPI/actual backend removal/current-BDF/CFD/restart on this geometry remain pending; nonprismatic/perpendicular interactions remain."
+      "status": "Changed primary coordinated front/coarsened-core strategy accepts high-ratio h.01/T.2/length.2:2877 cells/eight fronts/work3771, q.223149/J.060674/full L1.783149. Rotated/varying serial accept2448/2284 cells. Independent exact embedding/height/authority/original P1 pass; all4727 high-ratio full edges independently numerically integrated. Unchanged gates; one cylinder/two caps/one worker/heuristic BL-free core. High-ratio native/independent geometry MPI1/2/4 and representative actual RANS N4/M2 pass. General/interacting/exterior regions remain. New finite-right-prism joined fronts independently accept overlapping two-wall serial6->1920->250, strict original target/gates, work2309/1269. All20 height slabs/all46 wall-node normal edges independently covered; centroid tilt13.1762 is separate. MPI/actual backend removal/current-BDF/CFD/restart on this geometry remain pending; nonprismatic/perpendicular interactions remain. Current joined-front generation passes MPI1/2/4 with exact serialized geometry/source-model equality; direct removal MPI1/2 passes, MPI4 native workflow remains work-budget rejected despite independently admissible496-cell mesh. Completion semantics require audit; no budget/gate relaxation."
     },
     {
       "id": "gradation",
@@ -50,7 +50,7 @@
     {
       "id": "MPI_transfer",
       "scope": "N=M/M<N, complete dependencies, atomic rejection; conservative current+BDF, positivity and turbulence",
-      "status": "Changed coarsened-front source high-ratio MPI1/2/4 and representative actual RANS N4/M2 pass. Actual24->621->48 includes independent geometry, physical current+BDF/open-ledger, raw SA projection/solver-floor replayv26, SU2/CGNS/reference and actual exact restart. Post-bounds SA is not exactly conservative. Prior full six-way actual matrix retains pre-front scope. Repeated retained-BL updates, wider geometry, practical M6/viscous accuracy and affordability remain."
+      "status": "Changed coarsened-front source high-ratio MPI1/2/4 and representative actual RANS N4/M2 pass. Actual24->621->48 includes independent geometry, physical current+BDF/open-ledger, raw SA projection/solver-floor replayv26, SU2/CGNS/reference and actual exact restart. Post-bounds SA is not exactly conservative. Prior full six-way actual matrix retains pre-front scope. Repeated retained-BL updates, wider geometry, practical M6/viscous accuracy and affordability remain. New-source curved N4/M2 v13 and SA replayv27 pass; new prismatic MPI construction/direct removal1/2 passes,4-rank removal still native FAIL. Actual prismatic backend/transfer/restart remains unqualified."
     },
     {
       "id": "workflow",
@@ -65,12 +65,12 @@
     {
       "id": "performance",
       "scope": "complete cold construction/update lifecycle, repartition/migration/transfer/output; adaptation-to-CFD cost, memory/work/imbalance",
-      "status": "Current accepted serial high-ratio region phase clocks53.86s with43.53s validation; actual RANS N4/M2 BL remesh11.72s with10.50s regional validation. Saved lifecycle section clocks include partition/migration/return/rebuild/transfer/output. Advance includes automatic metrics, so CFD-only/adaptation ratio unavailable. Region-service point/edge counters omit small direct-source path; no CPU attribution, scaling, performance improvement or affordability claim."
+      "status": "Current accepted serial high-ratio region phase clocks53.86s with43.53s validation; actual RANS N4/M2 BL remesh11.72s with10.50s regional validation. Saved lifecycle section clocks include partition/migration/return/rebuild/transfer/output. Advance includes automatic metrics, so CFD-only/adaptation ratio unavailable. Region-service point/edge counters omit small direct-source path; no CPU attribution, scaling, performance improvement or affordability claim. Saved1398 rank0 CPU samples from required curvedv13 identify substantial metric-stage collective waiting and exact contact arithmetic. Root-only inclusive CPU attribution, not scaling/critical-rank or affordability proof. No new performance CFD run."
     },
     {
       "id": "publication",
       "scope": "preserved provenance/failures/inspectable artifacts and pushed final checkpoint",
-      "status": "Accepted high-ratio construction plus serial evidence published atf9a6af4a096f9796115f9fc8a04fa235aaaaaccf on codex/native-3d-bl. Current MPI2/4 and representative actual RANS N4/M2/replay evidence completed and being published separately; no production changes since that commit. Full Goal3 remains active; all failures/provenance retained. New prismatic implementation and complete serial evidence are being published separately with native v1/v2 failures and audit correction retained."
+      "status": "Accepted high-ratio construction plus serial evidence published atf9a6af4a096f9796115f9fc8a04fa235aaaaaccf on codex/native-3d-bl. Current MPI2/4 and representative actual RANS N4/M2/replay evidence completed and being published separately; no production changes since that commit. Full Goal3 remains active; all failures/provenance retained. New prismatic implementation and complete serial evidence are being published separately with native v1/v2 failures and audit correction retained. New prismatic source/serial evidence published75777343c1; MPI failures, accepted construction, current curved integration and CPU diagnostics are being published in an evidence checkpoint. Full Goal3 stays active."
     }
   ],
   "exclusions": [
@@ -740,5 +740,6 @@
   "qualified_actual_RANS_MPI_lifecycle": "region_construction_v1/rans_lifecycle_v11.json",
   "intermediate_front_evidence": "region_construction_v1/metric_fronts_v1_summary.json",
   "current_coarsened_fronts": "region_construction_v1/coarsened_fronts_v1_summary.json",
-  "interacting_wall_construction": "interacting_walls_v1/summary.json"
+  "interacting_wall_construction": "interacting_walls_v1/summary.json",
+  "current_interacting_integration": "interacting_walls_v1/summary.json"
 }
