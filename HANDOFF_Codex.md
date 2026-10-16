@@ -54,31 +54,36 @@ leaves that metadata empty and therefore does not exercise the new primary path)
 Also test rotated/localized tangential demands. Direct engine Coarsen is not the
 full backend sequence. Do not assume one overlapping scalar case proves all admitted
 prisms; maximum-prefix spacing and inherited cap triangulation need these stresses.
-Current-source opposing construction passes MPI1/2/4; its complete serialized
-mesh/reference/source model is exactly identical across ranks. Direct removal
-passes1/2 ranks (250/230 cells), but MPI4 stops at proposal work4084 before another
-batch can fit4096. Its496-cell rejected mesh independently meets exact finite
-geometry/embedding and original-sensor q.207828/J.056365/L1.781148. Keep the native
-FAIL; optional coarsening agenda vs hard valid-mesh completion is the next policy
-audit, not a reason to add collapse retries or increase budgets.
+The earlier c032 opposing construction passes MPI1/2/4. Its MPI4 removal refusal
+(4084 proposals/496 cells), followed by the967 duplicate-only refusal (4091/319),
+remain preserved. Complete-star selection now closes that removal gate; see below.
 Current-source curved RANS N4/M2 v13 also passes24->621->48 with independent
 current+BDF/open-ledger, explicit SA-floor replayv27, SU2/CGNS/reference/restart.
 Actual prismatic backend/CFD workflow is still unqualified. A passive rank0
 profile (1398 samples, compressed raw data) identifies metric-stage MPI waits and
 exact contact arithmetic as significant costs; no extra CFD run or speedup claim.
-Current connected source change is built and locally checked: actual local front-
-interval closure accepts regional single-wall scalar/fade6->576->228 and crossing-
-normal original-P1 fields6->390->195. Independent exact geometry/height/all full
-edges pass. Scalar collector count error is preserved and explicitly adjudicated;
-no successful native rerun. MPI4 retained1920-cell BL revalidates without rebuild,
-but removal still rejects at4091 work:2399 exact duplicates suppressed,2689 distinct
-reservation conflicts remain. Its319-cell private mesh independently meets geometry/
-q.220002/J.070456/L1.783027, but is not accepted. Strict zero-work/time/refusal
-contracts remain. Next coordinate complete authoritative dependency-star admission
-before payload import; no fallback/budget ladder or silent work-accounting change.
+The connected complete-star selection now closes strict retained-BL removal:
+MPI4 1920->250 cells/work1619, zero final reservation conflicts; independent exact
+geometry/links/no overlap/full original field pass q.306655/J.102558/L1.783027.
+Metadata5390 considered/3771 deferred after2704 duplicate suppressions; planning
+.145s nested in9.07s local removal. These are diagnostic timings, not a speedup.
+MPI2 completes1920->230/work1344 with zero final conflicts, independently all gates.
+Its suite FAIL from an incorrect duplicate-only counter expectation is preserved;
+separate corrected controls pass on identical production sources/libraries/solver,
+with exact sole-test-change proof. No accepted engine result was rerun for this.
+Focused planning/legacy batch/refusal controls pass serial and MPI4; the first
+fixed-record transport error is preserved and corrected with separate reply types.
+The actual initialized planar RANS/SA N4/M2 backend now passes6->24->6, independently
+all full composed edges/geometry/height/complete normal slabs/current+BDF flow,
+transported sensor0, SU2/CGNS/reference and real restart. Native checks bounded SA;
+post-bounds exact SA conservation is not claimed. No planar CFD evolution/viscous
+accuracy follows. Independent finite sensor gradation passes; composed ratio24.5184
+still violates HGRAD1.3 and remains uncorrected before freezing.
 [Current design/results](Handbook/GOAL3_SELECTION_WORK.md),
-[receipt](integration_evidence/native_3d_bl_v1/interacting_walls_v1/selection_work_v1.json).
-No owned native/build/audit process remains live. Full Goal3 active.
+[complete scoped receipt](integration_evidence/native_3d_bl_v1/interacting_walls_v1/selection_work_v2_summary.json).
+Next focus rotating/localized tangential targets and nonprismatic feature/junction
+construction, then evolved viscous accuracy and complete lifecycle affordability.
+No owned native/build/audit process is live. Full Goal3 remains active/incomplete.
 
 
 

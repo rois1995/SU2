@@ -89,7 +89,10 @@ def main():
     engines=[dict(x.split('=',1) for x in l.split()[1:]) for l in (case/'native.log').read_text().splitlines() if l.startswith('ENGINE ')]
     constructed=[e for e in engines if e['case']=='opposing_finer_grouped_coupled_BL']
     assert len(constructed)==receipt['contract']['MPI_ranks'] and all(e['valid']=='1' for e in constructed)
-    reports=[];complete=receipt['status']=='PASS'
+    removed=[e for e in engines if e['case']=='opposing_finer_grouped_released_Euler']
+    complete=len(removed)==receipt['contract']['MPI_ranks'] and all(e['valid']=='1' and e['stop']=='complete' for e in removed)
+    assert receipt['status']!='PASS' or complete
+    reports=[]
     for name,layers in [('opposing_finer_grouped_coupled_BL',True),('opposing_finer_grouped_released_Euler'+('' if complete else '_rejected'),False)]:
         if not complete and not layers:
             nodes,cells=rejected_su2(case/('opposing_finer_grouped_released_euler_rejected_n'+str(receipt['contract']['MPI_ranks'])+'.su2'),facets,groups,names)
@@ -101,7 +104,8 @@ def main():
         reuse=case/'construction_reference_reuse.json'
         if layers and reuse.exists():
             saved=json.loads(reuse.read_text());serial=HERE/'native_opposing_v3'
-            assert saved['status']=='PASS_EXACT_CONSTRUCTION_REFERENCE_REUSE_REMOVAL_REJECTED'
+            assert saved['status'] in ('PASS_EXACT_CONSTRUCTION_REFERENCE_REUSE_REMOVAL_REJECTED','PASS_EXACT_CONSTRUCTION_REFERENCE_REUSE')
+            assert saved['native_workflow_status']==receipt['status']
             assert saved['native_receipt_sha256']==sha(receiptPath) and saved['equivalent_complete_input_sha256']==sha(path)
             assert saved['old_independent_audit_sha256']==sha(serial/'independent.json') and saved['old_front_coverage_sha256']==sha(serial/'front_coverage.json')
             executed=(serial/'audit_native_executed.py').read_text();current=Path(__file__).read_text()
@@ -130,7 +134,7 @@ def main():
                 full_metric_edges=len(allEdges),coverage='Complete positive prismatic first bands, normal edges at every wall node, no nonwall node below h0; centroid tilt is reported separately.')
         report['layers']=layers;report['input_sha256']=sha(path);reports.append(report)
     assert reports[1]['cells']<reports[0]['cells']
-    result={'status':'PASS_COMPLETE_OPPOSING_CONSTRUCTION_REMOVAL_GEOMETRY_AND_FULL_FIELD_SCOPE_LIMITED' if complete else 'PASS_CONSTRUCTION_ONLY_NATIVE_REMOVAL_REJECTED','native_workflow_status':receipt['status'],'frames':reports,
+    result={'status':('PASS_COMPLETE_OPPOSING_CONSTRUCTION_REMOVAL_GEOMETRY_AND_FULL_FIELD_SCOPE_LIMITED' if receipt['status']=='PASS' else 'PASS_COMPLETE_MESHES_NATIVE_CONTROL_RECEIPT_FAILED') if complete else 'PASS_CONSTRUCTION_ONLY_NATIVE_REMOVAL_REJECTED','native_workflow_status':receipt['status'],'native_engine_stages_complete':complete,'frames':reports,
         'native_receipt_sha256':sha(receiptPath),'baseline_native_receipt_sha256':sha(oldReceipt),'helper_sha256':sha(Path(__file__)),
         'geometry_helper_sha256':sha(ROOT/'integration_evidence/native_3d_core_v1/audit_coupled.py'),
         'feet_helper_sha256':sha(ROOT/'integration_evidence/native_3d_bl_v1/alignment_audit_v1/baseline.py'),'elapsed_seconds':time.monotonic()-start,

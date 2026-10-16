@@ -42,13 +42,21 @@ struct Query {
   Feature feature;
   int caller = 0;
   unsigned ticket = 0;
-  template <class S> void Fields(S& s) { s(feature, caller, ticket); }
+  bool footprint = false;
+  template <class S> void Fields(S& s) { s(feature, caller, ticket, footprint); }
 };
 struct Reply {
   Dependency dependency;
   unsigned ticket = 0;
   int status = 0;  // 0 dependency, 1 complete footer, 2 missing, 3 over budget.
   template <class S> void Fields(S& s) { s(dependency, ticket, status); }
+};
+struct FootprintReply {
+  Dependency dependency;
+  unsigned ticket = 0;
+  int status = 0;  // Same footers; status4 carries the complete cell's vertices.
+  std::array<Id,4> nodes{};
+  template <class S> void Fields(S& s) { s(dependency,ticket,status,nodes); }
 };
 struct FetchQuery {
   Dependency dependency;
@@ -260,9 +268,12 @@ DependencyBatch Directory::LookupBatch(const std::vector<Feature>& features, siz
   return result;
 }
 bool Directory::LookupImpl(const std::vector<Feature>& features, Dependencies* merged, DependencyBatch* batch,
-                           size_t ceiling, size_t caller_bytes, std::string& reason) {
+                           size_t ceiling, size_t caller_bytes, std::string& reason,
+                           std::vector<std::vector<Id>>* footprints) {
   Timer timer(stats.lookup_seconds);
   ++stats.lookups;
+  auto lookup=[&](auto example) {
+  using LookupReply=decltype(example);
   CLocalFailure failure;
   std::vector<std::vector<Query>> to;
   const auto baseline = transfer_memory::Add(caller_bytes, ResidentBytes(), transfer_memory::Bytes(features));
@@ -280,27 +291,29 @@ bool Directory::LookupImpl(const std::vector<Feature>& features, Dependencies* m
       std::sort(f.vertices.begin(), f.vertices.begin() + f.count);
       if (std::adjacent_find(f.vertices.begin(), f.vertices.begin() + f.count) != f.vertices.begin() + f.count)
         throw std::runtime_error("Native 3D dependency repeats a vertex.");
-      to[Rendezvous({false, f.vertices[0]})].push_back({f, world.rank, i});
+      to[Rendezvous({false, f.vertices[0]})].push_back({f, world.rank, i, footprints!=nullptr});
     }
   } catch (const std::exception& e) { failure.Set(2, 0, e.what()); }
   if (!Vote(failure, reason)) { ++stats.rejected; return false; }
   bool admitted = false;
   const auto queries = world.exchange(to, &admitted, ceiling, baseline);
   if (!admitted) failure.Set(3, 0, "Native 3D feature transport exceeds budget.");
-  std::vector<std::vector<Reply>> reply;
+  std::vector<std::vector<LookupReply>> reply;
   const auto reply_peak = transfer_memory::Add(baseline, transfer_memory::Bytes(to), transfer_memory::Bytes(queries),
-      transfer_memory::Mul(world.size, sizeof(std::vector<Reply>)),
-      transfer_memory::GrowthBound(transfer_memory::Mul(queries.size(), MaximumCavityCells + 1), sizeof(Reply)),
-      transfer_memory::GrowthBound(MaximumCavityCells + 1, sizeof(Reply)));
+      transfer_memory::Mul(world.size, sizeof(std::vector<LookupReply>)),
+      transfer_memory::GrowthBound(transfer_memory::Mul(queries.size(), MaximumCavityCells + 1), sizeof(LookupReply)),
+      transfer_memory::GrowthBound(MaximumCavityCells + 1, sizeof(LookupReply)));
   stats.maximum_work_bytes = std::max(stats.maximum_work_bytes, reply_peak);
   if (reply_peak == SIZE_MAX || reply_peak > ceiling) failure.Set(3, 0, "Native 3D dependency replies exceed budget.");
   if (!Vote(failure, reason)) { ++stats.rejected; return false; }
   try {
     reply.resize(world.size);
     for (const auto& q : queries) {
+      if(q.footprint!=std::is_same<LookupReply,FootprintReply>::value)
+        throw std::runtime_error("Native 3D dependency footprint mode differs.");
       const auto found = stars.find({false, q.feature.vertices[0]});
       int status = found == stars.end() ? 2 : found->second.size() > MaximumDirectoryScan ? 3 : 1;
-      std::vector<Reply> matches;
+      std::vector<LookupReply> matches;
       if (status == 1)
         for (const auto& row : found->second) {
           ++stats.metadata_scanned;
@@ -308,7 +321,9 @@ bool Directory::LookupImpl(const std::vector<Feature>& features, Dependencies* m
           for (unsigned i = 0; i < q.feature.count; ++i)
             contains = contains && std::binary_search(row.second.nodes.begin(), row.second.nodes.end(), q.feature.vertices[i]);
           if (contains) {
-            matches.push_back({row.second.dependency, q.ticket, 0});
+            LookupReply match{row.second.dependency,q.ticket,q.footprint?4:0};
+            if constexpr(std::is_same<LookupReply,FootprintReply>::value)match.nodes=row.second.nodes;
+            matches.push_back(match);
             if (matches.size() > MaximumCavityCells) { status = 3; break; }
           }
         }
@@ -328,7 +343,10 @@ bool Directory::LookupImpl(const std::vector<Feature>& features, Dependencies* m
       batch ? MapBytes<std::map<Id,Dependency>>(dependency_bound) : 0,
       transfer_memory::GrowthBound(dependency_bound, sizeof(Dependency)),
       transfer_memory::Mul(groups, sizeof(std::map<Id,Dependency>) + sizeof(Dependencies)),
-      transfer_memory::Mul(features.size(), sizeof(int)));
+      transfer_memory::Mul(features.size(), sizeof(int)),
+      footprints ? transfer_memory::Add(transfer_memory::Mul(groups,sizeof(std::vector<Id>)),
+          transfer_memory::GrowthBound(transfer_memory::Mul(4,dependency_bound),sizeof(Id)),
+          MapBytes<std::map<Id,std::array<Id,4>>>(dependency_bound)) : 0);
   stats.maximum_work_bytes = std::max(stats.maximum_work_bytes, import_peak);
   if (import_peak == SIZE_MAX || import_peak > ceiling) failure.Set(3, 0, "Native 3D dependency validation exceeds budget.");
   if (!Vote(failure, reason)) { ++stats.rejected; return false; }
@@ -337,15 +355,29 @@ bool Directory::LookupImpl(const std::vector<Feature>& features, Dependencies* m
     std::vector<std::map<Id,Dependency>> unique;
     if (batch) unique.resize(groups);
     std::vector<int> footer(features.size(), 0);
+    std::map<Id,std::array<Id,4>> authority_nodes;
+    if(footprints)footprints->resize(groups);
     for (const auto& row : received) {
       if (row.ticket >= features.size()) throw std::runtime_error("Native 3D invalid dependency reply ticket.");
-      if (row.status) {
+      if (row.status!=0 && row.status!=4) {
         if (row.status < 1 || row.status > 3 || footer[row.ticket])
           throw std::runtime_error("Native 3D invalid or duplicate dependency footer.");
         if (merged && row.status != 1) throw std::runtime_error(row.status == 3 ?
             "Native 3D dependency star exceeds budget." : "Native 3D missing dependency feature.");
         footer[row.ticket] = row.status;
       } else {
+        if(bool(footprints)!=(row.status==4))throw std::runtime_error("Native 3D dependency footprint mode differs.");
+        if constexpr(std::is_same<LookupReply,FootprintReply>::value) {
+          if(!std::is_sorted(row.nodes.begin(),row.nodes.end()) ||
+              std::adjacent_find(row.nodes.begin(),row.nodes.end())!=row.nodes.end())
+            throw std::runtime_error("Native 3D dependency footprint repeats or disorders vertices.");
+          for(unsigned k=0;k<features[row.ticket].count;++k)
+            if(!std::binary_search(row.nodes.begin(),row.nodes.end(),features[row.ticket].vertices[k]))
+              throw std::runtime_error("Native 3D dependency footprint lacks its requested feature.");
+          const auto old=authority_nodes.emplace(row.dependency.cell,row.nodes);
+          if(!old.second && old.first->second!=row.nodes)throw std::runtime_error("Native 3D inconsistent dependency footprint.");
+          auto& vertices=footprints->at(row.ticket);vertices.insert(vertices.end(),row.nodes.begin(),row.nodes.end());
+        }
         if (batch) {
           const auto old = authority.emplace(row.dependency.cell,row.dependency);
           if (!old.second && (old.first->second.version != row.dependency.version || old.first->second.owner != row.dependency.owner))
@@ -371,12 +403,18 @@ bool Directory::LookupImpl(const std::vector<Feature>& features, Dependencies* m
         if (batch && group.empty()) throw std::runtime_error("Native 3D complete star has no dependencies.");
         for (const auto& row : group) candidate.cells.push_back(row.second);
       }
+      if(footprints) {
+        auto& vertices=footprints->at(i);std::sort(vertices.begin(),vertices.end());
+        vertices.erase(std::unique(vertices.begin(),vertices.end()),vertices.end());
+      }
       stats.maximum_dependencies = std::max(stats.maximum_dependencies, candidate.cells.size());
     }
   } catch (const std::exception& e) { failure.Set(2, 0, e.what()); }
   const bool valid = Vote(failure, reason);
   if (!valid) ++stats.rejected;
   return valid;
+  };
+  return footprints?lookup(FootprintReply{}):lookup(Reply{});
 }
 Imported Directory::Fetch(const Dependencies& dependencies, const Owned& owned, size_t ceiling, size_t caller_bytes) {
   Timer timer(stats.fetch_seconds);
@@ -553,40 +591,87 @@ ImportedBatch Directory::FetchBatch(const DependencyBatch& dependencies, const O
   if (!result.valid) { result.candidates.clear(); ++stats.rejected; }
   return result;
 }
+DependencyBatch Directory::PlanBatch(const std::vector<Feature>& features, std::vector<size_t>& slots,
+                                     size_t ceiling, size_t caller_bytes) {
+  DependencyBatch result;std::vector<std::vector<Id>> footprints;slots.clear();
+  result.valid=LookupImpl(features,nullptr,&result,ceiling,caller_bytes,result.reason,&footprints);
+  if(!result.valid){result.candidates.clear();return result;}
+  CLocalFailure failure;size_t dependencies=transfer_memory::Bytes(result.candidates);
+  for(const auto& candidate:result.candidates) {
+    dependencies=transfer_memory::Add(dependencies,transfer_memory::Bytes(candidate.cells),transfer_memory::Bytes(candidate.reason));
+    if(!candidate.valid)failure.Set(1,0,candidate.reason);
+  }
+  const auto compact=transfer_memory::Mul(features.size(),sizeof(Dependencies)+sizeof(size_t));
+  const auto baseline=transfer_memory::Add(caller_bytes,transfer_memory::Bytes(features),dependencies,compact);
+  const auto peak=transfer_memory::Add(baseline,ResidentBytes());
+  stats.maximum_work_bytes=std::max(stats.maximum_work_bytes,peak);
+  if(peak==SIZE_MAX || peak>ceiling)failure.Set(3,0,"Native 3D planned dependencies exceed budget.");
+  if(!Vote(failure,result.reason)){result.valid=false;result.candidates.clear();++stats.rejected;return result;}
+  const auto election=ChooseBatch(footprints,ceiling,baseline);
+  if(!election.valid){result.valid=false;result.reason=election.reason;result.candidates.clear();return result;}
+  try {
+    std::vector<Dependencies> chosen;chosen.reserve(features.size());slots.reserve(features.size());
+    for(size_t i=0;i<election.chosen.size();++i)if(election.chosen[i]) {
+      slots.push_back(i);chosen.push_back(std::move(result.candidates[i]));
+    }
+    result.candidates.swap(chosen);
+  }catch(const std::exception& e){failure.Set(2,0,e.what());}
+  result.valid=Vote(failure,result.reason);
+  if(!result.valid){slots.clear();result.candidates.clear();++stats.rejected;}
+  return result;
+}
 ReservationBatch Directory::ReserveBatch(const ImportedBatch& imported, size_t ceiling, size_t caller_bytes) {
-  Timer timer(stats.reservation_seconds);
-  ++stats.reservations;
-  ReservationBatch result;
-  CLocalFailure failure;
-  size_t cells=0, imported_bytes=transfer_memory::Bytes(imported.candidates);
-  for (const auto& candidate:imported.candidates) {
+  Timer timer(stats.reservation_seconds);++stats.reservations;
+  CLocalFailure failure;size_t cells=0,imported_bytes=transfer_memory::Bytes(imported.candidates);
+  for(const auto& candidate:imported.candidates) {
     cells=transfer_memory::Add(cells,candidate.cells.size());
     imported_bytes=transfer_memory::Add(imported_bytes,transfer_memory::Bytes(candidate.cells),transfer_memory::Bytes(candidate.reason));
   }
-  const auto vertices=transfer_memory::Mul(4,cells);
-  const auto baseline=transfer_memory::Add(caller_bytes,ResidentBytes(),imported_bytes,transfer_memory::Mul(imported.candidates.size(),sizeof(bool)));
-  auto peak=transfer_memory::Add(baseline,MapBytes<std::set<Id>>(vertices),
-      transfer_memory::Mul(world.size,sizeof(std::vector<BatchClaim>)),transfer_memory::GrowthBound(vertices,sizeof(BatchClaim)));
-  stats.maximum_work_bytes=std::max(stats.maximum_work_bytes,peak);
-  if (peak==SIZE_MAX || peak>ceiling) failure.Set(3,0,"Native 3D batch reservation packing exceeds budget.");
-  if (!Vote(failure,result.reason)) { ++stats.rejected; return result; }
+  const auto scratch=transfer_memory::Add(transfer_memory::Mul(imported.candidates.size(),sizeof(std::vector<Id>)),
+      transfer_memory::GrowthBound(transfer_memory::Mul(4,cells),sizeof(Id)));
+  const auto baseline=transfer_memory::Add(caller_bytes,imported_bytes);
+  auto peak=transfer_memory::Add(baseline,ResidentBytes(),scratch);stats.maximum_work_bytes=std::max(stats.maximum_work_bytes,peak);
+  if(peak==SIZE_MAX || peak>ceiling)failure.Set(3,0,"Native 3D batch reservation packing exceeds budget.");
+  ReservationBatch result;
+  if(!Vote(failure,result.reason)){++stats.rejected;return result;}
+  std::vector<std::vector<Id>> footprints;
+  try {
+    if(!imported.valid || imported.candidates.size()>MaximumDirectoryFeatures)
+      throw std::runtime_error("Native 3D batch reservation lacks admitted dependencies.");
+    footprints.resize(imported.candidates.size());
+    for(size_t i=0;i<imported.candidates.size();++i) {
+      const auto& candidate=imported.candidates[i];if(!candidate.valid)continue;
+      if(candidate.cells.empty() || candidate.cells.size()>MaximumCavityCells)
+        throw std::runtime_error("Native 3D batch reservation lacks a bounded complete star.");
+      auto& vertices=footprints[i];vertices.reserve(4*candidate.cells.size());
+      for(const auto& row:candidate.cells)for(auto node:row.cell.v)vertices.push_back(node.id);
+      std::sort(vertices.begin(),vertices.end());vertices.erase(std::unique(vertices.begin(),vertices.end()),vertices.end());
+    }
+  }catch(const std::exception& e){failure.Set(2,0,e.what());}
+  if(!Vote(failure,result.reason)){++stats.rejected;return result;}
+  return ChooseBatch(footprints,ceiling,baseline);
+}
+ReservationBatch Directory::ChooseBatch(const std::vector<std::vector<Id>>& footprints, size_t ceiling, size_t caller_bytes) {
+  ReservationBatch result;CLocalFailure failure;size_t vertices=0,footprint_bytes=transfer_memory::Bytes(footprints);
+  for(const auto& row:footprints){vertices=transfer_memory::Add(vertices,row.size());footprint_bytes=transfer_memory::Add(footprint_bytes,transfer_memory::Bytes(row));}
+  const auto baseline=transfer_memory::Add(caller_bytes,ResidentBytes(),footprint_bytes,transfer_memory::Mul(footprints.size(),sizeof(bool)));
+  auto peak=transfer_memory::Add(baseline,transfer_memory::Mul(world.size,sizeof(std::vector<BatchClaim>)),
+      transfer_memory::GrowthBound(vertices,sizeof(BatchClaim)));stats.maximum_work_bytes=std::max(stats.maximum_work_bytes,peak);
+  if(peak==SIZE_MAX || peak>ceiling)failure.Set(3,0,"Native 3D candidate footprint claims exceed budget.");
+  if(!Vote(failure,result.reason)){result.chosen.clear();++stats.rejected;return result;}
   std::vector<std::vector<BatchClaim>> to;
   try {
-    if (!imported.valid || imported.candidates.size()>MaximumDirectoryFeatures)
-      throw std::runtime_error("Native 3D batch reservation lacks admitted dependencies.");
-    to.resize(world.size); result.chosen.resize(imported.candidates.size(),false);
-    for (size_t i=0;i<imported.candidates.size();++i) {
-      const auto& candidate=imported.candidates[i];
-      if (!candidate.valid) continue;
-      if (candidate.cells.empty() || candidate.cells.size()>MaximumCavityCells)
-        throw std::runtime_error("Native 3D batch reservation lacks a bounded complete star.");
-      std::set<Id> vertices;
-      for (const auto& row:candidate.cells) for (auto node:row.cell.v) vertices.insert(node.id);
-      for (Id vertex:vertices) to[Rendezvous({false,vertex})].push_back({vertex,world.rank,unsigned(i)});
+    if(footprints.size()>MaximumDirectoryFeatures)throw std::runtime_error("Native 3D candidate footprint count exceeds budget.");
+    to.resize(world.size);result.chosen.resize(footprints.size(),false);
+    for(size_t i=0;i<footprints.size();++i) {
+      const auto& row=footprints[i];if(row.empty())continue;
+      if(row.size()>4*MaximumCavityCells || !std::is_sorted(row.begin(),row.end()) || std::adjacent_find(row.begin(),row.end())!=row.end())
+        throw std::runtime_error("Native 3D candidate footprint is not bounded and unique.");
+      for(Id vertex:row)to[Rendezvous({false,vertex})].push_back({vertex,world.rank,unsigned(i)});
       result.chosen[i]=true;
     }
-  } catch (const std::exception& e) { failure.Set(2,0,e.what()); }
-  if (!Vote(failure,result.reason)) { result.chosen.clear(); ++stats.rejected; return result; }
+  }catch(const std::exception& e){failure.Set(2,0,e.what());}
+  if(!Vote(failure,result.reason)){result.chosen.clear();++stats.rejected;return result;}
   bool admitted=false;
   const auto claims=world.exchange(to,&admitted,ceiling,baseline);
   if (!admitted) failure.Set(3,0,"Native 3D batch reservation transport exceeds budget.");

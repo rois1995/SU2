@@ -5781,3 +5781,28 @@ refusal/atomicity. Next coordinate complete remote-star admission before expensi
 payloads; do not raise limits, stop charging real work or add local collapse variants.
 This is not actual prismatic backend/CFD/current-BDF/restart, general geometry or a
 speedup/affordability claim. All owned jobs terminal; full Goal3 remains active.
+
+
+## 2026-10-16 — complete-star coordination closes MPI removal
+
+Authoritative full-star metadata selection now defers remote vertex conflicts before
+payload admission; final versions/reservations/mesh validation/atomic publication and
+transaction work/time controls remain. Ordinary and invalid-field planar sensor-only
+coarsening share it. MPI4 retained1920-cell BL ->250 completes atwork1619, zero final
+conflicts, independently q.306655/J.102558/full L1.783027 and exact whole geometry/
+coverage. Metadata5390 considered/3771 deferred/2704 duplicates and planning.145s
+nested in9.07s are explicit. Earlier rejected8.5s is not a speed comparison.
+MPI2 ->230/work1344 also independently passes; its counter-only suite FAIL stays
+preserved with a separate passing corrected-control/identical-production-object proof.
+Fixed-size record transport failure from serial controls is preserved and corrected;
+serial/MPI4 protocol/batch/refusal controls pass. No fallback or raised budget.
+
+Actual initialized planar RANS/SA N4/M2 now passes6->24->6, production four-front
+construction/work76, backend removal/transfer/SU2/CGNS/reference/real restart. Reused
+independent auditor checks all full composed edges, exact geometry/height/slabs,
+current+BDF flow defect<=2.75e-16, transported sensor0 and reloads. Native checks SA
+floor/history; no exact post-floor SA conservation or evolved/viscous accuracy claim.
+Sensor gradation passes but44 composed probes fail, ratio24.5183963; no target change.
+All jobs terminal; full Goal3 active. Evidence: interacting_walls_v1/selection_work_v2_summary.json
+and Handbook/GOAL3_SELECTION_WORK.md. Wider geometry/tangential demands and complete
+lifecycle affordability remain, rather than another local fallback campaign.

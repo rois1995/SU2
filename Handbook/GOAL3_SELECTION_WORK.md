@@ -87,3 +87,77 @@ work, and retain final versioned reservations. Do not simply stop charging confl
 raise budgets, serialize every edit or introduce another collapse fallback. Actual
 prismatic backend Refine-before-Coarsen/current-BDF/CFD/restart and arbitrary tangential
 anisotropy remain separate full-goal gates.
+
+
+## Complete-star admission change under qualification
+
+Directory.PlanBatch asks the existing authoritative lookup for the sorted vertex
+union of every complete requested star, including remote cells. The same vertex-
+claim election is shared with final ReserveBatch. It compacts selected dependencies
+and returns original slots; missing/oversized stars and collective storage failures
+remain failures. Deferred candidates remain queued. Both ordinary batched and
+invalid-field one-slot sensor-only planar coarsening use it. Final fetched versions,
+reservations, whole private mesh/metric validation and atomic publication are retained.
+Curved/composed/repair coordination is unchanged.
+
+The existing transaction-proposal/work limit remains4096; conflict filtering now
+happens during metadata selection, like the earlier local disjointness filter, so
+no payload is fetched for a deferred candidate. Metadata work is not free: considered
+and deferred counts, total tracked transport and planning time nested in selection
+are exported. Each nonempty planned round selects at least one proposal, so admitted
+work bounds the number of rounds; each frontier has at most batch*workers candidates,
+with the existing per-star and memory/time controls. No retry/budget ladder or silent
+acceptance of an unfinished search. A remote-only shared-vertex conflict, two disjoint
+stars, no payload before selection, stale final fetch, missing/memory refusal and
+unchanged stores have focused controls. The complete saved MPI4 target and MPI2 remain
+the real acceptance cases. The connected qualification below is complete in its declared scope; full Goal3 remains active.
+
+
+## Complete coordinated MPI removal and actual backend qualification
+
+`selection_work_v2_summary.json` is the authoritative scoped campaign receipt.
+Focused serial5 cases/626 assertions and MPI4 all5-per-rank cases pass, including
+remote-only shared-vertex conflict, no payload before metadata selection, disjoint
+same-epoch edits, stale final fetch and memory/work/time/version/atomicity refusals.
+The initial serial control failure exposed variable-length encoding on a fixed-size
+World exchange. Separate fixed Reply/FootprintReply types fix the root; the normal
+reply does not carry an unused vertex array. Failure/source/build records remain.
+
+Retained1920-cell BL revalidation preserves the certified exact mesh/source model.
+MPI4 strict removal completes250 cells/work1619 with zero final reservation conflicts;
+independent exact finite geometry/manifold/links/no overlap, original sensor q.306655/
+J.102558/L1.783027 and all normal slabs pass.5390 post-coalescing metadata candidates,
+3771 deferrals and2704 duplicate suppressions are recorded. Planning.14455s is nested
+in9.07222s local removal. The previous8.503s run stopped early and is not a speed
+comparison. The transaction proposal ceiling is still4096; metadata candidates are
+separately bounded/counted/timed. No bound4096 on all raw selection keys is asserted.
+
+MPI2 engine stages also complete1920->230/work1344, with zero final conflicts and
+independent q.203892/J.069845/L1.798121. Its original selected-suite receipt stays
+FAIL: a separate policy control incorrectly required duplicate directed edges,
+whereas two workers defer distinct conflicting stars. The corrected two-case control
+passes37 assertions per rank. A companion certificate verifies every common production
+source/build/library/solver pin identical, and exact unit-source comparison proves
+its only C++ change is that counter expectation. It distinguishes mesh-only saved
+input pins from input-free control pins. No successful mesh stage was rerun or failed
+native engine promoted. Exact executed audit helpers are retained per case.
+
+The reused actual planar RANS/SA policy fixture passes N4/M2 6->24->6 through the
+production regional constructor (four fronts/work76), backend Refine-before-Coarsen,
+current/BDF conservative flow transfer, original-sensor transport, native pointwise
+SA bounds/history, SU2/CGNS/reference reload and real restart. Existing independent
+alignment auditor was reused with an explicit folder argument; numerical routines
+unchanged. Both complete finite embeddings, original-P1 composition/all full edges,
+height/feet and full exact normal slabs pass. BL q.708459/J.451424/L1.719911;
+sensor-only q.687230/J.408248/L1.732051. Maximum flow/BDF integral defect2.75e-16,
+projection summary defect5.33e-16; transported sensor residual0. Native turbulence
+checks do not establish exact post-floor SA conservation. Initialized affine fields,
+not CFD evolution or viscous accuracy. Four first normal edges exist; centroid
+max tilt7.45356 is separately recorded, not orthogonality. Independent sensor gradation
+passes, but44 composed probes fail, max ratio24.5183963 against1.3; no metric reset,
+post-freeze regularization or coarse wall spreading was introduced.
+
+All owned jobs terminal. The next missing capabilities remain true tangential
+anisotropy/localization, nonprismatic feature/interacting/exterior regions, evolved
+viscous/M6 accuracy and complete lifecycle affordability. This bounded class is not
+scalable parallel generation, arbitrary geometry or full Goal3 completion.

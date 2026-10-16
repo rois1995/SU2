@@ -1,0 +1,23 @@
+{
+  "status": "PASS_COMBINED_MPI2_COMPLETE_ENGINE_MESHES_AND_CORRECTED_CONTROL",
+  "original_native_receipt_status": "FAIL_PRESERVED_COUNTER_ASSERTION_ONLY",
+  "original_native_receipt_sha256": "0a6d8ff6a459db806f2c1bbfd470c540471b0b4fae2287b9b6b560d23c4d6d9f",
+  "independent_complete_mesh_audit_sha256": "a593863032ee2d6794bf455a48ea898c365e048b90962d3b2e98a0741d54f22e",
+  "corrected_control_receipt_sha256": "8fc2d7205a14274a40b847c57f140ae70eaedb9ebd19af5b42522c6df792fb7d",
+  "production_sources_build_libraries_solver_identical": true,
+  "changed_common_pins": [
+    "UnitTests/Common/adaptation/CNativeDistributed3D_tests.cpp",
+    "integration_evidence/native_3d_bl_v1/wall_reconstruction_v1/run.py",
+    "test_binary"
+  ],
+  "mesh_case_only_inputs": {
+    "accepted_patch_json": "30ace31249e242b4595479dc5d60a7530e8f519359c6d9b4c42a33df232ab7e2",
+    "construction_reuse_receipt": "a0b4766d31ed6ffe06308cfe096f41529493eb198ca5f288813bf67ce6c86452"
+  },
+  "sole_test_change": {
+    "before": "if(world.size>1)CHECK(world.sum(int(completed.stats.proposal_duplicates))>0);",
+    "after": "if(world.size>1)CHECK(world.sum(int(completed.stats.proposal_duplicates+completed.stats.batch_deferred))>0);"
+  },
+  "verifier_input_scope_correction": "Initial verifier incorrectly compared saved-mesh-only input pins with an input-free policy control. Restrict comparison to common code/build/runtime pins; retain the independently checked saved construction inputs explicitly.",
+  "scope": "Original two-rank engine construction remeasurement and strict removal complete; all exported meshes independently pass geometry/height/full original field. Separate NativePolicy counter incorrectly required replicated directed edges; two ranks select distinct conflicting edges instead. The corrected two-case control passes on identical production source/build/library/solver pins. Exact unit-source comparison proves its sole C++ change is that diagnostic assertion; no mesh or acceptance logic changed. Original selected-suite FAIL remains intact. This is combined scoped qualification, not a rerun or promotion of a rejected engine mesh, actual CFD evolution or full-goal completion."
+}

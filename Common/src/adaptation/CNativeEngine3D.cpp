@@ -1164,6 +1164,33 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     ImportedBatch imported_batch;
     ReservationBatch reserved;
     size_t slots=1;
+    const bool planned_coarsening=coarsening && !repairing && !curved && !composition && world.size>1;
+    // Every nonempty selected round admits work; at most batch*workers metadata frontiers per admitted round.
+    auto plan_choices=[&]() {
+      CLocalFailure failure;
+      stats.batch_considered+=choices.size();
+      if(stats.global_work==stats.work_limit) {
+        stats.stop=EngineStop::WorkBudget;result.reason="Native 3D global proposal budget exhausted before admission; feasibility is undetermined.";
+        return false;
+      }
+      if(planned_coarsening) {
+        Timer timer(stats.planning_seconds,options.timings);
+        std::vector<Feature> features;std::vector<size_t> selected;
+        try {for(const auto& candidate:choices)features.push_back({{candidate.edge[1],0,0},1});}
+        catch(const std::exception& e){failure.Set(2,0,e.what());}
+        if(!(ready=vote(failure)))return false;
+        dependency_batch=directory.PlanBatch(features,selected,options.memory_ceiling,transfer_memory::Add(bytes(),source.ResidentBytes()));
+        if(!dependency_batch.valid){result.reason=dependency_batch.reason;return false;}
+        try {
+          std::vector<Choice> planned;planned.reserve(selected.size());
+          for(size_t i:selected)planned.push_back(choices.at(i));
+          stats.batch_deferred+=choices.size()-planned.size();choices.swap(planned);
+        }catch(const std::exception& e){failure.Set(2,0,e.what());}
+        if(!(ready=vote(failure)))return false;
+        if(!world.maximum(!choices.empty())){result.reason="Native 3D complete-star selection made no progress.";return false;}
+      }
+      return true;
+    };
     if (batched) {
       // All retained metadata/payloads remain byte-admitted while each disjoint candidate uses the existing transaction.
       batch_bytes=transfer_memory::Add(transfer_memory::Mul(options.candidate_batch,
@@ -1180,6 +1207,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         catch (const std::exception& e) { failure.Set(2,0,e.what()); }
         if (!(ready=vote(failure))) return finish();
         if(!coalesce(choices))return finish();
+        if(!plan_choices())return finish();
         slots=CPassiveComm::Allreduce(choices.size(),CPassiveComm::Op::MAX,world.comm);
         ++stats.batch_rounds; stats.batch_candidates+=choices.size(); stats.proposed+=choices.size();
       }
@@ -1199,7 +1227,8 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
             Feature{{candidate.edge[0],candidate.edge[1],0},2}); }
         catch (const std::exception& e) { failure.Set(2,0,e.what()); }
         if (!(ready=vote(failure))) return finish();
-        dependency_batch=directory.LookupBatch(features,options.memory_ceiling,transfer_memory::Add(bytes(),source.ResidentBytes()));
+        if(!planned_coarsening)
+          dependency_batch=directory.LookupBatch(features,options.memory_ceiling,transfer_memory::Add(bytes(),source.ResidentBytes()));
         if (!dependency_batch.valid) { result.reason=dependency_batch.reason; return finish(); }
         imported_batch=directory.FetchBatch(dependency_batch,working,options.memory_ceiling,
             transfer_memory::Add(bytes(),source.ResidentBytes()));
@@ -1237,7 +1266,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       if(coarsening && !repairing && !curved && !composition && world.size>1) {
         CLocalFailure failure;
         try {if(choice.active)choices.push_back(choice);}catch(const std::exception& e){failure.Set(2,0,e.what());}
-        if(!vote(failure) || !coalesce(choices))return finish();
+        if(!vote(failure) || !coalesce(choices) || !plan_choices())return finish();
         choice=choices.empty()?Choice{}:choices.front();
       }
       stats.proposed+=choice.active;
@@ -1265,7 +1294,9 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         Timer timer(stats.dependency_seconds,options.timings);
         const Feature feature=repairing ? choice.feature : (coarsening ? Feature{{choice.edge[1],0,0},1} : Feature{{choice.edge[0],choice.edge[1],0},2});
         const auto features=choice.active ? std::vector<Feature>{feature} : std::vector<Feature>{};
-        if(curved && repairing) {
+        if(planned_coarsening) {
+          if(choice.active)dependencies=std::move(dependency_batch.candidates.at(0));else dependencies.valid=true;
+        } else if(curved && repairing) {
           auto batch=directory.LookupBatch(features,options.memory_ceiling,transfer_memory::Add(bytes(),source.ResidentBytes()));
           if(!batch.valid) {result.reason=batch.reason;return finish();}
           if(choice.active)dependencies=std::move(batch.candidates.at(0));else dependencies.valid=true;

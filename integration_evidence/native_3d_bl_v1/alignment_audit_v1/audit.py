@@ -72,7 +72,10 @@ def gradation(original,composed):
     ratio=float(np.linalg.eigvalsh(factor*(inv.T@t@inv))[-1]);maxima[k]=max(maxima[k],ratio);bad[k]+=ratio>1+1e-5
  return {'maximum_sensor_ratio':maxima[0],'maximum_composed_ratio':maxima[1] if composed else None,'sensor_violations':bad[0],'composed_violations':bad[1] if composed else None,'scope':'Original donor edges, their dyadic subintervals, and an independent wall-normal/fade column. Finite probes, not a global certificate; no target correction.'}
 def main():
- ranks=int(sys.argv[1]);folder=HERE/('mpi'+str(ranks));receipt=json.loads((HERE/('mpi'+str(ranks)+'.json')).read_text());assert receipt['status']=='PASS'
+ legacy=sys.argv[1].isdigit()
+ folder=HERE/('mpi'+sys.argv[1]) if legacy else Path(sys.argv[1]).resolve()
+ receipt_path=folder.with_suffix('.json');receipt=json.loads(receipt_path.read_text());assert receipt['status']=='PASS'
+ ranks=receipt['contract']['MPI_ranks'];assert not legacy or ranks==int(sys.argv[1])
  assert all(digest(folder/p)==h for p,h in receipt['artifacts'].items()),'Native evidence changed'
  reports=[]
  for path in sorted(folder.glob('policy_m*_s[01].json')):
@@ -109,6 +112,6 @@ def main():
  for path in sorted(folder.glob('policy_m*_restart_states.json')):
   d=json.loads(path.read_text());wanted={tuple(r['point']):r['states'] for r in d['donor']};assert len(d['accepted'])==len(wanted)
   assert max(abs(a-b)/max(1.,abs(a)) for r in d['accepted'] for a,b in zip(wanted[tuple(r['point'])],r['states']))<1e-10
- result={'status':'PASS_LIMITED_SCOPE','MPI_ranks':ranks,'frames':reports,'native_receipt_sha256':digest(HERE/('mpi'+str(ranks)+'.json')),'helper_sha256':digest(Path(__file__)),'house_geometry_auditor_sha256':digest(ROOT/'integration_evidence/native_3d_core_v1/audit_coupled.py'),'scope':'Exact cube embedding/coverage, independent full composed metric lengths/shape/h0, actual original P1 sensor transport, current+BDF flow integrals/positivity and real restart, and geometry/target-equivalent SU2/CGNS reload. Native checks separately cover turbulence bounds/history. Composed gradation violations are reported, not corrected. No arbitrary geometry/sensors, CFD convergence/accuracy or performance qualification.'}
- (HERE/('independent_mpi'+str(ranks)+'.json')).write_text(json.dumps(result,indent=2)+'\n')
+ result={'status':'PASS_LIMITED_SCOPE','MPI_ranks':ranks,'frames':reports,'native_receipt_sha256':digest(receipt_path),'helper_sha256':digest(Path(__file__)),'house_geometry_auditor_sha256':digest(ROOT/'integration_evidence/native_3d_core_v1/audit_coupled.py'),'scope':'Exact cube embedding/coverage, independent full composed metric lengths/shape/h0, actual original P1 sensor transport, current+BDF flow integrals/positivity and real restart, and geometry/target-equivalent SU2/CGNS reload. Native checks separately cover turbulence bounds/history. Composed gradation violations are reported, not corrected. No arbitrary geometry/sensors, CFD convergence/accuracy or performance qualification.'}
+ (HERE/('independent_mpi'+str(ranks)+'.json') if legacy else folder/'independent_policy.json').write_text(json.dumps(result,indent=2)+'\n')
 if __name__=='__main__':main()

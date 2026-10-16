@@ -1,0 +1,33 @@
+{
+  "status": "PASS_EXACT_COMPLETE_SINGLE_WALL_NORMAL_SLAB_COVERAGE",
+  "native_configuration_sha256": "e76234a82b547245c100c48c63736cf8868d5865feea7e0b0d0d211d87ba4f93",
+  "independent_mesh_audit_sha256": "756390f15ea1a4b6f5fb2de602cf2cef8723d965c3840aa12d9aa95c099035d2",
+  "mesh_sha256": "6514a67a96e2b14a15aa5bcfe39ed02def020d6cd87233f70589213ea1c07149",
+  "helper_sha256": "46a54b7e87ff04febf4fe8633648f7392fcd12d5a415e763aa53dda7c13c515e",
+  "normal_intervals": 4,
+  "first_height": 0.1,
+  "wall_normal_first_edges": 4,
+  "slabs": [
+    {
+      "lower": "0",
+      "upper": "3602879701896397/36028797018963968",
+      "exact_volume": "3602879701896397/36028797018963968"
+    },
+    {
+      "lower": "3602879701896397/36028797018963968",
+      "upper": "6643657921160807/36028797018963968",
+      "exact_volume": "1520389109632205/18014398509481984"
+    },
+    {
+      "lower": "6643657921160807/36028797018963968",
+      "upper": "2562919094573369/9007199254740992",
+      "exact_volume": "3608018457132669/36028797018963968"
+    },
+    {
+      "lower": "2562919094573369/9007199254740992",
+      "upper": "1",
+      "exact_volume": "6444280160167623/9007199254740992"
+    }
+  ],
+  "scope": "Every positive cell spans consecutive front planes, and every slab has exact full unit-area volume. Reuses the independently proven embedding/finite geometry/no-overlap certificate. Normal first edges exist at every wall node. This declared planar class only; no centroid orthogonality or viscous accuracy claim."
+}

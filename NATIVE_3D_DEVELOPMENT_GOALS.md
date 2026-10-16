@@ -198,10 +198,15 @@ placement remains a kernel experiment; production3DBL is not yet implemented.
 
 Deferred: performance/scaling/cluster/large aerodynamic campaigns, generalCAD,
 production3DBL/first-height generation, full physical unsteady3D and affordability.
-Goals3–4 remain prepared and unactivated. All four local Goal2 gates have current
+Goal3 is active; Goal4 remains prepared and unactivated. All four local Goal2 gates have current
 integrated proof, and the implementation/evidence has been pushed.
 
 ## Goal 3 — Robust 3D BL construction and removal from coarse grids
+
+Status: **active/incomplete**. Current scoped construction, MPI removal and actual
+backend evidence is indexed in [HANDOFF_Codex.md](HANDOFF_Codex.md) and the
+[requirement audit](integration_evidence/native_3d_bl_v1/GOAL3_REQUIREMENTS.json).
+The deliverables and correctness/performance gates below remain unchanged.
 
 Activation objective: Make native 3D adaptation construct usable anisotropic
 near-wall tetrahedra and transitions from coarse Euler-type grids, and remove

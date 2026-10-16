@@ -1,0 +1,133 @@
+{
+  "status": "PASS_EXACT_COMPLETE_NORMAL_SLAB_COVERAGE",
+  "independent_audit_sha256": "9d091e0aec6f27b02188b69a6c2ccc1bb3785c3abc5c806a0eea3a6cf83fc553",
+  "mesh_sha256": "30ace31249e242b4595479dc5d60a7530e8f519359c6d9b4c42a33df232ab7e2",
+  "helper_sha256": "56fc141091aefdcf304982efd3f2890733b9dba8cb3e49d496fc29ac2506fec0",
+  "normal_intervals": 20,
+  "maximum_away_from_wall_interval_growth": 1.195816686011579,
+  "wall_normal_first_row_edges": 46,
+  "maximum_centroid_tilt": 13.176156917368248,
+  "slabs": [
+    {
+      "lower": 0.0,
+      "upper": 0.02,
+      "cells": 96,
+      "exact_volume": "5764607523034235/288230376151711744"
+    },
+    {
+      "lower": 0.02,
+      "upper": 0.043497524261474615,
+      "cells": 96,
+      "exact_volume": "6772700256518801/288230376151711744"
+    },
+    {
+      "lower": 0.043497524261474615,
+      "upper": 0.07159625585330787,
+      "cells": 96,
+      "exact_volume": "2024726994025021/72057594037927936"
+    },
+    {
+      "lower": 0.07159625585330787,
+      "upper": 0.1051970696894719,
+      "cells": 96,
+      "exact_volume": "605298450687575/18014398509481984"
+    },
+    {
+      "lower": 0.1051970696894719,
+      "upper": 0.14537736630513565,
+      "cells": 96,
+      "exact_volume": "723823875463757/18014398509481984"
+    },
+    {
+      "lower": 0.14537736630513565,
+      "upper": 0.19342548071059568,
+      "cells": 96,
+      "exact_volume": "865557880529139/18014398509481984"
+    },
+    {
+      "lower": 0.19342548071059568,
+      "upper": 0.25088204750514087,
+      "cells": 96,
+      "exact_volume": "1035045491223607/18014398509481984"
+    },
+    {
+      "lower": 0.25088204750514087,
+      "upper": 0.3195893934714509,
+      "cells": 96,
+      "exact_volume": "618860755382979/9007199254740992"
+    },
+    {
+      "lower": 0.3195893934714509,
+      "upper": 0.40175054788292464,
+      "cells": 96,
+      "exact_volume": "370020944391843/4503599627370496"
+    },
+    {
+      "lower": 0.40175054788292464,
+      "upper": 0.4999999206758545,
+      "cells": 96,
+      "exact_volume": "55309479837453/562949953421312"
+    },
+    {
+      "lower": 0.4999999206758545,
+      "upper": 0.598249296043269,
+      "cells": 96,
+      "exact_volume": "55309481286759/562949953421312"
+    },
+    {
+      "lower": 0.598249296043269,
+      "upper": 0.6804104009526808,
+      "cells": 96,
+      "exact_volume": "370020721454375/4503599627370496"
+    },
+    {
+      "lower": 0.6804104009526808,
+      "upper": 0.7491178025066935,
+      "cells": 96,
+      "exact_volume": "618861256072493/9007199254740992"
+    },
+    {
+      "lower": 0.7491178025066935,
+      "upper": 0.8065744034068096,
+      "cells": 96,
+      "exact_volume": "517523052807477/9007199254740992"
+    },
+    {
+      "lower": 0.8065744034068096,
+      "upper": 0.8546225469888511,
+      "cells": 96,
+      "exact_volume": "108194800765963/2251799813685248"
+    },
+    {
+      "lower": 0.8546225469888511,
+      "upper": 0.8948028391801396,
+      "cells": 96,
+      "exact_volume": "361911897880649/9007199254740992"
+    },
+    {
+      "lower": 0.8948028391801396,
+      "upper": 0.9284036752335786,
+      "cells": 96,
+      "exact_volume": "151324712729605/4503599627370496"
+    },
+    {
+      "lower": 0.9284036752335786,
+      "upper": 0.9565023945339481,
+      "cells": 96,
+      "exact_volume": "253090763541465/9007199254740992"
+    },
+    {
+      "lower": 0.9565023945339481,
+      "upper": 0.98,
+      "cells": 96,
+      "exact_volume": "52911903610505/2251799813685248"
+    },
+    {
+      "lower": 0.98,
+      "upper": 1.0,
+      "cells": 96,
+      "exact_volume": "45035996273705/2251799813685248"
+    }
+  ],
+  "scope": "Each positive tetrahedron lies between two consecutive global front planes and exact slab volume equals its complete unit-square area times width. Reuses separately proved no-overlap/finite-domain geometry, so every declared slab including both first bands is covered. This aligned planar class only, not general multilayer, centroid orthogonality, CFD accuracy or affordability."
+}

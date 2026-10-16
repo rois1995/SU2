@@ -759,6 +759,8 @@ void EngineReport(const EngineResult& result, World& world, const std::string& l
        << " donor_candidates=" << s.donor_candidates << " donor_filtered=" << s.donor_filtered << " donor_box_filtered=" << s.donor_box_filtered
        << " donor_payloads=" << s.donor_payloads << " donor_maximum_patch=" << s.donor_maximum_patch
        << " donor_search_nested_s=" << s.donor_search_seconds << " donor_filter_nested_s=" << s.donor_filter_seconds
+       << " planning_nested_s=" << s.planning_seconds
+       << " batch_considered=" << s.batch_considered << " batch_deferred=" << s.batch_deferred
        << " proposal_duplicates=" << s.proposal_duplicates
              << " batch_rounds=" << s.batch_rounds << " batch_candidates=" << s.batch_candidates
              << " stop=" << EngineStopName(s.stop) << " global_work=" << s.global_work << " work_limit=" << s.work_limit
@@ -2027,6 +2029,35 @@ TEST_CASE("Native MPI batch lookup preserves per-candidate complete stars and re
   CHECK(directory.Snapshot()==snapshot);CHECK(Bytes(owned)==mesh);
 }
 
+TEST_CASE("Native metadata planning filters remote-star conflicts before payloads and retains final proofs", "[NativeDistributed3D][NativeBatchPlanning3D]") {
+  World world;Patch patch;
+  patch.cells={{0,{{{0,{0,0,0}},{1,{1,0,0}},{2,{0,1,0}},{3,{0,0,1}}}}},
+               {1,{{{4,{2,0,0}},{5,{2,1,0}},{6,{2,0,1}},{3,{0,0,1}}}}},
+               {2,{{{8,{5,0,0}},{9,{6,0,0}},{10,{5,1,0}},{11,{5,0,1}}}}}};
+  for(auto& cell:patch.cells)if(Orientation(cell.v[0].p,cell.v[1].p,cell.v[2].p,cell.v[3].p)<0)std::swap(cell.v[0],cell.v[1]);
+  auto owned=Partition(Rows(patch),world);Directory directory(world);std::string reason;
+  REQUIRE(directory.Build(owned,reason));const auto saved=directory.Snapshot(),mesh=Bytes(owned);
+  const std::vector<Feature> features{{{0,0,0},1},{{4,0,0},1},{{8,0,0},1}};
+  std::vector<size_t> slots;const auto payload_begin=directory.Statistics().payloads;
+  const auto plan=directory.PlanBatch(features,slots);INFO(plan.reason);REQUIRE(plan.valid);
+  CHECK(directory.Statistics().payloads==payload_begin);
+  CHECK(slots==(world.rank?std::vector<size_t>{}:std::vector<size_t>{0,2}));
+  CHECK(plan.candidates.size()==slots.size());
+  const auto fetched=directory.FetchBatch(plan,owned);REQUIRE(fetched.valid);
+  const auto reserved=directory.ReserveBatch(fetched);REQUIRE(reserved.valid);
+  for(bool chosen:reserved.chosen)CHECK(chosen);
+  CHECK(world.sum(int(directory.Statistics().payloads-payload_begin))==2);
+  // The distinct feature at4 shares only vertex3 with the first complete star, on a different cell/owner.
+  auto changed=owned;for(auto& row:changed)if(row.first==0)++row.second.version;
+  const auto stale=directory.FetchBatch(plan,changed);REQUIRE(stale.valid);
+  if(!world.rank){REQUIRE(stale.candidates.size()==2);CHECK_FALSE(stale.candidates[0].valid);CHECK(stale.candidates[1].valid);}
+  CHECK_FALSE(directory.PlanBatch(features,slots,world.rank?SIZE_MAX:1).valid);CHECK(slots.empty());
+  CHECK_FALSE(directory.PlanBatch(world.rank?std::vector<Feature>{}:std::vector<Feature>{{{UINT64_MAX,0,0},1}},slots).valid);
+  CHECK(slots.empty());
+  const auto idle=directory.PlanBatch({},slots);CHECK(idle.valid);CHECK(idle.candidates.empty());CHECK(slots.empty());
+  CHECK(directory.Snapshot()==saved);CHECK(Bytes(owned)==mesh);
+}
+
 TEST_CASE("Native batched coarsening completes disjoint planar edits in one epoch", "[NativeDistributed3D][NativeBatchEngine3D]") {
   World world;
   Fixture fixture;
@@ -2128,7 +2159,7 @@ TEST_CASE("Native proposal and clock budgets reject collectively without publish
   CHECK(completed.stats.stop==EngineStop::Complete);
   CHECK(completed.stats.global_work<=64);
   CHECK(world.sum(int(completed.stats.cell_removals))==1);
-  if(world.size>1)CHECK(world.sum(int(completed.stats.proposal_duplicates))>0);
+  if(world.size>1)CHECK(world.sum(int(completed.stats.proposal_duplicates+completed.stats.batch_deferred))>0);
   CHECK(world.sum(int(completed.stats.metric_trials))>=world.sum(int(completed.stats.accepted)));
   CHECK(Bytes(input)==saved);
   if (world.size>1) {

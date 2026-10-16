@@ -80,6 +80,11 @@ class Directory {
   /*! One complete star per feature, in input order, sharing the same exchanges. Missing/oversized
    * stars refuse only their candidate; protocol/storage failure refuses the whole batch without mutation. */
   DependencyBatch LookupBatch(const std::vector<Feature>& features, size_t ceiling = SIZE_MAX, size_t caller_bytes = 0);
+  /*! Complete-star metadata selection before payload admission. slots maps compacted candidates
+   * to input features; deferred candidates are not failures or reservations. Final Fetch/Reserve
+   * still verify versions and ownership. Selection must be byte/work/time bounded by its caller. */
+  DependencyBatch PlanBatch(const std::vector<Feature>& features, std::vector<size_t>& slots,
+                           size_t ceiling = SIZE_MAX, size_t caller_bytes = 0);
   Imported Fetch(const Dependencies& dependencies, const Owned& owned, size_t ceiling = SIZE_MAX, size_t caller_bytes = 0);
   /*! Shared cells are fetched once; a stale payload refuses every candidate that requires it.
    * Common protocol/storage failures refuse the batch. Neither method mutates the accepted stores. */
@@ -127,7 +132,9 @@ class Directory {
   int Rendezvous(Key key) const;
   bool Vote(const CLocalFailure& failure, std::string& reason);
   bool LookupImpl(const std::vector<Feature>& features, Dependencies* merged,
-                  DependencyBatch* batch, size_t ceiling, size_t caller_bytes, std::string& reason);
+                  DependencyBatch* batch, size_t ceiling, size_t caller_bytes, std::string& reason,
+                  std::vector<std::vector<Id>>* footprints = nullptr);
+  ReservationBatch ChooseBatch(const std::vector<std::vector<Id>>& footprints, size_t ceiling, size_t caller_bytes);
   Prepared Prepare(const std::vector<OwnedCell>& removed, const std::vector<OwnedCell>& added,
                    size_t ceiling, size_t baseline);
   bool NotifyChanges(const Prepared& prepared, std::vector<Id>& changed, std::string& reason,

@@ -1,0 +1,403 @@
+{
+  "status": "COMPLETE_STAR_MPI2_4_REMOVAL_AND_INITIALIZED_PLANAR_N4_M2_BACKEND_QUALIFIED",
+  "full_goal3_complete": false,
+  "source_baseline": "96793ada465f00c001375b13bd7323dc5ff5082f",
+  "cases": [
+    {
+      "case": "native_batch_planning_v1",
+      "native_receipt_status": "FAIL",
+      "native_receipt_sha256": "9db69393daf6beeb76a098e295915523375b6fe2996d482c6e81aa406fbf03c4",
+      "returncode": 1,
+      "MPI_ranks": 1
+    },
+    {
+      "case": "native_batch_planning_v2",
+      "native_receipt_status": "PASS",
+      "native_receipt_sha256": "3d955b238ca027a77fbd033ef8ec72c1cee960c66b1597ed9e2f1b3debeb8d42",
+      "returncode": 0,
+      "MPI_ranks": 1
+    },
+    {
+      "case": "native_batch_planning_mpi4_v1",
+      "native_receipt_status": "PASS",
+      "native_receipt_sha256": "5cb101eb7b5cff753f428f7698a8595072523f1e3e37cde76f28e6d7ba058da2",
+      "returncode": 0,
+      "MPI_ranks": 4
+    },
+    {
+      "case": "native_opposing_resume_mpi4_v2",
+      "native_receipt_status": "PASS",
+      "native_receipt_sha256": "dea0ea5dba0e1335a080a1bd26be1dbd689b04467079def071fdc8ef065260b5",
+      "returncode": 0,
+      "MPI_ranks": 4,
+      "independent.json": {
+        "status": "PASS_COMPLETE_OPPOSING_CONSTRUCTION_REMOVAL_GEOMETRY_AND_FULL_FIELD_SCOPE_LIMITED",
+        "sha256": "9d091e0aec6f27b02188b69a6c2ccc1bb3785c3abc5c806a0eea3a6cf83fc553",
+        "frames": [
+          {
+            "file": "opposing_finer_grouped_coupled_BL_independent.json",
+            "cells": 1920,
+            "points": 483,
+            "physical_faces": 544,
+            "volume": "1",
+            "minimum_mean_ratio": 0.4673160150867968,
+            "minimum_scaled_jacobian": 0.19316019857871727,
+            "maximum_length": 1.6680628605896526,
+            "longest_edge": [
+              44,
+              65
+            ],
+            "markers": {
+              "1": 32,
+              "0": 480,
+              "2": 32
+            },
+            "strict_metric_gate": true,
+            "first_height_faces": 64,
+            "maximum_height_relative_error": 8.881784197001252e-16,
+            "maximum_centroid_tilt": 13.176156917368248,
+            "wall_normal_first_row_edges": 46,
+            "minimum_nonwall_node_clearance": 0.02,
+            "full_metric_edges": 2674,
+            "coverage": "Complete positive prismatic first bands, normal edges at every wall node, no nonwall node below h0; centroid tilt is reported separately.",
+            "layers": true,
+            "input_sha256": "30ace31249e242b4595479dc5d60a7530e8f519359c6d9b4c42a33df232ab7e2",
+            "exact_reference_reuse_sha256": "649fba3bcac324f09307796523ec81e9710cec21cc1da6431c7df8909e6949df"
+          },
+          {
+            "file": "opposing_finer_grouped_released_Euler_independent.json",
+            "cells": 250,
+            "points": 81,
+            "physical_faces": 122,
+            "volume": "1",
+            "minimum_mean_ratio": 0.30665538627265687,
+            "minimum_scaled_jacobian": 0.10255790737133132,
+            "maximum_length": 1.783026591155755,
+            "longest_edge": [
+              12,
+              416
+            ],
+            "markers": {
+              "2": 24,
+              "0": 76,
+              "1": 22
+            },
+            "strict_metric_gate": true,
+            "layers": false,
+            "input_sha256": "b171c8ec27db67655a4103321bd90e6db2746f6ae3cbc0c9edfd18a1416718dd"
+          }
+        ]
+      },
+      "front_coverage.json": {
+        "status": "PASS_EXACT_COMPLETE_NORMAL_SLAB_COVERAGE",
+        "sha256": "aca0860402be90fe1443120f24e240e5333cb9de80915a8c719c37a9bc3be237"
+      },
+      "removal": {
+        "cells": 250,
+        "global_transaction_work": 1619,
+        "attempts": 1619,
+        "final_reservation_conflicts": 0,
+        "metadata_considered_after_coalescing": 5390,
+        "metadata_deferred": 3771,
+        "duplicate_directed_proposals_suppressed": 2704,
+        "maximum_planning_seconds_nested_in_selection": 0.14455120199999985,
+        "maximum_kernel_seconds": 9.072218704
+      }
+    },
+    {
+      "case": "native_opposing_resume_mpi2_v1",
+      "native_receipt_status": "FAIL",
+      "native_receipt_sha256": "0a6d8ff6a459db806f2c1bbfd470c540471b0b4fae2287b9b6b560d23c4d6d9f",
+      "returncode": 1,
+      "MPI_ranks": 2,
+      "independent.json": {
+        "status": "PASS_COMPLETE_MESHES_NATIVE_CONTROL_RECEIPT_FAILED",
+        "sha256": "a593863032ee2d6794bf455a48ea898c365e048b90962d3b2e98a0741d54f22e",
+        "frames": [
+          {
+            "file": "opposing_finer_grouped_coupled_BL_independent.json",
+            "cells": 1920,
+            "points": 483,
+            "physical_faces": 544,
+            "volume": "1",
+            "minimum_mean_ratio": 0.4673160150867968,
+            "minimum_scaled_jacobian": 0.19316019857871727,
+            "maximum_length": 1.6680628605896526,
+            "longest_edge": [
+              44,
+              65
+            ],
+            "markers": {
+              "1": 32,
+              "0": 480,
+              "2": 32
+            },
+            "strict_metric_gate": true,
+            "first_height_faces": 64,
+            "maximum_height_relative_error": 8.881784197001252e-16,
+            "maximum_centroid_tilt": 13.176156917368248,
+            "wall_normal_first_row_edges": 46,
+            "minimum_nonwall_node_clearance": 0.02,
+            "full_metric_edges": 2674,
+            "coverage": "Complete positive prismatic first bands, normal edges at every wall node, no nonwall node below h0; centroid tilt is reported separately.",
+            "layers": true,
+            "input_sha256": "30ace31249e242b4595479dc5d60a7530e8f519359c6d9b4c42a33df232ab7e2",
+            "exact_reference_reuse_sha256": "e374676622d454a0922ce967ea8f2194aa1e9db4e831be1567d162045a9f036d"
+          },
+          {
+            "file": "opposing_finer_grouped_released_Euler_independent.json",
+            "cells": 230,
+            "points": 77,
+            "physical_faces": 120,
+            "volume": "1",
+            "minimum_mean_ratio": 0.20389219154526758,
+            "minimum_scaled_jacobian": 0.06984456022157506,
+            "maximum_length": 1.7981211593399824,
+            "longest_edge": [
+              36,
+              114
+            ],
+            "markers": {
+              "2": 22,
+              "0": 76,
+              "1": 22
+            },
+            "strict_metric_gate": true,
+            "layers": false,
+            "input_sha256": "ec614fc3cd66d0f4f019f67ee3abfbfb92ad3050bc1c9e39d1200030091fd49e"
+          }
+        ]
+      },
+      "front_coverage.json": {
+        "status": "PASS_EXACT_COMPLETE_NORMAL_SLAB_COVERAGE",
+        "sha256": "694e140bad0317370cbffe4736d3b16c4819eddf72f5fec596db49be0e48d7a5"
+      },
+      "corrected_control_qualification.json": {
+        "status": "PASS_COMBINED_MPI2_COMPLETE_ENGINE_MESHES_AND_CORRECTED_CONTROL",
+        "sha256": "d213366c541a7fdaccdfd31844a6958e0eda5033ff423d10dd3f37e20be508a8"
+      },
+      "removal": {
+        "cells": 230,
+        "global_transaction_work": 1344,
+        "attempts": 1344,
+        "final_reservation_conflicts": 0,
+        "metadata_considered_after_coalescing": 1542,
+        "metadata_deferred": 198,
+        "duplicate_directed_proposals_suppressed": 1178,
+        "maximum_planning_seconds_nested_in_selection": 0.08430530299999997,
+        "maximum_kernel_seconds": 8.298706814
+      }
+    },
+    {
+      "case": "native_policy_controls_mpi2_v1",
+      "native_receipt_status": "PASS",
+      "native_receipt_sha256": "8fc2d7205a14274a40b847c57f140ae70eaedb9ebd19af5b42522c6df792fb7d",
+      "returncode": 0,
+      "MPI_ranks": 2
+    },
+    {
+      "case": "native_prism_policy_n4_m2_v1",
+      "native_receipt_status": "PASS",
+      "native_receipt_sha256": "0e456340ff39e206d04e56651a292fdc6b43134f4bd8823d7a137eb89284548f",
+      "returncode": 0,
+      "MPI_ranks": 4,
+      "independent_policy.json": {
+        "status": "PASS_LIMITED_SCOPE",
+        "sha256": "756390f15ea1a4b6f5fb2de602cf2cef8723d965c3840aa12d9aa95c099035d2",
+        "frames": [
+          {
+            "file": "policy_m2_s0.json",
+            "cells": 24,
+            "points": 20,
+            "physical_faces": 36,
+            "volume": "1",
+            "minimum_mean_ratio": 0.7084589946574174,
+            "minimum_scaled_jacobian": 0.45142445673092496,
+            "maximum_length": 1.719911358625891,
+            "longest_edge": [
+              0,
+              2
+            ],
+            "markers": {
+              "0": 34,
+              "1": 2
+            },
+            "strict_metric_gate": true,
+            "first_height_faces": 2,
+            "maximum_height_error": 0.0,
+            "maximum_tilt": 7.4535599249993,
+            "minimum_footprint_barycentric": 0.0,
+            "independent_flow_BDF_integral_defect": 2.747643957420801e-16,
+            "projection_all_field_defect": 1.3738219787104e-16,
+            "transported_sensor_error": 0,
+            "gradation": {
+              "maximum_sensor_ratio": 1.0,
+              "maximum_composed_ratio": 24.518396264943725,
+              "sensor_violations": 0,
+              "composed_violations": 44,
+              "scope": "Original donor edges, their dyadic subintervals, and an independent wall-normal/fade column. Finite probes, not a global certificate; no target correction."
+            },
+            "reloads": [
+              {
+                "file": "policy_m2_s0_written_CGNS_reload_target.json",
+                "sha256": "449c55d45844fe14af795226fc586f1eea96f5b959f3df79cdda8c3bbab7cafc",
+                "geometry_and_target_equal": true
+              },
+              {
+                "file": "policy_m2_s0_written_SU2_reload_target.json",
+                "sha256": "6514a67a96e2b14a15aa5bcfe39ed02def020d6cd87233f70589213ea1c07149",
+                "geometry_and_target_equal": true
+              }
+            ]
+          },
+          {
+            "file": "policy_m2_s1.json",
+            "cells": 6,
+            "points": 8,
+            "physical_faces": 12,
+            "volume": "1",
+            "minimum_mean_ratio": 0.6872296635790217,
+            "minimum_scaled_jacobian": 0.408248290463863,
+            "maximum_length": 1.732050807568877,
+            "longest_edge": [
+              0,
+              3
+            ],
+            "markers": {
+              "0": 10,
+              "1": 2
+            },
+            "strict_metric_gate": true,
+            "first_height_faces": 0,
+            "maximum_height_error": 0,
+            "maximum_tilt": 0,
+            "minimum_footprint_barycentric": 0.3333333333333333,
+            "independent_flow_BDF_integral_defect": 2.0495848720176495e-16,
+            "projection_all_field_defect": 5.323560167502802e-16,
+            "transported_sensor_error": 0,
+            "gradation": {
+              "maximum_sensor_ratio": 1.0,
+              "maximum_composed_ratio": null,
+              "sensor_violations": 0,
+              "composed_violations": null,
+              "scope": "Original donor edges, their dyadic subintervals, and an independent wall-normal/fade column. Finite probes, not a global certificate; no target correction."
+            },
+            "reloads": [
+              {
+                "file": "policy_m2_s1_written_CGNS_reload_target.json",
+                "sha256": "f3239e61c23bbc3d8e3e4a58157b8ba8b46cfe1df01facef0aea49fe3dac0a52",
+                "geometry_and_target_equal": true
+              },
+              {
+                "file": "policy_m2_s1_written_SU2_reload_target.json",
+                "sha256": "e8dc6f3513115f4ddc0d8a9b9dc6c50444ef3325dd5a7e23c3ad0b494a07b3b4",
+                "geometry_and_target_equal": true
+              }
+            ]
+          }
+        ]
+      },
+      "policy_front_coverage.json": {
+        "status": "PASS_EXACT_COMPLETE_SINGLE_WALL_NORMAL_SLAB_COVERAGE",
+        "sha256": "a7eff049a25edc0233ce88c66d47b385381d49773c39d4ea69fd4fea95d09d25"
+      },
+      "root_lifecycle_sections": [
+        {
+          "rank": "0",
+          "ranks": "4",
+          "workers": "2",
+          "complete": "1",
+          "detailed": "1",
+          "total": "0.24719630600000003",
+          "other": "0.0010655519999999141",
+          "cpu": "0.23416999999999999",
+          "idle_cpu": "0",
+          "support": "7.1830000000008831e-06",
+          "reference": "5.4199000000001302e-05",
+          "import": "0.00093339799999999848",
+          "source": "7.60929999999993e-05",
+          "weights": "0.00022395000000000054",
+          "partition": "0.00041581599999999941",
+          "donor_migration": "3.7096999999999825e-05",
+          "communicator": "2.6406000000034346e-05",
+          "refine": "0.24230651700000003",
+          "coarsen": "0",
+          "wait": "0.0011756580000000794",
+          "return": "0.00081280299999997307",
+          "policy": "6.1634000000001382e-05",
+          "initial": "6",
+          "final": "24",
+          "refine_accepted": "1",
+          "coarsen_accepted": "0",
+          "tracked_bytes": "22616",
+          "tracked_calls": "94",
+          "nested_tracked_collectives": "0.00036147099999933249",
+          "tracked_import_bytes": "240",
+          "tracked_import_calls": "6",
+          "nested_tracked_import": "1.7619999999992503e-05",
+          "tracked_parent_bytes": "3776",
+          "tracked_parent_calls": "53",
+          "nested_tracked_parent": "0.0002552299999996066",
+          "tracked_worker_bytes": "18600",
+          "tracked_worker_calls": "35",
+          "nested_tracked_worker": "8.8620999999733385e-05",
+          "native_bound": "86225658",
+          "process_peak_rss": "33951744"
+        },
+        {
+          "rank": "0",
+          "ranks": "4",
+          "workers": "2",
+          "complete": "1",
+          "detailed": "1",
+          "total": "0.094439891999999914",
+          "other": "0.00096843700000004418",
+          "cpu": "0.092915999999999999",
+          "idle_cpu": "0",
+          "support": "3.1309999999340477e-06",
+          "reference": "0.00052363200000005161",
+          "import": "0.00074421499999999252",
+          "source": "0.00017429700000004544",
+          "weights": "0.00046725100000000186",
+          "partition": "0.0012309419999999571",
+          "donor_migration": "6.5899999999952108e-05",
+          "communicator": "7.6309999999968348e-05",
+          "refine": "0.0068196609999999769",
+          "coarsen": "0.081727442000000039",
+          "wait": "0.0010972830000000044",
+          "return": "0.00054121799999995446",
+          "policy": "1.7299999999220717e-07",
+          "initial": "24",
+          "final": "6",
+          "refine_accepted": "0",
+          "coarsen_accepted": "7",
+          "tracked_bytes": "379664",
+          "tracked_calls": "1428",
+          "nested_tracked_collectives": "0.0025173640000021313",
+          "tracked_import_bytes": "3072",
+          "tracked_import_calls": "6",
+          "nested_tracked_import": "1.7891000000158641e-05",
+          "tracked_parent_bytes": "39152",
+          "tracked_parent_calls": "46",
+          "nested_tracked_parent": "0.00034948200000017859",
+          "tracked_worker_bytes": "337440",
+          "tracked_worker_calls": "1376",
+          "nested_tracked_worker": "0.0021499910000017941",
+          "native_bound": "10218072",
+          "process_peak_rss": "41287680"
+        }
+      ]
+    }
+  ],
+  "unchanged_mesh_gates": {
+    "q": 0.2,
+    "J": 0.05,
+    "maximum_full_composed_edge": 1.8,
+    "immutable_source": "original P1 sensor, geometric BL at actual queries; finer demands/fade/noise0 retained",
+    "proposal_work_limit": 4096,
+    "time_limit_seconds": 300
+  },
+  "work_accounting": "Raw metadata candidate selection is explicit and bounded, not free and not the transaction-proposal budget. Full-star conflicts are now deferred before payload fetch, as an extension of local disjointness filtering. Both final versioned fetch/reservation and all admitted transaction charging remain; considered/deferred/duplicates and planning time nested in selection are reported. No4,096 bound on raw metadata keys is claimed.",
+  "scope": "Known opposing1920-cell retained BL revalidates and complete strict sensor-only removal passes MPI4, with independent full geometry/field/coverage. MPI2 engine stages complete and independently pass; original selected-suite FAIL from a duplicate-only counter assertion is preserved, with separate passing corrected controls on identical production objects and exact sole-test-change proof. Existing actual initialized planar RANS/SA6->24->6 N4/M2 passes backend, current/BDF flow and native bounded SA, all full composed edges, original sensor transport, SU2/CGNS/reference and real restart. Exact whole normal slab coverage and first edges pass. Composed gradation still fails finite independent probes while sensor passes. No evolved planar CFD, viscous accuracy, wider geometry/tangential anisotropy, scalable parallel generation or speedup/affordability claim.",
+  "next": "Preserve this complete MPI and actual-backend baseline while tackling genuinely rotating/localized tangential metrics and nonprismatic feature/junction geometry; qualify evolved viscous accuracy and complete lifecycle affordability under the original full goal. No local fallback/budget ladder."
+}
