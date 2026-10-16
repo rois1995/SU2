@@ -278,6 +278,20 @@ void computeLSQMetrics(CGeometry& geometry, bool weighted)
   } END_SU2_OMP_SAFE_GLOBAL_ACCESS
 }
 
+/*! \brief Apply the cached inverse to one point after its complete RHS is available. */
+template<size_t nDim, class GradientType>
+FORCEINLINE void applyCachedLeastSquaresMetric(size_t iPoint, size_t varBegin, size_t varEnd,
+                                               const su2activematrix& metricCache, GradientType& gradient) {
+  for (size_t iVar = varBegin; iVar < varEnd; ++iVar) {
+    su2double Cvector[nDim] = {0.0};
+    for (size_t iDim = 0; iDim < nDim; ++iDim)
+      for (size_t jDim = 0; jDim < nDim; ++jDim)
+        Cvector[iDim] += metricCache(iPoint, lsqCacheIdx(nDim, min(iDim,jDim), max(iDim,jDim))) *
+                         gradient(iPoint, iVar, jDim);
+    for (size_t iDim = 0; iDim < nDim; ++iDim) gradient(iPoint, iVar, iDim) = Cvector[iDim];
+  }
+}
+
 /*!
  * \brief Fast least-squares gradient evaluation reusing the cached metric terms.
  * \ingroup FvmAlgos
@@ -315,27 +329,6 @@ void computeGradientsLeastSquaresCached(CSolver* solver,
                            omp_get_max_threads(), OMP_MAX_CHUNK);
 #endif
 
-  /*--- Clear the right-hand-side accumulators, including halo points, which
-   *    receive edge contributions (discarded when halos are communicated). ---*/
-
-  SU2_OMP_FOR_STAT(2048)
-  for (size_t iPoint = 0; iPoint < nPoint; ++iPoint)
-    for (size_t iVar = varBegin; iVar < varEnd; ++iVar)
-      for (size_t iDim = 0; iDim < nDim; ++iDim)
-        gradient(iPoint, iVar, iDim) = 0.0;
-  END_SU2_OMP_FOR
-
-  /*--- The native periodic exchange also accumulates a normal matrix; clear its unused scratch. ---*/
-
-  if (periodic) {
-    SU2_OMP_FOR_STAT(2048)
-    for (size_t iPoint = 0; iPoint < nPoint; ++iPoint)
-      for (size_t iDim = 0; iDim < nDim; ++iDim)
-        for (size_t jDim = 0; jDim < nDim; ++jDim)
-          Rmatrix(iPoint, iDim, jDim) = 0.0;
-    END_SU2_OMP_FOR
-  }
-
   /*--- Accumulate the RHS in a loop over the edges: the contribution of edge {i,j} is
    *    w*dist_ij*(u_j - u_i) for BOTH end points. A race-free edge coloring is required
    *    with multiple threads, the "natural" coloring (single color, used with the
@@ -357,6 +350,29 @@ void computeGradientsLeastSquaresCached(CSolver* solver,
 
   const bool safeColoring = !coloring.empty() &&
                             ((omp_get_max_threads() == 1) || (coloring.getOuterSize() > 1));
+
+  /*--- Clear the right-hand-side accumulators, including halo points, which
+   *    receive edge contributions (discarded when halos are communicated). ---*/
+
+  if (safeColoring) {
+    SU2_OMP_FOR_STAT(2048)
+    for (size_t iPoint = 0; iPoint < nPoint; ++iPoint)
+      for (size_t iVar = varBegin; iVar < varEnd; ++iVar)
+        for (size_t iDim = 0; iDim < nDim; ++iDim)
+          gradient(iPoint, iVar, iDim) = 0.0;
+    END_SU2_OMP_FOR
+  }
+
+  /*--- The native periodic exchange also accumulates a normal matrix; clear its unused scratch. ---*/
+
+  if (periodic) {
+    SU2_OMP_FOR_STAT(2048)
+    for (size_t iPoint = 0; iPoint < nPoint; ++iPoint)
+      for (size_t iDim = 0; iDim < nDim; ++iDim)
+        for (size_t jDim = 0; jDim < nDim; ++jDim)
+          Rmatrix(iPoint, iDim, jDim) = 0.0;
+    END_SU2_OMP_FOR
+  }
 
   if (safeColoring) {
     const size_t groupSize = geometry.GetEdgeColorGroupSize();
@@ -399,7 +415,11 @@ void computeGradientsLeastSquaresCached(CSolver* solver,
   }
   else {
     SU2_OMP_FOR_DYN(chunkSize)
-    for (size_t iPoint = 0; iPoint < nPointDomain; ++iPoint) {
+    for (size_t iPoint = 0; iPoint < nPoint; ++iPoint) {
+      /*--- Each nodal RHS is independent; initialize halos too before periodic exchange. ---*/
+      for (size_t iVar = varBegin; iVar < varEnd; ++iVar)
+        for (size_t iDim = 0; iDim < nDim; ++iDim) gradient(iPoint, iVar, iDim) = 0.0;
+      if (iPoint >= nPointDomain) continue;
       const auto coord_i = geometry.nodes->GetCoord(iPoint);
 
       for (auto jPoint : geometry.nodes->GetPoints(iPoint)) {
@@ -422,6 +442,8 @@ void computeGradientsLeastSquaresCached(CSolver* solver,
             gradient(iPoint, iVar, iDim) += dist_ij[iDim] * delta_ij;
         }
       }
+      /*--- Periodic RHS contributions must be exchanged before applying the inverse. ---*/
+      if (!periodic) applyCachedLeastSquaresMetric<nDim>(iPoint, varBegin, varEnd, metricCache, gradient);
     }
     END_SU2_OMP_FOR
   }
@@ -434,23 +456,14 @@ void computeGradientsLeastSquaresCached(CSolver* solver,
       solver->CompletePeriodicComms(&geometry, &config, iPeriodic, kindPeriodicComm);
     }
 
-  /*--- Multiply the RHS by the cached S matrix. ---*/
+  /*--- Edge and periodic sums require a separate pass; ordinary nodal gradients are already complete. ---*/
 
-  SU2_OMP_FOR_DYN(chunkSize)
-  for (size_t iPoint = 0; iPoint < nPointDomain; ++iPoint) {
-    for (size_t iVar = varBegin; iVar < varEnd; ++iVar) {
-      su2double Cvector[nDim] = {0.0};
-
-      for (size_t iDim = 0; iDim < nDim; ++iDim)
-        for (size_t jDim = 0; jDim < nDim; ++jDim)
-          Cvector[iDim] += metricCache(iPoint, lsqCacheIdx(nDim, min(iDim,jDim), max(iDim,jDim))) *
-                           gradient(iPoint, iVar, jDim);
-
-      for (size_t iDim = 0; iDim < nDim; ++iDim)
-        gradient(iPoint, iVar, iDim) = Cvector[iDim];
-    }
+  if (safeColoring || periodic) {
+    SU2_OMP_FOR_DYN(chunkSize)
+    for (size_t iPoint = 0; iPoint < nPointDomain; ++iPoint)
+      applyCachedLeastSquaresMetric<nDim>(iPoint, varBegin, varEnd, metricCache, gradient);
+    END_SU2_OMP_FOR
   }
-  END_SU2_OMP_FOR
 
   /*--- Compute the corrections for symmetry planes and Euler walls. ---*/
 

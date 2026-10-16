@@ -192,6 +192,10 @@ TEST_CASE("Cached LS metrics retain live fields and rebuild after mesh updates",
             values(p, 0) = (stage + 1) * (1 + 1.5 * x[0] + 2 * x[1] - 3 * z);
             values(p, 1) = (stage + 1) * (x[0] * x[0] + x[0] * x[1] + 2 * z * z);
           }
+          /*--- Reused output must not contribute to the next nodal RHS. ---*/
+          for (auto p = 0ul; p < geometry.GetnPoint(); ++p)
+            for (auto v = 0u; v < 2; ++v)
+              for (auto d = 0u; d < nDim; ++d) cached(p, v, d) = 9000 + v * nDim + d;
           SU2_OMP_PARALLEL {
             computeGradientsLeastSquares(nullptr, MPI_QUANTITIES::SOLUTION, PERIODIC_NONE, geometry,
                 *field.config, weighted, values, 0, 2, -1, reference, matrix, false);
@@ -248,6 +252,10 @@ void checkPeriodicLSQCache(UnitQuadTestCase& field, bool weighted) {
     }
     END_SU2_OMP_PARALLEL
     const auto reference = gradient;
+    /*--- Include halos when poisoning a reused periodic RHS. ---*/
+    for (auto p = 0ul; p < geometry.GetnPoint(); ++p)
+      for (auto v = 0u; v < nVar; ++v)
+        for (auto d = 0u; d < nDim; ++d) gradient(p, v, d) = 9000 + v * nDim + d;
     SU2_OMP_PARALLEL {
       computeGradientsLeastSquares(solver, MPI_QUANTITIES::PRIMITIVE_GRADIENT, comm, geometry,
           *field.config, weighted, nodes->GetPrimitive(), 0, nVar, 1, gradient, matrix, true);
