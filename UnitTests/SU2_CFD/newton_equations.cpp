@@ -2812,6 +2812,105 @@ TEST_CASE("Newton trial restoration restores prescribed row metadata", "[NewtonB
   }
 }
 
+TEST_CASE("Newton admission checks live heat capacity and transport properties", "[NewtonProperties]") {
+  struct TableFile {
+    std::filesystem::path path;
+    ~TableFile() { std::filesystem::remove(path); }
+  };
+  for (unsigned column : {3u, 4u, 5u, 6u}) for (bool zero : {false, true})
+    for (const auto& selected : std::vector<std::vector<unsigned short>>{
+             {RUNTIME_FLOW_SYS}, {RUNTIME_SPECIES_SYS}, {RUNTIME_FLOW_SYS, RUNTIME_SPECIES_SYS}}) {
+      CAPTURE(column, zero, selected.size(), selected.front());
+      const auto stamp = std::chrono::steady_clock::now().time_since_epoch().count();
+      TableFile table{std::filesystem::temp_directory_path() /
+          ("su2_newton_properties_" + std::to_string(stamp) + "_" + std::to_string(SU2_MPI::GetRank()) + ".drg")};
+      {
+        std::ifstream input(SU2_UNIT_TEST_SOURCE_DIR "/SU2_CFD/fluid/newton_flamelet.drg");
+        std::ofstream output(table.path);
+        REQUIRE(input.good());
+        REQUIRE(output.good());
+        output << std::setprecision(17);
+        bool data = false;
+        std::string line;
+        while (std::getline(input, line)) {
+          if (line == "</Data>") data = false;
+          if (data && !line.empty()) {
+            std::istringstream values(line);
+            std::vector<double> row(12);
+            for (auto& value : row) REQUIRE(bool(values >> value));
+            // Initial p=.4 is unchanged; a later interior point has a zero or negative property.
+            row[column] *= zero ? (1 - row[0]) / 0.6 : 3 - 5 * row[0];
+            for (auto j = 0u; j < row.size(); ++j) output << (j ? " " : "") << row[j];
+            output << '\n';
+          } else output << line << '\n';
+          if (line == "<Data>") data = true;
+        }
+        REQUIRE(output.good());
+      }
+      auto physics = flamelet;
+      const auto begin = physics.find("FILENAMES_INTERPOLATOR= ");
+      REQUIRE(begin != std::string::npos);
+      physics.replace(begin, physics.find('\n', begin) - begin, "FILENAMES_INTERPOLATOR= " + table.path.string());
+      Problem problem(physics + "THICKENED_FLAME_CORRECTION= NO\n");
+      auto& driver = *problem.driver;
+      auto* geometry = driver.Geometry();
+      auto* flow = driver.Solvers()[FLOW_SOL]->GetNodes();
+      auto* speciesNodes = driver.Solvers()[SPECIES_SOL]->GetNodes();
+      auto property = [&](unsigned long p) {
+        return column == 3 ? flow->GetSpecificHeatCp(p) : column == 4 ? flow->GetLaminarViscosity(p) :
+            column == 5 ? flow->GetThermalConductivity(p) : speciesNodes->GetDiffusivity(p, 0);
+      };
+      auto equations = problem.Equations(selected);
+      REQUIRE(Residual(*equations, false, true));
+      equations->Capture();
+      auto before = MakeVector(driver, equations->GetnVar()), after = before;
+      equations->CopyResidual(before);
+      unsigned owners = 0, globalOwners = 0;
+      for (auto p = 0ul; p < geometry->GetnPointDomain(); ++p)
+        if (geometry->nodes->GetCoord(p, 0) == 0.5 && geometry->nodes->GetCoord(p, 1) == 0.5) {
+          speciesNodes->SetSolution(p, 0, zero ? 1.0 : 0.8);
+          ++owners;
+        }
+      SU2_MPI::Allreduce(&owners, &globalOwners, 1, MPI_UNSIGNED, MPI_SUM, SU2_MPI::GetComm());
+      REQUIRE(globalOwners == 1);
+      const bool valid = Residual(*equations, false, true);
+      if (zero && column != 3) CHECK(valid);
+      else CHECK_FALSE(valid);
+      for (auto p = 0ul; p < geometry->GetnPointDomain(); ++p)
+        if (geometry->nodes->GetCoord(p, 0) == 0.5 && geometry->nodes->GetCoord(p, 1) == 0.5) {
+          const double value = property(p);
+          if (zero) CHECK(std::abs(value) < 1e-14);
+          else CHECK(value < 0);
+          CHECK(flow->GetDensity(p) > 0);
+          CHECK(flow->GetTemperature(p) > 0);
+        }
+      REQUIRE(equations->Restore());
+      CHECK(equations->GetRestorationError() == 0);
+      const double reference[] = {0.2, 0.01, 0.002, 0.02};
+      for (auto p = 0ul; p < geometry->GetnPointDomain(); ++p)
+        if (geometry->nodes->GetCoord(p, 0) == 0.5 && geometry->nodes->GetCoord(p, 1) == 0.5)
+          CHECK(property(p) == Approx(reference[column - 3]).epsilon(1e-12));
+      equations->CopyResidual(after);
+      after -= before;
+      CHECK(after.norm() < 1e-12 * std::max(before.norm(), 1.0));
+    }
+}
+
+TEST_CASE("Newton checks diffusivity of the implicit last mixture fraction", "[NewtonProperties]") {
+  for (const auto& selected : std::vector<std::vector<unsigned short>>{
+           {RUNTIME_FLOW_SYS}, {RUNTIME_SPECIES_SYS}, {RUNTIME_FLOW_SYS, RUNTIME_SPECIES_SYS}}) {
+    Problem problem(species + "DIFFUSIVITY_MODEL= CONSTANT_LEWIS\nCONSTANT_LEWIS_NUMBER= 1,-1\n");
+    auto& driver = *problem.driver;
+    auto equations = problem.Equations(selected);
+    CHECK_FALSE(Residual(*equations, false, true));
+    const auto* nodes = driver.Solvers()[SPECIES_SOL]->GetNodes();
+    for (auto p = 0ul; p < driver.Geometry()->GetnPointDomain(); ++p) {
+      CHECK(nodes->GetDiffusivity(p, 0) > 0);
+      CHECK(nodes->GetDiffusivity(p, 1) < 0);
+    }
+  }
+}
+
 TEST_CASE("Flamelet trial refreshes preserve history and affine LUT properties", "[NewtonFlamelet]") {
   for (bool thickened : {false, true}) {
     CAPTURE(thickened);

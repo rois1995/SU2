@@ -294,6 +294,7 @@ bool CNewtonEquationSet::CheckState(bool compareFlow, bool modelBounds) {
   const auto* flow = solvers[FLOW_SOL]->GetNodes();
   const auto nFlow = solvers[FLOW_SOL]->GetnVar();
   const bool compressible = config->GetKind_Regime() == ENUM_REGIME::COMPRESSIBLE;
+  const bool viscous = config->GetViscous();
   const bool ideal = config->GetKind_FluidModel() == STANDARD_AIR || config->GetKind_FluidModel() == IDEAL_GAS;
   SU2_OMP_FOR_STAT(1024)
   for (auto p = 0ul; p < geometry->GetnPointDomain(); ++p) {
@@ -319,6 +320,14 @@ bool CNewtonEquationSet::CheckState(bool compareFlow, bool modelBounds) {
       const auto rho = SU2_TYPE::GetValue(flow->GetDensity(p));
       if (!(temperature > 0 && rho > 0) || !Armijo::IsFinite(temperature) || !Armijo::IsFinite(rho)) local += 1;
     }
+    if (compareFlow && (!compressible || viscous)) {
+      const auto cp = SU2_TYPE::GetValue(flow->GetSpecificHeatCp(p));
+      if (!(cp > 0) || !Armijo::IsFinite(cp)) local += 1;
+    }
+    if (compareFlow && viscous)
+      for (auto value : {SU2_TYPE::GetValue(flow->GetLaminarViscosity(p)),
+                         SU2_TYPE::GetValue(flow->GetThermalConductivity(p))})
+        if (!(value >= 0) || !Armijo::IsFinite(value)) local += 1;
   }
   END_SU2_OMP_FOR
   for (const auto& block : snapshots) {
@@ -342,6 +351,14 @@ bool CNewtonEquationSet::CheckState(bool compareFlow, bool modelBounds) {
         }
       }
       if (sum > 1) local += 1;
+      if (compareFlow && block.slot == SPECIES_SOL) {
+        // Ordinary mixture fluxes also consume diffusivity of the untransported last fraction.
+        const auto count = block.variables + (config->GetKind_Species_Model() == SPECIES_MODEL::SPECIES_TRANSPORT);
+        for (auto v = 0u; v < count; ++v) {
+          const auto value = SU2_TYPE::GetValue(block.solver->GetNodes()->GetDiffusivity(p, v));
+          if (!(value >= 0) || !Armijo::IsFinite(value)) local += 1;
+        }
+      }
     }
     END_SU2_OMP_FOR
   }

@@ -1,5 +1,47 @@
 # Common globalized Newton–Krylov refactor
 
+## Current priority, 2026-10-16
+
+The user has narrowed the current delivery to mean flow, turbulence and existing
+transition models. Further species and flamelet development is deferred; neither
+adapter is required by the shared controller or by flow/turbulence/transition
+groups. Existing implementations and their evidence are retained. The remaining
+work should first validate the relevant production configurations, audit their
+baseline dependencies and complete periodic integration. NEMO is optional later
+work: first integrate its current refactor and applicable convergence fixes from
+the relevant branches, then establish a corrected native baseline. No NEMO
+integration or claim of complete branch synchronization has been made.
+
+The shared production controller, equation selection, segregated and coupled
+groups, verified matrix-free products, Armijo acceptance, exact rollback and
+bounded recovery are implemented. Matched converged comparisons cover mean
+flow, SA, SA-BC, SST and active LM on serial and MPI/OpenMP layouts. The new
+modes currently require steady primal single-zone CPU cases, without periodic
+markers or multigrid. Larger production cases and general performance gains
+remain unproved. Historical sections below describe earlier milestones and
+their remaining work at that time.
+
+The final physical-property admission check now rejects nonfinite or nonpositive
+Cp where the flow stores it, and nonfinite or negative viscosity, conductivity
+and scalar diffusivity after refreshing properties. It includes the implicit
+last ordinary species and unselected scalar dependencies. Zero transport remains
+valid. The two new native cases verify collective rejection and exact rollback
+of primary values, old values, row masks, properties and residuals. Their
+detecting run fails 18 of 3921 assertions before the production fix; the final
+property cases pass 3945 assertions. Compressible Euler's unused stub Cp getter
+is excluded from the guard.
+
+All 49 native cases pass on 1x1, 1x2, 2x2 and 2x4 rank/thread layouts; all 80
+ordinary cases and 22 focused Valgrind cases pass, with zero reported memory
+errors (leaks unchecked). Three CLI checks, the affected forward-syntax unit
+and all 42 existing matched comparisons pass. Of these comparisons, 30 cover
+the five current priority families; the others retain existing species and
+flamelet evidence. Iteration counts are unchanged. Complete current commands,
+source and executable hashes and per-run evidence are recorded in the parent
+artifact directory's `physical_properties_results.json`. Forward syntax is not
+AD runtime validation. Flamelet's weak-source coupled MPI timeout remains
+unresolved and is deferred with the other flamelet work.
+
 The governing specification is `HANDOFF_NEWTONKRYLOV.md` in the parent workspace
 (confirmed by the user on 2026-10-15). The work is on `feature_LineSearch`, starting
 at `5615a8f5f6e9a7bfa88f0f279e1eadb7f89fe607`. The goal is still in progress.
