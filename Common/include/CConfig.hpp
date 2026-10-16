@@ -9860,6 +9860,14 @@ public:
   bool GetIntegrated_HeatFlux() const { return Integrated_HeatFlux; }
 
   /*!
+   * \brief Whether the factorized least-squares gradient metric terms are cached and reused
+   *        across evaluations, except in the discrete adjoint where their coordinate
+   *        dependence must remain on the tape. Periodic metrics are built on first use
+   *        through the native exchanges, including axis copies and intersecting stencils.
+   */
+  bool GetLSQMetricCaching() const { return !DiscreteAdjoint; }
+
+  /*!
    * \brief Get Compute Average.
    * \return YES if start computing averages
    */

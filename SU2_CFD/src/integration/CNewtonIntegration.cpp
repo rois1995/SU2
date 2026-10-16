@@ -289,6 +289,11 @@ double CNewtonIntegration::Evaluate(double step, const char* phase) {
   Residual();
   const double physical = Merit();
   const double value = Armijo::IsFinite(physical) && options.pseudoTimeMerit && step != 0 ? Merit(step) : physical;
+  LogEvaluation(step, phase, value, physical);
+  return value;
+}
+
+void CNewtonIntegration::LogEvaluation(double step, const char* phase, double value, double physical) {
   if (options.diagnostics && rank == MASTER_NODE && omp_get_thread_num() == 0) {
     std::ofstream out(prefix + "_trials.csv", std::ios::app);
     if (out.tellp() == 0) out << "iteration,attempt,evaluation,phase,step,merit,physical_merit\n";
@@ -296,7 +301,6 @@ double CNewtonIntegration::Evaluate(double step, const char* phase) {
     out << config->GetInnerIter() << ',' << attemptNumber << ',' << trialNumber++ << ',' << phase << ',' << step << ','
         << value << ',' << physical << '\n';
   }
-  return value;
 }
 
 void CNewtonIntegration::MatrixFreeProduct(const CSysVector<Scalar>& u, CSysVector<Scalar>& v, bool directionModel) {
@@ -350,13 +354,16 @@ void CNewtonIntegration::Endpoint() {
   }
 }
 
-CNewtonIntegration::Attempt CNewtonIntegration::SolveAttempt() {
+CNewtonIntegration::Attempt CNewtonIntegration::SolveAttempt(bool preparedBase) {
   Attempt attempt;
-  /*--- Rebuild the base residual and native matrices before freezing this attempt's pseudo-time action. ---*/
+  /*--- Each attempt freezes the pseudo-time action from its prepared base residual and native matrices. ---*/
   SU2_OMP_SAFE_GLOBAL_ACCESS(trialNumber = 0;)
-  SetCFL(cfl);
-  Perturb(direction, 0);
-  Residual(true);
+  if (!preparedBase) {
+    /*--- Recovery changes the CFL and time-step action; rebuild the accepted base and its native matrices. ---*/
+    SetCFL(cfl);
+    Perturb(direction, 0);
+    Residual(true);
+  }
   attempt.base = Merit();
   attempt.physicalMerit = attempt.search.value = attempt.base;
   if (!Armijo::IsFinite(attempt.base) || !RefreshStatistics()) {
@@ -518,7 +525,12 @@ void CNewtonIntegration::Search(Attempt& attempt) {
   END_SU2_OMP_FOR
   invalid = Reduce(invalid, true);
   relative = Reduce(relative, true);
-  Evaluate(0, "BASE");
+  /*--- Reuse the explicit base merit; the verified product and each trial install their own captured state.
+   *    Tiny/invalid directions retain the base evaluation, and every failed search rolls back through Armijo. ---*/
+  if (!invalid && relative > options.stepTolerance)
+    LogEvaluation(0, "BASE", attempt.base, attempt.base);
+  else
+    Evaluate(0, "BASE");
   if (!invalid && relative > 0) {
     /*--- Physical merit needs its own verified J*p, without subtracting a dominant mass action afterward. ---*/
     const bool valid = linearization->Apply(direction, product, options.pseudoTimeMerit);
@@ -621,6 +633,7 @@ void CNewtonIntegration::RefreshAfterOuterIteration() {
 }
 
 void CNewtonIntegration::Advance() {
+  SetCFL(cfl);
   for (const auto& block : equations->GetBlocks()) block.solver->Set_OldSolution();
   if (!constraintsReady) {
     const bool valid = equations->EvaluateResiduals(true, true);
@@ -634,7 +647,8 @@ void CNewtonIntegration::Advance() {
   /*--- Every retry uses this captured base and scale; rejection must restore both state and merit first. ---*/
   for (unsigned index = 0;; ++index) {
     SU2_OMP_SAFE_GLOBAL_ACCESS(attemptNumber = index;)
-    auto attempt = SolveAttempt();
+    /*--- Packing and scale construction do not change the base residual or its assembled Jacobians. ---*/
+    auto attempt = SolveAttempt(index == 0);
     if (attempt.search.status == Armijo::Status::Accepted && !attempt.linearFailure && !RefreshStatistics()) {
       attempt.residualFailure = true;
       attempt.search.status = Armijo::Status::InvalidInput;

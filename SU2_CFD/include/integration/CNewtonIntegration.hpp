@@ -125,12 +125,14 @@ class CNewtonIntegration final : public CIntegration {
   /*! \brief Sum the fixed-scale residual merit, including the configured frozen pseudo-time term. */
   double Merit(double step = 0) const;
   double Evaluate(double step, const char* phase);
+  /*! \brief Record a trial or an unchanged base reference without forcing another residual evaluation. */
+  void LogEvaluation(double step, const char* phase, double value, double physical);
   /*! \brief Restore the captured state and record state/merit errors before any retry. */
   void Restore(Attempt&);
   /*! \brief Apply native endpoint boundary handling and read back the actual direction before searching. */
   void Endpoint();
-  /*! \brief Assemble, solve and independently check a direction before invoking the line search. */
-  Attempt SolveAttempt();
+  /*! \brief Solve and check a direction; only the first attempt may reuse Advance's unchanged base assembly. */
+  Attempt SolveAttempt(bool preparedBase);
   /*! \brief Compute the actual merit slope and search without changing base scales or pseudo-time data. */
   void Search(Attempt&);
   void Log(const Attempt&, const NonlinearGlobalization::Decision&) const;

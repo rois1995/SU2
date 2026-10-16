@@ -2192,8 +2192,9 @@ TEST_CASE("One Newton controller advances native individual equations and couple
 }
 
 TEST_CASE("A failed coupled Newton update restores every selected equation", "[NewtonController]") {
+  for (unsigned retries : {0u, 1u})
   for (bool linearFailure : {true, false}) {
-    CAPTURE(linearFailure);
+    CAPTURE(linearFailure, retries);
     Problem problem(sst + std::string("CFL_NUMBER= ") + (linearFailure ? "100" : "0.05") +
                     "\nLINEAR_SOLVER_PREC= ILU\n");
     auto& driver = *problem.driver;
@@ -2221,7 +2222,7 @@ TEST_CASE("A failed coupled Newton update restores every selected equation", "[N
       options.armijo = 0.99;
       options.maxBacktracks = 1;
     }
-    options.maxRetries = 0;
+    options.maxRetries = retries;
     CNewtonIntegration controller({RUNTIME_FLOW_SYS, RUNTIME_TURB_SYS}, options, true);
     controller.Iterate(geometry, driver.Solvers(), driver.Numerics(), driver.Config());
     REQUIRE(controller.GetNumericalFailure());
@@ -2229,6 +2230,9 @@ TEST_CASE("A failed coupled Newton update restores every selected equation", "[N
     if (!linearFailure) CHECK(controller.GetLastAttempt().search.status == Armijo::Status::EvaluationLimit);
     CHECK(controller.GetLastAttempt().rollbackStateError == 0.0);
     CHECK(controller.GetLastAttempt().rollbackMeritError == 0.0);
+    /*--- A retry must rebuild its time-step action while retaining the exact captured physical state. ---*/
+    const double expectedCFL = (linearFailure ? 100.0 : 0.05) * std::pow(options.shrink, retries);
+    CHECK(driver.Solvers()[FLOW_SOL]->GetNodes()->GetLocalCFL(0) == Approx(expectedCFL));
     equations->Pack(actual);
     CHECK(MaxDifference(base, actual) == 0.0);
     for (const auto& block : equations->GetBlocks())

@@ -101,6 +101,14 @@ void CSinglezoneDriver::StartSolver() {
 
   }
 
+  /*--- Report solver compute separately from restart output and the later driver finalization. ---*/
+  if (rank == MASTER_NODE && config_container[ZONE_0]->GetWrt_Performance()) {
+    const auto precision = cout.precision();
+    cout.precision(12);
+    cout << "Solver loop compute time (s): " << UsedTimeCompute + SU2_MPI::Wtime() - StartTime << endl;
+    cout.precision(precision);
+  }
+
 }
 
 void CSinglezoneDriver::Preprocess(unsigned long TimeIter) {

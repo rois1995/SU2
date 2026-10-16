@@ -157,6 +157,158 @@ TEST_CASE("LS", "[Gradients]") { testLeastSquares<LinearFunction>(false); }
 
 TEST_CASE("WLS", "[Gradients]") { testLeastSquares<LinearFunction>(true); }
 
+TEST_CASE("Cached LS metrics retain live fields and rebuild after mesh updates", "[Gradients][LSQCache]") {
+  for (bool threeD : {false, true})
+    for (bool weighted : {false, true})
+      for (bool naturalColoring : {false, true}) {
+        CAPTURE(threeD, weighted, naturalColoring);
+        UnitQuadTestCase field;
+        if (!threeD) {
+          field.SetOption("MESH_FORMAT= RECTANGLE");
+          field.SetOption("MARKER_CUSTOM= (x_minus,x_plus)");
+        }
+        field.InitConfig();
+        field.InitGeometry(true);
+        if (naturalColoring) field.geometry->SetNaturalEdgeColoring();
+        auto& geometry = *field.geometry;
+        const auto nDim = geometry.GetnDim();
+        su2activematrix values(geometry.GetnPoint(), 2);
+        C3DDoubleMatrix matrix(geometry.GetnPoint(), nDim, nDim);
+        C3DDoubleMatrix reference(geometry.GetnPoint(), 2, nDim), cached = reference;
+        REQUIRE(field.config->GetLSQMetricCaching());
+        for (unsigned stage = 0; stage < 3; ++stage) {
+          if (stage == 2) {
+            /*--- Real mesh-update hooks invalidate both weightings, without changing the field's analytic gradient. ---*/
+            for (auto p = 0ul; p < geometry.GetnPoint(); ++p)
+              geometry.nodes->SetCoord(p, 0, 1.3 * geometry.nodes->GetCoord(p, 0) +
+                                                0.1 * geometry.nodes->GetCoord(p, 1));
+            geometry.SetControlVolume(field.config.get(), UPDATE);
+            CHECK_FALSE(geometry.LSQMetricCacheIsValid(false));
+            CHECK_FALSE(geometry.LSQMetricCacheIsValid(true));
+          }
+          for (auto p = 0ul; p < geometry.GetnPoint(); ++p) {
+            const auto* x = geometry.nodes->GetCoord(p);
+            const double z = threeD ? SU2_TYPE::GetValue(x[2]) : 0;
+            values(p, 0) = (stage + 1) * (1 + 1.5 * x[0] + 2 * x[1] - 3 * z);
+            values(p, 1) = (stage + 1) * (x[0] * x[0] + x[0] * x[1] + 2 * z * z);
+          }
+          SU2_OMP_PARALLEL {
+            computeGradientsLeastSquares(nullptr, MPI_QUANTITIES::SOLUTION, PERIODIC_NONE, geometry,
+                *field.config, weighted, values, 0, 2, -1, reference, matrix, false);
+            computeGradientsLeastSquares(nullptr, MPI_QUANTITIES::SOLUTION, PERIODIC_NONE, geometry,
+                *field.config, weighted, values, 0, 2, -1, cached, matrix, true);
+          }
+          END_SU2_OMP_PARALLEL
+          REQUIRE(geometry.LSQMetricCacheIsValid(weighted));
+          double difference = 0, linearError = 0;
+          const double slope[] = {1.5, 2, -3};
+          for (auto p = 0ul; p < geometry.GetnPointDomain(); ++p)
+            for (auto d = 0u; d < nDim; ++d) {
+              linearError = std::max(linearError, std::abs(SU2_TYPE::GetValue(cached(p, 0, d)) - (stage + 1) * slope[d]));
+              for (auto v = 0u; v < 2; ++v)
+                difference = std::max(difference, std::abs(SU2_TYPE::GetValue(cached(p, v, d) - reference(p, v, d))));
+            }
+          CHECK(linearError < 1e-11);
+          CHECK(difference < 1e-11);
+        }
+      }
+}
+
+/*!
+ * \brief Compare periodic cache misses, live-field reuse, and mesh invalidation with the uncached stencil.
+ */
+void checkPeriodicLSQCache(UnitQuadTestCase& field, bool weighted) {
+  auto& geometry = *field.geometry;
+  auto* solver = field.solver[FLOW_SOL];
+  auto* nodes = solver->GetNodes();
+  const auto nDim = geometry.GetnDim();
+  const auto nVar = solver->GetnPrimVarGrad();
+  auto& gradient = nodes->GetGradient_Primitive();
+  auto& matrix = nodes->GetRmatrix();
+  const auto comm = weighted ? PERIODIC_PRIM_LS : PERIODIC_PRIM_ULS;
+  for (unsigned stage = 0; stage < 3; ++stage) {
+    if (stage == 2) {
+      /*--- Move interior points while keeping each periodic face and its donor aligned. ---*/
+      for (auto p = 0ul; p < geometry.GetnPoint(); ++p) {
+        const auto* x = geometry.nodes->GetCoord(p);
+        geometry.nodes->SetCoord(p, 0, x[0] + 0.03 * sin(PI_NUMBER*x[0]) * sin(PI_NUMBER*x[1]));
+      }
+      geometry.SetControlVolume(field.config.get(), UPDATE);
+      CHECK_FALSE(geometry.LSQMetricCacheIsValid(weighted));
+    }
+    for (auto p = 0ul; p < geometry.GetnPoint(); ++p) {
+      const auto* x = geometry.nodes->GetCoord(p);
+      for (auto v = 0u; v < nVar; ++v)
+        nodes->SetPrimitive(p, v, 3 + (stage + 1) * (v + 1) *
+                                  (x[0] + 2*x[1]*x[1] + (nDim == 3 ? 0.3*x[2] : su2double(0))));
+    }
+    SU2_OMP_PARALLEL {
+      computeGradientsLeastSquares(solver, MPI_QUANTITIES::PRIMITIVE_GRADIENT, comm, geometry,
+          *field.config, weighted, nodes->GetPrimitive(), 0, nVar, 1, gradient, matrix, false);
+    }
+    END_SU2_OMP_PARALLEL
+    const auto reference = gradient;
+    SU2_OMP_PARALLEL {
+      computeGradientsLeastSquares(solver, MPI_QUANTITIES::PRIMITIVE_GRADIENT, comm, geometry,
+          *field.config, weighted, nodes->GetPrimitive(), 0, nVar, 1, gradient, matrix, true);
+    }
+    END_SU2_OMP_PARALLEL
+    REQUIRE(geometry.LSQMetricCacheIsValid(weighted));
+    double difference = 0;
+    for (auto p = 0ul; p < geometry.GetnPoint(); ++p)
+      for (auto v = 0u; v < nVar; ++v)
+        for (auto d = 0u; d < nDim; ++d)
+          difference = std::max(difference, std::abs(SU2_TYPE::GetValue(gradient(p,v,d) - reference(p,v,d))));
+    CHECK(difference < 1e-10);
+
+    /*--- Auxiliary gradients omit periodic closure and must not use a closed-stencil cache. ---*/
+    SU2_OMP_PARALLEL {
+      computeGradientsLeastSquares(nullptr, MPI_QUANTITIES::PRIMITIVE_GRADIENT, PERIODIC_NONE, geometry,
+          *field.config, weighted, nodes->GetPrimitive(), 0, nVar, -1, gradient, matrix, false);
+    }
+    END_SU2_OMP_PARALLEL
+    const auto auxiliary = gradient;
+    SU2_OMP_PARALLEL {
+      computeGradientsLeastSquares(nullptr, MPI_QUANTITIES::PRIMITIVE_GRADIENT, PERIODIC_NONE, geometry,
+          *field.config, weighted, nodes->GetPrimitive(), 0, nVar, -1, gradient, matrix, true);
+    }
+    END_SU2_OMP_PARALLEL
+    difference = 0;
+    for (auto p = 0ul; p < geometry.GetnPointDomain(); ++p)
+      for (auto v = 0u; v < nVar; ++v)
+        for (auto d = 0u; d < nDim; ++d)
+          difference = std::max(difference, std::abs(SU2_TYPE::GetValue(gradient(p,v,d) - auxiliary(p,v,d))));
+    CHECK(difference == 0);
+  }
+}
+
+TEST_CASE("Periodic LS cache preserves translated, rotated, and axis stencils", "[Periodic][Gradients][LSQCache]") {
+  for (bool threeD : {false, true})
+    for (bool rotation : {false, true})
+      for (bool naturalColoring : {false, true}) {
+        CAPTURE(threeD, rotation, naturalColoring);
+        UnitQuadTestCase field;
+        if (!threeD) field.SetOption("MESH_FORMAT= RECTANGLE");
+        field.SetOption("MARKER_HEATFLUX= NONE");
+        field.SetOption(rotation ? (threeD ? "MARKER_CUSTOM= (x_plus,y_plus,z_minus,z_plus)" :
+                                            "MARKER_CUSTOM= (x_plus,y_plus)") :
+                                   (threeD ? "MARKER_CUSTOM= (y_minus,y_plus,z_minus,z_plus)" :
+                                             "MARKER_CUSTOM= (y_minus,y_plus)"));
+        field.AddOption(rotation ? "MARKER_PERIODIC= (x_minus,y_minus,0,0,0,0,0,-90,0,0,0)" :
+                                   "MARKER_PERIODIC= (x_minus,x_plus,0,0,0,0,0,0,1,0,0)");
+        field.InitConfig();
+        field.InitGeometry(true);
+        field.geometry->MatchPeriodic(field.config.get(), 1);
+        field.geometry->PreprocessPeriodicComms(field.geometry.get(), field.config.get());
+        field.InitSolver();
+        if (naturalColoring) field.geometry->SetNaturalEdgeColoring();
+        for (bool weighted : {false, true}) {
+          CAPTURE(weighted);
+          checkPeriodicLSQCache(field, weighted);
+        }
+      }
+}
+
 TEST_CASE("Intersecting periodic stencils", "[Periodic][Gradients]") {
   const auto nPairs = GENERATE(2u, 3u);
   const bool diagonal = GENERATE(false, true);
@@ -269,6 +421,7 @@ TEST_CASE("Intersecting periodic stencils", "[Periodic][Gradients]") {
     CHECK(gradient(target, 0, 1) == Approx(0).margin(1e-12));
     CHECK(gradient(target, 0, 2) == Approx(nPairs == 3 ? 0 : 3 * (1 - 2 * z)).margin(1e-12));
   }
+  for (bool weighted : {false, true}) checkPeriodicLSQCache(field, weighted);
 }
 
 TEST_CASE("Coarse periodic boundary flags", "[Periodic]") {

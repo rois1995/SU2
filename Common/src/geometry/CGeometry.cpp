@@ -1156,6 +1156,9 @@ void CGeometry::MatchPeriodic(const CConfig* config, unsigned short val_periodic
 }
 
 void CGeometry::PreprocessPeriodicComms(CGeometry* geometry, CConfig* config) {
+  /*--- A rebuilt periodic stencil requires new least-squares metric terms. ---*/
+  InvalidateLSQMetricCache();
+
   /*--- We start with the send and receive lists already available in
    the form of stored periodic point-donor pairs. We will loop through
    these markers and establish the neighboring ranks and number of
