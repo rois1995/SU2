@@ -130,6 +130,7 @@ General features/junctions/nonprismatic/exterior geometry, interactions, combine
 gradation, independent varying BL integrals, repeated retained-BL updates,
 viscous/M6 accuracy and complete lifecycle affordability remain. Goal4 is inactive.
 
+[Deferred query/transaction performance priorities](Handbook/POST_COMPLEXITY_QUERY_TRANSACTIONS.md),
 [Requirement audit](integration_evidence/native_3d_bl_v1/GOAL3_REQUIREMENTS.json),
 [current history](Handbook/GOAL3_CURRENT.md),
 [distributed source service](Handbook/GOAL3_DISTRIBUTED_REGION_FIELD.md),
