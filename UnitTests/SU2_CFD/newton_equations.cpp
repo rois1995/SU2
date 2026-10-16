@@ -166,7 +166,399 @@ double MaxDifference(const Vector& a, const Vector& b) {
   SU2_MPI::Allreduce(&difference, &global, 1, MPI_DOUBLE, MPI_MAX, SU2_MPI::GetComm());
   return global;
 }
+
+/*!
+ * \brief Independent donor average for translated and 90-degree rotated test meshes.
+ * \details Gather by global point index and rotate momentum explicitly; do not reuse the production projector.
+ */
+Vector PeriodicReference(NewtonDriver& driver, const CNewtonEquationSet& equations, Vector values, bool rotation) {
+  auto* geometry = driver.Geometry();
+  const auto* config = driver.Config();
+  const auto count = equations.GetnVar();
+  const auto owned = geometry->GetnPointDomain();
+  unsigned long globalPoints = 0;
+  SU2_MPI::Allreduce(&owned, &globalPoints, 1, MPI_UNSIGNED_LONG, MPI_SUM, SU2_MPI::GetComm());
+  std::vector<double> local(globalPoints * count), global(local.size());
+  const auto pairs = config->GetnMarker_Periodic() / 2;
+  for (auto pair = 1; pair <= pairs; ++pair) {
+    std::fill(local.begin(), local.end(), 0);
+    for (auto p = 0ul; p < owned; ++p)
+      for (auto v = 0u; v < count; ++v)
+        local[geometry->nodes->GetGlobalIndex(p) * count + v] = values(p, v);
+    SU2_MPI::Allreduce(local.data(), global.data(), global.size(), MPI_DOUBLE, MPI_SUM, SU2_MPI::GetComm());
+    for (auto marker = 0u; marker < geometry->GetnMarker(); ++marker) {
+      if (config->GetMarker_All_KindBC(marker) != PERIODIC_BOUNDARY) continue;
+      const auto index = config->GetMarker_All_PerBound(marker);
+      if (index != pair && index != pair + pairs) continue;
+      for (auto vertex = 0ul; vertex < geometry->GetnVertex(marker); ++vertex) {
+        const auto* point = geometry->vertex[marker][vertex];
+        const auto p = point->GetNode();
+        if (p >= owned) continue;
+        const auto donor = point->GetDonorGlobalIndex();
+        for (const auto& block : equations.GetBlocks())
+          for (auto v = 0u; v < block.variables; ++v) {
+            auto component = v;
+            double sign = 1;
+            if (rotation && block.slot == FLOW_SOL && (v == 2 || v == 3)) {
+              component = 5 - v;
+              sign = (v == 2 ? 1 : -1) * (index == pair ? 1 : -1);
+            }
+            values(p, block.offset + v) = 0.5 *
+                (values(p, block.offset + v) + sign * global[donor * count + block.offset + component]);
+          }
+      }
+    }
+  }
+  CSysMatrixComms::Initiate(values, geometry, config);
+  CSysMatrixComms::Complete(values, geometry, config);
+  return values;
+}
 }  // namespace
+
+TEST_CASE("Periodic Newton residuals retain the state consistency equations", "[NewtonPeriodic]") {
+  /*--- Compare against native physical assembly plus an independent consistency term at unaveraged states. ---*/
+  struct NativeSpace : CIntegration { using CIntegration::Space_Integration; } native;
+  for (const auto& physics : {std::string("SOLVER= NAVIER_STOKES\n"), sa, sst, sst + "KIND_TRANS_MODEL= LM\n"})
+    for (bool rotation : {false, true}) {
+      CAPTURE(physics, rotation);
+      const auto boundary = rotation
+          ? "MARKER_FAR= (y_minus,y_plus,z_minus,z_plus)\n"
+            "MARKER_PERIODIC= (x_minus,x_plus,0,0.5,0.5,90,0,0,1,0,0)\n"
+          : "MARKER_FAR= (y_minus,y_plus)\nMARKER_PERIODIC= (x_minus,x_plus,0,0,0,0,0,0,1,0,0)\n";
+      Problem problem(physics + "MARKER_HEATFLUX= NONE\n" + boundary, 5, false, rotation);
+      auto& driver = *problem.driver;
+      auto* geometry = driver.Geometry();
+      auto* config = driver.Config();
+      std::vector<unsigned short> selected{RUNTIME_FLOW_SYS};
+      for (auto runtime : {RUNTIME_TURB_SYS, RUNTIME_TRANS_SYS})
+        if (driver.Solvers()[config->GetContainerPosition(runtime)]) selected.push_back(runtime);
+      auto equations = problem.Equations(selected);
+      const auto count = equations->GetnVar();
+      auto state = MakeVector(driver, count), actual = state, expected = state;
+      for (const auto& block : equations->GetBlocks()) {
+        auto* nodes = block.solver->GetNodes();
+        for (auto p = 0ul; p < geometry->GetnPoint(); ++p) {
+          const auto x = geometry->nodes->GetCoord(p, 0);
+          const auto y = geometry->nodes->GetCoord(p, 1);
+          if (block.slot == FLOW_SOL && rotation) {
+            const double momentum = nodes->GetSolution(p, 1);
+            nodes->SetSolution(p, 2, 0.05 * momentum * (1 + x + 0.1 * y));
+            nodes->SetSolution(p, 3, 0.03 * momentum * (1 - x));
+          }
+          for (auto v = 0u; v < block.variables; ++v) {
+            nodes->SetSolution(p, v, nodes->GetSolution(p, v) * (1 + 0.01 * (x + 0.2 * y)));
+            nodes->SetSolution_Old(p, v, 100 + v);
+            state(p, block.offset + v) = nodes->GetSolution(p, v);
+          }
+        }
+      }
+      const auto averaged = PeriodicReference(driver, *equations, state, rotation);
+      /*--- Assembly modes may differ by roundoff; exact rollback uses the canonical explicit residual below. ---*/
+      REQUIRE(Residual(*equations, true));
+      equations->CopyResidual(actual);
+      REQUIRE(Residual(*equations));
+      equations->CopyResidual(expected);
+      CHECK(MaxDifference(actual, expected) < 1e-12 * std::max(1.0, expected.norm()));
+      equations->Capture();
+      equations->CopyResidual(actual);
+      const auto settings = config->GetEquationSettings();
+      SU2_OMP_PARALLEL {
+        SU2_OMP_SAFE_GLOBAL_ACCESS(config->SetResidualOnly(true); config->SetFrozenIterationHistory(true);)
+        for (const auto& block : equations->GetBlocks()) {
+          SU2_OMP_SAFE_GLOBAL_ACCESS(config->SetGlobalParam(config->GetKind_Solver(), block.runtime);)
+          block.solver->Preprocessing(geometry, driver.Solvers(), config, MESH_0, NO_RK_ITER, block.runtime, false);
+          native.Space_Integration(geometry, driver.Solvers(), driver.Numerics()[block.slot], config,
+                                   MESH_0, NO_RK_ITER, block.runtime);
+        }
+        SU2_OMP_SAFE_GLOBAL_ACCESS(config->SetEquationSettings(settings);)
+      }
+      END_SU2_OMP_PARALLEL
+      equations->CopyResidual(expected);
+      double constraint = 0;
+      for (const auto& block : equations->GetBlocks())
+        for (auto p = 0ul; p < geometry->GetnPointDomain(); ++p)
+          for (auto v = 0u; v < block.variables; ++v) {
+            const auto j = block.offset + v;
+            const double mass = block.solver->GetConservative() ? driver.Solvers()[FLOW_SOL]->GetNodes()->GetDensity(p) : 1;
+            const double difference = mass * (state(p, j) - averaged(p, j));
+            constraint = std::max(constraint, std::abs(difference));
+            CHECK(actual(p, j) == Approx(expected(p, j) + difference).margin(1e-12 * std::max(1.0, std::abs(actual(p, j)))));
+            CHECK(block.solver->GetNodes()->GetSolution(p, v) == state(p, j));
+          }
+      double globalConstraint = 0;
+      SU2_MPI::Allreduce(&constraint, &globalConstraint, 1, MPI_DOUBLE, MPI_MAX, SU2_MPI::GetComm());
+      CHECK(globalConstraint > 0.01);
+      REQUIRE(equations->Restore());
+      CHECK(equations->GetRestorationError() == 0);
+      equations->CopyResidual(expected);
+      INFO(std::scientific << "same-mode residual restoration error=" << MaxDifference(actual, expected));
+      CHECK(MaxDifference(actual, expected) == 0);
+    }
+}
+
+TEST_CASE("Periodic pseudo-time averages native partial-cell actions in physical coordinates", "[NewtonPeriodicMass]") {
+  /*--- Extract native mass additions independently, then test P*D*P, its nullspace and frozen time-step history. ---*/
+  for (const auto& physics : {std::string("SOLVER= NAVIER_STOKES\n"),
+                             std::string("SOLVER= NAVIER_STOKES\nLOW_MACH_PREC= YES\n"),
+                             std::string("SOLVER= NAVIER_STOKES\nCONV_NUM_METHOD_FLOW= TURKEL_PREC\n"),
+                             incompressible, sst + "KIND_TRANS_MODEL= LM\n"})
+    for (bool rotation : {false, true}) {
+      CAPTURE(physics, rotation);
+      const auto boundary = rotation
+          ? "MARKER_FAR= (y_minus,y_plus,z_minus,z_plus)\n"
+            "MARKER_PERIODIC= (x_minus,x_plus,0,0.5,0.5,90,0,0,1,0,0)\n"
+          : "MARKER_FAR= NONE\nMARKER_PERIODIC= (x_minus,x_plus,0,0,0,0,0,0,1,0,0,"
+            "y_minus,y_plus,0,0,0,0,0,0,0,1,0)\n";
+      Problem problem(physics + "MARKER_HEATFLUX= NONE\n" + boundary, 5, false, rotation);
+      auto& driver = *problem.driver;
+      auto* geometry = driver.Geometry();
+      auto* config = driver.Config();
+      std::vector<unsigned short> selected;
+      for (auto runtime : {RUNTIME_TRANS_SYS, RUNTIME_TURB_SYS, RUNTIME_FLOW_SYS})
+        if (driver.Solvers()[config->GetContainerPosition(runtime)]) selected.push_back(runtime);
+      auto equations = problem.Equations(selected);
+      for (const auto& block : equations->GetBlocks())
+        for (auto p = 0ul; p < geometry->GetnPoint(); ++p)
+          block.solver->GetNodes()->SetDelta_Time(p, 0.1 + 0.04 * geometry->nodes->GetCoord(p, 0));
+      REQUIRE(Residual(*equations, true));
+      equations->Capture();
+      for (const auto& block : equations->GetBlocks())
+        for (auto p = 0ul; p < geometry->GetnPointDomain(); ++p)
+          CHECK(block.solver->GetNodes()->GetDelta_Time(p) == 0.1 + 0.04 * geometry->nodes->GetCoord(p, 0));
+      auto scale = MakeVector(driver, equations->GetnVar()), direction = scale, actual = scale;
+      std::vector<std::vector<double>> before;
+      for (const auto& block : equations->GetBlocks()) {
+        before.emplace_back(geometry->GetnPointDomain() * block.variables * block.variables);
+        for (auto p = 0ul; p < geometry->GetnPointDomain(); ++p)
+          for (auto i = 0u; i < block.variables * block.variables; ++i)
+            before.back()[p * block.variables * block.variables + i] = block.solver->Jacobian.GetBlock(p, p)[i];
+        for (auto p = 0ul; p < geometry->GetnPoint(); ++p)
+          for (auto v = 0u; v < block.variables; ++v) {
+            const auto j = block.offset + v;
+            const double x = geometry->nodes->GetCoord(p, 0), y = geometry->nodes->GetCoord(p, 1);
+            scale(p, j) = 1 + 0.17 * j + 0.2 * x + 0.05 * y;
+            direction(p, j) = std::sin(0.6 * x + 0.2 * y) + 0.3 * j;
+          }
+      }
+      SU2_OMP_PARALLEL {
+        for (const auto& block : equations->GetBlocks()) {
+          SU2_OMP_SAFE_GLOBAL_ACCESS(config->SetGlobalParam(config->GetKind_Solver(), block.runtime);)
+          block.solver->PrepareImplicitIteration(geometry, driver.Solvers(), config, false);
+        }
+      }
+      END_SU2_OMP_PARALLEL
+      auto physical = direction;
+      for (auto i = 0ul; i < physical.GetLocSize(); ++i) physical[i] *= scale[i];
+      const auto projected = PeriodicReference(driver, *equations, physical, rotation);
+      auto expected = MakeVector(driver, equations->GetnVar());
+      for (auto b = 0u; b < equations->GetBlocks().size(); ++b) {
+        const auto& block = equations->GetBlocks()[b];
+        for (auto p = 0ul; p < geometry->GetnPointDomain(); ++p)
+          for (auto i = 0u; i < block.variables; ++i)
+            for (auto j = 0u; j < block.variables; ++j) {
+              const auto entry = i * block.variables + j;
+              const double delta = block.solver->Jacobian.GetBlock(p, p)[entry] -
+                                   before[b][p * block.variables * block.variables + entry];
+              expected(p, block.offset + i) += delta * projected(p, block.offset + j);
+            }
+      }
+      expected = PeriodicReference(driver, *equations, expected, rotation);
+      for (auto i = 0ul; i < expected.GetLocSize(); ++i) expected[i] /= scale[i];
+      std::vector<unsigned char> free(direction.GetLocSize(), true);
+      CNewtonPseudoTime mass(*equations, geometry, config);
+      REQUIRE(mass.Build(scale, free));
+      SU2_OMP_PARALLEL { mass.Apply(direction, actual); }
+      END_SU2_OMP_PARALLEL
+      auto error = actual;
+      error -= expected;
+      CHECK(error.norm() < 1e-10 * expected.norm());
+      for (auto i = 0ul; i < direction.GetLocSize(); ++i)
+        direction[i] = (physical[i] - projected[i]) / scale[i];
+      SU2_OMP_PARALLEL { mass.Apply(direction, actual); }
+      END_SU2_OMP_PARALLEL
+      CHECK(actual.norm() < 1e-12 * expected.norm());
+      auto residual = actual, synchronized = actual;
+      equations->CopyResidual(residual);
+      SU2_OMP_PARALLEL { equations->SynchronizeTimeSteps(); }
+      END_SU2_OMP_PARALLEL
+      equations->CopyResidual(synchronized);
+      CHECK(MaxDifference(residual, synchronized) == 0);
+      for (const auto& block : equations->GetBlocks())
+        for (auto p = 0ul; p < geometry->GetnPointDomain(); ++p) {
+          const double x = geometry->nodes->GetCoord(p, 0);
+          CHECK(block.solver->GetNodes()->GetDelta_Time(p) == (x == 0 || x == 1 ? 0.1 : 0.1 + 0.04 * x));
+        }
+    }
+}
+
+TEST_CASE("Periodic grouped products preserve arbitrary scaled trial directions", "[NewtonPeriodicProducts]") {
+  /*--- Centered references retain inconsistent periodic directions and require convergence under step refinement. ---*/
+  for (const auto& physics : {std::string("SOLVER= NAVIER_STOKES\n"),
+                             std::string("SOLVER= NAVIER_STOKES\nTIME_DISCRE_FLOW= EULER_EXPLICIT\n"),
+                             sa, sst, sst + "KIND_TRANS_MODEL= LM\n"})
+    for (bool rotation : {false, true}) {
+      const auto boundary = rotation
+          ? "MARKER_FAR= (y_minus,y_plus,z_minus,z_plus)\n"
+            "MARKER_PERIODIC= (x_minus,x_plus,0,0.5,0.5,90,0,0,1,0,0)\n"
+          : "MARKER_FAR= (y_minus,y_plus)\nMARKER_PERIODIC= (x_minus,x_plus,0,0,0,0,0,0,1,0,0)\n";
+      Problem problem(physics + "MARKER_HEATFLUX= NONE\n" + boundary, 5, false, rotation);
+      auto& driver = *problem.driver;
+      auto* geometry = driver.Geometry();
+      auto* config = driver.Config();
+      const bool implicitFlow = config->GetKind_TimeIntScheme_Flow() == EULER_IMPLICIT;
+      std::vector<unsigned short> all{RUNTIME_FLOW_SYS};
+      for (auto runtime : {RUNTIME_TURB_SYS, RUNTIME_TRANS_SYS})
+        if (driver.Solvers()[config->GetContainerPosition(runtime)]) all.push_back(runtime);
+      auto initialize = [&]() {
+        for (auto p = 0ul; p < geometry->GetnPoint(); ++p) {
+          auto* flow = driver.Solvers()[FLOW_SOL]->GetNodes();
+          const double x = geometry->nodes->GetCoord(p, 0), y = geometry->nodes->GetCoord(p, 1);
+          const double density = driver.Solvers()[FLOW_SOL]->GetDensity_Inf();
+          const double momentum = density * driver.Solvers()[FLOW_SOL]->GetVelocity_Inf(0);
+          flow->SetSolution(p, 0, density * (1 + 0.01 * std::sin(2 * PI_NUMBER * x)));
+          flow->SetSolution(p, 1, momentum * (1 + 0.03 * y + 0.01 * std::sin(2 * PI_NUMBER * x)));
+          flow->SetSolution(p, 2, 0.02 * momentum * (y - 0.6));
+          if (rotation) flow->SetSolution(p, 3, 0.015 * momentum * (geometry->nodes->GetCoord(p, 2) - 0.6));
+        }
+        for (auto runtime : {RUNTIME_TURB_SYS, RUNTIME_TRANS_SYS}) {
+          auto* solver = driver.Solvers()[config->GetContainerPosition(runtime)];
+          if (!solver) continue;
+          for (auto p = 0ul; p < geometry->GetnPoint(); ++p)
+            for (auto v = 0u; v < solver->GetnVar(); ++v)
+              solver->GetNodes()->SetSolution(p, v, solver->GetNodes()->GetSolution(p, v) * 0.8);
+        }
+        for (auto runtime : all) driver.Solvers()[config->GetContainerPosition(runtime)]->Set_OldSolution();
+      };
+      initialize();
+      auto owners = std::vector<std::vector<unsigned short>>{all};
+      if (all.size() > 1) { owners.push_back({RUNTIME_FLOW_SYS}); owners.push_back({all.back()}); }
+      for (const auto& selected : owners) {
+        CAPTURE(physics, rotation, selected.size(), selected.front());
+        auto equations = problem.Equations(selected);
+        REQUIRE(Residual(*equations, true));
+        CHECK(driver.Solvers()[FLOW_SOL]->GetImplicitPeriodic() == implicitFlow);
+        equations->Capture();
+        auto scale = MakeVector(driver, equations->GetnVar()), probe = scale, base = scale, direction = scale;
+        auto actual = scale, positive = scale, negative = scale, reference = scale;
+        equations->BuildScales(scale, probe);
+        equations->Pack(base);
+        for (auto p = 0ul; p < geometry->GetnPoint(); ++p)
+          for (auto j = 0u; j < equations->GetnVar(); ++j) {
+            scale(p, j) *= 1 + 0.2 * j + 0.1 * geometry->nodes->GetCoord(p, 0);
+            direction(p, j) = 0.1 * std::sin(0.3 + geometry->nodes->GetCoord(p, 0) +
+                                                     0.2 * geometry->nodes->GetCoord(p, 1) + 0.17 * j);
+          }
+        CNewtonLinearization linearization(*equations, geometry, config);
+        auto diagonal = MakeVector(driver, equations->GetnVar());
+        REQUIRE(linearization.SetBase(scale, diagonal, 1e-7, 1e-5));
+        REQUIRE(linearization.Apply(direction, actual, false));
+        auto sample = [&](double step, Vector& result) {
+          equations->SetTrial(direction, step, scale);
+          REQUIRE(Residual(*equations));
+          auto state = base;
+          equations->Pack(state);
+          for (auto i = 0ul; i < state.GetNElmDomain(); ++i)
+            CHECK(state[i] == Approx(base[i] + step * scale[i] * direction[i]).epsilon(1e-13));
+          equations->CopyResidual(result);
+        };
+        sample(1e-4, positive);
+        sample(-1e-4, negative);
+        auto coarse = positive;
+        for (auto i = 0ul; i < coarse.GetLocSize(); ++i) coarse[i] = (positive[i] - negative[i]) / (2e-4 * scale[i]);
+        sample(5e-5, positive);
+        sample(-5e-5, negative);
+        for (auto i = 0ul; i < reference.GetLocSize(); ++i) reference[i] = (positive[i] - negative[i]) / (1e-4 * scale[i]);
+        coarse -= reference;
+        auto error = actual;
+        error -= reference;
+        INFO("centered refinement=" << coarse.norm() / reference.norm() << ", product error=" << error.norm() / reference.norm());
+        CHECK(coarse.norm() < 1e-5 * reference.norm());
+        CHECK(error.norm() < 2e-4 * reference.norm());
+        REQUIRE(equations->Restore());
+        CHECK(equations->GetRestorationError() == 0);
+        CHECK(driver.Solvers()[FLOW_SOL]->GetImplicitPeriodic() == implicitFlow);
+      }
+    }
+}
+
+TEST_CASE("Periodic driver groups accept updates and restore failed solves", "[NewtonPeriodicOwner]") {
+  /*--- Exercise factory ownership, accepted endpoints and forced failure through actual native driver calls. ---*/
+  for (const auto& physics : {std::string("SOLVER= NAVIER_STOKES\n"), sa, sst, sst + "KIND_TRANS_MODEL= LM\n"})
+    for (bool rotation : {false, true})
+      for (unsigned mode = 0; mode < 3; ++mode) {
+        const bool coupled = mode == 1, legacy = mode == 2;
+        if (legacy && physics.find("KIND_TURB_MODEL") != std::string::npos) continue;
+        CAPTURE(physics, rotation, coupled, legacy);
+        const auto boundary = rotation
+            ? "MARKER_HEATFLUX= (y_minus,0,y_plus,0,z_minus,0,z_plus,0)\nMARKER_FAR= NONE\n"
+              "MARKER_PERIODIC= (x_minus,x_plus,0,0.5,0.5,90,0,0,1,0,0)\n"
+            : "MARKER_HEATFLUX= (y_minus,0)\nMARKER_FAR= (y_plus)\n"
+              "MARKER_PERIODIC= (x_minus,x_plus,0,0,0,0,0,0,1,0,0)\n";
+        const bool turbulence = physics.find("KIND_TURB_MODEL") != std::string::npos;
+        const bool transition = physics.find("KIND_TRANS_MODEL") != std::string::npos;
+        /*--- Also exercise the periodic legacy-flow option through the production integration factory. ---*/
+        const auto selection = legacy
+            ? "NEWTON_KRYLOV= YES\nNEWTON_KRYLOV_IPARAM= 0,0,1,0\n"
+              "NEWTON_KRYLOV_DPARAM= 0,0.1,0,1e-6,1\n"
+            : std::string("NEWTON_EQUATIONS= (FLOW") + (turbulence ? ",TURB" : "") +
+              (transition ? ",TRANS" : "") + ")\n";
+        Problem problem(physics + boundary + selection + "CFL_NUMBER= 0.05\nNEWTON_ADAPT_CFL= NO\n"
+                        "NEWTON_ADAPTIVE_FORCING= NO\nNEWTON_DIAGNOSTICS= NO\nLINEAR_SOLVER_PREC= ILU\n" +
+                        (coupled ? "NEWTON_COUPLED= YES\nNEWTON_BLOCK_LOWER= YES\n" : ""), 5, false, rotation);
+        auto& driver = *problem.driver;
+        auto* geometry = driver.Geometry();
+        auto* config = driver.Config();
+        auto* flow = driver.Solvers()[FLOW_SOL]->GetNodes();
+        for (auto p = 0ul; p < geometry->GetnPoint(); ++p) {
+          const double y = geometry->nodes->GetCoord(p, 1), momentum = flow->GetSolution(p, 1);
+          if (rotation) {
+            flow->SetSolution(p, 2, -0.05 * momentum * (geometry->nodes->GetCoord(p, 2) - 0.5));
+            flow->SetSolution(p, 3, 0.05 * momentum * (y - 0.5));
+          } else flow->SetSolution(p, 1, momentum * (1 + 0.1 * y));
+          if (transition) driver.Solvers()[TRANS_SOL]->GetNodes()->SetSolution(p, 0, 0.7);
+        }
+        driver.OuterIteration();
+        std::vector<unsigned short> selected{RUNTIME_FLOW_SYS};
+        if (turbulence) selected.push_back(RUNTIME_TURB_SYS);
+        if (transition) selected.push_back(RUNTIME_TRANS_SYS);
+        for (auto runtime : selected) {
+          CNewtonIntegration* owner = nullptr;
+          for (auto slot = 0u; slot < MAX_SOLS; ++slot) {
+            auto* integration = driver.Integrations()[slot];
+            if (!integration || !integration->IsNewtonEquation(runtime)) continue;
+            CHECK(owner == nullptr);
+            owner = dynamic_cast<CNewtonIntegration*>(integration);
+          }
+          REQUIRE(owner);
+          INFO(owner->GetNumericalFailureMessage());
+          REQUIRE_FALSE(owner->GetNumericalFailure());
+          CHECK(owner->GetLastAttempt().search.status == Armijo::Status::Accepted);
+          CHECK(owner->GetLastAttempt().search.step > 0);
+          CHECK(owner->GetLastAttempt().linearDefect <= 0.1);
+        }
+        auto equations = problem.Equations(selected);
+        REQUIRE(Residual(*equations));
+        for (auto runtime : selected) driver.Solvers()[config->GetContainerPosition(runtime)]->Set_OldSolution();
+        equations->Capture();
+        auto state = MakeVector(driver, equations->GetnVar());
+        equations->Pack(state);
+        const auto averaged = PeriodicReference(driver, *equations, state, rotation);
+        CHECK(MaxDifference(state, averaged) < 1e-12 * state.norm());
+        NonlinearGlobalization::Options<> options;
+        options.adaptCFL = options.adaptiveForcing = options.diagnostics = false;
+        options.linearIterations = 1;
+        options.maxRetries = 0;
+        options.etaMin = 1e-16;
+        options.linearTolerance = options.etaMax = 1e-14;
+        CNewtonIntegration failed(selected, options);
+        failed.Iterate(geometry, driver.Solvers(), driver.Numerics(), config);
+        CHECK(failed.GetNumericalFailure());
+        CHECK(failed.GetLastAttempt().linearFailure);
+        CHECK(failed.GetLastAttempt().rollbackStateError == 0);
+        CHECK(failed.GetLastAttempt().rollbackMeritError == 0);
+        CHECK(equations->GetRestorationError() == 0);
+      }
+}
 
 TEST_CASE("Newton equation groups map native and conservative scalar increments", "[NewtonEquations]") {
   for (const auto& physics :
@@ -185,7 +577,7 @@ TEST_CASE("Newton equation groups map native and conservative scalar increments"
     auto actual = MakeVector(driver, equations->GetnVar());
     for (const auto& block : equations->GetBlocks()) {
       auto* nodes = block.solver->GetNodes();
-      // Physical-time arrays must survive trial installation, even when present in a steady test.
+      /*--- Physical-time arrays must survive trial installation, even when present in a steady test. ---*/
       nodes->GetSolution_time_n().resize(driver.Geometry()->GetnPoint(), block.variables) = 7.0;
       nodes->GetSolution_time_n1().resize(driver.Geometry()->GetnPoint(), block.variables) = 9.0;
       for (auto p = 0ul; p < driver.Geometry()->GetnPoint(); ++p)
@@ -217,7 +609,7 @@ TEST_CASE("Newton equation groups map native and conservative scalar increments"
     if (physics == sa + "SA_OPTIONS= NEGATIVE, WITHFT2\n")
       CHECK(driver.Solvers()[TURB_SOL]->GetSolutionBounds(0).first < 0);
     if (physics == sa) CHECK(driver.Solvers()[TURB_SOL]->GetSolutionBounds(0).first >= 0);
-    // A conventional outer update can replace history after the preceding Newton capture.
+    /*--- A conventional outer update can replace history after the preceding Newton capture. ---*/
     for (const auto& block : equations->GetBlocks())
       for (auto p = 0ul; p < driver.Geometry()->GetnPoint(); ++p)
         for (auto v = 0u; v < block.variables; ++v) block.solver->GetNodes()->SetSolution_Old(p, v, 4.5 + v);
@@ -251,7 +643,7 @@ TEST_CASE("Grouped residuals refresh cross derivatives independently of trial or
     auto positive = MakeVector(driver, equations->GetnVar());
     auto negative = MakeVector(driver, equations->GetnVar());
     auto repeated = MakeVector(driver, equations->GetnVar());
-    // Impose a smooth nonuniform field so cross responses are observable.
+    /*--- Impose a smooth nonuniform field so cross responses are observable. ---*/
     for (const auto& block : blocks) {
       auto* nodes = block.solver->GetNodes();
       for (auto p = 0ul; p < geometry->GetnPoint(); ++p) {
@@ -313,7 +705,7 @@ TEST_CASE("Grouped residuals refresh cross derivatives independently of trial or
     CHECK(MaxDifference(positive, repeated) == 0.0);
     evaluate(0.0, repeated);
     CHECK(MaxDifference(base, repeated) == 0.0);
-    // Compare independent centered stencils at two step sizes for the whole grouped residual.
+    /*--- Compare independent centered stencils at two step sizes for the whole grouped residual. ---*/
     evaluate(0.005, positive);
     evaluate(-0.005, negative);
     Vector derivative(positive);
@@ -325,7 +717,7 @@ TEST_CASE("Grouped residuals refresh cross derivatives independently of trial or
     refined -= negative;
     refined /= 0.005;
     CHECK(MaxDifference(derivative, refined) < 1e-4 * std::max(1.0, SU2_TYPE::GetValue(refined.norm())));
-    // Change only the auxiliary unknown, then only flow, to detect the off-diagonal blocks.
+    /*--- Change only the auxiliary unknown, then only flow, to detect the off-diagonal blocks. ---*/
     for (auto i = 0ul; i < direction.GetLocSize(); ++i) direction[i] = 0.0;
     const auto& auxiliary = blocks[1];
     for (auto p = 0ul; p < geometry->GetnPoint(); ++p)
@@ -337,7 +729,7 @@ TEST_CASE("Grouped residuals refresh cross derivatives independently of trial or
     double globalResponse = 0;
     SU2_MPI::Allreduce(&flowResponse, &globalResponse, 1, MPI_DOUBLE, MPI_SUM, SU2_MPI::GetComm());
     CHECK(globalResponse > 0.0);
-    // With fixed flow conservative energy, pressure responds to k by -(gamma-1)*rho.
+    /*--- With fixed flow conservative energy, pressure responds to k by -(gamma-1)*rho. ---*/
     if (physics == sst) {
       evaluate(0.0, negative);
       std::vector<double> pressure(geometry->GetnPoint());
@@ -394,7 +786,7 @@ TEST_CASE("Grouped Newton products and block preconditioners solve a coupled lin
   auto allEquations = species;
   allEquations.replace(allEquations.find("INC_NAVIER_STOKES"), std::string("INC_NAVIER_STOKES").size(), "INC_RANS");
   allEquations += "KIND_TURB_MODEL= SST\nKIND_TRANS_MODEL= LM\n";
-  // Scalar edge fluxes currently support eight transported species; exercise all four equation blocks together.
+  /*--- Scalar edge fluxes currently support eight transported species; exercise all four equation blocks together. ---*/
   for (const auto& item : std::vector<std::pair<std::string, double>>{
            {"SPECIES_INIT", 0.02}, {"MOLECULAR_WEIGHT", 20.0}, {"SPECIFIC_HEAT_CP", 1000.0},
            {"MU_CONSTANT", 1e-5}, {"PRANDTL_LAM", 0.72}, {"PRANDTL_TURB", 0.9}}) {
@@ -427,7 +819,7 @@ TEST_CASE("Grouped Newton products and block preconditioners solve a coupled lin
         for (auto j = 0u; j < block.variables; ++j) {
           auto* nodes = block.solver->GetNodes();
           nodes->SetSolution(p, j, nodes->GetSolution(p, j) * (1.0 + 0.05 * geometry->nodes->GetCoord(p, 0)));
-          // Strain magnitude is not differentiable at zero; use a nonuniform velocity for smooth references.
+          /*--- Strain magnitude is not differentiable at zero; use a nonuniform velocity for smooth references. ---*/
           if (block.slot == FLOW_SOL && j == 1)
             nodes->SetSolution(p, j, nodes->GetSolution(p, j) *
                 (1.0 + 0.07 * geometry->nodes->GetCoord(p, 0) + 0.03 * geometry->nodes->GetCoord(p, 1)));
@@ -493,7 +885,7 @@ TEST_CASE("Grouped Newton products and block preconditioners solve a coupled lin
       END_SU2_OMP_PARALLEL
       REQUIRE(valid);
     };
-    // Independent centered residual stencil, including scaling and the chosen pseudo-time mass.
+    /*--- Independent centered residual stencil, including scaling and the chosen pseudo-time mass. ---*/
     auto reference = [&](const Vector& u) {
       auto positive = MakeVector(driver, equations->GetnVar());
       auto negative = MakeVector(driver, equations->GetnVar());
@@ -833,7 +1225,7 @@ TEST_CASE("Species strong boundaries precede reconstruction without changing pro
       };
       initialize();
       solver->Set_OldSolution();
-      // The first evaluation must discover prescribed rows without a previous implicit assembly.
+      /*--- The first evaluation must discover prescribed rows without a previous implicit assembly. ---*/
       REQUIRE(Residual(*equations));
       auto actual = MakeVector(driver, equations->GetnVar()), reference = actual;
       equations->CopyResidual(actual);
@@ -901,7 +1293,7 @@ TEST_CASE("Species strong boundaries precede reconstruction without changing pro
         CHECK(MaxDifference(product, positive) < 1e-4 * std::max(1.0, SU2_TYPE::GetValue(positive.norm())));
       }
       REQUIRE(equations->Restore());
-      // Make row deletion observable even when the prepared row was already an identity.
+      /*--- Make row deletion observable even when the prepared row was already an identity. ---*/
       for (auto p = 0ul; p < geometry->GetnPointDomain(); ++p) solver->Jacobian.GetBlock(p, p)[0] += 0.25;
       std::vector<double> matrix;
       for (const auto& block : equations->GetBlocks())
@@ -945,7 +1337,7 @@ TEST_CASE("Mixture residuals refresh dependent species gradients on skewed cells
     }
     auto equations = problem.Equations(selected);
     auto reference = MakeVector(driver, equations->GetnVar()), actual = reference;
-    // Orthogonal cells cancel the transverse gradient in the corrected diffusion flux.
+    /*--- Orthogonal cells cancel the transverse gradient in the corrected diffusion flux. ---*/
     REQUIRE(Residual(*equations));
     REQUIRE(Residual(*equations));
     equations->CopyResidual(reference);
@@ -1416,7 +1808,7 @@ TEST_CASE("A trial with invalid reporting restores the group before CFL recovery
   REQUIRE(integration.GetNumericalFailure());
   REQUIRE(attempt.residualFailure);
   CHECK(attempt.linearDefect <= options.etaMax);
-  // The full step lowers scaled merit but exceeds the native energy RMS limit.
+  /*--- The full step lowers scaled merit but exceeds the native energy RMS limit. ---*/
   CHECK(attempt.search.step == 1);
   CHECK(attempt.search.evaluations > 0);
   CHECK(attempt.rollbackStateError == 0);
@@ -1558,7 +1950,7 @@ TEST_CASE("One Newton controller advances native individual equations and couple
           CHECK(driver.Solvers()[FLOW_SOL]->GetNodes()->GetSolution(p, 1) == 0.0);
           CHECK(driver.Solvers()[FLOW_SOL]->GetNodes()->GetSolution(p, 2) == 0.0);
         }
-      // The reported residual belongs to the final accepted state, independently recomputed here.
+      /*--- The reported residual belongs to the final accepted state, independently recomputed here. ---*/
       REQUIRE(Residual(*equations));
       for (const auto& block : equations->GetBlocks())
         for (auto v = 0u; v < block.variables; ++v) {
@@ -1872,7 +2264,7 @@ TEST_CASE("Large native Newton groups repeat states and decisions", "[.][NewtonR
     for (auto v = 1u; v < flow->GetnVar(); ++v) flow->LinSysRes(p, v) = 1;
   }
   double local = 1e16, global = 0;
-  // Three small partials added before 1e16 give a different answer than this specified thread order.
+  /*--- Three small partials added before 1e16 give a different answer than this specified thread order. ---*/
   for (int thread = 1; thread < threads; ++thread) local += 1;
   SU2_MPI::Allreduce(&local, &global, 1, MPI_DOUBLE, MPI_SUM, SU2_MPI::GetComm());
   const double expected = std::sqrt(global / geometry->GetGlobal_nPointDomain());
@@ -1929,7 +2321,7 @@ TEST_CASE("Native Newton block preconditioning waits for every input producer", 
     SU2_OMP_PARALLEL_ON(threads) {
       if (threads > 1 && omp_get_thread_num() == threads - 1)
         std::this_thread::sleep_for(std::chrono::milliseconds(40));
-      // CSysVector producers use nowait; the consumer changes the work partition to native point blocks.
+      /*--- CSysVector producers use nowait; the consumer changes the work partition to native point blocks. ---*/
       delayed = known;
       preconditioner(delayed, actual);
     }
@@ -2838,7 +3230,7 @@ TEST_CASE("Newton admission checks live heat capacity and transport properties",
             std::istringstream values(line);
             std::vector<double> row(12);
             for (auto& value : row) REQUIRE(bool(values >> value));
-            // Initial p=.4 is unchanged; a later interior point has a zero or negative property.
+            /*--- Initial p=.4 is unchanged; a later interior point has a zero or negative property. ---*/
             row[column] *= zero ? (1 - row[0]) / 0.6 : 3 - 5 * row[0];
             for (auto j = 0u; j < row.size(); ++j) output << (j ? " " : "") << row[j];
             output << '\n';
@@ -3041,7 +3433,7 @@ TEST_CASE("Flamelet physical thickness follows trial fields without advancing na
         if (block.slot == SPECIES_SOL)
           direction(p, block.offset) = 0.1 * std::sin(0.3 + 3 * x + y) * equations->MassFactor(block, p);
       }
-    // h=0 makes grad(T) parallel to grad(progress), giving an independent scalar reference.
+    /*--- h=0 makes grad(T) parallel to grad(progress), giving an independent scalar reference. ---*/
     auto checkTarget = [&]() {
       double extrema[2] = {}, minimum = 1, global[2] = {}, globalMinimum = 1;
       for (auto p = 0ul; p < geometry->GetnPointDomain(); ++p) {
@@ -3133,7 +3525,7 @@ TEST_CASE("Flamelet physical thickness follows trial fields without advancing na
     driver.Config()->SetEquationSettings(settings);
     REQUIRE(std::isfinite(SU2_TYPE::GetValue(solver->GetFlameThickness())));
     REQUIRE(solver->GetFlameThickness() > 0);
-    // A native update after all trials must relax from the original history, not from any trial target.
+    /*--- A native update after all trials must relax from the original history, not from any trial target. ---*/
     CHECK(solver->GetFlameThickness() == Approx(0.95 * nativeHistory + 0.05).epsilon(1e-12));
     for (auto p = 0ul; p < geometry->GetnPointDomain(); ++p) {
       CHECK(std::isfinite(SU2_TYPE::GetValue(nodes->GetDiffusivity(p, 0))));
@@ -3153,7 +3545,7 @@ TEST_CASE("Flamelet probes resolve coupled gradients near a uniform hot field", 
                                              : std::vector<unsigned short>{RUNTIME_SPECIES_SYS});
     for (auto p = 0ul; p < geometry->GetnPoint(); ++p) {
       const double x = geometry->nodes->GetCoord(p, 0) / lengthX, y = geometry->nodes->GetCoord(p, 1);
-      // Separate gradient extrema across y so centered references do not cross a nearly tied maximum.
+      /*--- Separate gradient extrema across y so centered references do not cross a nearly tied maximum. ---*/
       nodes->SetSolution(p, 0, 0.4 + 1e-5 * ((1 + 0.2 * y) * std::sin(2 * PI_NUMBER * x + 0.17) + 0.1 * y * y));
       nodes->SetSolution(p, 1, 0.0);
     }
@@ -3232,12 +3624,12 @@ TEST_CASE("Flame thickness uses extrema from every native worker", "[NewtonFlame
     const double x = geometry->nodes->GetCoord(p, 0) / 1e-6;
     nodes->SetSolution(p, 0, 0.2 + 0.4 * x);
   }
-  // Match the native scalar light-loop partition to isolate a nonmaster contribution.
+  /*--- Match the native scalar light-loop partition to isolate a nonmaster contribution. ---*/
   const auto chunk = computeStaticChunkSize(geometry->GetnPoint(), omp_get_max_threads(), 512);
   SU2_OMP_PARALLEL {
     SU2_OMP_FOR_STAT(chunk)
     for (auto p = 0ul; p < geometry->GetnPointDomain(); ++p) {
-      // Only nonmaster workers contribute to the projected gradient in a threaded run.
+      /*--- Only nonmaster workers contribute to the projected gradient in a threaded run. ---*/
       const bool moving = omp_get_num_threads() == 1 || omp_get_thread_num() != 0;
       flow->SetSolution(p, 1, moving ? 1.0 : 0.0);
       flow->SetSolution(p, 2, 0.0);
@@ -3254,7 +3646,7 @@ TEST_CASE("Flame thickness uses extrema from every native worker", "[NewtonFlame
   }
   END_SU2_OMP_PARALLEL
   driver.Config()->SetEquationSettings(settings);
-  // T=300+100*progress and h=0 make grad(T) parallel to grad(progress).
+  /*--- T=300+100*progress and h=0 make grad(T) parallel to grad(progress). ---*/
   double maxima[2] = {}, minimum = 1, globalMaxima[2] = {}, globalMinimum = 1;
   for (auto p = 0ul; p < geometry->GetnPointDomain(); ++p) {
     const double progress = SU2_TYPE::GetValue(nodes->GetSolution(p, 0));
@@ -3432,7 +3824,7 @@ TEST_CASE("Resolved Newton groups wait and resume without consuming startup", "[
         CHECK(idle.linearIterations == 0);
         CHECK(std::isnan(idle.linearDefect));
         CHECK(MaxDifference(before, after) == 0);
-        // A scalar residual can be small in raw units and unresolved in scaled units.
+        /*--- A scalar residual can be small in raw units and unresolved in scaled units. ---*/
         const auto& block = equations->GetBlocks().back();
         for (auto p = 0ul; p < geometry->GetnPointDomain(); ++p)
           block.solver->GetNodes()->GetUserDefinedSource()(p, block.variables - 1) +=
@@ -3523,7 +3915,7 @@ TEST_CASE("Coupled SA BC products differentiate partially active transition", "[
     for (auto v = 1u; v <= 2; ++v) energy -= 0.5 * pow(flow->GetSolution(p, v), 2) / rho;
     const auto u = shear * geometry->nodes->GetCoord(p, 1);
     flow->SetSolution(p, 1, rho * u);
-    // Nonzero crossflow keeps scalar upwinding away from its zero-flux switch.
+    /*--- Nonzero crossflow keeps scalar upwinding away from its zero-flux switch. ---*/
     flow->SetSolution(p, 2, 0.02 * rho * u);
     flow->SetSolution(p, 3, energy + 0.5 * rho * u * u * (1 + 0.02 * 0.02));
   }

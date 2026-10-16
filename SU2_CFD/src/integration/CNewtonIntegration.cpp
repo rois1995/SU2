@@ -70,7 +70,7 @@ const char* Name(NonlinearGlobalization::RecoveryReason reason) {
 double CNewtonIntegration::Reduce(double local, bool maximum) const {
   reductionPartials[omp_get_thread_num()] = local;
   BEGIN_SU2_OMP_SAFE_GLOBAL_ACCESS {
-    // Thread arrival order must not change globalization decisions.
+    /*--- Thread arrival order must not change globalization decisions. ---*/
     double combined = reductionPartials[0];
     for (int thread = 1; thread < omp_get_num_threads(); ++thread)
       combined = maximum ? std::max(combined, reductionPartials[thread]) : combined + reductionPartials[thread];
@@ -185,11 +185,15 @@ void CNewtonIntegration::Setup() {
   const auto error = options.Validate();
   if (!error.empty()) throw std::invalid_argument(error);
   if (config->GetTime_Marching() != TIME_MARCHING::STEADY || config->GetTime_Domain() ||
-      config->GetMultizone_Problem() || config->GetnZone() != 1 || config->GetCUDA() || config->GetnMarker_Periodic() ||
+      config->GetMultizone_Problem() || config->GetnZone() != 1 || config->GetCUDA() ||
       config->GetContinuous_Adjoint() || config->GetDiscrete_Adjoint() || config->GetDirectDiff() != NO_DERIVATIVE ||
       config->GetFinestMesh() != MESH_0)
     throw std::invalid_argument(
-        "Common Newton currently requires steady primal single-zone CPU cases without periodic markers");
+        "Common Newton currently requires steady primal single-zone CPU cases");
+  if (config->GetnMarker_Periodic() &&
+      (config->GetKind_Species_Model() != SPECIES_MODEL::NONE ||
+       config->GetKind_Streamwise_Periodic() != ENUM_STREAMWISE_PERIODIC::NONE))
+    throw std::invalid_argument("Periodic common Newton currently excludes species and streamwise models");
   if (config->GetKind_Regime() == ENUM_REGIME::INCOMPRESSIBLE &&
       config->GetKind_Incomp_System() == INCOMP_SYSTEM::PRESSURE_BASED)
     throw std::invalid_argument("Newton flow groups require the density-based incompressible formulation");
@@ -321,7 +325,7 @@ void CNewtonIntegration::Restore(Attempt& attempt) {
 
 void CNewtonIntegration::Endpoint() {
   for (const auto& block : equations->GetBlocks()) {
-    // Each native limiter sees the same accepted density, before the independently limited endpoints are combined.
+    /*--- Each native limiter sees the same accepted density, before the independently limited endpoints are combined. ---*/
     Perturb(direction, 0);
     SU2_OMP_FOR_STAT(1024)
     for (auto p = 0ul; p < geometry->GetnPoint(); ++p)
@@ -348,6 +352,7 @@ void CNewtonIntegration::Endpoint() {
 
 CNewtonIntegration::Attempt CNewtonIntegration::SolveAttempt() {
   Attempt attempt;
+  /*--- Rebuild the base residual and native matrices before freezing this attempt's pseudo-time action. ---*/
   SU2_OMP_SAFE_GLOBAL_ACCESS(trialNumber = 0;)
   SetCFL(cfl);
   Perturb(direction, 0);
@@ -359,14 +364,15 @@ CNewtonIntegration::Attempt CNewtonIntegration::SolveAttempt() {
     Restore(attempt);
     return attempt;
   }
-  // Flow time steps precede scalar time steps even if the requested group has a different packing order.
+  /*--- Flow time steps precede scalar time steps even if the requested group has a different packing order. ---*/
   for (auto slot : {FLOW_SOL, TURB_SOL, TRANS_SOL, SPECIES_SOL})
     for (const auto& block : equations->GetBlocks()) {
       if (block.slot != slot) continue;
       SU2_OMP_SAFE_GLOBAL_ACCESS(config->SetGlobalParam(config->GetKind_Solver(), block.runtime);)
       block.solver->SetTime_Step(geometry, solvers, config, MESH_0, config->GetTimeIter());
     }
-  // Small scalar units must not hide a significant state-scaled residual.
+  equations->SynchronizeTimeSteps();
+  /*--- Small scalar units must not hide a significant state-scaled residual. ---*/
   bool resolved = residualTolerance > 0 &&
                   std::sqrt(attempt.base / geometry->GetGlobal_nPointDomain()) <= residualTolerance / std::sqrt(2.0);
   for (const auto& block : equations->GetBlocks())
@@ -412,7 +418,7 @@ CNewtonIntegration::Attempt CNewtonIntegration::SolveAttempt() {
     Restore(attempt);
     return attempt;
   }
-  // Keep the physical right hand side independently of native sign flips and pseudo-time assembly.
+  /*--- Keep the physical right hand side independently of native sign flips and pseudo-time assembly. ---*/
   equations->CopyResidual(rhs);
   SU2_OMP_FOR_STAT(1024)
   for (auto i = 0ul; i < rhs.GetLocSize(); ++i) rhs[i] = -rhs[i] / scale[i];
@@ -500,6 +506,7 @@ CNewtonIntegration::Attempt CNewtonIntegration::SolveAttempt() {
 }
 
 void CNewtonIntegration::Search(Attempt& attempt) {
+  /*--- Acceptance uses the actual endpoint direction and full physical operator, even after a startup solve. ---*/
   double relative = 0, invalid = 0;
   SU2_OMP_FOR_STAT(1024)
   for (auto i = 0ul; i < direction.GetNElmDomain(); ++i) {
@@ -622,6 +629,7 @@ void CNewtonIntegration::Advance() {
   equations->Capture();
   equations->Pack(baseState);
   UpdateScale();
+  /*--- Every retry uses this captured base and scale; rejection must restore both state and merit first. ---*/
   for (unsigned index = 0;; ++index) {
     SU2_OMP_SAFE_GLOBAL_ACCESS(attemptNumber = index;)
     auto attempt = SolveAttempt();

@@ -9,18 +9,37 @@
 namespace {
 constexpr unsigned short runtimes[] = {RUNTIME_FLOW_SYS, RUNTIME_TURB_SYS, RUNTIME_TRANS_SYS, RUNTIME_SPECIES_SYS};
 
+/*! \brief Restore shared equation settings and periodic assembly flags after every evaluation or early return. */
 class EquationSettingsGuard {
   CConfig& config;
   CConfig::EquationSettings settings;
   su2double relaxation;
+  CSolver** solvers;
+  std::array<bool, 4> implicitPeriodic{};
 
  public:
-  explicit EquationSettingsGuard(CConfig& c)
-      : config(c), settings(c.GetEquationSettings()), relaxation(c.GetNewtonKrylovRelaxation()) {
+  EquationSettingsGuard(CConfig& c, CSolver** s)
+      : config(c), settings(c.GetEquationSettings()), relaxation(c.GetNewtonKrylovRelaxation()), solvers(s) {
+    if (config.GetnMarker_Periodic())
+      for (auto i = 0u; i < 4; ++i) {
+        const auto* solver = solvers[config.GetContainerPosition(runtimes[i])];
+        implicitPeriodic[i] = solver && solver->GetImplicitPeriodic();
+      }
     SU2_OMP_BARRIER
+    if (config.GetnMarker_Periodic()) {
+      /*--- Retain all periodic rows for the explicit consistency equations, including explicit-flow probes. ---*/
+      SU2_OMP_SAFE_GLOBAL_ACCESS(
+          for (auto runtime : runtimes)
+            if (auto* solver = solvers[config.GetContainerPosition(runtime)]) solver->SetImplicitPeriodic(true);)
+    }
   }
   ~EquationSettingsGuard() {
-    SU2_OMP_SAFE_GLOBAL_ACCESS(config.SetEquationSettings(settings); config.SetNewtonKrylovRelaxation(relaxation);)
+    SU2_OMP_SAFE_GLOBAL_ACCESS(
+        config.SetEquationSettings(settings); config.SetNewtonKrylovRelaxation(relaxation);
+        if (config.GetnMarker_Periodic())
+          for (auto i = 0u; i < 4; ++i)
+            if (auto* solver = solvers[config.GetContainerPosition(runtimes[i])])
+              solver->SetImplicitPeriodic(implicitPeriodic[i]);)
   }
 };
 }  // namespace
@@ -157,6 +176,7 @@ bool CNewtonEquationSet::FeasibleProbes(const CSysVector<passivedouble>& directi
       invalidCount = 0;)
   b = passivedouble(0);
   SU2_OMP_BARRIER
+  /*--- Shift both probes inward, keeping a-b equal to the requested direction rather than clipping it. ---*/
   local = 0;
   for (const auto& block : blocks) {
     const auto& base = snapshot(block).solution;
@@ -190,7 +210,7 @@ bool CNewtonEquationSet::FeasibleProbes(const CSysVector<passivedouble>& directi
       }
       double excess = std::max(sumA, sumB) - 1;
       if (excess > 0) {
-        // A common inward shift preserves a-b while leaving room for the implicit last species.
+        /*--- A common inward shift preserves a-b while leaving room for the implicit last species. ---*/
         excess += 32 * std::numeric_limits<double>::epsilon() * block.variables;
         for (auto v = 0u; v < block.variables && excess > 0; ++v) {
           const auto j = block.offset + v;
@@ -248,6 +268,82 @@ void CNewtonEquationSet::Communicate() {
   }
 }
 
+void CNewtonEquationSet::ProjectPeriodic(CSysVector<passivedouble>& vector,
+                                         const CSysVector<passivedouble>* scale) const {
+  if (!config->GetnMarker_Periodic()) return;
+  assert(vector.GetNVar() == variables && (!scale || scale->GetLocSize() == vector.GetLocSize()));
+  SU2_OMP_BARRIER
+  for (const auto& block : blocks) {
+    /*--- Carry a copy count with each native block, so axes and intersecting periodic pairs use the same P. ---*/
+    SU2_OMP_SAFE_GLOBAL_ACCESS(periodicWork.resize(geometry->GetnPoint(), block.variables + 1);)
+    SU2_OMP_FOR_STAT(1024)
+    for (auto p = 0ul; p < geometry->GetnPoint(); ++p) {
+      for (auto v = 0u; v < block.variables; ++v) {
+        const auto j = block.offset + v;
+        periodicWork(p, v) = vector(p, j) * (scale ? (*scale)(p, j) : 1.0);
+      }
+      periodicWork(p, block.variables) = 1;
+    }
+    END_SU2_OMP_FOR
+    SU2_OMP_SAFE_GLOBAL_ACCESS(geometry->SumPeriodicGeometry(config, periodicWork, block.slot == FLOW_SOL ? 1 : -1);)
+    SU2_OMP_FOR_STAT(1024)
+    for (auto p = 0ul; p < geometry->GetnPoint(); ++p)
+      for (auto v = 0u; v < block.variables; ++v) {
+        const auto j = block.offset + v;
+        vector(p, j) = SU2_TYPE::GetValue(periodicWork(p, v) / periodicWork(p, block.variables)) /
+                       (scale ? (*scale)(p, j) : 1.0);
+      }
+    END_SU2_OMP_FOR
+  }
+  CSysMatrixComms::Initiate(vector, geometry, config);
+  CSysMatrixComms::Complete(vector, geometry, config);
+}
+
+void CNewtonEquationSet::AddPeriodicConstraints(CSolver* solver) {
+  if (!config->GetnMarker_Periodic()) return;
+  const auto count = solver->GetnVar();
+  const auto* nodes = solver->GetNodes();
+  SU2_OMP_SAFE_GLOBAL_ACCESS(periodicWork.resize(geometry->GetnPoint(), count + 1);)
+  SU2_OMP_FOR_STAT(1024)
+  for (auto p = 0ul; p < geometry->GetnPoint(); ++p) {
+    for (auto v = 0u; v < count; ++v) periodicWork(p, v) = nodes->GetSolution(p, v);
+    periodicWork(p, count) = 1;
+  }
+  END_SU2_OMP_FOR
+  SU2_OMP_SAFE_GLOBAL_ACCESS(geometry->SumPeriodicGeometry(config, periodicWork, solver == solvers[FLOW_SOL] ? 1 : -1);)
+  /*--- Native assembly supplies P*R(w). Add B(w)*(I-P)*w without overwriting the supplied unknowns.
+   *     Live density in B preserves conservative-scalar cross derivatives; M_base only defines coordinates. ---*/
+  SU2_OMP_FOR_STAT(1024)
+  for (auto p = 0ul; p < geometry->GetnPointDomain(); ++p) {
+    const su2double mass = solver->GetConservative() ? solvers[FLOW_SOL]->GetNodes()->GetDensity(p) : su2double(1);
+    for (auto v = 0u; v < count; ++v)
+      solver->LinSysRes(p, v) += mass * (nodes->GetSolution(p, v) - periodicWork(p, v) / periodicWork(p, count));
+  }
+  END_SU2_OMP_FOR
+}
+
+void CNewtonEquationSet::SynchronizeTimeSteps() {
+  if (!config->GetnMarker_Periodic()) return;
+  EquationSettingsGuard guard(*config, solvers);
+  SU2_OMP_SAFE_GLOBAL_ACCESS(config->SetFrozenIterationHistory(false);)
+  for (const auto& block : blocks) {
+    /*--- Reuse the native periodic minimum for base dt, restoring the residual it also communicates. ---*/
+    SU2_OMP_SAFE_GLOBAL_ACCESS(periodicWork.resize(geometry->GetnPointDomain(), block.variables);)
+    SU2_OMP_FOR_STAT(1024)
+    for (auto p = 0ul; p < geometry->GetnPointDomain(); ++p)
+      for (auto v = 0u; v < block.variables; ++v) periodicWork(p, v) = block.solver->LinSysRes(p, v);
+    END_SU2_OMP_FOR
+    for (auto pair = 1u; pair <= config->GetnMarker_Periodic() / 2; ++pair) {
+      block.solver->InitiatePeriodicComms(geometry, config, pair, PERIODIC_RESIDUAL);
+      block.solver->CompletePeriodicComms(geometry, config, pair, PERIODIC_RESIDUAL);
+    }
+    SU2_OMP_FOR_STAT(1024)
+    for (auto p = 0ul; p < geometry->GetnPointDomain(); ++p)
+      for (auto v = 0u; v < block.variables; ++v) block.solver->LinSysRes(p, v) = periodicWork(p, v);
+    END_SU2_OMP_FOR
+  }
+}
+
 void CNewtonEquationSet::Refresh() {
   SU2_OMP_SAFE_GLOBAL_ACCESS(config->SetGlobalParam(config->GetKind_Solver(), RUNTIME_FLOW_SYS);)
   solvers[FLOW_SOL]->Preprocessing(geometry, solvers, config, MESH_0, NO_RK_ITER, RUNTIME_FLOW_SYS, true);
@@ -260,10 +356,10 @@ void CNewtonEquationSet::Refresh() {
     SU2_OMP_SAFE_GLOBAL_ACCESS(config->SetGlobalParam(config->GetKind_Solver(), RUNTIME_TRANS_SYS);)
     solvers[TRANS_SOL]->Postprocessing(geometry, solvers, config, MESH_0);
   }
-  // Copy the newly computed eddy viscosity into the flow primitive/transport data.
+  /*--- Copy the newly computed eddy viscosity into the flow primitive/transport data. ---*/
   SU2_OMP_SAFE_GLOBAL_ACCESS(config->SetGlobalParam(config->GetKind_Solver(), RUNTIME_FLOW_SYS);)
   solvers[FLOW_SOL]->Preprocessing(geometry, solvers, config, MESH_0, NO_RK_ITER, RUNTIME_FLOW_SYS, true);
-  // Mixture flow fluxes consume species gradients even when species is outside the Newton group.
+  /*--- Mixture flow fluxes consume species gradients even when species is outside the Newton group. ---*/
   if (solvers[SPECIES_SOL]) {
     SU2_OMP_SAFE_GLOBAL_ACCESS(config->SetGlobalParam(config->GetKind_Solver(), RUNTIME_SPECIES_SYS);)
     solvers[SPECIES_SOL]->Preprocessing(geometry, solvers, config, MESH_0, NO_RK_ITER, RUNTIME_SPECIES_SYS, true);
@@ -352,7 +448,7 @@ bool CNewtonEquationSet::CheckState(bool compareFlow, bool modelBounds) {
       }
       if (sum > 1) local += 1;
       if (compareFlow && block.slot == SPECIES_SOL) {
-        // Ordinary mixture fluxes also consume diffusivity of the untransported last fraction.
+        /*--- Ordinary mixture fluxes also consume diffusivity of the untransported last fraction. ---*/
         const auto count = block.variables + (config->GetKind_Species_Model() == SPECIES_MODEL::SPECIES_TRANSPORT);
         for (auto v = 0u; v < count; ++v) {
           const auto value = SU2_TYPE::GetValue(block.solver->GetNodes()->GetDiffusivity(p, v));
@@ -374,13 +470,13 @@ bool CNewtonEquationSet::CheckState(bool compareFlow, bool modelBounds) {
 
 bool CNewtonEquationSet::EvaluateResiduals(bool implicit, bool allEquations, double reconstruction) {
   assert(reconstruction >= 0 && reconstruction <= 1);
-  EquationSettingsGuard guard(*config);
+  EquationSettingsGuard guard(*config, solvers);
   struct HistoryGuard {
     CNewtonEquationSet& equations;
     explicit HistoryGuard(CNewtonEquationSet& e) : equations(e) { equations.SaveHistory(); }
     ~HistoryGuard() { equations.RestoreHistory(); }
   } history(*this);
-  // Physical evaluations use full reconstruction; only an explicit Jacobian-model request may relax it.
+  /*--- Physical evaluations use full reconstruction; only an explicit Jacobian-model request may relax it. ---*/
   SU2_OMP_SAFE_GLOBAL_ACCESS(config->SetResidualOnly(true); config->SetFrozenIterationHistory(true);
                              config->SetNewtonKrylovRelaxation(reconstruction);)
   Communicate();
@@ -394,7 +490,7 @@ bool CNewtonEquationSet::EvaluateResiduals(bool implicit, bool allEquations, dou
         snapshot.boundaryInput[p * snapshot.variables + v] = nodes->GetSolution(p, v);
     END_SU2_OMP_FOR
   }
-  // Composition and no-slip values precede the first thermodynamic/wall-function refresh.
+  /*--- Composition and no-slip values precede the first thermodynamic/wall-function refresh. ---*/
   for (auto runtime : {RUNTIME_SPECIES_SYS, RUNTIME_FLOW_SYS}) StrongState(runtime);
   Communicate();
   if (!CheckState(false)) return false;
@@ -406,7 +502,7 @@ bool CNewtonEquationSet::EvaluateResiduals(bool implicit, bool allEquations, dou
   END_SU2_OMP_FOR
   Refresh();
   if (!CheckState(true)) return false;
-  // Coupled strong values must settle with their properties before any differentiated gradient or source.
+  /*--- Coupled strong values must settle with their properties before any differentiated gradient or source. ---*/
   bool constrained = false;
   for (unsigned sweep = 0; sweep < 200; ++sweep) {
     for (auto& snapshot : snapshots) {
@@ -419,7 +515,7 @@ bool CNewtonEquationSet::EvaluateResiduals(bool implicit, bool allEquations, dou
       END_SU2_OMP_FOR
     }
     for (auto runtime : runtimes) StrongState(runtime);
-    // A conditional row that becomes free must retain the supplied trial value.
+    /*--- A conditional row that becomes free must retain the supplied trial value. ---*/
     for (const auto& snapshot : snapshots) {
       auto* nodes = snapshot.solver->GetNodes();
       SU2_OMP_FOR_STAT(1024)
@@ -435,7 +531,7 @@ bool CNewtonEquationSet::EvaluateResiduals(bool implicit, bool allEquations, dou
       for (auto v = 0u; v < nFlow; ++v) trialFlow[p * nFlow + v] = flow->GetSolution(p, v);
     END_SU2_OMP_FOR
     Refresh();
-    // Exact strong data take precedence over numerical clipping floors.
+    /*--- Exact strong data take precedence over numerical clipping floors. ---*/
     if (!CheckState(true, true)) return false;
     SU2_OMP_SAFE_GLOBAL_ACCESS(invalidCount = 0;)
     double changed = 0;
@@ -460,7 +556,7 @@ bool CNewtonEquationSet::EvaluateResiduals(bool implicit, bool allEquations, dou
     }
   }
   if (!constrained) return false;
-  // Flow first also refreshes characteristic boundary states consumed by auxiliary equations.
+  /*--- Flow first also refreshes characteristic boundary states consumed by auxiliary equations. ---*/
   for (auto index = 0u; index < 4; ++index) {
     const auto runtime = runtimes[index];
     auto block = std::find_if(blocks.begin(), blocks.end(), [=](const Block& b) { return b.runtime == runtime; });
@@ -473,6 +569,8 @@ bool CNewtonEquationSet::EvaluateResiduals(bool implicit, bool allEquations, dou
     solvers[slot]->Preprocessing(geometry, solvers, config, MESH_0, NO_RK_ITER, runtime, false);
     Space_Integration(geometry, solvers, numerics[slot], config, MESH_0, NO_RK_ITER, runtime);
     InstallStrongValues(solvers[slot]);
+    /*--- Keep the supplied unknowns: the consistency equations remove the missing periodic modes. ---*/
+    AddPeriodicConstraints(solvers[slot]);
     SU2_OMP_SAFE_GLOBAL_ACCESS(++residualEvaluations[index];)
   }
   SU2_OMP_FOR_STAT(1024)

@@ -48,18 +48,20 @@ CIntegration** CIntegrationFactory::CreateIntegrationContainer(CConfig* config,
 
   auto selected = config->GetNewtonEquations();
   if (selected.empty() && config->GetNewtonKrylov()) {
-    // shortcut: Keep the old implementation for execution modes outside the steady primal CPU migration.
+    /*--- shortcut: Keep the old implementation for execution modes outside the steady primal CPU migration. ---*/
 #if !defined(CODI_FORWARD_TYPE) && !defined(CODI_REVERSE_TYPE)
     if (!config->GetNEMOProblem() && config->GetTime_Marching() == TIME_MARCHING::STEADY &&
         !config->GetTime_Domain() && !config->GetMultizone_Problem() && config->GetnZone() == 1 &&
-        !config->GetCUDA() && !config->GetnMarker_Periodic() && config->GetMGCycle() != MG_CYCLE::FULL &&
+        !config->GetCUDA() && config->GetMGCycle() != MG_CYCLE::FULL &&
+        (!config->GetnMarker_Periodic() || (config->GetKind_Species_Model() == SPECIES_MODEL::NONE &&
+          config->GetKind_Streamwise_Periodic() == ENUM_STREAMWISE_PERIODIC::NONE)) &&
         !config->GetContinuous_Adjoint() && !config->GetDiscrete_Adjoint() && config->GetDirectDiff() == NO_DERIVATIVE &&
         config->GetKind_Incomp_System() != INCOMP_SYSTEM::PRESSURE_BASED)
       selected = {RUNTIME_FLOW_SYS};
 #endif
   }
   const auto options = config->GetNewtonOptions().Passive([](const su2double& x) { return SU2_TYPE::GetValue(x); });
-  // Native iteration order determines the group's first dispatch, independently of its packing order.
+  /*--- Native iteration order determines the group's first dispatch, independently of its packing order. ---*/
   const std::pair<unsigned short, const char*> order[] = {{RUNTIME_FLOW_SYS, "flow"}, {RUNTIME_TRANS_SYS, "trans"},
                                                          {RUNTIME_TURB_SYS, "turb"}, {RUNTIME_SPECIES_SYS, "species"}};
   for (const auto& equation : order) {
@@ -95,7 +97,7 @@ CIntegration* CIntegrationFactory::CreateIntegration(INTEGRATION_TYPE integratio
       integration = new CMultiGridIntegration();
       break;
     case INTEGRATION_TYPE::NEWTON:
-      // Compatibility for execution modes not handled by the common controller's factory selection.
+      /*--- Compatibility for execution modes not handled by the common controller's factory selection. ---*/
       integration = new CNewtonLegacyIntegration();
       break;
     case INTEGRATION_TYPE::STRUCTURAL:

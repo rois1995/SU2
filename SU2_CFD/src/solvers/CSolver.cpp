@@ -1379,7 +1379,7 @@ void CSolver::CompletePeriodicComms(CGeometry *geometry,
                value and keep the minimum in order to be conservative. ---*/
 
               Time_Step = base_nodes->GetDelta_Time(iPoint);
-              if (bufDRecv[buf_offset] < Time_Step)
+              if (!config->GetFrozenIterationHistory() && bufDRecv[buf_offset] < Time_Step)
                 base_nodes->SetDelta_Time(iPoint,bufDRecv[buf_offset]);
               buf_offset++;
 

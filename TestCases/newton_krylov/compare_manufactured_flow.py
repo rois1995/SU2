@@ -61,10 +61,10 @@ def rows(path):
                 for row in csv.DictReader(stream)]
 
 
-def state(path, expected_variables=6):
+def state(path, expected_variables=6, expected_points=81):
     with path.open('rb') as stream:
         magic, variables, points, _, _ = struct.unpack('5i', stream.read(20))
-        assert magic == 535532 and variables == expected_variables and points == 81
+        assert magic == 535532 and variables == expected_variables and points == expected_points
         fields = [stream.read(33).split(b'\0')[0].decode() for _ in range(variables)]
         values = struct.unpack(str(points * variables) + 'd', stream.read(points * variables * 8))
     assert all(math.isfinite(value) for value in values)
@@ -87,7 +87,10 @@ def main(case=MMS_CASE):
     result = {'binary_sha256': sha(binary), 'reporter_sha256': sha(reporter),
               'runner_sha256': sha(Path(sys.argv[0]).resolve()), 'comparison_driver_sha256': sha(Path(__file__)),
               'report_script_sha256': sha(Path(__file__).with_name('report_state.py')),
-              'ranks': args.ranks, 'threads': args.threads, 'case': case['name'], 'limits': case['limits'], 'runs': []}
+              'ranks': args.ranks, 'threads': args.threads, 'case': case['name'], 'limits': case['limits'], 'runs': [],
+              'input_sha256': case.get('input_sha256', {}),
+              'environment': {key: os.environ[key] for key in
+                              ['TMPDIR', 'OMPI_MCA_orte_tmpdir_base', 'OMP_WAIT_POLICY'] if key in os.environ}}
     tags = {'flow': 'FLOW', 'turbulence': 'TURB', 'transition': 'TRANS', 'species': 'SPECIES'}
     selection = 'NEWTON_EQUATIONS= (' + ','.join(tags[system] for system in case['fields']) + ')\n'
     lower = 'NEWTON_BLOCK_LOWER= YES\n' if len(case['fields']) > 1 else ''
@@ -201,7 +204,7 @@ def main(case=MMS_CASE):
             run['transition_activity_difference_from_native'] = {
                 key: abs(activity[key] - reference_activity[key]) for key in ['gamma_min', 'gamma_max', 'gamma_mean']}
             assert max(run['transition_activity_difference_from_native'].values()) <= case['quantity_tolerance']
-        fields, solution = state(restart, 2 + variables)
+        fields, solution = state(restart, 2 + variables, case.get('points', 81))
         if case.get('minimum_progress_range'):
             j = fields[2:].index('ProgressVariable')
             values = [row[j] for row in solution.values()]

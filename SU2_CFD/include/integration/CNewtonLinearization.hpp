@@ -12,7 +12,13 @@
 #include <memory>
 
 #if !defined(CODI_FORWARD_TYPE) && !defined(CODI_REVERSE_TYPE)
-/*! \brief Frozen native pseudo-time action in scaled group coordinates, with prescribed coordinates eliminated. */
+/*!
+ * \class CNewtonPseudoTime
+ * \brief Frozen native pseudo-time action with prescribed coordinates eliminated.
+ * \details Apply S^-1*D*S, or S^-1*P*D*P*S for periodic groups. D contains native local partial-cell
+ * masses, including dense flow preconditioning; P averages periodic copies with momentum rotations.
+ * Build and Apply are collective over the current OpenMP team. The scale must outlive the built action.
+ */
 class CNewtonPseudoTime final {
  public:
   using Vector = CSysVector<passivedouble>;
@@ -22,20 +28,27 @@ class CNewtonPseudoTime final {
   CGeometry* geometry;
   CConfig* config;
   Vector diagonal;
+  const Vector* scaling = nullptr;
+  mutable Vector periodicInput, periodicProduct;
   su2passivematrix flowMatrix;
   unsigned short flowOffset = 0, flowVariables = 0;
   int invalid = 0;
 
  public:
   CNewtonPseudoTime(const CNewtonEquationSet&, CGeometry*, CConfig*);
+  /*! \brief Freeze native masses at the base time steps; return false for invalid entries. */
   bool Build(const Vector& scale, const std::vector<unsigned char>& free);
+  /*! \brief Assign the mass action to the output, or accumulate it when add is true. */
   void Apply(const Vector&, Vector&, bool add = false) const;
   const Vector& GetDiagonal() const { return diagonal; }
 };
 
-/*! \brief A = S^-1 J_R S + D in the equation set's fixed coordinates.
- * SetBase refreshes an explicit residual at the captured base, preserving the native implicit matrices.
- * Positive finite scale and the diagonal remain alive and fixed until the next SetBase. Methods are OpenMP collective.
+/*!
+ * \class CNewtonLinearization
+ * \brief Matrix-free A = S^-1*J_F*S + frozen pseudo-time action in fixed group coordinates q=M_base*w.
+ * \details J_F differentiates the full refreshed residual, including cross-equation and periodic consistency
+ * terms. SetBase refreshes an explicit residual while preserving native implicit matrices. Positive finite
+ * scales and pseudo-time data must remain alive and fixed until the next SetBase. Methods are OpenMP collective.
  */
 class CNewtonLinearization final : public CMatrixVectorProduct<passivedouble> {
  public:
@@ -56,6 +69,13 @@ class CNewtonLinearization final : public CMatrixVectorProduct<passivedouble> {
 
  public:
   CNewtonLinearization(CNewtonEquationSet&, CGeometry*, CConfig*);
+  /*!
+   * \brief Bind base scales, probe controls and free coordinates before applying the operator.
+   * \details relativeReference controls probe size independently of the state scaling. physicalMetric retains
+   * legacy flow probe sizing; verifyStep requests refinement. mass supplies the native dense/projected action.
+   * The optional relaxed reconstruction belongs only to a direction model; acceptance uses the physical operator.
+   * \return False when the explicit base residual cannot be evaluated.
+   */
   template <class IsFree>
   bool SetBase(const Vector& scaling, const Vector& pseudoTime, double step, double relativeLimit, IsFree isFree,
                const Vector* relativeReference = nullptr, double reconstructionFactor = 1.0,
@@ -65,7 +85,7 @@ class CNewtonLinearization final : public CMatrixVectorProduct<passivedouble> {
     assert(step > 0 && relativeLimit >= 0);
     assert(reconstructionFactor >= 0 && reconstructionFactor <= 1);
     assert(!relativeReference || relativeReference->GetLocSize() == scaling.GetLocSize());
-    // Normalized flame gradients can be sensitive even with first-order reconstruction.
+    /*--- Normalized flame gradients can be sensitive even with first-order reconstruction. ---*/
     verifyStep = verifyStep || (config->GetKind_Species_Model() == SPECIES_MODEL::FLAMELET &&
         config->GetFlameletParsedOptions().thickenedflame_correction &&
         std::any_of(equations.GetBlocks().begin(), equations.GetBlocks().end(),
@@ -78,7 +98,7 @@ class CNewtonLinearization final : public CMatrixVectorProduct<passivedouble> {
                                  coarseProduct.Initialize(scaling.GetNBlk(), scaling.GetNBlkDomain(), scaling.GetNVar(), 0.0);
                                  previousProduct.Initialize(scaling.GetNBlk(), scaling.GetNBlkDomain(), scaling.GetNVar(), 0.0);
                                })
-    // Use the same residual path for the reference and probes, avoiding implicit/explicit roundoff offsets.
+    /*--- Use the same residual path for the reference and probes, avoiding implicit/explicit roundoff offsets. ---*/
     if (!equations.EvaluateResiduals(false, false, reconstruction)) return false;
     equations.Pack(baseState);
     equations.CopyResidual(baseResidual);
@@ -96,8 +116,11 @@ class CNewtonLinearization final : public CMatrixVectorProduct<passivedouble> {
     return SetBase(scaling, pseudoTime, step, relativeLimit,
                    [](const CNewtonEquationSet::Block&, unsigned long, unsigned short) { return true; });
   }
-  /*! \brief False produces the scaled physical derivative, without the pseudo-time diagonal.
-   * Preconditioner coupling can omit step verification; operator and defect products retain it.
+  /*!
+   * \brief Differentiate the full physical residual along the supplied scaled direction.
+   * \param[in] pseudoTime - Include the frozen pseudo-time action when true.
+   * \param[in] verifyStep - Permit the configured probe refinement; only approximate preconditioner coupling omits it.
+   * \return False, with a nonfinite output, if no feasible, resolved derivative can be obtained.
    */
   bool Apply(const Vector&, Vector&, bool pseudoTime = true, bool verifyStep = true) const;
   void operator()(const Vector& u, Vector& v) const override { Apply(u, v); }
@@ -111,8 +134,12 @@ class CNewtonLinearization final : public CMatrixVectorProduct<passivedouble> {
   const std::vector<CNewtonEquationSet::Block>& GetBlocks() const { return equations.GetBlocks(); }
 };
 
-/*! \brief Native diagonal solves, optionally subtracting matrix-free lower coupling actions.
- * Each matrix retains its native block size; the full group never enters CSysMatrix scratch buffers.
+/*!
+ * \class CNewtonBlockPreconditioner
+ * \brief Native block solves, optionally subtracting matrix-free lower coupling actions.
+ * \details Each matrix retains its native block size; the full group never enters CSysMatrix scratch buffers.
+ * Native matrices approximate the full operator. In particular, periodic P*A*P+(I-P) is a preconditioner,
+ * while arbitrary trial directions remain present in the residual derivative used for acceptance.
  */
 class CNewtonBlockPreconditioner final : public CPreconditioner<passivedouble> {
   using Mixed = su2mixedfloat;
@@ -139,7 +166,9 @@ class CNewtonBlockPreconditioner final : public CPreconditioner<passivedouble> {
                              unsigned innerIterations = 0, double innerTolerance = 0.1);
   void Build() override;
   void operator()(const Vector& u, Vector& v) const override { Solve(u, v, innerIterations, innerTolerance); }
+  /*! \brief Apply block solves in physical correction coordinates; return accumulated inner iterations. */
   unsigned long Solve(const Vector&, Vector&, unsigned iterations, double tolerance) const;
+  /*! \brief Apply the native block matrices for a legacy startup direction model. */
   void Multiply(const Vector&, Vector&) const;
   unsigned long GetWork() const { return work; }
 };

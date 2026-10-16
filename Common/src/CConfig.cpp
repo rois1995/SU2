@@ -3736,9 +3736,12 @@ void CConfig::SetPostprocessing(SU2_COMPONENT val_software, unsigned short val_i
       SU2_MPI::Error("Select either SST_NEWTON or NEWTON_EQUATIONS", CURRENT_FUNCTION);
     if (GetNEMOProblem() || TimeMarching != TIME_MARCHING::STEADY || Time_Domain || nZone != 1 ||
         Multizone_Problem || Enable_Cuda || Kind_MGCycle == MG_CYCLE::FULL ||
-        ContinuousAdjoint || DiscreteAdjoint || DirectDiff != NO_DERIVATIVE || nMarker_PerBound)
-      SU2_MPI::Error("NEWTON_EQUATIONS requires steady primal single-zone CPU cases without periodic markers or full-MG startup",
+        ContinuousAdjoint || DiscreteAdjoint || DirectDiff != NO_DERIVATIVE)
+      SU2_MPI::Error("NEWTON_EQUATIONS requires steady primal single-zone CPU cases without full-MG startup",
                      CURRENT_FUNCTION);
+    if (nMarker_PerBound && (Kind_Species_Model != SPECIES_MODEL::NONE ||
+                            Kind_Streamwise_Periodic != ENUM_STREAMWISE_PERIODIC::NONE))
+      SU2_MPI::Error("Periodic NEWTON_EQUATIONS currently excludes species and streamwise models", CURRENT_FUNCTION);
 #if defined(CODI_REVERSE_TYPE) || defined(CODI_FORWARD_TYPE)
     SU2_MPI::Error("NEWTON_EQUATIONS requires a primal executable", CURRENT_FUNCTION);
 #endif

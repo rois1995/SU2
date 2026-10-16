@@ -27,7 +27,7 @@ struct Parameters {
   unsigned maximumEvaluations = 20;
 };
 
-/* std::isfinite can be optimized away by the solver's -ffast-math build. */
+/*--- std::isfinite can be optimized away by the solver's -ffast-math build. ---*/
 inline bool IsFinite(double value) {
   static_assert(sizeof(double) == sizeof(std::uint64_t) && std::numeric_limits<double>::is_iec559,
                 "Line-search control requires IEEE binary64");
@@ -36,7 +36,9 @@ inline bool IsFinite(double value) {
   return (bits & UINT64_C(0x7ff0000000000000)) != UINT64_C(0x7ff0000000000000);
 }
 
-/* The caller supplies the actual directional derivative, including any direction projection.
+/*!
+ * \brief Search a fixed feasible direction with safeguarded interpolation and sufficient decrease.
+ * \details The caller supplies the actual directional derivative, including any direction projection.
  * Failed searches and evaluator exceptions restore the base state through rollback().
  * Armijo c1 and safeguarded quadratic/cubic interpolation follow PETSc SNESLINESEARCHBT.
  */
@@ -71,7 +73,7 @@ Result Search(double base, double slope, double minimumStep, Evaluate&& evaluate
     }
     ++evaluations;
     const bool valid = IsFinite(value) && value >= 0;
-    // Strict decrease prevents a rounded-to-zero decrement from accepting stagnation.
+    /*--- Strict decrease prevents a rounded-to-zero decrement from accepting stagnation. ---*/
     if (valid && value < base && value <= base + c1 * step * slope) return {Status::Accepted, step, value, evaluations};
 
     double next = 0.5 * step;

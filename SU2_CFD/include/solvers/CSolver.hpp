@@ -4268,6 +4268,8 @@ public:
     implicit_periodic = val_implicit_periodic;
     Jacobian.SetPeriodicProjection(val_implicit_periodic ? (rotate_periodic ? 1 : -1) : -2);
   }
+  /*! \brief Read the native periodic assembly mode so residual probes can restore it exactly. */
+  bool GetImplicitPeriodic() const { return implicit_periodic; }
 
   /*!
    * \brief Routine that sets the flag controlling solution rotation for periodic BCs.

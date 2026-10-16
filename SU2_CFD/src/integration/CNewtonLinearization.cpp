@@ -8,6 +8,10 @@
 #if !defined(CODI_FORWARD_TYPE) && !defined(CODI_REVERSE_TYPE)
 CNewtonPseudoTime::CNewtonPseudoTime(const CNewtonEquationSet& e, CGeometry* g, CConfig* c)
     : equations(e), geometry(g), config(c), diagonal(g->GetnPoint(), g->GetnPointDomain(), e.GetnVar(), 0.0) {
+  if (c->GetnMarker_Periodic()) {
+    periodicInput.Initialize(g->GetnPoint(), g->GetnPointDomain(), e.GetnVar(), 0.0);
+    periodicProduct.Initialize(g->GetnPoint(), g->GetnPointDomain(), e.GetnVar(), 0.0);
+  }
   for (const auto& block : equations.GetBlocks())
     if (block.slot == FLOW_SOL && (c->GetKind_Regime() == ENUM_REGIME::INCOMPRESSIBLE ||
                                   c->Low_Mach_Preconditioning() || c->GetKind_Upwind_Flow() == UPWIND::TURKEL)) {
@@ -20,14 +24,16 @@ CNewtonPseudoTime::CNewtonPseudoTime(const CNewtonEquationSet& e, CGeometry* g, 
 bool CNewtonPseudoTime::Build(const Vector& scale, const std::vector<unsigned char>& free) {
   assert(scale.GetNVar() == equations.GetnVar() && scale.GetNBlk() == geometry->GetnPoint());
   assert(free.size() == scale.GetLocSize());
-  SU2_OMP_SAFE_GLOBAL_ACCESS(invalid = 0;)
+  SU2_OMP_SAFE_GLOBAL_ACCESS(invalid = 0; scaling = &scale;)
+  /*--- Freeze local partial-cell masses; the two periodic averages are applied in Apply, not in the volume. ---*/
   for (const auto& block : equations.GetBlocks()) {
     su2activematrix native(block.variables, block.variables);
     int localInvalid = 0;
     SU2_OMP_FOR_STAT(1024)
     for (auto p = 0ul; p < geometry->GetnPointDomain(); ++p) {
       const double step = SU2_TYPE::GetValue(block.solver->GetNodes()->GetDelta_Time(p));
-      const double volume = SU2_TYPE::GetValue(geometry->nodes->GetVolume(p) + geometry->nodes->GetPeriodicVolume(p));
+      const double volume = SU2_TYPE::GetValue(geometry->nodes->GetVolume(p) +
+          (config->GetnMarker_Periodic() ? su2double(0) : geometry->nodes->GetPeriodicVolume(p)));
       const double delta = step > 0 ? volume / step : 0;
       if (!(delta > 0) || !Armijo::IsFinite(delta)) localInvalid = 1;
       for (auto v = 0u; v < block.variables; ++v)
@@ -59,19 +65,33 @@ bool CNewtonPseudoTime::Build(const Vector& scale, const std::vector<unsigned ch
 void CNewtonPseudoTime::Apply(const Vector& u, Vector& v, bool add) const {
   assert(u.GetNVar() == equations.GetnVar() && v.GetNVar() == equations.GetnVar());
   SU2_OMP_BARRIER
+  const bool periodic = config->GetnMarker_Periodic();
+  /*--- Project before and after the native mass: S^-1*P*D*P*S adds no mass to periodic consistency modes. ---*/
+  if (periodic) {
+    periodicInput = u;
+    equations.ProjectPeriodic(periodicInput, scaling);
+  }
+  const auto& input = periodic ? periodicInput : u;
+  auto& output = periodic ? periodicProduct : v;
   SU2_OMP_FOR_STAT(1024)
   for (auto p = 0ul; p < geometry->GetnPointDomain(); ++p)
     for (auto i = 0u; i < equations.GetnVar(); ++i) {
-      double value = diagonal(p, i) * u(p, i);
+      double value = diagonal(p, i) * input(p, i);
       if (i >= flowOffset && i < flowOffset + flowVariables) {
         value = 0;
         const auto row = i - flowOffset;
         for (auto j = 0u; j < flowVariables; ++j)
-          value += flowMatrix(p, row * flowVariables + j) * u(p, flowOffset + j);
+          value += flowMatrix(p, row * flowVariables + j) * input(p, flowOffset + j);
       }
-      v(p, i) = (add ? v(p, i) : 0.0) + value;
+      output(p, i) = (add && !periodic ? v(p, i) : 0.0) + value;
     }
   END_SU2_OMP_FOR
+  if (periodic) {
+    equations.ProjectPeriodic(periodicProduct, scaling);
+    if (add) v += periodicProduct;
+    else v = periodicProduct;
+    SU2_OMP_BARRIER
+  }
 }
 
 CNewtonLinearization::CNewtonLinearization(CNewtonEquationSet& e, CGeometry* g, CConfig* c)
@@ -86,6 +106,7 @@ bool CNewtonLinearization::Apply(const Vector& u, Vector& v, bool pseudoTime, bo
   assert(scale && diagonal && u.GetNVar() == equations.GetnVar() && v.GetNVar() == equations.GetnVar());
   assert(&u != &v);
   const bool refine = refineStep && verifyStep;
+  /*--- Size probes globally, retaining anisotropic state scales and representable changes at the base. ---*/
   double norm;
   if (physicalStep) {
     SU2_OMP_BARRIER
@@ -107,7 +128,7 @@ bool CNewtonLinearization::Apply(const Vector& u, Vector& v, bool pseudoTime, bo
     const double spacing = std::max(std::abs(std::nextafter(baseState[i], INFINITY) - baseState[i]),
                                     std::abs(std::nextafter(baseState[i], -INFINITY) - baseState[i]));
     resolution = std::max(resolution, std::abs(change) / spacing);
-    // Zero gauge pressure and zero species are valid coordinates; use their physical scale for relative probes.
+    /*--- Zero gauge pressure and zero species are valid coordinates; use their physical scale for relative probes. ---*/
     const auto reference =
         probeReference ? std::abs((*probeReference)[i]) : std::max(std::abs(baseState[i]), std::abs((*scale)[i]));
     if (reference > 0) local = std::max(local, std::abs(change) / reference);
@@ -130,6 +151,7 @@ bool CNewtonLinearization::Apply(const Vector& u, Vector& v, bool pseudoTime, bo
     SU2_OMP_BARRIER
     return false;
   }
+  /*--- Difference complete refreshed residuals, including all cross responses and explicit periodic constraints. ---*/
   auto probe = [&](double step) {
     bool shifted = false;
     if (!equations.FeasibleProbes(u, *scale, step, free, v, probeWork, shifted)) return false;
@@ -141,7 +163,7 @@ bool CNewtonLinearization::Apply(const Vector& u, Vector& v, bool pseudoTime, bo
       if (!equations.EvaluateResiduals(false, false, reconstruction)) return false;
       equations.CopyResidual(probeWork);
     }
-    // Directions are no longer needed after SetTrial, so their storage can hold residuals.
+    /*--- Directions are no longer needed after SetTrial, so their storage can hold residuals. ---*/
     equations.SetTrial(v, step, *scale, isFree);
     if (!equations.EvaluateResiduals(false, false, reconstruction)) return false;
     equations.CopyResidual(v);
@@ -160,7 +182,7 @@ bool CNewtonLinearization::Apply(const Vector& u, Vector& v, bool pseudoTime, bo
   }
   bool converged = false;
   for (unsigned refinement = 0; sampled && refinement <= (refine ? 16u : 0u); ++refinement) {
-    // A rounded-away perturbation cannot establish a zero derivative.
+    /*--- A rounded-away perturbation cannot establish a zero derivative. ---*/
     if (stepResolution > 0 && std::abs(h) * stepResolution < 1) break;
     if (refinement && !probe(h)) break;
     SU2_OMP_FOR_STAT(1024)
@@ -180,7 +202,7 @@ bool CNewtonLinearization::Apply(const Vector& u, Vector& v, bool pseudoTime, bo
       converged = true;
       break;
     }
-    // Richardson extrapolation removes the leading forward-probe error without crossing physical bounds.
+    /*--- Richardson extrapolation removes the leading forward-probe error without crossing physical bounds. ---*/
     previousProduct = v;
     SU2_OMP_BARRIER
     h *= 0.5;
@@ -234,7 +256,7 @@ void CNewtonBlockPreconditioner::Build() {
   SU2_OMP_SAFE_GLOBAL_ACCESS(work = 0;)
   for (auto& block : blocks) {
     if (linearization.UsesNativeMass() && block.solver->Jacobian.HasCoefficients()) {
-      // Native pseudo-time assembly can reintroduce couplings into a prescribed row.
+      /*--- Native pseudo-time assembly can reintroduce couplings into a prescribed row. ---*/
       SU2_OMP_FOR_STAT(1024)
       for (auto p = 0ul; p < geometry->GetnPointDomain(); ++p)
         for (auto v = 0u; v < block.variables; ++v)
@@ -247,14 +269,14 @@ void CNewtonBlockPreconditioner::Build() {
 
 unsigned long CNewtonBlockPreconditioner::Solve(const Vector& u, Vector& v, unsigned iterations,
                                                 double tolerance) const {
-  // Vector producers use nowait with a different partition than the native block loops.
+  /*--- Vector producers use nowait with a different partition than the native block loops. ---*/
   SU2_OMP_BARRIER
   const auto& scale = linearization.GetScale();
   unsigned long total = 0;
   v = passivedouble(0);
   for (auto index = 0u; index < blocks.size(); ++index) {
     const auto& block = blocks[index];
-    // Lower coupling is approximate; the outer operator and true defect use verified physical products.
+    /*--- Lower coupling is approximate; the outer operator and true defect use verified physical products. ---*/
     if (lowerTriangular && index && !linearization.Apply(v, coupling, false, false)) {
       v = passivedouble(std::numeric_limits<double>::quiet_NaN());
       SU2_OMP_BARRIER

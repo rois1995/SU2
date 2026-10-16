@@ -1,5 +1,68 @@
 # Common globalized Newton–Krylov refactor
 
+## Common Newton periodic equations and code documentation, 2026-10-16
+
+The shared equation interface now retains periodic copies as explicit unknowns.
+For native stored state `w`, its physical residual is
+`F(w) = P*R(w) + B(w)*(I-P)*w`. `P` averages equivalent copies and rotates flow
+momentum; `B` is live density for conservative scalars and identity otherwise.
+The consistency term removes the missing periodic modes without averaging trial
+primary values. Full finite differences retain arbitrary directions and live
+cross-equation responses. The native `P*A*P+(I-P)` matrix remains an approximate
+block preconditioner, rather than the definition of that full derivative.
+
+Each attempt fixes group coordinates `q=M_base*w` and positive state scales `S`.
+The pseudo-time action is `S^-1*P*D*P*S`, with local partial-cell masses in `D`,
+including dense incompressible/low-Mach flow actions. The consistency modes get
+no extra pseudo-time mass. Base time steps are explicitly synchronized using the
+native periodic minimum before implicit assembly. Residual evaluations freeze
+this iteration history and restore the solver's original periodic mode, including
+when flow uses explicit time integration. No new numerical controls or relaxed
+acceptance tolerances are introduced.
+
+The common selection and legacy implicit `NEWTON_KRYLOV` dispatch admit core
+periodic mean-flow, turbulence and existing transition groups. Periodic species
+and streamwise combinations remain explicitly excluded from the new selection
+pending their separate applicability audits; existing legacy routing is retained.
+NEMO, further species/flamelet development and multigrid are outside this work.
+
+Four native cases independently check the residual consistency term, native mass
+mapping and nullspace, arbitrary scaled products against centered differences,
+and production-driver acceptance plus forced linear-failure rollback. They cover
+2D translations/intersections and 3D rotation, explicit/implicit flow, SA, SST and
+LM, reversed block packing and selected subgroups. Initial detecting failures,
+the four implicit/explicit roundoff comparisons, and the passing same-mode exact
+restoration checks are retained separately. The independent references do not
+call the production projector. All 53 native cases pass on 1x1, 1x2, 2x2 and
+2x4 layouts (104170 assertions on either single-rank layout; 61774/55562 per MPI
+rank). All 88 ordinary cases pass 105424 assertions. The four periodic cases
+pass 41122 assertions under Valgrind with zero errors (leaks unchecked), and
+all three existing CLI checks pass. This includes the legacy periodic flow
+factory dispatch. Focused test success alone does not establish converged
+endpoints. All six changed production translation units pass forward-mode syntax
+checks; this does not establish AD runtime. Converged sector Newton qualification
+remains open. Commands, hashes and failures are pinned in
+`Docs/NewtonKrylovPeriodicCommonResults.json`.
+
+The first sector pilot retained fixed Newton CFL controls and the native LU-SGS
+preconditioner. Native flow converged in 1049 updates, but Newton terminated at
+minimum CFL after derivative verification rejected a direction; its last history
+entry is iteration 2329. This is a failed endpoint qualification, not convergence
+or a wall-time timeout. All recorded rollbacks restore state exactly. Writing
+the failure restart then received SIGBUS in OpenMPI's shared-file component while
+`/tmp` had only 125 MiB free. The solver failure and subsequent I/O failure are
+recorded separately. The complete source, binaries, logs and results are retained
+in `periodic_common_initial_ef407ae13a9f`. Follow-up comparisons use workspace
+MPI temporary storage and the existing adaptive-CFL policy, without changing
+physical equations, derivative acceptance tolerances or minimum-CFL recovery.
+
+The shared equation, linearization, pseudo-time, preconditioning and integration
+interfaces now document coordinates, lifetimes, side effects and failure results
+using SU2 Doxygen conventions. SU2 section comments explain dependency refresh,
+feasible derivative probes, periodic constraints, endpoint readback and bounded
+recovery. The implementation and tests retain descriptive local names and small
+native blocks instead of exposing a large packed group to fixed solver buffers.
+
 ## Periodic baseline corrections, 2026-10-16
 
 The fork's current periodic branches were fetched and audited before changing
@@ -77,8 +140,9 @@ The shared production controller, equation selection, segregated and coupled
 groups, verified matrix-free products, Armijo acceptance, exact rollback and
 bounded recovery are implemented. Matched converged comparisons cover mean
 flow, SA, SA-BC, SST and active LM on serial and MPI/OpenMP layouts. The new
-modes currently require steady primal single-zone CPU cases, without periodic
-markers or multigrid. Larger production cases and general performance gains
+modes require steady primal single-zone CPU cases without multigrid. Core periodic
+groups are covered by the current qualification above; earlier sections retain
+their original evidence and restrictions. Larger production cases and general performance gains
 remain unproved. Historical sections below describe earlier milestones and
 their remaining work at that time.
 

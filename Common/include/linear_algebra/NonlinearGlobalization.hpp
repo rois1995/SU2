@@ -9,6 +9,7 @@
 #include <string>
 
 namespace NonlinearGlobalization {
+/*! \brief Shared bounded line-search, pseudo-time and inexact-Newton controls, independent of solver physics. */
 template <class Real = double>
 struct Options {
   bool enabled = false;
@@ -40,6 +41,7 @@ struct Options {
   unsigned short maxRetries = 16;
   unsigned short linearIterations = 80;
 
+  /*! \brief Copy configuration controls to passive arithmetic before nonlinear decisions. */
   template <class Convert>
   Options<double> Passive(Convert convert) const {
     Options<double> result;
@@ -74,6 +76,7 @@ struct Options {
     return result;
   }
 
+  /*! \brief Return the first invalid control combination, or an empty string for a valid policy. */
   std::string Validate() const {
     if (!Armijo::IsFinite(restoreTolerance) || restoreTolerance < 0 || restoreTolerance >= 1)
       return "SST_NEWTON: invalid relative merit restoration tolerance";
@@ -118,6 +121,7 @@ struct Decision {
   double nextCFL;
 };
 
+/*! \brief Retry a restored base at smaller CFL, or return a terminal recovery reason. */
 inline Decision Reject(const Options<>& options, double cfl, unsigned attempt, bool invalidBase = false) {
   if (invalidBase) return {RecoveryReason::InvalidState, cfl};
   if (!options.recovery) return {RecoveryReason::Disabled, cfl};
@@ -127,6 +131,7 @@ inline Decision Reject(const Options<>& options, double cfl, unsigned attempt, b
   return {RecoveryReason::Retry, next};
 }
 
+/*! \brief Adapt the next accepted iteration's CFL using actual versus predicted merit decrease. */
 inline double Adapt(const Options<>& options, double cfl, double agreement, double step) {
   if (!options.adaptCFL || step == 0) return cfl;
   if (!Armijo::IsFinite(agreement) || agreement < options.poorAgreement || step < options.interpolationMax)
@@ -136,7 +141,7 @@ inline double Adapt(const Options<>& options, double cfl, double agreement, doub
   return std::max(options.cflMin, std::min(options.cflMax, cfl));
 }
 
-// Eisenstat-Walker choice 2 uses norms of the same scaled residual and undamped steps.
+/*--- Eisenstat-Walker choice 2 uses norms of the same scaled residual and undamped steps. ---*/
 inline double Forcing(const Options<>& options, double eta, double base, double accepted, double step) {
   if (!options.adaptiveForcing || step < 1.0 || !(base > 0)) return options.linearTolerance;
   const double candidate = options.forcingGamma * std::pow(std::sqrt(accepted / base), options.forcingPower);
