@@ -29,11 +29,16 @@ full independent varying-BL quadrature remains open. Regional validation takes
 explicitly skipped. Zero region-service counters in these small direct-source
 fixtures do not mean zero metric evaluations.
 
-Current sequential correctness campaign: `native_front_constant_mpi2_v2`,
-`native_front_constant_mpi4_v2`, `native_curved_rans_n4_m2_v12` under
-`integration_evidence/native_3d_bl_v1/region_construction_v1`. Verify its actual
-session/process before restart. These stages qualify the changed constructor;
-old MPI receipts do not automatically qualify it. Full goal is not complete.
+Changed-source high-ratio MPI2/4 native and independent geometry/source audits
+now pass2877 cells/work3771 with the same gate extrema. Floating coordinates/IDs
+differ; do not reuse the serial full numerical metric certificate for MPI.
+Actual `native_curved_rans_n4_m2_v12` now passes24->621->48 with independent
+geometry/current+BDF/open-ledger/SU2/CGNS/reference/restart audits. Separate
+`sa_projection_replay_v26` verifies raw projection and every solver-floor
+correction; post-bounds SA is not exactly conservative. New-source actual RANS
+qualification is N4/M2 only; the earlier six-way matrix retains pre-front scope.
+[Complete current milestone receipt](integration_evidence/native_3d_bl_v1/region_construction_v1/coarsened_fronts_v1_summary.json).
+All owned native/build/audit/replay jobs are terminal. Full Goal3 is not complete.
 
 ## Qualified prior foundations
 

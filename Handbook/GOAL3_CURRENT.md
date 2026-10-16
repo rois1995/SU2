@@ -16,8 +16,11 @@ cells together; it replaces the structurally blocked fixed840-cells-per-band pat
 [Current construction, evidence and limits](GOAL3_COARSENED_METRIC_FRONTS.md).
 
 The prior15-case MPI integration/six-way actual RANS campaign is complete in its
-recorded pre-front source scope. Changed-source high-ratio MPI2/4 and actual RANS
-N4/M2 checks are in progress; see HANDOFF_Codex.md for live state. No general
+recorded pre-front source scope. Changed-source high-ratio MPI2/4 and representative actual RANS N4/M2 now
+pass independent geometry/source and actual workflow audits respectively.
+The RANS lifecycle is24->621->48 with current+BDF/open-ledger, explicitly
+replayed SA-floor accounting, SU2/CGNS/reference and exact restart. All owned
+jobs are terminal; see HANDOFF_Codex.md for current state. No general
 geometry, converged viscous accuracy, parallel generation or lifecycle affordability
 claim follows. All full Goal3 gates remain intact.
 

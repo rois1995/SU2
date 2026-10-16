@@ -60,9 +60,15 @@ indicators are not rigorous enclosures. The varying audit independently checks
 original P1 and pure-core integrals; full composed varying BL integration remains
 unqualified. Inspect `core_accepted.su2` and its `.native_ref` in each case.
 
-Changed-source MPI2/4 high-ratio and actual RANS N4/M2 stages are being qualified
-sequentially. Existing full15-case/six-way RANS MPI campaign is pre-front evidence,
-not proof for the changed constructor. Every case keeps source/build/binary/config/
+Changed-source high-ratio MPI2/4 native and independent geometry/source audits
+pass2877 cells/work3771 with the same gate extrema. Coordinates/IDs differ;
+no exact-mesh or independent full numerical metric reuse is claimed for MPI.
+Actual RANS N4/M2 now passes24->621->48 with independent exact geometry,
+physical current+BDF conservation/open ledger, separately replayed SA solver-floor
+corrections, SU2/CGNS/reference reload and actual restart. Post-bounds SA is not
+exactly conserved; pressure demand clips coarse. See sa_projection_replay_v26.
+Existing full15-case/six-way RANS MPI campaign is pre-front evidence, not proof
+for the changed constructor. Every case keeps source/build/binary/config/
 input/artifact receipts. Failed candidates and prototype searches remain saved.
 
 ## Cost and limits
@@ -85,3 +91,21 @@ path; current results do not newly qualify it. Thin/coarse interacting support,
 full gradation feasibility, viscous accuracy, repeated updates and lifecycle
 performance remain full Goal3 work. Failure must preserve the accepted state;
 do not add local fallback ladders or raise limits in lieu of a missing strategy.
+
+## Closed milestone and next full-goal work
+
+All three planned integration cases are now complete. The implementation is
+published at f9a6af4a096f9796115f9fc8a04fa235aaaaaccf; this later evidence update
+adds no production change. The native actual-RANS BL remesh takes11.72s locally,
+with10.50s in regional validation. Metric construction/automatic sampling and
+repartition/migration/return/rebuild/transfer/output clocks are saved separately;
+no CFD-only ratio follows from the advance clock. Source-service counters and
+fine-grained validation attribution need appropriate instrumentation before a
+performance claim, not another correctness rerun solely to export counters.
+
+Next preserve this complete accepted-mesh baseline while addressing the missing
+construction geometry/interaction capability. Wider authority/feature/interacting
+regions, nonconstant full composed reference, separate combined-gradation limits,
+retained-BL updates, viscous/M6 validation and complete lifecycle affordability
+remain the original Goal3 gates. Do not declare this cylinder pilot the full goal
+or move to Goal4. No native/build/audit/replay process remains live.

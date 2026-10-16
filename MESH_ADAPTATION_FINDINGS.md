@@ -5703,3 +5703,15 @@ clocks; service-only zero counters must not be read as zero direct-field work.
 No performance/scaling claim or general/interacting/exterior geometry qualification.
 One cylinder/two caps/one worker/heuristic positive BL-free core are explicit
 limits. Full Goal3 remains active. See Handbook/GOAL3_COARSENED_METRIC_FRONTS.md.
+
+
+The subsequent current-source high-ratio MPI2/4 stages independently pass geometry/
+source at2877 cells/work3771, with matching acceptance extrema but nonidentical
+floating coordinates/IDs. The serial full numerical metric reference is not
+silently reused for MPI. Representative actual RANS N4/M2 passes24->621->48,
+independent physical current+BDF/open-ledger, separately replayed bounded-SA
+corrections, SU2/CGNS/reference and exact restart. Post-bounds SA remains explicitly
+nonconservative. All planned current integration stages are complete; all owned
+jobs terminal. Full Goal3 remains incomplete. Current evidence is
+region_construction_v1/coarsened_fronts_v1_summary.json. No production change was
+needed after publishedf9a6af4a09 to pass these integration checks.

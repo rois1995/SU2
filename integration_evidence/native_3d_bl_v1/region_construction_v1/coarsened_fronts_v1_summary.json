@@ -1,5 +1,5 @@
 {
-  "status": "COMPLETE_ACCEPTED_HIGH_RATIO_AND_DISTINCT_SERIAL_FIELDS_MPI_WORKFLOW_PENDING",
+  "status": "COMPLETE_ACCEPTED_HIGH_RATIO_SERIAL_MPI_AND_REPRESENTATIVE_RANS_SCOPE_LIMITED",
   "full_goal3_complete": false,
   "production_source_sha256": "02cae64214aedb1b7d4ece3a0da0dd801465ff5c5b8bd397dd5c37484b5b6f44",
   "build_logs": {
@@ -121,11 +121,103 @@
     "native_front_constant_mpi4_v2",
     "native_curved_rans_n4_m2_v12"
   ],
-  "scope": "Complete native high-ratio and distinct-field meshes under unchanged geometry/height/q/J/full edge/original P1/fade/work/time limits. Independent exact geometry/source and constant-sensor numerical full metric, not general geometry or full Goal3. MPI/workflow qualification is recorded separately as it completes.",
+  "scope": "Complete native high-ratio and distinct-field serial meshes under unchanged constraints; high-ratio native/independent geometry/source MPI1/2/4 and changed-source representative actual RANS N4/M2 workflow. Independent complete numerical constant-sensor metric applies to serial high-ratio only. Prior six-way lifecycle retains its exact old-source scope. Full Goal3 remains active/incomplete.",
   "limits": [
     "Complete inward cylinder/two planar caps, one generation worker.",
     "One terminal angular-pairing pass; heuristic positive BL-free core radius .75*(radius-thickness).",
     "Nonconstant full BL numerical reference, general/interacting/exterior regions, viscous accuracy, retained-BL updates and full lifecycle affordability remain.",
     "Region-service edge/point counters omit the direct small-source path. Phase clocks are local diagnostics, not CPU attribution or scaling."
-  ]
+  ],
+  "integration_completed": {
+    "native_front_constant_mpi2_v2": {
+      "native_receipt_sha256": "82512020147ec797339d48626316a9dbb72422cd35d4cb3c82b7e770e66726a7",
+      "independent_sha256": "4f4fd15d1b498c911265d018f3a04fb307c5097d9d890c4ac12b67a054d9a4ca",
+      "summary": {
+        "field": 0,
+        "regions": 1,
+        "work": 3771,
+        "transition_fronts": 8,
+        "front_trials": 167,
+        "first_height": 0.01,
+        "length": 0.2,
+        "cells": 2877,
+        "q": 0.2231486268929758,
+        "j": 0.06067422669844693,
+        "maximum_full_length": 1.783148856146356,
+        "sensor_residual": 0,
+        "physical_sensor_samples": 1497,
+        "collar_sensor_samples": 1380,
+        "collar_analytic_delta": 0,
+        "construction_phase_seconds": {
+          "sampling": 1.789184192,
+          "first_band": 0.422426948,
+          "transition": 8.158349249,
+          "junction": 0.0026509,
+          "core": 0.089557282,
+          "validation": 45.303923576
+        },
+        "construction_field_edges": 0,
+        "construction_field_points": 0,
+        "construction_compositions": 1870866
+      }
+    },
+    "native_front_constant_mpi4_v2": {
+      "native_receipt_sha256": "42f33381b40408a964f344e8ad137ee6037be10777308f480cf41b9cd26f04f4",
+      "independent_sha256": "e4c47fa36d6930d7aabaaf6e3234035b993288c17da65b49915d31ecb20876c0",
+      "summary": {
+        "field": 0,
+        "regions": 1,
+        "work": 3771,
+        "transition_fronts": 8,
+        "front_trials": 167,
+        "first_height": 0.01,
+        "length": 0.2,
+        "cells": 2877,
+        "q": 0.2231486268929758,
+        "j": 0.06067422669844693,
+        "maximum_full_length": 1.783148856146356,
+        "sensor_residual": 0,
+        "physical_sensor_samples": 1497,
+        "collar_sensor_samples": 1380,
+        "collar_analytic_delta": 0,
+        "construction_phase_seconds": {
+          "sampling": 1.88102334,
+          "first_band": 0.486761831,
+          "transition": 7.918977928,
+          "junction": 0.002198088,
+          "core": 0.087996117,
+          "validation": 46.380112565
+        },
+        "construction_field_edges": 0,
+        "construction_field_points": 0,
+        "construction_compositions": 1870866
+      }
+    },
+    "native_curved_rans_n4_m2_v12": {
+      "native_receipt_sha256": "3b2ec0522d9833cf9484a718515f08bff96a9989ea2fa8c099d1b5c37fdc66a3",
+      "independent_sha256": "e30534a75087cca06a9cb195162e47c36b862b033032073b79c4bd3e168c3f4a",
+      "SA_replay": "sa_projection_replay_v26",
+      "SA_replay_receipt_sha256": "ae2b8697f9f71f57241f9163cb231723da0e14d0ee735d170b573dfe4210a181",
+      "section_clocks_sha256": "a381f2d442f81d2e6a84813618cfaabeb0edd2778b936f01ee91145418ef2b6a",
+      "mesh_sequence": [
+        24,
+        621,
+        48
+      ],
+      "maximum_flow_conservation_residual": 2.219743520289553e-15,
+      "flow_restart_residual": 0.0,
+      "SA_restart_residual": 0.0,
+      "post_bounds_SA_exactly_conserved": false,
+      "scope": "Actual short RANS/SA with four CFD ranks/two adaptation workers, both directions, independent exact geometry, physical current+BDF conservation/open ledger, separately replayed solver-bound SA correction, SU2/CGNS/reference reload and actual restart. Pressure metrics clip coarse; not converged viscous accuracy or general geometry."
+    }
+  },
+  "MPI_scope": "High-ratio ranks1/2/4 independently pass geometry/original-source and all native q/J/full-edge limits with equal cells/work/extrema. Floating coordinates/IDs/initial records differ; no exact mesh or independent metric-reference reuse is asserted for MPI.",
+  "production_commit": "f9a6af4a096f9796115f9fc8a04fa235aaaaaccf",
+  "diagnostic_clocks": {
+    "actual_RANS_BL_remesh_seconds": 11.721289153999997,
+    "actual_RANS_region_validation_seconds": 10.503920709,
+    "scope": "Saved accepted correctness-run aggregate phase clocks, not CPU attribution or performance/scaling qualification. The generic reported_sections missing-details text predates six regional phase clocks; those clocks are present in native nested records. Composition/integration vs embedding cost inside validation remains unresolved. CFD advance includes automatic metric calls, so no adaptation/CFD ratio follows."
+  },
+  "all_planned_integration_stages_complete": true,
+  "campaign_note": "First MPI2 audit wrapper incorrectly supplied a relative case path instead of its case name and exited before the audit. Corrected invocation reused the source/binary/artifact-verified passing native stage; no duplicate solver run. Both MPI audits and representative RANS/replay subsequently completed."
 }
