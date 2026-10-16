@@ -54,7 +54,7 @@ def mesh(data,geometry,layers,first_height=.05):
             for k in range(3):
                 a,b=r[k],r[(k+1)%3];d=b-a;t=np.clip(-a@d/(d@d),0,1) if d@d else 0
                 sag=max(sag,float(extent[0]-np.linalg.norm(a+t*d)))
-    assert error<=1e-12 and sag<=(.025 if layers else .04)
+    assert error<=1e-12 and sag<=(min(.04,.5*first_height) if layers else .04)
     return dict(cells=len(tets),nodes=len(nodes),volume=float(sum(cv.values())),exact_overlap_pairs=pairs,
                 vertex_links=len(links),wall_height_faces=len(feet),maximum_height_relative_error=height,
                 maximum_authority_node_error=error,maximum_wall_chord_sag=sag),cv

@@ -88,5 +88,10 @@ TEST_CASE("Metric-directed regional core resolves stronger curved sensor fields"
   CHECK(minimumQ>=MinimumMeanRatio);CHECK(minimumJ>=MinimumScaledJacobian);CHECK(residual<2e-12);CHECK(physicalSamples>0);CHECK(sensors.good());CHECK(samples.good());CHECK(edgesOut.good());
   std::ofstream out("core_summary.json");out<<std::setprecision(17)<<"{\"field\":"<<kind<<",\"regions\":"<<regions<<",\"work\":"<<work
     <<",\"transition_fronts\":"<<fronts<<",\"front_trials\":"<<frontTrials<<",\"first_height\":"<<height<<",\"length\":"<<length<<",\"cells\":"<<all.size()<<",\"q\":"<<minimumQ<<",\"j\":"<<minimumJ<<",\"maximum_full_length\":"<<maximum<<",\"sensor_residual\":"<<residual<<",\"physical_sensor_samples\":"<<physicalSamples
-    <<",\"collar_sensor_samples\":"<<collarSamples<<",\"collar_analytic_delta\":"<<collarAnalyticDelta<<"}\n";CHECK(out.good());
+    <<",\"collar_sensor_samples\":"<<collarSamples<<",\"collar_analytic_delta\":"<<collarAnalyticDelta
+    <<",\"construction_phase_seconds\":{\"sampling\":"<<result.stats.region_sampling_seconds
+    <<",\"first_band\":"<<result.stats.region_first_band_seconds<<",\"transition\":"<<result.stats.region_transition_seconds
+    <<",\"junction\":"<<result.stats.region_junction_seconds<<",\"core\":"<<result.stats.region_core_seconds
+    <<",\"validation\":"<<result.stats.region_validation_seconds<<"},\"construction_field_edges\":"<<result.stats.region_field_edges
+    <<",\"construction_field_points\":"<<result.stats.region_field_points<<",\"construction_compositions\":"<<result.stats.field_compositions<<"}\n";CHECK(out.good());
 }

@@ -25,7 +25,7 @@
     {
       "id": "edge_integration",
       "scope": "geometry-resolved full composed edges and unchanged analytic sensor path",
-      "status": "Current stronger rotated MPI1/2/4 and varying serial native fields accept under unchanged gates. Independent saved constant-sensor rotated reference now verifies all3108 centroid tensors/all4120 complete edges; normalized tensor error8.90e-14, length difference5.43e-10, full maximum1.645505430478027. Numerical estimates, not rigorous enclosures. Broader varying/transported fields/general geometry references remain open."
+      "status": "Independent constant-sensor high-ratio reference now checks all2877 tensors/all4727 full edges, normalized tensor8.24e-15/length4.99e-9, independent maximum1.7831488561463442. Native and independent complete edge coverage/negative controls pass. Previous rotated complete reference retained. Numerical indicators, not rigorous enclosures; nonconstant/full transported BL/general geometry references remain."
     },
     {
       "id": "thin_volume",
@@ -35,7 +35,7 @@
     {
       "id": "construction",
       "scope": "joint wall/near-wall/transition reconstruction with height/alignment/coverage and feasibility diagnostics",
-      "status": "Current coordinated surface/first-row/transition and hierarchical metric-directed core accept stronger rotated3108 cells/2 regions/4056 work MPI1/2/4 and varying2896/4/3930 MPI1/2/4. Original target836 cells MPI1/2/4 and actual serial RANS24->836->48 pass. Prescribed height, geometry, q/J/full lengths and work limits unchanged. Multiple fronts/high thickness-to-height ratios/general/interacting/exterior regions remain open."
+      "status": "Changed primary coordinated front/coarsened-core strategy accepts high-ratio h.01/T.2/length.2:2877 cells/eight fronts/work3771, q.223149/J.060674/full L1.783149. Rotated/varying serial accept2448/2284 cells. Independent exact embedding/height/authority/original P1 pass; all4727 high-ratio full edges independently numerically integrated. Unchanged gates; one cylinder/two caps/one worker/heuristic BL-free core. Changed-source MPI/workflow pending; general/interacting/exterior regions remain."
     },
     {
       "id": "gradation",
@@ -45,7 +45,7 @@
     {
       "id": "geometry",
       "scope": "planar/curved/features/junctions/interacting layers; refine/coarsen and geometry authority",
-      "status": "Current original, stronger rotated and varying MPI1/2/4, and actual serial RANS each independently pass exact positive volumes, oriented closed manifold skin/every vertex link, no interior overlap, wall feet/height and analytic geometry. Actual RANS includes SU2/CGNS/reference/restart. Wider geometry/features/interacting layers and high-ratio fronts remain unqualified."
+      "status": "New coarsened-front high-ratio, rotated and varying serial fields independently pass exact whole positive/oriented connected manifold, every vertex link/no overlap/wall feet-height/analytic geometry/source. Earlier full MPI workflow retains pre-front source scope; changed-source MPI pending. Wider features/interacting/exterior geometry remain."
     },
     {
       "id": "MPI_transfer",
@@ -70,7 +70,7 @@
     {
       "id": "publication",
       "scope": "preserved provenance/failures/inspectable artifacts and pushed final checkpoint",
-      "status": "Current complete original/rotated MPI1/2/4 and serial actual RANS evidence is pushed atc4f736f4e1 with exact provenance and inspectable meshes; current serial varying and independent metric reference are being preserved. Rejected and interrupted reference attempts remain visible. Full Goal3 remains incomplete."
+      "status": "Reviewable coarsened-front milestone prepared with accepted meshes, rejected strategies, exact source/build/binary/config/artifact and independent helper provenance; full Goal3 remains active. See coarsened_fronts_v1_summary.json and linked handbook. Foreign ClusterResults and AdapNoExt untouched."
     }
   ],
   "exclusions": [
@@ -97,7 +97,8 @@
     "connectivity_replay_v1/visibility_fixture.json",
     "wall_reconstruction_v1/support_selection_summary.json",
     "wall_reconstruction_v1/shared_apex_refit_summary.json",
-    "wall_reconstruction_v1/joint_connectivity_summary.json"
+    "wall_reconstruction_v1/joint_connectivity_summary.json",
+    "region_construction_v1/coarsened_fronts_v1_summary.json"
   ],
   "execution_state": {
     "status": "Qualified pre-front campaign15/15 PASS. Intermediate-front source compiles; complete original rotatedv12 passes native+independent geometry/P1 and exact full-metric-reference reuse. High-ratio case rejects at4096-work ceiling; fixed Band needs>=4200 cells before core/planning. Reconsider coordinated transition/core construction, no budget/step tweak or local fallback. Full Goal3 ACTIVE/incomplete.",
@@ -733,8 +734,9 @@
     "coverage": "region_construction_v1/full_metric_audit_v3/coverage.json",
     "scope": "Saved constant original-P1 sensor including collars; wall covariance/log interpolation/analytic cylinder/growth/fade and Cholesky-frame intersection reconstructed independently with NumPy. All exported centroid target tensors compared and every full edge integrated by independent adaptive Gauss-Legendre16/32 quadrature split at physical growth/fade shells and eight seeded panels per shell. Error estimates are numerical indicators, not rigorous enclosures. No varying sensor, general geometry, CFD, performance or full Goal3 qualification."
   },
-  "next_construction_design": "../../Handbook/GOAL3_METRIC_FRONTS.md",
+  "next_construction_design": "../../Handbook/GOAL3_COARSENED_METRIC_FRONTS.md",
   "qualified_pre_front_campaign": "region_construction_v1/current_integration_v11.json",
   "qualified_actual_RANS_MPI_lifecycle": "region_construction_v1/rans_lifecycle_v11.json",
-  "intermediate_front_evidence": "region_construction_v1/metric_fronts_v1_summary.json"
+  "intermediate_front_evidence": "region_construction_v1/metric_fronts_v1_summary.json",
+  "current_coarsened_fronts": "region_construction_v1/coarsened_fronts_v1_summary.json"
 }

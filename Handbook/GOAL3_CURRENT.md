@@ -6,32 +6,20 @@ acceptance gates are preserved in [the requirement audit](../integration_evidenc
 
 ## Current changed-source qualification
 
-The current AxisFrame geometry and global edge controller accept the complete
-stronger rotated mesh on MPI1/2/4:3108 cells/2 core regions/4056 work, with unchanged
-height/fade/geometry/q/J/full lengths. Independent exact whole geometry, wall feet/
-height, links and original-P1 sensors pass. The separate saved-mesh numerical
-reference now reconstructs the actual BL tangent covariance/log interpolation,
-growth/fade and sensor intersection independently: all3108 centroid tensors and
-all4120 full edges pass. Maximum normalized tensor residual8.90e-14 and native
-length difference5.43e-10; independent maximum edge1.645505430478027.
-[Metric evidence](../integration_evidence/native_3d_bl_v1/region_construction_v1/full_metric_audit_v3/native_core_rotated_v10.json).
+The complete high-ratio curved native mesh now accepts2877 cells/eight fronts/
+work3771, q.223149/J.060674/full L1.783149 under unchanged h.01/T.2/length.2 and
+4096/300s limits. Independent exact geometry/embedding/height/source and all2877
+composed tensors/all4727 full metric edges pass. Rotated and varying serial
+fields independently accept2448/2284 cells under their unchanged targets.
+The strategy coarsens the terminal front and rebuilds incident transition/core
+cells together; it replaces the structurally blocked fixed840-cells-per-band path.
+[Current construction, evidence and limits](GOAL3_COARSENED_METRIC_FRONTS.md).
 
-The qualified pre-front campaign is complete15/15: original and stronger rotated/
-varying targets MPI1/2/4, thin controls, and actual RANS/SA N/M1/1,2/1,2/2,4/1,4/2,4/4
-with24->836->48 and independent current+BDF/SA-accounting/SU2/CGNS/restart audits.
-It is exact prior-source evidence, not automatic qualification of later changes.
-[Qualified actual lifecycle](../integration_evidence/native_3d_bl_v1/region_construction_v1/rans_lifecycle_v11.json).
-
-The subsequent intermediate-front source compiles and preserves the complete
-original rotated target (3108 cells/work4057). Independent geometry/P1 passes, and
-exact geometry/sample/edge identity permits reuse of the complete numerical metric
-reference. High-ratio height.01/T.2/length.2 remains rejected at the unchanged work
-limit. Each current Band costs840 cells; >=4 further bands are necessary, yielding
->=4200 cells before core/planning, already beyond4096. Changing the step alone is
-insufficient. [Current result](../integration_evidence/native_3d_bl_v1/region_construction_v1/metric_fronts_v1_summary.json),
-[construction strategy](GOAL3_METRIC_FRONTS.md). Updated MPI/actual RANS/profile
-qualification of this changed source is pending; all owned jobs are terminal.
-Full Goal3 remains ACTIVE with every remaining gate intact.
+The prior15-case MPI integration/six-way actual RANS campaign is complete in its
+recorded pre-front source scope. Changed-source high-ratio MPI2/4 and actual RANS
+N4/M2 checks are in progress; see HANDOFF_Codex.md for live state. No general
+geometry, converged viscous accuracy, parallel generation or lifecycle affordability
+claim follows. All full Goal3 gates remain intact.
 
 ## Recorded pre-front/core foundations
 

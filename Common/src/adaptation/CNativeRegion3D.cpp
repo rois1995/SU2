@@ -12,6 +12,7 @@
 #include <chrono>
 #include <cmath>
 #include <set>
+#include <tuple>
 #include <sstream>
 #include <iomanip>
 #include <limits>
@@ -76,6 +77,11 @@ class Construction {
   Patch fresh;
   std::vector<Junction> junctions;
   std::map<Edge, long double> lengths;
+  std::vector<Id> cylinder_grid;
+  std::vector<double> cylinder_levels;
+  size_t cylinder_angular = 0;
+  Point cylinder_origin{}, cylinder_axis{}, cylinder_u{}, cylinder_v{};
+  std::array<Id,2> cylinder_caps{UINT64_MAX,UINT64_MAX};
   Construction(const PlanarReference& g, const std::map<int, RegionWallPolicy>& p, double t, const RegionMetric& f,
                const RegionLimits& l, RegionReport& r, Id n, Id c)
       : geometry(g), policy(p), tolerance(t), field(f), limits(l), report(r), next_node(n), next_cell(c) {}
@@ -276,6 +282,8 @@ class Construction {
         for (auto f:choices[selected]) faces.push_back({f,wall});
       }
       if (valid) {
+        cylinder_grid=ids; cylinder_levels=levels; cylinder_angular=angular;
+        cylinder_origin=g.origin; cylinder_axis=axis; cylinder_u=u; cylinder_v=v; cylinder_caps=ends;
         for (unsigned end=0;end<2;++end) {
           const Id center=New(geometry.Project(ends[end],Add(g.origin,Mul(axis,end*height))));
           for (size_t i=0;i<angular;++i) {
@@ -616,6 +624,140 @@ class Construction {
         junctions.push_back(junction);
       }
     }
+  }
+  void MetricCylinderFronts(std::vector<SurfaceFace>& wall, const std::map<Id,Id>& first,
+                            std::map<int,std::vector<std::array<Id,3>>>& rim,
+                            const RegionWallPolicy& policy, Point& kernel) {
+    const size_t angular=cylinder_angular, levels=cylinder_levels.size();
+    if (angular<3 || levels<2 || cylinder_grid.size()!=angular*levels)
+      throw std::runtime_error("Metric cylindrical front has no complete periodic chart.");
+    const auto& g=geometry.Analytic().at(geometry.Canonical(wall.front().facet));
+    // shortcut: one BL-free radial core interface; interacting/non-radial regions need another decomposition.
+    const double core_radius=.75*(g.extent.x-policy.thickness),pi=std::acos(-1.);
+    if (!(core_radius>0)) throw std::runtime_error("Metric cylindrical layout requires a positive BL-free core radius.");
+    auto position=[&](double radius,double angle,size_t level) {
+      auto point=Add(Add(cylinder_origin,Mul(cylinder_axis,cylinder_levels[level])),
+          Mul(Add(Mul(cylinder_u,std::cos(angle)),Mul(cylinder_v,std::sin(angle))),radius));
+      if (!level || level+1==levels) point=geometry.Project(cylinder_caps[level+1==levels],point);
+      return point;
+    };
+    std::vector<Id> current(cylinder_grid.size());double first_radius=INFINITY;
+    for(size_t k=0;k<current.size();++k) {
+      current[k]=first.at(cylinder_grid[k]);const auto q=Sub(nodes.at(current[k]),cylinder_origin);
+      first_radius=std::min(first_radius,std::hypot(Dot(q,cylinder_u),Dot(q,cylinder_v)));
+    }
+    if (!(first_radius>core_radius)) throw std::runtime_error("Metric cylindrical core overlaps the prescribed first band.");
+    const auto initial=current;
+    auto prefix=[&](double radius) {
+      ++report.front_trials;Check();long double maximum=0;
+      for(size_t j=0;j<levels;++j) for(size_t i=0;i<angular;++i) {
+        Check();const auto a=nodes.at(initial[j*angular+i]),b=position(radius,2*pi*i/angular,j);
+        if (Norm(Sub(a,b))>0) maximum=std::max(maximum,field.edge(a,b));
+      }
+      if (!(maximum>0) || !std::isfinite(maximum)) throw std::runtime_error("Metric cylindrical column has no finite span.");
+      return maximum;
+    };
+    const auto total=prefix(core_radius);const auto count=std::ceil(total/(.5L*MaximumMetricEdge));
+    if (!(count>=1) || count>limits.maximum_work) {
+      report.exhausted_work=true;throw std::runtime_error("Metric cylindrical front count exceeds admitted work.");
+    }
+    const size_t fronts=size_t(count);
+    if(fronts>limits.maximum_work/(3*wall.size())) {
+      report.exhausted_work=true;throw std::runtime_error("Metric cylindrical transition cells exceed admitted work.");
+    }
+    std::vector<double> radii(fronts+1);radii.front()=first_radius;radii.back()=core_radius;
+    for(size_t j=1;j<fronts;++j) {
+      const auto wanted=total*j/fronts;double lo=core_radius,hi=radii[j-1];
+      for(unsigned iteration=0;iteration<24;++iteration) {
+        const double r=.5*(lo+hi);const auto value=prefix(r);
+        if(value<=wanted) hi=r;else lo=r;
+        if(value<=wanted && wanted-value<=1e-7L*total) break;
+      }
+      radii[j]=hi;
+      if(!(radii[j]<radii[j-1] && radii[j]>core_radius))
+        throw std::runtime_error("Metric cylindrical front makes no representable inward progress.");
+    }
+    for(size_t layer=1;layer<=fronts;++layer) {
+      Check();const double phase=-double(layer)*pi/angular;
+      std::map<Id,std::pair<size_t,size_t>> chart;
+      for(size_t j=0;j<levels;++j)for(size_t i=0;i<angular;++i) chart.emplace(current[j*angular+i],std::make_pair(i,j));
+      auto image=[&](bool coarsen) {
+        const size_t columns=coarsen?(angular+1)/2:angular;
+        std::vector<Point> points(columns*levels);
+        for(size_t j=0;j<levels;++j)for(size_t i=0;i<columns;++i) {
+          const size_t begin=coarsen?2*i:i;
+          const double center=coarsen && begin+1<angular ? begin+.5 : double(begin);
+          points[j*columns+i]=position(radii[layer],2*pi*center/angular+phase,j);
+        }
+        return points;
+      };
+      bool coarsen=layer==fronts && (angular+1)/2>=3;
+      auto points=image(coarsen);
+      auto logical=[&](Id n) {const auto c=chart.at(n);return c.second*(coarsen?(angular+1)/2:angular)+(coarsen?c.first/2:c.first);};
+      if(coarsen) {
+        ++report.front_trials;Check();std::set<Edge> edges;
+        for(auto f:wall) {
+          const Face mapped{Id(logical(f.v[0])),Id(logical(f.v[1])),Id(logical(f.v[2]))};
+          if(mapped[0]==mapped[1] || mapped[0]==mapped[2] || mapped[1]==mapped[2])continue;
+          for(unsigned i=0;i<3;++i)edges.insert(Key(mapped[i],mapped[(i+1)%3]));
+        }
+        for(auto edge:edges) {
+          Check();if(field.edge(points[edge[0]],points[edge[1]])>MaximumMetricEdge){coarsen=false;break;}
+        }
+        if(!coarsen)points=image(false);
+      }
+      std::vector<Id> new_ids;new_ids.reserve(points.size());for(auto point:points)new_ids.push_back(New(point));
+      std::map<Id,Id> mapped;
+      for(Id n:current)mapped.emplace(n,new_ids[logical(n)]);
+      std::map<Edge,std::pair<Id,Id>> arrows;
+      for(auto f:wall) {
+        Face order=f.v;size_t low=angular,high=0;
+        for(Id n:order){low=std::min(low,chart.at(n).first);high=std::max(high,chart.at(n).first);}
+        const size_t start=low==0 && high+1==angular ? angular-1 : low;
+        auto key=[&](Id n){const auto c=chart.at(n);return std::make_tuple((c.first+angular-start)%angular,c.second,n);};
+        std::sort(order.begin(),order.end(),[&](Id a,Id b){return key(a)<key(b);});
+        for(unsigned i=0;i<3;++i)for(unsigned j=i+1;j<3;++j) {
+          const auto edge=Key(order[i],order[j]);const auto direction=std::make_pair(order[i],order[j]);
+          const auto found=arrows.emplace(edge,direction);
+          if(!found.second && found.first->second!=direction)
+            throw std::runtime_error("Metric cylindrical periodic interface ordering disagrees.");
+        }
+        const Id a=order[0],b=order[1],c=order[2],aa=mapped.at(a),bb=mapped.at(b),cc=mapped.at(c);
+        const std::array<std::array<Id,4>,3> proposed{{{a,b,c,cc},{a,b,cc,bb},{a,bb,cc,aa}}};
+        int orientation=0;
+        for(auto ids:proposed) {
+          auto unique=ids;std::sort(unique.begin(),unique.end());if(std::adjacent_find(unique.begin(),unique.end())!=unique.end())continue;
+          const auto tet=Tet(ids);const auto volume=Orientation(tet.v[0].p,tet.v[1].p,tet.v[2].p,tet.v[3].p);
+          if(!volume)throw std::runtime_error("Metric cylindrical transition has a degenerate tetrahedron.");
+          const int sign=volume>0?1:-1;
+          if(orientation && orientation!=sign)throw std::runtime_error("Metric cylindrical transition folds within a prism.");
+          orientation=sign;if(sign<0)std::swap(ids[0],ids[1]);Append(ids);
+        }
+      }
+      std::map<Edge,Id> cap_faces;
+      for(const auto& loop:rim)for(auto row:loop.second)cap_faces.emplace(Key(row[0],row[1]),row[2]);
+      for(const auto& edge:Links(wall))if(edge.second.size()==1) {
+        const auto use=edge.second.front();const Id a=use.a,b=use.b,aa=mapped.at(a),bb=mapped.at(b);
+        const auto facet=cap_faces.find(edge.first);if(facet==cap_faces.end())throw std::runtime_error("Metric cylindrical rim is not admitted.");
+        const std::array<Face,2> triangles=arrows.at(edge.first).first==a ?
+            std::array<Face,2>{{{a,aa,bb},{a,bb,b}}}:std::array<Face,2>{{{a,aa,b},{aa,bb,b}}};
+        for(auto triangle:triangles)if(triangle[0]!=triangle[1] && triangle[0]!=triangle[2] && triangle[1]!=triangle[2])
+          fresh.surface.push_back({triangle,facet->second});
+      }
+      std::vector<SurfaceFace> next;
+      for(auto f:wall) {
+        for(auto& n:f.v)n=mapped.at(n);
+        if(f.v[0]!=f.v[1] && f.v[0]!=f.v[2] && f.v[1]!=f.v[2])next.push_back(f);
+      }
+      wall.swap(next);
+      for(auto& loop:rim) {
+        std::vector<std::array<Id,3>> next;
+        for(auto row:loop.second){row[0]=mapped.at(row[0]);row[1]=mapped.at(row[1]);if(row[0]!=row[1])next.push_back(row);}
+        loop.second.swap(next);
+      }
+      current.swap(new_ids);++report.transition_fronts;
+    }
+    kernel=Add(cylinder_origin,Mul(cylinder_axis,.5*g.extent.y));
   }
   void PlaceJunctions() {
     for (const auto& j : junctions) {
@@ -1013,9 +1155,12 @@ bool ConstructWallRegion(const std::vector<Facet>& skin, Point kernel, const Pla
         c.VerifyLoop(edges);
       }
     };
-    close(inner, kernel, nullptr);
+    if(c.cylinder_grid.empty())close(inner, kernel, nullptr);
     clock.Set(report.transition_seconds);
-    for (;;) {
+    if(!c.cylinder_grid.empty()) {
+      c.MetricCylinderFronts(inner,front,rim,p,kernel);
+      close(inner,kernel,nullptr);
+    } else for (;;) {
       c.Check();
       flow = c.Fit(inner, p.thickness);
       std::set<Id> ids;

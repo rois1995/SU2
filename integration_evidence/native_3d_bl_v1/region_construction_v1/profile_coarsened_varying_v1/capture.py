@@ -1,0 +1,58 @@
+"""Sample only an already scheduled owned constructor; never launch or signal its solver."""
+import gzip,hashlib,json,os,signal,subprocess,time
+from pathlib import Path
+HERE=Path(__file__).resolve().parent;CASE=HERE.parent/'native_core_varying_v12';ROOT=HERE.parents[3]
+BINARY=ROOT/'integration_evidence/build-integrated-v2/UnitTests/test_driver';LOG=CASE/'native.log'
+started=time.monotonic();report={'status':'WAITING_FOR_ALREADY_SCHEDULED_CASE','case':str(CASE),'helper_sha256':hashlib.sha256(Path(__file__).read_bytes()).hexdigest()}
+def save(): (HERE/'result.json').write_text(json.dumps(report,indent=2)+'\n')
+def marker():
+ if not LOG.exists():return None
+ return next((line for line in LOG.read_text().splitlines() if line.startswith('REGION_CORE ')),None)
+def process():
+ rows=subprocess.run(['ps','-C','test_driver','-o','pid='],text=True,stdout=subprocess.PIPE).stdout.split()
+ for value in rows:
+  path=Path('/proc')/value
+  try:
+   if (path/'cwd').resolve()==CASE and (path/'exe').resolve()==BINARY:return int(value)
+  except OSError:pass
+ return None
+save();pid=None
+while time.monotonic()-started<600:
+ if marker():report['status']='SKIPPED_CONSTRUCTION_ALREADY_TERMINAL';save();raise SystemExit(0)
+ pid=process()
+ if pid:break
+ time.sleep(.2)
+if not pid:report['status']='NO_TARGET_PROCESS_WITHIN_OBSERVATION_WINDOW';save();raise SystemExit(0)
+stat=Path('/proc/'+str(pid)+'/stat').read_text();ticks=stat[stat.rfind(')')+2:].split()[19]
+age=float(Path('/proc/uptime').read_text().split()[0])-int(ticks)/os.sysconf('SC_CLK_TCK')
+command=['perf','record','-e','cpu-clock:u','-F','99','--call-graph','dwarf,4096','-p',str(pid),'-o',str(HERE/'perf.data')]
+report.update(status='SAMPLING_OWNED_USERSPACE_CONSTRUCTION',pid=pid,process_start_ticks=ticks,attachment_age_seconds=age,record_command=command);save()
+with (HERE/'perf.record.log').open('w') as stream:
+ sampler=subprocess.Popen(command,stdout=stream,stderr=subprocess.STDOUT)
+ try:
+  while sampler.poll() is None and time.monotonic()-started<900:
+   if marker() or not Path('/proc/'+str(pid)).exists():break
+   time.sleep(.2)
+ finally:
+  if sampler.poll() is None:sampler.send_signal(signal.SIGINT)
+  try:sampler.wait(timeout=15)
+  except subprocess.TimeoutExpired:sampler.terminate();sampler.wait(timeout=15)
+line=marker();report.update(native_marker=line,sampler_returncode=sampler.returncode,elapsed_seconds=time.monotonic()-started)
+if sampler.returncode!=0 or not (HERE/'perf.data').exists():
+ report['status']='SAMPLING_UNAVAILABLE';save();raise SystemExit(0)
+with (HERE/'perf.report.txt').open('w') as stream:
+ result=subprocess.run(['perf','report','-i',str(HERE/'perf.data'),'--stdio','--no-children','--sort=symbol','--percent-limit=0.5','--call-graph=none'],stdout=stream,stderr=subprocess.STDOUT)
+report['report_returncode']=result.returncode
+if result.returncode==0:
+ with (HERE/'perf.data').open('rb') as source,gzip.open(str(HERE/'perf.data.gz'),'wb',compresslevel=1) as output:
+  while True:
+   block=source.read(1024*1024)
+   if not block:break
+   output.write(block)
+ (HERE/'perf.data').unlink()
+ report['status']='ACCEPTED_CONSTRUCTION_CPU_SAMPLES_DIAGNOSTIC' if line and ' valid=1 ' in line else 'UNACCEPTED_OR_PARTIAL_CONSTRUCTION_CPU_SAMPLES'
+else:report['status']='SAMPLES_SAVED_REPORT_FAILED'
+receipt=CASE.with_suffix('.json')
+if receipt.exists():report['test_binary_sha256']=json.loads(receipt.read_text()).get('contract',{}).get('pins',{}).get('test_binary')
+report['scope']='User-space CPU samples of the already scheduled case until its REGION_CORE marker, excluding its later CSV full-metric export replay. Initial attachment latency is recorded; setup and accepted mesh serialization can be included. This is not an exclusive-node/scaling/CFD-ratio measurement, an independent correctness certificate or complete MPI/wait accounting. The solver was never launched, paused or signalled by this helper.'
+save();print(report['status'],flush=True)

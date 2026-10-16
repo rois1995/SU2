@@ -1,0 +1,131 @@
+{
+  "status": "COMPLETE_ACCEPTED_HIGH_RATIO_AND_DISTINCT_SERIAL_FIELDS_MPI_WORKFLOW_PENDING",
+  "full_goal3_complete": false,
+  "production_source_sha256": "02cae64214aedb1b7d4ece3a0da0dd801465ff5c5b8bd397dd5c37484b5b6f44",
+  "build_logs": {
+    "build_coarsened_metric_fronts_v1.log": "e4f01ec0d23c0f20382f5991a31671d1b052fc93a7a9cceeae18f1c48e587e14",
+    "build_coarsened_metric_fronts_export_v1.log": "7d26ccc8e7830067bdc48f902de8b0da4ed6f881644a79e7f01acd29c6c6e2ba"
+  },
+  "accepted": {
+    "native_front_constant_v2": {
+      "native_receipt_sha256": "070552c9e3ba3399ad907f6d1a826d5d443aced373ed6c3abb1952bf0daad953",
+      "independent_sha256": "f0e171cad02d4f37c88af27873cd16d492b266f0898e931022e47c42526baed6",
+      "summary": {
+        "field": 0,
+        "regions": 1,
+        "work": 3771,
+        "transition_fronts": 8,
+        "front_trials": 167,
+        "first_height": 0.01,
+        "length": 0.2,
+        "cells": 2877,
+        "q": 0.2231486268929758,
+        "j": 0.06067422669844693,
+        "maximum_full_length": 1.783148856146356,
+        "sensor_residual": 0,
+        "physical_sensor_samples": 1497,
+        "collar_sensor_samples": 1380,
+        "collar_analytic_delta": 0,
+        "construction_phase_seconds": {
+          "sampling": 1.771810969,
+          "first_band": 0.412241804,
+          "transition": 8.054752477,
+          "junction": 0.004046258,
+          "core": 0.086852487,
+          "validation": 43.531624256
+        },
+        "construction_field_edges": 0,
+        "construction_field_points": 0,
+        "construction_compositions": 1870866
+      }
+    },
+    "native_core_rotated_v13": {
+      "native_receipt_sha256": "3472f9fa3d582c7ca9b809c022547dfda2c1bd9f6c7093770792dcaa7ffe4f49",
+      "independent_sha256": "d3767631ac480441291ba929269bd04a5dd5748df16fb5e7f721e1a253e3ec77",
+      "summary": {
+        "field": 2,
+        "regions": 2,
+        "work": 3259,
+        "transition_fronts": 2,
+        "front_trials": 25,
+        "first_height": 0.05,
+        "length": 1,
+        "cells": 2448,
+        "q": 0.27503263319081867,
+        "j": 0.08338377382888383,
+        "maximum_full_length": 1.6455054304780266,
+        "sensor_residual": 0,
+        "physical_sensor_samples": 1786,
+        "collar_sensor_samples": 662,
+        "collar_analytic_delta": 0,
+        "construction_phase_seconds": {
+          "sampling": 1.311422051,
+          "first_band": 0.977343411,
+          "transition": 1.115609962,
+          "junction": 0.001397334,
+          "core": 0.132664041,
+          "validation": 66.422401597
+        },
+        "construction_field_edges": 0,
+        "construction_field_points": 0,
+        "construction_compositions": 611849
+      }
+    },
+    "native_core_varying_v12": {
+      "native_receipt_sha256": "5c9502f522206b87cdfa5c95d47e8eaefb4fbd95266f460764bf018a2736c31b",
+      "independent_sha256": "f245f692f1cad371fd8b0f4e5d485a32435db0e09ce68c7a988f8436a7e082a9",
+      "summary": {
+        "field": 1,
+        "regions": 5,
+        "work": 3120,
+        "transition_fronts": 2,
+        "front_trials": 26,
+        "first_height": 0.05,
+        "length": 1,
+        "cells": 2284,
+        "q": 0.21460041118346587,
+        "j": 0.05286006641170569,
+        "maximum_full_length": 1.763818409149533,
+        "sensor_residual": 1.7197654405565966e-16,
+        "physical_sensor_samples": 1713,
+        "collar_sensor_samples": 571,
+        "collar_analytic_delta": 4.721512400154063e-12,
+        "construction_phase_seconds": {
+          "sampling": 5.170144001,
+          "first_band": 0.810223547,
+          "transition": 0.720432979,
+          "junction": 0.001151737,
+          "core": 0.142860015,
+          "validation": 59.152093712
+        },
+        "construction_field_edges": 0,
+        "construction_field_points": 0,
+        "construction_compositions": 1652774
+      }
+    }
+  },
+  "independent_complete_metric": {
+    "report": "full_metric_audit_v4/native_front_constant_v2.json",
+    "sha256": "fbc976983122ae66fbd390907267764cd6373d8e8a2ca9bd2b4449cd63d51233",
+    "coverage_sha256": "2ef92d28c8dcfe38fddb55ae9f4d54e51f7e344e4b38b4c920e4a706d4b4e388"
+  },
+  "preserved_design_evidence": {
+    "joint_front_core_v1/result.json": "6bf92b393cea9345f47374bdbebc5ccbed36bf3c437a811b15199eadbe02ecd8",
+    "joint_front_core_v2/result.json": "615fad0445c93c01fe46fb3592820ad128179ad2ea3bb2ae724d945ca621aee6",
+    "joint_front_core_v3/result.json": "f07b57813d113fd715fc07c9560978d251a510d1b357c75999ee5021ecf7a05e",
+    "joint_front_core_v3/independent_geometry.json": "9e705b9d0fd95d5fa400e002f2dd7cb122c2de9c58ea558e3005156c0c1ae56f",
+    "native_front_constant_v1/construction_cost_lower_bound.json": "d7740d1ce23d135ffe2c4f311d7c6fe20a03c26e13e63300d519c02364aa6731"
+  },
+  "planned_integration": [
+    "native_front_constant_mpi2_v2",
+    "native_front_constant_mpi4_v2",
+    "native_curved_rans_n4_m2_v12"
+  ],
+  "scope": "Complete native high-ratio and distinct-field meshes under unchanged geometry/height/q/J/full edge/original P1/fade/work/time limits. Independent exact geometry/source and constant-sensor numerical full metric, not general geometry or full Goal3. MPI/workflow qualification is recorded separately as it completes.",
+  "limits": [
+    "Complete inward cylinder/two planar caps, one generation worker.",
+    "One terminal angular-pairing pass; heuristic positive BL-free core radius .75*(radius-thickness).",
+    "Nonconstant full BL numerical reference, general/interacting/exterior regions, viscous accuracy, retained-BL updates and full lifecycle affordability remain.",
+    "Region-service edge/point counters omit the direct small-source path. Phase clocks are local diagnostics, not CPU attribution or scaling."
+  ]
+}

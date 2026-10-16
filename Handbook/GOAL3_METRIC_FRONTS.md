@@ -2,9 +2,10 @@
 
 Full Goal3 remains active. This is the next construction step after the complete
 accepted curved-mesh milestone, not a new goal or a replacement for its gates.
-The qualified MPI/actual RANS checkpoint still has two bands. The intermediate-
-front extension compiles and preserves the complete original target, but its
-high-ratio case is rejected. No accepted high-ratio multi-front mesh is claimed.
+This handbook preserves the rejected fixed-band extension and its diagnosis.
+The subsequent [coordinated coarsened-front construction](GOAL3_COARSENED_METRIC_FRONTS.md)
+now accepts the complete high-ratio target under unchanged gates. The qualified
+pre-front MPI/actual RANS checkpoint remains separately scoped.
 
 ## Limitation established before implementation
 

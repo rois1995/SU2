@@ -1,0 +1,29 @@
+{
+  "status": "PASS_INDEPENDENT_COMPLETE_CYLINDER_METRIC_SCOPE_LIMITED",
+  "contract": {
+    "native_receipt_sha256": "070552c9e3ba3399ad907f6d1a826d5d443aced373ed6c3abb1952bf0daad953",
+    "inputs": {
+      "core_accepted.json": "1d886dcfdf114732651d0559d4416a384e2d4319c0a650f9e16d662e01ec0ade",
+      "core.cfg": "d6a6ac2346bdd235722776a859fe7fab3039e8af6562ce417bef126f1dc13530",
+      "core_initial.su2.native_ref": "e34ff7992d2cb74898ebc8fa1cb80ba02641bed422e302833d0b0ddd75a4d50d",
+      "core_samples.csv": "620074630ec1d3ca809815d72b499a7eb22913696fb3215b4f81b632d1dd3171",
+      "core_edges.csv": "d9896e8c52ed84aaeb0bd60ac0ddf36b5e83f2691e70f2937f175f20265e6f82"
+    },
+    "helpers": {
+      "audit_full_metric.py": "70b8be98fe9ac354bcfc7116b5274b08839191bfaecdc4547a682019587ce054",
+      "construct.py": "b605340df7090b54a0703fa5e6a97eec282d8eae61438e986e8b4579a7d5a1f7"
+    }
+  },
+  "numpy_version": "1.24.4",
+  "scipy_version": "1.10.1",
+  "case": "native_front_constant_v2",
+  "point_samples": 2877,
+  "maximum_point_relative_error": 8.239212705847158e-15,
+  "full_edges": 4727,
+  "maximum_full_length": 1.7831488561463442,
+  "maximum_native_relative_edge_difference": 4.985265939928052e-09,
+  "maximum_estimated_quadrature_error": 1.456914033859391e-10,
+  "edge_csv_sha256": "978f0f25f7af2f2319e9f39f8f2c3558ab9c2644b3ba23ac7e839016ea29f5d0",
+  "scope": "Saved constant original-P1 sensor including collars; wall covariance/log interpolation/analytic cylinder/growth/fade and Cholesky-frame intersection reconstructed independently with NumPy. All exported centroid target tensors compared and every full edge integrated by independent adaptive Gauss-Legendre16/32 quadrature split at physical growth/fade shells and eight seeded panels per shell. Error estimates are numerical indicators, not rigorous enclosures. No varying sensor, general geometry, CFD, performance or full Goal3 qualification.",
+  "elapsed_seconds": 41.59975533501711
+}

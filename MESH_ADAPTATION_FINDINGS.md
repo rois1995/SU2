@@ -5681,3 +5681,25 @@ another build. Six regional clocks are instrumented; changed-source MPI/actual
 RANS/high-ratio acceptance/affordability remain unqualified. Full Goal3 ACTIVE.
 Evidence: region_construction_v1/metric_fronts_v1_summary.json and
 Handbook/GOAL3_METRIC_FRONTS.md.
+
+
+## 2026-10-16 — complete high-ratio mesh through coordinated front coarsening
+
+The fixed-band work obstruction was addressed by changing construction, not adding
+another local recovery: preserve the prescribed-height first band, use staggered
+metric-spaced free fronts and coarsen the terminal angular front with all incident
+transition/core cells. The complete native high-ratio h.01/T.2/length.2 target now
+passes2877 cells/eight fronts/work3771, q.223148627/J.060674227/L1.783148856 under
+unchanged4096/300s, geometry/height/source/fade gates. Independent exact geometry/
+embedding/links/feet-height and all2877 composed tensors/all4727 full metric edges
+pass. The independent metric reference is numerical, not a rigorous enclosure.
+
+Distinct rotated and spatially varying serial fields independently accept2448/
+2284 cells/work3259/3120. Changed-source high-ratio MPI2/4 and actual RANS N4/M2
+are being qualified; the earlier full MPI campaign retains old-source scope.
+Prototype fixed-topology/radius failures, complete coarsened proposal, native
+accepted grids/ref and provenance remain saved. Validation dominates local phase
+clocks; service-only zero counters must not be read as zero direct-field work.
+No performance/scaling claim or general/interacting/exterior geometry qualification.
+One cylinder/two caps/one worker/heuristic positive BL-free core are explicit
+limits. Full Goal3 remains active. See Handbook/GOAL3_COARSENED_METRIC_FRONTS.md.
