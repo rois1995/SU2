@@ -9,9 +9,9 @@ CFL ownership, final physical residuals and group failure output are wired into
 the native driver. A compatibility class remains for legacy execution modes
 outside this migration. Dense native pseudo-time mappings and explicit-flow
 preconditioning are supported. The full goal remains in progress: converged
-matched nontrivial LM/species comparisons and the conditional-feature audits
-below are pending. Converged manufactured mean-flow, ordinary SA, SA-BC and SST
-comparisons are recorded below.
+matched nontrivial LM comparisons and the conditional-feature audits below are
+pending. Converged manufactured mean-flow, ordinary SA, SA-BC, SST and
+variable-density species comparisons are recorded below.
 
 ## Independent restart reports and converged manufactured flow
 
@@ -103,8 +103,8 @@ comparison supply the nontrivial final-state checks. Full raw/scaled residuals,
 quantities, work, memory and hashes are committed in
 `Docs/NewtonKrylovMMSResults.json`. FLOW alone has one block, so its segregated
 and coupled flags describe the same equation group. The following SA comparison
-has separate flow and turbulence blocks. SA-BC and SST comparisons follow it;
-nontrivial LM and species still require their own converged matched comparisons.
+has separate flow and turbulence blocks. SA-BC, SST and species comparisons
+follow it; nontrivial LM still requires its own converged matched comparison.
 
 Evidence in the parent workspace uses `state_report_` and
 `manufactured_converged_final_{1x1,2x2}`. All 33 native cases pass on 1x1 and
@@ -243,8 +243,8 @@ minimum, maximum, arithmetic mean and counts below 0.1, in [0.1,0.9], and above
 0.9 over owned non-solid-wall points. Halos and solid-wall values are excluded.
 SA-BC uses its computed production intermittency; LM uses stored transported
 gamma, not the derived effective intermittency. Nonfinite values fail collectively.
-The matched transition runner requires nonempty low and high bands and agreement
-of min/max/mean within 1e-6. Binary/ASCII and layout report checks include this
+The matched transition runner requires low/high bands for SA-BC and partial/high
+bands for LM, plus agreement of min/max/mean within 1e-6. Binary/ASCII and layout report checks include this
 object; configurations without transition retain their previous report schema.
 
 The converged SA-BC case has 72 sampled free points: 7 below 0.1, 65 above 0.9,
@@ -317,6 +317,84 @@ Valgrind covers transition and boundary cases (9/6514) with zero memory errors,
 leaks unchecked. Both changed production translation units pass forward syntax.
 Full AD/reverse/mixed/GPU execution, nontrivial LM/species convergence, model
 admissibility/near-bound probes and the other conditional audits remain open.
+
+## Converged variable-density species mixture
+
+`compare_species_mixture.py` reuses the generated 81-point mesh and common
+comparison driver for incompressible variable-density flow with the native
+two-component `FLUID_MIXTURE`, energy and species transport. First-order FDS
+flow and first-order scalar upwinding use native ILU, MGLEVEL=0, cold starts and
+fixed CFL20. Inlet speed is 100, temperature 300 and transported fraction 0.25;
+the adiabatic no-slip wall prescribes fraction 0.75. Molecular weights are
+28.96/16.043 and heat capacities 1009.39/2225. Artificial viscosities 1/1 and
+diffusivity 2 give a nontrivial diffusion fixture. `INC_NONDIM=INITIAL_VALUES`
+keeps the enthalpy residual on a useful numerical scale. No physical validation
+or discretization-accuracy claim follows from these coefficients or mesh.
+
+All five native history residuals must be below -10. Independent final raw RMS
+must be <=1e-10 and state-scaled RMS <=1e-9 for pressure, both velocities,
+enthalpy and species. Full component states and physical quantities must agree
+within 1e-6 relatively. Native boundary projection is explicitly limited to
+1e-8 (observed below 6e-16); Newton projection is zero. The runner also checks
+all 49 strictly interior points: each fraction lies in [0,1], their sum is <=1,
+and each transported field spans at least 0.1. The measured span is
+0.2499730574 to 0.5577746095, so boundary values alone cannot satisfy this check.
+
+```sh
+python3 TestCases/newton_krylov/compare_species_mixture.py \
+  --binary /path/to/build/SU2_CFD/src/SU2_CFD \
+  --reporter /path/to/build/UnitTests/newton_equation_tests \
+  --output /path/to/new-species-comparison --ranks 2 --threads 2
+```
+
+| Ranks x threads | Method | Updates | Total residual assemblies | Outer Krylov iterations | Seconds | Peak rank RSS, KiB |
+| --- | --- | ---: | ---: | ---: | ---: | ---: |
+| 1x1 | Native | 81 | 162 | 1118 | 0.418 | 24792 |
+| 1x1 | Segregated Newton | 82 | 3156 | 772 | 0.969 | 24744 |
+| 1x1 | Coupled Newton | 82 | 3486 | 502 | 0.968 | 24612 |
+| 2x2 | Native | 81 | 162 | 1977 | 0.417 | 25312 |
+| 2x2 | Segregated Newton | 82 | 3686 | 1162 | 1.018 | 24996 |
+| 2x2 | Coupled Newton | 82 | 4470 | 748 | 1.373 | 24772 |
+
+All six runs pass on the preceding SST/SA-BC-corrected executable. Maximum
+independent state-scaled RMS is 1.157e-11, component-state difference 2.872e-8
+and physical-quantity difference 2.367e-9. Forces and mass are nonzero. Work and
+memory accounting follow the comparisons above; there is no inner Krylov work.
+Newton takes one more update and more work/time; single samples establish no
+production performance or scaling. Full results and provenance are committed
+in `Docs/NewtonKrylovSpeciesResults.json`; evidence uses
+`species_converged_final_{1x1,2x2}` in the parent workspace. This checkpoint
+changes only the Python benchmark/checks and documentation, so the preceding
+36 native/80 ordinary tests, Valgrind and forward syntax remain bound to their
+unchanged C++ source and binaries.
+
+Preserved pilots identify a remaining controller limitation. The initial
+dimensional species case uses speed 1, viscosity 0.01 and diffusivity 0.02:
+native converges in 127 updates, but segregated species reaches roundoff before
+enthalpy meets -10 and fails at iteration 119. This is a different case from the
+final nondimensional benchmark, not a before/after solver fix.
+
+The nontrivial LM pilot at Re=500, turbulence/transition CFL factor 0.5 and
+all-eight history stop -11 converges conventionally in 1416 updates. Its 72 free
+points include 17 with gamma in [0.1,0.9] and 55 above 0.9, minimum 0.17335;
+every independent residual passes the same raw/scaled criteria. Segregated
+Newton fails at iteration 1007: flow residuals are already below 4e-14, while
+transition gamma is still about 1.6e-9. Flow recovery ends STEP_TOO_SMALL at
+minimum CFL. This is not a matched converged LM result. The controller currently
+accepts a stationary group only for exactly zero merit; handling already
+resolved groups while other groups continue is the next implementation issue.
+
+Earlier LM Re=1e5 reaches the 10000-update cap with clipped wall gamma and nearly
+fully turbulent free nodes; Re=1e3 with turbulence factor 0.05 also reaches the
+cap. Raising that factor to 0.5 reaches the -11 history stop, but independent
+Re-theta RMS is 1.08351e-10, so it still fails the 1e-10 physical criterion.
+Native wall-k clipping is a candidate contributor to this small replay shift;
+its causal effect has not been isolated. The invalid `CFL_REDUCTION_TRANS`
+pilot is a parser failure; the actual shared option is `CFL_REDUCTION_TURB`.
+All failed configurations/logs/restarts remain under `lm_family_*` and
+`species_family_*`. Neither stopping thresholds nor the controller were changed
+to turn these failures into successes. Model admissibility/near-bound probes,
+flamelet runtime and the other conditional audits remain open.
 
 ## Production selection and dispatch
 

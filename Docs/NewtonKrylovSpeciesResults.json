@@ -1,0 +1,748 @@
+{
+  "date": "2026-10-16",
+  "source_base_commit": "f51b3348f27a353e521d6bcc3a0e56527e89d05b",
+  "source_sha256": {
+    "TestCases/newton_krylov/compare_species_mixture.py": "a1400b817351e7b4ec27cc4a02e4766eb9abf68bc91059d79af8b19ddda2b0a0",
+    "TestCases/newton_krylov/compare_manufactured_flow.py": "da4b97cdfa8b675c59156e98c5c7471c20274332da4d60ead8e6379f62467b63",
+    "TestCases/newton_krylov/compare_sa_flatplate.py": "ffb46bc081c64e56e02e33a0ee228e23d53f338e235018f970c3119a4ae88528",
+    "TestCases/newton_krylov/report_state.py": "990d1bee026fafe6755e23fc4584640ffd2e4c66b2bbc1822a61d6780807d114"
+  },
+  "criteria": {
+    "native_history_rms_all_five": 1e-10,
+    "independent_raw_rms_all_five": 1e-10,
+    "independent_state_scaled_rms_all_five": 1e-09,
+    "maximum_relative_component_state_difference": 1e-06,
+    "maximum_relative_quantity_difference": 1e-06,
+    "minimum_interior_species_span": 0.1,
+    "maximum_native_boundary_projection": 1e-08,
+    "maximum_newton_boundary_projection": 0,
+    "maximum_updates": 10000,
+    "common_fixed_cfl": 20,
+    "newton_step_floor": 1e-14,
+    "maximum_true_linear_defect": 0.1
+  },
+  "limits": [
+    "81-point first-order FDS, variable-density two-component mixture; artificial viscosity/diffusivity and no physical-validation claim.",
+    "Single launch-inclusive timing samples, no production speedup or parallel-scaling claim.",
+    "Dimensional initial species pilot fails segregated recovery at roundoff before enthalpy reaches its requested raw residual; retained separately.",
+    "Active LM matched convergence remains incomplete: its Re=500 native run passes, but segregated flow reaches STEP_TOO_SMALL while transition still needs updates.",
+    "Native residual assemblies follow one implicit pass per equation per update. Newton totals include dependency assemblies and the final all-active refresh. Independent reports are outside solve timing/work."
+  ],
+  "layouts": [
+    {
+      "binary_sha256": "32fd155cbc36f53a7241ed6660d6b067bec944fd3d72ce105bed80fb0645bc3b",
+      "reporter_sha256": "f3c1ddb8bd9bb804d2f195642c55085e57f955b62663ee72e46785b5a1b5b57d",
+      "runner_sha256": "a1400b817351e7b4ec27cc4a02e4766eb9abf68bc91059d79af8b19ddda2b0a0",
+      "comparison_driver_sha256": "da4b97cdfa8b675c59156e98c5c7471c20274332da4d60ead8e6379f62467b63",
+      "report_script_sha256": "990d1bee026fafe6755e23fc4584640ffd2e4c66b2bbc1822a61d6780807d114",
+      "ranks": 1,
+      "threads": 1,
+      "case": "81-point variable-density mixture/species wall diffusion, first-order FDS",
+      "layout": "1x1",
+      "full_evidence": "newton_krylov_refactor_20261015/species_converged_final_1x1",
+      "full_results_sha256": "221b888bee6ed95b83ffbda44c5745c270938ede380380315d1b107ce52accc5",
+      "runs": [
+        {
+          "mode": "native",
+          "exit_code": 0,
+          "wall_seconds": 0.41814115503802896,
+          "config_sha256": "c399a3fef0719225e49e7d6ccc1117dba0d19b3c0fa496be4ae087c8d35b39f5",
+          "rank_resources": [
+            {
+              "max_rss_kib": 24792,
+              "user_seconds": 0.05,
+              "system_seconds": 0.01
+            }
+          ],
+          "max_rank_rss_kib": 24792,
+          "updates": 81,
+          "last_history_log10_rms": [
+            -11.20530326,
+            -10.87016214,
+            -11.53253512,
+            -10.0262639,
+            -11.70387385
+          ],
+          "outer_krylov_iterations": 1118,
+          "inner_krylov_iterations": 0,
+          "residual_assemblies": {
+            "flow": 81,
+            "species": 81
+          },
+          "flow_residual_assemblies": 81,
+          "physical": {
+            "points": 81,
+            "systems": {
+              "flow": {
+                "rms": [
+                  5.12773336631288e-12,
+                  1.1577042817344814e-11,
+                  2.906447302256452e-12,
+                  7.758834986052633e-11
+                ],
+                "maximum": [
+                  1.5732151692482432e-11,
+                  4.3536368954377735e-11,
+                  6.043226682961311e-12,
+                  3.5818415055540936e-10
+                ],
+                "normalized_rms": [
+                  5.12773336631288e-12,
+                  1.1560999933328033e-11,
+                  2.906447302256452e-12,
+                  1.8789092970458486e-12
+                ],
+                "projection_max": [
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "packed_integral": [
+                  0.02854313047136514,
+                  0.912861496982,
+                  0.018337205647462034,
+                  0.3570222400581661
+                ]
+              },
+              "species": {
+                "rms": [
+                  1.4488213164959672e-12
+                ],
+                "maximum": [
+                  4.411110365865056e-12
+                ],
+                "normalized_rms": [
+                  5.006777506572958e-12
+                ],
+                "projection_max": [
+                  1.4802973661668756e-16
+                ],
+                "packed_integral": [
+                  0.32657573659608163
+                ]
+              }
+            },
+            "quantities": {
+              "mass": 0.9669045752166867,
+              "drag": 0.1550248960768042,
+              "lift": -0.07180115560086338,
+              "moment_z": -0.02031590303713085,
+              "heat_flux": 0
+            }
+          },
+          "interior_species_range": [
+            [
+              0.24997305736099745,
+              0.5577746095029269
+            ]
+          ],
+          "state_difference_from_native": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "quantity_difference_from_native": {
+            "mass": 0.0,
+            "drag": 0.0,
+            "lift": 0.0,
+            "moment_z": 0.0,
+            "heat_flux": 0.0
+          },
+          "report_manifest_sha256": "a2861ab9d05ca2c133f3532bcd38c3706a09ab0db2bacfc90ffb36510427d43c"
+        },
+        {
+          "mode": "segregated",
+          "exit_code": 0,
+          "wall_seconds": 0.9685745560564101,
+          "config_sha256": "97055a0f5f0549a10c11899cca04e7a6217aaa375aee97e44a351e3241c65c63",
+          "rank_resources": [
+            {
+              "max_rss_kib": 24744,
+              "user_seconds": 0.59,
+              "system_seconds": 0.06
+            }
+          ],
+          "max_rank_rss_kib": 24744,
+          "updates": 82,
+          "last_history_log10_rms": [
+            -11.61037302,
+            -12.29714415,
+            -12.45401291,
+            -10.01865989,
+            -12.80646609
+          ],
+          "outer_krylov_iterations": 772,
+          "inner_krylov_iterations": 0,
+          "residual_assemblies": {
+            "flow": 2168,
+            "species": 988
+          },
+          "attempts": 164,
+          "flow_residual_assemblies": 2168,
+          "physical": {
+            "points": 81,
+            "systems": {
+              "flow": {
+                "rms": [
+                  2.452601459071179e-12,
+                  5.04493817542155e-13,
+                  3.5154999315126507e-13,
+                  9.579439817617606e-11
+                ],
+                "maximum": [
+                  1.1742264909161363e-11,
+                  2.4590867536700145e-12,
+                  9.617839836183195e-13,
+                  4.425179733382595e-10
+                ],
+                "normalized_rms": [
+                  2.452601459071179e-12,
+                  5.030134840413086e-13,
+                  3.5154999315126507e-13,
+                  2.3293291901707215e-12
+                ],
+                "projection_max": [
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "packed_integral": [
+                  0.02854313037739358,
+                  0.9128614968223632,
+                  0.01833720559787486,
+                  0.35702223947635825
+                ]
+              },
+              "species": {
+                "rms": [
+                  1.561470959374172e-13
+                ],
+                "maximum": [
+                  5.226635096944321e-13
+                ],
+                "normalized_rms": [
+                  4.597847397833661e-13
+                ],
+                "projection_max": [
+                  0
+                ],
+                "packed_integral": [
+                  0.32657573660531125
+                ]
+              }
+            },
+            "quantities": {
+              "mass": 0.9669045752316495,
+              "drag": 0.1550248960402588,
+              "lift": -0.07180115543095507,
+              "moment_z": -0.020315903011380938,
+              "heat_flux": 0
+            }
+          },
+          "interior_species_range": [
+            [
+              0.2499730573816236,
+              0.5577746094859467
+            ]
+          ],
+          "state_difference_from_native": [
+            2.321774368234744e-09,
+            2.2394732697772167e-10,
+            3.4954581205077124e-09,
+            2.734369631981297e-08,
+            1.962769946572962e-10
+          ],
+          "quantity_difference_from_native": {
+            "mass": 1.547495911520266e-11,
+            "drag": 2.3573894590782277e-10,
+            "lift": 2.3663729117193477e-09,
+            "moment_z": 1.2674756604109964e-09,
+            "heat_flux": 0.0
+          },
+          "report_manifest_sha256": "f5b124460c830d156297ea2941f7476dc620b8d90bddb51bc84214e64520b9df"
+        },
+        {
+          "mode": "coupled",
+          "exit_code": 0,
+          "wall_seconds": 0.9680944159626961,
+          "config_sha256": "63f33aa0aa6130d2add4adecc730fe5b93cb715415933f4b5bd00e2db3743991",
+          "rank_resources": [
+            {
+              "max_rss_kib": 24612,
+              "user_seconds": 0.57,
+              "system_seconds": 0.04
+            }
+          ],
+          "max_rank_rss_kib": 24612,
+          "updates": 82,
+          "last_history_log10_rms": [
+            -11.60867008,
+            -12.2937544,
+            -12.45436656,
+            -10.01508368,
+            -12.82163963
+          ],
+          "outer_krylov_iterations": 502,
+          "inner_krylov_iterations": 0,
+          "residual_assemblies": {
+            "flow": 1743,
+            "species": 1743
+          },
+          "attempts": 82,
+          "flow_residual_assemblies": 1743,
+          "physical": {
+            "points": 81,
+            "systems": {
+              "flow": {
+                "rms": [
+                  2.4622373788349332e-12,
+                  5.084468931350139e-13,
+                  3.512638335922507e-13,
+                  9.658647488765451e-11
+                ],
+                "maximum": [
+                  1.1835826847143675e-11,
+                  2.4103219420368305e-12,
+                  9.58102060145613e-13,
+                  4.461886704425356e-10
+                ],
+                "normalized_rms": [
+                  2.4622373788349332e-12,
+                  5.066396681841229e-13,
+                  3.512638335922507e-13,
+                  2.348577822245692e-12
+                ],
+                "projection_max": [
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "packed_integral": [
+                  0.028543130377588852,
+                  0.9128614968231462,
+                  0.018337205597877403,
+                  0.35702223945365436
+                ]
+              },
+              "species": {
+                "rms": [
+                  1.5078577313217285e-13
+                ],
+                "maximum": [
+                  5.05318877019878e-13
+                ],
+                "normalized_rms": [
+                  4.4109901704484153e-13
+                ],
+                "projection_max": [
+                  0
+                ],
+                "packed_integral": [
+                  0.3265757366052477
+                ]
+              }
+            },
+            "quantities": {
+              "mass": 0.9669045752320455,
+              "drag": 0.1550248960405434,
+              "lift": -0.07180115543275896,
+              "moment_z": -0.02031590301232286,
+              "heat_flux": 0
+            }
+          },
+          "interior_species_range": [
+            [
+              0.2499730573816112,
+              0.557774609485361
+            ]
+          ],
+          "state_difference_from_native": [
+            2.313861733892397e-09,
+            2.229078383088576e-10,
+            3.4970037537072723e-09,
+            2.8498821916000962e-08,
+            1.966293054304439e-10
+          ],
+          "quantity_difference_from_native": {
+            "mass": 1.5884530610709387e-11,
+            "drag": 2.339030751569618e-10,
+            "lift": 2.341249494758782e-09,
+            "moment_z": 1.2211118034506975e-09,
+            "heat_flux": 0.0
+          },
+          "report_manifest_sha256": "2265f839a2edc73adee1c3b79455368ea688c2429415388c17b2dc019243bce2"
+        }
+      ]
+    },
+    {
+      "binary_sha256": "32fd155cbc36f53a7241ed6660d6b067bec944fd3d72ce105bed80fb0645bc3b",
+      "reporter_sha256": "f3c1ddb8bd9bb804d2f195642c55085e57f955b62663ee72e46785b5a1b5b57d",
+      "runner_sha256": "a1400b817351e7b4ec27cc4a02e4766eb9abf68bc91059d79af8b19ddda2b0a0",
+      "comparison_driver_sha256": "da4b97cdfa8b675c59156e98c5c7471c20274332da4d60ead8e6379f62467b63",
+      "report_script_sha256": "990d1bee026fafe6755e23fc4584640ffd2e4c66b2bbc1822a61d6780807d114",
+      "ranks": 2,
+      "threads": 2,
+      "case": "81-point variable-density mixture/species wall diffusion, first-order FDS",
+      "layout": "2x2",
+      "full_evidence": "newton_krylov_refactor_20261015/species_converged_final_2x2",
+      "full_results_sha256": "8fc747770b97b19e1b9703f3bbe83427ffb187312f0ba31e0fe5b9abdd14df16",
+      "runs": [
+        {
+          "mode": "native",
+          "exit_code": 0,
+          "wall_seconds": 0.4174607339082286,
+          "config_sha256": "c399a3fef0719225e49e7d6ccc1117dba0d19b3c0fa496be4ae087c8d35b39f5",
+          "rank_resources": [
+            {
+              "max_rss_kib": 25312,
+              "user_seconds": 0.15,
+              "system_seconds": 0.02
+            },
+            {
+              "max_rss_kib": 24972,
+              "user_seconds": 0.16,
+              "system_seconds": 0.01
+            }
+          ],
+          "max_rank_rss_kib": 25312,
+          "updates": 81,
+          "last_history_log10_rms": [
+            -11.20529715,
+            -10.87016119,
+            -11.53253927,
+            -10.02622984,
+            -11.70387675
+          ],
+          "outer_krylov_iterations": 1977,
+          "inner_krylov_iterations": 0,
+          "residual_assemblies": {
+            "flow": 81,
+            "species": 81
+          },
+          "flow_residual_assemblies": 81,
+          "physical": {
+            "points": 81,
+            "systems": {
+              "flow": {
+                "rms": [
+                  5.1277837467215265e-12,
+                  1.1577055142886767e-11,
+                  2.90642018348581e-12,
+                  7.759449944017405e-11
+                ],
+                "maximum": [
+                  1.5732123936906817e-11,
+                  4.3536563243407045e-11,
+                  6.043157727703141e-12,
+                  3.582018536528507e-10
+                ],
+                "normalized_rms": [
+                  5.1277837467215265e-12,
+                  1.1561012427818072e-11,
+                  2.90642018348581e-12,
+                  1.8790314923045146e-12
+                ],
+                "projection_max": [
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "packed_integral": [
+                  0.028543130471359097,
+                  0.9128614969819978,
+                  0.01833720564746065,
+                  0.3570222400578754
+                ]
+              },
+              "species": {
+                "rms": [
+                  1.4488226484094504e-12
+                ],
+                "maximum": [
+                  4.411214449273615e-12
+                ],
+                "normalized_rms": [
+                  5.006762883409347e-12
+                ],
+                "projection_max": [
+                  1.4802973661668756e-16
+                ],
+                "packed_integral": [
+                  0.3265757365960845
+                ]
+              }
+            },
+            "quantities": {
+              "mass": 0.9669045752166929,
+              "drag": 0.15502489607680275,
+              "lift": -0.07180115560085908,
+              "moment_z": -0.02031590303713169,
+              "heat_flux": 0
+            }
+          },
+          "interior_species_range": [
+            [
+              0.24997305736099748,
+              0.5577746095029282
+            ]
+          ],
+          "state_difference_from_native": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "quantity_difference_from_native": {
+            "mass": 0.0,
+            "drag": 0.0,
+            "lift": 0.0,
+            "moment_z": 0.0,
+            "heat_flux": 0.0
+          },
+          "report_manifest_sha256": "810831b4375468a68ed6aa0167e8e51dd105fadf9885ed2f833a0cbe4a634f09"
+        },
+        {
+          "mode": "segregated",
+          "exit_code": 0,
+          "wall_seconds": 1.018008015002124,
+          "config_sha256": "97055a0f5f0549a10c11899cca04e7a6217aaa375aee97e44a351e3241c65c63",
+          "rank_resources": [
+            {
+              "max_rss_kib": 24884,
+              "user_seconds": 1.15,
+              "system_seconds": 0.1
+            },
+            {
+              "max_rss_kib": 24996,
+              "user_seconds": 1.14,
+              "system_seconds": 0.09
+            }
+          ],
+          "max_rank_rss_kib": 24996,
+          "updates": 82,
+          "last_history_log10_rms": [
+            -11.60957737,
+            -12.29733238,
+            -12.45224028,
+            -10.01762707,
+            -12.80497407
+          ],
+          "outer_krylov_iterations": 1162,
+          "inner_krylov_iterations": 0,
+          "residual_assemblies": {
+            "flow": 2558,
+            "species": 1128
+          },
+          "attempts": 164,
+          "flow_residual_assemblies": 2558,
+          "physical": {
+            "points": 81,
+            "systems": {
+              "flow": {
+                "rms": [
+                  2.4570988616760714e-12,
+                  5.04275210343113e-13,
+                  3.529878215202279e-13,
+                  9.602248274934962e-11
+                ],
+                "maximum": [
+                  1.1765309809296659e-11,
+                  2.4619941502157516e-12,
+                  9.653686270510997e-13,
+                  4.435110529090662e-10
+                ],
+                "normalized_rms": [
+                  2.4570988616760714e-12,
+                  5.027966708772987e-13,
+                  3.529878215202279e-13,
+                  2.334764167758932e-12
+                ],
+                "projection_max": [
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "packed_integral": [
+                  0.02854313037743049,
+                  0.9128614968222553,
+                  0.018337205597905745,
+                  0.3570222394704039
+                ]
+              },
+              "species": {
+                "rms": [
+                  1.5668446113555376e-13
+                ],
+                "maximum": [
+                  5.245248679841552e-13
+                ],
+                "normalized_rms": [
+                  4.616604243314321e-13
+                ],
+                "projection_max": [
+                  0
+                ],
+                "packed_integral": [
+                  0.32657573660545525
+                ]
+              }
+            },
+            "quantities": {
+              "mass": 0.9669045752318239,
+              "drag": 0.15502489604021308,
+              "lift": -0.07180115543130067,
+              "moment_z": -0.020315903011672944,
+              "heat_flux": 0
+            }
+          },
+          "interior_species_range": [
+            [
+              0.24997305738163358,
+              0.5577746094859689
+            ]
+          ],
+          "state_difference_from_native": [
+            2.3225282966626816e-09,
+            2.2408712992304936e-10,
+            3.4931285555844513e-09,
+            2.7656296283533004e-08,
+            1.962069765918765e-10
+          ],
+          "quantity_difference_from_native": {
+            "mass": 1.5648915048954364e-11,
+            "drag": 2.360245138664385e-10,
+            "lift": 2.3614997218513e-09,
+            "moment_z": 1.2531437158246447e-09,
+            "heat_flux": 0.0
+          },
+          "report_manifest_sha256": "2ce7f670701f239638fea0777c277213d6f9e37d44c47a05c6ba8d32e2a8f795"
+        },
+        {
+          "mode": "coupled",
+          "exit_code": 0,
+          "wall_seconds": 1.372849003993906,
+          "config_sha256": "63f33aa0aa6130d2add4adecc730fe5b93cb715415933f4b5bd00e2db3743991",
+          "rank_resources": [
+            {
+              "max_rss_kib": 24772,
+              "user_seconds": 1.44,
+              "system_seconds": 0.11
+            },
+            {
+              "max_rss_kib": 24420,
+              "user_seconds": 1.52,
+              "system_seconds": 0.09
+            }
+          ],
+          "max_rank_rss_kib": 24772,
+          "updates": 82,
+          "last_history_log10_rms": [
+            -11.60814276,
+            -12.29380155,
+            -12.45321407,
+            -10.01433605,
+            -12.82088858
+          ],
+          "outer_krylov_iterations": 748,
+          "inner_krylov_iterations": 0,
+          "residual_assemblies": {
+            "flow": 2235,
+            "species": 2235
+          },
+          "attempts": 82,
+          "flow_residual_assemblies": 2235,
+          "physical": {
+            "points": 81,
+            "systems": {
+              "flow": {
+                "rms": [
+                  2.465228823239532e-12,
+                  5.083916962433827e-13,
+                  3.5219722596529324e-13,
+                  9.675288974640968e-11
+                ],
+                "maximum": [
+                  1.1851665455238011e-11,
+                  2.414762834135331e-12,
+                  9.598759775301252e-13,
+                  4.4689148473491197e-10
+                ],
+                "normalized_rms": [
+                  2.465228823239532e-12,
+                  5.065883049128508e-13,
+                  3.5219722596529324e-13,
+                  2.352515201330274e-12
+                ],
+                "projection_max": [
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "packed_integral": [
+                  0.028543130377585324,
+                  0.9128614968230615,
+                  0.018337205597884505,
+                  0.3570222394496351
+                ]
+              },
+              "species": {
+                "rms": [
+                  1.5104676170890125e-13
+                ],
+                "maximum": [
+                  5.064620597905467e-13
+                ],
+                "normalized_rms": [
+                  4.4216359854647495e-13
+                ],
+                "projection_max": [
+                  0
+                ],
+                "packed_integral": [
+                  0.3265757366053428
+                ]
+              }
+            },
+            "quantities": {
+              "mass": 0.9669045752321621,
+              "drag": 0.15502489604051065,
+              "lift": -0.07180115543288128,
+              "moment_z": -0.02031590301248693,
+              "heat_flux": 0
+            }
+          },
+          "interior_species_range": [
+            [
+              0.24997305738161915,
+              0.5577746094853876
+            ]
+          ],
+          "state_difference_from_native": [
+            2.3151898918653505e-09,
+            2.2303151014510915e-10,
+            3.4958834074720097e-09,
+            2.8719917678358305e-08,
+            1.9660480650903386e-10
+          ],
+          "quantity_difference_from_native": {
+            "mass": 1.599866407483423e-11,
+            "drag": 2.3410503168192704e-10,
+            "lift": 2.3394860003569327e-09,
+            "moment_z": 1.2130771844678148e-09,
+            "heat_flux": 0.0
+          },
+          "report_manifest_sha256": "500ea3d970cfdd8748e9daa5813c1fa0d3063e29c8fbc5e8902ee30d5c686e6e"
+        }
+      ]
+    }
+  ]
+}

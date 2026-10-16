@@ -168,7 +168,8 @@ def main(case=MMS_CASE):
             activity = report['transition_activity']
             assert activity['model'] == case['transition_model']
             assert activity['sampled_points'] > 0
-            assert activity['gamma_below_0_1'] > 0 and activity['gamma_above_0_9'] > 0, activity
+            active_band = 'gamma_below_0_1' if case['transition_model'] == 'SA_BC' else 'gamma_0_1_to_0_9'
+            assert activity[active_band] > 0 and activity['gamma_above_0_9'] > 0, activity
             assert 0 <= activity['gamma_min'] <= activity['gamma_mean'] <= activity['gamma_max']
             if case['transition_model'] == 'SA_BC':
                 assert activity['gamma_max'] <= 1
@@ -178,6 +179,16 @@ def main(case=MMS_CASE):
                 key: abs(activity[key] - reference_activity[key]) for key in ['gamma_min', 'gamma_max', 'gamma_mean']}
             assert max(run['transition_activity_difference_from_native'].values()) <= case['quantity_tolerance']
         fields, solution = state(restart, 2 + variables)
+        if case.get('minimum_species_range'):
+            indices = [j for j, name in enumerate(fields[2:]) if name.startswith('Species_')]
+            assert len(indices) == len(case['fields']['species'])
+            interior = [values for point, values in solution.items() if all(0 < x < 1 for x in point)]
+            assert interior
+            run['interior_species_range'] = [[min(row[j] for row in interior), max(row[j] for row in interior)]
+                                             for j in indices]
+            assert all(0 <= low < high <= 1 and high - low >= case['minimum_species_range']
+                       for low, high in run['interior_species_range'])
+            assert all(sum(row[j] for j in indices) <= 1 for row in interior)
         if reference is None:
             reference = fields, solution
             reference_quantities = report['quantities']
