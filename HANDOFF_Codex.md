@@ -66,7 +66,19 @@ current+BDF/open-ledger, explicit SA-floor replayv27, SU2/CGNS/reference/restart
 Actual prismatic backend/CFD workflow is still unqualified. A passive rank0
 profile (1398 samples, compressed raw data) identifies metric-stage MPI waits and
 exact contact arithmetic as significant costs; no extra CFD run or speedup claim.
-All owned build/native/audit/profiler/replay jobs are terminal. Full Goal3 active.
+Current connected source change is built and locally checked: actual local front-
+interval closure accepts regional single-wall scalar/fade6->576->228 and crossing-
+normal original-P1 fields6->390->195. Independent exact geometry/height/all full
+edges pass. Scalar collector count error is preserved and explicitly adjudicated;
+no successful native rerun. MPI4 retained1920-cell BL revalidates without rebuild,
+but removal still rejects at4091 work:2399 exact duplicates suppressed,2689 distinct
+reservation conflicts remain. Its319-cell private mesh independently meets geometry/
+q.220002/J.070456/L1.783027, but is not accepted. Strict zero-work/time/refusal
+contracts remain. Next coordinate complete authoritative dependency-star admission
+before payload import; no fallback/budget ladder or silent work-accounting change.
+[Current design/results](Handbook/GOAL3_SELECTION_WORK.md),
+[receipt](integration_evidence/native_3d_bl_v1/interacting_walls_v1/selection_work_v1.json).
+No owned native/build/audit process remains live. Full Goal3 active.
 
 
 
@@ -89,8 +101,9 @@ are historical evidence, not current blockers for the accepted high-ratio case.
 
 ## Full remaining scope and working rules
 
-Current geometry is one complete cylinder with two planar caps, one construction
-worker, one terminal angular-coarsening pass and a heuristic BL-free core radius.
+Certified constructive classes are one inward cylinder with planar caps and
+finite right prisms with requested walls on opposite caps, each on one worker.
+The cylinder retains one terminal coarsening pass and a heuristic BL-free core.
 This does not establish general/exterior/interacting geometry, arbitrary aspect
 ratios, structured layers or scalable parallel generation. Wider geometry/features,
 independent nonconstant BL integrals, separate composed-gradation feasibility,

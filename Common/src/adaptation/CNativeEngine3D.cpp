@@ -133,6 +133,10 @@ bool Clearance(World& world,const Owned& working,const Patch& old,const Patch& f
   return true;
 }
 struct Choice { Edge edge{}; EdgeMeasure measure; bool active = false; Feature feature; bool geometric=false; };
+struct ProposalKey {
+  Edge edge{};int rank=0;size_t slot=0;
+  template<class S> void Fields(S& s){s(edge,rank,slot);}
+};
 class Selection {
  public:
   Selection(bool coarsening, bool repairing, const PlanarReference& geometry, EngineStats& stats, bool timings, double tolerance,const std::map<int,double>& heights)
@@ -485,6 +489,38 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     stats.maximum_work_bytes=std::max(stats.maximum_work_bytes,peak);
     CLocalFailure failure;
     if (peak==SIZE_MAX || peak>options.memory_ceiling) failure.Set(3,0,"Native 3D adaptation working storage exceeds budget.");
+    return vote(failure);
+  };
+  auto coalesce=[&](std::vector<Choice>& choices) {
+    if(!coarsening || repairing || curved || composition || world.size==1)return true;
+    // A replicated directed collapse is one proposal; different retained endpoints remain distinct.
+    const auto scratch=transfer_memory::Mul(transfer_memory::Mul(world.size,MaximumCandidateBatch),
+        8*sizeof(ProposalKey)+8*sizeof(void*));
+    if(!admit(scratch))return false;
+    CLocalFailure failure;std::vector<std::vector<ProposalKey>> to;
+    try {
+      if(choices.size()>MaximumCandidateBatch)throw std::logic_error("Native collapse proposal table exceeds its bound.");
+      std::vector<ProposalKey> local;
+      for(size_t i=0;i<choices.size();++i)local.push_back({choices[i].edge,world.rank,i});
+      to.assign(world.size,local);
+    }catch(const std::exception& e){failure.Set(2,0,e.what());}
+    if(!vote(failure))return false;bool admitted=false;
+    const auto all=world.exchange(to,&admitted,options.memory_ceiling,
+        transfer_memory::Add(bytes(),source.ResidentBytes(),directory.ResidentBytes(),scratch));
+    if(!admitted){result.reason="Native collapse proposal exchange exceeds storage.";return false;}
+    try {
+      std::vector<Choice> unique;
+      for(size_t i=0;i<choices.size();++i) {
+        const auto owner=std::make_pair(world.rank,i);bool duplicate=false;
+        for(const auto& key:all) {
+          if(key.rank<0 || key.rank>=world.size || key.slot>=MaximumCandidateBatch || key.edge[0]==key.edge[1])
+            throw std::logic_error("Invalid native collapse proposal identity.");
+          duplicate=duplicate || (key.edge==choices[i].edge && std::make_pair(key.rank,key.slot)<owner);
+        }
+        if(duplicate)++stats.proposal_duplicates;else unique.push_back(choices[i]);
+      }
+      choices.swap(unique);
+    }catch(const std::exception& e){failure.Set(2,0,e.what());}
     return vote(failure);
   };
   std::string last_rejection;
@@ -1143,6 +1179,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         try { choices=selection.Batch(working,options.candidate_batch); }
         catch (const std::exception& e) { failure.Set(2,0,e.what()); }
         if (!(ready=vote(failure))) return finish();
+        if(!coalesce(choices))return finish();
         slots=CPassiveComm::Allreduce(choices.size(),CPassiveComm::Op::MAX,world.comm);
         ++stats.batch_rounds; stats.batch_candidates+=choices.size(); stats.proposed+=choices.size();
       }
@@ -1196,6 +1233,12 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         }
         const int owner=CPassiveComm::Allreduce(choice.active ? world.rank : world.size,CPassiveComm::Op::MIN,world.comm);
         choice.active=choice.active && world.rank==owner;
+      }
+      if(coarsening && !repairing && !curved && !composition && world.size>1) {
+        CLocalFailure failure;
+        try {if(choice.active)choices.push_back(choice);}catch(const std::exception& e){failure.Set(2,0,e.what());}
+        if(!vote(failure) || !coalesce(choices))return finish();
+        choice=choices.empty()?Choice{}:choices.front();
       }
       stats.proposed+=choice.active;
       const uint64_t proposed=CPassiveComm::Allreduce(uint64_t(choice.active),CPassiveComm::Op::SUM,world.comm);

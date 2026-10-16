@@ -5761,3 +5761,23 @@ substantial. Initial expected-SIGINT misclassification is preserved/corrected
 offline; no extra CFD run or speedup claim. Full actual prismatic workflow,
 rotated/localized tangential fields and wider geometry remain pending. All owned
 jobs terminal. Evidence: interacting_walls_v1/summary.json and linked handbook.
+
+
+## 2026-10-16 — front interval closure and MPI selection diagnosis
+
+A maximum of cumulative column integrals does not bound each column's interval
+integral when the controlling column changes. An exact positive-density counterexample
+is preserved. Close actual local normal intervals and tangential demands together,
+keeping first rows and original fields fixed. Regional single-wall scalar/fade and
+crossing-normal original-P1 cases independently accept6->576->228 and6->390->195,
+including exact geometry/height/every full numerical composed edge. See
+Handbook/GOAL3_SELECTION_WORK.md and interacting_walls_v1/selection_work_v1.json.
+
+Early suppression removes2399 duplicate directed MPI4 collapse proposals but leaves
+2689 distinct-star reservation conflicts. Retained1920-cell BL revalidation passes;
+removal remains native work-budget FAIL at4091. Its319-cell rejected state independently
+passes geometry/q.220002/J.070456/full L1.783027. Preserve strict completion and
+refusal/atomicity. Next coordinate complete remote-star admission before expensive
+payloads; do not raise limits, stop charging real work or add local collapse variants.
+This is not actual prismatic backend/CFD/current-BDF/restart, general geometry or a
+speedup/affordability claim. All owned jobs terminal; full Goal3 remains active.

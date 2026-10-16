@@ -13,6 +13,7 @@
 #include "../../../SU2_CFD/include/adaptation/CBoundaryLayerMetric.hpp"
 #include "SimplexMeshTestCase.hpp"
 #include <cmath>
+#include <fstream>
 #include <chrono>
 #include <ctime>
 #include <iostream>
@@ -758,7 +759,8 @@ void EngineReport(const EngineResult& result, World& world, const std::string& l
        << " donor_candidates=" << s.donor_candidates << " donor_filtered=" << s.donor_filtered << " donor_box_filtered=" << s.donor_box_filtered
        << " donor_payloads=" << s.donor_payloads << " donor_maximum_patch=" << s.donor_maximum_patch
        << " donor_search_nested_s=" << s.donor_search_seconds << " donor_filter_nested_s=" << s.donor_filter_seconds
-       << " batch_rounds=" << s.batch_rounds << " batch_candidates=" << s.batch_candidates
+       << " proposal_duplicates=" << s.proposal_duplicates
+             << " batch_rounds=" << s.batch_rounds << " batch_candidates=" << s.batch_candidates
              << " stop=" << EngineStopName(s.stop) << " global_work=" << s.global_work << " work_limit=" << s.work_limit
              << " progress_windows=" << s.progress_windows << " stagnant_windows=" << s.stagnant_windows << " search_windows=" << s.search_windows
              << " size_progress=" << s.size_progress << " quality_progress=" << s.quality_progress << " cell_removals=" << s.cell_removals
@@ -2126,6 +2128,7 @@ TEST_CASE("Native proposal and clock budgets reject collectively without publish
   CHECK(completed.stats.stop==EngineStop::Complete);
   CHECK(completed.stats.global_work<=64);
   CHECK(world.sum(int(completed.stats.cell_removals))==1);
+  if(world.size>1)CHECK(world.sum(int(completed.stats.proposal_duplicates))>0);
   CHECK(world.sum(int(completed.stats.metric_trials))>=world.sum(int(completed.stats.accepted)));
   CHECK(Bytes(input)==saved);
   if (world.size>1) {
@@ -2288,17 +2291,37 @@ namespace {
 #include "fixtures/native_bl_corner.inc"
 #include "fixtures/native_bl_cold.inc"
 #include "fixtures/native_bl_planar_wall.inc"
-void CoupledBL(bool grouped,unsigned replay=0,double strength=1,bool opposing=false) {
+Patch SavedPrism(const char* filename) {
+  std::ifstream in(filename);std::string magic;unsigned version=0;size_t cells=0,faces=0;
+  in>>magic>>version>>cells>>faces;
+  if(magic!="NATIVE_SAVED_PATCH_3D" || version!=1 || !cells || cells>4096 || faces>4*cells)
+    throw std::runtime_error("Invalid saved prismatic patch header.");
+  Patch patch;patch.cells.resize(cells);patch.surface.resize(faces);
+  for(auto& c:patch.cells){in>>c.id;for(auto& n:c.v)in>>n.id>>n.p.x>>n.p.y>>n.p.z;}
+  for(auto& f:patch.surface)in>>f.facet>>f.v[0]>>f.v[1]>>f.v[2];
+  if(!in)throw std::runtime_error("Truncated saved prismatic patch.");
+  in>>std::ws;if(!in.eof())throw std::runtime_error("Trailing saved prismatic patch records.");
+  return patch;
+}
+void CoupledBL(bool grouped,unsigned replay=0,double strength=1,bool opposing=false,bool regional=false) {
   World world;auto fixture=Box();const auto donorFixture=fixture;
+  const char* saved_patch=opposing?std::getenv("SU2_NATIVE_OPPOSING_PATCH"):nullptr;
+  if(saved_patch)fixture.patch=SavedPrism(saved_patch);
+  const char* selected_sensor=regional?std::getenv("SU2_NATIVE_PRISM_SENSOR"):nullptr;
+  const bool crossing=selected_sensor && std::string(selected_sensor)=="CROSSING";
   if(replay)fixture.patch=replay==2?BLColdObstruction():BLCornerObstruction();
   if(grouped)for(auto& f:fixture.facets)f.marker=std::all_of(f.v.begin(),f.v.end(),[](Node n){return n.p.z==0;})?10:
       opposing && std::all_of(f.v.begin(),f.v.end(),[](Node n){return n.p.z==1;})?12:11;
-  const PlanarReference reference(fixture.facets);const std::string prefix=std::string(opposing?"opposing_":"")+std::string(strength>1?"finer_":"")+(replay==2?"cold_replay_":replay?"replay_":"")+std::string(grouped?"grouped_":"");
-  const auto input=Partition(Rows(fixture.patch),world),saved=input;
+  const PlanarReference reference(fixture.facets);const std::string prefix=std::string(regional?"regional_":"")+std::string(crossing?"crossing_":"")+std::string(opposing?"opposing_":"")+std::string(strength>1?"finer_":"")+(replay==2?"cold_replay_":replay?"replay_":"")+std::string(grouped?"grouped_":"");
+  auto input=Partition(Rows(fixture.patch),world);
+  if(saved_patch)for(auto& row:input)row.second.version=0;
+  const auto saved=input;
   auto original=Uniform(Partition(Rows(donorFixture.patch),world),{strength,0,0,strength,0,strength});
   auto allOriginal=Uniform(Partition(Rows(donorFixture.patch),World(MPI_COMM_SELF)),{strength,0,0,strength,0,strength});
   if(strength>1)for(auto* source:{&original,&allOriginal})for(auto& donor:*source)for(size_t k=0;k<4;++k) {
-    const auto value=strength*(1+3*donor.cell.v[k].p.x);donor.sensor[k]={value,0,0,value,0,value};
+    const auto p=donor.cell.v[k].p;
+    const auto value=strength*(1+3*p.x);
+    donor.sensor[k]=crossing?Tensor{4,0,0,4,0,4+96*(1-std::abs(p.x-p.z))}:Tensor{value,0,0,value,0,value};
   }
   const double first=opposing?.02:.1,thickness=opposing?.6:.3;
   CBoundaryLayerMetric::Wall wall;wall.layer={"wall",first,1.2,thickness};
@@ -2321,7 +2344,7 @@ void CoupledBL(bool grouped,unsigned replay=0,double strength=1,bool opposing=fa
     if(std::all_of(face.v.begin(),face.v.end(),[](Node n){return n.p.z==0;}) ||
        (opposing && std::all_of(face.v.begin(),face.v.end(),[](Node n){return n.p.z==1;}))) {
       options.wall_heights[face.marker]=first;
-      if(opposing)options.region_walls[face.marker]={first,1.2,thickness};
+      if(opposing || regional)options.region_walls[face.marker]={first,1.2,thickness};
     }
   auto exportMesh=[&](const Owned& owned,const std::string& name) {
     const auto rows=Gather(world,owned);if(world.rank)return;
@@ -2340,15 +2363,15 @@ void CoupledBL(bool grouped,unsigned replay=0,double strength=1,bool opposing=fa
     simplex_test::WriteSU2Mesh(mesh,prefix+name+"_n"+std::to_string(world.size)+".su2");
   };
   Patch rejectedRegion;
-  if(opposing)options.rejected_trial=[&](const Patch&,const Patch& candidate,Feature,const MetricDiagnosis&,bool,const std::string&) {rejectedRegion=candidate;};
-  exportMesh(input,replay?"saved_BL_input":"initial_euler");
+  if(opposing || regional)options.rejected_trial=[&](const Patch&,const Patch& candidate,Feature,const MetricDiagnosis&,bool,const std::string&) {rejectedRegion=candidate;};
+  exportMesh(input,saved_patch?"accepted_BL_input":replay?"saved_BL_input":"initial_euler");
   const auto refined=Refine(world,input,original,reference,compose,options);
-  if(opposing) {
+  if(opposing || regional) {
     Owned rejected;for(auto row:Rows(rejectedRegion))rejected.emplace(row.cell.id,row);
     if(world.maximum(!rejected.empty())){exportMesh(rejected,"private_region_rejected");MeshRecords(prefix+"private_region_rejected",world,rejected);}
     const auto attempts=world.maximum(refined.stats.region_attempts),fronts=world.maximum(refined.stats.region_transition_fronts);
     if(!world.rank)std::cout<<"PRISMATIC_RESULT valid="<<refined.valid<<" region_attempts="<<attempts<<" fronts="<<fronts<<std::endl;
-    CHECK(attempts==1);
+    CHECK(attempts==(saved_patch?0:1));
   }
   EngineReport(refined,world,prefix+"coupled_BL");Log(world,"BL result: "+refined.reason+"\n");
   exportMesh(refined.cells,refined.valid?"constructed_BL":"constructed_BL_rejected");
@@ -2377,7 +2400,7 @@ void CoupledBL(bool grouped,unsigned replay=0,double strength=1,bool opposing=fa
   }
   CHECK_FALSE(world.maximum(!height));
   INFO(refined.reason);REQUIRE(refined.valid);CHECK_FALSE(world.maximum(!metric));
-  if(strength>1 && !opposing) {
+  if(strength>1 && !opposing && !regional) {
     CHECK(world.sum(int(refined.stats.wall_reconstruction_trials))>0);
     CHECK(world.sum(int(refined.stats.wall_reconstruction_accepted))>0);
   }
@@ -2454,6 +2477,10 @@ TEST_CASE("Native3D finer original sensor reconstructs wall children and release
 
 TEST_CASE("Native3D overlapping opposing wall layers reach a complete finer-sensor mesh", "[.][NativeOpposingBL3D]") {
   CoupledBL(true,0,4.,true);
+}
+
+TEST_CASE("Native3D regional single-wall fade retains finer and crossing normal sensors", "[.][NativePrismaticSingleWall3D]") {
+  CoupledBL(true,0,4.,false,true);
 }
 
 TEST_CASE("Prismatic admission certifies opposite caps and rejects slanted sides and wall junctions", "[NativePrismaticAdmission3D]") {

@@ -1,0 +1,58 @@
+{
+  "status": "PASS_COMPLETE_REGIONAL_SINGLE_WALL_ORIGINAL_FIELD_GEOMETRY_AND_FULL_EDGES",
+  "field": "CROSSING",
+  "frames": [
+    {
+      "file": "coupled_BL_independent.json",
+      "cells": 390,
+      "points": 140,
+      "physical_faces": 228,
+      "volume": "1",
+      "minimum_mean_ratio": 0.36526625832352294,
+      "minimum_scaled_jacobian": 0.11720020908092507,
+      "maximum_length": 1.720317988916481,
+      "longest_edge": [
+        80,
+        94
+      ],
+      "markers": {
+        "1": 10,
+        "0": 218
+      },
+      "strict_metric_gate": true,
+      "first_height_faces": 10,
+      "maximum_height_relative_error": 0.0,
+      "wall_normal_first_edges": 10,
+      "full_composed_edges": 643,
+      "layers": true,
+      "input_sha256": "ea96430ae937da055745664d73439d6aa4ff108de161391f29f51125cddf4537"
+    },
+    {
+      "file": "released_Euler_independent.json",
+      "cells": 195,
+      "points": 74,
+      "physical_faces": 124,
+      "volume": "1",
+      "minimum_mean_ratio": 0.3352140017288077,
+      "minimum_scaled_jacobian": 0.13058205330814424,
+      "maximum_length": 1.7971629301401122,
+      "longest_edge": [
+        63,
+        65
+      ],
+      "markers": {
+        "1": 8,
+        "0": 116
+      },
+      "strict_metric_gate": true,
+      "layers": false,
+      "input_sha256": "9e8c4d299e411fe3448a5a20cc9267aec7e7472b032c83d0b914330836be1078"
+    }
+  ],
+  "native_receipt_sha256": "78846e6398e89aea99c246baf5139f4d5a2a46d73da101eae1d39c195353469d",
+  "reference_input_sha256": "30ace31249e242b4595479dc5d60a7530e8f519359c6d9b4c42a33df232ab7e2",
+  "helper_sha256": "a9911b591acf842c0a7619fc8765d6ab24e7adb338892c7b24126bc1f70f6cf2",
+  "geometry_helper_sha256": "1822427476ecb5687aaa06f3e7a3cc8f31cde53166fd0c711449eedf7c7c7a50",
+  "elapsed_seconds": 4.379089684924111,
+  "scope": "Same finite unit-box geometry with only the lower wall constrained h.1/g1.2/T.3. Independent analytic planar BL/fade plus the declared exact six-tet original-P1 scalar or crossing-normal tensor; each original tet stays on one side of x=z, proving the crossing formula affine there. Tangent inverse-covariance eigenvalues<=1.5 and fade core4 are dominated by the sensor. Exact whole embedding/finite authority/links/height/normal columns, all q/J and every full numerical BL edge, analytic piecewise original-sensor edges after removal. Numerical error indicators are not enclosures. No actual CFD/transport/restart, tangential rotated alignment, general geometry or affordability qualification."
+}

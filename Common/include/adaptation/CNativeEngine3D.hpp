@@ -56,6 +56,7 @@ struct EngineStats {
 
   uint64_t rounds = 0, proposed = 0, conflicts = 0, attempted = 0, accepted = 0, rejected = 0;
   uint64_t batch_rounds = 0, batch_candidates = 0, batch_reserved = 0;
+  uint64_t proposal_duplicates = 0;  // Replicated directed collapses suppressed before work/payload admission.
   uint64_t initial_cells = 0, updated_cells = 0, edge_evaluations = 0, edge_reused = 0, selections = 0;  // Edge evaluations here count selection-cache measurements only.
   // Local cached state at every exit, including rejection; remaining candidates are separate from frozen metric violations.
   uint64_t final_owned_cells = 0, cached_measured_cells = 0, cached_invalid_cells = 0;

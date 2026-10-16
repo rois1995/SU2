@@ -701,6 +701,7 @@ class Construction {
           maximum=std::max(maximum,length);}
         return maximum;
       };
+      if(levels.empty()) {
       const auto total=prefix(last);const auto count=std::ceil(total/(.55L*MaximumMetricEdge));
       if(!(count>=1) || count>limits.maximum_work){report.exhausted_work=true;throw std::runtime_error("Prismatic front span exceeds admitted work.");}
       const size_t intervals=size_t(count);
@@ -719,7 +720,8 @@ class Construction {
         levels.push_back(lo);
       }
       levels.push_back(last);if(last<chart.gap)levels.push_back(chart.gap);
-      bool refined=false;
+      }
+
       for(;;) {
         Check();std::set<Edge> marked;
         for(const auto& edge:Links(base))for(double z:levels) {
@@ -738,20 +740,41 @@ class Construction {
             }
             if(!hit)next.push_back(base[i]);
           }
-          base.swap(next);refined=true;
+          base.swap(next);
+          if(base.size()>limits.maximum_cells/(3*(levels.size()-1))) {
+            report.exhausted_work=true;throw std::runtime_error("Prismatic cap refinement exceeds admitted transition cells.");
+          }
         }
       }
       // New columns can expose a stronger original sensor; close both directions before constructing cells.
       vertices.clear();for(auto f:base)for(Id n:f.v)vertices.insert(n);
-      bool normal_valid=true;
-      for(Id n:vertices)for(size_t k=1;k<levels.size();++k) {
-        Check();const auto length=field.edge(point(n,levels[k-1]),point(n,levels[k]));
+      bool divided=false;
+      for(size_t k=1;k<levels.size();++k) {
+        auto interval=[&](double end) {
+          ++report.front_trials;Check();long double maximum=0;
+          for(Id n:vertices){Check();const auto value=field.edge(point(n,levels[k-1]),point(n,end));
+            if(!(value>0) || !std::isfinite(value))throw std::runtime_error("Prismatic interval has no finite metric span.");
+            maximum=std::max(maximum,value);}
+          return maximum;
+        };
+        const auto length=interval(levels[k]);
         const bool wall=(first>0 && k==1) || (last<chart.gap && k+1==levels.size());
         if(wall && length>MaximumMetricEdge)throw std::runtime_error("Prismatic prescribed-height column exceeds the original metric length; this layout cannot satisfy both constraints.");
-        if(!wall && length>.55L*MaximumMetricEdge*(1+1e-6L))normal_valid=false;
+        if(wall || length<=.55L*MaximumMetricEdge*(1+1e-6L))continue;
+        if(levels.size()>limits.maximum_cells/(3*base.size())) {
+          report.exhausted_work=true;throw std::runtime_error("Prismatic interval closure exceeds admitted transition cells.");
+        }
+        // Maxima of cumulative prefixes need not bound their differences when the controlling column changes.
+        double lo=levels[k-1],hi=levels[k];const auto wanted=.5L*length;
+        for(unsigned iteration=0;iteration<24;++iteration) {
+          const double mid=.5*(lo+hi);const auto value=interval(mid);
+          if(value<=wanted)lo=mid;else hi=mid;
+          if(value<=wanted && wanted-value<=1e-7L*length)break;
+        }
+        if(!(lo>levels[k-1] && lo<levels[k]))throw std::runtime_error("Prismatic interval closure makes no representable progress.");
+        levels.insert(levels.begin()+k,lo);divided=true;--k;
       }
-      if(normal_valid)break;
-      if(!refined)throw std::runtime_error("Prismatic maximum-prefix layout does not bound every local metric interval.");
+      if(!divided)break;
     }
     if(base.size()>limits.maximum_cells/(3*(levels.size()-1))) {
       report.exhausted_work=true;throw std::runtime_error("Prismatic complete transition exceeds admitted cells.");

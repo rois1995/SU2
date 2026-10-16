@@ -1,0 +1,216 @@
+{
+  "status": "TWO_COMPLETE_SERIAL_FIELDS_PASS_MPI4_RETAINED_BL_PASS_REMOVAL_STILL_REJECTED",
+  "full_goal3_complete": false,
+  "cases": [
+    {
+      "case": "native_prism_single_v1",
+      "native_status": "PASS",
+      "native_receipt_sha256": "f81e350e96355ce137acb2c0cbc15428eea45c8ee1126c888cfe075dea06820c",
+      "independent_status": "PASS_COMPLETE_REGIONAL_SINGLE_WALL_ORIGINAL_FIELD_GEOMETRY_AND_FULL_EDGES",
+      "independent_sha256": "28f634e0970d0fe3d6d836eb2576dbde0486bb6554e1b7638a257539b2e9c1dd",
+      "frames": [
+        {
+          "file": "coupled_BL_independent.json",
+          "cells": 576,
+          "points": 161,
+          "physical_faces": 208,
+          "volume": "1",
+          "minimum_mean_ratio": 0.4330662447990334,
+          "minimum_scaled_jacobian": 0.1844481470602813,
+          "maximum_length": 1.6644667556576715,
+          "longest_edge": [
+            14,
+            87
+          ],
+          "markers": {
+            "1": 32,
+            "0": 176
+          },
+          "strict_metric_gate": true,
+          "first_height_faces": 32,
+          "maximum_height_relative_error": 0.0,
+          "wall_normal_first_edges": 23,
+          "full_composed_edges": 840,
+          "layers": true,
+          "input_sha256": "aead65b0607094f982d9b3bda738ce1c50f4724344f34ec9918883badd62d540"
+        },
+        {
+          "file": "released_Euler_independent.json",
+          "cells": 228,
+          "points": 76,
+          "physical_faces": 116,
+          "volume": "1",
+          "minimum_mean_ratio": 0.3613020301312817,
+          "minimum_scaled_jacobian": 0.18444813473684518,
+          "maximum_length": 1.79886406129697,
+          "longest_edge": [
+            37,
+            41
+          ],
+          "markers": {
+            "0": 95,
+            "1": 21
+          },
+          "strict_metric_gate": true,
+          "layers": false,
+          "input_sha256": "fe49fea0de93e9fbd3de3edb16c23f7dea3a63f8e42df1cc8f664b20218188fd"
+        }
+      ],
+      "removal": {
+        "proposed": 252,
+        "attempts": 252,
+        "conflicts": 0,
+        "proposal_duplicates": 0,
+        "global_work": 252,
+        "stop": [
+          "complete"
+        ]
+      }
+    },
+    {
+      "case": "native_prism_crossing_v1",
+      "native_status": "PASS",
+      "native_receipt_sha256": "78846e6398e89aea99c246baf5139f4d5a2a46d73da101eae1d39c195353469d",
+      "independent_status": "PASS_COMPLETE_REGIONAL_SINGLE_WALL_ORIGINAL_FIELD_GEOMETRY_AND_FULL_EDGES",
+      "independent_sha256": "70e5301bd290437f0744d3f8e8415ca26cff295644ff7eea4244860466403417",
+      "frames": [
+        {
+          "file": "coupled_BL_independent.json",
+          "cells": 390,
+          "points": 140,
+          "physical_faces": 228,
+          "volume": "1",
+          "minimum_mean_ratio": 0.36526625832352294,
+          "minimum_scaled_jacobian": 0.11720020908092507,
+          "maximum_length": 1.720317988916481,
+          "longest_edge": [
+            80,
+            94
+          ],
+          "markers": {
+            "1": 10,
+            "0": 218
+          },
+          "strict_metric_gate": true,
+          "first_height_faces": 10,
+          "maximum_height_relative_error": 0.0,
+          "wall_normal_first_edges": 10,
+          "full_composed_edges": 643,
+          "layers": true,
+          "input_sha256": "ea96430ae937da055745664d73439d6aa4ff108de161391f29f51125cddf4537"
+        },
+        {
+          "file": "released_Euler_independent.json",
+          "cells": 195,
+          "points": 74,
+          "physical_faces": 124,
+          "volume": "1",
+          "minimum_mean_ratio": 0.3352140017288077,
+          "minimum_scaled_jacobian": 0.13058205330814424,
+          "maximum_length": 1.7971629301401122,
+          "longest_edge": [
+            63,
+            65
+          ],
+          "markers": {
+            "1": 8,
+            "0": 116
+          },
+          "strict_metric_gate": true,
+          "layers": false,
+          "input_sha256": "9e8c4d299e411fe3448a5a20cc9267aec7e7472b032c83d0b914330836be1078"
+        }
+      ],
+      "removal": {
+        "proposed": 183,
+        "attempts": 183,
+        "conflicts": 0,
+        "proposal_duplicates": 0,
+        "global_work": 183,
+        "stop": [
+          "complete"
+        ]
+      }
+    },
+    {
+      "case": "native_opposing_resume_mpi4_v1",
+      "native_status": "FAIL",
+      "native_receipt_sha256": "7140748e8eb43db229cd56c1fa00d61fe0ef43e67f03bf430e98fd64e5b2af30",
+      "independent_status": "PASS_CONSTRUCTION_ONLY_NATIVE_REMOVAL_REJECTED",
+      "independent_sha256": "56578acdf7e4e065964a9c2e9fe6801125c259ac1500105b2bbd86345a804972",
+      "frames": [
+        {
+          "file": "opposing_finer_grouped_coupled_BL_independent.json",
+          "cells": 1920,
+          "points": 483,
+          "physical_faces": 544,
+          "volume": "1",
+          "minimum_mean_ratio": 0.4673160150867968,
+          "minimum_scaled_jacobian": 0.19316019857871727,
+          "maximum_length": 1.6680628605896526,
+          "longest_edge": [
+            44,
+            65
+          ],
+          "markers": {
+            "1": 32,
+            "0": 480,
+            "2": 32
+          },
+          "strict_metric_gate": true,
+          "first_height_faces": 64,
+          "maximum_height_relative_error": 8.881784197001252e-16,
+          "maximum_centroid_tilt": 13.176156917368248,
+          "wall_normal_first_row_edges": 46,
+          "minimum_nonwall_node_clearance": 0.02,
+          "full_metric_edges": 2674,
+          "coverage": "Complete positive prismatic first bands, normal edges at every wall node, no nonwall node below h0; centroid tilt is reported separately.",
+          "layers": true,
+          "input_sha256": "30ace31249e242b4595479dc5d60a7530e8f519359c6d9b4c42a33df232ab7e2",
+          "exact_reference_reuse_sha256": "239dd57fcefa63ea2902ccc5ce9130588b457e5f76f0b6dad56afd0335698b30"
+        },
+        {
+          "file": "opposing_finer_grouped_released_Euler_rejected_independent.json",
+          "cells": 319,
+          "points": 100,
+          "physical_faces": 152,
+          "volume": "1",
+          "minimum_mean_ratio": 0.22000227327473207,
+          "minimum_scaled_jacobian": 0.0704559808964365,
+          "maximum_length": 1.783026591155755,
+          "longest_edge": [
+            66,
+            97
+          ],
+          "markers": {
+            "0": 106,
+            "2": 24,
+            "1": 22
+          },
+          "strict_metric_gate": false,
+          "layers": false,
+          "input_sha256": "7cc6de3d3c7637b410b79f39fed6272694463355efaad4e50be1037911e03178"
+        }
+      ],
+      "removal": {
+        "proposed": 4106,
+        "attempts": 1402,
+        "conflicts": 2689,
+        "proposal_duplicates": 2399,
+        "global_work": 4091,
+        "stop": [
+          "work_budget"
+        ]
+      }
+    }
+  ],
+  "unchanged_gates": {
+    "q": 0.2,
+    "J": 0.05,
+    "maximum_full_metric_edge": 1.8,
+    "work": 4096,
+    "time_seconds": 300
+  },
+  "scope": "Complete regional single-wall scalar/fade and crossing-normal original-P1 construction/removal accepted, independently exact geometry/height/all full edges. MPI4 saved opposing BL remeasurement succeeds without reconstruction; duplicate suppression2399 and distinct reservation conflicts2689 still leave strict native removal work-budget rejection at4091. The319-cell private state passes independent geometry/metric gates but is not promoted. Direct engine tests, not actual prismatic backend/CFD/transfer/restart or general tangential anisotropy qualification.",
+  "decision": "Keep strict completion/refusal/atomicity. Coordinate complete dependency-star candidate admission before expensive payload/transactions; do not add local collapse variants or raise limits. Record metadata-selection cost and deferred work explicitly."
+}

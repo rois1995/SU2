@@ -13,13 +13,14 @@ def main():
  runtime=re.fullmatch(r'native_curved_rans_n([124])_m([124])_v[0-9]+',case)
  layered=re.fullmatch(r'native_front_(constant|varying|rotated)(?:_mpi([24]))?_v[0-9]+',case)
  core=layered or re.fullmatch(r'native_core_(constant|varying|rotated)(?:_mpi([24]))?_v[0-9]+',case)
- opposing=re.fullmatch(r'native_opposing(?:_mpi([24]))?_v[0-9]+',case)
+ opposing=re.fullmatch(r'native_opposing(?:_resume)?(?:_mpi([24]))?_v[0-9]+',case)
+ single=re.fullmatch(r'native_prism_(single|crossing)_v[0-9]+',case)
  edge_controls=re.fullmatch(r'native_global_edge_controls_v[0-9]+',case)
  if runtime:assert int(runtime[2])<=int(runtime[1])
  recipes={'native_core_constant_v1':'geometry','native_core_varying_v1':'geometry','native_core_rotated_v1':'geometry','native_complete_domain_controls_v1':'geometry','native_curved_volume_controls_v7':'geometry','native_curved_volume_controls_v6':'geometry','native_curved_volume_controls_v5':'geometry','native_curved_volume_controls_v4':'geometry','native_curved_volume_controls_v3':'geometry','native_curved_volume_controls_v2':'geometry','native_curved_volume_controls_v1':'geometry','native_curved_rans_v1':'geometry','native_curved_rans_mpi2_v1':'geometry','native_curved_rans_mpi4_v1':'geometry','native_region_field_controls_mpi2_v2':'geometry','native_region_field_controls_mpi4_v2':'geometry','native_region_field_controls_v2':'geometry','native_refreshed_source_v2':'curved_cold','native_refreshed_source_mpi2_v2':'curved_cold','native_refreshed_source_mpi4_v2':'curved_cold','native_field_compat_v2':'curved_feature_complete','native_region_field_controls_v1':'geometry','native_refreshed_source_v1':'curved_cold','native_refreshed_source_mpi2_v1':'curved_cold','native_refreshed_source_mpi4_v1':'curved_cold','native_field_compat_v1':'curved_feature_complete','native_cold_v3':'curved_cold','native_cold_mpi2_v3':'curved_cold','native_cold_mpi4_v3':'curved_cold','native_complete_v3':'curved_feature_complete','native_complete_field_v3':'curved_grid_audit','native_cold_bl_field_v3':'curved_grid_audit','native_cold_v2':'curved_cold','native_complete_v2':'curved_feature_complete','native_primitive_controls_v1':'geometry','native_cold_field_v1':'curved_grid_audit','native_cold_v1':'curved_cold','native_complete_field_v1':'curved_grid_audit','native_complete_mpi2':'curved_joint_protocol_feature_mpi2','native_complete_mpi4':'curved_joint_protocol_mpi4','native_complete_v1':'curved_feature_complete','metric_derivative_controls':'geometry','curved_metric_patch_probe':'curved_current_wall_refit_probe','curved_metric_complete':'curved_feature_complete','curved_metric_residual':'curved_feature_residual','curved_joint_protocol_metric_mpi2':'curved_joint_protocol_feature_mpi2'}
  recipes.update({'native_complete_v11':'curved_joint_protocol','native_complete_mpi2_v11':'curved_joint_protocol_mpi2','native_complete_mpi4_v11':'curved_joint_protocol_mpi4','native_curved_volume_controls_v11':'geometry'})
  field_sources={'native_complete_field_v1':('native_complete_v1','curved_grid_adapted.su2'),'native_complete_field_v3':('native_complete_v3','curved_grid_adapted.su2'),'native_cold_bl_field_v3':('native_cold_v3','curved_cylinder_BL.su2')}
- stage='geometry' if runtime or core or edge_controls or opposing else recipes.get(case,case);assert stage in ("geometry","planar_wall_replay","sensor","sensor_mpi2","sensor_mpi4","curved_field","curved_volume","curved_cold","curved_replay","curved_replay_remaining","curved_replay_complete","curved_grid_audit","curved_cold_residual","curved_grid_refine","curved_transition_complete","curved_joint_engine","curved_edge_replay","curved_joint_search","curved_interior_search","curved_interior_engine","curved_interior_residual","curved_interior_continue","curved_reconnection_probe","curved_cover_probe","curved_cap_cover_probe","curved_cap_point_probe","curved_costed_complete","curved_wall_refit_probe","curved_rim_refit_probe","curved_current_wall_refit_probe","curved_wall_refit_complete","curved_joint_connectivity_complete","curved_feature_complete","curved_wall_refit_residual","curved_joint_connectivity_residual","curved_feature_residual","curved_refit_interior_point","curved_refit_interior_cover","curved_refit_interior_dependencies","curved_joint_protocol","curved_joint_protocol_mpi2","curved_joint_protocol_cap_mpi2","curved_joint_protocol_refit_mpi2","curved_joint_protocol_connectivity_mpi2","curved_joint_protocol_feature_mpi2","curved_joint_protocol_mpi4","interior_geometry","topology_hint_controls","curved_repair_controls","curved_feature_controls","interacting_volume")
+ stage='geometry' if runtime or core or edge_controls or opposing or single else recipes.get(case,case);assert stage in ("geometry","planar_wall_replay","sensor","sensor_mpi2","sensor_mpi4","curved_field","curved_volume","curved_cold","curved_replay","curved_replay_remaining","curved_replay_complete","curved_grid_audit","curved_cold_residual","curved_grid_refine","curved_transition_complete","curved_joint_engine","curved_edge_replay","curved_joint_search","curved_interior_search","curved_interior_engine","curved_interior_residual","curved_interior_continue","curved_reconnection_probe","curved_cover_probe","curved_cap_cover_probe","curved_cap_point_probe","curved_costed_complete","curved_wall_refit_probe","curved_rim_refit_probe","curved_current_wall_refit_probe","curved_wall_refit_complete","curved_joint_connectivity_complete","curved_feature_complete","curved_wall_refit_residual","curved_joint_connectivity_residual","curved_feature_residual","curved_refit_interior_point","curved_refit_interior_cover","curved_refit_interior_dependencies","curved_joint_protocol","curved_joint_protocol_mpi2","curved_joint_protocol_cap_mpi2","curved_joint_protocol_refit_mpi2","curved_joint_protocol_connectivity_mpi2","curved_joint_protocol_feature_mpi2","curved_joint_protocol_mpi4","interior_geometry","topology_hint_controls","curved_repair_controls","curved_feature_controls","interacting_volume")
  ranks=2 if stage in ("sensor_mpi2","curved_joint_protocol_mpi2","curved_joint_protocol_cap_mpi2","curved_joint_protocol_refit_mpi2","curved_joint_protocol_connectivity_mpi2","curved_joint_protocol_feature_mpi2") else 4 if stage in ("sensor_mpi4","curved_joint_protocol_mpi4") else 1;selection="[NativeWallReconstruction3D],[NativeJointGeometry3D]" if stage=="geometry" else "[NativeFinerSensorBL3D]"
  if case in ('native_cold_mpi2_v3','native_refreshed_source_mpi2_v1','native_refreshed_source_mpi2_v2','native_region_field_controls_mpi2_v2'):ranks=2
  if case in ('native_cold_mpi4_v3','native_refreshed_source_mpi4_v1','native_refreshed_source_mpi4_v2','native_region_field_controls_mpi4_v2'):ranks=4
@@ -36,7 +37,8 @@ def main():
  if case in ('native_curved_volume_controls_v6','native_curved_volume_controls_v7'):selection+=',[NativeParallelBL3D]';expected=3
  if case=='native_curved_volume_controls_v11':selection='[NativeCylinderBLVolume3D],[NativeCurvedBLVolume3D],[NativeParallelBL3D]';expected=3
  if core:selection='[NativeRegionCore3D]';expected=1;ranks=int(core[2] or 1)
- if opposing:selection='[NativeOpposingBL3D],[NativePrismaticAdmission3D]';expected=2;ranks=int(opposing[1] or 1)
+ if opposing:selection='[NativeOpposingBL3D],[NativePrismaticAdmission3D],[NativePolicy3D]';expected=4;ranks=int(opposing[1] or 1)
+ if single:selection='[NativePrismaticSingleWall3D],[NativePrismaticAdmission3D],[NativePolicy3D]';expected=4
  if edge_controls:selection='[NativeComposite3D],[NativeBalancedSplit3D],[NativeLayeredField3D],[NativeSmoothClosest3D]';expected=12
  if case=='native_complete_domain_controls_v1':selection='[NativePolicyRuntime3D]';expected=1
  if case=='metric_derivative_controls':selection='[NativeMetricJacobian3D]';expected=1
@@ -120,8 +122,18 @@ def main():
  env.pop('SU2_NATIVE_FRONT_HEIGHT',None);env.pop('SU2_NATIVE_FRONT_LENGTH',None)
  if core:env['SU2_NATIVE_CORE_FIELD']=str({'constant':0,'varying':1,'rotated':2}[core[1]])
  if layered:env.update(SU2_NATIVE_FRONT_HEIGHT='.01',SU2_NATIVE_FRONT_LENGTH='.2')
- contract={'recipe':stage,'pins':pins,'command':command,'MPI_ranks':ranks,'environment':{k:v for k,v in env.items() if k.startswith('SU2_NATIVE_CURVED_') or k in ('SU2_NATIVE_CORE_FIELD','SU2_NATIVE_FRONT_HEIGHT','SU2_NATIVE_FRONT_LENGTH','SU2_NATIVE_POLICY_WORKERS','OMP_NUM_THREADS','OPENBLAS_NUM_THREADS','MKL_NUM_THREADS','OMPI_MCA_mpi_yield_when_idle')}}
- destination=HERE.parent/'interacting_walls_v1' if opposing else HERE.parent/'region_construction_v1' if case.startswith('native_') else HERE
+ env.pop('SU2_NATIVE_OPPOSING_PATCH',None);env.pop('SU2_NATIVE_PRISM_SENSOR',None)
+ saved_patch=None
+ if opposing and '_resume' in case:
+  saved_patch=HERE.parent/'interacting_walls_v1/native_opposing_mpi4_v3/opposing_finer_grouped_coupled_BL_independent.json'
+  reference=saved_patch.parent/'construction_reference_reuse.json'
+  prior=json.loads(reference.read_text());assert prior['status']=='PASS_EXACT_CONSTRUCTION_REFERENCE_REUSE_REMOVAL_REJECTED'
+  assert digest(saved_patch)==prior['equivalent_complete_input_sha256']
+  pins['accepted_patch_json']=digest(saved_patch);pins['construction_reuse_receipt']=digest(reference)
+  env['SU2_NATIVE_OPPOSING_PATCH']='replay_patch.dat'
+ if single:env['SU2_NATIVE_PRISM_SENSOR']='CROSSING' if single[1]=='crossing' else 'SCALAR'
+ contract={'recipe':stage,'pins':pins,'command':command,'MPI_ranks':ranks,'environment':{k:v for k,v in env.items() if k.startswith('SU2_NATIVE_CURVED_') or k in ('SU2_NATIVE_CORE_FIELD','SU2_NATIVE_OPPOSING_PATCH','SU2_NATIVE_PRISM_SENSOR','SU2_NATIVE_FRONT_HEIGHT','SU2_NATIVE_FRONT_LENGTH','SU2_NATIVE_POLICY_WORKERS','OMP_NUM_THREADS','OPENBLAS_NUM_THREADS','MKL_NUM_THREADS','OMPI_MCA_mpi_yield_when_idle')}}
+ destination=HERE.parent/'interacting_walls_v1' if opposing or single else HERE.parent/'region_construction_v1' if case.startswith('native_') else HERE
  destination.mkdir(exist_ok=True)
  record=destination/(case+'.json');folder=destination/case
  if case in field_sources:
@@ -136,6 +148,15 @@ def main():
   record.rename(record.with_name(record.stem+'_previous_'+archive+record.suffix))
  if folder.exists():folder.rename(folder.with_name(folder.name+'_previous_'+archive))
  folder.mkdir()
+ if saved_patch:
+  data=json.loads(saved_patch.read_text());nodes={n[0]:n[1:] for n in data['nodes']}
+  with (folder/'replay_patch.dat').open('w') as out:
+   out.write('NATIVE_SAVED_PATCH_3D 1 '+str(len(data['cells']))+' '+str(len(data['surface']))+'\n')
+   for c in data['cells']:
+    values=[str(c['id'])]
+    for n in c['nodes']:values += [str(n)]+[format(float(x),'.17g') for x in nodes[n]]
+    out.write(' '.join(values)+'\n')
+   for f in data['surface']:out.write(' '.join(map(str,[f['facet']]+f['nodes']))+'\n')
  if stage in ('curved_grid_audit','curved_cold_residual','curved_grid_refine','curved_transition_complete','curved_joint_engine','curved_edge_replay','curved_joint_search','curved_interior_search','curved_interior_engine','curved_interior_residual','curved_interior_continue','curved_reconnection_probe','curved_cover_probe','curved_cap_cover_probe','curved_cap_point_probe','curved_costed_complete','curved_wall_refit_probe','curved_rim_refit_probe','curved_current_wall_refit_probe','curved_wall_refit_complete','curved_joint_connectivity_complete','curved_feature_complete','curved_wall_refit_residual','curved_joint_connectivity_residual','curved_feature_residual','curved_refit_interior_point','curved_refit_interior_cover','curved_refit_interior_dependencies','curved_joint_protocol','curved_joint_protocol_mpi2','curved_joint_protocol_cap_mpi2','curved_joint_protocol_refit_mpi2','curved_joint_protocol_connectivity_mpi2','curved_joint_protocol_feature_mpi2','curved_joint_protocol_mpi4'):(folder/'saved_grid.su2').write_bytes(grid.read_bytes())
  for source in sources:
   out=folder/'source_snapshots'/source;out.parent.mkdir(parents=True,exist_ok=True);out.write_bytes((ROOT/source).read_bytes())
@@ -152,6 +173,7 @@ def main():
   result['metrics']=json.loads((folder/'grid_metric_summary.json').read_text())
   passed=result['metrics']['shape_failures']==0 and result['metrics']['oversized_edges']==0
   result['status']='PASS_NATIVE_FIELD_ONLY' if passed else 'REJECTED_NATIVE_METRIC'
+ if single:result['scope']='Complete regional single-wall .1/g1.2/T.3 fade with original P1 scalar4*(1+3*x) I or crossing normal diag(4,4,4+96*(1-|x-z|)), actual geometric composition, original source/height/q/J/full-edge/work/time and native removal gates. Direct engine control, not actual CFD/backend/transfer/restart.'
  if opposing:result['scope']='Complete opposing planar BL construction/removal target with overlapping thickness .6 in a unit gap, first height .02, growth1.2, immutable original P1 sensor4*(1+3*x) I. Actual geometric composition/full edges, original q/J/work/time gates. Native acceptance and independent geometry/field proof are separate; no CFD or general interacting geometry qualification.'
  if edge_controls:result['scope']='Focused actual geometric BL edge-band/rotation controls, original-P1 physical/collar priority and exact sensor edges, metric-balanced placements, global composed-edge error with tiny noise and high-demand thin bands. No complete mesh, MPI/CFD/restart/accuracy or performance qualification.'
  if core:result['scope']='Complete initialized-RANS geometry native construction with a stronger frozen original-P1 sensor, actual geometric BL/fade, unchanged geometry/h/q/J/full-edge/work/time gates, source-preserving publication and exported field/mesh records. Independent audit remains separate. No CFD evolution, solution transfer/restart, general geometry or performance qualification.'

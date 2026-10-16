@@ -518,6 +518,7 @@ CRemeshResult CNativeRemesher3D::Remesh(const CConfig& config, const CGeometry& 
              << " directory_elections=" << e.directory_elections << " nested_directory_election=" << e.directory_election_seconds
              << " process_cpu=" << e.process_cpu_seconds << " private_reconstruction_cpu=" << e.reconstruction_cpu_seconds
              << " private_metric_cpu=" << e.metric_cpu_seconds << " private_measurement_cpu=" << e.measurement_cpu_seconds
+             << " proposal_duplicates=" << e.proposal_duplicates
              << " batch_rounds=" << e.batch_rounds << " batch_candidates=" << e.batch_candidates
              << " stop=" << EngineStopName(e.stop) << " global_work=" << e.global_work << " work_limit=" << e.work_limit
              << " progress_windows=" << e.progress_windows << " stagnant_windows=" << e.stagnant_windows << " search_windows=" << e.search_windows
