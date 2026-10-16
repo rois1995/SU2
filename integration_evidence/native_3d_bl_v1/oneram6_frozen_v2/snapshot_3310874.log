@@ -1,0 +1,50 @@
+[New LWP 3310879]
+[New LWP 3310881]
+[Thread debugging using libthread_db enabled]
+Using host libthread_db library "/lib/x86_64-linux-gnu/libthread_db.so.1".
+std::vector<double, std::allocator<double> >::operator[] (__n=48943, this=0x5615513e90f0) at /usr/include/c++/9/bits/stl_vector.h:1058
+1058	      operator[](size_type __n) const _GLIBCXX_NOEXCEPT
+[Switching to thread 1 (Thread 0x7fae4e12dec0 (LWP 3310874))]
+#0  std::vector<double, std::allocator<double> >::operator[] (__n=..., this=...) at /usr/include/c++/9/bits/stl_vector.h:1058
+1058	      operator[](size_type __n) const _GLIBCXX_NOEXCEPT
+#0  std::vector<double, std::allocator<double> >::operator[] (__n=..., this=...) at /usr/include/c++/9/bits/stl_vector.h:1058
+#1  CADTElemClass::Dist2ToLine (this=..., i0=..., i1=..., coor=..., dist2Line=...) at ../../Common/src/adt/CADTElemClass.cpp:2175
+#2  0x00005615123a26df in CADTElemClass::Dist2ToElement (this=..., elemID=..., coor=..., dist2Elem=...) at ../../Common/src/adt/CADTElemClass.cpp:710
+#3  0x00005615123a5448 in CADTElemClass::DetermineNearestElement_impl (this=..., BBoxTargets=..., frontLeaves=..., frontLeavesNew=..., coor=..., dist=..., markerID=..., elemID=..., rankID=...) at ../../Common/src/adt/CADTElemClass.cpp:504
+#4  0x000056151173350b in CADTElemClass::DetermineNearestElement (rankID=..., elemID=..., markerID=..., dist=..., coor=..., this=...) at /usr/include/c++/9/array:185
+#5  CBoundaryLayerMetric::Evaluate (this=..., iWall=..., X=..., coreEigenvalue=...) at ../../SU2_CFD/src/adaptation/CBoundaryLayerMetric.cpp:874
+#6  0x0000561511736011 in CBoundaryLayerMetric::<lambda(double)>::operator()(double) const (__closure=..., t=...) at ../../SU2_CFD/src/adaptation/CBoundaryLayerMetric.cpp:2053
+#7  0x000056151173e45d in std::function<bool (double)>::operator()(double) const (__args#0=..., this=...) at /usr/include/c++/9/bits/std_function.h:683
+#8  CBoundaryLayerMetric::<lambda(long double)>::operator() (t=..., __closure=...) at ../../SU2_CFD/src/adaptation/CBoundaryLayerMetric.cpp:2013
+#9  CBoundaryLayerMetric::<lambda(long double, long double, long double)>::operator() (__closure=..., cc=..., bb=..., aa=...) at ../../SU2_CFD/src/adaptation/CBoundaryLayerMetric.cpp:2027
+#10 CBoundaryLayerMetric::EdgeBreakpoints (this=..., a=..., b=..., bandRatio=..., fadeBands=...) at ../../SU2_CFD/src/adaptation/CBoundaryLayerMetric.cpp:2156
+#11 0x0000561511741902 in CBoundaryLayerMetric::<lambda(const CBoundaryLayerMetric::Column3D&, const Triangle&, double, bool, std::vector<CBoundaryLayerMetric::IntegrationPoint3D, std::allocator<CBoundaryLayerMetric::IntegrationPoint3D> >&, double&, std::array<double, 3>*)>::operator()(const CBoundaryLayerMetric::Column3D &, const CBoundaryLayerMetric::Panel::Triangle &, double, bool, std::vector<CBoundaryLayerMetric::IntegrationPoint3D, std::allocator<CBoundaryLayerMetric::IntegrationPoint3D> > &, double &, std::array<double, 3> *) const (__closure=..., chart=..., triangle=..., fraction=..., fine=..., points=..., radialError=..., vertexValues=...) at /usr/include/c++/9/bits/stl_algobase.h:222
+#12 0x000056151174298b in CBoundaryLayerMetric::<lambda(size_t, const Triangle&, double, unsigned int)>::operator()(size_t, const CBoundaryLayerMetric::Panel::Triangle &, double, unsigned int) const (__closure=..., cone=..., triangle=..., fraction=..., depth=...) at /usr/include/c++/9/bits/stl_vector.h:1058
+#13 0x000056151174471d in CBoundaryLayerMetric::IntegrationColumns3D(std::array<std::array<double, 3ul>, 4ul> const&, std::vector<CBoundaryLayerMetric::Column3D, std::allocator<CBoundaryLayerMetric::Column3D> > const&, std::vector<CBoundaryLayerMetric::SupportFace3D, std::allocator<CBoundaryLayerMetric::SupportFace3D> > const&, double, std::function<double (CBoundaryLayerMetric::IntegrationPoint3D const&)> const&) (this=..., tetrahedron=..., charts=..., support=..., bandRatio=..., probe=...) at ../../SU2_CFD/src/adaptation/CBoundaryLayerMetric.cpp:1985
+#14 0x0000561511744c64 in CBoundaryLayerMetric::IntegrationRule3DVisible(std::array<std::array<double, 3ul>, 4ul> const&, std::vector<CBoundaryLayerMetric::SupportFace3D, std::allocator<CBoundaryLayerMetric::SupportFace3D> > const&, double, std::function<double (CBoundaryLayerMetric::IntegrationPoint3D const&)> const&) (this=..., tetrahedron=..., support=..., bandRatio=..., density=...) at /usr/include/c++/9/bits/stl_uninitialized.h:82
+#15 0x0000561511745cee in CBoundaryLayerMetric::IntegrationRule3D(std::array<std::array<double, 3ul>, 4ul> const&, double, std::function<double (CBoundaryLayerMetric::IntegrationPoint3D const&)>, bool*) (this=..., tetrahedron=..., bandRatio=..., density=..., sensorDependent=...) at /usr/include/c++/9/new:174
+#16 0x0000561511a8f53d in CSolver::<lambda(su2double)>::operator()(su2double) const (__closure=..., logScale=...) at /usr/include/c++/9/bits/std_function.h:87
+#17 0x0000561511a9025d in CSolver::<lambda(su2double&, su2double&, bool&, bool)>::operator()(su2double &, su2double &, bool &, bool) const (__closure=..., logScale=..., error=..., bracketed=..., reuseScale=...) at ../../SU2_CFD/src/solvers/CSolver.cpp:3188
+#18 0x0000561511a92bb4 in CSolver::ComputeMetric (this=..., geometry=..., config=..., givenMetric=..., boundaryLayer=..., nativeReference=..., nativeReference3D=...) at ../../SU2_CFD/src/solvers/CSolver.cpp:3256
+#19 0x00005615116a910e in CSinglezoneDriver::ComputeMetric (this=...) at ../../SU2_CFD/src/drivers/CSinglezoneDriver.cpp:263
+#20 0x00005615116a55c8 in CSinglezoneDriver::RunTimeLoop (this=...) at ../../SU2_CFD/src/drivers/CSinglezoneDriver.cpp:118
+#21 0x00005615116b5a83 in CSinglezoneDriver::RunAdaptationLoop (this=...) at ../../SU2_CFD/src/drivers/CSinglezoneDriver.cpp:445
+#22 0x000056151160c672 in main (argc=..., argv=...) at ../../SU2_CFD/src/SU2_CFD.cpp:144
+{
+  "pid": 3310874,
+  "scope": "Single passive owned-rank phase/failure snapshot; no inferior function calls or timing-profile claim.",
+  "failure": null,
+  "metric_context": {
+    "complexityTrials": 1.0,
+    "quadratureBuilds": 11.0,
+    "quadratureReused": 0.0,
+    "localQuadraturePoints": 49524.0,
+    "frozenCore": 0.05667696347479382,
+    "logScale": -0.47810758149935007,
+    "gradationSweeps": 120.0,
+    "totalGradationSweeps": 120.0,
+    "quadratureSeconds": 0.0,
+    "gradationSeconds": 6.684721492000001
+  }
+}
+[Inferior 1 (process 3310874) detached]

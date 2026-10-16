@@ -1,3 +1,7 @@
+> Current state and live handles moved to [actual frozen fields](GOAL3_M6_FROZEN_FIELDS.md).
+> The work below is historical cell13/column-controller evidence; old live-job notes
+> are superseded by that topic. Full Goal3 remains active/incomplete.
+
 # M6 thin-volume integration — current connected work
 
 Goal3 remains ACTIVE/incomplete. This is quadrature work before wing remeshing,

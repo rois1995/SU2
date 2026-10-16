@@ -1,0 +1,35 @@
+[New LWP 3310878]
+[New LWP 3310880]
+[Thread debugging using libthread_db enabled]
+Using host libthread_db library "/lib/x86_64-linux-gnu/libthread_db.so.1".
+0x00007fda7b2b071b in sched_yield () at ../sysdeps/unix/syscall-template.S:78
+78	../sysdeps/unix/syscall-template.S: No such file or directory.
+[Switching to thread 1 (Thread 0x7fda7af57ec0 (LWP 3310872))]
+#0  0x00007fda7b2b071b in sched_yield () at ../sysdeps/unix/syscall-template.S:78
+78	in ../sysdeps/unix/syscall-template.S
+#0  0x00007fda7b2b071b in sched_yield () at ../sysdeps/unix/syscall-template.S:78
+#1  0x00007fda7b77c905 in ompi_request_default_wait () from /lib/x86_64-linux-gnu/libmpi.so.40
+#2  0x00007fda7b7d683c in ompi_coll_base_sendrecv_actual () from /lib/x86_64-linux-gnu/libmpi.so.40
+#3  0x00007fda7b7d7042 in ompi_coll_base_allreduce_intra_recursivedoubling () from /lib/x86_64-linux-gnu/libmpi.so.40
+#4  0x00007fda7b792411 in PMPI_Allreduce () from /lib/x86_64-linux-gnu/libmpi.so.40
+#5  0x0000559a5ed28edb in CPassiveComm::AllreduceMax (value=..., comm=...) at ../../Common/src/parallelization/CPassiveComm.cpp:398
+#6  0x0000559a5ef3704e in ElectFailure (local=..., comm=...) at ../../Common/src/adaptation/CDistributedSearch.cpp:443
+#7  0x0000559a5ef373a4 in CollectiveFailure (local=..., function=...) at ../../Common/src/adaptation/../../include/adaptation/../parallelization/mpi_structure.hpp:139
+#8  0x0000559a5e5eb766 in CSolver::<lambda(su2double)>::operator()(su2double) const (__closure=..., logScale=...) at /usr/include/c++/9/ext/new_allocator.h:80
+#9  0x0000559a5e5ec25d in CSolver::<lambda(su2double&, su2double&, bool&, bool)>::operator()(su2double &, su2double &, bool &, bool) const (__closure=..., logScale=..., error=..., bracketed=..., reuseScale=...) at ../../SU2_CFD/src/solvers/CSolver.cpp:3188
+#10 0x0000559a5e5eebb4 in CSolver::ComputeMetric (this=..., geometry=..., config=..., givenMetric=..., boundaryLayer=..., nativeReference=..., nativeReference3D=...) at ../../SU2_CFD/src/solvers/CSolver.cpp:3256
+#11 0x0000559a5e20510e in CSinglezoneDriver::ComputeMetric (this=...) at ../../SU2_CFD/src/drivers/CSinglezoneDriver.cpp:263
+#12 0x0000559a5e2015c8 in CSinglezoneDriver::RunTimeLoop (this=...) at ../../SU2_CFD/src/drivers/CSinglezoneDriver.cpp:118
+#13 0x0000559a5e211a83 in CSinglezoneDriver::RunAdaptationLoop (this=...) at ../../SU2_CFD/src/drivers/CSinglezoneDriver.cpp:445
+#14 0x0000559a5e168672 in main (argc=..., argv=...) at ../../SU2_CFD/src/SU2_CFD.cpp:144
+{
+  "pid": 3310872,
+  "scope": "Single passive owned-rank phase/failure snapshot; no inferior function calls or timing-profile claim.",
+  "failure": {
+    "severity": 2,
+    "global_cell": 329,
+    "message": "Native geometric complexity cell 329: Native3D BL radial quadrature work budget exhausted: retained=22193 panels=188 cones=1 ray=5\nNative complexity replay3D: {\"global_cell\":329,\"core\":0.056676963474793819,\"log_scale\":-0.47810758149935007,\"complexity_trial\":1,\"nodes\":[35390,35392,55696,55768],\"coordinates\":[[0.15705247762855709,0.2481512146199483,0.026916678565987829],[0.16557788610692231,0.2488709047848888,0.052179071962822253],[0.15967028937641001,0.2286908637093972,0.031572655134066763],[0.16974874572996571,0.23427401114761709,0.028751073140437799]],\"sensor\":[[[3205.0197049048443,-545.77647015451168,-993.4685196835718],[-545.77647015451168,1985.1033377824149,573.58442585715329],[-993.4685196835718,573.58442585715329,7161.3580678508006]],[[2137.2844899062884,-378.29744037402611,-1356.4168590445051],[-378.29744037402622,1291.4728397053193,517.76856141781559],[-1356.4168590445049,517.76856141781559,4235.5546042280612]],[[2404.5841338177756,-557.69041446076426,-1426.5036018408537],[-557.69041446076437,2104.4427528384294,778.35229988224808],[-1426.5036018408537,778.35229988224808,8024.1195369163925]],[[2492.9138918545741,-30.751800903083435,-1163.1032440758954],[-30.751800903083435,1951.1994616086733,940.86577698587632],[-1163.1032440758956,940.86577698587644,8734.9852693757675]]]}"
+  },
+  "metric_context": {}
+}
+[Inferior 1 (process 3310872) detached]

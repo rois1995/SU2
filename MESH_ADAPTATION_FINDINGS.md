@@ -5968,3 +5968,28 @@ passes; successful math paths and the tested producer object are unchanged.
 The new runtime record has not yet been exercised. Input neighborhoods22/32
 (45/62 cells, exact coordinate/ID round-trip) are retained as VTUs, explicitly
 not candidates. No new full CFD run has been launched.
+
+
+## 2026-10-16 — captured actual M6 fields and withdrawn primary columns
+
+All4 independent normal charts complete (spread4.432e-5, radial16/24 change
+1.223e-7, worst native error1.994e-4 under5e-4 pilot). This remains normal-only
+numerical evidence, not a rigorous indicator or full tensor integral proof.
+Saved-state M6v2 exercises the runtime diagnostic and captures exact first-trial
+coordinates,4 sensor tensors and core for actual failing cells88/157/329. It was
+stopped after confirmed local failures; no remesher, candidate or transfer. Full
+native-oriented wing replays match original global-cell coordinates/node sets;
+cell329 reproduces22193 points/188 panels/ray5 exactly in6.23s without CFD.
+Raw tensor asymmetry at roundoff is retained; the fixture reader validates it
+against64eps*norm and never symmetrizes. Duplicate clamped-band v2 work removed.
+
+A shared primary parallel-column experiment fails all3 actual fields (329 work,
+157 timeout90s,88 angular depth32). It is withdrawn and exact producer/header
+restored977691bc4e. Current binaries still contain the rejected experiment until
+next connected rebuild. Failure-source snapshots and hashes remain preserved.
+Read-only budget states distinguish per-ray oversolving from an unresolved hidden
+support guard. Tiny sampled panel mass cannot dismiss an unsampled fine layer.
+Next: coupled cell-wide angular/radial allocation under unchanged physical field,
+geometry/height, hidden-support guard, tolerances and work/point/depth limits.
+No further CFD needed for these3 frozen fields; no accepted M6 grid or speedup.
+See Handbook/GOAL3_M6_FROZEN_FIELDS.md and captured_cells_v1/*/parallel_*.

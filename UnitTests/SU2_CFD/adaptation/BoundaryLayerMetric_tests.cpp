@@ -1538,9 +1538,11 @@ TEST_CASE("Replay a complete faceted wall volume-integration input without CFD",
     input>>core;REQUIRE(std::isfinite(core));REQUIRE(core>0);
     for(auto& m:sensor) {
       for(auto& row:m.m)for(auto& value:row)input>>value;
+      double scale=0;for(const auto& row:m.m)for(auto value:row)scale=std::max(scale,std::abs(SU2_TYPE::GetValue(value)));
       for(unsigned i=0;i<3;++i)for(unsigned j=0;j<3;++j) {
         REQUIRE(std::isfinite(SU2_TYPE::GetValue(m.m[i][j])));
-        REQUIRE(m.m[i][j]==m.m[j][i]);
+        // Preserve recorded tensors, including spectral-recomposition roundoff asymmetry.
+        REQUIRE(std::abs(m.m[i][j]-m.m[j][i])<=64*std::numeric_limits<double>::epsilon()*scale);
       }
       REQUIRE_NOTHROW(SU2Native3D::ValidateTensor({m.m[0][0],m.m[0][1],m.m[0][2],m.m[1][1],m.m[1][2],m.m[2][2]}));
     }
@@ -1579,7 +1581,7 @@ TEST_CASE("Replay a complete faceted wall volume-integration input without CFD",
   for(unsigned j=0;j<3;++j){a[j]=(long double)cell[1][j]-cell[0][j];b[j]=(long double)cell[2][j]-cell[0][j];c[j]=(long double)cell[3][j]-cell[0][j];}
   const long double expectedVolume=std::abs(a[0]*(b[1]*c[2]-b[2]*c[1])+a[1]*(b[2]*c[0]-b[0]*c[2])+a[2]*(b[0]*c[1]-b[1]*c[0]))/6;
   REQUIRE(expectedVolume>0);
-  for(const double ratio:{1.5,1.25}) {
+  for(const double ratio:version==2?std::vector<double>{1.5}:std::vector<double>{1.5,1.25}) {
     const auto begin=std::chrono::steady_clock::now();unsigned densityCalls=0;bool dependent=false,complete=false;
     std::string reason;size_t count=0;long double volume=0,normalIntegral=0,fullIntegral=0,composedIntegral=0;
     long double first[4]={},second[4][4]={};

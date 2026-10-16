@@ -1,0 +1,25 @@
+{
+  "reason": "Stop owned event after confirmed unrecoverable local integration failures; no possible accepted mesh. Exact runtime field records saved before stopping.",
+  "launcher_pid": 3310868,
+  "confirmed_failures": [
+    {
+      "snapshot": "rank_snapshot_3310872.json",
+      "cell": 329,
+      "message": "Native geometric complexity cell 329: Native3D BL radial quadrature work budget exhausted: retained=22193 panels=188 cones=1 ray=5",
+      "field_sha256": "30021144b3b6345b37c86e460bb7f12a7567fab0b7e319389b4757b2fc0574f4"
+    },
+    {
+      "snapshot": "rank_snapshot_3310873.json",
+      "cell": 157,
+      "message": "Native geometric complexity cell 157: Native3D BL column point budget exhausted: retained=65411 panel=652 ray=4",
+      "field_sha256": "eb4aab628d0631c6b1e1544551d54027554ee9c80233ea2b814503dae4a216d1"
+    },
+    {
+      "snapshot": "rank_snapshot_3310875.json",
+      "cell": 88,
+      "message": "Native geometric complexity cell 88: Native3D BL column point budget exhausted: retained=64957 panel=202 ray=6",
+      "field_sha256": "81f4f804c08d7ded7e20d4f6c5f877906b46af505bec8856273e5923821b0027"
+    }
+  ],
+  "scope": "Local failures, not a completed global failure election; no full mesh integration/target normalization/remesher/solution transfer occurred."
+}

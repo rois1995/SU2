@@ -1,0 +1,46 @@
+[New LWP 3310876]
+[New LWP 3310877]
+[Thread debugging using libthread_db enabled]
+Using host libthread_db library "/lib/x86_64-linux-gnu/libthread_db.so.1".
+0x00007f6402c4371b in sched_yield () at ../sysdeps/unix/syscall-template.S:78
+78	../sysdeps/unix/syscall-template.S: No such file or directory.
+[Switching to thread 1 (Thread 0x7f64028eaec0 (LWP 3310873))]
+#0  0x00007f6402c4371b in sched_yield () at ../sysdeps/unix/syscall-template.S:78
+78	in ../sysdeps/unix/syscall-template.S
+#0  0x00007f6402c4371b in sched_yield () at ../sysdeps/unix/syscall-template.S:78
+#1  0x00007f640310f905 in ompi_request_default_wait () from /lib/x86_64-linux-gnu/libmpi.so.40
+#2  0x00007f640316983c in ompi_coll_base_sendrecv_actual () from /lib/x86_64-linux-gnu/libmpi.so.40
+#3  0x00007f640316a042 in ompi_coll_base_allreduce_intra_recursivedoubling () from /lib/x86_64-linux-gnu/libmpi.so.40
+#4  0x00007f6403125411 in PMPI_Allreduce () from /lib/x86_64-linux-gnu/libmpi.so.40
+#5  0x000055f5cede4edb in CPassiveComm::AllreduceMax (value=..., comm=...) at ../../Common/src/parallelization/CPassiveComm.cpp:398
+#6  0x000055f5ceff304e in ElectFailure (local=..., comm=...) at ../../Common/src/adaptation/CDistributedSearch.cpp:443
+#7  0x000055f5ceff33a4 in CollectiveFailure (local=..., function=...) at ../../Common/src/adaptation/../../include/adaptation/../parallelization/mpi_structure.hpp:139
+#8  0x000055f5ce6a7766 in CSolver::<lambda(su2double)>::operator()(su2double) const (__closure=..., logScale=...) at /usr/include/c++/9/ext/new_allocator.h:80
+#9  0x000055f5ce6a825d in CSolver::<lambda(su2double&, su2double&, bool&, bool)>::operator()(su2double &, su2double &, bool &, bool) const (__closure=..., logScale=..., error=..., bracketed=..., reuseScale=...) at ../../SU2_CFD/src/solvers/CSolver.cpp:3188
+#10 0x000055f5ce6aabb4 in CSolver::ComputeMetric (this=..., geometry=..., config=..., givenMetric=..., boundaryLayer=..., nativeReference=..., nativeReference3D=...) at ../../SU2_CFD/src/solvers/CSolver.cpp:3256
+#11 0x000055f5ce2c110e in CSinglezoneDriver::ComputeMetric (this=...) at ../../SU2_CFD/src/drivers/CSinglezoneDriver.cpp:263
+#12 0x000055f5ce2bd5c8 in CSinglezoneDriver::RunTimeLoop (this=...) at ../../SU2_CFD/src/drivers/CSinglezoneDriver.cpp:118
+#13 0x000055f5ce2cda83 in CSinglezoneDriver::RunAdaptationLoop (this=...) at ../../SU2_CFD/src/drivers/CSinglezoneDriver.cpp:445
+#14 0x000055f5ce224672 in main (argc=..., argv=...) at ../../SU2_CFD/src/SU2_CFD.cpp:144
+{
+  "pid": 3310873,
+  "scope": "Single passive owned-rank phase/failure snapshot; no inferior function calls or timing-profile claim.",
+  "failure": {
+    "severity": 2,
+    "global_cell": 157,
+    "message": "Native geometric complexity cell 157: Native3D BL column point budget exhausted: retained=65411 panel=652 ray=4\nNative complexity replay3D: {\"global_cell\":157,\"core\":0.056676963474793819,\"log_scale\":-0.47810758149935007,\"complexity_trial\":1,\"nodes\":[16095,45625,49638,50432],\"coordinates\":[[0.69303051809510963,1.1709019846857209,-0.012644649882253171],[0.6963343354741206,1.1745525691570511,-0.016968051246859892],[0.69130051994066843,1.1737235761991609,-0.024503058107236759],[0.68958561343080393,1.1785551541906329,-0.01649071970879366]],\"sensor\":[[[3907.7613913783689,-1576.0148247463371,1025.9129920760199],[-1576.0148247463369,2990.2555144387334,-651.14045797792016],[1025.9129920760201,-651.14045797792016,29170.873592670399]],[[3637.2608447572011,-1694.708310974115,1230.5038773484127],[-1694.7083109741152,3024.5101601079473,-1260.0681063306522],[1230.5038773484127,-1260.0681063306524,27452.863815921737]],[[3620.2065435709592,-1654.407541346674,3020.2217925142027],[-1654.407541346674,2797.9479322698498,-2165.0868435664438],[3020.2217925142027,-2165.0868435664438,18834.924828353283]],[[4619.551909926503,-2253.01989097147,2011.5270863118085],[-2253.01989097147,3785.4253813949995,-920.84410179298789],[2011.5270863118085,-920.84410179298789,22482.815978580176]]]}"
+  },
+  "metric_context": {
+    "complexityTrials": 1.0,
+    "quadratureBuilds": 43.0,
+    "quadratureReused": 0.0,
+    "localQuadraturePoints": 123212.0,
+    "frozenCore": 0.05667696347479382,
+    "logScale": -0.47810758149935007,
+    "gradationSweeps": 120.0,
+    "totalGradationSweeps": 120.0,
+    "quadratureSeconds": 598.379366242,
+    "gradationSeconds": 6.684719658999999
+  }
+}
+[Inferior 1 (process 3310873) detached]

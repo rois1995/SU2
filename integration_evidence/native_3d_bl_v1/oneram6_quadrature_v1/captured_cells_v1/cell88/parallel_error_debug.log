@@ -1,0 +1,65 @@
+Catchpoint 1 (throw)
+[Thread debugging using libthread_db enabled]
+Using host libthread_db library "/lib/x86_64-linux-gnu/libthread_db.so.1".
+[Detaching after fork from child process 3452938]
+[New Thread 0x7ffff760b700 (LWP 3452942)]
+[New Thread 0x7ffff6c56700 (LWP 3452943)]
+
+Thread 1 "test_driver" hit Catchpoint 1 (exception thrown), 0x00007ffff7d06662 in __cxa_throw () from /lib/x86_64-linux-gnu/libstdc++.so.6
+#1  0x000055555577083c in CBoundaryLayerMetric::IntegrationColumns3D(std::array<std::array<double, 3ul>, 4ul> const&, std::vector<CBoundaryLayerMetric::Column3D, std::allocator<CBoundaryLayerMetric::Column3D> > const&, std::vector<CBoundaryLayerMetric::SupportFace3D, std::allocator<CBoundaryLayerMetric::SupportFace3D> > const&, double, std::function<double (CBoundaryLayerMetric::IntegrationPoint3D const&)> const&) (this=<optimized out>, tetrahedron=..., charts=..., support=..., bandRatio=<optimized out>, probe=...) at ../../SU2_CFD/src/adaptation/CBoundaryLayerMetric.cpp:1969
+1969	    if(panel.depth>=32)throw std::runtime_error("Native3D BL angular density remains unresolved after 32 subdivisions.");
+#0  0x00007ffff7d06662 in __cxa_throw () from /lib/x86_64-linux-gnu/libstdc++.so.6
+#1  0x000055555577083c in CBoundaryLayerMetric::IntegrationColumns3D(std::array<std::array<double, 3ul>, 4ul> const&, std::vector<CBoundaryLayerMetric::Column3D, std::allocator<CBoundaryLayerMetric::Column3D> > const&, std::vector<CBoundaryLayerMetric::SupportFace3D, std::allocator<CBoundaryLayerMetric::SupportFace3D> > const&, double, std::function<double (CBoundaryLayerMetric::IntegrationPoint3D const&)> const&) (this=<optimized out>, tetrahedron=..., charts=..., support=..., bandRatio=<optimized out>, probe=...) at ../../SU2_CFD/src/adaptation/CBoundaryLayerMetric.cpp:1969
+#2  0x0000555556320434 in CBoundaryLayerMetric::IntegrationRule3D(std::array<std::array<double, 3ul>, 4ul> const&, double, std::function<double (CBoundaryLayerMetric::IntegrationPoint3D const&)>, bool*) (this=this@entry=0x7fffffffa900, tetrahedron=..., bandRatio=<optimized out>, bandRatio@entry=1.5, density=..., sensorDependent=sensorDependent@entry=0x7fffffffa808) at /usr/include/c++/9/new:174
+#3  0x00005555559c4037 in C_A_T_C_H_T_E_S_T_90 () at /usr/include/c++/9/new:174
+#4  0x0000555555e48503 in Catch::RunContext::invokeActiveTestCase (this=0x7fffffffbb30) at ../../externals/catch2/catch.hpp:13027
+#5  0x0000555555e5a99e in Catch::RunContext::runCurrentTest (this=0x7fffffffbb30, redirectedCout=..., redirectedCerr={...}) at ../../externals/catch2/catch.hpp:13000
+#6  0x0000555555e7348e in Catch::RunContext::runTest (this=0x7fffffffbb30, testCase=...) at ../../externals/catch2/catch.hpp:12761
+#7  0x0000555555e7ae10 in Catch::(anonymous namespace)::TestGroup::execute (this=0x7fffffffbb20) at ../../externals/catch2/catch.hpp:13354
+a = <optimized out>
+midpoint = {_M_elems = {0.37151718139648438, 0.25690460205078125...}}
+selected = <optimized out>
+panel = {cone = 1, triangle = {_M_elems = {...}}, fraction = 2.3283064365386963e-10, depth = 32, fine = std::vector of length 21, capacity 24 = {{...}, {...}...}, value = 1.5667346665250663e-12, error = 5.986527832380388e-23, unresolved = true, vertexValues = {_M_elems = {...}}}
+b = <optimized out>
+longest = <optimized out>
+originalSource = {_M_elems = {{...}, {...}...}}
+reversed = false
+visited = 324
+rule = std::vector of length 0, capacity 0
+gauss = {-0.90617984593866396, -0.53846931010568311...}
+weights = {0.23692688505618908, 0.47862867049936647...}
+gauss3 = {-0.7745966692414834, 0...}
+weights3 = {0.55555555555555558, 0.88888888888888884...}
+gauss7 = {-0.94910791234275849, -0.74153118559939446...}
+weights7 = {0.1294849661688697, 0.27970539148927664...}
+faceBary = {{0.33333333333333331, 0.33333333333333331...}, {0.059715871789770003, 0.470142064105115...}...}
+faceWeights = {0.22500000000000001, 0.132394152788506...}
+comparisonBary = {{0.50142650965817903, 0.24928674517091001...}, {0.24928674517091001, 0.50142650965817903...}...}
+comparisonWeights = {0.11678627572637899, 0.11678627572637899...}
+retained = 3660
+nextPanel = 77
+totalValue = 4.6867329363190429
+totalError = 0.028707026593489598
+integrate = {__faceBary = @0x7fffffff9100, __comparisonBary = @0x7fffffff9270, __tetrahedron = @0x7fffffffac30, __faceWeights = @0x7fffffff8f40, __comparisonWeights = @0x7fffffff8fe0, __bandRatio = @0x7fffffff8c48, __this = 0x7fffffffa900, __gauss7 = @0x7fffffff8ec0, __gauss = @0x7fffffff8e60, __gauss3 = @0x7fffffff8e00, __originalSource = @0x7fffffff8f80, __reversed = @0x7fffffff8c5f, __weights7 = @0x7fffffff8f00, __weights = @0x7fffffff8e90, __weights3 = @0x7fffffff8e20, __probe = @0x7fffffffa3f0, __retained = @0x7fffffff8c68, __nextPanel = @0x7fffffff8c70, __visited = @0x7fffffff8c60, __charts = std::vector of length 3, capacity 4 = {{...}, {...}...}}
+unresolved = 19
+panels = std::map with 39 elements = {[5] = {cone = 0, triangle = {...}, fraction = 0.5, depth = 1, fine = {...}, value = 0.0018369649431508612, error = 6.288696019618044e-12, unresolved = false, vertexValues = {...}}...}
+priority = std::priority_queue wrapping: std::vector of length 39, capacity 64 = {{first = inf, second = 63...}, {first = inf, second = 61...}...}
+add = {__visited = @0x7fffffff8c60, __retained = @0x7fffffff8c68, __nextPanel = @0x7fffffff8c70, __charts = std::vector of length 3, capacity 4 = {{...}, {...}...}, __totalError = @0x7fffffff8c80, __totalValue = @0x7fffffff8c78, __integrate = @0x7fffffff8d50, __this = 0x7fffffffa900, __support = std::vector of length 188, capacity 256 = {{...}, {...}...}, __tetrahedron = @0x7fffffffac30, __unresolved = @0x7fffffff8c88, __priority = std::priority_queue wrapping: std::vector of length 39, capacity 64 = {{...}, {...}...}, __panels = std::map with 39 elements = {[5] = {...}...}}
+initial = {_M_elems = {{...}, {...}...}}
+[
+  {
+    "frame": "CBoundaryLayerMetric::IntegrationColumns3D(std::array<std::array<double, 3ul>, 4ul> const&, std::vector<CBoundaryLayerMetric::Column3D, std::allocator<CBoundaryLayerMetric::Column3D> > const&, std::vector<CBoundaryLayerMetric::SupportFace3D, std::allocator<CBoundaryLayerMetric::SupportFace3D> > const&, double, std::function<double (CBoundaryLayerMetric::IntegrationPoint3D const&)> const&)",
+    "values": {
+      "totalValue": 4.686732936319043,
+      "totalError": 0.028707026593489598,
+      "unresolved": 19.0,
+      "retained": 3660.0,
+      "visited": 324.0,
+      "nextPanel": 77.0,
+      "panel.depth": 32.0,
+      "panel.value": 1.5667346665250663e-12,
+      "panel.error": 5.986527832380388e-23,
+      "panel.unresolved": 1.0
+    }
+  }
+]

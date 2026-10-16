@@ -44,44 +44,28 @@ current+BDF flow/both output formats/reference/restart, integral defect<=2.75e-1
 This avoids unnecessary cell growth without changing the target or adding recovery.
 Builds terminal PASS. Actual evolved curved N4/M2 v14 passes native, independent
 whole-mesh/current+BDF/restart checks and SA saved-state replayv28. No job remains
-from that batch. The practical M6 test completed120 actual RANS/SA iterations,
-then failed thin-BL complexity quadrature before remeshing (no candidate). Its
-matching flow/restart and cell13 diagnostic are saved. A complete-wall geometry-only
-replay reproduces the failure without density calls. Independent distances agree.
-Band-first geometry alone fits1192 points but fails the independent normal integral;
-local/global low-order density variants and default positive-tetrahedron work also
-fail their unchanged accuracy/work gates and are archived. The connected replacement
-is face-to-vertex (Duffy) ray columns sharing the qualified hidden-support adaptive
-column quadrature. Published14e59d4c68 passes7 cases/601990 assertions and cell13
-normal reference at1419 points; this does not prove full density. Whole saved-state
-M6 event TERMINAL FAILED: elected cell22 radial depth32, rank0 cell32 radial work.
-No remesher/candidate/transfer. Actual raw sensors were not recovered before exit;
-failed passive capture remains saved. Full unit-sensor/native-oriented-wall cell22
-reproduces depth failure in.008s (no CFD sensor needed). Independent eigenvalues
-confirm a real density/normal jump across an interval1.33e-10 wide. The old local
-relative test cannot converge across that jump; its already accumulated ray mass
-is.554 while the unresolved integral is6.6e-12.
-Current connected implementation replaces interval-relative recursion with a
-ray-total error priority queue, retaining positive3/5/7 stages and existing limits.
-Build10003 terminal PASS. Actual full-unit cell22/32 now complete5460/24890
-points. One affected batch passes7 cases/578415 assertions; original cell13 uses1335
-points. Independent ray16/24 same-chart references agree1.223e-7 relative; native cell13
-error1.55083e-4 passes5e-4 pilot but exceeds nominal1e-4 indicator (not a bound).
-Other3 apex checks live job72066 sequentially,1 core/nice19/240s per case/resume.
-Diagnostic build89213 terminal PASS; tested controller object unchanged and caller
-source differs from14e59 ONLY in failure text. New numeric failure record has not
-yet been exercised at runtime. No owned CFD/build. Failure22/32 input-neighborhood
-VTUs and exact terminal failure/review/root-cause receipts are saved. Full tensor/
-actual CFD sensors/full-M6 mesh acceptance remain unproven.
-Opus5.5/high read-only review COMPLETE, model confirmed/no nested agents/denials.
-It supports the chart but flags error-estimator/reference/ray-cache/cost gaps;
-its recommendations are advisory, not correctness evidence. In particular, keeping
-higher order is not automatically a rigorous bound for discontinuous fields.
-Do not call any of this an accepted M6 mesh or full Goal3 completion.
-[Current M6 integration source/evidence/live state](Handbook/GOAL3_M6_THIN_INTEGRATION.md),
-[actual M6 run and inspectable files](Handbook/GOAL3_ONERA_M6.md).
-No broader curved capability or full Goal3 completion; no increased limits.
-[Current source/design/evidence](Handbook/GOAL3_WHOLE_CAP_CONSTRUCTION.md).
+from that batch.
+
+M6 actual RANS/SA completes120 initial iterations; QLS workspace fix and original
+flow/restart/input-failure views are published. Subsequent saved-state events fail
+BEFORE remeshing. Published977691bc4e fixes a demonstrated interval-relative
+integration defect and passes7 controls plus full-unit22/32; it is not a full M6 fix.
+All4 normal reference charts now agree4.432e-5; radial16/24 change1.223e-7.
+Actual v2 runtime failures88/157/329 have exact first-trial sensor/core/coordinate
+records and closed-wall replays. Cell329 reproduces the native failure verbatim
+in6.23s without CFD. No candidate/accepted mesh/transfer. The primary wall-normal-column experiment failed all3 actual fields and was
+withdrawn; producer/header are byte-identical to published977691bc4e. Current
+binaries still contain the rejected experiment; rebuild with the next connected
+change before use. No owned CFD/build/model job remains. Exact error-budget
+states distinguish per-ray oversolving from conservative hidden-support guards.
+Next: cell-wide angular/radial error allocation, preserving hidden support and
+all physical/work/point constraints; qualify actual fields before further CFD.
+[Current exact-field/replay/design/live state](Handbook/GOAL3_M6_FROZEN_FIELDS.md),
+[earlier thin integration and rejected experiments](Handbook/GOAL3_M6_THIN_INTEGRATION.md),
+[actual initial M6 flow/inspectable files](Handbook/GOAL3_ONERA_M6.md).
+Full Goal3 stays active; full tensor accuracy, actual M6 construction and lifecycle
+cost remain unproven. Both model-confirmed read-only Opus reviews are preserved.
+[Whole-cap construction and scoped earlier proof](Handbook/GOAL3_WHOLE_CAP_CONSTRUCTION.md).
 
 The earlier cap-operator attempt failed3731 trials/30 cap faces; it was withdrawn
 at c103. All50 artifact hashes/exact source snapshots are verified and preserved.

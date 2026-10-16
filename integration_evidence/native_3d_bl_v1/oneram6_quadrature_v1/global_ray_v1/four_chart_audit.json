@@ -1,0 +1,134 @@
+{
+  "normal_reference_gate_pass": true,
+  "scope": "Independent exact-triangle normal-density reference only. Radial16/24 convergence is checked on apex3; all4 apexes agree at72x24. This is numerical agreement, not a rigorous enclosure or each-chart separate angular convergence. Actual CFD sensors/full tensor integration/complete M6 mesh acceptance remain unqualified.",
+  "reference_agreement_tolerance": 0.0001,
+  "normal_tolerance": 0.0005,
+  "radial_relative_change_apex3": 1.2231611468127568e-07,
+  "four_chart_relative_spread": 4.432371680591661e-05,
+  "native": {
+    "150": {
+      "points": 1335,
+      "normal_integral": 6.224102485942981e-05,
+      "relative_errors_by_apex": [
+        0.0001994092620596355,
+        0.00019941592699446176,
+        0.00019941592698535793,
+        0.0001550833713335198
+      ],
+      "worst_relative_error": 0.00019941592699446176,
+      "rule_sha256": "7cfc76bc626f3e4c3b00977da267fffe69638ac0a50c973ead77988461942f7b"
+    },
+    "125": {
+      "points": 1335,
+      "normal_integral": 6.224102485942981e-05,
+      "relative_errors_by_apex": [
+        0.0001994092620596355,
+        0.00019941592699446176,
+        0.00019941592698535793,
+        0.0001550833713335198
+      ],
+      "worst_relative_error": 0.00019941592699446176,
+      "rule_sha256": "7cfc76bc626f3e4c3b00977da267fffe69638ac0a50c973ead77988461942f7b"
+    }
+  },
+  "references": [
+    {
+      "identity": {
+        "script_sha256": "6a9ce70e3b9bb0d12685a3f107b576d81f793ea9cbdccd6f4305f837729e0995",
+        "oracle_sha256": "b4af4cc0844cb180449829cecb62221aa4bb69b0a66fdb4128a3fbc6e92256bd",
+        "fixture_sha256": "444d511a48a4978aca45bcdcd6ebb73f710c0464fc170b1358f9e9466c768954",
+        "numpy": "1.24.4",
+        "parameters": {
+          "apex": 0,
+          "angular": 72,
+          "radial": 24,
+          "bands": 1.25
+        }
+      },
+      "complete": true,
+      "next_radial": 1704,
+      "integral": 6.222861589705479e-05,
+      "mass": 2.146283491070759e-09,
+      "elapsed_seconds": 118.56306448194664,
+      "radial_nodes": 1704,
+      "volume_relative_error": 9.992007221626409e-16,
+      "scope": "Exact nearest-triangle normal-density oracle, independent product Gauss/Duffy; radial order/bands and all4 apex choices must converge separately. This result alone is not a full tensor-density or remeshing proof."
+    },
+    {
+      "identity": {
+        "script_sha256": "6a9ce70e3b9bb0d12685a3f107b576d81f793ea9cbdccd6f4305f837729e0995",
+        "oracle_sha256": "b4af4cc0844cb180449829cecb62221aa4bb69b0a66fdb4128a3fbc6e92256bd",
+        "fixture_sha256": "444d511a48a4978aca45bcdcd6ebb73f710c0464fc170b1358f9e9466c768954",
+        "numpy": "1.24.4",
+        "parameters": {
+          "apex": 1,
+          "angular": 72,
+          "radial": 24,
+          "bands": 1.25
+        }
+      },
+      "complete": true,
+      "next_radial": 1704,
+      "integral": 6.222861548238781e-05,
+      "mass": 2.146283491070759e-09,
+      "elapsed_seconds": 123.55021679704078,
+      "radial_nodes": 1704,
+      "volume_relative_error": 9.992007221626409e-16,
+      "scope": "Exact nearest-triangle normal-density oracle, independent product Gauss/Duffy; radial order/bands and all4 apex choices must converge separately. This result alone is not a full tensor-density or remeshing proof."
+    },
+    {
+      "identity": {
+        "script_sha256": "6a9ce70e3b9bb0d12685a3f107b576d81f793ea9cbdccd6f4305f837729e0995",
+        "oracle_sha256": "b4af4cc0844cb180449829cecb62221aa4bb69b0a66fdb4128a3fbc6e92256bd",
+        "fixture_sha256": "444d511a48a4978aca45bcdcd6ebb73f710c0464fc170b1358f9e9466c768954",
+        "numpy": "1.24.4",
+        "parameters": {
+          "apex": 2,
+          "angular": 72,
+          "radial": 24,
+          "bands": 1.25
+        }
+      },
+      "complete": true,
+      "next_radial": 1704,
+      "integral": 6.222861548238838e-05,
+      "mass": 2.146283491070759e-09,
+      "elapsed_seconds": 127.35718668694608,
+      "radial_nodes": 1704,
+      "volume_relative_error": 9.992007221626409e-16,
+      "scope": "Exact nearest-triangle normal-density oracle, independent product Gauss/Duffy; radial order/bands and all4 apex choices must converge separately. This result alone is not a full tensor-density or remeshing proof."
+    },
+    {
+      "identity": {
+        "script_sha256": "6a9ce70e3b9bb0d12685a3f107b576d81f793ea9cbdccd6f4305f837729e0995",
+        "oracle_sha256": "b4af4cc0844cb180449829cecb62221aa4bb69b0a66fdb4128a3fbc6e92256bd",
+        "fixture_sha256": "444d511a48a4978aca45bcdcd6ebb73f710c0464fc170b1358f9e9466c768954",
+        "numpy": "1.24.4",
+        "parameters": {
+          "apex": 3,
+          "angular": 72,
+          "radial": 24,
+          "bands": 1.25
+        }
+      },
+      "complete": true,
+      "next_radial": 1704,
+      "integral": 6.223137380817692e-05,
+      "mass": 2.146283491070759e-09,
+      "elapsed_seconds": 176.25137831491884,
+      "radial_nodes": 1704,
+      "volume_relative_error": 9.992007221626409e-16,
+      "scope": "Exact nearest-triangle normal-density oracle, independent product Gauss/Duffy; radial order/bands and all4 apex choices must converge separately. This result alone is not a full tensor-density or remeshing proof."
+    }
+  ],
+  "sha256": {
+    "radial_chart_apex0_a72_r24_b1p25.json": "df46f37defae5cffd27a593fbf182b5387f94371c6883c65f80821875c4c8d4f",
+    "radial_chart_apex1_a72_r24_b1p25.json": "98343ed41e99d72f70da03f467aff2790babd689cf8227ba3d039d29872e3345",
+    "radial_chart_apex2_a72_r24_b1p25.json": "d9ab4b7baa0c253d15abdc2f9a1237eaa0b5de7d736d1c9b79e7e9f08dcde5d4",
+    "radial_chart_apex3_a72_r24_b1p25.json": "2b97bab0758acef65ee633410363dca4caa2562a0acc579ef22df87ca8f73a86",
+    "reference_script": "6a9ce70e3b9bb0d12685a3f107b576d81f793ea9cbdccd6f4305f837729e0995",
+    "oracle": "b4af4cc0844cb180449829cecb62221aa4bb69b0a66fdb4128a3fbc6e92256bd",
+    "fixture": "444d511a48a4978aca45bcdcd6ebb73f710c0464fc170b1358f9e9466c768954",
+    "audit_script": "b7d158cef086911c3c8a6e3d515b63506dc70b69c3fca456ad6893ce9dfd21ec"
+  }
+}

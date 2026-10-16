@@ -1,0 +1,114 @@
+Catchpoint 1 (throw)
+[Thread debugging using libthread_db enabled]
+Using host libthread_db library "/lib/x86_64-linux-gnu/libthread_db.so.1".
+[Detaching after fork from child process 3451158]
+[New Thread 0x7ffff760b700 (LWP 3451166)]
+[New Thread 0x7ffff6c56700 (LWP 3451167)]
+
+Thread 1 "test_driver" hit Catchpoint 1 (exception thrown), 0x00007ffff7d06662 in __cxa_throw () from /lib/x86_64-linux-gnu/libstdc++.so.6
+#1  0x000055555576fc9c in CBoundaryLayerMetric::<lambda(const CBoundaryLayerMetric::Column3D&, const Triangle&, double, bool, std::vector<CBoundaryLayerMetric::IntegrationPoint3D, std::allocator<CBoundaryLayerMetric::IntegrationPoint3D> >&, double&, std::array<double, 3>*)>::operator()(const CBoundaryLayerMetric::Column3D &, const CBoundaryLayerMetric::Panel::Triangle &, double, bool, std::vector<CBoundaryLayerMetric::IntegrationPoint3D, std::allocator<CBoundaryLayerMetric::IntegrationPoint3D> > &, double &, std::array<double, 3> *) const (__closure=<optimized out>, chart=..., triangle=..., fraction=0.0078125, fine=<optimized out>, points={...}, radialError=@0x7fffffff8788: 4.8906729639167064e-09, vertexValues=0x7fffffff8a88) at /usr/include/c++/9/ext/new_allocator.h:89
+89	      ~new_allocator() _GLIBCXX_USE_NOEXCEPT { }
+#0  0x00007ffff7d06662 in __cxa_throw () from /lib/x86_64-linux-gnu/libstdc++.so.6
+#1  0x000055555576fc9c in CBoundaryLayerMetric::<lambda(const CBoundaryLayerMetric::Column3D&, const Triangle&, double, bool, std::vector<CBoundaryLayerMetric::IntegrationPoint3D, std::allocator<CBoundaryLayerMetric::IntegrationPoint3D> >&, double&, std::array<double, 3>*)>::operator()(const CBoundaryLayerMetric::Column3D &, const CBoundaryLayerMetric::Panel::Triangle &, double, bool, std::vector<CBoundaryLayerMetric::IntegrationPoint3D, std::allocator<CBoundaryLayerMetric::IntegrationPoint3D> > &, double &, std::array<double, 3> *) const (__closure=<optimized out>, chart=..., triangle=..., fraction=0.0078125, fine=<optimized out>, points={...}, radialError=@0x7fffffff8788: 4.8906729639167064e-09, vertexValues=0x7fffffff8a88) at /usr/include/c++/9/ext/new_allocator.h:89
+#2  0x0000555556318018 in CBoundaryLayerMetric::<lambda(size_t, const Triangle&, double, unsigned int)>::operator()(size_t, const CBoundaryLayerMetric::Panel::Triangle &, double, unsigned int) const (__closure=0x7fffffff8ce0, cone=2, triangle=..., fraction=0.0078125, depth=<optimized out>) at /usr/include/c++/9/bits/stl_vector.h:1058
+#3  0x0000555556319e1d in CBoundaryLayerMetric::IntegrationColumns3D(std::array<std::array<double, 3ul>, 4ul> const&, std::vector<CBoundaryLayerMetric::Column3D, std::allocator<CBoundaryLayerMetric::Column3D> > const&, std::vector<CBoundaryLayerMetric::SupportFace3D, std::allocator<CBoundaryLayerMetric::SupportFace3D> > const&, double, std::function<double (CBoundaryLayerMetric::IntegrationPoint3D const&)> const&) (this=<optimized out>, tetrahedron=..., charts=..., support=..., bandRatio=<optimized out>, probe=...) at ../../SU2_CFD/src/adaptation/CBoundaryLayerMetric.cpp:1993
+#4  0x0000555556320434 in CBoundaryLayerMetric::IntegrationRule3D(std::array<std::array<double, 3ul>, 4ul> const&, double, std::function<double (CBoundaryLayerMetric::IntegrationPoint3D const&)>, bool*) (this=this@entry=0x7fffffffa900, tetrahedron=..., bandRatio=<optimized out>, bandRatio@entry=1.5, density=..., sensorDependent=sensorDependent@entry=0x7fffffffa808) at /usr/include/c++/9/new:174
+#5  0x00005555559c4037 in C_A_T_C_H_T_E_S_T_90 () at /usr/include/c++/9/new:174
+#6  0x0000555555e48503 in Catch::RunContext::invokeActiveTestCase (this=0x7fffffffbb30) at ../../externals/catch2/catch.hpp:13027
+#7  0x0000555555e5a99e in Catch::RunContext::runCurrentTest (this=0x7fffffffbb30, redirectedCout=..., redirectedCerr={...}) at ../../externals/catch2/catch.hpp:13000
+selected = <optimized out>
+panel = {left = 0.9198266577325519, right = 0.94309547113466385, value = 2.8940012367396699e-05, error = 2.1611747002225451e-08, comparison = 2.8940012367396699e-05, depth = 0, upgraded = true, points = std::vector of length 5, capacity 8 = {{...}, {...}...}, comparisonPoints = std::vector of length 0, capacity 0}
+middle = <optimized out>
+rayPoints = 17
+angular = {_M_elems = {0.69123224198686062, 0.12873224198686062...}}
+entry = {_M_elems = {0.18003551602627871, 0.3992526606361379...}}
+start = {_M_elems = {0.16155761400014804, 0.2402513531187673...}}
+cuts = std::vector of length 7, capacity 8 = {0, 0.85002021752621626...}
+retain = {__rayPoints = @0x7fffffff8228, __fine = @0x7fffffff820c, __retained = @0x7fffffff8c68, __points = std::vector of length 42, capacity 78 = {{...}, {...}...}, __nextPanel = @0x7fffffff8c70, __corner = @0x7fffffff821c, __rayValue = @0x7fffffff8230, __rayError = @0x7fffffff8238, __radialPriority = std::priority_queue wrapping: std::vector of length 5, capacity 8 = {{...}, {...}...}, __nextRadial = @0x7fffffff8220, __radialPanels = std::map with 5 elements = {[0] = {...}...}}
+exit = {_M_elems = {0.404675439153656, 0...}}
+end = {_M_elems = {0.16331345557825566, 0.23917104346994211...}}
+length = <optimized out>
+radialPanels = std::map with 5 elements = {[0] = {left = 0, right = 0.85002021752621626, value = 0.00011360295465089721, error = 3.64155293376342e-13, comparison = 0.00011360295428674191, depth = 0, upgraded = false, points = {...}, comparisonPoints = {...}}...}
+nextRadial = 8
+rayError = 1.4108384005976161e-08
+before = 0.00049400446923643913
+jacobian = 7.81838941586043558608e-10
+radial = {__gauss7 = @0x7fffffff8ec0, __gauss = @0x7fffffff8e60, __gauss3 = @0x7fffffff8e00, __entry = @0x7fffffff84f0, __exit = @0x7fffffff8510, __tetrahedron = @0x7fffffffac30, __originalSource = @0x7fffffff8f80, __reversed = @0x7fffffff8c5f, __chart = @0x5555576668d0, __jacobian = @0x7fffffff8240, __weights7 = @0x7fffffff8f00, __weights = @0x7fffffff8e90, __weights3 = @0x7fffffff8e20, __this = 0x7fffffffa900, __probe = @0x7fffffffa3f0}
+radialPriority = std::priority_queue wrapping: std::vector of length 5, capacity 8 = {{first = 9.0121882184582627e-09, second = 5...}, {first = 3.64155293376342e-13, second = 0...}...}
+rayValue = 0.00025637693844839766
+addRadial = {__radial = @0x7fffffff8410, __retain = @0x7fffffff82f0}
+corner = 1
+integral = 0.00049400446923643913
+faceBary = <optimized out>
+comparisonBary = <optimized out>
+tetrahedron = <optimized out>
+faceWeights = <optimized out>
+comparisonWeights = <optimized out>
+bandRatio = <optimized out>
+this = <optimized out>
+gauss7 = <optimized out>
+gauss = <optimized out>
+gauss3 = <optimized out>
+originalSource = <optimized out>
+reversed = <optimized out>
+weights7 = <optimized out>
+weights = <optimized out>
+weights3 = <optimized out>
+probe = <optimized out>
+retained = <optimized out>
+nextPanel = <optimized out>
+visited = <optimized out>
+charts = <optimized out>
+[
+  {
+    "frame": "CBoundaryLayerMetric::<lambda(const CBoundaryLayerMetric::Column3D&, const Triangle&, double, bool, std::vector<CBoundaryLayerMetric::IntegrationPoint3D, std::allocator<CBoundaryLayerMetric::IntegrationPoint3D> >&, double&, std::array<double, 3>*)>::operator()(const CBoundaryLayerMetric::Column3D &, const CBoundaryLayerMetric::Panel::Triangle &, double, bool, std::vector<CBoundaryLayerMetric::IntegrationPoint3D, std::allocator<CBoundaryLayerMetric::IntegrationPoint3D> > &, double &, std::array<double, 3> *) const",
+    "values": {
+      "totalValue": 0.2527949623915596,
+      "totalError": 0.0001375800716154951,
+      "unresolved": 0.0,
+      "rayValue": 0.00025637693844839766,
+      "rayError": 1.4108384005976161e-08,
+      "rayPoints": 17.0,
+      "corner": 1.0,
+      "fraction": 0.0078125,
+      "radialError": 4.890672963916706e-09,
+      "integral": 0.0004940044692364391,
+      "panel.left": 0.9198266577325519,
+      "panel.right": 0.9430954711346639,
+      "panel.depth": 0.0,
+      "panel.value": 2.89400123673967e-05,
+      "panel.error": 2.161174700222545e-08
+    }
+  },
+  {
+    "frame": "CBoundaryLayerMetric::<lambda(size_t, const Triangle&, double, unsigned int)>::operator()(size_t, const CBoundaryLayerMetric::Panel::Triangle &, double, unsigned int) const",
+    "values": {
+      "totalValue": 0.2527949623915596,
+      "totalError": 0.0001375800716154951,
+      "unresolved": 0.0,
+      "retained": 26191.0,
+      "visited": 16385.0,
+      "nextPanel": 288.0,
+      "fraction": 0.0078125,
+      "panel.depth": 7.0,
+      "panel.value": 0.0,
+      "panel.error": 0.0,
+      "panel.unresolved": 0.0
+    }
+  },
+  {
+    "frame": "CBoundaryLayerMetric::IntegrationColumns3D(std::array<std::array<double, 3ul>, 4ul> const&, std::vector<CBoundaryLayerMetric::Column3D, std::allocator<CBoundaryLayerMetric::Column3D> > const&, std::vector<CBoundaryLayerMetric::SupportFace3D, std::allocator<CBoundaryLayerMetric::SupportFace3D> > const&, double, std::function<double (CBoundaryLayerMetric::IntegrationPoint3D const&)> const&)",
+    "values": {
+      "totalValue": 0.2527949623915596,
+      "totalError": 0.0001375800716154951,
+      "unresolved": 0.0,
+      "retained": 26191.0,
+      "visited": 16385.0,
+      "nextPanel": 288.0,
+      "panel.depth": 6.0,
+      "panel.value": 0.004424742817581317,
+      "panel.error": 3.33524128845286e-06,
+      "panel.unresolved": 0.0
+    }
+  }
+]

@@ -1,0 +1,24 @@
+{
+  "status": "WITHDRAWN",
+  "cases": {
+    "329": {
+      "exit_code": 1,
+      "log": "integration_evidence/native_3d_bl_v1/oneram6_quadrature_v1/captured_cells_v1/cell329/parallel.log"
+    },
+    "157": {
+      "exit_code": 124,
+      "log": "integration_evidence/native_3d_bl_v1/oneram6_quadrature_v1/captured_cells_v1/cell157/parallel.log"
+    },
+    "88": {
+      "exit_code": 1,
+      "log": "integration_evidence/native_3d_bl_v1/oneram6_quadrature_v1/captured_cells_v1/cell88/parallel.log"
+    }
+  },
+  "reason": "Shared parallel mapping alone fails actual frozen329/88 and times out157. No fallback or raised budget accepted.",
+  "scope": "No complete mesh/remesher/transfer; local quadrature counterexamples only. Error-budget snapshots distinguish radial local oversolving from unresolved-support guarding. No speedup claim from failed strategies.",
+  "source_sha256": {
+    "BoundaryLayerMetric_tests.cpp": "dd41476db1c62ad31f61f550209cfeafc3ee7865cf51ffe6a40948ddcdc013db",
+    "CBoundaryLayerMetric.hpp": "8c06b7d840be11a2bd29178996dad1f3a85663b249046bb57b2dbf77c6bba2b9",
+    "CBoundaryLayerMetric.cpp": "021cb79af776cdf3391beb4c353291aee08264eaec1f8e881b9b6e70faf3f937"
+  }
+}
