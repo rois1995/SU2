@@ -1,5 +1,47 @@
 # Common globalized Newton–Krylov refactor
 
+## Rotation-axis qualification, 2026-10-16
+
+`compare_periodic_axis.py` uses the existing 187-point laminar pipe sector with
+30-degree rotational periodicity, 11 axis points and 88 pairs of off-axis points.
+Place the usual `wedge.su2` fixture beside
+`TestCases/navierstokes/periodic3D_axis/config.cfg` before running it; the exact
+mesh and its hash are also retained in the qualification archive. The shared
+runner accepts `--binary`, `--reporter`, `--output`, `--ranks` and `--threads`.
+Every flow history RMS must fall below `1e-12`, independently recomputed raw RMS
+below `1e-12` and normalized RMS below `1e-11`. State and quantity agreement
+retain their `1e-6` limits. Only the symmetry-zero axial torque uses an explicit
+absolute tolerance of `1e-12`; the default quantity calculation is unchanged,
+as checked against all 15 preceding flat-plate and reader-compatibility records.
+`check_comparison_metrics.py` checks both acceptance and rejection at this bound.
+
+All six native/segregated/coupled comparisons pass on 1x1 and 2x2 layouts, with
+1319/14/14 updates on both. Independent endpoint checks retain all points,
+explicitly rotate transverse momentum between paired planes, check zero axis
+transverse momentum and compare serial/MPI states. Maximum state difference
+from native is `1.7e-9`, maximum cross-layout difference is `8.1e-10`, and
+rotation mismatch stays below `1.2e-16`. Accepted true linear defects remain
+below `0.055`; recorded rollback errors are zero. Commands, timings, counters,
+memory, hashes and physical residuals are in
+`Docs/NewtonKrylovPeriodicAxisResults.json`.
+
+The new `[NewtonPeriodicAxis]` regression independently covers the full
+quarter-turn orbit in two and three dimensions for flow, SA, SST and SST/LM.
+It checks that residual evaluation preserves unconstrained primary values,
+retains the two transverse consistency equations, projects anisotropic scaled
+vectors idempotently and applies the local partial-cell mass without multiplying
+the axis volume by the number of rotational copies. Pure transverse consistency
+directions have zero mass action, and restoration is exact. All 56 native cases
+pass on four MPI/OpenMP layouts; all 88 supported ordinary cases and three CLI
+checks pass. Seven focused Valgrind cases pass 41426 assertions with zero errors;
+leaks are unchecked. Production C++ and the CFD binary are unchanged.
+
+The endpoint is laminar and has only one circumferential cell. It qualifies
+neither turbulent axis convergence nor spatial accuracy. FLOW is one group in
+both Newton modes, Newton adapts CFL while native retains ten, and the single
+launch-inclusive timings do not establish general performance gains. The three
+earlier finite-iteration periodic reference mismatches remain open.
+
 ## Three-dimensional periodic flat-plate comparisons, 2026-10-16
 
 `compare_periodic_flatplate.py` extrudes the established flat-plate fixtures into

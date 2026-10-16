@@ -650,6 +650,83 @@ TEST_CASE("Periodic block preconditioners preserve physical and consistency subs
       }
 }
 
+TEST_CASE("Axis Newton constraints and mass retain the full rotation orbit", "[NewtonPeriodicAxis]") {
+  /*--- The two coordinate faces meet on the axis; four quarter-turn copies form its complete orbit. ---*/
+  for (bool threeD : {false, true})
+    for (const auto& physics : {std::string("SOLVER= NAVIER_STOKES\n"), sa, sst, sst + "KIND_TRANS_MODEL= LM\n"}) {
+      CAPTURE(threeD, physics);
+      Problem problem(physics + "MARKER_HEATFLUX= NONE\nMARKER_FAR= (x_plus,y_plus" +
+                      (threeD ? ",z_minus,z_plus)\n" : ")\n") +
+                      "MARKER_PERIODIC= (x_minus,y_minus,0,0,0,0,0,-90,0,0,0)\n", 5, false, threeD);
+      auto& driver = *problem.driver;
+      auto* geometry = driver.Geometry();
+      auto* flow = driver.Solvers()[FLOW_SOL]->GetNodes();
+      const auto axis = [&](unsigned long p) {
+        const auto* x = geometry->nodes->GetCoord(p);
+        return x[0] == 0 && x[1] == 0 && (!threeD || (x[2] > 0 && x[2] < 1));
+      };
+      unsigned long localAxis = 0, globalAxis = 0;
+      for (auto p = 0ul; p < geometry->GetnPoint(); ++p)
+        if (axis(p)) {
+          flow->SetSolution(p, 1, 0.03);
+          flow->SetSolution(p, 2, -0.02);
+          if (p < geometry->GetnPointDomain()) ++localAxis;
+        }
+      SU2_MPI::Allreduce(&localAxis, &globalAxis, 1, MPI_UNSIGNED_LONG, MPI_SUM, SU2_MPI::GetComm());
+      REQUIRE(globalAxis > 0);
+      std::vector<unsigned short> selected{RUNTIME_FLOW_SYS};
+      for (auto runtime : {RUNTIME_TURB_SYS, RUNTIME_TRANS_SYS})
+        if (driver.Solvers()[driver.Config()->GetContainerPosition(runtime)]) selected.push_back(runtime);
+      auto equations = problem.Equations(selected);
+      REQUIRE(Residual(*equations));
+      equations->Capture();
+      auto actual = MakeVector(driver, equations->GetnVar());
+      equations->CopyResidual(actual);
+      /*--- Orbit-averaged radial residuals vanish, leaving the two explicit state-consistency equations. ---*/
+      for (auto p = 0ul; p < geometry->GetnPointDomain(); ++p)
+        if (axis(p)) {
+          CHECK(flow->GetSolution(p, 1) == 0.03);
+          CHECK(flow->GetSolution(p, 2) == -0.02);
+          CHECK(actual(p, 1) == Approx(0.03).margin(1e-12));
+          CHECK(actual(p, 2) == Approx(-0.02).margin(1e-12));
+        }
+      auto scale = actual, input = actual, expected = actual;
+      for (auto p = 0ul; p < geometry->GetnPoint(); ++p)
+        for (auto v = 0u; v < equations->GetnVar(); ++v) {
+          scale(p, v) = 1 + 0.13 * v + (threeD ? 0.1 * geometry->nodes->GetCoord(p, 2) : 0);
+          input(p, v) = axis(p) ? (1 + 0.2 * v) / scale(p, v) : 0;
+          expected(p, v) = v == 1 || v == 2 ? 0 : input(p, v);
+        }
+      actual = input;
+      SU2_OMP_PARALLEL { equations->ProjectPeriodic(actual, &scale); }
+      END_SU2_OMP_PARALLEL
+      CHECK(MaxDifference(actual, expected) < 1e-12);
+      const auto projected = actual;
+      SU2_OMP_PARALLEL { equations->ProjectPeriodic(actual, &scale); }
+      END_SU2_OMP_PARALLEL
+      CHECK(MaxDifference(actual, projected) < 1e-12);
+      for (const auto& block : equations->GetBlocks())
+        for (auto p = 0ul; p < geometry->GetnPoint(); ++p) block.solver->GetNodes()->SetDelta_Time(p, 0.1);
+      std::vector<unsigned char> free(scale.GetLocSize(), true);
+      CNewtonPseudoTime mass(*equations, geometry, driver.Config());
+      REQUIRE(mass.Build(scale, free));
+      SU2_OMP_PARALLEL { mass.Apply(input, actual); }
+      END_SU2_OMP_PARALLEL
+      /*--- Scalars and axial momentum retain their local partial-cell mass, without a fourfold volume factor. ---*/
+      for (auto p = 0ul; p < geometry->GetnPointDomain(); ++p)
+        for (auto v = 0u; v < equations->GetnVar(); ++v)
+          expected(p, v) *= SU2_TYPE::GetValue(geometry->nodes->GetVolume(p)) / 0.1;
+      CHECK(MaxDifference(actual, expected) < 1e-12);
+      Vector transverse = input;
+      transverse -= projected;
+      SU2_OMP_PARALLEL { mass.Apply(transverse, actual); }
+      END_SU2_OMP_PARALLEL
+      CHECK(actual.norm() < 1e-12);
+      REQUIRE(equations->Restore());
+      CHECK(equations->GetRestorationError() == 0);
+    }
+}
+
 TEST_CASE("Derivative verification resolves mass-dominated physical null modes", "[NewtonMassResolution]") {
   /*--- Scaling a nearly uniform periodic state gives J_R*w=R(w), tiny compared with the frozen mass action. ---*/
   for (unsigned cells : {6, 8}) {

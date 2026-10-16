@@ -1,0 +1,1009 @@
+{
+  "base_commit": "28bf709456ffe941bb68be87caaf0cfe73b94d1d",
+  "status": "All six matched laminar-axis comparisons pass independent residual, state, quantity, rotation and axis checks.",
+  "scope": "Existing 187-point pipe sector with 30-degree rotation, 11 axis points and 88 pairs; FLOW on 1x1 and 2x2.",
+  "production_code_changed": false,
+  "binary_sha256": {
+    "SU2_CFD/src/SU2_CFD": "1e0f119b20ed30d3ee276722f378a130fcb54c31dae7901da33f39f36de24575",
+    "UnitTests/test_driver": "48ccfad867e566b02aff8064d73c044896b90262520680bf3011126177e38725",
+    "UnitTests/newton_equation_tests": "0b48736ffa7c1477f0360c607d1509bcb4e7f39c74275e1df89b14a5df23440e"
+  },
+  "source_sha256": {
+    "UnitTests/SU2_CFD/newton_equations.cpp": "a34bc72f89351915f12704a60a972f1e70792bd335c73370e16c7504c7b51059",
+    "TestCases/newton_krylov/compare_manufactured_flow.py": "fb170b938067cbc0104b56c29e8d1796551abc1018e368750162c8bb5ece2b15",
+    "TestCases/newton_krylov/compare_periodic_axis.py": "88df7866aff5494e87a9c593a1a72c860449e565470024b6c9313d54ba21fafe",
+    "TestCases/newton_krylov/check_comparison_metrics.py": "ef9205a65c4cac941cd3b49728205f9880ea7c6877067991d82de52c955b14df"
+  },
+  "mesh": {
+    "path": "TestCases/navierstokes/periodic3D_axis/wedge.su2",
+    "sha256": "a680deb882416f08c9b9f794c6a42ee2e2d7c2e188d644c31cb8fb68c2160a7d",
+    "provenance": "Existing official fixture retained in periodic_native_baseline/periodic3d_axis/wedge.su2; ignored input explicitly included in archive."
+  },
+  "algebraic_regression": "Quarter-turn self-matched axis in 2D and 3D with flow, SA, SST and SST/LM: unconstrained primary values, F consistency equations, anisotropic projector, idempotence, partial-cell mass, annihilated transverse mass and exact restoration.",
+  "assertion_counts": {
+    "native_1x1": [
+      {
+        "assertions": 104474,
+        "cases": 56
+      }
+    ],
+    "native_1x2": [
+      {
+        "assertions": 104474,
+        "cases": 56
+      }
+    ],
+    "native_2x2": [
+      {
+        "assertions": 62062,
+        "cases": 56
+      },
+      {
+        "assertions": 55818,
+        "cases": 56
+      }
+    ],
+    "native_2x4": [
+      {
+        "assertions": 62062,
+        "cases": 56
+      },
+      {
+        "assertions": 55818,
+        "cases": 56
+      }
+    ],
+    "supported": [
+      {
+        "assertions": 105424,
+        "cases": 88
+      }
+    ],
+    "valgrind": [
+      {
+        "assertions": 41426,
+        "cases": 7
+      }
+    ]
+  },
+  "checks": [
+    {
+      "name": "axis_projection_native_1x1",
+      "command": [
+        "mpirun",
+        "--bind-to",
+        "none",
+        "-n",
+        "1",
+        "/media/rausa/4TB/SU2_Versions/SU2_v850_Develop_FixCGNSOutput/newton_krylov_refactor_20261015/build/UnitTests/newton_equation_tests"
+      ],
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_v850_Develop_FixCGNSOutput/newton_krylov_refactor_20261015/equation_set_verification_work/native_mpi",
+      "threads": 1,
+      "exit_code": 0,
+      "elapsed_seconds": 3.626223610015586
+    },
+    {
+      "name": "axis_projection_native_1x2",
+      "command": [
+        "mpirun",
+        "--bind-to",
+        "none",
+        "-n",
+        "1",
+        "/media/rausa/4TB/SU2_Versions/SU2_v850_Develop_FixCGNSOutput/newton_krylov_refactor_20261015/build/UnitTests/newton_equation_tests"
+      ],
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_v850_Develop_FixCGNSOutput/newton_krylov_refactor_20261015/equation_set_verification_work/native_mpi",
+      "threads": 2,
+      "exit_code": 0,
+      "elapsed_seconds": 10.27478992601391
+    },
+    {
+      "name": "axis_projection_native_2x2",
+      "command": [
+        "mpirun",
+        "--bind-to",
+        "none",
+        "-n",
+        "2",
+        "/media/rausa/4TB/SU2_Versions/SU2_v850_Develop_FixCGNSOutput/newton_krylov_refactor_20261015/build/UnitTests/newton_equation_tests"
+      ],
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_v850_Develop_FixCGNSOutput/newton_krylov_refactor_20261015/equation_set_verification_work/native_mpi",
+      "threads": 2,
+      "exit_code": 0,
+      "elapsed_seconds": 18.683048210921697
+    },
+    {
+      "name": "axis_projection_native_2x4",
+      "command": [
+        "mpirun",
+        "--bind-to",
+        "none",
+        "-n",
+        "2",
+        "/media/rausa/4TB/SU2_Versions/SU2_v850_Develop_FixCGNSOutput/newton_krylov_refactor_20261015/build/UnitTests/newton_equation_tests"
+      ],
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_v850_Develop_FixCGNSOutput/newton_krylov_refactor_20261015/equation_set_verification_work/native_mpi",
+      "threads": 4,
+      "exit_code": 0,
+      "elapsed_seconds": 74.30040296597872
+    },
+    {
+      "name": "axis_projection_supported",
+      "command": [
+        "/media/rausa/4TB/SU2_Versions/SU2_v850_Develop_FixCGNSOutput/newton_krylov_refactor_20261015/build/UnitTests/test_driver",
+        "--input-file",
+        "/media/rausa/4TB/SU2_Versions/SU2_v850_Develop_FixCGNSOutput/newton_krylov_refactor_20261015/periodic_baseline_supported_units.txt"
+      ],
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_v850_Develop_FixCGNSOutput/newton_krylov_refactor_20261015/equation_set_verification_work/units",
+      "threads": 1,
+      "exit_code": 0,
+      "elapsed_seconds": 0.6744508660631254
+    },
+    {
+      "name": "axis_projection_valgrind",
+      "command": [
+        "valgrind",
+        "--error-exitcode=99",
+        "--leak-check=no",
+        "/media/rausa/4TB/SU2_Versions/SU2_v850_Develop_FixCGNSOutput/newton_krylov_refactor_20261015/build/UnitTests/newton_equation_tests",
+        "[NewtonPeriodicAxis],[NewtonPeriodic],[NewtonPeriodicMass],[NewtonPeriodicProducts],[NewtonPeriodicOwner],[NewtonPeriodicPreconditioner],[NewtonMassResolution]"
+      ],
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_v850_Develop_FixCGNSOutput/newton_krylov_refactor_20261015/equation_set_verification_work/native_mpi",
+      "threads": 1,
+      "exit_code": 0,
+      "elapsed_seconds": 26.7208166240016
+    },
+    {
+      "name": "axis_projection_report_checks",
+      "command": [
+        "python3",
+        "/media/rausa/4TB/SU2_Versions/SU2_v850_Develop_FixCGNSOutput/scalar_limiter_sst_globalization_20261015/source/TestCases/newton_krylov/check_state_report.py",
+        "--binary",
+        "/media/rausa/4TB/SU2_Versions/SU2_v850_Develop_FixCGNSOutput/newton_krylov_refactor_20261015/build/SU2_CFD/src/SU2_CFD",
+        "--output",
+        "/media/rausa/4TB/SU2_Versions/SU2_v850_Develop_FixCGNSOutput/newton_krylov_refactor_20261015/axis_projection_report_checks",
+        "--reporter",
+        "/media/rausa/4TB/SU2_Versions/SU2_v850_Develop_FixCGNSOutput/newton_krylov_refactor_20261015/build/UnitTests/newton_equation_tests"
+      ],
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_v850_Develop_FixCGNSOutput",
+      "threads": 1,
+      "exit_code": 0,
+      "elapsed_seconds": 8.877082888968289
+    },
+    {
+      "name": "axis_projection_species_boundaries",
+      "command": [
+        "python3",
+        "/media/rausa/4TB/SU2_Versions/SU2_v850_Develop_FixCGNSOutput/scalar_limiter_sst_globalization_20261015/source/TestCases/newton_krylov/check_species_boundaries.py",
+        "--binary",
+        "/media/rausa/4TB/SU2_Versions/SU2_v850_Develop_FixCGNSOutput/newton_krylov_refactor_20261015/build/SU2_CFD/src/SU2_CFD",
+        "--output",
+        "/media/rausa/4TB/SU2_Versions/SU2_v850_Develop_FixCGNSOutput/newton_krylov_refactor_20261015/axis_projection_species_boundaries"
+      ],
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_v850_Develop_FixCGNSOutput",
+      "threads": 1,
+      "exit_code": 0,
+      "elapsed_seconds": 3.604079230921343
+    },
+    {
+      "name": "axis_projection_residual_failures",
+      "command": [
+        "python3",
+        "/media/rausa/4TB/SU2_Versions/SU2_v850_Develop_FixCGNSOutput/scalar_limiter_sst_globalization_20261015/source/TestCases/newton_krylov/check_residual_failures.py",
+        "--binary",
+        "/media/rausa/4TB/SU2_Versions/SU2_v850_Develop_FixCGNSOutput/newton_krylov_refactor_20261015/build/SU2_CFD/src/SU2_CFD",
+        "--output",
+        "/media/rausa/4TB/SU2_Versions/SU2_v850_Develop_FixCGNSOutput/newton_krylov_refactor_20261015/axis_projection_residual_failures"
+      ],
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_v850_Develop_FixCGNSOutput",
+      "threads": 1,
+      "exit_code": 0,
+      "elapsed_seconds": 9.384238149039447
+    }
+  ],
+  "valgrind": {
+    "errors": 0,
+    "leaks_checked": false
+  },
+  "comparisons": {
+    "1x1": {
+      "binary_sha256": "1e0f119b20ed30d3ee276722f378a130fcb54c31dae7901da33f39f36de24575",
+      "reporter_sha256": "0b48736ffa7c1477f0360c607d1509bcb4e7f39c74275e1df89b14a5df23440e",
+      "runner_sha256": "88df7866aff5494e87a9c593a1a72c860449e565470024b6c9313d54ba21fafe",
+      "comparison_driver_sha256": "fb170b938067cbc0104b56c29e8d1796551abc1018e368750162c8bb5ece2b15",
+      "report_script_sha256": "990d1bee026fafe6755e23fc4584640ffd2e4c66b2bbc1822a61d6780807d114",
+      "ranks": 1,
+      "threads": 1,
+      "dimensions": 3,
+      "case": "3D pipe sector with 30-degree rotation and axis nodes",
+      "limits": "Coarse laminar sector with one circumferential cell. FLOW is one group in both Newton modes; this does not qualify turbulent axis endpoints, mesh accuracy or general speedup.",
+      "quantity_relative_tolerance": 1e-06,
+      "quantity_absolute_tolerance": {
+        "moment_z": 1e-12
+      },
+      "input_sha256": {
+        "/media/rausa/4TB/SU2_Versions/SU2_v850_Develop_FixCGNSOutput/scalar_limiter_sst_globalization_20261015/source/TestCases/navierstokes/periodic3D_axis/wedge.su2": "a680deb882416f08c9b9f794c6a42ee2e2d7c2e188d644c31cb8fb68c2160a7d",
+        "/media/rausa/4TB/SU2_Versions/SU2_v850_Develop_FixCGNSOutput/scalar_limiter_sst_globalization_20261015/source/TestCases/navierstokes/periodic3D_axis/config.cfg": "2b9a7535e05b3949309c57e694a6efe8e7411eb89bfbab5294651a0347e92381"
+      },
+      "environment": {
+        "TMPDIR": "/media/rausa/4TB/SU2_Versions/SU2_v850_Develop_FixCGNSOutput/newton_krylov_refactor_20261015/mpi_tmp",
+        "OMPI_MCA_orte_tmpdir_base": "/media/rausa/4TB/SU2_Versions/SU2_v850_Develop_FixCGNSOutput/newton_krylov_refactor_20261015/mpi_tmp",
+        "OMPI_MCA_io": "romio321",
+        "OMP_WAIT_POLICY": "PASSIVE"
+      },
+      "results_sha256": "ebe5e9dbf42327b5bd9df47f881f008c767c0e7b6eb8de83cedf1aab53fc5525",
+      "commands": [
+        [
+          "mpirun",
+          "--bind-to",
+          "none",
+          "-n",
+          "1",
+          "/bin/sh",
+          "-c",
+          "exec /usr/bin/time -f '{\"max_rss_kib\":%M,\"user_seconds\":%U,\"system_seconds\":%S}' -o \"resource_rank_${OMPI_COMM_WORLD_RANK}.json\" \"$@\"",
+          "measure",
+          "/media/rausa/4TB/SU2_Versions/SU2_v850_Develop_FixCGNSOutput/newton_krylov_refactor_20261015/build/SU2_CFD/src/SU2_CFD",
+          "run.cfg"
+        ],
+        [
+          "mpirun",
+          "--bind-to",
+          "none",
+          "-n",
+          "1",
+          "/bin/sh",
+          "-c",
+          "exec /usr/bin/time -f '{\"max_rss_kib\":%M,\"user_seconds\":%U,\"system_seconds\":%S}' -o \"resource_rank_${OMPI_COMM_WORLD_RANK}.json\" \"$@\"",
+          "measure",
+          "/media/rausa/4TB/SU2_Versions/SU2_v850_Develop_FixCGNSOutput/newton_krylov_refactor_20261015/build/SU2_CFD/src/SU2_CFD",
+          "run.cfg"
+        ],
+        [
+          "mpirun",
+          "--bind-to",
+          "none",
+          "-n",
+          "1",
+          "/bin/sh",
+          "-c",
+          "exec /usr/bin/time -f '{\"max_rss_kib\":%M,\"user_seconds\":%U,\"system_seconds\":%S}' -o \"resource_rank_${OMPI_COMM_WORLD_RANK}.json\" \"$@\"",
+          "measure",
+          "/media/rausa/4TB/SU2_Versions/SU2_v850_Develop_FixCGNSOutput/newton_krylov_refactor_20261015/build/SU2_CFD/src/SU2_CFD",
+          "run.cfg"
+        ]
+      ]
+    },
+    "2x2": {
+      "binary_sha256": "1e0f119b20ed30d3ee276722f378a130fcb54c31dae7901da33f39f36de24575",
+      "reporter_sha256": "0b48736ffa7c1477f0360c607d1509bcb4e7f39c74275e1df89b14a5df23440e",
+      "runner_sha256": "88df7866aff5494e87a9c593a1a72c860449e565470024b6c9313d54ba21fafe",
+      "comparison_driver_sha256": "fb170b938067cbc0104b56c29e8d1796551abc1018e368750162c8bb5ece2b15",
+      "report_script_sha256": "990d1bee026fafe6755e23fc4584640ffd2e4c66b2bbc1822a61d6780807d114",
+      "ranks": 2,
+      "threads": 2,
+      "dimensions": 3,
+      "case": "3D pipe sector with 30-degree rotation and axis nodes",
+      "limits": "Coarse laminar sector with one circumferential cell. FLOW is one group in both Newton modes; this does not qualify turbulent axis endpoints, mesh accuracy or general speedup.",
+      "quantity_relative_tolerance": 1e-06,
+      "quantity_absolute_tolerance": {
+        "moment_z": 1e-12
+      },
+      "input_sha256": {
+        "/media/rausa/4TB/SU2_Versions/SU2_v850_Develop_FixCGNSOutput/scalar_limiter_sst_globalization_20261015/source/TestCases/navierstokes/periodic3D_axis/wedge.su2": "a680deb882416f08c9b9f794c6a42ee2e2d7c2e188d644c31cb8fb68c2160a7d",
+        "/media/rausa/4TB/SU2_Versions/SU2_v850_Develop_FixCGNSOutput/scalar_limiter_sst_globalization_20261015/source/TestCases/navierstokes/periodic3D_axis/config.cfg": "2b9a7535e05b3949309c57e694a6efe8e7411eb89bfbab5294651a0347e92381"
+      },
+      "environment": {
+        "TMPDIR": "/media/rausa/4TB/SU2_Versions/SU2_v850_Develop_FixCGNSOutput/newton_krylov_refactor_20261015/mpi_tmp",
+        "OMPI_MCA_orte_tmpdir_base": "/media/rausa/4TB/SU2_Versions/SU2_v850_Develop_FixCGNSOutput/newton_krylov_refactor_20261015/mpi_tmp",
+        "OMPI_MCA_io": "romio321",
+        "OMP_WAIT_POLICY": "PASSIVE"
+      },
+      "results_sha256": "813a744007f50ec14179e57332945e5b1f2b1b4a634941e119465af4f37674d8",
+      "commands": [
+        [
+          "mpirun",
+          "--bind-to",
+          "none",
+          "-n",
+          "2",
+          "/bin/sh",
+          "-c",
+          "exec /usr/bin/time -f '{\"max_rss_kib\":%M,\"user_seconds\":%U,\"system_seconds\":%S}' -o \"resource_rank_${OMPI_COMM_WORLD_RANK}.json\" \"$@\"",
+          "measure",
+          "/media/rausa/4TB/SU2_Versions/SU2_v850_Develop_FixCGNSOutput/newton_krylov_refactor_20261015/build/SU2_CFD/src/SU2_CFD",
+          "run.cfg"
+        ],
+        [
+          "mpirun",
+          "--bind-to",
+          "none",
+          "-n",
+          "2",
+          "/bin/sh",
+          "-c",
+          "exec /usr/bin/time -f '{\"max_rss_kib\":%M,\"user_seconds\":%U,\"system_seconds\":%S}' -o \"resource_rank_${OMPI_COMM_WORLD_RANK}.json\" \"$@\"",
+          "measure",
+          "/media/rausa/4TB/SU2_Versions/SU2_v850_Develop_FixCGNSOutput/newton_krylov_refactor_20261015/build/SU2_CFD/src/SU2_CFD",
+          "run.cfg"
+        ],
+        [
+          "mpirun",
+          "--bind-to",
+          "none",
+          "-n",
+          "2",
+          "/bin/sh",
+          "-c",
+          "exec /usr/bin/time -f '{\"max_rss_kib\":%M,\"user_seconds\":%U,\"system_seconds\":%S}' -o \"resource_rank_${OMPI_COMM_WORLD_RANK}.json\" \"$@\"",
+          "measure",
+          "/media/rausa/4TB/SU2_Versions/SU2_v850_Develop_FixCGNSOutput/newton_krylov_refactor_20261015/build/SU2_CFD/src/SU2_CFD",
+          "run.cfg"
+        ]
+      ]
+    }
+  },
+  "endpoint_checks": {
+    "comparisons": [
+      {
+        "mode": "native",
+        "updates": 1319,
+        "wall_seconds": 13.353887181030586,
+        "max_rank_rss_kib": 26636,
+        "outer_krylov_iterations": 100353,
+        "inner_krylov_iterations": 0,
+        "residual_assemblies": {
+          "flow": 1319
+        },
+        "state_difference_from_native": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "quantity_difference_from_native": {
+          "mass": 0.0,
+          "drag": 0.0,
+          "lift": 0.0,
+          "moment_z": 0.0,
+          "heat_flux": 0.0
+        },
+        "physical": {
+          "points": 187,
+          "systems": {
+            "flow": {
+              "rms": [
+                2.1893233688691733e-14,
+                9.812760356738372e-15,
+                3.70658549272555e-15,
+                3.118058765824057e-13,
+                9.739106862717612e-13
+              ],
+              "maximum": [
+                5.872472647050486e-14,
+                2.3303809067091075e-14,
+                1.1657341758564144e-14,
+                5.307143613464405e-13,
+                3.3347213879153514e-12
+              ],
+              "normalized_rms": [
+                2.1656013089895074e-14,
+                9.688125069676913e-15,
+                3.659507948438222e-15,
+                3.0808229314803733e-13,
+                2.1534197996503133e-14
+              ],
+              "projection_max": [
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "packed_integral": [
+                0.5058804124152295,
+                -0.0015061323241692959,
+                -0.00040356693995296004,
+                0.17061341043810688,
+                22.59369158825527
+              ]
+            }
+          },
+          "quantities": {
+            "mass": 0.5058804124152295,
+            "drag": 0.0396113177439911,
+            "lift": -0.3791354918913051,
+            "moment_z": 5.232817082206562e-16,
+            "heat_flux": 0
+          }
+        },
+        "layout": "1x1",
+        "periodic_pairs": 88,
+        "axis_points": 11,
+        "periodic_state_relative": [
+          0.0,
+          1.1506054023377609e-16,
+          1.1506054023383698e-16,
+          0.0,
+          0.0
+        ],
+        "axis_transverse_relative": [
+          2.1716286368869058e-31,
+          4.1543042918900165e-31
+        ],
+        "results_sha256": "ebe5e9dbf42327b5bd9df47f881f008c767c0e7b6eb8de83cedf1aab53fc5525"
+      },
+      {
+        "mode": "segregated",
+        "updates": 14,
+        "wall_seconds": 0.6676899989834055,
+        "max_rank_rss_kib": 26592,
+        "outer_krylov_iterations": 375,
+        "inner_krylov_iterations": 0,
+        "residual_assemblies": {
+          "flow": 502
+        },
+        "state_difference_from_native": [
+          2.793102382460716e-11,
+          1.439044687501722e-09,
+          1.4305407930948813e-09,
+          1.3556398187113249e-09,
+          7.130464473817411e-12
+        ],
+        "quantity_difference_from_native": {
+          "mass": 9.03531364371159e-12,
+          "drag": 4.5247545642996045e-10,
+          "lift": 3.704781622316574e-10,
+          "moment_z": 2.6952432527569542e-08,
+          "heat_flux": 0.0
+        },
+        "physical": {
+          "points": 187,
+          "systems": {
+            "flow": {
+              "rms": [
+                4.834833022751075e-15,
+                4.680659604640158e-15,
+                4.085105880169276e-15,
+                6.01700299034104e-14,
+                1.1866077678975923e-13
+              ],
+              "maximum": [
+                1.648695203273403e-14,
+                1.4893476997914866e-14,
+                1.4960255256823984e-14,
+                9.655562473900154e-14,
+                5.101682964969712e-13
+              ],
+              "normalized_rms": [
+                4.785282337214039e-15,
+                4.627484103406956e-15,
+                4.037064872548302e-15,
+                5.945851340703126e-14,
+                2.62522542893117e-15
+              ],
+              "projection_max": [
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "packed_integral": [
+                0.5058804124198003,
+                -0.0015061323204017079,
+                -0.00040356693908084304,
+                0.1706134103160786,
+                22.593691588288536
+              ]
+            }
+          },
+          "quantities": {
+            "mass": 0.5058804124198003,
+            "drag": 0.03961131772606795,
+            "lift": -0.3791354920317665,
+            "moment_z": -2.6429150819348886e-14,
+            "heat_flux": 0
+          }
+        },
+        "layout": "1x1",
+        "periodic_pairs": 88,
+        "axis_points": 11,
+        "periodic_state_relative": [
+          0.0,
+          1.1506054038586583e-16,
+          1.1506054038472556e-16,
+          0.0,
+          0.0
+        ],
+        "axis_transverse_relative": [
+          3.564025826425406e-30,
+          7.56237738072735e-30
+        ],
+        "results_sha256": "ebe5e9dbf42327b5bd9df47f881f008c767c0e7b6eb8de83cedf1aab53fc5525",
+        "maximum_true_defect": 0.05456695938090377,
+        "maximum_rollback_error": 0.0
+      },
+      {
+        "mode": "coupled",
+        "updates": 14,
+        "wall_seconds": 0.7244742690818384,
+        "max_rank_rss_kib": 26768,
+        "outer_krylov_iterations": 375,
+        "inner_krylov_iterations": 0,
+        "residual_assemblies": {
+          "flow": 502
+        },
+        "state_difference_from_native": [
+          2.793102382460716e-11,
+          1.439044687501722e-09,
+          1.4305407930948813e-09,
+          1.3556398187113249e-09,
+          7.130464473817411e-12
+        ],
+        "quantity_difference_from_native": {
+          "mass": 9.03531364371159e-12,
+          "drag": 4.5247545642996045e-10,
+          "lift": 3.704781622316574e-10,
+          "moment_z": 2.6952432527569542e-08,
+          "heat_flux": 0.0
+        },
+        "physical": {
+          "points": 187,
+          "systems": {
+            "flow": {
+              "rms": [
+                4.834833022751075e-15,
+                4.680659604640158e-15,
+                4.085105880169276e-15,
+                6.01700299034104e-14,
+                1.1866077678975923e-13
+              ],
+              "maximum": [
+                1.648695203273403e-14,
+                1.4893476997914866e-14,
+                1.4960255256823984e-14,
+                9.655562473900154e-14,
+                5.101682964969712e-13
+              ],
+              "normalized_rms": [
+                4.785282337214039e-15,
+                4.627484103406956e-15,
+                4.037064872548302e-15,
+                5.945851340703126e-14,
+                2.62522542893117e-15
+              ],
+              "projection_max": [
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "packed_integral": [
+                0.5058804124198003,
+                -0.0015061323204017079,
+                -0.00040356693908084304,
+                0.1706134103160786,
+                22.593691588288536
+              ]
+            }
+          },
+          "quantities": {
+            "mass": 0.5058804124198003,
+            "drag": 0.03961131772606795,
+            "lift": -0.3791354920317665,
+            "moment_z": -2.6429150819348886e-14,
+            "heat_flux": 0
+          }
+        },
+        "layout": "1x1",
+        "periodic_pairs": 88,
+        "axis_points": 11,
+        "periodic_state_relative": [
+          0.0,
+          1.1506054038586583e-16,
+          1.1506054038472556e-16,
+          0.0,
+          0.0
+        ],
+        "axis_transverse_relative": [
+          3.564025826425406e-30,
+          7.56237738072735e-30
+        ],
+        "results_sha256": "ebe5e9dbf42327b5bd9df47f881f008c767c0e7b6eb8de83cedf1aab53fc5525",
+        "maximum_true_defect": 0.05456695938090377,
+        "maximum_rollback_error": 0.0
+      },
+      {
+        "mode": "native",
+        "updates": 1319,
+        "wall_seconds": 16.949760146904737,
+        "max_rank_rss_kib": 25876,
+        "outer_krylov_iterations": 105519,
+        "inner_krylov_iterations": 0,
+        "residual_assemblies": {
+          "flow": 1319
+        },
+        "state_difference_from_native": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "quantity_difference_from_native": {
+          "mass": 0.0,
+          "drag": 0.0,
+          "lift": 0.0,
+          "moment_z": 0.0,
+          "heat_flux": 0.0
+        },
+        "physical": {
+          "points": 187,
+          "systems": {
+            "flow": {
+              "rms": [
+                2.1892822646078172e-14,
+                9.815752068346671e-15,
+                3.7085984287982026e-15,
+                3.1180415562473493e-13,
+                9.738665935857118e-13
+              ],
+              "maximum": [
+                5.871865493833894e-14,
+                2.3609120398862993e-14,
+                1.176836406102666e-14,
+                5.304923167415154e-13,
+                3.3319458303537886e-12
+              ],
+              "normalized_rms": [
+                2.165562106812984e-14,
+                9.6911063743882e-15,
+                3.661502775345187e-15,
+                3.080806315796689e-13,
+                2.1533237364537302e-14
+              ],
+              "projection_max": [
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "packed_integral": [
+                0.5058804124152296,
+                -0.001506132324169381,
+                -0.000403566939952879,
+                0.17061341043810774,
+                22.593691588255247
+              ]
+            }
+          },
+          "quantities": {
+            "mass": 0.5058804124152296,
+            "drag": 0.03961131774399116,
+            "lift": -0.37913549189129936,
+            "moment_z": 5.453875740780989e-16,
+            "heat_flux": 0
+          }
+        },
+        "layout": "2x2",
+        "periodic_pairs": 88,
+        "axis_points": 11,
+        "periodic_state_relative": [
+          0.0,
+          1.1506054023378102e-16,
+          1.1506054023383123e-16,
+          0.0,
+          0.0
+        ],
+        "axis_transverse_relative": [
+          1.916142914900293e-31,
+          3.8642215450506113e-31
+        ],
+        "results_sha256": "813a744007f50ec14179e57332945e5b1f2b1b4a634941e119465af4f37674d8"
+      },
+      {
+        "mode": "segregated",
+        "updates": 14,
+        "wall_seconds": 1.0708960701012984,
+        "max_rank_rss_kib": 26496,
+        "outer_krylov_iterations": 574,
+        "inner_krylov_iterations": 0,
+        "residual_assemblies": {
+          "flow": 701
+        },
+        "state_difference_from_native": [
+          3.7105695148473315e-11,
+          1.543772791222571e-09,
+          1.5575254022946936e-09,
+          1.678926026498743e-09,
+          9.122461275973354e-12
+        ],
+        "quantity_difference_from_native": {
+          "mass": 7.473611144594473e-12,
+          "drag": 4.4704522122502644e-10,
+          "lift": 3.7378275045957997e-10,
+          "moment_z": 3.7397756959489875e-08,
+          "heat_flux": 0.0
+        },
+        "physical": {
+          "points": 187,
+          "systems": {
+            "flow": {
+              "rms": [
+                7.670674578595732e-15,
+                6.915863269197692e-15,
+                4.0706451147344e-15,
+                5.901742563354574e-14,
+                2.567038358779204e-13
+              ],
+              "maximum": [
+                4.3333845584761143e-14,
+                2.5027047005739818e-14,
+                1.584843367652411e-14,
+                9.492987247520547e-14,
+                1.946262595531323e-12
+              ],
+              "normalized_rms": [
+                7.585437176216074e-15,
+                6.830356718431502e-15,
+                4.02299604131222e-15,
+                5.83145277391844e-14,
+                5.676355324024684e-15
+              ],
+              "projection_max": [
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "packed_integral": [
+                0.5058804124190104,
+                -0.0015061323204190419,
+                -0.00040356693886910595,
+                0.17061341030844096,
+                22.59369158828586
+              ]
+            }
+          },
+          "quantities": {
+            "mass": 0.5058804124190104,
+            "drag": 0.03961131772628311,
+            "lift": -0.37913549203301367,
+            "moment_z": 3.7943144533567974e-14,
+            "heat_flux": 0
+          }
+        },
+        "layout": "2x2",
+        "periodic_pairs": 88,
+        "axis_points": 11,
+        "periodic_state_relative": [
+          0.0,
+          1.1506054039510199e-16,
+          1.150605403962226e-16,
+          0.0,
+          0.0
+        ],
+        "axis_transverse_relative": [
+          3.4235086794217974e-30,
+          1.4034682347617152e-29
+        ],
+        "results_sha256": "813a744007f50ec14179e57332945e5b1f2b1b4a634941e119465af4f37674d8",
+        "maximum_true_defect": 0.043209005472716736,
+        "maximum_rollback_error": 0.0
+      },
+      {
+        "mode": "coupled",
+        "updates": 14,
+        "wall_seconds": 1.068261799053289,
+        "max_rank_rss_kib": 26324,
+        "outer_krylov_iterations": 574,
+        "inner_krylov_iterations": 0,
+        "residual_assemblies": {
+          "flow": 701
+        },
+        "state_difference_from_native": [
+          3.7105695148473315e-11,
+          1.543772791222571e-09,
+          1.5575254022946936e-09,
+          1.678926026498743e-09,
+          9.122461275973354e-12
+        ],
+        "quantity_difference_from_native": {
+          "mass": 7.473611144594473e-12,
+          "drag": 4.4704522122502644e-10,
+          "lift": 3.7378275045957997e-10,
+          "moment_z": 3.7397756959489875e-08,
+          "heat_flux": 0.0
+        },
+        "physical": {
+          "points": 187,
+          "systems": {
+            "flow": {
+              "rms": [
+                7.670674578595732e-15,
+                6.915863269197692e-15,
+                4.0706451147344e-15,
+                5.901742563354574e-14,
+                2.567038358779204e-13
+              ],
+              "maximum": [
+                4.3333845584761143e-14,
+                2.5027047005739818e-14,
+                1.584843367652411e-14,
+                9.492987247520547e-14,
+                1.946262595531323e-12
+              ],
+              "normalized_rms": [
+                7.585437176216074e-15,
+                6.830356718431502e-15,
+                4.02299604131222e-15,
+                5.83145277391844e-14,
+                5.676355324024684e-15
+              ],
+              "projection_max": [
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "packed_integral": [
+                0.5058804124190104,
+                -0.0015061323204190419,
+                -0.00040356693886910595,
+                0.17061341030844096,
+                22.59369158828586
+              ]
+            }
+          },
+          "quantities": {
+            "mass": 0.5058804124190104,
+            "drag": 0.03961131772628311,
+            "lift": -0.37913549203301367,
+            "moment_z": 3.7943144533567974e-14,
+            "heat_flux": 0
+          }
+        },
+        "layout": "2x2",
+        "periodic_pairs": 88,
+        "axis_points": 11,
+        "periodic_state_relative": [
+          0.0,
+          1.1506054039510199e-16,
+          1.150605403962226e-16,
+          0.0,
+          0.0
+        ],
+        "axis_transverse_relative": [
+          3.4235086794217974e-30,
+          1.4034682347617152e-29
+        ],
+        "results_sha256": "813a744007f50ec14179e57332945e5b1f2b1b4a634941e119465af4f37674d8",
+        "maximum_true_defect": 0.043209005472716736,
+        "maximum_rollback_error": 0.0
+      }
+    ],
+    "cross_layout": {
+      "native": [
+        8.748196733126249e-16,
+        1.2567487507034193e-13,
+        4.667043741182558e-13,
+        1.670594229163523e-14,
+        4.702542025863886e-16
+      ],
+      "segregated": [
+        3.797154791999565e-11,
+        4.537853379637648e-10,
+        7.082287499441598e-10,
+        8.021923484669409e-10,
+        1.4441036307181851e-11
+      ],
+      "coupled": [
+        3.797154791999565e-11,
+        4.537853379637648e-10,
+        7.082287499441598e-10,
+        8.021923484669409e-10,
+        1.4441036307181851e-11
+      ]
+    }
+  },
+  "quantity_accuracy": {
+    "relative": 1e-06,
+    "absolute": {
+      "moment_z": 1e-12
+    },
+    "reason": "No imposed swirl: axial torque is a symmetry-zero output. Other quantities and state limits are unchanged.",
+    "previous_default_compatibility": [
+      {
+        "directory": "periodic_flatplate_sa_strict_1x1",
+        "mode": "native",
+        "identical_errors": true
+      },
+      {
+        "directory": "periodic_flatplate_sa_strict_1x1",
+        "mode": "segregated",
+        "identical_errors": true
+      },
+      {
+        "directory": "periodic_flatplate_sa_strict_1x1",
+        "mode": "coupled",
+        "identical_errors": true
+      },
+      {
+        "directory": "periodic_flatplate_sa_strict_2x2",
+        "mode": "native",
+        "identical_errors": true
+      },
+      {
+        "directory": "periodic_flatplate_sa_strict_2x2",
+        "mode": "segregated",
+        "identical_errors": true
+      },
+      {
+        "directory": "periodic_flatplate_sa_strict_2x2",
+        "mode": "coupled",
+        "identical_errors": true
+      },
+      {
+        "directory": "periodic_flatplate_lm_strict_1x1",
+        "mode": "native",
+        "identical_errors": true
+      },
+      {
+        "directory": "periodic_flatplate_lm_strict_1x1",
+        "mode": "segregated",
+        "identical_errors": true
+      },
+      {
+        "directory": "periodic_flatplate_lm_strict_1x1",
+        "mode": "coupled",
+        "identical_errors": true
+      },
+      {
+        "directory": "periodic_flatplate_lm_strict_2x2",
+        "mode": "native",
+        "identical_errors": true
+      },
+      {
+        "directory": "periodic_flatplate_lm_strict_2x2",
+        "mode": "segregated",
+        "identical_errors": true
+      },
+      {
+        "directory": "periodic_flatplate_lm_strict_2x2",
+        "mode": "coupled",
+        "identical_errors": true
+      },
+      {
+        "directory": "periodic_flatplate_2d_compatibility",
+        "mode": "native",
+        "identical_errors": true
+      },
+      {
+        "directory": "periodic_flatplate_2d_compatibility",
+        "mode": "segregated",
+        "identical_errors": true
+      },
+      {
+        "directory": "periodic_flatplate_2d_compatibility",
+        "mode": "coupled",
+        "identical_errors": true
+      }
+    ]
+  },
+  "retained_pilot": "axis_native_endpoint_pilot_1x1: 1319 native updates, independently recomputed residual limits pass; not used as a second matched timing sample.",
+  "retained_build_failure": "axis_projection_test_build.log: test-vector expression did not implicitly construct a vector; fixed with explicit copy and subtraction, rebuild passed.",
+  "limitations": [
+    "FLOW has one group in both Newton modes; these flags do not exercise multiple-block coupling.",
+    "Coarse laminar one-cell circumferential mesh: turbulent axis endpoints and spatial accuracy are not qualified.",
+    "Newton adapts CFL while native retains CFL10; single launch-inclusive wall times do not establish general speedup.",
+    "No production-source changes; existing forward syntax checks remain applicable. AD runtime, reverse, mixed precision and GPU are unqualified.",
+    "Three earlier periodic finite-iteration reference mismatches remain open; this endpoint does not update their golden values."
+  ],
+  "archive": "periodic_axis_88df7866aff5"
+}

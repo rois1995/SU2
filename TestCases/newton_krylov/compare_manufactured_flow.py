@@ -76,6 +76,18 @@ def state(path, expected_variables=6, expected_points=81, dimensions=2):
     return fields, solution
 
 
+def quantity_differences(actual, reference, relative_tolerance, absolute_tolerance=None):
+    """Normalize quantity errors, retaining explicit absolute accuracy for symmetry-zero outputs."""
+    absolute_tolerance = absolute_tolerance or {}
+    assert math.isfinite(relative_tolerance) and relative_tolerance > 0
+    assert actual.keys() == reference.keys() and absolute_tolerance.keys() <= reference.keys()
+    assert all(math.isfinite(v) and v >= 0 for v in absolute_tolerance.values())
+    assert all(math.isfinite(v) for values in [actual, reference] for v in values.values())
+    return {key: abs(value - reference[key]) /
+            max(abs(reference[key]), 1e-12, absolute_tolerance.get(key, 0) / relative_tolerance)
+            for key, value in actual.items()}
+
+
 def main(case=MMS_CASE):
     parser = argparse.ArgumentParser(description=case['name'])
     parser.add_argument('--binary', required=True, type=Path)
@@ -94,6 +106,8 @@ def main(case=MMS_CASE):
               'report_script_sha256': sha(Path(__file__).with_name('report_state.py')),
               'ranks': args.ranks, 'threads': args.threads, 'dimensions': case.get('dimensions', 2),
               'case': case['name'], 'limits': case['limits'], 'runs': [],
+              'quantity_relative_tolerance': case['quantity_tolerance'],
+              'quantity_absolute_tolerance': case.get('quantity_absolute_tolerance', {}),
               'input_sha256': case.get('input_sha256', {}),
               'environment': {key: os.environ[key] for key in
                               ['TMPDIR', 'OMPI_MCA_orte_tmpdir_base', 'OMPI_MCA_io', 'OMP_WAIT_POLICY']
@@ -235,8 +249,8 @@ def main(case=MMS_CASE):
         run['state_difference_from_native'] = [max(abs(solution[p][v] - reference[1][p][v]) for p in solution) /
             max(abs(reference[1][p][v]) for p in solution) for v in range(variables)]
         assert max(run['state_difference_from_native']) <= case['state_tolerance']
-        run['quantity_difference_from_native'] = {key: abs(value - reference_quantities[key]) /
-            max(abs(reference_quantities[key]), 1e-12) for key, value in report['quantities'].items()}
+        run['quantity_difference_from_native'] = quantity_differences(report['quantities'], reference_quantities,
+            case['quantity_tolerance'], case.get('quantity_absolute_tolerance'))
         assert max(run['quantity_difference_from_native'].values()) <= case['quantity_tolerance']
         run['evidence_sha256'] = {str(p.relative_to(output)): sha(p) for p in sorted(directory.iterdir()) if p.is_file()}
         run['report_manifest_sha256'] = sha(destination / 'manifest.json')
