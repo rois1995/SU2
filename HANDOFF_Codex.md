@@ -52,13 +52,31 @@ Band-first geometry alone fits1192 points but fails the independent normal integ
 local/global low-order density variants and default positive-tetrahedron work also
 fail their unchanged accuracy/work gates and are archived. The connected replacement
 is face-to-vertex (Duffy) ray columns sharing the qualified hidden-support adaptive
-column quadrature. Build PASS;7 focused cases/601990 assertions PASS. M6 cell13
-uses1419 points and independently passes normal-density error1.59272e-4 (<5e-4).
-This is not full tensor-density or whole remeshing proof. The supported saved-state
-M6 event is live session51673: ONE initial CFD iteration from the120-step restart
-(zero initial is blocked by contradictory unused-adjoint config checks), one
-follow-up only if accepted. Three configuration-only failures remain preserved.
-Read-only user-authorized Claude Opus5.5/high review is live session83342; no edits.
+column quadrature. Published14e59d4c68 passes7 cases/601990 assertions and cell13
+normal reference at1419 points; this does not prove full density. Whole saved-state
+M6 event TERMINAL FAILED: elected cell22 radial depth32, rank0 cell32 radial work.
+No remesher/candidate/transfer. Actual raw sensors were not recovered before exit;
+failed passive capture remains saved. Full unit-sensor/native-oriented-wall cell22
+reproduces depth failure in.008s (no CFD sensor needed). Independent eigenvalues
+confirm a real density/normal jump across an interval1.33e-10 wide. The old local
+relative test cannot converge across that jump; its already accumulated ray mass
+is.554 while the unresolved integral is6.6e-12.
+Current connected implementation replaces interval-relative recursion with a
+ray-total error priority queue, retaining positive3/5/7 stages and existing limits.
+Build10003 terminal PASS. Actual full-unit cell22/32 now complete5460/24890
+points. One affected batch passes7 cases/578415 assertions; original cell13 uses1335
+points. Independent ray16/24 same-chart references agree1.223e-7 relative; native cell13
+error1.55083e-4 passes5e-4 pilot but exceeds nominal1e-4 indicator (not a bound).
+Other3 apex checks live job72066 sequentially,1 core/nice19/240s per case/resume.
+Diagnostic build89213 terminal PASS; tested controller object unchanged and caller
+source differs from14e59 ONLY in failure text. New numeric failure record has not
+yet been exercised at runtime. No owned CFD/build. Failure22/32 input-neighborhood
+VTUs and exact terminal failure/review/root-cause receipts are saved. Full tensor/
+actual CFD sensors/full-M6 mesh acceptance remain unproven.
+Opus5.5/high read-only review COMPLETE, model confirmed/no nested agents/denials.
+It supports the chart but flags error-estimator/reference/ray-cache/cost gaps;
+its recommendations are advisory, not correctness evidence. In particular, keeping
+higher order is not automatically a rigorous bound for discontinuous fields.
 Do not call any of this an accepted M6 mesh or full Goal3 completion.
 [Current M6 integration source/evidence/live state](Handbook/GOAL3_M6_THIN_INTEGRATION.md),
 [actual M6 run and inspectable files](Handbook/GOAL3_ONERA_M6.md).

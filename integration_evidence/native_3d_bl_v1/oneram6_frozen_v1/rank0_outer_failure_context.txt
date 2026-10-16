@@ -1,0 +1,102 @@
+[New LWP 3168906]
+[New LWP 3168907]
+[Thread debugging using libthread_db enabled]
+Using host libthread_db library "/lib/x86_64-linux-gnu/libthread_db.so.1".
+0x00007f3de151271b in sched_yield () at ../sysdeps/unix/syscall-template.S:78
+78	../sysdeps/unix/syscall-template.S: No such file or directory.
+#10 0x00005596286a84f3 in CSolver::ComputeMetric (this=this@entry=0x559645147820, geometry=<optimized out>, geometry@entry=0x559644d1ebd0, config=<optimized out>, config@entry=0x559642756e80, givenMetric=givenMetric@entry=0x0, boundaryLayer=<optimized out>, nativeReference=<optimized out>, nativeReference3D=0x5596449ee730) at ../../SU2_CFD/src/solvers/CSolver.cpp:3235
+3235	  solveGlobalFactor(logScale, error, bracketed);
+$1 = 0.056676963474793819
+$2 = std::vector of length 15953, capacity 15953 = {{m = {...}}, {m = {...}}...}
+$3 = std::vector of length 74871, capacity 131072 = {{nodes = {...}, coordinates = {...}, global_cell = 1, points = {...}, sensor = {...}, core = 0.056676963474793819, sensorDependent = true}, {nodes = {...}, coordinates = {...}, global_cell = 5, points = {...}, sensor = {...}, core = 0.056676963474793819, sensorDependent = true}...}
+$4 = (CSolver * const) 0x559645147820
+profile = {enabled = true, stage = 0x55962944a455 "me"..., begin = 10.621966068999999, now = 11.22343394, cpu = 8525606, current_cpu = 9074883, phases = {_M_elems = {...}}, cpus = {_M_elems = {...}}}
+nSensor = 2
+p = 1
+eigMax = 1000000000000
+eigMin = 0.0001
+arMax2 = 1000000000000
+complexity = 100000
+nativeMetric = true
+geometricBL = true
+localHessianScale = std::vector of length 2, capacity 2 = {12378.818894109989, 8200292216.8283091...}
+hessianScale = std::vector of length 2, capacity 2 = {3769864.1018337333, 10886498832713420...}
+absHessian = {__this = 0x559645147820, __hessianScale = std::vector of length 2, capacity 2 = {3769864.1018337333, 10886498832713420...}}
+determinant = {__this = 0x559645147820}
+localScale = std::vector of length 2, capacity 2 = {0, 0...}
+globalScale = std::vector of length 2, capacity 2 = {0.0096499454816086679, 0.00052733956572493981...}
+__PRETTY_FUNCTION__ = "vo"...
+sensorMetric = {__absHessian = @0x7fff7f768680, __complexity = @0x7fff7f768558, __globalScale = std::vector of length 2, capacity 2 = {0.0096499454816086679, 0.00052733956572493981...}, __this = 0x559645147820, __determinant = @0x7fff7f768560, __p = @0x7fff7f768538}
+unboundedMetric = {__givenMetric = <synthetic pointer><error reading variable>, __this = 0x559645147820, __nSensor = <synthetic pointer><error reading variable>, __sensorMetric = @0x7fff7f7689b0}
+boundEigenvalues = {__this = 0x559645147820, __eigMin = @0x7fff7f768548, __eigMax = @0x7fff7f768540, __arMax2 = @0x7fff7f768550}
+eigenvalues = std::vector of length 45096, capacity 45096 = {0.13140334735294279, 0.13140334735294279...}
+blFrames = std::vector of length 15032, capacity 15032 = {{m = {...}}, {m = {...}}...}
+blMetric = std::vector of length 15953, capacity 15953 = {{m = {...}}, {m = {...}}...}
+geometryStart = <optimized out>
+nativeLayers = std::shared_ptr<CBoundaryLayerMetric> (use count 1, weak count 0) = {get() = 0x559648ca7ac0}
+integration = std::vector of length 0, capacity 0
+localQuadraturePoints = 4501
+integration3D = std::vector of length 74871, capacity 131072 = {{nodes = {...}, coordinates = {...}, global_cell = 1, points = {...}, sensor = {...}, core = 0.056676963474793819, sensorDependent = true}, {nodes = {...}, coordinates = {...}, global_cell = 5, points = {...}, sensor = {...}, core = 0.056676963474793819, sensorDependent = true}...}
+quadratureFailure = {severity = 0, gid = 18446744073709551615, message = ""}
+quadratureCell = <optimized out>
+quadratureContext = "Na"...
+localGeometryTime = 0.51445719000000167
+geometryTime = 0.51445719000000167
+quadraturePoints = 0
+frozenCore = 0.056676963474793819
+integratedComplexity = 0
+quadratureSeconds = 9.4711069120000033
+quadratureBuilds = 10
+quadratureReused = 0
+syncSensor = {__this = 0x559645147820, __blMetric = std::vector of length 15953, capacity 15953 = {{...}, {...}...}, __geometry = @0x7fff7f768528, __config = @0x7fff7f768520}
+density = {__this = 0x559645147820, __determinant = @0x7fff7f768560}
+metricNeighbors = std::vector of length 15032, capacity 15032 = {std::vector of length 6, capacity 6 = {19, 1...}, std::vector of length 8, capacity 8 = {0, 2...}...}
+previous = std::vector of length 15953, capacity 15953 = {{m = {...}}, {m = {...}}...}
+inverse = std::vector of length 15032, capacity 15032 = {{m = {...}}, {m = {...}}...}
+changed = std::vector<bool> of length 15032, capacity 15040 = {false, false...}
+sourceChanged = std::vector<bool> of length 15953, capacity 16000 = {false, false...}
+gradationConverged = true
+gradationSweeps = 120
+gradationViolation = 1
+complexityTrials = 1
+totalGradationSweeps = 120
+totalGradedPoints = 179939
+totalTensorUpdates = 85466
+gradationSeconds = 13.033351884
+haloSeconds = 0.67524441399999446
+reductionSeconds = 9.2162835020000351
+gradeNativeMetric = {__config = @0x7fff7f768520, __gradationConverged = @0x7fff7f768532, __totalGradationSweeps = @0x7fff7f7685b8, __this = 0x559645147820, __blMetric = std::vector of length 15953, capacity 15953 = {{...}, {...}...}, __geometry = @0x7fff7f768528, __haloSeconds = @0x7fff7f7685d8, __sourceChanged = std::vector<bool> of length 15953, capacity 16000 = {false, false...}, __previous = std::vector of length 15953, capacity 15953 = {{...}, {...}...}, __changed = std::vector<bool> of length 15032, capacity 15040 = {false, false...}, __metricNeighbors = std::vector of length 15032, capacity 15032 = {{...}, {...}...}, __totalGradedPoints = @0x7fff7f7685c0, __inverse = std::vector of length 15032, capacity 15032 = {{...}, {...}...}, __totalTensorUpdates = @0x7fff7f7685c8, __boundEigenvalues = @0x7fff7f768910, __reductionSeconds = @0x7fff7f7685e0, __gradationSweeps = @0x7fff7f768534, __gradationSeconds = @0x7fff7f7685d0}
+evaluatedLogScale = nan(0x8000000000000)
+complexityError = {__complexityTrials = @0x7fff7f7685b0, __this = 0x559645147820, __eigenvalues = std::vector of length 45096, capacity 45096 = {0.13140334735294279, 0.13140334735294279...}, __boundEigenvalues = @0x7fff7f768910, __nativeMetric = @0x7fff7f768531, __blMetric = std::vector of length 15953, capacity 15953 = {{...}, {...}...}, __blFrames = std::vector of length 15032, capacity 15032 = {{...}, {...}...}, __determinant = @0x7fff7f768560, __geometry = @0x7fff7f768528, __gradeNativeMetric = @0x7fff7f768ac0, __syncSensor = @0x7fff7f768930, __frozenCore = @0x7fff7f768588, __nativeLayers = std::shared_ptr<CBoundaryLayerMetric> (use count 1, weak count 0) = {get() = 0x559648ca7ac0}, __density = @0x7fff7f7686c0, __integration = std::vector of length 0, capacity 0, __localQuadraturePoints = @0x7fff7f768568, __integration3D = std::vector of length 74871, capacity 131072 = {{...}, {...}...}, __quadratureReused = @0x7fff7f7685a8, __quadratureBuilds = @0x7fff7f7685a0, __quadratureSeconds = @0x7fff7f768598, __integratedComplexity = @0x7fff7f768590, __evaluatedLogScale = @0x7fff7f7685e8, __complexity = @0x7fff7f768558}
+tol = 9.9999999999999995e-07
+solveGlobalFactor = {__this = 0x559645147820, __eigenvalues = std::vector of length 45096, capacity 45096 = {0.13140334735294279, 0.13140334735294279...}, __determinant = @0x7fff7f768560, __geometry = @0x7fff7f768528, __eigMin = @0x7fff7f768548, __eigMax = @0x7fff7f768540, __nativeMetric = @0x7fff7f768531, __complexity = @0x7fff7f768558, __tol = @0x7fff7f7685f0, __complexityError = @0x7fff7f768b50}
+logScale = -0.47810758149935007
+error = 0
+bracketed = true
+isoEigenvalue = std::vector of length -17591916482790, capacity 6 = {4.649353946666217e-310, 4.6493539466670075e-310...}
+nCorner = 94103959816820
+nIsoPoint = 94103959816820
+composedViolation = <optimized out>
+sensorBadEdges = <optimized out>
+composedBadEdges = <optimized out>
+scale = <optimized out>
+localMinDensity = 1.0609978957593129e-312
+localMaxDensity = 4.6493535816939956e-310
+localMaxAR = 4.6493536079190001e-310
+localComplexity = 4.6493536079190001e-310
+localCoreComplexity = 6.9121636279312006e-310
+minDensity = 4.6493530834726648e-310
+maxDensity = 4.6493530939626666e-310
+maxAR = 4.6493530939626666e-310
+totComplexity = 0
+coreComplexity = 4.649352972462043e-310
+workLocal = {0, 6.912162639834197e-310...}
+workGlobal = {4.9406564584124654e-324, 6.9532492630227425e-310...}
+globalGradedPoints = <optimized out>
+globalTensorUpdates = <optimized out>
+globalQuadratureSeconds = 4.6493529843449147e-310
+quadratureCounts = {0, 140735331864320}
+globalQuadratureCounts = {0, 94103847743128}
+detail = Python Exception <class 'OverflowError'> int too big to convert: 
+
+[Inferior 1 (process 3168903) detached]

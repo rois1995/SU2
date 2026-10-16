@@ -1,0 +1,79 @@
+[New LWP 3168906]
+[New LWP 3168907]
+[Thread debugging using libthread_db enabled]
+Using host libthread_db library "/lib/x86_64-linux-gnu/libthread_db.so.1".
+0x00007f3de151271b in sched_yield () at ../sysdeps/unix/syscall-template.S:78
+78	../sysdeps/unix/syscall-template.S: No such file or directory.
+#0  0x00007f3de151271b in sched_yield () at ../sysdeps/unix/syscall-template.S:78
+#1  0x00007f3de19de905 in ompi_request_default_wait () from /lib/x86_64-linux-gnu/libmpi.so.40
+#2  0x00007f3de1a3883c in ompi_coll_base_sendrecv_actual () from /lib/x86_64-linux-gnu/libmpi.so.40
+#3  0x00007f3de1a39042 in ompi_coll_base_allreduce_intra_recursivedoubling () from /lib/x86_64-linux-gnu/libmpi.so.40
+#4  0x00007f3de19f4411 in PMPI_Allreduce () from /lib/x86_64-linux-gnu/libmpi.so.40
+#5  0x0000559628de29bb in CPassiveComm::AllreduceMax (value=..., comm=...) at ../../Common/src/parallelization/CPassiveComm.cpp:398
+#6  0x0000559628ff0b2e in ElectFailure (local=..., comm=...) at ../../Common/src/adaptation/CDistributedSearch.cpp:443
+#7  0x0000559628ff0e84 in CollectiveFailure (local=..., function=...) at ../../Common/src/adaptation/../../include/adaptation/../parallelization/mpi_structure.hpp:139
+#8  0x00005596286a5097 in CSolver::<lambda(su2double)>::operator()(su2double) const (__closure=..., logScale=...) at /usr/include/c++/9/ext/new_allocator.h:80
+#9  0x00005596286a5b9d in CSolver::<lambda(su2double&, su2double&, bool&, bool)>::operator()(su2double &, su2double &, bool &, bool) const (__closure=..., logScale=..., error=..., bracketed=..., reuseScale=...) at ../../SU2_CFD/src/solvers/CSolver.cpp:3167
+#10 0x00005596286a84f3 in CSolver::ComputeMetric (this=..., geometry=..., config=..., givenMetric=..., boundaryLayer=..., nativeReference=..., nativeReference3D=...) at ../../SU2_CFD/src/solvers/CSolver.cpp:3235
+#8  0x00005596286a5097 in CSolver::<lambda(su2double)>::operator()(su2double) const (__closure=..., logScale=...) at /usr/include/c++/9/ext/new_allocator.h:80
+80	      new_allocator() _GLIBCXX_USE_NOEXCEPT { }
+type = const struct CSolver::<lambda(su2double)> {
+    unsigned long &__complexityTrials;
+    CSolver * const __this;
+    std::vector<double> &__eigenvalues;
+    CSolver::<lambda(su2double, su2double (&)[3])> &__boundEigenvalues;
+    const bool &__nativeMetric;
+    std::vector<CBoundaryLayerMetric::Tensor> &__blMetric;
+    std::vector<CBoundaryLayerMetric::Tensor> &__blFrames;
+    CSolver::<lambda(const su2double (&)[3])> &__determinant;
+    CGeometry *&__geometry;
+    CSolver::<lambda()> &__gradeNativeMetric;
+    CSolver::<lambda()> &__syncSensor;
+    su2double &__frozenCore;
+    std::shared_ptr<CBoundaryLayerMetric> &__nativeLayers;
+    CSolver::<lambda(const CBoundaryLayerMetric::Tensor&)> &__density;
+    std::vector<CSolver::ComputeMetric(CGeometry*, const CConfig*, const std::vector<double>*, bool, const SU2NativeBoundary2D::ReferenceState*, const SU2Native3D::ReferenceState*)::CellRule, std::allocator<CSolver::ComputeMetric(CGeometry*, const CConfig*, const std::vector<double>*, bool, const SU2NativeBoundary2D::ReferenceState*, const SU2Native3D::ReferenceState*)::CellRule> > &__integration;
+    unsigned long &__localQuadraturePoints;
+    std::vector<CSolver::ComputeMetric(CGeometry*, const CConfig*, const std::vector<double>*, bool, const SU2NativeBoundary2D::ReferenceState*, const SU2Native3D::ReferenceState*)::CellRule3D, std::allocator<CSolver::ComputeMetric(CGeometry*, const CConfig*, const std::vector<double>*, bool, const SU2NativeBoundary2D::ReferenceState*, const SU2Native3D::ReferenceState*)::CellRule3D> > &__integration3D;
+    unsigned long &__quadratureReused;
+    unsigned long &__quadratureBuilds;
+    passivedouble &__quadratureSeconds;
+    su2double &__integratedComplexity;
+    su2double &__evaluatedLogScale;
+    const su2double &__complexity;
+}
+value has been optimized out
+integrationFailure = {severity = 2, gid = 32, message = "Na"...}
+integrationStart = 24.281341658999999
+quadratureBytes = <optimized out>
+accumulate = <optimized out>
+local = 0
+scale = <optimized out>
+global = 0
+localSmallest = 0.056676963474793819
+smallest = 0.023277210605331573
+complexityTrials = <optimized out>
+this = <optimized out>
+eigenvalues = <optimized out>
+boundEigenvalues = <optimized out>
+nativeMetric = <optimized out>
+blMetric = <optimized out>
+blFrames = <optimized out>
+determinant = <optimized out>
+geometry = <optimized out>
+gradeNativeMetric = <optimized out>
+syncSensor = <optimized out>
+frozenCore = <optimized out>
+nativeLayers = <optimized out>
+density = <optimized out>
+integration = <optimized out>
+localQuadraturePoints = <optimized out>
+integration3D = <optimized out>
+quadratureReused = <optimized out>
+quadratureBuilds = <optimized out>
+quadratureSeconds = <optimized out>
+__PRETTY_FUNCTION__ = "CS"...
+integratedComplexity = <optimized out>
+evaluatedLogScale = <optimized out>
+complexity = <optimized out>
+[Inferior 1 (process 3168903) detached]

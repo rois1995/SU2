@@ -1,0 +1,21 @@
+[New LWP 3168906]
+[New LWP 3168907]
+[Thread debugging using libthread_db enabled]
+Using host libthread_db library "/lib/x86_64-linux-gnu/libthread_db.so.1".
+0x00007f3de151271b in sched_yield () at ../sysdeps/unix/syscall-template.S:78
+78	../sysdeps/unix/syscall-template.S: No such file or directory.
+#0  0x00007f3de151271b in sched_yield () at ../sysdeps/unix/syscall-template.S:78
+#1  0x00007f3de19de905 in ompi_request_default_wait () from /lib/x86_64-linux-gnu/libmpi.so.40
+#2  0x00007f3de1a3883c in ompi_coll_base_sendrecv_actual () from /lib/x86_64-linux-gnu/libmpi.so.40
+#3  0x00007f3de1a39042 in ompi_coll_base_allreduce_intra_recursivedoubling () from /lib/x86_64-linux-gnu/libmpi.so.40
+#4  0x00007f3de19f4411 in PMPI_Allreduce () from /lib/x86_64-linux-gnu/libmpi.so.40
+#5  0x0000559628de29bb in CPassiveComm::AllreduceMax (value=..., comm=...) at ../../Common/src/parallelization/CPassiveComm.cpp:398
+#6  0x0000559628ff0b2e in ElectFailure (local=..., comm=...) at ../../Common/src/adaptation/CDistributedSearch.cpp:443
+#7  0x0000559628ff0e84 in CollectiveFailure (local=..., function=...) at ../../Common/src/adaptation/../../include/adaptation/../parallelization/mpi_structure.hpp:139
+#8  0x00005596286a5097 in CSolver::<lambda(su2double)>::operator()(su2double) const (__closure=..., logScale=...) at /usr/include/c++/9/ext/new_allocator.h:80
+#9  0x00005596286a5b9d in CSolver::<lambda(su2double&, su2double&, bool&, bool)>::operator()(su2double &, su2double &, bool &, bool) const (__closure=..., logScale=..., error=..., bracketed=..., reuseScale=...) at ../../SU2_CFD/src/solvers/CSolver.cpp:3167
+#10 0x00005596286a84f3 in CSolver::ComputeMetric (this=..., geometry=..., config=..., givenMetric=..., boundaryLayer=..., nativeReference=..., nativeReference3D=...) at ../../SU2_CFD/src/solvers/CSolver.cpp:3235
+#6  0x0000559628ff0b2e in ElectFailure (local=..., comm=...) at ../../Common/src/adaptation/CDistributedSearch.cpp:443
+443	  const unsigned long severity = CPassiveComm::AllreduceMax(local.severity, comm);
+$1 = (const CLocalFailure &) @0x7fff7f7681b0: {severity = 2, gid = 32, message = "Native geometric complexity cell 32: Native3D BL radial quadrature work budget exhausted: retained=18453 panels=98 cones=1 depth=4 left=0.359699 right=0.360436 high=0.000000 low=0.000000"}
+[Inferior 1 (process 3168903) detached]

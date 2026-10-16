@@ -3115,7 +3115,28 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
             if(quadratureBytes>(size_t(2)<<30))throw std::runtime_error("Native3D complexity quadrature exceeds storage budget.");
             localQuadraturePoints+=cell.points.size();
           }catch(const std::exception& error) {
-            integrationFailure.Set(2,cell.global_cell,"Native geometric complexity cell "+std::to_string(cell.global_cell)+": "+error.what());break;
+            std::ostringstream context;
+            context<<std::setprecision(17)<<"Native geometric complexity cell "<<cell.global_cell<<": "<<error.what()
+                   <<"\nNative complexity replay3D: {\"global_cell\":"<<cell.global_cell
+                   <<",\"core\":"<<SU2_TYPE::GetValue(frozenCore)<<",\"log_scale\":"<<SU2_TYPE::GetValue(logScale)
+                   <<",\"complexity_trial\":"<<complexityTrials<<",\"nodes\":[";
+            for(unsigned k=0;k<4;++k)context<<(k?",":"")<<geometry->nodes->GetGlobalIndex(cell.nodes[k]);
+            context<<"],\"coordinates\":[";
+            for(unsigned k=0;k<4;++k) {
+              context<<(k?",[":"[");for(unsigned j=0;j<3;++j)context<<(j?",":"")<<cell.coordinates[k][j];context<<"]";
+            }
+            context<<"],\"sensor\":[";
+            for(unsigned k=0;k<4;++k) {
+              context<<(k?",[":"[");
+              for(unsigned i=0;i<3;++i) {
+                context<<(i?",[":"[");
+                for(unsigned j=0;j<3;++j)context<<(j?",":"")<<SU2_TYPE::GetValue(blMetric[cell.nodes[k]].m[i][j]);
+                context<<"]";
+              }
+              context<<"]";
+            }
+            context<<"]}";
+            integrationFailure.Set(2,cell.global_cell,context.str());break;
           }
           quadratureSeconds+=SU2_MPI::Wtime()-integrationStart;
           CollectiveFailure(integrationFailure,CURRENT_FUNCTION);

@@ -1522,7 +1522,7 @@ TEST_CASE("Replay a complete faceted wall volume-integration input without CFD",
   const char* path=std::getenv("SU2_NATIVE_BL_REPLAY");REQUIRE(path!=nullptr);
   std::ifstream input(path);std::string magic;unsigned version=0;size_t points=0,faces=0;
   input>>magic>>version>>points>>faces;
-  REQUIRE(magic=="NATIVE_BL_REPLAY_3D");REQUIRE(version==1);
+  REQUIRE(magic=="NATIVE_BL_REPLAY_3D");REQUIRE((version==1 || version==2));
   REQUIRE(points>0);REQUIRE(points<=1000000);REQUIRE(faces>0);REQUIRE(faces<=1000000);
   CBoundaryLayerMetric::Wall wall;wall.layer.marker="replay_wall";
   input>>wall.layer.firstHeight>>wall.layer.growth>>wall.layer.thickness;
@@ -1533,8 +1533,34 @@ TEST_CASE("Replay a complete faceted wall volume-integration input without CFD",
   }
   std::array<std::array<double,3>,4> cell;
   for(auto& p:cell)for(auto& x:p)input>>x;
+  double core=1;std::array<Tensor,4> sensor{};
+  if(version==2) {
+    input>>core;REQUIRE(std::isfinite(core));REQUIRE(core>0);
+    for(auto& m:sensor) {
+      for(auto& row:m.m)for(auto& value:row)input>>value;
+      for(unsigned i=0;i<3;++i)for(unsigned j=0;j<3;++j) {
+        REQUIRE(std::isfinite(SU2_TYPE::GetValue(m.m[i][j])));
+        REQUIRE(m.m[i][j]==m.m[j][i]);
+      }
+      REQUIRE_NOTHROW(SU2Native3D::ValidateTensor({m.m[0][0],m.m[0][1],m.m[0][2],m.m[1][1],m.m[1][2],m.m[2][2]}));
+    }
+  }
   REQUIRE(bool(input));input>>std::ws;REQUIRE(input.eof());
   CBoundaryLayerMetric layers(3,{std::move(wall)});
+  auto targetDensity=[&](const CBoundaryLayerMetric::IntegrationPoint3D& point) {
+    if(version==1) {
+      double value=1;
+      for(const auto& sample:point.samples)value=std::max(value,std::pow(SU2_TYPE::GetValue(sample.sample.hn),-SU2_TYPE::GetValue(sample.sample.weight)));
+      return value;
+    }
+    Tensor metric;
+    for(unsigned k=0;k<4;++k)for(unsigned i=0;i<3;++i)for(unsigned j=0;j<3;++j)
+      metric.m[i][j]+=point.barycentric[k]*sensor[k].m[i][j];
+    for(const auto& sample:point.samples)layers.ApplySample(sample.wall,sample.sample,metric,core,nullptr,false);
+    su2double vectors[3][3],values[3],workspace[3];
+    CBlasStructure::EigenDecomposition(metric.m,vectors,values,3,workspace);
+    return SU2_TYPE::GetValue(std::sqrt(values[0]*values[1]*values[2]));
+  };
   std::array<double,4> nodal{};
   for(unsigned k=0;k<4;++k)nodal[k]=SU2_TYPE::GetValue(layers.Evaluate(0,cell[k].data(),1.).distance);
   std::ofstream samples("replay_samples.csv");samples<<std::setprecision(17)<<"mask,x,y,z,actual_distance,linear_distance,error\n";
@@ -1555,15 +1581,13 @@ TEST_CASE("Replay a complete faceted wall volume-integration input without CFD",
   REQUIRE(expectedVolume>0);
   for(const double ratio:{1.5,1.25}) {
     const auto begin=std::chrono::steady_clock::now();unsigned densityCalls=0;bool dependent=false,complete=false;
-    std::string reason;size_t count=0;long double volume=0,normalIntegral=0,fullIntegral=0;
+    std::string reason;size_t count=0;long double volume=0,normalIntegral=0,fullIntegral=0,composedIntegral=0;
     long double first[4]={},second[4][4]={};
     std::ofstream output(ratio==1.5?"replay_rule_150.csv":"replay_rule_125.csv");
-    output<<std::setprecision(17)<<"b0,b1,b2,b3,weight,distance,normal_size,normal_density,full_unit_density\n";
+    output<<std::setprecision(17)<<"b0,b1,b2,b3,weight,distance,normal_size,normal_density,full_unit_density,target_density\n";
     try {
       const auto rule=layers.IntegrationRule3D(cell,ratio,[&](const auto& point) {
-        ++densityCalls;double value=1;
-        for(const auto& sample:point.samples)value=std::max(value,std::pow(SU2_TYPE::GetValue(sample.sample.hn),-SU2_TYPE::GetValue(sample.sample.weight)));
-        return value;
+        ++densityCalls;return targetDensity(point);
       },&dependent);
       CHECK(dependent);CHECK(densityCalls>0);
       count=rule.size();
@@ -1586,8 +1610,9 @@ TEST_CASE("Replay a complete faceted wall volume-integration input without CFD",
         const double density=SU2_TYPE::GetValue(std::sqrt(eigenvalues[0]*eigenvalues[1]*eigenvalues[2]));
         REQUIRE(std::isfinite(density));REQUIRE(density>0);
         normalIntegral+=point.weight*normalDensity;fullIntegral+=point.weight*density;
+        const double target=targetDensity(point);REQUIRE(std::isfinite(target));REQUIRE(target>0);composedIntegral+=point.weight*target;
         for(auto value:point.barycentric)output<<value<<',';
-        output<<point.weight<<','<<distance<<','<<hn<<','<<normalDensity<<','<<density<<'\n';
+        output<<point.weight<<','<<distance<<','<<hn<<','<<normalDensity<<','<<density<<','<<target<<'\n';
       }
       CHECK(double(volume/expectedVolume)==Approx(1.).epsilon(2e-10));
       for(unsigned i=0;i<4;++i) {
@@ -1598,6 +1623,7 @@ TEST_CASE("Replay a complete faceted wall volume-integration input without CFD",
     }catch(const std::exception& e){reason=e.what();}
     std::cout<<std::setprecision(17)<<"FACETED_VOLUME_REPLAY ratio="<<ratio<<" complete="<<complete<<" points="<<count
         <<" volume="<<double(volume)<<" normal_integral="<<double(normalIntegral)<<" full_unit_integral="<<double(fullIntegral)
+        <<" target_version="<<version<<" composed_integral="<<double(composedIntegral)
         <<" density_calls="<<densityCalls<<" dependent="<<dependent<<" largest_initial_distance_defect="<<worst
         <<" seconds="<<std::chrono::duration<double>(std::chrono::steady_clock::now()-begin).count()<<" reason="<<reason<<'\n';
     INFO(reason);CHECK(complete);

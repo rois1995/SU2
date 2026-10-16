@@ -80,18 +80,76 @@ Both bandRatio1.5/1.25 use the shared controller's same minimum radial band rati
 identical results are not independent native-resolution convergence. The full
 unit-tensor integral9.2830 remains diagnostic, not independently established.
 
-Whole saved-state event session51673 runs in oneram6_frozen_v1,4 ranks/nice19/
-threads1/1200s outer bound, native300s unchanged. Initial planned ITER0 encountered
-three configuration-only errors: follow-up flowIter must be positive, then unused
-adjIter defaults0 yet explicit ADAP_ADJ_ITER is forbidden for non-GOAL. All exact
-inputs/logs/provenance remain under invalid_* prefixes. No production config change:
-current input uses ONE initial CFD step from saved120-step conservative state and
-one follow-up only if accepted. No bit-identical target/timing comparison claim.
-Native authority decode/import, full-mesh integration and remeshing remain pending.
+## Whole-event counterexample and primary-controller correction
 
-User authorized consulting local Claude Code with Opus5.5 medium/high. Read-only
-review session83342 requested explicit claude-opus-5-5/high, safe-mode and only
-Read/Grep/Glob, no commands/edits/jobs or nested delegation,900s bound. Prompt/output
-are stored here; result/model identity must be inspected before claiming a review.
-All prior build/test/preparation jobs terminal. Full Goal3 remains open, including
-exterior-wing construction/transfer/accuracy/performance. No accepted M6 mesh yet.
+Published14e59d4c68 retains the exact scoped cell13/normal/control proof above.
+Whole saved-state event51673 is TERMINAL FAILED (exit1), one initial CFD iteration,
+no remesher/candidate/accepted mesh/transfer. Elected original global cell22 exceeds
+radial depth32. Rank0 separately records cell32 radial work failure (18453 retained,
+98 panels). It reached failure collection after9.47s quadrature; sparse snapshots
+show rank0+2 waiting there while rank1+3 still execute EdgeBreakpoints/Evaluate.
+Whole elapsed626s is not a remesher timing or scalable cost estimate. Actual target
+sensors were not captured before exit: GDB attempt says no process, preserved.
+Do not claim a full frozen-sensor replay. Exact failures/startup errors stay saved.
+
+Normal-only source cells22/32 complete (4750/14949 points). The existing generic
+replay now accepts version2:4 finite symmetric SPD sensor tensors/core. A unit
+sensor with actual original native volume-oriented wall order reproduces cell22's
+radial failure in.008s/661 callbacks. It does not require the CFD sensor. Catch-throw
+GDB captures actual3/5/7 rejected rules at t[.7700333435664457,.7700333436991762].
+Independent NumPy density matches all3 weighted integrals to roundoff, with a
+normal/density jump14500389->14616826; this is not just spectral roundoff. The tiny
+integral6.6e-12 fails a local relative test despite already accumulated ray mass.554.
+This exposes the controller's structural inability to integrate a discontinuity:
+volume-proportional local allowance also shrinks with interval width.
+
+The current connected replacement controls TOTAL ray error, using a maximum-error
+interval queue over all geometric bands. Existing positive3/5 rules are retained;
+selected intervals use the existing7-point comparison and retain5 when upgraded,
+then bisect only when needed. Ray tolerance1e-5/global angular1e-4 and original
+65536 point/16384 work/depth32 remain. No pilot-floor fallback, target/geometry/
+height change or budget increase. Build10003 terminal PASS. Both actual full identity-sensor probes now complete
+(cell22:5460 points/integral3.41728875793347; cell32:24890/1.83778862378228).
+One affected batch passes7 cases/578415 assertions. Cell13 normal rule now1335
+points/integral6.22410248594398e-5. These are scoped controller checks, not actual
+CFD-sensor/whole-mesh or rigorous error-bound proof. Ray and angular differences
+remain numerical indicators. First independent radial16/double-ended reference is
+6.22313814200777e-5, relative change6.1e-7 from the old angular-only reference.
+Reference57600 stopped at180s with1664/1704 nodes saved. Resume89213 completed
+only the final40 nodes: radial24/band1.25 integral6.223137380817692e-5, relative
+change1.223e-7 from radial16. New native same-chart error1.55083e-4 passes5e-4
+pilot but exceeds nominal1e-4 indicator; numerical differences are not enclosures.
+Other3 apex checks run sequentially in72066,1 core/240s per reference case, with
+identity-checked partial/completed checkpoints. No production budget change. Do not confuse
+source-cell subdivision/independent tensor math with these normal-only checks.
+
+## Independent Opus5.5 review
+
+User-authorized local Claude Code used explicit claude-opus-5-5/high; returned model
+identity confirms it, no nested agents or permission denials. Read-only prompt/raw
+result and CLAUDE_REVIEW.md retained. The reviewer inspected the earlier source
+while it was being validated, and did not verify hashes; our source/build/input/
+helper hashes were separately verified before publishing14e59. It found no chart
+Jacobian/volume/orientation defect, but correctly identifies reference radial/
+chart convergence and error-estimator honesty gaps, equal bandRatio values and
+whole-mesh cost. The claim that keeping higher order automatically bounds error
+is NOT accepted as a theorem for nonsmooth metrics. Sparse actual stacks support
+wall-query work as a phase, not a percentage/cost extrapolation. Cached geometry
+across changed sensor trials may help, but must be bounded and proved identical.
+
+Full Goal3 stays ACTIVE/incomplete, including all exterior-wing construction,
+features/interactions, composed gradation, transfer, accuracy and lifecycle cost.
+No owned CFD run. Only sequential independent-reference job72066 runs; no owned CFD or build.
+CSolver catch now formats a bounded numeric replay record (cell IDs/coords/core/
+trial/nodal sensors) on failure. Build89213 terminal PASS; runtime record branch NOT YET EXERCISED. Producer
+source/header/test/object are identical to the qualified control batch. Whole
+caller source equals14e59 after replacing only the added catch text; no repeated
+broad suite for formatting. Fresh binary/object identities are pinned separately. Do not rerun full CFD before accuracy checks. Runtime failure22
+and actual32 sensors remain uncaptured; new diagnostics avoid a repeat of the
+failed debugger capture race.
+
+Original failure neighborhoods22/32 are inspectable in oneram6_frozen_v1 under
+failure_cell_22_input.vtu and failure_cell_32_input.vtu,45/62 cells respectively.
+Color FailureCell; OriginalCellID/OriginalPointID retained and coordinates roundtrip
+exactly. These are original input neighborhoods, not rejected candidates. No
+remesher candidate exists. See locate_failures.py/log and per-cell JSON receipts.

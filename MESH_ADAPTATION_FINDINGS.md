@@ -5933,3 +5933,38 @@ from the120-step restart; ITER0 is blocked by contradictory unused adjoint check
 only failures remain saved; unrelated production checks were not changed.
 Full Goal3 and all general geometry/transfer/accuracy/affordability gates remain
 open. See Handbook/GOAL3_M6_THIN_INTEGRATION.md and oneram6_quadrature_v1 receipts.
+
+
+## 2026-10-16 — full-density discontinuity and ray-total error control
+
+The saved-state M6 event from14e59d4c68 ultimately fails before remeshing on global
+cell22 (radial depth32); rank0 independently records cell32 radial work exhaustion.
+No candidate/transfer/accepted mesh. Sparse debugger snapshots show rank0+2 at
+failure collection and rank1+3 in geometric EdgeBreakpoints/Evaluate; this is not
+a complete performance profile. Actual sensor capture lost the process-exit race,
+so no full CFD-sensor replay is claimed.
+
+Both original cells pass normal-only replay, but native-oriented wall plus identity
+sensor reproduces cell22 in.008s. Actual3/5/7 rule samples reveal a nearest-feature
+normal/density jump across width1.33e-10. NumPy independently matches all captured
+weighted densities:6.60729e-12/6.59886e-12/6.60342e-12. Demanding local relative
+accuracy there cannot converge despite already accumulated ray mass.554. This is
+a controller defect, not just CFD sensor noise or eigenvalue roundoff.
+
+The connected primary fix queues radial error over the TOTAL ray integral and
+refines the largest contribution, using existing positive3/5/7 stages. No metric,
+geometry, height, fade or work/point/depth/tolerance relaxation. Full-unit22/32
+now complete5460/24890 points. One affected7-case batch/578415 assertions passes;
+cell13 normal now1335 points. These do not prove the actual CFD sensor target,
+independent full tensor density or an accepted M6 mesh. Independent radial/chart
+normal references are being extended; numerical indicators are not rigorous bounds.
+Completed read-only Opus5.5/high review/model identity and all raw failures remain
+saved. See Handbook/GOAL3_M6_THIN_INTEGRATION.md. Full Goal3 remains ACTIVE.
+
+The same-chart radial16/24 independent references now differ1.223e-7; current
+cell13 normal error1.55083e-4 passes5e-4 pilot but remains above nominal1e-4
+indicator. Other3 apexes/full tensor references are open. Failure-record build
+passes; successful math paths and the tested producer object are unchanged.
+The new runtime record has not yet been exercised. Input neighborhoods22/32
+(45/62 cells, exact coordinate/ID round-trip) are retained as VTUs, explicitly
+not candidates. No new full CFD run has been launched.

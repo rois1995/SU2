@@ -1,0 +1,34 @@
+[New LWP 3168906]
+[New LWP 3168907]
+[Thread debugging using libthread_db enabled]
+Using host libthread_db library "/lib/x86_64-linux-gnu/libthread_db.so.1".
+0x00007f3de151271b in sched_yield () at ../sysdeps/unix/syscall-template.S:78
+78	../sysdeps/unix/syscall-template.S: No such file or directory.
+
+Thread 3 (Thread 0x7f3ddbfff700 (LWP 3168907)):
+#0  0x00007f3de152f68e in epoll_wait (epfd=..., events=..., maxevents=..., timeout=...) at ../sysdeps/unix/sysv/linux/epoll_wait.c:30
+#1  0x00007f3de122a5e9 in ?? () from /lib/x86_64-linux-gnu/libevent-2.1.so.7
+#2  0x00007f3de1220625 in event_base_loop () from /lib/x86_64-linux-gnu/libevent-2.1.so.7
+#3  0x00007f3de08bfd56 in ?? () from /lib/x86_64-linux-gnu/libpmix.so.2
+#4  0x00007f3de160a609 in start_thread (arg=...) at pthread_create.c:477
+#5  0x00007f3de152f353 in clone () at ../sysdeps/unix/sysv/linux/x86_64/clone.S:95
+
+Thread 2 (Thread 0x7f3de116f700 (LWP 3168906)):
+#0  0x00007f3de1522bbf in __GI___poll (fds=..., nfds=..., timeout=...) at ../sysdeps/unix/sysv/linux/poll.c:29
+#1  0x00007f3de1229981 in ?? () from /lib/x86_64-linux-gnu/libevent-2.1.so.7
+#2  0x00007f3de1220625 in event_base_loop () from /lib/x86_64-linux-gnu/libevent-2.1.so.7
+#3  0x00007f3de12d6706 in ?? () from /lib/x86_64-linux-gnu/libopen-pal.so.40
+#4  0x00007f3de160a609 in start_thread (arg=...) at pthread_create.c:477
+#5  0x00007f3de152f353 in clone () at ../sysdeps/unix/sysv/linux/x86_64/clone.S:95
+
+Thread 1 (Thread 0x7f3de11b9ec0 (LWP 3168903)):
+#0  0x00007f3de151271b in sched_yield () at ../sysdeps/unix/syscall-template.S:78
+#1  0x00007f3de19de905 in ompi_request_default_wait () from /lib/x86_64-linux-gnu/libmpi.so.40
+#2  0x00007f3de1a3883c in ompi_coll_base_sendrecv_actual () from /lib/x86_64-linux-gnu/libmpi.so.40
+#3  0x00007f3de1a39042 in ompi_coll_base_allreduce_intra_recursivedoubling () from /lib/x86_64-linux-gnu/libmpi.so.40
+#4  0x00007f3de19f4411 in PMPI_Allreduce () from /lib/x86_64-linux-gnu/libmpi.so.40
+#5  0x0000559628de29bb in CPassiveComm::AllreduceMax (value=..., comm=...) at ../../Common/src/parallelization/CPassiveComm.cpp:398
+#6  0x0000559628ff0b2e in ElectFailure (local=..., comm=...) at ../../Common/src/adaptation/CDistributedSearch.cpp:443
+#7  0x0000559628ff0e84 in CollectiveFailure (local=..., function=...) at ../../Common/src/adaptation/../../include/adaptation/../parallelization/mpi_structure.hpp:139
+#8  0x00005596286a5097 in CSolver::<lambda(su2double)>::operator()(su2double) const (__closure=..., logScale=...) at /usr/include/c++/9/ext/new_allocator.h:80
+[Inferior 1 (process 3168903) detached]

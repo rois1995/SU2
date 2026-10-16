@@ -1,0 +1,69 @@
+{
+  "scope": "Independent exact-triangle distances and same-chart radial-refinement normal-density check only. Other3 apexes/full tensor density/actual CFD sensor target/whole mesh remain pending. Internal error indicators are not rigorous enclosures.",
+  "same_chart_gate_pass": true,
+  "full_chart_qualification": false,
+  "references": [
+    {
+      "identity": {
+        "script_sha256": "6a9ce70e3b9bb0d12685a3f107b576d81f793ea9cbdccd6f4305f837729e0995",
+        "oracle_sha256": "b4af4cc0844cb180449829cecb62221aa4bb69b0a66fdb4128a3fbc6e92256bd",
+        "fixture_sha256": "444d511a48a4978aca45bcdcd6ebb73f710c0464fc170b1358f9e9466c768954",
+        "numpy": "1.24.4",
+        "parameters": {
+          "apex": 3,
+          "angular": 72,
+          "radial": 16,
+          "bands": 1.5
+        }
+      },
+      "complete": true,
+      "next_radial": 656,
+      "integral": 6.223138142007771e-05,
+      "mass": 2.1462834910707607e-09,
+      "elapsed_seconds": 58.655511955032125,
+      "radial_nodes": 656,
+      "volume_relative_error": 2.220446049250313e-16,
+      "scope": "Exact nearest-triangle normal-density oracle, independent product Gauss/Duffy; radial order/bands and all4 apex choices must converge separately. This result alone is not a full tensor-density or remeshing proof."
+    },
+    {
+      "identity": {
+        "script_sha256": "6a9ce70e3b9bb0d12685a3f107b576d81f793ea9cbdccd6f4305f837729e0995",
+        "oracle_sha256": "b4af4cc0844cb180449829cecb62221aa4bb69b0a66fdb4128a3fbc6e92256bd",
+        "fixture_sha256": "444d511a48a4978aca45bcdcd6ebb73f710c0464fc170b1358f9e9466c768954",
+        "numpy": "1.24.4",
+        "parameters": {
+          "apex": 3,
+          "angular": 72,
+          "radial": 24,
+          "bands": 1.25
+        }
+      },
+      "complete": true,
+      "next_radial": 1704,
+      "integral": 6.223137380817692e-05,
+      "mass": 2.146283491070759e-09,
+      "elapsed_seconds": 176.25137831491884,
+      "radial_nodes": 1704,
+      "volume_relative_error": 9.992007221626409e-16,
+      "scope": "Exact nearest-triangle normal-density oracle, independent product Gauss/Duffy; radial order/bands and all4 apex choices must converge separately. This result alone is not a full tensor-density or remeshing proof."
+    }
+  ],
+  "radial_relative_change": 1.2231611468127568e-07,
+  "native": {
+    "150": {
+      "points": 1335,
+      "normal_integral": 6.224102485942981e-05,
+      "normal_relative_error": 0.0001550833713335198,
+      "rule_sha256": "7cfc76bc626f3e4c3b00977da267fffe69638ac0a50c973ead77988461942f7b"
+    },
+    "125": {
+      "points": 1335,
+      "normal_integral": 6.224102485942981e-05,
+      "normal_relative_error": 0.0001550833713335198,
+      "rule_sha256": "7cfc76bc626f3e4c3b00977da267fffe69638ac0a50c973ead77988461942f7b"
+    }
+  },
+  "independent_normal_tolerance": 0.0005,
+  "nominal_angular_indicator_tolerance": 0.0001,
+  "independent_error_exceeds_nominal_indicator_threshold": true
+}

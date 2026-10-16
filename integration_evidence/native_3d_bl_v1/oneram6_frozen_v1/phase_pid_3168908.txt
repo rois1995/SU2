@@ -1,0 +1,23 @@
+[New LWP 3168911]
+[New LWP 3168912]
+[Thread debugging using libthread_db enabled]
+Using host libthread_db library "/lib/x86_64-linux-gnu/libthread_db.so.1".
+std::vector<CADTNodeClass, std::allocator<CADTNodeClass> >::operator[] (__n=<optimized out>, this=<optimized out>) at ../../Common/src/adt/CADTElemClass.cpp:385
+385	      for (unsigned short mm = 0; mm < 2; ++mm) {
+#0  std::vector<CADTNodeClass, std::allocator<CADTNodeClass> >::operator[] (__n=..., this=...) at ../../Common/src/adt/CADTElemClass.cpp:385
+#1  CADTElemClass::DetermineNearestElement_impl (this=..., BBoxTargets=..., frontLeaves=..., frontLeavesNew=..., coor=..., dist=..., markerID=..., elemID=..., rankID=...) at ../../Common/src/adt/CADTElemClass.cpp:388
+#2  0x0000557d0e5a973b in CADTElemClass::DetermineNearestElement (rankID=..., elemID=..., markerID=..., dist=..., coor=..., this=...) at /usr/include/c++/9/array:185
+#3  CBoundaryLayerMetric::Evaluate (this=..., iWall=..., X=..., coreEigenvalue=...) at ../../SU2_CFD/src/adaptation/CBoundaryLayerMetric.cpp:874
+#4  0x0000557d0e5ac241 in CBoundaryLayerMetric::<lambda(double)>::operator()(double) const (__closure=..., t=...) at ../../SU2_CFD/src/adaptation/CBoundaryLayerMetric.cpp:2037
+#5  0x0000557d0e5b4bcd in std::function<bool (double)>::operator()(double) const (__args#0=..., this=...) at /usr/include/c++/9/bits/std_function.h:683
+#6  CBoundaryLayerMetric::<lambda(long double)>::operator() (t=..., __closure=...) at ../../SU2_CFD/src/adaptation/CBoundaryLayerMetric.cpp:1997
+#7  CBoundaryLayerMetric::<lambda(long double, long double, long double)>::operator() (__closure=..., cc=..., bb=..., aa=...) at ../../SU2_CFD/src/adaptation/CBoundaryLayerMetric.cpp:2011
+#8  CBoundaryLayerMetric::EdgeBreakpoints (this=..., a=..., b=..., bandRatio=..., fadeBands=...) at ../../SU2_CFD/src/adaptation/CBoundaryLayerMetric.cpp:2140
+#9  0x0000557d0e5b7dd2 in CBoundaryLayerMetric::<lambda(const CBoundaryLayerMetric::Column3D&, const Triangle&, double, bool, std::vector<CBoundaryLayerMetric::IntegrationPoint3D, std::allocator<CBoundaryLayerMetric::IntegrationPoint3D> >&, double&, std::array<double, 3>*)>::operator()(const CBoundaryLayerMetric::Column3D &, const CBoundaryLayerMetric::Panel::Triangle &, double, bool, std::vector<CBoundaryLayerMetric::IntegrationPoint3D, std::allocator<CBoundaryLayerMetric::IntegrationPoint3D> > &, double &, std::array<double, 3> *) const (__closure=..., chart=..., triangle=..., fraction=..., fine=..., points=..., radialError=..., vertexValues=...) at /usr/include/c++/9/bits/stl_algobase.h:222
+#10 0x0000557d0e5b840b in CBoundaryLayerMetric::<lambda(size_t, const Triangle&, double, unsigned int)>::operator()(size_t, const CBoundaryLayerMetric::Panel::Triangle &, double, unsigned int) const (__closure=..., cone=..., triangle=..., fraction=..., depth=...) at /usr/include/c++/9/bits/stl_vector.h:1058
+#11 0x0000557d0e5ba2db in CBoundaryLayerMetric::IntegrationColumns3D(std::array<std::array<double, 3ul>, 4ul> const&, std::vector<CBoundaryLayerMetric::Column3D, std::allocator<CBoundaryLayerMetric::Column3D> > const&, std::vector<CBoundaryLayerMetric::SupportFace3D, std::allocator<CBoundaryLayerMetric::SupportFace3D> > const&, double, std::function<double (CBoundaryLayerMetric::IntegrationPoint3D const&)> const&) (this=..., tetrahedron=..., charts=..., support=..., bandRatio=..., probe=...) at ../../SU2_CFD/src/adaptation/CBoundaryLayerMetric.cpp:1969
+#12 0x0000557d0e5ba834 in CBoundaryLayerMetric::IntegrationRule3DVisible(std::array<std::array<double, 3ul>, 4ul> const&, std::vector<CBoundaryLayerMetric::SupportFace3D, std::allocator<CBoundaryLayerMetric::SupportFace3D> > const&, double, std::function<double (CBoundaryLayerMetric::IntegrationPoint3D const&)> const&) (this=..., tetrahedron=..., support=..., bandRatio=..., density=...) at /usr/include/c++/9/bits/stl_uninitialized.h:82
+#13 0x0000557d0e5bb8be in CBoundaryLayerMetric::IntegrationRule3D(std::array<std::array<double, 3ul>, 4ul> const&, double, std::function<double (CBoundaryLayerMetric::IntegrationPoint3D const&)>, bool*) (this=..., tetrahedron=..., bandRatio=..., density=..., sensorDependent=...) at /usr/include/c++/9/new:174
+#14 0x0000557d0e904e4b in CSolver::<lambda(su2double)>::operator()(su2double) const (__closure=..., logScale=...) at /usr/include/c++/9/bits/std_function.h:87
+#15 0x0000557d0e905b9d in CSolver::<lambda(su2double&, su2double&, bool&, bool)>::operator()(su2double &, su2double &, bool &, bool) const (__closure=..., logScale=..., error=..., bracketed=..., reuseScale=...) at ../../SU2_CFD/src/solvers/CSolver.cpp:3167
+[Inferior 1 (process 3168908) detached]

@@ -1,8 +1,9 @@
 # ONERA M6 thin-volume integration counterexample
 
-Current production strategy: face-to-apex Duffy ray columns through the shared
-parallel-chord controller. Read `columns_provenance.json`, `columns_validation.log`
-and `normal_integral_check.json` for current scope. The full Goal3 is incomplete.
+Current strategy: Duffy columns with TOTAL-ray error control across feature jumps.
+Read `global_ray_v1/provenance.json`, `validation.log`, `reference_audit.json` and
+`post_diagnostics_provenance.json` there for current scope. Root `columns_*` files
+are the published14e59 interval-relative strategy. Full Goal3 is incomplete.
 
 The complete supplied original wing and global source cell13 are retained in
 `wing_cell13.dat`; its input identity is in `fixture.json`. Baseline geometry-first
@@ -10,9 +11,12 @@ integration exhausts65536 points before any density callback. Actual wall distan
 agree with an independent nearest-triangle oracle. This is not a geometry-query or
 Hessian error.
 
-Current build passes7 directly affected cases/601990 assertions. M6 normal-density
-integration retains1419 positive points, exact volume/first+second barycentric
-moments, and independent relative error1.59272e-4 under unchanged5e-4 acceptance.
+Current controller passes7 directly affected cases/578415 assertions; actual
+full-unit cell22/32 complete5460/24890 points. Original cell13 retains1335 points,
+exact positive volume/first+second moments and independently passes same-chart
+normal error1.55083e-4 (<5e-4 pilot). Radial16/24 agree1.223e-7; other3 apexes
+remain pending. Internal1e-4 indicators are not rigorous bounds. Root14e59 receipts
+retain the earlier1419-point/1.59272e-4 result, which does not prove full density.
 The converged independent reference is6.223134359667434e-5 (last change1.813e-7).
 Band ratios1.5/1.25 produce the same rule because the shared controller has minimum
 radial ratio2; these two results are not independent native refinement convergence.
@@ -49,3 +53,15 @@ under `invalid_*` prefixes. No production configuration validation was relaxed.
 User-authorized Claude Code review prompt/result are separate advisory evidence;
 inspect actual returned model and content before attributing conclusions. Review
 was restricted to reading, with no editing/commands/simulations/nested delegation.
+
+The full saved-state M6 event on14e59 failed elected cell22 depth32 and rank0
+cell32 work before remeshing. Normal-only probes complete, while exact native wall
+orientation plus identity sensor reproduces cell22 in.008s. GDB rule samples and
+NumPy density confirm a nearest-feature jump; interval-relative accuracy cannot
+converge even on negligible contributions. New total-ray priority control fixes
+that local probe without changing physics or budgets. `cell22_probe` preserves
+exact prior failure and current success; `cell32_probe` preserves scoped current
+probes. Actual full CFD sensors were not recovered before event exit. New bounded
+runtime failure diagnostics compile but have not been exercised. No accepted M6
+mesh exists. `../oneram6_frozen_v1` includes inspectable original failure-cell VTUs.
+Completed model-confirmed Opus5.5/high review is advisory; raw result retained.
