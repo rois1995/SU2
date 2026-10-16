@@ -1,0 +1,26 @@
+{
+  "status": "INTERRUPTED_FOR_BATCHED_REFERENCE",
+  "contract": {
+    "native_receipt_sha256": "835a799765b9ab5344086da9284c5aa310c8630060b41e2cf6eb68c435c95919",
+    "inputs": {
+      "core_accepted.json": "7d0d1210d3540daac1c87b61f6090e9fe25d502fc768e2cdd93704272fce1636",
+      "core.cfg": "eb7b6395dee5fee09bccd9b146b617941024c73bd262477f3f20f2fef04a4ec7",
+      "core_initial.su2.native_ref": "f474ae6c2847e870dd41e3c7d5383f813be23a1653d8a29bac0b33ff8ae11fb0",
+      "core_samples.csv": "81dc923fb8ccac86e3777e13b22317cd3625e3bd674b17d1f404137e56dedba3",
+      "core_edges.csv": "614c4454d465752b894c37475d1c90c04b2abe1d166a437ef325ab102b71964b"
+    },
+    "helpers": {
+      "audit_full_metric.py": "a6dcb8a58822203d72d8e51c073340f38690dad5a7c42255457f29698e40a052",
+      "construct.py": "b605340df7090b54a0703fa5e6a97eec282d8eae61438e986e8b4579a7d5a1f7"
+    }
+  },
+  "numpy_version": "1.24.4",
+  "scipy_version": "1.10.1",
+  "case": "native_core_rotated_v10",
+  "point_samples": 3108,
+  "maximum_point_relative_error": 8.911080262765985e-14,
+  "elapsed_seconds": 123.30363918899093,
+  "terminal_reason": "Verified owned scalar audit interrupted after complete point checks and partial edge checks to avoid excessive local CPU use; no full-edge success claim.",
+  "interrupted_by": "SIGINT",
+  "executed_helper": "audit_full_metric_executed.py"
+}

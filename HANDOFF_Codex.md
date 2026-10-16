@@ -10,9 +10,13 @@ controls pass3/877746. Actual current-source serial RANS/SA passes24->836->48,
 current/BDF conservation/SA-accounting, SU2/CGNS/restart and independent mesh/flow/
 SA replay_v20. Pressure sensor clips coarse; this is not viscous accuracy proof.
 Stronger rotated MPI2/4 now pass native+independent audits with3108 cells/4056 work,
-matching the serial accepted case. All owned builds/native cases/audits are terminal.
-Seven of15 current integration cases are complete; remaining varying-field and actual
-RANS MPI N/M cases are pending. No cluster job/request.
+matching the serial accepted case. Current varying field also passes MPI1/2/4 with2896
+cells/4 regions/3930 work, q.20593/J.06020/L1.76382. Ten of15 integration cases
+were independently complete when the remaining actual RANS MPI matrix started.
+Full independent rotated metric audit passes3108 tensors/all4120 edges; v3 includes
+exact edge-set coverage and convergence control. One sequential actual RANS N/M
+native/audit/SA wrapper is live (session10410; verify before restart). Its manifest
+saves each completed case; no build/cluster job. No cluster job/request.
 [Resumable planned/current cases](integration_evidence/native_3d_bl_v1/region_construction_v1/current_integration_v11.json).
 Foreign `ClusterResults/`, AdapNoExt and dependencies remain untouched.
 
@@ -22,8 +26,10 @@ The same stronger frozen rotated target now passes native and independent audits
 3108 cells/2 core regions/4056 work, qmin.412100104/Jmin.156402454/Lmax1.645505430.
 Exact whole embedding/no overlap/all740 vertex links/168 wall feet-height,
 analytic geometry and every exported original-P1 sensor pass.252 pure-core cells/
-466 analytic full edges have residual<=1.95e-16. Remaining BL full edges are native,
-not independent whole-field quadrature. No CFD evolution/transfer in this fixture.
+466 analytic full edges have residual<=1.95e-16. A subsequent independent NumPy wall-covariance/log interpolation/growth/fade/
+Cholesky-intersection and adaptive Gauss16/32 audit now verifies all3108 tensors
+and4120 complete edges: tensor residual8.90e-14, length residual5.43e-10. This is
+a numerical reference, not a rigorous integration enclosure. No CFD in this fixture.
 Original mesh/donors are byte-identical across rejected rotated v4/v5/v9 and
 accepted v10. h.05/growth1.2/T.2/fade/Hausdorff.04/wall ceiling.025/q.20/J.05/
 L1.8/work4096/300s remain unchanged. Source-collar generation is untouched.
@@ -58,6 +64,8 @@ accuracy where practical, and complete adaptation/CFD lifecycle affordability.
 Current radial construction remains one generation worker; do not claim general
 geometry, structured layers, scaling or performance from these frozen pilots.
 Goal4 starts only after full Goal3 completion.
+The next connected construction design and its proved span obstruction are in
+[metric-driven fronts](Handbook/GOAL3_METRIC_FRONTS.md); no multi-front implementation yet.
 
 [Full current qualification](Handbook/GOAL3_CURRENT.md),
 [distributed immutable source service](Handbook/GOAL3_DISTRIBUTED_REGION_FIELD.md),

@@ -6,15 +6,24 @@ acceptance gates are preserved in [the requirement audit](../integration_evidenc
 
 ## Current changed-source qualification
 
-The current AxisFrame closest/projection and global edge controller pass12 focused
-cases/1014 assertions and complete rotated stronger-field serial construction:
-3108 cells/2 core regions/4056 work, unchanged h/fade/geometry/q/J/full lengths.
-Independent exact whole geometry/height/links/all raw original-P1 sensors and
-pure-core analytic integrals pass. See
-[rotated source/evidence](../integration_evidence/native_3d_bl_v1/region_construction_v1/rotated_geometry_summary.json).
-Updated MPI and actual CFD/transfer/restart are pending. The earlier source-pinned
-MPI/CFD records below qualify their recorded versions, not this changed implementation.
-Full Goal3 remains ACTIVE with every remaining gate intact.
+The current AxisFrame geometry and global edge controller accept the complete
+stronger rotated mesh on MPI1/2/4:3108 cells/2 core regions/4056 work, with unchanged
+height/fade/geometry/q/J/full lengths. Independent exact whole geometry, wall feet/
+height, links and original-P1 sensors pass. The separate saved-mesh numerical
+reference now reconstructs the actual BL tangent covariance/log interpolation,
+growth/fade and sensor intersection independently: all3108 centroid tensors and
+all4120 full edges pass. Maximum normalized tensor residual8.90e-14 and native
+length difference5.43e-10; independent maximum edge1.645505430478027.
+[Metric evidence](../integration_evidence/native_3d_bl_v1/region_construction_v1/full_metric_audit_v3/native_core_rotated_v10.json).
+
+The original difficult1402 target passes MPI1/2/4 with836 accepted cells. Varying
+field passes MPI1/2/4 with2896 cells/4 regions/3930 work. Current actual serial RANS
+passes24->836->48 including current+BDF/SA, SU2/CGNS/reference and restart.
+Updated actual MPI RANS N/M qualification is underway; see
+[resumable campaign](../integration_evidence/native_3d_bl_v1/region_construction_v1/current_integration_v11.json).
+The earlier records below retain their exact old-source scope. Full Goal3 remains
+ACTIVE with high-ratio/multiple-front/interacting geometry, broader independent
+metric references, gradation limits, viscous accuracy and affordability still open.
 
 ## Recorded pre-front/core foundations
 

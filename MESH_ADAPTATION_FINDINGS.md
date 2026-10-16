@@ -5624,3 +5624,29 @@ CFD/current+BDF/SA/SU2/CGNS/restart, independent remaining BL full edges, wider/
 high-ratio/exterior geometry, viscous accuracy and whole-lifecycle affordability
 remain full Goal3 gates. All owned jobs terminal; full Goal3 ACTIVE. Evidence:
 region_construction_v1/rotated_geometry_summary.json.
+
+
+## 2026-10-16 — full independent composed metric on the accepted rotated mesh
+
+The complete stronger rotated construction now passes native and independent
+geometry/source audits on MPI1/2/4. Original difficult target also passes MPI1/2/4
+with836 cells; current serial varying field passes2896/4 regions/3930 work.
+Actual current-source serial RANS24->836->48 passes independent geometry, physical
+flow/current+BDF and accounted bounded-SA, SU2/CGNS/reference and real restart.
+Updated varying MPI and actual MPI RANS lifecycle remain pending.
+
+A separate NumPy reference now reconstructs actual cylinder wall covariance/log
+interpolation, curvature/normal growth/fade and Cholesky-frame intersection. All
+3108 saved centroid tensors and4120 complete edges pass. Maximum normalized
+tensor error8.90e-14, length difference5.43e-10; independent full Lmax1.645505430478027
+under unchanged1.8. Exact mesh-edge-set coverage and missing/duplicate adversaries
+pass. See region_construction_v1/full_metric_audit_v3. This is an independent
+numerical reference, not a rigorous arbitrary-function integration enclosure.
+
+Referencev1 missed a small variation and falsely disagreed by4.50e-7; tighter
+Gauss-Kronrod and separate composite-Gauss convergence support the native value.
+That failure and the deliberately interrupted scalarv2 remain preserved with
+exact helpers. Batchedv3 completes all edges without another SU2 run or any
+production/target/gate change. Full Goal3 stays open: nonconstant-field references,
+high-ratio/multiple/interacting fronts, gradation feasibility, practical viscous
+accuracy and whole-lifecycle affordability are not proved by this cylinder.

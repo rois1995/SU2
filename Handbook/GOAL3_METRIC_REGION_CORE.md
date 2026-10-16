@@ -178,3 +178,28 @@ metric subphases are not yet independently isolated. The fixture solve clock
 includes automatic metric calls, so it cannot establish a CFD-only ratio, scaling,
 speedup or unsteady affordability. These diagnostics do not replace the remaining
 full-goal geometry, interacting/high-ratio fronts, gradation and viscous checks.
+
+## Independent complete rotated metric audit
+
+`region_construction_v1/full_metric_audit_v3` independently reconstructs wall-face
+covariances, angle-weighted rotated log interpolation, analytic cylinder feet,
+curvature tangent demand, normal growth/fade and Cholesky-frame sensor intersection.
+The sensor is verified constant over every original physical/collar donor. All3108
+centroid tensors agree with native (maximum normalized difference8.90e-14). Every
+one of4120 actual mesh edges is integrated with independent adaptive Gauss16/32,
+physical distance-shell cuts and eight seed panels per shell. Maximum normalized
+length difference5.43e-10; maximum full length1.645505430478027 remains below1.8.
+A separate coverage control rejects missing/duplicate edges and verifies agreement
+with separately converged Gauss-Kronrod/composite-Gauss results. All geometry,
+height, quality, field, work and time constraints remain unchanged.
+
+The first unseeded referencev1 falsely disagreed on edge482/483 by4.50e-7 while
+reporting8.41e-10 error. Tighter Gauss-Kronrod and compositeGauss32 with64/256
+panels converged to the native value (~1e-11 agreement). Preserve this failure:
+embedded quadrature estimates are not rigorous enclosures. Scalar referencev2
+was explicitly interrupted after partial progress to avoid unnecessary CPU use;
+its exact helper and partial records remain. Batchedv3 retains scalar equivalence
+checks, passes all samples/edges, and saves its exact executed helper. No SU2
+rerun, production integrator/metric change, or acceptance relaxation was needed.
+This closes full-metric independence only for the saved constant-sensor cylinder;
+varying/transported fields, general geometry, CFD accuracy and affordability remain.

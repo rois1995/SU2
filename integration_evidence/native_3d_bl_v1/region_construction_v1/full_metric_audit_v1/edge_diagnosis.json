@@ -1,0 +1,73 @@
+{
+  "status": "CONVERGENCE_DIAGNOSIS_ONLY",
+  "edge": [
+    482,
+    483
+  ],
+  "a": [
+    2.4599489013769555,
+    -1.814213490886579,
+    0.8542645895096236
+  ],
+  "b": [
+    2.6383627322968017,
+    -1.7600552330433683,
+    0.6216925007465666
+  ],
+  "native_length": 1.3183970060117025,
+  "cuts": [
+    0.0,
+    0.9999999999999981,
+    1.0
+  ],
+  "results": [
+    {
+      "method": "Gauss-Kronrod21",
+      "tolerance": 1e-09,
+      "value": 1.3183965564850373,
+      "indicator": 8.412854916964871e-10,
+      "evaluations": 84,
+      "warnings": []
+    },
+    {
+      "method": "Gauss-Kronrod21",
+      "tolerance": 1e-11,
+      "value": 1.3183970060127295,
+      "indicator": 7.63769436794403e-13,
+      "evaluations": 588,
+      "warnings": []
+    },
+    {
+      "method": "Gauss-Kronrod21",
+      "tolerance": 1e-13,
+      "value": 1.3183970060127506,
+      "indicator": 9.992007221626411e-14,
+      "evaluations": 630,
+      "warnings": []
+    },
+    {
+      "method": "Composite Gauss-Legendre32",
+      "panels_per_shell": 4,
+      "value": 1.3183969469104333
+    },
+    {
+      "method": "Composite Gauss-Legendre32",
+      "panels_per_shell": 16,
+      "value": 1.3183970059451213
+    },
+    {
+      "method": "Composite Gauss-Legendre32",
+      "panels_per_shell": 64,
+      "value": 1.3183970060136962
+    },
+    {
+      "method": "Composite Gauss-Legendre32",
+      "panels_per_shell": 256,
+      "value": 1.3183970060021832
+    }
+  ],
+  "helper_sha256": "f9803999d67080a3cb8e30f8b5cd3438c4efe785a3cdb9a838e1156b935727a9",
+  "field_helper_sha256": "96b27813fb826538875586695e778297405f4e984b2a05df8bdfa87652a40821",
+  "elapsed_seconds": 14.307238482055254,
+  "scope": "Independent field models agree with all saved centroids. Multiple quadrature checks of the first failed edge only; no native point-query comparison along this edge or full mesh metric qualification."
+}
