@@ -1,0 +1,35 @@
+{
+  "state": "FOCUSED_AND_INDEPENDENT_NORMAL_PASS_WHOLE_EVENT_PENDING",
+  "base_commit": "4f5c8a9c6ad82185c42e92cb8138b01a852b7c50",
+  "strategy": "Face-to-apex Duffy columns through the shared parallel-chord controller; unchanged physical policy and accuracy/work/point/depth limits.",
+  "build_exit_code": 0,
+  "sha256": {
+    "SU2_CFD/src/adaptation/CBoundaryLayerMetric.cpp": "bddad83a0b4d6b482d16e285d33a2f90c23ea1c31bfeacd25d941e2b376493b2",
+    "SU2_CFD/include/adaptation/CBoundaryLayerMetric.hpp": "b39486b0ffedd311bd030483296ef507c33a94d9a55434671ba39204f0a18496",
+    "UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp": "27d7248faf4803c0df77d9a6c92c260dfe7e5169483a03eb314f4689135eb7d6",
+    "integration_evidence/build-integrated-v2/UnitTests/test_driver": "3a37e24d96b306426d3dc1733165736807ed5af9c65ac90e1eb749863a3d5963",
+    "integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD": "de9b774d11437aa26e625f90052bc881e5ca5dd12735257e1752d159750d86c0",
+    "integration_evidence/build-integrated-v2/build.ninja": "961bf33a26c0dfa69d2652675a193a8fb0919f1653c918680701fe3c68568de8",
+    "integration_evidence/build-integrated-v2/meson-info/intro-buildoptions.json": "59377c452909959635fa25c06589f97be7916c19148364113dd1a62ab38e9a5c",
+    "integration_evidence/build-integrated-v2/SU2_CFD/src/libSU2core.a.p/adaptation_CBoundaryLayerMetric.cpp.o": "8f1b041d2da563ab26ff1049fc19dcf468fe3db3fb7e00dcfce4cca385a57011",
+    "integration_evidence/native_3d_bl_v1/oneram6_quadrature_v1/wing_cell13.dat": "444d511a48a4978aca45bcdcd6ebb73f710c0464fc170b1358f9e9466c768954",
+    "integration_evidence/native_3d_bl_v1/oneram6_quadrature_v1/check_normal_integral.py": "b4af4cc0844cb180449829cecb62221aa4bb69b0a66fdb4128a3fbc6e92256bd",
+    "integration_evidence/native_3d_bl_v1/oneram6_quadrature_v1/claude_review_prompt.txt": "0cfd3a5b5adb65b9408397a15b98bd1f61afbc3b05208f4eadf23a95804d25a2",
+    "integration_evidence/native_3d_bl_v1/oneram6_quadrature_v1/columns_validation.log": "1166a9110a4c9fd525b11ae4f11d2b4a1130fdb872dc05e75a2a783821f56827",
+    "integration_evidence/native_3d_bl_v1/oneram6_quadrature_v1/columns_validation_exit_code.txt": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+    "integration_evidence/native_3d_bl_v1/oneram6_quadrature_v1/columns_normal_integral_check.log": "37b3c99971e76cce96643ac1279a203c9dcd2556d82222eeb7d031158e5433d3",
+    "integration_evidence/native_3d_bl_v1/oneram6_quadrature_v1/columns_normal_integral_check_exit_code.txt": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+    "integration_evidence/native_3d_bl_v1/oneram6_quadrature_v1/normal_integral_check.json": "37b3c99971e76cce96643ac1279a203c9dcd2556d82222eeb7d031158e5433d3",
+    "integration_evidence/native_3d_bl_v1/oneram6_quadrature_v1/replay_rule_150.csv": "c756c8f6ef3ce12aba3d1a919e410c86457c02dafda578512211d8d12cb2a123",
+    "integration_evidence/native_3d_bl_v1/oneram6_quadrature_v1/replay_rule_125.csv": "c756c8f6ef3ce12aba3d1a919e410c86457c02dafda578512211d8d12cb2a123",
+    "integration_evidence/native_3d_bl_v1/oneram6_quadrature_v1/replay_samples.csv": "ea08b484be068fb4b60bf265ca88d50cb5c0ed58947645553a95d8dcc5878db5"
+  },
+  "validation": {
+    "test_cases": 7,
+    "assertions": 601990,
+    "native_points_each": 1419,
+    "normal_relative_error_each": 0.0001592717339746752,
+    "independent_normal_tolerance": 0.0005,
+    "scope": "Normal density only; two bandRatio inputs produce the same shared-column rule, not an independent native refinement sequence. No full tensor-density or complete remeshing proof."
+  }
+}

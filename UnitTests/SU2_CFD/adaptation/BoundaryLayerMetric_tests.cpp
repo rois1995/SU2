@@ -32,6 +32,9 @@
 #include <iostream>
 #include <iomanip>
 #include <sstream>
+#include <fstream>
+#include <cstdlib>
+#include <chrono>
 
 #include "../../../Common/include/CConfig.hpp"
 #include "../../../Common/include/adaptation/CNativeImport2D.hpp"
@@ -1003,7 +1006,7 @@ TEST_CASE("Native geometric volume quadrature resolves microscopic BL in coarse 
     double volume=0,integral=0,mx=0,mz=0,mz2=0;
     bool dependent=true;unsigned densityCalls=0;
     const auto rule=layers.IntegrationRule3D(cell,ratio,[&](const auto&){++densityCalls;return 1.;},&dependent);
-    CHECK_FALSE(dependent);CHECK(densityCalls==0);
+    CHECK(dependent);CHECK(densityCalls>0);
     REQUIRE(rule.size()<10000);
     for(const auto& point:rule) {
       REQUIRE(point.weight>0);double sum=0;
@@ -1512,4 +1515,91 @@ TEST_CASE("Planar wall preserves a finer rotated tangent field across its source
       <<") tensor="<<worst_tensor.xx<<','<<worst_tensor.xy<<','<<worst_tensor.xz<<','<<worst_tensor.yy<<','<<worst_tensor.yz<<','<<worst_tensor.zz<<std::endl;
   INFO(failure);CHECK(failure.empty());CHECK(maximum_error<2e-10);
   if(failure.empty())CHECK(std::abs(length-MetricNorm(a,b,expected))<1e-9L);
+}
+
+
+TEST_CASE("Replay a complete faceted wall volume-integration input without CFD", "[.][NativeFacetedVolumeReplay3D]") {
+  const char* path=std::getenv("SU2_NATIVE_BL_REPLAY");REQUIRE(path!=nullptr);
+  std::ifstream input(path);std::string magic;unsigned version=0;size_t points=0,faces=0;
+  input>>magic>>version>>points>>faces;
+  REQUIRE(magic=="NATIVE_BL_REPLAY_3D");REQUIRE(version==1);
+  REQUIRE(points>0);REQUIRE(points<=1000000);REQUIRE(faces>0);REQUIRE(faces<=1000000);
+  CBoundaryLayerMetric::Wall wall;wall.layer.marker="replay_wall";
+  input>>wall.layer.firstHeight>>wall.layer.growth>>wall.layer.thickness;
+  wall.coord.resize(3*points);for(auto& x:wall.coord)input>>x;
+  for(size_t k=0;k<faces;++k) {
+    unsigned long a,b,c;input>>a>>b>>c;REQUIRE(a<points);REQUIRE(b<points);REQUIRE(c<points);
+    wall.conn.insert(wall.conn.end(),{a,b,c,c});
+  }
+  std::array<std::array<double,3>,4> cell;
+  for(auto& p:cell)for(auto& x:p)input>>x;
+  REQUIRE(bool(input));input>>std::ws;REQUIRE(input.eof());
+  CBoundaryLayerMetric layers(3,{std::move(wall)});
+  std::array<double,4> nodal{};
+  for(unsigned k=0;k<4;++k)nodal[k]=SU2_TYPE::GetValue(layers.Evaluate(0,cell[k].data(),1.).distance);
+  std::ofstream samples("replay_samples.csv");samples<<std::setprecision(17)<<"mask,x,y,z,actual_distance,linear_distance,error\n";
+  double worst=0;
+  for(unsigned mask=1;mask<16;++mask) {
+    unsigned count=0;for(unsigned k=0;k<4;++k)count+=(mask>>k)&1u;
+    std::array<double,3> p{};double linear=0;
+    for(unsigned k=0;k<4;++k)if(mask&(1u<<k)) {
+      linear+=nodal[k]/count;for(unsigned j=0;j<3;++j)p[j]+=cell[k][j]/count;
+    }
+    const double actual=SU2_TYPE::GetValue(layers.Evaluate(0,p.data(),1.).distance);
+    worst=std::max(worst,std::abs(actual-linear));
+    samples<<mask<<','<<p[0]<<','<<p[1]<<','<<p[2]<<','<<actual<<','<<linear<<','<<std::abs(actual-linear)<<'\n';
+  }
+  std::array<long double,3> a{},b{},c{};
+  for(unsigned j=0;j<3;++j){a[j]=(long double)cell[1][j]-cell[0][j];b[j]=(long double)cell[2][j]-cell[0][j];c[j]=(long double)cell[3][j]-cell[0][j];}
+  const long double expectedVolume=std::abs(a[0]*(b[1]*c[2]-b[2]*c[1])+a[1]*(b[2]*c[0]-b[0]*c[2])+a[2]*(b[0]*c[1]-b[1]*c[0]))/6;
+  REQUIRE(expectedVolume>0);
+  for(const double ratio:{1.5,1.25}) {
+    const auto begin=std::chrono::steady_clock::now();unsigned densityCalls=0;bool dependent=false,complete=false;
+    std::string reason;size_t count=0;long double volume=0,normalIntegral=0,fullIntegral=0;
+    long double first[4]={},second[4][4]={};
+    std::ofstream output(ratio==1.5?"replay_rule_150.csv":"replay_rule_125.csv");
+    output<<std::setprecision(17)<<"b0,b1,b2,b3,weight,distance,normal_size,normal_density,full_unit_density\n";
+    try {
+      const auto rule=layers.IntegrationRule3D(cell,ratio,[&](const auto& point) {
+        ++densityCalls;double value=1;
+        for(const auto& sample:point.samples)value=std::max(value,std::pow(SU2_TYPE::GetValue(sample.sample.hn),-SU2_TYPE::GetValue(sample.sample.weight)));
+        return value;
+      },&dependent);
+      CHECK(dependent);CHECK(densityCalls>0);
+      count=rule.size();
+      for(const auto& point:rule) {
+        REQUIRE(point.weight>0);volume+=point.weight;double sum=0;
+        for(unsigned i=0;i<4;++i) {
+          REQUIRE(point.barycentric[i]>=-1e-14);sum+=point.barycentric[i];first[i]+=point.weight*point.barycentric[i];
+          for(unsigned j=0;j<4;++j)second[i][j]+=point.weight*point.barycentric[i]*point.barycentric[j];
+        }
+        CHECK(sum==Approx(1.).epsilon(1e-12));
+        Tensor metric;for(unsigned j=0;j<3;++j)metric.m[j][j]=1;
+        double normalDensity=1,distance=0,hn=1;
+        for(const auto& sample:point.samples) {
+          layers.ApplySample(sample.wall,sample.sample,metric,1.,nullptr,false);
+          distance=SU2_TYPE::GetValue(sample.sample.distance);hn=SU2_TYPE::GetValue(sample.sample.hn);
+          normalDensity=std::max(normalDensity,std::pow(hn,-SU2_TYPE::GetValue(sample.sample.weight)));
+        }
+        su2double vectors[3][3],eigenvalues[3],workspace[3];
+        CBlasStructure::EigenDecomposition(metric.m,vectors,eigenvalues,3,workspace);
+        const double density=SU2_TYPE::GetValue(std::sqrt(eigenvalues[0]*eigenvalues[1]*eigenvalues[2]));
+        REQUIRE(std::isfinite(density));REQUIRE(density>0);
+        normalIntegral+=point.weight*normalDensity;fullIntegral+=point.weight*density;
+        for(auto value:point.barycentric)output<<value<<',';
+        output<<point.weight<<','<<distance<<','<<hn<<','<<normalDensity<<','<<density<<'\n';
+      }
+      CHECK(double(volume/expectedVolume)==Approx(1.).epsilon(2e-10));
+      for(unsigned i=0;i<4;++i) {
+        CHECK(double(first[i]/expectedVolume)==Approx(.25).epsilon(2e-10));
+        for(unsigned j=0;j<4;++j)CHECK(double(second[i][j]/expectedVolume)==Approx(i==j?.1:.05).epsilon(2e-10));
+      }
+      complete=true;
+    }catch(const std::exception& e){reason=e.what();}
+    std::cout<<std::setprecision(17)<<"FACETED_VOLUME_REPLAY ratio="<<ratio<<" complete="<<complete<<" points="<<count
+        <<" volume="<<double(volume)<<" normal_integral="<<double(normalIntegral)<<" full_unit_integral="<<double(fullIntegral)
+        <<" density_calls="<<densityCalls<<" dependent="<<dependent<<" largest_initial_distance_defect="<<worst
+        <<" seconds="<<std::chrono::duration<double>(std::chrono::steady_clock::now()-begin).count()<<" reason="<<reason<<'\n';
+    INFO(reason);CHECK(complete);
+  }
 }

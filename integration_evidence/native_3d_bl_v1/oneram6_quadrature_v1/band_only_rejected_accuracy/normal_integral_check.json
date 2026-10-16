@@ -1,0 +1,52 @@
+{
+  "scope": "Independent exact all-nearby-triangle distances and product Gauss/Duffy reference for normal density only; no independent full tensor-density or remeshing proof.",
+  "native": {
+    "150": {
+      "points": 1192,
+      "normal_integral": 6.232651186282952e-05,
+      "full_unit_integral": 9.296514736956338,
+      "volume_relative_error": 3.2318592246838307e-13,
+      "max_distance_absolute_error": 3.526299803373323e-16,
+      "rule_sha256": "9cb7841a8eb9653a2bfeed93b912e9e1f5ce47fef986dcd05dc1370e9ff54533"
+    },
+    "125": {
+      "points": 2072,
+      "normal_integral": 6.23305762011747e-05,
+      "full_unit_integral": 9.297149263907215,
+      "volume_relative_error": 3.2873703759150885e-13,
+      "max_distance_absolute_error": 3.080218372031318e-16,
+      "rule_sha256": "b9dcad41005d0c20364c8255599c43e7d89a76d5c9d60bdbc197c9b42715a825"
+    }
+  },
+  "references": [
+    {
+      "order": 32,
+      "script_sha256": "b4af4cc0844cb180449829cecb62221aa4bb69b0a66fdb4128a3fbc6e92256bd",
+      "fixture_sha256": "444d511a48a4978aca45bcdcd6ebb73f710c0464fc170b1358f9e9466c768954",
+      "normal_integral": 6.223145380302399e-05,
+      "volume_relative_error": 5.551115123125783e-16
+    },
+    {
+      "order": 48,
+      "script_sha256": "b4af4cc0844cb180449829cecb62221aa4bb69b0a66fdb4128a3fbc6e92256bd",
+      "fixture_sha256": "444d511a48a4978aca45bcdcd6ebb73f710c0464fc170b1358f9e9466c768954",
+      "normal_integral": 6.223135488135501e-05,
+      "volume_relative_error": 5.551115123125783e-16
+    },
+    {
+      "order": 72,
+      "script_sha256": "b4af4cc0844cb180449829cecb62221aa4bb69b0a66fdb4128a3fbc6e92256bd",
+      "fixture_sha256": "444d511a48a4978aca45bcdcd6ebb73f710c0464fc170b1358f9e9466c768954",
+      "normal_integral": 6.223134359667434e-05,
+      "volume_relative_error": 7.771561172376096e-16
+    }
+  ],
+  "last_reference_relative_change": 1.8133432400091465e-07,
+  "normal_relative_errors": {
+    "150": 0.0015292658113243984,
+    "125": 0.0015945759606845744
+  },
+  "reference_converged": true,
+  "normal_density_tolerance": 0.0005,
+  "passed": false
+}

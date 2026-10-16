@@ -1,0 +1,56 @@
+{
+  "scope": "Independent exact all-nearby-triangle distances and product Gauss/Duffy reference for normal density only; no independent full tensor-density or remeshing proof.",
+  "native": {
+    "150": {
+      "points": 9684,
+      "normal_integral": 6.22649188307067e-05,
+      "full_unit_integral": 9.286651493193656,
+      "volume_relative_error": 3.232969447708456e-13,
+      "max_distance_absolute_error": 3.526299803373323e-16,
+      "rule_sha256": "f7daf3abb336b37cb32c4f3e5fe55155cc11e4d0fbbb5eee66a4f49498e30309"
+    },
+    "125": {
+      "points": 5404,
+      "normal_integral": 6.22823258443958e-05,
+      "full_unit_integral": 9.289414148251439,
+      "volume_relative_error": 3.2873703759150885e-13,
+      "max_distance_absolute_error": 3.080218372031318e-16,
+      "rule_sha256": "6a046fc227b7873d5039a7a75f9ebf1aff43830334ee0ef600537d0c9a7d2692"
+    }
+  },
+  "references": [
+    {
+      "order": 32,
+      "script_sha256": "b4af4cc0844cb180449829cecb62221aa4bb69b0a66fdb4128a3fbc6e92256bd",
+      "fixture_sha256": "444d511a48a4978aca45bcdcd6ebb73f710c0464fc170b1358f9e9466c768954",
+      "normal_integral": 6.223145380302399e-05,
+      "volume_relative_error": 5.551115123125783e-16
+    },
+    {
+      "order": 48,
+      "script_sha256": "b4af4cc0844cb180449829cecb62221aa4bb69b0a66fdb4128a3fbc6e92256bd",
+      "fixture_sha256": "444d511a48a4978aca45bcdcd6ebb73f710c0464fc170b1358f9e9466c768954",
+      "normal_integral": 6.223135488135501e-05,
+      "volume_relative_error": 5.551115123125783e-16
+    },
+    {
+      "order": 72,
+      "script_sha256": "b4af4cc0844cb180449829cecb62221aa4bb69b0a66fdb4128a3fbc6e92256bd",
+      "fixture_sha256": "444d511a48a4978aca45bcdcd6ebb73f710c0464fc170b1358f9e9466c768954",
+      "normal_integral": 6.223134359667434e-05,
+      "volume_relative_error": 7.771561172376096e-16
+    }
+  ],
+  "last_reference_relative_change": 1.8133432400091465e-07,
+  "normal_relative_errors": {
+    "150": 0.0005395228849622846,
+    "125": 0.0008192374577653538
+  },
+  "reference_converged": true,
+  "normal_density_tolerance": 0.0005,
+  "passed": false
+}
+Traceback (most recent call last):
+  File "integration_evidence/native_3d_bl_v1/oneram6_quadrature_v1/check_normal_integral.py", line 91, in <module>
+    assert report['passed'], 'Normal-density independent convergence/accuracy gate is not satisfied.'
+AssertionError: Normal-density independent convergence/accuracy gate is not satisfied.

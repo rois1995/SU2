@@ -5905,3 +5905,31 @@ This is an unresolved real-geometry thin-volume integration counterexample; no
 limit/tolerance/geometry/height relaxation or MMG substitution. Full Goal3 remains
 ACTIVE/incomplete. All owned jobs terminal. See Handbook/GOAL3_ONERA_M6.md and
 integration_evidence/native_3d_bl_v1/oneram6_coarse_v1/result.json.
+
+
+## 2026-10-16 — actual M6 thin integration: ray-column replacement
+
+A geometry-only complete-wing replay proves the baseline cell13 failure occurs
+before density calls; independent triangle distances agree. Band-first tetra
+partitioning and low-order density refinements fail independent normal accuracy
+or unchanged work limits. Positive degree-five tetra quadrature exhausts65536
+points at default spacing. All exact sources/failures are preserved rather than
+relaxing the target, geometry, first height or acceptance limits.
+
+The connected replacement uses face-to-apex Duffy columns through the existing
+parallel-chord adaptive controller, exact positive3V(1-t)^2 measure and geometric
+edge breakpoints. Shared Evaluate/ApplySample/ApplyPoint/EdgeBreakpoints physical
+policy definitions are unchanged. Callback-dependent rules invalidate sensor/core
+reuse correctly. Seven directly affected cases/601990 assertions pass. Actual
+M6 cell13 needs1419 retained points and independently passes normal-density
+relative error1.59272e-4 (<5e-4), with positive volume/first+second moments.
+Identical bandRatio1.5/1.25 rules are not native refinement convergence; their
+shared radial controller uses minimum ratio2. Normal-only reference does not
+establish full runtime tensor-density integration or remeshing feasibility.
+
+One four-rank saved-state whole event is running. It uses ONE initial iteration
+from the120-step restart; ITER0 is blocked by contradictory unused adjoint checks
+(explicit positive adjoint limits prohibited for non-GOAL). Three configuration-
+only failures remain saved; unrelated production checks were not changed.
+Full Goal3 and all general geometry/transfer/accuracy/affordability gates remain
+open. See Handbook/GOAL3_M6_THIN_INTEGRATION.md and oneram6_quadrature_v1 receipts.

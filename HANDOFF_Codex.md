@@ -4,9 +4,9 @@ Worktree `/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated`, branch
 `codex/native-3d-bl`, Goal2 base `c43a8a3907ea2655e4ebbb6286ab16c3fa625d8b`.
 **Full Goal3 ACTIVE/incomplete.** Preserve its full
 [scope and gates](integration_evidence/native_3d_bl_v1/GOAL3_REQUIREMENTS.json).
-Published6c344dcf7b contains whole-cap construction and the shared closest-facet
-correction. Prior c103aa9cf3 preserves the withdrawn cap strategy. Current working
-follow-up retains an already admissible complete front plan before resampling.
+Published4f5c8a9c6a includes whole-cap construction, closest-facet correction,
+admissible cap/front retention and the QLS workspace fix. Current work addresses
+the practical M6 thin-volume integration failure before wing remeshing.
 
 ## Current connected work
 
@@ -44,25 +44,25 @@ current+BDF flow/both output formats/reference/restart, integral defect<=2.75e-1
 This avoids unnecessary cell growth without changing the target or adding recovery.
 Builds terminal PASS. Actual evolved curved N4/M2 v14 passes native, independent
 whole-mesh/current+BDF/restart checks and SA saved-state replayv28. No job remains
-from that batch. User-requested ONERA M6 test now takes priority over the queued
-opposing-wall regression. Its folder is
-`integration_evidence/native_3d_bl_v1/oneram6_coarse_v1`: supplied Coarse.su2,
-303359 tetrahedra/61330 points, real WING3D no-slip/SYMMETRY/FARFIELD, SA at
-Mach.8395/AOA3.06/Re11.72e6. Bounded120 initial iterations, one native adaptation,
-first height2e-6/g1.2/T.01, original-P1 sensors and actual-query BL. Four ranks,
-300s native deadline/1200s process ceiling. Preparation pins current dirty source
-and fresh solver. All M6 jobs are terminal. First attempt exposed missing QLS
-WLS-fallback workspace with primal GG; shared allocation fixed, analytic check
-passes1 case/32260 assertions. Identical-config retry passes all120 flow iterations
-and122660 MPI QLS fits, then exhausts65536 thin-BL complexity points on global
-cell13 (upper outer wing near tip), BEFORE remeshing. No candidate/adapted grid.
-Saved matching `flow_checkpoint/flow.vtu`, surface_flow.vtu and Float64 restart
-with exact printed-history/coordinate identity; `failure_cell_13.vtu` locates the
-46-cell input neighborhood. Next M6 blocker is thin-volume integration, not yet
-a measured construction rejection. No M6 task is queued.
-[M6 evidence/diagnosis](Handbook/GOAL3_ONERA_M6.md).
-No M6 acceptance or converged aerodynamic claim yet. No wider curved
-capability or full Goal3 completion; no local fallback or increased limits.
+from that batch. The practical M6 test completed120 actual RANS/SA iterations,
+then failed thin-BL complexity quadrature before remeshing (no candidate). Its
+matching flow/restart and cell13 diagnostic are saved. A complete-wall geometry-only
+replay reproduces the failure without density calls. Independent distances agree.
+Band-first geometry alone fits1192 points but fails the independent normal integral;
+local/global low-order density variants and default positive-tetrahedron work also
+fail their unchanged accuracy/work gates and are archived. The connected replacement
+is face-to-vertex (Duffy) ray columns sharing the qualified hidden-support adaptive
+column quadrature. Build PASS;7 focused cases/601990 assertions PASS. M6 cell13
+uses1419 points and independently passes normal-density error1.59272e-4 (<5e-4).
+This is not full tensor-density or whole remeshing proof. The supported saved-state
+M6 event is live session51673: ONE initial CFD iteration from the120-step restart
+(zero initial is blocked by contradictory unused-adjoint config checks), one
+follow-up only if accepted. Three configuration-only failures remain preserved.
+Read-only user-authorized Claude Opus5.5/high review is live session83342; no edits.
+Do not call any of this an accepted M6 mesh or full Goal3 completion.
+[Current M6 integration source/evidence/live state](Handbook/GOAL3_M6_THIN_INTEGRATION.md),
+[actual M6 run and inspectable files](Handbook/GOAL3_ONERA_M6.md).
+No broader curved capability or full Goal3 completion; no increased limits.
 [Current source/design/evidence](Handbook/GOAL3_WHOLE_CAP_CONSTRUCTION.md).
 
 The earlier cap-operator attempt failed3731 trials/30 cap faces; it was withdrawn

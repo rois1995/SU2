@@ -30,7 +30,7 @@
     {
       "id": "thin_volume",
       "scope": "thin BL quadrature inside coarse tetrahedra; convergence and complexity consistency",
-      "status": "Earlier focused planar/thin/rotated/hidden-wall controls and actual complexity MPI1/2/4 retain exact historical scope. Current cylindrical annulus v7 passes all-sector/source-permutation independent prism, sphere and rotated/sheared moments:3 families/877746 assertions. Actual serial curved RANS complexity completes with unchanged65536 point/16384 work and density/volume criteria. Scoped unchanged executed-object reuse across backend coordination verified. General interacting/outside-slab fields remain unqualified; preserved two-shell sphere work-budget failure remains open. Practical M6 Coarse.su2 four-rank RANS/SA retry fails thin-BL complexity quadrature at65536 points on original global cell13, before remeshing. Actual wing/thin-height integration remains OPEN; exact case/field/diagnostic/checkpoint preserved in oneram6_coarse_v1."
+      "status": "Earlier focused planar/thin/rotated/hidden-wall controls and actual complexity MPI1/2/4 retain exact historical scope. Current cylindrical annulus v7 passes all-sector/source-permutation independent prism, sphere and rotated/sheared moments:3 families/877746 assertions. Actual serial curved RANS complexity completes with unchanged65536 point/16384 work and density/volume criteria. Scoped unchanged executed-object reuse across backend coordination verified. General interacting/outside-slab fields remain unqualified; preserved two-shell sphere work-budget failure remains open. Practical M6 Coarse.su2 four-rank RANS/SA retry fails thin-BL complexity quadrature at65536 points on original global cell13, before remeshing. Actual wing/thin-height integration remains OPEN; exact case/field/diagnostic/checkpoint preserved in oneram6_coarse_v1. Current connected Duffy-column replacement passes7 affected cases/601990 assertions. Actual M6 cell13 uses1419 positive points, exact volume/first+second moments and independent normal error1.59272e-4 (<5e-4). Two bandRatio inputs share the same column rule; no native convergence/full tensor-density/whole mesh qualification. Saved-state M6 event pending."
     },
     {
       "id": "construction",
@@ -102,10 +102,13 @@
     "interacting_walls_v1/summary.json",
     "interacting_walls_v1/selection_work_v2_summary.json",
     "tangential_caps_v1/rejected_strategy.json",
-    "tangential_caps_v2/validation.json"
+    "tangential_caps_v2/validation.json",
+    "oneram6_coarse_v1/result.json",
+    "oneram6_quadrature_v1/columns_provenance.json",
+    "oneram6_quadrature_v1/normal_integral_check.json"
   ],
   "execution_state": {
-    "status": "Connected whole-cap and closest-facet correction builds and passes complete constant/rotating planar native+independent workflows, MPI4 consistency, unchanged curved high-ratio acceptance/reference verification and focused controls. All completed source/binary/object/artifact pins verified. Next current-source actual planar/curved RANS N4/M2 and opposing-wall checks. All owned jobs terminal. Full Goal3 ACTIVE/incomplete.",
+    "status": "Full Goal3 ACTIVE/incomplete. Current column build and7 focused cases plus independent M6 normal-density reference PASS. Whole saved-state M6 event live51673 (one initial CFD step from120-step checkpoint); read-only requested Claude Opus5.5/high review live83342. Prior receipt scopes unchanged.",
     "CFD_runs": 17,
     "CFD_run_scope": "Five corrected-config failed v1..v5 plus six qualified v6 actual N/M cases and six qualified v11 actual N/M cases; initial invalid config separately retained.",
     "production_MPI": "Current-source original target and stronger rotated frozen field pass MPI1/2/4. Actual current-source RANS n1_m1_v11 passes; prior907646e00e actual-flow N/M1/1,2/1,2/2,4/1,4/2,4/4 retains old-source scope. Updated actual MPI lifecycle pending.",

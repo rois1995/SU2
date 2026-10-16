@@ -209,7 +209,7 @@ class CBoundaryLayerMetric {
   };
   using IntegrationDensity3D = std::function<double(const IntegrationPoint3D&)>;
   /*! Positive quadrature after geometric distance-band clipping, using original-cell barycentrics.
-   *  Hidden-support angular refinement estimates error in the supplied full target density;
+   *  Visible-band and hidden-support refinement estimate error in the supplied full target density;
    *  absent a callback, it monitors the BL composed with a unit isotropic sensor.
    *  Work/depth/point bounds reject unresolved integration; no nodal BL interpolation. */
   std::vector<IntegrationPoint3D> IntegrationRule3D(
@@ -232,10 +232,23 @@ class CBoundaryLayerMetric {
  private:
   std::vector<IntegrationPoint2D> IntegrationRule2DImpl(
       const std::array<std::array<double, 2>, 3>& triangle, double bandRatio, unsigned depth);
-  void IntegrationRule3DImpl(const std::array<std::array<double,3>,4>& tetrahedron,
-      const std::array<std::array<double,4>,4>& original_barycentrics,
-      const std::array<std::array<double,3>,4>& source, double bandRatio, unsigned depth,
-      size_t& visited, std::vector<IntegrationPoint3D>& rule);
+  struct SupportFace3D {
+    std::array<std::array<double,3>,3> vertices;
+    double thickness;
+    unsigned short wall;
+  };
+  struct Column3D {
+    std::array<std::array<double,4>,3> entry{},exit{};
+    std::array<std::array<double,3>,3> projection{};
+    std::array<long double,3> axial{};
+    long double area=0;
+    bool collapsed=false;
+  };
+  std::vector<IntegrationPoint3D> IntegrationRule3DVisible(const std::array<std::array<double,3>,4>& tetrahedron,
+      const std::vector<SupportFace3D>& support,double bandRatio,const IntegrationDensity3D& density);
+  std::vector<IntegrationPoint3D> IntegrationColumns3D(const std::array<std::array<double,3>,4>& tetrahedron,
+      const std::vector<Column3D>& columns,const std::vector<SupportFace3D>& support,double bandRatio,
+      const IntegrationDensity3D& density);
   struct WallData;
   void Build();
 
