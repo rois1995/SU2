@@ -69,6 +69,28 @@ constexpr float linSolEpsilon<float>() {
   return 1e-14;
 }
 
+/*--- Grow basis metadata without copying vector payloads inside an OpenMP region. ---*/
+template <class ScalarType>
+void ResizeKrylovBasis(std::vector<CSysVector<ScalarType>>& basis, unsigned long size) {
+  if (basis.size() >= size) return;
+  std::vector<CSysVector<ScalarType>> enlarged(size);
+  for (auto i = 0ul; i < basis.size(); ++i) enlarged[i].swap(basis[i]);
+  basis.swap(enlarged);
+}
+
+/*--- Allocated vectors may belong to an earlier solve with a different block layout. ---*/
+template <class ScalarType>
+bool SameVectorLayout(const CSysVector<ScalarType>& vector, const CSysVector<ScalarType>& reference) {
+  return vector.GetNBlk() == reference.GetNBlk() && vector.GetNBlkDomain() == reference.GetNBlkDomain() &&
+         vector.GetNVar() == reference.GetNVar();
+}
+
+template <class ScalarType>
+void InitializeKrylovVector(CSysVector<ScalarType>& vector, const CSysVector<ScalarType>& reference) {
+  if (vector.GetLocSize() == 0 || !SameVectorLayout(vector, reference))
+    vector.Initialize(reference.GetNBlk(), reference.GetNBlkDomain(), reference.GetNVar(), nullptr);
+}
+
 /*--- Computes v = vs * ws or v += vs * ws with unrolling of up to 4 iterations. ---*/
 template <class ScalarType, class Weights, class Vectors>
 void LinearCombinationImpl(const unsigned long n, const Vectors& vs, const Weights& ws, CSysVector<ScalarType>& v,
@@ -452,16 +474,14 @@ unsigned long CSysSolve<ScalarType>::FGMRES_LinSolver(const CSysVector<ScalarTyp
     SU2_MPI::Error("FGMRES subspace is too large (>1000).", CURRENT_FUNCTION);
   }
 
-  /*--- Allocate if not allocated yet ---*/
+  /*--- Reserve basis metadata, but allocate only the initial residual before testing convergence. ---*/
 
-  if (V.size() <= m || (flexible && Z.size() <= m)) {
+  if (V.size() < m + 1 || (flexible && Z.size() < m) || V[0].GetLocSize() == 0 ||
+      !SameVectorLayout(V[0], x)) {
     BEGIN_SU2_OMP_SAFE_GLOBAL_ACCESS {
-      V.resize(m + 1);
-      for (auto& w : V) w.Initialize(x.GetNBlk(), x.GetNBlkDomain(), x.GetNVar(), nullptr);
-      if (flexible) {
-        Z.resize(m + 1);
-        for (auto& z : Z) z.Initialize(x.GetNBlk(), x.GetNBlkDomain(), x.GetNVar(), nullptr);
-      }
+      ResizeKrylovBasis(V, m + 1);
+      if (flexible) ResizeKrylovBasis(Z, m);
+      InitializeKrylovVector(V[0], x);
     }
     END_SU2_OMP_SAFE_GLOBAL_ACCESS
   }
@@ -548,6 +568,17 @@ unsigned long CSysSolve<ScalarType>::FGMRES_LinSolver(const CSysVector<ScalarTyp
     /*---  Check if solution has converged ---*/
 
     if (beta < tol * norm0) break;
+
+    /*--- Retain vectors between solves; early convergence must not allocate the unused basis. ---*/
+
+    if (V[i + 1].GetLocSize() == 0 || !SameVectorLayout(V[i + 1], x) ||
+        (flexible && (Z[i].GetLocSize() == 0 || !SameVectorLayout(Z[i], x)))) {
+      BEGIN_SU2_OMP_SAFE_GLOBAL_ACCESS {
+        InitializeKrylovVector(V[i + 1], x);
+        if (flexible) InitializeKrylovVector(Z[i], x);
+      }
+      END_SU2_OMP_SAFE_GLOBAL_ACCESS
+    }
 
     if (flexible) {
       /*---  Precondition the CSysVector v[i] and store result in z[i] ---*/
@@ -706,28 +737,23 @@ unsigned long CSysSolve<ScalarType>::FGCRODR_LinSolverImpl(const CSysVector<Scal
     SU2_MPI::Error("FGCRODR subspace is too large (> 200).", CURRENT_FUNCTION);
   }
 
-  /*--- Allocate if not allocated yet. ---*/
+  /*--- FGMRES can leave unallocated entries in the shared basis; prepare every entry used here. ---*/
 
-  if (V.size() < m + 1 || W.size() < deflation + 1) {
-    BEGIN_SU2_OMP_SAFE_GLOBAL_ACCESS {
-      const auto nVar = b.GetNVar();
-      const auto nBlk = b.GetNBlk();
-      const auto nBlkDomain = b.GetNBlkDomain();
-
-      r.Initialize(nBlk, nBlkDomain, nVar, nullptr);
-      V.resize(m + 1);
-      for (auto& v : V) v.Initialize(nBlk, nBlkDomain, nVar, nullptr);
-      if (flexible) {
-        Z.resize(m);
-        for (auto& z : Z) z.Initialize(nBlk, nBlkDomain, nVar, nullptr);
-      }
-      W.resize(deflation + 1);
-      for (auto& w : W) w.Initialize(nBlk, nBlkDomain, nVar, nullptr);
-      T.resize(deflation + 1);
-      for (auto& t : T) t.Initialize(nBlk, nBlkDomain, nVar, nullptr);
+  BEGIN_SU2_OMP_SAFE_GLOBAL_ACCESS {
+    if (!SameVectorLayout(r, b)) ResetDeflation();
+    InitializeKrylovVector(r, b);
+    ResizeKrylovBasis(V, m + 1);
+    for (auto i = 0ul; i <= m; ++i) InitializeKrylovVector(V[i], b);
+    if (flexible) {
+      ResizeKrylovBasis(Z, m);
+      for (auto i = 0ul; i < m; ++i) InitializeKrylovVector(Z[i], b);
     }
-    END_SU2_OMP_SAFE_GLOBAL_ACCESS
+    ResizeKrylovBasis(W, deflation + 1);
+    for (auto i = 0ul; i <= deflation; ++i) InitializeKrylovVector(W[i], b);
+    ResizeKrylovBasis(T, deflation + 1);
+    for (auto i = 0ul; i <= deflation; ++i) InitializeKrylovVector(T[i], b);
   }
+  END_SU2_OMP_SAFE_GLOBAL_ACCESS
 
   /*--- The deflation vectors from a previous solve may not leave room for new directions if the subspace is
    * now smaller (e.g. max_iter decreased), keep the first ones (associated with the smallest Ritz values). ---*/

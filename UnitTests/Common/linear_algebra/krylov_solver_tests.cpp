@@ -77,6 +77,12 @@ class Identity final : public CPreconditioner<Scalar> {
   bool IsIdentity() const override { return true; }
 };
 
+/*--- Keep a separate preconditioned basis even though this scaling is exact. ---*/
+class Scaling final : public CPreconditioner<Scalar> {
+ public:
+  void operator()(const Vec& u, Vec& v) const override { v = Scalar(0.5) * u; }
+};
+
 std::unique_ptr<CConfig> MakeConfig(const std::string& options) {
   std::stringstream ss("SOLVER= EULER\n" + options);
   return std::unique_ptr<CConfig>(new CConfig(ss, SU2_COMPONENT::SU2_CFD, false));
@@ -90,7 +96,7 @@ Vec MakeRhs(unsigned long n) {
 
 /*--- Relative true residual |b - Ax| / |b|. ---*/
 Scalar TrueResidual(const TestProduct& A, const Vec& b, const Vec& x) {
-  Vec Ax(b.GetNBlk(), b.GetNBlkDomain(), 1, 0.0);
+  Vec Ax(b.GetNBlk(), b.GetNBlkDomain(), b.GetNVar(), 0.0);
   A.apply(x, Ax);
   Scalar r2 = 0, b2 = 0;
   for (auto i = 0ul; i < b.GetLocSize(); ++i) {
@@ -150,6 +156,87 @@ TEST_CASE("FGMRES monitoring frequency 0", "[LinearAlgebra]") {
   solver.FGMRES_LinSolver(b, x, A, Identity(), 1e-10, 100, res, true, config.get());
 
   CHECK(res < 1e-10);
+}
+
+TEST_CASE("FGMRES reuses a partial basis across layouts and recycled solves", "[LinearAlgebra][KrylovStorage]") {
+  auto config = MakeConfig("LINEAR_SOLVER_RESTART_FREQUENCY= 12\nLINEAR_SOLVER_RESTART_DEFLATION= 3\n");
+  CSysSolve<Scalar> solver;
+  Scalar residual = -1;
+  TestProduct diagonal;
+  diagonal.apply = [](const Vec& u, Vec& v) { v = Scalar(2) * u; };
+
+  for (const auto variables : {1ul, 2ul, 1ul}) {
+    /*--- Equal total sizes still require the correct block and variable counts. ---*/
+    Vec rhs(120 / variables, 120 / variables, variables, 1.0);
+    Vec solution(120 / variables, 120 / variables, variables, 0.0);
+    solver.SetxIsZero(true);
+    CHECK(solver.FGMRES_LinSolver(rhs, solution, diagonal, Identity(), 1e-10, 1,
+                                 residual, false, config.get()) == 1);
+    CHECK(TrueResidual(diagonal, rhs, solution) < 1e-10);
+
+    /*--- Growing the metadata must preserve payloads without copying them inside a parallel region. ---*/
+    solution = Scalar(0);
+    CHECK(solver.FGMRES_LinSolver(rhs, solution, diagonal, Scaling(), 1e-10, 80,
+                                 residual, false, config.get()) == 1);
+    CHECK(TrueResidual(diagonal, rhs, solution) < 1e-10);
+    solver.SetxIsZero(false);
+    CHECK(solver.FGMRES_LinSolver(rhs, solution, diagonal, Scaling(), 1e-10, 120,
+                                 residual, false, config.get()) == 0);
+
+    /*--- FGCRODR must initialize holes left by the early FGMRES exit, including on a later reuse. ---*/
+    solution = Scalar(0);
+    const auto matrix = Tridiagonal();
+    solver.FGCRODR_LinSolver(rhs, solution, matrix, Scaling(), 1e-10, 120,
+                             residual, false, config.get());
+    CHECK(TrueResidual(matrix, rhs, solution) < 2e-10);
+    solution = Scalar(0);
+    solver.FGMRES_LinSolver(rhs, solution, matrix, Identity(), 1e-10, 80,
+                            residual, false, config.get());
+    CHECK(TrueResidual(matrix, rhs, solution) < 2e-10);
+  }
+}
+
+TEST_CASE("FGMRES allocates new directions collectively", "[LinearAlgebra][KrylovStorage]") {
+  auto config = MakeConfig("");
+  CSysSolve<Scalar> solver;
+  solver.SetxIsZero(true);
+  class DiagonalProduct final : public CMatrixVectorProduct<Scalar> {
+   public:
+    void operator()(const Vec& u, Vec& v) const override {
+      /*--- Vector expressions may finish without a barrier and use a different work partition. ---*/
+      SU2_OMP_BARRIER
+      SU2_OMP_FOR_STAT(1024)
+      for (auto p = 0ul; p < u.GetLocSize(); ++p) v[p] = (2 + 0.001 * p / u.GetLocSize()) * u[p];
+      END_SU2_OMP_FOR
+    }
+  } matrix;
+  /*--- Empty ranks still need reduction scratch and must participate in every collective. ---*/
+  const auto count = SU2_MPI::GetSize() > 1 && SU2_MPI::GetRank() == 0 ? 0ul : 16384ul;
+  Vec rhs(count, count, 1, 1.0), solution(count, count, 1, 0.0);
+  for (const auto limit : {1ul, 80ul, 120ul, 2ul}) {
+    unsigned long iterations = 0;
+    Scalar residual = -1;
+    SU2_OMP_PARALLEL {
+      solution = Scalar(0);
+      Scalar localResidual = -1;
+      const auto used = solver.FGMRES_LinSolver(rhs, solution, matrix, Scaling(), 1e-10, limit,
+                                               localResidual, false, config.get());
+      SU2_OMP_MASTER {
+        iterations = used;
+        residual = localResidual;
+      }
+      END_SU2_OMP_MASTER
+    }
+    END_SU2_OMP_PARALLEL
+    CHECK(iterations <= limit);
+    Vec product(count, count, 1, 0.0);
+    matrix(solution, product);
+    product -= rhs;
+    const auto trueResidual = product.norm() / rhs.norm();
+    CHECK(std::abs(trueResidual - residual) < 1e-12);
+    if (limit >= 80) CHECK(trueResidual < 1e-10);
+    else CHECK(trueResidual < 1);
+  }
 }
 
 TEST_CASE("BCGSTAB reports the completed exact alpha step", "[LinearAlgebra]") {
