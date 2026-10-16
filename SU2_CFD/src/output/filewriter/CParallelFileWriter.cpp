@@ -71,11 +71,14 @@ bool CFileWriter::WriteMPIBinaryDataAll(const void *data, unsigned long sizeInBy
   int blockLengths[2] = {static_cast<int>(sizeInBytes / blockBytes), static_cast<int>(sizeInBytes % blockBytes)};
   MPI_Aint displacements[2] = {0, static_cast<MPI_Aint>(sizeInBytes - sizeInBytes % blockBytes)};
 
-  MPI_Datatype blocktype, datatype;
-  MPI_Type_contiguous(static_cast<int>(blockBytes), MPI_BYTE, &blocktype);
-  MPI_Datatype types[2] = {blocktype, MPI_BYTE};
-  MPI_Type_create_struct(2, blockLengths, displacements, types, &datatype);
-  MPI_Type_commit(&datatype);
+  MPI_Datatype blocktype = MPI_DATATYPE_NULL, datatype = MPI_BYTE;
+  const int count = sizeInBytes ? 1 : 0;
+  if (count) {
+    MPI_Type_contiguous(static_cast<int>(blockBytes), MPI_BYTE, &blocktype);
+    MPI_Datatype types[2] = {blocktype, MPI_BYTE};
+    MPI_Type_create_struct(2, blockLengths, displacements, types, &datatype);
+    MPI_Type_commit(&datatype);
+  }
 
   /*--- Set the view for the MPI file write, i.e., describe the
  location in the file that this rank "sees" for writing its
@@ -86,10 +89,14 @@ bool CFileWriter::WriteMPIBinaryDataAll(const void *data, unsigned long sizeInBy
 
   /*--- Collective call for all ranks to write simultaneously. ---*/
 
-  int ierr = MPI_File_write_all(fhw, data, 1, datatype, MPI_STATUS_IGNORE);
+  /*--- Empty surface partitions still participate, using a zero count rather than a zero-sized derived type. ---*/
+  const unsigned char empty = 0;
+  int ierr = MPI_File_write_all(fhw, count ? data : &empty, count, datatype, MPI_STATUS_IGNORE);
 
-  MPI_Type_free(&datatype);
-  MPI_Type_free(&blocktype);
+  if (count) {
+    MPI_Type_free(&datatype);
+    MPI_Type_free(&blocktype);
+  }
 
   disp      += totalSizeInBytes;
   fileSize  += sizeInBytes;
