@@ -69,7 +69,12 @@ Conditioned scalar fan and strict controls pass;159-cell prefix is incomplete an
 expensive. Construction-only MPI4 replay is terminal rejected by a first-layer
 composed edge integral, separately from volume integration. No owned job remains.
 User now prioritizes uncertain normalization/global error/geometry reuse; unbuilt
-subdivision extension withdrawn. Three-element30P30N coarse2D added to validation.
+subdivision extension withdrawn. Geometry-only support/chord reuse is qualified on
+all3 difficult fields (bit-identical estimates when sensor/core change);18 focused3D
+and8 existing2D controls pass. Owner reductions agree on1/4 ranks for3 cells only.
+Production normalizer/global error allocator still pending. Three-element30P30N
+planar input extracted/validated in integration_evidence/native_3d_bl_v1/three_element_input_v1;
+its source"2D"CGNS was a single hex layer. No airfoil adaptation/CFD run yet.
 Production normalization remains unchanged; no M6 mesh or full-field integral yet.
 [Current whole-field checkpoint and reassessment](Handbook/GOAL3_M6_COMPLEXITY_REASSESSMENT.md).
 [Current exact-field/replay/design/live state](Handbook/GOAL3_M6_FROZEN_FIELDS.md),

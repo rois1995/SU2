@@ -1,0 +1,83 @@
+{
+  "source": "/media/rausa/4TB/Validation/ThreeElementAirfoil/30P30N/Meshes/2D_L1_coarse_r1.cgns",
+  "source_sha256": "73c35c8229f859ef6cf90b729e56b56256f7d4d9a56056dedf20de7491b290f3",
+  "mesh_sha256": "2e1f28dc5ceed9d4fdebe049e2b0fc01ae07c6fc95a3e576107c79cc4b92f81a",
+  "helper_sha256": "7ac3e96b14d4fb3eb7ca95c5ef2b1252bd446181492c3e10499bb828d04baa39",
+  "inspector_sha256": "b49d726a5edd1284fb1a9e5a83995a62cd4ed2c3cd740c1f5d7eefa7521f011f",
+  "compile_command": [
+    "mpicc",
+    "-I/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/externals/cgns",
+    "-I/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/externals/cgns",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/three_element_input_v1/inventory.c",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/externals/cgns/libcgns.a",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/externals/cgns/hdf5/libsu2hdf5.a",
+    "-ldl",
+    "-lm",
+    "-lz",
+    "-pthread",
+    "-o",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/three_element_input_v1/inventory"
+  ],
+  "original_metadata": "base\tbase\t3\t3\nzone\tzone0001\t3\t129080\t63957\t0\t0\t0\t0\t0\t0\t0\nsection\tCellInfo4Hexa\tHEXA_8\t1\t63957\nsection\tBD001_Quad\tQUAD_4\t63958\t64517\nsection\tBD002_Quad\tQUAD_4\t64518\t128474\nsection\tBD003_Quad\tQUAD_4\t128475\t192431\nsection\tBD004_Quad\tQUAD_4\t192432\t192697\nsection\tBD005_Quad\tQUAD_4\t192698\t192951\nsection\tBD006_Quad\tQUAD_4\t192952\t193041\nboundary\tBoundary001\tBCWall\t560\nboundary\tBoundary002\tBCWall\t63957\nboundary\tBoundary003\tBCWall\t63957\nboundary\tBoundary004\tBCWall\t266\nboundary\tBoundary005\tBCWall\t254\nboundary\tBoundary006\tBCWall\t90\n",
+  "axis_removed": 2,
+  "plane": 0.0,
+  "other_plane": 2.0,
+  "opposite_cap_projection_difference": [
+    3.515865500958171e-07,
+    8.05925992608536e-10
+  ],
+  "vertices": 64540,
+  "quadrilaterals": 63957,
+  "triangles": 127914,
+  "boundary_edges": 1170,
+  "markers": {
+    "Boundary001": {
+      "segments": 560,
+      "min": [
+        -1793.3071144613202,
+        -1799.878781009862
+      ],
+      "max": [
+        1783.141772508071,
+        1803.651019583051
+      ]
+    },
+    "Boundary004": {
+      "segments": 266,
+      "min": [
+        -1.525517873837998,
+        -2.092227707942583
+      ],
+      "max": [
+        0.3390846378006245,
+        0.11808624778677766
+      ]
+    },
+    "Boundary005": {
+      "segments": 254,
+      "min": [
+        0.7884167071069896,
+        -0.9820726033503889
+      ],
+      "max": [
+        15.733713272668865,
+        1.114464795012853
+      ]
+    },
+    "Boundary006": {
+      "segments": 90,
+      "min": [
+        15.684721005415586,
+        -2.627973516087877
+      ],
+      "max": [
+        20.353228632041464,
+        0.3915433470668054
+      ]
+    }
+  },
+  "area_relative_error": 2.972221685700761e-18,
+  "minimum_double_area": 2.3536067756561372e-07,
+  "CFD_steps": 0,
+  "adaptation_performed": false
+}

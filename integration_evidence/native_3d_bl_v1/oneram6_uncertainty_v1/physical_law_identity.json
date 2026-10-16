@@ -1,25 +1,28 @@
 {
   "baseline": "341c6d8177751548f816f605c4cbcd8e9d764a12",
+  "current_source_sha256": "b6d3a3c9030379b8f70d7d6fb8cde025f7077d305928cb81c7881aa1d8da5a63",
   "functions": {
-    "CBoundaryLayerMetric::Evaluate": {
-      "unchanged_body": true,
-      "sha256": "937d1cfd1b194f10a46322b43afffbb5c5658a649da9385c89c46ea0788c1605"
+    "Build": {
+      "body_unchanged": true,
+      "sha256": "50fc77eacecf0e3703869a30238231224287872976094d15155791da9555fc2c"
     },
-    "CBoundaryLayerMetric::ApplySample": {
-      "unchanged_body": true,
+    "ApplySample": {
+      "body_unchanged": true,
       "sha256": "b35eb835c9bb3965f16419bfdb45f1099584b77d3fff5a421e9241591dcbc9ef"
     },
-    "CBoundaryLayerMetric::ApplyPoint": {
-      "unchanged_body": true,
+    "ApplyPoint": {
+      "body_unchanged": true,
       "sha256": "441a682b42a3ad8ee5b7e023abfd90d478304f54754d2c7d4122633adc9e65f4"
     },
-    "CBoundaryLayerMetric::EdgeBreakpoints": {
-      "unchanged_body": true,
-      "sha256": "4a60249f665599068f20670ac441354f8b15c364bc95504fea294795b4b74ad3"
+    "Evaluate": {
+      "full_evaluation_branch_identical_to_baseline": true,
+      "change": "Wrapper selects full evaluation; geometry-only checks select early distance return."
     },
-    "CBoundaryLayerMetric::Build": {
-      "unchanged_body": true,
-      "sha256": "50fc77eacecf0e3703869a30238231224287872976094d15155791da9555fc2c"
+    "EdgeBreakpoints": {
+      "body_unchanged": false,
+      "change": "Strict entry retains default geometric policy, reusing the same nearest-distance calculation without tensor construction; scalar-only finite-feature prefilter remains separate. Strict controls passed."
     }
-  }
+  },
+  "controls": "geometry_reuse_v1/controls.json",
+  "note": "Body comparison is scoped to full physical evaluation. It is not whole-binary identity or a proof of integration accuracy."
 }

@@ -127,3 +127,43 @@ folder yet; no run has started. 3D_L1_coarse_r1.cgns (470MiB) is available for l
 qualification, not a replacement for the current M6 target. Shared uncertainty
 and normalization policy should retain dimension-specific geometry preparation;
 validate accepted2D behavior before replacing its existing preparation policy.
+
+
+## Geometry reuse qualification
+
+Geometry-only ComplexityWorkspace3D retains support candidates and original-barycentric
+chord cuts for this immutable wall model/original cell. It rejects reuse with another
+cell/model. Every density callback is reevaluated with the current original P1 sensor
+and actual-position geometric wall sample; no composed tensor/density is cached.
+An absolute-error allocation can replace the old local relative refinement preference.
+A workspace payload/node accounting ceiling bounds retention, not allocator overhead,
+transient preparation or RSS. Final global allocation/scale policy is not wired yet.
+
+Distance-only cutoff/support/chart checks now reuse exactly the full evaluator's
+nearest-facet calculation, returning before unused tangent tensors/eigendecompositions.
+Full EvaluateImpl branch equals baseline Evaluate after stripping those early returns;
+ApplySample/ApplyPoint/Build remain text-identical. See updated physical_law_identity.json.
+
+18 focused3D/cache/edge/volume/curved cases pass435537 assertions, and8 existing2D
+composition controls pass95. Exact original/changed-sensor-and-core warm/cold estimates
+agree on88/157/329. Independent reference errors are unchanged, not improved by caching.
+On88, cold2.20059s/preparation2.08060s vs repeated.11325s,58112bytes;157 .12095s vs
+.02311s,19072bytes;329 .17431s vs .04663s,40664bytes. Changed157 needs109 new chords,
+showing geometry is extended when the sensor changes the adaptive decisions. These are
+local replay observations, not whole-normalization or MPI speedup/scaling results.
+Three exact-field owner contributions reduce identically on1/4 ranks: C6.312537784630236,
+raw indicator.051376315498162364,20060 queries. This is a3-cell reduction check, not
+complete frozen-M6 or global allocation qualification. Receipts: geometry_reuse_v1 and
+geometry_reduction_np1_v1/geometry_reduction_np4_v1. No owned job remains in this batch.
+
+The airfoil file named2D is actually one layer of63957 hexahedra. Its z=0 planar cap
+has been extracted and triangulated into127914 positive triangles/64540vertices,
+with all1170 source boundary edges and markers preserved. Interior edges are paired,
+boundaries degree2, Euler characteristic−2 (three holes), area relative difference
+2.97e-18. No source snapping; opposite-cap projection differs up to3.52e-7 and is
+not used to define the selected cap. Reusable preparation, original CGNS inventory,
+source/output hashes and validation: ../three_element_input_v1/preparation.json.
+The prepared SU2 input is30P30N_coarse_tri.su2 there. No CFD configuration, sensor
+field, adapted mesh or accepted airfoil workflow yet. The3D coarse file contains
+8634195 hexes and requires separate input/construction qualification; the native
+backend currently rejects non-tetrahedral cells.

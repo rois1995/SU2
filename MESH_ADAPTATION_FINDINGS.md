@@ -6056,3 +6056,15 @@ mesh or transfer follows. This is not a normalized-target or volume-integration
 success. Next priorities are uncertainty-aware scale solving, distributed absolute
 error and geometry reuse. Three-element30P30N coarse2D joins validation scope.
 See Handbook/GOAL3_UNCERTAINTY_COMPLEXITY.md for receipts and unchanged gates.
+
+
+Geometry reuse checkpoint: preparation dominates difficult-cell88 (2.081s of2.201s).
+Support/chord caching reduces its repeat to.113s with58KB accounted retention;
+all3 difficult estimates remain bit-identical with changed sensor/fade core and
+cold preparation. Absolute-error refinement input and separate preparation/density/
+retention counters added. No source BL tensor/density caching or target change.
+18 focused3D cases plus8 existing2D controls pass;1/4-rank3-cell owner sums agree.
+Production normalization/global error allocation and full frozen-field coverage
+are still pending; the raw uncertainty indicator remains heuristic and can
+underestimate157. The 30P30N planar cap is now a validated triangular test input,
+not an adapted result. See current uncertainty handbook for evidence and limits.

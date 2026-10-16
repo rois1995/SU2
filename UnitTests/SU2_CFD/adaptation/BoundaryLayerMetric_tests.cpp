@@ -1647,6 +1647,32 @@ TEST_CASE("Replay a complete faceted wall volume-integration input without CFD",
     }
     return;
   }
+  if(std::getenv("SU2_NATIVE_BL_CACHE")) {
+    REQUIRE(version==2);
+    auto cache=layers.PrepareComplexity3D(cell,4u<<20);
+    const auto initial=layers.EstimateComplexity3D(cell,targetDensity,8192,-1,cache.get());
+    const auto repeated=layers.EstimateComplexity3D(cell,targetDensity,8192,-1,cache.get());
+    CHECK(repeated.value==initial.value);CHECK(repeated.indicator==initial.indicator);
+    CHECK(repeated.evaluations==initial.evaluations);CHECK(repeated.reusedChords>0);
+    // Change both sensor strength and the physical fade core; geometry preparation must remain reusable.
+    for(auto& m:sensor)for(auto& row:m.m)for(auto& v:row)v*=4;
+    core*=4;
+    const auto changed=layers.EstimateComplexity3D(cell,targetDensity,8192,-1,cache.get());
+    const auto cold=layers.EstimateComplexity3D(cell,targetDensity);
+    CHECK(changed.value==cold.value);CHECK(changed.indicator==cold.indicator);
+    CHECK(changed.evaluations==cold.evaluations);
+    std::ofstream out("geometry_reuse.json");out<<std::setprecision(17)<<"[";
+    unsigned index=0;
+    for(const auto* e:{&initial,&repeated,&changed,&cold}) {
+      out<<(index++?",":"")<<"{\"value\":"<<e->value<<",\"indicator\":";
+      if(std::isfinite(e->indicator))out<<e->indicator;else out<<"null";
+      out<<",\"evaluations\":"<<e->evaluations<<",\"panels\":"<<e->panels
+         <<",\"seconds\":"<<e->seconds<<",\"preparation_seconds\":"<<e->preparationSeconds
+         <<",\"density_seconds\":"<<e->densitySeconds<<",\"prepared_chords\":"<<e->preparedChords
+         <<",\"reused_chords\":"<<e->reusedChords<<",\"cached_bytes\":"<<e->cachedBytes<<"}";
+    }
+    out<<"]\n";REQUIRE(bool(out));return;
+  }
   if(const char* control=std::getenv("SU2_NATIVE_BL_COMPLEXITY")) {
     const size_t budget=std::stoul(control);
     const unsigned depth=std::getenv("SU2_NATIVE_BL_SUBDIVISIONS")?std::stoul(std::getenv("SU2_NATIVE_BL_SUBDIVISIONS")):0;
@@ -1785,6 +1811,30 @@ TEST_CASE("Bounded complexity keeps complete positive estimates and explicit unc
   CHECK(outside.value==Approx(1.4*volume).epsilon(1e-10));CHECK(outside.evaluations==22);
   const auto limited=layers.EstimateComplexity3D(near,polynomial,64);
   CHECK(limited.limited);CHECK(limited.value>0);CHECK(std::isinf(limited.indicator));CHECK(limited.evaluations==64);
+  auto workspace=layers.PrepareComplexity3D(near,1u<<20);
+  const auto first=layers.EstimateComplexity3D(near,polynomial,8192,-1,workspace.get());
+  size_t callbackCount=0;
+  auto doubled=[&](const auto& q){++callbackCount;return 2*polynomial(q);};
+  const auto reused=layers.EstimateComplexity3D(near,doubled,8192,-1,workspace.get());
+  CHECK(reused.value==2*first.value);CHECK(callbackCount==reused.evaluations);
+  CHECK(first.preparedChords>0);CHECK(reused.preparedChords==0);CHECK(reused.reusedChords>0);
+  CHECK(reused.cachedBytes<=1u<<20);CHECK(reused.cachedBytes==first.cachedBytes);
+  CHECK(reused.seconds>=reused.densitySeconds);CHECK(reused.seconds>=reused.preparationSeconds);
+  auto changing=[](const auto& q){return std::exp(5*q.barycentric[0]);};
+  const auto warm=layers.EstimateComplexity3D(near,changing,8192,0,workspace.get());
+  const auto cold=layers.EstimateComplexity3D(near,changing,8192,0);
+  CHECK(warm.value==cold.value);CHECK(warm.indicator==cold.indicator);CHECK(warm.evaluations==cold.evaluations);
+  const auto loose=layers.EstimateComplexity3D(near,changing,8192,1e99);
+  CHECK(loose.evaluations<warm.evaluations);CHECK(warm.evaluations<=8192);
+  auto smallCache=layers.PrepareComplexity3D(near,1024);
+  const auto small=layers.EstimateComplexity3D(near,polynomial,8192,-1,smallCache.get());
+  CHECK(small.value==result.value);CHECK(small.cachedBytes<=1024);
+  CHECK_THROWS(layers.EstimateComplexity3D(far,polynomial,8192,-1,workspace.get()));
+  CBoundaryLayerMetric different(3,{wall});
+  CHECK_THROWS(different.EstimateComplexity3D(near,polynomial,8192,-1,workspace.get()));
+  CHECK_THROWS(layers.PrepareComplexity3D(near,0));
+  CHECK_THROWS(layers.EstimateComplexity3D(near,polynomial,8192,-2));
+  CHECK_THROWS(layers.EstimateComplexity3D(near,polynomial,8192,std::numeric_limits<double>::quiet_NaN()));
   CHECK_THROWS(layers.EstimateComplexity3D(near,polynomial,63));
   CHECK_THROWS(layers.EstimateComplexity3D(near,[](const auto&){return -1.;}));
   CHECK_THROWS(layers.EstimateComplexity3D(near,[](const auto&){return std::numeric_limits<double>::quiet_NaN();}));
