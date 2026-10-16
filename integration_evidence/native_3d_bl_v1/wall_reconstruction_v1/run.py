@@ -16,7 +16,7 @@ def main():
  layered=re.fullmatch(r'native_front_(constant|varying|rotated)(?:_mpi([24]))?_v[0-9]+',case)
  core=layered or re.fullmatch(r'native_core_(constant|varying|rotated)(?:_mpi([24]))?_v[0-9]+',case)
  opposing=re.fullmatch(r'native_opposing(?:_resume)?(?:_mpi([24]))?_v[0-9]+',case)
- single=re.fullmatch(r'native_prism_(single|crossing)_v[0-9]+',case)
+ single=re.fullmatch(r'native_prism_(single|crossing|tangential|rotating)(?:_mpi([24]))?_v[0-9]+',case)
  planning=re.fullmatch(r'native_batch_planning(?:_mpi([24]))?_v[0-9]+',case)
  controls=re.fullmatch(r'native_policy_controls_mpi([24])_v[0-9]+',case)
  edge_controls=re.fullmatch(r'native_global_edge_controls_v[0-9]+',case)
@@ -42,7 +42,7 @@ def main():
  if case=='native_curved_volume_controls_v11':selection='[NativeCylinderBLVolume3D],[NativeCurvedBLVolume3D],[NativeParallelBL3D]';expected=3
  if core:selection='[NativeRegionCore3D]';expected=1;ranks=int(core[2] or 1)
  if opposing:selection='[NativeOpposingBL3D],[NativePrismaticAdmission3D],[NativePolicy3D]';expected=4;ranks=int(opposing[1] or 1)
- if single:selection='[NativePrismaticSingleWall3D],[NativePrismaticAdmission3D],[NativePolicy3D]';expected=4
+ if single:selection='[NativePrismaticSingleWall3D],[NativePrismaticAdmission3D],[NativePolicy3D]';expected=4;ranks=int(single[2] or 1)
  if planning:selection='[NativeBatchPlanning3D],[NativeBatchLookup3D],[NativeBatchEngine3D],[NativePolicy3D]';expected=5;ranks=int(planning[1] or 1)
  if policy:selection='[NativeBLPolicyRuntime3D]';expected=1;ranks=int(policy[1])
  if controls:selection='[NativePolicy3D]';expected=2;ranks=int(controls[1])
@@ -139,8 +139,8 @@ def main():
   assert digest(saved_patch)==prior['equivalent_complete_input_sha256']
   pins['accepted_patch_json']=digest(saved_patch);pins['construction_reuse_receipt']=digest(reference)
   env['SU2_NATIVE_OPPOSING_PATCH']='replay_patch.dat'
- if single:env['SU2_NATIVE_PRISM_SENSOR']='CROSSING' if single[1]=='crossing' else 'SCALAR'
- contract={'recipe':stage,'pins':pins,'command':command,'MPI_ranks':ranks,'environment':{k:v for k,v in env.items() if k.startswith('SU2_NATIVE_CURVED_') or k in ('SU2_NATIVE_CORE_FIELD','SU2_NATIVE_OPPOSING_PATCH','SU2_NATIVE_PRISM_SENSOR','SU2_NATIVE_FRONT_HEIGHT','SU2_NATIVE_FRONT_LENGTH','SU2_NATIVE_POLICY_WORKERS','OMP_NUM_THREADS','OPENBLAS_NUM_THREADS','MKL_NUM_THREADS','OMPI_MCA_mpi_yield_when_idle')}}
+ if single:env['SU2_NATIVE_PRISM_SENSOR']={'single':'SCALAR','crossing':'CROSSING','tangential':'TANGENTIAL','rotating':'ROTATING'}[single[1]]
+ contract={'recipe':stage,'pins':pins,'command':command,'MPI_ranks':ranks,'environment':{k:v for k,v in env.items() if k.startswith('SU2_NATIVE_CURVED_') or k in ('SU2_NATIVE_CORE_FIELD','SU2_NATIVE_OPPOSING_PATCH','SU2_NATIVE_PRISM_SENSOR','SU2_NATIVE_FRONT_HEIGHT','SU2_NATIVE_FRONT_LENGTH','SU2_NATIVE_POLICY_WORKERS','OMP_NUM_THREADS','OPENBLAS_NUM_THREADS','MKL_NUM_THREADS','TMPDIR','OMPI_MCA_mpi_yield_when_idle')}}
  destination=HERE.parent/'interacting_walls_v1' if opposing or single or planning or policy or controls else HERE.parent/'region_construction_v1' if case.startswith('native_') else HERE
  destination.mkdir(exist_ok=True)
  record=destination/(case+'.json');folder=destination/case
@@ -184,7 +184,7 @@ def main():
  if policy:result['scope']='Existing production planar RANS/SA policy lifecycle on the new regional constructor: actual backend refinement/coarsening, conservative current/BDF transfer, sensor-only donor transport, positivity/turbulence bounds, SU2/CGNS/reference and real restart on declared N/M. Initialized affine states, no CFD evolution/converged viscous or affordability qualification. Independent audit separate.'
  if controls:result['scope']='Focused strict work/time/refusal/atomicity and metric-diagnosis controls; multi-rank completion may suppress identical directed proposals or defer distinct conflicting stars. No full mesh/CFD/performance qualification.'
  if planning:result['scope']='Complete-star metadata selection and remote-only shared-vertex conflict, deferred payload avoidance, stale final proofs, memory/missing-source refusal, legacy batched lookup/reservation and disjoint-engine parallel edits, strict work/time/atomicity controls. Focused protocol/control checks only, not mesh/CFD/affordability qualification.'
- if single:result['scope']='Complete regional single-wall .1/g1.2/T.3 fade with original P1 scalar4*(1+3*x) I or crossing normal diag(4,4,4+96*(1-|x-z|)), actual geometric composition, original source/height/q/J/full-edge/work/time and native removal gates. Direct engine control, not actual CFD/backend/transfer/restart.'
+ if single:result['scope']='Complete regional single-wall .1/g1.2/T.3 fade with original P1 scalar4*(1+3*x) I, crossing normal diag(4,4,4+96*(1-|x-z|)), constant30degree tangent256:4, or affine varying/rotating tangent tensors, actual geometric composition, original source/height/q/J/full-edge/work/time and native removal gates. Direct engine control, not actual CFD/backend/transfer/restart.'
  if opposing:result['scope']='Complete opposing planar BL construction/removal target with overlapping thickness .6 in a unit gap, first height .02, growth1.2, immutable original P1 sensor4*(1+3*x) I. Actual geometric composition/full edges, original q/J/work/time gates. Native acceptance and independent geometry/field proof are separate; no CFD or general interacting geometry qualification.'
  if edge_controls:result['scope']='Focused actual geometric BL edge-band/rotation controls, original-P1 physical/collar priority and exact sensor edges, metric-balanced placements, global composed-edge error with tiny noise and high-demand thin bands. No complete mesh, MPI/CFD/restart/accuracy or performance qualification.'
  if core:result['scope']='Complete initialized-RANS geometry native construction with a stronger frozen original-P1 sensor, actual geometric BL/fade, unchanged geometry/h/q/J/full-edge/work/time gates, source-preserving publication and exported field/mesh records. Independent audit remains separate. No CFD evolution, solution transfer/restart, general geometry or performance qualification.'

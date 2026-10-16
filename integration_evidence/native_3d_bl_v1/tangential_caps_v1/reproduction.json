@@ -1,0 +1,124 @@
+{
+  "status": "OFFLINE_PRIMARY_CAP_REFINEMENT_DIAGNOSIS_ONLY",
+  "source_geometry_sha256": "30ace31249e242b4595479dc5d60a7530e8f519359c6d9b4c42a33df232ab7e2",
+  "helper_sha256": "1bcc569c662c6f887e8db4506f27e8e74a2d022a9d2eef38319d549b53df5f01",
+  "levels": [
+    0.0,
+    0.1,
+    0.21512051820755007,
+    0.5173159528990225,
+    1.0
+  ],
+  "cases": [
+    {
+      "eigenvalues": [
+        256,
+        4,
+        4
+      ],
+      "rotation_degrees": 0,
+      "base_triangles": 216,
+      "normal_intervals": 4,
+      "tetrahedra": 2592,
+      "surface_splits": 123,
+      "minimum_cap_quality": 0.2068120367246421,
+      "minimum_q3D": 0.25646150824384795,
+      "minimum_J3D": 0.0738181766198534,
+      "invalid_cells": 0,
+      "best_cap_quality_bound_at_acute_transformed_cube_corner": 0.8660254037844386,
+      "status": "RECONSTRUCTED_CANDIDATE_SHAPE_PASS"
+    },
+    {
+      "eigenvalues": [
+        256,
+        4,
+        4
+      ],
+      "rotation_degrees": 15,
+      "base_triangles": 416,
+      "normal_intervals": 4,
+      "tetrahedra": 4992,
+      "surface_splits": 225,
+      "minimum_cap_quality": 0.09403092472695983,
+      "minimum_q3D": 0.14800797020655637,
+      "minimum_J3D": 0.033025144848426266,
+      "invalid_cells": 416,
+      "best_cap_quality_bound_at_acute_transformed_cube_corner": 0.707660615271873,
+      "status": "RECONSTRUCTED_CANDIDATE_SHAPE_REJECTED"
+    },
+    {
+      "eigenvalues": [
+        256,
+        4,
+        4
+      ],
+      "rotation_degrees": 30,
+      "base_triangles": 480,
+      "normal_intervals": 4,
+      "tetrahedra": 5760,
+      "surface_splits": 261,
+      "minimum_cap_quality": 0.0738164275729895,
+      "minimum_q3D": 0.1256461156200821,
+      "minimum_J3D": 0.023469997776548478,
+      "invalid_cells": 800,
+      "best_cap_quality_bound_at_acute_transformed_cube_corner": 0.4684783069367047,
+      "status": "RECONSTRUCTED_CANDIDATE_SHAPE_REJECTED"
+    },
+    {
+      "eigenvalues": [
+        256,
+        4,
+        4
+      ],
+      "rotation_degrees": 45,
+      "base_triangles": 302,
+      "normal_intervals": 4,
+      "tetrahedra": 3624,
+      "surface_splits": 164,
+      "minimum_cap_quality": 0.06653736595702764,
+      "minimum_q3D": 0.11382783820114638,
+      "minimum_J3D": 0.02010649262529391,
+      "invalid_cells": 928,
+      "best_cap_quality_bound_at_acute_transformed_cube_corner": 0.4136240734492842,
+      "status": "RECONSTRUCTED_CANDIDATE_SHAPE_REJECTED"
+    },
+    {
+      "eigenvalues": [
+        1024,
+        4,
+        4
+      ],
+      "rotation_degrees": 30,
+      "base_triangles": 1920,
+      "normal_intervals": 4,
+      "tetrahedra": 23040,
+      "surface_splits": 1005,
+      "minimum_cap_quality": 0.036993343467967885,
+      "minimum_q3D": 0.07930156125227604,
+      "minimum_J3D": 0.011765148441826115,
+      "invalid_cells": 13568,
+      "best_cap_quality_bound_at_acute_transformed_cube_corner": 0.24584518396866875,
+      "status": "RECONSTRUCTED_CANDIDATE_SHAPE_REJECTED"
+    },
+    {
+      "eigenvalues": [
+        1024,
+        4,
+        4
+      ],
+      "rotation_degrees": 45,
+      "base_triangles": 1090,
+      "normal_intervals": 4,
+      "tetrahedra": 13080,
+      "surface_splits": 574,
+      "minimum_cap_quality": 0.03329866376822112,
+      "minimum_q3D": 0.07174921613885689,
+      "minimum_J3D": 0.010058184282292248,
+      "invalid_cells": 9792,
+      "best_cap_quality_bound_at_acute_transformed_cube_corner": 0.21399855537530493,
+      "status": "RECONSTRUCTED_CANDIDATE_SHAPE_REJECTED"
+    }
+  ],
+  "elapsed_seconds": 7.457666432950646,
+  "scope": "Independent reproduction of constant tangential original-P1 sensors, actual planar h.1/g1.2/T.3 normal/fade, midpoint longest-edge cap refinement and sorted-ID3-tet extrusion. Reuses finite unit-box geometry. Shape diagnostics only: no production/source-work/time/complete geometry/edge quadrature/MPI/CFD acceptance. Corner bound is the maximum2D triangle mean ratio at the smaller transformed angle, not global3D infeasibility."
+}

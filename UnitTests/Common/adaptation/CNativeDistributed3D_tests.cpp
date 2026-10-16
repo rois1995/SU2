@@ -2339,11 +2339,12 @@ void CoupledBL(bool grouped,unsigned replay=0,double strength=1,bool opposing=fa
   const char* saved_patch=opposing?std::getenv("SU2_NATIVE_OPPOSING_PATCH"):nullptr;
   if(saved_patch)fixture.patch=SavedPrism(saved_patch);
   const char* selected_sensor=regional?std::getenv("SU2_NATIVE_PRISM_SENSOR"):nullptr;
-  const bool crossing=selected_sensor && std::string(selected_sensor)=="CROSSING";
+  const std::string sensor=selected_sensor?selected_sensor:"SCALAR";
+  const bool crossing=sensor=="CROSSING",tangential=sensor=="TANGENTIAL",rotating=sensor=="ROTATING";
   if(replay)fixture.patch=replay==2?BLColdObstruction():BLCornerObstruction();
   if(grouped)for(auto& f:fixture.facets)f.marker=std::all_of(f.v.begin(),f.v.end(),[](Node n){return n.p.z==0;})?10:
       opposing && std::all_of(f.v.begin(),f.v.end(),[](Node n){return n.p.z==1;})?12:11;
-  const PlanarReference reference(fixture.facets);const std::string prefix=std::string(regional?"regional_":"")+std::string(crossing?"crossing_":"")+std::string(opposing?"opposing_":"")+std::string(strength>1?"finer_":"")+(replay==2?"cold_replay_":replay?"replay_":"")+std::string(grouped?"grouped_":"");
+  const PlanarReference reference(fixture.facets);const std::string prefix=std::string(regional?"regional_":"")+std::string(crossing?"crossing_":tangential?"tangential_":rotating?"rotating_":"")+std::string(opposing?"opposing_":"")+std::string(strength>1?"finer_":"")+(replay==2?"cold_replay_":replay?"replay_":"")+std::string(grouped?"grouped_":"");
   auto input=Partition(Rows(fixture.patch),world);
   if(saved_patch)for(auto& row:input)row.second.version=0;
   const auto saved=input;
@@ -2353,6 +2354,9 @@ void CoupledBL(bool grouped,unsigned replay=0,double strength=1,bool opposing=fa
     const auto p=donor.cell.v[k].p;
     const auto value=strength*(1+3*p.x);
     donor.sensor[k]=crossing?Tensor{4,0,0,4,0,4+96*(1-std::abs(p.x-p.z))}:Tensor{value,0,0,value,0,value};
+    auto rotated=[](double high,double sign){return Tensor{.75*high+1,sign*.25*std::sqrt(3.)*(high-4),0,.25*high+3,0,4};};
+    if(tangential)donor.sensor[k]=rotated(256,1);
+    if(rotating){const auto a=rotated(64,-1),b=rotated(256,1);donor.sensor[k]={(1-p.x)*a.xx+p.x*b.xx,(1-p.x)*a.xy+p.x*b.xy,0,(1-p.x)*a.yy+p.x*b.yy,0,4};}
   }
   const double first=opposing?.02:.1,thickness=opposing?.6:.3;
   CBoundaryLayerMetric::Wall wall;wall.layer={"wall",first,1.2,thickness};

@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "integration_evidence/native_3d_bl_v1/tangential_caps_v1/aligned_witness_v1/propose.py", line 12, in <module>
+    ns={};source=HERE.parent/'reproduce.py';text=source.read_text();exec(compile(text[:text.index('results=[]')],str(source),'exec'),dict(__file__=str(source)),ns)
+  File "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/tangential_caps_v1/reproduce.py", line 9, in <module>
+    original={v[0]:np.array(v[1:3],float) for f in facets for v in f['vertices']};seed=[tuple(v[0] for v in f['vertices']) for f in facets]
+  File "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/tangential_caps_v1/reproduce.py", line 9, in <dictcomp>
+    original={v[0]:np.array(v[1:3],float) for f in facets for v in f['vertices']};seed=[tuple(v[0] for v in f['vertices']) for f in facets]
+NameError: name 'np' is not defined

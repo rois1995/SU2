@@ -1,0 +1,334 @@
+diff --git a/Common/include/adaptation/CNativeEngine3D.hpp b/Common/include/adaptation/CNativeEngine3D.hpp
+index bb32754267..bd686fd118 100644
+--- a/Common/include/adaptation/CNativeEngine3D.hpp
++++ b/Common/include/adaptation/CNativeEngine3D.hpp
+@@ -44,6 +44,7 @@ struct EngineStats {
+   uint64_t region_attempts=0, region_cells=0, region_surface_trials=0, region_junction_trials=0;
+   uint64_t region_core_trials=0, region_core_regions=0;
+   uint64_t region_transition_fronts=0, region_front_trials=0;
++  double region_cap_seconds=0;  // Nested in regional sampling.
+   double region_sampling_seconds=0, region_first_band_seconds=0, region_transition_seconds=0;
+   double region_junction_seconds=0, region_core_seconds=0, region_validation_seconds=0;
+   uint64_t layer_published = 0, height_checks = 0, height_rejected = 0, footprint_rejected = 0;
+diff --git a/Common/include/adaptation/CNativeRegion3D.hpp b/Common/include/adaptation/CNativeRegion3D.hpp
+index 591b71e481..b7bab9082e 100644
+--- a/Common/include/adaptation/CNativeRegion3D.hpp
++++ b/Common/include/adaptation/CNativeRegion3D.hpp
+@@ -34,6 +34,7 @@ struct RegionReport {
+   size_t surface_splits = 0, surface_collapses = 0, surface_trials = 0, junction_trials = 0;
+   size_t generated_cells = 0, core_trials = 0, core_regions = 0;
+   size_t transition_fronts = 0, front_trials = 0;
++  double cap_seconds = 0;  // Nested in sampling: private anisotropic cap reconstruction and actual 3D closure.
+   double sampling_seconds = 0, first_band_seconds = 0, transition_seconds = 0;
+   double junction_seconds = 0, core_seconds = 0, validation_seconds = 0;
+   bool exhausted_work = false, unresolved_core = false;
+diff --git a/Common/src/adaptation/CNativeEngine3D.cpp b/Common/src/adaptation/CNativeEngine3D.cpp
+index e9ce83ddc4..3f6c94bab4 100644
+--- a/Common/src/adaptation/CNativeEngine3D.cpp
++++ b/Common/src/adaptation/CNativeEngine3D.cpp
+@@ -824,6 +824,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
+     stats.region_surface_trials=report.surface_trials;stats.region_junction_trials=report.junction_trials;
+     stats.region_core_trials=report.core_trials;stats.region_core_regions=report.core_regions;
+     stats.region_transition_fronts=report.transition_fronts;stats.region_front_trials=report.front_trials;
++    stats.region_cap_seconds=report.cap_seconds;
+     stats.region_sampling_seconds=report.sampling_seconds;stats.region_first_band_seconds=report.first_band_seconds;
+     stats.region_transition_seconds=report.transition_seconds;stats.region_junction_seconds=report.junction_seconds;
+     stats.region_core_seconds=report.core_seconds;stats.region_validation_seconds=report.validation_seconds;
+diff --git a/Common/src/adaptation/CNativeRegion3D.cpp b/Common/src/adaptation/CNativeRegion3D.cpp
+index 7504d079da..1cefb48485 100644
+--- a/Common/src/adaptation/CNativeRegion3D.cpp
++++ b/Common/src/adaptation/CNativeRegion3D.cpp
+@@ -6,6 +6,7 @@
+  */
+ #include "../../include/adaptation/CNativeRegion3D.hpp"
+ #include "../../include/adaptation/CNativeMetric3D.hpp"
++#include "../../include/adaptation/CNativeBoundary2D.hpp"
+ #include "Eigen/Dense"
+ #include <algorithm>
+ #include <deque>
+@@ -36,6 +37,24 @@ Face Key(Face f) {
+   std::sort(f.begin(), f.end());
+   return f;
+ }
++constexpr std::array<std::array<unsigned,4>,3> PrismTets{{{0,1,2,5},{0,1,5,4},{0,4,5,3}}};
++// Proposal-only tangential envelope uses the solver's stable sum-whitening construction; the 3D field stays frozen.
++Eigen::Matrix2d CapIntersection(Eigen::Matrix2d a,const Eigen::Matrix2d& b) {
++  if(a==b)return a;
++  const double scale=std::max(a.cwiseAbs().maxCoeff(),b.cwiseAbs().maxCoeff());
++  if(!(scale>0) || !a.allFinite() || !b.allFinite())throw std::runtime_error("Prismatic cap metric is not finite.");
++  Eigen::SelfAdjointEigenSolver<Eigen::Matrix2d> sum(a/scale+b/scale);
++  if(sum.info()!=Eigen::Success || !(sum.eigenvalues().minCoeff()>0))throw std::runtime_error("Prismatic cap metric sum is not SPD.");
++  const Eigen::Matrix2d root=sum.eigenvectors()*sum.eigenvalues().cwiseSqrt().asDiagonal()*sum.eigenvectors().transpose(),
++      inverse=sum.eigenvectors()*sum.eigenvalues().cwiseSqrt().cwiseInverse().asDiagonal()*sum.eigenvectors().transpose();
++  Eigen::Matrix2d relative=inverse*(a/scale)*inverse;relative=.5*(relative+relative.transpose()).eval();
++  Eigen::SelfAdjointEigenSolver<Eigen::Matrix2d> eig(relative);
++  if(eig.info()!=Eigen::Success)throw std::runtime_error("Prismatic cap metric eigensolve failed.");
++  const Eigen::Vector2d values=eig.eigenvalues().cwiseMax(Eigen::Vector2d::Ones()-eig.eigenvalues());
++  Eigen::Matrix2d out=scale*root*eig.eigenvectors()*values.asDiagonal()*eig.eigenvectors().transpose()*root;
++  out=.5*(out+out.transpose()).eval();if(!out.allFinite())throw std::runtime_error("Prismatic cap envelope overflows.");
++  return out;
++}
+ struct Use {
+   size_t face;
+   Id a, b;
+@@ -674,6 +693,166 @@ class Construction {
+       }
+     }
+   }
++  void AdaptPrismaticCap(std::vector<SurfaceFace>& base,const PrismaticChart& chart,const std::vector<double>& levels) {
++    namespace Cap=SU2NativeBoundary2D;
++    PhaseClock timer(limits.timings);timer.Set(report.cap_seconds);
++    Point axis{1,0,0};if(std::abs(chart.direction.y)<std::abs(chart.direction.x))axis={0,1,0};
++    if(std::abs(chart.direction.z)<std::abs(Dot(axis,chart.direction)))axis={0,0,1};
++    const Point u=Unit(Sub(axis,Mul(chart.direction,Dot(axis,chart.direction)))),v=Cross(chart.direction,u);
++    auto project=[&](Point p){p=Sub(p,chart.origin);return Cap::Point{Dot(p,u),Dot(p,v)};};
++    auto lift=[&](Cap::Point p){return geometry.Project(chart.base,Add(chart.origin,Add(Mul(u,p.x),Mul(v,p.y))));};
++    auto at=[&](Point p,double z){return Add(p,Mul(chart.direction,z));};
++    std::map<Id,Cap::Point> initial;
++    std::map<Id,std::vector<Cap::Point>> side_points;
++    for(auto f:base)for(Id n:f.v)initial.emplace(n,project(nodes.at(n)));
++    for(const auto& edge:Links(base))if(edge.second.size()==1) {
++      std::set<Id> sides;
++      for(const auto& row:geometry.Facets()) {
++        const Id id=geometry.Canonical(row.first);if(id==chart.base || id==chart.top)continue;
++        if(geometry.Contains(id,nodes.at(edge.first[0])) && geometry.Contains(id,nodes.at(edge.first[1])))sides.insert(id);
++      }
++      if(sides.size()!=1)throw std::runtime_error("Prismatic cap rim lacks one finite side authority.");
++      auto& points=side_points[*sides.begin()];for(Id n:edge.first)points.push_back(initial.at(n));
++    }
++    std::map<int,std::pair<Cap::Point,Cap::Point>> segments;int marker=0;double scale=0;
++    for(const auto& side:side_points) {
++      const auto a=side.second[0],d=side.second[1]-a;const double d2=Cap::dot(d,d);
++      if(!(d2>0))throw std::runtime_error("Prismatic cap side is degenerate.");
++      auto lo=a,hi=side.second[1];double low=0,high=1;
++      for(auto q:side.second){const auto t=Cap::dot(q-a,d)/d2;if(t<low){low=t;lo=q;}if(t>high){high=t;hi=q;}}
++      segments.emplace(++marker,std::make_pair(lo,hi));scale=std::max(scale,Cap::norm(hi-lo));
++    }
++    const double tolerance=256*std::numeric_limits<double>::epsilon()*scale;
++    auto distance=[](Cap::Point p,Cap::Point a,Cap::Point b) {
++      const auto d=b-a;const auto t=std::max(0.,std::min(1.,Cap::dot(p-a,d)/Cap::dot(d,d)));return Cap::norm(p-(a+d*t));
++    };
++    auto label=[&](Cap::Point a,Cap::Point b) {
++      int found=0;for(const auto& side:segments)if(distance(a,side.second.first,side.second.second)<=tolerance &&
++          distance(b,side.second.first,side.second.second)<=tolerance){if(found)throw std::runtime_error("Ambiguous prismatic cap side.");found=side.first;}
++      if(!found)throw std::runtime_error("Prismatic cap boundary leaves its original side.");return found;
++    };
++    Cap::Reference reference;
++    reference.point=[&](int m,double t){const auto& e=segments.at(m);return e.first+(e.second-e.first)*t;};
++    reference.interval=[&](int m,Cap::Point a,Cap::Point b){const auto& e=segments.at(m);const auto d=e.second-e.first;
++      return std::make_pair(Cap::dot(a-e.first,d)/Cap::dot(d,d),Cap::dot(b-e.first,d)/Cap::dot(d,d));};
++    reference.height=[](int){return 0.;};
++    reference.deviation=[&](Cap::Physical f){const auto& e=segments.at(f.marker);return std::max(distance(f.a.p,e.first,e.second),distance(f.b.p,e.first,e.second));};
++    std::vector<Cap::Cell> cap;Id next_cell=0,next_point=0;
++    std::map<Id,std::set<int>> boundary_labels;const auto rim=Links(base);
++    for(const auto& edge:rim)if(edge.second.size()==1)for(Id n:edge.first)
++      boundary_labels[n].insert(label(initial.at(edge.first[0]),initial.at(edge.first[1])));
++    for(auto f:base) {
++      Cap::Cell cell;std::array<Cap::Node,3> vertices;
++      for(unsigned k=0;k<3;++k){const Id n=f.v[k];vertices[k]={n,initial.at(n),boundary_labels.count(n)?(boundary_labels.at(n).size()>1?Cap::FEATURE|1:1):0};next_point=std::max(next_point,n);}
++      cell.t=Cap::triangle(vertices[0],vertices[1],vertices[2]);cell.t.id=next_cell++;
++      for(unsigned k=0;k<3;++k){const auto a=cell.t.v[k],b=cell.t.v[(k+1)%3];if(rim.at(Key(a.id,b.id)).size()==1)cell.marker[k]=label(a.p,b.p);}
++      cap.push_back(cell);
++    }
++    if(next_point==UINT64_MAX)throw std::runtime_error("Prismatic cap temporary identities overflow.");++next_point;
++    const auto metric=Cap::checked([&](Cap::Point p) {
++      Check();Eigen::Matrix2d envelope;bool first=true;const auto base_point=lift(p);
++      for(double z:levels) {
++        const auto m=field.point(at(base_point,z));auto apply=[&](Point d){return Point{m.xx*d.x+m.xy*d.y+m.xz*d.z,m.xy*d.x+m.yy*d.y+m.yz*d.z,m.xz*d.x+m.yz*d.y+m.zz*d.z};};
++        Eigen::Matrix2d projected;projected<<Dot(u,apply(u)),Dot(u,apply(v)),Dot(v,apply(u)),Dot(v,apply(v));
++        envelope=first?projected:CapIntersection(envelope,projected);first=false;
++      }
++      constexpr double spacing=1/(.8*.8);return Cap::Tensor{spacing*envelope(0,0),spacing*envelope(0,1),spacing*envelope(1,1)};
++    });
++    auto budget=[&](size_t faces) {
++      const size_t factor=3*(levels.size()-1);
++      if(faces>limits.maximum_cells/factor)return false;
++      return faces*factor+report.surface_trials+report.junction_trials+report.core_trials+report.front_trials<=limits.maximum_work;
++    };
++    std::map<Id,std::pair<Id,Point>> mapped;
++    std::string blocked_reason,last_reconstruction;
++    auto complete=[&]() {
++      Check();const auto triangles=Cap::triangles(cap);
++      const auto length=Cap::max_length(triangles,metric);
++      if(length>1.8){blocked_reason="tangential cap envelope length "+std::to_string(length);return false;}
++      mapped.clear();Id fresh_id=next_node;
++      for(const auto& item:Cap::nodes(triangles)) {
++        const auto old=initial.find(item.first);const bool same=old!=initial.end() && old->second.x==item.second.p.x && old->second.y==item.second.p.y;
++        if(!same && fresh_id==UINT64_MAX)throw std::runtime_error("Prismatic cap identities overflow.");
++        mapped.emplace(item.first,std::make_pair(same?item.first:fresh_id++,same?nodes.at(item.first):lift(item.second.p)));
++      }
++      using Vertex=std::pair<Id,size_t>;std::set<std::pair<Vertex,Vertex>> seen;
++      for(const auto& cell:cap)for(size_t layer=1;layer<levels.size();++layer) {
++        std::array<Id,3> order;for(unsigned k=0;k<3;++k)order[k]=cell.t.v[k].id;
++        std::sort(order.begin(),order.end(),[&](Id a,Id b){return mapped.at(a).first<mapped.at(b).first;});
++        std::array<Point,6> p;std::array<Vertex,6> keys;
++        for(unsigned k=0;k<6;++k){const auto& vertex=mapped.at(order[k%3]);const auto level=layer-(k<3);p[k]=at(vertex.second,levels[level]);keys[k]={vertex.first,level};}
++        for(auto slots:PrismTets) {
++          Check();Tetrahedron tet;for(unsigned k=0;k<4;++k)tet[k]=p[slots[k]];
++          const auto sign=Orientation(tet[0],tet[1],tet[2],tet[3]);if(!sign)return false;if(sign<0)std::swap(tet[0],tet[1]);
++          Point center{};for(auto q:tet)center=Add(center,Mul(q,.25));const auto shape=Measure(tet,field.point(center));
++          if(shape.mean_ratio<MinimumMeanRatio || shape.minimum_scaled_jacobian<MinimumScaledJacobian){blocked_reason="cap-to-front shape at "+std::to_string(center.x)+","+std::to_string(center.y)+","+std::to_string(center.z);return false;}
++          for(unsigned i=0;i<4;++i)for(unsigned j=i+1;j<4;++j) {
++            auto edge=std::minmax(keys[slots[i]],keys[slots[j]]);if(!seen.emplace(edge.first,edge.second).second)continue;
++            if(field.edge(p[slots[i]],p[slots[j]])>MaximumMetricEdge){blocked_reason="full cap-to-front metric edge";return false;}
++          }
++        }
++      }
++      return true;
++    };
++    using Proposal=std::tuple<int,Id,Id>;std::map<Proposal,std::vector<Id>> rejected;
++    while(!complete()) {
++      if(!budget(cap.size())){report.exhausted_work=true;throw std::runtime_error("Prismatic cap and transition exceed admitted work/cells.");}
++      bool changed=false,growth_refused=false;
++      const auto triangles=Cap::triangles(cap);const auto physical=Cap::physical(cap);
++      for(const auto action:{Cap::Action::BULK_FLIP,Cap::Action::BULK_MOVE,Cap::Action::REMOVE,Cap::Action::BULK_REMOVE,
++                             Cap::Action::REDISTRIBUTE,Cap::Action::SPLIT,Cap::Action::BULK_SPLIT}) {
++        std::vector<std::pair<double,Cap::Operation>> choices;
++        if(int(action)>=4) {
++          for(const auto& r:Cap::candidates(triangles,Cap::Kind(int(action)-4),metric)) {
++            if((action==Cap::Action::BULK_FLIP || action==Cap::Action::BULK_SPLIT) && physical.count(Cap::edge(r.a,r.b)))continue;
++            choices.push_back({r.score,{action,r.a,r.b}});
++          }
++          if(action==Cap::Action::BULK_SPLIT)for(const auto& c:triangles)if(Cap::quality(c,metric)<.18)
++            for(unsigned k=0;k<3;++k){const auto e=Cap::edge(c.v[k].id,c.v[(k+1)%3].id);if(!physical.count(e))choices.push_back({.18-Cap::quality(c,metric),{action,e.first,e.second}});}
++        } else for(const auto& item:physical) {
++          const auto& f=item.second;const double length=Cap::length(f.a,f.b,metric);
++          if(action==Cap::Action::SPLIT && length>1.6)choices.push_back({length-1.6,{action,f.a.id,f.b.id}});
++          for(auto n:{f.a,f.b})if(!(n.fixed&Cap::FEATURE)) {
++            if(action==Cap::Action::REMOVE && length<.65)choices.push_back({.65-length,{action,n.id,0}});
++            if(action==Cap::Action::REDISTRIBUTE)choices.push_back({.1,{action,n.id,0}});
++          }
++        }
++        std::sort(choices.begin(),choices.end(),[](const auto& a,const auto& b){return a.first!=b.first?a.first>b.first:std::tie(a.second.a,a.second.b)<std::tie(b.second.a,b.second.b);});
++        for(const auto& choice:choices) {
++          Check();const auto op=choice.second;const Proposal key{int(action),op.a,op.b};std::set<size_t> selected;
++          const bool edge=action==Cap::Action::BULK_FLIP || action==Cap::Action::BULK_SPLIT;
++          for(size_t i=0;i<cap.size();++i){bool a=false,b=false;for(auto n:cap[i].t.v){a=a||n.id==op.a;b=b||n.id==op.b;}
++            if(edge?(a&&b):(a||(action==Cap::Action::SPLIT&&b)))selected.insert(i);}
++          if(action==Cap::Action::BULK_SPLIT) {
++            std::set<Id> ring;for(size_t i:selected)for(auto n:cap[i].t.v)ring.insert(n.id);
++            for(size_t i=0;i<cap.size() && selected.size()<Cap::MAX_CAVITY;++i)for(auto n:cap[i].t.v)if(ring.count(n.id)){selected.insert(i);break;}
++          }
++          std::vector<Cap::Cell> old;std::vector<Id> signature;for(size_t i:selected){old.push_back(cap[i]);signature.push_back(cap[i].t.id);}
++          std::sort(signature.begin(),signature.end());if(rejected.count(key) && rejected.at(key)==signature)continue;
++          ++report.surface_trials;Check();std::vector<Cap::Cell> fresh;std::string why;
++          bool capacity_refused=false;
++          bool valid=Cap::reconstruct(op,old,reference,metric,next_point,fresh,why,tolerance);
++          if(valid && !budget(cap.size()-old.size()+fresh.size())){growth_refused=true;capacity_refused=true;valid=false;why="cap proposal cannot fit the remaining transition budget";}
++          if(!valid){last_reconstruction=why;if(!capacity_refused)rejected[key]=std::move(signature);continue;}
++          std::vector<Cap::Cell> next;next.reserve(cap.size()-old.size()+fresh.size());
++          for(size_t i=0;i<cap.size();++i)if(!selected.count(i))next.push_back(cap[i]);
++          for(auto c:fresh){if(next_cell==UINT64_MAX)throw std::runtime_error("Prismatic cap cell identities overflow.");c.t.id=next_cell++;for(auto n:c.t.v){if(n.id==UINT64_MAX)throw std::runtime_error("Prismatic cap point identities overflow.");next_point=std::max(next_point,n.id+1);}next.push_back(c);}
++          cap.swap(next);changed=true;
++          report.surface_splits+=action==Cap::Action::SPLIT || action==Cap::Action::BULK_SPLIT;
++          report.surface_collapses+=action==Cap::Action::REMOVE || action==Cap::Action::BULK_REMOVE;
++          break;
++        }
++        if(changed)break;
++      }
++      if(!changed) {
++        report.exhausted_work=growth_refused;
++        throw std::runtime_error("Prismatic cap operators stagnate with "+std::to_string(cap.size())+" faces; "+blocked_reason+"; last reconstruction: "+last_reconstruction+"; feasibility is undetermined.");
++      }
++    }
++    if(!budget(cap.size())){report.exhausted_work=true;throw std::runtime_error("Prismatic accepted cap exceeds remaining transition work.");}
++    for(const auto& item:mapped)if(item.second.first>=next_node){const auto id=New(item.second.second);if(id!=item.second.first)throw std::runtime_error("Prismatic cap identity mapping differs.");}
++    base.clear();for(const auto& cell:cap){SurfaceFace f;f.facet=chart.base;for(unsigned k=0;k<3;++k)f.v[k]=mapped.at(cell.t.v[k].id).first;base.push_back(f);}
++  }
+   void PrismaticFronts(const PrismaticChart& chart,PhaseClock& clock) {
+     // shortcut: a certified right prism with wall policies only on its opposite caps; nonprismatic junctions need a regional decomposition.
+     std::vector<SurfaceFace> base;
+@@ -722,30 +901,7 @@ class Construction {
+       levels.push_back(last);if(last<chart.gap)levels.push_back(chart.gap);
+       }
+ 
+-      for(;;) {
+-        Check();std::set<Edge> marked;
+-        for(const auto& edge:Links(base))for(double z:levels) {
+-          Check();if(field.edge(point(edge.first[0],z),point(edge.first[1],z))>.8L*MaximumMetricEdge){marked.insert(edge.first);break;}
+-        }
+-        if(marked.empty())break;
+-        for(auto edge:marked) {
+-          ++report.surface_trials;Check();const auto uses=Links(base).at(edge);
+-          const Id mid=New(geometry.Project(chart.base,Mul(Add(nodes.at(edge[0]),nodes.at(edge[1])),.5)));
+-          std::vector<SurfaceFace> next;
+-          for(size_t i=0;i<base.size();++i) {
+-            bool hit=false;
+-            for(auto use:uses)if(use.face==i) {
+-              hit=true;Id other=0;for(Id n:base[i].v)if(n!=edge[0] && n!=edge[1])other=n;
+-              next.push_back({{use.a,mid,other},base[i].facet});next.push_back({{mid,use.b,other},base[i].facet});
+-            }
+-            if(!hit)next.push_back(base[i]);
+-          }
+-          base.swap(next);
+-          if(base.size()>limits.maximum_cells/(3*(levels.size()-1))) {
+-            report.exhausted_work=true;throw std::runtime_error("Prismatic cap refinement exceeds admitted transition cells.");
+-          }
+-        }
+-      }
++      AdaptPrismaticCap(base,chart,levels);
+       // New columns can expose a stronger original sensor; close both directions before constructing cells.
+       vertices.clear();for(auto f:base)for(Id n:f.v)vertices.insert(n);
+       bool divided=false;
+@@ -791,7 +947,9 @@ class Construction {
+         const Id a=columns.at(order[0])[layer-1],b=columns.at(order[1])[layer-1],c=columns.at(order[2])[layer-1],
+           aa=columns.at(order[0])[layer],bb=columns.at(order[1])[layer],cc=columns.at(order[2])[layer];
+         int orientation=0;
+-        for(auto ids:std::array<std::array<Id,4>,3>{{{a,b,c,cc},{a,b,cc,bb},{a,bb,cc,aa}}}) {
++        const std::array<Id,6> vertices{a,b,c,aa,bb,cc};
++        for(auto pattern:PrismTets) {
++          std::array<Id,4> ids;for(unsigned k=0;k<4;++k)ids[k]=vertices[pattern[k]];
+           const auto cell=Tet(ids);const auto volume=Orientation(cell.v[0].p,cell.v[1].p,cell.v[2].p,cell.v[3].p);
+           if(!volume)throw std::runtime_error("Prismatic transition has an unresolvable tetrahedron.");
+           const int sign=volume>0?1:-1;
+diff --git a/Common/src/adaptation/CNativeRemesher3D.cpp b/Common/src/adaptation/CNativeRemesher3D.cpp
+index 02036c6bcd..9765a02004 100644
+--- a/Common/src/adaptation/CNativeRemesher3D.cpp
++++ b/Common/src/adaptation/CNativeRemesher3D.cpp
+@@ -545,6 +545,7 @@ CRemeshResult CNativeRemesher3D::Remesh(const CConfig& config, const CGeometry&
+              << " batch_reserved=" << e.batch_reserved << " rounds=" << e.rounds << " attempted=" << e.attempted << " accepted=" << e.accepted
+              << " region_core_trials=" << e.region_core_trials << " region_core_regions=" << e.region_core_regions
+              << " region_transition_fronts=" << e.region_transition_fronts << " region_front_trials=" << e.region_front_trials
++             << " region_cap_nested_s=" << e.region_cap_seconds
+              << " region_sampling_s=" << e.region_sampling_seconds << " region_first_band_s=" << e.region_first_band_seconds
+              << " region_transition_s=" << e.region_transition_seconds << " region_junction_s=" << e.region_junction_seconds
+              << " region_core_s=" << e.region_core_seconds << " region_validation_s=" << e.region_validation_seconds
+diff --git a/UnitTests/Common/adaptation/CNativeDistributed3D_tests.cpp b/UnitTests/Common/adaptation/CNativeDistributed3D_tests.cpp
+index d0bffb03d5..273aad9f00 100644
+--- a/UnitTests/Common/adaptation/CNativeDistributed3D_tests.cpp
++++ b/UnitTests/Common/adaptation/CNativeDistributed3D_tests.cpp
+@@ -2339,11 +2339,12 @@ void CoupledBL(bool grouped,unsigned replay=0,double strength=1,bool opposing=fa
+   const char* saved_patch=opposing?std::getenv("SU2_NATIVE_OPPOSING_PATCH"):nullptr;
+   if(saved_patch)fixture.patch=SavedPrism(saved_patch);
+   const char* selected_sensor=regional?std::getenv("SU2_NATIVE_PRISM_SENSOR"):nullptr;
+-  const bool crossing=selected_sensor && std::string(selected_sensor)=="CROSSING";
++  const std::string sensor=selected_sensor?selected_sensor:"SCALAR";
++  const bool crossing=sensor=="CROSSING",tangential=sensor=="TANGENTIAL",rotating=sensor=="ROTATING";
+   if(replay)fixture.patch=replay==2?BLColdObstruction():BLCornerObstruction();
+   if(grouped)for(auto& f:fixture.facets)f.marker=std::all_of(f.v.begin(),f.v.end(),[](Node n){return n.p.z==0;})?10:
+       opposing && std::all_of(f.v.begin(),f.v.end(),[](Node n){return n.p.z==1;})?12:11;
+-  const PlanarReference reference(fixture.facets);const std::string prefix=std::string(regional?"regional_":"")+std::string(crossing?"crossing_":"")+std::string(opposing?"opposing_":"")+std::string(strength>1?"finer_":"")+(replay==2?"cold_replay_":replay?"replay_":"")+std::string(grouped?"grouped_":"");
++  const PlanarReference reference(fixture.facets);const std::string prefix=std::string(regional?"regional_":"")+std::string(crossing?"crossing_":tangential?"tangential_":rotating?"rotating_":"")+std::string(opposing?"opposing_":"")+std::string(strength>1?"finer_":"")+(replay==2?"cold_replay_":replay?"replay_":"")+std::string(grouped?"grouped_":"");
+   auto input=Partition(Rows(fixture.patch),world);
+   if(saved_patch)for(auto& row:input)row.second.version=0;
+   const auto saved=input;
+@@ -2353,6 +2354,9 @@ void CoupledBL(bool grouped,unsigned replay=0,double strength=1,bool opposing=fa
+     const auto p=donor.cell.v[k].p;
+     const auto value=strength*(1+3*p.x);
+     donor.sensor[k]=crossing?Tensor{4,0,0,4,0,4+96*(1-std::abs(p.x-p.z))}:Tensor{value,0,0,value,0,value};
++    auto rotated=[](double high,double sign){return Tensor{.75*high+1,sign*.25*std::sqrt(3.)*(high-4),0,.25*high+3,0,4};};
++    if(tangential)donor.sensor[k]=rotated(256,1);
++    if(rotating){const auto a=rotated(64,-1),b=rotated(256,1);donor.sensor[k]={(1-p.x)*a.xx+p.x*b.xx,(1-p.x)*a.xy+p.x*b.xy,0,(1-p.x)*a.yy+p.x*b.yy,0,4};}
+   }
+   const double first=opposing?.02:.1,thickness=opposing?.6:.3;
+   CBoundaryLayerMetric::Wall wall;wall.layer={"wall",first,1.2,thickness};
+@@ -2401,7 +2405,8 @@ void CoupledBL(bool grouped,unsigned replay=0,double strength=1,bool opposing=fa
+     Owned rejected;for(auto row:Rows(rejectedRegion))rejected.emplace(row.cell.id,row);
+     if(world.maximum(!rejected.empty())){exportMesh(rejected,"private_region_rejected");MeshRecords(prefix+"private_region_rejected",world,rejected);}
+     const auto attempts=world.maximum(refined.stats.region_attempts),fronts=world.maximum(refined.stats.region_transition_fronts);
+-    if(!world.rank)std::cout<<"PRISMATIC_RESULT valid="<<refined.valid<<" region_attempts="<<attempts<<" fronts="<<fronts<<std::endl;
++    const auto capTrials=world.maximum(refined.stats.region_surface_trials);const double capSeconds=CPassiveComm::Allreduce(refined.stats.region_cap_seconds,CPassiveComm::Op::MAX,world.comm);
++    if(!world.rank)std::cout<<"PRISMATIC_RESULT valid="<<refined.valid<<" region_attempts="<<attempts<<" fronts="<<fronts<<" surface_trials="<<capTrials<<" cap_nested_s="<<capSeconds<<std::endl;
+     CHECK(attempts==(saved_patch?0:1));
+   }
+   EngineReport(refined,world,prefix+"coupled_BL");Log(world,"BL result: "+refined.reason+"\n");

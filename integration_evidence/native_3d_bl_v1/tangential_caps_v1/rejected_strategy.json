@@ -1,0 +1,44 @@
+{
+  "status": "REJECTED_PRIMARY_CAP_STRATEGY_WITHDRAWN_FROM_PRODUCTION",
+  "baseline": "69833b2a3fc0e502d93f44e50aa360e3bbf1a1f9",
+  "failed_native_receipt": "../interacting_walls_v1/native_prism_tangential_v1.json",
+  "failed_receipt_sha256": "1482a3f0f47e6f7cd1bdf711fec16ddf1b0e8df85ffd36d0b1e838bda89698a5",
+  "artifacts_verified": 50,
+  "source_archive": "../interacting_walls_v1/native_prism_tangential_v1/source_snapshots",
+  "archived_patch_sha256": "1f3ec0ce32f12dc192e245958065e9c680b952ee3014fc0f064baf90e6c9579d",
+  "native": {
+    "valid": false,
+    "surface_attempts": 3731,
+    "private_cap_faces_at_stagnation": 30,
+    "projected_cap_maximum_length": 3.095056,
+    "reported_work": 3777,
+    "work_ceiling": 4096,
+    "time_ceiling_seconds": 300,
+    "nested_cap_seconds": 34.3426,
+    "returned_input_cells": 6,
+    "complete_replacement": false,
+    "private_cap_snapshot_available": false
+  },
+  "unchanged_gates": {
+    "minimum_mean_ratio": 0.2,
+    "minimum_scaled_jacobian": 0.05,
+    "maximum_full_composed_edge": 1.8,
+    "height": 0.1,
+    "growth": 1.2,
+    "thickness": 0.3,
+    "sensor": "original-P1 constant rotated30degree tangent256:4; normal4",
+    "geometry": "finite original unit-box authority",
+    "fade": "unchanged"
+  },
+  "independent_feasibility": "aligned_witness_v2/independent.json",
+  "scope": "Planar anisotropic-cap stress, not a new curved mesh, accepted native result or proof of infeasibility. Exact original input returned. One failed strategy does not prove all cap adaptation impossible. Offline1248-cell whole-mesh witness uses an independently generated lattice/Delaunay proposal and numerical quadrature, not native acceptance or work/time proof. The tiny-boundary-redistribution arithmetic demonstrates nonprogress work, without attributing3731 native attempts.",
+  "decision": "Preserve failed source and evidence, restore qualified production implementation, retain stronger test inputs/oracle. Reconsider coordinated metric-directed cap/front construction before any further local fallback or controller retry. Complete curved whole-mesh acceptance under unchanged gates remains the milestone.",
+  "production_restored_sha256": {
+    "Common/include/adaptation/CNativeEngine3D.hpp": "621aa657c32e727d2ae7fa5faeb6c61b11dabc237419673d24a938feebb74324",
+    "Common/include/adaptation/CNativeRegion3D.hpp": "73d64db167fc3ad6078bb7dc9834120f25a6f8f1172c75bf084b6002dc58ed50",
+    "Common/src/adaptation/CNativeEngine3D.cpp": "d0d0b088784b582aad2bf171b4c1d311f715161020b61e9d408a5e9cb8ebb1aa",
+    "Common/src/adaptation/CNativeRegion3D.cpp": "0943b7091c5a05a1878fb82c4fc929afa858d25f550ab3d84a92e3b9e507789a",
+    "Common/src/adaptation/CNativeRemesher3D.cpp": "d48ddb878975a839bc9e5db925691ff90fce29f5e70d1706bd4b1d49aaa3769f"
+  },
+  "validation": "All failed-case artifact hashes and exact experimental production/test snapshots verified before restoring five production files byte-for-byte to baseline. No new mesh run; current built binaries still represent the archived failed experiment and must be rebuilt before future execution."
+}

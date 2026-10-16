@@ -83,7 +83,19 @@ still violates HGRAD1.3 and remains uncorrected before freezing.
 [complete scoped receipt](integration_evidence/native_3d_bl_v1/interacting_walls_v1/selection_work_v2_summary.json).
 Next focus rotating/localized tangential targets and nonprismatic feature/junction
 construction, then evolved viscous accuracy and complete lifecycle affordability.
-No owned native/build/audit process is live. Full Goal3 remains active/incomplete.
+The stronger rotated tangential cap attempt FAILS:3731 cap attempts,30 private
+faces, projected length3.095056 and no complete replacement. The unchanged six-cell
+input is retained. Its source-pinned archive/50 artifact hashes are verified; the
+failed production replacement was withdrawn, restoring all five production files
+byte-for-byte to69833b2a3f. Stronger test inputs/oracle and all evidence remain.
+Do not continue the local redistribution/retry plan: reconsider coordinated metric-
+directed point distribution, connectivity and complete front closure first. The
+independent1248-cell planar witness supports mathematical feasibility only; it is
+neither a native nor a curved-mesh acceptance certificate. The next meaningful
+curved milestone remains a complete accepted whole mesh under unchanged gates.
+Built binaries still contain the failed experiment: rebuild before any future run.
+All owned jobs terminal. [Current decision/evidence](Handbook/GOAL3_TANGENTIAL_CAPS.md).
+Full Goal3 remains active/incomplete.
 
 
 

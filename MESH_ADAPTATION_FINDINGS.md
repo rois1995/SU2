@@ -5806,3 +5806,31 @@ Sensor gradation passes but44 composed probes fail, ratio24.5183963; no target c
 All jobs terminal; full Goal3 active. Evidence: interacting_walls_v1/selection_work_v2_summary.json
 and Handbook/GOAL3_SELECTION_WORK.md. Wider geometry/tangential demands and complete
 lifecycle affordability remain, rather than another local fallback campaign.
+
+
+## 2026-10-16 — anisotropic cap attempt fails; reconsider construction
+
+The private native2D cap reconstruction compiled/linked but failed the frozen
+30degree tangent256:4 planar target:3731 cap attempts/30 faces/projected length
+3.095056, work3777 with4096 ceiling. It cannot admit its remaining transition
+construction; there is no complete3D candidate. The returned/rejected six-cell
+SU2 file is the unchanged input, not a private-cap snapshot. All50 failed-case
+artifacts and exact experimental source snapshots were verified. The failed
+production replacement was withdrawn; five production files equal69833b2a3f.
+New stronger sensor tests/oracle and complete failure evidence are preserved.
+Existing compiled binaries are experimental and require a rebuild before reuse.
+
+The independent1248-cell metric-aligned proposal passes exact finite whole geometry,
+height/shape and all full numerical composed lengths. It supports mathematical
+planar feasibility, not native work/time or curved acceptance; matrix coefficients
+differ about one ulp from the native expression. The first792-cell witness fails
+a full edge and remains preserved. Tiny boundary-redistribution arithmetic proves
+available nonprogress work, not the actual distribution of3731 native attempts.
+
+Stop the local controller-retry plan. Reconsider coordinated metric-directed point
+distribution/connectivity with the entire wall/front/transition replacement before
+another production strategy. No additional fallback, relaxed constraints or budget
+ladder. The next curved milestone remains complete accepted whole-mesh construction
+with independent checks; prior2877-cell cylinder proof retains its limited scope.
+No new MPI/CFD/performance run; full Goal3 ACTIVE/incomplete.
+Read Handbook/GOAL3_TANGENTIAL_CAPS.md and tangential_caps_v1/rejected_strategy.json.
