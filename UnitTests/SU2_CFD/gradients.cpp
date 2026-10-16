@@ -673,9 +673,11 @@ TEST_CASE("Hessian stencil diagnostics count owners across MPI partitions", "[He
   }
 }
 
-TEST_CASE("Quadratic Hessians preserve signed curvature and report failed fits", "[HessianReliability]") {
+TEST_CASE("Quadratic Hessians preserve signed curvature and report failed fits", "[HessianReliability][QuadraticWorkspace]") {
   AdaptBoxTest test("MARKER_FAR= (x_minus, x_plus, y_minus, y_plus, z_minus, z_plus)\n", "QUADRATIC_LEAST_SQUARES",
-                    "ADAP_SENSOR= (MACH, PRESSURE, DENSITY)\n");
+                    "ADAP_SENSOR= (MACH, PRESSURE, DENSITY)\nNUM_METHOD_GRAD= GREEN_GAUSS\n"
+                    "NUM_METHOD_GRAD_RECON= GREEN_GAUSS\n");
+  REQUIRE_FALSE(test.config->GetLeastSquaresRequired());
   auto* flow = test.solver[FLOW_SOL];
   auto* nodes = flow->GetNodes();
   const passivedouble exact[6] = {1.0, 0.5, 0.0, 2.0, 0.0, 3.0};

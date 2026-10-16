@@ -116,7 +116,10 @@ CFlowVariable::CFlowVariable(unsigned long npoint, unsigned long ndim, unsigned 
     }
     Hessian_Field.resize(nPoint, nDim) = su2double(0.0);
     Hessian_Grad.resize(nPoint, nDim, nDim, 0.0);
-    if (config->GetKind_Hessian_Method() == WEIGHTED_LEAST_SQUARES) Rmatrix.resize(nPoint, nDim, nDim, 0.0);
+    /*--- Quadratic recovery first computes the WLS fallback, independently of flow gradients. ---*/
+    if (config->GetKind_Hessian_Method() == WEIGHTED_LEAST_SQUARES ||
+        config->GetKind_Hessian_Method() == QUADRATIC_LEAST_SQUARES)
+      Rmatrix.resize(nPoint, nDim, nDim, 0.0);
   }
 }
 

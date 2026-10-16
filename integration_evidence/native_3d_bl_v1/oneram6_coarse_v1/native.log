@@ -1,0 +1,346 @@
+
+-------------------------------------------------------------------------
+|    ___ _   _ ___                                                      |
+|   / __| | | |_  )   Release 8.5.0 "Harrier"                           |
+|   \__ \ |_| |/ /                                                      |
+|   |___/\___//___|   Suite (Computational Fluid Dynamics Code)         |
+|                                                                       |
+-------------------------------------------------------------------------
+| SU2 Project Website: https://su2code.github.io                        |
+|                                                                       |
+| The SU2 Project is maintained by the SU2 Foundation                   |
+| (http://su2foundation.org)                                            |
+-------------------------------------------------------------------------
+| Copyright 2012-2026, SU2 Contributors                                 |
+|                                                                       |
+| SU2 is free software; you can redistribute it and/or                  |
+| modify it under the terms of the GNU Lesser General Public            |
+| License as published by the Free Software Foundation; either          |
+| version 2.1 of the License, or (at your option) any later version.    |
+|                                                                       |
+| SU2 is distributed in the hope that it will be useful,                |
+| but WITHOUT ANY WARRANTY; without even the implied warranty of        |
+| MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU      |
+| Lesser General Public License for more details.                       |
+|                                                                       |
+| You should have received a copy of the GNU Lesser General Public      |
+| License along with SU2. If not, see <http://www.gnu.org/licenses/>.   |
+-------------------------------------------------------------------------
+
+Parsing config file for zone 0
+
+----------------- Physical Case Definition ( Zone 0 ) -------------------
+Compressible RANS equations.
+Turbulence model: Spalart-Allmaras-noft2
+Hybrid RANS/LES: No Hybrid RANS/LES
+Mach number: 0.8395.
+Angle of attack (AoA): 3.06 deg, and angle of sideslip (AoS): 0 deg.
+Reynolds number: 1.172e+07. Reference length 0.64607.
+No restart solution, use the values at infinity (freestream).
+Dimensional simulation.
+The reference area is 0.7532 m^2.
+The semi-span will be computed using the max y(3D) value.
+The reference length is 0.64607 m.
+Reference origin for moment evaluation is (0.25, 0, 0).
+Surface(s) where the force coefficients are evaluated: WING3D.
+
+Surface(s) plotted in the output file: WING3D.
+Input mesh file name: Coarse.su2
+
+--------------- Space Numerical Integration ( Zone 0 ) ------------------
+Roe (with entropy fix = 0.001) solver for the flow inviscid terms.
+Standard Roe without low-dissipation function.
+Second order integration in space, with slope limiter.
+Venkatakrishnan slope-limiting method, with constant: 1.
+The reference element size is: 1. 
+Scalar upwind solver for the turbulence model.
+First order integration in space.
+Average of gradients with correction (viscous flow terms).
+Average of gradients with correction (viscous turbulence terms).
+Gradient for upwind reconstruction: Green-Gauss.
+Gradient for viscous and source terms: Green-Gauss.
+
+--------------- Time Numerical Integration  ( Zone 0 ) ------------------
+Local time stepping (steady state simulation).
+Euler implicit method for the flow equations.
+FGMRES is used for solving the linear system.
+Using LU-SGS preconditioning.
+Convergence criteria of the linear solver: 0.0001.
+Max number of linear iterations: 5.
+CFL adaptation. Factor down: 0.5, factor up: 1.25,
+                lower limit: 0.5, upper limit: 20,
+                acceptable linear residual: 0.001'
+                starting iteration: 0.
+Courant-Friedrichs-Lewy number:        1
+Euler implicit time integration for the turbulence model.
+
+------------------ Convergence Criteria  ( Zone 0 ) ---------------------
+Maximum number of solver subiterations: 120.
+Begin convergence monitoring at iteration 10.
+Residual minimum value: 1e-10.
+Cauchy series min. value: 1e-06.
+Number of Cauchy elements: 100.
+Begin windowed time average at iteration 0.
+
+-------------------- Output Information ( Zone 0 ) ----------------------
+File writing frequency: 
++------------------------------------+
+|                     File| Frequency|
++------------------------------------+
+|                  RESTART|       120|
+|                 PARAVIEW|       120|
+|         SURFACE_PARAVIEW|       120|
++------------------------------------+
+Writing the convergence history file every 1 inner iterations.
+Writing the screen convergence history every 10 inner iterations.
+The tabular file format is CSV (.csv).
+Convergence history file name: history.
+Forces breakdown file name: forces_breakdown.dat.
+Surface file name: surface_flow.
+Volume file name: flow.
+Restart file name: restart_flow.
+
+------------- Config File Boundary Information ( Zone 0 ) ---------------
++-----------------------------------------------------------------------+
+|                        Marker Type|                        Marker Name|
++-----------------------------------------------------------------------+
+|                          Far-field|                           FARFIELD|
++-----------------------------------------------------------------------+
+|                     Symmetry plane|                           SYMMETRY|
++-----------------------------------------------------------------------+
+|                     Heat flux wall|                             WING3D|
++-----------------------------------------------------------------------+
+
+-------------------- Output Preprocessing ( Zone 0 ) --------------------
+
+WARNING: SURFACE_PRESSURE_DROP can only be computed for at least 2 surfaces (outlet, inlet, ...)
+
+Screen output fields: INNER_ITER, RMS_DENSITY, RMS_NU_TILDE, LIFT, DRAG, TOTAL_HEATFLUX
+History output group(s): ITER, RMS_RES
+Convergence field(s): RMS_DENSITY
+Warning: No (valid) fields chosen for time convergence monitoring. Time convergence monitoring inactive.
+Volume output fields: COORDINATES, SOLUTION, PRIMITIVE, RESIDUAL, ADAP_SENSOR, METRIC
+
+------------------- Geometry Preprocessing ( Zone 0 ) -------------------
+Three dimensional problem.
+61330 grid points before partitioning.
+303359 volume elements before partitioning.
+3 surface markers.
+2060 boundary elements in index 0 (Marker = FARFIELD).
+8094 boundary elements in index 1 (Marker = SYMMETRY).
+38800 boundary elements in index 2 (Marker = WING3D).
+Executing the partitioning functions.
+Building the graph adjacency structure.
+Calling ParMETIS... graph partitioning complete (6478 edge cuts).
+Distributing ParMETIS coloring.
+Rebalancing vertices.
+Rebalancing volume element connectivity.
+Rebalancing markers and surface elements.
+65067 vertices including ghost points. 
+312792 interior elements including halo cells. 
+312792 tetrahedra.
+Establishing MPI communication patterns.
+Setting point connectivity.
+Renumbering points (Reverse Cuthill McKee Ordering).
+Recomputing point connectivity.
+Setting element connectivity.
+Checking the numerical grid orientation.
+All volume elements are correctly oriented.
+All surface elements are correctly oriented.
+Identifying edges and vertices.
+Setting the control volume structure.
+Volume of the computational grid: 2.08846e+06.
+Searching for the closest normal neighbors to the surfaces.
+Storing a mapping from global to local point index.
+Compute the surface curvature.
+Max K: 72103.8. Mean K: 541.635. Standard deviation K: 3508.42.
+Computing mesh quality statistics for the dual control volumes.
++--------------------------------------------------------------+
+|           Mesh Quality Metric|        Minimum|        Maximum|
++--------------------------------------------------------------+
+|    Orthogonality Angle (deg.)|        6.83474|        84.2921|
+|     CV Face Area Aspect Ratio|        1.05639|        157.983|
+|           CV Sub-Volume Ratio|        1.00915|        1864.59|
+|                     CV Volume|    4.23004e-13|        1347.01|
++--------------------------------------------------------------+
+Finding max control volume width.
+Communicating number of neighbors.
+NATIVE3D_STAGE stage=cfd_geometry_initial rank=0 ranks=4 time_iter=0 total=3.105026734 other=2.0060000001098643e-06 cpu=2.6214559999999998 cpu_other=9.9999999991773336e-07 process_peak_rss=104996864 partition=0.14075483200000005 partition_cpu=0.13847399999999999 migration=1.4862219809999999 migration_cpu=1.136137 preprocess=1.4780479149999999 preprocess_cpu=1.3468439999999999
+NATIVE3D_STAGE stage=cfd_geometry_initial rank=1 ranks=4 time_iter=0 total=3.0873407149999998 other=2.1879999998475341e-06 cpu=2.599402 cpu_other=1.000000000139778e-06 process_peak_rss=138383360 partition=0.12350561900000001 partition_cpu=0.12137999999999999 migration=1.5558094389999999 migration_cpu=1.2369779999999999 preprocess=1.4080234690000002 preprocess_cpu=1.2410429999999999
+NATIVE3D_STAGE stage=cfd_geometry_initial rank=2 ranks=4 time_iter=0 total=3.0628826550000001 other=3.5960000002166481e-06 cpu=2.7270919999999998 cpu_other=9.9999999991773336e-07 process_peak_rss=170749952 partition=0.09978091499999997 partition_cpu=0.099504999999999996 migration=1.5383339440000001 migration_cpu=1.286376 preprocess=1.4247641999999998 preprocess_cpu=1.34121
+NATIVE3D_STAGE stage=cfd_geometry_initial rank=3 ranks=4 time_iter=0 total=3.0665319719999999 other=1.8610000001029192e-06 cpu=2.9222549999999998 cpu_other=1.9999999998354667e-06 process_peak_rss=169000960 partition=0.10332767700000001 partition_cpu=0.102244 migration=1.569266673 migration_cpu=1.493984 preprocess=1.3939357609999998 preprocess_cpu=1.326025
+CFD geometry seconds partition/migration/preprocess (maximum across ranks): 0.140747 1.56927 1.4781
+Semi-span length = 1.21848 m.
+Wetted area = 1.55706 m^2.
+Area projection in the x-plane = 0.0743682 m^2, y-plane = 0.0181104 m^2, z-plane = 0.758905 m^2.
+Max. coordinate in the x-direction = 1.14408 m, y-direction = 1.21848 m, z-direction = 0.0394304 m.
+Min. coordinate in the x-direction = -6.1346e-14 m, y-direction = -1.06253e-13 m, z-direction = -0.0394304 m.
+Computing wall distances.
+
+-------------------- Solver Preprocessing ( Zone 0 ) --------------------
+Viscous flow: Computing pressure using the ideal gas law
+based on the free-stream temperature and a density computed
+from the Reynolds number.
+Force coefficients computed using free-stream values.
+
+-- Models:
++------------------------------------------------------------------------------+
+|          Viscosity Model|        Conductivity Model|              Fluid Model|
++------------------------------------------------------------------------------+
+|               SUTHERLAND|          CONSTANT_PRANDTL|             STANDARD_AIR|
++------------------------------------------------------------------------------+
+-- Fluid properties:
++------------------------------------------------------------------------------+
+|                  Name|    Dim. value|    Ref. value|      Unit|Non-dim. value|
++------------------------------------------------------------------------------+
+|        Ref. Viscosity|     1.716e-05|             1|   N.s/m^2|     1.716e-05|
+|      Sutherland Temp.|        273.15|             1|         K|        273.15|
+|     Sutherland Const.|         110.4|             1|         K|         110.4|
++------------------------------------------------------------------------------+
+|        Prandtl (Lam.)|             -|             -|         -|          0.72|
+|       Prandtl (Turb.)|             -|             -|         -|           0.9|
++------------------------------------------------------------------------------+
+|          Gas Constant|       287.058|             1|  N.m/kg.K|       287.058|
+|      Spec. Heat Ratio|             -|             -|         -|           1.4|
++------------------------------------------------------------------------------+
+-- Initial and free-stream conditions:
++------------------------------------------------------------------------------+
+|                  Name|    Dim. value|    Ref. value|      Unit|Non-dim. value|
++------------------------------------------------------------------------------+
+|       Static Pressure|         93981|             1|        Pa|         93981|
+|               Density|       1.13619|             1|    kg/m^3|       1.13619|
+|           Temperature|        288.15|             1|         K|        288.15|
+|          Total Energy|        247596|             1|   m^2/s^2|        247596|
+|            Velocity-X|       285.272|             1|       m/s|       285.272|
+|            Velocity-Y|             0|             1|       m/s|             0|
+|            Velocity-Z|         15.25|             1|       m/s|         15.25|
+|    Velocity Magnitude|       285.679|             1|       m/s|       285.679|
++------------------------------------------------------------------------------+
+|             Viscosity|    1.7893e-05|             1|   N.s/m^2|    1.7893e-05|
+|          Conductivity|             -|             1|   W/m^2.K|             -|
+|     Turb. Kin. Energy|       306.048|             1|   m^2/s^2|       306.048|
+|     Spec. Dissipation|   1.94338e+06|             1|       1/s|   1.94338e+06|
++------------------------------------------------------------------------------+
+|           Mach Number|             -|             -|         -|        0.8395|
+|       Reynolds Number|             -|             -|         -|     1.172e+07|
++------------------------------------------------------------------------------+
+Initialize Jacobian structure (Navier-Stokes). MG level: 0.
+Initialize Jacobian structure (SA model).
+
+------------------- Numerics Preprocessing ( Zone 0 ) -------------------
+
+----------------- Integration Preprocessing ( Zone 0 ) ------------------
+
+------------------- Iteration Preprocessing ( Zone 0 ) ------------------
+Euler/Navier-Stokes/RANS fluid iteration.
+
+------------------------- Mesh Adaptation Cycle -------------------------
+Cycle 0 of 1: 61330 points, at most 120 iterations, CFL 1, V multigrid cycle, initial solution.
+Its metric makes the next mesh: complexity 100000, sizes 1e-06 to 100, norm 1, aspect ratio up to 1e+06.
+
+------------------------------ Begin Solver -----------------------------
+
+Simulation Run using the Single-zone Driver
++-----------------------------------------------------------------------------+
+|  Inner_Iter|    rms[Rho]|     rms[nu]|          CL|          CD|          HF|
++-----------------------------------------------------------------------------+
+|           0|   -2.487268|   -6.826091|    0.052853|    0.023625|  0.0000e+00|
+|          10|   -2.317947|   -6.680791|    0.231888|    0.106994|  0.0000e+00|
+|          20|   -1.948733|   -6.212456|    0.190507|    0.084221|  0.0000e+00|
+|          30|   -1.731801|   -5.903619|    0.206964|    0.075313|  0.0000e+00|
+|          40|   -1.787962|   -5.820311|    0.193213|    0.062208|  0.0000e+00|
+|          50|   -1.856226|   -5.975858|    0.175599|    0.052884|  0.0000e+00|
+|          60|   -1.801254|   -6.115711|    0.164891|    0.046398|  0.0000e+00|
+|          70|   -1.775783|   -6.106708|    0.155988|    0.043460|  0.0000e+00|
+|          80|   -1.801155|   -6.093727|    0.152913|    0.046823|  0.0000e+00|
+|          90|   -1.878457|   -6.158470|    0.153554|    0.051646|  0.0000e+00|
+|         100|   -1.963525|   -6.281990|    0.155710|    0.053786|  0.0000e+00|
+|         110|   -1.994527|   -6.345052|    0.156016|    0.053813|  0.0000e+00|
+|         119|   -2.038186|   -6.357573|    0.157317|    0.053009|  0.0000e+00|
+
+----------------------------- Compute Metric ----------------------------
+SU2_CFD: ../../SU2_CFD/src/adaptation/../../../Common/include/containers/C2DContainer.hpp:278: const Scalar_t& container_details::AccessorImpl<Index_t, Scalar_t, Store, AlignSize, 0, 0>::operator()(Index_t, Index_t) const [with Index_t = long unsigned int; Scalar_t = double; StorageType Store = StorageType::RowMajor; long unsigned int AlignSize = 64]: Assertion `i >= 0 && i < m_rows && j >= 0 && j < m_cols' failed.
+SU2_CFD: ../../SU2_CFD/src/adaptation/../../../Common/include/containers/C2DContainer.hpp:278: const Scalar_t& container_details::AccessorImpl<Index_t, Scalar_t, Store, AlignSize, 0, 0>::operator()(Index_t, Index_t) const [with Index_t = long unsigned int; Scalar_t = double; StorageType Store = StorageType::RowMajor; long unsigned int AlignSize = 64]: Assertion `i >= 0 && i < m_rows && j >= 0 && j < m_cols' failed.
+SU2_CFD: ../../SU2_CFD/src/adaptation/../../../Common/include/containers/C2DContainer.hpp:278: const Scalar_t& container_details::AccessorImpl<Index_t, Scalar_t, Store, AlignSize, 0, 0>::operator()(Index_t, Index_t) const [with Index_t = long unsigned int; Scalar_t = double; StorageType Store = StorageType::RowMajor; long unsigned int AlignSize = 64]: Assertion `i >= 0 && i < m_rows && j >= 0 && j < m_cols' failed.
+[pc-rausa:2928066] *** Process received signal ***
+[pc-rausa:2928066] Signal: Aborted (6)
+[pc-rausa:2928066] Associated errno: Unknown error 32718 (32718)
+[pc-rausa:2928066] Signal code:  (-2017779880)
+[pc-rausa:2928064] *** Process received signal ***
+[pc-rausa:2928064] Signal: Aborted (6)
+[pc-rausa:2928064] Associated errno: Unknown error 32764 (32764)
+[pc-rausa:2928064] Signal code:  (10)
+[pc-rausa:2928065] *** Process received signal ***
+[pc-rausa:2928065] Signal: Aborted (6)
+[pc-rausa:2928065] Signal code:  (562642918)
+[pc-rausa:2928064] [ 0] /lib/x86_64-linux-gnu/libc.so.6(+0x43090)[0x7f21699fe090]
+[pc-rausa:2928064] [ 1] /lib/x86_64-linux-gnu/libc.so.6(gsignal+0xcb)[0x7f21699fe00b]
+[pc-rausa:2928064] [ 2] /lib/x86_64-linux-gnu/libc.so.6(abort+0x12b)[0x7f21699dd859]
+[pc-rausa:2928064] [ 3] /lib/x86_64-linux-gnu/libc.so.6(+0x22729)[0x7f21699dd729]
+[pc-rausa:2928064] [ 4] /lib/x86_64-linux-gnu/libc.so.6(+0x33fd6)[0x7f21699eefd6]
+[pc-rausa:2928064] [ 5] /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD(+0x27d1eb)[0x55e0707af1eb]
+[pc-rausa:2928064] [ 6] /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD(+0x6307af)[0x55e070b627af]
+[pc-rausa:2928064] [ 7] /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD(+0x6283b5)[0x55e070b5a3b5]
+[pc-rausa:2928064] [ 8] /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD(+0x233bb3)[0x55e070765bb3]
+[pc-rausa:2928064] [ 9] /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD(+0x2300a8)[0x55e0707620a8]
+[pc-rausa:2928064] [10] /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD(+0x240563)[0x55e070772563]
+[pc-rausa:2928064] [11] /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD(+0x197152)[0x55e0706c9152]
+[pc-rausa:2928064] [12] /lib/x86_64-linux-gnu/libc.so.6(__libc_start_main+0xf3)[0x7f21699df083]
+[pc-rausa:2928064] [13] /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD(+0x1c78be)[0x55e0706f98be]
+[pc-rausa:2928064] *** End of error message ***
+[pc-rausa:2928065] [ 0] /lib/x86_64-linux-gnu/libc.so.6(+0x43090)[0x7fc521860090]
+[pc-rausa:2928065] [ 1] /lib/x86_64-linux-gnu/libc.so.6(gsignal+0xcb)[0x7fc52186000b]
+[pc-rausa:2928065] [ 2] /lib/x86_64-linux-gnu/libc.so.6(abort+0x12b)[0x7fc52183f859]
+[pc-rausa:2928065] [ 3] /lib/x86_64-linux-gnu/libc.so.6(+0x22729)[0x7fc52183f729]
+[pc-rausa:2928065] [ 4] /lib/x86_64-linux-gnu/libc.so.6(+0x33fd6)[0x7fc521850fd6]
+[pc-rausa:2928065] [ 5] /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD(+0x27d1eb)[0x55eb3fb9f1eb]
+[pc-rausa:2928065] [ 6] /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD(+0x6307af)[0x55eb3ff527af]
+[pc-rausa:2928065] [ 7] /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD(+0x6283b5)[0x55eb3ff4a3b5]
+[pc-rausa:2928065] [ 8] /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD(+0x233bb3)[0x55eb3fb55bb3]
+[pc-rausa:2928065] [ 9] /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD(+0x2300a8)[0x55eb3fb520a8]
+[pc-rausa:2928065] [10] /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD(+0x240563)[0x55eb3fb62563]
+[pc-rausa:2928065] [11] /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD(+0x197152)[0x55eb3fab9152]
+[pc-rausa:2928065] [12] /lib/x86_64-linux-gnu/libc.so.6(__libc_start_main+0xf3)[0x7fc521841083]
+[pc-rausa:2928065] [13] /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD(+0x1c78be)[0x55eb3fae98be]
+[pc-rausa:2928065] *** End of error message ***
+SU2_CFD: ../../SU2_CFD/src/adaptation/../../../Common/include/containers/C2DContainer.hpp:278: const Scalar_t& container_details::AccessorImpl<Index_t, Scalar_t, Store, AlignSize, 0, 0>::operator()(Index_t, Index_t) const [with Index_t = long unsigned int; Scalar_t = double; StorageType Store = StorageType::RowMajor; long unsigned int AlignSize = 64]: Assertion `i >= 0 && i < m_rows && j >= 0 && j < m_cols' failed.
+[pc-rausa:2928067] *** Process received signal ***
+[pc-rausa:2928067] Signal: Aborted (6)
+[pc-rausa:2928067] Signal code:  (-1412943898)
+[pc-rausa:2928067] [ 0] /lib/x86_64-linux-gnu/libc.so.6(+0x43090)[0x7f55abc4f090]
+[pc-rausa:2928067] [ 1] /lib/x86_64-linux-gnu/libc.so.6(gsignal+0xcb)[0x7f55abc4f00b]
+[pc-rausa:2928067] [ 2] /lib/x86_64-linux-gnu/libc.so.6(abort+0x12b)[0x7f55abc2e859]
+[pc-rausa:2928067] [ 3] /lib/x86_64-linux-gnu/libc.so.6(+0x22729)[0x7f55abc2e729]
+[pc-rausa:2928067] [ 4] /lib/x86_64-linux-gnu/libc.so.6(+0x33fd6)[0x7f55abc3ffd6]
+[pc-rausa:2928067] [ 5] /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD(+0x27d1eb)[0x560687b251eb]
+[pc-rausa:2928067] [ 6] /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD(+0x6307af)[0x560687ed87af]
+[pc-rausa:2928067] [ 7] /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD(+0x6283b5)[0x560687ed03b5]
+[pc-rausa:2928067] [ 8] /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD(+0x233bb3)[0x560687adbbb3]
+[pc-rausa:2928067] [ 9] /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD(+0x2300a8)[0x560687ad80a8]
+[pc-rausa:2928067] [10] /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD(+0x240563)[0x560687ae8563]
+[pc-rausa:2928067] [11] /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD(+0x197152)[0x560687a3f152]
+[pc-rausa:2928067] [12] /lib/x86_64-linux-gnu/libc.so.6(__libc_start_main+0xf3)[0x7f55abc30083]
+[pc-rausa:2928067] [13] /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD(+0x1c78be)[0x560687a6f8be]
+[pc-rausa:2928067] *** End of error message ***
+[pc-rausa:2928066] [ 0] /lib/x86_64-linux-gnu/libc.so.6(+0x43090)[0x7fcecb767090]
+[pc-rausa:2928066] [ 1] /lib/x86_64-linux-gnu/libc.so.6(gsignal+0xcb)[0x7fcecb76700b]
+[pc-rausa:2928066] [ 2] /lib/x86_64-linux-gnu/libc.so.6(abort+0x12b)[0x7fcecb746859]
+[pc-rausa:2928066] [ 3] /lib/x86_64-linux-gnu/libc.so.6(+0x22729)[0x7fcecb746729]
+[pc-rausa:2928066] [ 4] /lib/x86_64-linux-gnu/libc.so.6(+0x33fd6)[0x7fcecb757fd6]
+[pc-rausa:2928066] [ 5] /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD(+0x27d1eb)[0x55a478aae1eb]
+[pc-rausa:2928066] [ 6] /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD(+0x6307af)[0x55a478e617af]
+[pc-rausa:2928066] [ 7] /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD(+0x6283b5)[0x55a478e593b5]
+[pc-rausa:2928066] [ 8] /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD(+0x233bb3)[0x55a478a64bb3]
+[pc-rausa:2928066] [ 9] /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD(+0x2300a8)[0x55a478a610a8]
+[pc-rausa:2928066] [10] /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD(+0x240563)[0x55a478a71563]
+[pc-rausa:2928066] [11] /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD(+0x197152)[0x55a4789c8152]
+[pc-rausa:2928066] [12] /lib/x86_64-linux-gnu/libc.so.6(__libc_start_main+0xf3)[0x7fcecb748083]
+[pc-rausa:2928066] [13] /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD(+0x1c78be)[0x55a4789f88be]
+[pc-rausa:2928066] *** End of error message ***
+--------------------------------------------------------------------------
+Primary job  terminated normally, but 1 process returned
+a non-zero exit code. Per user-direction, the job has been aborted.
+--------------------------------------------------------------------------
+--------------------------------------------------------------------------
+mpirun noticed that process rank 1 with PID 0 on node pc-rausa exited on signal 6 (Aborted).
+--------------------------------------------------------------------------

@@ -1,0 +1,68 @@
+{
+  "mesh_status": "PASS_COMPLETE_CURVED_MESH",
+  "workflow_test_status": "PASS",
+  "frames": [
+    {
+      "cells": 621,
+      "nodes": 213,
+      "volume": 3.084644957444493,
+      "exact_overlap_pairs": 9424,
+      "vertex_links": 213,
+      "wall_height_faces": 38,
+      "maximum_height_relative_error": 3.469446951953614e-15,
+      "maximum_authority_node_error": 1.1102230246251565e-16,
+      "maximum_wall_chord_sag": 0.013638696597277788,
+      "donor_integral_residual": 2.638282027154797e-15,
+      "accepted_integral_residual": 9.086543711317274e-16,
+      "open_boundary_ledger_residual": 0.0,
+      "flow_conservation_residual": 9.086543711317274e-16,
+      "SA_integral_relative_changes": [
+        0.00046473911146726823,
+        0.0004611347172860676
+      ],
+      "all_projected_integrals_conserved": false,
+      "SA_reported_correction_residual": 8.812937359048423e-16,
+      "solver_bounds_accounted": true,
+      "stage": 0,
+      "mesh_status": "PASS_EXACT_GEOMETRY_HEIGHT_EMBEDDING",
+      "SU2_CGNS_geometry_and_source_equal": true
+    },
+    {
+      "cells": 48,
+      "nodes": 27,
+      "volume": 3.0,
+      "exact_overlap_pairs": 632,
+      "vertex_links": 27,
+      "wall_height_faces": 0,
+      "maximum_height_relative_error": 0.0,
+      "maximum_authority_node_error": 1.1102230246251565e-16,
+      "maximum_wall_chord_sag": 0.03407417371093191,
+      "donor_integral_residual": 1.1607277005438315e-15,
+      "accepted_integral_residual": 2.1549515823745606e-15,
+      "open_boundary_ledger_residual": 0.0,
+      "flow_conservation_residual": 2.219743520289553e-15,
+      "SA_integral_relative_changes": [
+        0.003523039372935678,
+        0.0037809413880756015
+      ],
+      "all_projected_integrals_conserved": false,
+      "SA_reported_correction_residual": 2.1762106006129045e-15,
+      "solver_bounds_accounted": true,
+      "stage": 1,
+      "mesh_status": "PASS_EXACT_GEOMETRY_HEIGHT_EMBEDDING",
+      "SU2_CGNS_geometry_and_source_equal": true
+    }
+  ],
+  "flow_restart_residual": 0.0,
+  "SA_restart_residual": 0.0,
+  "native_receipt_sha256": "ac3608e03372512d02e5489e086ec341cafdae1cec4061fafbb7177bbca2bdfe",
+  "helpers": {
+    "integration_evidence/native_3d_bl_v1/region_construction_v1/audit_runtime_mesh.py": "146b794992647b26af9dec4f09cb20d9d73109de00bab0f124e96e6819056d65",
+    "integration_evidence/native_3d_bl_v1/region_construction_v1/construct.py": "b605340df7090b54a0703fa5e6a97eec282d8eae61438e986e8b4579a7d5a1f7",
+    "integration_evidence/native_3d_core_v1/audit_cavities.py": "26079385c071c3ad1b9c06ab3b862b4ff293367dc3c8d291acf0487089d062c5",
+    "integration_evidence/native_3d_core_v1/audit_coupled.py": "1822427476ecb5687aaa06f3e7a3cc8f31cde53166fd0c711449eedf7c7c7a50",
+    "integration_evidence/native_3d_bl_v1/alignment_audit_v1/baseline.py": "5d068c56883bc966a332848b120e07d643a3015bae24671a366adf623d1be906"
+  },
+  "elapsed_seconds": 12.86724397400394,
+  "scope": "Exact binary64 rational volumes, oriented manifold connected domain and vertex links, no tetrahedron interior overlap, wall normal feet/height, analytic curved node/chord checks. Independent physical P1 flow/SA integrals and flow conservation/open ledger, SU2/CGNS original-source equivalence and current/BDF flow/SA restart. Native metric shape/edge gates are separate, not independently integrated here. SA integral differences remain explicitly unconserved; this report does not turn the rejected workflow into a pass. SA solver-bound correction accounting is checked when exported; independent raw-projection/clipping replay is separate. No general geometry, accuracy or performance qualification."
+}

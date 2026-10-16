@@ -1,0 +1,100 @@
+{
+  "status": "PASS_LIMITED_SCOPE",
+  "MPI_ranks": 4,
+  "frames": [
+    {
+      "file": "policy_m2_s0.json",
+      "cells": 96,
+      "points": 45,
+      "physical_faces": 80,
+      "volume": "1",
+      "minimum_mean_ratio": 0.5508035253856495,
+      "minimum_scaled_jacobian": 0.29714837158058605,
+      "maximum_length": 1.2095206061682373,
+      "longest_edge": [
+        21,
+        34
+      ],
+      "markers": {
+        "0": 72,
+        "1": 8
+      },
+      "strict_metric_gate": true,
+      "first_height_faces": 8,
+      "maximum_height_error": 0.0,
+      "maximum_tilt": 3.818267487110333,
+      "minimum_footprint_barycentric": 0.0,
+      "independent_flow_BDF_integral_defect": 4.0991697440353e-16,
+      "projection_all_field_defect": 1.3738219787104e-16,
+      "transported_sensor_error": 0,
+      "gradation": {
+        "maximum_sensor_ratio": 1.0,
+        "maximum_composed_ratio": 24.518396264943725,
+        "sensor_violations": 0,
+        "composed_violations": 44,
+        "scope": "Original donor edges, their dyadic subintervals, and an independent wall-normal/fade column. Finite probes, not a global certificate; no target correction."
+      },
+      "reloads": [
+        {
+          "file": "policy_m2_s0_written_CGNS_reload_target.json",
+          "sha256": "52167660ee399eadec6c384540ebd8e8cddf267f26aa3bf944cd4e3971dd8369",
+          "geometry_and_target_equal": true
+        },
+        {
+          "file": "policy_m2_s0_written_SU2_reload_target.json",
+          "sha256": "0f4ee06783c625e3c9b06be552f09aefaacd1a7c8c07bf8496b756e96c40c35f",
+          "geometry_and_target_equal": true
+        }
+      ]
+    },
+    {
+      "file": "policy_m2_s1.json",
+      "cells": 6,
+      "points": 8,
+      "physical_faces": 12,
+      "volume": "1",
+      "minimum_mean_ratio": 0.6872296635790217,
+      "minimum_scaled_jacobian": 0.4082482904638631,
+      "maximum_length": 1.732050807568877,
+      "longest_edge": [
+        2,
+        5
+      ],
+      "markers": {
+        "0": 10,
+        "1": 2
+      },
+      "strict_metric_gate": true,
+      "first_height_faces": 0,
+      "maximum_height_error": 0,
+      "maximum_tilt": 0,
+      "minimum_footprint_barycentric": 0.3333333333333333,
+      "independent_flow_BDF_integral_defect": 6.148754616052947e-16,
+      "projection_all_field_defect": 1.3738219787104004e-16,
+      "transported_sensor_error": 0,
+      "gradation": {
+        "maximum_sensor_ratio": 1.0,
+        "maximum_composed_ratio": null,
+        "sensor_violations": 0,
+        "composed_violations": null,
+        "scope": "Original donor edges, their dyadic subintervals, and an independent wall-normal/fade column. Finite probes, not a global certificate; no target correction."
+      },
+      "reloads": [
+        {
+          "file": "policy_m2_s1_written_CGNS_reload_target.json",
+          "sha256": "71cce5aef78cda329eac8d71b8b668918bf96a40919ac2f8519cfa601118c672",
+          "geometry_and_target_equal": true
+        },
+        {
+          "file": "policy_m2_s1_written_SU2_reload_target.json",
+          "sha256": "71cce5aef78cda329eac8d71b8b668918bf96a40919ac2f8519cfa601118c672",
+          "geometry_and_target_equal": true
+        }
+      ]
+    }
+  ],
+  "native_receipt_sha256": "9cd7862d07c13d6c6ff5ec778cb22e5431acf945e83725c7cb6291d88fd543ce",
+  "helper_sha256": "b7421168bd58c3a43519a683ee9e393a10070ef23736d8daf0c0b5f70bca2007",
+  "house_geometry_auditor_sha256": "1822427476ecb5687aaa06f3e7a3cc8f31cde53166fd0c711449eedf7c7c7a50",
+  "scope": "Exact cube embedding/coverage, independent full composed metric lengths/shape/h0, actual original P1 sensor transport, current+BDF flow integrals/positivity and real restart, and geometry/target-equivalent SU2/CGNS reload. Native checks separately cover turbulence bounds/history. Composed gradation violations are reported, not corrected. No arbitrary geometry/sensors, CFD convergence/accuracy or performance qualification."
+}

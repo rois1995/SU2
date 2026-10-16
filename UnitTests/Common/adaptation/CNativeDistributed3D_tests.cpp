@@ -2536,6 +2536,11 @@ TEST_CASE("Prismatic admission certifies opposite caps and rejects slanted sides
   const RegionMetric metric([](Point){return Tensor{1,0,0,1,0,1};},[](Point a,Point b){return (long double)std::hypot(a.x-b.x,a.y-b.y,a.z-b.z);});
   std::string reason;CHECK_FALSE(ConstructWallRegion(fixture.facets,{.5,.5,.5},geometry,incompatible,.04,8,6,metric,limits,sentinel,report,reason));
   CHECK(reason.find("geometry-height incompatibility")!=std::string::npos);CHECK(sentinel.cells.size()==1);CHECK(sentinel.cells.front().id==123);
+  Patch retained;
+  REQUIRE(ConstructWallRegion(fixture.facets,{.5,.5,.5},geometry,{{10,{.1,1.2,.3}}},.04,8,6,metric,limits,retained,report,reason));
+  CHECK(retained.cells.size()==12);
+  CHECK(report.surface_trials==1);  // Complete original cap/front fits; no lattice or boundary resampling.
+
 }
 
 TEST_CASE("Native first-row owners construct disjoint wall cells concurrently", "[NativeFirstLayerConcurrency3D]") {

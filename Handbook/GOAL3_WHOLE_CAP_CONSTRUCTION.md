@@ -114,3 +114,32 @@ the new frozen planar-edge regression separately passes1 case/3 assertions. All
 completed current source/build/binary/object and artifact pins are checked by
 `validation.json`. Actual RANS/transfer/output/restart checks remain for this batch.
 Full Goal3 remains active; these are complete scoped meshes, not its full completion.
+
+## Retain complete admissible plans before resampling
+
+The actual initialized planar N4/M2 v2 backend passes all independent gates but
+uses96 cells, where the prior qualified plan used24. Full3D admissibility of the
+existing cap/front plan is now tested before creating a new point distribution.
+The check uses the same sorted-ID prism subdivision as final emission, actual
+centroid q/J and every unique full composed edge. It charges a surface trial and
+shares existing time/work/cell bounds. Final whole-region geometry/height/embedding/
+metric validation remains mandatory; a provisional plan is never publication.
+This retains an already complete solution, not another recovery fallback.
+
+Focused retention regression and unchanged hard target v5 pass. Both strong v5
+output records exactly equal v4 independent inputs, with original fixture prefix/
+environment/field-source identities checked by reuse_prism_reference.py. No full
+geometry/quadrature rerun was needed. New actual planar N4/M2 v3 passes6->24->6,
+independently full metrics/geometry/first-height/current+BDF flow/transported sensor/
+SU2+CGNS/reference/restart; flow defects<=2.75e-16. The96-cell successful v2 is
+preserved as the overrefinement counterexample. Do not call cell-count reduction
+a measured timing speedup. Sensor gradation passes and composed44 violations remain.
+
+This small follow-up changes prismatic construction only. The earlier6c batch
+retains its source scope; the current actual curved N4/M2 v14 passes native, independent complete geometry/
+height/embedding/current+BDF/open-ledger/output/reference/restart and SA replayv28.
+Post-floor SA is still accounted, not exactly conserved. Opposing-wall regression
+is queued behind the user-requested practical M6 case. The M6 run exposed a separate
+QLS workspace allocation omission with Green–Gauss CFD gradients; its fix changes
+storage only and does not invalidate the recorded GG-Hessian curved workflow.
+See [M6 scope and diagnosis](GOAL3_ONERA_M6.md).

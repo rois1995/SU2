@@ -1,0 +1,34 @@
+{
+  "status": "FAIL_BEFORE_REMESH",
+  "first_attempt": "120 CFD iterations, then QLS missing-workspace assertion; fixed shared allocation.",
+  "fixed_retry": "120 CFD iterations and full MPI QLS recovery pass; thin-BL complexity integration exhausts65536 points on original global cell13.",
+  "native_remesh_entered": false,
+  "candidate_generated": false,
+  "accepted_adapted_grid": false,
+  "flow_checkpoint": "PASS_FLOW_EXPORT_ONLY",
+  "history_common_columns": [
+    "Inner_Iter",
+    "Outer_Iter",
+    "Time_Iter",
+    "rms[RhoE]",
+    "rms[RhoU]",
+    "rms[RhoV]",
+    "rms[RhoW]",
+    "rms[Rho]",
+    "rms[nu]"
+  ],
+  "history_common_columns_exact_equal": true,
+  "iterations": 120,
+  "restart_precision": "Float64",
+  "restart_mesh_coordinate_max_error": 0.0,
+  "restart_all_fields_finite": true,
+  "minimum_density": 0.22430336179997215,
+  "minimum_ideal_gas_pressure": 62335.921610266705,
+  "quadratic_workspace_regression": "PASS:1 case/32260 assertions",
+  "hessian_max_rank_seconds": 1.42196,
+  "limitations": [
+    "Unconverged flow; no viscous accuracy, remeshing, mesh-acceptance or solution-transfer result.",
+    "No geometry, first-height, fade, quality, integration tolerance or work-limit relaxation. No MMG substitution."
+  ],
+  "source_binary_input_pins_verified": true
+}

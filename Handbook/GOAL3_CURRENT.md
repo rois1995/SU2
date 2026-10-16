@@ -102,7 +102,14 @@ The matching practical M6 input is located at
 `/media/rausa/4TB/SU2_Versions/TestCasesForSSTIDDES/optimization_rans/steady_oneram6`,
 with545438 tetrahedra/96252 points and `solution_flow.csv`. Do not run it through the
 single visible-radial-region pilot as if a wing/exterior constructor were qualified.
-No M6 run is active. Keep true symmetry, actual SA physics and matching coordinates.
+This earlier frozen-metric input remains separate. The user-requested practical
+M6 run now uses `/media/rausa/4TB/Verification/OneraM6/Meshes/Coarse.su2`,
+303359 tetrahedra/61330 points. Its actual120-step four-rank RANS/SA QLS retry
+fails thin-BL complexity quadrature at65536 points on original global cell13,
+before remeshing. A shared missing QLS workspace was fixed first; the matching
+flow/restart and cell-neighborhood diagnostic are saved. No M6 adapted grid.
+All owned M6 jobs are terminal. Keep true symmetry, actual SA physics and matching
+coordinates. See [current M6 evidence](GOAL3_ONERA_M6.md).
 
 ## Existing qualified scope
 

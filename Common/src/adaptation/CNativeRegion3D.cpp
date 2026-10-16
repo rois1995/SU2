@@ -37,6 +37,7 @@ Face Key(Face f) {
   std::sort(f.begin(), f.end());
   return f;
 }
+constexpr std::array<std::array<unsigned,4>,3> PrismTets{{{0,1,2,5},{0,1,5,4},{0,4,5,3}}};
 // Proposal-only tangential envelope uses the solver's stable sum-whitening construction; the 3D field stays frozen.
 Eigen::Matrix2d CapIntersection(Eigen::Matrix2d a,const Eigen::Matrix2d& b) {
   if(a==b)return a;
@@ -692,9 +693,33 @@ class Construction {
       }
     }
   }
+  bool PrismaticCapFits(const std::vector<SurfaceFace>& base,const PrismaticChart& chart,const std::vector<double>& levels) {
+    ++report.surface_trials;Check();
+    if(base.size()>limits.maximum_cells/(3*(levels.size()-1)))return false;
+    using Vertex=std::pair<Id,size_t>;std::set<std::pair<Vertex,Vertex>> seen;
+    for(auto face:base)for(size_t layer=1;layer<levels.size();++layer) {
+      auto order=face.v;std::sort(order.begin(),order.end());std::array<Point,6> points;std::array<Vertex,6> keys;
+      for(unsigned k=0;k<6;++k) {
+        const auto level=layer-(k<3);points[k]=Add(nodes.at(order[k%3]),Mul(chart.direction,levels[level]));keys[k]={order[k%3],level};
+      }
+      for(auto pattern:PrismTets) {
+        Check();Tetrahedron tet;for(unsigned k=0;k<4;++k)tet[k]=points[pattern[k]];
+        const auto sign=Orientation(tet[0],tet[1],tet[2],tet[3]);if(!sign)return false;if(sign<0)std::swap(tet[0],tet[1]);
+        Point center{};for(auto p:tet)center=Add(center,Mul(p,.25));const auto shape=Measure(tet,field.point(center));
+        if(shape.mean_ratio<MinimumMeanRatio || shape.minimum_scaled_jacobian<MinimumScaledJacobian)return false;
+        for(unsigned i=0;i<4;++i)for(unsigned j=i+1;j<4;++j) {
+          auto edge=std::minmax(keys[pattern[i]],keys[pattern[j]]);if(!seen.emplace(edge.first,edge.second).second)continue;
+          if(field.edge(points[pattern[i]],points[pattern[j]])>MaximumMetricEdge)return false;
+        }
+      }
+    }
+    return true;
+  }
   void ConstructPrismaticCap(std::vector<SurfaceFace>& base,const PrismaticChart& chart,const std::vector<double>& levels) {
     namespace Cap=SU2Native2D;
     PhaseClock timer(limits.timings);timer.Set(report.cap_seconds);
+    // Retain a complete admissible front plan before creating a different point distribution.
+    if(PrismaticCapFits(base,chart,levels))return;
     Point axis{1,0,0};if(std::abs(chart.direction.y)<std::abs(chart.direction.x))axis={0,1,0};
     if(std::abs(chart.direction.z)<std::abs(Dot(axis,chart.direction)))axis={0,0,1};
     const Point u=Unit(Sub(axis,Mul(chart.direction,Dot(axis,chart.direction)))),v=Cross(chart.direction,u);
@@ -909,10 +934,10 @@ class Construction {
     for(size_t layer=1;layer<levels.size();++layer) {
       for(auto f:base) {
         auto order=f.v;std::sort(order.begin(),order.end());
-        const Id a=columns.at(order[0])[layer-1],b=columns.at(order[1])[layer-1],c=columns.at(order[2])[layer-1],
-          aa=columns.at(order[0])[layer],bb=columns.at(order[1])[layer],cc=columns.at(order[2])[layer];
+        std::array<Id,6> vertices;for(unsigned k=0;k<6;++k)vertices[k]=columns.at(order[k%3])[layer-(k<3)];
         int orientation=0;
-        for(auto ids:std::array<std::array<Id,4>,3>{{{a,b,c,cc},{a,b,cc,bb},{a,bb,cc,aa}}}) {
+        for(auto pattern:PrismTets) {
+          std::array<Id,4> ids;for(unsigned k=0;k<4;++k)ids[k]=vertices[pattern[k]];
           const auto cell=Tet(ids);const auto volume=Orientation(cell.v[0].p,cell.v[1].p,cell.v[2].p,cell.v[3].p);
           if(!volume)throw std::runtime_error("Prismatic transition has an unresolvable tetrahedron.");
           const int sign=volume>0?1:-1;

@@ -1,0 +1,67 @@
+{
+  "status": "PASS_EXACT_COMPLETE_PRISM_REFERENCE_REUSE",
+  "frames": [
+    {
+      "stage": "coupled_BL",
+      "cells": 1248,
+      "reference_input_sha256": "4c744fec72ba13128979cfd0a0c61c79d532417cf2c4d0a0089a6c14a52f659d",
+      "reference_frame": {
+        "file": "coupled_BL_independent.json",
+        "cells": 1248,
+        "points": 400,
+        "physical_faces": 640,
+        "volume": "1",
+        "minimum_mean_ratio": 0.35791093577206684,
+        "minimum_scaled_jacobian": 0.15352293669784672,
+        "maximum_length": 1.699959305949229,
+        "longest_edge": [
+          130,
+          133
+        ],
+        "markers": {
+          "0": 536,
+          "1": 104
+        },
+        "strict_metric_gate": true,
+        "first_height_faces": 104,
+        "maximum_height_relative_error": 0.0,
+        "wall_normal_first_edges": 80,
+        "full_composed_edges": 1967,
+        "layers": true,
+        "input_sha256": "4c744fec72ba13128979cfd0a0c61c79d532417cf2c4d0a0089a6c14a52f659d"
+      }
+    },
+    {
+      "stage": "released_Euler",
+      "cells": 447,
+      "reference_input_sha256": "36192a702ca1e29e898169c7151ca04967d34739502a46663c8448ff32d46667",
+      "reference_frame": {
+        "file": "released_Euler_independent.json",
+        "cells": 447,
+        "points": 164,
+        "physical_faces": 280,
+        "volume": "1",
+        "minimum_mean_ratio": 0.3088590729776696,
+        "minimum_scaled_jacobian": 0.13392333975530718,
+        "maximum_length": 1.799434127856669,
+        "longest_edge": [
+          69,
+          206
+        ],
+        "markers": {
+          "0": 224,
+          "1": 56
+        },
+        "strict_metric_gate": true,
+        "layers": false,
+        "input_sha256": "36192a702ca1e29e898169c7151ca04967d34739502a46663c8448ff32d46667"
+      }
+    }
+  ],
+  "old_native_receipt_sha256": "f38d2e2bd08ab8c83791eb6002a520215c7bdc678d5b759195f4fd14838af8b0",
+  "new_native_receipt_sha256": "e131d5c2d6f4f241ffd0522a1ac9117eed7cd7bdab4409d2b080df77f6c44b19",
+  "independent_reference_sha256": "a78dbfc0b6a06fe46044bfd1408ccc46bba99bf50de68e5bcd0e3e2aa1889297",
+  "field_fixture_prefix_sha256": "dccddf4827c5a07ed7eb25843c40d6d7f8ad3b54c64fef5f0267ccffefd60f7a",
+  "helper_sha256": "c3ff9c0b4563fc61ca240c84ff257cbc850326fa6a1bd05e5de616b6297a9dd2",
+  "scope": "Both complete accepted input records exactly equal the previous independently audited records. Original source/geometry/options/workflow fixture prefix, environment/command and all collected field/geometry/solver source pins are unchanged. Native construction and removal pass anew; changed reconstruction and retention-test code are allowed. Reuses exact finite geometry/height/full independent metric proof, not unchanged binaries or new CFD/MPI/performance qualification."
+}

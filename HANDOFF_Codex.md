@@ -4,8 +4,9 @@ Worktree `/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated`, branch
 `codex/native-3d-bl`, Goal2 base `c43a8a3907ea2655e4ebbb6286ab16c3fa625d8b`.
 **Full Goal3 ACTIVE/incomplete.** Preserve its full
 [scope and gates](integration_evidence/native_3d_bl_v1/GOAL3_REQUIREMENTS.json).
-Published c103aa9cf3 preserves the failed cap strategy and qualified production
-baseline69833b2a3f. Current working source below is a connected construction change.
+Published6c344dcf7b contains whole-cap construction and the shared closest-facet
+correction. Prior c103aa9cf3 preserves the withdrawn cap strategy. Current working
+follow-up retains an already admissible complete front plan before resampling.
 
 ## Current connected work
 
@@ -34,9 +35,34 @@ model/mesh lets the complete independent reference transfer after checking all28
 new tensors/shapes and4727 edges, bound1.064e-14/edge residual4.986e-9. Existing
 12 edge/geometry controls and the new edge regression pass. All current source/
 binary/object/artifact pins checked in tangential_caps_v2/validation.json.
-All owned jobs terminal. Next actual planar/curved RANS N4/M2 backend/transfer/
-output/restart and opposing-wall qualification. No wider curved capability or
-full Goal3 completion; no local fallback or increased limits.
+The batch above is scoped to6c344dcf7b. Current follow-up checks complete actual3D
+cap/front admissibility before point generation, using the same prism diagonals
+and final whole-region gates. Focused coarse retention and strong v5 workflow pass;
+strong outputs exactly reuse v4 independent inputs/proof. Actual initialized planar
+N4/M2 v3 now passes6->24->6 (v2 oversampled96), independently full geometry/metric/
+current+BDF flow/both output formats/reference/restart, integral defect<=2.75e-16.
+This avoids unnecessary cell growth without changing the target or adding recovery.
+Builds terminal PASS. Actual evolved curved N4/M2 v14 passes native, independent
+whole-mesh/current+BDF/restart checks and SA saved-state replayv28. No job remains
+from that batch. User-requested ONERA M6 test now takes priority over the queued
+opposing-wall regression. Its folder is
+`integration_evidence/native_3d_bl_v1/oneram6_coarse_v1`: supplied Coarse.su2,
+303359 tetrahedra/61330 points, real WING3D no-slip/SYMMETRY/FARFIELD, SA at
+Mach.8395/AOA3.06/Re11.72e6. Bounded120 initial iterations, one native adaptation,
+first height2e-6/g1.2/T.01, original-P1 sensors and actual-query BL. Four ranks,
+300s native deadline/1200s process ceiling. Preparation pins current dirty source
+and fresh solver. All M6 jobs are terminal. First attempt exposed missing QLS
+WLS-fallback workspace with primal GG; shared allocation fixed, analytic check
+passes1 case/32260 assertions. Identical-config retry passes all120 flow iterations
+and122660 MPI QLS fits, then exhausts65536 thin-BL complexity points on global
+cell13 (upper outer wing near tip), BEFORE remeshing. No candidate/adapted grid.
+Saved matching `flow_checkpoint/flow.vtu`, surface_flow.vtu and Float64 restart
+with exact printed-history/coordinate identity; `failure_cell_13.vtu` locates the
+46-cell input neighborhood. Next M6 blocker is thin-volume integration, not yet
+a measured construction rejection. No M6 task is queued.
+[M6 evidence/diagnosis](Handbook/GOAL3_ONERA_M6.md).
+No M6 acceptance or converged aerodynamic claim yet. No wider curved
+capability or full Goal3 completion; no local fallback or increased limits.
 [Current source/design/evidence](Handbook/GOAL3_WHOLE_CAP_CONSTRUCTION.md).
 
 The earlier cap-operator attempt failed3731 trials/30 cap faces; it was withdrawn

@@ -5871,3 +5871,37 @@ Actual planar/curved RANS and opposing-wall checks remain for this source.
 Full Goal3 ACTIVE/incomplete. See Handbook/GOAL3_WHOLE_CAP_CONSTRUCTION.md and
 tangential_caps_v2/validation.json; all completed current source/binary/object pins
 were verified before this checkpoint.
+
+
+## 2026-10-16 — admissible-plan retention and practical M6 counterexample
+
+A complete admissible cap/front plan is now retained before point resampling.
+The actual planar N4/M2 backend returns6->24->6 rather than unnecessary96-cell
+construction, with full independent geometry/height/composed edges/current+BDF/
+SU2+CGNS/reference/restart checks. The hard1248->447 target remains unchanged;
+exact frozen inputs permit independent-reference reuse. Actual evolved curved
+N4/M2 v14 passes24->621->48 and independent complete geometry/current+BDF/
+open-ledger/output/restart plus SA replayv28. Post-floor SA is accounted, not
+exactly conserved. These receipts precede the separate storage-only QLS fix.
+
+The supplied ONERA M6 Coarse.su2 now has an actual bounded local RANS/SA test:
+303359 tetrahedra/61330 points, real symmetry, Mach.8395/AOA3.06/Re11.72e6,
+first-height2e-6/growth1.2/thickness.01 and four ranks. The initial120 CFD steps
+finished, then QLS crashed: CFlowVariable omitted its WLS-fallback Rmatrix when
+both primal gradients use GG. Shared allocation now includes QLS; existing
+analytic signed-curvature/fallback regression explicitly uses both GG methods,
+1 case/32260 assertions PASS. This changes storage, not Hessian/metric formulas.
+
+The identical-config retry completes122660 QLS fits with zero fallbacks, then
+fails geometric complexity integration on original global cell13 at65536 points.
+No remesher entry/candidate/accepted mesh/transfer occurred. Cell13 is on the
+upper outer wing near the tip, centroid(1.10496480,1.19815318,.00539511), with
+input wall altitude.00224586883 versus2e-6 requested. A46-cell VTU diagnostic
+locates it. One matching standalone flow export preserves the actual120-step
+state, with identical printed residual histories and exact Float64 mesh/restart
+coordinates, finite state/positive density and pressure. It is unconverged.
+
+This is an unresolved real-geometry thin-volume integration counterexample; no
+limit/tolerance/geometry/height relaxation or MMG substitution. Full Goal3 remains
+ACTIVE/incomplete. All owned jobs terminal. See Handbook/GOAL3_ONERA_M6.md and
+integration_evidence/native_3d_bl_v1/oneram6_coarse_v1/result.json.

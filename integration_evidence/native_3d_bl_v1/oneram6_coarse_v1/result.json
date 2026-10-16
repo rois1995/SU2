@@ -1,0 +1,98 @@
+{
+  "status": "FAIL_BEFORE_REMESH",
+  "first_attempt": "120 CFD iterations, then QLS missing-workspace assertion; fixed shared allocation.",
+  "fixed_retry": "120 CFD iterations and full MPI QLS recovery pass; thin-BL complexity integration exhausts65536 points on original global cell13.",
+  "native_remesh_entered": false,
+  "candidate_generated": false,
+  "accepted_adapted_grid": false,
+  "flow_checkpoint": "PASS_FLOW_EXPORT_ONLY",
+  "history_common_columns": [
+    "Inner_Iter",
+    "Outer_Iter",
+    "Time_Iter",
+    "rms[RhoE]",
+    "rms[RhoU]",
+    "rms[RhoV]",
+    "rms[RhoW]",
+    "rms[Rho]",
+    "rms[nu]"
+  ],
+  "history_common_columns_exact_equal": true,
+  "iterations": 120,
+  "restart_precision": "Float64",
+  "restart_mesh_coordinate_max_error": 0.0,
+  "restart_all_fields_finite": true,
+  "minimum_density": 0.22430336179997215,
+  "minimum_ideal_gas_pressure": 62335.921610266705,
+  "quadratic_workspace_regression": "PASS:1 case/32260 assertions",
+  "hessian_max_rank_seconds": 1.42196,
+  "failure_location": {
+    "global_cell": 13,
+    "source_element_ordinal_one_based": 14,
+    "source_numbering": "CSU2 ASCII element ordinal; CPhysicalGeometry preserves global element IDs across partitioning.",
+    "point_ids": [
+      23981,
+      23978,
+      4352,
+      31725
+    ],
+    "coordinates": [
+      [
+        1.106046930085287,
+        1.198266273740958,
+        0.004675154352091574
+      ],
+      [
+        1.10329452919033,
+        1.198418060060984,
+        0.004975878580968771
+      ],
+      [
+        1.104687785078097,
+        1.196299999999894,
+        0.005162645677507124
+      ],
+      [
+        1.105829937675579,
+        1.199628391193171,
+        0.0067667491412538
+      ]
+    ],
+    "centroid": [
+      1.1049647955073232,
+      1.1981531812487518,
+      0.005395106937955317
+    ],
+    "bounds": [
+      [
+        1.10329452919033,
+        1.196299999999894,
+        0.004675154352091574
+      ],
+      [
+        1.106046930085287,
+        1.199628391193171,
+        0.0067667491412538
+      ]
+    ],
+    "physical_faces": {
+      "WING3D": [
+        [
+          4352,
+          23981,
+          23978
+        ]
+      ]
+    },
+    "existing_wall_altitude": 0.002245868830018663,
+    "requested_wall_altitude": 2e-06,
+    "neighborhood_cells": 46,
+    "scope": "Original input cell neighborhood, NOT a rejected remeshing proposal or an adapted grid.",
+    "diagnostic_vtu_sha256": "b7eba12f35e2cb1f4c49ac288fb652e5196ebd8831d9c5d336923a48a8d29c85"
+  },
+  "limitations": [
+    "Unconverged flow; no viscous accuracy, remeshing, mesh-acceptance or solution-transfer result.",
+    "No geometry, first-height, fade, quality, integration tolerance or work-limit relaxation. No MMG substitution."
+  ],
+  "source_binary_input_pins_verified": true
+}

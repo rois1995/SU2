@@ -1,0 +1,1 @@
+Assertion in missing Rmatrix workspace: computeGradientsLeastSquares.hpp:300, CSolver::SetHessian_Adapt CSolver.cpp:2448. Quadratic Hessian uses WLS first, but CFlowVariable.cpp allocated Rmatrix only for Hessian WLS or flow LS. With both primal gradients GREEN_GAUSS and Hessian QLS, Rmatrix has zero storage. All120 flow iterations completed; no mesh was proposed. Exit134.
