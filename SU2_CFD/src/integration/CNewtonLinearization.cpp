@@ -113,11 +113,27 @@ bool CNewtonLinearization::Apply(const Vector& u, Vector& v, bool pseudoTime, bo
   const auto first = residualRuntime ? target->offset : 0;
   const auto last = residualRuntime ? first + target->variables : equations.GetnVar();
   const bool refine = refineStep && verifyStep;
+  const auto flow = std::find_if(blocks.begin(), blocks.end(),
+                                [](const CNewtonEquationSet::Block& block) { return block.slot == FLOW_SOL; });
   /*--- Size probes globally, retaining anisotropic state scales and representable changes at the base. ---*/
   double norm;
   if (physicalStep) {
     SU2_OMP_BARRIER
     v = u * (*scale);
+    norm = v.norm();
+  } else if (probeReference && flow != blocks.end() && config->GetKind_Regime() == ENUM_REGIME::COMPRESSIBLE) {
+    /*--- Use the same physical momentum reference for the absolute and relative limits.
+     *     Reuse the output as scratch; the operator still differentiates along S*u. ---*/
+    SU2_OMP_BARRIER
+    SU2_OMP_FOR_STAT(1024)
+    for (auto p = 0ul; p < geometry->GetnPointDomain(); ++p)
+      for (auto j = 0u; j < equations.GetnVar(); ++j) {
+        v(p, j) = u(p, j);
+        if (j > flow->offset && j <= flow->offset + geometry->GetnDim() &&
+            free[p * equations.GetnVar() + j] && (*probeReference)(p, j) > 0)
+          v(p, j) = u(p, j) * (*scale)(p, j) / (*probeReference)(p, j);
+      }
+    END_SU2_OMP_FOR
     norm = v.norm();
   } else
     norm = u.norm();

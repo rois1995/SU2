@@ -238,7 +238,11 @@ void CNewtonIntegration::SetCFL(double value) {
   }
 }
 
-void CNewtonIntegration::UpdateScale() { equations->BuildScales(scale, probeReference); }
+void CNewtonIntegration::UpdateScale() {
+  equations->BuildScales(scale, probeReference);
+  /*--- Legacy flow controls retain their original physical probe metric and relative references. ---*/
+  if (legacyFlowControls) probeReference = scale;
+}
 
 void CNewtonIntegration::Perturb(const CSysVector<Scalar>& vector, double step) {
   equations->SetTrial(vector, step, scale, [&](const CNewtonEquationSet::Block& b, unsigned long p, unsigned short v) {

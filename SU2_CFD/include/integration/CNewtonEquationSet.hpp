@@ -140,6 +140,14 @@ class CNewtonEquationSet : private CIntegration {
           scale(p, j) = std::max(std::abs(SU2_TYPE::GetValue(scale(p, j))), ref);
           if (scale(p, j) == 0) scale(p, j) = 1;
           probe(p, j) = scale(p, j);
+          /*--- Resolve momentum probes in a moving internal flow even when its freestream is nearly at rest.
+           *     This reference only sizes differences; the residual and state scales above remain unchanged. ---*/
+          if (block.slot == FLOW_SOL && compressible && v >= 1 && v <= geometry->GetnDim()) {
+            const auto* flow = solvers[FLOW_SOL]->GetNodes();
+            const double speed = std::max(std::sqrt(SU2_TYPE::GetValue(flow->GetVelocity2(p))),
+                                          SU2_TYPE::GetValue(flow->GetSoundSpeed(p)));
+            probe(p, j) = std::max(SU2_TYPE::GetValue(probe(p, j)), SU2_TYPE::GetValue(density[p]) * speed);
+          }
           if (block.slot == TURB_SOL && config->GetKind_Turb_Model() == TURB_MODEL::SST)
             probe(p, j) = std::max(mass * std::abs(SU2_TYPE::GetValue(block.solver->GetNodes()->GetSolution_Old(p, v))),
                                     ref * 1e-12);

@@ -95,7 +95,8 @@ struct Problem {
       if (physics.find("MARKER_FAR=") == std::string::npos)
         config << "MARKER_FAR= (x_minus,x_plus,y_plus" << (threeD ? ",z_minus,z_plus" : "") << ")\n";
       if (physics.find("REYNOLDS_NUMBER=") == std::string::npos) config << "REYNOLDS_NUMBER= 1e6\n";
-      config << "MACH_NUMBER= 0.2\nMUSCL_FLOW= " << (muscl ? "YES" : "NO") << "\n";
+      if (physics.find("MACH_NUMBER=") == std::string::npos) config << "MACH_NUMBER= 0.2\n";
+      config << "MUSCL_FLOW= " << (muscl ? "YES" : "NO") << "\n";
       if (physics.find("MUSCL_TURB=") == std::string::npos) config << "MUSCL_TURB= NO\n";
       config << "MUSCL_SPECIES= NO\nMGLEVEL= 0\nOUTPUT_FILES= NONE\n"
                 "SCREEN_OUTPUT= (INNER_ITER)\nHISTORY_OUTPUT= (ITER,RMS_RES)\n";
@@ -2996,6 +2997,78 @@ TEST_CASE("Newton probes preserve reconstruction iteration history", "[NewtonEqu
   CHECK(MaxDifference(reference, actual) == 0.0);
   equations->CommitHistory();
   for (auto e = 0ul; e < counters.size(); ++e) CHECK(counters[e] == saved[e] - 1);
+}
+
+TEST_CASE("Momentum probes resolve a moving state with a nearly quiescent freestream", "[NewtonProbeMetric]") {
+  for (const auto& mach : {"1e-9", "1e-12"}) {
+    CAPTURE(mach);
+    Problem problem(std::string("SOLVER= NAVIER_STOKES\nMACH_NUMBER= ") + mach +
+                    "\nMARKER_HEATFLUX= NONE\nMARKER_FAR= NONE\n"
+                    "MARKER_SUPERSONIC_OUTLET= (x_minus,x_plus,y_minus,y_plus)\nSLOPE_LIMITER_FLOW= NONE\n", 5, true);
+    auto& driver = *problem.driver;
+    auto* geometry = driver.Geometry();
+    auto* nodes = driver.Solvers()[FLOW_SOL]->GetNodes();
+    /*--- Internal-flow restarts can move much faster than the configured freestream. ---*/
+    for (auto p = 0ul; p < geometry->GetnPoint(); ++p) {
+      const double rho = nodes->GetSolution(p, 0);
+      const double oldVelocity2 = (pow(nodes->GetSolution(p, 1), 2) + pow(nodes->GetSolution(p, 2), 2)) / (rho * rho);
+      nodes->SetSolution(p, 3, nodes->GetSolution(p, 3) + 0.5 * rho * (0.04 - oldVelocity2));
+      nodes->SetSolution(p, 1, 0.2 * rho);
+      nodes->SetSolution(p, 2, 0.0);
+    }
+    auto equations = problem.Equations({RUNTIME_FLOW_SYS});
+    REQUIRE(Residual(*equations, true, true));
+    equations->Capture();
+    auto scale = MakeVector(driver, equations->GetnVar()), probe = scale, direction = scale;
+    auto diagonal = scale, actual = scale;
+    equations->BuildScales(scale, probe);
+    const auto originalScale = scale;
+    direction = passivedouble(0);
+    diagonal = passivedouble(0);
+    for (auto p = 0ul; p < geometry->GetnPoint(); ++p)
+      direction(p, 2) = nodes->GetSolution(p, 0) * std::sin(PI_NUMBER * (0.1 + geometry->nodes->GetCoord(p, 0))) *
+                        std::sin(PI_NUMBER * (0.1 + geometry->nodes->GetCoord(p, 1))) / scale(p, 2);
+    auto isFree = [](const CNewtonEquationSet::Block& block, unsigned long p, unsigned short v) {
+      return !block.solver->Jacobian.IsPrescribedRow(p, v);
+    };
+    auto centered = [&](double step) {
+      auto positive = scale, negative = scale;
+      equations->SetTrial(direction, step, scale, isFree);
+      REQUIRE(Residual(*equations));
+      equations->CopyResidual(positive);
+      equations->SetTrial(direction, -step, scale, isFree);
+      REQUIRE(Residual(*equations));
+      equations->CopyResidual(negative);
+      positive -= negative;
+      positive *= 0.5 / step;
+      return positive;
+    };
+    const auto reference = centered(5e-6);
+    auto refinement = centered(1e-5);
+    refinement -= reference;
+    REQUIRE(reference.norm() > 1e-6);
+    CHECK(refinement.norm() < 1e-4 * reference.norm());
+    REQUIRE(equations->Restore());
+    CNewtonLinearization linearization(*equations, geometry, driver.Config());
+    bool valid = false;
+    SU2_OMP_PARALLEL {
+      const bool base = linearization.SetBase(scale, diagonal, 1e-7, 1e-4, isFree, &probe, 1.0, false, true);
+      const bool product = base && linearization.Apply(direction, actual, false);
+      SU2_OMP_MASTER
+      valid = product;
+      END_SU2_OMP_MASTER
+    }
+    END_SU2_OMP_PARALLEL
+    REQUIRE(valid);
+    /*--- Check physical rows as well as the scaled verification norm; small momentum scales must not hide errors. ---*/
+    actual = actual * scale;
+    actual -= reference;
+    INFO("physical derivative error=" << actual.norm() / reference.norm());
+    CHECK(actual.norm() < 5e-4 * reference.norm());
+    CHECK(MaxDifference(scale, originalScale) == 0);
+    REQUIRE(equations->Restore());
+    CHECK(equations->GetRestorationError() == 0);
+  }
 }
 
 TEST_CASE("Reconstructed Newton products converge independently of the requested probe size", "[NewtonLinearization]") {
