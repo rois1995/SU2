@@ -1621,7 +1621,10 @@ TEST_CASE("Replay a complete faceted wall volume-integration input without CFD",
     std::ofstream values("wall_prism_rank"+std::to_string(rank)+".csv");REQUIRE(bool(values));
     values<<std::setprecision(17)<<"row,cell,inside,strong,density,inverse_pdf,log_spectral_relative_difference\n";
     SU2Native3D::KernelStats predicates;
-    for(uint64_t row=0;row<count;++row) {
+    const char* capText=std::getenv("SU2_NATIVE_BL_PRISM_CAP");
+    const double cap=capText?std::stod(capText):1.;REQUIRE(std::isfinite(cap));REQUIRE(cap>0);
+    long double localMass[2]={},globalMass[2]={};int localFailure=0,globalFailure=0;
+    try {for(uint64_t row=0;row<count;++row) {
       uint64_t id=0;double data[16];stream.read(reinterpret_cast<char*>(&id),8);
       stream.read(reinterpret_cast<char*>(data),sizeof(data));REQUIRE(bool(stream));
       if(row%ranks!=uint64_t(rank))continue;
@@ -1644,9 +1647,38 @@ TEST_CASE("Replay a complete faceted wall volume-integration input without CFD",
           difference=std::abs(std::expm1(.5*logDet-.5*trace));
         }
       }
+      const long double raw=(long double)density*data[15];REQUIRE(std::isfinite(raw));
+      localMass[0]+=std::min(raw,(long double)cap);++localMass[1];
       values<<row<<','<<id<<','<<inside<<','<<strong<<','<<density<<','<<data[15]<<','<<difference<<'\n';
     }
     values.close();REQUIRE(bool(values));
+    }catch(...){localFailure=1;}
+    SU2_MPI::Allreduce(&localFailure,&globalFailure,1,MPI_INT,MPI_MAX,SU2_MPI::GetComm());REQUIRE(globalFailure==0);
+    if(capText) {
+      const char* deltaText=std::getenv("SU2_NATIVE_BL_PRISM_DELTA");REQUIRE(deltaText);
+      const char* targetText=std::getenv("SU2_NATIVE_BL_PRISM_TARGET");REQUIRE(targetText);
+      const double delta=std::stod(deltaText),target=std::stod(targetText);
+      REQUIRE(delta>0);REQUIRE(delta<1);REQUIRE(std::isfinite(target));REQUIRE(target>0);
+      SU2_MPI::Allreduce(localMass,globalMass,2,MPI_LONG_DOUBLE,MPI_SUM,SU2_MPI::GetComm());
+      REQUIRE(uint64_t(globalMass[1])==count);
+      const double mean=double(globalMass[0]/count),radius=cap*std::sqrt(std::log(1/delta)/(2*count));
+      const double minimum=std::max(0.,mean-radius);
+      // Only the strong BL subset is known here. Remaining positive mass stays explicitly unknown.
+      const auto normal=SU2Complexity::Normalize(target,-std::log(64.),std::log(64.),0,.01,24,
+          [&](double,double){return SU2Complexity::Estimate{mean,INFINITY,minimum};});
+      if(!rank) {
+        const char* statuses[]={"estimated_tolerance","integration_limited","outside_bracket","trial_limit"};
+        std::ofstream out("prism_global_controller.json");out<<std::setprecision(17)
+          <<"{\"samples\":"<<count<<",\"ranks\":"<<ranks<<",\"mean_lower_contribution\":"<<mean
+          <<",\"statistical_radius\":"<<radius<<",\"minimum\":"<<minimum<<",\"target\":"<<target
+          <<",\"status\":\""<<statuses[unsigned(normal.status)]<<"\",\"log_scale\":"<<normal.logScale
+          <<",\"scale_trials\":"<<normal.trials<<",\"delta\":"<<delta
+          <<",\"upper_mass_unknown\":true,\"full_mass_integrated\":false,\"new_queries_during_scale_search\":0"
+          <<",\"scale_independent_strong_BL_subset_only\":true,\"machine_bound_proven\":false,\"production_normalization_changed\":false}\n";
+        REQUIRE(bool(out));
+      }
+      CHECK(normal.status!=SU2Complexity::Status::EstimatedTolerance);
+    }
     std::cout<<"WALL_PRISM_REPLAY rank="<<rank<<" samples="<<count<<" filtered="<<predicates.filtered_orientations
              <<" exact="<<predicates.exact_orientations<<" mesh_acceptance=false\n";
     return;
@@ -1805,6 +1837,91 @@ TEST_CASE("Replay a complete faceted wall volume-integration input without CFD",
     REQUIRE(bytes==std::streamoff(8+count*(8+48*8)));
     const size_t budget=std::getenv("SU2_NATIVE_BL_COMPLEXITY")?std::stoul(std::getenv("SU2_NATIVE_BL_COMPLEXITY")):8192;
     const auto rank=SU2_MPI::GetRank(),ranks=SU2_MPI::GetSize();
+    if(const char* coarseValue=std::getenv("SU2_NATIVE_BL_VOLUME_SEED")) {
+      // Cheap complete-field audit: agreement between rules is not certification of thin-support coverage.
+      const double coarseEigenvalue=std::stod(coarseValue);REQUIRE(std::isfinite(coarseEigenvalue));REQUIRE(coarseEigenvalue>0);
+      struct SeedPoint {std::array<double,4> bary;double weight;};
+      std::vector<SeedPoint> coarseRule,fineRule;
+      const double a=(5+3*std::sqrt(5.))/20,b=(5-std::sqrt(5.))/20;
+      for(unsigned i=0;i<4;++i){std::array<double,4> beta{{b,b,b,b}};beta[i]=a;coarseRule.push_back({beta,.25});}
+      const double x3[3]={.5*(1-.77459666924148337704),.5,.5*(1+.77459666924148337704)},w3[3]={5./18,4./9,5./18};
+      const double x2[2]={.5*(1-.57735026918962576451),.5*(1+.57735026918962576451)};
+      for(unsigned i=0;i<3;++i)for(unsigned j=0;j<3;++j)for(unsigned k=0;k<2;++k) {
+        const double u=x3[i],v=x3[j],w=x2[k];
+        fineRule.push_back({{1-u,u*(1-v),u*v*(1-w),u*v*w},3*u*u*v*w3[i]*w3[j]});
+      }
+      std::set<uint64_t> watched;
+      if(const char* list=std::getenv("SU2_NATIVE_BL_SEED_WATCH")) {
+        std::istringstream ids(list);uint64_t id=0;while(ids>>id){watched.insert(id);if(ids.peek()==',')ids.get();}
+        REQUIRE(ids.eof());
+      }
+      std::ofstream detail("seed_watch_rank"+std::to_string(rank)+".csv");
+      detail<<std::setprecision(17)<<"cell,sensor_q4,composed_q4,sensor_q18,composed_q18,absolute_rule_difference,minimum_q4,minimum_q18\n";
+      long double local[10]={},global[10]={};int failed=0,globalFailed=0;
+      const auto begin=std::chrono::steady_clock::now();
+      for(uint64_t row=0;row<count;++row) {
+        uint64_t id=0;double coefficients[48];field.read(reinterpret_cast<char*>(&id),8);field.read(reinterpret_cast<char*>(coefficients),sizeof(coefficients));
+        if(!field)failed=1;
+        if(row%ranks==uint64_t(rank) && !failed)try {
+          for(double x:coefficients)if(!std::isfinite(x))throw std::invalid_argument("Nonfinite original seed-field coefficient.");
+          unsigned at=0;for(auto& p:cell)for(auto& x:p)x=coefficients[at++];
+          for(auto& m:sensor)for(auto& r:m.m)for(auto& x:r)x=coefficients[at++];
+          SU2Native3D::Tetrahedron source;for(unsigned k=0;k<4;++k)source[k]={cell[k][0],cell[k][1],cell[k][2]};
+          const auto orientation=SU2Native3D::Orientation(source[0],source[1],source[2],source[3]);
+          if(orientation==0)throw std::runtime_error("Degenerate original seed-field tetrahedron.");
+          const long double volume=std::abs(orientation)/6;
+          const bool reversed=orientation<0;if(reversed)std::swap(source[1],source[2]);
+          double sums[2][3]={};
+          for(unsigned order=0;order<2;++order)for(const auto& q:order?fineRule:coarseRule) {
+            std::array<double,3> position{};
+            for(unsigned j=0;j<3;++j) {
+              long double x=cell[0][j];for(unsigned k=1;k<4;++k)x+=(long double)q.bary[k]*((long double)cell[k][j]-cell[0][j]);
+              position[j]=double(x);
+            }
+            std::array<long double,4> actual;
+            if(!SU2Native3D::Barycentric(source,{position[0],position[1],position[2]},actual))
+              throw std::runtime_error("Rounded seed query leaves original donor.");
+            if(reversed)std::swap(actual[1],actual[2]);
+            CBoundaryLayerMetric::IntegrationPoint3D query{};for(unsigned k=0;k<4;++k)query.barycentric[k]=double(actual[k]);
+            query.samples=layers.SamplePoints({position[0],position[1],position[2]});
+            Tensor background,minimum;
+            for(unsigned i=0;i<3;++i){minimum.m[i][i]=coarseEigenvalue;for(unsigned j=0;j<3;++j)
+              for(unsigned k=0;k<4;++k)background.m[i][j]+=query.barycentric[k]*sensor[k].m[i][j];}
+            auto density=[](Tensor metric) {
+              su2double vectors[3][3],val[3],work[3];CBlasStructure::EigenDecomposition(metric.m,vectors,val,3,work);
+              double logarithm=0;for(auto x:val){if(!(x>0))throw std::runtime_error("Nonpositive seed density eigenvalue.");logarithm+=std::log(SU2_TYPE::GetValue(x));}
+              const double value=std::exp(.5*logarithm);if(!(value>0) || !std::isfinite(value))throw std::runtime_error("Invalid seed density.");return value;
+            };
+            for(const auto& sample:query.samples)layers.ApplySample(sample.wall,sample.sample,minimum,coarseEigenvalue,nullptr,false);
+            sums[order][0]+=q.weight*density(background);sums[order][1]+=q.weight*targetDensity(query);
+            sums[order][2]+=q.weight*density(minimum);++local[8];local[9]+=query.samples.size();
+          }
+          local[0]+=volume*sums[0][0];local[1]+=volume*sums[0][1];local[2]+=volume*sums[1][0];local[3]+=volume*sums[1][1];
+          local[4]+=volume*std::abs(sums[1][1]-sums[0][1]);local[5]+=volume*sums[0][2];local[6]+=volume*sums[1][2];++local[7];
+          if(watched.count(id))detail<<id<<','<<double(volume*sums[0][0])<<','<<double(volume*sums[0][1])<<','
+            <<double(volume*sums[1][0])<<','<<double(volume*sums[1][1])<<','<<double(volume*std::abs(sums[1][1]-sums[0][1]))
+            <<','<<double(volume*sums[0][2])<<','<<double(volume*sums[1][2])<<'\n';
+        }catch(const std::exception& error){failed=1;std::cerr<<"VOLUME_SEED_FAILURE cell="<<id<<" rank="<<rank<<" reason="<<error.what()<<std::endl;}
+        if((row+1)%4096==0 || row+1==count) {
+          SU2_MPI::Allreduce(&failed,&globalFailed,1,MPI_INT,MPI_MAX,SU2_MPI::GetComm());if(globalFailed)break;
+          if(!rank && ((row+1)%32768==0 || row+1==count))std::cout<<"VOLUME_SEED_PROGRESS completed_input_rows="<<row+1<<'/'<<count<<std::endl;
+        }
+      }
+      detail.close();if(!detail)failed=1;
+      SU2_MPI::Allreduce(&failed,&globalFailed,1,MPI_INT,MPI_MAX,SU2_MPI::GetComm());REQUIRE(globalFailed==0);
+      SU2_MPI::Allreduce(local,global,10,MPI_LONG_DOUBLE,MPI_SUM,SU2_MPI::GetComm());
+      REQUIRE(uint64_t(global[7])==count);REQUIRE(uint64_t(global[8])==22*count);
+      if(!rank) {
+        const char* keys[]={"sensor_q4","composed_q4","sensor_q18","composed_q18","sum_absolute_cell_rule_difference","minimum_q4","minimum_q18","cells","query_points","wall_samples"};
+        std::ofstream out("volume_seed_global.json");out<<std::setprecision(21)<<'{';
+        for(unsigned k=0;k<10;++k)out<<(k?",":"")<<'\"'<<keys[k]<<"\":"<<global[k];
+        out<<",\"coarse_sensor_eigenvalue\":"<<coarseEigenvalue<<",\"ranks\":"<<ranks
+           <<",\"seconds\":"<<std::chrono::duration<double>(std::chrono::steady_clock::now()-begin).count()
+           <<",\"complete_field_coverage\":true,\"thin_BL_accuracy_certified\":false,\"production_normalization_changed\":false}\n";
+        REQUIRE(bool(out));
+      }
+      return;
+    }
     if(const char* requestedTarget=std::getenv("SU2_NATIVE_BL_NORMALIZE")) {
       struct FrozenCell {
         uint64_t id=0;
@@ -2225,6 +2342,15 @@ TEST_CASE("Global complexity search respects integration uncertainty and bounded
   CHECK(limited.status==Status::IntegrationLimited);CHECK(limited.trials==2);
   const auto unknown=Normalize(10,-1,1,0,.001,16,[](double,double){return Estimate{10,INFINITY};});
   CHECK(unknown.status==Status::IntegrationLimited);CHECK(unknown.trials==2);
+  const auto lowerOnly=Normalize(10,-10,10,0,.001,16,[](double,double){return Estimate{35,INFINITY,30};});
+  CHECK(lowerOnly.status==Status::OutsideBracket);CHECK(lowerOnly.logScale==-10);
+  CHECK(std::isinf(lowerOnly.estimate.uncertainty));CHECK(lowerOnly.estimate.minimum==30);
+  const auto unresolvedUpper=Normalize(40,-10,10,0,.001,16,[](double,double){return Estimate{35,INFINITY,30};});
+  CHECK(unresolvedUpper.status==Status::IntegrationLimited);CHECK(unresolvedUpper.trials==2);
+  CHECK_THROWS(Normalize(10,-1,1,0,.001,16,[](double,double){return Estimate{10,1,12};}));
+  CHECK_THROWS(Normalize(10,-1,1,0,.001,16,[](double,double){return Estimate{10,INFINITY,-1};}));
+  CHECK_THROWS(Normalize(10,-1,1,0,.001,16,[](double,double){return Estimate{10,INFINITY,INFINITY};}));
+  CHECK_THROWS(Normalize(10,-1,1,0,.001,16,[](double,double){return Estimate{10,INFINITY,NAN};}));
   const auto outside=Normalize(100,-10,-5,-8,.001,16,[](double x,double){return Estimate{5+std::exp(x),.001};});
   CHECK(outside.status==Status::OutsideBracket);
   const auto ceiling=Normalize(10,-1,1,0,.001,1,[](double x,double){return Estimate{std::exp(x),0};});

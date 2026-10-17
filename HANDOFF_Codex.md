@@ -26,6 +26,17 @@ this feasibility diagnosis to reconsider bounded global initialization/out-of-ra
 normalization, while retaining all original gates. No new production policy yet.
 [Derivation, negative experiments, work/RAM and receipts](Handbook/GOAL3_COMPLEXITY_SUPPORT_BOUNDS.md).
 
+Complete cheap M6 volume audit now covers all303359 cells/6.674M query points:
+composed Q4/Q18=681173/780726, absolute-cell-difference sum110684. NOT calibrated
+accuracy:329 reference error39.35% despite rule difference2.22e-6. Sensor Q18 agrees
+with independent whole audit2.22e-16 relative. Kernel26.24s MPI4, no CFD; source
+snapshot/compact results retained and113.4MiB temporary export removed.
+Shared experimental controller now accepts a separately assessed global minimum.
+35 assertions and actual lower-contribution MPI1/2/4 reductions/independent seed
+pass;100000 excluded in4 bound-only scale checks, unknown upper mass stays infinite.
+Invalid one-rank query rejects collectively. No root/full mass/production coupling
+or mesh claim. Details in the support-bounds topic above; no new heavy jobs live.
+
 Current production normalization is UNCHANGED. Shared experimental controller and
 3-cell MPI1/4 priority reductions agree but correctly return integration_limited
 at1%; not a calibrated complete-field policy. Geometry caching works locally;
@@ -40,19 +51,10 @@ more reference-order ladder. These are partial findings, not normalized M6 meshe
 [chord envelope/current global limits](Handbook/GOAL3_CHORD_ENVELOPE.md),
 [whole-field/source audit](Handbook/GOAL3_M6_COMPLEXITY_REASSESSMENT.md).
 
-Current follow-up addresses the shared strict edge blocker: local closest-feature
-displacement, the existing wall-distance/barycentric normal-classification cuts,
-and interior Gauss7/Kronrod15 on exact original source intervals. All error/work/
-depth/mesh gates and sensor-only integration unchanged. Geometry cuts alone still
-failed the second actual surface edge; endpoint-inclusive quadrature was the
-remaining limitation. Obsolete endpoint-bracketing panels initially regressed
-work and were removed (failed source/check preserved). Final two exact M6 edges
-pass45/75 compositions instead of65536 exhausted, independent reference differences
-9.58e-12/2.28e-12.29 connected3D tests/439823 assertions and8 existing2D/95 pass,
-including the unchanged query-count ceiling, undeclared-step rejection, microscopic
-fields, original coverage and balanced splits. Three scalar fields/cold-warm reuse
-remain consistent. Error indicators/references are numerical, not proven bounds.
-[Current exact source/strategy/evidence](Handbook/GOAL3_LOCAL_FEATURE_PRECISION.md).
+Shared strict-edge correction remains qualified in its saved scope: actual M6
+edges pass45/75 queries instead of65536 exhausted, reference differences9.58e-12/
+2.28e-12;29 affected3D/8 existing2D controls and original scalar cold/warm checks.
+All gates unchanged. [Exact strategy/source/evidence](Handbook/GOAL3_LOCAL_FEATURE_PRECISION.md).
 
 **All owned jobs terminal.** construction_interior_edge_v1 progresses past both
 known edge failures and makes447 global INTERNAL first-row publications/1788 work,

@@ -144,3 +144,22 @@ one job/thread/build worker at nice19, no swaps. These are maximum processes,
 not aggregate MPI/whole lifecycle peaks. No CFD rerun or broad regressions for
 this fixture-only extension. Broader donor/edge/transaction/transfer/balance items
 remain pending. Details: [support bounds and feasibility](GOAL3_COMPLEXITY_SUPPORT_BOUNDS.md).
+
+
+One-sided global uncertainty follow-up: WORKED in the shared experimental
+controller and actual MPI1/2/4 lower-contribution provider.35 assertions cover
+finite/unknown uncertainty, inconsistent lower inputs and ambiguity; real M6
+100000 target is outside the diagnostic bracket in4 bound-only checks,0 additional
+queries. Remaining positive mass is explicitly unknown, not dropped. One-rank bad
+query rejects collectively. Confidence still conditional on the provider; production
+normalization/stage integration pending, no accepted mesh or root claim.
+
+Cheap complete-field trial measurement: WORKED as a bounded baseline, FAILED as
+an accuracy/coverage criterion. All303359 cells/6.674M points complete in26.24s MPI4;
+sensor Q18 matches independent audit2.22e-16. Composed Q4/Q18=681173/780726 and
+absolute-cell-difference sum110684; no known global error.329's39.35% reference
+error is about46210x its rule indicator. Reusing actual geometric samples for the
+separate coarsest-sensor comparison avoids a second geometry pass; not a production
+cache or complete root speedup. Peak process audit46.4MiB/preparation279.4MiB/
+build2.37GiB, zero swaps;113.4MiB reproducible export removed after validation.
+No expensive references or CFD repeated. See GOAL3_COMPLEXITY_SUPPORT_BOUNDS.md.

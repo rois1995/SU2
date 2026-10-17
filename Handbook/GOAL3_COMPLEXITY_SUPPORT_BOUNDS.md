@@ -169,3 +169,82 @@ launches MPI and compares every row to the saved serial result. Preparation refu
 to overwrite evidence. Runtime reuse verifies original inputs and source/build/
 binary/configuration pins through the existing replay runner. Captured input and
 sample mapping are retained for exact queries; no solver checkpoint duplication.
+
+## Complete cheap volume audit and one-sided controller
+
+`complete_volume_seed_v1` covers ALL303359 original tetrahedra,6673898 actual
+Q4/Q18 point queries and2946567 wall samples, using the original hosting-rank raw9
+P1 and current frozen core. No subdivision, refit or per-cell accuracy requirement.
+The same actual geometric samples serve a SEPARATE uniform sensor1e-4 comparison
+(the configured HMAX100 endpoint); it never overwrites the captured sensor field.
+MPI reduces long-double sums, including SUM of per-cell absolute rule differences,
+without gathering cells. Only5 watched original-cell rows are saved per run.
+
+| Quantity | Q4 | Q18 |
+|---|---:|---:|
+| Original sensor only |153055.978079|152994.200939|
+| Original sensor plus actual geometric BL |681173.112501|780725.703416|
+| Separate uniform coarsest sensor plus actual geometric BL |526979.823901|625902.405904|
+
+The sensor-only Q18 result agrees with the independent complete NumPy audit to
+2.22e-16 relative. Full composed Q4/Q18 differ99552.59; SUM of individual absolute
+differences is110683.96. Neither is a calibrated global error bound. They do not
+prove a full-mass value or missed GLOBAL mass: both lie above the separate subset
+lower estimate. Complete row coverage is not coverage/accuracy of thin BL support.
+
+The5-cell fixture agrees identically on1/4 ranks. Against the independent saved
+Duffy references, Q18 errors on88/157/329 are59.21%/1.755%/39.35%. On329 the rule
+difference is2.2188e-6 versus actual reference discrepancy.10253, under-reporting
+by about46210x. Ordinary fixed-rule agreement cannot identify hidden thin mass.
+This is a measured baseline for cheap early trials, NOT an accepted normalization
+method; no high-order reference campaign or whole CFD rerun followed it.
+
+Whole MPI4 kernel26.24s, launch27.18s, Python/provenance wrapper29.85s; CPU100.78s
+accumulated by time, not an extra wall-time stage. Preparation4.78s (wrapper5.27s),
+peak279.35MiB; audit peak46.44MiB maximum process, not aggregate MPI. Zero swaps.
+No complete adaptation/lifecycle/scaling improvement follows from these timings.
+The113.4MiB deterministic full-field export was hashed and removed after validation;
+`cleanup.json`, immutable NPZ/mesh, generator, exact pre-controller executed source
+snapshots and all results remain. The small5-cell input is retained. The full
+run predates the controller extension below; its exact executed source is saved,
+not relabelled as a current-binary full-run proof.
+
+The shared experimental `CComplexityNormalization.hpp` now accepts a separate
+GLOBAL `Estimate.minimum`. Its confidence/accuracy inherits its provider: it is
+not automatically a mathematical or machine bound. Unknown upper mass remains
+infinite uncertainty. A sufficiently high assessed lower contribution can resolve
+the sign and identify an outside-bracket target. It cannot produce an estimated
+root when the upper mass is still unknown. Negative/nonfinite lower inputs and
+lower values contradicting a finite uncertainty interval reject. Existing two-field
+aggregate callbacks keep the default minimum0 and existing behavior. This shared
+policy is dimension independent; no new2D geometry provider is claimed.
+
+`one_sided_controller_v1` qualifies35 controller assertions, including both
+2D/3D scale laws, ambiguous unknown-upper-mass rejection, contradictory estimates,
+and bounded trials. The actual disjoint M6 wall-prism samples now REDUCE their
+capped positive contribution and sample count over MPI before computing the SAME
+Hoeffding lower estimate. All16384 original native point rows remain identical to
+the preserved seed;1/2/4-rank lower values/decisions agree. Independent seed1741
+also qualifies. The100000 target returns outside_bracket in4 bound-only scale
+trials with ZERO new density queries during the scale search. This does not
+calculate the full composed mass at those scales: the same strong BL lower subset
+is valid at every scale, while all other positive contributions remain unknown.
+The reported scale endpoint is a diagnostic search interval endpoint, not a
+production-normalized sensor or a changed frozen field.
+
+The real M6 providers retain their ideal-IID/PDF/Jacobian/metric/domain assumptions
+and delta0.005 per seed, not an outward floating certificate. A4-rank corrupt-query
+control, invalid only on rank0, rejects collectively in.86s without timeout. The
+point replay now votes failures before reducing mass, so missing/invalid samples
+cannot become zero valid contributions. The prior point-density column values
+remain unchanged. Validation batch16.60s, peak50.1MiB process/zero swaps;
+one-worker build72.47s/2.37GiB. All owned jobs terminal; host~40GiB available.
+
+Production `CSolver` still uses the old strict quadrature/normalization and does
+not call this experimental controller/provider. No config policy was introduced.
+Still required: complete calibrated composed-mass uncertainty, feasible-target
+accuracy, general support coverage and providers, production normalization/stage
+correction/freeze/reassessment, accepted M6 construction under the full mesh gates,
+and all broader Goal3 requirements. Do not promote this diagnosis to an adaptation
+success or silently enlarge100000. It establishes that unknown upper integration
+mass need not prevent an explicit lower-contribution feasibility diagnosis.

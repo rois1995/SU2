@@ -6178,3 +6178,25 @@ new production normalization or accepted mesh. Query.71–.94s/preparation3.8–
 peak query46–51MiB/preparation301MiB/build2.35GiB process, zero swaps; all jobs
 terminal. Full derivation, negative evidence and next limits:
 Handbook/GOAL3_COMPLEXITY_SUPPORT_BOUNDS.md andwall_prism_budget_summary_v1.json.
+
+
+### 2026-10-17: complete cheap trial and global lower-contribution controller
+
+All303359 original M6 cells/6673898 points complete under fixed work in26.24s MPI4.
+Sensor Q18=152994.200939 matches independent audit2.22e-16; composed Q4/Q18=
+681173.1125/780725.7034, sum absolute cell differences110683.9648. Coverage is
+complete but thin-BL accuracy is NOT qualified. Cell329 Q18 error39.35% versus
+raw difference2.22e-6, about46210x under-reporting, rejects fixed-rule agreement as
+sole uncertainty criterion. Original raw9/P1/actual geometry preserved; coarsest
+sensor comparison is separate. Full input export removed after digest/result checks,
+executed source snapshots and compact results kept; no CFD or high-order reruns.
+
+Shared experimental normalization accepts a separate global lower contribution,
+rejects conflicting/invalid inputs and keeps unknown upper mass infinite.35 controls
+and actual M6 provider MPI1/2/4/independent seed pass;100000 excluded in4 bound-only
+checks without density queries during scale search. This reuses a scale-independent
+strong BL subset, not full mass or a production-normalized field. Bad point owned
+only byrank0 rejects collectively, no timeout. Production still unchanged; complete
+calibrated mass, feasible-target policy and accepted M6 adaptation remain OPEN.
+Resources and evidence: Handbook/GOAL3_COMPLEXITY_SUPPORT_BOUNDS.md,
+complete_volume_seed_v1 and one_sided_controller_v1. All owned jobs terminal.

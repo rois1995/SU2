@@ -12,7 +12,7 @@
 namespace SU2Complexity {
 
 struct Estimate {
-  double value=0,uncertainty=0;
+  double value=0,uncertainty=0,minimum=0;
 };
 enum class Status { EstimatedTolerance, IntegrationLimited, OutsideBracket, TrialLimit };
 struct Normalization {
@@ -25,6 +25,9 @@ struct Normalization {
 /*! Search a monotone scale response. The callback returns GLOBAL value/absolute uncertainty and may
  *  stop short of the requested accuracy. Its uncertainty may be heuristic: EstimatedTolerance is
  *  agreement with that estimate, never proof of an exact root or of a rigorous integration bound.
+ *  minimum is a separately assessed GLOBAL lower contribution; its accuracy inherits the provider's
+ *  deterministic/statistical/heuristic assumptions. It can resolve a sign with unknown upper mass,
+ *  never establish a root while uncertainty remains infinite.
  *  Repeated requests at one scale tighten integration of the SAME field, not its donor representation. */
 template<class Integrate>
 Normalization Normalize(double target,double lower,double upper,double initial,double relativeTolerance,
@@ -43,11 +46,12 @@ Normalization Normalize(double target,double lower,double upper,double initial,d
       if(result.trials==maximumTrials){result.status=Status::TrialLimit;return 0;}
       result.logScale=x;result.estimate=integrate(x,requested);++result.trials;
       const auto& e=result.estimate;
-      if(!(e.value>0) || !std::isfinite(e.value) || std::isnan(e.uncertainty) || e.uncertainty<0)
+      if(!(e.value>0) || !std::isfinite(e.value) || std::isnan(e.uncertainty) || e.uncertainty<0 ||
+          !std::isfinite(e.minimum) || e.minimum<0 || e.minimum>e.value+e.uncertainty)
         throw std::runtime_error("Invalid global complexity estimate.");
       if(std::abs(e.value-target)+e.uncertainty<=allowed){result.status=Status::EstimatedTolerance;return 0;}
       if(e.value+e.uncertainty<target)return -1;
-      if(e.value-e.uncertainty>target)return 1;
+      if(std::max(e.minimum,e.value-e.uncertainty)>target)return 1;
       if(refined && !(e.uncertainty<previous)) {result.status=Status::IntegrationLimited;return 0;}
       const double next=std::max(allowed*.25,std::min(requested*.25,e.uncertainty*.25));
       if(!(next<requested)){result.status=Status::IntegrationLimited;return 0;}
