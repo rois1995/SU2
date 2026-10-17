@@ -175,3 +175,105 @@ pass on 1x1, 1x4, 2x2 and 2x4. All five converged families retain every original
 work count and restart byte against the property-only version in all three modes.
 Final phase counts and repeated release timing comparisons follow; busy-host
 correctness times remain excluded. Higher-CFL trials have not started.
+
+## Repeated original-control comparison
+
+All implementation changes are committed through `4712d82375`. The uninstrumented
+release rebuild is byte-identical to the qualified candidate, and its build
+options match starting commit `29a4c3c58a`. Three alternating before/after pairs
+cover SA/SST/active LM and the existing rotational-periodic axis fixture on 1x1
+and 2x2: **144 solver runs**. Every one of the 72 mode pairs retains its complete
+restart bytes, outer/Krylov/native-inner work and configuration hash. Independent
+uncached physical residuals, prescribed values, state/quantities, active transition,
+true defects and rollback checks all pass.
+
+The following counts distinguish full residual assemblies from boundary-only
+work. Native counts in release runs are outer-iteration inference, independently
+confirmed against phase scopes; Newton counts are measured telemetry. Full flow
+assembly includes its boundaries. An auxiliary boundary-only evaluation is
+additional work and is not counted as a full assembly.
+
+| Case | Layout | Mode | Outer / Krylov, unchanged | Full flow before → after | Turbulence before → after | Transition before → after |
+|---|---|---|---:|---:|---:|---:|
+| SA | 1x1 | native | 3327 / 36381 | 3327 → 3327 | 3327 → 3327 | — |
+| SA | 1x1 | segregated | 2927 / 19749 | 56977 → 34886 | 25020 → 25020 | — |
+| SA | 1x1 | coupled | 2927 / 14360 | 49210 → 34850 | 49210 → 49210 | — |
+| SA | 2x2 | native | 3327 / 63031 | 3327 → 3327 | 3327 → 3327 | — |
+| SA | 2x2 | segregated | 2927 / 29036 | 66264 → 43929 | 25264 → 25264 | — |
+| SA | 2x2 | coupled | 2927 / 23344 | 67178 → 43834 | 67178 → 67178 | — |
+| SST | 1x1 | native | 3488 / 38141 | 3488 → 3488 | 3488 → 3488 | — |
+| SST | 1x1 | segregated | 3058 / 21184 | 60930 → 36466 | 27524 → 27524 | — |
+| SST | 1x1 | coupled | 3119 / 15367 | 52568 → 37201 | 52568 → 52568 | — |
+| SST | 2x2 | native | 3488 / 66054 | 3488 → 3488 | 3488 → 3488 | — |
+| SST | 2x2 | segregated | 3058 / 33771 | 73517 → 45999 | 30578 → 30578 | — |
+| SST | 2x2 | coupled | 3119 / 25072 | 71978 → 46906 | 71978 → 71978 | — |
+| LM | 1x1 | native | 1416 / 17127 | 1416 → 1416 | 1416 → 1416 | 1416 → 1416 |
+| LM | 1x1 | segregated | 1414 / 6434 | 27023 → 8920 | 9573 → 9573 | 11364 → 11364 |
+| LM | 1x1 | coupled | 5615 / 6205 | 57927 → 45517 | 57927 → 51722 | 57927 → 51722 |
+| LM | 2x2 | native | 1416 / 32414 | 1416 → 1416 | 1416 → 1416 | 1416 → 1416 |
+| LM | 2x2 | segregated | 1414 / 10985 | 31574 → 11182 | 10470 → 10470 | 12756 → 12756 |
+| LM | 2x2 | coupled | 5615 / 11496 | 73800 → 50808 | 73800 → 62304 | 73800 → 62304 |
+| Axis | 1x1 | native | 1319 / 100353 | 1319 → 1319 | — | — |
+| Axis | 1x1 | segregated | 14 / 375 | 474 → 474 | — | — |
+| Axis | 1x1 | coupled | 14 / 375 | 474 → 474 | — | — |
+| Axis | 2x2 | native | 1319 / 105519 | 1319 → 1319 | — | — |
+| Axis | 2x2 | segregated | 14 / 574 | 673 → 673 | — | — |
+| Axis | 2x2 | coupled | 14 / 574 | 673 → 673 | — | — |
+
+These are **observed contended medians in seconds**, not an uncontended speedup
+result. Native control times also varied; complete ranges and rank process CPU
+are retained in `original_medians.json`. Only one owned numerical job ran at a
+time. When an external build appeared, the owned coordinator was stopped while
+the current guarded triplet finished, then resumed after three clear observations.
+No foreign process was changed. All affected times remain excluded from speedup
+claims. Available RAM stayed well above the 8 GiB guard; swap growth never tripped it.
+
+| Case | Layout | Mode | Loop median before → after | End-to-end median before → after | Final normalized RMS, max | State / quantity difference, max |
+|---|---|---|---:|---:|---:|---:|
+| SA | 1x1 | native | 1.232 → 1.176 | 1.724 → 1.623 | 2.20e-11 | 0.00e+00 / 0.00e+00 |
+| SA | 1x1 | segregated | 8.674 → 6.320 | 9.059 → 6.765 | 1.12e-10 | 8.46e-07 / 3.34e-07 |
+| SA | 1x1 | coupled | 8.424 → 6.635 | 8.828 → 7.042 | 1.12e-10 | 8.46e-07 / 3.34e-07 |
+| SA | 2x2 | native | 7.861 → 7.706 | 8.264 → 8.159 | 2.20e-11 | 0.00e+00 / 0.00e+00 |
+| SA | 2x2 | segregated | 61.143 → 47.518 | 61.504 → 47.891 | 1.12e-10 | 8.46e-07 / 3.34e-07 |
+| SA | 2x2 | coupled | 66.761 → 54.153 | 67.135 → 54.623 | 1.12e-10 | 8.46e-07 / 3.34e-07 |
+| SST | 1x1 | native | 1.318 → 1.243 | 1.723 → 1.776 | 2.04e-12 | 0.00e+00 / 0.00e+00 |
+| SST | 1x1 | segregated | 11.147 → 8.309 | 11.522 → 8.702 | 9.86e-12 | 7.10e-08 / 2.71e-08 |
+| SST | 1x1 | coupled | 10.826 → 9.192 | 11.313 → 9.605 | 7.13e-12 | 4.64e-08 / 1.76e-08 |
+| SST | 2x2 | native | 8.829 → 8.397 | 9.247 → 8.893 | 2.04e-12 | 0.00e+00 / 0.00e+00 |
+| SST | 2x2 | segregated | 81.643 → 63.030 | 82.047 → 63.443 | 9.86e-12 | 7.10e-08 / 2.71e-08 |
+| SST | 2x2 | coupled | 92.472 → 70.206 | 92.843 → 70.561 | 7.13e-12 | 4.64e-08 / 1.76e-08 |
+| LM | 1x1 | native | 0.648 → 0.634 | 1.070 → 1.073 | 1.01e-11 | 0.00e+00 / 0.00e+00 |
+| LM | 1x1 | segregated | 5.920 → 4.350 | 6.289 → 4.735 | 1.03e-11 | 4.57e-10 / 4.83e-11 |
+| LM | 1x1 | coupled | 17.176 → 14.016 | 17.529 → 14.427 | 1.04e-11 | 4.46e-10 / 1.61e-14 |
+| LM | 2x2 | native | 6.151 → 3.886 | 6.549 → 4.385 | 1.01e-11 | 0.00e+00 / 0.00e+00 |
+| LM | 2x2 | segregated | 53.867 → 31.110 | 54.266 → 31.467 | 1.03e-11 | 4.57e-10 / 4.83e-11 |
+| LM | 2x2 | coupled | 153.761 → 111.461 | 154.146 → 111.823 | 1.04e-11 | 4.42e-10 / 1.53e-15 |
+| Axis | 1x1 | native | 14.819 → 14.936 | 15.228 → 15.336 | 3.08e-13 | 0.00e+00 / 0.00e+00 |
+| Axis | 1x1 | segregated | 0.350 → 0.251 | 0.769 → 0.683 | 5.95e-14 | 1.44e-09 / 2.70e-08 |
+| Axis | 1x1 | coupled | 0.357 → 0.246 | 0.819 → 0.619 | 5.95e-14 | 1.44e-09 / 2.70e-08 |
+| Axis | 2x2 | native | 27.492 → 28.843 | 27.919 → 29.234 | 3.08e-13 | 0.00e+00 / 0.00e+00 |
+| Axis | 2x2 | segregated | 1.158 → 0.743 | 1.571 → 1.120 | 5.83e-14 | 1.68e-09 / 3.74e-08 |
+| Axis | 2x2 | coupled | 0.994 → 0.663 | 1.520 → 1.071 | 5.83e-14 | 1.68e-09 / 3.74e-08 |
+
+These retain the fixtures' original controls: flat plates start with fixed CFL 20;
+the axis fixture retains native fixed CFL 10 and Newton adaptive CFL starting 10.
+The subsequent control study gives native its own higher-CFL and adaptive trials.
+Native remains faster on the fixed-CFL coarse turbulent fixtures. Newton retains
+14 updates compared with 1,319 for native on the axis fixture; this is not a claim about
+fully tuned native performance or other meshes.
+
+Measured serial segregated flow-gradient calls fall from 284,887 to 91,864 for SA,
+353,126 to 121,634 for SST and 144,857 to 40,814 for LM. The starting-profile numerical
+sources match `29a4c3c58a`; archived SST/LM2x2 profiles are absent and are left null,
+with the measured intermediate `4ab295b0d7` comparison retained separately.
+Boundary-only flow counts remain 22,091/24,464/18,103 in those three serial cases.
+For SA, 31,127 matrix-free probes comprise 19,749 Krylov products plus 5,689 true-defect
+and 5,689 slope products. Explicit bases, return-to-base refreshes, accepted trials
+and final outer refreshes account for every remaining wrapper call. Refinement
+counts are zero in these first-order fixtures; reconstructed/flamelet regression
+checks still retain verification. Native residual/Jacobian kernels are interleaved,
+so their joint scope is labelled rather than presented as a Jacobian-only timer.
+
+Final supported/periodic/CLI/restart checks pass, and Valgrind including the new
+refresh comparisons reports zero errors. Additional periodic endpoints and the
+separate higher-CFL/native-tuning/refined-mesh studies are still in progress.
