@@ -28,8 +28,9 @@ struct CNativeMetricFamily3D {
   bool Compatible(const CConfig& config)const;
   std::vector<CAdapBoundaryLayer> layer_controls;
   bool boundary_layer=false;
-  std::array<double,5> controls{}; // hmin, hmax, ARmax, hgrad, requested complexity.
+  std::array<double,8> controls{}; // hmin, hmax, ARmax, hgrad, budget, BL policy enabled/protected distance/outer growth.
   SU2Complexity::Normalization normalization;
+  SU2Complexity::ProfileSelection budget_selection;
   double lower=0,upper=0,core=0;
   size_t owned=0;
   uint64_t node_span=0;

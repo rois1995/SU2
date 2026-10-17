@@ -6536,3 +6536,19 @@ User adds explicit opt-in budget-aware BL policy to full Goal3, strict defaults/
 protected requirements retained. Cost diagnosis precedes relaxation selection.
 [Implementation/evidence](Handbook/GOAL3_PROGRESSIVE_MEASUREMENT.md),
 [budget policy scope/open work](Handbook/GOAL3_BUDGET_AWARE_BL.md).
+
+## 2026-10-18 budget-aware BL diagnosis and unvalidated connected draft
+
+Two preserved8192-point original-field clouds give coarsest BL correction805274/
+805597 with heuristic3SE28016/28029; MPI2/4 rows agree exactly. First cloud protected
+10*h0 already~96587,50*h0~223596. Outer span quarter contributes~42% and fine wall
+tangent spacing persists outside. Independent isotropic one-wall spectral probe
+matches native baseline<=8.1e-9 scaled point drift. Protect h0/max growth2 leaves
+263--265k, growth10 leaves125--128k, diagnostic near-limit1e6 leaves107--110k. No
+physical accuracy choice, exact infeasibility, normalization or adapted M6 claim.
+
+Opt-in native3D profile selection/config/family/cache/version/freeze draft is being
+built; default remains NO. It is NOT validated, with a prepared final-stage review
+patch explicitly pending before tests. No new CFD/cluster runs. Full goal remains
+active; global error calibration/absolute-error work allocation and lifecycle cost
+remain open. [Scope, receipts and pending work](Handbook/GOAL3_BUDGET_AWARE_BL.md).

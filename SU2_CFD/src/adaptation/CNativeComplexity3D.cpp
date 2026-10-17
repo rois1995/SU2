@@ -158,15 +158,27 @@ CNativeComplexity3D::CNativeComplexity3D(CBoundaryLayerMetric& model,std::vector
   if(totals[0]!=totals[1])failure.Set(2,0,"Incomplete original complexity stencil routing.");Vote(world,failure);
   statistics.inside=totals[0];statistics.retainedBytes=transfer_memory::Add(transfer_memory::Bytes(source),transfer_memory::Bytes(queries),transfer_memory::Bytes(volumes));
   for(const auto& q:queries)statistics.retainedBytes=transfer_memory::Add(statistics.retainedBytes,transfer_memory::Bytes(q.geometry));
+  profileVersion=layers.GetOuterNormal().version;
   statistics.preparationSeconds=world.seconds()-start;
 }
 
 CNativeComplexity3D::Assessment CNativeComplexity3D::Assess(const std::vector<CBoundaryLayerMetric::Tensor>& sensor,su2double core,bool audit) {
-  World world;CLocalFailure failure;const auto start=world.seconds();long double local[7]={},global[7]={};
+  World world;CLocalFailure failure;const auto start=world.seconds();long double local[10]={},global[10]={};
   uint64_t counts[2]={},totals[2];
   try {
     if(sensor.size()!=sourceNodes || !(SU2_TYPE::GetValue(core)>0) || !std::isfinite(SU2_TYPE::GetValue(core)))
       throw std::runtime_error("Invalid current complexity trial field/core.");
+    const auto version=layers.GetOuterNormal().version;
+    if(version!=profileVersion) {
+      const auto refreshStart=world.seconds();size_t bytes=transfer_memory::Add(transfer_memory::Bytes(source),transfer_memory::Bytes(queries),transfer_memory::Bytes(volumes));
+      for(auto& q:queries) {
+        q.geometry=layers.SamplePoints({q.point.x,q.point.y,q.point.z});++statistics.profileGeometryQueries;
+        bytes=transfer_memory::Add(bytes,transfer_memory::Bytes(q.geometry));
+        if(bytes>ceiling)throw std::runtime_error("Refreshed BL profile samples exceed storage ceiling.");
+      }
+      statistics.retainedBytes=bytes;profileVersion=version;++statistics.profileRefreshes;
+      statistics.preparationSeconds+=world.seconds()-refreshStart;
+    }
     const auto backgroundStart=world.seconds();
     for(size_t cell=0;cell<source.size();++cell) {
       const auto& row=source[cell];const auto volume=volumes[cell];
@@ -200,11 +212,23 @@ CNativeComplexity3D::Assessment CNativeComplexity3D::Assess(const std::vector<CB
       const long double y=(long double)std::exp(a)*std::expm1(difference)*q.inversePDF;
       if(!std::isfinite(y))throw std::runtime_error("Nonfinite current correction contribution.");
       local[3]+=y;local[4]+=y*y;local[5]+=y!=0;++counts[0];++statistics.correctionEvaluations;
+      if(layers.GetOuterNormal().version) {
+        // Density lower contribution from sensor and each individually mandatory wall, not independent BL costs.
+        auto mandatory=a;
+        for(const auto& sample:q.geometry)if(sample.sample.distance<=layers.GetOuterNormal().protected_distance) {
+          Metric wall;for(unsigned i=0;i<3;++i)wall.m[i][i]=core;
+          layers.ApplySample(sample.wall,sample.sample,wall,core,nullptr,false);
+          mandatory=std::max(mandatory,LogDensity(wall));
+        }
+        const long double z=(long double)std::exp(a)*std::expm1(mandatory-a)*q.inversePDF;
+        if(!std::isfinite(z))throw std::runtime_error("Nonfinite mandatory BL contribution.");
+        local[7]+=z;local[8]+=z*z;local[9]+=z!=0;
+      }
     }
     statistics.correctionSeconds+=world.seconds()-correctionStart;
   }catch(const std::exception& error){failure.Set(2,statistics.assessments,error.what());}Vote(world,failure);
   const auto reductionStart=world.seconds();
-  SU2_MPI::Allreduce(local,global,7,MPI_LONG_DOUBLE,MPI_SUM,world.comm);
+  SU2_MPI::Allreduce(local,global,10,MPI_LONG_DOUBLE,MPI_SUM,world.comm);
   SU2_MPI::Allreduce(counts,totals,2,MPI_UNSIGNED_LONG_LONG,MPI_SUM,world.comm);
   if(totals[0]!=statistics.inside)failure.Set(2,0,"Incomplete complexity trial.");Vote(world,failure);
   statistics.reductionSeconds+=world.seconds()-reductionStart;
@@ -214,6 +238,11 @@ CNativeComplexity3D::Assessment CNativeComplexity3D::Assess(const std::vector<CB
   result.correction=double(mean);result.standardError=double(sem);result.numericalIndicator=double(global[6]);result.samples=statistics.samples;result.inside=totals[0];
   result.nonzero=uint64_t(global[5]);result.directChecks=totals[1];
   result.global={double(mean+(global[0]+global[1])/2),result.nonzero<32?INFINITY:double(3*sem+(global[1]-global[0])/2+global[6])};
+  if(layers.GetOuterNormal().version) {
+    const auto m=global[7]/count;
+    const auto error=std::sqrt(std::max(0.L,(global[8]-global[7]*m)/(count*(count-1))));
+    result.mandatory={double(m+(global[0]+global[1])/2),global[9]<32?INFINITY:double(3*error+(global[1]-global[0])/2+global[6])};
+  }
   if(!(result.global.value>0) || !std::isfinite(result.global.value) || std::isnan(result.global.uncertainty))
     throw std::runtime_error("Invalid global bounded complexity estimate.");
   ++statistics.assessments;statistics.assessmentSeconds+=world.seconds()-start;return result;

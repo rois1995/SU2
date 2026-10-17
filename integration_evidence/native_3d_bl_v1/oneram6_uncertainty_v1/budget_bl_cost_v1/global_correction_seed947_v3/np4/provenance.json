@@ -1,0 +1,31 @@
+{
+  "pins": {
+    "integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/run.py": "b179ef9aeff7be9f81f4f7cc0f7dca915d59ee8fedfd2bc29d79e80ae23a5c74",
+    "integration_evidence/build-integrated-v2/UnitTests/test_driver": "58ff68e791255f9ae58ff6ff3ee8ec39bc08d301f50158f1e282e259794e0300",
+    "integration_evidence/build-integrated-v2/build.ninja": "8b3bd549253b0371e1553e84f81d7426831f3477e73af0e9a524215902c9308a",
+    "integration_evidence/build-integrated-v2/meson-info/intro-buildoptions.json": "59377c452909959635fa25c06589f97be7916c19148364113dd1a62ab38e9a5c",
+    "SU2_CFD/src/adaptation/CBoundaryLayerMetric.cpp": "f2a5898d1e68b8e1ff717784cd988487f8c10a75f4d476d8deb3ce502cdd6b60",
+    "SU2_CFD/include/adaptation/CBoundaryLayerMetric.hpp": "9fa6a59db2c63c0f8c7cf0c5b5b12f48b89070bf6e67361a49dac37fa20ebac9",
+    "UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp": "fd676bbbd8083e425288734c3b75152a59761400114694076a0c27b30b5279e8",
+    "Common/src/adaptation/CNativeField3D.cpp": "f4211903e3b45c97a46abd23bdbb99a61f5eeb64ba53fbd937ab8bf870d00d32",
+    "Common/include/adaptation/CNativeField3D.hpp": "3fd6b85261da273b51b05e419ed65f4a4c6009e9990c6d70923189a6f9016280",
+    "UnitTests/Common/adaptation/CNativeField3D_tests.cpp": "ede909324f9da8a23eab3ca35e2ee4ef898708c5efedc536fe5c266b1f7afeb5",
+    "Common/include/adaptation/CComplexityNormalization.hpp": "041ce6aecd1e0b22edc4d7e09c968d109d6eb9ff21c86184fffeff87dbee01e9",
+    "Common/include/adaptation/CNativeChordEnvelope.hpp": "64ab82069e823944451cdd7d83c65b6b0af57342e168bbc24bdcf73a8548e389",
+    "SU2_CFD/src/solvers/CSolver.cpp": "7f3727c68ff612094bc73e0fe5c02f9dd83ea2a2b054ab2a5a52e34d495c8519",
+    "UnitTests/SU2_CFD/adaptation/NativeCorrectionReplay3D.hpp": "b67a99ff54bf78aec699aecc34b11e8bf1b53354b67029c8a9b7f04523b58f75",
+    "UnitTests/SU2_CFD/adaptation/NativeBLCostDiagnostic3D.hpp": "9df74ede09079e3082ac8197f96f6ee69df8c047bcef6dc26c48b57777e2876c",
+    "SU2_CFD/src/adaptation/CNativeComplexity3D.cpp": "d7f327f62513c6a4bb1c1471efeb6be242707ddea76a04446586e62519b6a6cc",
+    "Common/src/adaptation/CNativeDonor3D.cpp": "5a33579be2d6acfa2d87bda1ed3056860f49828805851cb452571b1f3b75565c",
+    "integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/budget_bl_cost_v1/diagnose.py": "871b347af1d36fd62f22aec9b0d61b530cedceb123a9084f717c5a61b8bdbe27"
+  },
+  "fixture": "2d15d275a7e4cafe145130a675641dfe90f373824b6debaa5a02d5ac8b1aba86",
+  "parameters": {
+    "SU2_NATIVE_BL_CORRECTION_DOMAIN": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/correction_domain_v1/original.bin",
+    "SU2_NATIVE_BL_CORRECTION_QUERIES": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/global_correction_seed947_v3/queries.bin",
+    "SU2_NATIVE_BL_COST_HMAX": "100"
+  },
+  "ranks": 4,
+  "test_filter": "[NativeFacetedVolumeReplay3D]",
+  "expected_failure": false
+}

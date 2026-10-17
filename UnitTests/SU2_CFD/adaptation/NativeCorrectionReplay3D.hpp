@@ -30,6 +30,7 @@ inline double LogDensity(Metric metric) {
   }
   return .5*result;
 }
+#include "NativeBLCostDiagnostic3D.hpp"
 inline void NormalizeCorrection(World& world,CBoundaryLayerMetric& layers,const std::vector<PreparedQuery>& prepared,
                                 double core,uint64_t count,double preparationSeconds) {
   CLocalFailure failure;auto vote=[&](){const auto selected=world.elect(failure);if(selected.any)throw std::runtime_error(selected.message);};
@@ -252,6 +253,8 @@ inline void Correction(CBoundaryLayerMetric& layers,const char* domainPath,const
   const size_t callerBytes=transfer_memory::Add(heldBytes,source.ResidentBytes());
   std::ofstream out("correction_rank"+std::to_string(world.rank)+".csv");
   out<<std::setprecision(17)<<"row,donor,sensor,composed,correction,weighted_correction\n";
+  std::unique_ptr<CostDiagnostic3D> cost;
+  try {cost=std::make_unique<CostDiagnostic3D>(world.rank);}catch(const std::exception& error){failure.Set(2,0,error.what());}vote(failure);
   long double local[6]={},global[6]={};double ownerSeconds=0;
   uint64_t localAudits[2]={},globalAudits[2]={};
   std::ofstream audit;
@@ -288,6 +291,7 @@ inline void Correction(CBoundaryLayerMetric& layers,const char* domainPath,const
         if(!Barycentric({v[0].p,v[1].p,v[2].p,v[3].p},request.point,weights))throw std::runtime_error("Correction query leaves its original donor.");
         Metric sensor;
         for(unsigned k=0;k<4;++k)for(unsigned a=0;a<3;++a)for(unsigned b=0;b<3;++b)sensor.m[a][b]+=double(weights[k])*raw.sensor[k].m[a][b];
+        cost->Record(layers,request,sensor,core);
         const double ls=LogDensity(sensor);Metric composed=sensor;const su2double x[3]={request.point.x,request.point.y,request.point.z};
         if(normalizing) {
           auto samples=layers.SamplePoints({x[0],x[1],x[2]});
@@ -323,6 +327,7 @@ inline void Correction(CBoundaryLayerMetric& layers,const char* domainPath,const
       if(!out)throw std::runtime_error("Cannot save correction rows.");
     }catch(const std::exception& error){failure.Set(2,first,error.what());}vote(failure);
   }
+  try {cost->Close();}catch(const std::exception& error){failure.Set(2,0,error.what());}vote(failure);
   out.close();if(!out)failure.Set(2,0,"Cannot close correction output.");vote(failure);
   if(normalizing){audit.close();if(!audit)failure.Set(2,0,"Cannot close cache tensor audit.");}vote(failure);
   SU2_MPI::Allreduce(localAudits,globalAudits,2,MPI_UNSIGNED_LONG_LONG,MPI_SUM,world.comm);

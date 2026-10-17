@@ -22,6 +22,32 @@ struct Normalization {
   unsigned trials=0;
 };
 
+enum class BudgetStatus { EstimatedAttainable, EstimatedIncompatible, IntegrationLimited };
+struct ProfileSelection {
+  double parameter=0;
+  Estimate estimate;
+  BudgetStatus status=BudgetStatus::IntegrationLimited;
+  unsigned trials=0;
+};
+/*! Ordered finite profile scan; NO monotonicity assumption. Stops on an unresolved
+ * earlier profile rather than silently selecting more relaxation. Incompatibility
+ * applies to sampled profiles, not a proof about every intervening parameter. */
+template<class Assess>
+ProfileSelection SelectProfile(double target,unsigned intervals,Assess assess) {
+  if(!(target>0) || !std::isfinite(target) || !intervals || intervals>32)
+    throw std::invalid_argument("Invalid bounded BL profile selection.");
+  ProfileSelection result;
+  for(unsigned i=0;i<=intervals;++i) {
+    result.parameter=double(i)/intervals;result.estimate=assess(result.parameter);++result.trials;
+    const auto& e=result.estimate;
+    if(!(e.value>0) || !std::isfinite(e.value) || std::isnan(e.uncertainty) || e.uncertainty<0)
+      throw std::runtime_error("Invalid global BL profile estimate.");
+    if(e.value+e.uncertainty<=target){result.status=BudgetStatus::EstimatedAttainable;return result;}
+    if(e.value-e.uncertainty<=target){result.status=BudgetStatus::IntegrationLimited;return result;}
+  }
+  result.status=BudgetStatus::EstimatedIncompatible;return result;
+}
+
 /*! Search a monotone scale response. The callback returns GLOBAL value/absolute uncertainty and may
  *  stop short of the requested accuracy. Its uncertainty may be heuristic: EstimatedTolerance is
  *  agreement with that estimate, never proof of an exact root or of a rigorous integration bound.

@@ -15,8 +15,12 @@ rounds. No accepted wing, volume publication/transfer claim or speedup. All fail
 precursors, exact rational witnesses, input/source/binary receipts are preserved.
 [Current implementation, scope and evidence](Handbook/GOAL3_PROGRESSIVE_MEASUREMENT.md).
 [Current producer verification](integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/exact_midpoint_queries_v1/summary.json).
-All owned native/build jobs terminal. Next is the authorized BL cost diagnosis and
-opt-in budget policy, not another constructor fallback or raised cap. Published
+Midpoint jobs terminal. Current owned build7876 compiles the connected opt-in BL
+policy draft (310 targets/build-j1); NOT validated. Check live handle before restart.
+Native cost diagnosis and near-limit growth probe are complete; no new CFD/M6 construction.
+Before tests: after build7876 TERMINATES, apply budget_bl_policy_v1/finish_stage_review.py
+and one incremental build. Prepared only/not executed; details in budget handbook.
+It closes final budget-stage handling/atomicity and corrects a pre-run fixture limit. Published
 base686b13dc6be5b723a4eede54407ec5bdfd0c56f3; full Goal3 ACTIVE/incomplete.
 
 ## User extension2026-10-18
@@ -24,7 +28,8 @@ base686b13dc6be5b723a4eede54407ec5bdfd0c56f3; full Goal3 ACTIVE/incomplete.
 Add opt-in budget-aware outer-BL policy to full Goal3; strict default and all gates
 retained. Diagnose distance/region/normal/tangent cost first. One global parameter,
 explicit protected/allowed limits, original-family normalization/uncertainty, frozen
-profile/version/cache validity and MPI N/M agreement. No new relaxation applied yet.
+profile/version/cache validity and MPI N/M agreement. No production selection validated yet; native cost diagnosis and unvalidated policy
+draft are now saved. Growth-only ordinary limits leave a substantial M6 budget conflict.
 [Scope, decisions and open evidence](Handbook/GOAL3_BUDGET_AWARE_BL.md).
 
 ## Current production and evidence
@@ -116,11 +121,12 @@ agent's entries in the [outcome ledger](Handbook/SUGGESTION_OUTCOME_LEDGER.md).
 
 ## Execution and working rules
 
-All owned native/build jobs terminal. Connected progressive/midpoint source/build/
+Owned connected policy build7876 is LIVE; no other owned heavy job. Progressive/
+midpoint source/build/
 binary/input/helper verification preserves successful scoped lifecycle checks and
-both M6/stronger-finer construction failures. The opt-in policy extension is recorded
-but not implemented. A new test-only BL cost diagnostic draft is uncompiled; it is
-not part of the validated producer. One heavy job/nice19/build-j1/thread1/MPI<=4;
+both M6/stronger-finer construction failures. The opt-in policy draft is implemented but not compiled/qualified yet. Native cost
+diagnostic passes two clouds and MPI2/4 equality; its archived producer predates
+policy edits. See the budget handbook for actual scope and next checks. One heavy job/nice19/build-j1/thread1/MPI<=4;
 last host37--38GiB available. No cluster or CFD advancement. Preserve original P1/
 actual BL/finer/fade and all final contracts.
 

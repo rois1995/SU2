@@ -2631,8 +2631,9 @@ vector<unsigned long> CSolver::FindSharpWallPoints(const CGeometry* geometry, co
 }
 
 bool CNativeMetricFamily3D::Compatible(const CConfig& config)const {
-  const std::array<double,5> current{{SU2_TYPE::GetValue(config.GetAdap_Hmin()),SU2_TYPE::GetValue(config.GetAdap_Hmax()),
-      SU2_TYPE::GetValue(config.GetAdap_ARmax()),SU2_TYPE::GetValue(config.GetAdap_Hgrad()),SU2_TYPE::GetValue(config.GetAdap_Complexity())}};
+  const std::array<double,8> current{{SU2_TYPE::GetValue(config.GetAdap_Hmin()),SU2_TYPE::GetValue(config.GetAdap_Hmax()),
+      SU2_TYPE::GetValue(config.GetAdap_ARmax()),SU2_TYPE::GetValue(config.GetAdap_Hgrad()),SU2_TYPE::GetValue(config.GetAdap_Complexity()),double(config.GetAdap_BL_Budget()),
+      SU2_TYPE::GetValue(config.GetAdap_BL_ProtectDistance()),SU2_TYPE::GetValue(config.GetAdap_BL_OuterGrowthMax())}};
   if(current!=controls || config.GetnAdap_BL()!=layer_controls.size() || surface_tolerance!=SU2_TYPE::GetValue(config.GetAdap_Hausd()))return false;
   for(unsigned i=0;i<layer_controls.size();++i) {
     const auto& a=layer_controls[i];const auto& b=config.GetAdap_BL(i);
@@ -2659,6 +2660,8 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
   const bool nativeMetric = config->GetKind_Adap_Remesher() == ADAP_REMESHER::NATIVE_CAVITY;
   const bool geometricBL = boundaryLayer && config->GetnAdap_BL() > 0 &&
                             config->GetKind_Adap_Remesher() == ADAP_REMESHER::NATIVE_CAVITY;
+
+  const bool budgetBL=geometricBL && config->GetAdap_BL_Budget();
 
   /*--- Normalize each sensor before decomposition and determinant powers. The Lp metric is homogeneous
    *    in H, so this preserves its shape while removing dependence on sensor units and avoiding overflow.
@@ -2867,6 +2870,11 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
    *    at actual quadrature positions, using the same ApplySample/ApplyPoint policy as private queries. ---*/
   profile.Mark(0);
   const auto geometryStart = SU2_MPI::Wtime();
+  if(nativeMetric && nDim==3) {
+    const double policy[]={double(budgetBL),SU2_TYPE::GetValue(config->GetAdap_BL_ProtectDistance()),SU2_TYPE::GetValue(config->GetAdap_BL_OuterGrowthMax())};
+    double low[3],high[3];CPassiveComm::Allreduce(policy,low,3,CPassiveComm::Op::MIN);CPassiveComm::Allreduce(policy,high,3,CPassiveComm::Op::MAX);
+    if(!std::equal(low,low+3,high))SU2_MPI::Error("Inconsistent native3D BL budget controls.",CURRENT_FUNCTION);
+  }
   std::shared_ptr<CBoundaryLayerMetric> nativeLayers;
   struct CellRule {
     std::array<unsigned long, 3> nodes;
@@ -2882,6 +2890,7 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
     std::array<CBoundaryLayerMetric::Tensor,4> sensor;
     su2double core=-1;
     bool sensorDependent=true;
+    uint64_t profile_version=0;
   };
   vector<CellRule3D> integration3D;
   CLocalFailure quadratureFailure;
@@ -2898,6 +2907,8 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
         nativeLayers = nativeReference3D != nullptr
             ? CBoundaryLayerMetric::FromNativeReference(*nativeReference3D, *config)
             : std::make_shared<CBoundaryLayerMetric>(*geometry, *config);
+      if(budgetBL)nativeLayers->ConfigureOuterNormal(
+          SU2_TYPE::GetValue(config->GetAdap_BL_ProtectDistance()),SU2_TYPE::GetValue(config->GetAdap_BL_OuterGrowthMax()));
       const auto owned = OwnedSimplices(*geometry);
       for (unsigned long cell = 0; cell < owned.size(); ++cell) {
         quadratureCell=geometry->elem[owned.elem[cell]]->GetGlobalIndex();
@@ -2937,19 +2948,23 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
   unsigned long quadratureBuilds=0,quadratureReused=0,strictDensityEvaluations=0;
   std::unique_ptr<CNativeComplexity3D> boundedComplexity;
   CNativeComplexity3D::Assessment boundedAssessment;
-  bool uncertaintyPolicy=bool(replay);
+  bool uncertaintyPolicy=bool(replay) || budgetBL;
 #if !defined(CODI_FORWARD_TYPE) && !defined(CODI_REVERSE_TYPE)
-  uncertaintyPolicy=bool(replay) || (nativeLayers && nDim==3 && nativeLayers->SupportsCorrectionSupport3D());
+  uncertaintyPolicy=bool(replay) || budgetBL || (nativeLayers && nDim==3 && nativeLayers->SupportsCorrectionSupport3D());
 #endif
   bool boundedGeometry=false;
   if(uncertaintyPolicy && nativeLayers) {
-    const int local=!nativeLayers->PlanarWalls3D();int global=0;
+    const int local=!nativeLayers->PlanarWalls3D() || (budgetBL && nativeLayers->SupportsCorrectionSupport3D());int global=0;
     SU2_MPI::Allreduce(&local,&global,1,MPI_INT,MPI_MAX,SU2_MPI::GetComm());
     boundedGeometry=global!=0;
   }
   double integrationUncertainty=0;
   SU2Complexity::Normalization normalization;
   bool uncertaintySearch=false;
+  SU2Complexity::ProfileSelection budgetSelection=replay?replay->family->budget_selection:SU2Complexity::ProfileSelection{};
+  double budgetSelectionSeconds=0;
+  bool budgetSelected=false;
+
 
   auto syncSensor = [&]() {
     for (auto point = 0ul; point < nPointDomain; ++point) base_nodes->SetMetricMat(point, blMetric[point].m);
@@ -3132,7 +3147,7 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
           localQuadraturePoints=0;
           int localLimited=boundedGeometry && !boundedComplexity,globalLimited=0;
           if(localLimited && rank==MASTER_NODE)
-            cout<<"Native3D bounded complexity strategy: nonplanar faceted wall geometry."<<endl;
+            cout<<"Native3D bounded complexity strategy: retained faceted wall support"<<(budgetBL?" with opt-in BL profiles.":".")<<endl;
           if(!boundedComplexity && !boundedGeometry)for(auto& cell:integration3D)try {
             auto targetDensity=[&](const CBoundaryLayerMetric::IntegrationPoint3D& point) {
               ++strictDensityEvaluations;
@@ -3143,7 +3158,7 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
                 nativeLayers->ApplySample(sample.wall,sample.sample,metric,frozenCore,nullptr,false);
               return SU2_TYPE::GetValue(density(metric));
             };
-            bool same=!cell.points.empty();
+            bool same=!cell.points.empty() && cell.profile_version==nativeLayers->GetOuterNormal().version;
             if(cell.sensorDependent) {
               same=same && cell.core==frozenCore;
               for(unsigned k=0;k<4;++k)for(unsigned i=0;i<3;++i)for(unsigned j=0;j<3;++j)
@@ -3153,7 +3168,7 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
             else {
               cell.points=nativeLayers->IntegrationRule3D(cell.coordinates,1.5,targetDensity,&cell.sensorDependent);++quadratureBuilds;
               for(unsigned k=0;k<4;++k)cell.sensor[k]=blMetric[cell.nodes[k]];
-              cell.core=frozenCore;
+              cell.core=frozenCore;cell.profile_version=nativeLayers->GetOuterNormal().version;
             }
             quadratureBytes=transfer_memory::Add(quadratureBytes,transfer_memory::Bytes(cell.points),sizeof(CellRule3D));
             for(const auto& point:cell.points)quadratureBytes=transfer_memory::Add(quadratureBytes,transfer_memory::Bytes(point.samples));
@@ -3271,7 +3286,7 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
       if (fabs(logScale) < tol) logScale = 0.0;
     }
     if (nativeMetric) logScale = fmin(fmax(logScale, absoluteLow), absoluteHigh);
-    if(uncertaintyPolicy && absoluteLow<absoluteHigh) {
+    if(uncertaintyPolicy && (absoluteLow<absoluteHigh || budgetBL)) {
       uncertaintySearch=true;
       auto assess=[&](double trial,double requested) {
         // Fixed retained samples cannot gain accuracy by reevaluating the same field.
@@ -3279,9 +3294,48 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
         if(trial!=SU2_TYPE::GetValue(evaluatedLogScale))complexityError(trial);
         return SU2Complexity::Estimate{SU2_TYPE::GetValue(integratedComplexity),integrationUncertainty};
       };
+      if(budgetBL && !replay && !budgetSelected) {
+        const auto begin=SU2_MPI::Wtime();
+        budgetSelection=SU2Complexity::SelectProfile(SU2_TYPE::GetValue(complexity),8,[&](double parameter) {
+          double agreed=parameter;SU2_MPI::Bcast(&agreed,1,MPI_DOUBLE,MASTER_NODE,SU2_MPI::GetComm());
+          CLocalFailure failure;
+          try {
+            if(agreed!=parameter)throw std::runtime_error("Ranks disagree on the BL profile trial.");
+            nativeLayers->SelectOuterNormal(agreed);
+          }catch(const std::exception& e){failure.Set(2,0,e.what());}CollectiveFailure(failure,CURRENT_FUNCTION);
+          const auto version=nativeLayers->GetOuterNormal().version;
+          auto agreedVersion=version;SU2_MPI::Bcast(&agreedVersion,1,MPI_UNSIGNED_LONG_LONG,MASTER_NODE,SU2_MPI::GetComm());
+          if(agreedVersion!=version)failure.Set(2,0,"Ranks disagree on the broadcast BL profile version.");
+          CollectiveFailure(failure,CURRENT_FUNCTION);
+          if(CPassiveComm::Allreduce(version,CPassiveComm::Op::MIN)!=CPassiveComm::Allreduce(version,CPassiveComm::Op::MAX))
+            SU2_MPI::Error("Ranks disagree on BL profile version.",CURRENT_FUNCTION);
+          evaluatedLogScale=std::numeric_limits<passivedouble>::quiet_NaN();
+          const auto trial=assess(SU2_TYPE::GetValue(absoluteLow),0);
+          if(rank==MASTER_NODE)cout<<std::setprecision(17)<<"Native3D BL budget trial: parameter="<<agreed<<" profile_version="<<version
+            <<" coarsest_estimate="<<trial.value<<" uncertainty_indicator="<<trial.uncertainty
+            <<" mandatory_estimate="<<boundedAssessment.mandatory.value<<" mandatory_indicator="<<boundedAssessment.mandatory.uncertainty
+            <<" protected_distance="<<nativeLayers->GetOuterNormal().protected_distance
+            <<" maximum_outer_growth="<<nativeLayers->GetOuterNormal().maximum_growth<<" support_changed=0 proven_bound=0"<<std::setprecision(6)<<endl;
+          return trial;
+        });
+        budgetSelectionSeconds=SU2_MPI::Wtime()-begin;budgetSelected=true;
+        if(budgetSelection.status==SU2Complexity::BudgetStatus::EstimatedIncompatible) {
+          std::ostringstream why;why<<std::setprecision(17)<<"Estimated BL budget conflict over nine permitted sampled profiles; estimate="
+            <<budgetSelection.estimate.value<<" uncertainty="<<budgetSelection.estimate.uncertainty
+            <<" budget="<<complexity<<" mandatory_estimate="<<boundedAssessment.mandatory.value
+            <<" mandatory_indicator="<<boundedAssessment.mandatory.uncertainty
+            <<" protected_minimum_exceeds_budget="<<(boundedAssessment.mandatory.value-boundedAssessment.mandatory.uncertainty>complexity)
+            <<". No mandatory height/geometry/protected/finer requirement was relaxed; estimates are heuristic, not proof of continuum infeasibility.";
+          SU2_MPI::Error(why.str(),CURRENT_FUNCTION);
+        }
+        nativeLayers->FreezeOuterNormal();
+      }
       // A BL budget may already be unattainable at the coarsest permitted sensor; test that before expensive grading.
       const auto coarse=assess(SU2_TYPE::GetValue(absoluteLow),0);
-      if(coarse.value-coarse.uncertainty>SU2_TYPE::GetValue(complexity))
+      if(!(absoluteLow<absoluteHigh))
+        normalization={SU2_TYPE::GetValue(absoluteLow),coarse,
+          std::abs(coarse.value-SU2_TYPE::GetValue(complexity))<=coarse.uncertainty ? SU2Complexity::Status::IntegrationLimited : SU2Complexity::Status::OutsideBracket,1};
+      else if(coarse.value-coarse.uncertainty>SU2_TYPE::GetValue(complexity))
         normalization={SU2_TYPE::GetValue(absoluteLow),coarse,SU2Complexity::Status::OutsideBracket,1};
       else {
         normalization=SU2Complexity::Normalize(SU2_TYPE::GetValue(complexity),SU2_TYPE::GetValue(absoluteLow),
@@ -3361,6 +3415,7 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
   su2double logScale = 0.0, error = 0.0;
   bool bracketed = true;
   solveGlobalFactor(logScale, error, bracketed);
+  if(nativeLayers && budgetBL)nativeLayers->FreezeOuterNormal();
 
   /*--- Isotropic metric at sharp wall corners (ADAP_ISO_CORNER, 2D). The remesher keeps such a corner and sizes the
    *    two walls on its sides independently, with the anisotropic metric along each of them; the solver's wall normal
@@ -3585,15 +3640,15 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
     CPassiveComm::Allreduce(&quadratureSeconds,&globalQuadratureSeconds,1,CPassiveComm::Op::MAX);
     CPassiveComm::Allreduce(quadratureCounts,globalQuadratureCounts,3,CPassiveComm::Op::SUM);
   }
-  double boundedTimes[5]={};uint64_t boundedCounts[3]={};
+  double boundedTimes[5]={};uint64_t boundedCounts[5]={};
   if(boundedComplexity) {
     const auto& work=boundedComplexity->GetStatistics();
     const double times[]={work.preparationSeconds,work.backgroundSeconds,work.correctionSeconds,
                           work.reductionSeconds,work.assessmentSeconds};
-    const uint64_t counts[]={work.retainedBytes,work.backgroundEvaluations,work.correctionEvaluations};
+    const uint64_t counts[]={work.retainedBytes,work.backgroundEvaluations,work.correctionEvaluations,work.profileRefreshes,work.profileGeometryQueries};
     SU2_MPI::Allreduce(times,boundedTimes,5,MPI_DOUBLE,MPI_MAX,SU2_MPI::GetComm());
     SU2_MPI::Allreduce(counts,boundedCounts,1,MPI_UNSIGNED_LONG_LONG,MPI_MAX,SU2_MPI::GetComm());
-    SU2_MPI::Allreduce(counts+1,boundedCounts+1,2,MPI_UNSIGNED_LONG_LONG,MPI_SUM,SU2_MPI::GetComm());
+    SU2_MPI::Allreduce(counts+1,boundedCounts+1,4,MPI_UNSIGNED_LONG_LONG,MPI_SUM,SU2_MPI::GetComm());
   }
   if (rank == MASTER_NODE) {
     cout << (nativeMetric ? "Sensor-only donor metric statistics:" : "Metric field statistics:") << endl;
@@ -3615,6 +3670,14 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
             <<" provisional="<<(normalization.status!=SU2Complexity::Status::EstimatedTolerance)
             <<" proven_error_bound=0; target remains frozen during remeshing."<<std::setprecision(6)<<endl;
       }
+      if(budgetBL && nativeLayers) {
+        const auto& selected=nativeLayers->GetOuterNormal();
+        cout<<std::setprecision(17)<<"Native3D BL budget selection: status="
+          <<(budgetSelection.status==SU2Complexity::BudgetStatus::EstimatedAttainable?"estimated_attainable":"integration_limited")
+          <<" parameter="<<selected.parameter<<" profile_version="<<selected.version<<" trials="<<budgetSelection.trials
+          <<" grid_resolution=0.125 continuous_minimum_proven=0 support_changed=0 frozen="<<selected.frozen
+          <<" selection_seconds="<<budgetSelectionSeconds<<" replay="<<bool(replay)<<std::setprecision(6)<<endl;
+      }
       if(boundedComplexity) {
         cout<<std::setprecision(17)<<"Native3D support correction: samples="<<boundedAssessment.samples
             <<" inside="<<boundedAssessment.inside<<" nonzero="<<boundedAssessment.nonzero
@@ -3625,7 +3688,8 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
             <<" correction_seconds_max="<<boundedTimes[2]<<" reduction_seconds_max="<<boundedTimes[3]
             <<" assessment_seconds_max="<<boundedTimes[4]<<" retained_bytes_max="<<boundedCounts[0]
             <<" background_determinants="<<boundedCounts[1]<<" correction_queries="<<boundedCounts[2]
-            <<" donor_searches_during_trials=0 geometry_queries_during_trials=0"<<std::setprecision(6)<<endl;
+            <<" donor_searches_during_trials=0 geometry_queries_during_trials="<<boundedCounts[4]
+            <<" global_rank_profile_refreshes="<<boundedCounts[3]<<std::setprecision(6)<<endl;
       }
       if(nDim==3 && nativeLayers)cout << "Native3D target-density quadrature: " << globalQuadratureSeconds << " s (maximum accumulated rank time), "
           << globalQuadratureCounts[0] << " cell rule builds, " << globalQuadratureCounts[1] << " exact-target reuses, "
@@ -3781,10 +3845,12 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
         family->node_span=familyMaximum+1;
         std::sort(family->nodes.begin(),family->nodes.end(),[](const auto& x,const auto& y){return x.id<y.id;});
         family->controls={{SU2_TYPE::GetValue(config->GetAdap_Hmin()),SU2_TYPE::GetValue(config->GetAdap_Hmax()),
-          SU2_TYPE::GetValue(config->GetAdap_ARmax()),SU2_TYPE::GetValue(config->GetAdap_Hgrad()),SU2_TYPE::GetValue(complexity)}};
+          SU2_TYPE::GetValue(config->GetAdap_ARmax()),SU2_TYPE::GetValue(config->GetAdap_Hgrad()),SU2_TYPE::GetValue(complexity),
+          double(config->GetAdap_BL_Budget()),SU2_TYPE::GetValue(config->GetAdap_BL_ProtectDistance()),SU2_TYPE::GetValue(config->GetAdap_BL_OuterGrowthMax())}};
         family->boundary_layer=boundaryLayer;family->authority=nativeReference3D?nativeReference3D->original:nullptr;
         family->surface_tolerance=SU2_TYPE::GetValue(config->GetAdap_Hausd());
         for(unsigned i=0;i<config->GetnAdap_BL();++i)family->layer_controls.push_back(config->GetAdap_BL(i));
+        family->budget_selection=budgetSelection;
         family->normalization=normalized;family->lower=familyLower;family->upper=familyUpper;family->core=SU2_TYPE::GetValue(frozenCore);
         nativeMetricFamily3D=std::move(family);
       }

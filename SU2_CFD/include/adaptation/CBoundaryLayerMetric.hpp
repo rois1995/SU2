@@ -103,6 +103,7 @@ class CBoundaryLayerMetric {
    * \brief Wall metric of one wall at one point, before the intersection.
    */
   struct Sample {
+    uint64_t profile_version = 0;
     su2double distance = 0.0;   /*!< \brief Distance to the wall. */
     su2double weight = 0.0;     /*!< \brief Strength in [0,1] (1 in the full band, 0 beyond the thickness). */
     su2double normal[3] = {0.0}; /*!< \brief Unit wall-normal direction. */
@@ -143,6 +144,16 @@ class CBoundaryLayerMetric {
   CBoundaryLayerMetric(unsigned short nDim, std::vector<Wall> walls, su2double cornerAngle = 0.0);
 
   ~CBoundaryLayerMetric();
+
+  struct OuterNormalProfile {
+    double protected_distance=0,maximum_growth=0,parameter=0;
+    uint64_t version=0;
+    bool frozen=false;
+  };
+  void ConfigureOuterNormal(double protectedDistance,double maximumGrowth);
+  void SelectOuterNormal(double parameter);
+  void FreezeOuterNormal() { outerNormal.frozen=true; }
+  const OuterNormalProfile& GetOuterNormal() const { return outerNormal; }
 
   /*!
    * \brief Number of walls (sorted by marker name).
@@ -293,6 +304,7 @@ class CBoundaryLayerMetric {
   /*--- Tangential floor of the metric M of a point next to the wall (see the class note); false outside its band. ---*/
   bool TangentialFloor(const Sample& sample, const su2double* wallEigenvalues, su2double h0, Tensor& M) const;
 
+  OuterNormalProfile outerNormal;
   unsigned short nDim = 0;
   su2double cornerAngle = 0.0; /*!< \brief Turn of the wall (degrees) above which a 2D vertex is a corner. */
   std::vector<Wall> walls;

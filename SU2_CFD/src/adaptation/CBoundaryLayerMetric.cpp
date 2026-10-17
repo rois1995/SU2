@@ -887,6 +887,22 @@ void CBoundaryLayerMetric::Build() {
   }
 }
 
+void CBoundaryLayerMetric::ConfigureOuterNormal(double protectedDistance,double maximumGrowth) {
+  if(outerNormal.frozen || outerNormal.version || !(protectedDistance>0) || !std::isfinite(protectedDistance) ||
+      !(maximumGrowth>=1) || !std::isfinite(maximumGrowth))
+    throw std::invalid_argument("Invalid or already-frozen outer-normal BL limits.");
+  for(const auto& wall:walls)if(protectedDistance<wall.layer.firstHeight || maximumGrowth<wall.layer.growth)
+    throw std::invalid_argument("Outer-normal BL limits must preserve original first height and growth.");
+  outerNormal.protected_distance=protectedDistance;outerNormal.maximum_growth=maximumGrowth;outerNormal.version=1;
+}
+void CBoundaryLayerMetric::SelectOuterNormal(double parameter) {
+  if(outerNormal.frozen || !outerNormal.version || !(parameter>=0 && parameter<=1) || !std::isfinite(parameter))
+    throw std::invalid_argument("Invalid or frozen outer-normal BL selection.");
+  if(parameter==outerNormal.parameter)return;
+  if(outerNormal.version==UINT64_MAX)throw std::runtime_error("BL profile identity exhausted.");
+  outerNormal.parameter=parameter;++outerNormal.version;
+}
+
 CBoundaryLayerMetric::Sample CBoundaryLayerMetric::Evaluate(unsigned short iWall, const su2double* X,
                                                             su2double coreEigenvalue) {
   return EvaluateImpl(iWall,X,coreEigenvalue,false);
@@ -896,7 +912,7 @@ CBoundaryLayerMetric::Sample CBoundaryLayerMetric::EvaluateImpl(unsigned short i
                                                                su2double coreEigenvalue, bool distanceOnly) {
   const auto& wall = walls[iWall];
   auto& d = *data[iWall];
-  Sample sample;
+  Sample sample;sample.profile_version=outerNormal.version;
   if (!d.adt) return sample;
   auto x = [&](unsigned long iPoint) { return &wall.coord[iPoint * nDim]; };
 
@@ -1073,6 +1089,13 @@ CBoundaryLayerMetric::Sample CBoundaryLayerMetric::EvaluateImpl(unsigned short i
 
   /*--- Wall-normal size of geometric rows: harmonic mean of the two rows around the point, at least h0. ---*/
   sample.hn = max(d.h0, 2.0 * (d.h0 + (d.growth - 1.0) * sample.distance) / (d.growth + 1.0));
+  if(outerNormal.parameter>0 && sample.distance>outerNormal.protected_distance) {
+    const auto p=outerNormal.protected_distance;
+    const auto anchor=max(d.h0,2*(d.h0+(d.growth-1)*p)/(d.growth+1));
+    const auto slope=2*(1-2/(d.growth+1));
+    const auto limit=2*(1-2/(outerNormal.maximum_growth+1));
+    sample.hn=max(sample.hn,anchor+(slope+outerNormal.parameter*(limit-slope))*(sample.distance-p));
+  }
 
   auto& M = sample.full.m;
   if (nDim == 2) {
@@ -1314,6 +1337,7 @@ std::vector<CBoundaryLayerMetric::IntegrationPoint3D> CBoundaryLayerMetric::Inte
 
 struct CBoundaryLayerMetric::ComplexityWorkspace3D {
   const CBoundaryLayerMetric* owner;
+  uint64_t profile_version=0;
   BLTetrahedron cell;
   size_t ceiling,bytes=sizeof(ComplexityWorkspace3D);
   bool prepared=false,hidden=false;
@@ -1331,7 +1355,7 @@ std::shared_ptr<CBoundaryLayerMetric::ComplexityWorkspace3D> CBoundaryLayerMetri
   if(BLDeterminant(tetrahedron[0],tetrahedron[1],tetrahedron[2],tetrahedron[3])==0)
     throw std::invalid_argument("Degenerate native3D geometry workspace cell.");
   auto result=std::make_shared<ComplexityWorkspace3D>();
-  result->owner=this;result->cell=tetrahedron;result->ceiling=maximumBytes;
+  result->owner=this;result->profile_version=outerNormal.version;result->cell=tetrahedron;result->ceiling=maximumBytes;
   return result;
 }
 
@@ -1340,7 +1364,7 @@ CBoundaryLayerMetric::ComplexityEstimate3D CBoundaryLayerMetric::EstimateComplex
     double absoluteTolerance,ComplexityWorkspace3D* workspace) {
   if(!density || maximumEvaluations<64 || maximumEvaluations>65536 ||
       (!std::isfinite(absoluteTolerance) || (absoluteTolerance<0 && absoluteTolerance!=-1)) ||
-      (workspace && (workspace->owner!=this || workspace->cell!=tetrahedron)))
+      (workspace && (workspace->owner!=this || workspace->profile_version!=outerNormal.version || workspace->cell!=tetrahedron)))
     throw std::invalid_argument("Invalid bounded native3D complexity control.");
   ComplexityEstimate3D estimate;
   const auto start=std::chrono::steady_clock::now();
@@ -2338,6 +2362,7 @@ std::vector<double> CBoundaryLayerMetric::EdgeBreakpointsImpl(
     const double h0 = SU2_TYPE::GetValue(d.h0), full = SU2_TYPE::GetValue(d.full);
     const double thickness = SU2_TYPE::GetValue(d.thickness);
     std::vector<double> levels{0,.5*h0};
+    if(outerNormal.parameter>0 && outerNormal.protected_distance<thickness)levels.push_back(outerNormal.protected_distance);
     // Strict edges also integrate the existing on-wall face/edge/vertex normal classification band.
     if(nDim==3 && featureTransitions && !walls[wall].authority)levels.push_back(SU2_TYPE::GetValue(d.tolerance));
     for (double level = h0; level < full;) {
@@ -2713,6 +2738,7 @@ std::vector<CBoundaryLayerMetric::IntegrationPoint2D> CBoundaryLayerMetric::Inte
 void CBoundaryLayerMetric::ApplySample(unsigned short wall, const Sample& sample, Tensor& metric,
                                       su2double coreEigenvalue, std::vector<WallReport>* reports,
                                       bool useTangentialFloor) {
+  if(sample.profile_version!=outerNormal.version)throw std::runtime_error("Stale BL sample from another profile.");
   if (!(sample.weight > 0.0)) return;
   Tensor faded = sample.full;
   if (sample.weight < 1.0) {

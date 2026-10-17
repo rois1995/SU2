@@ -3328,6 +3328,9 @@ void CConfig::SetConfig_Options() {
   /*!\brief ADAP_BL_LOCAL_HMAX \n DESCRIPTION: MMG local parameters on the boundary-layer wall markers: hmax = 2 x their
    * longest face edge. This bounds MMG's own geometric boundary metric there; MMG versions without the fix of MMG issue
    * #331 can otherwise replace the boundary-layer metric at the wall points by it \ingroup Config */
+  addBoolOption("ADAP_BL_BUDGET", Adap_BL_Budget, false);
+  addDoubleOption("ADAP_BL_PROTECT_DISTANCE", Adap_BL_ProtectDistance, 0.0);
+  addDoubleOption("ADAP_BL_OUTER_GROWTH_MAX", Adap_BL_OuterGrowthMax, 0.0);
   addBoolOption("ADAP_BL_LOCAL_HMAX", Adap_BL_LocalHmax, true);
   /*!\brief ADAP_BL_METHOD \n DESCRIPTION: How the near-wall cells are built: METRIC (one remesh with the boundary-layer
    * metric) or TWO_PASS (2D: pass A resets the near-wall band and resamples the wall on the reference wall with a
@@ -6679,6 +6682,17 @@ void CConfig::SetPostprocessing(SU2_COMPONENT val_software, unsigned short val_i
     SU2_MPI::Error("ADAP_BL_CORNER_FLOOR must be a finite value >= 0.", CURRENT_FUNCTION);
   if (!(Adap_BL_GeomTol >= 0.0) || !std::isfinite(SU2_TYPE::GetValue(Adap_BL_GeomTol)))
     SU2_MPI::Error("ADAP_BL_GEOM_TOL must be a finite value >= 0.", CURRENT_FUNCTION);
+  if (Adap_BL_Budget) {
+    if (val_nDim != 3 || Kind_Adap_Remesher != ADAP_REMESHER::NATIVE_CAVITY ||
+        Kind_Adap_BL_Method != ADAP_BL_METHOD::METRIC || Adap_BL.empty())
+      SU2_MPI::Error("ADAP_BL_BUDGET currently requires native3D METRIC and ADAP_BL_MARKER.", CURRENT_FUNCTION);
+    if (!(Adap_BL_ProtectDistance > 0) || !std::isfinite(SU2_TYPE::GetValue(Adap_BL_ProtectDistance)) ||
+        !(Adap_BL_OuterGrowthMax >= 1) || !std::isfinite(SU2_TYPE::GetValue(Adap_BL_OuterGrowthMax)))
+      SU2_MPI::Error("ADAP_BL_BUDGET needs explicit finite positive ADAP_BL_PROTECT_DISTANCE and ADAP_BL_OUTER_GROWTH_MAX >= 1.", CURRENT_FUNCTION);
+    for (const auto& wall : Adap_BL)
+      if (Adap_BL_ProtectDistance < wall.firstHeight || Adap_BL_OuterGrowthMax < wall.growth)
+        SU2_MPI::Error("BL budget limits must protect at least every first height and permit at least every original growth.", CURRENT_FUNCTION);
+  }
   if (Kind_Adap_BL_Method == ADAP_BL_METHOD::TWO_PASS) {
     if (Kind_Adap_Remesher != ADAP_REMESHER::MMG)
       SU2_MPI::Error("ADAP_BL_METHOD= TWO_PASS requires ADAP_REMESHER= MMG; native cavities build the BL with METRIC.",

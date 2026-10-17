@@ -765,3 +765,27 @@ binary/input/helper pins, without repeating CFD/regressions. User extension adds
 opt-in budget-aware outer-BL selection under explicit protected/allowed limits;
 distance/region/normal/tangent diagnosis comes first. Not yet implemented/validated.
 [Policy scope](GOAL3_BUDGET_AWARE_BL.md).
+
+## 2026-10-18: budget-aware BL extension — diagnosis before relaxation
+
+Worked in a frozen diagnostic scope: two saved8192-point clouds preserve original
+RAW9 P1/composed correction rows; MPI2/4 new cost rows match exactly. Coarsest BL
+correction805274/805597 (+/-28016/28029 HEURISTIC3SE). First-cloud protected10*h0
+already costs~96587,50*h0~223596; outer span quarter~42%, with fine tangential sizes
+persisting away from wall. No background/sensor or count/infeasibility confusion.
+
+Independent one-wall/isotropic spectral experiment (native baseline drift<=8.1e-9)
+shows growth2 with protect h0 leaves263--265k, growth10 leaves125--128k; diagnostic
+near-limit1e6 still107--110k. Ordinary growth freedom is insufficient for100k in
+these estimates; do not force a success with physical-accuracy defaults or an
+unjustified tangential relaxation. Unchanged support/fade, no production selection
+or accepted mesh demonstrated. All native rows, old/new source capsules, hashes,
+failures and resource receipts retained in budget_bl_cost_v1.
+
+A connected native3D opt-in policy draft now reaches config, original-family
+normalization, bounded collective profile selection/versioning, sample/rule/cache
+invalidation, retained source support and frozen remesher reuse. Curved/interacting/
+finer/stale primitives and actual cfg-driven RANS workflow checks are written.
+Build7876 is ongoing, no tests or production success claimed. Global error
+calibration/allocation, complete policy validation and lifecycle performance remain.
+[Current policy/diagnostic scope](GOAL3_BUDGET_AWARE_BL.md).

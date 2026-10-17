@@ -2543,3 +2543,64 @@ TEST_CASE("Coarsest-field preflight continues toward a reachable planar budget",
   CHECK(test.solver[FLOW_SOL]->GetMetricComplexityFinal()==Approx(100).epsilon(.001));
   CHECK(SU2_TYPE::GetValue(test.Metric(0).m[0][0])>1);
 }
+
+TEST_CASE("Budget profiles scan ordered samples without a monotonicity assumption", "[NativeBLBudgetPolicy]") {
+  using namespace SU2Complexity;
+  const double nonmonotone[]={20,30,8,25,5};unsigned calls=0;
+  auto chosen=SelectProfile(10,4,[&](double p){++calls;return Estimate{nonmonotone[unsigned(p*4)],.1};});
+  CHECK(chosen.status==BudgetStatus::EstimatedAttainable);CHECK(chosen.parameter==.5);CHECK(calls==3);
+  auto uncertain=SelectProfile(10,4,[](double p){return Estimate{p==0?10.:5.,p==0?1.:.1};});
+  CHECK(uncertain.status==BudgetStatus::IntegrationLimited);CHECK(uncertain.parameter==0);CHECK(uncertain.trials==1);
+  auto incompatible=SelectProfile(10,8,[](double p){return Estimate{30+std::sin(20*p),1};});
+  CHECK(incompatible.status==BudgetStatus::EstimatedIncompatible);CHECK(incompatible.trials==9);
+  CHECK_THROWS(SelectProfile(0,8,[](double){return Estimate{1,0};}));
+  CHECK_THROWS(SelectProfile(1,33,[](double){return Estimate{1,0};}));
+  CHECK_THROWS(SelectProfile(1,8,[](double){return Estimate{1,-1};}));
+  CHECK(SelectProfile(1,8,[](double){return Estimate{1,INFINITY};}).status==BudgetStatus::IntegrationLimited);
+}
+
+TEST_CASE("Outer-normal profiles protect height tangents geometry fade and frozen sample identity", "[NativeBLBudgetProfile]") {
+  const auto wall=AnalyticSphereWall(.01,.3,1.);CBoundaryLayerMetric strict(3,{wall}),layers(3,{wall});
+  layers.ConfigureOuterNormal(.03,2.);
+  std::vector<CBoundaryLayerMetric::Sample> original;
+  const double distances[]={0.,.005,.01,.03,.04,.1,.275,.299,.31};
+  for(auto d:distances) {
+    const su2double p[]={1+d,0.,0.};const auto a=strict.Evaluate(0,p,.01),b=layers.Evaluate(0,p,.01);
+    CHECK(a.hn==b.hn);CHECK(a.weight==b.weight);
+    for(unsigned i=0;i<3;++i)for(unsigned j=0;j<3;++j)CHECK(a.full.m[i][j]==b.full.m[i][j]);
+    original.push_back(b);
+  }
+  auto workspace=layers.PrepareComplexity3D({{{1,0,0},{1.4,0,0},{1,.1,0},{1,0,.1}}},1<<20);
+  layers.SelectOuterNormal(.5);CHECK(layers.GetOuterNormal().version==2);
+  for(size_t k=0;k<original.size();++k) {
+    const auto d=distances[k];const su2double p[]={1+d,0.,0.};const auto sample=layers.Evaluate(0,p,.01);
+    CHECK(sample.weight==original[k].weight);
+    if(sample.weight==0)continue;
+    CHECK(sample.hn>=original[k].hn);
+    if(d<=.03)CHECK(sample.hn==original[k].hn);
+    for(unsigned i=1;i<3;++i)for(unsigned j=1;j<3;++j)CHECK(sample.full.m[i][j]==original[k].full.m[i][j]);
+    Tensor fine;fine.m[0][0]=1e8;fine.m[1][1]=2e8;fine.m[2][2]=3e8;
+    layers.ApplyPoint(p,fine,.01,nullptr,false);
+    CHECK(fine.m[0][0]>=1e8*(1-1e-12));CHECK(fine.m[1][1]>=2e8*(1-1e-12));CHECK(fine.m[2][2]>=3e8*(1-1e-12));
+    Tensor target;for(unsigned i=0;i<3;++i)target.m[i][i]=1;
+    CHECK_THROWS(layers.ApplySample(0,original[k],target,.01,nullptr,false));
+  }
+  CHECK_THROWS(layers.EstimateComplexity3D({{{1,0,0},{1.4,0,0},{1,.1,0},{1,0,.1}}},[](const auto&){return 1.;},8192,-1,workspace.get()));
+  const auto cuts=layers.EdgeBreakpoints({1,0,0},{1.3,0,0});
+  CHECK(std::any_of(cuts.begin(),cuts.end(),[](double t){return std::abs(t-.1)<1e-10;}));
+  layers.FreezeOuterNormal();CHECK_THROWS(layers.SelectOuterNormal(.75));CHECK_THROWS(layers.ConfigureOuterNormal(.03,2.));
+  CBoundaryLayerMetric invalid(3,{wall});CHECK_THROWS(invalid.ConfigureOuterNormal(.001,2.));CHECK_THROWS(invalid.ConfigureOuterNormal(.03,1.));
+}
+
+TEST_CASE("Interacting walls retain finer demands with one frozen outer-normal profile", "[NativeBLBudgetProfile]") {
+  CBoundaryLayerMetric::Wall a;a.layer={"a",.01,1.2,.3};a.coord={0,0,0,1,0,0,1,1,0,0,1,0};a.conn={0,1,2,2,0,2,3,3};
+  auto b=a;b.layer.marker="b";for(size_t i=2;i<b.coord.size();i+=3)b.coord[i]=.2;
+  CBoundaryLayerMetric layers(3,{a,b});layers.ConfigureOuterNormal(.02,2.);layers.SelectOuterNormal(.75);
+  const su2double p[]={.5,.5,.1};Tensor sensor;sensor.m[0][0]=1e5;sensor.m[1][1]=4;sensor.m[2][2]=1;
+  auto direct=sensor;layers.ApplyPoint(p,direct,.1,nullptr,false);
+  auto cached=sensor;const auto samples=layers.SamplePoints({p[0],p[1],p[2]});REQUIRE(samples.size()==2);
+  for(const auto& sample:samples)layers.ApplySample(sample.wall,sample.sample,cached,.1,nullptr,false);
+  for(unsigned i=0;i<3;++i)for(unsigned j=0;j<3;++j)CHECK(cached.m[i][j]==direct.m[i][j]);
+  CHECK(direct.m[0][0]>=1e5*(1-1e-12));CHECK(direct.m[1][1]>=4*(1-1e-12));CHECK(direct.m[2][2]>=1*(1-1e-12));
+  layers.FreezeOuterNormal();CHECK_THROWS(layers.SelectOuterNormal(1));
+}

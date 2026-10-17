@@ -1378,6 +1378,8 @@ private:
             *Adap_BL_Growth = nullptr,      /*!< \brief Growth ratio of each boundary-layer marker. */
             *Adap_BL_Thickness = nullptr;   /*!< \brief Thickness of each boundary-layer marker. */
   vector<CAdapBoundaryLayer> Adap_BL;       /*!< \brief Boundary-layer metric of each marker, lists expanded. */
+  bool Adap_BL_Budget = false;
+  su2double Adap_BL_ProtectDistance = 0.0, Adap_BL_OuterGrowthMax = 0.0;
   bool Adap_BL_LocalHmax = true;           /*!< \brief MMG local hmax on the boundary-layer wall markers. */
   ADAP_BL_METHOD Kind_Adap_BL_Method;      /*!< \brief How the near-wall cells are built (ADAP_BL_METHOD). */
   su2double Adap_BL_CurvatureFactor = 0.7; /*!< \brief c of the wall size cap c sqrt(2 R h0). */
@@ -10486,6 +10488,9 @@ public:
    * \brief Get the number of wall markers of the boundary-layer metric (ADAP_BL_MARKER).
    */
   unsigned short GetnAdap_BL(void) const { return Adap_BL.size(); }
+  bool GetAdap_BL_Budget() const { return Adap_BL_Budget; }
+  su2double GetAdap_BL_ProtectDistance() const { return Adap_BL_ProtectDistance; }
+  su2double GetAdap_BL_OuterGrowthMax() const { return Adap_BL_OuterGrowthMax; }
 
   /*!
    * \brief Get the boundary-layer metric of a wall marker (ADAP_BL_*), in the order of ADAP_BL_MARKER.
