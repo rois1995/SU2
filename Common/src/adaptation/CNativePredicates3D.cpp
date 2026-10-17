@@ -396,6 +396,25 @@ bool Barycentric(const Tetrahedron& donor, Point point, std::array<long double, 
   weights = values;
   return true;
 }
+bool BarycentricMidpoint(const Tetrahedron& donor,Point a,Point b,std::array<long double,4>& weights,KernelStats* stats) {
+  if(!(Finite(a)&&Finite(b)))throw std::invalid_argument("Nonfinite native3D midpoint endpoints.");
+  if(!(Orientation(donor[0],donor[1],donor[2],donor[3],stats)>0))
+    throw std::invalid_argument("Native3D midpoint donor must have positive volume.");
+  auto vertex=[&](Point p){for(size_t i=0;i<4;++i)if(p.x==donor[i].x && p.y==donor[i].y && p.z==donor[i].z)return i;return size_t(4);};
+  const auto first=vertex(a),last=vertex(b);
+  if(first<4 && last<4){weights={};weights[first]+=.5L;weights[last]+=.5L;return true;}
+  const auto volume=ExactVolume(donor,stats);auto negative=volume;negative.negative=!negative.negative;
+  const auto denominator=Difference(volume,negative);long double sum=0;
+  for(size_t i=0;i<4;++i) {
+    auto ta=donor,tb=donor;ta[i]=a;tb[i]=b;
+    const auto va=first<4 ? (first==i ? volume:Integer<198>{}) : ExactVolume(ta,stats);
+    auto vb=last<4 ? (last==i ? volume:Integer<198>{}) : ExactVolume(tb,stats);vb.negative=!vb.negative;
+    const auto numerator=Difference(va,vb);if(Sign(numerator)<0)return false;
+    weights[i]=Ratio(numerator,denominator);sum+=weights[i];
+  }
+  if(!(sum>0))throw std::runtime_error("Unusable native3D exact-midpoint weights.");
+  for(auto& w:weights)w/=sum;return true;
+}
 std::vector<SegmentPiece> TraceSegment(const std::vector<const Cell*>& donors, Point a, Point b, KernelStats* stats,
                                        size_t primary) {
   if (donors.size() > MaximumSegmentDonors) throw std::invalid_argument("Native 3D segment donor budget exceeded.");

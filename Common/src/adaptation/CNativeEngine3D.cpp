@@ -420,7 +420,7 @@ class Selection {
   }
   void Recover(const Owned& working) {
     track_repairs=true;
-    for (const auto& row:working) if (!cells.at(row.first).valid) AddRepairs(row.second.cell);
+    for (const auto& row:cells) if (!row.second.valid) AddRepairs(working.at(row.first).cell);
   }
 };
 struct BlockedEdge {
@@ -1121,6 +1121,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     if(options.timings)stats.layer_seconds+=std::chrono::duration<double>(Clock::now()-layer_started).count();
     layer_active=false;
   }
+  constexpr size_t MeasurementBatch=16;
   // Small batches amortize donor exchange/index construction; halve on common import rejection to the one-cell bound.
   auto measure=[&](const std::vector<Id>& ids,bool seed) {
     const size_t count=CPassiveComm::Allreduce(ids.size(),CPassiveComm::Op::MAX,world.comm);
@@ -1129,7 +1130,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         stats.stop=EngineStop::TimeBudget;result.reason=seed ? "Native3D metric seeding exhausts elapsed-time budget." :
             "Native3D metric update exhausts elapsed-time budget.";return false;
       }
-      size_t batch=std::min<size_t>(16,count-slot);
+      size_t batch=std::min(MeasurementBatch,count-slot);
       DonorPatch imported;
       CLocalFailure failure;
       for (;;) {
@@ -1179,17 +1180,34 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         }
       } catch (const std::exception& e) { failure.Set(2,0,e.what()); }
       if (!vote(failure)) return false;
-      slot+=batch;
+      slot+=batch;if(seed)++stats.seed_batches;
     }
     return true;
   };
-  {
-    Timer timer(stats.seed_seconds,options.timings); ready=measure(initial,true);
-  }
+  size_t seed_slot=0;
+  auto seed_next=[&]() {
+    Timer timer(stats.seed_seconds,options.timings);
+    // Composed edges are expensive; never measure pending topology merely to let a complete cavity remove it.
+    if(!composition) {seed_slot=initial.size();return measure(initial,true);}
+    if(options.maximum_seconds && world.maximum(std::chrono::duration<double>(Clock::now()-started).count()>=options.maximum_seconds)) {
+      stats.stop=EngineStop::TimeBudget;result.reason="Native3D metric seeding exhausts elapsed-time budget.";return false;
+    }
+    if(!admit(transfer_memory::Mul(MeasurementBatch,sizeof(Id))))return false;
+    CLocalFailure failure;std::vector<Id> next;
+    try {
+      size_t scanned=0;next.reserve(MeasurementBatch);
+      while(seed_slot<initial.size() && next.size()<MeasurementBatch && scanned++<MaximumDirectoryScan) {
+        const auto id=initial[seed_slot++];
+        if(working.count(id) && !selection.cells.count(id))next.push_back(id);
+      }
+    }catch(const std::exception& e){failure.Set(2,0,e.what());}
+    return vote(failure) && measure(next,true);
+  };
+  ready=seed_next();
   if (!ready) return finish();
-  for (size_t round=0; !options.maximum_rounds || round<options.maximum_rounds; ++round) {
+  for (size_t round=0; !options.maximum_rounds || round<options.maximum_rounds;) {
     Choice choice;
-    bool complete=false,any=false,bad_field=false;
+    bool complete=false,any=false,bad_field=false,refill=false;
     auto pick=[&]() {
       if (!coarsening) { choice=selection.Best(repairing); any=world.maximum(choice.active); return true; }
       CLocalFailure failure;
@@ -1224,7 +1242,8 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         pick();
         if (ready && coarsening && !repairing && !bad_field && !any)
           complete=!world.maximum(selection.cells.size()!=working.size() || !selection.queue.empty());
-        if (ready && !complete && !any && !repairing && !recovered) {
+        if(ready && !complete && !any)refill=world.maximum(seed_slot<initial.size());
+        if (ready && !complete && !any && !refill && !repairing && !recovered) {
           ready=admit(transfer_memory::Mul(working.size(),selection_bound(true)));
           CLocalFailure failure;
           if (ready) try { selection.Recover(working); } catch (const std::exception& e) { failure.Set(2,0,e.what()); }
@@ -1237,6 +1256,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       }
     }
     if (!ready) return finish();
+    if(refill) {ready=seed_next();if(!ready)return finish();continue;}
     {
       Timer timer(stats.selection_seconds,options.timings);
       if (options.maximum_seconds && world.maximum(std::chrono::duration<double>(Clock::now()-started).count()>=options.maximum_seconds)) {
@@ -1618,8 +1638,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
                   std::vector<std::pair<Point,Tensor>> samples;
                   for(auto id:neighbors) {
                     const auto q=nodes.at(id).p;
-                    const Point midpoint{double(((long double)origin.x+q.x)/2),double(((long double)origin.y+q.y)/2),double(((long double)origin.z+q.z)/2)};
-                    samples.emplace_back(q,field->Query(midpoint).target);
+                    samples.emplace_back(q,field->QueryMidpoint(origin,q).target);
                   }
                   center=MetricMeanPoint(origin,samples);
                 }
@@ -1680,7 +1699,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         measured={};
         if (!cells.empty()) measured.weakest_cell=measured.sliver_cell=cells.front().id;
         for (size_t slot=0;slot<count;) {
-          size_t batch=std::min<size_t>(16,count-slot);
+          size_t batch=std::min(MeasurementBatch,count-slot);
           DonorPatch donors;
           for (;;) {
             std::vector<Cell> query;
@@ -1983,8 +2002,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
             neighbors.erase(id);std::vector<std::pair<Point,Tensor>> values;
             for(auto neighbor:neighbors) {
               const auto q=nodes.at(neighbor).p;
-              const Point mid{double(((long double)origin.x+q.x)/2),double(((long double)origin.y+q.y)/2),double(((long double)origin.z+q.z)/2)};
-              values.emplace_back(q,target.Query(mid).target);
+              values.emplace_back(q,target.QueryMidpoint(origin,q).target);
             }
             const Node mean=ConstrainMovePoint(old,id,{maximum_node+2+i+node_offset,MetricMeanPoint(origin,values)},options.wall_heights,geometry);
             for(size_t damping=0;damping<3;++damping) {
@@ -2049,8 +2067,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
               std::vector<std::pair<Point,Tensor>> values;
               for(auto neighbor:neighbors) {
                 const auto q=nodes.at(neighbor).p;const auto a=extraPoint.p;
-                const Point mid{double(((long double)a.x+q.x)/2),double(((long double)a.y+q.y)/2),double(((long double)a.z+q.z)/2)};
-                values.emplace_back(q,target.Query(mid).target);
+                values.emplace_back(q,target.QueryMidpoint(a,q).target);
               }
               const auto mean=MetricMeanPoint(extraPoint.p,values);const auto a=extraPoint.p;
               offEdgePoint={extraPoint.id,{double(((long double)a.x+mean.x)/2),double(((long double)a.y+mean.y)/2),double(((long double)a.z+mean.z)/2)}};
@@ -2497,8 +2514,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
             for(size_t i=at;i<std::min(at+batch,old.cells.size());++i)for(const auto& n:old.cells[i].v)
               if(neighbors.count(n.id) && !samples.count(n.id)) {
                 const auto q=n.p;
-                const Point midpoint{double(((long double)origin.x+q.x)/2),double(((long double)origin.y+q.y)/2),double(((long double)origin.z+q.z)/2)};
-                samples.emplace(n.id,target.Query(midpoint).target);
+                samples.emplace(n.id,target.QueryMidpoint(origin,q).target);
               }
           }catch(const std::exception& e){failure.Set(2,0,e.what());}
           if(!(ready=vote(failure)))return finish();at+=batch;
@@ -2638,10 +2654,12 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
           transfer_memory::Mul(transfer_memory::Mul(6,removed.size()),sizeof(std::pair<const Edge,EdgeMeasure>)+4*sizeof(void*))));
       if (ready) try {
         // Retain retired scalars until all children are measured against this event's immutable source.
-        for (const auto& row : removed)
-          for (auto key : selection.cells.at(row.cell).edges)
-            retired_edges.emplace(key,selection.edges.at(key).measure);
-        for (const auto& row : removed) selection.Drop(row.cell);
+        for (const auto& row : removed) {
+          const auto cached=selection.cells.find(row.cell);
+          if(cached==selection.cells.end()){++stats.unmeasured_retired;continue;}
+          for (auto key : cached->second.edges)retired_edges.emplace(key,selection.edges.at(key).measure);
+          selection.Drop(row.cell);
+        }
         for (const auto& row : added) changed.push_back(row.cell.id);
         for (auto row : failures) selection.Block(row.edge,row.feature,repairing);
         if (approved) {
@@ -2667,7 +2685,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     }
     if (!ready) return finish();
     }
-    batch_bytes=0;
+    batch_bytes=0;++round;
   }
   {
     Timer timer(stats.completion_seconds,options.timings);

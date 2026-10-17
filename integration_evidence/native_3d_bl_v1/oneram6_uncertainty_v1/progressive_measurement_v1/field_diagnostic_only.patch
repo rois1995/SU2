@@ -1,0 +1,18 @@
+diff --git a/Common/src/adaptation/CNativeField3D.cpp b/Common/src/adaptation/CNativeField3D.cpp
+index 975cfc6aea..c8a58a5ab6 100644
+--- a/Common/src/adaptation/CNativeField3D.cpp
++++ b/Common/src/adaptation/CNativeField3D.cpp
+@@ -361,7 +361,12 @@ FieldSample FrozenField::Query(Point point) {
+             break;
+           }
+         }
+-        if (!found) throw std::runtime_error("Query outside native 3D immutable original donors.");
++        if (!found) {
++          std::ostringstream why;why<<std::setprecision(17)<<"Query outside native 3D immutable original donors: point=("
++              <<point.x<<','<<point.y<<','<<point.z<<") admitted=";
++          for(const auto& donor:donors){why<<donor.cell.id<<'[';for(auto n:donor.cell.v)why<<n.id<<',';why<<"]";}
++          throw std::runtime_error(why.str());
++        }
+       }
+       {
+         Timer timer(stats.interpolation_seconds, timings);

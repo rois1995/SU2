@@ -440,3 +440,40 @@ TEST_CASE("Composed edge error accounting resolves thin strong fields and tiny n
   CHECK(unresolved.Statistics().edge_compositions<=65536);
   CHECK(unresolved.Statistics().edge_failures==1);
 }
+
+
+TEST_CASE("Declared midpoint sensors survive boundary rounding without authorizing arbitrary point queries", "[NativeMidpointQuery3D]") {
+  DonorCell donor;donor.cell.id=74753;
+  donor.cell.v={{{6758,{0.5683152985314954,0.07855169036323718,0.02781832897848278}},
+      {6804,{0.5539589887874311,0.06659188433438007,0.02873117516934826}},
+      {39146,{0.5661287222999969,0.08810439336809825,0.05224913251574465}},
+      {60068,{0.573893966318129,0.06987809295852927,0.04422988413910242}}}};
+  const auto a=donor.cell.v[0].p,b=donor.cell.v[1].p;
+  if(Orientation(donor.cell.v[0].p,donor.cell.v[1].p,donor.cell.v[2].p,donor.cell.v[3].p)<0)std::swap(donor.cell.v[0],donor.cell.v[1]);
+  for(unsigned k=0;k<4;++k){const auto p=donor.cell.v[k].p;donor.sensor[k]={2+p.x,.01,0,3+p.y,0,4+p.z};}
+  const Point rounded{double(((long double)a.x+b.x)/2),double(((long double)a.y+b.y)/2),double(((long double)a.z+b.z)/2)};
+  unsigned compositions=0;
+  FrozenField field({donor},[&](Point p,Tensor sensor) {
+    ++compositions;CHECK(p.x==rounded.x);CHECK(p.y==rounded.y);CHECK(p.z==rounded.z);sensor.zz=1e12;return sensor;
+  });
+  CHECK_THROWS(field.Query(rounded));
+  for(unsigned repeat=0;repeat<2;++repeat) {
+    const auto sample=field.QueryMidpoint(a,b);CHECK(sample.extension_component==UINT64_MAX);
+    CHECK(sample.target.zz==1e12);CHECK(sample.sensor.zz<5);
+    for(unsigned k=0;k<4;++k)CHECK(sample.weights[k]==((donor.cell.v[k].id==6758 || donor.cell.v[k].id==6804)?.5L:0.L));
+    CHECK(sample.sensor.xx==double(((long double)donor.sensor[0].xx+donor.sensor[1].xx)/2));
+    CHECK_THROWS(field.Query(rounded));
+  }
+  CHECK(compositions==2);CHECK(field.Statistics().maximum_cache_entries==0);
+  CHECK_THROWS(field.QueryMidpoint({INFINITY,0,0},b));
+  CHECK(field.Statistics().requests==field.Statistics().hits+field.Statistics().misses+field.Statistics().invalid_queries);
+}
+
+TEST_CASE("Exact midpoint source priority includes isolated physical contact and rejects uncovered points", "[NativeMidpointQuery3D]") {
+  FrozenField field(Layers(),{},false,{42});
+  const auto crossing=field.QueryMidpoint({0,0,0},{2,0,0});
+  CHECK(crossing.sensor.xx==4);CHECK(crossing.extension_component==UINT64_MAX);
+  const auto touching=field.QueryMidpoint({-1,1,0},{1,-1,0});
+  CHECK(touching.sensor.xx==1);CHECK(touching.extension_component==UINT64_MAX);
+  CHECK_THROWS(field.QueryMidpoint({4,0,0},{6,0,0}));
+}

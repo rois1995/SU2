@@ -5,20 +5,27 @@ Worktree `/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated`, branch
 **Full Goal3 ACTIVE/incomplete.** [Full scope/gates](integration_evidence/native_3d_bl_v1/GOAL3_REQUIREMENTS.json).
 Leave AdapNoExt, foreign ClusterResults and dependencies untouched.
 
-**Current work:** geometry-only active-support restriction is qualified within
-its saved scope: 23 serial cases/502,489 assertions, MPI2, five frozen edge replays,
-three difficult-cell estimates and independent N4/M2 RANS/SA+BDF/SU2+CGNS/restart PASS.
-Bounded M6 geometry sample is about11% cheaper; no new whole-M6 run or lifecycle
-speedup claim. Local-copy optimization was withdrawn for no useful gain.
-[Current results, accuracy limits and rejected experiment](Handbook/GOAL3_ACTIVE_CHORD_SUPPORT.md).
-All owned jobs terminal. Cell157 still underestimates integration error; no proven
-bound/default calibration. Full M6 last initializes all38,800 wall parents in26.79s,
-then rejects during mandatory seed at300s; no volume edits/transfer or accepted wing.
-**Next substantial implementation:** [progressive full measurement](Handbook/GOAL3_PROGRESSIVE_MEASUREMENT_DESIGN.md),
-DESIGN ONLY. Operate on fully measured seeds with complete imported cavities;
-accept only after EVERY surviving cell is fully certified. No approximate edge
-scalars, target change or relaxed gates. Earlier ranking/support checkpoints retain
-[their scope](Handbook/GOAL3_DEFERRED_FIRST_ROW_LENGTHS.md).
+**Current work:** progressive FULL measurement and exact declared-midpoint sensor
+queries pass focused serial/MPI2/MPI4 and independent N4/M2 RANS/SA/current+BDF/
+conservation/SU2/CGNS/restart. Strict ordinary point/full-edge/final gates retained.
+Known stronger finer-sensor4096-work control still fails; the combined campaign is
+FAIL, not all controls passing. Actual M6 passes the rounded-guide failure, then
+rejects at84.355s with `Uncovered native 3D source segment endpoint.` after30 private
+rounds. No accepted wing, volume publication/transfer claim or speedup. All failed
+precursors, exact rational witnesses, input/source/binary receipts are preserved.
+[Current implementation, scope and evidence](Handbook/GOAL3_PROGRESSIVE_MEASUREMENT.md).
+[Current producer verification](integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/exact_midpoint_queries_v1/summary.json).
+All owned native/build jobs terminal. Next is the authorized BL cost diagnosis and
+opt-in budget policy, not another constructor fallback or raised cap. Published
+base686b13dc6be5b723a4eede54407ec5bdfd0c56f3; full Goal3 ACTIVE/incomplete.
+
+## User extension2026-10-18
+
+Add opt-in budget-aware outer-BL policy to full Goal3; strict default and all gates
+retained. Diagnose distance/region/normal/tangent cost first. One global parameter,
+explicit protected/allowed limits, original-family normalization/uncertainty, frozen
+profile/version/cache validity and MPI N/M agreement. No new relaxation applied yet.
+[Scope, decisions and open evidence](Handbook/GOAL3_BUDGET_AWARE_BL.md).
 
 ## Current production and evidence
 
@@ -84,10 +91,10 @@ scope, conditional M6 budget diagnosis and previous rejected construction eviden
 
 No accepted complete M6 mesh, calibrated global error/allocation, general thin/curved
 correction beyond controlled planar fields, converged viscous accuracy or complete
-lifecycle affordability. Latest full M6 construction rejects at unchanged300s during mandatory seeding,
-after all38,800 first-row parents. Rank2 seed geometry172.95s is dominant; volume
-construction has not started. Preserve earlier failures and reconsider missing
-capability before another local fallback.
+lifecycle affordability. Latest M6 reaches private volume recovery, then strict
+source-segment coverage rejects at84.355s; mandatory first-row geometry and full
+final constraints remain unchanged. Preserve failures, separate budget selection
+from construction feasibility, and reconsider missing capability before fallback.
 [Constraints, conditional budget bounds and rejected experiments](Handbook/GOAL3_M6_CONSTRAINTS_AND_EXPERIMENTS.md).
 
 Earlier qualified foundations: curved cylinder2877/eight fronts, right-prism whole
@@ -109,14 +116,13 @@ agent's entries in the [outcome ledger](Handbook/SUGGESTION_OUTCOME_LEDGER.md).
 
 ## Execution and working rules
 
-All owned jobs terminal. Current active-support source/build/binary/input/helper
-pins are verified; source archives, difficult-cell references and both successful
-and rejected experiments are retained. Last complete M6 still rejects during full
-seed; generic stronger finer-sensor4096-work limitation remains unresolved. No full
-Goal3/accepted-M6/lifecycle-speedup claim. Next work must test progressive full
-measurement as one complete scheduling capability, not another micro-optimization.
-One heavy job/nice19/build-j1/thread1/MPI<=4; RAM~39--40GiB, swap unchanged. No cluster
-or CFD advancement. Preserve original P1/actual BL and all final contracts.
+All owned native/build jobs terminal. Connected progressive/midpoint source/build/
+binary/input/helper verification preserves successful scoped lifecycle checks and
+both M6/stronger-finer construction failures. The opt-in policy extension is recorded
+but not implemented. A new test-only BL cost diagnostic draft is uncompiled; it is
+not part of the validated producer. One heavy job/nice19/build-j1/thread1/MPI<=4;
+last host37--38GiB available. No cluster or CFD advancement. Preserve original P1/
+actual BL/finer/fade and all final contracts.
 
 Follow [AGENTS.md](AGENTS.md): substantial capability-first changes, difficult
 case early, source/build/binary/input/helper-aware resumable evidence, no full

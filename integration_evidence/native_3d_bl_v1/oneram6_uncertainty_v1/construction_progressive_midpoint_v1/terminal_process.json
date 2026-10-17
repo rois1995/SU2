@@ -1,0 +1,29 @@
+{
+  "pid": 2159812,
+  "command": [
+    "taskset",
+    "-c",
+    "0-3",
+    "nice",
+    "-n",
+    "19",
+    "/usr/bin/time",
+    "-v",
+    "-o",
+    "resources.txt",
+    "timeout",
+    "--kill-after=10s",
+    "600s",
+    "mpirun",
+    "-np",
+    "4",
+    "--bind-to",
+    "none",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver",
+    "[NativeFrozenVolume3D]",
+    "--abort",
+    "--reporter",
+    "compact"
+  ],
+  "started": 1792275294.0356343
+}

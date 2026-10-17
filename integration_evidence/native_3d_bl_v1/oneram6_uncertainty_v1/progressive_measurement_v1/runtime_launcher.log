@@ -1,0 +1,2 @@
+runtime {"exit_code": 0, "elapsed_seconds": 25.645367029006593, "command": ["taskset", "-c", "0-3", "nice", "-n", "19", "timeout", "--kill-after=5s", "180s", "mpirun", "-np", "4", "--bind-to", "none", "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver", "[NativeNormalizationRuntime3D]", "--abort", "--reporter", "compact"], "provenance_sha256": "201c9983f9d4df2139e457e005d72c58edf3d7fcd018591d65de37cb8edf8fe9", "log_sha256": "710536b044300425905d246dda94bdf56dc5fb6aa9a2b48103128fb798b82d57"}
+QUALIFIED runtime 0

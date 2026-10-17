@@ -670,6 +670,7 @@ CRemeshResult CNativeRemesher3D::Remesh(const CConfig& config, const CGeometry& 
              << " edge_reused=" << e.edge_reused << " moved=" << e.moved << " reconnected=" << e.reconnected << " inserted=" << e.inserted
              << " maximum_donor_patch=" << e.donor_maximum_patch << " maximum_owned=" << e.maximum_owned
              << " final_owned_cells=" << e.final_owned_cells << " cached_measured_cells=" << e.cached_measured_cells
+             << " seed_batches=" << e.seed_batches << " unmeasured_retired=" << e.unmeasured_retired
              << " cached_invalid_cells=" << e.cached_invalid_cells << " remaining_edges=" << e.remaining_edges
              << " remaining_repairs=" << e.remaining_repairs
              << " nested_field_build=" << e.field_build_seconds << " nested_field_query=" << e.field_query_seconds

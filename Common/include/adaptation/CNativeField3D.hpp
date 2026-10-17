@@ -72,6 +72,8 @@ class FrozenField {
                        std::shared_ptr<const FrozenMetricIdentity> identity = {});
   ~FrozenField();
   FieldSample Query(Point point);
+  /*! Sensor P1 at the ideal endpoint midpoint; BL at its represented coordinate. Never populates Query's point cache. */
+  FieldSample QueryMidpoint(Point a,Point b);
   Tensor evaluate(Point point) { return Query(point).target; }
   /*! Integrates SENSOR ONLY through exact original/declared-extension intervals; original physical P1 takes priority.
    * Composition is deliberately excluded.

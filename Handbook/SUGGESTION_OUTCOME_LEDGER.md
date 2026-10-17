@@ -726,3 +726,42 @@ and whole-mesh final certification (DESIGN ONLY). A saved64-parent diagnostic fi
 The broader repair-campaign retention, transaction batching and transfer/balance
 package remains incomplete. One heavy job/nice19/build-j1/thread1/MPI<=4, host~39--40GiB,
 swap unchanged. [Sources, evidence, limits and next design](GOAL3_ACTIVE_CHORD_SUPPORT.md).
+
+
+## 2026-10-18: progressive full measurement reaches the M6 volume path; midpoint representation blocks it
+
+Implemented interleaving of existing full measurement batches and complete local/
+remote cavity transactions, with whole-mesh final certification unchanged. No
+approximate metrics, relaxed gates, new cap/configuration or scenario dispatch.
+Sensor-only P1 keeps cheap bulk measurement. Serial/MPI2/MPI4 and independent N4/M2
+RANS/SA/BDF/SU2/CGNS/restart pass on the precursor producer; the stronger finer-sensor
+case remains rejected at4096 work. Controlled54->432 fixture retires6 unmeasured
+cells, avoiding separate seed work; private old/new cavity integration still costs.
+
+Actual M6: all38,800 parents initialize in26.98s; first64 cells seed in.12825s and
+one volume proposal starts. It rejects at51.53s on an original-donor query, no volume
+edit/accepted wing/transfer. Previous run spent249.79s seeding32,832 cells and never
+entered volume operations. Different rejected work is not a full-event speedup.
+One diagnostic repeat adds only error coordinates/admitted identities: exact rational
+audit proves the guide is a rounded midpoint outside the original volume, while
+its ideal midpoint belongs to3 ALREADY IMPORTED cells. Not missing MPI support.
+
+Shared exact midpoint sensor queries/callers are implemented and scoped-qualified:
+original P1 at the ideal declared midpoint, geometric BL at represented coordinate;
+ordinary point queries/final gates stay strict and cache separation is explicit.
+No barycentric epsilon, new source extrapolation or endpoint-tensor averaging.
+The existing backend did not dump the full rejected private M6 grid; witnesses,
+all source/input/provenance/failures and controlled grids remain. Broader retained
+campaign indexes, independent transaction batching, transfer sharing and measured
+balance/repartitioning remain incomplete. No CFD advancement or cluster request.
+[Current scope and exact evidence](GOAL3_PROGRESSIVE_MEASUREMENT.md).
+
+Current midpoint producer:16 focused serial cases/8980 assertions, MPI2/4 and independent
+N4/M2 initialized RANS/SA/current+BDF/conservation/SU2/CGNS/restart PASS. Stronger
+finer-sensor4096-work campaign remains FAIL. Changed M6 passes the guide, then rejects
+at84.355s on strict source-segment endpoint coverage after30 private rounds. No
+accepted wing, transfer or full-event speedup. Verification checks source/build/
+binary/input/helper pins, without repeating CFD/regressions. User extension adds
+opt-in budget-aware outer-BL selection under explicit protected/allowed limits;
+distance/region/normal/tangent diagnosis comes first. Not yet implemented/validated.
+[Policy scope](GOAL3_BUDGET_AWARE_BL.md).

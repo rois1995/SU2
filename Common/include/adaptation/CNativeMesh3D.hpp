@@ -55,6 +55,8 @@ long double Orientation(Point a, Point b, Point c, Point d, KernelStats* stats =
 /*! Positive donor, exact containment signs and magnitude-controlled P1 weights; outside leaves weights unchanged. */
 bool Barycentric(const Tetrahedron& donor, Point point, std::array<long double, 4>& weights,
                  KernelStats* stats = nullptr);
+/*! Original P1 weights at the exact midpoint of binary64 endpoints, including closed boundary ties. */
+bool BarycentricMidpoint(const Tetrahedron& donor,Point a,Point b,std::array<long double,4>& weights,KernelStats* stats=nullptr);
 /*! Exact closed segment/tetrahedron intersection, including endpoint-only and zero-length point queries.
  * Positive finite donor required; no rounded interval roots or containment tolerance. */
 bool IntersectsSegment(const Tetrahedron& donor, Point a, Point b, KernelStats* stats = nullptr);

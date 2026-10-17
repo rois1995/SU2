@@ -21,6 +21,24 @@ Goal2 completion is published on codex/native-3d-curved-local at
 bec2e50a9b248f459daebabf17001fb98c1836d1; its qualification commit is
 85617b0f0e0b14024bc8841bf676aa2386c2f2f5. Goal3 is active; Goal4 remains prepared.
 
+## Goal3 extension — opt-in budget-aware BL (2026-10-18)
+
+User-authorized addition to the ACTIVE full Goal3; it preserves existing work and
+all mesh/transfer gates. Implement a generic collective budget-aware outer-BL
+policy with strict default compatibility, explicitly declared protected near-wall
+requirements and permitted limits, one global relaxation parameter, original-field
+normalization and uncertainty-aware bounded selection. Diagnose normal/tangential
+and wall-distance/surface cost before choosing a relaxation. No automatic physical
+accuracy choice, monotonicity assumption, clipped-donor rescaling, testcase modes,
+whole-mesh gather or target changes during operations. Mandatory-budget conflict,
+integration-limited selection and construction failure are distinct outcomes.
+The selected profile and field version must agree across N/M ranks; caches include
+profile identity and any support change is reported. Validate disabled compatibility,
+feasible/incompatible/uncertain budgets, interacting/curved walls, MPI and atomic
+rejection, with an accepted workflow. Track cold/reused preparation, memory,
+communication and complete-event cost; retain failures, update handbooks and push.
+[Design, diagnosis and current implementation status](Handbook/GOAL3_BUDGET_AWARE_BL.md).
+
 ## Current local-only execution contract
 
 Use small sequential correctness builds/cases and the available local MPI1/2/4

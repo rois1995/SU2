@@ -1,0 +1,115 @@
+{
+  "point": [
+    0.5611371436594632,
+    0.07257178734880862,
+    0.02827475207391552
+  ],
+  "midpoint_pairs": [
+    {
+      "endpoints": [
+        6758,
+        6804
+      ],
+      "coordinates": [
+        [
+          0.5683152985314954,
+          0.07855169036323718,
+          0.02781832897848278
+        ],
+        [
+          0.5539589887874311,
+          0.06659188433438007,
+          0.02873117516934826
+        ]
+      ],
+      "ideal": [
+        "10108548124354013/18014398509481984",
+        "10458696782774573/144115188075855872",
+        "4074821212930531/144115188075855872"
+      ],
+      "coordinate_roundoff": [
+        -5.551115123125783e-17,
+        -6.938893903907228e-18,
+        0.0
+      ],
+      "containing_original_edge_cells": [
+        {
+          "original_cell": 74753,
+          "nodes": [
+            6758,
+            6804,
+            39146,
+            60068
+          ],
+          "ideal_weights": [
+            "1/2",
+            "1/2",
+            "0",
+            "0"
+          ],
+          "represented_weights": [
+            "172653198144914328937975091480758543237625192/345306396289826631843153758764730895105192223",
+            "172653198144912560032058462758423126147385068/345306396289826631843153758764730895105192223",
+            "410901827189567333418100711087/345306396289826631843153758764730895105192223",
+            "-668028706985041784192380529124/345306396289826631843153758764730895105192223"
+          ],
+          "in_admitted_packet": true
+        },
+        {
+          "original_cell": 162041,
+          "nodes": [
+            6758,
+            6804,
+            6835,
+            39146
+          ],
+          "ideal_weights": [
+            "1/2",
+            "1/2",
+            "0",
+            "0"
+          ],
+          "represented_weights": [
+            "456045456491031300606985489772221145134480124/912090912982059709740746072307032109561256735",
+            "456045456491027234369295853775225434819264984/912090912982059709740746072307032109561256735",
+            "1336057413970083568384761058248/912090912982059709740746072307032109561256735",
+            "-161292949241323982855153546621/912090912982059709740746072307032109561256735"
+          ],
+          "in_admitted_packet": true
+        },
+        {
+          "original_cell": 187880,
+          "nodes": [
+            6758,
+            6803,
+            6804,
+            60068
+          ],
+          "ideal_weights": [
+            "0",
+            "1/2",
+            "1/2",
+            "0"
+          ],
+          "represented_weights": [
+            "-58700261027081047631157244441/29467657180752178339157669245713544287614099",
+            "14733828590376051733242752732092853461639220/29467657180752178339157669245713544287614099",
+            "14733828590376192823221578019258959962342353/29467657180752178339157669245713544287614099",
+            "-7517045634424590637979123033/29467657180752178339157669245713544287614099"
+          ],
+          "in_admitted_packet": true
+        }
+      ]
+    }
+  ],
+  "classification": "ROUNDED_MIDPOINT_LEAVES_ORIGINAL_DOMAIN",
+  "strict_predicates_unchanged": true,
+  "scope": "Exact rational physical original mesh and ideal midpoint. This diagnoses the represented guide coordinate; it does not authorize a point-query fallback.",
+  "sha256": {
+    "integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/progressive_measurement_v1/audit_rounding_witness.py": "2dfbafb6f32b8caadce24f2feec8b9ea7370d129b5b5cfdd3197bb7d467ebec4",
+    "integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/progressive_measurement_v1/missing_query_audit.json": "ed381b06f0cd2a3f84f33cdfc552ca78dcffb24e63495265a052795f43e163c2",
+    "integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/construction_progressive_diagnostic_v1/run.log": "53c23336eb624e5db5c159b6e63e18db1656a689a2fc0ef976b7fced64285666",
+    "integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/construction_progressive_diagnostic_v1/Coarse.su2": "8c839170eb5e359f7de6a41434aa6a9c2d620053f37de6d9360bd04d2a63088b",
+    "integration_evidence/native_3d_core_v1/audit_coupled.py": "1822427476ecb5687aaa06f3e7a3cc8f31cde53166fd0c711449eedf7c7c7a50"
+  }
+}

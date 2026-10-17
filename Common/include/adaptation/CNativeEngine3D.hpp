@@ -66,6 +66,7 @@ struct EngineStats {
   uint64_t batch_considered = 0, batch_deferred = 0;  // Bounded metadata frontiers (including one-slot rounds), before payload/transaction admission.
   uint64_t proposal_duplicates = 0;  // Replicated directed collapses suppressed before work/payload admission.
   uint64_t initial_cells = 0, updated_cells = 0, edge_evaluations = 0, edge_reused = 0, selections = 0;  // Edge evaluations here count selection-cache measurements only.
+  uint64_t seed_batches=0,unmeasured_retired=0;  // Full collective seed batches; pending cells removed by fully validated cavities.
   // Local cached state at every exit, including rejection; remaining candidates are separate from frozen metric violations.
   uint64_t final_owned_cells = 0, cached_measured_cells = 0, cached_invalid_cells = 0;
   uint64_t remaining_edges = 0, remaining_repairs = 0;

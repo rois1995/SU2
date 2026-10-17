@@ -1373,8 +1373,7 @@ bool PlaceSplitPatch(const Patch& old,Edge edge,Node point,const std::vector<std
         for(unsigned j=0;j<4;++j)for(unsigned k=j+1;k<4;++k) {
           const auto u=c.v[j],v=c.v[k];
           if(!measured.insert({std::min(u.id,v.id),std::max(u.id,v.id)}).second)continue;
-          const Point mid{double(((long double)u.p.x+v.p.x)/2),double(((long double)u.p.y+v.p.y)/2),double(((long double)u.p.z+v.p.z)/2)};
-          excess+=std::pow(std::max(0.L,MetricNorm(u.p,v.p,target.Query(mid).target)-MaximumMetricEdge),2);
+          excess+=std::pow(std::max(0.L,MetricNorm(u.p,v.p,target.QueryMidpoint(u.p,v.p).target)-MaximumMetricEdge),2);
         }
       }
       return std::make_pair(shape,100*shape+excess);
@@ -2090,8 +2089,8 @@ bool RepairMetricConnectivity(const Patch& old,FrozenField& target,const PlanarR
         const auto before=total(star.cells);std::vector<std::pair<long double,Id>> ranked;
         const auto origin=nodes.at(point).p;
         for(Id neighbor:neighbors) {
-          const auto p=nodes.at(neighbor).p;const Point mid{double(((long double)origin.x+p.x)/2),double(((long double)origin.y+p.y)/2),double(((long double)origin.z+p.z)/2)};
-          ranked.emplace_back(MetricNorm(origin,p,target.Query(mid).target),neighbor);
+          const auto p=nodes.at(neighbor).p;
+          ranked.emplace_back(MetricNorm(origin,p,target.QueryMidpoint(origin,p).target),neighbor);
         }
         std::sort(ranked.begin(),ranked.end());
         for(const auto& destination:ranked) {
@@ -2174,8 +2173,8 @@ bool RepairMetricConnectivity(const Patch& old,FrozenField& target,const PlanarR
           for(const auto& c:working.cells)if(std::any_of(c.v.begin(),c.v.end(),[&](Node n){return n.id==id;}))for(auto n:c.v)if(n.id!=id)neighbors.insert(n.id);
           std::vector<std::pair<Point,Tensor>> samples;
           for(Id neighbor:neighbors) {
-            const auto p=nodes.at(neighbor).p;const Point q{double(((long double)origin.x+p.x)/2),double(((long double)origin.y+p.y)/2),double(((long double)origin.z+p.z)/2)};
-            samples.emplace_back(p,target.Query(q).target);
+            const auto p=nodes.at(neighbor).p;
+            samples.emplace_back(p,target.QueryMidpoint(origin,p).target);
           }
           auto& poses=suggestions[id];poses.push_back(MetricMeanPoint(origin,samples));
           const auto m=target.Query(origin).target;const std::array<double,3> steps{{.5/std::sqrt(m.xx),.5/std::sqrt(m.yy),.5/std::sqrt(m.zz)}};
@@ -2215,8 +2214,7 @@ bool RepairMetricConnectivity(const Patch& old,FrozenField& target,const PlanarR
           const auto before=total(region);std::vector<std::pair<Point,Tensor>> samples;
           for(Id neighbor:neighbors) {
             const auto p=nodes.at(neighbor).p;
-            const Point midpoint{double(((long double)origin.x+p.x)/2),double(((long double)origin.y+p.y)/2),double(((long double)origin.z+p.z)/2)};
-            samples.emplace_back(p,target.Query(midpoint).target);
+            samples.emplace_back(p,target.QueryMidpoint(origin,p).target);
           }
           std::vector<Point> destinations{MetricMeanPoint(origin,samples)};
           const auto m=target.Query(origin).target;

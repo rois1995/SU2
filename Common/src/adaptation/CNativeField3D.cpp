@@ -314,6 +314,39 @@ long double FrozenField::EdgeLength(Point a, Point b, bool composed) {
     throw;
   }
 }
+FieldSample FrozenField::QueryMidpoint(Point a,Point b) {
+  Timer query_time(stats.query_seconds,timings);++stats.requests;
+  try {
+    for(auto p:{a,b})if(!(std::isfinite(p.x)&&std::isfinite(p.y)&&std::isfinite(p.z))) {
+      ++stats.invalid_queries;throw std::invalid_argument("Nonfinite native3D midpoint endpoint.");
+    }
+    const Point point{double(((long double)a.x+b.x)/2),double(((long double)a.y+b.y)/2),double(((long double)a.z+b.z)/2)};
+    if(!(std::isfinite(point.x)&&std::isfinite(point.y)&&std::isfinite(point.z))) {
+      ++stats.invalid_queries;throw std::invalid_argument("Unrepresentable native3D midpoint coordinate.");
+    }
+    ++stats.misses;
+    auto lower=[](double x){const auto p=std::nextafter(x,-INFINITY);return std::isfinite(p)?p:x;};
+    auto upper=[](double x){const auto p=std::nextafter(x,INFINITY);return std::isfinite(p)?p:x;};
+    size_t selected=donors.size();std::array<long double,4> weights;
+    {Timer timer(stats.search_seconds,timings);
+      // The ideal midpoint lies inside this outward box; exact arithmetic still decides containment.
+      FindCandidates({lower(point.x),lower(point.y),lower(point.z)},{upper(point.x),upper(point.y),upper(point.z)});
+      stats.box_candidates+=candidates.size();stats.maximum_candidates=std::max(stats.maximum_candidates,candidates.size());
+      for(auto i:candidates) {
+        const auto& v=donors[i].cell.v;++stats.containment_tests;
+        if(BarycentricMidpoint({v[0].p,v[1].p,v[2].p,v[3].p},a,b,weights,&stats.kernel)){selected=i;break;}
+      }
+      if(selected==donors.size())throw std::runtime_error("Exact midpoint outside native3D immutable original donors.");
+    }
+    const auto& donor=donors[selected];FieldSample sample;sample.donor=donor.Key();sample.weights=weights;sample.extension_component=donor.extension_component;
+    {Timer timer(stats.interpolation_seconds,timings);++stats.interpolations;
+      sample.sensor=InterpolateSensor(donor,weights);ValidateTensor(sample.sensor,&stats.kernel);sample.target=sample.sensor;
+    }
+    if(sample.extension_component!=UINT64_MAX)++stats.extended_queries;
+    if(composition){Timer timer(stats.composition_seconds,timings);++stats.compositions;sample.target=composition(point,sample.sensor);ValidateTensor(sample.target,&stats.kernel);}
+    return sample;
+  }catch(...){++stats.failures;throw;}
+}
 FieldSample FrozenField::Query(Point point) {
   Timer query_time(stats.query_seconds, timings);
   ++stats.requests;
@@ -361,7 +394,12 @@ FieldSample FrozenField::Query(Point point) {
             break;
           }
         }
-        if (!found) throw std::runtime_error("Query outside native 3D immutable original donors.");
+        if (!found) {
+          std::ostringstream why;why<<std::setprecision(17)<<"Query outside native 3D immutable original donors: point=("
+              <<point.x<<','<<point.y<<','<<point.z<<") admitted=";
+          for(const auto& donor:donors){why<<donor.cell.id<<'[';for(auto n:donor.cell.v)why<<n.id<<',';why<<"]";}
+          throw std::runtime_error(why.str());
+        }
       }
       {
         Timer timer(stats.interpolation_seconds, timings);

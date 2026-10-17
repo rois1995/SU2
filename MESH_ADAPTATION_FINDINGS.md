@@ -6522,3 +6522,17 @@ measurement and complete-cavity edits, with all surviving cells fully certified
 before acceptance. DESIGN ONLY, not yet implemented. One owned job/nice19/thread1/
 build-j1/MPI<=4, RAM~39--40GiB, swap unchanged; no cluster/CFD advancement.
 [Evidence and next design](Handbook/GOAL3_ACTIVE_CHORD_SUPPORT.md).
+
+## 2026-10-18 progressive measurement / exact guide semantics
+
+Interleave full composed measurement with complete cavity transactions; every final
+survivor still receives full certification. Exact declared-midpoint original-P1
+interpolation fixes a proven rounded guide outside the original M6 domain, while
+ordinary point/edge and mesh gates remain strict. Focused serial/MPI2/4 and actual
+N4/M2 RANS/SA/BDF/output/restart checks pass; the stronger finer-sensor construction
+still exhausts4096 work. M6 now rejects at84.355s on uncovered source-segment endpoint,
+no accepted mesh/transfer. No local fallback or tolerance/work-cap increase.
+User adds explicit opt-in budget-aware BL policy to full Goal3, strict defaults/
+protected requirements retained. Cost diagnosis precedes relaxation selection.
+[Implementation/evidence](Handbook/GOAL3_PROGRESSIVE_MEASUREMENT.md),
+[budget policy scope/open work](Handbook/GOAL3_BUDGET_AWARE_BL.md).

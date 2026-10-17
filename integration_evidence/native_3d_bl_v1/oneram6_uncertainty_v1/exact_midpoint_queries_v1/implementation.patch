@@ -1,0 +1,474 @@
+diff --git a/Common/include/adaptation/CNativeEngine3D.hpp b/Common/include/adaptation/CNativeEngine3D.hpp
+index 3ed136cf7a..f1f6f93684 100644
+--- a/Common/include/adaptation/CNativeEngine3D.hpp
++++ b/Common/include/adaptation/CNativeEngine3D.hpp
+@@ -66,6 +66,7 @@ struct EngineStats {
+   uint64_t batch_considered = 0, batch_deferred = 0;  // Bounded metadata frontiers (including one-slot rounds), before payload/transaction admission.
+   uint64_t proposal_duplicates = 0;  // Replicated directed collapses suppressed before work/payload admission.
+   uint64_t initial_cells = 0, updated_cells = 0, edge_evaluations = 0, edge_reused = 0, selections = 0;  // Edge evaluations here count selection-cache measurements only.
++  uint64_t seed_batches=0,unmeasured_retired=0;  // Full collective seed batches; pending cells removed by fully validated cavities.
+   // Local cached state at every exit, including rejection; remaining candidates are separate from frozen metric violations.
+   uint64_t final_owned_cells = 0, cached_measured_cells = 0, cached_invalid_cells = 0;
+   uint64_t remaining_edges = 0, remaining_repairs = 0;
+diff --git a/Common/include/adaptation/CNativeField3D.hpp b/Common/include/adaptation/CNativeField3D.hpp
+index 16f6bd90e0..f4a26fcea1 100644
+--- a/Common/include/adaptation/CNativeField3D.hpp
++++ b/Common/include/adaptation/CNativeField3D.hpp
+@@ -72,6 +72,8 @@ class FrozenField {
+                        std::shared_ptr<const FrozenMetricIdentity> identity = {});
+   ~FrozenField();
+   FieldSample Query(Point point);
++  /*! Sensor P1 at the ideal endpoint midpoint; BL at its represented coordinate. Never populates Query's point cache. */
++  FieldSample QueryMidpoint(Point a,Point b);
+   Tensor evaluate(Point point) { return Query(point).target; }
+   /*! Integrates SENSOR ONLY through exact original/declared-extension intervals; original physical P1 takes priority.
+    * Composition is deliberately excluded.
+diff --git a/Common/include/adaptation/CNativeMesh3D.hpp b/Common/include/adaptation/CNativeMesh3D.hpp
+index f04c613c60..eb8e3effde 100644
+--- a/Common/include/adaptation/CNativeMesh3D.hpp
++++ b/Common/include/adaptation/CNativeMesh3D.hpp
+@@ -55,6 +55,8 @@ long double Orientation(Point a, Point b, Point c, Point d, KernelStats* stats =
+ /*! Positive donor, exact containment signs and magnitude-controlled P1 weights; outside leaves weights unchanged. */
+ bool Barycentric(const Tetrahedron& donor, Point point, std::array<long double, 4>& weights,
+                  KernelStats* stats = nullptr);
++/*! Original P1 weights at the exact midpoint of binary64 endpoints, including closed boundary ties. */
++bool BarycentricMidpoint(const Tetrahedron& donor,Point a,Point b,std::array<long double,4>& weights,KernelStats* stats=nullptr);
+ /*! Exact closed segment/tetrahedron intersection, including endpoint-only and zero-length point queries.
+  * Positive finite donor required; no rounded interval roots or containment tolerance. */
+ bool IntersectsSegment(const Tetrahedron& donor, Point a, Point b, KernelStats* stats = nullptr);
+diff --git a/Common/src/adaptation/CNativeBoundary3D.cpp b/Common/src/adaptation/CNativeBoundary3D.cpp
+index 1d9a452b15..5eab84c56a 100644
+--- a/Common/src/adaptation/CNativeBoundary3D.cpp
++++ b/Common/src/adaptation/CNativeBoundary3D.cpp
+@@ -1373,8 +1373,7 @@ bool PlaceSplitPatch(const Patch& old,Edge edge,Node point,const std::vector<std
+         for(unsigned j=0;j<4;++j)for(unsigned k=j+1;k<4;++k) {
+           const auto u=c.v[j],v=c.v[k];
+           if(!measured.insert({std::min(u.id,v.id),std::max(u.id,v.id)}).second)continue;
+-          const Point mid{double(((long double)u.p.x+v.p.x)/2),double(((long double)u.p.y+v.p.y)/2),double(((long double)u.p.z+v.p.z)/2)};
+-          excess+=std::pow(std::max(0.L,MetricNorm(u.p,v.p,target.Query(mid).target)-MaximumMetricEdge),2);
++          excess+=std::pow(std::max(0.L,MetricNorm(u.p,v.p,target.QueryMidpoint(u.p,v.p).target)-MaximumMetricEdge),2);
+         }
+       }
+       return std::make_pair(shape,100*shape+excess);
+@@ -2090,8 +2089,8 @@ bool RepairMetricConnectivity(const Patch& old,FrozenField& target,const PlanarR
+         const auto before=total(star.cells);std::vector<std::pair<long double,Id>> ranked;
+         const auto origin=nodes.at(point).p;
+         for(Id neighbor:neighbors) {
+-          const auto p=nodes.at(neighbor).p;const Point mid{double(((long double)origin.x+p.x)/2),double(((long double)origin.y+p.y)/2),double(((long double)origin.z+p.z)/2)};
+-          ranked.emplace_back(MetricNorm(origin,p,target.Query(mid).target),neighbor);
++          const auto p=nodes.at(neighbor).p;
++          ranked.emplace_back(MetricNorm(origin,p,target.QueryMidpoint(origin,p).target),neighbor);
+         }
+         std::sort(ranked.begin(),ranked.end());
+         for(const auto& destination:ranked) {
+@@ -2174,8 +2173,8 @@ bool RepairMetricConnectivity(const Patch& old,FrozenField& target,const PlanarR
+           for(const auto& c:working.cells)if(std::any_of(c.v.begin(),c.v.end(),[&](Node n){return n.id==id;}))for(auto n:c.v)if(n.id!=id)neighbors.insert(n.id);
+           std::vector<std::pair<Point,Tensor>> samples;
+           for(Id neighbor:neighbors) {
+-            const auto p=nodes.at(neighbor).p;const Point q{double(((long double)origin.x+p.x)/2),double(((long double)origin.y+p.y)/2),double(((long double)origin.z+p.z)/2)};
+-            samples.emplace_back(p,target.Query(q).target);
++            const auto p=nodes.at(neighbor).p;
++            samples.emplace_back(p,target.QueryMidpoint(origin,p).target);
+           }
+           auto& poses=suggestions[id];poses.push_back(MetricMeanPoint(origin,samples));
+           const auto m=target.Query(origin).target;const std::array<double,3> steps{{.5/std::sqrt(m.xx),.5/std::sqrt(m.yy),.5/std::sqrt(m.zz)}};
+@@ -2215,8 +2214,7 @@ bool RepairMetricConnectivity(const Patch& old,FrozenField& target,const PlanarR
+           const auto before=total(region);std::vector<std::pair<Point,Tensor>> samples;
+           for(Id neighbor:neighbors) {
+             const auto p=nodes.at(neighbor).p;
+-            const Point midpoint{double(((long double)origin.x+p.x)/2),double(((long double)origin.y+p.y)/2),double(((long double)origin.z+p.z)/2)};
+-            samples.emplace_back(p,target.Query(midpoint).target);
++            samples.emplace_back(p,target.QueryMidpoint(origin,p).target);
+           }
+           std::vector<Point> destinations{MetricMeanPoint(origin,samples)};
+           const auto m=target.Query(origin).target;
+diff --git a/Common/src/adaptation/CNativeEngine3D.cpp b/Common/src/adaptation/CNativeEngine3D.cpp
+index 5e779fda42..db52f0d563 100644
+--- a/Common/src/adaptation/CNativeEngine3D.cpp
++++ b/Common/src/adaptation/CNativeEngine3D.cpp
+@@ -420,7 +420,7 @@ class Selection {
+   }
+   void Recover(const Owned& working) {
+     track_repairs=true;
+-    for (const auto& row:working) if (!cells.at(row.first).valid) AddRepairs(row.second.cell);
++    for (const auto& row:cells) if (!row.second.valid) AddRepairs(working.at(row.first).cell);
+   }
+ };
+ struct BlockedEdge {
+@@ -1121,6 +1121,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
+     if(options.timings)stats.layer_seconds+=std::chrono::duration<double>(Clock::now()-layer_started).count();
+     layer_active=false;
+   }
++  constexpr size_t MeasurementBatch=16;
+   // Small batches amortize donor exchange/index construction; halve on common import rejection to the one-cell bound.
+   auto measure=[&](const std::vector<Id>& ids,bool seed) {
+     const size_t count=CPassiveComm::Allreduce(ids.size(),CPassiveComm::Op::MAX,world.comm);
+@@ -1129,7 +1130,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
+         stats.stop=EngineStop::TimeBudget;result.reason=seed ? "Native3D metric seeding exhausts elapsed-time budget." :
+             "Native3D metric update exhausts elapsed-time budget.";return false;
+       }
+-      size_t batch=std::min<size_t>(16,count-slot);
++      size_t batch=std::min(MeasurementBatch,count-slot);
+       DonorPatch imported;
+       CLocalFailure failure;
+       for (;;) {
+@@ -1179,17 +1180,34 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
+         }
+       } catch (const std::exception& e) { failure.Set(2,0,e.what()); }
+       if (!vote(failure)) return false;
+-      slot+=batch;
++      slot+=batch;if(seed)++stats.seed_batches;
+     }
+     return true;
+   };
+-  {
+-    Timer timer(stats.seed_seconds,options.timings); ready=measure(initial,true);
+-  }
++  size_t seed_slot=0;
++  auto seed_next=[&]() {
++    Timer timer(stats.seed_seconds,options.timings);
++    // Composed edges are expensive; never measure pending topology merely to let a complete cavity remove it.
++    if(!composition) {seed_slot=initial.size();return measure(initial,true);}
++    if(options.maximum_seconds && world.maximum(std::chrono::duration<double>(Clock::now()-started).count()>=options.maximum_seconds)) {
++      stats.stop=EngineStop::TimeBudget;result.reason="Native3D metric seeding exhausts elapsed-time budget.";return false;
++    }
++    if(!admit(transfer_memory::Mul(MeasurementBatch,sizeof(Id))))return false;
++    CLocalFailure failure;std::vector<Id> next;
++    try {
++      size_t scanned=0;next.reserve(MeasurementBatch);
++      while(seed_slot<initial.size() && next.size()<MeasurementBatch && scanned++<MaximumDirectoryScan) {
++        const auto id=initial[seed_slot++];
++        if(working.count(id) && !selection.cells.count(id))next.push_back(id);
++      }
++    }catch(const std::exception& e){failure.Set(2,0,e.what());}
++    return vote(failure) && measure(next,true);
++  };
++  ready=seed_next();
+   if (!ready) return finish();
+-  for (size_t round=0; !options.maximum_rounds || round<options.maximum_rounds; ++round) {
++  for (size_t round=0; !options.maximum_rounds || round<options.maximum_rounds;) {
+     Choice choice;
+-    bool complete=false,any=false,bad_field=false;
++    bool complete=false,any=false,bad_field=false,refill=false;
+     auto pick=[&]() {
+       if (!coarsening) { choice=selection.Best(repairing); any=world.maximum(choice.active); return true; }
+       CLocalFailure failure;
+@@ -1224,7 +1242,8 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
+         pick();
+         if (ready && coarsening && !repairing && !bad_field && !any)
+           complete=!world.maximum(selection.cells.size()!=working.size() || !selection.queue.empty());
+-        if (ready && !complete && !any && !repairing && !recovered) {
++        if(ready && !complete && !any)refill=world.maximum(seed_slot<initial.size());
++        if (ready && !complete && !any && !refill && !repairing && !recovered) {
+           ready=admit(transfer_memory::Mul(working.size(),selection_bound(true)));
+           CLocalFailure failure;
+           if (ready) try { selection.Recover(working); } catch (const std::exception& e) { failure.Set(2,0,e.what()); }
+@@ -1237,6 +1256,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
+       }
+     }
+     if (!ready) return finish();
++    if(refill) {ready=seed_next();if(!ready)return finish();continue;}
+     {
+       Timer timer(stats.selection_seconds,options.timings);
+       if (options.maximum_seconds && world.maximum(std::chrono::duration<double>(Clock::now()-started).count()>=options.maximum_seconds)) {
+@@ -1618,8 +1638,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
+                   std::vector<std::pair<Point,Tensor>> samples;
+                   for(auto id:neighbors) {
+                     const auto q=nodes.at(id).p;
+-                    const Point midpoint{double(((long double)origin.x+q.x)/2),double(((long double)origin.y+q.y)/2),double(((long double)origin.z+q.z)/2)};
+-                    samples.emplace_back(q,field->Query(midpoint).target);
++                    samples.emplace_back(q,field->QueryMidpoint(origin,q).target);
+                   }
+                   center=MetricMeanPoint(origin,samples);
+                 }
+@@ -1680,7 +1699,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
+         measured={};
+         if (!cells.empty()) measured.weakest_cell=measured.sliver_cell=cells.front().id;
+         for (size_t slot=0;slot<count;) {
+-          size_t batch=std::min<size_t>(16,count-slot);
++          size_t batch=std::min(MeasurementBatch,count-slot);
+           DonorPatch donors;
+           for (;;) {
+             std::vector<Cell> query;
+@@ -1983,8 +2002,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
+             neighbors.erase(id);std::vector<std::pair<Point,Tensor>> values;
+             for(auto neighbor:neighbors) {
+               const auto q=nodes.at(neighbor).p;
+-              const Point mid{double(((long double)origin.x+q.x)/2),double(((long double)origin.y+q.y)/2),double(((long double)origin.z+q.z)/2)};
+-              values.emplace_back(q,target.Query(mid).target);
++              values.emplace_back(q,target.QueryMidpoint(origin,q).target);
+             }
+             const Node mean=ConstrainMovePoint(old,id,{maximum_node+2+i+node_offset,MetricMeanPoint(origin,values)},options.wall_heights,geometry);
+             for(size_t damping=0;damping<3;++damping) {
+@@ -2049,8 +2067,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
+               std::vector<std::pair<Point,Tensor>> values;
+               for(auto neighbor:neighbors) {
+                 const auto q=nodes.at(neighbor).p;const auto a=extraPoint.p;
+-                const Point mid{double(((long double)a.x+q.x)/2),double(((long double)a.y+q.y)/2),double(((long double)a.z+q.z)/2)};
+-                values.emplace_back(q,target.Query(mid).target);
++                values.emplace_back(q,target.QueryMidpoint(a,q).target);
+               }
+               const auto mean=MetricMeanPoint(extraPoint.p,values);const auto a=extraPoint.p;
+               offEdgePoint={extraPoint.id,{double(((long double)a.x+mean.x)/2),double(((long double)a.y+mean.y)/2),double(((long double)a.z+mean.z)/2)}};
+@@ -2497,8 +2514,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
+             for(size_t i=at;i<std::min(at+batch,old.cells.size());++i)for(const auto& n:old.cells[i].v)
+               if(neighbors.count(n.id) && !samples.count(n.id)) {
+                 const auto q=n.p;
+-                const Point midpoint{double(((long double)origin.x+q.x)/2),double(((long double)origin.y+q.y)/2),double(((long double)origin.z+q.z)/2)};
+-                samples.emplace(n.id,target.Query(midpoint).target);
++                samples.emplace(n.id,target.QueryMidpoint(origin,q).target);
+               }
+           }catch(const std::exception& e){failure.Set(2,0,e.what());}
+           if(!(ready=vote(failure)))return finish();at+=batch;
+@@ -2638,10 +2654,12 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
+           transfer_memory::Mul(transfer_memory::Mul(6,removed.size()),sizeof(std::pair<const Edge,EdgeMeasure>)+4*sizeof(void*))));
+       if (ready) try {
+         // Retain retired scalars until all children are measured against this event's immutable source.
+-        for (const auto& row : removed)
+-          for (auto key : selection.cells.at(row.cell).edges)
+-            retired_edges.emplace(key,selection.edges.at(key).measure);
+-        for (const auto& row : removed) selection.Drop(row.cell);
++        for (const auto& row : removed) {
++          const auto cached=selection.cells.find(row.cell);
++          if(cached==selection.cells.end()){++stats.unmeasured_retired;continue;}
++          for (auto key : cached->second.edges)retired_edges.emplace(key,selection.edges.at(key).measure);
++          selection.Drop(row.cell);
++        }
+         for (const auto& row : added) changed.push_back(row.cell.id);
+         for (auto row : failures) selection.Block(row.edge,row.feature,repairing);
+         if (approved) {
+@@ -2667,7 +2685,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
+     }
+     if (!ready) return finish();
+     }
+-    batch_bytes=0;
++    batch_bytes=0;++round;
+   }
+   {
+     Timer timer(stats.completion_seconds,options.timings);
+diff --git a/Common/src/adaptation/CNativeField3D.cpp b/Common/src/adaptation/CNativeField3D.cpp
+index 975cfc6aea..27896eb402 100644
+--- a/Common/src/adaptation/CNativeField3D.cpp
++++ b/Common/src/adaptation/CNativeField3D.cpp
+@@ -314,6 +314,39 @@ long double FrozenField::EdgeLength(Point a, Point b, bool composed) {
+     throw;
+   }
+ }
++FieldSample FrozenField::QueryMidpoint(Point a,Point b) {
++  Timer query_time(stats.query_seconds,timings);++stats.requests;
++  try {
++    for(auto p:{a,b})if(!(std::isfinite(p.x)&&std::isfinite(p.y)&&std::isfinite(p.z))) {
++      ++stats.invalid_queries;throw std::invalid_argument("Nonfinite native3D midpoint endpoint.");
++    }
++    const Point point{double(((long double)a.x+b.x)/2),double(((long double)a.y+b.y)/2),double(((long double)a.z+b.z)/2)};
++    if(!(std::isfinite(point.x)&&std::isfinite(point.y)&&std::isfinite(point.z))) {
++      ++stats.invalid_queries;throw std::invalid_argument("Unrepresentable native3D midpoint coordinate.");
++    }
++    ++stats.misses;
++    auto lower=[](double x){const auto p=std::nextafter(x,-INFINITY);return std::isfinite(p)?p:x;};
++    auto upper=[](double x){const auto p=std::nextafter(x,INFINITY);return std::isfinite(p)?p:x;};
++    size_t selected=donors.size();std::array<long double,4> weights;
++    {Timer timer(stats.search_seconds,timings);
++      // The ideal midpoint lies inside this outward box; exact arithmetic still decides containment.
++      FindCandidates({lower(point.x),lower(point.y),lower(point.z)},{upper(point.x),upper(point.y),upper(point.z)});
++      stats.box_candidates+=candidates.size();stats.maximum_candidates=std::max(stats.maximum_candidates,candidates.size());
++      for(auto i:candidates) {
++        const auto& v=donors[i].cell.v;++stats.containment_tests;
++        if(BarycentricMidpoint({v[0].p,v[1].p,v[2].p,v[3].p},a,b,weights,&stats.kernel)){selected=i;break;}
++      }
++      if(selected==donors.size())throw std::runtime_error("Exact midpoint outside native3D immutable original donors.");
++    }
++    const auto& donor=donors[selected];FieldSample sample;sample.donor=donor.Key();sample.weights=weights;sample.extension_component=donor.extension_component;
++    {Timer timer(stats.interpolation_seconds,timings);++stats.interpolations;
++      sample.sensor=InterpolateSensor(donor,weights);ValidateTensor(sample.sensor,&stats.kernel);sample.target=sample.sensor;
++    }
++    if(sample.extension_component!=UINT64_MAX)++stats.extended_queries;
++    if(composition){Timer timer(stats.composition_seconds,timings);++stats.compositions;sample.target=composition(point,sample.sensor);ValidateTensor(sample.target,&stats.kernel);}
++    return sample;
++  }catch(...){++stats.failures;throw;}
++}
+ FieldSample FrozenField::Query(Point point) {
+   Timer query_time(stats.query_seconds, timings);
+   ++stats.requests;
+@@ -361,7 +394,12 @@ FieldSample FrozenField::Query(Point point) {
+             break;
+           }
+         }
+-        if (!found) throw std::runtime_error("Query outside native 3D immutable original donors.");
++        if (!found) {
++          std::ostringstream why;why<<std::setprecision(17)<<"Query outside native 3D immutable original donors: point=("
++              <<point.x<<','<<point.y<<','<<point.z<<") admitted=";
++          for(const auto& donor:donors){why<<donor.cell.id<<'[';for(auto n:donor.cell.v)why<<n.id<<',';why<<"]";}
++          throw std::runtime_error(why.str());
++        }
+       }
+       {
+         Timer timer(stats.interpolation_seconds, timings);
+diff --git a/Common/src/adaptation/CNativePredicates3D.cpp b/Common/src/adaptation/CNativePredicates3D.cpp
+index 00a0e769d0..e326cef22f 100644
+--- a/Common/src/adaptation/CNativePredicates3D.cpp
++++ b/Common/src/adaptation/CNativePredicates3D.cpp
+@@ -396,6 +396,25 @@ bool Barycentric(const Tetrahedron& donor, Point point, std::array<long double,
+   weights = values;
+   return true;
+ }
++bool BarycentricMidpoint(const Tetrahedron& donor,Point a,Point b,std::array<long double,4>& weights,KernelStats* stats) {
++  if(!(Finite(a)&&Finite(b)))throw std::invalid_argument("Nonfinite native3D midpoint endpoints.");
++  if(!(Orientation(donor[0],donor[1],donor[2],donor[3],stats)>0))
++    throw std::invalid_argument("Native3D midpoint donor must have positive volume.");
++  auto vertex=[&](Point p){for(size_t i=0;i<4;++i)if(p.x==donor[i].x && p.y==donor[i].y && p.z==donor[i].z)return i;return size_t(4);};
++  const auto first=vertex(a),last=vertex(b);
++  if(first<4 && last<4){weights={};weights[first]+=.5L;weights[last]+=.5L;return true;}
++  const auto volume=ExactVolume(donor,stats);auto negative=volume;negative.negative=!negative.negative;
++  const auto denominator=Difference(volume,negative);long double sum=0;
++  for(size_t i=0;i<4;++i) {
++    auto ta=donor,tb=donor;ta[i]=a;tb[i]=b;
++    const auto va=first<4 ? (first==i ? volume:Integer<198>{}) : ExactVolume(ta,stats);
++    auto vb=last<4 ? (last==i ? volume:Integer<198>{}) : ExactVolume(tb,stats);vb.negative=!vb.negative;
++    const auto numerator=Difference(va,vb);if(Sign(numerator)<0)return false;
++    weights[i]=Ratio(numerator,denominator);sum+=weights[i];
++  }
++  if(!(sum>0))throw std::runtime_error("Unusable native3D exact-midpoint weights.");
++  for(auto& w:weights)w/=sum;return true;
++}
+ std::vector<SegmentPiece> TraceSegment(const std::vector<const Cell*>& donors, Point a, Point b, KernelStats* stats,
+                                        size_t primary) {
+   if (donors.size() > MaximumSegmentDonors) throw std::invalid_argument("Native 3D segment donor budget exceeded.");
+diff --git a/Common/src/adaptation/CNativeRemesher3D.cpp b/Common/src/adaptation/CNativeRemesher3D.cpp
+index 90408ed13e..01d38ee601 100644
+--- a/Common/src/adaptation/CNativeRemesher3D.cpp
++++ b/Common/src/adaptation/CNativeRemesher3D.cpp
+@@ -670,6 +670,7 @@ CRemeshResult CNativeRemesher3D::Remesh(const CConfig& config, const CGeometry&
+              << " edge_reused=" << e.edge_reused << " moved=" << e.moved << " reconnected=" << e.reconnected << " inserted=" << e.inserted
+              << " maximum_donor_patch=" << e.donor_maximum_patch << " maximum_owned=" << e.maximum_owned
+              << " final_owned_cells=" << e.final_owned_cells << " cached_measured_cells=" << e.cached_measured_cells
++             << " seed_batches=" << e.seed_batches << " unmeasured_retired=" << e.unmeasured_retired
+              << " cached_invalid_cells=" << e.cached_invalid_cells << " remaining_edges=" << e.remaining_edges
+              << " remaining_repairs=" << e.remaining_repairs
+              << " nested_field_build=" << e.field_build_seconds << " nested_field_query=" << e.field_query_seconds
+diff --git a/UnitTests/Common/adaptation/CNativeDistributed3D_tests.cpp b/UnitTests/Common/adaptation/CNativeDistributed3D_tests.cpp
+index c80c7fe166..77e8f5ba37 100644
+--- a/UnitTests/Common/adaptation/CNativeDistributed3D_tests.cpp
++++ b/UnitTests/Common/adaptation/CNativeDistributed3D_tests.cpp
+@@ -720,6 +720,7 @@ void EngineReport(const EngineResult& result, World& world, const std::string& l
+   std::ostringstream line;
+   line << std::setprecision(17) << "ENGINE rank=" << world.rank << " ranks=" << world.size << " valid=" << result.valid
+        << " case=" << label << " initial=" << s.initial_cells << " updated=" << s.updated_cells << " final=" << result.cells.size()
++       << " seed_batches=" << s.seed_batches << " unmeasured_retired=" << s.unmeasured_retired
+        << " rounds=" << s.rounds << " proposed=" << s.proposed << " attempts=" << s.attempted
+        << " accepted=" << s.accepted << " rejected=" << s.rejected << " conflicts=" << s.conflicts
+        << " collapse_geometry_checks=" << s.collapse_geometry_checks << " collapse_filtered=" << s.collapse_filtered
+@@ -826,6 +827,57 @@ TEST_CASE("Native incremental MPI refinement reaches complete frozen metric gate
+     CHECK(untimed.stats.total_seconds==0);
+   }
+ }
++TEST_CASE("Native composed measurements interleave complete cavities and certify every survivor", "[NativeProgressiveMeasurement3D]") {
++  World world;const bool concentrated=GENERATE(false,true);Fixture fixture;
++  const Id components=8*world.size+1;
++  for(Id i=0;i<components;++i) {
++    auto box=Box();
++    for(auto& cell:box.patch.cells) {cell.id+=100*i;for(auto& n:cell.v){n.id+=16*i;n.p.x+=2*i;}}
++    for(auto& face:box.patch.surface){face.facet+=12*i;for(auto& n:face.v)n+=16*i;}
++    for(auto& f:box.facets){f.id+=12*i;for(auto& n:f.v){n.id+=16*i;n.p.x+=2*i;}}
++    fixture.patch.cells.insert(fixture.patch.cells.end(),box.patch.cells.begin(),box.patch.cells.end());
++    fixture.patch.surface.insert(fixture.patch.surface.end(),box.patch.surface.begin(),box.patch.surface.end());
++    fixture.facets.insert(fixture.facets.end(),box.facets.begin(),box.facets.end());
++  }
++  Owned input;for(const auto& row:Rows(fixture.patch))
++    if(concentrated ? world.rank==0 : row.cell.id%world.size==unsigned(world.rank))input.emplace(row.cell.id,row);
++  const auto saved=Bytes(input);const PlanarReference geometry(fixture.facets);
++  // The original field is independently distributed, including empty working owners.
++  const auto original=Partition(Rows(fixture.patch),world);
++  const auto source=Uniform(original,{4,0,0,4,0,4});
++  const MetricComposition compose=[](Point,Tensor m){return m;};
++  EngineOptions options;options.timings=true;options.edge_breakpoints=[](Point,Point){return std::vector<double>{0,1};};
++  options.maximum_work=0;
++  const auto limited=Refine(world,input,source,geometry,compose,options);
++  CHECK_FALSE(limited.valid);CHECK(limited.stats.stop==EngineStop::WorkBudget);
++  CHECK(world.sum(int(limited.stats.cached_measured_cells))<int(fixture.patch.cells.size()));CHECK(Bytes(input)==saved);
++  options.maximum_work=4096;
++  const auto result=Refine(world,input,source,geometry,compose,options);INFO(result.reason);REQUIRE(result.valid);
++  CHECK(Bytes(input)==saved);CHECK(result.stats.cached_measured_cells==result.cells.size());CHECK(result.stats.cached_invalid_cells==0);
++  CHECK(world.sum(int(result.stats.unmeasured_retired))>0);
++  CHECK(world.sum(int(result.stats.initial_cells))<int(fixture.patch.cells.size()));
++  const auto total=CPassiveComm::Allreduce(result.cells.size(),CPassiveComm::Op::SUM,world.comm);
++  CHECK(Audit(world,result.cells,fixture,total));
++  const auto final=Gather(world,result.cells);
++  if(!world.rank) {
++    Owned all;for(const auto& row:Rows(fixture.patch))all.emplace(row.cell.id,row);
++    FrozenField full(Uniform(all,{4,0,0,4,0,4}));PatchMetric metric;std::string reason;
++    const auto cells=PatchOf(final).cells;
++    for(size_t at=0;at<cells.size();at+=MaximumReplacementCells)
++      CHECK(ValidateMetricPatch(std::vector<Cell>(cells.begin()+at,cells.begin()+std::min(cells.size(),at+MaximumReplacementCells)),full,metric,reason));
++  }
++  MeshRecords(concentrated?"progressive_concentrated_initial":"progressive_distributed_initial",world,input);
++  MeshRecords(concentrated?"progressive_concentrated_accepted":"progressive_distributed_accepted",world,result.cells);
++  EngineReport(result,world,concentrated?"progressive_concentrated":"progressive_distributed");
++  // An admissible prefix must not hide either ordinary remaining cells or an invalid tail field.
++  const auto unit=Uniform(original,{1,0,0,1,0,1});
++  const auto unchanged=Refine(world,input,unit,geometry,compose,options);INFO(unchanged.reason);REQUIRE(unchanged.valid);
++  CHECK(unchanged.stats.rounds==0);CHECK(world.sum(int(unchanged.stats.initial_cells))==int(fixture.patch.cells.size()));
++  CHECK(unchanged.stats.cached_measured_cells==unchanged.cells.size());CHECK(unchanged.stats.seed_batches>1);
++  const MetricComposition invalid=[=](Point p,Tensor m){return p.x>2*double(components-1)-.5 ? Tensor{-1,0,0,1,0,1}:m;};
++  CHECK_FALSE(Refine(world,input,unit,geometry,invalid,options).valid);CHECK(Bytes(input)==saved);
++}
++
+ TEST_CASE("Native MPI refinement preserves accepted input on incomplete or invalid events", "[NativeDistributed3D]") {
+   World world;
+   const auto fixture=Box();const PlanarReference reference(fixture.facets);
+@@ -2282,8 +2334,8 @@ TEST_CASE("Native original support preserves affine P1 and falls back at inserte
+   const auto result=Refine(world,input,donors,reference,check,options);
+   INFO(result.reason);CHECK_FALSE(result.valid);CHECK(result.stats.stop==EngineStop::WorkBudget);
+   CHECK(Bytes(input)==saved);CHECK(Bytes(result.cells)==saved);CHECK(world.maximum(observed>0));
+-  const auto maximum=CPassiveComm::Allreduce(input.size(),CPassiveComm::Op::MAX,world.comm);
+-  CHECK(result.stats.donor_batches==((maximum+15)/16)*(kind==1?2:1));
++  CHECK(result.stats.seed_batches>0);
++  CHECK(result.stats.donor_batches==result.stats.seed_batches*(kind==1?2:1));
+ }
+ 
+ TEST_CASE("Native first-row selection preserves full-reference quality and length tie ordering", "[NativeFirstLayerRanking3D]") {
+diff --git a/UnitTests/Common/adaptation/CNativeField3D_tests.cpp b/UnitTests/Common/adaptation/CNativeField3D_tests.cpp
+index 4a51fa9408..cf79240d78 100644
+--- a/UnitTests/Common/adaptation/CNativeField3D_tests.cpp
++++ b/UnitTests/Common/adaptation/CNativeField3D_tests.cpp
+@@ -440,3 +440,40 @@ TEST_CASE("Composed edge error accounting resolves thin strong fields and tiny n
+   CHECK(unresolved.Statistics().edge_compositions<=65536);
+   CHECK(unresolved.Statistics().edge_failures==1);
+ }
++
++
++TEST_CASE("Declared midpoint sensors survive boundary rounding without authorizing arbitrary point queries", "[NativeMidpointQuery3D]") {
++  DonorCell donor;donor.cell.id=74753;
++  donor.cell.v={{{6758,{0.5683152985314954,0.07855169036323718,0.02781832897848278}},
++      {6804,{0.5539589887874311,0.06659188433438007,0.02873117516934826}},
++      {39146,{0.5661287222999969,0.08810439336809825,0.05224913251574465}},
++      {60068,{0.573893966318129,0.06987809295852927,0.04422988413910242}}}};
++  const auto a=donor.cell.v[0].p,b=donor.cell.v[1].p;
++  if(Orientation(donor.cell.v[0].p,donor.cell.v[1].p,donor.cell.v[2].p,donor.cell.v[3].p)<0)std::swap(donor.cell.v[0],donor.cell.v[1]);
++  for(unsigned k=0;k<4;++k){const auto p=donor.cell.v[k].p;donor.sensor[k]={2+p.x,.01,0,3+p.y,0,4+p.z};}
++  const Point rounded{double(((long double)a.x+b.x)/2),double(((long double)a.y+b.y)/2),double(((long double)a.z+b.z)/2)};
++  unsigned compositions=0;
++  FrozenField field({donor},[&](Point p,Tensor sensor) {
++    ++compositions;CHECK(p.x==rounded.x);CHECK(p.y==rounded.y);CHECK(p.z==rounded.z);sensor.zz=1e12;return sensor;
++  });
++  CHECK_THROWS(field.Query(rounded));
++  for(unsigned repeat=0;repeat<2;++repeat) {
++    const auto sample=field.QueryMidpoint(a,b);CHECK(sample.extension_component==UINT64_MAX);
++    CHECK(sample.target.zz==1e12);CHECK(sample.sensor.zz<5);
++    for(unsigned k=0;k<4;++k)CHECK(sample.weights[k]==((donor.cell.v[k].id==6758 || donor.cell.v[k].id==6804)?.5L:0.L));
++    CHECK(sample.sensor.xx==double(((long double)donor.sensor[0].xx+donor.sensor[1].xx)/2));
++    CHECK_THROWS(field.Query(rounded));
++  }
++  CHECK(compositions==2);CHECK(field.Statistics().maximum_cache_entries==0);
++  CHECK_THROWS(field.QueryMidpoint({INFINITY,0,0},b));
++  CHECK(field.Statistics().requests==field.Statistics().hits+field.Statistics().misses+field.Statistics().invalid_queries);
++}
++
++TEST_CASE("Exact midpoint source priority includes isolated physical contact and rejects uncovered points", "[NativeMidpointQuery3D]") {
++  FrozenField field(Layers(),{},false,{42});
++  const auto crossing=field.QueryMidpoint({0,0,0},{2,0,0});
++  CHECK(crossing.sensor.xx==4);CHECK(crossing.extension_component==UINT64_MAX);
++  const auto touching=field.QueryMidpoint({-1,1,0},{1,-1,0});
++  CHECK(touching.sensor.xx==1);CHECK(touching.extension_component==UINT64_MAX);
++  CHECK_THROWS(field.QueryMidpoint({4,0,0},{6,0,0}));
++}

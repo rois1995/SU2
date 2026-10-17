@@ -720,6 +720,7 @@ void EngineReport(const EngineResult& result, World& world, const std::string& l
   std::ostringstream line;
   line << std::setprecision(17) << "ENGINE rank=" << world.rank << " ranks=" << world.size << " valid=" << result.valid
        << " case=" << label << " initial=" << s.initial_cells << " updated=" << s.updated_cells << " final=" << result.cells.size()
+       << " seed_batches=" << s.seed_batches << " unmeasured_retired=" << s.unmeasured_retired
        << " rounds=" << s.rounds << " proposed=" << s.proposed << " attempts=" << s.attempted
        << " accepted=" << s.accepted << " rejected=" << s.rejected << " conflicts=" << s.conflicts
        << " collapse_geometry_checks=" << s.collapse_geometry_checks << " collapse_filtered=" << s.collapse_filtered
@@ -826,6 +827,57 @@ TEST_CASE("Native incremental MPI refinement reaches complete frozen metric gate
     CHECK(untimed.stats.total_seconds==0);
   }
 }
+TEST_CASE("Native composed measurements interleave complete cavities and certify every survivor", "[NativeProgressiveMeasurement3D]") {
+  World world;const bool concentrated=GENERATE(false,true);Fixture fixture;
+  const Id components=8*world.size+1;
+  for(Id i=0;i<components;++i) {
+    auto box=Box();
+    for(auto& cell:box.patch.cells) {cell.id+=100*i;for(auto& n:cell.v){n.id+=16*i;n.p.x+=2*i;}}
+    for(auto& face:box.patch.surface){face.facet+=12*i;for(auto& n:face.v)n+=16*i;}
+    for(auto& f:box.facets){f.id+=12*i;for(auto& n:f.v){n.id+=16*i;n.p.x+=2*i;}}
+    fixture.patch.cells.insert(fixture.patch.cells.end(),box.patch.cells.begin(),box.patch.cells.end());
+    fixture.patch.surface.insert(fixture.patch.surface.end(),box.patch.surface.begin(),box.patch.surface.end());
+    fixture.facets.insert(fixture.facets.end(),box.facets.begin(),box.facets.end());
+  }
+  Owned input;for(const auto& row:Rows(fixture.patch))
+    if(concentrated ? world.rank==0 : row.cell.id%world.size==unsigned(world.rank))input.emplace(row.cell.id,row);
+  const auto saved=Bytes(input);const PlanarReference geometry(fixture.facets);
+  // The original field is independently distributed, including empty working owners.
+  const auto original=Partition(Rows(fixture.patch),world);
+  const auto source=Uniform(original,{4,0,0,4,0,4});
+  const MetricComposition compose=[](Point,Tensor m){return m;};
+  EngineOptions options;options.timings=true;options.edge_breakpoints=[](Point,Point){return std::vector<double>{0,1};};
+  options.maximum_work=0;
+  const auto limited=Refine(world,input,source,geometry,compose,options);
+  CHECK_FALSE(limited.valid);CHECK(limited.stats.stop==EngineStop::WorkBudget);
+  CHECK(world.sum(int(limited.stats.cached_measured_cells))<int(fixture.patch.cells.size()));CHECK(Bytes(input)==saved);
+  options.maximum_work=4096;
+  const auto result=Refine(world,input,source,geometry,compose,options);INFO(result.reason);REQUIRE(result.valid);
+  CHECK(Bytes(input)==saved);CHECK(result.stats.cached_measured_cells==result.cells.size());CHECK(result.stats.cached_invalid_cells==0);
+  CHECK(world.sum(int(result.stats.unmeasured_retired))>0);
+  CHECK(world.sum(int(result.stats.initial_cells))<int(fixture.patch.cells.size()));
+  const auto total=CPassiveComm::Allreduce(result.cells.size(),CPassiveComm::Op::SUM,world.comm);
+  CHECK(Audit(world,result.cells,fixture,total));
+  const auto final=Gather(world,result.cells);
+  if(!world.rank) {
+    Owned all;for(const auto& row:Rows(fixture.patch))all.emplace(row.cell.id,row);
+    FrozenField full(Uniform(all,{4,0,0,4,0,4}));PatchMetric metric;std::string reason;
+    const auto cells=PatchOf(final).cells;
+    for(size_t at=0;at<cells.size();at+=MaximumReplacementCells)
+      CHECK(ValidateMetricPatch(std::vector<Cell>(cells.begin()+at,cells.begin()+std::min(cells.size(),at+MaximumReplacementCells)),full,metric,reason));
+  }
+  MeshRecords(concentrated?"progressive_concentrated_initial":"progressive_distributed_initial",world,input);
+  MeshRecords(concentrated?"progressive_concentrated_accepted":"progressive_distributed_accepted",world,result.cells);
+  EngineReport(result,world,concentrated?"progressive_concentrated":"progressive_distributed");
+  // An admissible prefix must not hide either ordinary remaining cells or an invalid tail field.
+  const auto unit=Uniform(original,{1,0,0,1,0,1});
+  const auto unchanged=Refine(world,input,unit,geometry,compose,options);INFO(unchanged.reason);REQUIRE(unchanged.valid);
+  CHECK(unchanged.stats.rounds==0);CHECK(world.sum(int(unchanged.stats.initial_cells))==int(fixture.patch.cells.size()));
+  CHECK(unchanged.stats.cached_measured_cells==unchanged.cells.size());CHECK(unchanged.stats.seed_batches>1);
+  const MetricComposition invalid=[=](Point p,Tensor m){return p.x>2*double(components-1)-.5 ? Tensor{-1,0,0,1,0,1}:m;};
+  CHECK_FALSE(Refine(world,input,unit,geometry,invalid,options).valid);CHECK(Bytes(input)==saved);
+}
+
 TEST_CASE("Native MPI refinement preserves accepted input on incomplete or invalid events", "[NativeDistributed3D]") {
   World world;
   const auto fixture=Box();const PlanarReference reference(fixture.facets);
@@ -2282,8 +2334,8 @@ TEST_CASE("Native original support preserves affine P1 and falls back at inserte
   const auto result=Refine(world,input,donors,reference,check,options);
   INFO(result.reason);CHECK_FALSE(result.valid);CHECK(result.stats.stop==EngineStop::WorkBudget);
   CHECK(Bytes(input)==saved);CHECK(Bytes(result.cells)==saved);CHECK(world.maximum(observed>0));
-  const auto maximum=CPassiveComm::Allreduce(input.size(),CPassiveComm::Op::MAX,world.comm);
-  CHECK(result.stats.donor_batches==((maximum+15)/16)*(kind==1?2:1));
+  CHECK(result.stats.seed_batches>0);
+  CHECK(result.stats.donor_batches==result.stats.seed_batches*(kind==1?2:1));
 }
 
 TEST_CASE("Native first-row selection preserves full-reference quality and length tie ordering", "[NativeFirstLayerRanking3D]") {
