@@ -789,3 +789,13 @@ finer/stale primitives and actual cfg-driven RANS workflow checks are written.
 Build7876 is ongoing, no tests or production success claimed. Global error
 calibration/allocation, complete policy validation and lifecycle performance remain.
 [Current policy/diagnostic scope](GOAL3_BUDGET_AWARE_BL.md).
+
+Policy draft follow-up: connected build completed after one unambiguous Metric-type
+qualification fix; failed first build preserved. Reviewed stage handling rejects
+clear estimated budget conflicts before publication and keeps correction available.
+Four primitive cases/256 assertions PASS. Initial disabled campaign rejects only
+unnecessarily changed exact legacy wording; initial enabled campaign stops at the
+preliminary UNKNOWN dimension0 config before any metric/construction. Both complete
+receipts preserved. Root fixes grouped: restore off-policy text, validate dimension
+when known. Build15979 ongoing; qualification_v2 not run yet. No enabled workflow,
+M6 auto-selection, physical accuracy or performance success is claimed.

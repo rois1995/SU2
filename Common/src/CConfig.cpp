@@ -6683,7 +6683,7 @@ void CConfig::SetPostprocessing(SU2_COMPONENT val_software, unsigned short val_i
   if (!(Adap_BL_GeomTol >= 0.0) || !std::isfinite(SU2_TYPE::GetValue(Adap_BL_GeomTol)))
     SU2_MPI::Error("ADAP_BL_GEOM_TOL must be a finite value >= 0.", CURRENT_FUNCTION);
   if (Adap_BL_Budget) {
-    if (val_nDim != 3 || Kind_Adap_Remesher != ADAP_REMESHER::NATIVE_CAVITY ||
+    if ((val_nDim != 0 && val_nDim != 3) || Kind_Adap_Remesher != ADAP_REMESHER::NATIVE_CAVITY ||
         Kind_Adap_BL_Method != ADAP_BL_METHOD::METRIC || Adap_BL.empty())
       SU2_MPI::Error("ADAP_BL_BUDGET currently requires native3D METRIC and ADAP_BL_MARKER.", CURRENT_FUNCTION);
     if (!(Adap_BL_ProtectDistance > 0) || !std::isfinite(SU2_TYPE::GetValue(Adap_BL_ProtectDistance)) ||

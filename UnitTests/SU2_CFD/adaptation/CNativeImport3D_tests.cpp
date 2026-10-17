@@ -2230,3 +2230,5 @@ TEST_CASE("Candidate complexity reassesses original P1 and actual composition wi
 }
 
 #include "fixtures/native_normalization_stages.inc"
+
+#include "fixtures/native_saved_metric_probe.inc"

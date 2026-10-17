@@ -1,0 +1,130 @@
+diff --git a/Common/src/adaptation/CNativeRemesher3D.cpp b/Common/src/adaptation/CNativeRemesher3D.cpp
+index 01d38ee601..8f789e0342 100644
+--- a/Common/src/adaptation/CNativeRemesher3D.cpp
++++ b/Common/src/adaptation/CNativeRemesher3D.cpp
+@@ -444,6 +444,15 @@ CRemeshResult CNativeRemesher3D::Remesh(const CConfig& config, const CGeometry&
+       const double target=SU2_TYPE::GetValue(config.GetAdap_Complexity());
+       if(std::abs(stats.complexity.value-target)>std::max(target*1e-6,stats.complexity.uncertainty+stats.normalization.estimate.uncertainty))
+         stats.normalization.reason="correction_stage_limit_budget_residual";
++      if(config.GetAdap_BL_Budget() && stats.complexity.value-stats.complexity.uncertainty>target) {
++        ready=false;reason="estimated_budget_incompatible_after_bounded_normalization_stage";
++        stats.normalization.reason=reason;
++      }
++    }
++    if(ready && config.GetAdap_BL_Budget() && !normalizer.propose && stats.complexity.estimated &&
++        stats.complexity.value-stats.complexity.uncertainty>SU2_TYPE::GetValue(config.GetAdap_Complexity())) {
++      ready=false;reason="estimated_budget_incompatible_without_original_family_correction";
++      stats.normalization.reason=reason;
+     }
+     if(!ready || stage==1 || !normalizer.propose || !prepared)break;
+     now=parent.seconds();NormalizationProposal3D proposal;
+diff --git a/SU2_CFD/include/adaptation/CNativeNormalizationStage3D.hpp b/SU2_CFD/include/adaptation/CNativeNormalizationStage3D.hpp
+index 90145a0b9d..e88776b015 100644
+--- a/SU2_CFD/include/adaptation/CNativeNormalizationStage3D.hpp
++++ b/SU2_CFD/include/adaptation/CNativeNormalizationStage3D.hpp
+@@ -13,7 +13,7 @@ inline SU2Native3D::NormalizationStage3D NativeNormalizationStage3D(CSolver& sol
+   using namespace SU2Native3D;NormalizationStage3D job;const auto family=solver.GetNativeMetricFamily3D();
+   bool eligible=family && family->geometry==&geometry && family->Compatible(config) &&
+       (!config.GetnAdap_BL() || (family->boundary_layer && family->authority==reference.original)) &&
+-      family->normalization.status!=SU2Complexity::Status::EstimatedTolerance && selected.rows()>=family->owned && selected.cols()>=6;
++      (config.GetAdap_BL_Budget() || family->normalization.status!=SU2Complexity::Status::EstimatedTolerance) && selected.rows()>=family->owned && selected.cols()>=6;
+   // Prediction may change only some ranks: eligibility belongs to the complete original field.
+   if(eligible)for(size_t i=0;i<family->owned;++i)for(unsigned a=0,k=0;a<3;++a)for(unsigned b=a;b<3;++b,++k)
+     eligible=eligible && selected(i,k)==family->selected[i].m[a][b];
+@@ -29,7 +29,11 @@ inline SU2Native3D::NormalizationStage3D NativeNormalizationStage3D(CSolver& sol
+       result.reason="within_reassessed_uncertainty";return result;
+     }
+     if((residual>0 && result.log_scale<=family->lower) || (residual<0 && result.log_scale>=family->upper)) {
+-      result.reason="outside_reassessed_scale_bounds";result.status=SU2Complexity::Status::OutsideBracket;return result;
++      result.reason="outside_reassessed_scale_bounds";result.status=SU2Complexity::Status::OutsideBracket;
++      if(config.GetAdap_BL_Budget() && current.value-current.uncertainty>target) {
++        result.valid=false;result.reason="estimated_budget_incompatible_at_original_family_lower_bound";
++      }
++      return result;
+     }
+     size_t adjacency=0;for(size_t i=0;i<family->owned;++i)adjacency=transfer_memory::Add(adjacency,geometry.nodes->GetnPoint(i));
+     const auto trial_bytes=transfer_memory::Add(
+@@ -68,6 +72,10 @@ inline SU2Native3D::NormalizationStage3D NativeNormalizationStage3D(CSolver& sol
+     result.density_queries=assess.stats.density_queries;result.geometry_queries=assess.stats.geometry_queries;
+     evaluation->assess={};
+     if(!result.valid)return result;
++    if(config.GetAdap_BL_Budget() && result.status==SU2Complexity::Status::OutsideBracket &&
++        result.estimate.value-result.estimate.uncertainty>target) {
++      result.valid=false;result.reason="estimated_budget_incompatible_on_reassessed_original_family";return result;
++    }
+     int changed=0;
+     for(size_t i=0;i<family->owned;++i)for(unsigned a=0;a<3;++a)for(unsigned b=a;b<3;++b)
+       changed|=evaluation->normalized.at(i).m[a][b]!=family->selected[i].m[a][b];
+diff --git a/SU2_CFD/src/adaptation/CBoundaryLayerMetric.cpp b/SU2_CFD/src/adaptation/CBoundaryLayerMetric.cpp
+index c7cc3a8cd2..f62520d6dd 100644
+--- a/SU2_CFD/src/adaptation/CBoundaryLayerMetric.cpp
++++ b/SU2_CFD/src/adaptation/CBoundaryLayerMetric.cpp
+@@ -888,7 +888,7 @@ void CBoundaryLayerMetric::Build() {
+ }
+ 
+ void CBoundaryLayerMetric::ConfigureOuterNormal(double protectedDistance,double maximumGrowth) {
+-  if(outerNormal.frozen || outerNormal.version || !(protectedDistance>0) || !std::isfinite(protectedDistance) ||
++  if(nDim!=3 || outerNormal.frozen || outerNormal.version || !(protectedDistance>0) || !std::isfinite(protectedDistance) ||
+       !(maximumGrowth>=1) || !std::isfinite(maximumGrowth))
+     throw std::invalid_argument("Invalid or already-frozen outer-normal BL limits.");
+   for(const auto& wall:walls)if(protectedDistance<wall.layer.firstHeight || maximumGrowth<wall.layer.growth)
+diff --git a/SU2_CFD/src/adaptation/CNativeComplexity3D.cpp b/SU2_CFD/src/adaptation/CNativeComplexity3D.cpp
+index 4c1a05751c..6e0b1d27d3 100644
+--- a/SU2_CFD/src/adaptation/CNativeComplexity3D.cpp
++++ b/SU2_CFD/src/adaptation/CNativeComplexity3D.cpp
+@@ -216,7 +216,7 @@ CNativeComplexity3D::Assessment CNativeComplexity3D::Assess(const std::vector<CB
+         // Density lower contribution from sensor and each individually mandatory wall, not independent BL costs.
+         auto mandatory=a;
+         for(const auto& sample:q.geometry)if(sample.sample.distance<=layers.GetOuterNormal().protected_distance) {
+-          Metric wall;for(unsigned i=0;i<3;++i)wall.m[i][i]=core;
++          CBoundaryLayerMetric::Tensor wall;for(unsigned i=0;i<3;++i)wall.m[i][i]=core;
+           layers.ApplySample(sample.wall,sample.sample,wall,core,nullptr,false);
+           mandatory=std::max(mandatory,LogDensity(wall));
+         }
+diff --git a/UnitTests/SU2_CFD/adaptation/CNativeImport3D_tests.cpp b/UnitTests/SU2_CFD/adaptation/CNativeImport3D_tests.cpp
+index 0f024aed53..870821c101 100644
+--- a/UnitTests/SU2_CFD/adaptation/CNativeImport3D_tests.cpp
++++ b/UnitTests/SU2_CFD/adaptation/CNativeImport3D_tests.cpp
+@@ -2230,3 +2230,5 @@ TEST_CASE("Candidate complexity reassesses original P1 and actual composition wi
+ }
+ 
+ #include "fixtures/native_normalization_stages.inc"
++
++#include "fixtures/native_saved_metric_probe.inc"
+diff --git a/UnitTests/SU2_CFD/adaptation/fixtures/native_normalization_stages.inc b/UnitTests/SU2_CFD/adaptation/fixtures/native_normalization_stages.inc
+index 3de54650f7..b3b62efcd9 100644
+--- a/UnitTests/SU2_CFD/adaptation/fixtures/native_normalization_stages.inc
++++ b/UnitTests/SU2_CFD/adaptation/fixtures/native_normalization_stages.inc
+@@ -238,7 +238,7 @@ TEST_CASE("Opt-in BL budget selection stays frozen through native RANS replaceme
+     simplex_test::WriteSU2Mesh(simplex_test::MakeSimplexMesh(3,1,[](const passivedouble* p){return p[2]==0?"wall":"far";}),name+".su2");
+     auto text=normalization_test::Options(name,workers);const std::string old="ADAP_COMPLEXITY= 20";
+     const auto at=text.find(old);REQUIRE(at!=std::string::npos);text.replace(at,old.size(),"ADAP_COMPLEXITY= "+std::to_string(int(budget)));
+-    std::ofstream cfg(name+".cfg");cfg<<text<<"ADAP_BL_BUDGET= YES\nADAP_BL_PROTECT_DISTANCE= .1\nADAP_BL_OUTER_GROWTH_MAX= 2\n";REQUIRE(bool(cfg));
++    std::ofstream cfg(name+".cfg");cfg<<text<<"ADAP_BL_BUDGET= YES\nADAP_BL_PROTECT_DISTANCE= .1\nADAP_BL_OUTER_GROWTH_MAX= 10\n";REQUIRE(bool(cfg));
+   }
+   SU2_MPI::Barrier(world.comm);auto cfg=name+".cfg";auto driver=std::make_unique<TetraDriver>(const_cast<char*>(cfg.c_str()),1,world.comm);
+   auto backend=driver->Backend();auto* native=dynamic_cast<CNativeRemesher3D*>(backend.get());REQUIRE(native);
+@@ -251,6 +251,7 @@ TEST_CASE("Opt-in BL budget selection stays frozen through native RANS replaceme
+   const auto selected=family->layers->GetOuterNormal();CHECK(selected.frozen);CHECK(selected.parameter>=0);CHECK(selected.parameter<=1);
+   CHECK(family->budget_selection.trials<=9);
+   if(budget==20)CHECK(selected.parameter==0);
++  if(budget==3)CHECK(selected.parameter>0);
+   CHECK(CPassiveComm::Allreduce(selected.parameter,CPassiveComm::Op::MIN)==CPassiveComm::Allreduce(selected.parameter,CPassiveComm::Op::MAX));
+   CHECK(CPassiveComm::Allreduce(selected.version,CPassiveComm::Op::MIN)==CPassiveComm::Allreduce(selected.version,CPassiveComm::Op::MAX));
+   CHECK_THROWS(family->layers->SelectOuterNormal(0));
+@@ -260,6 +261,15 @@ TEST_CASE("Opt-in BL budget selection stays frozen through native RANS replaceme
+   INFO(native->Statistics().normalization.reason);REQUIRE(result.status==CRemeshResult::Status::COMPLETE);
+   CHECK(State(g,solver)==before);CHECK(State(g,*driver->Turbulence())==beforeTurb);
+   CHECK(normalization_test::Raw(*family)==frames);CHECK(family->layers->GetOuterNormal().version==selected.version);
++  const auto authorityBefore=EncodeReference(*driver->Reference());
++  std::ifstream savedConfig(name+".cfg");std::stringstream configText;configText<<savedConfig.rdbuf();auto text=configText.str();
++  const std::string work="ADAP_NATIVE_MAX_WORK= 8192";const auto at=text.find(work);REQUIRE(at!=std::string::npos);
++  text.replace(at,work.size(),"ADAP_NATIVE_MAX_WORK= 1");std::stringstream limitedText(text);std::unique_ptr<CConfig> limited;
++  {Mute mute;limited=std::make_unique<CConfig>(limitedText,SU2_COMPONENT::SU2_CFD,false);}
++  const auto refused=backend->Remesh(*limited,g,solver.GetNodes()->GetMetric());
++  CHECK(refused.status!=CRemeshResult::Status::COMPLETE);CHECK_FALSE(refused.onAccepted);
++  CHECK(State(g,solver)==before);CHECK(State(g,*driver->Turbulence())==beforeTurb);
++  CHECK(EncodeReference(*driver->Reference())==authorityBefore);CHECK(family->layers->GetOuterNormal().version==selected.version);
+   CConservativeTransfer transfer;driver->ReplaceMesh(result,transfer);
+   CheckPositiveFlow(Flow(world,driver->Geometry(),driver->Solver()));
+   const auto transported=result.slices.FetchPointMetric(driver->Geometry());su2activematrix sensor(driver->Geometry().GetnPointDomain(),6);

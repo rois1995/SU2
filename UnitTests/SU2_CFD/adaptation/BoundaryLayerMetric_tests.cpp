@@ -2577,7 +2577,8 @@ TEST_CASE("Outer-normal profiles protect height tangents geometry fade and froze
     CHECK(sample.weight==original[k].weight);
     if(sample.weight==0)continue;
     CHECK(sample.hn>=original[k].hn);
-    if(d<=.03)CHECK(sample.hn==original[k].hn);
+    if(sample.distance<=.03)CHECK(sample.hn==original[k].hn);
+    else CHECK(sample.hn==Approx(SU2_TYPE::GetValue(original[k].hn)+.5*(2./3-2*.2/2.2)*(SU2_TYPE::GetValue(sample.distance)-.03)).epsilon(1e-13));
     for(unsigned i=1;i<3;++i)for(unsigned j=1;j<3;++j)CHECK(sample.full.m[i][j]==original[k].full.m[i][j]);
     Tensor fine;fine.m[0][0]=1e8;fine.m[1][1]=2e8;fine.m[2][2]=3e8;
     layers.ApplyPoint(p,fine,.01,nullptr,false);

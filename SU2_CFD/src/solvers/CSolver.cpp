@@ -3147,7 +3147,7 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
           localQuadraturePoints=0;
           int localLimited=boundedGeometry && !boundedComplexity,globalLimited=0;
           if(localLimited && rank==MASTER_NODE)
-            cout<<"Native3D bounded complexity strategy: retained faceted wall support"<<(budgetBL?" with opt-in BL profiles.":".")<<endl;
+            cout<<(budgetBL?"Native3D bounded complexity strategy: retained faceted wall support with opt-in BL profiles.":"Native3D bounded complexity strategy: nonplanar faceted wall geometry.")<<endl;
           if(!boundedComplexity && !boundedGeometry)for(auto& cell:integration3D)try {
             auto targetDensity=[&](const CBoundaryLayerMetric::IntegrationPoint3D& point) {
               ++strictDensityEvaluations;

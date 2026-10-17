@@ -78,8 +78,10 @@ strict rules/workspaces check version; source support is retained while profile-
 dependent samples rebuild and are counted. Selected family must survive driver and
 N/M remeshing; missing/unfrozen selected profiles reject rather than reverting.
 
-Build session7876 is LIVE; inspect its actual handle before restarting. Source is
-frozen during compilation. Primitive curved/interacting/finer/stale-cache tests and
+Initial build7876 TERMINAL exit1 at235/310: ambiguous Metric alias in mandatory
+cost calculation. Its failed log/resources/status are preserved. The reviewed
+build44141 is LIVE and reuses completed objects; inspect its actual handle before
+restarting. The type fix and connected stage review are now applied; source frozen. Primitive curved/interacting/finer/stale-cache tests and
 actual cfg-driven RANS replacement tests are implemented but NOT run. Disabled
 compatibility, incompatible/uncertain/feasible profiles, atomicity/MPI, independent
 complete field checks, M6 selection and event-cost qualification remain. Global
@@ -88,13 +90,39 @@ retained-cloud heuristics must not be represented as that completed capability.
 [Draft source scope and checks](../integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/budget_bl_policy_v1/DESIGN.md).
 
 Review while first build runs: `budget_bl_policy_v1/finish_stage_review.py` is
-PREPARED, NOT EXECUTED. Run only after build7876 is terminal. It keeps config opt-in
+APPLIED ONCE after initial build7876 terminated; do not rerun the mutator. It keeps config opt-in
 correction available even after an initially accurate normalization, rejects clear
 estimated over-budget outcomes at original-family bounds/final bounded correction
 before publication, restricts the primitive to supported3D, and adds atomic refusal.
 The draft budget3 cube needs explicitly permitted growth10 to exercise nonzero
 selection: its coarse baseline is~3.7 and growth2 still~3.3. This is an analytic
 fixture-design correction before tests, not a rejected native run or physical M6
-accuracy permission. No original mesh gates are changed. After applying, one
-incremental connected build, then campaign.py primitives/disabled/enabled checks.
+accuracy permission. No original mesh gates are changed. Reviewed build44141 incorporates this connected batch. After it completes, run
+campaign.py primitives/disabled/enabled checks.
 Do not run the knowingly incomplete first draft's budget3/growth2 workflow.
+
+Saved-state M6 qualification can avoid another CFD step: a new hidden
+[NativeSavedMetric3D] fixture draft calls Preprocess(0) and public ComputeMetric()
+(sensor/Hessian/original-family normalization only), then checks flow/SA/reference
+unchanged. It is now INCLUDED by CNativeImport3D_tests.cpp through the applied stage review.
+It has NOT been compiled/run yet; included in reviewed build44141.
+Use the existing closed saved restart/config, explicit experimental permitted
+limits and a fresh case folder. The newly recovered original family is from that
+saved state; do not relabel it as the historical RAW9 archive or rescale clipped
+frozen sensor values. Coarsest endpoints share geometric constraints, but complete
+flow-derived fields remain separate references. No Solve/Run/CFD iteration occurs.
+
+Pre-test review: fix_primitive_reference.py is PREPARED/not applied. After build44141
+terminates, apply it and one-object incremental build. Nominal sphere offset.03 is
+not exactly the represented point's wall distance; protect/check the actual distance
+and verify the declared half-slope spacing increment. This changes a test reference,
+not a physical constraint, native query predicate, geometry/height or quality gate.
+
+First native checks: primitives PASS4 cases/256 assertions. Disabled_serial FAILS
+only its exact legacy diagnostic string assertion (unnecessary wording change).
+Enabled_serial rejects before metric initialization because SU2's preliminary
+base config calls postprocessing with UNKNOWN dimension0; the new check wrongly
+required3 at that stage. No enabled normalization/construction ran. Both receipts/
+capsules/logs are preserved at policy root. Fix grouped: retain legacy text when
+disabled, accept dimension0 until actual zone check/model3D guard. New checks use
+fresh qualification_v2 directories; do not overwrite first failures.

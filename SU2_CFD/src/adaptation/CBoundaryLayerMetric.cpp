@@ -888,7 +888,7 @@ void CBoundaryLayerMetric::Build() {
 }
 
 void CBoundaryLayerMetric::ConfigureOuterNormal(double protectedDistance,double maximumGrowth) {
-  if(outerNormal.frozen || outerNormal.version || !(protectedDistance>0) || !std::isfinite(protectedDistance) ||
+  if(nDim!=3 || outerNormal.frozen || outerNormal.version || !(protectedDistance>0) || !std::isfinite(protectedDistance) ||
       !(maximumGrowth>=1) || !std::isfinite(maximumGrowth))
     throw std::invalid_argument("Invalid or already-frozen outer-normal BL limits.");
   for(const auto& wall:walls)if(protectedDistance<wall.layer.firstHeight || maximumGrowth<wall.layer.growth)

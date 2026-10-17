@@ -216,7 +216,7 @@ CNativeComplexity3D::Assessment CNativeComplexity3D::Assess(const std::vector<CB
         // Density lower contribution from sensor and each individually mandatory wall, not independent BL costs.
         auto mandatory=a;
         for(const auto& sample:q.geometry)if(sample.sample.distance<=layers.GetOuterNormal().protected_distance) {
-          Metric wall;for(unsigned i=0;i<3;++i)wall.m[i][i]=core;
+          CBoundaryLayerMetric::Tensor wall;for(unsigned i=0;i<3;++i)wall.m[i][i]=core;
           layers.ApplySample(sample.wall,sample.sample,wall,core,nullptr,false);
           mandatory=std::max(mandatory,LogDensity(wall));
         }

@@ -1,0 +1,7 @@
+disabled_serial {"exit_code": 1, "elapsed_seconds": 10.510664309025742, "command": ["taskset", "-c", "0", "nice", "-n", "19", "timeout", "--kill-after=5s", "180s", "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver", "[NativeComposite2D],[NativeComposite3D],[NativeMetricFamily3D],[NativeDynamicComplexity3D],[NativeRuntimeComplexity3D],Native3D complexity integrates the geometric BL with sensor-only donors", "--abort", "--reporter", "compact"], "provenance_sha256": "a6525182a9ae4c21ad04bbc03f6a1ef39a31eceffffd7819ff29589c9bd4175a", "log_sha256": "5a13040b1cea38afe747294307f43b8454127bf576baf8c8ae77392cd66cbb14"}
+Traceback (most recent call last):
+  File "integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/budget_bl_policy_v1/campaign.py", line 29, in <module>
+    report=run.invoke(folder,env,run.OLD/'cell329/replay.dat',ranks,test_filter=filter)
+  File "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/run.py", line 55, in invoke
+    if not ((0<run.returncode<124) if expected_failure else run.returncode==0):raise RuntimeError('Failed '+str(folder))
+RuntimeError: Failed /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/budget_bl_policy_v1/disabled_serial

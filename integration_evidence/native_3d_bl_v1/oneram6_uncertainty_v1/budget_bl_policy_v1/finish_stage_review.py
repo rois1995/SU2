@@ -47,3 +47,4 @@ body=body.replace(needle,'''  const auto authorityBefore=EncodeReference(*driver
   CHECK(EncodeReference(*driver->Reference())==authorityBefore);CHECK(family->layers->GetOuterNormal().version==selected.version);
   CConservativeTransfer transfer;driver->ReplaceMesh(result,transfer);''',1)
 p.write_text(s[:a]+body)
+p=Path('UnitTests/SU2_CFD/adaptation/CNativeImport3D_tests.cpp');s=p.read_text();needle='#include "fixtures/native_saved_metric_probe.inc"';assert needle not in s;p.write_text(s+'\n'+needle+'\n')

@@ -15,13 +15,18 @@ rounds. No accepted wing, volume publication/transfer claim or speedup. All fail
 precursors, exact rational witnesses, input/source/binary receipts are preserved.
 [Current implementation, scope and evidence](Handbook/GOAL3_PROGRESSIVE_MEASUREMENT.md).
 [Current producer verification](integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/exact_midpoint_queries_v1/summary.json).
-Midpoint jobs terminal. Current owned build7876 compiles the connected opt-in BL
-policy draft (310 targets/build-j1); NOT validated. Check live handle before restart.
+Midpoint jobs terminal. Initial owned build7876 TERMINAL exit1 at235/310 (ambiguous Metric type).
+Reviewed build44141 and reference build29025 completed. First tests: primitives
+PASS4/256; disabled check fails only changed legacy wording; enabled rejects base
+config dimension0 before metric construction. Both failures saved. Current owned
+compatibility build15979 is LIVE (two CPP fixes); no other heavy job.
 Native cost diagnosis and near-limit growth probe are complete; no new CFD/M6 construction.
-Before tests: after build7876 TERMINATES, apply budget_bl_policy_v1/finish_stage_review.py
-and one incremental build. Prepared only/not executed; details in budget handbook.
+Stage-review script budget_bl_policy_v1/finish_stage_review.py APPLIED ONCE after
+initial build termination; do not rerun. Ambiguous Metric type fixed. Reviewed build
+44141 incorporates the connected changes; details in budget handbook.
 It closes final budget-stage handling/atomicity and corrects a pre-run fixture limit. Published
-base686b13dc6be5b723a4eede54407ec5bdfd0c56f3; full Goal3 ACTIVE/incomplete.
+base581076212ce8354136eaa49dfc941547f7c4432f;
+WIP policy checkpoint b96e3de1ace50d65febd26f88c35ff781f8bac9a PUSHED/remote verified; full Goal3 ACTIVE/incomplete.
 
 ## User extension2026-10-18
 
@@ -121,7 +126,7 @@ agent's entries in the [outcome ledger](Handbook/SUGGESTION_OUTCOME_LEDGER.md).
 
 ## Execution and working rules
 
-Owned connected policy build7876 is LIVE; no other owned heavy job. Progressive/
+Owned compatibility build15979 is LIVE; no other owned heavy job. Progressive/
 midpoint source/build/
 binary/input/helper verification preserves successful scoped lifecycle checks and
 both M6/stronger-finer construction failures. The opt-in policy draft is implemented but not compiled/qualified yet. Native cost
@@ -137,3 +142,26 @@ One owned heavy job/nice19/thread1/build-j1/MPI<=4; check actual load/RAM and li
 handles before starting another. Announce complete case folders. Use4TB
 build-integrated-v2/compile-tmp because root/tmp is nearly full. Leave foreign jobs
 untouched. Goal4/full physical unsteady3D/general CAD/mixed volumes remain separate.
+
+Current next qualification commands (after reviewed build44141 completes): budget_bl_policy_v1/campaign.py primitives, disabled_serial,
+enabled_serial, then meaningful MPI/lifecycle. New hidden saved-state metric probe is now included; saved_metric.py is prepared.
+Neither its tests nor the policy tests have run. Announce fresh M6 folders before
+running saved_metric.py 100000 2 4 conflict / 300000 2 4 selected. These limits are
+experimental declarations, not physical M6 accuracy permission. Direct ComputeMetric
+recovers the ORIGINAL unclipped family from the saved CFD state, no Solve/advance.
+Do not relabel it as the older RAW9/UPPER6 field. Construction remains separate.
+
+Primitive reference fix APPLIED once and build29025 completed; do not rerun
+budget_bl_policy_v1/fix_primitive_reference.py. The sphere query1+.03 represents a point slightly outside the
+physical .03 protected distance; test must use sample.distance, not nominal d.
+It also checks the independent half-slope increment. No production tolerance/gate
+change. Do NOT run a knowingly wrong exact-equality reference or redo full suites.
+
+NEXT: wait actual build15979 handle; preserves build_compatibility.log/resources.
+Then campaign.py primitives / disabled_serial / enabled_serial in qualification_v2
+(each fresh/provenance pinned; first failures retained at policy root). Batch root
+fixes restore legacy off-policy text and defer dimension3 check until dimension is
+known; preliminary CConfig explicitly postprocesses with0. Do NOT repeat broad
+regressions/CFD runs. After serial actual behavior, meaningful MPI/lifecycle and
+saved_metric.py experiments. Full Goal3 active. Latest PUSHED b96e3de1ac remains
+WIP; reviewed fixes/probe/helpers are not yet committed/pushed.

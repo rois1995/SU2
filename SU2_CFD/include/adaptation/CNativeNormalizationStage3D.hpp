@@ -13,7 +13,7 @@ inline SU2Native3D::NormalizationStage3D NativeNormalizationStage3D(CSolver& sol
   using namespace SU2Native3D;NormalizationStage3D job;const auto family=solver.GetNativeMetricFamily3D();
   bool eligible=family && family->geometry==&geometry && family->Compatible(config) &&
       (!config.GetnAdap_BL() || (family->boundary_layer && family->authority==reference.original)) &&
-      family->normalization.status!=SU2Complexity::Status::EstimatedTolerance && selected.rows()>=family->owned && selected.cols()>=6;
+      (config.GetAdap_BL_Budget() || family->normalization.status!=SU2Complexity::Status::EstimatedTolerance) && selected.rows()>=family->owned && selected.cols()>=6;
   // Prediction may change only some ranks: eligibility belongs to the complete original field.
   if(eligible)for(size_t i=0;i<family->owned;++i)for(unsigned a=0,k=0;a<3;++a)for(unsigned b=a;b<3;++b,++k)
     eligible=eligible && selected(i,k)==family->selected[i].m[a][b];
@@ -29,7 +29,11 @@ inline SU2Native3D::NormalizationStage3D NativeNormalizationStage3D(CSolver& sol
       result.reason="within_reassessed_uncertainty";return result;
     }
     if((residual>0 && result.log_scale<=family->lower) || (residual<0 && result.log_scale>=family->upper)) {
-      result.reason="outside_reassessed_scale_bounds";result.status=SU2Complexity::Status::OutsideBracket;return result;
+      result.reason="outside_reassessed_scale_bounds";result.status=SU2Complexity::Status::OutsideBracket;
+      if(config.GetAdap_BL_Budget() && current.value-current.uncertainty>target) {
+        result.valid=false;result.reason="estimated_budget_incompatible_at_original_family_lower_bound";
+      }
+      return result;
     }
     size_t adjacency=0;for(size_t i=0;i<family->owned;++i)adjacency=transfer_memory::Add(adjacency,geometry.nodes->GetnPoint(i));
     const auto trial_bytes=transfer_memory::Add(
@@ -68,6 +72,10 @@ inline SU2Native3D::NormalizationStage3D NativeNormalizationStage3D(CSolver& sol
     result.density_queries=assess.stats.density_queries;result.geometry_queries=assess.stats.geometry_queries;
     evaluation->assess={};
     if(!result.valid)return result;
+    if(config.GetAdap_BL_Budget() && result.status==SU2Complexity::Status::OutsideBracket &&
+        result.estimate.value-result.estimate.uncertainty>target) {
+      result.valid=false;result.reason="estimated_budget_incompatible_on_reassessed_original_family";return result;
+    }
     int changed=0;
     for(size_t i=0;i<family->owned;++i)for(unsigned a=0;a<3;++a)for(unsigned b=a;b<3;++b)
       changed|=evaluation->normalized.at(i).m[a][b]!=family->selected[i].m[a][b];

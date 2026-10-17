@@ -238,7 +238,7 @@ TEST_CASE("Opt-in BL budget selection stays frozen through native RANS replaceme
     simplex_test::WriteSU2Mesh(simplex_test::MakeSimplexMesh(3,1,[](const passivedouble* p){return p[2]==0?"wall":"far";}),name+".su2");
     auto text=normalization_test::Options(name,workers);const std::string old="ADAP_COMPLEXITY= 20";
     const auto at=text.find(old);REQUIRE(at!=std::string::npos);text.replace(at,old.size(),"ADAP_COMPLEXITY= "+std::to_string(int(budget)));
-    std::ofstream cfg(name+".cfg");cfg<<text<<"ADAP_BL_BUDGET= YES\nADAP_BL_PROTECT_DISTANCE= .1\nADAP_BL_OUTER_GROWTH_MAX= 2\n";REQUIRE(bool(cfg));
+    std::ofstream cfg(name+".cfg");cfg<<text<<"ADAP_BL_BUDGET= YES\nADAP_BL_PROTECT_DISTANCE= .1\nADAP_BL_OUTER_GROWTH_MAX= 10\n";REQUIRE(bool(cfg));
   }
   SU2_MPI::Barrier(world.comm);auto cfg=name+".cfg";auto driver=std::make_unique<TetraDriver>(const_cast<char*>(cfg.c_str()),1,world.comm);
   auto backend=driver->Backend();auto* native=dynamic_cast<CNativeRemesher3D*>(backend.get());REQUIRE(native);
@@ -251,6 +251,7 @@ TEST_CASE("Opt-in BL budget selection stays frozen through native RANS replaceme
   const auto selected=family->layers->GetOuterNormal();CHECK(selected.frozen);CHECK(selected.parameter>=0);CHECK(selected.parameter<=1);
   CHECK(family->budget_selection.trials<=9);
   if(budget==20)CHECK(selected.parameter==0);
+  if(budget==3)CHECK(selected.parameter>0);
   CHECK(CPassiveComm::Allreduce(selected.parameter,CPassiveComm::Op::MIN)==CPassiveComm::Allreduce(selected.parameter,CPassiveComm::Op::MAX));
   CHECK(CPassiveComm::Allreduce(selected.version,CPassiveComm::Op::MIN)==CPassiveComm::Allreduce(selected.version,CPassiveComm::Op::MAX));
   CHECK_THROWS(family->layers->SelectOuterNormal(0));
@@ -260,6 +261,15 @@ TEST_CASE("Opt-in BL budget selection stays frozen through native RANS replaceme
   INFO(native->Statistics().normalization.reason);REQUIRE(result.status==CRemeshResult::Status::COMPLETE);
   CHECK(State(g,solver)==before);CHECK(State(g,*driver->Turbulence())==beforeTurb);
   CHECK(normalization_test::Raw(*family)==frames);CHECK(family->layers->GetOuterNormal().version==selected.version);
+  const auto authorityBefore=EncodeReference(*driver->Reference());
+  std::ifstream savedConfig(name+".cfg");std::stringstream configText;configText<<savedConfig.rdbuf();auto text=configText.str();
+  const std::string work="ADAP_NATIVE_MAX_WORK= 8192";const auto at=text.find(work);REQUIRE(at!=std::string::npos);
+  text.replace(at,work.size(),"ADAP_NATIVE_MAX_WORK= 1");std::stringstream limitedText(text);std::unique_ptr<CConfig> limited;
+  {Mute mute;limited=std::make_unique<CConfig>(limitedText,SU2_COMPONENT::SU2_CFD,false);}
+  const auto refused=backend->Remesh(*limited,g,solver.GetNodes()->GetMetric());
+  CHECK(refused.status!=CRemeshResult::Status::COMPLETE);CHECK_FALSE(refused.onAccepted);
+  CHECK(State(g,solver)==before);CHECK(State(g,*driver->Turbulence())==beforeTurb);
+  CHECK(EncodeReference(*driver->Reference())==authorityBefore);CHECK(family->layers->GetOuterNormal().version==selected.version);
   CConservativeTransfer transfer;driver->ReplaceMesh(result,transfer);
   CheckPositiveFlow(Flow(world,driver->Geometry(),driver->Solver()));
   const auto transported=result.slices.FetchPointMetric(driver->Geometry());su2activematrix sensor(driver->Geometry().GetnPointDomain(),6);

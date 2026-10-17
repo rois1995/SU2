@@ -13,14 +13,15 @@ sources += [ROOT/p for p in ('Common/include/CConfig.hpp','Common/src/CConfig.cp
  'SU2_CFD/include/adaptation/CNativeCandidateComplexity3D.hpp','SU2_CFD/include/adaptation/CNativeMetricFamily3D.hpp',
  'SU2_CFD/include/adaptation/CNativeNormalizationStage3D.hpp','SU2_CFD/src/drivers/CSinglezoneDriver.cpp',
  'UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp','UnitTests/SU2_CFD/adaptation/CNativeRemesher3D_tests.cpp',
- 'UnitTests/SU2_CFD/adaptation/fixtures/native_normalization_stages.inc')]+[Path(__file__).resolve()]
+ 'UnitTests/SU2_CFD/adaptation/fixtures/native_normalization_stages.inc',
+ 'UnitTests/SU2_CFD/adaptation/CNativeImport3D_tests.cpp','UnitTests/SU2_CFD/adaptation/fixtures/native_saved_metric_probe.inc')]+[Path(__file__).resolve()]
 run.pins=lambda:dict(base_pins(),**{str(p.relative_to(ROOT)):run.sha(p) for p in sources})
 mode=sys.argv[1];assert mode in ('primitives','disabled_serial','disabled_runtime','enabled_serial','enabled_mpi2','enabled_mpi4')
 ranks=2 if mode=='enabled_mpi2' else 4 if mode in ('enabled_mpi4','disabled_runtime') else 1
 filters={'primitives':'[NativeBLBudgetPolicy],[NativeBLBudgetProfile],[NativeComplexityNormalization]',
  'disabled_serial':'[NativeComposite2D],[NativeComposite3D],[NativeMetricFamily3D],[NativeDynamicComplexity3D],[NativeRuntimeComplexity3D],Native3D complexity integrates the geometric BL with sensor-only donors',
  'disabled_runtime':'[NativeNormalizationRuntime3D]'}
-filter=filters.get(mode,'[NativeBLBudgetRuntime3D]');folder=HERE/mode;folder.mkdir(exist_ok=True)
+filter=filters.get(mode,'[NativeBLBudgetRuntime3D]');folder=HERE/'qualification_v2'/mode;folder.mkdir(parents=True,exist_ok=True)
 capsule=json.dumps({str(p.relative_to(ROOT)):p.read_text() for p in sources},sort_keys=True).encode();archive=folder/'executed_source.json.gz'
 if archive.exists():assert gzip.decompress(archive.read_bytes())==capsule
 else:archive.write_bytes(gzip.compress(capsule,mtime=0))

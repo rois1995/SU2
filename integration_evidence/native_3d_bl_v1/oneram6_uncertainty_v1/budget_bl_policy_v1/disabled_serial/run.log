@@ -1,0 +1,24 @@
+../../UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp:2513: failed: output.find("Native3D bounded complexity strategy: nonplanar faceted wall geometry.")!=std::string::npos for: 18446744073709551615 (0xffffffffffffffff)
+!=
+18446744073709551615 (0xffffffffffffffff) with 1 message: 'Native BL geometry wall: largest local subset 24 of 24 supplied wall faces (before duplicate removal).
+Native3D bounded complexity strategy: retained faceted wall support.
+Sensor-only donor metric statistics:
+Minimum density: 1.
+Maximum density: 1.
+Maximum cell AR: 1.
+Mesh complexity after native constraints: 417.791 (ADAP_COMPLEXITY= 100).
+Sensor metric complexity before gradation: 1.
+Sensor-only donor complexity after gradation: 1.
+Native geometric integration: 0 points, preparation 0.000143109 s.
+Native3D complexity normalization: status=outside_estimated_bounds estimate=417.79055415810114 uncertainty_indicator=14.679029662770722 requested_rtol=9.9999999999999995e-07 trials=1 log_scale=-3.0701134573253945 frozen_core=1 provisional=1 proven_error_bound=0; target remains frozen during remeshing.
+Native3D support correction: samples=8192 inside=3989 nonzero=3989 sensor_lower=1 sensor_upper=1 sensor_quadrature=1 correction=416.79055415810114 empirical_SE=4.8930098875902264 background_roundoff_indicator=4.2632564145606011e-14 preparation_seconds_max=0.034824671999999168 background_seconds_max=9.1078000000521797e-05 correction_seconds_max=0.0025558639999996302 reduction_seconds_max=6.7099999867537008e-07 assessment_seconds_max=0.0026490289999987482 retained_bytes_max=1649184 background_determinants=1056 correction_queries=3989 donor_searches_during_trials=0 geometry_queries_during_trials=0 global_rank_profile_refreshes=0
+Native3D target-density quadrature: 8.08e-07 s (maximum accumulated rank time), 0 cell rule builds, 0 exact-target reuses, 0 strict density evaluations.
+Native metric work: 1 complexity trials, 1 total gradation sweeps, 27 owned-point visits; gradation 4.0963e-05 s, halo 8.77e-07 s, sweep reductions 6.8e-08 s (maximum accumulated rank times).
+Native gradation tensor updates: 0 of 27 owned-point visits.
+Native sensor gradation: 1 sweeps, fixed point reached, maximum transported-metric ratio 1, directed edges above 1+1e-5: 0.
+Native composed nodal audit: maximum transported-metric ratio 1.20773e+11, directed edges above 1+1e-5: 85. Sensor gradation is not a combined-field certificate.
+WARNING: Composed geometric BL transport violations remain; no nodal wall correction is spread.
+WARNING: Geometric BL complexity target 100 is outside the estimated bounds; integrated complexity 417.791. BL and finer sensor demands are retained.
+'
+Failed 1 test case, failed 1 assertion.
+

@@ -444,6 +444,15 @@ CRemeshResult CNativeRemesher3D::Remesh(const CConfig& config, const CGeometry& 
       const double target=SU2_TYPE::GetValue(config.GetAdap_Complexity());
       if(std::abs(stats.complexity.value-target)>std::max(target*1e-6,stats.complexity.uncertainty+stats.normalization.estimate.uncertainty))
         stats.normalization.reason="correction_stage_limit_budget_residual";
+      if(config.GetAdap_BL_Budget() && stats.complexity.value-stats.complexity.uncertainty>target) {
+        ready=false;reason="estimated_budget_incompatible_after_bounded_normalization_stage";
+        stats.normalization.reason=reason;
+      }
+    }
+    if(ready && config.GetAdap_BL_Budget() && !normalizer.propose && stats.complexity.estimated &&
+        stats.complexity.value-stats.complexity.uncertainty>SU2_TYPE::GetValue(config.GetAdap_Complexity())) {
+      ready=false;reason="estimated_budget_incompatible_without_original_family_correction";
+      stats.normalization.reason=reason;
     }
     if(!ready || stage==1 || !normalizer.propose || !prepared)break;
     now=parent.seconds();NormalizationProposal3D proposal;
