@@ -834,6 +834,23 @@
       "evidence": "oneram6_uncertainty_v1/support_correction_summary_v1.json",
       "handbook": "Handbook/GOAL3_SUPPORT_CORRECTION.md",
       "remaining": "Production bounded uncertainty normalization/frozen stages, visible infeasible-budget handling, accepted mesh, finer-mesh reassessment and lifecycle cost; no new CFD."
+    },
+    "retained_normalization_replay": {
+      "status": "8-case frozen-family replay complete, full goal active, production unchanged.",
+      "M6_estimates_at_same_selected_scale": [
+        992919.7466218709,
+        993123.2639463651
+      ],
+      "experimental_relative_tolerance": 0.05,
+      "selected_factor": 1.148698354997035,
+      "uncertainty": "sensor analytic exact-arithmetic interval +3 empirical SE correction; heuristic, not proven bound.",
+      "limits": "Homogeneous field scaling, diagnostic1/64..64 bracket; no production clipping/regradation or remeshing stages.",
+      "field_identity": "Every direct/cached composed tensor identical at retained queries of unscaled preparation field; old/new scalar spectral discrepancies retained. No per-trial direct audit at other scales.",
+      "MPI": "M6 normalization2/4 and planar1/4 agree; independent planar references cover all trials.",
+      "precision": "1e-6 returns integration_limited; same-scale retry does not recompute densities.",
+      "evidence": "oneram6_uncertainty_v1/retained_correction_normalization_v2/summary.json",
+      "handbook": "Handbook/GOAL3_RETAINED_NORMALIZATION.md",
+      "remaining": "Production global provider/bound/gradation integration, collective control/output-failure qualification, explicit frozen stages, accepted mesh and same-original-field finer-mesh reassessment."
     }
   }
 }

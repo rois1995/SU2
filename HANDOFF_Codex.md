@@ -26,6 +26,15 @@ no total/lifecycle speedup. Rejected drafts/producers retained. New exact point
 footprints reuse existing donor service; strict imports unchanged, affected controls
 pass. No CFD/accepted mesh or production normalization coupling.
 [Method, evidence, limitations and resources](Handbook/GOAL3_SUPPORT_CORRECTION.md).
+Retained-field normalization now passes8 planned replay checks: M6 target1M gives
+992920/993123 at the same selected scale, heuristic uncertainty~35650;100000 lies
+outside diagnostic1/64..64 bracket;1e-6 stops integration_limited. No repeated
+source/wall searches during trials; every cached/direct preparation-field query tensor bitwise equal.
+Old scalar density drift retained, not a field-gate relaxation. MPI2/4 normalizations
+agree; independent planar references and35 controller assertions pass. Production
+bounds/gradation/stages and I/O fault qualification remain missing. Reproducible
+large export restoration passes. [Scope/work/next coupling](Handbook/GOAL3_RETAINED_NORMALIZATION.md).
+
 
 Separate strong-BL subset lower estimates364473/362392 already exceed100000 under
 conditional99% simultaneous statistical assumptions (not machine certificates).
@@ -33,8 +42,8 @@ Refinement cannot lower the continuum demand of the same frozen field. Finite
 upper envelopes were too loose; supporting-plane floor inconclusive. Complete
 Q4/Q18 audit covers303359 cells/6.674M points but misses thin mass (329 error39.35%
 vs tiny rule indicator). Shared experimental one-sided controller/35 assertions
-and MPI1/2/4 reductions qualify its scope, not production. Next: connect a bounded,
-calibrated global provider to explicit uncertainty-aware normalization/stages;
+and MPI1/2/4 reductions qualify its scope, not production. Next: port/connect the retained provider to actual bounded/graded production
+fields and a calibrated global work policy to explicit uncertainty-aware normalization/stages;
 handle unattainable budget visibly, without changing BL/target/gates silently.
 [Earlier support bounds and feasibility](Handbook/GOAL3_COMPLEXITY_SUPPORT_BOUNDS.md).
 
@@ -115,7 +124,7 @@ edit, no repeated unchanged failures/limit ladders, push reviewable work. Keep
 handbooks compact with detailed linked topics. Announce full case folder paths.
 One owned heavy job, low priority/thread1/build-j1, locally available MPI<=4.
 Check host contention/RAM and live handles. Latest host~40GiB available; recheck.
-Latest correction replay peaks383–667MiB per process/build2.35GiB, zero swaps;
+Latest retained replay peak667MiB per process/build2.35GiB, zero swaps;
 these are not aggregate or whole-lifecycle peaks. All owned jobs terminal. Root/tmp nearly full: use build-integrated-v2/compile-tmp
 on4TB. Do not kill unrelated processes or request cluster jobs overnight.
 Goal4 inactive; full physical unsteady3D/general CAD/mixed volumes separate scope.

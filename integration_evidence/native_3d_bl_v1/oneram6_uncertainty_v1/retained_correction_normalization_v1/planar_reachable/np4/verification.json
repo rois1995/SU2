@@ -1,0 +1,49 @@
+{
+  "status": "PASS_RETAINED_NORMALIZATION_REPLAY",
+  "native": {
+    "status": "estimated_tolerance",
+    "target": 16,
+    "relative_tolerance": 0.05,
+    "log_scale": 0.13862943611198905,
+    "value": 16.086033839627632,
+    "uncertainty": 0.11146931326203269,
+    "trials": 3,
+    "distinct_fields": 3,
+    "same_field_reuses": 0,
+    "samples": 8192,
+    "actual_compositions": 24576,
+    "ranks": 4,
+    "preparation_seconds_max": 0.779865491,
+    "normalization_seconds_max": 0.06042600900000006,
+    "density_seconds_max": 0.008645712999999944,
+    "reduction_seconds_max": 0.05157174799999997,
+    "donor_searches_during_trials": 0,
+    "geometry_queries_during_trials": 0,
+    "proven_error_bound": false,
+    "original_P1_retained": true,
+    "homogeneous_family_only": true,
+    "production_clipping_or_regradation": false,
+    "production_normalization_changed": false,
+    "mesh_constructed": false
+  },
+  "base_row_maximum_scaled_difference": 0.0,
+  "heuristic_uncertainty": true,
+  "production_clipping_regradation_and_stages_tested": false,
+  "native_sha256": "de31ecf5db390291bb9e01402c97e1ccb64f27ae9ee5fb01ec385e8d21cb8058",
+  "trace_sha256": "c2703d340306306419951379f7d424a4c892dfa955f5db0af75500838ec38a17",
+  "extra_provenance_sha256": "64da3387640bd0e54a3e10b7161a70f001f6f311e78f995c7f7f01f4ce2451c1",
+  "base_rows_sha256": {
+    "correction_rank1.csv": "98ad94b1cb6378291db6866e5f5317139acfdf10b06a314625233410ac226cb2",
+    "correction_rank3.csv": "9d95d7a28460c76c6cb2bd99c5f053e84a93c84368d66ee6bc09526e0073c755",
+    "correction_rank2.csv": "8d3ce25b663902b25c7cf6064d9da4698f370f520ff2408389c4cecaed65c174",
+    "correction_rank0.csv": "283a0fdd2887b6f54d5ea28d89c19602b874ec1181bb5d56a941140c5f8dee3f"
+  },
+  "independent_planar_integrals": [
+    13.901300350484535,
+    61.48966334595711,
+    16.092275653503535
+  ],
+  "independent_planar_maximum_discrepancy": 0.012591566457686554,
+  "independent_reference_covered_all_trials": true,
+  "MPI_normalization_agrees": true
+}

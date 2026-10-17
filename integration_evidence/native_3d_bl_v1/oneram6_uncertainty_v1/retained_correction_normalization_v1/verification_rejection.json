@@ -1,0 +1,14 @@
+{
+  "status": "VERIFIER_REJECTED_CANCELLATION_SCALE",
+  "maximum_absolute_correction_difference": 9.336356385581153e-10,
+  "density": 525590.1392387684,
+  "relative_density_difference": 1.7763568394002489e-15,
+  "field_gates_changed": false,
+  "failed_helper_sha256": "87a901b97e1ae35614842debc566f035e477dae1c2bba5a943b4540b30ca522d",
+  "evidence": "m6_reachable947/np2",
+  "reason": "A near-zero subtracted correction was compared against unit1 instead of its two source densities; reverify saved native rows against density-scaled roundoff and global integral drift.",
+  "second_verifier_issue": "64-epsilon density threshold was stricter than original1e-11 relative comparison; strongly anisotropic composed densities differ5.83e-13 after helper/cache refactor, with mean weighted integral drift3.57e-10. Retain original1e-11 density tolerance and separate strict global drift criterion.",
+  "maximum_density_scaled_difference": 5.825472568182841e-13,
+  "mean_absolute_weighted_drift": 3.5743932566442895e-10,
+  "second_failed_helper_sha256": "0f1c2bbfe7875523aae6757078c748c53edddd5f8071227f2daa11c342dd2f16"
+}

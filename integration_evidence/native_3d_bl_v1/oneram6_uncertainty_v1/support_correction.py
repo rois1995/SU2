@@ -16,7 +16,13 @@ SHARED=HERE/'correction_domain_v1'
 
 def domain():
     SHARED.mkdir(exist_ok=True)
-    if (SHARED/'manifest.json').exists():raise RuntimeError('Original domain already exported; verify its manifest before reuse.')
+    previous=None
+    if (SHARED/'manifest.json').exists():
+        previous=json.loads((SHARED/'manifest.json').read_text())
+        for name,digest in previous['sha256'].items():assert sha(ROOT/name)==digest,name
+        if (SHARED/'original.bin').exists():
+            assert sha(SHARED/'original.bin')==previous['original_sha256'],'Existing original export changed; never overwrite it.'
+            print('REUSE_ORIGINAL_DOMAIN',previous['original_sha256'],flush=True);return
     start=time.monotonic();capture=json.loads((FROZEN/'result.json').read_text());assert sha(FROZEN/'frozen_trial.npz')==capture['sha256']['frozen_trial.npz']
     data=np.load(FROZEN/'frozen_trial.npz',allow_pickle=False);mesh=read_su2(FROZEN/'Coarse.su2');cells=np.sort(mesh.E,axis=1)
     maps=[]
@@ -32,6 +38,10 @@ def domain():
                 mask=data['cell_owner'][begin:end]==rank;local=maps[rank][nodes[mask]];assert np.all(local>=0)
                 rows['sensor'][mask]=data['rank%d_sensor'%rank][local]
             assert np.all(np.isfinite(rows['sensor']));rows.tofile(out)
+    if previous is not None:
+        assert len(cells)==previous['cells'] and float(data['core'])==previous['core']
+        assert path.stat().st_size==previous['bytes'] and sha(path)==previous['original_sha256'],'Restored original export differs; retain it for diagnosis.'
+        print('RESTORED_ORIGINAL_DOMAIN',previous['original_sha256'],flush=True);return
     inputs=[Path(__file__).resolve(),FROZEN/'Coarse.su2',FROZEN/'frozen_trial.npz',FROZEN/'result.json']
     manifest=dict(cells=len(cells),core=float(data['core']),original_sha256=sha(path),preparation_seconds=time.monotonic()-start,
         bytes=path.stat().st_size,representation='Original hosting-rank RAW9; only geometric locator identity tensors are canonicalized.',

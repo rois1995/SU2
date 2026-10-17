@@ -195,3 +195,33 @@ edge-plane/half-angle frames pass the independent square tube check. Legacy
 replay peak process383–667MiB/build2.35GiB, zero swaps, host~40GiB available.
 No aggregate-memory/scaling or lifecycle claim. Detailed method and all receipts:
 [full-support correction](GOAL3_SUPPORT_CORRECTION.md).
+
+
+## Retention across normalization trials — follow-up result
+
+WORKED in the complete frozen-family replay: original donor locations and actual
+wall samples are retained, then the same original field is recomposed for trial
+scales. Three M6 trials take0.0073–0.0156s AFTER cold preparation, with zero donor/
+wall searches during trials. Both independent8192-sample seeds support target1M
+at the same factor1.148698355 under explicit experimental5%; MPI2/4 agree. Asking
+1e-6 returns integration_limited, with the repeated same-scale result reused and
+no extra compositions.100000 is outside the diagnostic1/64..64 family bracket.
+No production hard bounds/gradation or stage coupling is implied.
+
+Exact direct/cached tensor checks pass every planar/M6 retained query at the
+unscaled preparation field. Scalar
+old/new density differences reach7.736e-10 relative under strong anisotropy, but
+mean absolute integral drift1.412e-7 versus correction808697 and SE9414. Failed
+unit-scale/64eps verifier assumptions and all partial receipts remain; field gates
+unchanged. Independent planar integration covers every trial, selected true target
+error0.577%.8 planned checks plus35 existing controller assertions pass.
+
+Still NOT a complete-lifecycle gain: cold routing/index/identity audit and the
+separately saved~23s proposal/PDF cost remain. No donor-campaign retention/shared-
+edge reuse/transaction batching in remeshing itself. Native test provider only;
+actual production clipping/regradation, global work policy, collective control/I/O
+fault paths and normalization/adaptation/reassessment stages remain to be connected.
+No CFD or accepted M6 grid. Final wrapper49.41s/peak process667MiB, zero swaps.
+Large input restoration is now reproducible without modifying pinned manifests;
+7.22s round-trip check, changed originals rejected, temporary export removed.
+Details: [retained normalization](GOAL3_RETAINED_NORMALIZATION.md).

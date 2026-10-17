@@ -6200,3 +6200,34 @@ only byrank0 rejects collectively, no timeout. Production still unchanged; compl
 calibrated mass, feasible-target policy and accepted M6 adaptation remain OPEN.
 Resources and evidence: Handbook/GOAL3_COMPLEXITY_SUPPORT_BOUNDS.md,
 complete_volume_seed_v1 and one_sided_controller_v1. All owned jobs terminal.
+
+
+### 2026-10-17: full-support correction and retained normalization queries
+
+The sensor-integral plus complete-support BL-correction replay gives total961498/
+961691 on two8192-sample seeds; pooled empirical SE6656, not a proven error bound.
+Whole-volume Q18=780726 misses about18.81% relative to their mean. Tiny original
+cells remain inefficient/sparse (11–22 hits/16384,2–38% reference errors); do not
+promote sparse SEM or fixed-rule agreement to a global certificate. Independent
+finite-square support/fade integral and original-P1 density audits pass their scopes.
+No production policy or accepted M6 mesh follows from these estimates.
+
+Retaining original query locations/sensors and actual wall geometry allows3-trial
+normalization of a homogeneous original-P1 family without repeated source/geometry
+queries. Both seeds support target1M at factor1.148698355 with experimental5%
+(992920/993123, heuristic uncertainty~35650), MPI2/4 agree.100000 lies outside the
+finite diagnostic bracket;1e-6 stops integration_limited with no repeated density
+work. Every cached/direct composed tensor agrees BITWISE at retained queries of the
+unscaled preparation field.
+Old/new scalar spectra differ up to7.736e-10 relative on a highly anisotropic point,
+but mean absolute weighted integral drift1.412e-7 is negligible against SE9414;
+keep both the discrepancy and exact field identity, not a looser mesh gate.
+
+8 planned replay checks and35 controller assertions complete, final wrapper49.41s/
+peak process667MiB, no swaps. Trial-only0.0073–0.0156s excludes cold preparation,
+direct identity audits and separately retained~23s proposal/PDF cost: no lifecycle
+or scalability claim. Actual bound/gradation callbacks, global work/tolerance policy,
+collective I/O/control failure paths and explicit frozen remesh/reassessment stages
+are still missing. Source/export restoration and rejected verifier evidence retained.
+See Handbook/GOAL3_SUPPORT_CORRECTION.md, Handbook/GOAL3_RETAINED_NORMALIZATION.md
+and oneram6_uncertainty_v1/retained_correction_normalization_v2/summary.json.
