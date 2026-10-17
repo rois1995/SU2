@@ -2153,6 +2153,7 @@ TEST_CASE("Native proposal and clock budgets reject collectively without publish
   const auto timed=Coarsen(world,input,donors,geometry,{},options);
   CHECK_FALSE(timed.valid);CHECK(timed.stats.stop==EngineStop::TimeBudget);
   CHECK(timed.stats.global_work==0);CHECK(Bytes(timed.cells)==saved);CHECK(Bytes(input)==saved);
+  CHECK(timed.stats.initial_cells==0);CHECK(timed.reason.find("metric seeding")!=std::string::npos);
   options.maximum_seconds=0;
   const auto completed=Coarsen(world,input,donors,geometry,{},options);
   INFO(completed.reason);REQUIRE(completed.valid);
@@ -2255,6 +2256,34 @@ TEST_CASE("Curved partition-interface publication preserves frozen source on MPI
     CHECK(field.Query({.5,.5,.00625}).sensor.xx==.5);CHECK(source_bytes()==frozen);
   }
   CHECK_FALSE(parent.maximum(!valid));if(subset!=MPI_COMM_NULL)MPI_Comm_free(&subset);
+}
+
+TEST_CASE("Native original support preserves affine P1 and falls back at inserted source-edge points", "[NativeOriginalSupport3D]") {
+  World world;const auto box=Box();auto current=box;const PlanarReference reference(box.facets);
+  const int kind=GENERATE(0,1,2);
+  if(kind==1) {Patch fresh;std::string reason;REQUIRE(SplitEdge(box.patch,{0,6},{50,{.5,.5,.5}},100,reference,fresh,reason));current.patch=std::move(fresh);}
+  if(kind==2) {
+    current.patch.cells.clear();
+    for(const auto& c:box.patch.cells) {std::vector<Cell> children;std::string reason;
+      REQUIRE(Cone({c},{50+c.id,Centroid(c)},100+4*c.id,children,reason));
+      current.patch.cells.insert(current.patch.cells.end(),children.begin(),children.end());
+    }
+  }
+  const auto input=Partition(Rows(current.patch),world);const auto saved=Bytes(input);
+  auto donors=Uniform(Partition(Rows(box.patch),World(MPI_COMM_SELF)),{});if(world.rank)donors.clear();
+  for(auto& d:donors)for(unsigned k=0;k<4;++k){const auto p=d.cell.v[k].p;d.sensor[k]={1+p.x,0,0,1+p.y,0,16+p.z};}
+  size_t observed=0;
+  const MetricComposition check=[&](Point p,Tensor m) {
+    CHECK(std::abs(m.xx-(1+p.x))<1e-12);CHECK(std::abs(m.yy-(1+p.y))<1e-12);CHECK(std::abs(m.zz-(16+p.z))<1e-12);
+    CHECK(m.xy==0);CHECK(m.xz==0);CHECK(m.yz==0);++observed;return m;
+  };
+  EngineOptions options;options.maximum_work=0;
+  options.edge_breakpoints=[](Point,Point){return std::vector<double>{0,1};};
+  const auto result=Refine(world,input,donors,reference,check,options);
+  INFO(result.reason);CHECK_FALSE(result.valid);CHECK(result.stats.stop==EngineStop::WorkBudget);
+  CHECK(Bytes(input)==saved);CHECK(Bytes(result.cells)==saved);CHECK(world.maximum(observed>0));
+  const auto maximum=CPassiveComm::Allreduce(input.size(),CPassiveComm::Op::MAX,world.comm);
+  CHECK(result.stats.donor_batches==((maximum+15)/16)*(kind==1?2:1));
 }
 
 TEST_CASE("Native3D engine initializes wall heights through owner transactions and protects edits", "[NativeFirstLayerEngine3D]") {

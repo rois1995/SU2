@@ -8,22 +8,25 @@ accuracy, work, budget discrepancy, memory/communication and remaining scope.
 
 | Suggestion | Current status | Evidence and limits |
 |---|---|---|
-| Match normalization to integration accuracy | Qualified replay; production pending | Shared controller passes25 assertions. Three original M6 cells agree exactly on1/4 ranks: target10, estimate10.10364 ±.22168,8 trials,56632 queries (current distance-band kernel); correctly integration-limited at1%. No exact root or complete-field accuracy claim. Production normalization unchanged. |
-| Allocate absolute error globally without gathering cells | Qualified on3-cell replay only | Absolute-error priority and collective failure handling agree on1/4 ranks;37 reductions/rank,23 cell estimates,133352 accounted cache bytes (current distance-band kernel). A bad cell owned by one rank is rejected collectively. No all-cell gather; full frozen-field coverage remains incomplete. |
-| Reuse integration geometry across scale trials | Worked in local replays | Cell88 2.2006s→.11325s at58112 accounted bytes;157 .12095→.02311s;329 .17431→.04663s. Original/changed-sensor-and-core warm/cold estimates identical. No complete normalization/adaptation speedup established. |
-| Integrate BL correction separately | Partial local benefit; support-restricted geometry not implemented | Exact algebraic decomposition on the existing geometry kernel:329 queries6092→5644 (7.35% fewer), reference error.14414%→.01362% (10.6x lower).88/157 essentially unchanged; cold chord counts unchanged on all3. Does not resolve cold preparation or qualify full-field overlap/corner coverage. |
-| More integration subcells | Negative evidence |329 error is nonmonotone with subdivision;88 work/time rises substantially. Raw indicator can underestimate157 by1.91x. Not a demonstrated cure. |
-| Cheap scalar geometric-root screening | Withdrawn: no useful measured gain | Seed estimates unchanged on88/157/329;88 .2003s→.2090s. Extra code removed; seed_screen_v1 retains source/results/decision. |
-| Shared policy in2D | Partially qualified foundations |8 existing composition controls pass95 assertions;2D production normalization unchanged.30P30N planar input prepared/validated, not adapted. |
-| Actual refinement should ease integration | Inconclusive; complete construction hits budget | Shared edge correction passes both exact M6 blockers. Same-budget MPI4 reaches447 INTERNAL first-row publications, then stops at300s. No accepted complete mesh exists for finer-mesh reassessment. |
-| Reuse donor support/indexes across repair campaigns | Not attempted in this follow-up | Existing reuse must be inventoried; integration-geometry cache above is a different scope. |
-| Extend shared-edge integration reuse | Not attempted | Deferred until complexity initialization is resolved. |
-| Batch independent mesh transactions | Not attempted | Deferred; compare full lifecycle and accepted/rejected edits, not only kernel time. |
-| Avoid unchanged failed searches | Not attempted | Must distinguish stable geometric rejection from incomplete support or temporary reservation conflicts. |
-| Reuse transfer geometry across fields/histories | Not attempted | Inventory existing sharing; geometry/time-history identity and physical checks remain required. |
-| Measured-cost partitioning/mid-remeshing migration | Not attempted | Include migration/index rebuild/return/solver rebuilding. Use useful work costs; MPI waiting is not itself useful work. |
+| Match normalization to integration accuracy | Implemented, qualified controlled3D scope | Bounded uncertainty-aware production search; original-family correction uses at most24 trials/2 frozen stages. Eight planar RANS workflows independently finish0.194--0.323% below budget, integration_limited. No exact root, calibrated global tolerance or normalized M6 claim. [Current scope](GOAL3_FROZEN_NORMALIZATION_STAGES.md). |
+| Allocate absolute error globally without gathering cells | Partial; general allocation/calibration still open | Global reductions and3-cell absolute-error prioritization qualify their replay scope. Production uses a global sensor interval plus BL-correction indicator; heuristic3max SEM can miss rare heavy mass. Full error-priority allocation is not implemented/calibrated. [Production](GOAL3_RUNTIME_COMPLEXITY.md). |
+| Reuse integration geometry across scale trials | Implemented, scoped gains measured | Production retains original publisher/barycentric/wall geometry across current scale trials. Controlled correction retains8192 preparations with zero donor/wall queries DURING root trials (49152--57344 density evaluations). Preparation cost and memory remain; no full-event gain claim. |
+| Integrate BL correction separately | Implemented for nonplanar faceted3D | Same-config M6 metric initialization415.97->16.47s, identical coarsest estimate790200.50 +/-27958.45 heuristic against100000. Complete geometric face/edge/vertex proposal; no discarded unresolved BL mass. This is a contended metric-phase result, not whole remeshing speedup. [Evidence](GOAL3_RUNTIME_COMPLEXITY.md). |
+| More integration subcells | Negative evidence | 329 accuracy is nonmonotone;88 work/time rises. No subdivision/count ladder accepted. Actual-refinement reassessment below is a different experiment. |
+| Cheap scalar geometric-root screening | Withdrawn: no useful gain | Seed estimates unchanged on88/157/329;88 .2003->.2090s. Source/results/decision retained in seed_screen_v1; production restored. |
+| Shared policy in2D | Foundations retained; shared correction not integrated | Existing2D composition/geometry rules remain.30P30N input prepared, not adapted.3D sampling/correction does not establish2D robustness or cross-dimensional error calibration. |
+| Actual refinement should ease integration | Worked in controlled RANS; M6 remains open | Same corrected ORIGINAL field on actual refined partitions lowers indicator3.07--4.07x and observed error5.48--77.70x. Coarsening ratios.915--1.206 show no monotonic guarantee. No adapted-node refit. [Evidence](GOAL3_FROZEN_NORMALIZATION_STAGES.md). |
+| Reuse donor support/indexes across repair campaigns | Related point-query reuse implemented; full campaigns open | Canonical source-owner samples replace repeated point-only whole-star imports/secondary indexes in weights/return; bounded2048 sensor memo, actual BL still queried. New certified original-parent lookup also qualifies first-row/measurement support; it does not retain whole repair-campaign donor support. [Scope](GOAL3_OWNER_POINT_SAMPLES.md). |
+| Extend shared-edge integration reuse | Implemented for frozen identities/endpoints | Existing edge maps now reuse full composed integrals across certified imports only under identical field/geometry/accuracy policy and exact endpoints. Saved M6 MPI1/4 values match cold exactly. No general lifetime or lifecycle speedup claim. [Evidence](../integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/composed_edge_reuse_v1/README.md). |
+| Batch independent mesh transactions | Implemented for fixed-skin first-row interiors | Prior64-parent stage drops12.7%/23.2% at2/4 ranks from group-local coordination; later exact shape ranking cuts metric work~42%. These overlap and must not be added. Direct-cone initialization was withdrawn after a complete cube failure; no production geometry change retained. Displaced general transactions remain open. [Scope](POST_COMPLEXITY_QUERY_TRANSACTIONS.md). |
+| Avoid unchanged failed searches | No new extension in this follow-up | Existing dependency-triggered behavior retained. Further work must distinguish geometry rejection, insufficient source support, work exhaustion and temporary conflicts. |
+| Reuse transfer geometry across fields/histories | Existing facilities retained; additional optimization not attempted | The new correction stages transfer once after final acceptance and share one original source for reassessment/return. No additional overlap-weight sharing campaign or transfer performance result. |
+| Measured-cost partitioning/mid-remeshing migration | Not attempted | Migration/index rebuild/return/solver rebuilding and useful work must enter break-even. Historical2D improved imbalance could still increase elapsed time. No new balancing claim. |
 
-Detailed receipts and current limitations: GOAL3_UNCERTAINTY_COMPLEXITY.md.
+Current table reconciled2026-10-17 against the linked published receipts; subsequent
+paragraphs are historical checkpoints. The [initial table](SUGGESTION_INITIAL_SNAPSHOT_2026_10_16.md)
+is retained. Full Goal3, accepted M6 construction and full lifecycle affordability
+remain open; this is not the final completed-goal report.
 Deferred performance scope: POST_COMPLEXITY_QUERY_TRANSACTIONS.md.
 
 
@@ -614,3 +617,46 @@ No unchanged300s retry, CFD advancement or cluster run. Broader repair-campaign
 retention/edge lifetime/transaction/balance package remains separate; this is
 normalization-stencil reuse, not completion of every performance suggestion.
 [Complete result and evidence](GOAL3_FROZEN_NORMALIZATION_STAGES.md).
+
+## 2026-10-17: direct initialization WITHDRAWN; canonical parent support under final attribution
+
+A direct four-child cone initialized all38,800 M6 parents in3.74s, but all116,400
+transition children still fail final shape criteria and the ordinary complete cube
+stalled after20 edits/1176 work. Constructor/API/default changes are WITHDRAWN;
+source/patch/probes/failed control remain. No attempt-then-fallback ladder installed.
+M6 seeding then exhausted~272s after27,044 cells; no volume edits or accepted mesh.
+This is a rejected strategy, not a completed construction improvement.
+[Negative result](GOAL3_M6_DIRECT_INITIALIZATION.md).
+
+Retained source-index centroid probes now certify a complete physical original
+parent for old vertices or strict interior vertices; unsupported/alias/shared-face
+points keep full imports. First-row cones/ranking stay unchanged. Initial exact
+M6 comparison found an existing singleton/general endpoint-weight mismatch: sensor
+relative2.16e-16, amplified target component relative4.27e-13. Existing exact segment
+kernel now supplies both; no target, fade, finer-demand or tolerance changes.
+Canonical219,532 actual sensor+composed-query rows and legacy geometry match exactly.
+70 serial cases/14,417 assertions, MPI/subset/curved/reader and independent RANS/SA/
+BDF/CGNS/restart pass. Generic finer-sensor4096-work failure still needs unchanged
+baseline attribution; do not label the combined campaign passing.
+
+Changed complete M6 run makes10,080 PRIVATE parent replacements at300s, still before
+seeding/volume edits. Source import~.09s/rank; geometric edge preparation reaches192s
+on rank2 and is the next hotspot. No accepted/full-event speedup or M6 hypothesis
+success claimed. Original donor P1 and geometric BL remain frozen, not refit from
+adapted samples. This is bounded support-query reuse, not all repair-campaign
+retention or transaction/balance ideas. Deadline checks now bound seeding/update at
+common batch boundaries. One owned job, nice19/build-j1/thread1/MPI<=4; RAM~38--41GiB,
+swap unchanged. [Exact proof/evidence/status](GOAL3_ORIGINAL_SUPPORT.md).
+
+Follow-up attribution: the unchanged c70 source paths (plus only the independent
+seeding deadline check) fail the stronger generic finer case at the same4096 work,
+162 rounds and67 rank0 accepted edits. Initial/rejected finer SU2 files are
+byte-identical. This is an existing limitation; neither failed folder is promoted
+to passing. Candidate sources were restored for final build verification.
+
+Final source/build/binary restoration is EXACT: both executables, build manifests and
+candidate Engine3D/Field3D hashes match the qualified canonical producer; dependency
+check has no work. Reuse the70-case serial, MPI,219,532-row exact frozen comparison
+and independent RANS/BDF/restart evidence. Current package is qualified only within
+that scope; full M6 and the baseline generic-finer limitation remain rejected.
+[Complete summary/proof](../integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/original_parent_support_v1/summary.json).

@@ -858,6 +858,46 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     if(options.timings)stats.reconstruction_seconds+=std::chrono::duration<double>(Clock::now()-region_started).count();
     region_active=false;result.valid=false;result.reason.clear();
   }
+  auto import_source=[&](const std::vector<Cell>& cells,size_t extra,bool layer) {
+    auto failed=[&](){DonorPatch patch;patch.reason=result.reason;return patch;};
+    if(!admit(transfer_memory::Add(extra,transfer_memory::Bytes(cells),transfer_memory::Mul(cells.size(),sizeof(Point)))))return failed();
+    CLocalFailure failure;std::vector<Point> points;
+    try {points.reserve(cells.size());for(const auto& c:cells)points.push_back(Centroid(c));}
+    catch(const std::exception& e){failure.Set(2,0,e.what());}
+    if(!vote(failure))return failed();
+    auto count_import=[&](){if(layer)++stats.layer_donor_batches;else ++stats.donor_batches;};
+    count_import();
+    auto patch=source.ProbePoints(points,options.memory_ceiling,
+        transfer_memory::Add(bytes(),directory.ResidentBytes(),extra,transfer_memory::Bytes(cells)));
+    if(!patch.valid)return patch;
+    bool supported=true;
+    try {for(size_t i=0;i<cells.size();++i) {
+      bool found=false;
+      for(const auto& d:patch.cells) {
+        if(d.extension_component!=UINT64_MAX)continue;
+        const auto& v=d.cell.v;const Tetrahedron parent{v[0].p,v[1].p,v[2].p,v[3].p};
+        auto interior=[&](Point p){std::array<long double,4> w;return Barycentric(parent,p,w) &&
+            std::all_of(w.begin(),w.end(),[](long double x){return x>0;});};
+        if(!interior(points[i]))continue;
+        bool contains=true;
+        for(auto n:cells[i].v) {
+          const bool vertex=std::any_of(v.begin(),v.end(),[&](Node old){return n.id==old.id &&
+              n.p.x==old.p.x && n.p.y==old.p.y && n.p.z==old.p.z;});
+          if(!vertex && !interior(n.p)){contains=false;break;}
+        }
+        if(contains){found=true;break;}
+      }
+      if(!found){supported=false;break;}
+    }}catch(const std::exception& e){failure.Set(2,0,e.what());}
+    if(!vote(failure))return failed();
+    // Original edges use their exact nodal P1; all other edges and centroids stay strictly inside a parent.
+    // First-row cones preserve this property; arbitrary reconstruction still needs full-cell imports.
+    if(!world.maximum(!supported))return patch;
+    // shortcut: shared-face inserted points retain full imports; extend only with canonical-source equivalence proof.
+    patch={};std::vector<Point>().swap(points);count_import();
+    return source.ImportCells(cells,options.memory_ceiling,
+        transfer_memory::Add(bytes(),directory.ResidentBytes(),extra));
+  };
   if(!options.wall_heights.empty()) {
     layer_active=true;layer_started=Clock::now();
     CLocalFailure failure;
@@ -943,8 +983,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
                 if(reserved.chosen[k])query.push_back(imported.candidates[k].cells.front().cell);
               }catch(const std::exception& e){failure.Set(2,0,e.what());}
               if(!vote(failure))return false;
-              ++stats.layer_donor_batches;
-              donors=source.ImportCells(query,options.memory_ceiling,transfer_memory::Add(bytes(),directory.ResidentBytes(),layerScratch));
+              donors=import_source(query,layerScratch,true);
               if(donors.valid)break;
               if(!DonorCap(donors.reason) || group==1){result.reason=donors.reason;return false;}
               span=(group+1)/2;group=std::min(span,slots-at);++stats.layer_donor_retries;
@@ -1075,6 +1114,10 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
   auto measure=[&](const std::vector<Id>& ids,bool seed) {
     const size_t count=CPassiveComm::Allreduce(ids.size(),CPassiveComm::Op::MAX,world.comm);
     for (size_t slot=0; slot<count;) {
+      if(options.maximum_seconds && world.maximum(std::chrono::duration<double>(Clock::now()-started).count()>=options.maximum_seconds)) {
+        stats.stop=EngineStop::TimeBudget;result.reason=seed ? "Native3D metric seeding exhausts elapsed-time budget." :
+            "Native3D metric update exhausts elapsed-time budget.";return false;
+      }
       size_t batch=std::min<size_t>(16,count-slot);
       DonorPatch imported;
       CLocalFailure failure;
@@ -1085,9 +1128,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
             regions.push_back(working.at(ids[i]).cell);
         } catch (const std::exception& e) { failure.Set(2,0,e.what()); }
         if (!vote(failure)) return false;
-        ++stats.donor_batches;
-        imported=source.ImportCells(regions,options.memory_ceiling,
-            transfer_memory::Add(bytes(),directory.ResidentBytes()));
+        imported=import_source(regions,0,false);
         // Narrow only a one-cell cap failure; private reconstruction still needs whole-cell coverage.
         if (!imported.valid && batch==1 &&
             DonorCap(imported.reason)) {

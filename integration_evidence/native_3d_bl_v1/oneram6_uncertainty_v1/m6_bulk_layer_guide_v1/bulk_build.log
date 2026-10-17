@@ -1,0 +1,43 @@
+ninja: Entering directory `integration_evidence/build-integrated-v2'
+[1/28] Compiling C++ object Common/src/libSU2AccurateSum.a.p/adaptation_CNativeField3D.cpp.o
+[2/28] Compiling C++ object Common/src/libSU2AccurateSum.a.p/adaptation_CNativeBoundary3D.cpp.o
+FAILED: [code=1] Common/src/libSU2AccurateSum.a.p/adaptation_CNativeBoundary3D.cpp.o 
+c++ -ICommon/src/libSU2AccurateSum.a.p -ICommon/src -I../../Common/src -I../../externals/CLI11 -I../../externals/eigen -I../../externals/cgns/adf -I../../externals/cgns/adfh -Iexternals/cgns -I../../externals/cgns -Iexternals/cgns/hdf5 -I../../externals/cgns/hdf5 -I../../externals/metis/include -I../../externals/metis/GKlib -I../../externals/metis/libmetis -I../../externals/parmetis/include -I../../externals/parmetis/libparmetis -I../../externals/mel -I/usr/lib/x86_64-linux-gnu/openmpi/include/openmpi -I/usr/lib/x86_64-linux-gnu/openmpi/include -fdiagnostics-color=always -D_GLIBCXX_ASSERTIONS=1 -D_FILE_OFFSET_BITS=64 -std=c++17 -O2 -g -fPIC -pthread -Wno-empty-body -Wno-ignored-qualifiers -Wno-unused-parameter -Wno-deprecated-declarations -Wno-error=cast-function-type -Wno-cast-function-type -Wno-error=stringop-truncation -Wno-stringop-truncation -Wno-error=missing-field-initializers -Wno-missing-field-initializers -Wno-error=class-memaccess -Wno-class-memaccess -Wno-overloaded-virtual -Wno-array-bounds -march=native -ffast-math -fno-finite-math-only -DHAVE_CGNS -DHAVE_MPI -DHAVE_METIS -DHAVE_PARMETIS -DHAVE_MMG -fno-fast-math -fno-unsafe-math-optimizations -ffp-contract=off -MD -MQ Common/src/libSU2AccurateSum.a.p/adaptation_CNativeBoundary3D.cpp.o -MF Common/src/libSU2AccurateSum.a.p/adaptation_CNativeBoundary3D.cpp.o.d -o Common/src/libSU2AccurateSum.a.p/adaptation_CNativeBoundary3D.cpp.o -c ../../Common/src/adaptation/CNativeBoundary3D.cpp
+../../Common/src/adaptation/CNativeBoundary3D.cpp: In function ‘bool SU2Native3D::ConstructFirstLayer(const SU2Native3D::Patch&, SU2Native3D::Node, SU2Native3D::Id, SU2Native3D::Id, const std::map<int, double>&, const SU2Native3D::PlanarReference&, SU2Native3D::Patch&, SU2Native3D::FirstHeightReport&, std::string&, SU2Native3D::KernelStats*)’:
+../../Common/src/adaptation/CNativeBoundary3D.cpp:419:104: error: ‘center’ was not declared in this scope
+  419 |       for(const auto& node:nodes)admittedClearance=std::max(admittedClearance,-Dot(Delta(node.second.p,center),normal));
+      |                                                                                                        ^~~~~~
+../../Common/src/adaptation/CNativeBoundary3D.cpp:419:112: error: ‘normal’ was not declared in this scope
+  419 |       for(const auto& node:nodes)admittedClearance=std::max(admittedClearance,-Dot(Delta(node.second.p,center),normal));
+      |                                                                                                                ^~~~~~
+../../Common/src/adaptation/CNativeBoundary3D.cpp:422:51: error: ‘center’ was not declared in this scope
+  422 |       const auto clearance=-Dot(Delta(opposite->p,center),normal);
+      |                                                   ^~~~~~
+../../Common/src/adaptation/CNativeBoundary3D.cpp:422:59: error: ‘normal’ was not declared in this scope
+  422 |       const auto clearance=-Dot(Delta(opposite->p,center),normal);
+      |                                                           ^~~~~~
+ninja: build stopped: subcommand failed.
+Command exited with non-zero status 1
+	Command being timed: "nice -n19 /home/rausa/Software/su2-develop/ninja -C integration_evidence/build-integrated-v2 -j1 UnitTests/test_driver SU2_CFD/src/SU2_CFD"
+	User time (seconds): 5.50
+	System time (seconds): 0.33
+	Percent of CPU this job got: 98%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:05.90
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 351628
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 0
+	Minor (reclaiming a frame) page faults: 177185
+	Voluntary context switches: 26
+	Involuntary context switches: 364
+	Swaps: 0
+	File system inputs: 0
+	File system outputs: 23640
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 1

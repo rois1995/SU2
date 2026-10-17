@@ -227,6 +227,25 @@ TEST_CASE("Native 3D sensor edge length integrates affine donors and rejects inc
   CHECK(field.Statistics().edge_containment_tests == 4);
 }
 
+TEST_CASE("Native edge sensor samples are independent of extra nonintersecting source support", "[NativeMesh3D][NativeOriginalSupport3D]") {
+  auto transform=[](Point p){return Point{1.17+1.2*p.x+.07*p.y+.11*p.z,
+      1.19+.1*p.x+.8*p.y+.04*p.z,-.002+.3*p.x-.07*p.y+1.1*p.z};};
+  std::array<Node,5> n{{{0,transform({0,0,0})},{1,transform({1,0,0})},{2,transform({0,1,0})},
+      {3,transform({0,0,1})},{4,transform({1,1,1})}}};
+  const auto parent=Donor(0,{n[0],n[1],n[2],n[3]}),adjacent=Donor(1,{n[1],n[2],n[3],n[4]});
+  using Row=std::array<double,9>;std::vector<Row> a,b;
+  auto observe=[](std::vector<Row>& rows){return [&rows](Point p,Tensor m){
+    rows.push_back({p.x,p.y,p.z,m.xx,m.xy,m.xz,m.yy,m.yz,m.zz});return m;};};
+  const MetricEdgeBreakpoints cuts=[](Point,Point){return std::vector<double>{0,1};};
+  FrozenField one({parent},observe(a),false,{},cuts),two({parent,adjacent},observe(b),false,{},cuts);
+  for(unsigned k=0;k<64;++k) {
+    a.clear();b.clear();const auto p=transform({.21,.23,.17}),q=transform({.19+.00013*k,.29,.22});
+    const auto first=one.TargetEdgeLength(p,q),second=two.TargetEdgeLength(p,q);
+    CHECK(first==second);CHECK(a==b);
+  }
+  CHECK(one.Statistics().maximum_edge_candidates==1);CHECK(two.Statistics().maximum_edge_candidates==2);
+}
+
 TEST_CASE("Native 3D sensor intervals retain nonzero width when rounded cuts coincide", "[NativeMesh3D]") {
   auto donors = Slabs({-1e100, 0, .5, 1, 1e100}, 1e100, 1e-100);
   FrozenField field(donors);

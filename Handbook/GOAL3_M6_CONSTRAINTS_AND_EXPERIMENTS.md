@@ -33,3 +33,12 @@ geometry preparation147.86s versus9.37–11.88s elsewhere is a recorded hotspot,
 not accepted-lifecycle/scaling evidence. Do not rerun or raise unchanged limits.
 Original CFD state and stage/resource receipts remain. At the recorded checkpoint,
 both binaries had been refreshed and the actual M6 initializer had completed.
+
+Accounting annotation2026-10-17: the historical summary labels447 as global
+publications, but the saved four worker rows EACH report layer_published=447.
+The result-creation commit d3e16ca7ecb3d8ae02750327ffae9de0a0d3a1ac increments
+this counter locally (no reduction); that interpretation gives1788 total private
+parent replacements, consistent with global_work1788. The original receipt lacks
+an engine-source pin, so preserve it and this provenance qualification. Either
+interpretation leaves the substantive result unchanged: initialization timed out,
+volume refinement never started, and no accepted M6 mesh was produced.

@@ -190,23 +190,13 @@ long double FrozenField::EdgeLength(Point a, Point b, bool composed) {
     std::vector<SegmentPiece> pieces;
     {
       Timer timer(stats.edge_trace_seconds, timings);
-      if (cells.size() == 1) {
-        const auto& v = cells.front()->v;
-        const Tetrahedron t{v[0].p, v[1].p, v[2].p, v[3].p};
-        SegmentPiece piece;
-        ++stats.edge_containment_tests;
-        const bool first = Barycentric(t, a, piece.begin_weights, &stats.kernel);
-        ++stats.edge_containment_tests;
-        const bool last = Barycentric(t, b, piece.end_weights, &stats.kernel);
-        if (!(first && last)) throw std::runtime_error("Uncovered native 3D singleton sensor edge.");
-        // A tetrahedron is convex: no internal source crossing exists between two contained endpoints.
-        pieces.push_back(piece);
-        ++stats.edge_direct_intervals;
-      } else
-        pieces = TraceSegment(cells, a, b, &stats.kernel,
-            std::count_if(candidates.begin(),candidates.end(),[&](unsigned long i) {
-              return donors[i].extension_component==UINT64_MAX;
-            }));
+      if(cells.size()==1)stats.edge_containment_tests+=2;
+      // One canonical segment kernel keeps endpoint weights independent of imported support size.
+      pieces=TraceSegment(cells,a,b,&stats.kernel,
+          std::count_if(candidates.begin(),candidates.end(),[&](unsigned long i) {
+            return donors[i].extension_component==UINT64_MAX;
+          }));
+      if(cells.size()==1)++stats.edge_direct_intervals;
     }
     stats.edge_pieces += pieces.size();
     stats.maximum_edge_pieces = std::max(stats.maximum_edge_pieces, pieces.size());

@@ -1,0 +1,21 @@
+{
+  "baseline": "Exact c70 Engine3D/Field3D source with only the independent deadline check; no parent support or canonical-weight change.",
+  "same_stop": "work_budget",
+  "same_global_work": 4096,
+  "same_rounds": 162,
+  "same_rank0_accepted": 67,
+  "same_rank0_final_cells": 154,
+  "geometric_files": [
+    {
+      "file": "finer_grouped_initial_euler_n4.su2",
+      "byte_identical": true,
+      "sha256": "ab53a8693371504937c61afc8a87f40f88f197f4eb45634f8cf676ebbb24630b"
+    },
+    {
+      "file": "finer_grouped_constructed_BL_rejected_n4.su2",
+      "byte_identical": true,
+      "sha256": "bbe62e4828ad91a028560562698b3db6411200b67a2e486a907c74712de8e311"
+    }
+  ],
+  "conclusion": "Existing generic finer-sensor construction limitation, not introduced by the new source-support path. Both rejected; not a passing regression or infeasibility proof."
+}

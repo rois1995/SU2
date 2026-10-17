@@ -1,0 +1,36 @@
+Traceback (most recent call last):
+  File "integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/m6_bulk_layer_guide_v1/probe.py", line 14, in <module>
+    run.invoke(folder,{'SU2_NATIVE_FIRST_ROW_ROOT':str(CASE),'SU2_NATIVE_FIRST_ROW_PROBE_TETS':str(HERE/'normal_caps.bin')},CASE/'working_cells.dat',2,test_filter='[NativeFirstRowReplay3D]')
+  File "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/run.py", line 29, in invoke
+    identity={'pins':pins(),'fixture':sha(fixture),'parameters':env,'ranks':ranks,'test_filter':test_filter,'expected_failure':expected_failure}
+  File "integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/m6_bulk_layer_guide_v1/probe.py", line 8, in pins
+    def pins():return dict(old_pins(),**{p:run.sha(ROOT/p) for p in source},**{str(p.relative_to(ROOT)):run.sha(p) for p in inputs})
+  File "integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/m6_bulk_layer_guide_v1/probe.py", line 8, in <dictcomp>
+    def pins():return dict(old_pins(),**{p:run.sha(ROOT/p) for p in source},**{str(p.relative_to(ROOT)):run.sha(p) for p in inputs})
+  File "/usr/lib/python3.8/pathlib.py", line 908, in relative_to
+    raise ValueError("{!r} does not start with {!r}"
+ValueError: 'integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/m6_bulk_layer_guide_v1/probe.py' does not start with '/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated'
+Command exited with non-zero status 1
+	Command being timed: "nice -n19 python3 integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/m6_bulk_layer_guide_v1/probe.py"
+	User time (seconds): 1.84
+	System time (seconds): 0.22
+	Percent of CPU this job got: 99%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:02.07
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 49352
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 0
+	Minor (reclaiming a frame) page faults: 11525
+	Voluntary context switches: 1
+	Involuntary context switches: 10
+	Swaps: 0
+	File system inputs: 0
+	File system outputs: 72
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 1

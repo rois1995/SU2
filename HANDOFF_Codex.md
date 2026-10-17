@@ -5,11 +5,15 @@ Worktree `/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated`, branch
 **Full Goal3 ACTIVE/incomplete.** [Full scope/gates](integration_evidence/native_3d_bl_v1/GOAL3_REQUIREMENTS.json).
 Leave AdapNoExt, foreign ClusterResults and dependencies untouched.
 
-**Latest connected checkpoint:** bounded original-family frozen correction stages
-PASS serial/MPI1/2/4, N=M/N4M2 and independent RANS/SA/BDF/CGNS restart audits.
-One final transfer; no Hessian/history rebuild inside correction. Original raw
-frames/bounds/gradation remain the source. All owned jobs terminal; the validated scope and evidence are recorded below.
-[Implementation, work, exact results and limits](Handbook/GOAL3_FROZEN_NORMALIZATION_STAGES.md).
+**Current work:** qualify original-source parent support for first-row ranking and
+metric measurement, preserving the existing constructor and full-query target.
+[Current proof, canonical interpolation issue, checks and remaining gates](Handbook/GOAL3_ORIGINAL_SUPPORT.md).
+Direct-cone initialization was fast but failed a complete ordinary cube and is
+WITHDRAWN, with all evidence retained. M6 seeding remains a measured bottleneck;
+no accepted M6 mesh. [Rejected strategy and complete run](Handbook/GOAL3_M6_DIRECT_INITIALIZATION.md).
+Canonical serial/MPI/frozen-query/RANS checks pass; full M6 still rejects during initialization. Baseline attribution confirms the same preexisting generic finer-sensor failure and byte-identical rejected grid. Candidate Engine3D/Field3D and both binaries are restored exactly to their qualified hashes; dependency check clean. All owned jobs are terminal.
+Published c70bf64e2b correction stages retain their scoped evidence in
+[the normalization handbook](Handbook/GOAL3_FROZEN_NORMALIZATION_STAGES.md).
 
 ## Current production and evidence
 
@@ -99,13 +103,15 @@ agent's entries in the [outcome ledger](Handbook/SUGGESTION_OUTCOME_LEDGER.md).
 
 ## Execution and working rules
 
-All owned jobs terminal. Current connected campaign:8 independently complete native
-case groups; original-family controls on1/2/4,8 actual RANS workflows and affected
-curved/reader/reassessment on4. Serial pilot69.35s, MPI+audits219.61s with sealed serial
-reuse. One owned heavy job/build-j1/nice19/thread1/MPI<=4; max build process2.40GiB,
-host~38--41GiB available/swap unchanged. No CFD advancement/full M6/cluster run.
-Syntax, marker-binding fixture and reporting-wrapper failures are retained. Current
-source/binaries qualify the stated planar correction scope; full Goal3 stays open.
+All owned jobs terminal. Current source-support package:70 serial cases/14,417
+assertions, affected MPI/subset/curved/reader and independent RANS/SA+BDF/CGNS restart
+PASS.219,532 unique M6 actual query rows and legacy geometry are bit-identical
+between qualified support and full-import paths. Exact source/build/binary restoration
+proof allows reuse after the baseline attribution run. Whole M6 still rejects at300s
+during initialization after10,080 private parents; generic finer4096-work limitation
+is byte-identical on baseline/candidate. No full Goal3/accepted-M6/speedup claim.
+One heavy job/nice19/build-j1/thread1/MPI<=4; RAM~38--41GiB, swap unchanged. No cluster
+or CFD advancement. All rejected experiments/source/provenance remain.
 
 Follow [AGENTS.md](AGENTS.md): substantial capability-first changes, difficult
 case early, source/build/binary/input/helper-aware resumable evidence, no full

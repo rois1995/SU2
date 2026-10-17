@@ -1,0 +1,56 @@
+{
+  "status": "PASS_DIAGNOSTIC_NOT_A_COMPLETE_MESH",
+  "wall_caps": 38800,
+  "q": {
+    "0": 0.8223168220724827,
+    "0.001": 0.8611632147864913,
+    "0.01": 0.9115566951453413,
+    "0.1": 0.9467220582074777,
+    "0.5": 0.979651411483876,
+    "0.9": 0.9830249975672049,
+    "0.99": 0.9900832300969166,
+    "1": 0.9982185139065649
+  },
+  "J": {
+    "0": 0.5065216147976275,
+    "0.001": 0.5870145713268914,
+    "0.01": 0.6634551053660276,
+    "0.1": 0.7394229331499278,
+    "0.5": 0.7919444855563371,
+    "0.9": 0.8292330879296844,
+    "0.99": 0.8960349537647674,
+    "1": 0.967222655835011
+  },
+  "shape_failures": 0,
+  "exact_sample_count": 93,
+  "exact_q_absolute_error": 1.5654144647214707e-14,
+  "exact_J_absolute_error": 6.639133687258436e-14,
+  "centroid_absolute_roundoff": 1.1102230246251565e-16,
+  "exact_barycentric_error": 5.421010862427522e-20,
+  "exact_height_relative_error": 1.1721223991401075e-10,
+  "plane_height_over_actual_apex_distance": {
+    "0": 0.6769291983733908,
+    "0.001": 0.7423109385964308,
+    "0.01": 0.9094988995043627,
+    "0.1": 0.998253918180599,
+    "0.5": 0.9999999999999998,
+    "0.9": 1.000003814090107,
+    "0.99": 1.0021310560569368,
+    "1": 1.2563940422689814
+  },
+  "normal_apex_maximum_affine_guide": 1.4772593683400326,
+  "original_positive_guide_minimum": 38.69986664828215,
+  "source_rule": "Native actual-centroid original owner-UPPER6 P1 plus complete original geometric BL/finer/fade; original geometry retained.",
+  "limits": [
+    "No full composed edges, transition topology, complete generation/adaptation/transfer or CFD accuracy checked.",
+    "Native whole-field composition sampled, independently exact determinant/shape/barycentric/height checked on a declared subset; not an independent whole-field geometry oracle.",
+    "Throughput is diagnostic; no lifecycle speedup or new M6 acceptance."
+  ],
+  "hashes": {
+    "integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/m6_bulk_layer_guide_v1/audit_caps.py": "1697d3731299323e32e2b2ced9a0024249f5bd9025c80a502ab9733a9bd3c777",
+    "integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/m6_bulk_layer_guide_v1/normal_caps.bin": "633d7da3a6a4b1be2a4eb2fd899b95f37a5553b4c736c0d453ec49f9c996b48f",
+    "integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/m6_bulk_layer_guide_v1/wall_geometry.npz": "6337ca6c6439a31c94892eaf1a29d2b9de5dbcd84b1779645540410aafd97e56",
+    "integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/m6_bulk_layer_guide_v1/normal_caps_np2/provenance.json": "23554cb3479b37d0d007b6a33f2f8c9cf76bf1bf7ae12fd586283741d506caec",
+    "integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/m6_bulk_layer_guide_v1/normal_caps_np2/result.json": "56c2f574c7847d4fb7616b659dc1a6909ac7ccab9d23d96bce3e08830f339256"
+  }
+}

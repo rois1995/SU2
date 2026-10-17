@@ -1,0 +1,73 @@
+loaded 61330 303359 {'FARFIELD': 2060, 'SYMMETRY': 8094, 'WING3D': 38800}
+{
+  "scope": "Original entire M6 geometry only. Normal apices are proposals, not a constructed/accepted mesh or proof of metric feasibility.",
+  "points": 61330,
+  "tetrahedra": 303359,
+  "markers": {
+    "FARFIELD": 2060,
+    "SYMMETRY": 8094,
+    "WING3D": 38800
+  },
+  "wall_nodes": 19506,
+  "wall_cells": 38800,
+  "wall_faces_per_cell": {
+    "1": 38800,
+    "2": 0,
+    "3": 0,
+    "4": 0
+  },
+  "original_wall_vertices_per_wall_cell": {
+    "3": 38800,
+    "4": 0
+  },
+  "first_height": 2e-06,
+  "wall_tet_altitude": {
+    "0": 6.671960820771135e-05,
+    "0.01": 0.00020935728826066858,
+    "0.1": 0.0012339243433990704,
+    "0.5": 0.004986313766415738,
+    "0.9": 0.014912421203859194,
+    "0.99": 0.0244954921388485,
+    "1": 0.04380887930344856
+  },
+  "centroid_altitude_over_first_height": {
+    "0": 8.33995102594395,
+    "0.01": 26.16966103254028,
+    "0.1": 154.24054292489376,
+    "0.5": 623.2892208019729,
+    "0.9": 1864.0526504823956,
+    "0.99": 3061.9365173560604,
+    "1": 5476.109912931071
+  },
+  "multiple_wall_face_centroid_height_ratio": {
+    "0": 1.0,
+    "0.01": 1.0,
+    "0.1": 1.0,
+    "0.5": 1.0,
+    "0.9": 1.0,
+    "0.99": 1.0,
+    "1": 1.0
+  },
+  "normal_apex_minimum_barycentric": {
+    "0": 4.565284553719196e-05,
+    "0.01": 8.164767607321456e-05,
+    "0.1": 0.00013411638352292692,
+    "0.5": 0.00040109790392455977,
+    "0.9": 0.0016208449170373427,
+    "0.99": 0.009553046959202555,
+    "1": 0.029976195211485705
+  },
+  "normal_apex_outside_its_coarse_tet": 0,
+  "outside_examples": [],
+  "proposed_first_guide_level": 1.5,
+  "wall_cones_without_room_at_centroid": 0,
+  "input_sha256": {
+    "integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/first_row_shape_ranking_v1/Coarse.su2": "8c839170eb5e359f7de6a41434aa6a9c2d620053f37de6d9360bd04d2a63088b",
+    "integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/first_row_shape_ranking_v1/run.cfg": "f9387f0055b5b69361bf93c511552f195f7bdb06d30ac50d16c790379bbacc55",
+    "integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/first_row_shape_ranking_v1/Coarse.su2.native_ref": "1594d8108ad4d9536b6fca11f6538fc0503ec8a547b5939758e21e5ef5506235",
+    "integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/first_row_shape_ranking_v1/sensor_original.bin": "d32e27ddabcf519786d462572576515fdeeb1fe2234c20ad5fae6c229af1545e"
+  },
+  "helper_sha256": "8e8d25783f6ca79d1af8716fc4966d77a14be06fc414faaceacca1e6bb9b17ac",
+  "seconds": 7.488731878926046,
+  "CFD_steps": 0
+}

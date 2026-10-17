@@ -1,0 +1,264 @@
+diff --git a/Common/include/adaptation/CNativeBoundary3D.hpp b/Common/include/adaptation/CNativeBoundary3D.hpp
+index 7e718d49fe..37f803dbec 100644
+--- a/Common/include/adaptation/CNativeBoundary3D.hpp
++++ b/Common/include/adaptation/CNativeBoundary3D.hpp
+@@ -111,6 +111,11 @@ struct FirstHeightReport {
+  *  separately. Metric quality/lengths and global coverage are caller duties. */
+ bool CheckFirstHeight(const Patch& patch,const std::map<int,double>& heights,const PlanarReference& reference,
+                       FirstHeightReport& report,std::string& reason,KernelStats* stats=nullptr);
++/*! Direct four-child cone for one tetrahedron with one requested wall face. Every old face/vertex
++ * is retained; the face-centroid apex has prescribed altitude and must see the complete skin.
++ * Output is unchanged on rejection. Metric acceptance and distributed publication are caller duties. */
++bool ConstructWallCap(const Patch& old,Id apex,Id first_cell,const std::map<int,double>& heights,
++                      const PlanarReference& reference,Patch& fresh,std::string& reason,KernelStats* stats=nullptr);
+ /*! Joint fixed-interface background reconnection and wall-child carving. All new identities/ranges are
+  *  caller-reserved; complete cavity dependencies, target metric, external clearance and commit are separate.
+  *  Wall apices use face-centroid normal placement at prescribed altitude; obstruction requires another
+diff --git a/Common/include/adaptation/CNativeEngine3D.hpp b/Common/include/adaptation/CNativeEngine3D.hpp
+index 3ed136cf7a..de323d8537 100644
+--- a/Common/include/adaptation/CNativeEngine3D.hpp
++++ b/Common/include/adaptation/CNativeEngine3D.hpp
+@@ -48,6 +48,7 @@ struct EngineStats {
+   double region_sampling_seconds=0, region_first_band_seconds=0, region_transition_seconds=0;
+   double region_junction_seconds=0, region_core_seconds=0, region_validation_seconds=0;
+   uint64_t layer_published = 0, height_checks = 0, height_rejected = 0, footprint_rejected = 0;
++  uint64_t layer_bulk_published=0,layer_bulk_declined=0;  // Local parent counts; publication preserves each complete old skin.
+   uint64_t layer_edge_evaluations=0,layer_edge_reused=0;
+   uint64_t layer_batches=0,layer_donor_batches=0,layer_donor_retries=0;
+   uint64_t layer_shape_screens=0,layer_shape_pruned=0;
+diff --git a/Common/src/adaptation/CNativeBoundary3D.cpp b/Common/src/adaptation/CNativeBoundary3D.cpp
+index 1d9a452b15..a0aee70303 100644
+--- a/Common/src/adaptation/CNativeBoundary3D.cpp
++++ b/Common/src/adaptation/CNativeBoundary3D.cpp
+@@ -266,6 +266,17 @@ void Finish(const Patch& old, Patch& proposal, const Skin& expected, const Physi
+     throw std::invalid_argument(reason);
+   CheckSurface(proposal, expected, reference, stats);
+ }
++Node NormalWallPoint(const Face& face,const std::map<Id,Node>& nodes,double height,Id id) {
++  const auto a=nodes.at(face[0]).p,b=nodes.at(face[1]).p,c=nodes.at(face[2]).p;
++  auto normal=Cross(Delta(b,a),Delta(c,a));const auto length=Norm(normal);
++  if(!(length>0))throw std::invalid_argument("Native3D first-layer face is degenerate.");
++  for(auto& value:normal)value/=length;
++  Point center{double(((long double)a.x+b.x+c.x)/3),double(((long double)a.y+b.y+c.y)/3),
++               double(((long double)a.z+b.z+c.z)/3)};
++  // Physical skin is outward; the new apex uses the inward normal.
++  return {id,{double((long double)center.x-height*normal[0]),double((long double)center.y-height*normal[1]),
++              double((long double)center.z-height*normal[2])}};
++}
+ void Endpoints(Edge& edge) {
+   if (edge[0] == edge[1]) throw std::invalid_argument("Native 3D edge repeats an endpoint.");
+   std::sort(edge.begin(), edge.end());
+@@ -349,6 +360,30 @@ bool CheckFirstHeight(const Patch& patch,const std::map<int,double>& heights,con
+   }catch(const std::exception& error){reason=error.what();return false;}
+ }
+ 
++bool ConstructWallCap(const Patch& old,Id apex,Id first_cell,const std::map<int,double>& heights,
++                      const PlanarReference& reference,Patch& fresh,std::string& reason,KernelStats* stats) {
++  try {
++    if(old.cells.size()!=1)throw std::invalid_argument("Native3D direct wall cap requires one complete tetrahedron.");
++    const auto skin=SkinMap(Incidence(old.cells,stats).Boundary());
++    const auto physical=CheckSurface(old,skin,reference,stats);const auto nodes=Nodes(old.cells);
++    const SurfaceFace* wall=nullptr;double height=0;
++    for(const auto& entry:physical) {
++      const auto h=heights.find(reference.Get(entry.second.facet).marker);if(h==heights.end())continue;
++      if(wall)throw std::invalid_argument("Native3D direct wall cap requires exactly one requested wall face.");
++      wall=&entry.second;height=h->second;
++    }
++    if(!wall || !(height>0) || !std::isfinite(height) || nodes.count(apex))
++      throw std::invalid_argument("Native3D direct wall cap lacks a valid height or newly reserved apex.");
++    Patch proposal;
++    if(!Cone(old.cells,NormalWallPoint(wall->v,nodes,height,apex),first_cell,proposal.cells,reason,stats))
++      throw std::invalid_argument(reason);
++    Finish(old,proposal,skin,physical,reference,stats);
++    FirstHeightReport report;
++    if(!CheckFirstHeight(proposal,heights,reference,report,reason,stats))throw std::invalid_argument(reason);
++    fresh=std::move(proposal);reason.clear();return true;
++  }catch(const std::exception& error){reason=error.what();return false;}
++}
++
+ bool ConstructFirstLayer(const Patch& old,Node background,Id first_wall_node,Id first_cell,
+                          const std::map<int,double>& heights,const PlanarReference& reference,
+                          Patch& fresh,FirstHeightReport& report,std::string& reason,KernelStats* stats) {
+diff --git a/Common/src/adaptation/CNativeEngine3D.cpp b/Common/src/adaptation/CNativeEngine3D.cpp
+index 1a5503f187..7ef75b368b 100644
+--- a/Common/src/adaptation/CNativeEngine3D.cpp
++++ b/Common/src/adaptation/CNativeEngine3D.cpp
+@@ -875,6 +875,65 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
+     try {for(const auto& row:working)if(needs_layer(row.second))pending.insert(row.first);}
+     catch(const std::exception& e){failure.Set(2,0,e.what());}
+     if(!vote(failure))return finish();
++    // Disjoint cell-interior cones preserve every shared face: admit one aggregate owner transaction.
++    // Private transition cells still need the unchanged final metric/geometry/height gates.
++    {
++      bool eligible=true;
++      for(Id id:pending) {
++        unsigned walls=0;for(const auto& f:working.at(id).physical)
++          walls+=f.present && options.wall_heights.count(geometry.Get(f.facet).marker);
++        if(walls!=1){eligible=false;break;}
++      }
++      if(!world.maximum(!eligible)) {
++        const uint64_t available=pending.size(),position=CPassiveComm::ExscanSum(available,world.comm);
++        const uint64_t remaining=stats.work_limit-stats.global_work;
++        const size_t count=position<remaining ? std::min(available,remaining-position) : 0;
++        const auto prefix=CPassiveComm::ExscanSum(uint64_t(count),world.comm);
++        const uint64_t total=CPassiveComm::Allreduce(uint64_t(count),CPassiveComm::Op::SUM,world.comm);
++        const auto scratch=transfer_memory::Add(layerScratch,transfer_memory::Mul(count,
++            sizeof(Dependency)+4*sizeof(OwnedCell)+sizeof(Id)+256));
++        if(!admit(scratch))return finish();
++        if(total>UINT64_MAX-maximum_node || total>(UINT64_MAX-maximum_cell)/4)
++          failure.Set(1,0,"Native3D direct wall-cap identity range overflows.");
++        if(!vote(failure))return finish();
++        std::vector<Dependency> removed;std::vector<OwnedCell> added;
++        bool declined=false,expired=false;uint64_t attempted=0;
++        try {
++          Timer timer(stats.layer_geometry_seconds,options.timings);
++          removed.reserve(count);added.reserve(4*count);auto it=pending.begin();
++          for(size_t k=0;k<count;++k,++it) {
++            if(options.maximum_seconds && std::chrono::duration<double>(Clock::now()-started).count()>=options.maximum_seconds)
++              {expired=true;break;}
++            const auto& old=working.at(*it);const auto patch=GeometryPatch(Imported{{old},true,{}});Patch fresh;std::string why;
++            ++attempted;
++            if(!ConstructWallCap(patch,maximum_node+1+prefix+k,maximum_cell+1+4*(prefix+k),
++                                 options.wall_heights,geometry,fresh,why)) {++stats.layer_bulk_declined;declined=true;break;}
++            removed.push_back({old.cell.id,old.version,world.rank});
++            std::map<Face,Id> physical;for(const auto& f:fresh.surface)physical.emplace(Key(f.v),f.facet);
++            for(const auto& c:fresh.cells) {
++              OwnedCell row;row.cell=c;const auto faces=Faces(c);
++              for(unsigned f=0;f<4;++f){const auto found=physical.find(Key(faces[f]));if(found!=physical.end())row.physical[f]={true,found->second};}
++              added.push_back(row);
++            }
++          }
++        }catch(const std::exception& e){failure.Set(2,0,e.what());}
++        expired=expired || (options.maximum_seconds && std::chrono::duration<double>(Clock::now()-started).count()>=options.maximum_seconds);
++        stats.global_work+=CPassiveComm::Allreduce(attempted,CPassiveComm::Op::SUM,world.comm);
++        if(!vote(failure))return finish();
++        if(world.maximum(expired)) {
++          stats.stop=EngineStop::TimeBudget;result.reason="Native3D direct wall-cap initialization exhausts elapsed-time budget.";return finish();
++        }
++        // A rejected member vetoes this whole private cohort; the existing coupled path handles obstructions.
++        if(!world.maximum(declined) && total) {
++          Timer timer(stats.layer_publication_seconds,options.timings);
++          if(!directory.Publish(working,removed,added,true,result.reason,options.memory_ceiling,
++                                transfer_memory::Add(bytes(),source.ResidentBytes(),scratch)))return finish();
++          for(const auto& row:removed)pending.erase(row.cell);
++          stats.layer_published+=removed.size();stats.layer_bulk_published+=removed.size();
++          stats.maximum_owned=std::max(stats.maximum_owned,working.size());maximum_node+=total;maximum_cell+=4*total;
++        }
++      }
++    }
+     uint64_t epoch=0;
+     while(world.maximum(!pending.empty())) {
+       if(stats.global_work>=stats.work_limit) {stats.stop=EngineStop::WorkBudget;result.reason="Native3D first-row initialization exhausts global work budget.";return finish();}
+@@ -1075,6 +1134,10 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
+   auto measure=[&](const std::vector<Id>& ids,bool seed) {
+     const size_t count=CPassiveComm::Allreduce(ids.size(),CPassiveComm::Op::MAX,world.comm);
+     for (size_t slot=0; slot<count;) {
++      if(options.maximum_seconds && world.maximum(std::chrono::duration<double>(Clock::now()-started).count()>=options.maximum_seconds)) {
++        stats.stop=EngineStop::TimeBudget;result.reason=seed ? "Native3D metric seeding exhausts elapsed-time budget." :
++            "Native3D metric update exhausts elapsed-time budget.";return false;
++      }
+       size_t batch=std::min<size_t>(16,count-slot);
+       DonorPatch imported;
+       CLocalFailure failure;
+diff --git a/Common/src/adaptation/CNativeRemesher3D.cpp b/Common/src/adaptation/CNativeRemesher3D.cpp
+index 90408ed13e..350ed6ba97 100644
+--- a/Common/src/adaptation/CNativeRemesher3D.cpp
++++ b/Common/src/adaptation/CNativeRemesher3D.cpp
+@@ -629,6 +629,7 @@ CRemeshResult CNativeRemesher3D::Remesh(const CConfig& config, const CGeometry&
+              << " layer_geometry_nested_s=" << e.layer_geometry_seconds << " layer_metric_nested_s=" << e.layer_metric_seconds
+              << " layer_publication_nested_s=" << e.layer_publication_seconds
+              << " layer_edge_evaluations=" << e.layer_edge_evaluations << " layer_edge_reused=" << e.layer_edge_reused
++             << " layer_bulk_published=" << e.layer_bulk_published << " layer_bulk_declined=" << e.layer_bulk_declined
+              << " layer_published=" << e.layer_published << " height_checks=" << e.height_checks << " height_rejected=" << e.height_rejected << " footprint_rejected=" << e.footprint_rejected
+              << " wall_reconstruction_trials=" << e.wall_reconstruction_trials << " wall_reconstruction_accepted=" << e.wall_reconstruction_accepted
+              << " wall_joint_trials=" << e.wall_joint_trials << " wall_joint_moves=" << e.wall_joint_moves << " wall_joint_removals=" << e.wall_joint_removals << " wall_joint_accepted=" << e.wall_joint_accepted
+diff --git a/UnitTests/Common/adaptation/CNativeBoundary3D_tests.cpp b/UnitTests/Common/adaptation/CNativeBoundary3D_tests.cpp
+index 72d4ddb9ad..0c8460e3e8 100644
+--- a/UnitTests/Common/adaptation/CNativeBoundary3D_tests.cpp
++++ b/UnitTests/Common/adaptation/CNativeBoundary3D_tests.cpp
+@@ -952,6 +952,30 @@ TEST_CASE("Coordinated surface strip preserves geometry while rejecting the old
+   }
+ }
+ 
++TEST_CASE("Native3D direct wall cap retains the complete parent skin and rejects atomically", "[NativeFirstLayer3D]") {
++  const auto cube=Cube();const PlanarReference reference(Facets(cube));Patch old;old.cells={cube.cells.front()};
++  const auto skin=Incidence(old.cells).Boundary();
++  for(const auto& f:cube.surface)if(std::find(skin.begin(),skin.end(),f.v)!=skin.end())old.surface.push_back(f);
++  std::map<int,double> heights;
++  for(const auto& f:old.surface)if(std::all_of(reference.Get(f.facet).v.begin(),reference.Get(f.facet).v.end(),
++      [](Node n){return n.p.z==0;}))heights[reference.Get(f.facet).marker]=.1;
++  REQUIRE(heights.size()==1);Patch fresh;std::string reason;
++  REQUIRE(ConstructWallCap(old,100,200,heights,reference,fresh,reason));CHECK(fresh.cells.size()==4);
++  CHECK(ValidateFixedInterface(old.cells,fresh.cells,reason));FirstHeightReport report;
++  CHECK(CheckFirstHeight(fresh,heights,reference,report,reason));CHECK(report.wall_faces==1);CHECK(report.maximum_tilt<1e-12);
++  for(size_t i=0;i<fresh.cells.size();++i)for(size_t j=i+1;j<fresh.cells.size();++j)
++    CHECK(ConformingDisjoint(fresh.cells[i],fresh.cells[j]));
++  const auto saved=Connectivity(fresh);
++  CHECK_FALSE(ConstructWallCap(old,old.cells.front().v[0].id,200,heights,reference,fresh,reason));
++  CHECK(Connectivity(fresh)==saved);
++  CHECK_FALSE(ConstructWallCap(old,100,UINT64_MAX-2,heights,reference,fresh,reason));CHECK(Connectivity(fresh)==saved);
++  for(auto& h:heights)h.second=2.;
++  CHECK_FALSE(ConstructWallCap(old,100,200,heights,reference,fresh,reason));CHECK(Connectivity(fresh)==saved);
++  for(const auto& f:old.surface)heights[reference.Get(f.facet).marker]=.1;
++  REQUIRE(heights.size()>1);
++  CHECK_FALSE(ConstructWallCap(old,100,200,heights,reference,fresh,reason));CHECK(Connectivity(fresh)==saved);
++}
++
+ TEST_CASE("Native3D joint first-height construction rebuilds wall children and transition", "[NativeFirstLayer3D]") {
+   const auto old=Cube();const auto facets=Facets(old);const PlanarReference reference(facets);
+   std::map<int,double> heights;
+diff --git a/UnitTests/Common/adaptation/CNativeDistributed3D_tests.cpp b/UnitTests/Common/adaptation/CNativeDistributed3D_tests.cpp
+index daf6361c7e..33945db3fe 100644
+--- a/UnitTests/Common/adaptation/CNativeDistributed3D_tests.cpp
++++ b/UnitTests/Common/adaptation/CNativeDistributed3D_tests.cpp
+@@ -2153,6 +2153,7 @@ TEST_CASE("Native proposal and clock budgets reject collectively without publish
+   const auto timed=Coarsen(world,input,donors,geometry,{},options);
+   CHECK_FALSE(timed.valid);CHECK(timed.stats.stop==EngineStop::TimeBudget);
+   CHECK(timed.stats.global_work==0);CHECK(Bytes(timed.cells)==saved);CHECK(Bytes(input)==saved);
++  CHECK(timed.stats.initial_cells==0);CHECK(timed.reason.find("metric seeding")!=std::string::npos);
+   options.maximum_seconds=0;
+   const auto completed=Coarsen(world,input,donors,geometry,{},options);
+   INFO(completed.reason);REQUIRE(completed.valid);
+@@ -2274,7 +2275,7 @@ TEST_CASE("Native3D engine initializes wall heights through owner transactions a
+       EngineOptions options;options.wall_heights=heights;options.maximum_rounds=1;options.timings=true;
+       auto result=Refine(worker,owned,Uniform(owned,{1,0,0,1,0,100}),reference,{},options);
+       CHECK(Bytes(owned)==originalBytes);published=worker.sum(int(result.stats.layer_published));
+-      CHECK(published==2);CHECK(result.stats.layer_seconds>0);CHECK(worker.sum(int(result.stats.height_checks))>0);
++      CHECK(published==2);CHECK(worker.sum(int(result.stats.layer_bulk_published))==2);CHECK(result.stats.layer_seconds>0);CHECK(worker.sum(int(result.stats.height_checks))>0);
+       CHECK_FALSE((result.cells.empty() && !owned.empty()));
+       for(const auto& row:result.cells) {
+         FirstHeightReport report;std::string reason;
+@@ -2565,9 +2566,9 @@ TEST_CASE("Native first-row owners construct disjoint wall cells concurrently",
+     const auto result=Refine(world,input,Uniform(input,{1,0,0,1,0,100}),reference,{},options);
+     CHECK(Bytes(input)==saved);CHECK_FALSE(result.valid);CHECK(result.stats.stop==EngineStop::WorkBudget);
+     CHECK(result.stats.global_work==32);CHECK(world.sum(int(result.stats.layer_published))==32);
+-    CHECK(world.maximum(result.stats.layer_shape_pruned>0));
+-    CHECK(world.maximum(result.stats.layer_shape_screens>result.stats.layer_shape_pruned));
+-    CHECK(world.maximum(result.stats.layer_edge_evaluations>0));
++    CHECK(world.sum(int(result.stats.layer_bulk_published))==32);
++    CHECK(result.stats.layer_shape_screens==0);CHECK(result.stats.layer_edge_evaluations==0);
++    CHECK(result.stats.layer_donor_batches==0);
+     std::vector<Tet> signature;
+     for(const auto& row:result.cells) {FirstHeightReport report;std::string reason;
+       CHECK(CheckFirstHeight(PatchOf({row.second}),options.wall_heights,reference,report,reason));
+@@ -2577,7 +2578,7 @@ TEST_CASE("Native first-row owners construct disjoint wall cells concurrently",
+     std::sort(signature.begin(),signature.end());
+     const auto batches=CPassiveComm::Allreduce(result.stats.layer_batches,CPassiveComm::Op::MAX,world.comm);
+     if(batch==1){baseline=signature;baseline_batches=batches;}else {
+-      CHECK(signature==baseline);CHECK(batches<baseline_batches);
++      CHECK(signature==baseline);CHECK(batches==baseline_batches);
+       CHECK(result.stats.layer_maximum_batch<=MaximumCandidateBatch);
+     }
+   }
+diff --git a/UnitTests/SU2_CFD/adaptation/CNativeRemesher3D_tests.cpp b/UnitTests/SU2_CFD/adaptation/CNativeRemesher3D_tests.cpp
+index c00d6f8262..0f7ba35a12 100644
+--- a/UnitTests/SU2_CFD/adaptation/CNativeRemesher3D_tests.cpp
++++ b/UnitTests/SU2_CFD/adaptation/CNativeRemesher3D_tests.cpp
+@@ -505,6 +505,7 @@ TEST_CASE("Native first-row transactions replay original fields without solver i
+     return Tensor{SU2_TYPE::GetValue(m.m[0][0]),SU2_TYPE::GetValue(m.m[0][1]),SU2_TYPE::GetValue(m.m[0][2]),
+         SU2_TYPE::GetValue(m.m[1][1]),SU2_TYPE::GetValue(m.m[1][2]),SU2_TYPE::GetValue(m.m[2][2])};
+   };
++#include "fixtures/native_bulk_layer_probe.inc"
+   EngineOptions options;options.timings=true;options.maximum_work=64;options.maximum_seconds=120;
+   const auto* batch=std::getenv("SU2_NATIVE_FIRST_ROW_BATCH");REQUIRE(batch);options.candidate_batch=std::stoul(batch);
+   REQUIRE((options.candidate_batch==1 || options.candidate_batch==MaximumCandidateBatch));

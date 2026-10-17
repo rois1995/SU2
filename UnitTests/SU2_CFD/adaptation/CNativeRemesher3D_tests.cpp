@@ -497,15 +497,26 @@ TEST_CASE("Native first-row transactions replay original fields without solver i
   Id maximum_node=0,maximum_cell=0;for(const auto& row:owned){maximum_cell=std::max(maximum_cell,row.first);for(auto n:row.second.cell.v)maximum_node=std::max(maximum_node,n.id);}
   REQUIRE(CPassiveComm::Allreduce(maximum_node,CPassiveComm::Op::MAX,world.comm)==nodes.rbegin()->first);
   REQUIRE(CPassiveComm::Allreduce(maximum_cell,CPassiveComm::Op::MAX,world.comm)==elements-1);
+  const bool traceQueries=std::getenv("SU2_NATIVE_FIRST_ROW_TRACE");
+  std::vector<std::array<double,15>> queryTrace;if(traceQueries)queryTrace.reserve(262144);
+  if(std::getenv("SU2_NATIVE_FIRST_ROW_SOURCE_ALIAS"))for(auto& d:original)for(auto& n:d.cell.v)n.id+=(Id(1)<<32);
   auto layers=CBoundaryLayerMetric::FromNativeReference(reference,config);
   const MetricComposition composition=[&](Point p,Tensor sensor) {
     CBoundaryLayerMetric::Tensor m;m.m[0][0]=sensor.xx;m.m[0][1]=m.m[1][0]=sensor.xy;m.m[0][2]=m.m[2][0]=sensor.xz;
     m.m[1][1]=sensor.yy;m.m[1][2]=m.m[2][1]=sensor.yz;m.m[2][2]=sensor.zz;
     const su2double x[3]={p.x,p.y,p.z};layers->ApplyPoint(x,m,core,nullptr,false);
-    return Tensor{SU2_TYPE::GetValue(m.m[0][0]),SU2_TYPE::GetValue(m.m[0][1]),SU2_TYPE::GetValue(m.m[0][2]),
+    const Tensor target{SU2_TYPE::GetValue(m.m[0][0]),SU2_TYPE::GetValue(m.m[0][1]),SU2_TYPE::GetValue(m.m[0][2]),
         SU2_TYPE::GetValue(m.m[1][1]),SU2_TYPE::GetValue(m.m[1][2]),SU2_TYPE::GetValue(m.m[2][2])};
+    if(traceQueries) {
+      if(queryTrace.size()==262144)throw std::runtime_error("Frozen first-row query trace exceeds its bounded storage.");
+      queryTrace.push_back({p.x,p.y,p.z,sensor.xx,sensor.xy,sensor.xz,sensor.yy,sensor.yz,sensor.zz,
+          target.xx,target.xy,target.xz,target.yy,target.yz,target.zz});
+    }
+    return target;
   };
+#include "fixtures/native_bulk_layer_probe.inc"
   EngineOptions options;options.timings=true;options.maximum_work=64;options.maximum_seconds=120;
+  if(traceQueries)options.caller_bytes=size_t(32)<<20;
   const auto* batch=std::getenv("SU2_NATIVE_FIRST_ROW_BATCH");REQUIRE(batch);options.candidate_batch=std::stoul(batch);
   REQUIRE((options.candidate_batch==1 || options.candidate_batch==MaximumCandidateBatch));
   options.edge_breakpoints=[&](Point a,Point b){return layers->EdgeBreakpoints({a.x,a.y,a.z},{b.x,b.y,b.z});};
@@ -515,6 +526,14 @@ TEST_CASE("Native first-row transactions replay original fields without solver i
     for(const auto& row:owned){auto copy=row.second;stream(copy);}return bytes;};
   const auto before=snapshot(); // The original donor vector is borrowed const by Refine.
   const auto result=Refine(world,owned,original,*reference.original,composition,options);
+  if(traceQueries) {
+    const auto calls=queryTrace.size();std::sort(queryTrace.begin(),queryTrace.end());
+    queryTrace.erase(std::unique(queryTrace.begin(),queryTrace.end()),queryTrace.end());
+    std::ofstream trace("query_trace_rank"+std::to_string(world.rank)+".csv");trace<<std::setprecision(17);
+    for(const auto& row:queryTrace){for(unsigned k=0;k<15;++k)trace<<(k?",":"")<<row[k];trace<<'\n';}
+    trace.close();REQUIRE(bool(trace));std::ofstream counts("query_trace_rank"+std::to_string(world.rank)+".json");
+    counts<<"{\"calls\":"<<calls<<",\"unique\":"<<queryTrace.size()<<"}\n";REQUIRE(bool(counts));
+  }
   INFO(result.reason);CHECK(snapshot()==before);CHECK_FALSE(result.valid);CHECK(result.stats.stop==EngineStop::WorkBudget);CHECK(result.stats.global_work==64);
   CHECK(world.sum(uint64_t(result.stats.layer_published))==64);
   std::ofstream output("first_row_rank"+std::to_string(world.rank)+".json");const auto& s=result.stats;
