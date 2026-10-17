@@ -6254,3 +6254,29 @@ normalization default or CFD step changed. CSolver coupling to real bound/gradat
 trials and explicit frozen remesh/reassessment stages remains missing. Full Goal3
 and accepted M6 construction remain OPEN. Evidence/resources/source:
 Handbook/GOAL3_NATIVE_SUPPORT_PROVIDER.md and native_support_provider_v1/summary.json.
+
+## 2026-10-17: actual trial-field complexity and M6 initialization
+
+Runtime CSolver is now connected to bounded global sensor+BL-correction estimation
+with retained original node/weight/wall-geometry stencils. Changed/clipped fields,
+changed cores, reversion and MPI2/4 whole M6 checks pass. The real RANS/SA initializer
+now completes; at the coarsest permitted sensor it estimates790200 +/-27958 against
+100000, explicitly provisional/outside estimated bounds. Same-field refinement
+cannot remove that continuum demand. No accepted new mesh/transfer is demonstrated.
+
+What worked: sensor+BL correction, geometry reuse across actual trial fields and
+uncertainty-aware stopping (no fictitious1e-6 root). Planar support error0.0135%
+against independent coarea; actual planar solver0.05% gate retained. What failed:
+8192/65536 extra query cutoffs replaced accurate planar integration with1.16% noisy
+sampling; both rejected, existing point/panel/depth limits retained. Rotated sensor
+conditioning needs an explicit heuristic numerical indicator, not rejection from
+an inverted floating interval. Q18 vertex-order invariance was a verifier mistake;
+an independent matching rule agrees within4e-16 and native results were reused.
+
+Performance remains poor:415.98s metric initialization,230.56s strict work before
+fallback and168.89s grading7 trials. Bounded prep5.83s/all assessments1.38s. Next
+large step is early coarsest-field feasibility plus geometry-based selection;
+post-refinement same-original-field correction epochs remain unimplemented.
+Repair-campaign donor retention/shared-edge lifetime/batched transactions are not
+implemented by this normalization cache. Detailed evidence/resources/rejections:
+[Runtime complexity](Handbook/GOAL3_RUNTIME_COMPLEXITY.md).

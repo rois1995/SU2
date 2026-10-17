@@ -1,0 +1,30 @@
+[New LWP 759609]
+[New LWP 759611]
+[Thread debugging using libthread_db enabled]
+Using host libthread_db library "/lib/x86_64-linux-gnu/libthread_db.so.1".
+0x00007f60b401c333 in ?? () from /usr/lib/x86_64-linux-gnu/openmpi/lib/openmpi3/mca_btl_vader.so
+
+Thread 3 (Thread 0x7f60affff700 (LWP 759611)):
+#0  0x00007f60b4ec068e in epoll_wait (epfd=10, events=0x560a74cc3030, maxevents=32, timeout=2100000) at ../sysdeps/unix/sysv/linux/epoll_wait.c:30
+#1  0x00007f60b4bbb5e9 in ?? () from /lib/x86_64-linux-gnu/libevent-2.1.so.7
+#2  0x00007f60b4bb1625 in event_base_loop () from /lib/x86_64-linux-gnu/libevent-2.1.so.7
+#3  0x00007f60b4250d56 in ?? () from /lib/x86_64-linux-gnu/libpmix.so.2
+#4  0x00007f60b4f9b609 in start_thread (arg=<optimized out>) at pthread_create.c:477
+#5  0x00007f60b4ec0353 in clone () at ../sysdeps/unix/sysv/linux/x86_64/clone.S:95
+
+Thread 2 (Thread 0x7f60b4b00700 (LWP 759609)):
+#0  0x00007f60b4eb3bbf in __GI___poll (fds=0x7f60b0000b60, nfds=1, timeout=3599968) at ../sysdeps/unix/sysv/linux/poll.c:29
+#1  0x00007f60b4bba981 in ?? () from /lib/x86_64-linux-gnu/libevent-2.1.so.7
+#2  0x00007f60b4bb1625 in event_base_loop () from /lib/x86_64-linux-gnu/libevent-2.1.so.7
+#3  0x00007f60b4c67706 in ?? () from /lib/x86_64-linux-gnu/libopen-pal.so.40
+#4  0x00007f60b4f9b609 in start_thread (arg=<optimized out>) at pthread_create.c:477
+#5  0x00007f60b4ec0353 in clone () at ../sysdeps/unix/sysv/linux/x86_64/clone.S:95
+
+Thread 1 (Thread 0x7f60b4b4aec0 (LWP 759607)):
+#0  0x00007f60b401c333 in ?? () from /usr/lib/x86_64-linux-gnu/openmpi/lib/openmpi3/mca_btl_vader.so
+#1  0x00007f60b4c61854 in opal_progress () from /lib/x86_64-linux-gnu/libopen-pal.so.40
+#2  0x00007f60b536f905 in ompi_request_default_wait () from /lib/x86_64-linux-gnu/libmpi.so.40
+#3  0x00007f60b53c983c in ompi_coll_base_sendrecv_actual () from /lib/x86_64-linux-gnu/libmpi.so.40
+#4  0x00007f60b53ca042 in ompi_coll_base_allreduce_intra_recursivedoubling () from /lib/x86_64-linux-gnu/libmpi.so.40
+#5  0x00007f60b5385411 in PMPI_Allreduce () from /lib/x86_64-linux-gnu/libmpi.so.40
+[Inferior 1 (process 759607) detached]

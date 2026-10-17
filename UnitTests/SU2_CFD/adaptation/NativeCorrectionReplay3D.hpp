@@ -2,6 +2,7 @@
 #pragma once
 #include "../../../Common/include/adaptation/CNativeDonor3D.hpp"
 #include <map>
+#include "../../../SU2_CFD/include/adaptation/CNativeComplexity3D.hpp"
 #include "../../../Common/include/adaptation/CComplexityNormalization.hpp"
 namespace SU2NativeBLReplay {
 using namespace SU2Native3D;
@@ -100,7 +101,55 @@ inline void NormalizeCorrection(World& world,CBoundaryLayerMetric& layers,const 
        <<",\"donor_searches_during_trials\":0,\"geometry_queries_during_trials\":0,\"proven_error_bound\":false"
        <<",\"original_P1_retained\":true,\"homogeneous_family_only\":true,\"production_clipping_or_regradation\":false"
        <<",\"production_normalization_changed\":false,\"mesh_constructed\":false}\n";
-    if(!out)failure.Set(2,0,"Cannot save correction normalization.");
+    out.close();if(!out)failure.Set(2,0,"Cannot save/close correction normalization.");
+  }vote();
+}
+inline void DynamicCorrection(CBoundaryLayerMetric& layers,const char* domainPath) {
+  World world;CLocalFailure failure;
+  auto vote=[&](){const auto selected=world.elect(failure);if(selected.any)throw std::runtime_error(selected.message);};
+  std::vector<CNativeComplexity3D::SourceCell> source;std::vector<Metric> original;std::vector<Id> originalIds;double core=0;
+  try {
+    std::ifstream input(domainPath,std::ios::binary);uint64_t magic=0,count=0;
+    auto read=[&](auto& value){input.read(reinterpret_cast<char*>(&value),sizeof(value));if(!input)throw std::runtime_error("Truncated dynamic source.");};
+    read(magic);read(count);read(core);
+    if(magic!=0x4e41545352433344ULL || !count || count>1000000 || !(core>0))throw std::runtime_error("Invalid dynamic source header.");
+    for(uint64_t i=0;i<count;++i) {
+      uint64_t id=0,nodes[4];double x[12],m[36];read(id);read(nodes);read(x);read(m);
+      if((id+1)%world.size!=unsigned(world.rank))continue;
+      CNativeComplexity3D::SourceCell row;row.cell.id=id;
+      for(unsigned k=0;k<4;++k) {
+        row.nodes[k]=original.size();row.cell.v[k]={nodes[k],{x[3*k],x[3*k+1],x[3*k+2]}};Metric metric;
+        for(unsigned a=0;a<3;++a)for(unsigned b=0;b<3;++b)metric.m[a][b]=m[9*k+3*a+b];
+        original.push_back(metric);originalIds.push_back(nodes[k]);
+      }source.push_back(row);
+    }
+    if(input.peek()!=std::char_traits<char>::eof())throw std::runtime_error("Trailing dynamic source bytes.");
+  }catch(const std::exception& error){failure.Set(2,0,error.what());}vote();
+  CNativeComplexity3D estimate(layers,source,original.size(),size_t(2)<<30);
+  const auto a=estimate.Assess(original,core,true);
+  auto changed=original;double localCore=INFINITY;
+  for(size_t n=0;n<changed.size();++n) {
+    su2double frame[3][3],value[3],work[3];CBlasStructure::EigenDecomposition(changed[n].m,frame,value,3,work);
+    // Spatially varying scaling followed by clipping is deliberately not a homogeneous tensor family.
+    const auto factor=1.2+.3*std::sin(double(originalIds[n]%103));
+    for(auto& v:value){v=std::clamp(factor*v,su2double(.1),su2double(4000.));localCore=std::min(localCore,SU2_TYPE::GetValue(v));}
+    CBlasStructure::EigenRecomposition(changed[n].m,frame,value,3);
+  }
+  double changedCore=0;SU2_MPI::Allreduce(&localCore,&changedCore,1,MPI_DOUBLE,MPI_MIN,world.comm);
+  const auto b=estimate.Assess(changed,changedCore,true),c=estimate.Assess(original,core,true);
+  if(c.global.value!=a.global.value || c.global.uncertainty!=a.global.uncertainty || b.global.value==a.global.value)
+    failure.Set(2,0,"Dynamic source reuse failed.");vote();
+  if(!world.rank) {
+    std::ofstream out("dynamic_complexity.json");out<<std::setprecision(17)<<"{\"trials\":[";
+    unsigned k=0;for(const auto& r:{a,b,c}) {
+      out<<(k++?",":"")<<"{\"value\":"<<r.global.value<<",\"uncertainty\":";
+      if(std::isfinite(r.global.uncertainty))out<<r.global.uncertainty;else out<<"null";
+      out<<",\"sensor_lower\":"<<r.sensorLower<<",\"sensor_upper\":"<<r.sensorUpper<<",\"sensor_q18\":"<<r.sensorQuadrature
+         <<",\"correction\":"<<r.correction<<",\"empirical_SE\":"<<r.standardError<<",\"numerical_indicator\":"<<r.numericalIndicator<<",\"samples\":"<<r.samples
+         <<",\"inside\":"<<r.inside<<",\"direct_checks\":"<<r.directChecks<<'}';
+    }
+    out<<"],\"proven_bound\":false,\"actual_CSolver_called\":false,\"original_RAW9\":true}\n";
+    out.close();if(!out)failure.Set(2,0,"Cannot save/close dynamic complexity proof.");
   }vote();
 }
 inline void Correction(CBoundaryLayerMetric& layers,const char* domainPath,const char* queryPath) {
@@ -243,7 +292,7 @@ inline void Correction(CBoundaryLayerMetric& layers,const char* domainPath,const
       <<",\"source_ownership_shift\":1,\"cached_direct_tensor_checks\":"<<globalAudits[0]<<",\"different_cached_direct_tensors\":"<<globalAudits[1]
       <<",\"seconds_max\":"<<times[0]<<",\"index_build_seconds_max\":"<<times[1]<<",\"owner_density_seconds_max\":"<<times[2]
       <<",\"standard_error_is_proven_bound\":false,\"original_RAW9_preserved\":true,\"complete_original_domain_search\":true,\"production_normalization_changed\":false}\n";
-    if(!result)failure.Set(2,0,"Cannot save global correction result.");
+    result.close();if(!result)failure.Set(2,0,"Cannot save/close global correction result.");
   }
   vote(failure);
   if(normalizing) {

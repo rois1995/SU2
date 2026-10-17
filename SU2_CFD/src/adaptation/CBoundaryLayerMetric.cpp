@@ -2173,7 +2173,7 @@ std::vector<CBoundaryLayerMetric::IntegrationPoint3D> CBoundaryLayerMetric::Inte
         auto retain=[&](RadialPanel panel) {
           rayPoints+=panel.points.size();
           if((fine?retained:0)+points.size()+rayPoints>65536)
-            throw std::runtime_error("Native3D BL column point budget exhausted: retained="+std::to_string(retained)+
+            throw IntegrationLimit("Native3D BL column point budget exhausted: retained="+std::to_string(retained)+
                 " panel="+std::to_string(nextPanel)+" ray="+std::to_string(corner));
           rayValue+=panel.value;rayError+=panel.error;
           radialPriority.emplace(panel.error,nextRadial);radialPanels.emplace(nextRadial++,std::move(panel));
@@ -2196,9 +2196,9 @@ std::vector<CBoundaryLayerMetric::IntegrationPoint3D> CBoundaryLayerMetric::Inte
             panel.value=panel.comparison;panel.error=std::abs(higher-panel.comparison);
             panel.points=std::move(panel.comparisonPoints);panel.upgraded=true;retain(std::move(panel));continue;
           }
-          if(panel.depth>=32)throw std::runtime_error("Native3D BL ray density remains unresolved after32 subdivisions: value="+
+          if(panel.depth>=32)throw IntegrationLimit("Native3D BL ray density remains unresolved after32 subdivisions: value="+
               std::to_string(rayValue)+" error="+std::to_string(rayError+panel.error));
-          if(++visited>16384)throw std::runtime_error("Native3D BL radial quadrature work budget exhausted: retained="+std::to_string(retained)+
+          if(++visited>16384)throw IntegrationLimit("Native3D BL radial quadrature work budget exhausted: retained="+std::to_string(retained)+
               " panels="+std::to_string(nextPanel)+" cones="+std::to_string(charts.size())+" ray="+std::to_string(corner));
           const double middle=.5*(panel.left+panel.right);
           if(middle==panel.left || middle==panel.right)throw std::runtime_error("Unrepresentable native3D radial subdivision.");
@@ -2225,7 +2225,7 @@ std::vector<CBoundaryLayerMetric::IntegrationPoint3D> CBoundaryLayerMetric::Inte
   std::priority_queue<std::pair<double,size_t>> priority;
   for(const auto& point:rule)totalValue+=point.weight*probe(point);
   auto add=[&](size_t cone,const Triangle& triangle,double fraction,unsigned depth) {
-    if(++visited>16384)throw std::runtime_error("Native3D BL angular quadrature work budget exhausted: retained="+std::to_string(retained)+
+    if(++visited>16384)throw IntegrationLimit("Native3D BL angular quadrature work budget exhausted: retained="+std::to_string(retained)+
         " panels="+std::to_string(nextPanel)+" cones="+std::to_string(charts.size())+" estimated_error="+std::to_string(totalError)+" density="+std::to_string(totalValue));
     Panel panel{cone,triangle,fraction,depth,{},0,0};std::vector<IntegrationPoint3D> coarse;
     double highRadialError=0,lowRadialError=0;
@@ -2259,7 +2259,7 @@ std::vector<CBoundaryLayerMetric::IntegrationPoint3D> CBoundaryLayerMetric::Inte
     if(priority.empty())throw std::runtime_error("Native3D BL angular error queue is unresolved.");
     const auto selected=priority.top().second;priority.pop();
     auto panel=std::move(panels.at(selected));panels.erase(selected);
-    if(panel.depth>=32)throw std::runtime_error("Native3D BL angular density remains unresolved after 32 subdivisions.");
+    if(panel.depth>=32)throw IntegrationLimit("Native3D BL angular density remains unresolved after 32 subdivisions.");
     unresolved-=panel.unresolved;
     totalValue-=panel.value;totalError=std::max(0.,totalError-panel.error);retained-=panel.fine.size();
     panel.fine.clear();panel.fine.shrink_to_fit();
@@ -2836,6 +2836,12 @@ bool CBoundaryLayerMetric::TangentialFloor(const Sample& sample, const su2double
   return true;
 }
 
+
+bool CBoundaryLayerMetric::SupportsCorrectionSupport3D() const {
+  if(nDim!=3 || walls.empty())return false;
+  for(const auto& wall:walls)if(wall.authority || wall.layer.growth<1 || wall.layer.thickness<wall.layer.firstHeight)return false;
+  return true;
+}
 
 std::shared_ptr<SU2Native3D::SupportSampler3D> CBoundaryLayerMetric::PrepareCorrectionSupport3D(
     size_t maximumBytes,uint64_t maximumWork) const {

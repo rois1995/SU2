@@ -1,0 +1,120 @@
+{
+  "status": "PASS_RUNTIME_INITIALIZATION_AND_FROZEN_FIELD_CHECKS_WITH_PROVISIONAL_BUDGET",
+  "actual_solver_control": true,
+  "full_M6_CSolver_called": true,
+  "M6_frozen_field": {
+    "trials": [
+      {
+        "value": 940969.8012021779,
+        "uncertainty": 34056.69684315748,
+        "sensor_lower": 142421.03243972364,
+        "sensor_upper": 154272.45539078774,
+        "sensor_q18": 152987.0917867203,
+        "correction": 792623.0572869222,
+        "empirical_SE": 9376.995122489707,
+        "numerical_indicator": 1.5630179267112816e-07,
+        "samples": 8192,
+        "inside": 5326,
+        "direct_checks": 5326
+      },
+      {
+        "value": 986172.5647343178,
+        "uncertainty": 35970.2763785281,
+        "sensor_lower": 187895.63260108518,
+        "sensor_upper": 203974.35188991975,
+        "sensor_q18": 201777.64387979844,
+        "correction": 790237.5724888154,
+        "empirical_SE": 9310.30557798251,
+        "numerical_indicator": 1.6327908195842767e-07,
+        "samples": 8192,
+        "inside": 5326,
+        "direct_checks": 5326
+      },
+      {
+        "value": 940969.8012021779,
+        "uncertainty": 34056.69684315748,
+        "sensor_lower": 142421.03243972364,
+        "sensor_upper": 154272.45539078774,
+        "sensor_q18": 152987.0917867203,
+        "correction": 792623.0572869222,
+        "empirical_SE": 9376.995122489707,
+        "numerical_indicator": 1.5630179267112816e-07,
+        "samples": 8192,
+        "inside": 5326,
+        "direct_checks": 5326
+      }
+    ],
+    "proven_bound": false,
+    "actual_CSolver_called": false,
+    "original_RAW9": true
+  },
+  "oriented_background_reference_sha256": "974680d9c30151c675eccc07340fee33258d95c270c2dab3ebcbc7c185f26d4d",
+  "source_pins": {
+    "integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/run.py": "b179ef9aeff7be9f81f4f7cc0f7dca915d59ee8fedfd2bc29d79e80ae23a5c74",
+    "integration_evidence/build-integrated-v2/UnitTests/test_driver": "3eb6b06a9f6039f450d0c9e6813e8abe510b45a2af868e6c038bc8c89766839a",
+    "integration_evidence/build-integrated-v2/build.ninja": "8b3bd549253b0371e1553e84f81d7426831f3477e73af0e9a524215902c9308a",
+    "integration_evidence/build-integrated-v2/meson-info/intro-buildoptions.json": "59377c452909959635fa25c06589f97be7916c19148364113dd1a62ab38e9a5c",
+    "SU2_CFD/src/adaptation/CBoundaryLayerMetric.cpp": "b5cb57eb245bc77b6112367db81aa877568094c2c1d75bc0c6386d72492eec8d",
+    "SU2_CFD/include/adaptation/CBoundaryLayerMetric.hpp": "7b246d7ce158d80f97a62ee9f89b13f367ae2551a4052cf8702f1ece69555d24",
+    "UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp": "20add341a9abf69c0905c88a94be1e8c2eb03523946bd674790a2bf2571bd4b3",
+    "Common/src/adaptation/CNativeField3D.cpp": "623e68f1296cdd2d7a1d6aaa012860327073bf933fa51c1180c00f9bacfc8aa7",
+    "Common/include/adaptation/CNativeField3D.hpp": "76064ddcfc8e5c7cd5ddef5f0b76d8d76a98bcf40b75a6a9a9d6652ffd32a5c2",
+    "UnitTests/Common/adaptation/CNativeField3D_tests.cpp": "c36ec7441498298a24c7e2c3002e230898108006502c6cc0f34559ef48a275cf",
+    "Common/include/adaptation/CComplexityNormalization.hpp": "041ce6aecd1e0b22edc4d7e09c968d109d6eb9ff21c86184fffeff87dbee01e9",
+    "Common/include/adaptation/CNativeChordEnvelope.hpp": "c7a3429203f7d274df87c8beef452214d8cd531ed1359ce466b6ebd3de88c534",
+    "SU2_CFD/src/solvers/CSolver.cpp": "17ec1d8ad5d0a08b71e112894fa8e36b1bf20157a822e25e5da0dc71da97982c",
+    "SU2_CFD/src/adaptation/CNativeComplexity3D.cpp": "46edc79ce2b30df847a334c7229fcf0d6300a5f645933ad4ae153bae8f73cc36",
+    "SU2_CFD/include/adaptation/CNativeComplexity3D.hpp": "95e6029d4523238211f0c341ff1d9b7a28ee131d58e1329f8930dbba4536aac3",
+    "SU2_CFD/src/meson.build": "36bdabcf98f29c19dde15f93bd4b53d1156928a9e8f8e410486bbc77c4a84dff",
+    "Common/include/adaptation/CNativeSupport3D.hpp": "2919e681a42d956220ac879fbb66e6b9d05d8505984049ec644fcf8a614fd642",
+    "Common/include/adaptation/CNativeDonor3D.hpp": "eb24717994bb2744addb7ccb421631ff98dd82b3e48c3c1578f9052a85cc04c4",
+    "Common/src/adaptation/CNativeDonor3D.cpp": "c218975b9ccaba624260e388da761e119ef098ff720c8a3d4907ad71e506a15d",
+    "UnitTests/SU2_CFD/adaptation/NativeCorrectionReplay3D.hpp": "3af730f262bb7bac7b507e58db34674d96e6690dcd7cb14d108ae339d90c91d4"
+  },
+  "verification_helper_sha256": "07e8a4024ce1dc2bb1d8013b5c1f486318f28353f8a7e70fd8331f356f502fab",
+  "full_goal_complete": false,
+  "accepted_M6_mesh": false,
+  "limits": [
+    "Error indicators heuristic; no certified error bound.",
+    "No refined-original-field reassessment or correction/remesh stages yet.",
+    "Runtime normalization may be provisional at the unchanged requested tolerance."
+  ],
+  "actual_M6_metric_runtime": {
+    "exit_code": 0,
+    "seconds": 425.421200606972,
+    "command": [
+      "taskset",
+      "-c",
+      "0-3",
+      "nice",
+      "-n",
+      "19",
+      "/usr/bin/time",
+      "-v",
+      "-o",
+      "resources.txt",
+      "timeout",
+      "--kill-after=10s",
+      "600s",
+      "mpirun",
+      "-np",
+      "4",
+      "--bind-to",
+      "none",
+      "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD",
+      "run.cfg"
+    ],
+    "provenance_sha256": "6d6deef7856b366f96300f3ab522dea65ae871e593ccccb937ee3b7eaaed7218",
+    "log_sha256": "768d2224bc09d1873e7a9a28ab4df700d60f3efc95058c5800f5170f94727b20",
+    "normalization": [
+      "status=outside_estimated_bounds estimate=790200.49976272881 uncertainty_indicator=27958.454561979677 requested_rtol=9.9999999999999995e-07 trials=7 provisional=1 proven_error_bound=0; target remains frozen during remeshing."
+    ],
+    "support_correction": [
+      "samples=8192 inside=5326 nonzero=5326 sensor_lower=2.0884618106155486 sensor_upper=2.0884618106155486 sensor_quadrature=2.088461810615549 correction=790198.4113009182 empirical_SE=9319.4848539932264 background_roundoff_indicator=8.9036482106715911e-14 preparation_seconds_max=5.8310437709999974 background_seconds_max=1.3278012640000156 correction_seconds_max=0.031654113000001871 reduction_seconds_max=0.00016364799995471913 assessment_seconds_max=1.3827004279999073 retained_bytes_max=14207936 background_determinants=46717286 correction_queries=37282 donor_searches_during_trials=0 geometry_queries_during_trials=0"
+    ],
+    "construction_attempted": false,
+    "accepted_mesh": false,
+    "CFD_steps_requested": 1
+  },
+  "runtime_result_sha256": "f349eeb127dd0300707b8c48f26ffb3b8c0c21dfb4da3ecb5c40dd2c37a164a7"
+}

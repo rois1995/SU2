@@ -1,0 +1,166 @@
+ninja: Entering directory `integration_evidence/build-integrated-v2'
+[1/11] Compiling C++ object SU2_CFD/src/libSU2core.a.p/solvers_CSolver.cpp.o
+[2/11] Compiling C++ object SU2_CFD/src/libSU2core.a.p/adaptation_CNativeComplexity3D.cpp.o
+[3/11] Compiling C++ object SU2_CFD/src/libSU2core.a.p/adaptation_CBoundaryLayerRemesher.cpp.o
+[4/11] Linking static target SU2_CFD/src/libSU2core.a
+[5/11] Compiling C++ object UnitTests/test_driver.p/SU2_CFD_adaptation_BoundaryLayerMetric_tests.cpp.o
+FAILED: [code=1] UnitTests/test_driver.p/SU2_CFD_adaptation_BoundaryLayerMetric_tests.cpp.o 
+c++ -IUnitTests/test_driver.p -IUnitTests -I../../UnitTests -ISU2_CFD/src -I../../SU2_CFD/src -ICommon/src -I../../Common/src -I../../externals/CLI11 -I../../externals/eigen -I../../externals/cgns/adf -I../../externals/cgns/adfh -Iexternals/cgns -I../../externals/cgns -Iexternals/cgns/hdf5 -I../../externals/cgns/hdf5 -I../../externals/metis/include -I../../externals/metis/GKlib -I../../externals/metis/libmetis -I../../externals/parmetis/include -I../../externals/parmetis/libparmetis -I../../externals/mel -I../../externals/catch2 -I/usr/lib/x86_64-linux-gnu/openmpi/include/openmpi -I/usr/lib/x86_64-linux-gnu/openmpi/include -fdiagnostics-color=always -D_GLIBCXX_ASSERTIONS=1 -D_FILE_OFFSET_BITS=64 -std=c++17 -O2 -g -pthread -fPIC -Wno-empty-body -Wno-ignored-qualifiers -Wno-unused-parameter -Wno-deprecated-declarations -Wno-error=cast-function-type -Wno-cast-function-type -Wno-error=stringop-truncation -Wno-stringop-truncation -Wno-error=missing-field-initializers -Wno-missing-field-initializers -Wno-error=class-memaccess -Wno-class-memaccess -Wno-overloaded-virtual -Wno-array-bounds -march=native -ffast-math -fno-finite-math-only -DHAVE_CGNS -DHAVE_MPI -DHAVE_METIS -DHAVE_PARMETIS -DHAVE_MMG -MD -MQ UnitTests/test_driver.p/SU2_CFD_adaptation_BoundaryLayerMetric_tests.cpp.o -MF UnitTests/test_driver.p/SU2_CFD_adaptation_BoundaryLayerMetric_tests.cpp.o.d -o UnitTests/test_driver.p/SU2_CFD_adaptation_BoundaryLayerMetric_tests.cpp.o -c ../../UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp
+../../UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp: In function ‘void C_A_T_C_H_T_E_S_T_105()’:
+../../UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp:2443:21: error: template argument 1 is invalid
+ 2443 |   std::vector<Tensor> original(mesh.GetnPoint());
+      |                     ^
+../../UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp:2443:21: error: template argument 2 is invalid
+../../UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp:2444:15: error: ‘begin’ was not declared in this scope
+ 2444 |   for(auto& m:original)for(unsigned d=0;d<3;++d)m.m[d][d]=2;
+      |               ^~~~~~~~
+../../UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp:2444:15: note: suggested alternatives:
+In file included from /usr/include/c++/9/string:54,
+                 from ../../externals/catch2/catch.hpp:477,
+                 from ../../UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp:27:
+/usr/include/c++/9/bits/range_access.h:105:37: note:   ‘std::begin’
+  105 |   template<typename _Tp> const _Tp* begin(const valarray<_Tp>&);
+      |                                     ^~~~~
+In file included from /usr/include/c++/9/bits/range_access.h:36,
+                 from /usr/include/c++/9/string:54,
+                 from ../../externals/catch2/catch.hpp:477,
+                 from ../../UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp:27:
+/usr/include/c++/9/initializer_list:89:5: note:   ‘std::begin’
+   89 |     begin(initializer_list<_Tp> __ils) noexcept
+      |     ^~~~~
+../../UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp:2444:15: error: ‘end’ was not declared in this scope
+ 2444 |   for(auto& m:original)for(unsigned d=0;d<3;++d)m.m[d][d]=2;
+      |               ^~~~~~~~
+../../UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp:2444:15: note: suggested alternatives:
+In file included from /usr/include/c++/9/string:54,
+                 from ../../externals/catch2/catch.hpp:477,
+                 from ../../UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp:27:
+/usr/include/c++/9/bits/range_access.h:107:37: note:   ‘std::end’
+  107 |   template<typename _Tp> const _Tp* end(const valarray<_Tp>&);
+      |                                     ^~~
+In file included from /usr/include/c++/9/bits/range_access.h:36,
+                 from /usr/include/c++/9/string:54,
+                 from ../../externals/catch2/catch.hpp:477,
+                 from ../../UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp:27:
+/usr/include/c++/9/initializer_list:99:5: note:   ‘std::end’
+   99 |     end(initializer_list<_Tp> __ils) noexcept
+      |     ^~~
+In file included from ../../externals/eigen/Eigen/Core:266,
+                 from ../../UnitTests/SU2_CFD/adaptation/../../../SU2_CFD/include/drivers/../integration/../solvers/../../../Common/include/linear_algebra/CSysSolve.hpp:45,
+                 from ../../UnitTests/SU2_CFD/adaptation/../../../SU2_CFD/include/drivers/../integration/../solvers/CSolver.hpp:52,
+                 from ../../UnitTests/SU2_CFD/adaptation/../../../SU2_CFD/include/drivers/../integration/CIntegration.hpp:34,
+                 from ../../UnitTests/SU2_CFD/adaptation/../../../SU2_CFD/include/drivers/CDriver.hpp:33,
+                 from ../../UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp:53:
+../../externals/eigen/Eigen/src/Core/util/IndexedViewHelper.h:181:40: note:   ‘Eigen::placeholders::end’
+  181 |   EIGEN_DEPRECATED static const end_t  end  = Eigen::lastp1; // PLEASE use Eigen::lastp1 instead of Eigen::placeholders::end
+      |                                        ^~~
+../../UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp:2445:32: error: cannot convert ‘int’ to ‘const std::vector<CBoundaryLayerMetric::Tensor>&’
+ 2445 |   const auto a=estimate.Assess(original,2,true);
+      |                                ^~~~~~~~
+      |                                |
+      |                                int
+In file included from ../../UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp:52:
+../../UnitTests/SU2_CFD/adaptation/../../../SU2_CFD/include/adaptation/CNativeComplexity3D.hpp:32:70: note:   initializing argument 1 of ‘CNativeComplexity3D::Assessment CNativeComplexity3D::Assess(const std::vector<CBoundaryLayerMetric::Tensor>&, su2double, bool)’
+   32 |   Assessment Assess(const std::vector<CBoundaryLayerMetric::Tensor>& sensor,su2double core,bool auditDirect=false);
+      |                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~
+../../UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp:2450:26: error: request for member ‘size’ in ‘trial’, which is of non-class type ‘int’
+ 2450 |   for(size_t n=0;n<trial.size();++n) {
+      |                          ^~~~
+../../UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp:2451:12: error: invalid types ‘int[std::size_t {aka long unsigned int}]’ for array subscript
+ 2451 |     trial[n].m[0][0]=std::min(4.+20*mesh.coord[3*n],10.);
+      |            ^
+../../UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp:2452:12: error: invalid types ‘int[std::size_t {aka long unsigned int}]’ for array subscript
+ 2452 |     trial[n].m[1][1]=3.+2*mesh.coord[3*n+1];trial[n].m[2][2]=1.+mesh.coord[3*n+2];
+      |            ^
+../../UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp:2452:52: error: invalid types ‘int[std::size_t {aka long unsigned int}]’ for array subscript
+ 2452 |     trial[n].m[1][1]=3.+2*mesh.coord[3*n+1];trial[n].m[2][2]=1.+mesh.coord[3*n+2];
+      |                                                    ^
+../../UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp:2453:12: error: invalid types ‘int[std::size_t {aka long unsigned int}]’ for array subscript
+ 2453 |     trial[n].m[0][1]=trial[n].m[1][0]=.1*mesh.coord[3*n];
+      |            ^
+../../UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp:2453:29: error: invalid types ‘int[std::size_t {aka long unsigned int}]’ for array subscript
+ 2453 |     trial[n].m[0][1]=trial[n].m[1][0]=.1*mesh.coord[3*n];
+      |                             ^
+../../UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp:2455:32: error: cannot convert ‘int’ to ‘const std::vector<CBoundaryLayerMetric::Tensor>&’
+ 2455 |   const auto b=estimate.Assess(trial,1,true),c=estimate.Assess(original,2,true);
+      |                                ^~~~~
+      |                                |
+      |                                int
+In file included from ../../UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp:52:
+../../UnitTests/SU2_CFD/adaptation/../../../SU2_CFD/include/adaptation/CNativeComplexity3D.hpp:32:70: note:   initializing argument 1 of ‘CNativeComplexity3D::Assessment CNativeComplexity3D::Assess(const std::vector<CBoundaryLayerMetric::Tensor>&, su2double, bool)’
+   32 |   Assessment Assess(const std::vector<CBoundaryLayerMetric::Tensor>& sensor,su2double core,bool auditDirect=false);
+      |                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~
+In file included from ../../UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp:27:
+../../UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp:2458:9: error: ‘c’ was not declared in this scope
+ 2458 |   CHECK(c.global.value==a.global.value);CHECK(c.global.uncertainty==a.global.uncertainty);
+      |         ^
+In file included from ../../UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp:27:
+../../UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp:2458:9: error: ‘c’ was not declared in this scope
+ 2458 |   CHECK(c.global.value==a.global.value);CHECK(c.global.uncertainty==a.global.uncertainty);
+      |         ^
+../../UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp:2462:15: error: ‘begin’ was not declared in this scope
+ 2462 |   for(auto& m:anisotropic)CBlasStructure::EigenRecomposition(m.m,frame,val,3);
+      |               ^~~~~~~~~~~
+../../UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp:2462:15: note: suggested alternatives:
+In file included from /usr/include/c++/9/string:54,
+                 from ../../externals/catch2/catch.hpp:477,
+                 from ../../UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp:27:
+/usr/include/c++/9/bits/range_access.h:105:37: note:   ‘std::begin’
+  105 |   template<typename _Tp> const _Tp* begin(const valarray<_Tp>&);
+      |                                     ^~~~~
+In file included from /usr/include/c++/9/bits/range_access.h:36,
+                 from /usr/include/c++/9/string:54,
+                 from ../../externals/catch2/catch.hpp:477,
+                 from ../../UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp:27:
+/usr/include/c++/9/initializer_list:89:5: note:   ‘std::begin’
+   89 |     begin(initializer_list<_Tp> __ils) noexcept
+      |     ^~~~~
+../../UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp:2462:15: error: ‘end’ was not declared in this scope
+ 2462 |   for(auto& m:anisotropic)CBlasStructure::EigenRecomposition(m.m,frame,val,3);
+      |               ^~~~~~~~~~~
+../../UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp:2462:15: note: suggested alternatives:
+In file included from /usr/include/c++/9/string:54,
+                 from ../../externals/catch2/catch.hpp:477,
+                 from ../../UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp:27:
+/usr/include/c++/9/bits/range_access.h:107:37: note:   ‘std::end’
+  107 |   template<typename _Tp> const _Tp* end(const valarray<_Tp>&);
+      |                                     ^~~
+In file included from /usr/include/c++/9/bits/range_access.h:36,
+                 from /usr/include/c++/9/string:54,
+                 from ../../externals/catch2/catch.hpp:477,
+                 from ../../UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp:27:
+/usr/include/c++/9/initializer_list:99:5: note:   ‘std::end’
+   99 |     end(initializer_list<_Tp> __ils) noexcept
+      |     ^~~
+In file included from ../../externals/eigen/Eigen/Core:266,
+                 from ../../UnitTests/SU2_CFD/adaptation/../../../SU2_CFD/include/drivers/../integration/../solvers/../../../Common/include/linear_algebra/CSysSolve.hpp:45,
+                 from ../../UnitTests/SU2_CFD/adaptation/../../../SU2_CFD/include/drivers/../integration/../solvers/CSolver.hpp:52,
+                 from ../../UnitTests/SU2_CFD/adaptation/../../../SU2_CFD/include/drivers/../integration/CIntegration.hpp:34,
+                 from ../../UnitTests/SU2_CFD/adaptation/../../../SU2_CFD/include/drivers/CDriver.hpp:33,
+                 from ../../UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp:53:
+../../externals/eigen/Eigen/src/Core/util/IndexedViewHelper.h:181:40: note:   ‘Eigen::placeholders::end’
+  181 |   EIGEN_DEPRECATED static const end_t  end  = Eigen::lastp1; // PLEASE use Eigen::lastp1 instead of Eigen::placeholders::end
+      |                                        ^~~
+../../UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp:2463:38: error: cannot convert ‘int’ to ‘const std::vector<CBoundaryLayerMetric::Tensor>&’
+ 2463 |   const auto extreme=estimate.Assess(anisotropic,1);
+      |                                      ^~~~~~~~~~~
+      |                                      |
+      |                                      int
+In file included from ../../UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp:52:
+../../UnitTests/SU2_CFD/adaptation/../../../SU2_CFD/include/adaptation/CNativeComplexity3D.hpp:32:70: note:   initializing argument 1 of ‘CNativeComplexity3D::Assessment CNativeComplexity3D::Assess(const std::vector<CBoundaryLayerMetric::Tensor>&, su2double, bool)’
+   32 |   Assessment Assess(const std::vector<CBoundaryLayerMetric::Tensor>& sensor,su2double core,bool auditDirect=false);
+      |                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~
+../../UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp:2465:20: error: request for member ‘front’ in ‘trial’, which is of non-class type ‘int’
+ 2465 |   if(rank==0)trial.front().m[0][0]=-1;
+      |                    ^~~~~
+In file included from ../../UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp:27:
+../../UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp:2466:32: error: cannot convert ‘int’ to ‘const std::vector<CBoundaryLayerMetric::Tensor>&’
+ 2466 |   CHECK_THROWS(estimate.Assess(trial,1));
+      |                                ^~~~~
+      |                                |
+      |                                int
+In file included from ../../UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp:52:
+../../UnitTests/SU2_CFD/adaptation/../../../SU2_CFD/include/adaptation/CNativeComplexity3D.hpp:32:70: note:   initializing argument 1 of ‘CNativeComplexity3D::Assessment CNativeComplexity3D::Assess(const std::vector<CBoundaryLayerMetric::Tensor>&, su2double, bool)’
+   32 |   Assessment Assess(const std::vector<CBoundaryLayerMetric::Tensor>& sensor,su2double core,bool auditDirect=false);
+      |                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~
+ninja: build stopped: subcommand failed.

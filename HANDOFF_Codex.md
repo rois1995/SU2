@@ -22,13 +22,21 @@ check at the same points: kernel evidence, not adaptation speedup.21 serial case
 pass. All owned jobs terminal; final donor-object refresh preceded every test.
 [Implementation, evidence, resources and limits](Handbook/GOAL3_NATIVE_SUPPORT_PROVIDER.md).
 
-**Production CSolver remains on strict per-cell integration/its old scale search.**
-Next wire the provider to actual bounded/graded trial tensors. Retained source
-stencils must contain original node references/weights and query geometry; cached
-homogeneous sensor answers cannot stand in for changing clipped/graded tensors.
-Reassess the SAME original source with a finer mesh/integration, then use explicit
-bounded frozen normalization/adaptation stages when the corrected budget matters.
-No default5% tolerance was chosen; no accepted M6 grid or lifecycle improvement.
+**Runtime initialization batch validated:** CSolver collectively switches limited
+strict faceted3D quadrature to a retained original-source sensor+BL-correction
+estimate. Every new trial uses actual bounded/graded tensors/core.18 composition/
+controller cases, planar solver accuracy, changed-field/anisotropy/fault controls,
+whole frozen M6 MPI2/4 and one actual saved-state M6 initializer pass.
+[Full evidence, rejected experiments and cost](Handbook/GOAL3_RUNTIME_COMPLEXITY.md).
+Actual coarsest-field estimate790200.5 +/-27958.5 against100000 is provisional/
+outside_estimated_bounds; no default5% tolerance, new adapted mesh or transfer.
+Metric415.98s:230.56s strict work before fallback,168.89s grading7 trials; bounded
+prep5.83s/all assessments1.38s. Initialization works but remains unaffordable.
+**Next:** early uncertainty-aware coarsest-field feasibility and geometry-based
+integration selection, preserving planar precision and the SAME selected frozen
+field. Do not add a query-limit ladder. Then original-source finer-mesh reassessment/
+bounded correction epochs; never refit the original field on adapted nodes.
+All owned jobs terminal; both test_driver and standalone SU2_CFD are current.
 
 Earlier complete-support replay estimates961498/961691 (pooled empirical SE6656),
 not a proven error bound. Tiny-cell conditioning is sparse/inefficient (11–22 hits/
@@ -58,7 +66,7 @@ publications/1788 work; no accepted mesh/transfer/normalized-budget proof. Rank2
 geometry preparation147.86s versus9.37–11.88s elsewhere is a recorded hotspot,
 not accepted-lifecycle/scaling evidence. Do not rerun or raise unchanged limits.
 Original CFD state and stage/resource receipts remain. test_driver is current;
-standalone SU2_CFD is older and needs rebuilding before actual CFD validation.
+standalone SU2_CFD was refreshed and the actual M6 initializer completed.
 
 ## Remaining evidence and scope
 

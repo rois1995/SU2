@@ -28,6 +28,7 @@
 
 #include <memory>
 #include <functional>
+#include <stdexcept>
 #include <array>
 #include <cstdint>
 #include <string>
@@ -215,6 +216,9 @@ class CBoundaryLayerMetric {
   std::vector<IntegrationPoint3D> IntegrationRule3D(
       const std::array<std::array<double,3>,4>& tetrahedron, double bandRatio = 1.5,
       IntegrationDensity3D density = {}, bool* sensorDependent = nullptr);
+
+  struct IntegrationLimit : std::runtime_error { using std::runtime_error::runtime_error; };
+  bool SupportsCorrectionSupport3D() const;
 
   /*! Complete faceted-wall support proposal, independent of the sensor/scale. Analytic authority retains
    * its existing integration path. Sampler limits bound work/storage; no metric or error bound is implied. */

@@ -1,0 +1,22 @@
+../../UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp:1113: failed: test.solver[FLOW_SOL]->GetMetricComplexityFinal()==Approx(reference).epsilon(5e-4) for: 629.0712230627 == Approx( 636.4348190599 ) with 1 message: 'Native BL geometry wall: largest local subset 8 of 8 supplied wall faces (before duplicate removal).
+Native3D bounded complexity switch: rank=0 cell=1 reason=Native3D complexity cell density-work ceiling8192.
+Sensor-only donor metric statistics:
+Minimum density: 1.
+Maximum density: 1.
+Maximum cell AR: 1.
+Mesh complexity after native constraints: 629.071 (ADAP_COMPLEXITY= 100).
+Sensor metric complexity before gradation: 1.
+Sensor-only donor complexity after gradation: 1.
+Native geometric integration: 0 points, preparation 0.000213135 s.
+Native3D complexity normalization: status=outside_estimated_bounds estimate=629.07122306270981 uncertainty_indicator=24.050692554215189 requested_rtol=9.9999999999999995e-07 trials=4 provisional=1 proven_error_bound=0; target remains frozen during remeshing.
+Native3D support correction: samples=8192 inside=3786 nonzero=3786 sensor_lower=1 sensor_upper=1 sensor_quadrature=1 correction=628.07122306270981 empirical_SE=8.0168975180717297 preparation_seconds_max=0.039751424999999993 background_seconds_max=0.00029652099999999404 correction_seconds_max=0.010073052999999998 reduction_seconds_max=3.102999999990419e-06 assessment_seconds_max=0.010378176999999988 retained_bytes_max=1559664 background_determinants=4224 correction_queries=15144 donor_searches_during_trials=0 geometry_queries_during_trials=0
+Native3D target-density quadrature: 0.0370338 s (maximum accumulated rank time), 1 cell rule builds, 0 exact-target reuses.
+Native metric work: 4 complexity trials, 4 total gradation sweeps, 108 owned-point visits; gradation 0.00022082 s, halo 7.03e-06 s, sweep reductions 2.7e-07 s (maximum accumulated rank times).
+Native gradation tensor updates: 0 of 108 owned-point visits.
+Native sensor gradation: 1 sweeps, fixed point reached, maximum transported-metric ratio 1, directed edges above 1+1e-5: 0.
+Native composed nodal audit: maximum transported-metric ratio 58.0215, directed edges above 1+1e-5: 25. Sensor gradation is not a combined-field certificate.
+WARNING: Composed geometric BL transport violations remain; no nodal wall correction is spread.
+WARNING: Geometric BL complexity target 100 is outside the estimated bounds; integrated complexity 629.071. BL and finer sensor demands are retained.
+'
+Failed 1 test case, failed 1 assertion.
+

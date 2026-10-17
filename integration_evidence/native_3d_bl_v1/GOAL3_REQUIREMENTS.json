@@ -763,7 +763,7 @@
   "current_uncertainty_experiment": {
     "updated": "2026-10-17",
     "full_goal_complete": false,
-    "production_normalization_changed": false,
+    "production_normalization_changed": true,
     "whole_M6_integral_complete": false,
     "accepted_M6_mesh": false,
     "normalization_policy_replay": "3 original cells; MPI1/4 agree, integration_limited at1%; not global calibration",
@@ -866,6 +866,23 @@
       "remaining": "Actual bounded/graded CSolver callbacks, global accuracy/work policy, explicit frozen normalization/adaptation/reassessment stages, accepted M6 and lifecycle cost.",
       "evidence": "oneram6_uncertainty_v1/native_support_provider_v1/summary.json",
       "handbook": "Handbook/GOAL3_NATIVE_SUPPORT_PROVIDER.md"
+    },
+    "runtime_initializer": {
+      "status": "PASS_INITIALIZATION_WITH_PROVISIONAL_OUTSIDE_BUDGET_ESTIMATE",
+      "evidence": "integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/production_complexity_v1/summary.json",
+      "actual_M6_RANS_SA": true,
+      "ranks": 4,
+      "CFD_iterations": 1,
+      "accepted_mesh": false,
+      "whole_strategy_complete": false,
+      "estimated_coarsest_complexity": 790200.4997627288,
+      "heuristic_uncertainty": 27958.454561979677,
+      "target": 100000,
+      "metric_seconds": 415.976,
+      "strict_quadrature_seconds_max": 230.564,
+      "gradation_seconds_max": 168.894,
+      "trials": 7,
+      "next": "Early coarsest-field feasibility and geometry-based integration selection; then original-field reassessment/correction epochs."
     }
   }
 }

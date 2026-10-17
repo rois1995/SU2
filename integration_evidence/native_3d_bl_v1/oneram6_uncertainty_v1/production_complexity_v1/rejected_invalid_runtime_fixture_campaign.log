@@ -1,0 +1,9 @@
+controls_np1 {"exit_code": 1, "elapsed_seconds": 69.35543931601569, "command": ["taskset", "-c", "0", "nice", "-n", "19", "timeout", "--kill-after=5s", "180s", "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver", "[NativeDynamicComplexity3D],[NativeRuntimeComplexity3D],[NativeComposite2D],[NativeComposite3D],[NativeComplexityNormalization],[NativeVolumeBL3D]", "--abort", "--reporter", "compact"], "provenance_sha256": "3169c0616825bba24cdc080875bb3bfaffc1abdf5d97a669ccd8d1ca9a6ca901", "log_sha256": "4eb57abd3dddae699e75e42679ce1a4aea14f0ecb619818075e46f425ae42eff"}
+Traceback (most recent call last):
+  File "integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/production_complexity_v1/campaign.py", line 25, in <module>
+    invoke('controls_np1',filter='[NativeDynamicComplexity3D],[NativeRuntimeComplexity3D],[NativeComposite2D],[NativeComposite3D],[NativeComplexityNormalization],[NativeVolumeBL3D]')
+  File "integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/production_complexity_v1/campaign.py", line 24, in invoke
+    return run.invoke(folder,env,fixture,ranks,test_filter=filter)
+  File "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/run.py", line 55, in invoke
+    if not ((0<run.returncode<124) if expected_failure else run.returncode==0):raise RuntimeError('Failed '+str(folder))
+RuntimeError: Failed /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/production_complexity_v1/controls_np1

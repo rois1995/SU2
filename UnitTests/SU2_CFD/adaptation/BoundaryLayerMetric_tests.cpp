@@ -49,6 +49,7 @@
 #include "../../../Common/include/adaptation/CNativeMetric3D.hpp"
 #include "../../../Common/include/toolboxes/geometry_toolbox.hpp"
 #include "../../../SU2_CFD/include/adaptation/CBoundaryLayerMetric.hpp"
+#include "../../../SU2_CFD/include/adaptation/CNativeComplexity3D.hpp"
 #include "../../../SU2_CFD/include/drivers/CDriver.hpp"
 #include "../../../SU2_CFD/include/solvers/CSolver.hpp"
 #include "../../../SU2_CFD/include/solvers/CSolverFactory.hpp"
@@ -1631,6 +1632,9 @@ TEST_CASE("Replay a complete faceted wall volume-integration input without CFD",
       <<"],\"preparation_work\":"<<stats.preparation_work<<",\"pdf_candidates\":"<<stats.pdf_candidates<<",\"retained_bytes\":"<<stats.retained_bytes
       <<",\"preparation_seconds\":"<<stats.preparation_seconds<<",\"pdf_seconds\":"<<stats.pdf_seconds<<",\"proven_error_bound\":false}\n";REQUIRE(bool(result));return;
   }
+  if(const char* domain=std::getenv("SU2_NATIVE_BL_DYNAMIC_DOMAIN")) {
+    REQUIRE_NOTHROW(SU2NativeBLReplay::DynamicCorrection(layers,domain));return;
+  }
   if(const char* domain=std::getenv("SU2_NATIVE_BL_CORRECTION_DOMAIN")) {
     const char* queries=std::getenv("SU2_NATIVE_BL_CORRECTION_QUERIES");REQUIRE(queries);
     REQUIRE_NOTHROW(SU2NativeBLReplay::Correction(layers,domain,queries));return;
@@ -2418,4 +2422,67 @@ TEST_CASE("Finite feature envelopes retain global competition and distance cross
   CHECK_THROWS(bounded.Vertex({.5,1,0}));CHECK_THROWS(envelope.Cuts({-1}));
   CHECK_THROWS(envelope.Face({{{{0,0,0}},{{0,0,0}},{{0,0,0}}}}));
   CHECK_THROWS(E({0,0,0},{0,0,0}));
+}
+
+
+TEST_CASE("Retained complexity stencils use fresh nonhomogeneous trial tensors and cores", "[NativeDynamicComplexity3D]") {
+  using namespace SU2Native3D;
+  const auto mesh=simplex_test::MakeSimplexMesh(3,2,[](const passivedouble*){return "far";});
+  const int rank=SU2_MPI::GetRank(),ranks=SU2_MPI::GetSize();
+  std::vector<CNativeComplexity3D::SourceCell> source;
+  for(size_t i=0;i<mesh.GetnElem();++i)if((i+1)%ranks==unsigned(rank)) {
+    CNativeComplexity3D::SourceCell row;row.cell.id=i;
+    for(unsigned k=0;k<4;++k) {const auto n=mesh.elem[4*i+k];row.nodes[k]=n;
+      row.cell.v[k]={n,{mesh.coord[3*n],mesh.coord[3*n+1],mesh.coord[3*n+2]}};}
+    source.push_back(row);
+  }
+  CBoundaryLayerMetric::Wall wall;wall.layer={"wall",.02,1.2,.15};
+  wall.coord={0,0,.5,1,0,.5,1,1,.5,0,1,.5};wall.conn={0,1,2,2,0,2,3,3};
+  CBoundaryLayerMetric layers(3,{wall});
+  CNativeComplexity3D estimate(layers,source,mesh.GetnPoint(),size_t(256)<<20,2048,7519);
+  std::vector<CBoundaryLayerMetric::Tensor> original(mesh.GetnPoint());
+  for(auto& m:original)for(unsigned d=0;d<3;++d)m.m[d][d]=2;
+  const auto a=estimate.Assess(original,2,true);
+  CHECK(a.sensorLower==Approx(std::sqrt(8.)).epsilon(1e-13));CHECK(a.sensorUpper==Approx(std::sqrt(8.)).epsilon(1e-13));
+  CHECK(a.directChecks==a.inside);CHECK(a.directChecks>100);CHECK(a.nonzero>100);
+  CHECK(std::isfinite(a.global.uncertainty));CHECK(a.global.value>a.sensorUpper);
+  auto trial=original;
+  for(size_t n=0;n<trial.size();++n) {
+    trial[n].m[0][0]=std::min(4.+20*mesh.coord[3*n],10.);
+    trial[n].m[1][1]=3.+2*mesh.coord[3*n+1];trial[n].m[2][2]=1.+mesh.coord[3*n+2];
+    trial[n].m[0][1]=trial[n].m[1][0]=.1*mesh.coord[3*n];
+  }
+  const auto b=estimate.Assess(trial,1,true),c=estimate.Assess(original,2,true);
+  CHECK(b.directChecks==a.directChecks);CHECK(b.sensorLower<=b.sensorQuadrature);CHECK(b.sensorQuadrature<=b.sensorUpper);
+  CHECK(b.sensorQuadrature>a.sensorQuadrature);CHECK(b.global.value!=a.global.value);
+  CHECK(c.global.value==a.global.value);CHECK(c.global.uncertainty==a.global.uncertainty);
+  CHECK(estimate.GetStatistics().assessments==3);
+  auto anisotropic=original;
+  const su2double frame[3][3]={{.6,-.8,0},{.8,.6,0},{0,0,1}},val[3]={1e10,1,4};
+  for(auto& m:anisotropic)CBlasStructure::EigenRecomposition(m.m,frame,val,3);
+  const auto extreme=estimate.Assess(anisotropic,1);
+  CHECK(extreme.sensorLower==Approx(2e5).epsilon(1e-6));CHECK(extreme.sensorUpper==Approx(2e5).epsilon(1e-6));
+  CHECK(extreme.numericalIndicator>1e-8*extreme.sensorLower);
+  if(rank==0)trial.front().m[0][0]=-1;
+  CHECK_THROWS(estimate.Assess(trial,1));
+  CHECK_THROWS(CNativeComplexity3D(layers,source,mesh.GetnPoint(),size_t(256)<<20,ranks==1?0:2048,7519+rank));
+}
+
+TEST_CASE("Actual native normalization reports uncertainty at intersecting walls", "[NativeRuntimeComplexity3D]") {
+  if(SU2_MPI::GetSize()!=1)return;
+  const auto mesh=simplex_test::MakeSimplexMesh(3,2,[](const passivedouble* x) {
+    return x[0]==0 || x[1]==0 || x[2]==0?"wall":"far";
+  });
+  MetricTest test(mesh,"MARKER_HEATFLUX= (wall,0)\nMARKER_FAR= (far)\nADAP_REMESHER= NATIVE_CAVITY\n"
+      "ADAP_SURFACE= YES\nADAP_ISO_CORNER= NO\nADAP_HGRAD= 1.3\nADAP_HMIN= 1e-6\nADAP_HMAX= 1\n"
+      "ADAP_ARMAX= 100\nADAP_COMPLEXITY= 100\nADAP_BL_MARKER= (wall)\nADAP_BL_FIRST_HEIGHT= (1e-6)\n"
+      "ADAP_BL_GROWTH= (1.2)\nADAP_BL_THICKNESS= (.01)\n",{1,0,0,1,0,1});
+  const auto output=test.ComputeMetric();INFO(output);
+  CHECK(output.find("Native3D complexity normalization:")!=std::string::npos);
+  CHECK(output.find("proven_error_bound=0")!=std::string::npos);
+  CHECK(std::isfinite(test.solver[FLOW_SOL]->GetMetricComplexityFinal()));
+  // The published donor is sensor-only even at a wall; BL composition remains a query-time operation.
+  for(auto p=0ul;p<test.Geometry().GetnPointDomain();++p) {
+    const auto m=test.Metric(p);for(unsigned d=0;d<3;++d)CHECK(SU2_TYPE::GetValue(m.m[d][d])<1e10);
+  }
 }

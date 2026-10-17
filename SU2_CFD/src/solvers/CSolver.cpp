@@ -60,6 +60,7 @@
 #include "../../../Common/include/adt/CADTPointsOnlyClass.hpp"
 #include "../../include/CMarkerProfileReaderFVM.hpp"
 #include "../../include/adaptation/CBoundaryLayerMetric.hpp"
+#include "../../include/adaptation/CNativeComplexity3D.hpp"
 
 
 CSolver::CSolver(LINEAR_SOLVER_MODE linear_solver_mode) : System(linear_solver_mode) {
@@ -2917,6 +2918,16 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
   su2double frozenCore = eigMin, integratedComplexity = 0;
   passivedouble quadratureSeconds=0;
   unsigned long quadratureBuilds=0,quadratureReused=0;
+  std::unique_ptr<CNativeComplexity3D> boundedComplexity;
+  CNativeComplexity3D::Assessment boundedAssessment;
+  bool uncertaintyPolicy=false;
+#if !defined(CODI_FORWARD_TYPE) && !defined(CODI_REVERSE_TYPE)
+  uncertaintyPolicy=nativeLayers && nDim==3 && nativeLayers->SupportsCorrectionSupport3D();
+#endif
+  double integrationUncertainty=0;
+  SU2Complexity::Normalization normalization;
+  bool uncertaintySearch=false;
+
   auto syncSensor = [&]() {
     for (auto point = 0ul; point < nPointDomain; ++point) base_nodes->SetMetricMat(point, blMetric[point].m);
     InitiateComms(geometry, config, MPI_QUANTITIES::METRIC);
@@ -3045,6 +3056,7 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
   su2double evaluatedLogScale = std::numeric_limits<passivedouble>::quiet_NaN();
   auto complexityError = [&](su2double logScale) {
     ++complexityTrials;
+    integrationUncertainty=0;
     const su2double scale = exp(logScale);
     su2double local = 0.0, global = 0.0;
     su2double localSmallest = std::numeric_limits<passivedouble>::max(), smallest = 0.0;
@@ -3089,7 +3101,8 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
           const auto integrationStart=SU2_MPI::Wtime();
           size_t quadratureBytes=0;
           localQuadraturePoints=0;
-          for(auto& cell:integration3D)try {
+          int localLimited=0,globalLimited=0;
+          if(!boundedComplexity)for(auto& cell:integration3D)try {
             auto targetDensity=[&](const CBoundaryLayerMetric::IntegrationPoint3D& point) {
               CBoundaryLayerMetric::Tensor metric;
               for(unsigned k=0;k<4;++k)for(unsigned i=0;i<3;++i)for(unsigned j=0;j<3;++j)
@@ -3112,8 +3125,16 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
             }
             quadratureBytes=transfer_memory::Add(quadratureBytes,transfer_memory::Bytes(cell.points),sizeof(CellRule3D));
             for(const auto& point:cell.points)quadratureBytes=transfer_memory::Add(quadratureBytes,transfer_memory::Bytes(point.samples));
-            if(quadratureBytes>(size_t(2)<<30))throw std::runtime_error("Native3D complexity quadrature exceeds storage budget.");
+            if(quadratureBytes>(size_t(2)<<30))throw CBoundaryLayerMetric::IntegrationLimit("Native3D complexity quadrature exceeds storage budget.");
             localQuadraturePoints+=cell.points.size();
+          }catch(const CBoundaryLayerMetric::IntegrationLimit& error) {
+            if(!uncertaintyPolicy)integrationFailure.Set(2,cell.global_cell,error.what());
+            else {
+              localLimited=1;
+              std::cout<<"Native3D bounded complexity switch: rank="<<rank<<" cell="<<cell.global_cell
+                       <<" reason="<<error.what()<<std::endl;
+            }
+            break;
           }catch(const std::exception& error) {
             std::ostringstream context;
             context<<std::setprecision(17)<<"Native geometric complexity cell "<<cell.global_cell<<": "<<error.what()
@@ -3140,14 +3161,44 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
           }
           quadratureSeconds+=SU2_MPI::Wtime()-integrationStart;
           CollectiveFailure(integrationFailure,CURRENT_FUNCTION);
-          accumulate(integration3D);
+          SU2_MPI::Allreduce(&localLimited,&globalLimited,1,MPI_INT,MPI_MAX,SU2_MPI::GetComm());
+          if(globalLimited) {
+            CLocalFailure preparationFailure;
+            std::vector<CNativeComplexity3D::SourceCell> source;
+            try {
+              source.reserve(integration3D.size());
+              for(auto& cell:integration3D) {
+                CNativeComplexity3D::SourceCell original;original.cell.id=cell.global_cell;original.nodes=cell.nodes;
+                for(unsigned k=0;k<4;++k)original.cell.v[k]={geometry->nodes->GetGlobalIndex(cell.nodes[k]),
+                    {cell.coordinates[k][0],cell.coordinates[k][1],cell.coordinates[k][2]}};
+                source.push_back(original);
+                std::vector<CBoundaryLayerMetric::IntegrationPoint3D>().swap(cell.points);
+              }
+            }catch(const std::exception& error){preparationFailure.Set(2,0,error.what());}
+            CollectiveFailure(preparationFailure,CURRENT_FUNCTION);
+            try {boundedComplexity=std::make_unique<CNativeComplexity3D>(*nativeLayers,std::move(source),nPoint,size_t(2)<<30);}
+            catch(const std::exception& error){preparationFailure.Set(2,0,error.what());}
+            CollectiveFailure(preparationFailure,CURRENT_FUNCTION);
+          }
+          if(boundedComplexity) {
+            CLocalFailure assessmentFailure;
+            try {boundedAssessment=boundedComplexity->Assess(blMetric,frozenCore);}
+            catch(const std::exception& error){assessmentFailure.Set(2,0,error.what());}
+            CollectiveFailure(assessmentFailure,CURRENT_FUNCTION);
+            global=boundedAssessment.global.value;integrationUncertainty=boundedAssessment.global.uncertainty;
+            localQuadraturePoints=0;
+          }else accumulate(integration3D);
         }
       } else {
         for (auto point = 0ul; point < nPointDomain; ++point)
           local += density(blMetric[point]) * geometry->nodes->GetVolume(point);
       }
     }
-    SU2_MPI::Allreduce(&local, &global, 1, MPI_DOUBLE, MPI_SUM, SU2_MPI::GetComm());
+    if(!boundedComplexity) {
+      SU2_MPI::Allreduce(&local, &global, 1, MPI_DOUBLE, MPI_SUM, SU2_MPI::GetComm());
+      // Nominal angular/radial stopping indicator, not an outward integration-error bound.
+      if(uncertaintyPolicy)integrationUncertainty=1.1e-4*SU2_TYPE::GetValue(global);
+    }
     integratedComplexity = global;
     evaluatedLogScale = logScale;
     return log(global / complexity);
@@ -3185,6 +3236,20 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
       if (fabs(logScale) < tol) logScale = 0.0;
     }
     if (nativeMetric) logScale = fmin(fmax(logScale, absoluteLow), absoluteHigh);
+    if(uncertaintyPolicy && absoluteLow<absoluteHigh) {
+      uncertaintySearch=true;
+      normalization=SU2Complexity::Normalize(SU2_TYPE::GetValue(complexity),SU2_TYPE::GetValue(absoluteLow),
+          SU2_TYPE::GetValue(absoluteHigh),SU2_TYPE::GetValue(logScale),SU2_TYPE::GetValue(tol),24,
+          [&](double trial,double requested) {
+            // A fixed retained sample set cannot gain accuracy by reevaluating the same field.
+            (void)requested;
+            if(trial!=SU2_TYPE::GetValue(evaluatedLogScale))complexityError(trial);
+            return SU2Complexity::Estimate{SU2_TYPE::GetValue(integratedComplexity),integrationUncertainty};
+          });
+      logScale=normalization.logScale;error=log(integratedComplexity/complexity);
+      bracketed=normalization.status!=SU2Complexity::Status::OutsideBracket;
+      return;
+    }
     error = complexityError(logScale);
     bracketed = true;
 
@@ -3478,6 +3543,16 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
     CPassiveComm::Allreduce(&quadratureSeconds,&globalQuadratureSeconds,1,CPassiveComm::Op::MAX);
     CPassiveComm::Allreduce(quadratureCounts,globalQuadratureCounts,2,CPassiveComm::Op::SUM);
   }
+  double boundedTimes[5]={};uint64_t boundedCounts[3]={};
+  if(boundedComplexity) {
+    const auto& work=boundedComplexity->GetStatistics();
+    const double times[]={work.preparationSeconds,work.backgroundSeconds,work.correctionSeconds,
+                          work.reductionSeconds,work.assessmentSeconds};
+    const uint64_t counts[]={work.retainedBytes,work.backgroundEvaluations,work.correctionEvaluations};
+    SU2_MPI::Allreduce(times,boundedTimes,5,MPI_DOUBLE,MPI_MAX,SU2_MPI::GetComm());
+    SU2_MPI::Allreduce(counts,boundedCounts,1,MPI_UNSIGNED_LONG_LONG,MPI_MAX,SU2_MPI::GetComm());
+    SU2_MPI::Allreduce(counts+1,boundedCounts+1,2,MPI_UNSIGNED_LONG_LONG,MPI_SUM,SU2_MPI::GetComm());
+  }
   if (rank == MASTER_NODE) {
     cout << (nativeMetric ? "Sensor-only donor metric statistics:" : "Metric field statistics:") << endl;
     cout << "Minimum density: " << minDensity << "." << endl;
@@ -3489,6 +3564,26 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
       cout << "Sensor metric complexity before gradation: " << coreComplexity << "." << endl;
       cout << "Sensor-only donor complexity after gradation: " << totComplexity << "." << endl;
       cout << "Native geometric integration: " << quadraturePoints << " points, preparation " << geometryTime << " s." << endl;
+      if(uncertaintySearch) {
+        const char* statuses[]={"estimated_tolerance","integration_limited","outside_estimated_bounds","trial_limit"};
+        cout<<std::setprecision(17)<<"Native3D complexity normalization: status="<<statuses[unsigned(normalization.status)]
+            <<" estimate="<<metricComplexityFinal<<" uncertainty_indicator="<<integrationUncertainty
+            <<" requested_rtol="<<tol<<" trials="<<normalization.trials
+            <<" provisional="<<(normalization.status!=SU2Complexity::Status::EstimatedTolerance)
+            <<" proven_error_bound=0; target remains frozen during remeshing."<<std::setprecision(6)<<endl;
+      }
+      if(boundedComplexity) {
+        cout<<std::setprecision(17)<<"Native3D support correction: samples="<<boundedAssessment.samples
+            <<" inside="<<boundedAssessment.inside<<" nonzero="<<boundedAssessment.nonzero
+            <<" sensor_lower="<<boundedAssessment.sensorLower<<" sensor_upper="<<boundedAssessment.sensorUpper
+            <<" sensor_quadrature="<<boundedAssessment.sensorQuadrature<<" correction="<<boundedAssessment.correction
+            <<" empirical_SE="<<boundedAssessment.standardError<<" background_roundoff_indicator="<<boundedAssessment.numericalIndicator
+            <<" preparation_seconds_max="<<boundedTimes[0]<<" background_seconds_max="<<boundedTimes[1]
+            <<" correction_seconds_max="<<boundedTimes[2]<<" reduction_seconds_max="<<boundedTimes[3]
+            <<" assessment_seconds_max="<<boundedTimes[4]<<" retained_bytes_max="<<boundedCounts[0]
+            <<" background_determinants="<<boundedCounts[1]<<" correction_queries="<<boundedCounts[2]
+            <<" donor_searches_during_trials=0 geometry_queries_during_trials=0"<<std::setprecision(6)<<endl;
+      }
       if(nDim==3 && nativeLayers)cout << "Native3D target-density quadrature: " << globalQuadratureSeconds << " s (maximum accumulated rank time), "
           << globalQuadratureCounts[0] << " cell rule builds, " << globalQuadratureCounts[1] << " exact-target reuses." << endl;
       cout << "Native metric work: " << complexityTrials << " complexity trials, " << totalGradationSweeps
@@ -3507,7 +3602,7 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
       if (composedBadEdges) cout << "WARNING: Composed geometric BL transport violations remain; no nodal wall correction is spread." << endl;
       if (geometricBL && fabs(error) > tol) {
         cout << "WARNING: Geometric BL complexity target " << complexity << " is "
-             << (bracketed ? "not converged" : "outside the attainable bounds")
+             << (bracketed ? "not converged" : (uncertaintySearch ? "outside the estimated bounds" : "outside the attainable bounds"))
              << "; integrated complexity " << integratedComplexity << ". BL and finer sensor demands are retained." << endl;
       }
 

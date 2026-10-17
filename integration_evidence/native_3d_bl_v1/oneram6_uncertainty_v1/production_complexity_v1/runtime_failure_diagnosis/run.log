@@ -1,0 +1,19 @@
+Breakpoint 1 at 0x1491390: file ../../Common/include/parallelization/mpi_structure.cpp, line 52.
+[Thread debugging using libthread_db enabled]
+Using host libthread_db library "/lib/x86_64-linux-gnu/libthread_db.so.1".
+[Detaching after fork from child process 717575]
+[New Thread 0x7ffff760b700 (LWP 717592)]
+[New Thread 0x7ffff6c56700 (LWP 717633)]
+
+Thread 1 "test_driver" hit Breakpoint 1, CBaseMPIWrapper::Error (ErrorMsg="ADAP_BL_FIRST_HEIGHT= 1e-06 is below the minimum size 0.0001 of the metric (ADAP_HMIN, ADAP_HMINS), lower it (ADAP_BL_MARKER wall).", FunctionName="void CConfig::SetPostprocessing(SU2_COMPONENT, short unsigned int, short unsigned int)") at ../../Common/include/parallelization/mpi_structure.cpp:52
+52	void CBaseMPIWrapper::Error(const std::string& ErrorMsg, const std::string& FunctionName) {
+$1 = "ADAP_BL_FIRST_HEIGHT= 1e-06 is below the minimum size 0.0001 of the metric (ADAP_HMIN, ADAP_HMINS), lower it (ADAP_BL_MARKER wall)."
+$2 = "void CConfig::SetPostprocessing(SU2_COMPONENT, short unsigned int, short unsigned int)"
+#0  CBaseMPIWrapper::Error (ErrorMsg="ADAP_BL_FIRST_HEIGHT= 1e-06 is below the minimum size 0.0001 of the metric (ADAP_HMIN, ADAP_HMINS), lower it (ADAP_BL_MARKER wall).", FunctionName="void CConfig::SetPostprocessing(SU2_COMPONENT, short unsigned int, short unsigned int)") at ../../Common/include/parallelization/mpi_structure.cpp:52
+#1  0x00005555569464ea in CConfig::SetPostprocessing (this=0x555557714a80, val_software=<optimized out>, val_izone=<optimized out>, val_nDim=<optimized out>) at /usr/include/c++/9/ext/new_allocator.h:80
+#2  0x000055555694be2a in CConfig::CConfig (this=0x555557714a80, case_buffer=..., val_software=SU2_COMPONENT::SU2_CFD, verb_high=<optimized out>) at ../../Common/src/CConfig.cpp:129
+#3  0x00005555559bacbc in (anonymous namespace)::MetricTest::MetricTest (this=0x7fffffffb4a0, mesh=..., options=..., hessian=...) at ../../UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp:140
+#4  0x0000555555a0f23d in C_A_T_C_H_T_E_S_T_107 () at /usr/include/c++/9/bits/basic_string.h:267
+#5  0x0000555555eb0193 in Catch::RunContext::invokeActiveTestCase (this=0x7fffffffbc50) at ../../externals/catch2/catch.hpp:13027
+#6  0x0000555555ec262e in Catch::RunContext::runCurrentTest (this=0x7fffffffbc50, redirectedCout=..., redirectedCerr="") at ../../externals/catch2/catch.hpp:13000
+#7  0x0000555555edb11e in Catch::RunContext::runTest (this=0x7fffffffbc50, testCase=...) at ../../externals/catch2/catch.hpp:12761
