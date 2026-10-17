@@ -1,0 +1,30 @@
+Traceback (most recent call last):
+  File "integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/frozen_normalization_stages_v1/mpi_campaign.py", line 8, in <module>
+    'pilot_summary':c.run.sha(c.HERE/'pilot_summary.json'),'wrapper':c.run.sha(__file__)}
+  File "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/run.py", line 14, in sha
+    with p.open('rb') as f:
+AttributeError: 'str' object has no attribute 'open'
+Command exited with non-zero status 1
+	Command being timed: "nice -n19 python3 integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/frozen_normalization_stages_v1/mpi_campaign.py"
+	User time (seconds): 0.14
+	System time (seconds): 0.04
+	Percent of CPU this job got: 98%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:00.19
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 50000
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 0
+	Minor (reclaiming a frame) page faults: 8754
+	Voluntary context switches: 1
+	Involuntary context switches: 10
+	Swaps: 0
+	File system inputs: 0
+	File system outputs: 32
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 1

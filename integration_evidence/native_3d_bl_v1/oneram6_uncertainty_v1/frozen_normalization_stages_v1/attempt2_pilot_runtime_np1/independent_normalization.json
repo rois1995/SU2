@@ -1,0 +1,92 @@
+[
+  {
+    "controlled_initialization_error": true,
+    "initial_scale": 10,
+    "final_sensor_eigenvalue": 4.940430172097523,
+    "stages": 2,
+    "work": 911,
+    "root_trials": 7,
+    "mass": 19.87326199095773,
+    "indicator": 0.22691705251883149,
+    "normalization_seconds": 0.035318516000000244,
+    "original_raw_frames_unchanged": true,
+    "one_final_transfer": true,
+    "geometry_and_full_field": {
+      "file": "normalization_m1_a10_accepted_mesh.json",
+      "cells": 178,
+      "points": 63,
+      "physical_faces": 102,
+      "volume": "1",
+      "minimum_mean_ratio": 0.20956404358672184,
+      "minimum_scaled_jacobian": 0.07495076862313806,
+      "maximum_length": 1.791455071294916,
+      "longest_edge": [
+        15,
+        58
+      ],
+      "markers": {
+        "0": 88,
+        "1": 14
+      },
+      "strict_metric_gate": true
+    },
+    "reference": 19.936331083729797,
+    "reference_spread": 3.552713678800501e-15,
+    "observed_mass_error": 0.06306909277206785,
+    "relative_budget_discrepancy": -0.0063369004521135475,
+    "reference_budget_discrepancy": -0.003183445813510155,
+    "flow_BDF_integral_defect": 6.14875461605295e-16,
+    "projection_all_field_defect": 4.099169744035299e-16,
+    "transport_error": 0.0,
+    "first_height_error": 0.0,
+    "SU2_and_CGNS_reload": true,
+    "restart_flow_defect": 0.0,
+    "SA_restart_fields": true,
+    "proven_bound": false
+  },
+  {
+    "controlled_initialization_error": true,
+    "initial_scale": 1,
+    "final_sensor_eigenvalue": 4.940256021958336,
+    "stages": 2,
+    "work": 433,
+    "root_trials": 6,
+    "mass": 19.936561216536816,
+    "indicator": 0.11907519222688412,
+    "normalization_seconds": 0.04010694300000006,
+    "original_raw_frames_unchanged": true,
+    "one_final_transfer": true,
+    "geometry_and_full_field": {
+      "file": "normalization_m1_a1_accepted_mesh.json",
+      "cells": 240,
+      "points": 90,
+      "physical_faces": 152,
+      "volume": "1",
+      "minimum_mean_ratio": 0.6266902293455725,
+      "minimum_scaled_jacobian": 0.38020124834521696,
+      "maximum_length": 1.5541399882623979,
+      "longest_edge": [
+        4,
+        75
+      ],
+      "markers": {
+        "0": 136,
+        "1": 16
+      },
+      "strict_metric_gate": true
+    },
+    "reference": 19.935488770473157,
+    "reference_spread": 3.552713678800501e-15,
+    "observed_mass_error": 0.0010724460636595268,
+    "relative_budget_discrepancy": -0.003171939173159166,
+    "reference_budget_discrepancy": -0.0032255614763421203,
+    "flow_BDF_integral_defect": 4.0991697440353e-16,
+    "projection_all_field_defect": 1.3738219787104e-16,
+    "transport_error": 0.0,
+    "first_height_error": 0.0,
+    "SU2_and_CGNS_reload": true,
+    "restart_flow_defect": 0.0,
+    "SA_restart_fields": true,
+    "proven_bound": false
+  }
+]

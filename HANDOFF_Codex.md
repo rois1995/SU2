@@ -5,6 +5,12 @@ Worktree `/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated`, branch
 **Full Goal3 ACTIVE/incomplete.** [Full scope/gates](integration_evidence/native_3d_bl_v1/GOAL3_REQUIREMENTS.json).
 Leave AdapNoExt, foreign ClusterResults and dependencies untouched.
 
+**Latest connected checkpoint:** bounded original-family frozen correction stages
+PASS serial/MPI1/2/4, N=M/N4M2 and independent RANS/SA/BDF/CGNS restart audits.
+One final transfer; no Hessian/history rebuild inside correction. Original raw
+frames/bounds/gradation remain the source. All owned jobs terminal; the validated scope and evidence are recorded below.
+[Implementation, work, exact results and limits](Handbook/GOAL3_FROZEN_NORMALIZATION_STAGES.md).
+
 ## Current production and evidence
 
 Bounded complexity initialization uses original sensor-only P1 and actual-query
@@ -55,17 +61,20 @@ M6 coarse centroid596350 versus sampled979024+/-101701 HEURISTIC shows substanti
 missed BL mass and poor coarse-proposal variance. It does not replace initialization.
 [Implementation, exact evidence, work and limits](Handbook/GOAL3_CANDIDATE_REASSESSMENT.md).
 
-**Next capability:** calibrated global error/allocation and explicit bounded frozen
-normalization/adaptation stages where warranted and supported. Reset from original
-unbounded frames/bounds/gradation, never rescale clipped tensors or change target
-inside local operations. New reassessment is diagnostic; correction is NOT coded.
-No sampler/count/subdivision ladders or unchanged full M6 rerun; difficult accepted
-construction remains a separate unresolved capability.
+**Current correction result:** 8 controlled planar RANS workflows accept151--240
+cells under unchanged constraints. Independent final mass19.93549--19.96127 versus
+20 (0.194--0.323% discrepancy), with heuristic uncertainty and integration_limited
+status. Same-field refinement improves indicator3.07--4.07x; coarsening may worsen
+it. No general curved/M6 or calibrated-default claim. Strict2D path retained.
+
+**Next:** difficult complete construction and calibrated global error/allocation,
+not another sampler/count/subdivision ladder or local fallback. Preserve the full
+scope, conditional M6 budget diagnosis and previous rejected construction evidence.
 
 ## Full-goal blockers and qualified scope
 
 No accepted complete M6 mesh, calibrated global error/allocation, general thin/curved
-same-original-field correction, converged viscous accuracy or complete
+correction beyond controlled planar fields, converged viscous accuracy or complete
 lifecycle affordability. Last full M6 construction rejects at unchanged300s,
 447 internal publications/1788 work, rank2 geometry147.86s. Keep that failure;
 reconsider missing construction capability before another local fallback.
@@ -90,13 +99,13 @@ agent's entries in the [outcome ledger](Handbook/SUGGESTION_OUTCOME_LEDGER.md).
 
 ## Execution and working rules
 
-All owned jobs terminal. Latest focused serial/MPI/curved/RANS batch qualifies
-candidate reassessment; source64-point cap respected. Pilot13.03s, affected campaign
-39.25s plus report-only finalization, actual-partition comparison4.61s. Peak build
-process2.41GiB/replay667MiB; observed host~39–41GiB available/no swap growth.
-No CFD/full-M6/cluster run. Build failures/source-batch failure and report-only
-serialization failures are preserved. Completed native cases were reused for the
-report fix; executed-helper archive/transition explicitly verify provenance.
+All owned jobs terminal. Current connected campaign:8 independently complete native
+case groups; original-family controls on1/2/4,8 actual RANS workflows and affected
+curved/reader/reassessment on4. Serial pilot69.35s, MPI+audits219.61s with sealed serial
+reuse. One owned heavy job/build-j1/nice19/thread1/MPI<=4; max build process2.40GiB,
+host~38--41GiB available/swap unchanged. No CFD advancement/full M6/cluster run.
+Syntax, marker-binding fixture and reporting-wrapper failures are retained. Current
+source/binaries qualify the stated planar correction scope; full Goal3 stays open.
 
 Follow [AGENTS.md](AGENTS.md): substantial capability-first changes, difficult
 case early, source/build/binary/input/helper-aware resumable evidence, no full

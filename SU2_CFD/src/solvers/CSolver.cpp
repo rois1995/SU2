@@ -27,6 +27,7 @@
 
 
 #include "../../../Common/include/adaptation/CNativeRuntimeProfile3D.hpp"
+#include "../../../Common/include/adaptation/CNativeImport3D.hpp"
 #include "../../include/solvers/CSolver.hpp"
 #include "../../../Common/include/adaptation/CMeshGather.hpp"
 #include "../../../Common/include/adaptation/CDistributedSearch.hpp"
@@ -61,6 +62,7 @@
 #include "../../include/CMarkerProfileReaderFVM.hpp"
 #include "../../include/adaptation/CBoundaryLayerMetric.hpp"
 #include "../../include/adaptation/CNativeComplexity3D.hpp"
+#include "../../include/adaptation/CNativeMetricFamily3D.hpp"
 
 
 CSolver::CSolver(LINEAR_SOLVER_MODE linear_solver_mode) : System(linear_solver_mode) {
@@ -2628,14 +2630,25 @@ vector<unsigned long> CSolver::FindSharpWallPoints(const CGeometry* geometry, co
   return sharp;
 }
 
+bool CNativeMetricFamily3D::Compatible(const CConfig& config)const {
+  const std::array<double,5> current{{SU2_TYPE::GetValue(config.GetAdap_Hmin()),SU2_TYPE::GetValue(config.GetAdap_Hmax()),
+      SU2_TYPE::GetValue(config.GetAdap_ARmax()),SU2_TYPE::GetValue(config.GetAdap_Hgrad()),SU2_TYPE::GetValue(config.GetAdap_Complexity())}};
+  if(current!=controls || config.GetnAdap_BL()!=layer_controls.size() || surface_tolerance!=SU2_TYPE::GetValue(config.GetAdap_Hausd()))return false;
+  for(unsigned i=0;i<layer_controls.size();++i) {
+    const auto& a=layer_controls[i];const auto& b=config.GetAdap_BL(i);
+    if(a.marker!=b.marker || a.firstHeight!=b.firstHeight || a.growth!=b.growth || a.thickness!=b.thickness)return false;
+  }return true;
+}
+
 void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const vector<su2double>* givenMetric,
                             bool boundaryLayer, const SU2NativeBoundary2D::ReferenceState* nativeReference,
-                            const SU2Native3D::ReferenceState* nativeReference3D) {
+                            const SU2Native3D::ReferenceState* nativeReference3D,CNativeMetricEvaluation3D* replay) {
   SU2_ZONE_SCOPED
 
-  SU2Native3D::RuntimeProfile3D<5> profile(config->GetWrt_Performance() && nDim == 3 &&
+  SU2Native3D::RuntimeProfile3D<6> profile(config->GetWrt_Performance() && nDim == 3 &&
       config->GetKind_Adap_Remesher() == ADAP_REMESHER::NATIVE_CAVITY, "metric_build");
 
+  if(!replay)nativeMetricFamily3D.reset();
   const auto nSensor = config->GetnAdap_Sensor();
   const su2double p = config->GetAdap_Norm();
   const su2double eigMax = 1.0 / pow(config->GetAdap_Hmin(), 2);
@@ -2651,7 +2664,7 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
    *    in H, so this preserves its shape while removing dependence on sensor units and avoiding overflow.
    *    Passive scaling is only a numerical preconditioner; it cancels analytically in the normalized metric. ---*/
   vector<passivedouble> localHessianScale(nSensor, 0.0), hessianScale(nSensor, 0.0);
-  if (givenMetric == nullptr) {
+  if (givenMetric == nullptr && !replay) {
     for (auto point = 0ul; point < nPointDomain; ++point) {
       for (auto sensor = 0u; sensor < nSensor; ++sensor) {
         su2double H[3][3] = {{0.0}};
@@ -2712,7 +2725,7 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
 
   vector<su2double> localScale(nSensor, 0.0), globalScale(nSensor, 0.0);
 
-  if (givenMetric == nullptr) {
+  if (givenMetric == nullptr && !replay) {
     vector<unsigned long> localInvalid(nSensor, 0), globalInvalid(nSensor, 0);
 #if !defined(CODI_FORWARD_TYPE) && !defined(CODI_REVERSE_TYPE)
     vector<passivedouble> sensorTerms(nPointDomain * nSensor);
@@ -2754,7 +2767,7 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
              << endl;
       }
     }
-  } else if (givenMetric->size() < nPointDomain * nDim * (nDim + 1) / 2) {
+  } else if (givenMetric && givenMetric->size() < nPointDomain * nDim * (nDim + 1) / 2) {
     SU2_MPI::Error("The given metric has fewer values than the points of the mesh.", CURRENT_FUNCTION);
   }
 
@@ -2771,7 +2784,7 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
    *    sensor metric is first limited to an eigenvalue ratio of 1e14 (aspect ratio 1e7), for the accuracy of the
    *    intersection; this is looser than the aspect ratio bound unless a sensor asks for sizes far below ADAP_HMIN. ---*/
 
-  if (nSensor > 1 && givenMetric == nullptr) {
+  if (nSensor > 1 && givenMetric == nullptr && !replay) {
     for (unsigned long iPoint = 0; iPoint < nPointDomain; ++iPoint) {
       su2double metric[3][3] = {{0.0}};
 
@@ -2805,7 +2818,10 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
   /*--- Eigen decomposition of the metric before the global factor and the bounds. ---*/
 
   auto unboundedMetric = [&](unsigned long iPoint, su2double (&vec)[3][3], su2double (&val)[3]) {
-    if (givenMetric != nullptr) {
+    if(replay) {
+      const auto& family=*replay->family;
+      for(unsigned i=0;i<3;++i){val[i]=family.eigenvalues.at(3*iPoint+i);for(unsigned j=0;j<3;++j)vec[i][j]=family.frames.at(iPoint).m[i][j];}
+    } else if (givenMetric != nullptr) {
       su2double metric[3][3] = {{0.0}}, work[3];
       const auto* row = &(*givenMetric)[iPoint * nDim * (nDim + 1) / 2];
       for (unsigned short iDim = 0, iMet = 0; iDim < nDim; ++iDim)
@@ -2872,7 +2888,8 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
   unsigned long quadratureCell=0;
   std::string quadratureContext="Native geometric BL reference";
   try {
-    if (geometricBL) {
+    if(replay)nativeLayers=replay->family->layers;
+    if (geometricBL && !replay) {
       if(nDim==2)
         nativeLayers = nativeReference != nullptr
             ? CBoundaryLayerMetric::FromNativeReference(*nativeReference, *config)
@@ -2920,12 +2937,12 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
   unsigned long quadratureBuilds=0,quadratureReused=0,strictDensityEvaluations=0;
   std::unique_ptr<CNativeComplexity3D> boundedComplexity;
   CNativeComplexity3D::Assessment boundedAssessment;
-  bool uncertaintyPolicy=false;
+  bool uncertaintyPolicy=bool(replay);
 #if !defined(CODI_FORWARD_TYPE) && !defined(CODI_REVERSE_TYPE)
-  uncertaintyPolicy=nativeLayers && nDim==3 && nativeLayers->SupportsCorrectionSupport3D();
+  uncertaintyPolicy=bool(replay) || (nativeLayers && nDim==3 && nativeLayers->SupportsCorrectionSupport3D());
 #endif
   bool boundedGeometry=false;
-  if(uncertaintyPolicy) {
+  if(uncertaintyPolicy && nativeLayers) {
     const int local=!nativeLayers->PlanarWalls3D();int global=0;
     SU2_MPI::Allreduce(&local,&global,1,MPI_INT,MPI_MAX,SU2_MPI::GetComm());
     boundedGeometry=global!=0;
@@ -3079,6 +3096,7 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
       SU2_MPI::Allreduce(&localSmallest, &smallest, 1, MPI_DOUBLE, MPI_MIN, SU2_MPI::GetComm());
       gradeNativeMetric();
       syncSensor(); // Include the final update, not the halos from the start of its last sweep.
+      if(replay)for(size_t i=0;i<nPointDomain;++i)base_nodes->GetMetricMat(i,blMetric[i].m);
       localSmallest = std::numeric_limits<passivedouble>::max();
       for (auto point = 0ul; point < nPointDomain; ++point) {
         su2double vec[3][3], val[3], work[3];
@@ -3090,7 +3108,12 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
         localSmallest = fmin(localSmallest,smallest);
       }
       SU2_MPI::Allreduce(&localSmallest, &frozenCore, 1, MPI_DOUBLE, MPI_MIN, SU2_MPI::GetComm());
-      if (nativeLayers) {
+      if(replay) {
+        const auto estimate=replay->assess(blMetric,frozenCore);
+        integratedComplexity=estimate.value;integrationUncertainty=estimate.uncertainty;
+        evaluatedLogScale=logScale;
+        return log(integratedComplexity/complexity);
+      } else if (nativeLayers) {
         auto accumulate=[&](const auto& rules) {
           for(const auto& cell:rules)for(const auto& point:cell.points) {
             CBoundaryLayerMetric::Tensor metric;
@@ -3218,6 +3241,7 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
    *    factor that gives ADAP_HMAX everywhere and the one that gives the smallest sizes allowed everywhere (the
    *    complexity does not change beyond them). bracketed is false if the target is outside that range. ---*/
 
+  double familyLower=0,familyUpper=0;
   const su2double tol = 1e-6;
 
   auto solveGlobalFactor = [&](su2double& logScale, su2double& error, bool& bracketed, bool reuseScale = false) {
@@ -3239,8 +3263,10 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
 
     const su2double absoluteLow = log(eigMin / globalValues[1]);
     const su2double absoluteHigh = log(eigMax / fmin(smallest, globalValues[1]));
+    familyLower=SU2_TYPE::GetValue(absoluteLow);familyUpper=SU2_TYPE::GetValue(absoluteHigh);
     // Corner updates perturb the previous solve: start from its scale, retaining the same safeguarded bracket.
-    if (!nativeMetric || !reuseScale) {
+    if(replay)logScale=replay->family->normalization.logScale;
+    else if (!nativeMetric || !reuseScale) {
       logScale = log(complexity / globalValues[0]) * 2.0 / nDim;
       if (fabs(logScale) < tol) logScale = 0.0;
     }
@@ -3724,15 +3750,96 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
   InitiateComms(geometry, config, MPI_QUANTITIES::METRIC);
   CompleteComms(geometry, config, MPI_QUANTITIES::METRIC);
   profile.Mark(4);
+#if !defined(CODI_FORWARD_TYPE) && !defined(CODI_REVERSE_TYPE)
+  if(nativeMetric && nDim==3) {
+    uint64_t familyMaximum=0;
+    for(size_t i=0;i<nPointDomain;++i)familyMaximum=std::max(familyMaximum,uint64_t(geometry->nodes->GetGlobalIndex(i)));
+    familyMaximum=CPassiveComm::Allreduce(familyMaximum,CPassiveComm::Op::MAX);
+    CLocalFailure snapshotFailure;
+    try {
+      const auto normalized=uncertaintySearch ? normalization : SU2Complexity::Normalization{
+        SU2_TYPE::GetValue(logScale),{metricComplexityFinal,integrationUncertainty},
+        !bracketed?SU2Complexity::Status::OutsideBracket:std::abs(SU2_TYPE::GetValue(error))<=1e-6?
+            SU2Complexity::Status::EstimatedTolerance:SU2Complexity::Status::TrialLimit,static_cast<unsigned>(complexityTrials)};
+      if(replay) {
+        replay->normalized.resize(nPoint);
+        for(size_t i=0;i<nPoint;++i)base_nodes->GetMetricMat(i,replay->normalized[i].m);
+        replay->normalization=normalized;replay->core=SU2_TYPE::GetValue(frozenCore);
+      } else {
+        const auto bytes=transfer_memory::Add(transfer_memory::Mul(nPoint,sizeof(CNativeMetricFamily3D::Node)+sizeof(CBoundaryLayerMetric::Tensor)),
+            transfer_memory::Bytes(blFrames),transfer_memory::Bytes(eigenvalues),nativeLayers?nativeLayers->StorageBytes():0);
+        if(bytes>(size_t(2)<<30))throw std::runtime_error("Original metric family exceeds2GiB storage ceiling.");
+        auto family=std::make_shared<CNativeMetricFamily3D>();family->geometry=geometry;family->owned=nPointDomain;
+        family->frames=std::move(blFrames);family->eigenvalues=std::move(eigenvalues);family->layers=nativeLayers;
+        family->selected.resize(nPoint);family->nodes.reserve(nPoint);
+        for(size_t i=0;i<nPoint;++i) {
+          const auto id=geometry->nodes->GetGlobalIndex(i);const auto* p=geometry->nodes->GetCoord(i);
+          family->nodes.push_back({id,{SU2_TYPE::GetValue(p[0]),SU2_TYPE::GetValue(p[1]),SU2_TYPE::GetValue(p[2])},i});
+          base_nodes->GetMetricMat(i,family->selected[i].m);
+        }
+        if(familyMaximum==UINT64_MAX)throw std::runtime_error("Original metric family node identities exhausted.");
+        family->node_span=familyMaximum+1;
+        std::sort(family->nodes.begin(),family->nodes.end(),[](const auto& x,const auto& y){return x.id<y.id;});
+        family->controls={{SU2_TYPE::GetValue(config->GetAdap_Hmin()),SU2_TYPE::GetValue(config->GetAdap_Hmax()),
+          SU2_TYPE::GetValue(config->GetAdap_ARmax()),SU2_TYPE::GetValue(config->GetAdap_Hgrad()),SU2_TYPE::GetValue(complexity)}};
+        family->boundary_layer=boundaryLayer;family->authority=nativeReference3D?nativeReference3D->original:nullptr;
+        family->surface_tolerance=SU2_TYPE::GetValue(config->GetAdap_Hausd());
+        for(unsigned i=0;i<config->GetnAdap_BL();++i)family->layer_controls.push_back(config->GetAdap_BL(i));
+        family->normalization=normalized;family->lower=familyLower;family->upper=familyUpper;family->core=SU2_TYPE::GetValue(frozenCore);
+        nativeMetricFamily3D=std::move(family);
+      }
+    }catch(const std::exception& e){snapshotFailure.Set(3,0,e.what());}
+    CollectiveFailure(snapshotFailure,CURRENT_FUNCTION);
+  }
+#endif
+  profile.Mark(5);
   std::string detail;
   if (config->GetWrt_Performance() && nDim == 3 && nativeMetric) {
     std::ostringstream counters;
     counters << std::setprecision(17) << " nested_gradation=" << gradationSeconds
              << " nested_gradation_halo=" << haloSeconds << " nested_gradation_reduction=" << reductionSeconds
-             << " complexity=" << metricComplexityFinal << " bracketed=" << metricComplexityBracketed;
+             << " complexity=" << metricComplexityFinal << " bracketed=" << metricComplexityBracketed
+             << " original_family_bytes=" << (nativeMetricFamily3D?nativeMetricFamily3D->ResidentBytes():0)
+             << " original_family_replay=" << bool(replay);
     detail = counters.str();
   }
-  profile.Report(config->GetTimeIter(), {{"sensor_frames", "geometry_rule", "complexity_gradation_audit", "publication", "halo"}}, detail);
+  profile.Report(config->GetTimeIter(), {{"sensor_frames", "geometry_rule", "complexity_gradation_audit", "publication", "halo", "original_family"}}, detail);
+}
+
+bool CSolver::RecomputeMetricFamily3D(CGeometry* geometry,const CConfig* config,CNativeMetricEvaluation3D& replay,
+    const SU2Native3D::ReferenceState* reference,std::string& reason) {
+  CLocalFailure failure;const auto family=replay.family;
+  const auto start=SU2_MPI::Wtime();
+  auto vote=[&](){const auto e=ElectFailure(failure,SU2_MPI::GetComm());reason=e.message;return !e.any;};
+  try {
+    if(nDim!=3 || config->GetKind_Adap_Remesher()!=ADAP_REMESHER::NATIVE_CAVITY || !family ||
+       family.get()!=nativeMetricFamily3D.get() || family->geometry!=geometry || !replay.assess ||
+       family->owned!=nPointDomain || family->selected.size()!=nPoint || family->nodes.size()!=nPoint ||
+       family->eigenvalues.size()!=3*nPointDomain || family->frames.size()!=nPointDomain)
+      throw std::runtime_error("Metric replay requires the current original native3D family and mesh.");
+    if(!family->Compatible(*config))throw std::runtime_error("Metric replay changed original bounds/gradation/budget/wall policy.");
+    if(family->layers && (!reference || reference->original!=family->authority))
+      throw std::runtime_error("Metric replay changed its original geometric authority.");
+    for(const auto& node:family->nodes) {
+      if(node.local>=nPoint || geometry->nodes->GetGlobalIndex(node.local)!=node.id)
+        throw std::runtime_error("Metric replay changed an original node identity.");
+      const auto* p=geometry->nodes->GetCoord(node.local);
+      if(SU2_TYPE::GetValue(p[0])!=node.point.x || SU2_TYPE::GetValue(p[1])!=node.point.y || SU2_TYPE::GetValue(p[2])!=node.point.z)
+        throw std::runtime_error("Metric replay changed an original coordinate.");
+      su2double current[3][3];base_nodes->GetMetricMat(node.local,current);
+      for(unsigned i=0;i<3;++i)for(unsigned j=0;j<3;++j)if(current[i][j]!=family->selected[node.local].m[i][j])
+        throw std::runtime_error("Metric replay's selected source no longer matches its original event.");
+    }
+  }catch(const std::exception& e){failure.Set(2,0,e.what());}
+  if(!vote())return false;
+  const auto previousPre=metricComplexityPreBL,previousFinal=metricComplexityFinal;
+  const bool previousBracketed=metricComplexityBracketed;
+  try {ComputeMetric(geometry,config,nullptr,family->boundary_layer,nullptr,reference,&replay);}
+  catch(const std::exception& e){failure.Set(2,0,e.what());}
+  for(size_t i=0;i<nPoint;++i)base_nodes->SetMetricMat(i,family->selected[i].m);
+  metricComplexityPreBL=previousPre;metricComplexityFinal=previousFinal;metricComplexityBracketed=previousBracketed;
+  replay.seconds=SU2_MPI::Wtime()-start;
+  return vote();
 }
 
 void CSolver::SetSolution_Gradient_GG(CGeometry *geometry, const CConfig *config, short idxVel, bool reconstruction) {

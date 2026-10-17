@@ -507,9 +507,18 @@ long double TetrahedronVolume(const Tetrahedron& tet,KernelStats* stats) {
   if(!(volume>0) || !std::isfinite(volume))throw std::invalid_argument("Nonpositive/unrepresentable native 3D integration cell.");
   return volume;
 }
-double MetricDensity(const Tensor& m,KernelStats* stats) {
+double MetricDensity(const Tensor& m,KernelStats* stats,long double* condition) {
   ValidateTensor(m,stats);
   const auto determinant=Determinant({}, {m.xx,m.xy,m.xz},{m.xy,m.yy,m.yz},{m.xz,m.yz,m.zz},stats,1e-13L);
+  if(condition) {
+    const auto a=Determinant({}, {m.yy,m.yz,0},{m.yz,m.zz,0},{0,0,1},stats,1e-13L);
+    const auto b=Determinant({}, {m.xx,m.xz,0},{m.xz,m.zz,0},{0,0,1},stats,1e-13L);
+    const auto c=Determinant({}, {m.xx,m.xy,0},{m.xy,m.yy,0},{0,0,1},stats,1e-13L);
+    const auto norm=std::max({std::abs((long double)m.xx)+std::abs((long double)m.xy)+std::abs((long double)m.xz),
+        std::abs((long double)m.xy)+std::abs((long double)m.yy)+std::abs((long double)m.yz),
+        std::abs((long double)m.xz)+std::abs((long double)m.yz)+std::abs((long double)m.zz)});
+    *condition=norm*(a+b+c)/determinant; // Row-sum norm times inverse trace; a conditioning indicator.
+  }
   const double density=double(std::sqrt(determinant));
   if(!(density>0) || !std::isfinite(density))throw std::runtime_error("Unrepresentable native 3D metric density.");
   return density;

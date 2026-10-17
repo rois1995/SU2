@@ -20,15 +20,7 @@ struct DonorPatch {
   std::string reason;
   std::vector<int> source_rank; /*!< Same order as returned cells; ranks in this source's World, valid until ownership rebuild. */
 };
-/*! Sensor only; weights follow nodes order. Publisher/cell remain valid until this source is rebuilt. */
-struct DonorSample {
-  Tensor sensor;
-  std::array<Id,4> nodes{};
-  std::array<long double,4> weights{};
-  Id cell=0,extension_component=UINT64_MAX;
-  int source_rank=0;
-  std::array<Id,4> Key() const {auto key=nodes;std::sort(key.begin(),key.end());return key;}
-  template<class S>void Fields(S& s) {
+template<class S>void OriginalWeights3D(S& s,std::array<long double,4>& weights) {
     static_assert(std::numeric_limits<long double>::radix==2,"Native barycentric transport requires binary scalars.");
     constexpr size_t words=(std::numeric_limits<long double>::digits+31)/32;
     std::array<std::array<uint32_t,words>,4> fraction{};std::array<int,4> exponent{};
@@ -38,11 +30,22 @@ struct DonorSample {
       auto m=std::frexp(weights[i],&exponent[i]);
       for(auto& word:fraction[i]){m=std::ldexp(m,32);word=uint32_t(m);m-=word;}
     }
-    s(sensor,nodes,fraction,exponent,cell,extension_component,source_rank);
+    s(fraction,exponent);
     for(unsigned i=0;i<4;++i) {
       long double m=0;for(size_t j=words;j>0;--j)m=std::ldexp(m+fraction[i][j-1],-32);
       weights[i]=std::ldexp(m,exponent[i]);
     }
+}
+/*! Sensor only; weights follow nodes order. Publisher/cell remain valid until this source is rebuilt. */
+struct DonorSample {
+  Tensor sensor;
+  std::array<Id,4> nodes{};
+  std::array<long double,4> weights{};
+  Id cell=0,extension_component=UINT64_MAX;
+  int source_rank=0;
+  std::array<Id,4> Key() const {auto key=nodes;std::sort(key.begin(),key.end());return key;}
+  template<class S>void Fields(S& s) {
+    s(sensor,nodes);OriginalWeights3D(s,weights);s(cell,extension_component,source_rank);
   }
 };
 struct DonorSamples {

@@ -587,7 +587,8 @@ namespace {
 /*! Shared collective batch schedule. Only the original sensor is imported; composition remains query-local. */
 template <class Make, class Use>
 bool Samples(World& parent, size_t count, DonorImport& source, MetricComposition composition, Make make, Use use,
-             BridgeStats& stats, std::string& reason, size_t ceiling, size_t live, size_t initial, bool query_timings, const PlanarReference* reference=nullptr) {
+             BridgeStats& stats, std::string& reason, size_t ceiling, size_t live, size_t initial, bool query_timings, const PlanarReference* reference=nullptr,
+             const std::function<void(size_t,Point,const DonorSample&)>& observe={}) {
   using Key=std::array<double,3>;
   const auto scratch=transfer_memory::Add(
       transfer_memory::Mul(MaximumSensorSamples,2*(sizeof(DonorSample)+sizeof(Key)+8*sizeof(void*))),
@@ -634,6 +635,7 @@ bool Samples(World& parent, size_t count, DonorImport& source, MetricComposition
         if(cache.size()==MaximumSensorSamples){cache.erase(order.front());order.pop_front();++stats.evictions;}
         cache.emplace(key,samples.samples[j]);order.push_back(key);
       }
+      size_t active=SIZE_MAX;
       std::function<FieldSample(Point)> query=[&](Point p) {
         ++stats.requests;
         try {
@@ -644,6 +646,7 @@ bool Samples(World& parent, size_t count, DonorImport& source, MetricComposition
           if(it==index.end()){++stats.invalid_queries;throw std::runtime_error("Undeclared native3D prepared point query.");}
           const auto i=it->second;const auto& value=values.at(i);
           if(seen.at(i))++stats.hits;else{++stats.misses;seen[i]=1;}
+          if(observe)observe(active,p,value);
           FieldSample answer{value.sensor,value.sensor,value.Key(),value.weights,value.extension_component};
           if(composition) {
             const auto composeStart=query_timings?parent.seconds():0;++stats.compositions;
@@ -654,7 +657,7 @@ bool Samples(World& parent, size_t count, DonorImport& source, MetricComposition
           return answer;
         }catch(...){++stats.failures;throw;}
       };
-      for(size_t i=next;i<std::min(count,next+initial);++i)use(i,query);
+      for(size_t i=next;i<std::min(count,next+initial);++i){active=i;use(i,query);}
     }catch(const std::exception& error){failure.Set(2,0,error.what());}
     if(!Vote(parent,failure,reason)){stats.query_seconds+=parent.seconds()-start;return false;}
     next+=std::min(initial,count-next);stats.query_seconds+=parent.seconds()-start;
@@ -698,16 +701,16 @@ bool WorkingWeights(World& parent, const Owned& cells, DonorImport& source, std:
 bool ReassessComplexity(World& parent,const Owned& candidate,DonorImport& source,
     const PlanarReference& reference,MetricComposition composition,ComplexityReassessment3D& output,
     std::string& reason,BridgeStats& stats,size_t ceiling,size_t caller_bytes,uint64_t count,uint64_t seed,
-    std::function<bool()> withinBudget) {
+    std::function<bool()> withinBudget,std::shared_ptr<const PreparedComplexity3D>* prepared) {
   Envelope envelope(parent,stats);ComplexityReassessment3D result;CLocalFailure failure;
-  const uint64_t controls[]={count,seed,uint64_t(bool(withinBudget)),uint64_t(bool(composition))};uint64_t lo[4],hi[4];
-  SU2_MPI::Allreduce(controls,lo,4,MPI_UNSIGNED_LONG_LONG,MPI_MIN,parent.comm);
-  SU2_MPI::Allreduce(controls,hi,4,MPI_UNSIGNED_LONG_LONG,MPI_MAX,parent.comm);
-  if(!std::equal(lo,lo+4,hi) || count<32 || count>1048576 || source.Communicator()!=parent.comm)failure.Set(1,0,"Inconsistent/invalid candidate complexity assessment controls/source communicator.");
+  const uint64_t controls[]={count,seed,uint64_t(bool(withinBudget)),uint64_t(bool(composition)),uint64_t(bool(prepared))};uint64_t lo[5],hi[5];
+  SU2_MPI::Allreduce(controls,lo,5,MPI_UNSIGNED_LONG_LONG,MPI_MIN,parent.comm);
+  SU2_MPI::Allreduce(controls,hi,5,MPI_UNSIGNED_LONG_LONG,MPI_MAX,parent.comm);
+  if(!std::equal(lo,lo+5,hi) || count<32 || count>1048576 || source.Communicator()!=parent.comm)failure.Set(1,0,"Inconsistent/invalid candidate complexity assessment controls/source communicator.");
   if(!Vote(parent,failure,reason))return false;
   const size_t live=transfer_memory::Add(caller_bytes,OwnedBytes(candidate),source.ResidentBytes(),
       transfer_memory::Mul(candidate.size(),sizeof(const Cell*)+sizeof(WeightedCell3D)));
-  auto limited=[&](const std::string& why) {result.reason=why;output=std::move(result);reason.clear();return true;};
+  auto limited=[&](const std::string& why) {result.reason=why;output=std::move(result);if(prepared)prepared->reset();reason.clear();return true;};
   if(!Admit(parent,live,ceiling,stats,reason))return limited(reason);
   std::vector<const Cell*> ordered;std::vector<WeightedCell3D> weighted;bool expired=false;
   auto time=[&]() {if(withinBudget && !withinBudget()){expired=true;throw CellSamplingLimit3D("Candidate complexity time budget exhausted.");}};
@@ -740,9 +743,22 @@ bool ReassessComplexity(World& parent,const Owned& candidate,DonorImport& source
     result.centroid_estimate=double(sampler.CentroidEstimate());result.value=result.centroid_estimate;
     auto points=sampler.Draw(count,seed);stats.points_seconds=sampler.draw_seconds;
     stats.maximum_native_bytes=std::max(stats.maximum_native_bytes,sampler.MaximumBytes());
+    std::shared_ptr<PreparedComplexity3D> cloud;
+    std::vector<std::vector<OriginalComplexityPoint3D>> outgoing;
+    if(prepared) {
+      const auto scratch=transfer_memory::Add(caller_bytes,OwnedBytes(candidate),source.ResidentBytes(),
+          transfer_memory::Bytes(ordered),sampler.ResidentBytes(),transfer_memory::Bytes(points),
+          transfer_memory::GrowthBound(points.size(),sizeof(OriginalComplexityPoint3D)),
+          transfer_memory::Mul(parent.size,sizeof(std::vector<OriginalComplexityPoint3D>)));
+      if(!Admit(parent,scratch,ceiling,stats,reason))return limited(reason);
+      try{cloud=std::make_shared<PreparedComplexity3D>();outgoing.resize(parent.size);}
+      catch(const std::exception& e){failure.Set(3,0,e.what());}
+      if(!Vote(parent,failure,reason))return limited(reason);
+    }
     std::array<long double,11> local{},global{};
     const auto sample_live=transfer_memory::Add(caller_bytes,OwnedBytes(candidate),source.ResidentBytes(),
-        transfer_memory::Bytes(ordered),sampler.ResidentBytes(),transfer_memory::Bytes(points));
+        transfer_memory::Bytes(ordered),sampler.ResidentBytes(),transfer_memory::Bytes(points),
+        cloud?transfer_memory::Add(transfer_memory::GrowthBound(points.size(),sizeof(OriginalComplexityPoint3D)),transfer_memory::Bytes(outgoing)):0);
     auto make=[&](size_t i,std::vector<DonorRegion>& regions){time();PointRegion(points[i].point,regions);};
     auto consume=[&](size_t i,const std::function<FieldSample(Point)>& query) {
       const long double y=(long double)MetricDensity(query(points[i].point).target)*points[i].inverse_pdf;
@@ -750,10 +766,28 @@ bool ReassessComplexity(World& parent,const Owned& candidate,DonorImport& source
       if(!std::isfinite(residual))throw std::runtime_error("Nonfinite original-field complexity residual.");
       local[0]+=residual;local[1]+=residual*residual;++local[2];local[3+points[i].row%8]+=residual;
     };
-    if(!Samples(parent,points.size(),source,composition,make,consume,stats,reason,ceiling,sample_live,MaximumCavityCells,true,&reference)) {
+    std::function<void(size_t,Point,const DonorSample&)> observe;
+    if(cloud)observe=[&](size_t i,Point p,const DonorSample& donor) {
+      if(i>=points.size() || donor.source_rank<0 || donor.source_rank>=parent.size)
+        throw std::runtime_error("Invalid original complexity stencil publisher.");
+      outgoing[donor.source_rank].push_back({points[i].row,p,points[i].inverse_pdf,donor.nodes,donor.weights,
+          donor.cell,donor.extension_component,donor.source_rank});
+    };
+    if(!Samples(parent,points.size(),source,composition,make,consume,stats,reason,ceiling,sample_live,MaximumCavityCells,true,&reference,observe)) {
       if(parent.maximum(expired))return limited(reason);
       if(parent.maximum(source.Statistics().maximum_work_bytes>ceiling || stats.maximum_native_bytes>ceiling))return limited(reason);
       return false;
+    }
+    if(cloud) {
+      bool admitted=false;
+      cloud->points=parent.exchange(outgoing,&admitted,ceiling,sample_live);
+      if(!admitted)return limited("Prepared original complexity stencils exceed storage ceiling.");
+      const auto total=CPassiveComm::Allreduce(uint64_t(cloud->points.size()),CPassiveComm::Op::SUM,parent.comm);
+      if(total!=count)failure.Set(2,0,"Incomplete prepared original complexity cloud.");
+      for(const auto& p:cloud->points)if(p.row>=count || p.publisher!=parent.rank)
+        failure.Set(2,p.row,"Misrouted prepared original complexity point.");
+      if(!Vote(parent,failure,reason))return false;
+      cloud->count=count;cloud->seed=seed;
     }
     const auto reductionStart=parent.seconds();
     SU2_MPI::Allreduce(local.data(),global.data(),global.size(),MPI_LONG_DOUBLE,MPI_SUM,parent.comm);
@@ -768,7 +802,7 @@ bool ReassessComplexity(World& parent,const Owned& candidate,DonorImport& source
     }
     result.uncertainty=3*std::max(result.standard_error,result.block_standard_error);
     if(!(result.value>0) || !std::isfinite(result.value) || !std::isfinite(result.uncertainty))throw std::runtime_error("Invalid global candidate complexity estimate.");
-    result.estimated=true;output=std::move(result);reason.clear();return true;
+    result.estimated=true;output=std::move(result);if(prepared)*prepared=std::move(cloud);reason.clear();return true;
   }catch(const CellSamplingLimit3D& e){return limited(e.what());}
   catch(const std::exception& e){reason=e.what();return false;}
 }

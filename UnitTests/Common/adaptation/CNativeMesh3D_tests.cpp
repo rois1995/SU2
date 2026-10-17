@@ -281,7 +281,13 @@ TEST_CASE("Native support work storage and invalid geometry fail explicitly", "[
 
 
 TEST_CASE("Native density and volume keep determinant magnitude under strong cancellation", "[NativeMesh3D][NativeDensity3D]") {
-  for(double scale:{1e-200,1.,1e200})CHECK(MetricDensity({scale,0,0,scale,0,scale})==Approx(std::pow(scale,1.5)).epsilon(1e-13));
+  for(double scale:{1e-200,1.,1e200}) {
+    long double condition=0;
+    CHECK(MetricDensity({scale,0,0,scale,0,scale},nullptr,&condition)==Approx(std::pow(scale,1.5)).epsilon(1e-13));
+    CHECK(double(condition)==Approx(3.).epsilon(1e-13));
+  }
+  long double diagonalCondition=0;MetricDensity({1,0,0,2,0,4},nullptr,&diagonalCondition);
+  CHECK(double(diagonalCondition)==Approx(7.).epsilon(1e-14));
   const double a=std::ldexp(1.,40);KernelStats stats;
   CHECK(MetricDensity({a+1,a,0,a+1,0,4},&stats)==Approx(2*std::sqrt(2*a+1)).epsilon(1e-14));
   CHECK(stats.exact_orientations>0);

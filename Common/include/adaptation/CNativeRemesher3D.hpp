@@ -9,13 +9,34 @@
 #include "CRemesher.hpp"
 #include "CNativeImport3D.hpp"
 #include "CNativeEngine3D.hpp"
+#include "CComplexityNormalization.hpp"
 namespace SU2Native3D {
+struct NormalizationProposal3D {
+  bool valid=true,changed=false;
+  std::string reason;
+  double log_scale=0,core=0,seconds=0,geometry_seconds=0,assessment_seconds=0;
+  unsigned trials=0;
+  uint64_t density_queries=0,geometry_queries=0;
+  size_t retained_bytes=0,maximum_bytes=0;
+  SU2Complexity::Estimate estimate;
+  SU2Complexity::Status status=SU2Complexity::Status::IntegrationLimited;
+  std::function<Tensor(Id)> source_value;
+};
+struct NormalizationStage3D {
+  size_t retained_bytes=0;
+  std::function<NormalizationProposal3D(const ComplexityReassessment3D&,const PreparedComplexity3D&,
+      const std::vector<DonorCell>&,double,const std::function<bool()>&,size_t,size_t)> propose;
+};
 struct RemeshStats {
   // Exclusive computation scopes; diagnostic reporting is separate and measured.
-  static constexpr std::array<const char*, 14> names{{"support", "reference", "import", "source", "weights",
+  static constexpr std::array<const char*, 15> names{{"support", "reference", "import", "source", "weights",
                                                       "partition", "donor_migration", "communicator", "refine",
-                                                      "coarsen", "wait", "return", "policy", "reassessment"}};
-  std::array<double, 14> phases{};
+                                                      "coarsen", "wait", "return", "policy", "reassessment", "normalization"}};
+  std::array<double, 15> phases{};
+  unsigned normalization_stages=0;
+  uint64_t cumulative_work=0;
+  std::array<uint64_t,2> normalization_stage_work{};
+  NormalizationProposal3D normalization;
   double total_seconds = 0, other_seconds = 0, report_seconds = 0, process_cpu_seconds = 0, idle_cpu_seconds = 0;
   BridgeStats imported, weights, returned, reassessment;
   ComplexityReassessment3D complexity;
@@ -36,8 +57,10 @@ class CNativeRemesher3D final : public CRemesher {
  public:
   using CompositionFactory = std::function<SU2Native3D::MetricComposition(
       const CConfig&, const SU2Native3D::ReferenceState&, double, SU2Native3D::EngineOptions&)>;
+  using NormalizationFactory = std::function<SU2Native3D::NormalizationStage3D(
+      const CConfig&,const CGeometry&,const su2activematrix&)>;
   explicit CNativeRemesher3D(std::shared_ptr<SU2Native3D::ReferenceState> retained,
-                             SU2Native3D::EngineOptions options = {}, CompositionFactory geometricConstraints = {});
+                             SU2Native3D::EngineOptions options = {}, CompositionFactory geometricConstraints = {}, NormalizationFactory normalization = {});
   void PrepareReference(const CConfig& config, const CGeometry& geometry);
   static void CheckSupport(const CConfig& config, const CGeometry& geometry);
   CRemeshResult Remesh(const CConfig& config, const CGeometry& geometry, const su2activematrix& sensor) override;
@@ -47,5 +70,6 @@ class CNativeRemesher3D final : public CRemesher {
   std::shared_ptr<SU2Native3D::ReferenceState> reference;
   SU2Native3D::EngineOptions options;
   CompositionFactory compositionFactory;
+  NormalizationFactory normalizationFactory;
   SU2Native3D::RemeshStats stats;
 };

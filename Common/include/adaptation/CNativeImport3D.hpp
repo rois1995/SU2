@@ -51,6 +51,29 @@ ImportedGeometry ImportGeometry(const CConfig& config, const CGeometry& geometry
 bool ImportGeometry(const CConfig& config, const CGeometry& geometry, const su2activematrix* metric,
                     ReferenceState& reference, ImportedGeometry& output, std::string& reason, BridgeStats& stats,
                     size_t ceiling, size_t caller_bytes = 0);
+/*! Same physical-node identity range used by ImportGeometry's generated analytic collars. */
+inline Id OriginalSourceNodeSpan(World& world,const std::vector<DonorCell>& source) {
+  uint64_t count=0,maximum=0;
+  for(const auto& d:source)if(d.extension_component==UINT64_MAX){++count;for(const auto& n:d.cell.v)maximum=std::max(maximum,n.id);}
+  count=CPassiveComm::Allreduce(count,CPassiveComm::Op::SUM,world.comm);
+  maximum=CPassiveComm::Allreduce(maximum,CPassiveComm::Op::MAX,world.comm);
+  if(!count || maximum==UINT64_MAX)throw std::runtime_error("Original physical source node identity range is empty/exhausted.");
+  return maximum+1;
+}
+/*! Geometry/identity only: CURRENT original-node values must be supplied for each field trial. */
+struct OriginalComplexityPoint3D {
+  uint64_t row=0;Point point;double inverse_pdf=0;
+  std::array<Id,4> nodes{};std::array<long double,4> weights{};
+  Id cell=0,extension_component=UINT64_MAX;int publisher=0;
+  template<class S>void Fields(S& s) {
+    s(row,point,inverse_pdf,nodes);OriginalWeights3D(s,weights);s(cell,extension_component,publisher);
+  }
+};
+struct PreparedComplexity3D {
+  std::vector<OriginalComplexityPoint3D> points; // Routed to original publishers, independent of working ownership.
+  uint64_t count=0,seed=0;
+  size_t ResidentBytes()const{return transfer_memory::Add(sizeof(*this),transfer_memory::Bytes(points));}
+};
 /*! A complete proposal covers every candidate cell. Uncertainty is an empirical indicator, not a bound. */
 struct ComplexityReassessment3D {
   double value=0,uncertainty=INFINITY,standard_error=0,block_standard_error=0,centroid_estimate=0;
@@ -64,7 +87,8 @@ struct ComplexityReassessment3D {
 bool ReassessComplexity(World& parent,const Owned& candidate,DonorImport& original,
     const PlanarReference& reference,MetricComposition composition,ComplexityReassessment3D& output,
     std::string& reason,BridgeStats& stats,size_t ceiling=size_t(2)<<30,size_t caller_bytes=0,
-    uint64_t count=8192,uint64_t seed=20261017,std::function<bool()> withinBudget={});
+    uint64_t count=8192,uint64_t seed=20261017,std::function<bool()> withinBudget={},
+    std::shared_ptr<const PreparedComplexity3D>* prepared=nullptr);
 /*! Bounded point-support batches on parent (M<=N return uses empty inputs on inactive ranks).
  * Weight and reader functions leave their output unchanged on elected failures. Each cache hit composes
  * at the actual query. No nodal geometric BL tensor is spread into the original source.

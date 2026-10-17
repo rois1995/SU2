@@ -1,0 +1,8 @@
+[01m[K../../SU2_CFD/src/solvers/CSolver.cpp:[m[K In member function ‘[01m[Kvoid CSolver::ComputeMetric(CGeometry*, const CConfig*, const std::vector<double>*, bool, const SU2NativeBoundary2D::ReferenceState*, const SU2Native3D::ReferenceState*, CNativeMetricEvaluation3D*)[m[K’:
+[01m[K../../SU2_CFD/src/solvers/CSolver.cpp:3784:99:[m[K [01;31m[Kerror: [m[Kinvalid use of incomplete type ‘[01m[Kconst struct SU2Native3D::ReferenceState[m[K’
+ 3784 |         family->boundary_layer=boundaryLayer;family->authority=nativeReference3D?nativeReference3D[01;31m[K->[m[Koriginal:nullptr;
+      |                                                                                                   [01;31m[K^~[m[K
+In file included from [01m[K../../SU2_CFD/src/solvers/CSolver.cpp:30[m[K:
+[01m[K../../SU2_CFD/src/solvers/../../include/solvers/CSolver.hpp:71:32:[m[K [01;36m[Knote: [m[Kforward declaration of ‘[01m[Kstruct SU2Native3D::ReferenceState[m[K’
+   71 | namespace SU2Native3D { struct [01;36m[KReferenceState[m[K; }
+      |                                [01;36m[K^~~~~~~~~~~~~~[m[K

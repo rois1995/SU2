@@ -64,7 +64,7 @@ bool ConformingDisjoint(const Cell& a, const Cell& b, KernelStats* stats = nullp
 /*! Finite components and exact Sylvester signs; no tensor repair or condition-number clipping. */
 void ValidateTensor(const Tensor& tensor, KernelStats* stats = nullptr);
 /*! sqrt(det(M)) with magnitude-controlled exact determinant fallback; never repairs the supplied tensor. */
-double MetricDensity(const Tensor& tensor,KernelStats* stats=nullptr);
+double MetricDensity(const Tensor& tensor,KernelStats* stats=nullptr,long double* condition=nullptr);
 /*! Positive tetrahedral volume with magnitude-controlled determinant evaluation. */
 long double TetrahedronVolume(const Tetrahedron& tet,KernelStats* stats=nullptr);
 constexpr size_t MaximumSegmentDonors = 256;

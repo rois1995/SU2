@@ -1,0 +1,5 @@
+In file included from [01m[K../../SU2_CFD/src/drivers/CSinglezoneDriver.cpp:28[m[K:
+[01m[K../../SU2_CFD/src/drivers/../../include/adaptation/CNativeNormalizationStage3D.hpp:[m[K In lambda function:
+[01m[K../../SU2_CFD/src/drivers/../../include/adaptation/CNativeNormalizationStage3D.hpp:33:129:[m[K [01;31m[Kerror: [m[K‘[01m[Kstruct CCompressedSparsePattern<unsigned int>::CInnerIter[m[K’ has no member named ‘[01m[Ksize[m[K’
+   33 |     size_t adjacency=0;for(size_t i=0;i<family->owned;++i)adjacency=transfer_memory::Add(adjacency,geometry.nodes->GetPoints(i).[01;31m[Ksize[m[K());
+      |                                                                                                                                 [01;31m[K^~~~[m[K

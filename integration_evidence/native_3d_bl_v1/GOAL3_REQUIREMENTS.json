@@ -1679,6 +1679,41 @@
       ],
       "owned_jobs": "terminal",
       "resource_policy": "one heavy job/nice19/build-j1/thread1/MPI<=4; observed~39-41GiB available/no swap growth"
+    },
+    "frozen_normalization_stages": {
+      "status": "QUALIFIED_CONTROLLED_PLANAR_CORRECTION_NOT_FULL_GOAL3",
+      "evidence": "integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/frozen_normalization_stages_v1",
+      "full_goal_complete": false,
+      "accepted_M6_mesh": false,
+      "mesh_stages_maximum": 2,
+      "root_callbacks_maximum": 24,
+      "samples_per_assessment": 8192,
+      "MPI": [
+        1,
+        2,
+        4
+      ],
+      "N4_M2": true,
+      "accepted_RANS_workflows": 8,
+      "original_unbounded_frames_and_geometry_preserved": true,
+      "one_final_transfer_and_publication": true,
+      "Hessian_recovery_during_replay": false,
+      "indicator_is_proven_bound": false,
+      "reference_budget_discrepancy_range": [
+        0.00193632794802312,
+        0.0032255614763421203
+      ],
+      "scope": "Controlled planar RANS/SA current+BDF/transfer/SU2/CGNS/restart. Strict existing2D unchanged; no general curved/M6 or prediction-family correction qualification.",
+      "refinement_indicator_improvement_range": [
+        3.07,
+        4.07
+      ],
+      "coarsening_indicator_ratio_range": [
+        0.915,
+        1.206
+      ],
+      "owned_jobs": "terminal",
+      "handbook": "Handbook/GOAL3_FROZEN_NORMALIZATION_STAGES.md"
     }
   }
 }

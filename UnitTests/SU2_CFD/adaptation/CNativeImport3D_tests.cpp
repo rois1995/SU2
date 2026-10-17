@@ -12,6 +12,7 @@
 #include "../../../SU2_CFD/include/output/CMeshOutput.hpp"
 #include "../../../SU2_CFD/include/adaptation/CConservativeTransfer.hpp"
 #include "../../../SU2_CFD/include/adaptation/CBoundaryLayerMetric.hpp"
+#include "../../../SU2_CFD/include/adaptation/CNativeNormalizationStage3D.hpp"
 #include "../../../Common/include/geometry/meshreader/CSU2ASCIIMeshReaderFVM.hpp"
 #include "../../../Common/include/geometry/meshreader/CCGNSMeshReaderFVM.hpp"
 #include "../../../Common/include/adaptation/CNativeRemesher3D.hpp"
@@ -2227,3 +2228,5 @@ TEST_CASE("Candidate complexity reassesses original P1 and actual composition wi
       <<",\"original_source_unchanged\":true,\"source_builds\":"<<source.Statistics().builds<<",\"proven_bound\":false}\n";REQUIRE(bool(out));
   }
 }
+
+#include "fixtures/native_normalization_stages.inc"

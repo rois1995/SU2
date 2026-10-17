@@ -6438,3 +6438,34 @@ fix reused completed native evidence with an explicit helper transition. No CFD,
 full regression, unchanged full M6 retry or cluster job. One heavy job; largest
 build process2.41GiB/replay667MiB, host~39–41GiB available/no swap growth.
 [Full result, work, rejected experiment and open correction/construction gates](Handbook/GOAL3_CANDIDATE_REASSESSMENT.md).
+
+## 2026-10-17: bounded original-family correction between frozen mesh stages
+
+Native3D provisional initialization can now use2 PRIVATE stages and1 final return/
+transfer/publication. Original unclipped frames/eigenvalues, CFD nodes/geometry and
+bounds/gradation are retained; Hessian/sensor/predictor histories are not rebuilt.
+Each root trial evaluates CURRENT original-node P1 and actual geometric BL/current
+core on retained geometry-only publisher stencils. CFD metric/diagnostics/flow/SA/
+BDF are restored; no clipped-donor rescaling or candidate refit. Strict successful
+initialization/2D behavior remains. Collective eligibility skips a differing
+predicted/aggregated family consistently. Shared work/deadline/storage and all
+geometry/height/positive/q/J/full-edge/transfer gates stay intact.
+
+Original nonhomogeneous independent integral19.99506 versus estimate20.00000 +/-
+.04471;8 controlled planar RANS/SA workflows pass N1M1/N2M2/N4M2/N4M4 under unchanged
+constraints,151--240 cells/work433--1374/root6--7 calls. Exact geometry/full metric/
+height/sensor transport, BDF/SA, SU2/CGNS and real restart pass. Independent masses
+19.93549--19.96127 versus20 leave0.194--0.323% discrepancy; roots remain explicitly
+integration_limited. Uncertainty is empirical plus conditioning HEURISTIC, not a
+proven bound or calibrated1e-6 root/default accuracy.
+
+Reassessing the SAME corrected field after actual refinement improves indicator
+3.07--4.07x; coarsening can worsen it (ratios.915--1.206). Preserve this negative
+result rather than adding a sampling/subdivision ladder. Trials have0 source/wall
+spatial queries, but8192 geometric preparation calls and all density/mesh/transfer
+costs remain. No lifecycle speedup or general curved/M6 qualification. The M6
+estimated minimum~790k versus100k and its separate construction failure remain;
+no unchanged full M6/CFD/cluster rerun. Marker-binding fixture and report-wrapper
+failures are retained. One owned heavy job, build-j1/nice19/thread1/MPI<=4, max build
+process2.40GiB, host~38--41GiB available/swap unchanged. Full Goal3 ACTIVE.
+[Exact source/results/limits](Handbook/GOAL3_FROZEN_NORMALIZATION_STAGES.md).

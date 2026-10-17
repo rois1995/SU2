@@ -25,6 +25,7 @@
  * License along with SU2. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "../../include/adaptation/CNativeNormalizationStage3D.hpp"
 #include "../../include/drivers/CSinglezoneDriver.hpp"
 #include "../../include/definition_structure.hpp"
 #include "../../include/output/COutput.hpp"
@@ -297,9 +298,11 @@ std::unique_ptr<CRemesher> CSinglezoneDriver::MakeRemesher() {
   if (config_container[ZONE_0]->GetKind_Adap_Remesher()==ADAP_REMESHER::NATIVE_CAVITY) {
     if(geometry_container[ZONE_0][INST_0][MESH_0]->GetnDim()==3){
       if(!nativeReference3D)nativeReference3D=std::make_shared<SU2Native3D::ReferenceState>();
-      auto constraints=[](const CConfig& config,const SU2Native3D::ReferenceState& state,double core,
+      auto constraints=[this](const CConfig& config,const SU2Native3D::ReferenceState& state,double core,
                           SU2Native3D::EngineOptions& control) -> SU2Native3D::MetricComposition {
-        auto layers=CBoundaryLayerMetric::FromNativeReference(state,config);
+        const auto family=solver_container[ZONE_0][INST_0][MESH_0][FLOW_SOL]->GetNativeMetricFamily3D();
+        const auto layers=family && family->boundary_layer && family->layers && family->authority==state.original && family->Compatible(config)
+            ? family->layers : CBoundaryLayerMetric::FromNativeReference(state,config);
         for(unsigned short b=0;b<config.GetnAdap_BL();++b) {
           const auto& layer=config.GetAdap_BL(b);
           const auto marker=std::find(state.marker_names.begin(),state.marker_names.end(),layer.marker);
@@ -321,7 +324,12 @@ std::unique_ptr<CRemesher> CSinglezoneDriver::MakeRemesher() {
               SU2_TYPE::GetValue(m.m[1][1]),SU2_TYPE::GetValue(m.m[1][2]),SU2_TYPE::GetValue(m.m[2][2])};
         };
       };
-      auto remesher=std::make_unique<CNativeRemesher3D>(nativeReference3D,SU2Native3D::EngineOptions{},std::move(constraints));
+      auto normalization=[this](const CConfig& config,const CGeometry& geometry,const su2activematrix& sensor) {
+        auto* original=geometry_container[ZONE_0][INST_0][MESH_0];
+        if(!CPassiveComm::Allreduce(int(original==&geometry),CPassiveComm::Op::MIN))return SU2Native3D::NormalizationStage3D{};
+        return NativeNormalizationStage3D(*solver_container[ZONE_0][INST_0][MESH_0][FLOW_SOL],*original,config,*nativeReference3D,sensor);
+      };
+      auto remesher=std::make_unique<CNativeRemesher3D>(nativeReference3D,SU2Native3D::EngineOptions{},std::move(constraints),std::move(normalization));
       if(config_container[ZONE_0]->GetnAdap_BL())
         remesher->PrepareReference(*config_container[ZONE_0],*geometry_container[ZONE_0][INST_0][MESH_0]);
       return remesher;

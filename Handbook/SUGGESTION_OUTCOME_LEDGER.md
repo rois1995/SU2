@@ -570,3 +570,47 @@ Global error calibration/allocation, frozen correction epochs from original
 unclipped frames/bounds/gradation, difficult accepted M6 construction, viscous
 accuracy and whole-lifecycle affordability remain open. Do not rescue the coarse
 proposal with another sampler/count/subdivision ladder. [Evidence and limitations](GOAL3_CANDIDATE_REASSESSMENT.md).
+
+## 2026-10-17: frozen original-family correction IMPLEMENTED in controlled3D workflows
+
+The actual candidate reassessment is now coupled to at most2 private mesh stages
+and1 final transfer/publication. CSolver retains ORIGINAL UNCLIPPED eigenframes,
+original CFD geometry/nodes and the bounds/gradation family; replay skips Hessian/
+sensor recovery and restores CFD metric/diagnostics/flow/SA/BDF. Trials interpolate
+current original-node P1 and reuse geometry/publisher stencils. No clipped-donor
+rescaling, adapted-node refit or target change during local mesh operations.
+Optional eligibility is global, including prediction changed on only some ranks.
+
+What worked: original nonhomogeneous mass21.76446 ->20.00000 +/-0.04471; independent
+19.99506 (.0247% error). MPI1/2/4, source reversion, aliases/empty publishers and
+collective control/storage/deadline faults pass.8 actual initialized RANS/SA planar
+workflows (N1M1/N2M2/N4M2/N4M4, controlled initial scales1/10) accept151--240 cells,
+work433--1374/root6--7 calls. Independent geometry/q/J/full composed edges/height,
+exact sensor transport, BDF/SA, SU2/CGNS and real restart pass unchanged gates.
+Independent final mass19.93549--19.96127 against20:0.194--0.323% discrepancy; empirical
+indicators retained, every root integration_limited, no exact normalization claim.
+
+The SAME corrected original field on actual pre/post partitions gives refinement
+indicator3.07--4.07x lower and observed error5.48--77.70x lower. Coarsening indicator
+ratios.915--1.206 show no monotonic benefit; error ratios.824--.997. This is evidence
+for reassessment, not for blindly increasing subdivisions or sampling complexity.
+Serial root phase.035--.040s/49152--57344 density evaluations,8192 geometric
+preparations; donor/wall queries DURING trials0. Preparation and both mesh stages
+remain costs. No full-event speedup/scaling claim on these small contended controls.
+
+What failed: a work-cap fixture used a newly parsed config without mesh-bound
+marker order, after a native-complete240-cell candidate. Correct tag/kind/send-receive
+bindings fixed the fixture; the77-work cap then rejects without changing accepted
+CFD/reference. A reporting wrapper Path-type error occurred before any MPI run.
+Both failures/source capsules remain. Exact sealed serial results/audit are reused,
+not rerun for MPI reporting. Build-j1/nice19/thread1/MPI<=4, one heavy job. Build
+peak process2.40GiB, pilot~50MiB, host~38--41GiB available/swap unchanged.
+
+Not established: natural M6 normalization/construction success, general curved/
+thin/interacting correction, calibrated global error/default tolerance/allocation,
+2D/predicted-family coupling, viscous accuracy or unsteady affordability. Earlier
+M6 coarsest demand~790k exceeds100k; refining integration cannot remove that demand.
+No unchanged300s retry, CFD advancement or cluster run. Broader repair-campaign
+retention/edge lifetime/transaction/balance package remains separate; this is
+normalization-stencil reuse, not completion of every performance suggestion.
+[Complete result and evidence](GOAL3_FROZEN_NORMALIZATION_STAGES.md).

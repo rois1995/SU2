@@ -1,0 +1,30 @@
+{
+  "status": "PASS_CONTROLLED_FROZEN_ORIGINAL_FAMILY_STAGES_NOT_FULL_GOAL3",
+  "full_goal_complete": false,
+  "accepted_M6_mesh": false,
+  "MPI": [
+    1,
+    2,
+    4
+  ],
+  "N4_M2": true,
+  "independent_accepted_RANS_workflows": 8,
+  "uncertainty_is_proven_bound": false,
+  "no_CFD_time_advancement": true,
+  "no_cluster_run": true,
+  "owned_jobs": "terminal",
+  "resource_policy": "one heavy job/nice19/build-j1/thread1/MPI<=4; process maxima, not aggregate memory",
+  "summary_sha256": "9a5d9717a8d87885df19223beed4de6d3e9caf79e4d077431c48c7fc1cba23dd",
+  "same_field_comparison_sha256": "cf93c96abb69bcd11b9245d7b3894f1caf1cda155676d3c7dbe9c67b006a1e5c",
+  "serial_reuse_manifest_sha256": "77660deedae4a0cddd6657c4f1864779084f1d65e2580837e6bbaf3e13dc6281",
+  "current_compiled_CFD_sha256": "cd0afc86753d8fdaa28b1778522174f47664ee8a6ca12aefc4255bd427c0b80e",
+  "current_compiled_CFD_role": "Current dependency graph only; unit-test driver executes the actual driver/remesher/replacement/restart workflows; standalone CFD not rerun.",
+  "limitations": [
+    "Controlled planar correction only, not natural M6 or general curved/thin/interacting correction.",
+    "Strict2D unchanged; different predicted/aggregated families skip correction.",
+    "Fixed8192 samples/heuristic uncertainty; global error/default calibration and allocation remain open.",
+    "Engine detail counters last stage, phases/work totals both; printed rank0 correction counters local.",
+    "normalization.changed is proposal, stage count2 establishes application.",
+    "M6 construction, viscous accuracy and complete lifecycle affordability remain open."
+  ]
+}

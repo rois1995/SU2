@@ -70,6 +70,9 @@ using namespace std;
 namespace SU2NativeBoundary2D { struct ReferenceState; }
 namespace SU2Native3D { struct ReferenceState; }
 
+struct CNativeMetricFamily3D;
+struct CNativeMetricEvaluation3D;
+
 class CSolver {
 protected:
   enum : size_t {OMP_MIN_SIZE = 32}; /*!< \brief Chunk size for small loops. */
@@ -195,6 +198,7 @@ private:
   CVariable* base_nodes;  /*!< \brief Pointer to CVariable to allow polymorphic access to solver nodes. */
 
 protected:
+  std::shared_ptr<CNativeMetricFamily3D> nativeMetricFamily3D;
   passivedouble metricComplexityPreBL = 0.0; /*!< \brief Complexity of the last metric before the boundary layer. */
   passivedouble metricComplexityFinal = 0.0; /*!< \brief Complexity of the last metric (final). */
   bool metricComplexityBracketed = false;    /*!< \brief The target was bracketed by the size bounds. */
@@ -614,12 +618,18 @@ public:
    */
   void ComputeMetric(CGeometry *geometry, const CConfig *config, const vector<su2double>* givenMetric = nullptr,
                      bool boundaryLayer = true, const SU2NativeBoundary2D::ReferenceState* nativeReference = nullptr,
-                     const SU2Native3D::ReferenceState* nativeReference3D = nullptr);
+                     const SU2Native3D::ReferenceState* nativeReference3D = nullptr,
+                     CNativeMetricEvaluation3D* replay = nullptr);
 
   /*!
    * \brief Complexity of the last ComputeMetric (global): attained by the global factor (after the bounds and the corner
    *        metric, before the boundary-layer metric), and of the final metric (with the boundary-layer metric).
    */
+  std::shared_ptr<const CNativeMetricFamily3D> GetNativeMetricFamily3D()const {return nativeMetricFamily3D;}
+  /*! Rebuild bounds/gradation from original frames without Hessian recovery or publishing trial metrics. */
+  bool RecomputeMetricFamily3D(CGeometry* geometry,const CConfig* config,CNativeMetricEvaluation3D& replay,
+                              const SU2Native3D::ReferenceState* reference,std::string& reason);
+
   passivedouble GetMetricComplexityPreBL() const { return metricComplexityPreBL; }
   passivedouble GetMetricComplexityFinal() const { return metricComplexityFinal; }
   /*! \brief Whether the target complexity of the last ComputeMetric was bracketed by the size bounds. */
