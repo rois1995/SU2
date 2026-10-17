@@ -1,180 +1,87 @@
-# Newton efficiency work, 17 October 2026
+# Newton efficiency measurements, 17 October 2026
 
-This is an active continuation of the [previous assessment](PERFORMANCE.md),
-starting from `29a4c3c58add4b0164714a91ef330fa3a01654dc`. The goal also includes
-memory, coupled preconditioning, synchronization, a larger practical case and
-fair convergence-control comparisons. Higher fixed CFL trials follow the
-implementation work and will be reported separately for native and Newton.
+The implementation reduces residual work and duplicated temporary memory while
+preserving the original-control nonlinear trajectory. The starting source is
+`29a4c3c58add4b0164714a91ef330fa3a01654dc`; the qualified implementation is
+`4712d82375e00ede15e5177ab38865eaaaa3e9f5`. Every validated commit was pushed
+immediately to `rois1995/SU2:feature_LineSearch`. The earlier physical-property
+checkpoint in [PERFORMANCE.md](PERFORMANCE.md) precedes this baseline; its counts
+are not silently substituted for the current before measurements.
 
-## Local residual refresh changes
+Original-control comparisons and configuration experiments are separate. Three
+alternating before/after pairs cover native, segregated and coupled SA/SST/active
+LM and the rotational-periodic axis fixture on 1x1 and 2x2: 144 solver runs. Every
+pair has identical configuration, work counts and complete restart bytes.
+Available CPU time was affected by persistent desktop activity and intermittent
+foreign builds. Observed medians are reported below, but **there is no qualified
+uncontended or general speedup claim**. Work reductions, memory measurements and
+correctness checks do not depend on interpreting those noisy elapsed times.
+End-to-end time covers the CFD invocation, MPI startup, initialization and output;
+solver-loop time is its native `WRT_PERFORMANCE` timer. Queue waits and the later
+independent physical reporter are outside both CFD measurement intervals.
 
-Native volume and boundary integration now have separate entry points, retaining
-the original boundary order. Auxiliary-only Newton evaluations refresh flow
-boundary states without traversing volume flux/source kernels. Bounded scalars
-retain full flow assembly for their live edge mass fluxes. Custom sources retain
-full evaluation/failure checks, as do fixed-lift, engine and actuator-disk feedback.
-MUSCL still refreshes its gradients/limiters; saved reconstruction counters remain
-frozen, and auxiliary owners never commit flow reconstruction history.
+## Implemented changes
 
-Boundary closure reuses the preceding live coefficients when its global primary
-state is unchanged, while preserving state/property checks. Changing strong
-values triggers the normal refresh. No evaluation survives a new wrapper call,
-state/configuration change or CFL retry. Laminar refreshes also omit the second
-flow preprocessing previously used to copy newly updated turbulent viscosity.
-External flow-feedback configurations retain their preprocessing cadence.
+| Commit | Change | Safety boundary |
+|---|---|---|
+| `37c0956d7e` | Separate flow boundary closure from full volume residual assembly for auxiliary probes; reuse settled closure coefficients within an evaluation. | Original weak/strong/periodic boundary order and live dependency refresh retained. Bounded edge mass fluxes, custom sources and external feedback retain full assembly. MUSCL gradients and frozen history stay live. |
+| `eb09c08050` | Share evaluation/history scratch between sequential segregated groups. | Accepted states, row masks, density coordinates, relaxation, reconstruction history and controller/Krylov state stay private. Independent sets keep independent scratch; incompatible layouts reject safely. |
+| `3bf731f9d3` | Evaluate only the row consumed by a lower-block preconditioner coupling product. | All input columns and live dependencies remain present. Outer operator, true-defect and slope products retain full residuals and original verification. |
+| `4ab295b0d7` | Use native property-only preprocessing after turbulent transport updates instead of repeating unchanged flow gradients. | Direct native comparisons check every primitive property, unchanged gradients and exact rollback; wall functions and external feedback retain full preprocessing. |
+| `4712d82375` | Reuse settled flow gradients in the final preparation of supported auxiliary boundary probes. | Eligibility is collective across ranks, combined with an existing reduction. Reconstruction, species, wall functions, hybrid modes, sensors and unsupported boundaries fall back to full preprocessing. |
 
-The final batch passes 58 native cases on 1x1 and 2x1. Focused tests compare
-auxiliary residuals and characteristic states against full assembly at positive,
-negative, repeated and zero trial steps, with MUSCL, nonzero frozen reconstruction
-history, bounded scalars, SA/SST/LM, species and the existing flamelet fixture.
-They check exact rollback and custom-source failure reporting.
+Reuse is local to one settled residual evaluation; there is no general cache
+across state changes, retries, CFL/timestep or configuration changes. Native
+boundary integration retains its order. Prescribed rows, halos, pseudo-time
+coordinates, live cross derivatives, restart behavior, exact rollback and failure
+reporting remain checked. No physical target, true-defect limit, line-search
+acceptance or derivative-verification setting was loosened. No new dependencies
+or unrelated equation-system features were added.
 
-Original-control serial SA/SST/active-LM comparisons retain **every outer and
-Krylov count and every restart byte**, for all three modes. Independent uncached
-physical/state/quantity checks also pass for mean flow and basic species.
-
-| Segregated case | Outer / Krylov, unchanged | Full flow assemblies before → after | Other assemblies, unchanged |
-|---|---:|---:|---:|
-| SA | 2927 / 19749 | 56977 → 34886 | turbulence 25020 |
-| SST | 3058 / 21184 | 60930 → 36466 | turbulence 27524 |
-| SST + active LM | 1414 / 6434 | 27023 → 8920 | turbulence 9573; transition 11364 |
-
-These are measured full-residual counters; boundary-only work is not counted as
-full flow assembly. Coupled full-residual counts are unchanged in this batch.
-Dependency-refresh savings require separate phase attribution. The runs were
-continuously monitored for CPU contention, available RAM, swap growth and
-process-tree RSS. A busy host excluded their wall times from performance claims.
-One low-priority compiler or serial correctness job was used; no speedup is
-claimed from these samples. Strict quiet-host repeated timings remain pending.
-
-Source/binary/evidence hashes and detailed work counts are in
-[NewtonKrylovEfficiency20261017.json](../../Docs/NewtonKrylovEfficiency20261017.json).
-Raw evidence is preserved beside the checkout under
-`newton_krylov_refactor_20261015/efficiency_20261017/`, including the initial dirty
-documentation diff, cancelled contention preflight and a validation-harness
-postprocessing error. The latter occurred after both native suites passed; the
-remaining endpoint jobs resumed in a fresh directory.
-
-## Shared evaluation scratch
-
-Sequential groups now share the three per-system evaluation buffers, the flow
-admission copy and the saved reconstruction counters. Accepted primary/old states,
-row masks, relaxation, density coordinates, accepted/next reconstruction history,
-and controller/Krylov state stay private. Sharing is local to one integration
-container; independent equation sets still allocate their own scratch. Layout
-checks reject attempts to resize buffers referenced by another owner.
-
-The interleaved-owner test captures different bases, evaluates alternating groups
-and checks exact restoration of each independent base. Smaller and larger layout
-mismatches are rejected without damaging the existing owner. All 59 native cases
-pass on 1x1 and 2x2. The five converged families (SA, SST, active LM, mean flow and
-basic species) retain every original-control work count and every restart byte
-against the residual-refresh version in all three solver modes.
+## Memory
 
 On 263169 points, three alternating before/after pairs per model and mode
-(54 solver runs total) preserve every one-update work count and every restart
-byte. The shared pool's median process peak RSS is:
+(54 runs) retain identical one-update work and restart bytes. Shared scratch
+reduces segregated peak RSS as follows:
 
-| Segregated model | Before, MiB | Shared pool, MiB | Saved, MiB |
+| Model | Before, MiB | Shared scratch, MiB | Saved, MiB |
 |---|---:|---:|---:|
 | SA | 1105.5 | 1064.7 | 40.8 |
 | SST | 1248.6 | 1204.9 | 43.7 |
-| LM | 1626.1 | 1511.7 | 114.4 |
+| Active LM | 1626.1 | 1511.7 | 114.4 |
 
-These fixed one-update runs use CFL 0.05 on both versions to measure allocation,
-not convergence or elapsed-time performance. Per-rank peak RSS and resident RSS
-at the same collective restart output are observed; both have identical medians
-here. Native/coupled controls have no consistent saving: median changes range
-from 0.26 MiB lower to 1.64 MiB higher. Those modes do not duplicate sequential
-workspaces. The observer's writer self-check includes empty MPI ranks; only
-profiling binaries load this observer. Production code has no memory observer.
+These CFL 0.05 one-update runs measure allocation, not convergence or runtime
+scaling. Native/coupled controls have no consistent saving (changes from 0.26 MiB
+lower to 1.64 MiB higher). Both per-process peak RSS and RSS at the same collective
+restart output are retained in `memory_complete_513/`; their medians agree here.
+The observer was validated with empty MPI ranks and is absent from production.
+Available RAM stayed at least 38.3 GiB and swap use was constant in this batch.
+Elapsed times are excluded because external CPU use reached 7.1 cores.
 
-The cohort retained at least 38.3 GiB available RAM; swap use stayed constant.
-External CPU usage reached 7.1 cores, so **none of these elapsed times qualifies
-as performance evidence**. Raw reports, exact commands, hashes and ranges are in
-`memory_complete_513/` and `workspace_memory_summary.json` under the evidence root.
+## Correctness qualification
 
-## Requested rows in lower-block products
+The final implementation passes all 60 native equation tests on 1x1, 1x4, 2x2
+and 2x4, plus the 91 supported ordinary unit tests, periodic/gradient-cache/output
+checks, independent restart oracle and species/residual-failure CLI checks on
+1x1 and 2x2. Valgrind reports zero errors for the affected refresh, workspace,
+property and bound-probe tests. Tests compare full/auxiliary and requested-row
+products, positive/negative/repeated/zero perturbations, SA/SST/active LM,
+incompressible and variable-density flow, species and existing flamelet coverage,
+translated/rotated periodic boundaries, row masks, bounds, frozen reconstruction
+history and exact rollback. A boundary changed only on its owning rank exercises
+collective fallback. The five serial converged families retain every work count
+and restart byte across implementation batches; final original-control SA/SST/LM
+and axis comparisons repeat on both layouts. Additional BC and periodic SA/SST/LM
+endpoints pass both layouts. Configuration trials separately exercise backtracking,
+failed solves, retries and resolved blocks without relaxing acceptance checks.
 
-The lower preconditioner now evaluates only the residual row it consumes. Every
-input column and live cross response remains present; boundary closure, property
-refreshes, halo communication, frozen history and finite-difference sizing remain
-unchanged. Skipped scalar systems still preprocess for dependent gradients, using
-the existing refresh mode to retain settled prescribed masks. Bounded mass fluxes,
-custom flow sources and external feedback retain their full-flow fallback.
-Only unverified physical preconditioner coupling can request a partial row.
-The outer operator, true-defect verification and globalization always use full
-physical residuals with the original controls.
-
-All 59 native tests pass on 1x1 and 2x2, including full-vs-requested products for
-SA/SST/active LM, variable-density mixtures, the existing flamelet fixture,
-translated/rotated periodic directions, prescribed rows and mixed/simplex bounds.
-The comparisons check other-row zeros, skipped assembly counts and unchanged
-prescribed masks. Independent centered-stencil checks remain in place.
-
-All five converged families retain every outer/Krylov count and every restart
-byte against the pooled version in all three modes. Native and segregated work
-counts are unchanged. Coupled residual counts are:
-
-| Model | Outer / Krylov, unchanged | Flow before → after | Turbulence before → after | Transition before → after |
-|---|---:|---:|---:|---:|
-| SA | 2927 / 14360 | 49210 → 34850 | 49210 → 49210 | — |
-| SST | 3119 / 15367 | 52568 → 37201 | 52568 → 52568 | — |
-| LM | 5615 / 6205 | 57927 → 45517 | 57927 → 51722 | 57927 → 51722 |
-
-These are measured assembly counts. Wall-time results remain excluded for CPU
-contention; lower-preconditioner inclusive time still requires a fresh profile.
-Full family/layout qualification, fresh phase measurements, quiet repeated timings
-and the higher-CFL study remain open. This goal is still active.
-
-## Reuse gradients after transport updates
-
-The second flow pass inside one dependency refresh now runs native common
-preprocessing to copy updated turbulent transport properties without recomputing
-unchanged temperature/velocity gradients, reconstruction gradients, vorticity and
-strain. Its property calculations, admission counters and reductions remain live.
-First/final flow preprocessing is unchanged. Wall functions and external feedback
-retain the complete second pass. There is no cache across residual wrappers.
-
-A direct native comparison changes turbulent transport data and requires exact
-agreement of every primitive property with full flow preprocessing. Primary
-values, primitive/reconstruction gradients, vorticity and strain remain identical,
-and exact rollback is checked. It covers compressible SA/SST/active LM,
-incompressible SA/SST and a variable-density mixture with SST, including separate
-Green–Gauss reconstruction gradients.
-
-All 60 native cases pass on 1x1, 1x4, 2x2 and 2x4. The five original-control
-converged families retain every work count and every restart byte against the
-requested-row version, in all three modes. The historical quiet gradient profiles
-motivated this change; new phase counts/times and release timings remain pending.
-Current contended timings are excluded. Higher-CFL studies follow implementation
-measurement and will retain all existing physical/state/acceptance requirements.
-
-## Reuse gradients during auxiliary boundary preparation
-
-First-order SA/SST/LM probes with standard far-field, wall, symmetry or periodic
-boundaries now retain the temperature/velocity gradients computed after strong
-closure in the same residual wrapper. Native common preprocessing still refreshes
-properties, admission checks, sensors and residual preparation. Full preprocessing
-remains for flow/scalar reconstruction, species, wall functions, hybrid modes,
-Roe dissipation sensors, streamwise-periodic recovery and other boundary types.
-All flow-selected residuals still use complete preprocessing.
-
-Ranks can own different boundary types. Eligibility is therefore reduced together
-with the existing primary-state closure check, with no additional collective.
-Every successful evaluation assigns it again before use; it is not a cache across
-wrappers, retries, state changes or configuration changes. The first prototype's
-MPI communication mismatch is preserved in `boundary_prep_correctness/` and
-`boundary_prep_failed_candidate.json`; that prototype was not committed.
-
-Full-vs-auxiliary tests include positive/negative/repeated/zero steps, separate
-flow and scalar MUSCL fallbacks, compressible and incompressible SA/SST, active LM,
-species/flamelet, frozen reconstruction history and exact rollback. Changing a
-boundary only on its owning rank checks collective fallback. All 60 native cases
-pass on 1x1, 1x4, 2x2 and 2x4. All five converged families retain every original
-work count and restart byte against the property-only version in all three modes.
-Final phase counts and repeated release timing comparisons follow; busy-host
-correctness times remain excluded. Higher-CFL trials have not started.
+The uninstrumented rebuild matches all three qualified binary hashes exactly;
+temporary profiling edits are restored. The failed rank-local first prototype
+(`MPI_ERR_TRUNCATE`) is preserved in `boundary_prep_correctness/` and
+`boundary_prep_failed_candidate.json`; it was never committed. The collective
+implementation passes the rank-local boundary-change regression. Cancelled
+contention preflights, harness-only postprocessing failures and all capped/failed
+configuration trials remain in the evidence directory.
 
 ## Repeated original-control comparison
 
@@ -258,7 +165,7 @@ claims. Available RAM stayed well above the 8 GiB guard; swap growth never tripp
 These retain the fixtures' original controls: flat plates start with fixed CFL 20;
 the axis fixture retains native fixed CFL 10 and Newton adaptive CFL starting 10.
 The subsequent control study gives native its own higher-CFL and adaptive trials.
-Native remains faster on the fixed-CFL coarse turbulent fixtures. Newton retains
+Native has lower observed elapsed times on the fixed-CFL coarse turbulent fixtures. Newton retains
 14 updates compared with 1,319 for native on the axis fixture; this is not a claim about
 fully tuned native performance or other meshes.
 
@@ -274,6 +181,393 @@ counts are zero in these first-order fixtures; reconstructed/flamelet regression
 checks still retain verification. Native residual/Jacobian kernels are interleaved,
 so their joint scope is labelled rather than presented as a Jacobian-only timer.
 
-Final supported/periodic/CLI/restart checks pass, and Valgrind including the new
-refresh comparisons reports zero errors. Additional periodic endpoints and the
-separate higher-CFL/native-tuning/refined-mesh studies are still in progress.
+## Measured remaining work
+
+The following final SA serial profile gives **calls / inclusive seconds**.
+The observer and desktop contention affect these seconds; they are useful for
+attribution, not release timing comparisons. Scopes nest: never sum the rows.
+MPI/OpenMP/allocation hooks observe the master thread and overlap the scopes.
+They are not an exhaustive byte count of allocations on worker/runtime threads.
+Counts are logical team calls
+per rank, including native residual/Jacobian kernels at the same boundaries.
+
+| Scope | Native | Segregated | Coupled |
+|---|---:|---:|---:|
+| Solver loop | 1 / 1.234 | 1 / 6.908 | 1 / 6.886 |
+| Explicit residual wrapper | 0 / 0.000 | 51121 / 4.162 | 46282 / 4.324 |
+| Implicit preparation wrapper | 0 / 0.000 | 5856 / 0.605 | 2928 / 0.401 |
+| Boundary closure | 0 / 0.000 | 56978 / 0.592 | 49211 / 0.506 |
+| Dependency refresh | 0 / 0.000 | 56978 / 0.955 | 49211 / 0.812 |
+| Full flow preprocessing | 6654 / 0.074 | 91864 / 0.883 | 84061 / 0.792 |
+| Flow property-only preparation | 0 / 0.000 | 79069 / 0.344 | 63571 / 0.274 |
+| Flow gradients | 6654 / 0.028 | 91864 / 0.314 | 84061 / 0.289 |
+| Primitive properties | 6654 / 0.026 | 170933 / 0.603 | 147632 / 0.524 |
+| Flow residual, no Jacobian | 0 / 0.000 | 31957 / 0.852 | 31922 / 0.850 |
+| Flow residual + Jacobian | 3327 / 0.143 | 2929 / 0.140 | 2928 / 0.144 |
+| Turbulence residual, no Jacobian | 0 / 0.000 | 22091 / 0.344 | 46282 / 0.711 |
+| Turbulence residual + Jacobian | 3327 / 0.068 | 2929 / 0.077 | 2928 / 0.062 |
+| Native preconditioner construction | 6654 / 0.109 | 5689 / 0.118 | 5854 / 0.115 |
+| Native preconditioner application | 36381 / 0.175 | 19749 / 0.123 | 28720 / 0.161 |
+| Block preconditioner application | 0 / 0.000 | 19749 / 0.167 | 14360 / 1.647 |
+| Full matrix-free product | 0 / 0.000 | 31127 / 2.953 | 20214 / 2.381 |
+| Derivative refinement | 0 / 0.000 | 0 / 0.000 | 0 / 0.000 |
+| State capture | 0 / 0.000 | 5854 / 0.024 | 2927 / 0.010 |
+| State restoration | 0 / 0.000 | 48194 / 0.108 | 46282 / 0.095 |
+| Newton diagnostics | 0 / 0.000 | 17232 / 0.318 | 8781 / 0.242 |
+| History I/O | 3327 / 0.054 | 2927 / 0.056 | 2927 / 0.056 |
+| Result I/O | 3328 / 0.001 | 2928 / 0.002 | 2928 / 0.002 |
+| MPI_Allreduce hook | 342072 / 0.016 | 1280771 / 0.069 | 1142081 / 0.062 |
+| MPI_Waitall hook | 0 / 0.000 | 0 / 0.000 | 0 / 0.000 |
+| GOMP_barrier hook | 825743 / 0.118 | 9152576 / 1.300 | 8638647 / 1.214 |
+| malloc hook | 226996 / 0.017 | 812757 / 0.054 | 728155 / 0.051 |
+| free hook | 395726 / 0.020 | 960093 / 0.053 | 870054 / 0.047 |
+| aligned_allocation hook | 155564 / 0.020 | 135845 / 0.031 | 130368 / 0.036 |
+
+The complete `final_phase_summary.json` retains SA/SST/LM on both layouts,
+per-rank inclusive/exclusive scopes, original/intermediate counters, communication
+and allocation hooks. The archived SST/LM2x2 starting profile is absent and stays
+null; its intermediate comparison is retained. `profile_counter_batch/` additionally
+covers axis and all periodic model fixtures. Boundary-only work is explicitly
+separate from full flow assemblies. Native residual and Jacobian assembly share
+interleaved kernels, so a separate Jacobian-only time would be misleading.
+
+I/O counts describe calls to the instrumented diagnostic/history/result scopes,
+including calls that decide no output is due. They are not physical disk-write
+or filesystem-syscall counts. Final release inner-Krylov counters are all zero;
+native preconditioner applications remain separately measured above.
+
+SA segregated still executes 56,977 wrappers: 31,127 finite-difference probes
+(19,749 Krylov + 5,689 independent defects + 5,689 slopes), 5,689 each of
+explicit base, return-to-base and accepted-trial refreshes, 2,927 outer refreshes,
+5,854 advance preparations and two constraint setups. Only 5,689 of 5,854
+attempts need a nonzero step; 165 are resolved. All nonzero accepted steps use
+alpha one and no CFL retry occurs. Thus backtracking does not explain this
+original-control slowdown. These are measured counters, cross-checked against
+`sa_final_call_attribution.json`; first-order refinement counts are zero.
+
+Residual wrappers include live properties, closure, gradients, halos and repeated
+reductions. Removing full flow flux assembly therefore does not remove their
+entire cost. SA retains 22,091 auxiliary boundary-only evaluations and roughly
+1.28 million all-reduces. The last gradient optimization adds no collective:
+SA all-reduce counts remain identical to the preceding implementation.
+
+The coupled lower preconditioner retains extra physical coupling products:
+its inclusive scope is about 24% of this instrumented SA loop. Native
+preconditioner construction is about 2% of the final Newton loop, so freezing
+it is not an established large win. Snapshot copying remains a smaller serial
+cost; persistent accepted states stay private to preserve exact rollback.
+Millions of OpenMP synchronization boundaries remain expensive on tiny
+partitions. No general thread-serialization or new Jacobian approximation is
+introduced without a qualified numerical and scaling comparison.
+
+## Higher CFL and existing controls
+
+These configuration trials follow the implementation measurements. All physical, state,
+quantity, derivative, true-defect and acceptance targets remain unchanged. Counts below
+are outer updates, not a runtime ranking. `qualification_failed` includes iteration
+caps and independently rejected endpoints; the CSV retains the specific reason.
+
+| Case | Layout | Fixed CFL | Native | Segregated | Coupled |
+|---|---|---:|---:|---:|---:|
+| sa | 1x1 | 100 | qualification_failed (10000) | 588 | 587 |
+| sa | 1x1 | 1000 | qualification_failed (10000) | 71 | 896 |
+| sa | 2x2 | 100 | qualification_failed (10000) | 588 | 587 |
+| sa | 2x2 | 1000 | qualification_failed (10000) | 69 | 71 |
+| sst | 1x1 | 100 | qualification_failed (10000) | 610 | 622 |
+| sst | 1x1 | 1000 | qualification_failed (10000) | 74 | 248 |
+| sst | 2x2 | 100 | qualification_failed (10000) | 610 | 622 |
+| sst | 2x2 | 1000 | qualification_failed (10000) | 242 | 74 |
+| lm | 1x1 | 100 | 296 | 294 | 4495 |
+| lm | 1x1 | 1000 | 56 | 41 | 7184 |
+| lm | 2x2 | 100 | 296 | 294 | 4495 |
+| lm | 2x2 | 1000 | 56 | 41 | 7184 |
+| bc | 1x1 | 100 | qualification_failed (10000) | 589 | 589 |
+| bc | 1x1 | 1000 | qualification_failed (10000) | 71 | 938 |
+| bc | 2x2 | 100 | qualification_failed (10000) | 589 | 2347 |
+| bc | 2x2 | 1000 | qualification_failed (10000) | 70 | 938 |
+| axis | 1x1 | 100 | 288 | 120 | 120 |
+| axis | 1x1 | 1000 | 192 | 19 | 19 |
+| axis | 2x2 | 100 | 301 | 120 | 120 |
+| axis | 2x2 | 1000 | 266 | 19 | 19 |
+| periodic_sa | 1x1 | 100 | qualification_failed (10000) | 969 | 969 |
+| periodic_sa | 1x1 | 1000 | qualification_failed (10000) | 110 | 110 |
+| periodic_sa | 2x2 | 100 | qualification_failed (10000) | 969 | 969 |
+| periodic_sa | 2x2 | 1000 | qualification_failed (10000) | 110 | 110 |
+| periodic_sst | 1x1 | 100 | qualification_failed (10000) | 858 | 875 |
+| periodic_sst | 1x1 | 1000 | qualification_failed (10000) | 99 | 100 |
+| periodic_sst | 2x2 | 100 | qualification_failed (10000) | 858 | 875 |
+| periodic_sst | 2x2 | 1000 | qualification_failed (10000) | 342 | 346 |
+| periodic_lm | 1x1 | 100 | 405 | 403 | 6240 |
+| periodic_lm | 1x1 | 1000 | 58 | 54 | 6654 |
+| periodic_lm | 2x2 | 100 | 405 | 403 | qualification_failed (10000) |
+| periodic_lm | 2x2 | 1000 | 58 | 54 | 6653 |
+
+The following adaptive runs start at CFL 20 (axis: 10). Native schedules are
+matched-wide `(0.25,2,0.001,1e6,0.001,0)`, default `(0.1,1.2,10,100,0.001,0)`
+and slow-wide `(0.25,1.2,0.001,1e6,0.001,0)`. Their native linear target stays
+`1e-6`. Newton CFL-only keeps its original linear controls; EW enables the
+existing adaptive forcing. Diagonal uses the same adaptive CFL/EW controls
+as lower-block coupled EW, changing only the preconditioner option.
+Newton group telemetry records the CFL used and the proposed next CFL.
+Native history reports local statistics at its write point after adaptation;
+those values can describe the next update rather than the step just taken.
+
+| Case | Layout | Native wide / default / slow | SG CFL / EW | CPL CFL / EW / diagonal |
+|---|---|---|---|---|
+| sa | 1x1 | qualification_failed (10000) / qualification_failed (10000) / qualification_failed (10000) | 21 / 21 | 23 / 23 / 23 |
+| sa | 2x2 | qualification_failed (10000) / qualification_failed (10000) / qualification_failed (10000) | 21 / 21 | 23 / 24 / 23 |
+| sst | 1x1 | qualification_failed (10000) / qualification_failed (10000) / qualification_failed (10000) | 28 / 25 | 25 / 25 / 25 |
+| sst | 2x2 | qualification_failed (10000) / qualification_failed (10000) / qualification_failed (10000) | 28 / 28 | 28 / 28 / 28 |
+| lm | 1x1 | 1418 / 1417 / 1417 | 14 / 14 | 16 / 16 / 16 |
+| lm | 2x2 | 1418 / 1417 / 1417 | 14 / 15 | 16 / 16 / 16 |
+| bc | 1x1 | qualification_failed (10000) / qualification_failed (10000) / qualification_failed (10000) | 21 / 21 | 26 / 25 / 26 |
+| bc | 2x2 | qualification_failed (10000) / qualification_failed (10000) / qualification_failed (10000) | 21 / 21 | 29 / 26 / 29 |
+| axis | 1x1 | qualification_failed (556) / 698 / 574 | 14 / 14 | 14 / 14 / — |
+| axis | 2x2 | qualification_failed (1064) / qualification_failed (811) / qualification_failed (883) | 14 / 15 | 14 / 15 / — |
+| periodic_sa | 1x1 | qualification_failed (10000) / 2281 / qualification_failed (10000) | 17 / 17 | 17 / 17 / 17 |
+| periodic_sa | 2x2 | qualification_failed (10000) / 6575 / qualification_failed (10000) | 17 / 17 | 17 / 17 / 17 |
+| periodic_sst | 1x1 | qualification_failed (10000) / 2455 / 2283 | 18 / 18 | 17 / 17 / 17 |
+| periodic_sst | 2x2 | qualification_failed (10000) / 5409 / 3585 | 18 / 18 | 17 / 17 / 17 |
+| periodic_lm | 1x1 | 1961 / 1963 / 1963 | 15 / 14 | 50 / 44 / 46 |
+| periodic_lm | 2x2 | 1963 / 1962 / 1962 | 15 / 14 | 52 / 44 / 19 |
+
+The additional native-only sweep checks CFL 30 and 50 because aggressive
+fixed/adaptive native settings failed on several turbulent fixtures. These
+retain the original linear and physical targets and use a 180 s practical
+wall cap; capped trials are not claims of convergence failure at unlimited cost.
+
+Native LM additionally receives fixed CFL 10000/100000. Native adaptation
+updates flow/turbulence/species local CFL but omits transition in
+`CSolver::AdaptCFLNumber`; `CScalarSolver::SetTime_Step` uses each scalar's
+own local CFL. This source-derived limitation is retained, not changed for
+the benchmark. No claim that the matched-wide native schedule is optimal follows.
+
+| Case | Layout | Native fixed 30 | Native fixed 50 | Native fixed 10000 / 100000 |
+|---|---|---:|---:|---|
+| sa | 1x1 | 2292 | 1461 | — |
+| sa | 2x2 | 2292 | 1461 | — |
+| sst | 1x1 | 2454 | qualification_failed (10000) | — |
+| sst | 2x2 | 2454 | qualification_failed (10000) | — |
+| lm | 1x1 | 949 | 576 | 51 / 50 |
+| lm | 2x2 | 949 | 576 | 51 / 50 |
+| bc | 1x1 | 2295 | 1462 | — |
+| bc | 2x2 | 2295 | 1462 | — |
+| axis | 1x1 | 565 | 408 | — |
+| axis | 2x2 | 566 | 412 | — |
+| periodic_sa | 1x1 | 3616 | 2259 | — |
+| periodic_sa | 2x2 | 3616 | 2259 | — |
+| periodic_sst | 1x1 | 3302 | 2273 | — |
+| periodic_sst | 2x2 | 3302 | 2272 | — |
+| periodic_lm | 1x1 | 1313 | 794 | 49 / 49 |
+| periodic_lm | 2x2 | 1313 | 794 | 49 / 49 |
+
+## Refined fixtures
+
+These generated refinements retain the original state/quantity requirements.
+The initial inherited threshold let native CFL20/30 satisfy residual checks
+while differing by 2.35e-6 in state, exceeding the unchanged 1e-6 agreement
+limit. That batch was stopped after its current case, with all evidence
+preserved in `larger_control_study/`. The final comparison in
+`larger_strict_control_study/` tightens every raw and normalized residual
+threshold by 100x, uniformly for all modes; state/quantity/derivative/linear
+and acceptance requirements are unchanged. These stricter results are a
+separate accuracy configuration, not an implementation timing change.
+Their labelled update budget is 50000 for every mode, allowing refinement
+more iterations without changing the physical stopping or agreement limits.
+Fixed runs have a 120 s wall cap and adaptive runs a 300 s cap. A timeout
+is not a converged performance result. All Newton endpoints compare with
+the same independently qualified native reference within each cohort.
+
+| Case | Layout | Mode | Controls / initial CFL | Outcome |
+|---|---|---|---|---:|
+| sa_33 | 1x1 | native | fixed / 20 | 5032 |
+| sa_33 | 1x1 | native | fixed / 30 | 3574 |
+| sa_33 | 1x1 | native | fixed / 50 | timeout (—) |
+| sa_33 | 1x1 | native | native_default / 20 | timeout (—) |
+| sa_33 | 1x1 | native | fixed / 1000 | timeout (—) |
+| sa_33 | 1x1 | segregated | fixed / 20 | 4481 |
+| sa_33 | 1x1 | coupled | fixed / 20 | 4481 |
+| sa_33 | 1x1 | segregated | adaptive_cfl / 20 | 24 |
+| sa_33 | 1x1 | coupled | adaptive_cfl / 20 | 36 |
+| sa_33 | 1x1 | segregated | adaptive_forcing / 20 | 24 |
+| sa_33 | 1x1 | coupled | adaptive_forcing / 20 | 42 |
+| sa_33 | 1x1 | coupled | adaptive_diagonal / 20 | 43 |
+| sst_33 | 1x1 | native | fixed / 20 | timeout (—) |
+| sst_33 | 1x1 | native | fixed / 30 | timeout (—) |
+| sst_33 | 1x1 | native | fixed / 50 | timeout (—) |
+| sst_33 | 1x1 | native | native_default / 20 | timeout (—) |
+| sst_33 | 1x1 | native | fixed / 1000 | timeout (—) |
+| sst_33 | 1x1 | — | — | No qualified native reference within unchanged targets and practical caps; Newton comparisons not launched. |
+| lm_33 | 1x1 | native | fixed / 20 | qualification_failed (989) |
+| lm_33 | 1x1 | native | fixed / 30 | qualification_failed (745) |
+| lm_33 | 1x1 | native | fixed / 50 | qualification_failed (551) |
+| lm_33 | 1x1 | native | native_default / 20 | 654 |
+| lm_33 | 1x1 | native | fixed / 1000 | qualification_failed (282) |
+| lm_33 | 1x1 | segregated | fixed / 20 | 725 |
+| lm_33 | 1x1 | coupled | fixed / 20 | timeout (—) |
+| lm_33 | 1x1 | segregated | adaptive_cfl / 20 | 18 |
+| lm_33 | 1x1 | coupled | adaptive_cfl / 20 | 44 |
+| lm_33 | 1x1 | segregated | adaptive_forcing / 20 | 17 |
+| lm_33 | 1x1 | coupled | adaptive_forcing / 20 | 47 |
+| lm_33 | 1x1 | coupled | adaptive_diagonal / 20 | 47 |
+| sa_65 | 1x1 | native | fixed / 20 | timeout (—) |
+| sa_65 | 1x1 | native | fixed / 30 | timeout (—) |
+| sa_65 | 1x1 | native | fixed / 50 | timeout (—) |
+| sa_65 | 1x1 | native | native_default / 20 | timeout (—) |
+| sa_65 | 1x1 | native | fixed / 1000 | timeout (—) |
+| sa_65 | 1x1 | — | — | No qualified native reference within unchanged targets and practical caps; Newton comparisons not launched. |
+| sa_65 | 2x2 | native | fixed / 20 | timeout (—) |
+| sa_65 | 2x2 | native | fixed / 30 | timeout (—) |
+| sa_65 | 2x2 | native | fixed / 50 | timeout (—) |
+| sa_65 | 2x2 | native | native_default / 20 | timeout (—) |
+| sa_65 | 2x2 | native | fixed / 1000 | timeout (—) |
+| sa_65 | 2x2 | — | — | No qualified native reference within unchanged targets and practical caps; Newton comparisons not launched. |
+
+## Native history stopping margin
+
+Some native histories stop before the fresh endpoint residual meets its
+physical target. The following near-miss rechecks lower only the history
+stop by one decade. Every independent physical, normalized, state and
+quantity requirement stays identical to the source trial. This is a
+separate, stricter stopping configuration, not an implementation change;
+original rejected results remain recorded in the tables and CSV.
+
+| Case | Layout | Native controls / initial CFL | Rechecked outcome |
+|---|---|---|---:|
+| axis | 1x1 | adaptive_cfl / 10 | 610 |
+| axis | 2x2 | adaptive_cfl / 10 | 1154 |
+| axis | 2x2 | native_default / 10 | 902 |
+| axis | 2x2 | native_slow / 10 | 978 |
+| lm_33 | 1x1 | fixed / 20 | 1111 |
+| lm_33 | 1x1 | fixed / 30 | 839 |
+| lm_33 | 1x1 | fixed / 50 | 623 |
+| lm_33 | 1x1 | fixed / 1000 | 324 |
+
+## Conservative refined references
+
+A separate follow-up tries native fixed CFL5 on the three cohorts without
+a reference, using the same strict physical/state limits and the native
+history margin above. All modes receive a600s cap. Newton comparisons are
+launched only when that native reference qualifies; this extends the budget
+and changes controls, without relaxing accuracy.
+
+| Case | Layout | Mode | Controls / initial CFL | Outcome |
+|---|---|---|---|---:|
+| — | — | — | — | Follow-up pending; no result or timing claim |
+
+Completed control trials: 222/222; additional native trials: 40/40; refined trials: 39; native history rechecks: 8.
+All observed elapsed times remain excluded from speedup claims because of
+CPU contention and single samples. Per-system assembly counts, Krylov/native
+inner work, observed elapsed times, actual CFL, final agreement, reasons,
+configuration hashes and evidence paths are retained in `control_outcomes.csv`.
+
+## Interpretation and current limits
+
+The implementation savings are measured with the original controls first: work
+counts and complete restart bytes are identical before/after, while unnecessary
+full flow assemblies and repeated gradient calculations decrease. The separate
+control study changes the nonlinear trajectory. On strict SA33, native CFL30
+qualifies in 3,574 updates with 7,148 full assemblies; segregated adaptive forcing
+qualifies in 24 updates with 555 flow and 255 turbulence assemblies. This is a
+work reduction under matched physical/state requirements. The observed loop
+times 18.61 s / 0.739 s are single contended samples, not a general speedup result.
+
+Fixed-control SA33 still costs 4,481 Newton updates, with 50,514 full flow assemblies
+for segregated mode, versus 5,032 native updates/assemblies. More accurate matrix-free
+products do not buy enough fewer outer updates in that regime to offset their
+fully refreshed residual cost. Independent defect and slope checks add probes
+even when every accepted step uses alpha one. These contracts remain intact.
+Coupled lower preconditioning adds further physical coupling products; diagonal
+preconditioning often lowers assembly work despite needing more Krylov iterations.
+Stronger preconditioning and fewer nonlinear updates remain more promising than
+freezing its relatively cheap construction, but no new Jacobian approximation or
+multilevel solver is claimed here.
+
+Native also receives useful tuning: planar SA/BC CFL 50 qualify in 1,461/1,462 updates,
+SST CFL 30 in 2,454, and LM CFL 100000 in 50 (periodic LM: 49), on both layouts. Consequently,
+Newton is not universally faster and a small outer-count advantage in coupled LM
+cannot offset many more residual evaluations. Native history near misses are
+rechecked with a stricter history gate while preserving all physical targets.
+
+The bounded strict study has 16 qualified endpoints in 39 trials; three cohorts
+lack a native reference, so 21 planned Newton comparisons were not launched.
+An independent check of the saved SST33 timeout gives physical RMS 3.29e-5, confirming
+that this endpoint genuinely misses its target. The two SA65 fixed20 timeouts
+produced no final restart; their physical endpoints remain unverified. Native CFL 5
+with a 600 s budget is a separate follow-up, never a relaxation of accuracy. Its
+completed results, if any, are shown above; pending attempts make no timing claim.
+
+Conservative refined-reference follow-up remains active; the goal is not yet complete.
+
+## Reproduction and limits
+
+The evidence root is
+`/media/rausa/4TB/SU2_Versions/SU2_v850_Develop_FixCGNSOutput/newton_krylov_refactor_20261015/efficiency_20261017`.
+`baseline_manifest.json`, `final_release/manifest.json` and the final audit contain
+source, binary and build-option hashes. Every retained run includes its exact
+configuration and hash; command ledgers retain the executable, arguments, layout
+and working directory. `original_medians.json` contains all release samples and
+ranges; `final_phase_summary.json` contains phase counts/times. Configuration
+outcomes are in [the CSV](../../Docs/NewtonKrylovControls20261017.csv), with
+full raw reports/restarts/logs under `cfl_study/`, `larger_strict_control_study/`
+and `moderate_native_study/`, with separate history-margin rechecks and
+`extended_refined_references/` follow-up. The superseded refinement calibration remains
+under `larger_control_study/`, including the state-agreement failure.
+
+Qualified production code: `4712d82375e00ede15e5177ab38865eaaaa3e9f5`.
+SHA-256:
+
+| Binary | SHA-256 |
+|---|---|
+| Baseline SU2_CFD | `185fbc3d8758d34ffa8af71b3d37759823cb2caf0947b5ae6c236d8892fa08f7` |
+| Final SU2_CFD | `75b0d848ee24bca74d7d472a612bbca34986757c77339ff9cfc748edf06340d1` |
+| Final test_driver | `023743e2965ab287ab92efaaefb4c8c05caa9cf9d85f161300641f3f7a691a43` |
+| Final newton_equation_tests | `905f30d4a59c46286f0806dd4bbec8be31555eab5f94cf805ed10c7a2a26ee01` |
+
+Example commands below require fresh output directories/repeat numbers. The
+strict original-control guard refuses a busy host; `--correctness-only` explicitly
+excludes timings. Run one owned solver/build job at a time. MPI uses ROMIO321 and
+a local temporary directory; OpenMP waits passively. No external process is stopped
+or reconfigured by the runner. Foreign builds/solvers gate later launches, and
+guards retain CPU, process-tree RSS, available RAM and swap observations. The
+minimum available-RAM policy is 8 GiB with at most 64 MiB swap growth per guarded
+batch. Instrumented profiles never substitute for release timings.
+
+```bash
+ROOT=/media/rausa/4TB/SU2_Versions/SU2_v850_Develop_FixCGNSOutput
+ART="$ROOT/newton_krylov_refactor_20261015"
+EFF="$ART/efficiency_20261017"
+SRC="$ROOT/scalar_limiter_sst_globalization_20261015/source"
+export TMPDIR="$ART/mpi_tmp" OMPI_MCA_orte_tmpdir_base="$ART/mpi_tmp"
+export OMPI_MCA_io=romio321 OMP_WAIT_POLICY=PASSIVE OMP_NUM_THREADS=1
+
+# One matched triplet per version. Repeat three times in alternating order.
+python3 "$EFF/run_efficiency_case_boundary.py" --version baseline \
+  --case sa --layout 1x1 --repeat 9001
+python3 "$EFF/run_efficiency_case_boundary.py" --version final_release \
+  --case sa --layout 1x1 --repeat 9001
+
+# A separately labelled high-CFL configuration trial, retaining the original oracle.
+python3 "$EFF/run_guarded_tree.py" --correctness-only \
+  --evidence "$EFF/reproduce_cfl_guard" --cwd "$ROOT" -- \
+  python3 "$EFF/cfl_case.py" --case sa --mode segregated --variant fixed \
+  --cfl 1000 --ranks 1 --threads 1 \
+  --reference "$EFF/benchmarks/final_release/sa/1x1/1" \
+  --output "$EFF/reproduce_sa_cfl1000"
+
+# Supported ordinary units; full exact qualification commands remain in the ledgers.
+cd "$ART/equation_set_verification_work/units"
+mpirun --bind-to none -n 1 "$EFF/final_release/test_driver" \
+  --input-file "$ART/goal_completion_20261016/supported_units_final.txt"
+```
+
+The common residual cost is smaller, but fully refreshed finite-difference
+products still cost substantially more than native assembled matrix products.
+Independent defects/slopes, boundary closure, live transport refresh and exact
+restoration remain necessary numerical work. Lower-block coupling and many small
+reductions/OpenMP barriers remain costly. Shared scratch reduces duplicated
+temporary storage; accepted controller states remain separate. No claim about
+asymptotic scaling, production-mesh speedup or a universally robust CFL follows
+from these small fixtures. Larger one-update memory runs are not converged
+benchmarks. A production mesh and quiet-host repeated timings remain additional
+qualification work, not evidence that can be supplied by relaxing targets.
