@@ -6102,6 +6102,18 @@ extra feature cuts consume the fixed query budget and numerical error rises from
 This is MIXED, not a demonstrated global/lifecycle gain. An exhaustion-only follow-up
 passes2 focused cases/1152 assertions: scalar retains complete positive contribution
 with unknown uncertainty when geometric work caps, strict mesh edges still reject.
-The complete original-field4-rank cheap-band campaign is running,600s ceiling, in
-global_envelope_seed_np4_v1. Full-field accuracy/calibration and accepted M6 mesh
+The complete-field4-rank attempt stopped at9442/303359 cells with14 unknown
+contributions: strict feature cuts caused scalar seed-budget regression. Receipts
+remain in global_envelope_seed_np4_v1. Full-field accuracy/calibration and accepted M6 mesh
 remain open. Exact experiment sources/receipts preserved; see GOAL3_CHORD_ENVELOPE.md.
+
+
+Scalar distance-band/strict feature-transition separation now corrects the demonstrated
+seed regression without changing the actual field or work/mesh gates.2 focused cases/
+1154 assertions,8 existing2D controls/95 assertions, and MPI1/4 three-cell uncertain
+normalization pass; the latter still correctly reports integration_limited at1%.
+New622/2331 seeds are finite; independent2331 quadrature agrees, but622 remains
+chart/order-inconsistent through96 and cannot certify its raw indicator. No further
+reference-order escalation. Whole-M6 complexity, production coupling and accepted
+mesh remain open. All owned jobs terminal; qualification max processRSS58.4MiB,
+reference extension210.5MiB/zero swaps, with about40GiB host RAM available.

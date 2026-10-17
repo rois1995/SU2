@@ -1,0 +1,33 @@
+{
+  "order": 48,
+  "apex": 0,
+  "integral": 12.488382342575136,
+  "points": 110592,
+  "volume": 1.7627058725028183e-08,
+  "moment_error": 5.245803791353865e-15,
+  "provenance_sha256": "19b3879383c6a8f981940ec6ef6e43960aa821bb375b2162730e13aaa712e530",
+  "call": {
+    "exit_code": 0,
+    "seconds": 2.3517792919883505,
+    "command": [
+      "taskset",
+      "-c",
+      "0",
+      "nice",
+      "-n",
+      "19",
+      "timeout",
+      "--kill-after=5s",
+      "120s",
+      "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver",
+      "[NativeFacetedVolumeReplay3D]",
+      "--abort",
+      "--reporter",
+      "compact"
+    ],
+    "query_sha256": "c9180db8f6c95368b13562d685b89faae5735b8a5a3cc9cc6f39fe6cca280dfb",
+    "values_sha256": "f4da62f6808e8157f4796fe6dc2abbe87f08288a437646e911c402966597fbdf",
+    "log_sha256": "63653acd5e378c8761c66a0cea008420aaf9b79fd0b9664a972bb43de989d0c5"
+  },
+  "rigorous_bound": false
+}

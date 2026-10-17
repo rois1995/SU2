@@ -8,8 +8,8 @@ accuracy, work, budget discrepancy, memory/communication and remaining scope.
 
 | Suggestion | Current status | Evidence and limits |
 |---|---|---|
-| Match normalization to integration accuracy | Qualified replay; production pending | Shared controller passes25 assertions. Three original M6 cells agree exactly on1/4 ranks: target10, estimate10.10364 ±.22168,8 trials,56680 queries; correctly integration-limited at1%. No exact root or complete-field accuracy claim. Production normalization unchanged. |
-| Allocate absolute error globally without gathering cells | Qualified on3-cell replay only | Absolute-error priority and collective failure handling agree on1/4 ranks;37 reductions/rank,23 cell estimates,133480 accounted cache bytes. A bad cell owned by one rank is rejected collectively. No all-cell gather; full frozen-field coverage remains incomplete. |
+| Match normalization to integration accuracy | Qualified replay; production pending | Shared controller passes25 assertions. Three original M6 cells agree exactly on1/4 ranks: target10, estimate10.10364 ±.22168,8 trials,56632 queries (current distance-band kernel); correctly integration-limited at1%. No exact root or complete-field accuracy claim. Production normalization unchanged. |
+| Allocate absolute error globally without gathering cells | Qualified on3-cell replay only | Absolute-error priority and collective failure handling agree on1/4 ranks;37 reductions/rank,23 cell estimates,133352 accounted cache bytes (current distance-band kernel). A bad cell owned by one rank is rejected collectively. No all-cell gather; full frozen-field coverage remains incomplete. |
 | Reuse integration geometry across scale trials | Worked in local replays | Cell88 2.2006s→.11325s at58112 accounted bytes;157 .12095→.02311s;329 .17431→.04663s. Original/changed-sensor-and-core warm/cold estimates identical. No complete normalization/adaptation speedup established. |
 | Integrate BL correction separately | Partial local benefit; support-restricted geometry not implemented | Exact algebraic decomposition on the existing geometry kernel:329 queries6092→5644 (7.35% fewer), reference error.14414%→.01362% (10.6x lower).88/157 essentially unchanged; cold chord counts unchanged on all3. Does not resolve cold preparation or qualify full-field overlap/corner coverage. |
 | More integration subcells | Negative evidence |329 error is nonmonotone with subdivision;88 work/time rises substantially. Raw indicator can underestimate157 by1.91x. Not a demonstrated cure. |
@@ -36,7 +36,7 @@ repeated queries, initial startup and recurring adaptation costs.
 | Suggestion | Current status | Evidence and required assessment |
 |---|---|---|
 | Account for work outside the density callback | Gap identified; finer breakdown pending | Saved cell88 warm replay: total .113250s, density callback .007946s; about .105304s (93%) lies outside that callback. Wall SamplePoints is constructed before it. Separate wall search/sample construction, coordinate placement/exact containment, cache operations and integration bookkeeping; retain an unattributed residual instead of assigning it all to geometry. |
-| Bound cold geometric preparation independently of density queries | Pending | A density-query ceiling does not sufficiently bound candidate-facet processing, distance-band root generation or nearest-wall searches. Measure preparation work and enforce explicit bounds with retained approximate contributions/unresolved uncertainty; do not silently omit BL mass or weaken mesh acceptance. |
+| Bound cold geometric preparation independently of density queries | Partial per-chord bound; whole-cell/global budget pending | A density-query ceiling does not sufficiently bound candidate-facet processing, distance-band root generation or nearest-wall searches. The chord-envelope experiment bounds features/pieces and comparisons per chord; scalar exhaustion retains a positive contribution with unknown uncertainty. Whole-cell/global preparation budgets and finer accounting remain to qualify. Measure preparation work and enforce explicit bounds with retained approximate contributions/unresolved uncertainty; do not silently omit BL mass or weaken mesh acceptance. |
 | Qualify reuse under whole-mesh memory limits | Pending; three-cell cache gains only | Measure peak RSS and transient/allocator memory in addition to retained-byte accounting. Assess useful hits, evictions, rebuild work and geometry/field invalidation under the actual cache budget across cells, scale trials and adaptation events. Do not extrapolate three-cell reuse to the complete mesh. |
 | Reconcile complete elapsed time with stage accounting | Gap identified; lifecycle reconciliation pending | Saved M6 construction-only replay: 348.216s overall versus 104.587s backend, with about 117.532s in initial CFD geometry. Attribute the remainder; separate one-time initialization from recurring adaptation/rebuild and launcher/shutdown costs. Reconcile nested stages without double counting; include repartition, migration, transfer, rebuild and output in the complete lifecycle. |
 | Separate useful work, MPI waiting and measurement overhead | Pending qualification | Report elapsed critical-rank stages and CPU time separately from accumulated rank-seconds; do not subtract rank sums from wall time or sum unrelated per-stage maxima as an exact critical path. Check instrumentation overhead with bounded coarse/sampled measurements and distinguish host contention from algorithmic imbalance. |
@@ -54,3 +54,24 @@ fixed-budget reference error.7682%->4.9486%;157 similar accuracy/faster,329 fast
 with worse accuracy. Extra nearest-feature cuts consume query budget. Whole-field
 global error must decide usefulness; no lifecycle benefit claimed. Details and
 remaining work: GOAL3_CHORD_ENVELOPE.md.
+
+
+Larger-field check of that structural experiment is terminal:9442/303359 cells in
+205.88s,14 unresolved contributions with infinite total indicator. Strict feature
+cuts exhaust provisional scalar seeds on some previously finite cells. This is a
+regression requiring correction, not successful whole-field normalization. Positive
+approximations/evidence retained; no BL contribution silently discarded. Current
+adjustment separates scalar distance-band partitioning from strict edge transition
+cuts using one envelope, with the actual field and gates unchanged; unvalidated.
+Resource snapshot39GiB available/one compilerRSS1.7GiB, one owned heavy job only.
+
+
+Current distance-band scalar adjustment restores the original3 reference errors
+and resolves initial seeds622/2331 under unchanged8192 limits; strict edge checks
+retain feature transitions. This corrects a regression, not a demonstrated new
+whole-field speedup.622 independent references remain unconverged through order96;
+its small raw indicator is not certified.2331 references agree. MPI1/4 agree exactly
+on the3-cell uncertain normalization, still integration_limited. Serial validation
+peak processRSS58.4MiB;622 reference extension210.5MiB; zero swaps, no CFD, no
+simultaneous heavy jobs. These are validation-process maxima, not whole-mesh cache
+or complete lifecycle memory qualification. All rejected/partial evidence retained.

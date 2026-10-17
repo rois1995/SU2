@@ -1987,7 +1987,7 @@ std::vector<CBoundaryLayerMetric::IntegrationPoint3D> CBoundaryLayerMetric::Inte
         }
         if(!retained) {
           const auto begin=std::chrono::steady_clock::now();
-          fresh=start==end?std::vector<double>{0,1}:EdgeBreakpointsImpl(start,end,2.,4);
+          fresh=start==end?std::vector<double>{0,1}:EdgeBreakpointsImpl(start,end,2.,4,false);
           estimate->preparationSeconds+=std::chrono::duration<double>(std::chrono::steady_clock::now()-begin).count();
           ++estimate->preparedChords;
           const auto bytes=sizeof(decltype(workspace->chords)::value_type)+4*sizeof(void*)+fresh.capacity()*sizeof(double);
@@ -2262,7 +2262,7 @@ std::vector<double> CBoundaryLayerMetric::EdgeBreakpoints(
 }
 
 std::vector<double> CBoundaryLayerMetric::EdgeBreakpointsImpl(
-    const std::array<double,3>& a,const std::array<double,3>& b,double bandRatio,unsigned fadeBands) {
+    const std::array<double,3>& a,const std::array<double,3>& b,double bandRatio,unsigned fadeBands,bool featureTransitions) {
   if (!std::isfinite(bandRatio) || !(bandRatio > 1.0) || !fadeBands || fadeBands>256)
     throw std::invalid_argument("Invalid native BL edge band ratio/fade partition.");
   using Vector = std::array<long double, 3>;
@@ -2433,7 +2433,7 @@ std::vector<double> CBoundaryLayerMetric::EdgeBreakpointsImpl(
         envelope.Face(triangle);
       }
       // Envelope boundaries also resolve nearest-feature changes, not only distance levels.
-      for(auto t:envelope.Cuts(levels))if(t>0 && t<1 && retained.insert(t).second) {
+      for(auto t:envelope.Cuts(levels,featureTransitions))if(t>0 && t<1 && retained.insert(t).second) {
         if(cuts.size()>=65536)throw std::runtime_error("Native BL edge breakpoints exceed work budget.");
         cuts.push_back(t);
       }

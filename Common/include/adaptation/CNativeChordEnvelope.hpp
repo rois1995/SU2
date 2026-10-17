@@ -124,7 +124,7 @@ class ChordEnvelope {
     for(const auto& p:pieces)if(t>=p.lo && t<=p.hi && p.feature!=Missing){const auto r=At(features[p.feature],t);return std::sqrt(Dot(r,r));}
     throw std::runtime_error("Incomplete native chord feature covering.");
   }
-  std::vector<double> Cuts(const std::vector<double>& levels) const {
+  std::vector<double> Cuts(const std::vector<double>& levels,bool featureTransitions=true) const {
     for(auto x:levels)if(!std::isfinite(x) || x<0)throw std::invalid_argument("Invalid native distance level.");
     std::vector<double> cuts{0,1};
     auto keep=[&](long double t){if(t>0 && t<1){if(cuts.size()==MaximumPieces)throw WorkLimit("Native chord distance cuts exceed budget.");cuts.push_back(double(t));}};
@@ -132,7 +132,7 @@ class ChordEnvelope {
     for(const auto& p:pieces)if(p.feature!=Missing) {
       const auto& f=features[p.feature];
       // Coplanar tiles with identical displacement functions do not add artificial distance breaks.
-      if(!previous || f.r!=previous->r || f.v!=previous->v)keep(p.lo);
+      if(featureTransitions && (!previous || f.r!=previous->r || f.v!=previous->v))keep(p.lo);
       previous=&f;
       const auto speed=Dot(f.v,f.v);if(!(speed>0))continue;
       const auto center=-Dot(f.r,f.v)/speed;

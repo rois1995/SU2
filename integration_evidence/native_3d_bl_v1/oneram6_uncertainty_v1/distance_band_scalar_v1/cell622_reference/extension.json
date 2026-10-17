@@ -1,0 +1,85 @@
+{
+  "cell": 622,
+  "orders": [
+    48,
+    96
+  ],
+  "references": [
+    {
+      "order": 96,
+      "apex": 0,
+      "integral": 12.482462298839058,
+      "points": 884736,
+      "volume": 1.7627058725028183e-08,
+      "moment_error": 6.938893903907228e-15,
+      "provenance_sha256": "109d42ba170b92f0a7c7eef40fbc1340304f916cc8682f8ab91f8bc7ccb36db7",
+      "call": {
+        "exit_code": 0,
+        "seconds": 14.766703845001757,
+        "command": [
+          "taskset",
+          "-c",
+          "0",
+          "nice",
+          "-n",
+          "19",
+          "timeout",
+          "--kill-after=5s",
+          "120s",
+          "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver",
+          "[NativeFacetedVolumeReplay3D]",
+          "--abort",
+          "--reporter",
+          "compact"
+        ],
+        "query_sha256": "b3b344c7cf1c4559fd5ea85f4f27ce933691fe658b299fd971b87e2ed5a8d7e6",
+        "values_sha256": "b5b7d13d828f3e36b5919f2f1be045aa4864dff2b3b24e7a7a0960d76c2f8981",
+        "log_sha256": "e0579099d8fea325cd6c1ba8d95646994470c3fa3a23c6dda15dc8ce2a41fec7"
+      },
+      "rigorous_bound": false
+    },
+    {
+      "order": 96,
+      "apex": 3,
+      "integral": 12.493057209959877,
+      "points": 884736,
+      "volume": 1.7627058725028183e-08,
+      "moment_error": 6.994405055138486e-15,
+      "provenance_sha256": "bf5e3390fc5203da91e8fa1ff371e42c8b38ecd85930821de5a03c3efc4b0f17",
+      "call": {
+        "exit_code": 0,
+        "seconds": 12.69101233908441,
+        "command": [
+          "taskset",
+          "-c",
+          "0",
+          "nice",
+          "-n",
+          "19",
+          "timeout",
+          "--kill-after=5s",
+          "120s",
+          "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver",
+          "[NativeFacetedVolumeReplay3D]",
+          "--abort",
+          "--reporter",
+          "compact"
+        ],
+        "query_sha256": "0d65665aeb1791f2071efa2d512a7c6d5f3b85cbe70a6a4e72ce72db261d9c2a",
+        "values_sha256": "42f0163cd3f9a8e9bc875a5f76960d17c0d066939552fa3ff2a89ee2da67424e",
+        "log_sha256": "e0579099d8fea325cd6c1ba8d95646994470c3fa3a23c6dda15dc8ce2a41fec7"
+      },
+      "rigorous_bound": false
+    }
+  ],
+  "reference_chart_span_relative": 0.0008484236828055884,
+  "last_order_changes_relative": [
+    0.0004740677153075377,
+    0.0007265783554316556
+  ],
+  "numerical_reference_mean": 12.487759754399468,
+  "seed_difference": 0.005035444422759383,
+  "raw_indicator": 0.0009156018640643559,
+  "rigorous_bound": false,
+  "bands_helper_sha256": "ad8700e949d12cf56f953a96c66a43f4fcd7a7cb04bf452e5aaf620d3665ed2d"
+}

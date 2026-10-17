@@ -768,7 +768,7 @@
     "accepted_M6_mesh": false,
     "normalization_policy_replay": "3 original cells; MPI1/4 agree, integration_limited at1%; not global calibration",
     "decomposition_replay": "329 query count-7.35% and numerical reference error10.6x lower;88/157 unchanged; no reduction of cold chord preparation",
-    "new_geometry_strategy": "20 controls/437753 assertions PASS; mixed local speed/accuracy; exhaustion-only delta2 checks/1152 assertions PASS. Full frozen-field4-rank integration RUNNING session76946,600s ceiling.",
+    "new_geometry_strategy": "Strict transition cuts pass20 controls. Scalar-only distance-band partition corrects initial seed regression;2 focused+8 existing2D controls pass. MPI1/4 three-cell normalization agrees/integration_limited. Whole field incomplete;622 independent reference unconverged through96. No owned job remains.",
     "evidence": "integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1",
     "outcome_ledger": "Handbook/SUGGESTION_OUTCOME_LEDGER.md"
   }

@@ -2071,6 +2071,10 @@ TEST_CASE("Finite feature envelopes retain global competition and distance cross
   E competing({-2,0,0},{2,0,0});competing.Vertex({-1,0,0});competing.Vertex({1,0,0});
   for(unsigned k=0;k<=100;++k){const double t=k/100.,x=-2+4*t;CHECK(double(competing.Distance(t))==Approx(std::min(std::abs(x-1),std::abs(x+1))).margin(1e-14));}
   const auto ties=competing.Cuts({.25});CHECK(std::find(ties.begin(),ties.end(),.5)!=ties.end());
+  const auto bandsOnly=competing.Cuts({.25},false);
+  CHECK(std::find(bandsOnly.begin(),bandsOnly.end(),.5)==bandsOnly.end());
+  CHECK(bandsOnly.size()==6);  // Four physical quarter-distance crossings and both endpoints.
+
   E bounded({0,0,0},{1,0,0},1);bounded.Vertex({0,1,0});bounded.Vertex({1,1,0});
   CHECK_THROWS(bounded.Vertex({.5,1,0}));CHECK_THROWS(envelope.Cuts({-1}));
   CHECK_THROWS(envelope.Face({{{{0,0,0}},{{0,0,0}},{{0,0,0}}}}));

@@ -85,8 +85,21 @@ faceted chord lower-envelope replacement builds PASS. The connected validation
 passes20 controls/437753 assertions, folder oneram6_uncertainty_v1/chord_envelope_v1.
 Mixed local results: faster cold preparation but88 fixed-budget error rises to4.95%.
 Geometry-work exhaustion follow-up builds PASS and2 focused cases/1152 assertions PASS.
-Complete frozen-field cheap-band run is LIVE session76946, folder
-oneram6_uncertainty_v1/global_envelope_seed_np4_v1 (4 ranks,600s ceiling);
+The attempted full-field run is terminal stopped/124:9442/303359 cells,14 unknown
+contributions,8469368 queries. Mandatory strict feature cuts caused scalar seed-budget
+regression on622/2331; no full-field mass claim. Receipts/source94307269bb preserved.
+A distance-band-only scalar policy using the SAME envelope now passes2 focused
+cases1154 assertions and8 existing2D controls95; strict edges keep feature transitions.
+The original3 values/reference errors are restored and new622/2331 seeds are finite.
+Independent2331 references converge;622 remains chart/order-inconsistent at96 and
+is NOT a certified reference. Current3-cell MPI1/4 normalization agrees exactly,
+C10.10364 ±.22168/integration_limited at1%; owner-only bad input rejects collectively.
+All owned jobs terminal. test_driver is current; SU2_CFD executable is older and
+must be rebuilt before CFD validation. Serial validation max processRSS58.4MiB; larger independent
+reference210.5MiB; no swaps/CFD. Latest host availableRAM~40GiB; recheck before runs.
+Complete-field mass/global error/production coupling remain open. Next cheap
+construction diagnosis: replay the exact failed first-layer edge with original donor
+support before another full driver startup; details in the chord handbook.
 pointwise metric law unchanged,2D/analytic geometry paths unchanged. Whole-field
 mass, production coupling/calibrated uncertainty and M6 construction remain open.
 Final suggestion-by-suggestion outcome report requested; keep
