@@ -1,5 +1,5 @@
 {
-  "status": "Audited principal studies; conservative refined follow-up pending",
+  "status": "Audited completed studies",
   "baseline_commit": "29a4c3c58add4b0164714a91ef330fa3a01654dc",
   "code_commit": "4712d82375e00ede15e5177ab38865eaaaa3e9f5",
   "source_sha256": {
@@ -2797,6 +2797,23 @@
       ],
       "max_qualified_raw_rms": 3.134602330375782e-13,
       "max_qualified_normalized_rms": 4.599293121602152e-14
+    },
+    "extended_refined_references": {
+      "trials": 3,
+      "qualified": 0,
+      "statuses": {
+        "qualification_failed": 1,
+        "timeout": 2
+      },
+      "minimum_available_kib": 38992004,
+      "maximum_external_cpu_cores": 7.230046154913207,
+      "maximum_owned_tree_rss_kib": 244640,
+      "timing_eligible": false,
+      "runner_sha256": [
+        "bac280a6bc9a700424f5139e6f82219fe7cd6c3e9c9258df60e81171aa878f96"
+      ],
+      "max_qualified_raw_rms": null,
+      "max_qualified_normalized_rms": null
     }
   },
   "control_summary": {
@@ -2823,14 +2840,18 @@
     "native_history_margin_statuses": {
       "qualified": 8
     },
-    "extended_reference_completed": 0,
-    "extended_reference_statuses": {},
+    "extended_reference_completed": 3,
+    "extended_reference_statuses": {
+      "qualification_failed": 1,
+      "Native CFL5 did not qualify within600s; no comparison or accuracy relaxation.": 3,
+      "timeout": 2
+    },
     "timing_eligible": false,
     "interpretation": "Configuration trials after implementation; no target loosened. Final refined comparison tightens residual targets100x for every mode; state/quantity/acceptance requirements unchanged. Single contended samples are not timing comparisons. Failure/cap times are not times to convergence."
   },
   "control_table": {
     "path": "Docs/NewtonKrylovControls20261017.csv",
-    "rows": 313,
+    "rows": 316,
     "native_counts": "Outer-iteration inference; separately verified against original-control method scopes.",
     "newton_counts": "Measured full-residual telemetry; boundary-only work remains separately profiled.",
     "timing_eligible": false
@@ -2988,6 +3009,39 @@
       "classification": "Timeout produced no final restart; raw history retained, physical endpoint unverified"
     }
   ],
+  "final_quiet_preflight": {
+    "pid": 1163103,
+    "start_ticks": 88847468,
+    "command": [
+      "/usr/bin/python3",
+      "/media/rausa/4TB/SU2_Versions/SU2_v850_Develop_FixCGNSOutput/newton_krylov_refactor_20261015/efficiency_20261017/run_guarded_tree.py",
+      "--evidence",
+      "/media/rausa/4TB/SU2_Versions/SU2_v850_Develop_FixCGNSOutput/newton_krylov_refactor_20261015/efficiency_20261017/measure_guards/baseline/sa/1x1/9001",
+      "--cwd",
+      "/media/rausa/4TB/SU2_Versions/SU2_v850_Develop_FixCGNSOutput",
+      "--",
+      "/usr/bin/python3",
+      "/media/rausa/4TB/SU2_Versions/SU2_v850_Develop_FixCGNSOutput/newton_krylov_refactor_20261015/efficiency_20261017/case_driver.py",
+      "--case",
+      "sa",
+      "--binary",
+      "/media/rausa/4TB/SU2_Versions/SU2_v850_Develop_FixCGNSOutput/newton_krylov_refactor_20261015/efficiency_20261017/baseline/SU2_CFD",
+      "--reporter",
+      "/media/rausa/4TB/SU2_Versions/SU2_v850_Develop_FixCGNSOutput/newton_krylov_refactor_20261015/performance_20261016/original/newton_equation_tests",
+      "--output",
+      "/media/rausa/4TB/SU2_Versions/SU2_v850_Develop_FixCGNSOutput/newton_krylov_refactor_20261015/efficiency_20261017/benchmarks/baseline/sa/1x1/9001",
+      "--ranks",
+      "1",
+      "--threads",
+      "1"
+    ],
+    "action": "Cancel verified owned preflight before any numerical child",
+    "samples": 83,
+    "minimum_external_cpu_cores": 2.0440049926592527,
+    "maximum_external_cpu_cores": 4.221745152467933,
+    "unix_time": 1792244884.7489018,
+    "no_solver_launched": true
+  },
   "preserved_failures": [
     "build_closure/preflight_cancelled.json",
     "refresh_muscl_correctness/harness_failure.json",
@@ -2997,11 +3051,11 @@
     "larger_control_study/",
     "larger_precision_stop.json",
     "cfl_study/",
-    "larger_strict_control_study/"
+    "larger_strict_control_study/",
+    "extended_refined_references/",
+    "measure_guards/baseline/sa/1x1/9001/preflight_cancelled.json"
   ],
-  "pending": [
-    "extended_refined_references"
-  ],
+  "pending": [],
   "limitations": [
     "All reported current elapsed-time comparisons are contended or single samples; no uncontended/general speedup claim.",
     "Generated refinements and one-update263169-point allocation tests do not establish production-mesh performance or asymptotic scaling."
@@ -3020,16 +3074,18 @@
     "baseline_manifest.json": "b3114b972d15e886020700cf970c0aa9dc85c1db37effcbd14023a87455cfc2f",
     "final_release/manifest.json": "7697d1e712eff7eaf063b2739862751e6a09b18afbb273822d2ef7bd622e17e7",
     "final_release/restore_check.json": "b4c260c079934c7a0f6a0b1f7d89f053655305ee151c51e764ca5a244aa3090f",
-    "final_audit.json": "f878ddde4d88766c85d2f9cb701f589cbb541fbc6df810d73378e4811a56176e",
+    "final_audit.json": "51f359bac3e5dde2d6e2a1b7cb4456e00e355e5998b6b7072e159486ee72bf4e",
     "original_medians.json": "978bb1b0357e642492af20fa1d7e39ead9fb4820e19a0c4eb53bd90f764e9c8f",
     "final_phase_summary.json": "3f1d49f3ada77496515b4b9f46e604f0e31e4daa1a4b633ae44eb4793fc76014",
     "sa_final_call_attribution.json": "1ab7a9f7fcba713677b2de09bdb126c4024d7199acbc63dec28eeaf717bd84d1",
     "workspace_memory_summary.json": "1f32d38cb2c6d77202522357016089e1372a657ad03d2ec0987dd672190a2071",
-    "control_outcomes.csv": "925e987ee9c55cc5336326c9c313a7ebce744ae2c3fd82e5bea0c28f4966b598",
-    "control_outcomes_summary.json": "89df46aa4c48ab40bd62dfb2db2cdaadbfbbfd89f2c4903997495522a1e82fd9",
+    "control_outcomes.csv": "4f293261d37df51a58d59f70763c8ffa7124dfdcb4ed59816f8593befc54e59d",
+    "control_outcomes_summary.json": "109afd6a969a03459c57e4a40b43920f762a62bfa60a86f3188719787880344f",
     "native_transition_cfl_inspection.json": "25fa70b8d19c8d210a03cd027ca7ab3f015cdfad9edfb21e3766aa5b9522147c",
     "native_history_margin_selfcheck.json": "2aa54dd7d278c68588f98862501f6d4d7bd1e664414869ea8a5c442ec88cd030",
     "refined_strict_threshold_selfcheck.json": "bfc200a6e9929d7160d0a052f891e7a7aca65d0218c9a5e8d5a0a004a9f3d74a",
-    "capped_refined_state_checks/results.json": "17a42054a25c304312b56ddcdc46a67813b8332f9c78adb7722cf4d59f0873ad"
+    "capped_refined_state_checks/results.json": "17a42054a25c304312b56ddcdc46a67813b8332f9c78adb7722cf4d59f0873ad",
+    "extended_refined_references_monitored/result.json": "de6800e8979854f2463997ce405e4ac259ff7c5ceaab13a56973a25e23f400b6",
+    "measure_guards/baseline/sa/1x1/9001/preflight_cancelled.json": "d1d47f40a23551296356dd1f307257ca86abaa935b2d5e892a705b6445375546"
   }
 }

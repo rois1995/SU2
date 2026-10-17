@@ -453,7 +453,12 @@ and changes controls, without relaxing accuracy.
 
 | Case | Layout | Mode | Controls / initial CFL | Outcome |
 |---|---|---|---|---:|
-| — | — | — | — | Follow-up pending; no result or timing claim |
+| sst_33 | 1x1 | native | fixed / 5 | qualification_failed (50000) |
+| sst_33 | 1x1 | — | — | Native CFL5 did not qualify within600s; no comparison or accuracy relaxation. |
+| sa_65 | 1x1 | native | fixed / 5 | timeout (—) |
+| sa_65 | 1x1 | — | — | Native CFL5 did not qualify within600s; no comparison or accuracy relaxation. |
+| sa_65 | 2x2 | native | fixed / 5 | timeout (—) |
+| sa_65 | 2x2 | — | — | Native CFL5 did not qualify within600s; no comparison or accuracy relaxation. |
 
 Completed control trials: 222/222; additional native trials: 40/40; refined trials: 39; native history rechecks: 8.
 All observed elapsed times remain excluded from speedup claims because of
@@ -488,6 +493,9 @@ SST CFL 30 in 2,454, and LM CFL 100000 in 50 (periodic LM: 49), on both layouts.
 Newton is not universally faster and a small outer-count advantage in coupled LM
 cannot offset many more residual evaluations. Native history near misses are
 rechecked with a stricter history gate while preserving all physical targets.
+For refined LM, this yields a qualified native CFL 1000 reference in 324 updates,
+improving on the 654-update default schedule; the original rejected result is
+preserved beside the stricter stopping configuration.
 
 The bounded strict study has 16 qualified endpoints in 39 trials; three cohorts
 lack a native reference, so 21 planned Newton comparisons were not launched.
@@ -497,7 +505,13 @@ produced no final restart; their physical endpoints remain unverified. Native CF
 with a 600 s budget is a separate follow-up, never a relaxation of accuracy. Its
 completed results, if any, are shown above; pending attempts make no timing claim.
 
-Conservative refined-reference follow-up remains active; the goal is not yet complete.
+The conservative follow-up is complete: SST33 at native CFL 5 reaches the
+50,000-update cap, and both SA65 layouts time out at 600 s. None supplies the
+required native reference, so these larger matched comparisons remain incomplete.
+No Newton endpoint or speedup is claimed for those cohorts. The final quiet-host
+preflight is also preserved: 83 observations all exceed the external-CPU limit;
+it is cancelled before any CFD launch. Repeated observed medians remain reported
+with contention, and no uncontended or general speedup claim is made.
 
 ## Reproduction and limits
 
