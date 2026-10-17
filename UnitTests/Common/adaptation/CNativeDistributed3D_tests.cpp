@@ -2712,3 +2712,78 @@ TEST_CASE("Native MPI point probes distinguish complete outside searches from fa
   const auto invalid=source.ProbePoints(world.rank==world.size-1?std::vector<Point>{{NAN,0,0}}:std::vector<Point>{});
   CHECK_FALSE(invalid.valid);
 }
+
+
+TEST_CASE("Owner-routed point samples preserve canonical physical and extension priorities", "[NativePointSamples3D]") {
+  World world;const auto geometry=Box();std::vector<DonorCell> all,local;
+  for(auto cell:geometry.patch.cells) {
+    DonorCell row;row.cell=cell;
+    for(unsigned j=0;j<4;++j) {
+      row.cell.v[j].id+=100;const auto p=row.cell.v[j].p;
+      row.sensor[j]={2+.25*p.x,.03125*p.x,0,3+.25*p.y,0,4+.25*p.z};
+    }all.push_back(row);
+  }
+  for(unsigned k=0;k<2;++k) {
+    DonorCell row;row.cell=all.front().cell;row.cell.id=1000+k;row.extension_component=777;
+    for(unsigned j=0;j<4;++j){row.cell.v[j].id=4*k+j;if(k)row.cell.v[j].p.x+=2;row.sensor[j]={16,0,0,16,0,16};}
+    all.push_back(row);
+  }
+  for(const auto& row:all)if((row.cell.id+1)%world.size==unsigned(world.rank))local.push_back(row);
+  DonorImport service(world,true);std::string reason;REQUIRE(service.Build(local,reason));
+  const auto bytes=service.ResidentBytes();
+  const auto& ext=all.back().cell;const Point outside=Centroid(ext);
+  const std::vector<Point> points{{0,0,0},{.5,.5,.5},{.23,.31,.41},outside};
+  const auto result=service.SamplePoints(world.rank==0?points:std::vector<Point>{},world.rank==0?std::vector<Id>{777}:std::vector<Id>{});
+  INFO(result.reason);REQUIRE(result.valid);
+  if(!world.rank) {
+    FrozenField reference(all,{},false,{777});REQUIRE(result.samples.size()==points.size());
+    for(size_t i=0;i<points.size();++i) {
+      const auto expected=reference.Query(points[i]);const auto& actual=result.samples[i];
+      CHECK(actual.Key()==expected.donor);CHECK(actual.weights==expected.weights);
+      CHECK(actual.extension_component==expected.extension_component);
+      CHECK(actual.source_rank==int((actual.cell+1)%world.size));
+      const std::array<double,6> a{actual.sensor.xx,actual.sensor.xy,actual.sensor.xz,actual.sensor.yy,actual.sensor.yz,actual.sensor.zz},
+          b{expected.sensor.xx,expected.sensor.xy,expected.sensor.xz,expected.sensor.yy,expected.sensor.yz,expected.sensor.zz};CHECK(a==b);
+    }
+    CHECK(result.samples[0].extension_component==UINT64_MAX);
+    CHECK(result.samples.back().extension_component==777);
+  }else CHECK(result.samples.empty());
+  const auto missing=service.SamplePoints(world.rank==world.size-1?std::vector<Point>{outside}:std::vector<Point>{});
+  CHECK_FALSE(missing.valid);CHECK(missing.samples.empty());
+  const auto invalid=service.SamplePoints(world.rank==0?std::vector<Point>{{NAN,0,0}}:std::vector<Point>{});
+  CHECK_FALSE(invalid.valid);CHECK(invalid.samples.empty());
+  const auto refused=service.SamplePoints({}, {},world.rank==0?1:SIZE_MAX);
+  CHECK_FALSE(refused.valid);CHECK(refused.samples.empty());CHECK(service.ResidentBytes()==bytes);
+}
+
+TEST_CASE("Canonical owner point samples do not import large incident donor stars", "[NativePointSamples3D]") {
+  World world;std::vector<DonorCell> local;Id next=0;
+  std::array<std::array<Node,13>,13> grid;
+  for(unsigned j=0;j<=12;++j)for(unsigned i=0;i<=12;++i)grid[j][i]={1+j*13+i,{double(i)/12,double(j)/12,1}};
+  auto add=[&](std::array<Node,4> nodes) {
+    DonorCell row;row.cell={next++,nodes};row.sensor.fill({2,0,0,2,0,2});
+    if(Orientation(nodes[0].p,nodes[1].p,nodes[2].p,nodes[3].p)<0)std::swap(row.cell.v[0],row.cell.v[1]);
+    if((row.cell.id+1)%world.size==unsigned(world.rank))local.push_back(row);
+  };
+  for(unsigned j=0;j<12;++j)for(unsigned i=0;i<12;++i) {
+    const Node apex{0,{0,0,0}};
+    add({apex,grid[j][i],grid[j][i+1],grid[j+1][i]});
+    add({apex,grid[j+1][i+1],grid[j+1][i],grid[j][i+1]});
+  }
+  REQUIRE(next>MaximumDonors);DonorImport service(world,true);std::string reason;REQUIRE(service.Build(local,reason));
+  const auto points=world.rank==0?std::vector<Point>{{0,0,0}}:std::vector<Point>{};
+  const auto full=service.ProbePoints(points);CHECK_FALSE(full.valid);
+  const auto sampled=service.SamplePoints(points);INFO(sampled.reason);REQUIRE(sampled.valid);
+  if(!world.rank) {
+    REQUIRE(sampled.samples.size()==1);CHECK(sampled.samples[0].cell==0);
+    CHECK(sampled.samples[0].sensor.xx==2);CHECK(sampled.samples[0].source_rank==int(1%world.size));
+  }else CHECK(sampled.samples.empty());
+}
+
+
+TEST_CASE("Original point sample transport retains full binary barycentric precision", "[NativePointSamples3D]") {
+  DonorSample original;original.weights={std::nextafter(1.L,0.L),std::numeric_limits<long double>::denorm_min(),1.L/3,0};
+  auto expected=original;std::vector<char> bytes;RecordStream encode(bytes);encode(original);
+  DonorSample decoded;const auto& input=bytes;RecordStream decode(input);decode(decoded);
+  CHECK(decode.End());CHECK(original.weights==expected.weights);CHECK(decoded.weights==expected.weights);
+}

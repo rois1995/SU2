@@ -337,3 +337,33 @@ comparison and independent N4/M2 RANS/BDF/SU2+CGNS/restart audit. At least1594/2
 queries repeat, with<=966 distinct positions fitting2048 samples: a measured
 opportunity for sample/stencil lookup, not an implemented optimization.
 [Detailed outcome and next design implication](GOAL3_POINT_PREPARATION_REUSE.md).
+
+
+## 2026-10-17: canonical owner point samples WORKED in the measured scope
+
+Replace point-only whole-star imports/second indexes with direct lookup in the
+existing original-owner ADTs. Return canonical sensor-only samples and use one
+bounded2048-entry memo across weights/mesh-return batches. This replaces that
+path's former per-batch cache/index. Actual geometric BL composition still runs
+on every query, including hits; source keys/publishers/extensions/finer/fade and
+mesh/transfer gates unchanged. Integer mantissa/exponent metadata preserves native
+barycentric precision through the existing fixed integer/double codec.
+
+Same512 M6 cells on1/2/4 ranks: exact query coordinates/sensor/composed tensors and
+weights match fresh imports and saved serial weights.966/966/969 source lookups
+instead of2560, no second indexes instead of124/124/123; measured preparation
+.03337/.03086/.02960s versus.12975/.11124/.08883s (3.0–3.9x). Larger4096-cell MPI4
+replay: ALL20480 exact queries,8098 lookups/12382 hits,0 versus1852 builds,
+.26134 versus2.28299s (8.74x); at least4002 FIFO evictions exercised. Cold reference
+omits production admission bookkeeping and these are contended selected-cell kernel
+observations, NOT full M6 lifecycle/scaling/accepted-wing speedups.
+
+18 serial cases/2941 assertions and MPI4 controls pass, including genuine288-star
+sampling without changing the256 full-import cap, extension/physical priority,
+shifted source publishers, failure/storage and precision. Curved runtime return
+and independent initialized RANS/SA N4/M2 BL construction/removal/BDF/SA/geometry/
+full field/restart/SU2+CGNS pass24->6 cells. No new CFD solve or accepted M6 mesh.
+Whole-donor caches remain rejected; shared-edge lifetime/independent publications
+and reconstruction-campaign support remain unimplemented. One owned heavy job,
+38–39GiB host available; resources/provenance/compile rejection preserved.
+[Exact comparison and remaining work](../integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/owner_point_samples_v1/README.md).

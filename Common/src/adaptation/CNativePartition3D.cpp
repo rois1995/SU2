@@ -12,7 +12,7 @@
 #include <cmath>
 #include <numeric>
 namespace SU2Native3D {
-std::vector<uint32_t> WorkWeights(const std::vector<Cell>& cells, FrozenField& field) {
+std::vector<uint32_t> WorkWeights(const std::vector<Cell>& cells,const std::function<FieldSample(Point)>& query) {
   if (cells.size() > MaximumReplacementCells) throw std::invalid_argument("Native 3D weight sample batch exceeds budget.");
   std::vector<uint32_t> result;
   result.reserve(cells.size());
@@ -20,13 +20,13 @@ std::vector<uint32_t> WorkWeights(const std::vector<Cell>& cells, FrozenField& f
     const Tetrahedron tet{cell.v[0].p, cell.v[1].p, cell.v[2].p, cell.v[3].p};
     if (!(Orientation(tet[0], tet[1], tet[2], tet[3]) > 0))
       throw std::invalid_argument("Native 3D work estimate requires positive cells.");
-    const auto center = field.Query(Centroid(cell));
+    const auto center = query(Centroid(cell));
     const auto sensor = Measure(tet, center.sensor), target = Measure(tet, center.target);
     // For a unit-edge regular tetrahedron q=1. q^(3/2)*rms_edge^3 equals metric-volume/unit volume.
     const auto scale = std::sqrt(static_cast<long double>(sensor.mean_ratio)) * sensor.rms_edge;
     long double work = 1 + scale * scale * scale;
     std::array<Tensor, 4> nodal;
-    for (size_t i = 0; i < 4; ++i) nodal[i] = field.Query(cell.v[i].p).target;
+    for (size_t i = 0; i < 4; ++i) nodal[i] = query(cell.v[i].p).target;
     for (size_t i = 0; i < 4; ++i) for (size_t j = i + 1; j < 4; ++j) {
       const auto a = cell.v[i].p, b = cell.v[j].p;
       const auto length = std::max({MetricNorm(a, b, center.target), MetricNorm(a, b, nodal[i]), MetricNorm(a, b, nodal[j])});
@@ -44,6 +44,9 @@ std::vector<uint32_t> WorkWeights(const std::vector<Cell>& cells, FrozenField& f
     result.push_back(uint32_t(std::ceil(std::min(static_cast<long double>(MaximumPartitionWeight), work))));
   }
   return result;
+}
+std::vector<uint32_t> WorkWeights(const std::vector<Cell>& cells,FrozenField& field) {
+  return WorkWeights(cells,[&](Point p){return field.Query(p);});
 }
 namespace {
 struct RankWork {

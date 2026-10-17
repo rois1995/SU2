@@ -485,6 +485,9 @@ CRemeshResult CNativeRemesher3D::Remesh(const CConfig& config, const CGeometry& 
              << " requests=" << b.requests << " hits=" << b.hits << " misses=" << b.misses
              << " invalid_queries=" << b.invalid_queries << " failures=" << b.failures << " evictions=" << b.evictions
              << " compositions=" << b.compositions << " batches=" << b.batches << " retries=" << b.batch_retries
+             << " source_point_queries=" << b.source_point_queries << " source_point_payloads=" << b.source_point_payloads
+             << " source_point_seconds=" << b.source_point_seconds << " source_point_search=" << b.source_point_search_seconds
+             << " source_point_interpolation=" << b.source_point_interpolation_seconds
              << " field_builds=" << b.field_builds << " nested_field_build=" << b.field_build_seconds << " nested_search=" << b.field_search_seconds
              << " nested_interpolation=" << b.interpolation_seconds << " nested_composition=" << b.composition_seconds
              << " tracked_bytes=" << b.tracked_bytes << " tracked_calls=" << b.tracked_calls

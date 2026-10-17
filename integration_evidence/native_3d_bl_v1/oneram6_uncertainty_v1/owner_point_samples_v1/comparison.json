@@ -1,0 +1,79 @@
+{
+  "status": "PASS_MEASURED_POINT_PREPARATION_GAIN",
+  "rows": [
+    {
+      "case": "m6_np1",
+      "ranks": 1,
+      "cells": 512,
+      "queries": 2560,
+      "source_lookups": 966,
+      "memo_hits": 1594,
+      "field_builds": 0,
+      "cold_field_builds": 124,
+      "rounds_max": 64,
+      "cold_imports_max": 125,
+      "seconds_max": 0.03337449500000034,
+      "cold_seconds_max": 0.12974655500000054,
+      "ratio": 3.887596052015146,
+      "exact_query_tensors_and_weights": true,
+      "maximum_native_payload_model": 2113313384
+    },
+    {
+      "case": "m6_np2",
+      "ranks": 2,
+      "cells": 512,
+      "queries": 2560,
+      "source_lookups": 966,
+      "memo_hits": 1594,
+      "field_builds": 0,
+      "cold_field_builds": 124,
+      "rounds_max": 64,
+      "cold_imports_max": 125,
+      "seconds_max": 0.030856141000001003,
+      "cold_seconds_max": 0.11123777099999899,
+      "ratio": 3.605044811014941,
+      "exact_query_tensors_and_weights": true,
+      "maximum_native_payload_model": 1060887016
+    },
+    {
+      "case": "m6_np4",
+      "ranks": 4,
+      "cells": 512,
+      "queries": 2560,
+      "source_lookups": 969,
+      "memo_hits": 1591,
+      "field_builds": 0,
+      "cold_field_builds": 123,
+      "rounds_max": 49,
+      "cold_imports_max": 95,
+      "seconds_max": 0.02960497600000167,
+      "cold_seconds_max": 0.08883178800000024,
+      "ratio": 3.000569498857058,
+      "exact_query_tensors_and_weights": true,
+      "maximum_native_payload_model": 538999032
+    },
+    {
+      "case": "m6_4096_np4",
+      "ranks": 4,
+      "cells": 4096,
+      "queries": 20480,
+      "source_lookups": 8098,
+      "memo_hits": 12382,
+      "field_builds": 0,
+      "cold_field_builds": 1852,
+      "rounds_max": 304,
+      "cold_imports_max": 1119,
+      "seconds_max": 0.2613445590000012,
+      "cold_seconds_max": 2.2829867150000034,
+      "ratio": 8.735543313913006,
+      "exact_query_tensors_and_weights": true,
+      "maximum_native_payload_model": 538999032
+    }
+  ],
+  "limits": [
+    "Contended local selected-cell preparation, not whole M6 adaptation or scaling.",
+    "Cold reference uses fresh8/halve imports without production admission bookkeeping.",
+    "Native payload model is not process/aggregate memory.",
+    "No accepted M6 mesh, new uncertainty tolerance or refined-field correction stage."
+  ]
+}

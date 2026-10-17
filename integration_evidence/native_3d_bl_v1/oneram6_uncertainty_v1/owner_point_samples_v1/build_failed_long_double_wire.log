@@ -1,0 +1,30 @@
+ninja: Entering directory `integration_evidence/build-integrated-v2'
+[1/27] Compiling C++ object Common/src/libSU2AccurateSum.a.p/adaptation_CNativeField3D.cpp.o
+[2/27] Compiling C++ object Common/src/libSU2AccurateSum.a.p/adaptation_CNativeBoundary3D.cpp.o
+[3/27] Compiling C++ object Common/src/libSU2AccurateSum.a.p/adaptation_CNativeMetric3D.cpp.o
+[4/27] Compiling C++ object Common/src/libSU2AccurateSum.a.p/adaptation_CNativeRegion3D.cpp.o
+[5/27] Compiling C++ object Common/src/libSU2AccurateSum.a.p/adaptation_CNativeRegionField3D.cpp.o
+[6/27] Compiling C++ object Common/src/libSU2AccurateSum.a.p/adaptation_CNativeDonor3D.cpp.o
+FAILED: [code=1] Common/src/libSU2AccurateSum.a.p/adaptation_CNativeDonor3D.cpp.o 
+c++ -ICommon/src/libSU2AccurateSum.a.p -ICommon/src -I../../Common/src -I../../externals/CLI11 -I../../externals/eigen -I../../externals/cgns/adf -I../../externals/cgns/adfh -Iexternals/cgns -I../../externals/cgns -Iexternals/cgns/hdf5 -I../../externals/cgns/hdf5 -I../../externals/metis/include -I../../externals/metis/GKlib -I../../externals/metis/libmetis -I../../externals/parmetis/include -I../../externals/parmetis/libparmetis -I../../externals/mel -I/usr/lib/x86_64-linux-gnu/openmpi/include/openmpi -I/usr/lib/x86_64-linux-gnu/openmpi/include -fdiagnostics-color=always -D_GLIBCXX_ASSERTIONS=1 -D_FILE_OFFSET_BITS=64 -std=c++17 -O2 -g -fPIC -pthread -Wno-empty-body -Wno-ignored-qualifiers -Wno-unused-parameter -Wno-deprecated-declarations -Wno-error=cast-function-type -Wno-cast-function-type -Wno-error=stringop-truncation -Wno-stringop-truncation -Wno-error=missing-field-initializers -Wno-missing-field-initializers -Wno-error=class-memaccess -Wno-class-memaccess -Wno-overloaded-virtual -Wno-array-bounds -march=native -ffast-math -fno-finite-math-only -DHAVE_CGNS -DHAVE_MPI -DHAVE_METIS -DHAVE_PARMETIS -DHAVE_MMG -fno-fast-math -fno-unsafe-math-optimizations -ffp-contract=off -MD -MQ Common/src/libSU2AccurateSum.a.p/adaptation_CNativeDonor3D.cpp.o -MF Common/src/libSU2AccurateSum.a.p/adaptation_CNativeDonor3D.cpp.o.d -o Common/src/libSU2AccurateSum.a.p/adaptation_CNativeDonor3D.cpp.o -c ../../Common/src/adaptation/CNativeDonor3D.cpp
+In file included from ../../Common/src/adaptation/../../include/adaptation/CNativeDistributed3D.hpp:9,
+                 from ../../Common/src/adaptation/../../include/adaptation/CNativeDonor3D.hpp:8,
+                 from ../../Common/src/adaptation/CNativeDonor3D.cpp:7:
+../../Common/src/adaptation/../../include/adaptation/CNativeDistributed2D.hpp: In instantiation of ‘void SU2NativeBoundary2D::RecordStream::Field(T&) [with T = long double]’:
+../../Common/src/adaptation/../../include/adaptation/CNativeDistributed2D.hpp:44:33:   required from ‘void SU2NativeBoundary2D::RecordStream::Field(T&) [with T = std::array<long double, 4>]’
+../../Common/src/adaptation/../../include/adaptation/CNativeDistributed2D.hpp:34:5:   required from ‘void SU2NativeBoundary2D::RecordStream::operator()(T& ...) [with T = {SU2Native3D::Tensor, std::array<long unsigned int, 4>, std::array<long double, 4>, long unsigned int, long unsigned int, int}]’
+../../Common/src/adaptation/../../include/adaptation/CNativeDonor3D.hpp:29:39:   required from ‘void SU2Native3D::DonorSample::Fields(S&) [with S = SU2NativeBoundary2D::RecordStream]’
+../../Common/src/adaptation/../../include/adaptation/CNativeDistributed2D.hpp:80:7:   required from ‘void SU2NativeBoundary2D::RecordStream::Field(T&) [with T = SU2Native3D::DonorSample]’
+../../Common/src/adaptation/../../include/adaptation/CNativeDistributed2D.hpp:34:5:   required from ‘void SU2NativeBoundary2D::RecordStream::operator()(T& ...) [with T = {long unsigned int, SU2Native3D::DonorSample}]’
+../../Common/src/adaptation/CNativeDonor3D.cpp:58:39:   required from ‘void SU2Native3D::{anonymous}::PointReply::Fields(S&) [with S = SU2NativeBoundary2D::RecordStream]’
+../../Common/src/adaptation/../../include/adaptation/CNativeDistributed2D.hpp:80:7:   required from ‘void SU2NativeBoundary2D::RecordStream::Field(T&) [with T = SU2Native3D::{anonymous}::PointReply]’
+../../Common/src/adaptation/../../include/adaptation/CNativeDistributed2D.hpp:34:5:   required from ‘void SU2NativeBoundary2D::RecordStream::operator()(T& ...) [with T = {SU2Native3D::{anonymous}::PointReply}]’
+../../Common/src/adaptation/../../include/adaptation/CNativeDistributed2D.hpp:115:12:   required from ‘std::vector<T> SU2NativeBoundary2D::World::exchange(const std::vector<std::vector<T> >&, bool*, size_t, size_t) [with T = SU2Native3D::{anonymous}::PointReply; size_t = long unsigned int]’
+../../Common/src/adaptation/CNativeDonor3D.cpp:333:69:   required from here
+../../Common/src/adaptation/../../include/adaptation/CNativeDistributed2D.hpp:46:48: error: static assertion failed: Native wire scalars are integers/doubles.
+   46 |       static_assert(std::is_integral<T>::value || std::is_same<T, double>::value,
+      |                                          ~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+../../Common/src/adaptation/../../include/adaptation/CNativeDistributed2D.hpp:48:31: error: static assertion failed: Unsupported native integer width.
+   48 |       static_assert(sizeof(T) <= 8, "Unsupported native integer width.");
+      |                     ~~~~~~~~~~^~~~
+ninja: build stopped: subcommand failed.

@@ -41,7 +41,8 @@ void Canonical(std::vector<DonorCell>& original) {
     if (original[i].Key() == original[i - 1].Key())
       throw std::invalid_argument("Duplicate native 3D original donor simplex.");
 }
-Tensor Blend(const DonorCell& donor, const std::array<long double, 4>& weights) {
+}  // namespace
+Tensor InterpolateSensor(const DonorCell& donor, const std::array<long double, 4>& weights) {
   std::array<long double, 6> total{};
   for (size_t i = 0; i < 4; ++i) {
     const auto m = Components(donor.sensor[i]);
@@ -49,7 +50,6 @@ Tensor Blend(const DonorCell& donor, const std::array<long double, 4>& weights) 
   }
   return {double(total[0]), double(total[1]), double(total[2]), double(total[3]), double(total[4]), double(total[5])};
 }
-}  // namespace
 std::array<Id, 4> DonorCell::Key() const {
   std::array<Id, 4> key;
   for (size_t i = 0; i < 4; ++i) key[i] = cell.v[i].id;
@@ -242,7 +242,7 @@ long double FrozenField::EdgeLength(Point a, Point b, bool composed) {
         {
           Timer timer(stats.edge_composition_seconds,timings);
           ++stats.compositions;++stats.edge_compositions;
-          target=composition(p,Blend(donor,weights));
+          target=composition(p,InterpolateSensor(donor,weights));
         }
         ValidateTensor(target,&stats.kernel);
         return MetricNorm(a,b,target,&stats.kernel);
@@ -305,8 +305,8 @@ long double FrozenField::EdgeLength(Point a, Point b, bool composed) {
     } else for (const auto& piece : pieces) {
       const auto& donor = donors[candidates[piece.donor]];
       if (donor.extension_component!=UINT64_MAX) ++stats.extended_edge_pieces;
-      const auto first = MetricNorm(a, b, Blend(donor, piece.begin_weights), &stats.kernel);
-      const auto last = MetricNorm(a, b, Blend(donor, piece.end_weights), &stats.kernel);
+      const auto first = MetricNorm(a, b, InterpolateSensor(donor, piece.begin_weights), &stats.kernel);
+      const auto last = MetricNorm(a, b, InterpolateSensor(donor, piece.end_weights), &stats.kernel);
       const auto largest = std::max(first, last), r = std::min(first, last) / largest;
       // Integral of sqrt(affine quadratic form), avoiding subtraction of nearly equal cubes.
       total += piece.width * largest * (2.L / 3) * (1 + r + r * r) / (1 + r);
@@ -371,7 +371,7 @@ FieldSample FrozenField::Query(Point point) {
       {
         Timer timer(stats.interpolation_seconds, timings);
         ++stats.interpolations;
-        value.tensor = Blend(donors[value.donor], value.weights);
+        value.tensor = InterpolateSensor(donors[value.donor], value.weights);
         ValidateTensor(value.tensor, &stats.kernel);
       }
       {

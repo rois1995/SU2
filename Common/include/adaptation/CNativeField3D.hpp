@@ -34,6 +34,8 @@ struct DonorCell {
 };
 /*! Associates only received exterior components present in the caller's declared geometry authority. */
 std::vector<Id> AssociatedExtensions(const std::vector<DonorCell>& source,const PlanarReference& reference);
+/*! Original P1 arithmetic shared by local and owner-routed queries; weights follow donor.cell.v. */
+Tensor InterpolateSensor(const DonorCell& donor,const std::array<long double,4>& weights);
 struct FieldSample {
   Tensor sensor, target;
   std::array<Id, 4> donor{};

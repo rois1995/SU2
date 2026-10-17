@@ -22,6 +22,7 @@ struct PartitionStats {
  * The caller imports the original sensor support. No composed nodal tensor is spread over cell volume.
  * These static weights neither alter the target nor certify a metric edge integral or predict measured CPU. */
 std::vector<uint32_t> WorkWeights(const std::vector<Cell>& cells, FrozenField& field);
+std::vector<uint32_t> WorkWeights(const std::vector<Cell>& cells,const std::function<FieldSample(Point)>& query);
 /*! Collective on the explicit world (possibly a subset). Builds triangular-face dual adjacency, excludes empty
  * graph ranks, balances predicted work and cell storage, then stages all migrated records before publication.
  * IDs/version/geometry/physical bindings remain byte-identical. Original sensor/CFD solution/history stores

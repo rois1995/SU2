@@ -44,19 +44,22 @@ One owned heavy job at a time/build-j1/nice19/threads1/MPI<=4,38–40GiB host av
 build peak process2.37GiB/pilot577.72MiB, not aggregate RAM. All owned jobs terminal;
 both test_driver and standalone SU2_CFD are current.
 
-**Current follow-up:** whole-donor point-preparation retention was correct but
-regressed the512-cell M6 replay (1.7–2.3x versus fresh-import reference); exact point
-filtering also regressed without index reuse. Both caches withdrawn. Preserve
-executed source patches/results. Original schedule restored with one index-build
-counter and reusable per-query tensor/weight audit. Current serial/MPI4 bridge,
-M6 query/reference comparison and independent N4/M2 RANS/BDF lifecycle PASS.
-At least1594/2560 M6 point queries repeat;<=966 distinct points fit the existing
-2048 sample capacity. This is a measured opportunity, not an implemented cache.
-All owned jobs terminal; current standalone/test binaries rebuilt.
-[Measurements, exact scope and next design](Handbook/GOAL3_POINT_PREPARATION_REUSE.md).
-Prefer canonical interpolation samples/stencils or scoped edge values over whole
-incident donor stars; no larger cap/reset ladder. Wider reconstruction-campaign
-retention/edge reuse/transaction batching remain unimplemented.
+**Rejected predecessor:** whole-donor point retention was correct but slower on
+M6; both AABB and exact-filter variants are withdrawn. Their executed source,
+results and failed attempts remain in the
+[rejected-cache report](Handbook/GOAL3_POINT_PREPARATION_REUSE.md).
+
+**Canonical owner point samples validated:** point-only weights/mesh return now
+use existing owner ADTs and one bounded sensor memo, eliminating per-batch indexes.
+Exact source priority/publishers, requester extensions and full-precision weights;
+BL composition at every actual query. Same512-cell M6 checks PASS1/2/4,3.0–3.9x
+selected preparation gain.4096 cells MPI4 PASS20480 exact queries,8.74x selected
+preparation gain with at least4002 capacity evictions. No full-event scaling claim.
+Current source/bridge/curved return and independent initialized RANS/SA N4/M2 BL/
+removal/BDF/SA/SU2+CGNS/restart PASS. All owned native jobs terminal; binaries current.
+[Design, exact evidence and remaining scope](Handbook/GOAL3_OWNER_POINT_SAMPLES.md).
+Full M6 construction, uncertainty/reassessment/correction epochs, scoped composed-
+edge reuse, independent transactions and complete lifecycle cost remain open.
 
 Earlier complete-support replay estimates961498/961691 (pooled empirical SE6656),
 not a proven error bound. Tiny-cell conditioning is sparse/inefficient (11–22 hits/
@@ -96,8 +99,9 @@ defensible uncertainty/absolute work allocation before further mechanisms.
 Reference sources/failed approaches remain preserved. Final suggestion-by-suggestion
 report requested: keep [outcome ledger](Handbook/SUGGESTION_OUTCOME_LEDGER.md) current,
 including its other-agent performance accounting; do not replace or discard it.
-[Broader query/transaction package](Handbook/POST_COMPLEXITY_QUERY_TRANSACTIONS.md)
-is recorded and NOT implemented in this follow-up.
+[Broader query/transaction package](Handbook/POST_COMPLEXITY_QUERY_TRANSACTIONS.md):
+point-only owner lookup is now implemented; reconstruction-campaign support,
+shared-edge lifetime and independent publications remain open.
 
 M6 initial120-step RANS/SA state, exact original owner/halo tensors and geometry
 are saved. The subsequent construction-only attempts are provisional captured
@@ -132,8 +136,8 @@ case early, scoped/provenance-aware resumable checks, no broad suite per small
 edit, no repeated unchanged failures/limit ladders, push reviewable work. Keep
 handbooks compact with detailed linked topics. Announce full case folder paths.
 One owned heavy job, low priority/thread1/build-j1, locally available MPI<=4.
-Check host contention/RAM and live handles. Latest host~40GiB available; recheck.
-Latest native-provider replay peak667MiB per process/build2.38GiB, recorded swaps0;
-these are not aggregate or whole-lifecycle peaks. All owned jobs terminal. Root/tmp nearly full: use build-integrated-v2/compile-tmp
+Check host contention/RAM and live handles. Latest host38–39GiB available; recheck.
+Current build peak process2.39GiB, serial pilot1.63GiB, MPI wrapper886MiB;
+recorded swaps0, not aggregate or whole-lifecycle peaks. All owned jobs terminal. Root/tmp nearly full: use build-integrated-v2/compile-tmp
 on4TB. Do not kill unrelated processes or request cluster jobs overnight.
 Goal4 inactive; full physical unsteady3D/general CAD/mixed volumes separate scope.

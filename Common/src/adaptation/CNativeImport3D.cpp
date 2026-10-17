@@ -77,25 +77,6 @@ bool Admit(World& world, size_t bytes, size_t ceiling, BridgeStats& stats, std::
   if (bytes == SIZE_MAX || bytes > ceiling) failure.Set(3, 0, "Native 3D bridge storage budget exceeded.");
   return Vote(world, failure, reason);
 }
-void Add(BridgeStats& stats, const FieldStats& field) {
-  stats.requests += field.requests;
-  stats.hits += field.hits;
-  stats.misses += field.misses;
-  stats.invalid_queries += field.invalid_queries;
-  stats.failures += field.failures;
-  stats.evictions += field.evictions;
-  stats.compositions += field.compositions;
-  stats.field_build_seconds += field.build_seconds;
-  stats.field_search_seconds += field.search_seconds;
-  stats.interpolation_seconds += field.interpolation_seconds;
-  stats.composition_seconds += field.composition_seconds;
-}
-struct FieldAccounting {
-  BridgeStats& stats;
-  const FrozenField& field;
-  // A rejected batch still incurred every query made before its exception.
-  ~FieldAccounting() { Add(stats, field.Statistics()); }
-};
 struct FaceRecord {
   Face face{};
   Id cell = 0;
@@ -606,54 +587,76 @@ namespace {
 template <class Make, class Use>
 bool Samples(World& parent, size_t count, DonorImport& source, MetricComposition composition, Make make, Use use,
              BridgeStats& stats, std::string& reason, size_t ceiling, size_t live, size_t initial, bool query_timings, const PlanarReference* reference=nullptr) {
-  // shortcut: conservative bounded field/cache scratch; calibrate against the actual index/cache allocations.
-  const size_t scratch =
-      transfer_memory::Add(MaximumFrozenFieldBytes,
-                           transfer_memory::Mul(MaximumSensorSamples, 32 * sizeof(double)),
-                           transfer_memory::Mul(MaximumCavityCells, sizeof(DonorRegion)));
-  live = transfer_memory::Add(live, scratch);
-  if (!Admit(parent, live, ceiling, stats, reason)) return false;
-  size_t next = 0, batch = initial;
-  while (parent.maximum(next < count)) {
-    const double start = parent.seconds();
-    CLocalFailure failure;
-    std::vector<DonorRegion> regions;
+  using Key=std::array<double,3>;
+  const auto scratch=transfer_memory::Add(
+      transfer_memory::Mul(MaximumSensorSamples,2*(sizeof(DonorSample)+sizeof(Key)+8*sizeof(void*))),
+      transfer_memory::Mul(MaximumCavityCells,4*sizeof(DonorSample)+6*sizeof(Key)+256),
+      reference?transfer_memory::GrowthBound(reference->Analytic().size(),sizeof(Id)):0,65536);
+  live=transfer_memory::Add(live,scratch);
+  if(!Admit(parent,live,ceiling,stats,reason))return false;
+  std::map<Key,DonorSample> cache;std::deque<Key> order;std::vector<Id> extensions;
+  CLocalFailure setup;
+  try {if(reference)for(const auto& row:reference->Analytic())extensions.push_back(row.first);}
+  catch(const std::exception& error){setup.Set(2,0,error.what());}
+  if(!Vote(parent,setup,reason))return false;
+  size_t next=0;
+  while(parent.maximum(next<count)) {
+    const auto start=parent.seconds();CLocalFailure failure;
+    std::vector<DonorRegion> regions;std::vector<Point> missing;std::vector<size_t> slots;
+    std::map<Key,size_t> index;std::vector<DonorSample> values;std::vector<unsigned char> seen;
     try {
-      for (size_t i = next; i < std::min(count, next + batch); ++i) make(i, regions);
-    } catch (const std::exception& e) {
-      failure.Set(2, 0, e.what());
-    }
-    if (!Vote(parent, failure, reason)) {
-      stats.query_seconds += parent.seconds() - start;
-      return false;
-    }
-    auto imported = source.Import(regions, ceiling, live);
-    ++stats.batches;
-    if (!imported.valid) {
-      reason = imported.reason;
-      stats.query_seconds += parent.seconds() - start;
-      if (batch == 1) return false;
-      batch = std::max(size_t(1), batch / 2);
-      ++stats.batch_retries;
-      continue;
-    }
-    try {
-      if (!regions.empty()) {
-        const auto components=reference ? AssociatedExtensions(imported.cells,*reference) : std::vector<Id>{};
-        FrozenField field(std::move(imported.cells), composition, query_timings,components);
-        FieldAccounting accounting{stats,field};
-        ++stats.field_builds;
-        for (size_t i = next; i < std::min(count, next + batch); ++i) use(i, field);
+      for(size_t i=next;i<std::min(count,next+initial);++i)make(i,regions);
+      for(const auto& region:regions) {
+        const Key key{region[0],region[1],region[2]};
+        for(unsigned j=0;j<3;++j)if(!std::isfinite(key[j]) || key[j]!=region[j+3])
+          throw std::invalid_argument("Native3D sample preparation requires finite point footprints.");
+        const auto inserted=index.emplace(key,values.size());if(!inserted.second)continue;
+        const auto hit=cache.find(key);
+        values.push_back(hit==cache.end()?DonorSample{}:hit->second);seen.push_back(hit!=cache.end());
+        if(hit==cache.end()){slots.push_back(inserted.first->second);missing.push_back({key[0],key[1],key[2]});}
       }
-    } catch (const std::exception& e) {
-      failure.Set(2, 0, e.what());
-    }
-    if (!Vote(parent, failure, reason)) {
-      stats.query_seconds += parent.seconds() - start;
-      return false;
-    }
-    next += std::min(batch, count - next);
-    stats.query_seconds += parent.seconds() - start;
+    }catch(const std::exception& error){failure.Set(2,0,error.what());}
+    if(!Vote(parent,failure,reason)){stats.query_seconds+=parent.seconds()-start;return false;}
+    const auto& before=source.Statistics();
+    const double search=before.point_search_seconds,interpolation=before.point_interpolation_seconds;
+    const uint64_t payloads=before.point_payloads;
+    const auto lookupStart=parent.seconds();auto samples=source.SamplePoints(missing,extensions,ceiling,live);++stats.batches;
+    stats.source_point_seconds+=parent.seconds()-lookupStart;stats.source_point_queries+=missing.size();
+    stats.source_point_payloads+=source.Statistics().point_payloads-payloads;
+    stats.source_point_search_seconds+=source.Statistics().point_search_seconds-search;
+    stats.source_point_interpolation_seconds+=source.Statistics().point_interpolation_seconds-interpolation;
+    if(!samples.valid){reason=samples.reason;stats.query_seconds+=parent.seconds()-start;return false;}
+    try {
+      if(samples.samples.size()!=slots.size())throw std::runtime_error("Incomplete original point sample batch.");
+      for(size_t j=0;j<slots.size();++j) {
+        values.at(slots[j])=samples.samples[j];const auto p=missing[j];const Key key{p.x,p.y,p.z};
+        if(cache.size()==MaximumSensorSamples){cache.erase(order.front());order.pop_front();++stats.evictions;}
+        cache.emplace(key,samples.samples[j]);order.push_back(key);
+      }
+      std::function<FieldSample(Point)> query=[&](Point p) {
+        ++stats.requests;
+        try {
+          if(!std::isfinite(p.x) || !std::isfinite(p.y) || !std::isfinite(p.z)) {
+            ++stats.invalid_queries;throw std::runtime_error("Nonfinite native3D prepared point query.");
+          }
+          const auto it=index.find({p.x,p.y,p.z});
+          if(it==index.end()){++stats.invalid_queries;throw std::runtime_error("Undeclared native3D prepared point query.");}
+          const auto i=it->second;const auto& value=values.at(i);
+          if(seen.at(i))++stats.hits;else{++stats.misses;seen[i]=1;}
+          FieldSample answer{value.sensor,value.sensor,value.Key(),value.weights,value.extension_component};
+          if(composition) {
+            const auto composeStart=query_timings?parent.seconds():0;++stats.compositions;
+            try {answer.target=composition(p,answer.sensor);ValidateTensor(answer.target);}
+            catch(...){if(query_timings)stats.composition_seconds+=parent.seconds()-composeStart;throw;}
+            if(query_timings)stats.composition_seconds+=parent.seconds()-composeStart;
+          }
+          return answer;
+        }catch(...){++stats.failures;throw;}
+      };
+      for(size_t i=next;i<std::min(count,next+initial);++i)use(i,query);
+    }catch(const std::exception& error){failure.Set(2,0,error.what());}
+    if(!Vote(parent,failure,reason)){stats.query_seconds+=parent.seconds()-start;return false;}
+    next+=std::min(initial,count-next);stats.query_seconds+=parent.seconds()-start;
   }
   stats.maximum_native_bytes = std::max(stats.maximum_native_bytes, source.Statistics().maximum_work_bytes);
   return true;
@@ -683,7 +686,7 @@ bool WorkingWeights(World& parent, const Owned& cells, DonorImport& source, std:
     PointRegion(Centroid(cell), regions);
     for (auto n : cell.v) PointRegion(n.p, regions);
   };
-  auto use = [&](size_t i, FrozenField& field) { weights[i] = WorkWeights({*ordered[i]}, field).front(); };
+  auto use = [&](size_t i,const std::function<FieldSample(Point)>& query) { weights[i] = WorkWeights({*ordered[i]},query).front(); };
   if (!Samples(parent, cells.size(), source, std::move(composition), make, use, stats, reason, ceiling, live, 8,
                query_timings))
     return false;
@@ -767,8 +770,8 @@ bool ReaderSlices(World& parent, const Owned& cells, const std::vector<DonorCell
   }
   if (!Vote(parent, failure, reason)) return false;
   auto make = [&](size_t i, std::vector<DonorRegion>& regions) { PointRegion(ordered[i].p, regions); };
-  auto use = [&](size_t i, FrozenField& field) {
-    const auto m = field.Query(ordered[i].p).target;
+  auto use = [&](size_t i,const std::function<FieldSample(Point)>& query) {
+    const auto m = query(ordered[i].p).target;
     const std::array<double, 6> values{m.xx, m.xy, m.xz, m.yy, m.yz, m.zz};
     std::copy(values.begin(), values.end(), mesh.metric.begin() + 6 * i);
   };

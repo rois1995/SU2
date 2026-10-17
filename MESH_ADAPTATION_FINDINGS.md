@@ -6310,3 +6310,18 @@ and a reusable frozen-M6 query/weight comparison. No constraint/target change or
 new accepted M6 construction. Prefer canonical interpolation stencils/samples or
 scoped scalar edges to whole donor stars; broader transaction batching still open.
 [Full evidence and qualifications](Handbook/GOAL3_POINT_PREPARATION_REUSE.md).
+
+
+### 2026-10-17 — canonical owner point lookup removes repeated point indexes
+
+Weights/mesh return now query existing immutable source-owner ADTs, receive canonical
+sensor-only samples and retain a bounded memo. Full interpolation and geometry/
+finer/fade/height/q/J/edge/transfer gates unchanged. Source publishers, physical/
+extension priority and full-precision native weights are retained; composition is
+always actual-query work. Same512-cell M6 checks exactly match fresh imports1/2/4
+ranks, no second index builds and3.0–3.9x selected preparation gain.4096 cells MPI4
+match20480 full query answers with capacity eviction,8.74x selected gain. No full
+M6 adaptation/scaling or accepted wing mesh claim. Current MPI/curved-return and
+independent initialized RANS/SA N4/M2 construction/removal/BDF/SA/restart/SU2+CGNS
+checks pass. Broad constructor/uncertainty/reassessment/correction scope remains.
+[Evidence and limits](Handbook/GOAL3_OWNER_POINT_SAMPLES.md).

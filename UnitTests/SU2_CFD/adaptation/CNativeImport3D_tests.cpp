@@ -250,6 +250,9 @@ TEST_CASE("Native3D CFD bridge returns adapted readers and preserves affine BDF2
       std::vector<uint32_t> composed_weights;BridgeStats sampled;
       REQUIRE(WorkingWeights(parent,adapted,source,composed_weights,reason,sampled,composition));
       CHECK(sampled.requests==5*adapted.size());CHECK(sampled.compositions==sampled.requests);CHECK(calls==sampled.requests);
+      CHECK(sampled.field_builds==0);CHECK(sampled.source_point_queries<=sampled.requests);
+      CHECK(CPassiveComm::Allreduce(sampled.source_point_queries,CPassiveComm::Op::SUM,parent.comm)<
+            CPassiveComm::Allreduce(sampled.requests,CPassiveComm::Op::SUM,parent.comm));
       CHECK(CPassiveComm::Allreduce(sampled.hits,CPassiveComm::Op::SUM,parent.comm)>0);
       CReaderSlices composed;BridgeStats returned;REQUIRE(ReaderSlices(parent,adapted,imported.original,reference,composed,reason,returned,composition));
       CHECK(composed.coord==slices.coord);CHECK(composed.elemRows==slices.elemRows);CHECK(composed.firstPoint==slices.firstPoint);

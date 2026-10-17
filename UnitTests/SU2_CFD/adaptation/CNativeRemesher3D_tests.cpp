@@ -345,6 +345,9 @@ TEST_CASE("Native3D remeshes an externally frozen original sensor field without 
         <<"{\"ranks\":"<<world.size<<",\"rank\":"<<world.rank<<",\"cells\":"<<selected.size()
         <<",\"seconds\":"<<elapsed<<",\"cold_seconds\":"<<coldSeconds<<",\"cold_imports\":"<<coldImports
         <<",\"cold_field_builds\":"<<coldBuilds<<",\"imports\":"<<prepared.batches<<",\"field_builds\":"<<prepared.field_builds
+        <<",\"source_point_queries\":"<<prepared.source_point_queries<<",\"source_point_payloads\":"<<prepared.source_point_payloads
+        <<",\"source_point_seconds\":"<<prepared.source_point_seconds<<",\"source_point_search_seconds\":"<<prepared.source_point_search_seconds
+        <<",\"source_point_interpolation_seconds\":"<<prepared.source_point_interpolation_seconds
         <<",\"requests\":"<<prepared.requests<<",\"sensor_hits\":"<<prepared.hits<<",\"compositions\":"<<prepared.compositions
         <<",\"field_build_seconds\":"<<prepared.field_build_seconds<<",\"search_seconds\":"<<prepared.field_search_seconds
         <<",\"composition_seconds\":"<<prepared.composition_seconds<<",\"tracked_calls\":"<<prepared.tracked_calls
