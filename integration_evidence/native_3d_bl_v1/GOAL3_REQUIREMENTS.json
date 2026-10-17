@@ -882,7 +882,38 @@
       "strict_quadrature_seconds_max": 230.564,
       "gradation_seconds_max": 168.894,
       "trials": 7,
-      "next": "Early coarsest-field feasibility and geometry-based integration selection; then original-field reassessment/correction epochs."
+      "next": "Original-field global uncertainty/error-directed work, reassessment and bounded frozen correction epochs; accepted construction still open."
+    },
+    "runtime_geometry_preflight": {
+      "status": "PASS_IDENTICAL_ENDPOINT_AND_CFD_STATE_WITH_SINGLE_TRIAL",
+      "evidence": "integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/production_complexity_geometry_v1/summary.json",
+      "comparison": "integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/production_complexity_geometry_v1/m6_runtime_metric/verification.json",
+      "baseline_checkpoint": "8c781c6b8aacc8174d953379d14f4f0fd0888447",
+      "same_config": true,
+      "CFD_restart_bitwise_equal": true,
+      "metric_seconds_before": 415.967705089,
+      "metric_seconds_after": 16.472085614999997,
+      "metric_CPU_seconds_before": 1480.46171,
+      "metric_CPU_seconds_after": 48.179601999999996,
+      "trials_before": 7,
+      "trials_after": 1,
+      "gradation_sweeps_before": 1218,
+      "gradation_sweeps_after": 1,
+      "strict_builds_after": 0,
+      "MPI_ranks": 4,
+      "accepted_mesh": false,
+      "whole_strategy_complete": false,
+      "uncertainty_proven_bound": false,
+      "estimated_complexity": 790200.4997627288,
+      "heuristic_indicator": 27958.454561979677,
+      "target": 100000,
+      "selected_endpoint": "same coarsest permitted sensor field; unchanged callback and actual-query BL",
+      "limits": [
+        "Contended initialization comparison only, not complete remeshing/scaling.",
+        "No calibrated rare-tail/global error policy or post-refinement correction epochs.",
+        "No general speedup claim for reachable targets or isolated volume-cache gain.",
+        "Composed-field gradation violations remain."
+      ]
     }
   }
 }

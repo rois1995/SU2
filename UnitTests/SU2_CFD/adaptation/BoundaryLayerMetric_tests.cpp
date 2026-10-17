@@ -2480,9 +2480,36 @@ TEST_CASE("Actual native normalization reports uncertainty at intersecting walls
   const auto output=test.ComputeMetric();INFO(output);
   CHECK(output.find("Native3D complexity normalization:")!=std::string::npos);
   CHECK(output.find("proven_error_bound=0")!=std::string::npos);
+  CHECK(output.find("Native3D bounded complexity strategy: nonplanar faceted wall geometry.")!=std::string::npos);
+  CHECK(output.find("0 strict density evaluations.")!=std::string::npos);
   CHECK(std::isfinite(test.solver[FLOW_SOL]->GetMetricComplexityFinal()));
   // The published donor is sensor-only even at a wall; BL composition remains a query-time operation.
   for(auto p=0ul;p<test.Geometry().GetnPointDomain();++p) {
     const auto m=test.Metric(p);for(unsigned d=0;d<3;++d)CHECK(SU2_TYPE::GetValue(m.m[d][d])<1e10);
   }
+}
+
+
+TEST_CASE("Wall coplanarity selects integration without changing geometric queries", "[NativeIntegrationPolicy3D]") {
+  CBoundaryLayerMetric::Wall wall;wall.layer={"wall",.01,1.2,.2};
+  wall.coord={0,0,0,1,0,1,1,1,1,0,1,0};wall.conn={0,1,2,2,0,2,3,3};
+  CBoundaryLayerMetric planar(3,{wall});CHECK(planar.PlanarWalls3D());
+  for(size_t i=0;i<wall.coord.size();i+=3) {wall.coord[i]+=1e8;wall.coord[i+1]-=2e8;wall.coord[i+2]+=3e8;}
+  CBoundaryLayerMetric translated(3,{wall});CHECK(translated.PlanarWalls3D());
+  wall.coord[11]+=.01;CBoundaryLayerMetric bent(3,{wall});CHECK_FALSE(bent.PlanarWalls3D());
+  auto second=wall;second.layer.marker="second";
+  CBoundaryLayerMetric together(3,{second,wall});CHECK_FALSE(together.PlanarWalls3D());
+}
+
+TEST_CASE("Coarsest-field preflight continues toward a reachable planar budget", "[NativeFeasibleComplexity3D]") {
+  if(SU2_MPI::GetSize()!=1)return;
+  const auto mesh=simplex_test::MakeSimplexMesh(3,2,[](const passivedouble* x){return x[2]==0?"wall":"far";});
+  MetricTest test(mesh,"MARKER_HEATFLUX= (wall,0)\nMARKER_FAR= (far)\nADAP_REMESHER= NATIVE_CAVITY\n"
+      "ADAP_SURFACE= YES\nADAP_ISO_CORNER= NO\nADAP_HGRAD= 1.3\nADAP_HMIN= 1e-4\nADAP_HMAX= 1\n"
+      "ADAP_ARMAX= 100\nADAP_COMPLEXITY= 100\nADAP_BL_MARKER= (wall)\nADAP_BL_FIRST_HEIGHT= (.1)\n"
+      "ADAP_BL_GROWTH= (1.2)\nADAP_BL_THICKNESS= (.2)\n",{1,0,0,1,0,1});
+  const auto output=test.ComputeMetric();INFO(output);
+  CHECK(output.find("outside_estimated_bounds")==std::string::npos);
+  CHECK(test.solver[FLOW_SOL]->GetMetricComplexityFinal()==Approx(100).epsilon(.001));
+  CHECK(SU2_TYPE::GetValue(test.Metric(0).m[0][0])>1);
 }

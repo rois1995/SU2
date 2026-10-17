@@ -89,15 +89,16 @@ CNativeComplexity3D::CNativeComplexity3D(CBoundaryLayerMetric& model,std::vector
   Vote(world,failure);statistics.samples=count;
   std::map<Id,size_t> original;std::vector<DonorCell> geometry;
   try {
-    if(transfer_memory::Add(transfer_memory::Bytes(source),transfer_memory::Mul(source.size(),sizeof(DonorCell)+sizeof(Id)+6*sizeof(void*)))>ceiling)
+    if(transfer_memory::Add(transfer_memory::Bytes(source),transfer_memory::Mul(source.size(),sizeof(DonorCell)+sizeof(Id)+6*sizeof(void*)+sizeof(long double)))>ceiling)
       throw std::runtime_error("Complexity source exceeds storage ceiling.");
-    geometry.reserve(source.size());
+    geometry.reserve(source.size());volumes.reserve(source.size());
     for(size_t i=0;i<source.size();++i) {
       auto& row=source[i];auto& v=row.cell.v;
       for(auto node:row.nodes)if(node>=sourceNodes)throw std::runtime_error("Invalid original complexity node.");
       const auto sign=Orientation(v[0].p,v[1].p,v[2].p,v[3].p);
       if(!sign)throw std::runtime_error("Degenerate original complexity cell.");
       if(sign<0){std::swap(v[0],v[1]);std::swap(row.nodes[0],row.nodes[1]);}
+      volumes.push_back(Orientation(v[0].p,v[1].p,v[2].p,v[3].p)/6);
       if(!original.emplace(row.cell.id,i).second)throw std::runtime_error("Duplicate original complexity cell.");
       DonorCell locator;locator.cell=row.cell;locator.sensor.fill({1,0,0,1,0,1});geometry.push_back(locator);
     }
@@ -109,7 +110,7 @@ CNativeComplexity3D::CNativeComplexity3D(CBoundaryLayerMetric& model,std::vector
     const auto draws=sampler->Draw(count,seed);
     for(size_t i=0;i<draws.size();++i)distribution[i%world.size].push_back({i,draws[i].point,draws[i].inverse_pdf});
   }catch(const std::exception& error){failure.Set(2,0,error.what());}Vote(world,failure);
-  size_t held=transfer_memory::Add(transfer_memory::Bytes(source),transfer_memory::Bytes(geometry),
+  size_t held=transfer_memory::Add(transfer_memory::Bytes(source),transfer_memory::Bytes(geometry),transfer_memory::Bytes(volumes),
       transfer_memory::Mul(original.size(),sizeof(Id)+sizeof(size_t)+6*sizeof(void*)));
   bool admitted=false;const auto draws=world.exchange(distribution,&admitted,ceiling,held);
   if(!admitted)failure.Set(3,0,"Complexity proposal distribution exceeds storage ceiling.");Vote(world,failure);
@@ -155,7 +156,7 @@ CNativeComplexity3D::CNativeComplexity3D(CBoundaryLayerMetric& model,std::vector
   uint64_t counts[]={localInside,queries.size()},totals[2];
   SU2_MPI::Allreduce(counts,totals,2,MPI_UNSIGNED_LONG_LONG,MPI_SUM,world.comm);
   if(totals[0]!=totals[1])failure.Set(2,0,"Incomplete original complexity stencil routing.");Vote(world,failure);
-  statistics.inside=totals[0];statistics.retainedBytes=transfer_memory::Add(transfer_memory::Bytes(source),transfer_memory::Bytes(queries));
+  statistics.inside=totals[0];statistics.retainedBytes=transfer_memory::Add(transfer_memory::Bytes(source),transfer_memory::Bytes(queries),transfer_memory::Bytes(volumes));
   for(const auto& q:queries)statistics.retainedBytes=transfer_memory::Add(statistics.retainedBytes,transfer_memory::Bytes(q.geometry));
   statistics.preparationSeconds=world.seconds()-start;
 }
@@ -167,8 +168,8 @@ CNativeComplexity3D::Assessment CNativeComplexity3D::Assess(const std::vector<CB
     if(sensor.size()!=sourceNodes || !(SU2_TYPE::GetValue(core)>0) || !std::isfinite(SU2_TYPE::GetValue(core)))
       throw std::runtime_error("Invalid current complexity trial field/core.");
     const auto backgroundStart=world.seconds();
-    for(const auto& row:source) {
-      const auto& v=row.cell.v;const auto volume=Orientation(v[0].p,v[1].p,v[2].p,v[3].p)/6;
+    for(size_t cell=0;cell<source.size();++cell) {
+      const auto& row=source[cell];const auto volume=volumes[cell];
       long double rootMean=0,meanDet=0,meanDensity=0,condition=0;
       for(auto node:row.nodes)rootMean+=std::cbrt(Determinant(sensor[node],&condition))/4;
       for(const auto& q:BackgroundRule()) {

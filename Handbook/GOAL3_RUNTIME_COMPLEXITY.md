@@ -147,14 +147,28 @@ transfer/viscous accuracy and complete adaptation affordability. Broader donor-
 campaign retention, shared-edge lifetime and independent transaction batching are
 separate recorded work, not implemented by this complexity cache.
 
-## Next connected step
+## Geometry-aware preflight follow-up — current
 
-Avoid paying for an expensive graded field before testing whether even the coarsest
-permitted field fits the budget. Use the same uncertainty policy and actual-query
-BL composition. Also select bounded support integration before unsuccessful strict
-searches on geometrically difficult walls while retaining accurate planar behavior.
-Selection must depend on integration geometry/difficulty, not testcase/solver names.
-Validate that the selected frozen M6 field remains unchanged at the outside endpoint,
-retain planar/reference accuracy and MPI consistency, and measure complete metric
-initialization rather than isolated tensor throughput. Then connect original-source
-freeze/reassessment/correction epochs before claiming the complete strategy.
+The connected follow-up is validated: eligible nonplanar faceted walls select the
+bounded estimator immediately; planar references retain strict accuracy. The
+coarsest bounded/graded original sensor is assessed before expensive trials. Outside
+estimated bounds retains that same endpoint; reachable budgets continue the search
+with total24-callback ceiling. Cached source volumes add explicit payload accounting.
+No field/geometry/fade/height/full-edge/transfer gate changes or higher work limits.
+
+Actual same-config M6 metric415.97->16.47s (summed rank CPU1480.46->48.18s),7->1 trials,
+1218->1 sweeps,51.9M->61330 point visits; strict builds178->0. Exact same estimate/
+uncertainty and CFD restart bytes. Target100000 remains outside the estimated
+790200.50 +/-27958.45 mass; no construction or new accepted mesh. Cold preparation
+5.83->7.69s is now dominant, so no preparation/volume-cache speedup is claimed.
+This is a contended initialization comparison, not full adaptation/scaling evidence.
+Nine connected serial/MPI groups pass including unchanged planar0.05% accuracy,
+reachable-budget actual solver and whole original RAW9 M6 MPI2/4. One owned heavy
+job/build-j1/nice19/threads1,38–40GiB host available; build peak process2.37GiB,
+actual pilot577.72MiB. No aggregate RAM peak claim. All owned handles terminal.
+
+[Implementation, exact comparison, limitations and reproducible evidence](../integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/production_complexity_geometry_v1/README.md).
+Next: calibrate global uncertainty/error-directed work and connect same-original-field
+reassessment/frozen correction epochs before claiming a complete strategy. Do not
+refit on adapted nodes, rerun unchanged rejected construction or add local fallbacks
+without a revised diagnosis. Broader donor/edge/transaction improvements remain open.

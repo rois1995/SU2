@@ -2917,13 +2917,19 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
   profile.Mark(1);
   su2double frozenCore = eigMin, integratedComplexity = 0;
   passivedouble quadratureSeconds=0;
-  unsigned long quadratureBuilds=0,quadratureReused=0;
+  unsigned long quadratureBuilds=0,quadratureReused=0,strictDensityEvaluations=0;
   std::unique_ptr<CNativeComplexity3D> boundedComplexity;
   CNativeComplexity3D::Assessment boundedAssessment;
   bool uncertaintyPolicy=false;
 #if !defined(CODI_FORWARD_TYPE) && !defined(CODI_REVERSE_TYPE)
   uncertaintyPolicy=nativeLayers && nDim==3 && nativeLayers->SupportsCorrectionSupport3D();
 #endif
+  bool boundedGeometry=false;
+  if(uncertaintyPolicy) {
+    const int local=!nativeLayers->PlanarWalls3D();int global=0;
+    SU2_MPI::Allreduce(&local,&global,1,MPI_INT,MPI_MAX,SU2_MPI::GetComm());
+    boundedGeometry=global!=0;
+  }
   double integrationUncertainty=0;
   SU2Complexity::Normalization normalization;
   bool uncertaintySearch=false;
@@ -3101,9 +3107,12 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
           const auto integrationStart=SU2_MPI::Wtime();
           size_t quadratureBytes=0;
           localQuadraturePoints=0;
-          int localLimited=0,globalLimited=0;
-          if(!boundedComplexity)for(auto& cell:integration3D)try {
+          int localLimited=boundedGeometry && !boundedComplexity,globalLimited=0;
+          if(localLimited && rank==MASTER_NODE)
+            cout<<"Native3D bounded complexity strategy: nonplanar faceted wall geometry."<<endl;
+          if(!boundedComplexity && !boundedGeometry)for(auto& cell:integration3D)try {
             auto targetDensity=[&](const CBoundaryLayerMetric::IntegrationPoint3D& point) {
+              ++strictDensityEvaluations;
               CBoundaryLayerMetric::Tensor metric;
               for(unsigned k=0;k<4;++k)for(unsigned i=0;i<3;++i)for(unsigned j=0;j<3;++j)
                 metric.m[i][j]+=point.barycentric[k]*blMetric[cell.nodes[k]].m[i][j];
@@ -3238,14 +3247,21 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
     if (nativeMetric) logScale = fmin(fmax(logScale, absoluteLow), absoluteHigh);
     if(uncertaintyPolicy && absoluteLow<absoluteHigh) {
       uncertaintySearch=true;
-      normalization=SU2Complexity::Normalize(SU2_TYPE::GetValue(complexity),SU2_TYPE::GetValue(absoluteLow),
-          SU2_TYPE::GetValue(absoluteHigh),SU2_TYPE::GetValue(logScale),SU2_TYPE::GetValue(tol),24,
-          [&](double trial,double requested) {
-            // A fixed retained sample set cannot gain accuracy by reevaluating the same field.
-            (void)requested;
-            if(trial!=SU2_TYPE::GetValue(evaluatedLogScale))complexityError(trial);
-            return SU2Complexity::Estimate{SU2_TYPE::GetValue(integratedComplexity),integrationUncertainty};
-          });
+      auto assess=[&](double trial,double requested) {
+        // Fixed retained samples cannot gain accuracy by reevaluating the same field.
+        (void)requested;
+        if(trial!=SU2_TYPE::GetValue(evaluatedLogScale))complexityError(trial);
+        return SU2Complexity::Estimate{SU2_TYPE::GetValue(integratedComplexity),integrationUncertainty};
+      };
+      // A BL budget may already be unattainable at the coarsest permitted sensor; test that before expensive grading.
+      const auto coarse=assess(SU2_TYPE::GetValue(absoluteLow),0);
+      if(coarse.value-coarse.uncertainty>SU2_TYPE::GetValue(complexity))
+        normalization={SU2_TYPE::GetValue(absoluteLow),coarse,SU2Complexity::Status::OutsideBracket,1};
+      else {
+        normalization=SU2Complexity::Normalize(SU2_TYPE::GetValue(complexity),SU2_TYPE::GetValue(absoluteLow),
+            SU2_TYPE::GetValue(absoluteHigh),SU2_TYPE::GetValue(logScale),SU2_TYPE::GetValue(tol),23,assess);
+        ++normalization.trials;
+      }
       logScale=normalization.logScale;error=log(integratedComplexity/complexity);
       bracketed=normalization.status!=SU2Complexity::Status::OutsideBracket;
       return;
@@ -3537,11 +3553,11 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
     globalGradedPoints = totals[0]; globalTensorUpdates = totals[1];
   }
   passivedouble globalQuadratureSeconds=0;
-  unsigned long quadratureCounts[2]={quadratureBuilds,quadratureReused},globalQuadratureCounts[2]={0,0};
+  unsigned long quadratureCounts[3]={quadratureBuilds,quadratureReused,strictDensityEvaluations},globalQuadratureCounts[3]={0,0,0};
   if(nativeLayers && nDim==3) {
     CPassiveComm::Allreduce(&localQuadraturePoints,&quadraturePoints,1,CPassiveComm::Op::SUM);
     CPassiveComm::Allreduce(&quadratureSeconds,&globalQuadratureSeconds,1,CPassiveComm::Op::MAX);
-    CPassiveComm::Allreduce(quadratureCounts,globalQuadratureCounts,2,CPassiveComm::Op::SUM);
+    CPassiveComm::Allreduce(quadratureCounts,globalQuadratureCounts,3,CPassiveComm::Op::SUM);
   }
   double boundedTimes[5]={};uint64_t boundedCounts[3]={};
   if(boundedComplexity) {
@@ -3568,7 +3584,8 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
         const char* statuses[]={"estimated_tolerance","integration_limited","outside_estimated_bounds","trial_limit"};
         cout<<std::setprecision(17)<<"Native3D complexity normalization: status="<<statuses[unsigned(normalization.status)]
             <<" estimate="<<metricComplexityFinal<<" uncertainty_indicator="<<integrationUncertainty
-            <<" requested_rtol="<<tol<<" trials="<<normalization.trials
+            <<" requested_rtol="<<tol<<" trials="<<normalization.trials<<" log_scale="<<SU2_TYPE::GetValue(logScale)
+            <<" frozen_core="<<SU2_TYPE::GetValue(frozenCore)
             <<" provisional="<<(normalization.status!=SU2Complexity::Status::EstimatedTolerance)
             <<" proven_error_bound=0; target remains frozen during remeshing."<<std::setprecision(6)<<endl;
       }
@@ -3585,7 +3602,8 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
             <<" donor_searches_during_trials=0 geometry_queries_during_trials=0"<<std::setprecision(6)<<endl;
       }
       if(nDim==3 && nativeLayers)cout << "Native3D target-density quadrature: " << globalQuadratureSeconds << " s (maximum accumulated rank time), "
-          << globalQuadratureCounts[0] << " cell rule builds, " << globalQuadratureCounts[1] << " exact-target reuses." << endl;
+          << globalQuadratureCounts[0] << " cell rule builds, " << globalQuadratureCounts[1] << " exact-target reuses, "
+          << globalQuadratureCounts[2]<<" strict density evaluations." << endl;
       cout << "Native metric work: " << complexityTrials << " complexity trials, " << totalGradationSweeps
            << " total gradation sweeps, " << globalGradedPoints << " owned-point visits; gradation " << workGlobal[0] << " s, halo " << workGlobal[1]
            << " s, sweep reductions " << workGlobal[2] << " s (maximum accumulated rank times)." << endl;

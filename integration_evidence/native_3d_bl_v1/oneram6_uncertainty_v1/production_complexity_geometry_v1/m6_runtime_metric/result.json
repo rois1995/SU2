@@ -1,0 +1,37 @@
+{
+  "exit_code": 0,
+  "seconds": 29.142173773027025,
+  "command": [
+    "taskset",
+    "-c",
+    "0-3",
+    "nice",
+    "-n",
+    "19",
+    "/usr/bin/time",
+    "-v",
+    "-o",
+    "resources.txt",
+    "timeout",
+    "--kill-after=10s",
+    "600s",
+    "mpirun",
+    "-np",
+    "4",
+    "--bind-to",
+    "none",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD",
+    "run.cfg"
+  ],
+  "provenance_sha256": "3c7248e1014a6cfa157950df576dd8784e458a9688cf790f5d03c9ce1ea950ba",
+  "log_sha256": "1e94e70def07affd674d1a0323c2021fc199629c6038e358384e80b3fed5bd33",
+  "normalization": [
+    "status=outside_estimated_bounds estimate=790200.49976272881 uncertainty_indicator=27958.454561979677 requested_rtol=9.9999999999999995e-07 trials=1 log_scale=-26.272507502573919 frozen_core=9.9999999999999666e-05 provisional=1 proven_error_bound=0; target remains frozen during remeshing."
+  ],
+  "support_correction": [
+    "samples=8192 inside=5326 nonzero=5326 sensor_lower=2.0884618106155486 sensor_upper=2.0884618106155486 sensor_quadrature=2.088461810615549 correction=790198.4113009182 empirical_SE=9319.4848539932264 background_roundoff_indicator=8.9036482106715911e-14 preparation_seconds_max=7.6865769849999985 background_seconds_max=0.22756859100000071 correction_seconds_max=0.005585328999998751 reduction_seconds_max=2.3162999998049827e-05 assessment_seconds_max=0.23319811000000001 retained_bytes_max=15442048 background_determinants=6673898 correction_queries=5326 donor_searches_during_trials=0 geometry_queries_during_trials=0"
+  ],
+  "construction_attempted": false,
+  "accepted_mesh": false,
+  "CFD_steps_requested": 1
+}

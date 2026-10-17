@@ -2837,6 +2837,32 @@ bool CBoundaryLayerMetric::TangentialFloor(const Sample& sample, const su2double
 }
 
 
+bool CBoundaryLayerMetric::PlanarWalls3D() const {
+  if(nDim!=3 || walls.empty())return false;
+  for(size_t wall=0;wall<walls.size();++wall) {
+    const auto& coord=walls[wall].coord;const auto& triangles=data[wall]->elem;
+    if(walls[wall].authority || triangles.size()<3)return false;
+    std::array<long double,3> a{},u{},v{},normal{};long double scale=0;
+    for(auto x:coord)scale=std::max(scale,std::abs((long double)SU2_TYPE::GetValue(x)));
+    for(unsigned j=0;j<3;++j) {
+      a[j]=SU2_TYPE::GetValue(coord[3*triangles[0]+j]);
+      u[j]=(long double)SU2_TYPE::GetValue(coord[3*triangles[1]+j])-a[j];
+      v[j]=(long double)SU2_TYPE::GetValue(coord[3*triangles[2]+j])-a[j];
+    }
+    normal={u[1]*v[2]-u[2]*v[1],u[2]*v[0]-u[0]*v[2],u[0]*v[1]-u[1]*v[0]};
+    const auto length=std::hypot(normal[0],normal[1],normal[2]);
+    if(!(length>0))return false;
+    for(auto& x:normal)x/=length;
+    const auto tolerance=128*std::numeric_limits<double>::epsilon()*scale;
+    for(size_t point=0;point<coord.size()/3;++point) {
+      long double distance=0;
+      for(unsigned j=0;j<3;++j)distance+=normal[j]*((long double)SU2_TYPE::GetValue(coord[3*point+j])-a[j]);
+      if(std::abs(distance)>tolerance)return false;
+    }
+  }
+  return true;
+}
+
 bool CBoundaryLayerMetric::SupportsCorrectionSupport3D() const {
   if(nDim!=3 || walls.empty())return false;
   for(const auto& wall:walls)if(wall.authority || wall.layer.growth<1 || wall.layer.thickness<wall.layer.firstHeight)return false;

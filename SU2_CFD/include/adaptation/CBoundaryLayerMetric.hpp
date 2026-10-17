@@ -219,6 +219,8 @@ class CBoundaryLayerMetric {
 
   struct IntegrationLimit : std::runtime_error { using std::runtime_error::runtime_error; };
   bool SupportsCorrectionSupport3D() const;
+  /*! Roundoff-level coplanarity classification for integration selection only; never changes wall geometry. */
+  bool PlanarWalls3D() const;
 
   /*! Complete faceted-wall support proposal, independent of the sensor/scale. Analytic authority retains
    * its existing integration path. Sampler limits bound work/storage; no metric or error bound is implied. */

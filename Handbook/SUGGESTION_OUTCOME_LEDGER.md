@@ -284,3 +284,29 @@ post-refinement same-original-field correction epochs remain unimplemented.
 Repair-campaign donor retention/shared-edge lifetime/batched transactions are not
 implemented by this normalization cache. Detailed evidence/resources/rejections:
 [Runtime complexity](GOAL3_RUNTIME_COMPLEXITY.md).
+
+
+## 2026-10-17: eliminate repeated work before M6 remeshing
+
+WORKED for the actual outside-budget M6 initializer: test the coarsest permitted
+sensor BEFORE graded scale trials, and use nonplanar geometry to select bounded
+sensor+BL-correction integration before the known-expensive strict search. Metric
+415.97->16.47s (25.25x elapsed), summed rank CPU1480.46->48.18s (30.73x),7->1 trials,
+1218->1 sweeps/51.9M->61330 visits; strict builds178->0. Same estimate790200.4998,
+heuristic uncertainty27958.4546 and byte-identical CFD restart; budget100000 remains
+outside estimated bounds. Preserves same original sensor/clipping/gradation/core,
+actual-query BL/finer demands/fade and every mesh/transfer gate. No silent mass loss.
+
+Accuracy DID NOT improve: same heuristic3.54% indicator, not a proven bound or
+calibrated tolerance. Initialization is no longer blocked, but no accepted mesh or
+post-refinement correction stage is demonstrated. Exact planar0.05% gate, reachable
+budget, original field/clipped trial/reversion and MPI2/4 checks pass. Coarsest
+preflight adds work for reachable targets; no general speedup claim for those.
+Cold preparation5.83->7.69s DID NOT improve in this contended comparison and is now
+the dominant assembly cost. Volume caching removes repeated geometry determinants
+but adds1.23MB max-rank payload; no isolated timing benefit is established.
+
+Resources: one owned heavy job/build-j1/nice19/thread1, host38–40GiB available;
+build peak process2.37GiB/pilot577.72MiB, not aggregate RAM. Foreign CFD untouched.
+Broader repair-campaign donor retention/shared-edge lifetime/batched transactions
+remain NOT implemented. [Exact outcomes and receipts](../integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/production_complexity_geometry_v1/README.md).

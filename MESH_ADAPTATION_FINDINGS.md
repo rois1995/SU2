@@ -6280,3 +6280,20 @@ post-refinement same-original-field correction epochs remain unimplemented.
 Repair-campaign donor retention/shared-edge lifetime/batched transactions are not
 implemented by this normalization cache. Detailed evidence/resources/rejections:
 [Runtime complexity](Handbook/GOAL3_RUNTIME_COMPLEXITY.md).
+
+
+### 2026-10-17 — geometry-aware bounded preflight (Goal3 still incomplete)
+
+Actual same-config four-rank M6 saved-state initializer: metric415.97->16.47s,
+summed rank CPU1480.46->48.18s;7->1 trials/1218->1 sweeps, strict builds178->0.
+Nonplanar faceted geometry chooses bounded sensor+BL correction immediately;
+coarsest-field uncertainty-aware preflight avoids unnecessary graded trials.
+Exact same estimated790200.4998 +/-27958.4546 against100000 and identical CFD
+restart bytes. This is outside-budget initialization, not an accepted mesh,
+normalization-accuracy improvement or complete adaptation/scaling gain. Planar
+reference0.05%, reachable budget and original-field MPI2/4 controls pass. Cold
+preparation7.69s now dominates assembly; no isolated cache benefit claimed.
+One owned heavy job/38–40GiB host available; resource/provenance receipts retained.
+Full geometry/height/positivity/q/J/full-edge/transfer gates unchanged; original-field
+reassessment/correction epochs and difficult accepted construction remain open.
+[Evidence and limitations](integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/production_complexity_geometry_v1/README.md).

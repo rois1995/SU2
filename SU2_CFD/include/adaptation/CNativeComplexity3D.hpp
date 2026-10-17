@@ -41,6 +41,7 @@ class CNativeComplexity3D {
   };
   CBoundaryLayerMetric& layers;
   std::vector<SourceCell> source;
+  std::vector<long double> volumes;
   std::vector<Query> queries;
   size_t sourceNodes,ceiling;
   Statistics statistics;

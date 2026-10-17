@@ -30,13 +30,19 @@ whole frozen M6 MPI2/4 and one actual saved-state M6 initializer pass.
 [Full evidence, rejected experiments and cost](Handbook/GOAL3_RUNTIME_COMPLEXITY.md).
 Actual coarsest-field estimate790200.5 +/-27958.5 against100000 is provisional/
 outside_estimated_bounds; no default5% tolerance, new adapted mesh or transfer.
-Metric415.98s:230.56s strict work before fallback,168.89s grading7 trials; bounded
-prep5.83s/all assessments1.38s. Initialization works but remains unaffordable.
-**Next:** early uncertainty-aware coarsest-field feasibility and geometry-based
-integration selection, preserving planar precision and the SAME selected frozen
-field. Do not add a query-limit ladder. Then original-source finer-mesh reassessment/
-bounded correction epochs; never refit the original field on adapted nodes.
-All owned jobs terminal; both test_driver and standalone SU2_CFD are current.
+**Geometry-aware preflight follow-up validated:** same-config actual M6 metric
+415.97->16.47s, summed rank CPU1480.46->48.18s;7->1 trials/1218->1 sweeps. Same
+coarsest estimate/uncertainty and byte-identical CFD restart. Nonplanar faceted
+walls choose bounded integration immediately; planar accuracy gate remains.
+Reachable-budget solver and original-field MPI2/4 controls pass. Cold support
+preparation7.69s now dominates assembly; no full remeshing/scaling speedup claim.
+[Exact comparison, evidence, resources and limits](integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/production_complexity_geometry_v1/README.md).
+**Next:** global uncertainty/error-directed work and same-original-field finer-mesh
+reassessment/bounded correction epochs. Do not refit on adapted nodes, rerun the
+unchanged rejected construction, add a limit ladder or claim an accepted M6 grid.
+One owned heavy job at a time/build-j1/nice19/threads1/MPI<=4,38–40GiB host available;
+build peak process2.37GiB/pilot577.72MiB, not aggregate RAM. All owned jobs terminal;
+both test_driver and standalone SU2_CFD are current.
 
 Earlier complete-support replay estimates961498/961691 (pooled empirical SE6656),
 not a proven error bound. Tiny-cell conditioning is sparse/inefficient (11–22 hits/

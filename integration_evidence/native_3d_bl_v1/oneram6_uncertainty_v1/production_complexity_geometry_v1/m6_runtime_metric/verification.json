@@ -1,0 +1,86 @@
+{
+  "status": "PASS_IDENTICAL_ENDPOINT_AND_CFD_STATE_WITH_SINGLE_TRIAL",
+  "runtime_result_sha256": "4bc57387cf3cb3368c8fa27e4923a744c1d189bdbafd66f8e51f75a5f006dbf0",
+  "baseline_result_sha256": "f349eeb127dd0300707b8c48f26ffb3b8c0c21dfb4da3ecb5c40dd2c37a164a7",
+  "flow_sha256": "50e8c6f13e3a83d5de8f17845ba8678792cfc4d96d0aa06adf8bccc3648e294a",
+  "helper_sha256": "c15a85c5c0603e42d2593cbeacad4f72baea1c268e8f72320cbf8af4d5749b57",
+  "baseline": {
+    "metric": {
+      "maximum_rank_seconds": 415.967705089,
+      "sum_rank_CPU_seconds": 1480.46171,
+      "maximum_process_lifetime_peak_bytes": 643252224
+    },
+    "metric_build": {
+      "maximum_rank_seconds": 408.367516778,
+      "sum_rank_CPU_seconds": 1458.604758,
+      "maximum_process_lifetime_peak_bytes": 643252224
+    },
+    "complexity_trials": 7,
+    "gradation_sweeps": 1218,
+    "owned_point_visits": 51913424,
+    "support": {
+      "samples": 8192.0,
+      "inside": 5326.0,
+      "nonzero": 5326.0,
+      "sensor_lower": 2.0884618106155486,
+      "sensor_upper": 2.0884618106155486,
+      "sensor_quadrature": 2.088461810615549,
+      "correction": 790198.4113009182,
+      "empirical_SE": 9319.484853993226,
+      "background_roundoff_indicator": 8.903648210671591e-14,
+      "preparation_seconds_max": 5.831043770999997,
+      "background_seconds_max": 1.3278012640000156,
+      "correction_seconds_max": 0.03165411300000187,
+      "reduction_seconds_max": 0.00016364799995471913,
+      "assessment_seconds_max": 1.3827004279999073,
+      "retained_bytes_max": 14207936.0,
+      "background_determinants": 46717286.0,
+      "correction_queries": 37282.0,
+      "donor_searches_during_trials": 0.0,
+      "geometry_queries_during_trials": 0.0
+    }
+  },
+  "candidate": {
+    "metric": {
+      "maximum_rank_seconds": 16.472085614999997,
+      "sum_rank_CPU_seconds": 48.179601999999996,
+      "maximum_process_lifetime_peak_bytes": 605786112
+    },
+    "metric_build": {
+      "maximum_rank_seconds": 9.898447543,
+      "sum_rank_CPU_seconds": 28.637451,
+      "maximum_process_lifetime_peak_bytes": 605786112
+    },
+    "complexity_trials": 1,
+    "gradation_sweeps": 1,
+    "owned_point_visits": 61330,
+    "support": {
+      "samples": 8192.0,
+      "inside": 5326.0,
+      "nonzero": 5326.0,
+      "sensor_lower": 2.0884618106155486,
+      "sensor_upper": 2.0884618106155486,
+      "sensor_quadrature": 2.088461810615549,
+      "correction": 790198.4113009182,
+      "empirical_SE": 9319.484853993226,
+      "background_roundoff_indicator": 8.903648210671591e-14,
+      "preparation_seconds_max": 7.6865769849999985,
+      "background_seconds_max": 0.2275685910000007,
+      "correction_seconds_max": 0.005585328999998751,
+      "reduction_seconds_max": 2.3162999998049827e-05,
+      "assessment_seconds_max": 0.23319811000000001,
+      "retained_bytes_max": 15442048.0,
+      "background_determinants": 6673898.0,
+      "correction_queries": 5326.0,
+      "donor_searches_during_trials": 0.0,
+      "geometry_queries_during_trials": 0.0
+    }
+  },
+  "metric_elapsed_ratio": 25.25288629572243,
+  "metric_CPU_ratio": 30.727977163447722,
+  "limits": [
+    "Contended local initialization comparison, not full remeshing or scaling.",
+    "Maximum process lifetime RSS is not a simultaneous aggregate memory peak.",
+    "Outside-budget estimate remains heuristic; no accepted adapted mesh."
+  ]
+}
