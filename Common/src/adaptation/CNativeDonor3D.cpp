@@ -235,18 +235,21 @@ DonorPatch DonorImport::ImportMetricCells(const std::vector<Cell>& cells, size_t
 DonorPatch DonorImport::ImportSegments(const std::vector<std::array<Point,2>>& segments,size_t ceiling,size_t caller_bytes) {
   return ImportRegions({},nullptr,ceiling,caller_bytes,false,&segments);
 }
+DonorPatch DonorImport::ProbePoints(const std::vector<Point>& points,size_t ceiling,size_t caller_bytes) {
+  return ImportRegions({},nullptr,ceiling,caller_bytes,false,nullptr,&points);
+}
 DonorPatch DonorImport::ImportRegions(const std::vector<DonorRegion>& regions, const std::vector<Cell>* cells,
                                     size_t ceiling, size_t caller_bytes, bool metric_queries,
-                                    const std::vector<std::array<Point,2>>* segments) {
+                                    const std::vector<std::array<Point,2>>* segments, const std::vector<Point>* points) {
   Timer timer(stats.import_seconds, timings);
   ++stats.imports;
   DonorPatch result;
   CLocalFailure failure;
   if (!initialized) failure.Set(1, 0, "Original donor source has not been frozen.");
-  const auto count = segments ? segments->size() : cells ? cells->size() : regions.size();
+  const auto count = points ? points->size() : segments ? segments->size() : cells ? cells->size() : regions.size();
   if (count > MaximumCavityCells) failure.Set(1, 0, "Too many original donor import regions.");
   if (!Vote(failure, result.reason)) { ++stats.rejected; return result; }
-  const auto baseline = transfer_memory::Add(caller_bytes, ResidentBytes(), segments ? transfer_memory::Bytes(*segments) : cells ? transfer_memory::Bytes(*cells) : transfer_memory::Bytes(regions));
+  const auto baseline = transfer_memory::Add(caller_bytes, ResidentBytes(), points ? transfer_memory::Bytes(*points) : segments ? transfer_memory::Bytes(*segments) : cells ? transfer_memory::Bytes(*cells) : transfer_memory::Bytes(regions));
   const auto route_peak = transfer_memory::Add(baseline, ranks->QueryBytes(),
       transfer_memory::Mul(world.size, sizeof(std::vector<Request>) + sizeof(unsigned char)),
       transfer_memory::GrowthBound(transfer_memory::Mul(count, world.size), sizeof(Request)));
@@ -269,10 +272,10 @@ DonorPatch DonorImport::ImportRegions(const std::vector<DonorRegion>& regions, c
     };
     for (size_t i = 0; i < count; ++i) {
       Request request; request.caller = world.rank;
-      if(segments) {
-        const auto points=segments->at(i);
-        for(Point p:points)for(double x:{p.x,p.y,p.z})if(!std::isfinite(x))throw std::invalid_argument("Nonfinite original segment query.");
-        request.region=SegmentBounds(points[0],points[1]);request.tetra[0]=points[0];request.tetra[1]=points[1];
+      if(points || segments) {
+        const auto ends=points?std::array<Point,2>{points->at(i),points->at(i)}:segments->at(i);
+        for(Point p:ends)for(double x:{p.x,p.y,p.z})if(!std::isfinite(x))throw std::invalid_argument("Nonfinite original segment query.");
+        request.region=SegmentBounds(ends[0],ends[1]);request.tetra[0]=ends[0];request.tetra[1]=ends[1];
         request.segment=true;request.tetrahedral=true;
       } else request.region = cells ? Bounds(cells->at(i)) : regions[i];
       if (cells) {
@@ -375,7 +378,7 @@ DonorPatch DonorImport::ImportRegions(const std::vector<DonorRegion>& regions, c
   }
   if (!admitted) failure.Set(3, 0, "Original donor payload transport exceeds budget.");
   if (received.size() > MaximumDonors) failure.Set(1, 0, "Original donor union exceeds patch budget.");
-  if (count && received.empty()) failure.Set(1, 0, "No original donor intersects requested regions.");
+  if (count && received.empty() && !points) failure.Set(1, 0, "No original donor intersects requested regions.");
   if (!Vote(failure, result.reason)) { ++stats.rejected; return result; }
   std::sort(received.begin(), received.end(), [](const auto& a, const auto& b) { return a.Key() < b.Key(); });
   stats.payloads += received.size();

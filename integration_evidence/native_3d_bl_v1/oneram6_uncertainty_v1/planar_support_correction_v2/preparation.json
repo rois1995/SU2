@@ -1,0 +1,39 @@
+{
+  "scope": "Complete tube of an embedded unit-square wall, h0=.1/g1/T.2; all face/edge/vertex regions, original sensor2I/core2.",
+  "samples": 8192,
+  "seed": 449,
+  "correction_reference": 10.71931983514507,
+  "independent_reference_order32_64_difference": 0.0,
+  "sensor_integral": 3.1819805153394642,
+  "source_volume": 1.125,
+  "proposal": {
+    "wall_faces": 2,
+    "wall_edges": 5,
+    "wall_vertices": 4,
+    "radius": 0.2,
+    "primitive_proposal_masses": [
+      3.4641016151377544,
+      2.176559237081062,
+      0.2902078982774749
+    ],
+    "positive_components": 10,
+    "minimum_effective_component_probability": 0.012232942191360688,
+    "preparation_seconds": 0.011188759002834558
+  },
+  "pdf_checks": [
+    15832,
+    24342,
+    1586
+  ],
+  "maximum_selected_component_pdf_excess": 0.0,
+  "sha256": {
+    "original.bin": "7921329f9ab9241497e85bdb81dd778931b996814b51db7e83711df2e0c8aa86",
+    "wall.dat": "aca3bcf0830769bc807ec5449af1a2315d619def102b9f82e33dfb8028be46ba",
+    "queries.bin": "a5b850bc3265b6cbdfb0c14560ead32538ee9f9d86135392c8589c85b28d3574",
+    "samples.npz": "e0e0ce9f5c01e7161b5e9dfad26b0124ffef5c596a0c70e2afc513c49f4ec2fd"
+  },
+  "producer_sha256": {
+    "integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/correction_planar.py": "177e8f6ea89268e9e56ab1bf604650279c0f44f8c5892f40a86335831c60ca22",
+    "integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/correction_support.py": "31b712b581075d5e7d1e88cda9f404b1d3e13427b366c9779f406ae86d34d540"
+  }
+}

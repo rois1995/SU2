@@ -2687,3 +2687,27 @@ TEST_CASE("Regional field service resolves large distributed sources and closes 
   catch(const std::exception& e){failure.Set(1,0,e.what());}
   CHECK_FALSE(world.elect(failure).any);
 }
+
+TEST_CASE("Native MPI point probes distinguish complete outside searches from failed imports", "[NativeDistributed3D][NativeDonorPointProbe3D]") {
+  World world(SU2_MPI::GetComm());const auto fixture=Box();std::vector<DonorCell> original;
+  for(const auto& cell:fixture.patch.cells)if(cell.id%world.size==unsigned(world.rank)) {
+    DonorCell row;row.cell=cell;row.sensor.fill({1,0,0,1,0,1});original.push_back(row);
+  }
+  DonorImport source(world);std::string reason;REQUIRE(source.Build(original,reason));
+  const auto outside=source.ProbePoints(world.rank==0?std::vector<Point>{{2,2,2}}:std::vector<Point>{});
+  REQUIRE(outside.valid);CHECK(outside.cells.empty());
+  const auto strict=source.ImportSegments(world.rank==0?std::vector<std::array<Point,2>>{{Point{2,2,2},Point{2,2,2}}}:std::vector<std::array<Point,2>>{});
+  CHECK_FALSE(strict.valid);
+  const Point point{.23,.31,.41};
+  const auto inside=source.ProbePoints(world.rank==world.size-1?std::vector<Point>{point}:std::vector<Point>{});
+  REQUIRE(inside.valid);
+  if(world.rank==world.size-1) {
+    CHECK_FALSE(inside.cells.empty());
+    for(const auto& row:inside.cells){std::array<long double,4> weights{};const auto& v=row.cell.v;
+      CHECK(Barycentric({v[0].p,v[1].p,v[2].p,v[3].p},point,weights));}
+  }else CHECK(inside.cells.empty());
+  const auto refused=source.ProbePoints(world.rank==0?std::vector<Point>{{2,2,2}}:std::vector<Point>{},1);
+  CHECK_FALSE(refused.valid);
+  const auto invalid=source.ProbePoints(world.rank==world.size-1?std::vector<Point>{{NAN,0,0}}:std::vector<Point>{});
+  CHECK_FALSE(invalid.valid);
+}

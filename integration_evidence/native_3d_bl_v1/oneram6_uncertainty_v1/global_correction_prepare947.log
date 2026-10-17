@@ -1,0 +1,10 @@
+/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/correction_support.py:157: RuntimeWarning: divide by zero encountered in divide
+  if np.any(above):mass[above]+=(np.log(r[above]/split)/b if k==0 else (r[above]**k-split**k)/(b*k))
+Traceback (most recent call last):
+  File "integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/correction.py", line 121, in <module>
+    elif sys.argv[1]=='prepare':prepare(sys.argv[2],int(sys.argv[3]),int(sys.argv[4]),None if len(sys.argv)<6 else int(sys.argv[5]))
+  File "integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/correction.py", line 45, in prepare
+    folder.mkdir();start=time.monotonic();selfcheck();geometry_selfcheck(folder/'geometry_selfcheck');manifest=json.loads((SHARED/'manifest.json').read_text())
+  File "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/correction_support.py", line 158, in selfcheck
+    assert np.allclose(mass/float(inverse_height_moments(h0,growth,R)[k]),u,rtol=3e-13,atol=3e-13)
+AssertionError

@@ -163,3 +163,35 @@ separate coarsest-sensor comparison avoids a second geometry pass; not a product
 cache or complete root speedup. Peak process audit46.4MiB/preparation279.4MiB/
 build2.37GiB, zero swaps;113.4MiB reproducible export removed after validation.
 No expensive references or CFD repeated. See GOAL3_COMPLEXITY_SUPPORT_BOUNDS.md.
+
+
+## Sensor integral plus full-support correction — bounded replay outcome
+
+The suggested decomposition WORKS as a global experimental estimator of the
+unchanged original field. Two independent8192-sample seeds give961498/961691
+including sensor152994; pooled empirical SE6656, not a proven error bound. Saved
+whole-volume Q18=780726 is18.81% below their mean. Independent planar face/edge/
+corner/fade integral and point density pass MPI1/2/4; M6 original-P1 densities
+agree<=7.22e-15 against independent arithmetic and saved rows match MPI2/4.
+This is no production tolerance/root/accepted-grid qualification.
+
+It DOES NOT WORK efficiently as a per-tiny-cell estimator:16384 samples per saved
+88/157/329 yield only22/16/11 source hits and38.42%/2.03%/24.79% reference errors.
+All indicators flag sparsity; broad3SE covers these observed errors, not a tail
+certificate. No sample-limit escalation, expensive reference ladder or CFD rerun.
+
+The expected query savings do NOT yet establish elapsed-time gains. First M6
+preparation23.17s (PDF16.86s/static5.31s), native2.74s including index2.03s; second
+native2.97s. This broadly matches the earlier complete cheap volume audit cost,
+while addressing missed-support risk differently. Reusable geometry/query PDFs
+exist in immutable replay files; production scale/campaign index retention remains
+unimplemented. Point routing reuses the existing donor service; new complete
+outside probes preserve strict existing-import behavior. This is not delivery of
+the broader1–3 repair-campaign/cache/transaction performance package.
+
+Rejected inverse-endpoint and coplanar-sector drafts are archived. Stable common
+edge-plane/half-angle frames pass the independent square tube check. Legacy
+`correction.py` remains unchanged. One heavy job at a time, nice19/thread1/MPI<=4;
+replay peak process383–667MiB/build2.35GiB, zero swaps, host~40GiB available.
+No aggregate-memory/scaling or lifecycle claim. Detailed method and all receipts:
+[full-support correction](GOAL3_SUPPORT_CORRECTION.md).

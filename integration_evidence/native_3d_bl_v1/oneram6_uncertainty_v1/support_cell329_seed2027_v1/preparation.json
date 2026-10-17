@@ -1,0 +1,60 @@
+{
+  "scope": "Faceted triangular wall support with face/edge/vertex mixture; actual target is evaluated independently in native code.",
+  "seed": 2027,
+  "samples": 16384,
+  "cell": 329,
+  "domain": "integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/support_cell329_seed2027_v1/original_cell.bin",
+  "domain_sha256": "a9bdad836da3c3faf909e15054279f3d7c4980e8420ff3601b80b73445e1070d",
+  "queries_sha256": "044888a48aa2b9da62908c1779a1d1adb7abf50b88dfa24f88d24703adc2c2f9",
+  "proposal_sha256": "768a79b5f46cf5401eb33fd2cc95f0f36c5177104c4be319f18b9e062791ca03",
+  "preparation_seconds": 16.776288700988516,
+  "proposal": {
+    "wall_faces": 38800,
+    "wall_edges": 58305,
+    "wall_vertices": 19506,
+    "radius": 0.01,
+    "primitive_proposal_masses": [
+      390.2592032378625,
+      3.4764340903595152,
+      8.710874774055855e-06
+    ],
+    "positive_components": 41,
+    "minimum_effective_component_probability": 2.8012646108687356e-12,
+    "preparation_seconds": 5.16738687409088
+  },
+  "pdf_checks": [
+    153022,
+    261973,
+    25788
+  ],
+  "pdf_seconds": 5.73890641797334,
+  "maximum_selected_component_pdf_excess": 6.903366767119223e-13,
+  "sensor": {
+    "sensor_q18": 0.1580041264824691,
+    "sensor_lower": 0.1552328612294439,
+    "sensor_upper": 0.15915070549473542
+  },
+  "reference": {
+    "value": 0.2605341237765145,
+    "sha256": {
+      "integration_evidence/native_3d_bl_v1/oneram6_density_reference_v1/cell329/order128_apex0/result.json": "060f01c2a0000644fe792472a5f94e0089f338b182dab2fa6b862edf7050e143",
+      "integration_evidence/native_3d_bl_v1/oneram6_density_reference_v1/cell329/order128_apex3/result.json": "2fb16e91330ec5934ae81e06ba899ad49532fb6e4a3d37646af53071328994ec"
+    }
+  },
+  "uncertainty": "Empirical sample variance is a heuristic, not a proven error/confidence bound. Ideal continuous proposal coverage does not certify floating membership/PDF.",
+  "producer_original_paths": {
+    "integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/support_cell329_seed2027_v1/producers/support_correction.py": "integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/support_correction.py",
+    "integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/support_cell329_seed2027_v1/producers/correction_support.py": "integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/correction_support.py",
+    "integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/support_cell329_seed2027_v1/producers/support_bound.py": "integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/support_bound.py",
+    "integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/support_cell329_seed2027_v1/producers/audit_sensor_mass.py": "integration_evidence/native_3d_bl_v1/oneram6_frozen_field_v1/audit_sensor_mass.py"
+  },
+  "sha256": {
+    "integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/support_cell329_seed2027_v1/producers/support_correction.py": "776857409a7e59146c64605cfdfe573f0d42fefeedc63fea7e3ef30dfdf89d6a",
+    "integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/support_cell329_seed2027_v1/producers/correction_support.py": "31b712b581075d5e7d1e88cda9f404b1d3e13427b366c9779f406ae86d34d540",
+    "integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/support_cell329_seed2027_v1/producers/support_bound.py": "6e0a983736c152ae10694641fbce4d97a0b4d93d7e6aeb61e5b8b0ddd7ffe8de",
+    "integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/support_cell329_seed2027_v1/producers/audit_sensor_mass.py": "3bbc5c4f6e0dc9f8331eaf330d2faf72c1042165a7e35206c68e412503ef91ec",
+    "integration_evidence/native_3d_bl_v1/oneram6_quadrature_v1/captured_cells_v1/cell329/replay.dat": "2d15d275a7e4cafe145130a675641dfe90f373824b6debaa5a02d5ac8b1aba86",
+    "integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/correction_domain_v1/manifest.json": "9f966208245ec8ea9ae51e5629575d85c642e48bc27fe29b50b5d5a759e4bb24",
+    "integration_evidence/native_3d_bl_v1/oneram6_frozen_field_v1/sensor_mass_audit.json": "c92c4915b55b0c10de6785c9813255e7fda35d98de091a8fd4edcd7eaf8c2748"
+  }
+}

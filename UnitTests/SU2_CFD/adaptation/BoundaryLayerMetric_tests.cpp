@@ -1580,6 +1580,8 @@ TEST_CASE("Planar wall preserves a finer rotated tangent field across its source
 }
 
 
+#include "NativeCorrectionReplay3D.hpp"
+
 TEST_CASE("Replay a complete faceted wall volume-integration input without CFD", "[.][NativeFacetedVolumeReplay3D]") {
   const char* path=std::getenv("SU2_NATIVE_BL_REPLAY");REQUIRE(path!=nullptr);
   std::ifstream input(path);std::string magic;unsigned version=0;size_t points=0,faces=0;
@@ -1611,6 +1613,10 @@ TEST_CASE("Replay a complete faceted wall volume-integration input without CFD",
   }
   REQUIRE(bool(input));input>>std::ws;REQUIRE(input.eof());
   CBoundaryLayerMetric layers(3,{std::move(wall)});
+  if(const char* domain=std::getenv("SU2_NATIVE_BL_CORRECTION_DOMAIN")) {
+    const char* queries=std::getenv("SU2_NATIVE_BL_CORRECTION_QUERIES");REQUIRE(queries);
+    REQUIRE_NOTHROW(SU2NativeBLReplay::Correction(layers,domain,queries));return;
+  }
   if(const char* queries=std::getenv("SU2_NATIVE_BL_WALL_PRISMS")) {
     // Disjoint original-cell subsets give a lower mass; this fixture never normalizes or certifies a mesh.
     std::ifstream stream(queries,std::ios::binary|std::ios::ate);REQUIRE(bool(stream));

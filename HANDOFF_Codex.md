@@ -14,28 +14,29 @@ MPI, match normalization to integration uncertainty and reuse geometry across
 scale trials. No post-freeze changes during local operations, finer-demand loss,
 coarse wall-tensor spreading, hard-normal reset, fade/noise0/gate changes.
 
-New numerical feasibility evidence: the strong BL demand in disjoint original
-M6 wall-cell subsets alone estimates384179/382098 on two16384-sample seeds.
-Conditional99% simultaneous statistical lower estimates364473/362392 exceed the
-100000 target by at least262.39%. MPI1/4 match every actual query. Not an outward
-machine certificate/full composed integral/accepted mesh. Refinement cannot lower
-the continuum demand of the SAME frozen field; it may still ease integration.
-Finite coarse support envelopes were too loose; supporting-plane floor inconclusive.
-Do not silently change budget/BL constraints or add another fallback. Next: use
-this feasibility diagnosis to reconsider bounded global initialization/out-of-range
-normalization, while retaining all original gates. No new production policy yet.
-[Derivation, negative experiments, work/RAM and receipts](Handbook/GOAL3_COMPLEXITY_SUPPORT_BOUNDS.md).
+New bounded full-support BL-correction experiment is complete as a REPLAY:
+two8192-sample seeds estimate total961498/961691, pooled empirical SE6656;
+this is a heuristic, not a proven global error bound. Sensor-only mass remains
+152994. Independent finite-square face/edge/corner/fade reference passes MPI1/2/4;
+every inside M6 original-P1 sensor density independently agrees<=7.22e-15 and all
+M6 rows match MPI2/4. Tiny-cell conditioning is sparse/inefficient (11–22 source
+hits/16384); reference errors2–38%, broad indicators cover them but do not qualify
+SEM tails. Static proposal/PDF preparation dominates23s versus~3s native kernel;
+no total/lifecycle speedup. Rejected drafts/producers retained. New exact point
+footprints reuse existing donor service; strict imports unchanged, affected controls
+pass. No CFD/accepted mesh or production normalization coupling.
+[Method, evidence, limitations and resources](Handbook/GOAL3_SUPPORT_CORRECTION.md).
 
-Complete cheap M6 volume audit now covers all303359 cells/6.674M query points:
-composed Q4/Q18=681173/780726, absolute-cell-difference sum110684. NOT calibrated
-accuracy:329 reference error39.35% despite rule difference2.22e-6. Sensor Q18 agrees
-with independent whole audit2.22e-16 relative. Kernel26.24s MPI4, no CFD; source
-snapshot/compact results retained and113.4MiB temporary export removed.
-Shared experimental controller now accepts a separately assessed global minimum.
-35 assertions and actual lower-contribution MPI1/2/4 reductions/independent seed
-pass;100000 excluded in4 bound-only scale checks, unknown upper mass stays infinite.
-Invalid one-rank query rejects collectively. No root/full mass/production coupling
-or mesh claim. Details in the support-bounds topic above; no new heavy jobs live.
+Separate strong-BL subset lower estimates364473/362392 already exceed100000 under
+conditional99% simultaneous statistical assumptions (not machine certificates).
+Refinement cannot lower the continuum demand of the same frozen field. Finite
+upper envelopes were too loose; supporting-plane floor inconclusive. Complete
+Q4/Q18 audit covers303359 cells/6.674M points but misses thin mass (329 error39.35%
+vs tiny rule indicator). Shared experimental one-sided controller/35 assertions
+and MPI1/2/4 reductions qualify its scope, not production. Next: connect a bounded,
+calibrated global provider to explicit uncertainty-aware normalization/stages;
+handle unattainable budget visibly, without changing BL/target/gates silently.
+[Earlier support bounds and feasibility](Handbook/GOAL3_COMPLEXITY_SUPPORT_BOUNDS.md).
 
 Current production normalization is UNCHANGED. Shared experimental controller and
 3-cell MPI1/4 priority reductions agree but correctly return integration_limited
@@ -56,7 +57,7 @@ edges pass45/75 queries instead of65536 exhausted, reference differences9.58e-12
 2.28e-12;29 affected3D/8 existing2D controls and original scalar cold/warm checks.
 All gates unchanged. [Exact strategy/source/evidence](Handbook/GOAL3_LOCAL_FEATURE_PRECISION.md).
 
-**All owned jobs terminal.** construction_interior_edge_v1 progresses past both
+**Construction replay terminal.** construction_interior_edge_v1 progresses past both
 known edge failures and makes447 global INTERNAL first-row publications/1788 work,
 then rejects at the unchanged300s budget.313.21s launcher/300.65s backend, no final
 adapted mesh/CFD step/transfer or normalized-budget proof. Input CFD state retained.
@@ -71,7 +72,7 @@ executable older and must be rebuilt before CFD validation.
 
 ## Remaining evidence and scope
 
-No accepted M6 grid, complete composed mass, calibrated global error/production
+No accepted M6 grid, rigorously qualified complete mass, calibrated global error/production
 normalization, actual finer-mesh reassessment or lifecycle improvement yet. Need
 defensible uncertainty/absolute work allocation before further mechanisms.
 Reference sources/failed approaches remain preserved. Final suggestion-by-suggestion
@@ -114,7 +115,7 @@ edit, no repeated unchanged failures/limit ladders, push reviewable work. Keep
 handbooks compact with detailed linked topics. Announce full case folder paths.
 One owned heavy job, low priority/thread1/build-j1, locally available MPI<=4.
 Check host contention/RAM and live handles. Latest host~40GiB available; recheck.
-Exact edge reference~49MiB processRSS, controls~68MiB observed; these are not whole
-mesh/aggregate peaks. Root/tmp nearly full: use build-integrated-v2/compile-tmp
+Latest correction replay peaks383–667MiB per process/build2.35GiB, zero swaps;
+these are not aggregate or whole-lifecycle peaks. All owned jobs terminal. Root/tmp nearly full: use build-integrated-v2/compile-tmp
 on4TB. Do not kill unrelated processes or request cluster jobs overnight.
 Goal4 inactive; full physical unsteady3D/general CAD/mixed volumes separate scope.

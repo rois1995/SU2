@@ -1,0 +1,148 @@
+{
+  "scope": "Faceted triangular wall support with face/edge/vertex mixture; actual target is evaluated independently in native code.",
+  "seed": 3557,
+  "samples": 8192,
+  "cell": null,
+  "domain": "integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/correction_domain_v1/original.bin",
+  "domain_sha256": "391d190e6c177d5c71f6c5bd544bfec265637ef142cfcfcafeb7e68b87e95e5a",
+  "queries_sha256": "639a40957cab62186b52c42342d7033bd9ae16ced93265ad8973300a8b15f520",
+  "proposal_sha256": "5921332e2bdb074485b5eedaa779d6d159f8593a226aacdd6c2929c1782e9751",
+  "preparation_seconds": 24.576605627080426,
+  "proposal": {
+    "wall_faces": 38800,
+    "wall_edges": 58305,
+    "wall_vertices": 19506,
+    "radius": 0.01,
+    "primitive_proposal_masses": [
+      1570914.5892691063,
+      182822.67012828047,
+      482013.8183162915
+    ],
+    "positive_components": 116611,
+    "minimum_effective_component_probability": 1.1484081491116705e-28,
+    "preparation_seconds": 5.035135683021508
+  },
+  "pdf_checks": [
+    10856723,
+    14735174,
+    1811763
+  ],
+  "pdf_seconds": 18.641062860027887,
+  "maximum_selected_component_pdf_excess": 5.1243453924598725e-12,
+  "sensor": {
+    "status": "PASS_SENSOR_ONLY_DIAGNOSTIC_AUDIT",
+    "cells": 303359,
+    "volume": 2088461.8106155486,
+    "sensor_lower": 142421.03243972364,
+    "sensor_upper": 154272.45539078777,
+    "sensor_q18": 152994.2009390569,
+    "sensor_q4": 153055.97807872723,
+    "relative_q4_q18_change": 0.0004037874592053292,
+    "raw_constant_cells": 0,
+    "raw_constant_volume_fraction": 0.0,
+    "raw_constant_sensor_q18": 0.0,
+    "possible_wall_box_cells": 213106,
+    "wall_box_excluded_cells": 90253,
+    "wall_box_possible_volume": 0.22417540882618908,
+    "wall_box_possible_sensor_q18": 11733.95502341647,
+    "ranks": [
+      {
+        "rank": 0,
+        "cells": 74871,
+        "possible_wall_box_cells": 20458,
+        "sensor_q18": 134518.81003995056,
+        "sensor_lower": 124301.56042534029,
+        "sensor_upper": 135649.2982237459
+      },
+      {
+        "rank": 1,
+        "cells": 78226,
+        "possible_wall_box_cells": 63709,
+        "sensor_q18": 7762.852554752361,
+        "sensor_lower": 7609.239999965343,
+        "sensor_upper": 7824.855674386435
+      },
+      {
+        "rank": 2,
+        "cells": 77132,
+        "possible_wall_box_cells": 66552,
+        "sensor_q18": 6040.974093998433,
+        "sensor_lower": 5929.446270234477,
+        "sensor_upper": 6097.098161634458
+      },
+      {
+        "rank": 3,
+        "cells": 73130,
+        "possible_wall_box_cells": 62387,
+        "sensor_q18": 4671.564250355541,
+        "sensor_lower": 4580.785744183522,
+        "sensor_upper": 4701.203331020969
+      }
+    ],
+    "failed_cells": [
+      {
+        "cell": 88,
+        "rank": 3,
+        "volume": 9.712692711746201e-08,
+        "sensor_lower": 0.0411745494539356,
+        "sensor_upper": 0.041680589171115355,
+        "sensor_q18": 0.04148757198396644,
+        "sensor_q4": 0.04148777442607253,
+        "scope": "Sensor part only; not an upper bound on full sensor+BL cell contribution."
+      },
+      {
+        "cell": 157,
+        "rank": 1,
+        "volume": 6.734017589591492e-08,
+        "sensor_lower": 0.030919062843190542,
+        "sensor_upper": 0.0313808698930059,
+        "sensor_q18": 0.03130859160507286,
+        "sensor_q4": 0.03130856093999913,
+        "scope": "Sensor part only; not an upper bound on full sensor+BL cell contribution."
+      },
+      {
+        "cell": 329,
+        "rank": 0,
+        "volume": 9.349228862982572e-07,
+        "sensor_lower": 0.15523286122944416,
+        "sensor_upper": 0.15915070549473567,
+        "sensor_q18": 0.1580041264824693,
+        "sensor_q4": 0.15800634528171414,
+        "scope": "Sensor part only; not an upper bound on full sensor+BL cell contribution."
+      }
+    ],
+    "bound_derivation": "For the effective symmetric P1 sensor A, det(A)^(1/3) is concave. Jensen on t^(3/2) gives integral sqrt(det(A)) >= V*(mean nodal det(A)^(1/3))^(3/2). Concavity of sqrt gives integral sqrt(det(A)) <= V*sqrt(mean det(A)). det(A) is degree3 in barycentrics, whose mean the18-point positive Duffy rule integrates exactly in exact arithmetic. Checked all barycentric moments through degree3. Floating outputs are diagnostic analytic bounds, not outward-rounded machine certificates. These bounds do not include BL composition.",
+    "geometry_derivation": "A tetrahedron/whole-wing AABB separation exceeding thickness excludes every faceted wall triangle. Padding is conservative. Overlap only marks possible support; it does not prove an actual band intersection. Scope is this faceted wing, not analytic CAD proxies.",
+    "scope": "Original captured trial1, exact owning-rank raw9 matrices and original sorted cells. Sensor-only quadrature/bounds and conservative wall-box exclusion. No full BL integral, global full-density accuracy, new stopping policy, accepted adaptation or performance qualification.",
+    "sha256": {
+      "checkpoint": "7f05f56cb19f1aaaa06207fc1aa0c999b17283fed48aef8a613316377b1c4d5b",
+      "capture_proof": "41aef3a9253989cadd3e98637b5c58feca5e143aa0b49c784e15ca5dca76d07c",
+      "helper": "3bbc5c4f6e0dc9f8331eaf330d2faf72c1042165a7e35206c68e412503ef91ec",
+      "audit_arrays": "8530802ec52270d44c1e4695a0b09fd5e132dcef0d2eb127a8215174a7d9c22b",
+      "mesh": "8c839170eb5e359f7de6a41434aa6a9c2d620053f37de6d9360bd04d2a63088b",
+      "eigensolver_source": "34273feae289c1e816259cedc7f5a449d273b72a8b4b9f4e16e0a8aad7897446"
+    },
+    "full_goal3_complete": false,
+    "capture_proof_reuse": {
+      "previous_sha256": "813f687b3f53955280d1040bd787248a7e30085d0ccb4940cd572fe25f40ac58",
+      "reason": "Capture revalidated after excluding irrelevant UnitTests context hashes; actual CFD producer, inputs, complete raw arrays and packed checkpoint verified unchanged. No numerical audit repeated."
+    }
+  },
+  "reference": null,
+  "uncertainty": "Empirical sample variance is a heuristic, not a proven error/confidence bound. Ideal continuous proposal coverage does not certify floating membership/PDF.",
+  "producer_original_paths": {
+    "integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/global_correction_seed3557_v1/producers/support_correction.py": "integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/support_correction.py",
+    "integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/global_correction_seed3557_v1/producers/correction_support.py": "integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/correction_support.py",
+    "integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/global_correction_seed3557_v1/producers/support_bound.py": "integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/support_bound.py",
+    "integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/global_correction_seed3557_v1/producers/audit_sensor_mass.py": "integration_evidence/native_3d_bl_v1/oneram6_frozen_field_v1/audit_sensor_mass.py"
+  },
+  "sha256": {
+    "integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/global_correction_seed3557_v1/producers/support_correction.py": "776857409a7e59146c64605cfdfe573f0d42fefeedc63fea7e3ef30dfdf89d6a",
+    "integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/global_correction_seed3557_v1/producers/correction_support.py": "31b712b581075d5e7d1e88cda9f404b1d3e13427b366c9779f406ae86d34d540",
+    "integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/global_correction_seed3557_v1/producers/support_bound.py": "6e0a983736c152ae10694641fbce4d97a0b4d93d7e6aeb61e5b8b0ddd7ffe8de",
+    "integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/global_correction_seed3557_v1/producers/audit_sensor_mass.py": "3bbc5c4f6e0dc9f8331eaf330d2faf72c1042165a7e35206c68e412503ef91ec",
+    "integration_evidence/native_3d_bl_v1/oneram6_quadrature_v1/captured_cells_v1/cell329/replay.dat": "2d15d275a7e4cafe145130a675641dfe90f373824b6debaa5a02d5ac8b1aba86",
+    "integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/correction_domain_v1/manifest.json": "9f966208245ec8ea9ae51e5629575d85c642e48bc27fe29b50b5d5a759e4bb24",
+    "integration_evidence/native_3d_bl_v1/oneram6_frozen_field_v1/sensor_mass_audit.json": "c92c4915b55b0c10de6785c9813255e7fda35d98de091a8fd4edcd7eaf8c2748"
+  }
+}

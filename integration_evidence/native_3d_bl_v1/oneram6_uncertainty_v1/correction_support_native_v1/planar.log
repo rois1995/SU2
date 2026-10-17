@@ -1,0 +1,9 @@
+Traceback (most recent call last):
+  File "<stdin>", line 5, in <module>
+  File "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/correction_planar.py", line 29, in prepare
+    fixture.write_text('\n'.join(body)+'\n');proposal=Proposal(fixture)
+  File "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/correction_support.py", line 48, in __init__
+    self.edge_center[valid]=-unit((self.inward1+self.inward2)[valid]);self.edge_side[valid]=unit(np.cross(self.axis[valid],self.edge_center[valid]))
+  File "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/correction_support.py", line 12, in unit
+    norm=np.sqrt(np.sum(x*x,axis=-1));assert np.all(norm>0)
+AssertionError
