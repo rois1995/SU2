@@ -1,0 +1,70 @@
+{
+  "exit_code": 0,
+  "seconds": 2.465349897975102,
+  "command": [
+    "/usr/bin/time",
+    "-v",
+    "-o",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/chord_active_support_v1/replay_resources.txt",
+    "taskset",
+    "-c",
+    "0",
+    "nice",
+    "-n",
+    "19",
+    "timeout",
+    "--kill-after=5s",
+    "120s",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/chord_active_support_v1/replay",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/chord_active_support_v1/geometry.bin"
+  ],
+  "compile_command": [
+    "/usr/bin/time",
+    "-v",
+    "-o",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/chord_active_support_v1/compile_resources.txt",
+    "nice",
+    "-n",
+    "19",
+    "c++",
+    "-std=c++17",
+    "-O3",
+    "-I",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/chord_active_support_v1/replay.cpp",
+    "-o",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/chord_active_support_v1/replay"
+  ],
+  "binary_sha256": "f365934973a2d10f523431a81619dac4ae71e6b6d9df5bc9a0b0f23b96f26a58",
+  "provenance_sha256": "24833771226415a1e3b70c9aa59f11ac5ce7bf922836d0d431bb7b5ec9401b35",
+  "csv_sha256": "6648a000e13026f197b7c2771613a3f95d4aed78cae1bf28f6175a7e4f0bc91a",
+  "summary": [
+    {
+      "pass_index": 0,
+      "legacy_seconds": 0.639835716,
+      "candidate_seconds": 0.567725164,
+      "ratio": 1.1270166562495372,
+      "queries": 69,
+      "exhausted_queries": 0,
+      "active_distance_and_cut_comparison": true,
+      "max_distance_error": 0.0,
+      "max_active_cut_shift": 0.0,
+      "legacy_cuts": 378,
+      "candidate_cuts": 378
+    },
+    {
+      "pass_index": 1,
+      "legacy_seconds": 0.6390498240000001,
+      "candidate_seconds": 0.5669790170000001,
+      "ratio": 1.1271137111587324,
+      "queries": 69,
+      "exhausted_queries": 0,
+      "active_distance_and_cut_comparison": true,
+      "max_distance_error": 0.0,
+      "max_active_cut_shift": 0.0,
+      "legacy_cuts": 378,
+      "candidate_cuts": 378
+    }
+  ],
+  "limits": "Bounded geometry sample on a contended host; no accepted mesh, seed-wide or lifecycle speedup claim."
+}

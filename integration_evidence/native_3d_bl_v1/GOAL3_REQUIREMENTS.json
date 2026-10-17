@@ -1761,5 +1761,34 @@
     "owned_jobs": "terminal",
     "resources": "one heavy job/nice19/build-j1/thread1/MPI<=4; host~39--41GiB available,816MiB swap unchanged",
     "goal_complete": false
+  },
+  "current_active_chord_support": {
+    "status": "SCOPED_ACTIVE_SUPPORT_QUALIFIED_FULL_GOAL_INCOMPLETE",
+    "base": "2ab7efce4169697e4d1da163a79e5c51047cf58d",
+    "handbook": "Handbook/GOAL3_ACTIVE_CHORD_SUPPORT.md",
+    "evidence": "integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/chord_active_support_v1",
+    "serial_cases": 23,
+    "serial_assertions": 502489,
+    "MPI2_volume_and_envelope": "PASS",
+    "actual_N4_M2_RANS_SA_current_BDF_SU2_CGNS_restart": "PASS",
+    "bounded_geometry_sample_edges": 69,
+    "component_time_reduction_approximate": 0.113,
+    "component_claim_only": true,
+    "copy_avoidance": "WITHDRAWN: no useful measured gain; exact source/patch/evidence retained",
+    "difficult_cell_relative_errors": [
+      0.007681964899006292,
+      0.0009177799889428806,
+      0.0010737070893449736
+    ],
+    "indicator_underestimates_cell157": true,
+    "proven_integration_bound": false,
+    "normalization_default_calibrated": false,
+    "accepted_complete_M6": false,
+    "full_M6_rerun": false,
+    "whole_event_speedup_established": false,
+    "next": "Progressive full measurement and complete-cavity transactions; DESIGN ONLY, preserve whole-mesh final certification",
+    "owned_jobs": "terminal",
+    "resources": "one heavy job/nice19/build-j1/thread1/MPI<=4;~39--40GiB available,816MiB swap unchanged",
+    "goal_complete": false
   }
 }

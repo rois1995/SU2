@@ -6492,3 +6492,33 @@ pass; combined construction campaign retains the baseline-identical finer4096-wo
 failure. No complete-event speedup asserted. Current pins/capsules/logs and exact
 trace/grid comparison verified without repeating native runs.
 [Current status](Handbook/GOAL3_DEFERRED_FIRST_ROW_LENGTHS.md).
+
+
+## 2026-10-17: bound finite-feature competition to the existing active BL support
+
+Local interval/copy avoidance is WITHDRAWN: exact69-edge geometry replay agrees,
+but legacy/candidate ratios0.994/0.995 show no useful gain. Source/patch/input/resource
+receipts retained; no broad native tests spent on that experiment.
+
+Retained finite-support envelope: padded residual slabs and a constant inactive
+background restrict faceted3D geometry preparation to the existing fade/on-wall
+support. Actual target queries remain original sensor-only P1 plus geometric BL,
+finer demands/fade unchanged. No new cache/configuration, target or acceptance
+threshold. Default unbounded helper/2D/analytic paths retain their kernels. Numerical
+long-double geometry is not a proven outward-rounded coverage certificate.
+
+69 original M6 edges, two alternating passes: geometry~0.640->0.568s/~0.639->0.567s,
+about11% component reduction, sampled active distances/crossings exact. No full-event
+speedup inferred or additional unchanged300s replay.23 serial cases/502,489 assertions,
+MPI2, five saved edge replays and independent N4/M2 RANS/SA/BDF/SU2/CGNS/restart PASS.
+Reference errors on difficult cells88/157/329 are.7682/.09178/.10737%; cell157 indicator
+underestimates by~1.91x. All indicators/references remain heuristic; calibration and
+full M6 construction are still open. Controlled final budget discrepancies~.0960%
+and.3226%, not an exact-normalization/general-curved claim.
+
+Sealed64-parent shape diagnostic:375/448 selected children fail final shape limits;
+no full-wing/infeasibility claim. Next connected strategy is progressive full
+measurement and complete-cavity edits, with all surviving cells fully certified
+before acceptance. DESIGN ONLY, not yet implemented. One owned job/nice19/thread1/
+build-j1/MPI<=4, RAM~39--40GiB, swap unchanged; no cluster/CFD advancement.
+[Evidence and next design](Handbook/GOAL3_ACTIVE_CHORD_SUPPORT.md).

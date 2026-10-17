@@ -692,3 +692,37 @@ failure corrected; neither required new native runs. One heavy job/nice19/build-
 thread1/MPI<=4; host~39--41GiB available, unchanged816MiB swap. No CFD advancement,
 cluster submission or full regression per small edit. Full Goal3 remains ACTIVE.
 [Evidence, hashes and limits](GOAL3_DEFERRED_FIRST_ROW_LENGTHS.md).
+
+
+## 2026-10-17: geometric repeated work — rejected copy optimization, scoped support gain
+
+Suggested reducing repeated geometric preparation/query work. Measured two distinct
+strategies using the SAME finite-feature legacy kernel and69 actual original M6
+edges, including the32 largest candidate boxes in the declared sample.
+
+- Local interval updates/copy avoidance: exact distances/cuts/work counts, but
+  legacy/candidate ratios.994/.995 on alternating-order passes. WITHDRAWN; all source,
+  patch, replay inputs and resources retained. No native suite/CFD run for this.
+- Active-support restriction: existing fade thickness/on-wall/roundoff radius,
+  padded residual slabs and a constant inactive background. Actual original-P1+
+  geometric-BL queries/finer demands/fade and final contracts are unchanged. About
+  11.3% lower sampled geometry time (.640->.568s and.639->.567s), exact sampled active
+  distances/crossings. RETAINED within qualified scope, not a full-seed/lifecycle
+  speedup. No new cache/configuration or tensor-arithmetic shortcut.
+
+23 serial cases/502,489 assertions, MPI2 envelope/thin-volume, five actual original-
+field edge replays and independent N4/M2 RANS/SA/current+BDF/conservation/SU2/CGNS/
+restart PASS. Three difficult-cell reference errors:.7682/.09178/.10737%. Cell157
+indicator misses error by~1.91x, reconfirming existing global-calibration weakness;
+no bound/default tolerance/exact root claim. Controlled final budget discrepancies
+~.0960%/.3226%; one accepted mesh changes with the integration/normalization path,
+while every remesh-stage field remains frozen. These are two planar workflows,
+not new general curved/M6 or all eight prior workflows qualification.
+
+No extra300s M6/CFD/cluster run spent on the11% component result. The next substantial
+capability is progressively full-measured remeshing with complete remote cavities
+and whole-mesh final certification (DESIGN ONLY). A saved64-parent diagnostic finds
+375/448 PRIVATE children below final shape limits; do not extrapolate feasibility.
+The broader repair-campaign retention, transaction batching and transfer/balance
+package remains incomplete. One heavy job/nice19/build-j1/thread1/MPI<=4, host~39--40GiB,
+swap unchanged. [Sources, evidence, limits and next design](GOAL3_ACTIVE_CHORD_SUPPORT.md).

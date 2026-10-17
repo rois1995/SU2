@@ -5,17 +5,20 @@ Worktree `/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated`, branch
 **Full Goal3 ACTIVE/incomplete.** [Full scope/gates](integration_evidence/native_3d_bl_v1/GOAL3_REQUIREMENTS.json).
 Leave AdapNoExt, foreign ClusterResults and dependencies untouched.
 
-**Current work:** defer first-row full lengths when the exact best q/J score is
-unique, retaining full lengths for ties and mandatory full composed seeding/final
-acceptance. Serial71/14,440, MPI/subset/curved/reader and exact frozen legacy geometry
-PASS;1600 remaining query records are an exact subset of the old219,532.
-[Current design, evidence, gates and status](Handbook/GOAL3_DEFERRED_FIRST_ROW_LENGTHS.md).
-All owned jobs are terminal. Full M6 initializes all38,800 wall parents in26.79s,
-then fails mandatory full seed at unchanged300s:32,832/536,159 PRIVATE cells measured,
-no volume edits/transfer. Actual N4/M2 RANS+BDF/CGNS/restart PASS; combined construction
-campaign FAILS only its known finer-sensor4096-work case, with byte-identical baseline
-rejected grids. No accepted M6 or whole-event speedup. Previous source-support
-checkpoint b1b2f9f1ec retains [its qualified scope](Handbook/GOAL3_ORIGINAL_SUPPORT.md).
+**Current work:** geometry-only active-support restriction is qualified within
+its saved scope: 23 serial cases/502,489 assertions, MPI2, five frozen edge replays,
+three difficult-cell estimates and independent N4/M2 RANS/SA+BDF/SU2+CGNS/restart PASS.
+Bounded M6 geometry sample is about11% cheaper; no new whole-M6 run or lifecycle
+speedup claim. Local-copy optimization was withdrawn for no useful gain.
+[Current results, accuracy limits and rejected experiment](Handbook/GOAL3_ACTIVE_CHORD_SUPPORT.md).
+All owned jobs terminal. Cell157 still underestimates integration error; no proven
+bound/default calibration. Full M6 last initializes all38,800 wall parents in26.79s,
+then rejects during mandatory seed at300s; no volume edits/transfer or accepted wing.
+**Next substantial implementation:** [progressive full measurement](Handbook/GOAL3_PROGRESSIVE_MEASUREMENT_DESIGN.md),
+DESIGN ONLY. Operate on fully measured seeds with complete imported cavities;
+accept only after EVERY surviving cell is fully certified. No approximate edge
+scalars, target change or relaxed gates. Earlier ranking/support checkpoints retain
+[their scope](Handbook/GOAL3_DEFERRED_FIRST_ROW_LENGTHS.md).
 
 ## Current production and evidence
 
@@ -106,15 +109,14 @@ agent's entries in the [outcome ledger](Handbook/SUGGESTION_OUTCOME_LEDGER.md).
 
 ## Execution and working rules
 
-All owned jobs terminal. Current deferred-ranking package:71 serial cases/14,440
-assertions, affected MPI/subset/curved/reader and independent RANS/SA+BDF/CGNS restart
-PASS. Frozen64-parent M6 legacy geometry is byte-identical;1600 remaining actual
-query rows are an exact subset of the old219,532. Full M6 reaches complete first-row
-initialization but rejects during mandatory seed; generic finer failure remains
-baseline-identical. No full Goal3/accepted-M6/lifecycle-speedup claim. Next measured
-gap is mandatory full seed geometry/repeated edges, not another local constructor.
-One heavy job/nice19/build-j1/thread1/MPI<=4; RAM~38--41GiB, swap unchanged. No cluster
-or CFD advancement. All rejected experiments/source/provenance remain.
+All owned jobs terminal. Current active-support source/build/binary/input/helper
+pins are verified; source archives, difficult-cell references and both successful
+and rejected experiments are retained. Last complete M6 still rejects during full
+seed; generic stronger finer-sensor4096-work limitation remains unresolved. No full
+Goal3/accepted-M6/lifecycle-speedup claim. Next work must test progressive full
+measurement as one complete scheduling capability, not another micro-optimization.
+One heavy job/nice19/build-j1/thread1/MPI<=4; RAM~39--40GiB, swap unchanged. No cluster
+or CFD advancement. Preserve original P1/actual BL and all final contracts.
 
 Follow [AGENTS.md](AGENTS.md): substantial capability-first changes, difficult
 case early, source/build/binary/input/helper-aware resumable evidence, no full

@@ -2452,7 +2452,11 @@ std::vector<double> CBoundaryLayerMetric::EdgeBreakpointsImpl(
     std::sort(faces.begin(),faces.end());
     if(nDim==3) {
       if(faces.empty())continue;
-      SU2Native3D::ChordEnvelope envelope(a,b);
+      double coordinateScale=thickness;for(unsigned j=0;j<3;++j)coordinateScale=std::max({coordinateScale,std::abs(a[j]),std::abs(b[j])});
+      // The wall metric is inactive beyond its fade; retain roundoff padding and the on-wall classification band.
+      const auto support=std::nextafter(std::max(thickness,SU2_TYPE::GetValue(d.tolerance))+
+          128*std::numeric_limits<double>::epsilon()*coordinateScale+4*SU2_TYPE::GetValue(d.tolerance),INFINITY);
+      SU2Native3D::ChordEnvelope envelope(a,b,1u<<20,support);
       std::set<unsigned long> vertices;
       std::set<std::pair<unsigned long,unsigned long>> edges;
       auto vertex=[&](unsigned long id) {

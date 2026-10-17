@@ -1,0 +1,80 @@
+diff --git a/Common/include/adaptation/CNativeChordEnvelope.hpp b/Common/include/adaptation/CNativeChordEnvelope.hpp
+index 16d391b6e8..9c39d2a686 100644
+--- a/Common/include/adaptation/CNativeChordEnvelope.hpp
++++ b/Common/include/adaptation/CNativeChordEnvelope.hpp
+@@ -46,15 +46,19 @@ class ChordEnvelope {
+     if(!(candidate.lo<candidate.hi))return;
+     if(features.size()==MaximumPieces)throw WorkLimit("Native chord distance feature budget exhausted.");
+     const size_t index=features.size();features.push_back(candidate);
+-    std::vector<Piece> replacement;
++    // Restricted features cannot affect pieces outside their projection interval.
++    auto first=std::upper_bound(pieces.begin(),pieces.end(),candidate.lo,[](long double t,const Piece& p){return t<p.hi;});
++    auto last=std::lower_bound(first,pieces.end(),candidate.hi,[](const Piece& p,long double t){return p.lo<t;});
++    std::vector<Piece> replacement;bool changed=false;
+     auto emit=[&](Piece p) {
+       if(!(p.lo<p.hi))return;
++      changed=changed || p.feature==index;
+       if(!replacement.empty() && replacement.back().hi==p.lo && replacement.back().feature==p.feature)
+         replacement.back().hi=p.hi;
+       else {if(replacement.size()==MaximumPieces)throw WorkLimit("Native chord distance partition budget exhausted.");replacement.push_back(p);}
+     };
+-    for(const auto& p:pieces) {
+-      const auto left=std::max(p.lo,candidate.lo),right=std::min(p.hi,candidate.hi);
++    for(auto it=first;it!=last;++it) {
++      const auto& p=*it;const auto left=std::max(p.lo,candidate.lo),right=std::min(p.hi,candidate.hi);
+       if(!(left<right)){emit(p);continue;}
+       emit({p.lo,left,p.feature});
+       if(p.feature==Missing)emit({left,right,index});
+@@ -82,7 +86,15 @@ class ChordEnvelope {
+       }
+       emit({right,p.hi,p.feature});
+     }
+-    pieces.swap(replacement);
++    if(!changed)return;
++    size_t begin=first-pieces.begin(),end=last-pieces.begin();
++    if(begin && pieces[begin-1].hi==replacement.front().lo && pieces[begin-1].feature==replacement.front().feature)
++      replacement.front().lo=pieces[--begin].lo;
++    if(end<pieces.size() && replacement.back().hi==pieces[end].lo && replacement.back().feature==pieces[end].feature)
++      replacement.back().hi=pieces[end++].hi;
++    if(pieces.size()-(end-begin)+replacement.size()>MaximumPieces)throw WorkLimit("Native chord distance partition budget exhausted.");
++    pieces.erase(pieces.begin()+begin,pieces.begin()+end);
++    pieces.insert(pieces.begin()+begin,replacement.begin(),replacement.end());
+   }
+  public:
+   explicit ChordEnvelope(const std::array<double,3>& first,const std::array<double,3>& last,size_t maximumWork=1u<<20)
+diff --git a/UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp b/UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp
+index 371fa6f5f5..d77431169e 100644
+--- a/UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp
++++ b/UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp
+@@ -2430,6 +2430,31 @@ TEST_CASE("Finite feature envelopes retain global competition and distance cross
+ }
+ 
+ 
++TEST_CASE("Finite-feature chord updates retain untouched intervals and reject losing supports", "[NativeChordEnvelope]") {
++  using E=SU2Native3D::ChordEnvelope;using P=std::array<double,3>;
++  for(unsigned order=0;order<3;++order) {
++    E envelope({-1,.1,0},{22,.1,0});
++    for(unsigned step=0;step<21;++step) {
++      const unsigned k=order==0?step:order==1?20-step:(8*step)%21;
++      const double z=.02*(k%3);const P a{double(k),0,z},b{k+.8,0,z};
++      envelope.Vertex(a);envelope.Segment(a,b);envelope.Vertex(b);
++      envelope.Segment({double(k),0,50},{k+.8,0,50});
++    }
++    for(unsigned k=0;k<=2048;++k) {
++      const double t=k/2048.,x=-1+23*t;double reference=INFINITY;
++      for(unsigned j=0;j<21;++j) {
++        const double dx=x-std::max(double(j),std::min(j+.8,x)),z=.02*(j%3);
++        reference=std::min(reference,std::hypot(dx,.1,z));
++      }
++      CHECK(double(envelope.Distance(t))==Approx(reference).epsilon(1e-13));
++    }
++    const auto cuts=envelope.Cuts({.12,.2});
++    for(double t:cuts)CHECK(std::isfinite(envelope.Distance(t)));
++    CHECK(envelope.Pieces()>21);CHECK(envelope.Features()>63);
++  }
++}
++
++
+ TEST_CASE("Retained complexity stencils use fresh nonhomogeneous trial tensors and cores", "[NativeDynamicComplexity3D]") {
+   using namespace SU2Native3D;
+   const auto mesh=simplex_test::MakeSimplexMesh(3,2,[](const passivedouble*){return "far";});

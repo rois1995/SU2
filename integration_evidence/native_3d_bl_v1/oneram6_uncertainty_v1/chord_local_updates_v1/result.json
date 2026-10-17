@@ -1,0 +1,62 @@
+{
+  "exit_code": 0,
+  "seconds": 2.6343926119152457,
+  "command": [
+    "/usr/bin/time",
+    "-v",
+    "-o",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/chord_local_updates_v1/replay_resources.txt",
+    "taskset",
+    "-c",
+    "0",
+    "nice",
+    "-n",
+    "19",
+    "timeout",
+    "--kill-after=5s",
+    "120s",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/chord_local_updates_v1/replay",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/chord_local_updates_v1/geometry.bin"
+  ],
+  "compile_command": [
+    "/usr/bin/time",
+    "-v",
+    "-o",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/chord_local_updates_v1/compile_resources.txt",
+    "nice",
+    "-n",
+    "19",
+    "c++",
+    "-std=c++17",
+    "-O3",
+    "-I",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/chord_local_updates_v1/replay.cpp",
+    "-o",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/chord_local_updates_v1/replay"
+  ],
+  "binary_sha256": "1d82c4d56a952bd9f1867a868a37281cbc7c12a772b51054b71b858ec2bcb805",
+  "provenance_sha256": "9ed20ceec4d0d444068d020e0358c95de7d84a03d0eff20680da87e67061576d",
+  "csv_sha256": "fc53ad2789f77956325499708d04df4b1fe50276ab0fc79e09312e6080ec73bd",
+  "summary": [
+    {
+      "pass_index": 0,
+      "legacy_seconds": 0.640187654,
+      "candidate_seconds": 0.64396432,
+      "ratio": 0.994135286874279,
+      "queries": 69,
+      "exhausted_queries": 0,
+      "exact_distance_cut_work_counts": true
+    },
+    {
+      "pass_index": 1,
+      "legacy_seconds": 0.6434465829999999,
+      "candidate_seconds": 0.646499277,
+      "ratio": 0.9952781169158212,
+      "queries": 69,
+      "exhausted_queries": 0,
+      "exact_distance_cut_work_counts": true
+    }
+  ],
+  "limits": "Bounded geometry sample on a contended host; no accepted mesh, seed-wide or lifecycle speedup claim."
+}

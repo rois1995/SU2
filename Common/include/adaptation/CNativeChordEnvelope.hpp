@@ -16,6 +16,7 @@ namespace SU2Native3D {
 /*! Geometry-only cuts, NOT a replacement for the authoritative pointwise metric or exact donor predicates.
  * Each finite face/edge/vertex contributes a restricted quadratic distance. Their lower envelope includes
  * global feature competition, so band roots do not require nearest-wall searches for every candidate root.
+ * A finite support radius returns min(distance,radius); it is only valid where farther features are inactive.
  * Long-double construction is numerical, not an outward-rounded distance certificate. */
 class ChordEnvelope {
  public:
@@ -29,6 +30,7 @@ class ChordEnvelope {
   std::vector<Feature> features;
   std::vector<Piece> pieces{{0,1,Missing}};
   size_t work=0,workLimit;
+  double supportRadius;
   static long double Dot(const V& a,const V& b){return a[0]*b[0]+a[1]*b[1]+a[2]*b[2];}
   static V Cross(const V& a,const V& b){return {a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]};}
   static V Delta(const std::array<double,3>& a,const std::array<double,3>& b){
@@ -43,6 +45,12 @@ class ChordEnvelope {
     return f.lo<f.hi;
   }
   void Add(Feature candidate) {
+    if(std::isfinite(supportRadius))for(unsigned j=0;j<3;++j) {
+      // A Euclidean distance within the support radius must lie in each residual slab.
+      const auto padding=128*std::numeric_limits<long double>::epsilon()*(std::abs(candidate.r[j])+std::abs(candidate.v[j])+supportRadius);
+      const auto bound=(long double)supportRadius+padding;
+      if(!Clip(candidate,bound-candidate.r[j],-candidate.v[j]) || !Clip(candidate,bound+candidate.r[j],candidate.v[j]))return;
+    }
     if(!(candidate.lo<candidate.hi))return;
     if(features.size()==MaximumPieces)throw WorkLimit("Native chord distance feature budget exhausted.");
     const size_t index=features.size();features.push_back(candidate);
@@ -85,10 +93,14 @@ class ChordEnvelope {
     pieces.swap(replacement);
   }
  public:
-  explicit ChordEnvelope(const std::array<double,3>& first,const std::array<double,3>& last,size_t maximumWork=1u<<20)
-      :velocity(Delta(last,first)),workLimit(maximumWork) {
+  explicit ChordEnvelope(const std::array<double,3>& first,const std::array<double,3>& last,size_t maximumWork=1u<<20,
+                         double supportRadius=std::numeric_limits<double>::infinity())
+      :velocity(Delta(last,first)),workLimit(maximumWork),supportRadius(supportRadius) {
     for(unsigned j=0;j<3;++j){if(!std::isfinite(first[j]) || !std::isfinite(last[j]))throw std::invalid_argument("Nonfinite native chord.");origin[j]=first[j];}
-    if(!(Dot(velocity,velocity)>0) || !workLimit)throw std::invalid_argument("Invalid native chord distance control.");
+    if(!(Dot(velocity,velocity)>0) || !workLimit || !(supportRadius>0))throw std::invalid_argument("Invalid native chord distance control.");
+    if(std::isfinite(supportRadius)) {
+      features.push_back({{supportRadius,0,0},{0,0,0}});pieces.front().feature=0;
+    }
   }
   void Vertex(const std::array<double,3>& p){
     for(auto x:p)if(!std::isfinite(x))throw std::invalid_argument("Nonfinite native chord vertex.");

@@ -2430,6 +2430,31 @@ TEST_CASE("Finite feature envelopes retain global competition and distance cross
 }
 
 
+TEST_CASE("Finite-feature chord support retains all active crossings and distant competition", "[NativeChordEnvelope]") {
+  using E=SU2Native3D::ChordEnvelope;using P=std::array<double,3>;
+  const std::array<P,3> triangle{{{{0,0,0}},{{1,0,0}},{{0,1,0}}}};
+  E full({-.5,.25,.001},{1.5,.25,.001}),local({-.5,.25,.001},{1.5,.25,.001},1u<<20,.02);
+  for(auto* e:{&full,&local}) {
+    for(unsigned k=0;k<3;++k){e->Vertex(triangle[k]);e->Segment(triangle[k],triangle[(k+1)%3]);}
+    e->Face(triangle);for(unsigned k=0;k<100;++k)e->Vertex({double(k),10,20});
+  }
+  CHECK(local.Features()<full.Features());CHECK(local.Comparisons()<full.Comparisons());
+  for(unsigned k=0;k<=4096;++k) {
+    const long double t=k/4096.L;
+    CHECK(double(local.Distance(t))==Approx(double(std::min(full.Distance(t),.02L))).margin(1e-15));
+  }
+  const auto cuts=local.Cuts({.001,.002,.01,.019});
+  for(double t:full.Cuts({.001,.002,.01,.019}))if(full.Distance(t)<.0199L) {
+    CHECK(std::any_of(cuts.begin(),cuts.end(),[&](double s){return std::abs(t-s)<1e-13;}));
+  }
+  // Competing supports on disconnected wall pieces retain both narrow pockets.
+  E pockets({-2,0,0},{2,0,0},1u<<20,.01);pockets.Vertex({-1,.001,0});pockets.Vertex({1,.001,0});
+  for(double t:{.25,.75})CHECK(double(pockets.Distance(t))==Approx(.001).epsilon(1e-13));
+  CHECK(pockets.Cuts({.002}).size()==10);
+  CHECK_THROWS(E({0,0,0},{1,0,0},100,0));CHECK_THROWS(E({0,0,0},{1,0,0},100,NAN));
+}
+
+
 TEST_CASE("Retained complexity stencils use fresh nonhomogeneous trial tensors and cores", "[NativeDynamicComplexity3D]") {
   using namespace SU2Native3D;
   const auto mesh=simplex_test::MakeSimplexMesh(3,2,[](const passivedouble*){return "far";});
