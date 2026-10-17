@@ -9,6 +9,12 @@
 namespace {
 constexpr unsigned short runtimes[] = {RUNTIME_FLOW_SYS, RUNTIME_TURB_SYS, RUNTIME_TRANS_SYS, RUNTIME_SPECIES_SYS};
 
+/*! \brief Retain the native preprocessing cadence for flow controllers with external feedback. */
+bool HasFlowFeedback(const CConfig& config) {
+  return config.GetFixed_CL_Mode() || config.GetnMarker_EngineInflow() || config.GetnMarker_EngineExhaust() ||
+         config.GetnMarker_ActDiskInlet() || config.GetnMarker_ActDiskOutlet();
+}
+
 /*! \brief Restore shared equation settings and periodic assembly flags after every evaluation or early return. */
 class EquationSettingsGuard {
   CConfig& config;
@@ -357,8 +363,10 @@ void CNewtonEquationSet::Refresh() {
     solvers[TRANS_SOL]->Postprocessing(geometry, solvers, config, MESH_0);
   }
   /*--- Copy the newly computed eddy viscosity into the flow primitive/transport data. ---*/
-  SU2_OMP_SAFE_GLOBAL_ACCESS(config->SetGlobalParam(config->GetKind_Solver(), RUNTIME_FLOW_SYS);)
-  solvers[FLOW_SOL]->Preprocessing(geometry, solvers, config, MESH_0, NO_RK_ITER, RUNTIME_FLOW_SYS, true);
+  if (solvers[TURB_SOL] || HasFlowFeedback(*config)) {
+    SU2_OMP_SAFE_GLOBAL_ACCESS(config->SetGlobalParam(config->GetKind_Solver(), RUNTIME_FLOW_SYS);)
+    solvers[FLOW_SOL]->Preprocessing(geometry, solvers, config, MESH_0, NO_RK_ITER, RUNTIME_FLOW_SYS, true);
+  }
   /*--- Mixture flow fluxes consume species gradients even when species is outside the Newton group. ---*/
   if (solvers[SPECIES_SOL]) {
     SU2_OMP_SAFE_GLOBAL_ACCESS(config->SetGlobalParam(config->GetKind_Solver(), RUNTIME_SPECIES_SYS);)
@@ -526,13 +534,6 @@ bool CNewtonEquationSet::EvaluateResiduals(bool implicit, bool allEquations, dou
       END_SU2_OMP_FOR
     }
     Communicate();
-    SU2_OMP_FOR_STAT(1024)
-    for (auto p = 0ul; p < geometry->GetnPoint(); ++p)
-      for (auto v = 0u; v < nFlow; ++v) trialFlow[p * nFlow + v] = flow->GetSolution(p, v);
-    END_SU2_OMP_FOR
-    Refresh();
-    /*--- Exact strong data take precedence over numerical clipping floors. ---*/
-    if (!CheckState(true, true)) return false;
     SU2_OMP_SAFE_GLOBAL_ACCESS(invalidCount = 0;)
     double changed = 0;
     for (const auto& snapshot : snapshots) {
@@ -550,7 +551,21 @@ bool CNewtonEquationSet::EvaluateResiduals(bool implicit, bool allEquations, dou
       valid = global == 0;
     }
     END_SU2_OMP_SAFE_GLOBAL_ACCESS
-    if (valid) {
+    const bool unchanged = valid;
+    if (unchanged && !HasFlowFeedback(*config)) {
+      /*--- Unchanged primary values retain the live coefficients from the preceding refresh. ---*/
+      if (!CheckState(true, true)) return false;
+      constrained = true;
+      break;
+    }
+    SU2_OMP_FOR_STAT(1024)
+    for (auto p = 0ul; p < geometry->GetnPoint(); ++p)
+      for (auto v = 0u; v < nFlow; ++v) trialFlow[p * nFlow + v] = flow->GetSolution(p, v);
+    END_SU2_OMP_FOR
+    Refresh();
+    /*--- Exact strong data take precedence over numerical clipping floors. ---*/
+    if (!CheckState(true, true)) return false;
+    if (unchanged) {
       constrained = true;
       break;
     }
@@ -567,11 +582,23 @@ bool CNewtonEquationSet::EvaluateResiduals(bool implicit, bool allEquations, dou
     SU2_OMP_SAFE_GLOBAL_ACCESS(config->SetResidualOnly(!implicit || (!selected && !allEquations));
                                config->SetGlobalParam(config->GetKind_Solver(), runtime);)
     solvers[slot]->Preprocessing(geometry, solvers, config, MESH_0, NO_RK_ITER, runtime, false);
-    Space_Integration(geometry, solvers, numerics[slot], config, MESH_0, NO_RK_ITER, runtime);
+    /*--- Bounded scalars need live edge mass fluxes. Keep feedback and custom-source failure checks.
+     *     Auxiliary owners never commit flow reconstruction history; its saved counters remain frozen. ---*/
+    const bool boundaryOnly = runtime == RUNTIME_FLOW_SYS && !selected && !allEquations &&
+                              !config->GetBounded_Scalar() && !config->GetPyCustomSource() && !HasFlowFeedback(*config);
+    if (boundaryOnly) {
+      /*--- Reducer preprocessing leaves the residual uncleared until the volume pass. ---*/
+      solvers[slot]->LinSysRes.SetValZero();
+      SU2_OMP_BARRIER
+      Boundary_Integration(geometry, solvers, numerics[slot], config, MESH_0, runtime);
+      SU2_OMP_SAFE_GLOBAL_ACCESS(++flowBoundaryEvaluations;)
+    } else {
+      Space_Integration(geometry, solvers, numerics[slot], config, MESH_0, NO_RK_ITER, runtime);
+      SU2_OMP_SAFE_GLOBAL_ACCESS(++residualEvaluations[index];)
+    }
     InstallStrongValues(solvers[slot]);
     /*--- Keep the supplied unknowns: the consistency equations remove the missing periodic modes. ---*/
-    AddPeriodicConstraints(solvers[slot]);
-    SU2_OMP_SAFE_GLOBAL_ACCESS(++residualEvaluations[index];)
+    if (!boundaryOnly) AddPeriodicConstraints(solvers[slot]);
   }
   SU2_OMP_FOR_STAT(1024)
   for (auto e = 0ul; e < nextReconstruction.size(); ++e)

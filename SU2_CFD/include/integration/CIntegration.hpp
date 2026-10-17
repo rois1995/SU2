@@ -66,6 +66,10 @@ protected:
                          CConfig *config, unsigned short iMesh, unsigned short iRKStep,
                          unsigned short RunTime_EqSystem);
 
+  /*! \brief Apply native boundary conditions without assembling volume fluxes or sources. */
+  void Boundary_Integration(CGeometry*, CSolver**, CNumerics**, CConfig*, unsigned short iMesh,
+                            unsigned short RunTime_EqSystem);
+
   /*!
    * \brief Do the time integration (explicit or implicit) of the numerical system.
    * \param[in] geometry - Geometrical definition of the problem.

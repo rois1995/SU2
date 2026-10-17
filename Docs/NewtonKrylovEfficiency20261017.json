@@ -1,0 +1,207 @@
+{
+  "baseline_commit": "29a4c3c58add4b0164714a91ef330fa3a01654dc",
+  "measurement": "Original-control serial correctness and measured work counts; contended wall times excluded.",
+  "source_sha256": {
+    "SU2_CFD/include/integration/CIntegration.hpp": "de3eb9fb7820ae311fbd2bc73e71a8e52b87659049e9de35500403219e4dc723",
+    "SU2_CFD/src/integration/CIntegration.cpp": "96d68b17e8582adb886813e07952f1018585f19d44d95de728ff996f52057ef2",
+    "SU2_CFD/include/integration/CNewtonEquationSet.hpp": "77f4bee9da8e6c9c6755ee9447286b7af817c47a65c05d599f898162249b7c51",
+    "SU2_CFD/src/integration/CNewtonEquationSet.cpp": "f0839bd8448b416ebb763bdd738e718828ea9657a5d0bd2f6e5e3a58c0c084fa",
+    "UnitTests/SU2_CFD/newton_equations.cpp": "69517e46fb07c6f8f832a1384c01b2529547b723c3ba3682f053c9e54af3cf09"
+  },
+  "binaries": {
+    "test_driver": "842f0c8251450d9b6159b9ca84146d6dc9ca0fd8c1d2241bdc2ad651fbb7772c",
+    "newton_equation_tests": "465f397b939d99b9258cde80ebae0984cdcbbc5af630b3befdfe4aa9e633a7b8",
+    "SU2_CFD": "146bbb1168c76c08e80f619098e24cc91b9bdcf4a8dff9cccc08b2415086d39f"
+  },
+  "cases": [
+    {
+      "case": "sa",
+      "baseline_evidence_sha256": "a188d356547e43a9fae9ac4aed5fde5b5978e3e7d0a778f81e54847861f58ce7",
+      "new_evidence_sha256": "688dd0f63b124c816a0b08ca3ae1924ca149a26f0d39d911d999dac1fee1909e",
+      "runs": [
+        {
+          "mode": "native",
+          "updates": 3327,
+          "krylov": 36381,
+          "residuals_before": {
+            "flow": 3327,
+            "turbulence": 3327
+          },
+          "residuals_after": {
+            "flow": 3327,
+            "turbulence": 3327
+          },
+          "max_state_error": 0.0,
+          "max_quantity_error": 0.0,
+          "restart_bytes_equal": true
+        },
+        {
+          "mode": "segregated",
+          "updates": 2927,
+          "krylov": 19749,
+          "residuals_before": {
+            "flow": 56977,
+            "turbulence": 25020
+          },
+          "residuals_after": {
+            "flow": 34886,
+            "turbulence": 25020
+          },
+          "max_state_error": 8.463184406720168e-07,
+          "max_quantity_error": 3.335248232676084e-07,
+          "restart_bytes_equal": true
+        },
+        {
+          "mode": "coupled",
+          "updates": 2927,
+          "krylov": 14360,
+          "residuals_before": {
+            "flow": 49210,
+            "turbulence": 49210
+          },
+          "residuals_after": {
+            "flow": 49210,
+            "turbulence": 49210
+          },
+          "max_state_error": 8.463022630799246e-07,
+          "max_quantity_error": 3.3351758351269306e-07,
+          "restart_bytes_equal": true
+        }
+      ]
+    },
+    {
+      "case": "sst",
+      "baseline_evidence_sha256": "31bf42f7c3f45b568ac275039be3e995a8117cde0fefde263fc49b48873f46b9",
+      "new_evidence_sha256": "91e00ce591ac43b839836f4a4368ad6015c15505719b38fe05db362df3c5d167",
+      "runs": [
+        {
+          "mode": "native",
+          "updates": 3488,
+          "krylov": 38141,
+          "residuals_before": {
+            "flow": 3488,
+            "turbulence": 3488
+          },
+          "residuals_after": {
+            "flow": 3488,
+            "turbulence": 3488
+          },
+          "max_state_error": 0.0,
+          "max_quantity_error": 0.0,
+          "restart_bytes_equal": true
+        },
+        {
+          "mode": "segregated",
+          "updates": 3058,
+          "krylov": 21184,
+          "residuals_before": {
+            "flow": 60930,
+            "turbulence": 27524
+          },
+          "residuals_after": {
+            "flow": 36466,
+            "turbulence": 27524
+          },
+          "max_state_error": 7.099712488614526e-08,
+          "max_quantity_error": 2.708322917364497e-08,
+          "restart_bytes_equal": true
+        },
+        {
+          "mode": "coupled",
+          "updates": 3119,
+          "krylov": 15367,
+          "residuals_before": {
+            "flow": 52568,
+            "turbulence": 52568
+          },
+          "residuals_after": {
+            "flow": 52568,
+            "turbulence": 52568
+          },
+          "max_state_error": 4.6353140697754365e-08,
+          "max_quantity_error": 1.7644558773380982e-08,
+          "restart_bytes_equal": true
+        }
+      ]
+    },
+    {
+      "case": "lm",
+      "baseline_evidence_sha256": "63d785bffefebc5b258c1e4d60bf35d0d837466627f70855a1f2d9be0373ab5a",
+      "new_evidence_sha256": "48c046bc0d4d8cdf72a26c76aa005cf7a5237a27e63b98549de850f40dd377b2",
+      "runs": [
+        {
+          "mode": "native",
+          "updates": 1416,
+          "krylov": 17127,
+          "residuals_before": {
+            "flow": 1416,
+            "turbulence": 1416,
+            "transition": 1416
+          },
+          "residuals_after": {
+            "flow": 1416,
+            "turbulence": 1416,
+            "transition": 1416
+          },
+          "max_state_error": 0.0,
+          "max_quantity_error": 0.0,
+          "restart_bytes_equal": true
+        },
+        {
+          "mode": "segregated",
+          "updates": 1414,
+          "krylov": 6434,
+          "residuals_before": {
+            "flow": 27023,
+            "turbulence": 9573,
+            "transition": 11364
+          },
+          "residuals_after": {
+            "flow": 8920,
+            "turbulence": 9573,
+            "transition": 11364
+          },
+          "max_state_error": 4.5739821062039257e-10,
+          "max_quantity_error": 4.833105080596165e-11,
+          "restart_bytes_equal": true
+        },
+        {
+          "mode": "coupled",
+          "updates": 5615,
+          "krylov": 6205,
+          "residuals_before": {
+            "flow": 57927,
+            "turbulence": 57927,
+            "transition": 57927
+          },
+          "residuals_after": {
+            "flow": 57927,
+            "turbulence": 57927,
+            "transition": 57927
+          },
+          "max_state_error": 4.4625819883768335e-10,
+          "max_quantity_error": 1.6068266712977037e-14,
+          "restart_bytes_equal": true
+        }
+      ]
+    }
+  ],
+  "other_passed_families": [
+    "mms",
+    "species"
+  ],
+  "native_tests": {
+    "cases": 58,
+    "layouts": [
+      "1x1",
+      "2x1"
+    ],
+    "serial_assertions": 107653
+  },
+  "evidence_root": "/media/rausa/4TB/SU2_Versions/SU2_v850_Develop_FixCGNSOutput/newton_krylov_refactor_20261015/efficiency_20261017",
+  "preserved_failures": [
+    "build_closure/preflight_cancelled.json",
+    "refresh_muscl_correctness/harness_failure.json"
+  ],
+  "pending": "Further scratch-memory and preconditioner work, full MPI/OpenMP/family validation, quiet repeated timing matrix, and higher-CFL study after implementation."
+}

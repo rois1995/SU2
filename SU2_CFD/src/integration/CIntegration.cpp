@@ -43,8 +43,6 @@ void CIntegration::Space_Integration(CGeometry *geometry,
                                      unsigned short RunTime_EqSystem) {
   SU2_ZONE_SCOPED
 
-  unsigned short iMarker, KindBC;
-
   unsigned short MainSolver = config->GetContainerPosition(RunTime_EqSystem);
   bool dual_time = ((config->GetTime_Marching() == TIME_MARCHING::DT_STEPPING_1ST) ||
                     (config->GetTime_Marching() == TIME_MARCHING::DT_STEPPING_2ND));
@@ -70,6 +68,15 @@ void CIntegration::Space_Integration(CGeometry *geometry,
 
   if (dual_time)
     solver_container[MainSolver]->SetResidual_DualTime(geometry, solver_container, config, iRKStep, iMesh, RunTime_EqSystem);
+
+  Boundary_Integration(geometry, solver_container, numerics, config, iMesh, RunTime_EqSystem);
+}
+
+void CIntegration::Boundary_Integration(CGeometry* geometry, CSolver** solver_container, CNumerics** numerics,
+                                        CConfig* config, unsigned short iMesh, unsigned short RunTime_EqSystem) {
+  SU2_ZONE_SCOPED
+  const auto MainSolver = config->GetContainerPosition(RunTime_EqSystem);
+  unsigned short iMarker, KindBC;
 
   /*--- Pick convective and viscous numerics objects for the current thread. ---*/
 

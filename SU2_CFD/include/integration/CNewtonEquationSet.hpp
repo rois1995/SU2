@@ -39,6 +39,7 @@ class CNewtonEquationSet : private CIntegration {
   std::vector<su2double> density;
   unsigned short variables = 0;
   std::array<unsigned long, 4> residualEvaluations{};
+  unsigned long flowBoundaryEvaluations = 0;
   bool captured = false, valid = true;
   double invalidCount = 0;
   std::vector<su2double> trialFlow;
@@ -71,6 +72,8 @@ class CNewtonEquationSet : private CIntegration {
   const std::vector<Block>& GetBlocks() const { return blocks; }
   unsigned short GetnVar() const { return variables; }
   const std::array<unsigned long, 4>& GetResidualEvaluations() const { return residualEvaluations; }
+  /*! \brief Count boundary-only flow evaluations separately from complete residual assemblies. */
+  unsigned long GetFlowBoundaryEvaluations() const { return flowBoundaryEvaluations; }
   /*!
    * \brief Apply the periodic average P, rotating flow momentum into each local frame.
    * \param[in,out] vector - Packed correction vector.

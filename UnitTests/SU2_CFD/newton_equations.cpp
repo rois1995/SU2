@@ -2702,6 +2702,96 @@ TEST_CASE("The common controller applies legacy flow direction policies", "[Newt
   }
 }
 
+TEST_CASE("Auxiliary probes retain full-path residuals and characteristic states", "[NewtonRefresh]") {
+  for (const auto& physics : {sa, sst, sst + "KIND_TRANS_MODEL= LM\n", species, flamelet,
+                              sst + "CONV_NUM_METHOD_TURB= BOUNDED_SCALAR\n"})
+    for (bool muscl : {false, true}) {
+      CAPTURE(physics, muscl);
+      Problem problem(physics, 5, muscl);
+      auto& driver = *problem.driver;
+      auto* geometry = driver.Geometry();
+      auto* config = driver.Config();
+      auto* flow = driver.Solvers()[FLOW_SOL];
+      auto* flowNodes = dynamic_cast<CFlowVariable*>(flow->GetNodes());
+      REQUIRE(flowNodes);
+      for (auto e = 0ul; e < flowNodes->NonPhysicalEdgeCounter.size(); ++e)
+        flowNodes->NonPhysicalEdgeCounter[e] = 1 + e % 3;
+      const auto history = flowNodes->NonPhysicalEdgeCounter;
+      std::vector<unsigned short> selected;
+      for (auto runtime : {RUNTIME_TURB_SYS, RUNTIME_TRANS_SYS, RUNTIME_SPECIES_SYS})
+        if (driver.Solvers()[config->GetContainerPosition(runtime)]) selected.push_back(runtime);
+      auto equations = problem.Equations(selected);
+      for (auto runtime : {RUNTIME_FLOW_SYS, RUNTIME_TURB_SYS, RUNTIME_TRANS_SYS, RUNTIME_SPECIES_SYS}) {
+        auto* solver = driver.Solvers()[config->GetContainerPosition(runtime)];
+        if (!solver) continue;
+        for (auto p = 0ul; p < geometry->GetnPoint(); ++p)
+          for (auto v = 0u; v < solver->GetnVar(); ++v) {
+            const double x = geometry->nodes->GetCoord(p, 0), y = geometry->nodes->GetCoord(p, 1);
+            solver->GetNodes()->SetSolution(p, v, solver->GetNodes()->GetSolution(p, v) * (1 + 0.01 * (x + y)));
+          }
+      }
+      REQUIRE(Residual(*equations, true, true));
+      equations->Capture();
+      auto scale = MakeVector(driver, equations->GetnVar()), reference = scale;
+      auto direction = scale, expected = scale, actual = scale;
+      equations->BuildScales(scale, reference);
+      for (auto p = 0ul; p < geometry->GetnPoint(); ++p)
+        for (auto v = 0u; v < equations->GetnVar(); ++v)
+          direction(p, v) = 0.005 * (1 + v + geometry->nodes->GetCoord(p, 0));
+      auto isFree = [](const CNewtonEquationSet::Block& b, unsigned long p, unsigned short v) {
+        return !b.solver->Jacobian.IsPrescribedRow(p, v);
+      };
+      auto characteristic = [&] {
+        std::vector<double> values;
+        for (auto m = 0u; m < config->GetnMarker_All(); ++m) {
+          if (config->GetMarker_All_KindBC(m) != FAR_FIELD) continue;
+          for (auto vertex = 0ul; vertex < geometry->nVertex[m]; ++vertex)
+            if (geometry->nodes->GetDomain(geometry->vertex[m][vertex]->GetNode()))
+              for (auto v = 0u; v < flow->GetnPrimVar(); ++v)
+                values.push_back(SU2_TYPE::GetValue(flow->GetCharacPrimVar(m, vertex)[v]));
+        }
+        return values;
+      };
+      for (double step : {0.01, -0.02, 0.01, 0.0}) {
+        equations->SetTrial(direction, step, scale, isFree);
+        REQUIRE(Residual(*equations, false, true));
+        equations->CopyResidual(expected);
+        const auto boundary = characteristic();
+        equations->SetTrial(direction, step, scale, isFree);
+        const auto counts = equations->GetResidualEvaluations();
+        const auto boundaryCount = equations->GetFlowBoundaryEvaluations();
+        /*--- A reducer's omitted volume pass must not leave stale flow residual data. ---*/
+        flow->LinSysRes = passivedouble(std::numeric_limits<double>::quiet_NaN());
+        REQUIRE(Residual(*equations));
+        equations->CopyResidual(actual);
+        CHECK(MaxDifference(expected, actual) <= 1e-13 * std::max(1.0, expected.norm()));
+        CHECK(characteristic() == boundary);
+        const bool boundaryOnly = !config->GetBounded_Scalar();
+        CHECK(equations->GetResidualEvaluations()[0] - counts[0] == unsigned(!boundaryOnly));
+        CHECK(equations->GetFlowBoundaryEvaluations() - boundaryCount == unsigned(boundaryOnly));
+        for (auto e = 0ul; e < history.size(); ++e) CHECK(flowNodes->NonPhysicalEdgeCounter[e] == history[e]);
+      }
+      REQUIRE(equations->Restore());
+      CHECK(equations->GetRestorationError() == 0.0);
+    }
+}
+
+TEST_CASE("Auxiliary probes preserve custom flow source failure reporting", "[NewtonRefresh]") {
+  Problem problem(sst + "PYTHON_CUSTOM_SOURCE= YES\n");
+  auto& driver = *problem.driver;
+  auto equations = problem.Equations({RUNTIME_TURB_SYS});
+  REQUIRE(Residual(*equations));
+  if (SU2_MPI::GetRank() == MASTER_NODE) {
+    auto p = 0ul;
+    while (p < driver.Geometry()->GetnPointDomain() && driver.Geometry()->nodes->GetSolidBoundary(p)) ++p;
+    REQUIRE(p < driver.Geometry()->GetnPointDomain());
+    driver.Solvers()[FLOW_SOL]->GetNodes()->GetUserDefinedSource()(p, 0) =
+        std::numeric_limits<double>::quiet_NaN();
+  }
+  CHECK_FALSE(Residual(*equations));
+  CHECK(equations->GetFlowBoundaryEvaluations() == 0);
+}
+
 TEST_CASE("Newton probes preserve reconstruction iteration history", "[NewtonEquations]") {
   Problem problem("SOLVER= NAVIER_STOKES\n", 5, true);
   auto& driver = *problem.driver;
