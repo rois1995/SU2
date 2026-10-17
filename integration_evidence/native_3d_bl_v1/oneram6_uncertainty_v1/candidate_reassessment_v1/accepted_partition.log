@@ -1,0 +1,36 @@
+coarse {"exit_code": 0, "elapsed_seconds": 0.37183154199738055, "command": ["taskset", "-c", "0", "nice", "-n", "19", "timeout", "--kill-after=5s", "180s", "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver", "[NativeFacetedVolumeReplay3D]", "--abort", "--reporter", "compact"], "provenance_sha256": "e4cfd49466aff94067e00277b419776efb10b60e4dbc06399af84b5cc04c30ee", "log_sha256": "c6b9a4d5588191e6a4a2d8e565a6a916c2ccc9d44d6ed6b996da582e212298b7"}
+density {"exit_code": 0, "elapsed_seconds": 0.4311667149886489, "command": ["taskset", "-c", "0", "nice", "-n", "19", "timeout", "--kill-after=5s", "180s", "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver", "[NativeFacetedVolumeReplay3D]", "--abort", "--reporter", "compact"], "provenance_sha256": "b77c22fb79e326bf4106e968e8f50fe81eb4397e1325a53014d0c29de2e5fa10", "log_sha256": "20d4011a9d56e032bfc489d6453de88ecf5a67eb5599cf2ff594c6aee21f768b"}
+{
+  "status": "PASS_SAME_FIELD_ACTUAL_ACCEPTED_PARTITION_COMPARISON",
+  "reference": 3.6941577302189414,
+  "coarse": {
+    "value": 3.7233794750984046,
+    "point_SE": 0.05510879835610279,
+    "block_SE": 0.04532594484006288,
+    "indicator": 0.16532639506830837,
+    "absolute_error": 0.029221744879463163,
+    "cells": 6
+  },
+  "fine": {
+    "value": 3.6962333831823107,
+    "indicator": 0.015552794275304288,
+    "point_SE": 0.004081756547606504,
+    "block_SE": 0.005184264758434763,
+    "samples": 8192,
+    "phase_seconds": 0.020938000999999984,
+    "return_source_seconds": 3.699999995276926e-08,
+    "actual_original_field": true,
+    "proven_bound": false,
+    "normalization_correction": false,
+    "absolute_error": 0.002075652963369201,
+    "cells": 24
+  },
+  "indicator_ratio": 0.09407326802763888,
+  "observed_error_ratio": 0.07103110960454505,
+  "independent_composed_density_checks": 32,
+  "maximum_relative_composed_difference": 8.881784197001252e-16,
+  "original_source_sha256": "369c76b4524ad90863f8bfe862543c674ae82e1cfb47567a4fb926fa3a99db0b",
+  "accepted_mesh_source_sha256": "6514a67a96e2b14a15aa5bcfe39ed02def020d6cd87233f70589213ea1c07149",
+  "proven_bound": false,
+  "scope": "Accepted planar RANS SA N4/M2 cube only. Complete M6 construction and general thin/curved/overlapping BL remain unqualified."
+}

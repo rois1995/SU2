@@ -1,6 +1,7 @@
 // Frozen-field integration experiment; geometry searches reuse the production bounded donor service.
 #pragma once
 #include "../../../Common/include/adaptation/CNativeDonor3D.hpp"
+#include "../../../Common/include/adaptation/CNativeCellSampling3D.hpp"
 #include <map>
 #include "../../../SU2_CFD/include/adaptation/CNativeComplexity3D.hpp"
 #include "../../../Common/include/adaptation/CComplexityNormalization.hpp"
@@ -103,6 +104,51 @@ inline void NormalizeCorrection(World& world,CBoundaryLayerMetric& layers,const 
        <<",\"production_normalization_changed\":false,\"mesh_constructed\":false}\n";
     out.close();if(!out)failure.Set(2,0,"Cannot save/close correction normalization.");
   }vote();
+}
+inline void PrepareCellCarrier(CBoundaryLayerMetric& layers,const char* domainPath,uint64_t count,uint64_t seed) {
+  World world;CLocalFailure failure;std::vector<WeightedCell3D> cells;
+  auto vote=[&]() {const auto elected=world.elect(failure);if(elected.any)throw std::runtime_error(elected.message);};
+  try {
+    std::ifstream input(domainPath,std::ios::binary);uint64_t magic=0,n=0;double core=0;
+    auto read=[&](auto& v){input.read(reinterpret_cast<char*>(&v),sizeof(v));if(!input)throw std::runtime_error("Truncated carrier source.");};
+    read(magic);read(n);read(core);
+    if(magic!=0x4e41545352433344ULL || !n || n>1000000 || !(core>0))throw std::runtime_error("Invalid original carrier source.");
+    for(uint64_t i=0;i<n;++i) {
+      uint64_t id=0,nodes[4];double x[12],m[36];read(id);read(nodes);read(x);read(m);
+      if((id+1)%world.size!=unsigned(world.rank))continue;
+      WeightedCell3D c;c.id=id;Metric sensor;
+      for(unsigned k=0;k<4;++k) {
+        c.points[k]={x[3*k],x[3*k+1],x[3*k+2]};
+        for(unsigned a=0;a<3;++a)for(unsigned b=0;b<3;++b)sensor.m[a][b]+=.25*m[9*k+3*a+b];
+      }
+      if(Orientation(c.points[0],c.points[1],c.points[2],c.points[3])<0)std::swap(c.points[0],c.points[1]);
+      Cell midpoint;for(unsigned k=0;k<4;++k)midpoint.v[k].p=c.points[k];const auto p=Centroid(midpoint);
+      const su2double query[3]={p.x,p.y,p.z};layers.ApplyPoint(query,sensor,core,nullptr,false);
+      c.importance=std::exp(LogDensity(sensor));cells.push_back(c);
+    }
+    if(input.peek()!=std::char_traits<char>::eof())throw std::runtime_error("Trailing carrier source bytes.");
+  }catch(const std::exception& e){failure.Set(2,0,e.what());}vote();
+  CellSampler3D sampler(world,std::move(cells),size_t(2)<<30);const auto points=sampler.Draw(count,seed);
+  std::vector<std::vector<CellSample3D>> outgoing(world.size);outgoing[0]=points;
+  bool admitted=false;auto all=world.exchange(outgoing,&admitted,size_t(2)<<30,sampler.ResidentBytes());
+  if(!admitted)failure.Set(3,0,"Carrier query recording exceeds storage.");vote();
+  if(!world.rank)try {
+    std::sort(all.begin(),all.end(),[](auto a,auto b){return a.row<b.row;});
+    if(all.size()!=count)throw std::runtime_error("Incomplete recorded carrier cloud.");
+    std::ofstream output("native_queries.bin",std::ios::binary),detail("carrier_queries.csv");
+    const uint64_t magic=0x4e41545155455259ULL;output.write(reinterpret_cast<const char*>(&magic),8);output.write(reinterpret_cast<const char*>(&count),8);
+    detail<<std::setprecision(17)<<"row,cell,importance,volume,x,y,z,inverse_pdf\n";
+    for(size_t i=0;i<all.size();++i) {
+      const auto& p=all[i];if(p.row!=i)throw std::runtime_error("Duplicate carrier cloud row.");
+      const double record[4]={p.point.x,p.point.y,p.point.z,p.inverse_pdf};output.write(reinterpret_cast<const char*>(record),sizeof(record));
+      detail<<p.row<<','<<p.cell<<','<<p.importance<<','<<p.volume<<','<<p.point.x<<','<<p.point.y<<','<<p.point.z<<','<<p.inverse_pdf<<'\n';
+    }
+    output.close();detail.close();if(!output || !detail)throw std::runtime_error("Cannot save carrier cloud.");
+    std::ofstream meta("carrier_metadata.json");meta<<std::setprecision(17)<<"{\"centroid_mass\":"<<double(sampler.CentroidEstimate())
+      <<",\"samples\":"<<count<<",\"proposal_seconds_rank0\":"<<sampler.preparation_seconds<<",\"draw_seconds_rank0\":"<<sampler.draw_seconds
+      <<",\"maximum_bytes_rank0\":"<<sampler.MaximumBytes()<<",\"original_RAW9\":true,\"adapted_mesh\":false,\"proven_bound\":false}\n";
+    meta.close();if(!meta)throw std::runtime_error("Cannot save carrier metadata.");
+  }catch(const std::exception& e){failure.Set(2,0,e.what());}vote();
 }
 inline void DynamicCorrection(CBoundaryLayerMetric& layers,const char* domainPath) {
   World world;CLocalFailure failure;

@@ -7,6 +7,10 @@
 #include "catch.hpp"
 #include "../../../Common/include/adaptation/CNativeMesh3D.hpp"
 #include "../../../Common/include/adaptation/CNativeSupport3D.hpp"
+#include "../../../Common/include/adaptation/CNativeCellSampling3D.hpp"
+#include <fstream>
+#include <iomanip>
+#include <cstdlib>
 #include <algorithm>
 #include <cmath>
 #include <limits>
@@ -273,4 +277,53 @@ TEST_CASE("Native support work storage and invalid geometry fail explicitly", "[
   a.triangles.push_back({0,2,1});CHECK_THROWS(SupportSampler3D({a},size_t(32)<<20,10000));a=SupportSquare();
   a.first_height=.3;CHECK_THROWS(SupportSampler3D({a},size_t(32)<<20,10000));a=SupportSquare();
   SupportSampler3D sampler({a},size_t(32)<<20,10000);CHECK_THROWS(sampler.Draw(1048577,1));CHECK_THROWS(sampler.Density({NAN,0,0}));
+}
+
+
+TEST_CASE("Native density and volume keep determinant magnitude under strong cancellation", "[NativeMesh3D][NativeDensity3D]") {
+  for(double scale:{1e-200,1.,1e200})CHECK(MetricDensity({scale,0,0,scale,0,scale})==Approx(std::pow(scale,1.5)).epsilon(1e-13));
+  const double a=std::ldexp(1.,40);KernelStats stats;
+  CHECK(MetricDensity({a+1,a,0,a+1,0,4},&stats)==Approx(2*std::sqrt(2*a+1)).epsilon(1e-14));
+  CHECK(stats.exact_orientations>0);
+  const Tetrahedron tet{{{0,0,0},{1,1,0},{1,1+std::ldexp(1.,-40),0},{0,0,1}}};
+  CHECK(TetrahedronVolume(tet)==Approx(std::ldexp(1.,-40)/6).epsilon(1e-14));
+  CHECK_THROWS(MetricDensity({-1,0,0,1,0,1}));CHECK_THROWS(MetricDensity({NAN,0,0,1,0,1}));
+  auto bad=tet;std::swap(bad[0],bad[1]);CHECK_THROWS(TetrahedronVolume(bad));
+}
+
+TEST_CASE("Candidate importance stream is ownership independent with complete positive coverage", "[NativeCellSampling3D]") {
+  World world;
+  auto cells=[&](unsigned shift) {
+    std::vector<WeightedCell3D> rows;
+    for(unsigned i=0;i<32;++i)if((i+shift)%world.size==unsigned(world.rank)) {
+      WeightedCell3D c;c.points={{{4.*i,0,0},{4.*i+1,0,0},{4.*i,1,0},{4.*i,0,1}}};c.importance=1+.5*i;c.id=i;rows.push_back(c);
+    }return rows;
+  };
+  CellSampler3D first(world,cells(0),size_t(32)<<20),second(world,cells(1),size_t(32)<<20);
+  const auto a=first.Draw(2048,7349),b=second.Draw(2048,7349);
+  REQUIRE(a.size()==b.size());CHECK(first.CentroidEstimate()==Approx((32+31*32*.25)/6.).epsilon(1e-14));
+  for(size_t i=0;i<a.size();++i) {
+    CHECK(a[i].row==b[i].row);CHECK(a[i].point.x==b[i].point.x);CHECK(a[i].point.y==b[i].point.y);CHECK(a[i].point.z==b[i].point.z);
+    CHECK(a[i].inverse_pdf==b[i].inverse_pdf);CHECK(a[i].cell==b[i].cell);
+    CHECK(a[i].importance*a[i].inverse_pdf==Approx(double(first.CentroidEstimate())).epsilon(1e-12));
+  }
+  if(std::getenv("SU2_NATIVE_CELL_SAMPLER_TRACE")) {
+    std::ofstream out("cell_sampler_rank"+std::to_string(world.rank)+".csv");out<<std::setprecision(17)<<"row,x,y,z,inverse_pdf,cell,importance,volume\n";
+    for(const auto& p:a)out<<p.row<<','<<p.point.x<<','<<p.point.y<<','<<p.point.z<<','<<p.inverse_pdf<<','<<p.cell<<','<<p.importance<<','<<p.volume<<'\n';
+    REQUIRE(bool(out));
+  }
+}
+
+TEST_CASE("Candidate importance rejects invalid metadata and collective resource/control faults", "[NativeCellSampling3D]") {
+  World world;WeightedCell3D cell;cell.points={{{0,0,0},{1,0,0},{0,1,0},{0,0,1}}};cell.importance=1;
+  auto one=world.rank==0?std::vector<WeightedCell3D>{cell}:std::vector<WeightedCell3D>{};
+  CellSampler3D sampler(world,one,size_t(32)<<20);
+  CHECK_THROWS(sampler.Draw(world.rank==0?0:32,1));
+  CHECK_THROWS_AS(CellSampler3D(world,one,4096),CellSamplingLimit3D);
+  auto tiny=one;if(world.rank==0){auto extra=cell;for(auto& p:extra.points)p.x+=2;extra.importance=1e-30;tiny.push_back(extra);}
+  CHECK_THROWS_AS(CellSampler3D(world,tiny,size_t(32)<<20),CellSamplingLimit3D);
+  auto invalid=one;if(world.rank==0)invalid.front().importance=0;
+  CHECK_THROWS(CellSampler3D(world,invalid,size_t(32)<<20));
+  if(world.rank==0)one.push_back(cell);CHECK_THROWS(CellSampler3D(world,one,size_t(32)<<20));
+  CHECK_THROWS(CellSampler3D(world,{},size_t(32)<<20));
 }

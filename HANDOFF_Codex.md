@@ -45,21 +45,27 @@ rebuilt test binary and EVERY prior source/build/binary pin match exactly. Reuse
 baseline evidence; no new production API/default/tolerance/sampler/correction.
 [Experiment, withdrawal and restoration proof](integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/face_pair_variance_v1/README.md).
 
-**Next connected implementation:** original-field reassessment on the candidate
-integration partition before native publication, then explicit bounded frozen
-normalization/adaptation stages when a correction is warranted and supported.
-Use original donor interpolation/extension eligibility and the same actual BL;
-reset trial values from original unbounded frames/bounds/gradation, never rescale
-already clipped tensors or change target during local operations. Reuse the
-existing source service; one final flow/BDF transfer/publication. Audit lifetime,
-parent/worker collectives, deadlines/memory and provisional/infeasible states.
-No more sampler/count/subdivision ladders or unchanged full M6 reruns. This coupling
-is NOT implemented; [integration points and requirements](Handbook/GOAL3_RUNTIME_COMPLEXITY.md).
+**Latest connected implementation:** actual candidate-partition reassessment now
+runs before native3D publication, querying the SAME original P1/actual BL; its
+parent source index is reused for reader return. MPI1/2/4 controls and curved/RANS
+N4M2 lifecycle pass. On an actual accepted planar6->24-cell RANS mesh,8192 samples:
+indicator10.63x lower, observed error14.08x lower (.7910%->.05619%), phase.02094s.
+Budget1 remains below reference mass3.69416; no normalization correction is claimed.
+M6 coarse centroid596350 versus sampled979024+/-101701 HEURISTIC shows substantial
+missed BL mass and poor coarse-proposal variance. It does not replace initialization.
+[Implementation, exact evidence, work and limits](Handbook/GOAL3_CANDIDATE_REASSESSMENT.md).
+
+**Next capability:** calibrated global error/allocation and explicit bounded frozen
+normalization/adaptation stages where warranted and supported. Reset from original
+unbounded frames/bounds/gradation, never rescale clipped tensors or change target
+inside local operations. New reassessment is diagnostic; correction is NOT coded.
+No sampler/count/subdivision ladders or unchanged full M6 rerun; difficult accepted
+construction remains a separate unresolved capability.
 
 ## Full-goal blockers and qualified scope
 
-No accepted complete M6 mesh, calibrated global error/allocation, finer-mesh
-same-original-field reassessment/correction, converged viscous accuracy or complete
+No accepted complete M6 mesh, calibrated global error/allocation, general thin/curved
+same-original-field correction, converged viscous accuracy or complete
 lifecycle affordability. Last full M6 construction rejects at unchanged300s,
 447 internal publications/1788 work, rank2 geometry147.86s. Keep that failure;
 reconsider missing construction capability before another local fallback.
@@ -84,10 +90,13 @@ agent's entries in the [outcome ledger](Handbook/SUGGESTION_OUTCOME_LEDGER.md).
 
 ## Execution and working rules
 
-All owned jobs terminal. Last experimental/restored builds1m39s/1m38s, pilot39.35s,
-resumed campaign64.33s; max build process2.40GiB/replay667MiB, not aggregate peaks.
-Host40–41GiB available, no observed swap growth/recorded GNU-time swaps0. No CFD,
-remesher or cluster runs in this sampling experiment. Both binaries rebuilt.
+All owned jobs terminal. Latest focused serial/MPI/curved/RANS batch qualifies
+candidate reassessment; source64-point cap respected. Pilot13.03s, affected campaign
+39.25s plus report-only finalization, actual-partition comparison4.61s. Peak build
+process2.41GiB/replay667MiB; observed host~39–41GiB available/no swap growth.
+No CFD/full-M6/cluster run. Build failures/source-batch failure and report-only
+serialization failures are preserved. Completed native cases were reused for the
+report fix; executed-helper archive/transition explicitly verify provenance.
 
 Follow [AGENTS.md](AGENTS.md): substantial capability-first changes, difficult
 case early, source/build/binary/input/helper-aware resumable evidence, no full

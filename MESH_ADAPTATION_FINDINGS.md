@@ -6412,3 +6412,29 @@ No CFD/remesher rerun. Stop sampling variants and couple actual candidate-partit
 reassessment of the SAME original P1/geometric field to bounded frozen correction
 stages. This and general difficult M6 construction remain open.
 [Evidence/negative control/resources/restoration](integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/face_pair_variance_v1/README.md).
+
+## 2026-10-17: actual candidate partition reassesses the immutable original field
+
+Native3D now reassesses before reference/flow publication and reuses its original
+source index for reader return. Candidate tensors determine positive importance
+probabilities only; every density queries original sensor-only P1 and actual BL.
+Global MPI estimate/point and eight-block SEM/heuristic indicator and separate
+reassessment timing are exposed. Resource/probability limits retain available mass
+with unknown uncertainty; no cells/BL contribution are silently dropped. Targets
+and geometry/h0/positive/q/J/full-edge/transfer checks remain unchanged.
+
+Actual accepted planar RANS SA N4M2,6->24 cells: same8192 samples yield10.63x lower
+indicator and14.08x lower observed error (.7910%->.05619%), independent reference
+3.6941577302. Reassessment.02094s on this tiny correctness fixture; budget1 remains
+below constrained field mass. Smooth subdivision-only control is separately4.30x.
+M6 coarse negative control centroid596350.33 versus sampled979024.48+/-101701.02
+HEURISTIC exposes missed BL mass and poor coarse weighting; retain complete-support
+initialization. No accepted M6 or calibrated default/global error/correction claim.
+
+MPI1/2/4 controls, exact M6 MPI2/4 rows, independent P1/PDF/containment/composed
+checks and affected curved/RANS BDF/SA/restart/SU2+CGNS audit pass. Compile/source-
+batch/reporting failures are retained; source64-point cap respected. Reporting-only
+fix reused completed native evidence with an explicit helper transition. No CFD,
+full regression, unchanged full M6 retry or cluster job. One heavy job; largest
+build process2.41GiB/replay667MiB, host~39–41GiB available/no swap growth.
+[Full result, work, rejected experiment and open correction/construction gates](Handbook/GOAL3_CANDIDATE_REASSESSMENT.md).

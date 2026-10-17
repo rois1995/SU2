@@ -502,6 +502,18 @@ void ValidateTensor(const Tensor& tensor, KernelStats* stats) {
                     {tensor.xz, tensor.yz, tensor.zz}, stats) > 0))
     throw std::invalid_argument("Native 3D metric is not positive definite.");
 }
+long double TetrahedronVolume(const Tetrahedron& tet,KernelStats* stats) {
+  const auto volume=Determinant(tet[0],tet[1],tet[2],tet[3],stats,1e-13L)/6;
+  if(!(volume>0) || !std::isfinite(volume))throw std::invalid_argument("Nonpositive/unrepresentable native 3D integration cell.");
+  return volume;
+}
+double MetricDensity(const Tensor& m,KernelStats* stats) {
+  ValidateTensor(m,stats);
+  const auto determinant=Determinant({}, {m.xx,m.xy,m.xz},{m.xy,m.yy,m.yz},{m.xz,m.yz,m.zz},stats,1e-13L);
+  const double density=double(std::sqrt(determinant));
+  if(!(density>0) || !std::isfinite(density))throw std::runtime_error("Unrepresentable native 3D metric density.");
+  return density;
+}
 long double MetricNorm(Point a, Point b, const Tensor& metric, KernelStats* stats) {
   ValidateTensor(metric, stats);
   if (!(Finite(a) && Finite(b))) throw std::invalid_argument("Nonfinite native 3D metric chord.");

@@ -1509,6 +1509,16 @@ TEST_CASE("Native3D production wall policy preserves sensor donors and RANS hist
     }
     const auto result=backend->Remesh(config,driver->Geometry(),metric);INFO("workers="<<workers<<" cycle="<<cycle);
     REQUIRE(result.status==CRemeshResult::Status::COMPLETE);CHECK(native->Statistics().complete);CHECK(native->Statistics().workers==workers);
+    REQUIRE(result.complexity.estimated);CHECK(result.complexity.samples==8192);CHECK(result.complexity.value>0);CHECK(std::isfinite(result.complexity.uncertainty));
+    if(!world.rank) {
+      std::ofstream out("reassessment_"+name+"_stage"+std::to_string(cycle)+".json");out<<std::setprecision(17)
+        <<"{\"value\":"<<result.complexity.value<<",\"indicator\":"<<result.complexity.uncertainty
+        <<",\"point_SE\":"<<result.complexity.standard_error<<",\"block_SE\":"<<result.complexity.block_standard_error
+        <<",\"samples\":"<<result.complexity.samples<<",\"phase_seconds\":"<<native->Statistics().phases[13]
+        <<",\"return_source_seconds\":"<<native->Statistics().returned.source_seconds
+        <<",\"actual_original_field\":true,\"proven_bound\":false,\"normalization_correction\":false}\n";REQUIRE(bool(out));
+    }
+
     CHECK(State(driver->Geometry(),driver->Solver())==before);CHECK(State(driver->Geometry(),*driver->Turbulence())==beforeTurb);
     if(cycle)CHECK_FALSE(driver->Reference()->original);else CHECK(EncodeReference(*driver->Reference())==authority);
     driver->ReplaceMesh(result,transfer);CHECK(EncodeReference(*driver->Reference())==authority);
@@ -2170,3 +2180,50 @@ TEST_CASE("Cold native cylinder BL construction and release use the same origina
 #include "fixtures/native_curved_rans_runtime.inc"
 
 #include "fixtures/native_region_core_fields.inc"
+
+
+TEST_CASE("Candidate complexity reassesses original P1 and actual composition without donor refitting", "[NativeReassessment3D]") {
+  World world;std::string reason;
+  auto geometry=[&](int divisions,bool original) {
+    const auto mesh=simplex_test::MakeSimplexMesh(3,divisions,[](const passivedouble*){return "far";});
+    ImportedGeometry result;
+    for(size_t i=0;i<mesh.GetnElem();++i) {
+      Cell c;c.id=i;DonorCell d;
+      for(unsigned k=0;k<4;++k) {const auto n=mesh.elem[4*i+k];c.v[k]={n,{mesh.coord[3*n],mesh.coord[3*n+1],mesh.coord[3*n+2]}};}
+      if(Orientation(c.v[0].p,c.v[1].p,c.v[2].p,c.v[3].p)<0)std::swap(c.v[0],c.v[1]);
+      d.cell=c;for(unsigned k=0;k<4;++k)d.sensor[k]={1+c.v[k].p.x,0,0,1,0,1};
+      if(original && (i+1)%world.size==unsigned(world.rank))result.original.push_back(d);
+      if(i%world.size==unsigned(world.rank)){OwnedCell row;row.cell=c;result.cells.emplace(i,row);}
+    }return result;
+  };
+  const auto input=geometry(1,true),fine=geometry(4,false);const auto saved=Bytes(input.original);
+  DonorImport source(world,true);REQUIRE(source.Build(input.original,reason));CHECK(source.BuiltFrom(input.original));
+  const auto copy=input.original;CHECK_FALSE(source.BuiltFrom(copy));
+  CReaderSlices preserved;preserved.nDim=99;ReferenceState empty;BridgeStats denied;
+  CHECK_FALSE(ReaderSlices(world,input.cells,copy,empty,preserved,reason,denied,{},size_t(64)<<20,0,true,&source));
+  CHECK(preserved.nDim==99);CHECK(reason.find("Prepared native3D reader source")!=std::string::npos);
+  if(world.size>1) {
+    CHECK_FALSE(ReaderSlices(world,input.cells,input.original,empty,preserved,reason,denied,{},size_t(64)<<20,0,true,world.rank==0?&source:nullptr));
+    CHECK(preserved.nDim==99);CHECK(reason.find("Prepared native3D reader source")!=std::string::npos);
+  }
+  PlanarReference reference(std::vector<Facet>{});uint64_t compositions=0;
+  const auto compose=[&](Point p,Tensor m){++compositions;m.zz*=1+.25*p.z;return m;};
+  ComplexityReassessment3D coarse,refined;BridgeStats a,b;
+  REQUIRE(ReassessComplexity(world,input.cells,source,reference,compose,coarse,reason,a,size_t(64)<<20));
+  REQUIRE(ReassessComplexity(world,fine.cells,source,reference,compose,refined,reason,b,size_t(64)<<20));
+  REQUIRE(coarse.estimated);REQUIRE(refined.estimated);CHECK(refined.samples==8192);
+  const double exact=(2./3*(std::pow(2.,1.5)-1))*(2./(.75)*(std::pow(1.25,1.5)-1));
+  CHECK(std::abs(refined.value-exact)<=5*std::max(refined.standard_error,refined.block_standard_error));
+  CHECK(refined.uncertainty<.7*coarse.uncertainty);CHECK(compositions==a.compositions+b.compositions);
+  CHECK(Bytes(input.original)==saved);CHECK(source.Statistics().builds==1);
+  ComplexityReassessment3D sentinel;sentinel.value=123;sentinel.samples=77;BridgeStats failed;
+  CHECK_FALSE(ReassessComplexity(world,fine.cells,source,reference,[](Point,Tensor){return Tensor{-1,0,0,1,0,1};},sentinel,reason,failed,size_t(64)<<20));
+  CHECK(sentinel.value==123);CHECK(sentinel.samples==77);
+  REQUIRE(ReassessComplexity(world,fine.cells,source,reference,compose,sentinel,reason,failed,size_t(64)<<20,0,128,1,[]{return false;}));
+  CHECK_FALSE(sentinel.estimated);CHECK(std::isinf(sentinel.uncertainty));CHECK_FALSE(sentinel.reason.empty());
+  if(!world.rank) {
+    std::ofstream out("original_field_reassessment.json");out<<std::setprecision(17)<<"{\"coarse\":"<<coarse.value<<",\"fine\":"<<refined.value
+      <<",\"reference\":"<<exact<<",\"coarse_indicator\":"<<coarse.uncertainty<<",\"fine_indicator\":"<<refined.uncertainty
+      <<",\"original_source_unchanged\":true,\"source_builds\":"<<source.Statistics().builds<<",\"proven_bound\":false}\n";REQUIRE(bool(out));
+  }
+}

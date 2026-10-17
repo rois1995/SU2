@@ -97,12 +97,16 @@ class DonorImport {
    * Missing coverage or elected storage/protocol failure returns no partial answers. */
   DonorSamples SamplePoints(const std::vector<Point>& points,const std::vector<Id>& extensions={},
                             size_t ceiling=SIZE_MAX,size_t caller_bytes=0);
+  /*! Reuse only while this exact immutable input object and communicator remain alive. */
+  bool BuiltFrom(const std::vector<DonorCell>& original) const {return initialized && built_from==&original;}
+  CPassiveComm::Communicator Communicator()const{return world.comm;}
   size_t ResidentBytes() const;
   const DonorImportStats& Statistics() const { return stats; }
  private:
   World& world;
   const bool timings;
   bool initialized = false, filter_cells = false;
+  const std::vector<DonorCell>* built_from=nullptr;
   std::vector<DonorCell> donors;
   std::vector<double> boxes;
   std::unique_ptr<CADTElemClass> index;

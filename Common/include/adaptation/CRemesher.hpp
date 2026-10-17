@@ -29,6 +29,8 @@
 #include <string>
 #include <vector>
 #include <functional>
+#include <cstdint>
+#include <limits>
 
 #include "../containers/C2DContainer.hpp"
 #include "CReaderSlices.hpp"
@@ -46,6 +48,12 @@ struct CRemeshResult {
    *         unadapted. The serial remesher always returns COMPLETE. */
   enum class Status { COMPLETE, INCOMPLETE_COVERAGE, INCOMPLETE_QUALITY };
 
+  struct Complexity {
+    double value=0,uncertainty=std::numeric_limits<double>::infinity(),standard_error=0,block_standard_error=0;
+    uint64_t samples=0;
+    bool estimated=false;
+    std::string reason;
+  } complexity; /*!< Original-field candidate-domain reassessment, empirical indicator only. */
   CReaderSlices slices;              /*!< \brief This rank's part of the new mesh (with the metric of its points). */
   std::vector<std::string> markers;  /*!< \brief Markers of the new mesh with boundary elements (all ranks). */
   Status status = Status::COMPLETE;  /*!< \brief Status of the remesh. */

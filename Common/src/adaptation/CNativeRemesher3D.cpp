@@ -394,15 +394,37 @@ CRemeshResult CNativeRemesher3D::Remesh(const CConfig& config, const CGeometry& 
       ready = vote(valid, detail);
     }
     now = parent.seconds();
+    // Reassess before any reference/flow publication. Only the proposal uses candidate cells.
+    // The one retained parent source also serves return packing, with immutable original sensors.
+    std::unique_ptr<DonorImport> return_source;
+    if(ready) {
+      CLocalFailure failure;
+      try {return_source=std::make_unique<DonorImport>(parent,control.timings);}
+      catch(const std::exception& e){failure.Set(3,0,e.what());}
+      ready=vote(!failure.Failed(),failure.message);
+      const auto live=transfer_memory::Add(held(),OwnedStorageBytes(working),transfer_memory::Bytes(migrated));
+      const auto buildStart=parent.seconds();
+      if(ready)ready=return_source->Build(imported.original,reason,control.memory_ceiling,live);
+      const auto sourceSeconds=parent.seconds()-buildStart;
+      if(ready) {
+        auto within=[&](){return !control.maximum_seconds || std::chrono::duration<double>(std::chrono::steady_clock::now()-deadline_start).count()<control.maximum_seconds;};
+        ready=ReassessComplexity(parent,working,*return_source,*pending->state.original,composition,stats.complexity,
+            reason,stats.reassessment,control.memory_ceiling,transfer_memory::Add(held(),transfer_memory::Bytes(migrated)),8192,20261017,within);
+        stats.reassessment.source_seconds+=sourceSeconds;stats.reassessment.total_seconds+=sourceSeconds;
+        result.complexity={stats.complexity.value,stats.complexity.uncertainty,stats.complexity.standard_error,
+            stats.complexity.block_standard_error,stats.complexity.samples,stats.complexity.estimated,stats.complexity.reason};
+      }
+    }
+    phase(13);
     // Transport only the original P1 sensor; geometric BL is recomposed at each subsequent query.
     if (ready)
       ready = ReaderSlices(parent, working, imported.original, pending->state, result.slices, reason, stats.returned,
                            {}, control.memory_ceiling, transfer_memory::Add(held(), transfer_memory::Bytes(migrated)),
-                           control.timings);
+                           control.timings,return_source.get());
     phase(11);
     stats.maximum_native_bytes =
         std::max({stats.maximum_native_bytes, stats.refine.maximum_work_bytes, stats.coarsen.maximum_work_bytes,
-                  stats.returned.maximum_native_bytes, parent.max_exchange_work_bytes});
+                  stats.returned.maximum_native_bytes, stats.reassessment.maximum_native_bytes, parent.max_exchange_work_bytes});
     if (ready && control.maximum_seconds)
       ready=vote(remaining_time()>0,"Native3D elapsed deadline exhausted after return-to-CFD packing.");
     if (ready) {
@@ -481,7 +503,7 @@ CRemeshResult CNativeRemesher3D::Remesh(const CConfig& config, const CGeometry& 
       prefix(stage);
       detail << " total=" << b.total_seconds << " points=" << b.points_seconds << " cells=" << b.cells_seconds
              << " faces=" << b.faces_seconds << " source=" << b.source_seconds << " query=" << b.query_seconds
-             << " reader=" << b.reader_seconds << " other=" << b.other_seconds
+             << " reader=" << b.reader_seconds << " reduction="<<b.reduction_seconds<< " other=" << b.other_seconds
              << " requests=" << b.requests << " hits=" << b.hits << " misses=" << b.misses
              << " invalid_queries=" << b.invalid_queries << " failures=" << b.failures << " evictions=" << b.evictions
              << " compositions=" << b.compositions << " batches=" << b.batches << " retries=" << b.batch_retries
@@ -494,7 +516,7 @@ CRemeshResult CNativeRemesher3D::Remesh(const CConfig& config, const CGeometry& 
              << " nested_tracked_collectives=" << b.tracked_collective_seconds
              << " native_bound=" << b.maximum_native_bytes << '\n';
     };
-    bridge("import", stats.imported); bridge("weights", stats.weights); bridge("return", stats.returned);
+    bridge("import", stats.imported); bridge("weights", stats.weights); bridge("return", stats.returned); bridge("reassessment",stats.reassessment);
     prefix("source");
     const auto& d = stats.source;
     detail << " build=" << d.build_seconds << " imports=" << d.import_seconds << " requests=" << d.owner_requests
@@ -594,6 +616,11 @@ CRemeshResult CNativeRemesher3D::Remesh(const CConfig& config, const CGeometry& 
     engine("refine",stats.refine); engine("coarsen",stats.coarsen);
     SU2Native3D::ProfileRow3D(detail.str(), parent.comm);
   }
+  if(parent.rank==0 && stats.complexity.estimated)std::cout<<std::setprecision(17)
+      <<"Native3D candidate complexity: value="<<stats.complexity.value<<" uncertainty_indicator="<<stats.complexity.uncertainty
+      <<" standard_error="<<stats.complexity.standard_error<<" block_standard_error="<<stats.complexity.block_standard_error
+      <<" samples="<<stats.complexity.samples<<" original_field=1 proven_bound=0 normalization_correction=0\n";
+  else if(parent.rank==0 && stats.complete)std::cout<<"Native3D candidate complexity unresolved: "<<stats.complexity.reason<<"\n";
   stats.report_seconds = parent.seconds() - report;
   return result;
 }

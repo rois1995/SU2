@@ -1,0 +1,14 @@
+Catchpoint 1 (throw)
+[Thread debugging using libthread_db enabled]
+Using host libthread_db library "/lib/x86_64-linux-gnu/libthread_db.so.1".
+[Detaching after fork from child process 1489253]
+[New Thread 0x7ffff760b700 (LWP 1489257)]
+[New Thread 0x7ffff6c56700 (LWP 1489258)]
+../../UnitTests/SU2_CFD/adaptation/CNativeImport3D_tests.cpp:2212: failed: ReassessComplexity(world,input.cells,source,reference,compose,coarse,reason,a,size_t(64)<<20) for: false
+
+Thread 1 "test_driver" hit Catchpoint 1 (exception thrown), 0x00007ffff7d06662 in __cxa_throw () from /lib/x86_64-linux-gnu/libstdc++.so.6
+#2  0x0000555555b11a81 in C_A_T_C_H_T_E_S_T_97 () at ../../UnitTests/SU2_CFD/adaptation/CNativeImport3D_tests.cpp:2212
+2212	  REQUIRE(ReassessComplexity(world,input.cells,source,reference,compose,coarse,reason,a,size_t(64)<<20));
+$1 = "Invalid/uninitialized original point sample batch."
+$2 = {total_seconds = 0.0058987469999999993, points_seconds = 0.0056620129999999996, cells_seconds = 1.5464e-05, faces_seconds = 0, source_seconds = 0, query_seconds = 9.6993999999999553e-05, reader_seconds = 0, reduction_seconds = 0, other_seconds = 0.00012427600000000042, batches = 2, batch_retries = 0, requests = 6, hits = 0, misses = 6, compositions = 6, invalid_queries = 0, failures = 0, evictions = 0, field_builds = 0, source_point_queries = 134, source_point_payloads = 6, source_point_seconds = 4.9068999999999675e-05, source_point_search_seconds = 5.5539999999999997e-06, source_point_interpolation_seconds = 2.2790000000000005e-06, field_build_seconds = 0, field_search_seconds = 0, interpolation_seconds = 0, composition_seconds = 6.8599999999999987e-07, tracked_bytes = 919760, tracked_calls = 20, tracked_collective_seconds = 0.00030531999999999782, maximum_native_bytes = 5534584}
+$3 = {value = 0, uncertainty = inf, standard_error = 0, block_standard_error = 0, centroid_estimate = 0, samples = 0, estimated = false, reason = ""}

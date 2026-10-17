@@ -1,0 +1,19 @@
+{
+  "scope": "Report serialization only. All completed runtime/source/binary/input/log hashes verified; no SU2 rerun.",
+  "qualified_cases": [
+    "bridge_np4",
+    "controls_np1",
+    "controls_np2",
+    "controls_np4",
+    "m6_carrier_np2/density",
+    "m6_carrier_np2",
+    "m6_carrier_np4/density",
+    "m6_carrier_np4",
+    "mpi4_m2"
+  ],
+  "executed_helper_sha256": "67a56846a5224b1594f7775ec14fb54f9f797e43642baba689d336756e9e6d93",
+  "corrected_helper_sha256": "68b6495d2e2b565e83db022570cd1f95e10ebbbf406e7c46180d1085edf52521",
+  "summary_sha256": "b8ef41b15d6d635e6ab23ec488512b43af2c2918fc0fb1ecc7bf6494c9b90e39",
+  "finalizer_sha256": "a58995132a3eb3a9d29ccd1947b3236213abc790b6e21980680a55e77ee0fcc7",
+  "correction": "Convert NumPy quadrature reference to Python float before Boolean comparison and JSON output."
+}

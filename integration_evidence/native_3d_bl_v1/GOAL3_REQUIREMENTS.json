@@ -1642,6 +1642,43 @@
       "exact_baseline_source_build_binary_restoration": true,
       "production_tolerance_or_sampling_changed": false,
       "next": "Actual candidate-partition reassessment on immutable original donors, then bounded frozen correction epochs; not another sampling mechanism."
+    },
+    "candidate_reassessment": {
+      "status": "QUALIFIED_LOCAL_ORIGINAL_FIELD_REASSESSMENT_NOT_FULL_CORRECTION",
+      "evidence": "integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/candidate_reassessment_v1",
+      "full_goal_complete": false,
+      "accepted_M6_mesh": false,
+      "normalization_correction_implemented": false,
+      "original_sensor_P1_and_actual_BL_preserved": true,
+      "source_index_reused_for_reader_return": true,
+      "samples": 8192,
+      "MPI_controls": [
+        1,
+        2,
+        4
+      ],
+      "MPI2_4_M6_rows_exact": true,
+      "accepted_planar_RANS_cells": [
+        6,
+        24
+      ],
+      "accepted_planar_reference": 3.6941577302189414,
+      "accepted_planar_estimate": 3.6962333831823107,
+      "accepted_planar_indicator_ratio": 0.09407326802763888,
+      "accepted_planar_observed_error_ratio": 0.07103110960454505,
+      "accepted_planar_reassessment_seconds": 0.020938000999999984,
+      "M6_RAW9_coarse_centroid": 596350.3348055484,
+      "M6_RAW9_coarse_sampled": 979024.4755521643,
+      "M6_RAW9_coarse_indicator": 101701.01849183175,
+      "indicator_is_proven_bound": false,
+      "limits": [
+        "Refinement benefit demonstrated on one accepted planar RANS case, not M6 or general thin/curved/interacting walls.",
+        "Coarse candidate weighting has much worse variance than existing complete-support initialization; do not replace it.",
+        "No calibrated default error, global error allocation, bounded correction epochs, viscous accuracy or whole-event affordability.",
+        "Tiny SEM excludes an independently bounded arithmetic/interpolation uncertainty term."
+      ],
+      "owned_jobs": "terminal",
+      "resource_policy": "one heavy job/nice19/build-j1/thread1/MPI<=4; observed~39-41GiB available/no swap growth"
     }
   }
 }

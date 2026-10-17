@@ -1632,6 +1632,11 @@ TEST_CASE("Replay a complete faceted wall volume-integration input without CFD",
       <<"],\"preparation_work\":"<<stats.preparation_work<<",\"pdf_candidates\":"<<stats.pdf_candidates<<",\"retained_bytes\":"<<stats.retained_bytes
       <<",\"preparation_seconds\":"<<stats.preparation_seconds<<",\"pdf_seconds\":"<<stats.pdf_seconds<<",\"proven_error_bound\":false}\n";REQUIRE(bool(result));return;
   }
+  if(const char* domain=std::getenv("SU2_NATIVE_BL_CELL_CARRIER")) {
+    const uint64_t count=std::getenv("SU2_NATIVE_BL_CARRIER_SAMPLES")?std::stoull(std::getenv("SU2_NATIVE_BL_CARRIER_SAMPLES")):8192;
+    const uint64_t seed=std::getenv("SU2_NATIVE_BL_PROPOSAL_SEED")?std::stoull(std::getenv("SU2_NATIVE_BL_PROPOSAL_SEED")):20261017;
+    REQUIRE_NOTHROW(SU2NativeBLReplay::PrepareCellCarrier(layers,domain,count,seed));return;
+  }
   if(const char* domain=std::getenv("SU2_NATIVE_BL_DYNAMIC_DOMAIN")) {
     REQUIRE_NOTHROW(SU2NativeBLReplay::DynamicCorrection(layers,domain));return;
   }

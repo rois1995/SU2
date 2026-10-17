@@ -1,0 +1,31 @@
+controls_np1 {"exit_code": 0, "elapsed_seconds": 0.4431756620761007, "command": ["taskset", "-c", "0", "nice", "-n", "19", "timeout", "--kill-after=5s", "180s", "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver", "[NativeDensity3D],[NativeCellSampling3D],[NativeReassessment3D]", "--abort", "--reporter", "compact"], "provenance_sha256": "8a08f644f1bbcb16bf6f43927114337cbfd7ffbd48cee6a43cb4c64d9ac3c42b", "log_sha256": "24c027e1bd9752cea42d5e7883abc41cbc51cf4979e30804ae5453259bc4468e"}
+m6_carrier_np2 {"exit_code": 0, "elapsed_seconds": 3.5524349809857085, "command": ["taskset", "-c", "0-1", "nice", "-n", "19", "timeout", "--kill-after=5s", "180s", "mpirun", "-np", "2", "--bind-to", "none", "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver", "[NativeFacetedVolumeReplay3D]", "--abort", "--reporter", "compact"], "provenance_sha256": "5028b747d58e255ef8481921572ed3866445d39de4fe4affe2c5901ebe6ac865", "log_sha256": "b73030cf2d1d60e8a748ff83c436114a93f6b23a7052ea2830cc4923f22a388d"}
+density {"exit_code": 0, "elapsed_seconds": 2.3125023739412427, "command": ["taskset", "-c", "0-1", "nice", "-n", "19", "timeout", "--kill-after=5s", "180s", "mpirun", "-np", "2", "--bind-to", "none", "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver", "[NativeFacetedVolumeReplay3D]", "--abort", "--reporter", "compact"], "provenance_sha256": "4576545f30637d7ce9341b75f4219437240748bf392d9cb2b1b48846d7c641d0", "log_sha256": "9a73bd26d1b2cb6282e746f6ad07fee0e6e86d51f1aeac7a76dbc2c3591e4467"}
+{
+  "serial": {
+    "coarse": 1.2907767463636561,
+    "fine": 1.292015471549741,
+    "reference": 1.2922266036034056,
+    "coarse_indicator": 0.0038935064694211683,
+    "fine_indicator": 0.0009064420513024003,
+    "original_source_unchanged": true,
+    "source_builds": 1,
+    "proven_bound": false
+  },
+  "m6_coarse_np2": {
+    "value": 979024.4755521643,
+    "point_SE": 33900.33949727725,
+    "block_SE": 32186.19377679151,
+    "indicator": 101701.01849183175,
+    "relative_indicator": 0.1038799550281651,
+    "centroid_estimate": 596350.3348055484,
+    "samples": 8192,
+    "sensor_density_max_relative_error": 2.1382895454280515e-13,
+    "exact_weight_checks": 63,
+    "proposal_pdf_max_relative_error": 2.220446049250313e-16,
+    "original_source_sha256": "391d190e6c177d5c71f6c5bd544bfec265637ef142cfcfcafeb7e68b87e95e5a",
+    "proven_bound": false,
+    "adapted_mesh": false,
+    "scope": "Coarse candidate proposal negative control. Full composed density/inverse-PDF mean; legacy correction-only summary unused."
+  }
+}

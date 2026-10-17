@@ -1,0 +1,36 @@
+Traceback (most recent call last):
+  File "integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/candidate_reassessment_v1/campaign.py", line 104, in <module>
+    if __name__=='__main__':main()
+  File "integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/candidate_reassessment_v1/campaign.py", line 75, in main
+    summary={'serial':controls(1),'m6_coarse_np2':coarse_m6(2)}
+  File "integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/candidate_reassessment_v1/campaign.py", line 29, in controls
+    folder=execute('controls_np%d'%rank,rank,'[NativeDensity3D],[NativeCellSampling3D],[NativeReassessment3D]',{'SU2_NATIVE_CELL_SAMPLER_TRACE':'1'})
+  File "integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/candidate_reassessment_v1/campaign.py", line 26, in execute
+    folder=BASE/name;inputs(folder,[fixture]);run.invoke(folder,env or {},fixture,rank,test_filter=filters);return folder
+  File "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/run.py", line 55, in invoke
+    if not ((0<run.returncode<124) if expected_failure else run.returncode==0):raise RuntimeError('Failed '+str(folder))
+RuntimeError: Failed /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/candidate_reassessment_v1/controls_np1
+Command exited with non-zero status 1
+	Command being timed: "nice -n 19 python3 integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/candidate_reassessment_v1/campaign.py --pilot"
+	User time (seconds): 1.90
+	System time (seconds): 0.22
+	Percent of CPU this job got: 86%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:02.46
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 66876
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 2
+	Minor (reclaiming a frame) page faults: 21903
+	Voluntary context switches: 1059
+	Involuntary context switches: 34
+	Swaps: 0
+	File system inputs: 0
+	File system outputs: 56
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 1

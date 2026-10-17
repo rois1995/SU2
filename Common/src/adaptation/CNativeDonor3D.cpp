@@ -232,7 +232,7 @@ bool DonorImport::Build(const std::vector<DonorCell>& original, std::string& rea
   if (!Admit(transfer_memory::Add(check_peak, resident), ceiling, reason)) { ++stats.rejected; return false; }
   donors.swap(staged); boxes.swap(staged_boxes); index.swap(staged_index); ranks.swap(staged_ranks);
   filter_cells = total > MaximumDonors;
-  initialized = true;
+  initialized = true;built_from=&original;
   return true;
 }
 DonorPatch DonorImport::Import(const std::vector<DonorRegion>& regions, size_t ceiling, size_t caller_bytes) {

@@ -5,6 +5,7 @@
  * SU2 is free software under the GNU Lesser General Public License, version 2.1 or later.
  */
 #include "../../include/adaptation/CNativeImport3D.hpp"
+#include "../../include/adaptation/CNativeCellSampling3D.hpp"
 #include "../../include/adaptation/CDistributedSearch.hpp"
 #include "../../include/adaptation/CMeshGather.hpp"
 #include "../../include/CConfig.hpp"
@@ -63,7 +64,7 @@ struct Envelope {
     stats.total_seconds = world.seconds() - start;
     stats.other_seconds =
         std::max(0., stats.total_seconds - stats.points_seconds - stats.cells_seconds - stats.faces_seconds -
-                         stats.source_seconds - stats.query_seconds - stats.reader_seconds);
+                         stats.source_seconds - stats.query_seconds - stats.reader_seconds - stats.reduction_seconds);
   }
 };
 bool Vote(World& world, const CLocalFailure& failure, std::string& reason) {
@@ -694,11 +695,93 @@ bool WorkingWeights(World& parent, const Owned& cells, DonorImport& source, std:
   reason.clear();
   return true;
 }
+bool ReassessComplexity(World& parent,const Owned& candidate,DonorImport& source,
+    const PlanarReference& reference,MetricComposition composition,ComplexityReassessment3D& output,
+    std::string& reason,BridgeStats& stats,size_t ceiling,size_t caller_bytes,uint64_t count,uint64_t seed,
+    std::function<bool()> withinBudget) {
+  Envelope envelope(parent,stats);ComplexityReassessment3D result;CLocalFailure failure;
+  const uint64_t controls[]={count,seed,uint64_t(bool(withinBudget)),uint64_t(bool(composition))};uint64_t lo[4],hi[4];
+  SU2_MPI::Allreduce(controls,lo,4,MPI_UNSIGNED_LONG_LONG,MPI_MIN,parent.comm);
+  SU2_MPI::Allreduce(controls,hi,4,MPI_UNSIGNED_LONG_LONG,MPI_MAX,parent.comm);
+  if(!std::equal(lo,lo+4,hi) || count<32 || count>1048576 || source.Communicator()!=parent.comm)failure.Set(1,0,"Inconsistent/invalid candidate complexity assessment controls/source communicator.");
+  if(!Vote(parent,failure,reason))return false;
+  const size_t live=transfer_memory::Add(caller_bytes,OwnedBytes(candidate),source.ResidentBytes(),
+      transfer_memory::Mul(candidate.size(),sizeof(const Cell*)+sizeof(WeightedCell3D)));
+  auto limited=[&](const std::string& why) {result.reason=why;output=std::move(result);reason.clear();return true;};
+  if(!Admit(parent,live,ceiling,stats,reason))return limited(reason);
+  std::vector<const Cell*> ordered;std::vector<WeightedCell3D> weighted;bool expired=false;
+  auto time=[&]() {if(withinBudget && !withinBudget()){expired=true;throw CellSamplingLimit3D("Candidate complexity time budget exhausted.");}};
+  try {ordered.reserve(candidate.size());weighted.resize(candidate.size());
+    for(const auto& row:candidate)ordered.push_back(&row.second.cell);
+    for(size_t i=0;i<ordered.size();++i) {
+      weighted[i].id=ordered[i]->id;
+      for(unsigned k=0;k<4;++k)weighted[i].points[k]=ordered[i]->v[k].p;
+      auto& p=weighted[i].points;std::sort(p.begin(),p.end(),[](Point a,Point b){return std::tie(a.x,a.y,a.z)<std::tie(b.x,b.y,b.z);});
+      if(Orientation(p[0],p[1],p[2],p[3])<0)std::swap(p[0],p[1]);
+    }
+  }catch(const std::exception& e){failure.Set(2,0,e.what());}
+  if(!Vote(parent,failure,reason))return false;
+  auto centroid=[&](size_t i){Cell c;for(unsigned k=0;k<4;++k)c.v[k].p=weighted[i].points[k];return Centroid(c);};
+  auto prepare=[&](size_t i,std::vector<DonorRegion>& regions){time();PointRegion(centroid(i),regions);};
+  auto use=[&](size_t i,const std::function<FieldSample(Point)>& query){weighted[i].importance=MetricDensity(query(centroid(i)).target);};
+  if(!Samples(parent,ordered.size(),source,composition,prepare,use,stats,reason,ceiling,live,MaximumCavityCells,true,&reference)) {
+    if(parent.maximum(expired))return limited(reason);
+    if(parent.maximum(source.Statistics().maximum_work_bytes>ceiling || stats.maximum_native_bytes>ceiling))return limited(reason);
+    return false;
+  }
+  long double local_centroid=0,global_centroid=0;
+  for(const auto& row:weighted)local_centroid+=TetrahedronVolume(row.points)*row.importance;
+  SU2_MPI::Allreduce(&local_centroid,&global_centroid,1,MPI_LONG_DOUBLE,MPI_SUM,parent.comm);
+  result.value=result.centroid_estimate=double(global_centroid);
+  try {
+    CellSampler3D sampler(parent,std::move(weighted),ceiling,
+        transfer_memory::Add(caller_bytes,OwnedBytes(candidate),source.ResidentBytes(),transfer_memory::Bytes(ordered)));
+    stats.cells_seconds=sampler.preparation_seconds;
+    result.centroid_estimate=double(sampler.CentroidEstimate());result.value=result.centroid_estimate;
+    auto points=sampler.Draw(count,seed);stats.points_seconds=sampler.draw_seconds;
+    stats.maximum_native_bytes=std::max(stats.maximum_native_bytes,sampler.MaximumBytes());
+    std::array<long double,11> local{},global{};
+    const auto sample_live=transfer_memory::Add(caller_bytes,OwnedBytes(candidate),source.ResidentBytes(),
+        transfer_memory::Bytes(ordered),sampler.ResidentBytes(),transfer_memory::Bytes(points));
+    auto make=[&](size_t i,std::vector<DonorRegion>& regions){time();PointRegion(points[i].point,regions);};
+    auto consume=[&](size_t i,const std::function<FieldSample(Point)>& query) {
+      const long double y=(long double)MetricDensity(query(points[i].point).target)*points[i].inverse_pdf;
+      const auto residual=y-sampler.CentroidEstimate();
+      if(!std::isfinite(residual))throw std::runtime_error("Nonfinite original-field complexity residual.");
+      local[0]+=residual;local[1]+=residual*residual;++local[2];local[3+points[i].row%8]+=residual;
+    };
+    if(!Samples(parent,points.size(),source,composition,make,consume,stats,reason,ceiling,sample_live,MaximumCavityCells,true,&reference)) {
+      if(parent.maximum(expired))return limited(reason);
+      if(parent.maximum(source.Statistics().maximum_work_bytes>ceiling || stats.maximum_native_bytes>ceiling))return limited(reason);
+      return false;
+    }
+    const auto reductionStart=parent.seconds();
+    SU2_MPI::Allreduce(local.data(),global.data(),global.size(),MPI_LONG_DOUBLE,MPI_SUM,parent.comm);
+    stats.reduction_seconds+=parent.seconds()-reductionStart;
+    if(uint64_t(global[2])!=count)throw std::runtime_error("Incomplete global original-field complexity assessment.");
+    const long double mean=global[0]/count;
+    result.value=double(sampler.CentroidEstimate()+mean);result.samples=count;
+    result.standard_error=double(std::sqrt(std::max(0.L,(global[1]-global[0]*mean)/(count*(count-1.L)))));
+    if(count%8==0) {
+      long double spread=0;for(size_t b=0;b<8;++b)spread+=std::pow(global[3+b]/(count/8)-mean,2);
+      result.block_standard_error=double(std::sqrt(spread/(8*7)));
+    }
+    result.uncertainty=3*std::max(result.standard_error,result.block_standard_error);
+    if(!(result.value>0) || !std::isfinite(result.value) || !std::isfinite(result.uncertainty))throw std::runtime_error("Invalid global candidate complexity estimate.");
+    result.estimated=true;output=std::move(result);reason.clear();return true;
+  }catch(const CellSamplingLimit3D& e){return limited(e.what());}
+  catch(const std::exception& e){reason=e.what();return false;}
+}
 bool ReaderSlices(World& parent, const Owned& cells, const std::vector<DonorCell>& original,
                   const ReferenceState& state, CReaderSlices& output, std::string& reason, BridgeStats& stats,
-                  MetricComposition composition, size_t ceiling, size_t caller_bytes, bool query_timings) {
+                  MetricComposition composition, size_t ceiling, size_t caller_bytes, bool query_timings,DonorImport* prepared_source) {
   Envelope envelope(parent, stats);
   CLocalFailure failure;
+  const int supplied=bool(prepared_source);
+  const auto supplied_low=CPassiveComm::Allreduce(supplied,CPassiveComm::Op::MIN,parent.comm);
+  const auto supplied_high=CPassiveComm::Allreduce(supplied,CPassiveComm::Op::MAX,parent.comm);
+  if(supplied_low!=supplied_high || (prepared_source && (!prepared_source->BuiltFrom(original) || prepared_source->Communicator()!=parent.comm)))
+    failure.Set(1,0,"Prepared native3D reader source differs from its immutable input/communicator.");
 #ifdef HAVE_MPI
   int relation = MPI_UNEQUAL;
   MPI_Comm_compare(parent.comm, SU2_MPI::GetComm(), &relation);
@@ -716,6 +799,7 @@ bool ReaderSlices(World& parent, const Owned& cells, const std::vector<DonorCell
     for (const auto& face : row.second.physical) physical_faces += face.present;
   for (const auto& name : state.marker_names) name_bytes = Add(name_bytes, name.size(), 1);
   const size_t live = Add(caller_bytes, OwnedBytes(cells), Bytes(original), output.ResidentBytes(),
+                         prepared_source?prepared_source->ResidentBytes():0,
                          Mul(vertices, sizeof(std::pair<const Id, Node>) + sizeof(std::pair<const Id, unsigned long>) +
                                            8 * sizeof(void*)),
                          GrowthBound(vertices, sizeof(Node) + sizeof(uint64_t) + 3 * sizeof(passivedouble)),
@@ -724,9 +808,10 @@ bool ReaderSlices(World& parent, const Owned& cells, const std::vector<DonorCell
                          GrowthBound(physical_faces, 3 * sizeof(unsigned long)),
                          GrowthBound(state.marker_names.size(), sizeof(CSimplexMesh::Marker)), name_bytes);
   if (!Admit(parent, live, ceiling, stats, reason)) return false;
-  DonorImport source(parent, query_timings);
+  DonorImport transient(parent, query_timings);
+  DonorImport& source=prepared_source?*prepared_source:transient;
   const double build = parent.seconds();
-  if (!source.Build(original, reason, ceiling, live)) {
+  if (!prepared_source && !source.Build(original, reason, ceiling, live)) {
     stats.source_seconds = parent.seconds() - build;
     return false;
   }
@@ -776,7 +861,7 @@ bool ReaderSlices(World& parent, const Owned& cells, const std::vector<DonorCell
     std::copy(values.begin(), values.end(), mesh.metric.begin() + 6 * i);
   };
   if (!Samples(parent, ordered.size(), source, std::move(composition), make, use, stats, reason, ceiling,
-               transfer_memory::Add(live, source.ResidentBytes()), 16, query_timings,state.original.get()))
+               transfer_memory::Add(live,prepared_source?0:source.ResidentBytes()), 16, query_timings,state.original.get()))
     return false;
   const double reader_start = parent.seconds();
   CReaderSliceStats reader_stats;

@@ -19,7 +19,7 @@ struct ReferenceState {
 };
 struct BridgeStats {
   double total_seconds = 0, points_seconds = 0, cells_seconds = 0, faces_seconds = 0;
-  double source_seconds = 0, query_seconds = 0, reader_seconds = 0, other_seconds = 0;
+  double source_seconds = 0, query_seconds = 0, reader_seconds = 0, reduction_seconds=0, other_seconds = 0;
   uint64_t batches = 0, batch_retries = 0, requests = 0, hits = 0, misses = 0, compositions = 0;
   uint64_t invalid_queries = 0, failures = 0, evictions = 0;
   uint64_t field_builds = 0, source_point_queries = 0, source_point_payloads = 0;
@@ -51,6 +51,20 @@ ImportedGeometry ImportGeometry(const CConfig& config, const CGeometry& geometry
 bool ImportGeometry(const CConfig& config, const CGeometry& geometry, const su2activematrix* metric,
                     ReferenceState& reference, ImportedGeometry& output, std::string& reason, BridgeStats& stats,
                     size_t ceiling, size_t caller_bytes = 0);
+/*! A complete proposal covers every candidate cell. Uncertainty is an empirical indicator, not a bound. */
+struct ComplexityReassessment3D {
+  double value=0,uncertainty=INFINITY,standard_error=0,block_standard_error=0,centroid_estimate=0;
+  uint64_t samples=0;
+  bool estimated=false;
+  std::string reason;
+};
+/*! Reassess the SAME original P1/actual-query composition. Candidate-cell densities only select sample
+ * probabilities; they never replace the source. Resource/time limits retain an explicit unknown indicator;
+ * invalid field/source/protocol errors return false. Output is unchanged on such errors. */
+bool ReassessComplexity(World& parent,const Owned& candidate,DonorImport& original,
+    const PlanarReference& reference,MetricComposition composition,ComplexityReassessment3D& output,
+    std::string& reason,BridgeStats& stats,size_t ceiling=size_t(2)<<30,size_t caller_bytes=0,
+    uint64_t count=8192,uint64_t seed=20261017,std::function<bool()> withinBudget={});
 /*! Bounded point-support batches on parent (M<=N return uses empty inputs on inactive ranks).
  * Weight and reader functions leave their output unchanged on elected failures. Each cache hit composes
  * at the actual query. No nodal geometric BL tensor is spread into the original source.
@@ -62,5 +76,5 @@ bool WorkingWeights(World& parent, const Owned& cells, DonorImport& source, std:
 bool ReaderSlices(World& parent, const Owned& cells, const std::vector<DonorCell>& original,
                   const ReferenceState& reference, CReaderSlices& slices, std::string& reason, BridgeStats& stats,
                   MetricComposition composition = {}, size_t ceiling = size_t(2) << 30, size_t caller_bytes = 0,
-                  bool query_timings = true);
+                  bool query_timings = true,DonorImport* prepared_source=nullptr);
 }  // namespace SU2Native3D

@@ -12,12 +12,13 @@
 namespace SU2Native3D {
 struct RemeshStats {
   // Exclusive computation scopes; diagnostic reporting is separate and measured.
-  static constexpr std::array<const char*, 13> names{{"support", "reference", "import", "source", "weights",
+  static constexpr std::array<const char*, 14> names{{"support", "reference", "import", "source", "weights",
                                                       "partition", "donor_migration", "communicator", "refine",
-                                                      "coarsen", "wait", "return", "policy"}};
-  std::array<double, 13> phases{};
+                                                      "coarsen", "wait", "return", "policy", "reassessment"}};
+  std::array<double, 14> phases{};
   double total_seconds = 0, other_seconds = 0, report_seconds = 0, process_cpu_seconds = 0, idle_cpu_seconds = 0;
-  BridgeStats imported, weights, returned;
+  BridgeStats imported, weights, returned, reassessment;
+  ComplexityReassessment3D complexity;
   DonorImportStats source;
   PartitionStats partition;
   EngineStats refine, coarsen;

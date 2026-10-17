@@ -1,0 +1,21 @@
+Catchpoint 1 (throw)
+[Thread debugging using libthread_db enabled]
+Using host libthread_db library "/lib/x86_64-linux-gnu/libthread_db.so.1".
+[Detaching after fork from child process 1488587]
+[New Thread 0x7ffff760b700 (LWP 1488591)]
+[New Thread 0x7ffff6c56700 (LWP 1488592)]
+../../UnitTests/SU2_CFD/adaptation/CNativeImport3D_tests.cpp:2212: failed: ReassessComplexity(world,input.cells,source,reference,compose,coarse,reason,a,size_t(64)<<20) for: false
+
+Thread 1 "test_driver" hit Catchpoint 1 (exception thrown), 0x00007ffff7d06662 in __cxa_throw () from /lib/x86_64-linux-gnu/libstdc++.so.6
+#0  0x00007ffff7d06662 in __cxa_throw () from /lib/x86_64-linux-gnu/libstdc++.so.6
+#1  0x000055555574cbad in Catch::AssertionHandler::complete (this=this@entry=0x7fffffffacd0) at ../../externals/catch2/catch.hpp:8254
+#2  0x0000555555b11a81 in C_A_T_C_H_T_E_S_T_97 () at ../../UnitTests/SU2_CFD/adaptation/CNativeImport3D_tests.cpp:2212
+#3  0x0000555555eff6c3 in Catch::RunContext::invokeActiveTestCase (this=0x7fffffffbc60) at ../../externals/catch2/catch.hpp:13027
+#4  0x0000555555f11b5e in Catch::RunContext::runCurrentTest (this=0x7fffffffbc60, redirectedCout=..., redirectedCerr="") at ../../externals/catch2/catch.hpp:13000
+#5  0x0000555555f2a64e in Catch::RunContext::runTest (this=0x7fffffffbc60, testCase=...) at ../../externals/catch2/catch.hpp:12761
+#6  0x0000555555f31fd0 in Catch::(anonymous namespace)::TestGroup::execute (this=0x7fffffffbc50) at ../../externals/catch2/catch.hpp:13354
+#7  Catch::Session::runInternal (this=0x7fffffffbf20) at ../../externals/catch2/catch.hpp:13564
+#8  0x0000555555f325a2 in Catch::Session::run (this=0x7fffffffbf20) at ../../externals/catch2/catch.hpp:13520
+#9  0x0000555555816197 in Catch::Session::run<char> (argv=<optimized out>, argc=<optimized out>, this=0x7fffffffbf20) at ../../externals/catch2/catch.hpp:13233
+#10 Catch::Session::run<char> (argv=<optimized out>, argc=<optimized out>, this=0x7fffffffbf20) at ../../externals/catch2/catch.hpp:13233
+#11 main (argc=<optimized out>, argv=<optimized out>) at ../../UnitTests/test_driver.cpp:47

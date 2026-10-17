@@ -531,3 +531,42 @@ partition reassessment of the immutable original field and bounded frozen correc
 stages before publication. The actual-refinement hypothesis remains untested;
 negative pairing is not evidence against it. Full Goal3/M6 acceptance/global error/
 viscous/full-event gates remain. [Source, work, decision and restoration proof](../integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/face_pair_variance_v1/README.md).
+
+## 2026-10-17: actual candidate/original-field reassessment IMPLEMENTED; correction still open
+
+Before native3D publication, a bounded candidate-cell proposal queries the immutable
+original sensor-only P1 and actual BL at every centroid/sample. It never refits the
+field from candidate tensors. One original-source index serves reassessment and
+reader return. A separate phase/result reports global mass, point/eight-block SEM,
+heuristic3*max indicator, work/storage/time limits and unresolved states. Sampling
+probability/resource limits do not discard cells; invalid fields still reject.
+No target, geometry/h0/positive/q/J/full-edge/transfer gate changes or scale update.
+
+Actual accepted planar RANS SA N4/M2,6->24 tetrahedra at8192 samples: indicator
+.165326->.0155528 (10.63x lower), error .7910%->.05619% (14.08x lower); independent
+reference3.6941577302, estimate3.6962333832. This supports actual-refinement
+reassessment in that scope. Phase.02094s; return does not rebuild its original
+index. Fixture budget1 remains outside the constrained mass; not normalized success.
+Smooth integration-only6->384-cell control improves indicator4.30x, separately.
+
+Frozen complete M6 RAW9 coarse centroid596350.33 vs sampled979024.48 +/-101701.02
+HEURISTIC shows missed BL mass and poor coarse weighting. The existing independent
+support-stream pooled estimate948103.94 is consistent but is not an exact reference;
+equal-budget geometric-support sampling has much lower variance. Keep existing
+initialization; no accepted/finer M6 field or general thin/curved/interacting BL
+qualification. MPI1/2/4 clouds/global controls, exact M6 MPI2/4 rows, original P1/
+PDF/exact-containment audits, affected curved/reader and independent RANS full-field/
+BDF/SA/restart/SU2+CGNS pass. No full regression or CFD rerun.
+
+Initial compile typos, a rejected128-point call above the existing64-point source
+cap, and report-only NumPy Boolean serialization failure are retained; caller now
+uses MaximumCavityCells. Runtime checks were reused with explicit executed-helper
+archive/report transition after the report failure. One heavy job/nice19/thread1/
+build-j1/MPI<=4, peak process2.41GiB build/667MiB replay; host~39–41GiB available,
+no observed swap growth. Not aggregate job peaks or scaling claims.
+
+This is actual-field reassessment, not the whole uncertainty/correction strategy.
+Global error calibration/allocation, frozen correction epochs from original
+unclipped frames/bounds/gradation, difficult accepted M6 construction, viscous
+accuracy and whole-lifecycle affordability remain open. Do not rescue the coarse
+proposal with another sampler/count/subdivision ladder. [Evidence and limitations](GOAL3_CANDIDATE_REASSESSMENT.md).

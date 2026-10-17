@@ -63,6 +63,10 @@ bool IntersectsSegment(const Tetrahedron& donor, Point a, Point b, KernelStats* 
 bool ConformingDisjoint(const Cell& a, const Cell& b, KernelStats* stats = nullptr);
 /*! Finite components and exact Sylvester signs; no tensor repair or condition-number clipping. */
 void ValidateTensor(const Tensor& tensor, KernelStats* stats = nullptr);
+/*! sqrt(det(M)) with magnitude-controlled exact determinant fallback; never repairs the supplied tensor. */
+double MetricDensity(const Tensor& tensor,KernelStats* stats=nullptr);
+/*! Positive tetrahedral volume with magnitude-controlled determinant evaluation. */
+long double TetrahedronVolume(const Tetrahedron& tet,KernelStats* stats=nullptr);
 constexpr size_t MaximumSegmentDonors = 256;
 struct SegmentPiece {
   size_t donor = 0;
