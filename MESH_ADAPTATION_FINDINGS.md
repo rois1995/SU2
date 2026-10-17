@@ -6469,3 +6469,26 @@ no unchanged full M6/CFD/cluster rerun. Marker-binding fixture and report-wrappe
 failures are retained. One owned heavy job, build-j1/nice19/thread1/MPI<=4, max build
 process2.40GiB, host~38--41GiB available/swap unchanged. Full Goal3 ACTIVE.
 [Exact source/results/limits](Handbook/GOAL3_FROZEN_NORMALIZATION_STAGES.md).
+
+## 2026-10-17: source-support and first-row ranking follow-up
+
+Published b1b2f9f1ec qualifies original-parent support without a new tensor cache;
+singleton/general edge weights share canonical exact segment tracing.219,532 M6
+query rows and legacy geometry match exactly, with serial/MPI/RANS/BDF/restart
+checks. Full M6 still rejects during initialization after10,080 private parents;
+source import~.09s/rank, geometric edge preparation192s on one worker. Generic
+finer4096-work failure is byte-identical on unchanged baseline and candidate.
+[Scope and evidence](Handbook/GOAL3_ORIGINAL_SUPPORT.md).
+
+Current connected change removes full edge integration that cannot affect a unique
+maximum shape score. Exact ties retain length ordering; all selected cells still
+receive mandatory full composed validation.71 serial cases/14,440 assertions and
+MPI/subset/curved/reader pass; frozen64-parent M6 geometry is byte-identical, with
+1600 remaining exact query records versus219,532 before. Complete changed M6 run
+initializes all38,800 wall parents in26.79s, then rejects at unchanged300s during
+mandatory seed after32,832/536,159 PRIVATE cells. Rank2 seed geometry172.95s dominates;
+no volume edits/transfer or accepted wing. Actual N4/M2 RANS/SA/BDF/SU2+CGNS/restart
+pass; combined construction campaign retains the baseline-identical finer4096-work
+failure. No complete-event speedup asserted. Current pins/capsules/logs and exact
+trace/grid comparison verified without repeating native runs.
+[Current status](Handbook/GOAL3_DEFERRED_FIRST_ROW_LENGTHS.md).

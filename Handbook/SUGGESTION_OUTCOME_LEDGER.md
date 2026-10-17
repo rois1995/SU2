@@ -660,3 +660,35 @@ check has no work. Reuse the70-case serial, MPI,219,532-row exact frozen compari
 and independent RANS/BDF/restart evidence. Current package is qualified only within
 that scope; full M6 and the baseline generic-finer limitation remain rejected.
 [Complete summary/proof](../integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/original_parent_support_v1/summary.json).
+
+
+## 2026-10-17: defer irrelevant first-row ranking lengths — scoped success, M6 still rejected
+
+The strongest-first existing ranking needs full edge length only for exact shape
+ties. New selection retains original backgrounds/geometry/height/q/J scoring and
+tie order, measuring full lengths only among tied maxima. Selected cells still
+undergo mandatory full composed seeding and unchanged final acceptance. No new
+point-placement strategy, target/cache/configuration option or scenario mode.
+
+Worked:71 serial cases/14,440 assertions, affected MPI/subset/curved/reader and
+actual N4/M2 initialized RANS/SA/current+BDF/conservation/SU2+CGNS/restart pass.
+Frozen64-parent M6 replay retains byte-identical legacy geometry;1600 actual query
+rows versus219,532 before, all exact old-trace sensor+composed subsets. This removes
+unnecessary work; it does not complete every edge-reuse/retention/batching suggestion.
+
+Whole M6: all38,800 first-row parents now initialize in26.793s. Mandatory seed uses
+249.789s and measures32,832 of536,159 PRIVATE cells before rejection at301.004s under
+the unchanged300s control. Nested seed geometry reaches172.949s on rank2. No volume
+edits, accepted mesh or transfer; no lifecycle speedup/feasibility conclusion. The
+combined construction campaign FAILS its known stronger finer-sensor control at
+4096 work/162 rounds; initial/rejected grids exactly match the unchanged baseline.
+No cap ladder or additional constructor fallback. Next work targets mandatory seed
+query geometry/repeated edge work while retaining frozen-field/final mesh contracts.
+
+Current source/build/binary/helper pins, source capsules, logs, frozen queries and
+baseline grids are verified by a lightweight postprocessor, without restarting MPI.
+A repeated buffer-copy reporting draft was stopped and a Python3.8 Path-API reporting
+failure corrected; neither required new native runs. One heavy job/nice19/build-j1/
+thread1/MPI<=4; host~39--41GiB available, unchanged816MiB swap. No CFD advancement,
+cluster submission or full regression per small edit. Full Goal3 remains ACTIVE.
+[Evidence, hashes and limits](GOAL3_DEFERRED_FIRST_ROW_LENGTHS.md).

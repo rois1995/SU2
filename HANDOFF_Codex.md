@@ -5,15 +5,17 @@ Worktree `/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated`, branch
 **Full Goal3 ACTIVE/incomplete.** [Full scope/gates](integration_evidence/native_3d_bl_v1/GOAL3_REQUIREMENTS.json).
 Leave AdapNoExt, foreign ClusterResults and dependencies untouched.
 
-**Current work:** qualify original-source parent support for first-row ranking and
-metric measurement, preserving the existing constructor and full-query target.
-[Current proof, canonical interpolation issue, checks and remaining gates](Handbook/GOAL3_ORIGINAL_SUPPORT.md).
-Direct-cone initialization was fast but failed a complete ordinary cube and is
-WITHDRAWN, with all evidence retained. M6 seeding remains a measured bottleneck;
-no accepted M6 mesh. [Rejected strategy and complete run](Handbook/GOAL3_M6_DIRECT_INITIALIZATION.md).
-Canonical serial/MPI/frozen-query/RANS checks pass; full M6 still rejects during initialization. Baseline attribution confirms the same preexisting generic finer-sensor failure and byte-identical rejected grid. Candidate Engine3D/Field3D and both binaries are restored exactly to their qualified hashes; dependency check clean. All owned jobs are terminal.
-Published c70bf64e2b correction stages retain their scoped evidence in
-[the normalization handbook](Handbook/GOAL3_FROZEN_NORMALIZATION_STAGES.md).
+**Current work:** defer first-row full lengths when the exact best q/J score is
+unique, retaining full lengths for ties and mandatory full composed seeding/final
+acceptance. Serial71/14,440, MPI/subset/curved/reader and exact frozen legacy geometry
+PASS;1600 remaining query records are an exact subset of the old219,532.
+[Current design, evidence, gates and status](Handbook/GOAL3_DEFERRED_FIRST_ROW_LENGTHS.md).
+All owned jobs are terminal. Full M6 initializes all38,800 wall parents in26.79s,
+then fails mandatory full seed at unchanged300s:32,832/536,159 PRIVATE cells measured,
+no volume edits/transfer. Actual N4/M2 RANS+BDF/CGNS/restart PASS; combined construction
+campaign FAILS only its known finer-sensor4096-work case, with byte-identical baseline
+rejected grids. No accepted M6 or whole-event speedup. Previous source-support
+checkpoint b1b2f9f1ec retains [its qualified scope](Handbook/GOAL3_ORIGINAL_SUPPORT.md).
 
 ## Current production and evidence
 
@@ -79,9 +81,10 @@ scope, conditional M6 budget diagnosis and previous rejected construction eviden
 
 No accepted complete M6 mesh, calibrated global error/allocation, general thin/curved
 correction beyond controlled planar fields, converged viscous accuracy or complete
-lifecycle affordability. Last full M6 construction rejects at unchanged300s,
-447 internal publications/1788 work, rank2 geometry147.86s. Keep that failure;
-reconsider missing construction capability before another local fallback.
+lifecycle affordability. Latest full M6 construction rejects at unchanged300s during mandatory seeding,
+after all38,800 first-row parents. Rank2 seed geometry172.95s is dominant; volume
+construction has not started. Preserve earlier failures and reconsider missing
+capability before another local fallback.
 [Constraints, conditional budget bounds and rejected experiments](Handbook/GOAL3_M6_CONSTRAINTS_AND_EXPERIMENTS.md).
 
 Earlier qualified foundations: curved cylinder2877/eight fronts, right-prism whole
@@ -103,13 +106,13 @@ agent's entries in the [outcome ledger](Handbook/SUGGESTION_OUTCOME_LEDGER.md).
 
 ## Execution and working rules
 
-All owned jobs terminal. Current source-support package:70 serial cases/14,417
+All owned jobs terminal. Current deferred-ranking package:71 serial cases/14,440
 assertions, affected MPI/subset/curved/reader and independent RANS/SA+BDF/CGNS restart
-PASS.219,532 unique M6 actual query rows and legacy geometry are bit-identical
-between qualified support and full-import paths. Exact source/build/binary restoration
-proof allows reuse after the baseline attribution run. Whole M6 still rejects at300s
-during initialization after10,080 private parents; generic finer4096-work limitation
-is byte-identical on baseline/candidate. No full Goal3/accepted-M6/speedup claim.
+PASS. Frozen64-parent M6 legacy geometry is byte-identical;1600 remaining actual
+query rows are an exact subset of the old219,532. Full M6 reaches complete first-row
+initialization but rejects during mandatory seed; generic finer failure remains
+baseline-identical. No full Goal3/accepted-M6/lifecycle-speedup claim. Next measured
+gap is mandatory full seed geometry/repeated edges, not another local constructor.
 One heavy job/nice19/build-j1/thread1/MPI<=4; RAM~38--41GiB, swap unchanged. No cluster
 or CFD advancement. All rejected experiments/source/provenance remain.
 

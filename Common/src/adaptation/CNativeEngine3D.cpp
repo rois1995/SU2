@@ -1024,8 +1024,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
                 for(double factor:{1.25,1.5,2.})backgrounds.push_back({double(((long double)a.x+b.x+c.x)/3-factor*h->second*normal[0]),
                     double(((long double)a.y+b.y+c.y)/3-factor*h->second*normal[1]),double(((long double)a.z+b.z+c.z)/3-factor*h->second*normal[2])});
               }
-              double bestQuality=-1;long double bestLength=std::numeric_limits<long double>::infinity();
-              std::map<Edge,EdgeMeasure> reuse;
+              double bestQuality=-1;std::vector<Patch> strongest;
               for(const auto& background:backgrounds) {
                 Patch candidate;FirstHeightReport report;std::string why;bool built=false;
                 {Timer timer(stats.layer_geometry_seconds,options.timings);
@@ -1037,17 +1036,29 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
                   if(why.find("geometry-height incompatibility")!=std::string::npos)break;
                   continue;
                 }
-                MetricStats counted;PatchMetric measured;
                 {Timer timer(stats.layer_metric_seconds,options.timings);
-                  ++stats.layer_shape_screens;
-                  if(MetricShapeQuality(candidate.cells,*target)<bestQuality){++stats.layer_shape_pruned;continue;}
-                  measured=MeasureMetricCells(candidate.cells,*target,&counted,&reuse);
+                  ++stats.layer_shape_screens;const auto quality=MetricShapeQuality(candidate.cells,*target);
+                  if(quality<bestQuality){++stats.layer_shape_pruned;continue;}
+                  if(quality>bestQuality) {
+                    stats.layer_shape_pruned+=strongest.size();strongest.clear();bestQuality=quality;
+                  }
+                  strongest.push_back(std::move(candidate));approved=true;result.reason.clear();
                 }
-                reuse=measured.edges;
-                stats.layer_edge_evaluations+=counted.edge_evaluations;stats.layer_edge_reused+=counted.edge_reused;
-                const double quality=std::min(measured.minimum_mean_ratio/MinimumMeanRatio,measured.minimum_scaled_jacobian/MinimumScaledJacobian);
-                if(quality>bestQuality || (quality==bestQuality && measured.maximum_length<bestLength)) {
-                  bestQuality=quality;bestLength=measured.maximum_length;fresh=std::move(candidate);approved=true;result.reason.clear();
+              }
+              // Length only breaks exact shape ties; full composed seeding certifies every selected cell later.
+              if(strongest.size()==1)fresh=std::move(strongest.front());
+              else if(approved) {
+                long double bestLength=std::numeric_limits<long double>::infinity();std::map<Edge,EdgeMeasure> reuse;
+                for(auto& candidate:strongest) {
+                  MetricStats counted;PatchMetric measured;
+                  {Timer timer(stats.layer_metric_seconds,options.timings);
+                    measured=MeasureMetricCells(candidate.cells,*target,&counted,&reuse);
+                  }
+                  reuse=measured.edges;
+                  stats.layer_edge_evaluations+=counted.edge_evaluations;stats.layer_edge_reused+=counted.edge_reused;
+                  const auto quality=std::min(measured.minimum_mean_ratio/MinimumMeanRatio,measured.minimum_scaled_jacobian/MinimumScaledJacobian);
+                  if(quality!=bestQuality)throw std::runtime_error("Native3D first-row shape changed under the frozen target.");
+                  if(measured.maximum_length<bestLength) {bestLength=measured.maximum_length;fresh=std::move(candidate);}
                 }
               }
               if(!approved){failure.Set(1,old.cells.front().id,"Native3D initial first-row construction rejected: "+result.reason);rejected=true;}
