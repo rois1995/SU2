@@ -6393,3 +6393,22 @@ allocation/original-field reassessment/frozen correction and accepted M6 remain 
 No sample-count ladder; fixed-work face reflection with proper pair/MPI variance
 and planar covariance control is the recorded next experiment, not implemented.
 [Evidence, work/memory and limits](integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/global_uncertainty_calibration_v1/README.md).
+
+
+### 2026-10-17 — reflected support pairs are conditional; experiment withdrawn
+
+Same8,192-point budget: two M6 streams show15–16% lower empirical SEM, but the
+embedded planar control is45% worse and has0.304% reference error. Independent
+units must be4,096 pair means; native IID SEM was explicitly invalid and unused.
+Full paired PDFs/anchors/original sensor checks pass; M6 pair/source/weight output
+matches exactly MPI2/4.25 focused serial cases and affected MPI4 controls pass.
+Default full M6 streams remain bit-identical. These are variance observations,
+not global accuracy, normalization or accepted-mesh evidence.
+
+All experimental C++ changes withdrawn; patch/capsule/results retained. Rebuilt
+production/test binary and EVERY baseline source/build/binary pin match exactly,
+so baseline evidence is reused. No new tolerance, sampler or mesh-gate behavior.
+No CFD/remesher rerun. Stop sampling variants and couple actual candidate-partition
+reassessment of the SAME original P1/geometric field to bounded frozen correction
+stages. This and general difficult M6 construction remain open.
+[Evidence/negative control/resources/restoration](integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/face_pair_variance_v1/README.md).

@@ -179,3 +179,38 @@ rows preserve the original field. The separate background interval floor and
 block-vs-pointwise variability prevent a default/root-accuracy claim; the sampled
 planar control still misses the strict0.05% gate. No production behavior changed.
 [Complete evidence and next decision](../integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/global_uncertainty_calibration_v1/README.md).
+
+
+## Next connected implementation after sampling experiments
+
+Reflected face pairs improved M6 empirical SEM15–16% but worsened the embedded
+planar control45%, and were withdrawn. Production source/build/test binary is
+exactly restored; [executed source, evidence and decision](../integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/face_pair_variance_v1/README.md).
+Do not add another sampler/count/subdivision fallback. The separate background
+interval and original-field reassessment/correction remain the structural gaps.
+
+The existing Remesher3D lifecycle retains imported.original while workers operate
+and before ReaderSlices/onAccepted publication. That is the ownership/lifetime
+window to use. Worker Engine source indexes already serve the immutable original
+field; rebuild/reuse decisions must account for parent N versus selected M worlds,
+migrated original publishers, peak memory, and all collective participants. Current
+point sampling requires explicit extension eligibility: never turn an unassociated
+extension or failed query into a zero contribution or a new donor fit.
+
+Reassessment must integrate the SAME original sensor/actual BL on the candidate
+partition, distinguishing coverage, geometric-domain change and heuristic numerical
+error. Q4/Q18 disagreement alone cannot certify missing thin BL mass; retain the
+complete-support/unknown-mass status where necessary. Compare coarse and accepted
+finer geometry against independent references before inferring that refinement
+helps. M6 itself remains without an accepted candidate; temporary partitions are
+not to be reported as delivered meshes.
+
+A material supported correction starts a bounded new epoch with rebuilt target
+identity. Reset from the original unbounded eigenframes and current bounds/gradation,
+not clipped/graded output; freeze the new field through local edits. Repeated
+normalization must not rebuild Hessians, append prediction histories or alter the
+original CFD/flow/BDF state. Keep per-stage global work/time/byte ceilings and
+provisional/unattainable/integration-limited states explicit. Return/transfer the
+final candidate once; only the accepted callback publishes geometry/reference.
+All geometry/h0/positive/q/J/full-edge/transfer gates remain unchanged. This coupling
+is a design/required next implementation, not a completed API or working milestone.

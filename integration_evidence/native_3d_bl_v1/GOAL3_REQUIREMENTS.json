@@ -118,7 +118,7 @@
     "oneram6_frozen_field_v1/result.json"
   ],
   "execution_state": {
-    "status": "Full Goal3 ACTIVE/incomplete. Whole-original-field holdout calibration complete without production changes: two32768 M6 streams, exact MPI2/4 rows. Pooled948103.94/heuristic indicator15887.91 is not a continuum reference; block SEM1.54x pointwise, separate background halfwidth5925.71. Sampled planar error0.133% exceeds retained strict0.05% gate. No tolerance/sample-count default, original-field reassessment/correction, accepted M6 or full-event proof. Next fixed-work reflected-face proposal experiment must account for pair covariance/MPI and possible planar regression before coupling.",
+    "status": "Full Goal3 ACTIVE/incomplete. Reflected face pair experiment completed and WITHDRAWN: M6 SEM15-16% lower, planar45% worse, no global accuracy proof. All three C++ changes restored; every prior source/build/test-binary pin matches exactly. No production sampling/tolerance/gate change. Next substantial implementation: same-original-field candidate-partition reassessment and bounded frozen normalization/adaptation stages before publication. M6 accepted construction, calibrated global error/work allocation, viscous accuracy and whole-lifecycle affordability still missing.",
     "CFD_runs": 17,
     "CFD_run_scope": "Five corrected-config failed v1..v5 plus six qualified v6 actual N/M cases and six qualified v11 actual N/M cases; initial invalid config separately retained.",
     "production_MPI": "Current-source 67 serial controls, affected MPI4 first-row/general controls, direct original-field M6 MPI2/4 and independently audited small RANS/SA N4M2 current+BDF/SA/restart/SU2+CGNS pass in first_row_shape_ranking_v1. Earlier full actual-flow N/M campaigns remain source-qualified historical evidence, not current M6 acceptance.",
@@ -254,13 +254,15 @@
     "scope": "One planar cube production case plus six focused first-row geometry/movement cases. Actual computed metric, conservative current+BDF/bounded-SA and SU2/CGNS/reference/restart checks; independent exact embedding, full composed metric, wall footprint and height. No new MPI, full regressions, general layer coverage, actual CFD accuracy or performance qualification."
   },
   "owned_jobs": {
-    "status": "All owned native replay/postprocessing handles terminal; no build, CFD, remesher or cluster job.",
+    "status": "All owned experimental/replay/restoration/hash-verification handles terminal. No build/CFD/remesher/cluster job.",
     "terminal_handles": [
-      73370,
-      34665,
-      43398
+      48501,
+      24066,
+      53328,
+      40416,
+      14419
     ],
-    "resource_receipts": "integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/global_uncertainty_calibration_v1"
+    "resources": "integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/face_pair_variance_v1"
   },
   "wall_reconstruction": {
     "status": "PASS_PLANAR_STRONGER_FIELD_LIMITED_SCOPE",
@@ -1621,6 +1623,25 @@
         "No calibrated default tolerance, reassessment/correction or accepted M6.",
         "Sampled planar control misses unchanged strict0.05% gate; production path retained."
       ]
+    },
+    "face_pair_variance": {
+      "status": "WITHDRAWN_AFTER_MIXED_RESULTS_PRODUCTION_EXACTLY_RESTORED",
+      "evidence": "integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/face_pair_variance_v1",
+      "full_goal_complete": false,
+      "accepted_M6_mesh": false,
+      "points_per_stream": 8192,
+      "independent_pairs": 4096,
+      "M6_SE_ratios": [
+        0.8426470493131656,
+        0.8513683320131301
+      ],
+      "planar_SE_ratio": 1.4450357411693522,
+      "planar_relative_reference_error": 0.0030378135290032157,
+      "MPI2_4_rows_and_offline_pair_assessment_equal": true,
+      "no_native_IID_SE_used_for_acceptance": true,
+      "exact_baseline_source_build_binary_restoration": true,
+      "production_tolerance_or_sampling_changed": false,
+      "next": "Actual candidate-partition reassessment on immutable original donors, then bounded frozen correction epochs; not another sampling mechanism."
     }
   }
 }

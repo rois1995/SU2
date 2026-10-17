@@ -497,3 +497,37 @@ No sample-count/subdivision ladder follows. About71% observed variance is within
 face proposals, motivating a fixed-work reflected-pair experiment with correct MPI
 pair covariance and a planar control where pairing could be worse. Not implemented
 or adopted. [Exact observations and limitations](../integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/global_uncertainty_calibration_v1/README.md).
+
+
+## 2026-10-17: fixed-budget reflected face pairs MIXED; production experiment WITHDRAWN
+
+Existing importance sampling can pair a face point with its reflected normal
+coordinate while retaining both complete marginal PDFs. Edge/vertex duplicates
+preserve their distribution. At8,192 actual points/4,096 independent pairs, M6 SEM
+9377->7901 /9417->8017 (15–16% lower) on two streams; holdout discrepancies2.330/
+0.835 combined SE. This is empirical variance, not proven improved accuracy. The
+embedded planar control has positive covariance: SEM.03260->.04711 (45% worse),
+actual relative error0.304% against coarea, above0.05% reference criterion. Pairing
+cannot be a general default, and it leaves the separate background interval floor.
+
+Pair means, not points, define independent units. The native scalar replay's IID
+SEM was explicitly invalid and unused for normalization/acceptance. Offline global
+pair/source/density/weight results match exactly MPI2/4. All paired PDFs pass the
+independent oracle; every anchor matches its original draw.25 focused serial cases/
+13,570 assertions plus affected MPI4 dynamic controls pass. Default32,768-point
+M6 streams remain bit-identical on both seeds. No CFD or remesher run.
+
+Do not add a covariance-selection pilot/API merely to rescue modest/conditional
+sampling gains. All three experimental C++ changes are WITHDRAWN. Executed source
+patch/capsule and complete provenance/results remain; restored production/test
+binary and every pre-experiment source/build/binary pin match exactly. Baseline
+checks reused without another regression. Independent sampler/tolerances/mesh
+gates unchanged. One owned job/build-j1/thread1/MPI<=4; max build process2.40GiB,
+replay667MiB, host40–41GiB available, no observed swap growth. Experimental build
+1m39s/restoration1m38s; pilot39.35s/resumed campaign64.33s.
+
+Stop the sampler follow-up. The next substantial capability is actual candidate-
+partition reassessment of the immutable original field and bounded frozen correction
+stages before publication. The actual-refinement hypothesis remains untested;
+negative pairing is not evidence against it. Full Goal3/M6 acceptance/global error/
+viscous/full-event gates remain. [Source, work, decision and restoration proof](../integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/face_pair_variance_v1/README.md).

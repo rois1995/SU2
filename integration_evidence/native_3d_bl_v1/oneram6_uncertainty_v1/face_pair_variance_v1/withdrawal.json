@@ -1,0 +1,15 @@
+{
+  "status": "EXPERIMENT_WITHDRAWN_PRODUCTION_SOURCE_RESTORED",
+  "base": "0ad73b87450a22035ae119d58548a4a740f0d7fe",
+  "executed_summary_sha256": "fcf34ca9d2599824c55caa37766d41583edec95cf1016052d84672ae97d61e7f",
+  "executed_source_patch_sha256": "9b624fe23bd866554b13a3fd7e82547bd964fdb173232bd66c03b29f87b793e3",
+  "restored_source_sha256": {
+    "Common/include/adaptation/CNativeSupport3D.hpp": "2919e681a42d956220ac879fbb66e6b9d05d8505984049ec644fcf8a614fd642",
+    "UnitTests/Common/adaptation/CNativeMesh3D_tests.cpp": "4c1ceb3e8e5952e7850930fca0a96e304ec5b301970f1b2adf7ccbce7ceef6a7",
+    "UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp": "735c7c9f10441908510fb436d87afd97d339dbe31bd6141a82812a837c3093c6"
+  },
+  "reason": "M6 empirical SEM improves15-16% but planar worsens45%; no general benefit or global accuracy proof and separate background floor remains. Avoid unused production API or a new covariance-selection mechanism. Keep original independent sampling.",
+  "capsule_sha256": "972095b5cdc12a4105b5f721eb7449e30aa5d377f9e4c6d95270f2660e15c8f6",
+  "current_binary_still_experimental_until_rebuild": false,
+  "restored_verification_sha256": "5644c8c7693fb8df3229bd694e33f980a6ac7e26e86036c328c5d0651cb8f0e0"
+}
