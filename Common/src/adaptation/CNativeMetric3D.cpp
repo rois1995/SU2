@@ -174,15 +174,16 @@ PatchMetric MeasureMetricCells(const std::vector<Cell>& cells, FrozenField& targ
     stats->maximum_nodes = std::max(stats->maximum_nodes, nodes.size());
     stats->maximum_edges = std::max(stats->maximum_edges, result.edges.size());
   }
+  target.RequireEdgePolicy();
   for (auto& edge : result.edges) {
     auto& m = edge.second;
     m.a = nodes.at(edge.first[0]).p;
     m.b = nodes.at(edge.first[1]).p;
     if (stats) ++stats->edges;
     bool reused = false;
-    if (reuse && target.SensorOnly()) {
+    if (reuse) {
       const auto prior = reuse->find(edge.first);
-      if (prior != reuse->end() && Same(prior->second.a, m.a) && Same(prior->second.b, m.b) &&
+      if (prior != reuse->end() && prior->second.identity == target.Identity() && Same(prior->second.a, m.a) && Same(prior->second.b, m.b) &&
           std::isfinite(prior->second.length) && prior->second.length > 0) {
         m.length = prior->second.length;
         reused = true;
@@ -198,6 +199,7 @@ PatchMetric MeasureMetricCells(const std::vector<Cell>& cells, FrozenField& targ
                                  "," + std::to_string(edge.first[1]) + ".");
       }
     }
+    m.identity = target.Identity();
     if (m.length > result.maximum_length) {
       result.maximum_length = m.length;
       result.longest_edge = edge.first;

@@ -49,47 +49,26 @@ M6; both AABB and exact-filter variants are withdrawn. Their executed source,
 results and failed attempts remain in the
 [rejected-cache report](Handbook/GOAL3_POINT_PREPARATION_REUSE.md).
 
-**Canonical owner point samples validated:** point-only weights/mesh return now
-use existing owner ADTs and one bounded sensor memo, eliminating per-batch indexes.
-Exact source priority/publishers, requester extensions and full-precision weights;
-BL composition at every actual query. Same512-cell M6 checks PASS1/2/4,3.0–3.9x
-selected preparation gain.4096 cells MPI4 PASS20480 exact queries,8.74x selected
-preparation gain with at least4002 capacity evictions. No full-event scaling claim.
-Current source/bridge/curved return and independent initialized RANS/SA N4/M2 BL/
-removal/BDF/SA/SU2+CGNS/restart PASS. All owned native jobs terminal; binaries current.
-[Design, exact evidence and remaining scope](Handbook/GOAL3_OWNER_POINT_SAMPLES.md).
-Full M6 construction, uncertainty/reassessment/correction epochs, scoped composed-
-edge reuse, independent transactions and complete lifecycle cost remain open.
+**Canonical owner point samples validated at dca448703a:** existing owner ADTs
+and bounded sensor memo replace per-batch indexes.512 cells exact1/2/4 and4096
+cells MPI4 PASS;3–9x selected preparation gain, no full-event claim. Curved return
+and independent RANS/SA N4M2/BDF/SU2+CGNS/restart PASS; all BL queries composed.
+[Evidence, scope and resources](Handbook/GOAL3_OWNER_POINT_SAMPLES.md).
 
-Earlier complete-support replay estimates961498/961691 (pooled empirical SE6656),
-not a proven error bound. Tiny-cell conditioning is sparse/inefficient (11–22 hits/
-16384,2–38% reference errors). Independent square tube/fade integral and original
-sensor arithmetic checks qualify only their recorded scope.
-[Global correction experiment](Handbook/GOAL3_SUPPORT_CORRECTION.md).
-Retained normalization reaches experimental target1M on a homogeneous family,
-reports100000 outside its diagnostic bracket and stops1e-6 as integration_limited;
-old scalar spectral drift and rejected verifier assumptions are preserved.
-[Exact source/work/scope](Handbook/GOAL3_RETAINED_NORMALIZATION.md).
+**Composed-edge reuse batch validated:** existing measurement maps now require
+immutable full-field identity/exact endpoints; first-row alternatives reuse common
+edges.73 serial controls, M6 wall32 exact cold/shared/repeat on1/4 ranks and affected
+MPI/curved/RANS N4M2/BDF/SU2+CGNS/restart PASS.192->137 integrals, serial.611->.444s;
+selected local replay only, rank0 requester, no complete M6/scaling gain. Original
+field and mesh gates unchanged; all owned jobs terminal/current binaries rebuilt.
+[Evidence, resources and limits](integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/composed_edge_reuse_v1/README.md).
 
-Strong-BL subset lower estimates364473/362392 exceed100000 under conditional99%
-simultaneous statistical assumptions, not machine certification. Refinement of the
-same field cannot lower its continuum demand. Finite upper envelopes are too loose;
-complete Q4/Q18 volume rules under-resolve thin mass. The experimental global lower
-controller passes35 assertions/MPI reductions but is not production coupling.
-[Support bounds and budget conflict](Handbook/GOAL3_COMPLEXITY_SUPPORT_BOUNDS.md),
-[earlier uncertainty and failed variants](Handbook/GOAL3_UNCERTAINTY_COMPLEXITY.md),
-[chord envelope](Handbook/GOAL3_CHORD_ENVELOPE.md),
-[original-field audit](Handbook/GOAL3_M6_COMPLEXITY_REASSESSMENT.md).
-
-Strict-edge repair remains historically qualified: actual M6 edges45/75 queries
-instead of65536 exhausted, all mesh gates retained.
-[Source/reference limits](Handbook/GOAL3_LOCAL_FEATURE_PRECISION.md).
-Last construction_interior_edge_v1 is REJECTED at unchanged300s after447 INTERNAL
-publications/1788 work; no accepted mesh/transfer/normalized-budget proof. Rank2
-geometry preparation147.86s versus9.37–11.88s elsewhere is a recorded hotspot,
-not accepted-lifecycle/scaling evidence. Do not rerun or raise unchanged limits.
-Original CFD state and stage/resource receipts remain. test_driver is current;
-standalone SU2_CFD was refreshed and the actual M6 initializer completed.
+**Construction/budget constraint:** latest M6 attempt remains rejected at300s,
+447 INTERNAL publications/1788 work, with rank2 geometry147.86s. No accepted mesh
+or transfer; do not rerun unchanged construction or raise limits. Same-field
+refinement cannot lower continuum mass; strong-BL lower estimates exceed100000
+under conditional statistical assumptions, not machine certification.
+[Preserved bounds, normalization and rejected experiments](Handbook/GOAL3_M6_CONSTRAINTS_AND_EXPERIMENTS.md).
 
 ## Remaining evidence and scope
 
@@ -100,8 +79,8 @@ Reference sources/failed approaches remain preserved. Final suggestion-by-sugges
 report requested: keep [outcome ledger](Handbook/SUGGESTION_OUTCOME_LEDGER.md) current,
 including its other-agent performance accounting; do not replace or discard it.
 [Broader query/transaction package](Handbook/POST_COMPLEXITY_QUERY_TRANSACTIONS.md):
-point-only owner lookup is now implemented; reconstruction-campaign support,
-shared-edge lifetime and independent publications remain open.
+point-only lookup and measured composed-edge reuse are implemented; wider repair-
+campaign support/edge lifetime and independent publications remain open.
 
 M6 initial120-step RANS/SA state, exact original owner/halo tensors and geometry
 are saved. The subsequent construction-only attempts are provisional captured
@@ -137,7 +116,7 @@ edit, no repeated unchanged failures/limit ladders, push reviewable work. Keep
 handbooks compact with detailed linked topics. Announce full case folder paths.
 One owned heavy job, low priority/thread1/build-j1, locally available MPI<=4.
 Check host contention/RAM and live handles. Latest host38–39GiB available; recheck.
-Current build peak process2.39GiB, serial pilot1.63GiB, MPI wrapper886MiB;
+Current build peak process2.38GiB, serial pilot1.63GiB, MPI wrapper530MiB;
 recorded swaps0, not aggregate or whole-lifecycle peaks. All owned jobs terminal. Root/tmp nearly full: use build-integrated-v2/compile-tmp
 on4TB. Do not kill unrelated processes or request cluster jobs overnight.
 Goal4 inactive; full physical unsteady3D/general CAD/mixed volumes separate scope.

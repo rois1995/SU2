@@ -976,6 +976,105 @@
         "Scoped composed-edge reuse and independent transactions, not implemented by point lookup.",
         "No whole M6 preparation/adaptation or scaling claim from selected-cell timings."
       ]
+    },
+    "composed_edge_reuse": {
+      "status": "PASS_LOCAL_SCOPED_IMPROVEMENT_FULL_GOAL_INCOMPLETE",
+      "base_commit": "dca448703a982234e8ea923b0b13676ff28e2fdb",
+      "source": "Common/src/adaptation/CNativeMetric3D.cpp",
+      "evidence": "integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/composed_edge_reuse_v1",
+      "design": "Extend existing maps with immutable full-field identity/exact endpoints; no overlapping edge cache. One identity per engine invocation and last-candidate first-row map.",
+      "checks": [
+        "73 serial controls/6234 assertions",
+        "Exact original M6 wall32 cold/shared/repeat q/J/max/edges MPI1/4",
+        "MPI first-row/disjoint/coupled controls",
+        "Affected curved return and independent initialized RANS/SA N4M2 BDF/SA/restart/SU2/CGNS audit"
+      ],
+      "measurements": [
+        {
+          "ranks": 1,
+          "cells": 32,
+          "cells_by_rank": [
+            32
+          ],
+          "passes": [
+            {
+              "seconds_max": 0.6109570810000022,
+              "evaluations": 192,
+              "reused": 0,
+              "compositions": 62897,
+              "geometry_seconds": 0.06543045900000001,
+              "composition_seconds": 0.40040675800000003
+            },
+            {
+              "seconds_max": 0.444273177999996,
+              "evaluations": 137,
+              "reused": 55,
+              "compositions": 48182,
+              "geometry_seconds": 0.04676191400000001,
+              "composition_seconds": 0.29578553700000004
+            },
+            {
+              "seconds_max": 0.01957859000000184,
+              "evaluations": 0,
+              "reused": 192,
+              "compositions": 32,
+              "geometry_seconds": 0,
+              "composition_seconds": 0
+            }
+          ],
+          "neighbor_elapsed_reduction": 0.27282424278835005,
+          "neighbor_composition_reduction": 0.23395392467049303,
+          "exact_cold_reused_repeat": true,
+          "exact_MPI_match": true
+        },
+        {
+          "ranks": 4,
+          "cells": 32,
+          "cells_by_rank": [
+            32,
+            0,
+            0,
+            0
+          ],
+          "passes": [
+            {
+              "seconds_max": 0.8758113759999979,
+              "evaluations": 192,
+              "reused": 0,
+              "compositions": 62897,
+              "geometry_seconds": 0.075965001,
+              "composition_seconds": 0.41730243799999994
+            },
+            {
+              "seconds_max": 0.5514349610000018,
+              "evaluations": 137,
+              "reused": 55,
+              "compositions": 48182,
+              "geometry_seconds": 0.04561774400000001,
+              "composition_seconds": 0.3150593579999998
+            },
+            {
+              "seconds_max": 0.03174990400000155,
+              "evaluations": 0,
+              "reused": 192,
+              "compositions": 32,
+              "geometry_seconds": 0,
+              "composition_seconds": 0
+            }
+          ],
+          "neighbor_elapsed_reduction": 0.3703724613414897,
+          "neighbor_composition_reduction": 0.23395392467049303,
+          "exact_cold_reused_repeat": true,
+          "exact_MPI_match": true
+        }
+      ],
+      "limits": [
+        "32 original M6 configured-wall cells; rank0 requests all32 in both runs. Other ranks take matching collective service calls.",
+        "Contended local replay including unchanged donor imports, not scaling or whole-event speedup.",
+        "First-row reuse is covered by existing constrained engine cases, without a new complete M6 construction timing.",
+        "No accepted M6 mesh, normalization change, uncertainty calibration, CFD advance or volume reassessment."
+      ],
+      "full_goal_complete": false
     }
   }
 }

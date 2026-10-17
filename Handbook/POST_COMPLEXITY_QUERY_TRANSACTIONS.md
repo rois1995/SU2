@@ -33,10 +33,14 @@ share successful policy between dimensions with dimension-specific geometry.
 No claim that cache microbenchmarks demonstrate whole-lifecycle gains.
 
 Current geometry-reuse evidence is linked from GOAL3_UNCERTAINTY_COMPLEXITY.md.
-The constructor, source query infrastructure, shared-edge cache, transaction
-batches, transfer support and partition reports still require a focused inventory
-before choosing concrete changes. No implementation of this follow-up has begun.
-
+Canonical owner point lookup is validated at dca448703a, replacing repeated
+whole-star point imports/indexes. See [point-query evidence](GOAL3_OWNER_POINT_SAMPLES.md).
+Existing composed-edge maps now support immutable full-field identity and exact
+endpoints:32 M6 wall cells1/4 ranks match cold exactly;73 serial controls plus
+MPI/curved/RANS N4M2 workflow pass. See the [edge-reuse report](../integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/composed_edge_reuse_v1/README.md).
+Gains are selected replay measurements, not full lifecycle. Independent publication
+batching and general reconstruction-campaign support remain open; inspect existing
+reuse and actual costs before extending them.
 
 Correctness conditions for the eventual package: edge entries must retain required
 integration accuracy as well as endpoint/field/geometry identity. Failed searches

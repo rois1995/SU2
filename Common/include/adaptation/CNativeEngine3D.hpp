@@ -48,6 +48,7 @@ struct EngineStats {
   double region_sampling_seconds=0, region_first_band_seconds=0, region_transition_seconds=0;
   double region_junction_seconds=0, region_core_seconds=0, region_validation_seconds=0;
   uint64_t layer_published = 0, height_checks = 0, height_rejected = 0, footprint_rejected = 0;
+  uint64_t layer_edge_evaluations=0,layer_edge_reused=0;
   double layer_seconds = 0;  // Exclusive first-row initialization before metric seeding.
   uint64_t geometry_trials = 0, geometry_rejected = 0, metric_trials = 0;
   uint64_t metric_shape_rejected = 0, metric_progress_rejected = 0, metric_measurement_rejected = 0;

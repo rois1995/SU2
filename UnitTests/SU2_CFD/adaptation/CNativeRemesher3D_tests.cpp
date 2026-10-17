@@ -273,7 +273,8 @@ TEST_CASE("Native3D remeshes an externally frozen original sensor field without 
   }
   REQUIRE(world.sum(uint64_t(sensor.rows()))==count);
   auto backend=driver.Backend();const auto* native=dynamic_cast<CNativeRemesher3D*>(backend.get());REQUIRE(native);
-  if(const char* limit=std::getenv("SU2_NATIVE_PREPARATION_LIMIT")) {
+  const auto* edgeLimit=std::getenv("SU2_NATIVE_EDGE_REUSE_LIMIT");
+  if(const char* limit=edgeLimit ? edgeLimit : std::getenv("SU2_NATIVE_PREPARATION_LIMIT")) {
     const auto maximum=std::stoul(limit);REQUIRE(maximum>0);REQUIRE(maximum<=4096);
     ReferenceState reference=driver.Reference();ImportedGeometry imported;BridgeStats importStats;std::string reason;
     REQUIRE(ImportGeometry(driver.Config(),geometry,&sensor,reference,imported,reason,importStats,size_t(2)<<30));
@@ -287,21 +288,33 @@ TEST_CASE("Native3D remeshes an externally frozen original sensor field without 
     }
     core=CPassiveComm::Allreduce(core,CPassiveComm::Op::MIN,world.comm);
     auto layers=CBoundaryLayerMetric::FromNativeReference(reference,driver.Config());
-    std::vector<std::array<double,15>> observations;
+    std::vector<std::array<double,15>> observations;const bool recordQueries=!edgeLimit;
     MetricComposition composition=[&](Point p,Tensor sensor) {
       CBoundaryLayerMetric::Tensor m;m.m[0][0]=sensor.xx;m.m[1][1]=sensor.yy;m.m[2][2]=sensor.zz;
       m.m[0][1]=m.m[1][0]=sensor.xy;m.m[0][2]=m.m[2][0]=sensor.xz;m.m[1][2]=m.m[2][1]=sensor.yz;
       const su2double x[3]={p.x,p.y,p.z};layers->ApplyPoint(x,m,core,nullptr,false);
       const Tensor target{SU2_TYPE::GetValue(m.m[0][0]),SU2_TYPE::GetValue(m.m[0][1]),SU2_TYPE::GetValue(m.m[0][2]),
           SU2_TYPE::GetValue(m.m[1][1]),SU2_TYPE::GetValue(m.m[1][2]),SU2_TYPE::GetValue(m.m[2][2])};
-      observations.push_back({p.x,p.y,p.z,sensor.xx,sensor.xy,sensor.xz,sensor.yy,sensor.yz,sensor.zz,
+      if(recordQueries)observations.push_back({p.x,p.y,p.z,sensor.xx,sensor.xy,sensor.xz,sensor.yy,sensor.yz,sensor.zz,
           target.xx,target.xy,target.xz,target.yy,target.yz,target.zz});
       return target;
     };
     auto key=[](const Cell& cell){std::array<Id,4> ids;for(unsigned j=0;j<4;++j)ids[j]=cell.v[j].id;std::sort(ids.begin(),ids.end());return ids;};
     // Gather only a bounded prefix of keys, never all cells, for identical test coverage on1/2/4 ranks.
     std::set<std::array<Id,4>> local;
-    for(const auto& row:imported.cells) {local.insert(key(row.second.cell));if(local.size()>maximum)local.erase(std::prev(local.end()));}
+    std::set<int> wallMarkers;
+    if(edgeLimit) {
+      REQUIRE(maximum<=64);
+      for(size_t m=0;m<reference.marker_names.size();++m)for(unsigned short b=0;b<driver.Config().GetnAdap_BL();++b)
+        if(reference.marker_names[m]==driver.Config().GetAdap_BL(b).marker)wallMarkers.insert(m);
+      REQUIRE_FALSE(wallMarkers.empty());
+    }
+    for(const auto& row:imported.cells) {
+      if(edgeLimit && !std::any_of(row.second.physical.begin(),row.second.physical.end(),[&](const auto& face) {
+        return face.present && wallMarkers.count(reference.original->Get(face.facet).marker);
+      }))continue;
+      local.insert(key(row.second.cell));if(local.size()>maximum)local.erase(std::prev(local.end()));
+    }
     std::vector<std::vector<std::array<Id,4>>> send(world.size);send[0].assign(local.begin(),local.end());
     auto candidates=world.exchange(send);send.assign(world.size,{});
     if(!world.rank) {
@@ -311,6 +324,65 @@ TEST_CASE("Native3D remeshes an externally frozen original sensor field without 
     const auto admitted=world.exchange(send);std::set<std::array<Id,4>> wanted(admitted.begin(),admitted.end());
     Owned selected;for(const auto& row:imported.cells)if(wanted.count(key(row.second.cell)))selected.insert(row);
     REQUIRE(world.sum(uint64_t(selected.size()))==wanted.size());
+    if(edgeLimit) {
+      REQUIRE(wanted.size()==maximum);
+      const MetricEdgeBreakpoints bands=[&](Point a,Point b){return layers->EdgeBreakpoints({a.x,a.y,a.z},{b.x,b.y,b.z});};
+      const auto identity=std::make_shared<const FrozenMetricIdentity>();
+      std::vector<const Cell*> ordered;for(const auto& row:selected)ordered.push_back(&row.second.cell);
+      std::vector<PatchMetric> cold,retained;std::map<Edge,EdgeMeasure> reuse;
+      const size_t slots=CPassiveComm::Allreduce(ordered.size(),CPassiveComm::Op::MAX,world.comm);
+      std::array<double,3> elapsed{},geometryTime{},composeTime{};std::array<uint64_t,3> evaluations{},hits{},compositions{};
+      std::ofstream rows("edges_rank"+std::to_string(world.rank)+".csv");
+      rows<<std::setprecision(21)<<"cell,n0,n1,n2,n3,a,b,cold,reused,repeat,q,J,max_length\n";
+      for(unsigned pass=0;pass<3;++pass) {
+        const auto begin=world.seconds();
+        for(size_t i=0;i<slots;++i) {
+          const auto query=i<ordered.size()?std::vector<Cell>{*ordered[i]}:std::vector<Cell>{};
+          auto donors=source.ImportMetricCells(query,size_t(2)<<30);INFO(donors.reason);REQUIRE(donors.valid);
+          CLocalFailure failure;
+          try {if(i<ordered.size()) {
+            FrozenField target(std::move(donors.cells),composition,true,{},bands,identity);MetricStats stats;
+            const auto measured=MeasureMetricCells(query,target,&stats,pass?&reuse:nullptr);
+            evaluations[pass]+=stats.edge_evaluations;hits[pass]+=stats.edge_reused;
+            const auto& field=target.Statistics();geometryTime[pass]+=field.edge_geometry_seconds;
+            composeTime[pass]+=field.edge_composition_seconds;compositions[pass]+=field.compositions;
+            if(!pass)cold.push_back(measured);
+            else {
+              const auto& original=cold.at(i);
+              if(measured.minimum_mean_ratio!=original.minimum_mean_ratio ||
+                 measured.minimum_scaled_jacobian!=original.minimum_scaled_jacobian || measured.maximum_length!=original.maximum_length)
+                throw std::runtime_error("Cached M6 metric bounds differ from cold evaluation.");
+              if(pass==1)retained.push_back(measured);
+              for(const auto& edge:measured.edges) {
+                if(edge.second.length!=original.edges.at(edge.first).length)
+                  throw std::runtime_error("Cached M6 full-target edge differs from cold integration.");
+                if(pass==2) {
+                  rows<<ordered[i]->id;for(auto node:key(*ordered[i]))rows<<','<<node;
+                  rows<<','<<edge.first[0]<<','<<edge.first[1]<<','<<original.edges.at(edge.first).length<<','
+                      <<retained.at(i).edges.at(edge.first).length<<','<<edge.second.length<<','<<measured.minimum_mean_ratio<<','
+                      <<measured.minimum_scaled_jacobian<<','<<measured.maximum_length<<'\n';
+                }
+              }
+              for(const auto& edge:measured.edges)reuse[edge.first]=edge.second;
+            }
+          }}catch(const std::exception& error){failure.Set(2,0,error.what());}
+          const auto rejected=world.elect(failure);INFO(rejected.message);REQUIRE_FALSE(rejected.any);
+        }
+        elapsed[pass]=world.seconds()-begin;
+      }
+      REQUIRE(evaluations[0]==6*selected.size());REQUIRE(evaluations[2]==0);REQUIRE(hits[2]==evaluations[0]);
+      REQUIRE(compositions[2]==selected.size());
+      rows.close();REQUIRE(bool(rows));
+      std::ofstream out("edge_reuse_rank"+std::to_string(world.rank)+".json");out<<std::setprecision(17)
+        <<"{\"ranks\":"<<world.size<<",\"rank\":"<<world.rank<<",\"cells\":"<<selected.size()<<",\"passes\":[";
+      for(unsigned p=0;p<3;++p) {
+        if(p)out<<',';out<<"{\"seconds\":"<<elapsed[p]<<",\"evaluations\":"<<evaluations[p]<<",\"reused\":"<<hits[p]
+          <<",\"geometry_seconds\":"<<geometryTime[p]<<",\"composition_seconds\":"<<composeTime[p]
+          <<",\"compositions\":"<<compositions[p]<<'}';
+      }
+      out<<"],\"exact_metric_match\":true,\"CFD_steps\":0,\"mesh_constructed\":false}\n";
+      out.close();REQUIRE(bool(out));driver.Finalize();return;
+    }
     BridgeStats prepared;std::vector<uint32_t> actual;
     const auto begin=world.seconds();REQUIRE(WorkingWeights(world,selected,source,actual,reason,prepared,composition));
     const auto elapsed=world.seconds()-begin;

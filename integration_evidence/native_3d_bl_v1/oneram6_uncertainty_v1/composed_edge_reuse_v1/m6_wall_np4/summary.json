@@ -1,0 +1,176 @@
+{
+  "reports": [
+    {
+      "ranks": 4,
+      "rank": 0,
+      "cells": 32,
+      "passes": [
+        {
+          "seconds": 0.8758113759999979,
+          "evaluations": 192,
+          "reused": 0,
+          "geometry_seconds": 0.075965001,
+          "composition_seconds": 0.41730243799999994,
+          "compositions": 62897
+        },
+        {
+          "seconds": 0.5514321299999985,
+          "evaluations": 137,
+          "reused": 55,
+          "geometry_seconds": 0.04561774400000001,
+          "composition_seconds": 0.3150593579999998,
+          "compositions": 48182
+        },
+        {
+          "seconds": 0.03174990400000155,
+          "evaluations": 0,
+          "reused": 192,
+          "geometry_seconds": 0,
+          "composition_seconds": 0,
+          "compositions": 32
+        }
+      ],
+      "exact_metric_match": true,
+      "CFD_steps": 0,
+      "mesh_constructed": false
+    },
+    {
+      "ranks": 4,
+      "rank": 1,
+      "cells": 0,
+      "passes": [
+        {
+          "seconds": 0.8751242950000027,
+          "evaluations": 0,
+          "reused": 0,
+          "geometry_seconds": 0,
+          "composition_seconds": 0,
+          "compositions": 0
+        },
+        {
+          "seconds": 0.5514344639999997,
+          "evaluations": 0,
+          "reused": 0,
+          "geometry_seconds": 0,
+          "composition_seconds": 0,
+          "compositions": 0
+        },
+        {
+          "seconds": 0.03174824199999904,
+          "evaluations": 0,
+          "reused": 0,
+          "geometry_seconds": 0,
+          "composition_seconds": 0,
+          "compositions": 0
+        }
+      ],
+      "exact_metric_match": true,
+      "CFD_steps": 0,
+      "mesh_constructed": false
+    },
+    {
+      "ranks": 4,
+      "rank": 2,
+      "cells": 0,
+      "passes": [
+        {
+          "seconds": 0.8730221139999976,
+          "evaluations": 0,
+          "reused": 0,
+          "geometry_seconds": 0,
+          "composition_seconds": 0,
+          "compositions": 0
+        },
+        {
+          "seconds": 0.5514349610000018,
+          "evaluations": 0,
+          "reused": 0,
+          "geometry_seconds": 0,
+          "composition_seconds": 0,
+          "compositions": 0
+        },
+        {
+          "seconds": 0.03173647699999904,
+          "evaluations": 0,
+          "reused": 0,
+          "geometry_seconds": 0,
+          "composition_seconds": 0,
+          "compositions": 0
+        }
+      ],
+      "exact_metric_match": true,
+      "CFD_steps": 0,
+      "mesh_constructed": false
+    },
+    {
+      "ranks": 4,
+      "rank": 3,
+      "cells": 0,
+      "passes": [
+        {
+          "seconds": 0.8757870509999997,
+          "evaluations": 0,
+          "reused": 0,
+          "geometry_seconds": 0,
+          "composition_seconds": 0,
+          "compositions": 0
+        },
+        {
+          "seconds": 0.551428860999998,
+          "evaluations": 0,
+          "reused": 0,
+          "geometry_seconds": 0,
+          "composition_seconds": 0,
+          "compositions": 0
+        },
+        {
+          "seconds": 0.031749077000000625,
+          "evaluations": 0,
+          "reused": 0,
+          "geometry_seconds": 0,
+          "composition_seconds": 0,
+          "compositions": 0
+        }
+      ],
+      "exact_metric_match": true,
+      "CFD_steps": 0,
+      "mesh_constructed": false
+    }
+  ],
+  "source_pins": {
+    "integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/run.py": "b179ef9aeff7be9f81f4f7cc0f7dca915d59ee8fedfd2bc29d79e80ae23a5c74",
+    "integration_evidence/build-integrated-v2/UnitTests/test_driver": "037ef35c1f2bc56d34eac3be9220785d6cfa98e4c10f62c552ea82be104aadd2",
+    "integration_evidence/build-integrated-v2/build.ninja": "8b3bd549253b0371e1553e84f81d7426831f3477e73af0e9a524215902c9308a",
+    "integration_evidence/build-integrated-v2/meson-info/intro-buildoptions.json": "59377c452909959635fa25c06589f97be7916c19148364113dd1a62ab38e9a5c",
+    "SU2_CFD/src/adaptation/CBoundaryLayerMetric.cpp": "0e4185a9d9615c3b6ef234322c6a341922f75125dffaa7f941fb6eb4f96ff702",
+    "SU2_CFD/include/adaptation/CBoundaryLayerMetric.hpp": "9fa6a59db2c63c0f8c7cf0c5b5b12f48b89070bf6e67361a49dac37fa20ebac9",
+    "UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp": "735c7c9f10441908510fb436d87afd97d339dbe31bd6141a82812a837c3093c6",
+    "Common/src/adaptation/CNativeField3D.cpp": "4266779c7efec7c0d3cbd3eab2eed9956992b0bacc2e7b6799e71763e035d7ec",
+    "Common/include/adaptation/CNativeField3D.hpp": "60fc7bf4dd2dac2853a1a20e0d965bedec3d9a962f1051ffb05067b20339e222",
+    "UnitTests/Common/adaptation/CNativeField3D_tests.cpp": "c36ec7441498298a24c7e2c3002e230898108006502c6cc0f34559ef48a275cf",
+    "Common/include/adaptation/CComplexityNormalization.hpp": "041ce6aecd1e0b22edc4d7e09c968d109d6eb9ff21c86184fffeff87dbee01e9",
+    "Common/include/adaptation/CNativeChordEnvelope.hpp": "c7a3429203f7d274df87c8beef452214d8cd531ed1359ce466b6ebd3de88c534",
+    "SU2_CFD/src/solvers/CSolver.cpp": "fb00641a2392c6267c3b54bf8af4a376e3bca39f44ff7b4198c163077d9a386f",
+    "Common/include/adaptation/CNativeEngine3D.hpp": "5db375b10a0a971ce20b08234122f2c72231d07c48e61ead521355b414f644aa",
+    "Common/src/adaptation/CNativeEngine3D.cpp": "0586cc146718bf8c2e2f59a2a719ef61a0d75a4ebc02131539b3724977ae0895",
+    "Common/include/adaptation/CNativeMetric3D.hpp": "58fa5eff85c3045fc57c8e87e9b7d9a03c0b335c906dd194d44c6e0317effbbd",
+    "Common/src/adaptation/CNativeMetric3D.cpp": "1013d1d5e758026971ba52b359f90db23e959d39b9b7a6a32ef51e6a42cb1611",
+    "UnitTests/Common/adaptation/CNativeMetric3D_tests.cpp": "f2783a68411823ac1dd07134366907b981debe16690d65c56110d3ddbc36d793",
+    "Common/src/adaptation/CNativeImport3D.cpp": "04f4e223123e9b09aa14079323bbde6243ebf0a39d96d247fa527900f71b0b0b",
+    "Common/include/adaptation/CNativeImport3D.hpp": "2d4573853ba430aece08aee972c9e101f03387fe414269e6fc979accf77726ea",
+    "Common/src/adaptation/CNativeRemesher3D.cpp": "b12155ead389e986ab35176bc6c7b49e2d9971f609eb8f064d9699816f2e0572",
+    "Common/src/adaptation/CNativeDonor3D.cpp": "a99f6740a81956557b4622aedff89791a4c8c8888137ae5421700eae4621f56f",
+    "Common/include/adaptation/CNativeDonor3D.hpp": "9b409b1777b0186a468c0d695640e2509e61e51dcf9f7cc937516ef21f3d99e3",
+    "UnitTests/Common/adaptation/CNativeDistributed3D_tests.cpp": "b0c29694c4927e64d4a53025c79b71467ad5a00b24ccfcaeafed216dd0890ecf",
+    "Common/src/adaptation/CNativePartition3D.cpp": "ffea46dce786c818a56a974bd0503d3f0579b8c3e249930bf1660d53ecd8bbd8",
+    "Common/include/adaptation/CNativePartition3D.hpp": "5371257e1b9eb80add99e2eaa04b19626daa9a13ecf19d8fe892f1173374e9c8",
+    "UnitTests/SU2_CFD/adaptation/CNativeImport3D_tests.cpp": "fdcb998d29d361b644a80296dbed3126831e3728fc99f2daead84caf16ab9283",
+    "UnitTests/SU2_CFD/adaptation/CNativeRemesher3D_tests.cpp": "51b4a923c7f8ec2f99d1bbaa7ff1543b5bea94025ce733c11f37f53595e0f56e",
+    "integration_evidence/native_3d_bl_v1/production_policy_v1/audit.py": "bff97f4bde85829879fcae34d4eeb358264279613ee1fc6ddd35c6c48666f1e8",
+    "integration_evidence/native_3d_core_v1/audit_coupled.py": "1822427476ecb5687aaa06f3e7a3cc8f31cde53166fd0c711449eedf7c7c7a50"
+  },
+  "exact_cold_reused_repeat": true,
+  "selected_wall_cells": 32,
+  "full_goal_complete": false,
+  "scope": "Original M6 wall-cell measurements; no construction, normalization or CFD."
+}

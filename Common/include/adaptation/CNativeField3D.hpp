@@ -18,6 +18,9 @@ class PlanarReference;
 constexpr size_t MaximumDonors = MaximumSegmentDonors, MaximumSensorSamples = 2048, MaximumGeometricEdgeCuts = 65536;
 // Imported records/indexes, sensor cache, exact segment scratch and global edge heap/growth; excludes CFD/RSS.
 constexpr size_t MaximumFrozenFieldBytes = MaximumDonors * 12288 + MaximumSensorSamples * 256 + MaximumGeometricEdgeCuts * (sizeof(double)+64);
+/*! Identity of one immutable original sensor, geometry, composition and edge-accuracy policy.
+ * Share only between complete imports of that same field; a new normalization stage needs a new identity. */
+struct FrozenMetricIdentity {};
 using Metric = std::function<Tensor(Point)>;
 using MetricComposition = std::function<Tensor(Point, Tensor)>;
 using MetricEdgeBreakpoints = std::function<std::vector<double>(Point, Point)>;
@@ -65,7 +68,8 @@ struct FieldStats {
 class FrozenField {
  public:
   explicit FrozenField(std::vector<DonorCell> original, MetricComposition composition = {}, bool timings = false,
-                       std::vector<Id> extension_components = {}, MetricEdgeBreakpoints edge_breakpoints = {});
+                       std::vector<Id> extension_components = {}, MetricEdgeBreakpoints edge_breakpoints = {},
+                       std::shared_ptr<const FrozenMetricIdentity> identity = {});
   ~FrozenField();
   FieldSample Query(Point point);
   Tensor evaluate(Point point) { return Query(point).target; }
@@ -79,6 +83,8 @@ class FrozenField {
   /*! Full-target length-balanced coordinate proposal; geometry kernels still certify the rounded point. */
   Point BalancedSplitPoint(Point a, Point b, double fraction = .5);
   bool SensorOnly() const { return !composition; }
+  void RequireEdgePolicy() const;
+  const std::shared_ptr<const FrozenMetricIdentity>& Identity() const { return identity; }
   const FieldStats& Statistics() const { return stats; }
 
  private:
@@ -96,6 +102,7 @@ class FrozenField {
   const MetricComposition composition;
   const MetricEdgeBreakpoints edge_breakpoints;
   const bool timings;
+  const std::shared_ptr<const FrozenMetricIdentity> identity;
   std::unique_ptr<CADTElemClass> search;
   std::vector<unsigned long> candidates;
   std::unordered_map<std::array<double, 3>, SensorValue, Hash> cache;

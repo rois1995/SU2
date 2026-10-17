@@ -367,3 +367,34 @@ Whole-donor caches remain rejected; shared-edge lifetime/independent publication
 and reconstruction-campaign support remain unimplemented. One owned heavy job,
 38–39GiB host available; resources/provenance/compile rejection preserved.
 [Exact comparison and remaining work](../integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/owner_point_samples_v1/README.md).
+
+
+## 2026-10-17: extend shared composed-edge reuse WORKED in the measured scope
+
+The existing scalar maps skipped reuse for every geometric BL field. They now
+require one explicit immutable full-field identity, exact edge IDs/endpoints and
+finite positive successful measurements. Fresh default identities prevent reuse
+across changed targets; native imports share one identity per engine invocation.
+The identity owns its lifetime, is allocated under elected/admitted initialization,
+and is not migrated/persisted. First-row alternatives retain the last bounded
+candidate map. No overlapping edge cache or integration/mesh tolerance change.
+
+Original M6 wall32, MPI1/4: all cold/shared/repeated q/J/max/full edge lengths match
+exactly. First shared pass192->137 integrations and62897->48182 compositions;
+serial elapsed.61096->.44427s (27.3%), MPI max.87581->.55143s (37.0%). Repeated pass
+reuses all192, retaining32 actual centroid compositions. All32 requesters are on
+rank0; other ranks serve the matching protocol. These are contended selected-cell
+observations including imports, not multi-requester scaling or full-event speedups.
+
+73 serial cases/6234 assertions and selected MPI first-row/disjoint/coupled controls
+pass; affected curved return and independent initialized RANS/SA N4M2 construction/
+removal/BDF/SA/SU2+CGNS/restart remain accepted24->6 cells under unchanged gates.
+No accepted M6 mesh or new production first-row speedup certificate. Initial build
+plus one safety refresh are saved; no repeated native test campaign per small edit.
+One heavy job, peak build process2.38GiB/serial pilot1.63GiB, host38–40GiB available.
+
+Campaign donor support, scoped reconstruction edge lifetime and independent
+publications are still open, as are original-field uncertainty/reassessment and
+complete lifecycle affordability. Existing2D reuse must be inspected before sharing
+this policy; no2D or MMG path was replaced.
+[Exact evidence and limitations](../integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/composed_edge_reuse_v1/README.md).

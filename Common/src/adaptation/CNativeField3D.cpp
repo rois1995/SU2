@@ -70,8 +70,10 @@ size_t FrozenField::Hash::operator()(const std::array<double, 3>& point) const {
   return value;
 }
 FrozenField::FrozenField(std::vector<DonorCell> original, MetricComposition combine, bool enabled,
-                         std::vector<Id> components, MetricEdgeBreakpoints breakpoints)
-    : donors(std::move(original)), composition(std::move(combine)), edge_breakpoints(std::move(breakpoints)), timings(enabled) {
+                         std::vector<Id> components, MetricEdgeBreakpoints breakpoints,
+                         std::shared_ptr<const FrozenMetricIdentity> authority)
+    : donors(std::move(original)), composition(std::move(combine)), edge_breakpoints(std::move(breakpoints)), timings(enabled),
+      identity(authority ? std::move(authority) : std::make_shared<const FrozenMetricIdentity>()) {
   Timer timer(stats.build_seconds, timings);
   Canonical(donors);
   std::sort(components.begin(),components.end());
@@ -141,9 +143,12 @@ void FrozenField::FindCandidates(Point lo, Point hi) {
   }
   std::sort(candidates.begin(), candidates.end());
 }
-long double FrozenField::TargetEdgeLength(Point a, Point b) {
+void FrozenField::RequireEdgePolicy() const {
   if (composition && !edge_breakpoints)
     throw std::runtime_error("Native 3D composed target requires geometry-resolved edge integration.");
+}
+long double FrozenField::TargetEdgeLength(Point a, Point b) {
+  RequireEdgePolicy();
   return EdgeLength(a, b, bool(composition));
 }
 Point FrozenField::BalancedSplitPoint(Point a,Point b,double fraction) {

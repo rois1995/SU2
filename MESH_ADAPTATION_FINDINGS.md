@@ -6325,3 +6325,18 @@ M6 adaptation/scaling or accepted wing mesh claim. Current MPI/curved-return and
 independent initialized RANS/SA N4/M2 construction/removal/BDF/SA/restart/SU2+CGNS
 checks pass. Broad constructor/uncertainty/reassessment/correction scope remains.
 [Evidence and limits](Handbook/GOAL3_OWNER_POINT_SAMPLES.md).
+
+
+### 2026-10-17 — composed scalar edges can reuse the frozen full field
+
+MeasureMetricCells previously disabled all composed-field scalar reuse. Existing
+maps now check an immutable full-field identity plus exact endpoint coordinates
+and valid length. New stages receive new identities; unsupported geometry-resolved
+integration still rejects. First-row alternatives reuse their last candidate map;
+actual point/centroid BL composition, original P1/finer/fade and mesh gates unchanged.
+Original M6 wall321/4 ranks match cold q/J/max/all lengths exactly:192->137 fresh
+integrals, serial.611->.444s, MPI max.876->.551s. Rank0 requests all32, so no scaling
+claim.73 serial controls plus MPI first-row/disjoint/coupled, curved return and
+independently audited initialized RANS/SA N4M2/BDF/SU2+CGNS/restart pass. Full M6
+construction, uncertainty calibration/correction and lifecycle cost remain open.
+[Source/evidence, resource receipts and limits](integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/composed_edge_reuse_v1/README.md).

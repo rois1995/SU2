@@ -466,6 +466,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
   Owned working;
   Selection selection(coarsening,repairing,geometry,stats,options.timings,options.surface_tolerance,options.wall_heights);
   std::map<Edge,EdgeMeasure> retired_edges;
+  std::shared_ptr<const FrozenMetricIdentity> field_identity;
   // Joint split feasibility depends on neighboring vertex stars, even when the edge itself is unchanged.
   selection.track_splits=bool(composition);
   Directory directory(world,coarsening || selection.track_splits);
@@ -482,7 +483,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
   auto bytes=[&]() {
     return transfer_memory::Add(options.caller_bytes,MapBytes(options.wall_heights),MapBytes(options.region_walls),accepted_bytes,batch_bytes,MapBytes(working),
         transfer_memory::Bytes(original),transfer_memory::Bytes(initial),transfer_memory::Bytes(result.splits),transfer_memory::Bytes(result.collapses),
-        selection.Bytes(),MapBytes(retired_edges));
+        selection.Bytes(),MapBytes(retired_edges),field_identity ? 64 : 0);
   };
   auto admit=[&](size_t extra) {
     const auto peak=transfer_memory::Add(bytes(),source.ResidentBytes(),directory.ResidentBytes(),extra);
@@ -669,10 +670,11 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         ready=vote(failure);
       }
     }
-    if (ready) ready=admit(transfer_memory::Add(accepted_bytes,
+    if (ready) ready=admit(transfer_memory::Add(accepted_bytes,64,
         transfer_memory::Mul(std::min<uint64_t>(stats.work_limit,4096),
             coarsening ? sizeof(Edge) : sizeof(SplitRecord)),transfer_memory::Mul(accepted.size(),selection_bound(repairing))));
     if (ready) try {
+      field_identity=std::make_shared<const FrozenMetricIdentity>();
       working=accepted;
       stats.maximum_owned=working.size();
       if (coarsening) result.collapses.reserve(std::min<uint64_t>(stats.work_limit,4096));
@@ -929,9 +931,10 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
               double(((long double)a.y+b.y+c.y)/3-factor*h->second*normal[1]),double(((long double)a.z+b.z+c.z)/3-factor*h->second*normal[2])});
         }
         const auto components=AssociatedExtensions(donors.cells,geometry);
-        FrozenField target(donors.cells,composition,options.timings,components,options.edge_breakpoints);
+        FrozenField target(donors.cells,composition,options.timings,components,options.edge_breakpoints,field_identity);
         FieldAccounting accounting{stats,target};
         double bestQuality=-1;long double bestLength=std::numeric_limits<long double>::infinity();
+        std::map<Edge,EdgeMeasure> reuse;
         for(const auto& background:backgrounds) {
           Patch candidate;FirstHeightReport candidateReport;std::string candidateReason;
           if(!ConstructFirstLayer(old,{node,background},node+1,cell,options.wall_heights,geometry,candidate,candidateReport,candidateReason)) {
@@ -939,7 +942,10 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
             if(candidateReason.find("geometry-height incompatibility")!=std::string::npos)break;
             continue;
           }
-          const auto measured=MeasureMetricCells(candidate.cells,target);
+          MetricStats counted;
+          const auto measured=MeasureMetricCells(candidate.cells,target,&counted,&reuse);
+          reuse=measured.edges;
+          stats.layer_edge_evaluations+=counted.edge_evaluations;stats.layer_edge_reused+=counted.edge_reused;
           const double quality=std::min(measured.minimum_mean_ratio/MinimumMeanRatio,
               measured.minimum_scaled_jacobian/MinimumScaledJacobian);
           // Choose the wall/transition arrangement against the frozen target before private publication.
@@ -1018,7 +1024,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       if (slot<ids.size()) try {
         CpuTimer private_cpu(stats.measurement_cpu_seconds,options.timings);
         const auto components=AssociatedExtensions(imported.cells,geometry);
-        FrozenField field(std::move(imported.cells),composition,options.timings,components,options.edge_breakpoints);
+        FrozenField field(std::move(imported.cells),composition,options.timings,components,options.edge_breakpoints,field_identity);
         FieldAccounting accounting{stats,field};
         for (size_t i=slot;i<std::min(slot+batch,ids.size());++i) {
           PatchMetric metric;
@@ -1377,7 +1383,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       if(chosen)try {
         Timer timer(stats.metric_seconds,options.timings);CpuTimer cpu(stats.metric_cpu_seconds,options.timings);
         const auto components=AssociatedExtensions(seed.cells,geometry);
-        FrozenField target(std::move(seed.cells),composition,options.timings,components,options.edge_breakpoints);
+        FrozenField target(std::move(seed.cells),composition,options.timings,components,options.edge_breakpoints,field_identity);
         FieldAccounting accounting{stats,target};
         splitPosition=target.BalancedSplitPoint(choice.measure.a,choice.measure.b);
       }catch(const std::exception& e){
@@ -1451,7 +1457,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       if (!streamed && metric_needed) try {
         CpuTimer private_cpu(stats.metric_cpu_seconds,options.timings);
         const auto components=AssociatedExtensions(sensors.cells,geometry);
-        field=std::make_unique<FrozenField>(std::move(sensors.cells),composition,options.timings,components,options.edge_breakpoints);
+        field=std::make_unique<FrozenField>(std::move(sensors.cells),composition,options.timings,components,options.edge_breakpoints,field_identity);
         PatchMetric metric;
         std::map<Edge,EdgeMeasure> reuse;
         for (const auto& cell : old.cells) selection.Cached(cell,reuse);
@@ -1566,7 +1572,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
             std::unique_ptr<FrozenField> target;
             try {
               const auto components=AssociatedExtensions(donors.cells,geometry);
-              target=std::make_unique<FrozenField>(std::move(donors.cells),composition,options.timings,components,options.edge_breakpoints);
+              target=std::make_unique<FrozenField>(std::move(donors.cells),composition,options.timings,components,options.edge_breakpoints,field_identity);
               for (size_t i=slot;i<std::min(slot+batch,cells.size());++i) {
                 const auto part=MeasureMetricCells({cells[i]},*target,nullptr,&reuse,shape,shape ? &certified : nullptr);
                 if (part.minimum_mean_ratio<measured.minimum_mean_ratio) {
@@ -1736,7 +1742,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         if(search)try {
           Timer timer(stats.reconstruction_seconds,options.timings);CpuTimer cpu(stats.reconstruction_cpu_seconds,options.timings);
           const auto components=AssociatedExtensions(support.cells,geometry);
-          FrozenField target(std::move(support.cells),composition,options.timings,components,options.edge_breakpoints);
+          FrozenField target(std::move(support.cells),composition,options.timings,components,options.edge_breakpoints,field_identity);
           FieldAccounting accounting{stats,target};std::vector<std::pair<Id,Id>> reserved_apices;
           for(size_t i=0;i<apices.size();++i)reserved_apices.emplace_back(apices[i],maximum_node+2+i+node_offset);
           candidate=PlaceSplitPatch(old,choice.edge,point,reserved_apices,maximum_cell+1+offset,target,geometry,options.wall_heights,
@@ -1830,7 +1836,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         if(strip)try {
           Timer timer(stats.metric_seconds,options.timings);CpuTimer cpu(stats.metric_cpu_seconds,options.timings);
           const auto components=AssociatedExtensions(donors.cells,geometry);
-          FrozenField target(std::move(donors.cells),composition,options.timings,components,options.edge_breakpoints);
+          FrozenField target(std::move(donors.cells),composition,options.timings,components,options.edge_breakpoints,field_identity);
           FieldAccounting accounting{stats,target};std::map<Id,Node> nodes;
           for(const auto& c:old.cells)for(auto n:c.v)nodes.emplace(n.id,n);
           const std::array<double,3> fractions{{.5,.55,.565}};
@@ -2108,7 +2114,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         if(!proxy.valid){result.reason=proxy.reason;return finish();}
         if(joint)try {
           const auto components=AssociatedExtensions(proxy.cells,geometry);
-          FrozenField sample(proxy.cells,composition,options.timings,components,options.edge_breakpoints);
+          FrozenField sample(proxy.cells,composition,options.timings,components,options.edge_breakpoints,field_identity);
           placement=sample.Query(Centroid(old.cells.front())).target;
           nearPlacement=choice.geometric ? placement : sample.Query(point.p).target;FieldCounts(stats,sample);
         }catch(const std::exception& e){failure.Set(2,0,e.what());}
@@ -2181,7 +2187,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
               if(!(ready=vote(local)))return finish();
               if(active && donors.valid)try {
                 const auto components=AssociatedExtensions(donors.cells,geometry);
-                FrozenField target(std::move(donors.cells),composition,options.timings,components,options.edge_breakpoints);
+                FrozenField target(std::move(donors.cells),composition,options.timings,components,options.edge_breakpoints,field_identity);
                 FieldAccounting accounting{stats,target};
                 Patch proposal;std::string rejected;
                 { Timer timer(stats.reconstruction_seconds,options.timings);CpuTimer cpu(stats.reconstruction_cpu_seconds,options.timings);
@@ -2354,7 +2360,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
           if(participating && at<old.cells.size())try {
             Timer timer(stats.metric_seconds,options.timings);CpuTimer cpu(stats.metric_cpu_seconds,options.timings);
             const auto components=AssociatedExtensions(donors.cells,geometry);
-            FrozenField target(std::move(donors.cells),composition,options.timings,components,options.edge_breakpoints);
+            FrozenField target(std::move(donors.cells),composition,options.timings,components,options.edge_breakpoints,field_identity);
             FieldAccounting accounting{stats,target};
             for(size_t i=at;i<std::min(at+batch,old.cells.size());++i)for(const auto& n:old.cells[i].v)
               if(neighbors.count(n.id) && !samples.count(n.id)) {

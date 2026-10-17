@@ -15,6 +15,7 @@ long double CompensatedCross2D(long double ax,long double ay,long double bx,long
 struct EdgeMeasure {
   Point a, b;
   long double length = 0;
+  std::shared_ptr<const FrozenMetricIdentity> identity;
 };
 struct PatchMetric {
   double minimum_mean_ratio = 1, minimum_scaled_jacobian = 1;
@@ -64,8 +65,8 @@ bool ValidateMetricChange(size_t old_count, const PatchMetric& before, size_t fr
                           MetricDiagnosis* diagnosis = nullptr);
 /*! Requires separately validated geometry/topology/dependencies. Actual centroid target and source-resolved
  * target edge lengths; bounded128 cells. Final completion requires the strict gate on the whole mesh.
- * Optional reuse must come from the same frozen original sensor target; identity and coordinates are checked.
- * Composed fields always perform actual-target integration, including when reuse is supplied. */
+ * Reuse requires the same frozen full-field identity, edge IDs and exact endpoint coordinates.
+ * Successful full-target integrals retain their fixed accuracy policy; missing composed integration rejects. */
 bool ValidateMetricPatch(const std::vector<Cell>& cells, FrozenField& target, PatchMetric& measured,
                          std::string& reason, MetricStats* stats = nullptr,
                          const std::map<Edge, EdgeMeasure>* frozen_reuse = nullptr);

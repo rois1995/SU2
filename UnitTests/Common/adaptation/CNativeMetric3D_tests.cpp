@@ -164,6 +164,43 @@ TEST_CASE("Native 3D frozen scalar reuse checks coordinates and preserves compos
   CHECK(compositions == 1);
 }
 
+TEST_CASE("Composed edge reuse requires an immutable field identity and exact endpoints", "[NativeMetricReuse3D]") {
+  const auto identity=std::make_shared<const FrozenMetricIdentity>();size_t compositions=0;
+  const MetricComposition compose=[&](Point p,Tensor sensor) {
+    ++compositions;sensor.xx+=.25*p.x;return sensor;
+  };
+  const MetricEdgeBreakpoints bands=[](Point,Point){return std::vector<double>{0,1};};
+  FrozenField first({Donor({})},compose,true,{},bands,identity);
+  const auto before=MeasureMetricCells({Single()},first);CHECK(first.Statistics().edge_requests==6);
+  // A fresh imported index may share scalar results only under the explicitly retained full-field authority.
+  FrozenField imported({Donor({})},compose,true,{},bands,identity);MetricStats same;
+  auto measured=MeasureMetricCells({Single()},imported,&same,&before.edges);
+  CHECK(same.edge_reused==6);CHECK(same.edge_evaluations==0);CHECK(imported.Statistics().edge_requests==0);
+  CHECK(measured.maximum_length==before.maximum_length);CHECK(measured.minimum_mean_ratio==before.minimum_mean_ratio);
+  CHECK(compositions==first.Statistics().compositions+1); // The actual centroid is still composed.
+  auto moved=Single();moved.v[1].p.x=.5;MetricStats changed;
+  measured=MeasureMetricCells({moved},imported,&changed,&before.edges);
+  CHECK(changed.edge_reused==3);CHECK(changed.edge_evaluations==3);
+  const auto cold=MeasureMetricCells({moved},imported);
+  for(const auto& edge:measured.edges)CHECK(edge.second.length==cold.edges.at(edge.first).length);
+  FrozenField fresh({Donor({4,0,0,4,0,4})},compose,false,{},bands);MetricStats new_stage;
+  const auto refined=MeasureMetricCells({Single()},fresh,&new_stage,&before.edges);
+  CHECK(new_stage.edge_reused==0);CHECK(new_stage.edge_evaluations==6);
+  CHECK(refined.maximum_length>before.maximum_length);CHECK(fresh.Identity()!=identity);
+  auto invalid=before.edges;invalid.at({0,1}).length=std::numeric_limits<long double>::quiet_NaN();
+  MetricStats malformed;measured=MeasureMetricCells({Single()},imported,&malformed,&invalid);
+  CHECK(malformed.edge_reused==5);CHECK(malformed.edge_evaluations==1);
+  // Even an explicitly shared token cannot authorize unsupported composed-edge integration.
+  FrozenField unresolved({Donor({})},compose,false,{}, {},identity);
+  CHECK_THROWS_WITH(MeasureMetricCells({Single()},unresolved,nullptr,&before.edges),
+                    "Native 3D composed target requires geometry-resolved edge integration.");
+  auto outside=Single();outside.v[1].p.x=1.5;
+  CHECK_THROWS(MeasureMetricCells({outside},imported,nullptr,&before.edges));
+  // Sensor-only reuse now rejects unrelated fields too, rather than trusting edge coordinates alone.
+  FrozenField sensor({Donor({4,0,0,4,0,4})});MetricStats other;
+  MeasureMetricCells({Single()},sensor,&other,&before.edges);CHECK(other.edge_reused==0);
+}
+
 TEST_CASE("Native general wall collapse retains fine demands through the frozen metric gate", "[NativeMesh3D]") {
   const auto tetra=Single();
   Patch original;original.cells={tetra};
