@@ -2954,7 +2954,7 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
 #endif
   bool boundedGeometry=false;
   if(uncertaintyPolicy && nativeLayers) {
-    const int local=!nativeLayers->PlanarWalls3D() || (budgetBL && nativeLayers->SupportsCorrectionSupport3D());int global=0;
+    const int local=!nativeLayers->PlanarWalls3D();int global=0;
     SU2_MPI::Allreduce(&local,&global,1,MPI_INT,MPI_MAX,SU2_MPI::GetComm());
     boundedGeometry=global!=0;
   }
@@ -3096,7 +3096,8 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
     ++complexityTrials;
     integrationUncertainty=0;
     const su2double scale = exp(logScale);
-    su2double local = 0.0, global = 0.0;
+    su2double local = 0.0, global = 0.0, localMandatory=0.0;
+    if(budgetBL)boundedAssessment.mandatory={0,INFINITY};
     su2double localSmallest = std::numeric_limits<passivedouble>::max(), smallest = 0.0;
     for (unsigned long iPoint = 0; iPoint < nPointDomain; ++iPoint) {
       su2double val[3] = {0.0};
@@ -3134,6 +3135,15 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
             CBoundaryLayerMetric::Tensor metric;
             for(unsigned k=0;k<=nDim;++k)for(unsigned i=0;i<nDim;++i)for(unsigned j=0;j<nDim;++j)
               metric.m[i][j]+=point.barycentric[k]*blMetric[cell.nodes[k]].m[i][j];
+            if(budgetBL) {
+              auto mandatory=density(metric);
+              for(const auto& sample:point.samples)if(sample.sample.distance<=nativeLayers->GetOuterNormal().protected_distance) {
+                CBoundaryLayerMetric::Tensor wall;for(unsigned i=0;i<3;++i)wall.m[i][i]=frozenCore;
+                nativeLayers->ApplySample(sample.wall,sample.sample,wall,frozenCore,nullptr,false);
+                mandatory=fmax(mandatory,density(wall));
+              }
+              localMandatory+=point.weight*mandatory;
+            }
             for(const auto& sample:point.samples)
               nativeLayers->ApplySample(sample.wall,sample.sample,metric,frozenCore,nullptr,false);
             local+=point.weight*density(metric);
@@ -3245,6 +3255,14 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
       SU2_MPI::Allreduce(&local, &global, 1, MPI_DOUBLE, MPI_SUM, SU2_MPI::GetComm());
       // Nominal angular/radial stopping indicator, not an outward integration-error bound.
       if(uncertaintyPolicy)integrationUncertainty=1.1e-4*SU2_TYPE::GetValue(global);
+      if(budgetBL) {
+        su2double mandatory=0;SU2_MPI::Allreduce(&localMandatory,&mandatory,1,MPI_DOUBLE,MPI_SUM,SU2_MPI::GetComm());
+        bool complete=true;for(unsigned w=0;w<nativeLayers->GetnWall();++w)
+          complete=complete && nativeLayers->GetLayer(w).thickness<=nativeLayers->GetOuterNormal().protected_distance;
+        // Full-field quadrature controls its own density; partial mandatory-band accuracy is not established by that test.
+        boundedAssessment.mandatory=complete?SU2Complexity::Estimate{SU2_TYPE::GetValue(global),integrationUncertainty}:
+            SU2Complexity::Estimate{SU2_TYPE::GetValue(mandatory),INFINITY};
+      }
     }
     integratedComplexity = global;
     evaluatedLogScale = logScale;
@@ -3337,6 +3355,9 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
           std::abs(coarse.value-SU2_TYPE::GetValue(complexity))<=coarse.uncertainty ? SU2Complexity::Status::IntegrationLimited : SU2Complexity::Status::OutsideBracket,1};
       else if(coarse.value-coarse.uncertainty>SU2_TYPE::GetValue(complexity))
         normalization={SU2_TYPE::GetValue(absoluteLow),coarse,SU2Complexity::Status::OutsideBracket,1};
+      else if(budgetBL && std::abs(coarse.value-SU2_TYPE::GetValue(complexity))<=coarse.uncertainty)
+        // The retained estimate cannot resolve a smaller scale correction; reassess this provisional field at the next stage.
+        normalization={SU2_TYPE::GetValue(absoluteLow),coarse,SU2Complexity::Status::IntegrationLimited,1};
       else {
         normalization=SU2Complexity::Normalize(SU2_TYPE::GetValue(complexity),SU2_TYPE::GetValue(absoluteLow),
             SU2_TYPE::GetValue(absoluteHigh),SU2_TYPE::GetValue(logScale),SU2_TYPE::GetValue(tol),23,assess);

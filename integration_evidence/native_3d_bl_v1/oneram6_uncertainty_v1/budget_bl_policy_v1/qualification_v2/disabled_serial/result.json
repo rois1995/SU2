@@ -1,0 +1,22 @@
+{
+  "exit_code": 0,
+  "elapsed_seconds": 9.922750210971572,
+  "command": [
+    "taskset",
+    "-c",
+    "0",
+    "nice",
+    "-n",
+    "19",
+    "timeout",
+    "--kill-after=5s",
+    "180s",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver",
+    "[NativeComposite2D],[NativeComposite3D],[NativeMetricFamily3D],[NativeDynamicComplexity3D],[NativeRuntimeComplexity3D],Native3D complexity integrates the geometric BL with sensor-only donors",
+    "--abort",
+    "--reporter",
+    "compact"
+  ],
+  "provenance_sha256": "90ee7876e67c7b7ae379e30ce8f3fc30022b5d38827d1834d36d9785c337be59",
+  "log_sha256": "8f07326de580702d2d029cc77a007180e570a7cd22fc24823372a527976872d5"
+}

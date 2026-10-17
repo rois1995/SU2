@@ -17,6 +17,10 @@ TEST_CASE("Native3D selects a budget profile from a saved CFD state without adva
   CHECK(EncodeReference(*driver->Reference())==authority);
   const auto family=driver->Solver().GetNativeMetricFamily3D();REQUIRE(family);REQUIRE(family->layers);
   const auto& profile=family->layers->GetOuterNormal();CHECK(profile.frozen);CHECK(family->budget_selection.trials<=9);
+  if(family->budget_selection.status==SU2Complexity::BudgetStatus::IntegrationLimited) {
+    CHECK(family->normalization.status==SU2Complexity::Status::IntegrationLimited);
+    CHECK(family->normalization.logScale==family->lower);CHECK(family->normalization.trials==1);
+  }
   CHECK(CPassiveComm::Allreduce(profile.parameter,CPassiveComm::Op::MIN)==CPassiveComm::Allreduce(profile.parameter,CPassiveComm::Op::MAX));
   CHECK(CPassiveComm::Allreduce(profile.version,CPassiveComm::Op::MIN)==CPassiveComm::Allreduce(profile.version,CPassiveComm::Op::MAX));
   if(!world.rank) {

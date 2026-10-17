@@ -1,7 +1,7 @@
-# Opt-in budget-aware outer-normal BL policy — current draft
+# Opt-in budget-aware outer-normal BL policy
 
-Substantial connected implementation, NOT built/qualified yet. Native3D auto-
-selection only; 2D/MMG keep existing behavior and reject the new opt-in explicitly.
+Connected implementation; see README and qualification receipts for tested scope.
+Native3D auto-selection only; 2D/MMG keep existing behavior and reject the new opt-in explicitly.
 
 ADAP_BL_BUDGET defaults NO. YES requires explicit positive physical protected
 ADAP_BL_PROTECT_DISTANCE >= every h0 and ADAP_BL_OUTER_GROWTH_MAX >= every original
@@ -27,7 +27,17 @@ rules require that version. External integration workspaces and stale wall sampl
 reject mismatches. Profile identity is retained in the original metric family and
 its config compatibility. Remesher refuses a missing/unfrozen selected profile.
 
-Pending: compile/focused primitive checks, disabled controls, feasible/incompatible/
-uncertain budgets, actual N/M RANS workflow, complete field/transfer/atomicity and
-M6 selection separately from construction. Global error calibration/allocation and
-lifecycle performance remain incomplete. No automatic tolerance or success claim.
+When the coarsest estimate overlaps budget, enabled normalization retains that
+original field provisionally with IntegrationLimited status and one normalization
+trial. It does not grade finer trial sensors to chase an unresolved root. Reassessment
+uses the same original donor family at an explicit stage; all acceptance gates stay.
+
+The ordered scan gives the least sampled relaxation at resolution1/8. It cannot
+prove a continuous minimum or exclude a narrow unsampled nonmonotone feasible
+interval. Indicators remain heuristic; partial strict protected-band accuracy is
+explicitly unknown (infinite), not inferred from full-field convergence.
+
+Qualified controlled workflows and preserved failures are recorded in README.
+Pending full-goal work includes global-error calibration/allocation, complete
+curved/interacting policy workflows, accepted M6 construction and full-event
+performance. No speedup claim follows from a cheap rejected budget or selected field.

@@ -1,0 +1,7 @@
+enabled_serial {"exit_code": 1, "elapsed_seconds": 9.069523673970252, "command": ["taskset", "-c", "0", "nice", "-n", "19", "timeout", "--kill-after=5s", "180s", "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver", "[NativeBLBudgetRuntime3D]", "--abort", "--reporter", "compact"], "provenance_sha256": "d09272a6c74adbcfa5f83dcfee355e9bb6f3ee71a55948d1e01d5f725dec265e", "log_sha256": "d7b1a201799a0fd23522fe596a8730d290d7f7ecdbad0ea3e9b91849a5a8ff0f"}
+Traceback (most recent call last):
+  File "integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/budget_bl_policy_v1/campaign.py", line 29, in <module>
+    report=run.invoke(folder,env,run.OLD/'cell329/replay.dat',ranks,test_filter=filter)
+  File "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/run.py", line 55, in invoke
+    if not ((0<run.returncode<124) if expected_failure else run.returncode==0):raise RuntimeError('Failed '+str(folder))
+RuntimeError: Failed /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/budget_bl_policy_v1/qualification_v3/enabled_serial

@@ -6552,3 +6552,29 @@ built; default remains NO. It is NOT validated, with a prepared final-stage revi
 patch explicitly pending before tests. No new CFD/cluster runs. Full goal remains
 active; global error calibration/absolute-error work allocation and lifecycle cost
 remain open. [Scope, receipts and pending work](Handbook/GOAL3_BUDGET_AWARE_BL.md).
+
+
+## 2026-10-18 qualified opt-in budget profile checkpoint (supersedes draft status)
+
+Controlled native3D RANS/SA/BDF workflows now pass MPI1/2/4, N4/M2, atomic refusal,
+independent complete composed geometry/height/q/J/edges/P1/conservation, enabled
+SU2/CGNS reload and actual restart. Strict defaults and curved/interacting primitive
+controls pass. One global outer-normal parameter, explicit protected band/maximum
+slope permission, original unclipped family and frozen profile/version. Support/
+thickness/fade/tangents/finer intersections and all acceptance gates unchanged.
+
+M6 growth2/protect2e-6:100k estimated incompatible across9 sampled profiles,
+260488 +/-10780 at maximum; protected contribution17174 +/-6185 alone does not
+exceed100k. Budget1000 explicitly reports protected-demand conflict. MPI2/4 profile
+trial costs/indicators agree to2.04e-13 relative. At300k uncertainlambda.75 freezes
+308423 +/-12078 at the original coarsest scale:6.55s metric versus93.48s unresolved
+finer-scale search. This changes the provisional scale; no same-field/lifecycle
+speedup claim. Holdouts314146 +/-12153 and312539 +/-11852 reinforce possible300k
+conflict. No accepted M6 construction or calibrated-error/physical-accuracy claim.
+
+Existing planar strict integration was retained after forcing sampling caused a
+correct budget rejection. Six-cell planar initialization still takes~3.7M queries;
+cold/reused M6 preparation/background remain significant. Global calibrated error/
+allocation, general curved policy workflow,2D selection and event affordability
+remain open. Full Goal3 active; all failures/producer evidence preserved.
+[Scope, gates, costs, actual grids and receipts](Handbook/GOAL3_BUDGET_AWARE_BL.md).

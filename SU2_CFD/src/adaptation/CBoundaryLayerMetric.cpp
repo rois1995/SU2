@@ -2362,7 +2362,7 @@ std::vector<double> CBoundaryLayerMetric::EdgeBreakpointsImpl(
     const double h0 = SU2_TYPE::GetValue(d.h0), full = SU2_TYPE::GetValue(d.full);
     const double thickness = SU2_TYPE::GetValue(d.thickness);
     std::vector<double> levels{0,.5*h0};
-    if(outerNormal.parameter>0 && outerNormal.protected_distance<thickness)levels.push_back(outerNormal.protected_distance);
+    if(outerNormal.version && outerNormal.protected_distance<thickness)levels.push_back(outerNormal.protected_distance);
     // Strict edges also integrate the existing on-wall face/edge/vertex normal classification band.
     if(nDim==3 && featureTransitions && !walls[wall].authority)levels.push_back(SU2_TYPE::GetValue(d.tolerance));
     for (double level = h0; level < full;) {

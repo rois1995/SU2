@@ -257,6 +257,7 @@ TEST_CASE("Opt-in BL budget selection stays frozen through native RANS replaceme
   CHECK_THROWS(family->layers->SelectOuterNormal(0));
   const auto frames=normalization_test::Raw(*family);
   const auto original=ImportGeometry(driver->Config(),g,&solver.GetNodes()->GetMetric(),*driver->Reference());
+  const auto oldFlow=Flow(world,g,solver);
   const auto result=backend->Remesh(driver->Config(),g,solver.GetNodes()->GetMetric());
   INFO(native->Statistics().normalization.reason);REQUIRE(result.status==CRemeshResult::Status::COMPLETE);
   CHECK(State(g,solver)==before);CHECK(State(g,*driver->Turbulence())==beforeTurb);
@@ -266,27 +267,80 @@ TEST_CASE("Opt-in BL budget selection stays frozen through native RANS replaceme
   const std::string work="ADAP_NATIVE_MAX_WORK= 8192";const auto at=text.find(work);REQUIRE(at!=std::string::npos);
   text.replace(at,work.size(),"ADAP_NATIVE_MAX_WORK= 1");std::stringstream limitedText(text);std::unique_ptr<CConfig> limited;
   {Mute mute;limited=std::make_unique<CConfig>(limitedText,SU2_COMPONENT::SU2_CFD,false);}
+  REQUIRE(limited->GetnMarker_Max()>=g.GetnMarker());limited->SetnMarker_All(g.GetnMarker());
+  for(unsigned m=0;m<g.GetnMarker();++m) {
+    limited->SetMarker_All_TagBound(m,driver->Config().GetMarker_All_TagBound(m));
+    limited->SetMarker_All_KindBC(m,driver->Config().GetMarker_All_KindBC(m));
+    limited->SetMarker_All_SendRecv(m,driver->Config().GetMarker_All_SendRecv(m));
+  }
   const auto refused=backend->Remesh(*limited,g,solver.GetNodes()->GetMetric());
   CHECK(refused.status!=CRemeshResult::Status::COMPLETE);CHECK_FALSE(refused.onAccepted);
   CHECK(State(g,solver)==before);CHECK(State(g,*driver->Turbulence())==beforeTurb);
   CHECK(EncodeReference(*driver->Reference())==authorityBefore);CHECK(family->layers->GetOuterNormal().version==selected.version);
   CConservativeTransfer transfer;driver->ReplaceMesh(result,transfer);
-  CheckPositiveFlow(Flow(world,driver->Geometry(),driver->Solver()));
   const auto transported=result.slices.FetchPointMetric(driver->Geometry());su2activematrix sensor(driver->Geometry().GetnPointDomain(),6);
   for(size_t p=0;p<sensor.rows();++p)for(unsigned k=0;k<6;++k)sensor(p,k)=transported[6*p+k];
   auto reference=*driver->Reference();const auto accepted=ImportGeometry(driver->Config(),driver->Geometry(),&sensor,reference);
   double local_theta=0;for(size_t p=0;p<sensor.rows();++p)local_theta=std::max(local_theta,SU2_TYPE::GetValue(sensor(p,0)));
   const auto theta=CPassiveComm::Allreduce(local_theta,CPassiveComm::Op::MAX);
+  const auto fresh=Flow(world,driver->Geometry(),driver->Solver(),transported);
+  SaveStates(world,name,oldFlow,fresh,theta);SaveProjection(world,name,transfer);CheckPositiveFlow(fresh);
   for(size_t p=0;p<sensor.rows();++p)for(unsigned k=0;k<6;++k)CHECK(sensor(p,k)==Approx(k==0||k==3||k==5?theta:0.).margin(2e-12));
   auto frozen=original.original;for(auto& d:frozen)d.sensor.fill({theta,0,0,theta,0,theta});
   const auto authority=EncodeReference(reference);Save(world,name,accepted.cells,frozen,reference);
+  OutputRoundTrip(world,name,result.slices,accepted.cells,reference,theta,
+      [](const su2double*,double t){return Tensor{t,0,0,t,0,t};},&frozen);
   {Mute mute;CMeshOutput::WriteMesh(&driver->Config(),&driver->Geometry(),name+"_accepted");}
   CHECK(EncodeReference(*driver->Reference())==authority);
   if(!world.rank) {
     std::ofstream out(name+"_profile.json");out<<std::setprecision(17)<<"{\"budget\":"<<budget<<",\"parameter\":"<<selected.parameter
       <<",\"version\":"<<selected.version<<",\"trials\":"<<family->budget_selection.trials<<",\"workers\":"<<workers
       <<",\"accepted\":true,\"mass\":"<<result.complexity.value<<",\"indicator\":"<<result.complexity.uncertainty
-      <<",\"frozen\":true,\"support_changed\":false,\"proven_bound\":false}\n";REQUIRE(bool(out));
+      <<",\"final_sensor_eigenvalue\":"<<theta<<",\"frozen\":true,\"support_changed\":false,\"proven_bound\":false}\n";REQUIRE(bool(out));
   }
-  backend.reset();{Mute mute;driver->Finalize();driver.reset();}
+  driver->Config().SetTimeIter(2);driver->WriteTimeHistoryRestarts();
+#ifdef HAVE_CGNS
+  const std::string restartMesh=name+"_written_CGNS.cgns",format="CGNS";
+#else
+  const std::string restartMesh=name+"_written_SU2.su2",format="SU2";
+#endif
+  WriteReference(restartMesh+".native_ref",reference);
+  if(!world.rank) {
+    auto reload=configText.str();const auto mesh=reload.find("MESH_FILENAME= "+name+".su2");REQUIRE(mesh!=std::string::npos);
+    reload.replace(mesh,std::string("MESH_FILENAME= "+name+".su2").size(),"MESH_FILENAME= "+restartMesh);
+    const auto type=reload.find("MESH_FORMAT= SU2");REQUIRE(type!=std::string::npos);
+    reload.replace(type,std::string("MESH_FORMAT= SU2").size(),"MESH_FORMAT= "+format);
+    std::ofstream cfg(name+"_reload.cfg");cfg<<reload<<"RESTART_SOL= YES\nRESTART_ITER= 3\n";REQUIRE(bool(cfg));
+  }
+  backend.reset();{Mute mute;driver->Finalize();driver.reset();}SU2_MPI::Barrier(world.comm);
+  const auto reload=name+"_reload.cfg";driver=std::make_unique<TetraDriver>(const_cast<char*>(reload.c_str()),1,world.comm);
+  driver->Preprocess(3);auto reloadedBackend=driver->Backend();REQUIRE(driver->Reference());
+  SaveStates(world,name+"_restart",fresh,Flow(world,driver->Geometry(),driver->Solver()),theta);
+  CHECK(EncodeReference(*driver->Reference())==authority);
+  {Mute mute;driver->Finalize();driver.reset();}
+}
+
+
+TEST_CASE("An uncertain BL budget freezes the coarsest original field without scale trials", "[NativeBLBudgetUncertainty3D]") {
+  World world;const std::string name="budget_uncertainty";
+  if(!world.rank) {
+    simplex_test::WriteSU2Mesh(simplex_test::MakeSimplexMesh(3,1,[](const passivedouble* p){return p[2]==0?"wall":"far";}),name+".su2");
+    auto text=normalization_test::Options(name,std::min(2,world.size));const std::string old="ADAP_COMPLEXITY= 20";
+    const auto at=text.find(old);REQUIRE(at!=std::string::npos);text.replace(at,old.size(),"ADAP_COMPLEXITY= 4");
+    // Independent one-wall integral is 4 at this coarsest sensor spacing; ADAP_COMPLEXITY is integral-valued.
+    const std::string maximum="ADAP_HMAX= 1.0000000000000002";const auto h=text.find(maximum);REQUIRE(h!=std::string::npos);
+    text.replace(h,maximum.size(),"ADAP_HMAX= 0.9452825167897142");
+    std::ofstream cfg(name+".cfg");cfg<<text<<"ADAP_BL_BUDGET= YES\nADAP_BL_PROTECT_DISTANCE= .1\nADAP_BL_OUTER_GROWTH_MAX= 10\n";REQUIRE(bool(cfg));
+  }
+  SU2_MPI::Barrier(world.comm);auto cfg=name+".cfg";auto driver=std::make_unique<TetraDriver>(const_cast<char*>(cfg.c_str()),1,world.comm);
+  auto& geometry=driver->Geometry();auto& solver=driver->Solver();const auto before=State(geometry,solver);
+  std::vector<su2double> raw(6*geometry.GetnPointDomain());for(size_t p=0;p<raw.size()/6;++p)for(unsigned k:{0u,3u,5u})raw[6*p+k]=1;
+  solver.ComputeMetric(&geometry,&driver->Config(),&raw,true,nullptr,driver->Reference().get());
+  const auto family=solver.GetNativeMetricFamily3D();REQUIRE(family);REQUIRE(family->layers);
+  CHECK(family->budget_selection.status==SU2Complexity::BudgetStatus::IntegrationLimited);
+  CHECK(family->normalization.status==SU2Complexity::Status::IntegrationLimited);
+  CHECK(family->normalization.logScale==family->lower);CHECK(family->normalization.trials==1);
+  CHECK(family->layers->GetOuterNormal().frozen);CHECK(family->layers->GetOuterNormal().parameter==0);
+  CHECK(State(geometry,solver)==before);
+  {Mute mute;driver->Finalize();driver.reset();}
 }

@@ -1,167 +1,102 @@
 # Codex handoff — start here
 
 Worktree `/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated`, branch
-`codex/native-3d-bl`; Goal2 base `c43a8a3907ea2655e4ebbb6286ab16c3fa625d8b`.
-**Full Goal3 ACTIVE/incomplete.** [Full scope/gates](integration_evidence/native_3d_bl_v1/GOAL3_REQUIREMENTS.json).
-Leave AdapNoExt, foreign ClusterResults and dependencies untouched.
+`codex/native-3d-bl`. **Full Goal3 ACTIVE/incomplete.** Goal2 base
+`c43a8a3907ea2655e4ebbb6286ab16c3fa625d8b`.
+[Full requirements](integration_evidence/native_3d_bl_v1/GOAL3_REQUIREMENTS.json).
+Leave AdapNoExt, foreign ClusterResults, dependencies and foreign jobs untouched.
 
-**Current work:** progressive FULL measurement and exact declared-midpoint sensor
-queries pass focused serial/MPI2/MPI4 and independent N4/M2 RANS/SA/current+BDF/
-conservation/SU2/CGNS/restart. Strict ordinary point/full-edge/final gates retained.
-Known stronger finer-sensor4096-work control still fails; the combined campaign is
-FAIL, not all controls passing. Actual M6 passes the rounded-guide failure, then
-rejects at84.355s with `Uncovered native 3D source segment endpoint.` after30 private
-rounds. No accepted wing, volume publication/transfer claim or speedup. All failed
-precursors, exact rational witnesses, input/source/binary receipts are preserved.
-[Current implementation, scope and evidence](Handbook/GOAL3_PROGRESSIVE_MEASUREMENT.md).
-[Current producer verification](integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/exact_midpoint_queries_v1/summary.json).
-Midpoint jobs terminal. Initial owned build7876 TERMINAL exit1 at235/310 (ambiguous Metric type).
-Reviewed build44141 and reference build29025 completed. First tests: primitives
-PASS4/256; disabled check fails only changed legacy wording; enabled rejects base
-config dimension0 before metric construction. Both failures saved. Current owned
-compatibility build15979 is LIVE (two CPP fixes); no other heavy job.
-Native cost diagnosis and near-limit growth probe are complete; no new CFD/M6 construction.
-Stage-review script budget_bl_policy_v1/finish_stage_review.py APPLIED ONCE after
-initial build termination; do not rerun. Ambiguous Metric type fixed. Reviewed build
-44141 incorporates the connected changes; details in budget handbook.
-It closes final budget-stage handling/atomicity and corrects a pre-run fixture limit. Published
-base581076212ce8354136eaa49dfc941547f7c4432f;
-WIP policy checkpoint b96e3de1ace50d65febd26f88c35ff781f8bac9a PUSHED/remote verified; full Goal3 ACTIVE/incomplete.
+## Current work and execution
 
-## User extension2026-10-18
+Opt-in budget-aware native3D BL policy now passes controlled complete RANS/SA
+current+BDF workflows at MPI1/2/4 (including N4/M2), atomic rejection, independent
+geometry/height/q/J/full-edge/transport/conservation checks. Original sensor-only
+P1, actual-query BL, finer demands, thickness/support/fade and strict defaults stay.
+Two budgets select lambda .875 / 0 with unchanged physical gates. These initialized
+workflows do not establish converged viscous accuracy or general curved construction.
+[Policy, qualified scope, failures and limitations](Handbook/GOAL3_BUDGET_AWARE_BL.md).
 
-Add opt-in budget-aware outer-BL policy to full Goal3; strict default and all gates
-retained. Diagnose distance/region/normal/tangent cost first. One global parameter,
-explicit protected/allowed limits, original-family normalization/uncertainty, frozen
-profile/version/cache validity and MPI N/M agreement. No production selection validated yet; native cost diagnosis and unvalidated policy
-draft are now saved. Growth-only ordinary limits leave a substantial M6 budget conflict.
-[Scope, decisions and open evidence](Handbook/GOAL3_BUDGET_AWARE_BL.md).
+Current qualified source/evidence: this checkpoint (see git HEAD and
+`budget_bl_policy_v1/summary.json`). Previous published WIP was
+`ca689ee91b8d1ec5f2d7265d042f5c690d4dc3d2`. All owned builds/tests/report checks are
+TERMINAL; no live owned heavy job. Source/build/binary/config/input/helper receipts
+verified by report.py; preserved failures are not passing campaigns.
 
-## Current production and evidence
+V7: primitives/strict controls, uncertain serial/MPI4, and enabled serial/N4M2 full
+workflow including SU2/CGNS and actual restart PASS. V4 retains MPI2 scope.
+M6 growth2/protect2e-6:100k sampled-profile conflict (260488 +/-10780 at maximum),
+1000 explicit protected-lower conflict. MPI2/4 costs/indicators agree2.04e-13 relative.
+At300k,lambda.75/version7 remains integration_limited,308423 +/-12078. New enabled
+normalization freezes original coarsest scale in6.552s rather than93.477s unresolved
+finer-scale search (changed provisional scale, not same-field/lifecycle speedup).
+Independent saved-cloud estimates314146 +/-12153 and312539 +/-11852 suggest300k
+may still conflict; do not call it attainable. No CFD/M6 construction rerun.
+[Final scoped report, inspectable grids, clocks and limitations](integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/budget_bl_policy_v1/README.md).
 
-Bounded complexity initialization uses original sensor-only P1 and actual-query
-geometric BL/finer/fade/noise0. Nonplanar faceted walls choose retained sensor+
-BL-correction integration; strict planar/analytic/2D behavior remains. Same-config
-M6 metric415.97->16.47s, identical coarsest estimate790200.50 +/-27958.45 HEURISTIC
-against100000, outside_estimated_bounds/provisional, not normalized/accepted.
-[Runtime source, limits and receipts](Handbook/GOAL3_RUNTIME_COMPLEXITY.md).
+Next full-goal work: calibrated global uncertainty/absolute-error allocation and an
+accepted difficult complete construction under declared physical limits, preserving
+same-original-field reassessment/stage atomicity. Do not assume relaxing a profile
+or solving integration establishes construction feasibility. Existing M6 strict
+source-segment failure remains open. Broader query/transaction package remains.
+Do not rerun already-applied implementation mutators or add local fallback/cap
+ladders. Policy auto-selection currently native3D only; strict2D unchanged.
 
-Canonical owner point lookup, frozen-identity composed-edge reuse, fixed-skin
-first-row interior batches and exact shape-dominance screening are qualified in
-their saved scope. Last bounded first-row M6 batch preserves exact geometry/skin/
-markers/positive volume: metric work~42% lower, elapsed6.05->3.43s /3.58->2.08s
-at2/4 ranks. This is64 PRIVATE initializations, not accepted M6/full-event scaling.
-[Query/transaction package and all sources/results](Handbook/POST_COMPLEXITY_QUERY_TRANSACTIONS.md).
+## Existing qualified foundations and open failures
 
-Full original fields are distinct: hosting-rank RAW9 normalization archive versus
-owner-UPPER6 remesher archive. Preserve them and their exact interpolation/core;
-never refit from adapted nodes or mix field-specific mass comparisons.
-[Exact fields](Handbook/GOAL3_M6_FROZEN_FIELDS.md),
-[inspectable initial RANS/SA flow](Handbook/GOAL3_ONERA_M6.md).
+Bounded M6 complexity initialization uses retained sensor-plus-BL-correction
+integration:415.97->16.47s in saved same-config scope; coarsest estimate790200.50
++/-27958.45 HEURISTIC against100000. Strict planar/analytic/2D integration retained.
+No calibrated uncertainty default or rigorous bound/global error allocation claim.
+[Runtime complexity](Handbook/GOAL3_RUNTIME_COMPLEXITY.md),
+[calibration](integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/global_uncertainty_calibration_v1/README.md).
 
-## Latest experiments and resulting decision
+Original hosting-rank RAW9 normalization and owner-UPPER6 construction fields are
+separate immutable references. Newly recovered saved-CFD original families are
+also distinct. Never refit from adapted samples or rescale clipped donors.
+[Exact fields](Handbook/GOAL3_M6_FROZEN_FIELDS.md).
 
-Whole-field holdouts: two32,768-point RAW9 streams, exact MPI2/4 rows. Pooled total
-948103.94 has heuristic indicator15887.91 (1.68%), not a continuum reference.
-Eight-block SEM1.54x pointwise; background interval halfwidth5925.71 remains even
-with no correction sampling noise. No calibrated default or1e-6 root claim.
-[Held-out calibration/work/limits](integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/global_uncertainty_calibration_v1/README.md).
+Progressive FULL measurement and exact declared-midpoint original-P1 queries pass
+focused serial/MPI2/4 and independent N4/M2 RANS/SA/BDF/SU2/CGNS/restart. Ordinary
+point/full-edge predicates remain strict. Stronger finer-sensor4096-work control
+still fails. Actual M6 rejects at84.355s with `Uncovered native 3D source segment
+endpoint.` after30 private rounds. No accepted wing or full-event speedup claim.
+[Current construction evidence](Handbook/GOAL3_PROGRESSIVE_MEASUREMENT.md),
+[constraints/rejected strategies](Handbook/GOAL3_M6_CONSTRAINTS_AND_EXPERIMENTS.md).
 
-**Reflected face pairs WITHDRAWN:** at8192 points/4096 independent pairs, M6 SEM
-improves15–16% on two seeds, planar SEM worsens45%; planar error0.304% misses the
-0.05% reference criterion. Native IID SEM is invalid for these dependent samples;
-o normalization used it. Actual pair/global assessment is exact MPI2/4 offline.
-Executed C++ patch/capsule, outputs, full PDF/source audits and failed-policy
-rationale are preserved. All three experimental C++ files are restored to0ad73b;
-rebuilt test binary and EVERY prior source/build/binary pin match exactly. Reuse
-baseline evidence; no new production API/default/tolerance/sampler/correction.
-[Experiment, withdrawal and restoration proof](integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/face_pair_variance_v1/README.md).
+Same-original-field candidate reassessment and one bounded normalization correction
+accept8 controlled planar RANS workflows (151--240 cells); independent final mass
+19.93549--19.96127 against20. Refinement often improves uncertainty; coarsening need
+not. Rejected subdivision, root-screening and dependent face-pair experiments are
+preserved; none should silently return as production policy.
+[Reassessment](Handbook/GOAL3_CANDIDATE_REASSESSMENT.md),
+[outcome ledger](Handbook/SUGGESTION_OUTCOME_LEDGER.md).
 
-**Latest connected implementation:** actual candidate-partition reassessment now
-runs before native3D publication, querying the SAME original P1/actual BL; its
-parent source index is reused for reader return. MPI1/2/4 controls and curved/RANS
-N4M2 lifecycle pass. On an actual accepted planar6->24-cell RANS mesh,8192 samples:
-indicator10.63x lower, observed error14.08x lower (.7910%->.05619%), phase.02094s.
-Budget1 remains below reference mass3.69416; no normalization correction is claimed.
-M6 coarse centroid596350 versus sampled979024+/-101701 HEURISTIC shows substantial
-missed BL mass and poor coarse-proposal variance. It does not replace initialization.
-[Implementation, exact evidence, work and limits](Handbook/GOAL3_CANDIDATE_REASSESSMENT.md).
+Canonical owner lookup, frozen-identity edge reuse and bounded interior first-row
+batches are qualified in their recorded scope. Broader repair-campaign index reuse,
+extended edge reuse and independent transaction batching remain incomplete.
+[Query/transaction work and cost limits](Handbook/POST_COMPLEXITY_QUERY_TRANSACTIONS.md).
 
-**Current correction result:** 8 controlled planar RANS workflows accept151--240
-cells under unchanged constraints. Independent final mass19.93549--19.96127 versus
-20 (0.194--0.323% discrepancy), with heuristic uncertainty and integration_limited
-status. Same-field refinement improves indicator3.07--4.07x; coarsening may worsen
-it. No general curved/M6 or calibrated-default claim. Strict2D path retained.
-
-**Next:** difficult complete construction and calibrated global error/allocation,
-not another sampler/count/subdivision ladder or local fallback. Preserve the full
-scope, conditional M6 budget diagnosis and previous rejected construction evidence.
-
-## Full-goal blockers and qualified scope
-
-No accepted complete M6 mesh, calibrated global error/allocation, general thin/curved
-correction beyond controlled planar fields, converged viscous accuracy or complete
-lifecycle affordability. Latest M6 reaches private volume recovery, then strict
-source-segment coverage rejects at84.355s; mandatory first-row geometry and full
-final constraints remain unchanged. Preserve failures, separate budget selection
-from construction feasibility, and reconsider missing capability before fallback.
-[Constraints, conditional budget bounds and rejected experiments](Handbook/GOAL3_M6_CONSTRAINTS_AND_EXPERIMENTS.md).
-
-Earlier qualified foundations: curved cylinder2877/eight fronts, right-prism whole
-caps, opposing-wall removal, original P1 transport and small initialized RANS/SA
-N4M2 current+BDF/SA/restart/SU2+CGNS. Preserve each source/binary-qualified scope;
-none proves general exterior/nonprismatic/interacting wing construction. Composed
-gradation violations44/max24.5184 remain reported, not corrected/certified.
-[Construction/caps](Handbook/GOAL3_WHOLE_CAP_CONSTRUCTION.md),
+Earlier foundations: curved cylinder2877/eight fronts, right-prism whole caps,
+opposing-wall removal and small initialized RANS/SA current+BDF/restart workflows.
+None proves general exterior/nonprismatic/interacting-wing construction.
+[Whole caps](Handbook/GOAL3_WHOLE_CAP_CONSTRUCTION.md),
 [fronts](Handbook/GOAL3_COARSENED_METRIC_FRONTS.md),
 [curved RANS](Handbook/GOAL3_CURVED_RANS_RUNTIME.md).
 
-30P30N input prepared at integration_evidence/native_3d_bl_v1/three_element_input_v1:
-64540 points/127914 positive triangles; no CFD config/sensor/adaptation run. Supplied
-3D has8.63M hexes, outside native tetrahedral volume support. SST/transition/nonideal
-questions remain [saved future work](Handbook/FUTURE_PHYSICS_TRANSFER_QUESTIONS.md).
-Final suggestion-by-suggestion report remains outstanding: preserve the other
-agent's entries in the [outcome ledger](Handbook/SUGGESTION_OUTCOME_LEDGER.md).
-[Earlier full history](Handbook/HANDOFF_ARCHIVE_2026_10_17.md).
+Full Goal3 blockers: no accepted M6 mesh, calibrated global uncertainty/allocation,
+general curved/interacting construction, converged viscous references or affordable
+complete adaptation lifecycle. Composed-field gradation remains audited separately,
+not certified by sensor gradation. 30P30N2D input is prepared (64540 points/127914
+triangles), no CFD/sensor/adaptation yet; supplied3D8.63M hexes exceed tetra support.
+[SST/transition/nonideal questions](Handbook/FUTURE_PHYSICS_TRANSFER_QUESTIONS.md).
+[Earlier history](Handbook/HANDOFF_ARCHIVE_2026_10_17.md).
 
-## Execution and working rules
+## Permanent working rules
 
-Owned compatibility build15979 is LIVE; no other owned heavy job. Progressive/
-midpoint source/build/
-binary/input/helper verification preserves successful scoped lifecycle checks and
-both M6/stronger-finer construction failures. The opt-in policy draft is implemented but not compiled/qualified yet. Native cost
-diagnostic passes two clouds and MPI2/4 equality; its archived producer predates
-policy edits. See the budget handbook for actual scope and next checks. One heavy job/nice19/build-j1/thread1/MPI<=4;
-last host37--38GiB available. No cluster or CFD advancement. Preserve original P1/
-actual BL/finer/fade and all final contracts.
-
-Follow [AGENTS.md](AGENTS.md): substantial capability-first changes, difficult
-case early, source/build/binary/input/helper-aware resumable evidence, no full
-regressions per small edit, preserve rejected work and push reviewable checkpoints.
-One owned heavy job/nice19/thread1/build-j1/MPI<=4; check actual load/RAM and live
-handles before starting another. Announce complete case folders. Use4TB
-build-integrated-v2/compile-tmp because root/tmp is nearly full. Leave foreign jobs
-untouched. Goal4/full physical unsteady3D/general CAD/mixed volumes remain separate.
-
-Current next qualification commands (after reviewed build44141 completes): budget_bl_policy_v1/campaign.py primitives, disabled_serial,
-enabled_serial, then meaningful MPI/lifecycle. New hidden saved-state metric probe is now included; saved_metric.py is prepared.
-Neither its tests nor the policy tests have run. Announce fresh M6 folders before
-running saved_metric.py 100000 2 4 conflict / 300000 2 4 selected. These limits are
-experimental declarations, not physical M6 accuracy permission. Direct ComputeMetric
-recovers the ORIGINAL unclipped family from the saved CFD state, no Solve/advance.
-Do not relabel it as the older RAW9/UPPER6 field. Construction remains separate.
-
-Primitive reference fix APPLIED once and build29025 completed; do not rerun
-budget_bl_policy_v1/fix_primitive_reference.py. The sphere query1+.03 represents a point slightly outside the
-physical .03 protected distance; test must use sample.distance, not nominal d.
-It also checks the independent half-slope increment. No production tolerance/gate
-change. Do NOT run a knowingly wrong exact-equality reference or redo full suites.
-
-NEXT: wait actual build15979 handle; preserves build_compatibility.log/resources.
-Then campaign.py primitives / disabled_serial / enabled_serial in qualification_v2
-(each fresh/provenance pinned; first failures retained at policy root). Batch root
-fixes restore legacy off-policy text and defer dimension3 check until dimension is
-known; preliminary CConfig explicitly postprocesses with0. Do NOT repeat broad
-regressions/CFD runs. After serial actual behavior, meaningful MPI/lifecycle and
-saved_metric.py experiments. Full Goal3 active. Latest PUSHED b96e3de1ac remains
-WIP; reviewed fixes/probe/helpers are not yet committed/pushed.
+Follow [AGENTS.md](AGENTS.md): substantial capability-first batches; difficult case
+early; provenance-aware resumable checks; preserve failures and all gates; push
+reviewable checkpoints. No full regressions per small edit or local-fallback/cap
+ladders. One owned heavy job, nice19, build-j1, libraries/thread1, local MPI<=4;
+check host contention/RAM/live handles. Announce full testcase folders. Use4TB
+`integration_evidence/build-integrated-v2/compile-tmp` while root/tmp is nearly full.
+No cluster request/launch, unnecessary CFD rerun or foreign-process termination.

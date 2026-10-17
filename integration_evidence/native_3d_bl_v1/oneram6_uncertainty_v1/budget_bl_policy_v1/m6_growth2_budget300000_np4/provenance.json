@@ -1,0 +1,37 @@
+{
+  "pins": {
+    "integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/run.py": "b179ef9aeff7be9f81f4f7cc0f7dca915d59ee8fedfd2bc29d79e80ae23a5c74",
+    "integration_evidence/build-integrated-v2/UnitTests/test_driver": "dcaa1c779959e3749117eaefd381ab8b68522a93f35408c8a41c4267fade13e9",
+    "integration_evidence/build-integrated-v2/build.ninja": "8b3bd549253b0371e1553e84f81d7426831f3477e73af0e9a524215902c9308a",
+    "integration_evidence/build-integrated-v2/meson-info/intro-buildoptions.json": "59377c452909959635fa25c06589f97be7916c19148364113dd1a62ab38e9a5c",
+    "SU2_CFD/src/adaptation/CBoundaryLayerMetric.cpp": "352c6c1517e5078b226be10c7750c19f2198a665d685d1932182e21917fff9b5",
+    "SU2_CFD/include/adaptation/CBoundaryLayerMetric.hpp": "2660752a6c2aaac0ce583d7c2577633838267de6b6431ef1a5d663a3cc6bef42",
+    "UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp": "c96bbbd172a24da90c5e7463dc7e30cbd92742b5c4b466b1a818f7a13c25c294",
+    "Common/src/adaptation/CNativeField3D.cpp": "f4211903e3b45c97a46abd23bdbb99a61f5eeb64ba53fbd937ab8bf870d00d32",
+    "Common/include/adaptation/CNativeField3D.hpp": "3fd6b85261da273b51b05e419ed65f4a4c6009e9990c6d70923189a6f9016280",
+    "UnitTests/Common/adaptation/CNativeField3D_tests.cpp": "ede909324f9da8a23eab3ca35e2ee4ef898708c5efedc536fe5c266b1f7afeb5",
+    "Common/include/adaptation/CComplexityNormalization.hpp": "a3dd65fdfd9f678351de4298a3be16cd68733652ab18453ece35ff8c8e33d11f",
+    "Common/include/adaptation/CNativeChordEnvelope.hpp": "64ab82069e823944451cdd7d83c65b6b0af57342e168bbc24bdcf73a8548e389",
+    "SU2_CFD/src/solvers/CSolver.cpp": "e7474a0985623725388492751f9f7afde76814a820d6ffada44b502bcf488393",
+    "Common/include/CConfig.hpp": "3f5ffcca4088e6baa9e27e02312e1deeb393dbaa5eb10db226183793cbfaa609",
+    "Common/src/CConfig.cpp": "827ad0312039c103dbf350676b4159161f2901a95c4594a169928dfe2393c42a",
+    "SU2_CFD/include/adaptation/CNativeMetricFamily3D.hpp": "2f9480e004b87f6e3b346b45e8153dfd84fb2d8d676278e2327e3a0120eca2d8",
+    "SU2_CFD/include/adaptation/CNativeComplexity3D.hpp": "0e132a46d210d20a1094fcb9616b37179d99e38ca7b65b2c46b9fa325af404c8",
+    "SU2_CFD/src/adaptation/CNativeComplexity3D.cpp": "2207bbdcc5d3e03f89d26351089af03a15b5dd34e4b0795f8c221c8add6c7d50",
+    "SU2_CFD/src/drivers/CSinglezoneDriver.cpp": "24c3b57b245b317247c889bfa8d9a8c2c7823bf80634bfaea0d3f87011fea928",
+    "UnitTests/SU2_CFD/adaptation/CNativeImport3D_tests.cpp": "9e36c9005f234ca50df9b81edf09fae0bb5673b719af68158e77efb5d09d3ea6",
+    "UnitTests/SU2_CFD/adaptation/fixtures/native_saved_metric_probe.inc": "8565e4d625ca30e94c7dc8e3a580409996be0bb6765d328ed637b425ff959821",
+    "integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/budget_bl_policy_v1/saved_metric.py": "14d25d6cf2e81887cdb65add059666000f535e0e673e83836adba740f7e491d5",
+    "integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/budget_bl_policy_v1/m6_growth2_budget300000_np4/Coarse.su2": "8c839170eb5e359f7de6a41434aa6a9c2d620053f37de6d9360bd04d2a63088b",
+    "integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/budget_bl_policy_v1/m6_growth2_budget300000_np4/Coarse.su2.native_ref": "1594d8108ad4d9536b6fca11f6538fc0503ec8a547b5939758e21e5ef5506235",
+    "integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/budget_bl_policy_v1/m6_growth2_budget300000_np4/donor_flow.dat": "3b4090771eda3bb3348e0fee96971910472daab7f7a52970eaccdc3950d30c17",
+    "integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/budget_bl_policy_v1/m6_growth2_budget300000_np4/run.cfg": "40544b38824dd76941d0b574ca2ee2e754f382088b0167083f846bfc3b2237e7"
+  },
+  "fixture": "2d15d275a7e4cafe145130a675641dfe90f373824b6debaa5a02d5ac8b1aba86",
+  "parameters": {
+    "SU2_NATIVE_FROZEN_CONFIG": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/budget_bl_policy_v1/m6_growth2_budget300000_np4/run.cfg"
+  },
+  "ranks": 4,
+  "test_filter": "[NativeSavedMetric3D]",
+  "expected_failure": false
+}

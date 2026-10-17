@@ -799,3 +799,51 @@ preliminary UNKNOWN dimension0 config before any metric/construction. Both compl
 receipts preserved. Root fixes grouped: restore off-policy text, validate dimension
 when known. Build15979 ongoing; qualification_v2 not run yet. No enabled workflow,
 M6 auto-selection, physical accuracy or performance success is claimed.
+
+Qualification_v2: disabled compatibility22 cases/2056 assertions PASS and primitive
+4/256 PASS. Enabled budget3 selects first uncertain sampled profile(lambda.5),
+then same original-field reassessment on private constructed mesh tightens indicator
+3.55x:3.119586 +/-0.145765 ->3.162588 +/-0.041057. Publication correctly rejects at
+original-family lower scale; no accepted workflow. This supports more informative
+reassessment, not correctness of the initial budget choice or general construction.
+Root correction: retain existing strict planar integration rather than forcing
+this supported case onto uncertain sampling. Bounded fallback remains for difficult
+integration; profile/version-aware rules and protected-distance cuts retained.
+No ceilings, physical limits or mesh gates raised. Partial mandatory-band estimate
+has infinite uncertainty until independently controlled. Build3010 ongoing; fresh
+qualification_v3 pending. No new full CFD/cluster run.
+
+
+## 2026-10-18: budget policy qualified slice — what worked and what did not
+
+- Worked: explicit opt-in outer-normal-only freedoms, protected band, original-family
+  profile/version freeze/cache invalidation and collective N/M agreement. Accepted
+  controlled RANS/SA/BDF workflows pass independent geometry/height/q/J/full-edge/
+  P1/conservation, atomic refusal, enabled SU2+CGNS and restart.3->2.95499 and
+  20->19.99931 reference complexity; MPI1/2/4 scope retained. No physics-accuracy claim.
+- Worked: reuse existing strict planar integration. Forcing that supported case onto
+  fixed sampling selected an uncertain profile then failed budget reassessment.
+  Strict integration admitslambda.875 rather than weakening budget/mesh gates.
+- Worked: match normalization work to unresolved integration. At M6 budget300k,
+  same profilelambda.75 now freezes the coarsest provisional field in6.55s rather
+  than93.48s;7 vs933 gradation sweeps. The provisional scale changes; no same-field
+  kernel/full-event speedup claim. Original donors and all final gates retained.
+- Worked within scope: retain donor preparation across profile trials while rebuilding
+  profile-dependent samples. M6 zero repeated donor searches,31956 refresh geometry
+  queries,15.46MB retained integration max/rank. Cold prep3.51s/background.99s remain.
+- Did not solve100k M6 budget: declared growth2/protecth0 ends260488 +/-10780,
+  MPI2/4 agreement2.04e-13 relative. At1000 the protected lower estimate itself
+  exceeds budget; at100k it does not. Neither result proves exact infeasibility.
+- 300k remains uncertain: saved holdouts314146 +/-12153 and312539 +/-11852 put their
+  lower heuristic endpoints just above budget. Selected308423 +/-12078 overlaps it.
+  This is evidence for explicit reassessment, not proof an adapted M6 will succeed.
+- Did not establish affordable selection on planar cells:90 strict rules/3.7M
+  density calls remain for the tiny budget3 case. Did not implement calibrated
+  absolute-global-error allocation, general curved/interacting accepted policy,
+  2D opt-in or the wider repair-campaign query/transaction package in this slice.
+- Preserved failed controls: fractional ADAP_COMPLEXITY parsed as integer, missing
+  mesh-bound markers, and missing restarted Backend/reference initialization were
+  fixture errors; none justifies relaxing production checks. Final scopes pass.
+
+[Report, inspected grids, complete phase/byte/memory receipts and provenance](../integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/budget_bl_policy_v1/README.md).
+Full Goal3 active; no accepted M6 construction/physical accuracy/scaling claim.

@@ -6,7 +6,8 @@ HERE=Path(__file__).resolve().parent;sys.path.insert(0,str(HERE.parent));import 
 ROOT=run.ROOT
 budget=int(sys.argv[1]);growth=float(sys.argv[2]);ranks=int(sys.argv[3]);expected=sys.argv[4]
 assert budget>0 and growth>=1.2 and ranks in (2,4) and expected in ('conflict','selected')
-folder=HERE/('m6_growth%g_budget%d_np%d'%(growth,budget,ranks));folder.mkdir(exist_ok=True)
+version=os.environ.get('SU2_BL_BUDGET_EVIDENCE','');assert version in ('','_v5')
+folder=HERE/('m6_growth%g_budget%d_np%d%s'%(growth,budget,ranks,version));folder.mkdir(exist_ok=True)
 source=HERE.parent/'construction_first_trial_v1';old=json.loads((source/'provenance.json').read_text())['identity']
 inputs=[]
 for name in ('Coarse.su2','Coarse.su2.native_ref','donor_flow.dat'):

@@ -1,0 +1,244 @@
+WARNING: Setting WINDOW_START_ITER = RESTART_ITER for meaningful running average.
+
+Parsing config file for zone 0
+WARNING: Setting WINDOW_START_ITER = RESTART_ITER for meaningful running average.
+
+----------------- Physical Case Definition ( Zone 0 ) -------------------
+Compressible RANS equations.
+Turbulence model: Spalart-Allmaras-noft2
+Hybrid RANS/LES: No Hybrid RANS/LES
+Mach number: 0.2.
+Angle of attack (AoA): 0 deg, and angle of sideslip (AoS): 0 deg.
+Reynolds number: 1e+06. Reference length 1.
+No restart solution, use the values at infinity (freestream).
+Dimensional simulation.
+The reference area is 1 m^2.
+The semi-span will be computed using the max y(3D) value.
+The reference length is 1 m.
+Input mesh file name: bl_budget_3_m1.su2
+
+--------------- Space Numerical Integration ( Zone 0 ) ------------------
+Roe (with entropy fix = 0.001) solver for the flow inviscid terms.
+Standard Roe without low-dissipation function.
+First order integration in space.
+Scalar upwind solver for the turbulence model.
+First order integration in space.
+Average of gradients with correction (viscous flow terms).
+Average of gradients with correction (viscous turbulence terms).
+Gradient for upwind reconstruction: Green-Gauss.
+Gradient for viscous and source terms: Green-Gauss.
+
+--------------- Time Numerical Integration  ( Zone 0 ) ------------------
+Unsteady simulation, dual time stepping strategy (second order in time).
+Unsteady time step provided by the user (s): 0.001.
+Euler implicit method for the flow equations.
+FGMRES is used for solving the linear system.
+Using ILU(0) preconditioning.
+Convergence criteria of the linear solver: 1e-06.
+Max number of linear iterations: 10.
+No CFL adaptation.
+Courant-Friedrichs-Lewy number:     1.25
+Euler implicit time integration for the turbulence model.
+
+------------------ Convergence Criteria  ( Zone 0 ) ---------------------
+Maximum number of solver subiterations: 2.
+Maximum number of physical time-steps: 10.
+Begin convergence monitoring at iteration 5.
+Residual minimum value: 1e-14.
+Cauchy series min. value: 1e-10.
+Number of Cauchy elements: 100.
+Begin windowed time average at iteration 0.
+
+-------------------- Output Information ( Zone 0 ) ----------------------
+File writing frequency: 
++------------------------------------+
+|                     File| Frequency|
++------------------------------------+
+|                  RESTART|         1|
++------------------------------------+
+Writing the convergence history file every 0 inner iterations.
+Writing the convergence history file every 1 time iterations.
+Writing the screen convergence history every 1 inner iterations.
+Writing the screen convergence history every 1 time iterations.
+The tabular file format is CSV (.csv).
+Convergence history file name: history.
+Forces breakdown file name: forces_breakdown.dat.
+Surface file name: surface.
+Volume file name: vol_solution.
+Restart file name: bl_budget_3_m1_restart.
+
+------------- Config File Boundary Information ( Zone 0 ) ---------------
++-----------------------------------------------------------------------+
+|                        Marker Type|                        Marker Name|
++-----------------------------------------------------------------------+
+|                          Far-field|                                far|
++-----------------------------------------------------------------------+
+|                     Heat flux wall|                               wall|
++-----------------------------------------------------------------------+
+
+-------------------- Output Preprocessing ( Zone 0 ) --------------------
+
+WARNING: SURFACE_PRESSURE_DROP can only be computed for at least 2 surfaces (outlet, inlet, ...)
+
+Screen output fields: TIME_ITER, INNER_ITER, RMS_DENSITY, RMS_MOMENTUM-X, RMS_MOMENTUM-Y, RMS_ENERGY
+History output group(s): ITER, CUR_TIME, RMS_RES
+Convergence field(s): RMS_DENSITY
+Warning: No (valid) fields chosen for time convergence monitoring. Time convergence monitoring inactive.
+Volume output fields: COORDINATES, SOLUTION, PRIMITIVE
+
+------------------- Geometry Preprocessing ( Zone 0 ) -------------------
+Three dimensional problem.
+8 grid points.
+6 volume elements.
+2 surface markers.
+10 boundary elements in index 0 (Marker = far).
+2 boundary elements in index 1 (Marker = wall).
+6 tetrahedra.
+Setting point connectivity.
+Renumbering points (Reverse Cuthill McKee Ordering).
+Recomputing point connectivity.
+Setting element connectivity.
+Checking the numerical grid orientation.
+There has been a re-orientation of 3 TETRAHEDRON volume elements.
+There has been a re-orientation of 6 TRIANGLE surface elements.
+Identifying edges and vertices.
+Setting the control volume structure.
+Volume of the computational grid: 1.
+Searching for the closest normal neighbors to the surfaces.
+Storing a mapping from global to local point index.
+Compute the surface curvature.
+Max K: 10.1604. Mean K: 9.29369. Standard deviation K: 1.5012.
+Computing mesh quality statistics for the dual control volumes.
++--------------------------------------------------------------+
+|           Mesh Quality Metric|        Minimum|        Maximum|
++--------------------------------------------------------------+
+|    Orthogonality Angle (deg.)|         60.051|        69.5561|
+|     CV Face Area Aspect Ratio|        3.26599|              4|
+|           CV Sub-Volume Ratio|              1|              1|
+|                     CV Volume|      0.0833333|           0.25|
++--------------------------------------------------------------+
+Finding max control volume width.
+NATIVE3D_STAGE stage=cfd_geometry_initial rank=0 ranks=1 time_iter=0 total=0.0011620299999999997 other=1.636000000000172e-06 cpu=0.00116 cpu_other=9.9999999999998365e-07 process_peak_rss=27738112 partition=3.5299999999998527e-06 partition_cpu=9.9999999999999995e-07 migration=8.4715999999999438e-05 migration_cpu=8.599999999999999e-05 preprocess=0.0010721480000000002 preprocess_cpu=0.001072
+Semi-span length = -1e+10 m.
+Wetted area = 0 m^2.
+Area projection in the x-plane = 0 m^2, y-plane = 0 m^2, z-plane = 0 m^2.
+Max. coordinate in the x-direction = -1e+10 m, y-direction = -1e+10 m, z-direction = -1e+10 m.
+Min. coordinate in the x-direction = 1e+10 m, y-direction = 1e+10 m, z-direction = 1e+10 m.
+Computing wall distances.
+
+-------------------- Solver Preprocessing ( Zone 0 ) --------------------
+Viscous flow: Computing pressure using the ideal gas law
+based on the free-stream temperature and a density computed
+from the Reynolds number.
+Force coefficients computed using free-stream values.
+
+-- Models:
++------------------------------------------------------------------------------+
+|          Viscosity Model|        Conductivity Model|              Fluid Model|
++------------------------------------------------------------------------------+
+|               SUTHERLAND|          CONSTANT_PRANDTL|             STANDARD_AIR|
++------------------------------------------------------------------------------+
+-- Fluid properties:
++------------------------------------------------------------------------------+
+|                  Name|    Dim. value|    Ref. value|      Unit|Non-dim. value|
++------------------------------------------------------------------------------+
+|        Ref. Viscosity|     1.716e-05|             1|   N.s/m^2|     1.716e-05|
+|      Sutherland Temp.|        273.15|             1|         K|        273.15|
+|     Sutherland Const.|         110.4|             1|         K|         110.4|
++------------------------------------------------------------------------------+
+|        Prandtl (Lam.)|             -|             -|         -|          0.72|
+|       Prandtl (Turb.)|             -|             -|         -|           0.9|
++------------------------------------------------------------------------------+
+|          Gas Constant|       287.058|             1|  N.m/kg.K|       287.058|
+|      Spec. Heat Ratio|             -|             -|         -|           1.4|
++------------------------------------------------------------------------------+
+-- Initial and free-stream conditions:
++------------------------------------------------------------------------------+
+|                  Name|    Dim. value|    Ref. value|      Unit|Non-dim. value|
++------------------------------------------------------------------------------+
+|       Static Pressure|       21746.2|             1|        Pa|       21746.2|
+|               Density|      0.262902|             1|    kg/m^3|      0.262902|
+|           Temperature|        288.15|             1|         K|        288.15|
+|          Total Energy|        209105|             1|   m^2/s^2|        209105|
+|            Velocity-X|       68.0594|             1|       m/s|       68.0594|
+|            Velocity-Y|             0|             1|       m/s|             0|
+|            Velocity-Z|             0|             1|       m/s|             0|
+|    Velocity Magnitude|       68.0594|             1|       m/s|       68.0594|
++------------------------------------------------------------------------------+
+|             Viscosity|    1.7893e-05|             1|   N.s/m^2|    1.7893e-05|
+|          Conductivity|             -|             1|   W/m^2.K|             -|
+|     Turb. Kin. Energy|       17.3703|             1|   m^2/s^2|       17.3703|
+|     Spec. Dissipation|       25522.3|             1|       1/s|       25522.3|
++------------------------------------------------------------------------------+
+|           Mach Number|             -|             -|         -|           0.2|
+|       Reynolds Number|             -|             -|         -|         1e+06|
++------------------------------------------------------------------------------+
+-- Unsteady conditions
++------------------------------------------------------------------------------+
+|                  Name|    Dim. value|    Ref. value|      Unit|Non-dim. value|
++------------------------------------------------------------------------------+
+|            Total Time|             1|             1|         s|             1|
+|             Time Step|         0.001|             1|         s|         0.001|
++------------------------------------------------------------------------------+
+Initialize Jacobian structure (Navier-Stokes). MG level: 0.
+Initialize Jacobian structure (SA model).
+
+------------------- Numerics Preprocessing ( Zone 0 ) -------------------
+
+----------------- Integration Preprocessing ( Zone 0 ) ------------------
+
+------------------- Iteration Preprocessing ( Zone 0 ) ------------------
+Euler/Navier-Stokes/RANS fluid iteration.
+Sensor-only donor metric statistics:
+Minimum density: 3.
+Maximum density: 3.
+Maximum cell AR: 1.
+Mesh complexity after native constraints: 3 (ADAP_COMPLEXITY= 3).
+Sensor metric complexity before gradation: 3.
+Sensor-only donor complexity after gradation: 3.
+Native geometric integration: 0 points, preparation 9.48e-07 s.
+Native metric work: 1 complexity trials, 1 total gradation sweeps, 8 owned-point visits; gradation 1.6617e-05 s, halo 9.16e-07 s, sweep reductions 1.07e-07 s (maximum accumulated rank times).
+Native gradation tensor updates: 0 of 8 owned-point visits.
+Native sensor gradation: 1 sweeps, fixed point reached, maximum transported-metric ratio 1, directed edges above 1+1e-5: 0.
+Native composed nodal audit: maximum transported-metric ratio 1, directed edges above 1+1e-5: 0. Sensor gradation is not a combined-field certificate.
+NATIVE3D_STAGE stage=metric_build rank=0 ranks=1 time_iter=0 total=0.00010791800000000025 other=8.0830000000007424e-06 cpu=0.000107 cpu_other=7.9999999999999912e-06 process_peak_rss=30191616 sensor_frames=4.977999999999233e-06 sensor_frames_cpu=3.9999999999999998e-06 geometry_rule=1.8489999999999479e-06 geometry_rule_cpu=1.9999999999999999e-06 complexity_gradation_audit=4.5495000000001298e-05 complexity_gradation_audit_cpu=4.6e-05 publication=4.2852999999998947e-05 publication_cpu=4.2999999999999995e-05 halo=1.0430000000009182e-06 halo_cpu=9.9999999999999995e-07 original_family=3.6169999999991626e-06 original_family_cpu=3.0000000000000001e-06 nested_gradation=1.6617000000000021e-05 nested_gradation_halo=9.1600000000011117e-07 nested_gradation_reduction=1.0699999999919108e-07 complexity=3 bracketed=1 original_family_bytes=2080 original_family_replay=0
+Native3D bounded complexity strategy: retained faceted wall support with opt-in BL profiles.
+Native3D BL budget trial: parameter=0 profile_version=1 coarsest_estimate=3.6298355271614251 uncertainty_indicator=0.16815488783900498 mandatory_estimate=2.1023504555242636 mandatory_indicator=0.12536848659073557 protected_distance=0.10000000000000001 maximum_outer_growth=10 support_changed=0 proven_bound=0
+Native3D BL budget trial: parameter=0.125 profile_version=2 coarsest_estimate=3.4538821075901809 uncertainty_indicator=0.15945453080744793 mandatory_estimate=2.1023504555242636 mandatory_indicator=0.12536848659073557 protected_distance=0.10000000000000001 maximum_outer_growth=10 support_changed=0 proven_bound=0
+Native3D BL budget trial: parameter=0.25 profile_version=3 coarsest_estimate=3.3180717912708504 uncertainty_indicator=0.1534364594472237 mandatory_estimate=2.1023504555242636 mandatory_indicator=0.12536848659073557 protected_distance=0.10000000000000001 maximum_outer_growth=10 support_changed=0 proven_bound=0
+Native3D BL budget trial: parameter=0.375 profile_version=4 coarsest_estimate=3.2092423336623344 uncertainty_indicator=0.14906310137269663 mandatory_estimate=2.1023504555242636 mandatory_indicator=0.12536848659073557 protected_distance=0.10000000000000001 maximum_outer_growth=10 support_changed=0 proven_bound=0
+Native3D BL budget trial: parameter=0.5 profile_version=5 coarsest_estimate=3.1195861146967561 uncertainty_indicator=0.14576540328286433 mandatory_estimate=2.1023504555242636 mandatory_indicator=0.12536848659073557 protected_distance=0.10000000000000001 maximum_outer_growth=10 support_changed=0 proven_bound=0
+Sensor-only donor metric statistics:
+Minimum density: 1.
+Maximum density: 1.
+Maximum cell AR: 1.
+Mesh complexity after native constraints: 3.11959 (ADAP_COMPLEXITY= 3).
+Sensor metric complexity before gradation: 1.
+Sensor-only donor complexity after gradation: 1.
+Native geometric integration: 0 points, preparation 5.8718e-05 s.
+Native3D complexity normalization: status=integration_limited estimate=3.1195861146967561 uncertainty_indicator=0.14576540328286433 requested_rtol=9.9999999999999995e-07 trials=4 log_scale=-4.4408920985006271e-16 frozen_core=0.99999999999999956 provisional=1 proven_error_bound=0; target remains frozen during remeshing.
+Native3D BL budget selection: status=integration_limited parameter=0.5 profile_version=5 trials=5 grid_resolution=0.125 continuous_minimum_proven=0 support_changed=0 frozen=1 selection_seconds=0.049207613999999997 replay=0
+Native3D support correction: samples=8192 inside=1853 nonzero=1853 sensor_lower=0.99999999999999933 sensor_upper=0.99999999999999933 sensor_quadrature=0.99999999999999944 correction=2.119586114696757 empirical_SE=0.048588467760940557 background_roundoff_indicator=4.2632564145605986e-14 preparation_seconds_max=0.042412994999999995 background_seconds_max=7.1359000000006945e-05 correction_seconds_max=0.0089166449999999939 reduction_seconds_max=3.993000000000746e-06 assessment_seconds_max=0.022435044999999987 retained_bytes_max=780528 background_determinants=924 correction_queries=12971 donor_searches_during_trials=0 geometry_queries_during_trials=7412 global_rank_profile_refreshes=4
+Native3D target-density quadrature: 1.1246e-05 s (maximum accumulated rank time), 0 cell rule builds, 0 exact-target reuses, 0 strict density evaluations.
+Native metric work: 7 complexity trials, 7 total gradation sweeps, 56 owned-point visits; gradation 7.5859e-05 s, halo 4.117e-06 s, sweep reductions 3.95e-07 s (maximum accumulated rank times).
+Native gradation tensor updates: 0 of 56 owned-point visits.
+Native sensor gradation: 1 sweeps, fixed point reached, maximum transported-metric ratio 1, directed edges above 1+1e-5: 0.
+Native composed nodal audit: maximum transported-metric ratio 7.61569, directed edges above 1+1e-5: 9. Sensor gradation is not a combined-field certificate.
+WARNING: Composed geometric BL transport violations remain; no nodal wall correction is spread.
+WARNING: Geometric BL complexity target 3 is not converged; integrated complexity 3.11959. BL and finer sensor demands are retained.
+NATIVE3D_STAGE stage=metric_build rank=0 ranks=1 time_iter=0 total=0.051852298000000005 other=1.5531000000006123e-05 cpu=0.051839999999999997 cpu_other=1.6000000000002124e-05 process_peak_rss=32641024 sensor_frames=2.6349999999990964e-06 sensor_frames_cpu=3.0000000000000001e-06 geometry_rule=5.9289000000000563e-05 geometry_rule_cpu=5.8999999999999998e-05 complexity_gradation_audit=0.051689069999999997 complexity_gradation_audit_cpu=0.051678999999999996 publication=7.6080999999998677e-05 publication_cpu=7.3999999999999996e-05 halo=9.3500000000051875e-07 halo_cpu=9.9999999999999995e-07 original_family=8.7570000000050663e-06 original_family_cpu=7.9999999999999996e-06 nested_gradation=7.5859000000011445e-05 nested_gradation_halo=4.1169999999979279e-06 nested_gradation_reduction=3.9500000000025626e-07 complexity=3.1195861146967561 bracketed=1 original_family_bytes=19992 original_family_replay=0
+NATIVE3D rank=0 ranks=1 workers=1 complete=0 detailed=1 total=0.18197500999999999 other=1.0575999999984376e-05 cpu=0.18196299999999999 idle_cpu=0 support=8.6190000000013756e-06 reference=6.064999999999543e-06 import=0.00062855099999999803 source=3.2679000000000735e-05 weights=0.00018899299999999841 partition=5.1979000000000608e-05 donor_migration=7.2750000000010306e-06 communicator=3.3873000000017583e-05 refine=0.13405587200000005 coarsen=0 wait=8.1709999999457494e-06 return=5.6306999999922169e-05 policy=7.4290000000032386e-06 reassessment=0.046872318000000024 normalization=6.3030000000408037e-06 initial=6 final=0 refine_accepted=1 coarsen_accepted=0 tracked_bytes=4709824 tracked_calls=996 nested_tracked_collectives=0.0013829189999995314 tracked_import_bytes=2880 tracked_import_calls=6 nested_tracked_import=1.5650000000019815e-06 tracked_parent_bytes=4679840 tracked_parent_calls=955 nested_tracked_parent=0.0013661239999995523 tracked_worker_bytes=27104 tracked_worker_calls=35 nested_tracked_worker=1.5229999999977206e-05 native_bound=153163857 process_peak_rss=40968192
+Native3D rejected event: estimated_budget_incompatible_at_original_family_lower_bound; accepted CFD mesh/solution retained.
+NATIVE3D_DETAIL stage=import rank=0 ranks=1 workers=1 complete=0 total=0.00062328799999999962 points=6.0269999999987278e-06 cells=1.8909999999969229e-06 faces=0.00060715999999999548 source=0 query=0 reader=0 reduction=0 other=8.2100000000084883e-06 requests=0 hits=0 misses=0 invalid_queries=0 failures=0 evictions=0 compositions=0 batches=0 retries=0 source_point_queries=0 source_point_payloads=0 source_point_seconds=0 source_point_search=0 source_point_interpolation=0 field_builds=0 nested_field_build=0 nested_search=0 nested_interpolation=0 nested_composition=0 tracked_bytes=2880 tracked_calls=6 nested_tracked_collectives=1.5650000000019815e-06 native_bound=41080
+NATIVE3D_DETAIL stage=weights rank=0 ranks=1 workers=1 complete=0 total=0.00018839300000000198 points=0 cells=0 faces=0 source=0 query=0.00018529999999999935 reader=0 reduction=0 other=3.0930000000026214e-06 requests=30 hits=16 misses=14 invalid_queries=0 failures=0 evictions=0 compositions=30 batches=1 retries=0 source_point_queries=14 source_point_payloads=14 source_point_seconds=0.00011742900000000223 source_point_search=8.4594999999999999e-05 source_point_interpolation=3.4269999999999995e-06 field_builds=0 nested_field_build=0 nested_search=0 nested_interpolation=0 nested_composition=3.212800000002014e-05 tracked_bytes=3696 tracked_calls=8 nested_tracked_collectives=1.8589999999860107e-06 native_bound=1337018
+NATIVE3D_DETAIL stage=return rank=0 ranks=1 workers=1 complete=0 total=0 points=0 cells=0 faces=0 source=0 query=0 reader=0 reduction=0 other=0 requests=0 hits=0 misses=0 invalid_queries=0 failures=0 evictions=0 compositions=0 batches=0 retries=0 source_point_queries=0 source_point_payloads=0 source_point_seconds=0 source_point_search=0 source_point_interpolation=0 field_builds=0 nested_field_build=0 nested_search=0 nested_interpolation=0 nested_composition=0 tracked_bytes=0 tracked_calls=0 nested_tracked_collectives=0 native_bound=0
+NATIVE3D_DETAIL stage=reassessment rank=0 ranks=1 workers=1 complete=0 total=0.046870065000000127 points=0.0049489579999999478 cells=2.7530999999969552e-05 faces=0 source=3.1115000000081494e-05 query=0.035272050999999638 reader=0 reduction=3.9800000006806613e-07 other=0.0065900120000004225 requests=8210 hits=0 misses=8210 invalid_queries=0 failures=0 evictions=6144 compositions=8210 batches=129 retries=0 source_point_queries=8210 source_point_payloads=8210 source_point_seconds=0.014473336000000003 source_point_search=0.0040886489999999789 source_point_interpolation=0.0014935820000000263 field_builds=0 nested_field_build=0 nested_search=0 nested_interpolation=0 nested_composition=0.013513758999997627 tracked_bytes=4659824 tracked_calls=917 nested_tracked_collectives=0.0013549269999996102 native_bound=6297864
+NATIVE3D_DETAIL stage=source rank=0 ranks=1 workers=1 complete=0 build=3.0842e-05 imports=0 requests=0 candidates=0 payloads=0 maximum_patch=0 nested_routing=0 nested_search=0 nested_filter=0 nested_exchange=0
+NATIVE3D_DETAIL stage=partition rank=0 ranks=1 workers=1 complete=0 total=5.1514000000002502e-05 graph=4.159799999999686e-05 parmetis=6.8999999998375916e-08 migration=7.6119999999971211e-06 other=2.2350000000101455e-06 nested_directory=2.2705999999997339e-05 moved=0 arcs=12 cells_before=6 cells_after=6 work_before=66 work_after=66
+NATIVE3D_DETAIL stage=refine rank=0 ranks=1 workers=1 complete=0 total=0.13404086100000001 initialization=4.7221000000000001e-05 seed=0 first_layer=0 selection=0 dependency=0 reservation=0 donor=0 reconstruction=0.13214912500000001 metric=0 routing=0 publication=0 update=0 completion=0 other=0.0018445150000000188 tracked_bytes=27104 tracked_calls=35 nested_tracked_collectives=1.5229999999977206e-05 directory_elections=17 nested_directory_election=9.1400000000000006e-07 process_cpu=0.13403999999999999 private_reconstruction_cpu=0 private_metric_cpu=0 private_measurement_cpu=0 planning_nested_s=0 batch_considered=0 batch_deferred=0 proposal_duplicates=0 batch_rounds=0 batch_candidates=0 stop=complete global_work=47 work_limit=8192 progress_windows=0 stagnant_windows=0 search_windows=0 size_progress=0 quality_progress=0 cell_removals=0 layer_shape_screens=0 layer_shape_pruned=0 layer_batches=0 layer_maximum_batch=0 layer_donor_batches=0 layer_donor_retries=0 layer_metadata_nested_s=0 layer_donor_nested_s=0 layer_geometry_nested_s=0 layer_metric_nested_s=0 layer_publication_nested_s=0 layer_edge_evaluations=0 layer_edge_reused=0 layer_published=0 height_checks=19 height_rejected=1 footprint_rejected=0 wall_reconstruction_trials=0 wall_reconstruction_accepted=0 wall_joint_trials=0 wall_joint_moves=0 wall_joint_removals=0 wall_joint_accepted=0 placement_connectivity_trials=0 placement_flips=0 placement_moves=0 placement_dependency_expansions=0 placement_classified_vertices=0 placement_trials=0 placement_validated=0 wall_topology_trials=0 wall_topology_accepted=0 geometry_trials=0 geometry_rejected=0 metric_trials=0 metric_shape_rejected=0 metric_progress_rejected=0 metric_measurement_rejected=0 sample_metric_present=0 sample_q=1 sample_j=1 sample_cell=0 sample_sliver=0 sample_feature=0 sample_v0=0 sample_v1=0 sample_v2=0 sample_x=0 sample_y=0 sample_z=0 batch_reserved=0 rounds=0 attempted=0 accepted=1 region_core_trials=0 region_core_regions=1 region_transition_fronts=3 region_front_trials=28 region_cap_nested_s=0.016068744999999999 region_sampling_s=0.044441688 region_first_band_s=0 region_transition_s=0.001190598 region_junction_s=0 region_core_s=0 region_validation_s=0.085783205000000001 region_field_points=0 region_sensor_hits=0 region_interior_hits=0 region_field_edges=0 region_edge_hits=0 region_field_imports=0 region_maximum_resident=6 rejected=0 conflicts=0 requests=36 hits=16 misses=20 invalid_queries=0 failures=0 evictions=0 compositions=18261 edge_evaluations=0 collapse_geometry_checks=0 collapse_filtered=0 collapse_orientation_checks=0 collapse_orientation_filtered=0 collapse_reactivated=0 changed_star_scans=96 changed_vertices_sent=20 changed_vertices_received=20 nested_change_notifications=8.9830000000000002e-06 nested_collapse_orientation=0 nested_collapse_geometry=0 edge_reused=0 moved=0 reconnected=0 inserted=0 maximum_donor_patch=6 maximum_owned=18 final_owned_cells=18 cached_measured_cells=0 seed_batches=0 unmeasured_retired=0 cached_invalid_cells=0 remaining_edges=0 remaining_repairs=0 nested_field_build=6.7190000000000004e-06 nested_field_query=0.000116512 nested_cache=1.2240999999999997e-05 nested_search=2.0393999999999998e-05 nested_interpolation=3.9940000000000002e-06 nested_composition=7.0768000000000011e-05 nested_edge_geometry=0.0041243769999999976 nested_edge_composition=0.035799812000000202 nested_edge=0.059617888000000029 nested_edge_search=6.1721000000000014e-05 nested_edge_trace=0.015541166000000004 nested_edge_integral=0.043986266000000003 donor_reused=0 edge_separated=650 donor_batches=0 donor_candidates=6 donor_filtered=0 donor_box_filtered=0 donor_payloads=6 nested_donor_search=3.1549999999999999e-06 nested_donor_filter=0 batch_retries=0 query_retries=0 private_query_retries=0 native_bound=153163857
+NATIVE3D_DETAIL stage=coarsen rank=0 ranks=1 workers=1 complete=0 total=0 initialization=0 seed=0 first_layer=0 selection=0 dependency=0 reservation=0 donor=0 reconstruction=0 metric=0 routing=0 publication=0 update=0 completion=0 other=0 tracked_bytes=0 tracked_calls=0 nested_tracked_collectives=0 directory_elections=0 nested_directory_election=0 process_cpu=0 private_reconstruction_cpu=0 private_metric_cpu=0 private_measurement_cpu=0 planning_nested_s=0 batch_considered=0 batch_deferred=0 proposal_duplicates=0 batch_rounds=0 batch_candidates=0 stop=none global_work=0 work_limit=0 progress_windows=0 stagnant_windows=0 search_windows=0 size_progress=0 quality_progress=0 cell_removals=0 layer_shape_screens=0 layer_shape_pruned=0 layer_batches=0 layer_maximum_batch=0 layer_donor_batches=0 layer_donor_retries=0 layer_metadata_nested_s=0 layer_donor_nested_s=0 layer_geometry_nested_s=0 layer_metric_nested_s=0 layer_publication_nested_s=0 layer_edge_evaluations=0 layer_edge_reused=0 layer_published=0 height_checks=0 height_rejected=0 footprint_rejected=0 wall_reconstruction_trials=0 wall_reconstruction_accepted=0 wall_joint_trials=0 wall_joint_moves=0 wall_joint_removals=0 wall_joint_accepted=0 placement_connectivity_trials=0 placement_flips=0 placement_moves=0 placement_dependency_expansions=0 placement_classified_vertices=0 placement_trials=0 placement_validated=0 wall_topology_trials=0 wall_topology_accepted=0 geometry_trials=0 geometry_rejected=0 metric_trials=0 metric_shape_rejected=0 metric_progress_rejected=0 metric_measurement_rejected=0 sample_metric_present=0 sample_q=1 sample_j=1 sample_cell=0 sample_sliver=0 sample_feature=0 sample_v0=0 sample_v1=0 sample_v2=0 sample_x=0 sample_y=0 sample_z=0 batch_reserved=0 rounds=0 attempted=0 accepted=0 region_core_trials=0 region_core_regions=0 region_transition_fronts=0 region_front_trials=0 region_cap_nested_s=0 region_sampling_s=0 region_first_band_s=0 region_transition_s=0 region_junction_s=0 region_core_s=0 region_validation_s=0 region_field_points=0 region_sensor_hits=0 region_interior_hits=0 region_field_edges=0 region_edge_hits=0 region_field_imports=0 region_maximum_resident=0 rejected=0 conflicts=0 requests=0 hits=0 misses=0 invalid_queries=0 failures=0 evictions=0 compositions=0 edge_evaluations=0 collapse_geometry_checks=0 collapse_filtered=0 collapse_orientation_checks=0 collapse_orientation_filtered=0 collapse_reactivated=0 changed_star_scans=0 changed_vertices_sent=0 changed_vertices_received=0 nested_change_notifications=0 nested_collapse_orientation=0 nested_collapse_geometry=0 edge_reused=0 moved=0 reconnected=0 inserted=0 maximum_donor_patch=0 maximum_owned=0 final_owned_cells=0 cached_measured_cells=0 seed_batches=0 unmeasured_retired=0 cached_invalid_cells=0 remaining_edges=0 remaining_repairs=0 nested_field_build=0 nested_field_query=0 nested_cache=0 nested_search=0 nested_interpolation=0 nested_composition=0 nested_edge_geometry=0 nested_edge_composition=0 nested_edge=0 nested_edge_search=0 nested_edge_trace=0 nested_edge_integral=0 donor_reused=0 edge_separated=0 donor_batches=0 donor_candidates=0 donor_filtered=0 donor_box_filtered=0 donor_payloads=0 nested_donor_search=0 nested_donor_filter=0 batch_retries=0 query_retries=0 private_query_retries=0 native_bound=0
+Native3D frozen stages: count=1 shared_work=47 correction_trials=0 correction=0 correction_status=2 correction_density_queries=0 correction_geometry_queries=0 correction_seconds=0 reason=estimated_budget_incompatible_at_original_family_lower_bound
+Native3D candidate complexity: value=3.1625877758880754 uncertainty_indicator=0.041057135665856115 requested_budget=3 relative_budget_discrepancy=0.054195925296025127 standard_error=0.013685711888618706 block_standard_error=0.011384165953189994 samples=8192 original_field=1 proven_bound=0 normalization_correction=0
+../../UnitTests/SU2_CFD/adaptation/fixtures/native_normalization_stages.inc:261: failed: result.status==CRemeshResult::Status::COMPLETE for: 2 == 0 with 1 message: 'estimated_budget_incompatible_at_original_family_lower_bound'
+Failed 1 test case, failed 1 assertion.
+
