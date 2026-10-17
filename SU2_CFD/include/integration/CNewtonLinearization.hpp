@@ -121,9 +121,11 @@ class CNewtonLinearization final : public CMatrixVectorProduct<passivedouble> {
    * \details Refinement measures relative error against the requested operator, J_F or J_F plus frozen mass.
    * \param[in] pseudoTime - Include the frozen pseudo-time action when true.
    * \param[in] verifyStep - Permit the configured probe refinement; only approximate preconditioner coupling omits it.
+   * \param[in] residualRuntime - Optional physical row for unverified preconditioner coupling; other rows return zero.
    * \return False, with a nonfinite output, if no feasible, resolved derivative can be obtained.
    */
-  bool Apply(const Vector&, Vector&, bool pseudoTime = true, bool verifyStep = true) const;
+  bool Apply(const Vector&, Vector&, bool pseudoTime = true, bool verifyStep = true,
+             unsigned short residualRuntime = 0) const;
   void operator()(const Vector& u, Vector& v) const override { Apply(u, v); }
   const Vector& GetScale() const {
     assert(scale);
@@ -152,7 +154,7 @@ class CNewtonBlockPreconditioner final : public CPreconditioner<passivedouble> {
   using Mixed = su2mixedfloat;
   using Vector = CNewtonLinearization::Vector;
   struct Block {
-    unsigned short offset, variables;
+    unsigned short runtime, offset, variables;
     CSolver* solver;
     std::unique_ptr<CSysSolve<Mixed>> linearSolver;
     std::unique_ptr<CPreconditioner<Mixed>> preconditioner;

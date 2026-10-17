@@ -102,9 +102,16 @@ CNewtonLinearization::CNewtonLinearization(CNewtonEquationSet& e, CGeometry* g, 
       baseState(baseResidual),
       free(g->GetnPoint() * e.GetnVar(), true) {}
 
-bool CNewtonLinearization::Apply(const Vector& u, Vector& v, bool pseudoTime, bool verifyStep) const {
+bool CNewtonLinearization::Apply(const Vector& u, Vector& v, bool pseudoTime, bool verifyStep,
+                                 unsigned short residualRuntime) const {
   assert(scale && diagonal && u.GetNVar() == equations.GetnVar() && v.GetNVar() == equations.GetnVar());
   assert(&u != &v);
+  const auto& blocks = equations.GetBlocks();
+  const auto target = std::find_if(blocks.begin(), blocks.end(),
+      [=](const CNewtonEquationSet::Block& b) { return b.runtime == residualRuntime; });
+  assert(!residualRuntime || (!pseudoTime && !verifyStep && target != blocks.end()));
+  const auto first = residualRuntime ? target->offset : 0;
+  const auto last = residualRuntime ? first + target->variables : equations.GetnVar();
   const bool refine = refineStep && verifyStep;
   /*--- Size probes globally, retaining anisotropic state scales and representable changes at the base. ---*/
   double norm;
@@ -160,16 +167,23 @@ bool CNewtonLinearization::Apply(const Vector& u, Vector& v, bool pseudoTime, bo
     };
     if (shifted) {
       equations.SetTrial(probeWork, step, *scale, isFree);
-      if (!equations.EvaluateResiduals(false, false, reconstruction)) return false;
+      if (!equations.EvaluateResiduals(false, false, reconstruction, residualRuntime)) return false;
       equations.CopyResidual(probeWork);
     }
     /*--- Directions are no longer needed after SetTrial, so their storage can hold residuals. ---*/
     equations.SetTrial(v, step, *scale, isFree);
-    if (!equations.EvaluateResiduals(false, false, reconstruction)) return false;
+    if (!equations.EvaluateResiduals(false, false, reconstruction, residualRuntime)) return false;
     equations.CopyResidual(v);
     SU2_OMP_FOR_STAT(1024)
-    for (auto i = 0ul; i < u.GetNElmDomain(); ++i)
-      v[i] = free[i] ? (v[i] - (shifted ? probeWork[i] : baseResidual[i])) / (step * (*scale)[i]) : u[i];
+    for (auto p = 0ul; p < geometry->GetnPointDomain(); ++p)
+      for (auto j = 0u; j < equations.GetnVar(); ++j) {
+        const auto i = p * equations.GetnVar() + j;
+        /*--- All input columns remain live; only unused output rows are omitted. ---*/
+        if (j < first || j >= last)
+          v[i] = 0.0;
+        else
+          v[i] = free[i] ? (v[i] - (shifted ? probeWork[i] : baseResidual[i])) / (step * (*scale)[i]) : u[i];
+      }
     END_SU2_OMP_FOR
     return true;
   };
@@ -255,6 +269,7 @@ CNewtonBlockPreconditioner::CNewtonBlockPreconditioner(const CNewtonLinearizatio
   for (const auto& b : l.GetBlocks()) {
     blocks.emplace_back();
     auto& block = blocks.back();
+    block.runtime = b.runtime;
     block.offset = b.offset;
     block.solver = b.solver;
     block.variables = b.variables;
@@ -303,7 +318,7 @@ unsigned long CNewtonBlockPreconditioner::Solve(const Vector& u, Vector& v, unsi
   for (auto index = 0u; index < blocks.size(); ++index) {
     const auto& block = blocks[index];
     /*--- Lower coupling is approximate; the outer operator and true defect use verified physical products. ---*/
-    if (lowerTriangular && index && !linearization.Apply(v, coupling, false, false)) {
+    if (lowerTriangular && index && !linearization.Apply(v, coupling, false, false, block.runtime)) {
       v = passivedouble(std::numeric_limits<double>::quiet_NaN());
       SU2_OMP_BARRIER
       SU2_OMP_SAFE_GLOBAL_ACCESS(work += total;)

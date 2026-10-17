@@ -212,9 +212,11 @@ class CNewtonEquationSet : private CIntegration {
    * \param[in] implicit - Also assemble native matrices for the block preconditioner.
    * \param[in] allEquations - Refresh residuals outside the selected group for outer-driver statistics.
    * \param[in] reconstruction - Reconstruction factor for an explicitly requested derivative model.
+   * \param[in] residualRuntime - Optional single residual row for explicit preconditioner products; zero selects all.
    * \return False if primary values, refreshed properties, strong boundary data or residuals are invalid.
    */
-  bool EvaluateResiduals(bool implicit = false, bool allEquations = false, double reconstruction = 1.0);
+  bool EvaluateResiduals(bool implicit = false, bool allEquations = false, double reconstruction = 1.0,
+                         unsigned short residualRuntime = 0);
   /*! \brief Rebuild coefficients at the captured state; retain physical-time history and saved relaxation. */
   bool Restore();
   /*! \brief Advance reconstruction iteration history once, after accepting a flow update. */

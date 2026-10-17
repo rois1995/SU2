@@ -71,12 +71,58 @@ pass on 1x1 and 2x2. The five converged families (SA, SST, active LM, mean flow 
 basic species) retain every original-control work count and every restart byte
 against the residual-refresh version in all three solver modes.
 
-The expanded pool's repeated 263169-point memory measurements are running with
-native and coupled controls. These fixed one-update runs measure allocation,
-not convergence or elapsed-time performance. Per-rank peak RSS and RSS at the
-same collective restart output are observed; the latter avoids masking live
-workspace savings with a larger mesh-initialization peak. Results remain pending.
+On 263169 points, three alternating before/after pairs per model and mode
+(54 solver runs total) preserve every one-update work count and every restart
+byte. The shared pool's median process peak RSS is:
 
-Lower-block residual work, further dependency-refresh savings, full family/layout
-qualification, quiet repeated timings and the higher-CFL study remain open.
-This report does not mark the overall goal complete.
+| Segregated model | Before, MiB | Shared pool, MiB | Saved, MiB |
+|---|---:|---:|---:|
+| SA | 1105.5 | 1064.7 | 40.8 |
+| SST | 1248.6 | 1204.9 | 43.7 |
+| LM | 1626.1 | 1511.7 | 114.4 |
+
+These fixed one-update runs use CFL 0.05 on both versions to measure allocation,
+not convergence or elapsed-time performance. Per-rank peak RSS and resident RSS
+at the same collective restart output are observed; both have identical medians
+here. Native/coupled controls have no consistent saving: median changes range
+from 0.26 MiB lower to 1.64 MiB higher. Those modes do not duplicate sequential
+workspaces. The observer's writer self-check includes empty MPI ranks; only
+profiling binaries load this observer. Production code has no memory observer.
+
+The cohort retained at least 38.3 GiB available RAM; swap use stayed constant.
+External CPU usage reached 7.1 cores, so **none of these elapsed times qualifies
+as performance evidence**. Raw reports, exact commands, hashes and ranges are in
+`memory_complete_513/` and `workspace_memory_summary.json` under the evidence root.
+
+## Requested rows in lower-block products
+
+The lower preconditioner now evaluates only the residual row it consumes. Every
+input column and live cross response remains present; boundary closure, property
+refreshes, halo communication, frozen history and finite-difference sizing remain
+unchanged. Skipped scalar systems still preprocess for dependent gradients, using
+the existing refresh mode to retain settled prescribed masks. Bounded mass fluxes,
+custom flow sources and external feedback retain their full-flow fallback.
+Only unverified physical preconditioner coupling can request a partial row.
+The outer operator, true-defect verification and globalization always use full
+physical residuals with the original controls.
+
+All 59 native tests pass on 1x1 and 2x2, including full-vs-requested products for
+SA/SST/active LM, variable-density mixtures, the existing flamelet fixture,
+translated/rotated periodic directions, prescribed rows and mixed/simplex bounds.
+The comparisons check other-row zeros, skipped assembly counts and unchanged
+prescribed masks. Independent centered-stencil checks remain in place.
+
+All five converged families retain every outer/Krylov count and every restart
+byte against the pooled version in all three modes. Native and segregated work
+counts are unchanged. Coupled residual counts are:
+
+| Model | Outer / Krylov, unchanged | Flow before → after | Turbulence before → after | Transition before → after |
+|---|---:|---:|---:|---:|
+| SA | 2927 / 14360 | 49210 → 34850 | 49210 → 49210 | — |
+| SST | 3119 / 15367 | 52568 → 37201 | 52568 → 52568 | — |
+| LM | 5615 / 6205 | 57927 → 45517 | 57927 → 51722 | 57927 → 51722 |
+
+These are measured assembly counts. Wall-time results remain excluded for CPU
+contention; lower-preconditioner inclusive time still requires a fresh profile.
+Further dependency-refresh work, full family/layout qualification, quiet repeated
+timings and the higher-CFL study remain open. This goal is still active.

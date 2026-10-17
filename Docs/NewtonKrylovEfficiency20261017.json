@@ -247,7 +247,610 @@
     ],
     "work_counts_equal": true,
     "restart_bytes_equal": true,
-    "memory_measurement": "Pending: repeated alternating original/pooled 263169-point one-update cases, all3models/all3modes; no converged timing claim.",
+    "memory_measurement": {
+      "commit": "eb09c08050e8209aba7bfb29e7aa2ac8550cf24b",
+      "summary": [
+        {
+          "model": "sa",
+          "mode": "native",
+          "points": 263169,
+          "samples_per_version": 3,
+          "interpretation": "One-update allocation experiment, not a converged timing comparison.",
+          "peak_rss_kib": {
+            "refresh_muscl": {
+              "median": 880276,
+              "minimum": 876372,
+              "maximum": 880452
+            },
+            "workspace_complete": {
+              "median": 880408,
+              "minimum": 876276,
+              "maximum": 880424
+            },
+            "median_reduction_kib": -132
+          },
+          "output_stage_rss_kib": {
+            "refresh_muscl": {
+              "median": 880276,
+              "minimum": 876372,
+              "maximum": 880452
+            },
+            "workspace_complete": {
+              "median": 880408,
+              "minimum": 876276,
+              "maximum": 880424
+            },
+            "median_reduction_kib": -132
+          }
+        },
+        {
+          "model": "sa",
+          "mode": "segregated",
+          "points": 263169,
+          "samples_per_version": 3,
+          "interpretation": "One-update allocation experiment, not a converged timing comparison.",
+          "peak_rss_kib": {
+            "refresh_muscl": {
+              "median": 1132040,
+              "minimum": 1132012,
+              "maximum": 1132076
+            },
+            "workspace_complete": {
+              "median": 1090224,
+              "minimum": 1090144,
+              "maximum": 1090272
+            },
+            "median_reduction_kib": 41816
+          },
+          "output_stage_rss_kib": {
+            "refresh_muscl": {
+              "median": 1132040,
+              "minimum": 1132012,
+              "maximum": 1132076
+            },
+            "workspace_complete": {
+              "median": 1090224,
+              "minimum": 1090144,
+              "maximum": 1090272
+            },
+            "median_reduction_kib": 41816
+          }
+        },
+        {
+          "model": "sa",
+          "mode": "coupled",
+          "points": 263169,
+          "samples_per_version": 3,
+          "interpretation": "One-update allocation experiment, not a converged timing comparison.",
+          "peak_rss_kib": {
+            "refresh_muscl": {
+              "median": 1073656,
+              "minimum": 1073644,
+              "maximum": 1073820
+            },
+            "workspace_complete": {
+              "median": 1073672,
+              "minimum": 1073644,
+              "maximum": 1073764
+            },
+            "median_reduction_kib": -16
+          },
+          "output_stage_rss_kib": {
+            "refresh_muscl": {
+              "median": 1073656,
+              "minimum": 1073644,
+              "maximum": 1073820
+            },
+            "workspace_complete": {
+              "median": 1073672,
+              "minimum": 1073644,
+              "maximum": 1073764
+            },
+            "median_reduction_kib": -16
+          }
+        },
+        {
+          "model": "sst",
+          "mode": "native",
+          "points": 263169,
+          "samples_per_version": 3,
+          "interpretation": "One-update allocation experiment, not a converged timing comparison.",
+          "peak_rss_kib": {
+            "refresh_muscl": {
+              "median": 979072,
+              "minimum": 978852,
+              "maximum": 979112
+            },
+            "workspace_complete": {
+              "median": 978804,
+              "minimum": 974976,
+              "maximum": 978820
+            },
+            "median_reduction_kib": 268
+          },
+          "output_stage_rss_kib": {
+            "refresh_muscl": {
+              "median": 979072,
+              "minimum": 978852,
+              "maximum": 979112
+            },
+            "workspace_complete": {
+              "median": 978804,
+              "minimum": 974976,
+              "maximum": 978820
+            },
+            "median_reduction_kib": 268
+          }
+        },
+        {
+          "model": "sst",
+          "mode": "segregated",
+          "points": 263169,
+          "samples_per_version": 3,
+          "interpretation": "One-update allocation experiment, not a converged timing comparison.",
+          "peak_rss_kib": {
+            "refresh_muscl": {
+              "median": 1278584,
+              "minimum": 1277912,
+              "maximum": 1278648
+            },
+            "workspace_complete": {
+              "median": 1233796,
+              "minimum": 1232824,
+              "maximum": 1233984
+            },
+            "median_reduction_kib": 44788
+          },
+          "output_stage_rss_kib": {
+            "refresh_muscl": {
+              "median": 1278584,
+              "minimum": 1277912,
+              "maximum": 1278648
+            },
+            "workspace_complete": {
+              "median": 1233796,
+              "minimum": 1232824,
+              "maximum": 1233984
+            },
+            "median_reduction_kib": 44788
+          }
+        },
+        {
+          "model": "sst",
+          "mode": "coupled",
+          "points": 263169,
+          "samples_per_version": 3,
+          "interpretation": "One-update allocation experiment, not a converged timing comparison.",
+          "peak_rss_kib": {
+            "refresh_muscl": {
+              "median": 1211492,
+              "minimum": 1211420,
+              "maximum": 1213292
+            },
+            "workspace_complete": {
+              "median": 1213168,
+              "minimum": 1211228,
+              "maximum": 1213276
+            },
+            "median_reduction_kib": -1676
+          },
+          "output_stage_rss_kib": {
+            "refresh_muscl": {
+              "median": 1211492,
+              "minimum": 1211420,
+              "maximum": 1213292
+            },
+            "workspace_complete": {
+              "median": 1213168,
+              "minimum": 1211228,
+              "maximum": 1213276
+            },
+            "median_reduction_kib": -1676
+          }
+        },
+        {
+          "model": "lm",
+          "mode": "native",
+          "points": 263169,
+          "samples_per_version": 3,
+          "interpretation": "One-update allocation experiment, not a converged timing comparison.",
+          "peak_rss_kib": {
+            "refresh_muscl": {
+              "median": 1128940,
+              "minimum": 1128880,
+              "maximum": 1129096
+            },
+            "workspace_complete": {
+              "median": 1129032,
+              "minimum": 1124804,
+              "maximum": 1129208
+            },
+            "median_reduction_kib": -92
+          },
+          "output_stage_rss_kib": {
+            "refresh_muscl": {
+              "median": 1128940,
+              "minimum": 1128880,
+              "maximum": 1129096
+            },
+            "workspace_complete": {
+              "median": 1129032,
+              "minimum": 1124804,
+              "maximum": 1129208
+            },
+            "median_reduction_kib": -92
+          }
+        },
+        {
+          "model": "lm",
+          "mode": "segregated",
+          "points": 263169,
+          "samples_per_version": 3,
+          "interpretation": "One-update allocation experiment, not a converged timing comparison.",
+          "peak_rss_kib": {
+            "refresh_muscl": {
+              "median": 1665076,
+              "minimum": 1664176,
+              "maximum": 1665092
+            },
+            "workspace_complete": {
+              "median": 1547980,
+              "minimum": 1547700,
+              "maximum": 1549072
+            },
+            "median_reduction_kib": 117096
+          },
+          "output_stage_rss_kib": {
+            "refresh_muscl": {
+              "median": 1665076,
+              "minimum": 1664176,
+              "maximum": 1665092
+            },
+            "workspace_complete": {
+              "median": 1547980,
+              "minimum": 1547700,
+              "maximum": 1549072
+            },
+            "median_reduction_kib": 117096
+          }
+        },
+        {
+          "model": "lm",
+          "mode": "coupled",
+          "points": 263169,
+          "samples_per_version": 3,
+          "interpretation": "One-update allocation experiment, not a converged timing comparison.",
+          "peak_rss_kib": {
+            "refresh_muscl": {
+              "median": 1478752,
+              "minimum": 1478620,
+              "maximum": 1478820
+            },
+            "workspace_complete": {
+              "median": 1478784,
+              "minimum": 1478552,
+              "maximum": 1478900
+            },
+            "median_reduction_kib": -32
+          },
+          "output_stage_rss_kib": {
+            "refresh_muscl": {
+              "median": 1478752,
+              "minimum": 1478620,
+              "maximum": 1478820
+            },
+            "workspace_complete": {
+              "median": 1478784,
+              "minimum": 1478552,
+              "maximum": 1478900
+            },
+            "median_reduction_kib": -32
+          }
+        }
+      ],
+      "monitor": {
+        "command": [
+          "nice",
+          "-n",
+          "10",
+          "python3",
+          "newton_krylov_refactor_20261015/efficiency_20261017/measure_workspace_complete.py",
+          "--output",
+          "newton_krylov_refactor_20261015/efficiency_20261017/memory_complete_513",
+          "--cells",
+          "513",
+          "--models",
+          "sa,sst,lm",
+          "--modes",
+          "native,segregated,coupled",
+          "--repeats",
+          "3"
+        ],
+        "cwd": "/media/rausa/4TB/SU2_Versions/SU2_v850_Develop_FixCGNSOutput",
+        "exit_code": 0,
+        "elapsed_seconds": 633.9294468030566,
+        "accepted": true,
+        "stopped_for_memory": false,
+        "correctness_only": true,
+        "timing_eligible": false,
+        "minimum_available_kib": 40118252,
+        "maximum_owned_tree_rss_kib": 1785468,
+        "maximum_external_cpu_cores": 7.100797895258622,
+        "initial_memory": {
+          "available_kib": 41186088,
+          "swap_used_kib": 744448
+        },
+        "minimum_available_policy_kib": 8388608,
+        "maximum_swap_growth_policy_kib": 65536,
+        "observer_sha256": "8b86fbb9d132da22a6201a90de869b03b25e9955a2cb216e1cb2210aac4b9201",
+        "cpu_observer_sha256": "d3165a2693d4efc2d5908cc64e8522e4e36b1cc33081fcc87515663f624fbe3b"
+      },
+      "results_sha256": "a24c35a8d6831a7362544e332a630d1f616ec1cfd78f700064ed5405a1b2c423",
+      "interpretation": "Fixed1update,CFL0.05 allocation experiment; three alternating pairs/model/mode, no elapsed-time or convergence claim."
+    },
     "evidence": "workspace_complete/, workspace_complete_correctness/, workspace_complete_monitored/"
+  },
+  "requested_residual_rows": {
+    "source_sha256": {
+      "SU2_CFD/include/integration/CNewtonEquationSet.hpp": "2d424f3c55f7741b887a8ff20b56b91f81a1f203a190d404189b17705c8b8dcc",
+      "SU2_CFD/include/integration/CNewtonLinearization.hpp": "4b8dec9ff1a9f72fb2ed00256211656b026868a4cc979be2b52563727cc258c1",
+      "SU2_CFD/src/integration/CNewtonEquationSet.cpp": "058f7a59f216a30a416f941ced72dc1e1d47296569055dd4584adb1db345e238",
+      "SU2_CFD/src/integration/CNewtonLinearization.cpp": "1c15b8b8c5cbc1d033b28ba115cd161e2cdab9428c817644048b2bf137521f0c",
+      "UnitTests/SU2_CFD/newton_equations.cpp": "2c0df6414209990d4a77b16c83ff2046583d9a2af955a481c1c751671a11c2dc"
+    },
+    "binaries": {
+      "SU2_CFD": "776d658ca23b7b4e3453c170eb7f0c033a240541152f7e3b3d18ecb1023f5b30",
+      "test_driver": "842f0c8251450d9b6159b9ca84146d6dc9ca0fd8c1d2241bdc2ad651fbb7772c",
+      "newton_equation_tests": "fbd24e5ec36c266f5df9d6991d43467950ed33b1c29e85591441a06fdc89f993"
+    },
+    "native_cases": 59,
+    "layouts": [
+      "1x1",
+      "2x2"
+    ],
+    "rows": [
+      {
+        "case": "sa",
+        "mode": "native",
+        "updates": 3327,
+        "krylov": 36381,
+        "residuals_before": {
+          "flow": 3327,
+          "turbulence": 3327
+        },
+        "residuals_after": {
+          "flow": 3327,
+          "turbulence": 3327
+        },
+        "restart_bytes_equal": true,
+        "config_sha256": "669dd15ab6253140d3b704b23a606c0543cc46253252112da0076ca56cc26a6c"
+      },
+      {
+        "case": "sa",
+        "mode": "segregated",
+        "updates": 2927,
+        "krylov": 19749,
+        "residuals_before": {
+          "flow": 34886,
+          "turbulence": 25020
+        },
+        "residuals_after": {
+          "flow": 34886,
+          "turbulence": 25020
+        },
+        "restart_bytes_equal": true,
+        "config_sha256": "ceb957931df759b4a4f5242bcf997757ec08d4dd121084a4c6a22c394c0fc805"
+      },
+      {
+        "case": "sa",
+        "mode": "coupled",
+        "updates": 2927,
+        "krylov": 14360,
+        "residuals_before": {
+          "flow": 49210,
+          "turbulence": 49210
+        },
+        "residuals_after": {
+          "flow": 34850,
+          "turbulence": 49210
+        },
+        "restart_bytes_equal": true,
+        "config_sha256": "50f25e758836f6cc3c025c485bd5bc37e0713ae50436d107cdfac62cf19b67c6"
+      },
+      {
+        "case": "sst",
+        "mode": "native",
+        "updates": 3488,
+        "krylov": 38141,
+        "residuals_before": {
+          "flow": 3488,
+          "turbulence": 3488
+        },
+        "residuals_after": {
+          "flow": 3488,
+          "turbulence": 3488
+        },
+        "restart_bytes_equal": true,
+        "config_sha256": "c76d0eabd3da4f461a0a71b7d5f140ff62e8218b6a4058d867265d6a32c9015a"
+      },
+      {
+        "case": "sst",
+        "mode": "segregated",
+        "updates": 3058,
+        "krylov": 21184,
+        "residuals_before": {
+          "flow": 36466,
+          "turbulence": 27524
+        },
+        "residuals_after": {
+          "flow": 36466,
+          "turbulence": 27524
+        },
+        "restart_bytes_equal": true,
+        "config_sha256": "f1380dad236274ffea1a7391e4427fc8a9724de9dfbae53a48fdf8e848c4a3ed"
+      },
+      {
+        "case": "sst",
+        "mode": "coupled",
+        "updates": 3119,
+        "krylov": 15367,
+        "residuals_before": {
+          "flow": 52568,
+          "turbulence": 52568
+        },
+        "residuals_after": {
+          "flow": 37201,
+          "turbulence": 52568
+        },
+        "restart_bytes_equal": true,
+        "config_sha256": "5fc9302a0bc2dfa1eff64e01a1ecf3685a0f54d2deb68a000f55101975f36465"
+      },
+      {
+        "case": "lm",
+        "mode": "native",
+        "updates": 1416,
+        "krylov": 17127,
+        "residuals_before": {
+          "flow": 1416,
+          "turbulence": 1416,
+          "transition": 1416
+        },
+        "residuals_after": {
+          "flow": 1416,
+          "turbulence": 1416,
+          "transition": 1416
+        },
+        "restart_bytes_equal": true,
+        "config_sha256": "868ae4520d08e75399d28cb8cdb0b02efb873c1d16be03d746308f25be7cfc3d"
+      },
+      {
+        "case": "lm",
+        "mode": "segregated",
+        "updates": 1414,
+        "krylov": 6434,
+        "residuals_before": {
+          "flow": 8920,
+          "turbulence": 9573,
+          "transition": 11364
+        },
+        "residuals_after": {
+          "flow": 8920,
+          "turbulence": 9573,
+          "transition": 11364
+        },
+        "restart_bytes_equal": true,
+        "config_sha256": "d2ead6734aa848b3c390496e66ffba351e526ea66ac02991016eb6e75d24597f"
+      },
+      {
+        "case": "lm",
+        "mode": "coupled",
+        "updates": 5615,
+        "krylov": 6205,
+        "residuals_before": {
+          "flow": 57927,
+          "turbulence": 57927,
+          "transition": 57927
+        },
+        "residuals_after": {
+          "flow": 45517,
+          "turbulence": 51722,
+          "transition": 51722
+        },
+        "restart_bytes_equal": true,
+        "config_sha256": "ed04a0110f7c3b5ed63f4f90d2eefb88e373b151e92fd68592e2e9d4cefa9b80"
+      },
+      {
+        "case": "mms",
+        "mode": "native",
+        "updates": 67,
+        "krylov": 536,
+        "residuals_before": {
+          "flow": 67
+        },
+        "residuals_after": {
+          "flow": 67
+        },
+        "restart_bytes_equal": true,
+        "config_sha256": "aa64b910d47491d3b7f9ed7b8a407b96d0265622797dc35bdb2a3a3dc1329f0e"
+      },
+      {
+        "case": "mms",
+        "mode": "segregated",
+        "updates": 69,
+        "krylov": 209,
+        "residuals_before": {
+          "flow": 693
+        },
+        "residuals_after": {
+          "flow": 693
+        },
+        "restart_bytes_equal": true,
+        "config_sha256": "2d272bc8c81fd4eb5d5996d041bdabfd6c848f67357516dc4e557e8ccac1af81"
+      },
+      {
+        "case": "mms",
+        "mode": "coupled",
+        "updates": 69,
+        "krylov": 209,
+        "residuals_before": {
+          "flow": 693
+        },
+        "residuals_after": {
+          "flow": 693
+        },
+        "restart_bytes_equal": true,
+        "config_sha256": "2db5ad9020c4c2226d450655b6222a3ed02ead13a6857b79e86a6d47af7c4a40"
+      },
+      {
+        "case": "species",
+        "mode": "native",
+        "updates": 81,
+        "krylov": 1118,
+        "residuals_before": {
+          "flow": 81,
+          "species": 81
+        },
+        "residuals_after": {
+          "flow": 81,
+          "species": 81
+        },
+        "restart_bytes_equal": true,
+        "config_sha256": "0afb443b0077ed8af3cfc88107ad044308e1a59b44843bd0fe6b2e1587424752"
+      },
+      {
+        "case": "species",
+        "mode": "segregated",
+        "updates": 82,
+        "krylov": 703,
+        "residuals_before": {
+          "flow": 1100,
+          "species": 640
+        },
+        "residuals_after": {
+          "flow": 1100,
+          "species": 640
+        },
+        "restart_bytes_equal": true,
+        "config_sha256": "bfea983fac4c833d7ebecd5e7054bf9c93ee70a9e72ef35a3c160db0144086a8"
+      },
+      {
+        "case": "species",
+        "mode": "coupled",
+        "updates": 82,
+        "krylov": 502,
+        "residuals_before": {
+          "flow": 1579,
+          "species": 1579
+        },
+        "residuals_after": {
+          "flow": 1077,
+          "species": 1579
+        },
+        "restart_bytes_equal": true,
+        "config_sha256": "b6b015c6b2d374e5347a6a2b16b5459577a2884bcfc4aee9e4fd4c1b0f61b299"
+      }
+    ],
+    "evidence": "rows/, rows_correctness/, rows_monitored/, row_products_scope.json",
+    "interpretation": "Original controls; every outer/Krylov count and restart byte unchanged; contended timings excluded."
   }
 }

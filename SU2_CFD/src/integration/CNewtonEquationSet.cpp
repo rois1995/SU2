@@ -489,8 +489,11 @@ bool CNewtonEquationSet::CheckState(bool compareFlow, bool modelBounds) {
   return valid;
 }
 
-bool CNewtonEquationSet::EvaluateResiduals(bool implicit, bool allEquations, double reconstruction) {
+bool CNewtonEquationSet::EvaluateResiduals(bool implicit, bool allEquations, double reconstruction,
+                                          unsigned short residualRuntime) {
   assert(reconstruction >= 0 && reconstruction <= 1);
+  assert(!residualRuntime || (!implicit && !allEquations &&
+      std::any_of(blocks.begin(), blocks.end(), [=](const Block& b) { return b.runtime == residualRuntime; })));
   EquationSettingsGuard guard(*config, solvers);
   struct HistoryGuard {
     CNewtonEquationSet& equations;
@@ -589,15 +592,19 @@ bool CNewtonEquationSet::EvaluateResiduals(bool implicit, bool allEquations, dou
     const auto runtime = runtimes[index];
     auto block = std::find_if(blocks.begin(), blocks.end(), [=](const Block& b) { return b.runtime == runtime; });
     const bool selected = block != blocks.end();
+    const bool assemble = allEquations || (selected && (!residualRuntime || residualRuntime == runtime));
     if (!selected && !allEquations && runtime != RUNTIME_FLOW_SYS) continue;
     const auto slot = config->GetContainerPosition(runtime);
     if (!solvers[slot]) continue;
-    SU2_OMP_SAFE_GLOBAL_ACCESS(config->SetResidualOnly(!implicit || (!selected && !allEquations));
+    SU2_OMP_SAFE_GLOBAL_ACCESS(config->SetResidualOnly(!implicit || !assemble);
                                config->SetGlobalParam(config->GetKind_Solver(), runtime);)
-    solvers[slot]->Preprocessing(geometry, solvers, config, MESH_0, NO_RK_ITER, runtime, false);
+    /*--- Dependency-only preprocessing retains the settled row masks and live turbulence gradients. ---*/
+    solvers[slot]->Preprocessing(geometry, solvers, config, MESH_0, NO_RK_ITER, runtime,
+                                 !assemble && runtime != RUNTIME_FLOW_SYS);
+    if (!assemble && runtime != RUNTIME_FLOW_SYS) continue;
     /*--- Bounded scalars need live edge mass fluxes. Keep feedback and custom-source failure checks.
      *     Auxiliary owners never commit flow reconstruction history; its saved counters remain frozen. ---*/
-    const bool boundaryOnly = runtime == RUNTIME_FLOW_SYS && !selected && !allEquations &&
+    const bool boundaryOnly = runtime == RUNTIME_FLOW_SYS && !assemble &&
                               !config->GetBounded_Scalar() && !config->GetPyCustomSource() && !HasFlowFeedback(*config);
     if (boundaryOnly) {
       /*--- Reducer preprocessing leaves the residual uncleared until the volume pass. ---*/
@@ -621,7 +628,9 @@ bool CNewtonEquationSet::EvaluateResiduals(bool implicit, bool allEquations, dou
   double invalid = 0;
   for (const auto& snapshot : snapshots) {
     if (!allEquations && snapshot.slot != FLOW_SOL &&
-        std::none_of(blocks.begin(), blocks.end(), [&](const Block& b) { return b.slot == snapshot.slot; })) continue;
+        std::none_of(blocks.begin(), blocks.end(), [&](const Block& b) {
+          return b.slot == snapshot.slot && (!residualRuntime || b.runtime == residualRuntime);
+        })) continue;
     SU2_OMP_FOR_STAT(1024)
     for (auto p = 0ul; p < geometry->GetnPointDomain(); ++p)
       for (auto v = 0u; v < snapshot.variables; ++v)

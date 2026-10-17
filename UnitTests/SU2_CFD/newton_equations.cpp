@@ -168,6 +168,50 @@ double MaxDifference(const Vector& a, const Vector& b) {
   return global;
 }
 
+/*! \brief Compare preconditioner rows with complete products using the same trial direction and probe controls. */
+void CheckResidualRows(CNewtonEquationSet& equations, CNewtonLinearization& linearization, const Vector& direction) {
+  auto full = direction, partial = direction;
+  auto apply = [&](Vector& output, unsigned short runtime) {
+    bool valid = false;
+    SU2_OMP_PARALLEL {
+      const bool result = linearization.Apply(direction, output, false, false, runtime);
+      SU2_OMP_MASTER
+      valid = result;
+      END_SU2_OMP_MASTER
+    }
+    END_SU2_OMP_PARALLEL
+    REQUIRE(valid);
+  };
+  apply(full, 0);
+  std::vector<unsigned char> prescribed(direction.GetLocSize());
+  for (const auto& block : equations.GetBlocks())
+    for (auto p = 0ul; p < direction.GetNBlk(); ++p)
+      for (auto j = 0u; j < block.variables; ++j)
+        prescribed[p * equations.GetnVar() + block.offset + j] = block.solver->Jacobian.IsPrescribedRow(p, j);
+  for (const auto& target : equations.GetBlocks()) {
+    CAPTURE(target.runtime);
+    const auto before = equations.GetResidualEvaluations();
+    apply(partial, target.runtime);
+    auto expected = full;
+    for (auto p = 0ul; p < direction.GetNBlk(); ++p)
+      for (auto j = 0u; j < equations.GetnVar(); ++j)
+        if (j < target.offset || j >= target.offset + target.variables) expected(p, j) = 0;
+    CHECK(MaxDifference(expected, partial) < 2e-8 * std::max(1.0, SU2_TYPE::GetValue(expected.norm())));
+    bool sameMasks = true;
+    for (const auto& block : equations.GetBlocks())
+      for (auto p = 0ul; p < direction.GetNBlk(); ++p)
+        for (auto j = 0u; j < block.variables; ++j)
+          sameMasks &= block.solver->Jacobian.IsPrescribedRow(p, j) ==
+                       bool(prescribed[p * equations.GetnVar() + block.offset + j]);
+    CHECK(sameMasks);
+    /*--- Flow may still supply live bounded-scalar mass fluxes or custom-source checks. ---*/
+    const unsigned short auxiliary[] = {RUNTIME_TURB_SYS, RUNTIME_TRANS_SYS, RUNTIME_SPECIES_SYS};
+    const auto after = equations.GetResidualEvaluations();
+    for (auto index = 0u; index < 3; ++index)
+      if (auxiliary[index] != target.runtime) CHECK(after[index + 1] == before[index + 1]);
+  }
+}
+
 /*!
  * \brief Independent donor average for translated and 90-degree rotated test meshes.
  * \details Gather by global point index and rotate momentum explicitly; do not reuse the production projector.
@@ -475,6 +519,7 @@ TEST_CASE("Periodic grouped products preserve arbitrary scaled trial directions"
         INFO("centered refinement=" << coarse.norm() / reference.norm() << ", product error=" << error.norm() / reference.norm());
         CHECK(coarse.norm() < 1e-5 * reference.norm());
         CHECK(error.norm() < 2e-4 * reference.norm());
+        CheckResidualRows(*equations, linearization, direction);
         REQUIRE(equations->Restore());
         CHECK(equations->GetRestorationError() == 0);
         CHECK(driver.Solvers()[FLOW_SOL]->GetImplicitPeriodic() == implicitFlow);
@@ -1131,6 +1176,7 @@ TEST_CASE("Grouped Newton products and block preconditioners solve a coupled lin
     auto rhs = reference(known);
     apply(known, product);
     CHECK(MaxDifference(rhs, product) < 1e-4 * std::max(1.0, SU2_TYPE::GetValue(rhs.norm())));
+    CheckResidualRows(*equations, linearization, known);
     auto zero = MakeVector(driver, equations->GetnVar());
     const auto counts = equations->GetResidualEvaluations();
     apply(zero, product);
@@ -1141,6 +1187,7 @@ TEST_CASE("Grouped Newton products and block preconditioners solve a coupled lin
         if (!freeDofs(p, j)) zero(p, j) = 0.01;
     apply(zero, product);
     for (auto i = 0ul; i < product.GetNElmDomain(); ++i) CHECK(product[i] == Approx(101.0 * zero[i]).margin(1e-12));
+    CheckResidualRows(*equations, linearization, zero);
     for (const auto& block : equations->GetBlocks())
       for (auto p = 0ul; p < geometry->GetnPointDomain(); ++p) block.solver->Jacobian.AddVal2Diag(p, 100.0);
     for (bool triangular : {false, true}) {
@@ -3433,6 +3480,7 @@ TEST_CASE("Bounded scalar products retain the requested direction at mixed limit
       END_SU2_OMP_PARALLEL
       CHECK(valid);
       if (valid) {
+        CheckResidualRows(*equations, linearization, direction);
         const double sign = pattern == "lower" ? -1 : 1;
         for (auto i = 0ul; i < actual.GetLocSize(); ++i) actual[i] -= sign * reference[i];
         CHECK(actual.norm() < 2e-6 * reference.norm());
@@ -3513,6 +3561,7 @@ TEST_CASE("Coupled mixture probes preserve directions at a simplex vertex", "[Ne
     }
     END_SU2_OMP_PARALLEL
     REQUIRE(valid);
+    CheckResidualRows(*equations, linearization, u);
     REQUIRE(equations->Restore());
     return result;
   };
