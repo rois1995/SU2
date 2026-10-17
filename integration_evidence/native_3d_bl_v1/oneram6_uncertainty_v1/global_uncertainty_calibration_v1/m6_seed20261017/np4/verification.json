@@ -1,0 +1,121 @@
+{
+  "status": "PASS_FROZEN_FIELD_REPLAY_NOT_ERROR_CERTIFICATION",
+  "native": {
+    "samples": 32768,
+    "inside": 21331,
+    "nonzero": 21129,
+    "correction": 794130.6386449558,
+    "empirical_standard_error": 4682.798774432244,
+    "mean_absolute_negative_roundoff": 1.594632112901634e-13,
+    "ranks": 4,
+    "source_ownership_shift": 1,
+    "cached_direct_tensor_checks": 0,
+    "different_cached_direct_tensors": 0,
+    "seconds_max": 1.709648248,
+    "index_build_seconds_max": 0.907398133,
+    "owner_density_seconds_max": 0.19109062499999907,
+    "standard_error_is_proven_bound": false,
+    "original_RAW9_preserved": true,
+    "complete_original_domain_search": true,
+    "production_normalization_changed": false
+  },
+  "full_stream": {
+    "samples": 32768,
+    "nonzero": 21129,
+    "mean": 794130.6386449558,
+    "empirical_SE": 4682.798774432244,
+    "largest_positive_sample_share": 0.00019450308730694485,
+    "top32_positive_share": 0.004426728361682972,
+    "skewness": 0.45564833717638975,
+    "indicator_is_proven_bound": false
+  },
+  "blocks": [
+    {
+      "samples": 8192,
+      "nonzero": 5279,
+      "mean": 792623.0572869222,
+      "empirical_SE": 9376.995122489707,
+      "largest_positive_sample_share": 0.0006731516398390228,
+      "top32_positive_share": 0.013985115382788982,
+      "skewness": 0.46323737333693643,
+      "indicator_is_proven_bound": false
+    },
+    {
+      "samples": 8192,
+      "nonzero": 5267,
+      "mean": 794360.5148135205,
+      "empirical_SE": 9346.996481118387,
+      "largest_positive_sample_share": 0.0006594669170544167,
+      "top32_positive_share": 0.01307001253979679,
+      "skewness": 0.43721718879580773,
+      "indicator_is_proven_bound": false
+    },
+    {
+      "samples": 8192,
+      "nonzero": 5319,
+      "mean": 796830.441595951,
+      "empirical_SE": 9391.542011420832,
+      "largest_positive_sample_share": 0.0007753763053134069,
+      "top32_positive_share": 0.014733537378886925,
+      "skewness": 0.4730821653901934,
+      "indicator_is_proven_bound": false
+    },
+    {
+      "samples": 8192,
+      "nonzero": 5264,
+      "mean": 792708.5408834298,
+      "empirical_SE": 9348.418737609323,
+      "largest_positive_sample_share": 0.0006751501236764972,
+      "top32_positive_share": 0.013581972923866108,
+      "skewness": 0.4484285756056796,
+      "indicator_is_proven_bound": false
+    }
+  ],
+  "prefix8192": {
+    "samples": 8192,
+    "nonzero": 5279,
+    "mean": 792623.0572869222,
+    "empirical_SE": 9376.995122489707,
+    "largest_positive_sample_share": 0.0006731516398390228,
+    "top32_positive_share": 0.013985115382788982,
+    "skewness": 0.46323737333693643,
+    "indicator_is_proven_bound": false
+  },
+  "held_out24576": {
+    "samples": 24576,
+    "nonzero": 15850,
+    "mean": 794633.1657643004,
+    "empirical_SE": 5405.1414563873295,
+    "largest_positive_sample_share": 0.0002591734443786439,
+    "top32_positive_share": 0.005570463458463872,
+    "skewness": 0.45308466758313487,
+    "indicator_is_proven_bound": false
+  },
+  "prefix_holdout_discrepancy": 2010.1084773781477,
+  "combined_empirical_SE": 10823.289319368336,
+  "prefix_holdout_standardized_difference": 0.18572066384486716,
+  "inside_source_points": 21331,
+  "all_inside_sensor_relative_error": 7.327471962526033e-15,
+  "exact_barycentric_samples": 64,
+  "exact_sensor_relative_error": 3.6637359812630166e-15,
+  "input_provenance_sha256": "b214b2b13bae358638fb7f9c6a77e3cb22330b6a81a81ddbac26070ec19b59f0",
+  "query_sha256": "6140ad06d4e5c832ff4245ffa24ef9bb331d83aa9d72586309b80f5d24de42ba",
+  "source_sha256": "391d190e6c177d5c71f6c5bd544bfec265637ef142cfcfcafeb7e68b87e95e5a",
+  "rows_sha256": {
+    "correction_rank1.csv": "4a2329557cb6ec5df597ba001fbeada30e479d9b22b53d09734521738b341765",
+    "correction_rank3.csv": "d04e013967d418696fe974d5d41de95d437922cbaa7fb6ab2a8bf977f695cb00",
+    "correction_rank2.csv": "24721cf1f3eb89edf4426e8ac90fc072b4945951762828a6b67f444e14a409d2",
+    "correction_rank0.csv": "bb217ef32ff9b90d6ab77e301d6315ce6b1d53eb3bfa7334439a421021305ee8"
+  },
+  "CFD_steps": 0,
+  "accepted_mesh": false,
+  "scope": "Whole original RAW9 P1 with actual geometric composition, including outside-domain zeros. Exact containment on selected inside samples only; no independent outside-domain oracle or full composed-field reference.",
+  "sensor_lower": 142421.03243972364,
+  "sensor_upper": 154272.45539078774,
+  "numerical_indicator": 1.5630179267112816e-07,
+  "total_estimate": 942477.3825602115,
+  "heuristic_total_indicator": 19974.107798985082,
+  "background_interval_halfwidth": 5925.711475532051,
+  "prefix_matches_saved_production_estimate": true,
+  "all_MPI2_4_rows_equal": true
+}

@@ -1,0 +1,92 @@
+{
+  "status": "MEASURED_DIAGNOSIS_NOT_GLOBAL_ACCURACY_CERTIFICATE",
+  "samples": 65536,
+  "pooled_correction": 799757.1976169464,
+  "pooled_pointwise_empirical_SE": 3320.733257468653,
+  "pooled_eight_block_empirical_SE": 5128.604772804768,
+  "block_to_pointwise_SE": 1.544419372218481,
+  "total_estimate": 948103.9415322021,
+  "background_interval_halfwidth": 5925.711475532051,
+  "three_pointwise_SE_plus_background_indicator": 15887.911248094311,
+  "relative_indicator": 0.01675756270184716,
+  "three_block_SE_plus_background_diagnostic": 21311.525794102658,
+  "independent_stream_standardized_difference": 1.69439664447356,
+  "shift_from_saved8192_total": 7134.14033002418,
+  "relative_shift_from_saved8192_total": 0.007581688935085484,
+  "families": [
+    {
+      "case": "m6_seed20261017",
+      "families": [
+        {
+          "kind": 0,
+          "samples": 23001,
+          "empirical_fraction": 0.701934814453125,
+          "mean": 858359.0151191043,
+          "standard_deviation": 852386.5144914017,
+          "within_family_fraction_of_total_sample_variance": 0.7097775361504096
+        },
+        {
+          "kind": 1,
+          "samples": 2703,
+          "empirical_fraction": 0.082489013671875,
+          "mean": 1427904.5128885452,
+          "standard_deviation": 983326.8474030546,
+          "within_family_fraction_of_total_sample_variance": 0.1110054319117035
+        },
+        {
+          "kind": 2,
+          "samples": 7064,
+          "empirical_fraction": 0.215576171875,
+          "mean": 342487.42384281673,
+          "standard_deviation": 475642.65336487413,
+          "within_family_fraction_of_total_sample_variance": 0.06787575427069087
+        }
+      ],
+      "between_family_fraction_of_sample_variance": 0.11134127766719604,
+      "scope": "Empirical decomposition only; family probabilities/stratified estimator or allocation are not inferred from sample frequencies."
+    },
+    {
+      "case": "m6_seed9919",
+      "families": [
+        {
+          "kind": 0,
+          "samples": 22962,
+          "empirical_fraction": 0.70074462890625,
+          "mean": 870594.7323517295,
+          "standard_deviation": 855931.3757407021,
+          "within_family_fraction_of_total_sample_variance": 0.7064067509534787
+        },
+        {
+          "kind": 1,
+          "samples": 2691,
+          "empirical_fraction": 0.082122802734375,
+          "mean": 1442072.4231513294,
+          "standard_deviation": 979327.0010533856,
+          "within_family_fraction_of_total_sample_variance": 0.10837681665434785
+        },
+        {
+          "kind": 2,
+          "samples": 7115,
+          "empirical_fraction": 0.217132568359375,
+          "mean": 354125.340962143,
+          "standard_deviation": 499245.9212141379,
+          "within_family_fraction_of_total_sample_variance": 0.07446825729613452
+        }
+      ],
+      "between_family_fraction_of_sample_variance": 0.11074817509603896,
+      "scope": "Empirical decomposition only; family probabilities/stratified estimator or allocation are not inferred from sample frequencies."
+    }
+  ],
+  "production_tolerance_chosen": false,
+  "production_8192_sample_budget_changed": false,
+  "CFD_steps": 0,
+  "accepted_M6_mesh": false,
+  "interpretation": [
+    "The disjoint holdouts agree with their prefixes at0.186/1.364 combined empirical SE. This does not prove missed-tail coverage.",
+    "The eight-block SEM is1.54x the pointwise SEM; eight blocks are too few to infer correlation or a calibrated guard.",
+    "More correction samples alone cannot reduce the separate background interval floor.",
+    "The planar sampled error0.133% exceeds the existing strict0.05% gate, despite lying inside the sample indicator.",
+    "No additional sample-count ladder or default tolerance from these observations."
+  ],
+  "next_experiment": "At a fixed point/work budget, test measure-preserving reflected face proposals with original P1/actual BL. Count independent pairs and MPI covariance correctly. Assess M6 and the embedded planar case (which can have positive covariance and become worse) before production coupling. Not implemented."
+}

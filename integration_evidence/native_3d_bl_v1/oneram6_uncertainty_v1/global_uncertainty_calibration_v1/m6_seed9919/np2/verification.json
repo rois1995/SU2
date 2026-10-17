@@ -1,0 +1,117 @@
+{
+  "status": "PASS_FROZEN_FIELD_REPLAY_NOT_ERROR_CERTIFICATION",
+  "native": {
+    "samples": 32768,
+    "inside": 21460,
+    "nonzero": 21259,
+    "correction": 805383.756588937,
+    "empirical_standard_error": 4709.48127279309,
+    "mean_absolute_negative_roundoff": 1.8506683013632742e-13,
+    "ranks": 2,
+    "source_ownership_shift": 1,
+    "cached_direct_tensor_checks": 0,
+    "different_cached_direct_tensors": 0,
+    "seconds_max": 2.245013985,
+    "index_build_seconds_max": 1.223315346,
+    "owner_density_seconds_max": 0.305887924000005,
+    "standard_error_is_proven_bound": false,
+    "original_RAW9_preserved": true,
+    "complete_original_domain_search": true,
+    "production_normalization_changed": false
+  },
+  "full_stream": {
+    "samples": 32768,
+    "nonzero": 21259,
+    "mean": 805383.756588937,
+    "empirical_SE": 4709.48127279309,
+    "largest_positive_sample_share": 0.0001627649608201615,
+    "top32_positive_share": 0.004322204441512327,
+    "skewness": 0.43412304723964723,
+    "indicator_is_proven_bound": false
+  },
+  "blocks": [
+    {
+      "samples": 8192,
+      "nonzero": 5379,
+      "mean": 816508.4501932999,
+      "empirical_SE": 9416.583065763727,
+      "largest_positive_sample_share": 0.000613962084581129,
+      "top32_positive_share": 0.014201710957058586,
+      "skewness": 0.4120706364648839,
+      "indicator_is_proven_bound": false
+    },
+    {
+      "samples": 8192,
+      "nonzero": 5172,
+      "mean": 782453.9119546452,
+      "empirical_SE": 9417.752203765443,
+      "largest_positive_sample_share": 0.0006550633417287438,
+      "top32_positive_share": 0.014528340843640701,
+      "skewness": 0.4881575746302398,
+      "indicator_is_proven_bound": false
+    },
+    {
+      "samples": 8192,
+      "nonzero": 5423,
+      "mean": 826920.0331943083,
+      "empirical_SE": 9458.154965952104,
+      "largest_positive_sample_share": 0.0005636583961123685,
+      "top32_positive_share": 0.012880769060446308,
+      "skewness": 0.3846516599913538,
+      "indicator_is_proven_bound": false
+    },
+    {
+      "samples": 8192,
+      "nonzero": 5285,
+      "mean": 795652.6310134948,
+      "empirical_SE": 9377.080680205525,
+      "largest_positive_sample_share": 0.0006590225456524356,
+      "top32_positive_share": 0.01367777641926646,
+      "skewness": 0.4523645464330491,
+      "indicator_is_proven_bound": false
+    }
+  ],
+  "prefix8192": {
+    "samples": 8192,
+    "nonzero": 5379,
+    "mean": 816508.4501932999,
+    "empirical_SE": 9416.583065763727,
+    "largest_positive_sample_share": 0.000613962084581129,
+    "top32_positive_share": 0.014201710957058586,
+    "skewness": 0.4120706364648839,
+    "indicator_is_proven_bound": false
+  },
+  "held_out24576": {
+    "samples": 24576,
+    "nonzero": 15880,
+    "mean": 801675.5253874827,
+    "empirical_SE": 5438.403235211701,
+    "largest_positive_sample_share": 0.00021802379547183586,
+    "top32_positive_share": 0.005467416133721502,
+    "skewness": 0.4414983210676712,
+    "indicator_is_proven_bound": false
+  },
+  "prefix_holdout_discrepancy": 14832.924805817194,
+  "combined_empirical_SE": 10874.201873387734,
+  "prefix_holdout_standardized_difference": 1.3640472173059046,
+  "inside_source_points": 21460,
+  "all_inside_sensor_relative_error": 7.105427357601002e-15,
+  "exact_barycentric_samples": 64,
+  "exact_sensor_relative_error": 3.6637359812630166e-15,
+  "input_provenance_sha256": "c053d50ad3d8a06053f6c926c6d88d80e4d727be442ad0b5b52eb0d1a1182b24",
+  "query_sha256": "f79e5bcee16687b5760e3816818371625deaf12a752e30be13bb46a346e7d93f",
+  "source_sha256": "391d190e6c177d5c71f6c5bd544bfec265637ef142cfcfcafeb7e68b87e95e5a",
+  "rows_sha256": {
+    "correction_rank1.csv": "0fd8114103d275f62ab6b759d036e67e09f9457d701261181fc5d2bbedc70fd5",
+    "correction_rank0.csv": "7ebb64fdd53a13e5505c78ff0ca6261dad32b6851e4fcb5809aa2d1c449a3a0e"
+  },
+  "CFD_steps": 0,
+  "accepted_mesh": false,
+  "scope": "Whole original RAW9 P1 with actual geometric composition, including outside-domain zeros. Exact containment on selected inside samples only; no independent outside-domain oracle or full composed-field reference.",
+  "sensor_lower": 142421.03243972364,
+  "sensor_upper": 154272.45539078774,
+  "numerical_indicator": 1.5630179267112816e-07,
+  "total_estimate": 953730.5005041927,
+  "heuristic_total_indicator": 20054.155294067623,
+  "background_interval_halfwidth": 5925.711475532051
+}

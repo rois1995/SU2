@@ -118,7 +118,7 @@
     "oneram6_frozen_field_v1/result.json"
   ],
   "execution_state": {
-    "status": "Full Goal3 ACTIVE/incomplete. Exact first-row shape-dominance batch validated: original full M6 field, MPI2/4 batch1/8, exact prior selected geometry/markers/volume/skin; 181/256 candidates screened out, about42% less metric rank-work. No accepted M6, global uncertainty calibration/original-field reassessment/correction, viscous accuracy or complete-event speedup. Stop this scoped optimization follow-up and return to those capability gaps; unchanged mesh/transfer gates.",
+    "status": "Full Goal3 ACTIVE/incomplete. Whole-original-field holdout calibration complete without production changes: two32768 M6 streams, exact MPI2/4 rows. Pooled948103.94/heuristic indicator15887.91 is not a continuum reference; block SEM1.54x pointwise, separate background halfwidth5925.71. Sampled planar error0.133% exceeds retained strict0.05% gate. No tolerance/sample-count default, original-field reassessment/correction, accepted M6 or full-event proof. Next fixed-work reflected-face proposal experiment must account for pair covariance/MPI and possible planar regression before coupling.",
     "CFD_runs": 17,
     "CFD_run_scope": "Five corrected-config failed v1..v5 plus six qualified v6 actual N/M cases and six qualified v11 actual N/M cases; initial invalid config separately retained.",
     "production_MPI": "Current-source 67 serial controls, affected MPI4 first-row/general controls, direct original-field M6 MPI2/4 and independently audited small RANS/SA N4M2 current+BDF/SA/restart/SU2+CGNS pass in first_row_shape_ranking_v1. Earlier full actual-flow N/M campaigns remain source-qualified historical evidence, not current M6 acceptance.",
@@ -254,17 +254,13 @@
     "scope": "One planar cube production case plus six focused first-row geometry/movement cases. Actual computed metric, conservative current+BDF/bounded-SA and SU2/CGNS/reference/restart checks; independent exact embedding, full composed metric, wall footprint and height. No new MPI, full regressions, general layer coverage, actual CFD accuracy or performance qualification."
   },
   "owned_jobs": {
-    "status": "All owned build/test/postprocessing handles terminal; no active heavy job or cluster request.",
+    "status": "All owned native replay/postprocessing handles terminal; no build, CFD, remesher or cluster job.",
     "terminal_handles": [
-      35221,
-      49678,
-      95421,
-      74733,
-      80376,
-      43082
+      73370,
+      34665,
+      43398
     ],
-    "resource_receipts": "integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/first_row_shape_ranking_v1",
-    "next_work": "Global error calibration/allocation and same-original-field reassessment; no unchanged full M6 rerun."
+    "resource_receipts": "integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/global_uncertainty_calibration_v1"
   },
   "wall_reconstruction": {
     "status": "PASS_PLANAR_STRONGER_FIELD_LIMITED_SCOPE",
@@ -1604,6 +1600,26 @@
       "limits": [
         "Single local observations; no statistical timing/scaling qualification.",
         "No accepted full M6 mesh, whole-event speedup, transferred wing solution, uncertainty correction or normalization proof."
+      ]
+    },
+    "global_holdout_calibration": {
+      "status": "MEASURED_DIAGNOSIS_NOT_GLOBAL_ACCURACY_CERTIFICATE",
+      "evidence": "integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/global_uncertainty_calibration_v1",
+      "full_goal_complete": false,
+      "production_changed": false,
+      "accepted_M6_mesh": false,
+      "samples": 65536,
+      "total_estimate": 948103.9415322021,
+      "pointwise_empirical_SE": 3320.733257468653,
+      "eight_block_empirical_SE": 5128.604772804768,
+      "heuristic_indicator": 15887.911248094311,
+      "background_interval_halfwidth": 5925.711475532051,
+      "MPI2_4_rows_exact": true,
+      "next_experiment": "At a fixed point/work budget, test measure-preserving reflected face proposals with original P1/actual BL. Count independent pairs and MPI covariance correctly. Assess M6 and the embedded planar case (which can have positive covariance and become worse) before production coupling. Not implemented.",
+      "limits": [
+        "No independent whole-M6 continuum reference or rigorous error bound.",
+        "No calibrated default tolerance, reassessment/correction or accepted M6.",
+        "Sampled planar control misses unchanged strict0.05% gate; production path retained."
       ]
     }
   }

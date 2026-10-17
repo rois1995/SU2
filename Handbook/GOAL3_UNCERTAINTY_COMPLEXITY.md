@@ -269,3 +269,10 @@ references; attempt complete original-field integration and replay the rejected
 first-layer edge/construction separately. Bound feature/piece storage and comparisons;
 report actual error/work, and preserve rejected attempts. No raised integration
 budgets or pointwise-law changes are permitted as a substitute for success.
+
+
+Current whole-original-field calibration: two32,768-point streams and exact MPI2/4
+rows preserve the original field. The separate background interval floor and
+block-vs-pointwise variability prevent a default/root-accuracy claim; the sampled
+planar control still misses the strict0.05% gate. No production behavior changed.
+[Complete evidence and next decision](../integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/global_uncertainty_calibration_v1/README.md).

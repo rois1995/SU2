@@ -6376,3 +6376,20 @@ updated test checks actual screening plus full evaluation, existing reuse tests 
 No accepted M6 or complete adaptation speedup. Global error calibration/allocation,
 original-field reassessment/correction and difficult construction remain next.
 [Evidence, resources and limitations](integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/first_row_shape_ranking_v1/README.md).
+
+
+### 2026-10-17 — independent global holdouts limit normalization claims
+
+Existing native complete-support replay, same original M6 RAW9 P1/actual BL:
+two32,768-point streams give total942477.38/953730.50. Prefix reproduces saved8192
+correction; disjoint holdouts agree at0.186/1.364 combined empirical SE. First
+stream's full query/source/density/weight output is exact MPI2/4. Pooled total
+948103.94 has pointwise heuristic indicator15887.91 (1.676%), not a continuum
+reference. Eight-block SEM is1.54x pointwise SEM; no tail bound/default tolerance.
+Background halfwidth5925.71 cannot be fixed by adding BL samples. Sampled planar
+error0.133% exceeds strict0.05% gate; production preserves strict planar integration.
+No C++/production/budget/mesh-gate change, build, CFD or remesher run. Global error
+allocation/original-field reassessment/frozen correction and accepted M6 remain open.
+No sample-count ladder; fixed-work face reflection with proper pair/MPI variance
+and planar covariance control is the recorded next experiment, not implemented.
+[Evidence, work/memory and limits](integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/global_uncertainty_calibration_v1/README.md).

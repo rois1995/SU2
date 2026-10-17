@@ -172,3 +172,10 @@ Next: calibrate global uncertainty/error-directed work and connect same-original
 reassessment/frozen correction epochs before claiming a complete strategy. Do not
 refit on adapted nodes, rerun unchanged rejected construction or add local fallbacks
 without a revised diagnosis. Broader donor/edge/transaction improvements remain open.
+
+
+Current whole-original-field calibration: two32,768-point streams and exact MPI2/4
+rows preserve the original field. The separate background interval floor and
+block-vs-pointwise variability prevent a default/root-accuracy claim; the sampled
+planar control still misses the strict0.05% gate. No production behavior changed.
+[Complete evidence and next decision](../integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/global_uncertainty_calibration_v1/README.md).

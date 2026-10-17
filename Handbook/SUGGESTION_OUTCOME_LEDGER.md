@@ -463,3 +463,37 @@ campaign support or displaced batching. No accepted M6 mesh, original-field glob
 uncertainty calibration/reassessment/correction, viscous accuracy or lifecycle
 qualification. Resume those capability gaps before another cache/local fallback.
 No2D/MMG path changed. [Exact results, failure and limits](../integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/first_row_shape_ranking_v1/README.md).
+
+
+## 2026-10-17: independent global holdouts INFORMED error control; no policy enabled
+
+The existing complete-support replay was sufficient: no C++ changes/build, CFD or
+remesher runs. Two32,768-point streams of the same complete original RAW9 M6 field
+retain outside zeros and unchanged geometric BL. The old8192-point prefix is
+reproduced; disjoint holdout differences0.186/1.364 combined empirical SE. Every
+first-stream query/donor/sensor/composed/correction/weight row agrees exactly on
+MPI2/4; independent source-density/exact containment and declared PDF-subset audits
+pass. These checks establish arithmetic/protocol scope, not whole-domain coverage.
+
+Total estimates942477.38/953730.50 differ by1.694 combined SE. Pooling65,536 gives
+948103.94 with empirical indicator15887.91 (1.676%), but eight-block SEM5128.60 is
+1.54x the pointwise3320.73. Few blocks cannot calibrate a safety factor or detect
+unseen tails. Larger streams cut pointwise SE as expected; they do NOT solve root
+accuracy or justify a default tolerance. Background halfwidth5925.71 remains even
+with zero correction sampling error. This original field is distinct from the
+production coarsest trial790200.5; do not mix their budgets or sensor demands.
+
+Planar sampled error0.132686% lies within3SE but exceeds the retained strict0.05%
+gate. Thus the sampled estimator has NOT earned replacement of strict planar/2D
+behavior. Earlier difficult-cell underestimation/failures remain preserved. Global
+error-directed allocation, refined-original-field reassessment and frozen correction
+epochs still need implementation/qualification; this calibration does not supply them.
+
+Per M6 stream~59.3–59.5M indexed PDF candidates stay below80M work. Preparation
+~0.3s/PDF~7.1s, MPI2 native original-source/density work~2.2s. One owned heavy job,
+nice19/thread1/MPI<=4; pilot21.76s plus resumed campaign44.40s, peak process667MiB,
+host40–41GiB available/no observed swap growth.21MiB evidence; original export shared.
+No sample-count/subdivision ladder follows. About71% observed variance is within
+face proposals, motivating a fixed-work reflected-pair experiment with correct MPI
+pair covariance and a planar control where pairing could be worse. Not implemented
+or adopted. [Exact observations and limitations](../integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/global_uncertainty_calibration_v1/README.md).

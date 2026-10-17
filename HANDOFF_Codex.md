@@ -94,6 +94,18 @@ global error calibration/allocation and same-original-field reassessment before
 another constructor mechanism. No accepted M6 or full-event speedup.
 [Evidence and resources](integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/first_row_shape_ranking_v1/README.md).
 
+**Whole-field held-out calibration complete (production unchanged):** existing
+native replay, two32,768-point M6 streams, exact MPI2/4 rows; prefix reproduces
+saved8192 correction. Totals942477/953731; pooled948104 with heuristic indicator
+15888 (1.68%), not a continuum reference. Eight-block SEM is1.54x pointwise SEM;
+background interval halfwidth5926 cannot be removed by more BL samples. Planar
+sampled0.133% error exceeds strict0.05% gate, whose production path stays unchanged.
+No new tolerance/sample count/correction epoch, accepted mesh or tail proof. All
+owned handles terminal, no build/CFD/remesh. No sample-count ladder: next measured
+alternative is reflected face pairs at fixed work, preserving complete PDF/original
+field and assessing pair covariance/MPI plus planar failure risk BEFORE coupling.
+[Evidence, resource receipts and decision](integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/global_uncertainty_calibration_v1/README.md).
+
 ## Remaining evidence and scope
 
 No accepted M6 grid, rigorously qualified complete mass, calibrated global error/production
