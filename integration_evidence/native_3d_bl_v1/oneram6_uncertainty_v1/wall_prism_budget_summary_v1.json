@@ -1,0 +1,42 @@
+{
+  "status": "NUMERICAL_STATISTICAL_BL_SUBSET_LOWER_EXCEEDS_REQUESTED_BUDGET",
+  "full_goal_complete": false,
+  "production_changed": false,
+  "complete_composed_integral": false,
+  "machine_bound_proven": false,
+  "seeds": [
+    731,
+    1741
+  ],
+  "samples_per_seed": 16384,
+  "delta_per_seed": 0.005,
+  "conditional_simultaneous_confidence_at_least": 0.99,
+  "statistical_assumptions": "Ideal independent continuous samples, exact prism Jacobian/PDF, metric and domain membership. Floating coordinates/PDF are numerical, not outward certificates.",
+  "subset_estimates": [
+    384178.9484021729,
+    382097.64852982515
+  ],
+  "subset_statistical_lower_estimates": [
+    364472.8913032372,
+    362391.59143088944
+  ],
+  "requested_complexity": 100000,
+  "minimum_lower_to_budget_ratio": 3.6239159143088946,
+  "lower_budget_discrepancy_fraction": 2.6239159143088946,
+  "independent_seed_mean_relative_spread": 0.005432241779745851,
+  "MPI_query_rows_identical": true,
+  "lower_uncertainty_calculated_after_saved_rank_rows": true,
+  "production_global_error_reducer_qualified": false,
+  "original_wall_faces": 38800,
+  "distinct_original_parent_cells": 38800,
+  "strict_native_domain_predicates": true,
+  "clipped_samples": 0,
+  "maximum_log_spectral_relative_difference": 5.343959955507558e-09,
+  "limitations": [
+    "Statistical IID/PDF/Jacobian and original-domain embedding assumptions; no outward floating-point bound.",
+    "Subset only, no full composed mass or normalization root.",
+    "No accepted M6 adapted mesh; first-row construction still has the independently saved time-limit failure.",
+    "Initial refinement cannot lower the continuum demand of this same immutable field; easier integration after refinement remains untested.",
+    "Current production out-of-range behavior may select a higher attainable complexity with a warning; this audit has not changed or exercised that policy."
+  ]
+}

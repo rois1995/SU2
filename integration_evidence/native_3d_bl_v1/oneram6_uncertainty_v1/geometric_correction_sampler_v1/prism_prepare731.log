@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/wall_prism.py", line 116, in <module>
+    if sys.argv[1]=='prepare':prepare(sys.argv[2],int(sys.argv[3]),int(sys.argv[4]))
+  File "integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/wall_prism.py", line 54, in prepare
+    lookup={tuple(point):i for i,point in enumerate(mesh.P)};global_ids=np.array([lookup[tuple(point)] for point in g['p']])
+  File "integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/wall_prism.py", line 54, in <listcomp>
+    lookup={tuple(point):i for i,point in enumerate(mesh.P)};global_ids=np.array([lookup[tuple(point)] for point in g['p']])
+KeyError: (0.0023809588907403368, -1.0625278440000001e-13, -0.0076348292948044058)

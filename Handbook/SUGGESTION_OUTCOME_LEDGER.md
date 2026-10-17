@@ -116,3 +116,31 @@ not a lifecycle/scaling gain. Peak rank~725MiB; sum rank peaks2.71GiB upper boun
 zero swaps; host~40GiB available. Stage/source/resource evidence is in
 construction_interior_edge_v1. Primary global uncertainty/normalization and all
 broader performance proposals remain open.
+
+
+## Global uncertainty and budget-feasibility follow-up — 2026-10-17
+
+Finite conservative coarse-support envelopes FAIL as useful stopping estimates:
+14 unresolved cells have error-envelope sum1.093M versus complete target100000;
+an anisotropic/logarithmic refinement improves only0.57%. Preserved17-cell
+results, not discarded contributions. Supporting-plane lower cones are INCONCLUSIVE:
+348 faces/lower2525 cannot establish infeasibility. Neither is a production policy.
+
+A smaller direct-support experiment WORKS as numerical feasibility diagnosis:
+two disjoint-original-wall-cell sampling seeds give384179/382098, conditional
+one-sided lower estimates364473/362392 (delta0.005 each, at least99% simultaneous
+under ideal IID/PDF/field assumptions). No machine-certified bound. All16384 query
+rows agree on1/4 MPI ranks. Native query time.713/.799s serial/.936s MPI4;
+preparation3.83/4.72s. This lower subset already exceeds100000 by262.39% or more;
+refinement of the same immutable field cannot reduce its continuum demand to that
+target. Integration accuracy and construction rejection remain separate issues.
+No full composed integral, accepted M6, production root/global reducer or
+higher feasible budget established. Existing out-of-range policy is unchanged.
+The general sensor-integral plus full-support BL-correction sampler remains
+UNIMPLEMENTED; proposal weights alone are not that capability.
+
+Peak preparation process301MiB, query process46–51MiB, incremental build2.35GiB;
+one job/thread/build worker at nice19, no swaps. These are maximum processes,
+not aggregate MPI/whole lifecycle peaks. No CFD rerun or broad regressions for
+this fixture-only extension. Broader donor/edge/transaction/transfer/balance items
+remain pending. Details: [support bounds and feasibility](GOAL3_COMPLEXITY_SUPPORT_BOUNDS.md).

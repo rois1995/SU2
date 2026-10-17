@@ -1611,6 +1611,46 @@ TEST_CASE("Replay a complete faceted wall volume-integration input without CFD",
   }
   REQUIRE(bool(input));input>>std::ws;REQUIRE(input.eof());
   CBoundaryLayerMetric layers(3,{std::move(wall)});
+  if(const char* queries=std::getenv("SU2_NATIVE_BL_WALL_PRISMS")) {
+    // Disjoint original-cell subsets give a lower mass; this fixture never normalizes or certifies a mesh.
+    std::ifstream stream(queries,std::ios::binary|std::ios::ate);REQUIRE(bool(stream));
+    const auto bytes=static_cast<std::streamoff>(stream.tellg());stream.seekg(0);uint64_t count=0;
+    stream.read(reinterpret_cast<char*>(&count),8);REQUIRE(count>0);REQUIRE(count<=262144);
+    REQUIRE(bytes==std::streamoff(8+count*(8+16*8)));
+    const auto rank=SU2_MPI::GetRank(),ranks=SU2_MPI::GetSize();
+    std::ofstream values("wall_prism_rank"+std::to_string(rank)+".csv");REQUIRE(bool(values));
+    values<<std::setprecision(17)<<"row,cell,inside,strong,density,inverse_pdf,log_spectral_relative_difference\n";
+    SU2Native3D::KernelStats predicates;
+    for(uint64_t row=0;row<count;++row) {
+      uint64_t id=0;double data[16];stream.read(reinterpret_cast<char*>(&id),8);
+      stream.read(reinterpret_cast<char*>(data),sizeof(data));REQUIRE(bool(stream));
+      if(row%ranks!=uint64_t(rank))continue;
+      for(double x:data)REQUIRE(std::isfinite(x));REQUIRE(data[15]>0);
+      SU2Native3D::Tetrahedron source;
+      for(unsigned k=0;k<4;++k)source[k]={data[3*k],data[3*k+1],data[3*k+2]};
+      const auto orientation=SU2Native3D::Orientation(source[0],source[1],source[2],source[3],&predicates);
+      REQUIRE(orientation!=0);if(orientation<0)std::swap(source[0],source[1]);
+      const SU2Native3D::Point point{data[12],data[13],data[14]};std::array<long double,4> bary{};
+      const bool inside=SU2Native3D::Barycentric(source,point,bary,&predicates);
+      bool strong=false;double density=0,difference=0;
+      if(inside) {
+        const auto sample=layers.Evaluate(0,data+12,core);strong=sample.weight==1;
+        if(strong) {
+          double trace=0;for(unsigned k=0;k<3;++k)trace+=SU2_TYPE::GetValue(sample.logarithm.m[k][k]);
+          density=std::exp(.5*trace);REQUIRE(std::isfinite(density));REQUIRE(density>0);
+          su2double vectors[3][3],eigenvalues[3],workspace[3];auto metric=sample.full;
+          CBlasStructure::EigenDecomposition(metric.m,vectors,eigenvalues,3,workspace);
+          double logDet=0;for(auto v:eigenvalues){REQUIRE(v>0);logDet+=std::log(SU2_TYPE::GetValue(v));}
+          difference=std::abs(std::expm1(.5*logDet-.5*trace));
+        }
+      }
+      values<<row<<','<<id<<','<<inside<<','<<strong<<','<<density<<','<<data[15]<<','<<difference<<'\n';
+    }
+    values.close();REQUIRE(bool(values));
+    std::cout<<"WALL_PRISM_REPLAY rank="<<rank<<" samples="<<count<<" filtered="<<predicates.filtered_orientations
+             <<" exact="<<predicates.exact_orientations<<" mesh_acceptance=false\n";
+    return;
+  }
   auto targetDensity=[&](const CBoundaryLayerMetric::IntegrationPoint3D& point) {
     if(version==1) {
       double value=1;

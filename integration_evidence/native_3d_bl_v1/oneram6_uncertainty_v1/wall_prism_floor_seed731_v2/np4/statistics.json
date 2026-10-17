@@ -1,0 +1,29 @@
+{
+  "samples": 16384,
+  "unclipped_mean": 384178.9484021729,
+  "clipped_lower_mean": 384178.9484021729,
+  "clipped_samples": 0,
+  "cap": 1549728.8568794841,
+  "one_sided_delta": 0.005,
+  "ideal_IID_Hoeffding_halfwidth": 19706.05709893572,
+  "statistical_lower": 364472.8913032372,
+  "empirical_standard_error": 4439.704433184637,
+  "inside_samples": 5331,
+  "strong_samples": 5331,
+  "maximum_log_spectral_relative_difference": 3.872109751448641e-09,
+  "wall_cell_subset_only": true,
+  "complete_field_integrated": false,
+  "normalization_changed": false,
+  "machine_bound_proven": false,
+  "statistical_assumptions": "Ideal independent continuous samples, exact prism Jacobian/PDF, metric and domain membership. Floating coordinates/PDF are numerical, not outward certificates.",
+  "CFD_steps": 0,
+  "target": 100000,
+  "lower_exceeds_target": true,
+  "sha256": {
+    "wall_prism_rank3.csv": "36dcdbed8e1960cfccaf6a72a06ad36543cb2cc70f86ac4dfdef2e5b3f1ae6f8",
+    "wall_prism_rank2.csv": "a346464d200493a027896d952ab8b2539bb2341070ee816325a5427b5f137773",
+    "wall_prism_rank0.csv": "3ed05c8f4e724145a00df241ac0689cfff5296149cb634626e9fd66660fec7f2",
+    "wall_prism_rank1.csv": "f80bc97befeb71c7c1e3f86ff0310b4e4235a807547c5fecb1ee765184dc690e"
+  },
+  "MPI_matches_all_serial_rows": true
+}

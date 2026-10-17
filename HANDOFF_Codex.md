@@ -14,6 +14,18 @@ MPI, match normalization to integration uncertainty and reuse geometry across
 scale trials. No post-freeze changes during local operations, finer-demand loss,
 coarse wall-tensor spreading, hard-normal reset, fade/noise0/gate changes.
 
+New numerical feasibility evidence: the strong BL demand in disjoint original
+M6 wall-cell subsets alone estimates384179/382098 on two16384-sample seeds.
+Conditional99% simultaneous statistical lower estimates364473/362392 exceed the
+100000 target by at least262.39%. MPI1/4 match every actual query. Not an outward
+machine certificate/full composed integral/accepted mesh. Refinement cannot lower
+the continuum demand of the SAME frozen field; it may still ease integration.
+Finite coarse support envelopes were too loose; supporting-plane floor inconclusive.
+Do not silently change budget/BL constraints or add another fallback. Next: use
+this feasibility diagnosis to reconsider bounded global initialization/out-of-range
+normalization, while retaining all original gates. No new production policy yet.
+[Derivation, negative experiments, work/RAM and receipts](Handbook/GOAL3_COMPLEXITY_SUPPORT_BOUNDS.md).
+
 Current production normalization is UNCHANGED. Shared experimental controller and
 3-cell MPI1/4 priority reductions agree but correctly return integration_limited
 at1%; not a calibrated complete-field policy. Geometry caching works locally;

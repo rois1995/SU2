@@ -6159,3 +6159,22 @@ contended rejected run. Max rankRSS~725MiB/sum rank peaks2.71GiB upper bound, ze
 swaps, all jobs terminal. Keep the primary global-uncertainty experiment open;
 do not add another fallback or raise300s. Detailed source/stage/resource evidence:
 oneram6_uncertainty_v1/construction_interior_edge_v1 and the local-feature handbook.
+
+
+### 2026-10-17: uncertainty bounds expose a separate M6 budget conflict
+
+Finite coarse-support error envelopes remain too loose (14 unresolved cells1.093M
+versus complete budget100000); convex-support cone floor2525 is inconclusive.
+Preserve both rejected/inconclusive strategies. A cheaper direct-support lower
+experiment integrates only disjoint original wall-cell strong-BL subsets with
+exact native domain membership and unchanged actual-query geometric density.
+Two fixed16384-sample seeds estimate384179/382098; conditional one-sided lower
+estimates364473/362392 atdelta0.005 each. MPI1/4 every query matches; statistical
+IID/PDF assumptions, no outward numerical certificate or complete composed mass.
+The lower subset exceeds100000 by262.39% or more. Better integration or refinement
+of the SAME frozen field cannot remove its continuum demand; construction/time
+rejection and integration difficulty remain separate. No BL/budget/gate changes,
+new production normalization or accepted mesh. Query.71–.94s/preparation3.8–4.7s,
+peak query46–51MiB/preparation301MiB/build2.35GiB process, zero swaps; all jobs
+terminal. Full derivation, negative evidence and next limits:
+Handbook/GOAL3_COMPLEXITY_SUPPORT_BOUNDS.md andwall_prism_budget_summary_v1.json.
