@@ -310,3 +310,30 @@ Resources: one owned heavy job/build-j1/nice19/thread1, host38–40GiB available
 build peak process2.37GiB/pilot577.72MiB, not aggregate RAM. Foreign CFD untouched.
 Broader repair-campaign donor retention/shared-edge lifetime/batched transactions
 remain NOT implemented. [Exact outcomes and receipts](../integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/production_complexity_geometry_v1/README.md).
+
+
+## 2026-10-17: whole-donor preparation retention did NOT work
+
+The bounded support/index retention experiment was correct on the SAME512 original
+M6 cells1/2/4 ranks: all2560 per-event point coordinates/sensor/composed tensors and
+weights exactly match fresh imports; weights match across ranks. Curved runtime
+and initialized RANS/SA N4/M2 BL construction/removal/transfer/restart pass independent
+audits. No physical constraint or frozen target changed.
+
+Performance FAILED: AABB retention0.156/0.189/0.183s versus fresh reference0.085/
+0.112/0.080s; max imports189/189/146 versus125/125/95, builds122/122/123 versus124/
+124/123 and ZERO useful index reuses. Exact closed-point filtering still needs189
+imports/122 builds and takes0.557s versus0.154s in its serial pilot.51–65 support
+resets overwhelm the tiny reuse. AABB false positives alone are not the explanation;
+whole incident donor stars are a poor reuse unit for these point batches.
+
+Both production cache variants WITHDRAWN; no repeated broad exact-variant campaign
+and no bigger cap/reset ladder. Retain the test-only per-query M6 audit and index-
+build counter. Times are contended selected-cell kernel observations; cold reference
+omits production admission bookkeeping. No full-event performance claim. Source
+capsules, failure/config diagnostics, raw receipts and accepted scoped test grids
+preserved. Restored source/current binaries PASS serial/MPI4 bridge, full query/serial-reference
+comparison and independent N4/M2 RANS/BDF/SU2+CGNS/restart audit. At least1594/2560
+queries repeat, with<=966 distinct positions fitting2048 samples: a measured
+opportunity for sample/stencil lookup, not an implemented optimization.
+[Detailed outcome and next design implication](GOAL3_POINT_PREPARATION_REUSE.md).

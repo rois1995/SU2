@@ -6297,3 +6297,16 @@ One owned heavy job/38–40GiB host available; resource/provenance receipts reta
 Full geometry/height/positivity/q/J/full-edge/transfer gates unchanged; original-field
 reassessment/correction epochs and difficult accepted construction remain open.
 [Evidence and limitations](integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/production_complexity_geometry_v1/README.md).
+
+
+### 2026-10-17 — reject whole-donor preparation caching
+
+Bounded retained original donor stars/indexes preserve per-query sensor/BL tensors,
+weights, MPI1/2/4 and scoped curved/RANS+BDF runtime checks, but regress selected M6
+preparation. Support-cap resets cause189 versus125 imports with122 versus124 builds
+and no useful index reuse; exact closed-point filtering does not cure this. Both
+cache variants withdrawn. Original query schedule restored with one build counter
+and a reusable frozen-M6 query/weight comparison. No constraint/target change or
+new accepted M6 construction. Prefer canonical interpolation stencils/samples or
+scoped scalar edges to whole donor stars; broader transaction batching still open.
+[Full evidence and qualifications](Handbook/GOAL3_POINT_PREPARATION_REUSE.md).

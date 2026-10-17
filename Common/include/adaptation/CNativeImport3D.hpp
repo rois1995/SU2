@@ -22,6 +22,7 @@ struct BridgeStats {
   double source_seconds = 0, query_seconds = 0, reader_seconds = 0, other_seconds = 0;
   uint64_t batches = 0, batch_retries = 0, requests = 0, hits = 0, misses = 0, compositions = 0;
   uint64_t invalid_queries = 0, failures = 0, evictions = 0;
+  uint64_t field_builds = 0;
   double field_build_seconds = 0, field_search_seconds = 0, interpolation_seconds = 0, composition_seconds = 0;
   // World-wrapper payload includes self traffic; calls/time omit direct MPI/vendor work and are not MPI wait.
   uint64_t tracked_bytes = 0, tracked_calls = 0;

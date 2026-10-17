@@ -1,0 +1,27 @@
+{
+  "exit_code": 0,
+  "elapsed_seconds": 22.218070645001717,
+  "command": [
+    "taskset",
+    "-c",
+    "0-1",
+    "nice",
+    "-n",
+    "19",
+    "timeout",
+    "--kill-after=5s",
+    "180s",
+    "mpirun",
+    "-np",
+    "2",
+    "--bind-to",
+    "none",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver",
+    "[NativeFrozenVolume3D]",
+    "--abort",
+    "--reporter",
+    "compact"
+  ],
+  "provenance_sha256": "a4e00d581ea1a9cddd35e348297422e1b98f2c88dec3b3db25c040b0e0eefe2d",
+  "log_sha256": "4cc1c101c96630d29f61fbf02c4a69319ed5b6aa9de229f00d7ba7647fbf0bc0"
+}

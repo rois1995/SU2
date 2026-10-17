@@ -1,0 +1,337 @@
+diff --git a/Common/include/adaptation/CNativeImport3D.hpp b/Common/include/adaptation/CNativeImport3D.hpp
+index 9c97266e30..dcc55b263b 100644
+--- a/Common/include/adaptation/CNativeImport3D.hpp
++++ b/Common/include/adaptation/CNativeImport3D.hpp
+@@ -22,6 +22,7 @@ struct BridgeStats {
+   double source_seconds = 0, query_seconds = 0, reader_seconds = 0, other_seconds = 0;
+   uint64_t batches = 0, batch_retries = 0, requests = 0, hits = 0, misses = 0, compositions = 0;
+   uint64_t invalid_queries = 0, failures = 0, evictions = 0;
++  uint64_t field_builds = 0, field_reuses = 0, support_hits = 0, support_resets = 0, batch_recoveries = 0;
+   double field_build_seconds = 0, field_search_seconds = 0, interpolation_seconds = 0, composition_seconds = 0;
+   // World-wrapper payload includes self traffic; calls/time omit direct MPI/vendor work and are not MPI wait.
+   uint64_t tracked_bytes = 0, tracked_calls = 0;
+@@ -49,7 +50,9 @@ ImportedGeometry ImportGeometry(const CConfig& config, const CGeometry& geometry
+ bool ImportGeometry(const CConfig& config, const CGeometry& geometry, const su2activematrix* metric,
+                     ReferenceState& reference, ImportedGeometry& output, std::string& reason, BridgeStats& stats,
+                     size_t ceiling, size_t caller_bytes = 0);
+-/*! Bounded point-support batches on parent (M<=N return uses empty inputs on inactive ranks).
++/*! Bounded retained point-support batches on parent (M<=N return uses empty inputs on inactive ranks).
++ * Full imported point footprints certify reuse only within this immutable source/policy call; support
++ * resets discard those certificates. Actual queries still interpolate sensors and compose geometric BL.
+  * Weight and reader functions leave their output unchanged on elected failures. Each cache hit composes
+  * at the actual query. No nodal geometric BL tensor is spread into the original source.
+  * Native byte models exclude CFD allocations, allocator/RSS and reader/partitioner internal workspaces.
+diff --git a/Common/src/adaptation/CNativeImport3D.cpp b/Common/src/adaptation/CNativeImport3D.cpp
+index 3842bb477e..d925668323 100644
+--- a/Common/src/adaptation/CNativeImport3D.cpp
++++ b/Common/src/adaptation/CNativeImport3D.cpp
+@@ -13,6 +13,8 @@
+ #include <type_traits>
+ #include <tuple>
+ #include <limits>
++#include <memory>
++#include <set>
+ namespace SU2Native3D {
+ size_t OwnedStorageBytes(const Owned& cells) {
+   return transfer_memory::Mul(cells.size(), sizeof(Owned::value_type) + 4 * sizeof(void*));
+@@ -606,53 +608,85 @@ namespace {
+ template <class Make, class Use>
+ bool Samples(World& parent, size_t count, DonorImport& source, MetricComposition composition, Make make, Use use,
+              BridgeStats& stats, std::string& reason, size_t ceiling, size_t live, size_t initial, bool query_timings, const PlanarReference* reference=nullptr) {
+-  // shortcut: conservative bounded field/cache scratch; calibrate against the actual index/cache allocations.
+-  const size_t scratch =
+-      transfer_memory::Add(MaximumFrozenFieldBytes,
+-                           transfer_memory::Mul(MaximumSensorSamples, 32 * sizeof(double)),
+-                           transfer_memory::Mul(MaximumCavityCells, sizeof(DonorRegion)));
+-  live = transfer_memory::Add(live, scratch);
+-  if (!Admit(parent, live, ceiling, stats, reason)) return false;
+-  size_t next = 0, batch = initial;
+-  while (parent.maximum(next < count)) {
+-    const double start = parent.seconds();
++  // Keep certified point footprints with bounded original support; never retain composed tensors.
++  const size_t scratch = transfer_memory::Add(2*MaximumFrozenFieldBytes,
++      transfer_memory::Mul(3*MaximumDonors,sizeof(DonorCell)+128),
++      transfer_memory::Mul(MaximumSensorSamples,32*sizeof(double)),
++      transfer_memory::Mul(MaximumCavityCells,sizeof(DonorRegion)));
++  live=transfer_memory::Add(live,scratch);
++  if(!Admit(parent,live,ceiling,stats,reason))return false;
++  using PointKey=std::array<double,3>;
++  std::set<PointKey> certified;
++  std::vector<DonorCell> resident;
++  std::unique_ptr<FrozenField> field;
++  std::unique_ptr<FieldAccounting> accounting; // Retire cumulative field counters exactly once, including failures.
++  size_t next=0,batch=initial;
++  while(parent.maximum(next<count)) {
++    const double start=parent.seconds();
+     CLocalFailure failure;
+-    std::vector<DonorRegion> regions;
++    std::vector<DonorRegion> regions,missing;
+     try {
+-      for (size_t i = next; i < std::min(count, next + batch); ++i) make(i, regions);
+-    } catch (const std::exception& e) {
+-      failure.Set(2, 0, e.what());
+-    }
+-    if (!Vote(parent, failure, reason)) {
+-      stats.query_seconds += parent.seconds() - start;
+-      return false;
+-    }
+-    auto imported = source.Import(regions, ceiling, live);
+-    ++stats.batches;
+-    if (!imported.valid) {
+-      reason = imported.reason;
+-      stats.query_seconds += parent.seconds() - start;
+-      if (batch == 1) return false;
+-      batch = std::max(size_t(1), batch / 2);
+-      ++stats.batch_retries;
+-      continue;
++      for(size_t i=next;i<std::min(count,next+batch);++i)make(i,regions);
++      if(regions.empty()){accounting.reset();field.reset();resident.clear();certified.clear();}
++      std::set<PointKey> requested;
++      for(const auto& region:regions) {
++        PointKey key{region[0],region[1],region[2]};
++        for(unsigned j=0;j<3;++j)if(!std::isfinite(key[j]) || key[j]!=region[j+3])
++          throw std::invalid_argument("Native3D point preparation requires finite point footprints.");
++        if(certified.count(key))++stats.support_hits;
++        else if(requested.insert(key).second)missing.push_back(region);
++      }
++    }catch(const std::exception& e){failure.Set(2,0,e.what());}
++    if(!Vote(parent,failure,reason)){stats.query_seconds+=parent.seconds()-start;return false;}
++    auto imported=source.Import(missing,ceiling,live);++stats.batches;
++    auto retry=[&]() {
++      reason=imported.reason;stats.query_seconds+=parent.seconds()-start;
++      if(batch==1)return false;
++      batch=std::max(size_t(1),batch/2);++stats.batch_retries;return true;
++    };
++    if(!imported.valid){if(retry())continue;return false;}
++    size_t pressure=0;
++    try {
++      std::set<std::array<Id,4>> keys;
++      for(const auto& row:resident)keys.insert(row.Key());
++      for(const auto& row:imported.cells)keys.insert(row.Key());
++      pressure=keys.size();
++      if(certified.size()+regions.size()>MaximumSensorSamples)pressure=MaximumDonors+1;
++    }catch(const std::exception& e){failure.Set(2,0,e.what());}
++    if(!Vote(parent,failure,reason)){stats.query_seconds+=parent.seconds()-start;return false;}
++    // One global pressure decision keeps resets and later batch recovery in the same collective schedule.
++    pressure=CPassiveComm::Allreduce(pressure,CPassiveComm::Op::MAX,parent.comm);
++    const bool reset=pressure>MaximumDonors;
++    if(reset) {
++      imported=source.Import(regions,ceiling,live);++stats.batches;
++      if(!imported.valid){if(retry())continue;return false;}
+     }
+     try {
+-      if (!regions.empty()) {
+-        const auto components=reference ? AssociatedExtensions(imported.cells,*reference) : std::vector<Id>{};
+-        FrozenField field(std::move(imported.cells), composition, query_timings,components);
+-        FieldAccounting accounting{stats,field};
+-        for (size_t i = next; i < std::min(count, next + batch); ++i) use(i, field);
++      std::vector<DonorCell> records=std::move(imported.cells);
++      std::set<std::array<Id,4>> keys;
++      for(const auto& row:records)keys.insert(row.Key());
++      if(!reset)for(const auto& row:resident)if(keys.insert(row.Key()).second)records.push_back(row);
++      const bool changed=reset || records.size()!=resident.size();
++      if(changed && !regions.empty()) {
++        const auto components=reference?AssociatedExtensions(records,*reference):std::vector<Id>{};
++        auto prepared=std::make_unique<FrozenField>(records,composition,query_timings,components);
++        accounting.reset();field=std::move(prepared);resident.swap(records);
++        accounting.reset(new FieldAccounting{stats,*field});
++        ++stats.field_builds;
++      } else if(!regions.empty())++stats.field_reuses;
++      if(reset){certified.clear();++stats.support_resets;}
++      if(!regions.empty()) {
++        if(!field)throw std::runtime_error("Native3D prepared point support has no field.");
++        for(size_t i=next;i<std::min(count,next+batch);++i)use(i,*field);
++        for(const auto& region:regions)certified.insert({region[0],region[1],region[2]});
+       }
+-    } catch (const std::exception& e) {
+-      failure.Set(2, 0, e.what());
+-    }
+-    if (!Vote(parent, failure, reason)) {
+-      stats.query_seconds += parent.seconds() - start;
+-      return false;
++    }catch(const std::exception& e){failure.Set(2,0,e.what());}
++    if(!Vote(parent,failure,reason)){stats.query_seconds+=parent.seconds()-start;return false;}
++    next+=std::min(batch,count-next);
++    if(!reset && pressure<=MaximumDonors/2 && batch<initial) {
++      batch=std::min(initial,2*batch);++stats.batch_recoveries;
+     }
+-    next += std::min(batch, count - next);
+-    stats.query_seconds += parent.seconds() - start;
++    stats.query_seconds+=parent.seconds()-start;
+   }
+   stats.maximum_native_bytes = std::max(stats.maximum_native_bytes, source.Statistics().maximum_work_bytes);
+   return true;
+diff --git a/Common/src/adaptation/CNativeRemesher3D.cpp b/Common/src/adaptation/CNativeRemesher3D.cpp
+index 9765a02004..64896622a1 100644
+--- a/Common/src/adaptation/CNativeRemesher3D.cpp
++++ b/Common/src/adaptation/CNativeRemesher3D.cpp
+@@ -485,6 +485,9 @@ CRemeshResult CNativeRemesher3D::Remesh(const CConfig& config, const CGeometry&
+              << " requests=" << b.requests << " hits=" << b.hits << " misses=" << b.misses
+              << " invalid_queries=" << b.invalid_queries << " failures=" << b.failures << " evictions=" << b.evictions
+              << " compositions=" << b.compositions << " batches=" << b.batches << " retries=" << b.batch_retries
++             << " field_builds=" << b.field_builds << " field_reuses=" << b.field_reuses
++             << " support_hits=" << b.support_hits << " support_resets=" << b.support_resets
++             << " batch_recoveries=" << b.batch_recoveries
+              << " nested_field_build=" << b.field_build_seconds << " nested_search=" << b.field_search_seconds
+              << " nested_interpolation=" << b.interpolation_seconds << " nested_composition=" << b.composition_seconds
+              << " tracked_bytes=" << b.tracked_bytes << " tracked_calls=" << b.tracked_calls
+diff --git a/UnitTests/SU2_CFD/adaptation/CNativeImport3D_tests.cpp b/UnitTests/SU2_CFD/adaptation/CNativeImport3D_tests.cpp
+index 05bcdc5767..c80ff6a623 100644
+--- a/UnitTests/SU2_CFD/adaptation/CNativeImport3D_tests.cpp
++++ b/UnitTests/SU2_CFD/adaptation/CNativeImport3D_tests.cpp
+@@ -205,6 +205,52 @@ void OutputRoundTrip(World& world,const std::string& name,const CReaderSlices& s
+   }
+ }
+ }
++TEST_CASE("Native point preparation retains certified support and recovers after dense footprints", "[NativePreparationReuse3D]") {
++  World world;std::vector<DonorCell> original;Owned working;std::string reason;
++  Id cellId=0,nodeId=0;
++  auto add=[&](std::array<Node,4> nodes,bool selected) {
++    DonorCell row;row.cell={cellId++,nodes};row.sensor.fill({1,0,0,1,0,1});
++    if(Orientation(nodes[0].p,nodes[1].p,nodes[2].p,nodes[3].p)<0)std::swap(row.cell.v[0],row.cell.v[1]);
++    if(row.cell.id%world.size==unsigned(world.rank))original.push_back(row);
++    if(!world.rank && selected){OwnedCell owned;owned.cell=row.cell;working.emplace(owned.cell.id,owned);}
++  };
++  // Each selected apex touches200 original tetrahedra; two such footprints exceed the256-donor cap.
++  for(unsigned cluster=0;cluster<4;++cluster) {
++    Node apex{nodeId++,{10.*cluster,0,0}};std::array<std::array<Node,11>,11> grid;
++    for(unsigned j=0;j<=10;++j)for(unsigned i=0;i<=10;++i)grid[j][i]={nodeId++,{10.*cluster+double(i)/10,double(j)/10,1}};
++    for(unsigned j=0;j<10;++j)for(unsigned i=0;i<10;++i) {
++      add({apex,grid[j][i],grid[j][i+1],grid[j+1][i]},j==0);
++      add({apex,grid[j+1][i+1],grid[j+1][i],grid[j][i+1]},false);
++    }
++  }
++  for(unsigned i=0;i<100;++i) {
++    const double x=100+2*i;std::array<Node,4> nodes{{{nodeId++,{x,0,0}},{nodeId++,{x+1,0,0}},
++        {nodeId++,{x,1,0}},{nodeId++,{x,0,1}}}};add(nodes,true);
++  }
++  DonorImport source(world,true);REQUIRE(source.Build(original,reason));
++  auto combined=[](Point p,Tensor m){m.zz+=.125*p.z+.03125*p.x;return m;};
++  uint64_t calls=0;MetricComposition composition=[&](Point p,Tensor m){++calls;return combined(p,m);};
++  std::vector<uint32_t> result;BridgeStats stats;
++  REQUIRE(WorkingWeights(world,working,source,result,reason,stats,composition));
++  REQUIRE(result.size()==working.size());CHECK(stats.compositions==calls);CHECK(calls==5*working.size());
++  CHECK(stats.requests==stats.hits+stats.misses+stats.invalid_queries);CHECK(stats.failures==0);
++  CHECK(world.sum(stats.batch_retries)>0);CHECK(world.sum(stats.support_resets)>0);
++  CHECK(world.sum(stats.batch_recoveries)>0);CHECK(stats.field_builds<=working.size());
++  CHECK(world.sum(stats.field_reuses)>0);CHECK(world.sum(stats.support_hits)>0);
++  size_t at=0;for(const auto& row:working) {
++    DonorCell donor;donor.cell=row.second.cell;donor.sensor.fill({1,0,0,1,0,1});
++    FrozenField direct({donor},combined);CHECK(result[at++]==WorkWeights({donor.cell},direct).front());
++  }
++  uint64_t attempted=0;MetricComposition failing=[&](Point p,Tensor m) {
++    if(++attempted==71)throw std::runtime_error("Injected retained preparation query failure.");return combined(p,m);
++  };
++  std::vector<uint32_t> preserved{123};BridgeStats failed;
++  CHECK_FALSE(WorkingWeights(world,working,source,preserved,reason,failed,failing));
++  CHECK(preserved==std::vector<uint32_t>{123});CHECK(failed.compositions==attempted);
++  CHECK(failed.requests==attempted);CHECK(failed.requests==failed.hits+failed.misses+failed.invalid_queries);
++  CHECK(world.sum(failed.failures)==1);
++}
++
+ TEST_CASE("Native3D CFD bridge returns adapted readers and preserves affine BDF2 states", "[NativeBridge3D]") {
+   World parent;const int m=GENERATE(1,2,3,4);if(m>parent.size)return;const bool conservative=GENERATE(false,true);
+   auto config=MakeConfig(3,"SOLVER= EULER\nCOMPUTE_METRIC= YES\nADAP_SENSOR= PRESSURE\nADAP_REMESHER= NATIVE_CAVITY\nADAP_SURFACE= YES\nADAP_HESSIAN_NOISE= 0\nTIME_DOMAIN= YES\nTIME_STEP= 1e-3\nTIME_ITER= 10\nTIME_MARCHING= DUAL_TIME_STEPPING-2ND_ORDER\n");
+diff --git a/UnitTests/SU2_CFD/adaptation/CNativeRemesher3D_tests.cpp b/UnitTests/SU2_CFD/adaptation/CNativeRemesher3D_tests.cpp
+index 1f8be03cf5..3c3f91cb4e 100644
+--- a/UnitTests/SU2_CFD/adaptation/CNativeRemesher3D_tests.cpp
++++ b/UnitTests/SU2_CFD/adaptation/CNativeRemesher3D_tests.cpp
+@@ -13,6 +13,8 @@
+ #include "../../../Common/include/adaptation/CNativeRemesher3D.hpp"
+ #include "../../../Common/include/adaptation/CNativeReferenceIO3D.hpp"
+ #include "../../../SU2_CFD/include/output/CMeshOutput.hpp"
++#include "../../../SU2_CFD/include/adaptation/CBoundaryLayerMetric.hpp"
++#include "../../../Common/include/linear_algebra/blas_structure.hpp"
+ using namespace transfer_test;
+ using namespace SU2Native3D;
+ 
+@@ -249,6 +251,7 @@ TEST_CASE("Native3D remeshes an externally frozen original sensor field without
+     CConfig& Config(){return *config_container[ZONE_0];}
+     CGeometry& Geometry(){return *geometry_container[ZONE_0][INST_0][MESH_0];}
+     std::unique_ptr<CRemesher> Backend(){return MakeRemesher();}
++    ReferenceState& Reference(){return *nativeReference3D;}
+   };
+   FrozenDriver driver(const_cast<char*>(configFile),1,SU2_MPI::GetComm());
+   auto& geometry=driver.Geometry();REQUIRE(geometry.GetnDim()==3);
+@@ -270,6 +273,81 @@ TEST_CASE("Native3D remeshes an externally frozen original sensor field without
+   }
+   REQUIRE(world.sum(uint64_t(sensor.rows()))==count);
+   auto backend=driver.Backend();const auto* native=dynamic_cast<CNativeRemesher3D*>(backend.get());REQUIRE(native);
++  if(const char* limit=std::getenv("SU2_NATIVE_PREPARATION_LIMIT")) {
++    const auto maximum=std::stoul(limit);REQUIRE(maximum>0);REQUIRE(maximum<=4096);
++    ReferenceState reference=driver.Reference();ImportedGeometry imported;BridgeStats importStats;std::string reason;
++    REQUIRE(ImportGeometry(driver.Config(),geometry,&sensor,reference,imported,reason,importStats,size_t(2)<<30));
++    DonorImport source(world,true);REQUIRE(source.Build(imported.original,reason,size_t(2)<<30));
++    double core=std::numeric_limits<double>::infinity();
++    for(unsigned long p=0;p<sensor.rows();++p) {
++      su2double m[3][3]={{sensor(p,0),sensor(p,1),sensor(p,2)},{sensor(p,1),sensor(p,3),sensor(p,4)},
++          {sensor(p,2),sensor(p,4),sensor(p,5)}},frame[3][3],value[3],scratch[3];
++      CBlasStructure::EigenDecomposition(m,frame,value,3,scratch);
++      for(auto x:value)core=std::min(core,SU2_TYPE::GetValue(x));
++    }
++    core=CPassiveComm::Allreduce(core,CPassiveComm::Op::MIN,world.comm);
++    auto layers=CBoundaryLayerMetric::FromNativeReference(reference,driver.Config());
++    MetricComposition composition=[&](Point p,Tensor sensor) {
++      CBoundaryLayerMetric::Tensor m;m.m[0][0]=sensor.xx;m.m[1][1]=sensor.yy;m.m[2][2]=sensor.zz;
++      m.m[0][1]=m.m[1][0]=sensor.xy;m.m[0][2]=m.m[2][0]=sensor.xz;m.m[1][2]=m.m[2][1]=sensor.yz;
++      const su2double x[3]={p.x,p.y,p.z};layers->ApplyPoint(x,m,core,nullptr,false);
++      return Tensor{SU2_TYPE::GetValue(m.m[0][0]),SU2_TYPE::GetValue(m.m[0][1]),SU2_TYPE::GetValue(m.m[0][2]),
++          SU2_TYPE::GetValue(m.m[1][1]),SU2_TYPE::GetValue(m.m[1][2]),SU2_TYPE::GetValue(m.m[2][2])};
++    };
++    auto key=[](const Cell& cell){std::array<Id,4> ids;for(unsigned j=0;j<4;++j)ids[j]=cell.v[j].id;std::sort(ids.begin(),ids.end());return ids;};
++    // Gather only a bounded prefix of keys, never all cells, for identical test coverage on1/2/4 ranks.
++    std::set<std::array<Id,4>> local;
++    for(const auto& row:imported.cells) {local.insert(key(row.second.cell));if(local.size()>maximum)local.erase(std::prev(local.end()));}
++    std::vector<std::vector<std::array<Id,4>>> send(world.size);send[0].assign(local.begin(),local.end());
++    auto candidates=world.exchange(send);send.assign(world.size(),{});
++    if(!world.rank) {
++      std::sort(candidates.begin(),candidates.end());candidates.erase(std::unique(candidates.begin(),candidates.end()),candidates.end());
++      if(candidates.size()>maximum)candidates.resize(maximum);for(auto& bucket:send)bucket=candidates;
++    }
++    const auto admitted=world.exchange(send);std::set<std::array<Id,4>> wanted(admitted.begin(),admitted.end());
++    Owned selected;for(const auto& row:imported.cells)if(wanted.count(key(row.second.cell)))selected.insert(row);
++    REQUIRE(world.sum(uint64_t(selected.size()))==wanted.size());
++    BridgeStats prepared;std::vector<uint32_t> actual;
++    const auto begin=world.seconds();REQUIRE(WorkingWeights(world,selected,source,actual,reason,prepared,composition));
++    const auto elapsed=world.seconds()-begin;
++    // Historical fresh-import8/halve schedule, without production admission bookkeeping; compare exact weights/work.
++    size_t next=0,batch=8;std::vector<uint32_t> cold;std::vector<const Cell*> ordered;
++    for(const auto& row:selected)ordered.push_back(&row.second.cell);
++    uint64_t coldImports=0,coldBuilds=0;const auto coldStart=world.seconds();
++    while(world.maximum(next<ordered.size())) {
++      std::vector<DonorRegion> regions;
++      for(size_t i=next;i<std::min(ordered.size(),next+batch);++i) {
++        const auto c=Centroid(*ordered[i]);regions.push_back({c.x,c.y,c.z,c.x,c.y,c.z});
++        for(auto n:ordered[i]->v)regions.push_back({n.p.x,n.p.y,n.p.z,n.p.x,n.p.y,n.p.z});
++      }
++      auto patch=source.Import(regions,size_t(2)<<30);++coldImports;
++      if(!patch.valid){REQUIRE(batch>1);batch=std::max(size_t(1),batch/2);continue;}
++      CLocalFailure failure;
++      try {if(!regions.empty()) {
++        FrozenField field(std::move(patch.cells),composition,true);++coldBuilds;
++        for(size_t i=next;i<std::min(ordered.size(),next+batch);++i)cold.push_back(WorkWeights({*ordered[i]},field).front());
++      }}catch(const std::exception& error){failure.Set(2,0,error.what());}
++      const auto rejected=world.elect(failure);INFO(rejected.message);REQUIRE_FALSE(rejected.any);
++      next+=std::min(batch,ordered.size()-next);
++    }
++    const auto coldSeconds=world.seconds()-coldStart;REQUIRE(actual==cold);
++    CHECK(prepared.requests==5*selected.size());CHECK(prepared.compositions==prepared.requests);
++    std::ofstream rows("preparation_weights_rank"+std::to_string(world.rank)+".csv");rows<<"cell,n0,n1,n2,n3,retained,cold\n";
++    for(size_t i=0;i<actual.size();++i) {rows<<ordered[i]->id;for(auto id:key(*ordered[i]))rows<<','<<id;rows<<','<<actual[i]<<','<<cold[i]<<'\n';}
++    rows.close();REQUIRE(bool(rows));
++    std::ofstream out("preparation_rank"+std::to_string(world.rank)+".json");out<<std::setprecision(17)
++        <<"{\"ranks\":"<<world.size<<",\"rank\":"<<world.rank<<",\"cells\":"<<selected.size()
++        <<",\"seconds\":"<<elapsed<<",\"cold_seconds\":"<<coldSeconds<<",\"cold_imports\":"<<coldImports
++        <<",\"cold_field_builds\":"<<coldBuilds<<",\"imports\":"<<prepared.batches<<",\"field_builds\":"<<prepared.field_builds
++        <<",\"field_reuses\":"<<prepared.field_reuses<<",\"support_hits\":"<<prepared.support_hits
++        <<",\"support_resets\":"<<prepared.support_resets<<",\"batch_recoveries\":"<<prepared.batch_recoveries
++        <<",\"requests\":"<<prepared.requests<<",\"sensor_hits\":"<<prepared.hits<<",\"compositions\":"<<prepared.compositions
++        <<",\"field_build_seconds\":"<<prepared.field_build_seconds<<",\"search_seconds\":"<<prepared.field_search_seconds
++        <<",\"composition_seconds\":"<<prepared.composition_seconds<<",\"tracked_calls\":"<<prepared.tracked_calls
++        <<",\"maximum_native_bytes\":"<<prepared.maximum_native_bytes
++        <<",\"exact_weight_match\":true,\"CFD_steps\":0,\"mesh_constructed\":false}\n";
++    out.close();REQUIRE(bool(out));driver.Finalize();return;
++  }
+   const auto start=SU2_MPI::Wtime();auto result=backend->Remesh(driver.Config(),geometry,sensor);
+   const auto elapsed=CPassiveComm::Allreduce(SU2_MPI::Wtime()-start,CPassiveComm::Op::MAX);
+   const auto& stats=native->Statistics();CHECK(stats.complete==(result.status==CRemeshResult::Status::COMPLETE));

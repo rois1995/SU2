@@ -1,0 +1,63 @@
+{
+  "reports": [
+    {
+      "ranks": 1,
+      "rank": 0,
+      "cells": 512,
+      "seconds": 0.15608473800000056,
+      "cold_seconds": 0.08545430499999895,
+      "cold_imports": 125,
+      "cold_field_builds": 124,
+      "imports": 189,
+      "field_builds": 122,
+      "field_reuses": 0,
+      "support_hits": 199,
+      "support_resets": 65,
+      "batch_recoveries": 1,
+      "requests": 2560,
+      "sensor_hits": 153,
+      "compositions": 2560,
+      "field_build_seconds": 0.03510444699999998,
+      "search_seconds": 0.026597045,
+      "composition_seconds": 0.010841762000000005,
+      "tracked_calls": 1253,
+      "maximum_native_bytes": 2113313384,
+      "exact_weight_match": true,
+      "exact_query_tensors_match": true,
+      "CFD_steps": 0,
+      "mesh_constructed": false
+    }
+  ],
+  "source_pins": {
+    "integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/run.py": "b179ef9aeff7be9f81f4f7cc0f7dca915d59ee8fedfd2bc29d79e80ae23a5c74",
+    "integration_evidence/build-integrated-v2/UnitTests/test_driver": "a4571d57cd0eb4cc1b940d39d252d01873f32ccee64c3ea6deb384fb89399dfe",
+    "integration_evidence/build-integrated-v2/build.ninja": "8b3bd549253b0371e1553e84f81d7426831f3477e73af0e9a524215902c9308a",
+    "integration_evidence/build-integrated-v2/meson-info/intro-buildoptions.json": "59377c452909959635fa25c06589f97be7916c19148364113dd1a62ab38e9a5c",
+    "SU2_CFD/src/adaptation/CBoundaryLayerMetric.cpp": "0e4185a9d9615c3b6ef234322c6a341922f75125dffaa7f941fb6eb4f96ff702",
+    "SU2_CFD/include/adaptation/CBoundaryLayerMetric.hpp": "9fa6a59db2c63c0f8c7cf0c5b5b12f48b89070bf6e67361a49dac37fa20ebac9",
+    "UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp": "735c7c9f10441908510fb436d87afd97d339dbe31bd6141a82812a837c3093c6",
+    "Common/src/adaptation/CNativeField3D.cpp": "623e68f1296cdd2d7a1d6aaa012860327073bf933fa51c1180c00f9bacfc8aa7",
+    "Common/include/adaptation/CNativeField3D.hpp": "76064ddcfc8e5c7cd5ddef5f0b76d8d76a98bcf40b75a6a9a9d6652ffd32a5c2",
+    "UnitTests/Common/adaptation/CNativeField3D_tests.cpp": "c36ec7441498298a24c7e2c3002e230898108006502c6cc0f34559ef48a275cf",
+    "Common/include/adaptation/CComplexityNormalization.hpp": "041ce6aecd1e0b22edc4d7e09c968d109d6eb9ff21c86184fffeff87dbee01e9",
+    "Common/include/adaptation/CNativeChordEnvelope.hpp": "c7a3429203f7d274df87c8beef452214d8cd531ed1359ce466b6ebd3de88c534",
+    "SU2_CFD/src/solvers/CSolver.cpp": "fb00641a2392c6267c3b54bf8af4a376e3bca39f44ff7b4198c163077d9a386f",
+    "Common/src/adaptation/CNativeImport3D.cpp": "22357f5c00ea1f45cbe36c860274a68ca3a989e1d1e5e1bd416aa2777a0e6a15",
+    "Common/include/adaptation/CNativeImport3D.hpp": "89173cb86b5fa8e0705124764675268cfaac50bc5338d54b76053b95445ba7d8",
+    "Common/src/adaptation/CNativeRemesher3D.cpp": "3f2c4f8e8483246446ad20ece63cd3cf929a7fc0b21d48022c4b01bdabff48a5",
+    "Common/src/adaptation/CNativeDonor3D.cpp": "c218975b9ccaba624260e388da761e119ef098ff720c8a3d4907ad71e506a15d",
+    "Common/src/adaptation/CNativePartition3D.cpp": "357ee6a67fda13cd9903f9286667bafeb1d6b88f2f2fb8d2925c364bede35f8b",
+    "Common/include/adaptation/CNativePartition3D.hpp": "2fe0fcbf0720aef61cf7ee39fce930c876bd7831e342de0efb0f24e43e4350d4",
+    "UnitTests/SU2_CFD/adaptation/CNativeImport3D_tests.cpp": "737fd378eef3e154247ebcd5b0d90c7e5b511d2fe7d0c88d08a18b318f4688d4",
+    "UnitTests/SU2_CFD/adaptation/CNativeRemesher3D_tests.cpp": "d4d196e0773ef93cedba06b1d9d1462c17e69c458040e3b618496f062b51376d",
+    "integration_evidence/native_3d_bl_v1/production_policy_v1/audit.py": "bff97f4bde85829879fcae34d4eeb358264279613ee1fc6ddd35c6c48666f1e8",
+    "integration_evidence/native_3d_core_v1/audit_coupled.py": "1822427476ecb5687aaa06f3e7a3cc8f31cde53166fd0c711449eedf7c7c7a50"
+  },
+  "shared_with_serial": 512,
+  "exact_weight_match": true,
+  "limits": [
+    "Selected original cells, not complete M6 preparation/adaptation.",
+    "Cold reference omits production admission bookkeeping; timing is not an old-binary comparison.",
+    "No CFD, normalization change, construction or transfer in M6 replay."
+  ]
+}

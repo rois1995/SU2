@@ -1,0 +1,13 @@
+{
+  "base": "83fb0678232d191a90e52c3271a7f4cead0775bc",
+  "changed_source_sha256": {
+    "Common/src/adaptation/CNativeImport3D.cpp": "22357f5c00ea1f45cbe36c860274a68ca3a989e1d1e5e1bd416aa2777a0e6a15",
+    "Common/include/adaptation/CNativeImport3D.hpp": "89173cb86b5fa8e0705124764675268cfaac50bc5338d54b76053b95445ba7d8",
+    "Common/src/adaptation/CNativeRemesher3D.cpp": "3f2c4f8e8483246446ad20ece63cd3cf929a7fc0b21d48022c4b01bdabff48a5",
+    "UnitTests/SU2_CFD/adaptation/CNativeImport3D_tests.cpp": "737fd378eef3e154247ebcd5b0d90c7e5b511d2fe7d0c88d08a18b318f4688d4",
+    "UnitTests/SU2_CFD/adaptation/CNativeRemesher3D_tests.cpp": "d4d196e0773ef93cedba06b1d9d1462c17e69c458040e3b618496f062b51376d"
+  },
+  "patch_sha256": "b0dee35c9f4ee8d053b1c072cae95f221eac62ce9fcbfbc39c49a41f1af39d65",
+  "status": "CORRECT_BUT_REJECTED_PERFORMANCE",
+  "reason": "M6 same512-cell replay takes1.7\u20132.3x cold reference time; AABB union causes repeated cap resets/double imports and nearly no index reuse."
+}

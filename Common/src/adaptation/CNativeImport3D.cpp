@@ -642,6 +642,7 @@ bool Samples(World& parent, size_t count, DonorImport& source, MetricComposition
         const auto components=reference ? AssociatedExtensions(imported.cells,*reference) : std::vector<Id>{};
         FrozenField field(std::move(imported.cells), composition, query_timings,components);
         FieldAccounting accounting{stats,field};
+        ++stats.field_builds;
         for (size_t i = next; i < std::min(count, next + batch); ++i) use(i, field);
       }
     } catch (const std::exception& e) {

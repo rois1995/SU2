@@ -1,0 +1,13 @@
+{
+  "base": "83fb0678232d191a90e52c3271a7f4cead0775bc",
+  "changed_source_sha256": {
+    "Common/src/adaptation/CNativeImport3D.cpp": "c1719b6ea6ad16aba053657783e047ccbc79f407dc66a29dae235d4aa1a0e8fa",
+    "Common/include/adaptation/CNativeImport3D.hpp": "89173cb86b5fa8e0705124764675268cfaac50bc5338d54b76053b95445ba7d8",
+    "Common/src/adaptation/CNativeRemesher3D.cpp": "3f2c4f8e8483246446ad20ece63cd3cf929a7fc0b21d48022c4b01bdabff48a5",
+    "UnitTests/SU2_CFD/adaptation/CNativeImport3D_tests.cpp": "737fd378eef3e154247ebcd5b0d90c7e5b511d2fe7d0c88d08a18b318f4688d4",
+    "UnitTests/SU2_CFD/adaptation/CNativeRemesher3D_tests.cpp": "d4d196e0773ef93cedba06b1d9d1462c17e69c458040e3b618496f062b51376d"
+  },
+  "patch_sha256": "5da10981b4ab17385574889fd43420ef56fa9249fe2c1da8d792ef001d48ce18",
+  "status": "CORRECT_SERIAL_PILOT_REJECTED_PERFORMANCE",
+  "reason": "Same512-cell serial query replay0.5566s vs cold0.1538s;189 imports vs125/122 builds vs124; exact contact filtering did not remove cap churn. No broader exact-variant MPI/lifecycle campaign run."
+}

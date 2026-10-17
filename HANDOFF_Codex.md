@@ -44,6 +44,20 @@ One owned heavy job at a time/build-j1/nice19/threads1/MPI<=4,38–40GiB host av
 build peak process2.37GiB/pilot577.72MiB, not aggregate RAM. All owned jobs terminal;
 both test_driver and standalone SU2_CFD are current.
 
+**Current follow-up:** whole-donor point-preparation retention was correct but
+regressed the512-cell M6 replay (1.7–2.3x versus fresh-import reference); exact point
+filtering also regressed without index reuse. Both caches withdrawn. Preserve
+executed source patches/results. Original schedule restored with one index-build
+counter and reusable per-query tensor/weight audit. Current serial/MPI4 bridge,
+M6 query/reference comparison and independent N4/M2 RANS/BDF lifecycle PASS.
+At least1594/2560 M6 point queries repeat;<=966 distinct points fit the existing
+2048 sample capacity. This is a measured opportunity, not an implemented cache.
+All owned jobs terminal; current standalone/test binaries rebuilt.
+[Measurements, exact scope and next design](Handbook/GOAL3_POINT_PREPARATION_REUSE.md).
+Prefer canonical interpolation samples/stencils or scoped edge values over whole
+incident donor stars; no larger cap/reset ladder. Wider reconstruction-campaign
+retention/edge reuse/transaction batching remain unimplemented.
+
 Earlier complete-support replay estimates961498/961691 (pooled empirical SE6656),
 not a proven error bound. Tiny-cell conditioning is sparse/inefficient (11–22 hits/
 16384,2–38% reference errors). Independent square tube/fade integral and original

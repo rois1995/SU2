@@ -1,0 +1,74 @@
+{
+  "status": "BOTH_CACHE_STRATEGIES_WITHDRAWN",
+  "rows": [
+    {
+      "variant": "point_preparation_reuse_v1",
+      "ranks": 1,
+      "cells": 512,
+      "seconds_max": 0.15608473800000056,
+      "cold_seconds_max": 0.08545430499999895,
+      "ratio": 1.8265286693280398,
+      "field_builds_sum": 122,
+      "cold_field_builds_sum": 124,
+      "field_reuses_sum": 0,
+      "imports_max": 189,
+      "cold_imports_max": 125,
+      "support_resets_max": 65,
+      "query_count": 2560,
+      "exact_query_tensors_and_weights": true
+    },
+    {
+      "variant": "point_preparation_reuse_v1",
+      "ranks": 2,
+      "cells": 512,
+      "seconds_max": 0.18922643100000158,
+      "cold_seconds_max": 0.11230999500000038,
+      "ratio": 1.6848583334012341,
+      "field_builds_sum": 122,
+      "cold_field_builds_sum": 124,
+      "field_reuses_sum": 0,
+      "imports_max": 189,
+      "cold_imports_max": 125,
+      "support_resets_max": 65,
+      "query_count": 2560,
+      "exact_query_tensors_and_weights": true
+    },
+    {
+      "variant": "point_preparation_reuse_v1",
+      "ranks": 4,
+      "cells": 512,
+      "seconds_max": 0.18294266899999911,
+      "cold_seconds_max": 0.08026175300000205,
+      "ratio": 2.2793256085497466,
+      "field_builds_sum": 123,
+      "cold_field_builds_sum": 123,
+      "field_reuses_sum": 0,
+      "imports_max": 146,
+      "cold_imports_max": 95,
+      "support_resets_max": 51,
+      "query_count": 2560,
+      "exact_query_tensors_and_weights": true
+    },
+    {
+      "variant": "point_preparation_exact_v1",
+      "ranks": 1,
+      "cells": 512,
+      "seconds_max": 0.5565581549999976,
+      "cold_seconds_max": 0.15379220599999854,
+      "ratio": 3.6188970135456855,
+      "field_builds_sum": 122,
+      "cold_field_builds_sum": 124,
+      "field_reuses_sum": 0,
+      "imports_max": 189,
+      "cold_imports_max": 125,
+      "support_resets_max": 64,
+      "query_count": 2560,
+      "exact_query_tensors_and_weights": true
+    }
+  ],
+  "limits": [
+    "Contended512-cell preparation replay, not complete M6 adaptation or scaling.",
+    "Cold reference omits production admission bookkeeping.",
+    "Same source/query/metric checks pass but no performance benefit demonstrated."
+  ]
+}
