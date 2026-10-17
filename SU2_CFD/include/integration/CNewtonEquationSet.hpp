@@ -54,6 +54,7 @@ class CNewtonEquationSet : private CIntegration {
   std::array<unsigned long, 4> residualEvaluations{};
   unsigned long flowBoundaryEvaluations = 0;
   bool captured = false, valid = true;
+  bool reuseBoundaryGradients = false; /*!< \brief Collective eligibility from this evaluation's boundary closure. */
   double invalidCount = 0;
   su2vector<int8_t>* reconstructionHistory = nullptr;
   std::vector<int8_t> acceptedReconstruction, nextReconstruction;

@@ -799,9 +799,10 @@ public:
   /*!
    * \brief Refresh fine-grid flow properties after derived transport data changes.
    * \details Primary values and their gradient inputs must remain unchanged. The default repeats full preprocessing.
+   * \param[in] output - Retain residual/matrix data when true; otherwise prepare residual assembly.
    */
-  virtual void Preprocessing_Properties(CGeometry* geometry, CSolver** solvers, CConfig* config) {
-    Preprocessing(geometry, solvers, config, MESH_0, NO_RK_ITER, RUNTIME_FLOW_SYS, true);
+  virtual void Preprocessing_Properties(CGeometry* geometry, CSolver** solvers, CConfig* config, bool output = true) {
+    Preprocessing(geometry, solvers, config, MESH_0, NO_RK_ITER, RUNTIME_FLOW_SYS, output);
   }
 
   /*!

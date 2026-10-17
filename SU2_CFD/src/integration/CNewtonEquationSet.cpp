@@ -15,6 +15,23 @@ bool HasFlowFeedback(const CConfig& config) {
          config.GetnMarker_ActDiskInlet() || config.GetnMarker_ActDiskOutlet();
 }
 
+/*! \brief Boundaries and first-order auxiliary sources only consume the freshly computed temperature/velocity gradients. */
+bool CanReuseBoundaryGradients(const CConfig& config) {
+  if (config.GetMUSCL_Flow() || config.GetMUSCL_Turb() || config.GetWall_Functions() ||
+      config.GetKind_Species_Model() != SPECIES_MODEL::NONE ||
+      config.GetKind_HybridRANSLES() != NO_HYBRIDRANSLES || config.GetKind_RoeLowDiss() != NO_ROELOWDISS ||
+      config.GetKind_Streamwise_Periodic() != ENUM_STREAMWISE_PERIODIC::NONE ||
+      (config.GetKind_Turb_Model() != TURB_MODEL::SA && config.GetKind_Turb_Model() != TURB_MODEL::SST)) return false;
+  for (auto marker = 0u; marker < config.GetnMarker_All(); ++marker) {
+    switch (config.GetMarker_All_KindBC(marker)) {
+      case FAR_FIELD: case HEAT_FLUX: case ISOTHERMAL: case HEAT_TRANSFER:
+      case EULER_WALL: case SYMMETRY_PLANE: case PERIODIC_BOUNDARY: case SEND_RECEIVE: break;
+      default: return false;
+    }
+  }
+  return true;
+}
+
 /*! \brief Restore shared equation settings and periodic assembly flags after every evaluation or early return. */
 class EquationSettingsGuard {
   CConfig& config;
@@ -566,9 +583,12 @@ bool CNewtonEquationSet::EvaluateResiduals(bool implicit, bool allEquations, dou
     }
     atomicAdd(changed, invalidCount);
     BEGIN_SU2_OMP_SAFE_GLOBAL_ACCESS {
-      double global = 0;
-      SU2_MPI::Allreduce(&invalidCount, &global, 1, MPI_DOUBLE, MPI_SUM, SU2_MPI::GetComm());
-      valid = global == 0;
+      /*--- Boundary ownership differs by rank. Agree on gradient communication with the existing closure reduction. ---*/
+      const double local[2] = {invalidCount, CanReuseBoundaryGradients(*config) ? 0.0 : 1.0};
+      double global[2] = {};
+      SU2_MPI::Allreduce(local, global, 2, MPI_DOUBLE, MPI_SUM, SU2_MPI::GetComm());
+      valid = global[0] == 0;
+      reuseBoundaryGradients = global[1] == 0;
     }
     END_SU2_OMP_SAFE_GLOBAL_ACCESS
     const bool unchanged = valid;
@@ -602,14 +622,18 @@ bool CNewtonEquationSet::EvaluateResiduals(bool implicit, bool allEquations, dou
     if (!solvers[slot]) continue;
     SU2_OMP_SAFE_GLOBAL_ACCESS(config->SetResidualOnly(!implicit || !assemble);
                                config->SetGlobalParam(config->GetKind_Solver(), runtime);)
-    /*--- Dependency-only preprocessing retains the settled row masks and live turbulence gradients. ---*/
-    solvers[slot]->Preprocessing(geometry, solvers, config, MESH_0, NO_RK_ITER, runtime,
-                                 !assemble && runtime != RUNTIME_FLOW_SYS);
-    if (!assemble && runtime != RUNTIME_FLOW_SYS) continue;
     /*--- Bounded scalars need live edge mass fluxes. Keep feedback and custom-source failure checks.
      *     Auxiliary owners never commit flow reconstruction history; its saved counters remain frozen. ---*/
     const bool boundaryOnly = runtime == RUNTIME_FLOW_SYS && !assemble &&
                               !config->GetBounded_Scalar() && !config->GetPyCustomSource() && !HasFlowFeedback(*config);
+    if (boundaryOnly && reuseBoundaryGradients)
+      /*--- Refresh() already computed the gradients used here; retain native properties and residual preparation. ---*/
+      solvers[slot]->Preprocessing_Properties(geometry, solvers, config, false);
+    else
+      /*--- Dependency-only preprocessing retains the settled row masks and live turbulence gradients. ---*/
+      solvers[slot]->Preprocessing(geometry, solvers, config, MESH_0, NO_RK_ITER, runtime,
+                                   !assemble && runtime != RUNTIME_FLOW_SYS);
+    if (!assemble && runtime != RUNTIME_FLOW_SYS) continue;
     if (boundaryOnly) {
       /*--- Reducer preprocessing leaves the residual uncleared until the volume pass. ---*/
       solvers[slot]->LinSysRes.SetValZero();

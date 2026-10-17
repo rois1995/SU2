@@ -95,10 +95,9 @@ struct Problem {
       if (physics.find("MARKER_FAR=") == std::string::npos)
         config << "MARKER_FAR= (x_minus,x_plus,y_plus" << (threeD ? ",z_minus,z_plus" : "") << ")\n";
       if (physics.find("REYNOLDS_NUMBER=") == std::string::npos) config << "REYNOLDS_NUMBER= 1e6\n";
-      config << "MACH_NUMBER= 0.2\nMUSCL_FLOW= "
-             << (muscl ? "YES" : "NO")
-             << "\nMUSCL_TURB= NO\n"
-                "MUSCL_SPECIES= NO\nMGLEVEL= 0\nOUTPUT_FILES= NONE\n"
+      config << "MACH_NUMBER= 0.2\nMUSCL_FLOW= " << (muscl ? "YES" : "NO") << "\n";
+      if (physics.find("MUSCL_TURB=") == std::string::npos) config << "MUSCL_TURB= NO\n";
+      config << "MUSCL_SPECIES= NO\nMGLEVEL= 0\nOUTPUT_FILES= NONE\n"
                 "SCREEN_OUTPUT= (INNER_ITER)\nHISTORY_OUTPUT= (ITER,RMS_RES)\n";
       if (physics.find("CONV_NUM_METHOD_FLOW=") == std::string::npos)
         config << "CONV_NUM_METHOD_FLOW= " << (physics.find("SOLVER= INC_") == std::string::npos ? "ROE" : "FDS") << "\n";
@@ -2870,8 +2869,11 @@ TEST_CASE("Shared Newton evaluation scratch preserves independent captured bases
 }
 
 TEST_CASE("Auxiliary probes retain full-path residuals and characteristic states", "[NewtonRefresh]") {
+  auto inc = incompressible;
+  inc.replace(inc.find("INC_NAVIER_STOKES"), std::string("INC_NAVIER_STOKES").size(), "INC_RANS");
   for (const auto& physics : {sa, sst, sst + "KIND_TRANS_MODEL= LM\n", species, flamelet,
-                              sst + "CONV_NUM_METHOD_TURB= BOUNDED_SCALAR\n"})
+                              sst + "CONV_NUM_METHOD_TURB= BOUNDED_SCALAR\n", sst + "MUSCL_TURB= YES\n",
+                              inc + "KIND_TURB_MODEL= SA\n", inc + "KIND_TURB_MODEL= SST\n"})
     for (bool muscl : {false, true}) {
       CAPTURE(physics, muscl);
       Problem problem(physics, 5, muscl);
@@ -2920,6 +2922,10 @@ TEST_CASE("Auxiliary probes retain full-path residuals and characteristic states
         return values;
       };
       for (double step : {0.01, -0.02, 0.01, 0.0}) {
+        /*--- This marker can exist on only one rank: fallback must still use matching gradient communications. ---*/
+        if (step == 0.0)
+          for (auto m = 0u; m < config->GetnMarker_All(); ++m)
+            if (config->GetMarker_All_TagBound(m) == "x_plus") config->SetMarker_All_KindBC(m, SUPERSONIC_OUTLET);
         equations->SetTrial(direction, step, scale, isFree);
         REQUIRE(Residual(*equations, false, true));
         equations->CopyResidual(expected);

@@ -149,3 +149,29 @@ requested-row version, in all three modes. The historical quiet gradient profile
 motivated this change; new phase counts/times and release timings remain pending.
 Current contended timings are excluded. Higher-CFL studies follow implementation
 measurement and will retain all existing physical/state/acceptance requirements.
+
+## Reuse gradients during auxiliary boundary preparation
+
+First-order SA/SST/LM probes with standard far-field, wall, symmetry or periodic
+boundaries now retain the temperature/velocity gradients computed after strong
+closure in the same residual wrapper. Native common preprocessing still refreshes
+properties, admission checks, sensors and residual preparation. Full preprocessing
+remains for flow/scalar reconstruction, species, wall functions, hybrid modes,
+Roe dissipation sensors, streamwise-periodic recovery and other boundary types.
+All flow-selected residuals still use complete preprocessing.
+
+Ranks can own different boundary types. Eligibility is therefore reduced together
+with the existing primary-state closure check, with no additional collective.
+Every successful evaluation assigns it again before use; it is not a cache across
+wrappers, retries, state changes or configuration changes. The first prototype's
+MPI communication mismatch is preserved in `boundary_prep_correctness/` and
+`boundary_prep_failed_candidate.json`; that prototype was not committed.
+
+Full-vs-auxiliary tests include positive/negative/repeated/zero steps, separate
+flow and scalar MUSCL fallbacks, compressible and incompressible SA/SST, active LM,
+species/flamelet, frozen reconstruction history and exact rollback. Changing a
+boundary only on its owning rank checks collective fallback. All 60 native cases
+pass on 1x1, 1x4, 2x2 and 2x4. All five converged families retain every original
+work count and restart byte against the property-only version in all three modes.
+Final phase counts and repeated release timing comparisons follow; busy-host
+correctness times remain excluded. Higher-CFL trials have not started.

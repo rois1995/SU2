@@ -918,5 +918,67 @@
     "evidence": "properties/, properties_correctness/, properties_monitored/, property_refresh_scope.json",
     "contract": "Within one Refresh only; native common properties/error checks/reductions remain fresh. First/final flow preprocessing stays full, with full second-pass fallback for wall functions and external feedback.",
     "timings": "Contended; excluded from performance claims."
+  },
+  "boundary_preprocessing": {
+    "source_sha256": {
+      "SU2_CFD/include/integration/CNewtonEquationSet.hpp": "e1cde54613f8ee8e809f082984c6f2343919805852f39208d32db6585a0dbf2b",
+      "SU2_CFD/include/solvers/CSolver.hpp": "5160f2baa14a62360043b7880cbbe4016d6867073da8eaf91e5ea6057e34151c",
+      "SU2_CFD/include/solvers/CEulerSolver.hpp": "c287f088220d34e253443f5be7bf693b1a0b9779303eb423c4b2c24b96946efd",
+      "SU2_CFD/include/solvers/CIncEulerSolver.hpp": "9c9eb856dbf2d3bfa0be963350a233a39838b62ba5e282ef5c85048b0b8c67fe",
+      "SU2_CFD/src/integration/CNewtonEquationSet.cpp": "17d03ed4132ed346648b2c7d73e3a747f695551a16b5ec23977bf9d93a411435",
+      "UnitTests/SU2_CFD/newton_equations.cpp": "822b526b449f9b2f8a416280ff78daf65ba93c6fe225f7ea97c71dbced932ac3"
+    },
+    "binaries": {
+      "SU2_CFD": "75b0d848ee24bca74d7d472a612bbca34986757c77339ff9cfc748edf06340d1",
+      "test_driver": "023743e2965ab287ab92efaaefb4c8c05caa9cf9d85f161300641f3f7a691a43",
+      "newton_equation_tests": "905f30d4a59c46286f0806dd4bbec8be31555eab5f94cf805ed10c7a2a26ee01"
+    },
+    "native_cases": 60,
+    "assertions_per_rank": {
+      "1x1": [
+        111192
+      ],
+      "1x4": [
+        111192
+      ],
+      "2x2": [
+        67504,
+        61078
+      ],
+      "2x4": [
+        67504,
+        61078
+      ]
+    },
+    "families": [
+      {
+        "case": "sa",
+        "results_sha256": "4046c23f387c85aac875f40960278dee667198145678a690779648ce7b1a6398",
+        "all_work_and_restart_bytes_equal": true
+      },
+      {
+        "case": "sst",
+        "results_sha256": "b8a0bee12baa8d56db32687ddf9890c4cc4615aab73480c2fb55f013969c760c",
+        "all_work_and_restart_bytes_equal": true
+      },
+      {
+        "case": "lm",
+        "results_sha256": "c249448caa555700d38bdf93930641a771eb8d70e3f4c7c0ada5f7d4ef31cd8d",
+        "all_work_and_restart_bytes_equal": true
+      },
+      {
+        "case": "mms",
+        "results_sha256": "6a17fe3f2cf5c17b43c056ea5819fb4121aba49e02f8df328bf1c74c252f0cd5",
+        "all_work_and_restart_bytes_equal": true
+      },
+      {
+        "case": "species",
+        "results_sha256": "2c85984d4dd554ccfaf475b16013b712c4b063e9be34f5291918d3e5c4bc505c",
+        "all_work_and_restart_bytes_equal": true
+      }
+    ],
+    "failed_prototype": "boundary_prep_failed_candidate.json",
+    "timing": "Contended correctness; no speed claim.",
+    "collective": "Reuse eligibility is reduced in the existing closure SUM with the unchanged primary-state decision; no extra collective. Every successful evaluation assigns it before use. No state/config decision survives the wrapper."
   }
 }
