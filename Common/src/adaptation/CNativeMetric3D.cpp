@@ -116,8 +116,8 @@ namespace {
 bool Same(Point a, Point b) { return a.x == b.x && a.y == b.y && a.z == b.z; }
 void Shape(const PatchMetric& m);
 }  // namespace
-PatchMetric MeasureMetricCells(const std::vector<Cell>& cells, FrozenField& target, MetricStats* stats,
-                               const std::map<Edge, EdgeMeasure>* reuse, bool require_shape, MetricDiagnosis* diagnosis) {
+static PatchMetric MeasureMetricCellsImpl(const std::vector<Cell>& cells, FrozenField& target, MetricStats* stats,
+                               const std::map<Edge, EdgeMeasure>* reuse, bool require_shape, MetricDiagnosis* diagnosis,bool shapes_only) {
   if (diagnosis) { *diagnosis={}; diagnosis->failure=MetricFailure::Measurement; }
   if (cells.empty() || cells.size() > MaximumReplacementCells)
     throw std::invalid_argument("Native 3D metric patch exceeds budget or is empty.");
@@ -158,9 +158,10 @@ PatchMetric MeasureMetricCells(const std::vector<Cell>& cells, FrozenField& targ
       result.minimum_scaled_jacobian = m.minimum_scaled_jacobian;
       result.sliver_cell = cell.id;
     }
-    for (size_t i = 0; i < 4; ++i)
+    if(!shapes_only)for (size_t i = 0; i < 4; ++i)
       for (size_t j = i + 1; j < 4; ++j) result.edges.emplace(Edge{key[i], key[j]}, EdgeMeasure{});
   }
+  if(shapes_only)return result; // Only the scalar ranking wrapper can consume this incomplete measurement.
   // Reject inadmissible private shapes before spending source-resolved edge integration work.
   if (diagnosis) {
     diagnosis->minimum_mean_ratio=result.minimum_mean_ratio;
@@ -207,6 +208,14 @@ PatchMetric MeasureMetricCells(const std::vector<Cell>& cells, FrozenField& targ
   }
   if (diagnosis) diagnosis->failure=MetricFailure::None;
   return result;
+}
+double MetricShapeQuality(const std::vector<Cell>& cells,FrozenField& target) {
+  const auto shape=MeasureMetricCellsImpl(cells,target,nullptr,nullptr,false,nullptr,true);
+  return std::min(shape.minimum_mean_ratio/MinimumMeanRatio,shape.minimum_scaled_jacobian/MinimumScaledJacobian);
+}
+PatchMetric MeasureMetricCells(const std::vector<Cell>& cells,FrozenField& target,MetricStats* stats,
+                               const std::map<Edge,EdgeMeasure>* reuse,bool require_shape,MetricDiagnosis* diagnosis) {
+  return MeasureMetricCellsImpl(cells,target,stats,reuse,require_shape,diagnosis,false);
 }
 namespace {
 void Shape(const PatchMetric& m) {

@@ -82,6 +82,18 @@ Old driver baseline timed out; corrected rank-only fixture failure stays failed.
 All owned jobs terminal/current binaries built. Metric evaluation still dominates.
 [Evidence and rejected grids](integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/first_row_transactions_v1/README.md).
 
+**Exact shape-dominance screen validated:** shared actual-centroid arithmetic
+skips edge measurement only for strictly worse candidates; ties/better still receive
+full measurement. M6 MPI2/4 batch1/8 exactly matches prior selected geometry/skin/
+markers/volume.181/256 candidates pruned;1,856->951 fresh integrals, metric work
+~42% lower, first-row6.05->3.43s /3.58->2.08s (single local observations).67 serial
+cases plus MPI/curved/RANS N4M2/BDF/restart/SU2+CGNS pass. Old cache-hit assertion
+failed after measurements were avoided; source/log retained, test-only correction.
+All owned jobs terminal. Stop this bounded query/publication follow-up; return to
+global error calibration/allocation and same-original-field reassessment before
+another constructor mechanism. No accepted M6 or full-event speedup.
+[Evidence and resources](integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/first_row_shape_ranking_v1/README.md).
+
 ## Remaining evidence and scope
 
 No accepted M6 grid, rigorously qualified complete mass, calibrated global error/production

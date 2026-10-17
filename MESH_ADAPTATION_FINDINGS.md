@@ -6359,3 +6359,20 @@ MPI/general/curved and independent RANS/SA N4M2/BDF/restart/SU2+CGNS pass. The M
 subsets intentionally reject on work budget; no accepted wing or complete-event
 efficiency claim. Full-driver timeout/rank-config failure are retained separately.
 [Evidence, model/counter scope and inspectable rejected subsets](integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/first_row_transactions_v1/README.md).
+
+
+### 2026-10-17 — exact shape dominance avoids unselectable edge measurements
+
+A scalar actual-centroid ranking path shares the full metric measurement's shape
+arithmetic and geometry/source validation. Strictly worse first-row candidates skip
+edge measurement; ties/better retain it. No partial PatchMetric certificate escapes.
+Original donors/actual-query BL/finer/fade and all final mesh/transfer gates remain.
+M6 MPI2/4 batch1/8 exactly reproduces prior selected geometry/skin/markers/volume:
+181/256 candidates prune,1,856->951 fresh integrals, metric rank-work~42% lower.
+First-row6.049->3.433s /3.585->2.077s are single bounded-stage observations only.
+67 serial cases plus affected MPI, curved-return and independent RANS/SA N4M2/BDF/
+SA/restart/SU2+CGNS pass. Obsolete fixture cache-hit assertion/failure/source retained;
+updated test checks actual screening plus full evaluation, existing reuse tests pass.
+No accepted M6 or complete adaptation speedup. Global error calibration/allocation,
+original-field reassessment/correction and difficult construction remain next.
+[Evidence, resources and limitations](integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/first_row_shape_ranking_v1/README.md).

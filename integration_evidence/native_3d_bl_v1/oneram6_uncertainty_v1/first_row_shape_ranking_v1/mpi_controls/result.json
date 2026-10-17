@@ -1,0 +1,27 @@
+{
+  "exit_code": 0,
+  "elapsed_seconds": 1.0129712399793789,
+  "command": [
+    "taskset",
+    "-c",
+    "0-3",
+    "nice",
+    "-n",
+    "19",
+    "timeout",
+    "--kill-after=5s",
+    "180s",
+    "mpirun",
+    "-np",
+    "4",
+    "--bind-to",
+    "none",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver",
+    "[NativeInteriorBatch3D],[NativeFirstLayerBatch3D],[NativeFirstLayerEngine3D],[NativePolicy3D],[NativeBatchLookup3D],[NativeBatchPlanning3D],[NativeBatchEngine3D]",
+    "--abort",
+    "--reporter",
+    "compact"
+  ],
+  "provenance_sha256": "d79c9208b7ff4c3faa40b8a6c89008f1d9c61980f21a6a574f888d8514a6c344",
+  "log_sha256": "aab889ccdbb009c19d14f9b1cd463c440fa240476c7b3f69f8a93eaf49edfe6f"
+}

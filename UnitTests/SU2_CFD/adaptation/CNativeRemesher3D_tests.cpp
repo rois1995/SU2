@@ -523,6 +523,7 @@ TEST_CASE("Native first-row transactions replay original fields without solver i
     <<",\"batches\":"<<s.layer_batches<<",\"maximum_batch\":"<<s.layer_maximum_batch<<",\"donor_batches\":"<<s.layer_donor_batches
     <<",\"donor_retries\":"<<s.layer_donor_retries<<",\"metadata_seconds\":"<<s.layer_metadata_seconds<<",\"donor_seconds\":"<<s.layer_donor_seconds
     <<",\"geometry_seconds\":"<<s.layer_geometry_seconds<<",\"metric_seconds\":"<<s.layer_metric_seconds<<",\"publication_seconds\":"<<s.layer_publication_seconds
+    <<",\"shape_screens\":"<<s.layer_shape_screens<<",\"shape_pruned\":"<<s.layer_shape_pruned
     <<",\"edge_evaluations\":"<<s.layer_edge_evaluations<<",\"edge_reused\":"<<s.layer_edge_reused<<",\"tracked_calls\":"<<s.tracked_calls
     <<",\"directory_elections\":"<<s.directory_elections<<",\"maximum_native_bytes\":"<<s.maximum_work_bytes
     <<",\"stop\":\""<<EngineStopName(s.stop)<<"\",\"reason\":"<<std::quoted(result.reason)

@@ -1,0 +1,47 @@
+[
+  {
+    "time": "2026-10-17T16:46:07.859171",
+    "sampled_process_tree_rss_bytes": 940249088,
+    "limits": "Single snapshot, shared pages may be counted repeatedly; not peak/PSS. Only current campaign descendants.",
+    "host_MemAvailable": "41957304 kB",
+    "host_SwapFree": "14789628 kB",
+    "loadavg": "2.79 2.62 2.39 8/2318 1281055",
+    "processes": [
+      {
+        "pid": 1280505,
+        "rss_bytes": 43704320,
+        "command": "python3 integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/first_row_shape_ranking_v1/campaign.py "
+      },
+      {
+        "pid": 1280898,
+        "rss_bytes": 598016,
+        "command": "timeout --kill-after=5s 180s mpirun -np 4 --bind-to none /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver [NativeFirstRowReplay3D] --abort --reporter compact "
+      },
+      {
+        "pid": 1280899,
+        "rss_bytes": 22736896,
+        "command": "mpirun -np 4 --bind-to none /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver [NativeFirstRowReplay3D] --abort --reporter compact "
+      },
+      {
+        "pid": 1280904,
+        "rss_bytes": 218415104,
+        "command": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver [NativeFirstRowReplay3D] --abort --reporter compact "
+      },
+      {
+        "pid": 1280905,
+        "rss_bytes": 218058752,
+        "command": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver [NativeFirstRowReplay3D] --abort --reporter compact "
+      },
+      {
+        "pid": 1280906,
+        "rss_bytes": 218259456,
+        "command": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver [NativeFirstRowReplay3D] --abort --reporter compact "
+      },
+      {
+        "pid": 1280907,
+        "rss_bytes": 218476544,
+        "command": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver [NativeFirstRowReplay3D] --abort --reporter compact "
+      }
+    ]
+  }
+]

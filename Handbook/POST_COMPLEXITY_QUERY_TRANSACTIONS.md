@@ -53,3 +53,13 @@ geometry treatment. Partition weights should separate useful work from MPI waits
 
 The final requested suggestion-by-suggestion report is tracked in
 SUGGESTION_OUTCOME_LEDGER.md; it is not yet a completed-work report.
+
+
+The first-row shape ranking now skips edge measurement for strictly worse
+candidates, sharing exact centroid arithmetic. Full M6 frozen-field MPI2/4 selects
+the same geometry, with about42% less metric rank-work in the bounded64-parent
+stage. [Evidence and limitations](../integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/first_row_shape_ranking_v1/README.md).
+This closes the scoped first-row follow-up; general repair support/displaced
+transactions and full lifecycle affordability remain open. Return to global
+uncertainty calibration/allocation and same-original-field reassessment, rather
+than adding another cache based on the isolated gain.

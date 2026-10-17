@@ -1000,6 +1000,8 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
                 }
                 MetricStats counted;PatchMetric measured;
                 {Timer timer(stats.layer_metric_seconds,options.timings);
+                  ++stats.layer_shape_screens;
+                  if(MetricShapeQuality(candidate.cells,*target)<bestQuality){++stats.layer_shape_pruned;continue;}
                   measured=MeasureMetricCells(candidate.cells,*target,&counted,&reuse);
                 }
                 reuse=measured.edges;

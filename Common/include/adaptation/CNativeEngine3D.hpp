@@ -50,6 +50,7 @@ struct EngineStats {
   uint64_t layer_published = 0, height_checks = 0, height_rejected = 0, footprint_rejected = 0;
   uint64_t layer_edge_evaluations=0,layer_edge_reused=0;
   uint64_t layer_batches=0,layer_donor_batches=0,layer_donor_retries=0;
+  uint64_t layer_shape_screens=0,layer_shape_pruned=0;
   size_t layer_maximum_batch=0;
   // Nested in layer_seconds; source/geometry/metric/publication remain distinct from metadata and residual work.
   double layer_metadata_seconds=0,layer_donor_seconds=0,layer_geometry_seconds=0,layer_metric_seconds=0,layer_publication_seconds=0;

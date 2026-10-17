@@ -1,0 +1,89 @@
+{
+  "status": "PASS_BOUNDED_STAGE_COMPARISON",
+  "comparisons": [
+    {
+      "ranks": 2,
+      "batch": 8,
+      "measurements": [
+        {
+          "version": "previous",
+          "case": "integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/first_row_transactions_v1/native_np2_b8",
+          "provenance_sha256": "29b446f6650e67cad38bf796ef05c70aa155a4fd6dff5fc11b2da6805b1727df",
+          "result_sha256": "37fe8cbc0527207fe6cc48884d531a0de81682906957191391ab15e8270cff9f",
+          "first_row_seconds_max": 6.049355438,
+          "native_seconds_max": 7.390913019,
+          "metric_rank_seconds_sum": 9.555369102,
+          "edge_integrations_sum": 1856,
+          "edge_cache_hits_sum": 1728,
+          "shape_screens_sum": 0,
+          "shape_pruned_sum": 0,
+          "maximum_native_bytes_per_rank": 1161490808
+        },
+        {
+          "version": "screened",
+          "case": "integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/first_row_shape_ranking_v1/native_np2_b8",
+          "provenance_sha256": "cb605a09c2a8978a7ffeece518ffe4bc3df08e8cfb6881207ed71dd698a6e04d",
+          "result_sha256": "81a63f33bb6a1769431f3596325042e01d959d84aec4d007d7dd505df918a931",
+          "first_row_seconds_max": 3.43293251,
+          "native_seconds_max": 4.679866986,
+          "metric_rank_seconds_sum": 5.455278574000001,
+          "edge_integrations_sum": 951,
+          "edge_cache_hits_sum": 99,
+          "shape_screens_sum": 256,
+          "shape_pruned_sum": 181,
+          "maximum_native_bytes_per_rank": 1161490808
+        }
+      ],
+      "first_row_reduction": 0.43251267921281633,
+      "metric_work_reduction": 0.4290876139093176,
+      "native_kernel_reduction": 0.3668080013972087,
+      "same_exact_geometry_bindings_volume_skin": true,
+      "same_inputs_original_field_and_work_budget": true
+    },
+    {
+      "ranks": 4,
+      "batch": 8,
+      "measurements": [
+        {
+          "version": "previous",
+          "case": "integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/first_row_transactions_v1/native_np4_b8",
+          "provenance_sha256": "459f56bf80f6a32200b2b6a4537b5bff00f9a8c94348827adf13183dd9a00673",
+          "result_sha256": "abe8599b61a43a5243c7b0fe745499d56aa9a19229422bdae959717a75581e4d",
+          "first_row_seconds_max": 3.584616295,
+          "native_seconds_max": 4.456630186,
+          "metric_rank_seconds_sum": 9.983177008,
+          "edge_integrations_sum": 1856,
+          "edge_cache_hits_sum": 1728,
+          "shape_screens_sum": 0,
+          "shape_pruned_sum": 0,
+          "maximum_native_bytes_per_rank": 580996152
+        },
+        {
+          "version": "screened",
+          "case": "integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/first_row_shape_ranking_v1/native_np4_b8",
+          "provenance_sha256": "180879fe679daeba4c94ce3e6c4c6643bea98aaad874e9cf2128cf870253d059",
+          "result_sha256": "00780b17cb1b73aaee56307165533c8b5b9b17a2cf1857cef28aed8feb5e6e65",
+          "first_row_seconds_max": 2.077418326,
+          "native_seconds_max": 3.034858418,
+          "metric_rank_seconds_sum": 5.777736005,
+          "edge_integrations_sum": 951,
+          "edge_cache_hits_sum": 99,
+          "shape_screens_sum": 256,
+          "shape_pruned_sum": 181,
+          "maximum_native_bytes_per_rank": 580996152
+        }
+      ],
+      "first_row_reduction": 0.42046284594039096,
+      "metric_work_reduction": 0.42125277350386325,
+      "native_kernel_reduction": 0.31902395053247534,
+      "same_exact_geometry_bindings_volume_skin": true,
+      "same_inputs_original_field_and_work_budget": true
+    }
+  ],
+  "limits": [
+    "Single local observations; no statistical timing/scaling qualification.",
+    "No accepted full M6 mesh, whole-event speedup, transferred wing solution, uncertainty correction or normalization proof."
+  ],
+  "campaign_helper_sha256": "a53817c028869e2e7b3fbee7638366fdbc635d7c54ef316926fe354b3639279f",
+  "summary_sha256": "20cbe7a328ee02bd08f63182b0cf987b81389f3f072aac71028a747558dfa882"
+}

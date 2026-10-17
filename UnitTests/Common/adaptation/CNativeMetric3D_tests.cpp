@@ -370,3 +370,21 @@ TEST_CASE("Native actual-centroid q/J Jacobian matches anisotropic spatial finit
   CHECK_THROWS(LinearizeMetricShape({inverted[0].p,inverted[1].p,inverted[2].p,inverted[3].p},{}));
   const auto c=Single();CHECK_THROWS(LinearizeMetricShape({c.v[0].p,c.v[1].p,c.v[2].p,c.v[3].p},{-1,0,0,1,0,1}));
 }
+
+
+TEST_CASE("Metric shape ranking shares exact centroid arithmetic without certifying edges", "[NativeShapeRanking3D]") {
+  size_t compositions=0;
+  const MetricComposition compose=[&](Point p,Tensor m){++compositions;m.xx+=p.x;return m;};
+  FrozenField target({Donor({})},compose,false,{},[](Point,Point){return std::vector<double>{0,1};});
+  const auto shape=MetricShapeQuality({Single()},target);CHECK(compositions==1);CHECK(target.Statistics().edge_requests==0);
+  const auto full=MeasureMetricCells({Single()},target);
+  CHECK(shape==std::min(full.minimum_mean_ratio/MinimumMeanRatio,full.minimum_scaled_jacobian/MinimumScaledJacobian));
+  auto weak=Single();weak.v[3].p.z=.01;
+  CHECK(MetricShapeQuality({weak},target)<shape);
+  CHECK_THROWS(MetricShapeQuality({},target));CHECK_THROWS(MetricShapeQuality({Single(),Single()},target));
+  auto outside=Single();outside.v[3].p.z=10;CHECK_THROWS(MetricShapeQuality({outside},target));
+  // A shape score cannot authorize a composed target whose edge policy is missing.
+  FrozenField unresolved({Donor({})},compose);CHECK(std::isfinite(MetricShapeQuality({Single()},unresolved)));
+  PatchMetric measured;std::string reason;CHECK_FALSE(ValidateMetricPatch({Single()},unresolved,measured,reason));
+  CHECK(reason.find("geometry-resolved")!=std::string::npos);
+}

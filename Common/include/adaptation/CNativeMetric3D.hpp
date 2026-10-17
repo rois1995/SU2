@@ -50,6 +50,9 @@ struct MetricDiagnosis {
   double minimum_mean_ratio = 1, minimum_scaled_jacobian = 1;
   Id weakest_cell = 0, sliver_cell = 0;
 };
+/*! Minimum normalized q/J at actual cell centroids, with the same geometry/source validation
+ * and arithmetic as MeasureMetricCells. This scalar is a proposal-ranking score, never an edge/mesh certificate. */
+double MetricShapeQuality(const std::vector<Cell>& cells,FrozenField& target);
 /*! Measures only actual centroids and source-resolved edges of the supplied known cells; throws on
  * invalid geometry/source coverage. A caller can merge bounded batches by cell minima and unique edges.
  * The source must remain the same original frozen target throughout, including any scalar-edge reuse. */

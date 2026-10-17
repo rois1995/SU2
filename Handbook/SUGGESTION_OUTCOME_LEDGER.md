@@ -431,3 +431,35 @@ One heavy job/build-j1/thread1/MPI<=4, max build process2.40GiB, host39–40GiB 
 Wider campaign support, general displaced-transaction batching, original-field
 uncertainty/reassessment/correction, viscous accuracy and lifecycle affordability
 remain open. See [full evidence, failures and limits](../integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/first_row_transactions_v1/README.md).
+
+
+## 2026-10-17: avoid unselectable first-row edge work WORKED in the measured scope
+
+The existing initializer maximizes normalized minimum q/J, then minimizes full
+maximum edge length on exact shape ties. One shared scalar shape-ranking path now
+screens strictly worse candidates before expensive edges. Equal/better candidates
+retain full measurement and comparison. No approximate screen, new candidate,
+target adjustment, mesh tolerance or partial acceptance certificate is introduced.
+Actual centroid composition still occurs, original donors/finer/fade remain frozen,
+and final geometry/height/positivity/q/J/full-edge/transfer gates stay unchanged.
+
+Same full original M6 field, 64 private initializations, MPI2/4 batch1/8: exact
+selected geometry/physical bindings/rational positive volume/outer skin equal the
+previous constructor.181 of256 candidates prune, fresh integrations1,856->951.
+At batch8, metric rank-work9.555->5.455 /9.983->5.778s; first-row6.049->3.433 /
+3.585->2.077s. Single contended observations, not scaling or whole-event gains.
+Cache hits fall because whole measurements disappear, not because reuse broke.
+
+67 serial controls/5,208 assertions plus affected MPI4 controls, curved return and
+independent RANS/SA N4M2 current+BDF/SA/restart/SU2+CGNS checks pass. The first
+serial pilot rejected an obsolete expectation that this fixture must hit its edge
+cache; the screen now avoids those later measurements. Failed executed source/logs
+are retained. Only that test expectation changed; separate edge-reuse tests remain.
+One owned heavy job/build-j1/thread1; max build process2.40GiB, host39–40GiB available,
+zero recorded GNU-time swaps. Process-tree memory snapshot and receipts preserved.
+
+This completes the measured first-row query/publication follow-up, not general
+campaign support or displaced batching. No accepted M6 mesh, original-field global
+uncertainty calibration/reassessment/correction, viscous accuracy or lifecycle
+qualification. Resume those capability gaps before another cache/local fallback.
+No2D/MMG path changed. [Exact results, failure and limits](../integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/first_row_shape_ranking_v1/README.md).

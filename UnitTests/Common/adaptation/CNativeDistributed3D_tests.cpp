@@ -2565,7 +2565,9 @@ TEST_CASE("Native first-row owners construct disjoint wall cells concurrently", 
     const auto result=Refine(world,input,Uniform(input,{1,0,0,1,0,100}),reference,{},options);
     CHECK(Bytes(input)==saved);CHECK_FALSE(result.valid);CHECK(result.stats.stop==EngineStop::WorkBudget);
     CHECK(result.stats.global_work==32);CHECK(world.sum(int(result.stats.layer_published))==32);
-    CHECK(world.maximum(result.stats.layer_edge_reused>0));
+    CHECK(world.maximum(result.stats.layer_shape_pruned>0));
+    CHECK(world.maximum(result.stats.layer_shape_screens>result.stats.layer_shape_pruned));
+    CHECK(world.maximum(result.stats.layer_edge_evaluations>0));
     std::vector<Tet> signature;
     for(const auto& row:result.cells) {FirstHeightReport report;std::string reason;
       CHECK(CheckFirstHeight(PatchOf({row.second}),options.wall_heights,reference,report,reason));

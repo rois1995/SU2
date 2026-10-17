@@ -1,0 +1,7 @@
+{
+  "status": "REJECTED_TEST_EXPECTATION",
+  "base": "ca5d3184a0b1dace3f4c720e7c776699aa30682e",
+  "executed_source_patch": "initial_control_source.patch.gz",
+  "reason": "First-row box fixture now prunes all later edge measurements. Previous cache-hit assertion no longer describes the path; independent metric-reuse tests remain. Require screens, actual pruning and full edge evaluation instead. Geometry/height/atomicity assertions unchanged.",
+  "source_change": "Test expectation only; production source unchanged."
+}
