@@ -759,5 +759,17 @@
   "interacting_wall_construction": "interacting_walls_v1/summary.json",
   "current_interacting_integration": "interacting_walls_v1/summary.json",
   "current_selection_work": "interacting_walls_v1/selection_work_v1.json",
-  "current_complete_star_selection": "interacting_walls_v1/selection_work_v2_summary.json"
+  "current_complete_star_selection": "interacting_walls_v1/selection_work_v2_summary.json",
+  "current_uncertainty_experiment": {
+    "updated": "2026-10-17",
+    "full_goal_complete": false,
+    "production_normalization_changed": false,
+    "whole_M6_integral_complete": false,
+    "accepted_M6_mesh": false,
+    "normalization_policy_replay": "3 original cells; MPI1/4 agree, integration_limited at1%; not global calibration",
+    "decomposition_replay": "329 query count-7.35% and numerical reference error10.6x lower;88/157 unchanged; no reduction of cold chord preparation",
+    "new_geometry_strategy": "20 controls/437753 assertions PASS; mixed local speed/accuracy; exhaustion-only delta2 checks/1152 assertions PASS. Full frozen-field4-rank integration RUNNING session76946,600s ceiling.",
+    "evidence": "integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1",
+    "outcome_ledger": "Handbook/SUGGESTION_OUTCOME_LEDGER.md"
+  }
 }

@@ -18,7 +18,8 @@ def pins():
  paths=[Path(__file__).resolve(),BINARY,BUILD/'build.ninja',BUILD/'meson-info/intro-buildoptions.json',
         ROOT/'SU2_CFD/src/adaptation/CBoundaryLayerMetric.cpp',ROOT/'SU2_CFD/include/adaptation/CBoundaryLayerMetric.hpp',
         ROOT/'UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp',
-        ROOT/'Common/include/adaptation/CComplexityNormalization.hpp',ROOT/'SU2_CFD/src/solvers/CSolver.cpp']
+        ROOT/'Common/include/adaptation/CComplexityNormalization.hpp',ROOT/'Common/include/adaptation/CNativeChordEnvelope.hpp',
+        ROOT/'SU2_CFD/src/solvers/CSolver.cpp']
  return {str(p.relative_to(ROOT)):sha(p) for p in paths}
 def invoke(folder,env,fixture,ranks=1,test_filter='[NativeFacetedVolumeReplay3D]',expected_failure=False):
  assert ranks in (1,2,4)

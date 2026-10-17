@@ -37,6 +37,7 @@
 #include <chrono>
 
 #include "../../../Common/include/adaptation/CComplexityNormalization.hpp"
+#include "../../../Common/include/adaptation/CNativeChordEnvelope.hpp"
 #include "../../../Common/include/CConfig.hpp"
 #include "../../../Common/include/adaptation/CNativeImport2D.hpp"
 #include "../../../Common/include/adaptation/CNativeField3D.hpp"
@@ -1759,6 +1760,66 @@ TEST_CASE("Replay a complete faceted wall volume-integration input without CFD",
     }
     return;
   }
+  if(std::getenv("SU2_NATIVE_BL_CORRECTION")) {
+    REQUIRE(version==2);
+    auto sensorDensity=[&](const std::array<double,4>& bary) {
+      Tensor metric;
+      for(unsigned k=0;k<4;++k)for(unsigned i=0;i<3;++i)for(unsigned j=0;j<3;++j)
+        metric.m[i][j]+=bary[k]*sensor[k].m[i][j];
+      su2double vectors[3][3],values[3],work[3];
+      CBlasStructure::EigenDecomposition(metric.m,vectors,values,3,work);
+      return SU2_TYPE::GetValue(std::sqrt(values[0]*values[1]*values[2]));
+    };
+    const long double volume=std::abs(SU2Native3D::Orientation(
+        {cell[0][0],cell[0][1],cell[0][2]},{cell[1][0],cell[1][1],cell[1][2]},
+        {cell[2][0],cell[2][1],cell[2][2]},{cell[3][0],cell[3][1],cell[3][2]}))/6;
+    REQUIRE(volume>0);
+    const auto begin=std::chrono::steady_clock::now();
+    const double a=(5+3*std::sqrt(5.))/20,b=(5-std::sqrt(5.))/20;
+    long double backgroundLow=0,background=0;
+    for(unsigned k=0;k<4;++k){std::array<double,4> beta{{b,b,b,b}};beta[k]=a;backgroundLow+=volume*.25*sensorDensity(beta);}
+    const double x3[3]={.5*(1-.77459666924148337704),.5,.5*(1+.77459666924148337704)},w3[3]={5./18,4./9,5./18};
+    const double x2[2]={.5*(1-.57735026918962576451),.5*(1+.57735026918962576451)};
+    for(unsigned i=0;i<3;++i)for(unsigned j=0;j<3;++j)for(unsigned k=0;k<2;++k) {
+      const double u=x3[i],v=x3[j],w=x2[k];
+      background+=volume*3*u*u*v*w3[i]*w3[j]*sensorDensity({1-u,u*(1-v),u*v*(1-w),u*v*w});
+    }
+    const double backgroundSeconds=std::chrono::duration<double>(std::chrono::steady_clock::now()-begin).count();
+    const double shift=std::pow(core,1.5);REQUIRE(shift>0);
+    size_t negativeRoundoff=0;
+    auto correction=[&](const auto& q) {
+      const double full=targetDensity(q),sensorValue=sensorDensity(q.barycentric),delta=full-sensorValue;
+      if(delta < -128*std::numeric_limits<double>::epsilon()*std::max(full,sensorValue))
+        throw std::runtime_error("BL correction weakens the original sensor density.");
+      if(delta<0)++negativeRoundoff;
+      // Strictly positive scalar API: integrate delta+constant, then subtract its exact volume contribution.
+      return std::max(0.,delta)+shift;
+    };
+    std::ofstream out("correction.json");out<<std::setprecision(17)
+        <<"{\"background\":"<<double(background)<<",\"background_indicator\":"<<double(std::abs(background-backgroundLow))
+        <<",\"background_seconds\":"<<backgroundSeconds<<",\"background_evaluations\":22,\"runs\":[";
+    unsigned at=0;
+    for(bool decomposed:{false,true}) {
+      auto workspace=layers.PrepareComplexity3D(cell,4u<<20);
+      for(bool warm:{false,true}) {
+        const auto e=layers.EstimateComplexity3D(cell,decomposed?CBoundaryLayerMetric::IntegrationDensity3D(correction):targetDensity,
+            8192,.001,workspace.get());
+        const double value=decomposed?double(background+e.value-shift*volume):e.value;
+        const double error=e.indicator+(decomposed?double(std::abs(background-backgroundLow)):0);
+        CHECK(value>0);CHECK(e.evaluations<=8192);
+        out<<(at++?",":"")<<"{\"decomposed\":"<<(decomposed?"true":"false")<<",\"warm\":"<<(warm?"true":"false")
+          <<",\"value\":"<<value<<",\"indicator\":";
+        if(std::isfinite(error))out<<error;else out<<"null";
+        out<<",\"evaluations\":"<<e.evaluations<<",\"seconds\":"<<e.seconds
+          <<",\"preparation_seconds\":"<<e.preparationSeconds<<",\"density_seconds\":"<<e.densitySeconds
+          <<",\"prepared_chords\":"<<e.preparedChords<<",\"reused_chords\":"<<e.reusedChords
+          <<",\"cached_bytes\":"<<e.cachedBytes<<",\"limited\":"<<(e.limited?"true":"false")
+          <<",\"unknown_support\":"<<(e.unresolvedSupport?"true":"false")<<"}";
+      }
+    }
+    out<<"],\"negative_roundoff_queries\":"<<negativeRoundoff<<",\"original_P1\":true,\"indicator_is_proven\":false}\n";
+    REQUIRE(bool(out));return;
+  }
   if(std::getenv("SU2_NATIVE_BL_CACHE")) {
     REQUIRE(version==2);
     auto cache=layers.PrepareComplexity3D(cell,4u<<20);
@@ -1948,6 +2009,13 @@ TEST_CASE("Bounded complexity keeps complete positive estimates and explicit unc
   CHECK_THROWS(layers.EstimateComplexity3D(near,polynomial,8192,-2));
   CHECK_THROWS(layers.EstimateComplexity3D(near,polynomial,8192,std::numeric_limits<double>::quiet_NaN()));
   CHECK_THROWS(layers.EstimateComplexity3D(near,polynomial,63));
+  size_t beforeGeometryLimit=0;
+  const auto geometryLimited=layers.EstimateComplexity3D(near,[&](const auto&) {
+    if(++beforeGeometryLimit>4)throw SU2Native3D::ChordEnvelope::WorkLimit("Test geometry work exhaustion.");
+    return 1.;
+  });
+  CHECK(geometryLimited.value==Approx(volume).epsilon(1e-12));
+  CHECK(geometryLimited.limited);CHECK(geometryLimited.unresolvedSupport);CHECK(std::isinf(geometryLimited.indicator));
   CHECK_THROWS(layers.EstimateComplexity3D(near,[](const auto&){return -1.;}));
   CHECK_THROWS(layers.EstimateComplexity3D(near,[](const auto&){return std::numeric_limits<double>::quiet_NaN();}));
 }
@@ -1979,4 +2047,32 @@ TEST_CASE("Global complexity search respects integration uncertainty and bounded
   CHECK_THROWS(Normalize(0,-1,1,0,.001,16,[](double,double){return Estimate{10,0};}));
   CHECK_THROWS(Normalize(std::numeric_limits<double>::denorm_min(),-1,1,0,.001,16,
                        [](double,double){return Estimate{10,0};}));
+}
+
+
+TEST_CASE("Finite feature envelopes retain global competition and distance crossings", "[NativeChordEnvelope]") {
+  using E=SU2Native3D::ChordEnvelope;using P=std::array<double,3>;
+  const std::array<P,3> triangle{{{{0,0,0}},{{1,0,0}},{{0,1,0}}}};
+  E envelope({-.5,.25,.1},{1.5,.25,.1});
+  for(unsigned k=0;k<3;++k){envelope.Vertex(triangle[k]);envelope.Segment(triangle[k],triangle[(k+1)%3]);}
+  envelope.Face(triangle);
+  for(unsigned k=0;k<=1000;++k) {
+    const double t=k/1000.,x=-.5+2*t;
+    const double expected=x<0?std::hypot(x,.1):x<=.75?.1:x<=1.25?std::hypot((x-.75)/std::sqrt(2.),.1):std::hypot(x-1,.25,.1);
+    CHECK(double(envelope.Distance(t))==Approx(expected).epsilon(1e-13));
+  }
+  const auto cuts=envelope.Cuts({.1,.2,.5});
+  CHECK(cuts.front()==0);CHECK(cuts.back()==1);CHECK(envelope.Features()==7);
+  CHECK(envelope.Comparisons()>0);CHECK(envelope.Pieces()>1);
+  for(const double level:{.2,.5}) {
+    bool found=false;for(auto t:cuts)found=found || std::abs(envelope.Distance(t)-level)<1e-12;
+    CHECK(found);
+  }
+  E competing({-2,0,0},{2,0,0});competing.Vertex({-1,0,0});competing.Vertex({1,0,0});
+  for(unsigned k=0;k<=100;++k){const double t=k/100.,x=-2+4*t;CHECK(double(competing.Distance(t))==Approx(std::min(std::abs(x-1),std::abs(x+1))).margin(1e-14));}
+  const auto ties=competing.Cuts({.25});CHECK(std::find(ties.begin(),ties.end(),.5)!=ties.end());
+  E bounded({0,0,0},{1,0,0},1);bounded.Vertex({0,1,0});bounded.Vertex({1,1,0});
+  CHECK_THROWS(bounded.Vertex({.5,1,0}));CHECK_THROWS(envelope.Cuts({-1}));
+  CHECK_THROWS(envelope.Face({{{{0,0,0}},{{0,0,0}},{{0,0,0}}}}));
+  CHECK_THROWS(E({0,0,0},{0,0,0}));
 }

@@ -223,3 +223,49 @@ it. Do not activate a production tolerance from these samples or add another
 subdivision/limit variant without a structural justification. Reassessment after
 actual refinement remains unavailable because construction independently rejects
 a composed first-layer edge integral. Report these as separate limitations.
+
+
+## Exact background/correction comparison (2026-10-17)
+
+correction_comparison_v1 completes on the3 original fields with identical8192-query
+budgets and absolute allocation.001. Positive sensor Q18 plus Q4 difference estimates
+the background cheaply (22 queries); separate order12 tensor-Gauss checks that
+background numerically. The correction calls the SAME original P1 and physical
+ApplySample law; no metric is replaced. A positive constant core^1.5 is added only
+to satisfy the scalar API and its exact volume contribution subtracted afterward.
+Roundoff-negative correction queries are counted and bounded per query by128eps
+relative before clipping; a materially negative correction throws. This is a test
+integrand, not a production metric policy or rigorous quadrature bound.
+
+| Cell | Full queries | Decomposed queries | Full reference error | Decomposed error | Cold chords both |
+|---|---:|---:|---:|---:|---:|
+|88|8192|8192|.768196%|.768196%|201|
+|157|3676|3676|.091778%|.091773%|57|
+|329|6092|5644|.144139%|.013617%|171|
+
+Cold/warm values, indicators and counts agree bitwise for each method.329 uses7.35%
+fewer density queries and has10.6x lower numerical-reference error.88/157 show
+essentially no gain. Geometry preparation remains~95% of88 cold elapsed work;
+subtracting background does not remove its support/chord construction. Cold elapsed
+88 1.997s->1.932s,157 .1079s->.1082s,329 .1009s->.0977s are small local observations,
+NOT a demonstrated lifecycle speedup. Density callbacks cost more because both
+sensor and composed densities are evaluated. Full157 indicator still underestimates
+its observed error. This is a partial algebraic benefit, not a completed implementation
+of support-restricted correction integration or complete global uncertainty.
+
+The next connected strategy replaces repeated candidate-root nearest-wall searches
+with a bounded global lower envelope of finite face/edge/vertex distances ALONG
+one chord. Face validity and segment endpoints must be included; independent facet
+planes alone are insufficient. The envelope is geometry preparation, not a new
+physical nearest-wall oracle. Actual composition/donors/fade/finer demands and all
+mesh gates stay unchanged. Both strict edge integration and scalar volume preparation
+must use the same faceted cuts. Analytic-authority geometry retains its certified
+path;2D geometry kernels retain their existing behavior in this batch.
+
+Acceptance: analytic finite-feature/domain/global-competition controls; dense tiled
+wall must not generate artificial coplanar cuts; existing3D strict edge/volume/
+curved and2D controls; compare actual difficult cells to preserved independent
+references; attempt complete original-field integration and replay the rejected
+first-layer edge/construction separately. Bound feature/piece storage and comparisons;
+report actual error/work, and preserve rejected attempts. No raised integration
+budgets or pointwise-law changes are permitted as a substitute for success.

@@ -250,7 +250,7 @@ class CBoundaryLayerMetric {
  private:
   Sample EvaluateImpl(unsigned short wall, const su2double* coord, su2double coreEigenvalue, bool distanceOnly);
   std::vector<double> EdgeBreakpointsImpl(const std::array<double,3>& a,const std::array<double,3>& b,
-      double bandRatio,unsigned fadeBands,bool localFeatureCuts);
+      double bandRatio,unsigned fadeBands);
   std::vector<IntegrationPoint3D> IntegrationRule3DImpl(
       const std::array<std::array<double,3>,4>& tetrahedron, double bandRatio,
       IntegrationDensity3D density, bool* sensorDependent, ComplexityEstimate3D* estimate, size_t maximumEvaluations,

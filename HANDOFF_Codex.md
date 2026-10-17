@@ -78,13 +78,23 @@ on1/4 ranks. Both report integration_limited at1%: C10.10364 ±.22168 for target
 8 trials/56680 queries; no exact root claim. Owner-only bad input rejects collectively.
 Whole-field cheap seed stopped at2555/303359 cells because cold geometric preparation
 dominates; receipts preserved. Scalar root screening showed no useful gain and is
-withdrawn. Restored core rebuilt explicitly; no owned job remains. Whole-field mass,
-production coupling/calibrated uncertainty and accepted M6 construction remain open.
+withdrawn. Restored core rebuilt explicitly. Background/BL-correction comparison now qualifies
+as a partial local benefit:329 queries-7.35%/error10.6x lower;88/157 unchanged and
+cold preparation still dominates. Exact sources/receipts preserved. A connected
+faceted chord lower-envelope replacement builds PASS. The connected validation
+passes20 controls/437753 assertions, folder oneram6_uncertainty_v1/chord_envelope_v1.
+Mixed local results: faster cold preparation but88 fixed-budget error rises to4.95%.
+Geometry-work exhaustion follow-up builds PASS and2 focused cases/1152 assertions PASS.
+Complete frozen-field cheap-band run is LIVE session76946, folder
+oneram6_uncertainty_v1/global_envelope_seed_np4_v1 (4 ranks,600s ceiling);
+pointwise metric law unchanged,2D/analytic geometry paths unchanged. Whole-field
+mass, production coupling/calibrated uncertainty and M6 construction remain open.
 Final suggestion-by-suggestion outcome report requested; keep
 [its working ledger](Handbook/SUGGESTION_OUTCOME_LEDGER.md) current. Three-element30P30N
 planar input extracted/validated in integration_evidence/native_3d_bl_v1/three_element_input_v1;
 its source"2D"CGNS was a single hex layer. No airfoil adaptation/CFD run yet.
 Production normalization remains unchanged; no M6 mesh or full-field integral yet.
+[Chord strategy/current live state](Handbook/GOAL3_CHORD_ENVELOPE.md).
 [Current whole-field checkpoint and reassessment](Handbook/GOAL3_M6_COMPLEXITY_REASSESSMENT.md).
 [Current exact-field/replay/design/live state](Handbook/GOAL3_M6_FROZEN_FIELDS.md),
 [earlier thin integration and rejected experiments](Handbook/GOAL3_M6_THIN_INTEGRATION.md),

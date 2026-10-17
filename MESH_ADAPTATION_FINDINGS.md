@@ -6080,3 +6080,28 @@ composition and production normalizer remain unchanged. Full-field cheap seed re
 screening gave no useful gain and was withdrawn, with evidence preserved. Neither
 whole-field accuracy nor accepted M6 mesh/transfer is established. Final user-requested
 suggestion/outcome report is tracked in Handbook/SUGGESTION_OUTCOME_LEDGER.md.
+
+
+2026-10-17 exact background/BL-correction experiment completes on the3 saved original
+M6 fields. With identical8192 ceilings and.001 absolute allocation,329 uses6092->5644
+queries and numerical-reference error.14414%->.01362%;88/157 remain essentially
+unchanged. All cold chord counts unchanged, so decomposition alone does not resolve
+geometric initialization cost. This is a partial algebraic benefit; support-restricted
+integration/whole-field accuracy/lifecycle speedup are unproven. Exact original
+experiment sources and receipts are saved in correction_comparison_v1. Current
+connected faceted-chord lower-envelope replacement is building, not validated;
+physical composition/mesh gates remain unchanged. See GOAL3_CHORD_ENVELOPE.md.
+
+
+Faceted-chord lower-envelope strategy now passes20 controls/437753 assertions,
+including finite feature domains/competition and constant tiled-wall2-cut property.
+It is geometry preparation only: original physical evaluator/intersection/finer/
+fade and exact donor predicates unchanged. Cold88 preparation1.893s->.421s, but
+extra feature cuts consume the fixed query budget and numerical error rises from
+.7682% to4.9486% with larger raw indicator.157 faster/similar;329 faster/worse accuracy.
+This is MIXED, not a demonstrated global/lifecycle gain. An exhaustion-only follow-up
+passes2 focused cases/1152 assertions: scalar retains complete positive contribution
+with unknown uncertainty when geometric work caps, strict mesh edges still reject.
+The complete original-field4-rank cheap-band campaign is running,600s ceiling, in
+global_envelope_seed_np4_v1. Full-field accuracy/calibration and accepted M6 mesh
+remain open. Exact experiment sources/receipts preserved; see GOAL3_CHORD_ENVELOPE.md.

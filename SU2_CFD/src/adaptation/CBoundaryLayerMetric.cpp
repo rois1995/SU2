@@ -43,6 +43,7 @@
 #include "../../../Common/include/adaptation/CNativeImport2D.hpp"
 #include "../../../Common/include/adaptation/CNativeImport3D.hpp"
 #include "../../../Common/include/adaptation/CNativeMetric3D.hpp"
+#include "../../../Common/include/adaptation/CNativeChordEnvelope.hpp"
 #include "../../include/adaptation/ConvexClipping.hpp"
 #include "../../../Common/include/geometry/CGeometry.hpp"
 #include "../../../Common/include/linear_algebra/blas_structure.hpp"
@@ -1986,7 +1987,7 @@ std::vector<CBoundaryLayerMetric::IntegrationPoint3D> CBoundaryLayerMetric::Inte
         }
         if(!retained) {
           const auto begin=std::chrono::steady_clock::now();
-          fresh=start==end?std::vector<double>{0,1}:EdgeBreakpointsImpl(start,end,2.,4,true);
+          fresh=start==end?std::vector<double>{0,1}:EdgeBreakpointsImpl(start,end,2.,4);
           estimate->preparationSeconds+=std::chrono::duration<double>(std::chrono::steady_clock::now()-begin).count();
           ++estimate->preparedChords;
           const auto bytes=sizeof(decltype(workspace->chords)::value_type)+4*sizeof(void*)+fresh.capacity()*sizeof(double);
@@ -2036,16 +2037,23 @@ std::vector<CBoundaryLayerMetric::IntegrationPoint3D> CBoundaryLayerMetric::Inte
     };
     std::vector<ScalarPanel> panels;
     const Triangle initial{{{{1,0,0,0}},{{0,1,0,0}},{{0,0,1,0}}}};
+    auto seedExhausted=[&]() {
+      estimate->value=seed;estimate->indicator=std::numeric_limits<double>::infinity();
+      estimate->limited=estimate->unresolvedSupport=true;
+    };
     try {for(size_t c=0;c<charts.size();++c)panels.push_back(build(c,initial,1.,0));}
+    catch(const SU2Native3D::ChordEnvelope::WorkLimit&) {seedExhausted();return {};}
     catch(const WorkLimit&) {
       estimate->value=seed;estimate->indicator=std::numeric_limits<double>::infinity();
       estimate->limited=estimate->unresolvedSupport=true;return {};
     }
+    bool geometryLimited=false;
     auto publish=[&]() {
       estimate->value=estimate->indicator=0;estimate->unresolvedSupport=false;estimate->panels=panels.size();
       for(const auto& p:panels) {
         estimate->value+=p.value;estimate->indicator+=p.error;estimate->unresolvedSupport|=p.unresolved;
       }
+      estimate->unresolvedSupport|=geometryLimited;
       if(estimate->unresolvedSupport)estimate->indicator=std::numeric_limits<double>::infinity();
     };
     for(;;) {
@@ -2078,7 +2086,8 @@ std::vector<CBoundaryLayerMetric::IntegrationPoint3D> CBoundaryLayerMetric::Inte
         auto left=build(parent.chart,a,.5*parent.fraction,parent.depth+1);
         auto right=build(parent.chart,b,.5*parent.fraction,parent.depth+1);
         panels[selected]=std::move(left);panels.push_back(std::move(right));
-      }catch(const WorkLimit&){estimate->limited=true;break;}
+      }catch(const SU2Native3D::ChordEnvelope::WorkLimit&){estimate->limited=geometryLimited=true;break;}
+       catch(const WorkLimit&){estimate->limited=true;break;}
     }
     publish();return {};
   }
@@ -2249,11 +2258,11 @@ std::vector<CBoundaryLayerMetric::IntegrationPoint3D> CBoundaryLayerMetric::Inte
 
 std::vector<double> CBoundaryLayerMetric::EdgeBreakpoints(
     const std::array<double, 3>& a, const std::array<double, 3>& b, double bandRatio, unsigned fadeBands) {
-  return EdgeBreakpointsImpl(a,b,bandRatio,fadeBands,false);
+  return EdgeBreakpointsImpl(a,b,bandRatio,fadeBands);
 }
 
 std::vector<double> CBoundaryLayerMetric::EdgeBreakpointsImpl(
-    const std::array<double,3>& a,const std::array<double,3>& b,double bandRatio,unsigned fadeBands,bool localFeatureCuts) {
+    const std::array<double,3>& a,const std::array<double,3>& b,double bandRatio,unsigned fadeBands) {
   if (!std::isfinite(bandRatio) || !(bandRatio > 1.0) || !fadeBands || fadeBands>256)
     throw std::invalid_argument("Invalid native BL edge band ratio/fade partition.");
   using Vector = std::array<long double, 3>;
@@ -2405,36 +2414,41 @@ std::vector<double> CBoundaryLayerMetric::EdgeBreakpointsImpl(
     std::vector<unsigned long> faces;
     d.adt->DetermineIntersectingElements(low,high,faces);
     std::sort(faces.begin(),faces.end());
-    const auto globalRoot=validRoot;
-    for (const auto face : faces) {
-      const unsigned count = nDim == 2 ? 2 : 3;
-      Vector x[3]{};
-      for (unsigned k = 0; k < count; ++k)
-        for (unsigned j = 0; j < nDim; ++j)
-          x[k][j] = SU2_TYPE::GetValue(walls[wall].coord[nDim*d.elem[count*face+k]+j]);
-      double featureLevel=0;
-      if(localFeatureCuts && nDim==3)validRoot=[&,globalRoot](double t) {
-        su2double p[3],vertices[3][3],weights[3];
-        for(unsigned j=0;j<3;++j) {
-          p[j]=(1-t)*a[j]+t*b[j];for(unsigned k=0;k<3;++k)vertices[k][j]=double(x[k][j]);
-        }
-        ClosestPointTriangle(vertices[0],vertices[1],vertices[2],p,weights);
-        long double distance2=0,scale=0;
-        for(unsigned j=0;j<3;++j) {
-          su2double closest=0;for(unsigned k=0;k<3;++k)closest+=weights[k]*vertices[k][j];
-          const long double delta=p[j]-closest;distance2+=delta*delta;
-          scale=std::max(scale,std::max(std::abs((long double)a[j]),std::abs((long double)b[j])));
-        }
-        if(std::abs(std::sqrt(distance2)-featureLevel)>std::max(128*std::numeric_limits<double>::epsilon()*scale,
-            1e-10L*std::max(h0,featureLevel)))return false;
-        return globalRoot(t);
+    if(nDim==3) {
+      if(faces.empty())continue;
+      SU2Native3D::ChordEnvelope envelope(a,b);
+      std::set<unsigned long> vertices;
+      std::set<std::pair<unsigned long,unsigned long>> edges;
+      auto vertex=[&](unsigned long id) {
+        std::array<double,3> p;for(unsigned j=0;j<3;++j)p[j]=SU2_TYPE::GetValue(walls[wall].coord[3*id+j]);return p;
       };
-      // Reject feature extensions cheaply before the shared nearest-wall admission, only for scalar complexity.
+      for(const auto face:faces) {
+        const auto* ids=&d.elem[3*face];std::array<std::array<double,3>,3> triangle;
+        for(unsigned k=0;k<3;++k) {
+          triangle[k]=vertex(ids[k]);
+          if(vertices.insert(ids[k]).second)envelope.Vertex(triangle[k]);
+          const auto edge=std::minmax(ids[k],ids[(k+1)%3]);
+          if(edges.insert(edge).second)envelope.Segment(vertex(edge.first),vertex(edge.second));
+        }
+        envelope.Face(triangle);
+      }
+      // Envelope boundaries also resolve nearest-feature changes, not only distance levels.
+      for(auto t:envelope.Cuts(levels))if(t>0 && t<1 && retained.insert(t).second) {
+        if(cuts.size()>=65536)throw std::runtime_error("Native BL edge breakpoints exceed work budget.");
+        cuts.push_back(t);
+      }
+      continue;
+    }
+    for (const auto face : faces) {
+      constexpr unsigned count=2;
+      Vector x[3]{};
+      for(unsigned k=0;k<count;++k)for(unsigned j=0;j<nDim;++j)
+        x[k][j]=SU2_TYPE::GetValue(walls[wall].coord[nDim*d.elem[count*face+k]+j]);
       for (unsigned k = 0; k < count; ++k) {
         Vector r{};
         for (unsigned j = 0; j < nDim; ++j) r[j] = a[j]-x[k][j];
         for (const auto level : levels) {
-          featureLevel=level;roots(dot(chord,chord),2*dot(r,chord),dot(r,r)-static_cast<long double>(level)*level);
+          roots(dot(chord,chord),2*dot(r,chord),dot(r,r)-static_cast<long double>(level)*level);
         }
         if (nDim == 2 && k == 1) continue;
         Vector edge{};
@@ -2443,18 +2457,10 @@ std::vector<double> CBoundaryLayerMetric::EdgeBreakpointsImpl(
         Vector rp{}, cp{};
         for (unsigned j = 0; j < nDim; ++j) { rp[j]=r[j]-re*edge[j]; cp[j]=chord[j]-ce*edge[j]; }
         for (const auto level : levels) {
-          featureLevel=level;roots(dot(cp,cp),2*dot(rp,cp),dot(rp,rp)-static_cast<long double>(level)*level);
+          roots(dot(cp,cp),2*dot(rp,cp),dot(rp,rp)-static_cast<long double>(level)*level);
         }
       }
-      if (nDim == 3) {
-        Vector u{},v{},normal{},r{};
-        for (unsigned j = 0; j < 3; ++j) { u[j]=x[1][j]-x[0][j]; v[j]=x[2][j]-x[0][j]; r[j]=a[j]-x[0][j]; }
-        normal={u[1]*v[2]-u[2]*v[1],u[2]*v[0]-u[0]*v[2],u[0]*v[1]-u[1]*v[0]};
-        const auto nn=std::sqrt(dot(normal,normal)), slope=dot(chord,normal), offset=dot(r,normal);
-        if (slope) for (const auto level : levels) {
-          featureLevel=level;retain((level*nn-offset)/slope); retain((-level*nn-offset)/slope);
-        }
-      }
+
     }
   }
   std::sort(cuts.begin(),cuts.end());
