@@ -3742,6 +3742,10 @@ void CConfig::SetPostprocessing(SU2_COMPONENT val_software, unsigned short val_i
     if (nMarker_PerBound && (Kind_Species_Model != SPECIES_MODEL::NONE ||
                             Kind_Streamwise_Periodic != ENUM_STREAMWISE_PERIODIC::NONE))
       SU2_MPI::Error("Periodic NEWTON_EQUATIONS currently excludes species and streamwise models", CURRENT_FUNCTION);
+    /*--- Turbomachinery boundary averages are updated outside the residual wrapper.
+     *     Their live derivatives and iteration history are not part of the common Newton contract. ---*/
+    if (GetBoolTurbomachinery() || GetBoolGiles())
+      SU2_MPI::Error("NEWTON_EQUATIONS currently excludes turbomachinery boundary averaging", CURRENT_FUNCTION);
 #if defined(CODI_REVERSE_TYPE) || defined(CODI_FORWARD_TYPE)
     SU2_MPI::Error("NEWTON_EQUATIONS requires a primal executable", CURRENT_FUNCTION);
 #endif
