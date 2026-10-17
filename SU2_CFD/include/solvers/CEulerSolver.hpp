@@ -491,6 +491,11 @@ public:
                      unsigned short RunTime_EqSystem,
                      bool Output) override;
 
+  /*! \brief Retain current gradients while refreshing native flow properties and admission counters. */
+  void Preprocessing_Properties(CGeometry* geometry, CSolver** solvers, CConfig* config) override {
+    CommonPreprocessing(geometry, solvers, config, MESH_0, NO_RK_ITER, RUNTIME_FLOW_SYS, true);
+  }
+
   /*! \brief Native implicit pseudo-time matrix, independent of the current residual-evaluation mode. */
   void GetPseudoTimeMatrix(const CConfig*, unsigned long point, su2double volumeOverStep,
                           su2activematrix& matrix) const override;

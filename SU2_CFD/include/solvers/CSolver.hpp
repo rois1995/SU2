@@ -797,6 +797,14 @@ public:
                                     bool Output) { }
 
   /*!
+   * \brief Refresh fine-grid flow properties after derived transport data changes.
+   * \details Primary values and their gradient inputs must remain unchanged. The default repeats full preprocessing.
+   */
+  virtual void Preprocessing_Properties(CGeometry* geometry, CSolver** solvers, CConfig* config) {
+    Preprocessing(geometry, solvers, config, MESH_0, NO_RK_ITER, RUNTIME_FLOW_SYS, true);
+  }
+
+  /*!
    * \brief A virtual member overloaded.
    * \param[in] geometry - Geometrical definition of the problem.
    * \param[in] solver_container - Container vector with all the solutions.

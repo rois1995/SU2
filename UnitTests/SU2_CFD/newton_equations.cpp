@@ -2750,6 +2750,79 @@ TEST_CASE("The common controller applies legacy flow direction policies", "[Newt
   }
 }
 
+TEST_CASE("Flow transport refresh matches native preprocessing with unchanged gradients", "[NewtonPropertyRefresh]") {
+  auto inc = incompressible, mixture = species;
+  inc.replace(inc.find("INC_NAVIER_STOKES"), std::string("INC_NAVIER_STOKES").size(), "INC_RANS");
+  mixture.replace(mixture.find("INC_NAVIER_STOKES"), std::string("INC_NAVIER_STOKES").size(), "INC_RANS");
+  for (const auto& physics : {sa, sst, sst + "KIND_TRANS_MODEL= LM\n", inc + "KIND_TURB_MODEL= SA\n",
+                             inc + "KIND_TURB_MODEL= SST\n", mixture + "KIND_TURB_MODEL= SST\n"}) {
+    CAPTURE(physics);
+    Problem problem(physics + "NUM_METHOD_GRAD_RECON= GREEN_GAUSS\n", 5, true);
+    auto& driver = *problem.driver;
+    auto* geometry = driver.Geometry();
+    auto* config = driver.Config();
+    auto* flow = driver.Solvers()[FLOW_SOL];
+    auto* nodes = flow->GetNodes();
+    auto* turbulence = driver.Solvers()[TURB_SOL];
+    for (auto p = 0ul; p < geometry->GetnPoint(); ++p) {
+      const double x = geometry->nodes->GetCoord(p, 0), y = geometry->nodes->GetCoord(p, 1);
+      nodes->SetSolution(p, 1, nodes->GetSolution(p, 1) * (1 + 0.03 * x + 0.02 * y));
+      nodes->SetSolution(p, 2, 0.01 * nodes->GetSolution(p, 1));
+    }
+    auto equations = problem.Equations({RUNTIME_FLOW_SYS, RUNTIME_TURB_SYS});
+    REQUIRE(Residual(*equations, true, true));
+    equations->Capture();
+    /*--- Change k without omega so the SST eddy-viscosity ratio cannot cancel the perturbation. ---*/
+    for (auto p = 0ul; p < geometry->GetnPoint(); ++p)
+      turbulence->GetNodes()->SetSolution(p, 0, 1.2 * turbulence->GetNodes()->GetSolution(p, 0));
+    config->SetGlobalParam(config->GetKind_Solver(), RUNTIME_FLOW_SYS);
+    SU2_OMP_PARALLEL { flow->Preprocessing(geometry, driver.Solvers(), config, MESH_0, NO_RK_ITER, RUNTIME_FLOW_SYS, true); }
+    END_SU2_OMP_PARALLEL
+    /*--- Copy every primary and gradient input before updating only the derived turbulent transport data. ---*/
+    auto unchangedFields = [&]() {
+      std::vector<su2double> values;
+      for (auto p = 0ul; p < geometry->GetnPoint(); ++p) {
+        for (auto j = 0u; j < flow->GetnVar(); ++j) values.push_back(nodes->GetSolution(p, j));
+        for (auto j = 0u; j < flow->GetnPrimVarGrad(); ++j)
+          for (auto d = 0u; d < geometry->GetnDim(); ++d) {
+            values.push_back(nodes->GetGradient_Primitive(p, j, d));
+            values.push_back(nodes->GetGradient_Reconstruction(p)[j][d]);
+          }
+        for (auto d = 0u; d < 3; ++d) values.push_back(nodes->GetVorticity(p)[d]);
+        values.push_back(nodes->GetStrainMag(p));
+      }
+      return values;
+    };
+    const auto original = unchangedFields();
+    config->SetGlobalParam(config->GetKind_Solver(), RUNTIME_TURB_SYS);
+    SU2_OMP_PARALLEL { turbulence->Postprocessing(geometry, driver.Solvers(), config, MESH_0); }
+    END_SU2_OMP_PARALLEL
+    config->SetGlobalParam(config->GetKind_Solver(), RUNTIME_FLOW_SYS);
+    auto before = MakeVector(driver, 1), updated = before;
+    for (auto p = 0ul; p < geometry->GetnPoint(); ++p) {
+      before(p, 0) = nodes->GetEddyViscosity(p);
+      updated(p, 0) = turbulence->GetNodes()->GetmuT(p);
+    }
+    REQUIRE(MaxDifference(before, updated) > 0);
+    SU2_OMP_PARALLEL { flow->Preprocessing_Properties(geometry, driver.Solvers(), config); }
+    END_SU2_OMP_PARALLEL
+    CHECK(unchangedFields() == original);
+    std::vector<su2double> properties;
+    for (auto p = 0ul; p < geometry->GetnPoint(); ++p) {
+      CHECK(nodes->GetEddyViscosity(p) == turbulence->GetNodes()->GetmuT(p));
+      for (auto j = 0u; j < flow->GetnPrimVar(); ++j) properties.push_back(nodes->GetPrimitive(p, j));
+    }
+    SU2_OMP_PARALLEL { flow->Preprocessing(geometry, driver.Solvers(), config, MESH_0, NO_RK_ITER, RUNTIME_FLOW_SYS, true); }
+    END_SU2_OMP_PARALLEL
+    CHECK(unchangedFields() == original);
+    for (auto p = 0ul; p < geometry->GetnPoint(); ++p)
+      for (auto j = 0u; j < flow->GetnPrimVar(); ++j)
+        CHECK(nodes->GetPrimitive(p, j) == properties[p * flow->GetnPrimVar() + j]);
+    REQUIRE(equations->Restore());
+    CHECK(equations->GetRestorationError() == 0);
+  }
+}
+
 TEST_CASE("Shared Newton evaluation scratch preserves independent captured bases", "[NewtonWorkspace]") {
   Problem problem(sst + "KIND_TRANS_MODEL= LM\n", 5, true);
   auto& driver = *problem.driver;

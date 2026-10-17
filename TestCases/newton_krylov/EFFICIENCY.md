@@ -124,5 +124,28 @@ counts are unchanged. Coupled residual counts are:
 
 These are measured assembly counts. Wall-time results remain excluded for CPU
 contention; lower-preconditioner inclusive time still requires a fresh profile.
-Further dependency-refresh work, full family/layout qualification, quiet repeated
-timings and the higher-CFL study remain open. This goal is still active.
+Full family/layout qualification, fresh phase measurements, quiet repeated timings
+and the higher-CFL study remain open. This goal is still active.
+
+## Reuse gradients after transport updates
+
+The second flow pass inside one dependency refresh now runs native common
+preprocessing to copy updated turbulent transport properties without recomputing
+unchanged temperature/velocity gradients, reconstruction gradients, vorticity and
+strain. Its property calculations, admission counters and reductions remain live.
+First/final flow preprocessing is unchanged. Wall functions and external feedback
+retain the complete second pass. There is no cache across residual wrappers.
+
+A direct native comparison changes turbulent transport data and requires exact
+agreement of every primitive property with full flow preprocessing. Primary
+values, primitive/reconstruction gradients, vorticity and strain remain identical,
+and exact rollback is checked. It covers compressible SA/SST/active LM,
+incompressible SA/SST and a variable-density mixture with SST, including separate
+Green–Gauss reconstruction gradients.
+
+All 60 native cases pass on 1x1, 1x4, 2x2 and 2x4. The five original-control
+converged families retain every work count and every restart byte against the
+requested-row version, in all three modes. The historical quiet gradient profiles
+motivated this change; new phase counts/times and release timings remain pending.
+Current contended timings are excluded. Higher-CFL studies follow implementation
+measurement and will retain all existing physical/state/acceptance requirements.

@@ -300,6 +300,11 @@ public:
                     unsigned short RunTime_EqSystem,
                     bool Output) override;
 
+  /*! \brief Retain current gradients while refreshing native flow properties and admission counters. */
+  void Preprocessing_Properties(CGeometry* geometry, CSolver** solvers, CConfig* config) override {
+    CommonPreprocessing(geometry, solvers, config, MESH_0, NO_RK_ITER, RUNTIME_FLOW_SYS, true);
+  }
+
   /*!
    * \author H. Kline
    * \brief Compute weighted-sum "combo" objective output

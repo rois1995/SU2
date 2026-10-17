@@ -852,5 +852,71 @@
     ],
     "evidence": "rows/, rows_correctness/, rows_monitored/, row_products_scope.json",
     "interpretation": "Original controls; every outer/Krylov count and restart byte unchanged; contended timings excluded."
+  },
+  "property_refresh": {
+    "source_sha256": {
+      "SU2_CFD/include/solvers/CSolver.hpp": "aaecc60b6a68cd2347d2860dd9cb8a1bff607195caf17f2af90b6075d465ab69",
+      "SU2_CFD/include/solvers/CEulerSolver.hpp": "7af570e49a9e2c4bdc843fe78e7f7ed31b6b1ad79d73c68e692557b40c625f6c",
+      "SU2_CFD/include/solvers/CIncEulerSolver.hpp": "2e6a96244a102465900a83d3d9a797d768a9a127cd4a6216918d43a53fa9d392",
+      "SU2_CFD/src/integration/CNewtonEquationSet.cpp": "c6c3ac76fb2563507694f0f6beb682d2acd33da12d5d2b05dd512e430e2a6b4e",
+      "UnitTests/SU2_CFD/newton_equations.cpp": "8c37724ca37775f659ff7c97017e94e25bf2b36e2acb3cd49542e7234a1a708f"
+    },
+    "binaries": {
+      "SU2_CFD": "fc45e49759a866bf63d494ac9efa21585b8313a9a5cbaeef1f7465dd02e4f2d8",
+      "test_driver": "3b18319fcbe0db8d4a76e4523880cd696f742a55a8bdfdb114c8982c31ebe8f7",
+      "newton_equation_tests": "cae80a1eb40569709a7ac61b325a09ad67b6e6ac61efbefa6f36f8f183c27180"
+    },
+    "native_cases": 60,
+    "assertions_per_rank": {
+      "1x1": [
+        110064
+      ],
+      "1x4": [
+        110064
+      ],
+      "2x2": [
+        66616,
+        60214
+      ],
+      "2x4": [
+        66616,
+        60214
+      ]
+    },
+    "converged_families": [
+      {
+        "case": "sa",
+        "results_sha256": "25fe60bf6d1f9ee19c3739e0d8a9804220248a01bb21ee033fd4569e6d41b648",
+        "all_mode_work_counts_equal": true,
+        "all_mode_restart_bytes_equal": true
+      },
+      {
+        "case": "sst",
+        "results_sha256": "a0db7fc8580c3f70647efb53a4f397f95109cf8b25695a606ea67f0cadab718c",
+        "all_mode_work_counts_equal": true,
+        "all_mode_restart_bytes_equal": true
+      },
+      {
+        "case": "lm",
+        "results_sha256": "f77ec466b55c82ffa9d683d05271afacd01d756e0f55c521ce177478071938ed",
+        "all_mode_work_counts_equal": true,
+        "all_mode_restart_bytes_equal": true
+      },
+      {
+        "case": "mms",
+        "results_sha256": "35df018a61717a4754db7b7e9cb12c7c04b02d9ab253ed9b148fee72460bff57",
+        "all_mode_work_counts_equal": true,
+        "all_mode_restart_bytes_equal": true
+      },
+      {
+        "case": "species",
+        "results_sha256": "5ab1e3a1f3f9e5f918c179175381fba2ba9f3f57dfdd76dc6cffe68d15fabfb4",
+        "all_mode_work_counts_equal": true,
+        "all_mode_restart_bytes_equal": true
+      }
+    ],
+    "evidence": "properties/, properties_correctness/, properties_monitored/, property_refresh_scope.json",
+    "contract": "Within one Refresh only; native common properties/error checks/reductions remain fresh. First/final flow preprocessing stays full, with full second-pass fallback for wall functions and external feedback.",
+    "timings": "Contended; excluded from performance claims."
   }
 }
