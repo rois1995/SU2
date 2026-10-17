@@ -38,9 +38,11 @@ whole-star point imports/indexes. See [point-query evidence](GOAL3_OWNER_POINT_S
 Existing composed-edge maps now support immutable full-field identity and exact
 endpoints:32 M6 wall cells1/4 ranks match cold exactly;73 serial controls plus
 MPI/curved/RANS N4M2 workflow pass. See the [edge-reuse report](../integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/composed_edge_reuse_v1/README.md).
-Gains are selected replay measurements, not full lifecycle. Independent publication
-batching and general reconstruction-campaign support remain open; inspect existing
-reuse and actual costs before extending them.
+Gains are selected replay measurements, not full lifecycle. First-row interior transactions now batch complete one-cell replacements under
+unchanged skins and atomic publication; see the [first-row report](../integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/first_row_transactions_v1/README.md).
+Group-local work reduces the bounded M6 stage12.7%/23.2% at2/4 ranks, with unchanged
+metric work and exact geometry. General displaced publication batching and broader
+reconstruction-campaign support remain open; inspect actual costs before extending them.
 
 Correctness conditions for the eventual package: edge entries must retain required
 integration accuracy as well as endpoint/field/geometry identity. Failed searches

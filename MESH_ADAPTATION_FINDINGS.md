@@ -6340,3 +6340,22 @@ claim.73 serial controls plus MPI first-row/disjoint/coupled, curved return and
 independently audited initialized RANS/SA N4M2/BDF/SU2+CGNS/restart pass. Full M6
 construction, uncertainty calibration/correction and lifecycle cost remain open.
 [Source/evidence, resource receipts and limits](integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/composed_edge_reuse_v1/README.md).
+
+
+### 2026-10-17 — interior first-row transactions batch safely under unchanged skins
+
+A first-row cell replacement keeps every old face/vertex read-only, so adjacent
+cells need cell-interior arbitration rather than general vertex exclusion. The new
+bounded route retains complete versioned fetch, explicit exact SameSkin/height/
+positivity, unique checked ID ranges and one atomic publication. General displaced/
+surface reservations remain strict. Private groups use local per-candidate deadline
+checks and a common failure vote; the first per-candidate-vote variant saved calls
+but no elapsed time and remains preserved as an unhelpful experiment.
+
+Complete original M6 donor/wall field,64 private initializations: batch1/8 outputs
+match exact geometry/markers/volume/skin at MPI2/4. First-row6.93->6.05s /4.67->3.58s,
+wrapper calls~82% lower; metric evaluation still dominates.9 serial controls plus
+MPI/general/curved and independent RANS/SA N4M2/BDF/restart/SU2+CGNS pass. The M6
+subsets intentionally reject on work budget; no accepted wing or complete-event
+efficiency claim. Full-driver timeout/rank-config failure are retained separately.
+[Evidence, model/counter scope and inspectable rejected subsets](integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/first_row_transactions_v1/README.md).

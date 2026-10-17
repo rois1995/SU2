@@ -1,0 +1,1 @@
+Saved ADAP_NATIVE_RANKS=4 is invalid for the2-rank direct replay. Native MPI_ABORT/exit1 occurred in config postprocessing before mesh construction. Exact config and original provenance/logs are preserved. The dataset replay now uses rank0/default and chooses its test communicator explicitly; no field/geometry/height/quality changes.

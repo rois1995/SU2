@@ -863,7 +863,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     CLocalFailure failure;
     std::set<Id> pending;
     const auto layerScratch=transfer_memory::Add(transfer_memory::Mul(working.size(),sizeof(Id)+4*sizeof(void*)),
-        transfer_memory::Mul(MaximumReplacementCells,8192),MaximumFrozenFieldBytes);
+        transfer_memory::Mul(transfer_memory::Mul(options.candidate_batch,MaximumReplacementCells),8192),MaximumFrozenFieldBytes);
     if(!admit(layerScratch))return finish();
     auto needs_layer=[&](const OwnedCell& row) {
       bool wall=false;
@@ -878,108 +878,186 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     uint64_t epoch=0;
     while(world.maximum(!pending.empty())) {
       if(stats.global_work>=stats.work_limit) {stats.stop=EngineStop::WorkBudget;result.reason="Native3D first-row initialization exhausts global work budget.";return finish();}
-      if(options.maximum_seconds && world.maximum(std::chrono::duration<double>(Clock::now()-started).count()>=options.maximum_seconds)) {
-        stats.stop=EngineStop::TimeBudget;result.reason="Native3D first-row initialization exhausts elapsed-time budget.";return finish();
-      }
-      const auto position=CPassiveComm::ExscanSum(uint64_t(!pending.empty()),world.comm);
-      const bool active=!pending.empty() && position<stats.work_limit-stats.global_work;
-      const uint64_t proposed=CPassiveComm::Allreduce(uint64_t(active),CPassiveComm::Op::SUM,world.comm);
-      if(proposed>stats.work_limit-stats.global_work) {
-        stats.stop=EngineStop::WorkBudget;result.reason="Native3D first-row proposals exceed remaining work budget.";return finish();
-      }
-      stats.global_work+=proposed;
-      std::vector<Feature> features;
-      if(active)try {
-        const auto& row=working.at(*pending.begin());const auto faces=Faces(row.cell);
-        for(unsigned f=0;f<4;++f)if(row.physical[f].present && options.wall_heights.count(geometry.Get(row.physical[f].facet).marker)) {
-          features.push_back({faces[f],3});break;
+      auto timed_out=[&]() {
+        if(options.maximum_seconds && world.maximum(std::chrono::duration<double>(Clock::now()-started).count()>=options.maximum_seconds)) {
+          stats.stop=EngineStop::TimeBudget;result.reason="Native3D first-row initialization exhausts elapsed-time budget.";return true;
         }
-        if(features.empty())failure.Set(1,row.cell.id,"Native3D first-row queue lost its wall face.");
-      }catch(const std::exception& e){failure.Set(2,0,e.what());}
-      if(!vote(failure))return finish();
-      auto dependencies=directory.Lookup(features,options.memory_ceiling,transfer_memory::Add(bytes(),source.ResidentBytes(),layerScratch));
-      if(!dependencies.valid){result.reason=dependencies.reason;return finish();}
-      auto imported=directory.Fetch(dependencies,working,options.memory_ceiling,transfer_memory::Add(bytes(),source.ResidentBytes(),layerScratch));
-      if(!imported.valid){result.reason=imported.reason;return finish();}
-      const bool chosen=directory.Reserve(imported,active,result.reason,options.memory_ceiling,transfer_memory::Add(bytes(),source.ResidentBytes(),layerScratch));
-      if(!world.maximum(chosen))return finish();
-      Patch old,fresh;bool approved=false;FirstHeightReport report;
-      try {if(chosen)old=GeometryPatch(imported);}catch(const std::exception& e){failure.Set(2,0,e.what());}
-      if(!vote(failure))return finish();
-      const auto donors=source.ImportCells(old.cells,options.memory_ceiling,
-          transfer_memory::Add(bytes(),directory.ResidentBytes(),layerScratch));
-      if(!donors.valid){result.reason=donors.reason;return finish();}
-      const auto identity=transfer_memory::Add(transfer_memory::Mul(epoch,world.size),world.rank);
-      const auto nodeOffset=transfer_memory::Mul(identity,5),cellOffset=transfer_memory::Mul(identity,MaximumReplacementCells);
-      if(chosen)try {
-        if(maximum_node>UINT64_MAX-5 || nodeOffset>UINT64_MAX-maximum_node-5 ||
-           maximum_cell>UINT64_MAX-MaximumReplacementCells || cellOffset>UINT64_MAX-maximum_cell-MaximumReplacementCells)
-          throw std::invalid_argument("Native3D first-row reserved range overflows.");
-        if(old.cells.size()!=1 || old.surface.size()>4)
-          throw std::invalid_argument("Native3D first-row identity reservation requires one complete wall cell.");
-        const Id node=maximum_node+1+nodeOffset,cell=maximum_cell+1+cellOffset;
-        std::vector<Point> backgrounds{Centroid(old.cells.front())};
-        std::map<Id,Point> coordinates;for(const auto& c:old.cells)for(auto n:c.v)coordinates.emplace(n.id,n.p);
-        for(const auto& face:old.surface) {
-          const auto h=options.wall_heights.find(geometry.Get(face.facet).marker);if(h==options.wall_heights.end())continue;
-          const auto a=coordinates.at(face.v[0]),b=coordinates.at(face.v[1]),c=coordinates.at(face.v[2]);
-          const std::array<long double,3> u{(long double)b.x-a.x,(long double)b.y-a.y,(long double)b.z-a.z},
-              v{(long double)c.x-a.x,(long double)c.y-a.y,(long double)c.z-a.z};
-          auto normal=std::array<long double,3>{u[1]*v[2]-u[2]*v[1],u[2]*v[0]-u[0]*v[2],u[0]*v[1]-u[1]*v[0]};
-          const auto length=std::hypot(normal[0],normal[1],normal[2]);for(auto& x:normal)x/=length;
-          for(double factor:{1.25,1.5,2.})backgrounds.push_back({double(((long double)a.x+b.x+c.x)/3-factor*h->second*normal[0]),
-              double(((long double)a.y+b.y+c.y)/3-factor*h->second*normal[1]),double(((long double)a.z+b.z+c.z)/3-factor*h->second*normal[2])});
-        }
-        const auto components=AssociatedExtensions(donors.cells,geometry);
-        FrozenField target(donors.cells,composition,options.timings,components,options.edge_breakpoints,field_identity);
-        FieldAccounting accounting{stats,target};
-        double bestQuality=-1;long double bestLength=std::numeric_limits<long double>::infinity();
-        std::map<Edge,EdgeMeasure> reuse;
-        for(const auto& background:backgrounds) {
-          Patch candidate;FirstHeightReport candidateReport;std::string candidateReason;
-          if(!ConstructFirstLayer(old,{node,background},node+1,cell,options.wall_heights,geometry,candidate,candidateReport,candidateReason)) {
-            if(!approved)result.reason=candidateReason;
-            if(candidateReason.find("geometry-height incompatibility")!=std::string::npos)break;
-            continue;
+        return false;
+      };
+      if(timed_out())return finish();
+      std::vector<Feature> features;std::vector<Id> queued;
+      DependencyBatch dependencies;ImportedBatch imported;ReservationBatch reserved;
+      auto plan=[&]() {
+        Timer timer(stats.layer_metadata_seconds,options.timings);
+        const uint64_t available=std::min(pending.size(),options.candidate_batch);
+        const auto position=CPassiveComm::ExscanSum(available,world.comm);
+        const auto remaining=stats.work_limit-stats.global_work;
+        const size_t count=position<remaining ? std::min(available,remaining-position) : 0;
+        stats.global_work+=CPassiveComm::Allreduce(uint64_t(count),CPassiveComm::Op::SUM,world.comm);
+        try {
+          auto it=pending.begin();
+          for(size_t i=0;i<count;++i,++it) {
+            const auto& row=working.at(*it);const auto faces=Faces(row.cell);bool found=false;
+            for(unsigned f=0;f<4;++f)if(row.physical[f].present && options.wall_heights.count(geometry.Get(row.physical[f].facet).marker)) {
+              features.push_back({faces[f],3});queued.push_back(row.cell.id);found=true;break;
+            }
+            if(!found)throw std::runtime_error("Native3D first-row queue lost its wall face.");
           }
-          MetricStats counted;
-          const auto measured=MeasureMetricCells(candidate.cells,target,&counted,&reuse);
-          reuse=measured.edges;
-          stats.layer_edge_evaluations+=counted.edge_evaluations;stats.layer_edge_reused+=counted.edge_reused;
-          const double quality=std::min(measured.minimum_mean_ratio/MinimumMeanRatio,
-              measured.minimum_scaled_jacobian/MinimumScaledJacobian);
-          // Choose the wall/transition arrangement against the frozen target before private publication.
-          if(quality>bestQuality || (quality==bestQuality && measured.maximum_length<bestLength)) {
-            bestQuality=quality;bestLength=measured.maximum_length;fresh=std::move(candidate);report=candidateReport;
-            approved=true;result.reason.clear();
+        }catch(const std::exception& e){failure.Set(2,0,e.what());}
+        if(!vote(failure))return false;
+        ++stats.layer_batches;stats.layer_maximum_batch=std::max(stats.layer_maximum_batch,features.size());
+        const auto held=transfer_memory::Add(bytes(),source.ResidentBytes(),layerScratch);
+        dependencies=directory.LookupBatch(features,options.memory_ceiling,held);
+        if(!dependencies.valid){result.reason=dependencies.reason;return false;}
+        imported=directory.FetchBatch(dependencies,working,options.memory_ceiling,held);
+        if(!imported.valid){result.reason=imported.reason;return false;}
+        try {for(size_t i=0;i<imported.candidates.size();++i) {
+          const auto& item=imported.candidates[i];
+          if(!item.valid || item.cells.size()!=1 || item.cells.front().cell.id!=queued.at(i))
+            throw std::runtime_error("Native3D first-row batch lacks its complete queued cell.");
+        }}catch(const std::exception& e){failure.Set(2,0,e.what());}
+        if(!vote(failure))return false;
+        // These operators preserve every old face/vertex; only the cell interiors are written.
+        reserved=directory.ReserveInteriors(imported,options.memory_ceiling,held);
+        if(!reserved.valid){result.reason=reserved.reason;return false;}
+        if(!world.maximum(std::any_of(reserved.chosen.begin(),reserved.chosen.end(),[](bool x){return x;}))) {
+          result.reason="Native3D first-row batch has no reserved cell.";return false;
+        }
+        return true;
+      };
+      if(!plan())return finish();
+      std::vector<Patch> proposals;
+      try {proposals.resize(imported.candidates.size());}catch(const std::exception& e){failure.Set(2,0,e.what());}
+      if(!vote(failure))return finish();
+      const size_t slots=CPassiveComm::Allreduce(imported.candidates.size(),CPassiveComm::Op::MAX,world.comm);
+      size_t span=options.candidate_batch;
+      auto construct=[&]() {
+        for(size_t at=0;at<slots;) {
+          if(timed_out())return false;
+          size_t group=std::min(span,slots-at);DonorPatch donors;
+          {
+            Timer timer(stats.layer_donor_seconds,options.timings);
+            for(;;) {
+              std::vector<Cell> query;
+              try {for(size_t k=at;k<std::min(at+group,imported.candidates.size());++k)
+                if(reserved.chosen[k])query.push_back(imported.candidates[k].cells.front().cell);
+              }catch(const std::exception& e){failure.Set(2,0,e.what());}
+              if(!vote(failure))return false;
+              ++stats.layer_donor_batches;
+              donors=source.ImportCells(query,options.memory_ceiling,transfer_memory::Add(bytes(),directory.ResidentBytes(),layerScratch));
+              if(donors.valid)break;
+              if(!DonorCap(donors.reason) || group==1){result.reason=donors.reason;return false;}
+              span=(group+1)/2;group=std::min(span,slots-at);++stats.layer_donor_retries;
+            }
           }
+          std::unique_ptr<FrozenField> target;
+          try {
+            Timer timer(stats.layer_metric_seconds,options.timings);
+            const auto components=AssociatedExtensions(donors.cells,geometry);
+            target=std::make_unique<FrozenField>(std::move(donors.cells),composition,options.timings,components,options.edge_breakpoints,field_identity);
+          }catch(const std::exception& e){failure.Set(2,0,e.what());}
+          if(!vote(failure))return false;
+          FieldAccounting accounting{stats,*target};
+          bool rejected=false,expired=false;
+          auto local_deadline=[&]() {return options.maximum_seconds && std::chrono::duration<double>(Clock::now()-started).count()>=options.maximum_seconds;};
+          for(size_t k=at;k<at+group;++k) {
+            if(local_deadline()){expired=true;break;}
+            if(k<imported.candidates.size() && reserved.chosen[k])try {
+              const auto old=GeometryPatch(imported.candidates[k]);auto& fresh=proposals[k];bool approved=false;
+              const auto ticket=transfer_memory::Add(transfer_memory::Mul(
+                  transfer_memory::Add(transfer_memory::Mul(epoch,world.size),world.rank),options.candidate_batch),k);
+              const auto nodeOffset=transfer_memory::Mul(ticket,5),cellOffset=transfer_memory::Mul(ticket,MaximumReplacementCells);
+              if(maximum_node>UINT64_MAX-5 || nodeOffset>UINT64_MAX-maximum_node-5 ||
+                 maximum_cell>UINT64_MAX-MaximumReplacementCells || cellOffset>UINT64_MAX-maximum_cell-MaximumReplacementCells)
+                throw std::invalid_argument("Native3D first-row reserved range overflows.");
+              if(old.cells.size()!=1 || old.surface.size()>4)
+                throw std::invalid_argument("Native3D first-row identity reservation requires one complete wall cell.");
+              const Id node=maximum_node+1+nodeOffset,cell=maximum_cell+1+cellOffset;
+              std::vector<Point> backgrounds{Centroid(old.cells.front())};
+              std::map<Id,Point> coordinates;for(const auto& c:old.cells)for(auto n:c.v)coordinates.emplace(n.id,n.p);
+              for(const auto& face:old.surface) {
+                const auto h=options.wall_heights.find(geometry.Get(face.facet).marker);if(h==options.wall_heights.end())continue;
+                const auto a=coordinates.at(face.v[0]),b=coordinates.at(face.v[1]),c=coordinates.at(face.v[2]);
+                const std::array<long double,3> u{(long double)b.x-a.x,(long double)b.y-a.y,(long double)b.z-a.z},
+                    v{(long double)c.x-a.x,(long double)c.y-a.y,(long double)c.z-a.z};
+                auto normal=std::array<long double,3>{u[1]*v[2]-u[2]*v[1],u[2]*v[0]-u[0]*v[2],u[0]*v[1]-u[1]*v[0]};
+                const auto length=std::hypot(normal[0],normal[1],normal[2]);for(auto& x:normal)x/=length;
+                for(double factor:{1.25,1.5,2.})backgrounds.push_back({double(((long double)a.x+b.x+c.x)/3-factor*h->second*normal[0]),
+                    double(((long double)a.y+b.y+c.y)/3-factor*h->second*normal[1]),double(((long double)a.z+b.z+c.z)/3-factor*h->second*normal[2])});
+              }
+              double bestQuality=-1;long double bestLength=std::numeric_limits<long double>::infinity();
+              std::map<Edge,EdgeMeasure> reuse;
+              for(const auto& background:backgrounds) {
+                Patch candidate;FirstHeightReport report;std::string why;bool built=false;
+                {Timer timer(stats.layer_geometry_seconds,options.timings);
+                  built=ConstructFirstLayer(old,{node,background},node+1,cell,options.wall_heights,geometry,candidate,report,why);
+                  if(built && !SameSkin(old,candidate))throw std::runtime_error("Native3D interior first-row replacement changed its interface.");
+                }
+                if(!built) {
+                  if(!approved)result.reason=why;
+                  if(why.find("geometry-height incompatibility")!=std::string::npos)break;
+                  continue;
+                }
+                MetricStats counted;PatchMetric measured;
+                {Timer timer(stats.layer_metric_seconds,options.timings);
+                  measured=MeasureMetricCells(candidate.cells,*target,&counted,&reuse);
+                }
+                reuse=measured.edges;
+                stats.layer_edge_evaluations+=counted.edge_evaluations;stats.layer_edge_reused+=counted.edge_reused;
+                const double quality=std::min(measured.minimum_mean_ratio/MinimumMeanRatio,measured.minimum_scaled_jacobian/MinimumScaledJacobian);
+                if(quality>bestQuality || (quality==bestQuality && measured.maximum_length<bestLength)) {
+                  bestQuality=quality;bestLength=measured.maximum_length;fresh=std::move(candidate);approved=true;result.reason.clear();
+                }
+              }
+              if(!approved){failure.Set(1,old.cells.front().id,"Native3D initial first-row construction rejected: "+result.reason);rejected=true;}
+            }catch(const std::exception& e){failure.Set(2,k<queued.size()?queued[k]:0,e.what());rejected=true;}
+            if(rejected)break;
+            if(local_deadline()){expired=true;break;}
+          }
+          // Private operators/query fields are local. Vote once per admitted group, while each worker checks its deadline per candidate.
+          if(!vote(failure))return false;
+          if(world.maximum(expired)) {
+            stats.stop=EngineStop::TimeBudget;result.reason="Native3D first-row initialization exhausts elapsed-time budget.";return false;
+          }
+          at+=group;
         }
-        if(!approved)failure.Set(1,old.cells.front().id,"Native3D initial first-row construction rejected: "+result.reason);
-      }catch(const std::exception& e){failure.Set(2,0,e.what());}
-      if(!vote(failure))return finish();
-      std::vector<std::vector<Dependency>> toRemove(world.size);
-      std::vector<std::vector<OwnedCell>> toAdd(world.size);
-      try {if(approved) {
-        std::map<Id,int> owners;for(const auto& dep:dependencies.cells){owners.emplace(dep.cell,dep.owner);toRemove[dep.owner].push_back(dep);}
-        std::map<Face,Id> physical;for(const auto& f:fresh.surface)physical.emplace(Key(f.v),f.facet);
-        for(size_t i=0;i<fresh.cells.size();++i) {
-          OwnedCell row;row.cell=fresh.cells[i];const auto faces=Faces(row.cell);
-          for(unsigned f=0;f<4;++f){const auto found=physical.find(Key(faces[f]));if(found!=physical.end())row.physical[f]={true,found->second};}
-          toAdd[owners.at(old.cells[i%old.cells.size()].id)].push_back(row);
-        }
-      }}catch(const std::exception& e){failure.Set(2,0,e.what());}
-      if(!vote(failure))return finish();
-      bool admitted=false;const auto baseline=transfer_memory::Add(bytes(),source.ResidentBytes(),directory.ResidentBytes(),layerScratch);
-      const auto removed=world.exchange(toRemove,&admitted,options.memory_ceiling,baseline);if(!admitted){result.reason="Native3D first-row removal routing exceeds budget.";return finish();}
-      const auto added=world.exchange(toAdd,&admitted,options.memory_ceiling,baseline);if(!admitted){result.reason="Native3D first-row addition routing exceeds budget.";return finish();}
-      if(!directory.Publish(working,removed,added,true,result.reason,options.memory_ceiling,transfer_memory::Add(bytes(),source.ResidentBytes(),layerScratch)))return finish();
-      try {
-        for(const auto& row:removed)pending.erase(row.cell);
-        for(const auto& row:added)if(needs_layer(row))pending.insert(row.cell.id);
-      }catch(const std::exception& e){failure.Set(2,0,e.what());}
-      if(!vote(failure))return finish();
-      stats.layer_published+=approved; ++epoch;
-      stats.maximum_owned=std::max(stats.maximum_owned,working.size());
+        return true;
+      };
+      if(!construct())return finish();
+      auto publish=[&]() {
+        Timer timer(stats.layer_publication_seconds,options.timings);
+        std::vector<std::vector<Dependency>> toRemove(world.size);
+        std::vector<std::vector<OwnedCell>> toAdd(world.size);size_t published=0;
+        try {for(size_t k=0;k<proposals.size();++k)if(reserved.chosen[k]) {
+          const auto& old=imported.candidates[k].cells.front().cell;const auto& fresh=proposals[k];
+          const auto& dep=dependencies.candidates[k].cells.front();
+          if(dep.cell!=old.id || dependencies.candidates[k].cells.size()!=1 || fresh.cells.empty())
+            throw std::runtime_error("Native3D first-row publication lacks its complete replacement.");
+          toRemove.at(dep.owner).push_back(dep);
+          std::map<Face,Id> physical;for(const auto& f:fresh.surface)physical.emplace(Key(f.v),f.facet);
+          for(const auto& c:fresh.cells) {
+            OwnedCell row;row.cell=c;const auto faces=Faces(row.cell);
+            for(unsigned f=0;f<4;++f){const auto found=physical.find(Key(faces[f]));if(found!=physical.end())row.physical[f]={true,found->second};}
+            toAdd.at(dep.owner).push_back(row);
+          }
+          ++published;
+        }}catch(const std::exception& e){failure.Set(2,0,e.what());}
+        if(!vote(failure))return false;
+        bool admitted=false;const auto baseline=transfer_memory::Add(bytes(),source.ResidentBytes(),directory.ResidentBytes(),layerScratch);
+        const auto removed=world.exchange(toRemove,&admitted,options.memory_ceiling,baseline);
+        if(!admitted){result.reason="Native3D first-row removal routing exceeds budget.";return false;}
+        const auto added=world.exchange(toAdd,&admitted,options.memory_ceiling,baseline);
+        if(!admitted){result.reason="Native3D first-row addition routing exceeds budget.";return false;}
+        if(!directory.Publish(working,removed,added,true,result.reason,options.memory_ceiling,transfer_memory::Add(bytes(),source.ResidentBytes(),layerScratch)))return false;
+        try {
+          for(const auto& row:removed)pending.erase(row.cell);
+          for(const auto& row:added)if(needs_layer(row))pending.insert(row.cell.id);
+        }catch(const std::exception& e){failure.Set(2,0,e.what());}
+        if(!vote(failure))return false;
+        stats.layer_published+=published;++epoch;stats.maximum_owned=std::max(stats.maximum_owned,working.size());
+        return true;
+      };
+      if(!publish())return finish();
     }
     try {
       initial.clear();initial.reserve(working.size());

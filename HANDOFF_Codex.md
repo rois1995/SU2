@@ -70,6 +70,18 @@ refinement cannot lower continuum mass; strong-BL lower estimates exceed100000
 under conditional statistical assumptions, not machine certification.
 [Preserved bounds, normalization and rejected experiments](Handbook/GOAL3_M6_CONSTRAINTS_AND_EXPERIMENTS.md).
 
+**First-row transaction batch validated:** complete one-cell interiors can share
+read-only outer vertices. Groups retain exact skins, bounded imports, versions and
+atomic veto/publication; private work checks local deadlines then votes per group.
+9 serial controls plus MPI/general/curved/RANS N4M2/BDF/SU2+CGNS/restart PASS.
+M6 all303359 original donors/full wall,64 private initializations2/4 ranks: exact
+batch1/8 geometry/markers, positive/exact volume and unchanged skin. First-row
+6.93->6.05s /4.67->3.58s; tracked calls~82% lower, no full-event/scaling claim.
+Synchronous-group variant had no elapsed gain; executed patch/evidence preserved.
+Old driver baseline timed out; corrected rank-only fixture failure stays failed.
+All owned jobs terminal/current binaries built. Metric evaluation still dominates.
+[Evidence and rejected grids](integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/first_row_transactions_v1/README.md).
+
 ## Remaining evidence and scope
 
 No accepted M6 grid, rigorously qualified complete mass, calibrated global error/production
@@ -79,8 +91,8 @@ Reference sources/failed approaches remain preserved. Final suggestion-by-sugges
 report requested: keep [outcome ledger](Handbook/SUGGESTION_OUTCOME_LEDGER.md) current,
 including its other-agent performance accounting; do not replace or discard it.
 [Broader query/transaction package](Handbook/POST_COMPLEXITY_QUERY_TRANSACTIONS.md):
-point-only lookup and measured composed-edge reuse are implemented; wider repair-
-campaign support/edge lifetime and independent publications remain open.
+point-only lookup and measured composed-edge reuse are implemented; first-row interior publication batching is qualified locally. Wider repair-
+campaign support/edge lifetime and general displaced-transaction batching remain open.
 
 M6 initial120-step RANS/SA state, exact original owner/halo tensors and geometry
 are saved. The subsequent construction-only attempts are provisional captured
@@ -116,7 +128,7 @@ edit, no repeated unchanged failures/limit ladders, push reviewable work. Keep
 handbooks compact with detailed linked topics. Announce full case folder paths.
 One owned heavy job, low priority/thread1/build-j1, locally available MPI<=4.
 Check host contention/RAM and live handles. Latest host38–39GiB available; recheck.
-Current build peak process2.38GiB, serial pilot1.63GiB, MPI wrapper530MiB;
+Current build peak process2.40GiB, MPI/audit wrapper647MiB;
 recorded swaps0, not aggregate or whole-lifecycle peaks. All owned jobs terminal. Root/tmp nearly full: use build-integrated-v2/compile-tmp
 on4TB. Do not kill unrelated processes or request cluster jobs overnight.
 Goal4 inactive; full physical unsteady3D/general CAD/mixed volumes separate scope.

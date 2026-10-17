@@ -621,6 +621,12 @@ DependencyBatch Directory::PlanBatch(const std::vector<Feature>& features, std::
   return result;
 }
 ReservationBatch Directory::ReserveBatch(const ImportedBatch& imported, size_t ceiling, size_t caller_bytes) {
+  return ReserveBatchImpl(imported,ceiling,caller_bytes,false);
+}
+ReservationBatch Directory::ReserveInteriors(const ImportedBatch& imported,size_t ceiling,size_t caller_bytes) {
+  return ReserveBatchImpl(imported,ceiling,caller_bytes,true);
+}
+ReservationBatch Directory::ReserveBatchImpl(const ImportedBatch& imported,size_t ceiling,size_t caller_bytes,bool interiors) {
   Timer timer(stats.reservation_seconds);++stats.reservations;
   CLocalFailure failure;size_t cells=0,imported_bytes=transfer_memory::Bytes(imported.candidates);
   for(const auto& candidate:imported.candidates) {
@@ -644,7 +650,10 @@ ReservationBatch Directory::ReserveBatch(const ImportedBatch& imported, size_t c
       if(candidate.cells.empty() || candidate.cells.size()>MaximumCavityCells)
         throw std::runtime_error("Native 3D batch reservation lacks a bounded complete star.");
       auto& vertices=footprints[i];vertices.reserve(4*candidate.cells.size());
-      for(const auto& row:candidate.cells)for(auto node:row.cell.v)vertices.push_back(node.id);
+      if(interiors) {
+        if(candidate.cells.size()!=1)throw std::runtime_error("Native 3D interior reservation requires one complete cell.");
+        vertices.push_back(candidate.cells.front().cell.id);
+      } else for(const auto& row:candidate.cells)for(auto node:row.cell.v)vertices.push_back(node.id);
       std::sort(vertices.begin(),vertices.end());vertices.erase(std::unique(vertices.begin(),vertices.end()),vertices.end());
     }
   }catch(const std::exception& e){failure.Set(2,0,e.what());}

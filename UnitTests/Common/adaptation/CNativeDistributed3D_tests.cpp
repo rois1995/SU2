@@ -2543,10 +2543,10 @@ TEST_CASE("Prismatic admission certifies opposite caps and rejects slanted sides
 
 }
 
-TEST_CASE("Native first-row owners construct disjoint wall cells concurrently", "[NativeFirstLayerConcurrency3D]") {
+TEST_CASE("Native first-row owners construct disjoint wall cells concurrently", "[NativeFirstLayerConcurrency3D][NativeFirstLayerBatch3D]") {
   World world;auto fixture=Box();
   // Disconnected boxes have independent complete vertex reservations even with the same wall marker policy.
-  for(unsigned copy=1;copy<4;++copy) {
+  for(unsigned copy=1;copy<16;++copy) {
     auto extra=Box();
     for(auto& c:extra.patch.cells) {c.id+=100*copy;for(auto& n:c.v){n.id+=100*copy;n.p.x+=3*copy;}}
     for(auto& f:extra.patch.surface){f.facet+=100*copy;for(auto& id:f.v)id+=100*copy;}
@@ -2559,11 +2559,25 @@ TEST_CASE("Native first-row owners construct disjoint wall cells concurrently", 
   for(const auto& row:Rows(fixture.patch))if((row.cell.id/100)%world.size==unsigned(world.rank))input.emplace(row.cell.id,row);
   const auto saved=Bytes(input);EngineOptions options;options.maximum_rounds=1;
   for(const auto& f:fixture.facets)if(std::all_of(f.v.begin(),f.v.end(),[](Node n){return n.p.z==0;}))options.wall_heights[f.marker]=.1;
-  const auto result=Refine(world,input,Uniform(input,{1,0,0,1,0,100}),reference,{},options);
-  CHECK(Bytes(input)==saved);
-  CHECK(world.sum(int(result.stats.layer_published))==8);
-  for(const auto& row:result.cells) {FirstHeightReport report;std::string reason;
-    CHECK(CheckFirstHeight(PatchOf({row.second}),options.wall_heights,reference,report,reason));
+  using Tet=std::array<std::array<double,3>,4>;std::vector<Tet> baseline;uint64_t baseline_batches=0;
+  for(size_t batch:{size_t(1),MaximumCandidateBatch}) {
+    options.candidate_batch=batch;options.maximum_work=32;options.timings=true;
+    const auto result=Refine(world,input,Uniform(input,{1,0,0,1,0,100}),reference,{},options);
+    CHECK(Bytes(input)==saved);CHECK_FALSE(result.valid);CHECK(result.stats.stop==EngineStop::WorkBudget);
+    CHECK(result.stats.global_work==32);CHECK(world.sum(int(result.stats.layer_published))==32);
+    CHECK(world.maximum(result.stats.layer_edge_reused>0));
+    std::vector<Tet> signature;
+    for(const auto& row:result.cells) {FirstHeightReport report;std::string reason;
+      CHECK(CheckFirstHeight(PatchOf({row.second}),options.wall_heights,reference,report,reason));
+      Tet tet;for(unsigned j=0;j<4;++j){const auto p=row.second.cell.v[j].p;tet[j]={p.x,p.y,p.z};}
+      std::sort(tet.begin(),tet.end());signature.push_back(tet);
+    }
+    std::sort(signature.begin(),signature.end());
+    const auto batches=CPassiveComm::Allreduce(result.stats.layer_batches,CPassiveComm::Op::MAX,world.comm);
+    if(batch==1){baseline=signature;baseline_batches=batches;}else {
+      CHECK(signature==baseline);CHECK(batches<baseline_batches);
+      CHECK(result.stats.layer_maximum_batch<=MaximumCandidateBatch);
+    }
   }
 }
 
@@ -2786,4 +2800,44 @@ TEST_CASE("Original point sample transport retains full binary barycentric preci
   auto expected=original;std::vector<char> bytes;RecordStream encode(bytes);encode(original);
   DonorSample decoded;const auto& input=bytes;RecordStream decode(input);decode(decoded);
   CHECK(decode.End());CHECK(original.weights==expected.weights);CHECK(decoded.weights==expected.weights);
+}
+
+
+TEST_CASE("Interior reservations retain shared interfaces and reject incomplete cells", "[NativeInteriorBatch3D]") {
+  World world;const auto fixture=Box();const auto input=Partition(Rows(fixture.patch),world);
+  Directory directory(world);std::string reason;REQUIRE(directory.Build(input,reason));const auto saved=directory.Snapshot();
+  std::vector<Feature> features;
+  for(const auto& row:input)for(unsigned f=0;f<4;++f)if(row.second.physical[f].present){features.push_back({Faces(row.second.cell)[f],3});break;}
+  const auto dependencies=directory.LookupBatch(features);REQUIRE(dependencies.valid);
+  const auto imported=directory.FetchBatch(dependencies,input);REQUIRE(imported.valid);
+  const auto general=directory.ReserveBatch(imported);REQUIRE(general.valid);
+  CHECK(world.sum(int(std::count(general.chosen.begin(),general.chosen.end(),true)))==1);
+  const auto interior=directory.ReserveInteriors(imported);REQUIRE(interior.valid);
+  CHECK(world.sum(int(std::count(interior.chosen.begin(),interior.chosen.end(),true)))==6);
+  ImportedBatch duplicates;duplicates.valid=true;duplicates.candidates.push_back({{Rows(fixture.patch).front()},true,{}});
+  const auto unique=directory.ReserveInteriors(duplicates);REQUIRE(unique.valid);
+  CHECK(world.sum(int(std::count(unique.chosen.begin(),unique.chosen.end(),true)))==1);
+  auto invalid=duplicates;if(!world.rank)invalid.candidates[0].cells.push_back(Rows(fixture.patch)[1]);
+  const auto refused=directory.ReserveInteriors(invalid);CHECK_FALSE(refused.valid);CHECK(refused.chosen.empty());
+  const auto budget=directory.ReserveInteriors(imported,world.rank==0?1:SIZE_MAX);
+  CHECK_FALSE(budget.valid);CHECK(budget.chosen.empty());CHECK(directory.Snapshot()==saved);
+  const auto recovered=directory.ReserveInteriors(imported);REQUIRE(recovered.valid);
+  CHECK(world.sum(int(std::count(recovered.chosen.begin(),recovered.chosen.end(),true)))==6);
+}
+
+TEST_CASE("A failed interior candidate vetoes the whole first-row publication batch", "[NativeFirstLayerBatch3D]") {
+  World world;auto fixture=Box();auto other=Box();
+  for(auto& f:fixture.facets)if(std::all_of(f.v.begin(),f.v.end(),[](Node n){return n.p.z==0;}))f.marker=100;
+  for(auto& c:other.patch.cells){c.id+=100;for(auto& n:c.v){n.id+=100;n.p.x+=3;}}
+  for(auto& f:other.patch.surface){f.facet+=100;for(auto& id:f.v)id+=100;}
+  for(auto& f:other.facets){f.id+=100;for(auto& n:f.v){n.id+=100;n.p.x+=3;}
+    if(std::all_of(f.v.begin(),f.v.end(),[](Node n){return n.p.z==0;}))f.marker=200;}
+  fixture.patch.cells.insert(fixture.patch.cells.end(),other.patch.cells.begin(),other.patch.cells.end());
+  fixture.patch.surface.insert(fixture.patch.surface.end(),other.patch.surface.begin(),other.patch.surface.end());
+  fixture.facets.insert(fixture.facets.end(),other.facets.begin(),other.facets.end());
+  const PlanarReference reference(fixture.facets);const auto input=Partition(Rows(fixture.patch),world);const auto saved=Bytes(input);
+  EngineOptions options;options.wall_heights={{100,.1},{200,2}};options.timings=true;
+  const auto result=Refine(world,input,Uniform(input,{1,0,0,1,0,100}),reference,{},options);
+  CHECK_FALSE(result.valid);CHECK(result.reason.find("geometry-height incompatibility")!=std::string::npos);
+  CHECK(world.sum(uint64_t(result.stats.layer_published))==0);CHECK(Bytes(result.cells)==saved);CHECK(Bytes(input)==saved);
 }

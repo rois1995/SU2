@@ -49,6 +49,10 @@ struct EngineStats {
   double region_junction_seconds=0, region_core_seconds=0, region_validation_seconds=0;
   uint64_t layer_published = 0, height_checks = 0, height_rejected = 0, footprint_rejected = 0;
   uint64_t layer_edge_evaluations=0,layer_edge_reused=0;
+  uint64_t layer_batches=0,layer_donor_batches=0,layer_donor_retries=0;
+  size_t layer_maximum_batch=0;
+  // Nested in layer_seconds; source/geometry/metric/publication remain distinct from metadata and residual work.
+  double layer_metadata_seconds=0,layer_donor_seconds=0,layer_geometry_seconds=0,layer_metric_seconds=0,layer_publication_seconds=0;
   double layer_seconds = 0;  // Exclusive first-row initialization before metric seeding.
   uint64_t geometry_trials = 0, geometry_rejected = 0, metric_trials = 0;
   uint64_t metric_shape_rejected = 0, metric_progress_rejected = 0, metric_measurement_rejected = 0;

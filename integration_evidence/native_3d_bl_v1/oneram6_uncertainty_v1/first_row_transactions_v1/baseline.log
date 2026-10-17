@@ -1,0 +1,7 @@
+{"exit_code": 124, "elapsed_seconds": 182.04823212500196, "command": ["taskset", "-c", "0-3", "nice", "-n", "19", "/usr/bin/time", "-v", "-o", "resources.txt", "timeout", "--kill-after=10s", "180s", "mpirun", "-np", "4", "--bind-to", "none", "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver", "[NativeFrozenVolume3D]", "--abort", "--reporter", "compact"], "provenance_sha256": "0d24b8b8bf6fc02c5ef0203a5302e711e8371283b78bee4bd7ad12d6b52d7c45", "log_sha256": "2a1a4104d9491000a447a46f9d7b0a5633904c72ceaef2122f5894acf50e85e4", "resource_sha256": "16b07741b2372a7786b771a7cef86f10f2ed6c076b30673f78c65d192a955ba0", "CFD_steps": 0, "normalization_accuracy_established": false, "solution_transfer_performed": false, "stage_summary_sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570", "base_commit": "c65bb7b05a5442e485469ededab19ccc2b50bbb5"}
+Traceback (most recent call last):
+  File "integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/first_row_transactions_v1/replay.py", line 84, in <module>
+    main()
+  File "integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/first_row_transactions_v1/replay.py", line 80, in main
+    assert code == 0, 'Inspect saved rejection/resource/timeout evidence; do not infer accepted construction.'
+AssertionError: Inspect saved rejection/resource/timeout evidence; do not infer accepted construction.

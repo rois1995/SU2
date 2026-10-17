@@ -443,3 +443,96 @@ TEST_CASE("Native3D remeshes an externally frozen original sensor field without 
   }
   driver.Finalize();
 }
+
+TEST_CASE("Native first-row transactions replay original fields without solver initialization", "[.][NativeFirstRowReplay3D]") {
+  World world;const auto* folder=std::getenv("SU2_NATIVE_FIRST_ROW_ROOT");REQUIRE(folder);
+  const std::string root(folder);std::ifstream configFile(root+"/run.cfg");REQUIRE(configFile.good());
+  CConfig config(configFile,SU2_COMPONENT::SU2_CFD,false);ReferenceState reference;
+  REQUIRE(LoadReference(root+"/Coarse.su2.native_ref",reference));REQUIRE(reference.original);
+  std::ifstream sensorFile(root+"/sensor_original.bin",std::ios::binary);uint64_t count=0;
+  sensorFile.read(reinterpret_cast<char*>(&count),8);REQUIRE(count>0);REQUIRE(count<=10000000);
+  struct Record {Point point;Tensor sensor;};std::map<Id,Record> nodes;double core=INFINITY;
+  for(uint64_t i=0;i<count;++i) {
+    Id id;std::array<double,3> x;std::array<double,9> m;
+    sensorFile.read(reinterpret_cast<char*>(&id),8);sensorFile.read(reinterpret_cast<char*>(x.data()),24);
+    sensorFile.read(reinterpret_cast<char*>(m.data()),72);REQUIRE(bool(sensorFile));
+    REQUIRE(nodes.emplace(id,Record{{x[0],x[1],x[2]},{m[0],m[1],m[2],m[4],m[5],m[8]}}).second);
+    if(id%world.size==unsigned(world.rank)) {
+      su2double tensor[3][3]={{m[0],m[1],m[2]},{m[1],m[4],m[5]},{m[2],m[5],m[8]}},frame[3][3],value[3],scratch[3];
+      CBlasStructure::EigenDecomposition(tensor,frame,value,3,scratch);
+      for(auto v:value)core=std::min(core,SU2_TYPE::GetValue(v));
+    }
+  }
+  REQUIRE(sensorFile.peek()==std::char_traits<char>::eof());core=CPassiveComm::Allreduce(core,CPassiveComm::Op::MIN,world.comm);
+  REQUIRE(std::isfinite(core));REQUIRE(core>0);
+  std::ifstream selection(root+"/working_cells.dat");std::string format;size_t nWorking=0;
+  selection>>format>>nWorking;REQUIRE(format=="SU2_NATIVE_FIRST_ROW_REPLAY_1");REQUIRE(nWorking>0);REQUIRE(nWorking<=512);
+  std::map<Id,size_t> wanted;for(size_t i=0;i<nWorking;++i){Id id;selection>>id;REQUIRE(wanted.emplace(id,i).second);}
+  REQUIRE(selection.good());
+  std::map<Face,Id> physical;
+  for(const auto& face:reference.facets){Face key{face.v[0].id,face.v[1].id,face.v[2].id};std::sort(key.begin(),key.end());REQUIRE(physical.emplace(key,face.id).second);}
+  std::ifstream mesh(root+"/Coarse.su2");std::string line;size_t elements=0;
+  while(std::getline(mesh,line))if(line.find("NELEM=")==0){elements=std::stoull(line.substr(line.find('=')+1));break;}
+  REQUIRE(elements>0);REQUIRE(elements<=10000000);std::vector<DonorCell> original;Owned owned;
+  original.reserve(elements/world.size+1);
+  for(size_t i=0;i<elements;++i) {
+    REQUIRE(bool(std::getline(mesh,line)));std::istringstream row(line);unsigned type;std::array<Id,4> ids;row>>type;
+    REQUIRE(type==TETRAHEDRON);for(auto& id:ids)row>>id;REQUIRE(bool(row));
+    const auto selected=wanted.find(i);const bool input=selected!=wanted.end() && selected->second%world.size==unsigned(world.rank);
+    const bool donor=(i+1)%world.size==unsigned(world.rank);
+    if(!input && !donor)continue;
+    DonorCell cell;cell.cell.id=i;
+    for(unsigned j=0;j<4;++j){const auto& value=nodes.at(ids[j]);cell.cell.v[j]={ids[j],value.point};cell.sensor[j]=value.sensor;}
+    const auto& v=cell.cell.v;
+    if(Orientation(v[0].p,v[1].p,v[2].p,v[3].p)<0){std::swap(cell.cell.v[0],cell.cell.v[1]);std::swap(cell.sensor[0],cell.sensor[1]);}
+    if(input) {
+      OwnedCell current;current.cell=cell.cell;const auto& n=current.cell.v;
+      const std::array<Face,4> faces{{{n[1].id,n[2].id,n[3].id},{n[0].id,n[3].id,n[2].id},{n[0].id,n[1].id,n[3].id},{n[0].id,n[2].id,n[1].id}}};
+      for(unsigned f=0;f<4;++f){auto key=faces[f];std::sort(key.begin(),key.end());const auto found=physical.find(key);if(found!=physical.end())current.physical[f]={true,found->second};}
+      REQUIRE(owned.emplace(i,current).second);
+    }
+    if(donor)original.push_back(std::move(cell));
+  }
+  REQUIRE(world.sum(uint64_t(original.size()))==elements);REQUIRE(world.sum(uint64_t(owned.size()))==nWorking);
+  Id maximum_node=0,maximum_cell=0;for(const auto& row:owned){maximum_cell=std::max(maximum_cell,row.first);for(auto n:row.second.cell.v)maximum_node=std::max(maximum_node,n.id);}
+  REQUIRE(CPassiveComm::Allreduce(maximum_node,CPassiveComm::Op::MAX,world.comm)==nodes.rbegin()->first);
+  REQUIRE(CPassiveComm::Allreduce(maximum_cell,CPassiveComm::Op::MAX,world.comm)==elements-1);
+  auto layers=CBoundaryLayerMetric::FromNativeReference(reference,config);
+  const MetricComposition composition=[&](Point p,Tensor sensor) {
+    CBoundaryLayerMetric::Tensor m;m.m[0][0]=sensor.xx;m.m[0][1]=m.m[1][0]=sensor.xy;m.m[0][2]=m.m[2][0]=sensor.xz;
+    m.m[1][1]=sensor.yy;m.m[1][2]=m.m[2][1]=sensor.yz;m.m[2][2]=sensor.zz;
+    const su2double x[3]={p.x,p.y,p.z};layers->ApplyPoint(x,m,core,nullptr,false);
+    return Tensor{SU2_TYPE::GetValue(m.m[0][0]),SU2_TYPE::GetValue(m.m[0][1]),SU2_TYPE::GetValue(m.m[0][2]),
+        SU2_TYPE::GetValue(m.m[1][1]),SU2_TYPE::GetValue(m.m[1][2]),SU2_TYPE::GetValue(m.m[2][2])};
+  };
+  EngineOptions options;options.timings=true;options.maximum_work=64;options.maximum_seconds=120;
+  const auto* batch=std::getenv("SU2_NATIVE_FIRST_ROW_BATCH");REQUIRE(batch);options.candidate_batch=std::stoul(batch);
+  REQUIRE((options.candidate_batch==1 || options.candidate_batch==MaximumCandidateBatch));
+  options.edge_breakpoints=[&](Point a,Point b){return layers->EdgeBreakpoints({a.x,a.y,a.z},{b.x,b.y,b.z});};
+  for(unsigned short b=0;b<config.GetnAdap_BL();++b)for(size_t m=0;m<reference.marker_names.size();++m)
+    if(reference.marker_names[m]==config.GetAdap_BL(b).marker)options.wall_heights[m]=SU2_TYPE::GetValue(config.GetAdap_BL(b).firstHeight);
+  auto snapshot=[&]() {std::vector<char> bytes;RecordStream stream(bytes);
+    for(const auto& row:owned){auto copy=row.second;stream(copy);}return bytes;};
+  const auto before=snapshot(); // The original donor vector is borrowed const by Refine.
+  const auto result=Refine(world,owned,original,*reference.original,composition,options);
+  INFO(result.reason);CHECK(snapshot()==before);CHECK_FALSE(result.valid);CHECK(result.stats.stop==EngineStop::WorkBudget);CHECK(result.stats.global_work==64);
+  CHECK(world.sum(uint64_t(result.stats.layer_published))==64);
+  std::ofstream output("first_row_rank"+std::to_string(world.rank)+".json");const auto& s=result.stats;
+  output<<std::setprecision(17)<<"{\"rank\":"<<world.rank<<",\"ranks\":"<<world.size<<",\"batch\":"<<options.candidate_batch<<",\"core\":"<<core
+    <<",\"total_seconds\":"<<s.total_seconds<<",\"layer_seconds\":"<<s.layer_seconds<<",\"published\":"<<s.layer_published
+    <<",\"batches\":"<<s.layer_batches<<",\"maximum_batch\":"<<s.layer_maximum_batch<<",\"donor_batches\":"<<s.layer_donor_batches
+    <<",\"donor_retries\":"<<s.layer_donor_retries<<",\"metadata_seconds\":"<<s.layer_metadata_seconds<<",\"donor_seconds\":"<<s.layer_donor_seconds
+    <<",\"geometry_seconds\":"<<s.layer_geometry_seconds<<",\"metric_seconds\":"<<s.layer_metric_seconds<<",\"publication_seconds\":"<<s.layer_publication_seconds
+    <<",\"edge_evaluations\":"<<s.layer_edge_evaluations<<",\"edge_reused\":"<<s.layer_edge_reused<<",\"tracked_calls\":"<<s.tracked_calls
+    <<",\"directory_elections\":"<<s.directory_elections<<",\"maximum_native_bytes\":"<<s.maximum_work_bytes
+    <<",\"stop\":\""<<EngineStopName(s.stop)<<"\",\"reason\":"<<std::quoted(result.reason)
+    <<",\"accepted_mesh\":false,\"CFD_steps\":0,\"global_work\":"<<s.global_work<<"}\n";output.close();REQUIRE(bool(output));
+  // Root-only small inspectable subset, not a full adapted wing or accepted CFD grid.
+  std::vector<std::vector<OwnedCell>> send(world.size);for(const auto& row:result.cells)send[0].push_back(row.second);
+  const auto rows=world.exchange(send);
+  if(!world.rank) {
+    std::ofstream data("first_row_rejected.dat");data<<std::setprecision(17)<<rows.size()<<'\n';
+    for(const auto& row:rows){data<<row.cell.id;for(auto n:row.cell.v)data<<' '<<n.id<<' '<<n.p.x<<' '<<n.p.y<<' '<<n.p.z;for(auto f:row.physical)data<<' '<<f.present<<' '<<f.facet;data<<'\n';}
+    data.close();REQUIRE(bool(data));
+  }
+}

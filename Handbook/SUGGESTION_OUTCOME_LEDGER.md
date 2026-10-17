@@ -398,3 +398,36 @@ publications are still open, as are original-field uncertainty/reassessment and
 complete lifecycle affordability. Existing2D reuse must be inspected before sharing
 this policy; no2D or MMG path was replaced.
 [Exact evidence and limitations](../integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/composed_edge_reuse_v1/README.md).
+
+
+## 2026-10-17: independent first-row transactions WORKED after removing inner synchronization
+
+Existing complete-star/fetch/publication infrastructure now batches up to8 one-cell
+interior replacements. ReserveInteriors arbitrates duplicate cells while allowing
+shared read-only vertices; exact SameSkin/height/prescribed-interface checks and
+one atomic publication protect topology and accepted state. No general movement/
+boundary reservation was weakened. Bounded shared donor imports split only at the
+existing cap, and per-candidate local deadlines precede the common group vote.
+
+The first version cut calls but still synchronized after every private candidate:
+MPI2 first-row6.8685->6.8809s, no elapsed benefit. Executed source/outputs preserved.
+Group-local scheduling then preserved exact M6 batch1/8 geometry/markers and rational
+positivity/volume/outer skin, with the complete original303359-donor field/wall.
+64 private initializations, MPI2/4: first-row6.9331->6.0494s /4.6660->3.5846s;
+wrapper calls1326->234 /670->124, directory elections935->123 /471->65. Metric
+rank-work remains~9.6–10.0 rank-seconds; local coordination improves elapsed time,
+not tensor arithmetic. One-shot contended stages, NOT complete adaptation/scaling.
+
+Donor packing has real cost: MPI2 attempts32->12 with4 retries; MPI4 16->6 with2.
+No larger caps or geometric retry ladder. The old full-driver64-work baseline
+hit180s and provides no completed-stage timing. The separate direct MPI2 rank-config
+failure was corrected without changing the field; exact failed setup remains.
+
+9 current serial controls/723 assertions, MPI4 reservation/first-row/general batch
+checks, affected curved return and independent initialized RANS/SA N4M2 current+BDF/
+SA/restart/SU2+CGNS workflow pass. No accepted M6 mesh; partial VTUs are explicitly
+_rejected. No final full-target quality/length or transfer claim for those subsets.
+One heavy job/build-j1/thread1/MPI<=4, max build process2.40GiB, host39–40GiB available.
+Wider campaign support, general displaced-transaction batching, original-field
+uncertainty/reassessment/correction, viscous accuracy and lifecycle affordability
+remain open. See [full evidence, failures and limits](../integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/first_row_transactions_v1/README.md).
