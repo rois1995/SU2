@@ -6,6 +6,7 @@
 #pragma once
 
 #include "CIntegration.hpp"
+#include <memory>
 #include <stdexcept>
 
 /*!
@@ -23,18 +24,30 @@ class CNewtonEquationSet : private CIntegration {
     CSolver* solver;
   };
 
+  /*! \brief Scratch used only during a residual evaluation; sequential groups may share it. */
+  struct ResidualWorkspace {
+    struct Buffers {
+      std::vector<su2double> evaluationHistory, boundarySolution, boundaryInput;
+    };
+    std::array<Buffers, MAX_SOLS> systems;
+    std::vector<su2double> trialFlow;
+    std::vector<int8_t> savedReconstruction;
+  };
+
  private:
   struct Snapshot {
     CSolver* solver;
     unsigned short slot, variables;
-    std::vector<su2double> solution, oldSolution, evaluationHistory, relaxation, boundarySolution, boundaryInput;
+    std::vector<su2double> solution, oldSolution, relaxation;
     std::vector<unsigned char> prescribed;
+    ResidualWorkspace::Buffers* work;
   };
   CGeometry* geometry;
   CSolver** solvers;
   CNumerics*** numerics;
   CConfig* config;
   std::vector<Block> blocks;
+  std::shared_ptr<ResidualWorkspace> workspace;
   std::vector<Snapshot> snapshots;
   std::vector<su2double> density;
   unsigned short variables = 0;
@@ -42,9 +55,8 @@ class CNewtonEquationSet : private CIntegration {
   unsigned long flowBoundaryEvaluations = 0;
   bool captured = false, valid = true;
   double invalidCount = 0;
-  std::vector<su2double> trialFlow;
   su2vector<int8_t>* reconstructionHistory = nullptr;
-  std::vector<int8_t> acceptedReconstruction, savedReconstruction, nextReconstruction;
+  std::vector<int8_t> acceptedReconstruction, nextReconstruction;
   mutable su2activematrix periodicWork;
 
   /*! \brief Restore all dependent primary values, iteration history, row masks and relaxation. */
@@ -68,7 +80,8 @@ class CNewtonEquationSet : private CIntegration {
 
  public:
   /*! \brief Bind native solvers in the requested packing order and allocate dependent-state snapshots. */
-  CNewtonEquationSet(CGeometry*, CSolver**, CNumerics***, CConfig*, const std::vector<unsigned short>& runtimes);
+  CNewtonEquationSet(CGeometry*, CSolver**, CNumerics***, CConfig*, const std::vector<unsigned short>& runtimes,
+                     std::shared_ptr<ResidualWorkspace> work = {});
   const std::vector<Block>& GetBlocks() const { return blocks; }
   unsigned short GetnVar() const { return variables; }
   const std::array<unsigned long, 4>& GetResidualEvaluations() const { return residualEvaluations; }

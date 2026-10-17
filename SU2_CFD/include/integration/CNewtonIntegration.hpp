@@ -23,6 +23,7 @@ class CNewtonIntegration final : public CIntegration {
   NonlinearGlobalization::Options<> options;
   bool lowerTriangular, legacyFlowControls;
   std::string prefix;
+  std::shared_ptr<CNewtonEquationSet::ResidualWorkspace> residualWorkspace;
   double residualTolerance = 0;
 
  public:
@@ -34,14 +35,16 @@ class CNewtonIntegration final : public CIntegration {
    * \param[in] lower - Subtract matrix-free lower cross blocks in the preconditioner.
    * \param[in] diagnostics - Prefix used by iteration and recovery records.
    * \param[in] flowControls - Honor existing flow startup, reconstruction and inner-solve controls.
+   * \param[in] workspace - Optional evaluation scratch shared by sequential equation groups.
    */
   CNewtonIntegration(std::vector<unsigned short> selected, NonlinearGlobalization::Options<> settings,
-                     bool lower = false, std::string diagnostics = "newton", bool flowControls = false)
+                     bool lower = false, std::string diagnostics = "newton", bool flowControls = false,
+                     std::shared_ptr<CNewtonEquationSet::ResidualWorkspace> workspace = {})
       : systems(std::move(selected)),
         options(settings),
         lowerTriangular(lower),
         legacyFlowControls(flowControls),
-        prefix(std::move(diagnostics)) {}
+        prefix(std::move(diagnostics)), residualWorkspace(std::move(workspace)) {}
   void MultiGrid_Iteration(CGeometry****, CSolver*****, CNumerics******, CConfig**, unsigned short, unsigned short,
                            unsigned short) override;
   void SingleGrid_Iteration(CGeometry**** g, CSolver***** s, CNumerics****** n, CConfig** c, unsigned short runtime,

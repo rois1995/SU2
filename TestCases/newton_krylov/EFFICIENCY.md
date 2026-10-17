@@ -55,8 +55,28 @@ documentation diff, cancelled contention preflight and a validation-harness
 postprocessing error. The latter occurred after both native suites passed; the
 remaining endpoint jobs resumed in a fresh directory.
 
-Next work shares only evaluation scratch between sequential groups, retaining
-private accepted bases and controller/Krylov history. It will be measured with
-actual peak RSS and interleaved-owner rollback checks. Lower-block residual work,
-full MPI/OpenMP/periodic qualification and final repeated measurements remain
-open; this report does not mark the overall goal complete.
+## Shared evaluation scratch
+
+Sequential groups now share the three per-system evaluation buffers, the flow
+admission copy and the saved reconstruction counters. Accepted primary/old states,
+row masks, relaxation, density coordinates, accepted/next reconstruction history,
+and controller/Krylov state stay private. Sharing is local to one integration
+container; independent equation sets still allocate their own scratch. Layout
+checks reject attempts to resize buffers referenced by another owner.
+
+The interleaved-owner test captures different bases, evaluates alternating groups
+and checks exact restoration of each independent base. Smaller and larger layout
+mismatches are rejected without damaging the existing owner. All 59 native cases
+pass on 1x1 and 2x2. The five converged families (SA, SST, active LM, mean flow and
+basic species) retain every original-control work count and every restart byte
+against the residual-refresh version in all three solver modes.
+
+The expanded pool's repeated 263169-point memory measurements are running with
+native and coupled controls. These fixed one-update runs measure allocation,
+not convergence or elapsed-time performance. Per-rank peak RSS and RSS at the
+same collective restart output are observed; the latter avoids masking live
+workspace savings with a larger mesh-initialization peak. Results remain pending.
+
+Lower-block residual work, further dependency-refresh savings, full family/layout
+qualification, quiet repeated timings and the higher-CFL study remain open.
+This report does not mark the overall goal complete.

@@ -51,20 +51,28 @@ class EquationSettingsGuard {
 }  // namespace
 
 CNewtonEquationSet::CNewtonEquationSet(CGeometry* g, CSolver** s, CNumerics*** n, CConfig* c,
-                                       const std::vector<unsigned short>& selected)
-    : geometry(g), solvers(s), numerics(n), config(c) {
+                                       const std::vector<unsigned short>& selected,
+                                       std::shared_ptr<ResidualWorkspace> work)
+    : geometry(g), solvers(s), numerics(n), config(c),
+      workspace(work ? std::move(work) : std::make_shared<ResidualWorkspace>()) {
   if (!geometry || !solvers || !solvers[FLOW_SOL] || !numerics || !config)
     throw std::invalid_argument("Newton equation sets need geometry, flow, numerics and configuration");
   density.resize(g->GetnPoint());
   if (config->GetNEMOProblem())
     throw std::invalid_argument("NEMO is excluded from the common Newton equation interface");
-  trialFlow.resize(g->GetnPoint() * s[FLOW_SOL]->GetnVar());
+  const auto flowEntries = g->GetnPoint() * s[FLOW_SOL]->GetnVar();
+  if (!workspace->trialFlow.empty() && workspace->trialFlow.size() != flowEntries)
+    throw std::invalid_argument("Shared Newton residual workspace has a different flow layout");
+  workspace->trialFlow.resize(flowEntries);
   if (auto* flow = dynamic_cast<CFlowVariable*>(s[FLOW_SOL]->GetNodes())) {
     reconstructionHistory = &flow->NonPhysicalEdgeCounter;
     acceptedReconstruction.resize(reconstructionHistory->size());
-    savedReconstruction.resize(reconstructionHistory->size());
     nextReconstruction.resize(reconstructionHistory->size());
   }
+  const auto edges = reconstructionHistory ? reconstructionHistory->size() : 0;
+  if (!workspace->savedReconstruction.empty() && workspace->savedReconstruction.size() != edges)
+    throw std::invalid_argument("Shared Newton residual workspace has a different reconstruction layout");
+  workspace->savedReconstruction.resize(edges);
   if (selected.empty()) throw std::invalid_argument("A Newton equation group cannot be empty");
   for (auto runtime : selected) {
     if (std::find(std::begin(runtimes), std::end(runtimes), runtime) == std::end(runtimes))
@@ -86,10 +94,15 @@ CNewtonEquationSet::CNewtonEquationSet(CGeometry* g, CSolver** s, CNumerics*** n
     const auto count = solver->GetnVar();
     solver->Jacobian.TrackPrescribedRows(geometry->GetnPoint(), count);
     const auto entries = geometry->GetnPoint() * count;
+    auto& scratch = workspace->systems[slot];
+    if (!scratch.evaluationHistory.empty() && scratch.evaluationHistory.size() != entries)
+      throw std::invalid_argument("Shared Newton residual workspace has a different equation layout");
+    scratch.evaluationHistory.resize(entries);
+    scratch.boundarySolution.resize(entries);
+    scratch.boundaryInput.resize(entries);
+    /*--- Accepted states and rollback metadata outlive evaluations and remain private to each group. ---*/
     snapshots.push_back({solver, slot, count, std::vector<su2double>(entries), std::vector<su2double>(entries),
-                         std::vector<su2double>(entries),
-                         std::vector<su2double>(geometry->GetnPoint()), std::vector<su2double>(entries),
-                         std::vector<su2double>(entries), std::vector<unsigned char>(entries)});
+                         std::vector<su2double>(geometry->GetnPoint()), std::vector<unsigned char>(entries), &scratch});
   }
 }
 
@@ -405,7 +418,7 @@ bool CNewtonEquationSet::CheckState(bool compareFlow, bool modelBounds) {
     for (auto v = 0u; v < nFlow; ++v) {
       const auto value = flow->GetSolution(p, v);
       if (!Armijo::IsFinite(SU2_TYPE::GetValue(value))) local += 1;
-      if (compareFlow && value != trialFlow[p * nFlow + v]) local += 1;
+      if (compareFlow && value != workspace->trialFlow[p * nFlow + v]) local += 1;
     }
     if (compressible) {
       const auto rho = flow->GetSolution(p, 0);
@@ -495,7 +508,7 @@ bool CNewtonEquationSet::EvaluateResiduals(bool implicit, bool allEquations, dou
     SU2_OMP_FOR_STAT(1024)
     for (auto p = 0ul; p < geometry->GetnPoint(); ++p)
       for (auto v = 0u; v < snapshot.variables; ++v)
-        snapshot.boundaryInput[p * snapshot.variables + v] = nodes->GetSolution(p, v);
+        snapshot.work->boundaryInput[p * snapshot.variables + v] = nodes->GetSolution(p, v);
     END_SU2_OMP_FOR
   }
   /*--- Composition and no-slip values precede the first thermodynamic/wall-function refresh. ---*/
@@ -506,7 +519,7 @@ bool CNewtonEquationSet::EvaluateResiduals(bool implicit, bool allEquations, dou
   const auto nFlow = solvers[FLOW_SOL]->GetnVar();
   SU2_OMP_FOR_STAT(1024)
   for (auto p = 0ul; p < geometry->GetnPoint(); ++p)
-    for (auto v = 0u; v < nFlow; ++v) trialFlow[p * nFlow + v] = flow->GetSolution(p, v);
+    for (auto v = 0u; v < nFlow; ++v) workspace->trialFlow[p * nFlow + v] = flow->GetSolution(p, v);
   END_SU2_OMP_FOR
   Refresh();
   if (!CheckState(true)) return false;
@@ -519,7 +532,7 @@ bool CNewtonEquationSet::EvaluateResiduals(bool implicit, bool allEquations, dou
       SU2_OMP_FOR_STAT(1024)
       for (auto p = 0ul; p < geometry->GetnPoint(); ++p)
         for (auto v = 0u; v < snapshot.variables; ++v)
-          snapshot.boundarySolution[p * snapshot.variables + v] = nodes->GetSolution(p, v);
+          snapshot.work->boundarySolution[p * snapshot.variables + v] = nodes->GetSolution(p, v);
       END_SU2_OMP_FOR
     }
     for (auto runtime : runtimes) StrongState(runtime);
@@ -530,7 +543,7 @@ bool CNewtonEquationSet::EvaluateResiduals(bool implicit, bool allEquations, dou
       for (auto p = 0ul; p < geometry->GetnPoint(); ++p)
         for (auto v = 0u; v < snapshot.variables; ++v)
           if (!snapshot.solver->Jacobian.IsPrescribedRow(p, v))
-            nodes->SetSolution(p, v, snapshot.boundaryInput[p * snapshot.variables + v]);
+            nodes->SetSolution(p, v, snapshot.work->boundaryInput[p * snapshot.variables + v]);
       END_SU2_OMP_FOR
     }
     Communicate();
@@ -541,7 +554,7 @@ bool CNewtonEquationSet::EvaluateResiduals(bool implicit, bool allEquations, dou
       SU2_OMP_FOR_STAT(1024)
       for (auto p = 0ul; p < geometry->GetnPointDomain(); ++p)
         for (auto v = 0u; v < snapshot.variables; ++v)
-          if (nodes->GetSolution(p, v) != snapshot.boundarySolution[p * snapshot.variables + v]) changed = 1;
+          if (nodes->GetSolution(p, v) != snapshot.work->boundarySolution[p * snapshot.variables + v]) changed = 1;
       END_SU2_OMP_FOR
     }
     atomicAdd(changed, invalidCount);
@@ -560,7 +573,7 @@ bool CNewtonEquationSet::EvaluateResiduals(bool implicit, bool allEquations, dou
     }
     SU2_OMP_FOR_STAT(1024)
     for (auto p = 0ul; p < geometry->GetnPoint(); ++p)
-      for (auto v = 0u; v < nFlow; ++v) trialFlow[p * nFlow + v] = flow->GetSolution(p, v);
+      for (auto v = 0u; v < nFlow; ++v) workspace->trialFlow[p * nFlow + v] = flow->GetSolution(p, v);
     END_SU2_OMP_FOR
     Refresh();
     /*--- Exact strong data take precedence over numerical clipping floors. ---*/
@@ -627,30 +640,30 @@ bool CNewtonEquationSet::EvaluateResiduals(bool implicit, bool allEquations, dou
 
 void CNewtonEquationSet::SaveHistory() {
   SU2_OMP_FOR_STAT(1024)
-  for (auto e = 0ul; e < savedReconstruction.size(); ++e)
-    savedReconstruction[e] = (*reconstructionHistory)[e];
+  for (auto e = 0ul; e < workspace->savedReconstruction.size(); ++e)
+    workspace->savedReconstruction[e] = (*reconstructionHistory)[e];
   END_SU2_OMP_FOR
   for (auto& snapshot : snapshots) {
     const auto* nodes = snapshot.solver->GetNodes();
     SU2_OMP_FOR_STAT(1024)
     for (auto p = 0ul; p < geometry->GetnPoint(); ++p)
       for (auto v = 0u; v < snapshot.variables; ++v)
-        snapshot.evaluationHistory[p * snapshot.variables + v] = nodes->GetSolution_Old(p, v);
+        snapshot.work->evaluationHistory[p * snapshot.variables + v] = nodes->GetSolution_Old(p, v);
     END_SU2_OMP_FOR
   }
 }
 
 void CNewtonEquationSet::RestoreHistory() {
   SU2_OMP_FOR_STAT(1024)
-  for (auto e = 0ul; e < savedReconstruction.size(); ++e)
-    (*reconstructionHistory)[e] = savedReconstruction[e];
+  for (auto e = 0ul; e < workspace->savedReconstruction.size(); ++e)
+    (*reconstructionHistory)[e] = workspace->savedReconstruction[e];
   END_SU2_OMP_FOR
   for (const auto& snapshot : snapshots) {
     auto* nodes = snapshot.solver->GetNodes();
     SU2_OMP_FOR_STAT(1024)
     for (auto p = 0ul; p < geometry->GetnPoint(); ++p)
       for (auto v = 0u; v < snapshot.variables; ++v)
-        nodes->SetSolution_Old(p, v, snapshot.evaluationHistory[p * snapshot.variables + v]);
+        nodes->SetSolution_Old(p, v, snapshot.work->evaluationHistory[p * snapshot.variables + v]);
     END_SU2_OMP_FOR
   }
 }

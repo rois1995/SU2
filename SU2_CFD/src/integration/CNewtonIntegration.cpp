@@ -197,7 +197,7 @@ void CNewtonIntegration::Setup() {
   if (config->GetKind_Regime() == ENUM_REGIME::INCOMPRESSIBLE &&
       config->GetKind_Incomp_System() == INCOMP_SYSTEM::PRESSURE_BASED)
     throw std::invalid_argument("Newton flow groups require the density-based incompressible formulation");
-  equations = std::make_unique<CNewtonEquationSet>(geometry, solvers, numerics, config, systems);
+  equations = std::make_unique<CNewtonEquationSet>(geometry, solvers, numerics, config, systems, residualWorkspace);
   for (const auto& block : equations->GetBlocks()) {
     const auto time = block.slot == FLOW_SOL ? config->GetKind_TimeIntScheme_Flow()
                                              : block.slot == SPECIES_SOL ? config->GetKind_TimeIntScheme_Species()

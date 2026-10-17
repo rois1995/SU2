@@ -112,9 +112,10 @@ struct Problem {
     driver.reset();
     std::filesystem::remove(path);
   }
-  std::unique_ptr<CNewtonEquationSet> Equations(const std::vector<unsigned short>& selected) {
+  std::unique_ptr<CNewtonEquationSet> Equations(const std::vector<unsigned short>& selected,
+      std::shared_ptr<CNewtonEquationSet::ResidualWorkspace> workspace = {}) {
     return std::make_unique<CNewtonEquationSet>(driver->Geometry(), driver->Solvers(), driver->Numerics(),
-                                                driver->Config(), selected);
+                                                driver->Config(), selected, std::move(workspace));
   }
 };
 
@@ -2699,6 +2700,52 @@ TEST_CASE("The common controller applies legacy flow direction policies", "[Newt
           CHECK(attempt.preconditionerIterations > 0);
       }
     }
+  }
+}
+
+TEST_CASE("Shared Newton evaluation scratch preserves independent captured bases", "[NewtonWorkspace]") {
+  Problem problem(sst + "KIND_TRANS_MODEL= LM\n", 5, true);
+  auto& driver = *problem.driver;
+  auto workspace = std::make_shared<CNewtonEquationSet::ResidualWorkspace>();
+  auto flow = problem.Equations({RUNTIME_FLOW_SYS}, workspace);
+  auto auxiliary = problem.Equations({RUNTIME_TURB_SYS, RUNTIME_TRANS_SYS}, workspace);
+  REQUIRE(Residual(*flow, true, true));
+  flow->Capture();
+  auxiliary->Capture();
+  auto original = MakeVector(driver, flow->GetnVar()), accepted = original, actual = original;
+  flow->Pack(original);
+  auto scale = original, probe = original, direction = original;
+  flow->BuildScales(scale, probe);
+  direction = passivedouble(0.005);
+  auto isFree = [](const CNewtonEquationSet::Block& b, unsigned long p, unsigned short v) {
+    return !b.solver->Jacobian.IsPrescribedRow(p, v);
+  };
+  flow->SetTrial(direction, 0.1, scale, isFree);
+  REQUIRE(Residual(*flow));
+  flow->Capture();
+  flow->Pack(accepted);
+  CHECK(MaxDifference(original, accepted) > 0.0);
+  auto auxScale = MakeVector(driver, auxiliary->GetnVar()), auxProbe = auxScale, auxDirection = auxScale;
+  auxiliary->BuildScales(auxScale, auxProbe);
+  auxDirection = passivedouble(0.005);
+  for (double step : {0.01, -0.02, 0.01}) {
+    auxiliary->SetTrial(auxDirection, step, auxScale, isFree);
+    REQUIRE(Residual(*auxiliary));
+    REQUIRE(auxiliary->Restore());
+    CHECK(auxiliary->GetRestorationError() == 0.0);
+    flow->Pack(actual);
+    CHECK(MaxDifference(original, actual) == 0.0);
+    REQUIRE(flow->Restore());
+    CHECK(flow->GetRestorationError() == 0.0);
+    flow->Pack(actual);
+    CHECK(MaxDifference(accepted, actual) == 0.0);
+  }
+  /*--- A different layout must not resize scratch still referenced by an existing owner. ---*/
+  for (auto cells : {4u, 6u}) {
+    Problem different(sst + "KIND_TRANS_MODEL= LM\n", cells, true);
+    REQUIRE_THROWS_AS(different.Equations({RUNTIME_FLOW_SYS}, workspace), std::invalid_argument);
+    REQUIRE(flow->Restore());
+    CHECK(flow->GetRestorationError() == 0.0);
   }
 }
 

@@ -203,5 +203,51 @@
     "build_closure/preflight_cancelled.json",
     "refresh_muscl_correctness/harness_failure.json"
   ],
-  "pending": "Further scratch-memory and preconditioner work, full MPI/OpenMP/family validation, quiet repeated timing matrix, and higher-CFL study after implementation."
+  "pending": "Further scratch-memory and preconditioner work, full MPI/OpenMP/family validation, quiet repeated timing matrix, and higher-CFL study after implementation.",
+  "shared_workspace": {
+    "source_sha256": {
+      "SU2_CFD/include/integration/CNewtonEquationSet.hpp": "7df30c0677653321c4ce50f0e36ebd4c553d82958041d6977de550c12f7f8e38",
+      "SU2_CFD/include/integration/CNewtonIntegration.hpp": "ff5eb2dd3490098399eb59b9982b35e6421e6ebb1aaed0860b9d3730ac360473",
+      "SU2_CFD/src/integration/CNewtonEquationSet.cpp": "616c27b89c7af9a70efe5c5732d5c0b96911f8d7386b4410d56263fd23506cdb",
+      "SU2_CFD/src/integration/CNewtonIntegration.cpp": "5c1c18fb00a53cec1a6288bf25f447c8be6fd225b75bae5085ee7e4eb75ab01f",
+      "SU2_CFD/src/integration/CIntegrationFactory.cpp": "4ce9d7e6d6337aecf2f815b52d56ff5fd69a80e433ec7a2ff099cc74c87b91a9",
+      "UnitTests/SU2_CFD/newton_equations.cpp": "0af04ee385c9d5f87c6e52525424d661fba2bfbb9c417fa55bc079207f7fcf57"
+    },
+    "binaries": {
+      "SU2_CFD": "da8ae64f254b710d9a78e08ecaf8350b2e80e2d679dc159b9612f6aa2f32de29",
+      "test_driver": "842f0c8251450d9b6159b9ca84146d6dc9ca0fd8c1d2241bdc2ad651fbb7772c",
+      "newton_equation_tests": "1812006afdb107a245533f22dbdc17219b30c85785ee012afde61bb053a4ea2f"
+    },
+    "shared": [
+      "evaluationHistory",
+      "boundaryInput",
+      "boundarySolution",
+      "trialFlow",
+      "savedReconstruction"
+    ],
+    "private": [
+      "accepted solution and oldSolution",
+      "prescribed masks",
+      "relaxation",
+      "base density",
+      "accepted and next reconstruction",
+      "controller and Krylov history"
+    ],
+    "native_cases": 59,
+    "layouts": [
+      "1x1",
+      "2x2"
+    ],
+    "converged_families": [
+      "sa",
+      "sst",
+      "lm",
+      "mms",
+      "species"
+    ],
+    "work_counts_equal": true,
+    "restart_bytes_equal": true,
+    "memory_measurement": "Pending: repeated alternating original/pooled 263169-point one-update cases, all3models/all3modes; no converged timing claim.",
+    "evidence": "workspace_complete/, workspace_complete_correctness/, workspace_complete_monitored/"
+  }
 }

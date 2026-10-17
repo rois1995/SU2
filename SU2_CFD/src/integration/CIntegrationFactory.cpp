@@ -60,6 +60,8 @@ CIntegration** CIntegrationFactory::CreateIntegrationContainer(CConfig* config,
       selected = {RUNTIME_FLOW_SYS};
 #endif
   }
+  std::shared_ptr<CNewtonEquationSet::ResidualWorkspace> workspace;
+  if (!selected.empty()) workspace = std::make_shared<CNewtonEquationSet::ResidualWorkspace>();
   const auto options = config->GetNewtonOptions().Passive([](const su2double& x) { return SU2_TYPE::GetValue(x); });
   /*--- Native iteration order determines the group's first dispatch, independently of its packing order. ---*/
   const std::pair<unsigned short, const char*> order[] = {{RUNTIME_FLOW_SYS, "flow"}, {RUNTIME_TRANS_SYS, "trans"},
@@ -74,7 +76,7 @@ CIntegration** CIntegrationFactory::CreateIntegrationContainer(CConfig* config,
                               std::find(group.begin(), group.end(), RUNTIME_FLOW_SYS) != group.end();
     delete integration[slot];
     integration[slot] = new CNewtonIntegration(group, options, config->GetNewtonBlockLower(),
-        config->GetNewtonCoupled() ? "newton_coupled" : std::string("newton_") + equation.second, flowControls);
+        config->GetNewtonCoupled() ? "newton_coupled" : std::string("newton_") + equation.second, flowControls, workspace);
     if (config->GetNewtonCoupled()) break;
   }
 
