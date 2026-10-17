@@ -1,0 +1,229 @@
+{
+  "source": "/media/rausa/4TB/SU2_Versions/SU2_v850_Develop_FixCGNSOutput/scalar_limiter_sst_globalization_20261015/source",
+  "head": "8e61376ecd234414ce583c9b8f995e2bd62f4c12",
+  "numerical_head": "4712d82375e00ede15e5177ab38865eaaaa3e9f5",
+  "user_diff_sha256": "ca77a4a8c8e79ab7a684c8e4f0e7df9bba6bcb3027ec118587e0f304df3628b7",
+  "binaries": {
+    "SU2_CFD": {
+      "path": "/media/rausa/4TB/SU2_Versions/SU2_v850_Develop_FixCGNSOutput/newton_krylov_refactor_20261015/efficiency_20261017/final_release/SU2_CFD",
+      "sha256": "75b0d848ee24bca74d7d472a612bbca34986757c77339ff9cfc748edf06340d1"
+    },
+    "newton_equation_tests": {
+      "path": "/media/rausa/4TB/SU2_Versions/SU2_v850_Develop_FixCGNSOutput/newton_krylov_refactor_20261015/efficiency_20261017/final_release/newton_equation_tests",
+      "sha256": "905f30d4a59c46286f0806dd4bbec8be31555eab5f94cf805ed10c7a2a26ee01"
+    },
+    "test_driver": {
+      "path": "/media/rausa/4TB/SU2_Versions/SU2_v850_Develop_FixCGNSOutput/newton_krylov_refactor_20261015/efficiency_20261017/final_release/test_driver",
+      "sha256": "023743e2965ab287ab92efaaefb4c8c05caa9cf9d85f161300641f3f7a691a43"
+    }
+  },
+  "cases": {
+    "naca_sa": {
+      "original.cfg": {
+        "origin": "/media/rausa/4TB/SU2_Versions/SU2_v850_Develop_FixCGNSOutput/scalar_limiter_sst_globalization_20261015/source/TestCases/rans/naca0012/turb_NACA0012_sa.cfg",
+        "sha256": "fc88ad7b78dff208ef2a9323791eebc1182600f8526233a6e02d5febb80a8042",
+        "bytes": 3583
+      },
+      "n0012_225-65.su2": {
+        "origin": "/home/rausa/Software/su2-TestCases/rans/naca0012/n0012_225-65.su2",
+        "sha256": "20dfc96875b1d1a8377c2e64248b6ee42a1ecf525c50d822fb5f539d06d68d15",
+        "bytes": 1253807
+      },
+      "solution_flow_sa.dat": {
+        "origin": "/home/rausa/Software/su2-TestCases/rans/naca0012/solution_flow_sa.dat",
+        "sha256": "3e665e2d239f71c80c8625235be7e03a8fd5bd9440ef2d930e997291ed412fbc",
+        "bytes": 816507
+      }
+    },
+    "naca_sst": {
+      "original.cfg": {
+        "origin": "/media/rausa/4TB/SU2_Versions/SU2_v850_Develop_FixCGNSOutput/scalar_limiter_sst_globalization_20261015/source/TestCases/rans/naca0012/turb_NACA0012_sst.cfg",
+        "sha256": "d7d158da127f5b5570cd17a23b4089330b3b0167002f9631c6c20d131f4620bb",
+        "bytes": 3652
+      },
+      "n0012_225-65.su2": {
+        "origin": "/home/rausa/Software/su2-TestCases/rans/naca0012/n0012_225-65.su2",
+        "sha256": "20dfc96875b1d1a8377c2e64248b6ee42a1ecf525c50d822fb5f539d06d68d15",
+        "bytes": 1253807
+      },
+      "solution_flow_sst.dat": {
+        "origin": "/home/rausa/Software/su2-TestCases/rans/naca0012/solution_flow_sst.dat",
+        "sha256": "a79957134db612bfbd8011277bb98d8640ccbcf70c1d2b4ac7299d84bdd818c5",
+        "bytes": 933148
+      }
+    },
+    "nozzle_sst": {
+      "original.cfg": {
+        "origin": "/media/rausa/4TB/SU2_Versions/SU2_v850_Develop_FixCGNSOutput/scalar_limiter_sst_globalization_20261015/source/TestCases/axisymmetric_rans/air_nozzle/air_nozzle_restart.cfg",
+        "sha256": "baceb911063dcc1f9d940ff19d5e7c0a48764362afa5c7e58b04d44e8f35c80e",
+        "bytes": 3260
+      },
+      "nozzle.su2": {
+        "origin": "/home/rausa/Software/su2-TestCases/axisymmetric_rans/air_nozzle/nozzle.su2",
+        "sha256": "3c729e4a1af90eabd9afdf37d2e88cc1ecc1623b826090bb1d6d4aa2c2c9f226",
+        "bytes": 348618
+      },
+      "solution_flow.dat": {
+        "origin": "/home/rausa/Software/su2-TestCases/axisymmetric_rans/air_nozzle/solution_flow.dat",
+        "sha256": "a47aa339f63008154671d907f4f5ed2a0e8c6bfc37a51a45055a831fa2f935d7",
+        "bytes": 319004
+      }
+    },
+    "flatplate_lm": {
+      "original.cfg": {
+        "origin": "/home/rausa/Software/su2-Tutorials/compressible_flow/Transitional_Flat_Plate/Langtry_and_Menter/T3A/transitional_LM_model_ConfigFile.cfg",
+        "sha256": "0a2cb9d722a630da1e39acc1db7aee5605c2395f5410a05d739d59e6bab8b507",
+        "bytes": 4681
+      },
+      "grid.su2": {
+        "origin": "/home/rausa/Software/su2-Tutorials/compressible_flow/Transitional_Flat_Plate/Langtry_and_Menter/T3A/grid.su2",
+        "sha256": "7657574b1152e2909c740a39170d8889e9af4daca5cd987671a8633957586d25",
+        "bytes": 5117589
+      }
+    },
+    "periodic_stator": {
+      "original.cfg": {
+        "origin": "/media/rausa/4TB/SU2_Versions/SU2_v850_Develop_FixCGNSOutput/scalar_limiter_sst_globalization_20261015/source/TestCases/turbomachinery/transonic_stator_2D/transonic_stator_restart.cfg",
+        "sha256": "3a5166f02b43dc8e4d956ebad2bbea9398978c95e47ab688715841ed3f0478d4",
+        "bytes": 5142
+      },
+      "mesh_stator_turb.su2": {
+        "origin": "/home/rausa/Software/su2-TestCases/turbomachinery/transonic_stator_2D/mesh_stator_turb.su2",
+        "sha256": "08c74dd9617f66f620502696c9379642ca801ed29621a162ff5ff70d0a7dc208",
+        "bytes": 1494555
+      },
+      "solution_flow.dat": {
+        "origin": "/home/rausa/Software/su2-TestCases/turbomachinery/transonic_stator_2D/solution_flow.dat",
+        "sha256": "175f35e44a5393a8c37668ace42841d1d12c1631a1186b40a308710b112265c8",
+        "bytes": 2512982
+      }
+    },
+    "periodic_vki": {
+      "original.cfg": {
+        "origin": "/media/rausa/4TB/SU2_Versions/SU2_v850_Develop_FixCGNSOutput/scalar_limiter_sst_globalization_20261015/source/TestCases/rans/vki_turbine/turb_vki.cfg",
+        "bytes": 3243,
+        "sha256": "2721a99788cdc642a842ebdb8178f85b6f1d9504890ad8a1b0e51e6ae9fdac27"
+      },
+      "mesh_vki_turbine_prepbc.su2": {
+        "origin": "/home/rausa/Software/su2-TestCases/rans/vki_turbine/mesh_vki_turbine_prepbc.su2",
+        "bytes": 1367168,
+        "sha256": "ae224a7f7b292d8c8b60d34a6e8e36be59918c61fb064ca332d36fd08712ab94"
+      },
+      "solution_flow.csv": {
+        "origin": "/home/rausa/Software/su2-TestCases/rans/vki_turbine/solution_flow.csv",
+        "bytes": 5667056,
+        "sha256": "3c947df77bac7cda59901e8792d475cba0aa671259d92cfaf27b77ca28bcfcf7"
+      }
+    }
+  },
+  "platform": {
+    "system": "Linux",
+    "node": "pc-rausa",
+    "release": "5.15.0-139-generic",
+    "version": "#149~20.04.1-Ubuntu SMP Wed Apr 16 08:29:56 UTC 2025",
+    "machine": "x86_64",
+    "processor": "x86_64"
+  },
+  "build_options": {
+    "path": "/media/rausa/4TB/SU2_Versions/SU2_v850_Develop_FixCGNSOutput/newton_krylov_refactor_20261015/build/meson-info/intro-buildoptions.json",
+    "sha256": "e06b7645a873c0ba548b05ce2db596603b3a07ee300969da70612fa521b07340",
+    "verified_against_previous_audit": true
+  },
+  "source_sha256": {
+    "SU2_CFD/include/integration/CIntegration.hpp": "de3eb9fb7820ae311fbd2bc73e71a8e52b87659049e9de35500403219e4dc723",
+    "SU2_CFD/include/integration/CNewtonEquationSet.hpp": "e1cde54613f8ee8e809f082984c6f2343919805852f39208d32db6585a0dbf2b",
+    "SU2_CFD/include/integration/CNewtonIntegration.hpp": "ff5eb2dd3490098399eb59b9982b35e6421e6ebb1aaed0860b9d3730ac360473",
+    "SU2_CFD/include/integration/CNewtonLinearization.hpp": "4b8dec9ff1a9f72fb2ed00256211656b026868a4cc979be2b52563727cc258c1",
+    "SU2_CFD/include/solvers/CEulerSolver.hpp": "c287f088220d34e253443f5be7bf693b1a0b9779303eb423c4b2c24b96946efd",
+    "SU2_CFD/include/solvers/CIncEulerSolver.hpp": "9c9eb856dbf2d3bfa0be963350a233a39838b62ba5e282ef5c85048b0b8c67fe",
+    "SU2_CFD/include/solvers/CSolver.hpp": "5160f2baa14a62360043b7880cbbe4016d6867073da8eaf91e5ea6057e34151c",
+    "SU2_CFD/src/integration/CIntegration.cpp": "96d68b17e8582adb886813e07952f1018585f19d44d95de728ff996f52057ef2",
+    "SU2_CFD/src/integration/CIntegrationFactory.cpp": "4ce9d7e6d6337aecf2f815b52d56ff5fd69a80e433ec7a2ff099cc74c87b91a9",
+    "SU2_CFD/src/integration/CNewtonEquationSet.cpp": "17d03ed4132ed346648b2c7d73e3a747f695551a16b5ec23977bf9d93a411435",
+    "SU2_CFD/src/integration/CNewtonIntegration.cpp": "5c1c18fb00a53cec1a6288bf25f447c8be6fd225b75bae5085ee7e4eb75ab01f",
+    "SU2_CFD/src/integration/CNewtonLinearization.cpp": "1c15b8b8c5cbc1d033b28ba115cd161e2cdab9428c817644048b2bf137521f0c",
+    "UnitTests/SU2_CFD/newton_equations.cpp": "822b526b449f9b2f8a416280ff78daf65ba93c6fe225f7ea97c71dbced932ac3"
+  },
+  "study_date": "2026-10-18",
+  "qualification_protocol": {
+    "version": 1,
+    "created_before_qualification": true,
+    "discovery_only": false,
+    "cases": {
+      "naca_sa": {
+        "density_rms": 1e-12,
+        "normalized_rms_every_active_component": 1e-09,
+        "maximum_scaled_boundary_projection": 1e-12,
+        "state_component_relative_linf": 1e-06,
+        "state_point_relative_linf": 1e-05,
+        "state_point_scale_floor_fraction": 0.001,
+        "quantity_relative": 1e-05,
+        "quantity_absolute": 1e-08
+      },
+      "naca_sst": {
+        "density_rms": 1e-12,
+        "normalized_rms_every_active_component": 1e-09,
+        "maximum_scaled_boundary_projection": 1e-12,
+        "state_component_relative_linf": 1e-06,
+        "state_point_relative_linf": 1e-05,
+        "state_point_scale_floor_fraction": 0.001,
+        "quantity_relative": 1e-05,
+        "quantity_absolute": 1e-08
+      },
+      "nozzle_sst": {
+        "density_rms": 1e-12,
+        "normalized_rms_every_active_component": 1e-09,
+        "maximum_scaled_boundary_projection": 1e-12,
+        "state_component_relative_linf": 1e-06,
+        "state_point_relative_linf": 1e-05,
+        "state_point_scale_floor_fraction": 0.001,
+        "quantity_relative": 1e-05,
+        "quantity_absolute": 1e-08
+      },
+      "flatplate_lm": {
+        "density_rms": 1e-11,
+        "normalized_rms_every_active_component": 1e-09,
+        "maximum_scaled_boundary_projection": 1e-12,
+        "state_component_relative_linf": 1e-06,
+        "state_point_relative_linf": 1e-05,
+        "state_point_scale_floor_fraction": 0.001,
+        "quantity_relative": 1e-05,
+        "quantity_absolute": 1e-08
+      },
+      "periodic_stator": {
+        "density_rms": 1e-12,
+        "normalized_rms_every_active_component": 1e-09,
+        "maximum_scaled_boundary_projection": 1e-12,
+        "state_component_relative_linf": 1e-06,
+        "state_point_relative_linf": 1e-05,
+        "state_point_scale_floor_fraction": 0.001,
+        "quantity_relative": 1e-05,
+        "quantity_absolute": 1e-08
+      },
+      "periodic_vki": {
+        "density_rms": 1e-12,
+        "normalized_rms_every_active_component": 1e-09,
+        "maximum_scaled_boundary_projection": 1e-12,
+        "state_component_relative_linf": 1e-06,
+        "state_point_relative_linf": 1e-05,
+        "state_point_scale_floor_fraction": 0.001,
+        "quantity_relative": 1e-05,
+        "quantity_absolute": 1e-08
+      }
+    },
+    "limitations": [
+      "Original density history alone cannot qualify an endpoint. Fresh residuals of every active component are required.",
+      "Application density targets retain the original case requirement. Other components use the fixed scaled physical target and full-state agreement.",
+      "All acceptance, derivative and true-defect controls remain unchanged.",
+      "CFD warm starts from supplied restart and cold starts from identical free streams are separate cohorts.",
+      "Only three quiet eligible repetitions of the same qualified comparison support median speed ratios."
+    ],
+    "quiet_policy": {
+      "maximum_external_cpu_cores": 2,
+      "no_external_heavy_jobs": true,
+      "minimum_available_kib": 8388608,
+      "maximum_swap_growth_kib": 65536
+    }
+  },
+  "phase": "Application discovery and endpoint checks; qualification study active"
+}
