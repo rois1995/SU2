@@ -45,6 +45,10 @@ struct Request {
   Tetrahedron tetra{};
   template <class S> void Fields(S& s) { s(region, caller, tetrahedral, segment, query, tetra); }
 };
+struct OwnedDonor {
+  DonorCell donor;int rank=0;
+  template<class S>void Fields(S& s){s(donor,rank);}
+};
 constexpr std::array<std::array<size_t, 2>, 6> QueryEdges{{{0,1},{0,2},{0,3},{1,2},{1,3},{2,3}}};
 DonorRegion Bounds(const Cell& cell) {
   const auto p = cell.v[0].p;
@@ -313,10 +317,11 @@ DonorPatch DonorImport::ImportRegions(const std::vector<DonorRegion>& regions, c
   const auto search_peak = transfer_memory::Add(route_peak, transfer_memory::Bytes(to), transfer_memory::Bytes(requests),
       transfer_memory::IntersectionQueryBound(donors.size()), transfer_memory::Mul(world.size, sizeof(std::map<Id, size_t>)),
       MapBytes(transfer_memory::Mul(world.size, MaximumDonors + 1), sizeof(std::pair<const Id, size_t>)),
-      transfer_memory::Mul(world.size, sizeof(std::vector<DonorCell>)),
-      transfer_memory::GrowthBound(transfer_memory::Mul(world.size, MaximumDonors), sizeof(DonorCell)));
+      transfer_memory::Mul(world.size, sizeof(std::vector<OwnedDonor>)),
+      transfer_memory::GrowthBound(transfer_memory::Mul(world.size, MaximumDonors), sizeof(OwnedDonor)),
+      transfer_memory::Mul(MaximumDonors,sizeof(DonorCell)+sizeof(int)));
   if (!Admit(search_peak, ceiling, result.reason)) { ++stats.rejected; return result; }
-  std::vector<std::vector<DonorCell>> payload;
+  std::vector<std::vector<OwnedDonor>> payload;
   try {
     Timer search_time(stats.search_seconds, timings);
     std::vector<std::map<Id, size_t>> selected(world.size);
@@ -368,10 +373,10 @@ DonorPatch DonorImport::ImportRegions(const std::vector<DonorRegion>& regions, c
     }
     payload.resize(world.size);
     for (int peer = 0; peer < world.size; ++peer)
-      for (auto entry : selected[peer]) payload[peer].push_back(donors[entry.second]);
+      for (auto entry : selected[peer]) payload[peer].push_back({donors[entry.second],world.rank});
   } catch (const std::exception& e) { failure.Set(2, 0, e.what()); }
   if (!Vote(failure, result.reason)) { ++stats.rejected; return result; }
-  std::vector<DonorCell> received;
+  std::vector<OwnedDonor> received;
   {
     Timer exchange(stats.exchange_seconds, timings);
     received = world.exchange(payload, &admitted, ceiling, search_peak);
@@ -379,11 +384,19 @@ DonorPatch DonorImport::ImportRegions(const std::vector<DonorRegion>& regions, c
   if (!admitted) failure.Set(3, 0, "Original donor payload transport exceeds budget.");
   if (received.size() > MaximumDonors) failure.Set(1, 0, "Original donor union exceeds patch budget.");
   if (count && received.empty() && !points) failure.Set(1, 0, "No original donor intersects requested regions.");
-  if (!Vote(failure, result.reason)) { ++stats.rejected; return result; }
-  std::sort(received.begin(), received.end(), [](const auto& a, const auto& b) { return a.Key() < b.Key(); });
+  try {
+    if(admitted && received.size()<=MaximumDonors) {
+      std::sort(received.begin(), received.end(), [](const auto& a, const auto& b) { return a.donor.Key() < b.donor.Key(); });
+      result.cells.reserve(received.size());result.source_rank.reserve(received.size());
+      for(auto& row:received) {
+        if(row.rank<0 || row.rank>=world.size)throw std::runtime_error("Invalid original donor source rank.");
+        result.cells.push_back(std::move(row.donor));result.source_rank.push_back(row.rank);
+      }
+    }
+  }catch(const std::exception& error){failure.Set(2,0,error.what());}
+  if(!Vote(failure,result.reason)){++stats.rejected;return result;}
   stats.payloads += received.size();
   stats.maximum_patch = std::max(stats.maximum_patch, received.size());
-  result.cells.swap(received);
   result.valid = true;
   return result;
 }

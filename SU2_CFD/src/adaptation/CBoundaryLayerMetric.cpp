@@ -25,6 +25,7 @@
  */
 
 #include "../../include/adaptation/CBoundaryLayerMetric.hpp"
+#include "../../../Common/include/adaptation/CNativeSupport3D.hpp"
 
 #include <algorithm>
 #include <array>
@@ -2833,4 +2834,20 @@ bool CBoundaryLayerMetric::TangentialFloor(const Sample& sample, const su2double
   for (unsigned short i = 0; i < nDim; ++i)
     for (unsigned short j = 0; j < i; ++j) M.m[i][j] = M.m[j][i] = 0.5 * (M.m[i][j] + M.m[j][i]);
   return true;
+}
+
+
+std::shared_ptr<SU2Native3D::SupportSampler3D> CBoundaryLayerMetric::PrepareCorrectionSupport3D(
+    size_t maximumBytes,uint64_t maximumWork) const {
+  if(nDim!=3)throw std::invalid_argument("Correction support requires3D faceted walls.");
+  std::vector<SU2Native3D::SupportWall3D> support;
+  for(size_t wall=0;wall<walls.size();++wall) {
+    if(walls[wall].authority)throw std::invalid_argument("Analytic wall correction support is not qualified; retain analytic quadrature.");
+    SU2Native3D::SupportWall3D row;const auto& d=*data[wall];
+    row.first_height=SU2_TYPE::GetValue(d.h0);row.growth=SU2_TYPE::GetValue(d.growth);row.thickness=SU2_TYPE::GetValue(d.thickness);
+    for(size_t p=0;p<walls[wall].coord.size()/3;++p)row.vertices.push_back({SU2_TYPE::GetValue(walls[wall].coord[3*p]),SU2_TYPE::GetValue(walls[wall].coord[3*p+1]),SU2_TYPE::GetValue(walls[wall].coord[3*p+2])});
+    for(size_t f=0;f<d.elem.size()/3;++f)row.triangles.push_back({d.elem[3*f],d.elem[3*f+1],d.elem[3*f+2]});
+    support.push_back(std::move(row));
+  }
+  return std::make_shared<SU2Native3D::SupportSampler3D>(support,maximumBytes,maximumWork);
 }

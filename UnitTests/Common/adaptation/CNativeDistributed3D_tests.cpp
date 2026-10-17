@@ -2690,7 +2690,7 @@ TEST_CASE("Regional field service resolves large distributed sources and closes 
 
 TEST_CASE("Native MPI point probes distinguish complete outside searches from failed imports", "[NativeDistributed3D][NativeDonorPointProbe3D]") {
   World world(SU2_MPI::GetComm());const auto fixture=Box();std::vector<DonorCell> original;
-  for(const auto& cell:fixture.patch.cells)if(cell.id%world.size==unsigned(world.rank)) {
+  for(const auto& cell:fixture.patch.cells)if((cell.id+1)%world.size==unsigned(world.rank)) {
     DonorCell row;row.cell=cell;row.sensor.fill({1,0,0,1,0,1});original.push_back(row);
   }
   DonorImport source(world);std::string reason;REQUIRE(source.Build(original,reason));
@@ -2700,7 +2700,8 @@ TEST_CASE("Native MPI point probes distinguish complete outside searches from fa
   CHECK_FALSE(strict.valid);
   const Point point{.23,.31,.41};
   const auto inside=source.ProbePoints(world.rank==world.size-1?std::vector<Point>{point}:std::vector<Point>{});
-  REQUIRE(inside.valid);
+  REQUIRE(inside.valid);REQUIRE(inside.cells.size()==inside.source_rank.size());
+  for(size_t i=0;i<inside.cells.size();++i)CHECK(inside.source_rank[i]==int((inside.cells[i].cell.id+1)%world.size));
   if(world.rank==world.size-1) {
     CHECK_FALSE(inside.cells.empty());
     for(const auto& row:inside.cells){std::array<long double,4> weights{};const auto& v=row.cell.v;

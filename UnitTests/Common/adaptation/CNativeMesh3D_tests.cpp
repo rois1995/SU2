@@ -6,6 +6,7 @@
  */
 #include "catch.hpp"
 #include "../../../Common/include/adaptation/CNativeMesh3D.hpp"
+#include "../../../Common/include/adaptation/CNativeSupport3D.hpp"
 #include <algorithm>
 #include <cmath>
 #include <limits>
@@ -232,4 +233,44 @@ TEST_CASE("Native3D exact contact admits only the common mesh simplex", "[Native
     auto overlap=a;for(auto& n:overlap.v){n.id+=200;n.p.x+=scale/4;n.p.y+=scale/4;n.p.z+=scale/4;}
     CHECK_FALSE(ConformingDisjoint(a,overlap));
   }
+}
+
+
+namespace {
+SupportWall3D SupportSquare() {
+  return {{{0,0,0},{1,0,0},{1,1,0},{0,1,0}},{{0,1,2},{0,2,3}},.1,1,.2};
+}
+}
+TEST_CASE("Native support mixture covers face edge and vertex tubes with stable coplanar frames", "[NativeSupport3D]") {
+  const auto wall=SupportSquare();SupportSampler3D sampler({wall},size_t(32)<<20,1000000);
+  CHECK((sampler.Statistics().components==std::array<size_t,3>{{2,4,4}}));
+  const auto points=sampler.Draw(4096,449);const double r=.2,volume=2*r+2*std::acos(-1.)*r*r+4*std::acos(-1.)*r*r*r/3;
+  std::array<size_t,3> families{};
+  for(const auto& q:points){CHECK(q.inverse_pdf==Approx(volume).epsilon(1e-11));++families[q.kind];}
+  for(auto n:families)CHECK(n>0);
+  CHECK(sampler.Density({10,10,10})==0);
+  SupportSampler3D prefix({wall},size_t(32)<<20,1000000);const auto first=prefix.Draw(16,91),second=prefix.Draw(16,91,16),all=prefix.Draw(32,91);
+  for(size_t i=0;i<32;++i) {
+    const auto& a=i<16?first[i]:second[i-16];const auto& b=all[i];
+    CHECK(a.point.x==b.point.x);CHECK(a.point.y==b.point.y);CHECK(a.point.z==b.point.z);CHECK(a.inverse_pdf==b.inverse_pdf);
+  }
+}
+TEST_CASE("Native support PDFs add overlapping walls without omitting components", "[NativeSupport3D]") {
+  SupportWall3D a{{{0,0,0},{1,0,0},{0,1,0}},{{0,1,2}},.01,1,.1},b=a;
+  for(auto& p:b.vertices)p.z+=.05;
+  SupportSampler3D sampler({a,b},size_t(32)<<20,1000000);
+  CHECK(sampler.Density({.25,.25,.025})==Approx(2*sampler.Density({.25,.25,.12})).epsilon(1e-13));
+  for(auto growth:{1.,1.+1e-12,1.2,2.}) {
+    a.growth=growth;SupportSampler3D varying({a},size_t(32)<<20,1000000);
+    for(const auto& q:varying.Draw(512,192)){CHECK(q.inverse_pdf>0);CHECK(std::isfinite(q.inverse_pdf));}
+  }
+}
+TEST_CASE("Native support work storage and invalid geometry fail explicitly", "[NativeSupport3D]") {
+  auto a=SupportSquare();
+  CHECK_THROWS(SupportSampler3D({a},1,10000));CHECK_THROWS(SupportSampler3D({a},size_t(32)<<20,1));
+  a.vertices[0].x=NAN;CHECK_THROWS(SupportSampler3D({a},size_t(32)<<20,10000));a=SupportSquare();
+  a.triangles[0]={0,0,1};CHECK_THROWS(SupportSampler3D({a},size_t(32)<<20,10000));a=SupportSquare();
+  a.triangles.push_back({0,2,1});CHECK_THROWS(SupportSampler3D({a},size_t(32)<<20,10000));a=SupportSquare();
+  a.first_height=.3;CHECK_THROWS(SupportSampler3D({a},size_t(32)<<20,10000));a=SupportSquare();
+  SupportSampler3D sampler({a},size_t(32)<<20,10000);CHECK_THROWS(sampler.Draw(1048577,1));CHECK_THROWS(sampler.Density({NAN,0,0}));
 }

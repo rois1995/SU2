@@ -225,3 +225,36 @@ No CFD or accepted M6 grid. Final wrapper49.41s/peak process667MiB, zero swaps.
 Large input restoration is now reproducible without modifying pinned manifests;
 7.22s round-trip check, changed originals rejected, temporary export removed.
 Details: [retained normalization](GOAL3_RETAINED_NORMALIZATION.md).
+
+
+## C++ support preparation and actual owner routing — connected follow-up
+
+WORKED as production-library integration infrastructure: complete faceted support
+proposal/PDF now runs in C++ over the existing ADT, with strict resource refusal,
+overlap sums and stable coplanar frames. At all8192 M6 seed2641 points its PDF agrees
+with the independent Python/KD-tree result to3.636e-12. Native preparation/PDF
+0.489/4.678s versus23.70s independent Python preparation/PDF on the SAME points.
+This improves a measured kernel; wall model build/output/cold donor preparation,
+actual normalization callbacks and all remeshing/transfer costs remain outside
+that comparison. No full-event speedup or default uncertainty tolerance claim.
+
+Actual source owners now accompany existing admitted donor responses. The final
+vote is reused, not another collective per import. A shifted(id+1)%ranks storage
+layout passes exact query rows/normalization on2/4 ranks, with original RAW9 values
+and bitwise direct/cached baseline tensors preserved. Extra wire integer/result
+copy is an unmeasured whole-remeshing overhead, not free work.4 affected donor/
+regional cases pass1/4 ranks;21 serial provider/composition/controller cases pass.
+
+Two native RNG seeds give correction801696/816508 (empirical SE~9420); mean total
+using backgroundQ18 is962097. Normalization uses the wider analytic background
+interval explicitly; at the same selected scale target1M gives985772/1000965,
+heuristic uncertainty~35660, meeting the experimental5% test. No rigorous bound.
+Root output-open failure and inconsistent MPI controls reject collectively; no
+fault injection for close-time disk-full errors. Geometry/metric/mesh/transfer
+gates are unchanged. All evidence and resource receipts retained; no CFD rerun.
+
+STILL OPEN: wire this provider to actual CSolver bound/gradation callbacks and
+bounded frozen adaptation/reassessment stages. Broader remeshing campaign caches,
+shared-edge integrals and transaction batches remain unimplemented. Build peak
+2.38GiB process/replay667MiB, recorded swaps0, one owned heavy job throughout.
+[Implementation and exact scope](GOAL3_NATIVE_SUPPORT_PROVIDER.md).

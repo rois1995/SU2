@@ -15,6 +15,7 @@ struct DonorPatch {
   std::vector<DonorCell> cells;
   bool valid = false;
   std::string reason;
+  std::vector<int> source_rank; /*!< Same order as returned cells; ranks in this source's World, valid until ownership rebuild. */
 };
 struct DonorImportStats {
   uint64_t builds = 0, imports = 0, rejected = 0, owner_requests = 0, index_candidates = 0, payloads = 0;

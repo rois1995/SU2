@@ -1581,6 +1581,7 @@ TEST_CASE("Planar wall preserves a finer rotated tangent field across its source
 
 
 #include "NativeCorrectionReplay3D.hpp"
+#include "../../../Common/include/adaptation/CNativeSupport3D.hpp"
 
 TEST_CASE("Replay a complete faceted wall volume-integration input without CFD", "[.][NativeFacetedVolumeReplay3D]") {
   const char* path=std::getenv("SU2_NATIVE_BL_REPLAY");REQUIRE(path!=nullptr);
@@ -1613,6 +1614,23 @@ TEST_CASE("Replay a complete faceted wall volume-integration input without CFD",
   }
   REQUIRE(bool(input));input>>std::ws;REQUIRE(input.eof());
   CBoundaryLayerMetric layers(3,{std::move(wall)});
+  if(const char* countText=std::getenv("SU2_NATIVE_BL_PREPARE_CORRECTION")) {
+    REQUIRE(SU2_MPI::GetSize()==1);
+    const size_t count=std::stoull(countText);const uint64_t seed=std::getenv("SU2_NATIVE_BL_PROPOSAL_SEED")?std::stoull(std::getenv("SU2_NATIVE_BL_PROPOSAL_SEED")):2641;
+    auto sampler=layers.PrepareCorrectionSupport3D(size_t(2)<<30,80000000);const auto queries=sampler->Draw(count,seed);
+    std::ofstream output("native_queries.bin",std::ios::binary),detail("native_queries.csv");REQUIRE(bool(output));REQUIRE(bool(detail));
+    const uint64_t magic=0x4e41545155455259ULL,n=queries.size();output.write(reinterpret_cast<const char*>(&magic),8);output.write(reinterpret_cast<const char*>(&n),8);
+    detail<<std::setprecision(17)<<"x,y,z,inverse_pdf,kind\n";
+    for(const auto& q:queries) {
+      const double record[4]={q.point.x,q.point.y,q.point.z,q.inverse_pdf};output.write(reinterpret_cast<const char*>(record),sizeof(record));
+      detail<<q.point.x<<','<<q.point.y<<','<<q.point.z<<','<<q.inverse_pdf<<','<<q.kind<<'\n';
+    }
+    output.close();detail.close();REQUIRE(bool(output));REQUIRE(bool(detail));
+    const auto& stats=sampler->Statistics();std::ofstream result("native_proposal.json");result<<std::setprecision(17)
+      <<"{\"samples\":"<<queries.size()<<",\"seed\":"<<seed<<",\"components\":["<<stats.components[0]<<','<<stats.components[1]<<','<<stats.components[2]
+      <<"],\"preparation_work\":"<<stats.preparation_work<<",\"pdf_candidates\":"<<stats.pdf_candidates<<",\"retained_bytes\":"<<stats.retained_bytes
+      <<",\"preparation_seconds\":"<<stats.preparation_seconds<<",\"pdf_seconds\":"<<stats.pdf_seconds<<",\"proven_error_bound\":false}\n";REQUIRE(bool(result));return;
+  }
   if(const char* domain=std::getenv("SU2_NATIVE_BL_CORRECTION_DOMAIN")) {
     const char* queries=std::getenv("SU2_NATIVE_BL_CORRECTION_QUERIES");REQUIRE(queries);
     REQUIRE_NOTHROW(SU2NativeBLReplay::Correction(layers,domain,queries));return;

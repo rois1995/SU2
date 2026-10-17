@@ -40,7 +40,12 @@ inline void NormalizeCorrection(World& world,CBoundaryLayerMetric& layers,const 
     std::istringstream values(interval);values>>low>>high;values>>std::ws;
     if(!values.eof() || !(low>0) || !(high>=low) || !std::isfinite(high))throw std::runtime_error("Invalid original sensor integral interval.");
     rtol=std::stod(tolerance);
+    if(!(target>0) || !std::isfinite(target) || !(rtol>0 && rtol<1))throw std::runtime_error("Invalid correction normalization controls.");
   }catch(const std::exception& error){failure.Set(2,0,error.what());}vote();
+  const double controls[4]={target,low,high,rtol};double minimum[4],maximum[4];
+  SU2_MPI::Allreduce(controls,minimum,4,MPI_DOUBLE,MPI_MIN,world.comm);
+  SU2_MPI::Allreduce(controls,maximum,4,MPI_DOUBLE,MPI_MAX,world.comm);
+  if(!std::equal(minimum,minimum+4,maximum))failure.Set(2,0,"Inconsistent correction normalization controls across ranks.");vote();
   const auto begin=SU2_MPI::Wtime();unsigned evaluations=0;uint64_t localCompositions=0;
   double lastScale=std::numeric_limits<double>::quiet_NaN();SU2Complexity::Estimate lastEstimate;
   unsigned exactReuses=0;double pointDensityTime=0,reductionTime=0;
@@ -110,7 +115,7 @@ inline void Correction(CBoundaryLayerMetric& layers,const char* domainPath,const
       throw std::runtime_error("Invalid frozen correction domain header.");
     for(uint64_t i=0;i<cellCount;++i) {
       uint64_t id=0,nodes[4];double x[12],m[36];read(domain,id);read(domain,nodes);read(domain,x);read(domain,m);
-      if(id%world.size!=unsigned(world.rank))continue;
+      if((id+1)%world.size!=unsigned(world.rank))continue;
       RawCell raw;raw.cell.id=id;
       for(double v:x)if(!std::isfinite(v))throw std::runtime_error("Nonfinite original donor coordinate.");
       for(double v:m)if(!std::isfinite(v))throw std::runtime_error("Nonfinite original raw sensor coefficient.");
@@ -165,13 +170,16 @@ inline void Correction(CBoundaryLayerMetric& layers,const char* domainPath,const
     std::map<uint64_t,Response> values;
     try {
       for(const auto& query:batch) {
-        uint64_t selected=UINT64_MAX;
-        for(const auto& donor:footprint.cells) {
-          const auto& v=donor.cell.v;std::array<long double,4> weights;
-          if(Barycentric({v[0].p,v[1].p,v[2].p,v[3].p},query.point,weights))selected=std::min(selected,donor.cell.id);
+        uint64_t selected=UINT64_MAX;int owner=-1;
+        if(footprint.cells.size()!=footprint.source_rank.size())throw std::runtime_error("Missing original donor ownership.");
+        for(size_t i=0;i<footprint.cells.size();++i) {
+          const auto& donor=footprint.cells[i];const auto& v=donor.cell.v;std::array<long double,4> weights;
+          if(donor.cell.id<selected && Barycentric({v[0].p,v[1].p,v[2].p,v[3].p},query.point,weights)) {
+            selected=donor.cell.id;owner=footprint.source_rank[i];
+          }
         }
         if(selected==UINT64_MAX)values.emplace(query.row,Response{query.row,UINT64_MAX,0,0,0});
-        else requests[selected%world.size].push_back({query.row,selected,world.rank,query.point,query.inversePDF});
+        else requests.at(owner).push_back({query.row,selected,world.rank,query.point,query.inversePDF});
       }
     }catch(const std::exception& error){failure.Set(2,first,error.what());}vote(failure);
     bool admitted=false;const auto received=world.exchange(requests,&admitted,ceiling,callerBytes);
@@ -232,11 +240,12 @@ inline void Correction(CBoundaryLayerMetric& layers,const char* domainPath,const
     std::ofstream result("correction_global.json");result<<std::setprecision(21)<<"{\"samples\":"<<count<<",\"inside\":"<<global[3]
       <<",\"nonzero\":"<<global[5]<<",\"correction\":"<<mean<<",\"empirical_standard_error\":"<<std::sqrt(variance)
       <<",\"mean_absolute_negative_roundoff\":"<<global[4]/count<<",\"ranks\":"<<world.size
-      <<",\"cached_direct_tensor_checks\":"<<globalAudits[0]<<",\"different_cached_direct_tensors\":"<<globalAudits[1]
+      <<",\"source_ownership_shift\":1,\"cached_direct_tensor_checks\":"<<globalAudits[0]<<",\"different_cached_direct_tensors\":"<<globalAudits[1]
       <<",\"seconds_max\":"<<times[0]<<",\"index_build_seconds_max\":"<<times[1]<<",\"owner_density_seconds_max\":"<<times[2]
       <<",\"standard_error_is_proven_bound\":false,\"original_RAW9_preserved\":true,\"complete_original_domain_search\":true,\"production_normalization_changed\":false}\n";
-    if(!result)throw std::runtime_error("Cannot save global correction result.");
+    if(!result)failure.Set(2,0,"Cannot save global correction result.");
   }
+  vote(failure);
   if(normalizing) {
     const double localPreparation=SU2_MPI::Wtime()-start;double preparation=0;
     SU2_MPI::Allreduce(&localPreparation,&preparation,1,MPI_DOUBLE,MPI_MAX,world.comm);

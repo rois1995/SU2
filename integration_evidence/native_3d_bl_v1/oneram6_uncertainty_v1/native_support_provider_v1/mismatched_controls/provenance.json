@@ -1,0 +1,29 @@
+{
+  "pins": {
+    "integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/run.py": "b179ef9aeff7be9f81f4f7cc0f7dca915d59ee8fedfd2bc29d79e80ae23a5c74",
+    "integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/native_support_provider_v1/mismatched_controls/different_target.sh": "647b3a260905c9b2b58590f166a7481dce74fd9023b0644117b03910abef8456",
+    "integration_evidence/build-integrated-v2/build.ninja": "961bf33a26c0dfa69d2652675a193a8fb0919f1653c918680701fe3c68568de8",
+    "integration_evidence/build-integrated-v2/meson-info/intro-buildoptions.json": "59377c452909959635fa25c06589f97be7916c19148364113dd1a62ab38e9a5c",
+    "SU2_CFD/src/adaptation/CBoundaryLayerMetric.cpp": "ee16232a71e148d9a11f40578e33b3b9cdf8e588344cf6d3b08d893544a96d98",
+    "SU2_CFD/include/adaptation/CBoundaryLayerMetric.hpp": "7c8bfe30355076995c4ddbd16fa01c5dfc4e7167011326f84999ef00a8c1504e",
+    "UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp": "737680ae91a00091156e2bccedea7da0bac7cea686d2ff71a02703460ebc7d00",
+    "Common/src/adaptation/CNativeField3D.cpp": "623e68f1296cdd2d7a1d6aaa012860327073bf933fa51c1180c00f9bacfc8aa7",
+    "Common/include/adaptation/CNativeField3D.hpp": "76064ddcfc8e5c7cd5ddef5f0b76d8d76a98bcf40b75a6a9a9d6652ffd32a5c2",
+    "UnitTests/Common/adaptation/CNativeField3D_tests.cpp": "c36ec7441498298a24c7e2c3002e230898108006502c6cc0f34559ef48a275cf",
+    "Common/include/adaptation/CComplexityNormalization.hpp": "041ce6aecd1e0b22edc4d7e09c968d109d6eb9ff21c86184fffeff87dbee01e9",
+    "Common/include/adaptation/CNativeChordEnvelope.hpp": "c7a3429203f7d274df87c8beef452214d8cd531ed1359ce466b6ebd3de88c534",
+    "SU2_CFD/src/solvers/CSolver.cpp": "2baa41a768791e027ecc075ff980d4e86904560d3aeb743dc41d352cfcaddc77"
+  },
+  "fixture": "aca3bcf0830769bc807ec5449af1a2315d619def102b9f82e33dfb8028be46ba",
+  "parameters": {
+    "SU2_NATIVE_BL_CORRECTION_DOMAIN": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/planar_support_correction_v2/original.bin",
+    "SU2_NATIVE_BL_CORRECTION_QUERIES": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/native_support_provider_v1/planar_seed449/prepare/native_queries.bin",
+    "SU2_NATIVE_BL_NORMALIZE": "16",
+    "SU2_NATIVE_BL_SENSOR_INTERVAL": "3.1819805153394642 3.1819805153394642",
+    "SU2_NATIVE_BL_NORMALIZE_RTOL": ".05",
+    "SU2_NATIVE_TEST_DRIVER": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver"
+  },
+  "ranks": 4,
+  "test_filter": "[NativeFacetedVolumeReplay3D]",
+  "expected_failure": true
+}

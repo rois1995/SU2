@@ -1,0 +1,27 @@
+{
+  "exit_code": 1,
+  "elapsed_seconds": 1.463959566084668,
+  "command": [
+    "taskset",
+    "-c",
+    "0-3",
+    "nice",
+    "-n",
+    "19",
+    "timeout",
+    "--kill-after=5s",
+    "180s",
+    "mpirun",
+    "-np",
+    "4",
+    "--bind-to",
+    "none",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/native_support_provider_v1/mismatched_controls/different_target.sh",
+    "[NativeFacetedVolumeReplay3D]",
+    "--abort",
+    "--reporter",
+    "compact"
+  ],
+  "provenance_sha256": "98c3c9bd40b4e7aa6fe0f1e1ea248f27dffd4f388bbe5ab8ae71f63673d4303b",
+  "log_sha256": "f62e5cfe830aa00280437bfb2de45a15e2d3e9f1213515d787819bf7895e2bfe"
+}

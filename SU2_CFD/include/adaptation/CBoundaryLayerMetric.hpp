@@ -40,7 +40,7 @@
 class CConfig;
 class CGeometry;
 namespace SU2NativeBoundary2D { struct ReferenceState; }
-namespace SU2Native3D { struct ReferenceState; class PlanarReference; }
+namespace SU2Native3D { struct ReferenceState; class PlanarReference; class SupportSampler3D; }
 
 /*!
  * \class CBoundaryLayerMetric
@@ -215,6 +215,10 @@ class CBoundaryLayerMetric {
   std::vector<IntegrationPoint3D> IntegrationRule3D(
       const std::array<std::array<double,3>,4>& tetrahedron, double bandRatio = 1.5,
       IntegrationDensity3D density = {}, bool* sensorDependent = nullptr);
+
+  /*! Complete faceted-wall support proposal, independent of the sensor/scale. Analytic authority retains
+   * its existing integration path. Sampler limits bound work/storage; no metric or error bound is implied. */
+  std::shared_ptr<SU2Native3D::SupportSampler3D> PrepareCorrectionSupport3D(size_t maximumBytes,uint64_t maximumWork) const;
 
   struct ComplexityEstimate3D {
     double value=0, indicator=0;

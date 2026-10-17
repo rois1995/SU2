@@ -6231,3 +6231,26 @@ collective I/O/control failure paths and explicit frozen remesh/reassessment sta
 are still missing. Source/export restoration and rejected verifier evidence retained.
 See Handbook/GOAL3_SUPPORT_CORRECTION.md, Handbook/GOAL3_RETAINED_NORMALIZATION.md
 and oneram6_uncertainty_v1/retained_correction_normalization_v2/summary.json.
+
+
+### 2026-10-17: C++ complete-support provider and real source-owner routing
+
+The independently checked support sampler is now a production-library API using
+the existing CADT index. Whole face/edge/vertex overlap PDFs include all walls;
+work/storage exhaustion never silently drops candidates. M6 seed2641 native
+preparation/PDF0.489/4.678s versus23.70s independent Python preparation/PDF on the
+same8192 points, max relative difference3.636e-12. This is kernel evidence only,
+not a complete adaptation speedup. Original-field MPI replays preserve RAW9 and
+current direct/cached baseline tensors;2/4 ranks agree even when storage owners
+are shifted away from cellID%ranks. Return metadata carries actual source ranks
+in their World; no additional per-import vote. Existing strict import gates kept.
+
+21 serial controls/10129 assertions and4 donor/regional cases serial/MPI4 pass.
+Root output-open failure and per-rank control disagreement reject collectively;
+close-time disk-full injection is not covered. Two native samples give mean total
+962097 using independent backgroundQ18, with empirical sampling uncertainty, no
+proven bound. No physical BL law, target quality/height/transfer gate, production
+normalization default or CFD step changed. CSolver coupling to real bound/gradation
+trials and explicit frozen remesh/reassessment stages remains missing. Full Goal3
+and accepted M6 construction remain OPEN. Evidence/resources/source:
+Handbook/GOAL3_NATIVE_SUPPORT_PROVIDER.md and native_support_provider_v1/summary.json.

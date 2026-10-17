@@ -7,77 +7,58 @@ AdapNoExt, foreign ClusterResults and dependencies remain untouched.
 
 ## Current connected work
 
-Primary experiment: uncertainty-controlled complexity initialization on original
-coarse M6 sensor-only P1 plus actual-query geometric BL. Bound difficult work,
-retain positive unresolved contributions, assess absolute error globally including
-MPI, match normalization to integration uncertainty and reuse geometry across
-scale trials. No post-freeze changes during local operations, finer-demand loss,
-coarse wall-tensor spreading, hard-normal reset, fade/noise0/gate changes.
+Primary task: bounded uncertainty-controlled complexity initialization on original
+coarse M6 sensor-only P1 plus actual-query geometric BL. Preserve original donors,
+finer demands, fade, geometry/height/positivity/quality/transfer/full-edge gates and
+noise0; never spread wall tensors across coarse cells or change target mid-stage.
 
-New bounded full-support BL-correction experiment is complete as a REPLAY:
-two8192-sample seeds estimate total961498/961691, pooled empirical SE6656;
-this is a heuristic, not a proven global error bound. Sensor-only mass remains
-152994. Independent finite-square face/edge/corner/fade reference passes MPI1/2/4;
-every inside M6 original-P1 sensor density independently agrees<=7.22e-15 and all
-M6 rows match MPI2/4. Tiny-cell conditioning is sparse/inefficient (11–22 source
-hits/16384); reference errors2–38%, broad indicators cover them but do not qualify
-SEM tails. Static proposal/PDF preparation dominates23s versus~3s native kernel;
-no total/lifecycle speedup. Rejected drafts/producers retained. New exact point
-footprints reuse existing donor service; strict imports unchanged, affected controls
-pass. No CFD/accepted mesh or production normalization coupling.
-[Method, evidence, limitations and resources](Handbook/GOAL3_SUPPORT_CORRECTION.md).
-Retained-field normalization now passes8 planned replay checks: M6 target1M gives
-992920/993123 at the same selected scale, heuristic uncertainty~35650;100000 lies
-outside diagnostic1/64..64 bracket;1e-6 stops integration_limited. No repeated
-source/wall searches during trials; every cached/direct preparation-field query tensor bitwise equal.
-Old scalar density drift retained, not a field-gate relaxation. MPI2/4 normalizations
-agree; independent planar references and35 controller assertions pass. Production
-bounds/gradation/stages and I/O fault qualification remain missing. Reproducible
-large export restoration passes. [Scope/work/next coupling](Handbook/GOAL3_RETAINED_NORMALIZATION.md).
+**Current C++ batch complete:** native face/edge/vertex support sampling over the
+house ADT, plus actual original-donor publisher routing. Shifted storage disproves
+any cell-ID/rank shortcut. Native/Python PDFs agree<=3.64e-12 at all8192 points of
+each M6 seed. Retained tensors agree direct/cached at the unscaled baseline;
+MPI2/4 rows/normalization agree. Geometry/PDF~5.2s versus23.7s independent Python
+check at the same points: kernel evidence, not adaptation speedup.21 serial cases/
+10129 assertions,4 donor/regional cases1/4 ranks and two collective failure checks
+pass. All owned jobs terminal; final donor-object refresh preceded every test.
+[Implementation, evidence, resources and limits](Handbook/GOAL3_NATIVE_SUPPORT_PROVIDER.md).
 
+**Production CSolver remains on strict per-cell integration/its old scale search.**
+Next wire the provider to actual bounded/graded trial tensors. Retained source
+stencils must contain original node references/weights and query geometry; cached
+homogeneous sensor answers cannot stand in for changing clipped/graded tensors.
+Reassess the SAME original source with a finer mesh/integration, then use explicit
+bounded frozen normalization/adaptation stages when the corrected budget matters.
+No default5% tolerance was chosen; no accepted M6 grid or lifecycle improvement.
 
-Separate strong-BL subset lower estimates364473/362392 already exceed100000 under
-conditional99% simultaneous statistical assumptions (not machine certificates).
-Refinement cannot lower the continuum demand of the same frozen field. Finite
-upper envelopes were too loose; supporting-plane floor inconclusive. Complete
-Q4/Q18 audit covers303359 cells/6.674M points but misses thin mass (329 error39.35%
-vs tiny rule indicator). Shared experimental one-sided controller/35 assertions
-and MPI1/2/4 reductions qualify its scope, not production. Next: port/connect the retained provider to actual bounded/graded production
-fields and a calibrated global work policy to explicit uncertainty-aware normalization/stages;
-handle unattainable budget visibly, without changing BL/target/gates silently.
-[Earlier support bounds and feasibility](Handbook/GOAL3_COMPLEXITY_SUPPORT_BOUNDS.md).
+Earlier complete-support replay estimates961498/961691 (pooled empirical SE6656),
+not a proven error bound. Tiny-cell conditioning is sparse/inefficient (11–22 hits/
+16384,2–38% reference errors). Independent square tube/fade integral and original
+sensor arithmetic checks qualify only their recorded scope.
+[Global correction experiment](Handbook/GOAL3_SUPPORT_CORRECTION.md).
+Retained normalization reaches experimental target1M on a homogeneous family,
+reports100000 outside its diagnostic bracket and stops1e-6 as integration_limited;
+old scalar spectral drift and rejected verifier assumptions are preserved.
+[Exact source/work/scope](Handbook/GOAL3_RETAINED_NORMALIZATION.md).
 
-Current production normalization is UNCHANGED. Shared experimental controller and
-3-cell MPI1/4 priority reductions agree but correctly return integration_limited
-at1%; not a calibrated complete-field policy. Geometry caching works locally;
-BL-correction decomposition helps329 (queries-7.35%/historical reference error10.6x
-lower) but not88/157 or cold preparation. More subdivision is neither reliably
-cheaper nor monotone. Scalar root screening was withdrawn. Full-field prefixes
-are incomplete;14 unknown contributions in the earlier9442-cell prefix are kept,
-not silently dropped. Scalar distance-only cuts restore the demonstrated622/2331
-seed regressions.622 independent quadrature remains unconverged through96; no
-more reference-order ladder. These are partial findings, not normalized M6 meshes.
-[Uncertainty evidence](Handbook/GOAL3_UNCERTAINTY_COMPLEXITY.md),
-[chord envelope/current global limits](Handbook/GOAL3_CHORD_ENVELOPE.md),
-[whole-field/source audit](Handbook/GOAL3_M6_COMPLEXITY_REASSESSMENT.md).
+Strong-BL subset lower estimates364473/362392 exceed100000 under conditional99%
+simultaneous statistical assumptions, not machine certification. Refinement of the
+same field cannot lower its continuum demand. Finite upper envelopes are too loose;
+complete Q4/Q18 volume rules under-resolve thin mass. The experimental global lower
+controller passes35 assertions/MPI reductions but is not production coupling.
+[Support bounds and budget conflict](Handbook/GOAL3_COMPLEXITY_SUPPORT_BOUNDS.md),
+[earlier uncertainty and failed variants](Handbook/GOAL3_UNCERTAINTY_COMPLEXITY.md),
+[chord envelope](Handbook/GOAL3_CHORD_ENVELOPE.md),
+[original-field audit](Handbook/GOAL3_M6_COMPLEXITY_REASSESSMENT.md).
 
-Shared strict-edge correction remains qualified in its saved scope: actual M6
-edges pass45/75 queries instead of65536 exhausted, reference differences9.58e-12/
-2.28e-12;29 affected3D/8 existing2D controls and original scalar cold/warm checks.
-All gates unchanged. [Exact strategy/source/evidence](Handbook/GOAL3_LOCAL_FEATURE_PRECISION.md).
-
-**Construction replay terminal.** construction_interior_edge_v1 progresses past both
-known edge failures and makes447 global INTERNAL first-row publications/1788 work,
-then rejects at the unchanged300s budget.313.21s launcher/300.65s backend, no final
-adapted mesh/CFD step/transfer or normalized-budget proof. Input CFD state retained.
-The hypothesis that an accepted finer mesh eases integration remains untested.
-Do not rerun or raise time/work limits merely to finish. Rank2 geometric edge
-preparation147.86s versus9.37–11.88s on others is a new measured hotspot; reuse/
-shared-edge/transaction package remains unimplemented. These contended rejected
-case timings are not accepted-lifecycle or scaling claims. Stage/resource/source
-receipts saved. Maximum rankRSS~725MiB, sum rank peaks2.71GiB upper bound/zero
-swaps, host~40GiB available afterward. test_driver current; standalone SU2_CFD
-executable older and must be rebuilt before CFD validation.
+Strict-edge repair remains historically qualified: actual M6 edges45/75 queries
+instead of65536 exhausted, all mesh gates retained.
+[Source/reference limits](Handbook/GOAL3_LOCAL_FEATURE_PRECISION.md).
+Last construction_interior_edge_v1 is REJECTED at unchanged300s after447 INTERNAL
+publications/1788 work; no accepted mesh/transfer/normalized-budget proof. Rank2
+geometry preparation147.86s versus9.37–11.88s elsewhere is a recorded hotspot,
+not accepted-lifecycle/scaling evidence. Do not rerun or raise unchanged limits.
+Original CFD state and stage/resource receipts remain. test_driver is current;
+standalone SU2_CFD is older and needs rebuilding before actual CFD validation.
 
 ## Remaining evidence and scope
 
@@ -124,7 +105,7 @@ edit, no repeated unchanged failures/limit ladders, push reviewable work. Keep
 handbooks compact with detailed linked topics. Announce full case folder paths.
 One owned heavy job, low priority/thread1/build-j1, locally available MPI<=4.
 Check host contention/RAM and live handles. Latest host~40GiB available; recheck.
-Latest retained replay peak667MiB per process/build2.35GiB, zero swaps;
+Latest native-provider replay peak667MiB per process/build2.38GiB, recorded swaps0;
 these are not aggregate or whole-lifecycle peaks. All owned jobs terminal. Root/tmp nearly full: use build-integrated-v2/compile-tmp
 on4TB. Do not kill unrelated processes or request cluster jobs overnight.
 Goal4 inactive; full physical unsteady3D/general CAD/mixed volumes separate scope.
