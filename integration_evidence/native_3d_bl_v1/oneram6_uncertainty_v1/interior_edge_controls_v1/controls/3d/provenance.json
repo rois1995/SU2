@@ -1,0 +1,24 @@
+{
+  "pins": {
+    "integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/run.py": "b179ef9aeff7be9f81f4f7cc0f7dca915d59ee8fedfd2bc29d79e80ae23a5c74",
+    "integration_evidence/build-integrated-v2/UnitTests/test_driver": "21076b42dbf2cd261caf2d22ecdc60cdc1f78c9df7a52f5770f3175c56a970b0",
+    "integration_evidence/build-integrated-v2/build.ninja": "961bf33a26c0dfa69d2652675a193a8fb0919f1653c918680701fe3c68568de8",
+    "integration_evidence/build-integrated-v2/meson-info/intro-buildoptions.json": "59377c452909959635fa25c06589f97be7916c19148364113dd1a62ab38e9a5c",
+    "SU2_CFD/src/adaptation/CBoundaryLayerMetric.cpp": "74b564b684c01ade0276804d8d631d0cfae821ee775693e03e0cda3586f7d06d",
+    "SU2_CFD/include/adaptation/CBoundaryLayerMetric.hpp": "5ef1c6572f8e6706ea50609a1e53977c13748c94ed35265749ae78919b1fd158",
+    "UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp": "e7978e55e836b11ccffe9f7badb22f0685d1e25627b53460d3ae35ea5d6d46a3",
+    "Common/src/adaptation/CNativeField3D.cpp": "138dd5156315e27985f59cc562e66fe30b5e6b3c76dfed8b94fb8aa261b98686",
+    "Common/include/adaptation/CNativeField3D.hpp": "76064ddcfc8e5c7cd5ddef5f0b76d8d76a98bcf40b75a6a9a9d6652ffd32a5c2",
+    "UnitTests/Common/adaptation/CNativeField3D_tests.cpp": "c36ec7441498298a24c7e2c3002e230898108006502c6cc0f34559ef48a275cf",
+    "Common/include/adaptation/CComplexityNormalization.hpp": "542412cb812ddbc3601fa53878b9dc88dbdce90f6cd313a27cfa3630337a5e15",
+    "Common/include/adaptation/CNativeChordEnvelope.hpp": "c7a3429203f7d274df87c8beef452214d8cd531ed1359ce466b6ebd3de88c534",
+    "SU2_CFD/src/solvers/CSolver.cpp": "2baa41a768791e027ecc075ff980d4e86904560d3aeb743dc41d352cfcaddc77"
+  },
+  "fixture": "2d15d275a7e4cafe145130a675641dfe90f373824b6debaa5a02d5ac8b1aba86",
+  "parameters": {
+    "HELPER_SHA256": "3d206ae99957b0a1d35ddbca21bcedac3ba1cca74736eb05048fcd1321d53623"
+  },
+  "ranks": 1,
+  "test_filter": "[NativeChordEnvelope],[NativeComplexityNormalization],[NativeComplexityEstimate3D],[NativeComposite3D],[NativeVolumeBL3D],[NativeParallelBL3D],[NativeCurvedBL3D],[NativePlanarTangentEdge3D],[NativeBalancedSplit3D],[NativeCurvedCoverage3D],[NativeLayeredField3D]",
+  "expected_failure": false
+}

@@ -1,0 +1,89 @@
+#!/usr/bin/env python3
+"""Exact saved-edge/original-donor replay. No CFD, normalization or mesh acceptance claim."""
+import json, os, subprocess, sys, time
+from pathlib import Path
+import numpy as np
+from run import HERE, ROOT, OLD, BUILD, BINARY, pins, sha
+
+
+def main():
+    folder = HERE / 'first_layer_edge_v1'
+    folder.mkdir(exist_ok=True)
+    original = HERE / 'construction_first_trial_v1'
+    source = original / 'sensor_original.bin'
+    mesh_path = original / 'Coarse.su2'
+    fixture = OLD / 'cell329/replay.dat'
+    saved = json.loads((original / 'provenance.json').read_text())['identity']
+    for path in (source, mesh_path):
+        assert sha(path) == saved[str(path.relative_to(ROOT))]
+    sys.path.insert(0, str(ROOT / 'TestCases/adaptation/capability'))
+    from capcheck import read_su2
+    mesh = read_su2(mesh_path)
+    dtype = np.dtype([('id', '<u8'), ('x', '<f8', (3,)), ('m', '<f8', (9,))])
+    with source.open('rb') as f:
+        count = int(np.fromfile(f, dtype='<u8', count=1)[0])
+        records = np.fromfile(f, dtype=dtype)
+    assert len(records) == count == len(mesh.P)
+    assert np.array_equal(np.sort(records['id']), np.arange(count))
+    assert np.array_equal(records['x'], mesh.P[records['id']])
+    # Closed AABB intersection cannot omit a donor intersecting the closed segment.
+    # Exact tetrahedron/segment filtering and trace coverage are checked in the native replay.
+    a = [.619448337998914411173, 1.02515983674473298848, -.0153284912029800698963]
+    b = [.619865041411222006396, 1.02046045941819452096, -.015806993408904391335]
+    x = mesh.P[mesh.E]
+    selected = np.flatnonzero(np.all(np.min(x, axis=1) <= np.maximum(a, b), axis=1) &
+                              np.all(np.max(x, axis=1) >= np.minimum(a, b), axis=1))
+    assert 0 < len(selected) <= 256, len(selected)
+    focus = .544677734375523202087
+    samples = np.unique(np.r_[np.linspace(0, 1, 2049),
+                            [focus + sign * 2. ** -k for k in range(2, 49) for sign in (-1, 1)]])
+    text = ['NATIVE_BL_EDGE_3D', ' '.join(format(t, '.17g') for t in a + b), str(len(selected))]
+    text += [' '.join(map(str, [int(i)] + list(mesh.E[i]))) for i in selected]
+    text += [str(len(samples))] + [format(t, '.17g') for t in samples]
+    packet = folder / 'edge.dat'
+    payload = '\n'.join(text) + '\n'
+    if packet.exists():
+        assert packet.read_text() == payload
+    else:
+        packet.write_text(payload)
+    sources = ['Common/src/adaptation/CNativeField3D.cpp', 'Common/include/adaptation/CNativeField3D.hpp',
+               'Common/src/adaptation/CNativePredicates3D.cpp', 'Common/include/adaptation/CNativeMesh3D.hpp',
+               'Common/src/adaptation/CNativeRemesher3D.cpp', 'SU2_CFD/src/drivers/CSinglezoneDriver.cpp',
+               'TestCases/adaptation/capability/capcheck.py']
+    identity = dict(pins(), **{p: sha(ROOT / p) for p in sources})
+    identity.update({str(p.relative_to(ROOT)): sha(p) for p in (Path(__file__).resolve(), source, mesh_path, fixture, packet)})
+    proof = folder / 'provenance.json'
+    if proof.exists():
+        assert json.loads(proof.read_text()) == identity, 'Changed provenance; preserve existing evidence.'
+    else:
+        proof.write_text(json.dumps(identity, indent=2) + '\n')
+    result = folder / 'result.json'
+    if result.exists():
+        report = json.loads(result.read_text())
+        assert report['provenance_sha256'] == sha(proof)
+        assert report['outputs_sha256'] == {p: sha(folder / p) for p in report['outputs_sha256']}
+        print('REUSE', json.dumps(report), flush=True)
+        return
+    env = dict(os.environ, OMP_NUM_THREADS='1', OPENBLAS_NUM_THREADS='1', MKL_NUM_THREADS='1',
+               TMPDIR=str(BUILD / 'compile-tmp'), SU2_NATIVE_BL_REPLAY=str(fixture),
+               SU2_NATIVE_BL_EDGE=str(packet), SU2_NATIVE_BL_EDGE_SENSOR=str(source))
+    command = ['taskset', '-c', '0', 'nice', '-n', '19', '/usr/bin/time', '-v', '-o', 'resources.txt',
+               'timeout', '--kill-after=5s', '180s', str(BINARY), '[NativeFacetedVolumeReplay3D]',
+               '--abort', '--reporter', 'compact']
+    start = time.monotonic()
+    with (folder / 'run.log').open('w') as log:
+        process = subprocess.run(command, cwd=folder, env=env, stdout=log, stderr=subprocess.STDOUT)
+    outputs = ['run.log', 'resources.txt', 'edge_donors.csv', 'edge_cuts.txt', 'edge_samples.csv']
+    report = {'exit_code': process.returncode, 'elapsed_seconds': time.monotonic() - start,
+              'command': command, 'provenance_sha256': sha(proof), 'original_cells': len(mesh.E),
+              'AABB_candidates': len(selected), 'CFD_steps': 0, 'mesh_constructed': False,
+              'normalized_budget_accuracy_established': False,
+              'outputs_sha256': {p: sha(folder / p) for p in outputs if (folder / p).exists()}}
+    result.write_text(json.dumps(report, indent=2) + '\n')
+    print(json.dumps(report), flush=True)
+    assert process.returncode in (0, 1), 'Replay did not terminate normally; inspect saved failure.'
+    assert 'FROZEN_EDGE ' in (folder / 'run.log').read_text(), 'No complete edge diagnostic.'
+
+
+if __name__ == '__main__':
+    main()

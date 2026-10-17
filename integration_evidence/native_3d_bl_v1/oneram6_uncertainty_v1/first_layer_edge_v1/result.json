@@ -1,0 +1,37 @@
+{
+  "exit_code": 1,
+  "elapsed_seconds": 1.4747951260069385,
+  "command": [
+    "taskset",
+    "-c",
+    "0",
+    "nice",
+    "-n",
+    "19",
+    "/usr/bin/time",
+    "-v",
+    "-o",
+    "resources.txt",
+    "timeout",
+    "--kill-after=5s",
+    "180s",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver",
+    "[NativeFacetedVolumeReplay3D]",
+    "--abort",
+    "--reporter",
+    "compact"
+  ],
+  "provenance_sha256": "a55f545f5b7af345a8aa969aafcb7509ba89decfc920073c0b10d89e35f832e7",
+  "original_cells": 303359,
+  "AABB_candidates": 10,
+  "CFD_steps": 0,
+  "mesh_constructed": false,
+  "normalized_budget_accuracy_established": false,
+  "outputs_sha256": {
+    "run.log": "d222207379f59d485451b3807f36c206c6e97d1b668f0766e4437ed6cf3e4738",
+    "resources.txt": "aba85a29ccc9289faf4fcf58f09c298fc3a4e03c391fc05eab6c16cc9cf4dee0",
+    "edge_donors.csv": "5360152cec3ce7be4c801a4c6eeda8336e92e01d4de8bb04114e31c3572f1cf4",
+    "edge_cuts.txt": "bb1884a1cbb353447a95217e8544ce0f0421148b01ac73bb4f3bebe5b8274f7e",
+    "edge_samples.csv": "2a9d24ed1729e216cdaede824a9e00192559aa69ea07a28ab67e25f184b07df4"
+  }
+}

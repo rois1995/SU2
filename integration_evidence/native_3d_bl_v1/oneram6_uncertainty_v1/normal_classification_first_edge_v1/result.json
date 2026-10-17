@@ -1,0 +1,74 @@
+{
+  "exit_code": 0,
+  "elapsed_seconds": 0.7427339070709422,
+  "command": [
+    "taskset",
+    "-c",
+    "0",
+    "nice",
+    "-n",
+    "19",
+    "/usr/bin/time",
+    "-v",
+    "-o",
+    "resources.txt",
+    "timeout",
+    "--kill-after=5s",
+    "180s",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver",
+    "[NativeFacetedVolumeReplay3D]",
+    "--abort",
+    "--reporter",
+    "compact"
+  ],
+  "provenance_sha256": "38b01dfae472279ed7a1f50de2caba2fdd07a358b883627f7276919c14150617",
+  "original_cells": 303359,
+  "AABB_candidates": 10,
+  "original_node_pair": null,
+  "CFD_steps": 0,
+  "mesh_constructed": false,
+  "normalized_budget_accuracy_established": false,
+  "outputs_sha256": {
+    "run.log": "e401fae287aab90740d0372e7103ed8b7146a7180e8f1ef4cf77c55077462b3a",
+    "resources.txt": "1c96c9396188a26304889d8ee6329bbea2e1867a531ba807960d16c0e2dbf8cf",
+    "edge_donors.csv": "5360152cec3ce7be4c801a4c6eeda8336e92e01d4de8bb04114e31c3572f1cf4",
+    "edge_cuts.txt": "ce4fdaa15cb84c7036b95ab2f54d6aa1d58e58001476cacab737fa165d230dc1",
+    "edge_samples.csv": "9903177fa491bab4bdcf1d648a9c0fe34f5e40cf5c8aa30ae769aff0e79c9cba"
+  },
+  "edge": {
+    "length": "1.14109844336103318592",
+    "failure": "",
+    "core": "0.0566769634747951861486",
+    "core_raw9": "0.0566769634747938191865",
+    "candidates": "10",
+    "donors": "8",
+    "pieces": "1",
+    "cuts": "6",
+    "compositions": "81",
+    "seconds": "0.00124353700000000007113",
+    "geometry_seconds": "0.000298301000000000002352",
+    "composition_seconds": "0.00059080299999999998789"
+  },
+  "fixed_gauss_references": [
+    {
+      "order_per_band": 16,
+      "value": 1.1410984379334324
+    },
+    {
+      "order_per_band": 32,
+      "value": 1.1410984379322429
+    },
+    {
+      "order_per_band": 64,
+      "value": 1.1410984379285738
+    }
+  ],
+  "dense_endpoint_references": [],
+  "reference_is_proven_bound": false,
+  "reference_scope": "Fixed Gauss on declared bands; same original edge trace/native point law, independent of adaptive edge controller, not independent geometry or a proven bound.",
+  "reference_cuts": [
+    0.0,
+    0.5,
+    1.0
+  ]
+}

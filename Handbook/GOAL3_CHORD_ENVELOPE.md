@@ -155,3 +155,16 @@ Only then decide whether another full construction-only backend attempt is warra
 No accepted M6 mesh, solution transfer, calibrated global normalization or lifecycle
 speedup is claimed. The broader query/index/transaction performance package remains
 deferred as recorded in POST_COMPLEXITY_QUERY_TRANSACTIONS.md.
+
+
+## Follow-up: exact construction blocker addressed
+
+2026-10-17: the saved first-layer edge now passes67 compositions after a local
+closest-feature displacement precision correction AND partitioning the existing
+on-wall normal-classification distance. Precision-only rejection is preserved.
+22 connected3D/8 existing2D controls pass; old3-cell scalar results change<=9e-14.
+Independent edge reference has1.69e-9 absolute/1.48e-9 relative discrepancy, not a
+proven1e-9 certificate. Current state/resources/construction-only outcome:
+[GOAL3_LOCAL_FEATURE_PRECISION.md](GOAL3_LOCAL_FEATURE_PRECISION.md). The actual
+mathematical wall policy is retained; floating evaluations are no longer bitwise
+identical to earlier source, so do not blindly transfer their runtime proofs.

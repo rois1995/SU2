@@ -15,7 +15,7 @@ accuracy, work, budget discrepancy, memory/communication and remaining scope.
 | More integration subcells | Negative evidence |329 error is nonmonotone with subdivision;88 work/time rises substantially. Raw indicator can underestimate157 by1.91x. Not a demonstrated cure. |
 | Cheap scalar geometric-root screening | Withdrawn: no useful measured gain | Seed estimates unchanged on88/157/329;88 .2003s→.2090s. Extra code removed; seed_screen_v1 retains source/results/decision. |
 | Shared policy in2D | Partially qualified foundations |8 existing composition controls pass95 assertions;2D production normalization unchanged.30P30N planar input prepared/validated, not adapted. |
-| Actual refinement should ease integration | Inconclusive; construction blocked | Actual frozen M6 backend starts but rejects first-layer metric-edge integration. No accepted mesh exists to test reassessment after actual adaptation. |
+| Actual refinement should ease integration | Inconclusive; complete construction hits budget | Shared edge correction passes both exact M6 blockers. Same-budget MPI4 reaches447 INTERNAL first-row publications, then stops at300s. No accepted complete mesh exists for finer-mesh reassessment. |
 | Reuse donor support/indexes across repair campaigns | Not attempted in this follow-up | Existing reuse must be inventoried; integration-geometry cache above is a different scope. |
 | Extend shared-edge integration reuse | Not attempted | Deferred until complexity initialization is resolved. |
 | Batch independent mesh transactions | Not attempted | Deferred; compare full lifecycle and accepted/rejected edits, not only kernel time. |
@@ -75,3 +75,44 @@ on the3-cell uncertain normalization, still integration_limited. Serial validati
 peak processRSS58.4MiB;622 reference extension210.5MiB; zero swaps, no CFD, no
 simultaneous heavy jobs. These are validation-process maxima, not whole-mesh cache
 or complete lifecycle memory qualification. All rejected/partial evidence retained.
+
+
+Connected original-edge follow-up (2026-10-17): local closest-feature displacement
+plus the existing wall-classification distance cut changes the saved M6 first-layer
+edge from65536 exhausted queries to67 completed. Precision alone failed and remains
+saved.22 connected3D/8 existing2D controls pass;3 difficult-cell volume estimates
+change<=9e-14, with identical cold/warm reuse. Independent edge discrepancy1.69e-9
+absolute/1.48e-9 relative is explicitly retained; this is a numerical indicator, not
+certified1e-9 accuracy or complete adaptation throughput. A single unchanged-budget
+MPI4 construction-only M6 replay is active in construction_local_geometry_v1; no
+CFD step or solution transfer. Complete mass/global uncertainty/production coupling
+and the broader performance package remain open. Details: GOAL3_LOCAL_FEATURE_PRECISION.md.
+
+
+Current shared-edge correction completes the diagnostic above: classification
+cuts alone still failed the second actual wall edge. Interior Gauss7/Kronrod15
+addresses rounded cut-endpoint contamination while preserving the global error/
+work/depth/mesh gates. Keeping old endpoint brackets first caused23787 compositions
+versus an existing10000 efficiency ceiling; that regression is preserved and fixed
+by deleting obsolete panels, without raising the ceiling. Final actual edges use
+45/75 compositions versus65536 exhausted, independent numerical differences
+9.58e-12/2.28e-12.29 affected3D/8 existing2D controls pass; original3-cell scalar
+results/cold-warm consistency remain. This is a measured local integration remedy,
+NOT donor-index reuse/shared-edge caching/transaction batching or a lifecycle
+speedup. One same-field/config MPI4 construction-only attempt is active in
+construction_interior_edge_v1; normalization, accepted mesh and transfer remain
+unestablished. Detailed outcome/negative sources: GOAL3_LOCAL_FEATURE_PRECISION.md.
+
+
+The final MPI4 construction-only attempt is TERMINAL REJECTED by the unchanged
+300s elapsed limit during first-row initialization, after447 INTERNAL publications/
+1788 work. It advances past both known edge failures, but no complete accepted
+mesh/normalization/transfer follows; the refinement-integration hypothesis remains
+inconclusive. Do not confuse private progress with accepted adaptation. No further
+run or budget increase. Rejected-run timing313.21s total/300.65s backend; rank2
+geometry preparation147.86s versus9.37–11.88s on others, despite fewer composition
+queries. Nested rank timings/cost heterogeneity identify investigation targets,
+not a lifecycle/scaling gain. Peak rank~725MiB; sum rank peaks2.71GiB upper bound,
+zero swaps; host~40GiB available. Stage/source/resource evidence is in
+construction_interior_edge_v1. Primary global uncertainty/normalization and all
+broader performance proposals remain open.

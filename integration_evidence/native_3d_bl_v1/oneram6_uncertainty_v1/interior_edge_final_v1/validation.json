@@ -1,0 +1,51 @@
+{
+  "scope": "Connected local-geometry/normal-classification/interior-edge correction; not complete M6 complexity, construction or lifecycle qualification.",
+  "error_bound_proven": false,
+  "CFD_steps": 0,
+  "edges": [
+    {
+      "evidence": "interior_surface_edge_final_v1",
+      "length": 1.0004777566316598,
+      "reference": 1.0004777566220813,
+      "absolute_difference": 9.578560167256e-12,
+      "relative_difference": 9.573986131981733e-12,
+      "compositions": 45,
+      "provenance_sha256": "8c7d292f0883db6b453b3ba2c6408c8b1fb8ac7f4f75e8d88382c54de60a1fd5",
+      "result_sha256": "9829d0f38b60bda5e67259c724a01cf21301f86f0df10dda807b323dbc77ed42",
+      "resource_sha256": "6298516a70a8608e30882ab771a9c8c9a913d91e452cbbc542b54199da131290"
+    },
+    {
+      "evidence": "interior_first_edge_final_v1",
+      "length": 1.1410984425864734,
+      "reference": 1.1410984425887527,
+      "absolute_difference": 2.2792878695554464e-12,
+      "relative_difference": 1.9974506882899083e-12,
+      "compositions": 75,
+      "provenance_sha256": "50170433121047e903977e385ffff1ec55a1cd1b8d5a2d82aece94e5dacf7230",
+      "result_sha256": "faa682b914ef21ae4e6d77bbedc00e2d24151d6f2e7ba42f3470fa865c0b73fc",
+      "resource_sha256": "23aa5c030e8870de0f5fa45aee3c2b5940044cb0dee6279d151cdc38e611f0d0"
+    }
+  ],
+  "controls_3d": {
+    "result_sha256": "4091f03feaa7d26e3c34f64b956a97bac8969131e61869459318e50da5737245",
+    "log_sha256": "8ff93f1487f3d17b367d848167d17edf4d2620fdfb048d2915ff838172a4bf5d",
+    "elapsed_seconds": 66.21842140099034
+  },
+  "controls_2d": {
+    "result_sha256": "6d469b91693b9a02735433b8a756d89d7dac665ef6bd905f7d65b1deb99967d7",
+    "log_sha256": "0dac83c431ddda27c24cf44d7a84b484e7d134d471da3d581197ec6b93d31539",
+    "elapsed_seconds": 0.4209385560825467
+  },
+  "scalar_summary_sha256": "13d6e0c28fd2f3a0c098b5295bbe55738720b7a1b7816f1af3150d646a4b3fa3",
+  "preserved_limits": {
+    "composed_edge_evaluations": 65536,
+    "depth": 20,
+    "relative_error_indicator": 1e-09,
+    "absolute_error_indicator": 1e-12,
+    "mesh_maximum_metric_edge": 1.8,
+    "minimum_mean_ratio": 0.2,
+    "minimum_scaled_jacobian": 0.05
+  },
+  "construction_status": "TERMINAL REJECTED at unchanged300s during first-row initialization;447 internal publications/1788 work; no final adapted mesh/CFD step/transfer or normalized-budget proof.",
+  "construction_result_sha256": "8a415a2353546ecf03f08726ee9b3f74579231cfc16ec7ac1627d1f21fd42d7d"
+}

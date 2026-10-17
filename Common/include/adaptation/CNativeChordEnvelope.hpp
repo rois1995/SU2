@@ -121,7 +121,8 @@ class ChordEnvelope {
   }
   long double Distance(long double t) const {
     if(!(t>=0 && t<=1) || features.empty())throw std::invalid_argument("Invalid native chord distance query.");
-    for(const auto& p:pieces)if(t>=p.lo && t<=p.hi && p.feature!=Missing){const auto r=At(features[p.feature],t);return std::sqrt(Dot(r,r));}
+    const auto p=std::lower_bound(pieces.begin(),pieces.end(),t,[](const Piece& p,long double t){return p.hi<t;});
+    if(p!=pieces.end() && t>=p->lo && p->feature!=Missing){const auto r=At(features[p->feature],t);return std::sqrt(Dot(r,r));}
     throw std::runtime_error("Incomplete native chord feature covering.");
   }
   std::vector<double> Cuts(const std::vector<double>& levels,bool featureTransitions=true) const {

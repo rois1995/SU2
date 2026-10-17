@@ -18,6 +18,8 @@ def pins():
  paths=[Path(__file__).resolve(),BINARY,BUILD/'build.ninja',BUILD/'meson-info/intro-buildoptions.json',
         ROOT/'SU2_CFD/src/adaptation/CBoundaryLayerMetric.cpp',ROOT/'SU2_CFD/include/adaptation/CBoundaryLayerMetric.hpp',
         ROOT/'UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp',
+        ROOT/'Common/src/adaptation/CNativeField3D.cpp',ROOT/'Common/include/adaptation/CNativeField3D.hpp',
+        ROOT/'UnitTests/Common/adaptation/CNativeField3D_tests.cpp',
         ROOT/'Common/include/adaptation/CComplexityNormalization.hpp',ROOT/'Common/include/adaptation/CNativeChordEnvelope.hpp',
         ROOT/'SU2_CFD/src/solvers/CSolver.cpp']
  return {str(p.relative_to(ROOT)):sha(p) for p in paths}

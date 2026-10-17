@@ -1,0 +1,73 @@
+{
+  "exit_code": 0,
+  "elapsed_seconds": 0.6172531410120428,
+  "command": [
+    "taskset",
+    "-c",
+    "0",
+    "nice",
+    "-n",
+    "19",
+    "/usr/bin/time",
+    "-v",
+    "-o",
+    "resources.txt",
+    "timeout",
+    "--kill-after=5s",
+    "180s",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver",
+    "[NativeFacetedVolumeReplay3D]",
+    "--abort",
+    "--reporter",
+    "compact"
+  ],
+  "provenance_sha256": "333abd633097c48cf23d500307ed0dd31beac87c7a935ae6632ddb9c9ecd883d",
+  "original_cells": 303359,
+  "AABB_candidates": 10,
+  "CFD_steps": 0,
+  "mesh_constructed": false,
+  "normalized_budget_accuracy_established": false,
+  "outputs_sha256": {
+    "run.log": "9b5bee4a10b67bc2234b65b01c2b1a6d507b41045ff16e5c71be4475593bf5a3",
+    "resources.txt": "302f2cd8cd836cc79e99114b8a43b1252d01432d79a84bce35b42a32c90e7655",
+    "edge_donors.csv": "5360152cec3ce7be4c801a4c6eeda8336e92e01d4de8bb04114e31c3572f1cf4",
+    "edge_cuts.txt": "fc7e290832a8b691f8601d47daf679c58bc1c07bf2e10a8545ad071955727a09",
+    "edge_samples.csv": "2a1566c2d3ae4183c978cca6019ef7a5083427fbfddb2eff90bd564a47fcef46"
+  },
+  "edge": {
+    "length": "1.14109844428397040692",
+    "failure": "",
+    "core": "0.0566769634747951861486",
+    "core_raw9": "0.0566769634747938191865",
+    "candidates": "10",
+    "donors": "8",
+    "pieces": "1",
+    "cuts": "4",
+    "compositions": "67",
+    "seconds": "0.00107833100000000008112",
+    "geometry_seconds": "0.000262261999999999976911",
+    "composition_seconds": "0.000444736000000000154635"
+  },
+  "fixed_gauss_references": [
+    {
+      "order_per_band": 16,
+      "value": 1.1410984439417464
+    },
+    {
+      "order_per_band": 32,
+      "value": 1.1410984435046148
+    },
+    {
+      "order_per_band": 64,
+      "value": 1.141098442073664
+    }
+  ],
+  "reference_is_proven_bound": false,
+  "reference_scope": "Fixed Gauss on declared bands; same original edge trace/native point law, independent of adaptive edge controller, not independent geometry or a proven bound.",
+  "reference_cuts": [
+    0.0,
+    8.657825015520768e-09,
+    0.5000000000005745,
+    1.0
+  ]
+}

@@ -384,6 +384,16 @@ TEST_CASE("Full target split placement admits bounded biased proposals without c
   CHECK(field.Query({.55,0,0}).sensor.xx==1);
 }
 
+TEST_CASE("Declared feature cuts do not spread rounded endpoint values over a composed edge", "[NativeComposite3D]") {
+  auto donor=Single();donor.sensor.fill({1,0,0,1,0,1});
+  FrozenField field({donor},[](Point p,Tensor m) {
+    m.zz=(p.z==0 || p.z==.5 || p.z==1)?10000:std::pow(1+.2*p.z,2);return m;
+  },false,{},[](Point,Point){return std::vector<double>{0,.5,1};});
+  CHECK(std::abs(field.TargetEdgeLength({0,0,0},{0,0,1})-1.1L)<1e-11L);
+  CHECK(std::abs(field.TargetEdgeLength({0,0,1},{0,0,0})-1.1L)<1e-11L);
+  CHECK(field.Query({0,0,.5}).target.zz==10000);
+}
+
 TEST_CASE("Composed edge error accounting resolves thin strong fields and tiny noisy panels", "[NativeComposite3D]") {
   auto donor=Single();donor.sensor.fill({1,0,0,1,0,1});
   const Point a{0,0,0},b{0,0,1};

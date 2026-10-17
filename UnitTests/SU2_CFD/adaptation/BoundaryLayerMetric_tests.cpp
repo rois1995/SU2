@@ -29,6 +29,7 @@
 #include <array>
 #include <cmath>
 #include <memory>
+#include <map>
 #include <iostream>
 #include <iomanip>
 #include <sstream>
@@ -992,6 +993,65 @@ TEST_CASE("Native 3D wall normal size survives rotated extreme layer aspect rati
   }
 }
 
+TEST_CASE("Thin faceted BL queries preserve face and radial feature directions after translation", "[NativeComposite3D]") {
+  using V=std::array<long double,3>;
+  const V ab{.015625L,0,.0078125L},ac{0,.03125L,.015625L};
+  auto dot=[](const V& a,const V& b){return a[0]*b[0]+a[1]*b[1]+a[2]*b[2];};
+  auto unit=[&](V v){const auto length=std::sqrt(dot(v,v));for(auto& x:v)x/=length;return v;};
+  const auto n=unit(V{-1,-1,2}),e=unit(ab),inward=unit(V{-1,5,2});
+  for(double origin:{0.,7.25,1000000.}) {
+    const V a{origin+.5L,origin+1.L,origin+2.L};
+    CBoundaryLayerMetric::Wall wall;wall.layer={"wall",2e-6,1.2,.01};wall.conn={0,1,2,2};
+    for(const auto& delta:std::array<V,3>{V{0,0,0},ab,ac})for(unsigned j=0;j<3;++j)wall.coord.push_back(double(a[j]+delta[j]));
+    CBoundaryLayerMetric layers(3,{wall});
+    for(unsigned k=0;k<129;++k) {
+      su2double p[3];V offset{};
+      for(unsigned j=0;j<3;++j){p[j]=double(a[j]+(.2L+k*.0005L)*ab[j]+.2L*ac[j]+2e-6L*n[j]);offset[j]=(long double)p[j]-a[j];}
+      const auto sample=layers.Evaluate(0,p,1.);const auto distance=dot(offset,n);
+      INFO("origin="<<origin<<" point="<<k);
+      CHECK(std::abs((long double)sample.distance-distance)<8e-19L);
+      for(unsigned j=0;j<3;++j)CHECK(std::abs((long double)sample.normal[j]-n[j])<4e-15L);
+    }
+    for(bool vertex:{false,true}) {
+      su2double p[3];V offset{},expected{};
+      for(unsigned j=0;j<3;++j) {
+        const auto local=vertex ? -2e-6L*(e[j]+unit(ac)[j])+2e-6L*n[j]
+                                : .5L*ab[j]-2e-6L*inward[j]+2e-6L*n[j];
+        p[j]=double(a[j]+local);offset[j]=(long double)p[j]-a[j];
+      }
+      expected=offset;
+      if(!vertex){const auto t=dot(offset,ab)/dot(ab,ab);for(unsigned j=0;j<3;++j)expected[j]-=t*ab[j];}
+      const auto distance=std::sqrt(dot(expected,expected));expected=unit(expected);
+      const auto sample=layers.Evaluate(0,p,1.);
+      CHECK(std::abs((long double)sample.distance-distance)<8e-19L);
+      for(unsigned j=0;j<3;++j)CHECK(std::abs((long double)sample.normal[j]-expected[j])<4e-15L);
+      CHECK(std::abs(dot(expected,n))<.9L); // Off-feature normals must retain their actual radial direction.
+    }
+  }
+}
+
+TEST_CASE("Strict faceted edge integration resolves the existing on-wall normal classification band", "[NativeComposite3D]") {
+  using namespace SU2Native3D;
+  CBoundaryLayerMetric::Wall wall;wall.layer={"wall",2e-6,1.2,.01};
+  wall.coord={1,1,1, 1.03125,1,1, 1,1.03125,1, 1,1,1.03125};wall.conn={0,1,2,2, 1,0,3,3};
+  CBoundaryLayerMetric layers(3,{wall});
+  const Point a{1,1,1},b{1.015625,1.0078125,1.000002};
+  const auto cuts=layers.EdgeBreakpoints({a.x,a.y,a.z},{b.x,b.y,b.z});
+  CHECK(std::any_of(cuts.begin(),cuts.end(),[](double t){return t>0 && t<1e-6;}));
+  DonorCell donor;donor.cell={0,{{{0,{1,1,1}},{1,{1.125,1,1}},{2,{1,1.125,1}},{3,{1,1,1.125}}}}};
+  donor.sensor.fill({1,0,0,1,0,1});
+  const auto compose=[&](Point p,SU2Native3D::Tensor input) {
+    CBoundaryLayerMetric::Tensor m;m.m[0][0]=input.xx;m.m[1][1]=input.yy;m.m[2][2]=input.zz;
+    const su2double x[3]={p.x,p.y,p.z};layers.ApplyPoint(x,m,1.,nullptr,false);
+    return SU2Native3D::Tensor{m.m[0][0],m.m[0][1],m.m[0][2],m.m[1][1],m.m[1][2],m.m[2][2]};
+  };
+  FrozenField target({donor},compose,false,{},[&](Point p,Point q){return layers.EdgeBreakpoints({p.x,p.y,p.z},{q.x,q.y,q.z});});
+  for(const Point endpoint:std::array<Point,3>{b,Point{1,1.03125,1},Point{1.03125,1,1}}) {
+    const auto forward=target.TargetEdgeLength(a,endpoint),reverse=target.TargetEdgeLength(endpoint,a);
+    CHECK(std::abs(forward-reverse)<1e-9L*forward+1e-12L);
+  }
+}
+
 TEST_CASE("Native geometric volume quadrature resolves microscopic BL in coarse tetrahedra", "[NativeVolumeBL3D]") {
   const double h0=1e-6,thickness=.01;
   CBoundaryLayerMetric::Wall wall;wall.layer={"wall",h0,1.,thickness};
@@ -1565,6 +1625,95 @@ TEST_CASE("Replay a complete faceted wall volume-integration input without CFD",
     CBlasStructure::EigenDecomposition(metric.m,vectors,values,3,workspace);
     return SU2_TYPE::GetValue(std::sqrt(values[0]*values[1]*values[2]));
   };
+  if(const char* edgePath=std::getenv("SU2_NATIVE_BL_EDGE")) {
+    using namespace SU2Native3D;
+    REQUIRE(version==2);
+    const char* originalPath=std::getenv("SU2_NATIVE_BL_EDGE_SENSOR");REQUIRE(originalPath);
+    std::ifstream original(originalPath,std::ios::binary);uint64_t count=0;
+    original.read(reinterpret_cast<char*>(&count),8);REQUIRE(count>0);REQUIRE(count<=1000000);
+    struct OriginalNode { Point p; SU2Native3D::Tensor sensor; };
+    std::map<Id,OriginalNode> nodes;
+    double originalCore=std::numeric_limits<double>::max();
+    for(uint64_t k=0;k<count;++k) {
+      uint64_t id;double x[3],m[9];original.read(reinterpret_cast<char*>(&id),8);
+      original.read(reinterpret_cast<char*>(x),sizeof(x));original.read(reinterpret_cast<char*>(m),sizeof(m));
+      REQUIRE(bool(original));
+      for(double v:x)REQUIRE(std::isfinite(v));for(double v:m)REQUIRE(std::isfinite(v));
+      REQUIRE(nodes.emplace(id,OriginalNode{{x[0],x[1],x[2]},{m[0],m[1],m[2],m[4],m[5],m[8]}}).second);
+      su2double matrix[3][3]={{m[0],m[1],m[2]},{m[1],m[4],m[5]},{m[2],m[5],m[8]}},vectors[3][3],values[3],workspace[3];
+      CBlasStructure::EigenDecomposition(matrix,vectors,values,3,workspace);
+      const double smallest=SU2_TYPE::GetValue(*std::min_element(values,values+3));
+      REQUIRE(std::isfinite(smallest));REQUIRE(smallest>0);originalCore=std::min(originalCore,smallest);
+    }
+    REQUIRE(original.peek()==std::char_traits<char>::eof());
+    // Match the remesher's owner-UPPER6 core, rather than the volume replay's raw9 host representation.
+    std::ifstream edge(edgePath);std::string edgeMagic;Point a,b;size_t candidates=0;
+    edge>>edgeMagic>>a.x>>a.y>>a.z>>b.x>>b.y>>b.z>>candidates;
+    REQUIRE(edgeMagic=="NATIVE_BL_EDGE_3D");REQUIRE(candidates>0);REQUIRE(candidates<=MaximumDonors);
+    std::vector<DonorCell> donors;
+    for(size_t k=0;k<candidates;++k) {
+      DonorCell donor;edge>>donor.cell.id;
+      for(unsigned j=0;j<4;++j) {
+        Id id;edge>>id;const auto found=nodes.find(id);REQUIRE(found!=nodes.end());
+        donor.cell.v[j]={id,found->second.p};donor.sensor[j]=found->second.sensor;
+      }
+      auto& v=donor.cell.v;const auto orientation=Orientation(v[0].p,v[1].p,v[2].p,v[3].p);
+      REQUIRE(orientation!=0);
+      if(orientation<0){std::swap(v[0],v[1]);std::swap(donor.sensor[0],donor.sensor[1]);}
+      if(IntersectsSegment({v[0].p,v[1].p,v[2].p,v[3].p},a,b))donors.push_back(donor);
+    }
+    REQUIRE_FALSE(donors.empty());
+    size_t sampleCount=0;edge>>sampleCount;REQUIRE(sampleCount<=65536);
+    std::vector<double> samples(sampleCount);for(auto& t:samples){edge>>t;REQUIRE(std::isfinite(t));REQUIRE(t>=0);REQUIRE(t<=1);}
+    REQUIRE(bool(edge));edge>>std::ws;REQUIRE(edge.eof());
+    std::ofstream support("edge_donors.csv");support<<"cell,node0,node1,node2,node3\n";
+    for(const auto& d:donors){support<<d.cell.id;for(const auto& n:d.cell.v)support<<','<<n.id;support<<'\n';}
+    REQUIRE(bool(support));support.close();
+    const auto compose=[&](Point p,SU2Native3D::Tensor input) {
+      CBoundaryLayerMetric::Tensor m;
+      m.m[0][0]=input.xx;m.m[0][1]=m.m[1][0]=input.xy;m.m[0][2]=m.m[2][0]=input.xz;
+      m.m[1][1]=input.yy;m.m[1][2]=m.m[2][1]=input.yz;m.m[2][2]=input.zz;
+      const su2double x[3]={p.x,p.y,p.z};layers.ApplyPoint(x,m,originalCore,nullptr,false);
+      return SU2Native3D::Tensor{m.m[0][0],m.m[0][1],m.m[0][2],m.m[1][1],m.m[1][2],m.m[2][2]};
+    };
+    std::sort(donors.begin(),donors.end(),[](const DonorCell& a,const DonorCell& b){return a.Key()<b.Key();});
+    std::vector<const Cell*> source;for(const auto& donor:donors)source.push_back(&donor.cell);
+    const auto intervals=TraceSegment(source,a,b);
+    std::vector<double> cuts;
+    FrozenField target(donors,compose,true,{},[&](Point p,Point q) {
+      cuts=layers.EdgeBreakpoints({p.x,p.y,p.z},{q.x,q.y,q.z});return cuts;
+    });
+    long double length=0;std::string failure;const auto start=std::chrono::steady_clock::now();
+    try{length=target.TargetEdgeLength(a,b);}catch(const std::exception& e){failure=e.what();}
+    const auto seconds=std::chrono::duration<double>(std::chrono::steady_clock::now()-start).count();
+    const auto stats=target.Statistics();
+    std::ofstream cutFile("edge_cuts.txt");cutFile<<std::setprecision(17);for(double t:cuts)cutFile<<t<<'\n';REQUIRE(bool(cutFile));
+    std::ofstream values("edge_samples.csv");values<<std::setprecision(17)<<"t,norm,xx,xy,xz,yy,yz,zz,distance,nx,ny,nz\n";
+    for(double t:samples) {
+      const long double u=t;const Point p{double((1-u)*a.x+u*b.x),double((1-u)*a.y+u*b.y),double((1-u)*a.z+u*b.z)};
+      // Match certified edge-trace semantics: a rounded coordinate can leave the original volume near a wall.
+      const auto interval=std::find_if(intervals.begin(),intervals.end(),[&](const SegmentPiece& piece){return u>=piece.begin && u<=piece.end;});
+      REQUIRE(interval!=intervals.end());const auto along=(u-interval->begin)/interval->width;
+      std::array<long double,6> components{};
+      for(unsigned k=0;k<4;++k) {
+        const auto& tensor=donors[interval->donor].sensor[k];
+        const double entry[6]={tensor.xx,tensor.xy,tensor.xz,tensor.yy,tensor.yz,tensor.zz};
+        const auto weight=(1-along)*interval->begin_weights[k]+along*interval->end_weights[k];
+        for(unsigned j=0;j<6;++j)components[j]+=weight*entry[j];
+      }
+      const auto m=compose(p,{double(components[0]),double(components[1]),double(components[2]),double(components[3]),double(components[4]),double(components[5])});
+      const su2double x[3]={p.x,p.y,p.z};const auto wallSample=layers.Evaluate(0,x,originalCore);
+      values<<t<<','<<MetricNorm(a,b,m)<<','<<m.xx<<','<<m.xy<<','<<m.xz<<','<<m.yy<<','<<m.yz<<','<<m.zz
+          <<','<<wallSample.distance<<','<<wallSample.normal[0]<<','<<wallSample.normal[1]<<','<<wallSample.normal[2]<<'\n';
+    }
+    REQUIRE(bool(values));
+    std::cout<<std::setprecision(21)<<"FROZEN_EDGE length="<<length<<" failure="<<std::quoted(failure)
+        <<" core="<<originalCore<<" core_raw9="<<core<<" candidates="<<candidates<<" donors="<<stats.maximum_edge_candidates
+        <<" pieces="<<stats.edge_pieces<<" cuts="<<cuts.size()<<" compositions="<<stats.edge_compositions
+        <<" seconds="<<seconds<<" geometry_seconds="<<stats.edge_geometry_seconds
+        <<" composition_seconds="<<stats.edge_composition_seconds<<std::endl;
+    INFO(failure);CHECK(failure.empty());return;
+  }
   struct ReplayEstimate {
     double value=0,indicator=0,preparation=0,density=0;
     size_t evaluations=0,panels=0,limited=0,unresolved=0,subcells=0,chords=0;

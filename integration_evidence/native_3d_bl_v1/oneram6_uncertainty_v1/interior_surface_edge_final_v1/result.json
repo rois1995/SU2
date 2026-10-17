@@ -1,0 +1,97 @@
+{
+  "exit_code": 0,
+  "elapsed_seconds": 0.8548653339967132,
+  "command": [
+    "taskset",
+    "-c",
+    "0",
+    "nice",
+    "-n",
+    "19",
+    "/usr/bin/time",
+    "-v",
+    "-o",
+    "resources.txt",
+    "timeout",
+    "--kill-after=5s",
+    "180s",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver",
+    "[NativeFacetedVolumeReplay3D]",
+    "--abort",
+    "--reporter",
+    "compact"
+  ],
+  "provenance_sha256": "8c7d292f0883db6b453b3ba2c6408c8b1fb8ac7f4f75e8d88382c54de60a1fd5",
+  "original_cells": 303359,
+  "AABB_candidates": 18,
+  "original_node_pair": [
+    18209,
+    18216
+  ],
+  "CFD_steps": 0,
+  "mesh_constructed": false,
+  "normalized_budget_accuracy_established": false,
+  "outputs_sha256": {
+    "run.log": "1fc976686500f51084ea004f68ea2c8974c77d125a358851e44638714da48597",
+    "resources.txt": "6298516a70a8608e30882ab771a9c8c9a913d91e452cbbc542b54199da131290",
+    "edge_donors.csv": "778c192fdb1f370063f261dc51306309bbb9a454956349a7f8c4413d0120b348",
+    "edge_cuts.txt": "90b7ad10402b0064ca6d4aaa781ea31b1808b0bf5045461d857b3811f24ee9f4",
+    "edge_samples.csv": "80f2563bbfb6f728fd8faaff7ce2a32834567de4e8561b756c0f46a477ea7cfc"
+  },
+  "edge": {
+    "length": "1.00047775663165992724",
+    "failure": "",
+    "core": "0.0566769634747951861486",
+    "core_raw9": "0.0566769634747938191865",
+    "candidates": "18",
+    "donors": "17",
+    "pieces": "1",
+    "cuts": "4",
+    "compositions": "45",
+    "seconds": "0.00109944700000000014119",
+    "geometry_seconds": "0.000384490999999999988595",
+    "composition_seconds": "0.000373025000000000135983"
+  },
+  "fixed_gauss_references": [
+    {
+      "order_per_band": 16,
+      "value": 1.0004777565743672
+    },
+    {
+      "order_per_band": 32,
+      "value": 1.0004777566045566
+    },
+    {
+      "order_per_band": 64,
+      "value": 1.0004777566220813
+    }
+  ],
+  "dense_endpoint_references": [
+    {
+      "midpoints": 1024,
+      "endpoint": 5.305022374128613e-09,
+      "bulk_fixed_order": 64,
+      "total": 1.0004777566220813
+    },
+    {
+      "midpoints": 2048,
+      "endpoint": 5.305022374128613e-09,
+      "bulk_fixed_order": 64,
+      "total": 1.0004777566220813
+    },
+    {
+      "midpoints": 4096,
+      "endpoint": 5.305022374128615e-09,
+      "bulk_fixed_order": 64,
+      "total": 1.0004777566220813
+    }
+  ],
+  "reference_is_proven_bound": false,
+  "reference_scope": "Fixed Gauss on declared bands; same original edge trace/native point law, independent of adaptive edge controller, not independent geometry or a proven bound.",
+  "reference_cuts": [
+    0.0,
+    1e-10,
+    0.9999999999,
+    1.0
+  ]
+}

@@ -53,6 +53,7 @@ namespace {
 
 using Vec3 = std::array<su2double, 3>;
 using Mat3 = su2double[3][3];
+constexpr double NormalFeatureThreshold3D = 1e-10;
 
 su2double Dot(unsigned short nDim, const su2double* a, const su2double* b) {
   su2double s = 0.0;
@@ -232,6 +233,38 @@ void ClosestPointTriangle(const su2double* a, const su2double* b, const su2doubl
   const su2double wa = max(su2double(0.0), va), wb = max(su2double(0.0), vb), wc = max(su2double(0.0), vc);
   const su2double sum = wa + wb + wc;
   set(wa / sum, wb / sum, wc / sum);
+}
+
+/*--- Evaluate the closest-feature displacement locally: subtracting a rounded global foot corrupts thin BL normals. ---*/
+Vec3 TriangleDisplacement(const su2double* a,const su2double* b,const su2double* c,const su2double* p,
+                          const su2double* weight) {
+  Vec3 result{};
+#if defined(CODI_FORWARD_TYPE) || defined(CODI_REVERSE_TYPE)
+  for(unsigned j=0;j<3;++j)result[j]=p[j]-(weight[0]*a[j]+weight[1]*b[j]+weight[2]*c[j]);
+#else
+  using V=std::array<long double,3>;
+  auto difference=[](const su2double* x,const su2double* y){return V{(long double)x[0]-y[0],(long double)x[1]-y[1],(long double)x[2]-y[2]};};
+  auto dot=[](const V& x,const V& y){return x[0]*y[0]+x[1]*y[1]+x[2]*y[2];};
+  const su2double* vertex[3]={a,b,c};unsigned indices[3],count=0;
+  for(unsigned k=0;k<3;++k)if(weight[k]>0)indices[count++]=k;
+  V displacement{};
+  if(count==3) {
+    const auto ab=difference(b,a),ac=difference(c,a),ap=difference(p,a);
+    const V n{ab[1]*ac[2]-ab[2]*ac[1],ab[2]*ac[0]-ab[0]*ac[2],ab[0]*ac[1]-ab[1]*ac[0]};
+    const auto t=dot(ap,n)/dot(n,n);
+    for(unsigned j=0;j<3;++j)displacement[j]=t*n[j];
+  }else {
+    if(!count)throw std::runtime_error("Empty native3D closest triangle feature.");
+    displacement=difference(p,vertex[indices[0]]);
+    if(count==2) {
+      const auto e=difference(vertex[indices[1]],vertex[indices[0]]);
+      const auto t=std::clamp(dot(displacement,e)/dot(e,e),0.L,1.L);
+      for(unsigned j=0;j<3;++j)displacement[j]=std::fma(-t,e[j],displacement[j]);
+    }
+  }
+  for(unsigned j=0;j<3;++j)result[j]=double(displacement[j]);
+#endif
+  return result;
 }
 
 /*--- Smoothstep weight of the outer fade: 1 up to "full", 0 from full + width on. ---*/
@@ -968,25 +1001,25 @@ CBoundaryLayerMetric::Sample CBoundaryLayerMetric::EvaluateImpl(unsigned short i
     const auto* query=wall.authority?lookup:X;
     auto closest=[&](unsigned long face,su2double (&weights)[3],su2double (&point)[3]) {
       const auto* t=&d.elem[3*face];ClosestPointTriangle(x(t[0]),x(t[1]),x(t[2]),query,weights);
-      for(unsigned j=0;j<3;++j){point[j]=0;for(unsigned k=0;k<3;++k)point[j]+=weights[k]*x(t[k])[j];}
-      su2double distance2=0;for(unsigned j=0;j<3;++j)distance2+=pow(query[j]-point[j],2);
+      const auto displacement=TriangleDisplacement(x(t[0]),x(t[1]),x(t[2]),query,weights);
+      std::copy(displacement.begin(),displacement.end(),point);
+      su2double distance2=0;for(unsigned j=0;j<3;++j)distance2+=pow(point[j],2);
       return distance2;
     };
-    su2double w[3],projected[3];auto dist2=closest(id,w,projected);
+    su2double w[3],radial[3];auto dist2=closest(id,w,radial);
     std::vector<unsigned long> candidates;
     d.adt->DetermineElementsWithinDistance(query,sqrt(dist2)+d.tolerance,candidates);
     std::sort(candidates.begin(),candidates.end());
     for(auto other:candidates)if(other!=id) {
       su2double weights[3],point[3];const auto distance2=closest(other,weights,point);
       if(distance2<dist2 || (distance2==dist2 && other<id)) {
-        id=other;dist2=distance2;std::copy(weights,weights+3,w);std::copy(point,point+3,projected);
+        id=other;dist2=distance2;std::copy(weights,weights+3,w);std::copy(point,point+3,radial);
       }
     }
     const auto* t = &d.elem[3 * id];
     sample.distance = sqrt(dist2);
     if(wall.authority) {
       sample.distance=smooth.distance;
-      projected[0]=smooth.point.x;projected[1]=smooth.point.y;projected[2]=smooth.point.z;
       geometricNormal[0]=smooth.normal.x;geometricNormal[1]=smooth.normal.y;geometricNormal[2]=smooth.normal.z;
     }
 
@@ -995,7 +1028,7 @@ CBoundaryLayerMetric::Sample CBoundaryLayerMetric::EvaluateImpl(unsigned short i
     Vec3 n = d.faceNormal[id];
     unsigned short nZero = 0, kMin = 0, kMax = 0;
     for (unsigned short k = 0; k < 3; ++k) {
-      if (w[k] <= 1e-10) ++nZero;
+      if (w[k] <= NormalFeatureThreshold3D) ++nZero;
       if (w[k] < w[kMin]) kMin = k;
       if (w[k] > w[kMax]) kMax = k;
     }
@@ -1004,7 +1037,7 @@ CBoundaryLayerMetric::Sample CBoundaryLayerMetric::EvaluateImpl(unsigned short i
     if(wall.authority)n={smooth.normal.x,smooth.normal.y,smooth.normal.z};
     if (sample.distance > d.tolerance) {
       if(wall.authority)n={smooth.direction.x,smooth.direction.y,smooth.direction.z};
-      else for (unsigned short iDim = 0; iDim < 3; ++iDim) n[iDim] = (X[iDim] - projected[iDim]) / sample.distance;
+      else for (unsigned short iDim = 0; iDim < 3; ++iDim) n[iDim] = radial[iDim] / sample.distance;
     }
     for (unsigned short iDim = 0; iDim < 3; ++iDim) sample.normal[iDim] = n[iDim];
 
@@ -2304,6 +2337,8 @@ std::vector<double> CBoundaryLayerMetric::EdgeBreakpointsImpl(
     const double h0 = SU2_TYPE::GetValue(d.h0), full = SU2_TYPE::GetValue(d.full);
     const double thickness = SU2_TYPE::GetValue(d.thickness);
     std::vector<double> levels{0,.5*h0};
+    // Strict edges also integrate the existing on-wall face/edge/vertex normal classification band.
+    if(nDim==3 && featureTransitions && !walls[wall].authority)levels.push_back(SU2_TYPE::GetValue(d.tolerance));
     for (double level = h0; level < full;) {
       if (levels.size() >= 4096) throw std::runtime_error("Native BL distance bands exceed work budget.");
       levels.push_back(level);
@@ -2436,6 +2471,47 @@ std::vector<double> CBoundaryLayerMetric::EdgeBreakpointsImpl(
       for(auto t:envelope.Cuts(levels,featureTransitions))if(t>0 && t<1 && retained.insert(t).second) {
         if(cuts.size()>=65536)throw std::runtime_error("Native BL edge breakpoints exceed work budget.");
         cuts.push_back(t);
+      }
+      if(featureTransitions) {
+        const auto cross=[](const Vector& a,const Vector& b){return Vector{a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]};};
+        const auto delta=[](const std::array<double,3>& a,const std::array<double,3>& b){return Vector{(long double)a[0]-b[0],(long double)a[1]-b[1],(long double)a[2]-b[2]};};
+        long double magnitude=0;for(unsigned j=0;j<3;++j)magnitude=std::max({magnitude,std::abs((long double)a[j]),std::abs((long double)b[j])});
+        const auto padding=64*std::numeric_limits<double>::epsilon()*magnitude;
+        size_t classified=0;
+        auto classificationCut=[&](long double t,long double distance) {
+          if(!(t>0 && t<1) || retained.count(double(t)))return;
+          if(++classified>65536)throw SU2Native3D::ChordEnvelope::WorkLimit("Native3D wall-normal classification root budget exhausted.");
+          const auto nearest=envelope.Distance(t);
+          if(nearest>SU2_TYPE::GetValue(d.tolerance)+padding || distance>nearest+padding)return;
+          if(cuts.size()>=65536)throw std::runtime_error("Native BL edge breakpoints exceed work budget.");
+          retained.insert(double(t));cuts.push_back(double(t));
+        };
+        // The on-wall policy also changes where closest-point barycentric weights cross its feature threshold.
+        for(const auto face:faces) {
+          const auto* ids=&d.elem[3*face];const auto p=vertex(ids[0]);
+          const auto u=delta(vertex(ids[1]),p),v=delta(vertex(ids[2]),p),r=delta(a,p),n=cross(u,v);
+          const auto square=dot(n,n);
+          const long double first[3]={0,dot(cross(r,v),n)/square,dot(cross(u,r),n)/square};
+          const long double slope[3]={0,dot(cross(chord,v),n)/square,dot(cross(u,chord),n)/square};
+          const long double w[3]={1-first[1]-first[2],first[1],first[2]},dw[3]={-slope[1]-slope[2],slope[1],slope[2]};
+          for(unsigned k=0;k<3;++k)if(dw[k]!=0) {
+            const auto t=(NormalFeatureThreshold3D-w[k])/dw[k];if(!(t>0 && t<1))continue;
+            long double low=1,scale=1;for(unsigned j=0;j<3;++j){low=std::min(low,std::fma(t,dw[j],w[j]));scale=std::max({scale,std::abs(w[j]),std::abs(dw[j])});}
+            if(low < -256*std::numeric_limits<long double>::epsilon()*scale)continue;
+            const auto distance=std::abs(dot(r,n)+t*dot(chord,n))/std::sqrt(square);
+            classificationCut(t,distance);
+          }
+        }
+        for(const auto& edge:edges) {
+          const auto p=vertex(edge.first);const auto e=delta(vertex(edge.second),p),r=delta(a,p);
+          const auto square=dot(e,e),slope=dot(chord,e)/square;if(slope==0)continue;
+          const auto first=dot(r,e)/square;
+          for(long double fraction:{(long double)NormalFeatureThreshold3D,1.L-NormalFeatureThreshold3D}) {
+            const auto t=(fraction-first)/slope;if(!(t>0 && t<1))continue;
+            Vector residual{};for(unsigned j=0;j<3;++j)residual[j]=std::fma(t,chord[j],r[j])-fraction*e[j];
+            classificationCut(t,std::sqrt(dot(residual,residual)));
+          }
+        }
       }
       continue;
     }

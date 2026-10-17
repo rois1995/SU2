@@ -6117,3 +6117,45 @@ chart/order-inconsistent through96 and cannot certify its raw indicator. No furt
 reference-order escalation. Whole-M6 complexity, production coupling and accepted
 mesh remain open. All owned jobs terminal; qualification max processRSS58.4MiB,
 reference extension210.5MiB/zero swaps, with about40GiB host RAM available.
+
+
+### 2026-10-17: actual first-layer edge and local geometric precision
+
+The exact M6 rejected edge is reproducible with8 original owner-UPPER6 donors,
+no CFD and no sensor replacement. Local closest-feature displacement avoids
+subtracting a rounded global foot; strict faceted edge partitions now include
+the existing on-wall normal-classification distance. Precision alone still failed
+and is preserved. Together the unchanged strict controller completes67 compositions
+instead of exhausting65536.22 connected3D/8 existing2D controls pass. Independent
+endpoint-resolved numerical reference differs1.69e-9 absolute/1.48e-9 relative;
+not a proven error bound or certified1e-9 calculation. The mesh length gate1.8 is
+unchanged. Three bounded scalar volumes/cold-warm caches remain consistent (delta
+<=9e-14). One MPI4 construction-only replay is active; no accepted M6 mesh/global
+normalized budget/CFD advancement/transfer is claimed. The complete-field uncertainty
+policy remains open. Exact source/provenance/resource/rejected receipts and current
+state: Handbook/GOAL3_LOCAL_FEATURE_PRECISION.md.
+
+
+The complete shared edge strategy now also covers the existing barycentric
+normal-classification thresholds and uses interior Gauss7/Kronrod15 on exact
+original intervals. Classification cuts alone still failed; endpoint-inclusive
+quadrature and its obsolete bracket panels were the remaining strategy/work
+limitation. No tolerance/work/depth/mesh gate was raised. Final original M6 edges
+18209/18216 and18209/61331 pass45/75 queries with independent numerical differences
+9.58e-12/2.28e-12.29 connected3D/8 existing2D tests and3 saved scalar/cold-warm
+fields pass, including the existing efficiency ceiling and undeclared-step
+rejection. Earlier failed strategies are preserved. One MPI4 production-backend
+construction-only attempt is active (construction_interior_edge_v1); no CFD or
+normalization/transfer proof follows. Global complexity uncertainty remains open.
+
+
+The current MPI4 construction-only replay is terminal:447 global INTERNAL first-row
+publications/1788 work, then unchanged300s elapsed-budget rejection.313.21s overall/
+300.65s backend; no complete accepted grid/transfer/normalized-budget proof. This
+is progress past the reproduced edge failures, not an accepted M6 capability.
+Rank2 nested geometric edge preparation147.86s versus9.37–11.88s elsewhere is a
+saved cost hotspot even with fewer queries; do not infer speedup/scaling from this
+contended rejected run. Max rankRSS~725MiB/sum rank peaks2.71GiB upper bound, zero
+swaps, all jobs terminal. Keep the primary global-uncertainty experiment open;
+do not add another fallback or raise300s. Detailed source/stage/resource evidence:
+oneram6_uncertainty_v1/construction_interior_edge_v1 and the local-feature handbook.

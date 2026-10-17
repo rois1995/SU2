@@ -214,27 +214,14 @@ long double FrozenField::EdgeLength(Point a, Point b, bool composed) {
       for (size_t i = 0; i < cuts.size(); ++i)
         if (!std::isfinite(cuts[i]) || (i && !(cuts[i] > cuts[i-1])))
           throw std::invalid_argument("Unordered native 3D geometric edge breakpoints.");
-      // Enclose each rounded geometry root before endpoint-inclusive quadrature sees it.
-      std::vector<double> enclosed;enclosed.reserve(std::min(MaximumGeometricEdgeCuts,3*cuts.size()));
-      auto retain=[&](double t) {
-        if(!enclosed.empty() && t<=enclosed.back())return;
-        if(enclosed.size()==MaximumGeometricEdgeCuts)throw std::runtime_error("Native 3D geometric root brackets exceed work budget.");
-        enclosed.push_back(t);
-      };
-      for(auto cut:cuts) {
-        if(cut>0 && cut<1)retain(std::nextafter(cut,0.));
-        retain(cut);
-        if(cut>0 && cut<1)retain(std::nextafter(cut,1.));
-      }
-      cuts.swap(enclosed);
+      // Interior rules do not need the endpoint-inclusive rule's extra root-bracketing panels.
     }
     long double total = 0;
     if (composed) {
       struct Panel {
         size_t piece;
-        long double low, high, value, error, first, middle, last;
+        long double low, high, value, error;
         unsigned depth;
-        bool high_order;
         bool operator<(const Panel& other) const { return error < other.error; }
       };
       static_assert(sizeof(Panel)<=160,"Composed edge heap exceeds admitted workspace per panel.");
@@ -260,18 +247,26 @@ long double FrozenField::EdgeLength(Point a, Point b, bool composed) {
         ValidateTensor(target,&stats.kernel);
         return MetricNorm(a,b,target,&stats.kernel);
       };
-      const auto fiveNode=std::sqrt(3.L/7),root=std::sqrt(15.L);
-      const auto sevenInner=std::sqrt((15.L-2*root)/33),sevenOuter=std::sqrt((15.L+2*root)/33);
-      auto measure = [&](size_t index,long double low,long double high,unsigned depth,long double first,long double last) {
+      constexpr long double node[8]={.991455371120812639206854697526329L,.949107912342758524526189684047851L,
+          .864864423359769072789712788640926L,.741531185599394439863864773280788L,.586087235467691130294144838258730L,
+          .405845151377397166906606412076961L,.207784955007898467600689403773245L,0};
+      constexpr long double kronrod[8]={.022935322010529224963732008058970L,.063092092629978553290700663189204L,
+          .104790010322250183839876322541518L,.140653259715525918745189590510238L,.169004726639267902826583426598550L,
+          .190350578064785409913256402421014L,.204432940075298892414161999234649L,.209482141084727828012999174891714L};
+      constexpr long double gauss[4]={.129484966168869693270611432679082L,.279705391489276667901467771423780L,
+          .381830050505118944950369775488975L,.417959183673469387755102040816327L};
+      auto measure = [&](size_t index,long double low,long double high,unsigned depth) {
         const auto middle=(low+high)/2,half=(high-low)/2;
         if(!(middle>low && middle<high))throw std::runtime_error("Native 3D composed edge panel is unrepresentable.");
-        const auto v=value(index,middle),ends=first+last;
-        // Nested endpoint-inclusive rules retain frozen samples only within this edge integral.
-        const auto three=half*(ends/3+(4.L/3)*v);
-        const auto five=half*(ends/10+(32.L/45)*v
-            +(49.L/90)*(value(index,middle-half*fiveNode)+value(index,middle+half*fiveNode)));
-        const auto width=pieces[index].width;
-        return Panel{index,low,high,width*five,width*std::abs(five-three),first,v,last,depth,false};
+        // Interior7/15 rules keep rounded feature switches at a cut out of the neighboring large panels.
+        const auto center=value(index,middle);
+        long double lower=gauss[3]*center,higher=kronrod[7]*center;
+        for(unsigned j=0;j<7;++j) {
+          const auto pair=value(index,middle-half*node[j])+value(index,middle+half*node[j]);
+          higher+=kronrod[j]*pair;if(j%2)lower+=gauss[j/2]*pair;
+        }
+        const auto scale=pieces[index].width*half;
+        return Panel{index,low,high,scale*higher,scale*std::abs(higher-lower),depth};
       };
       long double error=0;
       std::vector<Panel> pending;
@@ -282,16 +277,14 @@ long double FrozenField::EdgeLength(Point a, Point b, bool composed) {
       for(size_t index=0;index<pieces.size();++index) {
         const auto& piece=pieces[index];
         if(donors[candidates[piece.donor]].extension_component!=UINT64_MAX)++stats.extended_edge_pieces;
-        long double low=0,first=value(index,0);
+        long double low=0;
         for(const auto cut:cuts) {
           if(cut<=piece.begin || cut>=piece.end)continue;
           const auto high=std::clamp((cut-piece.begin)/piece.width,0.L,1.L);
-          if(high>low) {
-            const auto last=value(index,high);retain(measure(index,low,high,0,first,last));first=last;
-          }
+          if(high>low)retain(measure(index,low,high,0));
           low=high;
         }
-        if(low<1)retain(measure(index,low,1,0,first,value(index,1)));
+        if(low<1)retain(measure(index,low,1,0));
       }
       // The error budget belongs to the whole edge, including tiny source/geometric panels.
       while(error>1e-9L*std::abs(total)+1e-12L) {
@@ -302,18 +295,10 @@ long double FrozenField::EdgeLength(Point a, Point b, bool composed) {
           throw std::runtime_error(why.str());
         }
         std::pop_heap(pending.begin(),pending.end());auto panel=pending.back();pending.pop_back();
-        if(!panel.high_order) {
-          const auto middle=(panel.low+panel.high)/2,half=(panel.high-panel.low)/2;
-          const auto seven=pieces[panel.piece].width*half*((panel.first+panel.last)/21+(256.L/525)*panel.middle
-              +((124+7*root)/350)*(value(panel.piece,middle-half*sevenInner)+value(panel.piece,middle+half*sevenInner))
-              +((124-7*root)/350)*(value(panel.piece,middle-half*sevenOuter)+value(panel.piece,middle+half*sevenOuter)));
-          total-=panel.value;error=std::max(0.L,error-panel.error);
-          panel.error=std::abs(seven-panel.value);panel.value=seven;panel.high_order=true;retain(panel);continue;
-        }
         if(panel.depth>=20)continue; // Its unresolved error stays in the total; other panels may still improve.
         const auto middle=(panel.low+panel.high)/2;
-        const auto left=measure(panel.piece,panel.low,middle,panel.depth+1,panel.first,panel.middle),
-                   right=measure(panel.piece,middle,panel.high,panel.depth+1,panel.middle,panel.last);
+        const auto left=measure(panel.piece,panel.low,middle,panel.depth+1),
+                   right=measure(panel.piece,middle,panel.high,panel.depth+1);
         total-=panel.value;error=std::max(0.L,error-panel.error);
         retain(left);retain(right);
       }

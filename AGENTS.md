@@ -86,3 +86,15 @@ current topics and accumulated history into smaller linked handbooks when the en
 point grows. Preserve findings, failures and evidence; historical job/status notes
 must not be mistaken for current state. Update the current state in place rather
 than prepending repeated copies of prior updates.
+
+## Resource discipline
+
+User instruction, 2026-10-17: account for machine contention and RAM usage.
+
+- Check actual host load and available RAM before sustained computation. Run one
+  owned heavy job at a time; use low priority, one build worker and single-threaded
+  libraries. Keep local MPI correctness checks bounded to available ranks/resources.
+- Check live job handles before starting another job. Observe process memory during
+  longer runs, preserve resource receipts, and leave unrelated processes untouched.
+- Use the repository build's compile-tmp on the4TB disk while the root/tmp filesystem
+  is nearly full. Do not infer whole-job peak memory from one process's RSS.

@@ -770,6 +770,15 @@
     "decomposition_replay": "329 query count-7.35% and numerical reference error10.6x lower;88/157 unchanged; no reduction of cold chord preparation",
     "new_geometry_strategy": "Strict transition cuts pass20 controls. Scalar-only distance-band partition corrects initial seed regression;2 focused+8 existing2D controls pass. MPI1/4 three-cell normalization agrees/integration_limited. Whole field incomplete;622 independent reference unconverged through96. No owned job remains.",
     "evidence": "integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1",
-    "outcome_ledger": "Handbook/SUGGESTION_OUTCOME_LEDGER.md"
+    "outcome_ledger": "Handbook/SUGGESTION_OUTCOME_LEDGER.md",
+    "local_geometry_edge_replay": {
+      "status": "PASS two exact M6 edges:45/75 queries; independent numerical differences9.58e-12/2.28e-12; all integration/mesh limits unchanged, not proven bounds.",
+      "controls": "29 affected3D cases/439823 assertions,8 existing2D/95 and3 scalar cold/warm checks pass; original query/work/error/depth/mesh limits unchanged.",
+      "construction": "TERMINAL REJECTED at unchanged300s during first-row initialization;447 INTERNAL publications/1788 work, no accepted mesh/normalization/CFD/transfer proof.",
+      "evidence": "oneram6_uncertainty_v1/interior_edge_final_v1/validation.json",
+      "handbook": "Handbook/GOAL3_LOCAL_FEATURE_PRECISION.md",
+      "construction_evidence": "oneram6_uncertainty_v1/construction_interior_edge_v1/stage_summary.json",
+      "resources": "Max rankRSS~725MiB; sum rank peaks2.71GiB upper bound, zero swaps; all owned jobs terminal."
+    }
   }
 }
