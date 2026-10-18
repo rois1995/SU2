@@ -6,6 +6,7 @@
  * SU2 is free software under the GNU Lesser General Public License, version 2.1 or later.
  */
 #include "../../include/adaptation/CNativeMesh3D.hpp"
+#include "../../include/adaptation/CNativePointConstruction3D.hpp"
 #include <algorithm>
 #include <cmath>
 #include <cstring>
@@ -378,6 +379,33 @@ bool ConformingDisjoint(const Cell& a, const Cell& b, KernelStats* stats) {
     return true;
   };
   return contacts(ta,tb,shared_a) && contacts(tb,ta,shared_b);
+}
+std::array<Point,2> AffinePointBounds(Point a,Point b,double t) {
+  if(!(Finite(a)&&Finite(b)) || !(t>=0 && t<=1) || !std::isfinite(t))
+    throw std::invalid_argument("Invalid native3D affine point construction.");
+  const auto parameter=Coordinate(t),complement=Difference(Coordinate(1.),parameter);
+  auto coordinate=[&](double first,double last) {
+    const auto left=Product(complement,Coordinate(first));auto right=Product(parameter,Coordinate(last));
+    right.negative=!right.negative;const auto value=Difference(left,right);
+    if(!Sign(value))return std::array<double,2>{0.,0.};
+    size_t top=value.limb.size();while(top && !value.limb[top-1])--top;
+    unsigned bit=31;while(!(value.limb[top-1]&(uint32_t(1)<<bit)))--bit;
+    const size_t highest=32*(top-1)+bit;
+    // Each product uses units 2^-2148; normals retain53 bits, subnormals use units 2^-1074.
+    const size_t shift=std::max(size_t(1074),highest>52 ? highest-52 : size_t(0));
+    uint64_t mantissa=0;
+    for(size_t i=shift;i<=highest;++i)
+      if(value.limb[i/32]&(uint32_t(1)<<(i%32)))mantissa|=uint64_t(1)<<(i-shift);
+    bool remainder=false;
+    for(size_t i=0;i<shift/32;++i)remainder=remainder || value.limb[i]!=0;
+    if(shift%32)remainder=remainder || (value.limb[shift/32]&((uint32_t(1)<<(shift%32))-1))!=0;
+    const double lower=std::ldexp(double(mantissa),int(shift)-2148);
+    const double upper=remainder ? std::nextafter(lower,INFINITY) : lower;
+    if(!std::isfinite(upper))throw std::runtime_error("Unrepresentable native3D affine point bounds.");
+    return value.negative ? std::array<double,2>{-upper,-lower} : std::array<double,2>{lower,upper};
+  };
+  const auto x=coordinate(a.x,b.x),y=coordinate(a.y,b.y),z=coordinate(a.z,b.z);
+  return {{{x[0],y[0],z[0]},{x[1],y[1],z[1]}}};
 }
 bool Barycentric(const Tetrahedron& donor, Point point, std::array<long double, 4>& weights, KernelStats* stats) {
   if (!(Orientation(donor[0], donor[1], donor[2], donor[3], stats) > 0))

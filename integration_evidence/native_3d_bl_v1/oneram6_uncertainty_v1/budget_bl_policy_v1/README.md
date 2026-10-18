@@ -3,7 +3,9 @@
 Full Goal3 remains ACTIVE. This implements and qualifies a controlled native3D
 slice, not general accepted M6 construction or affordable unsteady adaptation.
 `summary.json` contains verified receipts, independent audits and raw phase rows.
-`python3 report.py` rechecks them without running SU2.
+`python3 report.py` rechecks them without running SU2. It intentionally refuses
+current-state reuse after relevant source/build/binary changes; this evidence
+belongs to checkpoint58214e08bd, not automatic qualification of later code.
 
 ## Behavior
 

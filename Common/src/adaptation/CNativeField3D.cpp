@@ -6,6 +6,7 @@
  */
 #include "../../include/adaptation/CNativeField3D.hpp"
 #include "../../include/adaptation/CNativeBoundary3D.hpp"
+#include "../../include/adaptation/CNativePointConstruction3D.hpp"
 #include "../../include/adt/CADTElemClass.hpp"
 #include "../../include/option_structure.hpp"
 #include <algorithm>
@@ -154,9 +155,9 @@ long double FrozenField::TargetEdgeLength(Point a, Point b) {
 Point FrozenField::BalancedSplitPoint(Point a,Point b,double fraction) {
   if(!(fraction>0 && fraction<1) || !std::isfinite(fraction))throw std::invalid_argument("Native3D split length fraction must lie strictly between zero and one.");
   const auto requested=TargetEdgeLength(a,b)*fraction;
-  long double lo=0,hi=1,t=fraction;
+  long double lo=0,hi=1;double t=fraction;
   for(unsigned iteration=0;iteration<48;++iteration) {
-    const Point point{double((1-t)*a.x+t*b.x),double((1-t)*a.y+t*b.y),double((1-t)*a.z+t*b.z)};
+    const Point point=SegmentPoint(a,b,t);
     if((point.x==a.x && point.y==a.y && point.z==a.z) || (point.x==b.x && point.y==b.y && point.z==b.z))
       throw std::runtime_error("Native3D metric-balanced split is not representable.");
     const auto residual=TargetEdgeLength(a,point)-requested;
@@ -164,9 +165,57 @@ Point FrozenField::BalancedSplitPoint(Point a,Point b,double fraction) {
     if(residual<0)lo=t;else hi=t;
     const auto speed=MetricNorm(a,b,Query(point).target);
     const auto next=t-residual/speed;
-    t=next>lo+.1L*(hi-lo) && next<hi-.1L*(hi-lo) ? next : (lo+hi)/2;
+    t=double(next>lo+.1L*(hi-lo) && next<hi-.1L*(hi-lo) ? next : (lo+hi)/2);
   }
   throw std::runtime_error("Native3D full-target split balance remains unresolved after48 steps.");
+}
+Point FrozenField::SegmentPoint(Point a,Point b,double parameter) {
+  Timer query_time(stats.query_seconds,timings);++stats.requests;
+  try {
+    if(!(parameter>0 && parameter<1))throw std::invalid_argument("Native3D split parameter must be strictly interior.");
+    const auto bounds=AffinePointBounds(a,b,parameter);
+    const Point nearest{double((1-(long double)parameter)*a.x+(long double)parameter*b.x),
+        double((1-(long double)parameter)*a.y+(long double)parameter*b.y),
+        double((1-(long double)parameter)*a.z+(long double)parameter*b.z)};
+    const double lower[]={bounds[0].x,bounds[0].y,bounds[0].z},upper[]={bounds[1].x,bounds[1].y,bounds[1].z};
+    const double hint[]={nearest.x,nearest.y,nearest.z};
+    std::array<unsigned,3> preferred;for(unsigned k=0;k<3;++k)preferred[k]=hint[k]>=upper[k];
+    {Timer search_time(stats.search_seconds,timings);FindCandidates(bounds[0],bounds[1]);}
+    stats.box_candidates+=candidates.size();stats.maximum_candidates=std::max(stats.maximum_candidates,candidates.size());
+    for(unsigned mask=0;mask<8;++mask) {
+      std::array<double,3> key;bool duplicate=false;
+      for(unsigned k=0;k<3;++k) {
+        const auto flip=(mask>>k)&1;duplicate=duplicate || (flip && lower[k]==upper[k]);
+        key[k]=(preferred[k]^flip) ? upper[k]:lower[k];
+      }
+      if(duplicate)continue;
+      const Point point{key[0],key[1],key[2]};
+      if((point.x==a.x && point.y==a.y && point.z==a.z) || (point.x==b.x && point.y==b.y && point.z==b.z))continue;
+      {Timer cache_time(stats.cache_seconds,timings);if(cache.count(key)){++stats.hits;return point;}}
+      SensorValue value;bool found=false;
+      {Timer search_time(stats.search_seconds,timings);
+        for(auto i:candidates) {
+          const auto& v=donors[i].cell.v;++stats.containment_tests;
+          if(Barycentric({v[0].p,v[1].p,v[2].p,v[3].p},point,value.weights,&stats.kernel)) {
+            value.donor=i;found=true;break;
+          }
+        }
+      }
+      if(!found)continue;
+      ++stats.misses;
+      {Timer interpolate(stats.interpolation_seconds,timings);++stats.interpolations;
+        value.tensor=InterpolateSensor(donors[value.donor],value.weights);ValidateTensor(value.tensor,&stats.kernel);}
+      CacheSensor(key,value);return point;
+    }
+    ++stats.misses;throw std::runtime_error("No source-contained binary64 corner of the native3D affine point.");
+  }catch(...){++stats.failures;throw;}
+}
+void FrozenField::CacheSensor(const std::array<double,3>& key,const SensorValue& value) {
+  Timer timer(stats.cache_seconds,timings);
+  if(cache.size()==MaximumSensorSamples){cache.erase(recent.front());recent.pop_front();++stats.evictions;}
+  recent.push_back(key);
+  try {cache.emplace(key,value);}catch(...){recent.pop_back();throw;}
+  stats.maximum_cache_entries=std::max(stats.maximum_cache_entries,cache.size());
 }
 long double FrozenField::SensorEdgeLength(Point a, Point b) { return EdgeLength(a,b,false); }
 long double FrozenField::EdgeLength(Point a, Point b, bool composed) {
@@ -418,22 +467,7 @@ FieldSample FrozenField::Query(Point point) {
         value.tensor = InterpolateSensor(donors[value.donor], value.weights);
         ValidateTensor(value.tensor, &stats.kernel);
       }
-      {
-        Timer timer(stats.cache_seconds, timings);
-        if (cache.size() == MaximumSensorSamples) {
-          cache.erase(recent.front());
-          recent.pop_front();
-          ++stats.evictions;
-        }
-        recent.push_back(key);
-        try {
-          cache.emplace(key, value);
-        } catch (...) {
-          recent.pop_back();
-          throw;
-        }
-        stats.maximum_cache_entries = std::max(stats.maximum_cache_entries, cache.size());
-      }
+      CacheSensor(key,value);
     }
     FieldSample sample{value.tensor, value.tensor, donors[value.donor].Key(), value.weights,
                        donors[value.donor].extension_component};

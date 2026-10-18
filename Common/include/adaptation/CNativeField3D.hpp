@@ -84,6 +84,9 @@ class FrozenField {
   long double TargetEdgeLength(Point a, Point b);
   /*! Full-target length-balanced coordinate proposal; geometry kernels still certify the rounded point. */
   Point BalancedSplitPoint(Point a, Point b, double fraction = .5);
+  /*! A source-contained corner of the exact affine rounding box, nearest corner first.
+   * At most8 candidates; no snapping/extrapolation of ordinary point queries. Geometry gates remain separate. */
+  Point SegmentPoint(Point a,Point b,double parameter);
   bool SensorOnly() const { return !composition; }
   void RequireEdgePolicy() const;
   const std::shared_ptr<const FrozenMetricIdentity>& Identity() const { return identity; }
@@ -100,6 +103,7 @@ class FrozenField {
     size_t donor = 0;
     std::array<long double, 4> weights{};
   };
+  void CacheSensor(const std::array<double,3>& key,const SensorValue& value);
   std::vector<DonorCell> donors;
   const MetricComposition composition;
   const MetricEdgeBreakpoints edge_breakpoints;

@@ -847,3 +847,18 @@ qualification_v3 pending. No new full CFD/cluster run.
 
 [Report, inspected grids, complete phase/byte/memory receipts and provenance](../integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/budget_bl_policy_v1/README.md).
 Full Goal3 active; no accepted M6 construction/physical accuracy/scaling claim.
+
+
+## M6 source-domain diagnosis and coordinate-construction WIP
+
+One unchanged owner-UPPER6 replay99.319s captures an outside represented midpoint,
+not missing MPI/ADT support: nodes242/3094, z rounding+3.47e-18. Exact original-
+volume clipping confirms the failure. The adjacent lower rounding corner has
+positive local children and complete source-edge coverage, while nearest rounding
+has positive children but invalid coverage. No extra CFD or donor/tolerance ladder.
+
+A connected source-point constructor now uses exact dyadic affine bounds, at most8
+adjacent corners and existing literal sensor-cache storage. Balanced and central
+physical-edge proposals share it; ordinary queries/final gates stay strict. This is
+WIP, not a validated mesh improvement: build/session28613 still live; arithmetic,
+MPI/lifecycle and hard-case construction checks remain. [Design](../integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/source_point_construction_v1/DESIGN.md).

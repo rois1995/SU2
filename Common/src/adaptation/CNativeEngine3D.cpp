@@ -1515,7 +1515,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     const auto offset=transfer_memory::Mul(token,MaximumReplacementCells);
     const size_t node_stride=!options.wall_heights.empty() ? MaximumReplacementCells+3 : composition ? 9 : curved ? 2 : 1;
     const auto node_offset=transfer_memory::Mul(token,node_stride);
-    Point splitPosition{};bool split_failed=false;
+    Point splitPosition{},centralPosition{};bool split_failed=false,central_available=false;
     const bool physical_edge=chosen && std::any_of(imported.cells.begin(),imported.cells.end(),[&](const OwnedCell& c) {
       const auto faces=Faces(c.cell);
       for(unsigned i=0;i<4;++i)if(c.physical[i].present &&
@@ -1537,12 +1537,11 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         const auto components=AssociatedExtensions(seed.cells,geometry);
         FrozenField target(std::move(seed.cells),composition,options.timings,components,options.edge_breakpoints,field_identity);
         FieldAccounting accounting{stats,target};
+        if(physical_edge){centralPosition=target.SegmentPoint(choice.measure.a,choice.measure.b,.5);central_available=true;}
         splitPosition=target.BalancedSplitPoint(choice.measure.a,choice.measure.b);
       }catch(const std::exception& e){
-        result.reason=e.what();split_failed=!physical_edge;
-        if(physical_edge) {const auto a=choice.measure.a,b=choice.measure.b;
-          splitPosition={double(((long double)a.x+b.x)/2),double(((long double)a.y+b.y)/2),double(((long double)a.z+b.z)/2)};
-        }
+        result.reason=e.what();split_failed=!(physical_edge && central_available);
+        if(!split_failed)splitPosition=centralPosition;
       }
       if(!vote(failure))return finish();
     }
@@ -1568,8 +1567,9 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
               approved=guarded_geometry(InsertEdgeCavity(old,choice.edge,point,maximum_cell+1+offset,geometry,fresh,result.reason));
               cavity_inserted=approved;
             }
-            if(!approved && physical_edge && composition) {
-              point.p={double(((long double)a.x+b.x)/2),double(((long double)a.y+b.y)/2),double(((long double)a.z+b.z)/2)};
+            if(!approved && physical_edge && composition && central_available &&
+                (point.p.x!=centralPosition.x || point.p.y!=centralPosition.y || point.p.z!=centralPosition.z)) {
+              point.p=centralPosition;
               approved=guarded_geometry(SplitEdge(old,choice.edge,point,maximum_cell+1+offset,geometry,fresh,result.reason));
               if(!approved) {
                 approved=guarded_geometry(InsertEdgeCavity(old,choice.edge,point,maximum_cell+1+offset,geometry,fresh,result.reason));

@@ -6578,3 +6578,16 @@ cold/reused M6 preparation/background remain significant. Global calibrated erro
 allocation, general curved policy workflow,2D selection and event affordability
 remain open. Full Goal3 active; all failures/producer evidence preserved.
 [Scope, gates, costs, actual grids and receipts](Handbook/GOAL3_BUDGET_AWARE_BL.md).
+
+
+## Exact source-edge failure after82937de1a5; construction change WIP
+
+The M6 failure packet is NOT missing MPI support. Exact rational clipping against
+all original AABB candidates finds the represented half-edge outside the complete
+original volume. Its endpoint is the nearest midpoint of242/3094, z rounded outward
+3.47e-18. Adjacent lower z yields positive local children and covered literal edges;
+no complete geometry/height/metric or accepted-M6 result follows. Diagnostic source,
+99.319s unchanged replay and independent audit are preserved at
+construction_segment_coverage_v1. A connected exact affine rounding/source-contained
+split-point constructor is implemented and building, UNQUALIFIED. It replaces raw
+outside central proposals rather than loosening Query/TraceSegment. Full Goal3 active.

@@ -19,12 +19,15 @@ workflows do not establish converged viscous accuracy or general curved construc
 Current qualified source/evidence: this checkpoint (see git HEAD and
 `budget_bl_policy_v1/summary.json`). Previous published WIP was
 `ca689ee91b8d1ec5f2d7265d042f5c690d4dc3d2`. Previous58214e08bd budget qualification remains in its pinned source/binary scope.
-All diagnostic builds/tests/M6 replay/offline audits are now TERMINAL; no live owned
-heavy job. New bounded edge-failure context captures a real outside midpoint of
+All diagnostic builds/tests/M6 replay/offline audits are now TERMINAL. Connected
+source-point construction is now IMPLEMENTED/WIP and its one-worker build28613 is LIVE (29 targets);
+inspect actual handle before tests. No other owned heavy job. New bounded edge-failure context captures a real outside midpoint of
 original242/3094 (z error3.47e-18), not missing MPI support. Adjacent lower rounding
 corner has positive local children/covered edges; no complete accepted M6 mesh.
-Next connected implementation: exact affine bounds/source-contained split-point
-realization, then witness+extreme arithmetic controls and unchanged hard replay.
+Current batch: exact dyadic affine bounds/source-contained split and central point
+realization, existing literal sensor-cache reuse, unchanged ordinary/final gates.
+Next after build: witness/extreme arithmetic+Fraction audit, meaningful MPI/lifecycle
+and unchanged hard replay. source_point_construction_v1/DESIGN.md records scope.
 [Exact packet, evidence and design](integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/construction_segment_coverage_v1/README.md).
 
 V7: primitives/strict controls, uncertain serial/MPI4, and enabled serial/N4M2 full

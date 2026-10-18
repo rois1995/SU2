@@ -6,6 +6,10 @@
  */
 #include "catch.hpp"
 #include "../../../Common/include/adaptation/CNativeField3D.hpp"
+#include "../../../Common/include/adaptation/CNativePointConstruction3D.hpp"
+#include "../../../Common/include/parallelization/mpi_structure.hpp"
+#include <fstream>
+#include <iomanip>
 #include <algorithm>
 #include <cmath>
 #include <limits>
@@ -495,4 +499,47 @@ TEST_CASE("Native segment failures retain endpoints and admitted support without
   CHECK(field.SensorEdgeLength({0,0,0},{1,0,0})>0);
   CHECK(field.Statistics().edge_failures==1);
   CHECK_THROWS_AS(field.SensorEdgeLength({0,0,0},{0,0,0}),std::invalid_argument);
+}
+
+
+TEST_CASE("Exact affine point bounds retain cancellation tails and subnormal rounding", "[NativeRepresentableSplit3D]") {
+  const double tiny=std::numeric_limits<double>::denorm_min(),large=std::numeric_limits<double>::max();
+  const auto half=AffinePointBounds({large,tiny,-large},{tiny,0,large},.5);
+  CHECK(half[0].x==large/2);CHECK(half[1].x==std::nextafter(large/2,INFINITY));
+  CHECK(half[0].y==0);CHECK(half[1].y==tiny);CHECK(half[0].z==0);CHECK(half[1].z==0);
+  const auto negative=AffinePointBounds({-large,0,0},{-tiny,0,0},.5);
+  CHECK(negative[0].x==-half[1].x);CHECK(negative[1].x==-half[0].x);
+  CHECK(AffinePointBounds({large,0,0},{large,0,0},.1)[1].x==large);
+  CHECK_THROWS_AS(AffinePointBounds({0,0,0},{1,0,0},-1),std::invalid_argument);
+  CHECK_THROWS_AS(AffinePointBounds({INFINITY,0,0},{1,0,0},.5),std::invalid_argument);
+  std::ofstream out("affine_rounding_rank"+std::to_string(SU2_MPI::GetRank())+".csv");
+  out<<std::setprecision(17)<<"ax,ay,az,bx,by,bz,t,lx,ly,lz,ux,uy,uz\n";
+  for(int power:{-1074,-1022,-500,0,500,1023})for(double t:{0.,tiny,.1,.5,.9,std::nextafter(1.,0.),1.}) {
+    const auto scale=std::ldexp(1.,power);const Point a{1.125*scale,-.75*scale,1.5*scale},b{-.375*scale,.625*scale,-1.25*scale};
+    const auto bounds=AffinePointBounds(a,b,t);
+    const double low[]={bounds[0].x,bounds[0].y,bounds[0].z},high[]={bounds[1].x,bounds[1].y,bounds[1].z};
+    for(unsigned k=0;k<3;++k){CHECK(low[k]<=high[k]);CHECK((low[k]==high[k] || std::nextafter(low[k],INFINITY)==high[k]));}
+    out<<a.x<<','<<a.y<<','<<a.z<<','<<b.x<<','<<b.y<<','<<b.z<<','<<t;
+    for(auto p:bounds)out<<','<<p.x<<','<<p.y<<','<<p.z;out<<'\n';
+  }
+  out.close();REQUIRE(bool(out));
+}
+
+TEST_CASE("Actual M6 midpoint rounds inside its original source while literal outside queries stay strict", "[NativeRepresentableSplit3D]") {
+  const Node a{242,{.45269525368927871,-1.0625278440000001e-13,.034787400937146537}};
+  const Node b{3094,{.4590834932901074,-1.062268196059556e-13,.04511005180571812}};
+  const Node c{671,{.4472066708099124,-1.062278386069055e-13,.04542781546610865}};
+  const Node d{7111,{.4564907581964484,.008877269289102494,.03466606229152238}};
+  const Node e{241,{.4642316493938255,-1.0625278440000001e-13,.0340741329097294}};
+  auto first=Donor(410,{a,c,b,d}),second=Donor(41857,{e,a,b,d});
+  first.sensor.fill({1,0,0,1,0,1});second.sensor=first.sensor;
+  FrozenField field({first,second},[](Point,Tensor sensor){return sensor;},true,{},[](Point,Point){return std::vector<double>{0,1};});
+  const Point outside{.45588937348969305,-1.062398020029778e-13,.039948726371432333};
+  CHECK_THROWS(field.Query(outside));CHECK_THROWS(field.TargetEdgeLength(a.p,outside));
+  const auto bounds=AffinePointBounds(a.p,b.p,.5);CHECK(bounds[1].z==outside.z);
+  const auto point=field.SegmentPoint(a.p,b.p,.5);CHECK(point.x==outside.x);CHECK(point.y==outside.y);
+  CHECK(point.z==std::nextafter(outside.z,-INFINITY));CHECK(field.Query(point).sensor.xx==1);
+  const auto split=field.BalancedSplitPoint(a.p,b.p);CHECK(split.z==point.z);
+  CHECK(double(field.TargetEdgeLength(a.p,split))==Approx(double(field.TargetEdgeLength(split,b.p))).epsilon(1e-8));
+  CHECK_THROWS(field.Query(outside));CHECK_THROWS(field.TargetEdgeLength(a.p,outside));
 }
