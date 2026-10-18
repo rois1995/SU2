@@ -337,7 +337,7 @@ is retained; `prepared` and `running` entries have not completed.
 | naca_sa | 1x1 | native | original | inner_candidate | original | -13.0 | qualified | True | 151 | 18.750 | 19.323 |
 | naca_sa | 2x2 | native | original | inner_candidate | original | -13.0 | qualified | True | 151 | 14.177 | 14.780 |
 | naca_sa | 1x1 | coupled | original | inner_candidate | diagonal | -14.0 | qualified | True | 166 | 556.675 | 557.225 |
-| naca_sa | 2x2 | coupled | original | inner_candidate | diagonal | -14.0 | running | False | — | — | — |
+| naca_sa | 2x2 | coupled | original | inner_candidate | diagonal | -14.0 | wall_limit | False | 574 | 1200.933 | 1201.498 |
 | naca_sst | 1x1 | coupled | original | inner_candidate | original | -12 | iteration_cap | False | 20 | 55.908 | 56.456 |
 | naca_sa | 1x1 | native | original | recovery_release | original | -13.0 | qualified | True | 151 | 18.913 | 19.465 |
 | flatplate_lm | 1x1 | coupled | original | baseline_4712d82375 | original | -11 | solver_failure | False | 0 | — | 1.432 |
