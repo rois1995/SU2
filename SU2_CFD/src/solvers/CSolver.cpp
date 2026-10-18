@@ -27,6 +27,7 @@
 
 
 #include "../../include/solvers/CSolver.hpp"
+#include "../../../Common/include/linear_algebra/ArmijoLineSearch.hpp"
 
 #include <limits>
 
@@ -2365,8 +2366,8 @@ bool CSolver::SetResidual_RMS(const CGeometry *geometry, const CConfig *config, 
 
   int invalid = 0;
   for (unsigned short iVar = 0; iVar < nVar; iVar++) {
-    if (std::isnan(SU2_TYPE::GetValue(rbuf_res[iVar]))) {
-      if (abortOnFailure) SU2_MPI::Error("SU2 has diverged (NaN detected).", CURRENT_FUNCTION);
+    if (!Armijo::IsFinite(SU2_TYPE::GetValue(rbuf_res[iVar])) || rbuf_res[iVar] < 0) {
+      if (abortOnFailure) SU2_MPI::Error("SU2 has diverged (invalid residual norm detected).", CURRENT_FUNCTION);
       invalid = 1;
       continue;
     }

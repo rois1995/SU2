@@ -27,6 +27,7 @@
 #include "catch.hpp"
 #include "../../../Common/include/CConfig.hpp"
 #include "../../../Common/include/linear_algebra/CSysSolve.hpp"
+#include "../../../Common/include/linear_algebra/ArmijoLineSearch.hpp"
 #include "../../../Common/include/linear_algebra/CMatrixVectorProduct.hpp"
 #include "../../../Common/include/linear_algebra/CPreconditioner.hpp"
 
@@ -141,6 +142,30 @@ TEST_CASE("FGCRODR orthogonalization failure on the first direction after a rest
   /*--- The solution of the first cycle is kept. ---*/
   for (auto i = 0ul; i < x.GetLocSize(); ++i) CHECK(std::isfinite(x[i]));
   CHECK(TrueResidual(Tridiagonal(), b, x) < 1);
+}
+
+TEST_CASE("FGMRES retains its valid basis after a non-finite product", "[LinearAlgebra]") {
+  for (const auto invalid : {std::numeric_limits<Scalar>::quiet_NaN(), std::numeric_limits<Scalar>::infinity()}) {
+    auto config = MakeConfig("");
+    auto matrix = Tridiagonal();
+    const auto apply = matrix.apply;
+    matrix.apply = [&matrix, apply, invalid](const Vec& u, Vec& v) {
+      apply(u, v);
+      if (matrix.calls == 3) v[0] = invalid;
+    };
+    const auto rhs = MakeRhs(50);
+    Vec solution(50, 50, 1, 0.0);
+    Scalar residual = -1;
+    CSysSolve<Scalar> solver;
+    solver.SetxIsZero(true);
+    const auto used = solver.FGMRES_LinSolver(rhs, solution, matrix, Identity(), 1e-14, 40,
+                                              residual, false, config.get());
+    CHECK(used == 2);
+    CHECK(matrix.calls == 3);
+    for (auto i = 0ul; i < solution.GetLocSize(); ++i)
+      CHECK(Armijo::IsFinite(SU2_TYPE::GetValue(solution[i])));
+    CHECK(TrueResidual(Tridiagonal(), rhs, solution) < 1);
+  }
 }
 
 TEST_CASE("FGMRES monitoring frequency 0", "[LinearAlgebra]") {

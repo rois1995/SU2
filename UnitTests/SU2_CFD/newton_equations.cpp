@@ -744,6 +744,8 @@ TEST_CASE("Axis Newton constraints and mass retain the full rotation orbit", "[N
           expected(p, v) = v == 1 || v == 2 ? 0 : input(p, v);
         }
       actual = input;
+      /*--- Force buffer growth after native setup; every worker must enter the allocator. ---*/
+      geometry->maxCountPerPeriodicPoint = 0;
       SU2_OMP_PARALLEL { equations->ProjectPeriodic(actual, &scale); }
       END_SU2_OMP_PARALLEL
       CHECK(MaxDifference(actual, expected) < 1e-12);
@@ -1714,11 +1716,61 @@ TEST_CASE("Native inner preconditioning preserves the scaled coordinates", "[New
   }
 }
 
+TEST_CASE("Native startup omits cross products and coupling failures retain their cause", "[NewtonPreconditionerFailure]") {
+  Problem problem(sa + "PYTHON_CUSTOM_SOURCE= YES\nLINEAR_SOLVER_PREC= JACOBI\n");
+  auto& driver = *problem.driver;
+  auto* geometry = driver.Geometry();
+  auto equations = problem.Equations({RUNTIME_FLOW_SYS, RUNTIME_TURB_SYS});
+  REQUIRE(Residual(*equations, true));
+  equations->Capture();
+  auto scale = MakeVector(driver, equations->GetnVar(), 1.0), diagonal = scale;
+  auto input = MakeVector(driver, equations->GetnVar(), 0.1), output = input;
+  CNewtonLinearization linearization(*equations, geometry, driver.Config());
+  REQUIRE(linearization.SetBase(scale, diagonal, 1e-7, 1e-4,
+      [](const CNewtonEquationSet::Block&, unsigned long, unsigned short) { return true; }));
+  for (const auto& block : equations->GetBlocks()) {
+    block.solver->Jacobian.SetValZero();
+    block.solver->Jacobian.ClearPrescribedRows();
+    for (auto p = 0ul; p < geometry->GetnPointDomain(); ++p) block.solver->Jacobian.AddVal2Diag(p, 1.0);
+  }
+  CNewtonBlockPreconditioner preconditioner(linearization, geometry, driver.Config(), true);
+  const auto assemblies = equations->GetResidualEvaluations();
+  const auto boundaries = equations->GetFlowBoundaryEvaluations();
+  SU2_OMP_PARALLEL {
+    preconditioner.Build();
+    preconditioner.Solve(input, output, 0, 0.1, false);
+  }
+  END_SU2_OMP_PARALLEL
+  CHECK(MaxDifference(input, output) < 1e-14);
+  CHECK(equations->GetResidualEvaluations() == assemblies);
+  CHECK(equations->GetFlowBoundaryEvaluations() == boundaries);
+  CHECK(preconditioner.GetFailedProducts() == 0);
+  auto& source = driver.Solvers()[FLOW_SOL]->GetNodes()->GetUserDefinedSource();
+  if (SU2_MPI::GetRank() == MASTER_NODE) source(0, 0) = std::numeric_limits<double>::quiet_NaN();
+  SU2_OMP_PARALLEL { preconditioner(input, output); }
+  END_SU2_OMP_PARALLEL
+  CHECK(preconditioner.GetFailedProducts() == 1);
+  CHECK(preconditioner.GetFailure() == CNewtonLinearization::Failure::Admissibility);
+  CHECK_FALSE(Armijo::IsFinite(output.norm()));
+  if (SU2_MPI::GetRank() == MASTER_NODE) source(0, 0) = 0;
+  REQUIRE(equations->Restore());
+  CHECK(equations->GetRestorationError() == 0);
+  SU2_OMP_PARALLEL { preconditioner.Build(); }
+  END_SU2_OMP_PARALLEL
+  CHECK(preconditioner.GetFailedProducts() == 0);
+  CHECK(preconditioner.GetFailure() == CNewtonLinearization::Failure::None);
+}
+
 TEST_CASE("Explicit Newton preconditioning retains the native volume over dt diagonal", "[NewtonExplicit]") {
-  for (bool threeD : {false, true})
+  for (bool threeD : {false, true}) for (bool periodic : {false, true})
     for (const auto& physics : {std::string("SOLVER= NAVIER_STOKES\n"), species}) {
-      CAPTURE(physics, threeD);
-      Problem problem(physics + "TIME_DISCRE_FLOW= EULER_EXPLICIT\nCFL_NUMBER= 0.05\n"
+      if (periodic && physics == species) continue;
+      CAPTURE(physics, threeD, periodic);
+      const std::string boundary = periodic
+          ? "MARKER_PERIODIC= (x_minus,x_plus,0,0,0,0,0,0,1,0,0)\nMARKER_FAR= (y_plus" +
+                std::string(threeD ? ",z_minus,z_plus)\n" : ")\n")
+          : "";
+      Problem problem(physics + boundary + "TIME_DISCRE_FLOW= EULER_EXPLICIT\nCFL_NUMBER= 0.05\n"
                                   "LINEAR_SOLVER_PREC= ILU\nLINEAR_SOLVER_INNER= BCGSTAB\n",
                       5, false, threeD);
       auto& driver = *problem.driver;
@@ -1823,6 +1875,87 @@ TEST_CASE("The common Newton controller accepts explicit flow and implicit scala
             CHECK(flow->GetNodes()->GetSolution(p, v) == 0);
           }
     }
+}
+
+TEST_CASE("Fixed-CL feedback advances once outside Newton trial evaluations", "[NewtonFeedback]") {
+  for (const std::string selection : {"FLOW", "TURB", "FLOW,TURB"}) {
+    CAPTURE(selection);
+    Problem problem(sa + "NEWTON_EQUATIONS= (" + selection + ")\nNEWTON_COUPLED= YES\n"
+        "FIXED_CL_MODE= YES\nTARGET_CL= 0.01\nDCL_DALPHA= 0.2\nCONV_STARTITER= 0\n"
+        "NEWTON_DIAGNOSTICS= NO\nNEWTON_ADAPT_CFL= NO\nNEWTON_ADAPTIVE_FORCING= NO\n"
+        "CFL_NUMBER= 0.05\nLINEAR_SOLVER_PREC= ILU\n");
+    auto& driver = *problem.driver;
+    auto* config = driver.Config();
+    auto* flow = driver.Solvers()[FLOW_SOL];
+    driver.OuterIteration();
+    config->SetInnerIter(1);
+    flow->FixedCL_Convergence(config, true);
+    const double angle = SU2_TYPE::GetValue(config->GetAoA());
+    const double increment = SU2_TYPE::GetValue(flow->GetAoA_inc());
+    REQUIRE(std::abs(increment) > 0);
+    auto equations = problem.Equations(config->GetNewtonEquations());
+    REQUIRE(Residual(*equations));
+    equations->Capture();
+    for (bool implicit : {false, true, false}) {
+      REQUIRE(Residual(*equations, implicit));
+      REQUIRE(equations->Restore());
+      CHECK(SU2_TYPE::GetValue(config->GetAoA()) == angle);
+      CHECK(SU2_TYPE::GetValue(flow->GetAoA_inc()) == increment);
+      CHECK(equations->GetRestorationError() == 0);
+    }
+    driver.OuterIteration();
+    CHECK(SU2_TYPE::GetValue(config->GetAoA()) == Approx(angle + increment).margin(1e-12));
+    for (auto slot = 0u; slot < MAX_SOLS; ++slot)
+      if (driver.Integrations()[slot]) CHECK_FALSE(driver.Integrations()[slot]->GetNumericalFailure());
+  }
+}
+
+TEST_CASE("Reduced-communication Newton resolution is collective", "[NewtonCollectiveResolution]") {
+  Problem problem(sst + "COMM_LEVEL= MINIMAL\nPYTHON_CUSTOM_SOURCE= YES\nCFL_NUMBER= 0.05\n"
+      "LINEAR_SOLVER_PREC= ILU\n");
+  auto& driver = *problem.driver;
+  auto* geometry = driver.Geometry();
+  auto* turbulence = driver.Solvers()[TURB_SOL];
+  auto equations = problem.Equations({RUNTIME_TURB_SYS});
+  REQUIRE(Residual(*equations));
+  constexpr double tolerance = 1e-4;
+  for (auto p = 0ul; p < geometry->GetnPointDomain(); ++p)
+    for (auto v = 0u; v < turbulence->GetnVar(); ++v) {
+      const double residual = v == 1 && SU2_MPI::GetRank() == MASTER_NODE ? 2 * tolerance : 0;
+      turbulence->GetNodes()->GetUserDefinedSource()(p, v) =
+          (turbulence->LinSysRes(p, v) - residual) / geometry->nodes->GetVolume(p);
+    }
+  REQUIRE(Residual(*equations));
+  equations->Capture();
+  auto scale = MakeVector(driver, equations->GetnVar()), reference = scale, residual = scale;
+  equations->BuildScales(scale, reference);
+  equations->CopyResidual(residual);
+  for (auto i = 0ul; i < residual.GetLocSize(); ++i) residual[i] /= scale[i];
+  REQUIRE(residual.norm() / std::sqrt(geometry->GetGlobal_nPointDomain()) < tolerance);
+  SU2_OMP_PARALLEL { turbulence->RefreshResidualStatistics(geometry, driver.Config(), false); }
+  END_SU2_OMP_PARALLEL
+  const double local = SU2_TYPE::GetValue(turbulence->GetRes_RMS(1));
+  double minimum = 0, maximum = 0;
+  SU2_MPI::Allreduce(&local, &minimum, 1, MPI_DOUBLE, MPI_MIN, SU2_MPI::GetComm());
+  SU2_MPI::Allreduce(&local, &maximum, 1, MPI_DOUBLE, MPI_MAX, SU2_MPI::GetComm());
+  REQUIRE(maximum > tolerance);
+  if (SU2_MPI::GetSize() > 1) REQUIRE(minimum < tolerance);
+  /*--- A segregated scalar group consumes the time steps prepared by its preceding flow update. ---*/
+  driver.Config()->SetGlobalParam(driver.Config()->GetKind_Solver(), RUNTIME_FLOW_SYS);
+  SU2_OMP_PARALLEL { driver.Solvers()[FLOW_SOL]->SetTime_Step(geometry, driver.Solvers(), driver.Config(), MESH_0, 0); }
+  END_SU2_OMP_PARALLEL
+  NonlinearGlobalization::Options<> options;
+  options.adaptCFL = options.adaptiveForcing = options.diagnostics = false;
+  CNewtonIntegration controller({RUNTIME_TURB_SYS}, options);
+  controller.SetResidualTolerance(tolerance);
+  controller.Iterate(geometry, driver.Solvers(), driver.Numerics(), driver.Config());
+  INFO(controller.GetNumericalFailureMessage());
+  /*--- Tiny scalar updates may stagnate, but an unresolved group must not idle on only some ranks. ---*/
+  if (controller.GetNumericalFailure()) {
+    CHECK(controller.GetLastAttempt().search.status != Armijo::Status::Accepted);
+    CHECK(controller.GetLastAttempt().rollbackStateError == 0);
+  } else
+    CHECK(controller.GetLastAttempt().search.step > 0);
 }
 
 TEST_CASE("Legacy Newton selection requires explicit common opt-in", "[NewtonCompatibility]") {
@@ -2859,10 +2992,10 @@ TEST_CASE("The common controller applies legacy flow direction policies", "[Newt
         }
         if (profile.automatic) {
           CHECK(attempt.reconstruction == Approx(expectedReconstruction));
-          const double achieved = attempt.reportedLinearResidual / attempt.toleranceFactor;
-          if (achieved > 1e-12)
+          const double achieved = attempt.reportedLinearResidual;
+          if (achieved > attempt.linearTarget)
             expectedReconstruction *= 0.9;
-          else if (achieved < 0.9e-12)
+          else if (achieved < 0.9 * attempt.linearTarget)
             expectedReconstruction = std::min(1.0, std::max(0.05, expectedReconstruction * 1.05));
         }
         CHECK(SU2_TYPE::GetValue(driver.Config()->GetNewtonKrylovRelaxation()) == 0.73);
@@ -2873,6 +3006,23 @@ TEST_CASE("The common controller applies legacy flow direction policies", "[Newt
       }
     }
   }
+}
+
+TEST_CASE("Relaxed flow solves retain the independent true-defect limit", "[NewtonFlowPolicy]") {
+  Problem problem("SOLVER= NAVIER_STOKES\nNEWTON_KRYLOV= YES\nCFL_NUMBER= 0.05\n"
+      "NEWTON_KRYLOV_IPARAM= (0,0,4,0)\nNEWTON_KRYLOV_DPARAM= (0,0.1,-6,1e-6,-1)\n"
+      "LINEAR_SOLVER_ERROR= 0.05\nLINEAR_SOLVER_PREC= ILU\n");
+  auto& driver = *problem.driver;
+  NonlinearGlobalization::Options<> options;
+  options.adaptCFL = options.adaptiveForcing = options.diagnostics = false;
+  CNewtonIntegration controller({RUNTIME_FLOW_SYS}, options, false, "relaxed_target", true);
+  controller.Iterate(driver.Geometry(), driver.Solvers(), driver.Numerics(), driver.Config());
+  INFO(controller.GetNumericalFailureMessage());
+  REQUIRE_FALSE(controller.GetNumericalFailure());
+  const auto& attempt = controller.GetLastAttempt();
+  CHECK(attempt.toleranceFactor == 4);
+  CHECK(attempt.linearTarget == options.etaMax);
+  CHECK(attempt.linearDefect <= options.etaMax);
 }
 
 TEST_CASE("Flow transport refresh matches native preprocessing with unchanged gradients", "[NewtonPropertyRefresh]") {
@@ -3902,6 +4052,29 @@ TEST_CASE("Newton trial restoration restores prescribed row metadata", "[NewtonB
     REQUIRE(equations->Restore());
     CHECK(equations->GetRestorationError() == 0);
   }
+}
+
+TEST_CASE("Real-gas Newton trials reject nonphysical live thermodynamics", "[NewtonProperties]") {
+  Problem problem("SOLVER= EULER\nFLUID_MODEL= VW_GAS\nMARKER_HEATFLUX= NONE\n"
+      "MARKER_FAR= NONE\nMARKER_EULER= (x_minus,x_plus,y_minus,y_plus)\n");
+  auto& driver = *problem.driver;
+  auto* geometry = driver.Geometry();
+  auto* flow = driver.Solvers()[FLOW_SOL]->GetNodes();
+  auto equations = problem.Equations({RUNTIME_FLOW_SYS});
+  REQUIRE(Residual(*equations));
+  equations->Capture();
+  for (auto p = 0ul; p < geometry->GetnPointDomain(); ++p)
+    if (geometry->nodes->GetCoord(p, 0) == 0.5 && geometry->nodes->GetCoord(p, 1) == 0.5)
+      flow->SetSolution(p, driver.Solvers()[FLOW_SOL]->GetnVar() - 1,
+          -10 * std::abs(SU2_TYPE::GetValue(flow->GetSolution(p, driver.Solvers()[FLOW_SOL]->GetnVar() - 1))));
+  CHECK_FALSE(Residual(*equations));
+  for (auto p = 0ul; p < geometry->GetnPointDomain(); ++p)
+    if (geometry->nodes->GetCoord(p, 0) == 0.5 && geometry->nodes->GetCoord(p, 1) == 0.5) {
+      CHECK(flow->GetDensity(p) > 0);
+      CHECK(flow->GetTemperature(p) < 0);
+    }
+  REQUIRE(equations->Restore());
+  CHECK(equations->GetRestorationError() == 0);
 }
 
 TEST_CASE("Newton admission checks live heat capacity and transport properties", "[NewtonProperties]") {

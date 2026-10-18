@@ -3746,6 +3746,8 @@ void CConfig::SetPostprocessing(SU2_COMPONENT val_software, unsigned short val_i
      *     Their live derivatives and iteration history are not part of the common Newton contract. ---*/
     if (GetBoolTurbomachinery() || GetBoolGiles())
       SU2_MPI::Error("NEWTON_EQUATIONS currently excludes turbomachinery boundary averaging", CURRENT_FUNCTION);
+    if (nMarker_ActDiskInlet || nMarker_ActDiskOutlet)
+      SU2_MPI::Error("NEWTON_EQUATIONS currently excludes actuator-disk feedback", CURRENT_FUNCTION);
 #if defined(CODI_REVERSE_TYPE) || defined(CODI_FORWARD_TYPE)
     SU2_MPI::Error("NEWTON_EQUATIONS requires a primal executable", CURRENT_FUNCTION);
 #endif

@@ -27,6 +27,7 @@
 
 #include "../../include/linear_algebra/CSysSolve.hpp"
 #include "../../include/linear_algebra/CSysSolve_b.hpp"
+#include "../../include/linear_algebra/ArmijoLineSearch.hpp"
 #include "../../include/parallelization/omp_structure.hpp"
 #include "../../include/CConfig.hpp"
 #include "../../include/geometry/CGeometry.hpp"
@@ -255,12 +256,11 @@ bool CSysSolve<ScalarType>::ModGramSchmidt(bool shared_hsbg, int i, su2matrix<Sc
     for (int k = 0; k < i + 1; k++) SetHsbg(k, i, h_i(0, k) + dh_i(0, k));
   }
 
-  /*--- The norm of w[i+1] is 0 or NaN: the input vector from mat_vec is
-   * zero or contains NaN. Cannot proceed with orthogonalization. ---*/
+  /*--- Preserve the preceding basis if a product is zero or non-finite, including fast-math builds. ---*/
 
   ScalarType nrm = w[i + 1].norm();
 
-  if (nrm <= 0.0 || nrm != nrm) {
+  if (nrm <= 0.0 || !Armijo::IsFinite(SU2_TYPE::GetValue(nrm))) {
     /*--- nrm is the result of a dot product, communications are implicitly handled. ---*/
     SetHsbg(i + 1, i, ScalarType(0));
     return false;

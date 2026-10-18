@@ -178,9 +178,11 @@ double CNewtonIntegration::CommitFlow(const Attempt& attempt, double nextCFL) {
         if (flow.automatic) flow.reconstruction = 0;
       }
     } else if (flow.automatic) {
+      /*--- Judge reconstruction against the target actually requested by adaptive forcing. ---*/
       const double tolerance = std::max(
-          flow.linearTolerance, config->GetCFL_Adapt() ? SU2_TYPE::GetValue(config->GetCFL_AdaptParam(4)) : 0.0);
-      const double achieved = attempt.reportedLinearResidual / attempt.toleranceFactor;
+          attempt.linearTarget, config->GetCFL_Adapt()
+                                    ? SU2_TYPE::GetValue(config->GetCFL_AdaptParam(4)) * attempt.toleranceFactor : 0.0);
+      const double achieved = attempt.reportedLinearResidual;
       if (achieved > tolerance)
         flow.reconstruction *= 0.9;
       else if (achieved < 0.9 * tolerance)
@@ -336,7 +338,7 @@ void CNewtonIntegration::MatrixFreeProduct(const CSysVector<Scalar>& u, CSysVect
 
 void CNewtonIntegration::Precondition(const CSysVector<Scalar>& u, CSysVector<Scalar>& v) const {
   if (nativeDirection)
-    preconditioner->Solve(u, v, 0, flow.innerTolerance);
+    preconditioner->Solve(u, v, 0, flow.innerTolerance, false);
   else
     (*preconditioner)(u, v);
 }
@@ -408,6 +410,9 @@ CNewtonIntegration::Attempt CNewtonIntegration::SolveAttempt(bool preparedBase) 
   for (const auto& block : equations->GetBlocks())
     for (auto v = 0u; v < block.variables; ++v)
       resolved = resolved && block.solver->GetRes_RMS(v) <= residualTolerance;
+  /*--- Reduced-communication RMS values are local; every rank must agree to idle the group. ---*/
+  if (residualTolerance > 0 && config->GetComm_Level() != COMM_FULL)
+    resolved = Reduce(resolved ? 0.0 : 1.0, true) == 0;
   if (resolved) {
     attempt.search = {Armijo::Status::Accepted, 0, attempt.base, 0};
     attempt.linearDefect = std::numeric_limits<double>::quiet_NaN();
@@ -428,6 +433,11 @@ CNewtonIntegration::Attempt CNewtonIntegration::SolveAttempt(bool preparedBase) 
   if (!pseudoTime->Build(scale, free)) {
     attempt.linearFailure = true;
     attempt.rejectionReason = "PSEUDO_TIME";
+    /*--- Rollback compares explicit residuals, including failures before SetBase prepares that reference. ---*/
+    Perturb(direction, 0);
+    Residual();
+    attempt.base = Merit();
+    attempt.physicalMerit = attempt.search.value = attempt.base;
     Restore(attempt);
     return attempt;
   }
@@ -457,6 +467,8 @@ CNewtonIntegration::Attempt CNewtonIntegration::SolveAttempt(bool preparedBase) 
   END_SU2_OMP_FOR
   PrepareFlow(attempt);
   attempt.linearTarget = legacyFlowControls && flow.linearTolerance == 0 ? 0 : eta * attempt.toleranceFactor;
+  /*--- Relax the direction solve only within the unchanged true-defect acceptance limit. ---*/
+  attempt.linearTarget = std::min(attempt.linearTarget, options.etaMax);
   if (attempt.startup) attempt.linearTarget = flow.linearTolerance;
   if (attempt.base == 0) {
     attempt.search = {Armijo::Status::Accepted, 0, 0, 0};
@@ -499,7 +511,7 @@ CNewtonIntegration::Attempt CNewtonIntegration::SolveAttempt(bool preparedBase) 
   attempt.preconditionerIterations = preconditioner->GetWork();
   attempt.reportedLinearResidual = residual;
   MatrixFreeProduct(correction, product);
-  attempt.failedProducts = failedProducts;
+  attempt.failedProducts = failedProducts + preconditioner->GetFailedProducts();
   double defect = 0, invalid = 0;
   SU2_OMP_FOR_STAT(1024)
   for (auto i = 0ul; i < rhs.GetNElmDomain(); ++i) {
@@ -517,7 +529,8 @@ CNewtonIntegration::Attempt CNewtonIntegration::SolveAttempt(bool preparedBase) 
   Residual();
   if (!Armijo::IsFinite(attempt.linearDefect) || attempt.linearDefect > options.etaMax) {
     attempt.linearFailure = true;
-    attempt.rejectionReason = failedProducts ? productFailure : "TRUE_LINEAR_DEFECT";
+    attempt.rejectionReason = preconditioner->GetFailedProducts() ? Name(preconditioner->GetFailure())
+                                : failedProducts ? productFailure : "TRUE_LINEAR_DEFECT";
     Restore(attempt);
     return attempt;
   }
@@ -655,8 +668,12 @@ void CNewtonIntegration::Log(const Attempt& attempt, const NonlinearGlobalizatio
 void CNewtonIntegration::MultiGrid_Iteration(CGeometry**** geometry, CSolver***** solvers, CNumerics****** numerics,
                                              CConfig** config, unsigned short, unsigned short zone,
                                              unsigned short instance) {
-  Iterate(geometry[zone][instance][MESH_0], solvers[zone][instance][MESH_0], numerics[zone][instance][MESH_0],
-          config[zone]);
+  try {
+    Iterate(geometry[zone][instance][MESH_0], solvers[zone][instance][MESH_0], numerics[zone][instance][MESH_0],
+            config[zone]);
+  } catch (const std::invalid_argument& error) {
+    SU2_MPI::Error(error.what(), CURRENT_FUNCTION);
+  }
 }
 
 void CNewtonIntegration::Iterate(CGeometry* g, CSolver** s, CNumerics*** n, CConfig* c) {
@@ -695,6 +712,11 @@ void CNewtonIntegration::RefreshAfterOuterIteration() {
 void CNewtonIntegration::Advance() {
   SetCFL(cfl);
   for (const auto& block : equations->GetBlocks()) block.solver->Set_OldSolution();
+  if (config->GetFixed_CL_Mode() && IsNewtonEquation(RUNTIME_FLOW_SYS)) {
+    /*--- Apply the pending outer feedback once; trial evaluations keep the new angle fixed. ---*/
+    SU2_OMP_SAFE_GLOBAL_ACCESS(config->SetGlobalParam(config->GetKind_Solver(), RUNTIME_FLOW_SYS);)
+    solvers[FLOW_SOL]->Preprocessing(geometry, solvers, config, MESH_0, NO_RK_ITER, RUNTIME_FLOW_SYS, true);
+  }
   if (!constraintsReady) {
     const bool valid = equations->EvaluateResiduals(true, true);
     SU2_OMP_SAFE_GLOBAL_ACCESS(residualValid = valid; constraintsReady = true;)

@@ -228,7 +228,8 @@ SA rows share identical diagonal/adaptive-CFL/forcing controls and history−14.
 | 3/3 | naca_sa | 1x1 | coupled / diagonal | qualified | 166 | 24574/24574 | 5359/31177 | 82/0 | 138708 | 556.675 / 557.225 | 7.890e-06 |
 | 3/3 | naca_sa | 2x2 | coupled / diagonal | incomplete_time_cap | 574 | 107971/107971 | 26656/159180 | 288/0 | 94432 | 1200.933 / 1201.498 | 1.058e-05 |
 | 0/0 | naca_sa | 2x2 | coupled / diagonal | qualified | 333 | 83590/83590 | 22279/0 | 166/0 | 103304 | 1090.736 / 1091.372 | 7.831e-06 |
-| 0/0 | naca_sst | 1x1 | segregated / original | running | — | / | / | / | — | — / — | — |
+| 0/0 | naca_sst | 1x1 | segregated / original | incomplete_time_cap | 1254 | 133911/24743 | 41283/0 | 2/0 | 174404 | 3600.846 / 3601.375 | 5.200e-06 |
+| 3/0 | naca_sst | 1x1 | segregated / original | incomplete_time_cap | 500 | 51362/13686 | 18170/36294 | 2/0 | 142676 | 3601.092 / 3601.715 | 1.669e-05 |
 | 0/0 | naca_sa | 1x1 | coupled / diagonal | qualified | 179 | 33415/33415 | 7603/0 | 89/0 | 171400 | 764.796 / 765.385 | 7.851e-06 |
 
 ## Supporting prefix work

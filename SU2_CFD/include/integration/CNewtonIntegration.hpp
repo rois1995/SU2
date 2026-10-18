@@ -56,7 +56,7 @@ class CNewtonIntegration final : public CIntegration {
   }
   void RefreshAfterOuterIteration() override;
   void SetResidualTolerance(double tolerance) override {
-    residualTolerance = std::isfinite(tolerance) && tolerance > 0 ? tolerance : 0;
+    residualTolerance = Armijo::IsFinite(tolerance) && tolerance > 0 ? tolerance : 0;
   }
 #if !defined(CODI_FORWARD_TYPE) && !defined(CODI_REVERSE_TYPE)
   using Scalar = passivedouble;

@@ -11,7 +11,7 @@ constexpr unsigned short runtimes[] = {RUNTIME_FLOW_SYS, RUNTIME_TURB_SYS, RUNTI
 
 /*! \brief Retain the native preprocessing cadence for flow controllers with external feedback. */
 bool HasFlowFeedback(const CConfig& config) {
-  return config.GetFixed_CL_Mode() || config.GetnMarker_EngineInflow() || config.GetnMarker_EngineExhaust() ||
+  return config.GetnMarker_EngineInflow() || config.GetnMarker_EngineExhaust() ||
          config.GetnMarker_ActDiskInlet() || config.GetnMarker_ActDiskOutlet();
 }
 
@@ -77,6 +77,9 @@ CNewtonEquationSet::CNewtonEquationSet(CGeometry* g, CSolver** s, CNumerics*** n
   density.resize(g->GetnPoint());
   if (config->GetNEMOProblem())
     throw std::invalid_argument("NEMO is excluded from the common Newton equation interface");
+  /*--- Actuator controllers mutate thrust history during preprocessing; it is not a trial-state dependency. ---*/
+  if (config->GetnMarker_ActDiskInlet() || config->GetnMarker_ActDiskOutlet())
+    throw std::invalid_argument("Common Newton currently excludes actuator-disk feedback");
   const auto flowEntries = g->GetnPoint() * s[FLOW_SOL]->GetnVar();
   if (!workspace->trialFlow.empty() && workspace->trialFlow.size() != flowEntries)
     throw std::invalid_argument("Shared Newton residual workspace has a different flow layout");
@@ -321,6 +324,7 @@ void CNewtonEquationSet::ProjectPeriodic(CSysVector<passivedouble>& vector,
       periodicWork(p, block.variables) = 1;
     }
     END_SU2_OMP_FOR
+    geometry->AllocatePeriodicComms(block.variables + 1);
     SU2_OMP_SAFE_GLOBAL_ACCESS(geometry->SumPeriodicGeometry(config, periodicWork, block.slot == FLOW_SOL ? 1 : -1);)
     SU2_OMP_FOR_STAT(1024)
     for (auto p = 0ul; p < geometry->GetnPoint(); ++p)
@@ -346,6 +350,7 @@ void CNewtonEquationSet::AddPeriodicConstraints(CSolver* solver) {
     periodicWork(p, count) = 1;
   }
   END_SU2_OMP_FOR
+  geometry->AllocatePeriodicComms(count + 1);
   SU2_OMP_SAFE_GLOBAL_ACCESS(geometry->SumPeriodicGeometry(config, periodicWork, solver == solvers[FLOW_SOL] ? 1 : -1);)
   /*--- Native assembly supplies P*R(w). Add B(w)*(I-P)*w without overwriting the supplied unknowns.
    *     Live density in B preserves conservative-scalar cross derivatives; M_base only defines coordinates. ---*/
@@ -453,10 +458,13 @@ bool CNewtonEquationSet::CheckState(bool compareFlow, bool modelBounds) {
         if (!(internal > 0)) local += 1;
       }
     }
-    if (!compressible && compareFlow) {
+    if (compareFlow) {
       const auto temperature = SU2_TYPE::GetValue(flow->GetTemperature(p));
       const auto rho = SU2_TYPE::GetValue(flow->GetDensity(p));
       if (!(temperature > 0 && rho > 0) || !Armijo::IsFinite(temperature) || !Armijo::IsFinite(rho)) local += 1;
+      if (compressible)
+        for (auto value : {SU2_TYPE::GetValue(flow->GetPressure(p)), SU2_TYPE::GetValue(flow->GetSoundSpeed(p))})
+          if (!(value > 0) || !Armijo::IsFinite(value)) local += 1;
     }
     if (compareFlow && (!compressible || viscous)) {
       const auto cp = SU2_TYPE::GetValue(flow->GetSpecificHeatCp(p));

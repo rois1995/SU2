@@ -170,6 +170,8 @@ class CNewtonBlockPreconditioner final : public CPreconditioner<passivedouble> {
   CGeometry* geometry;
   CConfig* config;
   mutable unsigned long work = 0;
+  mutable unsigned failedProducts = 0;
+  mutable CNewtonLinearization::Failure failure = CNewtonLinearization::Failure::None;
   mutable double rhsMagnitude = 0;
   std::vector<Block> blocks;
   mutable Vector coupling, periodicRHS;
@@ -179,10 +181,12 @@ class CNewtonBlockPreconditioner final : public CPreconditioner<passivedouble> {
                              unsigned innerIterations = 0, double innerTolerance = 0.1);
   void Build() override;
   void operator()(const Vector& u, Vector& v) const override { Solve(u, v, innerIterations, innerTolerance); }
-  /*! \brief Apply block solves in physical correction coordinates; return accumulated inner iterations. */
-  unsigned long Solve(const Vector&, Vector&, unsigned iterations, double tolerance) const;
+  /*! \brief Apply block solves; native block-diagonal startup disables cross-equation products. */
+  unsigned long Solve(const Vector&, Vector&, unsigned iterations, double tolerance, bool coupling = true) const;
   /*! \brief Apply the native block matrices for a legacy startup direction model. */
   void Multiply(const Vector&, Vector&) const;
   unsigned long GetWork() const { return work; }
+  unsigned GetFailedProducts() const { return failedProducts; }
+  CNewtonLinearization::Failure GetFailure() const { return failure; }
 };
 #endif

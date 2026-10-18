@@ -1644,7 +1644,7 @@ void CEulerSolver::CommonPreprocessing(CGeometry *geometry, CSolver **solver_con
 
     /*--- Update the angle of attack at the far-field for fixed CL calculations (only direct problem). ---*/
 
-    if (fixed_cl && !disc_adjoint && !cont_adjoint) {
+    if (fixed_cl && !disc_adjoint && !cont_adjoint && !config->GetFrozenIterationHistory()) {
       SetFarfield_AoA(geometry, solver_container, config, iMesh, Output);
     }
 

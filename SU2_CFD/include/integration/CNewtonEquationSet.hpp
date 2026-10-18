@@ -60,7 +60,7 @@ class CNewtonEquationSet : private CIntegration {
   std::vector<int8_t> acceptedReconstruction, nextReconstruction;
   mutable su2activematrix periodicWork;
 
-  /*! \brief Restore all dependent primary values, iteration history, row masks and relaxation. */
+  /*! \brief Restore dependent primary values, iteration history and row masks; Restore also restores relaxation. */
   void RestoreSolutions();
   /*! \brief Save numerical iteration history before a residual evaluation. */
   void SaveHistory();

@@ -79,37 +79,37 @@ struct Options {
   /*! \brief Return the first invalid control combination, or an empty string for a valid policy. */
   std::string Validate() const {
     if (!Armijo::IsFinite(restoreTolerance) || restoreTolerance < 0 || restoreTolerance >= 1)
-      return "SST_NEWTON: invalid relative merit restoration tolerance";
-    if (!Armijo::IsFinite(armijo)) return "SST_NEWTON: armijo must be finite";
-    if (!Armijo::IsFinite(stepTolerance)) return "SST_NEWTON: stepTolerance must be finite";
-    if (!Armijo::IsFinite(interpolationMin)) return "SST_NEWTON: interpolationMin must be finite";
-    if (!Armijo::IsFinite(interpolationMax)) return "SST_NEWTON: interpolationMax must be finite";
-    if (!Armijo::IsFinite(cflMin)) return "SST_NEWTON: cflMin must be finite";
-    if (!Armijo::IsFinite(cflMax)) return "SST_NEWTON: cflMax must be finite";
-    if (!Armijo::IsFinite(shrink)) return "SST_NEWTON: shrink must be finite";
-    if (!Armijo::IsFinite(grow)) return "SST_NEWTON: grow must be finite";
-    if (!Armijo::IsFinite(poorAgreement)) return "SST_NEWTON: poorAgreement must be finite";
-    if (!Armijo::IsFinite(goodAgreement)) return "SST_NEWTON: goodAgreement must be finite";
-    if (!Armijo::IsFinite(fdStep)) return "SST_NEWTON: fdStep must be finite";
-    if (!Armijo::IsFinite(relativeFDStep)) return "SST_NEWTON: relativeFDStep must be finite";
-    if (!Armijo::IsFinite(linearTolerance)) return "SST_NEWTON: linearTolerance must be finite";
-    if (!Armijo::IsFinite(etaMin)) return "SST_NEWTON: etaMin must be finite";
-    if (!Armijo::IsFinite(etaMax)) return "SST_NEWTON: etaMax must be finite";
-    if (!Armijo::IsFinite(forcingGamma)) return "SST_NEWTON: forcingGamma must be finite";
-    if (!Armijo::IsFinite(forcingPower)) return "SST_NEWTON: forcingPower must be finite";
+      return "Newton: invalid relative merit restoration tolerance";
+    if (!Armijo::IsFinite(armijo)) return "Newton: armijo must be finite";
+    if (!Armijo::IsFinite(stepTolerance)) return "Newton: stepTolerance must be finite";
+    if (!Armijo::IsFinite(interpolationMin)) return "Newton: interpolationMin must be finite";
+    if (!Armijo::IsFinite(interpolationMax)) return "Newton: interpolationMax must be finite";
+    if (!Armijo::IsFinite(cflMin)) return "Newton: cflMin must be finite";
+    if (!Armijo::IsFinite(cflMax)) return "Newton: cflMax must be finite";
+    if (!Armijo::IsFinite(shrink)) return "Newton: shrink must be finite";
+    if (!Armijo::IsFinite(grow)) return "Newton: grow must be finite";
+    if (!Armijo::IsFinite(poorAgreement)) return "Newton: poorAgreement must be finite";
+    if (!Armijo::IsFinite(goodAgreement)) return "Newton: goodAgreement must be finite";
+    if (!Armijo::IsFinite(fdStep)) return "Newton: fdStep must be finite";
+    if (!Armijo::IsFinite(relativeFDStep)) return "Newton: relativeFDStep must be finite";
+    if (!Armijo::IsFinite(linearTolerance)) return "Newton: linearTolerance must be finite";
+    if (!Armijo::IsFinite(etaMin)) return "Newton: etaMin must be finite";
+    if (!Armijo::IsFinite(etaMax)) return "Newton: etaMax must be finite";
+    if (!Armijo::IsFinite(forcingGamma)) return "Newton: forcingGamma must be finite";
+    if (!Armijo::IsFinite(forcingPower)) return "Newton: forcingPower must be finite";
     if (!(armijo > 0 && armijo < 1 && stepTolerance > 0 && interpolationMin > 0 &&
           interpolationMin <= interpolationMax && interpolationMax < 1))
-      return "SST_NEWTON: invalid Armijo, step tolerance or interpolation safeguards";
+      return "Newton: invalid Armijo, step tolerance or interpolation safeguards";
     if (!(cflMin > 0 && cflMax >= cflMin && shrink > 0 && shrink < 1 && grow > 1 && poorAgreement > 0 &&
           poorAgreement < goodAgreement && goodAgreement < 1))
-      return "SST_NEWTON: invalid CFL bounds, growth/shrink factors or model-agreement thresholds";
+      return "Newton: invalid CFL bounds, growth/shrink factors or model-agreement thresholds";
     if (!(fdStep > 0 && relativeFDStep > 0 && relativeFDStep < 1 && etaMin > 0 && etaMin <= linearTolerance &&
           linearTolerance <= etaMax && etaMax < 1 && forcingGamma > 0 && forcingGamma < 1 && forcingPower > 1 &&
           forcingPower <= 2))
-      return "SST_NEWTON: invalid finite-difference or inexact-Newton forcing parameters";
+      return "Newton: invalid finite-difference or inexact-Newton forcing parameters";
     if (!maxBacktracks || !linearIterations || linearIterations > 1000)
-      return "SST_NEWTON: backtracking limit must be positive and Krylov subspace must lie in [1,1000]";
-    if (!lineSearch && (recovery || adaptCFL)) return "SST_NEWTON: recovery and CFL adaptation require line search";
+      return "Newton: backtracking limit must be positive and Krylov subspace must lie in [1,1000]";
+    if (!lineSearch && (recovery || adaptCFL)) return "Newton: recovery and CFL adaptation require line search";
     return {};
   }
 };

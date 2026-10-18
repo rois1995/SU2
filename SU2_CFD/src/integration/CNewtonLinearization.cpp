@@ -335,7 +335,7 @@ CNewtonBlockPreconditioner::CNewtonBlockPreconditioner(const CNewtonLinearizatio
 }
 
 void CNewtonBlockPreconditioner::Build() {
-  SU2_OMP_SAFE_GLOBAL_ACCESS(work = 0;)
+  SU2_OMP_SAFE_GLOBAL_ACCESS(work = 0; failedProducts = 0; failure = CNewtonLinearization::Failure::None;)
   for (auto& block : blocks) {
     if (linearization.UsesNativeMass() && block.solver->Jacobian.HasCoefficients()) {
       /*--- Native pseudo-time assembly can reintroduce couplings into a prescribed row. ---*/
@@ -350,10 +350,11 @@ void CNewtonBlockPreconditioner::Build() {
 }
 
 unsigned long CNewtonBlockPreconditioner::Solve(const Vector& u, Vector& v, unsigned iterations,
-                                                double tolerance) const {
+                                                double tolerance, bool useCoupling) const {
   /*--- Vector producers use nowait with a different partition than the native block loops. ---*/
   SU2_OMP_BARRIER
   const auto& scale = linearization.GetScale();
+  const bool lower = lowerTriangular && useCoupling;
   const bool periodic = config->GetnMarker_Periodic();
   if (periodic) {
     /*--- Native partial-cell solves approximate physical modes; keep consistency modes for the identity below. ---*/
@@ -366,17 +367,20 @@ unsigned long CNewtonBlockPreconditioner::Solve(const Vector& u, Vector& v, unsi
   for (auto index = 0u; index < blocks.size(); ++index) {
     const auto& block = blocks[index];
     /*--- Lower coupling is approximate; the outer operator and true defect use verified physical products. ---*/
-    if (lowerTriangular && index && !linearization.Apply(v, coupling, false, false, block.runtime)) {
+    CNewtonLinearization::Failure productFailure;
+    if (lower && index && !linearization.Apply(v, coupling, false, false, block.runtime, &productFailure)) {
       v = passivedouble(std::numeric_limits<double>::quiet_NaN());
       SU2_OMP_BARRIER
-      SU2_OMP_SAFE_GLOBAL_ACCESS(work += total;)
+      SU2_OMP_SAFE_GLOBAL_ACCESS(work += total;
+                                 if (!failedProducts) failure = productFailure;
+                                 ++failedProducts;)
       return total;
     }
     SU2_OMP_FOR_STAT(1024)
     for (auto p = 0ul; p < u.GetNBlk(); ++p)
       for (auto j = 0u; j < block.variables; ++j) {
         const auto column = block.offset + j;
-        const double cross = lowerTriangular && index ? coupling(p, column) : 0;
+        const double cross = lower && index ? coupling(p, column) : 0;
         block.input(p, j) = (rightHandSide(p, column) - cross) * scale(p, column);
       }
     END_SU2_OMP_FOR
@@ -385,7 +389,7 @@ unsigned long CNewtonBlockPreconditioner::Solve(const Vector& u, Vector& v, unsi
       SU2_OMP_FOR_STAT(1024)
       for (auto p = 0ul; p < u.GetNBlk(); ++p) {
         const double delta = p < u.GetNBlkDomain()
-                                 ? SU2_TYPE::GetValue(geometry->nodes->GetVolume(p) + geometry->nodes->GetPeriodicVolume(p)) /
+                                 ? SU2_TYPE::GetValue(geometry->nodes->GetVolume(p)) /
                                        SU2_TYPE::GetValue(block.solver->GetNodes()->GetDelta_Time(p))
                                  : 1.0;
         for (auto j = 0u; j < block.variables; ++j)
@@ -452,7 +456,7 @@ unsigned long CNewtonBlockPreconditioner::Solve(const Vector& u, Vector& v, unsi
         v(p, block.offset + j) = SU2_TYPE::GetValue(block.output(p, j)) / scale(p, block.offset + j);
     END_SU2_OMP_FOR
     /*--- Lower coupling must consume the consistent corrections of the preceding blocks. ---*/
-    if (periodic && lowerTriangular && index + 1 < blocks.size()) linearization.ProjectPeriodic(v);
+    if (periodic && lower && index + 1 < blocks.size()) linearization.ProjectPeriodic(v);
   }
   if (periodic) {
     /*--- Apply S^-1*(P*M^-1*P+(I-P))*S, retaining all arbitrary input directions. ---*/
@@ -480,7 +484,7 @@ void CNewtonBlockPreconditioner::Multiply(const Vector& u, Vector& v) const {
       SU2_OMP_FOR_STAT(1024)
       for (auto p = 0ul; p < u.GetNBlk(); ++p) {
         const double delta = p < u.GetNBlkDomain()
-                                 ? SU2_TYPE::GetValue(geometry->nodes->GetVolume(p) + geometry->nodes->GetPeriodicVolume(p)) /
+                                 ? SU2_TYPE::GetValue(geometry->nodes->GetVolume(p)) /
                                        SU2_TYPE::GetValue(block.solver->GetNodes()->GetDelta_Time(p))
                                  : 1.0;
         for (auto j = 0u; j < block.variables; ++j)
