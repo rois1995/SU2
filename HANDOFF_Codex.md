@@ -12,7 +12,9 @@ Bounded global correction-evidence refinement is qualified: at most two8192->327
 stream doublings with retained original support/indexes, complete nonmonotone
 profile rescans and atomic extra-stage refusal. Strict/default behavior stays.
 SourceWIPd66fe6f1e6 plus reviewed collective-allocation handling/measured-quota
-fixture. All owned jobs TERMINAL; no build or native run live.
+fixture. The qualified evidence jobs are terminal. Current follow-up: one fixture build
+(session48669) for selected_profile_construction_v1, then one bounded MPI4 saved-
+state production construction attempt. No constructor fallback/gate/cap change.
 
 Saved flow-family M6 budget300k now selects lambda.875/version22,22profile trials,
 2evidence stages. Coarsest estimate281779 +/-5604; full original-sensor normalization
@@ -34,7 +36,9 @@ The prior7.515s unresolved coarsest field is a different final target.
 
 Next substantive milestone remains an accepted complete difficult mesh under
 unchanged gates. Consider the newly frozen .875 ORIGINAL flow-family target
-separately from historical owner-UPPER6 construction; no new run is prepared yet.
+separately from historical owner-UPPER6 construction. The new saved-state fixture
+and producer are prepared; metric initialization and construction outcomes will
+be recorded separately, with uniquely owned exact sensor records for replay.
 If construction stalls, reconsider complete coordination/strategy before another
 local fallback or cap ladder. Broader donor support retention/displaced transaction
 batching, calibrated global error allocation and complete affordability stay open.
