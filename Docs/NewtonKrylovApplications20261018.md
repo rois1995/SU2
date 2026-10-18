@@ -578,7 +578,7 @@ is retained; `prepared` and `running` entries have not completed.
 | nozzle_sst | 1x1 | segregated | original | probe_recovery_checked | fd_step_1e-8 | -12 | diagnostic_complete | False | 1 | — | 4.708 |
 | naca_sa | 1x1 | native | original | recovery_release | original | -14.0 | qualified | True | 298 | 36.747 | 37.305 |
 | naca_sa | 1x1 | native | original | recovery_release | original | -15.0 | incomplete_time_cap | False | 2669 | 300.112 | 300.743 |
-| naca_sa | 1x1 | segregated | original | muscl_boundary_gradient_v2_release | adaptive | -14.0 | running | False | — | — | — |
+| naca_sa | 1x1 | segregated | original | muscl_boundary_gradient_v2_release | adaptive | -14.0 | incomplete_time_cap | False | 1217 | 7203.274 | 7203.906 |
 | naca_sa | 1x1 | coupled | original | recovery_release | forcing | -13.0 | iteration_cap | False | 6 | 35.446 | 35.946 |
 | naca_sa | 1x1 | coupled | original | recovery_release | forcing | -13.0 | iteration_cap | False | 6 | 42.225 | 42.784 |
 | naca_sa | 1x1 | coupled | original | recovery_release | forcing | -13.0 | iteration_cap | False | 6 | 20.044 | 20.660 |

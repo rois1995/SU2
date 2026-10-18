@@ -281,7 +281,7 @@ time is 1670.995/1671.756 seconds and peak rank RSS 130988 KiB. These are resour
 measurements; the host is contended and memory remains safe. It might converge
 with further work under these controls.
 
-The next serial segregated run changes **only `NEWTON_ADAPT_CFL=NO` to `YES`**.
+The serial segregated follow-up changes **only `NEWTON_ADAPT_CFL=NO` to `YES`**.
 Reversing that one edit reproduces the original configuration byte for byte.
 Forcing stays off, nominal linear target stays 0.001, inner iterations stay 0 and
 history stop stays −14. All frozen physical/state/quantity gates remain fixed.
@@ -331,8 +331,44 @@ derivative-verification failures. Their log intervals consume 7240 FLOW assembli
 (30.4% of counted FLOW work), versus 96 in the original-control prefix. Intervals
 include bases and intervening reports; these are not isolated failure kernels or
 time fractions. This explains why the update reduction does not translate into
-a comparable work reduction. The full adaptive endpoint is still pending; these
-data do not qualify a convergence improvement or justify a new default.
+a comparable work reduction. These crossings do not qualify a convergence
+improvement or justify a new default; the completed capped assessment follows.
+
+## Completed CFL-only segregated SA assessment
+
+The 1×1 adaptive-CFL-only run reaches its 7200-second resource cap after 1,217
+updates, with 132,431 FLOW/69,295 TURB assemblies and 75,782 outer Krylov iterations.
+Its density history ends at −13.172 rather than the unchanged −14 stop. Status is
+**incomplete_time_cap**; observed loop 7,203.274 s/end-to-end 7,203.906 s are resource
+costs, not convergence times. The executable remains c04b; the pending source
+optimization was not used. Only CFL adaptation differs from the original
+segregated configuration; forcing remains off and inner work remains 0.
+
+All 610 retries are measured FLOW derivative-verification failures, with 3,844
+discarded Krylov iterations and 732 failed products. Their log intervals account
+for 40,360 FLOW assemblies (30.5% of the reported total), including rollback/base
+work and intervening reports. Only two retries have zero completed iterations.
+TURB has no retries; it consumes 61,289 accepted Krylov iterations. There are no
+backtracks. Accepted FLOW CFLs are mostly 31.25–250; every nonzero accepted FLOW
+step requests doubling. TURB reaches 1e6. This supports investigating product
+verification and CFL cycling, rather than attributing this case to backtracking
+or assuming that a duplicate base refresh explains most of its work.
+
+The independently refreshed saved state passes the frozen physical, boundary,
+state and quantity bounds: density RMS 6.730e−14, maximum normalized RMS 6.730e−14,
+zero boundary projection, maximum component error 8.442e−8 and point error 1.493e−6
+against canonical native. The canonical audit remains unqualified because the
+run was interrupted; passing saved-state gates does not convert the cap into a
+converged endpoint. Peak rank RSS 142,304 KiB, minimum available RAM 40,188,924 KiB,
+and no memory guard termination were observed. Foreign CPU work makes timing
+ineligible. No convergence-work ratio or general speedup is inferred.
+
+The assessment, raw-file hashes, all rejection intervals and accepted CFL
+distribution are preserved in
+`sa_original_segregated_progress/adaptive_cfl_time_limited_assessment.json`
+under the application evidence directory. Reproduce with the earlier command,
+`--control adaptive`, and a fresh output directory. The maintained application
+and milestone tables retain its incomplete status.
 
 <!-- measured NACA results -->
 
@@ -362,7 +398,7 @@ Configurations remain labelled per row. Coupled SA baselines use diagonal/adapti
 | 0/0 | naca_sa | 2x2 | coupled / diagonal | qualified | 333 | 83590/83590 | 22279/0 | 166/0 | 103304 | 1090.736 / 1091.372 | 7.831e-06 |
 | 0/0 | naca_sst | 1x1 | segregated / original | incomplete_time_cap | 1254 | 133911/24743 | 41283/0 | 2/0 | 174404 | 3600.846 / 3601.375 | 5.200e-06 |
 | 3/0 | naca_sst | 1x1 | segregated / original | incomplete_time_cap | 500 | 51362/13686 | 18170/36294 | 2/0 | 142676 | 3601.092 / 3601.715 | 1.669e-05 |
-| 0/0 | naca_sa | 1x1 | segregated / adaptive | running | — | / | / | / | — | — / — | — |
+| 0/0 | naca_sa | 1x1 | segregated / adaptive | incomplete_time_cap | 1217 | 132431/69295 | 75782/0 | 610/0 | 142304 | 7203.274 / 7203.906 | 1.493e-06 |
 | 0/0 | naca_sa | 1x1 | segregated / original | incomplete_work_cap | 480 | 34049/18831 | 22172/0 | 2/0 | 130988 | 1670.995 / 1671.756 | 2.954e-05 |
 | 0/0 | naca_sa | 1x1 | coupled / diagonal | qualified | 179 | 33415/33415 | 7603/0 | 89/0 | 171400 | 764.796 / 765.385 | 7.851e-06 |
 
