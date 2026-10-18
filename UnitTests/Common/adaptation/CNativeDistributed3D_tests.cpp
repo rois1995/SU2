@@ -1838,8 +1838,8 @@ TEST_CASE("Native MPI full vertex-star facet filtering protects corners beyond c
   EngineReport(result,world,"full_star_facet_filter");
 }
 
-TEST_CASE("Native MPI narrow metric-query routing preserves exhaustive closed donor footprints", "[NativeDistributed3D][NativeDonorReuse3D]") {
-  World world;
+TEST_CASE("Native MPI narrow metric-query routing preserves exhaustive closed donor footprints", "[NativeDistributed3D][NativeDonorReuse3D][NativeMetricSamples3D]") {
+  World world;bool recovered_centroid=false;
   for (bool thin : {false,true}) {
     auto transform = [=](Point p) { return thin ? Point{.5*(p.x+p.y),.5*(p.y-p.x),std::ldexp(p.z,-20)} : p; };
     std::vector<Cell> cells;
@@ -1889,6 +1889,19 @@ TEST_CASE("Native MPI narrow metric-query routing preserves exhaustive closed do
         for(size_t i=0;i<6;++i)CHECK(value[i]==Approx(analytic[i]).epsilon(1e-13));
         for(size_t i=0;i<4;++i)for(size_t j=i+1;j<4;++j)CHECK(field.SensorEdgeLength(cell.v[i].p,cell.v[j].p)>0);
       } else CHECK(imported.cells.empty());
+      std::vector<std::array<Point,2>> segments;
+      if(world.rank==world.size-1)for(unsigned i=0;i<4;++i)for(unsigned j=i+1;j<4;++j)segments.push_back({cell.v[i].p,cell.v[j].p});
+      const auto edge_only=service.ImportEdgeSegments(segments);REQUIRE(edge_only.valid);
+      const auto canonical=service.SamplePoints(world.rank==world.size-1?std::vector<Point>{center}:std::vector<Point>{});REQUIRE(canonical.valid);
+      const auto exact_samples=service.ImportMetricSamples(query);INFO(exact_samples.reason);REQUIRE(exact_samples.valid);
+      if(world.rank==world.size-1) {
+        const auto key=canonical.samples.at(0).Key();
+        recovered_centroid=recovered_centroid || std::none_of(edge_only.cells.begin(),edge_only.cells.end(),[&](const DonorCell& d){return d.Key()==key;});
+        CHECK(std::any_of(exact_samples.cells.begin(),exact_samples.cells.end(),[&](const DonorCell& d){return d.Key()==key;}));
+        FrozenField exact(exact_samples.cells);const auto actual=TensorValues(exact.Query(center).sensor),analytic=TensorValues(Sensor(center));
+        for(unsigned k=0;k<6;++k)CHECK(actual[k]==Approx(analytic[k]).epsilon(1e-13));
+        for(unsigned i=0;i<4;++i)for(unsigned j=i+1;j<4;++j)CHECK(exact.SensorEdgeLength(cell.v[i].p,cell.v[j].p)>0);
+      }
       CHECK_FALSE(service.ImportMetricCells(query,1).valid);CHECK(service.ResidentBytes()==resident);
       auto invalid=query;if(!invalid.empty())std::swap(invalid.front().v[0],invalid.front().v[1]);
       CHECK_FALSE(service.ImportMetricCells(invalid).valid);CHECK(service.ResidentBytes()==resident);
@@ -1902,6 +1915,7 @@ TEST_CASE("Native MPI narrow metric-query routing preserves exhaustive closed do
       CHECK(rejected>0);
     else CHECK(rejected==0);
   }
+  CHECK(world.maximum(recovered_centroid));
 }
 
 TEST_CASE("Native MPI owner publication admits aggregated independent cavities", "[NativeDistributed3D][NativeStaticFix3D]") {
@@ -2901,6 +2915,60 @@ TEST_CASE("Owner-routed point samples preserve canonical physical and extension 
   CHECK_FALSE(refused.valid);CHECK(refused.samples.empty());CHECK(service.ResidentBytes()==bytes);
 }
 
+TEST_CASE("Known metric support never fabricates missing centroid or edge coverage", "[NativeMetricSamples3D]") {
+  World world;std::vector<DonorCell> local;
+  for(unsigned k=0;k<2;++k) {
+    DonorCell d;d.cell={k,{{{4*k,{3.*k,0,0}},{4*k+1,{3.*k+1,0,0}},{4*k+2,{3.*k,1,0}},{4*k+3,{3.*k,0,1}}}}};
+    d.sensor.fill({1,0,0,1,0,1});if((k+1)%world.size==unsigned(world.rank))local.push_back(d);
+  }
+  DonorImport source(world);std::string reason;REQUIRE(source.Build(local,reason));const auto held=source.ResidentBytes();
+  const Cell query{9,{{{100,{0,0,0}},{101,{3,0,0}},{102,{0,1,0}},{103,{0,0,1}}}}};
+  const auto cells=world.rank==world.size-1?std::vector<Cell>{query}:std::vector<Cell>{};
+  const auto sampled=source.ImportMetricSamples(cells);INFO(sampled.reason);REQUIRE(sampled.valid);
+  if(world.rank==world.size-1) {
+    FrozenField field(sampled.cells);CHECK_THROWS(field.Query(Centroid(query)));
+    CHECK_THROWS(MeasureMetricCells({query},field));CHECK_THROWS(field.TargetEdgeLength(query.v[0].p,query.v[1].p));
+  }
+  const auto strict=source.SamplePoints(world.rank==world.size-1?std::vector<Point>{Centroid(query)}:std::vector<Point>{});
+  CHECK_FALSE(strict.valid);CHECK(strict.samples.empty());CHECK(source.ResidentBytes()==held);
+}
+
+TEST_CASE("Canonical ideal-midpoint samples retain physical priority and exact boundary weights", "[NativeMidpointSamples3D]") {
+  World world;DonorCell physical;physical.cell.id=74753;
+  physical.cell.v={{{6758,{.5683152985314954,.07855169036323718,.02781832897848278}},
+      {6804,{.5539589887874311,.06659188433438007,.02873117516934826}},
+      {39146,{.5661287222999969,.08810439336809825,.05224913251574465}},
+      {60068,{.573893966318129,.06987809295852927,.04422988413910242}}}};
+  const auto a=physical.cell.v[0].p,b=physical.cell.v[1].p;
+  if(Orientation(physical.cell.v[0].p,physical.cell.v[1].p,physical.cell.v[2].p,physical.cell.v[3].p)<0)std::swap(physical.cell.v[0],physical.cell.v[1]);
+  for(unsigned j=0;j<4;++j){const auto p=physical.cell.v[j].p;physical.sensor[j]={2+p.x,.01,0,3+p.y,0,4+p.z};}
+  DonorCell extension=physical;extension.cell.id=0;extension.extension_component=777;
+  for(unsigned j=0;j<4;++j){extension.cell.v[j].id=j;extension.sensor[j]={32,0,0,32,0,32};}
+  std::vector<DonorCell> all{physical,extension},local;
+  for(const auto& d:all)if((d.cell.id+1)%world.size==unsigned(world.rank))local.push_back(d);
+  DonorImport source(world,true);std::string reason;REQUIRE(source.Build(local,reason));const auto held=source.ResidentBytes();
+  const std::vector<std::array<Point,2>> query{{a,b},{b,a},{a,a}};
+  const auto result=source.SampleMidpoints(world.rank==0?query:std::vector<std::array<Point,2>>{},world.rank==0?std::vector<Id>{777}:std::vector<Id>{});
+  INFO(result.reason);REQUIRE(result.valid);
+  if(!world.rank) {
+    FrozenField expected(all,{},false,{777});REQUIRE(result.samples.size()==query.size());
+    for(size_t i=0;i<query.size();++i) {
+      const auto ref=expected.QueryMidpoint(query[i][0],query[i][1]);const auto& actual=result.samples[i];
+      CHECK(actual.Key()==ref.donor);CHECK(actual.weights==ref.weights);CHECK(actual.extension_component==UINT64_MAX);
+      CHECK(actual.sensor.xx==ref.sensor.xx);CHECK(actual.sensor.yy==ref.sensor.yy);CHECK(actual.sensor.zz==ref.sensor.zz);
+    }
+    const Point rounded{double(((long double)a.x+b.x)/2),double(((long double)a.y+b.y)/2),double(((long double)a.z+b.z)/2)};
+    FrozenField strict({physical});CHECK_THROWS(strict.Query(rounded));
+  }else CHECK(result.samples.empty());
+  const auto bad=source.SampleMidpoints(world.rank==world.size-1?std::vector<std::array<Point,2>>{{a,{NAN,0,0}}}:std::vector<std::array<Point,2>>{});
+  CHECK_FALSE(bad.valid);CHECK(bad.samples.empty());
+  CHECK_FALSE(source.SampleMidpoints(std::vector<std::array<Point,2>>(MaximumCavityCells+1)).valid);
+  CHECK_FALSE(source.SampleMidpoints({}, {},world.rank==0?1:SIZE_MAX).valid);
+  CHECK(source.ResidentBytes()==held);
+  const auto missing=source.SampleMidpoints(world.rank==0?std::vector<std::array<Point,2>>{{Point{4,0,0},Point{6,0,0}}}:std::vector<std::array<Point,2>>{});
+  CHECK_FALSE(missing.valid);CHECK(missing.samples.empty());
+}
+
 TEST_CASE("Canonical owner point samples do not import large incident donor stars", "[NativePointSamples3D]") {
   World world;std::vector<DonorCell> local;Id next=0;
   std::array<std::array<Node,13>,13> grid;
@@ -2931,6 +2999,20 @@ TEST_CASE("Canonical owner point samples do not import large incident donor star
     REQUIRE(integral.cells.size()==1);FrozenField field(integral.cells);
     CHECK(field.TargetEdgeLength(origin,end)==Approx(std::sqrt(2*(.01*.01+.02*.02+.5*.5))).epsilon(1e-12));
   }
+  Cell query{9000,{{{9001,origin},{9002,{.01,0,.5}},{9003,{0,.01,.5}},{9004,{.01,.01,.5}}}}};
+  if(Orientation(query.v[0].p,query.v[1].p,query.v[2].p,query.v[3].p)<0)std::swap(query.v[0],query.v[1]);
+  const auto known=world.rank==0?std::vector<Cell>{query}:std::vector<Cell>{};
+  CHECK_FALSE(service.ImportMetricCells(known).valid);
+  const auto measured=service.ImportMetricSamples(known);INFO(measured.reason);REQUIRE(measured.valid);
+  if(!world.rank) {
+    REQUIRE(measured.cells.size()<MaximumDonors);FrozenField field(measured.cells);DonorCell d;d.cell=query;d.sensor.fill({2,0,0,2,0,2});FrozenField reference({d});
+    const auto actual=MeasureMetricCells({query},field),expected=MeasureMetricCells({query},reference);
+    CHECK(actual.minimum_mean_ratio==expected.minimum_mean_ratio);CHECK(actual.minimum_scaled_jacobian==expected.minimum_scaled_jacobian);
+    CHECK(actual.edges.size()==expected.edges.size());for(const auto& edge:actual.edges)CHECK(edge.second.length==Approx(expected.edges.at(edge.first).length).epsilon(1e-12));
+  }
+  CHECK_FALSE(service.ImportMetricSamples(known,{},1).valid);
+  CHECK_FALSE(service.ImportMetricSamples(std::vector<Cell>(MaximumCavityCells/6+1)).valid);
+  CHECK(service.ImportMetricSamples({}).valid);
   CHECK_FALSE(service.ImportEdgeSegments(world.rank==0?std::vector<std::array<Point,2>>{{origin,origin}}:std::vector<std::array<Point,2>>{}).valid);
   CHECK_FALSE(service.ImportEdgeSegments(world.rank==0?std::vector<std::array<Point,2>>{{origin,Point{-1,-1,-1}}}:std::vector<std::array<Point,2>>{}).valid);
   PlanarReference geometry(std::vector<Facet>{});size_t composed=0;
@@ -2965,6 +3047,9 @@ TEST_CASE("Metric donor intervals still reject genuinely oversized positive foot
   DonorImport source(world);std::string reason;REQUIRE(source.Build(local,reason));
   const auto result=source.ImportEdgeSegments(world.rank==0?std::vector<std::array<Point,2>>{{Point{},Point{double(count),0,0}}}:std::vector<std::array<Point,2>>{});
   CHECK_FALSE(result.valid);CHECK(result.cells.empty());CHECK_FALSE(result.reason.empty());
+  Cell query{count+7,{{{count+10,{0,0,0}},{count+11,{double(count),0,0}},{count+12,{0,1,0}},{count+13,{0,0,1}}}}};
+  const auto sampled=source.ImportMetricSamples(world.rank==0?std::vector<Cell>{query}:std::vector<Cell>{});
+  CHECK_FALSE(sampled.valid);CHECK(sampled.cells.empty());CHECK(sampled.reason.find("patch budget")!=std::string::npos);
 }
 
 
@@ -3106,11 +3191,12 @@ TEST_CASE("Saved original metric edge replays its high-valence footprint without
   std::ifstream input(path);std::string magic;size_t count=0;Id aid=0,bid=0;Point a,b;
   input>>magic>>count>>aid>>bid>>a.x>>a.y>>a.z>>b.x>>b.y>>b.z;
   REQUIRE(magic=="NATIVE_METRIC_EDGE_WITNESS_V1");REQUIRE(count>MaximumDonors);REQUIRE(count<=8192);
-  std::vector<DonorCell> local;std::set<Id> expected;
+  std::vector<DonorCell> local,all;std::set<Id> expected;
   for(size_t i=0;i<count;++i) {
     DonorCell d;input>>d.cell.id;bool first=false,last=false;
     for(unsigned k=0;k<4;++k){auto& n=d.cell.v[k];auto& m=d.sensor[k];input>>n.id>>n.p.x>>n.p.y>>n.p.z>>m.xx>>m.xy>>m.xz>>m.yy>>m.yz>>m.zz;first=first||n.id==aid;last=last||n.id==bid;}
     REQUIRE(bool(input));REQUIRE(first);if(last)expected.insert(d.cell.id);
+    all.push_back(d);
     if(d.cell.id%world.size==unsigned(world.rank))local.push_back(d);
   }
   std::vector<char> bytes;RecordStream encode(bytes);for(auto d:local)encode(d);DonorImport source(world);std::string reason;REQUIRE(source.Build(local,reason));
@@ -3124,5 +3210,20 @@ TEST_CASE("Saved original metric edge replays its high-valence footprint without
     if(std::abs(field.edge(a,b)-std::hypot(std::hypot(a.x-b.x,a.y-b.y),a.z-b.z))>1e-12L)throw std::runtime_error("Saved full identity edge changed.");
   });}catch(const std::exception& e){failure.Set(1,0,e.what());}
   const auto failed=world.elect(failure);INFO(failed.message);CHECK_FALSE(failed.any);std::vector<char> after;RecordStream encodeAfter(after);for(auto d:local)encodeAfter(d);CHECK(after==bytes);
+  Fixture fixture;std::map<Id,Node> nodes;
+  for(const auto& d:all){fixture.patch.cells.push_back(d.cell);for(auto n:d.cell.v)nodes.emplace(n.id,n);}
+  for(const auto face:Incidence(fixture.patch.cells).Boundary()) {
+    const Id id=fixture.facets.size();fixture.patch.surface.push_back({face,id});
+    fixture.facets.push_back({id,0,{nodes.at(face[0]),nodes.at(face[1]),nodes.at(face[2])}});
+  }
+  const PlanarReference authority(fixture.facets);const auto owned=Partition(Rows(fixture.patch),world);const auto before=Bytes(owned);
+  EngineOptions options;options.maximum_work=4096;options.maximum_seconds=30;options.timings=true;
+  options.edge_breakpoints=[](Point,Point){return std::vector<double>{0,1};};
+  const auto reduced=Coarsen(world,owned,Uniform(owned,{.25,0,0,.25,0,.25}),authority,[](Point,Tensor m){return m;},options);
+  INFO(reduced.reason);REQUIRE(reduced.valid);CHECK(reduced.stats.cached_invalid_cells==0);
+  CHECK(reduced.stats.cached_measured_cells==reduced.cells.size());CHECK(reduced.stats.remaining_edges==0);
+  CHECK(world.sum(int(reduced.stats.rejected))>0);CHECK(Bytes(owned)==before);
+  CHECK(Audit(world,reduced.cells,fixture,CPassiveComm::Allreduce(reduced.cells.size(),CPassiveComm::Op::SUM,world.comm)));
+  if(!world.rank)std::cout<<"STAR_ADMISSION_CONTROL cells="<<count<<" cap="<<MaximumCavityCells<<" valid="<<reduced.valid<<" work="<<reduced.stats.global_work<<std::endl;
   if(!world.rank)std::cout<<"EDGE_WITNESS ranks="<<world.size<<" original="<<count<<" positive="<<expected.size()<<" valid="<<!failed.any<<std::endl;
 }

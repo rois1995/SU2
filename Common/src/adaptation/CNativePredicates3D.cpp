@@ -309,6 +309,8 @@ bool SegmentIntersection(const Tetrahedron& donor, Point a, Point b, KernelStats
     const auto va = Orientation(ta[0], ta[1], ta[2], ta[3], stats);
     const auto vb = point ? va : Orientation(tb[0], tb[1], tb[2], tb[3], stats);
     if (va < 0 && vb < 0) return false;
+    // A zero/outside face pair excludes every interior segment parameter, without rational roots.
+    if (!closed && ((va==0 && vb<0) || (va<0 && vb==0))) return false;
     inside_a = inside_a && va >= 0; inside_b = inside_b && vb >= 0;
   }
   if (inside_a && inside_b) return closed || !point;

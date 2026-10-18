@@ -477,7 +477,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
   DonorImport source(world,options.timings);
   size_t accepted_bytes=MapBytes(accepted);
   auto selection_bound=[&](bool repairs) { return coarsening ? (repairs ? 6144u : 4096u) : (repairs ? 5120u : 3072u); };
-  std::vector<Id> initial;
+  std::vector<Id> initial,eligible_extensions;
   auto vote=[&](const CLocalFailure& local) {
     const auto elected=world.elect(local);
     if (elected.any) result.reason=elected.message;
@@ -486,7 +486,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
   size_t batch_bytes=0;
   auto bytes=[&]() {
     return transfer_memory::Add(options.caller_bytes,MapBytes(options.wall_heights),MapBytes(options.region_walls),accepted_bytes,batch_bytes,MapBytes(working),
-        transfer_memory::Bytes(original),transfer_memory::Bytes(initial),transfer_memory::Bytes(result.splits),transfer_memory::Bytes(result.collapses),
+        transfer_memory::Bytes(original),transfer_memory::Bytes(initial),transfer_memory::Bytes(eligible_extensions),transfer_memory::Bytes(result.splits),transfer_memory::Bytes(result.collapses),
         selection.Bytes(),MapBytes(retired_edges),field_identity ? 64 : 0);
   };
   auto admit=[&](size_t extra) {
@@ -685,7 +685,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         ready=vote(failure);
       }
     }
-    if (ready) ready=admit(transfer_memory::Add(accepted_bytes,64,
+    if (ready) ready=admit(transfer_memory::Add(accepted_bytes,64,transfer_memory::Mul(geometry.Analytic().size(),sizeof(Id)),
         transfer_memory::Mul(std::min<uint64_t>(stats.work_limit,4096),
             coarsening ? sizeof(Edge) : sizeof(SplitRecord)),transfer_memory::Mul(accepted.size(),selection_bound(repairing))));
     if (ready) try {
@@ -695,6 +695,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       if (coarsening) result.collapses.reserve(std::min<uint64_t>(stats.work_limit,4096));
       else if (!repairing) result.splits.reserve(std::min<uint64_t>(stats.work_limit,4096));
       initial.reserve(working.size());
+      eligible_extensions.reserve(geometry.Analytic().size());for(const auto& row:geometry.Analytic())eligible_extensions.push_back(row.first);
       if(curved)for(const auto& donor:original) {
         maximum_cell=std::max(maximum_cell,donor.cell.id);
         for(auto node:donor.cell.v)maximum_node=std::max(maximum_node,node.id);
@@ -881,6 +882,13 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     if(options.timings)stats.reconstruction_seconds+=std::chrono::duration<double>(Clock::now()-region_started).count();
     region_active=false;result.valid=false;result.reason.clear();
   }
+  auto composed_sample=[&](Point point,Tensor sensor) {
+    Timer query(stats.field_query_seconds,options.timings);++stats.field_requests;++stats.field_misses;
+    try {
+      if(composition){Timer compose(stats.field_composition_seconds,options.timings);++stats.field_compositions;sensor=composition(point,sensor);}
+      ValidateTensor(sensor);return sensor;
+    }catch(...){++stats.field_failures;throw;}
+  };
   auto import_source=[&](const std::vector<Cell>& cells,size_t extra,bool layer) {
     auto failed=[&](){DonorPatch patch;patch.reason=result.reason;return patch;};
     if(!admit(transfer_memory::Add(extra,transfer_memory::Bytes(cells),transfer_memory::Mul(cells.size(),sizeof(Point)))))return failed();
@@ -1168,7 +1176,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         if (!imported.valid && batch==1 &&
             DonorCap(imported.reason)) {
           ++stats.donor_batches; ++stats.query_import_retries;
-          imported=source.ImportMetricCells(regions,options.memory_ceiling,
+          imported=source.ImportMetricSamples(regions,eligible_extensions,options.memory_ceiling,
               transfer_memory::Add(bytes(),directory.ResidentBytes()));
         }
         if (imported.valid) break;
@@ -1480,7 +1488,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         const auto features=choice.active ? std::vector<Feature>{feature} : std::vector<Feature>{};
         if(planned_coarsening) {
           if(choice.active)dependencies=std::move(dependency_batch.candidates.at(0));else dependencies.valid=true;
-        } else if(curved && repairing) {
+        } else if(coarsening || (curved && repairing)) {
           auto batch=directory.LookupBatch(features,options.memory_ceiling,transfer_memory::Add(bytes(),source.ResidentBytes()));
           if(!batch.valid) {result.reason=batch.reason;return finish();}
           if(choice.active)dependencies=std::move(batch.candidates.at(0));else dependencies.valid=true;
@@ -1489,11 +1497,11 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
           if(choice.active && !dependencies.valid && !oversized)lookup_failure.Set(1,0,dependencies.reason);
           if(!vote(lookup_failure))return finish();
           if(world.maximum(oversized)) {
-            // Reject this oversized repair star; other bounded repairs may still unlock the curved mesh.
+            // Refuse this proposal; publication still requires its complete star. Changed stars reactivate coarsening.
             if(oversized) {
-              selection.Block(choice.edge,choice.feature,true);++stats.attempted;++stats.rejected;
-              stats.last_rejected_feature=choice.feature;
-              last_rejection="feature "+std::to_string(choice.feature.count)+":"+std::to_string(choice.feature.vertices[0])+": "+dependencies.reason;
+              selection.Block(choice.edge,choice.feature,repairing);++stats.attempted;++stats.rejected;
+              stats.last_rejected_feature=feature;
+              last_rejection="feature "+std::to_string(feature.count)+":"+std::to_string(feature.vertices[0])+": "+dependencies.reason;
             }
             continue;
           }
@@ -1761,7 +1769,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         measured={};
         if (!cells.empty()) measured.weakest_cell=measured.sliver_cell=cells.front().id;
         for (size_t slot=0;slot<count;) {
-          size_t batch=std::min(MeasurementBatch,count-slot);
+          size_t batch=std::min({MeasurementBatch,MaximumCavityCells/6,count-slot});
           DonorPatch donors;
           for (;;) {
             std::vector<Cell> query;
@@ -1772,7 +1780,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
             {
               Timer timer(stats.donor_seconds,options.timings);
               ++stats.donor_batches;
-              donors=source.ImportMetricCells(query,options.memory_ceiling,
+              donors=source.ImportMetricSamples(query,eligible_extensions,options.memory_ceiling,
                   transfer_memory::Add(bytes(),directory.ResidentBytes(),private_scratch));
             }
             if (donors.valid) break;
@@ -2343,24 +2351,22 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       joint=joint && boundary_edge;
       Tensor placement,nearPlacement;
       if(world.maximum(joint)) {
-        std::vector<Cell> query;
+        std::vector<Point> query;
         if(joint)try {
-          query.push_back(old.cells.front());
-          const auto edgeCell=std::find_if(old.cells.begin(),old.cells.end(),[&](const auto& c){
-            unsigned matches=0;for(auto n:c.v)matches+=n.id==choice.edge[0] || n.id==choice.edge[1];return matches==2;
-          });
-          if(edgeCell==old.cells.end())throw std::runtime_error("Native3D joint patch lacks its complete split edge.");
-          if(edgeCell->id!=query.front().id)query.push_back(*edgeCell);
-        }catch(const std::exception& e){failure.Set(2,0,e.what());}
+          if(std::none_of(old.cells.begin(),old.cells.end(),[&](const Cell& cell){unsigned matches=0;for(auto n:cell.v)matches+=n.id==choice.edge[0] || n.id==choice.edge[1];return matches==2;}))
+            throw std::runtime_error("Native3D joint patch lacks its complete split edge.");
+          query.push_back(Centroid(old.cells.front()));if(!choice.geometric)query.push_back(point.p);
+        }
+        catch(const std::exception& e){failure.Set(2,0,e.what());}
         if(!(ready=vote(failure)))return finish();
-        const auto proxy=source.ImportMetricCells(query,
-            options.memory_ceiling,transfer_memory::Add(bytes(),directory.ResidentBytes(),private_scratch));
+        DonorSamples proxy;
+        {Timer timer(stats.donor_seconds,options.timings);++stats.donor_batches;
+          proxy=source.SamplePoints(query,eligible_extensions,options.memory_ceiling,
+              transfer_memory::Add(bytes(),directory.ResidentBytes(),private_scratch));}
         if(!proxy.valid){result.reason=proxy.reason;return finish();}
         if(joint)try {
-          const auto components=AssociatedExtensions(proxy.cells,geometry);
-          FrozenField sample(proxy.cells,composition,options.timings,components,options.edge_breakpoints,field_identity);
-          placement=sample.Query(Centroid(old.cells.front())).target;
-          nearPlacement=choice.geometric ? placement : sample.Query(point.p).target;FieldCounts(stats,sample);
+          placement=composed_sample(query[0],proxy.samples.at(0).sensor);
+          nearPlacement=choice.geometric ? placement : composed_sample(query[1],proxy.samples.at(1).sensor);
         }catch(const std::exception& e){failure.Set(2,0,e.what());}
         if(!(ready=vote(failure)))return finish();
       }
@@ -2591,32 +2597,26 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
           neighbors.erase(vertex);
         }}catch(const std::exception& e){failure.Set(2,0,e.what());}
         if(!(ready=vote(failure)))return finish();
-        const size_t count=CPassiveComm::Allreduce(participating?old.cells.size():0,CPassiveComm::Op::MAX,world.comm);
-        for(size_t at=0;at<count;) {
-          size_t batch=std::min<size_t>(16,count-at);DonorPatch donors;
-          for(;;) {
-            std::vector<Cell> queries;
-            try {if(participating)for(size_t i=at;i<std::min(at+batch,old.cells.size());++i)queries.push_back(old.cells[i]);}
-            catch(const std::exception& e){failure.Set(2,0,e.what());}
-            if(!(ready=vote(failure)))return finish();
-            {Timer timer(stats.donor_seconds,options.timings);++stats.donor_batches;
-              donors=source.ImportMetricCells(queries,options.memory_ceiling,transfer_memory::Add(bytes(),directory.ResidentBytes(),private_scratch));}
-            if(donors.valid)break;
-            if(!DonorCap(donors.reason) || batch==1){result.reason=donors.reason;return finish();}
-            batch=(batch+1)/2;++stats.batch_retries;
-          }
-          if(participating && at<old.cells.size())try {
-            Timer timer(stats.metric_seconds,options.timings);CpuTimer cpu(stats.metric_cpu_seconds,options.timings);
-            const auto components=AssociatedExtensions(donors.cells,geometry);
-            FrozenField target(std::move(donors.cells),composition,options.timings,components,options.edge_breakpoints,field_identity);
-            FieldAccounting accounting{stats,target};
-            for(size_t i=at;i<std::min(at+batch,old.cells.size());++i)for(const auto& n:old.cells[i].v)
-              if(neighbors.count(n.id) && !samples.count(n.id)) {
-                const auto q=n.p;
-                samples.emplace(n.id,target.QueryMidpoint(origin,q).target);
-              }
-          }catch(const std::exception& e){failure.Set(2,0,e.what());}
-          if(!(ready=vote(failure)))return finish();at+=batch;
+        std::vector<Id> query_ids;
+        try {query_ids.assign(neighbors.begin(),neighbors.end());}catch(const std::exception& e){failure.Set(2,0,e.what());}
+        if(!(ready=vote(failure)))return finish();
+        const auto count=CPassiveComm::Allreduce(query_ids.size(),CPassiveComm::Op::MAX,world.comm);
+        for(size_t at=0;at<count;at+=MaximumCavityCells) {
+          std::vector<std::array<Point,2>> queries;
+          try {for(size_t i=at;i<std::min(at+MaximumCavityCells,query_ids.size());++i)queries.push_back({origin,nodes.at(query_ids[i]).p});}
+          catch(const std::exception& e){failure.Set(2,0,e.what());}
+          if(!(ready=vote(failure)))return finish();
+          DonorSamples answer;
+          {Timer timer(stats.donor_seconds,options.timings);++stats.donor_batches;
+            answer=source.SampleMidpoints(queries,eligible_extensions,options.memory_ceiling,
+                transfer_memory::Add(bytes(),directory.ResidentBytes(),private_scratch));}
+          if(!answer.valid){result.reason=answer.reason;return finish();}
+          try {for(size_t i=0;i<queries.size();++i) {
+            const auto a=queries[i][0],b=queries[i][1];
+            const Point p{double(((long double)a.x+b.x)/2),double(((long double)a.y+b.y)/2),double(((long double)a.z+b.z)/2)};
+            samples.emplace(query_ids[at+i],composed_sample(p,answer.samples.at(i).sensor));
+          }}catch(const std::exception& e){failure.Set(2,0,e.what());}
+          if(!(ready=vote(failure)))return finish();
         }
         try {if(participating && !neighbors.empty()) {
           std::vector<std::pair<Point,Tensor>> values;for(auto id:neighbors)values.emplace_back(nodes.at(id).p,samples.at(id));

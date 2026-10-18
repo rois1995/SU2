@@ -147,3 +147,28 @@ performance remain open. No fixed-domain mass claim for curved cold construction
 its ledger explicitly includes2.713711347 fill volume. No CFD advances or viscous
 convergence. Closed query contracts,256cap, profile/fade and gates unchanged.
 [Receipts, costs, failures and limits](GOAL3_SPHERE_RANS_LIFECYCLE.md).
+
+
+## Finite private queries/admission — 2026-10-18
+
+**Worked:** canonical original centroid/midpoint support and complete positive edge
+intervals remove the private donor-union obstruction without raising256. Existing
+proposal-local refusal handles oversized coarsening stars without raising64.
+Current serial16/1241, MPI2/4 and independent strict/enabled N4M2 controls pass;
+the saved320cell core completes the capacity control. Exact endpoint-only face
+filtering cuts71264->20768exact orientations in the identical32-pass probe; observed
+.262->.095s is local, not full-event performance.
+
+**Did not finish:** the real unchanged-BL repeat now makes344private edits/5499work (192rank0+152rank1),
+then rejects at300.034s. CFD states remain unchanged; incomplete cached coverage
+precludes acceptance. The initial16cells/64queries mismatch is corrected and its
+failed attempt retained. Last local height errors do not prove infeasibility.
+
+**Measured remaining gap, rank0:** donor188.971s, metric41.824s, update18.862s. Existing
+scalar reuse records394472hits versus43336new private integrals, yet imports still
+repeat. This does NOT implement the full suggested donor-campaign cache, missing-
+edge planning or independent transaction batching. Metadata LookupBatch is not
+transaction batching. Next package should avoid importing support for certified
+reused lengths and share shape-first query work, preserving field/endpoint identity,
+coverage and collective closure. No new normalization/2D/physical/scaling claim.
+[Outcomes, receipts, controls and all retained failures](GOAL3_PRIVATE_QUERIES.md).

@@ -1,0 +1,28 @@
+{
+  "exit": 0,
+  "command": [
+    "nice",
+    "-n",
+    "19",
+    "c++",
+    "-O2",
+    "-std=c++17",
+    "-fno-fast-math",
+    "-ffp-contract=off",
+    "-I/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/sphere_private_queries_v1/endpoint_filter/probe.cpp",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/Common/src/libSU2AccurateSum.a.p/adaptation_CNativePredicates3D.cpp.o",
+    "-o",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/sphere_private_queries_v1/endpoint_filter/after"
+  ],
+  "seconds": 0.11240908899344504,
+  "hashes": {
+    "integration_evidence/build-integrated-v2/Common/src/libSU2AccurateSum.a.p/adaptation_CNativePredicates3D.cpp.o": "0ca2e5d5241b0c2d54b7635a76dd3740214c9a523f4929e7732c8ca720112c06",
+    "Common/src/adaptation/CNativePredicates3D.cpp": "7379a67b94970edc77cb804dc93a9275b0df5efe7944ac8555fe9ed5f6eb8bed",
+    "integration_evidence/native_3d_bl_v1/sphere_private_queries_v1/endpoint_filter/probe.cpp": "7f38f68cefffc61331a4b428e633152929e7102bc6075be0b4f246de4198c093",
+    "integration_evidence/native_3d_bl_v1/sphere_private_queries_v1/endpoint_filter/after": "8187c020a594d8c683a236bb4081c42da7b734d784077cbf596b96803a6e48ae",
+    "integration_evidence/native_3d_bl_v1/sphere_rans_lifecycle_v1/donor_witness_v1/witness.dat": "4feaba71c9796cbfd95cd9065e830da7b74a0e02ebd129b6cafc3ea5e140ddd9"
+  },
+  "stdout_sha256": "6c044e925389b1d9f3af565229440daff24dd3119c3d39726e73c45a43801fff",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}

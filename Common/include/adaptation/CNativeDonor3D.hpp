@@ -99,6 +99,16 @@ class DonorImport {
   /*! Only covers these cells' actual centroids and six closed edge segments; not arbitrary interior queries.
    * Reconstruction callers must retain full-cell imports until every private query is known. */
   DonorPatch ImportMetricCells(const std::vector<Cell>& cells, size_t ceiling = SIZE_MAX, size_t caller_bytes = 0);
+  /*! Exact measurement support: canonical centroid donors and all positive-length edge intervals.
+   * At most MaximumCavityCells/6 cells; no arbitrary interior or midpoint-query guarantee.
+   * Coverage remains authoritative in FrozenField; missing centroids never fabricate donors.
+   * Existing closed ImportMetricCells semantics remain available to reconstruction callers. */
+  DonorPatch ImportMetricSamples(const std::vector<Cell>& cells,const std::vector<Id>& extensions={},
+                                 size_t ceiling=SIZE_MAX,size_t caller_bytes=0);
+  /*! Sensor P1 at exact ideal endpoint midpoints, with the same owner priority as SamplePoints.
+   * This does not authorize ordinary queries at the rounded midpoint coordinate. */
+  DonorSamples SampleMidpoints(const std::vector<std::array<Point,2>>& endpoints,const std::vector<Id>& extensions={},
+                               size_t ceiling=SIZE_MAX,size_t caller_bytes=0);
   /*! Collective bounded point queries on the retained original owner indexes. One canonical answer per
    * point; physical P1 wins over explicitly eligible extensions. No composed tensor travels on wire.
    * Missing coverage or elected storage/protocol failure returns no partial answers. */
@@ -123,6 +133,8 @@ class DonorImport {
                           size_t ceiling, size_t caller_bytes, bool metric_queries = false,
                           const std::vector<std::array<Point,2>>* segments = nullptr,
                           const std::vector<Point>* points = nullptr, bool positive_segments = false);
+  DonorSamples SampleQueries(const std::vector<Point>& points,const std::vector<Id>& extensions,
+                             size_t ceiling,size_t caller_bytes,const std::vector<std::array<Point,2>>* midpoints=nullptr,bool allow_missing=false);
   bool Vote(const CLocalFailure& failure, std::string& reason);
   bool Admit(size_t bytes, size_t ceiling, std::string& reason);
 };

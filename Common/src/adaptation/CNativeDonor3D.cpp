@@ -51,7 +51,12 @@ struct OwnedDonor {
 };
 struct PointRequest {
   int caller=0;unsigned kind=0;size_t ordinal=0;Point point;Id component=UINT64_MAX;
-  template<class S>void Fields(S& s){s(caller,kind,ordinal,point,component);}
+  Point end{};bool midpoint=false;
+  template<class S>void Fields(S& s){s(caller,kind,ordinal,point,component,end,midpoint);}
+};
+struct SampleSupportRequest {
+  int caller=0;std::array<Id,4> key{};
+  template<class S>void Fields(S& s){s(caller,key);}
 };
 struct PointReply {
   size_t ordinal=0;DonorSample sample;
@@ -72,6 +77,14 @@ DonorRegion Bounds(const Cell& cell) {
 DonorRegion SegmentBounds(Point a, Point b) {
   return {std::min(a.x,b.x),std::min(a.y,b.y),std::min(a.z,b.z),
           std::max(a.x,b.x),std::max(a.y,b.y),std::max(a.z,b.z)};
+}
+DonorRegion PointBounds(const PointRequest& query) {
+  if(!query.midpoint)return SegmentBounds(query.point,query.point);
+  const Point p{double(((long double)query.point.x+query.end.x)/2),double(((long double)query.point.y+query.end.y)/2),double(((long double)query.point.z+query.end.z)/2)};
+  if(!std::isfinite(p.x) || !std::isfinite(p.y) || !std::isfinite(p.z))throw std::invalid_argument("Unrepresentable original midpoint coordinate.");
+  auto lower=[](double x){const auto y=std::nextafter(x,-INFINITY);return std::isfinite(y)?y:x;};
+  auto upper=[](double x){const auto y=std::nextafter(x,INFINITY);return std::isfinite(y)?y:x;};
+  return {lower(p.x),lower(p.y),lower(p.z),upper(p.x),upper(p.y),upper(p.z)};
 }
 bool SegmentMayIntersectBox(Point from, Point to, const double* box) {
   // Binary64 differences/products stay normal and finite only with this wider exponent range.
@@ -244,29 +257,112 @@ DonorPatch DonorImport::ImportCells(const std::vector<Cell>& cells, size_t ceili
 DonorPatch DonorImport::ImportMetricCells(const std::vector<Cell>& cells, size_t ceiling, size_t caller_bytes) {
   return ImportRegions({}, &cells, ceiling, caller_bytes, true);
 }
+DonorPatch DonorImport::ImportMetricSamples(const std::vector<Cell>& cells,const std::vector<Id>& extensions,
+                                           size_t ceiling,size_t caller_bytes) {
+  DonorPatch result;CLocalFailure failure;std::vector<Point> centers;std::vector<std::array<Point,2>> edges;
+  const auto prepared=transfer_memory::Add(caller_bytes,transfer_memory::Bytes(cells),transfer_memory::Bytes(extensions),
+      transfer_memory::GrowthBound(cells.size(),sizeof(Point)+6*sizeof(std::array<Point,2>)));
+  if(cells.size()>MaximumCavityCells/6)failure.Set(1,0,"Metric sample cell batch exceeds query budget.");
+  if(!Vote(failure,result.reason) || !Admit(transfer_memory::Add(prepared,ResidentBytes()),ceiling,result.reason))return result;
+  try {
+    centers.reserve(cells.size());edges.reserve(6*cells.size());
+    for(const auto& cell:cells) {
+      const auto& v=cell.v;
+      if(!(Orientation(v[0].p,v[1].p,v[2].p,v[3].p)>0))throw std::invalid_argument("Nonpositive metric sample cell.");
+      centers.push_back(Centroid(cell));for(auto edge:QueryEdges)edges.push_back({v[edge[0]].p,v[edge[1]].p});
+    }
+  }catch(const std::exception& e){failure.Set(2,0,e.what());}
+  if(!Vote(failure,result.reason))return result;
+  result=ImportEdgeSegments(edges,ceiling,prepared);if(!result.valid)return result;
+  const auto held=transfer_memory::Add(prepared,transfer_memory::Bytes(result.cells),transfer_memory::Bytes(result.source_rank));
+  const auto samples=SampleQueries(centers,extensions,ceiling,held,nullptr,true);
+  if(!samples.valid)return {{},false,samples.reason};
+  const auto route=transfer_memory::Add(held,ResidentBytes(),transfer_memory::Bytes(samples.samples),
+      transfer_memory::Mul(world.size,sizeof(std::vector<SampleSupportRequest>)),
+      transfer_memory::GrowthBound(samples.samples.size(),sizeof(SampleSupportRequest)));
+  if(!Admit(route,ceiling,result.reason))return {{},false,result.reason};
+  std::vector<std::vector<SampleSupportRequest>> send;
+  size_t missing=0;
+  try {send.resize(world.size);for(const auto& sample:samples.samples)
+    if(std::none_of(result.cells.begin(),result.cells.end(),[&](const DonorCell& d){return d.Key()==sample.Key();})) {
+      send.at(sample.source_rank).push_back({world.rank,sample.Key()});++missing;
+    }}
+  catch(const std::exception& e){failure.Set(2,0,e.what());}
+  if(!Vote(failure,result.reason))return {{},false,result.reason};
+  if(!world.maximum(missing!=0))return result;
+  bool admitted=false;const auto requests=world.exchange(send,&admitted,ceiling,route);
+  if(!admitted)failure.Set(3,0,"Metric point-support requests exceed storage.");
+  if(!Vote(failure,result.reason))return {{},false,result.reason};
+  const auto reply_bound=transfer_memory::Add(route,transfer_memory::Bytes(requests),
+      transfer_memory::Mul(world.size,sizeof(std::vector<OwnedDonor>)),transfer_memory::GrowthBound(requests.size(),sizeof(OwnedDonor)),
+      transfer_memory::GrowthBound(samples.samples.size(),sizeof(OwnedDonor)));
+  if(!Admit(reply_bound,ceiling,result.reason))return {{},false,result.reason};
+  std::vector<std::vector<OwnedDonor>> replies;
+  try {
+    replies.resize(world.size);
+    for(const auto& request:requests) {
+      if(request.caller<0 || request.caller>=world.size)throw std::runtime_error("Invalid metric point-support caller.");
+      const auto it=std::lower_bound(donors.begin(),donors.end(),request.key,[](const DonorCell& d,const std::array<Id,4>& key){return d.Key()<key;});
+      if(it==donors.end() || it->Key()!=request.key)throw std::runtime_error("Selected metric point support is absent from its original owner.");
+      replies[request.caller].push_back({*it,world.rank});
+    }
+  }catch(const std::exception& e){failure.Set(2,0,e.what());}
+  if(!Vote(failure,result.reason))return {{},false,result.reason};
+  const auto received=world.exchange(replies,&admitted,ceiling,reply_bound);
+  if(!admitted)failure.Set(3,0,"Metric point-support payload exceeds storage.");
+  if(!Vote(failure,result.reason))return {{},false,result.reason};
+  if(!Admit(transfer_memory::Add(reply_bound,transfer_memory::Bytes(received),
+      transfer_memory::GrowthBound(transfer_memory::Add(result.cells.size(),received.size()),sizeof(DonorCell)+sizeof(int))),ceiling,result.reason))return {{},false,result.reason};
+  try {
+    if(received.size()!=missing)throw std::runtime_error("Incomplete metric point-support reply.");
+    for(const auto& row:received) {
+      if(row.rank<0 || row.rank>=world.size || std::none_of(samples.samples.begin(),samples.samples.end(),[&](const DonorSample& sample){
+        return sample.source_rank==row.rank && sample.cell==row.donor.cell.id && sample.Key()==row.donor.Key();}))
+        throw std::runtime_error("Invalid metric point-support owner/key.");
+      if(std::any_of(result.cells.begin(),result.cells.end(),[&](const DonorCell& old){return old.Key()==row.donor.Key();}))continue;
+      if(result.cells.size()==MaximumDonors)throw std::runtime_error("Original donor union exceeds patch budget.");
+      result.cells.push_back(row.donor);result.source_rank.push_back(row.rank);
+    }
+  }catch(const std::exception& e){failure.Set(2,0,e.what());}
+  if(!Vote(failure,result.reason))return {{},false,result.reason};
+  stats.payloads+=received.size();stats.maximum_patch=std::max(stats.maximum_patch,result.cells.size());return result;
+}
 DonorSamples DonorImport::SamplePoints(const std::vector<Point>& points,const std::vector<Id>& extensions,
                                       size_t ceiling,size_t caller_bytes) {
-  Timer total(stats.point_seconds,timings);++stats.point_batches;stats.point_queries+=points.size();
+  return SampleQueries(points,extensions,ceiling,caller_bytes);
+}
+DonorSamples DonorImport::SampleMidpoints(const std::vector<std::array<Point,2>>& endpoints,const std::vector<Id>& extensions,
+                                         size_t ceiling,size_t caller_bytes) {
+  return SampleQueries({},extensions,ceiling,caller_bytes,&endpoints);
+}
+DonorSamples DonorImport::SampleQueries(const std::vector<Point>& points,const std::vector<Id>& extensions,
+                                       size_t ceiling,size_t caller_bytes,const std::vector<std::array<Point,2>>* midpoints,bool allow_missing) {
+  const auto size=midpoints?midpoints->size():points.size();
+  Timer total(stats.point_seconds,timings);++stats.point_batches;stats.point_queries+=size;
   DonorSamples result;CLocalFailure failure;
-  if(!initialized || points.size()>MaximumCavityCells)failure.Set(1,0,"Invalid/uninitialized original point sample batch.");
-  for(auto p:points)if(!(std::isfinite(p.x)&&std::isfinite(p.y)&&std::isfinite(p.z)))
-    failure.Set(1,0,"Nonfinite original point sample.");
+  if(!initialized || size>MaximumCavityCells)failure.Set(1,0,"Invalid/uninitialized original point sample batch.");
+  auto finite=[](Point p){return std::isfinite(p.x)&&std::isfinite(p.y)&&std::isfinite(p.z);};
+  for(auto p:points)if(!finite(p))failure.Set(1,0,"Nonfinite original point sample.");
+  if(midpoints)for(const auto& ends:*midpoints)if(!finite(ends[0]) || !finite(ends[1]))
+    failure.Set(1,0,"Nonfinite original midpoint endpoint.");
   if(std::find(extensions.begin(),extensions.end(),UINT64_MAX)!=extensions.end())
     failure.Set(1,0,"Physical source cannot be declared as an extension.");
   if(!Vote(failure,result.reason)){++stats.rejected;return result;}
-  const auto baseline=transfer_memory::Add(caller_bytes,ResidentBytes(),transfer_memory::Bytes(points),transfer_memory::Bytes(extensions));
+  const auto baseline=transfer_memory::Add(caller_bytes,ResidentBytes(),midpoints?transfer_memory::Bytes(*midpoints):transfer_memory::Bytes(points),transfer_memory::Bytes(extensions));
   const auto route_peak=transfer_memory::Add(baseline,ranks->QueryBytes(),
       transfer_memory::Mul(world.size,sizeof(std::vector<PointRequest>)),
-      transfer_memory::GrowthBound(transfer_memory::Mul(transfer_memory::Add(points.size(),extensions.size()),world.size),sizeof(PointRequest)),
+      transfer_memory::GrowthBound(transfer_memory::Mul(transfer_memory::Add(size,extensions.size()),world.size),sizeof(PointRequest)),
       transfer_memory::Bytes(extensions));
   if(!Admit(route_peak,ceiling,result.reason)){++stats.rejected;return result;}
   std::vector<std::vector<PointRequest>> send;
   try {
     send.resize(world.size);std::vector<int> owners;auto eligible=extensions;
     std::sort(eligible.begin(),eligible.end());eligible.erase(std::unique(eligible.begin(),eligible.end()),eligible.end());
-    for(size_t i=0;i<points.size();++i) {
-      const su2double x[3]{points[i].x,points[i].y,points[i].z};ranks->RanksIntersecting(x,x,owners);
-      for(auto peer:owners)send.at(peer).push_back({world.rank,0,i,points[i],UINT64_MAX});
+    for(size_t i=0;i<size;++i) {
+      PointRequest query{world.rank,0,i,midpoints?midpoints->at(i)[0]:points[i],UINT64_MAX};
+      if(midpoints){query.end=midpoints->at(i)[1];query.midpoint=true;}
+      const auto box=PointBounds(query);ranks->RanksIntersecting(box.data(),box.data()+3,owners);
+      for(auto peer:owners)send.at(peer).push_back(query);
     }
     // Fixed-size eligibility records share the query transport; the house codec requires fixed records.
     for(auto& bucket:send)if(!bucket.empty())for(auto component:eligible)
@@ -280,8 +376,8 @@ DonorSamples DonorImport::SamplePoints(const std::vector<Point>& points,const st
   const auto search_peak=transfer_memory::Add(route_peak,incoming,transfer_memory::IntersectionQueryBound(donors.size()),
       transfer_memory::Mul(count,sizeof(Id)+64),
       transfer_memory::Mul(world.size,sizeof(std::vector<PointReply>)),transfer_memory::GrowthBound(count,sizeof(PointReply)),
-      transfer_memory::GrowthBound(points.size(),sizeof(DonorSample)+sizeof(unsigned char)),
-      transfer_memory::GrowthBound(transfer_memory::Mul(points.size(),world.size),sizeof(PointReply)));
+      transfer_memory::GrowthBound(size,sizeof(DonorSample)+sizeof(unsigned char)),
+      transfer_memory::GrowthBound(transfer_memory::Mul(size,world.size),sizeof(PointReply)));
   if(!Admit(search_peak,ceiling,result.reason)){++stats.rejected;return result;}
   std::vector<std::vector<PointReply>> replies;
   try {
@@ -290,7 +386,7 @@ DonorSamples DonorImport::SamplePoints(const std::vector<Point>& points,const st
       if(request.caller<0 || request.caller>=world.size || request.kind>1)
         throw std::runtime_error("Invalid original point request protocol.");
       if(request.kind==1) {
-        if(request.component==UINT64_MAX)throw std::runtime_error("Invalid original point extension declaration.");
+        if(request.component==UINT64_MAX || request.midpoint)throw std::runtime_error("Invalid original point extension declaration.");
         eligibility[request.caller].push_back(request.component);
       }
     }
@@ -299,23 +395,25 @@ DonorSamples DonorImport::SamplePoints(const std::vector<Point>& points,const st
       if(std::adjacent_find(ids.begin(),ids.end())!=ids.end())throw std::runtime_error("Repeated original point extension declaration.");
     }
     for(const auto& query:requests)if(!query.kind) {
-      if(query.ordinal>=MaximumCavityCells || !std::isfinite(query.point.x) || !std::isfinite(query.point.y) || !std::isfinite(query.point.z))
+      if(query.ordinal>=MaximumCavityCells || !std::isfinite(query.point.x) || !std::isfinite(query.point.y) || !std::isfinite(query.point.z) || (query.midpoint && !finite(query.end)))
         throw std::runtime_error("Invalid original point request coordinate/index.");
       const auto& allowed=eligibility[query.caller];
         if(!index)continue;
         DonorSample sample;bool found=false;size_t selected=0;
         {
           Timer search(stats.point_search_seconds,timings);
-          const su2double x[3]{query.point.x,query.point.y,query.point.z};index->DetermineIntersectingElements(x,x,candidates);
+          const auto point=PointBounds(query);index->DetermineIntersectingElements(point.data(),point.data()+3,candidates);
           std::sort(candidates.begin(),candidates.end());stats.point_candidates+=candidates.size();
           // Build sorts canonical keys. Search physical donors first, then declared extensions.
           for(unsigned tier=0;tier<2 && !found;++tier)for(auto i:candidates) {
             const auto& row=donors.at(i);const bool exterior=row.extension_component!=UINT64_MAX;
             if(exterior!=(tier==1) || (exterior && !std::binary_search(allowed.begin(),allowed.end(),row.extension_component)))continue;
-            const DonorRegion point{query.point.x,query.point.y,query.point.z,query.point.x,query.point.y,query.point.z};
             if(!Intersects(point,boxes.data()+6*i))continue;
             const auto& v=row.cell.v;++stats.point_containment_tests;
-            if(Barycentric({v[0].p,v[1].p,v[2].p,v[3].p},query.point,sample.weights,&stats.filter_kernel)) {
+            const Tetrahedron tet{v[0].p,v[1].p,v[2].p,v[3].p};
+            const bool contains=query.midpoint?BarycentricMidpoint(tet,query.point,query.end,sample.weights,&stats.filter_kernel)
+                                               :Barycentric(tet,query.point,sample.weights,&stats.filter_kernel);
+            if(contains) {
               selected=i;found=true;break;
             }
           }
@@ -336,10 +434,10 @@ DonorSamples DonorImport::SamplePoints(const std::vector<Point>& points,const st
   std::vector<DonorSample> selected;std::vector<unsigned char> found;
   try {
     if(admitted) {
-      selected.resize(points.size());found.resize(points.size());
+      selected.resize(size);found.resize(size);
       for(const auto& reply:received) {
         const auto& sample=reply.sample;
-        if(reply.ordinal>=points.size() || sample.source_rank<0 || sample.source_rank>=world.size ||
+        if(reply.ordinal>=size || sample.source_rank<0 || sample.source_rank>=world.size ||
            (sample.extension_component!=UINT64_MAX && std::find(extensions.begin(),extensions.end(),sample.extension_component)==extensions.end()))
           throw std::runtime_error("Invalid original point reply protocol.");
         const auto key=sample.Key();
@@ -352,7 +450,11 @@ DonorSamples DonorImport::SamplePoints(const std::vector<Point>& points,const st
         if(!found[reply.ordinal] || priority<std::make_pair(prior.extension_component!=UINT64_MAX,prior.Key()))prior=sample;
         found[reply.ordinal]=1;
       }
-      if(std::find(found.begin(),found.end(),0)!=found.end())throw std::runtime_error("No original donor contains a requested point.");
+      if(!allow_missing && std::find(found.begin(),found.end(),0)!=found.end())throw std::runtime_error("No original donor contains a requested point.");
+      if(allow_missing) {
+        size_t count=0;for(size_t i=0;i<selected.size();++i)if(found[i])selected[count++]=selected[i];
+        selected.resize(count); // Only import actual supports; private metric queries still reject missing coverage.
+      }
     }
   }catch(const std::exception& error){failure.Set(2,0,error.what());}
   if(!Vote(failure,result.reason)){++stats.rejected;return result;}

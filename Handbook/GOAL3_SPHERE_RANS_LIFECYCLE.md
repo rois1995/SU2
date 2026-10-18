@@ -1,5 +1,8 @@
 # Curved sphere RANS lifecycle — accepted removal, repeated update still open
 
+Latest query/admission follow-up: [current private-query handbook](GOAL3_PRIVATE_QUERIES.md).
+The capacity blockers described below are historical; the latest repeat is time-limited.
+
 Full Goal3 ACTIVE/incomplete, NativeIntegrated/codex/native-3d-bl. This checkpoint
 extends published contact work0002b3d0e6526cc2f8c9377c082a0f4b7d7e98ef;
 all metric, geometry, height, quality, transfer and atomic acceptance gates remain.

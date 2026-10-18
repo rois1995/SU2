@@ -30,16 +30,21 @@ or proof that every outer profile/native geometry is infeasible.
 
 ## Current active work
 
-Actual N4/M2 RANS sphere cold construction8->5440 and current CGNS/BDF restarted
-removal5440->320 independently pass actual flow/SA transfer and both outputs.
-Integral defects1.14e-14/2.06e-14, transported sensor0; rest-flow fixture,0CFD steps,
-no normalization/budget selection. Generic canonical-point/positive-length edge
-query fix is built and scoped serial/MPI2/4 plus strict/enabled N4M2 qualified.
-Unchanged-BL update still atomically rejects61.35s in PRIVATE closed metric-cell
-imports; refinement itself accepts the original mesh. Next: reconcile private
-point/ideal-midpoint and edge query support without cap/gate/field changes.
-Reuse the cold checkpoint; all owned jobs terminal.
-[Current results, remaining query design and paths](Handbook/GOAL3_SPHERE_RANS_LIFECYCLE.md).
+Connected private-query/admission checkpoint: canonical centroid/ideal-midpoint
+and positive-length edge support, candidate-local oversized coarsening refusal,
+exact endpoint-only filtering.64/256caps and all fields/gates stay. Build, serial
+16/1241, MPI2/4 sixteen cases/rank, actual strict/enabled planar N4M2 RANS and both
+independent oracles PASS. Exact320cell core capacity control completes.
+
+Large unchanged-BL repeat still rejects at300.034s/5499work after344PRIVATE edits (192rank0+152rank1);
+all four CFD input states unchanged. It clears the old donor/star caps but remains
+partially measured: rank0807/1892cells. Do not claim accepted updated mesh or
+whole-event speedup. Rank0 donor188.971s dominates metric41.824s;394472 reused scalars
+still trigger support imports. Next: finite-query planning using existing owner
+indexes/edge caches, early shape and sufficient constraint screens; no cap increase,
+coarsening bypass or partial-mesh acceptance. Reuse the cold CGNS/BDF producer.
+[Authoritative current results and next work](Handbook/GOAL3_PRIVATE_QUERIES.md).
+All owned jobs TERMINAL. Full Goal3 and opt-in BL-budget contract remain ACTIVE.
 
 ## Current connected sphere work
 

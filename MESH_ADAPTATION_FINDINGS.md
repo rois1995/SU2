@@ -1,3 +1,13 @@
+# Private query and star-admission limits resolved; repeated event time-limited — 2026-10-18
+
+Current exact/canonical private support and candidate-local coarsening admission
+pass serial/MPI2/4 plus independent strict/enabled planar N4M2 controls. The actual
+unchanged-BL sphere repeat reaches344private edits/5499work (192rank0+152rank1), then rejects at the
+unchanged300s ceiling with all CFD inputs preserved. This is not an accepted
+large update. Donor188.971s dominates metric41.824s; cached scalar integrals still
+trigger redundant imports. Preserve the field, gates and limits; target finite-
+query planning/reuse next. [Evidence and limits](Handbook/GOAL3_PRIVATE_QUERIES.md).
+
 # Actual curved RANS restart: accepted removal, repeated update still rejects — 2026-10-18
 
 Current N4/M2 rest-flow/SA/current+BDF sphere construction8->5440 and CGNS restart
