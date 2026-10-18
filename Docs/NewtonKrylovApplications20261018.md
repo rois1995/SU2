@@ -18,6 +18,11 @@ SST communication counts decrease. Higher-order SA keeps its fallback. No timing
 See the [existing fixed-forcing study](NewtonKrylovFixedForcing20261018.md) for nominal0.05 qualification
 and separately labelled native/Newton accuracy comparisons. Implementation and configuration gains remain distinct.
 
+The same-final-binary coupled SA 2x2 pair confirms 31.4% fewer residual assemblies and 40.0% less
+Krylov work at fixed nominal forcing0.05, with 6.9% more updates. Both endpoints qualify; failed
+log-interval work does not decrease. This is a configuration gain, with no eligible timing claim.
+Serial and segregated SA comparisons are next in the existing sequential queue.
+
 Completed Newton assembly totals include the final full reporting refresh after the last logged attempt.
 Earlier raw records call this offset an initial evaluation. This attribution is corrected without changing
 counts: measured method entries confirm the offset in 20 archived application profiles. Interrupted-run
@@ -191,8 +196,8 @@ and `paper_notes/manifest.json`; they motivate investigations, not unmeasured so
 
 | Application | Layout | Actual trials | Qualified endpoints | Eligible timing repetitions |
 |---|---|---:|---:|---:|
-| naca_sa | 1x1 | 79 | 29 | 1 |
-| naca_sa | 2x2 | 60 | 24 | 0 |
+| naca_sa | 1x1 | 80 | 29 | 1 |
+| naca_sa | 2x2 | 60 | 25 | 0 |
 | naca_sst | 1x1 | 39 | 5 | 0 |
 | naca_sst | 2x2 | 20 | 2 | 0 |
 | nozzle_sst | 1x1 | 32 | 0 | 0 |
@@ -346,9 +351,10 @@ is retained; `prepared` and `running` entries have not completed.
 | nozzle_sst | 1x1 | segregated | original | baseline_4712d82375 | fd_step_1e-6 | -12 | diagnostic_complete | False | 1 | — | 2.880 |
 | nozzle_sst | 1x1 | segregated | original | baseline_4712d82375 | fd_step_1e-7 | -12 | diagnostic_complete | False | 1 | — | 1.765 |
 | naca_sa | 2x2 | coupled | original | static_review_correctness_v2_release | diagonal | -14.0 | qualified | True | 356 | 1797.690 | 1798.629 |
+| naca_sa | 1x1 | coupled | original | muscl_boundary_gradient_v2_release | diagonal | -14.0 | running | False | — | — | — |
 | naca_sa | 1x1 | native | original | muscl_boundary_gradient_v2_release | original | -13.0 | qualified | True | 158 | 18.092 | 18.840 |
 | naca_sa | 2x2 | coupled | original | muscl_boundary_gradient_v2_release | diagonal | -14.0 | qualified | True | 333 | 3378.044 | 3378.847 |
-| naca_sa | 2x2 | coupled | original | muscl_boundary_gradient_v2_release | diagonal | -14.0 | running | False | — | — | — |
+| naca_sa | 2x2 | coupled | original | muscl_boundary_gradient_v2_release | diagonal | -14.0 | qualified | True | 356 | 1815.426 | 1816.065 |
 | naca_sa | 2x2 | native | original | muscl_boundary_gradient_v2_release | original | -13.0 | qualified | True | 151 | 51.890 | 52.558 |
 | naca_sa | 1x1 | coupled | original | forcing_candidate | forcing | -13.0 | incomplete_time_cap | False | 209 | 300.938 | 301.445 |
 | naca_sa | 1x1 | segregated | original | forcing_candidate | forcing | -13.0 | incomplete_time_cap | False | 157 | 300.054 | 300.632 |
