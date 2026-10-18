@@ -6723,3 +6723,27 @@ normalization advance. Evolved volume stars and expanded wall/transition patches
 now support exact local replay. No production code/cap/gate change or construction
 fix/speedup is claimed. All owned jobs terminal; full Goal3 remains active.
 [Report, grids and verifier](integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/cavity_operator_replay_v1/README.md).
+
+## 2026-10-18: exact-facet/binary64 obstruction in frozen M6
+
+A complete terminal rejected mesh now exposes a sufficient constraint conflict.
+SYMMETRY edge211--3481 joins two exactly noncoplanar reference facets8916/2297
+(determinant~-2.04e-26; no analytic authority). Exact integer-lattice reasoning
+proves its midpoint is the only interior binary64 point and both children cannot
+subdivide. Native full composed lengths12.796parent/11.572left/1.225right violate
+1.8; sensor-only parent.325. A conforming exact-facet surface must cover that crease
+interval, so larger cavities cannot supply the missing boundary vertices. Coordinate
+proof is exact; metric lengths retain native fixed-accuracy quadrature scope.
+[Certificate and assumptions](integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/cavity_operator_replay_v1/evolved_volume_v1/full_state_v1/geometry_lattice_v1/README.md).
+
+The connected targeted complete-star admission/rejected-state observer build passes
+serial10/748, MPI4 and independent opt-in/default N4M2 RANS/SA/BDF/conservation/metric/
+geometry/SU2+CGNS/reload/restart controls. One same-field M6 event still rejects
+300.994s;167dependency expansions do not establish a net performance gain. Complete
+private grid541027tets/139884points and per-owner IDs/versions/physical bindings are
+preserved. Input flow/geometry immutable; no metric/Hessian/normalization/CFD advance.
+
+Stop unchanged M6 construction retries. No reference, height, metric or acceptance
+gate was weakened. A user preference about explicit geometry authority is pending;
+other full Goal3 work remains active. This does not prove budget infeasibility or
+failure on feasible declared analytic geometry. All owned jobs terminal.

@@ -547,6 +547,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     return valid;
   };
   const bool observe_rejections=world.maximum(bool(options.rejected_trial));
+  const bool observe_state=world.maximum(bool(options.rejected_state));
   bool layer_active=false,region_active=false;Clock::time_point layer_started,region_started;
   auto finish=[&]() {
     if(region_active && options.timings)stats.reconstruction_seconds+=std::chrono::duration<double>(Clock::now()-region_started).count();
@@ -563,6 +564,16 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     }
     if(!result.valid)result.rebuilt_domain=false;
     if (stats.stop==EngineStop::None) stats.stop=result.valid ? EngineStop::Complete : EngineStop::Failure;
+    if(observe_state) {
+      CLocalFailure observed;
+      if(!result.valid && options.rejected_state)try {options.rejected_state(working,result.reason);}
+      catch(const std::exception& e){observed.Set(2,0,e.what());}
+      const auto elected=world.elect(observed);
+      if(elected.any) {
+        result.valid=false;stats.stop=EngineStop::Failure;
+        result.reason+=" Rejected-state diagnostic failed: "+elected.message;
+      }
+    }
     stats.final_owned_cells=working.size();
     stats.cached_measured_cells=selection.cells.size();
     stats.cached_invalid_cells=selection.invalid;
@@ -1932,6 +1943,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         return true;
       };
       if(!place_patch(joint && composition && (!boundary_edge || (flat_edge && wallApices.empty())) && !choice.geometric,{}))return finish();
+      const Id initial_placement_obstruction=placement_obstruction;
       strip=strip && !wallSplit && !approved;  // Admit the required wall region before optional unrelated movers.
       std::vector<Id> movers;
       if(strip)for(const auto& f:old.surface) {
@@ -2231,7 +2243,23 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
                 physical=physical || (row.physical[f].present && row.cell.v[f].id!=candidates[i]);
               if(!physical)costs.emplace(candidates[i],star.cells.size());
             }
-            apices=SplitPatchApices(old,choice.edge,&costs);search=!apices.empty();
+            apices=SplitPatchApices(old,choice.edge,&costs);
+            if(costs.count(initial_placement_obstruction)) {
+              auto admitted_cells=[&](const std::vector<Id>& movers) {
+                std::set<Id> cells;
+                for(const auto& c:old.cells)if(std::count_if(c.v.begin(),c.v.end(),[&](Node n){
+                    return n.id==choice.edge[0] || n.id==choice.edge[1];})==2)cells.insert(c.id);
+                for(size_t i=0;i<candidates.size();++i)if(std::find(movers.begin(),movers.end(),candidates[i])!=movers.end())
+                  for(const auto& row:payload.candidates.at(i).cells)cells.insert(row.cell.id);
+                return cells.size();
+              };
+              // Admit an actual blocking star when the all-cell cover cannot fit, without raising the cavity bound.
+              const std::vector<Id> targeted{initial_placement_obstruction};
+              if((apices.empty() || admitted_cells(apices)>MaximumCavityCells) && admitted_cells(targeted)<=MaximumCavityCells) {
+                apices=targeted;++stats.placement_dependency_expansions;
+              }
+            }
+            search=!apices.empty();
           }catch(const std::exception& e){failure.Set(2,0,e.what());}
         }
       }

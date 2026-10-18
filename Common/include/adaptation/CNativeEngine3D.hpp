@@ -22,6 +22,8 @@ struct EngineOptions {
   MetricEdgeBreakpoints edge_breakpoints;  // Frozen geometry bands; required for composed target edge audits.
   // Optional rank-local diagnostic; must not enter worker/world collectives or retain borrowed patches.
   std::function<void(const Patch&,const Patch&,Feature,const MetricDiagnosis&,bool,const std::string&)> rejected_trial;
+  // Optional rank-local rejected working-state observer; borrowed state, no collectives or retention.
+  std::function<void(const Owned&,const std::string&)> rejected_state;
   bool timings = false;
   size_t candidate_batch = MaximumCandidateBatch;  // Internal control for paired correctness/work comparisons.
 };

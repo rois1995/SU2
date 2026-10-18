@@ -6,124 +6,98 @@ Worktree `/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated`, branch
 [Full requirements](integration_evidence/native_3d_bl_v1/GOAL3_REQUIREMENTS.json).
 Leave AdapNoExt, foreign ClusterResults, dependencies and foreign jobs untouched.
 
-## Current state
+## Critical current finding
 
-Current qualified native sourceWIPdc65a427f2 with controls checkpoint1c2e7da3ca:
-complete final footprints permit concurrent faceted composed REFINE. Serial9/735,
-MPI4nine cases/rank,4independent commits/epoch/full metric audit and actual
-opt-in/default N4M2 RANS/SA/BDF/height/conservation/SU2+CGNS/restart independent
-audits PASS. Curved projection/repair/coarsen ordering retained. Fixture mistakes
-atv1/v2 and correctedv3 evidence preserved; no guard/cap weakened.
+The archived frozen M6 target cannot finish under its current exact-facet/binary64
+contract. Persistent SYMMETRY edge211--3481 joins two exactly NONCOPLANAR facets
+(native canonical8916/2297, no analytic reference; rational determinant~-2.04e-26).
+An exact integer-lattice certificate proves the midpoint is its ONLY interior
+binary64 point. Both children are primitive: no further binary64 point exists.
+Actual frozen full composed lengths are12.796parent,11.572left/1.225right versus1.8;
+sensor-only parent.325. Conforming exact-facet geometry must retain the crease
+interval, so larger cavities/ranks cannot resolve it. Coordinate proof is EXACT;
+metric values use native fixed-accuracy quadrature, not an interval proof.
+[Certificate, assumptions and reproduction](integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/cavity_operator_replay_v1/evolved_volume_v1/full_state_v1/geometry_lattice_v1/README.md).
 
-One exact frozen selected-field M6 replay is TERMINAL REJECTED300.609s, no transfer
-or accepted mesh. Core/parameter match archive on all ranks; fresh runtimeepoch2,
-archived provenanceversion22. No Hessian/normalization rebuild or CFD advance.
-Maximum3parallel commits,1707->1955private later edits; kernel calls326764->280568
-(-14.14%), rounds2200->846. Remaining edges2528/invalid cached6475 do not establish
-improved residual; NO event speedup/construction fix claim.13useful windows/0stagnant.
-All owned jobs TERMINAL; latest observer result is described below. [Current report](integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/concurrent_composed_proposals_v1/README.md).
+DO NOT rerun the unchanged frozen M6 field seeking construction success. Do not
+silently merge nearly coplanar facets, weaken metric/height/geometry gates, or
+rescale clipped sensors. A user preference about an explicit geometry reference
+is PENDING; no geometry-authority change is authorized by elapsed time. Other
+full Goal3 work remains active: strict-mode diagnosis and declared feasible curved
+construction can progress independently. This finding is not budget infeasibility
+or proof that every outer profile/native geometry is infeasible.
 
-The two earlier events' last local report names edge25389--53318 and face31334,31338,53318.
-Offline original-mesh extraction finds a5-tet/7-node star with that boundary face
-and EXACT centroid of original cell104931. Its entire box is outside BL support,
-and sensor-only edge length2.60882>1.8. This is a generic sensor-cavity witness,
-NOT captured late connectivity or a feasibility proof. View original_edge_witness/
-original_star.su2 and use witness.json original-ID mapping for tensor lookup.
+## Current code and qualification
 
-Original-star native replay now PASSES local Refine in3joint trials, q=.273986/
-J=.086470, .1202s trial work; balanced split fails J=.040146. No missing operator
-is established by this original witness. One bounded four-rank observer capture
-is TERMINAL REJECTED300.641s at cavity_operator_replay_v1/actual_context_np4,
-retaining16recent contexts/rank through the existing hook (no production change).
-[Replay outcome](integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/cavity_operator_replay_v1/README.md).
-64exact contexts saved,14distinct recent features: evolved5--10cell volume stars,
-58/7-cell wall patches,44-cell volume support and55-cell wall support. All ranks
-agree on profile/core and input snapshots unchanged. No accepted M6/transfer.
-Next: replay these ACTUAL evolved stars with existing placement/reconnection, then
-expanded wall/transition patches. Do not infer infeasibility from stale reason text
-or an unverified private buffer. Original boundary edges may impose local constraints; retain the proper local
-progress contract. Do not add fallback/cache/ceiling ladders or rerun the whole
-wing for a local diagnosis.
-Full Goal3 stays active/incomplete.
+Connected change: preserve point-only placement's actual fixed-vertex hint. When
+the old all-cell apex cover is unavailable or exceeds64cells, admit the targeted
+complete free star only if its actual cell union fits. Existing viable cover paths
+remain. Source/P1/actual-query BL/fade/profile/dependencies/reservation/gates/caps
+stay. Optional rejected_state observer streams terminal local working data; failures
+are collectively elected, accepted input never changes. No runtime gather.
 
+Build PASS; serial10cases/748assertions, MPI4ten cases/rank PASS. Existing opt-in
+and default N4M2 RANS/SA/current+BDF/full-field/conservation/geometry/height/SU2+CGNS/
+reload/actual restart independent audits PASS, two cases each. Scoped controls,
+not arbitrary robustness or converged viscous validation.
+[Evolved campaign](integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/cavity_operator_replay_v1/evolved_volume_v1/README.md).
 
-Bounded global correction-evidence refinement is qualified: at most two8192->32768
-stream doublings with retained original support/indexes, complete nonmonotone
-profile rescans and atomic extra-stage refusal. Strict/default behavior stays.
-SourceWIPd66fe6f1e6 plus reviewed collective-allocation handling/measured-quota
-fixture. All jobs TERMINAL. New complete M6 selected-profile attempt at fixtureWIP2794e4f744
-has been audited: exact same initial target295068 +/-5769, then atomic rejection
-at300.434s. No transfer/accepted wing. Saved exact61330-node selected sensors,
-profile/core and input provenance now support frozen replay without new Hessians.
-38800 private first-row publications/1707 later edits globally,2200rounds/34useful
-progress windows,2351remaining edges/6211cached invalid cells. Last cone/interface
-obstruction and rank2q=.18018<.20 retained. Do not confuse raw rank0private_edits833
-with the global1707 count. No native fallback/gate/cap change.
-[Complete M6 experiment](integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/selected_profile_construction_v1/README.md).
+One same-field M6 event TERMINAL REJECTED300.994s, launcher316.041s (no new metric/
+Hessian/normalization/CFD advance; no transfer reached).167dependency expansions
+show the new path is exercised, not that all seeds succeed or improve event cost.
+1039later private edits/144587work;2GiB admission retained. All four input geometry/
+flow snapshots unchanged and profile/core identical. Full private grid541027tets/
+139884points is saved as full_state_v1/m6_rejected.su2.gz. Decompress with gzip-dk
+for viewing; NO accepted mesh/solution/restart claim. Four exact owner records
+(ID/version/coordinates/physical binding) are preserved compressed; current stars
+are complete from those records. Offline conversion is not a runtime mesh gather.
+All owned native/build/control handles are TERMINAL; no current heavy job.
 
-Saved flow-family M6 budget300k now selects lambda.875/version22,22profile trials,
-2evidence stages. Coarsest estimate281779 +/-5604; full original-sensor normalization
-freezes295068 +/-5769 (-1.644% budget), still integration_limited/provisional.
-MPI2/4 agree <=1.072e-11 final;100k remains nine-profile estimated conflict with no
-extension. No M6 construction/CFD advance in this slice. Do not call it accepted.
+## What the local replays established
 
-Serial28/10625, MPI4 prefix/rollback/profile checks and independent opt-in/default
-N4M2 actual RANS/SA/current+BDF/full-metric/conservation/SU2+CGNS/restart audits PASS.
-Independent scalar21.20654634 covered in three observed stages; saved M6 holdouts
-support the profile distinction. Indicators remain heuristic, not calibrated
-sequential/proven bounds. No general rare-tail/missed-mass guarantee.
+Original five-tet witness passes existing joint placement in3trials. Ten EXACT
+evolved volume stars pass9/10 with existing placement; trial phases total1.818s,
+zero source failures. Remaining7-cell star reports vertex47883. Full-fan reconnection
+fails6visibility/1quality; no new fan fallback was added. That old edge AND vertex
+are absent in the latest terminal mesh, so they are no longer terminal blockers.
 
-Cost remains important: metric137.055s MPI4/169.793s MPI2, gradation102.455/132.241s
-nested.27complexity trials/937sweeps. Retained integration max228.8/336.3MB perrank;
-max single-process RSS612.5MB/1.023GB, not aggregate peaks. No whole-event speedup.
-The prior7.515s unresolved coarsest field is a different final target.
-[Current report/provenance/failures](integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/adaptive_budget_evidence_v1/README.md).
+Latest actual features: rank0reported edge absent; ranks1/2/3edges still exist.
+current_stars/ contains exact edge and eligible complete free-star unions. Useful
+independent next replay: rank2edge35959--35960 (5cells), complete vertex24658union
+25cells with241original bbox donors (fits256), compared with fixed-star placement.
+Other unions exceed256donors: use existing streamed/owner paths or exact relevant
+support filtering, never truncate/raise limits. Rank3root crease is the certified
+geometry obstruction; do not waste more reconstruction searches there.
 
-Next substantive milestone remains an accepted complete difficult mesh under
-unchanged gates. Safe concurrency is scoped-qualified but did not deliver it.
-Prioritize the frozen cavity investigation above over more generic performance
-variants. Calibrated global error allocation/composed gradation, general curved/
-interacting construction and complete affordability remain open.
+## Qualified foundations and remaining work
 
+- Opt-in outer-normal budget policy preserves firstheight/protected/finer sensor,
+  original P1/actual-query composition/support/tangent/fade. Saved M6budget300k
+  selectslambda.875; original-family estimate295068 +/-5769 (-1.644%), still
+  integration_limited/heuristic. MPI2/4agree <=1.072e-11;100k remains estimated
+  sampled-profile conflict, not exact infeasibility. [Policy](Handbook/GOAL3_BUDGET_AWARE_BL.md).
+- Bounded original-field normalization/correction and sensor+BL decomposition
+  qualified in declared scopes. Source fields must never be replaced by adapted
+  node samples. [Field identities](Handbook/GOAL3_M6_FROZEN_FIELDS.md),
+  [complexity](Handbook/GOAL3_RUNTIME_COMPLEXITY.md).
+- Query/edge reuse and complete-proposal concurrency pass controls but establish
+  no whole-event affordability. [Transactions](Handbook/POST_COMPLEXITY_QUERY_TRANSACTIONS.md),
+  [outcomes](Handbook/SUGGESTION_OUTCOME_LEDGER.md).
+- General declared-feasible curved/interacting construction, composed gradation,
+  calibrated global error allocation, converged viscous accuracy and complete
+  performance/transfer cost remain open. M6budget/initialization is not mesh acceptance.
+- 2Dstrict remains; opt-in budget extension2D/30P30N not completed. SST/transition/
+  nonideal deferred questions remain in [future physics](Handbook/FUTURE_PHYSICS_TRANSFER_QUESTIONS.md).
 
-## Qualified foundations and remaining scope
+[Prior complete handoff](Handbook/HANDOFF_BEFORE_GEOMETRY_LATTICE_2026_10_18.md),
+[Oct18archive](Handbook/HANDOFF_ARCHIVE_2026_10_18.md),
+[Oct17archive](Handbook/HANDOFF_ARCHIVE_2026_10_17.md).
 
-- Opt-in outer-normal budget profile preserves firstheight/protected/finer sensor,
-  support/thickness/tangent/fade, original sensor P1 and actual-query BL. Controlled
-  accepted MPI1/2/4 N/M workflows, atomicity and conservative transfer pass.
-  [Policy/limits](Handbook/GOAL3_BUDGET_AWARE_BL.md).
-- Same-field sensor-background cache cuts46.72M->6.67M determinants (-85.7%),
-  +1.077MiB/rank, no total speedup established. [Evidence](integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/background_trial_reuse_v1/README.md).
-- Strict source-contained affine point construction, physical-interior donor hints
-  and bounded existing edge-certificate lifetime are qualified; unchanged historical
-  owner-UPPER6 M6 still atomically rejects~300s after90private edits. No accepted
-  wing/transfer. [Reuse outcome](integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/query_campaign_reuse_v1/README.md),
-  [construction](Handbook/GOAL3_PROGRESSIVE_MEASUREMENT.md).
-- Initial thin-BL integration415.97->16.47s in its same-field scope; decomposition
-  and original-field reassessment qualified with accepted planar workflows.
-  [Complexity](Handbook/GOAL3_RUNTIME_COMPLEXITY.md),
-  [reassessment](Handbook/GOAL3_CANDIDATE_REASSESSMENT.md).
-- Original hosting-rank RAW9, owner-UPPER6 construction and new saved-flow families
-  are distinct immutable references. Never replace donors with adapted samples.
-  [Field identities](Handbook/GOAL3_M6_FROZEN_FIELDS.md).
-- Curved cylinder/fronts/whole caps and initialized controlled RANS establish limited
-  capabilities, not general exterior/interacting-wing robustness or converged
-  viscous accuracy. Sensor gradation is no composed-field certificate.
-- 30P30N2D64540points/127914triangles prepared, no sensor/CFD/adaptation yet;
-  supplied3D8.63Mhexes exceed native tetra support. SST/transition/nonideal deferred.
-  [Outcome ledger](Handbook/SUGGESTION_OUTCOME_LEDGER.md),
-  [physics questions](Handbook/FUTURE_PHYSICS_TRANSFER_QUESTIONS.md).
+## Permanent rules
 
-Historical detail: [Oct18 archive](Handbook/HANDOFF_ARCHIVE_2026_10_18.md),
-[Oct17 archive](Handbook/HANDOFF_ARCHIVE_2026_10_17.md).
-
-## Permanent working rules
-
-Follow [AGENTS.md](AGENTS.md): substantial capability-first batches, difficult case
-early, provenance-aware resumable checks, preserve failures/all gates, push
-reviewable checkpoints. No full regressions per tiny edit or local-fallback/cap
-ladders. One owned heavy job, nice19, build-j1, libraries/thread1, local MPI<=4;
-check actual host load/RAM/live handles. Announce full testcase folders.
-Use4TB `integration_evidence/build-integrated-v2/compile-tmp` while root/tmp is nearly
-full. No cluster request/launch or unnecessary CFD advance. Raw pinned logs stay
-unchanged; ignore foreign submodules in git status. No new goal/decreased scope.
+Follow [AGENTS.md](AGENTS.md): substantial capability-first batches/difficult case
+early; provenance-aware resumable validation; preserve failures/all gates; no full
+suite after small edits or fallback/cap ladders. Push reviewable checkpoints. One
+owned heavy job, nice19, build-j1, libraries1, local MPI<=4; verify live handles,
+host contention/RAM. Announce full case folders. Use4TB build compile-tmp while
+root/tmp is nearly full. No cluster request/submission or unnecessary CFD advance.

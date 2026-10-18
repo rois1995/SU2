@@ -3038,3 +3038,22 @@ TEST_CASE("Final reservations include expanded candidates and completed peers wi
   CHECK(Bytes(input)==before);CHECK(directory.Snapshot()==metadata);
   if(world.rank==1)CHECK(reason=="Native 3D conflicting dependency reservation.");
 }
+
+TEST_CASE("Rejected working states are observable without changing accepted inputs", "[NativeRejectedState3D]") {
+  World world;const auto fixture=Box();const PlanarReference geometry(fixture.facets);
+  const auto input=Partition(Rows(fixture.patch),world);const auto saved=Bytes(input);
+  const auto source=Uniform(input,{4,0,0,4,0,4});EngineOptions options;options.maximum_rounds=1;
+  unsigned observations=0;std::vector<char> observed;
+  options.rejected_state=[&](const Owned& cells,const std::string& reason){++observations;observed=Bytes(cells);CHECK_FALSE(reason.empty());};
+  const auto rejected=Refine(world,input,source,geometry,{},options);
+  CHECK_FALSE(rejected.valid);CHECK(observations==1);CHECK(observed==Bytes(rejected.cells));CHECK(Bytes(input)==saved);
+  options.rejected_state={};
+  if(!world.rank)options.rejected_state=[](const Owned&,const std::string&){throw std::runtime_error("deliberate diagnostic refusal");};
+  const auto refused=Refine(world,input,source,geometry,{},options);
+  CHECK_FALSE(refused.valid);CHECK(refused.stats.stop==EngineStop::Failure);
+  CHECK(refused.reason.find("Rejected-state diagnostic failed:")!=std::string::npos);
+  CHECK(refused.reason.find("deliberate diagnostic refusal")!=std::string::npos);CHECK(Bytes(input)==saved);
+  observations=0;options.rejected_state=[&](const Owned&,const std::string&){++observations;};
+  const auto accepted=Refine(world,input,Uniform(input,Tensor{}),geometry,{},options);
+  CHECK(accepted.valid);CHECK(observations==0);CHECK(Bytes(input)==saved);
+}

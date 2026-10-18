@@ -1,0 +1,129 @@
+{
+  "scope": "Exact finite-coordinate/facet obstruction; metric incompatibility uses the native fixed-accuracy measurement, not a proven interval quadrature bound",
+  "physical_edge": [
+    211,
+    3481
+  ],
+  "exact_edge_lattice": {
+    "finest_axis_spacings": [
+      1.1102230246251565e-16,
+      1.262177448353619e-29,
+      1.734723475976807e-18
+    ],
+    "integer_chord": [
+      "-34852961739566",
+      "1044514287306",
+      "2774751391344372"
+    ],
+    "parameter_denominator_gcd": 2,
+    "maximum_interior_binary64_points": 1
+  },
+  "unique_interior_point": [
+    0.7076479384838366,
+    -1.062461925881104e-13,
+    0.014680714097902045
+  ],
+  "left_no_interior_point": {
+    "finest_axis_spacings": [
+      1.1102230246251565e-16,
+      1.262177448353619e-29,
+      1.734723475976807e-18
+    ],
+    "integer_chord": [
+      "-17426480869783",
+      "522257143653",
+      "1387375695672186"
+    ],
+    "parameter_denominator_gcd": 1,
+    "maximum_interior_binary64_points": 0
+  },
+  "right_no_interior_point": {
+    "finest_axis_spacings": [
+      1.1102230246251565e-16,
+      1.262177448353619e-29,
+      1.734723475976807e-18
+    ],
+    "integer_chord": [
+      "-17426480869783",
+      "522257143653",
+      "1387375695672186"
+    ],
+    "parameter_denominator_gcd": 1,
+    "maximum_interior_binary64_points": 0
+  },
+  "facet_planes_exactly_noncoplanar": true,
+  "exact_four_point_orientation": {
+    "numerator": "-2101904384006608581642415999018816647",
+    "denominator": "102844034832575377634685573909834406561420991602098741459288064",
+    "approximate": -2.0437786084806932e-26
+  },
+  "facet_lattice_upper_bounds": [
+    {
+      "facet": 8916,
+      "nodes": [
+        3544,
+        3481,
+        211
+      ],
+      "finest_axis_spacings": [
+        1.1102230246251565e-16,
+        1.262177448353619e-29,
+        1.734723475976807e-18
+      ],
+      "primitive_area_multiple": 4,
+      "boundary_lattice_points": 4,
+      "maximum_interior_binary64_points": 1
+    },
+    {
+      "facet": 2297,
+      "nodes": [
+        211,
+        3481,
+        212
+      ],
+      "finest_axis_spacings": [
+        1.1102230246251565e-16,
+        1.262177448353619e-29,
+        1.734723475976807e-18
+      ],
+      "primitive_area_multiple": 6,
+      "boundary_lattice_points": 4,
+      "maximum_interior_binary64_points": 2
+    }
+  ],
+  "native_frozen_field_measurement": {
+    "kind": "crease",
+    "length": 12.79635493232288,
+    "left": 11.571781543440306,
+    "right": 1.2245733888825743,
+    "midpoint": [
+      0.7076479384838366,
+      -1.062461925881104e-13,
+      0.014680714097902045
+    ],
+    "edge_limit": 1.8,
+    "canonical_facets": [
+      8916,
+      2297
+    ],
+    "analytic_authorities": 0
+  },
+  "sensor_only_original_edge_diagnostic": {
+    "whole": 0.32501548514988104,
+    "left": 0.1656074552016434,
+    "right": 0.1594080299482376
+  },
+  "interpretation": "Any conforming binary64 mesh preserving these exact distinct facet planes must cover the crease interval. There is no binary64 vertex inside the left subinterval; its full composed length is11.57>1.8. Larger cavities or different connectivity cannot remove that constraint. This concerns the archived frozen target/exact-facet authority, not every geometry representation, profile or native mesh.",
+  "not_claimed": [
+    "A proven interval bound for metric quadrature",
+    "Infeasibility of the budget alone",
+    "Infeasibility after a separately declared geometry/reference change",
+    "Native failure on feasible declared analytic geometry"
+  ],
+  "hashes": {
+    "certificate.py": "da6786e0fca8e16c71defc3b5d3799ecfcc42c38d75a52e6e50ab6aaba357242",
+    "working.dat": "a0b00ec95326145cc0a07a8e5ea0bffc636aaebb80b5e61f48a80f8b6aa533b8",
+    "trials.jsonl": "85251c0839ed3d9be50d95d753a5e17829665fd3c791504f041e25c0987dd690",
+    "receipt.json": "b7196fbacb3fea2c6917c295fd26138d3c03c9113cceca9453b6c86619ef7d86"
+  }
+}

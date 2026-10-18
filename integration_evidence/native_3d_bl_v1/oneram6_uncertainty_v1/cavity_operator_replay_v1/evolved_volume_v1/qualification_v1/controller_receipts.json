@@ -1,0 +1,42 @@
+[
+  {
+    "mode": "serial",
+    "exit": 0,
+    "seconds": 4.6189404129981995,
+    "command": [
+      "python3",
+      "integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/cavity_operator_replay_v1/evolved_volume_v1/qualify.py",
+      "serial"
+    ]
+  },
+  {
+    "mode": "mpi4",
+    "exit": 0,
+    "seconds": 13.856371311005205,
+    "command": [
+      "python3",
+      "integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/cavity_operator_replay_v1/evolved_volume_v1/qualify.py",
+      "mpi4"
+    ]
+  },
+  {
+    "mode": "enabled_mpi4",
+    "exit": 0,
+    "seconds": 22.81180605699774,
+    "command": [
+      "python3",
+      "integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/cavity_operator_replay_v1/evolved_volume_v1/qualify.py",
+      "enabled_mpi4"
+    ]
+  },
+  {
+    "mode": "disabled_runtime",
+    "exit": 0,
+    "seconds": 75.45909149793442,
+    "command": [
+      "python3",
+      "integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/cavity_operator_replay_v1/evolved_volume_v1/qualify.py",
+      "disabled_runtime"
+    ]
+  }
+]

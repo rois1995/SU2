@@ -131,3 +131,12 @@ The14distinct recent contexts include evolved volume stars and larger wall/trans
 patches; a last local rejection is not automatically a global bottleneck.
 [Exact replay and preserved contexts](../integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/cavity_operator_replay_v1/README.md).
 No new fallback/production change or event-speedup claim follows.
+
+Current follow-up retains the first actual fixed-vertex hint when full-cover
+admission cannot fit64cells; serial/MPI/N4M2 controls pass. M6uses167expansions but
+still rejects. Exact terminal snapshots now establish a stronger independent
+limitation: SYMMETRY crease211--3481 has only one representable interior point and
+requires a child metric length11.57>1.8. Do not spend transaction/placement variants
+trying to overcome that exact-geometry/binary64 obstruction.
+[Proof and source scope](../integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/cavity_operator_replay_v1/evolved_volume_v1/full_state_v1/geometry_lattice_v1/README.md).
+Full Goal3/performance remains open; no whole-event speedup/accepted M6 claimed.

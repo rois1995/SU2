@@ -333,3 +333,14 @@ Late working-cavity equality/feasibility remains unproven. Next use a local froz
 replay to identify the missing construction freedom, not another fallback/cache/
 limit variant. Ledger is now a concise index with its full1004-line history
 preserved separately. [Report and viewable witness](../integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/concurrent_composed_proposals_v1/README.md).
+
+## Frozen M6 construction feasibility update
+
+Budget/profile selection remains an estimated cost decision. An exact-coordinate
+certificate now establishes a separate frozen-target geometry obstruction: root
+SYMMETRY crease211--3481 has only the midpoint as an interior binary64 point, but
+that subdivision leaves full composed length11.57>1.8. Near-coplanar finite facets
+are distinct under the current exact authority. No additional normal relaxation
+is silently selected to hide this, and the original sensor donors/fade/geometry
+stay. A declared geometry-reference decision is separate work.
+[Certificate](../integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/cavity_operator_replay_v1/evolved_volume_v1/full_state_v1/geometry_lattice_v1/README.md).

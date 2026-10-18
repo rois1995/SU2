@@ -62,3 +62,28 @@ the captured contexts before deciding whether reconstruction or coordination lac
 a capability. The original-star result specifically argues against another local
 placement fallback. Exact runtime/build/input/helper provenance and verifier are
 in the linked report. All owned jobs terminal.
+
+Current connected follow-up:10EXACT evolved volume stars pass9/10; trial phases
+sum1.818s/no source failures. The remaining7-cell star and negative full-fan probe
+are preserved. Retaining the initial blocker enables bounded targeted star
+admission when the old cover cannot fit64cells. Serial10/748, MPI4 and independent
+opt-in/default N4M2 RANS workflows pass. M6 still rejects300.994s;167dependency
+expansions demonstrate path use, not a construction fix or net speedup.
+[Evolved evidence and full rejected grid](../integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/cavity_operator_replay_v1/evolved_volume_v1/README.md).
+
+**A sufficient obstruction is now diagnosed.** Current SYMMETRY edge211--3481 lies
+between distinct exact near-coplanar facets. Its only interior binary64 point is
+the midpoint; neither child has another. Full frozen composed lengths12.796parent,
+11.572left/1.225right cannot satisfy1.8, while sensor-only parent is.325. The lattice
+part is exact; metric values are native fixed-accuracy measurements, not interval
+bounds. Under exact-facet/conforming/binary64 rules this frozen case cannot finish;
+more cavities/ranks cannot repair it. This is not physical BL or budget infeasibility.
+[Certificate and explicit assumptions](../integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/cavity_operator_replay_v1/evolved_volume_v1/full_state_v1/geometry_lattice_v1/README.md).
+
+Complete terminal working mesh541027tets/139884points and exact versioned owner
+records are preserved. Shared-node coordinate and unique ownership screens pass;
+full mesh acceptance/transfer does not. The earlier volume witness edge/vertex are
+absent, confirming that last intermediate rejections cannot alone diagnose final
+blockage. Further unchanged M6 construction runs are unwarranted. Geometry-reference
+preference is pending; no authority, target, profile or acceptance gate was changed.
+Other full Goal3 work stays active. All owned jobs terminal.
