@@ -118,10 +118,9 @@ large and fail qualification. This supports a **full endpoint comparison**, not
 a speedup or convergence-work claim. CFL, forcing and physical controls are
 unchanged in this isolation. Default0 remains committed.
 
-Next numerical jobs are narrowed to a full default0 parallel coupled SA endpoint
-using exactly the serial-qualified controls, followed by paired original-control
-SST segregated endpoints (default0 and FLOW3/scalars0 on both layouts). Caps are
-2400s for SA and3600s per SST trial, with10000-update limits. They are resource
+The full default0 parallel coupled SA endpoint now qualifies (details below).
+Paired original-control SST segregated endpoints are running next (default0 and
+FLOW3/scalars0 on both layouts), each with3600s and10000-update resource limits. They are resource
 limits; reaching either leaves an incomplete result. One owned solver runs at a
 time. Remaining common NACA endpoints are still outstanding; T3A/nozzle/VKI and
 quiet timing remain deferred.
@@ -151,6 +150,34 @@ work gate have assert-based self-checks (`rejection_work.py`, `work_gate.py`).
 Evidence root:
 `/media/rausa/4TB/SU2_Versions/SU2_v850_Develop_FixCGNSOutput/newton_krylov_refactor_20261015/application_qualification_20261018`.
 
+## Qualified parallel coupled SA endpoint
+
+Default0 coupled SA on2×2 now completes normally in333 updates with the exact
+serial-qualified diagonal/adaptive-CFL/forcing configuration (config SHA
+`2d1d9d892adc1a5c3551c60ece5c0f11d8db4ca11c92acc72bf65664fe425b65`).
+It uses83590 residual assemblies per system,22279 outer Krylov iterations,
+166 retries and no backtracking. Every accepted step usesα=1, the independent
+true-defect bound passes, and rollback errors are zero. Fresh density RMS is
+9.869e-15, maximum normalized active-equation RMS3.275e-13, boundary projection0;
+canonical full-state component/point errors1.223e-7/7.831e-6 pass. All quantities
+pass the frozen bounds. Peak rank RSS103304KiB, sampled tree266528KiB, minimum
+available memory38941292KiB; no memory guard fires.
+
+All166 retries are measured derivative-verification failures. Their log intervals
+consume12915 assemblies per system (15.45%) and1982 completed Krylov iterations.
+Thus most assembly work remains in accepted updates even in this retry-heavy run.
+There are no measured true-defect-only, admissibility or line-search rejections.
+This supports retaining default0 relative to the incomplete universal3 parallel
+experiment; it does not establish a general parallel scaling or speedup result.
+Observed loop/E2E1090.736/1091.372s are ineligible for timing conclusions.
+
+Exact command and independent checks:
+`naca_sa_parallel_endpoint_command.json`, `naca_sa_parallel_qualified_assessment.json`.
+The source/config/restart/reporter hashes are pinned in those files and the full
+CSV. The earlier immutable checkpoint progress check remains supporting evidence:
+its point error2.378e-5 missed the target; the final endpoint passes. Checkpoints
+carry no iteration metadata, so no exact convergence work is inferred from them.
+
 <!-- measured NACA results -->
 
 ## Current native endpoints
@@ -163,6 +190,18 @@ Evidence root:
 | naca_sst | 2x2 | qualified | 397 | 397/397 | 15880 | 65440 | 43.669 / 44.102 |
 
 Native assembly counts in this table are inferred; linear work is measured in native history. The [focused CSV](NewtonKrylovNacaRejections20261018.csv) preserves full-state, quantity, residual and hash evidence.
+
+## Full Newton endpoint comparisons
+
+SA rows share identical diagonal/adaptive-CFL/forcing controls and history−14. An incomplete row is not convergence work. All times are observed and ineligible for speedup claims.
+
+| Inner F/T | Case | Layout | Mode / control | Status | Updates | F/T assemblies | Outer/inner work | R/B | Peak rank KiB | Loop / E2E s | Max point error |
+|---|---|---|---|---|---:|---:|---:|---:|---:|---:|---:|
+| 3/3 | naca_sa | 1x1 | coupled / diagonal | qualified | 166 | 24574/24574 | 5359/31177 | 82/0 | 138708 | 556.675 / 557.225 | 7.890e-06 |
+| 3/3 | naca_sa | 2x2 | coupled / diagonal | incomplete_time_cap | 574 | 107971/107971 | 26656/159180 | 288/0 | 94432 | 1200.933 / 1201.498 | 1.058e-05 |
+| 0/0 | naca_sa | 2x2 | coupled / diagonal | qualified | 333 | 83590/83590 | 22279/0 | 166/0 | 103304 | 1090.736 / 1091.372 | 7.831e-06 |
+| 0/0 | naca_sst | 1x1 | segregated / original | running | — | / | / | / | — | — / — | — |
+| 0/0 | naca_sa | 1x1 | coupled / diagonal | qualified | 179 | 33415/33415 | 7603/0 | 89/0 | 171400 | 764.796 / 765.385 | 7.851e-06 |
 
 ## Supporting prefix work
 

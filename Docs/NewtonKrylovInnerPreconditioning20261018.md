@@ -273,3 +273,26 @@ Evidence: `release_sampling/1792317842382208780/{manifest,summary}.json`,
 identities, exact profiling command and source/configuration/binary hashes. All
 targets were verified descendants of the existing candidate supervisor with the
 expected executable and application working directory. Other work was untouched.
+
+
+## Qualified default0 parallel application
+
+The narrowed work-first study now qualifies the missing coupled SA2×2 default0
+endpoint:333 updates,83590 assemblies per system,22279 outer Krylov iterations,
+166 retries and0 backtracks. Native remains qualified on both layouts. Every
+retry in this full default0 run is newly measured as derivative verification;
+rejected log intervals consume12915 assemblies/system (15.45%). Accepted steps
+retain most of the work. The independent physical/state/quantity checks pass,
+including canonical point error7.831e-6 below1e-5 and exact rollback.
+
+The universal3 parallel trial remains incomplete with107971 assemblies/system
+and failed state agreement. Same nonlinear configuration hashes match; no
+threshold changes. [The NACA assessment](NewtonKrylovNacaRejections20261018.md)
+and the focused CSV preserve the qualified-versus-incomplete distinction,
+source/config hashes, memory, observed times and mechanism checks. Times are
+contended/ineligible; this is work and qualification evidence.
+
+A separate FLOW3/scalars0 isolation reduces SST segregated20-update FLOW
+assemblies42.7%/50.7% on1×1/2×2 with no retries, but its states are unqualified.
+Full matched SST endpoints are running before any strategy is adopted. The
+committed default remains0; the old broad candidate schedule is deferred.
