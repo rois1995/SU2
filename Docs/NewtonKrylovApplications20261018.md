@@ -186,8 +186,8 @@ and `paper_notes/manifest.json`; they motivate investigations, not unmeasured so
 
 | Application | Layout | Actual trials | Qualified endpoints | Eligible timing repetitions |
 |---|---|---:|---:|---:|
-| naca_sa | 1x1 | 78 | 28 | 1 |
-| naca_sa | 2x2 | 57 | 22 | 0 |
+| naca_sa | 1x1 | 79 | 29 | 1 |
+| naca_sa | 2x2 | 59 | 23 | 0 |
 | naca_sst | 1x1 | 39 | 5 | 0 |
 | naca_sst | 2x2 | 20 | 2 | 0 |
 | nozzle_sst | 1x1 | 32 | 0 | 0 |
@@ -341,6 +341,9 @@ is retained; `prepared` and `running` entries have not completed.
 | nozzle_sst | 1x1 | segregated | original | baseline_4712d82375 | fd_step_1e-6 | -12 | diagnostic_complete | False | 1 | — | 2.880 |
 | nozzle_sst | 1x1 | segregated | original | baseline_4712d82375 | fd_step_1e-7 | -12 | diagnostic_complete | False | 1 | — | 1.765 |
 | naca_sa | 2x2 | coupled | original | static_review_correctness_v2_release | diagonal | -14.0 | qualified | True | 356 | 1797.690 | 1798.629 |
+| naca_sa | 1x1 | native | original | muscl_boundary_gradient_v2_release | original | -13.0 | qualified | True | 158 | 18.092 | 18.840 |
+| naca_sa | 2x2 | coupled | original | muscl_boundary_gradient_v2_release | diagonal | -14.0 | running | False | — | — | — |
+| naca_sa | 2x2 | native | original | muscl_boundary_gradient_v2_release | original | -13.0 | qualified | True | 151 | 51.890 | 52.558 |
 | naca_sa | 1x1 | coupled | original | forcing_candidate | forcing | -13.0 | incomplete_time_cap | False | 209 | 300.938 | 301.445 |
 | naca_sa | 1x1 | segregated | original | forcing_candidate | forcing | -13.0 | incomplete_time_cap | False | 157 | 300.054 | 300.632 |
 | naca_sa | 1x1 | coupled | original | forcing_candidate | forcing | -13.0 | iteration_cap | False | 6 | 16.587 | 17.090 |

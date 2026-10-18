@@ -21,19 +21,27 @@ implementation change is inferred from this configuration comparison.
 The qualified endpoint has density RMS 9.883e-15 and maximum active normalized RMS 3.347e-13.
 Against the canonical native state, component error is 1.231e-7 and point error 7.811e-6, within
 the unchanged 1e-6 and 1e-5 limits. All accepted steps use alpha=1; rollback errors are zero.
-Native accuracy 0.05, serial Newton and segregated qualification remain outstanding.
+Native accuracy 0.05 now qualifies on both layouts with the final gradient-reuse binary:
+158 updates and 1030 reported linear iterations on 1x1; 151 updates and 4209 on 2x2.
+Both pass the canonical native state audit and every frozen physical and quantity requirement.
+The original native tolerance 1e-10 uses 151 updates and 6040 reported linear iterations.
+Serial Newton with fixed forcing and segregated qualification remain outstanding.
 
 The [CSV](NewtonKrylovFixedForcing20261018.csv) retains configurations, source/build/binary hashes,
 per-system physical checks, quantities, memory, failed work and exact evidence paths. Native assemblies
 are inferred fine-grid updates; Newton assembly counters are measured. Native linear work sums separate
 equation solves and is not a like-for-like Krylov-vector width comparison with a coupled solve.
 
-| Case | Layout | Mode | Nominal linear target | Adaptive forcing | Updates | FLOW/TURB | Linear work | Retries | Loop / elapsed s | Peak rank KiB | Qualified |
-|---|---|---|---:|---|---:|---:|---:|---:|---:|---:|---|
-| naca_sa | 2x2 | coupled | 0.05 | NO | 356 | 57365/57365 | 13375 | 178 | 1797.69003962 / 1798.6290681699757 | 79452 | True |
-| naca_sa | 2x2 | coupled | 0.1 | YES | 333 | 83590/83590 | 22279 | 166 | 1090.7361318 / 1091.3719882569276 | 103304 | True |
-| naca_sa | 1x1 | native | 1E-10 | NO | 151 | 151/151 | 6040 |  | 18.888782585 / 19.439500062027946 | 95628 | True |
-| naca_sa | 2x2 | native | 1E-10 | NO | 151 | 151/151 | 6040 |  | 13.306976681 / 13.823585789999925 | 61952 | True |
+| Case | Layout | Mode | Nominal linear target | Adaptive forcing | Updates | FLOW/TURB | Linear work | Retries | Loop / elapsed s | Peak rank KiB | Status | Qualified | Evidence |
+|---|---|---|---:|---|---:|---:|---:|---:|---:|---:|---|---|---|
+| naca_sa | 2x2 | coupled | 0.05 | NO | 356 | 57365/57365 | 13375 | 178 | 1797.690 / 1798.629 | 79452 | qualified | True | fixed_forcing_005_applications/naca_sa/2x2/coupled |
+| naca_sa | 1x1 | native | 0.05 | NO | 158 | 158/158 | 1030 |  | 18.092 / 18.840 | 78096 | qualified | True | fixed_forcing_005_matched/naca_sa/1x1/native_accuracy/native |
+| naca_sa | 2x2 | coupled | 0.1 | YES |  | / |  |  | — / — |  | running | False | fixed_forcing_005_matched/naca_sa/2x2/adaptive/coupled |
+| naca_sa | 2x2 | native | 0.05 | NO | 151 | 151/151 | 4209 |  | 51.890 / 52.558 | 60404 | qualified | True | fixed_forcing_005_matched/naca_sa/2x2/native_accuracy/native |
+| naca_sa | 2x2 | coupled | 0.1 | YES | 333 | 83590/83590 | 22279 | 166 | 1090.736 / 1091.372 | 103304 | qualified | True | naca_work_endpoints/naca_sa/2x2/coupled_default0 |
+| naca_sa | 1x1 | coupled | 0.1 | YES | 179 | 33415/33415 | 7603 | 89 | 764.796 / 765.385 | 171400 | qualified | True | sa_stricter_controls/1x1/diagonal/coupled |
+| naca_sa | 1x1 | native | 1E-10 | NO | 151 | 151/151 | 6040 |  | 18.889 / 19.440 | 95628 | qualified | True | static_review_correctness_v2_applications/naca_sa/1x1/native |
+| naca_sa | 2x2 | native | 1E-10 | NO | 151 | 151/151 | 6040 |  | 13.307 / 13.824 | 61952 | qualified | True | static_review_correctness_v2_applications/naca_sa/2x2/native |
 
 This table includes earlier references as labelled by their source/binary hashes. Fresh same-binary
 qualification, both layouts and the remaining application matrix are still required. NEMO is deferred.
