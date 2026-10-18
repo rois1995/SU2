@@ -14,7 +14,7 @@ sources += [ROOT/p for p in ('UnitTests/Common/adaptation/CNativeDistributed3D_t
  'integration_evidence/native_3d_bl_v1/production_policy_v1/audit.py','integration_evidence/native_3d_core_v1/audit_coupled.py',
  'integration_evidence/native_3d_core_v1/audit_cavities.py','TestCases/adaptation/capability/capcheck.py')]+[Path(__file__).resolve()]
 base=run.pins;run.pins=lambda:dict(base(),**{str(p.relative_to(ROOT)):run.sha(p) for p in sources})
-folder=HERE/'qualification_v1'/mode;folder.mkdir(parents=True,exist_ok=True)
+folder=HERE/'qualification_v3'/mode;folder.mkdir(parents=True,exist_ok=True)
 capsule=json.dumps({str(p.relative_to(ROOT)):p.read_text() for p in sources},sort_keys=True).encode();archive=folder/'executed_source.json.gz'
 if archive.exists():assert gzip.decompress(archive.read_bytes())==capsule
 else:archive.write_bytes(gzip.compress(capsule,mtime=0))

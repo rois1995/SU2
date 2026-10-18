@@ -1,0 +1,7 @@
+diagnostic_serial_v1 {"exit_code": 4, "elapsed_seconds": 0.35372205497696996, "command": ["taskset", "-c", "0", "nice", "-n", "19", "timeout", "--kill-after=5s", "180s", "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver", "[NativeConcurrentComposed3D]", "--reporter", "compact"], "provenance_sha256": "4c3e072d44c982a19f98dd6ff33f24d340daaf5a0caebb4933133987ef8a8883", "log_sha256": "7b951775b6aada2250d6a9451cff7c729096a1883c592fc511864d3de2d6b77e"}
+Traceback (most recent call last):
+  File "integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/concurrent_composed_proposals_v1/diagnose.py", line 12, in <module>
+    run.invoke(HERE/'diagnostic_serial_v1',{},run.OLD/'cell329/replay.dat',1,test_filter='[NativeConcurrentComposed3D]')
+  File "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/run.py", line 55, in invoke
+    if not ((0<run.returncode<124) if expected_failure else run.returncode==0):raise RuntimeError('Failed '+str(folder))
+RuntimeError: Failed /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/concurrent_composed_proposals_v1/diagnostic_serial_v1

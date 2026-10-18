@@ -1,0 +1,4 @@
+enabled_mpi4 {"exit_code": 0, "elapsed_seconds": 23.49660312908236, "command": ["taskset", "-c", "0-3", "nice", "-n", "19", "timeout", "--kill-after=5s", "180s", "mpirun", "-np", "4", "--bind-to", "none", "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver", "[NativeBLBudgetRuntime3D]", "--abort", "--reporter", "compact"], "provenance_sha256": "64aca38ffa399073ce8da33f69c3ba6fb3ca124f2b7fe1d8ed9112ff8c397683", "log_sha256": "43ab8ae11024a66a670353f6730351f642082a4a0cf7e83087b977ba288a3b6b"}
+AUDITED bl_budget_20_m2 lambda 0 cells 240 reference 19.9993054819014
+AUDITED bl_budget_3_m2 lambda 0.875 cells 16 reference 2.95498841845352
+QUALIFIED enabled_mpi4 0

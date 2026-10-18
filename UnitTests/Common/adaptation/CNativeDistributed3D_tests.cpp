@@ -2986,10 +2986,12 @@ TEST_CASE("Faceted composed proposals publish independent complete cavities conc
     fixture.patch.surface.insert(fixture.patch.surface.end(),box.patch.surface.begin(),box.patch.surface.end());
     fixture.facets.insert(fixture.facets.end(),box.facets.begin(),box.facets.end());
   }
-  const auto original=Uniform(Partition(Rows(fixture.patch),world),{4,0,0,4,0,4});
+  const auto original=Uniform(Partition(Rows(fixture.patch),world),{1.21,0,0,1.21,0,1.21});
   const auto frozen=Bytes(input);const PlanarReference geometry(fixture.facets);
-  const MetricComposition compose=[](Point p,Tensor m){m.xx*=1+.03125*p.z;return m;};
+  const MetricComposition compose=[](Point,Tensor m){m.xx*=1.03125;return m;};
+  REQUIRE(std::sqrt(3*1.21)>MaximumMetricEdge);REQUIRE(std::sqrt(2*1.21*1.03125)<MaximumMetricEdge);
   EngineOptions options;options.timings=true;options.maximum_rounds=1;
+  options.edge_breakpoints=[](Point,Point){return std::vector<double>{0,1};};
   auto first=Refine(world,input,original,geometry,compose,options);
   CHECK(Bytes(input)==frozen);CHECK(world.sum(int(first.stats.accepted))==world.size);
   CHECK(Audit(world,first.cells,fixture,CPassiveComm::Allreduce(first.cells.size(),CPassiveComm::Op::SUM,world.comm)));
@@ -3009,8 +3011,8 @@ TEST_CASE("Faceted composed proposals publish independent complete cavities conc
   CHECK(Audit(world,result.cells,fixture,CPassiveComm::Allreduce(result.cells.size(),CPassiveComm::Op::SUM,world.comm)));
   const auto all=Gather(world,result.cells);
   if(!world.rank) {
-    std::vector<DonorCell> full;for(auto c:fixture.patch.cells){DonorCell d;d.cell=c;d.sensor.fill({4,0,0,4,0,4});full.push_back(d);}
-    FrozenField field(full,compose);PatchMetric metric;std::string reason;const auto cells=PatchOf(all).cells;
+    std::vector<DonorCell> full;for(auto c:fixture.patch.cells){DonorCell d;d.cell=c;d.sensor.fill({1.21,0,0,1.21,0,1.21});full.push_back(d);}
+    FrozenField field(full,compose,false,{},options.edge_breakpoints);PatchMetric metric;std::string reason;const auto cells=PatchOf(all).cells;
     for(size_t at=0;at<cells.size();at+=MaximumReplacementCells)
       CHECK(ValidateMetricPatch(std::vector<Cell>(cells.begin()+at,cells.begin()+std::min(cells.size(),at+MaximumReplacementCells)),field,metric,reason));
   }

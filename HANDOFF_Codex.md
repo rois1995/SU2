@@ -8,13 +8,18 @@ Leave AdapNoExt, foreign ClusterResults, dependencies and foreign jobs untouched
 
 ## Current state
 
-Current connected WIP: one concurrent faceted composed REFINE proposal/worker,
-complete final footprint reservation, conflict deferral without blocking, globally
-bounded simultaneous private work, and preservation of completed peers' metric
-diagnoses. Curved projection/repair/coarsen ordering stays as before. Focused
-controls and actual N4M2 audits prepared in concurrent_composed_proposals_v1;
-one build starts now. No validated gain or accepted new M6 claim. Exact frozen
-profile replay avoids repeating Hessian/normalization; no clipped donor rescaling.
+Current connected sourceWIPdc65a427f2: complete final footprint reservation and
+one concurrent faceted composed REFINE proposal/worker, bounded summed private
+work, and preservation of completed peers' metric diagnoses. Core build and
+corrected qualification_v3 PASS: serial9/735, MPI4 nine cases/rank,4independent
+commits/epoch plus full metric audit; actual opt-in/default N4M2 RANS/SA/BDF/
+conservation/height/SU2+CGNS/restart independent audits PASS. All those jobs terminal.
+First two fixture setup failures and diagnostics preserved; no production guard
+change. Fresh replay-model epochs are logged separately from archived version22.
+Next one exact frozen M6 run at concurrent_composed_proposals_v1/frozen_m6_np4;
+no new Hessian/normalization and no clipped-donor correction. Native300s unchanged.
+No accepted new M6 or performance gain claimed.
+
 
 Bounded global correction-evidence refinement is qualified: at most two8192->32768
 stream doublings with retained original support/indexes, complete nonmonotone

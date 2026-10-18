@@ -25,3 +25,10 @@ existing accepted N/M RANS/SA/BDF/reload workflows and one exact frozen M6 repla
 Use ca706 selected field without Hessian/normalization recomputation. Report
 construction separately from budget/transfer and preserve every failure. No claim
 of arbitrary curved concurrency or speedup from changed adaptation order.
+
+
+Frozen replay creates a fresh metric-model epoch, while retaining the archived
+source version22 as provenance. Repeated identical selections do not advance the
+model version. Select the physical parameter once, freeze, and save each rank's
+actual runtime version/core/parameter for audit. No artificial profile trial
+history or old cache is restored, and the original sensor values stay literal.

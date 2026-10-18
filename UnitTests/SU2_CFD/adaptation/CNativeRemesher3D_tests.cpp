@@ -259,7 +259,7 @@ TEST_CASE("Native3D remeshes an externally frozen original sensor field without 
       auto composition=[parameter,version](const CConfig& cfg,const ReferenceState& state,double core,EngineOptions& control)->MetricComposition {
         auto layers=CBoundaryLayerMetric::FromNativeReference(state,cfg);
         layers->ConfigureOuterNormal(SU2_TYPE::GetValue(cfg.GetAdap_BL_ProtectDistance()),SU2_TYPE::GetValue(cfg.GetAdap_BL_OuterGrowthMax()));
-        for(uint64_t i=0;i<version;++i)layers->SelectOuterNormal(parameter);layers->FreezeOuterNormal();
+        layers->SelectOuterNormal(parameter);layers->FreezeOuterNormal();
         for(unsigned short b=0;b<cfg.GetnAdap_BL();++b) {
           const auto& layer=cfg.GetAdap_BL(b);const auto marker=std::find(state.marker_names.begin(),state.marker_names.end(),layer.marker);
           if(marker==state.marker_names.end())throw std::runtime_error("Frozen replay lacks its original BL marker.");
@@ -268,7 +268,11 @@ TEST_CASE("Native3D remeshes an externally frozen original sensor field without 
         }
         control.caller_bytes=transfer_memory::Add(control.caller_bytes,layers->StorageBytes());
         control.edge_breakpoints=[layers](Point a,Point b){return layers->EdgeBreakpoints({a.x,a.y,a.z},{b.x,b.y,b.z});};
-        if(!CPassiveComm::Rank())std::cout<<std::setprecision(17)<<"FROZEN_PROFILE parameter="<<parameter<<" version="<<version<<" core="<<core<<'\n';
+        // A fresh model has a fresh cache epoch; the archived version remains provenance.
+        std::ofstream profile("frozen_profile_rank"+std::to_string(CPassiveComm::Rank())+".json");
+        profile<<std::setprecision(17)<<"{\"parameter\":"<<parameter<<",\"runtime_version\":"<<layers->GetOuterNormal().version
+            <<",\"original_version\":"<<version<<",\"core\":"<<core<<",\"frozen\":true}\n";
+        profile.close();if(!profile)throw std::runtime_error("Cannot retain frozen replay profile metadata.");
         return [layers,core](Point p,Tensor sensor){
           CBoundaryLayerMetric::Tensor m;m.m[0][0]=sensor.xx;m.m[1][1]=sensor.yy;m.m[2][2]=sensor.zz;
           m.m[0][1]=m.m[1][0]=sensor.xy;m.m[0][2]=m.m[2][0]=sensor.xz;m.m[1][2]=m.m[2][1]=sensor.yz;
