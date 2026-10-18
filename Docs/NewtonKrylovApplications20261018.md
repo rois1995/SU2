@@ -11,6 +11,13 @@ and its full trial was interrupted by the global-swap guard. The saved checkpoin
 the interrupted run remains unqualified. Production sources are restored. Existing fixed forcing0.05 is being
 tested separately as a configuration change; no new recovery, forcing signal or inner default is adopted.
 
+The [MUSCL boundary-gradient reuse](NewtonKrylovGradientReuse20261018.md) removes repeated native gradient work
+for eligible first-order auxiliary probes. Six original-control pairs retain identical states/work; measured
+SST communication counts decrease. Higher-order SA keeps its fallback. No timing speedup is inferred.
+
+See the [existing fixed-forcing study](NewtonKrylovFixedForcing20261018.md) for nominal0.05 qualification
+and separately labelled native/Newton accuracy comparisons. Implementation and configuration gains remain distinct.
+
 Work in progress. Baseline numerical implementation: `4712d82375e00ede15e5177ab38865eaaaa3e9f5`;
 source checkout at study start: `8e61376ecd234414ce583c9b8f995e2bd62f4c12`.
 Committed corrections: momentum probes `637177c3e4` and bounded verified-probe recovery `d27f4b37f6`.
@@ -179,10 +186,10 @@ and `paper_notes/manifest.json`; they motivate investigations, not unmeasured so
 
 | Application | Layout | Actual trials | Qualified endpoints | Eligible timing repetitions |
 |---|---|---:|---:|---:|
-| naca_sa | 1x1 | 76 | 28 | 1 |
-| naca_sa | 2x2 | 55 | 21 | 0 |
-| naca_sst | 1x1 | 37 | 5 | 0 |
-| naca_sst | 2x2 | 18 | 2 | 0 |
+| naca_sa | 1x1 | 78 | 28 | 1 |
+| naca_sa | 2x2 | 57 | 22 | 0 |
+| naca_sst | 1x1 | 39 | 5 | 0 |
+| naca_sst | 2x2 | 20 | 2 | 0 |
 | nozzle_sst | 1x1 | 32 | 0 | 0 |
 | nozzle_sst | 2x2 | 9 | 0 | 0 |
 | flatplate_lm | 1x1 | 20 | 0 | 0 |
@@ -333,7 +340,7 @@ is retained; `prepared` and `running` entries have not completed.
 | nozzle_sst | 1x1 | segregated | original | baseline_4712d82375 | fd_step_1e-5 | -12 | diagnostic_complete | False | 1 | — | 2.727 |
 | nozzle_sst | 1x1 | segregated | original | baseline_4712d82375 | fd_step_1e-6 | -12 | diagnostic_complete | False | 1 | — | 2.880 |
 | nozzle_sst | 1x1 | segregated | original | baseline_4712d82375 | fd_step_1e-7 | -12 | diagnostic_complete | False | 1 | — | 1.765 |
-| naca_sa | 2x2 | coupled | original | static_review_correctness_v2_release | diagonal | -14.0 | running | False | — | — | — |
+| naca_sa | 2x2 | coupled | original | static_review_correctness_v2_release | diagonal | -14.0 | qualified | True | 356 | 1797.690 | 1798.629 |
 | naca_sa | 1x1 | coupled | original | forcing_candidate | forcing | -13.0 | incomplete_time_cap | False | 209 | 300.938 | 301.445 |
 | naca_sa | 1x1 | segregated | original | forcing_candidate | forcing | -13.0 | incomplete_time_cap | False | 157 | 300.054 | 300.632 |
 | naca_sa | 1x1 | coupled | original | forcing_candidate | forcing | -13.0 | iteration_cap | False | 6 | 16.587 | 17.090 |
@@ -368,6 +375,14 @@ is retained; `prepared` and `running` entries have not completed.
 | naca_sa | 2x2 | native | original | inner_scaling_release | original | -13.0 | qualified | True | 151 | 12.626 | 13.135 |
 | naca_sst | 1x1 | coupled | original | inner_scaling_release | original | -12 | iteration_cap | False | 20 | 84.426 | 84.961 |
 | naca_sa | 1x1 | native | original | recovery_release | original | -13.0 | qualified | True | 151 | 18.913 | 19.465 |
+| naca_sa | 1x1 | segregated | original | muscl_boundary_gradient_release | original | -13.0 | iteration_cap | False | 20 | 48.083 | 48.711 |
+| naca_sa | 2x2 | segregated | original | muscl_boundary_gradient_release | original | -13.0 | iteration_cap | False | 20 | 49.640 | 50.180 |
+| naca_sst | 1x1 | coupled | original | muscl_boundary_gradient_release | original | -13.0 | iteration_cap | False | 20 | 97.508 | 98.076 |
+| naca_sst | 1x1 | segregated | original | muscl_boundary_gradient_release | original | -13.0 | iteration_cap | False | 20 | 111.275 | 111.892 |
+| naca_sst | 2x2 | coupled | original | muscl_boundary_gradient_release | original | -13.0 | iteration_cap | False | 20 | 58.021 | 58.533 |
+| naca_sst | 2x2 | segregated | original | muscl_boundary_gradient_release | original | -13.0 | iteration_cap | False | 20 | 62.004 | 62.619 |
+| naca_sa | 1x1 | segregated | original | static_review_correctness_v2_release | original | -13.0 | iteration_cap | False | 20 | 47.514 | 48.085 |
+| naca_sa | 2x2 | segregated | original | static_review_correctness_v2_release | original | -13.0 | iteration_cap | False | 20 | 48.956 | 49.491 |
 | naca_sa | 1x1 | coupled | original | naca_rejection_flow3_release | diagonal | -14.0 | iteration_cap | False | 20 | 83.725 | 84.249 |
 | naca_sa | 2x2 | coupled | original | naca_rejection_flow3_release | diagonal | -14.0 | iteration_cap | False | 20 | 51.990 | 52.542 |
 | naca_sst | 1x1 | segregated | original | naca_rejection_flow3_release | original | -13.0 | iteration_cap | False | 20 | 63.654 | 64.198 |

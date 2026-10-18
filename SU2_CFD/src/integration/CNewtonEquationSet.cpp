@@ -17,7 +17,8 @@ bool HasFlowFeedback(const CConfig& config) {
 
 /*! \brief Boundaries and first-order auxiliary sources only consume the freshly computed temperature/velocity gradients. */
 bool CanReuseBoundaryGradients(const CConfig& config) {
-  if (config.GetMUSCL_Flow() || config.GetMUSCL_Turb() || config.GetWall_Functions() ||
+  /*--- Flow MUSCL fluxes are omitted here; these boundaries use nodal characteristic states. ---*/
+  if (config.GetMUSCL_Turb() || config.GetWall_Functions() ||
       config.GetKind_Species_Model() != SPECIES_MODEL::NONE ||
       config.GetKind_HybridRANSLES() != NO_HYBRIDRANSLES || config.GetKind_RoeLowDiss() != NO_ROELOWDISS ||
       config.GetKind_Streamwise_Periodic() != ENUM_STREAMWISE_PERIODIC::NONE ||

@@ -3211,6 +3211,15 @@ TEST_CASE("Auxiliary probes retain full-path residuals and characteristic states
         const auto boundaryCount = equations->GetFlowBoundaryEvaluations();
         /*--- A reducer's omitted volume pass must not leave stale flow residual data. ---*/
         flow->LinSysRes = passivedouble(std::numeric_limits<double>::quiet_NaN());
+        if (muscl && config->GetKind_Regime() == ENUM_REGIME::COMPRESSIBLE) {
+          /*--- These boundaries and first-order auxiliary sources must not consume pressure/enthalpy gradients. ---*/
+          for (auto p = 0ul; p < geometry->GetnPoint(); ++p)
+            for (auto v = 1u + geometry->GetnDim(); v < flow->GetnPrimVarGrad(); ++v)
+              for (auto d = 0u; d < geometry->GetnDim(); ++d) {
+                flowNodes->GetGradient_Primitive(p)(v, d) = std::numeric_limits<su2double>::quiet_NaN();
+                flowNodes->GetGradient_Reconstruction(p)[v][d] = std::numeric_limits<su2double>::quiet_NaN();
+              }
+        }
         REQUIRE(Residual(*equations));
         equations->CopyResidual(actual);
         CHECK(MaxDifference(expected, actual) <= 1e-13 * std::max(1.0, expected.norm()));
@@ -3222,6 +3231,50 @@ TEST_CASE("Auxiliary probes retain full-path residuals and characteristic states
       }
       REQUIRE(equations->Restore());
       CHECK(equations->GetRestorationError() == 0.0);
+    }
+}
+
+TEST_CASE("Periodic MUSCL auxiliary probes preserve live boundary gradients", "[NewtonRefresh][NewtonPeriodic]") {
+  for (const auto& physics : {sa, sst, sst + "KIND_TRANS_MODEL= LM\n"})
+    for (bool rotation : {false, true}) {
+      const auto boundary = rotation
+          ? "MARKER_FAR= (y_minus,y_plus,z_minus,z_plus)\n"
+            "MARKER_PERIODIC= (x_minus,x_plus,0,0.5,0.5,90,0,0,1,0,0)\n"
+          : "MARKER_FAR= (y_minus,y_plus)\nMARKER_PERIODIC= (x_minus,x_plus,0,0,0,0,0,0,1,0,0)\n";
+      Problem problem(physics + "MARKER_HEATFLUX= NONE\n" + boundary, 5, true, rotation);
+      auto& driver = *problem.driver;
+      auto* geometry = driver.Geometry();
+      auto* flow = driver.Solvers()[FLOW_SOL]->GetNodes();
+      for (auto p = 0ul; p < geometry->GetnPoint(); ++p) {
+        const double x = geometry->nodes->GetCoord(p, 0), y = geometry->nodes->GetCoord(p, 1);
+        flow->SetSolution(p, 1, flow->GetSolution(p, 1) * (1 + 0.02 * x + 0.03 * y));
+        flow->SetSolution(p, 2, 0.01 * flow->GetSolution(p, 1));
+      }
+      std::vector<unsigned short> selected{RUNTIME_TURB_SYS};
+      if (driver.Solvers()[TRANS_SOL]) selected.push_back(RUNTIME_TRANS_SYS);
+      auto equations = problem.Equations(selected);
+      REQUIRE(Residual(*equations, true, true));
+      equations->Capture();
+      auto scale = MakeVector(driver, equations->GetnVar()), reference = scale, direction = scale;
+      auto expected = scale, actual = scale;
+      equations->BuildScales(scale, reference);
+      for (auto p = 0ul; p < geometry->GetnPoint(); ++p)
+        for (auto v = 0u; v < equations->GetnVar(); ++v)
+          direction(p, v) = 0.005 * (1 + v + geometry->nodes->GetCoord(p, 0));
+      auto isFree = [](const CNewtonEquationSet::Block& b, unsigned long p, unsigned short v) {
+        return !b.solver->Jacobian.IsPrescribedRow(p, v);
+      };
+      for (double step : {0.01, -0.02, 0.01}) {
+        equations->SetTrial(direction, step, scale, isFree);
+        REQUIRE(Residual(*equations, false, true));
+        equations->CopyResidual(expected);
+        equations->SetTrial(direction, step, scale, isFree);
+        REQUIRE(Residual(*equations));
+        equations->CopyResidual(actual);
+        CHECK(MaxDifference(expected, actual) <= 1e-13 * std::max(1.0, expected.norm()));
+        REQUIRE(equations->Restore());
+        CHECK(equations->GetRestorationError() == 0);
+      }
     }
 }
 
