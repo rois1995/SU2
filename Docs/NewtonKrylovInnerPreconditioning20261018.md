@@ -116,10 +116,11 @@ residual-only evaluation passes every physical residual target (density RMS
 8.73191e-14, maximum normalized active RMS 3.15239e-12), zero boundary projection,
 and physical quantities against both native states. All 574 accepted steps pass
 Armijo with alpha=1 and true defects at most 0.08202; every rollback error is zero.
-The endpoint still fails the full-state and stopping requirements. The primary
-qualifier remains independently gated behind another build; its output is untouched.
-The one-second low-priority correctness evaluation uses a separate output directory
-and provides no performance measurement. Evidence:
+The endpoint still fails the full-state and stopping requirements. After the other
+build finished, the primary qualifier independently rejected pointwise agreement
+and produced a physical report identical to the low-priority report. Its output
+was untouched. The one-second low-priority correctness evaluation uses a separate
+output directory and provides no performance measurement. Evidence:
 `inner_candidate_sa_2x2_state_assessment.json`,
 `inner_candidate_sa_2x2_independent_assessment.json` and
 `inner_candidate_sa_2x2_independent_report_command.json`.
@@ -145,6 +146,36 @@ the candidate spends many accepted updates at CFL 125–250. This is evidence
 against adopting three inner iterations as a universal default. The other
 application assessments remain separately scheduled. No elapsed-time ratio is used.
 `inner_candidate_sa_2x2_milestones.json` pins source configuration and telemetry hashes.
+
+## SST with adaptive CFL and forcing
+
+The complete 300-second serial SST trial still fails the fresh density requirement.
+Its configuration exactly matches retained d27 (SHA256
+`cb7511f199e2df65a9b23bd5e54f6240c415291940a66aba75963a8668f9ab5a`).
+It uses the lower block preconditioner; this is a separate control setting from
+the fixed-CFL original prefix above. All frozen endpoint requirements remain.
+
+| SST adaptive controls, 1×1 | Retained d27 | Candidate |
+|---|---:|---:|
+| Updates before wall limit | 61 | 78 |
+| Flow / turbulence assemblies | 12160 / 13641 | 12036 / 13549 |
+| Completed outer Krylov | 1445 | 1486 |
+| Completed native inner Krylov | 0 | 4379 |
+| Retries / backtracks | 33 / 0 | 42 / 0 |
+| Fresh density RMS | 2.543e-7 | 2.137e-7 |
+| Solver-loop / elapsed seconds | 300.602 / 301.182 | 301.469 / 302.072 |
+| Peak rank RSS, KiB | 164712 | 147768 |
+| Full comparison | Fail | Fail |
+
+More updates and a modestly smaller density residual at similar assembly work
+do not establish lower cost to a qualified endpoint. Both timings are contended
+and ineligible. This full application also shows why the one-third work reduction
+in the original 20-update prefix is insufficient evidence for a general benefit.
+The [focused CSV](NewtonKrylovInnerPreconditioning20261018.csv) automatically includes
+all ten completed baselines and each new application as it runs. Exact paired
+results are in `inner_candidate_completed_controls_assessment.json`; commands and
+configuration checks are in `inner_candidate_control_commands.json`. LM and the
+other application assessments continue before any default change.
 
 ## Remaining CPU work on 2×2
 

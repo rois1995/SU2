@@ -169,11 +169,11 @@ and `paper_notes/manifest.json`; they motivate investigations, not unmeasured so
 |---|---|---:|---:|---:|
 | naca_sa | 1x1 | 68 | 25 | 1 |
 | naca_sa | 2x2 | 43 | 17 | 0 |
-| naca_sst | 1x1 | 25 | 3 | 0 |
-| naca_sst | 2x2 | 10 | 0 | 0 |
+| naca_sst | 1x1 | 26 | 3 | 0 |
+| naca_sst | 2x2 | 11 | 0 | 0 |
 | nozzle_sst | 1x1 | 32 | 0 | 0 |
 | nozzle_sst | 2x2 | 9 | 0 | 0 |
-| flatplate_lm | 1x1 | 18 | 0 | 0 |
+| flatplate_lm | 1x1 | 19 | 0 | 0 |
 | flatplate_lm | 2x2 | 9 | 0 | 0 |
 | periodic_stator | 1x1 | 3 | 0 | 0 |
 | periodic_stator | 2x2 | 0 | 0 | 0 |
@@ -192,7 +192,7 @@ remain in the complete application ledger above.
 | naca_sa | 1x1 | 16 | 16 | 0 | 0 | 3 |
 | naca_sa | 2x2 | 16 | 10 | 0 | 6 | 2 |
 | naca_sst | 1x1 | 16 | 6 | 0 | 10 | 1 |
-| naca_sst | 2x2 | 13 | 1 | 0 | 12 | 0 |
+| naca_sst | 2x2 | 13 | 2 | 0 | 11 | 0 |
 | nozzle_sst | 1x1 | 14 | 4 | 0 | 10 | 0 |
 | nozzle_sst | 2x2 | 14 | 0 | 0 | 14 | 0 |
 | flatplate_lm | 1x1 | 15 | 3 | 0 | 12 | 0 |
@@ -305,6 +305,7 @@ is retained; `prepared` and `running` entries have not completed.
 | naca_sst | 1x1 | coupled | original | recovery_release | forcing | -13.0 | rejected | False | 61 | 300.602 | 301.182 |
 | naca_sst | 1x1 | segregated | original | recovery_release | forcing | -13.0 | rejected | False | 32 | 314.272 | 314.825 |
 | naca_sst | 2x2 | native | original | recovery_release | adaptive | -13.0 | rejected | False | 3277 | 300.466 | 300.955 |
+| naca_sst | 2x2 | segregated | original | recovery_release | forcing | -13.0 | rejected | False | 54 | 303.653 | 304.120 |
 | nozzle_sst | 1x1 | native | original | recovery_release | adaptive | -13.0 | rejected | False | 6919 | 137.509 | 137.989 |
 | nozzle_sst | 1x1 | coupled | original | recovery_release | forcing | -13.0 | rejected | False | 317 | 301.445 | 301.899 |
 | nozzle_sst | 1x1 | segregated | original | recovery_release | forcing | -13.0 | rejected | False | 314 | 300.020 | 300.494 |
@@ -337,8 +338,10 @@ is retained; `prepared` and `running` entries have not completed.
 | naca_sa | 1x1 | native | original | inner_candidate | original | -13.0 | qualified | True | 151 | 18.750 | 19.323 |
 | naca_sa | 2x2 | native | original | inner_candidate | original | -13.0 | qualified | True | 151 | 14.177 | 14.780 |
 | naca_sa | 1x1 | coupled | original | inner_candidate | diagonal | -14.0 | qualified | True | 166 | 556.675 | 557.225 |
-| naca_sa | 2x2 | coupled | original | inner_candidate | diagonal | -14.0 | wall_limit | False | 574 | 1200.933 | 1201.498 |
+| naca_sa | 2x2 | coupled | original | inner_candidate | diagonal | -14.0 | rejected | False | 574 | 1200.933 | 1201.498 |
 | naca_sst | 1x1 | coupled | original | inner_candidate | original | -12 | iteration_cap | False | 20 | 55.908 | 56.456 |
+| flatplate_lm | 1x1 | coupled | original | inner_candidate | forcing | -11 | running | False | — | — | — |
+| naca_sst | 1x1 | coupled | original | inner_candidate | forcing | -13.0 | rejected | False | 78 | 301.469 | 302.072 |
 | naca_sa | 1x1 | native | original | recovery_release | original | -13.0 | qualified | True | 151 | 18.913 | 19.465 |
 | flatplate_lm | 1x1 | coupled | original | baseline_4712d82375 | original | -11 | solver_failure | False | 0 | — | 1.432 |
 | flatplate_lm | 1x1 | native | original | baseline_4712d82375 | original | -11 | solver_failure | False | 0 | — | 1.349 |
