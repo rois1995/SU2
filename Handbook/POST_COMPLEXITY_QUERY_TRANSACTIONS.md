@@ -100,3 +100,26 @@ also need a physical overlap guarantee. That sufficiency is NOT yet established.
 Reuse existing directory reservation/publication and query facilities; no second
 cache/normalization target or local geometry fallback. Keep original target and
 M6 construction replay distinct from historical owner-UPPER6 evidence.
+
+
+## 2026-10-18 — complete-proposal concurrency, scope and negative M6 result
+
+Final full-old-vertex reservations, versioned imports, conflict deferral without
+blocking and bounded summed private work permit concurrent faceted composed REFINE.
+Completed peers retain metric diagnoses while serving other queries. No new cache,
+constructor fallback, physical/metric gate, gather or limit change. Serial9/735,
+MPI4nine cases/rank and actual opt-in/default N4M2 independently audited RANS/SA/
+BDF/conservation/height/full-metric/SU2/CGNS/restart PASS.4controlled commits/epoch.
+
+Same exact archived M6 sensor/profile/core, no new Hessian/normalization/CFD step:
+3simultaneous commits,1707->1955private edits,326764->280568kernel calls/rank.
+Still atomically rejects300.609s; residual counts do not establish improvement.
+No accepted wing, transfer or event speedup claim. Original raw-family correction
+is unavailable in this construction-only replay; clipped tensors never rescaled.
+
+Persistent reported edge/face recurs. Offline original input witness has5tets,
+that face and exact cell104931centroid; outside BL support, sensor edge2.60882>1.8.
+Late working-cavity equality/feasibility remains unproven. Next use a local frozen
+replay to identify the missing construction freedom, not another fallback/cache/
+limit variant. Ledger is now a concise index with its full1004-line history
+preserved separately. [Report and viewable witness](../integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/concurrent_composed_proposals_v1/README.md).

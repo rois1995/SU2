@@ -8,17 +8,34 @@ Leave AdapNoExt, foreign ClusterResults, dependencies and foreign jobs untouched
 
 ## Current state
 
-Current connected sourceWIPdc65a427f2: complete final footprint reservation and
-one concurrent faceted composed REFINE proposal/worker, bounded summed private
-work, and preservation of completed peers' metric diagnoses. Core build and
-corrected qualification_v3 PASS: serial9/735, MPI4 nine cases/rank,4independent
-commits/epoch plus full metric audit; actual opt-in/default N4M2 RANS/SA/BDF/
-conservation/height/SU2+CGNS/restart independent audits PASS. All those jobs terminal.
-First two fixture setup failures and diagnostics preserved; no production guard
-change. Fresh replay-model epochs are logged separately from archived version22.
-Next one exact frozen M6 run at concurrent_composed_proposals_v1/frozen_m6_np4;
-no new Hessian/normalization and no clipped-donor correction. Native300s unchanged.
-No accepted new M6 or performance gain claimed.
+Current qualified native sourceWIPdc65a427f2 with controls checkpoint1c2e7da3ca:
+complete final footprints permit concurrent faceted composed REFINE. Serial9/735,
+MPI4nine cases/rank,4independent commits/epoch/full metric audit and actual
+opt-in/default N4M2 RANS/SA/BDF/height/conservation/SU2+CGNS/restart independent
+audits PASS. Curved projection/repair/coarsen ordering retained. Fixture mistakes
+atv1/v2 and correctedv3 evidence preserved; no guard/cap weakened.
+
+One exact frozen selected-field M6 replay is TERMINAL REJECTED300.609s, no transfer
+or accepted mesh. Core/parameter match archive on all ranks; fresh runtimeepoch2,
+archived provenanceversion22. No Hessian/normalization rebuild or CFD advance.
+Maximum3parallel commits,1707->1955private later edits; kernel calls326764->280568
+(-14.14%), rounds2200->846. Remaining edges2528/invalid cached6475 do not establish
+improved residual; NO event speedup/construction fix claim.13useful windows/0stagnant.
+All owned jobs TERMINAL. [Current report](integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/concurrent_composed_proposals_v1/README.md).
+
+Both events' last local report names edge25389--53318 and face31334,31338,53318.
+Offline original-mesh extraction finds a5-tet/7-node star with that boundary face
+and EXACT centroid of original cell104931. Its entire box is outside BL support,
+and sensor-only edge length2.60882>1.8. This is a generic sensor-cavity witness,
+NOT captured late connectivity or a feasibility proof. View original_edge_witness/
+original_star.su2 and use witness.json original-ID mapping for tensor lookup.
+
+Next: use existing local operators/actual original frozen field to reproduce and
+classify this small cavity; confirm late-star equivalence or capture missing
+context via the existing rejection observer. Original boundary edges may impose
+local constraints, so retain the proper local progress contract. Do not add more
+fallbacks/caches/ceiling ladders or rerun the entire wing after small changes.
+Full Goal3 stays active/incomplete.
 
 
 Bounded global correction-evidence refinement is qualified: at most two8192->32768
@@ -54,14 +71,11 @@ The prior7.515s unresolved coarsest field is a different final target.
 [Current report/provenance/failures](integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/adaptive_budget_evidence_v1/README.md).
 
 Next substantive milestone remains an accepted complete difficult mesh under
-unchanged gates. The new .875 original flow-family target reaches construction but
-does not finish; do not rerun it after small changes or raise its ceiling. Current
-composed BL edits are serialized because complete displaced/expanded dependencies
-are not reserved. Investigate complete-proposal admission/concurrency and retained
-support as one substantial construction/coordination step. No implementation or
-sufficiency claim yet. Calibrated global error allocation/composed gradation,
-general curved/interacting construction and complete affordability remain open.
-[Next transaction scope](Handbook/POST_COMPLEXITY_QUERY_TRANSACTIONS.md).
+unchanged gates. Safe concurrency is scoped-qualified but did not deliver it.
+Prioritize the frozen cavity investigation above over more generic performance
+variants. Calibrated global error allocation/composed gradation, general curved/
+interacting construction and complete affordability remain open.
+
 
 ## Qualified foundations and remaining scope
 

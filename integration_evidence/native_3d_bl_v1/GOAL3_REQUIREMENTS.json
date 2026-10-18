@@ -123,11 +123,11 @@
     "oneram6_frozen_field_v1/result.json"
   ],
   "execution_state": {
-    "status": "Full Goal3 ACTIVE/incomplete. Reflected face pair experiment completed and WITHDRAWN: M6 SEM15-16% lower, planar45% worse, no global accuracy proof. All three C++ changes restored; every prior source/build/test-binary pin matches exactly. No production sampling/tolerance/gate change. Next substantial implementation: same-original-field candidate-partition reassessment and bounded frozen normalization/adaptation stages before publication. M6 accepted construction, calibrated global error/work allocation, viscous accuracy and whole-lifecycle affordability still missing.",
-    "CFD_runs": 17,
-    "CFD_run_scope": "Five corrected-config failed v1..v5 plus six qualified v6 actual N/M cases and six qualified v11 actual N/M cases; initial invalid config separately retained.",
-    "production_MPI": "Current-source 67 serial controls, affected MPI4 first-row/general controls, direct original-field M6 MPI2/4 and independently audited small RANS/SA N4M2 current+BDF/SA/restart/SU2+CGNS pass in first_row_shape_ranking_v1. Earlier full actual-flow N/M campaigns remain source-qualified historical evidence, not current M6 acceptance.",
-    "independent_frames": 12
+    "status": "Full Goal3 ACTIVE/incomplete. Faceted composed REFINE concurrency scoped-qualified; exact selected-field M6 still time-rejected. Original five-tet sensor-only edge witness prepared; local native reconstruction and late-cavity equality unproven.",
+    "new_CFD_advances": 0,
+    "new_Hessian_or_normalization_in_M6_replay": false,
+    "owned_jobs": "terminal",
+    "next": "Reproduce/classify original-edge frozen local cavity using existing operators; capture missing late context only when needed; no fallback/cache/ceiling ladder."
   },
   "coupled_engine_checkpoint": {
     "evidence": "integration_evidence/native_3d_bl_v1/coupled_engine_v1",
@@ -259,15 +259,22 @@
     "scope": "One planar cube production case plus six focused first-row geometry/movement cases. Actual computed metric, conservative current+BDF/bounded-SA and SU2/CGNS/reference/restart checks; independent exact embedding, full composed metric, wall footprint and height. No new MPI, full regressions, general layer coverage, actual CFD accuracy or performance qualification."
   },
   "owned_jobs": {
-    "status": "All owned experimental/replay/restoration/hash-verification handles terminal. No build/CFD/remesher/cluster job.",
+    "status": "All current build/control/native replay/offline witness handles terminal; no owned heavy job.",
     "terminal_handles": [
-      48501,
-      24066,
-      53328,
-      40416,
-      14419
+      32232,
+      26154,
+      12274,
+      85135,
+      42489,
+      70192,
+      97051,
+      52375,
+      53612,
+      66524,
+      20526,
+      21026
     ],
-    "resources": "integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/face_pair_variance_v1"
+    "resources": "integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/concurrent_composed_proposals_v1/frozen_m6_np4/resources.txt"
   },
   "wall_reconstruction": {
     "status": "PASS_PLANAR_STRONGER_FIELD_LIMITED_SCOPE",
@@ -758,7 +765,7 @@
     "full_goal3_complete": false,
     "current_geometry_evidence": "region_construction_v1/rotated_geometry_summary.json"
   },
-  "current_integration_campaign": "region_construction_v1/current_integration_v11.json",
+  "current_integration_campaign": "oneram6_uncertainty_v1/concurrent_composed_proposals_v1/summary.json",
   "independent_full_composed_metric": {
     "evidence": "region_construction_v1/full_metric_audit_v3/native_core_rotated_v10.json",
     "coverage": "region_construction_v1/full_metric_audit_v3/coverage.json",
@@ -1903,5 +1910,60 @@
     "atomic_state_checks": "PASS_ALL4RANKS",
     "exact_selected_sensor_export": "PASS_UNIQUE_IDS_COORDINATES_SPD",
     "next": "Audit complete expanded-proposal dependency admission/concurrency before another local fallback or ceiling increase"
-  }
+  },
+  "current_concurrent_composed_proposals": {
+    "status": "SCOPED_CONCURRENCY_QUALIFIED_M6_TIME_REJECTED_NO_SPEEDUP_CLAIM",
+    "evidence": "integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/concurrent_composed_proposals_v1",
+    "source_WIP": "dc65a427f2",
+    "control_checkpoint": "1c2e7da3ca1aa89bf1ccdc3888a114b6665506f4",
+    "full_goal_complete": false,
+    "owned_jobs": "terminal",
+    "serial_cases": 9,
+    "serial_assertions": 735,
+    "MPI4_cases_per_rank": 9,
+    "controlled_simultaneous_commits": 4,
+    "actual_opt_in_and_default_N4M2": "PASS_INDEPENDENT_AUDITS",
+    "M6_simultaneous_commits": 3,
+    "M6_private_edits": 1955,
+    "previous_private_edits": 1707,
+    "kernel_calls_per_rank": 280568,
+    "previous_kernel_calls": 326764,
+    "M6_seconds": 300.608518491,
+    "M6_accepted": false,
+    "M6_transfer": false,
+    "CFD_steps": 0,
+    "Hessian_repeated": false,
+    "whole_event_speedup_established": false,
+    "remaining_edges": 2528,
+    "cached_invalid_cells": 6475,
+    "original_witness_edge": [
+      25389,
+      53318
+    ],
+    "original_witness_cells": 5,
+    "reported_centroid_matches": true,
+    "original_witness_outside_BL": true,
+    "original_sensor_edge_length": 2.6088200816802036,
+    "late_cavity_equivalence_proven": false,
+    "next": "Local frozen cavity replay/classification before more fallback or performance variants"
+  },
+  "historical_owned_jobs_before_concurrent_2026_10_18": {
+    "status": "All owned experimental/replay/restoration/hash-verification handles terminal. No build/CFD/remesher/cluster job.",
+    "terminal_handles": [
+      48501,
+      24066,
+      53328,
+      40416,
+      14419
+    ],
+    "resources": "integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/face_pair_variance_v1"
+  },
+  "historical_execution_state_before_concurrent_2026_10_18": {
+    "status": "Full Goal3 ACTIVE/incomplete. Reflected face pair experiment completed and WITHDRAWN: M6 SEM15-16% lower, planar45% worse, no global accuracy proof. All three C++ changes restored; every prior source/build/test-binary pin matches exactly. No production sampling/tolerance/gate change. Next substantial implementation: same-original-field candidate-partition reassessment and bounded frozen normalization/adaptation stages before publication. M6 accepted construction, calibrated global error/work allocation, viscous accuracy and whole-lifecycle affordability still missing.",
+    "CFD_runs": 17,
+    "CFD_run_scope": "Five corrected-config failed v1..v5 plus six qualified v6 actual N/M cases and six qualified v11 actual N/M cases; initial invalid config separately retained.",
+    "production_MPI": "Current-source 67 serial controls, affected MPI4 first-row/general controls, direct original-field M6 MPI2/4 and independently audited small RANS/SA N4M2 current+BDF/SA/restart/SU2+CGNS pass in first_row_shape_ranking_v1. Earlier full actual-flow N/M campaigns remain source-qualified historical evidence, not current M6 acceptance.",
+    "independent_frames": 12
+  },
+  "historical_current_integration_campaign_before_concurrent_2026_10_18": "region_construction_v1/current_integration_v11.json"
 }

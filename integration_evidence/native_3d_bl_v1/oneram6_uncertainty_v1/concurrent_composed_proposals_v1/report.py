@@ -62,5 +62,13 @@ result={'scoped_validation_pass':True,'full_goal_complete':False,'controls':cont
  'limits':['Faceted composed REFINE concurrency only; projected curved/repair/coarsen ordering retained',
  'No full-goal or clean scaling/affordability claim','Frozen M6 replay cannot correct a budget using clipped donors',
  'A native geometry result is not an actual full RANS transfer/restart result; qualify that separately if reached']}
+witness=load(HERE/'original_edge_witness/witness.json');metric=load(HERE/'original_edge_witness/metric_diagnosis.json')
+assert witness['log_sha256']==sha(f/'run.log') and witness['mesh_sha256']==sha(f/'Coarse.su2')
+assert witness['helper_sha256']==sha(HERE/'trace_original_edge.py')
+assert witness['witness_mesh_sha256']==sha(HERE/'original_edge_witness/original_star.su2')
+assert metric['witness_sha256']==sha(HERE/'original_edge_witness/witness.json') and metric['sensor_sha256']==sha(f/'selected_sensor.bin')
+assert metric['helper_sha256']==sha(HERE/'original_edge_metric.py')
+assert not witness['late_cavity_equivalence_established'] and not witness['native_reconstruction_attempted']
+result['original_edge_witness']=witness;result['original_edge_metric_diagnosis']=metric
 (HERE/'summary.json').write_text(json.dumps(result,indent=2,allow_nan=False)+'\n')
 print(json.dumps({k:v for k,v in result.items() if k not in ('controls','M6_engine_rank_diagnostics','M6_parent_rank_diagnostics','M6_receipt')},indent=2))

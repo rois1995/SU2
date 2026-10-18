@@ -1,0 +1,186 @@
+{
+  "scoped_validation_pass": true,
+  "full_goal_complete": false,
+  "frozen_profiles": [
+    {
+      "parameter": 0.875,
+      "runtime_version": 2,
+      "original_version": 22,
+      "core": 0.003215747252591252,
+      "frozen": true
+    },
+    {
+      "parameter": 0.875,
+      "runtime_version": 2,
+      "original_version": 22,
+      "core": 0.003215747252591252,
+      "frozen": true
+    },
+    {
+      "parameter": 0.875,
+      "runtime_version": 2,
+      "original_version": 22,
+      "core": 0.003215747252591252,
+      "frozen": true
+    },
+    {
+      "parameter": 0.875,
+      "runtime_version": 2,
+      "original_version": 22,
+      "core": 0.003215747252591252,
+      "frozen": true
+    }
+  ],
+  "global_engine_counts": {
+    "accepted": 1955,
+    "rejected": 546,
+    "proposal_deferred": 0,
+    "layer_published": 38800,
+    "remaining_edges": 2528,
+    "cached_invalid_cells": 6475
+  },
+  "maximum_parallel_commits": 3,
+  "comparison": {
+    "same_frozen_source": true,
+    "same_config": true,
+    "same_physical_profile": true,
+    "same_native_event_ceiling": 300,
+    "baseline_private_edits": 1707,
+    "new_private_edits": 1955,
+    "baseline_kernel_rounds": 2200,
+    "new_kernel_rounds": 846,
+    "baseline_kernel_tracked_calls": 326764,
+    "new_kernel_tracked_calls": 280568,
+    "baseline_event_seconds": 300.433968789,
+    "new_event_seconds": 300.608518491,
+    "causal_speedup_established": false,
+    "qualification": "Different adaptation order, contended local observation, frozen replay omits retained raw-family/correction infrastructure."
+  },
+  "report_helper_sha256": "e452247832c5aa27b8a68a62c187197da53eb7b10e629025261f21365e4a13eb",
+  "limits": [
+    "Faceted composed REFINE concurrency only; projected curved/repair/coarsen ordering retained",
+    "No full-goal or clean scaling/affordability claim",
+    "Frozen M6 replay cannot correct a budget using clipped donors",
+    "A native geometry result is not an actual full RANS transfer/restart result; qualify that separately if reached"
+  ],
+  "original_edge_witness": {
+    "scope": "Original input edge-star witness, not a captured late private cavity or rejected candidate",
+    "edge": [
+      25389,
+      53318
+    ],
+    "obstruction_face": [
+      31334,
+      31338,
+      53318
+    ],
+    "original_cells": [
+      77807,
+      104931,
+      128575,
+      254374,
+      254375
+    ],
+    "original_nodes": [
+      25389,
+      31334,
+      31338,
+      31339,
+      31340,
+      51569,
+      53318
+    ],
+    "boundary_has_reported_obstruction": true,
+    "reported_centroid": [
+      1.777938769333844,
+      1.5572549764168055,
+      0.42845813038521335
+    ],
+    "closest_original_cell": 104931,
+    "closest_original_centroid": [
+      1.777938769333844,
+      1.5572549764168055,
+      0.42845813038521335
+    ],
+    "centroid_maximum_absolute_difference": 0.0,
+    "centroid_matches_binary64_tolerance": true,
+    "physical_markers": {
+      "ARTIFICIAL_PATCH_INTERFACE": 10
+    },
+    "mesh_sha256": "8c839170eb5e359f7de6a41434aa6a9c2d620053f37de6d9360bd04d2a63088b",
+    "log_sha256": "70fe06e801442e6eff758acdf832a8e64da448c98edf473c1a4b37dc2f52db35",
+    "helper_sha256": "b5fbb83961d2560fd577e17f632db13f069f907f76a73a6de92df89261f43692",
+    "witness_mesh_sha256": "c56e2367b5c4e54e47612f8f09c9230fcfc3e41890805294bbe732f06d63e838",
+    "native_reconstruction_attempted": false,
+    "late_cavity_equivalence_established": false
+  },
+  "original_edge_metric_diagnosis": {
+    "scope": "Original input witness; not proof of late cavity equivalence or metric feasibility",
+    "wall_box_separation": [
+      {
+        "marker": "WING3D",
+        "thickness": 0.01,
+        "wall_min": [
+          -6.134604418e-14,
+          -1.062527844000001e-13,
+          -0.03943038082526835
+        ],
+        "wall_max": [
+          1.144078015999939,
+          1.218480547302815,
+          0.03943038082526791
+        ],
+        "coordinate_gaps": [
+          0.4178440342635179,
+          0.1413694564844179,
+          0.2724174537425214
+        ],
+        "entire_witness_box_beyond_thickness": true
+      }
+    ],
+    "all_configured_walls_separated": true,
+    "sensor_only_original_edge_metric_length": 2.6088200816802036,
+    "edge_limit": 1.8,
+    "edge_exceeds_limit": true,
+    "node_sensor_eigenvalues": {
+      "25389": [
+        8.987619884944746,
+        27.752224158208485,
+        92.41783687683971
+      ],
+      "31334": [
+        14.651600334106629,
+        37.663516517720524,
+        70.4530997939994
+      ],
+      "31338": [
+        9.778941540338993,
+        21.666810978327792,
+        83.26308939455413
+      ],
+      "31339": [
+        6.063280204100347,
+        18.92792218755317,
+        23.8481774996566
+      ],
+      "31340": [
+        4.254690952990227,
+        13.410366352994663,
+        27.56201360498074
+      ],
+      "51569": [
+        11.129069484239679,
+        37.49908917500416,
+        69.38512860329931
+      ],
+      "53318": [
+        7.526012462348281,
+        20.53011055438836,
+        29.837399930417234
+      ]
+    },
+    "witness_sha256": "969783729f1079536b1fc8ece22515dfd94fdfee624f0cc44c1f6ae137dfd823",
+    "sensor_sha256": "6924846de102a80f95e1dfa297b6976fb5d0147179bcbd36b5a3bd4ea5c083bf",
+    "helper_sha256": "c303b36be8c3025e1030436227819607cf3d9ea7d3ad5d31ce0dedfd84adc62e"
+  }
+}
