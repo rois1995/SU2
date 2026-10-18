@@ -1,0 +1,193 @@
+{
+  "edge": [
+    [
+      0.4526952536892787,
+      -1.062527844e-13,
+      0.03478740093714654
+    ],
+    [
+      0.45588937348969305,
+      -1.062398020029778e-13,
+      0.03994872637143233
+    ]
+  ],
+  "admitted_keys": 108,
+  "ADT_candidates": 8,
+  "global_AABB_candidates": 4,
+  "classification": "OUTSIDE_ORIGINAL_PHYSICAL_DOMAIN",
+  "exact_original_coverage_gaps": [
+    [
+      "0",
+      "1"
+    ]
+  ],
+  "exact_imported_coverage_gaps": [
+    [
+      "0",
+      "1"
+    ]
+  ],
+  "exact_ADT_coverage_gaps": [
+    [
+      "0",
+      "1"
+    ]
+  ],
+  "endpoint_containing_cells": [
+    [
+      {
+        "file_cell": 410,
+        "nodes": [
+          242,
+          671,
+          3094,
+          7111
+        ],
+        "imported": true,
+        "ADT_candidate": true,
+        "weights": [
+          "0",
+          "1",
+          "0",
+          "0"
+        ]
+      },
+      {
+        "file_cell": 41598,
+        "nodes": [
+          242,
+          243,
+          671,
+          7141
+        ],
+        "imported": true,
+        "ADT_candidate": true,
+        "weights": [
+          "1",
+          "0",
+          "0",
+          "0"
+        ]
+      },
+      {
+        "file_cell": 41857,
+        "nodes": [
+          241,
+          242,
+          3094,
+          7111
+        ],
+        "imported": true,
+        "ADT_candidate": true,
+        "weights": [
+          "1",
+          "0",
+          "0",
+          "0"
+        ]
+      },
+      {
+        "file_cell": 83691,
+        "nodes": [
+          242,
+          671,
+          7111,
+          7141
+        ],
+        "imported": true,
+        "ADT_candidate": true,
+        "weights": [
+          "0",
+          "1",
+          "0",
+          "0"
+        ]
+      }
+    ],
+    []
+  ],
+  "endpoint_best_minimum_weight": [
+    {
+      "minimum_weight": "0",
+      "file_cell": 410,
+      "nodes": [
+        242,
+        671,
+        3094,
+        7111
+      ]
+    },
+    {
+      "minimum_weight": "-215421364587236002166409749/227568389506461238482792553102949811021085791476605936749",
+      "file_cell": 410,
+      "nodes": [
+        242,
+        671,
+        3094,
+        7111
+      ]
+    }
+  ],
+  "intersections": [
+    {
+      "file_cell": 410,
+      "nodes": [
+        242,
+        671,
+        3094,
+        7111
+      ],
+      "begin": "0",
+      "end": "0",
+      "imported": true,
+      "ADT_candidate": true
+    },
+    {
+      "file_cell": 41598,
+      "nodes": [
+        242,
+        243,
+        671,
+        7141
+      ],
+      "begin": "0",
+      "end": "0",
+      "imported": true,
+      "ADT_candidate": true
+    },
+    {
+      "file_cell": 41857,
+      "nodes": [
+        241,
+        242,
+        3094,
+        7111
+      ],
+      "begin": "0",
+      "end": "0",
+      "imported": true,
+      "ADT_candidate": true
+    },
+    {
+      "file_cell": 83691,
+      "nodes": [
+        242,
+        671,
+        7111,
+        7141
+      ],
+      "begin": "0",
+      "end": "0",
+      "imported": true,
+      "ADT_candidate": true
+    }
+  ],
+  "scope": "Exact Fraction clipping of the actual binary64 segment against every original cell whose closed AABB meets the segment box. No snapping, extrapolation, tolerance or new CFD run.",
+  "sha256": {
+    "integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/construction_segment_coverage_v1/audit_segment.py": "1f6d15ad9147aa43e99390d595239c9d9b6c019008b60968e03f5866823382ee",
+    "integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/construction_segment_coverage_v1/Coarse.su2": "8c839170eb5e359f7de6a41434aa6a9c2d620053f37de6d9360bd04d2a63088b",
+    "integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/construction_segment_coverage_v1/run.log": "b419a2590e2e6723dab722771c6c49c3fbd22a9c600905954a0ea9841fef8764",
+    "integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/construction_segment_coverage_v1/provenance.json": "f1c1db8be4f2e7080f58efd0c2e78854e6ffeb6c6ef3b505d4029f6ade90694e",
+    "TestCases/adaptation/capability/capcheck.py": "2721ed023a67fe1cdb05da4e9f3b521b36ee9339413c77e2b54ee25587bbdd2a"
+  }
+}

@@ -192,10 +192,21 @@ long double FrozenField::EdgeLength(Point a, Point b, bool composed) {
       Timer timer(stats.edge_trace_seconds, timings);
       if(cells.size()==1)stats.edge_containment_tests+=2;
       // One canonical segment kernel keeps endpoint weights independent of imported support size.
-      pieces=TraceSegment(cells,a,b,&stats.kernel,
-          std::count_if(candidates.begin(),candidates.end(),[&](unsigned long i) {
-            return donors[i].extension_component==UINT64_MAX;
-          }));
+      try {
+        pieces=TraceSegment(cells,a,b,&stats.kernel,
+            std::count_if(candidates.begin(),candidates.end(),[&](unsigned long i) {
+              return donors[i].extension_component==UINT64_MAX;
+            }));
+      }catch(const std::runtime_error& error) {
+        // Keep an exact replay witness; missing support and a geometrically outside proposal need different repairs.
+        std::ostringstream why;why<<std::setprecision(17)<<error.what()<<" edge=("<<a.x<<','<<a.y<<','<<a.z
+            <<")..("<<b.x<<','<<b.y<<','<<b.z<<") admitted=";
+        for(const auto& donor:donors) {
+          why<<donor.cell.id<<'[';for(const auto& node:donor.cell.v)why<<node.id<<',';why<<"]";
+        }
+        why<<" candidates=";for(auto i:candidates)why<<donors[i].cell.id<<',';
+        throw std::runtime_error(why.str());
+      }
       if(cells.size()==1)++stats.edge_direct_intervals;
     }
     stats.edge_pieces += pieces.size();

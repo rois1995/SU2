@@ -1,0 +1,4 @@
+Traceback (most recent call last):
+  File "integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/construction_segment_coverage_v1/rounding_experiment.py", line 18, in <module>
+    near=float(x);low=near if F(near)<=x else math.nextafter(near,-math.inf);high=near if F(near)>=x else math.nextafter(near,math.inf)
+AttributeError: module 'math' has no attribute 'nextafter'

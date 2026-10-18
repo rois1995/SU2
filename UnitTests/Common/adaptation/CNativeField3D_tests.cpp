@@ -477,3 +477,22 @@ TEST_CASE("Exact midpoint source priority includes isolated physical contact and
   CHECK(touching.sensor.xx==1);CHECK(touching.extension_component==UINT64_MAX);
   CHECK_THROWS(field.QueryMidpoint({4,0,0},{6,0,0}));
 }
+
+
+TEST_CASE("Native segment failures retain endpoints and admitted support without extrapolation", "[NativeSegmentCoverage3D]") {
+  FrozenField field({Single()}, {}, true);
+  try {
+    field.SensorEdgeLength({.125,.125,.125},{.125,.125,2});
+    FAIL("Outside source segment must reject.");
+  }catch(const std::runtime_error& error) {
+    const std::string message=error.what();
+    CHECK(message.find("Uncovered native 3D source segment endpoint.")!=std::string::npos);
+    CHECK(message.find("edge=(0.125,0.125,0.125)..(0.125,0.125,2)")!=std::string::npos);
+    CHECK(message.find("admitted=0[0,1,2,3,]")!=std::string::npos);
+    CHECK(message.find("candidates=0,")!=std::string::npos);
+  }
+  CHECK(field.Statistics().edge_failures==1);
+  CHECK(field.SensorEdgeLength({0,0,0},{1,0,0})>0);
+  CHECK(field.Statistics().edge_failures==1);
+  CHECK_THROWS_AS(field.SensorEdgeLength({0,0,0},{0,0,0}),std::invalid_argument);
+}

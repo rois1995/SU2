@@ -87,3 +87,17 @@ User extension2026-10-18 adds an opt-in budget-aware BL policy, with strict defa
 compatibility and every existing mesh/transfer gate retained. Diagnosing composed
 cost by wall distance/surface region/normal-versus-tangent spacing comes first.
 [Policy scope and required evidence](GOAL3_BUDGET_AWARE_BL.md).
+
+
+## Exact segment follow-up after58214e08bd
+
+One unchanged M6 replay captures literal edge endpoints and admitted source keys.
+Exact Fraction audit finds a genuine outside chord, not missing MPI/ADT support.
+Endpoint b is the nearest midpoint of original242/3094, z rounded outward by
+3.47e-18.108 admitted keys already cover all original cells at endpoint a. Ordinary
+source rejection is correct. The adjacent lower rounding corner is contained,
+with positive local children and completely covered child edges; this is not full
+boundary/height/metric or accepted-M6 evidence. Next capability is source-consistent
+coordinate construction from exact affine rounding bounds, preserving strict
+literal Query/TraceSegment and every final gate. No donor/tolerance/cap increase.
+[Packet, exact audit, experiment, resources and scope](../integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/construction_segment_coverage_v1/README.md).
