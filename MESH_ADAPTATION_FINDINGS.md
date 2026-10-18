@@ -1,3 +1,15 @@
+## Coupled-wall scope correction — syntax PASS/runtime pending, 2026-10-19
+
+The23-case MPI1/2/4 retained-cell prototype controls passed, but a new exact oblique
+coupled-wall witness exposes an overbroad replacement: direct insertion blocks in
+both orders, while a shared fan gives10positive/nonoverlapping volume-closing cells.
+Current source restores the general constructor and scopes direct insertion to one
+wall face/one tetrahedron; dispatch uses actual constraints and joint ranking imports
+remain. New coupled constructor/owner/empty-rank regressions are added. Four affected
+translation units pass syntax; linked runtime is pending the connected geometry/source
+batch. Historical v2controls do not qualify this correction. No accepted oblique mesh.
+[Counterexample, scoped source and provenance](integration_evidence/native_3d_bl_v1/affine_initial_adoption_v1/README.md).
+
 ## Affine adoption passes serial controls; oblique construction blocked — 2026-10-19
 
 V1 connected build passed.8serial cases/3981assertions plus independent exact audit
@@ -15,14 +27,18 @@ witness only, with no final quality/full-field or complete adaptation certificat
 Follow-up replaces background seeding with retained-cell normal-point insertion,
 keeps valid wall children, and removes the now-unneeded ranking donor/query work.
 All final geometry/height/quality/full composed field/transfer gates remain unchanged.
-Connected build49032 is UNQUALIFIED (four changed objects compile PASS). A further
+Connected build49032 and23affected controls pass in MPI1/2/4, with independent
+initial/source/collision audits and bitwise original-source consistency. These
+controls do not establish accepted oblique construction. A further
 exact certificate shows body/farfield edge1--9 has no interior binary64 point while
 its constant original-P1 sensor length2.249645>1.8. This is a later exact-body
 geometry/target conflict, separate from the first-row operator blockage. Validator17245
-was cancelled before runtime;17339 queues affected serial/MPI1/2/4 controls only.
+was cancelled before runtime; replacement17339 completed affected controls only.
 Do not retry the unchanged full target. Mapped body/features and joint original-field
 coverage need a connected implementation; see Handbook/GOAL3_MAPPED_FEATURES.md.
-No new MPI/exterior/2D/M6/viscous or performance qualification is claimed. All full general-symmetry and Goal3 requirements remain open.
+No new complete MPI transfer/restart/exterior/2D/M6/viscous or performance
+qualification is claimed. Source/binary/helper pins and results are sealed in
+affine_initial_adoption_v1/controls_summary_v2.json. All full general-symmetry and Goal3 requirements remain open.
 [Exact failure, diagnosis, scoped results and current build](integration_evidence/native_3d_bl_v1/affine_initial_adoption_v1/README.md).
 
 ## Affine reference/source backend checkpoint — 2026-10-18

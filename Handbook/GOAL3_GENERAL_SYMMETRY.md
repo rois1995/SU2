@@ -99,7 +99,8 @@ Exact saved diagnostics: planar_symmetry_reference_v1/annulus_v4_n1/structural_d
 ## Connected integration still required
 
 V2 initial adoption now passes scoped serial/independent controls, while the oblique
-construction rejects. Retained-cell first-row follow-up is building, UNQUALIFIED: [current handoff](../integration_evidence/native_3d_bl_v1/affine_initial_adoption_v1/README.md).
+construction rejects. Retained-cell first-row follow-up passes affected MPI1/2/4
+controls; the full geometry/source lifecycle is still incomplete: [current handoff](../integration_evidence/native_3d_bl_v1/affine_initial_adoption_v1/README.md).
 It includes boundary-only embedding/resource checks and preserves the open scope
 below; no complete oblique/exterior/junction success is claimed before execution.
 
@@ -157,6 +158,12 @@ remain required and OPEN.
 The saved oblique annulus additionally has an undeclared exact wall/farfield crease
 with no interior binary64 point and original sensor length2.249645>1.8. Plane adoption
 is valid but cannot make that unchanged full target constructible. The queued retry
-was cancelled before runtime. Current build/affected controls continue; do not promote
-them to oblique readiness. [Required mapped-feature/source reach](GOAL3_MAPPED_FEATURES.md)
+was cancelled before runtime. Build/23affected cases at MPI1/2/4 and independent
+audits now pass; do not promote them to oblique readiness. [Required mapped-feature/source reach](GOAL3_MAPPED_FEATURES.md)
 retains both dimensions, finite topology, junctions, MPI and complete exterior lifecycle.
+
+Current first-row source additionally preserves the existing joint constructor after
+an oblique two-wall counterexample invalidated the broad direct replacement. New
+native regressions and syntax checks exist; linked qualification is pending the
+connected batch. The23-case v2prototype evidence remains historical, not current
+full-source or general robustness proof.

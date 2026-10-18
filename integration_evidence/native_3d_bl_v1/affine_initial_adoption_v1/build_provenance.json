@@ -1,0 +1,52 @@
+{
+  "status": "PASS",
+  "source": {
+    "Common/include/adaptation/CNativeAffineReference.hpp": "3f9c8212c948875215fe71f579702b7d96b5456f49a20d2a74332593c9199bb2",
+    "Common/include/adaptation/CNativeBoundary3D.hpp": "4b8fa52fe97fec233c471458a510e37bb255159485740f876f7747f7d4b3f58e",
+    "Common/include/adaptation/CNativeImport3D.hpp": "9d3bab86ecc1531481dd4d74f8061accccc37c2c14fe8db7279df93c2ab96306",
+    "Common/src/adaptation/CNativeAffineReference.cpp": "76d91876d7e27e2c6af1afa762193e4571bdac5ea562e3d17a4c7ee40044b61d",
+    "Common/src/adaptation/CNativeBoundary3D.cpp": "e90527451edbe4dbc43637453dd273ce112ee177d135a513e86c9e06aeca8a66",
+    "Common/src/adaptation/CNativeEngine3D.cpp": "f7261b4253dd4ae50acc0a87dc86cf0da897190a0b64aba769aae35c695f88f6",
+    "Common/src/adaptation/CNativeImport3D.cpp": "8be98274e3712d36fafb667e118526ca640c703923605e16051a28b90421610c",
+    "UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp": "5af2087ebadac4368a5a5ce9a7c3181b753675aee7a0a0ba9bc1248b0ab4ceae",
+    "UnitTests/Common/adaptation/CNativeBoundary3D_tests.cpp": "776397b59dbabfd33d1f79b1765084b146fe6256334bef71e5900a39070b269a",
+    "UnitTests/Common/adaptation/CNativeDistributed3D_tests.cpp": "a93629019056e892b8afdbb13af1621c87f7e855de2dfcb73d65dc84ef64cd79",
+    "UnitTests/SU2_CFD/adaptation/fixtures/native_normalization_stages.inc": "975621060369d313ec8370c542d47cd599e5cbd6ef527e975a060d81c4ee2ef9"
+  },
+  "root_pid": 1155618,
+  "commands": [
+    [
+      "taskset",
+      "-c",
+      "1",
+      "/home/rausa/Software/su2-develop/ninja",
+      "-C",
+      "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2",
+      "-j1",
+      "Common/src/libSU2AccurateSum.a.p/adaptation_CNativeBoundary3D.cpp.o",
+      "Common/src/libSU2AccurateSum.a.p/adaptation_CNativeEngine3D.cpp.o",
+      "UnitTests/test_driver.p/Common_adaptation_CNativeBoundary3D_tests.cpp.o",
+      "UnitTests/test_driver.p/Common_adaptation_CNativeDistributed3D_tests.cpp.o"
+    ],
+    [
+      "taskset",
+      "-c",
+      "1",
+      "/home/rausa/Software/su2-develop/ninja",
+      "-C",
+      "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2",
+      "-j1",
+      "UnitTests/test_driver"
+    ]
+  ],
+  "created_utc": "2026-10-18T22:01:51.684434+00:00",
+  "scratch": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/compile-tmp",
+  "scope": "Retained-cell normal-point first-row construction and affected callers/tests; no new runtime claim before full build and validation",
+  "prior_binary_sha256": "9ad0fff9d749b06337a2c72f9fb70b37c7e717d86cd70ac09033957d5c517981",
+  "phase": 2,
+  "child_pid": 1174707,
+  "phase_exit": 0,
+  "exit_code": 0,
+  "binary_sha256": "957e2bab5df11db23e622d67aa5f9519ead09e40e52a2130f41a941a877c28a8",
+  "finished_utc": "2026-10-18T22:34:19.738682+00:00"
+}

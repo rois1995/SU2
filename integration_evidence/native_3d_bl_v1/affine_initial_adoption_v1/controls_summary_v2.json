@@ -1,0 +1,81 @@
+{
+  "status": "AFFECTED_CONTROLS_ONLY_PASS",
+  "cases": [
+    {
+      "ranks": 1,
+      "test_cases_per_rank": 23,
+      "assertions_per_reported_rank": [
+        6239
+      ],
+      "elapsed_seconds": 2.3109044349985197,
+      "independent_initial_source_geometry_collision": "PASS",
+      "hashes": {
+        "result.json": "8bb55b512ea77064689fdd76d9533451c1f3982a9ccdce39ea95b232c668e115",
+        "provenance.json": "3840f8d6f93d239f263116c22801c5a6c6b279b8cafbfb47a7f060b72a8777d4",
+        "independent_controls.json": "71d9a201ef3645a117dfb248a82bc1a0856bf3743428530223bb969dae492bf8",
+        "executed_source.json.gz": "7389f3a18c5aa1ab635c667909e6e16d59d2fa059bd168ee6faa1d2dab0833d9"
+      }
+    },
+    {
+      "ranks": 2,
+      "test_cases_per_rank": 23,
+      "assertions_per_reported_rank": [
+        5773,
+        5323
+      ],
+      "elapsed_seconds": 2.2952065309509635,
+      "independent_initial_source_geometry_collision": "PASS",
+      "hashes": {
+        "result.json": "92b4f77ddb6c486773cdc4d4e582fda751d8242da85fb0ddeed75181a633d11d",
+        "provenance.json": "5e3ac2539049ec546e80a37e00ce7e3728e9494f87f6cdcd321657fd1db45b52",
+        "independent_controls.json": "fed71473c95ce23657174f974815d14e42127eb065788e9d3e00c7347b979e9f",
+        "executed_source.json.gz": "7389f3a18c5aa1ab635c667909e6e16d59d2fa059bd168ee6faa1d2dab0833d9"
+      }
+    },
+    {
+      "ranks": 4,
+      "test_cases_per_rank": 23,
+      "assertions_per_reported_rank": [
+        5446,
+        4961,
+        4996,
+        5441
+      ],
+      "elapsed_seconds": 3.2895532159600407,
+      "independent_initial_source_geometry_collision": "PASS",
+      "hashes": {
+        "result.json": "5ef8d13f20465263d5638d6c0c812c79970ef6e7052f5bd33c3b0132b534e074",
+        "provenance.json": "bc9bc1f63eea66cf3620257aa2d4bd4d0695eccf069c716c208abdc0705d3f49",
+        "independent_controls.json": "1bb44179ad66c9fa8ecb3e66414f11463f65e9dc0422f9d3fc7d71b483873065",
+        "executed_source.json.gz": "7389f3a18c5aa1ab635c667909e6e16d59d2fa059bd168ee6faa1d2dab0833d9"
+      }
+    }
+  ],
+  "original_source_signatures_identical_across_MPI": {
+    "euler_c1": "179349c832231f3a4add13679e1a5451e57c22aa559ce252f63bd3ef474e665b",
+    "rans_c1": "179349c832231f3a4add13679e1a5451e57c22aa559ce252f63bd3ef474e665b",
+    "euler_c2": "5ca1a14a81137155351e710c734e182f06cad3f5d82c634c5555374f86b34f7c",
+    "rans_c2": "5ca1a14a81137155351e710c734e182f06cad3f5d82c634c5555374f86b34f7c"
+  },
+  "binary_sha256": "957e2bab5df11db23e622d67aa5f9519ead09e40e52a2130f41a941a877c28a8",
+  "build": {
+    "created_utc": "2026-10-18T22:01:51.684434+00:00",
+    "finished_utc": "2026-10-18T22:34:19.738682+00:00",
+    "maximum_sampled_owned_RSS_sum_KiB": 2520588,
+    "minimum_sampled_available_KiB": 40215600,
+    "memory_scope": "Sampled owned RSS sum; shared pages may be counted repeatedly, not PSS or guaranteed peak"
+  },
+  "hashes": {
+    "seal_controls.py": "c8ccc8ac8b7c30ac2f136c9ae767b9d5693e4eb333868ca0b25c7901198c513f",
+    "build_provenance.json": "8ef9a011cf4c32deb3aaa6000cc3ee6c88a49169ca8898ebf9ef8a3701f64202",
+    "build_resources_v2.jsonl": "5542a88f73f835a8a9a881a0a0c366ee7b5b9357f56609b2ea16539588c86af3",
+    "audit_controls.py": "0c82d218e96f61672c278abb90697c0b70dd9ac529ef342a67cebb384c223ca0",
+    "exact_feature_obstruction.json": "3c36c5beed0f7f920aca773cb268b6a1a03ae4a322ce7e90e1820b52304a4f5b"
+  },
+  "limits": [
+    "Initial adoption/original P1/codec and affected first-row/height/reconstruction/transaction controls; no accepted oblique mesh",
+    "Native assertions cover state/coordinate atomicity and worker-subset engine paths; not a new independently audited complete N/M transfer/restart lifecycle",
+    "Exact literal-body obstruction prevents an unchanged positive oblique target; geometry/source redesign remains required",
+    "Contended correctness durations are not scalability, speedup or CFD affordability evidence"
+  ]
+}

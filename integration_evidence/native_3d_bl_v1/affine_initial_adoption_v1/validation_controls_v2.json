@@ -1,0 +1,44 @@
+{
+  "root_pid": 1178101,
+  "status": "AFFECTED_CONTROLS_PASS_OBLIQUE_CONSTRUCTION_UNSUPPORTED",
+  "build_session": 49032,
+  "started_utc": "2026-10-18T22:13:22.960079+00:00",
+  "stages": [
+    {
+      "stage": "controls_n1",
+      "exit_code": 0
+    },
+    {
+      "stage": "independent_n1",
+      "exit_code": 0
+    },
+    {
+      "stage": "controls_n2",
+      "exit_code": 0
+    },
+    {
+      "stage": "independent_n2",
+      "exit_code": 0
+    },
+    {
+      "stage": "controls_n4",
+      "exit_code": 0
+    },
+    {
+      "stage": "independent_n4",
+      "exit_code": 0
+    }
+  ],
+  "scope": "Affected controls only, ranks1/2/4; known incompatible unchanged annular target is not retried.",
+  "stage": "independent_n4",
+  "command": [
+    "python3",
+    "-u",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/affine_initial_adoption_v1/audit_controls.py",
+    "controls_v2_n4"
+  ],
+  "available_KiB": 42739992,
+  "load": "8.14 7.94 7.92 4/2331 1219676",
+  "child_pid": 1219677,
+  "finished_utc": "2026-10-18T22:34:49.541725+00:00"
+}

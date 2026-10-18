@@ -2375,7 +2375,7 @@ TEST_CASE("Native retained first-row insertion reaches full-field measurement wi
   };
   const MetricEdgeBreakpoints cuts=[](Point,Point){return std::vector<double>{0,1};};
   Patch candidate;FirstHeightReport report;std::string reason;
-  REQUIRE(ConstructFirstLayer(old,101,200,{{10,height}},reference,candidate,report,reason));
+  REQUIRE(InsertFirstWallPoint(old,101,200,{{10,height}},reference,candidate,report,reason));
   REQUIRE(candidate.cells.size()==4);CHECK(report.maximum_relative_error<1e-8);
   Owned input;if(!world.rank)for(const auto& row:Rows(old))input.emplace(row.cell.id,row);
   EngineOptions options;options.maximum_work=1;options.wall_heights={{10,height}};options.edge_breakpoints=cuts;
@@ -2389,6 +2389,28 @@ TEST_CASE("Native retained first-row insertion reaches full-field measurement wi
   if(!world.rank)CHECK(signature(actual)==signature(candidate.cells));
   CHECK(world.maximum(result.stats.edge_evaluations>0));
   CHECK(result.stats.layer_edge_evaluations==0);CHECK(result.stats.layer_donor_batches==0);
+}
+
+TEST_CASE("Native first-row owner retains coupled-wall reconstruction with empty MPI ranks", "[NativeFirstLayerEngine3D]") {
+  World world;Cell cell;cell.id=0;cell.v[0]={0,{0,0,0}};
+  cell.v[1]={1,{1,1.5075567228888185,-.7196119662144681}};
+  cell.v[2]={2,{0,1.809068067466582,1.7893054295062427}};
+  cell.v[3]={3,{0,0,1.0696934632917758}};
+  Patch old;old.cells={cell};std::vector<Facet> facets;const auto skin=Incidence(old.cells).Boundary();
+  for(size_t k=0;k<skin.size();++k) {
+    std::array<Node,3> nodes;for(unsigned j=0;j<3;++j)for(auto n:cell.v)if(n.id==skin[k][j])nodes[j]=n;
+    const bool wall=std::find(skin[k].begin(),skin[k].end(),Id(1))==skin[k].end() || std::find(skin[k].begin(),skin[k].end(),Id(2))==skin[k].end();
+    facets.push_back({k,wall?10:20,nodes});old.surface.push_back({skin[k],k});
+  }
+  const PlanarReference reference(facets);Owned input;if(!world.rank)for(const auto& row:Rows(old))input.emplace(row.cell.id,row);
+  const auto saved=Bytes(input);EngineOptions options;options.maximum_work=1;options.wall_heights={{10,.1}};
+  auto result=Refine(world,input,Uniform(input,{1,0,0,1,0,1}),reference,{},options);
+  INFO(result.reason);CHECK(Bytes(input)==saved);CHECK_FALSE(result.valid);CHECK(result.stats.stop==EngineStop::WorkBudget);
+  CHECK(world.sum(int(result.stats.layer_published))==1);CHECK(world.maximum(result.stats.layer_donor_batches>0));
+  CHECK(world.maximum(result.stats.layer_shape_screens>0));
+  for(const auto& row:result.cells) {FirstHeightReport report;std::string reason;
+    CHECK(CheckFirstHeight(PatchOf({row.second}),options.wall_heights,reference,report,reason));
+  }
 }
 
 TEST_CASE("Native3D engine initializes wall heights through owner transactions and protects edits", "[NativeFirstLayerEngine3D]") {

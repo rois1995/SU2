@@ -361,15 +361,34 @@ native.00487s are rejected/contended receipts, no performance improvement claim.
 
 Connected follow-up removes the extra background and its ranking donor/query work:
 retained-cell normal-point insertion, already-valid row retention, shared reconstruction
-caller and affected tests. Source implemented, build49032/validator17245 pending;
-no accepted oblique mesh, new MPI, unsteady affordability or full-scope completion.
+caller and affected tests. Build49032 and23affected cases pass at MPI1/2/4, with
+independent source/initial geometry/collision audits and bitwise source consistency.
+No accepted oblique mesh, complete new MPI lifecycle, affordability or full closure.
 [Failure, diagnosis and immutable results](../integration_evidence/native_3d_bl_v1/affine_initial_adoption_v1/README.md).
 
 Further exact audit changes the next action: wall/farfield edge1--9 is forced by two
 undeclared exact planes, has no interior binary64 point, and has constant-original-P1
 sensor length2.249645>1.8. Removing the background does not solve this later geometry/
 target conflict. Unchanged full retry cancelled before runtime; affected controls
-remain queued in17339. [Mapped-feature/source requirements](GOAL3_MAPPED_FEATURES.md).
+completed in17339. [Mapped-feature/source requirements](GOAL3_MAPPED_FEATURES.md).
 An abstract Opus5.5/medium consultation is preserved with its corrections; no repository
 source/data was supplied. Its initial exact-coordinate-only advice was withdrawn;
 tags and conforming collars are design patterns, not proofs of general source coverage.
+
+Historical prototype source/binary affected controls are sealed by controls_summary_v2:
+23cases per size, serial6239assertions and MPI rank-specific assertions recorded.
+No full regression/CFD run was added; source provenance was checked before reuse.
+These controls verify the construction substep, not the complete required mesh.
+
+## Scope correction after an adversarial coupled-wall witness
+
+Did not work generally: replacing the shared-background constructor with sequential
+wall-point insertion. A convex oblique two-wall tet blocks in both insertion orders;
+an exact common-fan witness gives10positive/nonoverlapping cells and volume closure.
+The23prototype MPI controls missed this configuration; no general robustness claim
+survives them. Current source restores the shared constructor/reconstruction caller,
+limits direct insertion to one wall face/tet and adds native constructor plus owner/
+empty-rank regressions. Four translation units pass syntax; new linked runtime checks
+remain pending the next connected build. Source/proof in joint_scope_provenance.json;
+no extra full suite/CFD run was launched. This preserves useful single-wall insertion
+without discarding existing coordinated construction.

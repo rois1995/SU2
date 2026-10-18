@@ -1,0 +1,144 @@
+{
+  "status": "EXACT_COUPLED_WALL_COUNTEREXAMPLE_CONFIRMED",
+  "points": [
+    [
+      0.0,
+      0.0,
+      0.0
+    ],
+    [
+      1.0,
+      1.5075567228888185,
+      -0.7196119662144681
+    ],
+    [
+      0.0,
+      1.809068067466582,
+      1.7893054295062427
+    ],
+    [
+      0.0,
+      0.0,
+      1.0696934632917758
+    ]
+  ],
+  "first_height": 0.1,
+  "wall_opposite_vertices": [
+    1,
+    2
+  ],
+  "normal_points": {
+    "1": [
+      0.1,
+      0.6030226891555274,
+      0.9529996309326728
+    ],
+    "2": [
+      0.24999999999999997,
+      0.5577959874688628,
+      0.11669383235910258
+    ]
+  },
+  "background": [
+    0.25,
+    0.8291561975888502,
+    0.5348467316458876
+  ],
+  "construction": [
+    {
+      "common_background": null,
+      "order": [
+        1,
+        2
+      ],
+      "steps": [
+        {
+          "wall": 1,
+          "positive": true,
+          "minimum_exact_determinant": "70705559726982404308513400372769701441463686929/365375409332725729550921208179070754913983135744"
+        },
+        {
+          "wall": 2,
+          "positive": false,
+          "minimum_exact_determinant": "-18736973327650359205465199916179280440430430365/365375409332725729550921208179070754913983135744"
+        }
+      ],
+      "final_cells": 4
+    },
+    {
+      "common_background": null,
+      "order": [
+        2,
+        1
+      ],
+      "steps": [
+        {
+          "wall": 2,
+          "positive": true,
+          "minimum_exact_determinant": "141411119453964842153408976215156258445853664073/730750818665451459101842416358141509827966271488"
+        },
+        {
+          "wall": 1,
+          "positive": false,
+          "minimum_exact_determinant": "-585530416489073292068103482434848668895371697/11417981541647679048466287755595961091061972992"
+        }
+      ],
+      "final_cells": 4
+    },
+    {
+      "common_background": [
+        0.25,
+        0.8291561975888502,
+        0.5348467316458876
+      ],
+      "order": [
+        1,
+        2
+      ],
+      "steps": [
+        {
+          "wall": 1,
+          "positive": true,
+          "minimum_exact_determinant": "3535277986349112206156923383465120504520301643/730750818665451459101842416358141509827966271488"
+        },
+        {
+          "wall": 2,
+          "positive": true,
+          "minimum_exact_determinant": "7070555972698196325785814007955869750356743655/1461501637330902918203684832716283019655932542976"
+        }
+      ],
+      "final_cells": 10
+    },
+    {
+      "common_background": [
+        0.25,
+        0.8291561975888502,
+        0.5348467316458876
+      ],
+      "order": [
+        2,
+        1
+      ],
+      "steps": [
+        {
+          "wall": 2,
+          "positive": true,
+          "minimum_exact_determinant": "7070555972698196325785814007955869750356743655/1461501637330902918203684832716283019655932542976"
+        },
+        {
+          "wall": 1,
+          "positive": true,
+          "minimum_exact_determinant": "3535277986349112206156923383465120504520301643/730750818665451459101842416358141509827966271488"
+        }
+      ],
+      "final_cells": 10
+    }
+  ],
+  "scope": "Geometric fixed-interface/prescribed point construction only. Common fan positive/nonoverlapping/volume closing, direct sequence blocked in both orders. Not full metric/quality acceptance or a native runtime replay.",
+  "consequence": "Retain qualified common-background joint construction. Restrict the direct operator to one wall face in one tetrahedron; do not replace the generic coupled constructor.",
+  "hashes": {
+    "integration_evidence/native_3d_bl_v1/affine_initial_adoption_v1/annulus_v1_n1/executed_source.json.gz": "7d04a66a3d2a8ee83046a534416032d3d5fbaed8d2b69234cd99c2ad085f2bc9",
+    "integration_evidence/native_3d_bl_v1/affine_initial_adoption_v1/controls_v2_n1/executed_source.json.gz": "7389f3a18c5aa1ab635c667909e6e16d59d2fa059bd168ee6faa1d2dab0833d9",
+    "integration_evidence/native_3d_bl_v1/affine_initial_adoption_v1/coupled_wall_counterexample.py": "89c8780132af3eac4b71a7de3010355fb49b44f3cd1860018025ebf749e695fc"
+  }
+}

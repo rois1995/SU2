@@ -14,8 +14,8 @@ Full-field incompatibility follows the required finer-sensor preservation contra
 no native interval-quadrature or floating tensor-dominance proof is claimed.
 [Certificate and captured-kernel/source hashes](../integration_evidence/native_3d_bl_v1/affine_initial_adoption_v1/annulus_v1_n1/exact_feature_obstruction.json).
 
-This is separate from the saved first-row background blockage. Direct insertion
-removes that unnecessary construction prerequisite but cannot repair this later
+This is separate from the saved first-row background blockage. Single-wall direct insertion
+removes that unnecessary prerequisite but cannot repair this later
 immutable-body obstruction. Do not repeat the unchanged full target or change the
 fixture to numerically convenient coordinates. Preserve it as a negative reference.
 The queued full pilot was cancelled before runtime; affected serial/MPI controls
@@ -37,6 +37,14 @@ shared feature point once; transactions copy the resulting coordinate bits and
 identity across ranks. Preserve explicit body accuracy and all supplied simultaneous
 constraints. Unsupported/conflicting/tangent/unrepresentable intersections reject.
 
+Keep numerical mapping error distinct from the physical body approximation bound.
+Preserving every input triangulation edge as an exact immutable crease is itself a
+restriction on general surface adaptation. A future declared discrete-surface model
+must distinguish protected physical features from ordinary triangulation edges and
+audit complete face approximation/finite topology; do not infer this from solver
+physics or silently merge nearly coplanar facets. Per-facet mapping alone may remove
+a rounding obstruction while retaining unnecessary coarsening restrictions.
+
 A useful binding records the lowest-dimensional carrier and finite parameter,
 separately from its realized solver coordinate. Merely rounding a point into a
 2Dchart and requiring exact collinearity there recreates the same obstruction.
@@ -45,6 +53,15 @@ mapping, with no bridging holes or narrow gaps. A mapped vertex alone proves nei
 complete face containment nor an embedded positive volume replacement.
 
 ## Source coverage is part of the same implementation
+
+The source boundary is the boundary of THIS frozen original-P1 mesh, which can be
+a previous adapted mesh. It is not automatically the immutable initial geometry
+triangulation. Keep those identities/versions separate.
+
+Coverage must include the actual source-to-authority/new-boundary envelope. For
+curved or approximated surfaces that envelope can greatly exceed numerical rounding
+error; do not assume an ULP-sized band suffices. Reuse qualified analytic coverage
+and measure projected-trace alternatives across the required physical envelope.
 
 Original sensor-only P1 donors keep priority everywhere inside their original
 volume. Every private/remote query must evaluate one globally defined frozen field;
@@ -74,6 +91,37 @@ Never rescale already clipped donors, refit the original field to adapted nodes,
 or spread composed wall tensors through coarse cells. Actual-query BL composition,
 finer requests and the existing fade remain unchanged.
 
+## Compare source policies before building another general mesher
+
+A full conforming collar is not yet established as necessary. Compare it with a
+bounded globally defined original-boundary trace query policy. The latter would
+retain original-volume priority, select source features by immutable global rules,
+use original trace values and expose every nearest-feature/parent change to edge
+integration. It must not depend on the requesting candidate's tag or retained cache.
+A distance bound, coverage, SPD, trace/jump bounds and MPI consistency are required;
+independent projection does not automatically provide continuity. Restrict any
+extension to the declared geometry-mapping band and inspect close-body topology.
+If discontinuities exceed the accepted field/error contract, the query policy is
+insufficient. Neither alternative is implemented or selected as proven here.
+
+Use saved frozen-query replay, including nonconstant anisotropic sensors and
+nonconvex/shared features, to assess these alternatives before full CFD lifecycles.
+Count cold preparation, bytes, lookup work and geometry/source interval cuts. Reuse
+house search/envelope/import facilities first; do not add an overlapping cache or
+silently clip an outside point into an unrelated original donor.
+
+Primary-source inspection,2026-10-19: Refine's interpolation path selects nearby
+cells using barycentric scores, routes queries through MPI and calls barycentric
+clipping; its metric path interpolates logarithmic components. These are useful
+query-organization patterns, not a continuity/coverage proof or authorization to
+change Native's original componentwise P1 field. Do not inherit its tolerance
+broadening as a geometry contract. See [ref_interp.c](https://raw.githubusercontent.com/nasa/refine/master/src/ref_interp.c)
+and [ref_metric.c](https://raw.githubusercontent.com/nasa/refine/master/src/ref_metric.c).
+MMG's [intmet_3d.c](https://raw.githubusercontent.com/MmgTools/mmg/master/src/mmg3d/intmet_3d.c)
+contains local edge metric interpolation classified by volume/boundary/ridge; it
+does not by itself supply our frozen-original-field extension. These mutable master
+sources were read only; pin exact revisions and review licenses before source reuse.
+
 ## Connected reach before another positive full attempt
 
 - Initial authority/feature adoption precedes geometric quantities, states and
@@ -102,3 +150,12 @@ scope remain required. No single Cartesian annulus or primitive closes that scop
 The initial exact-coordinate-only advice was withdrawn after the common mapping/
 binary64 contract was clarified. This supports a design review, not code correctness
 or a proof of the unimplemented joint collar.
+
+## Preserve coordinated wall construction while changing geometry
+
+The broad direct-insertion prototype missed an oblique coupled-wall configuration.
+Current source restores the general common-background constructor and limits direct
+insertion to its demonstrated single-wall/single-cell domain. Dispatch is by actual
+constraints, with no solver/testcase modes. Native coupled/owner regressions are added;
+syntax passes but new linked runtime is pending. The exact counterexample is retained
+alongside the body-feature certificate; neither becomes a full accepted-mesh result.

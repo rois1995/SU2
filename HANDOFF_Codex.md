@@ -29,21 +29,33 @@ normal point INSIDE the old tetrahedron; all four background proposals fail cell
 containment. This is operator blockage, not a geometry or budget infeasibility proof.
 A positive four-child insertion witness is not full metric/quality acceptance.
 
-Connected follow-up removes the unnecessary background: insert normal-height points
-into retained wall tetrahedra, retain already-valid rows, and keep full-field seeding/
-repair/final acceptance separate. Geometry-only seeding no longer imports/ranks metric
-background proposals. All actual field, height, geometry, transfer and quality gates
-stay unchanged. Source is IMPLEMENTED/UNQUALIFIED, building in49032/PID1155618, nice19/
-CPU1/j1; four changed objects compile PASS, dependent build/link still pending.
+Prototype3e351 removed the background broadly and passed23affected cases at MPI1/2/4,
+with exact independent audits and bitwise source consistency; binary957e2bab5df1,
+controls_summary_v2.json. These are HISTORICAL prototype results. An adversarial
+oblique two-wall tetrahedron then proved that sequential direct insertion can block
+in both orders while a common fan gives10positive/nonoverlapping volume-closing cells.
+The prototype replacement was too broad; its23controls missed this combination.
+
+Current SOURCE CORRECTION preserves the general common-background constructor and
+shared reconstruction caller, restricts InsertFirstWallPoint to one wall face/one tet,
+and dispatches by actual wall constraints. Ranking imports are needed only for joint
+candidates. Added native coupled-constructor and MPI owner/empty-rank regressions.
+Four affected translation units pass syntax; linked runtime checks are PENDING the
+next connected build. No new accepted mesh/full-source qualification is claimed.
+Current binary957e2bab... remains the old prototype; run.py source pins refuse its
+use for this changed code. See joint_scope_provenance.json/source capsule and exact
+coupled_wall_counterexample.json. Batch the correction with the connected geometry/
+source step before another broad rebuild, rather than running full suites per edit.
 A further exact certificate proves body/farfield edge1--9 has NO interior binary64
 point but original sensor length2.249645>1.8. Symmetry authority alone is insufficient;
 direct seeding cannot fix that later literal-body obstruction. Do not retry the
-unchanged full annulus. Validator17245 was cancelled before runtime. Validator17339/
-PID1178101 waits for terminal build, then affected controls_v2_n1/n2/n4 and their
-independent initial audits sequentially; stops on failure. Check job_handle_v2.json/
-build_provenance.json/validation_controls_v2.json before acting.
+unchanged full annulus. Validator17245 was cancelled before runtime; replacement17339
+and the sealer16386 completed successfully. No owned build/test job remains live.
+Do not restart them from stale historical handles. Next: coherent mapped body/features
+and joint original-field coverage, using bounded saved-query comparison before choosing
+query-level trace extension versus a general conforming collar.
 [Required mapped body/features and joint source contract](Handbook/GOAL3_MAPPED_FEATURES.md).
-No C++ edits while pinned; no new physical CFD advance, MPI or M6 attempt.
+No owned job remains live. No new physical CFD advance, complete MPI lifecycle or M6 attempt.
 [Current receipt and limitations](integration_evidence/native_3d_bl_v1/affine_initial_adoption_v1/README.md).
 
 1. Spherical repeated RANS lifecycle validation/push: **DONE**, reuse accepted cold.
