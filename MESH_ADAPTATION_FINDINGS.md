@@ -6760,3 +6760,16 @@ actual M6 three-cell edge star/37original donors reproduces the same elected
 diagnosis only: no accepted M6 or complete-event speedup claim and no unchanged
 whole-wing retry. Preserved preliminary/final results and compatibility review:
 [report and verifier](integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/strict_geometry_preflight_v1/README.md).
+
+## 2026-10-18: M6 original-field reassessment on saved private refinement
+
+Reused production reassessment with original selected-UPPER6 P1 donors and frozen
+actual-query geometric BL/profile/core/fade. At8192samples, coarse303359tets gives
+312124.65 +/-51830.47; rejected private541027tets gives285516.06 +/-31476.26.
+The heuristic indicator falls39.27%; native assessment grows4.779->8.154s. An
+independent existing wall proposal with32768/disjoint seed gives298571.52 +/-5765.29
+on this SAME field. Similar observed errors do not establish improved accuracy;
+no exact continuum reference exists. No metric refit, normalization, CFD advance,
+new integration mechanism or production/gate change. MPI4 reductions agree exactly.
+Finite domain volume/ownership/physical-face screens pass; accepted construction,
+full geometry/quality/overlap/transfer remain separate. [Report](integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/m6_same_field_reassessment_v1/README.md).

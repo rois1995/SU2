@@ -100,6 +100,10 @@ geometry obstruction; do not waste more reconstruction searches there.
 - General declared-feasible curved/interacting construction, composed gradation,
   calibrated global error allocation, converged viscous accuracy and complete
   performance/transfer cost remain open. M6budget/initialization is not mesh acceptance.
+- Same-original-field M6 private refinement tested:8192-point indicator -39.27%,
+  assessment4.779->8.154s; accuracy gain unproven. Separate exact-UPPER6 wall
+  estimate298571.52 +/-5765.29; all MPI4 ranks agree, no accepted M6.
+  [Report](integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/m6_same_field_reassessment_v1/README.md).
 - 2Dstrict remains; opt-in budget extension2D/30P30N not completed. SST/transition/
   nonideal deferred questions remain in [future physics](Handbook/FUTURE_PHYSICS_TRANSFER_QUESTIONS.md).
 

@@ -104,3 +104,21 @@ error calibration/allocation, 2D correction coupling, predicted/aggregated raw-f
 representation, viscous accuracy and whole-event affordability. Earlier successful
 curved tests retain their own source-qualified scope. Broader donor-campaign/edge
 retention and transaction/balance work is not completed by this normalization cache.
+
+## 2026-10-18: same-field M6 private-refinement hypothesis
+
+Original303359 versus saved REJECTED541027tets,8192samples each: estimate312124.65
++/-51830.47 versus285516.06 +/-31476.26. The indicator falls39.27%, cost rises
+4.779->8.154s; source queries311551->549219. Same original selected-UPPER6 donors,
+actual-query BL/profile/core/fade, no interpolation onto finer nodes and no
+normalization/CFD advance. Independent existing wall-focused proposal on that SAME
+field gives298571.52 +/-5765.29,32768samples/disjoint seed. Both estimates agree
+within heuristic indicators; their similar observed deviations do not establish
+an accuracy improvement. The tighter wall estimate remains heuristic, not an exact
+reference or a demonstrated correction. MPI4 global results agree exactly.
+
+Finite domain volume/face-incidence/ownership screens pass; no full accepted M6,
+quality/overlap/transfer proof follows. This partially supports variance reduction
+on an actual private refined partition, not cheaper or reliable quadrature after
+adaptation. Do not replace localized original-wall integration with more cells or
+claim RAW9/UPPER6 field equality. [Complete report](../integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/m6_same_field_reassessment_v1/README.md).
