@@ -41,3 +41,16 @@ Historical archived executables require restoration before replay.
 The4TB filesystem now reports about49GiB free; root/tmp remains about509MiB free.
 No foreign files or scientific evidence were removed, and no numerical tests were
 rerun for this archival/documentation-only change.
+
+## Additional batch — 2026-10-19
+
+Eight reviewed obsolete2D executable snapshots were archived with the same full
+decompression/hash verification. **3.79GiB additionally recovered**, for
+**27.19GiB cumulative** across64 snapshots. Current integrated build, all3D
+runtime snapshots, meshes, states, donor fields and diagnostics remain directly
+usable. Historical replays need the corresponding executable restored first.
+The observed4TB free space is now about46.4GiB; root/tmp remains nearly full.
+
+[Selection, manifest, integrity checks and restore instructions](../integration_evidence/disk_cleanup_20261019/README.md).
+[Final machine-readable receipt](../integration_evidence/disk_cleanup_20261019/summary.json).
+No numerical changes, CFD reruns or unrelated-file cleanup were performed.

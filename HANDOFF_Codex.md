@@ -81,7 +81,8 @@ routes are implemented, not an accepted oblique proposal/lifecycle qualification
 Keep input-adoption versus mapping-error contracts separate. General junctions,
 affine-wall BL and2D runtime/exterior remain OPEN; the Cartesian annular construction
 is accepted in the four scoped lifecycles above.
-Disk cleanup recovered23.40GiB across two verified archival batches; [receipt and restore](Handbook/DISK_SPACE_CLEANUP_2026_10_18.md).
+Disk cleanup recovered27.19GiB cumulatively across64 verified executable archives; [receipt and restore](Handbook/DISK_SPACE_CLEANUP_2026_10_18.md).
+Latest8 obsolete2D snapshots recovered3.79GiB; observed4TB free space about46.4GiB.
 Current build and all3D evidence preserved; archived old executables need decompression.
 Root/tmp nearly full from foreign work: leave it untouched.
 

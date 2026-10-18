@@ -18,8 +18,10 @@ This is separate from the saved first-row background blockage. Single-wall direc
 removes that unnecessary prerequisite but cannot repair this later
 immutable-body obstruction. Do not repeat the unchanged full target or change the
 fixture to numerically convenient coordinates. Preserve it as a negative reference.
-The queued full pilot was cancelled before runtime; affected serial/MPI controls
-remain queued after the current pinned build.
+The queued full pilot was cancelled before runtime. The replacement prototype
+serial/MPI controls completed and are preserved as historical evidence. The current
+joint-wall scope correction has syntax checks but still awaits linked runtime
+validation with the next connected geometry/source implementation batch.
 
 ## Geometry representation contract
 
