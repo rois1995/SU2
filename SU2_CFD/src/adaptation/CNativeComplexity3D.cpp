@@ -155,11 +155,15 @@ bool CNativeComplexity3D::Extend(size_t count,std::string& reason,bool initial) 
       transfer_memory::GrowthBound(count,sizeof(Request)),transfer_memory::Mul(count,sizeof(SupportPoint3D)));
   if(predicted>ceiling)failure.Set(3,0,"Complexity extension exceeds preparation storage ceiling.");
   if(!vote())return false;
-  std::vector<std::vector<Request>> distribution(world.size);
-  if(!world.rank)try {
-    const auto draws=p.sampler->Draw(count,seed,statistics.samples);
-    for(size_t i=0;i<draws.size();++i)distribution[(statistics.samples+i)%world.size].push_back({i,draws[i].point,draws[i].inverse_pdf});
+  std::vector<std::vector<Request>> distribution;
+  try {
+    distribution.resize(world.size);
+    if(!world.rank) {
+      const auto draws=p.sampler->Draw(count,seed,statistics.samples);
+      for(size_t i=0;i<draws.size();++i)distribution[(statistics.samples+i)%world.size].push_back({i,draws[i].point,draws[i].inverse_pdf});
+    }
   }catch(const SupportLimit3D& error){failure.Set(3,0,error.what());}
+   catch(const std::bad_alloc& error){failure.Set(3,0,error.what());}
    catch(const std::exception& error){failure.Set(4,0,error.what());}
   if(!vote())return false;
   PreparationCounts();
@@ -167,18 +171,24 @@ bool CNativeComplexity3D::Extend(size_t count,std::string& reason,bool initial) 
   size_t held=transfer_memory::Add(ResidentBytes(),transfer_memory::GrowthBound(count,sizeof(Query)));
   bool admitted=false;const auto draws=world.exchange(distribution,&admitted,ceiling,held);
   if(!admitted)failure.Set(3,0,"Complexity proposal distribution exceeds storage ceiling.");if(!vote())return false;
-  distribution.clear();distribution.shrink_to_fit();held=transfer_memory::Add(held,transfer_memory::Bytes(draws));
+  std::vector<std::vector<Request>>().swap(distribution);held=transfer_memory::Add(held,transfer_memory::Bytes(draws));
   const auto rounds=(count+8*world.size-1)/(8*world.size);uint64_t localInside=0;std::vector<Query> extra;size_t extraGeometry=0;
   for(size_t round=0;round<rounds;++round) {
     std::vector<Point> points;
-    for(size_t j=8*round;j<std::min(draws.size(),8*(round+1));++j)points.push_back(draws[j].point);
+    try {
+      points.reserve(8);
+      for(size_t j=8*round;j<std::min(draws.size(),8*(round+1));++j)points.push_back(draws[j].point);
+    }catch(const std::bad_alloc& error){failure.Set(3,round,error.what());}
+     catch(const std::exception& error){failure.Set(4,round,error.what());}
+    if(!vote())return false;
     const auto footprint=p.donor.ProbePoints(points,ceiling,transfer_memory::Add(held,transfer_memory::Bytes(extra),extraGeometry));
     if(!footprint.valid) {
       if(!initial && resource(footprint.reason)){reason=footprint.reason;return false;}
       throw std::runtime_error(footprint.reason);
     }
-    std::vector<std::vector<Request>> requests(world.size);
+    std::vector<std::vector<Request>> requests;
     try {
+      requests.resize(world.size);
       if(footprint.cells.size()!=footprint.source_rank.size())throw std::runtime_error("Missing source owner for complexity query.");
       for(size_t j=0;j<points.size();++j) {
         size_t best=SIZE_MAX;std::array<Id,4> key;key.fill(UINT64_MAX);
@@ -190,7 +200,8 @@ bool CNativeComplexity3D::Extend(size_t count,std::string& reason,bool initial) 
         ++localInside;const auto& draw=draws[8*round+j];
         requests.at(footprint.source_rank[best]).push_back({footprint.cells[best].cell.id,draw.point,draw.inversePDF});
       }
-    }catch(const std::exception& error){failure.Set(4,round,error.what());}if(!vote())return false;
+    }catch(const std::bad_alloc& error){failure.Set(3,round,error.what());}
+     catch(const std::exception& error){failure.Set(4,round,error.what());}if(!vote())return false;
     const auto incoming=world.exchange(requests,&admitted,ceiling,transfer_memory::Add(held,transfer_memory::Bytes(extra),extraGeometry));
     if(!admitted)failure.Set(3,round,"Complexity stencil routing exceeds storage ceiling.");if(!vote())return false;
     try {

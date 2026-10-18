@@ -950,3 +950,33 @@ separate fields/evidence; no new M6 budget-feasibility or accepted-wing claim.
   No further constructor fallback, full-wing replay, CFD advance or cluster run.
 
 [Qualified report and receipts](../integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/background_trial_reuse_v1/README.md).
+
+
+## 2026-10-18 — bounded evidence stages resolve M6 profile selection
+
+Worked: retain original geometry/donor indexes across at most two correction-stream
+extensions; rescan every earlier profile before freezing. No extra whole-mesh
+gather, support/fade/tangent change, cap increase or donor refit. Serial28/10625,
+MPI4 and independently audited opt-in/default N4M2 RANS/SA/BDF/SU2/CGNS/restart PASS.
+Resource-refusal control preserves the prior complete estimate atomically.
+
+M6 .75 at8192:308423 +/-12078 unresolved;32768:308123 +/-5972 estimated incompatible
+with300k. Select.875/version22:281779 +/-5604; full original-family normalized field
+295068 +/-5769, -1.644% budget, still integration_limited. MPI2/4 agree <=1.072e-11.
+Both independent saved holdouts support the profile distinction; no exact reference
+or rigorous confidence claim. Budget100k remains a nine-profile estimated conflict,
+not proof mandatory requirements themselves exceed it. No M6 construction here.
+
+Cost: MPI4 metric137.055s, nested gradation102.455s; MPI2 metric169.793s,
+gradation132.241s.27complexity trials/937sweeps. Fixed proposal work798785,
+59.327M PDF candidates,389065 correction queries; one donor index/rank survives
+both extensions. Retained integration228.8MB/rank MPI4 or336.3MB MPI2. Compared
+with earlier unresolved coarsest target, this is a different finer sensor field,
+not a speedup/regression experiment. No full-lifecycle affordability established.
+
+Independent scalar reference21.20654634 is covered at128/256/512 observed stages,
+but errors/indicators are nonmonotone. Heuristic tails/optional stopping and
+per-cell global absolute-error allocation remain open, as do difficult accepted
+construction, composed gradation and2D opt-in policy. Preserved initial tight-MPI
+fixture failure/interrupted builds; measured-quota fixture corrects test admission
+without changing production limits. [Complete report/evidence](../integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/adaptive_budget_evidence_v1/README.md).

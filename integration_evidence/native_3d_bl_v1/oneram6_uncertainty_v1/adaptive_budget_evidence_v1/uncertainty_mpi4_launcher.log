@@ -1,0 +1,7 @@
+uncertainty_mpi4 {"exit_code": 1, "elapsed_seconds": 21.938589714933187, "command": ["taskset", "-c", "0-3", "nice", "-n", "19", "timeout", "--kill-after=5s", "180s", "mpirun", "-np", "4", "--bind-to", "none", "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver", "[NativeBLBudgetUncertainty3D],[NativeDynamicComplexity3D],[NativeBLBudgetProfile]", "--abort", "--reporter", "compact"], "provenance_sha256": "209042116c687b296c0aae8431fbdfcca21bf45a626ce8388b81107abb741d30", "log_sha256": "a8e6b7c66983b4c06eacca802191ad348c543518cc980600ca85032f7eaa50be"}
+Traceback (most recent call last):
+  File "integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/adaptive_budget_evidence_v1/campaign.py", line 34, in <module>
+    report=run.invoke(folder,env,run.OLD/'cell329/replay.dat',ranks,test_filter=filter)
+  File "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/run.py", line 55, in invoke
+    if not ((0<run.returncode<124) if expected_failure else run.returncode==0):raise RuntimeError('Failed '+str(folder))
+RuntimeError: Failed /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/adaptive_budget_evidence_v1/qualification_v1/uncertainty_mpi4
