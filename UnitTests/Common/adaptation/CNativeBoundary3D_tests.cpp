@@ -1668,3 +1668,67 @@ TEST_CASE("Saved finite-surface blockage admits coordinated placement under the 
   CHECK_FALSE(PlaceSplitPatch(incomplete,edge,point,apices,2000000,target,reference,heights,sentinel,report,reason,256));
   CHECK(Connectivity(sentinel)==unchanged);CHECK(reason.find("complete movable vertex stars")!=std::string::npos);
 }
+
+TEST_CASE("Shared first-height ownership reconstructs a complete frozen-field mesh", "[.][NativeHeightStarReplay3D]") {
+  const char* path=std::getenv("SU2_NATIVE_HEIGHT_REPLAY");REQUIRE(path);
+  std::ifstream in(path);std::string magic;double core=0;Id vertex=0;size_t count=0;
+  in>>magic>>core>>vertex>>count;REQUIRE(magic=="NATIVE_HEIGHT_STAR_V1");REQUIRE(core>0);REQUIRE(count<=128);
+  std::vector<Facet> facets(count);
+  for(auto& f:facets){in>>f.id>>f.marker;for(auto& n:f.v)in>>n.id>>n.p.x>>n.p.y>>n.p.z;}
+  auto read_patch=[&](){
+    Patch p;size_t nc=0,nf=0;in>>nc>>nf;REQUIRE(nc<=1024);REQUIRE(nf<=1024);
+    p.cells.resize(nc);p.surface.resize(nf);
+    for(auto& c:p.cells){in>>c.id;for(auto& n:c.v)in>>n.id>>n.p.x>>n.p.y>>n.p.z;}
+    for(auto& f:p.surface)in>>f.facet>>f.v[0]>>f.v[1]>>f.v[2];REQUIRE(bool(in));return p;
+  };
+  auto whole=read_patch();const auto original=read_patch();const PlanarReference reference(facets);
+  const auto saved=Connectivity(whole);Patch old;
+  for(const auto& c:whole.cells)if(std::any_of(c.v.begin(),c.v.end(),[&](Node n){return n.id==vertex;}))old.cells.push_back(c);
+  const auto skin=Incidence(old.cells).Boundary();
+  for(const auto& f:whole.surface)if(std::find(skin.begin(),skin.end(),f.v)!=skin.end())old.surface.push_back(f);
+  CBoundaryLayerMetric::Wall wall;wall.layer={"wall",.1,1.2,.3};
+  wall.coord={0,0,0,1,0,0,1,1,0,0,1,0};wall.conn={0,1,2,2,0,2,3,3};CBoundaryLayerMetric layers(3,{wall});
+  const MetricComposition compose=[&](Point p,Tensor sensor){
+    CBoundaryLayerMetric::Tensor m;m.m[0][0]=sensor.xx;m.m[1][1]=sensor.yy;m.m[2][2]=sensor.zz;
+    m.m[0][1]=m.m[1][0]=sensor.xy;m.m[0][2]=m.m[2][0]=sensor.xz;m.m[1][2]=m.m[2][1]=sensor.yz;
+    const su2double x[]={p.x,p.y,p.z};layers.ApplyPoint(x,m,core,nullptr,false);
+    return Tensor{SU2_TYPE::GetValue(m.m[0][0]),SU2_TYPE::GetValue(m.m[0][1]),SU2_TYPE::GetValue(m.m[0][2]),
+        SU2_TYPE::GetValue(m.m[1][1]),SU2_TYPE::GetValue(m.m[1][2]),SU2_TYPE::GetValue(m.m[2][2])};
+  };
+  std::vector<DonorCell> donors;
+  for(auto c:original.cells){DonorCell d;d.cell=c;d.sensor.fill({core,0,0,core,0,core});donors.push_back(d);}
+  FrozenField target(donors,compose,false,{},[&](Point a,Point b){return layers.EdgeBreakpoints({a.x,a.y,a.z},{b.x,b.y,b.z});});
+  std::map<int,double> heights;
+  for(const auto& f:facets)if(std::all_of(f.v.begin(),f.v.end(),[](Node n){return n.p.z==0;}))heights[f.marker]=.1;
+  REQUIRE(old.cells.size()<=MaximumCavityCells);const auto old_saved=Connectivity(old);
+  Patch fresh;JointSplitReport report;std::string reason;
+  const bool accepted=ReconstructHeightStar(old,vertex,1000000,2000000,target,reference,heights,fresh,report,reason,32);
+  std::cout<<"HEIGHT_STAR accepted="<<accepted<<" trials="<<report.trials<<" geometry_rejected="<<report.geometry_rejected
+      <<" height_rejected="<<report.height_rejected<<" metric_rejected="<<report.metric_rejected<<" cells="<<fresh.cells.size()<<" reason="<<reason<<std::endl;
+  INFO(reason);REQUIRE(accepted);CHECK(report.trials<=32);CHECK(Connectivity(old)==old_saved);
+  REQUIRE(ValidateFixedInterface(old.cells,fresh.cells,reason));FirstHeightReport height;
+  REQUIRE(CheckFirstHeight(fresh,heights,reference,height,reason));PatchMetric measured;
+  REQUIRE(ValidateMetricChange(old.cells,fresh.cells,MetricChange::Refine,target,measured,reason));
+  std::set<Id> removed;for(const auto& c:old.cells)removed.insert(c.id);
+  whole.cells.erase(std::remove_if(whole.cells.begin(),whole.cells.end(),[&](const Cell& c){return removed.count(c.id);}),whole.cells.end());
+  whole.cells.insert(whole.cells.end(),fresh.cells.begin(),fresh.cells.end());
+  REQUIRE(CheckFirstHeight(whole,heights,reference,height,reason));
+  for(size_t first=0;first<whole.cells.size();first+=MaximumCavityCells) {
+    const auto end=std::min(whole.cells.size(),first+MaximumCavityCells);
+    std::vector<Cell> batch(whole.cells.begin()+first,whole.cells.begin()+end);
+    INFO(reason);REQUIRE(ValidateMetricPatch(batch,target,measured,reason));
+  }
+  for(size_t i=0;i<whole.cells.size();++i)for(size_t j=0;j<i;++j)CHECK(ConformingDisjoint(whole.cells[i],whole.cells[j]));
+  CHECK(Connectivity(whole)!=saved);SaveCurved(whole,reference,"native_height_whole");SaveCurved(fresh,reference,"native_height_patch");
+  auto sentinel=fresh;const auto unchanged=Connectivity(sentinel);
+  CHECK_FALSE(ReconstructHeightStar(old,vertex,1000000,2000000,target,reference,heights,sentinel,report,reason,0));
+  CHECK(Connectivity(sentinel)==unchanged);
+  CHECK_FALSE(ReconstructHeightStar(old,vertex,1000000,2000000,target,reference,{},sentinel,report,reason,32));
+  CHECK(Connectivity(sentinel)==unchanged);
+  auto incomplete=old;incomplete.cells.pop_back();
+  CHECK_FALSE(ReconstructHeightStar(incomplete,vertex,1000000,2000000,target,reference,heights,sentinel,report,reason,32));
+  CHECK(Connectivity(sentinel)==unchanged);
+  CHECK(reason.find("complete interior vertex star")!=std::string::npos);
+  CHECK_FALSE(ReconstructHeightStar(old,vertex,vertex,2000000,target,reference,heights,sentinel,report,reason,32));
+  CHECK(Connectivity(sentinel)==unchanged);
+}

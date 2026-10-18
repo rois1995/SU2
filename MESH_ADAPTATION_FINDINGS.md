@@ -12,6 +12,10 @@ with the same original frozen field. Native port and annular lifecycle are pendi
 no M6/general symmetry/physical accuracy/affordability claim. Overflowing SciPy
 min-cut draft withdrawn; corrected capacities plus complete independent audit pass.
 [Current result, rejected experiments and next capability](Handbook/GOAL3_ANNULAR_COORDINATION.md).
+The connected generic native compound height-star operator and existing MPI-route
+integration are now implemented and building (session50386), UNQUALIFIED. Saved
+339-cell whole-field replay and complete unchanged native lifecycle remain next;
+no new accepted mesh is claimed. Optional Opus review timed out without a report.
 Full Goal3/general symmetry requirements remain OPEN.
 
 Finite affine references now use the existing3D query/operator/source/IO architecture.

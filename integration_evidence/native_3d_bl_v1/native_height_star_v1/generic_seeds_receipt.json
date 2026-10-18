@@ -1,0 +1,45 @@
+{
+  "status": "OFFLINE_GENERIC_SPACING_PROBE_ONLY",
+  "input_sha256": "bfbfe0935fa6d4a53753ba68fd96a288fc3d573a7d1a660f0fa84e8a0ae5954d",
+  "profile_sha256": "e1d384df9b645c842466c0bbddc3f6d076c4b5ff771cc7d4f98089ff3c6ec8f3",
+  "kernel_sha256": "fa04e43b9064c318ef30c1afa2d9ae0c0dd643b4939a9474f2b08a7bfdf17a79",
+  "log_sha256": "732a2a7ed55b5dbecf0f29b2cb7fd73a719edbaf296e1fbe2d66ca31be0fc1e9",
+  "recipe": "Existing offline kernel, four equal tangent offsets delta=factor/(8*sqrt(theta)); three binary splits; factor1,1.25,1.5,1.75",
+  "results": [
+    {
+      "factor": 1.0,
+      "delta": 0.055640126745623616,
+      "cells": 355,
+      "nodes": 107,
+      "minimum_q": 0.20333454377115404,
+      "minimum_J": 0.05128451648222634,
+      "bad_shape": 0,
+      "oversized_edges": 0,
+      "maximum_edge": 1.7955164523225264,
+      "excess": 0.0
+    },
+    {
+      "factor": 1.25,
+      "delta": 0.06955015843202952,
+      "cells": 355,
+      "nodes": 107,
+      "minimum_q": 0.21669296836822502,
+      "minimum_J": 0.05974823241310039,
+      "bad_shape": 0,
+      "oversized_edges": 0,
+      "maximum_edge": 1.7955164523225264,
+      "excess": 0.0
+    },
+    {
+      "factor": 1.5,
+      "delta": 0.08346019011843543,
+      "rejected": "Neither proposed apex sees retained face"
+    },
+    {
+      "factor": 1.75,
+      "delta": 0.09737022180484133,
+      "rejected": "Neither proposed apex sees retained face"
+    }
+  ],
+  "native_geometry_qualification": false
+}

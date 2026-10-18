@@ -1,0 +1,48 @@
+ninja: Entering directory `integration_evidence/build-integrated-v2'
+[1/30] Compiling C++ object Common/src/libSU2AccurateSum.a.p/adaptation_CNativeAffineReference.cpp.o
+[2/30] Compiling C++ object Common/src/libSU2AccurateSum.a.p/adaptation_CNativeField3D.cpp.o
+[3/30] Compiling C++ object Common/src/libSU2AccurateSum.a.p/adaptation_CNativeBoundary3D.cpp.o
+FAILED: [code=1] Common/src/libSU2AccurateSum.a.p/adaptation_CNativeBoundary3D.cpp.o 
+c++ -ICommon/src/libSU2AccurateSum.a.p -ICommon/src -I../../Common/src -I../../externals/CLI11 -I../../externals/eigen -I../../externals/cgns/adf -I../../externals/cgns/adfh -Iexternals/cgns -I../../externals/cgns -Iexternals/cgns/hdf5 -I../../externals/cgns/hdf5 -I../../externals/metis/include -I../../externals/metis/GKlib -I../../externals/metis/libmetis -I../../externals/parmetis/include -I../../externals/parmetis/libparmetis -I../../externals/mel -I/usr/lib/x86_64-linux-gnu/openmpi/include/openmpi -I/usr/lib/x86_64-linux-gnu/openmpi/include -fdiagnostics-color=always -D_GLIBCXX_ASSERTIONS=1 -D_FILE_OFFSET_BITS=64 -std=c++17 -O2 -g -fPIC -pthread -Wno-empty-body -Wno-ignored-qualifiers -Wno-unused-parameter -Wno-deprecated-declarations -Wno-error=cast-function-type -Wno-cast-function-type -Wno-error=stringop-truncation -Wno-stringop-truncation -Wno-error=missing-field-initializers -Wno-missing-field-initializers -Wno-error=class-memaccess -Wno-class-memaccess -Wno-overloaded-virtual -Wno-array-bounds -march=native -ffast-math -fno-finite-math-only -DHAVE_CGNS -DHAVE_MPI -DHAVE_METIS -DHAVE_PARMETIS -DHAVE_MMG -fno-fast-math -fno-unsafe-math-optimizations -ffp-contract=off -MD -MQ Common/src/libSU2AccurateSum.a.p/adaptation_CNativeBoundary3D.cpp.o -MF Common/src/libSU2AccurateSum.a.p/adaptation_CNativeBoundary3D.cpp.o.d -o Common/src/libSU2AccurateSum.a.p/adaptation_CNativeBoundary3D.cpp.o -c ../../Common/src/adaptation/CNativeBoundary3D.cpp
+../../Common/src/adaptation/CNativeBoundary3D.cpp: In function ‘bool SU2Native3D::{anonymous}::SplitHeightStar(SU2Native3D::Patch&, SU2Native3D::Id, const std::array<SU2Native3D::Node, 2>&, const std::array<std::vector<SU2Native3D::Point>, 2>&, const std::set<long unsigned int>&, SU2Native3D::Id, SU2Native3D::FrozenField&, const SU2Native3D::PlanarReference&, const std::map<int, double>&, std::string&)’:
+../../Common/src/adaptation/CNativeBoundary3D.cpp:1519:79: error: no match for call to ‘(SU2Native3D::{anonymous}::SplitHeightStar(SU2Native3D::Patch&, SU2Native3D::Id, const std::array<SU2Native3D::Node, 2>&, const std::array<std::vector<SU2Native3D::Point>, 2>&, const std::set<long unsigned int>&, SU2Native3D::Id, SU2Native3D::FrozenField&, const SU2Native3D::PlanarReference&, const std::map<int, double>&, std::string&)::<lambda(std::array<SU2Native3D::Node, 4>)>) (<brace-enclosed initializer list>)’
+ 1519 |           Patch single;single.cells={cell({{points[side].id,p},v[0],v[1],v[2]})};single.surface={wall->second};
+      |                                                                               ^
+../../Common/src/adaptation/CNativeBoundary3D.cpp:1486:13: note: candidate: ‘SU2Native3D::{anonymous}::SplitHeightStar(SU2Native3D::Patch&, SU2Native3D::Id, const std::array<SU2Native3D::Node, 2>&, const std::array<std::vector<SU2Native3D::Point>, 2>&, const std::set<long unsigned int>&, SU2Native3D::Id, SU2Native3D::FrozenField&, const SU2Native3D::PlanarReference&, const std::map<int, double>&, std::string&)::<lambda(std::array<SU2Native3D::Node, 4>)>’
+ 1486 |   auto cell=[&](std::array<Node,4> v){
+      |             ^
+../../Common/src/adaptation/CNativeBoundary3D.cpp:1486:13: note:   no known conversion for argument 1 from ‘<brace-enclosed initializer list>’ to ‘std::array<SU2Native3D::Node, 4>’
+../../Common/src/adaptation/CNativeBoundary3D.cpp:1519:80: error: no match for ‘operator=’ (operand types are ‘std::vector<SU2Native3D::Cell>’ and ‘<brace-enclosed initializer list>’)
+ 1519 |           Patch single;single.cells={cell({{points[side].id,p},v[0],v[1],v[2]})};single.surface={wall->second};
+      |                                                                                ^
+In file included from /usr/include/c++/9/vector:72,
+                 from ../../Common/src/adaptation/../../include/adaptation/CNativeMesh3D.hpp:11,
+                 from ../../Common/src/adaptation/../../include/adaptation/CNativeTopology3D.hpp:8,
+                 from ../../Common/src/adaptation/../../include/adaptation/CNativeCavity3D.hpp:8,
+                 from ../../Common/src/adaptation/../../include/adaptation/CNativeBoundary3D.hpp:8,
+                 from ../../Common/src/adaptation/CNativeBoundary3D.cpp:7:
+/usr/include/c++/9/bits/vector.tcc:198:5: note: candidate: ‘std::vector<_Tp, _Alloc>& std::vector<_Tp, _Alloc>::operator=(const std::vector<_Tp, _Alloc>&) [with _Tp = SU2Native3D::Cell; _Alloc = std::allocator<SU2Native3D::Cell>]’
+  198 |     vector<_Tp, _Alloc>::
+      |     ^~~~~~~~~~~~~~~~~~~
+/usr/include/c++/9/bits/vector.tcc:199:42: note:   no known conversion for argument 1 from ‘<brace-enclosed initializer list>’ to ‘const std::vector<SU2Native3D::Cell>&’
+  199 |     operator=(const vector<_Tp, _Alloc>& __x)
+      |               ~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~
+In file included from /usr/include/c++/9/vector:67,
+                 from ../../Common/src/adaptation/../../include/adaptation/CNativeMesh3D.hpp:11,
+                 from ../../Common/src/adaptation/../../include/adaptation/CNativeTopology3D.hpp:8,
+                 from ../../Common/src/adaptation/../../include/adaptation/CNativeCavity3D.hpp:8,
+                 from ../../Common/src/adaptation/../../include/adaptation/CNativeBoundary3D.hpp:8,
+                 from ../../Common/src/adaptation/CNativeBoundary3D.cpp:7:
+/usr/include/c++/9/bits/stl_vector.h:706:7: note: candidate: ‘std::vector<_Tp, _Alloc>& std::vector<_Tp, _Alloc>::operator=(std::vector<_Tp, _Alloc>&&) [with _Tp = SU2Native3D::Cell; _Alloc = std::allocator<SU2Native3D::Cell>]’
+  706 |       operator=(vector&& __x) noexcept(_Alloc_traits::_S_nothrow_move())
+      |       ^~~~~~~~
+/usr/include/c++/9/bits/stl_vector.h:706:26: note:   no known conversion for argument 1 from ‘<brace-enclosed initializer list>’ to ‘std::vector<SU2Native3D::Cell>&&’
+  706 |       operator=(vector&& __x) noexcept(_Alloc_traits::_S_nothrow_move())
+      |                 ~~~~~~~~~^~~
+/usr/include/c++/9/bits/stl_vector.h:727:7: note: candidate: ‘std::vector<_Tp, _Alloc>& std::vector<_Tp, _Alloc>::operator=(std::initializer_list<_Tp>) [with _Tp = SU2Native3D::Cell; _Alloc = std::allocator<SU2Native3D::Cell>]’
+  727 |       operator=(initializer_list<value_type> __l)
+      |       ^~~~~~~~
+/usr/include/c++/9/bits/stl_vector.h:727:46: note:   no known conversion for argument 1 from ‘<brace-enclosed initializer list>’ to ‘std::initializer_list<SU2Native3D::Cell>’
+  727 |       operator=(initializer_list<value_type> __l)
+      |                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~
+ninja: build stopped: subcommand failed.

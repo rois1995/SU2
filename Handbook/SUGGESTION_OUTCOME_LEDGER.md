@@ -281,3 +281,20 @@ int32 and is **withdrawn**, not evidence of infeasibility; corrected bounded flo
 self-checks and the independent audit pass. No native multi-apex implementation,
 transfer/MPI/restart/viscous or affordability claim yet.
 [Evidence, limitations, all failures and inspectable grid](GOAL3_ANNULAR_COORDINATION.md).
+
+## Generic native height-star implementation — validation pending
+
+Converted the offline coordination idea into a native bounded operator using the
+actual wall-patch direction and metric spacing, exact-orientation implications,
+uint64 quality-directed cut, fixed-interface checks and final first-height/full-
+field gates. Existing complete-star lookup/reservation, original-donor import,
+collective work admission and atomic publication are reused. No fixture IDs,
+coordinates, solver modes, metric changes or larger cavity caps enter production.
+
+The connected batch and difficult339-cell replay are BUILDING/UNQUALIFIED in50386.
+Initial aggregate initializer compile failure is preserved; corrected source has
+compiled, engine/CFD/test objects remain. Generic spacing choices1/1.25 work in the
+offline kernel;1.5/1.75 fail visibility, not global feasibility. Optional Opus5.5/
+medium review reached240s without a final report and is not evidence. Native
+whole-field replay, full unchanged annular lifecycle and affected MPI still needed.
+[Current sources/provenance/replay](../integration_evidence/native_3d_bl_v1/native_height_star_v1/README.md).

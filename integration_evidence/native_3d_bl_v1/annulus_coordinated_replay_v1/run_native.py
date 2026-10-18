@@ -7,7 +7,9 @@ spec=importlib.util.spec_from_file_location('bounded_replay',HERE.with_name('one
 replay=importlib.util.module_from_spec(spec);spec.loader.exec_module(replay)
 def main():
     version=sys.argv[1] if len(sys.argv)>1 else 'v1';assert version.startswith('v') and version[1:].isdigit()
-    folder=HERE/('native_serial_'+version);folder.mkdir(exist_ok=True)
+    mode=sys.argv[2] if len(sys.argv)>2 else 'joint';assert mode in ('joint','height')
+    folder=(HERE/('native_serial_'+version)) if mode=='joint' else HERE.with_name('native_height_star_v1')/('serial_'+version)
+    folder.mkdir(exist_ok=True)
     sources=[]
     for directory in ('Common/include/adaptation','Common/src/adaptation','SU2_CFD/include/adaptation','SU2_CFD/src/adaptation'):
         sources+=list((ROOT/directory).glob('*3D.*'))
@@ -22,7 +24,12 @@ def main():
     if capsule.exists():assert capsule.read_bytes()==payload,'Changed source: use a new result version'
     else:capsule.write_bytes(payload)
     filters='[NativeJointSurfaceReplay3D],[NativeInteriorPlacement3D],[NativeSurfaceStrip3D],[NativeMetricMove3D],[NativeConnectivityInterface3D],[NativeConnectivityHeight3D]'
-    result=replay.invoke(folder,{'SU2_NATIVE_JOINT_REPLAY':str(HERE/'patch.dat'),'SU2_NATIVE_CURVED_EVIDENCE':'1'},HERE/'patch.dat',test_filter=filters)
+    parameters={'SU2_NATIVE_JOINT_REPLAY':str(HERE/'patch.dat'),'SU2_NATIVE_CURVED_EVIDENCE':'1'}
+    fixture=HERE/'patch.dat'
+    if mode=='height':
+        filters='[NativeHeightStarReplay3D],'+filters;fixture=HERE.with_name('native_height_star_v1')/'patch.dat'
+        parameters['SU2_NATIVE_HEIGHT_REPLAY']=str(fixture)
+    result=replay.invoke(folder,parameters,fixture,test_filter=filters)
     if 'artifacts' in result:
         assert all(replay.sha(folder/p)==h for p,h in result['artifacts'].items()),'Saved artifact changed'
         print('REUSE_VERIFIED',folder,flush=True)

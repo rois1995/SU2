@@ -205,6 +205,13 @@ struct JointSplitReport {
   double initial_loss=0, best_loss=0, best_shape_loss=0;
   Patch best;  // Geometric/height-valid private proposal, including failed shape; never an accepted mesh.
 };
+/*! Private compound replacement of shared first-height ownership using metric-scaled wall-patch directions.
+ * Complete interior vertex stars, six new node IDs and replacement IDs must be globally reserved.
+ * Intermediate cuts enforce positive fixed-interface topology; only the final patch is height/full-field
+ * certified. Geometry, wall skin and original donors are unchanged. No output change on rejection. */
+bool ReconstructHeightStar(const Patch& old,Id vertex,Id first_node,Id first_cell,FrozenField& target,
+                           const PlanarReference& reference,const std::map<int,double>& heights,
+                           Patch& fresh,JointSplitReport& report,std::string& reason,size_t maximum_trials=128);
 /*! Bounded actual-field-directed placement of one split and up to eight complete-star surface/interior vertices.
  * Surface points retain their finite authority; the split may leave a same-chart edge. Coupled shape derivatives
  * coordinate all admitted freedoms. All trials reconstruct from the original patch; artificial interfaces

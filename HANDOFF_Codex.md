@@ -13,7 +13,8 @@ Leave AdapNoExt, foreign ClusterResults, dependencies and foreign jobs untouched
 Affine source/backend batch now passes serial12cases/3974assertions, MPI4 and
 independent75-stencil/source-ID/codec/equality audit. Current Cartesian N4/M2 full
 lifecycle independently PASS. Native joint-placement replay passes7cases/18743assertions; current N4/M2 lifecycle
-also passes independently. All owned jobs are terminal; no new CFD advance or M6.
+also passes independently. New generic height-star batch is building in owned session50386; no CFD advance
+or M6. Prior passing placement/lifecycle evidence belongs to source2b48c9dd20da.
 Read [backend scope and open full-goal requirements](Handbook/GOAL3_AFFINE_RUNTIME.md).
 No accepted oblique lifecycle; simultaneous junction collars and affine-wall BL
 composition explicitly refuse. Preserve full geometry/2D/exterior scope and annular
@@ -50,9 +51,9 @@ rejects at2300/8192work. Four remaining1.86593edges share a first-height apex;
 its retained ownership has an analytic lower bound above1.8. Do not retry unchanged
 or raise caps. A compound multi-apex offline construction independently passes the
 complete355cell mesh: q=.2167/J=.05582/Lmax1.79552/height0/exact geometry and overlap.
-This is not yet implemented in native code and has no transfer/MPI qualification.
-Next: generic bounded multi-apex complete-star replacement and unchanged native
-workflow. [Current construction and exact evidence](Handbook/GOAL3_ANNULAR_COORDINATION.md).
+A generic native compound height-star implementation is now BUILDING/UNQUALIFIED;
+no transfer/MPI qualification exists for it. Next: saved-state whole-field replay,
+then the unchanged native annular workflow and affected MPI checks. [Current construction and exact evidence](Handbook/GOAL3_ANNULAR_COORDINATION.md).
 View `integration_evidence/native_3d_bl_v1/annulus_coordinated_replay_v1/fan_split_v1/annulus_frozen_prototype_witness.su2`
 (offline witness only; no solver state/restart). Keep all rejected experiments.
 
@@ -104,5 +105,7 @@ mesh or transfer of the old off-plane field.
   Announce full case folders, preserve failures/all gates, push checkpoints.
 - One heavy job; nice19/build-j1/libraries1/MPI<=4, monitor actual host RAM/load,
   check live handles. No cluster requests/submissions. Avoid root/tmp compiler use.
+- [Current height-star implementation, pinned build and replay](integration_evidence/native_3d_bl_v1/native_height_star_v1/README.md).
+  Optional Opus5.5/medium review21708 timed out124 without a final report.
 
 [Prior detailed handoff](Handbook/HANDOFF_BEFORE_PLANAR_SYMMETRY_2026_10_18.md).

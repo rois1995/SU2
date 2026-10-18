@@ -2,7 +2,8 @@
 
 Goal3 and the full [general symmetry scope](GOAL3_GENERAL_SYMMETRY.md) stay open.
 Production checkpoint2b48c9dd20da is now compiled and scoped-qualified; no new
-CFD physical advance or M6 retry was needed. All owned jobs are terminal.
+CFD physical advance or M6 retry was needed. New connected generic height-star batch is building in50386; prior results below
+belong to compiled checkpoint2b48. No new runtime qualification yet.
 
 ## Native implementation that worked
 
@@ -52,11 +53,15 @@ The corrected bounded version self-checks flow and hard constraints and passes
 independent geometry/field auditing. Opus5.5/medium suggested additional vertex
 retirement, but the valid witness shows it is unnecessary for this proposal.
 
-Next is one connected generic native multi-apex construction/complete-star
-transaction implementation, followed by the unchanged full native target and MPI
-lifecycle. Offline coordinates/axes must not become production constructors.
+The generic multi-apex construction/complete-star transaction batch is implemented
+and building, not yet qualified. It reuses existing MPI admission/publication and
+actual-query fields. Next: exact saved-state whole-field replay, unchanged full
+native target and MPI lifecycle. Offline coordinates/axes must not become production constructors.
 No new accepted native annular mesh, M6/exterior/oblique/junction/2D result or
 accepted-event performance improvement is claimed.
 
 [Exact evidence and history](../integration_evidence/native_3d_bl_v1/annulus_coordinated_replay_v1/README.md).
 Grid: `integration_evidence/native_3d_bl_v1/annulus_coordinated_replay_v1/fan_split_v1/annulus_frozen_prototype_witness.su2`.
+
+Current source/build/replay: [native_height_star_v1](../integration_evidence/native_3d_bl_v1/native_height_star_v1/README.md).
+Do not reuse the old binary or claim old passing evidence qualifies this new batch.

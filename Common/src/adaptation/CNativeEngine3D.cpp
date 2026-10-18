@@ -1921,7 +1921,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       std::sort(wallApices.begin(),wallApices.end());wallApices.erase(std::unique(wallApices.begin(),wallApices.end()),wallApices.end());
       bool wallSplit=joint && !wallApices.empty();
       Id placement_obstruction=UINT64_MAX;
-      auto place_patch=[&](bool search,const std::vector<Id>& apices) {
+      auto place_patch=[&](bool search,const std::vector<Id>& apices,Id height_apex=UINT64_MAX) {
         if(!world.maximum(search))return true;
         if(stats.global_work>=stats.work_limit){stats.stop=EngineStop::WorkBudget;result.reason="Native3D joint placement exhausted the global work budget.";return false;}
         if(options.maximum_seconds && world.maximum(std::chrono::duration<double>(Clock::now()-started).count()>=options.maximum_seconds)) {
@@ -1991,7 +1991,11 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
           FrozenField target(std::move(support.cells),composition,options.timings,components,options.edge_breakpoints,field_identity);
           FieldAccounting accounting{stats,target};std::vector<std::pair<Id,Id>> reserved_apices;
           for(size_t i=0;i<apices.size();++i)reserved_apices.emplace_back(apices[i],maximum_node+2+i+node_offset);
-          candidate=PlaceSplitPatch(old,choice.edge,point,reserved_apices,maximum_cell+1+offset,target,geometry,options.wall_heights,
+          if(height_apex!=UINT64_MAX) {
+            candidate=ReconstructHeightStar(old,height_apex,maximum_node+1+node_offset,maximum_cell+1+offset,target,
+                geometry,options.wall_heights,fresh,report,result.reason,allowance);
+            stats.wall_reconstruction_trials+=report.trials;stats.wall_topology_trials+=report.trials;
+          } else candidate=PlaceSplitPatch(old,choice.edge,point,reserved_apices,maximum_cell+1+offset,target,geometry,options.wall_heights,
               fresh,report,result.reason,allowance);
           stats.repair_proposals+=report.trials;stats.placement_trials+=report.trials;
           stats.placement_connectivity_trials+=report.connectivity_trials;stats.placement_flips+=report.flips;stats.placement_moves+=report.moves;
@@ -2011,6 +2015,20 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         if(search && approved){cavity_inserted=true;joint=false;}
         return true;
       };
+      Id height_apex=UINT64_MAX;
+      if(joint && composition && !boundary_edge && !choice.geometric && !options.wall_heights.empty())
+        for(Id vertex:choice.edge) {
+          size_t walls=0;
+          for(const auto& f:old.surface)if(options.wall_heights.count(geometry.Get(f.facet).marker) &&
+              std::find(f.v.begin(),f.v.end(),vertex)==f.v.end())
+            for(const auto& c:old.cells) {
+              unsigned matches=0;bool apex=false;
+              for(auto n:c.v){matches+=std::find(f.v.begin(),f.v.end(),n.id)!=f.v.end();apex=apex || n.id==vertex;}
+              walls+=matches==3 && apex;
+            }
+          if(walls>=2){height_apex=vertex;break;}
+        }
+      if(!place_patch(height_apex!=UINT64_MAX,{height_apex},height_apex))return finish();
       if(!place_patch(joint && composition && (!boundary_edge || (flat_edge && wallApices.empty())) && !choice.geometric,{}))return finish();
       const Id initial_placement_obstruction=placement_obstruction;
       strip=strip && !wallSplit && !approved;  // Admit the required wall region before optional unrelated movers.
