@@ -12,6 +12,11 @@ That is 31.4% less assembly work and 40.0% less Krylov work, with 6.9% more upda
 on the same final binary remains required for strict implementation/configuration attribution.
 These contended times are observations; no timing speedup is established.
 
+The refreshed adaptive-forcing baseline on the final binary now qualifies at the same 333 updates,
+83590 assemblies per system and 22279 Krylov iterations. Every attempt column and the final restart
+are identical to the earlier baseline. Observed loop time is 3378.044 seconds; timing is ineligible.
+The fixed-0.05 rerun on this same binary is in progress.
+
 All 178 retries are derivative-verification failures. Accepted Krylov work falls from 20297 to 11427;
 failed-attempt work is similar (1982 versus 1948). Thus most of the saving is in accepted solves.
 The largest completed solve is 39 iterations, versus 80 before. Peak rank RSS is 79452 versus
@@ -27,6 +32,11 @@ Both pass the canonical native state audit and every frozen physical and quantit
 The original native tolerance 1e-10 uses 151 updates and 6040 reported linear iterations.
 Serial Newton with fixed forcing and segregated qualification remain outstanding.
 
+The frozen physical auditor and final-build reporter produce exactly identical reports for the
+qualified native SA 1x1 state and the new adaptive coupled SA 2x2 endpoint. A separate immutable
+intermediate Newton checkpoint passes all frozen residual, state and quantity checks. It has no
+iteration metadata and is supporting evidence only; no convergence work or time is assigned to it.
+
 The [CSV](NewtonKrylovFixedForcing20261018.csv) retains configurations, source/build/binary hashes,
 per-system physical checks, quantities, memory, failed work and exact evidence paths. Native assemblies
 are inferred fine-grid updates; Newton assembly counters are measured. Native linear work sums separate
@@ -39,7 +49,8 @@ method entries confirm the offset in 20 archived application profiles. Interrupt
 |---|---|---|---:|---|---:|---:|---:|---:|---:|---:|---|---|---|
 | naca_sa | 2x2 | coupled | 0.05 | NO | 356 | 57365/57365 | 13375 | 178 | 1797.690 / 1798.629 | 79452 | qualified | True | fixed_forcing_005_applications/naca_sa/2x2/coupled |
 | naca_sa | 1x1 | native | 0.05 | NO | 158 | 158/158 | 1030 |  | 18.092 / 18.840 | 78096 | qualified | True | fixed_forcing_005_matched/naca_sa/1x1/native_accuracy/native |
-| naca_sa | 2x2 | coupled | 0.1 | YES |  | / |  |  | — / — |  | running | False | fixed_forcing_005_matched/naca_sa/2x2/adaptive/coupled |
+| naca_sa | 2x2 | coupled | 0.1 | YES | 333 | 83590/83590 | 22279 | 166 | 3378.044 / 3378.847 | 103428 | qualified | True | fixed_forcing_005_matched/naca_sa/2x2/adaptive/coupled |
+| naca_sa | 2x2 | coupled | 0.05 | NO |  | / |  |  | — / — |  | running | False | fixed_forcing_005_matched/naca_sa/2x2/fixed/coupled |
 | naca_sa | 2x2 | native | 0.05 | NO | 151 | 151/151 | 4209 |  | 51.890 / 52.558 | 60404 | qualified | True | fixed_forcing_005_matched/naca_sa/2x2/native_accuracy/native |
 | naca_sa | 2x2 | coupled | 0.1 | YES | 333 | 83590/83590 | 22279 | 166 | 1090.736 / 1091.372 | 103304 | qualified | True | naca_work_endpoints/naca_sa/2x2/coupled_default0 |
 | naca_sa | 1x1 | coupled | 0.1 | YES | 179 | 33415/33415 | 7603 | 89 | 764.796 / 765.385 | 171400 | qualified | True | sa_stricter_controls/1x1/diagonal/coupled |
@@ -69,4 +80,7 @@ Use `application_case.py` for the adaptive-forcing coupled baseline with the sam
 Use ranks/threads 1/1 for serial. The timeout is a resource cap; hitting it leaves an incomplete result.
 Exact commands and queue outcomes are in `fixed_forcing_005_20261018/matched_commands.json` and
 `followup_commands.json`. Counter-boundary evidence is in `counter_offset_checks.json` and
-`counter_label_checks.json` in that directory. Raw run evidence is preserved.
+`counter_label_checks.json` in that directory. Final-build verification is preserved in
+`final_build_adaptive_qualified_assessment.json`, `final_build_auditor_check.json` and
+`final_build_adaptive_auditor_check.json`; checkpoint checks are under `checkpoints/`.
+Raw run evidence is preserved.
