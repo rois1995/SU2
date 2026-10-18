@@ -1318,6 +1318,8 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       if (!ready) return finish();
     }
     ++stats.rounds;
+    const bool concurrent=composition && !curved && !repairing && !coarsening && options.candidate_batch>1 && world.size>1;
+    stats.concurrent_rounds+=concurrent;
     const bool batched=!curved && !composition && !repairing && (!coarsening || !bad_field) && options.candidate_batch>1;
     std::vector<Choice> choices;
     DependencyBatch dependency_batch;
@@ -1408,8 +1410,8 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       }
     } else {
       Timer timer(stats.selection_seconds,options.timings);
-      if(curved || composition) {
-        // shortcut: serialize displaced/expanded commits until concurrent reservations cover complete joint stars.
+      if((curved || composition) && !concurrent) {
+        // Projected curvature and repair/coarsening retain their established serial ordering.
         if(composition && !curved && !repairing) {
           // Choose global metric priority before ownership; rank numbering must not decide the next edit.
           const double priority=choice.active ? double(selection.Priority(choice.measure.length)) : INFINITY;
@@ -1769,6 +1771,8 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       if (metric_needed && !old_measured) old_failure.Set(1,0,result.reason);
       if (!(ready=vote(old_failure))) return finish();
       auto validate_private=[&](bool candidate,MetricChange kind,bool no_new_oversized=false,bool strict_size=false) {
+        const bool completed=concurrent && approved && !candidate;
+        const auto retained=certified;
         certified={};
         candidate=geometric_change(candidate,kind);
         PatchMetric metric;
@@ -1794,7 +1798,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
           }
         }
         CLocalFailure observed;
-        if(chosen && !valid) {
+        if(chosen && !valid && !completed) {
           stats.last_metric_rejection=certified;
           stats.last_rejected_feature=repairing ? choice.feature : Feature{{choice.edge[0],choice.edge[1],0},2};
           if(!old.cells.empty())stats.last_rejected_cavity_centroid=Centroid(old.cells.front());
@@ -1805,6 +1809,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
           }catch(const std::exception& e){observed.Set(2,0,e.what());}
         }
         if(observe_rejections)ready=vote(observed);
+        if(completed)certified=retained;
         return valid;
       };
       approved=validate_private(metric_needed && old_measured && approved,choice.geometric ? MetricChange::GeometryRefine : intent);
@@ -1878,7 +1883,8 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
           reserved=directory.Reserve(imported,search || approved,result.reason,options.memory_ceiling,transfer_memory::Add(bytes(),source.ResidentBytes(),private_scratch));}
         if((search || approved) && !reserved) {
           if(result.reason=="Native 3D conflicting dependency reservation.") {
-            ++stats.conflicts;search=false;approved=false;
+            ++stats.conflicts;
+            if(!concurrent){search=false;approved=false;}
           } else failure.Set(1,0,"Native3D joint placement lost its complete-star reservation: "+result.reason);
         }
         if(!(ready=vote(failure)))return false;
@@ -1895,6 +1901,9 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
           if(DonorCap(support.reason))search=false;
           else {result.reason=support.reason;return false;}
         }
+        const auto participants=concurrent ? CPassiveComm::Allreduce(uint64_t(search),CPassiveComm::Op::SUM,world.comm) : uint64_t(1);
+        const auto allowance=std::min<uint64_t>(256,(stats.work_limit-stats.global_work)/std::max<uint64_t>(1,participants));
+        if(!allowance){stats.stop=EngineStop::WorkBudget;result.reason="Native3D joint placement cannot admit simultaneous work within the global budget.";return false;}
         bool candidate=false;JointSplitReport report;
         if(search)try {
           Timer timer(stats.reconstruction_seconds,options.timings);CpuTimer cpu(stats.reconstruction_cpu_seconds,options.timings);
@@ -1903,7 +1912,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
           FieldAccounting accounting{stats,target};std::vector<std::pair<Id,Id>> reserved_apices;
           for(size_t i=0;i<apices.size();++i)reserved_apices.emplace_back(apices[i],maximum_node+2+i+node_offset);
           candidate=PlaceSplitPatch(old,choice.edge,point,reserved_apices,maximum_cell+1+offset,target,geometry,options.wall_heights,
-              fresh,report,result.reason,std::min<uint64_t>(256,stats.work_limit-stats.global_work));
+              fresh,report,result.reason,allowance);
           stats.repair_proposals+=report.trials;stats.placement_trials+=report.trials;
           stats.placement_connectivity_trials+=report.connectivity_trials;stats.placement_flips+=report.flips;stats.placement_moves+=report.moves;
           stats.metric_linearizations+=report.linearizations;stats.metric_probes+=report.metric_probes;
@@ -1913,7 +1922,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
           candidate=guarded_geometry(candidate);
         }catch(const std::exception& e){failure.Set(2,0,e.what());}
         if(!(ready=vote(failure)))return false;
-        stats.global_work+=world.maximum(report.trials);
+        stats.global_work+=concurrent ? CPassiveComm::Allreduce(uint64_t(report.trials),CPassiveComm::Op::SUM,world.comm) : world.maximum(report.trials);
         const auto retained_metric=certified;
         const bool passed=validate_private(candidate,MetricChange::Refine);
         if(search && !approved){approved=passed;stats.placement_validated+=passed;}
@@ -1974,7 +1983,10 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         {Timer timer(stats.reservation_seconds,options.timings);
           reserved=directory.Reserve(imported,strip || wallSplit,result.reason,options.memory_ceiling,
               transfer_memory::Add(bytes(),source.ResidentBytes(),private_scratch));}
-        if((strip || wallSplit) && !reserved)failure.Set(1,0,"Native3D strip lost its complete-star reservation.");
+        if((strip || wallSplit) && !reserved) {
+          if(concurrent && result.reason=="Native 3D conflicting dependency reservation.")++stats.conflicts;
+          else failure.Set(1,0,"Native3D strip lost its complete-star reservation.");
+        }
         if(!(ready=vote(failure)))return finish();
         const bool measured=measure_private(joint?old.cells:empty,before,false,reuse);
         if(!ready)return finish();
@@ -2118,14 +2130,17 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         const unsigned normalTrials=world.maximum(strip && !normalMoves.empty() ? 12u : 0u);
         // Preserve the established search before a bounded cap-depth escape using the shared refinement progress gate.
         for(unsigned trial=0;trial<originalTrials+normalTrials && world.maximum(strip && !approved);++trial) {
-          if(stats.global_work>=stats.work_limit){stats.stop=EngineStop::WorkBudget;result.reason="Native3D joint strip exhausted the global work budget.";return finish();}
-          ++stats.global_work;
+          const bool normalTrial=trial>=originalTrials;
+          const unsigned frame=normalTrial?0:trial/36;
+          const bool participating=strip && !approved && frame<frames.size() && (!normalTrial || !normalMoves.empty());
+          const auto work=concurrent ? CPassiveComm::Allreduce(uint64_t(participating),CPassiveComm::Op::SUM,world.comm) : uint64_t(1);
+          if(work>stats.work_limit-stats.global_work){stats.stop=EngineStop::WorkBudget;result.reason="Native3D joint strip exhausted the global work budget.";return finish();}
+          stats.global_work+=work;
           if(options.maximum_seconds && world.maximum(std::chrono::duration<double>(Clock::now()-started).count()>=options.maximum_seconds)) {
             stats.stop=EngineStop::TimeBudget;result.reason="Native3D joint strip exhausted the elapsed budget.";return finish();
           }
-          bool candidate=false;const bool normalTrial=trial>=originalTrials;
-          const unsigned frame=normalTrial?0:trial/36;
-          if(strip && !approved && frame<frames.size() && (!normalTrial || !normalMoves.empty()))try {
+          bool candidate=false;
+          if(participating)try {
             const unsigned slotTrial=normalTrial?12*((trial-originalTrials)/4)+(trial-originalTrials)%4:trial%36;
             Timer timer(stats.reconstruction_seconds,options.timings);CpuTimer cpu(stats.reconstruction_cpu_seconds,options.timings);
             ++stats.repair_proposals;auto moves=normalTrial?normalMoves:moveSeeds[(slotTrial%12)/4];const double alpha=std::array<double,4>{{1.,.5,.25,.125}}[slotTrial%4];
@@ -2276,10 +2291,11 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         if(!(ready=vote(failure)))return finish();
       }
       for(unsigned growth=0;growth<12 && world.maximum(joint && !approved);++growth) {
-        if(stats.global_work>=stats.work_limit) {
+        const auto work=concurrent ? CPassiveComm::Allreduce(uint64_t(joint && !approved),CPassiveComm::Op::SUM,world.comm) : uint64_t(1);
+        if(work>stats.work_limit-stats.global_work) {
           stats.stop=EngineStop::WorkBudget;result.reason="Native3D joint repair exhausted the global work budget.";return finish();
         }
-        ++stats.global_work;
+        stats.global_work+=work;
         if(options.maximum_seconds && world.maximum(std::chrono::duration<double>(Clock::now()-started).count()>=options.maximum_seconds)) {
           stats.stop=EngineStop::TimeBudget;result.reason="Native3D joint repair exhausted the elapsed budget.";return finish();
         }
@@ -2468,7 +2484,10 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         const bool reserved=directory.Reserve(imported,joint,result.reason,options.memory_ceiling,
             transfer_memory::Add(bytes(),source.ResidentBytes(),private_scratch));
         CLocalFailure reservation_failure;
-        if(joint && !reserved)reservation_failure.Set(1,0,"Native3D joint patch lost complete dependency reservation.");
+        if(joint && !reserved) {
+          if(concurrent && result.reason=="Native 3D conflicting dependency reservation.")++stats.conflicts;
+          else reservation_failure.Set(1,0,"Native3D joint patch lost complete dependency reservation.");
+        }
         if(!(ready=vote(reservation_failure)))return finish();
         if(!world.maximum(joint))break;
         const bool measured=measure_private(joint ? old.cells : empty,before,false,reuse);
@@ -2583,6 +2602,33 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       if(!Clearance(world,working,old,fresh,approved,result.reason,stats,options.memory_ceiling,
           transfer_memory::Add(bytes(),source.ResidentBytes(),directory.ResidentBytes(),private_scratch)))return finish();
       if(prior && !approved)geometry_trial(false);
+    }
+    if(concurrent && world.maximum(approved)) {
+      Timer timer(stats.reservation_seconds,options.timings);CLocalFailure final_failure;
+      // Every approved proposal claims its final old footprint together, including completed peers.
+      if(approved)try {
+        if(old.cells.size()!=imported.cells.size() || dependencies.cells.size()!=imported.cells.size())
+          throw std::runtime_error("Native3D final proposal lacks complete imported dependencies.");
+        std::set<Id> cells;for(const auto& c:old.cells)if(!cells.insert(c.id).second)
+          throw std::runtime_error("Native3D final proposal repeats an old cell.");
+        for(const auto& d:dependencies.cells) {
+          const auto row=std::find_if(imported.cells.begin(),imported.cells.end(),[&](const auto& c){return c.cell.id==d.cell;});
+          if(!cells.erase(d.cell) || row==imported.cells.end() || row->version!=d.version)
+            throw std::runtime_error("Native3D final proposal lost a versioned old cell.");
+        }
+      }catch(const std::exception& e){final_failure.Set(2,0,e.what());}
+      if(!vote(final_failure))return finish();
+      ++stats.final_reservations;
+      const bool admitted=directory.Reserve(imported,approved,result.reason,options.memory_ceiling,
+          transfer_memory::Add(bytes(),source.ResidentBytes(),private_scratch));
+      if(approved && !admitted) {
+        if(result.reason=="Native 3D conflicting dependency reservation.") {
+          approved=false;chosen=false;++stats.conflicts;++stats.rejected;++stats.proposal_deferred;
+        }else final_failure.Set(1,0,"Native3D final proposal reservation failed: "+result.reason);
+      }
+      if(!vote(final_failure))return finish();
+      const auto commits=CPassiveComm::Allreduce(uint64_t(approved),CPassiveComm::Op::SUM,world.comm);
+      stats.maximum_parallel_commits=std::max(stats.maximum_parallel_commits,commits);
     }
     if(approved && !coarsening && !repairing && !repair_approved)
       for(const auto& cell:fresh.cells)for(auto node:cell.v)if(node.id==point.id)point=node;

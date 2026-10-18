@@ -250,7 +250,36 @@ TEST_CASE("Native3D remeshes an externally frozen original sensor field without 
     using CSinglezoneDriver::CSinglezoneDriver;
     CConfig& Config(){return *config_container[ZONE_0];}
     CGeometry& Geometry(){return *geometry_container[ZONE_0][INST_0][MESH_0];}
-    std::unique_ptr<CRemesher> Backend(){return MakeRemesher();}
+    std::unique_ptr<CRemesher> Backend(){
+      auto backend=MakeRemesher();const auto* selected=std::getenv("SU2_NATIVE_FROZEN_BL_PARAMETER");
+      if(!selected)return backend;
+      const auto* versionText=std::getenv("SU2_NATIVE_FROZEN_BL_VERSION");REQUIRE(versionText);
+      const double parameter=std::stod(selected);const auto version=std::stoull(versionText);
+      REQUIRE(parameter>=0);REQUIRE(parameter<=1);REQUIRE(version>0);REQUIRE(version<=27);REQUIRE(Config().GetAdap_BL_Budget());
+      auto composition=[parameter,version](const CConfig& cfg,const ReferenceState& state,double core,EngineOptions& control)->MetricComposition {
+        auto layers=CBoundaryLayerMetric::FromNativeReference(state,cfg);
+        layers->ConfigureOuterNormal(SU2_TYPE::GetValue(cfg.GetAdap_BL_ProtectDistance()),SU2_TYPE::GetValue(cfg.GetAdap_BL_OuterGrowthMax()));
+        for(uint64_t i=0;i<version;++i)layers->SelectOuterNormal(parameter);layers->FreezeOuterNormal();
+        for(unsigned short b=0;b<cfg.GetnAdap_BL();++b) {
+          const auto& layer=cfg.GetAdap_BL(b);const auto marker=std::find(state.marker_names.begin(),state.marker_names.end(),layer.marker);
+          if(marker==state.marker_names.end())throw std::runtime_error("Frozen replay lacks its original BL marker.");
+          const int id=int(marker-state.marker_names.begin());control.wall_heights[id]=SU2_TYPE::GetValue(layer.firstHeight);
+          control.region_walls[id]={SU2_TYPE::GetValue(layer.firstHeight),SU2_TYPE::GetValue(layer.growth),SU2_TYPE::GetValue(layer.thickness)};
+        }
+        control.caller_bytes=transfer_memory::Add(control.caller_bytes,layers->StorageBytes());
+        control.edge_breakpoints=[layers](Point a,Point b){return layers->EdgeBreakpoints({a.x,a.y,a.z},{b.x,b.y,b.z});};
+        if(!CPassiveComm::Rank())std::cout<<std::setprecision(17)<<"FROZEN_PROFILE parameter="<<parameter<<" version="<<version<<" core="<<core<<'\n';
+        return [layers,core](Point p,Tensor sensor){
+          CBoundaryLayerMetric::Tensor m;m.m[0][0]=sensor.xx;m.m[1][1]=sensor.yy;m.m[2][2]=sensor.zz;
+          m.m[0][1]=m.m[1][0]=sensor.xy;m.m[0][2]=m.m[2][0]=sensor.xz;m.m[1][2]=m.m[2][1]=sensor.yz;
+          const su2double x[]={p.x,p.y,p.z};layers->ApplyPoint(x,m,core,nullptr,false);
+          return Tensor{SU2_TYPE::GetValue(m.m[0][0]),SU2_TYPE::GetValue(m.m[0][1]),SU2_TYPE::GetValue(m.m[0][2]),
+              SU2_TYPE::GetValue(m.m[1][1]),SU2_TYPE::GetValue(m.m[1][2]),SU2_TYPE::GetValue(m.m[2][2])};
+        };
+      };
+      // Exact construction replay has no unclipped family: an unmatched budget must reject, never rescale donors.
+      return std::make_unique<CNativeRemesher3D>(nativeReference3D,EngineOptions{},std::move(composition));
+    }
     ReferenceState& Reference(){return *nativeReference3D;}
   };
   FrozenDriver driver(const_cast<char*>(configFile),1,SU2_MPI::GetComm());

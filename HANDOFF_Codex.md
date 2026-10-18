@@ -8,6 +8,14 @@ Leave AdapNoExt, foreign ClusterResults, dependencies and foreign jobs untouched
 
 ## Current state
 
+Current connected WIP: one concurrent faceted composed REFINE proposal/worker,
+complete final footprint reservation, conflict deferral without blocking, globally
+bounded simultaneous private work, and preservation of completed peers' metric
+diagnoses. Curved projection/repair/coarsen ordering stays as before. Focused
+controls and actual N4M2 audits prepared in concurrent_composed_proposals_v1;
+one build starts now. No validated gain or accepted new M6 claim. Exact frozen
+profile replay avoids repeating Hessian/normalization; no clipped donor rescaling.
+
 Bounded global correction-evidence refinement is qualified: at most two8192->32768
 stream doublings with retained original support/indexes, complete nonmonotone
 profile rescans and atomic extra-stage refusal. Strict/default behavior stays.

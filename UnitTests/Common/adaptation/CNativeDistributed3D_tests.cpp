@@ -776,7 +776,9 @@ void EngineReport(const EngineResult& result, World& world, const std::string& l
              << " sample_feature=" << s.last_rejected_feature.count << " sample_v0=" << s.last_rejected_feature.vertices[0]
              << " sample_v1=" << s.last_rejected_feature.vertices[1] << " sample_v2=" << s.last_rejected_feature.vertices[2]
              << " sample_x=" << s.last_rejected_cavity_centroid.x << " sample_y=" << s.last_rejected_cavity_centroid.y << " sample_z=" << s.last_rejected_cavity_centroid.z
-       << " batch_reserved=" << s.batch_reserved << " field_build_nested_s=" << s.field_build_seconds << " field_query_nested_s=" << s.field_query_seconds
+       << " batch_reserved=" << s.batch_reserved
+       << " concurrent_rounds=" << s.concurrent_rounds << " final_reservations=" << s.final_reservations
+       << " proposal_deferred=" << s.proposal_deferred << " maximum_parallel_commits=" << s.maximum_parallel_commits << " field_build_nested_s=" << s.field_build_seconds << " field_query_nested_s=" << s.field_query_seconds
        << " cache_nested_s=" << s.field_cache_seconds << " search_nested_s=" << s.field_search_seconds
        << " interpolation_nested_s=" << s.field_interpolation_seconds << " composition_nested_s=" << s.field_composition_seconds
        << " edge_nested_s=" << s.edge_seconds << " edge_search_nested_s=" << s.edge_search_seconds
@@ -2969,4 +2971,68 @@ TEST_CASE("A failed interior candidate vetoes the whole first-row publication ba
   const auto result=Refine(world,input,Uniform(input,{1,0,0,1,0,100}),reference,{},options);
   CHECK_FALSE(result.valid);CHECK(result.reason.find("geometry-height incompatibility")!=std::string::npos);
   CHECK(world.sum(uint64_t(result.stats.layer_published))==0);CHECK(Bytes(result.cells)==saved);CHECK(Bytes(input)==saved);
+}
+
+
+TEST_CASE("Faceted composed proposals publish independent complete cavities concurrently", "[NativeConcurrentComposed3D]") {
+  World world;Fixture fixture;Owned input;
+  for(int copy=0;copy<world.size;++copy) {
+    auto box=Box();
+    for(auto& c:box.patch.cells){c.id+=100*copy;for(auto& n:c.v){n.id+=16*copy;n.p.x+=3*copy;}}
+    for(auto& f:box.patch.surface){f.facet+=12*copy;for(auto& id:f.v)id+=16*copy;}
+    for(auto& f:box.facets){f.id+=12*copy;for(auto& n:f.v){n.id+=16*copy;n.p.x+=3*copy;}}
+    if(copy==world.rank)for(const auto& row:Rows(box.patch))input.emplace(row.cell.id,row);
+    fixture.patch.cells.insert(fixture.patch.cells.end(),box.patch.cells.begin(),box.patch.cells.end());
+    fixture.patch.surface.insert(fixture.patch.surface.end(),box.patch.surface.begin(),box.patch.surface.end());
+    fixture.facets.insert(fixture.facets.end(),box.facets.begin(),box.facets.end());
+  }
+  const auto original=Uniform(Partition(Rows(fixture.patch),world),{4,0,0,4,0,4});
+  const auto frozen=Bytes(input);const PlanarReference geometry(fixture.facets);
+  const MetricComposition compose=[](Point p,Tensor m){m.xx*=1+.03125*p.z;return m;};
+  EngineOptions options;options.timings=true;options.maximum_rounds=1;
+  auto first=Refine(world,input,original,geometry,compose,options);
+  CHECK(Bytes(input)==frozen);CHECK(world.sum(int(first.stats.accepted))==world.size);
+  CHECK(Audit(world,first.cells,fixture,CPassiveComm::Allreduce(first.cells.size(),CPassiveComm::Op::SUM,world.comm)));
+  if(world.size>1){CHECK(first.stats.maximum_parallel_commits==unsigned(world.size));CHECK(first.stats.final_reservations==1);}
+  else CHECK(first.stats.concurrent_rounds==0);
+  EngineReport(first,world,"concurrent_composed_first_epoch");
+  options.candidate_batch=1;
+  const auto serial=Refine(world,input,original,geometry,compose,options);
+  CHECK(world.sum(int(serial.stats.accepted))==1);CHECK(serial.stats.concurrent_rounds==0);CHECK(Bytes(input)==frozen);
+  options.candidate_batch=MaximumCandidateBatch;options.maximum_work=world.size-1;
+  const auto limited=Refine(world,input,original,geometry,compose,options);
+  CHECK_FALSE(limited.valid);CHECK(limited.stats.stop==EngineStop::WorkBudget);
+  CHECK(limited.stats.global_work<=options.maximum_work);CHECK(Bytes(input)==frozen);
+  options.maximum_work=4096;options.maximum_rounds=512;
+  const auto result=Refine(world,input,original,geometry,compose,options);INFO(result.reason);REQUIRE(result.valid);
+  CHECK(Bytes(input)==frozen);CHECK(result.stats.global_work<=options.maximum_work);
+  CHECK(Audit(world,result.cells,fixture,CPassiveComm::Allreduce(result.cells.size(),CPassiveComm::Op::SUM,world.comm)));
+  const auto all=Gather(world,result.cells);
+  if(!world.rank) {
+    std::vector<DonorCell> full;for(auto c:fixture.patch.cells){DonorCell d;d.cell=c;d.sensor.fill({4,0,0,4,0,4});full.push_back(d);}
+    FrozenField field(full,compose);PatchMetric metric;std::string reason;const auto cells=PatchOf(all).cells;
+    for(size_t at=0;at<cells.size();at+=MaximumReplacementCells)
+      CHECK(ValidateMetricPatch(std::vector<Cell>(cells.begin()+at,cells.begin()+std::min(cells.size(),at+MaximumReplacementCells)),field,metric,reason));
+  }
+  EngineReport(result,world,"concurrent_composed_complete");
+  MeshRecords("concurrent_composed_initial",world,input);MeshRecords("concurrent_composed_accepted",world,result.cells);
+}
+
+TEST_CASE("Final reservations include expanded candidates and completed peers without mutation", "[NativeConcurrentComposed3D]") {
+  World world;if(world.size<2)return;auto left=Box(),right=Box();
+  for(auto& c:right.patch.cells){c.id+=100;for(auto& n:c.v){n.id+=16;n.p.x+=3;}}
+  for(auto& f:right.patch.surface){f.facet+=12;for(auto& id:f.v)id+=16;}
+  left.patch.cells.insert(left.patch.cells.end(),right.patch.cells.begin(),right.patch.cells.end());
+  left.patch.surface.insert(left.patch.surface.end(),right.patch.surface.begin(),right.patch.surface.end());
+  const auto input=Partition(Rows(left.patch),world);Directory directory(world);std::string reason;
+  REQUIRE(directory.Build(input,reason));const auto before=Bytes(input),metadata=directory.Snapshot();
+  const bool active=world.rank<2;const Feature own{{world.rank==0?Id(0):Id(16),0,0},1};
+  const auto base=directory.Lookup(active?std::vector<Feature>{own}:std::vector<Feature>{});REQUIRE(base.valid);
+  const auto initial=directory.Fetch(base,input);REQUIRE(initial.valid);CHECK(directory.Reserve(initial,active,reason)==active);
+  const auto enlarged=directory.Lookup(world.rank==0?std::vector<Feature>{own,{{16,0,0},1}}:
+      active?std::vector<Feature>{own}:std::vector<Feature>{});REQUIRE(enlarged.valid);
+  const auto final=directory.Fetch(enlarged,input);REQUIRE(final.valid);
+  CHECK(directory.Reserve(final,active,reason)==(world.rank==0));
+  CHECK(Bytes(input)==before);CHECK(directory.Snapshot()==metadata);
+  if(world.rank==1)CHECK(reason=="Native 3D conflicting dependency reservation.");
 }
