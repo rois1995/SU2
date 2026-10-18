@@ -1,0 +1,50 @@
+{
+  "exit": 0,
+  "seconds": 1.8531212860252708,
+  "command": [
+    "/usr/bin/time",
+    "-v",
+    "nice",
+    "-n",
+    "19",
+    "timeout",
+    "--kill-after=5s",
+    "60s",
+    "mpirun",
+    "--bind-to",
+    "none",
+    "-np",
+    "2",
+    "taskset",
+    "-c",
+    "0-1",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/strict_geometry_preflight_v1/probe",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/concurrent_composed_proposals_v1/frozen_m6_np4"
+  ],
+  "build_sha256": "56584746bd2bd5a0e9bb0b7864cfc95cc8acfc5bab5d1efb75747921d41dc1c3",
+  "log_sha256": "c5d2bc72261590d92f269b3bc69cb417f3b2f85961d2a73f9f8c7f1cea11cb8c",
+  "ranks": [
+    {
+      "rank": 0,
+      "ranks": 2,
+      "seconds": 0.158925101,
+      "stop": "failure",
+      "rounds": 4,
+      "work": 196,
+      "accepted_edits": 0,
+      "immutable_input": true,
+      "reason": "Native3D exact-facet resolution conflict on crease edge 211,3481: an interval without an interior binary64 point has frozen metric length 11.571781543440306 above 1.8; no admissible subdivision meets the current geometry/metric contract. Last local rejection: edge 3481,6969: Native 3D metric shape/sliver failure: q=0.11111277172005346 at cell 311169, J=0.015411740084469643 at cell 311169."
+    },
+    {
+      "rank": 1,
+      "ranks": 2,
+      "seconds": 0.15804585400000004,
+      "stop": "failure",
+      "rounds": 4,
+      "work": 196,
+      "accepted_edits": 0,
+      "immutable_input": true,
+      "reason": "Native3D exact-facet resolution conflict on crease edge 211,3481: an interval without an interior binary64 point has frozen metric length 11.571781543440306 above 1.8; no admissible subdivision meets the current geometry/metric contract."
+    }
+  ]
+}

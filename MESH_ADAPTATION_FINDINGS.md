@@ -6747,3 +6747,16 @@ Stop unchanged M6 construction retries. No reference, height, metric or acceptan
 gate was weakened. A user preference about explicit geometry authority is pending;
 other full Goal3 work remains active. This does not prove budget infeasibility or
 failure on feasible declared analytic geometry. All owned jobs terminal.
+
+## 2026-10-18: strict selected-crease diagnosis integrated
+
+The composed native engine now detects the certified irreducible exact-facet
+crease before another reconstruction search. It reuses the existing donor seed;
+no geometry/metric/profile/cap/gate changes, new collective, whole-mesh gather or
+sensor-only donor-import requirement. Exact finite-coordinate primitive tests,
+serial11/760, MPI4 and independent enabled/default N4M2 workflows pass. The saved
+actual M6 three-cell edge star/37original donors reproduces the same elected
+211--3481 conflict at MPI1/2/4 with byte-identical accepted input. Selected-feature
+diagnosis only: no accepted M6 or complete-event speedup claim and no unchanged
+whole-wing retry. Preserved preliminary/final results and compatibility review:
+[report and verifier](integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/strict_geometry_preflight_v1/README.md).

@@ -11,6 +11,7 @@
 #include <cmath>
 #include <cstring>
 #include <limits>
+#include <numeric>
 #include <stdexcept>
 
 namespace SU2Native3D {
@@ -406,6 +407,32 @@ std::array<Point,2> AffinePointBounds(Point a,Point b,double t) {
   };
   const auto x=coordinate(a.x,b.x),y=coordinate(a.y,b.y),z=coordinate(a.z,b.z);
   return {{{x[0],y[0],z[0]},{x[1],y[1],z[1]}}};
+}
+SegmentFreedom Binary64SegmentFreedom(Point a,Point b,Point& midpoint) {
+  if(!(Finite(a)&&Finite(b)) || (a.x==b.x && a.y==b.y && a.z==b.z))
+    throw std::invalid_argument("Native3D segment freedom needs finite distinct endpoints.");
+  const double first[3]={a.x,a.y,a.z},last[3]={b.x,b.y,b.z};uint64_t divisor=0;
+  for(unsigned axis=0;axis<3;++axis) {
+    if(first[axis]==last[axis])continue;
+    double spacing=std::numeric_limits<double>::denorm_min();
+    if((first[axis]>0 && last[axis]>0) || (first[axis]<0 && last[axis]<0)) {
+      const auto magnitude=std::min(std::abs(first[axis]),std::abs(last[axis]));
+      spacing=std::nextafter(magnitude,INFINITY)-magnitude;
+    }
+    int exponent;std::frexp(spacing,&exponent);const unsigned shift=unsigned(exponent+1073);
+    const auto difference=Difference(Coordinate(last[axis]),Coordinate(first[axis]));uint64_t chord=0;
+    for(size_t bit=0;bit<difference.limb.size()*32;++bit)if(difference.limb[bit/32]&(uint32_t(1)<<(bit%32))) {
+      if(bit<shift)throw std::logic_error("Native3D segment lattice divisibility failed.");
+      if(bit-shift>=64)return SegmentFreedom::Unresolved;
+      chord|=uint64_t(1)<<(bit-shift);
+    }
+    divisor=std::gcd(divisor,chord);
+  }
+  if(divisor==1)return SegmentFreedom::None;
+  if(divisor!=2)return SegmentFreedom::Unresolved;
+  const auto bounds=AffinePointBounds(a,b,.5);
+  if(bounds[0].x!=bounds[1].x || bounds[0].y!=bounds[1].y || bounds[0].z!=bounds[1].z)return SegmentFreedom::None;
+  midpoint=bounds[0];return SegmentFreedom::MidpointOnly;
 }
 bool Barycentric(const Tetrahedron& donor, Point point, std::array<long double, 4>& weights, KernelStats* stats) {
   if (!(Orientation(donor[0], donor[1], donor[2], donor[3], stats) > 0))

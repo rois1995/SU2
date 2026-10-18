@@ -87,3 +87,12 @@ absent, confirming that last intermediate rejections cannot alone diagnose final
 blockage. Further unchanged M6 construction runs are unwarranted. Geometry-reference
 preference is pending; no authority, target, profile or acceptance gate was changed.
 Other full Goal3 work stays active. All owned jobs terminal.
+
+Strict exact-facet diagnosis is now integrated on the mandatory composed seed path:
+serial11/760, MPI4 eleven cases/rank and independent opt-in/default N4M2 workflows
+pass. The actual captured M6 crease MPI1/2/4 elects the same conflict with immutable
+input. At most two extra child integrals, no new collective/gather or sensor-only
+import requirement. Preliminary broader diagnostic was narrowed after identifying
+a compatibility risk; its source/controls and failed helper compile are preserved.
+This does not produce an accepted wing or establish event speedup.
+[Final evidence](../integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/strict_geometry_preflight_v1/README.md).

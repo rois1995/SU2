@@ -6,10 +6,13 @@
  */
 #include "../../include/adaptation/CNativeEngine3D.hpp"
 #include "../../include/adaptation/CNativeRegionField3D.hpp"
+#include "../../include/adaptation/CNativePointConstruction3D.hpp"
 #include <chrono>
 #include <cmath>
 #include <ctime>
 #include <set>
+#include <sstream>
+#include <iomanip>
 #include <tuple>
 #include <stdexcept>
 namespace SU2Native3D {
@@ -1537,6 +1540,34 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
           std::find(faces[i].begin(),faces[i].end(),choice.edge[1])!=faces[i].end())return true;
       return false;
     });
+    SegmentFreedom crease_freedom=SegmentFreedom::Unresolved;Point crease_midpoint{};
+    const long double diagnostic_limit=MaximumMetricEdge*(1+1e-8L); // Conservative diagnostic margin, never an acceptance tolerance.
+    if(!repairing && !coarsening && composition && physical_edge && choice.measure.length>diagnostic_limit)try {
+      std::set<Id> facets;
+      for(const auto& row:imported.cells) {
+        const auto faces=Faces(row.cell);
+        for(unsigned i=0;i<4;++i)if(row.physical[i].present &&
+            std::find(faces[i].begin(),faces[i].end(),choice.edge[0])!=faces[i].end() &&
+            std::find(faces[i].begin(),faces[i].end(),choice.edge[1])!=faces[i].end())
+          facets.insert(geometry.Canonical(row.physical[i].facet));
+      }
+      if(facets.size()==2) {
+        const auto first=*facets.begin(),second=*facets.rbegin();
+        if(!geometry.Analytic().count(first) && !geometry.Analytic().count(second)) {
+          const auto& f=geometry.Get(first);const auto& g=geometry.Get(second);
+          const bool folded=std::any_of(g.v.begin(),g.v.end(),[&](Node n){return Orientation(f.v[0].p,f.v[1].p,f.v[2].p,n.p)!=0;});
+          if(folded)crease_freedom=Binary64SegmentFreedom(choice.measure.a,choice.measure.b,crease_midpoint);
+        }
+      }
+    }catch(const std::exception& e){failure.Set(2,0,e.what());}
+    auto incompatible_crease=[&](long double length) {
+      std::ostringstream message;message<<std::setprecision(17)<<"Native3D exact-facet resolution conflict on crease edge "
+          <<choice.edge[0]<<","<<choice.edge[1]<<": an interval without an interior binary64 point has frozen metric length "
+          <<length<<" above "<<MaximumMetricEdge<<"; no admissible subdivision meets the current geometry/metric contract.";
+      failure.Set(1,choice.edge[0],message.str());stats.last_rejected_feature={{choice.edge[0],choice.edge[1],0},2};
+      if(!imported.cells.empty())stats.last_rejected_cavity_centroid=Centroid(imported.cells.front().cell);
+    };
+    if(crease_freedom==SegmentFreedom::None)incompatible_crease(choice.measure.length);
     if(!repairing && !coarsening && composition) {
       std::vector<Cell> query;
       try {if(chosen)query.push_back(imported.cells.front().cell);}catch(const std::exception& e){failure.Set(2,0,e.what());}
@@ -1551,8 +1582,15 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         const auto components=AssociatedExtensions(seed.cells,geometry);
         FrozenField target(std::move(seed.cells),composition,options.timings,components,options.edge_breakpoints,field_identity);
         FieldAccounting accounting{stats,target};
-        if(physical_edge){centralPosition=target.SegmentPoint(choice.measure.a,choice.measure.b,.5);central_available=true;}
-        splitPosition=target.BalancedSplitPoint(choice.measure.a,choice.measure.b);
+        bool conflict=false;
+        if(crease_freedom==SegmentFreedom::MidpointOnly) {
+          const auto length=std::max(target.TargetEdgeLength(choice.measure.a,crease_midpoint),target.TargetEdgeLength(crease_midpoint,choice.measure.b));
+          conflict=length>diagnostic_limit;if(conflict)incompatible_crease(length);
+        }
+        if(!conflict) {
+          if(physical_edge){centralPosition=target.SegmentPoint(choice.measure.a,choice.measure.b,.5);central_available=true;}
+          splitPosition=target.BalancedSplitPoint(choice.measure.a,choice.measure.b);
+        }
       }catch(const std::exception& e){
         result.reason=e.what();split_failed=!(physical_edge && central_available);
         if(!split_failed)splitPosition=centralPosition;

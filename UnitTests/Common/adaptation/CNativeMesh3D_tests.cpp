@@ -7,6 +7,7 @@
 #include "catch.hpp"
 #include "../../../Common/include/adaptation/CNativeMesh3D.hpp"
 #include "../../../Common/include/adaptation/CNativeSupport3D.hpp"
+#include "../../../Common/include/adaptation/CNativePointConstruction3D.hpp"
 #include "../../../Common/include/adaptation/CNativeCellSampling3D.hpp"
 #include <fstream>
 #include <iomanip>
@@ -332,4 +333,16 @@ TEST_CASE("Candidate importance rejects invalid metadata and collective resource
   CHECK_THROWS(CellSampler3D(world,invalid,size_t(32)<<20));
   if(world.rank==0)one.push_back(cell);CHECK_THROWS(CellSampler3D(world,one,size_t(32)<<20));
   CHECK_THROWS(CellSampler3D(world,{},size_t(32)<<20));
+}
+
+TEST_CASE("Exact binary64 segment freedom is conservative across binades and subnormals", "[NativeSegmentFreedom3D]") {
+  Point mid{9,8,7};const auto tiny=std::numeric_limits<double>::denorm_min();
+  const double x=.5,y=std::nextafter(x,INFINITY),z=std::nextafter(y,INFINITY);
+  CHECK(Binary64SegmentFreedom({x,x,x},{y,x,x},mid)==SegmentFreedom::None);CHECK(mid.x==9);
+  CHECK(Binary64SegmentFreedom({x,x,x},{z,x,x},mid)==SegmentFreedom::MidpointOnly);CHECK(mid.x==y);
+  CHECK(Binary64SegmentFreedom({0,0,0},{2*tiny,0,0},mid)==SegmentFreedom::MidpointOnly);CHECK(mid.x==tiny);
+  CHECK(Binary64SegmentFreedom({-tiny,0,0},{tiny,0,0},mid)==SegmentFreedom::MidpointOnly);CHECK(mid.x==0);
+  CHECK(Binary64SegmentFreedom({0,0,0},{1,1,1},mid)==SegmentFreedom::Unresolved);
+  const double h=std::ldexp(1.,-53);CHECK(Binary64SegmentFreedom({1-2*h,.5,0},{1+4*h,.5+2*h,0},mid)==SegmentFreedom::None);
+  CHECK_THROWS(Binary64SegmentFreedom({0,0,0},{0,0,0},mid));CHECK_THROWS(Binary64SegmentFreedom({INFINITY,0,0},{1,0,0},mid));
 }

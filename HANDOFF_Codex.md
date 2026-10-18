@@ -27,6 +27,20 @@ full Goal3 work remains active: strict-mode diagnosis and declared feasible curv
 construction can progress independently. This finding is not budget infeasibility
 or proof that every outer profile/native geometry is infeasible.
 
+
+## Current strict-geometry diagnostic
+
+The selected composed-field physical-crease path now reports a sufficient
+binary64 subdivision conflict through the existing collective failure election.
+It reuses the mandatory donor seed and leaves sensor-only paths/resource admission
+unchanged. Finite adjacent/subnormal/binade and invalid-input tests pass; final
+serial11cases/760assertions, MPI4 eleven cases/rank, opt-in/default independent
+N4M2 RANS/current+BDF/SU2+CGNS/reload/restart audits pass. Exact captured M6 edge-star
+replays MPI1/2/4 elect the same211--3481 witness and preserve input byte-for-byte.
+This is early diagnosis of an admitted feature, not a whole-mesh preflight, accepted
+M6 mesh, converged-flow validation or end-to-end speedup. No unchanged whole-wing
+retry was performed. [Scope, failures and verifier](integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/strict_geometry_preflight_v1/README.md).
+
 ## Current code and qualification
 
 Connected change: preserve point-only placement's actual fixed-vertex hint. When

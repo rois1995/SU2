@@ -344,3 +344,9 @@ are distinct under the current exact authority. No additional normal relaxation
 is silently selected to hide this, and the original sensor donors/fade/geometry
 stay. A declared geometry-reference decision is separate work.
 [Certificate](../integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/cavity_operator_replay_v1/evolved_volume_v1/full_state_v1/geometry_lattice_v1/README.md).
+
+Construction follow-up adds strict exact-facet resolution diagnosis to the existing
+composed-field path, with no profile/normalization changes. The captured selected
+M6 crease collectively rejects at MPI1/2/4 while preserving input. Enabled and
+strict-default N4M2 workflow audits pass; the budget estimate still does not imply
+construction feasibility. [Final diagnostic scope](../integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/strict_geometry_preflight_v1/README.md).
