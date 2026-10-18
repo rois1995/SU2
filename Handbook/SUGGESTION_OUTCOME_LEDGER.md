@@ -980,3 +980,25 @@ per-cell global absolute-error allocation remain open, as do difficult accepted
 construction, composed gradation and2D opt-in policy. Preserved initial tight-MPI
 fixture failure/interrupted builds; measured-quota fixture corrects test admission
 without changing production limits. [Complete report/evidence](../integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/adaptive_budget_evidence_v1/README.md).
+
+
+## 2026-10-18 — complete M6 attempt with the selected budget profile
+
+Complexity initialization no longer blocks this field: .875/version22 and
+295068.448185 +/-5769.124264 reproduce exactly. Construction nevertheless rejects
+atomically at300.434s, no transfer/accepted wing.38800 private first-row publications
+and1707 subsequent edits,2200rounds/34useful-progress windows;2351remaining edges,
+6211cached invalid cells. Last cone/interface obstruction and rank2q=.18018<.20
+are retained. Time exhaustion is not stagnation or proof of infeasibility.
+
+One bounded MPI4 run, zero CFD advances. Native import2.082/source.856/workload
+measurement18.524/repartition1.605/migration.241/refine277.082s; nested reconstruction
+max120.450s,600streamed retries and326764kernel tracked calls/rank. Residual kernel
+time includes synchronization/unattributed work, not a measured pure-MPI total.
+Target initialization99.193s versus137.055s earlier is not an implementation speedup.
+Exact61330-node sensor snapshots/profile/core and closed inputs are now saved for
+replay; clipped tensors must not replace the raw family or be rescaled. No rejected
+private whole-mesh grid was exposed by the backend. No new fallback or cap change.
+Next: complete expanded-proposal dependency admission/concurrency and retained
+support, because composed BL edits currently serialize for that missing guarantee.
+[Audited outcome and sections](../integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/selected_profile_construction_v1/README.md).

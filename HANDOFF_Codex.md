@@ -12,9 +12,15 @@ Bounded global correction-evidence refinement is qualified: at most two8192->327
 stream doublings with retained original support/indexes, complete nonmonotone
 profile rescans and atomic extra-stage refusal. Strict/default behavior stays.
 SourceWIPd66fe6f1e6 plus reviewed collective-allocation handling/measured-quota
-fixture. The qualified evidence jobs are terminal. Current follow-up: one fixture build
-(session48669) for selected_profile_construction_v1, then one bounded MPI4 saved-
-state production construction attempt. No constructor fallback/gate/cap change.
+fixture. All jobs TERMINAL. New complete M6 selected-profile attempt at fixtureWIP2794e4f744
+has been audited: exact same initial target295068 +/-5769, then atomic rejection
+at300.434s. No transfer/accepted wing. Saved exact61330-node selected sensors,
+profile/core and input provenance now support frozen replay without new Hessians.
+38800 private first-row publications/1707 later edits globally,2200rounds/34useful
+progress windows,2351remaining edges/6211cached invalid cells. Last cone/interface
+obstruction and rank2q=.18018<.20 retained. Do not confuse raw rank0private_edits833
+with the global1707 count. No native fallback/gate/cap change.
+[Complete M6 experiment](integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/selected_profile_construction_v1/README.md).
 
 Saved flow-family M6 budget300k now selects lambda.875/version22,22profile trials,
 2evidence stages. Coarsest estimate281779 +/-5604; full original-sensor normalization
@@ -35,13 +41,14 @@ The prior7.515s unresolved coarsest field is a different final target.
 [Current report/provenance/failures](integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/adaptive_budget_evidence_v1/README.md).
 
 Next substantive milestone remains an accepted complete difficult mesh under
-unchanged gates. Consider the newly frozen .875 ORIGINAL flow-family target
-separately from historical owner-UPPER6 construction. The new saved-state fixture
-and producer are prepared; metric initialization and construction outcomes will
-be recorded separately, with uniquely owned exact sensor records for replay.
-If construction stalls, reconsider complete coordination/strategy before another
-local fallback or cap ladder. Broader donor support retention/displaced transaction
-batching, calibrated global error allocation and complete affordability stay open.
+unchanged gates. The new .875 original flow-family target reaches construction but
+does not finish; do not rerun it after small changes or raise its ceiling. Current
+composed BL edits are serialized because complete displaced/expanded dependencies
+are not reserved. Investigate complete-proposal admission/concurrency and retained
+support as one substantial construction/coordination step. No implementation or
+sufficiency claim yet. Calibrated global error allocation/composed gradation,
+general curved/interacting construction and complete affordability remain open.
+[Next transaction scope](Handbook/POST_COMPLEXITY_QUERY_TRANSACTIONS.md).
 
 ## Qualified foundations and remaining scope
 

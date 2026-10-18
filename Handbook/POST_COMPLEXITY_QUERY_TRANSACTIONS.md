@@ -72,3 +72,31 @@ at300s,90 private edits vs93 previously. Root normalized source-search cost does
 not improve in this one contended observation. No lifecycle speedup is established.
 Broader retained support/displaced reservations/batching remain open.
 [Complete report and limits](../integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/query_campaign_reuse_v1/README.md).
+
+
+## Measured next construction/coordination step after selected-profile M6
+
+New selected-profile M6 reaches construction but rejects at300.434s; see
+[complete evidence](../integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/selected_profile_construction_v1/README.md).
+The kernel deliberately excludes composition from normal batching and globally
+serializes chosen composed edits. Its own shortcut comment requires complete joint
+stars before concurrent displaced/expanded commits.600streamed retries and
+326764kernel tracked calls/rank justify addressing this structural limitation.
+
+Candidate design to audit BEFORE implementation: allow a bounded proposal perrank,
+retain private reconstruction against the unchanged source, discover its complete
+old-cell/vertex dependencies, then reserve all final dependencies/versioned owners
+collectively before publishing any proposal. Failed overlap admission defers work;
+it must not block the search as a geometric rejection. Existing strict geometry,
+height, full-field, freshness and atomicity checks stay. All ranks participate in
+streamed source queries, including ranks whose proposals lose admission.
+
+Do not simply remove the !composition batching guard. Expanded imports, changes
+outside the initial edge star, conditional collectives, stable generated IDs,
+retained-memory admission, affected-star invalidation and failure election need a
+connected audit. Vertex-disjoint full dependencies may be a conservative initial
+criterion for faceted volume-preserving proposals; projected curved proposals
+also need a physical overlap guarantee. That sufficiency is NOT yet established.
+Reuse existing directory reservation/publication and query facilities; no second
+cache/normalization target or local geometry fallback. Keep original target and
+M6 construction replay distinct from historical owner-UPPER6 evidence.
