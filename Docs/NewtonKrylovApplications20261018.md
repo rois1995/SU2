@@ -24,8 +24,9 @@ both Newton fill1 trials time out. No qualified Newton improvement is establishe
 
 The [native inner-preconditioning assessment](NewtonKrylovInnerPreconditioning20261018.md)
 records the independently reproduced scaling bug fixed in `e47c7b14cd` and the separate
-three-iteration default candidate. The latter remains uncommitted pending full applications;
-the matched SST prefix reduces residual work but establishes no convergence-time speedup.
+three-iteration strategy. That universal default is not adopted: parallel SA regresses
+and SST/LM/periodic trials remain unqualified. The checkout retains zero inner iterations;
+archived-candidate assessment continues separately, with no general speedup claim.
 
 This study uses existing application meshes, independently of the earlier generated fixtures.
 All inputs, initial user edits, binaries, build options and source hashes are frozen under
@@ -167,17 +168,17 @@ and `paper_notes/manifest.json`; they motivate investigations, not unmeasured so
 
 | Application | Layout | Actual trials | Qualified endpoints | Eligible timing repetitions |
 |---|---|---:|---:|---:|
-| naca_sa | 1x1 | 68 | 25 | 1 |
-| naca_sa | 2x2 | 43 | 17 | 0 |
-| naca_sst | 1x1 | 26 | 3 | 0 |
+| naca_sa | 1x1 | 70 | 26 | 1 |
+| naca_sa | 2x2 | 45 | 18 | 0 |
+| naca_sst | 1x1 | 28 | 3 | 0 |
 | naca_sst | 2x2 | 11 | 0 | 0 |
 | nozzle_sst | 1x1 | 32 | 0 | 0 |
 | nozzle_sst | 2x2 | 9 | 0 | 0 |
-| flatplate_lm | 1x1 | 19 | 0 | 0 |
+| flatplate_lm | 1x1 | 20 | 0 | 0 |
 | flatplate_lm | 2x2 | 9 | 0 | 0 |
 | periodic_stator | 1x1 | 3 | 0 | 0 |
 | periodic_stator | 2x2 | 0 | 0 | 0 |
-| periodic_vki | 1x1 | 15 | 0 | 0 |
+| periodic_vki | 1x1 | 16 | 0 | 0 |
 | periodic_vki | 2x2 | 9 | 0 | 0 |
 
 ## Declared control matrix
@@ -340,8 +341,16 @@ is retained; `prepared` and `running` entries have not completed.
 | naca_sa | 1x1 | coupled | original | inner_candidate | diagonal | -14.0 | qualified | True | 166 | 556.675 | 557.225 |
 | naca_sa | 2x2 | coupled | original | inner_candidate | diagonal | -14.0 | rejected | False | 574 | 1200.933 | 1201.498 |
 | naca_sst | 1x1 | coupled | original | inner_candidate | original | -12 | iteration_cap | False | 20 | 55.908 | 56.456 |
-| flatplate_lm | 1x1 | coupled | original | inner_candidate | forcing | -11 | running | False | — | — | — |
+| flatplate_lm | 1x1 | coupled | original | inner_candidate | forcing | -11 | rejected | False | 158 | 602.353 | 603.465 |
+| flatplate_lm | 1x1 | segregated | original | inner_candidate | forcing | -11 | running | False | — | — | — |
+| naca_sa | 1x1 | segregated | original | inner_candidate | forcing | -13.0 | rejected | False | 122 | 302.421 | 302.947 |
+| naca_sa | 2x2 | segregated | original | inner_candidate | forcing | -13.0 | rejected | False | 258 | 300.516 | 301.010 |
 | naca_sst | 1x1 | coupled | original | inner_candidate | forcing | -13.0 | rejected | False | 78 | 301.469 | 302.072 |
+| naca_sst | 1x1 | segregated | original | inner_candidate | forcing | -13.0 | rejected | False | 46 | 304.674 | 305.175 |
+| periodic_vki | 1x1 | coupled | cold | inner_candidate | forcing | -12 | rejected | False | 59 | 302.470 | 303.043 |
+| naca_sa | 1x1 | native | original | inner_scaling_release | original | -13.0 | qualified | True | 151 | 20.570 | 21.072 |
+| naca_sa | 2x2 | native | original | inner_scaling_release | original | -13.0 | qualified | True | 151 | 12.626 | 13.135 |
+| naca_sst | 1x1 | coupled | original | inner_scaling_release | original | -12 | iteration_cap | False | 20 | 84.426 | 84.961 |
 | naca_sa | 1x1 | native | original | recovery_release | original | -13.0 | qualified | True | 151 | 18.913 | 19.465 |
 | flatplate_lm | 1x1 | coupled | original | baseline_4712d82375 | original | -11 | solver_failure | False | 0 | — | 1.432 |
 | flatplate_lm | 1x1 | native | original | baseline_4712d82375 | original | -11 | solver_failure | False | 0 | — | 1.349 |

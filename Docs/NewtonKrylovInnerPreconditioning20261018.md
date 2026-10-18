@@ -1,7 +1,7 @@
 # Native inner preconditioning — 18 October 2026
 
-The three-iteration native inner-preconditioning candidate is **under application
-assessment, not adopted**. Its purpose is to replace expensive verified residual
+The three-iteration native inner-preconditioning candidate is **not adopted as
+the common default**. Its purpose is to replace expensive verified residual
 products with cheaper assembled-matrix work. No residual, derivative verification,
 true-defect, acceptance or endpoint agreement tolerance changes. This is a separate
 change in preconditioning strategy, rather than a claim about removing wrapper overhead.
@@ -14,7 +14,7 @@ The native solver's absolute zero test and squared norms depend on physical unit
 an exact first-direction orthogonalization breakdown can also return zero completed
 iterations without applying its correction.
 
-The local candidate normalizes each block's physical right-hand side by its global
+The committed correctness fix normalizes each block's physical right-hand side by its global
 maximum magnitude before the optional native solve and rescales the result afterward.
 It handles zero and nonfinite input collectively. If the native solver completes
 zero iterations, it applies the original one-pass inverse. The generic native
@@ -77,8 +77,16 @@ contended and ineligible. There is no repeated eligible median or general speedu
 claim. `inner_candidate_sa_1x1_assessment.json` pins the compared results and verifies
 all acceptance checks. The stricter SA 2×2 candidate reaches its wall limit and
 fails state agreement, as detailed below.
-Broader SST, transition and periodic application assessment remains necessary
-before changing the common default.
+Remaining archived-candidate assessments continue to characterize this strategy.
+The checkout has been restored byte-for-byte to the committed default of zero
+inner iterations. Candidate source, patch, binaries and failed evidence are retained;
+`inner_candidate_default_decision.json` records the decision and hashes.
+
+The matched SA segregated trials with adaptive CFL/forcing and history stop -13
+also remain unqualified at their 300-second limits: retained/candidate updates
+are 126/122 on 1×1 and 142/258 on 2×2. Both candidate endpoints pass fresh residual
+checks but fail full-state pointwise agreement. More updates do not substitute
+for that requirement; complete work and failure-time rows remain in the CSV.
 
 The [CSV](NewtonKrylovInnerPreconditioning20261018.csv) records work, timing,
 memory, physical checks and hashes, including in-progress states. All paths below
@@ -176,6 +184,60 @@ all ten completed baselines and each new application as it runs. Exact paired
 results are in `inner_candidate_completed_controls_assessment.json`; commands and
 configuration checks are in `inner_candidate_control_commands.json`. LM and the
 other application assessments continue before any default change.
+
+## Active LM and substantial periodic applications
+
+Both matched coupled T3A SST–LM trials reach their 600-second limits. LM remains
+active: the candidate has 1555 sampled points with intermittency between 0.1 and
+0.9 and 66317 above 0.9. The periodic VKI SA turbine uses matched cold starts,
+existing ILU and assembled native limit 20; both coupled trials reach 300-second
+limits. Neither application meets its fresh density target.
+
+| Application | Inner iterations | Updates | Flow / turb / transition assemblies | Outer / native inner Krylov | Retries / backtracks | Fresh density RMS | Peak rank KiB |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| T3A SST–LM | 0 | 121 | 2409 / 2594 / 2594 | 185 / 0 | 52 / 5 | 5.552e-6 | 387212 |
+| T3A SST–LM | 3 | 158 | 2401 / 2578 / 2578 | 177 / 536 | 8 / 55 | 7.009e-6 | 416964 |
+| Periodic VKI SA | 0 | 71 | 10211 / 13333 / — | 3122 / 0 | 8 / 7 | 4.980e-9 | 192440 |
+| Periodic VKI SA | 3 | 59 | 8741 / 11397 / — | 2656 / 15932 | 11 / 3 | 3.246e-8 | 216964 |
+
+Fewer LM retries and more updates do not establish better physical convergence:
+its candidate endpoint has a larger density residual and higher peak memory.
+Its 55 backtracks include 52 accepted partial steps, with a minimum alpha of 0.01.
+Every accepted step passes Armijo and true-defect checks (maximum 0.081901);
+every recorded state and merit rollback error is zero. Periodic candidate
+acceptance and rollback checks also pass, but its endpoint is less converged.
+
+LM loop/elapsed times are 604.730/605.793 seconds for retained d27 and
+602.353/603.465 for the candidate. Periodic times are 307.827/308.448 and
+302.470/303.043 respectively. All describe work until interruption, are contended
+and ineligible, and provide no time-to-convergence ratio. Each pair's complete
+configuration hashes match. `inner_candidate_lm_periodic_assessment.json` preserves
+work, memory, activity and per-attempt contract checks; the focused CSV supplies
+full source/build/configuration hashes and exact evidence paths.
+
+## Verification of the committed default
+
+The committed code with zero inner iterations, including the scaling correctness fix, has been
+rebuilt with guarded single-job compilation. Its CFD SHA256 is
+`8744f6d2628c68c3649528e63e47ded53da6ccd00cf09375ee2ad3a0bd065971`.
+Twelve affected regression jobs pass again, including all 62 native equation cases
+on 1×1 and 2×2, focused checks through 2×4, and species-boundary, residual-failure
+and turbo-support checks on both requested layouts. The ordinary 91-case result
+is reused for its byte-identical `f310351f...` driver; it is not presented as a
+new execution. `inner_scaling_release_checks_ready.json` distinguishes these.
+
+The build took 12.193 seconds, with sampled compiler-tree RSS 433088 KiB and no
+memory guard failure. Its performance is not a solver measurement. Source files
+match the committed code; the immutable `inner_scaling_release/manifest.json`
+records the complete source tree identifier, relevant file hashes, binaries,
+build command and options hash. Native SA on both layouts again produces
+byte-identical 151-update restart files to retained d27. The common SST 20-update
+prefix matches both the complete restart and every attempt-telemetry byte
+(3382 flow assemblies, 3818 turbulence assemblies, 430 outer Krylov iterations).
+This is numerical equivalence on the checked applications, not timing equivalence.
+`inner_scaling_release_equivalence.json` pins all comparisons and verifies that
+compiled source matches the committed code. The archived candidate workflow has
+resumed; its current application was allowed to finish normally before rebuilding.
 
 ## Remaining CPU work on 2×2
 
