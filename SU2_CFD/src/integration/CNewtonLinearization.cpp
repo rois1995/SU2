@@ -103,7 +103,8 @@ CNewtonLinearization::CNewtonLinearization(CNewtonEquationSet& e, CGeometry* g, 
       free(g->GetnPoint() * e.GetnVar(), true) {}
 
 bool CNewtonLinearization::Apply(const Vector& u, Vector& v, bool pseudoTime, bool verifyStep,
-                                 unsigned short residualRuntime) const {
+                                 unsigned short residualRuntime, Failure* failure) const {
+  if (failure) *failure = Failure::None;
   assert(scale && diagonal && u.GetNVar() == equations.GetnVar() && v.GetNVar() == equations.GetnVar());
   assert(&u != &v);
   const auto& blocks = equations.GetBlocks();
@@ -170,25 +171,36 @@ bool CNewtonLinearization::Apply(const Vector& u, Vector& v, bool pseudoTime, bo
   double initialStep = absoluteStep / norm * (refine ? probeFactor : 1);
   if (relativeStep > 0 && relative > 0) initialStep = std::min(initialStep, relativeStep / relative);
   if (!(initialStep > 0) || !Armijo::IsFinite(initialStep)) {
+    if (failure) *failure = Failure::Direction;
     v = passivedouble(std::numeric_limits<double>::quiet_NaN());
     SU2_OMP_BARRIER
     return false;
   }
   /*--- Difference complete refreshed residuals, including all cross responses and explicit periodic constraints. ---*/
+  bool sampledAny = false, rejectedProbe = false;
   auto probe = [&](double step) {
     bool shifted = false;
-    if (!equations.FeasibleProbes(u, *scale, step, free, v, probeWork, shifted)) return false;
+    if (!equations.FeasibleProbes(u, *scale, step, free, v, probeWork, shifted)) {
+      rejectedProbe = true;
+      return false;
+    }
     auto isFree = [&](const CNewtonEquationSet::Block& b, unsigned long p, unsigned short variable) {
       return free[p * equations.GetnVar() + b.offset + variable];
     };
     if (shifted) {
       equations.SetTrial(probeWork, step, *scale, isFree);
-      if (!equations.EvaluateResiduals(false, false, reconstruction, residualRuntime)) return false;
+      if (!equations.EvaluateResiduals(false, false, reconstruction, residualRuntime)) {
+        rejectedProbe = true;
+        return false;
+      }
       equations.CopyResidual(probeWork);
     }
     /*--- Directions are no longer needed after SetTrial, so their storage can hold residuals. ---*/
     equations.SetTrial(v, step, *scale, isFree);
-    if (!equations.EvaluateResiduals(false, false, reconstruction, residualRuntime)) return false;
+    if (!equations.EvaluateResiduals(false, false, reconstruction, residualRuntime)) {
+      rejectedProbe = true;
+      return false;
+    }
     equations.CopyResidual(v);
     SU2_OMP_FOR_STAT(1024)
     for (auto p = 0ul; p < geometry->GetnPointDomain(); ++p)
@@ -201,6 +213,7 @@ bool CNewtonLinearization::Apply(const Vector& u, Vector& v, bool pseudoTime, bo
           v[i] = free[i] ? (v[i] - (shifted ? probeWork[i] : baseResidual[i])) / (step * (*scale)[i]) : u[i];
       }
     END_SU2_OMP_FOR
+    sampledAny = true;
     return true;
   };
   auto differentiate = [&](double h) {
@@ -273,6 +286,7 @@ bool CNewtonLinearization::Apply(const Vector& u, Vector& v, bool pseudoTime, bo
     }
   }
   if (!converged) {
+    if (failure) *failure = sampledAny || !rejectedProbe ? Failure::Verification : Failure::Admissibility;
     v = passivedouble(std::numeric_limits<double>::quiet_NaN());
     SU2_OMP_BARRIER
     return false;

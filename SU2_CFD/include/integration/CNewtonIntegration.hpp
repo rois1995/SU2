@@ -67,6 +67,8 @@ class CNewtonIntegration final : public CIntegration {
     double agreement = std::numeric_limits<double>::quiet_NaN();
     double linearDefect = 0, reportedLinearResidual = 0, rollbackMeritError = 0, rollbackStateError = 0;
     unsigned linearIterations = 0;
+    const char* rejectionReason = "NONE";
+    unsigned failedProducts = 0, inadmissibleTrials = 0;
     bool linearFailure = false, residualFailure = false, startup = false, deflated = false;
     double reconstruction = 1, linearTarget = 0, toleranceFactor = 1, meanFlowResidual = 0;
     unsigned long preconditionerIterations = 0;
@@ -107,7 +109,9 @@ class CNewtonIntegration final : public CIntegration {
   double cfl = 0, eta = 0, referenceCFLFactor = 1;
   mutable double reduction = 0;
   mutable std::vector<double> reductionPartials;
-  unsigned attemptNumber = 0, trialNumber = 0;
+  unsigned attemptNumber = 0, trialNumber = 0, failedProducts = 0;
+  const char* productFailure = "NONE";
+  mutable bool diagnosticHeaderChecked = false, detailedDiagnostics = true;
 
   double Reduce(double, bool maximum = false) const;
   double CFLFactor(const CNewtonEquationSet::Block&) const;

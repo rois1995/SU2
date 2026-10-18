@@ -34,6 +34,19 @@ class Preconditioner final : public CPreconditioner<Scalar> {
   explicit Preconditioner(const CNewtonIntegration& instance) : integration(instance) {}
   void operator()(const CSysVector<Scalar>& u, CSysVector<Scalar>& v) const override { integration.Precondition(u, v); }
 };
+const char* Name(CNewtonLinearization::Failure failure) {
+  using Failure = CNewtonLinearization::Failure;
+  switch (failure) {
+    case Failure::Direction:
+      return "DERIVATIVE_DIRECTION";
+    case Failure::Admissibility:
+      return "DERIVATIVE_ADMISSIBILITY";
+    case Failure::Verification:
+      return "DERIVATIVE_VERIFICATION";
+    default:
+      return "NONE";
+  }
+}
 const char* Name(Armijo::Status status) {
   switch (status) {
     case Armijo::Status::Accepted:
@@ -312,8 +325,13 @@ void CNewtonIntegration::MatrixFreeProduct(const CSysVector<Scalar>& u, CSysVect
     preconditioner->Multiply(u, v);
     return;
   }
-  const bool valid = (directionModel ? directionOperator : linearization.get())->Apply(u, v);
-  SU2_OMP_SAFE_GLOBAL_ACCESS(residualValid = valid;)
+  CNewtonLinearization::Failure failure;
+  const bool valid = (directionModel ? directionOperator : linearization.get())->Apply(u, v, true, true, 0, &failure);
+  SU2_OMP_SAFE_GLOBAL_ACCESS(residualValid = valid;
+                             if (!valid) {
+                               if (failedProducts == 0) productFailure = Name(failure);
+                               ++failedProducts;
+                             })
 }
 
 void CNewtonIntegration::Precondition(const CSysVector<Scalar>& u, CSysVector<Scalar>& v) const {
@@ -361,7 +379,7 @@ void CNewtonIntegration::Endpoint() {
 CNewtonIntegration::Attempt CNewtonIntegration::SolveAttempt(bool preparedBase) {
   Attempt attempt;
   /*--- Each attempt freezes the pseudo-time action from its prepared base residual and native matrices. ---*/
-  SU2_OMP_SAFE_GLOBAL_ACCESS(trialNumber = 0;)
+  SU2_OMP_SAFE_GLOBAL_ACCESS(trialNumber = 0; failedProducts = 0; productFailure = "NONE";)
   if (!preparedBase) {
     /*--- Recovery changes the CFL and time-step action; rebuild the accepted base and its native matrices. ---*/
     SetCFL(cfl);
@@ -372,6 +390,7 @@ CNewtonIntegration::Attempt CNewtonIntegration::SolveAttempt(bool preparedBase) 
   attempt.physicalMerit = attempt.search.value = attempt.base;
   if (!Armijo::IsFinite(attempt.base) || !RefreshStatistics()) {
     attempt.residualFailure = true;
+    attempt.rejectionReason = "BASE_RESIDUAL";
     Restore(attempt);
     return attempt;
   }
@@ -408,6 +427,7 @@ CNewtonIntegration::Attempt CNewtonIntegration::SolveAttempt(bool preparedBase) 
   }
   if (!pseudoTime->Build(scale, free)) {
     attempt.linearFailure = true;
+    attempt.rejectionReason = "PSEUDO_TIME";
     Restore(attempt);
     return attempt;
   }
@@ -426,6 +446,7 @@ CNewtonIntegration::Attempt CNewtonIntegration::SolveAttempt(bool preparedBase) 
   attempt.physicalMerit = attempt.search.value = attempt.base;
   if (!Armijo::IsFinite(attempt.base)) {
     attempt.residualFailure = true;
+    attempt.rejectionReason = "BASE_RESIDUAL";
     Restore(attempt);
     return attempt;
   }
@@ -451,6 +472,7 @@ CNewtonIntegration::Attempt CNewtonIntegration::SolveAttempt(bool preparedBase) 
         &probeReference, attempt.reconstruction, true, verifyStep, pseudoTime.get());
     if (!modelValid) {
       attempt.linearFailure = true;
+      attempt.rejectionReason = "MODEL_BASE_RESIDUAL";
       Restore(attempt);
       return attempt;
     }
@@ -477,6 +499,7 @@ CNewtonIntegration::Attempt CNewtonIntegration::SolveAttempt(bool preparedBase) 
   attempt.preconditionerIterations = preconditioner->GetWork();
   attempt.reportedLinearResidual = residual;
   MatrixFreeProduct(correction, product);
+  attempt.failedProducts = failedProducts;
   double defect = 0, invalid = 0;
   SU2_OMP_FOR_STAT(1024)
   for (auto i = 0ul; i < rhs.GetNElmDomain(); ++i) {
@@ -494,6 +517,7 @@ CNewtonIntegration::Attempt CNewtonIntegration::SolveAttempt(bool preparedBase) 
   Residual();
   if (!Armijo::IsFinite(attempt.linearDefect) || attempt.linearDefect > options.etaMax) {
     attempt.linearFailure = true;
+    attempt.rejectionReason = failedProducts ? productFailure : "TRUE_LINEAR_DEFECT";
     Restore(attempt);
     return attempt;
   }
@@ -506,8 +530,11 @@ CNewtonIntegration::Attempt CNewtonIntegration::SolveAttempt(bool preparedBase) 
     if (Armijo::IsFinite(value)) {
       attempt.physicalMerit = Merit();
       attempt.search = {Armijo::Status::Accepted, 1, value, 1};
-    } else
+    } else {
+      attempt.inadmissibleTrials = !residualValid;
+      attempt.rejectionReason = residualValid ? "TRIAL_MERIT" : "TRIAL_ADMISSIBILITY";
       Restore(attempt);
+    }
   }
   for (const auto& block : equations->GetBlocks()) {
     SU2_OMP_SAFE_GLOBAL_ACCESS(block.solver->SetIterLinSolver(attempt.linearIterations);
@@ -537,7 +564,12 @@ void CNewtonIntegration::Search(Attempt& attempt) {
     Evaluate(0, "BASE");
   if (!invalid && relative > 0) {
     /*--- Physical merit needs its own verified J*p, without subtracting a dominant mass action afterward. ---*/
-    const bool valid = linearization->Apply(direction, product, options.pseudoTimeMerit);
+    CNewtonLinearization::Failure failure;
+    const bool valid = linearization->Apply(direction, product, options.pseudoTimeMerit, true, 0, &failure);
+    if (!valid) {
+      ++attempt.failedProducts;
+      attempt.rejectionReason = Name(failure);
+    }
     SU2_OMP_SAFE_GLOBAL_ACCESS(residualValid = valid;)
     double slope = 0, norm2 = 0;
     SU2_OMP_FOR_STAT(1024)
@@ -549,13 +581,23 @@ void CNewtonIntegration::Search(Attempt& attempt) {
     END_SU2_OMP_FOR
     attempt.slope = Reduce(slope);
     attempt.productNorm2 = Reduce(norm2);
-  } else if (invalid)
+  } else if (invalid) {
     attempt.slope = std::numeric_limits<double>::quiet_NaN();
+    attempt.rejectionReason = "ENDPOINT_DIRECTION";
+  }
   const Armijo::Parameters parameters{options.armijo, options.interpolationMin, options.interpolationMax,
                                       options.maxBacktracks};
   attempt.search = Armijo::Search(
       attempt.base, attempt.slope, relative > 0 ? options.stepTolerance / relative : 2,
-      [&](double alpha) { return Evaluate(alpha, "TRIAL"); }, [&] { Restore(attempt); }, parameters);
+      [&](double alpha) {
+        const double value = Evaluate(alpha, "TRIAL");
+        if (!residualValid) ++attempt.inadmissibleTrials;
+        return value;
+      }, [&] { Restore(attempt); }, parameters);
+  if (attempt.search.status != Armijo::Status::Accepted && attempt.failedProducts == 0 && !invalid)
+    attempt.rejectionReason = attempt.search.evaluations &&
+                                      attempt.inadmissibleTrials == attempt.search.evaluations
+                                  ? "TRIAL_ADMISSIBILITY" : Name(attempt.search.status);
   if (attempt.search.status == Armijo::Status::Accepted) {
     attempt.physicalMerit = Merit();
     const double alpha = attempt.search.step;
@@ -573,13 +615,24 @@ void CNewtonIntegration::Search(Attempt& attempt) {
 
 void CNewtonIntegration::Log(const Attempt& attempt, const NonlinearGlobalization::Decision& decision) const {
   if (!options.diagnostics || rank != MASTER_NODE || omp_get_thread_num() != 0) return;
+  if (!diagnosticHeaderChecked) {
+    /*--- Restarted runs must retain the existing CSV schema; inspect it only once per controller. ---*/
+    std::ifstream existing(prefix + ".csv");
+    std::string header;
+    if (std::getline(existing, header))
+      detailedDiagnostics = header.find(",rejection_reason,failed_products,inadmissible_trials") != std::string::npos;
+    diagnosticHeaderChecked = true;
+  }
   std::ofstream out(prefix + ".csv", std::ios::app);
-  if (out.tellp() == 0)
+  if (out.tellp() == 0) {
     out << "iteration,attempt,cfl,next_cfl,status,decision,linear_iterations,linear_target,reported_linear_residual,"
            "true_linear_defect,base_merit,merit,step,evaluations,slope,predicted_reduction,model_agreement,"
            "rollback_state_error,rollback_merit_error,physical_merit,pseudo_time_merit,flow_residual_evaluations,"
            "turbulence_residual_evaluations,transition_residual_evaluations,species_residual_evaluations,"
-           "startup,deflated,jacobian_reconstruction,tolerance_factor,native_linear_iterations\n";
+           "startup,deflated,jacobian_reconstruction,tolerance_factor,native_linear_iterations";
+    if (detailedDiagnostics) out << ",rejection_reason,failed_products,inadmissible_trials";
+    out << '\n';
+  }
   out.precision(17);
   const bool resolved = attempt.search.status == Armijo::Status::Accepted && attempt.search.step == 0;
   out << config->GetInnerIter() << ',' << attemptNumber << ',' << cfl << ',' << decision.nextCFL << ','
@@ -593,7 +646,10 @@ void CNewtonIntegration::Log(const Attempt& attempt, const NonlinearGlobalizatio
       << options.pseudoTimeMerit;
   for (auto count : equations->GetResidualEvaluations()) out << ',' << count;
   out << ',' << attempt.startup << ',' << attempt.deflated << ',' << attempt.reconstruction << ','
-      << attempt.toleranceFactor << ',' << attempt.preconditionerIterations << '\n';
+      << attempt.toleranceFactor << ',' << attempt.preconditionerIterations;
+  if (detailedDiagnostics)
+    out << ',' << attempt.rejectionReason << ',' << attempt.failedProducts << ',' << attempt.inadmissibleTrials;
+  out << '\n';
 }
 
 void CNewtonIntegration::MultiGrid_Iteration(CGeometry**** geometry, CSolver***** solvers, CNumerics****** numerics,
@@ -655,6 +711,7 @@ void CNewtonIntegration::Advance() {
     auto attempt = SolveAttempt(index == 0);
     if (attempt.search.status == Armijo::Status::Accepted && !attempt.linearFailure && !RefreshStatistics()) {
       attempt.residualFailure = true;
+      attempt.rejectionReason = "ACCEPTED_STATISTICS";
       attempt.search.status = Armijo::Status::InvalidInput;
       Restore(attempt);
       if (!RefreshStatistics()) attempt.rollbackMeritError = std::numeric_limits<double>::infinity();
@@ -692,7 +749,7 @@ void CNewtonIntegration::Advance() {
         std::ostringstream message;
         message << "Newton recovery failed: " << Name(decision.reason) << ", "
                 << (attempt.residualFailure ? "RESIDUAL_FAILURE" : attempt.linearFailure ? "LINEAR_FAILURE" : Name(attempt.search.status))
-                << " at iteration "
+                << " (" << attempt.rejectionReason << ") at iteration "
                 << config->GetInnerIter() << ", attempt " << index << ", CFL " << cfl;
         failureMessage = message.str();
       }

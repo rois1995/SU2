@@ -53,6 +53,8 @@ class CNewtonPseudoTime final {
 class CNewtonLinearization final : public CMatrixVectorProduct<passivedouble> {
  public:
   using Vector = CSysVector<passivedouble>;
+  /*! \brief Distinguish invalid directions, infeasible probes and unresolved derivatives. */
+  enum class Failure { None, Direction, Admissibility, Verification };
 
  private:
   CNewtonEquationSet& equations;
@@ -122,10 +124,11 @@ class CNewtonLinearization final : public CMatrixVectorProduct<passivedouble> {
    * \param[in] pseudoTime - Include the frozen pseudo-time action when true.
    * \param[in] verifyStep - Permit the configured probe refinement; only approximate preconditioner coupling omits it.
    * \param[in] residualRuntime - Optional physical row for unverified preconditioner coupling; other rows return zero.
+   * \param[out] failure - Optional thread-local diagnostic; probe and verification controls are unchanged.
    * \return False, with a nonfinite output, if no feasible, resolved derivative can be obtained.
    */
   bool Apply(const Vector&, Vector&, bool pseudoTime = true, bool verifyStep = true,
-             unsigned short residualRuntime = 0) const;
+             unsigned short residualRuntime = 0, Failure* failure = nullptr) const;
   void operator()(const Vector& u, Vector& v) const override { Apply(u, v); }
   const Vector& GetScale() const {
     assert(scale);

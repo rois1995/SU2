@@ -1,5 +1,11 @@
 # Newton–Krylov application qualification — 18 October 2026
 
+Next milestone: matched NACA0012 SA/SST endpoints on1x1 and2x2 with lower residual and linear work.
+Quiet-machine repetitions are deferred; time and RAM caps remain resource guards. A time cap is incomplete.
+Broader T3A/nozzle/VKI sweeps are administratively stopped after active children finished; evidence is retained.
+Default inner iterations remain0. Resolve rejection mechanisms before further control changes.
+See [NACA rejection diagnosis](NewtonKrylovNacaRejections20261018.md) for the current work-based assessment.
+
 Work in progress. Baseline numerical implementation: `4712d82375e00ede15e5177ab38865eaaaa3e9f5`;
 source checkout at study start: `8e61376ecd234414ce583c9b8f995e2bd62f4c12`.
 Committed corrections: momentum probes `637177c3e4` and bounded verified-probe recovery `d27f4b37f6`.
@@ -26,7 +32,7 @@ The [native inner-preconditioning assessment](NewtonKrylovInnerPreconditioning20
 records the independently reproduced scaling bug fixed in `e47c7b14cd` and the separate
 three-iteration strategy. That universal default is not adopted: parallel SA regresses
 and SST/LM/periodic trials remain unqualified. The checkout retains zero inner iterations;
-archived-candidate assessment continues separately, with no general speedup claim.
+the broad archived-candidate assessment is deferred, with no general speedup claim.
 
 This study uses existing application meshes, independently of the earlier generated fixtures.
 All inputs, initial user edits, binaries, build options and source hashes are frozen under
@@ -130,8 +136,8 @@ The periodic native history reports relative linear residuals near1 with its ori
 limit. Native adaptive CFL resets above0.99; a separate three-mode VKI1x1 pilot therefore
 uses existing ILU and native assembled limit20, retaining its original linear residual target.
 The142-trial plan records intended settings separately from actual results below.
-Remaining trials prioritize native plus forced-adaptive comparisons across applications/layouts
-before secondary CFL/preconditioner variants. Tuned SST history is now-13 in all modes;
+That broad schedule is now deferred. The narrowed NACA reference/rejection assessment precedes
+any further configuration expansion. Tuned SST history remains-13 in all modes;
 all earlier139 trials remain. Qualified native reference candidates precede Newton comparisons.
 All old plans/audits remain preserved. Preparation checks match108 Newton/native pairs;
 these are setup checks, not measured convergence results. Both versions' early SA states
@@ -168,23 +174,24 @@ and `paper_notes/manifest.json`; they motivate investigations, not unmeasured so
 
 | Application | Layout | Actual trials | Qualified endpoints | Eligible timing repetitions |
 |---|---|---:|---:|---:|
-| naca_sa | 1x1 | 70 | 26 | 1 |
-| naca_sa | 2x2 | 45 | 18 | 0 |
-| naca_sst | 1x1 | 28 | 3 | 0 |
-| naca_sst | 2x2 | 11 | 0 | 0 |
+| naca_sa | 1x1 | 72 | 27 | 1 |
+| naca_sa | 2x2 | 47 | 19 | 0 |
+| naca_sst | 1x1 | 29 | 4 | 0 |
+| naca_sst | 2x2 | 12 | 1 | 0 |
 | nozzle_sst | 1x1 | 32 | 0 | 0 |
 | nozzle_sst | 2x2 | 9 | 0 | 0 |
 | flatplate_lm | 1x1 | 20 | 0 | 0 |
 | flatplate_lm | 2x2 | 9 | 0 | 0 |
 | periodic_stator | 1x1 | 3 | 0 | 0 |
 | periodic_stator | 2x2 | 0 | 0 | 0 |
-| periodic_vki | 1x1 | 16 | 0 | 0 |
+| periodic_vki | 1x1 | 17 | 0 | 0 |
 | periodic_vki | 2x2 | 9 | 0 | 0 |
 
 ## Declared control matrix
 
 [Control progress CSV](NewtonKrylovControlProgress20261018.csv) includes every intended setting,
-including unstarted trials. `run_ended` records solver termination, not successful qualification.
+including unstarted trials. `scheduling=deferred_naca_priority` marks the suspended broad plan.
+`run_ended` records solver termination, not successful qualification.
 Only actual runs have configuration/binary hashes. Supporting experiments and quiet repetitions
 remain in the complete application ledger above.
 
@@ -262,65 +269,65 @@ is retained; `prepared` and `running` entries have not completed.
 | nozzle_sst | 1x1 | segregated | original | application_release | forcing | -12 | iteration_cap | False | 1 | 3.301 | 3.765 |
 | nozzle_sst | 1x1 | segregated | original | coarser_candidate | original | -12 | iteration_cap | False | 20 | 16.041 | 16.499 |
 | nozzle_sst | 1x1 | segregated | original | recovery_release | original | -12 | iteration_cap | False | 20 | 16.326 | 16.784 |
-| naca_sa | 1x1 | coupled | original | coarser_candidate | forcing | -13.0 | rejected | False | 34 | 300.353 | 300.929 |
+| naca_sa | 1x1 | coupled | original | coarser_candidate | forcing | -13.0 | incomplete_time_cap | False | 34 | 300.353 | 300.929 |
 | naca_sa | 1x1 | coupled | original | coarser_candidate | forcing | -13.0 | iteration_cap | False | 6 | 43.283 | 43.830 |
 | naca_sa | 1x1 | native | original | coarser_candidate | original | -13.0 | qualified | True | 151 | 18.399 | 18.932 |
 | naca_sa | 2x2 | native | original | coarser_candidate | original | -13.0 | qualified | True | 151 | 12.471 | 12.934 |
 | naca_sst | 1x1 | coupled | original | coarser_candidate | original | -12 | iteration_cap | False | 20 | 85.907 | 86.466 |
-| naca_sst | 1x1 | coupled | original | coarser_candidate | original | -12 | rejected | False | 227 | 300.218 | 300.727 |
+| naca_sst | 1x1 | coupled | original | coarser_candidate | original | -12 | incomplete_time_cap | False | 227 | 300.218 | 300.727 |
 | naca_sst | 1x1 | coupled | original | recovery_release | original | -12 | iteration_cap | False | 20 | 82.086 | 82.650 |
 | naca_sst | 1x1 | native | original | recovery_release | original | -13.0 | qualified | True | 397 | 54.668 | 55.205 |
-| flatplate_lm | 1x1 | native | original | recovery_release | adaptive | -11 | rejected | False | 1489 | 600.245 | 601.255 |
-| flatplate_lm | 1x1 | coupled | original | recovery_release | forcing | -11 | rejected | False | 121 | 604.730 | 605.793 |
-| flatplate_lm | 1x1 | segregated | original | recovery_release | forcing | -11 | rejected | False | 22 | 600.860 | 601.936 |
-| naca_sa | 1x1 | coupled | original | recovery_release | adaptive | -13.0 | rejected | False | 73 | 300.287 | 300.874 |
+| flatplate_lm | 1x1 | native | original | recovery_release | adaptive | -11 | incomplete_time_cap | False | 1489 | 600.245 | 601.255 |
+| flatplate_lm | 1x1 | coupled | original | recovery_release | forcing | -11 | incomplete_time_cap | False | 121 | 604.730 | 605.793 |
+| flatplate_lm | 1x1 | segregated | original | recovery_release | forcing | -11 | incomplete_time_cap | False | 22 | 600.860 | 601.936 |
+| naca_sa | 1x1 | coupled | original | recovery_release | adaptive | -13.0 | incomplete_time_cap | False | 73 | 300.287 | 300.874 |
 | naca_sa | 1x1 | native | original | recovery_release | adaptive | -13.0 | qualified | True | 149 | 19.711 | 20.324 |
-| naca_sa | 1x1 | segregated | original | recovery_release | adaptive | -13.0 | rejected | False | 125 | 301.036 | 301.548 |
-| naca_sa | 1x1 | coupled | original | recovery_release | diagonal | -13.0 | rejected | False | 74 | 303.258 | 303.829 |
-| naca_sa | 1x1 | coupled | original | recovery_release | fixed | -13.0 | rejected | False | 285 | 300.035 | 300.577 |
+| naca_sa | 1x1 | segregated | original | recovery_release | adaptive | -13.0 | incomplete_time_cap | False | 125 | 301.036 | 301.548 |
+| naca_sa | 1x1 | coupled | original | recovery_release | diagonal | -13.0 | incomplete_time_cap | False | 74 | 303.258 | 303.829 |
+| naca_sa | 1x1 | coupled | original | recovery_release | fixed | -13.0 | incomplete_time_cap | False | 285 | 300.035 | 300.577 |
 | naca_sa | 1x1 | native | original | recovery_release | fixed | -13.0 | qualified | True | 34 | 4.236 | 4.756 |
-| naca_sa | 1x1 | segregated | original | recovery_release | fixed | -13.0 | rejected | False | 195 | 301.132 | 301.668 |
-| naca_sa | 1x1 | coupled | original | recovery_release | fixed | -13.0 | rejected | False | 336 | 301.044 | 301.584 |
+| naca_sa | 1x1 | segregated | original | recovery_release | fixed | -13.0 | incomplete_time_cap | False | 195 | 301.132 | 301.668 |
+| naca_sa | 1x1 | coupled | original | recovery_release | fixed | -13.0 | incomplete_time_cap | False | 336 | 301.044 | 301.584 |
 | naca_sa | 1x1 | native | original | recovery_release | fixed | -13.0 | reference_audit_failed | False | 991 | 121.317 | 121.838 |
-| naca_sa | 1x1 | segregated | original | recovery_release | fixed | -13.0 | rejected | False | 256 | 301.433 | 301.964 |
-| naca_sa | 1x1 | coupled | original | recovery_release | forcing | -13.0 | rejected | False | 72 | 303.705 | 304.270 |
-| naca_sa | 1x1 | segregated | original | recovery_release | forcing | -13.0 | rejected | False | 126 | 300.092 | 300.614 |
-| naca_sa | 1x1 | coupled | original | recovery_release | original | -13.0 | rejected | False | 72 | 302.609 | 303.169 |
+| naca_sa | 1x1 | segregated | original | recovery_release | fixed | -13.0 | incomplete_time_cap | False | 256 | 301.433 | 301.964 |
+| naca_sa | 1x1 | coupled | original | recovery_release | forcing | -13.0 | incomplete_time_cap | False | 72 | 303.705 | 304.270 |
+| naca_sa | 1x1 | segregated | original | recovery_release | forcing | -13.0 | incomplete_time_cap | False | 126 | 300.092 | 300.614 |
+| naca_sa | 1x1 | coupled | original | recovery_release | original | -13.0 | incomplete_time_cap | False | 72 | 302.609 | 303.169 |
 | naca_sa | 1x1 | native | original | recovery_release | original | -13.0 | qualified | True | 151 | 19.177 | 19.784 |
-| naca_sa | 1x1 | segregated | original | recovery_release | original | -13.0 | rejected | False | 165 | 301.390 | 302.146 |
-| naca_sa | 1x1 | coupled | original | recovery_release | forcing | -13.0 | rejected | False | 59 | 301.273 | 301.783 |
-| naca_sa | 2x2 | coupled | original | recovery_release | adaptive | -13.0 | rejected | False | 83 | 302.655 | 303.205 |
+| naca_sa | 1x1 | segregated | original | recovery_release | original | -13.0 | incomplete_time_cap | False | 165 | 301.390 | 302.146 |
+| naca_sa | 1x1 | coupled | original | recovery_release | forcing | -13.0 | incomplete_time_cap | False | 59 | 301.273 | 301.783 |
+| naca_sa | 2x2 | coupled | original | recovery_release | adaptive | -13.0 | incomplete_time_cap | False | 83 | 302.655 | 303.205 |
 | naca_sa | 2x2 | native | original | recovery_release | adaptive | -13.0 | reference_audit_failed | False | 4928 | 211.659 | 212.152 |
-| naca_sa | 2x2 | segregated | original | recovery_release | adaptive | -13.0 | rejected | False | 96 | 304.000 | 304.498 |
-| naca_sa | 2x2 | coupled | original | recovery_release | diagonal | -13.0 | rejected | False | 87 | 300.747 | 301.282 |
+| naca_sa | 2x2 | segregated | original | recovery_release | adaptive | -13.0 | incomplete_time_cap | False | 96 | 304.000 | 304.498 |
+| naca_sa | 2x2 | coupled | original | recovery_release | diagonal | -13.0 | incomplete_time_cap | False | 87 | 300.747 | 301.282 |
 | naca_sa | 2x2 | native | original | recovery_release | fixed | -13.0 | qualified | True | 43 | 4.024 | 4.587 |
-| naca_sa | 2x2 | segregated | original | recovery_release | fixed | -13.0 | rejected | False | 157 | 301.345 | 301.827 |
-| naca_sa | 2x2 | coupled | original | recovery_release | forcing | -13.0 | rejected | False | 76 | 302.717 | 303.241 |
-| naca_sa | 2x2 | segregated | original | recovery_release | forcing | -13.0 | rejected | False | 142 | 301.181 | 301.672 |
+| naca_sa | 2x2 | segregated | original | recovery_release | fixed | -13.0 | incomplete_time_cap | False | 157 | 301.345 | 301.827 |
+| naca_sa | 2x2 | coupled | original | recovery_release | forcing | -13.0 | incomplete_time_cap | False | 76 | 302.717 | 303.241 |
+| naca_sa | 2x2 | segregated | original | recovery_release | forcing | -13.0 | incomplete_time_cap | False | 142 | 301.181 | 301.672 |
 | naca_sa | 2x2 | native | original | recovery_release | original | -13.0 | qualified | True | 151 | 13.044 | 13.519 |
-| naca_sa | 2x2 | coupled | original | recovery_release | forcing | -13.0 | rejected | False | 71 | 301.489 | 302.024 |
+| naca_sa | 2x2 | coupled | original | recovery_release | forcing | -13.0 | incomplete_time_cap | False | 71 | 301.489 | 302.024 |
 | naca_sst | 1x1 | native | original | recovery_release | adaptive | -13.0 | qualified | True | 447 | 63.745 | 64.289 |
 | naca_sst | 1x1 | native | original | recovery_release | adaptive | -13.0 | reference_audit_failed | False | 137 | 30.736 | 31.271 |
-| naca_sst | 1x1 | coupled | original | recovery_release | forcing | -13.0 | rejected | False | 59 | 300.087 | 300.644 |
-| naca_sst | 1x1 | segregated | original | recovery_release | forcing | -13.0 | rejected | False | 34 | 306.169 | 306.771 |
-| naca_sst | 1x1 | coupled | original | recovery_release | forcing | -13.0 | rejected | False | 61 | 300.602 | 301.182 |
-| naca_sst | 1x1 | segregated | original | recovery_release | forcing | -13.0 | rejected | False | 32 | 314.272 | 314.825 |
-| naca_sst | 2x2 | native | original | recovery_release | adaptive | -13.0 | rejected | False | 3277 | 300.466 | 300.955 |
-| naca_sst | 2x2 | segregated | original | recovery_release | forcing | -13.0 | rejected | False | 54 | 303.653 | 304.120 |
+| naca_sst | 1x1 | coupled | original | recovery_release | forcing | -13.0 | incomplete_time_cap | False | 59 | 300.087 | 300.644 |
+| naca_sst | 1x1 | segregated | original | recovery_release | forcing | -13.0 | incomplete_time_cap | False | 34 | 306.169 | 306.771 |
+| naca_sst | 1x1 | coupled | original | recovery_release | forcing | -13.0 | incomplete_time_cap | False | 61 | 300.602 | 301.182 |
+| naca_sst | 1x1 | segregated | original | recovery_release | forcing | -13.0 | incomplete_time_cap | False | 32 | 314.272 | 314.825 |
+| naca_sst | 2x2 | native | original | recovery_release | adaptive | -13.0 | incomplete_time_cap | False | 3277 | 300.466 | 300.955 |
+| naca_sst | 2x2 | segregated | original | recovery_release | forcing | -13.0 | incomplete_time_cap | False | 54 | 303.653 | 304.120 |
 | nozzle_sst | 1x1 | native | original | recovery_release | adaptive | -13.0 | rejected | False | 6919 | 137.509 | 137.989 |
-| nozzle_sst | 1x1 | coupled | original | recovery_release | forcing | -13.0 | rejected | False | 317 | 301.445 | 301.899 |
-| nozzle_sst | 1x1 | segregated | original | recovery_release | forcing | -13.0 | rejected | False | 314 | 300.020 | 300.494 |
+| nozzle_sst | 1x1 | coupled | original | recovery_release | forcing | -13.0 | incomplete_time_cap | False | 317 | 301.445 | 301.899 |
+| nozzle_sst | 1x1 | segregated | original | recovery_release | forcing | -13.0 | incomplete_time_cap | False | 314 | 300.020 | 300.494 |
 | nozzle_sst | 1x1 | native | original | recovery_release | original | -13.0 | rejected | False | 735 | 14.418 | 14.881 |
-| periodic_vki | 1x1 | native | cold | recovery_release | adaptive | -12 | rejected | False | 2042 | 300.391 | 300.925 |
-| periodic_vki | 1x1 | coupled | cold | recovery_release | forcing | -12 | rejected | False | 71 | 307.827 | 308.448 |
-| periodic_vki | 1x1 | segregated | cold | recovery_release | forcing | -12 | rejected | False | 88 | 300.950 | 301.506 |
+| periodic_vki | 1x1 | native | cold | recovery_release | adaptive | -12 | incomplete_time_cap | False | 2042 | 300.391 | 300.925 |
+| periodic_vki | 1x1 | coupled | cold | recovery_release | forcing | -12 | incomplete_time_cap | False | 71 | 307.827 | 308.448 |
+| periodic_vki | 1x1 | segregated | cold | recovery_release | forcing | -12 | incomplete_time_cap | False | 88 | 300.950 | 301.506 |
 | nozzle_sst | 1x1 | segregated | original | baseline_4712d82375 | fd_step_1e-3_relative_0.01 | -12 | diagnostic_complete | False | 1 | — | — |
 | nozzle_sst | 1x1 | segregated | original | baseline_4712d82375 | fd_step_1e-5_relative_0.01 | -12 | diagnostic_complete | False | 1 | — | — |
 | nozzle_sst | 1x1 | segregated | original | baseline_4712d82375 | fd_step_1e-5 | -12 | diagnostic_complete | False | 1 | — | 2.727 |
 | nozzle_sst | 1x1 | segregated | original | baseline_4712d82375 | fd_step_1e-6 | -12 | diagnostic_complete | False | 1 | — | 2.880 |
 | nozzle_sst | 1x1 | segregated | original | baseline_4712d82375 | fd_step_1e-7 | -12 | diagnostic_complete | False | 1 | — | 1.765 |
-| naca_sa | 1x1 | coupled | original | forcing_candidate | forcing | -13.0 | rejected | False | 209 | 300.938 | 301.445 |
-| naca_sa | 1x1 | segregated | original | forcing_candidate | forcing | -13.0 | rejected | False | 157 | 300.054 | 300.632 |
+| naca_sa | 1x1 | coupled | original | forcing_candidate | forcing | -13.0 | incomplete_time_cap | False | 209 | 300.938 | 301.445 |
+| naca_sa | 1x1 | segregated | original | forcing_candidate | forcing | -13.0 | incomplete_time_cap | False | 157 | 300.054 | 300.632 |
 | naca_sa | 1x1 | coupled | original | forcing_candidate | forcing | -13.0 | iteration_cap | False | 6 | 16.587 | 17.090 |
 | naca_sa | 1x1 | native | original | forcing_candidate | fixed | -13.0 | qualified | True | 34 | 4.344 | 4.852 |
 | naca_sa | 2x2 | native | original | forcing_candidate | fixed | -13.0 | qualified | True | 43 | 4.103 | 4.585 |
@@ -330,35 +337,42 @@ is retained; `prepared` and `running` entries have not completed.
 | naca_sa | 2x2 | coupled | original | forcing_candidate | original | -12 | rejected | False | 11 | 18.367 | 18.862 |
 | naca_sa | 2x2 | native | original | forcing_candidate | original | -12 | reference_audit_failed | False | 11 | 1.080 | 1.575 |
 | naca_sa | 2x2 | segregated | original | forcing_candidate | original | -12 | reference_audit_failed | False | 11 | 5.590 | 6.062 |
-| naca_sa | 1x1 | coupled | original | recovery_release | original | -18.0 | rejected | False | 1 | 3.068 | 3.656 |
-| naca_sa | 1x1 | native | original | recovery_release | original | -18.0 | rejected | False | 13 | 1.650 | 2.167 |
-| naca_sa | 1x1 | segregated | original | recovery_release | original | -18.0 | rejected | False | 1 | 3.038 | 3.635 |
-| naca_sa | 2x2 | coupled | original | recovery_release | original | -18.0 | rejected | False | 1 | 1.768 | 2.289 |
-| naca_sa | 2x2 | native | original | recovery_release | original | -18.0 | rejected | False | 19 | 1.699 | 2.216 |
-| naca_sa | 2x2 | segregated | original | recovery_release | original | -18.0 | rejected | False | 1 | 2.619 | 3.085 |
+| naca_sa | 1x1 | coupled | original | recovery_release | original | -18.0 | incomplete_time_cap | False | 1 | 3.068 | 3.656 |
+| naca_sa | 1x1 | native | original | recovery_release | original | -18.0 | incomplete_time_cap | False | 13 | 1.650 | 2.167 |
+| naca_sa | 1x1 | segregated | original | recovery_release | original | -18.0 | incomplete_time_cap | False | 1 | 3.038 | 3.635 |
+| naca_sa | 2x2 | coupled | original | recovery_release | original | -18.0 | incomplete_time_cap | False | 1 | 1.768 | 2.289 |
+| naca_sa | 2x2 | native | original | recovery_release | original | -18.0 | incomplete_time_cap | False | 19 | 1.699 | 2.216 |
+| naca_sa | 2x2 | segregated | original | recovery_release | original | -18.0 | incomplete_time_cap | False | 1 | 2.619 | 3.085 |
 | naca_sa | 1x1 | native | original | inner_candidate | original | -13.0 | qualified | True | 151 | 18.750 | 19.323 |
 | naca_sa | 2x2 | native | original | inner_candidate | original | -13.0 | qualified | True | 151 | 14.177 | 14.780 |
 | naca_sa | 1x1 | coupled | original | inner_candidate | diagonal | -14.0 | qualified | True | 166 | 556.675 | 557.225 |
-| naca_sa | 2x2 | coupled | original | inner_candidate | diagonal | -14.0 | rejected | False | 574 | 1200.933 | 1201.498 |
+| naca_sa | 2x2 | coupled | original | inner_candidate | diagonal | -14.0 | incomplete_time_cap | False | 574 | 1200.933 | 1201.498 |
 | naca_sst | 1x1 | coupled | original | inner_candidate | original | -12 | iteration_cap | False | 20 | 55.908 | 56.456 |
-| flatplate_lm | 1x1 | coupled | original | inner_candidate | forcing | -11 | rejected | False | 158 | 602.353 | 603.465 |
-| flatplate_lm | 1x1 | segregated | original | inner_candidate | forcing | -11 | running | False | — | — | — |
-| naca_sa | 1x1 | segregated | original | inner_candidate | forcing | -13.0 | rejected | False | 122 | 302.421 | 302.947 |
-| naca_sa | 2x2 | segregated | original | inner_candidate | forcing | -13.0 | rejected | False | 258 | 300.516 | 301.010 |
-| naca_sst | 1x1 | coupled | original | inner_candidate | forcing | -13.0 | rejected | False | 78 | 301.469 | 302.072 |
-| naca_sst | 1x1 | segregated | original | inner_candidate | forcing | -13.0 | rejected | False | 46 | 304.674 | 305.175 |
-| periodic_vki | 1x1 | coupled | cold | inner_candidate | forcing | -12 | rejected | False | 59 | 302.470 | 303.043 |
+| flatplate_lm | 1x1 | coupled | original | inner_candidate | forcing | -11 | incomplete_time_cap | False | 158 | 602.353 | 603.465 |
+| flatplate_lm | 1x1 | segregated | original | inner_candidate | forcing | -11 | incomplete_time_cap | False | 28 | — | 661.039 |
+| naca_sa | 1x1 | segregated | original | inner_candidate | forcing | -13.0 | incomplete_time_cap | False | 122 | 302.421 | 302.947 |
+| naca_sa | 2x2 | segregated | original | inner_candidate | forcing | -13.0 | incomplete_time_cap | False | 258 | 300.516 | 301.010 |
+| naca_sst | 1x1 | coupled | original | inner_candidate | forcing | -13.0 | incomplete_time_cap | False | 78 | 301.469 | 302.072 |
+| naca_sst | 1x1 | segregated | original | inner_candidate | forcing | -13.0 | incomplete_time_cap | False | 46 | 304.674 | 305.175 |
+| periodic_vki | 1x1 | coupled | cold | inner_candidate | forcing | -12 | incomplete_time_cap | False | 59 | 302.470 | 303.043 |
+| periodic_vki | 1x1 | segregated | cold | inner_candidate | forcing | -12 | incomplete_time_cap | False | 84 | 301.573 | 302.156 |
 | naca_sa | 1x1 | native | original | inner_scaling_release | original | -13.0 | qualified | True | 151 | 20.570 | 21.072 |
 | naca_sa | 2x2 | native | original | inner_scaling_release | original | -13.0 | qualified | True | 151 | 12.626 | 13.135 |
 | naca_sst | 1x1 | coupled | original | inner_scaling_release | original | -12 | iteration_cap | False | 20 | 84.426 | 84.961 |
 | naca_sa | 1x1 | native | original | recovery_release | original | -13.0 | qualified | True | 151 | 18.913 | 19.465 |
+| naca_sa | 1x1 | coupled | original | naca_rejection_v2_release | diagonal | -14.0 | iteration_cap | False | 20 | 85.491 | 85.998 |
+| naca_sa | 1x1 | native | original | naca_rejection_v2_release | original | -13.0 | qualified | True | 151 | 21.418 | 21.960 |
+| naca_sa | 2x2 | coupled | original | naca_rejection_v2_release | diagonal | -14.0 | iteration_cap | False | 20 | 74.231 | 74.759 |
+| naca_sa | 2x2 | native | original | naca_rejection_v2_release | original | -13.0 | qualified | True | 151 | 16.050 | 16.558 |
+| naca_sst | 1x1 | native | original | naca_rejection_v2_release | original | -13.0 | qualified | True | 397 | 60.211 | 60.786 |
+| naca_sst | 2x2 | native | original | naca_rejection_v2_release | original | -13.0 | qualified | True | 397 | 43.669 | 44.102 |
 | flatplate_lm | 1x1 | coupled | original | baseline_4712d82375 | original | -11 | solver_failure | False | 0 | — | 1.432 |
 | flatplate_lm | 1x1 | native | original | baseline_4712d82375 | original | -11 | solver_failure | False | 0 | — | 1.349 |
 | flatplate_lm | 1x1 | segregated | original | baseline_4712d82375 | original | -11 | solver_failure | False | 0 | — | 1.356 |
 | naca_sa | 1x1 | coupled | original | baseline_4712d82375 | original | -12 | rejected | False | 11 | 13.852 | 14.424 |
 | naca_sa | 1x1 | native | original | baseline_4712d82375 | original | -12 | reference_audit_failed | False | 11 | 3.351 | 3.967 |
 | naca_sa | 1x1 | segregated | original | baseline_4712d82375 | original | -12 | reference_audit_failed | False | 11 | 25.907 | 26.736 |
-| naca_sst | 1x1 | coupled | original | baseline_4712d82375 | original | -12 | timeout | False | 16 | — | 121.018 |
+| naca_sst | 1x1 | coupled | original | baseline_4712d82375 | original | -12 | incomplete_time_cap | False | 16 | — | 121.018 |
 | naca_sst | 1x1 | native | original | baseline_4712d82375 | original | -12 | iteration_cap | False | 200 | 73.236 | 73.902 |
 | naca_sst | 1x1 | segregated | original | baseline_4712d82375 | original | -12 | iteration_cap | False | 20 | 72.321 | 72.900 |
 | nozzle_sst | 1x1 | coupled | original | baseline_4712d82375 | original | -12 | iteration_cap | False | 20 | 5.296 | 5.773 |
@@ -366,10 +380,10 @@ is retained; `prepared` and `running` entries have not completed.
 | nozzle_sst | 1x1 | segregated | original | baseline_4712d82375 | original | -12 | iteration_cap | False | 20 | 5.328 | 5.779 |
 | periodic_stator | 1x1 | coupled | original | baseline_4712d82375 | original | -12 | iteration_cap | False | 20 | 114.285 | 114.932 |
 | periodic_stator | 1x1 | native | original | baseline_4712d82375 | original | -12 | iteration_cap | False | 200 | 19.509 | 20.140 |
-| periodic_stator | 1x1 | segregated | original | baseline_4712d82375 | original | -12 | timeout | False | 18 | — | 121.040 |
+| periodic_stator | 1x1 | segregated | original | baseline_4712d82375 | original | -12 | incomplete_time_cap | False | 18 | — | 121.040 |
 | flatplate_lm | 1x1 | coupled | original | baseline_4712d82375 | original | -11 | iteration_cap | False | 20 | 129.516 | 130.661 |
 | flatplate_lm | 1x1 | native | original | baseline_4712d82375 | original | -11 | iteration_cap | False | 200 | 82.402 | 83.438 |
-| flatplate_lm | 1x1 | segregated | original | baseline_4712d82375 | original | -11 | timeout | False | 16 | — | 181.072 |
+| flatplate_lm | 1x1 | segregated | original | baseline_4712d82375 | original | -11 | incomplete_time_cap | False | 16 | — | 181.072 |
 | periodic_vki | 1x1 | coupled | original | baseline_4712d82375 | original | -12 | solver_failure | False | 0 | — | 1.707 |
 | periodic_vki | 1x1 | native | original | baseline_4712d82375 | original | -12 | solver_failure | False | 0 | — | 1.662 |
 | periodic_vki | 1x1 | segregated | original | baseline_4712d82375 | original | -12 | solver_failure | False | 0 | — | 1.622 |
@@ -404,66 +418,66 @@ is retained; `prepared` and `running` entries have not completed.
 | periodic_vki | 2x2 | coupled | cold | baseline_4712d82375 | original | -12 | iteration_cap | False | 1 | 2.068 | 2.587 |
 | periodic_vki | 2x2 | native | cold | baseline_4712d82375 | original | -12 | iteration_cap | False | 1 | 0.033 | 0.584 |
 | periodic_vki | 2x2 | segregated | cold | baseline_4712d82375 | original | -12 | iteration_cap | False | 1 | 1.999 | 2.499 |
-| flatplate_lm | 1x1 | coupled | original | probe_metric | original | -11 | timeout | False | 50 | — | 301.067 |
-| flatplate_lm | 1x1 | native | original | probe_metric | original | -11 | rejected | False | 695 | — | 301.077 |
-| flatplate_lm | 1x1 | segregated | original | probe_metric | original | -11 | timeout | False | 23 | — | 301.059 |
-| flatplate_lm | 2x2 | coupled | original | probe_metric | original | -11 | rejected | False | 103 | — | 301.039 |
-| flatplate_lm | 2x2 | native | original | probe_metric | original | -11 | rejected | False | 1299 | — | 301.040 |
-| flatplate_lm | 2x2 | segregated | original | probe_metric | original | -11 | timeout | False | 30 | — | 301.072 |
+| flatplate_lm | 1x1 | coupled | original | probe_metric | original | -11 | incomplete_time_cap | False | 50 | — | 301.067 |
+| flatplate_lm | 1x1 | native | original | probe_metric | original | -11 | incomplete_time_cap | False | 695 | — | 301.077 |
+| flatplate_lm | 1x1 | segregated | original | probe_metric | original | -11 | incomplete_time_cap | False | 23 | — | 301.059 |
+| flatplate_lm | 2x2 | coupled | original | probe_metric | original | -11 | incomplete_time_cap | False | 103 | — | 301.039 |
+| flatplate_lm | 2x2 | native | original | probe_metric | original | -11 | incomplete_time_cap | False | 1299 | — | 301.040 |
+| flatplate_lm | 2x2 | segregated | original | probe_metric | original | -11 | incomplete_time_cap | False | 30 | — | 301.072 |
 | naca_sa | 1x1 | coupled | original | probe_metric | original | -12 | rejected | False | 11 | 7.754 | 8.336 |
 | naca_sa | 1x1 | native | original | probe_metric | original | -12 | reference_audit_failed | False | 11 | 1.376 | 1.905 |
 | naca_sa | 1x1 | segregated | original | probe_metric | original | -12 | reference_audit_failed | False | 11 | 13.804 | 15.252 |
 | naca_sa | 2x2 | coupled | original | probe_metric | original | -12 | rejected | False | 11 | 4.042 | 4.537 |
 | naca_sa | 2x2 | native | original | probe_metric | original | -12 | reference_audit_failed | False | 11 | 1.052 | 1.606 |
 | naca_sa | 2x2 | segregated | original | probe_metric | original | -12 | reference_audit_failed | False | 11 | 6.705 | 7.160 |
-| naca_sst | 1x1 | coupled | original | probe_metric | original | -12 | rejected | False | 236 | — | 301.066 |
+| naca_sst | 1x1 | coupled | original | probe_metric | original | -12 | incomplete_time_cap | False | 236 | — | 301.066 |
 | naca_sst | 1x1 | native | original | probe_metric | original | -12 | reference_audit_failed | False | 258 | 40.705 | 41.323 |
-| naca_sst | 1x1 | segregated | original | probe_metric | original | -12 | rejected | False | 202 | — | 301.034 |
-| naca_sst | 2x2 | coupled | original | probe_metric | original | -12 | rejected | False | 425 | — | 301.044 |
+| naca_sst | 1x1 | segregated | original | probe_metric | original | -12 | incomplete_time_cap | False | 202 | — | 301.034 |
+| naca_sst | 2x2 | coupled | original | probe_metric | original | -12 | incomplete_time_cap | False | 425 | — | 301.044 |
 | naca_sst | 2x2 | native | original | probe_metric | original | -12 | reference_audit_failed | False | 258 | 26.195 | 26.766 |
-| naca_sst | 2x2 | segregated | original | probe_metric | original | -12 | rejected | False | 465 | — | 301.071 |
-| nozzle_sst | 1x1 | coupled | original | probe_metric | original | -12 | timeout | False | 2139 | — | 301.040 |
+| naca_sst | 2x2 | segregated | original | probe_metric | original | -12 | incomplete_time_cap | False | 465 | — | 301.071 |
+| nozzle_sst | 1x1 | coupled | original | probe_metric | original | -12 | incomplete_time_cap | False | 2139 | — | 301.040 |
 | nozzle_sst | 1x1 | native | original | probe_metric | original | -12 | rejected | False | 548 | 15.533 | 15.969 |
-| nozzle_sst | 1x1 | segregated | original | probe_metric | original | -12 | timeout | False | 1576 | — | 301.032 |
+| nozzle_sst | 1x1 | segregated | original | probe_metric | original | -12 | incomplete_time_cap | False | 1576 | — | 301.032 |
 | nozzle_sst | 2x2 | coupled | original | probe_metric | original | -12 | iteration_cap | False | 3000 | 183.077 | 183.560 |
 | nozzle_sst | 2x2 | native | original | probe_metric | original | -12 | rejected | False | 546 | 5.656 | 6.100 |
 | nozzle_sst | 2x2 | segregated | original | probe_metric | original | -12 | iteration_cap | False | 3000 | 289.357 | 289.778 |
-| periodic_vki | 1x1 | coupled | cold | probe_metric | original | -12 | rejected | False | 235 | — | 301.042 |
+| periodic_vki | 1x1 | coupled | cold | probe_metric | original | -12 | incomplete_time_cap | False | 235 | — | 301.042 |
 | periodic_vki | 1x1 | native | cold | probe_metric | original | -12 | iteration_cap | False | 3000 | 111.915 | 112.478 |
-| periodic_vki | 1x1 | segregated | cold | probe_metric | original | -12 | rejected | False | 436 | — | 301.073 |
-| periodic_vki | 2x2 | coupled | cold | probe_metric | original | -12 | rejected | False | 448 | — | 301.059 |
+| periodic_vki | 1x1 | segregated | cold | probe_metric | original | -12 | incomplete_time_cap | False | 436 | — | 301.073 |
+| periodic_vki | 2x2 | coupled | cold | probe_metric | original | -12 | incomplete_time_cap | False | 448 | — | 301.059 |
 | periodic_vki | 2x2 | native | cold | probe_metric | original | -12 | iteration_cap | False | 3000 | 65.549 | 66.163 |
-| periodic_vki | 2x2 | segregated | cold | probe_metric | original | -12 | rejected | False | 911 | — | 301.061 |
-| flatplate_lm | 1x1 | coupled | original | recovery_release | original | -11 | timeout | False | 50 | — | 301.042 |
-| flatplate_lm | 1x1 | native | original | recovery_release | original | -11 | rejected | False | 710 | — | 301.052 |
-| flatplate_lm | 1x1 | segregated | original | recovery_release | original | -11 | timeout | False | 20 | — | 301.050 |
-| flatplate_lm | 2x2 | coupled | original | recovery_release | original | -11 | rejected | False | 101 | — | 301.041 |
-| flatplate_lm | 2x2 | native | original | recovery_release | original | -11 | rejected | False | 1419 | — | 301.064 |
-| flatplate_lm | 2x2 | segregated | original | recovery_release | original | -11 | timeout | False | 26 | — | 301.025 |
+| periodic_vki | 2x2 | segregated | cold | probe_metric | original | -12 | incomplete_time_cap | False | 911 | — | 301.061 |
+| flatplate_lm | 1x1 | coupled | original | recovery_release | original | -11 | incomplete_time_cap | False | 50 | — | 301.042 |
+| flatplate_lm | 1x1 | native | original | recovery_release | original | -11 | incomplete_time_cap | False | 710 | — | 301.052 |
+| flatplate_lm | 1x1 | segregated | original | recovery_release | original | -11 | incomplete_time_cap | False | 20 | — | 301.050 |
+| flatplate_lm | 2x2 | coupled | original | recovery_release | original | -11 | incomplete_time_cap | False | 101 | — | 301.041 |
+| flatplate_lm | 2x2 | native | original | recovery_release | original | -11 | incomplete_time_cap | False | 1419 | — | 301.064 |
+| flatplate_lm | 2x2 | segregated | original | recovery_release | original | -11 | incomplete_time_cap | False | 26 | — | 301.025 |
 | naca_sa | 1x1 | coupled | original | recovery_release | original | -12 | reference_audit_failed | False | 11 | 41.410 | 41.998 |
 | naca_sa | 1x1 | native | original | recovery_release | original | -12 | reference_audit_failed | False | 11 | 1.378 | 1.907 |
 | naca_sa | 1x1 | segregated | original | recovery_release | original | -12 | reference_audit_failed | False | 11 | 9.339 | 9.848 |
 | naca_sa | 2x2 | coupled | original | recovery_release | original | -12 | rejected | False | 11 | 16.219 | 16.788 |
 | naca_sa | 2x2 | native | original | recovery_release | original | -12 | reference_audit_failed | False | 11 | 0.929 | 1.423 |
 | naca_sa | 2x2 | segregated | original | recovery_release | original | -12 | reference_audit_failed | False | 11 | 5.350 | 5.869 |
-| naca_sst | 1x1 | coupled | original | recovery_release | original | -12 | rejected | False | 216 | — | 301.041 |
+| naca_sst | 1x1 | coupled | original | recovery_release | original | -12 | incomplete_time_cap | False | 216 | — | 301.041 |
 | naca_sst | 1x1 | native | original | recovery_release | original | -12 | reference_audit_failed | False | 258 | 36.407 | 36.936 |
-| naca_sst | 1x1 | segregated | original | recovery_release | original | -12 | timeout | False | 52 | — | 301.053 |
-| naca_sst | 2x2 | coupled | original | recovery_release | original | -12 | rejected | False | 445 | — | 301.036 |
+| naca_sst | 1x1 | segregated | original | recovery_release | original | -12 | incomplete_time_cap | False | 52 | — | 301.053 |
+| naca_sst | 2x2 | coupled | original | recovery_release | original | -12 | incomplete_time_cap | False | 445 | — | 301.036 |
 | naca_sst | 2x2 | native | original | recovery_release | original | -12 | reference_audit_failed | False | 258 | 27.401 | 28.073 |
-| naca_sst | 2x2 | segregated | original | recovery_release | original | -12 | timeout | False | 84 | — | 301.048 |
-| nozzle_sst | 1x1 | coupled | original | recovery_release | original | -12 | rejected | False | 1183 | — | 301.035 |
+| naca_sst | 2x2 | segregated | original | recovery_release | original | -12 | incomplete_time_cap | False | 84 | — | 301.048 |
+| nozzle_sst | 1x1 | coupled | original | recovery_release | original | -12 | incomplete_time_cap | False | 1183 | — | 301.035 |
 | nozzle_sst | 1x1 | native | original | recovery_release | original | -12 | rejected | False | 548 | 11.236 | 11.734 |
-| nozzle_sst | 1x1 | segregated | original | recovery_release | original | -12 | rejected | False | 537 | — | 301.088 |
-| nozzle_sst | 2x2 | coupled | original | recovery_release | original | -12 | rejected | False | 2142 | — | 301.024 |
+| nozzle_sst | 1x1 | segregated | original | recovery_release | original | -12 | incomplete_time_cap | False | 537 | — | 301.088 |
+| nozzle_sst | 2x2 | coupled | original | recovery_release | original | -12 | incomplete_time_cap | False | 2142 | — | 301.024 |
 | nozzle_sst | 2x2 | native | original | recovery_release | original | -12 | rejected | False | 546 | 5.792 | 6.197 |
-| nozzle_sst | 2x2 | segregated | original | recovery_release | original | -12 | rejected | False | 2438 | — | 301.039 |
-| periodic_vki | 1x1 | coupled | cold | recovery_release | original | -12 | rejected | False | 235 | — | 301.074 |
+| nozzle_sst | 2x2 | segregated | original | recovery_release | original | -12 | incomplete_time_cap | False | 2438 | — | 301.039 |
+| periodic_vki | 1x1 | coupled | cold | recovery_release | original | -12 | incomplete_time_cap | False | 235 | — | 301.074 |
 | periodic_vki | 1x1 | native | cold | recovery_release | original | -12 | iteration_cap | False | 3000 | 121.860 | 122.402 |
-| periodic_vki | 1x1 | segregated | cold | recovery_release | original | -12 | rejected | False | 452 | — | 301.023 |
-| periodic_vki | 2x2 | coupled | cold | recovery_release | original | -12 | rejected | False | 479 | — | 301.031 |
+| periodic_vki | 1x1 | segregated | cold | recovery_release | original | -12 | incomplete_time_cap | False | 452 | — | 301.023 |
+| periodic_vki | 2x2 | coupled | cold | recovery_release | original | -12 | incomplete_time_cap | False | 479 | — | 301.031 |
 | periodic_vki | 2x2 | native | cold | recovery_release | original | -12 | iteration_cap | False | 3000 | 67.211 | 67.698 |
-| periodic_vki | 2x2 | segregated | cold | recovery_release | original | -12 | rejected | False | 1106 | — | 301.052 |
+| periodic_vki | 2x2 | segregated | cold | recovery_release | original | -12 | incomplete_time_cap | False | 1106 | — | 301.052 |
 | naca_sa | 1x1 | native | original | recovery_release | fixed | -13.0 | qualified | True | 34 | 4.364 | 4.990 |
 | naca_sa | 1x1 | native | original | recovery_release | fixed | -13.0 | qualified | True | 34 | 4.358 | 4.887 |
 | naca_sa | 1x1 | native | original | recovery_release | fixed | -13.0 | qualified | True | 34 | 4.282 | 4.808 |
@@ -473,9 +487,9 @@ is retained; `prepared` and `running` entries have not completed.
 | naca_sa | 2x2 | native | original | recovery_release | fixed | -13.0 | qualified | True | 43 | 3.667 | 4.136 |
 | naca_sa | 2x2 | native | original | recovery_release | fixed | -13.0 | qualified | True | 43 | 3.466 | 3.974 |
 | naca_sa | 2x2 | native | original | recovery_release | fixed | -13.0 | qualified | True | 43 | 3.368 | 3.916 |
-| naca_sa | 1x1 | coupled | original | recovery_release | original | -13.0 | timeout | False | 29 | — | 121.027 |
+| naca_sa | 1x1 | coupled | original | recovery_release | original | -13.0 | incomplete_time_cap | False | 29 | — | 121.027 |
 | naca_sa | 1x1 | native | original | recovery_release | original | -13.0 | qualified | True | 151 | 19.319 | 19.860 |
-| naca_sa | 1x1 | segregated | original | recovery_release | original | -13.0 | timeout | False | 65 | — | 121.032 |
+| naca_sa | 1x1 | segregated | original | recovery_release | original | -13.0 | incomplete_time_cap | False | 65 | — | 121.032 |
 | naca_sa | 1x1 | native | original | recovery_release | original | -13.0 | qualified | True | 151 | 18.857 | 19.360 |
 | naca_sa | 1x1 | native | original | recovery_release | original | -13.0 | qualified | True | 151 | 19.616 | 20.191 |
 | naca_sa | 1x1 | native | original | recovery_release | original | -13.0 | qualified | True | 151 | 18.952 | 19.476 |
@@ -484,9 +498,9 @@ is retained; `prepared` and `running` entries have not completed.
 | naca_sa | 1x1 | native | original | recovery_release | original | -13.0 | qualified | True | 151 | 18.861 | 19.394 |
 | naca_sa | 1x1 | native | original | recovery_release | original | -13.0 | qualified | True | 151 | 19.029 | 19.568 |
 | naca_sa | 1x1 | native | original | recovery_release | original | -13.0 | qualified | True | 151 | 18.743 | 19.302 |
-| naca_sa | 2x2 | coupled | original | recovery_release | original | -13.0 | timeout | False | 84 | — | 121.046 |
+| naca_sa | 2x2 | coupled | original | recovery_release | original | -13.0 | incomplete_time_cap | False | 84 | — | 121.046 |
 | naca_sa | 2x2 | native | original | recovery_release | original | -13.0 | qualified | True | 151 | 12.894 | 13.346 |
-| naca_sa | 2x2 | segregated | original | recovery_release | original | -13.0 | timeout | False | 66 | — | 121.080 |
+| naca_sa | 2x2 | segregated | original | recovery_release | original | -13.0 | incomplete_time_cap | False | 66 | — | 121.080 |
 | naca_sa | 2x2 | native | original | recovery_release | original | -13.0 | qualified | True | 151 | 13.122 | 13.658 |
 | naca_sa | 2x2 | native | original | recovery_release | original | -13.0 | qualified | True | 151 | 13.084 | 13.597 |
 | naca_sa | 2x2 | native | original | recovery_release | original | -13.0 | qualified | True | 151 | 12.632 | 13.143 |
@@ -499,14 +513,14 @@ is retained; `prepared` and `running` entries have not completed.
 | nozzle_sst | 1x1 | segregated | original | probe_recovery_checked | fd_step_1e-8 | -12 | diagnostic_complete | False | 20 | — | 19.253 |
 | nozzle_sst | 1x1 | segregated | original | probe_recovery_checked | fd_step_1e-8 | -12 | diagnostic_complete | False | 1 | — | 4.708 |
 | naca_sa | 1x1 | native | original | recovery_release | original | -14.0 | qualified | True | 298 | 36.747 | 37.305 |
-| naca_sa | 1x1 | native | original | recovery_release | original | -15.0 | rejected | False | 2669 | 300.112 | 300.743 |
+| naca_sa | 1x1 | native | original | recovery_release | original | -15.0 | incomplete_time_cap | False | 2669 | 300.112 | 300.743 |
 | naca_sa | 1x1 | coupled | original | recovery_release | forcing | -13.0 | iteration_cap | False | 6 | 35.446 | 35.946 |
 | naca_sa | 1x1 | coupled | original | recovery_release | forcing | -13.0 | iteration_cap | False | 6 | 42.225 | 42.784 |
 | naca_sa | 1x1 | coupled | original | recovery_release | forcing | -13.0 | iteration_cap | False | 6 | 20.044 | 20.660 |
 | naca_sa | 1x1 | coupled | original | recovery_release | diagonal | -13.0 | rejected | False | 78 | 324.573 | 325.099 |
 | naca_sa | 1x1 | coupled | original | recovery_release | diagonal | -14.0 | qualified | True | 179 | 764.796 | 765.385 |
 | naca_sst | 1x1 | native | original | recovery_release | original | -14.0 | qualified | True | 545 | 76.329 | 76.906 |
-| naca_sst | 1x1 | native | original | recovery_release | original | -15.0 | rejected | False | 1403 | 180.083 | 180.631 |
+| naca_sst | 1x1 | native | original | recovery_release | original | -15.0 | incomplete_time_cap | False | 1403 | 180.083 | 180.631 |
 
 ## Original-control implementation comparison
 
@@ -520,66 +534,66 @@ is only its last checkpoint. State errors use the native reference recorded for 
 
 | Case | Layout | Implementation | Mode | Status | Updates | Assemblies F/T/X | Krylov outer/inner | R/B | Loop/E2E s | Max normalized RMS | Max point error |
 |---|---|---|---|---|---:|---:|---:|---:|---:|---:|---:|
-| flatplate_lm | 1x1 | probe_metric | coupled | timeout | 50 | 1114/1241/1241 | 125/0 | 4/21 | —/301.067 | — | — |
-| flatplate_lm | 1x1 | probe_metric | native | rejected | 695 | 695/695/695 | 10421/0 | —/— | —/301.077 | 4.520e-04 | — |
-| flatplate_lm | 1x1 | probe_metric | segregated | timeout | 23 | 1581/251/257 | 477/0 | 2/17 | —/301.059 | — | — |
-| flatplate_lm | 2x2 | probe_metric | coupled | rejected | 103 | 2096/2337/2337 | 239/0 | 4/21 | —/301.039 | 1.673e+00 | — |
-| flatplate_lm | 2x2 | probe_metric | native | rejected | 1299 | 1299/1299/1299 | 19483/0 | —/— | —/301.040 | 8.428e-04 | — |
-| flatplate_lm | 2x2 | probe_metric | segregated | timeout | 30 | 2961/322/356 | 773/0 | 2/17 | —/301.072 | — | — |
+| flatplate_lm | 1x1 | probe_metric | coupled | incomplete_time_cap | 50 | 1114/1241/1241 | 125/0 | 4/21 | —/301.067 | — | — |
+| flatplate_lm | 1x1 | probe_metric | native | incomplete_time_cap | 695 | 695/695/695 | 10421/0 | —/— | —/301.077 | 4.520e-04 | — |
+| flatplate_lm | 1x1 | probe_metric | segregated | incomplete_time_cap | 23 | 1581/251/257 | 477/0 | 2/17 | —/301.059 | — | — |
+| flatplate_lm | 2x2 | probe_metric | coupled | incomplete_time_cap | 103 | 2096/2337/2337 | 239/0 | 4/21 | —/301.039 | 1.673e+00 | — |
+| flatplate_lm | 2x2 | probe_metric | native | incomplete_time_cap | 1299 | 1299/1299/1299 | 19483/0 | —/— | —/301.040 | 8.428e-04 | — |
+| flatplate_lm | 2x2 | probe_metric | segregated | incomplete_time_cap | 30 | 2961/322/356 | 773/0 | 2/17 | —/301.072 | — | — |
 | naca_sa | 1x1 | probe_metric | coupled | rejected | 11 | 341/395/— | 51/0 | 3/0 | 7.754/8.336 | 1.196e-10 | 1.658e-05 |
 | naca_sa | 1x1 | probe_metric | native | reference_audit_failed | 11 | 11/11/— | 440/0 | —/— | 1.376/1.905 | 1.963e-10 | 0.000e+00 |
 | naca_sa | 1x1 | probe_metric | segregated | reference_audit_failed | 11 | 444/429/— | 429/0 | 4/0 | 13.804/15.252 | 1.310e-11 | 2.946e-06 |
 | naca_sa | 2x2 | probe_metric | coupled | rejected | 11 | 364/421/— | 53/0 | 3/0 | 4.042/4.537 | 9.982e-11 | 1.776e-05 |
 | naca_sa | 2x2 | probe_metric | native | reference_audit_failed | 11 | 11/11/— | 440/0 | —/— | 1.052/1.606 | 2.256e-10 | 0.000e+00 |
 | naca_sa | 2x2 | probe_metric | segregated | reference_audit_failed | 11 | 465/372/— | 379/0 | 4/0 | 6.705/7.160 | 1.308e-11 | 3.215e-06 |
-| naca_sst | 1x1 | probe_metric | coupled | rejected | 236 | 12482/13946/— | 1450/0 | 4/0 | —/301.066 | 1.625e-06 | — |
+| naca_sst | 1x1 | probe_metric | coupled | incomplete_time_cap | 236 | 12482/13946/— | 1450/0 | 4/0 | —/301.066 | 1.625e-06 | — |
 | naca_sst | 1x1 | probe_metric | native | reference_audit_failed | 258 | 258/258/— | 10173/0 | —/— | 40.705/41.323 | 8.922e-12 | 0.000e+00 |
-| naca_sst | 1x1 | probe_metric | segregated | rejected | 202 | 10793/4311/— | 4116/0 | 2/0 | —/301.034 | 1.567e-07 | — |
-| naca_sst | 2x2 | probe_metric | coupled | rejected | 425 | 23363/26043/— | 2633/0 | 4/0 | —/301.044 | 1.660e-06 | — |
+| naca_sst | 1x1 | probe_metric | segregated | incomplete_time_cap | 202 | 10793/4311/— | 4116/0 | 2/0 | —/301.034 | 1.567e-07 | — |
+| naca_sst | 2x2 | probe_metric | coupled | incomplete_time_cap | 425 | 23363/26043/— | 2633/0 | 4/0 | —/301.044 | 1.660e-06 | — |
 | naca_sst | 2x2 | probe_metric | native | reference_audit_failed | 258 | 258/258/— | 10320/0 | —/— | 26.195/26.766 | 8.919e-12 | 0.000e+00 |
-| naca_sst | 2x2 | probe_metric | segregated | rejected | 465 | 21517/12143/— | 8524/0 | 2/0 | —/301.071 | 2.970e-08 | — |
-| nozzle_sst | 1x1 | probe_metric | coupled | timeout | 2139 | 31987/34739/— | 2746/0 | 8/0 | —/301.040 | — | — |
+| naca_sst | 2x2 | probe_metric | segregated | incomplete_time_cap | 465 | 21517/12143/— | 8524/0 | 2/0 | —/301.071 | 2.970e-08 | — |
+| nozzle_sst | 1x1 | probe_metric | coupled | incomplete_time_cap | 2139 | 31987/34739/— | 2746/0 | 8/0 | —/301.040 | — | — |
 | nozzle_sst | 1x1 | probe_metric | native | rejected | 548 | 548/548/— | 6235/0 | —/— | 15.533/15.969 | 7.647e-09 | — |
-| nozzle_sst | 1x1 | probe_metric | segregated | timeout | 1576 | 24309/28673/— | 19884/0 | 8/0 | —/301.032 | — | — |
+| nozzle_sst | 1x1 | probe_metric | segregated | incomplete_time_cap | 1576 | 24309/28673/— | 19884/0 | 8/0 | —/301.032 | — | — |
 | nozzle_sst | 2x2 | probe_metric | coupled | iteration_cap | 3000 | 43920/47505/— | 3578/0 | 8/0 | 183.077/183.560 | 7.859e-03 | — |
 | nozzle_sst | 2x2 | probe_metric | native | rejected | 546 | 546/546/— | 6568/0 | —/— | 5.656/6.100 | 7.649e-09 | — |
 | nozzle_sst | 2x2 | probe_metric | segregated | iteration_cap | 3000 | 44084/64886/— | 47505/0 | 8/0 | 289.357/289.778 | 7.863e-03 | — |
-| periodic_vki | 1x1 | probe_metric | coupled | rejected | 235 | 10998/13792/— | 2794/0 | 0/0 | —/301.042 | 2.412e-05 | — |
+| periodic_vki | 1x1 | probe_metric | coupled | incomplete_time_cap | 235 | 10998/13792/— | 2794/0 | 0/0 | —/301.042 | 2.412e-05 | — |
 | periodic_vki | 1x1 | probe_metric | native | iteration_cap | 3000 | 3000/3000/— | 12000/0 | —/— | 111.915/112.478 | 2.419e-05 | — |
-| periodic_vki | 1x1 | probe_metric | segregated | rejected | 436 | 12036/5055/— | 4263/0 | 1/0 | —/301.073 | 3.417e-05 | — |
-| periodic_vki | 2x2 | probe_metric | coupled | rejected | 448 | 20542/25734/— | 5192/0 | 0/0 | —/301.059 | 7.479e-06 | — |
+| periodic_vki | 1x1 | probe_metric | segregated | incomplete_time_cap | 436 | 12036/5055/— | 4263/0 | 1/0 | —/301.073 | 3.417e-05 | — |
+| periodic_vki | 2x2 | probe_metric | coupled | incomplete_time_cap | 448 | 20542/25734/— | 5192/0 | 0/0 | —/301.059 | 7.479e-06 | — |
 | periodic_vki | 2x2 | probe_metric | native | iteration_cap | 3000 | 3000/3000/— | 12000/0 | —/— | 65.549/66.163 | 2.799e-05 | — |
-| periodic_vki | 2x2 | probe_metric | segregated | rejected | 911 | 24411/11295/— | 9110/0 | 1/21 | —/301.061 | 4.110e-05 | — |
-| flatplate_lm | 1x1 | recovery_release | coupled | timeout | 50 | 1123/1251/1251 | 128/0 | 4/2 | —/301.042 | — | — |
-| flatplate_lm | 1x1 | recovery_release | native | rejected | 710 | 710/710/710 | 10646/0 | —/— | —/301.052 | 7.939e-04 | — |
-| flatplate_lm | 1x1 | recovery_release | segregated | timeout | 20 | 1509/222/214 | 380/0 | 2/18 | —/301.050 | — | — |
-| flatplate_lm | 2x2 | recovery_release | coupled | rejected | 101 | 2071/2309/2309 | 238/0 | 4/2 | —/301.041 | 1.673e+00 | — |
-| flatplate_lm | 2x2 | recovery_release | native | rejected | 1419 | 1419/1419/1419 | 21283/0 | —/— | —/301.064 | 1.039e-03 | — |
-| flatplate_lm | 2x2 | recovery_release | segregated | timeout | 26 | 3007/281/305 | 702/0 | 2/19 | —/301.025 | — | — |
+| periodic_vki | 2x2 | probe_metric | segregated | incomplete_time_cap | 911 | 24411/11295/— | 9110/0 | 1/21 | —/301.061 | 4.110e-05 | — |
+| flatplate_lm | 1x1 | recovery_release | coupled | incomplete_time_cap | 50 | 1123/1251/1251 | 128/0 | 4/2 | —/301.042 | — | — |
+| flatplate_lm | 1x1 | recovery_release | native | incomplete_time_cap | 710 | 710/710/710 | 10646/0 | —/— | —/301.052 | 7.939e-04 | — |
+| flatplate_lm | 1x1 | recovery_release | segregated | incomplete_time_cap | 20 | 1509/222/214 | 380/0 | 2/18 | —/301.050 | — | — |
+| flatplate_lm | 2x2 | recovery_release | coupled | incomplete_time_cap | 101 | 2071/2309/2309 | 238/0 | 4/2 | —/301.041 | 1.673e+00 | — |
+| flatplate_lm | 2x2 | recovery_release | native | incomplete_time_cap | 1419 | 1419/1419/1419 | 21283/0 | —/— | —/301.064 | 1.039e-03 | — |
+| flatplate_lm | 2x2 | recovery_release | segregated | incomplete_time_cap | 26 | 3007/281/305 | 702/0 | 2/19 | —/301.025 | — | — |
 | naca_sa | 1x1 | recovery_release | coupled | reference_audit_failed | 11 | 1629/2055/— | 423/0 | 0/0 | 41.410/41.998 | 1.334e-11 | 1.199e-06 |
 | naca_sa | 1x1 | recovery_release | native | reference_audit_failed | 11 | 11/11/— | 440/0 | —/— | 1.378/1.907 | 1.963e-10 | 0.000e+00 |
 | naca_sa | 1x1 | recovery_release | segregated | reference_audit_failed | 11 | 170/427/— | 388/0 | 0/0 | 9.339/9.848 | 1.257e-11 | 2.255e-06 |
 | naca_sa | 2x2 | recovery_release | coupled | rejected | 11 | 1262/1564/— | 301/0 | 1/0 | 16.219/16.788 | 3.006e-11 | 1.352e-05 |
 | naca_sa | 2x2 | recovery_release | native | reference_audit_failed | 11 | 11/11/— | 440/0 | —/— | 0.929/1.423 | 2.256e-10 | 0.000e+00 |
 | naca_sa | 2x2 | recovery_release | segregated | reference_audit_failed | 11 | 260/372/— | 363/0 | 0/0 | 5.350/5.869 | 1.253e-11 | 2.789e-06 |
-| naca_sst | 1x1 | recovery_release | coupled | rejected | 216 | 12074/13496/— | 1415/0 | 4/0 | —/301.041 | 1.515e-06 | — |
+| naca_sst | 1x1 | recovery_release | coupled | incomplete_time_cap | 216 | 12074/13496/— | 1415/0 | 4/0 | —/301.041 | 1.515e-06 | — |
 | naca_sst | 1x1 | recovery_release | native | reference_audit_failed | 258 | 258/258/— | 10173/0 | —/— | 36.407/36.936 | 8.922e-12 | 0.000e+00 |
-| naca_sst | 1x1 | recovery_release | segregated | timeout | 52 | 11661/1698/— | 4050/0 | 0/0 | —/301.053 | — | — |
-| naca_sst | 2x2 | recovery_release | coupled | rejected | 445 | 23585/26433/— | 2846/0 | 4/0 | —/301.036 | 1.398e-06 | — |
+| naca_sst | 1x1 | recovery_release | segregated | incomplete_time_cap | 52 | 11661/1698/— | 4050/0 | 0/0 | —/301.053 | — | — |
+| naca_sst | 2x2 | recovery_release | coupled | incomplete_time_cap | 445 | 23585/26433/— | 2846/0 | 4/0 | —/301.036 | 1.398e-06 | — |
 | naca_sst | 2x2 | recovery_release | native | reference_audit_failed | 258 | 258/258/— | 10320/0 | —/— | 27.401/28.073 | 8.919e-12 | 0.000e+00 |
-| naca_sst | 2x2 | recovery_release | segregated | timeout | 84 | 20828/2309/— | 7305/0 | 0/0 | —/301.048 | — | — |
-| nozzle_sst | 1x1 | recovery_release | coupled | rejected | 1183 | 30261/33665/— | 3402/0 | 5/0 | —/301.035 | 3.538e-03 | — |
+| naca_sst | 2x2 | recovery_release | segregated | incomplete_time_cap | 84 | 20828/2309/— | 7305/0 | 0/0 | —/301.048 | — | — |
+| nozzle_sst | 1x1 | recovery_release | coupled | incomplete_time_cap | 1183 | 30261/33665/— | 3402/0 | 5/0 | —/301.035 | 3.538e-03 | — |
 | nozzle_sst | 1x1 | recovery_release | native | rejected | 548 | 548/548/— | 6235/0 | —/— | 11.236/11.734 | 7.647e-09 | — |
-| nozzle_sst | 1x1 | recovery_release | segregated | rejected | 537 | 33622/11133/— | 13529/0 | 3/3 | —/301.088 | 4.508e-06 | — |
-| nozzle_sst | 2x2 | recovery_release | coupled | rejected | 2142 | 70006/77519/— | 7502/0 | 6/0 | —/301.024 | 2.932e-04 | — |
+| nozzle_sst | 1x1 | recovery_release | segregated | incomplete_time_cap | 537 | 33622/11133/— | 13529/0 | 3/3 | —/301.088 | 4.508e-06 | — |
+| nozzle_sst | 2x2 | recovery_release | coupled | incomplete_time_cap | 2142 | 70006/77519/— | 7502/0 | 6/0 | —/301.024 | 2.932e-04 | — |
 | nozzle_sst | 2x2 | recovery_release | native | rejected | 546 | 546/546/— | 6568/0 | —/— | 5.792/6.197 | 7.649e-09 | — |
-| nozzle_sst | 2x2 | recovery_release | segregated | rejected | 2438 | 48375/59744/— | 49612/0 | 5/0 | —/301.039 | 4.445e-02 | — |
-| periodic_vki | 1x1 | recovery_release | coupled | rejected | 235 | 10998/13792/— | 2794/0 | 0/0 | —/301.074 | 2.412e-05 | — |
+| nozzle_sst | 2x2 | recovery_release | segregated | incomplete_time_cap | 2438 | 48375/59744/— | 49612/0 | 5/0 | —/301.039 | 4.445e-02 | — |
+| periodic_vki | 1x1 | recovery_release | coupled | incomplete_time_cap | 235 | 10998/13792/— | 2794/0 | 0/0 | —/301.074 | 2.412e-05 | — |
 | periodic_vki | 1x1 | recovery_release | native | iteration_cap | 3000 | 3000/3000/— | 12000/0 | —/— | 121.860/122.402 | 2.419e-05 | — |
-| periodic_vki | 1x1 | recovery_release | segregated | rejected | 452 | 12461/5263/— | 4442/0 | 1/0 | —/301.023 | 3.417e-05 | — |
-| periodic_vki | 2x2 | recovery_release | coupled | rejected | 479 | 21720/27191/— | 5471/0 | 0/0 | —/301.031 | 7.479e-06 | — |
+| periodic_vki | 1x1 | recovery_release | segregated | incomplete_time_cap | 452 | 12461/5263/— | 4442/0 | 1/0 | —/301.023 | 3.417e-05 | — |
+| periodic_vki | 2x2 | recovery_release | coupled | incomplete_time_cap | 479 | 21720/27191/— | 5471/0 | 0/0 | —/301.031 | 7.479e-06 | — |
 | periodic_vki | 2x2 | recovery_release | native | iteration_cap | 3000 | 3000/3000/— | 12000/0 | —/— | 67.211/67.698 | 2.799e-05 | — |
-| periodic_vki | 2x2 | recovery_release | segregated | rejected | 1106 | 28888/13407/— | 10607/0 | 1/21 | —/301.052 | 4.884e-05 | — |
+| periodic_vki | 2x2 | recovery_release | segregated | incomplete_time_cap | 1106 | 28888/13407/— | 10607/0 | 1/21 | —/301.052 | 4.884e-05 | — |
 
 ## Remaining work cost on final code
 
@@ -595,9 +609,9 @@ on different block widths; they are not equal-cost units between modes.
 
 | Mode | Status | Updates | Flow assemblies | Turb assemblies | Krylov work | Retries | Backtracks |
 |---|---|---:|---:|---:|---:|---:|---:|
-| coupled | timeout | 29 | 4654 | 5836 | 1161 | 0 | 0 |
+| coupled | incomplete_time_cap | 29 | 4654 | 5836 | 1161 | 0 | 0 |
 | native | qualified | 151 | 151 | 151 | 6040 | — | — |
-| segregated | timeout | 65 | 4991 | 2586 | 3022 | 2 | 0 |
+| segregated | incomplete_time_cap | 65 | 4991 | 2586 | 3022 | 2 | 0 |
 
 ## Final-code CPU sampling
 

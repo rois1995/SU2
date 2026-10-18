@@ -1062,7 +1062,9 @@ TEST_CASE("Invalid Newton trials are rejected without silently projecting a deri
   CNewtonLinearization linearization(*equations, driver.Geometry(), driver.Config());
   auto diagonal = MakeVector(driver, equations->GetnVar());
   REQUIRE(linearization.SetBase(scale, diagonal, 1e20, 0));
-  CHECK_FALSE(linearization.Apply(direction, actual));
+  CNewtonLinearization::Failure failure;
+  CHECK_FALSE(linearization.Apply(direction, actual, true, true, 0, &failure));
+  CHECK(failure == CNewtonLinearization::Failure::Admissibility);
   for (auto i = 0ul; i < actual.GetLocSize(); ++i) CHECK(std::isnan(actual[i]));
   REQUIRE(equations->Restore());
 }
@@ -2343,6 +2345,9 @@ TEST_CASE("A failed coupled Newton update restores every selected equation", "[N
     controller.Iterate(geometry, driver.Solvers(), driver.Numerics(), driver.Config());
     REQUIRE(controller.GetNumericalFailure());
     CHECK(controller.GetLastAttempt().linearFailure == linearFailure);
+    CHECK(std::string(controller.GetLastAttempt().rejectionReason) ==
+          (linearFailure ? "TRUE_LINEAR_DEFECT" : "EVALUATION_LIMIT"));
+    CHECK(controller.GetLastAttempt().failedProducts == 0);
     if (!linearFailure) CHECK(controller.GetLastAttempt().search.status == Armijo::Status::EvaluationLimit);
     CHECK(controller.GetLastAttempt().rollbackStateError == 0.0);
     CHECK(controller.GetLastAttempt().rollbackMeritError == 0.0);
@@ -2358,6 +2363,43 @@ TEST_CASE("A failed coupled Newton update restores every selected equation", "[N
           CHECK(block.solver->GetNodes()->GetSolution_time_n(p, v) == 7.0);
           CHECK(block.solver->GetNodes()->GetSolution_time_n1(p, v) == 9.0);
         }
+  }
+}
+
+TEST_CASE("Newton diagnostics preserve the CSV schema when appending after a restart", "[NewtonController]") {
+  std::string detailedHeader;
+  for (unsigned format : {0u, 1u, 2u}) {
+    Problem problem(sst + "CFL_NUMBER= 0.05\nLINEAR_SOLVER_PREC= ILU\n");
+    const std::string prefix = "newton_restart_schema";
+    std::string expectedHeader;
+    if (SU2_MPI::GetRank() == MASTER_NODE) {
+      std::ofstream out(prefix + ".csv");
+      if (format) {
+        expectedHeader = detailedHeader;
+        if (format == 1) expectedHeader.resize(expectedHeader.find(",rejection_reason"));
+        out << expectedHeader << '\n';
+      }
+    }
+    SU2_MPI::Barrier(SU2_MPI::GetComm());
+    NonlinearGlobalization::Options<> options;
+    options.diagnostics = true;
+    options.maxRetries = 0;
+    CNewtonIntegration controller({RUNTIME_FLOW_SYS, RUNTIME_TURB_SYS}, options, false, prefix);
+    auto& driver = *problem.driver;
+    controller.Iterate(driver.Geometry(), driver.Solvers(), driver.Numerics(), driver.Config());
+    if (SU2_MPI::GetRank() == MASTER_NODE) {
+      std::ifstream in(prefix + ".csv");
+      std::string header, row;
+      std::getline(in, header);
+      if (format == 0) {
+        detailedHeader = header;
+        CHECK(header.find(",rejection_reason,failed_products,inadmissible_trials") != std::string::npos);
+      } else
+        CHECK(header == expectedHeader);
+      std::getline(in, row);
+      CHECK(!row.empty());
+      CHECK(std::count(header.begin(), header.end(), ',') == std::count(row.begin(), row.end(), ','));
+    }
   }
 }
 
@@ -2526,6 +2568,8 @@ TEST_CASE("Large native Newton groups repeat states and decisions", "[.][NewtonR
   INFO(accepted.GetNumericalFailureMessage());
   REQUIRE_FALSE(accepted.GetNumericalFailure());
   REQUIRE(accepted.GetLastAttempt().search.status == Armijo::Status::Accepted);
+  CHECK(std::string(accepted.GetLastAttempt().rejectionReason) == "NONE");
+  CHECK(accepted.GetLastAttempt().failedProducts == 0);
   equations->Pack(base);
   save("accepted", base);
   for (const auto& block : equations->GetBlocks()) {
@@ -3245,7 +3289,15 @@ TEST_CASE("Reconstructed Newton products converge independently of the requested
   equations->SetTrial(direction, 0, scale, isFree);
   CNewtonLinearization unresolved(*equations, geometry, config);
   REQUIRE(unresolved.SetBase(scale, diagonal, 1e-20, 0, isFree));
-  CHECK_FALSE(unresolved.Apply(direction, actual));
+  CNewtonLinearization::Failure failure;
+  CHECK_FALSE(unresolved.Apply(direction, actual, true, true, 0, &failure));
+  CHECK(failure == CNewtonLinearization::Failure::Verification);
+  direction = passivedouble(0);
+  CHECK(unresolved.Apply(direction, actual, true, true, 0, &failure));
+  CHECK(failure == CNewtonLinearization::Failure::None);
+  direction = passivedouble(std::numeric_limits<double>::quiet_NaN());
+  CHECK_FALSE(unresolved.Apply(direction, actual, true, true, 0, &failure));
+  CHECK(failure == CNewtonLinearization::Failure::Direction);
   REQUIRE(equations->Restore());
   CHECK(equations->GetRestorationError() == 0.0);
 }
@@ -4457,6 +4509,9 @@ TEST_CASE("Resolved Newton groups wait and resume without consuming startup", "[
         CHECK(idle.search.value == idle.base);
         CHECK(idle.search.evaluations == 0);
         CHECK(idle.linearIterations == 0);
+        CHECK(std::string(idle.rejectionReason) == "NONE");
+        CHECK(idle.failedProducts == 0);
+        CHECK(idle.inadmissibleTrials == 0);
         CHECK(std::isnan(idle.linearDefect));
         CHECK(MaxDifference(before, after) == 0);
         /*--- A scalar residual can be small in raw units and unresolved in scaled units. ---*/
