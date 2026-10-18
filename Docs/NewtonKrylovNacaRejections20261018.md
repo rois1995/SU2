@@ -354,6 +354,16 @@ step requests doubling. TURB reaches 1e6. This supports investigating product
 verification and CFL cycling, rather than attributing this case to backtracking
 or assuming that a duplicate base refresh explains most of its work.
 
+Failed products also occur inside 1,206 of the 1,217 accepted FLOW attempts.
+These retain partial Krylov directions that pass the unchanged independent
+true-defect and globalization checks. Their log intervals contain 91,104 FLOW
+assemblies and 10,468 useful Krylov iterations; these totals include successful
+work and cannot be assigned entirely to failed products. Only 11 accepted FLOW
+attempts have no failed product. Accepted-attempt logs do not identify each
+failed product's reason, so this category is not automatically classified as
+derivative-verification failure. The separate accounting is preserved in
+`sa_original_segregated_progress/adaptive_accepted_product_work.json`.
+
 The independently refreshed saved state passes the frozen physical, boundary,
 state and quantity bounds: density RMS 6.730e−14, maximum normalized RMS 6.730e−14,
 zero boundary projection, maximum component error 8.442e−8 and point error 1.493e−6
@@ -369,6 +379,88 @@ distribution are preserved in
 under the application evidence directory. Reproduce with the earlier command,
 `--control adaptive`, and a fresh output directory. The maintained application
 and milestone tables retain its incomplete status.
+
+## Verified serial SA derivative trace
+
+A read-only debugger child reproduces the first failed original-control FLOW
+product on the pinned c04b executable. Its restart, history and all diagnostics
+match the plain two-update replay byte for byte, and the attempts match the
+completed original-run prefix. The failed product follows 42 successful FLOW
+products. It exhausts two 17-sample searches; all 34 feasibility checks and full
+residual evaluations succeed. Saved operator/physical vectors confirm a fixed
+mass action to normalized difference 5.70e−17.
+
+| Starting sequence | First scalar step | First eligible step | Relative error there | Required limit |
+|---|---:|---:|---:|---:|
+| Original | 4.5163e−10 | 1.1291e−10 | 5.6895e−2 | 5e−4 |
+| Existing 100× recovery | 4.5163e−8 | 1.1291e−8 | 5.9244e−4 | 5e−4 |
+
+Every eligible sample fails the unchanged verification test. Error grows
+approximately as `1/h`: fitted log slopes over refinements 2–6 are −0.972 and
+−1.007. This captured event is consistent with cancellation-dominated
+differencing, rather than failed state feasibility or changing pseudo-time
+mass. It does not classify every later failed product. The coarser sequence's
+second sample has smaller error but is ineligible; the mandatory third sample
+and existing tolerance remain unchanged.
+
+Commands, step/error CSV, raw vector hashes and the independent curve assessment
+are in `sa_derivative_replay_20261018/{queue.json,probe_curve.csv,curve_assessment.json}`
+under the application evidence directory. These are supporting mechanism checks,
+not convergence or timing measurements. The earlier
+[larger-probe experiment](NewtonKrylovProbeRange20261018.md) already recovered
+individual derivatives without establishing an application benefit. This new
+trace does not justify reinstating it or weakening verification.
+
+## Local efficiency changes: original-control checks
+
+Two small source changes remove work whose result is unused. Rejected true-defect
+attempts retain their full rollback refresh and omit the preceding duplicate base
+refresh. The first two Richardson refinements retain every residual probe and
+history update while skipping unused norms and mass scratch actions; verification
+still begins with the third sample, at the same tolerance. No cache, option or
+new persistent storage is added.
+
+Both 70-case native Newton suites and the affected species-boundary, residual-failure,
+turbomachinery and setup CLI checks pass on 1×1 and 2×2. The ordinary test executable
+is byte-identical, so its existing 92-case result is reused. All six application
+prefixes reproduce states, physical reports and trial decisions byte for byte.
+
+These are **20-update, unqualified prefixes**, with identical configurations. Counts
+compare retained c04b with combined candidate 1ad21449. Outer updates, linear work,
+retries and backtracking remain unchanged; only the expected failed-attempt base
+assembly is omitted. They establish correctness and local work savings, not
+convergence cost or a runtime speedup.
+
+| Case | Layout | Mode | FLOW assemblies before → after | TURB assemblies before → after | Krylov work, unchanged | Retries, unchanged |
+|---|---|---|---:|---:|---:|---:|
+| naca_sa | 1x1 | segregated | 1810 → 1808 | 786 → 786 | 907 | 2 |
+| naca_sa | 2x2 | segregated | 3810 → 3809 | 678 → 678 | 1606 | 1 |
+| naca_sst | 1x1 | segregated | 3952 → 3952 | 336 → 336 | 1226 | 0 |
+| naca_sst | 2x2 | segregated | 3946 → 3946 | 339 → 339 | 1234 | 0 |
+| naca_sst | 1x1 | coupled | 3382 → 3379 | 3818 → 3815 | 430 | 3 |
+| naca_sst | 2x2 | coupled | 3521 → 3518 | 4022 → 4019 | 500 | 3 |
+
+Hashes and commands are preserved in `verified_norms_20261019/prefix_assessment.json`,
+the release manifests, and both validation JSON files in the application evidence
+directory. The maintained application CSV records all observed times and memory
+values; timings are ineligible.
+
+The matched 2×2 SST segregated profile measures **4,752 fewer Allreduce calls per
+rank: 92,966 → 88,214 (5.11%)**. Recorded OpenMP barrier calls fall by 19,008 per
+rank: 1,272,544 → 1,253,536. Counts cover the whole solver process on its main
+thread, including setup and output, with the same profiler and configuration.
+Restart, history and diagnostic bytes remain identical. Point-to-point MPI calls,
+recorded loop-end calls and aligned-allocation calls remain unchanged. General
+allocation/free counts vary between ranks; this establishes neither a memory
+saving nor a wall-time speedup.
+
+Full native SA accuracy-0.05 replays qualify on both layouts and reproduce their
+archived restart, history, physical report and linear work exactly: 158 updates /
+1,030 linear iterations on 1×1; 151 updates / 4,209 on 2×2. The full coupled SA
+replay is still running. Native history stop −13 and Newton history stop −14 are
+retained exactly from their archived decks; their frozen physical/state gates are
+common. Cross-solver conclusions must label that margin difference. The reduction
+and native proofs are in `verified_norms_20261019/profile_assessment.json`.
 
 <!-- measured NACA results -->
 

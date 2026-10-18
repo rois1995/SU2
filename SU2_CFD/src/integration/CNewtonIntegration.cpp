@@ -525,8 +525,6 @@ CNewtonIntegration::Attempt CNewtonIntegration::SolveAttempt(bool preparedBase) 
   const double anyInvalid = Reduce(invalid, true);
   const double squaredDefect = Reduce(defect);
   attempt.linearDefect = anyInvalid ? std::numeric_limits<double>::infinity() : std::sqrt(squaredDefect) / rhs.norm();
-  Perturb(direction, 0);
-  Residual();
   if (!Armijo::IsFinite(attempt.linearDefect) || attempt.linearDefect > options.etaMax) {
     attempt.linearFailure = true;
     attempt.rejectionReason = preconditioner->GetFailedProducts() ? Name(preconditioner->GetFailure())
@@ -534,6 +532,9 @@ CNewtonIntegration::Attempt CNewtonIntegration::SolveAttempt(bool preparedBase) 
     Restore(attempt);
     return attempt;
   }
+  /*--- Rejected directions already refresh the captured base in Restore; prepare accepted native endpoints here. ---*/
+  Perturb(direction, 0);
+  Residual();
   Endpoint();
   pseudoTime->Apply(direction, pseudoDirection);
   if (options.lineSearch)

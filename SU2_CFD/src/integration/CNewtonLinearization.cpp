@@ -245,9 +245,11 @@ bool CNewtonLinearization::Apply(const Vector& u, Vector& v, bool pseudoTime, bo
           v[i] = fine;
       }
       END_SU2_OMP_FOR
-      const double error = refine ? previousProduct.norm() : 0;
-      double magnitude = refine && !pseudoTime ? v.norm() : 0;
-      if (refine && pseudoTime) {
+      /*--- The first two probes only build Richardson history; verification starts with the third. ---*/
+      const bool checkDerivative = refine && refinement > 1;
+      const double error = checkDerivative ? previousProduct.norm() : 0;
+      double magnitude = checkDerivative && !pseudoTime ? v.norm() : 0;
+      if (checkDerivative && pseudoTime) {
         /*--- Verify the operator being solved: near-null physical modes are resolved by the frozen mass action. ---*/
         if (nativeMass) {
           nativeMass->Apply(u, probeWork);
@@ -259,7 +261,7 @@ bool CNewtonLinearization::Apply(const Vector& u, Vector& v, bool pseudoTime, bo
         }
         magnitude = probeWork.norm();
       }
-      if (!refine || (refinement > 1 && error <= 5e-4 * magnitude)) {
+      if (!refine || (checkDerivative && error <= 5e-4 * magnitude)) {
         converged = true;
         break;
       }

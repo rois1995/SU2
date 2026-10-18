@@ -208,10 +208,10 @@ and `paper_notes/manifest.json`; they motivate investigations, not unmeasured so
 
 | Application | Layout | Actual trials | Qualified endpoints | Eligible timing repetitions |
 |---|---|---:|---:|---:|
-| naca_sa | 1x1 | 83 | 30 | 1 |
-| naca_sa | 2x2 | 60 | 25 | 0 |
-| naca_sst | 1x1 | 39 | 5 | 0 |
-| naca_sst | 2x2 | 20 | 2 | 0 |
+| naca_sa | 1x1 | 87 | 31 | 1 |
+| naca_sa | 2x2 | 63 | 26 | 0 |
+| naca_sst | 1x1 | 43 | 5 | 0 |
+| naca_sst | 2x2 | 24 | 2 | 0 |
 | nozzle_sst | 1x1 | 32 | 0 | 0 |
 | nozzle_sst | 2x2 | 9 | 0 | 0 |
 | flatplate_lm | 1x1 | 20 | 0 | 0 |
@@ -578,6 +578,12 @@ is retained; `prepared` and `running` entries have not completed.
 | nozzle_sst | 1x1 | segregated | original | probe_recovery_checked | fd_step_1e-8 | -12 | diagnostic_complete | False | 1 | — | 4.708 |
 | naca_sa | 1x1 | native | original | recovery_release | original | -14.0 | qualified | True | 298 | 36.747 | 37.305 |
 | naca_sa | 1x1 | native | original | recovery_release | original | -15.0 | incomplete_time_cap | False | 2669 | 300.112 | 300.743 |
+| naca_sa | 1x1 | segregated | original | rejected_base_refresh_release | original | -13.0 | iteration_cap | False | 20 | 81.502 | 82.185 |
+| naca_sa | 2x2 | segregated | original | rejected_base_refresh_release | original | -13.0 | iteration_cap | False | 20 | 118.042 | 118.682 |
+| naca_sst | 1x1 | coupled | original | rejected_base_refresh_release | original | -13.0 | iteration_cap | False | 20 | 179.402 | 180.075 |
+| naca_sst | 1x1 | segregated | original | rejected_base_refresh_release | original | -13.0 | iteration_cap | False | 20 | 185.663 | 186.424 |
+| naca_sst | 2x2 | coupled | original | rejected_base_refresh_release | original | -13.0 | iteration_cap | False | 20 | 134.468 | 135.002 |
+| naca_sst | 2x2 | segregated | original | rejected_base_refresh_release | original | -13.0 | iteration_cap | False | 20 | 150.430 | 151.090 |
 | naca_sa | 1x1 | segregated | original | muscl_boundary_gradient_v2_release | adaptive | -14.0 | incomplete_time_cap | False | 1217 | 7203.274 | 7203.906 |
 | naca_sa | 1x1 | coupled | original | recovery_release | forcing | -13.0 | iteration_cap | False | 6 | 35.446 | 35.946 |
 | naca_sa | 1x1 | coupled | original | recovery_release | forcing | -13.0 | iteration_cap | False | 6 | 42.225 | 42.784 |
@@ -597,6 +603,15 @@ is retained; `prepared` and `running` entries have not completed.
 | naca_sst | 1x1 | segregated | original | static_review_correctness_v2_release | original | -13.0 | iteration_cap | False | 20 | 103.107 | 103.654 |
 | naca_sst | 2x2 | coupled | original | static_review_correctness_v2_release | original | -13.0 | iteration_cap | False | 20 | 46.646 | 47.136 |
 | naca_sst | 2x2 | segregated | original | static_review_correctness_v2_release | original | -13.0 | iteration_cap | False | 20 | 51.690 | 52.223 |
+| naca_sa | 1x1 | segregated | original | verified_norms_release | original | -13.0 | iteration_cap | False | 20 | 89.008 | 89.741 |
+| naca_sa | 2x2 | segregated | original | verified_norms_release | original | -13.0 | iteration_cap | False | 20 | 116.878 | 117.516 |
+| naca_sst | 1x1 | coupled | original | verified_norms_release | original | -13.0 | iteration_cap | False | 20 | 172.430 | 173.211 |
+| naca_sst | 1x1 | segregated | original | verified_norms_release | original | -13.0 | iteration_cap | False | 20 | 226.085 | 226.716 |
+| naca_sst | 2x2 | coupled | original | verified_norms_release | original | -13.0 | iteration_cap | False | 20 | 146.039 | 146.675 |
+| naca_sst | 2x2 | segregated | original | verified_norms_release | original | -13.0 | iteration_cap | False | 20 | 144.941 | 145.587 |
+| naca_sa | 1x1 | coupled | original | verified_norms_release | diagonal | -14.0 | prepared | False | — | — | — |
+| naca_sa | 1x1 | native | original | verified_norms_release | original | -13.0 | qualified | True | 158 | 14.390 | 15.096 |
+| naca_sa | 2x2 | native | original | verified_norms_release | original | -13.0 | qualified | True | 151 | 43.692 | 44.365 |
 
 ## Original-control implementation comparison
 
