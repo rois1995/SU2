@@ -384,22 +384,51 @@ unsigned long CNewtonBlockPreconditioner::Solve(const Vector& u, Vector& v, unsi
     else if (!iterations || (iterations == 1 && inner == LINEAR_SOLVER_INNER::SMOOTHER))
       (*block.preconditioner)(block.input, block.output);
     else {
-      CSysMatrixVectorProduct<Mixed> matrix(block.solver->Jacobian, geometry, config);
-      block.output = Mixed(0);
-      Mixed residual = tolerance;
-      switch (inner) {
-        case LINEAR_SOLVER_INNER::NONE:
-          total += block.linearSolver->FGMRES_LinSolver(block.input, block.output, matrix, *block.preconditioner,
+      /*--- Native inner solvers use an absolute zero test; normalize without squaring tiny physical units. ---*/
+      SU2_OMP_SAFE_GLOBAL_ACCESS(rhsMagnitude = 0;)
+      double localMagnitude = 0;
+      SU2_OMP_FOR_STAT(1024)
+      for (auto i = 0ul; i < block.input.GetNElmDomain(); ++i) {
+        const double value = SU2_TYPE::GetValue(block.input[i]);
+        localMagnitude = Armijo::IsFinite(value) ? std::max(localMagnitude, std::abs(value))
+                                                : std::numeric_limits<double>::infinity();
+      }
+      END_SU2_OMP_FOR
+      atomicMax(localMagnitude, rhsMagnitude);
+      BEGIN_SU2_OMP_SAFE_GLOBAL_ACCESS {
+        const double rankMagnitude = rhsMagnitude;
+        SU2_MPI::Allreduce(&rankMagnitude, &rhsMagnitude, 1, MPI_DOUBLE, MPI_MAX, SU2_MPI::GetComm());
+      }
+      END_SU2_OMP_SAFE_GLOBAL_ACCESS
+      if (!Armijo::IsFinite(rhsMagnitude))
+        block.output = Mixed(std::numeric_limits<double>::quiet_NaN());
+      else if (rhsMagnitude == 0)
+        block.output = Mixed(0);
+      else {
+        block.input /= rhsMagnitude;
+        block.output = Mixed(0);
+        SU2_OMP_BARRIER
+        CSysMatrixVectorProduct<Mixed> matrix(block.solver->Jacobian, geometry, config);
+        Mixed residual = tolerance;
+        unsigned long used = 0;
+        switch (inner) {
+          case LINEAR_SOLVER_INNER::NONE:
+            used = block.linearSolver->FGMRES_LinSolver(block.input, block.output, matrix, *block.preconditioner,
                                                         tolerance, iterations, residual, false, config);
-          break;
-        case LINEAR_SOLVER_INNER::BCGSTAB:
-          total += block.linearSolver->BCGSTAB_LinSolver(block.input, block.output, matrix, *block.preconditioner,
+            break;
+          case LINEAR_SOLVER_INNER::BCGSTAB:
+            used = block.linearSolver->BCGSTAB_LinSolver(block.input, block.output, matrix, *block.preconditioner,
                                                          tolerance, iterations, residual, false, config);
-          break;
-        case LINEAR_SOLVER_INNER::SMOOTHER:
-          total += block.linearSolver->Smoother_LinSolver(block.input, block.output, matrix, *block.preconditioner, 0,
+            break;
+          case LINEAR_SOLVER_INNER::SMOOTHER:
+            used = block.linearSolver->Smoother_LinSolver(block.input, block.output, matrix, *block.preconditioner, 0,
                                                           iterations, residual, false, config);
-          break;
+            break;
+        }
+        total += used;
+        /*--- An exact first-direction breakdown can return zero iterations; retain the original one-pass inverse. ---*/
+        if (!used) (*block.preconditioner)(block.input, block.output);
+        block.output *= rhsMagnitude;
       }
     }
     SU2_OMP_BARRIER

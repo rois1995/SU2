@@ -1658,6 +1658,60 @@ TEST_CASE("Explicit solvers track prescribed rows without sparse coefficients", 
   CHECK_FALSE(matrix.HasCoefficients());
 }
 
+TEST_CASE("Native inner preconditioning preserves the scaled coordinates", "[NewtonInnerScaling]") {
+  Problem problem(sa + "LINEAR_SOLVER_PREC= ILU\n");
+  auto& driver = *problem.driver;
+  auto* geometry = driver.Geometry();
+  auto equations = problem.Equations({RUNTIME_FLOW_SYS, RUNTIME_TURB_SYS});
+  REQUIRE(Residual(*equations, true));
+  equations->Capture();
+  const auto variables = equations->GetnVar();
+  auto diagonal = MakeVector(driver, variables, 1.0);
+  auto input = MakeVector(driver, variables), actual = input;
+  for (auto p = 0ul; p < geometry->GetnPoint(); ++p)
+    for (auto v = 0u; v < variables; ++v) input(p, v) = 0.125 * (v + 1);
+  const std::vector<double> units = sizeof(su2mixedfloat) == sizeof(float)
+                                        ? std::vector<double>{1.0, 1e-20}
+                                        : std::vector<double>{1.0, 1e-32, 1e-200};
+  for (double unit : units) {
+    CAPTURE(unit);
+    auto scale = MakeVector(driver, variables, unit);
+    CNewtonLinearization linearization(*equations, geometry, driver.Config());
+    REQUIRE(linearization.SetBase(scale, diagonal, 1e-7, 1e-4,
+                                 [](const CNewtonEquationSet::Block&, unsigned long, unsigned short) { return true; }));
+    /*--- An identity native matrix must remain an identity inverse under any representable unit change. ---*/
+    for (const auto& block : equations->GetBlocks()) {
+      block.solver->Jacobian.SetValZero();
+      block.solver->Jacobian.ClearPrescribedRows();
+      for (auto p = 0ul; p < geometry->GetnPointDomain(); ++p) block.solver->Jacobian.AddVal2Diag(p, 1.0);
+    }
+    for (unsigned inner : {0, 3}) {
+      CAPTURE(inner);
+      CNewtonBlockPreconditioner preconditioner(linearization, geometry, driver.Config(), false, inner);
+      SU2_OMP_PARALLEL {
+        preconditioner.Build();
+        preconditioner(input, actual);
+      }
+      END_SU2_OMP_PARALLEL
+      actual -= input;
+      CHECK(actual.norm() / input.norm() < 100 * std::numeric_limits<su2mixedfloat>::epsilon());
+    }
+    auto zero = MakeVector(driver, variables, 0.0), invalid = zero;
+    if (SU2_MPI::GetRank() == MASTER_NODE && geometry->GetnPointDomain())
+      invalid(0, 0) = std::numeric_limits<double>::quiet_NaN();
+    CNewtonBlockPreconditioner preconditioner(linearization, geometry, driver.Config(), false, 3);
+    SU2_OMP_PARALLEL {
+      preconditioner.Build();
+      preconditioner(zero, actual);
+    }
+    END_SU2_OMP_PARALLEL
+    CHECK(actual.norm() == 0);
+    SU2_OMP_PARALLEL { preconditioner(invalid, actual); }
+    END_SU2_OMP_PARALLEL
+    CHECK(std::isnan(actual.norm()));
+  }
+}
+
 TEST_CASE("Explicit Newton preconditioning retains the native volume over dt diagonal", "[NewtonExplicit]") {
   for (bool threeD : {false, true})
     for (const auto& physics : {std::string("SOLVER= NAVIER_STOKES\n"), species}) {

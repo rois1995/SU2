@@ -167,6 +167,7 @@ class CNewtonBlockPreconditioner final : public CPreconditioner<passivedouble> {
   CGeometry* geometry;
   CConfig* config;
   mutable unsigned long work = 0;
+  mutable double rhsMagnitude = 0;
   std::vector<Block> blocks;
   mutable Vector coupling, periodicRHS;
 
