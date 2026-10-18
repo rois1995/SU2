@@ -40,7 +40,7 @@ support and collective source validation are qualified. Private affine projectio
 routes are implemented, not an accepted oblique proposal/lifecycle qualification.
 Keep input-adoption versus mapping-error contracts separate. General junctions,
 affine-wall BL,2D runtime/exterior and annular coordinated construction remain OPEN.
-Disk cleanup recovered14.40GiB; [receipt and restore](Handbook/DISK_SPACE_CLEANUP_2026_10_18.md).
+Disk cleanup recovered23.40GiB across two verified archival batches; [receipt and restore](Handbook/DISK_SPACE_CLEANUP_2026_10_18.md).
 Current build and all3D evidence preserved; archived old executables need decompression.
 Root/tmp nearly full from foreign work: leave it untouched.
 
