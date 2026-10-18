@@ -168,11 +168,11 @@ and `paper_notes/manifest.json`; they motivate investigations, not unmeasured so
 | naca_sst | 2x2 | 9 | 0 | 0 |
 | nozzle_sst | 1x1 | 32 | 0 | 0 |
 | nozzle_sst | 2x2 | 9 | 0 | 0 |
-| flatplate_lm | 1x1 | 15 | 0 | 0 |
+| flatplate_lm | 1x1 | 17 | 0 | 0 |
 | flatplate_lm | 2x2 | 9 | 0 | 0 |
 | periodic_stator | 1x1 | 3 | 0 | 0 |
 | periodic_stator | 2x2 | 0 | 0 | 0 |
-| periodic_vki | 1x1 | 12 | 0 | 0 |
+| periodic_vki | 1x1 | 15 | 0 | 0 |
 | periodic_vki | 2x2 | 9 | 0 | 0 |
 
 ## Declared control matrix
@@ -188,11 +188,11 @@ remain in the complete application ledger above.
 | naca_sa | 2x2 | 16 | 10 | 0 | 6 | 2 |
 | naca_sst | 1x1 | 16 | 6 | 0 | 10 | 1 |
 | naca_sst | 2x2 | 13 | 0 | 0 | 13 | 0 |
-| nozzle_sst | 1x1 | 14 | 3 | 1 | 10 | 0 |
+| nozzle_sst | 1x1 | 14 | 4 | 0 | 10 | 0 |
 | nozzle_sst | 2x2 | 14 | 0 | 0 | 14 | 0 |
-| flatplate_lm | 1x1 | 15 | 0 | 0 | 15 | 0 |
+| flatplate_lm | 1x1 | 15 | 1 | 1 | 13 | 0 |
 | flatplate_lm | 2x2 | 15 | 0 | 0 | 15 | 0 |
-| periodic_vki | 1x1 | 13 | 0 | 0 | 13 | 0 |
+| periodic_vki | 1x1 | 13 | 3 | 0 | 10 | 0 |
 | periodic_vki | 2x2 | 10 | 0 | 0 | 10 | 0 |
 
 ## Selected quiet native baseline
@@ -212,6 +212,35 @@ no I/O improvement. Exact commands, file hashes and all failed eligibility evide
 | 2x2 | 3 | 0 | — | — |
 
 Eligible individual observation: 1x1, 34 updates, 4.282s solver loop / 4.808s end to end. This is one observation, not a repeated comparison.
+
+## Qualified coupled SA endpoint
+
+The history-14 diagonal coupled run qualifies against both the tighter native298 state
+and pinned151 state, with unchanged physical/state/quantity requirements. It needs179
+updates,7603 Krylov iterations and33415 measured assemblies per system; maximum accepted
+true defect0.0889115 remains below0.1. All179 steps use alpha1;89 linear failures have
+zero completed outer Krylov iterations. No backtracking occurs.
+This is a convergence-control result on retained code, not an implementation speedup.
+All four rows below are numerically qualified, but their timings are contended.
+Native counts are inferred per-update assemblies; Newton counters are measured.
+Native linear sums and coupled Krylov counts have different block widths.
+
+| Mode / controls | Updates | Flow / turb assemblies | Linear work | Retries | Loop / elapsed s | Peak rank KiB |
+|---|---:|---:|---:|---:|---:|---:|
+| native fixed1000, history-13 | 151 | 151 / 151 | 6040 | — | 19.177 / 19.784 | 95304 |
+| native fixed1000, history-14 | 298 | 298 / 298 | 10620 | — | 36.747 / 37.305 | 95264 |
+| native fixed10000, history-13 | 34 | 34 / 34 | 1360 | — | 4.236 / 4.756 | 95540 |
+| coupled adaptive1000, forcing, diagonal, history-14 | 179 | 33415 / 33415 | 7603 | 89 | 764.796 / 765.385 | 171400 |
+
+The verified MUSCL products imply at least22809 assemblies per system
+(three probes per completed product): a source-derived lower bound equal to68.3% of
+the measured assembly count, not a measured phase count or wall-time fraction.
+Additional refinement, failed products, defects, bases and trial evaluations add work.
+Intervals ending in the89 failures contain3471 assemblies per system, measured between
+attempt-log rows. They include intervening reporting, bases and rollback, so they are
+not an exclusive failure-phase count or a claim that all this work is avoidable.
+The corresponding count proof and numerical hashes are in
+`sa_first_qualified_coupled_summary.json`. Quiet repeated comparisons remain incomplete.
 
 ## Current run ledger
 
@@ -235,6 +264,8 @@ is retained; `prepared` and `running` entries have not completed.
 | naca_sst | 1x1 | coupled | original | coarser_candidate | original | -12 | rejected | False | 227 | 300.218 | 300.727 |
 | naca_sst | 1x1 | coupled | original | recovery_release | original | -12 | iteration_cap | False | 20 | 82.086 | 82.650 |
 | naca_sst | 1x1 | native | original | recovery_release | original | -13.0 | qualified | True | 397 | 54.668 | 55.205 |
+| flatplate_lm | 1x1 | native | original | recovery_release | adaptive | -11 | rejected | False | 1489 | 600.245 | 601.255 |
+| flatplate_lm | 1x1 | segregated | original | recovery_release | forcing | -11 | prepared | False | — | — | — |
 | naca_sa | 1x1 | coupled | original | recovery_release | adaptive | -13.0 | rejected | False | 73 | 300.287 | 300.874 |
 | naca_sa | 1x1 | native | original | recovery_release | adaptive | -13.0 | qualified | True | 149 | 19.711 | 20.324 |
 | naca_sa | 1x1 | segregated | original | recovery_release | adaptive | -13.0 | rejected | False | 125 | 301.036 | 301.548 |
@@ -268,9 +299,12 @@ is retained; `prepared` and `running` entries have not completed.
 | naca_sst | 1x1 | coupled | original | recovery_release | forcing | -13.0 | rejected | False | 61 | 300.602 | 301.182 |
 | naca_sst | 1x1 | segregated | original | recovery_release | forcing | -13.0 | rejected | False | 32 | 314.272 | 314.825 |
 | nozzle_sst | 1x1 | native | original | recovery_release | adaptive | -13.0 | rejected | False | 6919 | 137.509 | 137.989 |
-| nozzle_sst | 1x1 | coupled | original | recovery_release | forcing | -13.0 | prepared | False | — | — | — |
+| nozzle_sst | 1x1 | coupled | original | recovery_release | forcing | -13.0 | rejected | False | 317 | 301.445 | 301.899 |
 | nozzle_sst | 1x1 | segregated | original | recovery_release | forcing | -13.0 | rejected | False | 314 | 300.020 | 300.494 |
 | nozzle_sst | 1x1 | native | original | recovery_release | original | -13.0 | rejected | False | 735 | 14.418 | 14.881 |
+| periodic_vki | 1x1 | native | cold | recovery_release | adaptive | -12 | rejected | False | 2042 | 300.391 | 300.925 |
+| periodic_vki | 1x1 | coupled | cold | recovery_release | forcing | -12 | rejected | False | 71 | 307.827 | 308.448 |
+| periodic_vki | 1x1 | segregated | cold | recovery_release | forcing | -12 | rejected | False | 88 | 300.950 | 301.506 |
 | nozzle_sst | 1x1 | segregated | original | baseline_4712d82375 | fd_step_1e-3_relative_0.01 | -12 | diagnostic_complete | False | 1 | — | — |
 | nozzle_sst | 1x1 | segregated | original | baseline_4712d82375 | fd_step_1e-5_relative_0.01 | -12 | diagnostic_complete | False | 1 | — | — |
 | nozzle_sst | 1x1 | segregated | original | baseline_4712d82375 | fd_step_1e-5 | -12 | diagnostic_complete | False | 1 | — | 2.727 |

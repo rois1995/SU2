@@ -35,7 +35,11 @@ normally after78 updates (324.573s loop, 325.099s total),
 with fresh density RMS9.75869e-14. Its conservative point error
 1.3079037e-05 exceeds1e-5. This is a state-agreement stopping failure,
 rather than a wall-time failure. A separately labelled history-14 trial retains the same
-frozen physical/state/quantity requirements. Its outcome is tracked in the application ledger.
+frozen physical/state/quantity requirements. It now qualifies after179 updates:33415 assemblies
+per system,7603 Krylov iterations,89 linear retries and no backtracking. Both native-reference
+comparisons pass (maximum conservative point error7.85129e-6). Its764.796-second solver loop
+and765.385-second elapsed time were contended and remain ineligible. This is a stopping-control
+result on unchanged numerical code. The main ledger retains the full hashes and comparison table.
 
 ## Native nozzle stability
 
@@ -59,3 +63,27 @@ including raw-versus-conservative qualification flags. The
 [control-progress CSV](NewtonKrylovControlProgress20261018.csv) distinguishes intended
 unstarted settings from measured runs. Broad qualification and three eligible repetitions
 remain unfinished.
+
+## Same-state nozzle replay and preconditioning prototype
+
+The retained and earlier reporters give identical flow residuals and normalized residuals
+at both735- and6919-update nozzle states. One native flow evaluation at the same saved
+state gives similar raw RMS values: transverse momentum7.83205e-12 versus7.83486e-12
+at735 updates, and2.15801e-12 versus2.16456e-12 at6919. This excludes a stale reporter
+as the explanation for the normalized failure. It does not yet prove a numerical floor.
+Commands, input hashes and outputs: `nozzle_replay_commands.json`, `nozzle_residual_replay/`.
+
+An isolated debugger prototype changed only the existing block preconditioner's inner
+iteration member from0to3. All residual/derivative/true-defect/acceptance controls remain
+unchanged. The untouched baseline reproduces every original20-update SST attempt row.
+
+| Inner iterations | Outer Krylov | Native inner Krylov | Flow assemblies | Turb assemblies | Retries | Final CFL |
+|---|---:|---:|---:|---:|---:|---:|
+| 0 | 430 | 0 | 3382 | 3818 | 3 | 15.625 |
+| 3 | 251 | 864 | 2231 | 2487 | 3 | 15.625 |
+
+Both prefixes have20 accepted updates and remain unconverged. The lower residual work
+justifies testing this existing mechanism in a compiled candidate; it is not a demonstrated
+application speedup. Debugger timings are ineligible. Peak owned-tree RSS includes GDB.
+Exact member-layout validation, untouched-field checks, commands and hashes are preserved
+in `inner_preconditioner_probe/{commands,interpretation}.json`.
