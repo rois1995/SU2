@@ -2494,7 +2494,7 @@ TEST_CASE("Retained complexity stencils use fresh nonhomogeneous trial tensors a
   const auto otherCore=estimate.Assess(original,1,true);
   CHECK(estimate.GetStatistics().backgroundReuses==1);
   CHECK(estimate.GetStatistics().backgroundEvaluations==determinants);
-  CHECK(estimate.GetStatistics().correctionEvaluations==corrections+otherCore.inside);
+  CHECK(CPassiveComm::Allreduce(estimate.GetStatistics().correctionEvaluations-corrections,CPassiveComm::Op::SUM)==otherCore.inside);
   CHECK(otherCore.sensorLower==c.sensorLower);CHECK(otherCore.sensorUpper==c.sensorUpper);
   CHECK(otherCore.correction!=c.correction);
   const auto repeated=estimate.Assess(original,2,true);

@@ -214,3 +214,16 @@ provisional/unattainable/integration-limited states explicit. Return/transfer th
 final candidate once; only the accepted callback publishes geometry/reference.
 All geometry/h0/positive/q/J/full-edge/transfer gates remain unchanged. This coupling
 is a design/required next implementation, not a completed API or working milestone.
+
+
+## Identical sensor background across profile trials
+
+Qualified reuse now avoids recomputing unchanged original-cell background
+intervals/densities across BL profile/core changes. Actual correction samples and
+profile-dependent geometry stay fresh. M6 seven-profile determinant work drops
+85.714%, with EXACT MPI4 selection/indicator rows and +1.077MiB retained/rank.
+Observed total metric time does not improve in the contended comparison;
+preparation remains dominant. Sensor interval error is0 at this coarse endpoint,
+while correction indicator12078 dominates. Global error calibration/allocation
+remains open; another background subdivision mechanism is not indicated here.
+[Work, accuracy, memory, failures and independent lifecycle checks](../integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/background_trial_reuse_v1/README.md).

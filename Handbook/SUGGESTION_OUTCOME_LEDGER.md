@@ -922,3 +922,31 @@ footprints/displaced reservations and collective transaction batching remain ope
 [Report, preserved controls/failure and pinned comparison](../integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/query_campaign_reuse_v1/README.md).
 Full Goal3 active. Budget selection and historical owner-UPPER6 construction remain
 separate fields/evidence; no new M6 budget-feasibility or accepted-wing claim.
+
+
+## Sensor-background trial reuse outcome
+
+- Worked: reuse the latest identical original-sensor background across profile/
+  core trials. Exact full-component equality, fixed original source ownership and
+  existing memory admission; changed sensors recompute. Actual BL correction
+  and profile geometry refresh stay fresh. No extra donor search/gather or target
+  change. Serial25/2253, MPI4 and complete opt-in/default N4M2 independent
+  RANS/SA/BDF/height/full-metric/SU2/CGNS/restart/atomicity audits pass.
+- M6 same-field seven-profile work46,717,286->6,673,898 determinants (-85.714%),
+ 4 cold rank builds/24 reuses. MPI4 estimates/indicators/mandatory rows exactly
+  match saved baseline; MPI2 drift8.998e-14. Correction37,282 and profile geometry
+ 31,956 queries unchanged. Selectedlambda.75 still308423 +/-12078 uncertain;
+ 100k remains the same nine-profile estimated conflict.
+- Cost: retained max15,463,712->16,592,816 bytes (+1.077MiB/rank). Background
+ .989->.178s; assessment1.308->.591s; preparation3.505->4.749s. Metric total
+ 6.552->7.515s in these differing contended observations; no end-to-end speedup
+  or slowdown attribution. Current field error is dominated by BL correction,
+  not background integration. Do not add background subdivision to chase it.
+- Preserved failures: ambiguous tensor alias in sizeof; MPI fixture compared a
+  rank-local counter with global inside count. Type qualification/global SUM fix
+  them. Cache admission refusal is explicit and collective; no stale fallback.
+- Still open: calibrated correction/global absolute-error allocation, accepted
+  general curved/interacting construction/M6,2D opt-in and complete affordability.
+  No further constructor fallback, full-wing replay, CFD advance or cluster run.
+
+[Qualified report and receipts](../integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/background_trial_reuse_v1/README.md).

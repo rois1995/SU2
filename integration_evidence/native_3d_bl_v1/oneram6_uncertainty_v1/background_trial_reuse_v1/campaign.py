@@ -25,7 +25,7 @@ filters={'primitives':'[NativeBLBudgetPolicy],[NativeBLBudgetProfile],[NativeCom
  'disabled_serial':'[NativeComposite2D],[NativeComposite3D],[NativeMetricFamily3D],[NativeDynamicComplexity3D],[NativeRuntimeComplexity3D],Native3D complexity integrates the geometric BL with sensor-only donors',
  'uncertainty_serial':'[NativeBLBudgetUncertainty3D]','uncertainty_mpi4':'[NativeBLBudgetUncertainty3D],[NativeDynamicComplexity3D],[NativeBLBudgetProfile]',
  'disabled_runtime':'[NativeNormalizationRuntime3D]'}
-filter=filters.get(mode,'[NativeBLBudgetRuntime3D]');folder=HERE/'qualification_v1'/mode;folder.mkdir(parents=True,exist_ok=True)
+filter=filters.get(mode,'[NativeBLBudgetRuntime3D]');folder=HERE/'qualification_v2'/mode;folder.mkdir(parents=True,exist_ok=True)
 capsule=json.dumps({str(p.relative_to(ROOT)):p.read_text() for p in sources},sort_keys=True).encode();archive=folder/'executed_source.json.gz'
 if archive.exists():assert gzip.decompress(archive.read_bytes())==capsule
 else:archive.write_bytes(gzip.compress(capsule,mtime=0))

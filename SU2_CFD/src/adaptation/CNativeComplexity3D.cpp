@@ -189,7 +189,7 @@ CNativeComplexity3D::Assessment CNativeComplexity3D::Assess(const std::vector<CB
       ++statistics.backgroundReuses;
     }else {
       const auto previousBytes=transfer_memory::Bytes(backgroundSensor);
-      const auto needed=transfer_memory::Mul(sensor.size(),sizeof(Metric));
+      const auto needed=transfer_memory::Mul(sensor.size(),sizeof(CBoundaryLayerMetric::Tensor));
       if(needed>previousBytes && transfer_memory::Add(statistics.retainedBytes,needed-previousBytes)>ceiling)
         throw std::runtime_error("Original sensor background cache exceeds storage ceiling.");
       for(size_t cell=0;cell<source.size();++cell) {

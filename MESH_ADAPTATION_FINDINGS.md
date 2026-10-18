@@ -6623,3 +6623,15 @@ root search per miss~23.32us vs23.05us. Last rejected proposal J=.04323 (<.05).
 No cap/gate/profile change, CFD advancement, accepted wing or transfer. Broader
 construction/coordination and global integration uncertainty/allocation remain.
 See `integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/query_campaign_reuse_v1/README.md`.
+
+
+## 2026-10-18 — retained original-sensor background across BL profiles
+
+Same-field M6 background determinants46.72M->6.67M (-85.714%) by exact latest
+sensor-vector comparison/cache, while actual composed correction and geometry
+refresh counts are unchanged. MPI4 selection/indicator rows exactly match; MPI2
+drift8.998e-14. Serial25/2253, MPI4 and independently audited actual opt-in/default
+N4M2 RANS/SA/current+BDF/reload/restart/atomicity pass. Extra retained max1.077MiB/
+rank; .989->.178s background observed, but total6.552->7.515s with slower cold
+preparation. No total speedup, calibrated uncertainty or new M6 construction claim.
+See `integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/background_trial_reuse_v1/README.md`.

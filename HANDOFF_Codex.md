@@ -8,12 +8,18 @@ Leave AdapNoExt, foreign ClusterResults, dependencies and foreign jobs untouched
 
 ## Current work and execution
 
-Current WIP: latest identical original-sensor background result retained across
-BL profile/core trials in CNativeComplexity3D, within the existing memory ceiling.
-All correction composition/profile-dependent refresh and reductions remain fresh.
-Tests/cold-reused saved M6 and workflow qualification pending; source build not yet
-started. See `background_trial_reuse_v1/DESIGN.md` under M6 uncertainty evidence.
-No new reconstruction fallback or full-wing rerun is planned for this slice.
+Current completed slice: identical original-sensor background retained across BL
+profile/core trials, exact tensor equality and bounded storage. Serial25/2253,
+MPI4(4 cases/rank) and actual opt-in/default N4M2 independent full workflow audits
+PASS; all jobs terminal. Failed build alias and local/global MPI fixture assertion
+preserved/corrected. M6 MPI4 selection/indicator rows EXACTLY unchanged, MPI2 drift
+8.998e-14:lambda.75,308423.48 +/-12078.10 remains integration_limited;100k conflict.
+Background determinants46.72M->6.67M (-85.7%),4 builds/24 rank reuses; correction and
+profile geometry queries unchanged. Extra retained1.077MiB/rank; observed background
+.989->.178s but metric total6.552->7.515s with slower preparation; NO total speedup
+claim. Cache resource refusal remains explicit/collective. No wing construction
+rerun or local fallback; global error allocation/calibration remains unfinished.
+[Report/evidence](integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/background_trial_reuse_v1/README.md).
 
 Current qualified reuse source checkpointde479eda4a: physical-donor interior
 hypotheses and existing scalar-edge certificates retained within one admitted
