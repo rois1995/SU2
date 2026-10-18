@@ -98,5 +98,193 @@
         5.863088426260725e-07
       ]
     }
+  },
+  "sst_reference": {
+    "manifest": {
+      "directory": "/media/rausa/4TB/SU2_Versions/SU2_v850_Develop_FixCGNSOutput/newton_krylov_refactor_20261015/application_qualification_20261018/sst_reference_deep/2/1x1/native",
+      "note": "Conservative SST reference545updates, history-14; independently stable against the1403-update history-15 wall-limited endpoint. Frozen targets and raw paired results unchanged.",
+      "files": {
+        "run.cfg": "483b90253bc762338d17679f3441650cd6cd935c245517b5268c9fd62cd90770",
+        "restart_flow.dat": "9376829c72dc5899e982b38640b35224074e946c8014844df15482d0731368d0",
+        "result.json": "9743972aa9eee20d5f3779d0adf3f16e655b863ade458c089722ffa395e9dff8",
+        "physical/report.json": "97f2d9503464ab33181bc7bf3bf3a134a24838bfa1b1623291016d80c7171a9a"
+      },
+      "protocol_sha256": "6e0fa5078392e5f864d09b1ec9580f2847c0272751b52f2bae57ab2db4b3192c",
+      "stability_evidence_sha256": "afeb6d391a60451fce71b1bc5de7c95862d6c139874ce81278f75eac1a75d93c"
+    },
+    "stability_checks": {
+      "note": "Reference-stability evidence. Targets and raw qualification records unchanged. Last trial reached a stricter history wall limit, not convergence; its fresh endpoint validates stability only. All timing ineligible.",
+      "protocol_sha256": "6e0fa5078392e5f864d09b1ec9580f2847c0272751b52f2bae57ab2db4b3192c",
+      "runs": [
+        {
+          "directory": "/media/rausa/4TB/SU2_Versions/SU2_v850_Develop_FixCGNSOutput/newton_krylov_refactor_20261015/application_qualification_20261018/qualified_recovery/naca_sst/1x1/native",
+          "updates": 258,
+          "qualified": true,
+          "status": "completed",
+          "fresh_density_rms": 9.694268030563199e-13,
+          "result_sha256": "99cd6509fd0d03a1d59926341167e1604087432a85f9dc34bd46e6a6bec9dd17",
+          "restart_sha256": "9ae4788529ae8ec1d51a5a3e4b6d3be050aab4eaad94c1046dbfeef9c86b0caa"
+        },
+        {
+          "directory": "/media/rausa/4TB/SU2_Versions/SU2_v850_Develop_FixCGNSOutput/newton_krylov_refactor_20261015/application_qualification_20261018/coarser_applications/sst_native_tighter/1x1/native",
+          "updates": 397,
+          "qualified": true,
+          "status": "completed",
+          "fresh_density_rms": 9.775124103672853e-14,
+          "result_sha256": "e43e98fccc149a8278546480d78cf91573de8bb65ff210a16620c7d0d3401fdf",
+          "restart_sha256": "c4b8608d164e57999f04af1897a98942d0d230a42d57c7690ebc41fddadb8d37"
+        },
+        {
+          "directory": "/media/rausa/4TB/SU2_Versions/SU2_v850_Develop_FixCGNSOutput/newton_krylov_refactor_20261015/application_qualification_20261018/sst_reference_deep/2/1x1/native",
+          "updates": 545,
+          "qualified": true,
+          "status": "completed",
+          "fresh_density_rms": 1.002100363795912e-14,
+          "result_sha256": "9743972aa9eee20d5f3779d0adf3f16e655b863ade458c089722ffa395e9dff8",
+          "restart_sha256": "9376829c72dc5899e982b38640b35224074e946c8014844df15482d0731368d0"
+        },
+        {
+          "directory": "/media/rausa/4TB/SU2_Versions/SU2_v850_Develop_FixCGNSOutput/newton_krylov_refactor_20261015/application_qualification_20261018/sst_reference_deep/3/1x1/native",
+          "updates": 1403,
+          "qualified": false,
+          "status": "wall_limit",
+          "fresh_density_rms": 4.99093646842175e-15,
+          "result_sha256": "03a1332fd26a9114f41dff899837d45f2fbfb9ae626f784c305fddb79fbb658d",
+          "restart_sha256": "221eedb7402682643947762c945b7f61fa6cb1bb8103a3ee33c4acfdbbb7370a"
+        }
+      ],
+      "comparisons": [
+        {
+          "updates": [
+            258,
+            397
+          ],
+          "state": {
+            "component_linf": [
+              2.153634481627208e-06,
+              2.7403316235813014e-07,
+              2.996108950235905e-08,
+              1.6753095470921606e-09,
+              1.2207416812778716e-07,
+              3.3499598018624963e-06
+            ],
+            "point_linf": [
+              2.1820959089045916e-06,
+              4.558964039321836e-06,
+              2.8936247872135607e-06,
+              1.8464339063043045e-09,
+              5.865843630044986e-06,
+              3.886775478797816e-06
+            ]
+          },
+          "quantities": {
+            "mass": 7.474168812716012e-12,
+            "drag": 1.9549308051272377e-08,
+            "lift": 1.9887839073519066e-08,
+            "moment_z": 4.460472231263413e-07,
+            "heat_flux": 0.0
+          },
+          "passed": false
+        },
+        {
+          "updates": [
+            258,
+            545
+          ],
+          "state": {
+            "component_linf": [
+              2.398065654072436e-06,
+              3.054851690071812e-07,
+              3.3556702657503745e-08,
+              1.7044496032736741e-09,
+              1.4049748793665712e-07,
+              3.7251826716717076e-06
+            ],
+            "point_linf": [
+              2.429756767786817e-06,
+              4.553525163220479e-06,
+              3.1822800865395824e-06,
+              1.8774322302244625e-09,
+              6.499510488585872e-06,
+              4.328335371153169e-06
+            ]
+          },
+          "quantities": {
+            "mass": 8.235653278489727e-12,
+            "drag": 2.3308638278279027e-08,
+            "lift": 2.0252428196208617e-08,
+            "moment_z": 4.5766128075738787e-07,
+            "heat_flux": 0.0
+          },
+          "passed": false
+        },
+        {
+          "updates": [
+            397,
+            545
+          ],
+          "state": {
+            "component_linf": [
+              2.4564827445643865e-07,
+              3.245181035645938e-08,
+              3.595613153284067e-09,
+              1.3065084270078508e-10,
+              1.89399814237641e-08,
+              3.796881704947492e-07
+            ],
+            "point_linf": [
+              2.488096432706435e-07,
+              3.5889307220360076e-07,
+              3.445928753596785e-07,
+              1.3185378586758567e-10,
+              6.617228104567497e-07,
+              4.437477778471101e-07
+            ]
+          },
+          "quantities": {
+            "mass": 7.614844657794067e-13,
+            "drag": 3.759330153514345e-09,
+            "lift": 3.6458911543866113e-10,
+            "moment_z": 1.1614062811467057e-08,
+            "heat_flux": 0.0
+          },
+          "passed": true
+        },
+        {
+          "updates": [
+            545,
+            1403
+          ],
+          "state": {
+            "component_linf": [
+              2.0965042031173945e-08,
+              3.289293294553274e-09,
+              3.640145827071707e-10,
+              1.4652305115015146e-11,
+              2.0137003086795816e-09,
+              3.256703009579737e-08
+            ],
+            "point_linf": [
+              2.123485104752137e-08,
+              3.674705437432708e-08,
+              3.519539103173191e-08,
+              1.478721347060064e-11,
+              6.766067107276817e-08,
+              3.7890413922487965e-08
+            ]
+          },
+          "quantities": {
+            "mass": 6.914124711109902e-14,
+            "drag": 3.4474653041356593e-10,
+            "lift": 6.56539706781323e-11,
+            "moment_z": 1.388983779203229e-09,
+            "heat_flux": 0.0
+          },
+          "passed": true
+        }
+      ],
+      "canonical_index": 2
+    },
+    "audit_summary_sha256": "386e502057714656cbd2544dfabdfa32791da2d4d7fba50eccd339b6610df37a"
   }
 }

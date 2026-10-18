@@ -13,6 +13,10 @@ original-control state checks passed; that did not establish a practical improve
 Production source is restored to d27. Candidate source, binaries and failures are preserved.
 This was a policy experiment, not a proven correctness fix. No timing speedup is established.
 
+The [larger verified-probe experiment](NewtonKrylovProbeRange20261018.md) is also **not adopted**.
+It recovered an unavailable SA product without weakening verification, but full SA/SST
+runs remained unqualified. Fewer retries did not establish a practical benefit.
+
 This study uses existing application meshes, independently of the earlier generated fixtures.
 All inputs, initial user edits, binaries, build options and source hashes are frozen under
 `/media/rausa/4TB/SU2_Versions/SU2_v850_Develop_FixCGNSOutput/newton_krylov_refactor_20261015/application_qualification_20261018`. The two pre-existing dirty reports are preserved.
@@ -50,7 +54,12 @@ pointwise scaled Linf <=1e-5 (scale floor 1e-3 of component maximum), and quanti
 agree within relative1e-5 / absolute1e-8. Transition must be active. These checks are
 independent of the solver's unchanged acceptance and derivative verification.
 
-Definitive SA comparisons also require the pinned151-update native reference (history stop-13).
+Definitive NACA comparisons also require stable native references: SA151 updates (history-13)
+and SST545 updates (history-14). SST397 agrees with545 within3.80e-7 component error;
+545 agrees with the1403-update stricter-history wall-limited endpoint within3.26e-8.
+SST258 misses the1e-6 component bound against545 (3.73e-6), despite passing residual checks.
+Remaining tuned SST decks use history-13 consistently in every mode; original-control
+records remain unchanged. See `sst_reference_stability_final.json` and the pinned manifest.
 The conservative audit preserves the original paired-check result, uses the same state/quantity
 thresholds, and never changes numerical acceptance. The CSV retains `qualified` from the original
 paired check and adds `comparison_qualified` plus complete conservative errors/reference hashes.
@@ -84,13 +93,15 @@ The full native nozzle stops after548 updates but its fresh normalized transvers
 RMS7.65e-9 misses1e-9. Before bounded probe recovery, fixed-control Newton retains CFL0.0153.
 The recovery prefix retains62.5 and advances density farther while spending more work;
 see its separate before/after work table. Neither20-update endpoint qualifies.
-SST native258-update endpoints qualify on both layouts; fixed-control Newton times out.
+SST native258-update endpoints pass residual checks but fail the stable-reference audit;
+fixed-control Newton times out.
 The pinned637 original-control cohort is complete (30 trials). Neither cold VKI nor T3A
 qualified in any mode; all their Newton trials timed out. Original T3A native also timed out
 (695 updates on1x1,1299 on2x2). Its coupled recovery retained CFL0.390625 after4 rejects.
 The final-code d27 original-control cohort is also complete (30 trials). No Newton endpoint
-qualifies against the full comparison requirements under these controls. Native SST qualifies
-on both layouts; early SA states, nozzle all-component misses, cold periodic caps and LM
+qualifies against the full comparison requirements under these controls. Native SST passes
+residual checks on both layouts but fails stable-state agreement. Early SA states, nozzle
+all-component misses, cold periodic caps and LM
 timeouts remain rejected. The separately labelled control study is now active.
 All18 native151-update SA timing attempts qualified physically but crossed the quiet-machine
 limit during execution. None is eligible. Final-code fixed-control Newton margin attempts
@@ -108,7 +119,8 @@ The periodic native history reports relative linear residuals near1 with its ori
 limit. Native adaptive CFL resets above0.99; a separate three-mode VKI1x1 pilot therefore
 uses existing ILU and native assembled limit20, retaining its original linear residual target.
 The142-trial plan records intended settings separately from actual results below.
-Within each case/layout, adaptive forcing and preconditioning precede fixed-CFL rechecks;
+Remaining trials prioritize native plus forced-adaptive comparisons across applications/layouts
+before secondary CFL/preconditioner variants. Tuned SST history is now-13 in all modes;
 all earlier139 trials remain. Qualified native reference candidates precede Newton comparisons.
 All old plans/audits remain preserved. Preparation checks match108 Newton/native pairs;
 these are setup checks, not measured convergence results. Both versions' early SA states
@@ -145,11 +157,11 @@ and `paper_notes/manifest.json`; they motivate investigations, not unmeasured so
 
 | Application | Layout | Actual trials | Qualified endpoints | Eligible timing repetitions |
 |---|---|---:|---:|---:|
-| naca_sa | 1x1 | 52 | 15 | 0 |
-| naca_sa | 2x2 | 27 | 10 | 0 |
-| naca_sst | 1x1 | 12 | 2 | 0 |
-| naca_sst | 2x2 | 9 | 2 | 0 |
-| nozzle_sst | 1x1 | 26 | 0 | 0 |
+| naca_sa | 1x1 | 58 | 16 | 0 |
+| naca_sa | 2x2 | 38 | 13 | 0 |
+| naca_sst | 1x1 | 18 | 2 | 0 |
+| naca_sst | 2x2 | 9 | 0 | 0 |
+| nozzle_sst | 1x1 | 28 | 0 | 0 |
 | nozzle_sst | 2x2 | 9 | 0 | 0 |
 | flatplate_lm | 1x1 | 15 | 0 | 0 |
 | flatplate_lm | 2x2 | 9 | 0 | 0 |
@@ -170,6 +182,16 @@ is retained; `prepared` and `running` entries have not completed.
 | nozzle_sst | 1x1 | segregated | original | application_release | fd_step_1e-8 | -12 | diagnostic_complete | False | 1 | — | 4.579 |
 | nozzle_sst | 1x1 | coupled | original | application_release | forcing | -12 | iteration_cap | False | 1 | 3.482 | 3.961 |
 | nozzle_sst | 1x1 | segregated | original | application_release | forcing | -12 | iteration_cap | False | 1 | 3.301 | 3.765 |
+| nozzle_sst | 1x1 | segregated | original | coarser_candidate | original | -12 | iteration_cap | False | 20 | 16.041 | 16.499 |
+| nozzle_sst | 1x1 | segregated | original | recovery_release | original | -12 | iteration_cap | False | 20 | 16.326 | 16.784 |
+| naca_sa | 1x1 | coupled | original | coarser_candidate | forcing | -13.0 | rejected | False | 34 | 300.353 | 300.929 |
+| naca_sa | 1x1 | coupled | original | coarser_candidate | forcing | -13.0 | iteration_cap | False | 6 | 43.283 | 43.830 |
+| naca_sa | 1x1 | native | original | coarser_candidate | original | -13.0 | qualified | True | 151 | 18.399 | 18.932 |
+| naca_sa | 2x2 | native | original | coarser_candidate | original | -13.0 | qualified | True | 151 | 12.471 | 12.934 |
+| naca_sst | 1x1 | coupled | original | coarser_candidate | original | -12 | iteration_cap | False | 20 | 85.907 | 86.466 |
+| naca_sst | 1x1 | coupled | original | coarser_candidate | original | -12 | rejected | False | 227 | 300.218 | 300.727 |
+| naca_sst | 1x1 | coupled | original | recovery_release | original | -12 | iteration_cap | False | 20 | 82.086 | 82.650 |
+| naca_sst | 1x1 | native | original | recovery_release | original | -13.0 | qualified | True | 397 | 54.668 | 55.205 |
 | naca_sa | 1x1 | coupled | original | recovery_release | adaptive | -13.0 | rejected | False | 73 | 300.287 | 300.874 |
 | naca_sa | 1x1 | native | original | recovery_release | adaptive | -13.0 | qualified | True | 149 | 19.711 | 20.324 |
 | naca_sa | 1x1 | segregated | original | recovery_release | adaptive | -13.0 | rejected | False | 125 | 301.036 | 301.548 |
@@ -177,12 +199,25 @@ is retained; `prepared` and `running` entries have not completed.
 | naca_sa | 1x1 | coupled | original | recovery_release | fixed | -13.0 | rejected | False | 285 | 300.035 | 300.577 |
 | naca_sa | 1x1 | native | original | recovery_release | fixed | -13.0 | qualified | True | 34 | 4.236 | 4.756 |
 | naca_sa | 1x1 | segregated | original | recovery_release | fixed | -13.0 | rejected | False | 195 | 301.132 | 301.668 |
+| naca_sa | 1x1 | coupled | original | recovery_release | fixed | -13.0 | rejected | False | 336 | 301.044 | 301.584 |
 | naca_sa | 1x1 | native | original | recovery_release | fixed | -13.0 | reference_audit_failed | False | 991 | 121.317 | 121.838 |
-| naca_sa | 1x1 | segregated | original | recovery_release | fixed | -13.0 | prepared | False | — | — | — |
+| naca_sa | 1x1 | segregated | original | recovery_release | fixed | -13.0 | rejected | False | 256 | 301.433 | 301.964 |
 | naca_sa | 1x1 | coupled | original | recovery_release | forcing | -13.0 | rejected | False | 72 | 303.705 | 304.270 |
 | naca_sa | 1x1 | segregated | original | recovery_release | forcing | -13.0 | rejected | False | 126 | 300.092 | 300.614 |
+| naca_sa | 1x1 | coupled | original | recovery_release | original | -13.0 | rejected | False | 72 | 302.609 | 303.169 |
 | naca_sa | 1x1 | native | original | recovery_release | original | -13.0 | qualified | True | 151 | 19.177 | 19.784 |
+| naca_sa | 1x1 | segregated | original | recovery_release | original | -13.0 | rejected | False | 165 | 301.390 | 302.146 |
 | naca_sa | 1x1 | coupled | original | recovery_release | forcing | -13.0 | rejected | False | 59 | 301.273 | 301.783 |
+| naca_sa | 2x2 | coupled | original | recovery_release | adaptive | -13.0 | rejected | False | 83 | 302.655 | 303.205 |
+| naca_sa | 2x2 | native | original | recovery_release | adaptive | -13.0 | reference_audit_failed | False | 4928 | 211.659 | 212.152 |
+| naca_sa | 2x2 | segregated | original | recovery_release | adaptive | -13.0 | rejected | False | 96 | 304.000 | 304.498 |
+| naca_sa | 2x2 | coupled | original | recovery_release | diagonal | -13.0 | rejected | False | 87 | 300.747 | 301.282 |
+| naca_sa | 2x2 | native | original | recovery_release | fixed | -13.0 | qualified | True | 43 | 4.024 | 4.587 |
+| naca_sa | 2x2 | segregated | original | recovery_release | fixed | -13.0 | running | False | — | — | — |
+| naca_sa | 2x2 | coupled | original | recovery_release | forcing | -13.0 | rejected | False | 76 | 302.717 | 303.241 |
+| naca_sa | 2x2 | segregated | original | recovery_release | forcing | -13.0 | rejected | False | 142 | 301.181 | 301.672 |
+| naca_sa | 2x2 | native | original | recovery_release | original | -13.0 | qualified | True | 151 | 13.044 | 13.519 |
+| naca_sa | 2x2 | coupled | original | recovery_release | forcing | -13.0 | rejected | False | 71 | 301.489 | 302.024 |
 | nozzle_sst | 1x1 | segregated | original | baseline_4712d82375 | fd_step_1e-3_relative_0.01 | -12 | diagnostic_complete | False | 1 | — | — |
 | nozzle_sst | 1x1 | segregated | original | baseline_4712d82375 | fd_step_1e-5_relative_0.01 | -12 | diagnostic_complete | False | 1 | — | — |
 | nozzle_sst | 1x1 | segregated | original | baseline_4712d82375 | fd_step_1e-5 | -12 | diagnostic_complete | False | 1 | — | 2.727 |
@@ -271,10 +306,10 @@ is retained; `prepared` and `running` entries have not completed.
 | naca_sa | 2x2 | native | original | probe_metric | original | -12 | reference_audit_failed | False | 11 | 1.052 | 1.606 |
 | naca_sa | 2x2 | segregated | original | probe_metric | original | -12 | reference_audit_failed | False | 11 | 6.705 | 7.160 |
 | naca_sst | 1x1 | coupled | original | probe_metric | original | -12 | rejected | False | 236 | — | 301.066 |
-| naca_sst | 1x1 | native | original | probe_metric | original | -12 | qualified | True | 258 | 40.705 | 41.323 |
+| naca_sst | 1x1 | native | original | probe_metric | original | -12 | reference_audit_failed | False | 258 | 40.705 | 41.323 |
 | naca_sst | 1x1 | segregated | original | probe_metric | original | -12 | rejected | False | 202 | — | 301.034 |
 | naca_sst | 2x2 | coupled | original | probe_metric | original | -12 | rejected | False | 425 | — | 301.044 |
-| naca_sst | 2x2 | native | original | probe_metric | original | -12 | qualified | True | 258 | 26.195 | 26.766 |
+| naca_sst | 2x2 | native | original | probe_metric | original | -12 | reference_audit_failed | False | 258 | 26.195 | 26.766 |
 | naca_sst | 2x2 | segregated | original | probe_metric | original | -12 | rejected | False | 465 | — | 301.071 |
 | nozzle_sst | 1x1 | coupled | original | probe_metric | original | -12 | timeout | False | 2139 | — | 301.040 |
 | nozzle_sst | 1x1 | native | original | probe_metric | original | -12 | rejected | False | 548 | 15.533 | 15.969 |
@@ -301,10 +336,10 @@ is retained; `prepared` and `running` entries have not completed.
 | naca_sa | 2x2 | native | original | recovery_release | original | -12 | reference_audit_failed | False | 11 | 0.929 | 1.423 |
 | naca_sa | 2x2 | segregated | original | recovery_release | original | -12 | reference_audit_failed | False | 11 | 5.350 | 5.869 |
 | naca_sst | 1x1 | coupled | original | recovery_release | original | -12 | rejected | False | 216 | — | 301.041 |
-| naca_sst | 1x1 | native | original | recovery_release | original | -12 | qualified | True | 258 | 36.407 | 36.936 |
+| naca_sst | 1x1 | native | original | recovery_release | original | -12 | reference_audit_failed | False | 258 | 36.407 | 36.936 |
 | naca_sst | 1x1 | segregated | original | recovery_release | original | -12 | timeout | False | 52 | — | 301.053 |
 | naca_sst | 2x2 | coupled | original | recovery_release | original | -12 | rejected | False | 445 | — | 301.036 |
-| naca_sst | 2x2 | native | original | recovery_release | original | -12 | qualified | True | 258 | 27.401 | 28.073 |
+| naca_sst | 2x2 | native | original | recovery_release | original | -12 | reference_audit_failed | False | 258 | 27.401 | 28.073 |
 | naca_sst | 2x2 | segregated | original | recovery_release | original | -12 | timeout | False | 84 | — | 301.048 |
 | nozzle_sst | 1x1 | coupled | original | recovery_release | original | -12 | rejected | False | 1183 | — | 301.035 |
 | nozzle_sst | 1x1 | native | original | recovery_release | original | -12 | rejected | False | 548 | 11.236 | 11.734 |
@@ -348,6 +383,8 @@ is retained; `prepared` and `running` entries have not completed.
 | naca_sa | 1x1 | coupled | original | recovery_release | forcing | -13.0 | iteration_cap | False | 6 | 35.446 | 35.946 |
 | naca_sa | 1x1 | coupled | original | recovery_release | forcing | -13.0 | iteration_cap | False | 6 | 42.225 | 42.784 |
 | naca_sa | 1x1 | coupled | original | recovery_release | forcing | -13.0 | iteration_cap | False | 6 | 20.044 | 20.660 |
+| naca_sst | 1x1 | native | original | recovery_release | original | -14.0 | qualified | True | 545 | 76.329 | 76.906 |
+| naca_sst | 1x1 | native | original | recovery_release | original | -15.0 | rejected | False | 1403 | 180.083 | 180.631 |
 
 ## Original-control implementation comparison
 
@@ -374,10 +411,10 @@ is only its last checkpoint. State errors use the native reference recorded for 
 | naca_sa | 2x2 | probe_metric | native | reference_audit_failed | 11 | 11/11/— | 440/0 | —/— | 1.052/1.606 | 2.256e-10 | 0.000e+00 |
 | naca_sa | 2x2 | probe_metric | segregated | reference_audit_failed | 11 | 465/372/— | 379/0 | 4/0 | 6.705/7.160 | 1.308e-11 | 3.215e-06 |
 | naca_sst | 1x1 | probe_metric | coupled | rejected | 236 | 12482/13946/— | 1450/0 | 4/0 | —/301.066 | 1.625e-06 | — |
-| naca_sst | 1x1 | probe_metric | native | qualified | 258 | 258/258/— | 10173/0 | —/— | 40.705/41.323 | 8.922e-12 | 0.000e+00 |
+| naca_sst | 1x1 | probe_metric | native | reference_audit_failed | 258 | 258/258/— | 10173/0 | —/— | 40.705/41.323 | 8.922e-12 | 0.000e+00 |
 | naca_sst | 1x1 | probe_metric | segregated | rejected | 202 | 10793/4311/— | 4116/0 | 2/0 | —/301.034 | 1.567e-07 | — |
 | naca_sst | 2x2 | probe_metric | coupled | rejected | 425 | 23363/26043/— | 2633/0 | 4/0 | —/301.044 | 1.660e-06 | — |
-| naca_sst | 2x2 | probe_metric | native | qualified | 258 | 258/258/— | 10320/0 | —/— | 26.195/26.766 | 8.919e-12 | 0.000e+00 |
+| naca_sst | 2x2 | probe_metric | native | reference_audit_failed | 258 | 258/258/— | 10320/0 | —/— | 26.195/26.766 | 8.919e-12 | 0.000e+00 |
 | naca_sst | 2x2 | probe_metric | segregated | rejected | 465 | 21517/12143/— | 8524/0 | 2/0 | —/301.071 | 2.970e-08 | — |
 | nozzle_sst | 1x1 | probe_metric | coupled | timeout | 2139 | 31987/34739/— | 2746/0 | 8/0 | —/301.040 | — | — |
 | nozzle_sst | 1x1 | probe_metric | native | rejected | 548 | 548/548/— | 6235/0 | —/— | 15.533/15.969 | 7.647e-09 | — |
@@ -404,10 +441,10 @@ is only its last checkpoint. State errors use the native reference recorded for 
 | naca_sa | 2x2 | recovery_release | native | reference_audit_failed | 11 | 11/11/— | 440/0 | —/— | 0.929/1.423 | 2.256e-10 | 0.000e+00 |
 | naca_sa | 2x2 | recovery_release | segregated | reference_audit_failed | 11 | 260/372/— | 363/0 | 0/0 | 5.350/5.869 | 1.253e-11 | 2.789e-06 |
 | naca_sst | 1x1 | recovery_release | coupled | rejected | 216 | 12074/13496/— | 1415/0 | 4/0 | —/301.041 | 1.515e-06 | — |
-| naca_sst | 1x1 | recovery_release | native | qualified | 258 | 258/258/— | 10173/0 | —/— | 36.407/36.936 | 8.922e-12 | 0.000e+00 |
+| naca_sst | 1x1 | recovery_release | native | reference_audit_failed | 258 | 258/258/— | 10173/0 | —/— | 36.407/36.936 | 8.922e-12 | 0.000e+00 |
 | naca_sst | 1x1 | recovery_release | segregated | timeout | 52 | 11661/1698/— | 4050/0 | 0/0 | —/301.053 | — | — |
 | naca_sst | 2x2 | recovery_release | coupled | rejected | 445 | 23585/26433/— | 2846/0 | 4/0 | —/301.036 | 1.398e-06 | — |
-| naca_sst | 2x2 | recovery_release | native | qualified | 258 | 258/258/— | 10320/0 | —/— | 27.401/28.073 | 8.919e-12 | 0.000e+00 |
+| naca_sst | 2x2 | recovery_release | native | reference_audit_failed | 258 | 258/258/— | 10320/0 | —/— | 27.401/28.073 | 8.919e-12 | 0.000e+00 |
 | naca_sst | 2x2 | recovery_release | segregated | timeout | 84 | 20828/2309/— | 7305/0 | 0/0 | —/301.048 | — | — |
 | nozzle_sst | 1x1 | recovery_release | coupled | rejected | 1183 | 30261/33665/— | 3402/0 | 5/0 | —/301.035 | 3.538e-03 | — |
 | nozzle_sst | 1x1 | recovery_release | native | rejected | 548 | 548/548/— | 6235/0 | —/— | 11.236/11.734 | 7.647e-09 | — |
