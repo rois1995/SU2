@@ -78,6 +78,7 @@ Retained d27 CFD SHA256:
 Rejected candidate CFD SHA256:
 `3e91763e1195922eab731dee40890713dc02c10416e5e52102bb3c8ce5394438`.
 The candidate manifest and `source.patch` reproduce the uncommitted experiment.
-The build directory still contains that candidate; retained control runs explicitly
-use the immutable `recovery_release` executable. Broad control qualification and
-quiet repetitions remain outstanding.
+A subsequent guarded rebuild restored all three build executables byte-for-byte to
+the retained release (`retained_rebuild_result.json`). Control runs continue to use
+the immutable `recovery_release` executable. Broad control qualification and the
+required three quiet repetitions remain outstanding.
