@@ -1,5 +1,13 @@
 ## Affine reference/source backend checkpoint — 2026-10-18
 
+Current annular coordination experiment: two exact saved-patch witnesses pass
+geometry and shape with77.24%/86.97% changed-edge progress; edge-constrained
+placement still has two shape failures. The connected native coupled-placement
+and MPI smooth-star admission batch is implemented and building, not yet qualified.
+Full Goal3/general symmetry requirements remain OPEN.
+[Evidence, Opus review and pending gates](integration_evidence/native_3d_bl_v1/annulus_coordinated_replay_v1/README.md).
+
+
 Finite affine references now use the existing3D query/operator/source/IO architecture.
 Serial12cases/3974assertions, MPI4 and independent75-stencil positivity/original-ID/
 sensor/codec/serial-MPI audit PASS. A mixed analytic/affine node-offset alias was

@@ -1591,3 +1591,80 @@ TEST_CASE("Native exact planar annuli retain holes across complete face containm
   CHECK(clockwise.Contains(0,{2,.5,0}));CHECK_FALSE(clockwise.Contains(0,{2,2,0}));
   CHECK(clockwise.ContainsFace(0,{{{0,0,0},{2,.5,0},{4,0,0}}}));
 }
+
+TEST_CASE("Saved finite-surface blockage admits coordinated placement under the original field", "[.][NativeJointSurfaceReplay3D]") {
+  const char* path=std::getenv("SU2_NATIVE_JOINT_REPLAY");REQUIRE(path);
+  std::ifstream in(path);std::string magic;double core=0;Edge edge;Node point;size_t count=0;
+  in>>magic>>core>>edge[0]>>edge[1]>>point.id>>point.p.x>>point.p.y>>point.p.z;
+  REQUIRE(magic=="NATIVE_JOINT_REPLAY_V1");REQUIRE(core>0);
+  in>>count;REQUIRE(count<=8);std::vector<Id> movers(count);for(auto& id:movers)in>>id;
+  in>>count;REQUIRE(count<=64);std::vector<std::vector<Id>> groups(count);
+  for(auto& g:groups){size_t n=0;in>>n;REQUIRE(n<=128);g.resize(n);for(auto& id:g)in>>id;}
+  in>>count;REQUIRE(count<=128);std::vector<Facet> facets(count);
+  for(auto& f:facets){in>>f.id>>f.marker;for(auto& n:f.v)in>>n.id>>n.p.x>>n.p.y>>n.p.z;}
+  const PlanarReference reference(facets);
+  for(const auto& group:groups){REQUIRE(!group.empty());for(Id id:group)CHECK(reference.Canonical(id)==*std::min_element(group.begin(),group.end()));}
+  auto read_patch=[&]() {
+    Patch p;size_t nc=0,nf=0;in>>nc>>nf;REQUIRE(nc<=256);REQUIRE(nf<=256);
+    p.cells.resize(nc);p.surface.resize(nf);
+    for(auto& c:p.cells){in>>c.id;for(auto& n:c.v)in>>n.id>>n.p.x>>n.p.y>>n.p.z;}
+    for(auto& f:p.surface)in>>f.facet>>f.v[0]>>f.v[1]>>f.v[2];
+    REQUIRE(bool(in));return p;
+  };
+  const auto old=read_patch(),original=read_patch(),oracle=read_patch();const auto saved=Connectivity(old);
+  CBoundaryLayerMetric::Wall wall;wall.layer={"wall",.1,1.2,.3};
+  wall.coord={0,0,0,1,0,0,1,1,0,0,1,0};wall.conn={0,1,2,2,0,2,3,3};CBoundaryLayerMetric layers(3,{wall});
+  const MetricComposition compose=[&](Point p,Tensor sensor) {
+    CBoundaryLayerMetric::Tensor m;m.m[0][0]=sensor.xx;m.m[1][1]=sensor.yy;m.m[2][2]=sensor.zz;
+    m.m[0][1]=m.m[1][0]=sensor.xy;m.m[0][2]=m.m[2][0]=sensor.xz;m.m[1][2]=m.m[2][1]=sensor.yz;
+    const su2double x[]={p.x,p.y,p.z};layers.ApplyPoint(x,m,core,nullptr,false);
+    return Tensor{SU2_TYPE::GetValue(m.m[0][0]),SU2_TYPE::GetValue(m.m[0][1]),SU2_TYPE::GetValue(m.m[0][2]),
+      SU2_TYPE::GetValue(m.m[1][1]),SU2_TYPE::GetValue(m.m[1][2]),SU2_TYPE::GetValue(m.m[2][2])};
+  };
+  std::vector<DonorCell> donors;
+  for(auto c:original.cells){DonorCell d;d.cell=c;d.sensor.fill({core,0,0,core,0,core});donors.push_back(d);}
+  FrozenField target(donors,compose,false,{},[&](Point a,Point b){return layers.EdgeBreakpoints({a.x,a.y,a.z},{b.x,b.y,b.z});});
+  std::map<int,double> heights;
+  for(const auto& f:facets)if(std::all_of(f.v.begin(),f.v.end(),[](Node n){return n.p.z==0;}))heights[f.marker]=.1;
+  FirstHeightReport height;std::string reason;REQUIRE(CheckFirstHeight(old,heights,reference,height,reason));
+  std::map<Id,size_t> costs;for(auto id:movers)costs[id]=1;
+  const auto admitted=SplitPatchApices(old,edge,&costs);REQUIRE(!admitted.empty());
+  CHECK(std::any_of(admitted.begin(),admitted.end(),[&](Id id){
+    return std::any_of(old.surface.begin(),old.surface.end(),[&](const SurfaceFace& f){return std::find(f.v.begin(),f.v.end(),id)!=f.v.end();});
+  }));
+  std::vector<std::pair<Id,Id>> apices;
+  for(size_t i=0;i<movers.size();++i)apices.emplace_back(movers[i],point.id+1+i);
+  std::vector<std::pair<Id,Node>> oracle_moves;
+  for(const auto& apex:apices)oracle_moves.emplace_back(apex.first,Node{apex.second,Position(oracle,apex.first)});
+  Node oracle_point=point;
+  for(const auto& c:oracle.cells)for(auto n:c.v) {
+    bool present=false;for(const auto& d:old.cells)for(auto v:d.v)present=present || v.id==n.id;
+    if(!present)oracle_point.p=n.p;
+  }
+  Patch witnessed;REQUIRE(SplitSurfaceStrip(old,edge,oracle_point,oracle_moves,2000000,reference,witnessed,reason));
+  PatchMetric measured;MetricDiagnosis diagnosis;
+  INFO(reason);REQUIRE(ValidateMetricChange(old.cells,witnessed.cells,MetricChange::Refine,target,measured,reason,nullptr,nullptr,&diagnosis));
+  std::cout<<"JOINT_ORACLE q="<<diagnosis.minimum_mean_ratio<<" J="<<diagnosis.minimum_scaled_jacobian
+    <<" removed="<<double(diagnosis.removed_excess)<<" added="<<double(diagnosis.added_excess)<<std::endl;
+  Patch fresh;JointSplitReport report;
+  const bool accepted=PlaceSplitPatch(old,edge,point,apices,2000000,target,reference,heights,fresh,report,reason,256);
+  std::cout<<"JOINT_PLACEMENT accepted="<<accepted<<" trials="<<report.trials<<" geometry_rejected="<<report.geometry_rejected
+    <<" height_rejected="<<report.height_rejected<<" metric_rejected="<<report.metric_rejected<<" linearizations="<<report.linearizations
+    <<" solves="<<report.solve_trials<<" loss="<<report.best_loss<<" shape_loss="<<report.best_shape_loss<<" reason="<<reason<<std::endl;
+  if(!report.best.cells.empty())SaveCurved(report.best,reference,"native_joint_best");
+  INFO(reason);REQUIRE(accepted);CHECK(report.trials<=256);CHECK(report.linearizations>0);
+  REQUIRE(ValidateMetricChange(old.cells,fresh.cells,MetricChange::Refine,target,measured,reason,nullptr,nullptr,&diagnosis));
+  CHECK(CheckFirstHeight(fresh,heights,reference,height,reason));CHECK(Connectivity(old)==saved);
+  for(size_t i=0;i<fresh.cells.size();++i)for(size_t j=i+1;j<fresh.cells.size();++j)CHECK(ConformingDisjoint(fresh.cells[i],fresh.cells[j]));
+  SaveCurved(fresh,reference,"native_joint_after");
+  auto sentinel=fresh;const auto unchanged=Connectivity(sentinel);
+  CHECK_FALSE(PlaceSplitPatch(old,edge,point,apices,2000000,target,reference,heights,sentinel,report,reason,0));
+  CHECK(Connectivity(sentinel)==unchanged);
+  auto incomplete=old;incomplete.cells.erase(std::find_if(incomplete.cells.begin(),incomplete.cells.end(),[&](const Cell& c){
+    return std::any_of(c.v.begin(),c.v.end(),[&](Node n){return n.id==movers.front();});
+  }));
+  const auto skin=Incidence(incomplete.cells).Boundary();
+  incomplete.surface.erase(std::remove_if(incomplete.surface.begin(),incomplete.surface.end(),[&](const SurfaceFace& f){return std::find(skin.begin(),skin.end(),f.v)==skin.end();}),incomplete.surface.end());
+  CHECK_FALSE(PlaceSplitPatch(incomplete,edge,point,apices,2000000,target,reference,heights,sentinel,report,reason,256));
+  CHECK(Connectivity(sentinel)==unchanged);CHECK(reason.find("complete movable vertex stars")!=std::string::npos);
+}

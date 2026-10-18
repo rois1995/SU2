@@ -2282,15 +2282,20 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         }
         if(strip && approved){cavity_inserted=true;joint=false;}
       }
+      auto movable_star=[&](const Imported& star,Id vertex) {
+        std::set<Id> components;
+        for(const auto& row:star.cells)for(unsigned f=0;f<4;++f)
+          if(row.physical[f].present && row.cell.v[f].id!=vertex)components.insert(geometry.Canonical(row.physical[f].facet));
+        return components.size()<=1;  // Smooth physical vertices share the same complete-star admission as interior points.
+      };
       bool search=joint && composition && flat_edge && !choice.geometric && wallApices.empty() && !approved;
       std::vector<Id> apices;
       if(world.maximum(search)) {
         std::vector<Id> candidates;std::vector<Feature> features;
         if(search)try {
-          std::set<Id> physical,vertices;
-          for(const auto& f:old.surface)physical.insert(f.v.begin(),f.v.end());
+          std::set<Id> vertices;
           for(const auto& c:old.cells)if(std::count_if(c.v.begin(),c.v.end(),[&](Node n){return n.id==choice.edge[0] || n.id==choice.edge[1];})==2)
-            for(auto n:c.v)if(n.id!=choice.edge[0] && n.id!=choice.edge[1] && !physical.count(n.id))vertices.insert(n.id);
+            for(auto n:c.v)if(n.id!=choice.edge[0] && n.id!=choice.edge[1])vertices.insert(n.id);
           candidates.assign(vertices.begin(),vertices.end());for(Id id:candidates)features.push_back({{{id,0,0}},1});
         }catch(const std::exception& e){failure.Set(2,0,e.what());}
         if(!(ready=vote(failure)))return finish();
@@ -2307,10 +2312,8 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
                 if(star.reason=="Native 3D dependency star exceeds budget.")continue;
                 throw std::runtime_error(star.reason);
               }
-              ++stats.placement_classified_vertices;bool physical=false;
-              for(const auto& row:star.cells)for(unsigned f=0;f<4;++f)
-                physical=physical || (row.physical[f].present && row.cell.v[f].id!=candidates[i]);
-              if(!physical)costs.emplace(candidates[i],star.cells.size());
+              ++stats.placement_classified_vertices;
+              if(movable_star(star,candidates[i]))costs.emplace(candidates[i],star.cells.size());
             }
             apices=SplitPatchApices(old,choice.edge,&costs);
             if(costs.count(initial_placement_obstruction)) {
@@ -2352,10 +2355,8 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
               if(star.reason=="Native 3D dependency star exceeds budget.")expand=false;
               else throw std::runtime_error(star.reason);
             } else {
-              ++stats.placement_classified_vertices;bool physical=false;
-              for(const auto& row:star.cells)for(unsigned f=0;f<4;++f)
-                physical=physical || (row.physical[f].present && row.cell.v[f].id!=placement_obstruction);
-              expand=!physical;
+              ++stats.placement_classified_vertices;
+              expand=movable_star(star,placement_obstruction);
             }
             if(expand){apices.push_back(placement_obstruction);++stats.placement_dependency_expansions;}
           }catch(const std::exception& e){failure.Set(2,0,e.what());}

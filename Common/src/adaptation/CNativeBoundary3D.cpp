@@ -1443,7 +1443,7 @@ std::vector<Id> SplitPatchApices(const Patch& patch,Edge edge,const std::map<Id,
   if(pairs.empty())return {};
   std::map<Id,uint64_t> covered;std::map<Id,size_t> weight;
   for(size_t i=0;i<pairs.size();++i)for(Id id:pairs[i]) {
-    if(fixed.count(id) || (costs && (!costs->count(id) || !costs->at(id))))continue;
+    if((!costs && fixed.count(id)) || (costs && (!costs->count(id) || !costs->at(id))))continue;
     covered[id]|=uint64_t(1)<<i;weight[id]=costs?costs->at(id):1;
   }
   const uint64_t all=pairs.size()==64?UINT64_MAX:(uint64_t(1)<<pairs.size())-1;
@@ -1464,90 +1464,50 @@ std::vector<Id> SplitPatchApices(const Patch& patch,Edge edge,const std::map<Id,
   };
   visit(0,0);return best;
 }
+namespace {
+std::map<Id,Vector> CoupledMetricDirection(const Patch& patch,FrozenField& target,
+    const std::map<int,double>& heights,const PlanarReference& reference,const std::set<Id>& fixed,
+    const std::set<Id>& active,ConnectivityRepairReport& report,bool include_edges=false);
+}
 bool PlaceSplitPatch(const Patch& old,Edge edge,Node point,const std::vector<std::pair<Id,Id>>& apices,Id first,
                        FrozenField& target,const PlanarReference& reference,const std::map<int,double>& heights,
                        Patch& fresh,JointSplitReport& report,std::string& reason,size_t maximum_trials) {
   report={};
   try {
     Bounds(old);Endpoints(edge);
-    if(apices.size()>8)throw std::invalid_argument("Native3D joint placement exceeds its apex bound.");
+    if(apices.size()>8)throw std::invalid_argument("Native3D joint placement exceeds its vertex bound.");
     if(!maximum_trials || maximum_trials>256)throw std::invalid_argument("Native3D joint placement exceeds its trial bound.");
     const auto nodes=Nodes(old.cells);const auto skin=SkinMap(Incidence(old.cells).Boundary());
-    CheckSurface(old,skin,reference,nullptr);
-    std::set<Id> selected,reserved{point.id};
+    const auto physical=CheckSurface(old,skin,reference,nullptr);
+    std::set<Id> selected,reserved{point.id},interface;
+    for(const auto& f:skin)if(!physical.count(f.first))interface.insert(f.second.begin(),f.second.end());
     for(const auto& apex:apices) {
       if(!selected.insert(apex.first).second || !reserved.insert(apex.second).second || nodes.count(apex.second))
-        throw std::invalid_argument("Native3D joint placement repeats an apex or reserved identity.");
+        throw std::invalid_argument("Native3D joint placement repeats a vertex or reserved identity.");
       nodes.at(apex.first);
-      for(const auto& f:skin)if(Has(f.second,apex.first))
-        throw std::invalid_argument("Native3D joint placement needs complete free apex stars.");
+      if(interface.count(apex.first))throw std::invalid_argument("Native3D joint placement needs complete movable vertex stars.");
     }
-    const Point a=nodes.at(edge[0]).p,b=nodes.at(edge[1]).p;
-    auto tangent=Delta(b,a);const auto square=Dot(tangent,tangent),length=Norm(tangent);
-    if(!(length>0))throw std::invalid_argument("Native3D joint placement has a degenerate edge.");
-    Vector normal{};bool boundary=false;
-    for(const auto& f:old.surface)if(Has(f.v,edge[0]) && Has(f.v,edge[1])) {
-      boundary=true;normal=Cross(Delta(nodes.at(f.v[1]).p,nodes.at(f.v[0]).p),Delta(nodes.at(f.v[2]).p,nodes.at(f.v[0]).p));break;
-    }
-    if(!boundary) {
-      unsigned k=0;for(unsigned i=1;i<3;++i)if(std::abs(tangent[i])<std::abs(tangent[k]))k=i;
-      Vector seed{};seed[k]=1;normal=Cross(tangent,seed);
-    }
-    const auto n=Norm(normal);if(!(n>0))throw std::invalid_argument("Native3D joint placement has a degenerate frame.");
-    for(unsigned i=0;i<3;++i){tangent[i]/=length;normal[i]/=n;}
-    const std::array<Vector,3> basis{normal,tangent,Cross(normal,tangent)};
-    std::vector<std::array<long double,3>> steps(apices.size());
-    for(size_t k=0;k<apices.size();++k) {
-      const auto origin=nodes.at(apices[k].first).p;const auto metric=target.Query(origin).target;
-      for(unsigned i=0;i<3;++i) {
-        const Point end{double(origin.x+basis[i][0]),double(origin.y+basis[i][1]),double(origin.z+basis[i][2])};
-        const auto norm=MetricNorm(origin,end,metric);
-        if(!(norm>0))throw std::invalid_argument("Native3D joint placement has an invalid directional metric.");
-        steps[k][i]=.25L/norm;
-      }
-    }
-    const size_t point_dofs=boundary?1:3;std::array<long double,2> transverse{};
-    if(!boundary)for(unsigned i=0;i<2;++i) {
-      const auto d=basis[2*i];const Point end{double(point.p.x+d[0]),double(point.p.y+d[1]),double(point.p.z+d[2])};
-      const auto norm=MetricNorm(point.p,end,target.Query(point.p).target);
-      if(!(norm>0))throw std::invalid_argument("Native3D joint placement has an invalid insertion metric.");
-      transverse[i]=.25L/norm;
-    }
-    std::vector<long double> best(point_dofs+3*apices.size(),0);best[0]=Dot(Delta(point.p,a),Delta(b,a))/square;
     double best_loss=std::numeric_limits<double>::infinity();
     const size_t placement_limit=(maximum_trials+1)/2;
     auto score=[&](const Patch& proposal) {
-      double shape=0,excess=0;std::set<Edge> measured;
+      double shape=0,soft_shape=0,excess=0;std::set<Edge> measured;
       for(const auto& c:proposal.cells) {
         const auto m=Measure({c.v[0].p,c.v[1].p,c.v[2].p,c.v[3].p},target.Query(Centroid(c)).target);
         shape+=std::pow(std::max(0.,1-m.mean_ratio/MinimumMeanRatio),2)+
                std::pow(std::max(0.,1-m.minimum_scaled_jacobian/MinimumScaledJacobian),2);
+        soft_shape+=std::pow(std::max(0.,1-m.mean_ratio/(1.01*MinimumMeanRatio)),2)+
+                    std::pow(std::max(0.,1-m.minimum_scaled_jacobian/(1.01*MinimumScaledJacobian)),2);
         for(unsigned j=0;j<4;++j)for(unsigned k=j+1;k<4;++k) {
           const auto u=c.v[j],v=c.v[k];
           if(!measured.insert({std::min(u.id,v.id),std::max(u.id,v.id)}).second)continue;
           excess+=std::pow(std::max(0.L,MetricNorm(u.p,v.p,target.QueryMidpoint(u.p,v.p).target)-MaximumMetricEdge),2);
         }
       }
-      return std::make_pair(shape,100*shape+excess);
+      return std::make_pair(shape,100*soft_shape+excess);
     };
-    auto trial=[&](const std::vector<long double>& state) {
+    auto trial=[&](Node inserted,const std::vector<std::pair<Id,Node>>& moves) {
       if(report.trials>=placement_limit)return false;
-      ++report.trials;
-      if(!(state[0]>0 && state[0]<1)){++report.geometry_rejected;return false;}
-      Node inserted=point;inserted.p={double((1-state[0])*a.x+state[0]*b.x),double((1-state[0])*a.y+state[0]*b.y),double((1-state[0])*a.z+state[0]*b.z)};
-      if(!boundary) {
-        Vector offset{};for(unsigned i=0;i<2;++i)for(unsigned k=0;k<3;++k)offset[k]+=state[1+i]*transverse[i]*basis[2*i][k];
-        inserted.p={double(inserted.p.x+offset[0]),double(inserted.p.y+offset[1]),double(inserted.p.z+offset[2])};
-      }
-      std::vector<std::pair<Id,Node>> moves;
-      for(size_t i=0;i<apices.size();++i) {
-        const auto origin=nodes.at(apices[i].first).p;Vector displacement{};
-        for(unsigned j=0;j<3;++j)for(unsigned k=0;k<3;++k)displacement[k]+=state[point_dofs+3*i+j]*basis[j][k]*steps[i][j];
-        Node moved{apices[i].second,{double(origin.x+displacement[0]),double(origin.y+displacement[1]),double(origin.z+displacement[2])}};
-        moved=ConstrainMovePoint(old,apices[i].first,moved,heights,reference);
-        if(moved.p.x!=origin.x || moved.p.y!=origin.y || moved.p.z!=origin.z)moves.emplace_back(apices[i].first,moved);
-      }
-      Patch proposal;
+      ++report.trials;Patch proposal;
       if(!SplitSurfaceStrip(old,edge,inserted,moves,first,reference,proposal,reason)) {
         ++report.geometry_rejected;return false;
       }
@@ -1556,35 +1516,51 @@ bool PlaceSplitPatch(const Patch& old,Edge edge,Node point,const std::vector<std
       const auto measured=score(proposal);const double shape=measured.first,loss=measured.second;
       if(report.trials==1)report.initial_loss=loss;
       if(!(loss<best_loss))return false;
-      best_loss=loss;report.best_loss=loss;report.best_shape_loss=shape;report.best=proposal;best=state;
+      best_loss=loss;report.best_loss=loss;report.best_shape_loss=shape;report.best=std::move(proposal);
       if(shape==0) {
         PatchMetric metric;
-        if(ValidateMetricChange(old.cells,proposal.cells,MetricChange::Refine,target,metric,reason)) {
-          fresh=std::move(proposal);return true;
+        if(ValidateMetricChange(old.cells,report.best.cells,MetricChange::Refine,target,metric,reason)) {
+          fresh=report.best;return true;
         }
         ++report.metric_rejected;
       }
       return false;
     };
-    if(trial(best)){reason.clear();return true;}
-    // Paired fraction/normal directions cross a blockage that either independent displacement can worsen.
-    std::vector<std::vector<int>> directions;
-    for(size_t i=0;i<best.size();++i){std::vector<int> d(best.size(),0);d[i]=1;directions.push_back(std::move(d));}
-    for(size_t i=0;i<apices.size();++i)for(int sign:{-1,1}) {
-      std::vector<int> d(best.size(),0);d[0]=1;d[point_dofs+3*i]=sign;directions.push_back(std::move(d));
-    }
-    if(!apices.empty())for(int split:{-1,0,1}) {
-      std::vector<int> d(best.size(),0);d[0]=split;for(size_t i=0;i<apices.size();++i)d[point_dofs+3*i]=1;
-      directions.push_back(std::move(d));
-    }
-    long double step=1;
-    while(report.trials<placement_limit && step>=1.L/128) {
-      const auto start=best_loss;
-      for(const auto& direction:directions)for(int sign:{-1,1}) {
-        auto state=best;for(size_t i=0;i<state.size();++i)state[i]+=sign*step*direction[i]*(i==0?.25L:1.L);
-        if(trial(state)){reason.clear();return true;}
+    if(trial(point,{})){reason.clear();return true;}
+    ConnectivityRepairReport solve;
+    // Solve for the admitted surface and volume points together; rebuild from the original complete stars.
+    while(!report.best.cells.empty() && report.trials<placement_limit) {
+      const auto current=Nodes(report.best.cells);std::set<Id> movable{point.id},fixed,active;
+      for(const auto& apex:apices)movable.insert(current.count(apex.second)?apex.second:apex.first);
+      for(const auto& n:current)if(!movable.count(n.first) || interface.count(n.first))fixed.insert(n.first);
+      for(const auto& c:report.best.cells)active.insert(c.id);
+      const auto direction=CoupledMetricDirection(report.best,target,heights,reference,fixed,active,solve,true);
+      report.linearizations=solve.linearizations;report.metric_probes=solve.metric_probes;report.linear_iterations=solve.linear_iterations;
+      if(direction.empty())break;
+      const auto previous=best_loss;
+      for(double fraction=1;fraction>std::numeric_limits<double>::epsilon() && report.trials<placement_limit;fraction*=.5) {
+        size_t changed=0;
+        auto displaced=[&](Id id) {
+          Node n=current.at(id);const auto d=direction.find(id);
+          if(d!=direction.end()) {
+            n.p={double(n.p.x+fraction*d->second[0]),double(n.p.y+fraction*d->second[1]),double(n.p.z+fraction*d->second[2])};
+            n=ConstrainMovePoint(report.best,id,n,heights,reference);
+          }
+          const auto origin=current.at(id).p;
+          changed+=n.p.x!=origin.x || n.p.y!=origin.y || n.p.z!=origin.z;
+          return n;
+        };
+        Node inserted=displaced(point.id);std::vector<std::pair<Id,Node>> moves;
+        for(const auto& apex:apices) {
+          auto moved=displaced(current.count(apex.second)?apex.second:apex.first);const auto origin=nodes.at(apex.first).p;
+          moved.id=apex.second;
+          if(moved.p.x!=origin.x || moved.p.y!=origin.y || moved.p.z!=origin.z)moves.emplace_back(apex.first,moved);
+        }
+        ++report.solve_trials;
+        if(trial(inserted,moves)){report.moves+=changed;reason.clear();return true;}
+        if(best_loss<previous){report.moves+=changed;break;}
       }
-      if(!(best_loss<start))step/=2;
+      if(!(best_loss<previous))break;
     }
     if(!report.best.cells.empty() && report.best_shape_loss>0 && report.trials<maximum_trials) {
       const auto present=Nodes(report.best.cells);std::set<Id> movable{point.id};
@@ -1593,9 +1569,9 @@ bool PlaceSplitPatch(const Patch& old,Edge edge,Node point,const std::vector<std
       const bool progress=RepairMetricConnectivity(report.best,target,reference,heights,first,repaired,connectivity,reason,
           maximum_trials-report.trials,false,&movable);
       report.trials+=connectivity.trials;report.connectivity_trials=connectivity.trials;
-      report.flips=connectivity.flips;report.moves=connectivity.moves;
-      report.linearizations=connectivity.linearizations;report.metric_probes=connectivity.metric_probes;
-      report.linear_iterations=connectivity.linear_iterations;report.solve_trials=connectivity.solve_trials;
+      report.flips=connectivity.flips;report.moves+=connectivity.moves;
+      report.linearizations+=connectivity.linearizations;report.metric_probes+=connectivity.metric_probes;
+      report.linear_iterations+=connectivity.linear_iterations;report.solve_trials+=connectivity.solve_trials;
       report.blocked_interior_vertex=connectivity.blocked_interior_vertex;
       if(progress) {
         for(const auto& apex:apices) {
@@ -2036,7 +2012,7 @@ bool ReconstructSplitPatch(const Patch& old,Edge edge,Node point,Node interior,c
 namespace {
 std::map<Id,Vector> CoupledMetricDirection(const Patch& patch,FrozenField& target,
     const std::map<int,double>& heights,const PlanarReference& reference,const std::set<Id>& fixed,
-    const std::set<Id>& active,ConnectivityRepairReport& report) {
+    const std::set<Id>& active,ConnectivityRepairReport& report,bool include_edges) {
   struct Frame {
     size_t first=0,count=0,rank=0;std::array<Vector,3> basis{},constraint{};std::vector<FootPlane> feet;Tensor metric;
   };
@@ -2090,7 +2066,7 @@ std::map<Id,Vector> CoupledMetricDirection(const Patch& patch,FrozenField& targe
   }
   if(!count)return {};
   if(count>12*MaximumReplacementCells)throw std::invalid_argument("Native3D metric solve exceeds bounded variables.");
-  ++report.linearizations;std::vector<Row> rows;rows.reserve(2*patch.cells.size());
+  ++report.linearizations;std::vector<Row> rows;rows.reserve((include_edges?8:2)*patch.cells.size());
   for(const auto& cell:patch.cells)if(active.count(cell.id) && std::any_of(cell.v.begin(),cell.v.end(),[&](Node n){return frames.count(n.id);})) {
     const auto center=Centroid(cell);const auto metric=target.Query(center).target;
     const auto volume=Orientation(cell.v[0].p,cell.v[1].p,cell.v[2].p,cell.v[3].p);
@@ -2120,6 +2096,30 @@ std::map<Id,Vector> CoupledMetricDirection(const Patch& patch,FrozenField& targe
         const auto found=frames.find(cell.v[k].id);if(found==frames.end())continue;const auto& frame=found->second;
         const auto& d=linear.derivative[r][k];const Vector gradient{d[0],d[1],d[2]};
         for(size_t j=0;j<frame.count;++j)row.entry[row.count++]={frame.first+j,Dot(gradient,frame.basis[j])};
+      }
+      if(include_edges) {
+        row.residual*=10;for(size_t j=0;j<row.count;++j)row.entry[j].second*=10;
+      }
+      rows.push_back(row);
+    }
+  }
+  if(include_edges) {
+    std::set<Edge> measured;
+    for(const auto& cell:patch.cells)for(unsigned a=0;a<4;++a)for(unsigned b=a+1;b<4;++b) {
+      const auto u=cell.v[a],v=cell.v[b];
+      if((!frames.count(u.id) && !frames.count(v.id)) || !measured.insert({std::min(u.id,v.id),std::max(u.id,v.id)}).second)continue;
+      const auto metric=target.QueryMidpoint(u.p,v.p).target;const auto length=MetricNorm(u.p,v.p,metric);
+      if(length<=MaximumMetricEdge)continue;
+      const auto chord=Delta(v.p,u.p);
+      const Vector gradient{(metric.xx*chord[0]+metric.xy*chord[1]+metric.xz*chord[2])/length,
+                            (metric.xy*chord[0]+metric.yy*chord[1]+metric.yz*chord[2])/length,
+                            (metric.xz*chord[0]+metric.yz*chord[1]+metric.zz*chord[2])/length};
+      // Freeze edge-proxy tensors only inside this linearization; trials requery the field and certify full integrals.
+      Row row;row.residual=length-MaximumMetricEdge;
+      for(const auto endpoint:{std::make_pair(u.id,-1),std::make_pair(v.id,1)}) {
+        const auto frame=frames.find(endpoint.first);if(frame==frames.end())continue;
+        for(size_t j=0;j<frame->second.count;++j)
+          row.entry[row.count++]={frame->second.first+j,endpoint.second*Dot(gradient,frame->second.basis[j])};
       }
       rows.push_back(row);
     }

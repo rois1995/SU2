@@ -12,7 +12,7 @@ Leave AdapNoExt, foreign ClusterResults, dependencies and foreign jobs untouched
 
 Affine source/backend batch now passes serial12cases/3974assertions, MPI4 and
 independent75-stencil/source-ID/codec/equality audit. Current Cartesian N4/M2 full
-lifecycle independently PASS. All owned jobs TERMINAL; no new CFD advance or M6.
+lifecycle independently PASS. Annular coordinated-placement batch is now building (owned session99935); no new CFD advance or M6.
 Read [backend scope and open full-goal requirements](Handbook/GOAL3_AFFINE_RUNTIME.md).
 No accepted oblique lifecycle; simultaneous junction collars and affine-wall BL
 composition explicitly refuse. Preserve full geometry/2D/exterior scope and annular
@@ -53,6 +53,13 @@ native adaptation or transfer. This controlled target is feasible, native cold
 construction is blocked under current work ceiling. Reconsider coordinated point
 distribution/connectivity, never raise caps or retry M6 unchanged.
 [Complete scope/evidence](Handbook/GOAL3_PLANAR_SYMMETRY.md).
+
+Current connected annular experiment replaces edge-constrained coordinate probing
+with the existing coupled shape solve, coordinating admitted smooth surface and
+interior stars. Two independent exact patch witnesses pass geometry/shape and
+77.24%/86.97% changed-edge progress; restricted on-edge comparison still fails.
+Native frozen-field replay/full annular lifecycle/MPI qualification are PENDING.
+[Evidence and limits](integration_evidence/native_3d_bl_v1/annulus_coordinated_replay_v1/README.md).
 
 ## Accepted spherical repeat — retain evidence
 

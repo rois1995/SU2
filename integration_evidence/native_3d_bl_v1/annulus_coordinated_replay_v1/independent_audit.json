@@ -1,0 +1,65 @@
+{
+  "status": "INDEPENDENT_PATCH_AUDIT",
+  "seconds": 5.882038033101708,
+  "results": {
+    "interior_only": {
+      "status": "GEOMETRY_SHAPE_PASS",
+      "cells": 54,
+      "moved": [
+        5263,
+        13650
+      ],
+      "exact_positive_volume_and_interface": true,
+      "finite_physical_coverage": true,
+      "complete_stars": true,
+      "overlap_pairs_checked": 1531,
+      "minimum_q": 0.2019332817149691,
+      "minimum_J": 0.05048941385320978,
+      "removed_squared_excess": 1.5808694057681534,
+      "added_squared_excess": 0.35981013167419296,
+      "relative_changed_excess_reduction": 0.7723973084928167,
+      "refine_progress": true,
+      "maximum_full_edge": 2.901124151731,
+      "quadrature_order_spread": 4.440892098500626e-16,
+      "sha256": "29134ba75a2c1be12ef09d623eba4c0224ce56500ef865b3e625bc8ae6683f43"
+    },
+    "joint_surface_volume": {
+      "status": "GEOMETRY_SHAPE_PASS",
+      "cells": 54,
+      "moved": [
+        5263,
+        11551,
+        13650,
+        34607
+      ],
+      "exact_positive_volume_and_interface": true,
+      "finite_physical_coverage": true,
+      "complete_stars": true,
+      "overlap_pairs_checked": 1479,
+      "minimum_q": 0.20199582657229526,
+      "minimum_J": 0.05049067721053937,
+      "removed_squared_excess": 2.821655202694785,
+      "added_squared_excess": 0.367613526167564,
+      "relative_changed_excess_reduction": 0.8697170632979963,
+      "refine_progress": true,
+      "maximum_full_edge": 2.4001414334289017,
+      "quadrature_order_spread": 6.661338147750939e-16,
+      "sha256": "7b358151c3fad3c33dd45a1766bdc58d5b27317125f99385274956e59134af22"
+    }
+  },
+  "source_sha256": {
+    "integration_evidence/native_3d_bl_v1/planar_symmetry_reference_v1/annulus_v4_n1/symmetry_annulus_bl_budget_20_m1_rejected_rank0_trial_before.json": "01993852be7d41de85dbc17e7b9e5ab6b73ec2835ba01e8f950135e15f725ed3",
+    "integration_evidence/native_3d_bl_v1/planar_symmetry_reference_v1/annulus_v4_n1/symmetry_annulus_bl_budget_20_m1_rejected_rank0.json": "71d171b537d51b698e860577449610b7b905de105c46fe7ae3581b680dc2aafc",
+    "integration_evidence/native_3d_bl_v1/planar_symmetry_reference_v1/annulus_v4_n1/symmetry_annulus_bl_budget_20_m1_frozen_profile.json": "e1d384df9b645c842466c0bbddc3f6d076c4b5ff771cc7d4f98089ff3c6ec8f3",
+    "integration_evidence/native_3d_bl_v1/annulus_coordinated_replay_v1/audit.py": "531c8d3c07b255a12b6ebfb2a1e976e1c9bbdb90ea13b5f1608bc94084d5914e",
+    "integration_evidence/native_3d_bl_v1/annulus_coordinated_replay_v1/probe.py": "950a23e8952dea99607a7c0c45c9a63b6f8637ee9b5d55486f24450f426b875b",
+    "integration_evidence/native_3d_core_v1/audit_cavities.py": "26079385c071c3ad1b9c06ab3b862b4ff293367dc3c8d291acf0487089d062c5",
+    "integration_evidence/native_3d_core_v1/audit_coupled.py": "1822427476ecb5687aaa06f3e7a3cc8f31cde53166fd0c711449eedf7c7c7a50",
+    "integration_evidence/native_3d_bl_v1/planar_symmetry_reference_v1/audit_annulus.py": "f6f7def2aefb6dd7a402bedc1188dc94970faee7f1f6a0bee89db0fbe34c569f"
+  },
+  "limitations": [
+    "Analytic reproduction of the saved constant-sensor/single-wall frozen profile; native FrozenField validation still required",
+    "Patch progress is not whole-mesh acceptance, transfer or an adapted lifecycle",
+    "24/48 point quadrature agreement is empirical, not a proven error bound"
+  ]
+}

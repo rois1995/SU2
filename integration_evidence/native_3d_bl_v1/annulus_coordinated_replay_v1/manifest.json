@@ -1,0 +1,61 @@
+{
+  "status": "NATIVE_VALIDATION_PENDING_FULL_GOAL_OPEN",
+  "scope": "Independent exact saved-patch witnesses plus connected native joint placement/admission implementation. No native patch or whole-mesh acceptance claim.",
+  "files": {
+    "README.md": "eca688b917730f822132e19f94a5d8bb18e3714b34db8d35092dc0723778fbf6",
+    "probe.py": "950a23e8952dea99607a7c0c45c9a63b6f8637ee9b5d55486f24450f426b875b",
+    "probe_on_edge.py": "55a8fd392cb882a1d6e55a626010d13d0437355dcb5504a7652ff8400aff3b5f",
+    "audit.py": "531c8d3c07b255a12b6ebfb2a1e976e1c9bbdb90ea13b5f1608bc94084d5914e",
+    "run_native.py": "866bffc237b4d5d3caaef039b6edbf353a1aaa399b2b597097283d63e97bdb8c",
+    "patch.dat": "b47fa5290ab4657f0c9ab3bc9bffc20d861964d80ef1c68e76cf79aa4df2e26e",
+    "report.json": "007e3f5551b4a4d47bec58332bbe85b5aacbb216da7e811a8688b124db0574ee",
+    "report_on_edge.json": "9e87cafd159e33dd74f6e941285d9ad0452079bd6bc93e0db5e53aed0a35cd69",
+    "independent_audit.json": "031378fabc9ebfadf69818175ce83558e2b7ecbabab7c7c22eb8cfca31d8d2cd",
+    "interior_only.json": "29134ba75a2c1be12ef09d623eba4c0224ce56500ef865b3e625bc8ae6683f43",
+    "joint_surface_volume.json": "7b358151c3fad3c33dd45a1766bdc58d5b27317125f99385274956e59134af22",
+    "on_edge.json": "44a8bc27d067dee15ed587283770ed1d0447db2dbe1263017308f7da4c2fc2aa",
+    "run.log": "b93a1b6ce0c39fdf075bb65610c21cee1100f1676edaf6bf66cae4e53bc00777",
+    "probe_on_edge.log": "c68d0e81326bb6480cf9815bade62f5ac29f82d291678a07dcb5807037bb42a4",
+    "audit.log": "b8a2dfa2d74ac97be0cc81ba4ae44b91d63acdcd6717ab644298f646afc1e46b",
+    "audit_v1_failed.log": "b26b6c4657fc650eacf8bf47bdef246fdfc8c6c73b0b91035b561d0b4944fcac",
+    "claude_review.json": "0e31ad0d063e75fb55a0c5da72b4dd8988059d3452dc196364f34c798e553d11",
+    "claude_review_prompt_medium.md": "25c5274ff0c2fb77112f929d9ff18223e43a471d1e4c6eee77db3ea7f357de03",
+    "claude_review_mcp_config_error.log": "527402a1802b7997c67036cd7e8e596f497547ae44b649ce8a135201ebc6f59b",
+    "build_v1.log": "8d271310bd0818e4e565a3d2b81aa346bcbd914ff3c4981e69c3bd3773873f44",
+    "build_v2.log": "c607cd9d0f76cf1928bd0937ccb9a07c7385158df4494f2bfe8944f6c5c4e666",
+    "build_cpu.txt": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865"
+  },
+  "source": {
+    "Common/include/adaptation/CNativeBoundary3D.hpp": "6941fe9df2f5fb652349d3ce84b4cf74c663b2d9bcca501dbca79bff7a699a57",
+    "Common/src/adaptation/CNativeBoundary3D.cpp": "fea26b06a55e887d3c66079a0ed98e470c29774b47eed3b59b1942c53aad10fc",
+    "Common/src/adaptation/CNativeEngine3D.cpp": "3219c2084c8cbfa00177c5a8f1d563d0d23bf687d73bf2d6fba9ce7e595dda9e",
+    "UnitTests/Common/adaptation/CNativeBoundary3D_tests.cpp": "354ee95f4cc81316dce07bf3fc749c8e41c76a720ea9af610592a97225ecd292"
+  },
+  "build": {
+    "active_session": 99935,
+    "log": "build_v3.log",
+    "priority": 19,
+    "workers": 1,
+    "cpu": 1,
+    "status": "LIVE when this checkpoint was prepared",
+    "previous_stops": {
+      "91170": 130,
+      "99924": 130
+    }
+  },
+  "claude": {
+    "model": "claude-opus-5-5",
+    "effort": "medium",
+    "review": "claude_review.json",
+    "high_effort_attempt_exit": 124
+  },
+  "next": [
+    "Complete current build without editing pinned sources",
+    "Native frozen-field witness and actual joint construction; affected geometry/height controls",
+    "Unchanged-constraint full annular lifecycle, independent audit, affected MPI controls"
+  ],
+  "limitations": [
+    "Arbitrary symmetry/junction/2D/exterior and full Goal3 scope remains OPEN",
+    "No adaptation/CFD speedup or accepted native annular mesh established"
+  ]
+}

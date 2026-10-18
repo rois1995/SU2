@@ -192,8 +192,8 @@ bool ReconstructSplitPatch(const Patch& old,Edge edge,Node point,Node interior,c
                            std::string& reason,KernelStats* stats = nullptr,
                            const std::map<int,double>& heights = {});
 class FrozenField;
-/*! Tentative bounded cover of split cells by non-endpoint vertices absent from the local physical skin.
- * Optional costs contain only globally admitted free candidates; missing entries are unavailable.
+/*! Tentative bounded cover of split cells by non-endpoint vertices; physical vertices are excluded by default.
+ * Optional costs contain only globally admitted movable candidates, including smooth physical vertices; missing entries are unavailable.
  * Minimum total cost within eight apices; at most511 binary search states. Complete stars remain caller duties.
  * Empty means no bounded cover. */
 std::vector<Id> SplitPatchApices(const Patch& patch,Edge edge,const std::map<Id,size_t>* costs=nullptr);
@@ -205,10 +205,10 @@ struct JointSplitReport {
   double initial_loss=0, best_loss=0, best_shape_loss=0;
   Patch best;  // Geometric/height-valid private proposal, including failed shape; never an accepted mesh.
 };
-/*! Bounded actual-field-directed placement of one split and up to eight free complete-star apices.
- * Surface points retain their chart; interior points have three spatial freedoms. All trials reconstruct
- * from the original patch; artificial interfaces and first-height constraints
- * remain fixed. Proposal scores use midpoint lengths only; success requires full composed Refine
+/*! Bounded actual-field-directed placement of one split and up to eight complete-star surface/interior vertices.
+ * Surface points retain their finite authority; the split may leave a same-chart edge. Coupled shape derivatives
+ * coordinate all admitted freedoms. All trials reconstruct from the original patch; artificial interfaces
+ * and first-height constraints remain fixed. Proposal scores use midpoint lengths only; success requires full composed Refine
  * validation. Placement reserves half of the shared trial bound for optional point-preserving private
  * reconnection; only the split and admitted apices may move, using their reserved identities.
  * Output is unchanged on failure; distributed admission and external clearance are caller duties. */

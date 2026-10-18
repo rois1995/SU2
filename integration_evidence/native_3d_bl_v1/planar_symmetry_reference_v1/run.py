@@ -9,7 +9,8 @@ import run as replay
 def main():
     mode=sys.argv[1];ranks=int(sys.argv[2]) if len(sys.argv)>2 else 1
     assert mode in ('geometry','workflow','baseline','annulus') and ranks in (1,2,4)
-    folder=HERE/(mode+'_v6_n'+str(ranks))
+    version=sys.argv[3] if len(sys.argv)>3 else 'v7';assert version.startswith('v') and version[1:].isdigit()
+    folder=HERE/(mode+'_'+version+'_n'+str(ranks))
     sources=[]
     for directory in ('Common/include/adaptation','Common/src/adaptation','SU2_CFD/include/adaptation','SU2_CFD/src/adaptation'):
         sources+=list((ROOT/directory).glob('*3D.*'))
