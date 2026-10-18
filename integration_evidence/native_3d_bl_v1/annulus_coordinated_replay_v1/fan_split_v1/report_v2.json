@@ -1,0 +1,116 @@
+{
+  "status": "METRIC_FEASIBLE_PARTITION_MULTI_APEX_STAR_SPLIT_EXPERIMENT",
+  "results": [
+    {
+      "delta": 0.03125,
+      "steps": [
+        {
+          "retired": 50328,
+          "old": 36,
+          "fresh": 42,
+          "bridges": 6
+        }
+      ],
+      "rejected": "No positive binary face partition for proposed points/wall ownership"
+    },
+    {
+      "delta": 0.046875,
+      "steps": [
+        {
+          "retired": 50328,
+          "old": 36,
+          "fresh": 42,
+          "bridges": 6
+        },
+        {
+          "retired": 900000,
+          "old": 30,
+          "fresh": 36,
+          "bridges": 6
+        }
+      ],
+      "rejected": "Neither proposed apex sees retained face"
+    },
+    {
+      "delta": 0.0625,
+      "steps": [
+        {
+          "retired": 50328,
+          "old": 36,
+          "fresh": 42,
+          "bridges": 6
+        },
+        {
+          "retired": 900000,
+          "old": 30,
+          "fresh": 35,
+          "bridges": 5
+        }
+      ],
+      "rejected": "Neither proposed apex sees retained face"
+    },
+    {
+      "delta": 0.078125,
+      "steps": [
+        {
+          "retired": 50328,
+          "old": 36,
+          "fresh": 42,
+          "bridges": 6
+        },
+        {
+          "retired": 900000,
+          "old": 30,
+          "fresh": 35,
+          "bridges": 5
+        }
+      ],
+      "rejected": "Neither proposed apex sees retained face"
+    },
+    {
+      "delta": 0.09375,
+      "steps": [
+        {
+          "retired": 50328,
+          "old": 36,
+          "fresh": 42,
+          "bridges": 6
+        }
+      ],
+      "rejected": "Neither proposed apex sees retained face"
+    },
+    {
+      "delta": 0.109375,
+      "steps": [
+        {
+          "retired": 50328,
+          "old": 36,
+          "fresh": 42,
+          "bridges": 6
+        }
+      ],
+      "rejected": "Neither proposed apex sees retained face"
+    },
+    {
+      "delta": 0.125,
+      "steps": [
+        {
+          "retired": 50328,
+          "old": 36,
+          "fresh": 42,
+          "bridges": 6
+        }
+      ],
+      "rejected": "Neither proposed apex sees retained face"
+    }
+  ],
+  "source_sha256": "bfbfe0935fa6d4a53753ba68fd96a288fc3d573a7d1a660f0fa84e8a0ae5954d",
+  "profile_sha256": "e1d384df9b645c842466c0bbddc3f6d076c4b5ff771cc7d4f98089ff3c6ec8f3",
+  "script_sha256": "91148630d10ca912398ced701a32859afc4989d8c581c1c3b6c63f4db3690181",
+  "seconds": 0.2532415189780295,
+  "limits": [
+    "Offline proposal coordinates/axis choices; no native implementation or acceptance",
+    "Intermediate private star splits enforce geometry/topology but not height; full-height/whole geometry/overlap audit still needed",
+    "No source field or acceptance threshold changed"
+  ]
+}

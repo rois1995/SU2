@@ -1,0 +1,32 @@
+{
+  "exit_code": 0,
+  "elapsed_seconds": 4.249842063058168,
+  "command": [
+    "taskset",
+    "-c",
+    "0",
+    "nice",
+    "-n",
+    "19",
+    "timeout",
+    "--kill-after=5s",
+    "180s",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver",
+    "[NativeJointSurfaceReplay3D],[NativeInteriorPlacement3D],[NativeSurfaceStrip3D],[NativeMetricMove3D],[NativeConnectivityInterface3D],[NativeConnectivityHeight3D]",
+    "--abort",
+    "--reporter",
+    "compact"
+  ],
+  "provenance_sha256": "180dc6dbc1a5970c512d7cf872869cb67f87d434fb3147e071382400d11ec217",
+  "log_sha256": "d56e44508047795da89208e54a9579133b254a2a85b22594c0ee7578c35f60d9",
+  "largest_child_rss_KiB": 28196,
+  "memory_scope": "Largest child RSS observed by this Python process; not aggregate whole-job peak",
+  "scope": "Exact saved patch construction and full native metric change, complete-star rejection, existing affected geometry/height controls; not an accepted whole mesh",
+  "artifacts": {
+    "native_joint_best.json": "0b74aa0f64331e9c49f37c732692db4cb316ba6fc4bfa3d6d0488b8a6d819e8e",
+    "strip_repaired.json": "ab93268b4b671bf46c484026fece8a6f0976610cf215013286d3750701c007cc",
+    "strip_original.json": "50bc6c8753837879182f7380f080c45e3cda09b42e892234687fa9ace23ed74b",
+    "executed_source.json.gz": "904c20ebe8dfa7afe4a382964e13e47efa3da7c0d527957bd2cc1b244e1ca408",
+    "native_joint_after.json": "0b74aa0f64331e9c49f37c732692db4cb316ba6fc4bfa3d6d0488b8a6d819e8e"
+  }
+}

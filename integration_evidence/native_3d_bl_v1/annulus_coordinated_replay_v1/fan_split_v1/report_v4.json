@@ -1,0 +1,142 @@
+{
+  "status": "QUALITY_MINCUT_MULTI_APEX_STAR_SPLIT_EXPERIMENT",
+  "results": [
+    {
+      "delta": 0.03125,
+      "steps": [
+        {
+          "retired": 50328,
+          "old": 36,
+          "fresh": 43,
+          "bridges": 7
+        }
+      ],
+      "rejected": "No positive/quality-feasible minimum-cut partition"
+    },
+    {
+      "delta": 0.046875,
+      "steps": [
+        {
+          "retired": 50328,
+          "old": 36,
+          "fresh": 42,
+          "bridges": 6
+        },
+        {
+          "retired": 900000,
+          "old": 22,
+          "fresh": 26,
+          "bridges": 4
+        }
+      ],
+      "rejected": "Neither proposed apex sees retained face"
+    },
+    {
+      "delta": 0.0625,
+      "steps": [
+        {
+          "retired": 50328,
+          "old": 36,
+          "fresh": 42,
+          "bridges": 6
+        },
+        {
+          "retired": 900000,
+          "old": 22,
+          "fresh": 26,
+          "bridges": 4
+        },
+        {
+          "retired": 900001,
+          "old": 28,
+          "fresh": 34,
+          "bridges": 6
+        }
+      ],
+      "cells": 355,
+      "nodes": 107,
+      "minimum_q": 0.2167007077292148,
+      "minimum_J": 0.05581882281574294,
+      "bad_shape": 0,
+      "oversized_edges": 0,
+      "maximum_edge": 1.7955164523225264,
+      "excess": 0.0
+    },
+    {
+      "delta": 0.078125,
+      "steps": [
+        {
+          "retired": 50328,
+          "old": 36,
+          "fresh": 42,
+          "bridges": 6
+        },
+        {
+          "retired": 900000,
+          "old": 22,
+          "fresh": 26,
+          "bridges": 4
+        },
+        {
+          "retired": 900001,
+          "old": 28,
+          "fresh": 34,
+          "bridges": 6
+        }
+      ],
+      "cells": 355,
+      "nodes": 107,
+      "minimum_q": 0.2026255422896099,
+      "minimum_J": 0.05974823241310039,
+      "bad_shape": 0,
+      "oversized_edges": 0,
+      "maximum_edge": 1.7955164523225264,
+      "excess": 0.0
+    },
+    {
+      "delta": 0.09375,
+      "steps": [
+        {
+          "retired": 50328,
+          "old": 36,
+          "fresh": 42,
+          "bridges": 6
+        }
+      ],
+      "rejected": "Neither proposed apex sees retained face"
+    },
+    {
+      "delta": 0.109375,
+      "steps": [
+        {
+          "retired": 50328,
+          "old": 36,
+          "fresh": 42,
+          "bridges": 6
+        }
+      ],
+      "rejected": "Neither proposed apex sees retained face"
+    },
+    {
+      "delta": 0.125,
+      "steps": [
+        {
+          "retired": 50328,
+          "old": 36,
+          "fresh": 42,
+          "bridges": 6
+        }
+      ],
+      "rejected": "Neither proposed apex sees retained face"
+    }
+  ],
+  "source_sha256": "bfbfe0935fa6d4a53753ba68fd96a288fc3d573a7d1a660f0fa84e8a0ae5954d",
+  "profile_sha256": "e1d384df9b645c842466c0bbddc3f6d076c4b5ff771cc7d4f98089ff3c6ec8f3",
+  "script_sha256": "fa04e43b9064c318ef30c1afa2d9ae0c0dd643b4939a9474f2b08a7bfdf17a79",
+  "seconds": 0.8673283179523423,
+  "limits": [
+    "Offline proposal coordinates/axis choices; no native implementation or acceptance",
+    "Intermediate private star splits enforce geometry/topology but not height; full-height/whole geometry/overlap audit still needed",
+    "No source field or acceptance threshold changed"
+  ]
+}

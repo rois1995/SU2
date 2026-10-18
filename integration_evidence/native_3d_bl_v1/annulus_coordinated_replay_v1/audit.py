@@ -21,7 +21,7 @@ def skin(cells):
         for f in [(b,c,d),(a,d,c),(a,b,d),(a,c,b)]:uses[tuple(sorted(f))].append((parity(f),f))
     assert all(len(u)==1 or len(u)==2 and sum(s for s,_ in u)==0 for u in uses.values())
     return {f:u[0] for f,u in uses.items() if len(u)==1}
-def main():
+def main(cases=None,output_path=None):
     started=time.monotonic();old=json.loads(OLD.read_text());whole=json.loads(GLOBAL.read_text());profile=json.loads(PROFILE.read_text())
     assert profile['original_field'] and profile['parameter']==0;theta=profile['core']
     p0=points(old);pg=points(whole);s0=skin(old['cells']);physical0={tuple(sorted(f['nodes'])):f for f in old['surface']}
@@ -66,8 +66,8 @@ def main():
             values[e]=value
         return values
     before=edge_values(old,p0,48);result={}
-    for name in ['interior_only','joint_surface_volume']:
-        path=HERE/(name+'.json');data=json.loads(path.read_text());p=points(data);sk=skin(data['cells']);physical={tuple(sorted(f['nodes'])):f for f in data['surface']}
+    for name,path in (cases if cases is not None else [(n,HERE/(n+'.json')) for n in ['interior_only','joint_surface_volume']]):
+        data=json.loads(path.read_text());p=points(data);sk=skin(data['cells']);physical={tuple(sorted(f['nodes'])):f for f in data['surface']}
         assert len(p)==len(data['nodes'])==len(set(p.values()))
         assert {k:v for k,v in sk.items() if k not in physical}==artificial
         assert all(p[n]==p0[n] for n in fixed),'Artificial interface moved'
@@ -105,5 +105,5 @@ def main():
     except AssertionError:pass
     else:raise AssertionError('Missing off-plane negative control')
     output=dict(status='INDEPENDENT_PATCH_AUDIT',seconds=time.monotonic()-started,results=result,source_sha256={str(p.resolve().relative_to(ROOT)):digest(p) for p in [OLD,GLOBAL,PROFILE,Path(__file__),HERE/'probe.py',ROOT/'integration_evidence/native_3d_core_v1/audit_cavities.py',ROOT/'integration_evidence/native_3d_core_v1/audit_coupled.py',HERE.with_name('planar_symmetry_reference_v1')/'audit_annulus.py']},limitations=['Analytic reproduction of the saved constant-sensor/single-wall frozen profile; native FrozenField validation still required','Patch progress is not whole-mesh acceptance, transfer or an adapted lifecycle','24/48 point quadrature agreement is empirical, not a proven error bound'])
-    (HERE/'independent_audit.json').write_text(json.dumps(output,indent=2)+'\n')
+    (output_path or HERE/'independent_audit_v2.json').write_text(json.dumps(output,indent=2)+'\n')
 if __name__=='__main__':main()

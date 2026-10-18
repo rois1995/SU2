@@ -1,12 +1,18 @@
 ## Affine reference/source backend checkpoint — 2026-10-18
 
-Current annular coordination experiment: two exact saved-patch witnesses pass
-geometry and shape with77.24%/86.97% changed-edge progress; edge-constrained
-placement still has two shape failures. The connected native coupled-placement
-and MPI smooth-star admission batch is implemented and building, not yet qualified.
-Full Goal3/general symmetry requirements remain OPEN.
-[Evidence, Opus review and pending gates](integration_evidence/native_3d_bl_v1/annulus_coordinated_replay_v1/README.md).
+Current native joint-placement batch is compiled and scoped-qualified:7cases/
+18743assertions and independently audited Cartesian N4/M2 RANS/SA/BDF/output/
+restart pass. The unchanged annular native event still rejects after96edits,
+339cells and2300/8192work. Four oversized edges share one first-height apex;
+retained-ownership and single-background diagnostics justify a multi-apex strategy.
 
+A complete offline compound star replacement now independently passes355cells/
+107nodes, q=.2167007/J=.0558188/Lmax1.7955165/height0/exact geometry and overlap,
+with the same original frozen field. Native port and annular lifecycle are pending;
+no M6/general symmetry/physical accuracy/affordability claim. Overflowing SciPy
+min-cut draft withdrawn; corrected capacities plus complete independent audit pass.
+[Current result, rejected experiments and next capability](Handbook/GOAL3_ANNULAR_COORDINATION.md).
+Full Goal3/general symmetry requirements remain OPEN.
 
 Finite affine references now use the existing3D query/operator/source/IO architecture.
 Serial12cases/3974assertions, MPI4 and independent75-stencil positivity/original-ID/

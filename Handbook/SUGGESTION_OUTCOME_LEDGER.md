@@ -255,3 +255,29 @@ manual witness204tets passes q.305/J.0959/L1.740/height0/finite hole/embedding. 
 establishes scoped target feasibility, NOT native construction or transfer. Need
 coordinated construction reconsideration, no raised caps/fallback ladder/M6 retry.
 See GOAL3_PLANAR_SYMMETRY.md and planar_symmetry_reference_v1 evidence.
+
+## Joint surface/volume placement and multi-apex construction — 2026-10-18
+
+**Worked in native code:** coupled point placement plus complete smooth surface
+stars,7cases/18743assertions and current independently verified N4/M2 Cartesian
+RANS/SA/BDF/SU2/CGNS/restart. Native exact saved-patch geometry/shape passes with
+44.56% changed-edge squared-excess reduction; independent77%/87% oracles are not
+native performance/results. Original target and all gates stay unchanged.
+
+**Still fails:** complete native annulus makes96edits/339cells then stagnates at
+2300/8192work. Four full-field1.865929edges remain (3.66% too long), sharing one
+first-height apex; empty rejected queues are not zero metric residual. Analytic
+retained-ownership lower bound1.834077>1.8 and the floating single-background
+kernel diagnosis justify changing construction rather than raising limits.
+
+**Worked offline, port pending:** three quality-directed binary star splits retire
+that apex only, preserve the wall mesh/all original link vertices and replace
+36cells by52. Complete355cells independently pass exact geometry/embedding/height,
+q=.2167007/J=.0558188/Lmax1.7955165; original complexity20.00019535 (+9.77e-6relative).
+Opus5.5/medium helped review the diagnosis; its additional-retirement necessity was
+not supported by this valid witness. Plain positive partitions and fixed-topology
+apex movement fail shape checks. The1e15-capacity SciPy min-cut draft overflowed
+int32 and is **withdrawn**, not evidence of infeasibility; corrected bounded flow
+self-checks and the independent audit pass. No native multi-apex implementation,
+transfer/MPI/restart/viscous or affordability claim yet.
+[Evidence, limitations, all failures and inspectable grid](GOAL3_ANNULAR_COORDINATION.md).

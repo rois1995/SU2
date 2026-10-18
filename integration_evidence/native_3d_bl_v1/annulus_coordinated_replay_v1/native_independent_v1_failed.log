@@ -1,0 +1,9 @@
+native_joint {"status": "GEOMETRY_SHAPE_PASS", "cells": 54, "moved": [5263, 11551, 13650, 34607], "exact_positive_volume_and_interface": true, "finite_physical_coverage": true, "complete_stars": true, "overlap_pairs_checked": 1449, "minimum_q": 0.20180849200725473, "minimum_J": 0.05028858064049116, "removed_squared_excess": 2.821655202694785, "added_squared_excess": 1.564424346687085, "relative_changed_excess_reduction": 0.4455650197114793, "refine_progress": true, "maximum_full_edge": 2.9228638806427667, "quadrature_order_spread": 4.440892098500626e-16, "sha256": "23db7711ae996d419e940a9695ce52bd491adaf3b0ecc4f3ef0a1a2173b25f46"}
+Traceback (most recent call last):
+  File "integration_evidence/native_3d_bl_v1/annulus_coordinated_replay_v1/audit_native.py", line 29, in <module>
+    if __name__=='__main__':main()
+  File "integration_evidence/native_3d_bl_v1/annulus_coordinated_replay_v1/audit_native.py", line 21, in main
+    audit.main(cases=[('native_joint',canonical)],output=output)
+  File "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/annulus_coordinated_replay_v1/audit.py", line 108, in main
+    (output or HERE/'independent_audit_v2.json').write_text(json.dumps(output,indent=2)+'\n')
+AttributeError: 'dict' object has no attribute 'write_text'

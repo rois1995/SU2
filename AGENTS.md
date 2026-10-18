@@ -98,3 +98,9 @@ User instruction, 2026-10-17: account for machine contention and RAM usage.
   longer runs, preserve resource receipts, and leave unrelated processes untouched.
 - Use the repository build's compile-tmp on the4TB disk while the root/tmp filesystem
   is nearly full. Do not infer whole-job peak memory from one process's RSS.
+
+## Optional local second opinion
+
+User authorization, 2026-10-18: consult the local Claude Code installation when
+useful, using Opus 5.5 at medium or high effort. Keep source-checking and validation
+with the implementation; a model review does not establish correctness.

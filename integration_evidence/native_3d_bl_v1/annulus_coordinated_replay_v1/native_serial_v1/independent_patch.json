@@ -1,0 +1,54 @@
+{
+  "status": "INDEPENDENT_PATCH_AUDIT",
+  "seconds": 3.2195648179622367,
+  "results": {
+    "native_joint": {
+      "status": "GEOMETRY_SHAPE_PASS",
+      "cells": 54,
+      "moved": [
+        5263,
+        11551,
+        13650,
+        34607
+      ],
+      "exact_positive_volume_and_interface": true,
+      "finite_physical_coverage": true,
+      "complete_stars": true,
+      "overlap_pairs_checked": 1449,
+      "minimum_q": 0.20180849200725473,
+      "minimum_J": 0.05028858064049116,
+      "removed_squared_excess": 2.821655202694785,
+      "added_squared_excess": 1.564424346687085,
+      "relative_changed_excess_reduction": 0.4455650197114793,
+      "refine_progress": true,
+      "maximum_full_edge": 2.9228638806427667,
+      "quadrature_order_spread": 4.440892098500626e-16,
+      "sha256": "23db7711ae996d419e940a9695ce52bd491adaf3b0ecc4f3ef0a1a2173b25f46"
+    }
+  },
+  "source_sha256": {
+    "integration_evidence/native_3d_bl_v1/planar_symmetry_reference_v1/annulus_v4_n1/symmetry_annulus_bl_budget_20_m1_rejected_rank0_trial_before.json": "01993852be7d41de85dbc17e7b9e5ab6b73ec2835ba01e8f950135e15f725ed3",
+    "integration_evidence/native_3d_bl_v1/planar_symmetry_reference_v1/annulus_v4_n1/symmetry_annulus_bl_budget_20_m1_rejected_rank0.json": "71d171b537d51b698e860577449610b7b905de105c46fe7ae3581b680dc2aafc",
+    "integration_evidence/native_3d_bl_v1/planar_symmetry_reference_v1/annulus_v4_n1/symmetry_annulus_bl_budget_20_m1_frozen_profile.json": "e1d384df9b645c842466c0bbddc3f6d076c4b5ff771cc7d4f98089ff3c6ec8f3",
+    "integration_evidence/native_3d_bl_v1/annulus_coordinated_replay_v1/audit.py": "3ab2c73a53ce52400c04c4dd7e224de539556aadc8300751bd9f88af35d3fa26",
+    "integration_evidence/native_3d_bl_v1/annulus_coordinated_replay_v1/probe.py": "950a23e8952dea99607a7c0c45c9a63b6f8637ee9b5d55486f24450f426b875b",
+    "integration_evidence/native_3d_core_v1/audit_cavities.py": "26079385c071c3ad1b9c06ab3b862b4ff293367dc3c8d291acf0487089d062c5",
+    "integration_evidence/native_3d_core_v1/audit_coupled.py": "1822427476ecb5687aaa06f3e7a3cc8f31cde53166fd0c711449eedf7c7c7a50",
+    "integration_evidence/native_3d_bl_v1/planar_symmetry_reference_v1/audit_annulus.py": "f6f7def2aefb6dd7a402bedc1188dc94970faee7f1f6a0bee89db0fbe34c569f",
+    "integration_evidence/native_3d_bl_v1/annulus_coordinated_replay_v1/audit_native.py": "370307f26fe3c5dc0f563dbdd49f6e39d03b93b4860b23d8bbe904179c69965c"
+  },
+  "limitations": [
+    "Analytic reproduction of the saved constant-sensor/single-wall frozen profile; native FrozenField validation still required",
+    "Patch progress is not whole-mesh acceptance, transfer or an adapted lifecycle",
+    "24/48 point quadrature agreement is empirical, not a proven error bound"
+  ],
+  "native_artifact_sha256": "0b74aa0f64331e9c49f37c732692db4cb316ba6fc4bfa3d6d0488b8a6d819e8e",
+  "fixture_sha256": "b47fa5290ab4657f0c9ab3bc9bffc20d861964d80ef1c68e76cf79aa4df2e26e",
+  "reserved_to_original_ids": {
+    "1000001": 5263,
+    "1000002": 13650,
+    "1000003": 11551,
+    "1000004": 34607
+  },
+  "scope": "Native-produced private patch: exact volume/finite geometry/complete stars/no overlap, independent shape and changed-edge progress. No whole-mesh or transfer acceptance."
+}

@@ -4,7 +4,7 @@ Worktree `/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated`, branch
 `codex/native-3d-bl`. Full Goal3 **ACTIVE/incomplete**; Goal2 base c43a8a3907ea.
 Geometry/source checkpoint is published on `codex/native-3d-bl`; see the
 current Git HEAD. Cleanup receipt:14d1bbc9de. Cartesian current-binary lifecycle
-qualification is workflow_v6_n4; arbitrary runtime scope remains OPEN.
+qualification is workflow_v7_n4; arbitrary runtime scope remains OPEN.
 [Full requirements](integration_evidence/native_3d_bl_v1/GOAL3_REQUIREMENTS.json).
 Leave AdapNoExt, foreign ClusterResults, dependencies and foreign jobs untouched.
 
@@ -12,7 +12,8 @@ Leave AdapNoExt, foreign ClusterResults, dependencies and foreign jobs untouched
 
 Affine source/backend batch now passes serial12cases/3974assertions, MPI4 and
 independent75-stencil/source-ID/codec/equality audit. Current Cartesian N4/M2 full
-lifecycle independently PASS. Annular coordinated-placement batch is now building (owned session99935); no new CFD advance or M6.
+lifecycle independently PASS. Native joint-placement replay passes7cases/18743assertions; current N4/M2 lifecycle
+also passes independently. All owned jobs are terminal; no new CFD advance or M6.
 Read [backend scope and open full-goal requirements](Handbook/GOAL3_AFFINE_RUNTIME.md).
 No accepted oblique lifecycle; simultaneous junction collars and affine-wall BL
 composition explicitly refuse. Preserve full geometry/2D/exterior scope and annular
@@ -44,22 +45,16 @@ Disk cleanup recovered23.40GiB across two verified archival batches; [receipt an
 Current build and all3D evidence preserved; archived old executables need decompression.
 Root/tmp nearly full from foreign work: leave it untouched.
 
-Annulus_v4_n1 reproduces work8192 rejection, saves154privatecells/55nodes plus
-original field/reference and exact last edge1--5 trial. Input flow/SA retained.
-View `integration_evidence/native_3d_bl_v1/planar_symmetry_reference_v1/annulus_v4_n1/symmetry_annulus_bl_budget_20_m1_rejected.su2`.
-Independent same-field manual witness204tets/84nodes PASSES: q.305/J.0959/L1.740,
-height0, finite hole/positive volume/embedding/links, complexity20.000195. It is NOT
-native adaptation or transfer. This controlled target is feasible, native cold
-construction is blocked under current work ceiling. Reconsider coordinated point
-distribution/connectivity, never raise caps or retry M6 unchanged.
-[Complete scope/evidence](Handbook/GOAL3_PLANAR_SYMMETRY.md).
-
-Current connected annular experiment replaces edge-constrained coordinate probing
-with the existing coupled shape solve, coordinating admitted smooth surface and
-interior stars. Two independent exact patch witnesses pass geometry/shape and
-77.24%/86.97% changed-edge progress; restricted on-edge comparison still fails.
-Native frozen-field replay/full annular lifecycle/MPI qualification are PENDING.
-[Evidence and limits](integration_evidence/native_3d_bl_v1/annulus_coordinated_replay_v1/README.md).
+Annular native cold construction improves to96private edits/339cells but still
+rejects at2300/8192work. Four remaining1.86593edges share a first-height apex;
+its retained ownership has an analytic lower bound above1.8. Do not retry unchanged
+or raise caps. A compound multi-apex offline construction independently passes the
+complete355cell mesh: q=.2167/J=.05582/Lmax1.79552/height0/exact geometry and overlap.
+This is not yet implemented in native code and has no transfer/MPI qualification.
+Next: generic bounded multi-apex complete-star replacement and unchanged native
+workflow. [Current construction and exact evidence](Handbook/GOAL3_ANNULAR_COORDINATION.md).
+View `integration_evidence/native_3d_bl_v1/annulus_coordinated_replay_v1/fan_split_v1/annulus_frozen_prototype_witness.su2`
+(offline witness only; no solver state/restart). Keep all rejected experiments.
 
 ## Accepted spherical repeat — retain evidence
 

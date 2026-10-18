@@ -23,6 +23,10 @@ def main():
     else:capsule.write_bytes(payload)
     filters='[NativeJointSurfaceReplay3D],[NativeInteriorPlacement3D],[NativeSurfaceStrip3D],[NativeMetricMove3D],[NativeConnectivityInterface3D],[NativeConnectivityHeight3D]'
     result=replay.invoke(folder,{'SU2_NATIVE_JOINT_REPLAY':str(HERE/'patch.dat'),'SU2_NATIVE_CURVED_EVIDENCE':'1'},HERE/'patch.dat',test_filter=filters)
+    if 'artifacts' in result:
+        assert all(replay.sha(folder/p)==h for p,h in result['artifacts'].items()),'Saved artifact changed'
+        print('REUSE_VERIFIED',folder,flush=True)
+        return
     result['largest_child_rss_KiB']=resource.getrusage(resource.RUSAGE_CHILDREN).ru_maxrss
     result['memory_scope']='Largest child RSS observed by this Python process; not aggregate whole-job peak'
     result['scope']='Exact saved patch construction and full native metric change, complete-star rejection, existing affected geometry/height controls; not an accepted whole mesh'

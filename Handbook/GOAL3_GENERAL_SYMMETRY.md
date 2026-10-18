@@ -65,13 +65,17 @@ complete accepted-event cost. Rejected M6 timing proves no affordability result.
 Initial Cartesian 3D adoption and exact finite nonconvex/annular unions are
 published at 10c81365d0f620b5b48fb1d07ba372de402ca853. Cube RANS/SA
 current+BDF/transfer/SU2+CGNS/real-restart passes independently in serial, N2/M2
-and N4/M2; annular cold construction exhausts 8192 work
-without a complete accepted mesh. Rotated charts, general simultaneous body
+and N4/M2; current workflow_v7_n4 independently repeats N4/M2. Annular native cold
+construction still rejects (v7:96edits/339cells,2300/8192work) without an accepted event. Rotated charts, general simultaneous body
 constraints, 2D declaration integration, multiple-body exterior workflows and
-authority versioning are OPEN. No general geometry completion claim is justified.
+complete authority/junction lifecycle semantics are OPEN. No general geometry completion claim is justified.
 See [planar work and exact evidence](GOAL3_PLANAR_SYMMETRY.md).
 
-## Annular construction strategy evidence
+Current native placement and the independently complete multi-apex offline witness
+are documented in [annular coordination](GOAL3_ANNULAR_COORDINATION.md). The witness
+is not a native adaptation or proof of the full geometry capability.
+
+## Historical annular construction strategy evidence
 
 The terminal private grid still contains symmetry diagonal1--5, from wall corner
 (1,0,0) to body-footprint corner(.6,0,.4), with4tetrahedra in its complete edge star.

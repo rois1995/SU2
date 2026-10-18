@@ -1,0 +1,199 @@
+{
+  "status": "RETAINED_COMMON_HEIGHT_APEX_CONFLICT_WITH_FEASIBLE_INDIVIDUAL_ROW_SEEDS",
+  "common_apex": 50328,
+  "point": [
+    0.5,
+    0.5,
+    0.1
+  ],
+  "wall_faces": [
+    [
+      0,
+      54519,
+      13647
+    ],
+    [
+      54519,
+      8,
+      13647
+    ],
+    [
+      0,
+      13647,
+      50327
+    ],
+    [
+      1,
+      50327,
+      13647
+    ],
+    [
+      1,
+      13647,
+      52423
+    ],
+    [
+      9,
+      52423,
+      13647
+    ],
+    [
+      8,
+      165607,
+      13647
+    ],
+    [
+      9,
+      13647,
+      165607
+    ]
+  ],
+  "corners": [
+    0,
+    1,
+    8,
+    9
+  ],
+  "diametral_radius_squared": "1/2",
+  "exact_analytic_length_lower_squared": "110615757725729952598947615538318916799672413961/32883786839945313225693756297915962104584601600",
+  "cap_squared": "65715007115831415416180825873449/20282409603651670423947251286016",
+  "analytic_length_lower_bound": 1.8340770948189165,
+  "actual_common_corner_length": 1.8659293031071305,
+  "independently_placed_first_row_seeds": [
+    {
+      "face": [
+        0,
+        54519,
+        13647
+      ],
+      "apex": [
+        0.16666666666666666,
+        0.3333333333333333,
+        0.1
+      ],
+      "q": 0.9072495872358334,
+      "J": 0.7667419512495068,
+      "maximum_full_edge": 1.588572004021731
+    },
+    {
+      "face": [
+        54519,
+        8,
+        13647
+      ],
+      "apex": [
+        0.16666666666666666,
+        0.6666666666666666,
+        0.1
+      ],
+      "q": 0.9072495872358334,
+      "J": 0.766741951249507,
+      "maximum_full_edge": 1.588572004021731
+    },
+    {
+      "face": [
+        0,
+        13647,
+        50327
+      ],
+      "apex": [
+        0.3333333333333333,
+        0.16666666666666666,
+        0.1
+      ],
+      "q": 0.9072495872358332,
+      "J": 0.7667419512495068,
+      "maximum_full_edge": 1.588572004021731
+    },
+    {
+      "face": [
+        1,
+        50327,
+        13647
+      ],
+      "apex": [
+        0.6666666666666666,
+        0.16666666666666666,
+        0.1
+      ],
+      "q": 0.9072495872358334,
+      "J": 0.766741951249507,
+      "maximum_full_edge": 1.588572004021731
+    },
+    {
+      "face": [
+        1,
+        13647,
+        52423
+      ],
+      "apex": [
+        0.8333333333333334,
+        0.3333333333333333,
+        0.1
+      ],
+      "q": 0.9072495872358332,
+      "J": 0.7667419512495068,
+      "maximum_full_edge": 1.588572004021731
+    },
+    {
+      "face": [
+        9,
+        52423,
+        13647
+      ],
+      "apex": [
+        0.8333333333333334,
+        0.6666666666666666,
+        0.1
+      ],
+      "q": 0.9072495872358334,
+      "J": 0.766741951249507,
+      "maximum_full_edge": 1.588572004021731
+    },
+    {
+      "face": [
+        8,
+        165607,
+        13647
+      ],
+      "apex": [
+        0.34367099147017405,
+        0.8333333333333334,
+        0.1
+      ],
+      "q": 0.9233526327527416,
+      "J": 0.7589026984608228,
+      "maximum_full_edge": 1.588572004021731
+    },
+    {
+      "face": [
+        9,
+        13647,
+        165607
+      ],
+      "apex": [
+        0.6770043248035074,
+        0.8333333333333334,
+        0.1
+      ],
+      "q": 0.8871854353035077,
+      "J": 0.7140508451093173,
+      "maximum_full_edge": 1.588572004021731
+    }
+  ],
+  "minimum_seed_q": 0.8871854353035077,
+  "minimum_seed_J": 0.7140508451093173,
+  "maximum_seed_edge": 1.588572004021731,
+  "implication": "Tangential motion of one common height apex cannot satisfy all four corner edges under this frozen field. Decouple first-height ownership through coordinated wall-child/transition reconstruction. Existing wall triangles already admit individual height apices; merely refining the wall is not established as necessary.",
+  "limits": [
+    "Exact rational lower bound is for the analytic saved unfaded profile and its finer sensor composition, not an interval proof of every floating backend query",
+    "Independent row seeds are not a complete volume replacement; their transition gaps, original point retention and fixed interface still need construction/validation",
+    "No proof of whole-target infeasibility, and no geometry/height/metric threshold is relaxed"
+  ],
+  "source_sha256": {
+    "integration_evidence/native_3d_bl_v1/planar_symmetry_reference_v1/annulus_v7_n1/symmetry_annulus_bl_budget_20_m1_rejected_rank0.json": "bfbfe0935fa6d4a53753ba68fd96a288fc3d573a7d1a660f0fa84e8a0ae5954d",
+    "integration_evidence/native_3d_bl_v1/planar_symmetry_reference_v1/annulus_v7_n1/symmetry_annulus_bl_budget_20_m1_frozen_profile.json": "e1d384df9b645c842466c0bbddc3f6d076c4b5ff771cc7d4f98089ff3c6ec8f3",
+    "integration_evidence/native_3d_bl_v1/annulus_coordinated_replay_v1/terminal_residuals.json": "e9f370f6477683f6bd791af7af317573975904e78532d09c38595e6bb14fc09f",
+    "integration_evidence/native_3d_bl_v1/annulus_coordinated_replay_v1/shared_height_fan.py": "2b881193c81cbef727564447627a11a73ca60ac2c54921385ee61c20230a169c"
+  }
+}
