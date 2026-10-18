@@ -36,10 +36,30 @@ Native accuracy 0.05 now qualifies on both layouts with the final gradient-reuse
 158 updates and 1030 reported linear iterations on 1x1; 151 updates and 4209 on 2x2.
 Both pass the canonical native state audit and every frozen physical and quantity requirement.
 The original native tolerance 1e-10 uses 151 updates and 6040 reported linear iterations.
-Serial Newton with fixed forcing and segregated qualification remain outstanding.
+The serial fixed-forcing trial is incomplete and misses pointwise state agreement; segregated
+qualification remains outstanding.
+
+The final-build serial adaptive baseline now qualifies in 179 updates, with 33415 assemblies per
+system and 7603 Krylov iterations. Its restart bytes and all 30 original diagnostic columns match
+the earlier serial baseline. All 89 retries are now directly classified as derivative-verification
+failures and complete zero Krylov iterations.
+
+Fixed nominal 0.05 does not generalize to this serial trajectory. After 564 updates it has used
+40134 assemblies per system and 2653 completed Krylov iterations, with 284 derivative-verification
+retries and no backtracking. Accepted CFLs fall mainly to 31.25-125. Fresh residuals pass, but the
+canonical point error 4.822e-5 exceeds 1e-5. It was stopped gracefully after exceeding the qualified
+adaptive baseline assembly budget 33415: the request observed 40032 and the final count is 40134.
+This is incomplete_work_cap, not a convergence result. Its observed loop time 1648.623 seconds
+is resource-use time. Lower completed linear work and observed RSS do not qualify an efficiency gain.
+The queue stopped for assessment. Original-control segregated SA is now running on 1x1.
+
+A 30-second, 99-Hz CPU-cycle sample of the live serial adaptive tail loses no samples. Flat symbol shares
+include cached least-squares gradients 19.74%, Roe flux 10.22% and limiters 6.87%. Inlined work is
+attributed to its out-of-line symbol. This window combines necessary live refreshes and any repeated
+work; it does not separate them or measure phase wall times. Numerical columns remain unchanged.
 
 The frozen physical auditor and final-build reporter produce exactly identical reports for the
-qualified native SA 1x1 state and both coupled SA 2x2 endpoints. A separate immutable
+qualified native SA 1x1 state, the serial adaptive endpoint and both coupled SA 2x2 endpoints. A separate immutable
 intermediate Newton checkpoint passes all frozen residual, state and quantity checks. It has no
 iteration metadata and is supporting evidence only; no convergence work or time is assigned to it.
 
@@ -54,7 +74,8 @@ method entries confirm the offset in 20 archived application profiles. Interrupt
 | Case | Layout | Mode | Nominal linear target | Adaptive forcing | Updates | FLOW/TURB | Linear work | Retries | Loop / elapsed s | Peak rank KiB | Status | Qualified | Evidence |
 |---|---|---|---:|---|---:|---:|---:|---:|---:|---:|---|---|---|
 | naca_sa | 2x2 | coupled | 0.05 | NO | 356 | 57365/57365 | 13375 | 178 | 1797.690 / 1798.629 | 79452 | qualified | True | fixed_forcing_005_applications/naca_sa/2x2/coupled |
-| naca_sa | 1x1 | coupled | 0.1 | YES |  | / |  |  | — / — |  | running | False | fixed_forcing_005_matched/naca_sa/1x1/adaptive/coupled |
+| naca_sa | 1x1 | coupled | 0.1 | YES | 179 | 33415/33415 | 7603 | 89 | 1489.580 / 1490.316 | 170972 | qualified | True | fixed_forcing_005_matched/naca_sa/1x1/adaptive/coupled |
+| naca_sa | 1x1 | coupled | 0.05 | NO | 564 | 40134/40134 | 2653 | 284 | 1648.623 / 1649.319 | 118584 | incomplete_work_cap | False | fixed_forcing_005_matched/naca_sa/1x1/fixed/coupled |
 | naca_sa | 1x1 | native | 0.05 | NO | 158 | 158/158 | 1030 |  | 18.092 / 18.840 | 78096 | qualified | True | fixed_forcing_005_matched/naca_sa/1x1/native_accuracy/native |
 | naca_sa | 2x2 | coupled | 0.1 | YES | 333 | 83590/83590 | 22279 | 166 | 3378.044 / 3378.847 | 103428 | qualified | True | fixed_forcing_005_matched/naca_sa/2x2/adaptive/coupled |
 | naca_sa | 2x2 | coupled | 0.05 | NO | 356 | 57365/57365 | 13375 | 178 | 1815.426 / 1816.065 | 78696 | qualified | True | fixed_forcing_005_matched/naca_sa/2x2/fixed/coupled |
@@ -65,7 +86,8 @@ method entries confirm the offset in 20 archived application profiles. Interrupt
 | naca_sa | 2x2 | native | 1E-10 | NO | 151 | 151/151 | 6040 |  | 13.307 / 13.824 | 61952 | qualified | True | static_review_correctness_v2_applications/naca_sa/2x2/native |
 
 This table includes earlier references labelled by source/binary hashes. The same-binary 2x2 pair
-is complete; serial and segregated comparisons and the remaining application matrix are pending.
+is complete; the serial fixed-forcing attempt remains incomplete. Segregated comparisons and the
+remaining application matrix are pending.
 Default inner preconditioning remains zero. This result does not select a general forcing default.
 NEMO is deferred.
 
@@ -92,5 +114,11 @@ Exact commands and queue outcomes are in `fixed_forcing_005_20261018/matched_com
 `counter_label_checks.json` in that directory. Final-build verification is preserved in
 `final_build_matched_assessment.json`, `final_build_adaptive_qualified_assessment.json` and
 `final_build_{adaptive,fixed}_auditor_check.json`; the native check is `final_build_auditor_check.json`.
+Serial proof: `serial_adaptive_qualified_assessment.json` and `final_build_serial_adaptive_auditor_check.json`.
+The unsuccessful serial control is preserved in `serial_fixed_work_limited_assessment.json` and
+`serial_fixed_work_limit_action.json`. The work-cap qualifier has a copied-state check: an identical
+physically qualified state stays qualified without a cap and is incomplete with a cap. Results are
+in `work_limit_selfchecks.json`; the original qualifier is archived before the metadata change.
+The live profile is `release_sampling/1792353801499247196/` under the application evidence root.
 Checkpoint checks are under `checkpoints/`.
 Raw run evidence is preserved.

@@ -119,13 +119,13 @@ a speedup or convergence-work claim. CFL, forcing and physical controls are
 unchanged in this isolation. Default0 remains committed.
 
 The full default0 parallel coupled SA endpoint now qualifies (details below).
-Paired original-control SST segregated endpoints are running next (default0 and
-FLOW3/scalars0 on both layouts), each with3600s and10000-update resource limits. They are resource
-limits; reaching either leaves an incomplete result. One owned solver runs at a
-time. Remaining common NACA endpoints are still outstanding; T3A/nozzle/VKI and
-quiet timing remain deferred.
+The serial original-control SST segregated attempts with default0 and FLOW3/scalars0
+both reach their 3600-second resource caps without qualifying. Those results remain
+in the table; the full parallel comparison is outstanding. One owned solver runs
+at a time. Remaining common NACA endpoints are still outstanding; T3A/nozzle/VKI
+and quiet timing remain deferred.
 
-Correctness/work jobs run at nice19 and may coexist with one external compiler,
+Work-only jobs may coexist with one external compiler,
 provided available RAM remains at least8GiB. Other solver/multiple-compiler jobs
 still gate execution. The existing memory/swap monitor remains active. This
 explicit work-only policy cannot be combined with `--quiet`; a harness check
@@ -206,6 +206,54 @@ reduces FLOW CFL1000→250. TURB retains1000. The initial20-update prefix had no
 retry; its observation must not be generalized to the complete run. Controls
 remain unchanged while that run continues.
 
+## Qualified final-build serial replay
+
+The serial adaptive coupled SA baseline now qualifies on the current c04b executable
+in 179 updates, with 33415 assemblies per system, 7603 Krylov iterations, 89 retries
+and no backtracking. Its restart bytes and all 30 original diagnostic columns match
+the earlier serial baseline. The new reason columns directly classify every retry
+as derivative verification; each rejected solve completes zero Krylov iterations.
+This resolves the earlier uncertainty about those zero-iteration failures. Accepted
+steps use alpha 1, true defects remain below 0.1 and rollback errors are zero.
+The final-build physical reporter exactly matches the frozen auditor. Observed times
+remain ineligible. The fixed-forcing serial comparison is incomplete, as described below.
+
+A 30-second CPU-cycle sample of the live serial tail records no lost samples. Flat
+symbol shares include cached least-squares gradients 19.74%, Roe flux 10.22% and
+limiters 6.87%. These samples combine necessary live refreshes and repeated work;
+they do not identify an avoidable fraction or provide phase wall times. Numerical
+columns remain identical after sampling. Source/build/configuration hashes and the
+raw record are retained in `release_sampling/1792353801499247196/` under the
+application evidence root. Endpoint proof is
+`fixed_forcing_005_20261018/serial_adaptive_qualified_assessment.json`.
+
+## Serial fixed forcing: work-limited counterexample
+
+Fixed nominal forcing 0.05 does not reproduce its parallel work benefit in serial.
+After 564 updates it has used 40134 FLOW and TURB assemblies, 2653 completed Krylov
+iterations and 284 retries, all derivative-verification failures. There is no
+backtracking. Accepted CFLs fall mainly to 31.25–125, whereas the qualified adaptive
+baseline uses mainly 1000–2000. To the supporting density-history −12.4 crossing,
+fixed forcing uses 68 updates and 5122 assemblies per system; adaptive forcing uses
+6 updates and 1088. These crossings are progress checks, not qualified endpoints.
+
+The fixed attempt was stopped gracefully after exceeding the qualified adaptive
+baseline's 33415-assembly budget. The request observes 40032 assemblies; finishing
+the current update gives 40134. Fresh density RMS 2.449e-13 and maximum normalized
+RMS 8.266e-12 pass, but canonical point error 4.822e-5 exceeds 1e-5. Its observed
+1648.623-second loop time is resource use, not time to convergence. The record is
+`incomplete_work_cap`; fewer completed Krylov iterations and lower observed RSS
+do not qualify an efficiency improvement. It might converge with further work.
+
+The work cap changes no numerical controls or acceptance bounds. A metadata guard
+prevents graceful interruption from being counted as convergence, even if a saved
+state passes every physical check. A copied-state self-check verifies both that
+guard and the unchanged qualification of an uncapped state. The prior qualifier,
+exact stop action and unsuccessful evidence are retained in
+`fixed_forcing_005_20261018/{work_limit_selfchecks,serial_fixed_work_limit_action,serial_fixed_work_limited_assessment}.json`.
+The fixed-forcing queue stops for assessment; its segregated jobs were not launched.
+Original-control segregated SA is now being established first.
+
 <!-- measured NACA results -->
 
 ## Current native endpoints
@@ -221,15 +269,20 @@ Native assembly counts in this table are inferred; linear work is measured in na
 
 ## Full Newton endpoint comparisons
 
-SA rows share identical diagonal/adaptive-CFL/forcing controls and history−14. An incomplete row is not convergence work. All times are observed and ineligible for speedup claims.
+Configurations remain labelled per row. Coupled SA baselines use diagonal/adaptive-CFL/forcing controls; original segregated trials retain their supplied controls. An incomplete row is not convergence work. All times are observed and ineligible for speedup claims.
 
 | Inner F/T | Case | Layout | Mode / control | Status | Updates | F/T assemblies | Outer/inner work | R/B | Peak rank KiB | Loop / E2E s | Max point error |
 |---|---|---|---|---|---:|---:|---:|---:|---:|---:|---:|
+| 0/0 | naca_sa | 1x1 | coupled / diagonal | qualified | 179 | 33415/33415 | 7603/0 | 89/0 | 170972 | 1489.580 / 1490.316 | 7.851e-06 |
+| 0/0 | naca_sa | 1x1 | coupled / diagonal | incomplete_work_cap | 564 | 40134/40134 | 2653/0 | 284/0 | 118584 | 1648.623 / 1649.319 | 4.822e-05 |
+| 0/0 | naca_sa | 2x2 | coupled / diagonal | qualified | 333 | 83590/83590 | 22279/0 | 166/0 | 103428 | 3378.044 / 3378.847 | 7.831e-06 |
+| 0/0 | naca_sa | 2x2 | coupled / diagonal | qualified | 356 | 57365/57365 | 13375/0 | 178/0 | 78696 | 1815.426 / 1816.065 | 7.811e-06 |
 | 3/3 | naca_sa | 1x1 | coupled / diagonal | qualified | 166 | 24574/24574 | 5359/31177 | 82/0 | 138708 | 556.675 / 557.225 | 7.890e-06 |
 | 3/3 | naca_sa | 2x2 | coupled / diagonal | incomplete_time_cap | 574 | 107971/107971 | 26656/159180 | 288/0 | 94432 | 1200.933 / 1201.498 | 1.058e-05 |
 | 0/0 | naca_sa | 2x2 | coupled / diagonal | qualified | 333 | 83590/83590 | 22279/0 | 166/0 | 103304 | 1090.736 / 1091.372 | 7.831e-06 |
 | 0/0 | naca_sst | 1x1 | segregated / original | incomplete_time_cap | 1254 | 133911/24743 | 41283/0 | 2/0 | 174404 | 3600.846 / 3601.375 | 5.200e-06 |
 | 3/0 | naca_sst | 1x1 | segregated / original | incomplete_time_cap | 500 | 51362/13686 | 18170/36294 | 2/0 | 142676 | 3601.092 / 3601.715 | 1.669e-05 |
+| 0/0 | naca_sa | 1x1 | segregated / original | running | — | / | / | / | — | — / — | — |
 | 0/0 | naca_sa | 1x1 | coupled / diagonal | qualified | 179 | 33415/33415 | 7603/0 | 89/0 | 171400 | 764.796 / 765.385 | 7.851e-06 |
 
 ## Supporting prefix work

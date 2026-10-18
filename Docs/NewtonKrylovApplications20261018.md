@@ -21,7 +21,13 @@ and separately labelled native/Newton accuracy comparisons. Implementation and c
 The same-final-binary coupled SA 2x2 pair confirms 31.4% fewer residual assemblies and 40.0% less
 Krylov work at fixed nominal forcing0.05, with 6.9% more updates. Both endpoints qualify; failed
 log-interval work does not decrease. This is a configuration gain, with no eligible timing claim.
-Serial and segregated SA comparisons are next in the existing sequential queue.
+The serial coupled forcing comparison is assessed below; original segregated controls are next.
+
+The serial fixed-0.05 trajectory does not reproduce that work benefit. It was stopped gracefully
+after 564 updates and 40134 assemblies per system, beyond the qualified adaptive baseline budget
+33415, and still misses the pointwise state bound. Its status is incomplete_work_cap; observed
+times describe resource use. All 284 retries are derivative verification. Original segregated
+controls are being assessed next; no general forcing default is selected.
 
 Completed Newton assembly totals include the final full reporting refresh after the last logged attempt.
 Earlier raw records call this offset an initial evaluation. This attribution is corrected without changing
@@ -196,7 +202,7 @@ and `paper_notes/manifest.json`; they motivate investigations, not unmeasured so
 
 | Application | Layout | Actual trials | Qualified endpoints | Eligible timing repetitions |
 |---|---|---:|---:|---:|
-| naca_sa | 1x1 | 80 | 29 | 1 |
+| naca_sa | 1x1 | 82 | 30 | 1 |
 | naca_sa | 2x2 | 60 | 25 | 0 |
 | naca_sst | 1x1 | 39 | 5 | 0 |
 | naca_sst | 2x2 | 20 | 2 | 0 |
@@ -351,7 +357,8 @@ is retained; `prepared` and `running` entries have not completed.
 | nozzle_sst | 1x1 | segregated | original | baseline_4712d82375 | fd_step_1e-6 | -12 | diagnostic_complete | False | 1 | — | 2.880 |
 | nozzle_sst | 1x1 | segregated | original | baseline_4712d82375 | fd_step_1e-7 | -12 | diagnostic_complete | False | 1 | — | 1.765 |
 | naca_sa | 2x2 | coupled | original | static_review_correctness_v2_release | diagonal | -14.0 | qualified | True | 356 | 1797.690 | 1798.629 |
-| naca_sa | 1x1 | coupled | original | muscl_boundary_gradient_v2_release | diagonal | -14.0 | running | False | — | — | — |
+| naca_sa | 1x1 | coupled | original | muscl_boundary_gradient_v2_release | diagonal | -14.0 | qualified | True | 179 | 1489.580 | 1490.316 |
+| naca_sa | 1x1 | coupled | original | muscl_boundary_gradient_v2_release | diagonal | -14.0 | incomplete_work_cap | False | 564 | 1648.623 | 1649.319 |
 | naca_sa | 1x1 | native | original | muscl_boundary_gradient_v2_release | original | -13.0 | qualified | True | 158 | 18.092 | 18.840 |
 | naca_sa | 2x2 | coupled | original | muscl_boundary_gradient_v2_release | diagonal | -14.0 | qualified | True | 333 | 3378.044 | 3378.847 |
 | naca_sa | 2x2 | coupled | original | muscl_boundary_gradient_v2_release | diagonal | -14.0 | qualified | True | 356 | 1815.426 | 1816.065 |
@@ -569,6 +576,7 @@ is retained; `prepared` and `running` entries have not completed.
 | naca_sa | 1x1 | coupled | original | recovery_release | forcing | -13.0 | iteration_cap | False | 6 | 42.225 | 42.784 |
 | naca_sa | 1x1 | coupled | original | recovery_release | forcing | -13.0 | iteration_cap | False | 6 | 20.044 | 20.660 |
 | naca_sa | 1x1 | coupled | original | recovery_release | diagonal | -13.0 | rejected | False | 78 | 324.573 | 325.099 |
+| naca_sa | 1x1 | segregated | original | muscl_boundary_gradient_v2_release | original | -14.0 | running | False | — | — | — |
 | naca_sa | 1x1 | coupled | original | recovery_release | diagonal | -14.0 | qualified | True | 179 | 764.796 | 765.385 |
 | naca_sst | 1x1 | native | original | recovery_release | original | -14.0 | qualified | True | 545 | 76.329 | 76.906 |
 | naca_sst | 1x1 | native | original | recovery_release | original | -15.0 | incomplete_time_cap | False | 1403 | 180.083 | 180.631 |
