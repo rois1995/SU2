@@ -89,7 +89,7 @@ adaptive-CFL-only studies retain the original0.001 initial linear target. These 
 | nozzle_sst | 1x1 | 23 | 0 | 0 |
 | nozzle_sst | 2x2 | 6 | 0 | 0 |
 | flatplate_lm | 1x1 | 12 | 0 | 0 |
-| flatplate_lm | 2x2 | 3 | 0 | 0 |
+| flatplate_lm | 2x2 | 5 | 0 | 0 |
 | periodic_stator | 1x1 | 3 | 0 | 0 |
 | periodic_stator | 2x2 | 0 | 0 | 0 |
 | periodic_vki | 1x1 | 9 | 0 | 0 |
@@ -164,9 +164,11 @@ is retained; `prepared` and `running` entries have not completed.
 | periodic_vki | 2x2 | coupled | cold | baseline_4712d82375 | original | -12 | iteration_cap | 1 | 2.068 | 2.587 |
 | periodic_vki | 2x2 | native | cold | baseline_4712d82375 | original | -12 | iteration_cap | 1 | 0.033 | 0.584 |
 | periodic_vki | 2x2 | segregated | cold | baseline_4712d82375 | original | -12 | iteration_cap | 1 | 1.999 | 2.499 |
-| flatplate_lm | 1x1 | coupled | original | probe_metric | original | -11 | running | — | — | — |
+| flatplate_lm | 1x1 | coupled | original | probe_metric | original | -11 | timeout | 50 | — | 301.067 |
 | flatplate_lm | 1x1 | native | original | probe_metric | original | -11 | rejected | 695 | — | 301.077 |
 | flatplate_lm | 1x1 | segregated | original | probe_metric | original | -11 | timeout | 23 | — | 301.059 |
+| flatplate_lm | 2x2 | native | original | probe_metric | original | -11 | rejected | 1299 | — | 301.040 |
+| flatplate_lm | 2x2 | segregated | original | probe_metric | original | -11 | running | — | — | — |
 | naca_sa | 1x1 | coupled | original | probe_metric | original | -12 | rejected | 11 | 7.754 | 8.336 |
 | naca_sa | 1x1 | native | original | probe_metric | original | -12 | qualified | 11 | 1.376 | 1.905 |
 | naca_sa | 1x1 | segregated | original | probe_metric | original | -12 | qualified | 11 | 13.804 | 15.252 |
@@ -216,6 +218,66 @@ is retained; `prepared` and `running` entries have not completed.
 | nozzle_sst | 1x1 | segregated | original | probe_recovery | original | -12 | iteration_cap | 1 | 3.954 | 4.414 |
 | nozzle_sst | 1x1 | segregated | original | probe_recovery_checked | fd_step_1e-8 | -12 | diagnostic_complete | 20 | — | 19.253 |
 | nozzle_sst | 1x1 | segregated | original | probe_recovery_checked | fd_step_1e-8 | -12 | diagnostic_complete | 1 | — | 4.708 |
+
+## Original-control implementation comparison
+
+Each row retains its convergence status. Assemblies are FLOW/TURB/TRANS;
+Krylov work is outer/inner; R/B is retries/backtracks. Native assembly counts are
+inferred from fine-grid updates and labelled in the CSV; Newton counts are measured.
+Native linear work sums the reported iterations of every active system; it has no nested solves.
+Timeout counters omit incomplete attempts and are lower bounds. Timings are contended
+observations, never eligible time-to-convergence measurements. A saved timeout state
+is only its last checkpoint. State errors use the native reference recorded for that row.
+
+| Case | Layout | Implementation | Mode | Status | Updates | Assemblies F/T/X | Krylov outer/inner | R/B | Loop/E2E s | Max normalized RMS | Max point error |
+|---|---|---|---|---|---:|---:|---:|---:|---:|---:|---:|
+| flatplate_lm | 1x1 | probe_metric | coupled | timeout | 50 | 1114/1241/1241 | 125/0 | 4/21 | —/301.067 | — | — |
+| flatplate_lm | 1x1 | probe_metric | native | rejected | 695 | 695/695/695 | 10421/0 | —/— | —/301.077 | 4.520e-04 | — |
+| flatplate_lm | 1x1 | probe_metric | segregated | timeout | 23 | 1581/251/257 | 477/0 | 2/17 | —/301.059 | — | — |
+| flatplate_lm | 2x2 | probe_metric | native | rejected | 1299 | 1299/1299/1299 | 19483/0 | —/— | —/301.040 | 8.428e-04 | — |
+| flatplate_lm | 2x2 | probe_metric | segregated | running | — | —/—/— | —/— | —/— | —/— | — | — |
+| naca_sa | 1x1 | probe_metric | coupled | rejected | 11 | 341/395/— | 51/0 | 3/0 | 7.754/8.336 | 1.196e-10 | 1.658e-05 |
+| naca_sa | 1x1 | probe_metric | native | qualified | 11 | 11/11/— | 440/0 | —/— | 1.376/1.905 | 1.963e-10 | 0.000e+00 |
+| naca_sa | 1x1 | probe_metric | segregated | qualified | 11 | 444/429/— | 429/0 | 4/0 | 13.804/15.252 | 1.310e-11 | 2.946e-06 |
+| naca_sa | 2x2 | probe_metric | coupled | rejected | 11 | 364/421/— | 53/0 | 3/0 | 4.042/4.537 | 9.982e-11 | 1.776e-05 |
+| naca_sa | 2x2 | probe_metric | native | qualified | 11 | 11/11/— | 440/0 | —/— | 1.052/1.606 | 2.256e-10 | 0.000e+00 |
+| naca_sa | 2x2 | probe_metric | segregated | qualified | 11 | 465/372/— | 379/0 | 4/0 | 6.705/7.160 | 1.308e-11 | 3.215e-06 |
+| naca_sst | 1x1 | probe_metric | coupled | rejected | 236 | 12482/13946/— | 1450/0 | 4/0 | —/301.066 | 1.625e-06 | — |
+| naca_sst | 1x1 | probe_metric | native | qualified | 258 | 258/258/— | 10173/0 | —/— | 40.705/41.323 | 8.922e-12 | 0.000e+00 |
+| naca_sst | 1x1 | probe_metric | segregated | rejected | 202 | 10793/4311/— | 4116/0 | 2/0 | —/301.034 | 1.567e-07 | — |
+| naca_sst | 2x2 | probe_metric | coupled | rejected | 425 | 23363/26043/— | 2633/0 | 4/0 | —/301.044 | 1.660e-06 | — |
+| naca_sst | 2x2 | probe_metric | native | qualified | 258 | 258/258/— | 10320/0 | —/— | 26.195/26.766 | 8.919e-12 | 0.000e+00 |
+| naca_sst | 2x2 | probe_metric | segregated | rejected | 465 | 21517/12143/— | 8524/0 | 2/0 | —/301.071 | 2.970e-08 | — |
+| nozzle_sst | 1x1 | probe_metric | coupled | timeout | 2139 | 31987/34739/— | 2746/0 | 8/0 | —/301.040 | — | — |
+| nozzle_sst | 1x1 | probe_metric | native | rejected | 548 | 548/548/— | 6235/0 | —/— | 15.533/15.969 | 7.647e-09 | — |
+| nozzle_sst | 1x1 | probe_metric | segregated | timeout | 1576 | 24309/28673/— | 19884/0 | 8/0 | —/301.032 | — | — |
+| nozzle_sst | 2x2 | probe_metric | coupled | iteration_cap | 3000 | 43920/47505/— | 3578/0 | 8/0 | 183.077/183.560 | 7.859e-03 | — |
+| nozzle_sst | 2x2 | probe_metric | native | rejected | 546 | 546/546/— | 6568/0 | —/— | 5.656/6.100 | 7.649e-09 | — |
+| nozzle_sst | 2x2 | probe_metric | segregated | iteration_cap | 3000 | 44084/64886/— | 47505/0 | 8/0 | 289.357/289.778 | 7.863e-03 | — |
+| periodic_vki | 1x1 | probe_metric | coupled | rejected | 235 | 10998/13792/— | 2794/0 | 0/0 | —/301.042 | 2.412e-05 | — |
+| periodic_vki | 1x1 | probe_metric | native | iteration_cap | 3000 | 3000/3000/— | 12000/0 | —/— | 111.915/112.478 | 2.419e-05 | — |
+| periodic_vki | 1x1 | probe_metric | segregated | rejected | 436 | 12036/5055/— | 4263/0 | 1/0 | —/301.073 | 3.417e-05 | — |
+| periodic_vki | 2x2 | probe_metric | coupled | rejected | 448 | 20542/25734/— | 5192/0 | 0/0 | —/301.059 | 7.479e-06 | — |
+| periodic_vki | 2x2 | probe_metric | native | iteration_cap | 3000 | 3000/3000/— | 12000/0 | —/— | 65.549/66.163 | 2.799e-05 | — |
+| periodic_vki | 2x2 | probe_metric | segregated | rejected | 911 | 24411/11295/— | 9110/0 | 1/21 | —/301.061 | 4.110e-05 | — |
+
+## Remaining work cost on final code
+
+The first SA1x1 history-margin trial of each mode uses final numerical source d27f4b37f6,
+the same supplied restart, CFL1000 and density history stop-13. The native endpoint qualifies;
+both Newton trials hit120 seconds. All timings failed quiet eligibility.
+The coupled prefix has zero retries/backtracking, yet assembles approximately160 flow and201
+turbulence residuals per completed outer update. Its1161 Krylov iterations are authoritative
+attempt telemetry; summing coupled per-system history fields would incorrectly double them.
+This isolates a remaining product/preconditioning work cost even with every step accepted.
+It does not establish an application time-to-convergence ratio. Krylov counts also operate
+on different block widths; they are not equal-cost units between modes.
+
+| Mode | Status | Updates | Flow assemblies | Turb assemblies | Krylov work | Retries | Backtracks |
+|---|---|---:|---:|---:|---:|---:|---:|
+| coupled | timeout | 29 | 4654 | 5836 | 1161 | 0 | 0 |
+| native | qualified | 151 | 151 | 151 | 6040 | — | — |
+| segregated | timeout | 65 | 4991 | 2586 | 3022 | 2 | 0 |
 
 ## Measured baseline work prefixes
 
