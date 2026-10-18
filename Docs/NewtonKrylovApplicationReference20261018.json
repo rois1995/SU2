@@ -7,5 +7,96 @@
     "result.json": "ab4139b3dfa60d601978ec8563215de79750253e8990bcc82922d69c998db6c3",
     "physical/report.json": "d45a413f74181a9476628a5e3c311cbe9121d00b8c30163191307f09f16fad5e"
   },
-  "protocol_sha256": "6e0fa5078392e5f864d09b1ec9580f2847c0272751b52f2bae57ab2db4b3192c"
+  "protocol_sha256": "6e0fa5078392e5f864d09b1ec9580f2847c0272751b52f2bae57ab2db4b3192c",
+  "stability_checks": {
+    "note": "Additional diagnostics do not replace the pinned151-update reference or change qualification thresholds. The history stop-15 wall limit is not convergence.",
+    "summary_evidence": "newton_krylov_refactor_20261015/application_qualification_20261018/reference_stability_summary.json",
+    "summary_sha256": "61a185dccf67840dd8ce0ddf43c5d24b3e282b5271dc1de265340a08a9988b4f",
+    "commands_evidence": "newton_krylov_refactor_20261015/application_qualification_20261018/reference_stability_commands.json",
+    "commands_sha256": "2b9d0338705dfdbfab39a016ef2648d9d9548ec1ca1cff7d83bf29469d33eebc",
+    "results": [
+      {
+        "history_margin": 2,
+        "evidence": "reference_stability/margin_2/native",
+        "status": "completed",
+        "qualified": true,
+        "physical_endpoint_valid": true,
+        "updates": 298,
+        "config_sha256": "b820fd6be6f32cab8e5a1dc8f1bf80d0486bcef2093182c1629f8bf9d5c03a14",
+        "binary_sha256": "7424b9a9003e0ba0a178c9b757347733a7c812a7254bf54c1cd576f8e2aa54c5",
+        "source_manifest_sha256": "28e6b36e4a904da1b97b4f6655c601e4d38962e7427128184c0f4f9099151669",
+        "files": {
+          "run.cfg": "b820fd6be6f32cab8e5a1dc8f1bf80d0486bcef2093182c1629f8bf9d5c03a14",
+          "restart_flow.dat": "2b79e8ff23c700a0c95a33ec2c6b39b6c1109e44a4bfe250b104cbc902e74c4d",
+          "result.json": "c60dfbdbfd3b8e8f8d8669354ae0c6123796858fb9e64091308760f95f204c18",
+          "physical/report.json": "fe44d7fe824ed147a5b70f2c62c79aa651954f8e14715d4c5577616138f73e6e"
+        },
+        "state_difference_from_native": {
+          "component_linf": [
+            1.386437448657782e-07,
+            2.518130263672154e-08,
+            2.7538814371978775e-09,
+            1.5985810764620247e-10,
+            6.790890732024657e-08
+          ],
+          "point_linf": [
+            1.4042913791665883e-07,
+            2.608763715612808e-07,
+            2.242707534196297e-07,
+            1.613545857156122e-10,
+            7.566853489047251e-06
+          ]
+        }
+      },
+      {
+        "history_margin": 3,
+        "evidence": "reference_stability/margin_3/native",
+        "status": "wall_limit",
+        "qualified": false,
+        "physical_endpoint_valid": true,
+        "updates": 2669,
+        "config_sha256": "01d95b72c933c375d9bfa91de6cbfdd3457a4338e2d85d1e7329357e071d923e",
+        "binary_sha256": "7424b9a9003e0ba0a178c9b757347733a7c812a7254bf54c1cd576f8e2aa54c5",
+        "source_manifest_sha256": "28e6b36e4a904da1b97b4f6655c601e4d38962e7427128184c0f4f9099151669",
+        "files": {
+          "run.cfg": "01d95b72c933c375d9bfa91de6cbfdd3457a4338e2d85d1e7329357e071d923e",
+          "restart_flow.dat": "41bd62441639a3457e00e074cb669ab944674fd8a34122053b50c60889deba22",
+          "result.json": "2db1f085976548e131192df73f7ef315eaa9ee026fd6691fcea076089e496779",
+          "physical/report.json": "83341318fe3e8774fe0a767579848340f06c845058c2d9878c3fe1292d09273b"
+        },
+        "state_difference_from_native": {
+          "component_linf": [
+            1.515969609927054e-07,
+            2.7399634218929697e-08,
+            2.9968285244969764e-09,
+            1.733918009833693e-10,
+            7.236080722480311e-08
+          ],
+          "point_linf": [
+            1.5354915985283445e-07,
+            2.8310517405732683e-07,
+            2.4390451687269463e-07,
+            1.7501497187790623e-10,
+            8.153166768186435e-06
+          ]
+        }
+      }
+    ],
+    "tighter_state_agreement_298_vs_2669": {
+      "component_linf": [
+        1.2973499290434325e-08,
+        2.218331581871756e-09,
+        2.432926933016295e-10,
+        1.384635234209639e-11,
+        4.53038931308306e-09
+      ],
+      "point_linf": [
+        1.3138695563838871e-08,
+        2.2228802492675188e-08,
+        1.9633759049786987e-08,
+        1.3994261552586949e-11,
+        5.863088426260725e-07
+      ]
+    }
+  }
 }

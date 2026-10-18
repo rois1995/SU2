@@ -106,11 +106,31 @@ All old plans/audits remain preserved. Preparation checks match108 Newton/native
 these are setup checks, not measured convergence results. Both versions' early SA states
 miss the conservative151-update state reference; tightened-stop controls remain necessary.
 
+The first completed SA1x1 control group qualifies native adaptive CFL in149 updates, versus
+151 at fixed CFL1000. Forced-adaptive segregated/coupled stop at the300-second limit after
+126/72 updates. Reverse-order coupled and diagonal coupled also reach that limit after59/74
+updates. All four meet the fresh physical residual targets, but fail full-state agreement.
+Their counts and failure times remain in the ledger; none is a convergence-time measurement.
+The lower-block coupled run retries36 times, including33 failed attempts with zero outer
+Krylov iterations. Its recurring CFL2000 failures recover at500, then accepted steps raise CFL
+through1000 to2000. Reverse
+ordering and diagonal preconditioning likewise retry29/36 times; no backtracking occurs.
+These counters establish recovery work, without establishing the cause of each failed product.
+A tighter native SA check (history stop-14) converges in298 updates and differs from the
+pinned151-update reference by at most7.57e-6 pointwise, within the unchanged1e-5 limit.
+All four Newton endpoints also fail the same state thresholds against this tighter state
+(maximum point errors2.29e-5 to4.85e-5). The reference and raw qualifications are unchanged.
+The native history stop-15 check reaches its300-second wall limit after2669 updates, with
+fresh density RMS5.57e-15. Its saved state differs from the298-update state by5.87e-7
+pointwise; it supports reference stability but remains a failed stopping test.
+See `sa_first_control_assessment.json`, `reference_stability_commands.json` and
+`sa_control_against_tighter_reference.json`. No eligible timing comparison is available.
+
 ## Coverage
 
 | Application | Layout | Actual trials | Qualified endpoints | Eligible timing repetitions |
 |---|---|---:|---:|---:|
-| naca_sa | 1x1 | 30 | 12 | 0 |
+| naca_sa | 1x1 | 36 | 13 | 0 |
 | naca_sa | 2x2 | 23 | 9 | 0 |
 | naca_sst | 1x1 | 12 | 2 | 0 |
 | naca_sst | 2x2 | 9 | 2 | 0 |
@@ -136,8 +156,12 @@ is retained; `prepared` and `running` entries have not completed.
 | nozzle_sst | 1x1 | coupled | original | application_release | forcing | -12 | iteration_cap | False | 1 | 3.482 | 3.961 |
 | nozzle_sst | 1x1 | segregated | original | application_release | forcing | -12 | iteration_cap | False | 1 | 3.301 | 3.765 |
 | naca_sa | 1x1 | native | original | recovery_release | adaptive | -13.0 | qualified | True | 149 | 19.711 | 20.324 |
-| naca_sa | 1x1 | segregated | original | recovery_release | forcing | -13.0 | running | False | — | — | — |
+| naca_sa | 1x1 | segregated | original | recovery_release | adaptive | -13.0 | running | False | — | — | — |
+| naca_sa | 1x1 | coupled | original | recovery_release | diagonal | -13.0 | rejected | False | 74 | 303.258 | 303.829 |
+| naca_sa | 1x1 | coupled | original | recovery_release | forcing | -13.0 | rejected | False | 72 | 303.705 | 304.270 |
+| naca_sa | 1x1 | segregated | original | recovery_release | forcing | -13.0 | rejected | False | 126 | 300.092 | 300.614 |
 | naca_sa | 1x1 | native | original | recovery_release | original | -13.0 | qualified | True | 151 | 19.177 | 19.784 |
+| naca_sa | 1x1 | coupled | original | recovery_release | forcing | -13.0 | rejected | False | 59 | 301.273 | 301.783 |
 | nozzle_sst | 1x1 | segregated | original | baseline_4712d82375 | fd_step_1e-3_relative_0.01 | -12 | diagnostic_complete | False | 1 | — | — |
 | nozzle_sst | 1x1 | segregated | original | baseline_4712d82375 | fd_step_1e-5_relative_0.01 | -12 | diagnostic_complete | False | 1 | — | — |
 | nozzle_sst | 1x1 | segregated | original | baseline_4712d82375 | fd_step_1e-5 | -12 | diagnostic_complete | False | 1 | — | 2.727 |
@@ -287,6 +311,8 @@ is retained; `prepared` and `running` entries have not completed.
 | nozzle_sst | 1x1 | segregated | original | probe_recovery | original | -12 | iteration_cap | False | 1 | 3.954 | 4.414 |
 | nozzle_sst | 1x1 | segregated | original | probe_recovery_checked | fd_step_1e-8 | -12 | diagnostic_complete | False | 20 | — | 19.253 |
 | nozzle_sst | 1x1 | segregated | original | probe_recovery_checked | fd_step_1e-8 | -12 | diagnostic_complete | False | 1 | — | 4.708 |
+| naca_sa | 1x1 | native | original | recovery_release | original | -14.0 | qualified | True | 298 | 36.747 | 37.305 |
+| naca_sa | 1x1 | native | original | recovery_release | original | -15.0 | rejected | False | 2669 | 300.112 | 300.743 |
 
 ## Original-control implementation comparison
 
