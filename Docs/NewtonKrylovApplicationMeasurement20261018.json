@@ -1,0 +1,12 @@
+{
+  "note": "Validated optional wall-limit measurement policy. Physical criteria and solver code unchanged. Controls use it; historical original-control and timeout evidence remain unchanged.",
+  "nominal_limit": "--timeout",
+  "grace_seconds": 60,
+  "signal": "SIGTERM to one owned SU2_CFD rank after Begin Solver; PID start identity rechecked",
+  "fallback": "timeout of MPI launcher at nominal+60s, kill-after5s",
+  "qualification": "wall_limit_request always excludes qualification, even exit0/valid physical endpoint",
+  "real_checks": "graceful_limit_check_commands.json",
+  "false_convergence_detector": "graceful_limit_classifier_check.json",
+  "runner_sha256": "9ad6a42d148a8c00a6feebfe0d569046a18629cf233860237e1b1ffb5c9e017d",
+  "qualifier_sha256": "3bcbe93392f145b392ba391138a3f44b597db8e16c6601f4f96324ae21362be2"
+}

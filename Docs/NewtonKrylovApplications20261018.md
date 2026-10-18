@@ -102,18 +102,18 @@ miss the conservative151-update state reference; tightened-stop controls remain 
 
 | Application | Layout | Actual trials | Qualified endpoints | Eligible timing repetitions |
 |---|---|---:|---:|---:|
-| naca_sa | 1x1 | 24 | 10 | 0 |
-| naca_sa | 2x2 | 20 | 9 | 0 |
+| naca_sa | 1x1 | 27 | 10 | 0 |
+| naca_sa | 2x2 | 23 | 9 | 0 |
 | naca_sst | 1x1 | 12 | 2 | 0 |
-| naca_sst | 2x2 | 6 | 1 | 0 |
+| naca_sst | 2x2 | 9 | 2 | 0 |
 | nozzle_sst | 1x1 | 26 | 0 | 0 |
 | nozzle_sst | 2x2 | 9 | 0 | 0 |
 | flatplate_lm | 1x1 | 12 | 0 | 0 |
 | flatplate_lm | 2x2 | 6 | 0 | 0 |
 | periodic_stator | 1x1 | 3 | 0 | 0 |
 | periodic_stator | 2x2 | 0 | 0 | 0 |
-| periodic_vki | 1x1 | 9 | 0 | 0 |
-| periodic_vki | 2x2 | 6 | 0 | 0 |
+| periodic_vki | 1x1 | 12 | 0 | 0 |
+| periodic_vki | 2x2 | 7 | 0 | 0 |
 
 ## Current run ledger
 
@@ -132,6 +132,12 @@ is retained; `prepared` and `running` entries have not completed.
 | nozzle_sst | 1x1 | segregated | original | baseline_4712d82375 | fd_step_1e-5 | -12 | diagnostic_complete | False | 1 | — | 2.727 |
 | nozzle_sst | 1x1 | segregated | original | baseline_4712d82375 | fd_step_1e-6 | -12 | diagnostic_complete | False | 1 | — | 2.880 |
 | nozzle_sst | 1x1 | segregated | original | baseline_4712d82375 | fd_step_1e-7 | -12 | diagnostic_complete | False | 1 | — | 1.765 |
+| naca_sa | 1x1 | coupled | original | recovery_release | original | -18.0 | rejected | False | 1 | 3.068 | 3.656 |
+| naca_sa | 1x1 | native | original | recovery_release | original | -18.0 | rejected | False | 13 | 1.650 | 2.167 |
+| naca_sa | 1x1 | segregated | original | recovery_release | original | -18.0 | rejected | False | 1 | 3.038 | 3.635 |
+| naca_sa | 2x2 | coupled | original | recovery_release | original | -18.0 | rejected | False | 1 | 1.768 | 2.289 |
+| naca_sa | 2x2 | native | original | recovery_release | original | -18.0 | rejected | False | 19 | 1.699 | 2.216 |
+| naca_sa | 2x2 | segregated | original | recovery_release | original | -18.0 | rejected | False | 1 | 2.619 | 3.085 |
 | naca_sa | 1x1 | native | original | recovery_release | original | -13.0 | qualified | True | 151 | 18.913 | 19.465 |
 | flatplate_lm | 1x1 | coupled | original | baseline_4712d82375 | original | -11 | solver_failure | False | 0 | — | 1.432 |
 | flatplate_lm | 1x1 | native | original | baseline_4712d82375 | original | -11 | solver_failure | False | 0 | — | 1.349 |
@@ -224,12 +230,19 @@ is retained; `prepared` and `running` entries have not completed.
 | naca_sst | 1x1 | coupled | original | recovery_release | original | -12 | rejected | False | 216 | — | 301.041 |
 | naca_sst | 1x1 | native | original | recovery_release | original | -12 | qualified | True | 258 | 36.407 | 36.936 |
 | naca_sst | 1x1 | segregated | original | recovery_release | original | -12 | timeout | False | 52 | — | 301.053 |
+| naca_sst | 2x2 | coupled | original | recovery_release | original | -12 | rejected | False | 445 | — | 301.036 |
+| naca_sst | 2x2 | native | original | recovery_release | original | -12 | qualified | True | 258 | 27.401 | 28.073 |
+| naca_sst | 2x2 | segregated | original | recovery_release | original | -12 | timeout | False | 84 | — | 301.048 |
 | nozzle_sst | 1x1 | coupled | original | recovery_release | original | -12 | rejected | False | 1183 | — | 301.035 |
 | nozzle_sst | 1x1 | native | original | recovery_release | original | -12 | rejected | False | 548 | 11.236 | 11.734 |
 | nozzle_sst | 1x1 | segregated | original | recovery_release | original | -12 | rejected | False | 537 | — | 301.088 |
 | nozzle_sst | 2x2 | coupled | original | recovery_release | original | -12 | rejected | False | 2142 | — | 301.024 |
 | nozzle_sst | 2x2 | native | original | recovery_release | original | -12 | rejected | False | 546 | 5.792 | 6.197 |
 | nozzle_sst | 2x2 | segregated | original | recovery_release | original | -12 | rejected | False | 2438 | — | 301.039 |
+| periodic_vki | 1x1 | coupled | cold | recovery_release | original | -12 | rejected | False | 235 | — | 301.074 |
+| periodic_vki | 1x1 | native | cold | recovery_release | original | -12 | iteration_cap | False | 3000 | 121.860 | 122.402 |
+| periodic_vki | 1x1 | segregated | cold | recovery_release | original | -12 | rejected | False | 452 | — | 301.023 |
+| periodic_vki | 2x2 | native | cold | recovery_release | original | -12 | running | False | — | — | — |
 | naca_sa | 1x1 | coupled | original | recovery_release | original | -13.0 | timeout | False | 29 | — | 121.027 |
 | naca_sa | 1x1 | native | original | recovery_release | original | -13.0 | qualified | True | 151 | 19.319 | 19.860 |
 | naca_sa | 1x1 | segregated | original | recovery_release | original | -13.0 | timeout | False | 65 | — | 121.032 |
@@ -307,12 +320,19 @@ is only its last checkpoint. State errors use the native reference recorded for 
 | naca_sst | 1x1 | recovery_release | coupled | rejected | 216 | 12074/13496/— | 1415/0 | 4/0 | —/301.041 | 1.515e-06 | — |
 | naca_sst | 1x1 | recovery_release | native | qualified | 258 | 258/258/— | 10173/0 | —/— | 36.407/36.936 | 8.922e-12 | 0.000e+00 |
 | naca_sst | 1x1 | recovery_release | segregated | timeout | 52 | 11661/1698/— | 4050/0 | 0/0 | —/301.053 | — | — |
+| naca_sst | 2x2 | recovery_release | coupled | rejected | 445 | 23585/26433/— | 2846/0 | 4/0 | —/301.036 | 1.398e-06 | — |
+| naca_sst | 2x2 | recovery_release | native | qualified | 258 | 258/258/— | 10320/0 | —/— | 27.401/28.073 | 8.919e-12 | 0.000e+00 |
+| naca_sst | 2x2 | recovery_release | segregated | timeout | 84 | 20828/2309/— | 7305/0 | 0/0 | —/301.048 | — | — |
 | nozzle_sst | 1x1 | recovery_release | coupled | rejected | 1183 | 30261/33665/— | 3402/0 | 5/0 | —/301.035 | 3.538e-03 | — |
 | nozzle_sst | 1x1 | recovery_release | native | rejected | 548 | 548/548/— | 6235/0 | —/— | 11.236/11.734 | 7.647e-09 | — |
 | nozzle_sst | 1x1 | recovery_release | segregated | rejected | 537 | 33622/11133/— | 13529/0 | 3/3 | —/301.088 | 4.508e-06 | — |
 | nozzle_sst | 2x2 | recovery_release | coupled | rejected | 2142 | 70006/77519/— | 7502/0 | 6/0 | —/301.024 | 2.932e-04 | — |
 | nozzle_sst | 2x2 | recovery_release | native | rejected | 546 | 546/546/— | 6568/0 | —/— | 5.792/6.197 | 7.649e-09 | — |
 | nozzle_sst | 2x2 | recovery_release | segregated | rejected | 2438 | 48375/59744/— | 49612/0 | 5/0 | —/301.039 | 4.445e-02 | — |
+| periodic_vki | 1x1 | recovery_release | coupled | rejected | 235 | 10998/13792/— | 2794/0 | 0/0 | —/301.074 | 2.412e-05 | — |
+| periodic_vki | 1x1 | recovery_release | native | iteration_cap | 3000 | 3000/3000/— | 12000/0 | —/— | 121.860/122.402 | 2.419e-05 | — |
+| periodic_vki | 1x1 | recovery_release | segregated | rejected | 452 | 12461/5263/— | 4442/0 | 1/0 | —/301.023 | 3.417e-05 | — |
+| periodic_vki | 2x2 | recovery_release | native | running | — | —/—/— | —/0 | —/— | —/— | — | — |
 
 ## Remaining work cost on final code
 
@@ -383,6 +403,14 @@ Control plans/audits: `control_plan.json`, `control_setup_audit.json`; original1
 are retained with the `_original108` suffix. No physical or agreement target changed.
 Final-code binary/source hashes: `recovery_release/manifest.json`; original-control commands:
 `qualified_original_commands.json` / `qualified_recovery_commands.json`; controls: `control_commands.json`.
+The control study uses `--graceful-limit`: at the nominal wall budget the harness signals
+one owned solver rank through SU2's existing interruption handler, completing the current
+outer update and saving restart, solver-loop time and rank RSS. A launcher timeout at
+budget+60s remains the fallback. This changes failure capture; it changes no numerical target.
+Six native/segregated/coupled checks on1x1/2x2 preserve final measurements and remain
+unqualified despite exit0. A physically converged stored-state detector also rejects a
+wall-limited exit. Deliberate two-second checks are labelled harness regressions, and
+the synthetic detector is excluded from the trial ledger. Prior timeouts remain untouched.
 Each trial preserves `run.cfg`, exact command, runner hash, exit status, log, history,
 Newton attempt/trial diagnostics and per-rank process resources. Discovery commands:
 
