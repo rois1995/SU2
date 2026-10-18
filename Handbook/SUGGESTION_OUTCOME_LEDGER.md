@@ -46,3 +46,19 @@ reported obstruction face and an exact centroid match, outside configured BL
 support; sensor edge2.60882>1.8. This motivates a small generic cavity replay,
 not proof of late-cavity equality or a cause for the entire wing failure.
 [Data and viewable original patch](../integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/concurrent_composed_proposals_v1/original_edge_witness/README.md).
+
+Original-star native replay now establishes local feasibility: existing joint
+placement passes unchanged geometry/Refine/q/J gates in3trials, q=.273986,
+J=.086470, changed-edge excess.654190->.023844; trial work.1202s. Balanced
+insertion fails J=.040146<.05. This does NOT resolve M6 or establish late-cavity
+equality. The observer capture atomically rejects300.641s, retaining64exact
+contexts/14distinct features; all input snapshots unchanged. Captures include
+evolved volume stars and expanded wall/transition patches. No new placement
+fallback or weakened gate is justified.
+[Replay and inspectable private grids](../integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/cavity_operator_replay_v1/README.md).
+
+No new production improvement is claimed by this diagnostic checkpoint. Replay
+the captured contexts before deciding whether reconstruction or coordination lacks
+a capability. The original-star result specifically argues against another local
+placement fallback. Exact runtime/build/input/helper provenance and verifier are
+in the linked report. All owned jobs terminal.

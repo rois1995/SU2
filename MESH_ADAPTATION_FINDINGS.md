@@ -6710,3 +6710,16 @@ Late working-cavity equality/feasibility remains unproven. Next use a local froz
 replay to identify the missing construction freedom, not another fallback/cache/
 limit variant. Ledger is now a concise index with its full1004-line history
 preserved separately. [Report and viewable witness](integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/concurrent_composed_proposals_v1/README.md).
+
+## 2026-10-18: original-star feasibility and exact actual-context capture
+
+Existing native joint placement repairs the saved original five-cell sensor star
+in3trials (q=.273986/J=.086470; changed-edge excess.654190->.023844; .1202s),
+where balanced insertion fails J=.040146<.05. This is local progress, not a final
+mesh. A bounded exact frozen-field MPI4 observer run still atomically rejects
+M6 at300.641s, retaining64contexts/14distinct recent features. All ranks freeze
+identical profile/core; input geometry/flow snapshots unchanged; no CFD/Hessian/
+normalization advance. Evolved volume stars and expanded wall/transition patches
+now support exact local replay. No production code/cap/gate change or construction
+fix/speedup is claimed. All owned jobs terminal; full Goal3 remains active.
+[Report, grids and verifier](integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/cavity_operator_replay_v1/README.md).

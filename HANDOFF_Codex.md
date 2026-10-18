@@ -21,20 +21,29 @@ archived provenanceversion22. No Hessian/normalization rebuild or CFD advance.
 Maximum3parallel commits,1707->1955private later edits; kernel calls326764->280568
 (-14.14%), rounds2200->846. Remaining edges2528/invalid cached6475 do not establish
 improved residual; NO event speedup/construction fix claim.13useful windows/0stagnant.
-All owned jobs TERMINAL. [Current report](integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/concurrent_composed_proposals_v1/README.md).
+All owned jobs TERMINAL; latest observer result is described below. [Current report](integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/concurrent_composed_proposals_v1/README.md).
 
-Both events' last local report names edge25389--53318 and face31334,31338,53318.
+The two earlier events' last local report names edge25389--53318 and face31334,31338,53318.
 Offline original-mesh extraction finds a5-tet/7-node star with that boundary face
 and EXACT centroid of original cell104931. Its entire box is outside BL support,
 and sensor-only edge length2.60882>1.8. This is a generic sensor-cavity witness,
 NOT captured late connectivity or a feasibility proof. View original_edge_witness/
 original_star.su2 and use witness.json original-ID mapping for tensor lookup.
 
-Next: use existing local operators/actual original frozen field to reproduce and
-classify this small cavity; confirm late-star equivalence or capture missing
-context via the existing rejection observer. Original boundary edges may impose
-local constraints, so retain the proper local progress contract. Do not add more
-fallbacks/caches/ceiling ladders or rerun the entire wing after small changes.
+Original-star native replay now PASSES local Refine in3joint trials, q=.273986/
+J=.086470, .1202s trial work; balanced split fails J=.040146. No missing operator
+is established by this original witness. One bounded four-rank observer capture
+is TERMINAL REJECTED300.641s at cavity_operator_replay_v1/actual_context_np4,
+retaining16recent contexts/rank through the existing hook (no production change).
+[Replay outcome](integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/cavity_operator_replay_v1/README.md).
+64exact contexts saved,14distinct recent features: evolved5--10cell volume stars,
+58/7-cell wall patches,44-cell volume support and55-cell wall support. All ranks
+agree on profile/core and input snapshots unchanged. No accepted M6/transfer.
+Next: replay these ACTUAL evolved stars with existing placement/reconnection, then
+expanded wall/transition patches. Do not infer infeasibility from stale reason text
+or an unverified private buffer. Original boundary edges may impose local constraints; retain the proper local
+progress contract. Do not add fallback/cache/ceiling ladders or rerun the whole
+wing for a local diagnosis.
 Full Goal3 stays active/incomplete.
 
 

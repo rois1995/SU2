@@ -123,3 +123,11 @@ Late working-cavity equality/feasibility remains unproven. Next use a local froz
 replay to identify the missing construction freedom, not another fallback/cache/
 limit variant. Ledger is now a concise index with its full1004-line history
 preserved separately. [Report and viewable witness](../integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/concurrent_composed_proposals_v1/README.md).
+
+Latest construction diagnosis: the earlier original five-cell sensor witness
+passes existing joint placement in3trials/.1202s. A new bounded frozen M6 observer
+event still rejects300.641s, preserving64exact contexts and input immutability.
+The14distinct recent contexts include evolved volume stars and larger wall/transition
+patches; a last local rejection is not automatically a global bottleneck.
+[Exact replay and preserved contexts](../integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/cavity_operator_replay_v1/README.md).
+No new fallback/production change or event-speedup claim follows.

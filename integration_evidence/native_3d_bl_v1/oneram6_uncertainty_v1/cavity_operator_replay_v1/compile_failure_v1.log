@@ -1,0 +1,7 @@
+[01m[K/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/cavity_operator_replay_v1/replay.cpp:[m[K In function ‘[01m[Kint run(const string&)[m[K’:
+[01m[K/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/cavity_operator_replay_v1/replay.cpp:26:89:[m[K [01;31m[Kerror: [m[Kvariable ‘[01m[KCConfig config[m[K’ has initializer but incomplete type
+   26 |   std::ifstream cfg(root+"/run.cfg");require(bool(cfg),"Missing config");CConfig config([01;31m[Kcfg[m[K,SU2_COMPONENT::SU2_CFD,false);
+      |                                                                                         [01;31m[K^~~[m[K
+[01m[K/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/cavity_operator_replay_v1/replay.cpp:35:118:[m[K [01;31m[Kerror: [m[Kconversion from ‘[01m[Krun(const string&)::<lambda(SU2Native3D::Point, SU2Native3D::Point)>[m[K’ to non-scalar type ‘[01m[Kconst MetricEdgeBreakpoints[m[K’ {aka ‘[01m[Kconst std::function<std::vector<double>(SU2Native3D::Point, SU2Native3D::Point)>[m[K’} requested
+   35 |   const MetricEdgeBreakpoints bands=[&](Point a,Point b){return layers->EdgeBreakpoints({a.x,a.y,a.z},{b.x,b.y,b.z});[01;31m[K}[m[K;
+      |                                                                                                                      [01;31m[K^[m[K
