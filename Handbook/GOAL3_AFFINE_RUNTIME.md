@@ -22,15 +22,17 @@ active affine face, including existing capacity; no volume-wide new-path reserva
 Current-binary Cartesian N4/M2 initialized RANS/SA/current+BDF transfer/SU2/CGNS/real
 restart and independent complete geometry/full-metric/height/state audit PASS in
 planar_symmetry_reference_v1/workflow_v6_n4. This is compatibility evidence. No new
-CFD advance, M6 attempt, annular construction success or performance claim.
+CFD advance, M6 attempt or performance claim at that backend checkpoint.
+Later complete Cartesian annular N1/M1,N2/M2,N4/M2,N4/M4 lifecycles pass independently;
+see [the current scope](../integration_evidence/native_3d_bl_v1/native_height_star_v1/README.md).
 
 OPEN: arbitrary off-plane config adoption; simultaneous distinct plane or curved
 body junction coverage; affine-wall BL composition (explicit refusal prevents a raw
 faceted substitute); general2D runtime; analytic intersection curves; representative
 exterior and complete oblique adaptation/transfer/output/real restart. Existing
 analytic BL still requires one complete component per wall marker. All are full-goal
-requirements, not exclusions. Annular surface/first-row/transition construction
-still needs a coordinated strategy, not another edge-local fallback/cap increase.
+requirements, not exclusions. The later coordinated height-star construction
+qualifies the Cartesian annulus only; richer oblique/junction fronts remain open.
 
 All owned jobs TERMINAL. Failed/interrupted builds and two fixture-input failures
 are preserved with diagnoses; they are not remeshing failures. Exact executed v3

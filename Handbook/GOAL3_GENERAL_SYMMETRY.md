@@ -62,18 +62,21 @@ complete accepted-event cost. Rejected M6 timing proves no affordability result.
 
 ## Current checkpoint
 
-Initial Cartesian 3D adoption and exact finite nonconvex/annular unions are
-published at 10c81365d0f620b5b48fb1d07ba372de402ca853. Cube RANS/SA
-current+BDF/transfer/SU2+CGNS/real-restart passes independently in serial, N2/M2
-and N4/M2; current workflow_v7_n4 independently repeats N4/M2. Annular native cold
-construction still rejects (v7:96edits/339cells,2300/8192work) without an accepted event. Rotated charts, general simultaneous body
-constraints, 2D declaration integration, multiple-body exterior workflows and
-complete authority/junction lifecycle semantics are OPEN. No general geometry completion claim is justified.
-See [planar work and exact evidence](GOAL3_PLANAR_SYMMETRY.md).
+Cartesian3D adoption and finite nonconvex/annular unions are integrated. Native
+coordinated annular construction now passes initialized RANS/SA/current+BDF/
+transfer/SU2+CGNS/real restart in N1/M1,N2/M2,N4/M2,N4/M4 with independent
+finite-hole/volume/embedding/height/full-metric audits. All original gates stay fixed.
+Bounded binary64 coordinate admission resolves the saved MPI shared-apex blockage;
+its failures and rejected exact-midpoint alternative remain preserved.
+[Current scoped results](../integration_evidence/native_3d_bl_v1/native_height_star_v1/README.md).
 
-Current native placement and the independently complete multi-apex offline witness
-are documented in [annular coordination](GOAL3_ANNULAR_COORDINATION.md). The witness
-is not a native adaptation or proof of the full geometry capability.
+Arbitrary charts and original-source/backend primitives are qualified separately;
+a complete oblique lifecycle, simultaneous curved body/plane ownership and source
+coverage,2D declaration integration, multiple-body exterior workflows and complete
+junction lifecycle semantics remain OPEN. Neither annular acceptance nor interior
+sphere tests establish general aerodynamic readiness. No new M6 attempt is justified
+until its complete geometry/source contract is implemented and audited.
+See [planar work](GOAL3_PLANAR_SYMMETRY.md) and [construction history](GOAL3_ANNULAR_COORDINATION.md).
 
 ## Historical annular construction strategy evidence
 
@@ -95,8 +98,8 @@ Exact saved diagnostics: planar_symmetry_reference_v1/annulus_v4_n1/structural_d
 
 ## Connected integration still required
 
-The shared affine core in CNativeAffineReference is geometry-only work. Before
-exposing arbitrary declarations in configurations, connect the complete path:
+The shared affine core and scoped3D source/backend are qualified. Before exposing
+arbitrary initial declarations with body junctions, complete the remaining path:
 
 1. Independently declare original input-deviation limits and mapping/authority
    error limits. They serve different purposes. An accepted approximate boundary

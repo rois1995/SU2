@@ -6,12 +6,14 @@ HERE=Path(__file__).resolve().parent;ROOT=HERE.parents[2]
 BASE=HERE.with_name('planar_symmetry_reference_v1')
 sha=lambda p:hashlib.sha256(p.read_bytes()).hexdigest()
 def main():
-    folder=HERE/('serial_'+(sys.argv[1] if len(sys.argv)>1 else 'v1'))
-    source=BASE/'annulus_v7_n1/symmetry_annulus_bl_budget_20_m1_rejected_rank0.json'
-    profile=source.with_name('symmetry_annulus_bl_budget_20_m1_frozen_profile.json')
+    version=sys.argv[1] if len(sys.argv)>1 else 'v1';mode=sys.argv[2] if len(sys.argv)>2 else 'serial'
+    assert mode in ('serial','mpi')
+    folder=HERE/(('serial_' if mode=='serial' else 'mpi2_patch_')+version)
+    source=BASE/'annulus_v7_n1/symmetry_annulus_bl_budget_20_m1_rejected_rank0.json' if mode=='serial' else HERE/'mpi2_rejected_merged.json'
+    profile=source.with_name('symmetry_annulus_bl_budget_20_m1_frozen_profile.json') if mode=='serial' else BASE/'annulus_v9_n2/symmetry_annulus_bl_budget_20_m2_frozen_profile.json'
     raw=folder/'native_height_whole.json';data=json.loads(source.read_text());native=json.loads(raw.read_text())
     oldnodes={n[0]:n[1:] for n in data['nodes']};newnodes={n[0]:n[1:] for n in native['nodes']}
-    assert set(oldnodes)-set(newnodes)=={50328}
+    assert set(oldnodes)-set(newnodes)==({50328} if mode=='serial' else {73419})
     assert all(oldnodes[n]==newnodes[n] for n in oldnodes.keys() & newnodes.keys())
     assert {tuple(sorted(f['nodes'])) for f in data['surface']}=={tuple(sorted(f[:3])) for f in native['surface']}
     data['nodes']=native['nodes'];data['cells']=[dict(id=i,nodes=c) for i,c in enumerate(native['cells'])]

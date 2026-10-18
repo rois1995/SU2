@@ -1,0 +1,734 @@
+{
+  "status": "EXACT_RATIONAL_COMPONENTWISE_ADMISSION_EXPERIMENT",
+  "field": {
+    "core": 5.0471242643611385,
+    "xx": 5.047124264361147,
+    "xy": -4.175972885883347e-16,
+    "xz": 0.0,
+    "yy": 5.047124264361143,
+    "yz": 0.0,
+    "zz": 84.02777777777783
+  },
+  "reports": [
+    {
+      "factor": 1.0,
+      "mode": "exact_midpoint_bounds",
+      "step": 0.05564011439618892,
+      "initial_covered": 6,
+      "admitted_covered": 6,
+      "wall_faces": 8,
+      "leaves": [
+        {
+          "nearest": [
+            0.44435988560381107,
+            0.44435988560381107,
+            0.1
+          ],
+          "admitted": [
+            0.44435988560381107,
+            0.44435988560381107,
+            0.1
+          ],
+          "before": [
+            0,
+            4
+          ],
+          "after": [
+            0,
+            4
+          ]
+        },
+        {
+          "nearest": [
+            0.44435988560381107,
+            0.5556401143961889,
+            0.1
+          ],
+          "admitted": [
+            0.44435988560381107,
+            0.5556401143961889,
+            0.1
+          ],
+          "before": [
+            2
+          ],
+          "after": [
+            2
+          ]
+        },
+        {
+          "nearest": [
+            0.5556401143961889,
+            0.44435988560381107,
+            0.1
+          ],
+          "admitted": [
+            0.5556401143961889,
+            0.44435988560381107,
+            0.1
+          ],
+          "before": [
+            5
+          ],
+          "after": [
+            5
+          ]
+        },
+        {
+          "nearest": [
+            0.5556401143961889,
+            0.5556401143961889,
+            0.1
+          ],
+          "admitted": [
+            0.5556401143961889,
+            0.5556401143961889,
+            0.1
+          ],
+          "before": [
+            3,
+            7
+          ],
+          "after": [
+            3,
+            7
+          ]
+        }
+      ]
+    },
+    {
+      "factor": 1.0,
+      "mode": "adjacent_binary64_box",
+      "step": 0.05564011439618892,
+      "initial_covered": 6,
+      "admitted_covered": 8,
+      "wall_faces": 8,
+      "leaves": [
+        {
+          "nearest": [
+            0.44435988560381107,
+            0.44435988560381107,
+            0.1
+          ],
+          "admitted": [
+            0.44435988560381107,
+            0.44435988560381107,
+            0.1
+          ],
+          "before": [
+            0,
+            4
+          ],
+          "after": [
+            0,
+            4
+          ]
+        },
+        {
+          "nearest": [
+            0.44435988560381107,
+            0.5556401143961889,
+            0.1
+          ],
+          "admitted": [
+            0.4443598856038111,
+            0.5556401143961889,
+            0.1
+          ],
+          "before": [
+            2
+          ],
+          "after": [
+            2,
+            6
+          ]
+        },
+        {
+          "nearest": [
+            0.5556401143961889,
+            0.44435988560381107,
+            0.1
+          ],
+          "admitted": [
+            0.5556401143961889,
+            0.4443598856038111,
+            0.1
+          ],
+          "before": [
+            5
+          ],
+          "after": [
+            1,
+            5
+          ]
+        },
+        {
+          "nearest": [
+            0.5556401143961889,
+            0.5556401143961889,
+            0.1
+          ],
+          "admitted": [
+            0.5556401143961889,
+            0.5556401143961889,
+            0.1
+          ],
+          "before": [
+            3,
+            7
+          ],
+          "after": [
+            3,
+            7
+          ]
+        }
+      ],
+      "offline_metric": {
+        "cells": 352,
+        "nodes": 107,
+        "minimum_q": 0.20164430872997077,
+        "minimum_J": 0.056567080714924466,
+        "bad_shape": 0,
+        "oversized_edges": 0,
+        "maximum_edge": 1.7955167346124445,
+        "excess": 0.0
+      }
+    },
+    {
+      "factor": 1.25,
+      "mode": "exact_midpoint_bounds",
+      "step": 0.06955014299523615,
+      "initial_covered": 6,
+      "admitted_covered": 6,
+      "wall_faces": 8,
+      "leaves": [
+        {
+          "nearest": [
+            0.43044985700476385,
+            0.43044985700476385,
+            0.1
+          ],
+          "admitted": [
+            0.43044985700476385,
+            0.43044985700476385,
+            0.1
+          ],
+          "before": [
+            0,
+            4
+          ],
+          "after": [
+            0,
+            4
+          ]
+        },
+        {
+          "nearest": [
+            0.43044985700476385,
+            0.5695501429952361,
+            0.1
+          ],
+          "admitted": [
+            0.43044985700476385,
+            0.5695501429952361,
+            0.1
+          ],
+          "before": [
+            2
+          ],
+          "after": [
+            2
+          ]
+        },
+        {
+          "nearest": [
+            0.5695501429952361,
+            0.43044985700476385,
+            0.1
+          ],
+          "admitted": [
+            0.5695501429952361,
+            0.43044985700476385,
+            0.1
+          ],
+          "before": [
+            5
+          ],
+          "after": [
+            5
+          ]
+        },
+        {
+          "nearest": [
+            0.5695501429952361,
+            0.5695501429952361,
+            0.1
+          ],
+          "admitted": [
+            0.5695501429952361,
+            0.5695501429952361,
+            0.1
+          ],
+          "before": [
+            3,
+            7
+          ],
+          "after": [
+            3,
+            7
+          ]
+        }
+      ]
+    },
+    {
+      "factor": 1.25,
+      "mode": "adjacent_binary64_box",
+      "step": 0.06955014299523615,
+      "initial_covered": 6,
+      "admitted_covered": 8,
+      "wall_faces": 8,
+      "leaves": [
+        {
+          "nearest": [
+            0.43044985700476385,
+            0.43044985700476385,
+            0.1
+          ],
+          "admitted": [
+            0.43044985700476385,
+            0.43044985700476385,
+            0.1
+          ],
+          "before": [
+            0,
+            4
+          ],
+          "after": [
+            0,
+            4
+          ]
+        },
+        {
+          "nearest": [
+            0.43044985700476385,
+            0.5695501429952361,
+            0.1
+          ],
+          "admitted": [
+            0.4304498570047639,
+            0.5695501429952361,
+            0.1
+          ],
+          "before": [
+            2
+          ],
+          "after": [
+            2,
+            6
+          ]
+        },
+        {
+          "nearest": [
+            0.5695501429952361,
+            0.43044985700476385,
+            0.1
+          ],
+          "admitted": [
+            0.5695501429952361,
+            0.4304498570047639,
+            0.1
+          ],
+          "before": [
+            5
+          ],
+          "after": [
+            1,
+            5
+          ]
+        },
+        {
+          "nearest": [
+            0.5695501429952361,
+            0.5695501429952361,
+            0.1
+          ],
+          "admitted": [
+            0.5695501429952361,
+            0.5695501429952361,
+            0.1
+          ],
+          "before": [
+            3,
+            7
+          ],
+          "after": [
+            3,
+            7
+          ]
+        }
+      ]
+    },
+    {
+      "factor": 1.5,
+      "mode": "exact_midpoint_bounds",
+      "step": 0.08346017159428339,
+      "initial_covered": 6,
+      "admitted_covered": 6,
+      "wall_faces": 8,
+      "leaves": [
+        {
+          "nearest": [
+            0.41653982840571663,
+            0.41653982840571663,
+            0.1
+          ],
+          "admitted": [
+            0.41653982840571663,
+            0.41653982840571663,
+            0.1
+          ],
+          "before": [
+            0,
+            4
+          ],
+          "after": [
+            0,
+            4
+          ]
+        },
+        {
+          "nearest": [
+            0.41653982840571663,
+            0.5834601715942834,
+            0.1
+          ],
+          "admitted": [
+            0.41653982840571663,
+            0.5834601715942834,
+            0.1
+          ],
+          "before": [
+            6
+          ],
+          "after": [
+            6
+          ]
+        },
+        {
+          "nearest": [
+            0.5834601715942834,
+            0.41653982840571663,
+            0.1
+          ],
+          "admitted": [
+            0.5834601715942834,
+            0.41653982840571663,
+            0.1
+          ],
+          "before": [
+            1
+          ],
+          "after": [
+            1
+          ]
+        },
+        {
+          "nearest": [
+            0.5834601715942834,
+            0.5834601715942834,
+            0.1
+          ],
+          "admitted": [
+            0.5834601715942834,
+            0.5834601715942834,
+            0.1
+          ],
+          "before": [
+            3,
+            7
+          ],
+          "after": [
+            3,
+            7
+          ]
+        }
+      ]
+    },
+    {
+      "factor": 1.5,
+      "mode": "adjacent_binary64_box",
+      "step": 0.08346017159428339,
+      "initial_covered": 6,
+      "admitted_covered": 8,
+      "wall_faces": 8,
+      "leaves": [
+        {
+          "nearest": [
+            0.41653982840571663,
+            0.41653982840571663,
+            0.1
+          ],
+          "admitted": [
+            0.41653982840571663,
+            0.41653982840571663,
+            0.1
+          ],
+          "before": [
+            0,
+            4
+          ],
+          "after": [
+            0,
+            4
+          ]
+        },
+        {
+          "nearest": [
+            0.41653982840571663,
+            0.5834601715942834,
+            0.1
+          ],
+          "admitted": [
+            0.4165398284057166,
+            0.5834601715942834,
+            0.1
+          ],
+          "before": [
+            6
+          ],
+          "after": [
+            2,
+            6
+          ]
+        },
+        {
+          "nearest": [
+            0.5834601715942834,
+            0.41653982840571663,
+            0.1
+          ],
+          "admitted": [
+            0.5834601715942834,
+            0.4165398284057166,
+            0.1
+          ],
+          "before": [
+            1
+          ],
+          "after": [
+            1,
+            5
+          ]
+        },
+        {
+          "nearest": [
+            0.5834601715942834,
+            0.5834601715942834,
+            0.1
+          ],
+          "admitted": [
+            0.5834601715942834,
+            0.5834601715942834,
+            0.1
+          ],
+          "before": [
+            3,
+            7
+          ],
+          "after": [
+            3,
+            7
+          ]
+        }
+      ]
+    },
+    {
+      "factor": 1.75,
+      "mode": "exact_midpoint_bounds",
+      "step": 0.0973702001933306,
+      "initial_covered": 6,
+      "admitted_covered": 6,
+      "wall_faces": 8,
+      "leaves": [
+        {
+          "nearest": [
+            0.4026297998066694,
+            0.4026297998066694,
+            0.1
+          ],
+          "admitted": [
+            0.4026297998066694,
+            0.4026297998066694,
+            0.1
+          ],
+          "before": [
+            0,
+            4
+          ],
+          "after": [
+            0,
+            4
+          ]
+        },
+        {
+          "nearest": [
+            0.4026297998066694,
+            0.5973702001933306,
+            0.1
+          ],
+          "admitted": [
+            0.4026297998066694,
+            0.5973702001933306,
+            0.1
+          ],
+          "before": [
+            6
+          ],
+          "after": [
+            6
+          ]
+        },
+        {
+          "nearest": [
+            0.5973702001933306,
+            0.4026297998066694,
+            0.1
+          ],
+          "admitted": [
+            0.5973702001933306,
+            0.4026297998066694,
+            0.1
+          ],
+          "before": [
+            1
+          ],
+          "after": [
+            1
+          ]
+        },
+        {
+          "nearest": [
+            0.5973702001933306,
+            0.5973702001933306,
+            0.1
+          ],
+          "admitted": [
+            0.5973702001933306,
+            0.5973702001933306,
+            0.1
+          ],
+          "before": [
+            3,
+            7
+          ],
+          "after": [
+            3,
+            7
+          ]
+        }
+      ]
+    },
+    {
+      "factor": 1.75,
+      "mode": "adjacent_binary64_box",
+      "step": 0.0973702001933306,
+      "initial_covered": 6,
+      "admitted_covered": 8,
+      "wall_faces": 8,
+      "leaves": [
+        {
+          "nearest": [
+            0.4026297998066694,
+            0.4026297998066694,
+            0.1
+          ],
+          "admitted": [
+            0.4026297998066694,
+            0.4026297998066694,
+            0.1
+          ],
+          "before": [
+            0,
+            4
+          ],
+          "after": [
+            0,
+            4
+          ]
+        },
+        {
+          "nearest": [
+            0.4026297998066694,
+            0.5973702001933306,
+            0.1
+          ],
+          "admitted": [
+            0.40262979980666935,
+            0.5973702001933306,
+            0.1
+          ],
+          "before": [
+            6
+          ],
+          "after": [
+            2,
+            6
+          ]
+        },
+        {
+          "nearest": [
+            0.5973702001933306,
+            0.4026297998066694,
+            0.1
+          ],
+          "admitted": [
+            0.5973702001933306,
+            0.40262979980666935,
+            0.1
+          ],
+          "before": [
+            1
+          ],
+          "after": [
+            1,
+            5
+          ]
+        },
+        {
+          "nearest": [
+            0.5973702001933306,
+            0.5973702001933306,
+            0.1
+          ],
+          "admitted": [
+            0.5973702001933306,
+            0.5973702001933306,
+            0.1
+          ],
+          "before": [
+            3,
+            7
+          ],
+          "after": [
+            3,
+            7
+          ]
+        }
+      ]
+    }
+  ],
+  "seconds": 0.7969095329754055,
+  "source_sha256": {
+    "integration_evidence/native_3d_bl_v1/native_height_star_v1/mpi2_rejected_merged.json": "e0faca760eba5be1de87255c8cc37af3a93e28d82ad0411563483a3bc443662f",
+    "integration_evidence/native_3d_bl_v1/native_height_star_v1/mpi2_patch_v2/run.log": "fe8936561487667baea2e826d878865367aee2b16dbfce5b6b820b4ccbaa1053",
+    "integration_evidence/native_3d_bl_v1/native_height_star_v1/mpi2_residuals.json": "a76bb49ad9d67c14725f0a2fff18903e0e531a4ffe514a234dcf4e318c0198b3",
+    "integration_evidence/native_3d_bl_v1/annulus_coordinated_replay_v1/fan_split_v1/probe_v4.py": "fa04e43b9064c318ef30c1afa2d9ae0c0dd643b4939a9474f2b08a7bfdf17a79",
+    "integration_evidence/native_3d_bl_v1/native_height_star_v1/coordinate_admission.py": "42fe940a839f16186a4781aac8f7b5b45c65b8b0aafb7d39f455756829e460e4"
+  },
+  "limits": [
+    "Actual native tensor trace plus exact footprint checks; not an interval proof of every runtime query",
+    "Offline candidate does not qualify native implementation or complete geometry/transfer/MPI",
+    "Exact midpoint bracketing alone may contain no footprint-compatible binary64 point",
+    "Adjacent-neighbor admission changes each proposed coordinate by at most one binary64 neighbor, does not loosen geometry/height checks and does not prove arbitrary-plane representability"
+  ]
+}

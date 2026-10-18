@@ -1719,6 +1719,12 @@ TEST_CASE("Shared first-height ownership reconstructs a complete frozen-field me
   for(const auto& f:facets)if(std::all_of(f.v.begin(),f.v.end(),[](Node n){return n.p.z==0;}))heights[f.marker]=.1;
   REQUIRE(old.cells.size()<=MaximumCavityCells);const auto old_saved=Connectivity(old);
   Patch fresh;JointSplitReport report;std::string reason;
+  for(const auto& c:old.cells) {
+    auto n=std::find_if(c.v.begin(),c.v.end(),[&](Node n){return n.id==vertex;});if(n==c.v.end())continue;
+    const auto metric=target.Query(n->p).target;
+    std::cout<<std::setprecision(17)<<"HEIGHT_STAR_FIELD core="<<core<<" xx="<<metric.xx<<" xy="<<metric.xy
+        <<" xz="<<metric.xz<<" yy="<<metric.yy<<" yz="<<metric.yz<<" zz="<<metric.zz<<std::endl;break;
+  }
   const bool accepted=ReconstructHeightStar(old,vertex,1000000,2000000,target,reference,heights,fresh,report,reason,32);
   std::cout<<"HEIGHT_STAR accepted="<<accepted<<" trials="<<report.trials<<" geometry_rejected="<<report.geometry_rejected
       <<" height_rejected="<<report.height_rejected<<" metric_rejected="<<report.metric_rejected<<" cells="<<fresh.cells.size()<<" reason="<<reason<<std::endl;

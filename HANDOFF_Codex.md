@@ -10,17 +10,22 @@ Leave AdapNoExt, foreign ClusterResults, dependencies and foreign jobs untouched
 
 ## User priority and current job
 
-Current connected native height-star reconstruction passes the complete serial
-annular RANS/SA/current+BDF/transfer/SU2+CGNS/real restart lifecycle:24->218cells,
-71nodes,1035/8192work. Independent geometry/height/full original field PASS;
-q=.2033345/J=.0572923/Lmax1.7955165, conservation<6.6e-16, restart0.
+Native coordinated height-star reconstruction now passes complete annular
+RANS/SA/current+BDF/transfer/SU2+CGNS/real restart in N1/M1,N2/M2,N4/M2,N4/M4,
+with independent finite-hole geometry/full metric/height audits. Final218/194/194/
+215cells; q>=.20238,J>=.05648,Lmax<=1.79828,height0,conservation<6.6e-16,restart0.
+The original MPI2 blockage was leaf-coordinate representation: actual composed
+floating tensors made all four grid proposals miss2/8wallfeet. Bounded adjacent
+coordinate admission fixes it without changing the field, tolerance or geometry.
+Old failed states and rejected exact-midpoint bracketing are preserved. Serial
+accepted output is byte-identical to v9; serial/N2 frozen profiles unchanged.
+All owned jobs TERMINAL. No new physical CFD advance or M6 attempt.
+[Current evidence, costs and limits](integration_evidence/native_3d_bl_v1/native_height_star_v1/README.md).
 
-MPI2/M2 rejects at3759work:335cells, four oversized1.86593edges, no shape failures.
-The exact34-cell shared-apex star also fails native serial replay; this is not just
-MPI admission. Offline partition progress is not native acceptance. Diagnose the
-proposal/constraint difference before another full event. N4/M2/M4 NOT started.
-All owned jobs terminal. No new physical CFD advance or M6 attempt.
-[Current evidence and limits](integration_evidence/native_3d_bl_v1/native_height_star_v1/README.md).
+Next capability: complete accepted oblique finite symmetry lifecycle with declared
+initial geometry and consistent simultaneous body/symmetry ownership/source coverage.
+Reconsider the source/junction authority contract before adding isolated operator
+variants. Full general2D/multi-body/exterior/M6/gradation/uncertainty goals stay open.
 
 1. Spherical repeated RANS lifecycle validation/push: **DONE**, reuse accepted cold.
 2. Explicit audited planar symmetry reference, including wall intersections and
@@ -49,8 +54,9 @@ Current build and all3D evidence preserved; archived old executables need decomp
 Root/tmp nearly full from foreign work: leave it untouched.
 
 Accepted inspectable grid:
-`integration_evidence/native_3d_bl_v1/planar_symmetry_reference_v1/annulus_v9_n1/symmetry_annulus_bl_budget_20_m1_written_SU2.su2`
-(CGNS in the same folder). MPI rejected mesh is in annulus_v9_n2 with `_rejected`.
+`integration_evidence/native_3d_bl_v1/planar_symmetry_reference_v1/annulus_v10_n1/symmetry_annulus_bl_budget_20_m1_written_SU2.su2`
+(CGNS in the same folder). All accepted MPI cases are in annulus_v10_n2/n4 and annulus_all_v10_n4;
+old MPI rejected mesh is in annulus_v9_n2 with `_rejected`.
 Serial metric-build7.879s/native5.732s/replace.01757s are contended correctness
 receipts, not affordability. Composed gradation remains18violations/max4.599;
 final uncertainty is heuristic and did not improve monotonically with refinement.

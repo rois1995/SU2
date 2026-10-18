@@ -10,8 +10,8 @@ This is not a completed-goal final report.
 
 | Suggestion | Current outcome | Quantified scope and remaining limits |
 |---|---|---|
-| Coordinate surface and volume placement | Native patch and complete serial lifecycle accepted; MPI construction blocked | Same50-cell patch, one split: off-edge insertion plus two interior points passes exact geometry/shape with77.24% changed-edge squared-excess reduction; adding two smooth symmetry movers gives86.97%. Restricted on-edge placement still fails q/J. Native serial annular24->218 now passes independent geometry/full metric/height, RANS/SA+BDF transfer and real restart. MPI2 stalls with four shared-apex edges; exact native replay rejects. No general geometry or performance claim. [Replay](../integration_evidence/native_3d_bl_v1/annulus_coordinated_replay_v1/README.md). |
-| General finite symmetry authority | Core/source backend qualified; full runtime integration open | Shared arbitrary2D/3D charts pass9cases/3731assertions; exact-rational320sample audit bounds rounded coordinates. Multiple holes/notch/disconnected components and BC-label independence pass. New native-ref v4/source backend passes serial12/3974 and MPI4, with independent75-stencil original-ID/tensor/codec equality. Cartesian N4/M2 lifecycle independently passes. No accepted oblique lifecycle, analytic/shared-plane source junction, affine-wall BL, exterior or annular construction completion. [Core evidence](../integration_evidence/native_3d_bl_v1/affine_geometry_core_v1/README.md). |
+| Coordinate surface and volume placement | Complete controlled annular serial and MPI lifecycles accepted; general scope open | Same50-cell patch, one split: off-edge insertion plus two interior points passes exact geometry/shape with77.24% changed-edge squared-excess reduction; adding two smooth symmetry movers gives86.97%. Restricted on-edge placement still fails q/J. Native serial annular24->218 now passes independent geometry/full metric/height, RANS/SA+BDF transfer and real restart. MPI2 shared-apex rounding blockage is now fixed; complete N1M1/N2M2/N4M2/N4M4 workflows independently pass. No general geometry or performance claim. [Replay](../integration_evidence/native_3d_bl_v1/annulus_coordinated_replay_v1/README.md). |
+| General finite symmetry authority | Core/source backend qualified; full runtime integration open | Shared arbitrary2D/3D charts pass9cases/3731assertions; exact-rational320sample audit bounds rounded coordinates. Multiple holes/notch/disconnected components and BC-label independence pass. New native-ref v4/source backend passes serial12/3974 and MPI4, with independent75-stencil original-ID/tensor/codec equality. Cartesian N4/M2 lifecycle independently passes. No accepted oblique lifecycle, analytic/shared-plane source junction, affine-wall BL or exterior completion; Cartesian annular serial/MPI lifecycle now passes. [Core evidence](../integration_evidence/native_3d_bl_v1/affine_geometry_core_v1/README.md). |
 | Match normalization accuracy to integration uncertainty | Worked in controlled3D workflows | At most24 correction trials/two frozen stages using the SAME original unclipped family; eight planar RANS workflows independently0.194--0.323% below budget. M6 initialization now freezes295068 +/-5769 against300k, explicitly integration_limited. No exact-root claim. [Stages](GOAL3_FROZEN_NORMALIZATION_STAGES.md), [M6 evidence](../integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/adaptive_budget_evidence_v1/README.md). |
 | Allocate absolute error globally | Partial | Owned reductions, global sensor/correction indicators and bounded8192->32768 evidence stages resolve M6 profile classification. No calibrated general tails, sequential confidence bound or distributed per-cell error-priority allocator. [Runtime policy](GOAL3_RUNTIME_COMPLEXITY.md). |
 | Reuse geometry across scale/profile trials | Worked within bounded scopes | Original geometry/source stencils retained; current profile changes refresh actual wall samples. Latest identical-sensor background cache reduces46.72M->6.67M determinants (-85.7%), +1.077MiB/rank; observed total6.552->7.515s gives no event speedup. [Report](../integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/background_trial_reuse_v1/README.md). |
@@ -299,7 +299,7 @@ medium review reached240s without a final report and is not evidence. Native
 whole-field replay, full unchanged annular lifecycle and affected MPI still needed.
 [Current sources/provenance/replay](../integration_evidence/native_3d_bl_v1/native_height_star_v1/README.md).
 
-## Connected height-star outcome, 2026-10-18
+## Preserved04e9c75dd1 height-star outcome, 2026-10-18
 
 Three private topology cuts work in native serial construction under unchanged
 constraints. Full annulus24->218tetrahedra/71vertices; q=.2033345/J=.0572923/
@@ -320,3 +320,27 @@ versus native5.732s and replace.01757s suggests normalization remains material.
 Contended correctness receipts are not speedup/affordability evidence. Combined
 gradation18violations/max4.599 and strong first-row tilt remain explicit limits.
 [Evidence, failures and current scope](../integration_evidence/native_3d_bl_v1/native_height_star_v1/README.md).
+
+## Current coordinated construction and MPI outcome, 2026-10-18
+
+The saved MPI negative was not an admission/deadlock problem. Native original-field
+query returned xx/core differing by~1.8e-15 relative; all four naive proposed grids
+missed2/8mandatory normal-foot triangles. Exact affine-midpoint bracketing also
+failed6/8. Immediate binary64 neighbour admission, at most27coordinates per leaf,
+recovers8/8 without changing the field, tolerances or geometric authority. Native
+three-cut replay then passes61816assertions and an independent352cell/7929-overlap
+full-field mesh audit. Original serial replay11/81755 and355cell audit also pass.
+
+Complete initialized RANS/SA/BDF/IO/actual restart workflows now independently pass
+N1/M1,N2/M2,N4/M2,N4/M4:218/194/194/215cells,1035/1136/1133/776shared work,
+q>=.20238/J>=.05648/Lmax<=1.79828/height0,conservation<6.6e-16,restart0. Serial
+accepted SU2 output is byte-identical; serial/N2 frozen profiles match prior inputs.
+No arbitrary rotated/junction/multiple-body/2D/exterior/M6 or viscous-accuracy claim.
+
+Observed metric/native/replace seconds are7.826/6.275/.0102 (N1),3.858/6.298/.0116
+(N2),4.287/6.368/.0122 (N4M2),4.975/7.014/.0133 (N4M4). Different valid grids and
+contended host prevent a scaling/speedup inference; normalization remains material.
+Coordinate admission has no extra density/MPI query, bounded geometric work is
+included in reconstruction but not separately timed. Full composed gradation and
+global uncertainty calibration remain open; refinement did not monotonically
+improve the estimates. [Complete receipts](../integration_evidence/native_3d_bl_v1/native_height_star_v1/lifecycle_summary.json).

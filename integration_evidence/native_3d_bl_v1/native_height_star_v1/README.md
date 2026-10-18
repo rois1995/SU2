@@ -1,8 +1,57 @@
 # Native height-star reconstruction — current scope
 
-Full Goal3/general symmetry capability remains ACTIVE/incomplete. Current build_v5
-is terminal/PASS; no owned compute job is live. Optional Opus5.5/medium review
+Full Goal3/general symmetry capability remains ACTIVE/incomplete. Build_v7
+is terminal/PASS; all four accepted lifecycles and independent audits pass. Optional Opus5.5/medium review
 21708 timed out without a final report and supplies no validation evidence.
+
+## Current connected qualification
+
+Bounded binary64 leaf admission is compiled and qualified by the unchanged full
+annular workflow in serial, N2/M2, N4/M2 and N4/M4. Every case independently passes
+finite geometry/hole coverage, exact volume/topology/no overlap, original full
+composed field, prescribed height, conservative flow/current+BDF/SA transfer,
+SU2+CGNS/reference output and real restart. Full Goal3/general geometry remains OPEN.
+All owned jobs are terminal. Current source/build pins are in build_provenance.json;
+the preceding manifest belongs to04e9c75dd1 and remains historical evidence.
+
+| N/M | Final tetrahedra | Shared work | Min q / J | Max full edge | Integral defect (max flow/SA) |
+|---|---:|---:|---|---:|---:|
+|1/1|218|1035|.20333/.05729|1.79552|6.59e-16|
+|2/2|194|1136|.21256/.05890|1.79552|6.06e-16|
+|4/2|194|1133|.21256/.05890|1.79552|5.80e-16|
+|4/4|215|776|.20239/.05648|1.79828|6.06e-16|
+
+All wall-height errors and both restart residuals are0 in these audits. Different
+partitions can generate different valid meshes. Profiles are collective within
+each case; bitwise cross-N equality is not claimed. Serial and N2 profiles match
+their prior inputs exactly, and the accepted serial SU2 mesh is byte-identical to
+v9. N4/M2 and N4/M4 use the same original field. `lifecycle_summary.json` retains
+complete per-rank clocks/counters/provenance and uncertainties.
+
+Contended correctness timings (metric initialization/native remesh/replace, seconds):
+N1 7.826/6.275/.0102; N2 3.858/6.298/.0116; N4M2 4.287/6.368/.0122;
+N4M4 4.975/7.014/.0133. These are not a scaling/speedup or affordability benchmark.
+Normalization remains material; native cost includes partition/migration/reassessment/
+return, and replacement includes CFD rebuild/transfer. Nested clocks are not additive.
+No separate timer isolates coordinate admission; its explicit upper bound is432
+candidate representations times imported wall-face count, included in reconstruction.
+No new density query or MPI exchange is added by that point-admission preparation.
+
+The full-workflow folders are `../planar_symmetry_reference_v1/annulus_v10_n1`,
+`annulus_v10_n2`, `annulus_v10_n4` and `annulus_all_v10_n4` in the same parent.
+Open each `_written_SU2.su2` or `_written_CGNS.cgns` for the accepted mesh. Rejected
+snapshots in a passing folder are its intentional one-work rejection control.
+`mpi2_patch_v3` independently passes the complete352cell saved field (7929exact
+intersection checks); `serial_v4` repeats11cases/81755assertions and the355cell audit.
+
+The native MPI failure at04e9c75dd1 is now repaired for these cases. Historical
+negatives, initial successful serial evidence and the rejected midpoint-bracketing
+experiment are preserved below; they are not current failures. Proposed rounding
+neighbours are checked by the original finite-wall height/footprint checks; the
+metric, original donors, geometry authorities, tolerances and final gates stay fixed.
+A27-neighbour box and independent leaf choices do not guarantee a compatible
+combination or arbitrary rotated/junction representability.
+[Current source and artifact pins](coordinate_admission_manifest.json).
 
 ## Complete accepted serial lifecycle
 
@@ -24,7 +73,7 @@ sensor-only donors with actual-query BL. Native compound replacement comprises
 three private cuts/52cells; no target/tolerance/cap was relaxed. Four-leaf proposals
 remain a bounded heuristic, not a general front/multilayer generator.
 
-## MPI failure — exact evidence, no unchanged rerun
+## Preserved MPI failure before coordinate admission
 
 `../planar_symmetry_reference_v1/annulus_v9_n2` exits with operator_stagnation at
 3759/8192work,103combined accepted private edits,335cells/104nodes. N4/M2 and
@@ -70,3 +119,38 @@ remain open. Source/binary/config/input capsules and every rejected experiment
 are retained. Earlier build/fixture correction history is in
 [the preserved history](HISTORY_BEFORE_SERIAL_ACCEPTANCE.md); withdrawn incomplete
 7/8-face fixtures establish no complete-metadata construction failure.
+
+## Tensor trace, rejected bracketing and qualified coordinate admission
+
+Diagnostic-only build_v6 completed. `mpi2_patch_v2` still rejects; actual composed
+xx5.0471242643611474/yy5.0471242643611429/xy-4.18e-16 differs slightly from the
+analytic diagonal core5.0471242643611385. These are real frozen query values; do
+not edit the metric to remove them. Exact-rational reconstruction from that trace
+shows all four metric-scaled proposals cover only6/8required wall faces. The miss
+is~1.1e-16 barycentric, outside the existing long-double footprint allowance.
+It is a sufficient proposal obstruction, not proof of target infeasibility.
+
+`coordinate_admission.py` compares exact affine-midpoint bracketing with immediate
+binary64-neighbor admission. Exact midpoint bounds stillcover6/8; their endpoint
+rounding can leave no compatible point in that box. The bounded27-neighbor boxes
+cover8/8 and an offline three-cut candidate has q=.20164/J=.05657/no oversized
+edges. Exact algebra and observed native values support this diagnosis; native
+completion, full independent geometry and MPI/transfer still need validation.
+The first diagnostic script assertion/log is preserved; corrected comparison
+records both methods explicitly instead of treating the unsuccessful method as
+missing evidence.
+
+Current connected production change admits each leaf's representation before
+building the private cut: at most27immediate binary64 neighbours, unchanged
+finite-wall first-height/footprint checks, maximize covered wall faces then choose
+nearest. It does not change the target, tolerances, body coordinates or final
+geometry/metric/transfer gates. Work is bounded by4proposals*4leaves*27candidates*
+wall-face count; no metric query or MPI exchange is added to this preparation.
+Existing reconstruction stage timing includes its cost. This is limited local
+coordinate admission, not proof of arbitrary rotated intersections or richer
+wall-front construction. Build_v7 now passes the saved native replays and all four complete lifecycle audits
+listed above. No arbitrary geometry/viscous accuracy or affordability conclusion follows.
+
+A further optional Claude review was rejected by automatic approval review before
+execution because it would send source/failure details externally. No workaround
+or new consultation occurred; implementation and validation remain local.

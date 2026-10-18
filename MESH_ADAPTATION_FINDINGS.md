@@ -1,19 +1,25 @@
 ## Affine reference/source backend checkpoint — 2026-10-18
 
-Native compound height-star reconstruction now passes the complete serial annular
-RANS/SA lifecycle:24->218cells, current+BDF transfer/conservation<6.6e-16,
-SU2+CGNS/reference persistence and actual restart. Independent geometry/height/
-full-field q=.2033345/J=.0572923/Lmax1.7955165 PASS. No acceptance gate was weakened.
+Native coordinated height-star reconstruction now passes the complete Cartesian
+annular lifecycle in N1/M1,N2/M2,N4/M2,N4/M4 with conservative RANS/SA/current+BDF
+transfer, SU2+CGNS/reference output and actual restart. Independent exact finite-hole/
+volume/topology/no-overlap/height and original full composed field pass: final218/
+194/194/215cells,q>=.20238,J>=.05648,Lmax<=1.79828,height0,conservation<6.6e-16.
 
-MPI2/M2 follows a different private-edit trajectory and rejects at3759/8192work;
-335cells retain four oversized edges at a shared height apex, with no shape defect.
-The exact34-cell star also rejects in native serial replay, whereas an offline
-partition makes progress. Diagnose the native proposal/constraint difference;
-N4/M2/M4 were not started. Full Goal3/general symmetry remains incomplete.
-Serial actual-BL metric initialization7.879s versus native5.732s identifies remaining
-normalization cost; contended correctness timings establish no scaling speedup.
-Composed nodal gradation still has18violations; no combined certificate is claimed.
-[Current accepted/rejected evidence](integration_evidence/native_3d_bl_v1/native_height_star_v1/README.md).
+The original MPI2 blockage is reproduced on its exact34-cell star. Actual frozen
+tensor last-bit changes make all four naive grid proposals miss2/8wallfeet. Exact
+midpoint bounds still6/8; bounded adjacent binary64 candidate admission recovers
+8/8 and the actual native cut/lifecycle. Target, original P1, actual-query BL,
+finite geometry, height/quality/metric/transfer tolerances and caps are unchanged.
+Serial accepted mesh is byte-identical; old failed experiments remain preserved.
+
+Full Goal3/general symmetry remains OPEN: arbitrary runtime/2D/multi-body/junction/
+exterior/M6 and viscous readiness are not established. Composed nodal gradation
+still18violations/max4.599; sensor fixed point is not a combined certificate.
+Final complexity indicators cover these observed errors but are heuristic; finer
+integration partitions did not monotonically improve accuracy. Contended accepted
+metric/native/replace timings are recorded, not scaling or affordability claims.
+[Current evidence and limits](integration_evidence/native_3d_bl_v1/native_height_star_v1/README.md).
 
 Finite affine references now use the existing3D query/operator/source/IO architecture.
 Serial12cases/3974assertions, MPI4 and independent75-stencil positivity/original-ID/

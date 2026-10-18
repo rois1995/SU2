@@ -1,0 +1,45 @@
+{
+  "status": "INDEPENDENT_ANNULAR_SYMMETRY_LIFECYCLE_PASS",
+  "cases": [
+    {
+      "cells": 194,
+      "volume": "19471113219505603967277331424215/20282409603651670423947251286016",
+      "exact_overlap_pairs": 3283,
+      "vertex_links": 67,
+      "finite_patch_area_coverage": true,
+      "boundary_euler_characteristic": 0,
+      "minimum_quality": 0.2125644413346424,
+      "minimum_scaled_jacobian": 0.0589025061451325,
+      "maximum_full_edge": 1.795515496441616,
+      "height_relative_error": 0.0,
+      "edge_order_spread": 4.440892098500626e-16,
+      "reference_complexity": 20.000159481432753,
+      "reference_order_spread": 3.552713678800501e-15,
+      "flow_integral_defect": 5.511550681257176e-16,
+      "flow_restart_residual": 0.0,
+      "SA_integral_defect": 5.797432979758807e-16,
+      "SA_restart_residual": 0.0,
+      "budget": 20,
+      "parameter": 0,
+      "version": 1,
+      "trials": 1,
+      "workers": 2,
+      "accepted": true,
+      "mass": 19.97295049552241,
+      "indicator": 0.16367458344256924,
+      "final_sensor_eigenvalue": 5.047114437427324,
+      "frozen": true,
+      "support_changed": false,
+      "proven_bound": false,
+      "independent_mass_error": 0.02720898591034171,
+      "indicator_covers_observed_error": true
+    }
+  ],
+  "audit_source_sha256": "f6f7def2aefb6dd7a402bedc1188dc94970faee7f1f6a0bee89db0fbe34c569f",
+  "house_auditor_sha256": "1822427476ecb5687aaa06f3e7a3cc8f31cde53166fd0c711449eedf7c7c7a50",
+  "limitations": [
+    "Controlled faceted annular domain/one wall/constant original sensor, not M6 or interacting BL accuracy",
+    "Numerical quadrature reference/heuristic complexity indicator, not rigorous integral bounds",
+    "Native contact/field gates supplemented by independent volume/topology/overlap/finite-face/height and complete metric checks"
+  ]
+}

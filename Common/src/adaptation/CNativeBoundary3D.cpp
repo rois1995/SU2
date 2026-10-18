@@ -1644,7 +1644,32 @@ bool ReconstructHeightStar(const Patch& old,Id vertex,Id first_node,Id first_cel
       const double step=double(scale*factor);
       auto p=[&](long double a,long double b){return Point{double(origin.x+step*(a*u[0]+b*v[0])),
           double(origin.y+step*(a*u[1]+b*v[1])),double(origin.z+step*(a*u[2]+b*v[2]))};};
-      const std::array<Point,4> leaves{p(-1,-1),p(-1,1),p(1,-1),p(1,1)};
+      auto admit=[&](Point proposed) {
+        const double infinity=std::numeric_limits<double>::infinity();
+        const std::array<std::array<double,3>,3> coordinates{{
+            {{proposed.x,std::nextafter(proposed.x,-infinity),std::nextafter(proposed.x,infinity)}},
+            {{proposed.y,std::nextafter(proposed.y,-infinity),std::nextafter(proposed.y,infinity)}},
+            {{proposed.z,std::nextafter(proposed.z,-infinity),std::nextafter(proposed.z,infinity)}}}};
+        Point best=proposed;size_t covered=0;long double distance=std::numeric_limits<long double>::infinity();
+        // Admit at most27 adjacent representations against the unchanged finite-wall height/footprint checks.
+        for(double x:coordinates[0])for(double y:coordinates[1])for(double z:coordinates[2]) {
+          if(!(std::isfinite(x)&&std::isfinite(y)&&std::isfinite(z)))continue;
+          const Point candidate{x,y,z};size_t coverage=0;
+          for(const auto& wall:walls) {
+            Cell c;c.v={Node{vertex,candidate},nodes.at(wall.v[0]),nodes.at(wall.v[1]),nodes.at(wall.v[2])};
+            if(Orientation(c.v[0].p,c.v[1].p,c.v[2].p,c.v[3].p)<0)std::swap(c.v[0],c.v[1]);
+            Patch single;single.cells={c};single.surface={wall};FirstHeightReport fitted;std::string rejected;
+            coverage+=CheckFirstHeight(single,heights,reference,fitted,rejected);
+          }
+          const auto d=Delta(candidate,proposed);const auto square=Dot(d,d);
+          if(coverage>covered || (coverage==covered && square<distance)) {
+            best=candidate;covered=coverage;distance=square;
+          }
+        }
+        return best;
+      };
+      // shortcut: Four tangent-grid leaves cover bounded shared stars; general wall fronts need richer placement.
+      const std::array<Point,4> leaves{admit(p(-1,-1)),admit(p(-1,1)),admit(p(1,-1)),admit(p(1,1))};
       Patch proposal=old;
       try {
         ++report.trials;++report.connectivity_trials;SplitHeightStar(proposal,vertex,{{{first_node,p(-1,0)},{first_node+1,p(1,0)}}},

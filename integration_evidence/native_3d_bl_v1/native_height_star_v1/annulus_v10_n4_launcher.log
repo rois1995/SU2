@@ -1,0 +1,2 @@
+annulus_v10_n4 {"exit_code": 0, "elapsed_seconds": 12.139469938003458, "command": ["taskset", "-c", "0-3", "nice", "-n", "19", "timeout", "--kill-after=5s", "180s", "mpirun", "-np", "4", "--bind-to", "none", "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver", "[NativeSymmetryRuntime3D]", "--abort", "--reporter", "compact"], "provenance_sha256": "444018ac2527450f08c6d1e04b6f9ea604510b6d4356585bbb3af9cfd288ffd7", "log_sha256": "c5de43014b148ecaa3df2ddaeeea77f464b3f9185acd9a27a992dd0bd0da9668"}
+PASS annulus 4

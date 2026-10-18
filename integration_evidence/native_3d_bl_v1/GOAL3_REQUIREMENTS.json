@@ -126,11 +126,11 @@
     "contact_validation_v2/README.md"
   ],
   "execution_state": {
-    "status": "Full Goal3 ACTIVE/incomplete. Complete serial annular RANS/SA lifecycle independently passes. MPI2 construction rejects; general geometry/2D/exterior/M6/composed-gradation scope remains open.",
+    "status": "Full Goal3 ACTIVE/incomplete. Complete controlled annular serial and MPI lifecycle passes; arbitrary initial geometry/junction/2D/exterior/M6/composed-gradation/general uncertainty remain open.",
     "new_CFD_advances": 0,
     "new_Hessian_or_normalization_in_M6_replay": false,
-    "owned_jobs": "All owned jobs terminal; one saved MPI negative and focused native patch rejection preserved.",
-    "next": "Diagnose exact MPI34-cell-star native/offline proposal-constraint difference before further construction changes or full MPI events."
+    "owned_jobs": "All owned jobs terminal. Complete annular N1M1/N2M2/N4M2/N4M4 and independent audits PASS; no physical CFD advance or M6 retry.",
+    "next": "General oblique initial geometry and simultaneous body/symmetry source-ownership contract; preserve all general geometry and full goal gates."
   },
   "coupled_engine_checkpoint": {
     "evidence": "integration_evidence/native_3d_bl_v1/coupled_engine_v1",
@@ -262,7 +262,7 @@
     "scope": "One planar cube production case plus six focused first-row geometry/movement cases. Actual computed metric, conservative current+BDF/bounded-SA and SU2/CGNS/reference/restart checks; independent exact embedding, full composed metric, wall footprint and height. No new MPI, full regressions, general layer coverage, actual CFD accuracy or performance qualification."
   },
   "owned_jobs": {
-    "status": "All owned jobs terminal; one saved MPI negative and focused native patch rejection preserved.",
+    "status": "All owned jobs terminal. Complete annular N1M1/N2M2/N4M2/N4M4 and independent audits PASS; no physical CFD advance or M6 retry.",
     "terminal_handles": [
       32232,
       26154,
@@ -326,7 +326,16 @@
       55004,
       64477,
       70822,
-      50350
+      50350,
+      91645,
+      79483,
+      64553,
+      71054,
+      24281,
+      11843,
+      61857,
+      90971,
+      80585
     ],
     "resources": "integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/cavity_operator_replay_v1/actual_context_np4/resources.jsonl",
     "active_handles": []
@@ -2615,7 +2624,7 @@
       "Euler and RANS shared geometry architecture",
       "MPI N=M and M<N / transfer / persistence / real restart / exterior-body workflow"
     ],
-    "current_limit": "Complete serial Cartesian single-hole annular RANS/SA+BDF/IO/real restart accepted. MPI2 annulus stalls with four shared-apex metric edges; exact serial native patch also rejects. General arbitrary runtime/2D/junction/exterior capability remains open.",
+    "current_limit": "Controlled Cartesian annular N1M1/N2M2/N4M2/N4M4 full initialized RANS/SA/BDF/SU2+CGNS/reference/actual restart accepted independently. General arbitrary runtime/2D/junction/multiple-body/exterior remains open.",
     "core_progress": "Geometry-only core PASS: serial9cases/3731assertions; five translated/oblique charts across all dominant axes; finite2D intervals/3D two-hole/nonconvex/disconnected complete chord/face queries; BC-label independent; idempotent authorized projection. Exact rational320sample audit PASS,319 nonzero equations; max sampled physical distance2.042804e-16, max reported bound2.229226e-16. Current binary MPI4 baseline and independent Cartesian N4/M2 RANS/SA/current+BDF/transfer/SU2/CGNS/actual restart PASS. No arbitrary runtime/donor/restart/exterior completion.",
     "core_evidence": "integration_evidence/native_3d_bl_v1/affine_geometry_core_v1/manifest.json",
     "backend_progress": {
@@ -2668,7 +2677,7 @@
     },
     "backend_evidence": "integration_evidence/native_3d_bl_v1/affine_runtime_reference_v1/manifest.json",
     "coordinated_placement": {
-      "status": "NATIVE_SERIAL_ANNULUS_LIFECYCLE_PASS_MPI2_BLOCKED",
+      "status": "NATIVE_CONTROLLED_ANNULAR_SERIAL_AND_MPI_LIFECYCLES_PASS",
       "evidence": "integration_evidence/native_3d_bl_v1/annulus_coordinated_replay_v1/README.md",
       "restricted_on_edge": "q=.180305/J=.040198; two shape failures; no infeasibility proof",
       "off_edge_interior": "Exact geometry/shape pass,77.24% changed-edge squared-excess reduction",
@@ -2676,18 +2685,19 @@
       "implementation": "Reuse bounded coupled shape-and-edge proposal solve, original complete-star reconstruction and smooth physical-vertex MPI admission. Geometry/height/full-metric gates unchanged; no new volume gather",
       "review": "User-authorized Opus5.5/medium review returned; confirmed stopping/merit issue corrected. Review is not native validation",
       "limits": [
-        "MPI2 native annulus rejected; no distributed height-star acceptance",
-        "Four-leaf heuristic does not establish arbitrary curved/interacting geometry",
-        "No general symmetry/2D/exterior/M6 or affordability completion"
+        "Controlled Cartesian one-hole, not general aerodynamic readiness",
+        "Four-leaf heuristic does not establish arbitrary curved/interacting fronts or representable junctions",
+        "Composed nodal gradation18violations/max4.599; heuristic uncertainty, no proven bound",
+        "No new physical viscous accuracy, M6 or affordability completion"
       ],
       "native_patch": "7cases/18743assertions;12trials/4linearizations; independent exact54-cell q=.2018085/J=.0502886 and44.56% changed-edge squared-excess reduction",
-      "native_annulus": "annulus_v9_n1 PASS1/1133;24->218cells/71nodes/1035work; independent exact geometry/finite-hole/3986overlap/height0/q=.2033345/J=.0572923/Lmax1.7955165/current+BDF flow+SA conservation<6.6e-16/SU2+CGNS/real restart0.",
+      "native_annulus": "v10 final218/194/194/215cells;1035/1136/1133/776shared work; independent geometry/finite hole/no overlap/height0/q>=.20238/J>=.05648/Lmax<=1.79828/flow+SA+BDF conservation<6.6e-16/real SU2+CGNS restart0.",
       "offline_complete_mesh": "355cells/107nodes; exact finite geometry/volume/manifold/7819overlap pairs/height0; q=.2167007/J=.0558188/Lmax1.7955165; same original frozen complexity20.00019535",
-      "MPI_compatibility": "Current N4/M2 Cartesian RANS/SA/BDF/SU2+CGNS/actual restart independently PASS; not qualification of offline multi-apex operator",
-      "next": "Diagnose exact34-cell native MPI-star replay versus offline partition"
+      "MPI_compatibility": "Current complete annular N1M1/N2M2/N4M2/N4M4 RANS/SA/current+BDF/IO/real restart independently PASS.",
+      "next": "General oblique/junction geometry/source lifecycle contract"
     },
     "height_star_implementation": {
-      "status": "SERIAL_ACCEPTED_LIFECYCLE_MPI2_OPERATOR_BLOCKAGE",
+      "status": "CONTROLLED_ANNULAR_SERIAL_N2M2_N4M2_N4M4_LIFECYCLES_PASS",
       "evidence": "integration_evidence/native_3d_bl_v1/native_height_star_v1/README.md",
       "source_checkpoint": "See current git HEAD",
       "preserves": [
@@ -2696,24 +2706,26 @@
         "Existing geometry / height / shape / full-field / transfer gates"
       ],
       "next": [
-        "Diagnose exact34-cell native MPI-star replay versus offline partition",
-        "Connected construction correction under unchanged gates",
-        "Affected N2M2/N4M2/N4M4 lifecycle and independent audits"
+        "General oblique/junction geometry/source lifecycle contract",
+        "Representative exterior and multiple-body/2D scope",
+        "Global uncertainty/gradation and measured complete-cycle performance"
       ],
       "limits": [
-        "MPI2 native annulus rejected; no distributed height-star acceptance",
-        "Four-leaf heuristic does not establish arbitrary curved/interacting geometry",
-        "No general symmetry/2D/exterior/M6 or affordability completion"
+        "Controlled Cartesian one-hole, not general aerodynamic readiness",
+        "Four-leaf heuristic does not establish arbitrary curved/interacting fronts or representable junctions",
+        "Composed nodal gradation18violations/max4.599; heuristic uncertainty, no proven bound",
+        "No new physical viscous accuracy, M6 or affordability completion"
       ],
       "rejected": "serial_v1/v2 omitted a cyclically ordered physical face and changed the proposal frame (7/8 wall faces). Preserve but withdraw complete-metadata construction-failure inference. Independent shared-offset rounding experiment is separate; no target/tolerance relaxation.",
       "native_replay": "serial_v3 PASS11cases/81755assertions; full355cell/107node independent exact geometry/finite coverage/7818overlap pairs/height0 and original-field q=.2033345/J=.0512845/Lmax1.7955165; original complexity20.00019535",
       "alignment": "Centroid-to-apex tilt3.03/71.74degrees. Diagnostic only; no wall-normal stack or viscous-accuracy qualification.",
-      "full_lifecycle": "annulus_v9_n1 PASS1/1133;24->218cells/71nodes/1035work; independent exact geometry/finite-hole/3986overlap/height0/q=.2033345/J=.0572923/Lmax1.7955165/current+BDF flow+SA conservation<6.6e-16/SU2+CGNS/real restart0.",
-      "all_worker_harness": "N4/M4 supported by explicit test flag; N4/M2 and N4/M4 not started after first MPI2 failure.",
-      "mpi2": "335cells/104nodes;3759/8192work/103combined edits; no shape failures, four1.8659296edges at one shared first-height apex.34-cell star within64; native serial replay rejects all four first-cut proposals. Profile relative difference4.44e-7; offline candidate is not native evidence.",
+      "full_lifecycle": "v10 final218/194/194/215cells;1035/1136/1133/776shared work; independent geometry/finite hole/no overlap/height0/q>=.20238/J>=.05648/Lmax<=1.79828/flow+SA+BDF conservation<6.6e-16/real SU2+CGNS restart0.",
+      "all_worker_harness": "Executed N4/M4 alongside N4/M2; complete independent lifecycle qualification PASS.",
+      "mpi2": "Prior3759work rejection preserved. Actual composed tensor changed proposed coordinate rounding, losing2/8wallfeet. Bounded27-neighbour admission restores8/8; exact native352cell replay and complete MPI event accepted.",
       "accuracy": "Reference20.00019535; final20.00728648 +/- .18512706heuristic; observed error.00709113 covered. No proven bound or monotonic refinement improvement.",
       "composed_gradation": "Actual nodal composed audit18directed violations/maxratio4.59899. Sensor fixed point is not composed gradation.",
-      "cost": "Contended serial BLmetric7.879177s, native5.731692s, replace.017567s, fixture14.528937s; no speedup/scaling/affordability claim."
+      "cost": "Contended metric/native/replace seconds N1 7.826/6.275/.0102; N2 3.858/6.298/.0116; N4M2 4.287/6.368/.0122; N4M4 4.975/7.014/.0133. No scaling/speedup claim; bounded admission not separately timed.",
+      "coordinate_admission": "At most27adjacent binary64 tuples per leaf, maximum covered finite-wall height/footprint constraints then nearest. No new density/MPI queries, unchanged target/donors/fade/tolerances/final gates. Native failed-star v3 and serial_v4 independent PASS; complete four-case lifecycle PASS."
     }
   }
 }

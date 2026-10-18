@@ -1,12 +1,13 @@
 # Annular coordination: current native result and missing capability
 
 Goal3 and the full [general symmetry scope](GOAL3_GENERAL_SYMMETRY.md) stay open.
-Native serial annular construction/transfer/output/real restart now independently
-PASS (24->218cells); MPI2 retains a blocked34-cell height star and rejects. Current
-status, exact metrics, inspectable grids and limits are maintained in
-[the height-star evidence](../integration_evidence/native_3d_bl_v1/native_height_star_v1/README.md).
-All owned jobs terminal; N4/M2/M4 not launched. The sections below preserve prior
-qualified source scopes and the reasoning that led to compound reconstruction.
+Native annular construction/transfer/output/real restart now independently PASS
+in N1/M1,N2/M2,N4/M2,N4/M4. The34-cell MPI blockage was reproduced and repaired by
+bounded binary64 coordinate admission, keeping target/height/geometry/quality/field
+and transfer gates unchanged. Current metrics, costs, inspectable accepted grids,
+failures and limits are in [height-star evidence](../integration_evidence/native_3d_bl_v1/native_height_star_v1/README.md).
+All owned jobs terminal. General geometry/2D/exterior/M6/gradation remain open.
+The sections below preserve prior qualified source scopes and construction evidence.
 
 ## Native implementation that worked
 
@@ -56,12 +57,13 @@ The corrected bounded version self-checks flow and hard constraints and passes
 independent geometry/field auditing. Opus5.5/medium suggested additional vertex
 retirement, but the valid witness shows it is unnecessary for this proposal.
 
-The generic multi-apex construction/complete-star transaction batch is implemented
-and building, not yet qualified. It reuses existing MPI admission/publication and
+The generic multi-apex construction/complete-star transaction batch is now qualified
+for the controlled native annular workflows linked above. At this historical stage it was
+building/unqualified. It reuses existing MPI admission/publication and
 actual-query fields. Next: exact saved-state whole-field replay, unchanged full
 native target and MPI lifecycle. Offline coordinates/axes must not become production constructors.
-No new accepted native annular mesh, M6/exterior/oblique/junction/2D result or
-accepted-event performance improvement is claimed.
+That historical offline witness alone established no accepted native annular event.
+M6/exterior/oblique/junction/2D readiness and event speedup remain unproved.
 
 [Exact evidence and history](../integration_evidence/native_3d_bl_v1/annulus_coordinated_replay_v1/README.md).
 Grid: `integration_evidence/native_3d_bl_v1/annulus_coordinated_replay_v1/fan_split_v1/annulus_frozen_prototype_witness.su2`.
