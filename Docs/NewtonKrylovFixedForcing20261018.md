@@ -31,6 +31,9 @@ The [CSV](NewtonKrylovFixedForcing20261018.csv) retains configurations, source/b
 per-system physical checks, quantities, memory, failed work and exact evidence paths. Native assemblies
 are inferred fine-grid updates; Newton assembly counters are measured. Native linear work sums separate
 equation solves and is not a like-for-like Krylov-vector width comparison with a coupled solve.
+Completed Newton totals include the final outer-reporting assembly after the last logged attempt.
+Earlier raw records mislabeled this offset as an initial evaluation. Counts are unchanged; measured
+method entries confirm the offset in 20 archived application profiles. Interrupted totals are estimates.
 
 | Case | Layout | Mode | Nominal linear target | Adaptive forcing | Updates | FLOW/TURB | Linear work | Retries | Loop / elapsed s | Peak rank KiB | Status | Qualified | Evidence |
 |---|---|---|---:|---|---:|---:|---:|---:|---:|---:|---|---|---|
@@ -45,3 +48,25 @@ equation solves and is not a like-for-like Krylov-vector width comparison with a
 
 This table includes earlier references as labelled by their source/binary hashes. Fresh same-binary
 qualification, both layouts and the remaining application matrix are still required. NEMO is deferred.
+
+Reproduce from the application evidence directory, using fresh output directories:
+
+```sh
+python3 fixed_forcing_005_case.py --case naca_sa --mode native --control original \
+  --phase qualification --work-only --graceful-limit --history-margin 1 \
+  --updates 10000 --timeout 1800 --ranks 2 --threads 2 \
+  --release muscl_boundary_gradient_v2_release --output FRESH_NATIVE \
+  --reference static_review_correctness_v2_applications/naca_sa/2x2/native
+
+python3 fixed_forcing_005_case.py --case naca_sa --mode coupled --control diagonal \
+  --phase qualification --work-only --graceful-limit --cfl 1000 --history-margin 2 \
+  --updates 10000 --timeout 7200 --ranks 2 --threads 2 \
+  --release muscl_boundary_gradient_v2_release --output FRESH_COUPLED \
+  --reference static_review_correctness_v2_applications/naca_sa/2x2/native
+```
+
+Use `application_case.py` for the adaptive-forcing coupled baseline with the same other arguments.
+Use ranks/threads 1/1 for serial. The timeout is a resource cap; hitting it leaves an incomplete result.
+Exact commands and queue outcomes are in `fixed_forcing_005_20261018/matched_commands.json` and
+`followup_commands.json`. Counter-boundary evidence is in `counter_offset_checks.json` and
+`counter_label_checks.json` in that directory. Raw run evidence is preserved.

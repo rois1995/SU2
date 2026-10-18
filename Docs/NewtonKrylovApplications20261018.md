@@ -18,6 +18,11 @@ SST communication counts decrease. Higher-order SA keeps its fallback. No timing
 See the [existing fixed-forcing study](NewtonKrylovFixedForcing20261018.md) for nominal0.05 qualification
 and separately labelled native/Newton accuracy comparisons. Implementation and configuration gains remain distinct.
 
+Completed Newton assembly totals include the final full reporting refresh after the last logged attempt.
+Earlier raw records call this offset an initial evaluation. This attribution is corrected without changing
+counts: measured method entries confirm the offset in 20 archived application profiles. Interrupted-run
+totals can omit unlogged work and retain an explicit estimate label. Native inferred counts stay labelled.
+
 Work in progress. Baseline numerical implementation: `4712d82375e00ede15e5177ab38865eaaaa3e9f5`;
 source checkout at study start: `8e61376ecd234414ce583c9b8f995e2bd62f4c12`.
 Committed corrections: momentum probes `637177c3e4` and bounded verified-probe recovery `d27f4b37f6`.
@@ -577,7 +582,7 @@ Each row retains its convergence status. Assemblies are FLOW/TURB/TRANS;
 Krylov work is outer/inner; R/B is retries/backtracks. Native assembly counts are
 inferred from fine-grid updates and labelled in the CSV; Newton counts are measured.
 Native linear work sums the reported iterations of every active system; it has no nested solves.
-Timeout counters omit incomplete attempts and are lower bounds. Timings are contended
+Interrupted counters omit unlogged work; their final reporting refresh is not verified. Timings are contended
 observations, never eligible time-to-convergence measurements. A saved timeout state
 is only its last checkpoint. State errors use the native reference recorded for that row.
 
