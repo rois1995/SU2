@@ -6,6 +6,11 @@ Broader T3A/nozzle/VKI sweeps are administratively stopped after active children
 Default inner iterations remain0. Resolve rejection mechanisms before further control changes.
 See [NACA rejection diagnosis](NewtonKrylovNacaRejections20261018.md) for the current work-based assessment.
 
+The [bounded Krylov restart](NewtonKrylovRestartAssessment20261018.md) is not adopted: density-milestone work regresses
+and its full trial was interrupted by the global-swap guard. The saved checkpoint passes physical/state checks;
+the interrupted run remains unqualified. Production sources are restored. Existing fixed forcing0.05 is being
+tested separately as a configuration change; no new recovery, forcing signal or inner default is adopted.
+
 Work in progress. Baseline numerical implementation: `4712d82375e00ede15e5177ab38865eaaaa3e9f5`;
 source checkout at study start: `8e61376ecd234414ce583c9b8f995e2bd62f4c12`.
 Committed corrections: momentum probes `637177c3e4` and bounded verified-probe recovery `d27f4b37f6`.
@@ -175,7 +180,7 @@ and `paper_notes/manifest.json`; they motivate investigations, not unmeasured so
 | Application | Layout | Actual trials | Qualified endpoints | Eligible timing repetitions |
 |---|---|---:|---:|---:|
 | naca_sa | 1x1 | 76 | 28 | 1 |
-| naca_sa | 2x2 | 52 | 21 | 0 |
+| naca_sa | 2x2 | 55 | 21 | 0 |
 | naca_sst | 1x1 | 37 | 5 | 0 |
 | naca_sst | 2x2 | 18 | 2 | 0 |
 | nozzle_sst | 1x1 | 32 | 0 | 0 |
@@ -262,6 +267,8 @@ is retained; `prepared` and `running` entries have not completed.
 
 | Case | Layout | Mode | Initial | Implementation | Control | History stop | Status | Comparison pass | Updates | Loop s | End-to-end s |
 |---|---|---|---|---|---|---:|---|---|---:|---:|---:|
+| naca_sa | 2x2 | coupled | original | bounded_restart_release | diagonal | -14.0 | incomplete_memory_guard | False | 207 | — | 1248.127 |
+| naca_sa | 2x2 | coupled | original | bounded_restart_release | diagonal | -14.0 | iteration_cap | False | 20 | 55.847 | 56.349 |
 | nozzle_sst | 1x1 | segregated | original | application_release | fd_step_1e-4 | -12 | diagnostic_complete | False | 1 | — | 1.989 |
 | nozzle_sst | 1x1 | segregated | original | application_release | fd_step_1e-6 | -12 | diagnostic_complete | False | 1 | — | 2.426 |
 | nozzle_sst | 1x1 | segregated | original | application_release | fd_step_1e-8 | -12 | diagnostic_complete | False | 1 | — | 4.579 |
@@ -326,6 +333,7 @@ is retained; `prepared` and `running` entries have not completed.
 | nozzle_sst | 1x1 | segregated | original | baseline_4712d82375 | fd_step_1e-5 | -12 | diagnostic_complete | False | 1 | — | 2.727 |
 | nozzle_sst | 1x1 | segregated | original | baseline_4712d82375 | fd_step_1e-6 | -12 | diagnostic_complete | False | 1 | — | 2.880 |
 | nozzle_sst | 1x1 | segregated | original | baseline_4712d82375 | fd_step_1e-7 | -12 | diagnostic_complete | False | 1 | — | 1.765 |
+| naca_sa | 2x2 | coupled | original | static_review_correctness_v2_release | diagonal | -14.0 | running | False | — | — | — |
 | naca_sa | 1x1 | coupled | original | forcing_candidate | forcing | -13.0 | incomplete_time_cap | False | 209 | 300.938 | 301.445 |
 | naca_sa | 1x1 | segregated | original | forcing_candidate | forcing | -13.0 | incomplete_time_cap | False | 157 | 300.054 | 300.632 |
 | naca_sa | 1x1 | coupled | original | forcing_candidate | forcing | -13.0 | iteration_cap | False | 6 | 16.587 | 17.090 |
