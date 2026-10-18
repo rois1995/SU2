@@ -89,7 +89,12 @@ adaptive-CFL-only studies retain the original0.001 initial linear target. These 
 The unstarted control plan was revised from108 to126 trials after the retained-CFL/work results:
 matched fixed-CFL100 trials were added for warm SA/SST/nozzle on both layouts. Nozzle control
 trials use density history stop-13 after the original stop missed the all-component target.
-The old plan/audit remain preserved. Preparation checks match94 Newton/native pairs;
+A further10 coupled trials reverse the existing lower-block order, with identical forcing
+and adaptive-CFL settings. This includes turbulence feedback in the flow correction; benefit
+is unproven. Three SST1x1 pilot trials add existing ILU fill1, with matched native settings
+and the same adaptive forcing/CFL controls. Further fill-level expansion requires evidence.
+The139-trial plan records intended settings separately from actual results below.
+All old plans/audits remain preserved. Preparation checks match106 Newton/native pairs;
 these are setup checks, not measured convergence results. Both versions' early SA states
 miss the conservative151-update state reference; tightened-stop controls remain necessary.
 
@@ -99,10 +104,10 @@ miss the conservative151-update state reference; tightened-stop controls remain 
 |---|---|---:|---:|---:|
 | naca_sa | 1x1 | 24 | 10 | 0 |
 | naca_sa | 2x2 | 20 | 9 | 0 |
-| naca_sst | 1x1 | 9 | 1 | 0 |
+| naca_sst | 1x1 | 12 | 2 | 0 |
 | naca_sst | 2x2 | 6 | 1 | 0 |
 | nozzle_sst | 1x1 | 26 | 0 | 0 |
-| nozzle_sst | 2x2 | 6 | 0 | 0 |
+| nozzle_sst | 2x2 | 9 | 0 | 0 |
 | flatplate_lm | 1x1 | 12 | 0 | 0 |
 | flatplate_lm | 2x2 | 6 | 0 | 0 |
 | periodic_stator | 1x1 | 3 | 0 | 0 |
@@ -216,9 +221,15 @@ is retained; `prepared` and `running` entries have not completed.
 | naca_sa | 2x2 | coupled | original | recovery_release | original | -12 | rejected | False | 11 | 16.219 | 16.788 |
 | naca_sa | 2x2 | native | original | recovery_release | original | -12 | reference_audit_failed | False | 11 | 0.929 | 1.423 |
 | naca_sa | 2x2 | segregated | original | recovery_release | original | -12 | reference_audit_failed | False | 11 | 5.350 | 5.869 |
-| nozzle_sst | 1x1 | coupled | original | recovery_release | original | -12 | running | False | — | — | — |
+| naca_sst | 1x1 | coupled | original | recovery_release | original | -12 | rejected | False | 216 | — | 301.041 |
+| naca_sst | 1x1 | native | original | recovery_release | original | -12 | qualified | True | 258 | 36.407 | 36.936 |
+| naca_sst | 1x1 | segregated | original | recovery_release | original | -12 | timeout | False | 52 | — | 301.053 |
+| nozzle_sst | 1x1 | coupled | original | recovery_release | original | -12 | rejected | False | 1183 | — | 301.035 |
 | nozzle_sst | 1x1 | native | original | recovery_release | original | -12 | rejected | False | 548 | 11.236 | 11.734 |
 | nozzle_sst | 1x1 | segregated | original | recovery_release | original | -12 | rejected | False | 537 | — | 301.088 |
+| nozzle_sst | 2x2 | coupled | original | recovery_release | original | -12 | rejected | False | 2142 | — | 301.024 |
+| nozzle_sst | 2x2 | native | original | recovery_release | original | -12 | rejected | False | 546 | 5.792 | 6.197 |
+| nozzle_sst | 2x2 | segregated | original | recovery_release | original | -12 | rejected | False | 2438 | — | 301.039 |
 | naca_sa | 1x1 | coupled | original | recovery_release | original | -13.0 | timeout | False | 29 | — | 121.027 |
 | naca_sa | 1x1 | native | original | recovery_release | original | -13.0 | qualified | True | 151 | 19.319 | 19.860 |
 | naca_sa | 1x1 | segregated | original | recovery_release | original | -13.0 | timeout | False | 65 | — | 121.032 |
@@ -293,9 +304,15 @@ is only its last checkpoint. State errors use the native reference recorded for 
 | naca_sa | 2x2 | recovery_release | coupled | rejected | 11 | 1262/1564/— | 301/0 | 1/0 | 16.219/16.788 | 3.006e-11 | 1.352e-05 |
 | naca_sa | 2x2 | recovery_release | native | reference_audit_failed | 11 | 11/11/— | 440/0 | —/— | 0.929/1.423 | 2.256e-10 | 0.000e+00 |
 | naca_sa | 2x2 | recovery_release | segregated | reference_audit_failed | 11 | 260/372/— | 363/0 | 0/0 | 5.350/5.869 | 1.253e-11 | 2.789e-06 |
-| nozzle_sst | 1x1 | recovery_release | coupled | running | — | —/—/— | —/— | —/— | —/— | — | — |
+| naca_sst | 1x1 | recovery_release | coupled | rejected | 216 | 12074/13496/— | 1415/0 | 4/0 | —/301.041 | 1.515e-06 | — |
+| naca_sst | 1x1 | recovery_release | native | qualified | 258 | 258/258/— | 10173/0 | —/— | 36.407/36.936 | 8.922e-12 | 0.000e+00 |
+| naca_sst | 1x1 | recovery_release | segregated | timeout | 52 | 11661/1698/— | 4050/0 | 0/0 | —/301.053 | — | — |
+| nozzle_sst | 1x1 | recovery_release | coupled | rejected | 1183 | 30261/33665/— | 3402/0 | 5/0 | —/301.035 | 3.538e-03 | — |
 | nozzle_sst | 1x1 | recovery_release | native | rejected | 548 | 548/548/— | 6235/0 | —/— | 11.236/11.734 | 7.647e-09 | — |
 | nozzle_sst | 1x1 | recovery_release | segregated | rejected | 537 | 33622/11133/— | 13529/0 | 3/3 | —/301.088 | 4.508e-06 | — |
+| nozzle_sst | 2x2 | recovery_release | coupled | rejected | 2142 | 70006/77519/— | 7502/0 | 6/0 | —/301.024 | 2.932e-04 | — |
+| nozzle_sst | 2x2 | recovery_release | native | rejected | 546 | 546/546/— | 6568/0 | —/— | 5.792/6.197 | 7.649e-09 | — |
+| nozzle_sst | 2x2 | recovery_release | segregated | rejected | 2438 | 48375/59744/— | 49612/0 | 5/0 | —/301.039 | 4.445e-02 | — |
 
 ## Remaining work cost on final code
 
