@@ -1,0 +1,39 @@
+{
+  "status": "VERIFIED_PARTIAL_QUERY_REUSE_CHECKPOINT",
+  "goal": "ACTIVE_INCOMPLETE",
+  "verified_runs": {
+    "serial": {
+      "result_sha256": "68ab7b0bc261e7c52dce2e117521ddde86229bfc0c81c8e51fee77aee341e060",
+      "executed_source_sha256": "8f032335bdc6895548b7a5a9b55f910a4a5439f84f5f11dc0e86d3a148e463fc",
+      "historical_binary_record_only": {}
+    },
+    "mpi2": {
+      "result_sha256": "b7b0300ce0ec2d42a900fafe99ec2bccccb2200ffde9d85904b39a7cb18bb4aa",
+      "executed_source_sha256": "8f032335bdc6895548b7a5a9b55f910a4a5439f84f5f11dc0e86d3a148e463fc",
+      "historical_binary_record_only": {}
+    },
+    "mpi4": {
+      "result_sha256": "64a1c16ceca505e29921340ffff1fc8e27c88ef11b44dbd728776da70545750e",
+      "executed_source_sha256": "8f032335bdc6895548b7a5a9b55f910a4a5439f84f5f11dc0e86d3a148e463fc",
+      "historical_binary_record_only": {}
+    },
+    "rans_mpi4": {
+      "result_sha256": "bea5074c42d4420751ad07a359bf922adac519612557984133a00a8a02144575",
+      "executed_source_sha256": "8f032335bdc6895548b7a5a9b55f910a4a5439f84f5f11dc0e86d3a148e463fc",
+      "historical_binary_record_only": {}
+    },
+    "actual_update": {
+      "result_sha256": "4940e3fbbc1fae23bd73e178cd327066287f686e25d0b9e84e59192e8681c512",
+      "executed_source_sha256": "43f41b1e65aee5ef54e0ef17eb928adf77804d7ea8efc219f52221b2c62fbba3",
+      "historical_binary_record_only": {}
+    },
+    "previous_update": {
+      "result_sha256": "2544658e7f96adc2070fcea7d4e43145418df1fa4dd23a8549d6e82c497a6769",
+      "executed_source_sha256": "248a0ce6f16753b3021c46638ec615d4dfafb0da0aa673e331cdc45604ddda82",
+      "historical_binary_record_only": {
+        "integration_evidence/build-integrated-v2/UnitTests/test_driver": "2cc5504b82e7051f60e9d8dd37bfb19d44d7c0a8ff06f1b3234da80e9ecbfcb9"
+      }
+    }
+  },
+  "scope": "Current controls and atomically rejected actual N4/M2 repeat; historical comparison binary retained as identity record. Cold accepted producer is reused, not recomputed. No accepted large-BL update or affordability claim."
+}

@@ -57,6 +57,7 @@ struct DonorImportStats {
   uint64_t builds = 0, imports = 0, rejected = 0, owner_requests = 0, index_candidates = 0, payloads = 0;
   uint64_t filter_candidates = 0, filtered = 0, reused_candidates = 0, box_filtered = 0;
   uint64_t point_batches=0,point_queries=0,point_candidates=0,point_containment_tests=0,point_payloads=0;
+  uint64_t metric_sample_cells=0,metric_edge_queries=0,metric_edge_skipped=0,metric_edge_duplicates=0;
   double point_seconds=0,point_search_seconds=0,point_interpolation_seconds=0;
   KernelStats filter_kernel;
   size_t maximum_patch = 0, maximum_work_bytes = 0;
@@ -102,9 +103,10 @@ class DonorImport {
   /*! Exact measurement support: canonical centroid donors and all positive-length edge intervals.
    * At most MaximumCavityCells/6 cells; no arbitrary interior or midpoint-query guarantee.
    * Coverage remains authoritative in FrozenField; missing centroids never fabricate donors.
+   * Optional masks select local edges(01,02,03,12,13,23); omitted edges require caller-held certificates.
    * Existing closed ImportMetricCells semantics remain available to reconstruction callers. */
   DonorPatch ImportMetricSamples(const std::vector<Cell>& cells,const std::vector<Id>& extensions={},
-                                 size_t ceiling=SIZE_MAX,size_t caller_bytes=0);
+                                 size_t ceiling=SIZE_MAX,size_t caller_bytes=0,const std::vector<unsigned char>& edge_masks={});
   /*! Sensor P1 at exact ideal endpoint midpoints, with the same owner priority as SamplePoints.
    * This does not authorize ordinary queries at the rounded midpoint coordinate. */
   DonorSamples SampleMidpoints(const std::vector<std::array<Point,2>>& endpoints,const std::vector<Id>& extensions={},

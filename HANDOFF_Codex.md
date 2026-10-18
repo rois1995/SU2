@@ -30,21 +30,23 @@ or proof that every outer profile/native geometry is infeasible.
 
 ## Current active work
 
-Connected private-query/admission checkpoint: canonical centroid/ideal-midpoint
-and positive-length edge support, candidate-local oversized coarsening refusal,
-exact endpoint-only filtering.64/256caps and all fields/gates stay. Build, serial
-16/1241, MPI2/4 sixteen cases/rank, actual strict/enabled planar N4M2 RANS and both
-independent oracles PASS. Exact320cell core capacity control completes.
+Finite query-reuse batch is qualified and preserved in this checkpoint: missing-
+edge masks require exact endpoint/frozen identity, shared segments deduplicate,
+existing bounded edge cache spans one stage, sufficient geometry/height witnesses
+precede collapse transactions. Caps/target/profile/fade and all gates unchanged.
+Serial22/1337, MPI2/4, independently audited strict/enabled N4M2 RANS/SA/current+BDF/
+SU2+CGNS/reload/restart PASS. All owned jobs terminal; no running build or CFD job.
 
-Large unchanged-BL repeat still rejects at300.034s/5499work after344PRIVATE edits (192rank0+152rank1);
-all four CFD input states unchanged. It clears the old donor/star caps but remains
-partially measured: rank0807/1892cells. Do not claim accepted updated mesh or
-whole-event speedup. Rank0 donor188.971s dominates metric41.824s;394472 reused scalars
-still trigger support imports. Next: finite-query planning using existing owner
-indexes/edge caches, early shape and sufficient constraint screens; no cap increase,
-coarsening bypass or partial-mesh acceptance. Reuse the cold CGNS/BDF producer.
-[Authoritative current results and next work](Handbook/GOAL3_PRIVATE_QUERIES.md).
-All owned jobs TERMINAL. Full Goal3 and opt-in BL-budget contract remain ACTIVE.
+Actual `sphere_rans_lifecycle_v1/n4_m2_reuse_v1/update` STILL REJECTS:134.280s,
+6144work,344private edits, accepted CFD input unchanged on all ranks. Rank0 donor
+188.971->41.248s/index candidates34.9M->3.23M; calls603k->789k increase. Same inputs,
+but different rejected work prevents an accepted-event speedup claim. Next diagnose
+which rejection dependencies/coordination prevent finishing; no unchanged rerun,
+cap raise or partly measured acceptance. [Current evidence](Handbook/GOAL3_QUERY_REUSE.md).
+
+Full Goal3/opt-in BL-budget contract ACTIVE/incomplete. General global error
+allocation, enabled curved/interacting workflows,2D policy and complete accepted-
+event affordability remain open. Reuse the accepted cold producer; do not recompute.
 
 ## Current connected sphere work
 

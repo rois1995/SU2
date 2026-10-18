@@ -16,8 +16,14 @@ struct EdgeMeasure {
   Point a, b;
   long double length = 0;
   std::shared_ptr<const FrozenMetricIdentity> identity;
+  bool Reusable(Point from,Point to,const std::shared_ptr<const FrozenMetricIdentity>& field)const;
 };
 constexpr size_t MaximumCampaignEdges=6*MaximumReplacementCells;
+/*! Bit0..5 follow local (01,02,03,12,13,23) edges. Only exact endpoint/field certificates skip
+ * imports. Needed campaign entries are protected in reuse before bounded cache eviction can occur. */
+std::vector<unsigned char> MetricEdgeRequests(const std::vector<Cell>& cells,std::map<Edge,EdgeMeasure>& reuse,
+    const std::shared_ptr<const FrozenMetricIdentity>& identity,const std::map<Edge,EdgeMeasure>* campaign=nullptr);
+
 struct PatchMetric {
   double minimum_mean_ratio = 1, minimum_scaled_jacobian = 1;
   Id weakest_cell = 0, sliver_cell = 0;

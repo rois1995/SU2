@@ -2494,5 +2494,42 @@
     "broader_performance_package_complete": false,
     "enabled_curved_interacting_policy_qualified": false,
     "CFD_advance_or_viscous_or_scaling_qualified": false
+  },
+  "current_finite_metric_query_reuse": {
+    "status": "PARTIAL_QUERY_REUSE_QUALIFIED_ACTUAL_REPEAT_WORK_REJECTED",
+    "evidence": "sphere_query_reuse_v1/summary.json",
+    "handbook": "../../Handbook/GOAL3_QUERY_REUSE.md",
+    "semantics": "Exact endpoint/frozen-field support planning, segment deduplication, existing bounded stage edge cache; original sensor P1 and actual-query BL composition, profile/fade and all caps/gates unchanged.",
+    "controls": {
+      "serial_cases": 22,
+      "serial_assertions": 1337,
+      "MPI_ranks": [
+        2,
+        4
+      ],
+      "strict_and_opt_in_N4_M2_independently_audited": true
+    },
+    "actual_repeat": {
+      "accepted": false,
+      "atomic_rejection": true,
+      "CFD_inputs_unchanged_all_ranks": true,
+      "native_seconds": 134.280003699,
+      "work": 6144,
+      "global_private_edits": 344,
+      "rank0_private_edits": 192,
+      "rank1_private_edits": 152,
+      "rank0_donor_seconds": 41.247534134,
+      "rank0_index_candidates": 3229601,
+      "rank0_cached_edge_support_skips": 546985,
+      "rank0_duplicate_edge_requests": 56451,
+      "rank0_tracked_collective_calls": 789281
+    },
+    "limits": [
+      "different rejected work, no accepted-event speedup",
+      "no general failed-search memoization",
+      "no broad donor-index retention or new transaction batching",
+      "no new policy/2D/curved-interacting/global-error/physical-accuracy qualification"
+    ],
+    "next": "Inspect relevant rejection dependencies and complete-coverage coordination before another unchanged repeat or local fallback; preserve full Goal3 and BL-budget requirements."
   }
 }

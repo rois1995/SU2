@@ -20,7 +20,7 @@ This is not a completed-goal final report.
 | Opt-in budget-aware BL relaxation | Scoped complete workflows qualified | Mandatory firstheight/protected/finer sensor/geometry retained; only declared outer-normal growth changes. M6 permitted growth2/protect2e-6:100k sampled-profile conflict,300k selectslambda.875; final estimate295068 +/-5769. No proof of exact infeasibility or automatic physical accuracy. [Policy](GOAL3_BUDGET_AWARE_BL.md). |
 | Preserve geometric localization and fix strict source-point coverage | Worked in recorded arithmetic/geometry scope | Exact affine rounding/at most8 corners fixes captured outside source midpoint without loosening predicates. Complete N4M2 conservative RANS/SA/BDF/reload/restart controls pass. Historical owner-UPPER6 M6 still rejects~300s. [Construction](GOAL3_PROGRESSIVE_MEASUREMENT.md), [field identities](GOAL3_M6_FROZEN_FIELDS.md). |
 | Retain repair-campaign donor support/indexes | Partial; broad retention open | Canonical owner sampling and physical-interior hypotheses qualify;1.407M hints in historical M6. Whole-donor preparation retention failed; broad campaign support/index retention is not implemented. No net event gain established. [Outcome](../integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/query_campaign_reuse_v1/README.md). |
-| Extend shared-edge integral reuse | Worked as exact reuse infrastructure | Full composition/field identity and exact endpoints required. Historical campaign adds6420 edge hits; existing reuse already covers most. No whole-event speedup. [Current evidence](../integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/query_campaign_reuse_v1/README.md). |
+| Extend shared-edge integral reuse | Worked in query planning; actual repeat incomplete | Exact endpoint/field masks now skip546985 support slots and deduplicate56451 on the saved N4M2 repeat; stage cache stays bounded. Rank0 donor189->41s, candidates34.9M->3.23M; event still rejects6144work/134s with344edits. Calls increase; no accepted-event speedup. [Current scope](GOAL3_QUERY_REUSE.md). Historical campaign adds6420 hits. [Current evidence](../integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/query_campaign_reuse_v1/README.md). |
 | Batch independent transactions | First-row gains; general faceted concurrency now passes controls |64-parent first-row stage12.7%/23.2% lower at2/4 ranks; later ranking removes~42% metric work (overlapping gains, do not add). New complete-proposal reservations permit4independent commits/epoch; serial9/735, MPI4 and actual opt-in/default N4M2 independent workflows pass. Exact frozen M6 reaches3simultaneous commits,326764->280568kernel calls/rank (-14.14%),1707->1955private edits (+14.53%), but still rejects300.609s with no clear residual improvement. No event speedup/accepted wing. [Current experiment](../integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/concurrent_composed_proposals_v1/README.md), [transaction scope](POST_COMPLEXITY_QUERY_TRANSACTIONS.md). |
 | Avoid unchanged failed searches | Existing behavior retained; broader extension open | Dependency-triggered reactivation exists. New final reservation conflicts defer without blocking the unchanged feature; general repeated reconstruction-search memoization is not implemented. [Transactions](POST_COMPLEXITY_QUERY_TRANSACTIONS.md). |
 | Share transfer geometry across fields/histories | Existing facilities retained | Correction stages transfer once after final acceptance and share original reassessment/return source. Additional overlap-weight sharing/performance campaign not attempted. |
@@ -172,3 +172,21 @@ transaction batching. Next package should avoid importing support for certified
 reused lengths and share shape-first query work, preserving field/endpoint identity,
 coverage and collective closure. No new normalization/2D/physical/scaling claim.
 [Outcomes, receipts, controls and all retained failures](GOAL3_PRIVATE_QUERIES.md).
+
+
+## Finite support reuse — 2026-10-18
+
+**Worked:** import only missing full-field edge support under exact endpoint/identity
+certificates, deduplicate segments, share the existing bounded edge cache for one
+frozen stage, and reject sufficiently proven wall-height/geometry collapses before
+transactions. Current serial22/1337, MPI2/4 and independently audited strict/enabled
+N4M2 RANS/SA/current+BDF/SU2+CGNS/reload/restart pass. No cap or target changes.
+
+**Still failed:** same difficult repeat makes344private edits then rejects6144work
+in134.280s; all accepted CFD states unchanged. Previous reject was300.034s/5499work.
+Rank0 donor188.971->41.248s and index candidates34.9M->3.23M show reduced waste;
+tracked calls602671->789281 expose remaining coordination overhead. Different
+rejected work gives no accepted-event affordability claim. No terminal private
+grid was exported by this fixture. General failed-search memoization, donor-index
+retention, transaction batching and global-error allocation remain open.
+[Report, all failures and verifier](GOAL3_QUERY_REUSE.md).

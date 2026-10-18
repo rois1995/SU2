@@ -2933,6 +2933,50 @@ TEST_CASE("Known metric support never fabricates missing centroid or edge covera
   CHECK_FALSE(strict.valid);CHECK(strict.samples.empty());CHECK(source.ResidentBytes()==held);
 }
 
+TEST_CASE("Surviving collapse-cell constraints reject only sufficient height and footprint witnesses", "[NativeMetricPlan3D]") {
+  const auto fixture=Box(.1);const PlanarReference geometry(fixture.facets);auto row=Rows(fixture.patch).front();
+  std::map<int,double> heights;bool wall=false;Node apex;Point center{};
+  const auto faces=Faces(row.cell);
+  for(unsigned f=0;f<4;++f) {
+    bool bottom=true;for(auto id:faces[f])for(auto n:row.cell.v)if(n.id==id)bottom=bottom && n.p.z==0;
+    if(!bottom){row.physical[f].present=false;continue;}
+    REQUIRE(row.physical[f].present);wall=true;heights[geometry.Get(row.physical[f].facet).marker]=.1;
+    apex=row.cell.v[f];for(auto id:faces[f])for(auto n:row.cell.v)if(n.id==id){center.x+=n.p.x/3;center.y+=n.p.y/3;}
+  }
+  REQUIRE(wall);Node retained{900,{center.x,center.y,.1}};
+  CHECK_FALSE(CollapseConstraintViolation(row,apex.id,retained,geometry,0,heights));
+  retained.p.z=.2;CHECK(CollapseConstraintViolation(row,apex.id,retained,geometry,0,heights));
+  CHECK_FALSE(CollapseConstraintViolation(row,apex.id,retained,geometry,0,{}));
+  retained.p={-1,-1,.1};CHECK(CollapseConstraintViolation(row,apex.id,retained,geometry,0,heights));
+  CHECK_FALSE(CollapseConstraintViolation(row,99999,retained,geometry,0,heights));
+  for(auto n:row.cell.v)if(n.id!=apex.id){CHECK_FALSE(CollapseConstraintViolation(row,apex.id,n,geometry,0,heights));break;}
+}
+
+TEST_CASE("Masked metric imports retain actual point support and validate request boundaries", "[NativeMetricPlan3D]") {
+  World world;const auto fixture=Box();const auto rows=Partition(Rows(fixture.patch),world);DonorImport source(world);std::string reason;
+  REQUIRE(source.Build(Uniform(rows,{1,0,0,1,0,1}),reason));auto cell=fixture.patch.cells.front();
+  const auto queries=world.rank==world.size-1?std::vector<Cell>{cell}:std::vector<Cell>{};
+  const auto masks=world.rank==world.size-1?std::vector<unsigned char>{0}:std::vector<unsigned char>{};
+  const auto before=source.Statistics();const auto support=source.ImportMetricSamples(queries,{},SIZE_MAX,0,masks);
+  INFO(support.reason);REQUIRE(support.valid);CHECK(source.Statistics().metric_edge_queries==before.metric_edge_queries);
+  CHECK(source.Statistics().metric_edge_skipped-before.metric_edge_skipped==(world.rank==world.size-1?6:0));
+  if(world.rank==world.size-1) {
+    FrozenField point(support.cells);CHECK(point.Query(Centroid(cell)).sensor.xx==1);
+    DonorCell d;d.cell=cell;d.sensor.fill({1,0,0,1,0,1});auto id=std::make_shared<const FrozenMetricIdentity>();
+    FrozenField full({d},{},false,{}, {},id);const auto measured=MeasureMetricCells({cell},full);
+    FrozenField narrow(support.cells,{},false,{}, {},id);MetricStats counted;
+    MeasureMetricCells({cell},narrow,&counted,&measured.edges);CHECK(counted.edge_reused==6);CHECK(counted.edge_evaluations==0);
+  }
+  const auto duplicated=world.rank==world.size-1?std::vector<Cell>{cell,cell}:std::vector<Cell>{};
+  const auto full_before=source.Statistics();REQUIRE(source.ImportMetricSamples(duplicated).valid);
+  CHECK(source.Statistics().metric_edge_queries-full_before.metric_edge_queries==(world.rank==world.size-1?6:0));
+  CHECK(source.Statistics().metric_edge_duplicates-full_before.metric_edge_duplicates==(world.rank==world.size-1?6:0));
+  CHECK(source.Statistics().metric_edge_queries+source.Statistics().metric_edge_skipped+source.Statistics().metric_edge_duplicates==6*source.Statistics().metric_sample_cells);
+  const auto invalid=world.rank==0?std::vector<unsigned char>{64}:std::vector<unsigned char>{};
+  CHECK_FALSE(source.ImportMetricSamples(world.rank==0?std::vector<Cell>{cell}:std::vector<Cell>{},{},SIZE_MAX,0,invalid).valid);
+  CHECK_FALSE(source.ImportMetricSamples(queries,{},SIZE_MAX,0,world.rank==world.size-1?std::vector<unsigned char>{0,0}:std::vector<unsigned char>{}).valid);
+}
+
 TEST_CASE("Canonical ideal-midpoint samples retain physical priority and exact boundary weights", "[NativeMidpointSamples3D]") {
   World world;DonorCell physical;physical.cell.id=74753;
   physical.cell.v={{{6758,{.5683152985314954,.07855169036323718,.02781832897848278}},

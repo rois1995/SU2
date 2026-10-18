@@ -116,6 +116,30 @@ namespace {
 bool Same(Point a, Point b) { return a.x == b.x && a.y == b.y && a.z == b.z; }
 void Shape(const PatchMetric& m);
 }  // namespace
+bool EdgeMeasure::Reusable(Point from,Point to,const std::shared_ptr<const FrozenMetricIdentity>& field)const {
+  return field && identity==field && Same(a,from) && Same(b,to) && std::isfinite(length) && length>0;
+}
+std::vector<unsigned char> MetricEdgeRequests(const std::vector<Cell>& cells,std::map<Edge,EdgeMeasure>& reuse,
+    const std::shared_ptr<const FrozenMetricIdentity>& identity,const std::map<Edge,EdgeMeasure>* campaign) {
+  if(cells.size()>MaximumReplacementCells || !identity)throw std::invalid_argument("Invalid frozen metric query plan.");
+  std::vector<unsigned char> masks(cells.size(),0);
+  for(size_t n=0;n<cells.size();++n) {
+    unsigned bit=0;
+    for(unsigned i=0;i<4;++i)for(unsigned j=i+1;j<4;++j,++bit) {
+      Node a=cells[n].v[i],b=cells[n].v[j];if(a.id>b.id)std::swap(a,b);
+      const Edge key{a.id,b.id};auto found=reuse.find(key);
+      if(found!=reuse.end() && found->second.Reusable(a.p,b.p,identity))continue;
+      if(campaign) {
+        const auto prior=campaign->find(key);
+        if(prior!=campaign->end() && prior->second.Reusable(a.p,b.p,identity)) {
+          reuse.insert_or_assign(key,prior->second);continue;
+        }
+      }
+      masks[n]|=1u<<bit;
+    }
+  }
+  return masks;
+}
 static PatchMetric MeasureMetricCellsImpl(const std::vector<Cell>& cells, FrozenField& target, MetricStats* stats,
                                const std::map<Edge, EdgeMeasure>* reuse, bool require_shape, MetricDiagnosis* diagnosis,bool shapes_only,
                                std::map<Edge,EdgeMeasure>* campaign) {
@@ -185,8 +209,7 @@ static PatchMetric MeasureMetricCellsImpl(const std::vector<Cell>& cells, Frozen
     bool reused = false;
     if (reuse) {
       const auto prior = reuse->find(edge.first);
-      if (prior != reuse->end() && prior->second.identity == target.Identity() && Same(prior->second.a, m.a) && Same(prior->second.b, m.b) &&
-          std::isfinite(prior->second.length) && prior->second.length > 0) {
+      if (prior != reuse->end() && prior->second.Reusable(m.a,m.b,target.Identity())) {
         m.length = prior->second.length;
         reused = true;
         if (stats) ++stats->edge_reused;
@@ -194,8 +217,7 @@ static PatchMetric MeasureMetricCellsImpl(const std::vector<Cell>& cells, Frozen
     }
     if(!reused && campaign) {
       const auto prior=campaign->find(edge.first);
-      if(prior!=campaign->end() && prior->second.identity==target.Identity() && Same(prior->second.a,m.a) &&
-          Same(prior->second.b,m.b) && std::isfinite(prior->second.length) && prior->second.length>0) {
+      if(prior!=campaign->end() && prior->second.Reusable(m.a,m.b,target.Identity())) {
         m.length=prior->second.length;reused=true;
         if(stats){++stats->edge_reused;++stats->edge_campaign_reused;}
       }

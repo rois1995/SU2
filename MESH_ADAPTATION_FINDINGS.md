@@ -6829,3 +6829,19 @@ local comparison, not scaling or complete CFD affordability. The reaffirmed opt-
 BL budget policy remains strict by default and its global error-allocation/complete
 curved-interacting/MPI BL qualifications remain open.
 [Current contact-validation scope](Handbook/GOAL3_CONTACT_VALIDATION.md).
+
+
+## Exact metric support planning — qualified partial result
+
+Existing scalar reuse now avoids importing already certified edge support. Endpoint/
+frozen-field identity remains mandatory; original centroid/P1 rows and actual-query
+BL composition persist. Shared requests deduplicate; one existing bounded stage
+cache and sufficient unchanged wall-height/geometry witnesses reduce repeated work.
+Current serial/MPI2/4 and independently audited strict/enabled N4M2 RANS/SA/BDF/
+SU2+CGNS/reload/restart controls pass. Difficult actual unchanged-BL repeat STILL
+rejects:134.280s/6144work/344private edits, all accepted CFD inputs unchanged.
+Rank0 donor188.971->41.248s/candidates34.9M->3.23M, but collective calls increase and
+rejected work differs. No accepted-event speedup, affordability or construction
+feasibility claim. No target/profile/fade/cap/gate change. Next establish relevant
+failed-search dependencies/coordination before adding another local fallback.
+[Complete evidence and limitations](Handbook/GOAL3_QUERY_REUSE.md).

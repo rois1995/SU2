@@ -36,6 +36,10 @@ inline const char* EngineStopName(EngineStop stop) {
   constexpr const char* names[]={"none","complete","round_budget","work_budget","time_budget","operator_stagnation","failure"};
   const auto i=static_cast<unsigned>(stop); return i<7 ? names[i] : "failure";
 }
+/*! Sufficient local counterexample for an unchanged surviving cell of a directed collapse.
+ * Cells containing both endpoints disappear and provide no witness; false is not admission. */
+bool CollapseConstraintViolation(const OwnedCell& cell,Id removed,Node retained,const PlanarReference& geometry,
+                                double tolerance,const std::map<int,double>& heights);
 struct EngineStats {
   EngineStop stop = EngineStop::None;
   uint64_t global_work = 0, work_limit = 0, progress_windows = 0, stagnant_windows = 0, search_windows = 0;
@@ -79,6 +83,7 @@ struct EngineStats {
   uint64_t private_edge_evaluations=0,private_edge_reused=0,private_edge_campaign_hits=0;
   uint64_t donor_batches = 0, batch_retries = 0, query_import_retries = 0, private_query_retries = 0;
   uint64_t donor_candidates = 0, donor_filtered = 0, donor_box_filtered = 0, donor_payloads = 0, donor_reused = 0, edge_separated = 0;
+  uint64_t metric_support_cells=0,metric_support_edges=0,metric_support_skipped=0,metric_support_duplicates=0,collapse_constraint_filtered=0;
   // Per-call deltas of existing World wrappers, not complete MPI/network/wait instrumentation.
   uint64_t tracked_bytes = 0, tracked_calls = 0, directory_elections = 0;
   double tracked_collective_seconds = 0, directory_election_seconds = 0;

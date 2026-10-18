@@ -424,3 +424,26 @@ TEST_CASE("Repair campaign edge certificates require exact coordinates and immut
   MeasureMetricCells({Single()},first,nullptr,nullptr,false,nullptr,&campaign);
   CHECK(campaign.size()==MaximumCampaignEdges);
 }
+
+TEST_CASE("Metric query planning shares exact reuse and protects bounded campaign certificates", "[NativeMetricPlan3D]") {
+  auto identity=std::make_shared<const FrozenMetricIdentity>();FrozenField field({Donor({})},{},false,{}, {},identity);
+  const auto reference=MeasureMetricCells({Single()},field);auto reuse=reference.edges;
+  CHECK(MetricEdgeRequests({Single()},reuse,identity)==std::vector<unsigned char>{0});
+  std::map<Edge,EdgeMeasure> empty;CHECK(MetricEdgeRequests({Single()},empty,identity)==std::vector<unsigned char>{63});
+  auto stage=std::make_shared<const FrozenMetricIdentity>();reuse=reference.edges;
+  CHECK(MetricEdgeRequests({Single()},reuse,stage)==std::vector<unsigned char>{63});
+  auto moved=Single();moved.v[1].p.x=.875;reuse=reference.edges;
+  CHECK(MetricEdgeRequests({moved},reuse,identity)==std::vector<unsigned char>{25});
+  reuse=reference.edges;reuse.at({0,1}).length=NAN;reuse.at({0,2}).length=0;
+  CHECK(MetricEdgeRequests({Single()},reuse,identity)==std::vector<unsigned char>{3});
+  auto reversed=Single();std::swap(reversed.v[0],reversed.v[1]);reuse=reference.edges;
+  CHECK(MetricEdgeRequests({reversed},reuse,identity)==std::vector<unsigned char>{0});
+  auto campaign=reference.edges;reuse.clear();
+  CHECK(MetricEdgeRequests({Single()},reuse,identity,&campaign)==std::vector<unsigned char>{0});
+  campaign.clear(); // Eviction after planning cannot invalidate the protected batch.
+  MetricStats counted;const auto measured=MeasureMetricCells({Single()},field,&counted,&reuse);
+  CHECK(counted.edge_evaluations==0);CHECK(counted.edge_reused==6);
+  CHECK(measured.maximum_length==reference.maximum_length);
+  CHECK_THROWS(MetricEdgeRequests({Single()},reuse,{}));
+  CHECK_THROWS(MetricEdgeRequests(std::vector<Cell>(MaximumReplacementCells+1),reuse,identity));
+}

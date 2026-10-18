@@ -258,21 +258,35 @@ DonorPatch DonorImport::ImportMetricCells(const std::vector<Cell>& cells, size_t
   return ImportRegions({}, &cells, ceiling, caller_bytes, true);
 }
 DonorPatch DonorImport::ImportMetricSamples(const std::vector<Cell>& cells,const std::vector<Id>& extensions,
-                                           size_t ceiling,size_t caller_bytes) {
+                                           size_t ceiling,size_t caller_bytes,const std::vector<unsigned char>& edge_masks) {
   DonorPatch result;CLocalFailure failure;std::vector<Point> centers;std::vector<std::array<Point,2>> edges;
-  const auto prepared=transfer_memory::Add(caller_bytes,transfer_memory::Bytes(cells),transfer_memory::Bytes(extensions),
+  const auto prepared=transfer_memory::Add(caller_bytes,transfer_memory::Bytes(cells),transfer_memory::Bytes(extensions),transfer_memory::Bytes(edge_masks),
       transfer_memory::GrowthBound(cells.size(),sizeof(Point)+6*sizeof(std::array<Point,2>)));
   if(cells.size()>MaximumCavityCells/6)failure.Set(1,0,"Metric sample cell batch exceeds query budget.");
+  if((!edge_masks.empty() && edge_masks.size()!=cells.size()) ||
+      std::any_of(edge_masks.begin(),edge_masks.end(),[](unsigned char mask){return mask>63;}))
+    failure.Set(1,0,"Invalid metric edge request mask.");
   if(!Vote(failure,result.reason) || !Admit(transfer_memory::Add(prepared,ResidentBytes()),ceiling,result.reason))return result;
   try {
     centers.reserve(cells.size());edges.reserve(6*cells.size());
-    for(const auto& cell:cells) {
-      const auto& v=cell.v;
+    for(size_t i=0;i<cells.size();++i) {
+      const auto& cell=cells[i];const auto& v=cell.v;
       if(!(Orientation(v[0].p,v[1].p,v[2].p,v[3].p)>0))throw std::invalid_argument("Nonpositive metric sample cell.");
-      centers.push_back(Centroid(cell));for(auto edge:QueryEdges)edges.push_back({v[edge[0]].p,v[edge[1]].p});
+      centers.push_back(Centroid(cell));
+      for(unsigned j=0;j<QueryEdges.size();++j)if(edge_masks.empty() || (edge_masks[i]&(1u<<j))) {
+        const auto edge=QueryEdges[j];edges.push_back({v[edge[0]].p,v[edge[1]].p});
+      }
     }
   }catch(const std::exception& e){failure.Set(2,0,e.what());}
   if(!Vote(failure,result.reason))return result;
+  const auto requested=edges.size();
+  auto key=[](Point p){return std::array<double,3>{p.x,p.y,p.z};};
+  for(auto& edge:edges)if(key(edge[1])<key(edge[0]))std::swap(edge[0],edge[1]);
+  auto ordered=[&](const std::array<Point,2>& edge){return std::array<std::array<double,3>,2>{key(edge[0]),key(edge[1])};};
+  std::sort(edges.begin(),edges.end(),[&](const auto& a,const auto& b){return ordered(a)<ordered(b);});
+  edges.erase(std::unique(edges.begin(),edges.end(),[&](const auto& a,const auto& b){return ordered(a)==ordered(b);}),edges.end());
+  stats.metric_sample_cells+=cells.size();stats.metric_edge_queries+=edges.size();
+  stats.metric_edge_skipped+=6*cells.size()-requested;stats.metric_edge_duplicates+=requested-edges.size();
   result=ImportEdgeSegments(edges,ceiling,prepared);if(!result.valid)return result;
   const auto held=transfer_memory::Add(prepared,transfer_memory::Bytes(result.cells),transfer_memory::Bytes(result.source_rank));
   const auto samples=SampleQueries(centers,extensions,ceiling,held,nullptr,true);

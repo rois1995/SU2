@@ -279,6 +279,9 @@ class Selection {
         if (LeavesFacet(row,choice.edge[1],apex)) {
           Block(choice.edge,{},false); ++stats.collapse_filtered; return true;
         }
+        if(CollapseConstraintViolation(row,choice.edge[1],{choice.edge[0],apex},geometry,tolerance,heights)) {
+          Block(choice.edge,{},false);++stats.collapse_filtered;++stats.collapse_constraint_filtered;return true;
+        }
       }
     }
     Timer timer(stats.collapse_orientation_seconds,timings);
@@ -469,7 +472,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
   auto& stats=result.stats;
   Owned working;
   Selection selection(coarsening,repairing,geometry,stats,options.timings,options.surface_tolerance,options.wall_heights);
-  std::map<Edge,EdgeMeasure> retired_edges;
+  std::map<Edge,EdgeMeasure> retired_edges,campaign_edges;
   std::shared_ptr<const FrozenMetricIdentity> field_identity;
   // Joint split feasibility depends on neighboring vertex stars, even when the edge itself is unchanged.
   selection.track_splits=bool(composition);
@@ -487,7 +490,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
   auto bytes=[&]() {
     return transfer_memory::Add(options.caller_bytes,MapBytes(options.wall_heights),MapBytes(options.region_walls),accepted_bytes,batch_bytes,MapBytes(working),
         transfer_memory::Bytes(original),transfer_memory::Bytes(initial),transfer_memory::Bytes(eligible_extensions),transfer_memory::Bytes(result.splits),transfer_memory::Bytes(result.collapses),
-        selection.Bytes(),MapBytes(retired_edges),field_identity ? 64 : 0);
+        selection.Bytes(),MapBytes(retired_edges),MapBytes(campaign_edges),field_identity ? 64 : 0);
   };
   auto admit=[&](size_t extra) {
     const auto peak=transfer_memory::Add(bytes(),source.ResidentBytes(),directory.ResidentBytes(),extra);
@@ -596,6 +599,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     stats.donor_candidates = donor.index_candidates; stats.donor_filtered = donor.filtered; stats.donor_box_filtered = donor.box_filtered;
     stats.donor_payloads = donor.payloads; stats.donor_reused = donor.reused_candidates; stats.donor_maximum_patch = donor.maximum_patch;
     stats.donor_search_seconds = donor.search_seconds; stats.donor_filter_seconds = donor.filter_seconds;
+    stats.metric_support_cells=donor.metric_sample_cells;stats.metric_support_edges=donor.metric_edge_queries;stats.metric_support_skipped=donor.metric_edge_skipped;stats.metric_support_duplicates=donor.metric_edge_duplicates;
     stats.maximum_work_bytes = std::max(stats.maximum_work_bytes, donor.maximum_work_bytes);
     result.cells.swap(working);
     if (!result.valid && !last_rejection.empty()) result.reason += " Last local rejection: " + last_rejection;
@@ -1153,38 +1157,45 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     layer_active=false;
   }
   constexpr size_t MeasurementBatch=16;
-  // Small batches amortize donor exchange/index construction; halve on common import rejection to the one-cell bound.
+  // Plan only known missing centroid/edge support; arbitrary reconstruction retains full-cell imports.
   auto measure=[&](const std::vector<Id>& ids,bool seed) {
+    const auto plan_scratch=transfer_memory::Mul(3*MaximumCampaignEdges,sizeof(std::pair<const Edge,EdgeMeasure>)+6*sizeof(void*));
+    if(!admit(transfer_memory::Add(plan_scratch,transfer_memory::Mul(MeasurementBatch,sizeof(Cell)+sizeof(unsigned char)))))return false;
     const size_t count=CPassiveComm::Allreduce(ids.size(),CPassiveComm::Op::MAX,world.comm);
     for (size_t slot=0; slot<count;) {
       if(options.maximum_seconds && world.maximum(std::chrono::duration<double>(Clock::now()-started).count()>=options.maximum_seconds)) {
         stats.stop=EngineStop::TimeBudget;result.reason=seed ? "Native3D metric seeding exhausts elapsed-time budget." :
             "Native3D metric update exhausts elapsed-time budget.";return false;
       }
-      size_t batch=std::min(MeasurementBatch,count-slot);
-      DonorPatch imported;
+      size_t batch=std::min({MeasurementBatch,MaximumCavityCells/6,count-slot});
+      DonorPatch imported;std::map<Edge,EdgeMeasure> reuse;
       CLocalFailure failure;
       for (;;) {
         std::vector<Cell> regions;
         try {
-          for (size_t i=slot;i<std::min(slot+batch,ids.size());++i)
-            regions.push_back(working.at(ids[i]).cell);
+          reuse.clear();
+          for (size_t i=slot;i<std::min(slot+batch,ids.size());++i) {
+            const auto& cell=working.at(ids[i]).cell;regions.push_back(cell);selection.Cached(cell,reuse);
+            for(auto a:cell.v)for(auto b:cell.v)if(a.id<b.id) {
+              const auto prior=retired_edges.find({a.id,b.id});if(prior!=retired_edges.end())reuse.emplace(prior->first,prior->second);
+            }
+          }
         } catch (const std::exception& e) { failure.Set(2,0,e.what()); }
         if (!vote(failure)) return false;
-        imported=import_source(regions,0,false);
-        // Narrow only a one-cell cap failure; private reconstruction still needs whole-cell coverage.
-        if (!imported.valid && batch==1 &&
-            DonorCap(imported.reason)) {
-          ++stats.donor_batches; ++stats.query_import_retries;
+        std::vector<unsigned char> requests;
+        try {requests=MetricEdgeRequests(regions,reuse,field_identity,&campaign_edges);}
+        catch(const std::exception& e){failure.Set(2,0,e.what());}
+        if(!vote(failure))return false;
+        {Timer timer(stats.donor_seconds,options.timings);++stats.donor_batches;
           imported=source.ImportMetricSamples(regions,eligible_extensions,options.memory_ceiling,
-              transfer_memory::Add(bytes(),directory.ResidentBytes()));
-        }
+              transfer_memory::Add(bytes(),directory.ResidentBytes(),MaximumFrozenFieldBytes,plan_scratch),requests);}
+
         if (imported.valid) break;
         if (batch==1) { result.reason=imported.reason; return false; }
         batch=(batch+1)/2; ++stats.batch_retries;
       }
       if (!admit(transfer_memory::Add(transfer_memory::Bytes(imported.cells),
-          MaximumFrozenFieldBytes,transfer_memory::Mul(working.size(),selection_bound(selection.track_repairs))))) return false;
+          MaximumFrozenFieldBytes,plan_scratch,transfer_memory::Mul(working.size(),selection_bound(selection.track_repairs))))) return false;
       if (slot<ids.size()) try {
         CpuTimer private_cpu(stats.measurement_cpu_seconds,options.timings);
         const auto components=AssociatedExtensions(imported.cells,geometry);
@@ -1195,16 +1206,10 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
           std::string reason;
           MetricStats counted;
           const auto& cell=working.at(ids[i]).cell;
-          std::map<Edge,EdgeMeasure> reuse;
-          selection.Cached(cell,reuse);
-          for (size_t a=0; a<4; ++a) for (size_t b=a+1; b<4; ++b) {
-            const Edge key{std::min(cell.v[a].id,cell.v[b].id),std::max(cell.v[a].id,cell.v[b].id)};
-            const auto prior=retired_edges.find(key);
-            if (prior!=retired_edges.end()) reuse.emplace(key,prior->second);
-          }
           const bool strict=ValidateMetricPatch({cell},field,metric,reason,&counted,&reuse) &&
               height_check(GeometryPatch(Imported{{working.at(ids[i])},true,{}}),reason);
           selection.Add(working.at(ids[i]),metric,strict);
+          for(const auto& edge:metric.edges)reuse.insert_or_assign(edge.first,edge.second);
           stats.edge_evaluations+=counted.edge_evaluations;
           stats.edge_reused+=counted.edge_reused;
           if (seed) ++stats.initial_cells; else ++stats.updated_cells;
@@ -1668,7 +1673,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     if (!ready || (!sensors.valid && !streamed)) { if (ready) result.reason=sensors.reason; return finish(); }
     const size_t private_scratch=transfer_memory::Add(transfer_memory::Bytes(imported.cells),
         transfer_memory::Mul(MaximumReplacementCells,8192),MaximumFrozenFieldBytes,MetricPatchSolveScratchBytes,
-        transfer_memory::Mul(MaximumCampaignEdges,sizeof(std::pair<const Edge,EdgeMeasure>)+6*sizeof(void*)));
+        transfer_memory::Mul(3*MaximumCampaignEdges,sizeof(std::pair<const Edge,EdgeMeasure>)+6*sizeof(void*)));
     if (streamed && !admit(private_scratch)) return finish();
     if (streamed) ++stats.private_query_retries;
     {
@@ -1755,8 +1760,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       }
     }
     if (streamed) {
-      // Point support stays proposal-specific. Completed full-field edge integrals survive within this admitted campaign.
-      std::map<Edge,EdgeMeasure> campaign_edges;
+      // One bounded stage cache; only exact endpoint/field matches authorize reuse across proposals.
       auto measure_private=[&](const std::vector<Cell>& cells, PatchMetric& measured, bool shape,
                                const std::map<Edge,EdgeMeasure>& frozen_reuse) {
         CLocalFailure local;
@@ -1776,12 +1780,15 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
             try {
               if (usable) for (size_t i=slot;i<std::min(slot+batch,cells.size());++i) query.push_back(cells[i]);
             } catch (const std::exception& e) { local.Set(2,0,e.what()); }
+            std::vector<unsigned char> requests;
+            try {requests=MetricEdgeRequests(query,reuse,field_identity,&campaign_edges);}
+            catch(const std::exception& e){local.Set(2,0,e.what());}
             if (!(ready=vote(local))) return false;
             {
               Timer timer(stats.donor_seconds,options.timings);
               ++stats.donor_batches;
               donors=source.ImportMetricSamples(query,eligible_extensions,options.memory_ceiling,
-                  transfer_memory::Add(bytes(),directory.ResidentBytes(),private_scratch));
+                  transfer_memory::Add(bytes(),directory.ResidentBytes(),private_scratch),requests);
             }
             if (donors.valid) break;
             if (!DonorCap(donors.reason) || batch==1) { ready=false; result.reason=donors.reason; return false; }
@@ -2830,6 +2837,23 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
   return finish();
 }
 }  // namespace
+bool CollapseConstraintViolation(const OwnedCell& cell,Id removed,Node retained,const PlanarReference& geometry,
+                                double tolerance,const std::map<int,double>& heights) {
+  if(heights.empty() && geometry.Analytic().empty())return false;
+  if(std::none_of(cell.physical.begin(),cell.physical.end(),[](FacetBinding f){return f.present;}))return false;
+  if(std::any_of(cell.cell.v.begin(),cell.cell.v.end(),[&](Node n){return n.id==retained.id;}))return false;
+  auto proposed=cell;bool changes=false;
+  for(auto& n:proposed.cell.v)if(n.id==removed){n=retained;changes=true;}
+  if(!changes)return false;
+  const auto patch=GeometryPatch(Imported{{proposed},true,{}});
+  for(const auto& face:patch.surface) {
+    std::array<Point,3> points;
+    for(unsigned i=0;i<3;++i)for(auto n:proposed.cell.v)if(n.id==face.v[i])points[i]=n.p;
+    if(geometry.SurfaceError(face.facet,points)>SurfaceTolerance(geometry,face.facet,tolerance,heights))return true;
+  }
+  FirstHeightReport report;std::string reason;
+  return !heights.empty() && !CheckFirstHeight(patch,heights,geometry,report,reason);
+}
 EngineResult Refine(World& world, const Owned& accepted, const std::vector<DonorCell>& original,
                     const PlanarReference& geometry, MetricComposition composition, EngineOptions options) {
   return Adapt(world,accepted,original,geometry,std::move(composition),options,MetricChange::Refine);
