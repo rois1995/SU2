@@ -1,0 +1,53 @@
+{
+  "status": "VERIFIED_ACCEPTED_REPEATED_BL_QUERY_RETRY_CHECKPOINT",
+  "goal": "ACTIVE_INCOMPLETE",
+  "verified_runs": {
+    "serial": {
+      "result_sha256": "cd1427684daa65a3fb5a987f2706c53de2a59808265029703df124180271303e",
+      "executed_source_sha256": "05de504425a1841fe4364cd78208c0105af08d7afb0aaaa76c7a6cc87bac6e56",
+      "historical_binary_record_only": {}
+    },
+    "mpi2": {
+      "result_sha256": "478ce10597e15abaedcfa0265d0f75f6b4c99046e8fd47d7090a769a11f0e70d",
+      "executed_source_sha256": "05de504425a1841fe4364cd78208c0105af08d7afb0aaaa76c7a6cc87bac6e56",
+      "historical_binary_record_only": {}
+    },
+    "mpi4": {
+      "result_sha256": "550747d6dbb0bd3748c4e4a022ad4e88cf69dc1799153ff99b751d1042c9dc3d",
+      "executed_source_sha256": "05de504425a1841fe4364cd78208c0105af08d7afb0aaaa76c7a6cc87bac6e56",
+      "historical_binary_record_only": {}
+    },
+    "rans_mpi4": {
+      "result_sha256": "d465409504f54ed0683b27a27caf6dc05d803ffa7c870a5d763f4178b7fb766c",
+      "executed_source_sha256": "05de504425a1841fe4364cd78208c0105af08d7afb0aaaa76c7a6cc87bac6e56",
+      "historical_binary_record_only": {}
+    },
+    "controls": {
+      "result_sha256": "b604157ca47a5de0abfc118088437c4e495d0f411c0719364d173ac67e14ecb6",
+      "executed_source_sha256": "c1487968219eb29a75c5b66ad8a390a225f5e6907d2e02d2a35f8dbb750799b7",
+      "historical_binary_record_only": {
+        "integration_evidence/build-integrated-v2/UnitTests/test_driver": "58933b200f33f7dbdd53c2469a2e9d6689f4f754aef4d0323cd20a5207b139d9"
+      }
+    },
+    "controls_v2": {
+      "result_sha256": "84de66ca3897178e7f2ec484192c6cddbca26b879e4031ae00594f4becea2f4b",
+      "executed_source_sha256": "a4511d4170e99a86f8b065eaca161131c5b4e9ca8c19d06008d55c18a8163a12",
+      "historical_binary_record_only": {
+        "integration_evidence/build-integrated-v2/UnitTests/test_driver": "2df5c421e1b83800b99f80722f853ab7deed93dcff4232b8b7ab37697a7fcee3"
+      }
+    },
+    "accepted_update": {
+      "result_sha256": "6c74ca1da1106b59c67348e235a014a1b51a3e1f59afa83687f471e624fe4e89",
+      "executed_source_sha256": "51f5215534678b14e4bb2da1672b437f2ae608fcc942b628f9036e26608b8711",
+      "historical_binary_record_only": {}
+    },
+    "previous_update": {
+      "result_sha256": "4940e3fbbc1fae23bd73e178cd327066287f686e25d0b9e84e59192e8681c512",
+      "executed_source_sha256": "43f41b1e65aee5ef54e0ef17eb928adf77804d7ea8efc219f52221b2c62fbba3",
+      "historical_binary_record_only": {
+        "integration_evidence/build-integrated-v2/UnitTests/test_driver": "1d94321c920e55c90b881713791492c6b645c28d6cbce66cf58cb6cc45df6681"
+      }
+    }
+  },
+  "scope": "Executed-source capsules, current binary/build/source and accepted exact geometry/state audit sealed. Older failed binaries are retained identity records. Cold historical accepted producer reused. No physical CFD, enabled curved policy,2D/global-error or affordability/scaling claim."
+}

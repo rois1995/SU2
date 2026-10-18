@@ -1,0 +1,27 @@
+{
+  "exit_code": 0,
+  "elapsed_seconds": 16.47259155800566,
+  "command": [
+    "taskset",
+    "-c",
+    "0-3",
+    "nice",
+    "-n",
+    "19",
+    "timeout",
+    "--kill-after=5s",
+    "180s",
+    "mpirun",
+    "-np",
+    "4",
+    "--bind-to",
+    "none",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver",
+    "[NativeBLPolicyRuntime3D],[NativeBLBudgetRuntime3D]",
+    "--abort",
+    "--reporter",
+    "compact"
+  ],
+  "provenance_sha256": "e4e5bce7def336f68122bad4c9052fcd42abe62f7002d4859cb3e365c5f79549",
+  "log_sha256": "04c3cffc9d1af9deb41c8d694a7d7ecb73b7fe8e025c7155bf6dffedf299b0db"
+}

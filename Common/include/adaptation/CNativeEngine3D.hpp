@@ -100,6 +100,7 @@ struct EngineStats {
   uint64_t wall_topology_trials = 0, wall_topology_accepted = 0;
   uint64_t collapse_geometry_checks = 0, collapse_filtered = 0;
   uint64_t collapse_orientation_checks = 0, collapse_orientation_filtered = 0, collapse_reactivated = 0;
+  uint64_t blocked_queue_skips=0,blocked_unmeasured=0;  // Measurement is not a topology-change notification.
   uint64_t changed_star_scans = 0, changed_vertices_sent = 0, changed_vertices_received = 0;
   double collapse_orientation_seconds = 0, change_notification_seconds = 0;  // Nested in selection/publication.
   double collapse_geometry_seconds = 0;  // Nested in selection, seed and update, not metric queries.

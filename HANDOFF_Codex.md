@@ -30,23 +30,28 @@ or proof that every outer profile/native geometry is infeasible.
 
 ## Current active work
 
-Finite query-reuse batch is qualified and preserved in this checkpoint: missing-
-edge masks require exact endpoint/frozen identity, shared segments deduplicate,
-existing bounded edge cache spans one stage, sufficient geometry/height witnesses
-precede collapse transactions. Caps/target/profile/fade and all gates unchanged.
-Serial22/1337, MPI2/4, independently audited strict/enabled N4M2 RANS/SA/current+BDF/
-SU2+CGNS/reload/restart PASS. All owned jobs terminal; no running build or CFD job.
+The recorded unchanged-BL repeat now ACCEPTS under unchanged constraints. Connected
+retry fix honors the existing blocked-edge map during progressive measurement and
+retains blockers before local edge measurement. Changed-star Touch still reopens
+legitimate searches. Extra storage admitted; no target/profile/fade/cap/gate change.
+Nested support-import timing now excludes its reported seed/update parent. Earlier
+timing/stale-message failures and debugger diagnosis remain preserved.
 
-Actual `sphere_rans_lifecycle_v1/n4_m2_reuse_v1/update` STILL REJECTS:134.280s,
-6144work,344private edits, accepted CFD input unchanged on all ranks. Rank0 donor
-188.971->41.248s/index candidates34.9M->3.23M; calls603k->789k increase. Same inputs,
-but different rejected work prevents an accepted-event speedup claim. Next diagnose
-which rejection dependencies/coordination prevent finishing; no unchanged rerun,
-cap raise or partly measured acceptance. [Current evidence](Handbook/GOAL3_QUERY_REUSE.md).
+Actual N4M2 `sphere_rans_lifecycle_v1/n4_m2_dependencies_v1/update`:5440->3768cells,
+4511/6144work,88.5native/89.39fixture seconds,344committed edits. Fresh exact geometry/
+height/62804changed overlap pairs and actual current+BDF/SA conservation1.87e-14/
+sensor0/SU2+CGNS reload PASS; spherical full metric retains native oracle scope.
+Final serial30/1769, MPI2/4 thirty cases/rank and independent current strict/opt-in
+N4M2 RANS/SA/BDF/SU2+CGNS/reload/new-output restart PASS. All owned jobs TERMINAL;
+no live build, audit or CFD process. Check actual handles before restarting any.
+[Current result, grids, failures and verifier](Handbook/GOAL3_REJECTION_DEPENDENCIES.md).
 
-Full Goal3/opt-in BL-budget contract ACTIVE/incomplete. General global error
-allocation, enabled curved/interacting workflows,2D policy and complete accepted-
-event affordability remain open. Reuse the accepted cold producer; do not recompute.
+Full Goal3 and BL-budget contract ACTIVE/incomplete. Next substantial capability:
+complete selected-profile curved/interacting lifecycle using original-family
+normalization and frozen stages. Global error allocation/2D policy/wider independent
+composed-field/viscous/performance gates remain. Reuse accepted meshes and historical
+cold producer; no unchanged M6 or cold rerun. Do not add another local fallback or
+micro-cache in place of the next complete capability.
 
 ## Current connected sphere work
 

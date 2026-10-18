@@ -6845,3 +6845,21 @@ rejected work differs. No accepted-event speedup, affordability or construction
 feasibility claim. No target/profile/fade/cap/gate change. Next establish relevant
 failed-search dependencies/coordination before adding another local fallback.
 [Complete evidence and limitations](Handbook/GOAL3_QUERY_REUSE.md).
+
+
+## Accepted repeated strict BL adaptation — dependency lifecycle
+
+Progressive measurement incorrectly reinserted rejected edges, and owners dropped
+rejections before local edge measurement. Respect the existing blocker map until
+actual changed-star notification; pre-admit added blocker storage. Under the same
+original identity field, sphere geometry/BL/height/q/J/full-edge and6144/300s gates,
+actual N4M2 CGNS/current+BDF/SA repeat now accepts5440->3768cells/4511work/88.5s,
+with the same344committed edits. Independent exact geometry/height/62804changed
+pairs, state conservation1.87e-14, sensor0 and both mesh outputs/reload pass.
+Serial30/1769 and MPI2/4 qualify changed-star/budget/repeated/progressive controls.
+
+Query-import timing also needed parent exclusion to avoid double-counting donor
+within seed/update. Prior failed timing/message receipts remain; no gate relaxed.
+Spherical full-field edges/shape retain native scope; no physical CFD, enabled
+curved/interacting budget policy,2D/global-error or affordability claim. Full Goal3
+is not complete. [Evidence and next complete capability](Handbook/GOAL3_REJECTION_DEPENDENCIES.md).

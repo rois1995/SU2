@@ -4,6 +4,19 @@ Repository `/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated`, branch
 `codex/native-3d-bl`. Goal3 remains ACTIVE and incomplete. The full objective and
 acceptance gates are preserved in [the requirement audit](../integration_evidence/native_3d_bl_v1/GOAL3_REQUIREMENTS.json).
 
+## Latest actual repeated spherical BL workflow
+
+The strict N4M2 initialized RANS/current+BDF/SA repeat now accepts5440->3768cells,
+4511work/88.5native seconds under the SAME6144/300s and geometry/height/full-field
+constraints. Existing rejection bookkeeping now survives progressive measurement;
+changed stars still reactivate. Independent exact geometry/height/overlap/state/
+sensor/output audit passes; spherical full metric remains native scope. Serial30/
+1769, MPI2/4 and independently audited current strict/opt-in planar N4M2 lifecycle
+controls pass. No CFD advance or affordability/physical-accuracy claim. Full Goal3
+is open; next complete selected-profile curved/interacting workflow remains.
+[Current evidence and boundaries](GOAL3_REJECTION_DEPENDENCIES.md).
+The sections below retain their own historical source/fixture qualification scopes.
+
 ## Current interacting-wall extension
 
 The new [joined prismatic fronts](GOAL3_INTERACTING_WALLS.md) construct the full

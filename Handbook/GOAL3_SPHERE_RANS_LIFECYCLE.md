@@ -1,5 +1,9 @@
 # Curved sphere RANS lifecycle — accepted removal, repeated update still open
 
+Later qualification supersedes this snapshot's pending repeat: the recorded strict
+N4M2 BL update now accepts5440->3768 at4511work/88.5s; original failures remain.
+[Current retry-lifecycle evidence and limits](GOAL3_REJECTION_DEPENDENCIES.md).
+
 Latest query/admission follow-up: [current private-query handbook](GOAL3_PRIVATE_QUERIES.md).
 The capacity blockers described below are historical; the latest repeat is time-limited.
 

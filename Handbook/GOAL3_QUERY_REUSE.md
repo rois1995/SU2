@@ -1,5 +1,9 @@
 # Finite original-field query reuse — partial Goal3 result
 
+Later qualification supersedes this snapshot's pending repeat: the recorded strict
+N4M2 BL update now accepts5440->3768 at4511work/88.5s; original failures remain.
+[Current retry-lifecycle evidence and limits](GOAL3_REJECTION_DEPENDENCIES.md).
+
 Full Goal3 active/incomplete. The existing BL-budget contract remains intact:
 strict default, one explicitly limited global outer-normal parameter, protected
 requirements/finer sensors, original unclipped family assessment, collective

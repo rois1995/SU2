@@ -1420,7 +1420,8 @@ TEST_CASE("Native MPI admissible coarsening prunes exact immutable-facet counter
   CHECK(rejected.stats.final_owned_cells==rejected.cells.size());
   CHECK(rejected.stats.cached_measured_cells==rejected.cells.size());
   CHECK(world.sum(int(rejected.stats.cached_invalid_cells))>0);
-  if (rejected.stats.attempted) CHECK(rejected.reason.find(": Native 3D movement proposal leaves an incident immutable facet.")!=std::string::npos);
+  INFO(rejected.reason);
+  if (rejected.stats.attempted) CHECK(rejected.reason.find(": Native 3D movement leaves incident reference facet ")!=std::string::npos);
   CHECK(Bytes(input)==saved);CHECK(rejected.stats.other_seconds>=-1e-12);
 }
 
@@ -3267,7 +3268,8 @@ TEST_CASE("Saved original metric edge replays its high-valence footprint without
   INFO(reduced.reason);REQUIRE(reduced.valid);CHECK(reduced.stats.cached_invalid_cells==0);
   CHECK(reduced.stats.cached_measured_cells==reduced.cells.size());CHECK(reduced.stats.remaining_edges==0);
   CHECK(world.sum(int(reduced.stats.rejected))>0);CHECK(Bytes(owned)==before);
+  CHECK(world.sum(int(reduced.stats.blocked_queue_skips))>0);
   CHECK(Audit(world,reduced.cells,fixture,CPassiveComm::Allreduce(reduced.cells.size(),CPassiveComm::Op::SUM,world.comm)));
-  if(!world.rank)std::cout<<"STAR_ADMISSION_CONTROL cells="<<count<<" cap="<<MaximumCavityCells<<" valid="<<reduced.valid<<" work="<<reduced.stats.global_work<<std::endl;
+  if(!world.rank)std::cout<<"STAR_ADMISSION_CONTROL cells="<<count<<" cap="<<MaximumCavityCells<<" valid="<<reduced.valid<<" work="<<reduced.stats.global_work<<" blocked_queue_skips="<<reduced.stats.blocked_queue_skips<<" blocked_unmeasured="<<reduced.stats.blocked_unmeasured<<std::endl;
   if(!world.rank)std::cout<<"EDGE_WITNESS ranks="<<world.size<<" original="<<count<<" positive="<<expected.size()<<" valid="<<!failed.any<<std::endl;
 }

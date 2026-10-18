@@ -20,11 +20,12 @@ namespace {
 using Clock = std::chrono::steady_clock;
 class Timer {
  public:
-  Timer(double& value, bool enabled) : value(value), enabled(enabled) { if (enabled) start = Clock::now(); }
-  ~Timer() { if (enabled) value += std::chrono::duration<double>(Clock::now() - start).count(); }
+  Timer(double& value, bool enabled, double* parent=nullptr) : value(value), enabled(enabled), parent(parent) { if (enabled) start = Clock::now(); }
+  ~Timer() { if (enabled) {const auto elapsed=std::chrono::duration<double>(Clock::now()-start).count();value+=elapsed;if(parent)*parent-=elapsed;} }
  private:
   double& value;
   bool enabled;
+  double* parent;  // Keep a nested scope exclusive when its parent is also reported as a phase.
   Clock::time_point start;
 };
 class CpuTimer {
@@ -159,7 +160,11 @@ class Selection {
     if (repair_event || !Candidate(length)) return;
     for (unsigned i=0; i<(coarsening ? 2u : 1u); ++i) {
       Edge key=edge; std::sort(key.begin(),key.end());
-      if (insert && prune_collapses && edges.at(key).forbidden[i])
+      const auto blocked=blocked_edges.find(edge[1]);
+      if(insert && blocked!=blocked_edges.end() && blocked->second.count(edge[0])) {
+        // Measuring another unchanged cell cannot reopen a rejected direction; Touch owns reactivation.
+        queue.erase({Priority(length),edge});++stats.blocked_queue_skips;
+      } else if (insert && prune_collapses && edges.at(key).forbidden[i])
         stats.collapse_filtered += queue.erase({Priority(length),edge});
       else if (insert) queue.insert({Priority(length),edge}); else queue.erase({Priority(length),edge});
       std::swap(edge[0],edge[1]);
@@ -238,9 +243,12 @@ class Selection {
       if(std::get<2>(*it)==canonical)it=geometry_queue.erase(it);else ++it;
     }
     const auto it = edges.find(canonical);
-    if (it==edges.end()) return;
-    queue.erase({Priority(it->second.measure.length),edge});
-    if (coarsening || track_splits) blocked_links+=blocked_edges[edge[1]].insert(edge[0]).second;
+    if(it!=edges.end())queue.erase({Priority(it->second.measure.length),edge});
+    // Rejection can reach an owner before progressive measurement discovers its edge.
+    if (coarsening || track_splits) {
+      const bool inserted=blocked_edges[edge[1]].insert(edge[0]).second;
+      blocked_links+=inserted;stats.blocked_unmeasured+=inserted && it==edges.end();
+    }
     if (track_splits && !coarsening) blocked_links+=blocked_edges[edge[0]].insert(edge[1]).second;
   }
   void Forget(Edge edge) {
@@ -1186,7 +1194,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         try {requests=MetricEdgeRequests(regions,reuse,field_identity,&campaign_edges);}
         catch(const std::exception& e){failure.Set(2,0,e.what());}
         if(!vote(failure))return false;
-        {Timer timer(stats.donor_seconds,options.timings);++stats.donor_batches;
+        {Timer timer(stats.donor_seconds,options.timings,seed ? &stats.seed_seconds : &stats.update_seconds);++stats.donor_batches;
           imported=source.ImportMetricSamples(regions,eligible_extensions,options.memory_ceiling,
               transfer_memory::Add(bytes(),directory.ResidentBytes(),MaximumFrozenFieldBytes,plan_scratch),requests);}
 
@@ -2784,7 +2792,8 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     {
       Timer timer(stats.update_seconds,options.timings);
       ready=admit(transfer_memory::Add(transfer_memory::Mul(working.size(),selection_bound(selection.track_repairs)),
-          transfer_memory::Mul(transfer_memory::Mul(6,removed.size()),sizeof(std::pair<const Edge,EdgeMeasure>)+4*sizeof(void*))));
+          transfer_memory::Mul(transfer_memory::Mul(6,removed.size()),sizeof(std::pair<const Edge,EdgeMeasure>)+4*sizeof(void*)),
+          transfer_memory::Mul(failures.size(),2*(sizeof(std::pair<const Id,std::set<Id>>)+sizeof(Id)+8*sizeof(void*)))));
       if (ready) try {
         // Retain retired scalars until all children are measured against this event's immutable source.
         for (const auto& row : removed) {

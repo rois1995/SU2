@@ -1,0 +1,10 @@
+Breakpoint 1 at 0x90c230: UnitTests/Common/adaptation/CNativeDistributed3D_tests.cpp:1423. (2 locations)
+[Thread debugging using libthread_db enabled]
+Using host libthread_db library "/lib/x86_64-linux-gnu/libthread_db.so.1".
+[Detaching after fork from child process 3770459]
+[New Thread 0x7ffff760b700 (LWP 3770463)]
+[New Thread 0x7ffff6c56700 (LWP 3770476)]
+
+Thread 1 "test_driver" hit Breakpoint 1, C_A_T_C_H_T_E_S_T_45 () at ../../UnitTests/Common/adaptation/CNativeDistributed3D_tests.cpp:1399
+1399	TEST_CASE("Native MPI admissible coarsening prunes exact immutable-facet counterexamples", "[NativeDistributed3D][NativeCollapseFilter3D]") {
+$1 = ""

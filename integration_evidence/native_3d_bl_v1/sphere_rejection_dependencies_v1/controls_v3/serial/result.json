@@ -1,0 +1,22 @@
+{
+  "exit_code": 0,
+  "elapsed_seconds": 4.6898799379123375,
+  "command": [
+    "taskset",
+    "-c",
+    "0",
+    "nice",
+    "-n",
+    "19",
+    "timeout",
+    "--kill-after=5s",
+    "180s",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver",
+    "[NativeProgressiveMeasurement3D],[NativeCycles3D],[NativeCollapseFilter3D],[NativePolicy3D],[NativeMetricPlan3D],[NativeMetricReuse3D],[NativeCampaignEdge3D],[NativeShapeRanking3D],[NativeMetricFootprint3D],[NativePointSamples3D],[NativeRegionField3D],[NativeRegionFieldReplay3D],[NativeContact3D],[NativeMidpointSamples3D],[NativeMidpointQuery3D],[NativeMetricSamples3D],Native 3D donor footprint uses exact closed segments including point-only contact,Native closed-query filters settle containment without weakening crossing or tiny signs",
+    "--abort",
+    "--reporter",
+    "compact"
+  ],
+  "provenance_sha256": "9a4bbc7341d225d6127e725b1ccd0b7713d79ce06dd4c7d6bfb7dc31070d78be",
+  "log_sha256": "c671c24c4a97307920e822324f146f9f6d60ea7e4629bca23ea75fd624be58f5"
+}

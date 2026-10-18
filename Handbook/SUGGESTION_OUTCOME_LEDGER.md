@@ -22,7 +22,7 @@ This is not a completed-goal final report.
 | Retain repair-campaign donor support/indexes | Partial; broad retention open | Canonical owner sampling and physical-interior hypotheses qualify;1.407M hints in historical M6. Whole-donor preparation retention failed; broad campaign support/index retention is not implemented. No net event gain established. [Outcome](../integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/query_campaign_reuse_v1/README.md). |
 | Extend shared-edge integral reuse | Worked in query planning; actual repeat incomplete | Exact endpoint/field masks now skip546985 support slots and deduplicate56451 on the saved N4M2 repeat; stage cache stays bounded. Rank0 donor189->41s, candidates34.9M->3.23M; event still rejects6144work/134s with344edits. Calls increase; no accepted-event speedup. [Current scope](GOAL3_QUERY_REUSE.md). Historical campaign adds6420 hits. [Current evidence](../integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/query_campaign_reuse_v1/README.md). |
 | Batch independent transactions | First-row gains; general faceted concurrency now passes controls |64-parent first-row stage12.7%/23.2% lower at2/4 ranks; later ranking removes~42% metric work (overlapping gains, do not add). New complete-proposal reservations permit4independent commits/epoch; serial9/735, MPI4 and actual opt-in/default N4M2 independent workflows pass. Exact frozen M6 reaches3simultaneous commits,326764->280568kernel calls/rank (-14.14%),1707->1955private edits (+14.53%), but still rejects300.609s with no clear residual improvement. No event speedup/accepted wing. [Current experiment](../integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/concurrent_composed_proposals_v1/README.md), [transaction scope](POST_COMPLEXITY_QUERY_TRANSACTIONS.md). |
-| Avoid unchanged failed searches | Existing behavior retained; broader extension open | Dependency-triggered reactivation exists. New final reservation conflicts defer without blocking the unchanged feature; general repeated reconstruction-search memoization is not implemented. [Transactions](POST_COMPLEXITY_QUERY_TRANSACTIONS.md). |
+| Avoid unchanged failed searches | Worked for progressive selection; broader memoization open | Existing blocker map now survives measurement and unmeasured owners. Actual unchanged-BL N4M2 repeat accepts5440->3768 at4511work/88.5s, previously rejected6144work/134.3s with the same344edits. Complete field/geometry/transfer gates pass. New reservation conflicts still defer. No general reconstruction memoization. [Current evidence](GOAL3_REJECTION_DEPENDENCIES.md). |
 | Share transfer geometry across fields/histories | Existing facilities retained | Correction stages transfer once after final acceptance and share original reassessment/return source. Additional overlap-weight sharing/performance campaign not attempted. |
 | Measured-cost balance/mid-remeshing migration | Not implemented | Existing N/M lifecycle qualified. Migration, index rebuilding, return and solver/transfer cost must enter break-even; historical2D lower imbalance could be slower. No new balance/scaling claim. |
 | Apply successful policy in2D | Foundations retained; extension incomplete | Existing strict2D composition/integration controls retained. Opt-in profile selection/current correction provider is3D-only.30P30N2D input prepared, not yet adapted. Supplied3D hex case exceeds native tetra support. |
@@ -190,3 +190,26 @@ rejected work gives no accepted-event affordability claim. No terminal private
 grid was exported by this fixture. General failed-search memoization, donor-index
 retention, transaction batching and global-error allocation remain open.
 [Report, all failures and verifier](GOAL3_QUERY_REUSE.md).
+
+
+## Accepted repeated BL workflow — rejection dependencies
+
+**Worked:** measurement no longer reopens rejected directions; owners retain
+blockers before edge measurement; actual changed stars still reactivate. Same
+6144/300s/mesh gates now accept N4M2 actual CGNS/BDF/SA repeat5440->3768cells,
+4511work/88.5native seconds,344committed edits. Independent exact geometry/height/
+62804changed overlap pairs and actual flow/BDF/SA conservation1.87e-14/sensor0/
+SU2+CGNS reload pass. Primitive serial30/1769 and MPI2/4 cover complete repeated
+cycles, late field discovery, notification and atomic budgets.
+
+**Reporting correction:** prior query-import donor timings overlapped seed/update
+in the exclusive phase sum. Parent exclusion now restores the unchanged timing
+invariant; both initial timing/stale-message test failures are preserved. No mesh
+assertion was weakened. Native event versus independent audit costs are separated.
+
+**Still open:** global error allocation, full enabled curved/interacting policy
+workflows,2D opt-in, independent wider composed-field audit, viscous accuracy and
+accepted-event affordability. Same edits do not prove identical unexported rejected
+meshes; different work and local contention preclude clean kernel/scaling claims.
+No general failed-search memo table, new transaction batching or broad donor-index
+cache. [Complete records and grids](GOAL3_REJECTION_DEPENDENCIES.md).
