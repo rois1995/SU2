@@ -2,8 +2,9 @@
 
 Worktree `/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated`, branch
 `codex/native-3d-bl`. Full Goal3 **ACTIVE/incomplete**; Goal2 base c43a8a3907ea.
-Latest verified published checkpoint **14d1bbc9de27c210bdb591b3f94a95cd193a7254**
-(lossless cleanup receipt; qualified geometry runtime remains 10c81365d0).
+Latest geometry-core checkpoint is published on `codex/native-3d-bl`; see the
+current Git HEAD. Cleanup receipt:14d1bbc9de. Cartesian current-binary lifecycle
+qualification is workflow_v5_n4; arbitrary runtime scope remains OPEN.
 [Full requirements](integration_evidence/native_3d_bl_v1/GOAL3_REQUIREMENTS.json).
 Leave AdapNoExt, foreign ClusterResults, dependencies and foreign jobs untouched.
 
