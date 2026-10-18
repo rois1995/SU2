@@ -66,6 +66,51 @@ Point AffineChart::Project(Point p)const {
   Vec foot=q;for(unsigned k=0;k<authority.dimension;++k)foot[k]=double(static_cast<long double>(q[k])-(n[k]/scale)*residual/square);
   return Lift(Coordinates(ToPoint(foot)));
 }
+double DisplacementBound(Point a,Point b) {
+  Finite(a);Finite(b);const auto x=Values(a),y=Values(b);Range bound;
+  if(x==y)return 0;
+  for(unsigned k=0;k<3;++k) {
+    const auto difference=Subtract(x[k],y[k]);
+    bound=Add(bound,{0,std::max(std::abs(difference.lo),std::abs(difference.hi))});
+  }
+  return std::nextafter(double(bound.hi),INFINITY);
+}
+Point ProjectIntersection(Point point,const std::vector<AffineAuthority>& constraints) {
+  Finite(point);if(constraints.empty())return point;
+  std::vector<AffineChart> charts;bool satisfied=true;
+  for(const auto& g:constraints) {
+    charts.emplace_back(g);
+    if(g.dimension!=constraints.front().dimension)throw std::invalid_argument("Conflicting affine constraint dimensions.");
+    satisfied=satisfied && charts.back().ErrorBound(point)<=g.maximum_error;
+  }
+  if(satisfied)return point;
+  if(charts.size()==1)return charts.front().Project(point);
+  if(charts.size()>constraints.front().dimension)
+    throw std::invalid_argument("Unsupported dependent affine junction constraints; no coordinates changed.");
+  using Wide=std::array<long double,3>;std::array<Wide,3> basis{};std::array<long double,3> offset{};size_t rank=0;
+  auto dot=[](Wide a,Wide b){return a[0]*b[0]+a[1]*b[1]+a[2]*b[2];};
+  for(const auto& g:constraints) {
+    const auto n=Values(g.normal),o=Values(g.origin),p=Values(point);Wide row{};
+    const auto scale=std::max({std::abs(n[0]),std::abs(n[1]),std::abs(n[2])});long double value=0;
+    for(unsigned j=0;j<3;++j){row[j]=static_cast<long double>(n[j])/scale;value+=row[j]*(static_cast<long double>(o[j])-p[j]);}
+    const auto length=std::sqrt(dot(row,row));for(auto& x:row)x/=length;value/=length;
+    for(unsigned pass=0;pass<2;++pass)for(size_t k=0;k<rank;++k) {
+      const auto factor=dot(row,basis[k]);value-=factor*offset[k];
+      for(unsigned j=0;j<3;++j)row[j]-=factor*basis[k][j];
+    }
+    const auto independent=std::sqrt(dot(row,row));
+    // Reject an unresolved intersection; preserving each authority is different from merging nearby planes.
+    if(!(independent>1e-12L))throw std::invalid_argument("Conflicting/dependent or ill-conditioned affine junction constraints.");
+    for(auto& x:row)x/=independent;basis[rank]=row;offset[rank++]=value/independent;
+  }
+  auto p=Values(point);Wide shift{};
+  for(size_t k=0;k<rank;++k)for(unsigned j=0;j<3;++j)shift[j]+=basis[k][j]*offset[k];
+  for(unsigned j=0;j<3;++j)p[j]=double(static_cast<long double>(p[j])+shift[j]);
+  const auto candidate=ToPoint(p);
+  for(size_t k=0;k<charts.size();++k)if(charts[k].ErrorBound(candidate)>constraints[k].maximum_error)
+    throw std::invalid_argument("Simultaneous affine projection cannot meet its declared mapping errors.");
+  return candidate;
+}
 FiniteLineReference::FiniteLineReference(AffineAuthority authority,const std::vector<LineEdge>& edges,size_t ceiling):chart(authority) {
   if(authority.dimension!=2 || edges.empty())throw std::invalid_argument("Finite line reference requires 2D intervals.");
   const auto preparation=transfer_memory::Mul(edges.size(),1024);

@@ -98,6 +98,12 @@ Exact saved diagnostics: planar_symmetry_reference_v1/annulus_v4_n1/structural_d
 
 ## Connected integration still required
 
+A v2 initial-adoption/reference/frozen-source batch is now implemented and building,
+UNQUALIFIED: [current handoff](../integration_evidence/native_3d_bl_v1/affine_initial_adoption_v1/README.md).
+It includes boundary-only embedding/resource checks and preserves the open scope
+below; no complete oblique/exterior/junction success is claimed before execution.
+
+
 The shared affine core and scoped3D source/backend are qualified. Before exposing
 arbitrary initial declarations with body junctions, complete the remaining path:
 

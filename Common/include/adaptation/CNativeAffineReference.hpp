@@ -40,6 +40,13 @@ class AffineChart {
   AffineAuthority authority;
   unsigned dependent=0;
 };
+/*! Audited L1 displacement upper bound (also bounds Euclidean displacement).
+ * Uses strict outward arithmetic; equal coordinates return zero. */
+double DisplacementBound(Point a,Point b);
+/*! Idempotent simultaneous projection onto one to three independent affine constraints.
+ * Actual mapped points must satisfy every declared error contract. Dependent or ill-conditioned
+ * unequal declarations refuse explicitly; no sequential projection or tolerance enlargement. */
+Point ProjectIntersection(Point point,const std::vector<AffineAuthority>& constraints);
 struct LineEdge {Id identity=0;SU2Native3D::Node a,b;};
 /*! A union of directed connected intervals, including multiple body-footprint gaps.
  * Endpoints retain input feature IDs. Coincident disconnected endpoints and overlaps reject. */

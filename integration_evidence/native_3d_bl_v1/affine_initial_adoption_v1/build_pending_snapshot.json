@@ -1,0 +1,45 @@
+{
+  "status": "BUILDING",
+  "source": {
+    "Common/include/adaptation/CNativeAffineReference.hpp": "3f9c8212c948875215fe71f579702b7d96b5456f49a20d2a74332593c9199bb2",
+    "Common/include/adaptation/CNativeImport3D.hpp": "9d3bab86ecc1531481dd4d74f8061accccc37c2c14fe8db7279df93c2ab96306",
+    "Common/src/adaptation/CNativeAffineReference.cpp": "76d91876d7e27e2c6af1afa762193e4571bdac5ea562e3d17a4c7ee40044b61d",
+    "Common/src/adaptation/CNativeImport3D.cpp": "8be98274e3712d36fafb667e118526ca640c703923605e16051a28b90421610c",
+    "UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp": "5af2087ebadac4368a5a5ce9a7c3181b753675aee7a0a0ba9bc1248b0ab4ceae",
+    "UnitTests/SU2_CFD/adaptation/fixtures/native_normalization_stages.inc": "975621060369d313ec8370c542d47cd599e5cbd6ef527e975a060d81c4ee2ef9"
+  },
+  "created_utc": "2026-10-18T21:15:33.135142+00:00",
+  "scratch": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/compile-tmp",
+  "host_load": "6.14 5.87 5.78 10/2342 1063008",
+  "host_memory": "MemTotal:       65614832 kB\nMemFree:         3859900 kB\nMemAvailable:   43163900 kB\nBuffers:         4576988 kB\nCached:         31522836 kB\nSwapCached:        16072 kB\nActive:         22076404 kB\nInactive:       32889996 kB\nActive(anon):    1386036 kB\nInactive(anon): 18913524 kB\nActive(file):   20690368 kB\nInactive(file): 13976472 kB\nUnevictable:      313456 kB\nMlocked:              48 kB\nSwapTotal:      15625212 kB\nSwapFree:       14356476 kB\nDirty:              1796 kB\nWriteback:             0 kB\nAnonPages:      19172180 kB\nMapped:          1558108 kB\nShmem:           1433040 kB\nKReclaimable:    5361332 kB\nSlab:            6054204 kB\nSReclaimable:    5361332 kB\nSUnreclaim:       692872 kB\nKernelStack:       37584 kB\nPageTables:       177460 kB\nNFS_Unstable:          0 kB\nBounce:                0 kB\nWritebackTmp:          0 kB\nCommitLimit:    48432628 kB\nCommitted_AS:   47665108 kB\nVmallocTotal:   34359738367 kB\nVmallocUsed:       74516 kB\nVmallocChunk:          0 kB\nPercpu:            13152 kB\nHardwareCorrupted:     0 kB\nAnonHugePages:         0 kB\nShmemHugePages:        0 kB\nShmemPmdMapped:        0 kB\nFileHugePages:         0 kB\nFilePmdMapped:         0 kB\nHugePages_Total:       0\nHugePages_Free:        0\nHugePages_Rsvd:        0\nHugePages_Surp:        0\nHugepagesize:       2048 kB\nHugetlb:               0 kB\nDirectMap4k:     5995184 kB\nDirectMap2M:    40960000 kB\nDirectMap1G:    19922944 kB\n",
+  "scope": "Connected v2 initial adoption/authority/frozen-source/restart metadata and bounded boundary-only embedding audit; no runtime claim before build/tests",
+  "root_pid": 1064716,
+  "started_utc": "2026-10-18T21:16:19.125080+00:00",
+  "commands": [
+    [
+      "taskset",
+      "-c",
+      "1",
+      "/home/rausa/Software/su2-develop/ninja",
+      "-C",
+      "integration_evidence/build-integrated-v2",
+      "-j1",
+      "Common/src/libSU2Common.a.p/adaptation_CNativeImport3D.cpp.o",
+      "Common/src/libSU2AccurateSum.a.p/adaptation_CNativeAffineReference.cpp.o",
+      "UnitTests/test_driver.p/Common_adaptation_CNativeAffineReference_tests.cpp.o",
+      "UnitTests/test_driver.p/SU2_CFD_adaptation_CNativeImport3D_tests.cpp.o"
+    ],
+    [
+      "taskset",
+      "-c",
+      "1",
+      "/home/rausa/Software/su2-develop/ninja",
+      "-C",
+      "integration_evidence/build-integrated-v2",
+      "-j1",
+      "UnitTests/test_driver"
+    ]
+  ],
+  "phase": 1,
+  "child_pid": 1064717
+}

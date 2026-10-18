@@ -1,3 +1,14 @@
+## Connected affine initial-adoption source — BUILDING/UNQUALIFIED, 2026-10-18
+
+The v2 input/mapping contract, original-reference/frozen-version checks, faceted
+body-displacement bound and bounded boundary-only embedding audit are implemented.
+One j1/nice19/CPU1 job53426 is compiling the new objects then the same full binary.
+No accepted oblique workflow or new MPI result is claimed. Euler/RANS one/two
+same-marker components, positive-cell/narrow-gap atomic rejection and the difficult
+oblique annular full lifecycle are prepared. Shared analytic/multiple-plane source
+collars, general2D/exterior and the full goal remain open.
+[Current source/build handoff](integration_evidence/native_3d_bl_v1/affine_initial_adoption_v1/README.md).
+
 ## Affine reference/source backend checkpoint — 2026-10-18
 
 Native coordinated height-star reconstruction now passes the complete Cartesian

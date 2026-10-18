@@ -66,6 +66,9 @@ future sessions.
   and require every planned case or stage before declaring completion.
 - Before restarting a job, verify its existing process/session/job handle. Elapsed
   time, an observation timeout or stale logs alone do not establish termination.
+- Keep compiled/executing/pinned C++ sources unchanged throughout a build or validation
+  campaign. Verify the owned handle is terminal before editing those sources. Git
+  snapshots and documentation updates are allowed without changing the pinned code.
 
 ## Adaptation architecture
 

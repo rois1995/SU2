@@ -9,6 +9,7 @@
 #include "../../include/adaptation/CDistributedSearch.hpp"
 #include "../../include/adaptation/CMeshGather.hpp"
 #include "../../include/CConfig.hpp"
+#include "../../include/adt/CADTElemClass.hpp"
 #include "../../include/geometry/CGeometry.hpp"
 #include <cmath>
 #include <type_traits>
@@ -82,6 +83,242 @@ bool Admit(World& world, size_t bytes, size_t ceiling, BridgeStats& stats, std::
   if (bytes == SIZE_MAX || bytes > ceiling) failure.Set(3, 0, "Native 3D bridge storage budget exceeded.");
   return Vote(world, failure, reason);
 }
+constexpr size_t SymmetryFileBytes=65536;
+struct SymmetryPlane {
+  std::string marker;
+  unsigned axis=3; // Versions1 and2 have distinct adoption/rounding contracts.
+  double coordinate=0,input_error=0;
+  SU2NativeGeometry::AffineAuthority authority;
+  bool Legacy()const{return axis<3;}
+};
+bool HasSymmetryReference(const CConfig& config) {
+  const auto& path=config.GetAdap_Native_Symmetry_Reference();return !path.empty() && path!="NONE";
+}
+auto DefinitionKey(const SU2NativeGeometry::AffineAuthority& g) {
+  return std::make_tuple(g.identity,g.version,g.dimension,g.origin.x,g.origin.y,g.origin.z,
+      g.normal.x,g.normal.y,g.normal.z,g.maximum_error);
+}
+// One declaration decoder serves initial adoption, original-source freezing and persisted-reference checks.
+bool ReadSymmetryPlanes(World& world,const CConfig& config,std::vector<SymmetryPlane>& output,std::string& reason) {
+  if(!HasSymmetryReference(config)){output.clear();return true;}
+  CLocalFailure failure;std::vector<char> bytes;
+  if(!world.rank)try {
+    std::ifstream in(config.GetAdap_Native_Symmetry_Reference(),std::ios::binary|std::ios::ate);const auto size=in.tellg();
+    if(!in || size<=0 || size>std::streamoff(SymmetryFileBytes))throw std::invalid_argument("Missing/oversized native symmetry reference file.");
+    bytes.resize(size);in.seekg(0);
+    if(!in.read(bytes.data(),bytes.size()))throw std::invalid_argument("Cannot read native symmetry reference file.");
+  }catch(const std::exception& e){failure.Set(1,0,e.what());}
+  if(!Vote(world,failure,reason))return false;
+  CPassiveComm::BcastRounds(bytes,0,world.comm);std::vector<SymmetryPlane> pending;
+  try {
+    std::istringstream in(std::string(bytes.begin(),bytes.end()));in.imbue(std::locale::classic());
+    std::string magic;unsigned version=0,count=0;std::set<std::string> legacy_markers;
+    std::set<std::pair<std::string,Id>> entries;std::map<Id,SU2NativeGeometry::AffineAuthority> identities;
+    if(!(in>>magic>>version>>count) || magic!="SU2_NATIVE_SYMMETRY_PLANES" || (version!=1 && version!=2) || !count || count>64)
+      throw std::invalid_argument("Invalid native symmetry reference header/count/version.");
+    for(unsigned i=0;i<count;++i) {
+      SymmetryPlane plane;
+      if(!(in>>std::quoted(plane.marker)))throw std::invalid_argument("Missing native plane marker.");
+      if(version==1) {
+        std::string axis;
+        if(!(in>>axis>>plane.coordinate>>plane.input_error) || !std::isfinite(plane.coordinate) ||
+            !(std::isfinite(plane.input_error)&&plane.input_error>=0) || !legacy_markers.insert(plane.marker).second ||
+            (axis!="X" && axis!="Y" && axis!="Z"))throw std::invalid_argument("Invalid/duplicate native Cartesian symmetry plane.");
+        plane.axis=axis=="X"?0:axis=="Y"?1:2;
+      } else {
+        auto natural=[&]() {
+          std::string token;if(!(in>>token) || token.empty() || token.find_first_not_of("0123456789")!=std::string::npos)
+            throw std::invalid_argument("Affine identity/version must be unsigned decimal integers.");
+          try {size_t used=0;const auto value=std::stoull(token,&used);if(used==token.size())return uint64_t(value);}
+          catch(const std::exception&){}
+          throw std::invalid_argument("Unrepresentable affine identity/version.");
+        };
+        auto& g=plane.authority;g.identity=natural();g.version=natural();
+        if(!(in>>g.origin.x>>g.origin.y>>g.origin.z>>g.normal.x>>g.normal.y>>g.normal.z
+             >>plane.input_error>>g.maximum_error) || g.identity==UINT64_MAX ||
+             !(std::isfinite(plane.input_error)&&plane.input_error>=g.maximum_error) ||
+             !entries.emplace(plane.marker,g.identity).second)throw std::invalid_argument("Invalid/duplicate native affine symmetry declaration.");
+        SU2NativeGeometry::AffineChart checked(g);
+        const auto old=identities.emplace(g.identity,g);
+        if(!old.second && DefinitionKey(old.first->second)!=DefinitionKey(g))
+          throw std::invalid_argument("Conflicting native affine authority definitions.");
+      }
+      bool declared=false;
+      for(unsigned m=0;m<config.GetnMarker_CfgFile();++m)if(config.GetMarker_CfgFile_TagBound(m)==plane.marker)
+        declared=config.GetMarker_CfgFile_KindBC(plane.marker)==SYMMETRY_PLANE;
+      if(!declared)throw std::invalid_argument("Native plane marker is not a declared MARKER_SYM: "+plane.marker);
+      pending.push_back(std::move(plane));
+    }
+    in>>std::ws;if(!in.eof())throw std::invalid_argument("Trailing native symmetry reference data.");
+  }catch(const std::exception& e){failure.Set(1,0,e.what());}
+  if(!Vote(world,failure,reason))return false;
+  output=std::move(pending);return true;
+}
+std::map<Id,SU2NativeGeometry::AffineAuthority> DeclaredSymmetryFacets(const std::vector<Facet>& facets,
+    const std::vector<std::string>& markers,const std::vector<SymmetryPlane>& planes) {
+  std::map<Id,SU2NativeGeometry::AffineAuthority> result;std::set<size_t> used;
+  if(std::none_of(planes.begin(),planes.end(),[](const auto& p){return !p.Legacy();}))return result;
+  for(const auto& f:facets) {
+    bool declared=false;const SymmetryPlane* selected=nullptr;
+    for(size_t i=0;i<planes.size();++i) {
+      const auto& p=planes[i];if(p.Legacy() || p.marker!=markers.at(f.marker))continue;declared=true;
+      const SU2NativeGeometry::AffineChart chart(p.authority);
+      if(std::all_of(f.v.begin(),f.v.end(),[&](Node n){return chart.ErrorBound(n.p)<=p.authority.maximum_error;})) {
+        if(selected)throw std::invalid_argument("Ambiguous finite affine symmetry facet "+std::to_string(f.id));
+        selected=&p;used.insert(i);
+      }
+    }
+    if(declared && !selected)throw std::invalid_argument("Finite symmetry facet leaves its declared mapping contract: "+std::to_string(f.id));
+    if(selected)result.emplace(f.id,selected->authority);
+  }
+  for(size_t i=0;i<planes.size();++i)if(!planes[i].Legacy() && !used.count(i))
+    throw std::invalid_argument("Declared affine symmetry component has no finite physical facets.");
+  return result;
+}
+void CheckDeclaredSymmetry(const ReferenceState& reference,const std::vector<SymmetryPlane>& planes) {
+  if(std::none_of(planes.begin(),planes.end(),[](const auto& p){return !p.Legacy();}))return;
+  const auto expected=DeclaredSymmetryFacets(reference.facets,reference.marker_names,planes);
+  for(const auto& row:expected) {
+    const auto found=reference.original->Affine().find(row.first);
+    if(found==reference.original->Affine().end() || DefinitionKey(found->second)!=DefinitionKey(row.second))
+      throw std::invalid_argument("Frozen/persisted native affine definition differs from its configuration declaration.");
+  }
+  for(const auto& row:reference.original->Affine()) {
+    const auto& marker=reference.marker_names.at(reference.original->Get(row.first).marker);
+    if(std::any_of(planes.begin(),planes.end(),[&](const auto& p){return !p.Legacy() && p.marker==marker;}) && !expected.count(row.first))
+      throw std::invalid_argument("Configured affine symmetry omits a frozen finite component.");
+  }
+}
+
+struct ProjectionWitness {Cell cell;bool changed=false;template<class S>void Fields(S& s){s(cell,changed);}};
+// Unchanged connectivity, positive relative cell Jacobians and an embedded boundary certify the initial map.
+// Boundary-adjacent tetrahedra are witnesses: their count is at most the number of physical boundary faces.
+bool CheckProjectedBoundary(World& world,const CConfig& config,const CGeometry& geometry,
+    const std::vector<std::array<double,3>>& candidate,
+    SymmetryReferenceAudit3D& report,size_t base,size_t ceiling,std::string& reason) {
+  const auto started=world.seconds();CLocalFailure failure;BridgeStats memory;
+  auto admit=[&](size_t bytes){const bool ok=Admit(world,bytes,ceiling,memory,reason);
+    report.maximum_bytes=std::max(report.maximum_bytes,memory.maximum_native_bytes);return ok;};
+  auto vote=[&](){report.boundary_check_seconds=CPassiveComm::Allreduce(world.seconds()-started,CPassiveComm::Op::MAX,world.comm);
+    return Vote(world,failure,reason);};
+  size_t local_faces=0;
+  for(unsigned m=0;m<geometry.GetnMarker();++m)if(config.GetMarker_All_KindBC(m)!=SEND_RECEIVE)
+    local_faces=transfer_memory::Add(local_faces,geometry.GetnElem_Bound(m));
+  const auto face_count=CPassiveComm::Allreduce(uint64_t(local_faces),CPassiveComm::Op::SUM,world.comm);
+  const auto mesh_storage=transfer_memory::GrowthBound(geometry.GetnElem(),5*sizeof(unsigned long)+sizeof(CSimplexKey));
+  const size_t preparation=transfer_memory::Add(base,mesh_storage,transfer_memory::Mul(face_count,128));
+  if(!admit(preparation))return false;
+  std::vector<Face> local_skin;local_skin.reserve(local_faces);
+  try {for(unsigned m=0;m<geometry.GetnMarker();++m)if(config.GetMarker_All_KindBC(m)!=SEND_RECEIVE)
+    for(size_t f=0;f<geometry.GetnElem_Bound(m);++f) {
+      const auto* face=geometry.bound[m][f];if(face->GetnNodes()!=3)continue;Face key;
+      for(unsigned k=0;k<3;++k)key[k]=geometry.nodes->GetGlobalIndex(face->GetNode(k));
+      local_skin.push_back(Key(key));
+    }
+  }catch(const std::exception& e){failure.Set(1,0,e.what());}
+  if(!vote())return false;
+  auto skin=CPassiveComm::Allgatherv(local_skin,nullptr,world.comm);
+  std::sort(skin.begin(),skin.end());skin.erase(std::unique(skin.begin(),skin.end()),skin.end());
+  const auto simplices=OwnedSimplices(geometry);
+  const auto prefix=CPassiveComm::ExscanSum(simplices.size());
+  if(!admit(transfer_memory::Add(preparation,transfer_memory::GrowthBound(std::min(simplices.size(),static_cast<unsigned long>(skin.size())),sizeof(ProjectionWitness)))))return false;
+  std::vector<ProjectionWitness> local;local.reserve(std::min(simplices.size(),static_cast<unsigned long>(skin.size())));
+  try {for(size_t e=0;e<simplices.size();++e) {
+    ProjectionWitness witness;witness.cell.id=prefix+e;
+    for(unsigned k=0;k<4;++k) {
+      const auto p=simplices.nodes[4*e+k];const auto q=candidate.at(p);
+      witness.cell.v[k]={geometry.nodes->GetGlobalIndex(p),{q[0],q[1],q[2]}};
+      const auto* old=geometry.nodes->GetCoord(p);
+      witness.changed=witness.changed || q[0]!=SU2_TYPE::GetValue(old[0]) || q[1]!=SU2_TYPE::GetValue(old[1]) || q[2]!=SU2_TYPE::GetValue(old[2]);
+    }
+    bool boundary=false;for(auto face:Faces(witness.cell))boundary=boundary || std::binary_search(skin.begin(),skin.end(),Key(face));
+    if(!boundary)continue;
+    auto& v=witness.cell.v;const auto sign=Orientation(v[0].p,v[1].p,v[2].p,v[3].p);
+    if(!sign)throw std::invalid_argument("Declared geometry adoption has a degenerate boundary-adjacent cell.");
+    if(sign<0)std::swap(v[0],v[1]);local.push_back(witness);
+  }}catch(const std::exception& e){failure.Set(1,0,e.what());}
+  if(!vote())return false;
+  const auto count=CPassiveComm::Allreduce(uint64_t(local.size()),CPassiveComm::Op::SUM,world.comm);
+  if(!count || count>skin.size())failure.Set(1,0,"Invalid physical-boundary witness ownership/count.");
+  if(!vote())return false;
+  // Raw transport, shared-node audit, replicated boundary boxes/tree and query vectors; no volume payload gather.
+  if(!admit(transfer_memory::Add(preparation,transfer_memory::Mul(count,3*sizeof(ProjectionWitness)+1024))))return false;
+  auto witnesses=CPassiveComm::Allgatherv(local,nullptr,world.comm);report.boundary_witnesses=count;
+  try {
+    std::map<Face,Face> oriented;
+    for(const auto& w:witnesses)for(auto face:Faces(w.cell))if(std::binary_search(skin.begin(),skin.end(),Key(face)))
+      if(!oriented.emplace(Key(face),face).second)throw std::invalid_argument("Physical boundary face has multiple volume witnesses.");
+    if(oriented.size()!=skin.size())throw std::invalid_argument("Physical boundary is missing a volume witness.");
+    std::vector<Face> closed;closed.reserve(oriented.size());for(const auto& row:oriented)closed.push_back(row.second);
+    ValidateDomainSurfaceTopology(closed);
+    std::map<Id,Point> shared;
+    for(const auto& w:witnesses)for(auto n:w.cell.v) {
+      const auto old=shared.emplace(n.id,n.p);
+      if(!old.second && (old.first->second.x!=n.p.x || old.first->second.y!=n.p.y || old.first->second.z!=n.p.z))
+        throw std::invalid_argument("Projected boundary has inconsistent shared coordinates across ranks.");
+    }
+  }catch(const std::exception& e){failure.Set(1,0,e.what());}
+  if(!vote())return false;
+  size_t tree_resident=0,tree_peak=0;
+  if(count>std::numeric_limits<unsigned long>::max()/2)failure.Set(3,0,"Boundary witness index exceeds addressable storage.");
+  if(!vote())return false;
+  CADTElemClass::PredictBytes(3,2*count,count,2*count,&tree_resident,&tree_peak);
+  if(!admit(transfer_memory::Add(preparation,transfer_memory::Mul(count,3*sizeof(ProjectionWitness)+128),tree_peak)))return false;
+  std::unique_ptr<CADTElemClass> tree;
+  try {
+    std::vector<su2double> coordinates;std::vector<unsigned long> connectivity,ids;
+    std::vector<unsigned short> types(count,LINE),markers(count,0);
+    coordinates.reserve(6*count);connectivity.reserve(2*count);ids.reserve(count);
+    for(size_t i=0;i<witnesses.size();++i) {
+      for(unsigned corner=0;corner<2;++corner)for(unsigned axis=0;axis<3;++axis) {
+        double value=corner?-INFINITY:INFINITY;
+        for(auto n:witnesses[i].cell.v){const double q=axis==0?n.p.x:axis==1?n.p.y:n.p.z;value=corner?std::max(value,q):std::min(value,q);}
+        coordinates.push_back(value);
+      }
+      connectivity.push_back(2*i);connectivity.push_back(2*i+1);ids.push_back(i);
+    }
+    // A local box-surrogate tree: boundary witnesses were already exchanged; no second geometry collective.
+    tree=std::make_unique<CADTElemClass>(3,coordinates,connectivity,types,markers,ids,false);
+  }catch(const std::exception& e){failure.Set(3,0,e.what());}
+  if(!vote())return false;
+  if(!admit(transfer_memory::Add(preparation,transfer_memory::Mul(count,3*sizeof(ProjectionWitness)+16),
+      tree->GetAllocatedBytes(),tree->RetainedWorkspaceBound(1))))return false;
+  constexpr uint64_t maximum_pairs=1000000;
+  const auto seconds=SU2_TYPE::GetValue(config.GetAdap_Native_Max_Time());
+  auto within=[&](){return !(seconds>0) || world.seconds()-started<seconds;};
+  auto candidates=[&](auto use) {
+    std::vector<unsigned long> overlap;
+    for(size_t i=world.rank;i<witnesses.size();i+=world.size)if(witnesses[i].changed) {
+      if(!within()) {failure.Set(3,0,"Native affine boundary audit exhausted its elapsed resource budget.");break;}
+      std::array<su2double,3> lo,hi;
+      for(unsigned axis=0;axis<3;++axis) {
+        double first=INFINITY,last=-INFINITY;
+        for(auto n:witnesses[i].cell.v){const double q=axis==0?n.p.x:axis==1?n.p.y:n.p.z;first=std::min(first,q);last=std::max(last,q);}
+        lo[axis]=first;hi[axis]=last;
+      }
+      tree->DetermineIntersectingElements(lo.data(),hi.data(),overlap);
+      for(auto j:overlap)if(i!=j && (!witnesses[j].changed || i<j))if(!use(i,j))return;
+    }
+  };
+  uint64_t pairs=0;
+  candidates([&](size_t,size_t){if(++pairs>maximum_pairs){failure.Set(3,0,"Native affine boundary audit exceeds its pair-work ceiling.");return false;}return true;});
+  const auto global_pairs=CPassiveComm::Allreduce(pairs,CPassiveComm::Op::SUM,world.comm);
+  if(global_pairs>maximum_pairs)failure.Set(3,0,"Native affine boundary audit exceeds its global pair-work ceiling.");
+  if(!vote())return false;
+  uint64_t checked=0;
+  try {candidates([&](size_t i,size_t j) {
+    if((checked%128)==0 && !within()){failure.Set(3,0,"Native affine boundary audit exhausted its elapsed resource budget.");return false;}
+    ++checked;
+    if(!ConformingDisjoint(witnesses[i].cell,witnesses[j].cell)) {
+      failure.Set(1,witnesses[i].cell.id,"Projected geometry has nonconforming boundary-cell contact: "+
+          std::to_string(witnesses[i].cell.id)+","+std::to_string(witnesses[j].cell.id));return false;
+    }
+    return true;
+  });}catch(const std::exception& e){failure.Set(1,0,e.what());}
+  report.boundary_pair_checks=CPassiveComm::Allreduce(checked,CPassiveComm::Op::SUM,world.comm);
+  return vote();
+}
+
 struct FaceRecord {
   Face face{};
   Id cell = 0;
@@ -413,6 +650,13 @@ bool ImportGeometry(const CConfig& config, const CGeometry& geometry, const su2a
     if (metric && (metric->cols() != 6 || metric->rows() < geometry.GetnPointDomain()))
       failure.Set(1, 0, "Native tetrahedral import needs six sensor components at every CFD-owned point.");
     CollectiveFailure(failure, CURRENT_FUNCTION);
+    const size_t declaration_bytes=HasSymmetryReference(config)?8*SymmetryFileBytes:0;
+    std::vector<SymmetryPlane> declared_planes;
+    if(declaration_bytes) {
+      if(!Admit(parent,transfer_memory::Add(caller_bytes,ReferenceStorageBytes(state),OwnedStorageBytes(output.cells),
+          transfer_memory::Bytes(output.original),declaration_bytes),ceiling,stats,reason))return false;
+      if(!ReadSymmetryPlanes(parent,config,declared_planes,reason))return false;
+    }
     const size_t np = geometry.GetnPoint(), owned_points = geometry.GetnPointDomain(), ne = geometry.GetnElem();
     size_t nf = 0, tag_chars = 0;
     for (unsigned short m = 0; m < geometry.GetnMarker(); ++m) {
@@ -422,7 +666,7 @@ bool ImportGeometry(const CConfig& config, const CGeometry& geometry, const su2a
     const size_t global_tag_chars = CPassiveComm::Allreduce(uint64_t(tag_chars), CPassiveComm::Op::SUM, parent.comm);
     // OwnedSimplices/OwnedBoundaryFaces grow from empty; marker gather retains local and replicated text.
     const size_t helper_bound = transfer_memory::Add(
-        caller_bytes, ReferenceStorageBytes(state), OwnedBytes(output.cells), transfer_memory::Bytes(output.original),
+        caller_bytes, declaration_bytes, ReferenceStorageBytes(state), OwnedBytes(output.cells), transfer_memory::Bytes(output.original),
         transfer_memory::GrowthBound(ne, 5 * sizeof(unsigned long) + sizeof(CSimplexKey)),
         transfer_memory::GrowthBound(nf, 3 * sizeof(unsigned long) + sizeof(CSimplexKey) + sizeof(uint32_t)),
         transfer_memory::Mul(8, transfer_memory::Add(tag_chars, global_tag_chars)),
@@ -620,7 +864,8 @@ bool ImportGeometry(const CConfig& config, const CGeometry& geometry, const su2a
         failure.Set(1, 0, "Native3D immutable facet authority is empty or exceeds addressable storage.");
       CollectiveFailure(failure, CURRENT_FUNCTION);
       // Admit reference maps/index/component scratch and replicated wire copies before construction.
-      const size_t reference_scratch = PlanarReference::ConstructionBytes(count);
+      const bool affine=std::any_of(declared_planes.begin(),declared_planes.end(),[](const auto& p){return !p.Legacy();});
+      const size_t reference_scratch = PlanarReference::ConstructionBytes(count,0,affine?count:0);
       if (!Admit(parent,
                  transfer_memory::Add(reference_base, reference_scratch,
                                       transfer_memory::Add(transfer_memory::Mul(count, 3 * sizeof(Facet)),
@@ -647,7 +892,8 @@ bool ImportGeometry(const CConfig& config, const CGeometry& geometry, const su2a
         std::vector<Face> skin;
         for (auto f : pending.facets) skin.push_back({f.v[0].id, f.v[1].id, f.v[2].id});
         ValidateDomainSurfaceTopology(skin);
-        pending.original = std::make_shared<PlanarReference>(pending.facets, reference_scratch);
+        pending.original = std::make_shared<PlanarReference>(pending.facets, reference_scratch,
+            std::map<Id,AnalyticSurface>{},DeclaredSymmetryFacets(pending.facets,pending.marker_names,declared_planes));
       } catch (const std::exception& e) {
         failure.Set(1, 0, e.what());
       }
@@ -655,6 +901,9 @@ bool ImportGeometry(const CConfig& config, const CGeometry& geometry, const su2a
     const auto& authority = state.original ? state : pending;
     if (authority.marker_names != names) failure.Set(1, 0, "Native3D immutable physical marker names changed.");
     CollectiveFailure(failure, CURRENT_FUNCTION);
+    CLocalFailure declaration_failure;
+    try {CheckDeclaredSymmetry(authority,declared_planes);}catch(const std::exception& e){declaration_failure.Set(1,0,e.what());}
+    if(!Vote(parent,declaration_failure,reason))return false;
     if (!Admit(parent, transfer_memory::Add(reference_base,
                    state.original ? 0 : ReferenceStorageBytes(pending), authority.original->SearchWorkspaceBytes()),
                ceiling, stats, reason)) return false;
@@ -702,90 +951,96 @@ bool PrepareSymmetryReference(const CConfig& config,CGeometry& geometry,bool all
      !std::is_same<su2double,double>::value || config.GetDynamic_Grid())
     failure.Set(1,0,"Explicit native symmetry references require a static primal tetrahedral FVM geometry and NATIVE_CAVITY.");
   if(!vote())return false;
-  constexpr size_t maximum_file=65536;
+  constexpr size_t maximum_file=SymmetryFileBytes;
   if(!admit(transfer_memory::Add(transfer_memory::Mul(maximum_file,8),transfer_memory::TransportBytes(world.size))))return false;
-  std::vector<char> bytes;
-  if(!world.rank)try {
-    std::ifstream in(config.GetAdap_Native_Symmetry_Reference(),std::ios::binary|std::ios::ate);
-    const auto size=in.tellg();
-    if(!in || size<=0 || size>std::streamoff(maximum_file))throw std::invalid_argument("Missing/oversized native symmetry reference file.");
-    bytes.resize(size);in.seekg(0);
-    if(!in.read(bytes.data(),bytes.size()))throw std::invalid_argument("Cannot read native symmetry reference file.");
-  }catch(const std::exception& e){failure.Set(1,0,e.what());}
-  if(!vote())return false;
-  CPassiveComm::BcastRounds(bytes,0,world.comm);
-  struct Plane {std::string marker;unsigned axis;double coordinate,tolerance;};
-  std::vector<Plane> planes;
-  try {
-    std::istringstream in(std::string(bytes.begin(),bytes.end()));in.imbue(std::locale::classic());
-    std::string magic;unsigned version=0,count=0;std::set<std::string> used;
-    if(!(in>>magic>>version>>count) || magic!="SU2_NATIVE_SYMMETRY_PLANES" || version!=1 || !count || count>64)
-      throw std::invalid_argument("Invalid native symmetry reference header/count/version.");
-    for(unsigned i=0;i<count;++i) {
-      Plane p;std::string axis;
-      if(!(in>>std::quoted(p.marker)>>axis>>p.coordinate>>p.tolerance) || !std::isfinite(p.coordinate) ||
-         !(std::isfinite(p.tolerance)&&p.tolerance>=0) || !used.insert(p.marker).second ||
-         (axis!="X" && axis!="Y" && axis!="Z"))throw std::invalid_argument("Invalid/duplicate native Cartesian symmetry plane.");
-      bool declared=false;
-      for(unsigned m=0;m<config.GetnMarker_CfgFile();++m)if(config.GetMarker_CfgFile_TagBound(m)==p.marker)
-        declared=config.GetMarker_CfgFile_KindBC(p.marker)==SYMMETRY_PLANE;
-      if(!declared)throw std::invalid_argument("Native plane marker is not a declared MARKER_SYM: "+p.marker);
-      p.axis=axis=="X"?0:axis=="Y"?1:2;planes.push_back(p);
-    }
-    in>>std::ws;if(!in.eof())throw std::invalid_argument("Trailing native symmetry reference data.");
-  }catch(const std::exception& e){failure.Set(1,0,e.what());}
-  if(!vote())return false;
-  const size_t np=geometry.GetnPoint();
-  const size_t base=transfer_memory::Add(transfer_memory::Mul(np,sizeof(std::array<double,3>)+sizeof(unsigned)+sizeof(bool)),
+  std::vector<SymmetryPlane> planes;
+  if(!ReadSymmetryPlanes(world,config,planes,reason))return false;
+  const size_t np=geometry.GetnPoint();size_t boundary_faces=0;
+  for(unsigned m=0;m<geometry.GetnMarker();++m)if(config.GetMarker_All_KindBC(m)!=SEND_RECEIVE)
+    boundary_faces=transfer_memory::Add(boundary_faces,geometry.GetnElem_Bound(m));
+  const size_t base=transfer_memory::Add(transfer_memory::Mul(np,sizeof(std::array<double,3>)+sizeof(uint64_t)+sizeof(bool)),
+      transfer_memory::Mul(boundary_faces,6*sizeof(Id)),transfer_memory::Mul(planes.size(),sizeof(std::vector<Id>)),
       transfer_memory::Mul(maximum_file,8),transfer_memory::TransportBytes(world.size));
   if(!admit(base))return false;
-  std::vector<std::array<double,3>> candidate(np);
-  std::vector<unsigned> constraints(np,0);
+  std::vector<std::array<double,3>> candidate(np);std::vector<uint64_t> constraints(np,0);
+  std::vector<std::vector<Id>> local_nodes(planes.size());
   for(size_t p=0;p<np;++p)for(unsigned k=0;k<3;++k)candidate[p][k]=SU2_TYPE::GetValue(geometry.nodes->GetCoord(p,k));
-  for(const auto& plane:planes) {
-    size_t local_count=0;
-    for(unsigned m=0;m<geometry.GetnMarker();++m)if(config.GetMarker_All_TagBound(m)==plane.marker)
-      local_count=transfer_memory::Add(local_count,transfer_memory::Mul(geometry.GetnElem_Bound(m),3));
-    const auto global_count=CPassiveComm::Allreduce(uint64_t(local_count),CPassiveComm::Op::SUM,world.comm);
-    if(!admit(transfer_memory::Add(base,transfer_memory::Mul(global_count,8*sizeof(Id)))))return false;
-    std::vector<Id> ids;ids.reserve(local_count);
-    for(unsigned m=0;m<geometry.GetnMarker();++m)if(config.GetMarker_All_TagBound(m)==plane.marker)
+  try {
+    for(unsigned m=0;m<geometry.GetnMarker();++m)if(config.GetMarker_All_KindBC(m)!=SEND_RECEIVE)
       for(size_t f=0;f<geometry.GetnElem_Bound(m);++f) {
-        const auto* face=geometry.bound[m][f];
-        if(face->GetVTK_Type()!=TRIANGLE){failure.Set(1,0,"Native symmetry reference needs triangular physical faces.");continue;}
-        for(unsigned k=0;k<3;++k)ids.push_back(geometry.nodes->GetGlobalIndex(face->GetNode(k)));
+        const auto* face=geometry.bound[m][f];size_t chosen=planes.size();bool declared=false;
+        for(size_t i=0;i<planes.size();++i) {
+          const auto& plane=planes[i];if(plane.marker!=config.GetMarker_All_TagBound(m))continue;declared=true;
+          bool match=plane.Legacy();
+          if(!match) {
+            const SU2NativeGeometry::AffineChart chart(plane.authority);match=true;
+            for(unsigned k=0;k<face->GetnNodes();++k) {
+              const auto q=candidate.at(face->GetNode(k));match=match && chart.ErrorBound({q[0],q[1],q[2]})<=plane.input_error;
+            }
+          }
+          if(match) {
+            if(chosen!=planes.size())throw std::invalid_argument("Ambiguous finite symmetry facet: overlapping input-deviation contracts.");
+            chosen=i;
+          }
+        }
+        if(!declared)continue;
+        if(chosen==planes.size())throw std::invalid_argument("Original native symmetry facet exceeds its declared plane deviation.");
+        for(unsigned k=0;k<face->GetnNodes();++k)local_nodes[chosen].push_back(geometry.nodes->GetGlobalIndex(face->GetNode(k)));
       }
-    if(!vote())return false;
+  }catch(const std::exception& e){failure.Set(1,0,e.what());}
+  if(!vote())return false;
+  for(size_t i=0;i<planes.size();++i) {
+    const auto& plane=planes[i];auto& ids=local_nodes[i];
     std::sort(ids.begin(),ids.end());ids.erase(std::unique(ids.begin(),ids.end()),ids.end());
+    const auto count=CPassiveComm::Allreduce(uint64_t(ids.size()),CPassiveComm::Op::SUM,world.comm);
+    if(!admit(transfer_memory::Add(base,transfer_memory::Mul(count,3*sizeof(Id)))))return false;
     auto global=CPassiveComm::Allgatherv(ids,nullptr,world.comm);
     std::sort(global.begin(),global.end());global.erase(std::unique(global.begin(),global.end()),global.end());
-    if(global.empty())failure.Set(1,0,"Native symmetry reference marker has no physical faces: "+plane.marker);
+    if(global.empty())failure.Set(1,0,"Native symmetry reference component has no physical faces: "+plane.marker);
     double local_deviation=0;
-    for(size_t p=0;p<np;++p)if(std::binary_search(global.begin(),global.end(),geometry.nodes->GetGlobalIndex(p))) {
-      const double value=SU2_TYPE::GetValue(geometry.nodes->GetCoord(p,plane.axis));
-      const long double difference=std::abs(static_cast<long double>(value)-plane.coordinate);
+    try {for(size_t p=0;p<np;++p)if(std::binary_search(global.begin(),global.end(),geometry.nodes->GetGlobalIndex(p))) {
+      const auto q=candidate[p];const Point original{SU2_TYPE::GetValue(geometry.nodes->GetCoord(p,0)),
+          SU2_TYPE::GetValue(geometry.nodes->GetCoord(p,1)),SU2_TYPE::GetValue(geometry.nodes->GetCoord(p,2))};
+      const double value=plane.Legacy()?SU2_TYPE::GetValue(geometry.nodes->GetCoord(p,plane.axis)):0;
+      const long double difference=plane.Legacy()?std::abs(static_cast<long double>(value)-plane.coordinate):
+          SU2NativeGeometry::AffineChart(plane.authority).ErrorBound(original);
       const double deviation=double(difference);
-      if(!std::isfinite(value) || !std::isfinite(deviation) || difference>plane.tolerance) {
+      if(!std::isfinite(deviation) || difference>plane.input_error) {
         std::ostringstream message;message<<std::setprecision(17)<<"Original native symmetry vertex exceeds its declared plane deviation: marker="
-            <<plane.marker<<" vertex="<<geometry.nodes->GetGlobalIndex(p)<<" coordinate="<<value<<" plane="<<plane.coordinate
-            <<" deviation="<<deviation<<" limit="<<plane.tolerance;
+            <<plane.marker<<" vertex="<<geometry.nodes->GetGlobalIndex(p)<<" deviation="<<deviation<<" limit="<<plane.input_error;
         failure.Set(1,geometry.nodes->GetGlobalIndex(p),message.str());
       }
-      if(!allow_projection && value!=plane.coordinate)
-        failure.Set(1,geometry.nodes->GetGlobalIndex(p),"Existing state/returned mesh is not exactly on its declared symmetry plane; initialize the reference before freezing fields.");
-      const unsigned mask=1u<<plane.axis;
-      if((constraints[p]&mask) && candidate[p][plane.axis]!=plane.coordinate)
-        failure.Set(1,geometry.nodes->GetGlobalIndex(p),"Conflicting declared symmetry planes at a shared vertex.");
-      constraints[p]|=mask;candidate[p][plane.axis]=value==plane.coordinate?value:plane.coordinate;
-      local_deviation=std::max(local_deviation,deviation);
-    }
-    const double maximum=CPassiveComm::Allreduce(local_deviation,CPassiveComm::Op::MAX,world.comm);
+      if(plane.Legacy()) {
+        if(!allow_projection && value!=plane.coordinate)
+          failure.Set(1,geometry.nodes->GetGlobalIndex(p),"Existing state/returned mesh is not exactly on its declared symmetry plane; initialize the reference before freezing fields.");
+        for(size_t j=0;j<i;++j)if((constraints[p]&(uint64_t(1)<<j)) && planes[j].axis==plane.axis && planes[j].coordinate!=plane.coordinate)
+          failure.Set(1,geometry.nodes->GetGlobalIndex(p),"Conflicting declared symmetry planes at a shared vertex.");
+        candidate[p][plane.axis]=value==plane.coordinate?value:plane.coordinate;
+      }
+      constraints[p]|=uint64_t(1)<<i;local_deviation=std::max(local_deviation,deviation);
+    }}catch(const std::exception& e){failure.Set(1,0,e.what());}
+    const auto maximum=CPassiveComm::Allreduce(local_deviation,CPassiveComm::Op::MAX,world.comm);
     report.maximum_deviation=std::max(report.maximum_deviation,maximum);
     if(!world.rank)std::cout<<std::setprecision(17)<<"Native symmetry reference audit: marker="<<plane.marker
-        <<" axis="<<plane.axis<<" coordinate="<<plane.coordinate<<" maximum_original_deviation="<<maximum
-        <<" declared_limit="<<plane.tolerance<<"\n";
+        <<" schema="<<(plane.Legacy()?1:2)<<" maximum_original_deviation="<<maximum<<" declared_limit="<<plane.input_error<<"\n";
     if(!vote())return false;
   }
+  double mapping_error=0;
+  try {for(size_t p=0;p<np;++p)if(constraints[p] && !planes.front().Legacy()) {
+    std::map<Id,SU2NativeGeometry::AffineAuthority> active;
+    const auto old=candidate[p];const Point original{old[0],old[1],old[2]};bool within=true;
+    for(size_t i=0;i<planes.size();++i)if(constraints[p]&(uint64_t(1)<<i)) {
+      const auto& g=planes[i].authority;active.emplace(g.identity,g);
+      within=within && SU2NativeGeometry::AffineChart(g).ErrorBound(original)<=g.maximum_error;
+    }
+    if(!allow_projection && !within)throw std::invalid_argument("Existing state/returned mesh leaves its declared affine mapping contract; no frozen coordinates may move.");
+    std::vector<SU2NativeGeometry::AffineAuthority> equations;for(const auto& row:active)equations.push_back(row.second);
+    const auto projected=allow_projection?SU2NativeGeometry::ProjectIntersection(original,equations):original;
+    candidate[p]={projected.x,projected.y,projected.z};
+    for(const auto& row:active)mapping_error=std::max(mapping_error,SU2NativeGeometry::AffineChart(row.second).ErrorBound(projected));
+  }}catch(const std::exception& e){failure.Set(1,0,e.what());}
+  report.maximum_mapping_error=CPassiveComm::Allreduce(mapping_error,CPassiveComm::Op::MAX,world.comm);
+  if(!vote())return false;
   uint64_t local_changed=0;double displacement=0;
   for(size_t p=0;p<geometry.GetnPointDomain();++p) {
     bool changed=false;for(unsigned k=0;k<3;++k)changed=changed || candidate[p][k]!=SU2_TYPE::GetValue(geometry.nodes->GetCoord(p,k));
@@ -800,6 +1055,16 @@ bool PrepareSymmetryReference(const CConfig& config,CGeometry& geometry,bool all
       const auto p=geometry.bound[m][f]->GetNode(k);
       if(constraints[p] && config.GetMarker_All_KindBC(m)!=SYMMETRY_PLANE)junction[p]=true;
     }
+  double body_displacement=0;
+  try {for(size_t p=0;p<np;++p)if(junction[p]) {
+    const auto* old=geometry.nodes->GetCoord(p);const auto q=candidate[p];
+    body_displacement=std::max(body_displacement,SU2NativeGeometry::DisplacementBound(
+        {SU2_TYPE::GetValue(old[0]),SU2_TYPE::GetValue(old[1]),SU2_TYPE::GetValue(old[2])},{q[0],q[1],q[2]}));
+  }}catch(const std::exception& e){failure.Set(1,0,e.what());}
+  report.maximum_body_displacement=CPassiveComm::Allreduce(body_displacement,CPassiveComm::Op::MAX,world.comm);
+  if(!planes.front().Legacy() && report.maximum_body_displacement>SU2_TYPE::GetValue(config.GetAdap_Hausd()))
+    failure.Set(1,0,"Declared symmetry adoption exceeds the original faceted body accuracy contract; no coordinates changed.");
+  if(!vote())return false;
   const auto junction_count=CPassiveComm::Allreduce(uint64_t(std::count(junction.begin(),junction.end(),true)),CPassiveComm::Op::SUM,world.comm);
   if(!admit(transfer_memory::Add(base,transfer_memory::Mul(junction_count,8*sizeof(Id)))))return false;
   std::vector<Id> junction_ids;
@@ -832,12 +1097,19 @@ bool PrepareSymmetryReference(const CConfig& config,CGeometry& geometry,bool all
   }catch(const std::exception& e){failure.Set(1,0,e.what());}
   report.minimum_volume_ratio=CPassiveComm::Allreduce(minimum_ratio,CPassiveComm::Op::MIN,world.comm);
   if(!vote())return false;
+  if(!planes.front().Legacy() && report.changed_points &&
+      !CheckProjectedBoundary(world,config,geometry,candidate,report,base,ceiling,reason)) {
+    if(audit)*audit=report;return false;
+  }
   // Audit-only paths never write CFD coordinates, including signed-zero representations.
   if(allow_projection && report.changed_points)
     for(size_t p=0;p<np;++p)if(constraints[p])for(unsigned k=0;k<3;++k)geometry.nodes->SetCoord(p,k,candidate[p][k]);
   if(!world.rank)std::cout<<"Native symmetry reference "<<(allow_projection && report.changed_points?"adopted":"verified")
       <<": changed_points="<<report.changed_points
-      <<" junction_points="<<report.junction_points<<" maximum_displacement="<<report.maximum_displacement<<" minimum_volume_ratio="<<report.minimum_volume_ratio
+      <<" junction_points="<<report.junction_points<<" maximum_displacement="<<report.maximum_displacement
+      <<" maximum_mapping_error="<<report.maximum_mapping_error<<" body_displacement_bound="<<report.maximum_body_displacement
+      <<" minimum_volume_ratio="<<report.minimum_volume_ratio<<" boundary_witnesses="<<report.boundary_witnesses
+      <<" boundary_pairs="<<report.boundary_pair_checks<<" boundary_check_seconds="<<report.boundary_check_seconds
       <<" maximum_requested_bytes="<<report.maximum_bytes<<" frozen_fields_moved=0\n";
   if(audit)*audit=report;reason.clear();return true;
 }

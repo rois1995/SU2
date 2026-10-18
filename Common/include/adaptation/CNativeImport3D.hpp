@@ -17,12 +17,14 @@ struct ReferenceState {
   std::vector<Facet> facets;
   std::vector<std::string> marker_names;
 };
-/*! Explicit Cartesian plane adoption occurs before CFD geometry quantities, states and original donors exist.
- * All shared junction vertices move together. Return/restart only audits exact conformity; no frozen field moves.
+/*! Version1 Cartesian/version2 affine adoption precedes CFD geometry quantities, states and original donors.
+ * Shared constraints are solved together and body displacement is bounded. Return/restart only audits
+ * the declared mapping contract; no frozen geometry or field is projected.
  * Empty configuration is a no-op. Failure is collective and leaves all coordinates unchanged. */
 struct SymmetryReferenceAudit3D {
-  uint64_t changed_points=0, junction_points=0;
+  uint64_t changed_points=0, junction_points=0, boundary_witnesses=0, boundary_pair_checks=0;
   double maximum_deviation=0, maximum_displacement=0, minimum_volume_ratio=1;
+  double maximum_mapping_error=0, maximum_body_displacement=0, boundary_check_seconds=0;
   size_t maximum_bytes=0;
 };
 bool PrepareSymmetryReference(const CConfig& config,CGeometry& geometry,bool allow_projection,std::string& reason,

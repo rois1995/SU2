@@ -19,13 +19,19 @@ floating tensors made all four grid proposals miss2/8wallfeet. Bounded adjacent
 coordinate admission fixes it without changing the field, tolerance or geometry.
 Old failed states and rejected exact-midpoint bracketing are preserved. Serial
 accepted output is byte-identical to v9; serial/N2 frozen profiles unchanged.
-All owned jobs TERMINAL. No new physical CFD advance or M6 attempt.
+One connected v2 adoption build53426 is live (nice19/CPU1/j1); source hashes frozen.
+No new physical CFD advance or M6 attempt.
 [Current evidence, costs and limits](integration_evidence/native_3d_bl_v1/native_height_star_v1/README.md).
 
-Next capability: complete accepted oblique finite symmetry lifecycle with declared
-initial geometry and consistent simultaneous body/symmetry ownership/source coverage.
-Reconsider the source/junction authority contract before adding isolated operator
-variants. Full general2D/multi-body/exterior/M6/gradation/uncertainty goals stay open.
+Current connected batch: generic v2 affine declarations/initial adoption, bounded
+body displacement and boundary-only embedding audit, original-reference attachment
+and frozen/restart metadata consistency. Source/build is UNQUALIFIED. Read
+[the adoption handoff and planned difficult pilot](integration_evidence/native_3d_bl_v1/affine_initial_adoption_v1/README.md).
+Build53426 compiles the four new/changed objects first, then finishes the same binary.
+Check its handle before acting; no C++ edits while compiling/executing/pinned.
+After terminal success: controls1/v1 then difficult oblique annulus1/v1. Save and
+reconsider any exact failure before adding recovery; affected MPI only after that.
+All general2D/multi-body/junction/exterior/M6/gradation/uncertainty goals stay open.
 
 1. Spherical repeated RANS lifecycle validation/push: **DONE**, reuse accepted cold.
 2. Explicit audited planar symmetry reference, including wall intersections and
@@ -48,7 +54,8 @@ now [documented here](Handbook/GOAL3_AFFINE_RUNTIME.md): native-ref v4, original
 support and collective source validation are qualified. Private affine projection
 routes are implemented, not an accepted oblique proposal/lifecycle qualification.
 Keep input-adoption versus mapping-error contracts separate. General junctions,
-affine-wall BL,2D runtime/exterior and annular coordinated construction remain OPEN.
+affine-wall BL and2D runtime/exterior remain OPEN; the Cartesian annular construction
+is accepted in the four scoped lifecycles above.
 Disk cleanup recovered23.40GiB across two verified archival batches; [receipt and restore](Handbook/DISK_SPACE_CLEANUP_2026_10_18.md).
 Current build and all3D evidence preserved; archived old executables need decompression.
 Root/tmp nearly full from foreign work: leave it untouched.

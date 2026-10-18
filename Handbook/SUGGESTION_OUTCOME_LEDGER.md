@@ -344,3 +344,11 @@ Coordinate admission has no extra density/MPI query, bounded geometric work is
 included in reconstruction but not separately timed. Full composed gradation and
 global uncertainty calibration remain open; refinement did not monotonically
 improve the estimates. [Complete receipts](../integration_evidence/native_3d_bl_v1/native_height_star_v1/lifecycle_summary.json).
+
+## Connected affine initial-adoption batch — building, no result yet
+
+V2 definition/adoption/reference/frozen-source/restart paths, body-displacement and
+boundary-only embedding/resource audits are implemented and compiling in53426.
+Euler/RANS one/two same-marker components, positive-Jacobian narrow-gap rejection
+and the difficult oblique annular full lifecycle are prepared, unexecuted. No
+success or performance inference yet. [Scope and active handoff](../integration_evidence/native_3d_bl_v1/affine_initial_adoption_v1/README.md).

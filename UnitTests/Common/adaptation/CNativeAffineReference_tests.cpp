@@ -125,3 +125,28 @@ TEST_CASE("Declared geometry cannot alias the original physical-source tag", "[N
   f.v={{{0,chart.Lift({0,0,0})},{1,chart.Lift({1,0,0})},{2,chart.Lift({0,1,0})}}};
   CHECK_THROWS(SU2Native3D::PlanarReference({f},SIZE_MAX,{},{{UINT64_MAX,definition}}));
 }
+
+TEST_CASE("Simultaneous affine adoption preserves every mapping contract and remains idempotent", "[NativeAffineGeometry]") {
+  for(unsigned dimension:{2u,3u}) {
+    auto a=Authority(dimension),b=a;b.identity++;b.normal={-.61,.37,dimension==3?.23:0};
+    const Point original{2.100003,-.700002,dimension==3?.800001:0};
+    const auto projected=ProjectIntersection(original,{a,b});
+    CHECK(AffineChart(a).ErrorBound(projected)<=a.maximum_error);
+    CHECK(AffineChart(b).ErrorBound(projected)<=b.maximum_error);
+    const auto again=ProjectIntersection(projected,{a,b});
+    CHECK(again.x==projected.x);CHECK(again.y==projected.y);CHECK(again.z==projected.z);
+    CHECK(DisplacementBound(projected,projected)==0);
+    const long double l1=std::abs((long double)original.x-projected.x)+std::abs((long double)original.y-projected.y)+std::abs((long double)original.z-projected.z);
+    CHECK(DisplacementBound(original,projected)>=l1);
+    auto conflict=a;conflict.identity+=3;conflict.origin.x+=1;
+    CHECK_THROWS(ProjectIntersection(original,{a,conflict}));
+    conflict=a;conflict.identity+=3;conflict.normal.y+=1e-15;
+    CHECK_THROWS(ProjectIntersection(original,{a,conflict}));
+  }
+  auto a=Authority(3),b=a,c=a;b.identity++;c.identity+=2;
+  b.normal={0,1,0};c.normal={0,0,1};
+  const auto projected=ProjectIntersection({3,2,1},{a,b,c});
+  for(const auto& g:{a,b,c})CHECK(AffineChart(g).ErrorBound(projected)<=g.maximum_error);
+  CHECK_THROWS(DisplacementBound({INFINITY,0,0},{0,0,0}));
+  auto zero=Authority(3);zero.maximum_error=0;CHECK_THROWS(ProjectIntersection({0,0,0},{zero}));
+}

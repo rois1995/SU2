@@ -255,24 +255,50 @@ CSimplexMesh SymmetryAnnulusMesh() {
   for(auto& row:boundary){CSimplexMesh::Marker marker;marker.name=row.first;marker.elem=std::move(row.second);mesh.markers.push_back(std::move(marker));}
   return mesh;
 }
+void ShearSymmetryMesh(CSimplexMesh& mesh) {
+  std::set<unsigned long> boundary;
+  for(const auto& marker:mesh.markers)if(marker.name=="symmetry")for(auto id:marker.elem)boundary.insert(id);
+  for(size_t p=0;p<mesh.GetnPoint();++p) {
+    mesh.coord[3*p+1]+=.37*mesh.coord[3*p]+.61*mesh.coord[3*p+2];
+    if(boundary.count(p)) {
+      const double error=(p%2?1:-1)*1e-12*(p+1);
+      mesh.coord[3*p]-=.37*error;mesh.coord[3*p+1]+=error;mesh.coord[3*p+2]-=.61*error;
+    }
+  }
+}
+void AppendSymmetryMesh(CSimplexMesh& mesh,const CSimplexMesh& part) {
+  const auto offset=mesh.GetnPoint();mesh.coord.insert(mesh.coord.end(),part.coord.begin(),part.coord.end());
+  for(auto id:part.elem)mesh.elem.push_back(id+offset);mesh.elemRef.resize(mesh.GetnElem());
+  for(const auto& marker:part.markers) {
+    auto found=std::find_if(mesh.markers.begin(),mesh.markers.end(),[&](const auto& m){return m.name==marker.name;});REQUIRE(found!=mesh.markers.end());
+    for(auto id:marker.elem)found->elem.push_back(id+offset);
+  }
+}
 void BudgetRuntime3D(bool symmetry) {
   World world;const auto all=std::getenv("SU2_NATIVE_SYMMETRY_ALL_WORKERS");
   const int workers=symmetry && all && std::string(all)=="1"?world.size:std::min(2,world.size);
   const bool annulus=symmetry && std::getenv("SU2_NATIVE_SYMMETRY_ANNULUS");
+  const bool oblique=annulus && std::getenv("SU2_NATIVE_SYMMETRY_OBLIQUE");
   const double budget=GENERATE(3.,20.);if(annulus && budget!=20)return;
-  const auto name=std::string(annulus?"symmetry_annulus_bl_budget_":symmetry?"symmetry_bl_budget_":"bl_budget_")+std::to_string(int(budget))+"_m"+std::to_string(workers);
+  const auto name=std::string(oblique?"affine_annulus_bl_budget_":annulus?"symmetry_annulus_bl_budget_":symmetry?"symmetry_bl_budget_":"bl_budget_")+std::to_string(int(budget))+"_m"+std::to_string(workers);
   if(!world.rank) {
     auto mesh=annulus?SymmetryAnnulusMesh():simplex_test::MakeSimplexMesh(3,1,[&](const passivedouble* p){return p[2]==0?"wall":symmetry&&p[1]==0?"symmetry":"far";});
-    if(symmetry)for(size_t p=0;p<mesh.GetnPoint();++p)if(mesh.coord[3*p+1]==0)mesh.coord[3*p+1]=(p%2?1:-1)*1e-12*(p+1);
+    if(oblique)ShearSymmetryMesh(mesh); else if(symmetry)for(size_t p=0;p<mesh.GetnPoint();++p)if(mesh.coord[3*p+1]==0)mesh.coord[3*p+1]=(p%2?1:-1)*1e-12*(p+1);
     simplex_test::WriteSU2Mesh(mesh,name+".su2");
-    if(symmetry) {std::ofstream ref(name+".planes");ref<<"SU2_NATIVE_SYMMETRY_PLANES 1 1\n\"symmetry\" Y 0 1e-10\n";REQUIRE(bool(ref));}
+    if(symmetry) {
+      std::ofstream ref(name+".planes");
+      if(oblique)ref<<"SU2_NATIVE_SYMMETRY_PLANES 2 1\n\"symmetry\" 17 1 0 0 0 -.37 1 -.61 1e-10 1e-13\n";
+      else ref<<"SU2_NATIVE_SYMMETRY_PLANES 1 1\n\"symmetry\" Y 0 1e-10\n";
+      REQUIRE(bool(ref));
+    }
     auto text=normalization_test::Options(name,workers);const std::string old="ADAP_COMPLEXITY= 20";
     const auto at=text.find(old);REQUIRE(at!=std::string::npos);text.replace(at,old.size(),"ADAP_COMPLEXITY= "+std::to_string(int(budget)));
     if(symmetry)text+="MARKER_SYM= (symmetry)\nADAP_NATIVE_SYMMETRY_REFERENCE= "+name+".planes\n";
+    if(oblique){std::ostringstream angle;angle<<std::setprecision(17)<<"SIDESLIP_ANGLE= "<<std::atan(.37)*180/std::acos(-1.)<<'\n';text+=angle.str();}
     std::ofstream cfg(name+".cfg");cfg<<text<<"ADAP_BL_BUDGET= YES\nADAP_BL_PROTECT_DISTANCE= .1\nADAP_BL_OUTER_GROWTH_MAX= 10\n";REQUIRE(bool(cfg));
   }
   SU2_MPI::Barrier(world.comm);auto cfg=name+".cfg";auto driver=std::make_unique<TetraDriver>(const_cast<char*>(cfg.c_str()),1,world.comm);
-  if(symmetry) {
+  if(symmetry && !oblique) {
     SymmetryReferenceAudit3D report;std::string reason;
     REQUIRE(PrepareSymmetryReference(driver->Config(),driver->Geometry(),false,reason,&report));
     CHECK(report.changed_points==0);CHECK(report.maximum_deviation==0);CHECK(report.junction_points>0);
@@ -326,6 +352,26 @@ void BudgetRuntime3D(bool symmetry) {
     std::unique_ptr<CConfig> disabled;{Mute mute;disabled=std::make_unique<CConfig>(disabledText,SU2_COMPONENT::SU2_CFD,false);}
     CHECK(PrepareSymmetryReference(*disabled,mesh,false,reason,nullptr,0));
 
+  }
+  if(oblique) {
+    SymmetryReferenceAudit3D report;std::string reason;auto& geometry=driver->Geometry();
+    const auto states=State(geometry,driver->Solver());std::vector<std::array<double,3>> coordinates;
+    for(size_t p=0;p<geometry.GetnPoint();++p){const auto* x=geometry.nodes->GetCoord(p);coordinates.push_back({double(x[0]),double(x[1]),double(x[2])});}
+    REQUIRE(PrepareSymmetryReference(driver->Config(),geometry,false,reason,&report));
+    CHECK(report.changed_points==0);CHECK(report.maximum_mapping_error<=1e-13);CHECK(report.junction_points>0);
+    REQUIRE(PrepareSymmetryReference(driver->Config(),geometry,true,reason,&report));CHECK(report.changed_points==0);
+    CHECK_FALSE(PrepareSymmetryReference(driver->Config(),geometry,false,reason,nullptr,world.rank==0?1:SIZE_MAX));
+    auto declaration=[&](const std::string& data){if(!world.rank){std::ofstream out(name+".planes");out<<data;REQUIRE(bool(out));}SU2_MPI::Barrier(world.comm);};
+    for(const auto& invalid:std::vector<std::string>{
+        "SU2_NATIVE_SYMMETRY_PLANES 2 1\n\"symmetry\" 17 0 0 0 0 -.37 1 -.61 1e-10 1e-13\n",
+        "SU2_NATIVE_SYMMETRY_PLANES 2 1\n\"symmetry\" 17 1 0 0 0 -.37 1 -.61 1e-14 1e-13\n",
+        "SU2_NATIVE_SYMMETRY_PLANES 2 2\n\"symmetry\" 17 1 0 0 0 -.37 1 -.61 1e-10 1e-13\n\"symmetry\" 18 1 0 0 0 -.37 1 -.61 1e-10 1e-13\n",
+        "SU2_NATIVE_SYMMETRY_PLANES 2 1\n\"symmetry\" 17 1 0 .1 0 -.37 1 -.61 1e-10 1e-13\n"}) {
+      declaration(invalid);CHECK_FALSE(PrepareSymmetryReference(driver->Config(),geometry,false,reason));
+    }
+    declaration("SU2_NATIVE_SYMMETRY_PLANES 2 1\n\"symmetry\" 17 1 0 0 0 -.37 1 -.61 1e-10 1e-13\n");
+    for(size_t p=0;p<geometry.GetnPoint();++p)for(unsigned k=0;k<3;++k)CHECK(geometry.nodes->GetCoord(p,k)==coordinates[p][k]);
+    CHECK(State(geometry,driver->Solver())==states);
   }
   auto backend=driver->Backend();auto* native=dynamic_cast<CNativeRemesher3D*>(backend.get());REQUIRE(native);
   if(annulus) {
@@ -401,6 +447,17 @@ void BudgetRuntime3D(bool symmetry) {
       <<",\"normalization_log_scale\":"<<family->normalization.logScale<<",\"original_field\":true}\n";REQUIRE(bool(out));}
   }
 
+  if(oblique) {
+    const auto encoded=EncodeReference(*driver->Reference());CHECK_FALSE(driver->Reference()->original->Affine().empty());
+    CHECK(encoded.find("SU2_NATIVE_REFERENCE_3D 4\n")==0);
+    if(!world.rank){std::ofstream out(name+".planes");out<<"SU2_NATIVE_SYMMETRY_PLANES 2 1\n\"symmetry\" 17 2 0 0 0 -.37 1 -.61 1e-10 1e-13\n";REQUIRE(bool(out));}
+    SU2_MPI::Barrier(world.comm);ImportedGeometry refused;BridgeStats stats;std::string reason;auto retained=*driver->Reference();
+    CHECK_FALSE(ImportGeometry(driver->Config(),g,&solver.GetNodes()->GetMetric(),retained,refused,reason,stats,size_t(128)<<20));
+    CHECK(reason.find("differs from its configuration declaration")!=std::string::npos);
+    CHECK(refused.cells.empty());CHECK(EncodeReference(retained)==encoded);CHECK(State(g,solver)==before);
+    if(!world.rank){std::ofstream out(name+".planes");out<<"SU2_NATIVE_SYMMETRY_PLANES 2 1\n\"symmetry\" 17 1 0 0 0 -.37 1 -.61 1e-10 1e-13\n";REQUIRE(bool(out));}
+    SU2_MPI::Barrier(world.comm);
+  }
   const auto result=backend->Remesh(driver->Config(),g,solver.GetNodes()->GetMetric());
   INFO(native->Statistics().normalization.reason);
   CHECK(State(g,solver)==before);CHECK(State(g,*driver->Turbulence())==beforeTurb);
@@ -486,6 +543,84 @@ TEST_CASE("Opt-in BL budget selection stays frozen through native RANS replaceme
 }
 TEST_CASE("Declared symmetry reference preserves wall intersections and original donors through RANS restart", "[NativeSymmetryRuntime3D]") {
   BudgetRuntime3D(true);
+}
+
+TEST_CASE("Affine declarations adopt geometry before Euler and RANS states and preserve original sources", "[NativeAffineInitialDriver3D]") {
+  World world;const bool rans=GENERATE(false,true);const unsigned components=GENERATE(1u,2u);
+  const std::string name=std::string(rans?"affine_initial_rans":"affine_initial_euler")+"_c"+std::to_string(components);
+  auto options=normalization_test::Options(name,std::min(2,world.size),false);
+  {std::ostringstream angle;angle<<std::setprecision(17)<<"SIDESLIP_ANGLE= "<<std::atan(.37)*180/std::acos(-1.)<<'\n';options+=angle.str();}
+  if(!rans) {
+    for(const auto& change:std::vector<std::pair<std::string,std::string>>{{"SOLVER= RANS","SOLVER= EULER"},
+        {"KIND_TURB_MODEL= SA\n",""},{"MARKER_HEATFLUX= (wall,0)","MARKER_EULER= (wall)"}}) {
+      const auto at=options.find(change.first);REQUIRE(at!=std::string::npos);options.replace(at,change.first.size(),change.second);
+    }
+  }
+  if(!world.rank) {
+    auto mesh=simplex_test::MakeSimplexMesh(3,1,[](const passivedouble* p){return p[2]==0?"wall":p[1]==0?"symmetry":"far";});
+    ShearSymmetryMesh(mesh);
+    if(components==2){auto second=mesh;for(size_t p=0;p<second.GetnPoint();++p){second.coord[3*p]+=3;second.coord[3*p+1]+=5;second.coord[3*p+2]+=2;}AppendSymmetryMesh(mesh,second);}
+    simplex_test::WriteSU2Mesh(mesh,name+".su2");
+    std::ofstream ref(name+".planes");ref<<"SU2_NATIVE_SYMMETRY_PLANES 2 "<<components<<"\n\"symmetry\" 17 1 0 0 0 -.37 1 -.61 1e-10 1e-13\n";
+    if(components==2)ref<<"\"symmetry\" 18 1 3 5 2 -.37 1 -.61 1e-10 1e-13\n";REQUIRE(bool(ref));
+    std::ofstream cfg(name+".cfg");cfg<<options<<"MARKER_SYM= (symmetry)\nADAP_NATIVE_SYMMETRY_REFERENCE= "<<name<<".planes\n";REQUIRE(bool(cfg));
+  }
+  SU2_MPI::Barrier(world.comm);const auto cfg=name+".cfg";auto driver=std::make_unique<TetraDriver>(const_cast<char*>(cfg.c_str()),1,world.comm);
+  auto& g=driver->Geometry();const auto states=State(g,driver->Solver());SymmetryReferenceAudit3D audit;std::string reason;
+  REQUIRE(PrepareSymmetryReference(driver->Config(),g,false,reason,&audit));CHECK(audit.changed_points==0);
+  CHECK(audit.maximum_mapping_error<=1e-13);CHECK(audit.junction_points>0);
+  auto backend=driver->Backend();auto* native=dynamic_cast<CNativeRemesher3D*>(backend.get());REQUIRE(native);
+  native->PrepareReference(driver->Config(),g);CHECK_FALSE(driver->Reference()->original->Affine().empty());
+  const auto encoded=EncodeReference(*driver->Reference());CHECK(encoded.find("SU2_NATIVE_REFERENCE_3D 4\n")==0);
+  CHECK(EncodeReference(DecodeReference(encoded))==encoded);CHECK(State(g,driver->Solver())==states);
+  su2activematrix metric(g.GetnPointDomain(),6);
+  for(size_t p=0;p<metric.rows();++p){const auto* q=g.nodes->GetCoord(p);for(unsigned k=0;k<6;++k)metric(p,k)=0;metric(p,0)=2+.125*q[0];metric(p,3)=3+.125*q[1];metric(p,5)=4+.125*q[2];}
+  const auto imported=ImportGeometry(driver->Config(),g,&metric,*driver->Reference());
+  Save(world,name,imported.cells,imported.original,*driver->Reference());WriteReference(name+".native_ref",*driver->Reference());
+  CHECK(State(g,driver->Solver())==states);CHECK(EncodeReference(*driver->Reference())==encoded);
+  {Mute mute;driver->Finalize();driver.reset();}
+}
+
+TEST_CASE("Affine initial adoption rejects narrow-gap contact atomically despite positive tetrahedra", "[NativeAffineInitialDriver3D]") {
+  World world;const std::string name="affine_narrow_gap";
+  auto mesh=simplex_test::MakeSimplexMesh(3,1,[](const passivedouble* p){return p[1]==0?"symmetry":"far";});
+  const auto nodes=mesh.GetnPoint();auto second=mesh;
+  for(size_t p=0;p<nodes;++p) {
+    const double y=mesh.coord[3*p+1];mesh.coord[3*p+1]+=.37*mesh.coord[3*p]+(y==0?1e-11:0);
+    second.coord[3*p]+=1+2e-13;second.coord[3*p+1]+=.37*second.coord[3*p]+(y==0?-1e-11:0);
+  }
+  AppendSymmetryMesh(mesh,second);
+  auto options=normalization_test::Options(name,std::min(2,world.size),false);
+  const auto wall=options.find("MARKER_HEATFLUX= (wall,0)\n");REQUIRE(wall!=std::string::npos);options.erase(wall,std::string("MARKER_HEATFLUX= (wall,0)\n").size());
+  for(const auto& change:std::vector<std::pair<std::string,std::string>>{{"SOLVER= RANS","SOLVER= EULER"},{"KIND_TURB_MODEL= SA\n",""}}) {
+    const auto at=options.find(change.first);REQUIRE(at!=std::string::npos);options.replace(at,change.first.size(),change.second);
+  }
+  options+="MARKER_SYM= (symmetry)\n";
+  {std::ostringstream angle;angle<<std::setprecision(17)<<"SIDESLIP_ANGLE= "<<std::atan(.37)*180/std::acos(-1.)<<'\n';options+=angle.str();}
+  if(!world.rank){simplex_test::WriteSU2Mesh(mesh,name+".su2");std::ofstream cfg(name+".cfg");cfg<<options;REQUIRE(bool(cfg));}
+  SU2_MPI::Barrier(world.comm);const auto cfg=name+".cfg";auto driver=std::make_unique<TetraDriver>(const_cast<char*>(cfg.c_str()),1,world.comm);
+  auto& g=driver->Geometry();const auto states=State(g,driver->Solver());std::vector<std::array<double,3>> coordinates;
+  for(size_t p=0;p<g.GetnPoint();++p){const auto* q=g.nodes->GetCoord(p);coordinates.push_back({double(q[0]),double(q[1]),double(q[2])});}
+  if(!world.rank){std::ofstream ref(name+".planes");ref<<"SU2_NATIVE_SYMMETRY_PLANES 2 1\n\"symmetry\" 17 1 0 0 0 -.37 1 0 1e-9 1e-13\n";REQUIRE(bool(ref));}
+  SU2_MPI::Barrier(world.comm);std::stringstream text(options+"ADAP_NATIVE_SYMMETRY_REFERENCE= "+name+".planes\n");std::unique_ptr<CConfig> declared;
+  {Mute mute;declared=std::make_unique<CConfig>(text,SU2_COMPONENT::SU2_CFD,false);}
+  declared->SetnMarker_All(g.GetnMarker());
+  for(unsigned m=0;m<g.GetnMarker();++m){declared->SetMarker_All_TagBound(m,driver->Config().GetMarker_All_TagBound(m));declared->SetMarker_All_KindBC(m,driver->Config().GetMarker_All_KindBC(m));declared->SetMarker_All_SendRecv(m,driver->Config().GetMarker_All_SendRecv(m));}
+  SymmetryReferenceAudit3D report;std::string reason;
+  CHECK_FALSE(PrepareSymmetryReference(*declared,g,true,reason,&report));INFO(reason);
+  CHECK(reason.find("nonconforming boundary-cell contact")!=std::string::npos);CHECK(report.minimum_volume_ratio>0);CHECK(report.boundary_pair_checks>0);
+  for(size_t p=0;p<g.GetnPoint();++p)for(unsigned k=0;k<3;++k)CHECK(g.nodes->GetCoord(p,k)==coordinates[p][k]);
+  CHECK(State(g,driver->Solver())==states);
+  if(!world.rank) {
+    const SU2NativeGeometry::AffineAuthority authority{17,1,3,{0,0,0},{-.37,1,0},1e-13};std::set<unsigned long> boundary;
+    for(const auto& marker:mesh.markers)if(marker.name=="symmetry")for(auto id:marker.elem)boundary.insert(id);
+    for(auto id:boundary){const auto p=SU2NativeGeometry::ProjectIntersection({mesh.coord[3*id],mesh.coord[3*id+1],mesh.coord[3*id+2]},{authority});mesh.coord[3*id]=p.x;mesh.coord[3*id+1]=p.y;mesh.coord[3*id+2]=p.z;}
+    simplex_test::WriteSU2Mesh(mesh,name+"_rejected.su2");
+    std::ofstream out(name+"_rejection.json");out<<std::setprecision(17)<<"{\"accepted\":false,\"boundary_witnesses\":"<<report.boundary_witnesses
+      <<",\"boundary_pair_checks\":"<<report.boundary_pair_checks<<",\"minimum_volume_ratio\":"<<report.minimum_volume_ratio
+      <<",\"maximum_displacement\":"<<report.maximum_displacement<<",\"boundary_seconds\":"<<report.boundary_check_seconds<<"}\n";REQUIRE(bool(out));
+  }
+  {Mute mute;driver->Finalize();driver.reset();}
 }
 
 TEST_CASE("An uncertain BL budget freezes the coarsest original field without scale trials", "[NativeBLBudgetUncertainty3D]") {
