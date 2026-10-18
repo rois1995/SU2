@@ -311,6 +311,29 @@ The numerical deck is reproducible by this command. The original archived attemp
 also uses the separately recorded FLOW-work interruption; running the command
 alone continues until convergence or its time/update resource cap.
 
+The [SA work-milestone CSV](NewtonKrylovSAWorkMilestones20261018.csv) now tracks
+the same final-build studies on both layouts, including original and adaptive-CFL
+segregated runs as their histories become available. It uses the existing tested
+crossing/counter helpers; regenerate it with `python3 residual_work_milestones.py`
+from the evidence root. These density-only crossings are supporting progress,
+with no physical/state qualification at the crossing itself.
+
+| Density-history crossing | Segregated control | Updates | FLOW / TURB assemblies | Krylov work | Retries |
+|---|---|---:|---:|---:|---:|
+| −12.4 | Original | 101 | 7519 / 4026 | 4714 | 2 |
+| −12.4 | CFL adaptation only | 60 | 7052 / 3465 | 3899 | 31 |
+| −12.5 | Original | 345 | 24599 / 13566 | 15962 | 2 |
+| −12.5 | CFL adaptation only | 213 | 23809 / 12966 | 14184 | 107 |
+
+At −12.5, adaptation reduces updates by 38.3%, FLOW assemblies by 3.2%, TURB
+assemblies by 4.4% and linear iterations by 11.1%. All 107 retries are measured
+derivative-verification failures. Their log intervals consume 7240 FLOW assemblies
+(30.4% of counted FLOW work), versus 96 in the original-control prefix. Intervals
+include bases and intervening reports; these are not isolated failure kernels or
+time fractions. This explains why the update reduction does not translate into
+a comparable work reduction. The full adaptive endpoint is still pending; these
+data do not qualify a convergence improvement or justify a new default.
+
 <!-- measured NACA results -->
 
 ## Current native endpoints
