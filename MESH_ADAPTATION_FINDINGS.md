@@ -1,22 +1,19 @@
 ## Affine reference/source backend checkpoint — 2026-10-18
 
-Current native joint-placement batch is compiled and scoped-qualified:7cases/
-18743assertions and independently audited Cartesian N4/M2 RANS/SA/BDF/output/
-restart pass. The unchanged annular native event still rejects after96edits,
-339cells and2300/8192work. Four oversized edges share one first-height apex;
-retained-ownership and single-background diagnostics justify a multi-apex strategy.
+Native compound height-star reconstruction now passes the complete serial annular
+RANS/SA lifecycle:24->218cells, current+BDF transfer/conservation<6.6e-16,
+SU2+CGNS/reference persistence and actual restart. Independent geometry/height/
+full-field q=.2033345/J=.0572923/Lmax1.7955165 PASS. No acceptance gate was weakened.
 
-A complete offline compound star replacement now independently passes355cells/
-107nodes, q=.2167007/J=.0558188/Lmax1.7955165/height0/exact geometry and overlap,
-with the same original frozen field. Native port and annular lifecycle are pending;
-no M6/general symmetry/physical accuracy/affordability claim. Overflowing SciPy
-min-cut draft withdrawn; corrected capacities plus complete independent audit pass.
-[Current result, rejected experiments and next capability](Handbook/GOAL3_ANNULAR_COORDINATION.md).
-The connected generic native compound height-star operator and existing MPI-route
-integration are now implemented and building (session50386), UNQUALIFIED. Saved
-339-cell whole-field replay and complete unchanged native lifecycle remain next;
-no new accepted mesh is claimed. Optional Opus review timed out without a report.
-Full Goal3/general symmetry requirements remain OPEN.
+MPI2/M2 follows a different private-edit trajectory and rejects at3759/8192work;
+335cells retain four oversized edges at a shared height apex, with no shape defect.
+The exact34-cell star also rejects in native serial replay, whereas an offline
+partition makes progress. Diagnose the native proposal/constraint difference;
+N4/M2/M4 were not started. Full Goal3/general symmetry remains incomplete.
+Serial actual-BL metric initialization7.879s versus native5.732s identifies remaining
+normalization cost; contended correctness timings establish no scaling speedup.
+Composed nodal gradation still has18violations; no combined certificate is claimed.
+[Current accepted/rejected evidence](integration_evidence/native_3d_bl_v1/native_height_star_v1/README.md).
 
 Finite affine references now use the existing3D query/operator/source/IO architecture.
 Serial12cases/3974assertions, MPI4 and independent75-stencil positivity/original-ID/

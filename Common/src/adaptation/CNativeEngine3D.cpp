@@ -2877,7 +2877,9 @@ bool CollapseConstraintViolation(const OwnedCell& cell,Id removed,Node retained,
   for(const auto& face:patch.surface) {
     std::array<Point,3> points;
     for(unsigned i=0;i<3;++i)for(auto n:proposed.cell.v)if(n.id==face.v[i])points[i]=n.p;
-    if(geometry.SurfaceError(face.facet,points)>SurfaceTolerance(geometry,face.facet,tolerance,heights))return true;
+    if(!geometry.ContainsFace(face.facet,points))return true;
+    if(geometry.Declared(geometry.Canonical(face.facet)) &&
+        geometry.SurfaceError(face.facet,points)>SurfaceTolerance(geometry,face.facet,tolerance,heights))return true;
   }
   FirstHeightReport report;std::string reason;
   return !heights.empty() && !CheckFirstHeight(patch,heights,geometry,report,reason);

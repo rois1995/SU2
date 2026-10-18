@@ -10,15 +10,17 @@ Leave AdapNoExt, foreign ClusterResults, dependencies and foreign jobs untouched
 
 ## User priority and current job
 
-Affine source/backend batch now passes serial12cases/3974assertions, MPI4 and
-independent75-stencil/source-ID/codec/equality audit. Current Cartesian N4/M2 full
-lifecycle independently PASS. Native joint-placement replay passes7cases/18743assertions; current N4/M2 lifecycle
-also passes independently. New generic height-star batch is building in owned session50386; no CFD advance
-or M6. Prior passing placement/lifecycle evidence belongs to source2b48c9dd20da.
-Read [backend scope and open full-goal requirements](Handbook/GOAL3_AFFINE_RUNTIME.md).
-No accepted oblique lifecycle; simultaneous junction collars and affine-wall BL
-composition explicitly refuse. Preserve full geometry/2D/exterior scope and annular
-coordinated-construction requirement. Do not declare general geometry complete.
+Current connected native height-star reconstruction passes the complete serial
+annular RANS/SA/current+BDF/transfer/SU2+CGNS/real restart lifecycle:24->218cells,
+71nodes,1035/8192work. Independent geometry/height/full original field PASS;
+q=.2033345/J=.0572923/Lmax1.7955165, conservation<6.6e-16, restart0.
+
+MPI2/M2 rejects at3759work:335cells, four oversized1.86593edges, no shape failures.
+The exact34-cell shared-apex star also fails native serial replay; this is not just
+MPI admission. Offline partition progress is not native acceptance. Diagnose the
+proposal/constraint difference before another full event. N4/M2/M4 NOT started.
+All owned jobs terminal. No new physical CFD advance or M6 attempt.
+[Current evidence and limits](integration_evidence/native_3d_bl_v1/native_height_star_v1/README.md).
 
 1. Spherical repeated RANS lifecycle validation/push: **DONE**, reuse accepted cold.
 2. Explicit audited planar symmetry reference, including wall intersections and
@@ -46,16 +48,13 @@ Disk cleanup recovered23.40GiB across two verified archival batches; [receipt an
 Current build and all3D evidence preserved; archived old executables need decompression.
 Root/tmp nearly full from foreign work: leave it untouched.
 
-Annular native cold construction improves to96private edits/339cells but still
-rejects at2300/8192work. Four remaining1.86593edges share a first-height apex;
-its retained ownership has an analytic lower bound above1.8. Do not retry unchanged
-or raise caps. A compound multi-apex offline construction independently passes the
-complete355cell mesh: q=.2167/J=.05582/Lmax1.79552/height0/exact geometry and overlap.
-A generic native compound height-star implementation is now BUILDING/UNQUALIFIED;
-no transfer/MPI qualification exists for it. Next: saved-state whole-field replay,
-then the unchanged native annular workflow and affected MPI checks. [Current construction and exact evidence](Handbook/GOAL3_ANNULAR_COORDINATION.md).
-View `integration_evidence/native_3d_bl_v1/annulus_coordinated_replay_v1/fan_split_v1/annulus_frozen_prototype_witness.su2`
-(offline witness only; no solver state/restart). Keep all rejected experiments.
+Accepted inspectable grid:
+`integration_evidence/native_3d_bl_v1/planar_symmetry_reference_v1/annulus_v9_n1/symmetry_annulus_bl_budget_20_m1_written_SU2.su2`
+(CGNS in the same folder). MPI rejected mesh is in annulus_v9_n2 with `_rejected`.
+Serial metric-build7.879s/native5.732s/replace.01757s are contended correctness
+receipts, not affordability. Composed gradation remains18violations/max4.599;
+final uncertainty is heuristic and did not improve monotonically with refinement.
+[Construction history](Handbook/GOAL3_ANNULAR_COORDINATION.md).
 
 ## Accepted spherical repeat — retain evidence
 

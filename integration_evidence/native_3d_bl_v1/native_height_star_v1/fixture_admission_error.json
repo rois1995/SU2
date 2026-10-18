@@ -1,0 +1,23 @@
+{
+  "status": "REPLAY_FIXTURE_PHYSICAL_SKIN_DEFECT_CONFIRMED",
+  "affected": [
+    "serial_v1",
+    "serial_v2"
+  ],
+  "intended_wall_faces": 8,
+  "selected_wall_faces": 7,
+  "omitted_face": [
+    54519,
+    8,
+    13647
+  ],
+  "false_perimeter_edge": [
+    8,
+    13647
+  ],
+  "actual_production_import": "GeometryPatch retains every imported present physical face; no tuple-equality selection",
+  "consequence": "Incomplete replay physical skin changed the frame to a wall diagonal. Earlier rejections do not establish construction failure with complete metadata.",
+  "correction": "Shared test OnSkin helper compares face identity and preserves original face orientation for the geometry authority to validate",
+  "sites_corrected": 8,
+  "limits": "Independent shared-offset precision reproduction remains valid; it does not alone establish why every incomplete-fixture trial failed"
+}

@@ -9,6 +9,7 @@
 #include "../../../Common/include/adaptation/CNativeField3D.hpp"
 #include "../../../Common/include/adaptation/CNativeMetric3D.hpp"
 #include "../../../Common/include/adaptation/CNativeRegion3D.hpp"
+#include "../../../Common/include/adaptation/CNativeEngine3D.hpp"
 #include <algorithm>
 #include <cmath>
 #include <limits>
@@ -41,6 +42,12 @@ Patch Cube(double height = 1) {
   for (size_t i = 0; i < faces.size(); ++i) patch.surface.push_back({faces[i], Id(i)});
   return patch;
 }
+bool OnSkin(const std::vector<Face>& skin,Face face) {
+  std::sort(face.begin(),face.end());
+  return std::any_of(skin.begin(),skin.end(),[&](Face candidate){
+    std::sort(candidate.begin(),candidate.end());return candidate==face;
+  });
+}
 std::vector<Facet> Facets(const Patch& patch) {
   std::map<Id, Node> nodes;
   for (const auto& c : patch.cells)
@@ -59,7 +66,7 @@ Patch EdgeStar(const Patch& patch, Edge edge) {
   }
   const auto skin = Incidence(star.cells).Boundary();
   for (const auto& f : patch.surface)
-    if (std::find(skin.begin(), skin.end(), f.v) != skin.end()) star.surface.push_back(f);
+    if (OnSkin(skin,f.v)) star.surface.push_back(f);
   return star;
 }
 std::set<std::array<Id, 4>> Connectivity(const Patch& patch) {
@@ -129,7 +136,7 @@ TEST_CASE("Native 3D surface edits reject missing dependencies and preserve both
   const auto skin = Incidence(incomplete.cells).Boundary();
   incomplete.surface.erase(
       std::remove_if(incomplete.surface.begin(), incomplete.surface.end(),
-                     [&](SurfaceFace f) { return std::find(skin.begin(), skin.end(), f.v) == skin.end(); }),
+                     [&](SurfaceFace f) { return !OnSkin(skin,f.v); }),
       incomplete.surface.end());
   CHECK_FALSE(SplitEdge(incomplete, {0, 1}, {8, {.5, 0, 0}}, 100, reference, output, reason));
   CHECK(reason.find("incomplete") != std::string::npos);
@@ -234,7 +241,7 @@ TEST_CASE("Native general collapse removes an interior point and preserves corne
   auto incomplete=star;incomplete.cells.pop_back();
   const auto skin=Incidence(incomplete.cells).Boundary();
   incomplete.surface.erase(std::remove_if(incomplete.surface.begin(),incomplete.surface.end(),
-      [&](SurfaceFace f){return std::find(skin.begin(),skin.end(),f.v)==skin.end();}),incomplete.surface.end());
+      [&](SurfaceFace f){return !OnSkin(skin,f.v);}),incomplete.surface.end());
   const auto saved=Connectivity(fresh);const auto faces=fresh.surface.size();
   CHECK_FALSE(CollapseVertex(incomplete,4,0,200,reference,fresh,reason));
   CHECK(reason.find("incomplete")!=std::string::npos);
@@ -260,7 +267,7 @@ TEST_CASE("Native planar movement keeps finite facets and rejects incomplete sta
     auto incomplete=old;incomplete.cells.pop_back();
     const auto skin=Incidence(incomplete.cells).Boundary();
     incomplete.surface.erase(std::remove_if(incomplete.surface.begin(),incomplete.surface.end(),
-        [&](SurfaceFace f){return std::find(skin.begin(),skin.end(),f.v)==skin.end();}),incomplete.surface.end());
+        [&](SurfaceFace f){return !OnSkin(skin,f.v);}),incomplete.surface.end());
     CHECK_FALSE(MoveVertex(incomplete,4,{5,{.375,.125,0}},200,reference,fresh,reason));
     CHECK(reason.find("incomplete")!=std::string::npos);
     CHECK(Connectivity(fresh)==saved);CHECK(fresh.surface.size()==count);
@@ -1100,7 +1107,7 @@ void CornerStripProbe(bool grouped) {
     if(endpoints==2 || mover)old.cells.push_back(c);
   }
   const auto skin=Incidence(old.cells).Boundary();
-  for(const auto& f:accepted.surface)if(std::find(skin.begin(),skin.end(),f.v)!=skin.end())old.surface.push_back(f);
+  for(const auto& f:accepted.surface)if(OnSkin(skin,f.v))old.surface.push_back(f);
   REQUIRE(old.cells.size()==14);
   CBoundaryLayerMetric::Wall wall;wall.layer={"wall",.1,1.2,.3};
   wall.coord={0,0,0,1,0,0,1,1,0,0,1,0};wall.conn={0,1,2,2,0,2,3,3};CBoundaryLayerMetric layers(3,{wall});
@@ -1492,7 +1499,7 @@ TEST_CASE("Native interior insertion leaves the old diagonal only with a complet
     CHECK(ConformingDisjoint(fresh.cells[i],fresh.cells[j]));
   auto incomplete=old;incomplete.cells.pop_back();const auto skin=Incidence(incomplete.cells).Boundary();
   incomplete.surface.erase(std::remove_if(incomplete.surface.begin(),incomplete.surface.end(),[&](const SurfaceFace& f) {
-    return std::find(skin.begin(),skin.end(),f.v)==skin.end();
+    return !OnSkin(skin,f.v);
   }),incomplete.surface.end());
   const auto unchanged=Connectivity(fresh);
   CHECK_FALSE(SplitSurfaceStrip(old,{0,6},{8,{1.25,.55,.45}},{},100,reference,fresh,reason));
@@ -1587,6 +1594,14 @@ TEST_CASE("Native exact planar annuli retain holes across complete face containm
   CHECK(reference.ContainsFace(0,{{{0,0,0},{4,0,0},{2,.5,0}}}));
   CHECK_FALSE(reference.ContainsFace(0,{{{0,0,0},{2,.5,0},{4,0,0}}}));
   CHECK_FALSE(reference.Contains(0,{2,.5,std::numeric_limits<double>::denorm_min()}));
+  // Valid vertices do not admit a collapsed face that bridges the finite hole.
+  OwnedCell row;row.cell={0,{Node{99,{2,.25,-.1}},v[0],v[1],v[5]}};row.physical[0]={true,0};
+  const auto retained=v[6];const std::map<int,double> heights{{7,.1}};
+  CHECK(reference.Contains(0,retained.p));
+  CHECK_FALSE(reference.ContainsFace(0,{v[0].p,v[1].p,retained.p}));
+  CHECK(CollapseConstraintViolation(row,v[5].id,retained,reference,0,heights));
+  CHECK_FALSE(CollapseConstraintViolation(row,v[5].id,{100,{2,.5,0}},reference,0,heights));
+  CHECK(row.cell.v[3].id==v[5].id);CHECK(row.cell.v[3].p.y==1);
   auto reversed=facets;for(auto& f:reversed)std::swap(f.v[1],f.v[2]);const PlanarReference clockwise(reversed);
   CHECK(clockwise.Contains(0,{2,.5,0}));CHECK_FALSE(clockwise.Contains(0,{2,2,0}));
   CHECK(clockwise.ContainsFace(0,{{{0,0,0},{2,.5,0},{4,0,0}}}));
@@ -1664,7 +1679,7 @@ TEST_CASE("Saved finite-surface blockage admits coordinated placement under the 
     return std::any_of(c.v.begin(),c.v.end(),[&](Node n){return n.id==movers.front();});
   }));
   const auto skin=Incidence(incomplete.cells).Boundary();
-  incomplete.surface.erase(std::remove_if(incomplete.surface.begin(),incomplete.surface.end(),[&](const SurfaceFace& f){return std::find(skin.begin(),skin.end(),f.v)==skin.end();}),incomplete.surface.end());
+  incomplete.surface.erase(std::remove_if(incomplete.surface.begin(),incomplete.surface.end(),[&](const SurfaceFace& f){return !OnSkin(skin,f.v);}),incomplete.surface.end());
   CHECK_FALSE(PlaceSplitPatch(incomplete,edge,point,apices,2000000,target,reference,heights,sentinel,report,reason,256));
   CHECK(Connectivity(sentinel)==unchanged);CHECK(reason.find("complete movable vertex stars")!=std::string::npos);
 }
@@ -1685,7 +1700,9 @@ TEST_CASE("Shared first-height ownership reconstructs a complete frozen-field me
   const auto saved=Connectivity(whole);Patch old;
   for(const auto& c:whole.cells)if(std::any_of(c.v.begin(),c.v.end(),[&](Node n){return n.id==vertex;}))old.cells.push_back(c);
   const auto skin=Incidence(old.cells).Boundary();
-  for(const auto& f:whole.surface)if(std::find(skin.begin(),skin.end(),f.v)!=skin.end())old.surface.push_back(f);
+  for(const auto& f:whole.surface)if(OnSkin(skin,f.v))old.surface.push_back(f);
+  REQUIRE(old.surface.size()==8);
+  CHECK(std::any_of(old.surface.begin(),old.surface.end(),[](const SurfaceFace& f){return f.v[0]!=*std::min_element(f.v.begin(),f.v.end());}));
   CBoundaryLayerMetric::Wall wall;wall.layer={"wall",.1,1.2,.3};
   wall.coord={0,0,0,1,0,0,1,1,0,0,1,0};wall.conn={0,1,2,2,0,2,3,3};CBoundaryLayerMetric layers(3,{wall});
   const MetricComposition compose=[&](Point p,Tensor sensor){

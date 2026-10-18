@@ -27,7 +27,8 @@ def main():
     parameters={'SU2_NATIVE_JOINT_REPLAY':str(HERE/'patch.dat'),'SU2_NATIVE_CURVED_EVIDENCE':'1'}
     fixture=HERE/'patch.dat'
     if mode=='height':
-        filters='[NativeHeightStarReplay3D],'+filters;fixture=HERE.with_name('native_height_star_v1')/'patch.dat'
+        affected='Native 3D surface edits reject missing dependencies and preserve both outputs,Native general collapse removes an interior point and preserves corner and interface constraints,Native planar movement keeps finite facets and rejects incomplete stars atomically,'
+        filters='[NativeHeightStarReplay3D],'+affected+filters;fixture=HERE.with_name('native_height_star_v1')/'patch.dat'
         parameters['SU2_NATIVE_HEIGHT_REPLAY']=str(fixture)
     result=replay.invoke(folder,parameters,fixture,test_filter=filters)
     if 'artifacts' in result:

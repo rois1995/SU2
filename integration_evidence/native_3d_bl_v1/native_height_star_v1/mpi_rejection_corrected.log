@@ -1,0 +1,267 @@
+{
+  "status": "SAVED_MPI2_METRIC_RESIDUAL_DIAGNOSIS",
+  "metrics": {
+    "cells": 335,
+    "nodes": 104,
+    "minimum_q": 0.23357313925336148,
+    "minimum_J": 0.059748348105608036,
+    "bad_shape": 0,
+    "oversized_edges": 4,
+    "maximum_edge": 1.8659296033018777,
+    "excess": 0.01738685036617185
+  },
+  "bad_edges": [
+    {
+      "edge": [
+        0,
+        73419
+      ],
+      "length": 1.8659296033018777,
+      "points": [
+        [
+          0,
+          0,
+          0
+        ],
+        [
+          0.5,
+          0.5,
+          0.1
+        ]
+      ]
+    },
+    {
+      "edge": [
+        1,
+        73419
+      ],
+      "length": 1.8659296033018777,
+      "points": [
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          0.5,
+          0.5,
+          0.1
+        ]
+      ]
+    },
+    {
+      "edge": [
+        8,
+        73419
+      ],
+      "length": 1.8659296033018777,
+      "points": [
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          0.5,
+          0.5,
+          0.1
+        ]
+      ]
+    },
+    {
+      "edge": [
+        9,
+        73419
+      ],
+      "length": 1.8659296033018777,
+      "points": [
+        [
+          1,
+          1,
+          0
+        ],
+        [
+          0.5,
+          0.5,
+          0.1
+        ]
+      ]
+    }
+  ],
+  "wall_ownership": [
+    {
+      "apex": 73419,
+      "point": [
+        0.5,
+        0.5,
+        0.1
+      ],
+      "wall_faces": [
+        [
+          0,
+          73418,
+          18922
+        ],
+        [
+          1,
+          18922,
+          75514
+        ],
+        [
+          8,
+          18922,
+          73418
+        ],
+        [
+          9,
+          75514,
+          18922
+        ],
+        [
+          0,
+          18922,
+          77610
+        ],
+        [
+          77610,
+          18922,
+          1
+        ],
+        [
+          8,
+          577506,
+          18922
+        ],
+        [
+          577506,
+          9,
+          18922
+        ]
+      ],
+      "complete_star_cells": 34,
+      "incident_bad_edges": [
+        {
+          "edge": [
+            0,
+            73419
+          ],
+          "length": 1.8659296033018777,
+          "points": [
+            [
+              0,
+              0,
+              0
+            ],
+            [
+              0.5,
+              0.5,
+              0.1
+            ]
+          ]
+        },
+        {
+          "edge": [
+            1,
+            73419
+          ],
+          "length": 1.8659296033018777,
+          "points": [
+            [
+              1,
+              0,
+              0
+            ],
+            [
+              0.5,
+              0.5,
+              0.1
+            ]
+          ]
+        },
+        {
+          "edge": [
+            8,
+            73419
+          ],
+          "length": 1.8659296033018777,
+          "points": [
+            [
+              0,
+              1,
+              0
+            ],
+            [
+              0.5,
+              0.5,
+              0.1
+            ]
+          ]
+        },
+        {
+          "edge": [
+            9,
+            73419
+          ],
+          "length": 1.8659296033018777,
+          "points": [
+            [
+              1,
+              1,
+              0
+            ],
+            [
+              0.5,
+              0.5,
+              0.1
+            ]
+          ]
+        }
+      ]
+    }
+  ],
+  "rank_statistics": [
+    {
+      "rank": "0",
+      "stop": "operator_stagnation",
+      "global_work": "3759",
+      "accepted": "69",
+      "placement_trials": "964",
+      "placement_validated": "11",
+      "wall_topology_trials": "265",
+      "wall_topology_accepted": "3",
+      "cached_invalid_cells": "12",
+      "height_rejected": "2417",
+      "footprint_rejected": "2354"
+    },
+    {
+      "rank": "1",
+      "stop": "operator_stagnation",
+      "global_work": "3759",
+      "accepted": "34",
+      "placement_trials": "0",
+      "placement_validated": "0",
+      "wall_topology_trials": "0",
+      "wall_topology_accepted": "0",
+      "cached_invalid_cells": "8",
+      "height_rejected": "16",
+      "footprint_rejected": "45"
+    }
+  ],
+  "sensor_eigenvalue": 5.0471242643611385,
+  "serial_eigenvalue": 5.047122023923238,
+  "sensor_relative_difference": 4.4390404863037247e-07,
+  "seconds": 0.2312566959299147,
+  "source_sha256": {
+    "integration_evidence/native_3d_bl_v1/planar_symmetry_reference_v1/annulus_v9_n2/symmetry_annulus_bl_budget_20_m2_rejected_rank0.json": "fcfbc5bd91de6f8e6d6ef6d2e86df38004c611236dfd62d3e2e2c5aa7eb930b9",
+    "integration_evidence/native_3d_bl_v1/planar_symmetry_reference_v1/annulus_v9_n2/symmetry_annulus_bl_budget_20_m2_rejected_rank1.json": "6300165c1103ef21753c10df27c1f87a5d6a39ea4c587bd1f495a26be37aa839",
+    "integration_evidence/native_3d_bl_v1/planar_symmetry_reference_v1/annulus_v9_n2/symmetry_annulus_bl_budget_20_m2_frozen_profile.json": "7224708a7da51dd079f4b30aa1ef4e7d4aeb4d1040b4565ae0e2f337b1327e9e",
+    "integration_evidence/native_3d_bl_v1/planar_symmetry_reference_v1/annulus_v9_n1/symmetry_annulus_bl_budget_20_m1_frozen_profile.json": "e1d384df9b645c842466c0bbddc3f6d076c4b5ff771cc7d4f98089ff3c6ec8f3",
+    "integration_evidence/native_3d_bl_v1/annulus_coordinated_replay_v1/fan_split_v1/probe_v4.py": "fa04e43b9064c318ef30c1afa2d9ae0c0dd643b4939a9474f2b08a7bfdf17a79",
+    "integration_evidence/native_3d_bl_v1/native_height_star_v1/mpi_rejection.py": "e3cbb6afb5ac1ab9b0be988fb30b1e7dc09319ecc3da966f0d1fef853cad030a"
+  },
+  "limits": [
+    "One planar wall and constant original sensor; numerical reference, no rigorous quadrature bound",
+    "Rejected private distributed trajectory; no accepted MPI mesh or transfer",
+    "Different partitions can produce different valid edit sequences; serial profile differs within integration uncertainty"
+  ]
+}

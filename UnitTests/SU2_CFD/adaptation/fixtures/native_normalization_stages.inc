@@ -256,7 +256,8 @@ CSimplexMesh SymmetryAnnulusMesh() {
   return mesh;
 }
 void BudgetRuntime3D(bool symmetry) {
-  World world;const int workers=std::min(2,world.size);
+  World world;const auto all=std::getenv("SU2_NATIVE_SYMMETRY_ALL_WORKERS");
+  const int workers=symmetry && all && std::string(all)=="1"?world.size:std::min(2,world.size);
   const bool annulus=symmetry && std::getenv("SU2_NATIVE_SYMMETRY_ANNULUS");
   const double budget=GENERATE(3.,20.);if(annulus && budget!=20)return;
   const auto name=std::string(annulus?"symmetry_annulus_bl_budget_":symmetry?"symmetry_bl_budget_":"bl_budget_")+std::to_string(int(budget))+"_m"+std::to_string(workers);

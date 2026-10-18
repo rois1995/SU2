@@ -22,8 +22,9 @@ case dispatch. A generic native proposal/selection path is still required.
 `independent_full_mesh.json`: exact positive/total volume, manifold and107vertex
 links,7819 exact overlap-pair checks, complete finite-face coverage including the
 hole, original first-height/normal-foot requirements, q>=.2167007/J>=.0558188 and
-full composed edges<=1.7955165.24/48-order edge agreement is4.44e-16; this empirical
-agreement is not a rigorous quadrature bound. Independent complexity20.00019535
+full composed edges<=1.7955165.32/64-order edge agreement is4.44e-16; this empirical
+agreement is not a rigorous quadrature bound. Mass uses32/64/96orders. This corrects
+a documentation-only order typo; executed auditors and raw receipts are unchanged. Independent complexity20.00019535
 is9.77e-6 relative above20 and retains the original profile SHA. No field samples
 from the new mesh replace original donors.
 

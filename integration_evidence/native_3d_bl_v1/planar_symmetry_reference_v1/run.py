@@ -10,7 +10,9 @@ def main():
     mode=sys.argv[1];ranks=int(sys.argv[2]) if len(sys.argv)>2 else 1
     assert mode in ('geometry','workflow','baseline','annulus') and ranks in (1,2,4)
     version=sys.argv[3] if len(sys.argv)>3 else 'v7';assert version.startswith('v') and version[1:].isdigit()
-    folder=HERE/(mode+'_'+version+'_n'+str(ranks))
+    all_workers=len(sys.argv)>4
+    assert len(sys.argv)<=5 and (not all_workers or sys.argv[4]=='all' and mode in ('workflow','annulus'))
+    folder=HERE/(mode+('_all' if all_workers else '')+'_'+version+'_n'+str(ranks))
     sources=[]
     for directory in ('Common/include/adaptation','Common/src/adaptation','SU2_CFD/include/adaptation','SU2_CFD/src/adaptation'):
         sources+=list((ROOT/directory).glob('*3D.*'))
@@ -31,6 +33,7 @@ def main():
     # The legacy harness fixture argument pins the declaration schema; this filter generates its meshes/configs itself.
     tag={'geometry':'[NativePlanarUnion3D]','workflow':'[NativeSymmetryRuntime3D]','baseline':'[NativePlanarUnion3D],[NativeReferenceSearch3D],[NativeStaticFix3D],[NativeReference3D],[NativeCurvedGeometry3D]','annulus':'[NativeSymmetryRuntime3D]'}[mode]
     parameters={'SU2_NATIVE_SYMMETRY_ANNULUS':'1'} if mode=='annulus' else {}
+    parameters['SU2_NATIVE_SYMMETRY_ALL_WORKERS']='1' if all_workers else '0'
     result=replay.invoke(folder,parameters,HERE/'initial.planes',ranks,test_filter=tag)
     if 'artifacts' in result:
         assert all(replay.sha(folder/p)==h for p,h in result['artifacts'].items())

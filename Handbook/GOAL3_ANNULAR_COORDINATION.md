@@ -1,9 +1,12 @@
 # Annular coordination: current native result and missing capability
 
 Goal3 and the full [general symmetry scope](GOAL3_GENERAL_SYMMETRY.md) stay open.
-Production checkpoint2b48c9dd20da is now compiled and scoped-qualified; no new
-CFD physical advance or M6 retry was needed. New connected generic height-star batch is building in50386; prior results below
-belong to compiled checkpoint2b48. No new runtime qualification yet.
+Native serial annular construction/transfer/output/real restart now independently
+PASS (24->218cells); MPI2 retains a blocked34-cell height star and rejects. Current
+status, exact metrics, inspectable grids and limits are maintained in
+[the height-star evidence](../integration_evidence/native_3d_bl_v1/native_height_star_v1/README.md).
+All owned jobs terminal; N4/M2/M4 not launched. The sections below preserve prior
+qualified source scopes and the reasoning that led to compound reconstruction.
 
 ## Native implementation that worked
 
@@ -21,7 +24,7 @@ both strict and relaxed budget profiles, full metric/height/geometry, conservati
 transfer, SU2/CGNS/reference output and real restart. This is compatibility evidence,
 not MPI qualification of the new offline multi-apex construction below.
 
-## Difficult target still rejected in native code
+## Historical v7 native rejection
 
 Unchanged annulus_v7_n1 makes96private edits,339cells/104nodes, then reports
 operator_stagnation at2300/8192work. Accepted CFD/BDF/SA states remain intact.
@@ -37,7 +40,7 @@ fails a floating geometry LP: available kernel z<=.15454 versus required z>=.3.
 More cavity sweeps or relaxing permitted outer-BL demand cannot resolve these
 protected first-height edges under the original retained ownership.
 
-## New complete offline witness, native port pending
+## Offline witness that motivated the native port
 
 Quality-directed compound vertex-star splitting replaces that apex by four and
 its36-cell star by52cells, keeping all physical faces and original link vertices.

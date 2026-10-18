@@ -1,0 +1,9 @@
+mpi2_patch_v1 {"exit_code": 1, "elapsed_seconds": 0.49179307103622705, "command": ["taskset", "-c", "0", "nice", "-n", "19", "timeout", "--kill-after=5s", "180s", "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver", "[NativeHeightStarReplay3D]", "--abort", "--reporter", "compact"], "provenance_sha256": "47bcc2a4d90384e52492805d93fdd5cb2b20ab1b90a6c6641d15aa4e03acdd6a", "log_sha256": "500dfe8d9163a06c5cdea4a82de8a3ef249737ac6d4858935f8bb5efde009b19"}
+Traceback (most recent call last):
+  File "integration_evidence/native_3d_bl_v1/native_height_star_v1/run_mpi_patch.py", line 34, in <module>
+    if __name__=='__main__':main()
+  File "integration_evidence/native_3d_bl_v1/native_height_star_v1/run_mpi_patch.py", line 33, in main
+    replay.invoke(folder,{'SU2_NATIVE_HEIGHT_REPLAY':str(fixture),'SU2_NATIVE_CURVED_EVIDENCE':'1'},fixture,test_filter='[NativeHeightStarReplay3D]')
+  File "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/run.py", line 55, in invoke
+    if not ((0<run.returncode<124) if expected_failure else run.returncode==0):raise RuntimeError('Failed '+str(folder))
+RuntimeError: Failed /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/native_height_star_v1/mpi2_patch_v1

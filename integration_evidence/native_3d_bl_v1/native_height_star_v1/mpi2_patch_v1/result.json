@@ -1,0 +1,22 @@
+{
+  "exit_code": 1,
+  "elapsed_seconds": 0.49179307103622705,
+  "command": [
+    "taskset",
+    "-c",
+    "0",
+    "nice",
+    "-n",
+    "19",
+    "timeout",
+    "--kill-after=5s",
+    "180s",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver",
+    "[NativeHeightStarReplay3D]",
+    "--abort",
+    "--reporter",
+    "compact"
+  ],
+  "provenance_sha256": "47bcc2a4d90384e52492805d93fdd5cb2b20ab1b90a6c6641d15aa4e03acdd6a",
+  "log_sha256": "500dfe8d9163a06c5cdea4a82de8a3ef249737ac6d4858935f8bb5efde009b19"
+}

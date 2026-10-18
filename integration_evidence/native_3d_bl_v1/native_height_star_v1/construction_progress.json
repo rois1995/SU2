@@ -1,0 +1,92 @@
+{
+  "status": "REFINEMENT_PROGRESS_FULL_EVENT_STILL_REJECTED",
+  "reports": {
+    "v7": {
+      "stages": {
+        "refine": {
+          "complete": "0",
+          "total": "12.426273646",
+          "process_cpu": "11.624453000000001",
+          "stop": "operator_stagnation",
+          "global_work": "2300",
+          "work_limit": "8192",
+          "accepted": "96",
+          "final_owned_cells": "339",
+          "remaining_edges": "0",
+          "cached_invalid_cells": "20",
+          "wall_topology_trials": "38",
+          "wall_topology_accepted": "4",
+          "placement_trials": "606",
+          "placement_validated": "11",
+          "requests": "32238",
+          "edge_evaluations": "543",
+          "donor_batches": "977"
+        },
+        "coarsen": {
+          "complete": "0",
+          "total": "0",
+          "process_cpu": "0",
+          "stop": "none",
+          "global_work": "0",
+          "work_limit": "0",
+          "accepted": "0",
+          "final_owned_cells": "0",
+          "remaining_edges": "0",
+          "cached_invalid_cells": "0",
+          "wall_topology_trials": "0",
+          "wall_topology_accepted": "0",
+          "placement_trials": "0",
+          "placement_validated": "0",
+          "requests": "0",
+          "edge_evaluations": "0",
+          "donor_batches": "0"
+        }
+      },
+      "frozen_profile_sha256": "e1d384df9b645c842466c0bbddc3f6d076c4b5ff771cc7d4f98089ff3c6ec8f3"
+    },
+    "v8": {
+      "stages": {
+        "refine": {
+          "complete": "0",
+          "total": "5.0711511109999998",
+          "process_cpu": "4.6890609999999997",
+          "stop": "complete",
+          "global_work": "861",
+          "work_limit": "8192",
+          "accepted": "91",
+          "final_owned_cells": "355",
+          "remaining_edges": "0",
+          "cached_invalid_cells": "0",
+          "wall_topology_trials": "41",
+          "wall_topology_accepted": "4",
+          "placement_trials": "543",
+          "placement_validated": "12",
+          "requests": "23533",
+          "edge_evaluations": "493",
+          "donor_batches": "530"
+        },
+        "coarsen": {
+          "complete": "0",
+          "total": "0.24892003800000001",
+          "process_cpu": "0.182862",
+          "stop": "failure",
+          "global_work": "10",
+          "work_limit": "7331",
+          "accepted": "4",
+          "final_owned_cells": "340",
+          "remaining_edges": "53",
+          "cached_invalid_cells": "0",
+          "wall_topology_trials": "0",
+          "wall_topology_accepted": "0",
+          "placement_trials": "0",
+          "placement_validated": "0",
+          "requests": "162",
+          "edge_evaluations": "151",
+          "donor_batches": "8"
+        }
+      },
+      "frozen_profile_sha256": "e1d384df9b645c842466c0bbddc3f6d076c4b5ff771cc7d4f98089ff3c6ec8f3"
+    }
+  },
+  "limits": "Different terminal outcomes; no accepted-event speedup claim. v8 refinement complete, later coarsening candidate prescreen throws."
+}

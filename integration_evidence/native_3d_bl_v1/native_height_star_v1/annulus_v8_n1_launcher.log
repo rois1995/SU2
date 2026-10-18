@@ -1,0 +1,9 @@
+annulus_v8_n1 {"exit_code": 1, "elapsed_seconds": 14.684258503024466, "command": ["taskset", "-c", "0", "nice", "-n", "19", "timeout", "--kill-after=5s", "180s", "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver", "[NativeSymmetryRuntime3D]", "--abort", "--reporter", "compact"], "provenance_sha256": "69ba2d36ae9fe99495a53e171a1766a3d40b0a8aa5df9512b959a6845747f2a6", "log_sha256": "71081ea67ae6177e458a18053fddb04d4016f61b0c48b27a121666801bdfa83b"}
+Traceback (most recent call last):
+  File "integration_evidence/native_3d_bl_v1/planar_symmetry_reference_v1/run.py", line 41, in <module>
+    if __name__=='__main__':main()
+  File "integration_evidence/native_3d_bl_v1/planar_symmetry_reference_v1/run.py", line 34, in main
+    result=replay.invoke(folder,parameters,HERE/'initial.planes',ranks,test_filter=tag)
+  File "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/run.py", line 55, in invoke
+    if not ((0<run.returncode<124) if expected_failure else run.returncode==0):raise RuntimeError('Failed '+str(folder))
+RuntimeError: Failed /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/planar_symmetry_reference_v1/annulus_v8_n1

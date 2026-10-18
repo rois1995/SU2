@@ -1570,8 +1570,11 @@ bool SplitHeightStar(Patch& patch,Id vertex,const std::array<Node,2>& points,
   }
   std::vector<bool> label(faces.size());for(size_t i=0;i<faces.size();++i)label[i]=previous[i]==count;
   auto side=[&](size_t i){return i==source?false:i==sink?true:bool(label[i]);};
-  for(const auto& arc:arcs)if(arc.hard && !side(arc.from) && side(arc.to))
-    throw std::invalid_argument("Native3D height partition has no admitted positive/quality cut.");
+  for(const auto& arc:arcs)if(arc.hard && !side(arc.from) && side(arc.to)) {
+    std::ostringstream message;message<<"Native3D height partition has no admitted positive/quality cut at vertex "<<vertex;
+    auto describe=[&](size_t i){if(i<faces.size())message<<" face "<<faces[i][0]<<","<<faces[i][1]<<","<<faces[i][2];};
+    describe(arc.from);describe(arc.to);throw std::invalid_argument(message.str());
+  }
   std::vector<Cell> replacement;
   for(size_t i=0;i<faces.size();++i) {
     const auto f=faces[i];Append(replacement,{points[label[i]],nodes.at(f[0]),nodes.at(f[1]),nodes.at(f[2])},first,nullptr);
@@ -1637,8 +1640,10 @@ bool ReconstructHeightStar(const Patch& old,Id vertex,Id first_node,Id first_cel
     const auto before=MeasureMetricCells(old.cells,target);
     for(double factor:{1.,1.25,1.5,1.75}) {
       if(maximum_trials-report.trials<3){reason="Native3D multi-apex reconstruction exhausted its admitted trial budget.";break;}
-      auto p=[&](long double a,long double b){return Point{double(origin.x+scale*factor*(a*u[0]+b*v[0])),
-          double(origin.y+scale*factor*(a*u[1]+b*v[1])),double(origin.z+scale*factor*(a*u[2]+b*v[2]))};};
+      // Represent the shared chart offset once; separate extended-precision lifts can miss a common wall foot.
+      const double step=double(scale*factor);
+      auto p=[&](long double a,long double b){return Point{double(origin.x+step*(a*u[0]+b*v[0])),
+          double(origin.y+step*(a*u[1]+b*v[1])),double(origin.z+step*(a*u[2]+b*v[2]))};};
       const std::array<Point,4> leaves{p(-1,-1),p(-1,1),p(1,-1),p(1,1)};
       Patch proposal=old;
       try {
