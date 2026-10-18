@@ -80,7 +80,10 @@ SST native258-update endpoints qualify on both layouts; fixed-control Newton tim
 The pinned637 original-control cohort is complete (30 trials). Neither cold VKI nor T3A
 qualified in any mode; all their Newton trials timed out. Original T3A native also timed out
 (695 updates on1x1,1299 on2x2). Its coupled recovery retained CFL0.390625 after4 rejects.
-Final-code d27 original-control and separate control cohorts remain in progress.
+The final-code d27 original-control cohort is also complete (30 trials). No Newton endpoint
+qualifies against the full comparison requirements under these controls. Native SST qualifies
+on both layouts; early SA states, nozzle all-component misses, cold periodic caps and LM
+timeouts remain rejected. The separately labelled control study is now active.
 All18 native151-update SA timing attempts qualified physically but crossed the quiet-machine
 limit during execution. None is eligible. Final-code fixed-control Newton margin attempts
 hit120-second limits on both layouts; these are failures, not time-to-convergence samples.
@@ -93,8 +96,13 @@ A further10 coupled trials reverse the existing lower-block order, with identica
 and adaptive-CFL settings. This includes turbulence feedback in the flow correction; benefit
 is unproven. Three SST1x1 pilot trials add existing ILU fill1, with matched native settings
 and the same adaptive forcing/CFL controls. Further fill-level expansion requires evidence.
-The139-trial plan records intended settings separately from actual results below.
-All old plans/audits remain preserved. Preparation checks match106 Newton/native pairs;
+The periodic native history reports relative linear residuals near1 with its original2-step
+limit. Native adaptive CFL resets above0.99; a separate three-mode VKI1x1 pilot therefore
+uses existing ILU and native assembled limit20, retaining its original linear residual target.
+The142-trial plan records intended settings separately from actual results below.
+Within each case/layout, adaptive forcing and preconditioning precede fixed-CFL rechecks;
+all earlier139 trials remain. Qualified native reference candidates precede Newton comparisons.
+All old plans/audits remain preserved. Preparation checks match108 Newton/native pairs;
 these are setup checks, not measured convergence results. Both versions' early SA states
 miss the conservative151-update state reference; tightened-stop controls remain necessary.
 
@@ -102,14 +110,14 @@ miss the conservative151-update state reference; tightened-stop controls remain 
 
 | Application | Layout | Actual trials | Qualified endpoints | Eligible timing repetitions |
 |---|---|---:|---:|---:|
-| naca_sa | 1x1 | 27 | 10 | 0 |
+| naca_sa | 1x1 | 30 | 12 | 0 |
 | naca_sa | 2x2 | 23 | 9 | 0 |
 | naca_sst | 1x1 | 12 | 2 | 0 |
 | naca_sst | 2x2 | 9 | 2 | 0 |
 | nozzle_sst | 1x1 | 26 | 0 | 0 |
 | nozzle_sst | 2x2 | 9 | 0 | 0 |
 | flatplate_lm | 1x1 | 15 | 0 | 0 |
-| flatplate_lm | 2x2 | 6 | 0 | 0 |
+| flatplate_lm | 2x2 | 9 | 0 | 0 |
 | periodic_stator | 1x1 | 3 | 0 | 0 |
 | periodic_stator | 2x2 | 0 | 0 | 0 |
 | periodic_vki | 1x1 | 12 | 0 | 0 |
@@ -127,6 +135,9 @@ is retained; `prepared` and `running` entries have not completed.
 | nozzle_sst | 1x1 | segregated | original | application_release | fd_step_1e-8 | -12 | diagnostic_complete | False | 1 | — | 4.579 |
 | nozzle_sst | 1x1 | coupled | original | application_release | forcing | -12 | iteration_cap | False | 1 | 3.482 | 3.961 |
 | nozzle_sst | 1x1 | segregated | original | application_release | forcing | -12 | iteration_cap | False | 1 | 3.301 | 3.765 |
+| naca_sa | 1x1 | native | original | recovery_release | adaptive | -13.0 | qualified | True | 149 | 19.711 | 20.324 |
+| naca_sa | 1x1 | segregated | original | recovery_release | forcing | -13.0 | running | False | — | — | — |
+| naca_sa | 1x1 | native | original | recovery_release | original | -13.0 | qualified | True | 151 | 19.177 | 19.784 |
 | nozzle_sst | 1x1 | segregated | original | baseline_4712d82375 | fd_step_1e-3_relative_0.01 | -12 | diagnostic_complete | False | 1 | — | — |
 | nozzle_sst | 1x1 | segregated | original | baseline_4712d82375 | fd_step_1e-5_relative_0.01 | -12 | diagnostic_complete | False | 1 | — | — |
 | nozzle_sst | 1x1 | segregated | original | baseline_4712d82375 | fd_step_1e-5 | -12 | diagnostic_complete | False | 1 | — | 2.727 |
@@ -221,9 +232,12 @@ is retained; `prepared` and `running` entries have not completed.
 | periodic_vki | 2x2 | coupled | cold | probe_metric | original | -12 | rejected | False | 448 | — | 301.059 |
 | periodic_vki | 2x2 | native | cold | probe_metric | original | -12 | iteration_cap | False | 3000 | 65.549 | 66.163 |
 | periodic_vki | 2x2 | segregated | cold | probe_metric | original | -12 | rejected | False | 911 | — | 301.061 |
-| flatplate_lm | 1x1 | coupled | original | recovery_release | original | -11 | running | False | — | — | — |
+| flatplate_lm | 1x1 | coupled | original | recovery_release | original | -11 | timeout | False | 50 | — | 301.042 |
 | flatplate_lm | 1x1 | native | original | recovery_release | original | -11 | rejected | False | 710 | — | 301.052 |
 | flatplate_lm | 1x1 | segregated | original | recovery_release | original | -11 | timeout | False | 20 | — | 301.050 |
+| flatplate_lm | 2x2 | coupled | original | recovery_release | original | -11 | rejected | False | 101 | — | 301.041 |
+| flatplate_lm | 2x2 | native | original | recovery_release | original | -11 | rejected | False | 1419 | — | 301.064 |
+| flatplate_lm | 2x2 | segregated | original | recovery_release | original | -11 | timeout | False | 26 | — | 301.025 |
 | naca_sa | 1x1 | coupled | original | recovery_release | original | -12 | reference_audit_failed | False | 11 | 41.410 | 41.998 |
 | naca_sa | 1x1 | native | original | recovery_release | original | -12 | reference_audit_failed | False | 11 | 1.378 | 1.907 |
 | naca_sa | 1x1 | segregated | original | recovery_release | original | -12 | reference_audit_failed | False | 11 | 9.339 | 9.848 |
@@ -316,9 +330,12 @@ is only its last checkpoint. State errors use the native reference recorded for 
 | periodic_vki | 2x2 | probe_metric | coupled | rejected | 448 | 20542/25734/— | 5192/0 | 0/0 | —/301.059 | 7.479e-06 | — |
 | periodic_vki | 2x2 | probe_metric | native | iteration_cap | 3000 | 3000/3000/— | 12000/0 | —/— | 65.549/66.163 | 2.799e-05 | — |
 | periodic_vki | 2x2 | probe_metric | segregated | rejected | 911 | 24411/11295/— | 9110/0 | 1/21 | —/301.061 | 4.110e-05 | — |
-| flatplate_lm | 1x1 | recovery_release | coupled | running | — | —/—/— | —/— | —/— | —/— | — | — |
+| flatplate_lm | 1x1 | recovery_release | coupled | timeout | 50 | 1123/1251/1251 | 128/0 | 4/2 | —/301.042 | — | — |
 | flatplate_lm | 1x1 | recovery_release | native | rejected | 710 | 710/710/710 | 10646/0 | —/— | —/301.052 | 7.939e-04 | — |
 | flatplate_lm | 1x1 | recovery_release | segregated | timeout | 20 | 1509/222/214 | 380/0 | 2/18 | —/301.050 | — | — |
+| flatplate_lm | 2x2 | recovery_release | coupled | rejected | 101 | 2071/2309/2309 | 238/0 | 4/2 | —/301.041 | 1.673e+00 | — |
+| flatplate_lm | 2x2 | recovery_release | native | rejected | 1419 | 1419/1419/1419 | 21283/0 | —/— | —/301.064 | 1.039e-03 | — |
+| flatplate_lm | 2x2 | recovery_release | segregated | timeout | 26 | 3007/281/305 | 702/0 | 2/19 | —/301.025 | — | — |
 | naca_sa | 1x1 | recovery_release | coupled | reference_audit_failed | 11 | 1629/2055/— | 423/0 | 0/0 | 41.410/41.998 | 1.334e-11 | 1.199e-06 |
 | naca_sa | 1x1 | recovery_release | native | reference_audit_failed | 11 | 11/11/— | 440/0 | —/— | 1.378/1.907 | 1.963e-10 | 0.000e+00 |
 | naca_sa | 1x1 | recovery_release | segregated | reference_audit_failed | 11 | 170/427/— | 388/0 | 0/0 | 9.339/9.848 | 1.257e-11 | 2.255e-06 |
