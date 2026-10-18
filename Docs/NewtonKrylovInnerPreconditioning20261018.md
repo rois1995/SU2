@@ -111,9 +111,18 @@ and additionally ineligible because of CPU sampling.
 
 An independent lightweight comparison of the saved endpoint fails both state
 references: maximum point error 1.058365e-5 against canonical native151 and
-1.815037e-5 against native298, versus the unchanged 1e-5 bound. Fresh physical
-residual reporting is waiting for another build to finish; it cannot change this
-state-agreement failure. Evidence: `inner_candidate_sa_2x2_state_assessment.json`.
+1.815037e-5 against native298, versus the unchanged 1e-5 bound. A separate nice19
+residual-only evaluation passes every physical residual target (density RMS
+8.73191e-14, maximum normalized active RMS 3.15239e-12), zero boundary projection,
+and physical quantities against both native states. All 574 accepted steps pass
+Armijo with alpha=1 and true defects at most 0.08202; every rollback error is zero.
+The endpoint still fails the full-state and stopping requirements. The primary
+qualifier remains independently gated behind another build; its output is untouched.
+The one-second low-priority correctness evaluation uses a separate output directory
+and provides no performance measurement. Evidence:
+`inner_candidate_sa_2x2_state_assessment.json`,
+`inner_candidate_sa_2x2_independent_assessment.json` and
+`inner_candidate_sa_2x2_independent_report_command.json`.
 
 The [milestone CSV](NewtonKrylovInnerMilestones20261018.csv) compares progress with
 retained d27. These decks differ only in history stops -13/-14, which are inactive
@@ -131,8 +140,8 @@ Turbulence counts equal flow counts here. These are supporting trajectory
 milestones, **not all-equation or full-state convergence**. They show that the
 serial work reduction does not extend to this layout: reaching density history
 -12.7 consumes about 2.69 times the assemblies, plus 82605 native inner iterations.
-At that crossing the retained solver accepts CFL1000 and the candidate CFL250;
-the candidate spends many accepted updates at CFL125–250. This is evidence
+At that crossing the retained solver accepts CFL 1000 and the candidate CFL 250;
+the candidate spends many accepted updates at CFL 125–250. This is evidence
 against adopting three inner iterations as a universal default. The other
 application assessments remain separately scheduled. No elapsed-time ratio is used.
 `inner_candidate_sa_2x2_milestones.json` pins source configuration and telemetry hashes.
