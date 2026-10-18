@@ -10,6 +10,7 @@
 
 /*! Geometry-only stencils survive bounded/graded scale trials. Source node indices and ownership
  *  must remain fixed for this object's lifetime; no tensors sampled on an adapted mesh enter it.
+ *  Background reuse requires identical current tensors, independent of BL profile/core.
  *  The correction's three empirical standard errors are HEURISTIC, not a confidence/error bound. */
 class CNativeComplexity3D {
  public:
@@ -25,6 +26,7 @@ class CNativeComplexity3D {
   struct Statistics {
     size_t retainedBytes=0;
     uint64_t samples=0,inside=0,assessments=0,backgroundEvaluations=0,correctionEvaluations=0,profileRefreshes=0,profileGeometryQueries=0;
+    uint64_t backgroundBuilds=0,backgroundReuses=0;
     double preparationSeconds=0,assessmentSeconds=0,backgroundSeconds=0,correctionSeconds=0,reductionSeconds=0;
   };
   CNativeComplexity3D(CBoundaryLayerMetric& layers,std::vector<SourceCell> source,size_t sourceNodes,
@@ -45,5 +47,8 @@ class CNativeComplexity3D {
   std::vector<Query> queries;
   size_t sourceNodes,ceiling;
   uint64_t profileVersion=0;
+  std::vector<CBoundaryLayerMetric::Tensor> backgroundSensor;
+  std::array<long double,4> background{};
+  bool backgroundValid=false;
   Statistics statistics;
 };

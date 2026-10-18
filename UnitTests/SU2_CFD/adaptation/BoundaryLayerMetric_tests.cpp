@@ -2487,6 +2487,31 @@ TEST_CASE("Retained complexity stencils use fresh nonhomogeneous trial tensors a
   CHECK(b.sensorQuadrature>a.sensorQuadrature);CHECK(b.global.value!=a.global.value);
   CHECK(c.global.value==a.global.value);CHECK(c.global.uncertainty==a.global.uncertainty);
   CHECK(estimate.GetStatistics().assessments==3);
+  CHECK(estimate.GetStatistics().backgroundBuilds==3);
+  const auto retained=estimate.GetStatistics().retainedBytes;
+  const auto determinants=estimate.GetStatistics().backgroundEvaluations;
+  const auto corrections=estimate.GetStatistics().correctionEvaluations;
+  const auto otherCore=estimate.Assess(original,1,true);
+  CHECK(estimate.GetStatistics().backgroundReuses==1);
+  CHECK(estimate.GetStatistics().backgroundEvaluations==determinants);
+  CHECK(estimate.GetStatistics().correctionEvaluations==corrections+otherCore.inside);
+  CHECK(otherCore.sensorLower==c.sensorLower);CHECK(otherCore.sensorUpper==c.sensorUpper);
+  CHECK(otherCore.correction!=c.correction);
+  const auto repeated=estimate.Assess(original,2,true);
+  CHECK(repeated.global.value==c.global.value);CHECK(repeated.global.uncertainty==c.global.uncertainty);
+  CHECK(estimate.GetStatistics().backgroundReuses==2);CHECK(estimate.GetStatistics().retainedBytes==retained);
+  layers.ConfigureOuterNormal(.02,2);layers.SelectOuterNormal(.75);
+  const auto profile=estimate.Assess(original,2,true);
+  CHECK(estimate.GetStatistics().backgroundBuilds==3);CHECK(estimate.GetStatistics().backgroundReuses==3);
+  CHECK(estimate.GetStatistics().backgroundEvaluations==determinants);
+  CHECK(estimate.GetStatistics().profileRefreshes==1);
+  CHECK(profile.sensorLower==c.sensorLower);CHECK(profile.sensorUpper==c.sensorUpper);
+  CHECK(profile.correction<c.correction);CHECK(profile.directChecks==profile.inside);
+  layers.SelectOuterNormal(0);
+  const auto restored=estimate.Assess(original,2,true);
+  CHECK(restored.global.value==c.global.value);CHECK(restored.global.uncertainty==c.global.uncertainty);
+  CHECK(estimate.GetStatistics().backgroundReuses==4);
+
   auto anisotropic=original;
   const su2double frame[3][3]={{.6,-.8,0},{.8,.6,0},{0,0,1}},val[3]={1e10,1,4};
   for(auto& m:anisotropic)CBlasStructure::EigenRecomposition(m.m,frame,val,3);
@@ -2495,6 +2520,10 @@ TEST_CASE("Retained complexity stencils use fresh nonhomogeneous trial tensors a
   CHECK(extreme.numericalIndicator>1e-8*extreme.sensorLower);
   if(rank==0)trial.front().m[0][0]=-1;
   CHECK_THROWS(estimate.Assess(trial,1));
+  CNativeComplexity3D storageLimited(layers,source,32768,size_t(2)<<20,32,9127);
+  std::vector<CBoundaryLayerMetric::Tensor> large(32768);
+  for(auto& m:large)for(unsigned d=0;d<3;++d)m.m[d][d]=2;
+  CHECK_THROWS(storageLimited.Assess(large,2)); // Cache admission fails collectively before exceeding the ceiling.
   CHECK_THROWS(CNativeComplexity3D(layers,source,mesh.GetnPoint(),size_t(256)<<20,ranks==1?0:2048,7519+rank));
 }
 

@@ -3661,15 +3661,15 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
     CPassiveComm::Allreduce(&quadratureSeconds,&globalQuadratureSeconds,1,CPassiveComm::Op::MAX);
     CPassiveComm::Allreduce(quadratureCounts,globalQuadratureCounts,3,CPassiveComm::Op::SUM);
   }
-  double boundedTimes[5]={};uint64_t boundedCounts[5]={};
+  double boundedTimes[5]={};uint64_t boundedCounts[7]={};
   if(boundedComplexity) {
     const auto& work=boundedComplexity->GetStatistics();
     const double times[]={work.preparationSeconds,work.backgroundSeconds,work.correctionSeconds,
                           work.reductionSeconds,work.assessmentSeconds};
-    const uint64_t counts[]={work.retainedBytes,work.backgroundEvaluations,work.correctionEvaluations,work.profileRefreshes,work.profileGeometryQueries};
+    const uint64_t counts[]={work.retainedBytes,work.backgroundEvaluations,work.correctionEvaluations,work.profileRefreshes,work.profileGeometryQueries,work.backgroundBuilds,work.backgroundReuses};
     SU2_MPI::Allreduce(times,boundedTimes,5,MPI_DOUBLE,MPI_MAX,SU2_MPI::GetComm());
     SU2_MPI::Allreduce(counts,boundedCounts,1,MPI_UNSIGNED_LONG_LONG,MPI_MAX,SU2_MPI::GetComm());
-    SU2_MPI::Allreduce(counts+1,boundedCounts+1,4,MPI_UNSIGNED_LONG_LONG,MPI_SUM,SU2_MPI::GetComm());
+    SU2_MPI::Allreduce(counts+1,boundedCounts+1,6,MPI_UNSIGNED_LONG_LONG,MPI_SUM,SU2_MPI::GetComm());
   }
   if (rank == MASTER_NODE) {
     cout << (nativeMetric ? "Sensor-only donor metric statistics:" : "Metric field statistics:") << endl;
@@ -3709,6 +3709,9 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
             <<" correction_seconds_max="<<boundedTimes[2]<<" reduction_seconds_max="<<boundedTimes[3]
             <<" assessment_seconds_max="<<boundedTimes[4]<<" retained_bytes_max="<<boundedCounts[0]
             <<" background_determinants="<<boundedCounts[1]<<" correction_queries="<<boundedCounts[2]
+            <<" background_rank_builds="<<boundedCounts[5]<<" background_rank_reuses="<<boundedCounts[6]
+            <<" sensor_interval_indicator="<<.5*(boundedAssessment.sensorUpper-boundedAssessment.sensorLower)
+            <<" correction_indicator="<<3*boundedAssessment.standardError
             <<" donor_searches_during_trials=0 geometry_queries_during_trials="<<boundedCounts[4]
             <<" global_rank_profile_refreshes="<<boundedCounts[3]<<std::setprecision(6)<<endl;
       }

@@ -170,7 +170,8 @@ CNativeComplexity3D::Assessment CNativeComplexity3D::Assess(const std::vector<CB
       throw std::runtime_error("Invalid current complexity trial field/core.");
     const auto version=layers.GetOuterNormal().version;
     if(version!=profileVersion) {
-      const auto refreshStart=world.seconds();size_t bytes=transfer_memory::Add(transfer_memory::Bytes(source),transfer_memory::Bytes(queries),transfer_memory::Bytes(volumes));
+      const auto refreshStart=world.seconds();size_t bytes=transfer_memory::Add(transfer_memory::Bytes(source),
+          transfer_memory::Bytes(queries),transfer_memory::Bytes(volumes),transfer_memory::Bytes(backgroundSensor));
       for(auto& q:queries) {
         q.geometry=layers.SamplePoints({q.point.x,q.point.y,q.point.z});++statistics.profileGeometryQueries;
         bytes=transfer_memory::Add(bytes,transfer_memory::Bytes(q.geometry));
@@ -180,21 +181,36 @@ CNativeComplexity3D::Assessment CNativeComplexity3D::Assess(const std::vector<CB
       statistics.preparationSeconds+=world.seconds()-refreshStart;
     }
     const auto backgroundStart=world.seconds();
-    for(size_t cell=0;cell<source.size();++cell) {
-      const auto& row=source[cell];const auto volume=volumes[cell];
-      long double rootMean=0,meanDet=0,meanDensity=0,condition=0;
-      for(auto node:row.nodes)rootMean+=std::cbrt(Determinant(sensor[node],&condition))/4;
-      for(const auto& q:BackgroundRule()) {
-        const auto det=Determinant(Interpolate(row.nodes,q.weights,sensor),&condition);
-        meanDet+=q.volume*det;meanDensity+=q.volume*std::sqrt(det);
+    bool same=backgroundValid && backgroundSensor.size()==sensor.size();
+    for(size_t node=0;same && node<sensor.size();++node)for(unsigned i=0;i<3;++i)for(unsigned j=0;j<3;++j)
+      same=same && backgroundSensor[node].m[i][j]==sensor[node].m[i][j];
+    if(same) {
+      local[0]=background[0];local[1]=background[1];local[2]=background[2];local[6]=background[3];
+      ++statistics.backgroundReuses;
+    }else {
+      const auto previousBytes=transfer_memory::Bytes(backgroundSensor);
+      const auto needed=transfer_memory::Mul(sensor.size(),sizeof(Metric));
+      if(needed>previousBytes && transfer_memory::Add(statistics.retainedBytes,needed-previousBytes)>ceiling)
+        throw std::runtime_error("Original sensor background cache exceeds storage ceiling.");
+      for(size_t cell=0;cell<source.size();++cell) {
+        const auto& row=source[cell];const auto volume=volumes[cell];
+        long double rootMean=0,meanDet=0,meanDensity=0,condition=0;
+        for(auto node:row.nodes)rootMean+=std::cbrt(Determinant(sensor[node],&condition))/4;
+        for(const auto& q:BackgroundRule()) {
+          const auto det=Determinant(Interpolate(row.nodes,q.weights,sensor),&condition);
+          meanDet+=q.volume*det;meanDensity+=q.volume*std::sqrt(det);
+        }
+        // Minkowski+Jensen lower and cubic-determinant Jensen upper in exact arithmetic; no outward rounding proof.
+        const auto lower=volume*std::pow(rootMean,1.5L),upper=volume*std::sqrt(meanDet);
+        // First-order roundoff model for binary64 interpolation and determinant conditioning; NOT a proven bound.
+        const auto numerical=64*std::numeric_limits<double>::epsilon()*condition*std::max(lower,upper);
+        if(!(lower>0 && upper>0) || lower>upper+numerical)throw std::runtime_error("Invalid background complexity interval beyond numerical indicator.");
+        local[0]+=std::min(lower,upper);local[1]+=std::max(lower,upper);local[2]+=volume*meanDensity;local[6]+=numerical;
+        statistics.backgroundEvaluations+=BackgroundRule().size()+4;
       }
-      // Minkowski+Jensen lower and cubic-determinant Jensen upper in exact arithmetic; no outward rounding proof.
-      const auto lower=volume*std::pow(rootMean,1.5L),upper=volume*std::sqrt(meanDet);
-      // First-order roundoff model for binary64 interpolation and determinant conditioning; NOT a proven bound.
-      const auto numerical=64*std::numeric_limits<double>::epsilon()*condition*std::max(lower,upper);
-      if(!(lower>0 && upper>0) || lower>upper+numerical)throw std::runtime_error("Invalid background complexity interval beyond numerical indicator.");
-      local[0]+=std::min(lower,upper);local[1]+=std::max(lower,upper);local[2]+=volume*meanDensity;local[6]+=numerical;
-      statistics.backgroundEvaluations+=BackgroundRule().size()+4;
+      backgroundSensor=sensor;
+      statistics.retainedBytes=transfer_memory::Add(statistics.retainedBytes-previousBytes,transfer_memory::Bytes(backgroundSensor));
+      background={local[0],local[1],local[2],local[6]};backgroundValid=true;++statistics.backgroundBuilds;
     }
     statistics.backgroundSeconds+=world.seconds()-backgroundStart;const auto correctionStart=world.seconds();
     for(const auto& q:queries) {

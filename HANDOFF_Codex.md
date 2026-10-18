@@ -8,6 +8,13 @@ Leave AdapNoExt, foreign ClusterResults, dependencies and foreign jobs untouched
 
 ## Current work and execution
 
+Current WIP: latest identical original-sensor background result retained across
+BL profile/core trials in CNativeComplexity3D, within the existing memory ceiling.
+All correction composition/profile-dependent refresh and reductions remain fresh.
+Tests/cold-reused saved M6 and workflow qualification pending; source build not yet
+started. See `background_trial_reuse_v1/DESIGN.md` under M6 uncertainty evidence.
+No new reconstruction fallback or full-wing rerun is planned for this slice.
+
 Current qualified reuse source checkpointde479eda4a: physical-donor interior
 hypotheses and existing scalar-edge certificates retained within one admitted
 streamed campaign. Serial83/7748, MPI4(28 cases/rank), actual opt-in and strict
