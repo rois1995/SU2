@@ -3,6 +3,11 @@
 Goal3 ACTIVE/incomplete. User priority: qualify declared geometry before another M6 attempt.
 Spherical repeat is already qualified and published at fdbc20a92a; reuse its accepted cold evidence.
 
+Current-binary follow-up: baseline_v5_n4 and independently audited workflow_v5_n4
+PASS after the shared affine-core/finite-chord change. This retains Cartesian
+runtime scope. General arbitrary geometry remains OPEN; see
+[the geometry-core evidence](../affine_geometry_core_v1/README.md).
+
 ## Scope and geometry decision
 
 Adopt an explicitly declared Cartesian plane during **fresh initial geometry definition**, before

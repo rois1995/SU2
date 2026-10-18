@@ -1,0 +1,81 @@
+{
+  "status": "SAVED_NATIVE_REJECTION_WITH_INDEPENDENT_FEASIBLE_TARGET",
+  "edge": [
+    1,
+    5
+  ],
+  "edge_endpoints": [
+    [
+      1,
+      0,
+      0
+    ],
+    [
+      0.6,
+      0,
+      0.4
+    ]
+  ],
+  "terminal_edge_star_cells": [
+    5279,
+    11423,
+    40097,
+    40098
+  ],
+  "last_trial": {
+    "count": 2,
+    "vertices": [
+      1,
+      5,
+      0
+    ],
+    "candidate": true,
+    "minimum_quality": 0.14549820854225934,
+    "minimum_scaled_jacobian": 0.04903664774196001,
+    "weakest_cell": 51370,
+    "sliver_cell": 51370
+  },
+  "weakest_trial_cell": {
+    "id": 51370,
+    "vertices": [
+      [
+        52424,
+        0.7079267462738262,
+        0.3954550292446194,
+        0.2736225568600013
+      ],
+      [
+        1,
+        1,
+        0,
+        0
+      ],
+      [
+        11551,
+        0.7067748722570796,
+        0,
+        0.4398376916143805
+      ],
+      [
+        52423,
+        0.8295189704274959,
+        0,
+        0.17048102957250408
+      ]
+    ]
+  },
+  "same_original_field_and_profile_as_independent_witness": true,
+  "diagnosis": "Resource ceiling reached during local construction; observed transition split fails shape/sliver gates. A feasible same-field mesh exists. This is not invalid geometry or an infeasibility proof.",
+  "next_capability": "Coordinated finite-surface point distribution/reconnection together with first-row/volume transition reconstruction. Preserve fixed junctions and validate the full 3D replacement. An independent surface remesh alone proves no volume feasibility.",
+  "limits": [
+    "Last observed trial is a sample, not proof that every proposal is blocked",
+    "No claim that larger work caps, more ranks, a rotated plane or another local fallback fixes construction"
+  ],
+  "inputs": {
+    "symmetry_annulus_bl_budget_20_m1_rejected_rank0.json": "71d171b537d51b698e860577449610b7b905de105c46fe7ae3581b680dc2aafc",
+    "symmetry_annulus_bl_budget_20_m1_rejected_rank0_trial_after.json": "a27ead165f8399882aae8b47734e8d2b4f6a9b1f5f8231bf24ee57d38a31c715",
+    "symmetry_annulus_bl_budget_20_m1_rejected_rank0_trial.json": "672d3b4a47a35a36a743b1fec1638955125c3501b91b8ff4032212e41b142492",
+    "report.json": "79b1051544eee95ab72303726ccc646df93d89dbb19a96c9d2bf16fb410699df",
+    "diagnose_rejected.py": "e03a9f54039392fcfcd1a6113c841248b8decd992ce57c29fa72a60752494dfc"
+  }
+}

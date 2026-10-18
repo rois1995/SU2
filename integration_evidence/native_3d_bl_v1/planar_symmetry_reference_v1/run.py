@@ -9,14 +9,16 @@ import run as replay
 def main():
     mode=sys.argv[1];ranks=int(sys.argv[2]) if len(sys.argv)>2 else 1
     assert mode in ('geometry','workflow','baseline','annulus') and ranks in (1,2,4)
-    folder=HERE/(mode+'_v4_n'+str(ranks))
+    folder=HERE/(mode+'_v5_n'+str(ranks))
     sources=[]
     for directory in ('Common/include/adaptation','Common/src/adaptation','SU2_CFD/include/adaptation','SU2_CFD/src/adaptation'):
         sources+=list((ROOT/directory).glob('*3D.*'))
     sources += [ROOT/p for p in ('Common/include/CConfig.hpp','Common/src/CConfig.cpp','SU2_CFD/src/drivers/CDriver.cpp',
         'SU2_CFD/src/drivers/CSinglezoneDriver.cpp','SU2_CFD/src/solvers/CSolver.cpp',
         'UnitTests/SU2_CFD/adaptation/CNativeImport3D_tests.cpp','UnitTests/Common/adaptation/CNativeBoundary3D_tests.cpp',
-        'UnitTests/Common/adaptation/CNativeMesh3D_tests.cpp')]
+        'UnitTests/Common/adaptation/CNativeMesh3D_tests.cpp',
+        'Common/include/adaptation/CNativeAffineReference.hpp','Common/src/adaptation/CNativeAffineReference.cpp',
+        'UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp')]
     sources += list((ROOT/'UnitTests/SU2_CFD/adaptation/fixtures').glob('*.inc'))+[Path(__file__).resolve()]
     original_pins=replay.pins
     replay.pins=lambda:dict(original_pins(),**{str(p.relative_to(ROOT)):replay.sha(p) for p in sources})

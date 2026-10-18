@@ -32,7 +32,8 @@ uses dominant-axis projection: chart coordinates are unchanged binary64 global
 coordinates, so footprint predicates can remain exact. Lifting the dependent
 coordinate needs an explicit bounded rounding/error audit against that authority;
 mathematical coplanarity of arbitrary rounded triples is not a requirement.
-This is a design direction, not yet an implemented or verified authority.
+The geometry-only affine core now passes focused checks and an independent
+exact-rational lifting audit. Complete runtime authority integration remains pending.
 Robust global tetrahedron/triangle orientation and positivity stay mandatory.
 
 MPI preparation/publication/failure must be collective and atomic. Stable feature
@@ -62,9 +63,73 @@ complete accepted-event cost. Rejected M6 timing proves no affordability result.
 ## Current checkpoint
 
 Initial Cartesian 3D adoption and exact finite nonconvex/annular unions are
-unpublished work. Cube RANS/SA current+BDF/transfer/SU2+CGNS/real-restart workflow
-passes independently in serial; annular cold construction exhausts 8192 work
+published at 10c81365d0f620b5b48fb1d07ba372de402ca853. Cube RANS/SA
+current+BDF/transfer/SU2+CGNS/real-restart passes independently in serial, N2/M2
+and N4/M2; annular cold construction exhausts 8192 work
 without a complete accepted mesh. Rotated charts, general simultaneous body
 constraints, 2D declaration integration, multiple-body exterior workflows and
 authority versioning are OPEN. No general geometry completion claim is justified.
 See [planar work and exact evidence](GOAL3_PLANAR_SYMMETRY.md).
+
+## Annular construction strategy evidence
+
+The terminal private grid still contains symmetry diagonal1--5, from wall corner
+(1,0,0) to body-footprint corner(.6,0,.4), with4tetrahedra in its complete edge star.
+The saved attempted split replaces it but creates q=.145498/J=.0490366 at cell51370.
+That cell couples a symmetry triangle to a volume apex far from the symmetry plane.
+Original field/profile hashes match the independently feasible204-tet witness
+exactly. This is bounded construction failure with evidence of operator limitation,
+not invalid geometry, budget infeasibility or a proof that every proposal fails.
+
+The missing capability to reconsider is coordinated finite-surface point
+placement/reconnection plus first-row and volume transition reconstruction. A
+surface-chart mesher could propose a distribution using the actual pulled-back
+metric and immutable footprints/features, but independently meshing the surface
+would not prove a valid positive/full-metric 3D volume replacement. Do not claim
+this design is implemented, or add another edge-local fallback/cap increase.
+Exact saved diagnostics: planar_symmetry_reference_v1/annulus_v4_n1/structural_diagnosis.json.
+
+## Connected integration still required
+
+The shared affine core in CNativeAffineReference is geometry-only work. Before
+exposing arbitrary declarations in configurations, connect the complete path:
+
+1. Independently declare original input-deviation limits and mapping/authority
+   error limits. They serve different purposes. An accepted approximate boundary
+   point must remain unchanged on repeated projection/return (no geometric creep).
+2. Prepare finite component/feature ownership from immutable original boundary
+   topology, not a body-per-marker assumption. Resolve body and symmetry constraints
+   simultaneously and audit the existing body authority. Initial Cartesian adoption
+   does not independently qualify arbitrary body-authority intersections.
+3. Build original-sensor-only query coverage for the difference between the adopted
+   rounded surface and original volume facets, reusing the existing analytic source
+   coverage infrastructure where qualified. Original P1 has priority; no coarse
+   spread of composed BL tensors, nodal-source refit or indefinite extrapolation.
+4. Collectively admit geometry storage/work, agree authority definitions/versions
+   and publish only after positivity/topology/body-accuracy audits. Keep geometry
+   replicated at boundary scale, without a new volume gather or per-query negotiation.
+5. Persist authoritative definitions, finite topology, features and versions in the
+   existing dimension-specific native sidecars. Rebind through SU2/CGNS/restart;
+   do not normalize an old off-plane frozen state without explicit state transfer.
+6. Integrate operators and full-field/height/transfer acceptance in both dimensions;
+   independently qualify actual exterior workflows before broad readiness claims.
+
+Existing 30P30N inputs are available at
+/media/rausa/4TB/Validation/ThreeElementAirfoil/30P30N/Meshes (2D and3D CGNS coarse
+through fine). They have only been located, not opened, imported or run in this
+extension. Their element types, symmetry suitability and local resource requirements
+must be inspected before selecting a representative workflow. M6 remains on hold
+until controlled construction closes under unchanged constraints.
+
+## Qualified core checkpoint, distinct from runtime support
+
+`affine_geometry_core_v1/serial_v1` passes9 cases/3731 assertions across five oblique
+charts and all dominant axes, finite intervals, multiple holes, a notch and disconnected
+regions.319/320 saved samples have a nonzero exact plane/line equation; all satisfy
+reported physical bounds (largest sampled distance2.042804e-16, reported2.229226e-16).
+Projection is idempotent inside the declared contract; BC labels do not partition
+geometry. Straight footprint edges only; analytic body-intersection curves are OPEN.
+Current-binary MPI4 reference controls and independent Cartesian N4/M2 initialized
+RANS/SA transfer/output/actual restart pass. These are compatibility controls and
+primitive evidence, not completion of arbitrary Euler/RANS geometry workflows.
+[Executed scope and provenance](../integration_evidence/native_3d_bl_v1/affine_geometry_core_v1/README.md).

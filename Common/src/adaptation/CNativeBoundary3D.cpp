@@ -786,6 +786,12 @@ PlanarReference::PlanarReference(std::vector<Facet> input, size_t ceiling, std::
     if(valid){complete_analytic.insert(root);for(Id id:component)canonical.at(id)=root;}
     else if(g.kind==AnalyticSurface::Kind::Disk)throw std::invalid_argument("Disk authority requires its complete connected circular cap.");
   }
+  for(const auto& row:boundaries)if(nonconvex.count(row.first)) {
+    std::map<Id,Id> previous,next;
+    for(auto edge:row.second){previous.emplace(edge[1],edge[0]);next.emplace(edge[0],edge[1]);}
+    auto& corners=boundary_corners[row.first];corners.reserve(next.size());
+    for(const auto& entry:next)corners.push_back({previous.at(entry.first),entry.first,entry.second});
+  }
   std::map<Id, std::array<Point, 2>> boxes;
   for (const auto& row : facets) {
     const auto id = Canonical(row.first);
@@ -859,7 +865,8 @@ size_t PlanarReference::ResidentBytes() const {
   auto map = [](const auto& m) {
     return transfer_memory::Mul(m.size(), sizeof(typename std::decay_t<decltype(m)>::value_type) + 4 * sizeof(void*));
   };
-  size_t result = transfer_memory::Add(sizeof(*this), map(facets), map(canonical), map(boundaries), map(nodes), map(analytic), map(bump_charts), map(complete_analytic), map(nonconvex));
+  size_t result = transfer_memory::Add(sizeof(*this), map(facets), map(canonical), map(boundaries), map(nodes), map(analytic), map(bump_charts), map(complete_analytic), map(nonconvex), map(boundary_corners));
+  for(const auto& row:boundary_corners)result=transfer_memory::Add(result,transfer_memory::Bytes(row.second));
   for (const auto& entry : boundaries) result = transfer_memory::Add(result, transfer_memory::Bytes(entry.second));
   for(const auto& entry:bump_charts)
     if(entry.first==entry.second->facets.begin()->first) result=transfer_memory::Add(result,entry.second->ResidentBytes());
@@ -994,6 +1001,39 @@ bool PlanarReference::Contains(Id id, Point p, KernelStats* stats) const {
     return true;
   }
   throw std::logic_error("Degenerate admitted native 3D reference facet.");
+}
+bool PlanarReference::ContainsSegment(Id id,Point a,Point b,KernelStats* stats)const {
+  id=Canonical(id);
+  if(analytic.count(id))throw std::invalid_argument("Analytic segment containment requires its finite parameter chart.");
+  if(!Contains(id,a,stats)||!Contains(id,b,stats))return false;
+  if(!nonconvex.count(id))return true;
+  const auto& f=Get(id);size_t axis=0;
+  while(Projected(f.v[0].p,f.v[1].p,f.v[2].p,axis,stats)==0)++axis;
+  const int sign=Projected(f.v[0].p,f.v[1].p,f.v[2].p,axis,stats)>0?1:-1;
+  a=PlaneCoordinates(a,axis);b=PlaneCoordinates(b,axis);
+  auto side=[&](Point x,Point y,Point p){return Projected(x,y,p,2,stats);};
+  auto opposite=[](long double x,long double y){return (x<0&&y>0)||(x>0&&y<0);};
+  for(auto edge:boundaries.at(id)) {
+    const auto p=PlaneCoordinates(nodes.at(edge[0]).p,axis),q=PlaneCoordinates(nodes.at(edge[1]).p,axis);
+    if(opposite(side(a,b,p),side(a,b,q))&&opposite(side(p,q,a),side(p,q,b)))return false;
+    auto same=[](Point x,Point y){return x.x==y.x && x.y==y.y;};
+    if(!same(a,p)&&!same(a,q)&&OnEdge(p,q,a,stats)&&sign*side(p,q,b)<0)return false;
+    if(!same(b,p)&&!same(b,q)&&OnEdge(p,q,b,stats)&&sign*side(p,q,a)<0)return false;
+  }
+  // At a touched corner, test both chord directions against the complete local fluid wedge.
+  // This includes boundary-only endpoints and tangencies, which a proper-crossing test misses.
+  for(auto corner:boundary_corners.at(id)) {
+    const auto p=PlaneCoordinates(nodes.at(corner[0]).p,axis),v=PlaneCoordinates(nodes.at(corner[1]).p,axis),
+        q=PlaneCoordinates(nodes.at(corner[2]).p,axis);
+    if(!OnEdge(a,b,v,stats))continue;
+    const auto turn=sign*side(p,v,q);
+    for(auto direction:{a,b}) {
+      if(direction.x==v.x && direction.y==v.y)continue;
+      const auto left=sign*side(p,v,direction),right=sign*side(v,q,direction);
+      if(turn>=0 ? left<0||right<0 : left<0&&right<0)return false;
+    }
+  }
+  return true;
 }
 bool PlanarReference::ContainsFace(Id id, const std::array<Point, 3>& triangle, KernelStats* stats) const {
   for (auto p : triangle)

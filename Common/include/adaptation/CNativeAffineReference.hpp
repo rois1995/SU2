@@ -1,0 +1,79 @@
+/*!
+ * \file CNativeAffineReference.hpp
+ * \brief Finite geometry in audited affine charts, independent of boundary physics.
+ * SPDX-License-Identifier: LGPL-2.1-or-later
+ */
+#pragma once
+#include "CNativeBoundary3D.hpp"
+
+namespace SU2NativeGeometry {
+using SU2Native3D::Point;
+using SU2Native3D::Id;
+/*! Immutable definition; identity/version belong in every dependent cache key.
+ * Distance is a physical error contract, never a tolerance for volume predicates.
+ * The error contract must be at least the smallest normal binary64 value. */
+struct AffineAuthority {
+  Id identity=0;
+  uint64_t version=1;
+  unsigned dimension=3;
+  Point origin{}, normal{0,0,1};
+  double maximum_error=0;
+  template<class S>void Fields(S& s){s(identity,version,dimension,origin,normal,maximum_error);}
+};
+/*! Drop the dominant normal coordinate: chart coordinates retain original binary64 bits.
+ * Strict-arithmetic lifting audits an outward residual bound; exact global coplanarity is unnecessary.
+ * Rejects scales/errors not representable by the host, rather than increasing the contract. */
+class AffineChart {
+ public:
+  explicit AffineChart(AffineAuthority authority);
+  const AffineAuthority& Authority()const{return authority;}
+  Point Coordinates(Point p)const;
+  Point Lift(Point chart)const;
+  Point Project(Point p)const;
+  double ErrorBound(Point p)const;
+ private:
+  AffineAuthority authority;
+  unsigned dependent=0;
+};
+struct LineEdge {Id identity=0;SU2Native3D::Node a,b;};
+/*! A union of directed connected intervals, including multiple body-footprint gaps.
+ * Endpoints retain input feature IDs. Coincident disconnected endpoints and overlaps reject. */
+class FiniteLineReference {
+ public:
+  FiniteLineReference(AffineAuthority authority,const std::vector<LineEdge>& edges,size_t ceiling=SIZE_MAX);
+  const AffineChart& Chart()const{return chart;}
+  bool Contains(Point p)const;
+  bool ContainsSegment(Point a,Point b)const;
+  Point Project(Point p)const;
+  std::vector<Id> FeaturesIntersecting(Point a,Point b)const;
+  size_t Components()const{return intervals.size();}
+  size_t ResidentBytes()const;
+ private:
+  struct Interval {double lo,hi;Id component,first,last;};
+  AffineChart chart;
+  std::vector<Interval> intervals;
+};
+/*! Audited plane plus the existing finite planar kernel in exact chart coordinates.
+ * Oriented outer/inner loops and disconnected regions are prepared once. Input facets
+ * must form a conforming single-cover triangulation with straight footprint edges.
+ * Finite topology is checked; analytic body-intersection curves need a separate authority.
+ * This geometry API is not yet wired to CFD initialization, donor extension or restart. */
+class FinitePlaneReference {
+ public:
+  FinitePlaneReference(AffineAuthority authority,const std::vector<SU2Native3D::Facet>& facets,size_t ceiling=SIZE_MAX);
+  const AffineChart& Chart()const{return chart;}
+  bool Contains(Point p)const;
+  bool ContainsSegment(Point a,Point b)const;
+  bool ContainsFace(const std::array<Point,3>& face)const;
+  Point Project(Point p)const;
+  std::vector<SU2Native3D::Edge> FeaturesIntersecting(Point a,Point b)const;
+  size_t Components()const{return components.size();}
+  size_t ResidentBytes()const;
+ private:
+  AffineChart chart;
+  std::shared_ptr<const SU2Native3D::PlanarReference> reference;
+  std::vector<Id> components;
+  std::vector<SU2Native3D::Edge> borders;
+  std::map<Id,Point> nodes;
+};
+} // namespace SU2NativeGeometry

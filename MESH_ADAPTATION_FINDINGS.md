@@ -1,3 +1,16 @@
+## Affine geometry core checkpoint — 2026-10-18
+
+Shared 2D/3D chart/finite-domain core passes9cases/3731assertions and an independent
+320sample exact-rational bound audit across all dominant axes. Finite gaps, multiple
+holes, concavity, disconnected regions and complete chord/face rejection are covered;
+BC labels do not choose geometry and valid projection does not drift. Maximum
+sampled distance2.042804e-16; maximum reported bound2.229226e-16. Current-binary
+MPI4 references and independently audited Cartesian N4/M2 RANS/SA/BDF/transfer/
+SU2/CGNS/real restart pass. This is geometry-core and compatibility qualification.
+Arbitrary runtime authority, simultaneous curved body junctions, original-P1 collar,
+versioned persistence and exterior acceptance remain OPEN. Annular native construction
+is still blocked; no new M6 run or softened mesh gate. [Evidence](integration_evidence/native_3d_bl_v1/affine_geometry_core_v1/README.md).
+
 ## Current planar geometry checkpoint — 2026-10-18
 
 Initial Cartesian symmetry adoption and exact finite nonconvex/annular unions pass

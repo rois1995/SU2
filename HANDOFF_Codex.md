@@ -2,7 +2,8 @@
 
 Worktree `/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated`, branch
 `codex/native-3d-bl`. Full Goal3 **ACTIVE/incomplete**; Goal2 base c43a8a3907ea.
-Latest verified published checkpoint **fdbc20a92a46be36a5f5cbe74bcd8f4241a60e1c**.
+Latest verified published checkpoint **14d1bbc9de27c210bdb591b3f94a95cd193a7254**
+(lossless cleanup receipt; qualified geometry runtime remains 10c81365d0).
 [Full requirements](integration_evidence/native_3d_bl_v1/GOAL3_REQUIREMENTS.json).
 Leave AdapNoExt, foreign ClusterResults, dependencies and foreign jobs untouched.
 
@@ -23,12 +24,23 @@ regions, simultaneous junctions, shared Euler/RANS geometry and complete MPI
 transfer/persistence/restart/exterior workflows. Cartesian and one-hole checks do
 not complete it. Preserve full goal and all gates.
 
-Current build12913 and all v4 runs TERMINAL. Build48744 serializer failure is
-preserved and fixed. Cartesian cube lifecycle independently passes serial/N2M2/
-N4M2; focused MPI4 reference15cases/1149assertions PASS. No current owned heavy job.
-Shared affine finite-line/plane core is NEW UNCOMPILED source, not yet wired into
-CFD/donors/restart. Finish its connected primitive implementation/checks before
-claiming arbitrary orientation or publishing it as runtime support.
+All owned builds/tests TERMINAL. Affine-core final build44661 PASS (four steps,
+-j1/nice19/TMP on4TB); serial9cases/3731assertions and exact-rational320sample audit
+PASS. Current-binary MPI4 baseline and independently audited Cartesian N4/M2
+RANS/SA/current+BDF/transfer/SU2/CGNS/real restart PASS. No new CFD advance or M6 run.
+[Executed geometry-core scope](integration_evidence/native_3d_bl_v1/affine_geometry_core_v1/README.md).
+Core now covers arbitrary 2D/3D charts, finite multi-hole/nonconvex/disconnected
+regions and complete chords/faces, idempotent authorized projection and BC-label
+independence. Straight footprints only; general runtime authority, simultaneous
+curved body junctions, original-P1 collar and persisted declarations remain OPEN.
+Next connected step must address these across existing authority/import/query/IO
+callers; keep input-deviation and mapping-error contracts separate. Do not expose
+projection-only runtime or claim general geometry complete. Annular construction
+still needs coordinated surface/first-row/volume transition reconstruction, not an
+edge-local fallback or cap increase. Reuse the exact failed star/witness below.
+Disk cleanup recovered14.40GiB; [receipt and restore](Handbook/DISK_SPACE_CLEANUP_2026_10_18.md).
+Current build and all3D evidence preserved; archived old executables need decompression.
+Root/tmp nearly full from foreign work: leave it untouched.
 
 Annulus_v4_n1 reproduces work8192 rejection, saves154privatecells/55nodes plus
 original field/reference and exact last edge1--5 trial. Input flow/SA retained.

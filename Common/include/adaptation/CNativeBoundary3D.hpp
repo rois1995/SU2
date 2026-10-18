@@ -71,6 +71,8 @@ class PlanarReference {
   /*! Conservative reference construction peak, including the house local box index. */
   static size_t ConstructionBytes(size_t facets, size_t analytic = 0);
   bool Contains(Id facet, Point p, KernelStats* stats = nullptr) const;
+  /*! Complete closed chord containment on a finite faceted patch; analytic paths require their own chart. */
+  bool ContainsSegment(Id facet,Point a,Point b,KernelStats* stats=nullptr)const;
   Id Canonical(Id facet) const;
   /*! Finite complete triangle containment and exact orientation relative to the original physical facet. */
   bool ContainsFace(Id facet, const std::array<Point, 3>& triangle, KernelStats* stats = nullptr) const;
@@ -89,6 +91,7 @@ class PlanarReference {
   std::map<Id, Id> canonical;
   std::set<Id> complete_analytic, nonconvex;
   std::map<Id, std::vector<Edge>> boundaries;
+  std::map<Id,std::vector<std::array<Id,3>>> boundary_corners;
   std::map<Id, std::shared_ptr<const PlanarReference>> bump_charts;
   std::map<Id, Node> nodes;
   std::map<int, std::vector<Id>> marker_facets;

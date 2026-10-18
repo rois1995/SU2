@@ -27,8 +27,11 @@ open. No new M6 run or archived-field geometry relabeling.
 Existing local recovery cannot close this annular cold construction under the
 current work ceiling. Reconsider coordinated surface/first-row/transition point
 placement and connectivity using the saved exact failure; no cap or fallback ladder.
-Build12913 TERMINAL PASS; all listed jobs TERMINAL. New shared affine core source
-is being developed separately and is not covered by these runtime receipts.
+Current shared-core checkpoint: focused affine serial9cases/3731assertions and
+320sample exact-rational audit PASS; current-binary baseline_v5_n4 and independently
+audited workflow_v5_n4 PASS. These runtime receipts cover Cartesian compatibility,
+not arbitrary adoption/junctions/donors/restart. All listed jobs TERMINAL.
+[Core scope](../integration_evidence/native_3d_bl_v1/affine_geometry_core_v1/README.md).
 
 ## Historical development notes (superseded job status)
 
