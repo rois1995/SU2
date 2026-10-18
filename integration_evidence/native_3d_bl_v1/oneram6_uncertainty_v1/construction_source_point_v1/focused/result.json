@@ -1,0 +1,22 @@
+{
+  "exit_code": 0,
+  "elapsed_seconds": 0.35388553992379457,
+  "command": [
+    "taskset",
+    "-c",
+    "0",
+    "nice",
+    "-n",
+    "19",
+    "timeout",
+    "--kill-after=5s",
+    "180s",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver",
+    "[NativeRepresentableSplit3D],[NativeBalancedSplit3D],[NativeSegmentCoverage3D]",
+    "--abort",
+    "--reporter",
+    "compact"
+  ],
+  "provenance_sha256": "7e8f31830076babf94737cd3ad5f27967ff3c968e12f015a4305b4e767614a0f",
+  "log_sha256": "96401539020e8c4c14bc767ccc37742df056394d195748a7a765edce12d5f7b0"
+}

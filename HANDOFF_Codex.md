@@ -16,18 +16,25 @@ Two budgets select lambda .875 / 0 with unchanged physical gates. These initiali
 workflows do not establish converged viscous accuracy or general curved construction.
 [Policy, qualified scope, failures and limitations](Handbook/GOAL3_BUDGET_AWARE_BL.md).
 
-Current qualified source/evidence: this checkpoint (see git HEAD and
-`budget_bl_policy_v1/summary.json`). Previous published WIP was
-`ca689ee91b8d1ec5f2d7265d042f5c690d4dc3d2`. Previous58214e08bd budget qualification remains in its pinned source/binary scope.
-All diagnostic builds/tests/M6 replay/offline audits are now TERMINAL. Connected
-source-point construction is now IMPLEMENTED/WIP and its one-worker build28613 is LIVE (29 targets);
-inspect actual handle before tests. No other owned heavy job. New bounded edge-failure context captures a real outside midpoint of
-original242/3094 (z error3.47e-18), not missing MPI support. Adjacent lower rounding
-corner has positive local children/covered edges; no complete accepted M6 mesh.
-Current batch: exact dyadic affine bounds/source-contained split and central point
-realization, existing literal sensor-cache reuse, unchanged ordinary/final gates.
-Next after build: witness/extreme arithmetic+Fraction audit, meaningful MPI/lifecycle
-and unchanged hard replay. source_point_construction_v1/DESIGN.md records scope.
+Current qualified source/evidence: source-point construction at this checkpoint
+(see git HEAD and `source_point_construction_v1/summary.json`). Previous published
+source WIP wasb22b99e452; its completed qualification/failure evidence is retained
+here. Budget checkpoint58214e08bd remains in its own pinned source/binary scope.
+All diagnostic/source-point builds, scoped checks and hard replay are TERMINAL;
+no owned heavy job. Source constructor atb22b99e452 passes serial16/1993, MPI4
+21 cases/rank, exact126-coordinate Fraction audit/rank (identical four streams),
+and initialized opt-in N4M2 RANS/SA/BDF/conservation/full-edge/height/SU2/CGNS/restart.
+Default-policy N4M2 original-family corrections at both scales1/10 also pass
+independent metric/geometry/transfer/SU2/CGNS/restart. All jobs terminal.
+Actual unchanged owner-UPPER6 M6 passes the captured midpoint failure and accepts
+93 PRIVATE volume edits over485 rounds;7 useful-progress windows/no stagnation.
+It still rejects atomically at300.531s under unchanged ceiling; last q=.16027
+(<.20), J=.050413. No accepted wing, normalization or transfer claim. Do NOT raise
+caps or add another local fallback. Cost shows repeated reconstruction/source/
+coordination: rank0 reconstruction118.24s, nested search51.22s/edge trace25.38s,
+40868 donor batches/477360 tracked calls per rank. Preserve exact replay/evidence
+and address the missing construction/coordination capability as a connected step.
+[Qualified source-construction report](integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/source_point_construction_v1/README.md).
 [Exact packet, evidence and design](integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/construction_segment_coverage_v1/README.md).
 
 V7: primitives/strict controls, uncertain serial/MPI4, and enabled serial/N4M2 full
@@ -38,14 +45,15 @@ At300k,lambda.75/version7 remains integration_limited,308423 +/-12078. New enabl
 normalization freezes original coarsest scale in6.552s rather than93.477s unresolved
 finer-scale search (changed provisional scale, not same-field/lifecycle speedup).
 Independent saved-cloud estimates314146 +/-12153 and312539 +/-11852 suggest300k
-may still conflict; do not call it attainable. No CFD/M6 construction rerun.
+may still conflict; do not call it attainable. These policy trials did not
+construct M6; the separate unchanged frozen construction is reported above.
 [Final scoped report, inspectable grids, clocks and limitations](integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/budget_bl_policy_v1/README.md).
 
 Next full-goal work: calibrated global uncertainty/absolute-error allocation and an
 accepted difficult complete construction under declared physical limits, preserving
 same-original-field reassessment/stage atomicity. Do not assume relaxing a profile
-or solving integration establishes construction feasibility. Existing M6 strict
-source-segment failure remains open. Broader query/transaction package remains.
+or solving integration establishes construction feasibility. The captured M6 source-segment defect is fixed in its demonstrated scope;
+complete construction remains time-limited with quality rejections. Broader query/transaction package remains.
 Do not rerun already-applied implementation mutators or add local fallback/cap
 ladders. Policy auto-selection currently native3D only; strict2D unchanged.
 
@@ -66,8 +74,9 @@ also distinct. Never refit from adapted samples or rescale clipped donors.
 Progressive FULL measurement and exact declared-midpoint original-P1 queries pass
 focused serial/MPI2/4 and independent N4/M2 RANS/SA/BDF/SU2/CGNS/restart. Ordinary
 point/full-edge predicates remain strict. Stronger finer-sensor4096-work control
-still fails. Actual M6 rejects at84.355s with `Uncovered native 3D source segment
-endpoint.` after30 private rounds. No accepted wing or full-event speedup claim.
+still fails. Historical pre-fix M6 rejects at84.355s with `Uncovered native 3D source segment
+endpoint.` after30 private rounds. Current source constructor reaches93 private
+edits then300s rejection, as recorded above; still no accepted wing/speedup claim.
 [Current construction evidence](Handbook/GOAL3_PROGRESSIVE_MEASUREMENT.md),
 [constraints/rejected strategies](Handbook/GOAL3_M6_CONSTRAINTS_AND_EXPERIMENTS.md).
 

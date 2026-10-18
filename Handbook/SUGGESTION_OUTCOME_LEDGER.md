@@ -862,3 +862,24 @@ adjacent corners and existing literal sensor-cache storage. Balanced and central
 physical-edge proposals share it; ordinary queries/final gates stay strict. This is
 WIP, not a validated mesh improvement: build/session28613 still live; arithmetic,
 MPI/lifecycle and hard-case construction checks remain. [Design](../integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/source_point_construction_v1/DESIGN.md).
+
+
+## Source-point construction outcome (supersedes preceding WIP status)
+
+- Worked: exact affine rounding/source-contained coordinate construction fixes the
+  captured outside midpoint without relaxing ordinary field/geometry/metric gates.
+  Serial/MPI controls, independent exact arithmetic and actual N4M2 conservative
+  RANS/SA/BDF/SU2/CGNS/restart pass. Existing literal cache/eviction path reused.
+- Did not complete M6:93 private edits/485 rounds, then unchanged300s ceiling and
+  last q=.16027 (<.20). No accepted mesh/transfer/normalization claim. Seven
+  useful-progress windows show progress, not stagnation or proof of infeasibility.
+- Cost evidence now supports the broader priorities: rank0 reconstruction118.24s,
+  nested source search51.22s and edge trace25.38s;40868 donor batches/477360 tracked
+  calls/rank. Other ranks wait substantially; one diagnostic stack sees Allreduce.
+  These nested contended correctness clocks do not establish scaling/speedup.
+- Still not implemented here: retained repair-campaign donor/index preparation,
+  longer shared-edge reuse and independent transaction batching. Next work must
+  connect difficult reconstruction to that repeated work, using local replay;
+  do not keep raising limits or rerunning the full wing after each small edit.
+
+[Report and all receipts/accepted controls/rejected M6](../integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/source_point_construction_v1/README.md).

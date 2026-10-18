@@ -1,0 +1,36 @@
+[New LWP 2442418]
+[New LWP 2442419]
+[Thread debugging using libthread_db enabled]
+Using host libthread_db library "/lib/x86_64-linux-gnu/libthread_db.so.1".
+0x00007f12140cf333 in ?? () from /usr/lib/x86_64-linux-gnu/openmpi/lib/openmpi3/mca_btl_vader.so
+
+Thread 3 (Thread 0x7f121533c700 (LWP 2442419)):
+#0  0x00007f12160e068e in epoll_wait (epfd=10, events=0x55954257a160, maxevents=32, timeout=2100000) at ../sysdeps/unix/sysv/linux/epoll_wait.c:30
+#1  0x00007f1215ddb5e9 in ?? () from /lib/x86_64-linux-gnu/libevent-2.1.so.7
+#2  0x00007f1215dd1625 in event_base_loop () from /lib/x86_64-linux-gnu/libevent-2.1.so.7
+#3  0x00007f1215441d56 in ?? () from /lib/x86_64-linux-gnu/libpmix.so.2
+#4  0x00007f12161bb609 in start_thread (arg=<optimized out>) at pthread_create.c:477
+#5  0x00007f12160e0353 in clone () at ../sysdeps/unix/sysv/linux/x86_64/clone.S:95
+
+Thread 2 (Thread 0x7f1215cf1700 (LWP 2442418)):
+#0  0x00007f12160d3bbf in __GI___poll (fds=0x7f1210000b60, nfds=1, timeout=3599992) at ../sysdeps/unix/sysv/linux/poll.c:29
+#1  0x00007f1215dda981 in ?? () from /lib/x86_64-linux-gnu/libevent-2.1.so.7
+#2  0x00007f1215dd1625 in event_base_loop () from /lib/x86_64-linux-gnu/libevent-2.1.so.7
+#3  0x00007f1215e87706 in ?? () from /lib/x86_64-linux-gnu/libopen-pal.so.40
+#4  0x00007f12161bb609 in start_thread (arg=<optimized out>) at pthread_create.c:477
+#5  0x00007f12160e0353 in clone () at ../sysdeps/unix/sysv/linux/x86_64/clone.S:95
+
+Thread 1 (Thread 0x7f1215d6aec0 (LWP 2442415)):
+#0  0x00007f12140cf333 in ?? () from /usr/lib/x86_64-linux-gnu/openmpi/lib/openmpi3/mca_btl_vader.so
+#1  0x00007f1215e81854 in opal_progress () from /lib/x86_64-linux-gnu/libopen-pal.so.40
+#2  0x00007f121658f905 in ompi_request_default_wait () from /lib/x86_64-linux-gnu/libmpi.so.40
+#3  0x00007f12165e983c in ompi_coll_base_sendrecv_actual () from /lib/x86_64-linux-gnu/libmpi.so.40
+#4  0x00007f12165ea042 in ompi_coll_base_allreduce_intra_recursivedoubling () from /lib/x86_64-linux-gnu/libmpi.so.40
+#5  0x00007f12165a5411 in PMPI_Allreduce () from /lib/x86_64-linux-gnu/libmpi.so.40
+#6  0x0000559524a02feb in CPassiveComm::AllreduceMax (value=<optimized out>, comm=comm@entry=0x5595426318b0) at ../../Common/src/parallelization/CPassiveComm.cpp:398
+#7  0x0000559524c0ee8e in ElectFailure (local=..., comm=0x5595426318b0) at ../../Common/src/adaptation/CDistributedSearch.cpp:443
+#8  0x0000559524d9261f in SU2NativeBoundary2D::World::elect (this=<optimized out>, local=...) at ../../Common/src/adaptation/../../include/adaptation/CNativeDistributed2D.hpp:90
+#9  SU2Native3D::(anonymous namespace)::<lambda(const CLocalFailure&)>::operator() (__closure=0x7ffdf6c6f3b0, __closure=0x7ffdf6c6f3b0, local=...) at ../../Common/src/adaptation/CNativeEngine3D.cpp:478
+#10 SU2Native3D::(anonymous namespace)::<lambda(bool, const std::vector<long unsigned int, std::allocator<long unsigned int> >&)>::operator()(bool, const std::vector<unsigned long, std::allocator<unsigned long> > &) const (__closure=0x7ffdf6c703a0, search=false, apices=std::vector of length 0, capacity 0) at ../../Common/src/adaptation/CNativeEngine3D.cpp:1909
+#11 0x0000559524dad5ab in SU2Native3D::(anonymous namespace)::Adapt (world=..., accepted=..., original=..., geometry=..., composition=..., options=..., intent=<optimized out>) at ../../Common/src/adaptation/CNativeEngine3D.cpp:2220
+[Inferior 1 (process 2442415) detached]

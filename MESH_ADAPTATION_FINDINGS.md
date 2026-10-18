@@ -6591,3 +6591,21 @@ no complete geometry/height/metric or accepted-M6 result follows. Diagnostic sou
 construction_segment_coverage_v1. A connected exact affine rounding/source-contained
 split-point constructor is implemented and building, UNQUALIFIED. It replaces raw
 outside central proposals rather than loosening Query/TraceSegment. Full Goal3 active.
+
+
+## Qualified source-contained point construction and remaining M6 blockage
+
+B22b99e452 connected coordinate construction is now scoped-qualified: exact dyadic
+bounds/8 corners, existing literal cache reuse, balanced/central caller consistency;
+strict Query/TraceSegment and every final geometry/height/q/J/full-metric/transfer
+contract unchanged. Serial16/1993, MPI4(21 cases/rank), independent Fraction126
+coordinates/rank and initialized N4M2 conservative RANS/SA/BDF/SU2/CGNS/restart pass.
+
+Unchanged frozen M6 proceeds past the proven source defect,485 rounds/93 private
+volume edits, then atomically rejects at300.531s. Last q=.16027/J=.050413, seven
+useful-progress windows/no stagnation: no infeasibility proof or accepted wing.
+Rank0 reconstruction118.24s, nested source search51.22s/edge trace25.38s and40868
+source batches/rank reveal substantial repeated source/reconstruction/coordination
+work. One diagnostic stack records MPI waiting; no clean performance/scaling claim.
+No ceiling/quality change or new local fallback. Full Goal3 remains active.
+[Evidence and required next connected step](Handbook/GOAL3_PROGRESSIVE_MEASUREMENT.md).

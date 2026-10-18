@@ -101,3 +101,19 @@ boundary/height/metric or accepted-M6 evidence. Next capability is source-consis
 coordinate construction from exact affine rounding bounds, preserving strict
 literal Query/TraceSegment and every final gate. No donor/tolerance/cap increase.
 [Packet, exact audit, experiment, resources and scope](../integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/construction_segment_coverage_v1/README.md).
+
+
+## Source-contained coordinate construction qualified afterb22b99e452
+
+Exact dyadic bounds and at most8 source-contained rounding corners now serve balanced
+and central split placement. Ordinary queries remain strict; the captured outward
+point still rejects. Serial16/1993, MPI4(21 cases/rank), independent Fraction bounds
+and actual N4M2 RANS/SA/BDF/full-metric/conservation/SU2/CGNS/restart pass.
+
+Unchanged owner-UPPER6 M6 now runs485 rounds and accepts93 private volume edits,
+then rejects atomically at300.531s; q=.16027/J=.050413 is the last local failure,
+not a proof of global infeasibility. Seven useful-progress windows, no stagnation.
+No accepted wing or reason to raise ceilings. Large repeated source/reconstruction
+and coordination costs remain; do not substitute another local fallback for the
+next connected construction/coordination step.
+[Full scope, exact checks, costs and rejected hard case](../integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/source_point_construction_v1/README.md).
