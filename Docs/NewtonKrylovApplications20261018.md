@@ -174,10 +174,10 @@ and `paper_notes/manifest.json`; they motivate investigations, not unmeasured so
 
 | Application | Layout | Actual trials | Qualified endpoints | Eligible timing repetitions |
 |---|---|---:|---:|---:|
-| naca_sa | 1x1 | 72 | 27 | 1 |
-| naca_sa | 2x2 | 47 | 19 | 0 |
-| naca_sst | 1x1 | 29 | 4 | 0 |
-| naca_sst | 2x2 | 12 | 1 | 0 |
+| naca_sa | 1x1 | 74 | 27 | 1 |
+| naca_sa | 2x2 | 50 | 19 | 0 |
+| naca_sst | 1x1 | 32 | 4 | 0 |
+| naca_sst | 2x2 | 15 | 1 | 0 |
 | nozzle_sst | 1x1 | 32 | 0 | 0 |
 | nozzle_sst | 2x2 | 9 | 0 | 0 |
 | flatplate_lm | 1x1 | 20 | 0 | 0 |
@@ -360,12 +360,23 @@ is retained; `prepared` and `running` entries have not completed.
 | naca_sa | 2x2 | native | original | inner_scaling_release | original | -13.0 | qualified | True | 151 | 12.626 | 13.135 |
 | naca_sst | 1x1 | coupled | original | inner_scaling_release | original | -12 | iteration_cap | False | 20 | 84.426 | 84.961 |
 | naca_sa | 1x1 | native | original | recovery_release | original | -13.0 | qualified | True | 151 | 18.913 | 19.465 |
+| naca_sa | 1x1 | coupled | original | naca_rejection_flow3_release | diagonal | -14.0 | iteration_cap | False | 20 | 83.725 | 84.249 |
+| naca_sa | 2x2 | coupled | original | naca_rejection_flow3_release | diagonal | -14.0 | iteration_cap | False | 20 | 51.990 | 52.542 |
+| naca_sst | 1x1 | segregated | original | naca_rejection_flow3_release | original | -13.0 | iteration_cap | False | 20 | 63.654 | 64.198 |
+| naca_sst | 2x2 | segregated | original | naca_rejection_flow3_release | original | -13.0 | iteration_cap | False | 20 | 33.477 | 33.961 |
+| naca_sa | 1x1 | coupled | original | naca_rejection_inner3_release | diagonal | -14.0 | iteration_cap | False | 20 | 76.874 | 77.419 |
+| naca_sa | 2x2 | coupled | original | naca_rejection_inner3_release | diagonal | -14.0 | iteration_cap | False | 20 | 48.234 | 48.738 |
 | naca_sa | 1x1 | coupled | original | naca_rejection_v2_release | diagonal | -14.0 | iteration_cap | False | 20 | 85.491 | 85.998 |
 | naca_sa | 1x1 | native | original | naca_rejection_v2_release | original | -13.0 | qualified | True | 151 | 21.418 | 21.960 |
 | naca_sa | 2x2 | coupled | original | naca_rejection_v2_release | diagonal | -14.0 | iteration_cap | False | 20 | 74.231 | 74.759 |
 | naca_sa | 2x2 | native | original | naca_rejection_v2_release | original | -13.0 | qualified | True | 151 | 16.050 | 16.558 |
 | naca_sst | 1x1 | native | original | naca_rejection_v2_release | original | -13.0 | qualified | True | 397 | 60.211 | 60.786 |
 | naca_sst | 2x2 | native | original | naca_rejection_v2_release | original | -13.0 | qualified | True | 397 | 43.669 | 44.102 |
+| naca_sst | 1x1 | coupled | original | naca_rejection_v2_release | original | -13.0 | iteration_cap | False | 20 | 93.144 | 93.687 |
+| naca_sst | 1x1 | segregated | original | naca_rejection_v2_release | original | -13.0 | iteration_cap | False | 20 | 102.571 | 103.116 |
+| naca_sst | 2x2 | coupled | original | naca_rejection_v2_release | original | -13.0 | iteration_cap | False | 20 | 50.954 | 51.436 |
+| naca_sst | 2x2 | segregated | original | naca_rejection_v2_release | original | -13.0 | iteration_cap | False | 20 | 59.187 | 59.676 |
+| naca_sa | 2x2 | coupled | original | naca_rejection_v2_release | diagonal | -14.0 | running | False | — | — | — |
 | flatplate_lm | 1x1 | coupled | original | baseline_4712d82375 | original | -11 | solver_failure | False | 0 | — | 1.432 |
 | flatplate_lm | 1x1 | native | original | baseline_4712d82375 | original | -11 | solver_failure | False | 0 | — | 1.349 |
 | flatplate_lm | 1x1 | segregated | original | baseline_4712d82375 | original | -11 | solver_failure | False | 0 | — | 1.356 |

@@ -88,8 +88,43 @@ Default0 SA retries in these prefixes are all derivative-verification failures:
 9 on1×1 and10 on2×2, costing measured log-interval assemblies351 and747 per system,
 respectively. Their completed outer Krylov work is0 and110. No admissibility or
 line-search retry occurs. These are measured prefix results, not inferred labels
-for every historical rejection. The three-inner replay is the next focused check;
-no further parameter change is selected before that comparison.
+for every historical rejection. The three-inner replay is complete and exactly reproduces both historical SA
+prefixes. Serial3/3 has9 derivative-verification retries; parallel3/3 has3 such
+retries and8 true-defect retries with no failed product. Every one of those8
+meets its reported Krylov target before failing the independent defect bound.
+They consume1262 of3384 assemblies per system (37.3%); all rejected intervals
+consume47.2%. These data expose an unreliable computed Krylov residual for that
+strategy; they do not establish the underlying arithmetic cause or an SU2 bug.
+
+The original-control SST prefixes also reproduce every historical telemetry
+column. Segregated SST has no retries on either layout: accepted solves consume
+3952/3946 FLOW assemblies and1226/1234 outer Krylov iterations. Its TURB counts
+are336/339. Coupled SST has3 derivative-verification retries on each layout,
+consuming667/668 FLOW and742/754 TURB assemblies. No observed prefix rejection
+is caused by line-search or trial admissibility.
+
+A separate **FLOW3/scalars0** experiment isolates the two native block policies.
+Its source patch/binaries are archived, its63-case2×2 suite passes, and both
+production source and the shared build are restored to default0 afterwards.
+Parallel SA has no true-defect rejection in this20-update variant, but still has
+9 derivative-verification retries. Serial SA improves assembly work only1.5%
+and adds native-inner work; this is insufficient to adopt a universal strategy.
+
+For SST segregated, FLOW3/scalars0 reduces20-update FLOW assemblies3952→2263 on1×1
+and3946→1944 on2×2 (42.7%/50.7%), with no retries and slightly smaller full-state
+errors at the same update count. Outer Krylov work falls1226→663 and1234→680,
+while native-inner work adds1699/1722 iterations. The actual state errors remain
+large and fail qualification. This supports a **full endpoint comparison**, not
+a speedup or convergence-work claim. CFL, forcing and physical controls are
+unchanged in this isolation. Default0 remains committed.
+
+Next numerical jobs are narrowed to a full default0 parallel coupled SA endpoint
+using exactly the serial-qualified controls, followed by paired original-control
+SST segregated endpoints (default0 and FLOW3/scalars0 on both layouts). Caps are
+2400s for SA and3600s per SST trial, with10000-update limits. They are resource
+limits; reaching either leaves an incomplete result. One owned solver runs at a
+time. Remaining common NACA endpoints are still outstanding; T3A/nozzle/VKI and
+quiet timing remain deferred.
 
 Correctness/work jobs run at nice19 and may coexist with one external compiler,
 provided available RAM remains at least8GiB. Other solver/multiple-compiler jobs
@@ -129,11 +164,37 @@ Evidence root:
 
 Native assembly counts in this table are inferred; linear work is measured in native history. The [focused CSV](NewtonKrylovNacaRejections20261018.csv) preserves full-state, quantity, residual and hash evidence.
 
+## Supporting prefix work
+
+All rows below stop at20 updates and remain unqualified. These compare work and progress, not convergence cost.
+
+| Inner F/T | Case | Layout | Mode | F/T assemblies | Outer/inner linear work | Retries | Max component / point error |
+|---|---|---|---|---:|---:|---:|---:|
+| 3/0 | naca_sa | 1x1 | coupled | 3624/3624 | 907/2411 | 9 | 8.563e-07 / 5.927e-05 |
+| 3/0 | naca_sa | 2x2 | coupled | 3984/3984 | 888/2745 | 9 | 1.367e-06 / 6.309e-05 |
+| 3/0 | naca_sst | 1x1 | segregated | 2263/336 | 663/1699 | 0 | 8.778e-04 / 9.066e-02 |
+| 3/0 | naca_sst | 2x2 | segregated | 1944/339 | 680/1722 | 0 | 8.829e-04 / 9.102e-02 |
+| 3/3 | naca_sa | 1x1 | coupled | 3038/3038 | 706/4171 | 9 | 7.987e-07 / 5.519e-05 |
+| 3/3 | naca_sa | 2x2 | coupled | 3384/3384 | 774/4547 | 11 | 1.323e-06 / 9.160e-05 |
+| 0/0 | naca_sa | 1x1 | coupled | 3681/3681 | 802/0 | 9 | 9.266e-07 / 6.426e-05 |
+| 0/0 | naca_sa | 2x2 | coupled | 5464/5464 | 1482/0 | 10 | 1.109e-06 / 7.726e-05 |
+| 0/0 | naca_sst | 1x1 | coupled | 3382/3818 | 430/0 | 3 | 1.855e-03 / 1.617e-01 |
+| 0/0 | naca_sst | 1x1 | segregated | 3952/336 | 1226/0 | 0 | 8.812e-04 / 9.086e-02 |
+| 0/0 | naca_sst | 2x2 | coupled | 3521/4022 | 500/0 | 3 | 1.668e-03 / 1.448e-01 |
+| 0/0 | naca_sst | 2x2 | segregated | 3946/339 | 1234/0 | 0 | 8.832e-04 / 9.155e-02 |
+
 ## Measured rejection prefixes
 
 These are update-limited mechanism checks, not qualified endpoints or convergence-work comparisons. Times remain observations only. Rejected assembly intervals use the boundary described above.
 
-| Inner | Case | Layout | Group | Reason | Rejections | Retries | F/T assemblies | Outer/inner linear work |
+| Inner F/T | Case | Layout | Group | Reason | Rejections | Retries | F/T assemblies | Outer/inner linear work |
 |---:|---|---|---|---|---:|---:|---:|---:|
-| 0 | naca_sa | 1x1 | newton_coupled | DERIVATIVE_VERIFICATION | 9 | 9 | 351/351 | 0/0 |
-| 0 | naca_sa | 2x2 | newton_coupled | DERIVATIVE_VERIFICATION | 10 | 10 | 747/747 | 110/0 |
+| 3/0 | naca_sa | 1x1 | newton_coupled | DERIVATIVE_VERIFICATION | 9 | 9 | 351/351 | 0/27 |
+| 3/0 | naca_sa | 2x2 | newton_coupled | DERIVATIVE_VERIFICATION | 9 | 9 | 1380/1380 | 306/945 |
+| 3/3 | naca_sa | 1x1 | newton_coupled | DERIVATIVE_VERIFICATION | 9 | 9 | 371/371 | 1/60 |
+| 3/3 | naca_sa | 2x2 | newton_coupled | DERIVATIVE_VERIFICATION | 3 | 3 | 334/334 | 68/426 |
+| 3/3 | naca_sa | 2x2 | newton_coupled | TRUE_LINEAR_DEFECT | 8 | 8 | 1262/1262 | 339/2034 |
+| 0/0 | naca_sa | 1x1 | newton_coupled | DERIVATIVE_VERIFICATION | 9 | 9 | 351/351 | 0/0 |
+| 0/0 | naca_sa | 2x2 | newton_coupled | DERIVATIVE_VERIFICATION | 10 | 10 | 747/747 | 110/0 |
+| 0/0 | naca_sst | 1x1 | newton_coupled | DERIVATIVE_VERIFICATION | 3 | 3 | 667/742 | 73/0 |
+| 0/0 | naca_sst | 2x2 | newton_coupled | DERIVATIVE_VERIFICATION | 3 | 3 | 668/754 | 85/0 |
