@@ -178,6 +178,34 @@ CSV. The earlier immutable checkpoint progress check remains supporting evidence
 its point error2.378e-5 missed the target; the final endpoint passes. Checkpoints
 carry no iteration metadata, so no exact convergence work is inferred from them.
 
+## SST progress against numerical work
+
+The [SST work milestones CSV](NewtonKrylovSSTWorkMilestones20261018.csv) tracks
+original-control density-history crossings separately from endpoint qualification.
+It updates as trials finish. Native counts remain explicitly inferred; Newton
+counts use the same cumulative-controller boundaries as the application ledger.
+The helper `residual_work_milestones.py` has assert-based checks for first crossings,
+failed-attempt work and cumulative per-group counters.
+
+For example, SST1×1 reaches density history−11 in123 native updates with4920 linear
+iterations, versus55 default0 segregated updates with4344 outer Krylov iterations.
+The native assembly count is123 per system (inferred); Newton measures12465 FLOW
+and1830 TURB assemblies. Fewer updates or similar linear counts therefore do not
+imply similar computational work: native products use assembled matrices, whereas
+Newton products refresh physical residuals. Counts are not equal-cost operations.
+
+Native history samples the assembled residual before its implicit update; Newton
+history uses the refreshed accepted state. This convention difference is retained
+explicitly in the CSV. These density-only crossings are supporting progress,
+not matched physical endpoints, exact convergence-work comparisons or speedups.
+Only the independent full endpoint checks establish qualification.
+
+During the full default0 SST1×1 run, the first FLOW retry occurs at iteration134:
+derivative verification fails after80 completed Krylov iterations and recovery
+reduces FLOW CFL1000→250. TURB retains1000. The initial20-update prefix had no
+retry; its observation must not be generalized to the complete run. Controls
+remain unchanged while that run continues.
+
 <!-- measured NACA results -->
 
 ## Current native endpoints
