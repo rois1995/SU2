@@ -14,6 +14,10 @@
 #include <type_traits>
 #include <tuple>
 #include <limits>
+#include <fstream>
+#include <iomanip>
+#include <locale>
+#include <sstream>
 namespace SU2Native3D {
 size_t OwnedStorageBytes(const Owned& cells) {
   return transfer_memory::Mul(cells.size(), sizeof(Owned::value_type) + 4 * sizeof(void*));
@@ -574,6 +578,160 @@ bool ImportGeometry(const CConfig& config, const CGeometry& geometry, const su2a
   reason.clear();
   return true;
 }
+bool PrepareSymmetryReference(const CConfig& config,CGeometry& geometry,bool allow_projection,std::string& reason,
+                             SymmetryReferenceAudit3D* audit,size_t ceiling) {
+  if(config.GetAdap_Native_Symmetry_Reference().empty() || config.GetAdap_Native_Symmetry_Reference()=="NONE")return true;
+  World world;CLocalFailure failure;SymmetryReferenceAudit3D report;
+  auto vote=[&]() {const auto chosen=world.elect(failure);reason=chosen.message;if(audit)*audit=report;return !chosen.any;};
+  auto admit=[&](size_t bytes) {
+    report.maximum_bytes=std::max(report.maximum_bytes,bytes);
+    if(bytes==SIZE_MAX || bytes>ceiling)failure.Set(3,0,"Native symmetry reference preparation exceeds storage budget.");
+    return vote();
+  };
+  if(geometry.GetnDim()!=3 || config.GetFEMSolver() || config.GetKind_Adap_Remesher()!=ADAP_REMESHER::NATIVE_CAVITY ||
+     !std::is_same<su2double,double>::value || config.GetDynamic_Grid())
+    failure.Set(1,0,"Explicit native symmetry references require a static primal tetrahedral FVM geometry and NATIVE_CAVITY.");
+  if(!vote())return false;
+  constexpr size_t maximum_file=65536;
+  if(!admit(transfer_memory::Add(transfer_memory::Mul(maximum_file,8),transfer_memory::TransportBytes(world.size))))return false;
+  std::vector<char> bytes;
+  if(!world.rank)try {
+    std::ifstream in(config.GetAdap_Native_Symmetry_Reference(),std::ios::binary|std::ios::ate);
+    const auto size=in.tellg();
+    if(!in || size<=0 || size>std::streamoff(maximum_file))throw std::invalid_argument("Missing/oversized native symmetry reference file.");
+    bytes.resize(size);in.seekg(0);
+    if(!in.read(bytes.data(),bytes.size()))throw std::invalid_argument("Cannot read native symmetry reference file.");
+  }catch(const std::exception& e){failure.Set(1,0,e.what());}
+  if(!vote())return false;
+  CPassiveComm::BcastRounds(bytes,0,world.comm);
+  struct Plane {std::string marker;unsigned axis;double coordinate,tolerance;};
+  std::vector<Plane> planes;
+  try {
+    std::istringstream in(std::string(bytes.begin(),bytes.end()));in.imbue(std::locale::classic());
+    std::string magic;unsigned version=0,count=0;std::set<std::string> used;
+    if(!(in>>magic>>version>>count) || magic!="SU2_NATIVE_SYMMETRY_PLANES" || version!=1 || !count || count>64)
+      throw std::invalid_argument("Invalid native symmetry reference header/count/version.");
+    for(unsigned i=0;i<count;++i) {
+      Plane p;std::string axis;
+      if(!(in>>std::quoted(p.marker)>>axis>>p.coordinate>>p.tolerance) || !std::isfinite(p.coordinate) ||
+         !(std::isfinite(p.tolerance)&&p.tolerance>=0) || !used.insert(p.marker).second ||
+         (axis!="X" && axis!="Y" && axis!="Z"))throw std::invalid_argument("Invalid/duplicate native Cartesian symmetry plane.");
+      bool declared=false;
+      for(unsigned m=0;m<config.GetnMarker_CfgFile();++m)if(config.GetMarker_CfgFile_TagBound(m)==p.marker)
+        declared=config.GetMarker_CfgFile_KindBC(p.marker)==SYMMETRY_PLANE;
+      if(!declared)throw std::invalid_argument("Native plane marker is not a declared MARKER_SYM: "+p.marker);
+      p.axis=axis=="X"?0:axis=="Y"?1:2;planes.push_back(p);
+    }
+    in>>std::ws;if(!in.eof())throw std::invalid_argument("Trailing native symmetry reference data.");
+  }catch(const std::exception& e){failure.Set(1,0,e.what());}
+  if(!vote())return false;
+  const size_t np=geometry.GetnPoint();
+  const size_t base=transfer_memory::Add(transfer_memory::Mul(np,sizeof(std::array<double,3>)+sizeof(unsigned)+sizeof(bool)),
+      transfer_memory::Mul(maximum_file,8),transfer_memory::TransportBytes(world.size));
+  if(!admit(base))return false;
+  std::vector<std::array<double,3>> candidate(np);
+  std::vector<unsigned> constraints(np,0);
+  for(size_t p=0;p<np;++p)for(unsigned k=0;k<3;++k)candidate[p][k]=SU2_TYPE::GetValue(geometry.nodes->GetCoord(p,k));
+  for(const auto& plane:planes) {
+    size_t local_count=0;
+    for(unsigned m=0;m<geometry.GetnMarker();++m)if(config.GetMarker_All_TagBound(m)==plane.marker)
+      local_count=transfer_memory::Add(local_count,transfer_memory::Mul(geometry.GetnElem_Bound(m),3));
+    const auto global_count=CPassiveComm::Allreduce(uint64_t(local_count),CPassiveComm::Op::SUM,world.comm);
+    if(!admit(transfer_memory::Add(base,transfer_memory::Mul(global_count,8*sizeof(Id)))))return false;
+    std::vector<Id> ids;ids.reserve(local_count);
+    for(unsigned m=0;m<geometry.GetnMarker();++m)if(config.GetMarker_All_TagBound(m)==plane.marker)
+      for(size_t f=0;f<geometry.GetnElem_Bound(m);++f) {
+        const auto* face=geometry.bound[m][f];
+        if(face->GetVTK_Type()!=TRIANGLE){failure.Set(1,0,"Native symmetry reference needs triangular physical faces.");continue;}
+        for(unsigned k=0;k<3;++k)ids.push_back(geometry.nodes->GetGlobalIndex(face->GetNode(k)));
+      }
+    if(!vote())return false;
+    std::sort(ids.begin(),ids.end());ids.erase(std::unique(ids.begin(),ids.end()),ids.end());
+    auto global=CPassiveComm::Allgatherv(ids,nullptr,world.comm);
+    std::sort(global.begin(),global.end());global.erase(std::unique(global.begin(),global.end()),global.end());
+    if(global.empty())failure.Set(1,0,"Native symmetry reference marker has no physical faces: "+plane.marker);
+    double local_deviation=0;
+    for(size_t p=0;p<np;++p)if(std::binary_search(global.begin(),global.end(),geometry.nodes->GetGlobalIndex(p))) {
+      const double value=SU2_TYPE::GetValue(geometry.nodes->GetCoord(p,plane.axis));
+      const long double difference=std::abs(static_cast<long double>(value)-plane.coordinate);
+      const double deviation=double(difference);
+      if(!std::isfinite(value) || !std::isfinite(deviation) || difference>plane.tolerance) {
+        std::ostringstream message;message<<std::setprecision(17)<<"Original native symmetry vertex exceeds its declared plane deviation: marker="
+            <<plane.marker<<" vertex="<<geometry.nodes->GetGlobalIndex(p)<<" coordinate="<<value<<" plane="<<plane.coordinate
+            <<" deviation="<<deviation<<" limit="<<plane.tolerance;
+        failure.Set(1,geometry.nodes->GetGlobalIndex(p),message.str());
+      }
+      if(!allow_projection && value!=plane.coordinate)
+        failure.Set(1,geometry.nodes->GetGlobalIndex(p),"Existing state/returned mesh is not exactly on its declared symmetry plane; initialize the reference before freezing fields.");
+      const unsigned mask=1u<<plane.axis;
+      if((constraints[p]&mask) && candidate[p][plane.axis]!=plane.coordinate)
+        failure.Set(1,geometry.nodes->GetGlobalIndex(p),"Conflicting declared symmetry planes at a shared vertex.");
+      constraints[p]|=mask;candidate[p][plane.axis]=value==plane.coordinate?value:plane.coordinate;
+      local_deviation=std::max(local_deviation,deviation);
+    }
+    const double maximum=CPassiveComm::Allreduce(local_deviation,CPassiveComm::Op::MAX,world.comm);
+    report.maximum_deviation=std::max(report.maximum_deviation,maximum);
+    if(!world.rank)std::cout<<std::setprecision(17)<<"Native symmetry reference audit: marker="<<plane.marker
+        <<" axis="<<plane.axis<<" coordinate="<<plane.coordinate<<" maximum_original_deviation="<<maximum
+        <<" declared_limit="<<plane.tolerance<<"\n";
+    if(!vote())return false;
+  }
+  uint64_t local_changed=0;double displacement=0;
+  for(size_t p=0;p<geometry.GetnPointDomain();++p) {
+    bool changed=false;for(unsigned k=0;k<3;++k)changed=changed || candidate[p][k]!=SU2_TYPE::GetValue(geometry.nodes->GetCoord(p,k));
+    local_changed+=changed;
+    displacement=std::max(displacement,std::hypot(candidate[p][0]-SU2_TYPE::GetValue(geometry.nodes->GetCoord(p,0)),
+        candidate[p][1]-SU2_TYPE::GetValue(geometry.nodes->GetCoord(p,1)),candidate[p][2]-SU2_TYPE::GetValue(geometry.nodes->GetCoord(p,2))));
+  }
+  report.maximum_displacement=CPassiveComm::Allreduce(displacement,CPassiveComm::Op::MAX,world.comm);
+  std::vector<bool> junction(np,false);
+  for(unsigned m=0;m<geometry.GetnMarker();++m)if(config.GetMarker_All_KindBC(m)!=SEND_RECEIVE)
+    for(size_t f=0;f<geometry.GetnElem_Bound(m);++f)for(unsigned k=0;k<geometry.bound[m][f]->GetnNodes();++k) {
+      const auto p=geometry.bound[m][f]->GetNode(k);
+      if(constraints[p] && config.GetMarker_All_KindBC(m)!=SYMMETRY_PLANE)junction[p]=true;
+    }
+  const auto junction_count=CPassiveComm::Allreduce(uint64_t(std::count(junction.begin(),junction.end(),true)),CPassiveComm::Op::SUM,world.comm);
+  if(!admit(transfer_memory::Add(base,transfer_memory::Mul(junction_count,8*sizeof(Id)))))return false;
+  std::vector<Id> junction_ids;
+  for(size_t p=0;p<np;++p)if(junction[p])junction_ids.push_back(geometry.nodes->GetGlobalIndex(p));
+  auto all_junctions=CPassiveComm::Allgatherv(junction_ids,nullptr,world.comm);
+  std::sort(all_junctions.begin(),all_junctions.end());
+  report.junction_points=std::unique(all_junctions.begin(),all_junctions.end())-all_junctions.begin();
+  std::vector<Id>().swap(junction_ids);std::vector<Id>().swap(all_junctions);
+  report.changed_points=CPassiveComm::Allreduce(local_changed,CPassiveComm::Op::SUM,world.comm);
+  if(!world.rank && report.changed_points) {
+    std::ifstream existing(config.GetMesh_FileName()+".native_ref");
+    if(existing)failure.Set(1,0,"Cannot change coordinates beneath a persisted native reference; prepare a fresh initial reference explicitly.");
+  }
+  double minimum_ratio=1;
+  try {for(size_t e=0;e<geometry.GetnElem();++e) {
+    const auto* cell=geometry.elem[e];
+    if(cell->GetVTK_Type()!=TETRAHEDRON){failure.Set(1,e,"Native symmetry reference needs a tetrahedral mesh.");continue;}
+    bool touched=false;for(unsigned k=0;k<4;++k)touched=touched || constraints[cell->GetNode(k)];
+    if(!touched || !report.changed_points)continue;
+    Tetrahedron old,fresh;
+    for(unsigned k=0;k<4;++k) {
+      const auto p=cell->GetNode(k);const auto* q=geometry.nodes->GetCoord(p);
+      old[k]={SU2_TYPE::GetValue(q[0]),SU2_TYPE::GetValue(q[1]),SU2_TYPE::GetValue(q[2])};
+      fresh[k]={candidate[p][0],candidate[p][1],candidate[p][2]};
+    }
+    const auto before=Orientation(old[0],old[1],old[2],old[3]),after=Orientation(fresh[0],fresh[1],fresh[2],fresh[3]);
+    if(!before || !after || (before>0)!=(after>0))failure.Set(1,cell->GetGlobalIndex(),"Declared symmetry projection degenerates/reverses tetrahedron "+std::to_string(cell->GetGlobalIndex())+".");
+    else minimum_ratio=std::min(minimum_ratio,double(std::abs(after/before)));
+  }
+  }catch(const std::exception& e){failure.Set(1,0,e.what());}
+  report.minimum_volume_ratio=CPassiveComm::Allreduce(minimum_ratio,CPassiveComm::Op::MIN,world.comm);
+  if(!vote())return false;
+  // Audit-only paths never write CFD coordinates, including signed-zero representations.
+  if(allow_projection && report.changed_points)
+    for(size_t p=0;p<np;++p)if(constraints[p])for(unsigned k=0;k<3;++k)geometry.nodes->SetCoord(p,k,candidate[p][k]);
+  if(!world.rank)std::cout<<"Native symmetry reference "<<(allow_projection && report.changed_points?"adopted":"verified")
+      <<": changed_points="<<report.changed_points
+      <<" junction_points="<<report.junction_points<<" maximum_displacement="<<report.maximum_displacement<<" minimum_volume_ratio="<<report.minimum_volume_ratio
+      <<" maximum_requested_bytes="<<report.maximum_bytes<<" frozen_fields_moved=0\n";
+  if(audit)*audit=report;reason.clear();return true;
+}
+
 ImportedGeometry ImportGeometry(const CConfig& config, const CGeometry& geometry, const su2activematrix* metric,
                                 ReferenceState& state) {
   ImportedGeometry result;

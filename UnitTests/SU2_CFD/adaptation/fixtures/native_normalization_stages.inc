@@ -230,19 +230,153 @@ TEST_CASE("Bounded frozen normalization stages preserve one original source and 
   {Mute mute;driver->Finalize();driver.reset();}
 }
 
-TEST_CASE("Opt-in BL budget selection stays frozen through native RANS replacement", "[NativeBLBudgetRuntime3D]") {
+namespace {
+CSimplexMesh SymmetryAnnulusMesh() {
+  CSimplexMesh mesh;mesh.nDim=3;
+  const std::array<Point,8> base{{{0,0,0},{1,0,0},{1,0,1},{0,0,1},
+      {.4,0,.4},{.6,0,.4},{.6,0,.6},{.4,0,.6}}};
+  for(double y:{0.,1.})for(auto p:base)mesh.coord.insert(mesh.coord.end(),{p.x,y,p.z});
+  auto point=[&](unsigned long id){return Point{mesh.coord[3*id],mesh.coord[3*id+1],mesh.coord[3*id+2]};};
+  std::map<Face,unsigned> incidence;
+  for(unsigned i=0;i<4;++i)for(auto triangle:std::array<Face,2>{{{i,(i+1)%4,4+(i+1)%4},{i,4+(i+1)%4,4+i}}}) {
+    std::sort(triangle.begin(),triangle.end());const auto a=triangle[0],b=triangle[1],c=triangle[2];
+    for(auto tet:std::array<std::array<Id,4>,3>{{{a,b,c,c+8},{a,b,b+8,c+8},{a,a+8,b+8,c+8}}}) {
+      const auto sign=Orientation(point(tet[0]),point(tet[1]),point(tet[2]),point(tet[3]));REQUIRE(sign!=0);
+      if(sign<0)std::swap(tet[0],tet[1]);mesh.elem.insert(mesh.elem.end(),tet.begin(),tet.end());
+      for(unsigned omit=0;omit<4;++omit){Face f{};unsigned k=0;for(unsigned j=0;j<4;++j)if(j!=omit)f[k++]=tet[j];std::sort(f.begin(),f.end());++incidence[f];}
+    }
+  }
+  mesh.elemRef.resize(mesh.GetnElem());std::map<std::string,std::vector<unsigned long>> boundary;
+  for(const auto& row:incidence) {
+    REQUIRE((row.second==1 || row.second==2));if(row.second==2)continue;
+    bool wall=true,symmetry=true;for(auto id:row.first){wall=wall&&point(id).z==0;symmetry=symmetry&&point(id).y==0;}
+    auto& f=boundary[wall?"wall":symmetry?"symmetry":"far"];f.insert(f.end(),row.first.begin(),row.first.end());
+  }
+  for(auto& row:boundary){CSimplexMesh::Marker marker;marker.name=row.first;marker.elem=std::move(row.second);mesh.markers.push_back(std::move(marker));}
+  return mesh;
+}
+void BudgetRuntime3D(bool symmetry) {
   World world;const int workers=std::min(2,world.size);
-  const double budget=GENERATE(3.,20.);
-  const auto name="bl_budget_"+std::to_string(int(budget))+"_m"+std::to_string(workers);
+  const bool annulus=symmetry && std::getenv("SU2_NATIVE_SYMMETRY_ANNULUS");
+  const double budget=GENERATE(3.,20.);if(annulus && budget!=20)return;
+  const auto name=std::string(annulus?"symmetry_annulus_bl_budget_":symmetry?"symmetry_bl_budget_":"bl_budget_")+std::to_string(int(budget))+"_m"+std::to_string(workers);
   if(!world.rank) {
-    simplex_test::WriteSU2Mesh(simplex_test::MakeSimplexMesh(3,1,[](const passivedouble* p){return p[2]==0?"wall":"far";}),name+".su2");
+    auto mesh=annulus?SymmetryAnnulusMesh():simplex_test::MakeSimplexMesh(3,1,[&](const passivedouble* p){return p[2]==0?"wall":symmetry&&p[1]==0?"symmetry":"far";});
+    if(symmetry)for(size_t p=0;p<mesh.GetnPoint();++p)if(mesh.coord[3*p+1]==0)mesh.coord[3*p+1]=(p%2?1:-1)*1e-12*(p+1);
+    simplex_test::WriteSU2Mesh(mesh,name+".su2");
+    if(symmetry) {std::ofstream ref(name+".planes");ref<<"SU2_NATIVE_SYMMETRY_PLANES 1 1\n\"symmetry\" Y 0 1e-10\n";REQUIRE(bool(ref));}
     auto text=normalization_test::Options(name,workers);const std::string old="ADAP_COMPLEXITY= 20";
     const auto at=text.find(old);REQUIRE(at!=std::string::npos);text.replace(at,old.size(),"ADAP_COMPLEXITY= "+std::to_string(int(budget)));
+    if(symmetry)text+="MARKER_SYM= (symmetry)\nADAP_NATIVE_SYMMETRY_REFERENCE= "+name+".planes\n";
     std::ofstream cfg(name+".cfg");cfg<<text<<"ADAP_BL_BUDGET= YES\nADAP_BL_PROTECT_DISTANCE= .1\nADAP_BL_OUTER_GROWTH_MAX= 10\n";REQUIRE(bool(cfg));
   }
   SU2_MPI::Barrier(world.comm);auto cfg=name+".cfg";auto driver=std::make_unique<TetraDriver>(const_cast<char*>(cfg.c_str()),1,world.comm);
+  if(symmetry) {
+    SymmetryReferenceAudit3D report;std::string reason;
+    REQUIRE(PrepareSymmetryReference(driver->Config(),driver->Geometry(),false,reason,&report));
+    CHECK(report.changed_points==0);CHECK(report.maximum_deviation==0);CHECK(report.junction_points>0);
+    auto& mesh=driver->Geometry();std::vector<double> before(mesh.GetnPoint());
+    const uint64_t negativeZero=uint64_t(1)<<63;
+    for(size_t p=0;p<mesh.GetnPoint();++p)if(mesh.nodes->GetCoord(p,1)==0)
+      std::memcpy(mesh.nodes->GetCoord(p)+1,&negativeZero,sizeof(negativeZero));
+    REQUIRE(PrepareSymmetryReference(driver->Config(),mesh,false,reason));
+    for(size_t p=0;p<mesh.GetnPoint();++p)if(mesh.nodes->GetCoord(p,1)==0) {
+      uint64_t bits=0;std::memcpy(&bits,mesh.nodes->GetCoord(p)+1,sizeof(bits));
+      CHECK(bits==negativeZero);mesh.nodes->SetCoord(p,1,0.);
+    }
+
+    for(size_t p=0;p<mesh.GetnPoint();++p) {
+      before[p]=SU2_TYPE::GetValue(mesh.nodes->GetCoord(p,1));
+      if(before[p]==0)mesh.nodes->SetCoord(p,1,1e-9);
+    }
+    CHECK_FALSE(PrepareSymmetryReference(driver->Config(),mesh,false,reason));
+    CHECK(reason.find("declared plane deviation")!=std::string::npos);
+    for(size_t p=0;p<mesh.GetnPoint();++p) {
+      CHECK(mesh.nodes->GetCoord(p,1)==(before[p]==0?1e-9:before[p]));
+      if(before[p]==0)mesh.nodes->SetCoord(p,1,1e-12);
+    }
+    CHECK_FALSE(PrepareSymmetryReference(driver->Config(),mesh,false,reason));
+    CHECK(reason.find("Existing state/returned mesh")!=std::string::npos);
+    for(size_t p=0;p<mesh.GetnPoint();++p) {
+      CHECK(mesh.nodes->GetCoord(p,1)==(before[p]==0?1e-12:before[p]));
+      mesh.nodes->SetCoord(p,1,before[p]);
+    }
+    CHECK_FALSE(PrepareSymmetryReference(driver->Config(),mesh,false,reason,nullptr,world.rank==0?1:SIZE_MAX));
+    CHECK(reason.find("storage budget")!=std::string::npos);
+    auto declaration=[&](const std::string& value) {
+      if(!world.rank){std::ofstream out(name+".planes");out<<value;REQUIRE(bool(out));}
+      SU2_MPI::Barrier(world.comm);
+    };
+    for(const auto& bad:std::vector<std::string>{
+        "SU2_NATIVE_SYMMETRY_PLANES 2 1\n\"symmetry\" Y 0 1e-10\n",
+        "SU2_NATIVE_SYMMETRY_PLANES 1 1\n\"wall\" Y 0 1e-10\n",
+        "SU2_NATIVE_SYMMETRY_PLANES 1 1\n\"symmetry\" Q 0 1e-10\n",
+        "SU2_NATIVE_SYMMETRY_PLANES 1 1\n\"symmetry\" Y 0 -1\n",
+        "SU2_NATIVE_SYMMETRY_PLANES 1 2\n\"symmetry\" Y 0 1e-10\n\"symmetry\" Y 0 1e-10\n",
+        "SU2_NATIVE_SYMMETRY_PLANES 1 1\n\"symmetry\" Y 0 1e-10\ntrailing"}) {
+      declaration(bad);CHECK_FALSE(PrepareSymmetryReference(driver->Config(),mesh,false,reason));
+    }
+    declaration("SU2_NATIVE_SYMMETRY_PLANES 1 1\n\"symmetry\" Y 2 3\n");
+    CHECK_FALSE(PrepareSymmetryReference(driver->Config(),mesh,true,reason));
+    CHECK(reason.find("degenerates/reverses")!=std::string::npos);
+    declaration("SU2_NATIVE_SYMMETRY_PLANES 1 1\n\"symmetry\" Y 0 1e-10\n");
+    for(size_t p=0;p<mesh.GetnPoint();++p)CHECK(mesh.nodes->GetCoord(p,1)==before[p]);
+    std::stringstream disabledText(normalization_test::Options(name,workers)+"ADAP_NATIVE_SYMMETRY_REFERENCE= NONE\n");
+    std::unique_ptr<CConfig> disabled;{Mute mute;disabled=std::make_unique<CConfig>(disabledText,SU2_COMPONENT::SU2_CFD,false);}
+    CHECK(PrepareSymmetryReference(*disabled,mesh,false,reason,nullptr,0));
+
+  }
   auto backend=driver->Backend();auto* native=dynamic_cast<CNativeRemesher3D*>(backend.get());REQUIRE(native);
-  auto& g=driver->Geometry();auto& solver=driver->Solver();const auto before=State(g,solver),beforeTurb=State(g,*driver->Turbulence());
+  if(annulus) {
+    struct LastTrial {Patch old,fresh;Feature feature;MetricDiagnosis metric;bool candidate=false;std::string reason;};
+    auto last=std::make_shared<LastTrial>();const auto reference=driver->Reference();
+    const auto prefix=name+"_rejected_rank"+std::to_string(world.rank);
+    native->SetRejectedTrialObserver([last](const Patch& old,const Patch& fresh,Feature feature,const MetricDiagnosis& metric,bool candidate,const std::string& reason) {
+      if(old.cells.size()>MaximumReplacementCells || fresh.cells.size()>MaximumReplacementCells)
+        throw std::runtime_error("Controlled rejected trial exceeds its diagnostic storage bound.");
+      *last={old,fresh,feature,metric,candidate,reason};
+    });
+    native->SetRejectedStateObserver([last,reference,prefix](const Owned& owned,const std::string& reason) {
+      if(owned.size()>4096)throw std::runtime_error("Controlled rejected state exceeds its diagnostic storage bound.");
+      std::vector<OwnedCell> rows;for(const auto& row:owned)rows.push_back(row.second);
+      SaveRecords(prefix,rows,{},*reference);
+      std::vector<char> bytes;RecordStream encode(bytes);uint64_t count=rows.size();encode(count);for(auto& row:rows)encode(row);
+      std::ofstream raw(prefix+".bin",std::ios::binary);raw.write(bytes.data(),bytes.size());if(!raw)throw std::runtime_error("Cannot save rejected native state.");
+      std::ofstream authority(prefix+".native_ref");authority<<EncodeReference(*reference);if(!authority)throw std::runtime_error("Cannot save rejected native authority.");
+      std::ofstream why(prefix+".txt");why<<reason<<"\nLast observed local trial: "<<last->reason<<'\n';if(!why)throw std::runtime_error("Cannot save rejected native reason.");
+      SaveRecords(prefix+"_trial_before",PatchRecords(last->old),{},*reference);
+      SaveRecords(prefix+"_trial_after",PatchRecords(last->fresh),{},*reference);
+      std::ofstream info(prefix+"_trial.json");info<<std::setprecision(17)<<"{\"count\":"<<last->feature.count
+        <<",\"vertices\":["<<last->feature.vertices[0]<<','<<last->feature.vertices[1]<<','<<last->feature.vertices[2]
+        <<"],\"candidate\":"<<(last->candidate?"true":"false")<<",\"minimum_quality\":"<<last->metric.minimum_mean_ratio
+        <<",\"minimum_scaled_jacobian\":"<<last->metric.minimum_scaled_jacobian
+        <<",\"weakest_cell\":"<<last->metric.weakest_cell<<",\"sliver_cell\":"<<last->metric.sliver_cell<<"}\n";if(!info)throw std::runtime_error("Cannot save rejected trial diagnosis.");
+    });
+  }
+
+  auto& g=driver->Geometry();auto& solver=driver->Solver();
+  if(symmetry) {
+    auto* flow=solver.GetNodes();auto* turbulence=driver->Turbulence()->GetNodes();
+    const double rho=SU2_TYPE::GetValue(flow->GetSolution(0,0)),energy=SU2_TYPE::GetValue(flow->GetSolution(0,4));
+    std::array<double,3> momentum;double kinetic=0;
+    for(unsigned k=0;k<3;++k){momentum[k]=SU2_TYPE::GetValue(flow->GetSolution(0,k+1));kinetic+=momentum[k]*momentum[k]/(2*rho);}
+    const double internal=energy-kinetic,nu=SU2_TYPE::GetValue(turbulence->GetSolution(0,0));REQUIRE(internal>0);REQUIRE(nu>0);
+    for(size_t p=0;p<g.GetnPoint();++p) {
+      const auto* x=g.nodes->GetCoord(p);const double f[]={1+.05*double(x[2]),1+.05*double(x[2]),.9+.03*double(x[1])};
+      for(unsigned level=0;level<3;++level) {
+        double u[]={rho,momentum[0]*f[level],momentum[1]*f[level],momentum[2]*f[level],
+            internal*(level==2?.96:1.)+kinetic*f[level]*f[level]};
+        for(unsigned k=0;k<5;++k) {
+          if(!level)flow->SetSolution(p,k,u[k]);else if(level==1)flow->GetSolution_time_n()(p,k)=u[k];else flow->GetSolution_time_n1()(p,k)=u[k];
+        }
+      }
+      turbulence->SetSolution(p,0,nu*(1+.1*double(x[2])));
+      turbulence->GetSolution_time_n()(p,0)=nu*(1+.1*double(x[2]));
+      turbulence->GetSolution_time_n1()(p,0)=nu*.94*(1+.03*double(x[1]));
+    }
+    {Mute mute;CMeshOutput::WriteMesh(&driver->Config(),&g,name+"_initial_adopted");}
+  }
+  const auto before=State(g,solver),beforeTurb=State(g,*driver->Turbulence());
   std::vector<su2double> raw(6*g.GetnPointDomain());for(size_t p=0;p<raw.size()/6;++p)for(unsigned k:{0u,3u,5u})raw[6*p+k]=1;
   solver.ComputeMetric(&g,&driver->Config(),&raw,false,nullptr,driver->Reference().get());
   REQUIRE(solver.GetNativeMetricFamily3D());CHECK_FALSE(solver.GetNativeMetricFamily3D()->layers);
@@ -258,9 +392,18 @@ TEST_CASE("Opt-in BL budget selection stays frozen through native RANS replaceme
   const auto frames=normalization_test::Raw(*family);
   const auto original=ImportGeometry(driver->Config(),g,&solver.GetNodes()->GetMetric(),*driver->Reference());
   const auto oldFlow=Flow(world,g,solver);
+  std::vector<FlowRecord> oldTurb;
+  if(symmetry) {
+    oldTurb=Flow(world,g,*driver->Turbulence());Save(world,name+"_initial",original.cells,original.original,*driver->Reference());
+    if(!world.rank){std::ofstream out(name+"_frozen_profile.json");out<<std::setprecision(17)<<"{\"budget\":"<<budget
+      <<",\"parameter\":"<<selected.parameter<<",\"version\":"<<selected.version<<",\"core\":"<<family->core
+      <<",\"normalization_log_scale\":"<<family->normalization.logScale<<",\"original_field\":true}\n";REQUIRE(bool(out));}
+  }
+
   const auto result=backend->Remesh(driver->Config(),g,solver.GetNodes()->GetMetric());
-  INFO(native->Statistics().normalization.reason);REQUIRE(result.status==CRemeshResult::Status::COMPLETE);
+  INFO(native->Statistics().normalization.reason);
   CHECK(State(g,solver)==before);CHECK(State(g,*driver->Turbulence())==beforeTurb);
+  REQUIRE(result.status==CRemeshResult::Status::COMPLETE);
   CHECK(normalization_test::Raw(*family)==frames);CHECK(family->layers->GetOuterNormal().version==selected.version);
   const auto authorityBefore=EncodeReference(*driver->Reference());
   std::ifstream savedConfig(name+".cfg");std::stringstream configText;configText<<savedConfig.rdbuf();auto text=configText.str();
@@ -284,12 +427,24 @@ TEST_CASE("Opt-in BL budget selection stays frozen through native RANS replaceme
   double local_theta=0;for(size_t p=0;p<sensor.rows();++p)local_theta=std::max(local_theta,SU2_TYPE::GetValue(sensor(p,0)));
   const auto theta=CPassiveComm::Allreduce(local_theta,CPassiveComm::Op::MAX);
   const auto fresh=Flow(world,driver->Geometry(),driver->Solver(),transported);
+  std::vector<FlowRecord> acceptedTurb;
+  if(symmetry){acceptedTurb=Flow(world,driver->Geometry(),*driver->Turbulence());SaveStates(world,name+"_turb",oldTurb,acceptedTurb,theta);}
+
   SaveStates(world,name,oldFlow,fresh,theta);SaveProjection(world,name,transfer);CheckPositiveFlow(fresh);
   for(size_t p=0;p<sensor.rows();++p)for(unsigned k=0;k<6;++k)CHECK(sensor(p,k)==Approx(k==0||k==3||k==5?theta:0.).margin(2e-12));
   auto frozen=original.original;for(auto& d:frozen)d.sensor.fill({theta,0,0,theta,0,theta});
   const auto authority=EncodeReference(reference);Save(world,name,accepted.cells,frozen,reference);
   OutputRoundTrip(world,name,result.slices,accepted.cells,reference,theta,
       [](const su2double*,double t){return Tensor{t,0,0,t,0,t};},&frozen);
+  if(symmetry)for(const auto& extension:std::vector<std::pair<std::string,std::string>>{{"SU2",".su2"}
+#ifdef HAVE_CGNS
+      ,{"CGNS",".cgns"}
+#endif
+      }) {
+    const auto path=name+"_written_"+extension.first+extension.second+".native_ref";
+    WriteReference(path,reference);ReferenceState persisted;REQUIRE(LoadReference(path,persisted));
+    CHECK(EncodeReference(persisted)==authority);
+  }
   {Mute mute;CMeshOutput::WriteMesh(&driver->Config(),&driver->Geometry(),name+"_accepted");}
   CHECK(EncodeReference(*driver->Reference())==authority);
   if(!world.rank) {
@@ -298,7 +453,9 @@ TEST_CASE("Opt-in BL budget selection stays frozen through native RANS replaceme
       <<",\"accepted\":true,\"mass\":"<<result.complexity.value<<",\"indicator\":"<<result.complexity.uncertainty
       <<",\"final_sensor_eigenvalue\":"<<theta<<",\"frozen\":true,\"support_changed\":false,\"proven_bound\":false}\n";REQUIRE(bool(out));
   }
+  const auto checkpointFlow=State(driver->Geometry(),driver->Solver()),checkpointTurb=State(driver->Geometry(),*driver->Turbulence());
   driver->Config().SetTimeIter(2);driver->WriteTimeHistoryRestarts();
+  CHECK(State(driver->Geometry(),driver->Solver())==checkpointFlow);CHECK(State(driver->Geometry(),*driver->Turbulence())==checkpointTurb);
 #ifdef HAVE_CGNS
   const std::string restartMesh=name+"_written_CGNS.cgns",format="CGNS";
 #else
@@ -316,10 +473,19 @@ TEST_CASE("Opt-in BL budget selection stays frozen through native RANS replaceme
   const auto reload=name+"_reload.cfg";driver=std::make_unique<TetraDriver>(const_cast<char*>(reload.c_str()),1,world.comm);
   driver->Preprocess(3);auto reloadedBackend=driver->Backend();REQUIRE(driver->Reference());
   SaveStates(world,name+"_restart",fresh,Flow(world,driver->Geometry(),driver->Solver()),theta);
+  if(symmetry)SaveStates(world,name+"_turb_restart",acceptedTurb,Flow(world,driver->Geometry(),*driver->Turbulence()),theta);
   CHECK(EncodeReference(*driver->Reference())==authority);
   {Mute mute;driver->Finalize();driver.reset();}
 }
 
+
+} // namespace
+TEST_CASE("Opt-in BL budget selection stays frozen through native RANS replacement", "[NativeBLBudgetRuntime3D]") {
+  BudgetRuntime3D(false);
+}
+TEST_CASE("Declared symmetry reference preserves wall intersections and original donors through RANS restart", "[NativeSymmetryRuntime3D]") {
+  BudgetRuntime3D(true);
+}
 
 TEST_CASE("An uncertain BL budget freezes the coarsest original field without scale trials", "[NativeBLBudgetUncertainty3D]") {
   World world;const std::string name="budget_uncertainty";

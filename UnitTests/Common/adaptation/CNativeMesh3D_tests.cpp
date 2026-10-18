@@ -410,3 +410,20 @@ TEST_CASE("Exact binary64 segment freedom is conservative across binades and sub
   const double h=std::ldexp(1.,-53);CHECK(Binary64SegmentFreedom({1-2*h,.5,0},{1+4*h,.5+2*h,0},mid)==SegmentFreedom::None);
   CHECK_THROWS(Binary64SegmentFreedom({0,0,0},{0,0,0},mid));CHECK_THROWS(Binary64SegmentFreedom({INFINITY,0,0},{1,0,0},mid));
 }
+
+TEST_CASE("Native centroid orientation uses the mathematical point even when it is not binary64", "[NativeMesh3D][NativePlanarUnion3D]") {
+  const auto tiny=std::numeric_limits<double>::denorm_min();
+  for(double h:{tiny,1.,1e100}) {
+    const std::array<Point,3> triangle{{{0,0,0},{h,0,0},{0,h,0}}};
+    CHECK(OrientationCentroidSign({0,0,0},{h,0,0},triangle,{0,0,1})>0);
+    CHECK(OrientationCentroidSign({0,0,0},{0,h,0},triangle,{0,0,1})<0);
+    CHECK(OrientationCentroidSign({h,0,0},{0,h,0},triangle,{0,0,1})>0);
+  }
+  const double x=.5,y=std::nextafter(x,1.);
+  const std::array<Point,3> thin{{{x,x,0},{y,x,0},{x,y,0}}};
+  CHECK(OrientationCentroidSign({x,x,0},{y,x,0},thin,{0,0,1})>0);
+  CHECK(OrientationCentroidSign({y,x,0},{x,y,0},thin,{0,0,1})>0);
+  const std::array<Point,3> on{{{0,-1,0},{1,0,0},{2,1,0}}};
+  CHECK(OrientationCentroidSign({}, {1,0,0},on,{0,0,1})==0);
+  auto invalid=on;invalid[1].x=INFINITY;CHECK_THROWS(OrientationCentroidSign({}, {1,0,0},invalid,{0,0,1}));
+}

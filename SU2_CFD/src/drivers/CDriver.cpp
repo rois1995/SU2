@@ -26,6 +26,7 @@
  */
 
 #include "../../../Common/include/adaptation/CNativeRuntimeProfile3D.hpp"
+#include "../../../Common/include/adaptation/CNativeImport3D.hpp"
 #include "../../include/drivers/CDriver.hpp"
 #include "../../include/definition_structure.hpp"
 
@@ -761,6 +762,13 @@ void CDriver::BuildGeometryFVM(CConfig *config, CGeometry *geometry_aux, CGeomet
 
   /*--- Add the Send/Receive boundaries ---*/
   geometry[MESH_0]->SetBoundaries(config);
+
+  {
+    std::string reason;
+    if (!SU2Native3D::PrepareSymmetryReference(*config, *geometry[MESH_0],
+            !checkOrientation && !config->GetRestart() && !config->GetRestart_Flow(), reason))
+      SU2_MPI::Error(reason, CURRENT_FUNCTION);
+  }
 
   /*--- Compute elements surrounding points, points surrounding points ---*/
 

@@ -3304,6 +3304,8 @@ void CConfig::SetConfig_Options() {
    * each boundary edge at its points of at least its length (MMG cannot split it) \ingroup Config */
   addBoolOption("ADAP_SURFACE", Adap_Surface, true);
   addEnumOption("ADAP_REMESHER",Kind_Adap_Remesher,Adap_Remesher_Map,ADAP_REMESHER::MMG);
+  /*!\brief ADAP_NATIVE_SYMMETRY_REFERENCE \n DESCRIPTION: Explicit initial Cartesian symmetry planes: marker, X/Y/Z, coordinate, maximum original deviation. Existing states require already conforming coordinates. \ingroup Config */
+  addStringOption("ADAP_NATIVE_SYMMETRY_REFERENCE", Adap_Native_Symmetry_Reference, "");
   addBoolOption("ADAP_NATIVE_REPARTITION", Adap_Native_Repartition, false);
   addUnsignedLongOption("ADAP_NATIVE_RANKS", Adap_Native_Ranks, 0);
   addUnsignedLongOption("ADAP_NATIVE_MAX_WORK", Adap_Native_Max_Work, 0);
@@ -6703,6 +6705,10 @@ void CConfig::SetPostprocessing(SU2_COMPONENT val_software, unsigned short val_i
       SU2_MPI::Error("ADAP_BL_METHOD= TWO_PASS is not implemented with ADAP_UNSTEADY_METRIC= FIXED_POINT.",
                      CURRENT_FUNCTION);
   }
+
+  if (!Adap_Native_Symmetry_Reference.empty() && Adap_Native_Symmetry_Reference!="NONE" &&
+      (Kind_Adap_Remesher!=ADAP_REMESHER::NATIVE_CAVITY || GetFEMSolver() || Kind_SU2!=SU2_COMPONENT::SU2_CFD || val_nDim==2))
+    SU2_MPI::Error("ADAP_NATIVE_SYMMETRY_REFERENCE requires native tetrahedral FVM CFD initialization.", CURRENT_FUNCTION);
 
   /*--- Check if SU2 was built with CGNS support, as that is required for CGNS mesh output. ---*/
 #ifndef HAVE_CGNS

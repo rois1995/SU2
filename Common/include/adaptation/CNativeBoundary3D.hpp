@@ -50,7 +50,7 @@ Point ScaleCylinder(const AnalyticSurface& geometry, Point point, double factor)
 double CylinderRadialFloor(const AnalyticSurface& geometry, const std::array<Point,3>& triangle);
 long double CylinderFacing(const AnalyticSurface& geometry, const std::array<Point,3>& triangle);
 /*! Bounded immutable imported facet authority. Exact finite planar containment; certified convex coplanar same-marker
- * seams are removable. */
+ * seams are removable. Nonconvex finite patches retain oriented borders and holes. */
 class PlanarReference {
  public:
   explicit PlanarReference(std::vector<Facet> facets, size_t ceiling = SIZE_MAX,
@@ -87,7 +87,7 @@ class PlanarReference {
   std::map<Id, Facet> facets;
   const std::map<Id, AnalyticSurface> analytic;
   std::map<Id, Id> canonical;
-  std::set<Id> complete_analytic;
+  std::set<Id> complete_analytic, nonconvex;
   std::map<Id, std::vector<Edge>> boundaries;
   std::map<Id, std::shared_ptr<const PlanarReference>> bump_charts;
   std::map<Id, Node> nodes;

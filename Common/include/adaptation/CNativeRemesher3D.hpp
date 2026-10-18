@@ -10,6 +10,7 @@
 #include "CNativeImport3D.hpp"
 #include "CNativeEngine3D.hpp"
 #include "CComplexityNormalization.hpp"
+#include <utility>
 namespace SU2Native3D {
 struct NormalizationProposal3D {
   bool valid=true,changed=false;
@@ -65,6 +66,13 @@ class CNativeRemesher3D final : public CRemesher {
   static void CheckSupport(const CConfig& config, const CGeometry& geometry);
   CRemeshResult Remesh(const CConfig& config, const CGeometry& geometry, const su2activematrix& sensor) override;
   const SU2Native3D::RemeshStats& Statistics() const { return stats; }
+  /*! Configure before Remesh; callbacks are worker-local and must not enter CFD collectives or retain borrowed data. */
+  void SetRejectedStateObserver(decltype(SU2Native3D::EngineOptions::rejected_state) observer) {
+    options.rejected_state=std::move(observer);
+  }
+  void SetRejectedTrialObserver(decltype(SU2Native3D::EngineOptions::rejected_trial) observer) {
+    options.rejected_trial=std::move(observer);
+  }
 
  private:
   std::shared_ptr<SU2Native3D::ReferenceState> reference;

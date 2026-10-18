@@ -337,16 +337,21 @@ TEST_CASE("Native coplanar same-marker wall seams allow finite patch movement an
   CHECK_FALSE(CollapseVertex(old,4,0,300,PlanarReference(junction),coarse,reason));
   CHECK(Connectivity(coarse)==saved);
 }
-TEST_CASE("Native finite patch certification preserves marker creases disconnected and nonconvex surfaces", "[NativeMesh3D]") {
+TEST_CASE("Native finite patch certification preserves marker creases and finite nonconvex domains", "[NativeMesh3D][NativePlanarUnion3D]") {
   const std::array<Node,6> v{{{0,{0,0,0}}, {1,{2,0,0}}, {2,{2,1,0}}, {3,{1,1,0}},
                              {4,{1,2,0}}, {5,{0,2,0}}}};
   const std::vector<Facet> concave{{0,7,{v[0],v[1],v[3]}},{1,7,{v[1],v[2],v[3]}},
                                   {2,7,{v[0],v[3],v[5]}},{3,7,{v[3],v[4],v[5]}}};
   const PlanarReference retained(concave);
   for (auto f:concave) {
-    CHECK(retained.Canonical(f.id)==f.id);
+    CHECK(retained.Canonical(f.id)==0);
     CHECK_FALSE(retained.Contains(f.id,{1.5,1.5,0}));
   }
+  CHECK(retained.Contains(0,{.5,1.5,0}));
+  CHECK(retained.ContainsFace(0,{{{0,0,0},{2,0,0},{0,1,0}}}));
+  CHECK_FALSE(retained.ContainsFace(0,{{{1,1,0},{2,1,0},{1,2,0}}}));
+  CHECK_FALSE(retained.ContainsFace(0,{{{.5,.5,0},{2,1,0},{1,2,0}}}));
+  CHECK_FALSE(retained.ContainsFace(0,{{{0,0,0},{2,.9,0},{.9,2,0}}}));
   const Node a{10,{0,0,0}},b{11,{1,0,0}},c{12,{1,1,0}},d{13,{0,1,0}};
   const Facet first{10,9,{a,b,c}},second{20,9,{a,c,d}};
   const PlanarReference square({second,first});
@@ -376,7 +381,8 @@ TEST_CASE("Native finite patch certification preserves marker creases disconnect
     hole.push_back({Id(2*i+1),9,{ring[i],ring[4+j],ring[4+i]}});
   }
   const PlanarReference annulus(hole);
-  for (auto f:hole) { CHECK(annulus.Canonical(f.id)==f.id);CHECK_FALSE(annulus.Contains(f.id,{1.5,1.5,0})); }
+  for (auto f:hole) { CHECK(annulus.Canonical(f.id)==0);CHECK_FALSE(annulus.Contains(f.id,{1.5,1.5,0})); }
+  CHECK_FALSE(annulus.ContainsFace(0,{{{1,1,0},{2,1,0},{2,2,0}}}));
 }
 
 TEST_CASE("Native insertion removes an exact-placement obstacle with certified cavity skin", "[NativeMesh3D][NativeInsertion3D]") {
@@ -1562,4 +1568,26 @@ TEST_CASE("Complete translated spherical sampling respects geometry and bounded 
   limits.maximum_cells=16;limits.maximum_work=16;
   CHECK_FALSE(ConstructWallRegion(skin,center,reference,{},.075,32,1000,field,limits,output,report,reason));
   CHECK(report.exhausted_work);CHECK(output.cells.size()==count);CHECK(output.cells.front().id==first);
+}
+
+TEST_CASE("Native exact planar annuli retain holes across complete face containment", "[NativeMesh3D][NativePlanarUnion3D]") {
+  const std::array<Node,8> v{{{0,{0,0,0}},{1,{4,0,0}},{2,{4,4,0}},{3,{0,4,0}},
+      {4,{1,1,0}},{5,{3,1,0}},{6,{3,3,0}},{7,{1,3,0}}}};
+  std::vector<Facet> facets;
+  for(unsigned i=0;i<4;++i){const auto j=(i+1)%4;facets.push_back({2*i,7,{v[i],v[j],v[4+j]}});facets.push_back({2*i+1,7,{v[i],v[4+j],v[4+i]}});}
+  const PlanarReference reference(facets);
+  for(const auto& f:facets) {
+    CHECK(reference.Canonical(f.id)==0);
+    CHECK(reference.ContainsFace(f.id,{f.v[0].p,f.v[1].p,f.v[2].p}));
+  }
+  CHECK(reference.Contains(0,{2,.5,0}));CHECK(reference.Contains(0,{1,2,0}));
+  CHECK_FALSE(reference.Contains(0,{2,2,0}));CHECK_FALSE(reference.Contains(0,{5,2,0}));
+  CHECK_FALSE(reference.ContainsFace(0,{{{1,1,0},{3,1,0},{3,3,0}}})); // All vertices lie on the hole boundary.
+  CHECK_FALSE(reference.ContainsFace(0,{{{0,0,0},{4,0,0},{2,4,0}}})); // Encloses/crosses a hole.
+  CHECK(reference.ContainsFace(0,{{{0,0,0},{4,0,0},{2,.5,0}}}));
+  CHECK_FALSE(reference.ContainsFace(0,{{{0,0,0},{2,.5,0},{4,0,0}}}));
+  CHECK_FALSE(reference.Contains(0,{2,.5,std::numeric_limits<double>::denorm_min()}));
+  auto reversed=facets;for(auto& f:reversed)std::swap(f.v[1],f.v[2]);const PlanarReference clockwise(reversed);
+  CHECK(clockwise.Contains(0,{2,.5,0}));CHECK_FALSE(clockwise.Contains(0,{2,2,0}));
+  CHECK(clockwise.ContainsFace(0,{{{0,0,0},{2,.5,0},{4,0,0}}}));
 }

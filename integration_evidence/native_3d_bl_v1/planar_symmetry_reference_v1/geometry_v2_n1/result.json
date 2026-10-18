@@ -1,0 +1,23 @@
+{
+  "exit_code": 0,
+  "elapsed_seconds": 0.4270717690233141,
+  "command": [
+    "taskset",
+    "-c",
+    "0",
+    "nice",
+    "-n",
+    "19",
+    "timeout",
+    "--kill-after=5s",
+    "180s",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver",
+    "[NativePlanarUnion3D]",
+    "--abort",
+    "--reporter",
+    "compact"
+  ],
+  "provenance_sha256": "667e54b6afc96b77067fde232b58d54fb5f156b4a9d48e3c2552210fa1fa924a",
+  "log_sha256": "4052da5e2ceed5bc37b5319b93c3ae5ef5523f056d3dcdbc43b3dcd171023fb1",
+  "artifacts": {}
+}

@@ -1317,6 +1317,7 @@ private:
   su2double Adap_Native_Max_Time = 0;      /*!< \brief Optional native3D-to-replacement deadline in seconds. */
   unsigned long Adap_Native_Ranks = 0;       /*!< \brief Native adaptation ranks; zero uses all CFD ranks. */
   bool Adap_Native_Repartition = false;     /*!< \brief Cost-weighted native working partition, independent of CFD. */
+  string Adap_Native_Symmetry_Reference; /*!< \brief Explicit audited initial Cartesian symmetry reference file. */
   bool Adap_Surface = true;                 /*!< \brief The remesher may change the boundary (surface) mesh. */
   ADAP_REMESHER Kind_Adap_Remesher=ADAP_REMESHER::MMG; /*!< \brief Opt-in native backend; MMG remains default. */
   su2double Adap_Hessian_Noise; /*!< \brief Optional residual-based QR curvature shrinkage strength. */
@@ -10479,6 +10480,7 @@ public:
    */
   bool GetAdap_Surface(void) const { return Adap_Surface; }
   ADAP_REMESHER GetKind_Adap_Remesher(void) const { return Kind_Adap_Remesher; }
+  const string& GetAdap_Native_Symmetry_Reference(void) const { return Adap_Native_Symmetry_Reference; }
   unsigned long GetAdap_Native_Ranks(void) const { return Adap_Native_Ranks; }
   bool GetAdap_Native_Repartition(void) const { return Adap_Native_Repartition; }
   unsigned long GetAdap_Native_Max_Work(void) const { return Adap_Native_Max_Work; }

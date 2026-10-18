@@ -1,0 +1,102 @@
+[
+  {
+    "budget": 20,
+    "parameter": 0,
+    "version": 1,
+    "trials": 1,
+    "workers": 1,
+    "accepted": true,
+    "mass": 20.030421375183124,
+    "indicator": 0.09464563020691938,
+    "final_sensor_eigenvalue": 4.953445966936567,
+    "frozen": true,
+    "support_changed": false,
+    "proven_bound": false,
+    "independent_geometry_and_full_metric": {
+      "file": "bl_budget_20_m1_independent_mesh.json",
+      "cells": 240,
+      "points": 90,
+      "physical_faces": 152,
+      "volume": "1",
+      "minimum_mean_ratio": 0.6277286709510066,
+      "minimum_scaled_jacobian": 0.37623616907837415,
+      "maximum_length": 1.5536653494922992,
+      "longest_edge": [
+        4,
+        75
+      ],
+      "markers": {
+        "0": 106,
+        "2": 16,
+        "1": 30
+      },
+      "strict_metric_gate": true
+    },
+    "independent_reference": 19.9993054819014,
+    "reference_order_spread": 3.552713678800501e-15,
+    "observed_estimate_error": 0.031115893281725704,
+    "indicator_covers_observed_error": true,
+    "reference_budget_discrepancy": -3.4725904930033025e-05,
+    "flow_BDF_integral_defect": 2.761236665201409e-16,
+    "projection_defect": 1.380618332600704e-16,
+    "transported_sensor_residual": 0.0,
+    "first_height_error": 0.0,
+    "maximum_edge_reference_order_spread": 4.440892098500626e-16,
+    "source_sensor_constant_residual": 0.0,
+    "SU2_and_CGNS_reload": true,
+    "restart_flow_BDF_defect": 0.0,
+    "SA_restart_fields": true,
+    "independent_helper_sha256": "25da1998f218030031cfa90f2c709e8770b8ad13b93fe44f8412641bfd1cafd6",
+    "house_auditor_sha256": "1822427476ecb5687aaa06f3e7a3cc8f31cde53166fd0c711449eedf7c7c7a50"
+  },
+  {
+    "budget": 3,
+    "parameter": 0.875,
+    "version": 8,
+    "trials": 8,
+    "workers": 1,
+    "accepted": true,
+    "mass": 2.936869104236582,
+    "indicator": 0.046817534313951074,
+    "final_sensor_eigenvalue": 0.9999999999999996,
+    "frozen": true,
+    "support_changed": false,
+    "proven_bound": false,
+    "independent_geometry_and_full_metric": {
+      "file": "bl_budget_3_m1_independent_mesh.json",
+      "cells": 16,
+      "points": 15,
+      "physical_faces": 26,
+      "volume": "1",
+      "minimum_mean_ratio": 0.672847561183992,
+      "minimum_scaled_jacobian": 0.37255479953174503,
+      "maximum_length": 1.719911358625887,
+      "longest_edge": [
+        0,
+        6
+      ],
+      "markers": {
+        "0": 19,
+        "2": 2,
+        "1": 5
+      },
+      "strict_metric_gate": true
+    },
+    "independent_reference": 2.95498841845352,
+    "reference_order_spread": 0.0,
+    "observed_estimate_error": 0.0181193142169378,
+    "indicator_covers_observed_error": true,
+    "reference_budget_discrepancy": -0.015003860515493295,
+    "flow_BDF_integral_defect": 3.968306240653163e-16,
+    "projection_defect": 2.645537493768775e-16,
+    "transported_sensor_residual": 0.0,
+    "first_height_error": 0.0,
+    "maximum_edge_reference_order_spread": 2.220446049250313e-16,
+    "source_sensor_constant_residual": 0.0,
+    "SU2_and_CGNS_reload": true,
+    "restart_flow_BDF_defect": 0.0,
+    "SA_restart_fields": true,
+    "independent_helper_sha256": "25da1998f218030031cfa90f2c709e8770b8ad13b93fe44f8412641bfd1cafd6",
+    "house_auditor_sha256": "1822427476ecb5687aaa06f3e7a3cc8f31cde53166fd0c711449eedf7c7c7a50"
+  }
+]

@@ -288,6 +288,25 @@ bool Clip(const Cell& cell, Point a, Point b, WorkPiece& result, KernelStats* st
 long double Orientation(Point a, Point b, Point c, Point d, KernelStats* stats) {
   return Determinant(a, b, c, d, stats, 1);
 }
+int OrientationCentroidSign(Point a,Point b,const std::array<Point,3>& triangle,Point d,KernelStats* stats) {
+  if(!(Finite(a)&&Finite(b)&&Finite(d)))throw std::invalid_argument("Nonfinite native centroid orientation.");
+  const auto u=Delta(b,a),w=Delta(d,a);long double total=0,permanent=0;
+  for(auto p:triangle) {
+    if(!Finite(p))throw std::invalid_argument("Nonfinite native centroid orientation.");
+    const auto v=Delta(p,a);
+    const long double terms[]={u[0]*v[1]*w[2],u[1]*v[2]*w[0],u[2]*v[0]*w[1],
+        -u[2]*v[1]*w[0],-u[1]*v[0]*w[2],-u[0]*v[2]*w[1]};
+    for(auto term:terms){total+=term;permanent+=std::abs(term);}
+  }
+  const auto epsilon=std::numeric_limits<long double>::epsilon();
+  if(std::isfinite(total) && permanent>std::numeric_limits<long double>::min()/epsilon && std::abs(total)>128*epsilon*permanent) {
+    if(stats)++stats->filtered_orientations;return total>0?1:-1;
+  }
+  if(stats)++stats->exact_orientations;
+  Integer<198> sum;
+  for(auto p:triangle){auto value=ExactDeterminant(a,b,p,d);value.negative=!value.negative;sum=Difference(sum,value);}
+  return Sign(sum);
+}
 Point Centroid(const Cell& cell) {
   long double x = 0, y = 0, z = 0;
   for (auto n : cell.v) {

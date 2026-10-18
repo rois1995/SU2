@@ -115,6 +115,19 @@ bool OnEdge(Point a, Point b, Point p, KernelStats* stats) {
   return p.x >= std::min(a.x, b.x) && p.x <= std::max(a.x, b.x) && p.y >= std::min(a.y, b.y) &&
          p.y <= std::max(a.y, b.y) && p.z >= std::min(a.z, b.z) && p.z <= std::max(a.z, b.z);
 }
+Point PlaneCoordinates(Point p,size_t axis) {
+  return axis==0?Point{p.y,p.z,0}:axis==1?Point{p.x,p.z,0}:Point{p.x,p.y,0};
+}
+bool BorderCrossesTriangleInterior(Point a,Point b,std::array<Point,3> t,KernelStats* stats) {
+  const auto sign=Orientation(t[0],t[1],t[2],{0,0,1},stats);
+  for(size_t i=0;i<3;++i) {
+    const auto x=Orientation(t[i],t[(i+1)%3],a,{0,0,1},stats),y=Orientation(t[i],t[(i+1)%3],b,{0,0,1},stats);
+    if((x==0 && y==0) || (sign>0 ? x<=0 && y<=0:x>=0 && y>=0))return false;
+  }
+  if(sign<0)std::swap(t[1],t[2]);
+  // The base face is the finite triangle. Exact positive-length clipping excludes isolated contacts.
+  return IntersectsSegmentPositiveLength({t[0],t[1],t[2],{0,0,1}},a,b,stats);
+}
 std::vector<Edge> StraightBorders(const std::vector<Edge>& border, const std::map<Id, Node>& nodes) {
   std::map<Id, Id> next, previous;
   for (auto edge : border)
@@ -647,7 +660,7 @@ PlanarReference::PlanarReference(std::vector<Facet> input, size_t ceiling, std::
     }
     bool valid = true;
     try {
-      ValidateSurfaceTopology(triangles, false, SIZE_MAX);
+      ValidateSurfaceTopology(triangles, false, SIZE_MAX,nullptr,true);
     } catch (const std::invalid_argument&) {
       valid = false;
     }
@@ -665,13 +678,26 @@ PlanarReference::PlanarReference(std::vector<Facet> input, size_t ceiling, std::
         valid = false;
     }
     if (valid) border = StraightBorders(border, nodes);
+    bool convex=true;
     for (auto edge : border)
       for (Id id : vertices) {
         const auto side = Projected(nodes.at(edge[0]).p, nodes.at(edge[1]).p, nodes.at(id).p, axis, nullptr);
-        if ((sign > 0 && side < 0) || (sign < 0 && side > 0)) valid = false;
+        if ((sign > 0 && side < 0) || (sign < 0 && side > 0)) convex=false;
       }
-    // shortcut: retain raw constraints on nonconvex patches until finite-union triangle/path coverage is available.
+    if(!convex && valid)for(size_t i=0;i<border.size();++i)for(size_t j=0;j<i;++j) {
+      const auto a=border[i],b=border[j];
+      const auto p=PlaneCoordinates(nodes.at(a[0]).p,axis),q=PlaneCoordinates(nodes.at(a[1]).p,axis);
+      const auto r=PlaneCoordinates(nodes.at(b[0]).p,axis),t=PlaneCoordinates(nodes.at(b[1]).p,axis);
+      auto opposite=[](long double x,long double y){return (x<0 && y>0)||(x>0 && y<0);};
+      if(opposite(Projected(p,q,r,2,nullptr),Projected(p,q,t,2,nullptr)) &&
+         opposite(Projected(r,t,p,2,nullptr),Projected(r,t,q,2,nullptr)))valid=false;
+      for(unsigned k=0;k<2;++k) {
+        if(a[k]!=b[0] && a[k]!=b[1] && OnEdge(r,t,k?q:p,nullptr))valid=false;
+        if(b[k]!=a[0] && b[k]!=a[1] && OnEdge(p,q,k?t:r,nullptr))valid=false;
+      }
+    }
     if (!valid) continue;
+    if(!convex)nonconvex.insert(root.first);
     boundaries.emplace(root.first, std::move(border));
     for (Id id : component) canonical.at(id) = root.first;
   }
@@ -833,7 +859,7 @@ size_t PlanarReference::ResidentBytes() const {
   auto map = [](const auto& m) {
     return transfer_memory::Mul(m.size(), sizeof(typename std::decay_t<decltype(m)>::value_type) + 4 * sizeof(void*));
   };
-  size_t result = transfer_memory::Add(sizeof(*this), map(facets), map(canonical), map(boundaries), map(nodes), map(analytic), map(bump_charts), map(complete_analytic));
+  size_t result = transfer_memory::Add(sizeof(*this), map(facets), map(canonical), map(boundaries), map(nodes), map(analytic), map(bump_charts), map(complete_analytic), map(nonconvex));
   for (const auto& entry : boundaries) result = transfer_memory::Add(result, transfer_memory::Bytes(entry.second));
   for(const auto& entry:bump_charts)
     if(entry.first==entry.second->facets.begin()->first) result=transfer_memory::Add(result,entry.second->ResidentBytes());
@@ -950,6 +976,16 @@ bool PlanarReference::Contains(Id id, Point p, KernelStats* stats) const {
         const auto side = Projected(v[i].p, v[(i + 1) % 3].p, p, axis, stats);
         if ((area > 0 && side < 0) || (area < 0 && side > 0)) return false;
       }
+    } else if(nonconvex.count(id)) {
+      const auto q=PlaneCoordinates(p,axis);int winding=0;
+      for(auto edge:group->second) {
+        const auto a=PlaneCoordinates(nodes.at(edge[0]).p,axis),b=PlaneCoordinates(nodes.at(edge[1]).p,axis);
+        if(OnEdge(a,b,q,stats))return true;
+        const auto side=Projected(a,b,q,2,stats);
+        if(a.y<=q.y && b.y>q.y && side>0)++winding;
+        if(a.y>q.y && b.y<=q.y && side<0)--winding;
+      }
+      return winding==(area>0?1:-1);
     } else
       for (auto edge : group->second) {
         const auto side = Projected(nodes.at(edge[0]).p, nodes.at(edge[1]).p, p, axis, stats);
@@ -971,6 +1007,10 @@ bool PlanarReference::ContainsFace(Id id, const std::array<Point, 3>& triangle, 
       const auto fresh=g.kind==AnalyticSurface::Kind::Cylinder ? CylinderFacing(g,triangle) : ParameterOrientation(g,triangle);
       return old>0 ? fresh>0 : fresh<0;
     }
+    if(g.kind==AnalyticSurface::Kind::Bump && bump_charts.at(Canonical(id))->nonconvex.count(Canonical(id))) {
+      std::array<Point,3> flat=triangle;for(auto& p:flat)p.z=0;
+      if(!bump_charts.at(Canonical(id))->ContainsFace(Canonical(id),flat,stats))return false;
+    }
     const auto old=g.kind==AnalyticSurface::Kind::Sphere ?
         Orientation(g.origin,f.v[0].p,f.v[1].p,f.v[2].p,stats) : Projected(f.v[0].p,f.v[1].p,f.v[2].p,2,stats);
     const auto fresh=g.kind==AnalyticSurface::Kind::Sphere ?
@@ -982,7 +1022,22 @@ bool PlanarReference::ContainsFace(Id id, const std::array<Point, 3>& triangle, 
     const auto old = Projected(f.v[0].p, f.v[1].p, f.v[2].p, axis, stats);
     if (old != 0) {
       const auto fresh = Projected(triangle[0], triangle[1], triangle[2], axis, stats);
-      return (old > 0 && fresh > 0) || (old < 0 && fresh < 0);
+      if(!((old>0 && fresh>0)||(old<0 && fresh<0)))return false;
+      if(nonconvex.count(Canonical(id))) {
+        std::array<Point,3> t;for(size_t i=0;i<3;++i)t[i]=PlaneCoordinates(triangle[i],axis);
+        int winding=0;
+        for(auto edge:boundaries.at(Canonical(id))) {
+          const auto a=PlaneCoordinates(nodes.at(edge[0]).p,axis),b=PlaneCoordinates(nodes.at(edge[1]).p,axis);
+          const int ay=OrientationCentroidSign({0,a.y,0},{1,a.y,0},t,{0,0,1},stats);
+          const int by=OrientationCentroidSign({0,b.y,0},{1,b.y,0},t,{0,0,1},stats);
+          const int side=OrientationCentroidSign(a,b,t,{0,0,1},stats);
+          if(ay>=0 && by<0 && side>0)++winding;
+          if(ay<0 && by>=0 && side<0)--winding;
+          if(BorderCrossesTriangleInterior(a,b,t,stats))return false;
+        }
+        if(winding!=(old>0?1:-1))return false;
+      }
+      return true;
     }
   }
   return false;

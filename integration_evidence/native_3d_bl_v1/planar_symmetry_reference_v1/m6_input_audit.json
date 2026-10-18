@@ -1,0 +1,39 @@
+{
+  "scope": "Input geometry audit only; no field, reference, remeshing, transfer or mesh mutation",
+  "input": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/oneram6_coarse_v1/Coarse.su2",
+  "sha256": "8c839170eb5e359f7de6a41434aa6a9c2d620053f37de6d9360bd04d2a63088b",
+  "audit_source_sha256": "6a2e2d4024e5203a443141b85391d38ee6bfd09d5176f98db54e5495f28d6a5a",
+  "plane": {
+    "marker": "SYMMETRY",
+    "axis": "Y",
+    "coordinate": 0.0,
+    "maximum_permitted_deviation": 1e-10
+  },
+  "vertices": 4184,
+  "facets": 8094,
+  "maximum_original_deviation": 4.598850728431175e-12,
+  "rms_original_deviation": 2.0407581866718521e-13,
+  "nonconforming_vertices": 4152,
+  "shared_surface_regions": {
+    "FARFIELD": {
+      "shared_vertices": 64,
+      "maximum_displacement": 2.168107871999195e-14
+    },
+    "WING3D": {
+      "shared_vertices": 210,
+      "maximum_displacement": 4.598850728431175e-12
+    }
+  },
+  "affected_tetrahedra": 21367,
+  "minimum_signed_volume_ratio": 0.9999999987805209,
+  "maximum_signed_volume_ratio": 1.0000000172692225,
+  "orientation_signs_retained": true,
+  "exact_fallbacks": [],
+  "plane_chart_euler_characteristic": 0,
+  "chart_boundary_edges": 274,
+  "limitations": [
+    "Long-double determinant screening, exact rational signs only near uncertain cells; no interval volume bound",
+    "Does not establish global embedding, finite chart coverage or adapted mesh acceptance",
+    "Existing off-plane frozen fields/restarts cannot silently adopt this changed initial reference"
+  ]
+}

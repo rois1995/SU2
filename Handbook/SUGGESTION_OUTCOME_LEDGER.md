@@ -213,3 +213,43 @@ accepted-event affordability. Same edits do not prove identical unexported rejec
 meshes; different work and local contention preclude clean kernel/scaling claims.
 No general failed-search memo table, new transaction batching or broad donor-index
 cache. [Complete records and grids](GOAL3_REJECTION_DEPENDENCIES.md).
+
+## Declared symmetry geometry — 2026-10-18, in progress
+
+User explicitly prioritized a declared planar symmetry reference after the accepted
+spherical repeat. Input audit supports M6 Y=0:4152/4184 symmetry vertices differ,
+maximum4.59885e-12;210wing/64farfield junction vertices;21367affected tetrahedra
+retain orientation, screened volume ratio.99999999878..1.00000001727. This is an
+input geometry audit, not global embedding, field transfer or mesh acceptance.
+The8094-facet symmetry patch has Euler characteristic0 and274border edges: finite
+hole-aware containment is required; an unbounded plane or approximate merging is
+not a valid replacement.
+
+Connected implementation adopts an explicit Cartesian plane only during initial
+geometry definition, before states and original donors are frozen. Every shared
+vertex copy moves consistently. Restart and returned geometry only audit exact
+conformity. No old off-plane field is silently reinterpreted. Complete controlled
+workflow and affected checks are pending; no new M6 event.
+[Current policy/evidence](../integration_evidence/native_3d_bl_v1/planar_symmetry_reference_v1/README.md).
+
+The curved selected-profile preflight exposed a separate provider routing gap:
+opt-in analytic walls enter faceted correction support and reject before budget
+trials in.346s. The collector's expected budget-conflict assertion also fails.
+Preserve all evidence; this establishes neither an integration estimate nor a
+construction result. Deferred under the user's geometry-first order.
+[Preserved preflight](../integration_evidence/native_3d_bl_v1/budget_curved_interacting_v1/README.md).
+
+## General symmetry extension and controlled feasibility — 2026-10-18
+
+User requires finite arbitrary 2D lines/3D planes, multi-body/hole/disconnected
+regions, simultaneous junctions and complete Euler/RANS/MPI/donor/restart/exterior
+workflows. Recorded without narrowing Goal3; shared affine core is in development,
+not runtime-qualified. Cartesian initializer passes independent serial/N2M2/N4M2
+RANS/SA full lifecycle and focused MPI4 geometry/reference regression.
+
+Annular normalization works (~20), cold native construction still rejects8192work;
+exact terminal154-cell grid/last edge1--5 proposal preserved. Same-field independent
+manual witness204tets passes q.305/J.0959/L1.740/height0/finite hole/embedding. This
+establishes scoped target feasibility, NOT native construction or transfer. Need
+coordinated construction reconsideration, no raised caps/fallback ladder/M6 retry.
+See GOAL3_PLANAR_SYMMETRY.md and planar_symmetry_reference_v1 evidence.

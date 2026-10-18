@@ -1,3 +1,40 @@
+## Current planar geometry checkpoint — 2026-10-18
+
+Initial Cartesian symmetry adoption and exact finite nonconvex/annular unions pass
+independent serial/N2M2/N4M2 cube RANS/SA transfer/output/real restart, plus focused
+MPI4 reference regression. Annular cold native construction still rejects8192work:
+154privatecells, last edge1--5 q.1455/J.0490. Exact rejected mesh/trial preserved.
+An independent manual204-tet witness for that SAME original field passes unchanged
+q/J/L/height/finite geometry/embedding (q.305/J.0959/L1.740), so the controlled target
+is feasible; native cold construction has not succeeded. No new M6 attempt.
+General arbitrary 2D/3D multi-body geometry remains required and unsupported runtime
+scope must stay explicit. [Requirements](Handbook/GOAL3_GENERAL_SYMMETRY.md).
+
+# Current status — 2026-10-18
+
+The repeated spherical BL event **now accepts** under unchanged constraints;
+current published checkpoint fdbc20a92a. Actual N4/M2 RANS/SA/current+BDF repeat:
+5440->3768tets,4511/6144work,88.499native seconds. Fresh exact geometry/height/overlap
+and state audit, affected MPI controls, SU2/CGNS/reload/restart pass in their recorded
+scopes. Reuse the accepted cold construction; no new CFD advance or affordability
+claim. [Authoritative accepted result](Handbook/GOAL3_REJECTION_DEPENDENCIES.md).
+
+The next user-prioritized capability is an **explicit audited initial planar
+symmetry reference**, including shared wall vertices and original donor consistency.
+M6 input audit finds max4.59885e-12 deviation fromY=0,210wing junction vertices,
+orientation retained in21367affected tetrahedra, and a finite symmetry annulus.
+Runtime construction is not yet tested. Hole-aware finite containment is required;
+no unbounded-plane replacement or unchanged M6 retry. The initial policy must not
+move existing off-plane frozen fields/restarts. [Current scope](Handbook/GOAL3_PLANAR_SYMMETRY.md).
+
+The opted-in analytic budget preflight fails provider routing before any budget
+trial, not because of an established complexity conflict. Preserved/deferred under
+the geometry-first priority. Full Goal3, global uncertainty/interacting/2D,
+viscous accuracy and complete-cycle affordability remain open.
+
+The dated entries below retain the history; their then-current rejection/status
+statements are superseded by the result above where explicitly stated.
+
 # Private query and star-admission limits resolved; repeated event time-limited — 2026-10-18
 
 Current exact/canonical private support and candidate-local coarsening admission

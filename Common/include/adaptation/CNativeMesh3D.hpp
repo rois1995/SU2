@@ -52,6 +52,8 @@ struct KernelStats {
 };
 /*! Exact sign for finite binary64 inputs; magnitude rounded to long double. */
 long double Orientation(Point a, Point b, Point c, Point d, KernelStats* stats = nullptr);
+/*! Exact orientation sign at the mathematical centroid of three finite binary64 points; no rounded centroid. */
+int OrientationCentroidSign(Point a,Point b,const std::array<Point,3>& triangle,Point d,KernelStats* stats=nullptr);
 /*! Positive donor, exact containment signs and magnitude-controlled P1 weights; outside leaves weights unchanged. */
 bool Barycentric(const Tetrahedron& donor, Point point, std::array<long double, 4>& weights,
                  KernelStats* stats = nullptr);

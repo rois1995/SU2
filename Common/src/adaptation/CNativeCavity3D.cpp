@@ -52,7 +52,7 @@ void Curve(const Graph& graph, bool closed) {
     throw std::invalid_argument("Native 3D cavity has a disconnected or unclosed link.");
 }
 /*! Connected triangular sphere/disk with manifold vertex links, not just an Euler-characteristic test. */
-void Surface(const std::vector<Face>& triangles, bool closed, bool cavity = true, Feature* closure = nullptr) {
+void Surface(const std::vector<Face>& triangles, bool closed, bool cavity = true, Feature* closure = nullptr, bool multiple_boundary_loops = false) {
   if (triangles.empty()) throw std::invalid_argument("Native 3D cavity has an empty link.");
   std::map<Edge, std::vector<Id>> edges;
   std::map<Id, Graph> links;
@@ -79,14 +79,16 @@ void Surface(const std::vector<Face>& triangles, bool closed, bool cavity = true
   }
   if(closure)for(const auto& entry:links)try {Curve(entry.second,!border.count(entry.first));}
     catch(const std::exception&){*closure={{{entry.first,0,0}},1};throw;}
-  if (cavity && (!Connected(adjacency) || static_cast<int64_t>(links.size()) - static_cast<int64_t>(edges.size()) +
-                                       static_cast<int64_t>(triangles.size()) !=
-                                   (closed ? 2 : 1)))
+  if (cavity && (!Connected(adjacency) || (!multiple_boundary_loops &&
+      static_cast<int64_t>(links.size()) - static_cast<int64_t>(edges.size()) +
+          static_cast<int64_t>(triangles.size()) != (closed ? 2 : 1))))
     throw std::invalid_argument("Native 3D cavity link is not a connected sphere/disk.");
   if (closed) {
     if (!border.empty()) throw std::invalid_argument("Native 3D cavity sphere has a boundary.");
-  } else
-    Curve(border, true);
+  } else if(multiple_boundary_loops) {
+    if(border.empty())throw std::invalid_argument("Native planar patch has no finite boundary.");
+    for(const auto& row:border)if(row.second.size()!=2)throw std::invalid_argument("Native planar patch has a branched boundary.");
+  } else Curve(border, true);
   if(!closure)for (const auto& entry : links) Curve(entry.second, !border.count(entry.first));
 }
 void Ball(const std::vector<Cell>& cells, const Incidence& index, const std::vector<Face>& boundary) {
@@ -131,11 +133,12 @@ void Validate(const std::vector<Cell>& old, const Incidence& before, const std::
 }
 }  // namespace
 
-void ValidateSurfaceTopology(const std::vector<Face>& triangles, bool closed, size_t maximum, Feature* closure) {
+void ValidateSurfaceTopology(const std::vector<Face>& triangles, bool closed, size_t maximum, Feature* closure, bool multiple_boundary_loops) {
   if(closure)*closure={};
   if (triangles.size() > maximum)
     throw std::invalid_argument("Native 3D surface topology exceeds budget.");
-  Surface(triangles, closed,true,closure);
+  if(closed && multiple_boundary_loops)throw std::invalid_argument("Multiple boundary loops require an open planar patch.");
+  Surface(triangles, closed,true,closure,multiple_boundary_loops);
 }
 void ValidateDomainSurfaceTopology(const std::vector<Face>& triangles) {
   std::set<Face> faces;
