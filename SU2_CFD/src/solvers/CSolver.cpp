@@ -3233,7 +3233,7 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
               }
             }catch(const std::exception& error){preparationFailure.Set(2,0,error.what());}
             CollectiveFailure(preparationFailure,CURRENT_FUNCTION);
-            try {boundedComplexity=std::make_unique<CNativeComplexity3D>(*nativeLayers,std::move(source),nPoint,size_t(2)<<30);}
+            try {boundedComplexity=std::make_unique<CNativeComplexity3D>(*nativeLayers,std::move(source),nPoint,size_t(2)<<30,8192,20261017,budgetBL);}
             catch(const std::exception& error){preparationFailure.Set(2,0,error.what());}
             CollectiveFailure(preparationFailure,CURRENT_FUNCTION);
           }
@@ -3314,7 +3314,7 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
       };
       if(budgetBL && !replay && !budgetSelected) {
         const auto begin=SU2_MPI::Wtime();
-        budgetSelection=SU2Complexity::SelectProfile(SU2_TYPE::GetValue(complexity),8,[&](double parameter) {
+        budgetSelection=SU2Complexity::SelectProfile(SU2_TYPE::GetValue(complexity),8,2,[&](double parameter) {
           double agreed=parameter;SU2_MPI::Bcast(&agreed,1,MPI_DOUBLE,MASTER_NODE,SU2_MPI::GetComm());
           CLocalFailure failure;
           try {
@@ -3330,15 +3330,29 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
           evaluatedLogScale=std::numeric_limits<passivedouble>::quiet_NaN();
           const auto trial=assess(SU2_TYPE::GetValue(absoluteLow),0);
           if(rank==MASTER_NODE)cout<<std::setprecision(17)<<"Native3D BL budget trial: parameter="<<agreed<<" profile_version="<<version
-            <<" coarsest_estimate="<<trial.value<<" uncertainty_indicator="<<trial.uncertainty
+            <<" samples="<<boundedAssessment.samples<<" batches="<<boundedAssessment.batches
+            <<" between_batch_indicator="<<boundedAssessment.betweenBatchError<<" coarsest_estimate="<<trial.value<<" uncertainty_indicator="<<trial.uncertainty
             <<" mandatory_estimate="<<boundedAssessment.mandatory.value<<" mandatory_indicator="<<boundedAssessment.mandatory.uncertainty
             <<" protected_distance="<<nativeLayers->GetOuterNormal().protected_distance
             <<" maximum_outer_growth="<<nativeLayers->GetOuterNormal().maximum_growth<<" support_changed=0 proven_bound=0"<<std::setprecision(6)<<endl;
           return trial;
+        },[&](const SU2Complexity::Estimate&) {
+          if(!boundedComplexity)return false;
+          const double fixed=.5*(boundedAssessment.sensorUpper-boundedAssessment.sensorLower)+boundedAssessment.numericalIndicator;
+          if(3*boundedAssessment.standardError<=fixed)return false;
+          const auto begin=SU2_MPI::Wtime();std::string reason;bool extended=false;CLocalFailure failure;
+          try {extended=boundedComplexity->Refine(reason);}
+          catch(const std::exception& error){failure.Set(2,0,error.what());}
+          CollectiveFailure(failure,CURRENT_FUNCTION);
+          if(rank==MASTER_NODE)cout<<"Native3D BL evidence stage: extended="<<extended
+              <<" samples="<<boundedComplexity->GetStatistics().samples
+              <<" attempts="<<boundedComplexity->GetStatistics().refinementAttempts
+              <<" seconds="<<SU2_MPI::Wtime()-begin<<" reason="<<reason<<" proven_bound=0"<<endl;
+          return extended;
         });
         budgetSelectionSeconds=SU2_MPI::Wtime()-begin;budgetSelected=true;
         if(budgetSelection.status==SU2Complexity::BudgetStatus::EstimatedIncompatible) {
-          std::ostringstream why;why<<std::setprecision(17)<<"Estimated BL budget conflict over nine permitted sampled profiles; estimate="
+          std::ostringstream why;why<<std::setprecision(17)<<"Estimated BL budget conflict over permitted sampled profiles; estimate="
             <<budgetSelection.estimate.value<<" uncertainty="<<budgetSelection.estimate.uncertainty
             <<" budget="<<complexity<<" mandatory_estimate="<<boundedAssessment.mandatory.value
             <<" mandatory_indicator="<<boundedAssessment.mandatory.uncertainty
@@ -3661,15 +3675,17 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
     CPassiveComm::Allreduce(&quadratureSeconds,&globalQuadratureSeconds,1,CPassiveComm::Op::MAX);
     CPassiveComm::Allreduce(quadratureCounts,globalQuadratureCounts,3,CPassiveComm::Op::SUM);
   }
-  double boundedTimes[5]={};uint64_t boundedCounts[7]={};
+  double boundedTimes[5]={};uint64_t boundedCounts[15]={};
   if(boundedComplexity) {
     const auto& work=boundedComplexity->GetStatistics();
     const double times[]={work.preparationSeconds,work.backgroundSeconds,work.correctionSeconds,
                           work.reductionSeconds,work.assessmentSeconds};
-    const uint64_t counts[]={work.retainedBytes,work.backgroundEvaluations,work.correctionEvaluations,work.profileRefreshes,work.profileGeometryQueries,work.backgroundBuilds,work.backgroundReuses};
+    const uint64_t counts[]={work.retainedBytes,work.backgroundEvaluations,work.correctionEvaluations,work.profileRefreshes,work.profileGeometryQueries,work.backgroundBuilds,work.backgroundReuses,work.refinementAttempts,work.refinements,work.supportWork,work.supportCandidates,work.donorBuilds,work.donorBatches,work.preparationBytes,work.preparationGeometryQueries};
     SU2_MPI::Allreduce(times,boundedTimes,5,MPI_DOUBLE,MPI_MAX,SU2_MPI::GetComm());
     SU2_MPI::Allreduce(counts,boundedCounts,1,MPI_UNSIGNED_LONG_LONG,MPI_MAX,SU2_MPI::GetComm());
-    SU2_MPI::Allreduce(counts+1,boundedCounts+1,6,MPI_UNSIGNED_LONG_LONG,MPI_SUM,SU2_MPI::GetComm());
+    SU2_MPI::Allreduce(counts+1,boundedCounts+1,12,MPI_UNSIGNED_LONG_LONG,MPI_SUM,SU2_MPI::GetComm());
+    SU2_MPI::Allreduce(counts+13,boundedCounts+13,1,MPI_UNSIGNED_LONG_LONG,MPI_MAX,SU2_MPI::GetComm());
+    SU2_MPI::Allreduce(counts+14,boundedCounts+14,1,MPI_UNSIGNED_LONG_LONG,MPI_SUM,SU2_MPI::GetComm());
   }
   if (rank == MASTER_NODE) {
     cout << (nativeMetric ? "Sensor-only donor metric statistics:" : "Metric field statistics:") << endl;
@@ -3712,7 +3728,13 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
             <<" background_rank_builds="<<boundedCounts[5]<<" background_rank_reuses="<<boundedCounts[6]
             <<" sensor_interval_indicator="<<.5*(boundedAssessment.sensorUpper-boundedAssessment.sensorLower)
             <<" correction_indicator="<<3*boundedAssessment.standardError
-            <<" donor_searches_during_trials=0 geometry_queries_during_trials="<<boundedCounts[4]
+            <<" correction_batches="<<boundedAssessment.batches<<" between_batch_indicator="<<boundedAssessment.betweenBatchError
+            <<" refinement_rank_attempts="<<boundedCounts[7]<<" refinement_rank_stages="<<boundedCounts[8]
+            <<" support_build_work="<<boundedCounts[9]<<" support_pdf_candidates="<<boundedCounts[10]
+            <<" donor_index_rank_builds="<<boundedCounts[11]<<" donor_preparation_batches="<<boundedCounts[12]
+            <<" preparation_bytes_max="<<boundedCounts[13]
+            <<" preparation_geometry_point_queries="<<boundedCounts[14]
+            <<" donor_searches_during_density_assessments=0 geometry_queries_during_trials="<<boundedCounts[4]
             <<" global_rank_profile_refreshes="<<boundedCounts[3]<<std::setprecision(6)<<endl;
       }
       if(nDim==3 && nativeLayers)cout << "Native3D target-density quadrature: " << globalQuadratureSeconds << " s (maximum accumulated rank time), "

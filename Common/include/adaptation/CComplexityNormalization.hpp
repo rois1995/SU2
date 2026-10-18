@@ -27,7 +27,7 @@ struct ProfileSelection {
   double parameter=0;
   Estimate estimate;
   BudgetStatus status=BudgetStatus::IntegrationLimited;
-  unsigned trials=0;
+  unsigned trials=0, refinements=0;
 };
 /*! Ordered finite profile scan; NO monotonicity assumption. Stops on an unresolved
  * earlier profile rather than silently selecting more relaxation. Incompatibility
@@ -46,6 +46,19 @@ ProfileSelection SelectProfile(double target,unsigned intervals,Assess assess) {
     if(e.value-e.uncertainty<=target){result.status=BudgetStatus::IntegrationLimited;return result;}
   }
   result.status=BudgetStatus::EstimatedIncompatible;return result;
+}
+
+/*! A larger evidence set restarts the complete ordered scan. Every profile then uses
+ * the same current evidence, without assuming a monotone physical response. */
+template<class Assess,class Refine>
+ProfileSelection SelectProfile(double target,unsigned intervals,unsigned maximumRefinements,Assess assess,Refine refine) {
+  if(maximumRefinements>2)throw std::invalid_argument("Invalid bounded profile evidence refinement.");
+  unsigned trials=0;
+  for(unsigned stage=0;;++stage) {
+    auto result=SelectProfile(target,intervals,assess);trials+=result.trials;
+    result.trials=trials;result.refinements=stage;
+    if(result.status!=BudgetStatus::IntegrationLimited || stage==maximumRefinements || !refine(result.estimate))return result;
+  }
 }
 
 /*! Search a monotone scale response. The callback returns GLOBAL value/absolute uncertainty and may

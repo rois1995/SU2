@@ -22,15 +22,22 @@ class CNativeComplexity3D {
     SU2Complexity::Estimate global,mandatory;
     double sensorLower=0,sensorUpper=0,sensorQuadrature=0,correction=0,standardError=0,numericalIndicator=0;
     uint64_t samples=0,inside=0,nonzero=0,directChecks=0;
+    double betweenBatchError=0;unsigned batches=0;
   };
   struct Statistics {
     size_t retainedBytes=0;
     uint64_t samples=0,inside=0,assessments=0,backgroundEvaluations=0,correctionEvaluations=0,profileRefreshes=0,profileGeometryQueries=0;
     uint64_t backgroundBuilds=0,backgroundReuses=0;
+    uint64_t refinementAttempts=0,refinements=0,supportWork=0,supportCandidates=0,donorBuilds=0,donorBatches=0,preparationGeometryQueries=0;
+    size_t preparationBytes=0;
     double preparationSeconds=0,assessmentSeconds=0,backgroundSeconds=0,correctionSeconds=0,reductionSeconds=0;
   };
   CNativeComplexity3D(CBoundaryLayerMetric& layers,std::vector<SourceCell> source,size_t sourceNodes,
-                     size_t ceiling,size_t sampleCount=8192,uint64_t seed=20261017);
+                     size_t ceiling,size_t sampleCount=8192,uint64_t seed=20261017,bool retainPreparation=false);
+  ~CNativeComplexity3D();
+  /*! Collective append of the same proposal stream, at most two doublings. Resource refusal
+   * retains the complete previous estimate; invalid geometry/protocol remains a fatal error. */
+  bool Refine(std::string& reason);
   Assessment Assess(const std::vector<CBoundaryLayerMetric::Tensor>& sensor,su2double core,bool auditDirect=false);
   const Statistics& GetStatistics() const {return statistics;}
  private:
@@ -39,8 +46,18 @@ class CNativeComplexity3D {
     std::array<double,4> weights;
     SU2Native3D::Point point;
     double inversePDF;
+    unsigned batch=0;
     std::vector<CBoundaryLayerMetric::PointSample> geometry;
   };
+  struct Preparation;
+  std::unique_ptr<Preparation> preparation;
+  bool Extend(size_t count,std::string& reason,bool initial);
+  size_t ResidentBytes() const;
+  void PreparationCounts();
+  std::array<size_t,3> batchSizes{};
+  unsigned batches=0;
+  size_t initialSamples=0;
+  uint64_t seed=0;
   CBoundaryLayerMetric& layers;
   std::vector<SourceCell> source;
   std::vector<long double> volumes;

@@ -2512,6 +2512,45 @@ TEST_CASE("Retained complexity stencils use fresh nonhomogeneous trial tensors a
   CHECK(restored.global.value==c.global.value);CHECK(restored.global.uncertainty==c.global.uncertainty);
   CHECK(estimate.GetStatistics().backgroundReuses==4);
 
+  CNativeComplexity3D adaptive(layers,source,mesh.GetnPoint(),size_t(256)<<20,128,7519,true);
+  const auto first=adaptive.Assess(original,2,true);const auto supportWork=adaptive.GetStatistics().supportWork;
+  std::string extensionReason;REQUIRE(adaptive.Refine(extensionReason));
+  const auto expanded=adaptive.Assess(original,2,true);
+  CNativeComplexity3D directPrefix(layers,source,mesh.GetnPoint(),size_t(256)<<20,256,7519);
+  const auto prefix=directPrefix.Assess(original,2,true);
+  CHECK(expanded.samples==256);CHECK(expanded.batches==2);CHECK(expanded.inside==prefix.inside);
+  CHECK(expanded.global.value==prefix.global.value);CHECK(expanded.standardError==prefix.standardError);
+  CHECK(expanded.global.uncertainty>=prefix.global.uncertainty);CHECK(expanded.sensorLower==first.sensorLower);
+  CHECK(adaptive.GetStatistics().donorBuilds==1);CHECK(adaptive.GetStatistics().supportWork==supportWork);
+  CHECK(adaptive.GetStatistics().refinements==1);CHECK(adaptive.GetStatistics().retainedBytes<=(size_t(256)<<20));
+  REQUIRE(adaptive.Refine(extensionReason));const auto largest=adaptive.Assess(original,2,true);
+  CHECK(largest.samples==512);CHECK(largest.batches==3);CHECK_FALSE(adaptive.Refine(extensionReason));
+  CHECK(adaptive.Assess(original,2).global.value==largest.global.value);
+  CHECK_FALSE(directPrefix.Refine(extensionReason));
+  if(rank==0) {
+    std::ofstream out("adaptive_complexity_control.json");out<<std::setprecision(17)
+        <<"{\"unit_cube\":true,\"ranks\":"<<ranks<<",\"sensor\":2,\"core\":2,\"h0\":0.02,\"growth\":1.2,\"thickness\":0.15,\"wall_z\":0.5,\"trials\":[";
+    unsigned index=0;for(const auto& value:{first,expanded,largest}) {
+      out<<(index++?",":"")<<"{\"samples\":"<<value.samples<<",\"inside\":"<<value.inside<<",\"batches\":"<<value.batches
+          <<",\"value\":"<<value.global.value<<",\"indicator\":";
+      if(std::isfinite(value.global.uncertainty))out<<value.global.uncertainty;else out<<"null";
+      out<<",\"empirical_SE\":"<<value.standardError<<",\"between_batch_indicator\":"<<value.betweenBatchError<<"}";
+    }
+    out<<"],\"proven_bound\":false}\n";REQUIRE(bool(out));
+  }
+
+  CNativeComplexity3D boundedAppend(layers,source,mesh.GetnPoint(),size_t(2)<<20,2048,8127,true);
+  auto retainedEstimate=boundedAppend.Assess(original,2);bool refused=false;
+  for(unsigned attempt=0;attempt<2;++attempt) {
+    const auto previous=retainedEstimate;
+    if(!boundedAppend.Refine(extensionReason)) {
+      refused=true;const auto unchanged=boundedAppend.Assess(original,2);
+      CHECK(unchanged.samples==previous.samples);CHECK(unchanged.inside==previous.inside);
+      CHECK(unchanged.global.value==previous.global.value);CHECK(unchanged.global.uncertainty==previous.global.uncertainty);break;
+    }
+    retainedEstimate=boundedAppend.Assess(original,2);
+  }
+  CHECK(refused);CHECK(boundedAppend.GetStatistics().retainedBytes<=(size_t(2)<<20));
   auto anisotropic=original;
   const su2double frame[3][3]={{.6,-.8,0},{.8,.6,0},{0,0,1}},val[3]={1e10,1,4};
   for(auto& m:anisotropic)CBlasStructure::EigenRecomposition(m.m,frame,val,3);
@@ -2586,6 +2625,18 @@ TEST_CASE("Budget profiles scan ordered samples without a monotonicity assumptio
   CHECK_THROWS(SelectProfile(1,33,[](double){return Estimate{1,0};}));
   CHECK_THROWS(SelectProfile(1,8,[](double){return Estimate{1,-1};}));
   CHECK(SelectProfile(1,8,[](double){return Estimate{1,INFINITY};}).status==BudgetStatus::IntegrationLimited);
+  unsigned evidence=0;std::vector<double> visited;
+  const auto rescanned=SelectProfile(10,4,2,[&](double p) {
+    visited.push_back(p);return evidence?Estimate{8,.1}:Estimate{p==.25?10.:20.,1.};
+  },[&](Estimate){++evidence;return true;});
+  CHECK(rescanned.status==BudgetStatus::EstimatedAttainable);CHECK(rescanned.parameter==0);
+  CHECK(rescanned.refinements==1);CHECK(rescanned.trials==3);CHECK((visited==std::vector<double>{0,.25,0}));
+  const auto limited=SelectProfile(10,8,2,[](double){return Estimate{10,1};},[](Estimate){return true;});
+  CHECK(limited.status==BudgetStatus::IntegrationLimited);CHECK(limited.refinements==2);CHECK(limited.trials==3);
+  const auto refused=SelectProfile(10,8,2,[](double){return Estimate{10,1};},[](Estimate){return false;});
+  CHECK(refused.refinements==0);CHECK(refused.trials==1);
+  CHECK_THROWS(SelectProfile(10,8,3,[](double){return Estimate{10,1};},[](Estimate){return true;}));
+
 }
 
 TEST_CASE("Outer-normal profiles protect height tangents geometry fade and frozen sample identity", "[NativeBLBudgetProfile]") {

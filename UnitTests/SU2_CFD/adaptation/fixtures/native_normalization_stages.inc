@@ -249,7 +249,7 @@ TEST_CASE("Opt-in BL budget selection stays frozen through native RANS replaceme
   solver.ComputeMetric(&g,&driver->Config(),&raw,true,nullptr,driver->Reference().get());
   const auto family=solver.GetNativeMetricFamily3D();REQUIRE(family);REQUIRE(family->layers);
   const auto selected=family->layers->GetOuterNormal();CHECK(selected.frozen);CHECK(selected.parameter>=0);CHECK(selected.parameter<=1);
-  CHECK(family->budget_selection.trials<=9);
+  CHECK(family->budget_selection.refinements<=2);CHECK(family->budget_selection.trials<=9*(1+family->budget_selection.refinements));
   if(budget==20)CHECK(selected.parameter==0);
   if(budget==3)CHECK(selected.parameter>0);
   CHECK(CPassiveComm::Allreduce(selected.parameter,CPassiveComm::Op::MIN)==CPassiveComm::Allreduce(selected.parameter,CPassiveComm::Op::MAX));

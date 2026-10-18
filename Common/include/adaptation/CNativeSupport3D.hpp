@@ -24,6 +24,7 @@ struct SupportWall3D {
   std::vector<std::array<size_t,3>> triangles;
   double first_height=0,growth=1,thickness=0;
 };
+struct SupportLimit3D : std::runtime_error { using std::runtime_error::runtime_error; };
 struct SupportPoint3D {Point point;double inverse_pdf=0;unsigned kind=0;};
 struct SupportStats3D {
   std::array<size_t,3> components{};
@@ -58,10 +59,10 @@ class SupportSampler3D {
   static V vector(Point p){return {p.x,p.y,p.z};}
   static V perpendicular(V axis){V basis{};const auto j=std::min_element(axis.begin(),axis.end(),[](auto a,auto b){return std::abs(a)<std::abs(b);})-axis.begin();basis[j]=1;return unit(cross(axis,basis));}
   void work(uint64_t n=1) {
-    if(n>maximum_work-stats.preparation_work-stats.pdf_candidates)throw std::runtime_error("Geometric support work budget exhausted; PDF not truncated.");
+    if(n>maximum_work-stats.preparation_work-stats.pdf_candidates)throw SupportLimit3D("Geometric support work budget exhausted; PDF not truncated.");
     stats.preparation_work+=n;
   }
-  void admit(size_t bytes)const{if(bytes==SIZE_MAX || bytes>ceiling)throw std::runtime_error("Geometric support storage budget exhausted.");}
+  void admit(size_t bytes)const{if(bytes==SIZE_MAX || bytes>ceiling)throw SupportLimit3D("Geometric support storage budget exhausted.");}
   static long double moment(const Component& c) {
     const auto r=std::min(c.radius,c.b>0?c.h0/c.b:c.radius);const auto k=c.kind;
     long double value=std::pow(r,k+1)/(c.h0*(k+1));
@@ -199,7 +200,7 @@ class SupportSampler3D {
     for(double x:{point.x,point.y,point.z})if(!std::isfinite(x))throw std::invalid_argument("Nonfinite support query.");
     std::vector<unsigned long> candidates;index->DetermineIntersectingElements(p,p,candidates);
     if(candidates.size()>32768 || candidates.size()>maximum_work-stats.preparation_work-stats.pdf_candidates)
-      throw std::runtime_error("Support PDF candidate/work ceiling; no contribution discarded.");
+      throw SupportLimit3D("Support PDF candidate/work ceiling; no contribution discarded.");
     stats.pdf_candidates+=candidates.size();admit(transfer_memory::Add(stats.retained_bytes,transfer_memory::Bytes(candidates)));
     std::sort(candidates.begin(),candidates.end());long double result=0;
     for(auto i:candidates)result+=componentDensity(components.at(i),vector(point));

@@ -16,7 +16,7 @@ TEST_CASE("Native3D selects a budget profile from a saved CFD state without adva
   CHECK(current(driver->Geometry(),driver->Solver())==flow);CHECK(current(driver->Geometry(),*driver->Turbulence())==turb);
   CHECK(EncodeReference(*driver->Reference())==authority);
   const auto family=driver->Solver().GetNativeMetricFamily3D();REQUIRE(family);REQUIRE(family->layers);
-  const auto& profile=family->layers->GetOuterNormal();CHECK(profile.frozen);CHECK(family->budget_selection.trials<=9);
+  const auto& profile=family->layers->GetOuterNormal();CHECK(profile.frozen);CHECK(family->budget_selection.refinements<=2);CHECK(family->budget_selection.trials<=9*(1+family->budget_selection.refinements));
   if(family->budget_selection.status==SU2Complexity::BudgetStatus::IntegrationLimited) {
     CHECK(family->normalization.status==SU2Complexity::Status::IntegrationLimited);
     CHECK(family->normalization.logScale==family->lower);CHECK(family->normalization.trials==1);
@@ -25,7 +25,7 @@ TEST_CASE("Native3D selects a budget profile from a saved CFD state without adva
   CHECK(CPassiveComm::Allreduce(profile.version,CPassiveComm::Op::MIN)==CPassiveComm::Allreduce(profile.version,CPassiveComm::Op::MAX));
   if(!world.rank) {
     std::ofstream out("saved_metric_budget.json");out<<std::setprecision(17)<<"{\"CFD_steps\":0,\"mesh_construction_attempted\":false,\"accepted_mesh\":false"
-      <<",\"parameter\":"<<profile.parameter<<",\"version\":"<<profile.version<<",\"trials\":"<<family->budget_selection.trials
+      <<",\"parameter\":"<<profile.parameter<<",\"version\":"<<profile.version<<",\"trials\":"<<family->budget_selection.trials<<",\"evidence_stages\":"<<family->budget_selection.refinements
       <<",\"normalization_status\":"<<unsigned(family->normalization.status)<<",\"estimate\":"<<family->normalization.estimate.value
       <<",\"uncertainty\":";if(std::isfinite(family->normalization.estimate.uncertainty))out<<family->normalization.estimate.uncertainty;else out<<"null";
     out<<",\"seconds\":"<<seconds<<",\"frozen\":true,\"original_family_bytes\":"<<family->ResidentBytes()

@@ -8,6 +8,14 @@ Leave AdapNoExt, foreign ClusterResults, dependencies and foreign jobs untouched
 
 ## Current work and execution
 
+Current connected WIP: bounded original-field correction stream extension and
+complete ordered profile rescan before freezing (max2 doublings,8192->32768).
+Opt-in only; default preparation lifetime/initial samples retained. Original
+sensor donors, actual geometry/composition and physical gates unchanged. Atomic
+append refusal retains old complete estimate. Pooled/between-batch indicators
+remain heuristic. Build/qualification pending; no owned runtime. See
+adaptive_budget_evidence_v1/DESIGN.md under M6 uncertainty evidence.
+
 Current completed slice: identical original-sensor background retained across BL
 profile/core trials, exact tensor equality and bounded storage. Serial25/2253,
 MPI4(4 cases/rank) and actual opt-in/default N4M2 independent full workflow audits
