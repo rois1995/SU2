@@ -1,0 +1,36 @@
+{
+  "exit_code": 134,
+  "seconds": 2.548643918009475,
+  "command": [
+    "/usr/bin/time",
+    "-v",
+    "nice",
+    "-n",
+    "19",
+    "taskset",
+    "-c",
+    "0-3",
+    "timeout",
+    "--kill-after=5s",
+    "420s",
+    "mpirun",
+    "--bind-to",
+    "none",
+    "-np",
+    "4",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver",
+    "[NativeSphereBLRuntime3D]",
+    "--abort",
+    "--reporter",
+    "compact"
+  ],
+  "provenance_sha256": "5b3f9b35b6cd2dfe0902161370082d427c0b53531df764b0da2aee3db2cdfa00",
+  "log_sha256": "e32bef54c6e74ab5ff3ab4f3b4396ffbdecb63c9ed07c4fb909594e2bfa3d666",
+  "artifacts": {
+    "sphere.su2.native_ref": "4a8264bddfdeb3337ea2e0b9478d555d22ebee0647125fcf281f4574c1b97dab",
+    "sphere.su2": "b5a4f405e6fb5a70b9d4bc8247b316344a8046a02bf954319ec1e40302eb8057",
+    "run.cfg": "02c16bdb8133c3af1578a3e1b8f33408b34a40dd336434ee71c1239a66c0e8c7",
+    "history.csv": "e6eb7fe49f0578f5a0c34c9e375fd79e22cc5e5b76a5aefd7efffca6a7178643",
+    "executed_source.json.gz": "7086c5c0e10f869aa0928e88ed73123970be7500b302bad40322ef68c16fd771"
+  }
+}

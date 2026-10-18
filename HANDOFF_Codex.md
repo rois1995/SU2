@@ -28,6 +28,19 @@ construction can progress independently. This finding is not budget infeasibilit
 or proof that every outer profile/native geometry is infeasible.
 
 
+## Current active work
+
+Actual N4/M2 RANS sphere cold construction8->5440 and current CGNS/BDF restarted
+removal5440->320 independently pass actual flow/SA transfer and both outputs.
+Integral defects1.14e-14/2.06e-14, transported sensor0; rest-flow fixture,0CFD steps,
+no normalization/budget selection. Generic canonical-point/positive-length edge
+query fix is built and scoped serial/MPI2/4 plus strict/enabled N4M2 qualified.
+Unchanged-BL update still atomically rejects61.35s in PRIVATE closed metric-cell
+imports; refinement itself accepts the original mesh. Next: reconcile private
+point/ideal-midpoint and edge query support without cap/gate/field changes.
+Reuse the cold checkpoint; all owned jobs terminal.
+[Current results, remaining query design and paths](Handbook/GOAL3_SPHERE_RANS_LIFECYCLE.md).
+
 ## Current connected sphere work
 
 Complete serial closed-sphere BL now accepts5440tets/5604work under6144/300s;

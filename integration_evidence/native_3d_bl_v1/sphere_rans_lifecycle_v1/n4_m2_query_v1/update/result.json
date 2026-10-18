@@ -1,0 +1,41 @@
+{
+  "exit_code": 1,
+  "seconds": 61.972548668971285,
+  "command": [
+    "/usr/bin/time",
+    "-v",
+    "nice",
+    "-n",
+    "19",
+    "taskset",
+    "-c",
+    "0-3",
+    "timeout",
+    "--kill-after=5s",
+    "420s",
+    "mpirun",
+    "--bind-to",
+    "none",
+    "-np",
+    "4",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver",
+    "[NativeSphereBLRuntime3D]",
+    "--abort",
+    "--reporter",
+    "compact"
+  ],
+  "provenance_sha256": "ec068a4a5bdd1d8880cd5a786f4847e6d77af85de5f4f395c3906cf013b5c1e3",
+  "log_sha256": "7c3a3af2abedaca2c571f8faf665519d4e73b6310ce70aefd5d505ef2fca7534",
+  "artifacts": {
+    "status_rank0.json": "ed635075ab227a6ab1e564e1b472a58e8faf64f91bc065ebfdc0e4b69fa705ed",
+    "history_00003.csv": "e6eb7fe49f0578f5a0c34c9e375fd79e22cc5e5b76a5aefd7efffca6a7178643",
+    "status_rank1.json": "26b82fdd4550d5038d74e3343fdfdbfd94c45f1679071604539216555859fb13",
+    "before_states.json": "6782ffdf58f4c38bd4a86aaec2de998b663751d91a14349d1a0ace208f73e699",
+    "event_initial.json": "77c8146c57487d7147ae791d64c1fc1ff366cbc4b5d0459023f0e802d7d330fc",
+    "run.cfg": "87eec0f7a3035d78f4259348f44b6c5a2cf452ac03c4e93e1d0db46f3fca5c85",
+    "before_turb.csv": "606a36e908169b3132b43f404953e0cceb09151212a2f5a6dbe7ca73999ce251",
+    "status_rank3.json": "2fe753b202995a660a819755e68abcd5973d35f67dedefc40ca55ae0aabc4c85",
+    "status_rank2.json": "9a8c8182c4ad1bd06bc5ecaec051e0beb3644a82093deee9b0a39cb43a5a5750",
+    "executed_source.json.gz": "be2aa12de15ae3c943fd128f0d22a0f996aaf7dc10fa5add876b833041b26364"
+  }
+}

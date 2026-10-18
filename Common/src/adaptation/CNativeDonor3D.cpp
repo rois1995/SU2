@@ -40,10 +40,10 @@ int Server(const Authority& row, int size) {
 struct Request {
   DonorRegion region{};
   int caller = 0;
-  bool tetrahedral = false, segment = false;
+  bool tetrahedral = false, segment = false, positive_length = false;
   unsigned char query = 0;  // 0 full cell; bits0..6 select actual centroid and six closed edges.
   Tetrahedron tetra{};
-  template <class S> void Fields(S& s) { s(region, caller, tetrahedral, segment, query, tetra); }
+  template <class S> void Fields(S& s) { s(region, caller, tetrahedral, segment, positive_length, query, tetra); }
 };
 struct OwnedDonor {
   DonorCell donor;int rank=0;
@@ -361,12 +361,15 @@ DonorSamples DonorImport::SamplePoints(const std::vector<Point>& points,const st
 DonorPatch DonorImport::ImportSegments(const std::vector<std::array<Point,2>>& segments,size_t ceiling,size_t caller_bytes) {
   return ImportRegions({},nullptr,ceiling,caller_bytes,false,&segments);
 }
+DonorPatch DonorImport::ImportEdgeSegments(const std::vector<std::array<Point,2>>& segments,size_t ceiling,size_t caller_bytes) {
+  return ImportRegions({},nullptr,ceiling,caller_bytes,false,&segments,nullptr,true);
+}
 DonorPatch DonorImport::ProbePoints(const std::vector<Point>& points,size_t ceiling,size_t caller_bytes) {
   return ImportRegions({},nullptr,ceiling,caller_bytes,false,nullptr,&points);
 }
 DonorPatch DonorImport::ImportRegions(const std::vector<DonorRegion>& regions, const std::vector<Cell>* cells,
                                     size_t ceiling, size_t caller_bytes, bool metric_queries,
-                                    const std::vector<std::array<Point,2>>* segments, const std::vector<Point>* points) {
+                                    const std::vector<std::array<Point,2>>* segments, const std::vector<Point>* points, bool positive_segments) {
   Timer timer(stats.import_seconds, timings);
   ++stats.imports;
   DonorPatch result;
@@ -402,7 +405,9 @@ DonorPatch DonorImport::ImportRegions(const std::vector<DonorRegion>& regions, c
         const auto ends=points?std::array<Point,2>{points->at(i),points->at(i)}:segments->at(i);
         for(Point p:ends)for(double x:{p.x,p.y,p.z})if(!std::isfinite(x))throw std::invalid_argument("Nonfinite original segment query.");
         request.region=SegmentBounds(ends[0],ends[1]);request.tetra[0]=ends[0];request.tetra[1]=ends[1];
-        request.segment=true;request.tetrahedral=true;
+        if(positive_segments && ends[0].x==ends[1].x && ends[0].y==ends[1].y && ends[0].z==ends[1].z)
+          throw std::invalid_argument("Metric donor segment must have nonzero length.");
+        request.segment=true;request.tetrahedral=true;request.positive_length=positive_segments;
       } else request.region = cells ? Bounds(cells->at(i)) : regions[i];
       if (cells) {
         request.tetrahedral = filter_cells;
@@ -452,7 +457,7 @@ DonorPatch DonorImport::ImportRegions(const std::vector<DonorRegion>& regions, c
       ++stats.owner_requests;
       if (request.caller < 0 || request.caller >= world.size) throw std::invalid_argument("Invalid donor request owner.");
       if (request.query > 127 || (request.query && !request.tetrahedral) ||
-          (request.segment && (!request.tetrahedral || request.query)))
+          (request.segment && (!request.tetrahedral || request.query)) || (request.positive_length && !request.segment))
         throw std::invalid_argument("Invalid donor metric-query kind.");
       if (!index) continue;
       auto search = [&](const DonorRegion& b, unsigned char query) {
@@ -476,7 +481,8 @@ DonorPatch DonorImport::ImportRegions(const std::vector<DonorRegion>& regions, c
               const Point end = query == 1 ? a : request.tetra[QueryEdges[query - 2][1]];
               needed = SegmentMayIntersectBox(a, end, boxes.data()+6*i);
               if (!needed) ++stats.box_filtered;
-              else needed = IntersectsSegment(donor, a, end, &stats.filter_kernel);
+              else needed = request.positive_length ? IntersectsSegmentPositiveLength(donor,a,end,&stats.filter_kernel)
+                                                   : IntersectsSegment(donor,a,end,&stats.filter_kernel);
             } else needed = !(Outside(request.tetra, donor, &stats.filter_kernel) ||
                               Outside(donor, request.tetra, &stats.filter_kernel));
             if (!needed) { ++stats.filtered; continue; }

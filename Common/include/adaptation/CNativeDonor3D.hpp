@@ -88,6 +88,10 @@ class DonorImport {
    * Avoids importing the entire segment box when the frozen source is large. */
   DonorPatch ImportSegments(const std::vector<std::array<Point,2>>& segments,
                             size_t ceiling=SIZE_MAX,size_t caller_bytes=0);
+  /*! Metric-integral footprint: all positive-length source intervals, including shared faces/edges.
+   * Isolated contacts contribute no integral. Ordinary point/geometry queries still require their own support. */
+  DonorPatch ImportEdgeSegments(const std::vector<std::array<Point,2>>& segments,
+                                size_t ceiling=SIZE_MAX,size_t caller_bytes=0);
   /*! Complete exact original-source point footprints. A valid empty result certifies that no source cell
    * intersects these points; failed/oversized searches remain invalid, never outside-domain zeros. */
   DonorPatch ProbePoints(const std::vector<Point>& points, size_t ceiling = SIZE_MAX, size_t caller_bytes = 0);
@@ -118,7 +122,7 @@ class DonorImport {
   DonorPatch ImportRegions(const std::vector<DonorRegion>& regions, const std::vector<Cell>* cells,
                           size_t ceiling, size_t caller_bytes, bool metric_queries = false,
                           const std::vector<std::array<Point,2>>* segments = nullptr,
-                          const std::vector<Point>* points = nullptr);
+                          const std::vector<Point>* points = nullptr, bool positive_segments = false);
   bool Vote(const CLocalFailure& failure, std::string& reason);
   bool Admit(size_t bytes, size_t ceiling, std::string& reason);
 };

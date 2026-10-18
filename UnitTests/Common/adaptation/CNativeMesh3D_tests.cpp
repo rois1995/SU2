@@ -220,6 +220,25 @@ TEST_CASE("Native closed-query filters settle containment without weakening cros
   CHECK_FALSE(IntersectsSegment(t,{-1,.2,.2},{.2,-1,.2}));
 }
 
+TEST_CASE("Metric segment footprints keep every positive interval but exclude isolated contact", "[NativeMetricFootprint3D]") {
+  for(double s:{std::numeric_limits<double>::denorm_min(),1e-100,1.,1e100}) {
+    const Tetrahedron t{{{0,0,0},{s,0,0},{0,s,0},{0,0,s}}};
+    CHECK(IntersectsSegment(t,{}, {-s,0,0}));CHECK_FALSE(IntersectsSegmentPositiveLength(t,{}, {-s,0,0}));
+    CHECK_FALSE(IntersectsSegmentPositiveLength(t,{-s,0,0},{}));
+    CHECK(IntersectsSegmentPositiveLength(t,{}, {s,0,0}));
+    CHECK(IntersectsSegmentPositiveLength(t,{s,0,0},{}));
+    CHECK_FALSE(IntersectsSegmentPositiveLength(t,{},{}));
+  }
+  const Tetrahedron t{{{0,0,0},{1,0,0},{0,1,0},{0,0,1}}};
+  CHECK(IntersectsSegmentPositiveLength(t,{.2,.2,-1},{.2,.2,1}));
+  CHECK_FALSE(IntersectsSegmentPositiveLength(t,{-1,.2,.2},{.2,-1,.2}));
+  CHECK(IntersectsSegmentPositiveLength(t,{std::nextafter(1.,-INFINITY),0,0},{2,0,0}));
+  CHECK_FALSE(IntersectsSegmentPositiveLength(t,{std::nextafter(1.,INFINITY),0,0},{2,0,0}));
+  CHECK(IntersectsSegment(t,{1,0,0},{2,0,0}));CHECK_FALSE(IntersectsSegmentPositiveLength(t,{1,0,0},{2,0,0}));
+  CHECK_THROWS(IntersectsSegmentPositiveLength(t,{NAN,0,0},{}));
+  auto negative=t;std::swap(negative[0],negative[1]);CHECK_THROWS(IntersectsSegmentPositiveLength(negative,{}, {1,0,0}));
+}
+
 TEST_CASE("Native3D exact contact admits only the common mesh simplex", "[NativeContact3D]") {
   for(double scale:{1.,1e-100,1e100}) {
     Cell a{0,{{{0,{0,0,0}},{1,{scale,0,0}},{2,{0,scale,0}},{3,{0,0,scale}}}}};

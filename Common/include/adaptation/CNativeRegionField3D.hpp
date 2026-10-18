@@ -12,11 +12,11 @@ namespace SU2Native3D {
 constexpr size_t RegionFieldWorkspaceBytes =
     2 * MaximumFrozenFieldBytes + 4 * MaximumDonors * sizeof(DonorCell) + MaximumSensorSamples * 512 + 65536;
 struct RegionFieldStats {
-  uint64_t point_calls = 0, edge_calls = 0, sensor_hits = 0, interior_hits = 0, edge_hits = 0, imports = 0;
+  uint64_t point_calls = 0, edge_calls = 0, sensor_hits = 0, interior_hits = 0, edge_hits = 0, imports = 0, sampled_points = 0;
   size_t maximum_resident = 0;
 };
 /*! All ranks call Run together on their existing MPI thread. Rank0 alone executes the private
- * constructor. A cache miss issues a matching command and bounded donor import to every rank;
+ * constructor. A cache miss issues a matching canonical-point or positive-interval import command to every rank;
  * other ranks serve until rank0 closes the protocol, including after exceptions. No global donor
  * gather or extra MPI thread. Point memoization stores only the original sensor; composition
  * runs at each actual point query. Scalar edge reuse requires identical endpoints and frozen policy. */

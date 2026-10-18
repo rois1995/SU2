@@ -1,0 +1,55 @@
+{
+  "status": "PARTIAL_ACCEPTED_COLD_AND_RESTARTED_REMOVAL_UPDATE_ATOMICALLY_REJECTED",
+  "goal": "ACTIVE_INCOMPLETE",
+  "results": {
+    "n4_m2_v2/construct": {
+      "result_sha256": "976df26eeb9f5283e878481c68b3219bb4263a81a4722877437d7c53fe51d4b6",
+      "executed_source_sha256": "9746b2782e326a4a9593350c568484e841e340cecb257da35ee2bc5dd52ab84b",
+      "historical_binary_record_only": {
+        "integration_evidence/build-integrated-v2/UnitTests/test_driver": "12d230dc24c72d8d6fd14caa184e1b69c1625159a55f468aa9ce14c3ecbbd608"
+      }
+    },
+    "n4_m2_v2/release": {
+      "result_sha256": "ce523ea11ba952f9956c4925bdbe5e9dec1b050a83ed2f0e05a217428f13427a",
+      "executed_source_sha256": "bcec2536b278672702ce48e76ababd865cfae0a37dc443bc6fe6931b8f4beb32",
+      "historical_binary_record_only": {
+        "integration_evidence/build-integrated-v2/UnitTests/test_driver": "12d230dc24c72d8d6fd14caa184e1b69c1625159a55f468aa9ce14c3ecbbd608"
+      }
+    },
+    "n4_m2_query_v1/release": {
+      "result_sha256": "67956a0f408a4d604ffedf867e647466aaf9b44282f69f9dc6806cc2ffca4204",
+      "executed_source_sha256": "be2aa12de15ae3c943fd128f0d22a0f996aaf7dc10fa5add876b833041b26364",
+      "historical_binary_record_only": {}
+    },
+    "n4_m2_query_v1/update": {
+      "result_sha256": "94762817bbef81d4b4f2cac6034aa8b33e690e53d53055f3d2d2faaf8ac665cd",
+      "executed_source_sha256": "be2aa12de15ae3c943fd128f0d22a0f996aaf7dc10fa5add876b833041b26364",
+      "historical_binary_record_only": {}
+    },
+    "serial": {
+      "result_sha256": "20e99bfeef42329795c75fb8d058092dc58d43622f2d5545e0df600d2327aaad",
+      "executed_source_sha256": "9234e7967211ef08d85e0812daa9dd2e0420ba7127a9c5a6073672b48b18d578",
+      "historical_binary_record_only": {}
+    },
+    "mpi2": {
+      "result_sha256": "1b76f3556055c9a5bad6370259de91138c103f8cf89087ac250bd3cb8017819c",
+      "executed_source_sha256": "9234e7967211ef08d85e0812daa9dd2e0420ba7127a9c5a6073672b48b18d578",
+      "historical_binary_record_only": {}
+    },
+    "mpi4": {
+      "result_sha256": "8c63def72ef1c0a09b8485befd6e8e8d1b295bce112106ed16987218047e6353",
+      "executed_source_sha256": "9234e7967211ef08d85e0812daa9dd2e0420ba7127a9c5a6073672b48b18d578",
+      "historical_binary_record_only": {}
+    },
+    "rans_mpi4": {
+      "result_sha256": "1e33daaa5ce7bfc9c6593f5a9ab79373efb39fdb86c0464ad039cd5da93a8e9a",
+      "executed_source_sha256": "9234e7967211ef08d85e0812daa9dd2e0420ba7127a9c5a6073672b48b18d578",
+      "historical_binary_record_only": {}
+    }
+  },
+  "cold_actual_integral_defect": 1.1418790814588489e-14,
+  "release_actual_integral_defect": 2.059634971488763e-14,
+  "release_native_seconds": 37.663595756,
+  "release_fixture_seconds": 38.354781309,
+  "scope": "Actual initialized RANS/SA current+BDF, prescribed original identity P1, cold historical producer and current N4/M2 CGNS restart/removal; current strict/enabled planar controls. Native spherical BL oracle; independent released full field and exact geometry. No CFD advance, normalization/budget selection, unchanged-BL update success, viscous/scaling/affordability claim."
+}

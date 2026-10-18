@@ -1,0 +1,6 @@
+Traceback (most recent call last):
+  File "integration_evidence/native_3d_bl_v1/sphere_rans_lifecycle_v1/verify.py", line 52, in <module>
+    if __name__=='__main__':main()
+  File "integration_evidence/native_3d_bl_v1/sphere_rans_lifecycle_v1/verify.py", line 49, in main
+    assert read(HERE/path)['status'].startswith('PASS')
+TypeError: list indices must be integers or slices, not str

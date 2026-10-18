@@ -842,8 +842,9 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     stats.region_field_interior_hits=field_stats.interior_hits;stats.region_field_edges=field_stats.edge_calls;
     stats.region_field_edge_hits=field_stats.edge_hits;stats.region_field_imports=field_stats.imports;
     stats.region_field_maximum_resident=field_stats.maximum_resident;
-    stats.field_requests+=field_stats.sensor_hits;stats.field_hits+=field_stats.sensor_hits;
-    if(composition)stats.field_compositions+=field_stats.sensor_hits;
+    stats.field_requests+=field_stats.sensor_hits+field_stats.sampled_points;
+    stats.field_hits+=field_stats.sensor_hits;stats.field_misses+=field_stats.sampled_points;
+    if(composition)stats.field_compositions+=field_stats.sensor_hits+field_stats.sampled_points;
 
     stats.region_surface_trials=report.surface_trials;stats.region_junction_trials=report.junction_trials;
     stats.region_core_trials=report.core_trials;stats.region_core_regions=report.core_regions;

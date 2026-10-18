@@ -121,3 +121,29 @@ contended comparisons establish no scaling/CFD affordability or accepted M6 clai
 The reaffirmed BL budget contract and its unfinished global absolute-error allocator
 remain part of active Goal3.
 [Exact certificate, receipts, output/oracle reuse and limits](GOAL3_CONTACT_VALIDATION.md).
+
+
+## Actual curved RANS restart and donor-footprint follow-up — 2026-10-18
+
+**Worked, with a remaining private-path limit.** The exact320-cell endpoint star
+needs only6 positive-length edge donors. Existing canonical point sampling plus
+metric-specific exact interval footprints fixes actual CGNS-restarted N4/M2
+removal5440->320 without raising256. Native37.664s/483work, complete fixture38.355s;
+actual current+BDF flow/SA integral defect2.06e-14 and sensor residual0, independent
+fresh exact geometry and both outputs/reload pass. Cold accepted producer8->5440
+(native114.506s) is reused across builds with separate provenance, not recomputed.
+Serial11/828, MPI2/4 and independent strict/enabled planar N4M2 controls pass.
+
+**Did not finish repeated BL adaptation.** Unchanged-BL update passes full refinement
+then atomically rejects61.35s/1338work in the older private closed metric-cell
+footprint. This is not an accepted update or affordability result. Required next
+change covers canonical actual/ideal-midpoint queries and complete edge intervals
+in private measurement/proxies; preserve exact source and geometry semantics.
+
+**No new budget-policy claim.** Current sphere uses prescribed identity sensors,
+not normalization or enabled selection. Full global absolute-error allocation,
+enabled curved/interacting profiles, two-dimensional qualification and complete
+performance remain open. No fixed-domain mass claim for curved cold construction:
+its ledger explicitly includes2.713711347 fill volume. No CFD advances or viscous
+convergence. Closed query contracts,256cap, profile/fade and gates unchanged.
+[Receipts, costs, failures and limits](GOAL3_SPHERE_RANS_LIFECYCLE.md).

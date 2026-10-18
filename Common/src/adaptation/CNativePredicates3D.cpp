@@ -297,7 +297,8 @@ Point Centroid(const Cell& cell) {
   }
   return {double(x), double(y), double(z)};
 }
-bool IntersectsSegment(const Tetrahedron& donor, Point a, Point b, KernelStats* stats) {
+namespace {
+bool SegmentIntersection(const Tetrahedron& donor, Point a, Point b, KernelStats* stats, bool closed) {
   if (!(Finite(a) && Finite(b))) throw std::invalid_argument("Nonfinite native 3D query segment.");
   if (!(Orientation(donor[0], donor[1], donor[2], donor[3], stats) > 0))
     throw std::invalid_argument("Nonpositive native 3D segment donor.");
@@ -310,12 +311,20 @@ bool IntersectsSegment(const Tetrahedron& donor, Point a, Point b, KernelStats* 
     if (va < 0 && vb < 0) return false;
     inside_a = inside_a && va >= 0; inside_b = inside_b && vb >= 0;
   }
-  if (inside_a || inside_b) return true;
+  if (inside_a && inside_b) return closed || !point;
+  if (closed && (inside_a || inside_b)) return true;
   // Exact signs settle separation/endpoint containment; unresolved crossing still needs rational roots.
   Integer<198> volume;
   std::array<Integer<198>, 4> va, vb;
   Root lo(false), hi(true);
-  return ClipInterval(donor, a, b, volume, va, vb, lo, hi, true, stats);
+  return !point && ClipInterval(donor, a, b, volume, va, vb, lo, hi, closed, stats);
+}
+}
+bool IntersectsSegment(const Tetrahedron& donor, Point a, Point b, KernelStats* stats) {
+  return SegmentIntersection(donor,a,b,stats,true);
+}
+bool IntersectsSegmentPositiveLength(const Tetrahedron& donor, Point a, Point b, KernelStats* stats) {
+  return SegmentIntersection(donor,a,b,stats,false);
 }
 bool ConformingDisjoint(const Cell& a, const Cell& b, KernelStats* stats) {
   const Tetrahedron ta{a.v[0].p,a.v[1].p,a.v[2].p,a.v[3].p}, tb{b.v[0].p,b.v[1].p,b.v[2].p,b.v[3].p};

@@ -52,7 +52,7 @@ DonorPatch RegionFieldService::Fetch(const Segment* segment) {
   const auto rejected = world.elect(failure);
   if (rejected.any) return {{}, false, rejected.message};
   ++stats.imports;
-  return source.ImportSegments(query, ceiling, transfer_memory::Add(caller_bytes, RegionFieldWorkspaceBytes));
+  return source.ImportEdgeSegments(query, ceiling, transfer_memory::Add(caller_bytes, RegionFieldWorkspaceBytes));
 }
 Tensor RegionFieldService::PointMetric(Point point) {
   if (checkpoint) checkpoint();
@@ -78,12 +78,21 @@ Tensor RegionFieldService::PointMetric(Point point) {
       certified = false;
     }
   if (!certified) {
+    const auto preparation=transfer_memory::Add(caller_bytes,RegionFieldWorkspaceBytes,
+        transfer_memory::Mul(geometry.Analytic().size(),sizeof(Id)),sizeof(Point));
+    if(preparation>ceiling)throw std::runtime_error("Regional point preparation exceeds storage.");
+    std::vector<Id> extensions;extensions.reserve(geometry.Analytic().size());
+    for(const auto& entry:geometry.Analytic())extensions.push_back(entry.first);
+    const std::vector<Point> query{point};
     world.maximum(1);
-    const Segment query{point, point};
-    auto patch = Fetch(&query);
-    if (!patch.valid) throw std::runtime_error(patch.reason);
-    Load(std::move(patch.cells));
-    sample = field->Query(point);
+    const auto answer=source.SamplePoints(query,extensions,ceiling,
+        transfer_memory::Add(caller_bytes,RegionFieldWorkspaceBytes));
+    if(!answer.valid)throw std::runtime_error(answer.reason);
+    if(answer.samples.size()!=1)throw std::runtime_error("Invalid regional canonical point reply.");
+    ++stats.sampled_points;
+    sample.sensor=answer.samples.front().sensor;
+    sample.target=composition ? composition(point,sample.sensor) : sample.sensor;
+    ValidateTensor(sample.target);
   }
   if (sensors.size() == MaximumSensorSamples) {
     sensors.erase(sensor_order.front());
@@ -106,8 +115,8 @@ long double RegionFieldService::EdgeLength(Point a, Point b) {
     ++stats.edge_hits;
     return found->second;
   }
-  // Every new segment obtains all touching donors, including primary/extension priority and canonical ties.
-  world.maximum(1);
+  // Preserve every positive-length interval and its priority; isolated contacts carry no metric-edge mass.
+  world.maximum(2);
   const Segment query{a, b};
   auto patch = Fetch(&query);
   if (!patch.valid) throw std::runtime_error(patch.reason);
@@ -140,10 +149,11 @@ void RegionFieldService::Run(const std::function<void(const RegionMetric&)>& roo
     world.maximum(0);  // Close after success or any constructor/cache/field exception.
     Retire();
   } else {
-    while (world.maximum(0)) {
-      // Import failures are common, but rank0 owns the constructor exception and must close the protocol.
+    while (const auto command=world.maximum(0)) {
+      // Rank0 owns the constructor exception and closes after either bounded query kind fails.
       try {
-        (void)Fetch(nullptr);
+        if(command==1)(void)source.SamplePoints({}, {},ceiling,transfer_memory::Add(caller_bytes,RegionFieldWorkspaceBytes));
+        else (void)Fetch(nullptr);
       } catch (...) {
         failure = std::current_exception();
       }

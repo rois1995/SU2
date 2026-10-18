@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "integration_evidence/native_3d_bl_v1/sphere_rans_lifecycle_v1/audit.py", line 100, in <module>
+    for stage in stages:audit(case/stage,stage)
+  File "integration_evidence/native_3d_bl_v1/sphere_rans_lifecycle_v1/audit.py", line 53, in audit
+    file=folder/('event_written_'+fmt+('.cgns' if fmt=='CGNS' else '.su2'));assert reader(file,{'sphere'})==sig
+  File "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/audit_geometry_bridge.py", line 53, in cgns_signature
+    count,volume_count,boundary_count=map(int,zone[' data'][...].reshape(-1));assert 0<count<=1024 and 0<volume_count<=4096 and boundary_count==0
+AssertionError

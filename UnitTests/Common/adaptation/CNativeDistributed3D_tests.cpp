@@ -2923,6 +2923,48 @@ TEST_CASE("Canonical owner point samples do not import large incident donor star
     REQUIRE(sampled.samples.size()==1);CHECK(sampled.samples[0].cell==0);
     CHECK(sampled.samples[0].sensor.xx==2);CHECK(sampled.samples[0].source_rank==int(1%world.size));
   }else CHECK(sampled.samples.empty());
+  const Point origin{},end{.01,.02,.5};
+  const auto segments=world.rank==0?std::vector<std::array<Point,2>>{{origin,end}}:std::vector<std::array<Point,2>>{};
+  CHECK_FALSE(service.ImportSegments(segments).valid);
+  const auto integral=service.ImportEdgeSegments(segments);INFO(integral.reason);REQUIRE(integral.valid);
+  if(!world.rank) {
+    REQUIRE(integral.cells.size()==1);FrozenField field(integral.cells);
+    CHECK(field.TargetEdgeLength(origin,end)==Approx(std::sqrt(2*(.01*.01+.02*.02+.5*.5))).epsilon(1e-12));
+  }
+  CHECK_FALSE(service.ImportEdgeSegments(world.rank==0?std::vector<std::array<Point,2>>{{origin,origin}}:std::vector<std::array<Point,2>>{}).valid);
+  CHECK_FALSE(service.ImportEdgeSegments(world.rank==0?std::vector<std::array<Point,2>>{{origin,Point{-1,-1,-1}}}:std::vector<std::array<Point,2>>{}).valid);
+  PlanarReference geometry(std::vector<Facet>{});size_t composed=0;
+  RegionFieldService regional(world,service,geometry,[&](Point p,Tensor sensor){++composed;sensor.xx+=p.z*p.z;return sensor;},{},false,SIZE_MAX,0);
+  CLocalFailure failure;
+  try{regional.Run([&](const RegionMetric& metric){
+    if(metric.point(origin).xx!=2 || metric.point(origin).xx!=2 || composed!=2 || std::abs(metric.point(end).xx-2.25)>1e-14)
+      throw std::runtime_error("Large-star canonical point or actual-query composition changed.");
+  });}catch(const std::exception& e){failure.Set(1,0,e.what());}
+  INFO(failure.message);CHECK_FALSE(world.elect(failure).any);
+  if(!world.rank){CHECK(regional.Statistics().sampled_points==2);CHECK(regional.Statistics().sensor_hits==1);}
+  RegionFieldService edges(world,service,geometry,[](Point p,Tensor sensor){sensor.zz+=p.z;return sensor;},
+      [](Point,Point){return std::vector<double>{0,.25,.5,.75,1};},false,SIZE_MAX,0);failure={};
+  try{edges.Run([&](const RegionMetric& metric){
+    const auto value=metric.edge(origin,end);const long double a=.501L,b=.125L;
+    const auto expected=2/(3*b)*(std::pow(a+b,1.5L)-std::pow(a,1.5L));
+    if(std::abs(value-expected)>1e-12L || metric.edge(end,origin)!=value)
+      throw std::runtime_error("Large-star integral changed or reversed edge was not reused.");
+  });}catch(const std::exception& e){failure.Set(1,0,e.what());}
+  const auto edge_error=world.elect(failure);INFO(edge_error.message);CHECK_FALSE(edge_error.any);
+  RegionFieldService denied(world,service,geometry,{}, {},false,world.rank==0?1:SIZE_MAX,0);failure={};
+  try{denied.Run([&](const RegionMetric& metric){metric.point(origin);});}catch(const std::exception& e){failure.Set(1,0,e.what());}
+  CHECK(world.elect(failure).any);
+}
+
+TEST_CASE("Metric donor intervals still reject genuinely oversized positive footprints", "[NativeMetricFootprint3D]") {
+  World world;std::vector<DonorCell> local;const Id count=MaximumDonors+1;
+  for(Id i=0;i<count;++i) {
+    DonorCell d;d.cell={i,{{{i,{double(i),0,0}},{i+1,{double(i+1),0,0}},{count+1+2*i,{double(i),1,0}},{count+2+2*i,{double(i),0,1}}}}};
+    d.sensor.fill({1,0,0,1,0,1});if(i%world.size==unsigned(world.rank))local.push_back(d);
+  }
+  DonorImport source(world);std::string reason;REQUIRE(source.Build(local,reason));
+  const auto result=source.ImportEdgeSegments(world.rank==0?std::vector<std::array<Point,2>>{{Point{},Point{double(count),0,0}}}:std::vector<std::array<Point,2>>{});
+  CHECK_FALSE(result.valid);CHECK(result.cells.empty());CHECK_FALSE(result.reason.empty());
 }
 
 
@@ -3056,4 +3098,31 @@ TEST_CASE("Rejected working states are observable without changing accepted inpu
   observations=0;options.rejected_state=[&](const Owned&,const std::string&){++observations;};
   const auto accepted=Refine(world,input,Uniform(input,Tensor{}),geometry,{},options);
   CHECK(accepted.valid);CHECK(observations==0);CHECK(Bytes(input)==saved);
+}
+
+
+TEST_CASE("Saved original metric edge replays its high-valence footprint without CFD", "[.][NativeRegionFieldReplay3D]") {
+  World world;const char* path=std::getenv("SU2_NATIVE_REGION_FIELD_REPLAY");REQUIRE(path);
+  std::ifstream input(path);std::string magic;size_t count=0;Id aid=0,bid=0;Point a,b;
+  input>>magic>>count>>aid>>bid>>a.x>>a.y>>a.z>>b.x>>b.y>>b.z;
+  REQUIRE(magic=="NATIVE_METRIC_EDGE_WITNESS_V1");REQUIRE(count>MaximumDonors);REQUIRE(count<=8192);
+  std::vector<DonorCell> local;std::set<Id> expected;
+  for(size_t i=0;i<count;++i) {
+    DonorCell d;input>>d.cell.id;bool first=false,last=false;
+    for(unsigned k=0;k<4;++k){auto& n=d.cell.v[k];auto& m=d.sensor[k];input>>n.id>>n.p.x>>n.p.y>>n.p.z>>m.xx>>m.xy>>m.xz>>m.yy>>m.yz>>m.zz;first=first||n.id==aid;last=last||n.id==bid;}
+    REQUIRE(bool(input));REQUIRE(first);if(last)expected.insert(d.cell.id);
+    if(d.cell.id%world.size==unsigned(world.rank))local.push_back(d);
+  }
+  std::vector<char> bytes;RecordStream encode(bytes);for(auto d:local)encode(d);DonorImport source(world);std::string reason;REQUIRE(source.Build(local,reason));
+  const auto query=world.rank==0?std::vector<std::array<Point,2>>{{a,b}}:std::vector<std::array<Point,2>>{};
+  CHECK_FALSE(source.ImportSegments(query).valid);
+  const auto edge=source.ImportEdgeSegments(query);INFO(edge.reason);REQUIRE(edge.valid);
+  if(!world.rank){std::set<Id> actual;for(const auto& d:edge.cells)actual.insert(d.cell.id);CHECK(actual==expected);}
+  PlanarReference geometry(std::vector<Facet>{});RegionFieldService service(world,source,geometry,{}, {},false,SIZE_MAX,0);CLocalFailure failure;
+  try{service.Run([&](const RegionMetric& field){
+    const auto m=field.point(a);if(m.xx!=1 || m.yy!=1 || m.zz!=1)throw std::runtime_error("Saved canonical source changed.");
+    if(std::abs(field.edge(a,b)-std::hypot(std::hypot(a.x-b.x,a.y-b.y),a.z-b.z))>1e-12L)throw std::runtime_error("Saved full identity edge changed.");
+  });}catch(const std::exception& e){failure.Set(1,0,e.what());}
+  const auto failed=world.elect(failure);INFO(failed.message);CHECK_FALSE(failed.any);std::vector<char> after;RecordStream encodeAfter(after);for(auto d:local)encodeAfter(d);CHECK(after==bytes);
+  if(!world.rank)std::cout<<"EDGE_WITNESS ranks="<<world.size<<" original="<<count<<" positive="<<expected.size()<<" valid="<<!failed.any<<std::endl;
 }

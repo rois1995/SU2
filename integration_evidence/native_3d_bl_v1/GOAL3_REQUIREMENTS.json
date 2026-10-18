@@ -2391,5 +2391,54 @@
       "complete-event performance including cold/reused preparation, memory, communication, migration/transfer/rebuild/output"
     ],
     "M6": "100k conflict is an estimate, not exact budget infeasibility; original sensor around150k, HMAX100 coarsened background around2, strict BL estimate around790k. Separate exact-facet/binary64 construction obstruction remains."
+  },
+  "current_sphere_actual_RANS_lifecycle": {
+    "handbook": "../../Handbook/GOAL3_SPHERE_RANS_LIFECYCLE.md",
+    "evidence": "sphere_rans_lifecycle_v1/README.md",
+    "status": "PARTIAL_ACCEPTED_COLD_AND_RESTARTED_REMOVAL_UPDATE_ATOMICALLY_REJECTED",
+    "MPI_ranks": 4,
+    "workers": 2,
+    "cold": {
+      "cells_before": 8,
+      "cells_after": 5440,
+      "work": 5604,
+      "native_seconds": 114.50599,
+      "actual_integral_defect": 1.1418790814588489e-14,
+      "fill_volume": 2.7137113466455154,
+      "source_scope": "Historical independently validated producer; separately recorded executed source/binary. Not current-binary cold rerun."
+    },
+    "release": {
+      "cells_before": 5440,
+      "cells_after": 320,
+      "work": 483,
+      "native_seconds": 37.663595756,
+      "fixture_seconds": 38.354781309,
+      "actual_integral_defect": 2.059634971488763e-14,
+      "transported_sensor_error": 0,
+      "fresh_exact_overlap_pairs": 50560,
+      "shared_face_certificates": 480,
+      "vertex_links": 163,
+      "minimum_q": 0.398232879822571,
+      "minimum_j": 0.10043710914627306,
+      "maximum_full_identity_edge": 1.0,
+      "source_scope": "Current query fix; actual producer CGNS+BDF restart; independent current flow/SA, fresh geometry, SU2+CGNS/reload."
+    },
+    "update": {
+      "status": "ATOMIC_REJECTION",
+      "native_seconds": 61.349843663,
+      "work": 1338,
+      "refinement_edits": 0,
+      "private_coarsening_edits": 1,
+      "input_byte_unchanged_ranks": 4,
+      "reason": "Private closed ImportMetricCells donor union exceeds unchanged256cap; not a new metric/height infeasibility proof."
+    },
+    "query_change": "Canonical owner points and complete positive-length edge footprints in existing region service; exact original source/actual-query composition/profile/cache semantics; existing closed imports and256cap unchanged.",
+    "qualification": "Scoped serial11cases/828assertions, MPI2/4 eleven cases/rank, actual strict+enabled planar N4M2 and independent audits pass; actual frozen witness320closed->6positive.",
+    "CFD_steps": 0,
+    "normalization_or_budget_selection": false,
+    "independent_spherical_BL_tensor_oracle": false,
+    "enabled_curved_interacting_policy_qualified": false,
+    "affordability_or_scaling_qualified": false,
+    "next": "Reconcile private canonical point/ideal-midpoint and full positive-length edge support collectively without cap/gate relaxation. Reuse accepted cold producer. Full global uncertainty/budget contract stays active."
   }
 }

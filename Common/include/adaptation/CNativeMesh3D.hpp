@@ -60,6 +60,8 @@ bool BarycentricMidpoint(const Tetrahedron& donor,Point a,Point b,std::array<lon
 /*! Exact closed segment/tetrahedron intersection, including endpoint-only and zero-length point queries.
  * Positive finite donor required; no rounded interval roots or containment tolerance. */
 bool IntersectsSegment(const Tetrahedron& donor, Point a, Point b, KernelStats* stats = nullptr);
+/*! Positive-length intersection, including face/edge intervals; isolated contact is excluded. */
+bool IntersectsSegmentPositiveLength(const Tetrahedron& donor, Point a, Point b, KernelStats* stats = nullptr);
 /*! Exact tetrahedral separation/contact. Interiors must be disjoint, and every closed contact must
  * lie in the simplex of shared node identities with identical coordinates. Unrelated tangencies reject. */
 bool ConformingDisjoint(const Cell& a, const Cell& b, KernelStats* stats = nullptr);

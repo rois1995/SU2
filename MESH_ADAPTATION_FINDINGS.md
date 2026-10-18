@@ -1,3 +1,14 @@
+# Actual curved RANS restart: accepted removal, repeated update still rejects — 2026-10-18
+
+Current N4/M2 rest-flow/SA/current+BDF sphere construction8->5440 and CGNS restart
+removal5440->320 independently pass actual state/transfer/output/reload checks.
+The generic exact positive-length edge/canonical point fix removes a320-cell
+endpoint-only import obstruction while preserving the256cap and all gates.
+The unchanged-BL repeat still atomically rejects in private closed metric-cell
+queries after refinement accepts the original target mesh. This limits unsteady
+readiness; it is not a construction, performance or enabled curved-policy claim.
+[Current evidence and remaining work](Handbook/GOAL3_SPHERE_RANS_LIFECYCLE.md).
+
 # Goal3 production geometric policy and real RANS restart: local MPI PASS — 2026-10-14
 
 Current continuation: the stronger planar regression is repaired and independently
