@@ -151,3 +151,12 @@ Current connected source/backend checkpoint is [tracked separately](GOAL3_AFFINE
 It passes scoped Euler/RANS imports, serial/MPI original-field audits and Cartesian
 compatibility; initial adoption/junction/2D/exterior and accepted oblique workflows
 remain required and OPEN.
+
+## Body-feature obstruction beyond the symmetry reference
+
+The saved oblique annulus additionally has an undeclared exact wall/farfield crease
+with no interior binary64 point and original sensor length2.249645>1.8. Plane adoption
+is valid but cannot make that unchanged full target constructible. The queued retry
+was cancelled before runtime. Current build/affected controls continue; do not promote
+them to oblique readiness. [Required mapped-feature/source reach](GOAL3_MAPPED_FEATURES.md)
+retains both dimensions, finite topology, junctions, MPI and complete exterior lifecycle.

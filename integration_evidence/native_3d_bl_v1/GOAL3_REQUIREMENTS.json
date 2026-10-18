@@ -126,11 +126,11 @@
     "contact_validation_v2/README.md"
   ],
   "execution_state": {
-    "status": "Full Goal3 ACTIVE/incomplete. Complete controlled annular serial and MPI lifecycle passes; arbitrary initial geometry/junction/2D/exterior/M6/composed-gradation/general uncertainty remain open.",
+    "status": "Full Goal3 ACTIVE/incomplete. Historical6f0 controlled annular lifecycles pass; scoped initial affine serial controls pass, oblique construction rejected and later exact-body obstruction certified. Current retained-cell build/affected controls pending; general geometry/source/2D/exterior/M6/gradation/uncertainty still open.",
     "new_CFD_advances": 0,
     "new_Hessian_or_normalization_in_M6_replay": false,
-    "owned_jobs": "Retained-cell first-row connected build49032/PID1155618 nice19/CPU1/j1; queued validator17245/PID1157699 waits for terminal build, then affected serial controls/independent audit/difficult oblique pilot. No new accepted oblique result.",
-    "next": "After terminal build success: shared affine/actual Euler+RANS/admissible versus narrow-gap atomic controls, then difficult oblique annulus full unchanged lifecycle; affected MPI only once resolved."
+    "owned_jobs": "Pinned connected build49032 live; changed4objects PASS, dependent link pending. Validator17245 cancelled before runtime after exact body-feature certificate. Validator17339 waits for build, then affected serial/MPI1/2/4 controls/independent audits only.",
+    "next": "After terminal build, run affected serial/MPI controls and independent initial audits. Do not retry unchanged certified-incompatible oblique target. Complete coherent mapped body/features and joint original-field coverage before another positive full attempt."
   },
   "coupled_engine_checkpoint": {
     "evidence": "integration_evidence/native_3d_bl_v1/coupled_engine_v1",
@@ -262,7 +262,7 @@
     "scope": "One planar cube production case plus six focused first-row geometry/movement cases. Actual computed metric, conservative current+BDF/bounded-SA and SU2/CGNS/reference/restart checks; independent exact embedding, full composed metric, wall footprint and height. No new MPI, full regressions, general layer coverage, actual CFD accuracy or performance qualification."
   },
   "owned_jobs": {
-    "status": "Retained-cell first-row connected build49032/PID1155618 nice19/CPU1/j1; queued validator17245/PID1157699 waits for terminal build, then affected serial controls/independent audit/difficult oblique pilot. No new accepted oblique result.",
+    "status": "Pinned connected build49032 live; changed4objects PASS, dependent link pending. Validator17245 cancelled before runtime after exact body-feature certificate. Validator17339 waits for build, then affected serial/MPI1/2/4 controls/independent audits only.",
     "terminal_handles": [
       32232,
       26154,
@@ -338,12 +338,15 @@
       80585,
       53426,
       67160,
-      17917
+      17917,
+      17245,
+      63841,
+      38801
     ],
     "resources": "integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/cavity_operator_replay_v1/actual_context_np4/resources.jsonl",
     "active_handles": [
       49032,
-      17245
+      17339
     ]
   },
   "wall_reconstruction": {
@@ -2751,12 +2754,16 @@
         "Existing independent multiple-plane/analytic source collars still reject",
         "L1 displacement contract protects faceted body approximation, not general analytic intersection curves",
         "Boundary embedding relies on accepted conforming source; not an arbitrary invalid-input repair",
-        "2D runtime/exterior/multiple-body complete workflows and full goal remain OPEN"
+        "2D runtime/exterior/multiple-body complete workflows and full goal remain OPEN",
+        "A valid symmetry authority does not remove exact-facet representability obstructions on undeclared body/features; joint mapped/source capability still missing."
       ],
-      "queued_validation_session": 17245,
+      "queued_validation_session": 17339,
       "serial": "controls_v1_n1:8cases/3981assertions; exact Euler/RANS one/two-component original-source/reference/geometry and narrow-gap audit PASS",
       "rejected": "annulus_v1_n1: geometry adoption/normalization succeed; first-row background fan rejects after2work. Exact positive direct-insertion witness is not shape/full-field acceptance.",
-      "followup": "Replace background fan with retained-cell normal-point insertion and remove obsolete ranking queries; source implemented/unqualified pending build and focused controls/difficult pilot."
+      "followup": "Replace background fan with retained-cell normal-point insertion and remove obsolete ranking queries; source implemented/unqualified pending build and focused controls/difficult pilot.",
+      "exact_body_obstruction": "annulus_v1_n1/exact_feature_obstruction.json: required literal body/farfield edge1--9 has no interior binary64 point; exact constant-original-P1 sensor length2.249645>1.8. Full composed conflict follows finer-sensor contract, not a native interval proof.",
+      "next": "Finish affected controls. Implement coherent mapped body/features plus joint original-field coverage before another full positive oblique attempt; do not change fixture coordinates or retry unchanged literal authority.",
+      "build": "Changed4objects compile PASS; dependent build/link unqualified."
     }
   }
 }

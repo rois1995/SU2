@@ -1,0 +1,104 @@
+{
+  "status": "EXACT_BODY_FEATURE_OBSTRUCTION_CONSTANT_ORIGINAL_SENSOR",
+  "edge": [
+    1,
+    9
+  ],
+  "points": [
+    [
+      1,
+      0.37,
+      -8.80388993699896e-19
+    ],
+    [
+      1,
+      1.37,
+      0
+    ]
+  ],
+  "required_feature": {
+    "facets": [
+      1,
+      10
+    ],
+    "markers": [
+      "wall",
+      "far"
+    ],
+    "both_undeclared_exact_facets": true,
+    "exactly_distinct_planes": true
+  },
+  "lattice_necessary_conditions": {
+    "finest_axis_spacings": [
+      2.220446049250313e-16,
+      5.551115123125783e-17,
+      5e-324
+    ],
+    "integer_chord": [
+      "0",
+      "18014398509481986",
+      "178192716111814636330156005951486585648778656361166689225291442338303573594889039516460387542088182827307578878856813725652054308413704600327463467775549271272343793434736406365231906586492982590064058464703617809157341347726744027860741712813644646706838875484962755168298473967109637740576037041059397632"
+    ],
+    "parameter_denominator_gcd": 2,
+    "maximum_interior_binary64_points": 1
+  },
+  "representable_interior_points": [],
+  "exact_interior_binary64_point_count": 0,
+  "rejected_necessary_points": [
+    {
+      "parameter": "1/2",
+      "rounded": [
+        1.0,
+        0.8700000000000001,
+        -4.40194496849948e-19
+      ],
+      "exact_coordinates": [
+        "1",
+        "15672526703249327/18014398509481984",
+        "-558012818149/1267650600228229401496703205376"
+      ],
+      "exactly_representable_axes": [
+        true,
+        false,
+        true
+      ]
+    }
+  ],
+  "captured_kernel": {
+    "literal_membership_requires_exact_plane": true,
+    "maximum_metric_edge": 1.8,
+    "boundary_source_sha256": "4e9ede162d15280050563e5de5c93718d07173aa036fe569e23ec72502e26fdb",
+    "metric_header_sha256": "07f3ddd8007f918b9e00620a4f380f883eb916c5133edb56113bba74b577e261"
+  },
+  "sensor_field": {
+    "constant_original_tensor": [
+      5.060904459181861,
+      0,
+      0,
+      5.060904459181861,
+      0,
+      5.060904459181861
+    ],
+    "donor_cells": 48,
+    "sensor_edge_squared_exact": "1144556056170151697572347417813493514713107421847789723137013950933035614595/226156424291633194186662080095093570025917938800079226639565593765455331328",
+    "limit_squared_exact": "65715007115831415416180825873449/20282409603651670423947251286016",
+    "sensor_length_approximate": 2.2496454074324386,
+    "exceeds_length_limit_exactly": true
+  },
+  "interpretation": "The exact finite body/farfield intersection must remain covered. There is no binary64 mesh vertex inside the required interval, and its constant original-P1 sensor length already exceeds1.8. Local cavity changes cannot supply a missing representable feature point. A declared geometry/mapping contract is needed before another full unchanged attempt.",
+  "scope": [
+    "Exact geometry/lattice and exact mathematical original-P1 sensor comparison",
+    "Full composed incompatibility follows the required preservation of finer sensor demands; no native interval quadrature or floating tensor-dominance proof is claimed",
+    "This does not diagnose initial plane invalidity, budget infeasibility, or all possible declared geometry contracts",
+    "The separate first-row background blockage is real; removing it cannot overcome this later immutable-body obstruction"
+  ],
+  "hashes": {
+    "integration_evidence/native_3d_bl_v1/affine_initial_adoption_v1/audit_exact_feature.py": "aacfeb87cf7f73b9f13756130db8d5605cc0a2f71bd6ca14fbb6ca4153a35db9",
+    "integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/cavity_operator_replay_v1/evolved_volume_v1/full_state_v1/geometry_lattice_v1/certificate.py": "da6786e0fca8e16c71defc3b5d3799ecfcc42c38d75a52e6e50ab6aaba357242",
+    "integration_evidence/native_3d_bl_v1/affine_initial_adoption_v1/audit_controls.py": "0c82d218e96f61672c278abb90697c0b70dd9ac529ef342a67cebb384c223ca0",
+    "integration_evidence/native_3d_bl_v1/affine_initial_adoption_v1/annulus_v1_n1/affine_annulus_bl_budget_20_m1_initial.json": "a454ec1cf92183eab4277977ebdcd6f695f4ee2def598ff0d64e05801790c7f7",
+    "integration_evidence/native_3d_bl_v1/affine_initial_adoption_v1/annulus_v1_n1/affine_annulus_bl_budget_20_m1_rejected_rank0.native_ref": "2e7ed3333097f1526975bd35f240b16786db94456099953f56e232f1126d8533",
+    "integration_evidence/native_3d_bl_v1/affine_initial_adoption_v1/annulus_v1_n1/affine_annulus_bl_budget_20_m1_frozen_profile.json": "de5c074d0212ffe2f746600d3c0e20f4876f23060e1473364d2517003ea40a16",
+    "integration_evidence/native_3d_bl_v1/affine_initial_adoption_v1/annulus_v1_n1/executed_source.json.gz": "7d04a66a3d2a8ee83046a534416032d3d5fbaed8d2b69234cd99c2ad085f2bc9"
+  }
+}

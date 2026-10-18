@@ -364,3 +364,12 @@ retained-cell normal-point insertion, already-valid row retention, shared recons
 caller and affected tests. Source implemented, build49032/validator17245 pending;
 no accepted oblique mesh, new MPI, unsteady affordability or full-scope completion.
 [Failure, diagnosis and immutable results](../integration_evidence/native_3d_bl_v1/affine_initial_adoption_v1/README.md).
+
+Further exact audit changes the next action: wall/farfield edge1--9 is forced by two
+undeclared exact planes, has no interior binary64 point, and has constant-original-P1
+sensor length2.249645>1.8. Removing the background does not solve this later geometry/
+target conflict. Unchanged full retry cancelled before runtime; affected controls
+remain queued in17339. [Mapped-feature/source requirements](GOAL3_MAPPED_FEATURES.md).
+An abstract Opus5.5/medium consultation is preserved with its corrections; no repository
+source/data was supplied. Its initial exact-coordinate-only advice was withdrawn;
+tags and conforming collars are design patterns, not proofs of general source coverage.

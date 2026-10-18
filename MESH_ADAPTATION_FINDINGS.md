@@ -15,9 +15,14 @@ witness only, with no final quality/full-field or complete adaptation certificat
 Follow-up replaces background seeding with retained-cell normal-point insertion,
 keeps valid wall children, and removes the now-unneeded ranking donor/query work.
 All final geometry/height/quality/full composed field/transfer gates remain unchanged.
-Connected build49032 and queued validator17245 are UNQUALIFIED; affected controls then
-the same difficult pilot run sequentially. No new MPI/exterior/2D/M6/viscous or
-performance claim. All full general-symmetry and Goal3 requirements remain open.
+Connected build49032 is UNQUALIFIED (four changed objects compile PASS). A further
+exact certificate shows body/farfield edge1--9 has no interior binary64 point while
+its constant original-P1 sensor length2.249645>1.8. This is a later exact-body
+geometry/target conflict, separate from the first-row operator blockage. Validator17245
+was cancelled before runtime;17339 queues affected serial/MPI1/2/4 controls only.
+Do not retry the unchanged full target. Mapped body/features and joint original-field
+coverage need a connected implementation; see Handbook/GOAL3_MAPPED_FEATURES.md.
+No new MPI/exterior/2D/M6/viscous or performance qualification is claimed. All full general-symmetry and Goal3 requirements remain open.
 [Exact failure, diagnosis, scoped results and current build](integration_evidence/native_3d_bl_v1/affine_initial_adoption_v1/README.md).
 
 ## Affine reference/source backend checkpoint — 2026-10-18

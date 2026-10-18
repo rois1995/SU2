@@ -53,10 +53,42 @@ Build49032/PID1155618 uses nice19/CPU1/j1, four affected objects first then the 
 same driver, pinned11sources with preparation/resource receipts. No C++ edits while
 it or validation is live. Prior executable test_driver_v1.gz is untracked/lossless
 and fully decompressed/hash-verified; prior_binary_archive.json permits exact restore.
-Validator17245/PID1157699 waits for terminal build, then controls_v2_n1, independent
-initial/source/collision audit, annulus_v2_n1. It stops on failure. See
-job_handle_v2.json, build_provenance.json and validation_job_v2.json. Active logs are
-not sealed; build_pending_snapshot_v2.json is only a historical BUILDING snapshot.
+All four directly changed objects compile successfully; the dependent build/link
+is still pending. Validator17245 was cancelled before runtime after the further
+exact body-feature certificate below. Validator17339/PID1178101 waits for terminal
+build, then controls_v2_n1/n2/n4 and independent audits sequentially; stops on failure.
+These are affected correctness checks, not an accepted oblique workflow. See
+job_handle_v2.json, build_provenance.json and validation_controls_v2.json. Active logs
+are not sealed; build_pending_snapshot_v2.json is only a historical BUILDING snapshot.
+
+## Further exact body-feature obstruction — no unchanged full retry
+
+The declared symmetry plane does not repair other literal body features. Source
+facets1(wall) and10(far) force edge1--9 on their exact plane intersection. The finest
+binary64 lattice requires parameter k/2; its only interior candidate,1/2, has a
+nonrepresentable Ycoordinate. Thus there are NO interior binary64 points on that
+required finite crease. Original donor tensors are identically5.060904459181861I;
+the exact mathematical original-P1 sensor length is2.2496454074>1.8. The full metric
+must preserve that demand. This certificate needs no quadrature and is distinct from
+the separate first-row operator blockage. It does not formally bound floating-point
+tensor composition/edge quadrature, prove a budget conflict, or invalidate all
+separately declared geometry contracts.
+
+[audit_exact_feature.py](audit_exact_feature.py) reuses the qualified M6 lattice
+kernel/self-checks and verifies the actual captured exact-plane membership rule and
+edge limit. [Exact certificate](annulus_v1_n1/exact_feature_obstruction.json) and
+[additional audit closure](annulus_v1_n1/additional_audit_manifest.json) retain inputs,
+source hashes and the original rejected manifest unchanged. Do not spend another
+full construction attempt under this same body authority. Changing to conveniently
+rounded fixture coordinates would hide the missing capability.
+
+The required connected work covers body/features and joint frozen donor coverage,
+not another local placement fallback. [Design reach and proof obligations](../../../Handbook/GOAL3_MAPPED_FEATURES.md).
+[Authorized abstract Opus5.5/medium review](geometry_second_opinion.md) supplied useful
+ownership/coverage cautions; its original exact-coordinate-only recommendation was
+withdrawn after the common bounded-error/binary64 contract was clarified. It is not
+validation evidence; general joint collars and mapped finite feature semantics are
+still unimplemented/unproved.
 
 ## Connected reach
 

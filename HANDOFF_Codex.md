@@ -34,9 +34,15 @@ into retained wall tetrahedra, retain already-valid rows, and keep full-field se
 repair/final acceptance separate. Geometry-only seeding no longer imports/ranks metric
 background proposals. All actual field, height, geometry, transfer and quality gates
 stay unchanged. Source is IMPLEMENTED/UNQUALIFIED, building in49032/PID1155618, nice19/
-CPU1/j1. Validator17245/PID1157699 waits for terminal build, then controls_v2_n1,
-independent initial audit and difficult annulus_v2_n1 sequentially; stops on failure.
-Check job_handle_v2.json/build_provenance.json/validation_job_v2.json before acting.
+CPU1/j1; four changed objects compile PASS, dependent build/link still pending.
+A further exact certificate proves body/farfield edge1--9 has NO interior binary64
+point but original sensor length2.249645>1.8. Symmetry authority alone is insufficient;
+direct seeding cannot fix that later literal-body obstruction. Do not retry the
+unchanged full annulus. Validator17245 was cancelled before runtime. Validator17339/
+PID1178101 waits for terminal build, then affected controls_v2_n1/n2/n4 and their
+independent initial audits sequentially; stops on failure. Check job_handle_v2.json/
+build_provenance.json/validation_controls_v2.json before acting.
+[Required mapped body/features and joint source contract](Handbook/GOAL3_MAPPED_FEATURES.md).
 No C++ edits while pinned; no new physical CFD advance, MPI or M6 attempt.
 [Current receipt and limitations](integration_evidence/native_3d_bl_v1/affine_initial_adoption_v1/README.md).
 
