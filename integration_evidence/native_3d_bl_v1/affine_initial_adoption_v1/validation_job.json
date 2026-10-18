@@ -1,0 +1,28 @@
+{
+  "root_pid": 1121793,
+  "status": "STOPPED",
+  "started_utc": "2026-10-18T21:45:31.155972+00:00",
+  "build_session": 53426,
+  "stages": [
+    {
+      "stage": 1,
+      "exit_code": 0
+    },
+    {
+      "stage": 2,
+      "exit_code": 1
+    }
+  ],
+  "stage": 2,
+  "command": [
+    "python3",
+    "-u",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/affine_initial_adoption_v1/audit_controls.py",
+    "controls_v1_n1"
+  ],
+  "available_KiB": 43062416,
+  "load": "7.57 7.87 7.69 7/2337 1125893",
+  "child_pid": 1125894,
+  "reason": "Validation stage 2 failed; evidence retained and subsequent stages not run",
+  "finished_utc": "2026-10-18T21:47:30.620366+00:00"
+}

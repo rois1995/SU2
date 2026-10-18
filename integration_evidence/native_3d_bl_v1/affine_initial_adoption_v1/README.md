@@ -1,9 +1,62 @@
-# Affine initial-reference adoption — connected batch, UNQUALIFIED
+# Affine initial-reference adoption — serial controls pass; construction open
 
-Full Goal3/general symmetry remain open. Prior checkpoint6f0bdfabce independently
-passes complete Cartesian annular N1M1/N2M2/N4M2/N4M4 construction/transfer/restart.
-This batch is building in owned session53426, one nice19/CPU1/j1 job. No new runtime
-or accepted oblique mesh is claimed. Do not edit pinned C++ while it runs.
+Full Goal3/general symmetry remain open. Checkpoint6f0 independently passes complete
+Cartesian annular N1M1/N2M2/N4M2/N4M4 construction/transfer/restart. New retained-cell
+first-row source changes require affected validation before current-source claims.
+
+## Results and exact failure
+
+V1 build53426 passed and is sealed in build_provenance_v1.json. controls_v1_n1 passed
+8cases/3981assertions in.8403s; independent_controls.json verifies exact positive cells,
+initial displacement/mapping bounds, original sensor traces, Euler/RANS equality and
+v4reference decoding for one/two disconnected components under the SAME marker.
+Maximum L1 initial movement1.1880e-11; minimum volume ratio.999999999990. The proposed
+narrow-gap projection keeps all12cell orientation signs but creates positive-volume
+cross-component overlap; native boundary audit rejects after3pair checks with state/
+coordinate atomicity assertions. General geometry readiness does not follow.
+
+The original independent auditor used source-magnitude ULPs for an offset rounded at
+its destination and assumed uniformly positive raw SU2 connectivity. Both assumptions
+were wrong. audit_controls_v1_rejected.py, validation_stage2.log and
+audit_controls_correction.json preserve the failure; corrected exact audit reused the
+same saved runtime results. No mesh acceptance tolerance or production code changed.
+
+annulus_v1_n1 adopted8points, body displacement bound1.5841e-11, mapping residual bound
+2.7783e-17, positive volume ratio>=.999999999922,24boundary witnesses/204pairs/.1276s.
+Original-field budget20 normalized with profile0/core5.0609044591818613. Metric build
+15.2705s; native first-row failure after2work/.00487s; fixture16.5669s. These are
+contended rejected-case receipts, not performance or affordability qualification.
+Initial adopted SU2, immutable reference, original donors, frozen profile, rejected
+binary/cells/diagnostic and source/build/binary pins are retained in that folder.
+rejected_evidence_manifest.json seals these artifacts. The fixture aborts at its
+expected-COMPLETE assertion before comparing postevent states; no new independent
+annular rejection-state certificate is claimed.
+
+Reason: cone obstruction at interface0--1--13. diagnose_first_row.py and
+first_row_diagnosis.json show required point(.6667,.58,.1) has strictly positive old
+barycentrics(.2333,.4943,.02233,.25), while none of the four background proposals
+admits both the original cell and required wall child. Direct stellar insertion
+has exact positive cells/volume closure. This is not a quality/full-field or complete
+adaptation proof; a near-face point can leave poor cells that repair cannot resolve.
+
+## Current connected follow-up — implemented, UNQUALIFIED
+
+Replace auxiliary-background construction with normal-point insertion into the
+retained incident tetrahedron. Existing satisfied wall children stay intact; full
+fixed skin/positivity/height checks remain. Engine owner transactions keep their
+collective/resource/atomic semantics. Geometry-only insertion needs no donor import
+or frozen-field ranking; normal full-field seeding and all subsequent repair/final
+acceptance still run. Shared coordinated reconstruction caller and affected fixture
+assumptions are updated; the exact saved oblique cell has a regression.
+
+Build49032/PID1155618 uses nice19/CPU1/j1, four affected objects first then the complete
+same driver, pinned11sources with preparation/resource receipts. No C++ edits while
+it or validation is live. Prior executable test_driver_v1.gz is untracked/lossless
+and fully decompressed/hash-verified; prior_binary_archive.json permits exact restore.
+Validator17245/PID1157699 waits for terminal build, then controls_v2_n1, independent
+initial/source/collision audit, annulus_v2_n1. It stops on failure. See
+job_handle_v2.json, build_provenance.json and validation_job_v2.json. Active logs are
+not sealed; build_pending_snapshot_v2.json is only a historical BUILDING snapshot.
 
 ## Connected reach
 
@@ -64,15 +117,15 @@ pairs. House construction/collectives are not preemptible. Exhaustion rejects
 before coordinates publish. Cold witnesses/pairs/time and mapping/body/volume
 bounds are in the audit; matching return/restart avoids rebuilding this audit.
 
-## Validation batch, pending
+## Validation reach
 
-`run.py controls 1 v1`: shared affine primitives, actual Euler and RANS initial
+`run.py controls 1 v2`: shared affine primitives, affected retained-cell/height/engine/reconstruction controls, actual Euler and RANS initial
 adoption, one/two disconnected planar components under the SAME marker, original
 P1/affine coverage/codec/state preservation, and a narrow-gap counterexample with
 positive individual tetrahedra but colliding proposed boundary. Rejection must keep
 all CFD coordinates/states unchanged; `_rejected.su2` and diagnostics are retained.
 
-`run.py annulus 1 v1`: difficult sheared one-hole RANS annulus through the same full
+`run.py annulus 1 v2`: difficult sheared one-hole RANS annulus through the same full
 construction/full-field/height/transfer/SU2+CGNS/real restart harness. Freestream is
 tangent to its declared symmetry plane. Requires a complete accepted result; a
 valid initial reference is not construction feasibility. Stale configuration

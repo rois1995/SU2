@@ -2355,8 +2355,8 @@ TEST_CASE("Native original support preserves affine P1 and falls back at inserte
   CHECK(result.stats.donor_batches==result.stats.seed_batches*(kind==1?2:1));
 }
 
-TEST_CASE("Native first-row selection preserves full-reference quality and length tie ordering", "[NativeFirstLayerRanking3D]") {
-  World world;const bool tie=GENERATE(false,true);const double height=tie?.03:.1;
+TEST_CASE("Native retained first-row insertion reaches full-field measurement without background searches", "[NativeFirstLayerRanking3D]") {
+  World world;const bool varying=GENERATE(false,true);const double height=varying?.03:.1;
   const Cell cell{0,{{{0,{0,0,0}},{1,{1,0,0}},{2,{0,1,0}},{3,{0,0,1}}}}};
   Patch old;old.cells={cell};std::vector<Facet> facets;
   const auto skin=Incidence(old.cells).Boundary();
@@ -2366,27 +2366,17 @@ TEST_CASE("Native first-row selection preserves full-reference quality and lengt
     facets.push_back({k,wall?10:20,nodes});old.surface.push_back({skin[k],k});
   }
   const PlanarReference reference(facets);const Tensor sensor{1,0,0,1,0,100};
-  DonorCell donor;donor.cell=cell;donor.sensor.fill(sensor);
   const MetricComposition target=[&](Point p,Tensor m) {
-    if(!tie)return m;
+    if(!varying)return m;
     const double dx=p.x-1./3,dy=p.y-1./3,dz=p.z-height/4;
     if(dx*dx+dy*dy+dz*dz<height*height/10000)return Tensor{4,0,0,4,0,1e-8};
     const double x=p.x-.625,y=p.y-.125,z=p.z-.125;
     const double scale=4+1e4*std::exp(-(x*x+y*y+z*z)/.0004);return Tensor{scale,0,0,scale,0,scale};
   };
   const MetricEdgeBreakpoints cuts=[](Point,Point){return std::vector<double>{0,1};};
-  FrozenField field({donor},target,false,{},cuts);
-  std::vector<Patch> candidates;std::vector<PatchMetric> measurements;
-  for(auto p:std::vector<Point>{{.25,.25,.25},{1./3,1./3,1.25*height},{1./3,1./3,1.5*height},{1./3,1./3,2*height}}) {
-    Patch fresh;FirstHeightReport report;std::string reason;
-    REQUIRE(ConstructFirstLayer(old,{100,p},101,200,{{10,height}},reference,fresh,report,reason));
-    measurements.push_back(MeasureMetricCells(fresh.cells,field));candidates.push_back(std::move(fresh));
-  }
-  const auto score=[](const PatchMetric& m){return std::min(m.minimum_mean_ratio/MinimumMeanRatio,m.minimum_scaled_jacobian/MinimumScaledJacobian);};
-  size_t best=0;for(size_t k=1;k<candidates.size();++k)
-    if(score(measurements[k])>score(measurements[best]) || (score(measurements[k])==score(measurements[best]) && measurements[k].maximum_length<measurements[best].maximum_length))best=k;
-  const auto ties=std::count_if(measurements.begin(),measurements.end(),[&](const PatchMetric& m){return score(m)==score(measurements[best]);});
-  CHECK((ties>1)==tie);if(tie)CHECK(best!=0);
+  Patch candidate;FirstHeightReport report;std::string reason;
+  REQUIRE(ConstructFirstLayer(old,101,200,{{10,height}},reference,candidate,report,reason));
+  REQUIRE(candidate.cells.size()==4);CHECK(report.maximum_relative_error<1e-8);
   Owned input;if(!world.rank)for(const auto& row:Rows(old))input.emplace(row.cell.id,row);
   EngineOptions options;options.maximum_work=1;options.wall_heights={{10,height}};options.edge_breakpoints=cuts;
   const auto saved=Bytes(input);auto result=Refine(world,input,Uniform(input,sensor),reference,target,options);
@@ -2396,9 +2386,9 @@ TEST_CASE("Native first-row selection preserves full-reference quality and lengt
     Tet t;for(unsigned j=0;j<4;++j)t[j]={c.v[j].p.x,c.v[j].p.y,c.v[j].p.z};std::sort(t.begin(),t.end());result.push_back(t);
   }std::sort(result.begin(),result.end());return result;};
   std::vector<Cell> actual;for(const auto& row:result.cells)actual.push_back(row.second.cell);
-  if(!world.rank)CHECK(signature(actual)==signature(candidates[best].cells));
+  if(!world.rank)CHECK(signature(actual)==signature(candidate.cells));
   CHECK(world.maximum(result.stats.edge_evaluations>0));
-  if(!tie)CHECK(result.stats.layer_edge_evaluations==0);else CHECK(world.maximum(result.stats.layer_edge_evaluations>0));
+  CHECK(result.stats.layer_edge_evaluations==0);CHECK(result.stats.layer_donor_batches==0);
 }
 
 TEST_CASE("Native3D engine initializes wall heights through owner transactions and protects edits", "[NativeFirstLayerEngine3D]") {
@@ -2709,8 +2699,7 @@ TEST_CASE("Native first-row owners construct disjoint wall cells concurrently", 
     const auto result=Refine(world,input,Uniform(input,{1,0,0,1,0,100}),reference,{},options);
     CHECK(Bytes(input)==saved);CHECK_FALSE(result.valid);CHECK(result.stats.stop==EngineStop::WorkBudget);
     CHECK(result.stats.global_work==32);CHECK(world.sum(int(result.stats.layer_published))==32);
-    CHECK(world.maximum(result.stats.layer_shape_pruned>0));
-    CHECK(world.maximum(result.stats.layer_shape_screens>result.stats.layer_shape_pruned));
+    CHECK(result.stats.layer_donor_batches==0);CHECK(result.stats.layer_shape_screens==0);
     CHECK(world.maximum(result.stats.edge_evaluations>0));
     std::vector<Tet> signature;
     for(const auto& row:result.cells) {FirstHeightReport report;std::string reason;

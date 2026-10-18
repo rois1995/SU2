@@ -1,0 +1,155 @@
+{
+  "status": "EXACT_GEOMETRIC_INSERTION_WITNESS_NOT_ACCEPTED_MESH",
+  "cells": [
+    {
+      "cell": 1,
+      "wall_facet": 1,
+      "wall_nodes": [
+        0,
+        9,
+        1
+      ],
+      "normal_point": [
+        0.6666666666666666,
+        0.5800000000000001,
+        0.1
+      ],
+      "normal_point_barycentric": [
+        0.23333333333333336,
+        0.49433333333333324,
+        0.022333333333333424,
+        0.25
+      ],
+      "old_backgrounds": [
+        {
+          "proposal": "cell_centroid",
+          "point": [
+            0.65,
+            0.8015,
+            0.1
+          ],
+          "minimum_background_weight": 0.24999999999999997,
+          "minimum_apex_fan_weight": -0.22766666666666655,
+          "inside_cell": true,
+          "apex_in_wall_fan": false
+        },
+        {
+          "proposal": "1.25",
+          "point": [
+            0.6666666666666666,
+            0.5800000000000001,
+            0.125
+          ],
+          "minimum_background_weight": -0.055416666666666545,
+          "minimum_apex_fan_weight": 0.06666666666666664,
+          "inside_cell": false,
+          "apex_in_wall_fan": true
+        },
+        {
+          "proposal": "1.5",
+          "point": [
+            0.6666666666666666,
+            0.5800000000000001,
+            0.15
+          ],
+          "minimum_background_weight": -0.13316666666666652,
+          "minimum_apex_fan_weight": 0.11111111111111106,
+          "inside_cell": false,
+          "apex_in_wall_fan": true
+        },
+        {
+          "proposal": "2.0",
+          "point": [
+            0.6666666666666666,
+            0.5800000000000001,
+            0.2
+          ],
+          "minimum_background_weight": -0.2886666666666665,
+          "minimum_apex_fan_weight": 0.16666666666666663,
+          "inside_cell": false,
+          "apex_in_wall_fan": true
+        }
+      ],
+      "direct_insertion_positive_and_exact_volume": true
+    },
+    {
+      "cell": 2,
+      "wall_facet": 5,
+      "wall_nodes": [
+        8,
+        9,
+        0
+      ],
+      "normal_point": [
+        0.3333333333333333,
+        0.79,
+        0.1
+      ],
+      "normal_point_barycentric": [
+        0.17233333333333337,
+        0.3943333333333333,
+        0.18333333333333332,
+        0.25
+      ],
+      "old_backgrounds": [
+        {
+          "proposal": "cell_centroid",
+          "point": [
+            0.4,
+            0.9590000000000001,
+            0.1
+          ],
+          "minimum_background_weight": 0.24999999999999994,
+          "minimum_apex_fan_weight": -0.07766666666666665,
+          "inside_cell": true,
+          "apex_in_wall_fan": false
+        },
+        {
+          "proposal": "1.25",
+          "point": [
+            0.3333333333333333,
+            0.79,
+            0.125
+          ],
+          "minimum_background_weight": 0.13208333333333339,
+          "minimum_apex_fan_weight": 0.06666666666666665,
+          "inside_cell": true,
+          "apex_in_wall_fan": true
+        },
+        {
+          "proposal": "1.5",
+          "point": [
+            0.3333333333333333,
+            0.79,
+            0.15000000000000002
+          ],
+          "minimum_background_weight": 0.09183333333333336,
+          "minimum_apex_fan_weight": 0.11111111111111112,
+          "inside_cell": true,
+          "apex_in_wall_fan": true
+        },
+        {
+          "proposal": "2.0",
+          "point": [
+            0.3333333333333333,
+            0.79,
+            0.2
+          ],
+          "minimum_background_weight": 0.011333333333333391,
+          "minimum_apex_fan_weight": 0.16666666666666666,
+          "inside_cell": true,
+          "apex_in_wall_fan": true
+        }
+      ],
+      "direct_insertion_positive_and_exact_volume": true
+    }
+  ],
+  "reason": "A mandatory normal point lies strictly inside the retained wall tetrahedron, but all four pre-existing background proposals fail its cell/fan containment. An additional background is not required for positive stellar insertion.",
+  "source_sha256": "a454ec1cf92183eab4277977ebdcd6f695f4ee2def598ff0d64e05801790c7f7",
+  "diagnostic_sha256": "61cbd32c87711f04b01cab4e5a70d1c216de1313b617b84883c17e4a092676de",
+  "limitations": [
+    "Rounded long-double proposals reconstructed independently; no assertion of bitwise identity to C++ normal arithmetic",
+    "Exact predicates prove positive insertion/volume only; quality, full composed metric, coupled constraints and complete remeshing/restart remain unproved",
+    "Direct insertion near a cell face can create poor shapes; subsequent construction may still fail under unchanged final gates"
+  ]
+}

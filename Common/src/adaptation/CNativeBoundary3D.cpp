@@ -362,7 +362,7 @@ bool CheckFirstHeight(const Patch& patch,const std::map<int,double>& heights,con
   }catch(const std::exception& error){reason=error.what();return false;}
 }
 
-bool ConstructFirstLayer(const Patch& old,Node background,Id first_wall_node,Id first_cell,
+bool ConstructFirstLayer(const Patch& old,Id first_wall_node,Id first_cell,
                          const std::map<int,double>& heights,const PlanarReference& reference,
                          Patch& fresh,FirstHeightReport& report,std::string& reason,KernelStats* stats) {
   report={};
@@ -373,14 +373,12 @@ bool ConstructFirstLayer(const Patch& old,Node background,Id first_wall_node,Id 
       throw std::invalid_argument("Native3D wall height must be finite and positive.");
     const auto skin=SkinMap(Incidence(old.cells,stats).Boundary());
     const auto physical=CheckSurface(old,skin,reference,stats);const auto nodes=Nodes(old.cells);
-    if(nodes.count(background.id))throw std::invalid_argument("Native3D background identity is not newly reserved.");
     size_t count=0;for(const auto& face:physical)count+=heights.count(reference.Get(face.second.facet).marker);
     if(!count || count>MaximumReplacementCells || first_wall_node>UINT64_MAX-(count-1))
       throw std::invalid_argument("Native3D first-layer node range/coverage exceeds budget.");
-    for(size_t k=0;k<count;++k)if(nodes.count(first_wall_node+k) || background.id==first_wall_node+k)
+    for(size_t k=0;k<count;++k)if(nodes.count(first_wall_node+k))
       throw std::invalid_argument("Native3D wall apex identity is not newly reserved.");
-    Patch proposal;
-    if(!Cone(old.cells,background,first_cell,proposal.cells,reason,stats))throw std::invalid_argument(reason);
+    Patch proposal;proposal.cells=old.cells;
     Id next=first_wall_node;
     for(const auto& entry:physical) {
       const auto& face=entry.second;const auto height=heights.find(reference.Get(face.facet).marker);
@@ -400,14 +398,13 @@ bool ConstructFirstLayer(const Patch& old,Node background,Id first_wall_node,Id 
         unsigned matches=0;for(auto node:cell->v)matches+=std::find(face.v.begin(),face.v.end(),node.id)!=face.v.end();
         if(matches==3){found=cell;break;}
       }
-      if(found==proposal.cells.end())throw std::invalid_argument("Native3D background fan misses wall coverage.");
-      const auto opposite=std::find_if(found->v.begin(),found->v.end(),[&](Node node){return std::find(face.v.begin(),face.v.end(),node.id)==face.v.end();});
+      if(found==proposal.cells.end())throw std::invalid_argument("Native3D retained cells miss wall coverage.");
+      FirstHeightReport retained;std::string retainedReason;
+      if(CheckFirstHeight(Patch{{*found},{face}},heights,reference,retained,retainedReason,stats))continue;
       long double admittedClearance=0;
       for(const auto& node:nodes)admittedClearance=std::max(admittedClearance,-Dot(Delta(node.second.p,center),normal));
       if(!(admittedClearance>height->second))
         throw std::invalid_argument("Native3D geometry-height incompatibility within admitted volume at facet "+std::to_string(face.facet));
-      const auto clearance=-Dot(Delta(opposite->p,center),normal);
-      if(!(clearance>height->second))throw std::invalid_argument("Native3D background obstruction at facet "+std::to_string(face.facet));
       std::vector<Cell> children;
       if(!Cone({*found},apex,first_cell,children,reason,stats))
         throw std::invalid_argument("Native3D normal wall child obstructed at facet "+std::to_string(face.facet)+": "+reason);
@@ -2220,7 +2217,7 @@ bool ReconstructSplitPatch(const Patch& old,Edge edge,Node point,Node interior,c
       if(interior.id>UINT64_MAX-2)throw std::invalid_argument("Native3D joint wall identities overflow.");
       FirstHeightReport report;Patch layer;
       // Reuse the certified constructor; only the complete carved replacement reaches metric validation.
-      if(!ConstructFirstLayer(proposal,{interior.id+1,interior.p},interior.id+2,first,heights,reference,layer,report,reason,stats))
+      if(!ConstructFirstLayer(proposal,interior.id+2,first,heights,reference,layer,report,reason,stats))
         throw std::invalid_argument(reason);
       proposal=std::move(layer);
       RestorePatchPoints(proposal,nodes,first,reason,stats);

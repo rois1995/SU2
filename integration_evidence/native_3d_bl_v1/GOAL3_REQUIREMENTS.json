@@ -129,7 +129,7 @@
     "status": "Full Goal3 ACTIVE/incomplete. Complete controlled annular serial and MPI lifecycle passes; arbitrary initial geometry/junction/2D/exterior/M6/composed-gradation/general uncertainty remain open.",
     "new_CFD_advances": 0,
     "new_Hessian_or_normalization_in_M6_replay": false,
-    "owned_jobs": "One j1/nice19/CPU1 connected v2 initial-adoption build53426 live; four changed objects first, then same full binary. No new runtime qualification.",
+    "owned_jobs": "Retained-cell first-row connected build49032/PID1155618 nice19/CPU1/j1; queued validator17245/PID1157699 waits for terminal build, then affected serial controls/independent audit/difficult oblique pilot. No new accepted oblique result.",
     "next": "After terminal build success: shared affine/actual Euler+RANS/admissible versus narrow-gap atomic controls, then difficult oblique annulus full unchanged lifecycle; affected MPI only once resolved."
   },
   "coupled_engine_checkpoint": {
@@ -262,7 +262,7 @@
     "scope": "One planar cube production case plus six focused first-row geometry/movement cases. Actual computed metric, conservative current+BDF/bounded-SA and SU2/CGNS/reference/restart checks; independent exact embedding, full composed metric, wall footprint and height. No new MPI, full regressions, general layer coverage, actual CFD accuracy or performance qualification."
   },
   "owned_jobs": {
-    "status": "One heavy j1/nice19/CPU1 build53426; lightweight validator67160 waits for its terminal exit, then seals binary and sequentially runs focused serial controls, independent audit and difficult oblique pilot; stops on failure. No new qualification.",
+    "status": "Retained-cell first-row connected build49032/PID1155618 nice19/CPU1/j1; queued validator17245/PID1157699 waits for terminal build, then affected serial controls/independent audit/difficult oblique pilot. No new accepted oblique result.",
     "terminal_handles": [
       32232,
       26154,
@@ -335,12 +335,15 @@
       11843,
       61857,
       90971,
-      80585
+      80585,
+      53426,
+      67160,
+      17917
     ],
     "resources": "integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/cavity_operator_replay_v1/actual_context_np4/resources.jsonl",
     "active_handles": [
-      53426,
-      67160
+      49032,
+      17245
     ]
   },
   "wall_reconstruction": {
@@ -2731,9 +2734,9 @@
       "coordinate_admission": "At most27adjacent binary64 tuples per leaf, maximum covered finite-wall height/footprint constraints then nearest. No new density/MPI queries, unchanged target/donors/fade/tolerances/final gates. Native failed-star v3 and serial_v4 independent PASS; complete four-case lifecycle PASS."
     },
     "affine_initial_adoption": {
-      "status": "CONNECTED_SOURCE_IMPLEMENTED_BUILDING_UNQUALIFIED",
+      "status": "INITIAL_SERIAL_CONTROLS_PASS_OBLIQUE_CONSTRUCTION_REJECTED_FOLLOWUP_BUILDING",
       "evidence": "integration_evidence/native_3d_bl_v1/affine_initial_adoption_v1/README.md",
-      "session": 53426,
+      "session": 49032,
       "reach": [
         "v1 compatibility/v2 stable generic plane definitions, separate input/mapping errors",
         "Shared decoder for initial geometry/reference creation/frozen source and restart checks",
@@ -2744,13 +2747,16 @@
         "Difficult oblique RANS annular full lifecycle, including mismatched frozen-version rejection, prepared"
       ],
       "limits": [
-        "No new runtime or accepted oblique result yet",
+        "Initial serial geometry/source controls pass; oblique full adaptation still rejected and follow-up unqualified.",
         "Existing independent multiple-plane/analytic source collars still reject",
         "L1 displacement contract protects faceted body approximation, not general analytic intersection curves",
         "Boundary embedding relies on accepted conforming source; not an arbitrary invalid-input repair",
         "2D runtime/exterior/multiple-body complete workflows and full goal remain OPEN"
       ],
-      "queued_validation_session": 67160
+      "queued_validation_session": 17245,
+      "serial": "controls_v1_n1:8cases/3981assertions; exact Euler/RANS one/two-component original-source/reference/geometry and narrow-gap audit PASS",
+      "rejected": "annulus_v1_n1: geometry adoption/normalization succeed; first-row background fan rejects after2work. Exact positive direct-insertion witness is not shape/full-field acceptance.",
+      "followup": "Replace background fan with retained-cell normal-point insertion and remove obsolete ranking queries; source implemented/unqualified pending build and focused controls/difficult pilot."
     }
   }
 }

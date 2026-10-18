@@ -123,11 +123,11 @@ struct FirstHeightReport {
  *  separately. Metric quality/lengths and global coverage are caller duties. */
 bool CheckFirstHeight(const Patch& patch,const std::map<int,double>& heights,const PlanarReference& reference,
                       FirstHeightReport& report,std::string& reason,KernelStats* stats=nullptr);
-/*! Joint fixed-interface background reconnection and wall-child carving. All new identities/ranges are
- *  caller-reserved; complete cavity dependencies, target metric, external clearance and commit are separate.
- *  Wall apices use face-centroid normal placement at prescribed altitude; obstruction requires another
- *  background/cavity, never relaxing height. Output remains unchanged on any rejection. */
-bool ConstructFirstLayer(const Patch& old,Node background,Id first_wall_node,Id first_cell,
+/*! Insert prescribed-height wall points into their retained incident tetrahedra. All new identities/ranges
+ * are caller-reserved; complete dependencies, target metric, external clearance and commit are separate.
+ * An obstructed normal point needs coordinated reconstruction, never a relaxed height. Existing valid
+ * wall children stay intact; output remains unchanged on rejection. */
+bool ConstructFirstLayer(const Patch& old,Id first_wall_node,Id first_cell,
                          const std::map<int,double>& heights,const PlanarReference& reference,
                          Patch& fresh,FirstHeightReport& report,std::string& reason,KernelStats* stats=nullptr);
 

@@ -63,7 +63,9 @@ def audit(folder,name,components):
             assert v[4]==expected_sensor,'Original sensor trace changed'
             if v[0]>=span:
                 assert v[1]==p[0] and v[3]==p[2] and v[2]<p[1]
-                assert 2e-13<float(F(p[1])-F(v[2]))<=4e-13+2*float(F(float(np.nextafter(p[1],float('inf'))))-F(p[1]))
+                # The envelope offset is rounded at its destination magnitude, which can cross zero.
+                ulp=abs(F(float(np.nextafter(v[2],float('-inf'))))-F(v[2]))
+                assert F(2e-13)<F(p[1])-F(v[2])<=4*F(1e-13)+2*ulp
         signature.append(tuple(sorted((tuple(v[1:4]),tuple(v[4])) for v in vertices)))
     assert groups[0]==6*components and sum(groups.values())==12*components and sum(n for k,n in groups.items() if k)>0
     return dict(status='EXACT_INITIAL_MAPPING_ORIGINAL_SOURCE_V4_PASS',cells=len(data['cells']),points=len(nodes),components=components,
@@ -75,7 +77,11 @@ def narrow_gap(folder):
     before_path=folder/'affine_narrow_gap.su2';after_path=folder/'affine_narrow_gap_rejected.su2'
     before=read_su2(before_path);after=read_su2(after_path);assert (before.E==after.E).all() and before.M.keys()==after.M.keys()
     def cells(mesh):return [[tuple(F(float(x)) for x in mesh.P[n]) for n in row] for row in mesh.E]
-    old,new=cells(before),cells(after);assert all(base.determinant(t)>0 for t in old+new)
+    old,new=cells(before),cells(after)
+    assert all(base.determinant(a)*base.determinant(b)>0 for a,b in zip(old,new))
+    # SU2 connectivity may use either orientation; intersection predicates use positive tetrahedra.
+    for t in old+new:
+        if base.determinant(t)<0:t[0],t[1]=t[1],t[0]
     old_overlap=[];new_overlap=[]
     for i,j in itertools.combinations(range(len(old)),2):
         if base.overlap(old[i],old[j]):old_overlap.append((i,j))
@@ -83,7 +89,7 @@ def narrow_gap(folder):
     assert not old_overlap and new_overlap,'Counterexample must be globally invalid despite positive local volumes'
     receipt=json.loads((folder/'affine_narrow_gap_rejection.json').read_text());assert not receipt['accepted'] and receipt['boundary_pair_checks']>0
     return dict(status='POSITIVE_CELL_BOUNDARY_COLLISION_COUNTEREXAMPLE_CONFIRMED',source_cells=len(old),collision_pairs=new_overlap,
-        all_source_and_proposed_cells_positive=True,source_has_no_positive_volume_overlap=True,native_rejection=receipt,
+        all_cell_orientation_signs_preserved=True,all_audited_tetrahedra_positive_after_consistent_reordering=True,source_has_no_positive_volume_overlap=True,native_rejection=receipt,
         hashes={str(p.relative_to(ROOT)):sha(p) for p in (before_path,after_path,folder/'affine_narrow_gap_rejection.json')})
 
 def main():

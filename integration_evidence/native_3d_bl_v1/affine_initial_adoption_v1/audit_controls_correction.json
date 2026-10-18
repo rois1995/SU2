@@ -1,0 +1,15 @@
+{
+  "scope": "Independent-auditor correction only; compiled implementation and saved controls unchanged",
+  "reason": "Old upper envelope rounding allowance used source-coordinate ULP. Near zero, offset to -4e-13 is rounded at the destination magnitude; use exact rational distance and destination ULP.",
+  "rejected_auditor_sha256": "812aa1e78f36fe0394e50b13c33a7fc2d92f104b69f7f203d76875c4f6d56f59",
+  "corrected_auditor_sha256": "0c82d218e96f61672c278abb90697c0b70dd9ac529ef342a67cebb384c223ca0",
+  "original_failure": "validation_stage2.log",
+  "counterexample": {
+    "source_y": -1.9842809994703025e-29,
+    "extension_y": -4.0000000000000006e-13,
+    "destination_ulp": 5.048709793414476e-29,
+    "excess_over_four_e_minus_13": 3.064428793944173e-29
+  },
+  "self_check_note": "An initial edit placed the envelope check outside the generated-vertex branch; corrected before accepting any audit result.",
+  "orientation_correction": "Raw SU2 simplex writer contains both connectivity orientations. Require exact same nonzero orientation sign before/after, then consistently reorder both for positive-volume intersection predicates; do not misclassify negative input ordering as geometric inversion."
+}

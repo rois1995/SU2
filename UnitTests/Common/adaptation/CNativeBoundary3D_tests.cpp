@@ -966,6 +966,32 @@ TEST_CASE("Coordinated surface strip preserves geometry while rejecting the old 
   }
 }
 
+TEST_CASE("Native first-height insertion retains an oblique wall cell without an auxiliary background", "[NativeFirstLayer3D]") {
+  Cell cell;cell.id=0;
+  cell.v[0]={0,{7.7406976324811783e-30,-1.9842809994703025e-29,-3.7224373965116495e-29}};
+  cell.v[1]={1,{1,.37,-8.8038899369989597e-19}};
+  cell.v[2]={9,{1,1.3700000000000001,0}};
+  cell.v[3]={13,{.59999999999999998,1.466,.40000000000000002}};
+  Patch old;old.cells={cell};std::vector<Facet> facets;
+  const auto skin=Incidence(old.cells).Boundary();
+  for(size_t k=0;k<skin.size();++k) {
+    std::array<Node,3> nodes;for(unsigned j=0;j<3;++j)for(auto n:cell.v)if(n.id==skin[k][j])nodes[j]=n;
+    const bool wall=std::find(skin[k].begin(),skin[k].end(),Id(13))==skin[k].end();
+    facets.push_back({k,wall?10:20,nodes});old.surface.push_back({skin[k],k});
+  }
+  const PlanarReference reference(facets);Patch fresh;FirstHeightReport report;std::string reason;
+  INFO(reason);REQUIRE(ConstructFirstLayer(old,101,200,{{10,.1}},reference,fresh,report,reason));
+  CHECK(fresh.cells.size()==4);CHECK(report.wall_faces==1);CHECK(report.maximum_relative_error<1e-8);
+  CHECK(ValidateFixedInterface(old.cells,fresh.cells,reason));
+  for(size_t i=0;i<fresh.cells.size();++i) {
+    const auto& v=fresh.cells[i].v;CHECK(Orientation(v[0].p,v[1].p,v[2].p,v[3].p)>0);
+    for(size_t j=i+1;j<fresh.cells.size();++j)CHECK(ConformingDisjoint(fresh.cells[i],fresh.cells[j]));
+  }
+  // A satisfied row is retained; this geometry-only witness does not certify metric quality.
+  Patch unchanged;REQUIRE(ConstructFirstLayer(fresh,301,400,{{10,.1}},reference,unchanged,report,reason));
+  CHECK(Connectivity(unchanged)==Connectivity(fresh));
+}
+
 TEST_CASE("Native3D joint first-height construction rebuilds wall children and transition", "[NativeFirstLayer3D]") {
   const auto old=Cube();const auto facets=Facets(old);const PlanarReference reference(facets);
   std::map<int,double> heights;
@@ -973,8 +999,8 @@ TEST_CASE("Native3D joint first-height construction rebuilds wall children and t
   REQUIRE(heights.size()==2);
   FirstHeightReport before,after;std::string reason;Patch fresh;
   CHECK_FALSE(CheckFirstHeight(old,heights,reference,before,reason));CHECK(before.height_failures==2);
-  REQUIRE(ConstructFirstLayer(old,{100,{.5,.5,.5}},101,200,heights,reference,fresh,after,reason));
-  CHECK(fresh.cells.size()==18);CHECK(fresh.surface.size()==old.surface.size());
+  REQUIRE(ConstructFirstLayer(old,101,200,heights,reference,fresh,after,reason));
+  CHECK(fresh.cells.size()==12);CHECK(fresh.surface.size()==old.surface.size());
   CHECK(after.wall_faces==2);CHECK(after.height_failures==0);CHECK(after.maximum_tilt<1e-12);
   CHECK(ValidateFixedInterface(old.cells,fresh.cells,reason));
   double volume=0;for(const auto& cell:fresh.cells) {
@@ -986,7 +1012,7 @@ TEST_CASE("Native3D joint first-height construction rebuilds wall children and t
     REQUIRE(ConformingDisjoint(fresh.cells[i],fresh.cells[j]));
   SaveCurved(old,reference,"first_height_initial");SaveCurved(fresh,reference,"first_height_constructed");
   for(auto& h:heights)h.second=.025;
-  Patch updated;REQUIRE(ConstructFirstLayer(fresh,{300,{.5,.5,.5}},301,400,heights,reference,updated,after,reason));
+  Patch updated;REQUIRE(ConstructFirstLayer(fresh,301,400,heights,reference,updated,after,reason));
   CHECK(updated.cells.size()==18);CHECK(after.wall_faces==2);CHECK(after.maximum_relative_error<1e-8);
   CHECK(ValidateFixedInterface(old.cells,updated.cells,reason));
   for(size_t i=0;i<updated.cells.size();++i)for(size_t j=i+1;j<updated.cells.size();++j)
@@ -1000,9 +1026,10 @@ TEST_CASE("Native3D first-layer obstruction rejects atomically without height re
   std::map<int,double> heights;
   for(const auto& f:facets)if(std::all_of(f.v.begin(),f.v.end(),[](Node n){return n.p.z==0;}))heights[f.marker]=.05;
   const auto expected=Connectivity(old);
-  for(const auto background:std::vector<Node>{{100,{.5,.5,.01}},{0,{.5,.5,.5}},{100,{2,2,2}}}) {
+  for(const double invalid:{0.,-1.,2.}) {
+    auto invalidHeights=heights;for(auto& h:invalidHeights)h.second=invalid;
     Patch output=old;FirstHeightReport report;std::string reason;
-    CHECK_FALSE(ConstructFirstLayer(old,background,101,200,heights,reference,output,report,reason));
+    CHECK_FALSE(ConstructFirstLayer(old,101,200,invalidHeights,reference,output,report,reason));
     CHECK_FALSE(reason.empty());CHECK(Connectivity(output)==expected);CHECK(output.surface.size()==old.surface.size());
     for(size_t i=0;i<old.cells.size();++i)for(unsigned k=0;k<4;++k) {
       CHECK(output.cells[i].v[k].id==old.cells[i].v[k].id);
@@ -1012,10 +1039,10 @@ TEST_CASE("Native3D first-layer obstruction rejects atomically without height re
     }
   }
   Patch output=old;FirstHeightReport report;std::string reason;
-  CHECK_FALSE(ConstructFirstLayer(old,{100,{.5,.5,.5}},0,200,heights,reference,output,report,reason));
+  CHECK_FALSE(ConstructFirstLayer(old,0,200,heights,reference,output,report,reason));
   CHECK(Connectivity(output)==expected);
   for(auto& h:heights)h.second=std::numeric_limits<double>::quiet_NaN();
-  CHECK_FALSE(ConstructFirstLayer(old,{100,{.5,.5,.5}},101,200,heights,reference,output,report,reason));
+  CHECK_FALSE(ConstructFirstLayer(old,101,200,heights,reference,output,report,reason));
   CHECK(Connectivity(output)==expected);
 }
 
@@ -1024,7 +1051,7 @@ TEST_CASE("Native3D first-height certificate reports tangential tilt independent
   std::map<int,double> heights;
   for(const auto& f:facets)if(std::all_of(f.v.begin(),f.v.end(),[](Node n){return n.p.z==0;}))heights[f.marker]=.05;
   Patch fresh;FirstHeightReport report;std::string reason;
-  REQUIRE(ConstructFirstLayer(old,{100,{.5,.5,.5}},101,200,heights,reference,fresh,report,reason));
+  REQUIRE(ConstructFirstLayer(old,101,200,heights,reference,fresh,report,reason));
   for(auto& cell:fresh.cells)for(auto& node:cell.v)if(node.id==101)node.p.x+=.001;
   CHECK(CheckFirstHeight(fresh,heights,reference,report,reason));CHECK(report.maximum_tilt==Approx(.02).epsilon(1e-10));
   CHECK(report.height_failures==0);CHECK(report.footprint_failures==0);
@@ -1059,19 +1086,17 @@ TEST_CASE("Native3D first layer handles wall junctions and distinguishes local c
     if(bottom||left)heights[f.marker]=.05;
   }
   REQUIRE(heights.size()==4);Patch fresh;FirstHeightReport report;std::string reason;
-  REQUIRE(ConstructFirstLayer(old,{100,{.5,.5,.5}},101,200,heights,reference,fresh,report,reason));
-  CHECK(fresh.cells.size()==24);CHECK(report.wall_faces==4);CHECK(report.maximum_tilt<1e-12);
+  REQUIRE(ConstructFirstLayer(old,101,200,heights,reference,fresh,report,reason));
+  CHECK(fresh.cells.size()==18);CHECK(report.wall_faces==4);CHECK(report.maximum_tilt<1e-12);
   CHECK(ValidateFixedInterface(old.cells,fresh.cells,reason));
   for(size_t i=0;i<fresh.cells.size();++i)for(size_t j=i+1;j<fresh.cells.size();++j)
     REQUIRE(ConformingDisjoint(fresh.cells[i],fresh.cells[j]));
   Patch sentinel=old;
-  CHECK_FALSE(ConstructFirstLayer(old,{100,{.5,.5,.01}},101,200,heights,reference,sentinel,report,reason));
-  CHECK(reason.find("background obstruction")!=std::string::npos);CHECK(Connectivity(sentinel)==Connectivity(old));
   const auto thin=Cube(.1);const auto thinFacets=Facets(thin);const PlanarReference thinReference(thinFacets);
   std::map<int,double> excessive;
   for(const auto& f:thinFacets)if(std::all_of(f.v.begin(),f.v.end(),[](Node n){return n.p.z==0;}))excessive[f.marker]=.2;
   sentinel=thin;
-  CHECK_FALSE(ConstructFirstLayer(thin,{100,{.5,.5,.05}},101,200,excessive,thinReference,sentinel,report,reason));
+  CHECK_FALSE(ConstructFirstLayer(thin,101,200,excessive,thinReference,sentinel,report,reason));
   CHECK(reason.find("geometry-height incompatibility")!=std::string::npos);CHECK(Connectivity(sentinel)==Connectivity(thin));
 }
 
@@ -1080,7 +1105,7 @@ TEST_CASE("Native3D first-row apex movement preserves altitude and boundary feat
   std::map<int,double> heights;for(const auto& f:facets)
     if(std::all_of(f.v.begin(),f.v.end(),[](Node n){return n.p.z==0;}))heights[f.marker]=.05;
   Patch layer;FirstHeightReport report;std::string reason;
-  REQUIRE(ConstructFirstLayer(old,{100,{.5,.5,.5}},101,200,heights,reference,layer,report,reason));
+  REQUIRE(ConstructFirstLayer(old,101,200,heights,reference,layer,report,reason));
   Node apex;for(const auto& c:layer.cells)for(auto n:c.v)if(n.id==101)apex=n;
   const auto moved=ConstrainMovePoint(layer,101,{500,{apex.p.x+.01,apex.p.y-.01,apex.p.z+.02}},heights,reference);
   CHECK(moved.p.x==Approx(apex.p.x+.01));CHECK(moved.p.y==Approx(apex.p.y-.01));CHECK(moved.p.z==apex.p.z);
@@ -1214,7 +1239,7 @@ TEST_CASE("Native3D uneven wall split replaces apices and transition together", 
   for(const auto& f:Facets(seed))if(std::all_of(f.v.begin(),f.v.end(),[](Node n){return n.p.z==0;}))
     heights[f.marker]=.1;
   Patch aligned;FirstHeightReport report;std::string reason;
-  REQUIRE(ConstructFirstLayer(seed,{100,{.5,.5,.5}},101,200,heights,reference,aligned,report,reason));
+  REQUIRE(ConstructFirstLayer(seed,101,200,heights,reference,aligned,report,reason));
   const Edge edge{0,2};const Node split{1000,{.4,.4,0}};Patch inherited;
   REQUIRE(SplitEdge(EdgeStar(aligned,edge),edge,split,2000,reference,inherited,reason));
   CHECK_FALSE(CheckFirstHeight(inherited,heights,reference,report,reason));
@@ -1223,7 +1248,7 @@ TEST_CASE("Native3D uneven wall split replaces apices and transition together", 
   const bool valid=ReconstructSplitPatch(aligned,edge,split,{1001,{}},Tensor{},2000,reference,rebuilt,obstruction,reason,nullptr,heights);
   INFO(reason);REQUIRE(valid);REQUIRE(CheckFirstHeight(rebuilt,heights,reference,report,reason));
   CHECK(report.wall_faces==4);CHECK(report.maximum_tilt<1e-12);CHECK(report.minimum_barycentric>0);
-  for(Id id:{100,101,102}) {const auto before=Position(aligned,id),after=Position(rebuilt,id);
+  for(Id id:{101,102}) {const auto before=Position(aligned,id),after=Position(rebuilt,id);
     CHECK(after.x==before.x);CHECK(after.y==before.y);CHECK(after.z==before.z);
   }
   CHECK(double(Volume(rebuilt))==Approx(1).epsilon(1e-14));
@@ -1345,13 +1370,13 @@ TEST_CASE("Private interior repair retains prescribed wall height despite admiss
   const auto seed=Cube();const PlanarReference reference(Facets(seed));std::map<int,double> heights;
   for(const auto& f:Facets(seed))if(std::all_of(f.v.begin(),f.v.end(),[](Node n){return n.p.z==0;}))heights[f.marker]=.01;
   Patch aligned;FirstHeightReport height;std::string reason;
-  REQUIRE(ConstructFirstLayer(seed,{100,{.5,.5,.5}},101,200,heights,reference,aligned,height,reason));
+  REQUIRE(ConstructFirstLayer(seed,101,200,heights,reference,aligned,height,reason));
   Patch star;
   for(const auto& c:aligned.cells)if(std::any_of(c.v.begin(),c.v.end(),[](Node n){return n.id==101;}))star.cells.push_back(c);
   for(const auto& f:aligned.surface)if(std::any_of(star.cells.begin(),star.cells.end(),[&](const Cell& c) {
     unsigned count=0;for(auto n:c.v)count+=std::find(f.v.begin(),f.v.end(),n.id)!=f.v.end();return count==3;
   }))star.surface.push_back(f);
-  Patch collapsed;REQUIRE(CollapseVertex(star,101,100,10000,reference,collapsed,reason));
+  Patch collapsed;REQUIRE(CollapseVertex(star,101,6,10000,reference,collapsed,reason));
   Patch unchecked;unchecked.surface=aligned.surface;
   for(const auto& c:aligned.cells)if(std::none_of(c.v.begin(),c.v.end(),[](Node n){return n.id==101;}))unchecked.cells.push_back(c);
   unchecked.cells.insert(unchecked.cells.end(),collapsed.cells.begin(),collapsed.cells.end());
@@ -1368,7 +1393,7 @@ TEST_CASE("Native wall split inserts coordinated height points without a common 
   const auto seed=Cube();const PlanarReference reference(Facets(seed));std::map<int,double> heights;
   for(const auto& f:Facets(seed))if(std::all_of(f.v.begin(),f.v.end(),[](Node n){return n.p.z==0;}))heights[f.marker]=.1;
   Patch aligned;FirstHeightReport height;std::string reason;
-  REQUIRE(ConstructFirstLayer(seed,{100,{.5,.5,.5}},101,200,heights,reference,aligned,height,reason));
+  REQUIRE(ConstructFirstLayer(seed,101,200,heights,reference,aligned,height,reason));
   Patch fresh;Face obstruction{};
   const bool built=ReconstructWallSplit(aligned,{0,2},{1000,{.4,.4,0}},1001,2000,heights,reference,fresh,obstruction,reason);
   INFO(reason);REQUIRE(built);REQUIRE(CheckFirstHeight(fresh,heights,reference,height,reason));
@@ -1377,7 +1402,7 @@ TEST_CASE("Native wall split inserts coordinated height points without a common 
   for(size_t i=0;i<fresh.cells.size();++i)for(size_t j=i+1;j<fresh.cells.size();++j)CHECK(ConformingDisjoint(fresh.cells[i],fresh.cells[j]));
   SaveCurved(fresh,reference,"wall_split_retained");
   auto sentinel=fresh;const auto before=Connectivity(sentinel);
-  CHECK_FALSE(ReconstructWallSplit(aligned,{0,2},{1000,{.4,.4,0}},100,2000,heights,reference,sentinel,obstruction,reason));
+  CHECK_FALSE(ReconstructWallSplit(aligned,{0,2},{1000,{.4,.4,0}},101,2000,heights,reference,sentinel,obstruction,reason));
   CHECK(Connectivity(sentinel)==before);
   CHECK_FALSE(ReconstructWallSplit(aligned,{0,2},{1000,{.4,.4,0}},1001,2000,heights,reference,sentinel,obstruction,reason,nullptr,-1));
   CHECK(Connectivity(sentinel)==before);

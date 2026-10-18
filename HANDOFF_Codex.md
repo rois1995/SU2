@@ -3,38 +3,42 @@
 Worktree `/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated`, branch
 `codex/native-3d-bl`. Full Goal3 **ACTIVE/incomplete**; Goal2 base c43a8a3907ea.
 Geometry/source checkpoint is published on `codex/native-3d-bl`; see the
-current Git HEAD. Cleanup receipt:14d1bbc9de. Cartesian current-binary lifecycle
-qualification is workflow_v7_n4; arbitrary runtime scope remains OPEN.
+current Git HEAD. Cleanup receipt:14d1bbc9de. Historical Cartesian lifecycle
+qualification is workflow_v7_n4; current retained-cell build and general scope remain OPEN.
 [Full requirements](integration_evidence/native_3d_bl_v1/GOAL3_REQUIREMENTS.json).
 Leave AdapNoExt, foreign ClusterResults, dependencies and foreign jobs untouched.
 
 ## User priority and current job
 
-Native coordinated height-star reconstruction now passes complete annular
-RANS/SA/current+BDF/transfer/SU2+CGNS/real restart in N1/M1,N2/M2,N4/M2,N4/M4,
-with independent finite-hole geometry/full metric/height audits. Final218/194/194/
-215cells; q>=.20238,J>=.05648,Lmax<=1.79828,height0,conservation<6.6e-16,restart0.
-The original MPI2 blockage was leaf-coordinate representation: actual composed
-floating tensors made all four grid proposals miss2/8wallfeet. Bounded adjacent
-coordinate admission fixes it without changing the field, tolerance or geometry.
-Old failed states and rejected exact-midpoint bracketing are preserved. Serial
-accepted output is byte-identical to v9; serial/N2 frozen profiles unchanged.
-One connected v2 adoption build53426 is live (nice19/CPU1/j1); source hashes frozen.
-No new physical CFD advance or M6 attempt.
-[Current evidence, costs and limits](integration_evidence/native_3d_bl_v1/native_height_star_v1/README.md).
+Cartesian annular checkpoint6f0 passes N1M1/N2M2/N4M2/N4M4 complete RANS/SA/
+current+BDF/transfer/SU2+CGNS/real restart with independent finite-hole/full metric/
+height audits. Those receipts remain historical qualification; the first-row seed
+is now changing and needs affected compatibility checks before current-source claims.
+[Qualified evidence](integration_evidence/native_3d_bl_v1/native_height_star_v1/README.md).
 
-Current connected batch: generic v2 affine declarations/initial adoption, bounded
-body displacement and boundary-only embedding audit, original-reference attachment
-and frozen/restart metadata consistency. Source/build is UNQUALIFIED. Read
-[the adoption handoff and planned difficult pilot](integration_evidence/native_3d_bl_v1/affine_initial_adoption_v1/README.md).
-Build53426 compiles the four new/changed objects first, then finishes the same binary.
-Check its handle before acting; no C++ edits while compiling/executing/pinned.
-Queued validator67160/PID1121793 waits for build53426 to exit, seals the binary,
-then runs controls1/v1 (including existing affine import), independent audit and
-difficult oblique annulus1/v1 sequentially. Check validation_job.json/validation_handle.json
-before starting another job. It stops on failure; no oblique independent audit is
-claimed by this runner. Save and reconsider exact failures; affected MPI only after that.
-All general2D/multi-body/junction/exterior/M6/gradation/uncertainty goals stay open.
+V2 arbitrary-plane initial adoption passed8serial cases/3981assertions and an
+independent exact source/reference/geometry audit in affine_initial_adoption_v1/
+controls_v1_n1. Euler/RANS one/two disconnected components under one marker retain
+identical original sensor traces; narrow-gap positive-cell boundary collision rejects
+atomically. Auditor rounding/orientation mistakes were corrected without CFD reruns;
+old auditor/failure and the executed binary are preserved.
+
+The difficult oblique annulus_v1_n1 adopted geometry and normalized its target but
+rejected first-row construction after2work items. Exact replay shows its prescribed
+normal point INSIDE the old tetrahedron; all four background proposals fail cell/fan
+containment. This is operator blockage, not a geometry or budget infeasibility proof.
+A positive four-child insertion witness is not full metric/quality acceptance.
+
+Connected follow-up removes the unnecessary background: insert normal-height points
+into retained wall tetrahedra, retain already-valid rows, and keep full-field seeding/
+repair/final acceptance separate. Geometry-only seeding no longer imports/ranks metric
+background proposals. All actual field, height, geometry, transfer and quality gates
+stay unchanged. Source is IMPLEMENTED/UNQUALIFIED, building in49032/PID1155618, nice19/
+CPU1/j1. Validator17245/PID1157699 waits for terminal build, then controls_v2_n1,
+independent initial audit and difficult annulus_v2_n1 sequentially; stops on failure.
+Check job_handle_v2.json/build_provenance.json/validation_job_v2.json before acting.
+No C++ edits while pinned; no new physical CFD advance, MPI or M6 attempt.
+[Current receipt and limitations](integration_evidence/native_3d_bl_v1/affine_initial_adoption_v1/README.md).
 
 1. Spherical repeated RANS lifecycle validation/push: **DONE**, reuse accepted cold.
 2. Explicit audited planar symmetry reference, including wall intersections and

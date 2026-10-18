@@ -1,13 +1,24 @@
-## Connected affine initial-adoption source — BUILDING/UNQUALIFIED, 2026-10-18
+## Affine adoption passes serial controls; oblique construction blocked — 2026-10-19
 
-The v2 input/mapping contract, original-reference/frozen-version checks, faceted
-body-displacement bound and bounded boundary-only embedding audit are implemented.
-One j1/nice19/CPU1 job53426 is compiling the new objects then the same full binary.
-No accepted oblique workflow or new MPI result is claimed. Euler/RANS one/two
-same-marker components, positive-cell/narrow-gap atomic rejection and the difficult
-oblique annular full lifecycle are prepared. Shared analytic/multiple-plane source
-collars, general2D/exterior and the full goal remain open.
-[Current source/build handoff](integration_evidence/native_3d_bl_v1/affine_initial_adoption_v1/README.md).
+V1 connected build passed.8serial cases/3981assertions plus independent exact audit
+qualify scoped3D arbitrary-plane initial adoption for Euler/RANS, one/two disconnected
+components under one marker, original sensor-only traces and v4reference persistence.
+A positive-cell narrow-gap boundary collision rejects atomically. Independent-auditor
+rounding/orientation corrections reused saved results; original failures remain.
+
+The oblique annulus initialized geometry and normalized complexity, but first-row
+construction rejected after2work items. The saved required normal point is strictly
+inside its wall tetrahedron; the centroid and three fixed-height background proposals
+cannot construct its wall fan. Exact positive four-child insertion is a geometric
+witness only, with no final quality/full-field or complete adaptation certificate.
+
+Follow-up replaces background seeding with retained-cell normal-point insertion,
+keeps valid wall children, and removes the now-unneeded ranking donor/query work.
+All final geometry/height/quality/full composed field/transfer gates remain unchanged.
+Connected build49032 and queued validator17245 are UNQUALIFIED; affected controls then
+the same difficult pilot run sequentially. No new MPI/exterior/2D/M6/viscous or
+performance claim. All full general-symmetry and Goal3 requirements remain open.
+[Exact failure, diagnosis, scoped results and current build](integration_evidence/native_3d_bl_v1/affine_initial_adoption_v1/README.md).
 
 ## Affine reference/source backend checkpoint — 2026-10-18
 

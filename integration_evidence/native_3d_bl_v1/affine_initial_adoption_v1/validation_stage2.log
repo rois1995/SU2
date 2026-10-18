@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/affine_initial_adoption_v1/audit_controls.py", line 103, in <module>
+    if __name__=='__main__':main()
+  File "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/affine_initial_adoption_v1/audit_controls.py", line 95, in main
+    for solver in ('euler','rans'):reports[f'{solver}_c{components}']=audit(folder,f'affine_initial_{solver}_c{components}',components)
+  File "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/affine_initial_adoption_v1/audit_controls.py", line 66, in audit
+    assert 2e-13<float(F(p[1])-F(v[2]))<=4e-13+2*float(F(float(np.nextafter(p[1],float('inf'))))-F(p[1]))
+AssertionError

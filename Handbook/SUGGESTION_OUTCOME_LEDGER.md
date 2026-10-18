@@ -345,10 +345,22 @@ included in reconstruction but not separately timed. Full composed gradation and
 global uncertainty calibration remain open; refinement did not monotonically
 improve the estimates. [Complete receipts](../integration_evidence/native_3d_bl_v1/native_height_star_v1/lifecycle_summary.json).
 
-## Connected affine initial-adoption batch — building, no result yet
+## Affine adoption and retained-cell construction — 2026-10-19
 
-V2 definition/adoption/reference/frozen-source/restart paths, body-displacement and
-boundary-only embedding/resource audits are implemented and compiling in53426.
-Euler/RANS one/two same-marker components, positive-Jacobian narrow-gap rejection
-and the difficult oblique annular full lifecycle are prepared, unexecuted. No
-success or performance inference yet. [Scope and active handoff](../integration_evidence/native_3d_bl_v1/affine_initial_adoption_v1/README.md).
+Worked, scoped: build v1 and8serial cases/3981assertions pass, with independent exact
+Euler/RANS one/two-component initial geometry/original sensor/reference audit and
+positive-cell narrow-gap contact rejection. Original auditor rounding/orientation
+mistakes are preserved and corrected on saved data, without CFD reruns.
+
+Did not work: oblique annulus adopted geometry and normalized its frozen original
+field, then rejected first-row construction after2work. All four background proposals
+fail cell/fan containment although the required point is inside its wall tetrahedron.
+An exact positive stellar-insertion witness establishes a missing placement/construction
+freedom; it does not establish full metric/shape acceptance. Metric build15.2705s and
+native.00487s are rejected/contended receipts, no performance improvement claim.
+
+Connected follow-up removes the extra background and its ranking donor/query work:
+retained-cell normal-point insertion, already-valid row retention, shared reconstruction
+caller and affected tests. Source implemented, build49032/validator17245 pending;
+no accepted oblique mesh, new MPI, unsteady affordability or full-scope completion.
+[Failure, diagnosis and immutable results](../integration_evidence/native_3d_bl_v1/affine_initial_adoption_v1/README.md).
