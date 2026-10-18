@@ -108,3 +108,16 @@ and helpers are preserved. Final-source serial/MPI4 primitive N/M/transfer/resta
 SU2+CGNS compatibility independently passes15lifecycles/30events; big BL sphere
 MPI generation/CFD and affordability remain open.
 [Current scope](GOAL3_CLOSED_SPHERE.md).
+
+
+Exact shared-simplex contact certification addresses the measured validation cost
+without changing the BL policy or any acceptance gate. Same320-cell contact test
+44.874->12.220s; complete byte-identical sphere construction202.612->103.576s,
+removal57.384->20.121s, combined259.996->123.697s (observed52.42% reduction).
+Work6087 remains. The90-second full-BL contact-only replay exhausts its ceiling;
+its negative receipt remains, while the complete native construction passes all
+checks. Current serial/MPI4 primitive lifecycles are qualified separately. These
+contended comparisons establish no scaling/CFD affordability or accepted M6 claim.
+The reaffirmed BL budget contract and its unfinished global absolute-error allocator
+remain part of active Goal3.
+[Exact certificate, receipts, output/oracle reuse and limits](GOAL3_CONTACT_VALIDATION.md).

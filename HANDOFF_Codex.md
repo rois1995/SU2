@@ -35,7 +35,15 @@ independent exact geometry/height/shape passes, full composed edges remain nativ
 Native event202.6s is not affordability. Regional coarsening completes5440->320 on remaining483/540work; combined6087/6144
 and259.996/300s. Final-source serial/MPI4 primitive lifecycles and independent
 audits pass; no MPI BL/CFD affordability claim. Reuse these saved meshes.
-[Current scope and pending work](Handbook/GOAL3_CLOSED_SPHERE.md).
+[Original construction scope](Handbook/GOAL3_CLOSED_SPHERE.md).
+Current exact contact certificate preserves byte-identical accepted meshes/fields
+and reduces observed saved-state native construction/removal202.612+57.384 to
+103.576+20.121seconds (123.697total), unchanged6087work. The90-second standalone
+BL contact replay exhausts its ceiling; subsequent complete native validation passes.
+No new cache/profile/collective or weakened contact gate. Current serial/MPI4
+primitive lifecycle controls and independent verification are recorded in the
+[contact-validation handbook](Handbook/GOAL3_CONTACT_VALIDATION.md). Full MPI BL/
+CFD affordability and global uncertainty work remain open.
 
 ## Current strict-geometry diagnostic
 

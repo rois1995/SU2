@@ -65,7 +65,7 @@
     {
       "id": "performance",
       "scope": "complete cold construction/update lifecycle, repartition/migration/transfer/output; adaptation-to-CFD cost, memory/work/imbalance",
-      "status": "Current accepted serial high-ratio region phase clocks53.86s with43.53s validation; actual RANS N4/M2 BL remesh11.72s with10.50s regional validation. Saved lifecycle section clocks include partition/migration/return/rebuild/transfer/output. Advance includes automatic metrics, so CFD-only/adaptation ratio unavailable. Region-service point/edge counters omit small direct-source path; no CPU attribution, scaling, performance improvement or affordability claim. Saved1398 rank0 CPU samples from required curvedv13 identify substantial metric-stage collective waiting and exact contact arithmetic. Root-only inclusive CPU attribution, not scaling/critical-rank or affordability proof. No new performance CFD run. Current complete MPI4 removal:1619 admitted transactions,5390 metadata candidates/3771 deferrals after2704 duplicate suppressions, zero final conflicts, planning.14455s nested in9.07222s. Raw metadata bounded/counted/timed separately from transaction ceiling4096. Earlier rejected8.503s is not a speed comparison. Actual initialized N4/M2 backend phase sections retained; no scaling/CFD ratio or affordability claim. New contended frozen-M6 correctness pilot: rank0 reconstruction118.24s, nested source search51.22s/edge trace25.38s;40868 donor batches/477360 tracked calls per rank. One diagnostic Allreduce stack, not a clean timing or scalability benchmark. Source/campaign reuse, batching and complete accepted-event affordability remain open."
+      "status": "Current accepted serial high-ratio region phase clocks53.86s with43.53s validation; actual RANS N4/M2 BL remesh11.72s with10.50s regional validation. Saved lifecycle section clocks include partition/migration/return/rebuild/transfer/output. Advance includes automatic metrics, so CFD-only/adaptation ratio unavailable. Region-service point/edge counters omit small direct-source path; no CPU attribution, scaling, performance improvement or affordability claim. Saved1398 rank0 CPU samples from required curvedv13 identify substantial metric-stage collective waiting and exact contact arithmetic. Root-only inclusive CPU attribution, not scaling/critical-rank or affordability proof. No new performance CFD run. Current complete MPI4 removal:1619 admitted transactions,5390 metadata candidates/3771 deferrals after2704 duplicate suppressions, zero final conflicts, planning.14455s nested in9.07222s. Raw metadata bounded/counted/timed separately from transaction ceiling4096. Earlier rejected8.503s is not a speed comparison. Actual initialized N4/M2 backend phase sections retained; no scaling/CFD ratio or affordability claim. New contended frozen-M6 correctness pilot: rank0 reconstruction118.24s, nested source search51.22s/edge trace25.38s;40868 donor batches/477360 tracked calls per rank. One diagnostic Allreduce stack, not a clean timing or scalability benchmark. Source/campaign reuse, batching and complete accepted-event affordability remain open. Current exact shared-simplex contact filter accepts byte-identical sphere scientific outputs: construction202.612->103.576s, removal57.384->20.121s, combined259.996->123.697s, work6087 unchanged. Standalone BL contact replay stops at90s; full native event passes. Contended local evidence, not scaling or complete unsteady affordability; Handbook/GOAL3_CONTACT_VALIDATION.md."
     },
     {
       "id": "publication",
@@ -75,7 +75,7 @@
     {
       "id": "budget_aware_BL",
       "scope": "2026-10-18 opt-in collective uncertainty-aware outer-BL relaxation under explicit protected requirements; one global parameter; original-family normalization, profile version/cache invalidation, N/M atomicity; no default changes",
-      "status": "Qualified controlled accepted native3D RANS/SA/BDF workflows MPI1/2/4 N4/M2, independent unchanged geometry/height/q/J/full-edge/P1/conservation, enabled SU2/CGNS reload/restart, atomic refusal; strict and curved/interacting primitive controls pass. Saved-state M6:100k sampled-profile conflict;1000 protected-minimum conflict;300k provisional uncertain lambda.75, metric6.55s vs93.48s by avoiding unresolved finer-scale trials (changed provisional scale). MPI2/4 trial discrepancy2.04e-13 relative. Independent holdouts suggest300k may remain incompatible. No accepted M6/general curved policy workflow, calibrated global error/allocation, 2D opt-in, viscous accuracy or lifecycle affordability claim. Full Goal3 active; Handbook/GOAL3_BUDGET_AWARE_BL.md."
+      "status": "Controlled opt-in native3D RANS/SA/current+BDF workflows MPI1/2/4 and N4/M2, strict-default compatibility, primitive curved/interacting/finer/stale-cache controls, SU2/CGNS reload/restart and atomic refusal qualified in recorded scopes. Latest saved M6 300k selection lambda.875 gives original-family295068 +/-5769 (-1.644%), still integration-limited with heuristic uncertainty; MPI2/4 agreement <=1.072e-11. 100k remains estimated sampled-profile conflict. No accepted M6 or full curved/interacting policy workflow, calibrated global error allocation, 2D opt-in, viscous accuracy or lifecycle affordability claim. Current contract and Handbook/GOAL3_BUDGET_AWARE_BL.md preserve remaining work."
     }
   ],
   "exclusions": [
@@ -120,7 +120,10 @@
     "oneram6_frozen_v2/termination_reason.json",
     "oneram6_quadrature_v1/captured_cells_v1/cell329/baseline_provenance.json",
     "oneram6_quadrature_v1/claude_captured_review.json",
-    "oneram6_frozen_field_v1/result.json"
+    "oneram6_frozen_field_v1/result.json",
+    "contact_validation_v1/receipt.json",
+    "contact_validation_v2/summary.json",
+    "contact_validation_v2/README.md"
   ],
   "execution_state": {
     "status": "Full Goal3 ACTIVE/incomplete. Targeted admission/terminal observer scoped-qualified. Frozen M6 still rejects; exact binary64/facet certificate identifies a sufficient geometry/metric obstruction, so no unchanged construction rerun is warranted.",
@@ -2360,5 +2363,33 @@
     "actual_BL_CFD_transfer_lifecycle_qualified": false,
     "affordability_qualified": false,
     "next": "Split/profile validation using saved accepted meshes; examine exact shared-contact broad-phase certificates while retaining every geometry condition and fallback predicate."
+  },
+  "budget_aware_BL_contract": {
+    "authorization": "User specification reaffirmed 2026-10-18; extends the existing active goal and preserves previous evidence and gates.",
+    "default": "Explicit opt-in only; existing configurations remain strict.",
+    "mandatory": [
+      "first height",
+      "geometry accuracy",
+      "declared protected near-wall resolution",
+      "preserve finer sensor demands"
+    ],
+    "freedom": "One collective relaxation parameter; current implementation varies permitted outer-normal growth only, under explicit protect-distance and maximum-growth limits. Tangential demands, support/thickness and fade remain unchanged; any future support change must be explicit and reported.",
+    "diagnosis": "Use composed correction by wall distance and surface region and normal/tangential spacing. Continuous spacing is not a removable discrete-layer stack. Thickness reduction is not proportional to cost reduction.",
+    "assessment": "Complete composition from the immutable original unclipped sensor family; no independent BL-cost assumption, clipped-donor rescaling, or monotonicity assumption. Select the least observed admissible sampled relaxation, reporting unresolved intervals.",
+    "outcomes": [
+      "estimated attainable",
+      "estimated budget-incompatible",
+      "integration-limited; heuristic indicators are not proven bounds"
+    ],
+    "MPI": "Broadcast each trial/profile version, reduce unique owned contributions and global uncertainty on participating N/M communicators; no new whole-mesh gather. Collective failures and identical frozen selected profiles required.",
+    "stages": "Freeze profile during local operations. Explicit stage boundaries and profile-aware invalidation include prepared geometry/cuts/samples and scalar edge integrals. Keep original sensor-only P1 donors and actual-query geometric composition.",
+    "gates": "Geometry, prescribed height, positivity, quality, complete composed metric, solution/history transfer and atomic rejection unchanged. Estimated budget feasibility is separate from construction feasibility.",
+    "remaining": [
+      "calibrated uncertainty and bounded work allocation by absolute global error",
+      "complete enabled curved/interacting-wall workflows",
+      "2D opt-in qualification",
+      "complete-event performance including cold/reused preparation, memory, communication, migration/transfer/rebuild/output"
+    ],
+    "M6": "100k conflict is an estimate, not exact budget infeasibility; original sensor around150k, HMAX100 coarsened background around2, strict BL estimate around790k. Separate exact-facet/binary64 construction obstruction remains."
   }
 }

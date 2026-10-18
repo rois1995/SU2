@@ -6792,3 +6792,19 @@ sphere generation, actual viscous accuracy or full event affordability. Validati
 is50.327/57.384seconds in release; measure that path before tensor micro-optimization.
 M6 remains incompatible under its archived exact-facet contract.
 [Report, inspectable accepted/rejected grids and failures](integration_evidence/native_3d_bl_v1/closed_sphere_construction_v1/README.md).
+
+
+## Exact contact validation of unchanged accepted sphere fields
+
+An exact coordinate-support certificate in the shared3D contact predicate preserves
+positive/finite/shared-coordinate input checks and the full exact fallback. Current
+native construction/removal accepts byte-identical meshes/authorities/tensors/all
+metric edges under unchanged budgets. Native seconds202.612+57.384 become
+103.576+20.121 (combined52.42% lower observed locally); work6087 is unchanged.
+Construction validation96.199s still dominates; standalone full-BL contact replay
+hits its90-second ceiling and is retained as incomplete. No metric/profile/fade/
+height/quality/transfer change, new cache, tolerance or whole-mesh gather. Contended
+local comparison, not scaling or complete CFD affordability. The reaffirmed opt-in
+BL budget policy remains strict by default and its global error-allocation/complete
+curved-interacting/MPI BL qualifications remain open.
+[Current contact-validation scope](Handbook/GOAL3_CONTACT_VALIDATION.md).

@@ -4,6 +4,16 @@ Authorized2026-10-18. Status: controlled accepted opt-in MPI workflows, strict-d
 saved-state M6 selection qualified in the scopes below; full-goal gates remain open.
 Full Goal3 remains active; no existing gate has been removed.
 
+## Reaffirmed active scope
+
+The user's full policy specification remains part of the existing active Goal3;
+see `budget_aware_BL_contract` in the requirement audit. This does not restart or
+replace the implemented policy. Current freedoms remain outer-normal growth only,
+under explicitly permitted limits; tangential demand, thickness/support and fade
+stay unchanged. The calibrated global-error work allocator, enabled complete curved/
+interacting workflows and2D extension remain unfinished. M6 budget selection and its
+separate exact-facet construction obstruction must continue to be reported apart.
+
 ## Evidence and decisions
 
 M6 coarsest-sensor HMAX100 endpoint estimates790200.50 +/-27958.45 HEURISTIC

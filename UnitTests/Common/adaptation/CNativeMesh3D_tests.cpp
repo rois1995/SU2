@@ -241,6 +241,51 @@ TEST_CASE("Native3D exact contact admits only the common mesh simplex", "[Native
 }
 
 
+TEST_CASE("Native3D supporting-plane contact preserves exact fallback and input checks", "[NativeContact3D]") {
+  auto positive=[](Cell c) {
+    if(Orientation(c.v[0].p,c.v[1].p,c.v[2].p,c.v[3].p)<0)std::swap(c.v[1],c.v[2]);
+    return c;
+  };
+  for(double scale:{std::numeric_limits<double>::denorm_min(),std::ldexp(1.,-500),1.,std::ldexp(1.,500)}) {
+    Cell a{0,{{{0,{0,0,0}},{1,{scale,0,0}},{2,{0,scale,0}},{3,{0,0,scale}}}}};
+    auto b=positive(Cell{1,{{a.v[0],{4,{-scale,0,0}},{5,{0,-scale,0}},{6,{0,0,-scale}}}}});
+    CHECK(ConformingDisjoint(a,b));CHECK(ConformingDisjoint(b,a));
+    auto unshared=b;for(auto& n:unshared.v)n.id+=100;
+    CHECK_FALSE(ConformingDisjoint(a,unshared));
+  }
+  Cell a{0,{{{0,{0,0,0}},{1,{1,0,0}},{2,{0,1,0}},{3,{0,0,1}}}}};
+  auto vertex=positive(Cell{1,{{a.v[1],{4,{1,-1,0}},{5,{1,0,-1}},{6,{2,0,0}}}}});
+  // One extremal face has extra vertices; only the other tet's common vertex is needed.
+  KernelStats stats;CHECK(ConformingDisjoint(a,vertex,&stats));CHECK(stats.exact_orientations==0);
+  CHECK(ConformingDisjoint(vertex,a));
+  auto edge=positive(Cell{1,{{a.v[0],a.v[1],{4,{0,-1,0}},{5,{0,0,-1}}}}});
+  auto edge_a=a;
+  for(auto* c:{&edge_a,&edge})for(auto& n:c->v){const auto p=n.p;n.p={-p.y-p.z,p.x,p.z};}
+  stats={};CHECK(ConformingDisjoint(edge_a,edge,&stats));CHECK(stats.exact_orientations==0);
+  auto face=positive(Cell{1,{{a.v[0],a.v[1],a.v[2],{4,{0,0,-1}}}}});
+  stats={};CHECK(ConformingDisjoint(a,face,&stats));CHECK(stats.exact_orientations==0);
+  auto partial=positive(Cell{1,{{a.v[0],{4,{1,.5,0}},{5,{.5,1,0}},{6,{0,0,-1}}}}});
+  CHECK_FALSE(ConformingDisjoint(a,partial));CHECK_FALSE(ConformingDisjoint(partial,a));
+  // Non-axis-aligned supporting faces retain the original exact SAT/clipping path.
+  Cell rotated=a;for(auto& n:rotated.v){n.p.x+=n.p.z;n.p.y+=n.p.z;}
+  auto reverse=positive(Cell{1,{{rotated.v[1],rotated.v[2],rotated.v[3],{4,{2,2,2}}}}});
+  stats={};CHECK(ConformingDisjoint(rotated,reverse,&stats));CHECK(stats.exact_orientations>0);
+  reverse.v[0].id=100;CHECK_FALSE(ConformingDisjoint(rotated,reverse));
+  auto touching=positive(Cell{1,{{a.v[1],{4,{2,0,0}},{5,{1,1,0}},{6,{1,0,1}}}}});
+  for(auto& n:touching.v)n.id+=100;
+  auto gap=touching;for(auto& n:gap.v)n.p.x=std::nextafter(n.p.x,INFINITY);
+  CHECK(ConformingDisjoint(a,gap));
+  auto overlap=touching;for(auto& n:overlap.v)n.p.x=std::nextafter(n.p.x,-INFINITY);
+  CHECK_FALSE(ConformingDisjoint(a,overlap));
+  auto mismatch=gap;mismatch.v[0].id=a.v[0].id;
+  CHECK_THROWS_AS(ConformingDisjoint(a,mismatch),std::invalid_argument);
+  auto negative=gap;std::swap(negative.v[0],negative.v[1]);
+  CHECK_THROWS_AS(ConformingDisjoint(a,negative),std::invalid_argument);
+  auto nonfinite=gap;nonfinite.v[0].p.x=INFINITY;
+  CHECK_THROWS_AS(ConformingDisjoint(a,nonfinite),std::invalid_argument);
+}
+
+
 namespace {
 SupportWall3D SupportSquare() {
   return {{{0,0,0},{1,0,0},{1,1,0},{0,1,0}},{{0,1,2},{0,2,3}},.1,1,.2};

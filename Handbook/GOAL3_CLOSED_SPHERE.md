@@ -102,14 +102,14 @@ complete event affordability. The separate M6 exact-facet conflict remains; do n
 rerun its unchanged frozen field or change its authority without the pending user
 preference. Full Goal3 is neither narrowed nor complete.
 
-## Next substantive performance step
+## Current validation-cost follow-up
 
-Profile/split the measured validation cost using the saved accepted meshes, without
-another construction run. Inspect the existing exact ConformingDisjoint broad
-phase for repeated contact checks at shared vertices/edges. A separating AABB plane
-with a common extremal simplex may permit an exact cheap certificate when shared
-identities/coordinates are verified; otherwise keep the existing exact predicate.
-This is an unimplemented hypothesis, not an enabled shortcut or measured gain.
-Keep complete validation and its negative controls; do not optimize tensor algebra
-before accounting for the dominant measured phase. Full-event transfer/repartition/
-solver/output cost still needs actual BL lifecycle measurement.
+The supporting-simplex hypothesis is now implemented in the shared exact contact
+predicate, retaining input checks and the original exact fallback. Actual identical-
+field construction/removal accepts the SAME scientific outputs in123.697seconds
+combined versus259.996; all mesh/field/config/reference outputs are byte-identical.
+Work remains6087/6144. Standalone BL contact replay hits its90-second ceiling and
+is preserved separately from the passing full native event. Current qualification
+and scope are in [GOAL3_CONTACT_VALIDATION.md](GOAL3_CONTACT_VALIDATION.md).
+This is a contended local comparison, not complete unsteady affordability. Broader
+BL lifecycle/transfer/repartition/solver/output cost and the full goal remain open.

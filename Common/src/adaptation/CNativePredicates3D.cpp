@@ -328,6 +328,25 @@ bool ConformingDisjoint(const Cell& a, const Cell& b, KernelStats* stats) {
       throw std::invalid_argument("Native3D contact has inconsistent shared coordinates.");
     shared_a[i]=shared_b[j]=true;
   }
+  auto coordinate=[](Point p,size_t axis) {return axis==0 ? p.x : axis==1 ? p.y : p.z;};
+  for(size_t axis=0;axis<3;++axis) {
+    double amin=coordinate(ta[0],axis),amax=amin,bmin=coordinate(tb[0],axis),bmax=bmin;
+    for(size_t i=1;i<4;++i) {
+      amin=std::min(amin,coordinate(ta[i],axis));amax=std::max(amax,coordinate(ta[i],axis));
+      bmin=std::min(bmin,coordinate(tb[i],axis));bmax=std::max(bmax,coordinate(tb[i],axis));
+    }
+    if(amax<bmin || bmax<amin)return true;
+    if(amax==bmin || bmax==amin) {
+      const double plane=amax==bmin ? amax : bmax;
+      bool common_a=true,common_b=true;
+      for(size_t i=0;i<4;++i) {
+        if(coordinate(ta[i],axis)==plane && !shared_a[i])common_a=false;
+        if(coordinate(tb[i],axis)==plane && !shared_b[i])common_b=false;
+      }
+      // Contact lies in this supporting plane; a wholly shared extremal simplex proves conformity.
+      if(common_a || common_b)return true;
+    }
+  }
   auto delta=[](Point p,Point q) {
     return std::array<Integer<66>,3>{Difference(Coordinate(p.x),Coordinate(q.x)),
       Difference(Coordinate(p.y),Coordinate(q.y)),Difference(Coordinate(p.z),Coordinate(q.z))};

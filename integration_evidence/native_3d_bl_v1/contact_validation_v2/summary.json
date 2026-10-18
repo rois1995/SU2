@@ -1,0 +1,73 @@
+{
+  "status": "PASS_EXACT_CONTACT_AND_IDENTICAL_ACCEPTED_SPHERE_OUTPUTS",
+  "contact_before": {
+    "cells": 320,
+    "mode": "measure",
+    "pairs": 51040,
+    "strict_box_separated": 0,
+    "shared_support_candidates": 38239,
+    "unresolved_candidates": 12801,
+    "predicate_calls": 51040,
+    "exact_orientations": 3482000,
+    "filtered_orientations": 102080,
+    "seconds": 44.874014008
+  },
+  "contact_after": {
+    "cells": 320,
+    "mode": "measure",
+    "pairs": 51040,
+    "strict_box_separated": 0,
+    "shared_support_candidates": 38239,
+    "unresolved_candidates": 12801,
+    "predicate_calls": 51040,
+    "exact_orientations": 853706,
+    "filtered_orientations": 102080,
+    "seconds": 12.220260261
+  },
+  "stages": [
+    {
+      "stage": "construction_v1",
+      "native_seconds": 103.57607032599999,
+      "baseline_native_seconds": 202.612477863,
+      "cells": 5440,
+      "work": 5604,
+      "identical_oracle_inputs": {
+        "accepted.dat": "d33a142dc1d6ff3700c8f623c009e067e2ede9767681da3da100a288af14df28",
+        "accepted.su2": "3a628668cad82172204bd915cf7c24cd987c005ec009d5fe017a0b152b2587c8",
+        "accepted.su2.native_ref": "4a8264bddfdeb3337ea2e0b9478d555d22ebee0647125fcf281f4574c1b97dab",
+        "samples.csv": "5040a4642cbf27ed368c7ea536002419ce656dbdd3db8ce84dc187d6a0cdabaa",
+        "edges.csv": "a0dfe2d0480f073e097ca9d358216a967c2cda3487d3aad23e24baf4e53d6884",
+        "source.json": "37113ee627c150e9c55f26d3c5c8efb9e28298711dd6757e7937ecf394d2854c",
+        "run.cfg": "92f3a514ba30209d35aa41f5ed32f41e83080372aa6c8426e8496a49b3298ae3",
+        "sphere.su2": "b5a4f405e6fb5a70b9d4bc8247b316344a8046a02bf954319ec1e40302eb8057",
+        "sphere.su2.native_ref": "4a8264bddfdeb3337ea2e0b9478d555d22ebee0647125fcf281f4574c1b97dab"
+      },
+      "retained_oracle_sha256": "a68b2d76f2b37b956029635003c5465ab595b334f971a317a9c1ccaf9291126c"
+    },
+    {
+      "stage": "release_v1",
+      "native_seconds": 20.120510647,
+      "baseline_native_seconds": 57.383686129000004,
+      "cells": 320,
+      "work": 483,
+      "identical_oracle_inputs": {
+        "accepted.dat": "be51a129b63ae0ec8ac6f8505c3d3bf382066e59dea030c1473ba73253e0e8dd",
+        "accepted.su2": "866b84b020c84929f637c68f4d3b331a7370bd741f9dd30bda47e71381c643b3",
+        "accepted.su2.native_ref": "4a8264bddfdeb3337ea2e0b9478d555d22ebee0647125fcf281f4574c1b97dab",
+        "samples.csv": "e476d2a48dbf3981cbad39363ea8cc442d53f0201e5be459bfabedf867db1652",
+        "edges.csv": "40b0514b4ee80872df8c4e1e610c761cc903884b2d5b45bbd84e528adfb1ce8d",
+        "source.json": "37113ee627c150e9c55f26d3c5c8efb9e28298711dd6757e7937ecf394d2854c",
+        "run.cfg": "a52f59112ec15c6f12dcfca345b8e5a76ab754fc661c75762130c85f26ba56f7",
+        "sphere.su2": "b5a4f405e6fb5a70b9d4bc8247b316344a8046a02bf954319ec1e40302eb8057",
+        "sphere.su2.native_ref": "4a8264bddfdeb3337ea2e0b9478d555d22ebee0647125fcf281f4574c1b97dab"
+      },
+      "retained_oracle_sha256": "53cb2ae0b913e568e8cbf05018d9dd5f8d3af30c5e93338d55eeb848070ae306"
+    }
+  ],
+  "total_native_seconds": 123.696580973,
+  "baseline_native_seconds": 259.996163992,
+  "total_work": 6087,
+  "work_limit": 6144,
+  "time_limit": 300,
+  "scope": "Identical frozen-field serial mesh construction/removal; reused exact geometry/height/shape and release-field oracle on byte-identical inputs. Current actual primitive MPI N/M Euler lifecycles. No MPI large-BL lifecycle, independent spherical BL field oracle, converged viscous accuracy or affordability claim."
+}
