@@ -775,60 +775,74 @@ TEST_CASE("Axis Newton constraints and mass retain the full rotation orbit", "[N
 
 TEST_CASE("Derivative verification resolves mass-dominated physical null modes", "[NewtonMassResolution]") {
   /*--- Scaling a nearly uniform periodic state gives J_R*w=R(w), tiny compared with the frozen mass action. ---*/
-  for (unsigned cells : {6, 8}) {
-    Problem problem("SOLVER= NAVIER_STOKES\nMARKER_HEATFLUX= NONE\nMARKER_FAR= NONE\n"
-                    "MARKER_PERIODIC= (x_minus,x_plus,0,0,0,0,0,0,1,0,0,"
-                    "y_minus,y_plus,0,0,0,0,0,0,0,1,0)\n", cells);
-    auto& driver = *problem.driver;
-    auto* geometry = driver.Geometry();
-    auto* config = driver.Config();
-    auto* nodes = driver.Solvers()[FLOW_SOL]->GetNodes();
-    for (auto p = 0ul; p < geometry->GetnPoint(); ++p) {
-      const double x = geometry->nodes->GetCoord(p, 0), y = geometry->nodes->GetCoord(p, 1);
-      const double factor = 1 + 1e-9 * std::sin(2 * PI_NUMBER * x) * std::cos(2 * PI_NUMBER * y);
-      for (auto v = 0u; v < driver.Solvers()[FLOW_SOL]->GetnVar(); ++v)
-        nodes->SetSolution(p, v, factor * nodes->GetSolution(p, v));
-      nodes->SetDelta_Time(p, 0.1);
-    }
-    auto equations = problem.Equations({RUNTIME_FLOW_SYS});
-    REQUIRE(Residual(*equations, true));
-    equations->Capture();
-    auto scale = MakeVector(driver, equations->GetnVar()), reference = scale, direction = scale;
-    equations->BuildScales(scale, reference);
-    equations->Pack(direction);
-    for (auto i = 0ul; i < direction.GetLocSize(); ++i) direction[i] /= scale[i];
-    std::vector<unsigned char> free(scale.GetLocSize(), true);
-    CNewtonPseudoTime mass(*equations, geometry, config);
-    REQUIRE(mass.Build(scale, free));
-    for (bool nativeMass : {false, true}) {
-      CAPTURE(cells, nativeMass);
-      CNewtonLinearization linearization(*equations, geometry, config);
-      /*--- This homogeneous direction permits a larger probe without truncation error, reducing flux cancellation. ---*/
-      REQUIRE(linearization.SetBase(scale, mass.GetDiagonal(), 1e-5, 1e-5,
-          [](const CNewtonEquationSet::Block&, unsigned long, unsigned short) { return true; },
-          nullptr, 1.0, false, true, nativeMass ? &mass : nullptr));
-      auto expected = scale, action = scale, actual = scale;
-      equations->CopyResidual(expected);
-      if (nativeMass) mass.Apply(direction, action);
-      for (auto i = 0ul; i < expected.GetLocSize(); ++i)
-        expected[i] = expected[i] / scale[i] +
-                      (nativeMass ? action[i] : mass.GetDiagonal()[i] * direction[i]);
-      /*--- Accuracy belongs to J_R+D here; a relative test against J_R alone cannot resolve this valid mode. ---*/
-      bool valid = false;
-      SU2_OMP_PARALLEL {
-        const bool result = linearization.Apply(direction, actual);
-        SU2_OMP_SAFE_GLOBAL_ACCESS(valid = result;)
+  for (unsigned cells : {6, 8})
+    for (double probeStep : {1e-5, 1e-8}) {
+      Problem problem("SOLVER= NAVIER_STOKES\nMARKER_HEATFLUX= NONE\nMARKER_FAR= NONE\n"
+                      "MARKER_PERIODIC= (x_minus,x_plus,0,0,0,0,0,0,1,0,0,"
+                      "y_minus,y_plus,0,0,0,0,0,0,0,1,0)\n", cells);
+      auto& driver = *problem.driver;
+      auto* geometry = driver.Geometry();
+      auto* config = driver.Config();
+      auto* nodes = driver.Solvers()[FLOW_SOL]->GetNodes();
+      for (auto p = 0ul; p < geometry->GetnPoint(); ++p) {
+        const double x = geometry->nodes->GetCoord(p, 0), y = geometry->nodes->GetCoord(p, 1);
+        const double factor = 1 + 1e-9 * std::sin(2 * PI_NUMBER * x) * std::cos(2 * PI_NUMBER * y);
+        for (auto v = 0u; v < driver.Solvers()[FLOW_SOL]->GetnVar(); ++v)
+          nodes->SetSolution(p, v, factor * nodes->GetSolution(p, v));
+        nodes->SetDelta_Time(p, 0.1);
       }
-      END_SU2_OMP_PARALLEL
-      CHECK(valid);
-      if (valid) {
-        actual -= expected;
-        CHECK(actual.norm() < 1e-5 * expected.norm());
+      auto equations = problem.Equations({RUNTIME_FLOW_SYS});
+      REQUIRE(Residual(*equations, true));
+      equations->Capture();
+      auto scale = MakeVector(driver, equations->GetnVar()), reference = scale, direction = scale;
+      equations->BuildScales(scale, reference);
+      equations->Pack(direction);
+      for (auto i = 0ul; i < direction.GetLocSize(); ++i) direction[i] /= scale[i];
+      std::vector<unsigned char> free(scale.GetLocSize(), true);
+      CNewtonPseudoTime mass(*equations, geometry, config);
+      REQUIRE(mass.Build(scale, free));
+      for (bool nativeMass : {false, true}) {
+        CAPTURE(cells, nativeMass, probeStep);
+        CNewtonLinearization linearization(*equations, geometry, config);
+        /*--- A tiny starting probe must recover from cancellation without weakening derivative verification. ---*/
+        REQUIRE(linearization.SetBase(scale, mass.GetDiagonal(), probeStep, 1e-5,
+            [](const CNewtonEquationSet::Block&, unsigned long, unsigned short) { return true; },
+            nullptr, 1.0, false, true, nativeMass ? &mass : nullptr));
+        auto expected = scale, action = scale, actual = scale;
+        equations->CopyResidual(expected);
+        if (nativeMass) mass.Apply(direction, action);
+        for (auto i = 0ul; i < expected.GetLocSize(); ++i)
+          expected[i] = expected[i] / scale[i] +
+                        (nativeMass ? action[i] : mass.GetDiagonal()[i] * direction[i]);
+        /*--- Accuracy belongs to J_R+D here; a relative test against J_R alone cannot resolve this valid mode. ---*/
+        const auto before = equations->GetResidualEvaluations()[0];
+        bool valid = false;
+        SU2_OMP_PARALLEL {
+          const bool result = linearization.Apply(direction, actual);
+          SU2_OMP_SAFE_GLOBAL_ACCESS(valid = result;)
+        }
+        END_SU2_OMP_PARALLEL
+        CHECK(valid);
+        if (valid && probeStep == 1e-8) {
+          const auto firstWork = equations->GetResidualEvaluations()[0] - before;
+          const auto repeatStart = equations->GetResidualEvaluations()[0];
+          SU2_OMP_PARALLEL {
+            const bool result = linearization.Apply(direction, actual);
+            SU2_OMP_SAFE_GLOBAL_ACCESS(valid = result;)
+          }
+          END_SU2_OMP_PARALLEL
+          REQUIRE(valid);
+          /*--- The same base reuses a verified starting scale, avoiding the failed fine sequence. ---*/
+          CHECK(equations->GetResidualEvaluations()[0] - repeatStart < firstWork);
+        }
+        if (valid) {
+          actual -= expected;
+          CHECK(actual.norm() < (probeStep == 1e-5 ? 1e-5 : 5e-4) * expected.norm());
+        }
+        REQUIRE(equations->Restore());
+        CHECK(equations->GetRestorationError() == 0);
       }
-      REQUIRE(equations->Restore());
-      CHECK(equations->GetRestorationError() == 0);
     }
-  }
 }
 
 TEST_CASE("Newton equation groups map native and conservative scalar increments", "[NewtonEquations]") {

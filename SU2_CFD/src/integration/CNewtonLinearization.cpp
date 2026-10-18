@@ -167,9 +167,9 @@ bool CNewtonLinearization::Apply(const Vector& u, Vector& v, bool pseudoTime, bo
     stepResolution = globalMax[1];
   }
   END_SU2_OMP_SAFE_GLOBAL_ACCESS
-  double h = absoluteStep / norm;
-  if (relativeStep > 0 && relative > 0) h = std::min(h, relativeStep / relative);
-  if (!(h > 0) || !Armijo::IsFinite(h)) {
+  double initialStep = absoluteStep / norm * (refine ? probeFactor : 1);
+  if (relativeStep > 0 && relative > 0) initialStep = std::min(initialStep, relativeStep / relative);
+  if (!(initialStep > 0) || !Armijo::IsFinite(initialStep)) {
     v = passivedouble(std::numeric_limits<double>::quiet_NaN());
     SU2_OMP_BARRIER
     return false;
@@ -203,56 +203,74 @@ bool CNewtonLinearization::Apply(const Vector& u, Vector& v, bool pseudoTime, bo
     END_SU2_OMP_FOR
     return true;
   };
-  bool sampled = false;
-  for (auto attempt = 0u; attempt <= 16; ++attempt) {
-    if (stepResolution > 0 && std::abs(h) * stepResolution < 1) break;
-    if (probe(h)) { sampled = true; break; }
-    if (probe(-h)) { h = -h; sampled = true; break; }
-    h *= 0.5;
-  }
-  bool converged = false;
-  if (refine && pseudoTime) {
-    SU2_OMP_SAFE_GLOBAL_ACCESS(
-        if (probeWork.GetLocSize() != u.GetLocSize())
-          probeWork.Initialize(u.GetNBlk(), u.GetNBlkDomain(), u.GetNVar(), 0.0);)
-  }
-  for (unsigned refinement = 0; sampled && refinement <= (refine ? 16u : 0u); ++refinement) {
-    /*--- A rounded-away perturbation cannot establish a zero derivative. ---*/
-    if (stepResolution > 0 && std::abs(h) * stepResolution < 1) break;
-    if (refinement && !probe(h)) break;
-    SU2_OMP_FOR_STAT(1024)
-    for (auto i = 0ul; i < u.GetNElmDomain(); ++i) {
-      const double fine = v[i];
-      if (refine) {
-        v[i] = refinement ? 2 * fine - coarseProduct[i] : fine;
-        coarseProduct[i] = fine;
-        previousProduct[i] = v[i] - (refinement ? previousProduct[i] : 0.0);
-      } else
-        v[i] = fine;
+  auto differentiate = [&](double h) {
+    bool sampled = false;
+    for (auto attempt = 0u; attempt <= 16; ++attempt) {
+      if (stepResolution > 0 && std::abs(h) * stepResolution < 1) break;
+      if (probe(h)) { sampled = true; break; }
+      if (probe(-h)) { h = -h; sampled = true; break; }
+      h *= 0.5;
     }
-    END_SU2_OMP_FOR
-    const double error = refine ? previousProduct.norm() : 0;
-    double magnitude = refine && !pseudoTime ? v.norm() : 0;
+    bool converged = false;
     if (refine && pseudoTime) {
-      /*--- Verify the operator being solved: near-null physical modes are resolved by the frozen mass action. ---*/
-      if (nativeMass) {
-        nativeMass->Apply(u, probeWork);
-        probeWork += v;
-      } else {
-        SU2_OMP_FOR_STAT(1024)
-        for (auto i = 0ul; i < u.GetNElmDomain(); ++i) probeWork[i] = v[i] + (*diagonal)[i] * u[i];
-        END_SU2_OMP_FOR
+      SU2_OMP_SAFE_GLOBAL_ACCESS(
+          if (probeWork.GetLocSize() != u.GetLocSize())
+            probeWork.Initialize(u.GetNBlk(), u.GetNBlkDomain(), u.GetNVar(), 0.0);)
+    }
+    for (unsigned refinement = 0; sampled && refinement <= (refine ? 16u : 0u); ++refinement) {
+      /*--- A rounded-away perturbation cannot establish a zero derivative. ---*/
+      if (stepResolution > 0 && std::abs(h) * stepResolution < 1) break;
+      if (refinement && !probe(h)) break;
+      SU2_OMP_FOR_STAT(1024)
+      for (auto i = 0ul; i < u.GetNElmDomain(); ++i) {
+        const double fine = v[i];
+        if (refine) {
+          v[i] = refinement ? 2 * fine - coarseProduct[i] : fine;
+          coarseProduct[i] = fine;
+          previousProduct[i] = v[i] - (refinement ? previousProduct[i] : 0.0);
+        } else
+          v[i] = fine;
       }
-      magnitude = probeWork.norm();
+      END_SU2_OMP_FOR
+      const double error = refine ? previousProduct.norm() : 0;
+      double magnitude = refine && !pseudoTime ? v.norm() : 0;
+      if (refine && pseudoTime) {
+        /*--- Verify the operator being solved: near-null physical modes are resolved by the frozen mass action. ---*/
+        if (nativeMass) {
+          nativeMass->Apply(u, probeWork);
+          probeWork += v;
+        } else {
+          SU2_OMP_FOR_STAT(1024)
+          for (auto i = 0ul; i < u.GetNElmDomain(); ++i) probeWork[i] = v[i] + (*diagonal)[i] * u[i];
+          END_SU2_OMP_FOR
+        }
+        magnitude = probeWork.norm();
+      }
+      if (!refine || (refinement > 1 && error <= 5e-4 * magnitude)) {
+        converged = true;
+        break;
+      }
+      /*--- Richardson extrapolation removes the leading forward-probe error without crossing physical bounds. ---*/
+      previousProduct = v;
+      SU2_OMP_BARRIER
+      h *= 0.5;
     }
-    if (!refine || (refinement > 1 && error <= 5e-4 * magnitude)) {
-      converged = true;
-      break;
+    return converged;
+  };
+  bool converged = differentiate(initialStep);
+  if (!converged && refine && !physicalStep && probeFactor == 1 && flow != blocks.end() &&
+      config->GetKind_Regime() == ENUM_REGIME::COMPRESSIBLE) {
+    /*--- Halving a cancellation-dominated probe cannot resolve its derivative. Try one coarser
+     *     starting step, retaining feasibility, relative limits and the same verification tolerance. ---*/
+    double coarserStep = 100 * initialStep;
+    if (relativeStep > 0 && relative > 0) coarserStep = std::min(coarserStep, relativeStep / relative);
+    if (coarserStep > initialStep && Armijo::IsFinite(coarserStep)) {
+      converged = differentiate(coarserStep);
+      /*--- Reuse only the starting scale for this base; every product is verified and SetBase resets it. ---*/
+      if (converged) {
+        SU2_OMP_SAFE_GLOBAL_ACCESS(probeFactor = 100;)
+      }
     }
-    /*--- Richardson extrapolation removes the leading forward-probe error without crossing physical bounds. ---*/
-    previousProduct = v;
-    SU2_OMP_BARRIER
-    h *= 0.5;
   }
   if (!converged) {
     v = passivedouble(std::numeric_limits<double>::quiet_NaN());

@@ -65,7 +65,7 @@ class CNewtonLinearization final : public CMatrixVectorProduct<passivedouble> {
   std::vector<unsigned char> free;
   double absoluteStep = 0, relativeStep = 0, reconstruction = 1;
   bool physicalStep = false, refineStep = false;
-  mutable double relative = 0, stepResolution = 0;
+  mutable double relative = 0, stepResolution = 0, probeFactor = 1;
 
  public:
   CNewtonLinearization(CNewtonEquationSet&, CGeometry*, CConfig*);
@@ -92,7 +92,7 @@ class CNewtonLinearization final : public CMatrixVectorProduct<passivedouble> {
                     [](const CNewtonEquationSet::Block& block) { return block.slot == SPECIES_SOL; }));
     SU2_OMP_SAFE_GLOBAL_ACCESS(scale = &scaling; diagonal = &pseudoTime; probeReference = relativeReference;
                                absoluteStep = step; relativeStep = relativeLimit; reconstruction = reconstructionFactor;
-                               physicalStep = physicalMetric; refineStep = verifyStep;
+                               physicalStep = physicalMetric; refineStep = verifyStep; probeFactor = 1;
                                nativeMass = mass;
                                if (verifyStep && coarseProduct.GetLocSize() != scaling.GetLocSize()) {
                                  coarseProduct.Initialize(scaling.GetNBlk(), scaling.GetNBlkDomain(), scaling.GetNVar(), 0.0);
