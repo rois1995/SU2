@@ -133,3 +133,8 @@ Current-binary MPI4 reference controls and independent Cartesian N4/M2 initializ
 RANS/SA transfer/output/actual restart pass. These are compatibility controls and
 primitive evidence, not completion of arbitrary Euler/RANS geometry workflows.
 [Executed scope and provenance](../integration_evidence/native_3d_bl_v1/affine_geometry_core_v1/README.md).
+
+Current connected source/backend checkpoint is [tracked separately](GOAL3_AFFINE_RUNTIME.md).
+It passes scoped Euler/RANS imports, serial/MPI original-field audits and Cartesian
+compatibility; initial adoption/junction/2D/exterior and accepted oblique workflows
+remain required and OPEN.

@@ -4,6 +4,7 @@
  * SPDX-License-Identifier: LGPL-2.1-or-later
  */
 #include "../../include/adaptation/CNativeAffineReference.hpp"
+#include "../../include/adaptation/CNativeBoundary3D.hpp"
 #include "../../include/adaptation/CNativeGeometryValidation2D.hpp"
 #include "../../include/adaptation/CTransferMemory.hpp"
 #include <numeric>
@@ -144,6 +145,19 @@ FinitePlaneReference::FinitePlaneReference(AffineAuthority authority,const std::
   SU2NativeBoundary2D::ValidatePhysicalGraph(boundary);
   reference=std::make_shared<PlanarReference>(std::move(flat),ceiling);
   std::set<Id> roots;for(const auto& f:facets)roots.insert(reference->Canonical(f.id));components.assign(roots.begin(),roots.end());
+}
+Id FinitePlaneReference::Component(Id facet)const {return reference->Canonical(facet);}
+bool FinitePlaneReference::Contains(Id facet,Point p,SU2Native3D::KernelStats* stats)const {
+  if(chart.ErrorBound(p)>chart.Authority().maximum_error)return false;
+  return reference->Contains(facet,chart.Coordinates(p),stats);
+}
+bool FinitePlaneReference::ContainsSegment(Id facet,Point a,Point b,SU2Native3D::KernelStats* stats)const {
+  if(!Contains(facet,a,stats)||!Contains(facet,b,stats))return false;
+  return reference->ContainsSegment(facet,chart.Coordinates(a),chart.Coordinates(b),stats);
+}
+bool FinitePlaneReference::ContainsFace(Id facet,const std::array<Point,3>& face,SU2Native3D::KernelStats* stats)const {
+  auto flat=face;for(auto& p:flat){if(chart.ErrorBound(p)>chart.Authority().maximum_error)return false;p=chart.Coordinates(p);}
+  return reference->ContainsFace(facet,flat,stats);
 }
 bool FinitePlaneReference::Contains(Point p)const {
   if(chart.ErrorBound(p)>chart.Authority().maximum_error)return false;const auto flat=chart.Coordinates(p);

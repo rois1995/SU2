@@ -5,6 +5,7 @@
  */
 #include "catch.hpp"
 #include "../../../Common/include/adaptation/CNativeAffineReference.hpp"
+#include "../../../Common/include/adaptation/CNativeBoundary3D.hpp"
 #include <fstream>
 #include <iomanip>
 using namespace SU2NativeGeometry;
@@ -114,4 +115,13 @@ TEST_CASE("Finite rotated planes retain multiple holes concavity and disconnecte
   bad=facets;bad[0].v[2].p.z=std::nextafter(bad[0].v[2].p.z,INFINITY);
   CHECK_THROWS(FinitePlaneReference(definition,bad)); // Even within the plane error, a shared ID has one coordinate.
   CHECK(plane.Contains(p(.5,.5)));
+}
+
+TEST_CASE("Declared geometry cannot alias the original physical-source tag", "[NativeAffineGeometry]") {
+  SU2Native3D::Facet f{UINT64_MAX,0,{{{0,{1,0,0}},{1,{0,1,0}},{2,{0,0,1}}}}};
+  SU2Native3D::AnalyticSurface sphere;
+  CHECK_THROWS(SU2Native3D::PlanarReference({f},SIZE_MAX,{{UINT64_MAX,sphere}}));
+  const auto definition=Authority(3);const AffineChart chart(definition);
+  f.v={{{0,chart.Lift({0,0,0})},{1,chart.Lift({1,0,0})},{2,chart.Lift({0,1,0})}}};
+  CHECK_THROWS(SU2Native3D::PlanarReference({f},SIZE_MAX,{},{{UINT64_MAX,definition}}));
 }

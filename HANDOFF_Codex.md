@@ -2,13 +2,21 @@
 
 Worktree `/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated`, branch
 `codex/native-3d-bl`. Full Goal3 **ACTIVE/incomplete**; Goal2 base c43a8a3907ea.
-Latest geometry-core checkpoint is published on `codex/native-3d-bl`; see the
+Geometry/source checkpoint is published on `codex/native-3d-bl`; see the
 current Git HEAD. Cleanup receipt:14d1bbc9de. Cartesian current-binary lifecycle
-qualification is workflow_v5_n4; arbitrary runtime scope remains OPEN.
+qualification is workflow_v6_n4; arbitrary runtime scope remains OPEN.
 [Full requirements](integration_evidence/native_3d_bl_v1/GOAL3_REQUIREMENTS.json).
 Leave AdapNoExt, foreign ClusterResults, dependencies and foreign jobs untouched.
 
 ## User priority and current job
+
+Affine source/backend batch now passes serial12cases/3974assertions, MPI4 and
+independent75-stencil/source-ID/codec/equality audit. Current Cartesian N4/M2 full
+lifecycle independently PASS. All owned jobs TERMINAL; no new CFD advance or M6.
+Read [backend scope and open full-goal requirements](Handbook/GOAL3_AFFINE_RUNTIME.md).
+No accepted oblique lifecycle; simultaneous junction collars and affine-wall BL
+composition explicitly refuse. Preserve full geometry/2D/exterior scope and annular
+coordinated-construction requirement. Do not declare general geometry complete.
 
 1. Spherical repeated RANS lifecycle validation/push: **DONE**, reuse accepted cold.
 2. Explicit audited planar symmetry reference, including wall intersections and
@@ -25,20 +33,13 @@ regions, simultaneous junctions, shared Euler/RANS geometry and complete MPI
 transfer/persistence/restart/exterior workflows. Cartesian and one-hole checks do
 not complete it. Preserve full goal and all gates.
 
-All owned builds/tests TERMINAL. Affine-core final build44661 PASS (four steps,
--j1/nice19/TMP on4TB); serial9cases/3731assertions and exact-rational320sample audit
-PASS. Current-binary MPI4 baseline and independently audited Cartesian N4/M2
-RANS/SA/current+BDF/transfer/SU2/CGNS/real restart PASS. No new CFD advance or M6 run.
-[Executed geometry-core scope](integration_evidence/native_3d_bl_v1/affine_geometry_core_v1/README.md).
-Core now covers arbitrary 2D/3D charts, finite multi-hole/nonconvex/disconnected
-regions and complete chords/faces, idempotent authorized projection and BC-label
-independence. Straight footprints only; general runtime authority, simultaneous
-curved body junctions, original-P1 collar and persisted declarations remain OPEN.
-Next connected step must address these across existing authority/import/query/IO
-callers; keep input-deviation and mapping-error contracts separate. Do not expose
-projection-only runtime or claim general geometry complete. Annular construction
-still needs coordinated surface/first-row/volume transition reconstruction, not an
-edge-local fallback or cap increase. Reuse the exact failed star/witness below.
+Qualified affine core (39c3d264f2) retains arbitrary2D/3D charts, finite multi-hole/
+nonconvex/disconnected domains and complete chords/faces. Source/backend scope is
+now [documented here](Handbook/GOAL3_AFFINE_RUNTIME.md): native-ref v4, original-P1
+support and collective source validation are qualified. Private affine projection
+routes are implemented, not an accepted oblique proposal/lifecycle qualification.
+Keep input-adoption versus mapping-error contracts separate. General junctions,
+affine-wall BL,2D runtime/exterior and annular coordinated construction remain OPEN.
 Disk cleanup recovered14.40GiB; [receipt and restore](Handbook/DISK_SPACE_CLEANUP_2026_10_18.md).
 Current build and all3D evidence preserved; archived old executables need decompression.
 Root/tmp nearly full from foreign work: leave it untouched.

@@ -17,7 +17,7 @@
 namespace SU2Native3D {
 namespace {
 struct Header {
-  uint64_t markers = 0, facets = 0, analytic = 0;
+  uint64_t markers = 0, facets = 0, analytic = 0, affine = 0;
   unsigned version = 1;
 };
 Header ReadHeader(std::istream& in, size_t bytes) {
@@ -25,16 +25,18 @@ Header ReadHeader(std::istream& in, size_t bytes) {
   unsigned version = 0;
   Header h;
   // Each facet needs fourteen numeric tokens; file length bounds counts before allocating any facet storage.
-  if (!(in >> magic >> version >> h.markers >> h.facets) || magic != "SU2_NATIVE_REFERENCE_3D" || (version < 1 || version > 3) ||
+  if (!(in >> magic >> version >> h.markers >> h.facets) || magic != "SU2_NATIVE_REFERENCE_3D" || (version < 1 || version > 4) ||
       !h.facets || h.facets > bytes / 14 || !h.markers || h.markers > h.facets)
     throw std::invalid_argument("Invalid native3D reference header/counts/version.");
   h.version=version;
-  if (version>=2 && (!(in>>h.analytic) || !h.analytic || h.analytic>h.facets || h.analytic>bytes/9))
+  if (version>=2 && (!(in>>h.analytic) || (!h.analytic && version<4) || h.analytic>h.facets || h.analytic>bytes/9))
     throw std::invalid_argument("Invalid native3D analytic reference counts.");
+  if(version==4 && (!(in>>h.affine) || !h.affine || h.affine>h.facets || h.affine>bytes/11 || h.analytic>h.facets-h.affine))
+    throw std::invalid_argument("Invalid native3D affine reference counts.");
   return h;
 }
 size_t DecodeBytes(size_t bytes, const Header& h) {
-  return transfer_memory::Add(transfer_memory::Mul(bytes, 8), PlanarReference::ConstructionBytes(h.facets,h.analytic));
+  return transfer_memory::Add(transfer_memory::Mul(bytes, 8), PlanarReference::ConstructionBytes(h.facets,h.analytic,h.affine));
 }
 }  // namespace
 std::string EncodeReference(const ReferenceState& state) {
@@ -44,10 +46,13 @@ std::string EncodeReference(const ReferenceState& state) {
   out.imbue(std::locale::classic());
   out << std::setprecision(17);
   const auto& analytic=state.original->Analytic();
+  const auto& affine=state.original->Affine();
   const bool axis=std::any_of(analytic.begin(),analytic.end(),[](const auto& row){return unsigned(row.second.kind)>=3;});
-  out << "SU2_NATIVE_REFERENCE_3D " << (analytic.empty()?1:axis?3:2) << '\n'
+  const unsigned version=!affine.empty()?4:analytic.empty()?1:axis?3:2;
+  out << "SU2_NATIVE_REFERENCE_3D " << version << '\n'
       << state.marker_names.size() << ' ' << state.facets.size();
-  if (!analytic.empty()) out << ' ' << analytic.size();
+  if (version>=2) out << ' ' << analytic.size();
+  if (version>=4) out << ' ' << affine.size();
   out << '\n';
   for (const auto& name : state.marker_names) out << std::quoted(name) << '\n';
   for (const auto& f : state.facets) {
@@ -66,8 +71,14 @@ std::string EncodeReference(const ReferenceState& state) {
     const auto& g=row.second;
     out << row.first << ' ' << unsigned(g.kind) << ' ' << g.origin.x << ' ' << g.origin.y << ' ' << g.origin.z
         << ' ' << g.extent.x << ' ' << g.extent.y << ' ' << g.extent.z << ' ' << g.tolerance;
-    if(axis)out << ' ' << g.axis.x << ' ' << g.axis.y << ' ' << g.axis.z;
+    if(axis || version>=4)out << ' ' << g.axis.x << ' ' << g.axis.y << ' ' << g.axis.z;
     out << '\n';
+  }
+  for(const auto& row:affine) {
+    const auto& g=row.second;
+    out << row.first << ' ' << g.identity << ' ' << g.version << ' ' << g.dimension << ' '
+        << g.origin.x << ' ' << g.origin.y << ' ' << g.origin.z << ' '
+        << g.normal.x << ' ' << g.normal.y << ' ' << g.normal.z << ' ' << g.maximum_error << '\n';
   }
   if (!out)
     throw std::runtime_error("Native3D reference exceeds file limit.");
@@ -82,7 +93,7 @@ ReferenceState DecodeReference(const std::string& bytes, size_t ceiling) {
   in.imbue(std::locale::classic());
   const auto header = ReadHeader(in, bytes.size());
   const auto markers = header.markers, facets = header.facets;
-  const size_t construction = PlanarReference::ConstructionBytes(facets,header.analytic), requested = DecodeBytes(bytes.size(), header);
+  const size_t construction = PlanarReference::ConstructionBytes(facets,header.analytic,header.affine), requested = DecodeBytes(bytes.size(), header);
   if (requested == SIZE_MAX || requested > ceiling)
     throw std::invalid_argument("Native3D reference decoding exceeds storage budget.");
   ReferenceState result;
@@ -116,10 +127,16 @@ ReferenceState DecodeReference(const std::string& bytes, size_t ceiling) {
     g.kind=static_cast<AnalyticSurface::Kind>(kind);
     if (!analytic.emplace(id,g).second) throw std::invalid_argument("Duplicate native3D analytic reference chart.");
   }
+  std::map<Id,SU2NativeGeometry::AffineAuthority> affine;
+  for(uint64_t i=0;i<header.affine;++i) {
+    Id id;SU2NativeGeometry::AffineAuthority g;
+    if(!(in>>id>>g.identity>>g.version>>g.dimension>>g.origin.x>>g.origin.y>>g.origin.z>>g.normal.x>>g.normal.y>>g.normal.z>>g.maximum_error) ||
+       !affine.emplace(id,g).second)throw std::invalid_argument("Invalid/duplicate native3D affine reference record.");
+  }
   in >> std::ws;
   if (!in.eof() || used.size() != markers) throw std::invalid_argument("Trailing data or unused native3D markers.");
   ValidateDomainSurfaceTopology(skin);
-  result.original = std::make_shared<PlanarReference>(result.facets, construction, std::move(analytic));
+  result.original = std::make_shared<PlanarReference>(result.facets, construction, std::move(analytic),std::move(affine));
   return result;
 }
 bool LoadReference(const std::string& filename, ReferenceState& state, bool& loaded, std::string& reason,

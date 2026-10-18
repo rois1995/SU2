@@ -1,0 +1,48 @@
+{
+  "status": "SCOPED_AFFINE_REFERENCE_SOURCE_BACKEND_PASS_FULL_GOAL_OPEN",
+  "serial": {
+    "cases": 12,
+    "assertions": 3974,
+    "lift_samples": 320,
+    "folder": "serial_v3"
+  },
+  "mpi": {
+    "ranks": 4,
+    "cases_per_rank": 5,
+    "assertions_per_rank_range": [
+      155,
+      635
+    ],
+    "folder": "mpi4_v3"
+  },
+  "independent": "independent_sources.json",
+  "cartesian_compatibility": "../planar_symmetry_reference_v1/workflow_v6_n4/independent_symmetry.json",
+  "achieved": [
+    "Finite affine component queries attached to existing3D reference and private operator dispatch",
+    "Native-ref v4 authority fields/legacy1--3 encoding retained",
+    "Original sensor-only P1 priority and actual-query composition",
+    "Original node modulo valid with disjoint analytic and affine sources",
+    "Collective definition/version checks and atomic unsupported-junction rejection",
+    "Declared-source sentinel collision rejection",
+    "Affine source allocation scales with active declared faces; capacity remains admitted"
+  ],
+  "unsupported": [
+    "No arbitrary off-plane initial config adoption",
+    "Affine private projection/reconstruction routes are implemented but not yet qualified by accepted oblique proposals",
+    "No complete accepted oblique adaptation/transfer/SU2+CGNS/real restart",
+    "Shared distinct plane or plane/analytic source junction collars",
+    "BL composition on an affine wall authority; explicit refusal prevents faceted substitution",
+    "General2D runtime adoption, analytic intersection curves, representative exterior workflow",
+    "Existing analytic BL one-complete-component-per-marker restriction",
+    "Native annular cold construction remains blocked; no new M6 attempt"
+  ],
+  "failures_preserved": [
+    "build_interrupted.log",
+    "build_fixture_failure.log",
+    "serial_v1",
+    "serial_v2",
+    "serial_v2_debug"
+  ],
+  "performance_scope": "Correctness receipts only: serial1.0624s, MPI4 0.9263s, Cartesian14.9709s on contended host; no measured speedup/scaling/whole-event affordability claim",
+  "replay_scope": "Executed v3 source capsules retain their exact launcher. Current launcher adds supporting helper pins/artifact checks and defaults to a new v4 folder; no rerun needed for unchanged helper bytes verified against pre-build39c3d264f2."
+}

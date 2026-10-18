@@ -60,7 +60,7 @@ std::array<Id, 4> DonorCell::Key() const {
 std::vector<Id> AssociatedExtensions(const std::vector<DonorCell>& source,const PlanarReference& reference) {
   std::vector<Id> components;
   for(const auto& donor:source)
-    if(donor.extension_component!=UINT64_MAX && reference.Analytic().count(donor.extension_component))
+    if(donor.extension_component!=UINT64_MAX && reference.Declared(donor.extension_component))
       components.push_back(donor.extension_component);
   std::sort(components.begin(),components.end());components.erase(std::unique(components.begin(),components.end()),components.end());
   return components;

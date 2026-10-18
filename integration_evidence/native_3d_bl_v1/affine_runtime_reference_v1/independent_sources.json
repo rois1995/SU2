@@ -1,0 +1,55 @@
+{
+  "status": "INDEPENDENT_SERIAL_MPI_SOURCE_CONSISTENCY_PASS",
+  "cases": {
+    "serial_v3": {
+      "euler": {
+        "status": "EXACT_ORIGINAL_FAMILY_SOURCE_AND_CODEC_PASS",
+        "physical_sources": 48,
+        "analytic_sources": 3,
+        "affine_sources": 24,
+        "original_span": 27,
+        "geometry_data_sha256": "492d6db950d7c5e2cf5f11f9ba75f9cb5f9dfffd18b1b3b44e112646ead2570f",
+        "reference_sha256": "a77c2d6ef51f328893abaa7815e98869363678844be1eac2f55a47577159dde1",
+        "source_signature_sha256": "42a94058173cd4dd6761a171ede361b134435ed04a16c1b13286e898ed61c830",
+        "scope": "Exact positive source determinants, original-node modulo/sensor trace, independent v4 fields and original affine vertex bounds; no accepted oblique mesh or transfer/restart claim"
+      },
+      "rans": {
+        "status": "EXACT_ORIGINAL_FAMILY_SOURCE_AND_CODEC_PASS",
+        "physical_sources": 48,
+        "analytic_sources": 3,
+        "affine_sources": 24,
+        "original_span": 27,
+        "geometry_data_sha256": "6a772c4f1c56cd04be2a22023cd2b26afb8c717c4f827753e8c123147bf26466",
+        "reference_sha256": "f999855c84a0d57679835a22e5b8cc53f9b7cbf71590314bae4a5be7c285274b",
+        "source_signature_sha256": "42a94058173cd4dd6761a171ede361b134435ed04a16c1b13286e898ed61c830",
+        "scope": "Exact positive source determinants, original-node modulo/sensor trace, independent v4 fields and original affine vertex bounds; no accepted oblique mesh or transfer/restart claim"
+      }
+    },
+    "mpi4_v3": {
+      "euler": {
+        "status": "EXACT_ORIGINAL_FAMILY_SOURCE_AND_CODEC_PASS",
+        "physical_sources": 48,
+        "analytic_sources": 3,
+        "affine_sources": 24,
+        "original_span": 27,
+        "geometry_data_sha256": "4bfbdf01f338dcd59226dad9b860784ff8c02e0d31c623161000ff1a60b3a0e2",
+        "reference_sha256": "3a8ace055704e2a4af16107cd6a0a03a7f4ddc7792d98f8e71c0560fee259038",
+        "source_signature_sha256": "42a94058173cd4dd6761a171ede361b134435ed04a16c1b13286e898ed61c830",
+        "scope": "Exact positive source determinants, original-node modulo/sensor trace, independent v4 fields and original affine vertex bounds; no accepted oblique mesh or transfer/restart claim"
+      },
+      "rans": {
+        "status": "EXACT_ORIGINAL_FAMILY_SOURCE_AND_CODEC_PASS",
+        "physical_sources": 48,
+        "analytic_sources": 3,
+        "affine_sources": 24,
+        "original_span": 27,
+        "geometry_data_sha256": "4963ade7491467d4489d0f6303ffb044c80ac352103ae2d49666a5b4082d97b0",
+        "reference_sha256": "74f0e9036449e6bff5ad4b77660778f775efd47515b7d695908dc7476ec7f215",
+        "source_signature_sha256": "42a94058173cd4dd6761a171ede361b134435ed04a16c1b13286e898ed61c830",
+        "scope": "Exact positive source determinants, original-node modulo/sensor trace, independent v4 fields and original affine vertex bounds; no accepted oblique mesh or transfer/restart claim"
+      }
+    }
+  },
+  "audit_source_sha256": "73c5545ee87490b37001b359bd3f1a60219e1644c1138dab66b06c3751aaa6ce",
+  "house_predicate_sha256": "26079385c071c3ad1b9c06ab3b862b4ff293367dc3c8d291acf0487089d062c5"
+}

@@ -1,0 +1,9 @@
+{
+  "status": "FIXTURE_CONFIGURATION_ERROR",
+  "failed_run": "serial_v1",
+  "stack_top": "State(CGeometry const&,CSolver const&), CNativeImport3D_tests.cpp:91",
+  "cause": "New fixture requested a current+BDF snapshot from a steady-state solver with no allocated time history",
+  "correction": "Enable the same unsteady/BDF configuration as existing state-preservation controls; preserve full snapshot and all gates",
+  "binary_provenance": "serial_v1/provenance.json",
+  "production_queries_reached": false
+}

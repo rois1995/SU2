@@ -366,7 +366,7 @@ class Selection {
       throw std::runtime_error("Incomplete native 3D initial/updated metric measurement.");
     CellState row; row.valid=valid;
     std::map<Edge,long double> geometry_scores;
-    if (!geometry.Analytic().empty()) {
+    if (!geometry.ExtensionComponents().empty()) {
       const auto faces=Faces(cell);
       for(size_t slot=0;slot<4;++slot)if(owned.physical[slot].present) {
         std::array<Point,3> triangle{};
@@ -468,7 +468,7 @@ struct HeightPolicyRow {
 };
 EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorCell>& original,
                    const PlanarReference& geometry, MetricComposition composition, EngineOptions options, MetricChange intent) {
-  const bool curved=!geometry.Analytic().empty();
+  const bool curved=!geometry.ExtensionComponents().empty();
   const bool coarsening=intent==MetricChange::Coarsen;
   bool repairing=intent==MetricChange::Repair, recovered=false;
   const auto tracked_bytes_begin=world.bytes_sent;
@@ -697,7 +697,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         ready=vote(failure);
       }
     }
-    if (ready) ready=admit(transfer_memory::Add(accepted_bytes,64,transfer_memory::Mul(geometry.Analytic().size(),sizeof(Id)),
+    if (ready) ready=admit(transfer_memory::Add(accepted_bytes,64,transfer_memory::Mul(geometry.ExtensionComponents().size(),sizeof(Id)),
         transfer_memory::Mul(std::min<uint64_t>(stats.work_limit,4096),
             coarsening ? sizeof(Edge) : sizeof(SplitRecord)),transfer_memory::Mul(accepted.size(),selection_bound(repairing))));
     if (ready) try {
@@ -707,7 +707,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       if (coarsening) result.collapses.reserve(std::min<uint64_t>(stats.work_limit,4096));
       else if (!repairing) result.splits.reserve(std::min<uint64_t>(stats.work_limit,4096));
       initial.reserve(working.size());
-      eligible_extensions.reserve(geometry.Analytic().size());for(const auto& row:geometry.Analytic())eligible_extensions.push_back(row.first);
+      eligible_extensions=geometry.ExtensionComponents();
       if(curved)for(const auto& donor:original) {
         maximum_cell=std::max(maximum_cell,donor.cell.id);
         for(auto node:donor.cell.v)maximum_node=std::max(maximum_node,node.id);
@@ -1582,7 +1582,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       }
       if(facets.size()==2) {
         const auto first=*facets.begin(),second=*facets.rbegin();
-        if(!geometry.Analytic().count(first) && !geometry.Analytic().count(second)) {
+        if(!geometry.Declared(first) && !geometry.Declared(second)) {
           const auto& f=geometry.Get(first);const auto& g=geometry.Get(second);
           const bool folded=std::any_of(g.v.begin(),g.v.end(),[&](Node n){return Orientation(f.v[0].p,f.v[1].p,f.v[2].p,n.p)!=0;});
           if(folded)crease_freedom=Binary64SegmentFreedom(choice.measure.a,choice.measure.b,crease_midpoint);
@@ -2848,7 +2848,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
 }  // namespace
 bool CollapseConstraintViolation(const OwnedCell& cell,Id removed,Node retained,const PlanarReference& geometry,
                                 double tolerance,const std::map<int,double>& heights) {
-  if(heights.empty() && geometry.Analytic().empty())return false;
+  if(heights.empty() && geometry.ExtensionComponents().empty())return false;
   if(std::none_of(cell.physical.begin(),cell.physical.end(),[](FacetBinding f){return f.present;}))return false;
   if(std::any_of(cell.cell.v.begin(),cell.cell.v.end(),[&](Node n){return n.id==retained.id;}))return false;
   auto proposed=cell;bool changes=false;

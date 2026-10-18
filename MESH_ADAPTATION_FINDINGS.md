@@ -1,3 +1,17 @@
+## Affine reference/source backend checkpoint — 2026-10-18
+
+Finite affine references now use the existing3D query/operator/source/IO architecture.
+Serial12cases/3974assertions, MPI4 and independent75-stencil positivity/original-ID/
+sensor/codec/serial-MPI audit PASS. A mixed analytic/affine node-offset alias was
+fixed before publication; original physical-source priority and actual-query target
+composition remain. Native-ref v4 persists definitions; legacy encodings retain
+compatibility. Affine source reservation depends on active faces, not volume size.
+Current Cartesian N4/M2 full RANS/SA transfer/output/real-restart compatibility passes
+independently. This is NOT accepted oblique adaptation or general geometry readiness.
+Initial adoption, simultaneous junctions, affine-wall BL,2D runtime and exterior
+workflows remain OPEN. Unsupported source/BL combinations explicitly refuse; no
+new M6 run or annular construction success. [Scope/evidence](Handbook/GOAL3_AFFINE_RUNTIME.md).
+
 ## Affine geometry core checkpoint — 2026-10-18
 
 Shared 2D/3D chart/finite-domain core passes9cases/3731assertions and an independent

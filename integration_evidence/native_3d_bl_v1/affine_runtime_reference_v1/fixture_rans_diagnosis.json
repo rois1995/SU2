@@ -1,0 +1,10 @@
+{
+  "status": "FIXTURE_CONFIGURATION_ERROR",
+  "failed_run": "serial_v2",
+  "message": "Reynolds number required for NAVIER_STOKES and RANS !!",
+  "stack": "CConfig::SetPostprocessing <- transfer_test::MakeConfig <- new affine import test",
+  "euler_variant_completed": true,
+  "correction": "Share explicit RANS/SA Re=1e6 and reference length=1 configuration across both RANS fixture configs",
+  "debug_evidence": "serial_v2_debug/diagnosis.log",
+  "geometry_metric_gates_unchanged": true
+}

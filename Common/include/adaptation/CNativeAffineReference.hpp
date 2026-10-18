@@ -4,7 +4,12 @@
  * SPDX-License-Identifier: LGPL-2.1-or-later
  */
 #pragma once
-#include "CNativeBoundary3D.hpp"
+#include "CNativeCavity3D.hpp"
+#include <map>
+#include <memory>
+#include <vector>
+
+namespace SU2Native3D { class PlanarReference; struct Facet; }
 
 namespace SU2NativeGeometry {
 using SU2Native3D::Point;
@@ -57,11 +62,15 @@ class FiniteLineReference {
  * Oriented outer/inner loops and disconnected regions are prepared once. Input facets
  * must form a conforming single-cover triangulation with straight footprint edges.
  * Finite topology is checked; analytic body-intersection curves need a separate authority.
- * This geometry API is not yet wired to CFD initialization, donor extension or restart. */
+ * The shared 3D backend carries these domains; arbitrary initial adoption remains separate. */
 class FinitePlaneReference {
  public:
   FinitePlaneReference(AffineAuthority authority,const std::vector<SU2Native3D::Facet>& facets,size_t ceiling=SIZE_MAX);
   const AffineChart& Chart()const{return chart;}
+  Id Component(Id facet)const;
+  bool Contains(Id facet,Point p,SU2Native3D::KernelStats* stats=nullptr)const;
+  bool ContainsSegment(Id facet,Point a,Point b,SU2Native3D::KernelStats* stats=nullptr)const;
+  bool ContainsFace(Id facet,const std::array<Point,3>& face,SU2Native3D::KernelStats* stats=nullptr)const;
   bool Contains(Point p)const;
   bool ContainsSegment(Point a,Point b)const;
   bool ContainsFace(const std::array<Point,3>& face)const;

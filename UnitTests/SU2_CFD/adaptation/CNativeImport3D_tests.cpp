@@ -342,6 +342,98 @@ class TetraDriver : public CSinglezoneDriver {
   std::shared_ptr<ReferenceState> Reference(){return nativeReference3D;}
 };
 }
+TEST_CASE("Affine authority survives actual Euler and RANS original-source import", "[NativeAffineImport3D]") {
+  const bool rans=GENERATE(false,true);World world;const std::string name=rans?"affine_import_rans":"affine_import_euler";
+  const std::string ransOptions="SOLVER= RANS\nKIND_TURB_MODEL= SA\nREYNOLDS_NUMBER= 1e6\nREYNOLDS_LENGTH= 1\n";
+  auto config=MakeConfig(3,(rans?ransOptions:std::string("SOLVER= EULER\n"))+
+      "TIME_DOMAIN= YES\nTIME_STEP= .001\nTIME_ITER= 10\nTIME_MARCHING= DUAL_TIME_STEPPING-2ND_ORDER\n");
+  auto mesh=BoxMesh(3,2,false);
+  for(size_t p=0;p<mesh.GetnPoint();++p)mesh.coord[3*p+1]+=.37*mesh.coord[3*p]+.61*mesh.coord[3*p+2];
+  MeshSolution donor(config.get(),mesh,0);const auto saved=State(donor);ReferenceState reference;
+  ImportGeometry(*config,donor.Fine(),nullptr,reference);
+  const SU2NativeGeometry::AffineAuthority definition{17,3,3,{0,0,0},{-.37,1,-.61},1e-13};
+  std::map<Id,SU2NativeGeometry::AffineAuthority> planes;
+  for(const auto& f:reference.facets)if(reference.marker_names.at(f.marker)=="y_minus")planes.emplace(f.id,definition);
+  REQUIRE(planes.size()==8);
+  // A disjoint analytic collar makes the largest generated node differ from the original span.
+  std::map<Id,AnalyticSurface> curves;Id originalMaximum=0;
+  for(const auto& f:reference.facets)for(auto n:f.v)originalMaximum=std::max(originalMaximum,n.id);
+  for(const auto& f:reference.facets)if(curves.empty() && std::all_of(f.v.begin(),f.v.end(),[&](Node n){
+        return n.p.z==1 && n.p.y-.37*n.p.x-.61*n.p.z>.25 && n.id!=originalMaximum;})) {
+    AnalyticSurface g;g.kind=AnalyticSurface::Kind::Bump;g.origin={0,0,1};g.extent={1,3,0};curves.emplace(f.id,g);
+  }
+  REQUIRE(curves.size()==1);
+  reference.original=std::make_shared<PlanarReference>(reference.facets,SIZE_MAX,curves,planes);
+  if(rans) {
+    auto wallConfig=MakeConfig(3,ransOptions+"COMPUTE_METRIC= YES\nADAP_SENSOR= PRESSURE\nADAP_HESSIAN_NOISE= 0\n"
+        "ADAP_BL_MARKER= (z_minus_a,z_minus_b)\n"
+        "ADAP_BL_FIRST_HEIGHT= (.1,.1)\nADAP_BL_GROWTH= (1.2,1.2)\nADAP_BL_THICKNESS= (.3,.3)\n");
+    REQUIRE(wallConfig->GetnAdap_BL()==2);std::map<Id,SU2NativeGeometry::AffineAuthority> wallPlanes;
+    auto g=definition;g.identity=19;g.normal={0,0,1};
+    for(const auto& f:reference.facets)if(reference.marker_names.at(f.marker).find("z_minus_")==0)wallPlanes.emplace(f.id,g);
+    REQUIRE(wallPlanes.size()==8);ReferenceState wallReference=reference;
+    wallReference.original=std::make_shared<PlanarReference>(reference.facets,SIZE_MAX,std::map<Id,AnalyticSurface>{},wallPlanes);
+    try {CBoundaryLayerMetric::FromNativeReference(wallReference,*wallConfig);FAIL("An affine BL wall must not freeze a faceted substitute.");}
+    catch(const std::invalid_argument& e){CHECK(std::string(e.what()).find("BL on declared affine wall")!=std::string::npos);}
+  }
+  const auto encoded=EncodeReference(reference);CHECK(encoded.find("SU2_NATIVE_REFERENCE_3D 4\n")==0);
+  auto reloaded=DecodeReference(encoded);CHECK(EncodeReference(reloaded)==encoded);
+  CHECK_THROWS(DecodeReference(encoded+"trailing"));CHECK_THROWS(DecodeReference(encoded,1));
+  auto conflict=planes;conflict.begin()->second.version++;
+  CHECK_THROWS(PlanarReference(reference.facets,SIZE_MAX,curves,conflict));
+  su2activematrix metric(donor.Fine().GetnPointDomain(),6);
+  for(size_t p=0;p<metric.rows();++p) {
+    const auto* x=donor.Fine().nodes->GetCoord(p);
+    for(unsigned k=0;k<6;++k)metric(p,k)=0;
+    metric(p,0)=2+.125*x[0];metric(p,3)=3+.125*x[2];metric(p,5)=4;
+  }
+  const auto imported=ImportGeometry(*config,donor.Fine(),&metric,reference);
+  uint64_t extensions=0;for(const auto& row:imported.original)extensions+=row.extension_component!=UINT64_MAX;
+  CHECK(CPassiveComm::Allreduce(extensions,CPassiveComm::Op::SUM,world.comm)==3*planes.size()+3);
+  const auto span=OriginalSourceNodeSpan(world,imported.original);std::map<Id,Point> physicalNodes;
+  for(const auto& f:reference.facets)for(auto n:f.v)physicalNodes.emplace(n.id,n.p);
+  for(const auto& d:imported.original)if(planes.count(d.extension_component))for(unsigned i=0;i<4;++i) {
+    const auto n=d.cell.v[i];const auto original=n.id%span;REQUIRE(physicalNodes.count(original));
+    CHECK(physicalNodes.at(original).x==n.p.x);CHECK(physicalNodes.at(original).z==n.p.z);
+    CHECK(d.sensor[i].xx==Approx(2+.125*physicalNodes.at(original).x));
+    CHECK(d.sensor[i].yy==Approx(3+.125*physicalNodes.at(original).z));
+  }
+  DonorImport source(world,true);std::string reason;REQUIRE(source.Build(imported.original,reason));
+  const Point outside{.25,.37*.25+.61*.25-5e-14,.25},inside{.25,.37*.25+.61*.25+5e-14,.25};
+  REQUIRE(SU2NativeGeometry::AffineChart(definition).ErrorBound(outside)<definition.maximum_error);
+  const auto answer=source.SamplePoints({outside,inside},reference.original->ExtensionComponents());
+  INFO(answer.reason);REQUIRE(answer.valid);REQUIRE(answer.samples.size()==2);
+  CHECK(answer.samples[0].extension_component!=UINT64_MAX);CHECK(answer.samples[1].extension_component==UINT64_MAX);
+  for(const auto& row:answer.samples){CHECK(row.sensor.xx==Approx(2+.125*.25));CHECK(row.sensor.yy==Approx(3+.125*.25));CHECK(row.sensor.zz==4);}
+  const auto received=source.Import({{0,-1,0,1,3,1}});INFO(received.reason);REQUIRE(received.valid);
+  const auto associated=AssociatedExtensions(received.cells,*reference.original);REQUIRE(associated.size()==2);
+  unsigned compositions=0;
+  FrozenField field(received.cells,[&](Point p,Tensor sensor){++compositions;sensor.zz+=1+.5*p.x;return sensor;},false,associated,
+                    [](Point,Point){return std::vector<double>{0,1};});
+  for(unsigned i=0;i<2;++i){const auto sample=field.Query(outside);CHECK(sample.sensor.xx==answer.samples[0].sensor.xx);CHECK(sample.target.zz==5.125);}
+  CHECK(compositions==2);CHECK(field.Statistics().hits==1);
+  CHECK(field.Query(inside).extension_component==UINT64_MAX);
+  CHECK(field.TargetEdgeLength(outside,inside)==Approx((inside.y-outside.y)*std::sqrt(3+.125*.25)).epsilon(1e-10));
+  FrozenField undeclared(received.cells);CHECK_THROWS(undeclared.Query(outside));
+  CHECK(State(donor)==saved);CHECK(EncodeReference(reference)==encoded);
+  WriteReference(name+".native_ref",reference);ReferenceState restored;REQUIRE(LoadReference(name+".native_ref",restored));
+  CHECK(EncodeReference(restored)==encoded);Save(world,name,imported.cells,imported.original,reference);
+  // A second declared plane at this junction requires a simultaneous source collar; failure is collective/atomic.
+  auto joined=planes;auto other=definition;other.identity=18;other.normal={1,0,0};
+  for(const auto& f:reference.facets)if(reference.marker_names.at(f.marker)=="x_minus")joined.emplace(f.id,other);
+  ReferenceState junction=reference;junction.original=std::make_shared<PlanarReference>(junction.facets,SIZE_MAX,curves,joined);
+  ImportedGeometry retained=imported;BridgeStats stats;const auto retainedBytes=Bytes(retained.original);const auto beforeJunction=EncodeReference(junction);
+  CHECK_FALSE(ImportGeometry(*config,donor.Fine(),&metric,junction,retained,reason,stats,size_t(128)<<20));
+  CHECK(reason.find("simultaneous affine source collar")!=std::string::npos);
+  CHECK(Bytes(retained.original)==retainedBytes);CHECK(EncodeReference(junction)==beforeJunction);CHECK(State(donor)==saved);
+  if(world.size>1) {
+    auto mismatch=planes;if(!world.rank)for(auto& row:mismatch)row.second.version++;
+    ReferenceState different=reference;different.original=std::make_shared<PlanarReference>(different.facets,SIZE_MAX,curves,mismatch);
+    CHECK_FALSE(ImportGeometry(*config,donor.Fine(),&metric,different,retained,reason,stats,size_t(128)<<20));
+    CHECK(reason.find("versions differ")!=std::string::npos);CHECK(State(donor)==saved);CHECK(Bytes(retained.original)==retainedBytes);
+  }
+}
+
 TEST_CASE("Native3D immutable reference encoding rejects malformed authority", "[NativeReference3D]") {
   World world;auto config=MakeConfig(3,"SOLVER= EULER\n");MeshSolution cube(config.get(),BoxMesh(3,1,false),0);
   ReferenceState original;ImportGeometry(*config,cube.Fine(),nullptr,original);

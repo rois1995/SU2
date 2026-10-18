@@ -1,0 +1,23 @@
+Breakpoint 1 at 0x15c6560: file ../../Common/include/parallelization/mpi_structure.cpp, line 52.
+[Thread debugging using libthread_db enabled]
+Using host libthread_db library "/lib/x86_64-linux-gnu/libthread_db.so.1".
+[Detaching after fork from child process 280335]
+[New Thread 0x7ffff760b700 (LWP 280339)]
+[New Thread 0x7ffff6c56700 (LWP 280398)]
+
+Thread 1 "test_driver" hit Breakpoint 1, CBaseMPIWrapper::Error (ErrorMsg="Reynolds number required for NAVIER_STOKES and RANS !!", FunctionName="void CConfig::SetPostprocessing(SU2_COMPONENT, short unsigned int, short unsigned int)") at ../../Common/include/parallelization/mpi_structure.cpp:52
+52	void CBaseMPIWrapper::Error(const std::string& ErrorMsg, const std::string& FunctionName) {
+ErrorMsg = "Reynolds number required for NAVIER_STOKES and RANS !!"
+FunctionName = "void CConfig::SetPostprocessing(SU2_COMPONENT, short unsigned int, short unsigned int)"
+#0  CBaseMPIWrapper::Error (ErrorMsg="Reynolds number required for NAVIER_STOKES and RANS !!", FunctionName="void CConfig::SetPostprocessing(SU2_COMPONENT, short unsigned int, short unsigned int)") at ../../Common/include/parallelization/mpi_structure.cpp:52
+#1  0x0000555556a71642 in CConfig::SetPostprocessing (this=0x555557983970, val_software=<optimized out>, val_izone=<optimized out>, val_nDim=<optimized out>) at /usr/include/c++/9/ext/new_allocator.h:80
+#2  0x0000555556a80c2e in CConfig::CConfig (this=0x555557983970, case_buffer=..., val_software=SU2_COMPONENT::SU2_CFD, verb_high=<optimized out>) at ../../Common/src/CConfig.cpp:129
+#3  0x0000555555883f91 in transfer_test::MakeConfig (nDim=nDim@entry=3, solverOptions="SOLVER= RANS\nKIND_TURB_MODEL= SA\nTIME_DOMAIN= YES\nTIME_STEP= .001\nTIME_ITER= 10\nTIME_MARCHING= DUAL_TIME_STEPPING-2ND_ORDER\n") at ../../UnitTests/SU2_CFD/adaptation/TransferTestCase.hpp:76
+#4  0x0000555555bbe8fe in C_A_T_C_H_T_E_S_T_10 () at /usr/include/c++/9/bits/char_traits.h:300
+#5  0x0000555555fd9d93 in Catch::RunContext::invokeActiveTestCase (this=0x7fffffffbc60) at ../../externals/catch2/catch.hpp:13027
+#6  0x0000555555fec22e in Catch::RunContext::runCurrentTest (this=0x7fffffffbc60, redirectedCout=..., redirectedCerr="") at ../../externals/catch2/catch.hpp:13000
+#7  0x0000555556004d1e in Catch::RunContext::runTest (this=0x7fffffffbc60, testCase=...) at ../../externals/catch2/catch.hpp:12761
+#8  0x000055555600c6a0 in Catch::(anonymous namespace)::TestGroup::execute (this=0x7fffffffbc50) at ../../externals/catch2/catch.hpp:13354
+#9  Catch::Session::runInternal (this=0x7fffffffbf20) at ../../externals/catch2/catch.hpp:13564
+#10 0x000055555600cc72 in Catch::Session::run (this=0x7fffffffbf20) at ../../externals/catch2/catch.hpp:13520
+#11 0x000055555583fa27 in Catch::Session::run<char> (argv=<optimized out>, argc=<optimized out>, this=0x7fffffffbf20) at ../../externals/catch2/catch.hpp:13233

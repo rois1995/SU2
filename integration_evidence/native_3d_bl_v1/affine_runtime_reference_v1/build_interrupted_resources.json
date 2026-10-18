@@ -1,0 +1,28 @@
+{
+  "command": [
+    "taskset",
+    "-c",
+    "3",
+    "nice",
+    "-n",
+    "19",
+    "/home/rausa/Software/su2-develop/ninja",
+    "-C",
+    "integration_evidence/build-integrated-v2",
+    "-j1",
+    "UnitTests/test_driver"
+  ],
+  "loadavg": [
+    1.79,
+    2.41,
+    4.26
+  ],
+  "meminfo": "MemTotal:       65614832 kB\nMemFree:         4255928 kB\nMemAvailable:   43431780 kB\nBuffers:         4881384 kB\nCached:         29961972 kB\nSwapCached:        16396 kB\nActive:         20148664 kB\nInactive:       32850056 kB\nActive(anon):    1276832 kB\nInactive(anon): 18531708 kB\nActive(file):   18871832 kB\nInactive(file): 14318348 kB\nUnevictable:      264424 kB\nMlocked:              48 kB\nSwapTotal:      15625212 kB\nSwapFree:       14496764 kB\nDirty:               912 kB\nWriteback:             0 kB\nAnonPages:      18411704 kB\nMapped:          1543704 kB\nShmem:           1653232 kB\nKReclaimable:    6881876 kB\nSlab:            7634156 kB\nSReclaimable:    6881876 kB\nSUnreclaim:       752280 kB\nKernelStack:       37312 kB\nPageTables:       178384 kB\nNFS_Unstable:          0 kB\nBounce:                0 kB\nWritebackTmp:          0 kB\nCommitLimit:    48432628 kB\nCommitted_AS:   48058596 kB\nVmallocTotal:   34359738367 kB\nVmallocUsed:       74220 kB\nVmallocChunk:          0 kB\nPercpu:            13152 kB\nHardwareCorrupted:     0 kB\nAnonHugePages:         0 kB\nShmemHugePages:        0 kB\nShmemPmdMapped:        0 kB\nFileHugePages:         0 kB\nFilePmdMapped:         0 kB\nHugePages_Total:       0\nHugePages_Free:        0\nHugePages_Rsvd:        0\nHugePages_Surp:        0\nHugepagesize:       2048 kB\nHugetlb:               0 kB\nDirectMap4k:     5995184 kB\nDirectMap2M:    40960000 kB\nDirectMap1G:    19922944 kB\n",
+  "sample_seconds": 0.25,
+  "selected_cpu_sample_busy": 0.26086956521739135,
+  "purpose": "Connected affine backend correctness build; one owned heavy job",
+  "exit_code": 130,
+  "elapsed_seconds": 216.55144957802258,
+  "largest_waited_child_maxrss_kib": 2495688,
+  "memory_scope": "Largest waited descendant RSS receipt, not aggregate whole-job/host peak"
+}

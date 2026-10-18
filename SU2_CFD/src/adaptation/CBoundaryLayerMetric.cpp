@@ -1187,6 +1187,8 @@ std::shared_ptr<CBoundaryLayerMetric> CBoundaryLayerMetric::FromNativeReference(
     bool faceted=false;std::set<uint64_t> components;
     for(const auto& face:reference.facets) {
       if(reference.marker_names.at(face.marker)!=wall.layer.marker) continue;
+      if(reference.original->Affine().count(face.id))
+        throw std::invalid_argument("Native3D BL on declared affine wall authority is unsupported; no faceted substitute is frozen.");
       if(reference.original->Analytic().count(face.id))components.insert(reference.original->Canonical(face.id));
       else faceted=true;
       for(const auto& node:face.v) {

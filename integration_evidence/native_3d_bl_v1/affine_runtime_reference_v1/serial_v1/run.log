@@ -1,0 +1,24 @@
+test_driver: ../../UnitTests/SU2_CFD/adaptation/../../../Common/include/containers/C2DContainer.hpp:278: const Scalar_t& container_details::AccessorImpl<Index_t, Scalar_t, Store, AlignSize, 0, 0>::operator()(Index_t, Index_t) const [with Index_t = long unsigned int; Scalar_t = double; StorageType Store = StorageType::RowMajor; long unsigned int AlignSize = 64]: Assertion `i >= 0 && i < m_rows && j >= 0 && j < m_cols' failed.
+../../UnitTests/SU2_CFD/adaptation/CNativeImport3D_tests.cpp:346: failed: fatal error condition with message: 'SIGABRT - Abort (abnormal termination) signal'
+Failed 1 test case, failed 1 assertion.
+
+[pc-rausa:268276] *** Process received signal ***
+[pc-rausa:268276] Signal: Aborted (6)
+[pc-rausa:268276] Signal code:  (-6)
+[pc-rausa:268276] [ 0] /lib/x86_64-linux-gnu/libpthread.so.0(+0x14420)[0x7f2a742fd420]
+[pc-rausa:268276] [ 1] /lib/x86_64-linux-gnu/libc.so.6(gsignal+0xcb)[0x7f2a7413a00b]
+[pc-rausa:268276] [ 2] /lib/x86_64-linux-gnu/libc.so.6(abort+0x12b)[0x7f2a74119859]
+[pc-rausa:268276] [ 3] /lib/x86_64-linux-gnu/libc.so.6(+0x22729)[0x7f2a74119729]
+[pc-rausa:268276] [ 4] /lib/x86_64-linux-gnu/libc.so.6(+0x33fd6)[0x7f2a7412afd6]
+[pc-rausa:268276] [ 5] /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver(+0x5e8d65)[0x55ca6eecbd65]
+[pc-rausa:268276] [ 6] /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver(+0x677b9c)[0x55ca6ef5ab9c]
+[pc-rausa:268276] [ 7] /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver(+0xa85ae3)[0x55ca6f368ae3]
+[pc-rausa:268276] [ 8] /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver(+0xa97f7e)[0x55ca6f37af7e]
+[pc-rausa:268276] [ 9] /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver(+0xab0a6e)[0x55ca6f393a6e]
+[pc-rausa:268276] [10] /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver(+0xab83f0)[0x55ca6f39b3f0]
+[pc-rausa:268276] [11] /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver(+0xab89c2)[0x55ca6f39b9c2]
+[pc-rausa:268276] [12] /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver(+0x2eb937)[0x55ca6ebce937]
+[pc-rausa:268276] [13] /lib/x86_64-linux-gnu/libc.so.6(__libc_start_main+0xf3)[0x7f2a7411b083]
+[pc-rausa:268276] [14] /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver(+0x318e8e)[0x55ca6ebfbe8e]
+[pc-rausa:268276] *** End of error message ***
+timeout: the monitored command dumped core

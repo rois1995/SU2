@@ -1,0 +1,39 @@
+{
+  "exit_code": 0,
+  "elapsed_seconds": 0.9262825510231778,
+  "command": [
+    "taskset",
+    "-c",
+    "0-3",
+    "nice",
+    "-n",
+    "19",
+    "timeout",
+    "--kill-after=5s",
+    "180s",
+    "mpirun",
+    "-np",
+    "4",
+    "--bind-to",
+    "none",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver",
+    "[NativeAffineImport3D],[NativeReference3D],[NativeCurvedCoverage3D]",
+    "--abort",
+    "--reporter",
+    "compact"
+  ],
+  "provenance_sha256": "22a1d36c903a6a7368bbf76dcbb2bc86613c440020cd02cbdb29ef6a953032e8",
+  "log_sha256": "f03636db7b83587fe51a72e91c086b19847a94b5dae80650bb315960edc273fd",
+  "scope": "Actual Euler/RANS geometry import, frozen original sensor support/priority and owner/private queries, native-ref codec. No complete oblique adaptation/transfer/restart/exterior qualification.",
+  "artifacts": {
+    "above_cavity_cap.native_ref": "5eeb6b0708bec95a71c19ed5ce4b7d96a482bc087cd8248b91979fe3d22c499e",
+    "large.native_ref": "7d6dc3b0be0b9fa3b068785511238bff491c55a2cff977d95933ebd8afa3d881",
+    "affine_import_rans.native_ref": "74f0e9036449e6bff5ad4b77660778f775efd47515b7d695908dc7476ec7f215",
+    "affine_import_euler.json": "4bfbdf01f338dcd59226dad9b860784ff8c02e0d31c623161000ff1a60b3a0e2",
+    "original.native_ref": "d5dc5e9271a0812f5611c02c853234c561ae19bc487a5513f130bf7f30733d7f",
+    "affine_import_rans.json": "4963ade7491467d4489d0f6303ffb044c80ac352103ae2d49666a5b4082d97b0",
+    "executed_source.json.gz": "bba26530c44c28a2faaa1bfd18a3d0665da7305c5516a1cb44698074cffb26da",
+    "affine_import_euler.native_ref": "3a8ace055704e2a4af16107cd6a0a03a7f4ddc7792d98f8e71c0560fee259038",
+    "large_reference_input.su2": "584a2163db9147b5ee843d2fedf7efe7237258ca580736ed55a202d9c11be271"
+  }
+}

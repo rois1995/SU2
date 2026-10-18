@@ -1,0 +1,9 @@
+serial_v1 {"exit_code": -6, "elapsed_seconds": 0.4608128889231011, "command": ["taskset", "-c", "0", "nice", "-n", "19", "timeout", "--kill-after=5s", "180s", "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver", "[NativeAffineImport3D],[NativeReference3D],[NativeCurvedCoverage3D],[NativeAffineGeometry],[NativePlanarUnion3D]", "--abort", "--reporter", "compact"], "provenance_sha256": "a72e92d72ab016fa36e16e80ce96cdd01708b1019334ff6ba14483b3d0e01be9", "log_sha256": "60c0e343a00c31279bec8a6f8cd08ecd48ff44de1767ba27fb296977a152ae1b"}
+Traceback (most recent call last):
+  File "integration_evidence/native_3d_bl_v1/affine_runtime_reference_v1/run.py", line 44, in <module>
+    if __name__=='__main__':main()
+  File "integration_evidence/native_3d_bl_v1/affine_runtime_reference_v1/run.py", line 29, in main
+    result=replay.invoke(folder,{},HERE.with_name('planar_symmetry_reference_v1')/'initial.planes',ranks,test_filter=tag)
+  File "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/run.py", line 55, in invoke
+    if not ((0<run.returncode<124) if expected_failure else run.returncode==0):raise RuntimeError('Failed '+str(folder))
+RuntimeError: Failed /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/affine_runtime_reference_v1/serial_v1

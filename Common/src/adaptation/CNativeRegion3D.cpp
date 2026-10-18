@@ -86,7 +86,7 @@ struct PrismaticChart {
   double gap=0;
 };
 bool PrismChart(const PlanarReference& geometry,const std::map<int,RegionWallPolicy>& policies,PrismaticChart& chart) {
-  if(policies.empty() || !geometry.Analytic().empty() || geometry.Facets().empty())return false;
+  if(policies.empty() || !geometry.ExtensionComponents().empty() || geometry.Facets().empty())return false;
   const Facet* base=nullptr;
   for(const auto& row:geometry.Facets())if(policies.count(row.second.marker)){base=&row.second;break;}
   if(!base)return false;

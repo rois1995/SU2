@@ -101,6 +101,115 @@ struct Binding {
   }
 };
 
+/*! Frozen sensor-only prism coverage for one affine authority at a reference vertex.
+ * Dependent-coordinate extrusion retains chart coordinates and face P1 traces.
+ * Shared distinct/curved authorities need a simultaneous collar, never independent face guesses. */
+bool AffineCoverage(World& world,const Owned& cells,std::vector<DonorCell>& source,const PlanarReference& reference,
+                    size_t live,size_t ceiling,BridgeStats& stats,std::string& reason) {
+  if(reference.Affine().empty())return true;
+  CLocalFailure failure;
+  size_t active_faces=0;
+  for(const auto& row:cells)for(const auto& face:row.second.physical)
+    if(face.present && reference.Affine().count(face.facet))active_faces=transfer_memory::Add(active_faces,1);
+  const size_t added=transfer_memory::Mul(active_faces,3);
+  const size_t capacity=std::max(source.capacity(),transfer_memory::Add(source.size(),added));
+  if(!Admit(world,transfer_memory::Add(live,transfer_memory::GrowthBound(capacity,sizeof(DonorCell)),
+      transfer_memory::Mul(reference.Affine().size(),2048),transfer_memory::Mul(reference.Analytic().size(),64)),ceiling,stats,reason))return false;
+  struct Rule {SU2NativeGeometry::AffineAuthority geometry;unsigned axis=0;int lo=2,hi=-2;};
+  std::map<Id,Rule> rules;Id maximum_node=0,maximum_cell=0;
+  try {
+    std::map<Id,Id> junctions;
+    for(const auto& row:reference.Affine()) {
+      const auto& g=row.second;Rule rule{g};const std::array<double,3> n{{g.normal.x,g.normal.y,g.normal.z}};
+      for(unsigned k=1;k<3;++k)if(std::abs(n[k])>std::abs(n[rule.axis]))rule.axis=k;
+      rules.emplace(reference.Canonical(row.first),rule);
+      for(auto node:reference.Get(row.first).v) {
+        const auto old=junctions.emplace(node.id,g.identity);
+        if(!old.second && old.first->second!=g.identity)
+          throw std::invalid_argument("Unsupported simultaneous affine source collar at reference vertex "+std::to_string(node.id)+"; accepted state unchanged.");
+      }
+    }
+    for(const auto& row:reference.Analytic())for(auto node:reference.Get(row.first).v)if(junctions.count(node.id))
+      throw std::invalid_argument("Unsupported simultaneous affine/curved source collar at reference vertex "+std::to_string(node.id)+"; accepted state unchanged.");
+    for(const auto& d:source) {
+      maximum_cell=std::max(maximum_cell,d.cell.id);for(auto n:d.cell.v)maximum_node=std::max(maximum_node,n.id);
+      if(d.extension_component!=UINT64_MAX)continue;
+      const auto& owned=cells.at(d.cell.id);
+      for(unsigned slot=0;slot<4;++slot)if(owned.physical[slot].present) {
+        const auto component=owned.physical[slot].facet;auto rule=rules.find(component);if(rule==rules.end())continue;
+        const auto face=Faces(d.cell)[slot];std::array<Point,3> p{};const SU2NativeGeometry::AffineChart chart(rule->second.geometry);
+        for(unsigned i=0;i<3;++i)for(auto n:d.cell.v)if(n.id==face[i])p[i]=chart.Coordinates(n.p);
+        const auto orientation=Orientation(p[0],p[1],p[2],{0,0,1});int sign=orientation>0?1:orientation<0?-1:0;
+        if(rule->second.axis&1)sign=-sign;
+        if(!sign)throw std::invalid_argument("Degenerate affine source face.");
+        rule->second.lo=std::min(rule->second.lo,sign);rule->second.hi=std::max(rule->second.hi,sign);
+      }
+    }
+  }catch(const std::exception& e){failure.Set(1,0,e.what());}
+  if(!Vote(world,failure,reason))return false;
+  const auto count_low=CPassiveComm::Allreduce(uint64_t(rules.size()),CPassiveComm::Op::MIN,world.comm);
+  const auto count_high=CPassiveComm::Allreduce(uint64_t(rules.size()),CPassiveComm::Op::MAX,world.comm);
+  if(count_low!=count_high)failure.Set(1,0,"Affine source component counts differ across ranks.");
+  if(!Vote(world,failure,reason))return false;
+  maximum_node=CPassiveComm::Allreduce(maximum_node,CPassiveComm::Op::MAX,world.comm);
+  maximum_cell=CPassiveComm::Allreduce(maximum_cell,CPassiveComm::Op::MAX,world.comm);
+  for(auto& row:rules) {
+    auto& rule=row.second;const auto& g=rule.geometry;
+    for(uint64_t value:{row.first,g.identity,g.version,uint64_t(g.dimension)})
+      if(CPassiveComm::Allreduce(value,CPassiveComm::Op::MIN,world.comm)!=CPassiveComm::Allreduce(value,CPassiveComm::Op::MAX,world.comm))
+        failure.Set(1,0,"Affine source identities/versions differ across ranks.");
+    for(double value:{g.origin.x,g.origin.y,g.origin.z,g.normal.x,g.normal.y,g.normal.z,g.maximum_error})
+      if(CPassiveComm::Allreduce(value,CPassiveComm::Op::MIN,world.comm)!=CPassiveComm::Allreduce(value,CPassiveComm::Op::MAX,world.comm))
+        failure.Set(1,0,"Affine source definitions differ across ranks.");
+    rule.lo=CPassiveComm::Allreduce(rule.lo,CPassiveComm::Op::MIN,world.comm);
+    rule.hi=CPassiveComm::Allreduce(rule.hi,CPassiveComm::Op::MAX,world.comm);
+    if(!(rule.lo==2&&rule.hi==-2) && rule.lo!=rule.hi)failure.Set(1,0,"Inconsistent affine source orientation.");
+  }
+  // Metric-family replay decodes every generated node modulo the ORIGINAL physical-source span.
+  const auto span=OriginalSourceNodeSpan(world,source);
+  const auto first_offset=transfer_memory::Mul(transfer_memory::Add(maximum_node/span,1),span);
+  if(first_offset==SIZE_MAX || transfer_memory::Add(first_offset,transfer_memory::Mul(span,rules.size()))==SIZE_MAX ||
+      transfer_memory::Add(maximum_cell,1,transfer_memory::Mul(12,transfer_memory::Add(maximum_cell,1)))==SIZE_MAX)
+    failure.Set(1,0,"Affine source identity range exhausted.");
+  if(!Vote(world,failure,reason))return false;
+  const auto count=source.size();
+  try {
+    source.reserve(transfer_memory::Add(count,added));
+    for(size_t at=0;at<count;++at) {
+      const auto original=source[at];if(original.extension_component!=UINT64_MAX)continue;
+      const auto& owned=cells.at(original.cell.id);
+      for(unsigned slot=0;slot<4;++slot)if(owned.physical[slot].present) {
+        const Id component=owned.physical[slot].facet;const auto found=rules.find(component);if(found==rules.end())continue;
+        const auto& rule=found->second;const auto offset=first_offset+span*std::distance(rules.begin(),found);
+        const auto face=Faces(original.cell)[slot];std::array<std::pair<Node,Tensor>,3> old;
+        for(unsigned i=0;i<3;++i)for(unsigned j=0;j<4;++j)if(original.cell.v[j].id==face[i])old[i]={original.cell.v[j],original.sensor[j]};
+        std::sort(old.begin(),old.end(),[](const auto& a,const auto& b){return a.first.id<b.first.id;});auto next=old;
+        for(auto& vertex:next) {
+          auto& n=vertex.first;n.id+=offset;double& coordinate=rule.axis==0?n.p.x:rule.axis==1?n.p.y:n.p.z;
+          // The largest absolute normal component is the dropped coordinate: two admitted surfaces differ by at most2*error vertically.
+          const auto distance=rule.lo*4*static_cast<long double>(rule.geometry.maximum_error);
+          coordinate=std::nextafter(double(static_cast<long double>(coordinate)+distance),rule.lo>0?INFINITY:-INFINITY);
+          if(!std::isfinite(coordinate))throw std::invalid_argument("Unrepresentable affine source envelope.");
+        }
+        const std::array<std::array<std::pair<Node,Tensor>,4>,3> tets{{
+            {old[0],old[1],old[2],next[2]},{old[0],old[1],next[1],next[2]},{old[0],next[0],next[1],next[2]}}};
+        int orientation=0;
+        for(unsigned i=0;i<3;++i) {
+          auto v=tets[i];const auto sign=Orientation(v[0].first.p,v[1].first.p,v[2].first.p,v[3].first.p);
+          const int direction=(sign>0?1:sign<0?-1:0)*(i==1?-1:1);
+          if(!direction || (orientation && orientation!=direction))throw std::invalid_argument("Degenerate/folded affine source envelope.");
+          orientation=direction;if(sign<0)std::swap(v[0],v[1]);
+          DonorCell donor;donor.cell.id=maximum_cell+1+12*original.cell.id+3*slot+i;
+          donor.extension_component=component;donor.parent_cell=original.cell.id;
+          for(unsigned j=0;j<4;++j){donor.cell.v[j]=v[j].first;donor.sensor[j]=v[j].second;}
+          source.push_back(donor);
+        }
+      }
+    }
+  }catch(const std::exception& e){failure.Set(1,0,e.what());}
+  return Vote(world,failure,reason);
+}
+
 using PrimitiveKey=std::tuple<unsigned,double,double,double,double,double,double,double,double,double,double>;
 PrimitiveKey Primitive(const AnalyticSurface& g) {
   return {unsigned(g.kind),g.origin.x,g.origin.y,g.origin.z,g.extent.x,g.extent.y,g.extent.z,g.tolerance,g.axis.x,g.axis.y,g.axis.z};
@@ -111,7 +220,7 @@ PrimitiveKey Primitive(const AnalyticSurface& g) {
  * Sorted source IDs choose compatible prism diagonals; component tags still control later association. */
 bool Coverage(World& world,const Owned& cells,std::vector<DonorCell>& source,const PlanarReference& reference,
               double geometry_tolerance,size_t live,size_t ceiling,BridgeStats& stats,std::string& reason) {
-  if(reference.Analytic().empty())return true;
+  if(reference.Analytic().empty())return AffineCoverage(world,cells,source,reference,live,ceiling,stats,reason);
   CLocalFailure failure;
   const size_t added=transfer_memory::Mul(cells.size(),12);
   const size_t requested=transfer_memory::Add(live,transfer_memory::GrowthBound(transfer_memory::Add(source.size(),added),sizeof(DonorCell)),
@@ -285,7 +394,8 @@ bool Coverage(World& world,const Owned& cells,std::vector<DonorCell>& source,con
       }
     }
   }catch(const std::exception& e){failure.Set(1,0,e.what());}
-  return Vote(world,failure,reason);
+  if(!Vote(world,failure,reason))return false;
+  return AffineCoverage(world,cells,source,reference,live,ceiling,stats,reason);
 }
 }  // namespace
 bool ImportGeometry(const CConfig& config, const CGeometry& geometry, const su2activematrix* metric,
@@ -751,12 +861,12 @@ bool Samples(World& parent, size_t count, DonorImport& source, MetricComposition
   const auto scratch=transfer_memory::Add(
       transfer_memory::Mul(MaximumSensorSamples,2*(sizeof(DonorSample)+sizeof(Key)+8*sizeof(void*))),
       transfer_memory::Mul(MaximumCavityCells,4*sizeof(DonorSample)+6*sizeof(Key)+256),
-      reference?transfer_memory::GrowthBound(reference->Analytic().size(),sizeof(Id)):0,65536);
+      reference?transfer_memory::GrowthBound(reference->ExtensionComponents().size(),sizeof(Id)):0,65536);
   live=transfer_memory::Add(live,scratch);
   if(!Admit(parent,live,ceiling,stats,reason))return false;
   std::map<Key,DonorSample> cache;std::deque<Key> order;std::vector<Id> extensions;
   CLocalFailure setup;
-  try {if(reference)for(const auto& row:reference->Analytic())extensions.push_back(row.first);}
+  try {if(reference)extensions=reference->ExtensionComponents();}
   catch(const std::exception& error){setup.Set(2,0,error.what());}
   if(!Vote(parent,setup,reason))return false;
   size_t next=0;

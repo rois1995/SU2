@@ -79,10 +79,9 @@ Tensor RegionFieldService::PointMetric(Point point) {
     }
   if (!certified) {
     const auto preparation=transfer_memory::Add(caller_bytes,RegionFieldWorkspaceBytes,
-        transfer_memory::Mul(geometry.Analytic().size(),sizeof(Id)),sizeof(Point));
+        transfer_memory::Mul(geometry.ExtensionComponents().size(),sizeof(Id)),sizeof(Point));
     if(preparation>ceiling)throw std::runtime_error("Regional point preparation exceeds storage.");
-    std::vector<Id> extensions;extensions.reserve(geometry.Analytic().size());
-    for(const auto& entry:geometry.Analytic())extensions.push_back(entry.first);
+    const auto& extensions=geometry.ExtensionComponents();
     const std::vector<Point> query{point};
     world.maximum(1);
     const auto answer=source.SamplePoints(query,extensions,ceiling,

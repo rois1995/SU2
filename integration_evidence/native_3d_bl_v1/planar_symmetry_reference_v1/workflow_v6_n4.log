@@ -1,0 +1,2 @@
+workflow_v6_n4 {"exit_code": 0, "elapsed_seconds": 14.970901876920834, "command": ["taskset", "-c", "0-3", "nice", "-n", "19", "timeout", "--kill-after=5s", "180s", "mpirun", "-np", "4", "--bind-to", "none", "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver", "[NativeSymmetryRuntime3D]", "--abort", "--reporter", "compact"], "provenance_sha256": "9bbf122d5725f99d5ae68c25f25e68f5b639bbe11beae403cf2f2b66d7205618", "log_sha256": "ca1c2c4b2b51856f8f5ab7b4c37aab38ee89ea7e756fec223d2fd5cdfd2aea1f"}
+PASS workflow 4

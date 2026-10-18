@@ -6,6 +6,7 @@
  */
 #pragma once
 #include "CNativeCavity3D.hpp"
+#include "CNativeAffineReference.hpp"
 #include <map>
 #include <limits>
 #include <memory>
@@ -54,8 +55,12 @@ long double CylinderFacing(const AnalyticSurface& geometry, const std::array<Poi
 class PlanarReference {
  public:
   explicit PlanarReference(std::vector<Facet> facets, size_t ceiling = SIZE_MAX,
-                           std::map<Id, AnalyticSurface> analytic = {});
+                           std::map<Id, AnalyticSurface> analytic = {},
+                           std::map<Id,SU2NativeGeometry::AffineAuthority> affine = {});
   const std::map<Id, AnalyticSurface>& Analytic() const { return analytic; }
+  const std::map<Id,SU2NativeGeometry::AffineAuthority>& Affine()const{return affine;}
+  bool Declared(Id facet)const{return analytic.count(facet)||affine.count(facet);}
+  const std::vector<Id>& ExtensionComponents()const{return declared_components;}
   bool CompleteAnalytic(Id facet) const { return complete_analytic.count(Canonical(facet)); }
   struct ClosestSurface { Point point, normal, direction; double distance=0; };
   /*! Exact radial/finite-axis closest point on a certified complete sphere, cylinder or disk.
@@ -69,7 +74,7 @@ class PlanarReference {
   /*! Requested resident map/vector storage; allocator metadata and constructor scratch are separate. */
   size_t ResidentBytes() const;
   /*! Conservative reference construction peak, including the house local box index. */
-  static size_t ConstructionBytes(size_t facets, size_t analytic = 0);
+  static size_t ConstructionBytes(size_t facets, size_t analytic = 0, size_t affine = 0);
   bool Contains(Id facet, Point p, KernelStats* stats = nullptr) const;
   /*! Complete closed chord containment on a finite faceted patch; analytic paths require their own chart. */
   bool ContainsSegment(Id facet,Point a,Point b,KernelStats* stats=nullptr)const;
@@ -88,6 +93,10 @@ class PlanarReference {
  private:
   std::map<Id, Facet> facets;
   const std::map<Id, AnalyticSurface> analytic;
+  const std::map<Id,SU2NativeGeometry::AffineAuthority> affine;
+  std::vector<std::shared_ptr<const SU2NativeGeometry::FinitePlaneReference>> affine_domains;
+  std::map<Id,size_t> affine_charts;
+  std::vector<Id> declared_components;
   std::map<Id, Id> canonical;
   std::set<Id> complete_analytic, nonconvex;
   std::map<Id, std::vector<Edge>> boundaries;
