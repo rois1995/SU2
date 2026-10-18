@@ -1,0 +1,258 @@
+{
+  "status": "COMPLETE_BOUNDED_POLICY_COMPARISON_WITH_REJECTED_GENERAL_STRATEGIES",
+  "original_worker_exit": 1,
+  "original_failure": {
+    "type": "ValueError",
+    "reason": "'integration_evidence/native_3d_bl_v1/affine_initial_adoption_v1/source_policy_replay_v1/run.py' does not start with '/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated'",
+    "elapsed_seconds": 21.39590957306791
+  },
+  "numerical_results_reused_without_rerun": true,
+  "executed_source": "run_v1_assembly_failure.py",
+  "report_repaired_source": "run.py",
+  "process_maxrss_KiB": null,
+  "resource_scope": "Peak RSS was not captured before report assembly failed; do not infer it from this sealing process.",
+  "maximum_seconds": 150,
+  "maximum_exact_pair_tests": 12000,
+  "inputs": {
+    "integration_evidence/native_3d_bl_v1/affine_initial_adoption_v1/source_policy_replay_v1/run.py": "2d5f5f817174eef338197f64b687da53d96e40b658cc63f97ecd1a3bd4782c21",
+    "integration_evidence/native_3d_bl_v1/affine_initial_adoption_v1/source_policy_replay_v1/run_v1_assembly_failure.py": "0d6fa4dfdcacf120d6749fd8c959733117ad0ba4730cad3de63b1c9a6fecfd70",
+    "integration_evidence/native_3d_bl_v1/affine_initial_adoption_v1/source_policy_replay_v1/numerical_results_manifest.json": "fbdea9b7fc186c2dcd18b3277937e74571c87ecf85775360c74a8b52acf47d29",
+    "integration_evidence/native_3d_bl_v1/affine_initial_adoption_v1/annulus_v1_n1/affine_annulus_bl_budget_20_m1_initial.json": "a454ec1cf92183eab4277977ebdcd6f695f4ee2def598ff0d64e05801790c7f7",
+    "integration_evidence/native_3d_bl_v1/oneram6_frozen_field_v1/frozen_trial.npz": "7f05f56cb19f1aaaa06207fc1aa0c999b17283fed48aef8a613316377b1c4d5b",
+    "integration_evidence/native_3d_bl_v1/oneram6_frozen_field_v1/Coarse.su2": "8c839170eb5e359f7de6a41434aa6a9c2d620053f37de6d9360bd04d2a63088b",
+    "integration_evidence/native_3d_bl_v1/oneram6_frozen_field_v1/result.json": "41aef3a9253989cadd3e98637b5c58feca5e143aa0b49c784e15ca5dca76d07c",
+    "TestCases/adaptation/capability/capcheck.py": "2721ed023a67fe1cdb05da4e9f3b521b36ee9339413c77e2b54ee25587bbdd2a",
+    "integration_evidence/native_3d_core_v1/audit_cavities.py": "26079385c071c3ad1b9c06ab3b862b4ff293367dc3c8d291acf0487089d062c5"
+  },
+  "exact_counterexample": {
+    "distance": "1/1048576",
+    "squared_distances": [
+      "1/1099511627776",
+      "1/1099511627776"
+    ],
+    "trace_diagonals": [
+      [
+        "1",
+        "2097153/1048576",
+        "3"
+      ],
+      [
+        "1048577/1048576",
+        "2",
+        "3"
+      ]
+    ],
+    "conclusion": "Deterministic nearest-face tie breaking does not make a nonconstant original trace continuous; opposite one-sided limits differ."
+  },
+  "case_summaries": [
+    {
+      "status": "BOUNDED_POLICY_COMPARISON",
+      "case": "saved_annulus_constant",
+      "constant_sensor": true,
+      "points": 16,
+      "original_cells": 24,
+      "boundary_faces": 32,
+      "eligible_reentrant_pair_edges": 4,
+      "selected_edges": 4,
+      "qp_active_set_solves": 340,
+      "preparation_seconds": 0.001569611020386219,
+      "prepared_array_bytes": 13440,
+      "array_memory_scope": "Array bytes exclude Python topology dictionaries, original NPZ buffers and interpreter; process max RSS is separate.",
+      "experiment_seconds": 1.3857058390276507,
+      "bands": [
+        {
+          "band": 1e-13,
+          "selected_faces": 8,
+          "positive_tetrahedra": 24,
+          "degenerate_or_folded_faces": [],
+          "numerical_cone_failures": [],
+          "exact_collar_pair_tests": 204,
+          "interior_overlap_pairs": 0,
+          "outside_original_samples": 4,
+          "physical_source_priority_samples": 0,
+          "collar_covered_samples": 4,
+          "other_interior_face_nearer_samples": 0,
+          "max_relative_projected_trace_difference": 0.0,
+          "max_collar_vs_projection_difference": 0.0
+        },
+        {
+          "band": 1e-08,
+          "selected_faces": 8,
+          "positive_tetrahedra": 24,
+          "degenerate_or_folded_faces": [],
+          "numerical_cone_failures": [],
+          "exact_collar_pair_tests": 204,
+          "interior_overlap_pairs": 0,
+          "outside_original_samples": 4,
+          "physical_source_priority_samples": 0,
+          "collar_covered_samples": 4,
+          "other_interior_face_nearer_samples": 0,
+          "max_relative_projected_trace_difference": 0.0,
+          "max_collar_vs_projection_difference": 0.0
+        },
+        {
+          "band": 0.0001,
+          "selected_faces": 8,
+          "positive_tetrahedra": 24,
+          "degenerate_or_folded_faces": [],
+          "numerical_cone_failures": [],
+          "exact_collar_pair_tests": 204,
+          "interior_overlap_pairs": 0,
+          "outside_original_samples": 4,
+          "physical_source_priority_samples": 0,
+          "collar_covered_samples": 4,
+          "other_interior_face_nearer_samples": 0,
+          "max_relative_projected_trace_difference": 0.0,
+          "max_collar_vs_projection_difference": 0.0
+        }
+      ],
+      "scope": [
+        "Numerical finite-triangle distances include edges/vertices and all AABB candidates within the sampled band; exact rational wedge counterexample supplies the discontinuity proof.",
+        "Collar: same source-node trace on common generated vertices, exact positive tetrahedra and selected-patch interior-overlap checks only.",
+        "No global shell/source-overlap/complete-envelope coverage certificate, production geometry mapping, edge quadrature, MPI runtime, transfer, restart or accepted remeshing claim.",
+        "The selected 0.7*band bisector samples are a coverage probe, not a cover of every permitted mapped point."
+      ]
+    },
+    {
+      "status": "BOUNDED_POLICY_COMPARISON",
+      "case": "saved_annulus_manufactured_anisotropic",
+      "constant_sensor": false,
+      "points": 16,
+      "original_cells": 24,
+      "boundary_faces": 32,
+      "eligible_reentrant_pair_edges": 4,
+      "selected_edges": 4,
+      "qp_active_set_solves": 340,
+      "preparation_seconds": 0.0013800599845126271,
+      "prepared_array_bytes": 13440,
+      "array_memory_scope": "Array bytes exclude Python topology dictionaries, original NPZ buffers and interpreter; process max RSS is separate.",
+      "experiment_seconds": 1.4784698700532317,
+      "bands": [
+        {
+          "band": 1e-13,
+          "selected_faces": 8,
+          "positive_tetrahedra": 24,
+          "degenerate_or_folded_faces": [],
+          "numerical_cone_failures": [],
+          "exact_collar_pair_tests": 204,
+          "interior_overlap_pairs": 0,
+          "outside_original_samples": 4,
+          "physical_source_priority_samples": 0,
+          "collar_covered_samples": 4,
+          "other_interior_face_nearer_samples": 0,
+          "max_relative_projected_trace_difference": 2.86965898807615e-13,
+          "max_collar_vs_projection_difference": 2.8659789878268747e-13
+        },
+        {
+          "band": 1e-08,
+          "selected_faces": 8,
+          "positive_tetrahedra": 24,
+          "degenerate_or_folded_faces": [],
+          "numerical_cone_failures": [],
+          "exact_collar_pair_tests": 204,
+          "interior_overlap_pairs": 0,
+          "outside_original_samples": 4,
+          "physical_source_priority_samples": 0,
+          "collar_covered_samples": 4,
+          "other_interior_face_nearer_samples": 0,
+          "max_relative_projected_trace_difference": 2.8762323124988086e-08,
+          "max_collar_vs_projection_difference": 2.8751620664001445e-08
+        },
+        {
+          "band": 0.0001,
+          "selected_faces": 8,
+          "positive_tetrahedra": 24,
+          "degenerate_or_folded_faces": [],
+          "numerical_cone_failures": [],
+          "exact_collar_pair_tests": 204,
+          "interior_overlap_pairs": 0,
+          "outside_original_samples": 4,
+          "physical_source_priority_samples": 0,
+          "collar_covered_samples": 4,
+          "other_interior_face_nearer_samples": 0,
+          "max_relative_projected_trace_difference": 0.00028761591464243136,
+          "max_collar_vs_projection_difference": 0.0002875154366431722
+        }
+      ],
+      "scope": [
+        "Numerical finite-triangle distances include edges/vertices and all AABB candidates within the sampled band; exact rational wedge counterexample supplies the discontinuity proof.",
+        "Collar: same source-node trace on common generated vertices, exact positive tetrahedra and selected-patch interior-overlap checks only.",
+        "No global shell/source-overlap/complete-envelope coverage certificate, production geometry mapping, edge quadrature, MPI runtime, transfer, restart or accepted remeshing claim.",
+        "The selected 0.7*band bisector samples are a coverage probe, not a cover of every permitted mapped point."
+      ]
+    },
+    {
+      "status": "BOUNDED_POLICY_COMPARISON",
+      "case": "saved_m6_owner_sensor",
+      "constant_sensor": false,
+      "points": 61330,
+      "original_cells": 303359,
+      "boundary_faces": 48954,
+      "eligible_reentrant_pair_edges": 15855,
+      "selected_edges": 12,
+      "qp_active_set_solves": 1663,
+      "preparation_seconds": 4.831523159053177,
+      "prepared_array_bytes": 29977744,
+      "array_memory_scope": "Array bytes exclude Python topology dictionaries, original NPZ buffers and interpreter; process max RSS is separate.",
+      "experiment_seconds": 7.962614831980318,
+      "bands": [
+        {
+          "band": 1e-13,
+          "selected_faces": 24,
+          "positive_tetrahedra": 72,
+          "degenerate_or_folded_faces": [],
+          "numerical_cone_failures": [],
+          "exact_collar_pair_tests": 474,
+          "interior_overlap_pairs": 0,
+          "outside_original_samples": 12,
+          "physical_source_priority_samples": 0,
+          "collar_covered_samples": 12,
+          "other_interior_face_nearer_samples": 0,
+          "max_relative_projected_trace_difference": 8.293560912874802e-11,
+          "max_collar_vs_projection_difference": 7.17701964380799e-11
+        },
+        {
+          "band": 1e-08,
+          "selected_faces": 24,
+          "positive_tetrahedra": 72,
+          "degenerate_or_folded_faces": [],
+          "numerical_cone_failures": [],
+          "exact_collar_pair_tests": 474,
+          "interior_overlap_pairs": 0,
+          "outside_original_samples": 12,
+          "physical_source_priority_samples": 0,
+          "collar_covered_samples": 12,
+          "other_interior_face_nearer_samples": 0,
+          "max_relative_projected_trace_difference": 8.294394575636727e-06,
+          "max_collar_vs_projection_difference": 7.178562538529943e-06
+        },
+        {
+          "band": 0.0001,
+          "selected_faces": 24,
+          "positive_tetrahedra": 66,
+          "degenerate_or_folded_faces": [
+            48047,
+            48049
+          ],
+          "numerical_cone_failures": [],
+          "exact_collar_pair_tests": 414,
+          "interior_overlap_pairs": 0,
+          "outside_original_samples": 12,
+          "physical_source_priority_samples": 0,
+          "collar_covered_samples": 12,
+          "other_interior_face_nearer_samples": 0,
+          "max_relative_projected_trace_difference": 0.08593531528952528,
+          "max_collar_vs_projection_difference": 0.0768399965171544
+        }
+      ],
+      "scope": [
+        "Numerical finite-triangle distances include edges/vertices and all AABB candidates within the sampled band; exact rational wedge counterexample supplies the discontinuity proof.",
+        "Collar: same source-node trace on common generated vertices, exact positive tetrahedra and selected-patch interior-overlap checks only.",
+        "No global shell/source-overlap/complete-envelope coverage certificate, production geometry mapping, edge quadrature, MPI runtime, transfer, restart or accepted remeshing claim.",
+        "The selected 0.7*band bisector samples are a coverage probe, not a cover of every permitted mapped point."
+      ]
+    }
+  ],
+  "frozen_m6_scope": "Canonical saved owner-node sensor P1 diagnostic; raw parent-rank halo tensors remain unchanged in the original archive. This is not a retrofitted declared geometry or a new normalized M6 target.",
+  "decision": "Nearest-face tie breaking cannot supply a generally continuous extension. One shared normal-cone column per source vertex also fails at the wider M6 band: two faces fold despite all selected probe points remaining covered. No general source extension is admitted."
+}

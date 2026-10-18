@@ -104,7 +104,10 @@ A distance bound, coverage, SPD, trace/jump bounds and MPI consistency are requi
 independent projection does not automatically provide continuity. Restrict any
 extension to the declared geometry-mapping band and inspect close-body topology.
 If discontinuities exceed the accepted field/error contract, the query policy is
-insufficient. Neither alternative is implemented or selected as proven here.
+insufficient. The saved comparison now rejects nearest-face selection as a generally
+continuous policy and rejects wide shared-column prisms after exact M6 folds. A full
+annular numerical-band collar has exact scoped admission evidence; neither approach
+is implemented as a general source policy. [Measured decision and required reach](GOAL3_SOURCE_ENVELOPE.md).
 
 Use saved frozen-query replay, including nonconstant anisotropic sensors and
 nonconvex/shared features, to assess these alternatives before full CFD lifecycles.

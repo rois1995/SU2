@@ -1,0 +1,41 @@
+{
+  "status": "COMPLETE_SOURCE_ENVELOPE_DIAGNOSIS",
+  "annulus": {
+    "status": "EXACT_SAVED_ANNULUS_ENVELOPE_CERTIFICATE",
+    "requested_band": 1e-13,
+    "column_width_factor": 2,
+    "source_cells": 24,
+    "collar_cells": 96,
+    "all_positive_exact": true,
+    "exact_conforming_pair_tests": 3762,
+    "uncertified_pairs": [],
+    "outer_old_triangle_pairs": 1024,
+    "uncertified_separation_pairs": [],
+    "oriented_augmented_skin_matches_outer_skin": true,
+    "source_node_displacements_max": 5.245012712486084e-13,
+    "interpretation": "Exact positive/conforming augmented mesh and full old-to-outer-skin separation lower bound on the saved closed annulus; conditional on the original source being embedded. No full aerodynamic geometry/runtime admission.",
+    "scope": "The source collar is integration/query geometry, not an adapted CFD mesh; there are no quality, full metric, flow, transfer, restart or MPI claims."
+  },
+  "m6": {
+    "status": "EXACT_M6_WIDE_COLLAR_REJECTION",
+    "faces": [
+      48047,
+      48049
+    ],
+    "negative_cells": 4,
+    "cells": 6,
+    "same_captured_failed_faces": true
+  },
+  "elapsed_seconds": 13.443251991062425,
+  "process_maxrss_KiB": 285672,
+  "source_and_artifact_sha256": {
+    "integration_evidence/native_3d_bl_v1/affine_initial_adoption_v1/source_policy_replay_v1/audit_envelope.py": "aa2931c0027596414392a5c0c0034737f2faccb09ae50b14e3c520d3c355ebcf",
+    "integration_evidence/native_3d_bl_v1/affine_initial_adoption_v1/source_policy_replay_v1/run.py": "2d5f5f817174eef338197f64b687da53d96e40b658cc63f97ecd1a3bd4782c21",
+    "integration_evidence/native_3d_bl_v1/affine_initial_adoption_v1/source_policy_replay_v1/numerical_results_manifest.json": "fbdea9b7fc186c2dcd18b3277937e74571c87ecf85775360c74a8b52acf47d29",
+    "integration_evidence/native_3d_bl_v1/affine_initial_adoption_v1/source_policy_replay_v1/annulus_source_envelope.json": "598561f53d9814d370f02e1712bcf08c87e2986487ab6be9e107dc452d6d2384",
+    "integration_evidence/native_3d_bl_v1/affine_initial_adoption_v1/source_policy_replay_v1/annulus_source_envelope_probe.su2": "d5b0a1e22fe41908999af5807926454543882e6f3a49effcba004c82ccc4076e",
+    "integration_evidence/native_3d_bl_v1/affine_initial_adoption_v1/source_policy_replay_v1/m6_folded_collar_exact.json": "23126c1406aaae248e841eb37d2872b1ad3df38abd84a173e4d04ae5c1fe63d3",
+    "integration_evidence/native_3d_bl_v1/affine_initial_adoption_v1/source_policy_replay_v1/m6_wide_collar_rejected.su2": "0eff0f1205b11c56155e7d55dbe6225cdbbb6ceafdc432141ee6f92545b304cb"
+  },
+  "decision": "A bounded conforming collar is viable for the saved numerical mapping band; neither nearest-face projection nor unrestricted shared normal columns solves the full physical approximation envelope. Preserve qualified analytic coverage and require exact global admission/actual-envelope coverage for new joint collars."
+}

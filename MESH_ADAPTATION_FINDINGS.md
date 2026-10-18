@@ -6991,3 +6991,20 @@ within seed/update. Prior failed timing/message receipts remain; no gate relaxed
 Spherical full-field edges/shape retain native scope; no physical CFD, enabled
 curved/interacting budget policy,2D/global-error or affordability claim. Full Goal3
 is not complete. [Evidence and next complete capability](Handbook/GOAL3_REJECTION_DEPENDENCIES.md).
+
+## Original-source continuation across mapped features — measured limits
+
+Nearest finite-boundary projection is not generally continuous: an exact wedge
+trace counterexample and saved M6 nonconstant owner-sensor probes show why canonical
+selection alone is insufficient (max relative difference.08594 at band1e-4).
+Shared source-node collars can preserve common traces, but outward vertex motion
+and point coverage do not prove positive cells: two actual M6 faces fold at that
+band while all12selected points remain covered. Source altitudes are about9e-5.
+
+A complete96-cell annular collar for a1e-13mapping band has exact positivity,
+3762conformity and1024old/outer separation certificates under the accepted original
+embedding assumption. No general production source policy is enabled. Derive the
+required envelope from authority mapping, preserve qualified analytic coverage,
+and admit joint coverage globally before another positive complete attempt.
+No original sensor/BL/fade/mesh gate changed; no new CFD or MPI run was needed.
+[Exact failures, grids, costs and limits](Handbook/GOAL3_SOURCE_ENVELOPE.md).

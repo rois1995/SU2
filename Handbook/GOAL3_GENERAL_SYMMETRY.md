@@ -167,3 +167,12 @@ an oblique two-wall counterexample invalidated the broad direct replacement. New
 native regressions and syntax checks exist; linked qualification is pending the
 connected batch. The23-case v2prototype evidence remains historical, not current
 full-source or general robustness proof.
+
+## Original-source policy evidence — 2026-10-19
+
+The [bounded source-envelope comparison](GOAL3_SOURCE_ENVELOPE.md) rules out an
+uncertified nearest-face fallback and a uniform wide normal-column collar. Joint
+collar coverage is exactly certified only on the complete saved annulus numerical
+band; two actual M6 source faces fold at the wider physical-tolerance test band.
+Production mapped body/features, actual-envelope admission, full MPI/lifecycle and
+all general geometry scope remain OPEN. No unchanged full target was rerun.

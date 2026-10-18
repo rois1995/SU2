@@ -1,0 +1,430 @@
+{
+  "status": "BOUNDED_POLICY_COMPARISON",
+  "case": "saved_annulus_manufactured_anisotropic",
+  "constant_sensor": false,
+  "points": 16,
+  "original_cells": 24,
+  "boundary_faces": 32,
+  "eligible_reentrant_pair_edges": 4,
+  "selected_edges": 4,
+  "qp_active_set_solves": 340,
+  "preparation_seconds": 0.0013800599845126271,
+  "prepared_array_bytes": 13440,
+  "array_memory_scope": "Array bytes exclude Python topology dictionaries, original NPZ buffers and interpreter; process max RSS is separate.",
+  "experiment_seconds": 1.4784698700532317,
+  "bands": [
+    {
+      "band": 1e-13,
+      "selected_faces": 8,
+      "positive_tetrahedra": 24,
+      "degenerate_or_folded_faces": [],
+      "numerical_cone_failures": [],
+      "exact_collar_pair_tests": 204,
+      "interior_overlap_pairs": 0,
+      "outside_original_samples": 4,
+      "physical_source_priority_samples": 0,
+      "collar_covered_samples": 4,
+      "other_interior_face_nearer_samples": 0,
+      "max_relative_projected_trace_difference": 2.86965898807615e-13,
+      "max_collar_vs_projection_difference": 2.8659789878268747e-13
+    },
+    {
+      "band": 1e-08,
+      "selected_faces": 8,
+      "positive_tetrahedra": 24,
+      "degenerate_or_folded_faces": [],
+      "numerical_cone_failures": [],
+      "exact_collar_pair_tests": 204,
+      "interior_overlap_pairs": 0,
+      "outside_original_samples": 4,
+      "physical_source_priority_samples": 0,
+      "collar_covered_samples": 4,
+      "other_interior_face_nearer_samples": 0,
+      "max_relative_projected_trace_difference": 2.8762323124988086e-08,
+      "max_collar_vs_projection_difference": 2.8751620664001445e-08
+    },
+    {
+      "band": 0.0001,
+      "selected_faces": 8,
+      "positive_tetrahedra": 24,
+      "degenerate_or_folded_faces": [],
+      "numerical_cone_failures": [],
+      "exact_collar_pair_tests": 204,
+      "interior_overlap_pairs": 0,
+      "outside_original_samples": 4,
+      "physical_source_priority_samples": 0,
+      "collar_covered_samples": 4,
+      "other_interior_face_nearer_samples": 0,
+      "max_relative_projected_trace_difference": 0.00028761591464243136,
+      "max_collar_vs_projection_difference": 0.0002875154366431722
+    }
+  ],
+  "samples": [
+    {
+      "band": 1e-13,
+      "edge": [
+        5,
+        13
+      ],
+      "faces": [
+        16,
+        21
+      ],
+      "markers": [
+        "far",
+        "far"
+      ],
+      "point": [
+        0.5999999999999505,
+        0.966,
+        0.4000000000000495
+      ],
+      "relative_projected_trace_difference": 2.290330185211317e-13,
+      "distance_squared": [
+        2.449081080391768e-27,
+        2.4518289973862953e-27
+      ],
+      "paired_face_interior_feet": true,
+      "nearest_admitted_face": 16,
+      "nearest_full_triangle_verification": true,
+      "common_collar_covered": true,
+      "physical_source_candidates": 0
+    },
+    {
+      "band": 1e-13,
+      "edge": [
+        4,
+        12
+      ],
+      "faces": [
+        18,
+        19
+      ],
+      "markers": [
+        "far",
+        "far"
+      ],
+      "point": [
+        0.40000000000004954,
+        0.8919999999999999,
+        0.40000000000004954
+      ],
+      "relative_projected_trace_difference": 2.86965898807615e-13,
+      "distance_squared": [
+        2.451828998012246e-27,
+        2.4518289972922557e-27
+      ],
+      "paired_face_interior_feet": true,
+      "nearest_admitted_face": 19,
+      "nearest_full_triangle_verification": true,
+      "common_collar_covered": true,
+      "physical_source_candidates": 0
+    },
+    {
+      "band": 1e-13,
+      "edge": [
+        6,
+        14
+      ],
+      "faces": [
+        20,
+        23
+      ],
+      "markers": [
+        "far",
+        "far"
+      ],
+      "point": [
+        0.5999999999999505,
+        1.088,
+        0.5999999999999505
+      ],
+      "relative_projected_trace_difference": 1.9317761291115287e-13,
+      "distance_squared": [
+        2.4518289972364197e-27,
+        2.451828997256991e-27
+      ],
+      "paired_face_interior_feet": true,
+      "nearest_admitted_face": 20,
+      "nearest_full_triangle_verification": true,
+      "common_collar_covered": true,
+      "physical_source_candidates": 0
+    },
+    {
+      "band": 1e-13,
+      "edge": [
+        7,
+        15
+      ],
+      "faces": [
+        17,
+        22
+      ],
+      "markers": [
+        "far",
+        "far"
+      ],
+      "point": [
+        0.40000000000004954,
+        1.014,
+        0.5999999999999505
+      ],
+      "relative_projected_trace_difference": 8.710679288500052e-14,
+      "distance_squared": [
+        2.451828997233481e-27,
+        2.451828997233481e-27
+      ],
+      "paired_face_interior_feet": true,
+      "nearest_admitted_face": 17,
+      "nearest_full_triangle_verification": true,
+      "common_collar_covered": true,
+      "physical_source_candidates": 0
+    },
+    {
+      "band": 1e-08,
+      "edge": [
+        5,
+        13
+      ],
+      "faces": [
+        16,
+        21
+      ],
+      "markers": [
+        "far",
+        "far"
+      ],
+      "point": [
+        0.5999999950502525,
+        0.966,
+        0.40000000494974747
+      ],
+      "relative_projected_trace_difference": 2.247331990314067e-08,
+      "distance_squared": [
+        2.450000004651197e-17,
+        2.4500000321278152e-17
+      ],
+      "paired_face_interior_feet": true,
+      "nearest_admitted_face": 16,
+      "nearest_full_triangle_verification": true,
+      "common_collar_covered": true,
+      "physical_source_candidates": 0
+    },
+    {
+      "band": 1e-08,
+      "edge": [
+        4,
+        12
+      ],
+      "faces": [
+        18,
+        19
+      ],
+      "markers": [
+        "far",
+        "far"
+      ],
+      "point": [
+        0.40000000494974747,
+        0.8919999999999999,
+        0.40000000494974747
+      ],
+      "relative_projected_trace_difference": 2.8762323124988086e-08,
+      "distance_squared": [
+        2.449999977174579e-17,
+        2.449999977174579e-17
+      ],
+      "paired_face_interior_feet": true,
+      "nearest_admitted_face": 19,
+      "nearest_full_triangle_verification": true,
+      "common_collar_covered": true,
+      "physical_source_candidates": 0
+    },
+    {
+      "band": 1e-08,
+      "edge": [
+        6,
+        14
+      ],
+      "faces": [
+        20,
+        23
+      ],
+      "markers": [
+        "far",
+        "far"
+      ],
+      "point": [
+        0.5999999950502525,
+        1.088,
+        0.5999999950502525
+      ],
+      "relative_projected_trace_difference": 1.928480557094719e-08,
+      "distance_squared": [
+        2.4500000321278152e-17,
+        2.4500000321278152e-17
+      ],
+      "paired_face_interior_feet": true,
+      "nearest_admitted_face": 20,
+      "nearest_full_triangle_verification": true,
+      "common_collar_covered": true,
+      "physical_source_candidates": 0
+    },
+    {
+      "band": 1e-08,
+      "edge": [
+        7,
+        15
+      ],
+      "faces": [
+        17,
+        22
+      ],
+      "markers": [
+        "far",
+        "far"
+      ],
+      "point": [
+        0.40000000494974747,
+        1.014,
+        0.5999999950502525
+      ],
+      "relative_projected_trace_difference": 8.813745409239724e-09,
+      "distance_squared": [
+        2.449999977174579e-17,
+        2.4500000321278152e-17
+      ],
+      "paired_face_interior_feet": true,
+      "nearest_admitted_face": 17,
+      "nearest_full_triangle_verification": true,
+      "common_collar_covered": true,
+      "physical_source_candidates": 0
+    },
+    {
+      "band": 0.0001,
+      "edge": [
+        5,
+        13
+      ],
+      "faces": [
+        16,
+        21
+      ],
+      "markers": [
+        "far",
+        "far"
+      ],
+      "point": [
+        0.5999505025253169,
+        0.966,
+        0.40004949747468305
+      ],
+      "relative_projected_trace_difference": 0.00022473095626035966,
+      "distance_squared": [
+        2.4499999999994057e-09,
+        2.450000000002153e-09
+      ],
+      "paired_face_interior_feet": true,
+      "nearest_admitted_face": 16,
+      "nearest_full_triangle_verification": true,
+      "common_collar_covered": true,
+      "physical_source_candidates": 0
+    },
+    {
+      "band": 0.0001,
+      "edge": [
+        4,
+        12
+      ],
+      "faces": [
+        18,
+        19
+      ],
+      "markers": [
+        "far",
+        "far"
+      ],
+      "point": [
+        0.4000494974746831,
+        0.8919999999999999,
+        0.4000494974746831
+      ],
+      "relative_projected_trace_difference": 0.00028761591464243136,
+      "distance_squared": [
+        2.450000000002153e-09,
+        2.4500000000021507e-09
+      ],
+      "paired_face_interior_feet": true,
+      "nearest_admitted_face": 19,
+      "nearest_full_triangle_verification": true,
+      "common_collar_covered": true,
+      "physical_source_candidates": 0
+    },
+    {
+      "band": 0.0001,
+      "edge": [
+        6,
+        14
+      ],
+      "faces": [
+        20,
+        23
+      ],
+      "markers": [
+        "far",
+        "far"
+      ],
+      "point": [
+        0.5999505025253169,
+        1.088,
+        0.5999505025253169
+      ],
+      "relative_projected_trace_difference": 0.00019284404278677113,
+      "distance_squared": [
+        2.450000000002153e-09,
+        2.450000000002153e-09
+      ],
+      "paired_face_interior_feet": true,
+      "nearest_admitted_face": 20,
+      "nearest_full_triangle_verification": true,
+      "common_collar_covered": true,
+      "physical_source_candidates": 0
+    },
+    {
+      "band": 0.0001,
+      "edge": [
+        7,
+        15
+      ],
+      "faces": [
+        17,
+        22
+      ],
+      "markers": [
+        "far",
+        "far"
+      ],
+      "point": [
+        0.4000494974746831,
+        1.014,
+        0.5999505025253169
+      ],
+      "relative_projected_trace_difference": 8.813523303416188e-05,
+      "distance_squared": [
+        2.450000000002153e-09,
+        2.450000000002153e-09
+      ],
+      "paired_face_interior_feet": true,
+      "nearest_admitted_face": 17,
+      "nearest_full_triangle_verification": true,
+      "common_collar_covered": true,
+      "physical_source_candidates": 0
+    }
+  ],
+  "scope": [
+    "Numerical finite-triangle distances include edges/vertices and all AABB candidates within the sampled band; exact rational wedge counterexample supplies the discontinuity proof.",
+    "Collar: same source-node trace on common generated vertices, exact positive tetrahedra and selected-patch interior-overlap checks only.",
+    "No global shell/source-overlap/complete-envelope coverage certificate, production geometry mapping, edge quadrature, MPI runtime, transfer, restart or accepted remeshing claim.",
+    "The selected 0.7*band bisector samples are a coverage probe, not a cover of every permitted mapped point."
+  ]
+}

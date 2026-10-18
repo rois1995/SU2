@@ -392,3 +392,27 @@ empty-rank regressions. Four translation units pass syntax; new linked runtime c
 remain pending the next connected build. Source/proof in joint_scope_provenance.json;
 no extra full suite/CFD run was launched. This preserves useful single-wall insertion
 without discarding existing coordinated construction.
+
+## Source coverage comparison — 2026-10-19
+
+Did not work generally: nearest-boundary trace selection. Exact rational reflex
+wedge has unequal one-sided limits despite continuous SPD original trace. Saved
+M6 owner-node P1 probes show relative spectral differences8.29e-11/8.29e-6/.08594
+for1e-13/1e-8/1e-4bands. This is a diagnostic field, not retrofitted frozen rank-halo
+samples, a corrected normalization or a composed-BL certificate.
+
+Worked, scoped: common original-node columns give a complete saved annulus source
+collar at the numerical mapping band:96positive cells/3762exact conformity checks/
+1024exact old-outer face separation checks. Original embedded source is assumed.
+This is source-domain coverage, not an adapted CFD grid or a general geometry result.
+
+Did not work generally: wide common columns. At1e-4, two WING3D faces give four
+negative prism cells even though all12sampled probes stay covered. Their source
+altitudes are about9e-5. Keep actual mapping-envelope work separate from maximum
+physical geometry tolerance; no fallback/cap/acceptance change was added.
+
+M6 preparation4.83s/29.98MBnumeric arrays; selected work7.96s/1663active-set solves.
+Independent follow-up13.44s/maxRSS279MiB. First report-only assembly failed after
+21.4s; saved numerical results were sealed without rerun and original failure/source
+retained. No C++/MPI/CFD/transfer/restart run, speedup or new accepted-mesh claim.
+[Receipts, inspectable source grids and next implementation](GOAL3_SOURCE_ENVELOPE.md).

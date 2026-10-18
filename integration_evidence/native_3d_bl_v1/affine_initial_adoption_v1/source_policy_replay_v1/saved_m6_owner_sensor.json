@@ -1,0 +1,1153 @@
+{
+  "status": "BOUNDED_POLICY_COMPARISON",
+  "case": "saved_m6_owner_sensor",
+  "constant_sensor": false,
+  "points": 61330,
+  "original_cells": 303359,
+  "boundary_faces": 48954,
+  "eligible_reentrant_pair_edges": 15855,
+  "selected_edges": 12,
+  "qp_active_set_solves": 1663,
+  "preparation_seconds": 4.831523159053177,
+  "prepared_array_bytes": 29977744,
+  "array_memory_scope": "Array bytes exclude Python topology dictionaries, original NPZ buffers and interpreter; process max RSS is separate.",
+  "experiment_seconds": 7.962614831980318,
+  "bands": [
+    {
+      "band": 1e-13,
+      "selected_faces": 24,
+      "positive_tetrahedra": 72,
+      "degenerate_or_folded_faces": [],
+      "numerical_cone_failures": [],
+      "exact_collar_pair_tests": 474,
+      "interior_overlap_pairs": 0,
+      "outside_original_samples": 12,
+      "physical_source_priority_samples": 0,
+      "collar_covered_samples": 12,
+      "other_interior_face_nearer_samples": 0,
+      "max_relative_projected_trace_difference": 8.293560912874802e-11,
+      "max_collar_vs_projection_difference": 7.17701964380799e-11
+    },
+    {
+      "band": 1e-08,
+      "selected_faces": 24,
+      "positive_tetrahedra": 72,
+      "degenerate_or_folded_faces": [],
+      "numerical_cone_failures": [],
+      "exact_collar_pair_tests": 474,
+      "interior_overlap_pairs": 0,
+      "outside_original_samples": 12,
+      "physical_source_priority_samples": 0,
+      "collar_covered_samples": 12,
+      "other_interior_face_nearer_samples": 0,
+      "max_relative_projected_trace_difference": 8.294394575636727e-06,
+      "max_collar_vs_projection_difference": 7.178562538529943e-06
+    },
+    {
+      "band": 0.0001,
+      "selected_faces": 24,
+      "positive_tetrahedra": 66,
+      "degenerate_or_folded_faces": [
+        48047,
+        48049
+      ],
+      "numerical_cone_failures": [],
+      "exact_collar_pair_tests": 414,
+      "interior_overlap_pairs": 0,
+      "outside_original_samples": 12,
+      "physical_source_priority_samples": 0,
+      "collar_covered_samples": 12,
+      "other_interior_face_nearer_samples": 0,
+      "max_relative_projected_trace_difference": 0.08593531528952528,
+      "max_collar_vs_projection_difference": 0.0768399965171544
+    }
+  ],
+  "samples": [
+    {
+      "band": 1e-13,
+      "edge": [
+        23787,
+        24131
+      ],
+      "faces": [
+        48058,
+        48952
+      ],
+      "markers": [
+        "WING3D",
+        "WING3D"
+      ],
+      "point": [
+        1.1440724749277524,
+        1.1966002706299017,
+        -7.640180525663053e-05
+      ],
+      "relative_projected_trace_difference": 3.453256003325993e-11,
+      "distance_squared": [
+        2.1049728604128525e-27,
+        2.1018944046378613e-27
+      ],
+      "paired_face_interior_feet": true,
+      "nearest_admitted_face": 48952,
+      "nearest_full_triangle_verification": true,
+      "common_collar_covered": true,
+      "physical_source_candidates": 6
+    },
+    {
+      "band": 1e-13,
+      "edge": [
+        24130,
+        24131
+      ],
+      "faces": [
+        48049,
+        48154
+      ],
+      "markers": [
+        "WING3D",
+        "WING3D"
+      ],
+      "point": [
+        1.144048250912582,
+        1.19651456152089,
+        -0.00021800417260479235
+      ],
+      "relative_projected_trace_difference": 5.948682076792543e-11,
+      "distance_squared": [
+        2.5924224341533712e-27,
+        2.599931693746992e-27
+      ],
+      "paired_face_interior_feet": true,
+      "nearest_admitted_face": 48049,
+      "nearest_full_triangle_verification": true,
+      "common_collar_covered": true,
+      "physical_source_candidates": 4
+    },
+    {
+      "band": 1e-13,
+      "edge": [
+        13190,
+        24130
+      ],
+      "faces": [
+        48047,
+        48169
+      ],
+      "markers": [
+        "WING3D",
+        "WING3D"
+      ],
+      "point": [
+        1.1440086039847155,
+        1.1963741653908673,
+        -0.0003014471048239636
+      ],
+      "relative_projected_trace_difference": 8.293560912874802e-11,
+      "distance_squared": [
+        2.702149795688775e-27,
+        2.6996937774656314e-27
+      ],
+      "paired_face_interior_feet": true,
+      "nearest_admitted_face": 48169,
+      "nearest_full_triangle_verification": true,
+      "common_collar_covered": true,
+      "physical_source_candidates": 11
+    },
+    {
+      "band": 1e-13,
+      "edge": [
+        171,
+        4583
+      ],
+      "faces": [
+        11079,
+        29443
+      ],
+      "markers": [
+        "WING3D",
+        "WING3D"
+      ],
+      "point": [
+        0.8059386399528348,
+        0.00013672483170094289,
+        0.0005682922639544793
+      ],
+      "relative_projected_trace_difference": 1.3069729878533064e-11,
+      "distance_squared": [
+        2.7630222418311414e-27,
+        2.767062561092169e-27
+      ],
+      "paired_face_interior_feet": true,
+      "nearest_admitted_face": 11079,
+      "nearest_full_triangle_verification": true,
+      "common_collar_covered": true,
+      "physical_source_candidates": 5
+    },
+    {
+      "band": 1e-13,
+      "edge": [
+        167,
+        13194
+      ],
+      "faces": [
+        29436,
+        30369
+      ],
+      "markers": [
+        "WING3D",
+        "WING3D"
+      ],
+      "point": [
+        0.8059386399528348,
+        0.00013672483170094289,
+        -0.000568292263954923
+      ],
+      "relative_projected_trace_difference": 1.6439245474089583e-11,
+      "distance_squared": [
+        2.7670680531356515e-27,
+        2.763022241975104e-27
+      ],
+      "paired_face_interior_feet": true,
+      "nearest_admitted_face": 30369,
+      "nearest_full_triangle_verification": true,
+      "common_collar_covered": true,
+      "physical_source_candidates": 7
+    },
+    {
+      "band": 1e-13,
+      "edge": [
+        4582,
+        4583
+      ],
+      "faces": [
+        16380,
+        29435
+      ],
+      "markers": [
+        "WING3D",
+        "WING3D"
+      ],
+      "point": [
+        0.806019783854023,
+        0.00042384697846605554,
+        0.0005682325903564417
+      ],
+      "relative_projected_trace_difference": 1.624217275690321e-11,
+      "distance_squared": [
+        2.763022409543823e-27,
+        2.7670735421556342e-27
+      ],
+      "paired_face_interior_feet": true,
+      "nearest_admitted_face": 16380,
+      "nearest_full_triangle_verification": true,
+      "common_collar_covered": true,
+      "physical_source_candidates": 6
+    },
+    {
+      "band": 1e-13,
+      "edge": [
+        13194,
+        13195
+      ],
+      "faces": [
+        29428,
+        35670
+      ],
+      "markers": [
+        "WING3D",
+        "WING3D"
+      ],
+      "point": [
+        0.806019783854023,
+        0.00042384697846605554,
+        -0.0005682325903568855
+      ],
+      "relative_projected_trace_difference": 1.6690384478542167e-11,
+      "distance_squared": [
+        2.7670680576797225e-27,
+        2.7630161390599754e-27
+      ],
+      "paired_face_interior_feet": true,
+      "nearest_admitted_face": 35670,
+      "nearest_full_triangle_verification": true,
+      "common_collar_covered": true,
+      "physical_source_candidates": 7
+    },
+    {
+      "band": 1e-13,
+      "edge": [
+        4581,
+        4582
+      ],
+      "faces": [
+        16379,
+        29427
+      ],
+      "markers": [
+        "WING3D",
+        "WING3D"
+      ],
+      "point": [
+        0.8061090421453303,
+        0.0007396813399076795,
+        0.0005681669493986004
+      ],
+      "relative_projected_trace_difference": 9.767012803816731e-12,
+      "distance_squared": [
+        2.7623056453209894e-27,
+        2.7614468335383504e-27
+      ],
+      "paired_face_interior_feet": true,
+      "nearest_admitted_face": 29427,
+      "nearest_full_triangle_verification": true,
+      "common_collar_covered": true,
+      "physical_source_candidates": 5
+    },
+    {
+      "band": 1e-13,
+      "edge": [
+        13195,
+        13196
+      ],
+      "faces": [
+        29420,
+        35669
+      ],
+      "markers": [
+        "WING3D",
+        "WING3D"
+      ],
+      "point": [
+        0.8061090421453303,
+        0.0007396813399076795,
+        -0.0005681669493990441
+      ],
+      "relative_projected_trace_difference": 1.6451110525464952e-11,
+      "distance_squared": [
+        2.7614468350515005e-27,
+        2.762300080645772e-27
+      ],
+      "paired_face_interior_feet": true,
+      "nearest_admitted_face": 29420,
+      "nearest_full_triangle_verification": true,
+      "common_collar_covered": true,
+      "physical_source_candidates": 8
+    },
+    {
+      "band": 1e-13,
+      "edge": [
+        4580,
+        4581
+      ],
+      "faces": [
+        11695,
+        29419
+      ],
+      "markers": [
+        "WING3D",
+        "WING3D"
+      ],
+      "point": [
+        0.8062072262657682,
+        0.0010870991374934658,
+        0.000568094744344975
+      ],
+      "relative_projected_trace_difference": 1.43212110753702e-11,
+      "distance_squared": [
+        2.7630220551945298e-27,
+        2.7670681091792e-27
+      ],
+      "paired_face_interior_feet": true,
+      "nearest_admitted_face": 11695,
+      "nearest_full_triangle_verification": true,
+      "common_collar_covered": true,
+      "physical_source_candidates": 6
+    },
+    {
+      "band": 1e-13,
+      "edge": [
+        13196,
+        13197
+      ],
+      "faces": [
+        29412,
+        30985
+      ],
+      "markers": [
+        "WING3D",
+        "WING3D"
+      ],
+      "point": [
+        0.8062072262657682,
+        0.0010870991374934658,
+        -0.0005680947443454186
+      ],
+      "relative_projected_trace_difference": 1.674070145336717e-11,
+      "distance_squared": [
+        2.7670681122085794e-27,
+        2.763016484853258e-27
+      ],
+      "paired_face_interior_feet": true,
+      "nearest_admitted_face": 30985,
+      "nearest_full_triangle_verification": true,
+      "common_collar_covered": true,
+      "physical_source_candidates": 10
+    },
+    {
+      "band": 1e-13,
+      "edge": [
+        4579,
+        4580
+      ],
+      "faces": [
+        11694,
+        29411
+      ],
+      "markers": [
+        "WING3D",
+        "WING3D"
+      ],
+      "point": [
+        0.8063152287982498,
+        0.001469258714837831,
+        0.000568015318785987
+      ],
+      "relative_projected_trace_difference": 9.323612253550756e-12,
+      "distance_squared": [
+        2.763023026875221e-27,
+        2.767068230354463e-27
+      ],
+      "paired_face_interior_feet": true,
+      "nearest_admitted_face": 11694,
+      "nearest_full_triangle_verification": true,
+      "common_collar_covered": true,
+      "physical_source_candidates": 8
+    },
+    {
+      "band": 1e-08,
+      "edge": [
+        23787,
+        24131
+      ],
+      "faces": [
+        48058,
+        48952
+      ],
+      "markers": [
+        "WING3D",
+        "WING3D"
+      ],
+      "point": [
+        1.1440724691262936,
+        1.1966002669557512,
+        -7.64004477917592e-05
+      ],
+      "relative_projected_trace_difference": 3.4512430870275097e-06,
+      "distance_squared": [
+        2.1007677878659034e-17,
+        2.100767853782903e-17
+      ],
+      "paired_face_interior_feet": true,
+      "nearest_admitted_face": 48058,
+      "nearest_full_triangle_verification": true,
+      "common_collar_covered": true,
+      "physical_source_candidates": 6
+    },
+    {
+      "band": 1e-08,
+      "edge": [
+        24130,
+        24131
+      ],
+      "faces": [
+        48049,
+        48154
+      ],
+      "markers": [
+        "WING3D",
+        "WING3D"
+      ],
+      "point": [
+        1.1440482451072544,
+        1.1965145597336753,
+        -0.00021800069366003147
+      ],
+      "relative_projected_trace_difference": 5.951701362253715e-06,
+      "distance_squared": [
+        2.602315631545493e-17,
+        2.602315734714475e-17
+      ],
+      "paired_face_interior_feet": true,
+      "nearest_admitted_face": 48049,
+      "nearest_full_triangle_verification": true,
+      "common_collar_covered": true,
+      "physical_source_candidates": 4
+    },
+    {
+      "band": 1e-08,
+      "edge": [
+        13190,
+        24130
+      ],
+      "faces": [
+        48047,
+        48169
+      ],
+      "markers": [
+        "WING3D",
+        "WING3D"
+      ],
+      "point": [
+        1.1440085986900346,
+        1.1963741657650153,
+        -0.0003014425413397433
+      ],
+      "relative_projected_trace_difference": 8.294394575636727e-06,
+      "distance_squared": [
+        2.7001883238066495e-17,
+        2.700188244782384e-17
+      ],
+      "paired_face_interior_feet": true,
+      "nearest_admitted_face": 48169,
+      "nearest_full_triangle_verification": true,
+      "common_collar_covered": true,
+      "physical_source_candidates": 11
+    },
+    {
+      "band": 1e-08,
+      "edge": [
+        171,
+        4583
+      ],
+      "faces": [
+        11079,
+        29443
+      ],
+      "markers": [
+        "WING3D",
+        "WING3D"
+      ],
+      "point": [
+        0.8059386348948565,
+        0.00013672626018079037,
+        0.0005682876406092875
+      ],
+      "relative_projected_trace_difference": 1.3064625859395669e-06,
+      "distance_squared": [
+        2.762424900891343e-17,
+        2.7624248973285247e-17
+      ],
+      "paired_face_interior_feet": true,
+      "nearest_admitted_face": 29443,
+      "nearest_full_triangle_verification": true,
+      "common_collar_covered": true,
+      "physical_source_candidates": 5
+    },
+    {
+      "band": 1e-08,
+      "edge": [
+        167,
+        13194
+      ],
+      "faces": [
+        29436,
+        30369
+      ],
+      "markers": [
+        "WING3D",
+        "WING3D"
+      ],
+      "point": [
+        0.8059386348948565,
+        0.00013672626018078414,
+        -0.0005682876406097052
+      ],
+      "relative_projected_trace_difference": 1.6431077419824445e-06,
+      "distance_squared": [
+        2.7624249438064273e-17,
+        2.7624249277947868e-17
+      ],
+      "paired_face_interior_feet": true,
+      "nearest_admitted_face": 30369,
+      "nearest_full_triangle_verification": true,
+      "common_collar_covered": true,
+      "physical_source_candidates": 7
+    },
+    {
+      "band": 1e-08,
+      "edge": [
+        4582,
+        4583
+      ],
+      "faces": [
+        16380,
+        29435
+      ],
+      "markers": [
+        "WING3D",
+        "WING3D"
+      ],
+      "point": [
+        0.8060197787960446,
+        0.0004238484069459269,
+        0.0005682279670113495
+      ],
+      "relative_projected_trace_difference": 1.6234278531759392e-06,
+      "distance_squared": [
+        2.7624249953039586e-17,
+        2.762425015347129e-17
+      ],
+      "paired_face_interior_feet": true,
+      "nearest_admitted_face": 16380,
+      "nearest_full_triangle_verification": true,
+      "common_collar_covered": true,
+      "physical_source_candidates": 6
+    },
+    {
+      "band": 1e-08,
+      "edge": [
+        13194,
+        13195
+      ],
+      "faces": [
+        29428,
+        35670
+      ],
+      "markers": [
+        "WING3D",
+        "WING3D"
+      ],
+      "point": [
+        0.8060197787960446,
+        0.00042384840694592054,
+        -0.0005682279670117667
+      ],
+      "relative_projected_trace_difference": 1.6682129930267372e-06,
+      "distance_squared": [
+        2.762425062538905e-17,
+        2.7624250226976485e-17
+      ],
+      "paired_face_interior_feet": true,
+      "nearest_admitted_face": 35670,
+      "nearest_full_triangle_verification": true,
+      "common_collar_covered": true,
+      "physical_source_candidates": 7
+    },
+    {
+      "band": 1e-08,
+      "edge": [
+        4581,
+        4582
+      ],
+      "faces": [
+        16379,
+        29427
+      ],
+      "markers": [
+        "WING3D",
+        "WING3D"
+      ],
+      "point": [
+        0.8061090370873518,
+        0.0007396827683875717,
+        0.0005681623260535955
+      ],
+      "relative_projected_trace_difference": 9.767569082301457e-07,
+      "distance_squared": [
+        2.762425074485295e-17,
+        2.762425078412863e-17
+      ],
+      "paired_face_interior_feet": true,
+      "nearest_admitted_face": 16379,
+      "nearest_full_triangle_verification": true,
+      "common_collar_covered": true,
+      "physical_source_candidates": 5
+    },
+    {
+      "band": 1e-08,
+      "edge": [
+        13195,
+        13196
+      ],
+      "faces": [
+        29420,
+        35669
+      ],
+      "markers": [
+        "WING3D",
+        "WING3D"
+      ],
+      "point": [
+        0.8061090370873518,
+        0.0007396827683875656,
+        -0.0005681623260540132
+      ],
+      "relative_projected_trace_difference": 1.6452790199283703e-06,
+      "distance_squared": [
+        2.7624251246025812e-17,
+        2.762425101321368e-17
+      ],
+      "paired_face_interior_feet": true,
+      "nearest_admitted_face": 35669,
+      "nearest_full_triangle_verification": true,
+      "common_collar_covered": true,
+      "physical_source_candidates": 8
+    },
+    {
+      "band": 1e-08,
+      "edge": [
+        4580,
+        4581
+      ],
+      "faces": [
+        11695,
+        29419
+      ],
+      "markers": [
+        "WING3D",
+        "WING3D"
+      ],
+      "point": [
+        0.8062072212077898,
+        0.0010871005659733746,
+        0.000568090121000039
+      ],
+      "relative_projected_trace_difference": 1.431536938326254e-06,
+      "distance_squared": [
+        2.762425137735713e-17,
+        2.762425139047781e-17
+      ],
+      "paired_face_interior_feet": true,
+      "nearest_admitted_face": 11695,
+      "nearest_full_triangle_verification": true,
+      "common_collar_covered": true,
+      "physical_source_candidates": 6
+    },
+    {
+      "band": 1e-08,
+      "edge": [
+        13196,
+        13197
+      ],
+      "faces": [
+        29412,
+        30985
+      ],
+      "markers": [
+        "WING3D",
+        "WING3D"
+      ],
+      "point": [
+        0.8062072212077898,
+        0.0010871005659733686,
+        -0.0005680901210004572
+      ],
+      "relative_projected_trace_difference": 1.6732644644729199e-06,
+      "distance_squared": [
+        2.7624251843485282e-17,
+        2.762425164012073e-17
+      ],
+      "paired_face_interior_feet": true,
+      "nearest_admitted_face": 30985,
+      "nearest_full_triangle_verification": true,
+      "common_collar_covered": true,
+      "physical_source_candidates": 10
+    },
+    {
+      "band": 1e-08,
+      "edge": [
+        4579,
+        4580
+      ],
+      "faces": [
+        11694,
+        29411
+      ],
+      "markers": [
+        "WING3D",
+        "WING3D"
+      ],
+      "point": [
+        0.8063152237402713,
+        0.0014692601433177513,
+        0.0005680106954410992
+      ],
+      "relative_projected_trace_difference": 9.322027244635896e-07,
+      "distance_squared": [
+        2.76242517632554e-17,
+        2.7624251416539126e-17
+      ],
+      "paired_face_interior_feet": true,
+      "nearest_admitted_face": 29411,
+      "nearest_full_triangle_verification": true,
+      "common_collar_covered": true,
+      "physical_source_candidates": 8
+    },
+    {
+      "band": 0.0001,
+      "edge": [
+        23787,
+        24131
+      ],
+      "faces": [
+        48058,
+        48952
+      ],
+      "markers": [
+        "WING3D",
+        "WING3D"
+      ],
+      "point": [
+        1.1440144597574273,
+        1.1965635287569292,
+        -6.282702080907946e-05
+      ],
+      "relative_projected_trace_difference": 0.03462979438625628,
+      "distance_squared": [
+        2.100767877128547e-09,
+        2.1007678771239427e-09
+      ],
+      "paired_face_interior_feet": true,
+      "nearest_admitted_face": 48952,
+      "nearest_full_triangle_verification": true,
+      "common_collar_covered": true,
+      "physical_source_candidates": 0
+    },
+    {
+      "band": 0.0001,
+      "edge": [
+        24130,
+        24131
+      ],
+      "faces": [
+        48049,
+        48154
+      ],
+      "markers": [
+        "WING3D",
+        "WING3D"
+      ],
+      "point": [
+        1.1439901970575108,
+        1.1964966891950037,
+        -0.00018321437713272477
+      ],
+      "relative_projected_trace_difference": 0.061014419214819746,
+      "distance_squared": [
+        2.6023156676982824e-09,
+        2.6023156677066973e-09
+      ],
+      "paired_face_interior_feet": true,
+      "nearest_admitted_face": 48049,
+      "nearest_full_triangle_verification": true,
+      "common_collar_covered": true,
+      "physical_source_candidates": 1
+    },
+    {
+      "band": 0.0001,
+      "edge": [
+        13190,
+        24130
+      ],
+      "faces": [
+        48047,
+        48169
+      ],
+      "markers": [
+        "WING3D",
+        "WING3D"
+      ],
+      "point": [
+        1.1439556566471052,
+        1.196377906909281,
+        -0.0002558118063135621
+      ],
+      "relative_projected_trace_difference": 0.08593531528952528,
+      "distance_squared": [
+        2.7001882226145503e-09,
+        2.700188222619863e-09
+      ],
+      "paired_face_interior_feet": true,
+      "nearest_admitted_face": 48047,
+      "nearest_full_triangle_verification": true,
+      "common_collar_covered": true,
+      "physical_source_candidates": 0
+    },
+    {
+      "band": 0.0001,
+      "edge": [
+        171,
+        4583
+      ],
+      "faces": [
+        11079,
+        29443
+      ],
+      "markers": [
+        "WING3D",
+        "WING3D"
+      ],
+      "point": [
+        0.8058880596639993,
+        0.0001510097730108759,
+        0.0005220583497432608
+      ],
+      "relative_projected_trace_difference": 0.013079429239449753,
+      "distance_squared": [
+        2.762424901374387e-09,
+        2.7624249013725863e-09
+      ],
+      "paired_face_interior_feet": true,
+      "nearest_admitted_face": 29443,
+      "nearest_full_triangle_verification": true,
+      "common_collar_covered": true,
+      "physical_source_candidates": 0
+    },
+    {
+      "band": 0.0001,
+      "edge": [
+        167,
+        13194
+      ],
+      "faces": [
+        29436,
+        30369
+      ],
+      "markers": [
+        "WING3D",
+        "WING3D"
+      ],
+      "point": [
+        0.8058880596642201,
+        0.0001510097729484471,
+        -0.000522058349482959
+      ],
+      "relative_projected_trace_difference": 0.016436809987393615,
+      "distance_squared": [
+        2.7624249254744646e-09,
+        2.7624249254766227e-09
+      ],
+      "paired_face_interior_feet": true,
+      "nearest_admitted_face": 29436,
+      "nearest_full_triangle_verification": true,
+      "common_collar_covered": true,
+      "physical_source_candidates": 0
+    },
+    {
+      "band": 0.0001,
+      "edge": [
+        4582,
+        4583
+      ],
+      "faces": [
+        16380,
+        29435
+      ],
+      "markers": [
+        "WING3D",
+        "WING3D"
+      ],
+      "point": [
+        0.8059692035643444,
+        0.0004381319200144762,
+        0.0005219986771412385
+      ],
+      "relative_projected_trace_difference": 0.016227719802522883,
+      "distance_squared": [
+        2.762424992367716e-09,
+        2.7624249923685384e-09
+      ],
+      "paired_face_interior_feet": true,
+      "nearest_admitted_face": 16380,
+      "nearest_full_triangle_verification": true,
+      "common_collar_covered": true,
+      "physical_source_candidates": 0
+    },
+    {
+      "band": 0.0001,
+      "edge": [
+        13194,
+        13195
+      ],
+      "faces": [
+        29428,
+        35670
+      ],
+      "markers": [
+        "WING3D",
+        "WING3D"
+      ],
+      "point": [
+        0.8059692035645687,
+        0.0004381319199510295,
+        -0.0005219986768766854
+      ],
+      "relative_projected_trace_difference": 0.016687598708224952,
+      "distance_squared": [
+        2.7624250168683998e-09,
+        2.7624250168638714e-09
+      ],
+      "paired_face_interior_feet": true,
+      "nearest_admitted_face": 35670,
+      "nearest_full_triangle_verification": true,
+      "common_collar_covered": true,
+      "physical_source_candidates": 0
+    },
+    {
+      "band": 0.0001,
+      "edge": [
+        4581,
+        4582
+      ],
+      "faces": [
+        16379,
+        29427
+      ],
+      "markers": [
+        "WING3D",
+        "WING3D"
+      ],
+      "point": [
+        0.8060584618549134,
+        0.0007539662816650215,
+        0.0005219330370557201
+      ],
+      "relative_projected_trace_difference": 0.00978756338889063,
+      "distance_squared": [
+        2.7624250739640812e-09,
+        2.762425073964345e-09
+      ],
+      "paired_face_interior_feet": true,
+      "nearest_admitted_face": 16379,
+      "nearest_full_triangle_verification": true,
+      "common_collar_covered": true,
+      "physical_source_candidates": 0
+    },
+    {
+      "band": 0.0001,
+      "edge": [
+        13195,
+        13196
+      ],
+      "faces": [
+        29420,
+        35669
+      ],
+      "markers": [
+        "WING3D",
+        "WING3D"
+      ],
+      "point": [
+        0.8060584618551332,
+        0.0007539662816028586,
+        -0.0005219330367965287
+      ],
+      "relative_projected_trace_difference": 0.0164583657392774,
+      "distance_squared": [
+        2.76242509795873e-09,
+        2.7624250979633817e-09
+      ],
+      "paired_face_interior_feet": true,
+      "nearest_admitted_face": 29420,
+      "nearest_full_triangle_verification": true,
+      "common_collar_covered": true,
+      "physical_source_candidates": 0
+    },
+    {
+      "band": 0.0001,
+      "edge": [
+        4580,
+        4581
+      ],
+      "faces": [
+        11695,
+        29419
+      ],
+      "markers": [
+        "WING3D",
+        "WING3D"
+      ],
+      "point": [
+        0.806156645974767,
+        0.0011013840794160163,
+        0.0005218608326923984
+      ],
+      "relative_projected_trace_difference": 0.014329369767776254,
+      "distance_squared": [
+        2.7624251375140756e-09,
+        2.762425137517743e-09
+      ],
+      "paired_face_interior_feet": true,
+      "nearest_admitted_face": 11695,
+      "nearest_full_triangle_verification": true,
+      "common_collar_covered": true,
+      "physical_source_candidates": 4
+    },
+    {
+      "band": 0.0001,
+      "edge": [
+        13196,
+        13197
+      ],
+      "faces": [
+        29412,
+        30985
+      ],
+      "markers": [
+        "WING3D",
+        "WING3D"
+      ],
+      "point": [
+        0.8061566459749826,
+        0.0011013840793550574,
+        -0.0005218608324382367
+      ],
+      "relative_projected_trace_difference": 0.016734840546918456,
+      "distance_squared": [
+        2.7624251610432603e-09,
+        2.7624251610479306e-09
+      ],
+      "paired_face_interior_feet": true,
+      "nearest_admitted_face": 29412,
+      "nearest_full_triangle_verification": true,
+      "common_collar_covered": true,
+      "physical_source_candidates": 6
+    },
+    {
+      "band": 0.0001,
+      "edge": [
+        4579,
+        4580
+      ],
+      "faces": [
+        11694,
+        29411
+      ],
+      "markers": [
+        "WING3D",
+        "WING3D"
+      ],
+      "point": [
+        0.806264648506841,
+        0.0014835436568756688,
+        0.0005217814076149088
+      ],
+      "relative_projected_trace_difference": 0.009351027577233276,
+      "distance_squared": [
+        2.7624251813475057e-09,
+        2.762425181351135e-09
+      ],
+      "paired_face_interior_feet": true,
+      "nearest_admitted_face": 11694,
+      "nearest_full_triangle_verification": true,
+      "common_collar_covered": true,
+      "physical_source_candidates": 4
+    }
+  ],
+  "scope": [
+    "Numerical finite-triangle distances include edges/vertices and all AABB candidates within the sampled band; exact rational wedge counterexample supplies the discontinuity proof.",
+    "Collar: same source-node trace on common generated vertices, exact positive tetrahedra and selected-patch interior-overlap checks only.",
+    "No global shell/source-overlap/complete-envelope coverage certificate, production geometry mapping, edge quadrature, MPI runtime, transfer, restart or accepted remeshing claim.",
+    "The selected 0.7*band bisector samples are a coverage probe, not a cover of every permitted mapped point."
+  ]
+}
