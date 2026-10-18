@@ -108,12 +108,12 @@ miss the conservative151-update state reference; tightened-stop controls remain 
 | naca_sst | 2x2 | 9 | 2 | 0 |
 | nozzle_sst | 1x1 | 26 | 0 | 0 |
 | nozzle_sst | 2x2 | 9 | 0 | 0 |
-| flatplate_lm | 1x1 | 12 | 0 | 0 |
+| flatplate_lm | 1x1 | 15 | 0 | 0 |
 | flatplate_lm | 2x2 | 6 | 0 | 0 |
 | periodic_stator | 1x1 | 3 | 0 | 0 |
 | periodic_stator | 2x2 | 0 | 0 | 0 |
 | periodic_vki | 1x1 | 12 | 0 | 0 |
-| periodic_vki | 2x2 | 7 | 0 | 0 |
+| periodic_vki | 2x2 | 9 | 0 | 0 |
 
 ## Current run ledger
 
@@ -221,6 +221,9 @@ is retained; `prepared` and `running` entries have not completed.
 | periodic_vki | 2x2 | coupled | cold | probe_metric | original | -12 | rejected | False | 448 | — | 301.059 |
 | periodic_vki | 2x2 | native | cold | probe_metric | original | -12 | iteration_cap | False | 3000 | 65.549 | 66.163 |
 | periodic_vki | 2x2 | segregated | cold | probe_metric | original | -12 | rejected | False | 911 | — | 301.061 |
+| flatplate_lm | 1x1 | coupled | original | recovery_release | original | -11 | running | False | — | — | — |
+| flatplate_lm | 1x1 | native | original | recovery_release | original | -11 | rejected | False | 710 | — | 301.052 |
+| flatplate_lm | 1x1 | segregated | original | recovery_release | original | -11 | timeout | False | 20 | — | 301.050 |
 | naca_sa | 1x1 | coupled | original | recovery_release | original | -12 | reference_audit_failed | False | 11 | 41.410 | 41.998 |
 | naca_sa | 1x1 | native | original | recovery_release | original | -12 | reference_audit_failed | False | 11 | 1.378 | 1.907 |
 | naca_sa | 1x1 | segregated | original | recovery_release | original | -12 | reference_audit_failed | False | 11 | 9.339 | 9.848 |
@@ -242,7 +245,9 @@ is retained; `prepared` and `running` entries have not completed.
 | periodic_vki | 1x1 | coupled | cold | recovery_release | original | -12 | rejected | False | 235 | — | 301.074 |
 | periodic_vki | 1x1 | native | cold | recovery_release | original | -12 | iteration_cap | False | 3000 | 121.860 | 122.402 |
 | periodic_vki | 1x1 | segregated | cold | recovery_release | original | -12 | rejected | False | 452 | — | 301.023 |
-| periodic_vki | 2x2 | native | cold | recovery_release | original | -12 | running | False | — | — | — |
+| periodic_vki | 2x2 | coupled | cold | recovery_release | original | -12 | rejected | False | 479 | — | 301.031 |
+| periodic_vki | 2x2 | native | cold | recovery_release | original | -12 | iteration_cap | False | 3000 | 67.211 | 67.698 |
+| periodic_vki | 2x2 | segregated | cold | recovery_release | original | -12 | rejected | False | 1106 | — | 301.052 |
 | naca_sa | 1x1 | coupled | original | recovery_release | original | -13.0 | timeout | False | 29 | — | 121.027 |
 | naca_sa | 1x1 | native | original | recovery_release | original | -13.0 | qualified | True | 151 | 19.319 | 19.860 |
 | naca_sa | 1x1 | segregated | original | recovery_release | original | -13.0 | timeout | False | 65 | — | 121.032 |
@@ -311,6 +316,9 @@ is only its last checkpoint. State errors use the native reference recorded for 
 | periodic_vki | 2x2 | probe_metric | coupled | rejected | 448 | 20542/25734/— | 5192/0 | 0/0 | —/301.059 | 7.479e-06 | — |
 | periodic_vki | 2x2 | probe_metric | native | iteration_cap | 3000 | 3000/3000/— | 12000/0 | —/— | 65.549/66.163 | 2.799e-05 | — |
 | periodic_vki | 2x2 | probe_metric | segregated | rejected | 911 | 24411/11295/— | 9110/0 | 1/21 | —/301.061 | 4.110e-05 | — |
+| flatplate_lm | 1x1 | recovery_release | coupled | running | — | —/—/— | —/— | —/— | —/— | — | — |
+| flatplate_lm | 1x1 | recovery_release | native | rejected | 710 | 710/710/710 | 10646/0 | —/— | —/301.052 | 7.939e-04 | — |
+| flatplate_lm | 1x1 | recovery_release | segregated | timeout | 20 | 1509/222/214 | 380/0 | 2/18 | —/301.050 | — | — |
 | naca_sa | 1x1 | recovery_release | coupled | reference_audit_failed | 11 | 1629/2055/— | 423/0 | 0/0 | 41.410/41.998 | 1.334e-11 | 1.199e-06 |
 | naca_sa | 1x1 | recovery_release | native | reference_audit_failed | 11 | 11/11/— | 440/0 | —/— | 1.378/1.907 | 1.963e-10 | 0.000e+00 |
 | naca_sa | 1x1 | recovery_release | segregated | reference_audit_failed | 11 | 170/427/— | 388/0 | 0/0 | 9.339/9.848 | 1.257e-11 | 2.255e-06 |
@@ -332,7 +340,9 @@ is only its last checkpoint. State errors use the native reference recorded for 
 | periodic_vki | 1x1 | recovery_release | coupled | rejected | 235 | 10998/13792/— | 2794/0 | 0/0 | —/301.074 | 2.412e-05 | — |
 | periodic_vki | 1x1 | recovery_release | native | iteration_cap | 3000 | 3000/3000/— | 12000/0 | —/— | 121.860/122.402 | 2.419e-05 | — |
 | periodic_vki | 1x1 | recovery_release | segregated | rejected | 452 | 12461/5263/— | 4442/0 | 1/0 | —/301.023 | 3.417e-05 | — |
-| periodic_vki | 2x2 | recovery_release | native | running | — | —/—/— | —/0 | —/— | —/— | — | — |
+| periodic_vki | 2x2 | recovery_release | coupled | rejected | 479 | 21720/27191/— | 5471/0 | 0/0 | —/301.031 | 7.479e-06 | — |
+| periodic_vki | 2x2 | recovery_release | native | iteration_cap | 3000 | 3000/3000/— | 12000/0 | —/— | 67.211/67.698 | 2.799e-05 | — |
+| periodic_vki | 2x2 | recovery_release | segregated | rejected | 1106 | 28888/13407/— | 10607/0 | 1/21 | —/301.052 | 4.884e-05 | — |
 
 ## Remaining work cost on final code
 
@@ -351,6 +361,24 @@ on different block widths; they are not equal-cost units between modes.
 | coupled | timeout | 29 | 4654 | 5836 | 1161 | 0 | 0 |
 | native | qualified | 151 | 151 | 151 | 6040 | — | — |
 | segregated | timeout | 65 | 4991 | 2586 | 3022 | 2 | 0 |
+
+## Final-code CPU sampling
+
+One10-second periodic VKI2x2 coupled window on final code produced3186 samples with no reported loss.
+Self-cycle shares include live cached least-squares gradients15.26%, limiter calculation7.50%,
+flow flux6.81%, turbulence edge flux4.16%, periodic projection4.56%, state restoration3.20%,
+and ILU application2.89%. These are selected leaf symbols, not complete phase totals.
+They describe CPU cycles, not wall-time fractions, blocked waiting, call counts or speedup.
+The instrumented baseline phase tables remain separate. Sampling further disqualifies
+the affected run from timing comparisons. Raw records, commands, PID identities and hashes
+are under `release_sampling/1792294833149198230/`.
+Optional inline debug lookup emitted DWARF section-size warnings; the separate no-inline
+ELF-symbol report avoids those lookups. The initial report and raw data are preserved.
+[Selected-symbol CSV](NewtonKrylovApplicationSampling20261018.csv).
+
+The inspected point-wise OpenMP loops include implicit barriers, and vector dot products
+start with a barrier. No missing barrier was identified at these inspected temporary-vector
+boundaries; this limited audit does not establish the absence of every threading defect.
 
 ## Measured baseline work prefixes
 
