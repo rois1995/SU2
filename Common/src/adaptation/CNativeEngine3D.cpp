@@ -432,6 +432,7 @@ void FieldCounts(EngineStats& stats, const FrozenField& field) {
   stats.field_requests+=f.requests; stats.field_hits+=f.hits; stats.field_misses+=f.misses;
   stats.field_invalid_queries+=f.invalid_queries; stats.field_failures+=f.failures; stats.field_evictions+=f.evictions;
   stats.field_compositions+=f.compositions;
+  stats.donor_hint_tests+=f.donor_hint_tests;stats.donor_hint_hits+=f.donor_hint_hits;
   stats.field_edges+=f.edge_requests;
   stats.edge_separated+=f.kernel.segment_separated;
   stats.field_build_seconds+=f.build_seconds; stats.field_query_seconds+=f.query_seconds;
@@ -1599,7 +1600,8 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     bool streamed=ready && (curved || (!sensors.valid && DonorCap(sensors.reason)));
     if (!ready || (!sensors.valid && !streamed)) { if (ready) result.reason=sensors.reason; return finish(); }
     const size_t private_scratch=transfer_memory::Add(transfer_memory::Bytes(imported.cells),
-        transfer_memory::Mul(MaximumReplacementCells,8192),MaximumFrozenFieldBytes,MetricPatchSolveScratchBytes);
+        transfer_memory::Mul(MaximumReplacementCells,8192),MaximumFrozenFieldBytes,MetricPatchSolveScratchBytes,
+        transfer_memory::Mul(MaximumCampaignEdges,sizeof(std::pair<const Edge,EdgeMeasure>)+6*sizeof(void*)));
     if (streamed && !admit(private_scratch)) return finish();
     if (streamed) ++stats.private_query_retries;
     {
@@ -1686,7 +1688,8 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       }
     }
     if (streamed) {
-      // Geometry is now known. Import only its actual metric queries, never reuse this support for another proposal.
+      // Point support stays proposal-specific. Completed full-field edge integrals survive within this admitted campaign.
+      std::map<Edge,EdgeMeasure> campaign_edges;
       auto measure_private=[&](const std::vector<Cell>& cells, PatchMetric& measured, bool shape,
                                const std::map<Edge,EdgeMeasure>& frozen_reuse) {
         CLocalFailure local;
@@ -1720,12 +1723,13 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
           if (usable && slot<cells.size()) {
             Timer timer(stats.metric_seconds,options.timings);
             CpuTimer cpu(stats.metric_cpu_seconds,options.timings);
+            MetricStats counted;
             std::unique_ptr<FrozenField> target;
             try {
               const auto components=AssociatedExtensions(donors.cells,geometry);
               target=std::make_unique<FrozenField>(std::move(donors.cells),composition,options.timings,components,options.edge_breakpoints,field_identity);
               for (size_t i=slot;i<std::min(slot+batch,cells.size());++i) {
-                const auto part=MeasureMetricCells({cells[i]},*target,nullptr,&reuse,shape,shape ? &certified : nullptr);
+                const auto part=MeasureMetricCells({cells[i]},*target,&counted,&reuse,shape,shape ? &certified : nullptr,&campaign_edges);
                 if (part.minimum_mean_ratio<measured.minimum_mean_ratio) {
                   measured.minimum_mean_ratio=part.minimum_mean_ratio; measured.weakest_cell=part.weakest_cell;
                 }
@@ -1741,6 +1745,8 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
               }
             } catch (const std::exception& e) { usable=false; rejected=e.what(); }
             if (target) FieldCounts(stats,*target);
+            stats.private_edge_evaluations+=counted.edge_evaluations;
+            stats.private_edge_reused+=counted.edge_reused;stats.private_edge_campaign_hits+=counted.edge_campaign_reused;
           }
           slot+=batch;
         }

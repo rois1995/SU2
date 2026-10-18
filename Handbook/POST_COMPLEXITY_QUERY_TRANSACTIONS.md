@@ -63,3 +63,12 @@ This closes the scoped first-row follow-up; general repair support/displaced
 transactions and full lifecycle affordability remain open. Return to global
 uncertainty calibration/allocation and same-original-field reassessment, rather
 than adding another cache based on the isolated gain.
+
+
+Current connected WIP extends coherent physical-interior source queries and
+existing scalar EdgeMeasure lifetime within one admitted streamed campaign.
+Canonical ties/extensions remain full-path; centroid/actual-query composition
+and complete gates stay strict. No broader support cache or displaced batching
+is claimed. Qualify after the connected build using pinned exact controls,
+complete opt-in/default N4M2 workflows and one unchanged hard frozen replay.
+[Current design](../integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/query_campaign_reuse_v1/DESIGN.md).

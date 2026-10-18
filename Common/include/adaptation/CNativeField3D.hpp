@@ -48,6 +48,7 @@ struct FieldSample {
 struct FieldStats {
   uint64_t requests = 0, invalid_queries = 0, hits = 0, misses = 0, failures = 0, evictions = 0;
   uint64_t box_candidates = 0, containment_tests = 0, interpolations = 0, compositions = 0;
+  uint64_t donor_hint_tests=0,donor_hint_hits=0;
   size_t maximum_candidates = 0, maximum_cache_entries = 0, index_bytes = 0;
   double build_seconds = 0, query_seconds = 0, cache_seconds = 0;
   double search_seconds = 0, interpolation_seconds = 0, composition_seconds = 0;
@@ -69,7 +70,7 @@ class FrozenField {
  public:
   explicit FrozenField(std::vector<DonorCell> original, MetricComposition composition = {}, bool timings = false,
                        std::vector<Id> extension_components = {}, MetricEdgeBreakpoints edge_breakpoints = {},
-                       std::shared_ptr<const FrozenMetricIdentity> identity = {});
+                       std::shared_ptr<const FrozenMetricIdentity> identity = {}, bool reuse_interior = true);
   ~FrozenField();
   FieldSample Query(Point point);
   /*! Sensor P1 at the ideal endpoint midpoint; BL at its represented coordinate. Never populates Query's point cache. */
@@ -107,7 +108,8 @@ class FrozenField {
   std::vector<DonorCell> donors;
   const MetricComposition composition;
   const MetricEdgeBreakpoints edge_breakpoints;
-  const bool timings;
+  const bool timings,reuse_interior;
+  size_t last_donor=SIZE_MAX;  // A hypothesis only; strict physical interior containment is checked at every new point.
   const std::shared_ptr<const FrozenMetricIdentity> identity;
   std::unique_ptr<CADTElemClass> search;
   std::vector<unsigned long> candidates;

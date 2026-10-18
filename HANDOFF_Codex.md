@@ -8,6 +8,12 @@ Leave AdapNoExt, foreign ClusterResults, dependencies and foreign jobs untouched
 
 ## Current work and execution
 
+Current WIP: bounded coherent physical-donor checks and existing scalar-edge reuse
+extended across an admitted streamed repair campaign. New exact A/B/certificate
+controls added; build/qualification not yet run. No physical gates or policy
+defaults changed. See `query_campaign_reuse_v1/DESIGN.md` under the M6 uncertainty
+evidence. All previous18af evidence below retains its historical pinned scope.
+
 Opt-in budget-aware native3D BL policy now passes controlled complete RANS/SA
 current+BDF workflows at MPI1/2/4 (including N4/M2), atomic rejection, independent
 geometry/height/q/J/full-edge/transport/conservation checks. Original sensor-only

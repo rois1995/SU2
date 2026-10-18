@@ -72,8 +72,8 @@ size_t FrozenField::Hash::operator()(const std::array<double, 3>& point) const {
 }
 FrozenField::FrozenField(std::vector<DonorCell> original, MetricComposition combine, bool enabled,
                          std::vector<Id> components, MetricEdgeBreakpoints breakpoints,
-                         std::shared_ptr<const FrozenMetricIdentity> authority)
-    : donors(std::move(original)), composition(std::move(combine)), edge_breakpoints(std::move(breakpoints)), timings(enabled),
+                         std::shared_ptr<const FrozenMetricIdentity> authority,bool reuse)
+    : donors(std::move(original)), composition(std::move(combine)), edge_breakpoints(std::move(breakpoints)), timings(enabled),reuse_interior(reuse),
       identity(authority ? std::move(authority) : std::make_shared<const FrozenMetricIdentity>()) {
   Timer timer(stats.build_seconds, timings);
   Canonical(donors);
@@ -431,27 +431,48 @@ FieldSample FrozenField::Query(Point point) {
     if (!found) {
       {
         Timer timer(stats.search_seconds, timings);
-        FindCandidates(point, point);
-        stats.box_candidates += candidates.size();
-        stats.maximum_candidates = std::max(stats.maximum_candidates, candidates.size());
-        for (auto index : candidates) {
-          const auto& c = donors.at(index).cell;
-          const Tetrahedron t{c.v[0].p, c.v[1].p, c.v[2].p, c.v[3].p};
-          // Inflated broad-phase boxes never authorize containment.
-          bool boxed = true;
-          for (size_t axis = 0; axis < 3; ++axis) {
-            const bool vertex_lo = std::any_of(
-                t.begin(), t.end(), [&](Point p) { return (axis == 0 ? p.x : axis == 1 ? p.y : p.z) <= key[axis]; });
-            const bool vertex_hi = std::any_of(
-                t.begin(), t.end(), [&](Point p) { return (axis == 0 ? p.x : axis == 1 ? p.y : p.z) >= key[axis]; });
-            boxed = boxed && vertex_lo && vertex_hi;
+        bool checked_hint=false,contained_hint=false;
+        std::array<long double,4> hint_weights{};
+        if(reuse_interior && last_donor<donors.size() && donors[last_donor].extension_component==UINT64_MAX) {
+          ++stats.donor_hint_tests;const auto& v=donors[last_donor].cell.v;
+          bool boxed=true;
+          for(unsigned axis=0;axis<3;++axis) {
+            double lo=INFINITY,hi=-INFINITY;
+            for(const auto& n:v){const auto x=axis==0?n.p.x:axis==1?n.p.y:n.p.z;lo=std::min(lo,x);hi=std::max(hi,x);}
+            boxed=boxed && lo<=key[axis] && key[axis]<=hi;
           }
-          if (!boxed) continue;
-          ++stats.containment_tests;
-          if (Barycentric(t, point, value.weights, &stats.kernel)) {
-            value.donor = index;
-            found = true;
-            break;
+          checked_hint=true;
+          if(boxed){++stats.containment_tests;contained_hint=Barycentric({v[0].p,v[1].p,v[2].p,v[3].p},point,hint_weights,&stats.kernel);}
+          // An embedded original source has a unique strict interior. Closed ties and extensions retain canonical lookup.
+          if(contained_hint && std::all_of(hint_weights.begin(),hint_weights.end(),[](long double x){return x>0;})) {
+            value.donor=last_donor;value.weights=hint_weights;found=true;++stats.donor_hint_hits;
+          }
+        }
+        if(!found) {
+          FindCandidates(point, point);
+          stats.box_candidates += candidates.size();
+          stats.maximum_candidates = std::max(stats.maximum_candidates, candidates.size());
+          for (auto index : candidates) {
+            const auto& c = donors.at(index).cell;
+            const Tetrahedron t{c.v[0].p, c.v[1].p, c.v[2].p, c.v[3].p};
+            // Inflated broad-phase boxes never authorize containment.
+            bool boxed = true;
+            for (size_t axis = 0; axis < 3; ++axis) {
+              const bool vertex_lo = std::any_of(
+                  t.begin(), t.end(), [&](Point p) { return (axis == 0 ? p.x : axis == 1 ? p.y : p.z) <= key[axis]; });
+              const bool vertex_hi = std::any_of(
+                  t.begin(), t.end(), [&](Point p) { return (axis == 0 ? p.x : axis == 1 ? p.y : p.z) >= key[axis]; });
+              boxed = boxed && vertex_lo && vertex_hi;
+            }
+            if (!boxed) continue;
+            if(checked_hint && index==last_donor) {
+              if(!contained_hint)continue;
+              value.weights=hint_weights;
+            }else {
+              ++stats.containment_tests;
+              if(!Barycentric(t,point,value.weights,&stats.kernel))continue;
+            }
+            value.donor=index;found=true;break;
           }
         }
         if (!found) {
@@ -469,6 +490,7 @@ FieldSample FrozenField::Query(Point point) {
       }
       CacheSensor(key,value);
     }
+    last_donor=value.donor;
     FieldSample sample{value.tensor, value.tensor, donors[value.donor].Key(), value.weights,
                        donors[value.donor].extension_component};
     if (sample.extension_component!=UINT64_MAX) ++stats.extended_queries;

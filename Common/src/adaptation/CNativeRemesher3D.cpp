@@ -682,6 +682,9 @@ CRemeshResult CNativeRemesher3D::Remesh(const CConfig& config, const CGeometry& 
              << " seed_batches=" << e.seed_batches << " unmeasured_retired=" << e.unmeasured_retired
              << " cached_invalid_cells=" << e.cached_invalid_cells << " remaining_edges=" << e.remaining_edges
              << " remaining_repairs=" << e.remaining_repairs
+             << " donor_hint_tests="<<e.donor_hint_tests<<" donor_hint_hits="<<e.donor_hint_hits
+             << " private_edge_evaluations="<<e.private_edge_evaluations<<" private_edge_reused="<<e.private_edge_reused
+             << " private_edge_campaign_hits="<<e.private_edge_campaign_hits
              << " nested_field_build=" << e.field_build_seconds << " nested_field_query=" << e.field_query_seconds
              << " nested_cache=" << e.field_cache_seconds << " nested_search=" << e.field_search_seconds
              << " nested_interpolation=" << e.field_interpolation_seconds << " nested_composition=" << e.field_composition_seconds

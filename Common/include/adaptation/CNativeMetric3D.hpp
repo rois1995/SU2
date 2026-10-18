@@ -17,6 +17,7 @@ struct EdgeMeasure {
   long double length = 0;
   std::shared_ptr<const FrozenMetricIdentity> identity;
 };
+constexpr size_t MaximumCampaignEdges=6*MaximumReplacementCells;
 struct PatchMetric {
   double minimum_mean_ratio = 1, minimum_scaled_jacobian = 1;
   Id weakest_cell = 0, sliver_cell = 0;
@@ -37,7 +38,7 @@ MetricShapeLinearization LinearizeMetricShape(const Tetrahedron& tet,const Tenso
                                             const std::array<Tensor,3>* spatial=nullptr);
 struct MetricStats {
   uint64_t patches = 0, cells = 0, edges = 0, changes = 0, failures = 0;
-  uint64_t edge_evaluations = 0, edge_reused = 0;
+  uint64_t edge_evaluations = 0, edge_reused = 0, edge_campaign_reused=0;
   size_t maximum_cells = 0, maximum_nodes = 0, maximum_edges = 0;
 };
 // Geometry intents require independently certified geometric progress at the engine caller.
@@ -58,7 +59,8 @@ double MetricShapeQuality(const std::vector<Cell>& cells,FrozenField& target);
  * The source must remain the same original frozen target throughout, including any scalar-edge reuse. */
 PatchMetric MeasureMetricCells(const std::vector<Cell>& cells, FrozenField& target, MetricStats* stats = nullptr,
                               const std::map<Edge, EdgeMeasure>* frozen_reuse = nullptr,
-                              bool require_shape = false, MetricDiagnosis* diagnosis = nullptr);
+                              bool require_shape = false, MetricDiagnosis* diagnosis = nullptr,
+                              std::map<Edge,EdgeMeasure>* campaign = nullptr);
 /*! Same progress gate on complete measurements assembled from the same frozen target. The caller must
  * retain all cells/edges and verify geometry/dependencies separately; this does not certify source coverage.
  * GeometryRefine/GeometryRepair need caller-certified geometric-error progress; metric shape remains strict and changed

@@ -388,3 +388,39 @@ TEST_CASE("Metric shape ranking shares exact centroid arithmetic without certify
   PatchMetric measured;std::string reason;CHECK_FALSE(ValidateMetricPatch({Single()},unresolved,measured,reason));
   CHECK(reason.find("geometry-resolved")!=std::string::npos);
 }
+
+TEST_CASE("Repair campaign edge certificates require exact coordinates and immutable full field", "[NativeCampaignEdge3D]") {
+  const auto identity=std::make_shared<const FrozenMetricIdentity>();
+  const MetricComposition composition=[](Point p,Tensor m){m.xx+=.25*p.x;return m;};
+  const MetricEdgeBreakpoints cuts=[](Point,Point){return std::vector<double>{0,1};};
+  FrozenField first({Donor({})},composition,false,{},cuts,identity);
+  std::map<Edge,EdgeMeasure> campaign;MetricStats cold;
+  const auto original=MeasureMetricCells({Single()},first,&cold,nullptr,false,nullptr,&campaign);
+  CHECK(cold.edge_evaluations==6);CHECK(campaign.size()==6);
+  FrozenField imported({Donor({})},composition,false,{},cuts,identity);MetricStats warm;
+  const auto repeated=MeasureMetricCells({Single()},imported,&warm,nullptr,false,nullptr,&campaign);
+  CHECK(warm.edge_evaluations==0);CHECK(warm.edge_campaign_reused==6);
+  CHECK(imported.Statistics().edge_requests==0);CHECK(imported.Statistics().compositions==1);
+  CHECK(repeated.minimum_mean_ratio==original.minimum_mean_ratio);
+  for(const auto& e:repeated.edges)CHECK(e.second.length==original.edges.at(e.first).length);
+  auto moved=Single();moved.v[1].p.x=.5;MetricStats changed;
+  const auto result=MeasureMetricCells({moved},imported,&changed,nullptr,false,nullptr,&campaign);
+  CHECK(changed.edge_evaluations==3);CHECK(changed.edge_campaign_reused==3);
+  const auto reference=MeasureMetricCells({moved},imported);
+  for(const auto& e:result.edges)CHECK(e.second.length==reference.edges.at(e.first).length);
+  campaign.at({0,2}).length=std::numeric_limits<long double>::quiet_NaN();MetricStats malformed;
+  MeasureMetricCells({moved},imported,&malformed,nullptr,false,nullptr,&campaign);
+  CHECK(malformed.edge_evaluations==1);CHECK(malformed.edge_campaign_reused==5);
+  FrozenField stage({Donor({4,0,0,4,0,4})},composition,false,{},cuts);MetricStats refreshed;
+  MeasureMetricCells({moved},stage,&refreshed,nullptr,false,nullptr,&campaign);
+  CHECK(refreshed.edge_evaluations==6);CHECK(refreshed.edge_campaign_reused==0);
+  FrozenField unsupported({Donor({})},composition,false,{}, {},identity);
+  CHECK_THROWS(MeasureMetricCells({moved},unsupported,nullptr,nullptr,false,nullptr,&campaign));
+  campaign.clear();auto flat=Single();flat.v[3].p.z=1e-8;
+  CHECK_THROWS(MeasureMetricCells({flat},first,nullptr,nullptr,true,nullptr,&campaign));
+  CHECK(campaign.empty()); // Shape rejection never creates edge certificates.
+  const EdgeMeasure stale{{0,0,0},{0,0,0},-1,{}};
+  for(size_t i=0;i<MaximumCampaignEdges;++i)campaign.emplace(Edge{100+2*i,101+2*i},stale);
+  MeasureMetricCells({Single()},first,nullptr,nullptr,false,nullptr,&campaign);
+  CHECK(campaign.size()==MaximumCampaignEdges);
+}

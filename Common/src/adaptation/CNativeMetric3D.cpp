@@ -117,7 +117,8 @@ bool Same(Point a, Point b) { return a.x == b.x && a.y == b.y && a.z == b.z; }
 void Shape(const PatchMetric& m);
 }  // namespace
 static PatchMetric MeasureMetricCellsImpl(const std::vector<Cell>& cells, FrozenField& target, MetricStats* stats,
-                               const std::map<Edge, EdgeMeasure>* reuse, bool require_shape, MetricDiagnosis* diagnosis,bool shapes_only) {
+                               const std::map<Edge, EdgeMeasure>* reuse, bool require_shape, MetricDiagnosis* diagnosis,bool shapes_only,
+                               std::map<Edge,EdgeMeasure>* campaign) {
   if (diagnosis) { *diagnosis={}; diagnosis->failure=MetricFailure::Measurement; }
   if (cells.empty() || cells.size() > MaximumReplacementCells)
     throw std::invalid_argument("Native 3D metric patch exceeds budget or is empty.");
@@ -191,6 +192,14 @@ static PatchMetric MeasureMetricCellsImpl(const std::vector<Cell>& cells, Frozen
         if (stats) ++stats->edge_reused;
       }
     }
+    if(!reused && campaign) {
+      const auto prior=campaign->find(edge.first);
+      if(prior!=campaign->end() && prior->second.identity==target.Identity() && Same(prior->second.a,m.a) &&
+          Same(prior->second.b,m.b) && std::isfinite(prior->second.length) && prior->second.length>0) {
+        m.length=prior->second.length;reused=true;
+        if(stats){++stats->edge_reused;++stats->edge_campaign_reused;}
+      }
+    }
     if (!reused) {
       if (stats) ++stats->edge_evaluations;
       try {
@@ -201,6 +210,11 @@ static PatchMetric MeasureMetricCellsImpl(const std::vector<Cell>& cells, Frozen
       }
     }
     m.identity = target.Identity();
+    if(campaign && !reused) {
+      // shortcut: bounded edge-key eviction; change policy only if measured capacity misses justify it.
+      if(campaign->size()>=MaximumCampaignEdges && !campaign->count(edge.first))campaign->erase(campaign->begin());
+      campaign->insert_or_assign(edge.first,m);
+    }
     if (m.length > result.maximum_length) {
       result.maximum_length = m.length;
       result.longest_edge = edge.first;
@@ -210,12 +224,13 @@ static PatchMetric MeasureMetricCellsImpl(const std::vector<Cell>& cells, Frozen
   return result;
 }
 double MetricShapeQuality(const std::vector<Cell>& cells,FrozenField& target) {
-  const auto shape=MeasureMetricCellsImpl(cells,target,nullptr,nullptr,false,nullptr,true);
+  const auto shape=MeasureMetricCellsImpl(cells,target,nullptr,nullptr,false,nullptr,true,nullptr);
   return std::min(shape.minimum_mean_ratio/MinimumMeanRatio,shape.minimum_scaled_jacobian/MinimumScaledJacobian);
 }
 PatchMetric MeasureMetricCells(const std::vector<Cell>& cells,FrozenField& target,MetricStats* stats,
-                               const std::map<Edge,EdgeMeasure>* reuse,bool require_shape,MetricDiagnosis* diagnosis) {
-  return MeasureMetricCellsImpl(cells,target,stats,reuse,require_shape,diagnosis,false);
+                               const std::map<Edge,EdgeMeasure>* reuse,bool require_shape,MetricDiagnosis* diagnosis,
+                               std::map<Edge,EdgeMeasure>* campaign) {
+  return MeasureMetricCellsImpl(cells,target,stats,reuse,require_shape,diagnosis,false,campaign);
 }
 namespace {
 void Shape(const PatchMetric& m) {

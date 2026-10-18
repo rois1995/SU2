@@ -543,3 +543,46 @@ TEST_CASE("Actual M6 midpoint rounds inside its original source while literal ou
   CHECK(double(field.TargetEdgeLength(a.p,split))==Approx(double(field.TargetEdgeLength(split,b.p))).epsilon(1e-8));
   CHECK_THROWS(field.Query(outside));CHECK_THROWS(field.TargetEdgeLength(a.p,outside));
 }
+
+TEST_CASE("Coherent physical donor queries match canonical original P1 including closed ties", "[NativeCampaignQuery3D]") {
+  const std::array<Node,8> nodes{{{0,{0,0,0}},{1,{1,0,0}},{2,{0,1,0}},{3,{1,1,0}},
+                                  {4,{0,0,1}},{5,{1,0,1}},{6,{0,1,1}},{7,{1,1,1}}}};
+  const std::array<std::array<size_t,4>,6> indices{{{0,1,3,7},{0,3,2,7},{0,2,6,7},
+                                                 {0,6,4,7},{0,4,5,7},{0,5,1,7}}};
+  std::vector<DonorCell> donors;
+  for(const auto& i:indices)donors.push_back(Donor(donors.size(),{nodes[i[0]],nodes[i[1]],nodes[i[2]],nodes[i[3]]}));
+  size_t composed=0;
+  const MetricComposition composition=[&](Point p,Tensor sensor){++composed;sensor.zz+=p.z;return sensor;};
+  FrozenField coherent(donors,composition),canonical(donors,composition,false,{}, {},{},false);
+  const auto check=[&](Point p) {
+    const auto a=coherent.Query(p),b=canonical.Query(p);
+    CHECK(a.donor==b.donor);CHECK(a.weights==b.weights);CHECK(a.extension_component==b.extension_component);
+    CHECK(a.sensor.xx==b.sensor.xx);CHECK(a.sensor.xy==b.sensor.xy);CHECK(a.sensor.xz==b.sensor.xz);
+    CHECK(a.sensor.yy==b.sensor.yy);CHECK(a.sensor.yz==b.sensor.yz);CHECK(a.sensor.zz==b.sensor.zz);
+    CHECK(a.target.xx==b.target.xx);CHECK(a.target.xy==b.target.xy);CHECK(a.target.xz==b.target.xz);
+    CHECK(a.target.yy==b.target.yy);CHECK(a.target.yz==b.target.yz);CHECK(a.target.zz==b.target.zz);
+  };
+  for(size_t i=0;i<64;++i)check({.1+i*.0001,.3+i*.00002,.8-i*.0001});
+  CHECK(coherent.Statistics().donor_hint_hits==63);
+  CHECK(coherent.Statistics().containment_tests*3<canonical.Statistics().containment_tests);
+  check({.5,.5,.5}); // A closed six-donor tie must select the canonical first donor.
+  CHECK(coherent.Query({.5,.5,.5}).donor==donors.front().Key());
+  check({.8,.3,.1}); // Crossing into another physical donor must invalidate the hypothesis.
+  check({.81,.31,.11});
+  check({.1,.3,.8}); // Exact-point cache hit still recomposes the actual point.
+  CHECK_THROWS(coherent.Query({1.1,.3,.8}));CHECK_THROWS(canonical.Query({1.1,.3,.8}));
+  CHECK(composed==coherent.Statistics().compositions+canonical.Statistics().compositions);
+  CHECK(coherent.Statistics().compositions==coherent.Statistics().requests-1);
+}
+TEST_CASE("A coherent extension never overrides physical original priority", "[NativeCampaignQuery3D]") {
+  FrozenField field(Layers(),{},false,{42});
+  CHECK(field.Query({1.1,.1,.1}).extension_component==42);
+  CHECK(field.Query({1.2,.1,.1}).extension_component==42);
+  CHECK(field.Statistics().donor_hint_hits==0);
+  const auto original=field.Query({.1,.1,.1});
+  CHECK(original.extension_component==UINT64_MAX);CHECK(original.sensor.xx==Approx(1.3));
+  CHECK(field.Query({.11,.1,.1}).extension_component==UINT64_MAX);
+  CHECK(field.Statistics().donor_hint_hits==1);
+  CHECK(field.Query({1.3,.1,.1}).extension_component==42);
+  CHECK(field.Query({.12,.1,.1}).extension_component==UINT64_MAX);
+}

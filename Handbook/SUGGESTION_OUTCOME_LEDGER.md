@@ -883,3 +883,16 @@ MPI/lifecycle and hard-case construction checks remain. [Design](../integration_
   do not keep raising limits or rerunning the full wing after each small edit.
 
 [Report and all receipts/accepted controls/rejected M6](../integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/source_point_construction_v1/README.md).
+
+
+## Bounded repair-campaign reuse — connected WIP
+
+The M6 cost evidence above supports two specific gaps: coherent centroid/stencil
+queries repeat canonical original-donor containment, and completed private edge
+certificates are discarded between related proposals. One physical-donor
+hypothesis and one admitted bounded extension of existing EdgeMeasure reuse are
+now implemented with exact canonical A/B and identity/endpoint/cap controls.
+No new tensor cache, source extrapolation, field/profile change or mesh fallback.
+Build is in progress; no validated gain or accepted M6 claim yet. General retained
+footprints/displaced reservations and collective transaction batching remain open.
+[Design/evidence](../integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/query_campaign_reuse_v1/DESIGN.md).
