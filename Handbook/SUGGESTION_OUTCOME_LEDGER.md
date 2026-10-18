@@ -96,3 +96,15 @@ import requirement. Preliminary broader diagnostic was narrowed after identifyin
 a compatibility risk; its source/controls and failed helper compile are preserved.
 This does not produce an accepted wing or establish event speedup.
 [Final evidence](../integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/strict_geometry_preflight_v1/README.md).
+
+Closed-sphere construction/removal adds a complete curved capability: generic
+geodesic sampling and regional coarsening produce8->5440->320cells, native work
+6087/6144, times202.612+57.384s under300s. All mesh contracts remain; exact geometry/
+height/shape and complete native BL edges pass. Release additionally passes the
+independent unchanged sensor tensor/Euclidean-edge oracle. Surface planning448->320
+faces/604->162trials; this is not a whole-event speedup. New measurements identify
+validation50.327/57.384s in release. Failed inherited plans/local coarsening/setup
+and helpers are preserved. Final-source serial/MPI4 primitive N/M/transfer/restart/
+SU2+CGNS compatibility independently passes15lifecycles/30events; big BL sphere
+MPI generation/CFD and affordability remain open.
+[Current scope](GOAL3_CLOSED_SPHERE.md).

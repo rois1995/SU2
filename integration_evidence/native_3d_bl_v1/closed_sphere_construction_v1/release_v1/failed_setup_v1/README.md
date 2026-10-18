@@ -1,0 +1,1 @@
+Setup-only failure before remeshing: the direct replay incorrectly relied on MakeRemesher to initialize an authority with no requested BL. Normal remeshing initializes it later. The corrected direct replay explicitly loads the same archived reference before ImportGeometry. No production geometry, policy or mesh gate changed.

@@ -1,0 +1,22 @@
+{
+  "pid": 3169860,
+  "command": [
+    "timeout",
+    "--kill-after=2s",
+    "12s",
+    "gdb",
+    "--batch",
+    "--quiet",
+    "-p",
+    "3169860",
+    "-ex",
+    "set pagination off",
+    "-ex",
+    "thread apply all bt",
+    "-ex",
+    "detach"
+  ],
+  "exit": 1,
+  "seconds": 0.06548691901843995,
+  "scope": "One intrusive correctness-run stack sample; not a timing profile"
+}

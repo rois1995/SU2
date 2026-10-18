@@ -8,6 +8,7 @@
 #include "../../../Common/include/adaptation/CNativeBoundary3D.hpp"
 #include "../../../Common/include/adaptation/CNativeField3D.hpp"
 #include "../../../Common/include/adaptation/CNativeMetric3D.hpp"
+#include "../../../Common/include/adaptation/CNativeRegion3D.hpp"
 #include <algorithm>
 #include <cmath>
 #include <limits>
@@ -1530,4 +1531,35 @@ TEST_CASE("Finite tilted cylinder and disk queries preserve authority near the a
       CHECK(std::abs(closest.distance-std::hypot((x+y+z)/root,std::max(0.L,radial-1)))<2e-12L);
     }
   }
+}
+
+TEST_CASE("Complete translated spherical sampling respects geometry and bounded atomic construction", "[NativeSphereFront3D]") {
+  const Point center{2,-1,.5};const double radius=.75;
+  std::array<Node,6> nodes;const std::array<Point,6> direction{{{1,0,0},{-1,0,0},{0,1,0},{0,-1,0},{0,0,1},{0,0,-1}}};
+  for(unsigned k=0;k<6;++k)nodes[k]={k,{center.x+radius*direction[k].x,center.y+radius*direction[k].y,center.z+radius*direction[k].z}};
+  std::vector<Facet> skin;std::map<Id,AnalyticSurface> smooth;
+  AnalyticSurface sphere;sphere.kind=AnalyticSurface::Kind::Sphere;sphere.origin=center;sphere.extent={radius,0,0};
+  for(unsigned x=0;x<2;++x)for(unsigned y=0;y<2;++y)for(unsigned z=0;z<2;++z) {
+    std::array<Node,3> triangle{nodes[x],nodes[2+y],nodes[4+z]};
+    if(Orientation(center,triangle[0].p,triangle[1].p,triangle[2].p)<0)std::swap(triangle[1],triangle[2]);
+    const Id id=skin.size();skin.push_back({id,0,triangle});smooth.emplace(id,sphere);
+  }
+  const PlanarReference reference(skin,SIZE_MAX,smooth);
+  const RegionMetric field([](Point){return Tensor{1,0,0,1,0,1};},[](Point a,Point b){return (long double)std::hypot(a.x-b.x,a.y-b.y,a.z-b.z);});
+  RegionLimits limits;limits.maximum_cells=1024;limits.maximum_work=1024;
+  RegionReport report;Patch output;std::string reason;
+  const bool built=ConstructWallRegion(skin,center,reference,{},.075,32,1000,field,limits,output,report,reason);
+  INFO(reason);REQUIRE(built);REQUIRE_FALSE(output.cells.empty());CHECK_FALSE(report.exhausted_work);
+  for(const auto& cell:output.cells) {
+    const Tetrahedron tet{cell.v[0].p,cell.v[1].p,cell.v[2].p,cell.v[3].p};CHECK(Orientation(tet[0],tet[1],tet[2],tet[3])>0);
+    const auto quality=Measure(tet,{1,0,0,1,0,1});CHECK(quality.mean_ratio>=MinimumMeanRatio);CHECK(quality.minimum_scaled_jacobian>=MinimumScaledJacobian);
+  }
+  std::map<Id,Point> positions;for(const auto& cell:output.cells)for(auto n:cell.v)positions.emplace(n.id,n.p);
+  for(const auto& face:output.surface) {
+    CHECK(reference.SurfaceError(face.facet,{positions.at(face.v[0]),positions.at(face.v[1]),positions.at(face.v[2])})<=.075);
+  }
+  const auto count=output.cells.size();const auto first=output.cells.front().id;
+  limits.maximum_cells=16;limits.maximum_work=16;
+  CHECK_FALSE(ConstructWallRegion(skin,center,reference,{},.075,32,1000,field,limits,output,report,reason));
+  CHECK(report.exhausted_work);CHECK(output.cells.size()==count);CHECK(output.cells.front().id==first);
 }

@@ -28,6 +28,15 @@ construction can progress independently. This finding is not budget infeasibilit
 or proof that every outer profile/native geometry is infeasible.
 
 
+## Current connected sphere work
+
+Complete serial closed-sphere BL now accepts5440tets/5604work under6144/300s;
+independent exact geometry/height/shape passes, full composed edges remain native.
+Native event202.6s is not affordability. Regional coarsening completes5440->320 on remaining483/540work; combined6087/6144
+and259.996/300s. Final-source serial/MPI4 primitive lifecycles and independent
+audits pass; no MPI BL/CFD affordability claim. Reuse these saved meshes.
+[Current scope and pending work](Handbook/GOAL3_CLOSED_SPHERE.md).
+
 ## Current strict-geometry diagnostic
 
 The selected composed-field physical-crease path now reports a sufficient

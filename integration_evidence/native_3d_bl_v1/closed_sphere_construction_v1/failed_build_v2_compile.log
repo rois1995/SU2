@@ -1,0 +1,18 @@
+In file included from [01m[K/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/closed_sphere_construction_v1/../../../Common/include/adaptation/CNativeDistributed3D.hpp:9[m[K,
+                 from [01m[K/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/closed_sphere_construction_v1/../../../Common/include/adaptation/CNativeDonor3D.hpp:8[m[K,
+                 from [01m[K/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/closed_sphere_construction_v1/../../../Common/include/adaptation/CNativeImport3D.hpp:8[m[K,
+                 from [01m[K/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/closed_sphere_construction_v1/../../../Common/include/adaptation/CNativeRemesher3D.hpp:10[m[K,
+                 from [01m[K/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/closed_sphere_construction_v1/construct.cpp:2[m[K:
+/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/closed_sphere_construction_v1/../../../Common/include/adaptation/CNativeDistributed2D.hpp: In instantiation of ‘[01m[Kvoid SU2NativeBoundary2D::RecordStream::Field(T&) [with T = const SU2Native3D::OwnedCell][m[K’:
+[01m[K/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/closed_sphere_construction_v1/../../../Common/include/adaptation/CNativeDistributed2D.hpp:34:5:[m[K   required from ‘[01m[Kvoid SU2NativeBoundary2D::RecordStream::operator()(T& ...) [with T = {const SU2Native3D::OwnedCell}][m[K’
+[01m[K/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/closed_sphere_construction_v1/construct.cpp:40:126:[m[K   required from here
+[01m[K/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/closed_sphere_construction_v1/../../../Common/include/adaptation/CNativeDistributed2D.hpp:80:7:[m[K [01;31m[Kerror: [m[Kpassing ‘[01m[Kconst SU2Native3D::OwnedCell[m[K’ as ‘[01m[Kthis[m[K’ argument discards qualifiers [[01;31m[K-fpermissive[m[K]
+   80 |       [01;31m[Kvalue[m[K.Fields(*this);
+      |       [01;31m[K^~~~~[m[K
+In file included from [01m[K/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/closed_sphere_construction_v1/../../../Common/include/adaptation/CNativeDonor3D.hpp:8[m[K,
+                 from [01m[K/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/closed_sphere_construction_v1/../../../Common/include/adaptation/CNativeImport3D.hpp:8[m[K,
+                 from [01m[K/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/closed_sphere_construction_v1/../../../Common/include/adaptation/CNativeRemesher3D.hpp:10[m[K,
+                 from [01m[K/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/closed_sphere_construction_v1/construct.cpp:2[m[K:
+[01m[K/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/closed_sphere_construction_v1/../../../Common/include/adaptation/CNativeDistributed3D.hpp:24:27:[m[K [01;36m[Knote: [m[K  in call to ‘[01m[Kvoid SU2Native3D::OwnedCell::Fields(S&) [with S = SU2NativeBoundary2D::RecordStream][m[K’
+   24 |   template <class S> void [01;36m[KFields[m[K(S& s) { s(cell, version, physical); }
+      |                           [01;36m[K^~~~~~[m[K

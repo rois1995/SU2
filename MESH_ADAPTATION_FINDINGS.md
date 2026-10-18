@@ -6773,3 +6773,22 @@ no exact continuum reference exists. No metric refit, normalization, CFD advance
 new integration mechanism or production/gate change. MPI4 reductions agree exactly.
 Finite domain volume/ownership/physical-face screens pass; accepted construction,
 full geometry/quality/overlap/transfer remain separate. [Report](integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/m6_same_field_reassessment_v1/README.md).
+
+## 2026-10-18: complete closed spherical BL construction and removal
+
+A generic bounded geodesic proposal replaces inherited edge-split sampling for a
+complete declared sphere; actual geometry/first-wall-cell quality/full target edges
+select refinement. Generic regional coarsening now considers a smaller fully
+validated plan for an admissible mesh with short metric edges, preserving the old
+repair behavior for inadmissible inputs. No transition/testcase dispatch or new
+configuration; all source/P1/BL/fade/height/geometry/q/J/field/publication gates remain.
+
+Serial frozen original-field workflow8->5440->320 succeeds with6087/6144work and
+259.996/300native seconds. Exact independent geometry/height/shape and native all-
+composed-edge coverage pass; release has an independent identity-tensor/Euclidean-
+edge check. Final-source serial/MPI4 primitive Euler N/M/transfer/restart/SU2+CGNS
+controls independently pass15lifecycles/30events. This does not qualify MPI BL
+sphere generation, actual viscous accuracy or full event affordability. Validation
+is50.327/57.384seconds in release; measure that path before tensor micro-optimization.
+M6 remains incompatible under its archived exact-facet contract.
+[Report, inspectable accepted/rejected grids and failures](integration_evidence/native_3d_bl_v1/closed_sphere_construction_v1/README.md).

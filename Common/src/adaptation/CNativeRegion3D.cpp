@@ -365,6 +365,71 @@ class Construction {
       if (geometry_failure || azimuth>longitudinal) ++angular;else ++axial;
     }
   }
+  bool SampleSphere() {
+    if (faces.empty()) return false;
+    const Id wall=geometry.Canonical(faces.front().facet);
+    const auto found=geometry.Analytic().find(wall);
+    if (found==geometry.Analytic().end() || found->second.kind!=AnalyticSurface::Kind::Sphere) return false;
+    for (auto f:faces) if (!Wall(f.facet) || geometry.Canonical(f.facet)!=wall) return false;
+    const auto g=found->second;
+    if (!(Orientation(g.origin,geometry.Get(wall).v[0].p,geometry.Get(wall).v[1].p,geometry.Get(wall).v[2].p)>0))
+      throw std::runtime_error("Spherical region requires an outward complete wall around its kernel.");
+    nodes.clear();faces.clear();tags.clear();lengths.clear();caps.clear();
+    auto site=[&](Point direction) {
+      ++report.surface_trials;Check();
+      return New(geometry.Project(wall,Add(g.origin,Mul(Unit(direction),g.extent.x))));
+    };
+    const double golden=.5*(1+std::sqrt(5.));
+    std::vector<Id> vertices;
+    for(double a:{-1.,1.}) for(double b:{-golden,golden}) {
+      vertices.push_back(site({a,b,0}));vertices.push_back(site({0,a,b}));vertices.push_back(site({b,0,a}));
+    }
+    for(size_t i=0;i<vertices.size();++i) for(size_t j=i+1;j<vertices.size();++j) for(size_t k=j+1;k<vertices.size();++k) {
+      const auto a=nodes.at(vertices[i]),b=nodes.at(vertices[j]),c=nodes.at(vertices[k]);
+      bool positive=false,negative=false;
+      for(size_t l=0;l<vertices.size();++l) if(l!=i && l!=j && l!=k) {
+        const auto side=Orientation(a,b,c,nodes.at(vertices[l]));positive=positive || side>0;negative=negative || side<0;
+      }
+      if(positive && negative)continue;
+      Face face{vertices[i],vertices[j],vertices[k]};
+      const auto sign=Orientation(g.origin,a,b,c);
+      if(!sign)throw std::runtime_error("Spherical sampling frame is not representable.");
+      if(sign<0)std::swap(face[1],face[2]);faces.push_back({face,wall});
+    }
+    if(faces.size()!=20)throw std::runtime_error("Spherical sampling frame has an unresolved convex hull.");
+    for(;;) {
+      Check();bool valid=true;
+      for(const auto& face:faces) {
+        if(!SurfaceValid(face)){valid=false;break;}
+        if(!policy.empty()) {
+          const Point apex=Sub(Center(face),Mul(Normal(face),Height(wall)));
+          const auto p=Triangle(face);const auto center=Mul(Add(Add(apex,p[0]),Add(p[1],p[2])),.25);
+          const auto shape=Measure({apex,p[0],p[1],p[2]},field.point(center));
+          if(shape.mean_ratio<MinimumMeanRatio || shape.minimum_scaled_jacobian<MinimumScaledJacobian){valid=false;break;}
+        }
+      }
+      if(valid)for(const auto& edge:Links(faces))if(Length(edge.first[0],edge.first[1])>MaximumMetricEdge){valid=false;break;}
+      if(valid)return true;
+      // shortcut: uniform geodesic proposals; localized/strongly anisotropic surface demands need a surface remesher.
+      const size_t factor=policy.empty()?1:8;
+      if(faces.size()>limits.maximum_cells/(4*factor) ||
+          faces.size()>limits.maximum_work/(4*factor) ||
+          4*factor*faces.size()>limits.maximum_work-report.surface_trials) {
+        report.exhausted_work=true;throw std::runtime_error("Spherical sampling and its mandatory band exceed admitted work/cells.");
+      }
+      std::map<Edge,Id> midpoints;std::vector<SurfaceFace> next;next.reserve(4*faces.size());
+      auto middle=[&](Id a,Id b) {
+        const auto edge=Key(a,b);const auto hit=midpoints.find(edge);if(hit!=midpoints.end())return hit->second;
+        const auto direction=Sub(Mul(Add(nodes.at(a),nodes.at(b)),.5),g.origin);
+        const Id id=site(direction);midpoints.emplace(edge,id);++report.surface_splits;return id;
+      };
+      for(auto f:faces) {
+        const auto a=f.v[0],b=f.v[1],c=f.v[2],ab=middle(a,b),bc=middle(b,c),ca=middle(c,a);
+        for(auto face:std::array<Face,4>{{{a,ab,ca},{ab,b,bc},{ca,bc,c},{ab,bc,ca}}})next.push_back({face,wall});
+      }
+      faces.swap(next);
+    }
+  }
   void SplitSurface() {
     // Planar cap interiors are rebuilt; close the radial sampling over all new edges.
     for (;;) {
@@ -1428,7 +1493,7 @@ bool ConstructWallRegion(const std::vector<Facet>& skin, Point kernel, const Pla
     std::vector<Face> original_skin;
     for (auto f : c.faces) original_skin.push_back(f.v);
     ValidateDomainSurfaceTopology(original_skin);
-    if (!c.SampleCylinder()) {
+    if (!c.SampleCylinder() && !c.SampleSphere()) {
       c.SplitSurface();
       c.CoarsenSurface(kernel);
     }

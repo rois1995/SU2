@@ -786,16 +786,20 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         [&](const FrozenField& field){FieldCounts(stats,field);},tick);
     try {service.Run([&](const RegionMetric& target){
       bool already_valid=GeometryExcess(old,geometry,options.surface_tolerance,options.wall_heights)==0;
+      bool short_edges=false;
       std::string why;
       if(already_valid)for(const auto& row:rows)if(!height_check(GeometryPatch(Imported{{row},true,{}}),why)){already_valid=false;break;}
       if(already_valid)for(const auto& c:old.cells){
         const auto m=Measure({c.v[0].p,c.v[1].p,c.v[2].p,c.v[3].p},target.point(Centroid(c)));
         if(m.mean_ratio<MinimumMeanRatio || m.minimum_scaled_jacobian<MinimumScaledJacobian){already_valid=false;break;}
-        for(unsigned a=0;a<4 && already_valid;++a)for(unsigned b=a+1;b<4;++b)
-          if(target.edge(c.v[a].p,c.v[b].p)>MaximumMetricEdge){already_valid=false;break;}
+        for(unsigned a=0;a<4 && already_valid;++a)for(unsigned b=a+1;b<4;++b) {
+          const auto length=target.edge(c.v[a].p,c.v[b].p);
+          if(length>MaximumMetricEdge){already_valid=false;break;}
+          short_edges=short_edges || (coarsening && length<CoarseningMetricEdge);
+        }
         if(!already_valid)break;
       }
-      if(already_valid)complete=true;
+      if(already_valid && !short_edges)complete=true;
       else {
         ++stats.region_attempts;std::map<Id,Point> points;for(const auto& c:old.cells)for(auto n:c.v)points.emplace(n.id,n.p);
         std::vector<Facet> skin;for(auto f:old.surface){Facet face;face.id=f.facet;face.marker=geometry.Get(f.facet).marker;for(unsigned k=0;k<3;++k)face.v[k]={f.v[k],points.at(f.v[k])};skin.push_back(face);}
@@ -821,6 +825,9 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
                report.maximum_edge>MaximumMetricEdge);
           if(!core_declined)throw std::runtime_error(result.reason);
           last_rejection=result.reason;
+        } else if(coarsening && already_valid && fresh.cells.size()>=old.cells.size()) {
+          core_declined=true;complete=already_valid;
+          last_rejection="Native3D regional coarsening did not reduce the cell count.";
         } else {
           stats.global_work=fresh.cells.size()+report.surface_trials+report.junction_trials+report.core_trials+report.front_trials;
           if(stats.global_work>stats.work_limit)throw std::runtime_error("Native3D region construction exceeds global event work.");
