@@ -29,8 +29,11 @@ and frozen/restart metadata consistency. Source/build is UNQUALIFIED. Read
 [the adoption handoff and planned difficult pilot](integration_evidence/native_3d_bl_v1/affine_initial_adoption_v1/README.md).
 Build53426 compiles the four new/changed objects first, then finishes the same binary.
 Check its handle before acting; no C++ edits while compiling/executing/pinned.
-After terminal success: controls1/v1 then difficult oblique annulus1/v1. Save and
-reconsider any exact failure before adding recovery; affected MPI only after that.
+Queued validator67160/PID1121793 waits for build53426 to exit, seals the binary,
+then runs controls1/v1 (including existing affine import), independent audit and
+difficult oblique annulus1/v1 sequentially. Check validation_job.json/validation_handle.json
+before starting another job. It stops on failure; no oblique independent audit is
+claimed by this runner. Save and reconsider exact failures; affected MPI only after that.
 All general2D/multi-body/junction/exterior/M6/gradation/uncertainty goals stay open.
 
 1. Spherical repeated RANS lifecycle validation/push: **DONE**, reuse accepted cold.

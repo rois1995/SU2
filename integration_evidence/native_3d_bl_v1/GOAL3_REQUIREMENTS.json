@@ -262,7 +262,7 @@
     "scope": "One planar cube production case plus six focused first-row geometry/movement cases. Actual computed metric, conservative current+BDF/bounded-SA and SU2/CGNS/reference/restart checks; independent exact embedding, full composed metric, wall footprint and height. No new MPI, full regressions, general layer coverage, actual CFD accuracy or performance qualification."
   },
   "owned_jobs": {
-    "status": "One j1/nice19/CPU1 connected v2 initial-adoption build53426 live; four changed objects first, then same full binary. No new runtime qualification.",
+    "status": "One heavy j1/nice19/CPU1 build53426; lightweight validator67160 waits for its terminal exit, then seals binary and sequentially runs focused serial controls, independent audit and difficult oblique pilot; stops on failure. No new qualification.",
     "terminal_handles": [
       32232,
       26154,
@@ -339,7 +339,8 @@
     ],
     "resources": "integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/cavity_operator_replay_v1/actual_context_np4/resources.jsonl",
     "active_handles": [
-      53426
+      53426,
+      67160
     ]
   },
   "wall_reconstruction": {
@@ -2748,7 +2749,8 @@
         "L1 displacement contract protects faceted body approximation, not general analytic intersection curves",
         "Boundary embedding relies on accepted conforming source; not an arbitrary invalid-input repair",
         "2D runtime/exterior/multiple-body complete workflows and full goal remain OPEN"
-      ]
+      ],
+      "queued_validation_session": 67160
     }
   }
 }

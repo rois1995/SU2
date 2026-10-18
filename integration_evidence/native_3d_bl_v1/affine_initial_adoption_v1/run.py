@@ -30,7 +30,7 @@ def main():
     capsule=folder/'executed_source.json.gz'
     if capsule.exists():assert capsule.read_bytes()==payload,'Source changed: use a new folder'
     else:capsule.write_bytes(payload)
-    parameters={};tag='[NativeAffineGeometry],[NativeAffineInitialDriver3D]'
+    parameters={};tag='[NativeAffineGeometry],[NativeAffineInitialDriver3D],[NativeAffineImport3D]'
     if mode in ('annulus','compatibility'):
         parameters['SU2_NATIVE_SYMMETRY_ANNULUS']='1';tag='[NativeSymmetryRuntime3D]'
         if mode=='annulus':parameters['SU2_NATIVE_SYMMETRY_OBLIQUE']='1'
