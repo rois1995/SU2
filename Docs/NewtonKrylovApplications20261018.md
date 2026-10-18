@@ -17,6 +17,11 @@ The [larger verified-probe experiment](NewtonKrylovProbeRange20261018.md) is als
 It recovered an unavailable SA product without weakening verification, but full SA/SST
 runs remained unqualified. Fewer retries did not establish a practical benefit.
 
+The [application stopping and ILU-fill checks](NewtonKrylovApplicationChecks20261018.md)
+retain the normal-stop SA state-agreement failure, the matched SST fill1 pilot and
+native nozzle stability evidence. Native fill1 narrowly misses its pointwise state bound;
+both Newton fill1 trials time out. No qualified Newton improvement is established.
+
 This study uses existing application meshes, independently of the earlier generated fixtures.
 All inputs, initial user edits, binaries, build options and source hashes are frozen under
 `/media/rausa/4TB/SU2_Versions/SU2_v850_Develop_FixCGNSOutput/newton_krylov_refactor_20261015/application_qualification_20261018`. The two pre-existing dirty reports are preserved.
@@ -157,11 +162,11 @@ and `paper_notes/manifest.json`; they motivate investigations, not unmeasured so
 
 | Application | Layout | Actual trials | Qualified endpoints | Eligible timing repetitions |
 |---|---|---:|---:|---:|
-| naca_sa | 1x1 | 65 | 22 | 1 |
+| naca_sa | 1x1 | 66 | 23 | 1 |
 | naca_sa | 2x2 | 41 | 16 | 0 |
-| naca_sst | 1x1 | 21 | 3 | 0 |
+| naca_sst | 1x1 | 24 | 3 | 0 |
 | naca_sst | 2x2 | 9 | 0 | 0 |
-| nozzle_sst | 1x1 | 30 | 0 | 0 |
+| nozzle_sst | 1x1 | 32 | 0 | 0 |
 | nozzle_sst | 2x2 | 9 | 0 | 0 |
 | flatplate_lm | 1x1 | 15 | 0 | 0 |
 | flatplate_lm | 2x2 | 9 | 0 | 0 |
@@ -169,6 +174,26 @@ and `paper_notes/manifest.json`; they motivate investigations, not unmeasured so
 | periodic_stator | 2x2 | 0 | 0 | 0 |
 | periodic_vki | 1x1 | 12 | 0 | 0 |
 | periodic_vki | 2x2 | 9 | 0 | 0 |
+
+## Declared control matrix
+
+[Control progress CSV](NewtonKrylovControlProgress20261018.csv) includes every intended setting,
+including unstarted trials. `run_ended` records solver termination, not successful qualification.
+Only actual runs have configuration/binary hashes. Supporting experiments and quiet repetitions
+remain in the complete application ledger above.
+
+| Application | Layout | Planned | Run ended | In progress | Pending | Comparison pass |
+|---|---|---:|---:|---:|---:|---:|
+| naca_sa | 1x1 | 16 | 16 | 0 | 0 | 3 |
+| naca_sa | 2x2 | 16 | 10 | 0 | 6 | 2 |
+| naca_sst | 1x1 | 16 | 6 | 0 | 10 | 1 |
+| naca_sst | 2x2 | 13 | 0 | 0 | 13 | 0 |
+| nozzle_sst | 1x1 | 14 | 3 | 1 | 10 | 0 |
+| nozzle_sst | 2x2 | 14 | 0 | 0 | 14 | 0 |
+| flatplate_lm | 1x1 | 15 | 0 | 0 | 15 | 0 |
+| flatplate_lm | 2x2 | 15 | 0 | 0 | 15 | 0 |
+| periodic_vki | 1x1 | 13 | 0 | 0 | 13 | 0 |
+| periodic_vki | 2x2 | 10 | 0 | 0 | 10 | 0 |
 
 ## Selected quiet native baseline
 
@@ -237,9 +262,14 @@ is retained; `prepared` and `running` entries have not completed.
 | naca_sa | 2x2 | native | original | recovery_release | original | -13.0 | qualified | True | 151 | 13.044 | 13.519 |
 | naca_sa | 2x2 | coupled | original | recovery_release | forcing | -13.0 | rejected | False | 71 | 301.489 | 302.024 |
 | naca_sst | 1x1 | native | original | recovery_release | adaptive | -13.0 | qualified | True | 447 | 63.745 | 64.289 |
+| naca_sst | 1x1 | native | original | recovery_release | adaptive | -13.0 | reference_audit_failed | False | 137 | 30.736 | 31.271 |
+| naca_sst | 1x1 | coupled | original | recovery_release | forcing | -13.0 | rejected | False | 59 | 300.087 | 300.644 |
+| naca_sst | 1x1 | segregated | original | recovery_release | forcing | -13.0 | rejected | False | 34 | 306.169 | 306.771 |
 | naca_sst | 1x1 | coupled | original | recovery_release | forcing | -13.0 | rejected | False | 61 | 300.602 | 301.182 |
 | naca_sst | 1x1 | segregated | original | recovery_release | forcing | -13.0 | rejected | False | 32 | 314.272 | 314.825 |
 | nozzle_sst | 1x1 | native | original | recovery_release | adaptive | -13.0 | rejected | False | 6919 | 137.509 | 137.989 |
+| nozzle_sst | 1x1 | coupled | original | recovery_release | forcing | -13.0 | prepared | False | — | — | — |
+| nozzle_sst | 1x1 | segregated | original | recovery_release | forcing | -13.0 | rejected | False | 314 | 300.020 | 300.494 |
 | nozzle_sst | 1x1 | native | original | recovery_release | original | -13.0 | rejected | False | 735 | 14.418 | 14.881 |
 | nozzle_sst | 1x1 | segregated | original | baseline_4712d82375 | fd_step_1e-3_relative_0.01 | -12 | diagnostic_complete | False | 1 | — | — |
 | nozzle_sst | 1x1 | segregated | original | baseline_4712d82375 | fd_step_1e-5_relative_0.01 | -12 | diagnostic_complete | False | 1 | — | — |
@@ -415,7 +445,8 @@ is retained; `prepared` and `running` entries have not completed.
 | naca_sa | 1x1 | coupled | original | recovery_release | forcing | -13.0 | iteration_cap | False | 6 | 35.446 | 35.946 |
 | naca_sa | 1x1 | coupled | original | recovery_release | forcing | -13.0 | iteration_cap | False | 6 | 42.225 | 42.784 |
 | naca_sa | 1x1 | coupled | original | recovery_release | forcing | -13.0 | iteration_cap | False | 6 | 20.044 | 20.660 |
-| naca_sa | 1x1 | coupled | original | recovery_release | diagonal | -13.0 | running | False | — | — | — |
+| naca_sa | 1x1 | coupled | original | recovery_release | diagonal | -13.0 | rejected | False | 78 | 324.573 | 325.099 |
+| naca_sa | 1x1 | coupled | original | recovery_release | diagonal | -14.0 | qualified | True | 179 | 764.796 | 765.385 |
 | naca_sst | 1x1 | native | original | recovery_release | original | -14.0 | qualified | True | 545 | 76.329 | 76.906 |
 | naca_sst | 1x1 | native | original | recovery_release | original | -15.0 | rejected | False | 1403 | 180.083 | 180.631 |
 
