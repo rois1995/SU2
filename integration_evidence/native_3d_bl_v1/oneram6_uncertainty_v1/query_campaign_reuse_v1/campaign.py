@@ -10,6 +10,10 @@ sources += [ROOT/p for p in ('UnitTests/Common/adaptation/CNativeField3D_tests.c
  'UnitTests/SU2_CFD/adaptation/fixtures/native_normalization_stages.inc','SU2_CFD/src/drivers/CSinglezoneDriver.cpp',
  'SU2_CFD/include/adaptation/CNativeNormalizationStage3D.hpp')]+[Path(__file__).resolve(),HERE.parent/'run.py',
  HERE.parent/'budget_bl_policy_v1/audit_enabled.py',HERE.parent/'frozen_normalization_stages_v1/campaign.py']
+sources += [ROOT/p for p in ('integration_evidence/native_3d_bl_v1/production_policy_v1/audit.py',
+ 'integration_evidence/native_3d_core_v1/audit_coupled.py','integration_evidence/native_3d_core_v1/audit_cavities.py',
+ 'TestCases/adaptation/capability/capcheck.py')]
+sources += list((ROOT/'UnitTests/Common/adaptation').glob('CNative*3D_tests.cpp'))
 base=run.pins;run.pins=lambda:dict(base(),**{str(p.resolve().relative_to(ROOT)):run.sha(p) for p in sources})
 folder=HERE/mode;folder.mkdir(parents=True,exist_ok=True)
 capsule=json.dumps({str(p.resolve().relative_to(ROOT)):p.read_text() for p in sources},sort_keys=True).encode()
@@ -17,6 +21,7 @@ archive=folder/'executed_source.json.gz'
 if archive.exists():assert gzip.decompress(archive.read_bytes())==capsule
 else:archive.write_bytes(gzip.compress(capsule,mtime=0))
 filter='[NativeCampaignQuery3D],[NativeCampaignEdge3D],[NativeMetricReuse3D],[NativeRepresentableSplit3D],[NativeBalancedSplit3D],[NativeMidpointQuery3D],[NativeSegmentCoverage3D],[NativeComposite3D],[NativeLayeredField3D]'
+if mode=='serial':filter+=',[NativeMesh3D]'
 if mode=='mpi4':filter+=',[NativeOriginalSupport3D],[NativeProgressiveMeasurement3D],[NativeFirstLayerBatch3D]'
 if mode=='runtime':filter='[NativeBLBudgetRuntime3D]'
 if mode=='disabled_runtime':filter='[NativeNormalizationRuntime3D]'

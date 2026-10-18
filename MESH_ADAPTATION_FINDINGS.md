@@ -6609,3 +6609,17 @@ source batches/rank reveal substantial repeated source/reconstruction/coordinati
 work. One diagnostic stack records MPI waiting; no clean performance/scaling claim.
 No ceiling/quality change or new local fallback. Full Goal3 remains active.
 [Evidence and required next connected step](Handbook/GOAL3_PROGRESSIVE_MEASUREMENT.md).
+
+
+## 2026-10-18 — bounded query/campaign reuse, M6 still incomplete
+
+Source checkpointde479eda4a qualifies strict physical-interior donor hypotheses and
+existing scalar-edge certificates across one admitted streamed campaign. Serial83
+cases/7748 assertions, MPI4 and independently audited actual opt-in/default N4M2
+RANS/SA/current+BDF/full-metric/height/SU2/CGNS/restart/atomic rejection pass.
+Same owner-UPPER6 M6 still rejects at300.992s,90 private edits vs93 previously.
+1.407M hints/6420 extra edges reused demonstrate use, not whole-event speedup;
+root search per miss~23.32us vs23.05us. Last rejected proposal J=.04323 (<.05).
+No cap/gate/profile change, CFD advancement, accepted wing or transfer. Broader
+construction/coordination and global integration uncertainty/allocation remain.
+See `integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/query_campaign_reuse_v1/README.md`.

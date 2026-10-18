@@ -8,11 +8,19 @@ Leave AdapNoExt, foreign ClusterResults, dependencies and foreign jobs untouched
 
 ## Current work and execution
 
-Current WIP: bounded coherent physical-donor checks and existing scalar-edge reuse
-extended across an admitted streamed repair campaign. New exact A/B/certificate
-controls added; build/qualification not yet run. No physical gates or policy
-defaults changed. See `query_campaign_reuse_v1/DESIGN.md` under the M6 uncertainty
-evidence. All previous18af evidence below retains its historical pinned scope.
+Current qualified reuse source checkpointde479eda4a: physical-donor interior
+hypotheses and existing scalar-edge certificates retained within one admitted
+streamed campaign. Serial83/7748, MPI4(28 cases/rank), actual opt-in and strict
+N4M2 RANS/SA/BDF/conservation/height/full-metric/SU2/CGNS/restart audits PASS.
+All owned jobs terminal. Unchanged M6 still rejects at300.992s:90 private edits
+(previous93),453 rounds,7 progress/0 stagnation windows.1.407M hints/6420 extra
+edge hits establish use, NO end-to-end speedup. Root search per miss~23.32us vs
+23.05us baseline; first row37.23s vs29.85s under local differing contention/I/O.
+Last rejected proposal q=.23664,J=.04323(<.05). No accepted wing/transfer.
+Do not raise caps/add a local fallback; reconsider complete construction and
+coordination. Broader donor support/displaced batching and calibrated global error
+allocation remain open. [Report/evidence](integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/query_campaign_reuse_v1/README.md).
+Historical18af source-point evidence below retains its pinned scope.
 
 Opt-in budget-aware native3D BL policy now passes controlled complete RANS/SA
 current+BDF workflows at MPI1/2/4 (including N4/M2), atomic rejection, independent
@@ -22,7 +30,7 @@ Two budgets select lambda .875 / 0 with unchanged physical gates. These initiali
 workflows do not establish converged viscous accuracy or general curved construction.
 [Policy, qualified scope, failures and limitations](Handbook/GOAL3_BUDGET_AWARE_BL.md).
 
-Current qualified source/evidence: source-point construction at this checkpoint
+Historical qualified source/evidence: source-point construction at18af250f23
 (see git HEAD and `source_point_construction_v1/summary.json`). Previous published
 source WIP wasb22b99e452; its completed qualification/failure evidence is retained
 here. Budget checkpoint58214e08bd remains in its own pinned source/binary scope.
@@ -59,7 +67,7 @@ Next full-goal work: calibrated global uncertainty/absolute-error allocation and
 accepted difficult complete construction under declared physical limits, preserving
 same-original-field reassessment/stage atomicity. Do not assume relaxing a profile
 or solving integration establishes construction feasibility. The captured M6 source-segment defect is fixed in its demonstrated scope;
-complete construction remains time-limited with quality rejections. Broader query/transaction package remains.
+complete construction remains time-limited with quality rejections. The newer bounded reuse slice above is qualified; broader support/transaction work remains.
 Do not rerun already-applied implementation mutators or add local fallback/cap
 ladders. Policy auto-selection currently native3D only; strict2D unchanged.
 

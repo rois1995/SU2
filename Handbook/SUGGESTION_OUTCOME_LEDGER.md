@@ -896,3 +896,29 @@ No new tensor cache, source extrapolation, field/profile change or mesh fallback
 Build is in progress; no validated gain or accepted M6 claim yet. General retained
 footprints/displaced reservations and collective transaction batching remain open.
 [Design/evidence](../integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/query_campaign_reuse_v1/DESIGN.md).
+
+
+## Query/campaign reuse outcome (supersedes preceding WIP)
+
+- Worked as correctness infrastructure: exact physical-interior donor hypothesis
+  and existing strict edge certificates retained within an admitted campaign.
+  Canonical ties/extensions, actual BL composition and all mesh/transfer gates
+  preserved. Serial83/7748, MPI4 and independently audited opt-in/default N4M2
+  RANS/SA/BDF/height/full-metric/SU2/CGNS/restart/atomic rejection PASS.
+- Exercised in M6:1,406,840 hint hits and6420 extra edge-campaign hits. Existing
+  edge reuse already covers most. This does NOT establish a net performance gain.
+- Did not solve M6:90 private edits versus93 at the same300s ceiling,453 vs485
+  rounds, both7 useful-progress/no-stagnation windows and atomic rejection.
+  Root search46.69 vs51.22s accompanies fewer placement trials/misses; normalized
+  per miss23.32us vs23.05us. First row37.23 vs29.85s. Different local contention/
+  cold I/O prevent statistical conclusions; no whole-event speedup is claimed.
+- Repeated original-donor support imports, broader index retention and displaced
+  transaction batching remain incomplete. The coherent-query shortcut does not
+  optimize the separate ideal-midpoint query path, which remains strict. Do not
+  infer that another cache alone addresses missing complete construction.
+- Resource receipts: maximum sampled owned tree RSS~2.10GiB (not peak/PSS),
+  max single process742240KiB, host~38--40GiB available; no cluster/CFD advance.
+
+[Report, preserved controls/failure and pinned comparison](../integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/query_campaign_reuse_v1/README.md).
+Full Goal3 active. Budget selection and historical owner-UPPER6 construction remain
+separate fields/evidence; no new M6 budget-feasibility or accepted-wing claim.

@@ -65,10 +65,10 @@ uncertainty calibration/allocation and same-original-field reassessment, rather
 than adding another cache based on the isolated gain.
 
 
-Current connected WIP extends coherent physical-interior source queries and
-existing scalar EdgeMeasure lifetime within one admitted streamed campaign.
-Canonical ties/extensions remain full-path; centroid/actual-query composition
-and complete gates stay strict. No broader support cache or displaced batching
-is claimed. Qualify after the connected build using pinned exact controls,
-complete opt-in/default N4M2 workflows and one unchanged hard frozen replay.
-[Current design](../integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/query_campaign_reuse_v1/DESIGN.md).
+Current scoped query/campaign reuse is qualified at source checkpointde479eda4a.
+Exact serial/MPI and actual opt-in/default N4M2 full workflows pass. M6 exercises
+1.407M physical donor hints and6420 extra campaign edge hits, but remains rejected
+at300s,90 private edits vs93 previously. Root normalized source-search cost does
+not improve in this one contended observation. No lifecycle speedup is established.
+Broader retained support/displaced reservations/batching remain open.
+[Complete report and limits](../integration_evidence/native_3d_bl_v1/oneram6_uncertainty_v1/query_campaign_reuse_v1/README.md).
