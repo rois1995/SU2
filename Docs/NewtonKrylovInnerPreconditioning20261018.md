@@ -3,7 +3,8 @@
 The three-iteration native inner-preconditioning candidate is **under application
 assessment, not adopted**. Its purpose is to replace expensive verified residual
 products with cheaper assembled-matrix work. No residual, derivative verification,
-true-defect, acceptance or endpoint agreement tolerance changes.
+true-defect, acceptance or endpoint agreement tolerance changes. This is a separate
+change in preconditioning strategy, rather than a claim about removing wrapper overhead.
 
 The existing optional inner solve first required a correctness fix. An independent
 identity-matrix test fails with the unchanged implementation: three inner iterations
@@ -46,7 +47,32 @@ the guard and CLI used the same output directory; that failure is preserved and
 the corrected retry passes. No timing assertions were added.
 
 Native SA produces byte-identical restart files to retained d27 on both layouts
-(151 updates). Complete stricter SA candidate applications are still running.
+(151 updates). The complete stricter SA 1×1 candidate qualifies against both the
+paired 298-update native state and the canonical 151-update state. Their maximum
+pointwise errors are 3.23e-7 and 7.89e-6, below the unchanged 1e-5 limit. The maximum
+normalized active-equation RMS is 3.14e-13. All 166 accepted steps use alpha=1,
+pass Armijo and have true defects at most 0.08455; every recorded rollback error
+is zero. Both compared configurations have SHA256
+`2d1d9d892adc1a5c3551c60ece5c0f11d8db4ca11c92acc72bf65664fe425b65`.
+
+| Qualified SA, identical diagonal/adaptive CFL/forcing controls, 1×1 | Retained d27 | Candidate |
+|---|---:|---:|
+| Accepted updates | 179 | 166 |
+| Flow residual assemblies | 33415 | 24574 |
+| Turbulence residual assemblies | 33415 | 24574 |
+| Outer Krylov iterations | 7603 | 5359 |
+| Native inner iterations | 0 | 31177 |
+| Retries | 89 | 82 |
+| Backtracks | 0 | 0 |
+| Solver-loop seconds | 764.796 | 556.675 |
+| End-to-end seconds | 765.385 | 557.225 |
+| Peak rank RSS, KiB | 171400 | 138708 |
+
+This qualifies a 26.5% assembly reduction and 29.5% outer Krylov reduction on this
+application, at the cost of the listed assembled inner work. Both timings are
+contended and ineligible. There is no repeated eligible median or general speedup
+claim. `inner_candidate_sa_1x1_assessment.json` pins the compared results and verifies
+all acceptance checks. The complete stricter SA 2×2 candidate is still running.
 Broader SST, transition and periodic application assessment remains necessary
 before changing the common default.
 
