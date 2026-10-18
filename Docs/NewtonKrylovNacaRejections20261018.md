@@ -204,7 +204,7 @@ During the full default0 SST1×1 run, the first FLOW retry occurs at iteration13
 derivative verification fails after80 completed Krylov iterations and recovery
 reduces FLOW CFL1000→250. TURB retains1000. The initial20-update prefix had no
 retry; its observation must not be generalized to the complete run. Controls
-remain unchanged while that run continues.
+remained unchanged through its resource cap. The saved endpoint remains incomplete.
 
 ## Qualified final-build serial replay
 
@@ -252,7 +252,64 @@ guard and the unchanged qualification of an uncapped state. The prior qualifier,
 exact stop action and unsuccessful evidence are retained in
 `fixed_forcing_005_20261018/{work_limit_selfchecks,serial_fixed_work_limit_action,serial_fixed_work_limited_assessment}.json`.
 The fixed-forcing queue stops for assessment; its segregated jobs were not launched.
-Original-control segregated SA is now being established first.
+The subsequent segregated study is described below.
+
+Reproduce the copied-state work-cap check from the evidence root with
+`python3 check_work_limit.py`. It asserts that neither a solver process nor changes
+to original result, restart, configuration or physical-target files occur.
+
+## Original segregated SA and isolated CFL recovery
+
+Original-control segregated SA on 1×1 reaches its FLOW-work budget without
+qualifying: 480 updates, 34049 FLOW and 18831 TURB assemblies, 6703 FLOW plus
+15469 TURB Krylov iterations, two retries and no backtracking. The budget is the
+qualified serial coupled baseline's 33415 FLOW assemblies; the monitor observes
+33978 when requesting interruption, and the solver finishes the current update.
+This FLOW-only budget does not establish an overall cost ratio between modes.
+
+Both rejections are derivative-verification failures, at iterations 1 and 5. Their
+log intervals consume only 96 FLOW and 2 TURB assemblies, about 0.28% of total FLOW
+work. FLOW accepts one update at CFL 1000, four at 250 and 475 at 62.5. TURB retains
+1000 throughout. All accepted steps use alpha=1, true defects remain below 0.1 and
+rollback errors are zero. Most observed work therefore belongs to accepted steps
+after recovery, rather than repeated rejection or backtracking.
+
+Fresh density RMS 2.778e-13 and maximum normalized RMS 3.570e-13 pass; component
+state agreement passes, but point error 2.954e-5 misses 1e-5. The endpoint is
+`incomplete_work_cap`, with no convergence time assigned. Observed loop/elapsed
+time is 1670.995/1671.756 seconds and peak rank RSS 130988 KiB. These are resource
+measurements; the host is contended and memory remains safe. It might converge
+with further work under these controls.
+
+The next serial segregated run changes **only `NEWTON_ADAPT_CFL=NO` to `YES`**.
+Reversing that one edit reproduces the original configuration byte for byte.
+Forcing stays off, nominal linear target stays 0.001, inner iterations stay 0 and
+history stop stays −14. All frozen physical/state/quantity gates remain fixed.
+It starts from the same supplied initial state with the same final c04b executable.
+This isolates a configuration change; no implementation gain or default is selected.
+
+Exact commands, source/configuration hashes, completed original assessment and
+queue state are in `sa_original_segregated_command.json` and
+`sa_original_segregated_progress/{original_work_limited_assessment,adaptive_cfl_only_preflight,adaptive_cfl_queue,source_unchanged_check}.json`.
+The queue runs one solver at a time and stops for assessment after the CFL-only
+endpoint. A first monitor inside the sandbox could not see host processes and
+exited without signaling; that evidence is retained separately from the successful
+host monitor. No foreign work was modified.
+
+Reproduce each configuration from the evidence root with a fresh output directory:
+
+```sh
+python3 application_case.py --case naca_sa --mode segregated --control original \
+  --phase qualification --work-only --graceful-limit --cfl 1000 --history-margin 2 \
+  --updates 10000 --timeout 7200 --ranks 1 --threads 1 \
+  --release muscl_boundary_gradient_v2_release --output FRESH_ORIGINAL \
+  --reference static_review_correctness_v2_applications/naca_sa/1x1/native
+```
+
+Use `--control adaptive` and another fresh directory for the isolated CFL change.
+The numerical deck is reproducible by this command. The original archived attempt
+also uses the separately recorded FLOW-work interruption; running the command
+alone continues until convergence or its time/update resource cap.
 
 <!-- measured NACA results -->
 
@@ -282,7 +339,8 @@ Configurations remain labelled per row. Coupled SA baselines use diagonal/adapti
 | 0/0 | naca_sa | 2x2 | coupled / diagonal | qualified | 333 | 83590/83590 | 22279/0 | 166/0 | 103304 | 1090.736 / 1091.372 | 7.831e-06 |
 | 0/0 | naca_sst | 1x1 | segregated / original | incomplete_time_cap | 1254 | 133911/24743 | 41283/0 | 2/0 | 174404 | 3600.846 / 3601.375 | 5.200e-06 |
 | 3/0 | naca_sst | 1x1 | segregated / original | incomplete_time_cap | 500 | 51362/13686 | 18170/36294 | 2/0 | 142676 | 3601.092 / 3601.715 | 1.669e-05 |
-| 0/0 | naca_sa | 1x1 | segregated / original | running | — | / | / | / | — | — / — | — |
+| 0/0 | naca_sa | 1x1 | segregated / adaptive | running | — | / | / | / | — | — / — | — |
+| 0/0 | naca_sa | 1x1 | segregated / original | incomplete_work_cap | 480 | 34049/18831 | 22172/0 | 2/0 | 130988 | 1670.995 / 1671.756 | 2.954e-05 |
 | 0/0 | naca_sa | 1x1 | coupled / diagonal | qualified | 179 | 33415/33415 | 7603/0 | 89/0 | 171400 | 764.796 / 765.385 | 7.851e-06 |
 
 ## Supporting prefix work

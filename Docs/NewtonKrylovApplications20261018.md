@@ -26,8 +26,14 @@ The serial coupled forcing comparison is assessed below; original segregated con
 The serial fixed-0.05 trajectory does not reproduce that work benefit. It was stopped gracefully
 after 564 updates and 40134 assemblies per system, beyond the qualified adaptive baseline budget
 33415, and still misses the pointwise state bound. Its status is incomplete_work_cap; observed
-times describe resource use. All 284 retries are derivative verification. Original segregated
-controls are being assessed next; no general forcing default is selected.
+times describe resource use. All 284 retries are derivative verification. No general forcing default is selected.
+
+Original segregated SA likewise remains incomplete at a FLOW-work budget: 480 updates,
+34049 FLOW/18831 TURB assemblies and 22172 linear iterations. Only two retries occur; their
+log intervals consume 96 FLOW assemblies. FLOW retains CFL 62.5 for 475 accepted updates.
+Fresh residuals pass, but point state error 2.954e-5 misses 1e-5. A same-binary comparison changes
+only NEWTON_ADAPT_CFL to YES; forcing and linear/preconditioning controls remain unchanged.
+See [the NACA report](NewtonKrylovNacaRejections20261018.md) for proof, commands and current status.
 
 Completed Newton assembly totals include the final full reporting refresh after the last logged attempt.
 Earlier raw records call this offset an initial evaluation. This attribution is corrected without changing
@@ -202,7 +208,7 @@ and `paper_notes/manifest.json`; they motivate investigations, not unmeasured so
 
 | Application | Layout | Actual trials | Qualified endpoints | Eligible timing repetitions |
 |---|---|---:|---:|---:|
-| naca_sa | 1x1 | 82 | 30 | 1 |
+| naca_sa | 1x1 | 83 | 30 | 1 |
 | naca_sa | 2x2 | 60 | 25 | 0 |
 | naca_sst | 1x1 | 39 | 5 | 0 |
 | naca_sst | 2x2 | 20 | 2 | 0 |
@@ -572,11 +578,12 @@ is retained; `prepared` and `running` entries have not completed.
 | nozzle_sst | 1x1 | segregated | original | probe_recovery_checked | fd_step_1e-8 | -12 | diagnostic_complete | False | 1 | — | 4.708 |
 | naca_sa | 1x1 | native | original | recovery_release | original | -14.0 | qualified | True | 298 | 36.747 | 37.305 |
 | naca_sa | 1x1 | native | original | recovery_release | original | -15.0 | incomplete_time_cap | False | 2669 | 300.112 | 300.743 |
+| naca_sa | 1x1 | segregated | original | muscl_boundary_gradient_v2_release | adaptive | -14.0 | running | False | — | — | — |
 | naca_sa | 1x1 | coupled | original | recovery_release | forcing | -13.0 | iteration_cap | False | 6 | 35.446 | 35.946 |
 | naca_sa | 1x1 | coupled | original | recovery_release | forcing | -13.0 | iteration_cap | False | 6 | 42.225 | 42.784 |
 | naca_sa | 1x1 | coupled | original | recovery_release | forcing | -13.0 | iteration_cap | False | 6 | 20.044 | 20.660 |
 | naca_sa | 1x1 | coupled | original | recovery_release | diagonal | -13.0 | rejected | False | 78 | 324.573 | 325.099 |
-| naca_sa | 1x1 | segregated | original | muscl_boundary_gradient_v2_release | original | -14.0 | running | False | — | — | — |
+| naca_sa | 1x1 | segregated | original | muscl_boundary_gradient_v2_release | original | -14.0 | incomplete_work_cap | False | 480 | 1670.995 | 1671.756 |
 | naca_sa | 1x1 | coupled | original | recovery_release | diagonal | -14.0 | qualified | True | 179 | 764.796 | 765.385 |
 | naca_sst | 1x1 | native | original | recovery_release | original | -14.0 | qualified | True | 545 | 76.329 | 76.906 |
 | naca_sst | 1x1 | native | original | recovery_release | original | -15.0 | incomplete_time_cap | False | 1403 | 180.083 | 180.631 |

@@ -51,7 +51,9 @@ canonical point error 4.822e-5 exceeds 1e-5. It was stopped gracefully after exc
 adaptive baseline assembly budget 33415: the request observed 40032 and the final count is 40134.
 This is incomplete_work_cap, not a convergence result. Its observed loop time 1648.623 seconds
 is resource-use time. Lower completed linear work and observed RSS do not qualify an efficiency gain.
-The queue stopped for assessment. Original-control segregated SA is now running on 1x1.
+The fixed-forcing queue stopped for assessment; its segregated jobs were not launched.
+The subsequent original-control/CFL-only segregated study is tracked in
+[the NACA report](NewtonKrylovNacaRejections20261018.md).
 
 A 30-second, 99-Hz CPU-cycle sample of the live serial adaptive tail loses no samples. Flat symbol shares
 include cached least-squares gradients 19.74%, Roe flux 10.22% and limiters 6.87%. Inlined work is
@@ -119,6 +121,7 @@ The unsuccessful serial control is preserved in `serial_fixed_work_limited_asses
 `serial_fixed_work_limit_action.json`. The work-cap qualifier has a copied-state check: an identical
 physically qualified state stays qualified without a cap and is incomplete with a cap. Results are
 in `work_limit_selfchecks.json`; the original qualifier is archived before the metadata change.
+Reproduce the copied-state guard check with `python3 check_work_limit.py`; it launches no solver.
 The live profile is `release_sampling/1792353801499247196/` under the application evidence root.
 Checkpoint checks are under `checkpoints/`.
 Raw run evidence is preserved.
