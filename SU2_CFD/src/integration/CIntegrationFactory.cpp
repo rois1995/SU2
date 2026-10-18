@@ -46,20 +46,8 @@ CIntegration** CIntegrationFactory::CreateIntegrationContainer(CConfig* config,
     }
   }
 
-  auto selected = config->GetNewtonEquations();
-  if (selected.empty() && config->GetNewtonKrylov()) {
-    /*--- shortcut: Keep the old implementation for execution modes outside the steady primal CPU migration. ---*/
-#if !defined(CODI_FORWARD_TYPE) && !defined(CODI_REVERSE_TYPE)
-    if (!config->GetNEMOProblem() && config->GetTime_Marching() == TIME_MARCHING::STEADY &&
-        !config->GetTime_Domain() && !config->GetMultizone_Problem() && config->GetnZone() == 1 &&
-        !config->GetCUDA() && config->GetMGCycle() != MG_CYCLE::FULL &&
-        (!config->GetnMarker_Periodic() || (config->GetKind_Species_Model() == SPECIES_MODEL::NONE &&
-          config->GetKind_Streamwise_Periodic() == ENUM_STREAMWISE_PERIODIC::NONE)) &&
-        !config->GetContinuous_Adjoint() && !config->GetDiscrete_Adjoint() && config->GetDirectDiff() == NO_DERIVATIVE &&
-        config->GetKind_Incomp_System() != INCOMP_SYSTEM::PRESSURE_BASED)
-      selected = {RUNTIME_FLOW_SYS};
-#endif
-  }
+  /*--- Preserve legacy NEWTON_KRYLOV behavior unless the common equations are explicitly selected. ---*/
+  const auto selected = config->GetNewtonEquations();
   std::shared_ptr<CNewtonEquationSet::ResidualWorkspace> workspace;
   if (!selected.empty()) workspace = std::make_shared<CNewtonEquationSet::ResidualWorkspace>();
   const auto options = config->GetNewtonOptions().Passive([](const su2double& x) { return SU2_TYPE::GetValue(x); });
@@ -99,7 +87,7 @@ CIntegration* CIntegrationFactory::CreateIntegration(INTEGRATION_TYPE integratio
       integration = new CMultiGridIntegration();
       break;
     case INTEGRATION_TYPE::NEWTON:
-      /*--- Compatibility for execution modes not handled by the common controller's factory selection. ---*/
+      /*--- NEWTON_EQUATIONS is the opt-in for replacing this legacy flow integration. ---*/
       integration = new CNewtonLegacyIntegration();
       break;
     case INTEGRATION_TYPE::STRUCTURAL:

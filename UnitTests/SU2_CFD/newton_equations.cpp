@@ -544,7 +544,7 @@ TEST_CASE("Periodic driver groups accept updates and restore failed solves", "[N
         const bool transition = physics.find("KIND_TRANS_MODEL") != std::string::npos;
         /*--- Also exercise the periodic legacy-flow option through the production integration factory. ---*/
         const auto selection = legacy
-            ? "NEWTON_KRYLOV= YES\nNEWTON_KRYLOV_IPARAM= 0,0,1,0\n"
+            ? "NEWTON_EQUATIONS= (FLOW)\nNEWTON_KRYLOV= YES\nNEWTON_KRYLOV_IPARAM= 0,0,1,0\n"
               "NEWTON_KRYLOV_DPARAM= 0,0.1,0,1e-6,1\n"
             : std::string("NEWTON_EQUATIONS= (FLOW") + (turbulence ? ",TURB" : "") +
               (transition ? ",TRANS" : "") + ")\n";
@@ -1822,6 +1822,19 @@ TEST_CASE("The common Newton controller accepts explicit flow and implicit scala
             CHECK(flow->Jacobian.IsPrescribedRow(p, v));
             CHECK(flow->GetNodes()->GetSolution(p, v) == 0);
           }
+    }
+}
+
+TEST_CASE("Legacy Newton selection requires explicit common opt-in", "[NewtonCompatibility]") {
+  for (const auto& physics : {std::string("SOLVER= NAVIER_STOKES\n"), sa, sst})
+    for (bool common : {false, true}) {
+      CAPTURE(physics, common);
+      Problem problem(physics + "NEWTON_KRYLOV= YES\n" +
+                      (common ? "NEWTON_EQUATIONS= (FLOW)\n" : ""));
+      auto** integrations = problem.driver->Integrations();
+      CHECK(bool(dynamic_cast<CNewtonIntegration*>(integrations[FLOW_SOL])) == common);
+      CHECK(bool(dynamic_cast<CNewtonLegacyIntegration*>(integrations[FLOW_SOL])) == !common);
+      if (integrations[TURB_SOL]) CHECK_FALSE(integrations[TURB_SOL]->IsNewtonEquation(RUNTIME_TURB_SYS));
     }
 }
 
