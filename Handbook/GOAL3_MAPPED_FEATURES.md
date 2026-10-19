@@ -20,8 +20,7 @@ immutable-body obstruction. Do not repeat the unchanged full target or change th
 fixture to numerically convenient coordinates. Preserve it as a negative reference.
 The queued full pilot was cancelled before runtime. The replacement prototype
 serial/MPI controls completed and are preserved as historical evidence. The current
-joint-wall scope correction has syntax checks but still awaits linked runtime
-validation with the next connected geometry/source implementation batch.
+joint-wall scope correction has syntax and affected MPI1/2/4 runtime qualification, recorded in joint_affine_source_v1.
 
 ## Geometry representation contract
 
@@ -72,9 +71,9 @@ Original traces agree ON a shared edge, but different nearby projection feet can
 sample different values. Tags alone prove neither coverage nor continuity.
 
 Reuse current single-affine prisms and qualified analytic coverage where their
-contracts apply. Current import explicitly rejects simultaneous distinct-plane and
-affine/curved source collars; it must keep rejecting until coherent joint coverage
-exists. Do not enable mapped body points and defer that failure to donor queries.
+contracts apply. Current import admits a collectively certified numerical-band collar for distinct
+affine authorities; affine/curved source collars still reject. Actual physical
+body-feature envelopes beyond that band remain unsupported. Do not enable mapped body points and defer that failure to donor queries.
 
 A conforming geometry-prepared collar is a candidate construction pattern: share
 original boundary nodes/faces and trace values, coordinate feature/corner cells,
@@ -85,7 +84,8 @@ Do not assume independent normal extrusions cover these regions. Do not merge or
 blend distinct bodies' traces. Examine original fluid coverage before treating a
 gap as an extension region. Generic extrapolation can lose SPD; use original trace
 values with admitted convex interpolation or another independently justified rule.
-This general collar construction is NOT implemented or proved here.
+The scoped numerical-band affine collar is implemented and independently audited.
+General physical-envelope and mixed curved collar construction is NOT established.
 
 Geometry preparation should be reusable across normalization trials; values must
 come from the appropriate original sensor field at each explicit frozen stage.
@@ -107,7 +107,7 @@ If discontinuities exceed the accepted field/error contract, the query policy is
 insufficient. The saved comparison now rejects nearest-face selection as a generally
 continuous policy and rejects wide shared-column prisms after exact M6 folds. A full
 annular numerical-band collar has exact scoped admission evidence; neither approach
-is implemented as a general source policy. [Measured decision and required reach](GOAL3_SOURCE_ENVELOPE.md).
+establishes general physical-envelope source coverage. [Measured decision and required reach](GOAL3_SOURCE_ENVELOPE.md).
 
 Use saved frozen-query replay, including nonconstant anisotropic sensors and
 nonconvex/shared features, to assess these alternatives before full CFD lifecycles.
@@ -162,5 +162,5 @@ The broad direct-insertion prototype missed an oblique coupled-wall configuratio
 Current source restores the general common-background constructor and limits direct
 insertion to its demonstrated single-wall/single-cell domain. Dispatch is by actual
 constraints, with no solver/testcase modes. Native coupled/owner regressions are added;
-syntax passes but new linked runtime is pending. The exact counterexample is retained
+affected linked MPI1/2/4 controls now pass. The exact counterexample is retained
 alongside the body-feature certificate; neither becomes a full accepted-mesh result.

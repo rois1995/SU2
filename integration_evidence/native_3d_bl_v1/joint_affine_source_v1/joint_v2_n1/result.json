@@ -1,0 +1,32 @@
+{
+  "exit_code": 0,
+  "elapsed_seconds": 1.4009080599062145,
+  "command": [
+    "taskset",
+    "-c",
+    "0",
+    "nice",
+    "-n",
+    "19",
+    "timeout",
+    "--kill-after=5s",
+    "180s",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver",
+    "Joint affine import freezes a conforming owner-sourced shell through N/M migration",
+    "--abort",
+    "--reporter",
+    "compact"
+  ],
+  "provenance_sha256": "0f6b32d37b08299f449619b7279bf86c12dd33b72697bb66cba789514ceee886",
+  "log_sha256": "6c65e8aa48a811f3717ec5b93565c32b6cfc01a93c9f793426f9f8a95198e584",
+  "artifacts": {
+    "joint_affine_source_rans_m1_preparation.json": "fbdd5cbf6cb114c8a305b4d945bf1e221bab214d57500067c002213551d01491",
+    "joint_affine_source_rans_m1_source.json": "ef941bc7bb7960819cbcedc527b655a60e9b379b7554b65728d858f32f3405d8",
+    "joint_affine_source_euler_m1_source.json": "ef941bc7bb7960819cbcedc527b655a60e9b379b7554b65728d858f32f3405d8",
+    "joint_affine_source_euler_m1.native_ref": "01b40d23080a291578ae0772e66f417284b9c68f408b932d9598363aa69bea46",
+    "joint_affine_source_euler_m1_preparation.json": "b4a92ccc1ce1e13d0e07e7336455cad06cc35c8a9eea81540578eb4307cbae3f",
+    "joint_affine_source_rans_m1.native_ref": "b8392b7625a0b4dbe60b5106df3096caa9b07e6b66e66d209116ca1fbf1ffb3b",
+    "joint_affine_source_rans_m1.json": "22c26e47d75bf8b601b11537b8c7a55ed7e0ce7665f3d6f64def2691567c973e",
+    "joint_affine_source_euler_m1.json": "f55fd70fd3110ccdcf6f9bd11452dd4f51c1978c45088117cb2385b8e7a8bb07"
+  }
+}

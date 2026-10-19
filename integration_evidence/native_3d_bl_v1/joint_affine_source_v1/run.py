@@ -7,7 +7,9 @@ helper=HERE.with_name('oneram6_uncertainty_v1')/'run.py'
 spec=importlib.util.spec_from_file_location('replay',helper);replay=importlib.util.module_from_spec(spec);spec.loader.exec_module(replay)
 replay.sha=functools.lru_cache(maxsize=None)(replay.sha)
 FILTERS={
+ 'joint':'Joint affine import freezes a conforming owner-sourced shell through N/M migration',
  'source':'[NativeAffineSourceGeometry],[NativeJointAffineSource3D],[NativeAffineGeometry],[NativeAffineImport3D]',
+ 'compatibility':'[NativeSymmetryRuntime3D]',
  'affected':'[NativeAffineInitialDriver3D],[NativeFirstLayer3D],[NativeFirstLayerRanking3D],[NativeFirstLayerEngine3D],[NativeFirstLayerBatch3D],[NativeMetricMove3D],[NativeWallReconstruction3D],[NativeConnectivityHeight3D]'}
 def main():
  receipt=json.loads((HERE/'build_process.json').read_text())
@@ -16,11 +18,17 @@ def main():
  assert all(replay.sha(ROOT/p)==h for p,h in receipt['source_sha256'].items()),'Compiled sources changed'
  mode=sys.argv[1] if len(sys.argv)>1 else 'source';ranks=int(sys.argv[2]) if len(sys.argv)>2 else 1
  assert mode in FILTERS and ranks in (1,2,4)
- folder=HERE/(mode+'_n'+str(ranks));folder.mkdir(exist_ok=True)
+ version=sys.argv[3] if len(sys.argv)>3 else ''
+ assert not version or (version.startswith('v') and version[1:].isdigit())
+ folder=HERE/(mode+('_'+version if version else '')+'_n'+str(ranks));folder.mkdir(exist_ok=True)
  sources=[ROOT/p for p in receipt['source_sha256']]+[Path(__file__).resolve(),helper,
   ROOT/'UnitTests/SU2_CFD/adaptation/TransferTestCase.hpp',ROOT/'Common/include/adaptation/CNativeField3D.hpp',
   ROOT/'Common/src/adaptation/CNativeField3D.cpp',ROOT/'Common/include/adaptation/CNativeDonor3D.hpp',ROOT/'Common/src/adaptation/CNativeDonor3D.cpp',
   ROOT/'Common/include/adaptation/CNativePartition3D.hpp',ROOT/'Common/src/adaptation/CNativePartition3D.cpp']
+ sources+=list((ROOT/'UnitTests/SU2_CFD/adaptation/fixtures').glob('*.inc'))
+ sources+=[ROOT/p for p in ('Common/include/adaptation/CNativeMesh3D.hpp','Common/src/adaptation/CNativePredicates3D.cpp',
+  'Common/include/adaptation/CNativeCavity3D.hpp','Common/src/adaptation/CNativeCavity3D.cpp',
+  'Common/include/adaptation/CNativeTopology3D.hpp','Common/src/adaptation/CNativeTopology3D.cpp')]
  source_pins={str(p.relative_to(ROOT)):replay.sha(p) for p in sorted(set(sources))}
  previous=replay.pins;replay.pins=lambda:dict(previous(),**source_pins)
  payload=gzip.compress(json.dumps({str(p.relative_to(ROOT)):p.read_text() for p in sorted(set(sources))},sort_keys=True).encode(),mtime=0)
@@ -28,7 +36,8 @@ def main():
  if capsule.exists():assert capsule.read_bytes()==payload,'Source changed: preserve this folder and select a new version'
  else:capsule.write_bytes(payload)
  fixture=HERE.with_name('affine_initial_adoption_v1')/'initial.planes'
- result=replay.invoke(folder,{},fixture,ranks,test_filter=FILTERS[mode])
+ parameters={'SU2_NATIVE_SYMMETRY_ANNULUS':'1'} if mode=='compatibility' else {}
+ result=replay.invoke(folder,parameters,fixture,ranks,test_filter=FILTERS[mode])
  artifacts={p.name:replay.sha(p) for p in folder.iterdir() if p.is_file() and p.name not in ('result.json','run.log','provenance.json','executed_source.json.gz')}
  if 'artifacts' in result:assert result['artifacts']==artifacts,'Saved case artifacts changed'
  else:

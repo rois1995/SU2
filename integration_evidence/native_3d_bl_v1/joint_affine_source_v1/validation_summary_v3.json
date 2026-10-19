@@ -1,0 +1,647 @@
+{
+  "status": "PASS_SCOPED_JOINT_SOURCE_AND_WALL_COMPATIBILITY",
+  "binary_sha256": "25d4e87bfee8b5ad11336a459e943bf7e1c0ffad2969028554ab98743f377d21",
+  "build_receipt_sha256": "a153eb6c577880668d05249a3c023532f480f5e6e0b6d0e4a21e6913151a0e63",
+  "runs": [
+    {
+      "folder": "source_v3_n1",
+      "ranks": 1,
+      "result_sha256": "b26ca403d7328e586cb4ccf0a44d6dd7a3bbbb3dd6aca7b6b433f39a651a721d",
+      "elapsed_seconds": 1.5786695670103654,
+      "cases_assertions_per_rank": [
+        [
+          "9",
+          "4527"
+        ]
+      ]
+    },
+    {
+      "folder": "source_v3_n2",
+      "ranks": 2,
+      "result_sha256": "6b2fdb6dc7c38ab1b77a3dc57abb3b11a6af9e9b9f59065c4452c1fe870e1456",
+      "elapsed_seconds": 1.8648270999547094,
+      "cases_assertions_per_rank": [
+        [
+          "9",
+          "4966"
+        ],
+        [
+          "9",
+          "4508"
+        ]
+      ]
+    },
+    {
+      "folder": "source_v3_n4",
+      "ranks": 4,
+      "result_sha256": "2f440090179e6fe81b3f5079606e0eabe875e85a5bd5d24b123ab8185d31c2b7",
+      "elapsed_seconds": 1.6894986080005765,
+      "cases_assertions_per_rank": [
+        [
+          "9",
+          "5393"
+        ],
+        [
+          "9",
+          "5385"
+        ],
+        [
+          "9",
+          "4905"
+        ],
+        [
+          "9",
+          "4941"
+        ]
+      ]
+    },
+    {
+      "folder": "affected_v3_n1",
+      "ranks": 1,
+      "result_sha256": "9d6392c6e3009eb20d0c4916536babf64fdc4eb20b6b5b672e460c933f132b4d",
+      "elapsed_seconds": 2.1500309460097924,
+      "cases_assertions_per_rank": [
+        [
+          "19",
+          "3092"
+        ]
+      ]
+    },
+    {
+      "folder": "affected_v3_n2",
+      "ranks": 2,
+      "result_sha256": "20dbe852f734e063bb9ec0e9a8efaceb86e8efabf723e2f6754775e94591e3a9",
+      "elapsed_seconds": 2.090201224084012,
+      "cases_assertions_per_rank": [
+        [
+          "19",
+          "2850"
+        ],
+        [
+          "19",
+          "2888"
+        ]
+      ]
+    },
+    {
+      "folder": "affected_v3_n4",
+      "ranks": 4,
+      "result_sha256": "aa4edd1792aea7cdc2c179f4d96f88978ffc610c71492c2f986a17c9161097a7",
+      "elapsed_seconds": 2.246746523072943,
+      "cases_assertions_per_rank": [
+        [
+          "19",
+          "2758"
+        ],
+        [
+          "19",
+          "2801"
+        ],
+        [
+          "19",
+          "2763"
+        ],
+        [
+          "19",
+          "2758"
+        ]
+      ]
+    },
+    {
+      "folder": "compatibility_v3_n1",
+      "ranks": 1,
+      "result_sha256": "dac2651eff5eb7be280b764826c900494dd7b52538122ff9f858c896bbc52e0c",
+      "elapsed_seconds": 10.353257701965049,
+      "cases_assertions_per_rank": [
+        [
+          "1",
+          "1097"
+        ]
+      ]
+    }
+  ],
+  "source_domains": 12,
+  "all_sensor_field_signatures_equal": true,
+  "initial_geometry": [
+    {
+      "folder": "affected_v3_n1",
+      "cases": [
+        {
+          "status": "EXACT_INITIAL_MAPPING_ORIGINAL_SOURCE_V4_PASS",
+          "cells": 6,
+          "points": 8,
+          "components": 1,
+          "mapping_error_contract": 1e-13,
+          "maximum_L1_initial_displacement": 1.1879941475001488e-11,
+          "minimum_exact_volume_ratio": 0.999999999990015,
+          "source_levels": {
+            "0": 6,
+            "1": 6
+          },
+          "source_signature_sha256": "179349c832231f3a4add13679e1a5451e57c22aa559ce252f63bd3ef474e665b",
+          "hashes": {
+            "integration_evidence/native_3d_bl_v1/joint_affine_source_v1/affected_v3_n1/affine_initial_euler_c1.json": "124ba25d392d50a6e02fbbfdd9da9b49fc0c26a989368df1b7b1092e2e1c91e6",
+            "integration_evidence/native_3d_bl_v1/joint_affine_source_v1/affected_v3_n1/affine_initial_euler_c1.native_ref": "b678352c26520be885be1df365cac0b60d217f965d2f42315c58b86d97087c40",
+            "integration_evidence/native_3d_bl_v1/joint_affine_source_v1/affected_v3_n1/affine_initial_euler_c1.su2": "b4b286e866c1d715a75d6999ae8ab3ecb9c069e4e670617ebc6f7ab3eb872a18"
+          }
+        },
+        {
+          "status": "EXACT_INITIAL_MAPPING_ORIGINAL_SOURCE_V4_PASS",
+          "cells": 6,
+          "points": 8,
+          "components": 1,
+          "mapping_error_contract": 1e-13,
+          "maximum_L1_initial_displacement": 1.1879941475001488e-11,
+          "minimum_exact_volume_ratio": 0.999999999990015,
+          "source_levels": {
+            "0": 6,
+            "1": 6
+          },
+          "source_signature_sha256": "179349c832231f3a4add13679e1a5451e57c22aa559ce252f63bd3ef474e665b",
+          "hashes": {
+            "integration_evidence/native_3d_bl_v1/joint_affine_source_v1/affected_v3_n1/affine_initial_rans_c1.json": "65b4f72f0f544c1d051390639b894ba6ca8e48d67f47cbc3aee463b6530b74ba",
+            "integration_evidence/native_3d_bl_v1/joint_affine_source_v1/affected_v3_n1/affine_initial_rans_c1.native_ref": "44ee7aa8bb2162ba273b5326ade486833e3d5b0eb52fd48b7227725e6475544e",
+            "integration_evidence/native_3d_bl_v1/joint_affine_source_v1/affected_v3_n1/affine_initial_rans_c1.su2": "b4b286e866c1d715a75d6999ae8ab3ecb9c069e4e670617ebc6f7ab3eb872a18"
+          }
+        },
+        {
+          "status": "EXACT_INITIAL_MAPPING_ORIGINAL_SOURCE_V4_PASS",
+          "cells": 12,
+          "points": 16,
+          "components": 2,
+          "mapping_error_contract": 1e-13,
+          "maximum_L1_initial_displacement": 1.1879941475001488e-11,
+          "minimum_exact_volume_ratio": 0.9999999999900147,
+          "source_levels": {
+            "0": 12,
+            "1": 6,
+            "2": 6
+          },
+          "source_signature_sha256": "5ca1a14a81137155351e710c734e182f06cad3f5d82c634c5555374f86b34f7c",
+          "hashes": {
+            "integration_evidence/native_3d_bl_v1/joint_affine_source_v1/affected_v3_n1/affine_initial_euler_c2.json": "43e77fec30965d9446b338d6198674b7a0fdfd83a60d5c8aa1b8e39dc775545c",
+            "integration_evidence/native_3d_bl_v1/joint_affine_source_v1/affected_v3_n1/affine_initial_euler_c2.native_ref": "f9e6d26074420692eecde94e4f86dfca54c10f3eb9a727d3eba665acec5e5260",
+            "integration_evidence/native_3d_bl_v1/joint_affine_source_v1/affected_v3_n1/affine_initial_euler_c2.su2": "d112017df62b8d346013dbd207f55f564e56e4a88650987bb2f24bb0bab66826"
+          }
+        },
+        {
+          "status": "EXACT_INITIAL_MAPPING_ORIGINAL_SOURCE_V4_PASS",
+          "cells": 12,
+          "points": 16,
+          "components": 2,
+          "mapping_error_contract": 1e-13,
+          "maximum_L1_initial_displacement": 1.1879941475001488e-11,
+          "minimum_exact_volume_ratio": 0.9999999999900147,
+          "source_levels": {
+            "0": 12,
+            "1": 6,
+            "2": 6
+          },
+          "source_signature_sha256": "5ca1a14a81137155351e710c734e182f06cad3f5d82c634c5555374f86b34f7c",
+          "hashes": {
+            "integration_evidence/native_3d_bl_v1/joint_affine_source_v1/affected_v3_n1/affine_initial_rans_c2.json": "5445d49c93e5bfd10530b50034110ad09f69a5276ded1592d0e2e9a4475cba9c",
+            "integration_evidence/native_3d_bl_v1/joint_affine_source_v1/affected_v3_n1/affine_initial_rans_c2.native_ref": "32b96a69419e98ab4ab8a798f4e7abed01552099549b5f4b25ad09d7a67ca36e",
+            "integration_evidence/native_3d_bl_v1/joint_affine_source_v1/affected_v3_n1/affine_initial_rans_c2.su2": "d112017df62b8d346013dbd207f55f564e56e4a88650987bb2f24bb0bab66826"
+          }
+        }
+      ],
+      "narrow_gap": {
+        "status": "POSITIVE_CELL_BOUNDARY_COLLISION_COUNTEREXAMPLE_CONFIRMED",
+        "source_cells": 12,
+        "collision_pairs": [
+          [
+            0,
+            6
+          ],
+          [
+            0,
+            7
+          ],
+          [
+            0,
+            8
+          ],
+          [
+            0,
+            9
+          ],
+          [
+            0,
+            10
+          ],
+          [
+            0,
+            11
+          ],
+          [
+            1,
+            7
+          ],
+          [
+            1,
+            9
+          ],
+          [
+            1,
+            10
+          ],
+          [
+            1,
+            11
+          ],
+          [
+            4,
+            10
+          ],
+          [
+            4,
+            11
+          ]
+        ],
+        "all_cell_orientation_signs_preserved": true,
+        "all_audited_tetrahedra_positive_after_consistent_reordering": true,
+        "source_has_no_positive_volume_overlap": true,
+        "native_rejection": {
+          "accepted": false,
+          "boundary_witnesses": 12,
+          "boundary_pair_checks": 3,
+          "minimum_volume_ratio": 0.99999999999,
+          "maximum_displacement": 9.37863794513072e-12,
+          "boundary_seconds": 0.0024503059999999854
+        },
+        "hashes": {
+          "integration_evidence/native_3d_bl_v1/joint_affine_source_v1/affected_v3_n1/affine_narrow_gap.su2": "ed705341a0b48088ff4558781c6899dc72312282da7e0a8d6c8c5f4e9e0450a2",
+          "integration_evidence/native_3d_bl_v1/joint_affine_source_v1/affected_v3_n1/affine_narrow_gap_rejected.su2": "50609d180ee4e6fb37a0b7c6a6d7822c4e22562b698169b22884fa30c06d75a0",
+          "integration_evidence/native_3d_bl_v1/joint_affine_source_v1/affected_v3_n1/affine_narrow_gap_rejection.json": "62f505dd3e890ab30942f66b2dfa2775f7599f02ca003d597af89be2fa271159"
+        }
+      }
+    },
+    {
+      "folder": "affected_v3_n2",
+      "cases": [
+        {
+          "status": "EXACT_INITIAL_MAPPING_ORIGINAL_SOURCE_V4_PASS",
+          "cells": 6,
+          "points": 8,
+          "components": 1,
+          "mapping_error_contract": 1e-13,
+          "maximum_L1_initial_displacement": 1.1879941475001488e-11,
+          "minimum_exact_volume_ratio": 0.999999999990015,
+          "source_levels": {
+            "0": 6,
+            "1": 6
+          },
+          "source_signature_sha256": "179349c832231f3a4add13679e1a5451e57c22aa559ce252f63bd3ef474e665b",
+          "hashes": {
+            "integration_evidence/native_3d_bl_v1/joint_affine_source_v1/affected_v3_n2/affine_initial_euler_c1.json": "d7154782a9e3ebf9c70638312a5a11d605ae2d9af6635913302c5e8d09c74a1f",
+            "integration_evidence/native_3d_bl_v1/joint_affine_source_v1/affected_v3_n2/affine_initial_euler_c1.native_ref": "22dce03f9695ac05918cfacbd7a88923b0c6b7da50fc8eb4d5f3d5c1043feda1",
+            "integration_evidence/native_3d_bl_v1/joint_affine_source_v1/affected_v3_n2/affine_initial_euler_c1.su2": "b4b286e866c1d715a75d6999ae8ab3ecb9c069e4e670617ebc6f7ab3eb872a18"
+          }
+        },
+        {
+          "status": "EXACT_INITIAL_MAPPING_ORIGINAL_SOURCE_V4_PASS",
+          "cells": 6,
+          "points": 8,
+          "components": 1,
+          "mapping_error_contract": 1e-13,
+          "maximum_L1_initial_displacement": 1.1879941475001488e-11,
+          "minimum_exact_volume_ratio": 0.999999999990015,
+          "source_levels": {
+            "0": 6,
+            "1": 6
+          },
+          "source_signature_sha256": "179349c832231f3a4add13679e1a5451e57c22aa559ce252f63bd3ef474e665b",
+          "hashes": {
+            "integration_evidence/native_3d_bl_v1/joint_affine_source_v1/affected_v3_n2/affine_initial_rans_c1.json": "183320de587aaf02fd39e4c8e06c82b8d716a5772fe82c19a18364aac70b193d",
+            "integration_evidence/native_3d_bl_v1/joint_affine_source_v1/affected_v3_n2/affine_initial_rans_c1.native_ref": "9e100558218f8f27b21207213807ed78e882dc2170009005cf64f0e250f868ba",
+            "integration_evidence/native_3d_bl_v1/joint_affine_source_v1/affected_v3_n2/affine_initial_rans_c1.su2": "b4b286e866c1d715a75d6999ae8ab3ecb9c069e4e670617ebc6f7ab3eb872a18"
+          }
+        },
+        {
+          "status": "EXACT_INITIAL_MAPPING_ORIGINAL_SOURCE_V4_PASS",
+          "cells": 12,
+          "points": 16,
+          "components": 2,
+          "mapping_error_contract": 1e-13,
+          "maximum_L1_initial_displacement": 1.1879941475001488e-11,
+          "minimum_exact_volume_ratio": 0.9999999999900147,
+          "source_levels": {
+            "0": 12,
+            "1": 6,
+            "2": 6
+          },
+          "source_signature_sha256": "5ca1a14a81137155351e710c734e182f06cad3f5d82c634c5555374f86b34f7c",
+          "hashes": {
+            "integration_evidence/native_3d_bl_v1/joint_affine_source_v1/affected_v3_n2/affine_initial_euler_c2.json": "4a03cd8aad31d814dcd6ca49c0250c57531c2b6ccd4e35cdabe63435fc54c7dc",
+            "integration_evidence/native_3d_bl_v1/joint_affine_source_v1/affected_v3_n2/affine_initial_euler_c2.native_ref": "4fd1d7ea37e772000a48882eec1642c4c5e54541f9e676ecfca6dab4a531839c",
+            "integration_evidence/native_3d_bl_v1/joint_affine_source_v1/affected_v3_n2/affine_initial_euler_c2.su2": "d112017df62b8d346013dbd207f55f564e56e4a88650987bb2f24bb0bab66826"
+          }
+        },
+        {
+          "status": "EXACT_INITIAL_MAPPING_ORIGINAL_SOURCE_V4_PASS",
+          "cells": 12,
+          "points": 16,
+          "components": 2,
+          "mapping_error_contract": 1e-13,
+          "maximum_L1_initial_displacement": 1.1879941475001488e-11,
+          "minimum_exact_volume_ratio": 0.9999999999900147,
+          "source_levels": {
+            "0": 12,
+            "1": 6,
+            "2": 6
+          },
+          "source_signature_sha256": "5ca1a14a81137155351e710c734e182f06cad3f5d82c634c5555374f86b34f7c",
+          "hashes": {
+            "integration_evidence/native_3d_bl_v1/joint_affine_source_v1/affected_v3_n2/affine_initial_rans_c2.json": "953fb158638f1da7eaef93bf6de6af57644b32f1c6416445ca4061012662438c",
+            "integration_evidence/native_3d_bl_v1/joint_affine_source_v1/affected_v3_n2/affine_initial_rans_c2.native_ref": "12384fd04a4dc59e5da072014f985c013e673b29bd0d2d4b452523e5af0e5008",
+            "integration_evidence/native_3d_bl_v1/joint_affine_source_v1/affected_v3_n2/affine_initial_rans_c2.su2": "d112017df62b8d346013dbd207f55f564e56e4a88650987bb2f24bb0bab66826"
+          }
+        }
+      ],
+      "narrow_gap": {
+        "status": "POSITIVE_CELL_BOUNDARY_COLLISION_COUNTEREXAMPLE_CONFIRMED",
+        "source_cells": 12,
+        "collision_pairs": [
+          [
+            0,
+            6
+          ],
+          [
+            0,
+            7
+          ],
+          [
+            0,
+            8
+          ],
+          [
+            0,
+            9
+          ],
+          [
+            0,
+            10
+          ],
+          [
+            0,
+            11
+          ],
+          [
+            1,
+            7
+          ],
+          [
+            1,
+            9
+          ],
+          [
+            1,
+            10
+          ],
+          [
+            1,
+            11
+          ],
+          [
+            4,
+            10
+          ],
+          [
+            4,
+            11
+          ]
+        ],
+        "all_cell_orientation_signs_preserved": true,
+        "all_audited_tetrahedra_positive_after_consistent_reordering": true,
+        "source_has_no_positive_volume_overlap": true,
+        "native_rejection": {
+          "accepted": false,
+          "boundary_witnesses": 12,
+          "boundary_pair_checks": 7,
+          "minimum_volume_ratio": 0.99999999999,
+          "maximum_displacement": 9.37863794513072e-12,
+          "boundary_seconds": 0.0028733650000000166
+        },
+        "hashes": {
+          "integration_evidence/native_3d_bl_v1/joint_affine_source_v1/affected_v3_n2/affine_narrow_gap.su2": "ed705341a0b48088ff4558781c6899dc72312282da7e0a8d6c8c5f4e9e0450a2",
+          "integration_evidence/native_3d_bl_v1/joint_affine_source_v1/affected_v3_n2/affine_narrow_gap_rejected.su2": "50609d180ee4e6fb37a0b7c6a6d7822c4e22562b698169b22884fa30c06d75a0",
+          "integration_evidence/native_3d_bl_v1/joint_affine_source_v1/affected_v3_n2/affine_narrow_gap_rejection.json": "f5c7efb1ee1bd21f7355ae3a406abd9ef408f328811059732186f96a7ce90c1f"
+        }
+      }
+    },
+    {
+      "folder": "affected_v3_n4",
+      "cases": [
+        {
+          "status": "EXACT_INITIAL_MAPPING_ORIGINAL_SOURCE_V4_PASS",
+          "cells": 6,
+          "points": 8,
+          "components": 1,
+          "mapping_error_contract": 1e-13,
+          "maximum_L1_initial_displacement": 1.1879941475001488e-11,
+          "minimum_exact_volume_ratio": 0.999999999990015,
+          "source_levels": {
+            "0": 6,
+            "1": 6
+          },
+          "source_signature_sha256": "179349c832231f3a4add13679e1a5451e57c22aa559ce252f63bd3ef474e665b",
+          "hashes": {
+            "integration_evidence/native_3d_bl_v1/joint_affine_source_v1/affected_v3_n4/affine_initial_euler_c1.json": "531ea988bc07b81e0838075622aa978d4f6d5957a71f19912aa90df724fbdc66",
+            "integration_evidence/native_3d_bl_v1/joint_affine_source_v1/affected_v3_n4/affine_initial_euler_c1.native_ref": "b1df2100eac7e515d189774d4ba2e66f5f33b979e9bed67affd7fb35e82db375",
+            "integration_evidence/native_3d_bl_v1/joint_affine_source_v1/affected_v3_n4/affine_initial_euler_c1.su2": "b4b286e866c1d715a75d6999ae8ab3ecb9c069e4e670617ebc6f7ab3eb872a18"
+          }
+        },
+        {
+          "status": "EXACT_INITIAL_MAPPING_ORIGINAL_SOURCE_V4_PASS",
+          "cells": 6,
+          "points": 8,
+          "components": 1,
+          "mapping_error_contract": 1e-13,
+          "maximum_L1_initial_displacement": 1.1879941475001488e-11,
+          "minimum_exact_volume_ratio": 0.999999999990015,
+          "source_levels": {
+            "0": 6,
+            "1": 6
+          },
+          "source_signature_sha256": "179349c832231f3a4add13679e1a5451e57c22aa559ce252f63bd3ef474e665b",
+          "hashes": {
+            "integration_evidence/native_3d_bl_v1/joint_affine_source_v1/affected_v3_n4/affine_initial_rans_c1.json": "f318acc0fd7eac632331388ac761ec849ce01b53bc3f40885cc60a8fc08c76ec",
+            "integration_evidence/native_3d_bl_v1/joint_affine_source_v1/affected_v3_n4/affine_initial_rans_c1.native_ref": "d4ff077ae0e2375ac6049520a244663c80ac66ef3a845f20ac64f4b3cc59beec",
+            "integration_evidence/native_3d_bl_v1/joint_affine_source_v1/affected_v3_n4/affine_initial_rans_c1.su2": "b4b286e866c1d715a75d6999ae8ab3ecb9c069e4e670617ebc6f7ab3eb872a18"
+          }
+        },
+        {
+          "status": "EXACT_INITIAL_MAPPING_ORIGINAL_SOURCE_V4_PASS",
+          "cells": 12,
+          "points": 16,
+          "components": 2,
+          "mapping_error_contract": 1e-13,
+          "maximum_L1_initial_displacement": 1.1879941475001488e-11,
+          "minimum_exact_volume_ratio": 0.9999999999900147,
+          "source_levels": {
+            "0": 12,
+            "1": 6,
+            "2": 6
+          },
+          "source_signature_sha256": "5ca1a14a81137155351e710c734e182f06cad3f5d82c634c5555374f86b34f7c",
+          "hashes": {
+            "integration_evidence/native_3d_bl_v1/joint_affine_source_v1/affected_v3_n4/affine_initial_euler_c2.json": "6b93021d6a50a4fb9e8b520907f6c2688c748f291f486281dc3689d23a8cede5",
+            "integration_evidence/native_3d_bl_v1/joint_affine_source_v1/affected_v3_n4/affine_initial_euler_c2.native_ref": "2e4d948d89f827edaff19604eed98327407ecc1b8f117f6f9068fa46ba4e4435",
+            "integration_evidence/native_3d_bl_v1/joint_affine_source_v1/affected_v3_n4/affine_initial_euler_c2.su2": "d112017df62b8d346013dbd207f55f564e56e4a88650987bb2f24bb0bab66826"
+          }
+        },
+        {
+          "status": "EXACT_INITIAL_MAPPING_ORIGINAL_SOURCE_V4_PASS",
+          "cells": 12,
+          "points": 16,
+          "components": 2,
+          "mapping_error_contract": 1e-13,
+          "maximum_L1_initial_displacement": 1.1879941475001488e-11,
+          "minimum_exact_volume_ratio": 0.9999999999900147,
+          "source_levels": {
+            "0": 12,
+            "1": 6,
+            "2": 6
+          },
+          "source_signature_sha256": "5ca1a14a81137155351e710c734e182f06cad3f5d82c634c5555374f86b34f7c",
+          "hashes": {
+            "integration_evidence/native_3d_bl_v1/joint_affine_source_v1/affected_v3_n4/affine_initial_rans_c2.json": "cdbdc7742e8c5a378e4f28b402b1ae27103f4ea3ed7caeb261bc8951dcb376da",
+            "integration_evidence/native_3d_bl_v1/joint_affine_source_v1/affected_v3_n4/affine_initial_rans_c2.native_ref": "38b92f4eb09bf8718c5f3977b232bee76bff09b6c09802f33f2c688edaaae08b",
+            "integration_evidence/native_3d_bl_v1/joint_affine_source_v1/affected_v3_n4/affine_initial_rans_c2.su2": "d112017df62b8d346013dbd207f55f564e56e4a88650987bb2f24bb0bab66826"
+          }
+        }
+      ],
+      "narrow_gap": {
+        "status": "POSITIVE_CELL_BOUNDARY_COLLISION_COUNTEREXAMPLE_CONFIRMED",
+        "source_cells": 12,
+        "collision_pairs": [
+          [
+            0,
+            6
+          ],
+          [
+            0,
+            7
+          ],
+          [
+            0,
+            8
+          ],
+          [
+            0,
+            9
+          ],
+          [
+            0,
+            10
+          ],
+          [
+            0,
+            11
+          ],
+          [
+            1,
+            7
+          ],
+          [
+            1,
+            9
+          ],
+          [
+            1,
+            10
+          ],
+          [
+            1,
+            11
+          ],
+          [
+            4,
+            10
+          ],
+          [
+            4,
+            11
+          ]
+        ],
+        "all_cell_orientation_signs_preserved": true,
+        "all_audited_tetrahedra_positive_after_consistent_reordering": true,
+        "source_has_no_positive_volume_overlap": true,
+        "native_rejection": {
+          "accepted": false,
+          "boundary_witnesses": 12,
+          "boundary_pair_checks": 34,
+          "minimum_volume_ratio": 0.99999999999,
+          "maximum_displacement": 9.37863794513072e-12,
+          "boundary_seconds": 0.019727083000000006
+        },
+        "hashes": {
+          "integration_evidence/native_3d_bl_v1/joint_affine_source_v1/affected_v3_n4/affine_narrow_gap.su2": "ed705341a0b48088ff4558781c6899dc72312282da7e0a8d6c8c5f4e9e0450a2",
+          "integration_evidence/native_3d_bl_v1/joint_affine_source_v1/affected_v3_n4/affine_narrow_gap_rejected.su2": "50609d180ee4e6fb37a0b7c6a6d7822c4e22562b698169b22884fa30c06d75a0",
+          "integration_evidence/native_3d_bl_v1/joint_affine_source_v1/affected_v3_n4/affine_narrow_gap_rejection.json": "b87140f1388afbb25e9e6149a8f198ad5460d27d67f63f8602b8dc98e340ef09"
+        }
+      }
+    }
+  ],
+  "lifecycle": {
+    "status": "INDEPENDENT_ANNULAR_SYMMETRY_LIFECYCLE_PASS",
+    "cases": [
+      {
+        "cells": 194,
+        "volume": "19471113219505603967277331424215/20282409603651670423947251286016",
+        "exact_overlap_pairs": 2853,
+        "vertex_links": 68,
+        "finite_patch_area_coverage": true,
+        "boundary_euler_characteristic": 0,
+        "minimum_quality": 0.2489518711304815,
+        "minimum_scaled_jacobian": 0.0630753909744782,
+        "maximum_full_edge": 1.7955164523225264,
+        "height_relative_error": 0.0,
+        "edge_order_spread": 4.440892098500626e-16,
+        "reference_complexity": 20.000195347861954,
+        "reference_order_spread": 3.552713678800501e-15,
+        "flow_integral_defect": 4.314432289377201e-16,
+        "flow_restart_residual": 0.0,
+        "SA_integral_defect": 6.584917626176044e-16,
+        "SA_restart_residual": 0.0,
+        "budget": 20,
+        "parameter": 0,
+        "version": 1,
+        "trials": 1,
+        "workers": 1,
+        "accepted": true,
+        "mass": 20.03425335353841,
+        "indicator": 0.19250565050240404,
+        "final_sensor_eigenvalue": 5.047122023923238,
+        "frozen": true,
+        "support_changed": false,
+        "proven_bound": false,
+        "independent_mass_error": 0.03405800567645656,
+        "indicator_covers_observed_error": true
+      }
+    ],
+    "audit_source_sha256": "f6f7def2aefb6dd7a402bedc1188dc94970faee7f1f6a0bee89db0fbe34c569f",
+    "house_auditor_sha256": "1822427476ecb5687aaa06f3e7a3cc8f31cde53166fd0c711449eedf7c7c7a50",
+    "limitations": [
+      "Controlled faceted annular domain/one wall/constant original sensor, not M6 or interacting BL accuracy",
+      "Numerical quadrature reference/heuristic complexity indicator, not rigorous integral bounds",
+      "Native contact/field gates supplemented by independent volume/topology/overlap/finite-face/height and complete metric checks"
+    ]
+  },
+  "helpers_sha256": {
+    "integration_evidence/native_3d_bl_v1/joint_affine_source_v1/seal.py": "1d25e7c22208249278dca72198dcad37f2d1a8533122a3c47b3c26ae3b8ee90d",
+    "integration_evidence/native_3d_bl_v1/joint_affine_source_v1/audit.py": "7ede69a7855348c2cebdb6b04f19b62c95e34a1b2a3e67e8fcd801aed4f1d1f4",
+    "integration_evidence/native_3d_bl_v1/affine_initial_adoption_v1/source_policy_replay_v1/audit_envelope.py": "aa2931c0027596414392a5c0c0034737f2faccb09ae50b14e3c520d3c355ebcf",
+    "integration_evidence/native_3d_bl_v1/affine_initial_adoption_v1/audit_controls.py": "0c82d218e96f61672c278abb90697c0b70dd9ac529ef342a67cebb384c223ca0",
+    "integration_evidence/native_3d_bl_v1/planar_symmetry_reference_v1/audit_annulus.py": "f6f7def2aefb6dd7a402bedc1188dc94970faee7f1f6a0bee89db0fbe34c569f",
+    "integration_evidence/native_3d_bl_v1/production_policy_v1/audit.py": "bff97f4bde85829879fcae34d4eeb358264279613ee1fc6ddd35c6c48666f1e8",
+    "integration_evidence/native_3d_core_v1/audit_coupled.py": "1822427476ecb5687aaa06f3e7a3cc8f31cde53166fd0c711449eedf7c7c7a50",
+    "integration_evidence/native_3d_core_v1/audit_cavities.py": "26079385c071c3ad1b9c06ab3b862b4ff293367dc3c8d291acf0487089d062c5",
+    "TestCases/adaptation/capability/capcheck.py": "2721ed023a67fe1cdb05da4e9f3b521b36ee9339413c77e2b54ee25587bbdd2a"
+  },
+  "limitations": [
+    "Numerical-band source geometry; no mapped-body, affine BL-wall or mixed analytic support.",
+    "Current complete lifecycle is serial Cartesian annulus; no new oblique/exterior/MPI full lifecycle, physical CFD advance, viscous accuracy or affordability qualification.",
+    "Cold contended timings and admitted byte models are not runtime peak RSS, wire volume or speedup measurements."
+  ]
+}

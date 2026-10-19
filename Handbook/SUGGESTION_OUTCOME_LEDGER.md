@@ -388,8 +388,8 @@ an exact common-fan witness gives10positive/nonoverlapping cells and volume clos
 The23prototype MPI controls missed this configuration; no general robustness claim
 survives them. Current source restores the shared constructor/reconstruction caller,
 limits direct insertion to one wall face/tet and adds native constructor plus owner/
-empty-rank regressions. Four translation units pass syntax; new linked runtime checks
-remain pending the next connected build. Source/proof in joint_scope_provenance.json;
+empty-rank regressions. Four translation units pass syntax; affected linked MPI1/2/4 controls now pass
+in joint_affine_source_v1 (19cases per rank, not a general construction proof). Source/proof in joint_scope_provenance.json;
 no extra full suite/CFD run was launched. This preserves useful single-wall insertion
 without discarding existing coordinated construction.
 
@@ -417,7 +417,7 @@ Independent follow-up13.44s/maxRSS279MiB. First report-only assembly failed afte
 retained. No C++/MPI/CFD/transfer/restart run, speedup or new accepted-mesh claim.
 [Receipts, inspectable source grids and next implementation](GOAL3_SOURCE_ENVELOPE.md).
 
-## Joint affine original-source implementation — qualification pending
+## Joint affine original-source implementation — scoped qualification
 
 The measured numerical-band collar strategy now has production source code: current
 closed physical skin, root-owned shared columns/canonical oriented faces, exact
@@ -426,10 +426,30 @@ copies, collective atomic admission and work/payload counters. Pre-branch presen
 and complete geometry definitions agree collectively. Existing isolated coverage
 remains; joint analytic/affine and affine BL-wall support remain explicit gaps.
 
-Strict helper/fixtures and latest import/diagnostic/fixture compilation checks pass.
-One linked build is active; runtime/MPI/N-M/state assertions and independent audits
-are pending. Launcher failures were before compilation; early review interruptions
-retain completed objects. No physical CFD rerun or accepted-mesh/performance claim.
-Abstract Opus5.5/high review supplies only conditional geometry reasoning, not proof
-of implementation. Native containment/tensor validation stays; clamping not adopted.
-[Implementation, cost counters, limitations and exact evidence](GOAL3_JOINT_AFFINE_SOURCE.md).
+Worked in scope:9source and19affected cases per rank at MPI1/2/4, including
+Euler/RANS and M1/M2/M4. All12 exported source domains independently pass8460exact
+contact/1728clearance checks; original and extended sensor field signatures are
+bitwise identical across solver/rank/worker choices. Narrow-gap/resource/declaration
+refusal stays atomic, current/SA/BDF data unchanged. One current serial Cartesian
+RANS transfer/SU2+CGNS/real-restart workflow independently passes:194cells,
+q=.24895/J=.06308/Lmax1.79552, height0, conservation<6.6e-16/restart0.
+
+Cost receipt:full build1749.210s plus two fixture-only incrementals196.128/195.983s;
+full-build sampled descendant RSS sum2.355GiB, not PSS/guaranteed peak. Source fixture
+prep.484--.489s serial for36cells/102column work/702contacts/144clearance checks,
+1872replicated logical payload bytes/48.2MB admitted native bound (not wire/RSS).
+These contended correctness cases establish no speedup or affordability.
+
+Did not work initially:fixture omitted native remesher selection, causing config
+refusal before the builder. Inspection caught steady/history-helper mismatch in
+the negative fixture before execution. Shared native dual-time setup fixes both.
+Final independent sealer passed audits then failed relative helper-path assembly;
+failed source/receipt preserved, path fixed, independent audits repeated without
+native/CFD rerun. No production code changed after2abdb7e5bf for these fixes.
+
+Still missing:general mapped body/features and actual physical envelopes, affine
+BL walls/mixed analytic joints,2D runtime/exterior/general complete MPI lifecycle,
+viscous accuracy and complete accepted-event performance. Source-envelope grids
+are query domains, not accepted adapted CFD meshes. Abstract Opus5.5/high review
+supplies conditional reasoning only; no clamping or dropped native validation.
+[Implementation, counters, failures and sealed evidence](GOAL3_JOINT_AFFINE_SOURCE.md).

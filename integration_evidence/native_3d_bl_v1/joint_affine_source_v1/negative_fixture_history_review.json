@@ -1,0 +1,9 @@
+{
+  "status": "UNSAFE_FIXTURE_SETUP_FOUND_BEFORE_EXECUTION",
+  "source": "SU2_CFD/src/variables/CVariable.cpp:81",
+  "finding": "Steady setup does not allocate Solution_time_n/time_n1; the state snapshot helper intentionally reads both.",
+  "correction": "Both new controls now use one native dual-time fixture configuration, preserving the intended full-history assertion.",
+  "production_source_change": false,
+  "positive_control_and_independent_audit": "joint_v2_n1; audits/joint_v2_n1.json",
+  "observed_negative_crash": false
+}

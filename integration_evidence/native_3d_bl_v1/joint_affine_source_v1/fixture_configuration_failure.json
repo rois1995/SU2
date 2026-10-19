@@ -1,0 +1,12 @@
+{
+  "status": "FIXTURE_CONFIGURATION_ERROR",
+  "production_source_change": false,
+  "source": "Common/src/CConfig.cpp:6427",
+  "condition": "A positive ADAP_NATIVE_MAX_TIME requires ADAP_REMESHER=NATIVE_CAVITY.",
+  "correction": "Select native explicitly in both new fixtures; retain validation and time ceilings.",
+  "native_group_exit": 1,
+  "native_group_seconds": 1.3063557050190866,
+  "joint_builder_reached": false,
+  "prior_binary_sha256": "e782fc7cfbfc539c673600929fc7b9d7b23c3fcdf4654fe76d638443efb0cf56",
+  "binary_archive": "Not duplicated: failure was in fixture configuration before joint geometry; exact executable hash, linked build, source capsule and failed run preserved."
+}

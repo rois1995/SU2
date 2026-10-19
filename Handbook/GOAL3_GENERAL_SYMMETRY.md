@@ -164,8 +164,8 @@ retains both dimensions, finite topology, junctions, MPI and complete exterior l
 
 Current first-row source additionally preserves the existing joint constructor after
 an oblique two-wall counterexample invalidated the broad direct replacement. New
-native regressions and syntax checks exist; linked qualification is pending the
-connected batch. The23-case v2prototype evidence remains historical, not current
+native regressions and linked affected MPI1/2/4 controls pass in the connected
+joint_affine_source_v1 batch. The23-case v2prototype evidence remains historical, not current
 full-source or general robustness proof.
 
 ## Original-source policy evidence — 2026-10-19
@@ -176,3 +176,15 @@ collar coverage is exactly certified only on the complete saved annulus numerica
 band; two actual M6 source faces fold at the wider physical-tolerance test band.
 Production mapped body/features, actual-envelope admission, full MPI/lifecycle and
 all general geometry scope remain OPEN. No unchanged full target was rerun.
+
+## Current numerical-band source qualification — 2026-10-19
+
+Joint distinct-affine source import, original sensor priority and collective
+refusal pass MPI1/2/4 with M1/M2/M4. All12 exported source domains pass independent
+exact geometry/clearance/tensor-copy audits and bitwise field identity. Affected
+wall/initial-adoption controls and one CURRENT complete serial Cartesian RANS
+transfer/SU2+CGNS/real-restart lifecycle pass independently.
+[Evidence and precise limitations](GOAL3_JOINT_AFFINE_SOURCE.md).
+This removes a source-query prerequisite; it does not complete mapped body/feature
+constraints, physical envelopes, affine BL walls, mixed curved junctions,2D runtime
+or complete oblique/exterior/multiple-body workflows. Full required scope stays OPEN.

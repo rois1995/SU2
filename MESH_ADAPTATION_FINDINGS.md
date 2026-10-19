@@ -7009,12 +7009,16 @@ and admit joint coverage globally before another positive complete attempt.
 No original sensor/BL/fade/mesh gate changed; no new CFD or MPI run was needed.
 [Exact failures, grids, costs and limits](Handbook/GOAL3_SOURCE_ENVELOPE.md).
 
-## Joint affine-source preparation — implemented, not runtime-qualified
+## Joint affine-source preparation — scoped serial/MPI qualification
 
-New source code prepares a shared finite collar from the actual original boundary,
-copies only original sensor values, and admits positivity/contact/clearance/work/
-memory collectively before publication. Complete source declarations agree before
-branches; source/CFD state stays atomic on refusal. Existing frozen P1 and actual-query
-BL remain. Strict helper and latest import/diagnostic/fixture compilation checks pass;
-a linked build is active. No accepted adapted mesh, new MPI/lifecycle or affordability
-claim. [Current scope and verification](Handbook/GOAL3_JOINT_AFFINE_SOURCE.md).
+Joint numerical-band coverage now passes9source cases per rank at MPI1/2/4,
+including Euler/RANS and M1/M2/M4. Independent exact audits pass12source domains,
+8460contact/1728clearance checks and bitwise original/extended sensor identity.
+Affected wall/initial-adoption controls pass19cases per rank. Current complete
+serial Cartesian RANS transfer/SU2+CGNS/real-restart compatibility independently
+passes194cells, q=.24895/J=.06308/Lmax1.79552, height0 and conservation<6.6e-16.
+All owned handles are terminal. Fixture config/history and final audit-report path
+failures are retained; no production or acceptance-gate changes for those fixes.
+No physical CFD advance, general oblique/exterior mesh or affordability claim.
+Mapped body/features, actual physical envelopes, affine BL-wall/mixed curved and
+2D runtime remain OPEN. [Scope, costs and sealed evidence](Handbook/GOAL3_JOINT_AFFINE_SOURCE.md).

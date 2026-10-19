@@ -12,16 +12,19 @@ def sha(p):
 pins={p:sha(ROOT/p) for p in files};(HERE/'source_v2.json.gz').write_bytes(gzip.compress(json.dumps({p:(ROOT/p).read_text() for p in files}).encode()))
 (HERE/'source_v2.json').write_text(json.dumps(dict(base=subprocess.check_output(['git','rev-parse','HEAD']).decode().strip(),sha256=pins),indent=2)+'\n')
 old=BUILD/'UnitTests/test_driver';archive=ROOT/'integration_evidence/native_3d_bl_v1/affine_initial_adoption_v1/test_driver_prototype_v2.gz';expected='957e2bab5df11db23e622d67aa5f9519ead09e40e52a2130f41a941a877c28a8'
-assert sha(old)==expected
+previous=json.loads((HERE/'build_process.json').read_text())
+current_binary=sha(old)
+if current_binary!=expected:
+ assert previous['status']=='PASS' and previous['binary_sha256']==current_binary
+ changed=[p for p,h in previous['source_sha256'].items() if sha(ROOT/p)!=h]
+ assert changed==['UnitTests/SU2_CFD/adaptation/CNativeImport3D_tests.cpp'], 'Only fixture correction is admitted by this incremental build'
+ print('FIXTURE_ONLY_INCREMENTAL_BUILD',flush=True)
+else:
+ prior=json.loads((HERE/'prior_binary_archive.json').read_text())
+ assert prior['sha256']==expected and prior['original_bytes']==old.stat().st_size
+ assert prior['compressed_sha256']==sha(archive)
+ print('REUSED_VERIFIED_PRIOR_ARCHIVE',flush=True)
 assert Path('/home/rausa/Software/su2-develop/ninja').is_file()
-if not archive.exists():
- with old.open('rb') as source,archive.open('xb') as raw:
-  with gzip.GzipFile(filename='',mode='wb',fileobj=raw,compresslevel=1,mtime=0) as dest:
-   while b:=source.read(4*1024**2):dest.write(b)
-prior=json.loads((HERE/'prior_binary_archive.json').read_text())
-assert prior['sha256']==expected and prior['original_bytes']==old.stat().st_size
-assert prior['compressed_sha256']==sha(archive)
-print('REUSED_VERIFIED_PRIOR_ARCHIVE',flush=True)
 def cpus():
  return {int(s[3:]):list(map(int,v)) for s,*v in (line.split() for line in Path('/proc/stat').read_text().splitlines()) if s.startswith('cpu') and s[3:].isdigit()}
 a=cpus();time.sleep(.25);b=cpus();allowed=os.sched_getaffinity(0)

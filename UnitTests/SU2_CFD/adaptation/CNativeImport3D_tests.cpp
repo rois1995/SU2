@@ -1020,6 +1020,10 @@ CSimplexMesh JointSourceMesh(bool gap) {
   }
   return mesh;
 }
+std::unique_ptr<CConfig> JointSourceConfig(bool rans) {
+  const std::string physics=rans?"SOLVER= RANS\nKIND_TURB_MODEL= SA\nREYNOLDS_NUMBER= 1e6\nREYNOLDS_LENGTH= 1\n":"SOLVER= EULER\n";
+  return MakeConfig(3,physics+"TIME_DOMAIN= YES\nTIME_STEP= .001\nTIME_ITER= 10\nTIME_MARCHING= DUAL_TIME_STEPPING-2ND_ORDER\nADAP_REMESHER= NATIVE_CAVITY\nADAP_NATIVE_MAX_TIME= 30\n");
+}
 void JointSourceReference(ReferenceState& state,bool gap,double error=1e-13) {
   // Exact declared carriers come from the affine frame; input rounding is covered explicitly.
   SU2NativeGeometry::AffineAuthority x{17,1,3,SourceFrame({0,0,0}),{1.1525,-.175,.222},error};
@@ -1040,8 +1044,7 @@ void JointSourceReference(ReferenceState& state,bool gap,double error=1e-13) {
 }
 TEST_CASE("Joint affine import freezes a conforming owner-sourced shell through N/M migration", "[NativeJointAffineSource3D]") {
   World parent;const bool rans=GENERATE(false,true);const int workers=GENERATE(1,2,4);if(workers>parent.size)return;
-  const std::string physics=rans?"SOLVER= RANS\nKIND_TURB_MODEL= SA\nREYNOLDS_NUMBER= 1e6\nREYNOLDS_LENGTH= 1\n":"SOLVER= EULER\n";
-  auto config=MakeConfig(3,physics+"TIME_DOMAIN= YES\nTIME_STEP= .001\nTIME_ITER= 10\nTIME_MARCHING= DUAL_TIME_STEPPING-2ND_ORDER\nADAP_NATIVE_MAX_TIME= 30\n");
+  auto config=JointSourceConfig(rans);
   MeshSolution mesh(config.get(),JointSourceMesh(false),0);const auto field=AffineFlow(3);
   for(size_t p=0;p<mesh.Fine().GetnPoint();++p) {
     su2double values[MAXVAR]{};field(mesh.Fine().nodes->GetCoord(p),values);
@@ -1126,7 +1129,7 @@ TEST_CASE("Joint affine import freezes a conforming owner-sourced shell through 
        <<",\"contacts\":"<<b.source_envelope_contacts<<",\"distances\":"<<b.source_envelope_distances<<"}\n";CHECK(out.good());}
 }
 TEST_CASE("Joint source rejects a narrow disconnected gap without publishing its shell", "[NativeJointAffineSource3D]") {
-  World world;auto config=MakeConfig(3,"SOLVER= EULER\nADAP_NATIVE_MAX_TIME= 30\n");
+  World world;auto config=JointSourceConfig(false);
   MeshSolution mesh(config.get(),JointSourceMesh(true),0);const auto saved=State(mesh);ReferenceState state;
   const auto plain=ImportGeometry(*config,mesh.Fine(),nullptr,state);JointSourceReference(state,true,1e-3);
   const auto encoded=EncodeReference(state);auto retained=plain;const auto before=Bytes(retained.original);BridgeStats attempted;std::string reason;
