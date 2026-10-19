@@ -430,13 +430,21 @@ bool ConformingDisjoint(const Cell& a, const Cell& b, KernelStats* stats) {
   };
   return contacts(ta,tb,shared_a) && contacts(tb,ta,shared_b);
 }
-std::array<Point,2> AffinePointBounds(Point a,Point b,double t) {
-  if(!(Finite(a)&&Finite(b)) || !(t>=0 && t<=1) || !std::isfinite(t))
-    throw std::invalid_argument("Invalid native3D affine point construction.");
-  const auto parameter=Coordinate(t),complement=Difference(Coordinate(1.),parameter);
-  auto coordinate=[&](double first,double last) {
-    const auto left=Product(complement,Coordinate(first));auto right=Product(parameter,Coordinate(last));
-    right.negative=!right.negative;const auto value=Difference(left,right);
+namespace {
+Integer<132> ParametricCoordinate(const ParametricPoint& p,unsigned axis) {
+  const double a[3]={p.origin.x,p.origin.y,p.origin.z},b[3]={p.first.x,p.first.y,p.first.z},c[3]={p.second.x,p.second.y,p.second.z};
+  auto sum=Product(Coordinate(a[axis]),Coordinate(1.));
+  for(const auto& term:std::array<std::pair<double,double>,2>{{{b[axis],p.u},{c[axis],p.v}}}) {
+    auto value=Product(Difference(Coordinate(term.first),Coordinate(a[axis])),Coordinate(term.second));
+    value.negative=!value.negative;sum=Difference(sum,value);
+  }
+  return sum;
+}
+void CheckParametric(const ParametricPoint& p) {
+  if(!(Finite(p.origin)&&Finite(p.first)&&Finite(p.second)&&std::isfinite(p.u)&&std::isfinite(p.v)))
+    throw std::invalid_argument("Nonfinite native3D parametric point.");
+}
+std::array<double,2> ParametricBounds(const Integer<132>& value) {
     if(!Sign(value))return std::array<double,2>{0.,0.};
     size_t top=value.limb.size();while(top && !value.limb[top-1])--top;
     unsigned bit=31;while(!(value.limb[top-1]&(uint32_t(1)<<bit)))--bit;
@@ -453,9 +461,28 @@ std::array<Point,2> AffinePointBounds(Point a,Point b,double t) {
     const double upper=remainder ? std::nextafter(lower,INFINITY) : lower;
     if(!std::isfinite(upper))throw std::runtime_error("Unrepresentable native3D affine point bounds.");
     return value.negative ? std::array<double,2>{-upper,-lower} : std::array<double,2>{lower,upper};
-  };
-  const auto x=coordinate(a.x,b.x),y=coordinate(a.y,b.y),z=coordinate(a.z,b.z);
+}
+} // namespace
+std::array<Point,2> ParametricPointBounds(const ParametricPoint& p) {
+  CheckParametric(p);
+  const auto x=ParametricBounds(ParametricCoordinate(p,0)),y=ParametricBounds(ParametricCoordinate(p,1)),z=ParametricBounds(ParametricCoordinate(p,2));
   return {{{x[0],y[0],z[0]},{x[1],y[1],z[1]}}};
+}
+int ParametricOrientation(const ParametricPoint& a,const ParametricPoint& b,const ParametricPoint& c,
+                          unsigned axis,KernelStats* stats) {
+  CheckParametric(a);CheckParametric(b);CheckParametric(c);
+  if(axis>2)throw std::invalid_argument("Invalid native3D parametric projection axis.");
+  const unsigned x=axis==0?1:0,y=axis==2?1:2;
+  const auto ax=ParametricCoordinate(a,x),ay=ParametricCoordinate(a,y);
+  const auto first=Product(Difference(ParametricCoordinate(b,x),ax),Difference(ParametricCoordinate(c,y),ay));
+  const auto second=Product(Difference(ParametricCoordinate(b,y),ay),Difference(ParametricCoordinate(c,x),ax));
+  if(stats)++stats->exact_orientations;
+  return Sign(Difference(first,second));
+}
+std::array<Point,2> AffinePointBounds(Point a,Point b,double t) {
+  if(!(Finite(a)&&Finite(b)&&std::isfinite(t)&&t>=0&&t<=1))
+    throw std::invalid_argument("Invalid native3D affine point construction.");
+  return ParametricPointBounds({a,b,a,t,0});
 }
 SegmentFreedom Binary64SegmentFreedom(Point a,Point b,Point& midpoint) {
   if(!(Finite(a)&&Finite(b)) || (a.x==b.x && a.y==b.y && a.z==b.z))

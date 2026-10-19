@@ -2,6 +2,8 @@
 
 Full Goal3/general symmetry remains ACTIVE. This is a design constraint and open
 implementation reach, not an implemented geometry policy or a new completion scope.
+Boundary parameter arithmetic/finite-facet coverage now has scoped implementation:
+[current state and required connected lifecycle](GOAL3_MAPPED_PARAMETERS.md).
 
 ## Evidence that changes the next action
 

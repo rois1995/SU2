@@ -453,3 +453,33 @@ viscous accuracy and complete accepted-event performance. Source-envelope grids
 are query domains, not accepted adapted CFD meshes. Abstract Opus5.5/high review
 supplies conditional reasoning only; no clamping or dropped native validation.
 [Implementation, counters, failures and sealed evidence](GOAL3_JOINT_AFFINE_SOURCE.md).
+
+## Mapped parameter geometry — 2026-10-19, lifecycle open
+
+Worked as a representation foundation: original vertex/edge/facet support and
+versioned scalar parameters, exact unrounded bounds/orientation, shared incident
+error minima and complete original-facet tiling/feature chains.8focused cases/
+2861assertions, current admission/interior1case/26assertions, independent40samples/
+120bounds/120signs (60zeros), existing coordinate3cases/287assertions PASS. No full
+SU2 rebuild/CFD/MPI campaign; only3geometry units compiled, pinned support reused.
+
+Did not work as a transparent replacement: recovering original parameters from
+rounded coordinates. Exact local examples show scalar information loss and loss
+of valid ideal orientation under plane-foot recovery. Separately rounding1-t also
+recreates chart-edge obstruction. A deliberately canonical inverse authority is a
+different, more restrictive model; it is not silently adopted. Opus5.5/high abstract
+review informed the choice; its normal-error example needed correction to epsilon/2,
+verified rationally. No model-labelled global proof is claimed.
+
+The first constructor copied error declarations before storage admission; fixed
+with const-reference input and copy after admission, then only affected case checked.
+No physical/source-metric acceptance gate or config relaxed. Original sensor P1,
+actual-query BL/finer/fade untouched. The shared affine-point implementation now
+uses exact parametric arithmetic; affected controls pass, whole-event cost unmeasured.
+
+Still missing: boundary-state/private operator/atomic MPI/N-M transport, finite-plane
+parameter membership, simultaneous junctions and admitted actual source envelope,
+output-node renumbering/persistent native_ref/real restart,2D/general exterior meshes
+and all accuracy/performance gates. All original triangle edges currently protected;
+this may block construction and is not general surface coarsening. No new accepted
+mapped mesh. [Evidence, costs and next complete implementation](GOAL3_MAPPED_PARAMETERS.md).

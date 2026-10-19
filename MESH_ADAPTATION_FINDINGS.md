@@ -7022,3 +7022,18 @@ failures are retained; no production or acceptance-gate changes for those fixes.
 No physical CFD advance, general oblique/exterior mesh or affordability claim.
 Mapped body/features, actual physical envelopes, affine BL-wall/mixed curved and
 2D runtime remain OPEN. [Scope, costs and sealed evidence](Handbook/GOAL3_JOINT_AFFINE_SOURCE.md).
+
+## Explicit parameter geometry — core pass, lifecycle not implemented
+
+Current source adds boundary-only versioned original support/parameters, exact
+unrounded coordinate bounds/orientation and full finite-facet cover/feature-chain
+audits. Focused/rational checks and existing affected coordinate controls pass.
+Saved exact examples reject rounding dependent coefficients or silently recovering
+forward geometry parameters from coordinates. The review's displacement bound was
+corrected and independently verified. This addresses the representability model,
+not complete mesh construction. No production option activates it; full integrated
+executable remains b232 while current arithmetic source is newer. Operator/MPI/
+return/output-numbering/native_ref/restart/finite-plane consumption remain required.
+All original facet edges currently protected; no general body coarsening or new
+accepted oblique/exterior/2D workflow or affordability proof.
+[Current connected reach and exact evidence](Handbook/GOAL3_MAPPED_PARAMETERS.md).

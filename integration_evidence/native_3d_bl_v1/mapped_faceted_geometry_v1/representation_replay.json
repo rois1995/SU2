@@ -1,0 +1,115 @@
+{
+  "status": "EXACT_REPRESENTATION_COUNTEREXAMPLES",
+  "dependent_coefficient": [
+    {
+      "t": 0.1,
+      "rounded_complement": 0.9,
+      "exact_rounded_pair_residual": "1/36028797018963968",
+      "exact_dependent_coefficient_residual": "0"
+    },
+    {
+      "t": 0.3,
+      "rounded_complement": 0.7,
+      "exact_rounded_pair_residual": "-1/18014398509481984",
+      "exact_dependent_coefficient_residual": "0"
+    }
+  ],
+  "inverse_parameter_alias": {
+    "a": [
+      1e+16,
+      1e+16,
+      1e+16
+    ],
+    "b": [
+      1.0000000000000008e+16,
+      1.0000000000000016e+16,
+      1.0000000000000024e+16
+    ],
+    "parameters": [
+      0.3,
+      0.30000000000000004
+    ],
+    "solver_point": [
+      1.0000000000000002e+16,
+      1.0000000000000004e+16,
+      1.0000000000000008e+16
+    ],
+    "ideal_points": [
+      [
+        "22517998136852485404319552844595/2251799813685248",
+        "11258999068426245404319552844595/1125899906842624",
+        "22517998136852496212958658533785/2251799813685248"
+      ],
+      [
+        "5629499534213121351079888211149/562949953421312",
+        "2814749767106561351079888211149/281474976710656",
+        "5629499534213124053239664633447/562949953421312"
+      ]
+    ],
+    "interpretation": "Coordinates do not uniquely encode the original parameter. This alone does NOT disprove a separately declared, deterministic canonical inverse geometry policy."
+  },
+  "projection_recovery_loses_valid_parameter_orientation": {
+    "epsilon": "1/1099511627776",
+    "maximum_exact_L1_displacement": "513/1125899906842624",
+    "ideal_parameter_orientation": "1/4503599627370496",
+    "recovered_orientation": "0",
+    "actual_positive_tetrahedron_determinant": "1/35184372088832",
+    "actual_face": [
+      [
+        "4097/4",
+        "1/4",
+        "0"
+      ],
+      [
+        "4097/4",
+        "1/2",
+        "0"
+      ],
+      [
+        "4097/4",
+        "3/8",
+        "-1/2199023255552"
+      ]
+    ],
+    "ideal_parameters": [
+      [
+        "1/4",
+        "1/4"
+      ],
+      [
+        "1/4",
+        "1/2"
+      ],
+      [
+        "281474976710655/1125899906842624",
+        "3/8"
+      ]
+    ],
+    "scope": "Local forward-geometry/positivity witness only; not a global embedding, quality, metric, or accepted CFD mesh certificate.",
+    "review_correction": "Use normal displacement epsilon/2; the review used epsilon, whose extra tangential error exceeds its claimed displacement bound."
+  },
+  "saved_oblique_edge": {
+    "edge": [
+      1,
+      9
+    ],
+    "realized_midpoint": [
+      1.0,
+      0.8700000000000001,
+      -4.40194496849948e-19
+    ],
+    "exact_L1_rounding_error": "1/18014398509481984",
+    "strict_literal_subdivision_possible": false,
+    "explicit_mapping_contract_needed": true,
+    "evidence_sha256": "3c36c5beed0f7f920aca773cb268b6a1a03ae4a322ce7e90e1820b52304a4f5b"
+  },
+  "implementation_decisions": [
+    "Never round dependent barycentric coefficients before topology predicates.",
+    "Persist a parameter binding OR specify and certify a canonical inverse policy; distinguish these geometry models.",
+    "Retain the strict old case as negative evidence; map errors require explicit opt-in and original-source envelope admission."
+  ],
+  "limitations": [
+    "Negative algebraic evidence only; not a complete mapped geometry, accepted mesh, transfer/restart or performance result."
+  ],
+  "script_sha256": "f3c9e55c68c11f45d083f91a8cec2649e25a22601d041adb25d2379a27267d45"
+}

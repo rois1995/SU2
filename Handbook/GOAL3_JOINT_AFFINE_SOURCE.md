@@ -1,5 +1,9 @@
 # Joint affine source preparation — scoped serial/MPI qualification
 
+Qualification below belongs to checkpoint b232f4acbf. Current mapped-parameter work
+changes shared geometry arithmetic; no current full-integrated/MPI rerun is claimed.
+[Current work](GOAL3_MAPPED_PARAMETERS.md).
+
 Full Goal3/general symmetry remains ACTIVE. This is source-field infrastructure,
 not a new accepted mesh or a complete geometry capability.
 

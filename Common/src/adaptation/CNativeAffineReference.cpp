@@ -8,6 +8,7 @@
 #include "../../include/adaptation/CNativeGeometryValidation2D.hpp"
 #include "../../include/adaptation/CTransferMemory.hpp"
 #include <numeric>
+#include <type_traits>
 namespace SU2NativeGeometry {
 namespace {
 using Vec=std::array<double,3>;
@@ -193,6 +194,176 @@ bool SourceFacesSeparated(const std::array<Point,3>& a,const std::array<Point,3>
   if(separated(cross(ea[0],ea[1])) || separated(cross(eb[0],eb[1])))return true;
   for(auto x:ea)for(auto y:eb)if(separated(cross(x,y)))return true;
   return false;
+}
+namespace {
+double PointModelError(const SU2Native3D::ParametricPoint& model,Point p) {
+  Finite(p);const auto box=SU2Native3D::ParametricPointBounds(model);
+  const auto q=Values(p),lo=Values(box[0]),hi=Values(box[1]);
+  if(q==lo && q==hi)return 0;
+  Range total;
+  for(unsigned k=0;k<3;++k) {
+    const auto a=Subtract(q[k],lo[k]),b=Subtract(q[k],hi[k]);
+    total=Add(total,{0,std::max({std::abs(a.lo),std::abs(a.hi),std::abs(b.lo),std::abs(b.hi)})});
+  }
+  return std::nextafter(double(std::max(total.hi,static_cast<long double>(std::numeric_limits<double>::min()))),INFINITY);
+}
+}
+MappedFacetReference::MappedFacetReference(std::shared_ptr<const SU2Native3D::PlanarReference> input,
+    const std::map<Id,double>& mapping_errors,uint64_t definition_version,size_t ceiling)
+    :reference(std::move(input)),version(definition_version) {
+  using namespace SU2Native3D;
+  if(!reference || !version || mapping_errors.empty())throw std::invalid_argument("Invalid mapped-facet reference/version/declaration.");
+  const auto bound=transfer_memory::Mul(reference->Facets().size(),4096);
+  if(bound==SIZE_MAX || bound>ceiling)throw std::length_error("Mapped-facet preparation exceeds storage admission.");
+  for(const auto& row:mapping_errors)
+    if(!reference->Facets().count(row.first) || !(std::isfinite(row.second)&&row.second>=std::numeric_limits<double>::min()))
+      throw std::invalid_argument("Invalid mapped-facet identity/error declaration.");
+  if(!reference->Analytic().empty())throw std::invalid_argument("Mixed analytic/mapped-facet authority is not supported.");
+  errors=mapping_errors;
+  std::map<Edge,std::vector<Id>> incident;std::vector<Face> skin;
+  for(const auto& row:reference->Facets()) {
+    const auto& f=row.second;skin.push_back({f.v[0].id,f.v[1].id,f.v[2].id});
+    for(unsigned k=0;k<3;++k) {
+      nodes.emplace(f.v[k].id,f.v[k].p);vertex_facets[f.v[k].id].push_back(f.id);
+      Edge edge{f.v[k].id,f.v[(k+1)%3].id};std::sort(edge.begin(),edge.end());incident[edge].push_back(f.id);
+    }
+  }
+  ValidateDomainSurfaceTopology(skin);
+  edges.reserve(incident.size());edge_facets.reserve(incident.size());
+  for(auto& row:incident){edges.push_back(row.first);edge_facets.push_back(std::move(row.second));}
+}
+Id MappedFacetReference::EdgeIdentity(SU2Native3D::Edge edge)const {
+  const auto found=std::lower_bound(edges.begin(),edges.end(),edge);
+  if(found==edges.end() || *found!=edge)throw std::invalid_argument("Missing canonical original mapped edge.");
+  return Id(found-edges.begin());
+}
+void MappedFacetReference::CheckBinding(const SurfaceBinding& b)const {
+  if(b.version!=version || !std::isfinite(b.u) || !std::isfinite(b.v))
+    throw std::invalid_argument("Mapped binding version/nonfinite parameter conflict.");
+  if(b.dimension==0) {
+    if(!nodes.count(b.feature) || b.u!=0 || b.v!=0)throw std::invalid_argument("Invalid mapped vertex binding.");
+  } else if(b.dimension==1) {
+    if(b.feature>=edges.size() || !(b.u>0 && b.u<1) || b.v!=0)throw std::invalid_argument("Invalid mapped edge binding.");
+  } else if(b.dimension==2) {
+    if(!reference->Facets().count(b.feature) || !(b.u>0 && b.v>0) ||
+        SU2Native3D::Orientation({1,0,0},{0,1,0},{b.u,b.v,0},{0,0,1})<=0)
+      throw std::invalid_argument("Invalid mapped facet interior binding.");
+  } else throw std::invalid_argument("Invalid mapped support dimension.");
+}
+SurfaceBinding MappedFacetReference::Vertex(Id vertex)const {
+  SurfaceBinding out{vertex,version,0,0,0};CheckBinding(out);return out;
+}
+SurfaceBinding MappedFacetReference::EdgePoint(SU2Native3D::Edge edge,double t)const {
+  if(edge[0]>=edge[1])throw std::invalid_argument("Mapped edge parameters require canonical endpoint order.");
+  const auto feature=EdgeIdentity(edge);
+  if(t==0)return Vertex(edge[0]);if(t==1)return Vertex(edge[1]);
+  SurfaceBinding out{feature,version,1,t,0};CheckBinding(out);return out;
+}
+SurfaceBinding MappedFacetReference::FacetPoint(Id facet,double u,double v)const {
+  SurfaceBinding out{facet,version,2,u,v};CheckBinding(out);return out;
+}
+SU2Native3D::ParametricPoint MappedFacetReference::Ideal(const SurfaceBinding& b)const {
+  CheckBinding(b);
+  if(b.dimension==0){const auto p=nodes.at(b.feature);return {p,p,p,0,0};}
+  if(b.dimension==1){const auto edge=edges.at(b.feature);return {nodes.at(edge[0]),nodes.at(edge[1]),nodes.at(edge[0]),b.u,0};}
+  const auto& f=reference->Get(b.feature);return {f.v[0].p,f.v[1].p,f.v[2].p,b.u,b.v};
+}
+double MappedFacetReference::MaximumError(const SurfaceBinding& b)const {
+  CheckBinding(b);auto error=[&](Id id){const auto found=errors.find(id);return found==errors.end()?0.:found->second;};
+  if(b.dimension==2)return error(b.feature);
+  const auto& incident=b.dimension==0?vertex_facets.at(b.feature):edge_facets.at(b.feature);
+  double bound=INFINITY;for(auto id:incident)bound=std::min(bound,error(id));return bound;
+}
+double MappedFacetReference::ErrorBound(const SurfaceBinding& b,Point p)const {return PointModelError(Ideal(b),p);}
+Point MappedFacetReference::Realize(const SurfaceBinding& b)const {
+  const auto model=Ideal(b);const auto point=SU2Native3D::ParametricPointBounds(model)[0];
+  if(PointModelError(model,point)>MaximumError(b))throw std::invalid_argument("Mapped realization cannot satisfy all incident geometry error contracts.");
+  return point;
+}
+bool MappedFacetReference::Supports(Id facet,const SurfaceBinding& b)const {
+  CheckBinding(b);const auto& f=reference->Get(facet);
+  auto has=[&](Id id){return std::any_of(f.v.begin(),f.v.end(),[&](const auto& n){return n.id==id;});};
+  return b.dimension==0?has(b.feature):b.dimension==1?(has(edges.at(b.feature)[0])&&has(edges.at(b.feature)[1])):b.feature==facet;
+}
+bool MappedFacetReference::ContainsFace(Id facet,const std::array<SurfaceBinding,3>& binding,
+    const std::array<Point,3>& realized,SU2Native3D::KernelStats* stats)const {
+  using namespace SU2Native3D;
+  std::array<ParametricPoint,3> ideal;
+  for(unsigned i=0;i<3;++i) {
+    if(!Supports(facet,binding[i]) || ErrorBound(binding[i],realized[i])>MaximumError(binding[i]))return false;
+    ideal[i]=Ideal(binding[i]);
+  }
+  const auto& f=reference->Get(facet);
+  const ParametricPoint a{f.v[0].p},b{f.v[1].p},c{f.v[2].p};
+  for(unsigned axis=0;axis<3;++axis) {
+    const int old=ParametricOrientation(a,b,c,axis,stats);
+    if(old)return ParametricOrientation(ideal[0],ideal[1],ideal[2],axis,stats)==old;
+  }
+  throw std::logic_error("Degenerate admitted mapped facet.");
+}
+size_t MappedFacetReference::ResidentBytes()const {
+  auto bytes=[](const auto& map){return transfer_memory::Mul(map.size(),sizeof(typename std::decay_t<decltype(map)>::value_type)+4*sizeof(void*));};
+  size_t out=transfer_memory::Add(sizeof(*this),bytes(errors),bytes(nodes),bytes(vertex_facets),transfer_memory::Bytes(edges),transfer_memory::Bytes(edge_facets));
+  for(const auto& row:vertex_facets)out=transfer_memory::Add(out,transfer_memory::Bytes(row.second));
+  for(const auto& row:edge_facets)out=transfer_memory::Add(out,transfer_memory::Bytes(row));return out;
+}
+bool MappedFacetReference::ValidateSurface(const std::vector<SU2Native3D::SurfaceFace>& surface,
+    const std::map<Id,SurfaceBinding>& bindings,const std::map<Id,Point>& realized,MappedSurfaceAudit& report,
+    std::string& reason,size_t maximum_faces,size_t ceiling)const {
+  using namespace SU2Native3D;
+  try {
+    if(surface.empty() || surface.size()>maximum_faces)throw std::length_error("Mapped surface face work admission exhausted.");
+    MappedSurfaceAudit audit;
+    audit.requested_bytes=transfer_memory::Add(ResidentBytes(),transfer_memory::Mul(surface.size(),4096),transfer_memory::Mul(bindings.size(),256));
+    if(audit.requested_bytes==SIZE_MAX || audit.requested_bytes>ceiling)throw std::length_error("Mapped surface audit storage admission exhausted.");
+    std::map<Id,std::vector<Face>> groups;std::vector<Face> skin;std::set<Id> used;
+    for(const auto& face:surface) {
+      std::array<SurfaceBinding,3> b;std::array<Point,3> p;
+      for(unsigned k=0;k<3;++k){b[k]=bindings.at(face.v[k]);p[k]=realized.at(face.v[k]);used.insert(face.v[k]);
+        audit.maximum_mapping_error=std::max(audit.maximum_mapping_error,ErrorBound(b[k],p[k]));}
+      if(!ContainsFace(face.facet,b,p))throw std::invalid_argument("Mapped face leaves its finite support, reverses, or exceeds mapping error.");
+      groups[face.facet].push_back(face.v);skin.push_back(face.v);
+    }
+    if(used.size()!=bindings.size() || used.size()!=realized.size() || groups.size()!=reference->Facets().size())
+      throw std::invalid_argument("Mapped boundary bindings or original facet coverage are incomplete.");
+    ValidateDomainSurfaceTopology(skin);
+    // Canonical original support and scalar parameter identify one current shared node, independent of rank IDs.
+    std::map<Id,Id> vertices;std::map<std::pair<Id,double>,Id> edge_nodes;
+    for(const auto& row:bindings) {
+      const auto& b=row.second;
+      if(b.dimension==0 && !vertices.emplace(b.feature,row.first).second)throw std::invalid_argument("Duplicate mapped original corner.");
+      if(b.dimension==1 && !edge_nodes.emplace(std::make_pair(b.feature,b.u),row.first).second)throw std::invalid_argument("Duplicate mapped feature parameter.");
+    }
+    for(const auto& group:groups) {
+      ValidateSurfaceTopology(group.second,false,maximum_faces);
+      const auto& original=reference->Get(group.first);
+      std::map<Edge,std::vector<Edge>> uses;
+      for(const auto& face:group.second)for(unsigned k=0;k<3;++k){Edge e{face[k],face[(k+1)%3]},key=e;std::sort(key.begin(),key.end());uses[key].push_back(e);}
+      std::map<Id,std::vector<std::pair<double,double>>> chains;
+      for(const auto& row:uses)if(row.second.size()==1) {
+        const auto directed=row.second.front();bool found=false;
+        for(unsigned k=0;k<3;++k) {
+          Edge edge{original.v[k].id,original.v[(k+1)%3].id};const bool forward=edge[0]<edge[1];std::sort(edge.begin(),edge.end());const Id feature=EdgeIdentity(edge);
+          auto parameter=[&](const SurfaceBinding& b,double& t) {
+            if(b.dimension==1 && b.feature==feature){t=b.u;return true;}
+            if(b.dimension==0 && (b.feature==edge[0]||b.feature==edge[1])){t=b.feature==edge[0]?0.:1.;return true;}return false;
+          };
+          double a,b;
+          if(!parameter(bindings.at(directed[0]),a)||!parameter(bindings.at(directed[1]),b))continue;
+          if(!(forward?a<b:b<a))throw std::invalid_argument("Mapped feature chain reverses or collapses.");
+          chains[feature].push_back({std::min(a,b),std::max(a,b)});found=true;++audit.feature_segments;break;
+        }
+        if(!found)throw std::invalid_argument("Mapped facet border leaves its original feature.");
+      }
+      if(chains.size()!=3)throw std::invalid_argument("Mapped facet has missing border features.");
+      for(auto& row:chains) {
+        auto& chain=row.second;std::sort(chain.begin(),chain.end());double end=0;
+        for(const auto& interval:chain){if(interval.first!=end)throw std::invalid_argument("Mapped feature chain has a gap or overlap.");end=interval.second;}
+        if(end!=1)throw std::invalid_argument("Mapped feature chain does not cover its complete finite interval.");
+      }
+    }
+    audit.nodes=used.size();audit.faces=surface.size();report=audit;reason.clear();return true;
+  }catch(const std::exception& e){reason=e.what();return false;}
 }
 FiniteLineReference::FiniteLineReference(AffineAuthority authority,const std::vector<LineEdge>& edges,size_t ceiling):chart(authority) {
   if(authority.dimension!=2 || edges.empty())throw std::invalid_argument("Finite line reference requires 2D intervals.");

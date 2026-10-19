@@ -5,11 +5,12 @@
  */
 #pragma once
 #include "CNativeCavity3D.hpp"
+#include "CNativePointConstruction3D.hpp"
 #include <map>
 #include <memory>
 #include <vector>
 
-namespace SU2Native3D { class PlanarReference; struct Facet; }
+namespace SU2Native3D { class PlanarReference; struct Facet; struct SurfaceFace; }
 
 namespace SU2NativeGeometry {
 using SU2Native3D::Point;
@@ -56,6 +57,62 @@ Point SourceColumn(Point origin,const std::vector<std::array<Point,3>>& faces,do
 /*! Sufficient outward-rounded separation certificate for two finite triangles.
  * False includes uncertainty. No vertex-only membership or tolerance enlargement. */
 bool SourceFacesSeparated(const std::array<Point,3>& a,const std::array<Point,3>& b,double distance);
+/*! Boundary-only latent geometry; version and support identity survive coordinate rounding.
+ * dimension0: original vertex; dimension1: canonical original edge index and u;
+ * dimension2: original oriented facet and u,v, with dependent coefficient exactly1-u-v.
+ * These are geometry parameters, never source-metric interpolation weights. */
+struct SurfaceBinding {
+  Id feature=0;
+  uint64_t version=0;
+  unsigned dimension=3;
+  double u=0,v=0;
+  template<class S>void Fields(S& s){s(feature,version,dimension,u,v);}
+};
+struct MappedSurfaceAudit {
+  size_t nodes=0,faces=0,feature_segments=0,requested_bytes=0;
+  double maximum_mapping_error=0;
+};
+/*! Explicit numerical mapping contract on immutable finite triangles.
+ * shortcut: original edges remain protected; extend after feature/accuracy classification.
+ * No near-coplanar merging, inferred body identity,
+ * geometric inverse recovery or per-volume-node state. Strict facets have zero mapping freedom.
+ * Caller must supply/persist boundary bindings and retain actual-volume/embedding/metric gates.
+ * This class alone does not enable a mapped mesh in the production lifecycle. */
+class MappedFacetReference {
+ public:
+  MappedFacetReference(std::shared_ptr<const SU2Native3D::PlanarReference> reference,
+                       const std::map<Id,double>& mapping_errors,uint64_t version,size_t ceiling=SIZE_MAX);
+  SurfaceBinding Vertex(Id vertex)const;
+  /*! Input endpoints must already be in canonical original-ID order; no rounded1-t conversion. */
+  SurfaceBinding EdgePoint(SU2Native3D::Edge original_edge,double t)const;
+  /*! Strict facet interior only; edge/corner parameters must use their shared support. */
+  SurfaceBinding FacetPoint(Id facet,double u,double v)const;
+  SU2Native3D::ParametricPoint Ideal(const SurfaceBinding& binding)const;
+  double MaximumError(const SurfaceBinding& binding)const;
+  double ErrorBound(const SurfaceBinding& binding,Point realized)const;
+  Point Realize(const SurfaceBinding& binding)const;
+  bool Supports(Id facet,const SurfaceBinding& binding)const;
+  bool ContainsFace(Id facet,const std::array<SurfaceBinding,3>& binding,
+                    const std::array<Point,3>& realized,SU2Native3D::KernelStats* stats=nullptr)const;
+  /*! Complete ideal-facet tiling/feature chains and closed actual surface topology.
+   * Does not establish actual embedding or tetrahedron positivity. Boundary-only work/storage
+   * is admitted before preparation; report and accepted state stay unchanged on refusal. */
+  bool ValidateSurface(const std::vector<SU2Native3D::SurfaceFace>& surface,
+                       const std::map<Id,SurfaceBinding>& bindings,const std::map<Id,Point>& realized,
+                       MappedSurfaceAudit& report,std::string& reason,size_t maximum_faces,size_t ceiling=SIZE_MAX)const;
+  size_t ResidentBytes()const;
+  uint64_t Version()const{return version;}
+ private:
+  std::shared_ptr<const SU2Native3D::PlanarReference> reference;
+  std::map<Id,double> errors;
+  uint64_t version;
+  std::map<Id,Point> nodes;
+  std::map<Id,std::vector<Id>> vertex_facets;
+  std::vector<SU2Native3D::Edge> edges;
+  std::vector<std::vector<Id>> edge_facets;
+  void CheckBinding(const SurfaceBinding& binding)const;
+  Id EdgeIdentity(SU2Native3D::Edge edge)const;
+};
 struct LineEdge {Id identity=0;SU2Native3D::Node a,b;};
 /*! A union of directed connected intervals, including multiple body-footprint gaps.
  * Endpoints retain input feature IDs. Coincident disconnected endpoints and overlaps reject. */

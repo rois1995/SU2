@@ -166,3 +166,72 @@ TEST_CASE("Source columns are bounded proposals and finite-face clearance is con
   CHECK_THROWS(SourceColumn({0,0,0},{x,opposite},1e-6,work,100));
   CHECK_THROWS(SourceFacesSeparated(x,outer,0));
 }
+
+namespace {
+std::shared_ptr<const SU2Native3D::PlanarReference> MappedTetrahedron() {
+  using namespace SU2Native3D;
+  const std::array<Node,4> n{{{1,{1,.37,-8.80388993699896e-19}},{9,{1,1.37,0}},{21,{0,.5,1}},{40,{2,.5,1}}}};
+  REQUIRE(Orientation(n[0].p,n[1].p,n[2].p,n[3].p)>0);
+  const std::vector<Facet> facets{{100,7,{n[1],n[2],n[3]}},{101,7,{n[0],n[3],n[2]}},
+                                  {102,7,{n[0],n[1],n[3]}},{103,7,{n[0],n[2],n[1]}}};
+  return std::make_shared<PlanarReference>(facets);
+}
+}
+TEST_CASE("Unrounded mapped parameters preserve exact feature incidences", "[NativeParametricGeometry]") {
+  using namespace SU2Native3D;
+  const Point b{1,0,0},c{0,1,0};
+  for(double t:{.1,.3}) {
+    const ParametricPoint p{b,c,b,t,0};
+    CHECK(ParametricOrientation({b},{c},p,2)==0);
+    CHECK(Orientation(b,c,{1-t,t,0},{0,0,1})!=0);
+    const auto bounds=ParametricPointBounds(p);CHECK(bounds[0].x<=1-t);CHECK(bounds[1].x>=1-t);
+    CHECK(bounds[0].y==t);CHECK(bounds[1].y==t);
+  }
+  const ParametricPoint a{{1e16,1e16,1e16},{1e16+8,1e16+16,1e16+24},{},.3,0};
+  auto bmodel=a;bmodel.u=std::nextafter(a.u,INFINITY);
+  const auto x=ParametricPointBounds(a),y=ParametricPointBounds(bmodel);
+  CHECK(x[0].x==y[0].x);CHECK(x[0].y==y[0].y);CHECK(x[0].z==y[0].z);
+  CHECK_THROWS(ParametricOrientation(a,a,a,3));
+  auto bad=a;bad.u=INFINITY;CHECK_THROWS(ParametricPointBounds(bad));
+  const ParametricPoint overflow{{0,0,0},{1e308,0,0},{},1e308,0};CHECK_THROWS(ParametricPointBounds(overflow));
+}
+TEST_CASE("Mapped finite facets preserve shared parameters complete coverage and error contracts", "[NativeMappedFacetGeometry]") {
+  using namespace SU2Native3D;
+  const auto original=MappedTetrahedron();std::map<Id,double> errors;for(const auto& f:original->Facets())errors.emplace(f.first,1e-13);
+  CHECK_THROWS(MappedFacetReference(original,errors,7,0));
+  MappedFacetReference mapped(original,errors,7);
+  const auto interior=mapped.FacetPoint(100,.2,.3);CHECK(mapped.ErrorBound(interior,mapped.Realize(interior))<=1e-13);
+  std::vector<SurfaceFace> surface;std::map<Id,SurfaceBinding> bindings;std::map<Id,Point> realized;
+  for(const auto& row:original->Facets())for(auto n:row.second.v){bindings.emplace(n.id,mapped.Vertex(n.id));realized.emplace(n.id,n.p);}
+  const Id inserted=55;bindings.emplace(inserted,mapped.EdgePoint({1,9},.3));realized.emplace(inserted,mapped.Realize(bindings.at(inserted)));
+  CHECK(mapped.ErrorBound(bindings.at(inserted),realized.at(inserted))>0);
+  CHECK(mapped.ErrorBound(bindings.at(inserted),realized.at(inserted))<=1e-13);
+  for(const auto& row:original->Facets()) {
+    const auto& f=row.second;bool split=false;
+    for(unsigned k=0;k<3;++k)if((f.v[k].id==1&&f.v[(k+1)%3].id==9)||(f.v[k].id==9&&f.v[(k+1)%3].id==1)) {
+      surface.push_back({{f.v[k].id,inserted,f.v[(k+2)%3].id},f.id});
+      surface.push_back({{inserted,f.v[(k+1)%3].id,f.v[(k+2)%3].id},f.id});split=true;break;
+    }
+    if(!split)surface.push_back({{f.v[0].id,f.v[1].id,f.v[2].id},f.id});
+  }
+  MappedSurfaceAudit report;std::string reason;
+  INFO(reason);REQUIRE(mapped.ValidateSurface(surface,bindings,realized,report,reason,6));
+  CHECK(report.nodes==5);CHECK(report.faces==6);CHECK(report.feature_segments==14);
+  const auto saved=report;
+  CHECK_FALSE(mapped.ValidateSurface(surface,bindings,realized,report,reason,5));CHECK(report.faces==saved.faces);
+  CHECK_FALSE(mapped.ValidateSurface(surface,bindings,realized,report,reason,6,0));CHECK(report.faces==saved.faces);
+  auto shifted=realized;shifted.at(inserted).x+=1e-6;
+  CHECK_FALSE(mapped.ValidateSurface(surface,bindings,shifted,report,reason,6));CHECK(report.faces==saved.faces);
+  auto missing=surface;missing.pop_back();CHECK_FALSE(mapped.ValidateSurface(missing,bindings,realized,report,reason,6));
+  auto reversed=surface;std::swap(reversed.front().v[0],reversed.front().v[1]);CHECK_FALSE(mapped.ValidateSurface(reversed,bindings,realized,report,reason,6));
+  auto bad=bindings;bad.at(inserted).version++;CHECK_FALSE(mapped.ValidateSurface(surface,bad,realized,report,reason,6));
+  CHECK_THROWS(mapped.EdgePoint({9,1},.3));CHECK_THROWS(mapped.EdgePoint({1,9},-.1));
+  CHECK_THROWS(mapped.FacetPoint(100,1,std::numeric_limits<double>::denorm_min()));
+  CHECK_THROWS(mapped.FacetPoint(100,.5,.5));
+  auto strict=errors;strict.erase(102);MappedFacetReference mixed(original,strict,7);
+  CHECK(mixed.MaximumError(bindings.at(inserted))==0);CHECK_THROWS(mixed.Realize(bindings.at(inserted)));
+  std::map<Id,SurfaceBinding> renamed;std::map<Id,Point> points;
+  for(const auto& row:bindings){renamed.emplace(row.first+500,row.second);points.emplace(row.first+500,realized.at(row.first));}
+  for(auto& f:surface)for(auto& id:f.v)id+=500;
+  REQUIRE(mapped.ValidateSurface(surface,renamed,points,report,reason,6));CHECK(report.maximum_mapping_error==saved.maximum_mapping_error);
+}

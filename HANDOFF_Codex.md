@@ -5,32 +5,35 @@ Worktree `/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated`, branch
 Leave AdapNoExt, foreign ClusterResults/dependencies/jobs untouched.
 [Full requirements](integration_evidence/native_3d_bl_v1/GOAL3_REQUIREMENTS.json).
 
-## Current connected checkpoint — 2026-10-19
+## Current work — mapped boundary parameters, NOT production-enabled
 
-Joint affine original-source preparation is linked and passes source controls at
-MPI1/2/4, including M1/M2/M4, Euler/RANS, original-P1 priority, actual-query
-composition, unchanged flow/SA/BDF states, and collective atomic resource,
-declaration and narrow-gap refusal. Independent exact audits pass all12 exported
-source domains; field signatures agree across every solver/rank/worker choice.
-Affected wall construction/initial-adoption controls pass19cases per rank at1/2/4.
-A complete serial Cartesian annular RANS transfer/output/restart control passes;
-its independent geometry/height/metric/state/restart audit also passes.
-No new physical CFD advance, unchanged obstructed oblique/M6 retry, broad suite,
-accepted general aerodynamic mesh or affordability claim.
+New parameter geometry is implemented: boundary-only support/version/scalars,
+exact unrounded coordinate bounds/orientation, minimum incident mapping error,
+complete finite-facet coverage/feature chains and bounded atomic audit refusal.
+Node/Cell/OwnedCell layouts, existing config and remeshing activation stay unchanged.
+All original facet edges are protected in this first representation; it may still
+obstruct construction. No general discrete coarsening or curved/intersection claim.
+[Current implementation and full next reach](Handbook/GOAL3_MAPPED_PARAMETERS.md).
 
-Current linked binary SHA256:
+Focused isolated geometry controls pass8cases/2861assertions; constructor admission/
+valid-interior correction passes1case/26assertions. Independent rational oracle
+checks120coordinate bounds/120orientation signs (60exact zeros) across1e-300..1e300.
+Existing affected cancellation/subnormal/segment/saved-M6-midpoint controls pass
+3cases/287assertions. Only3changed units compiled, qualified support archives reused;
+no full suite, CFD rerun or MPI campaign. All handles terminal; no owned heavy job.
+[Sealed evidence](integration_evidence/native_3d_bl_v1/mapped_faceted_geometry_v1/validation_summary.json).
+
+The FULL integrated executable is still b232f4acbf source scope, SHA256
 `25d4e87bfee8b5ad11336a459e943bf7e1c0ffad2969028554ab98743f377d21`.
-Build27992 is terminal/PASS, fixture-only incremental195.983s after connected full
-build1749.210s. All owned build/run/audit handles are terminal; no owned heavy job is live.
-All C++ remained unchanged during qualification.
-Previous config failure and unsafe steady/history fixture setup are preserved;
-both now use one native dual-time config. Production source is unchanged since2abdb7e5bf.
+Current source is NEWER: new shared affine-point arithmetic is scoped-tested but
+not full-integrated/MPI/lifecycle qualified. Separate geometry executables and source
+capsules remain in mapped_faceted_geometry_v1/core_v1_n1/core_v2_n1 and oracle_v1.
+Explicitly preserve this qualification distinction; no new mapped adapted mesh.
 
-[Implementation, failures, costs and current evidence](Handbook/GOAL3_JOINT_AFFINE_SOURCE.md).
-Runtime/evidence folder:
-`integration_evidence/native_3d_bl_v1/joint_affine_source_v1`.
-Use source_v3_n1/n2/n4, affected_v3_n1/n2/n4 and compatibility_v3_n1.
-Source-envelope grids in audits/meshes are query domains, **not adapted CFD grids**.
+Prior b232 checkpoint passed source9/affected19cases per rank at MPI1/2/4,
+all12exact source-domain audits with bitwise field identity, and the complete serial
+Cartesian RANS transfer/SU2+CGNS/restart audit. Reuse its exact old-source scope;
+[details](Handbook/GOAL3_JOINT_AFFINE_SOURCE.md). Source grids are NOT CFD grids.
 
 ## Next complete capability
 
@@ -65,7 +68,7 @@ and one-wall/one-tet direct insertion pass the connected affected controls. Hist
 
 Historical complete Cartesian N1M1/N2M2/N4M2/N4M4 lifecycles at6f0bdfabceeb pass
 independent finite-hole/height/full-metric/flow+SA+BDF/real SU2+CGNS restart audits.
-Current serial compatibility independently passes as recorded above; current-source
+b232 serial compatibility independently passes as recorded above; current-source
 complete MPI lifecycles have not been rerun.
 [History and inspectable grids](Handbook/GOAL3_ANNULAR_COORDINATION.md).
 `integration_evidence/native_3d_bl_v1/planar_symmetry_reference_v1/annulus_v10_n1/symmetry_annulus_bl_budget_20_m1_written_SU2.su2`
@@ -102,4 +105,4 @@ Grid `integration_evidence/native_3d_bl_v1/sphere_rans_lifecycle_v1/n4_m2_depend
  Three-element meshes at `/media/rausa/4TB/Validation/ThreeElementAirfoil/30P30N/Meshes`;
  located, no new adaptation in this checkpoint.
 
-[Prior detailed state](Handbook/HANDOFF_BEFORE_JOINT_SOURCE_QUALIFICATION_2026_10_19.md).
+[Prior detailed state](Handbook/HANDOFF_BEFORE_MAPPED_PARAMETERS_2026_10_19.md).

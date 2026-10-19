@@ -11,6 +11,19 @@ namespace SU2Native3D {
  * Bounds authorize coordinate proposals only, never relaxed containment predicates. */
 std::array<Point,2> AffinePointBounds(Point a,Point b,double t);
 
+/*! Ideal affine point origin + u*(first-origin) + v*(second-origin), evaluated over
+ * exact binary64 real values. Dependent coefficients must never be rounded separately. */
+struct ParametricPoint {
+  Point origin{},first{},second{};
+  double u=0,v=0;
+};
+/*! Adjacent binary64 coordinate bounds of the exact ideal point; no containment relaxation. */
+std::array<Point,2> ParametricPointBounds(const ParametricPoint& point);
+/*! Exact sign in the chart obtained by dropping axis0/1/2 (YZ/XZ/XY).
+ * The ideal coordinates remain unrounded, including exact feature incidences. */
+int ParametricOrientation(const ParametricPoint& a,const ParametricPoint& b,const ParametricPoint& c,
+                          unsigned axis,KernelStats* stats=nullptr);
+
 enum class SegmentFreedom { Unresolved, None, MidpointOnly };
 /*! Exact conservative binary64 subdivision certificate. None forbids any interior point;
  * MidpointOnly writes the unique interior point. Unresolved makes no feasibility claim

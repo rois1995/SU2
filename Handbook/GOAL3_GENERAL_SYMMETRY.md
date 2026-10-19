@@ -188,3 +188,13 @@ transfer/SU2+CGNS/real-restart lifecycle pass independently.
 This removes a source-query prerequisite; it does not complete mapped body/feature
 constraints, physical envelopes, affine BL walls, mixed curved junctions,2D runtime
 or complete oblique/exterior/multiple-body workflows. Full required scope stays OPEN.
+
+## Explicit mapped-parameter foundation — 2026-10-19
+
+Unrounded original support parameters and finite-facet cover/feature-chain audits
+are implemented with focused/rational checks. Inverse recovery was rejected as a
+replacement for persisted forward parameters; saved exact examples constrain that
+choice. [Current connected work and unsupported scope](GOAL3_MAPPED_PARAMETERS.md).
+No production activation, new full integrated/MPI lifecycle or accepted oblique/
+exterior mesh.2D runtime, multiple bodies/holes, mixed curved junctions and all
+full-scope requirements stay OPEN. Prior b232 source qualification is historical.
