@@ -1163,6 +1163,8 @@ class CFVMFlowSolverBase : public CSolver {
 
   void MultigridProjectEulerWall(CGeometry* geometry, const CConfig* config, bool use_solution_old) override;
 
+  void ProjectSymmetryWalls(CGeometry* geometry, const CConfig* config) override;
+
   /*!
    * \author T. Kattmann
    * \brief Impose the symmetry boundary condition using the residual.

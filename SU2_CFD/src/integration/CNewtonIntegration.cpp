@@ -712,6 +712,8 @@ void CNewtonIntegration::RefreshAfterOuterIteration() {
 
 void CNewtonIntegration::Advance() {
   SetCFL(cfl);
+  /*--- An initial or native state can still carry wall-normal momentum; the base must satisfy v.n=0. ---*/
+  equations->ProjectSymmetryWalls();
   for (const auto& block : equations->GetBlocks()) block.solver->Set_OldSolution();
   if (config->GetFixed_CL_Mode() && IsNewtonEquation(RUNTIME_FLOW_SYS)) {
     /*--- Apply the pending outer feedback once; trial evaluations keep the new angle fixed. ---*/

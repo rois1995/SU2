@@ -3032,3 +3032,44 @@ void CFVMFlowSolverBase<V, FlowRegime>::MultigridProjectEulerWall(CGeometry* geo
     END_SU2_OMP_FOR
   }
 }
+
+template <class V, ENUM_REGIME FlowRegime>
+void CFVMFlowSolverBase<V, FlowRegime>::ProjectSymmetryWalls(CGeometry* geometry, const CConfig* config) {
+  const auto iVel = prim_idx.Velocity();
+
+  for (auto iMarker = 0u; iMarker < config->GetnMarker_All(); iMarker++) {
+    const auto kind = config->GetMarker_All_KindBC(iMarker);
+    if (kind != EULER_WALL && kind != SYMMETRY_PLANE) continue;
+
+    SU2_OMP_FOR_STAT(32)
+    for (auto iVertex = 0ul; iVertex < geometry->nVertex[iMarker]; iVertex++) {
+      const auto iPoint = geometry->vertex[iMarker][iVertex]->GetNode();
+      if (!geometry->nodes->GetDomain(iPoint)) continue;
+
+      /*--- Same normal as BC_Sym_Plane, including the corrected normals of intersecting symmetries. ---*/
+      su2double UnitNormal[MAXNDIM] = {};
+      const auto it = geometry->symmetryNormals[iMarker].find(iVertex);
+      if (it != geometry->symmetryNormals[iMarker].end()) {
+        for (auto iDim = 0u; iDim < nDim; iDim++) UnitNormal[iDim] = it->second[iDim];
+      } else {
+        su2double Normal[MAXNDIM] = {};
+        geometry->vertex[iMarker][iVertex]->GetNormal(Normal);
+        const su2double Area = GeometryToolbox::Norm(nDim, Normal);
+        for (auto iDim = 0u; iDim < nDim; iDim++) UnitNormal[iDim] = Normal[iDim] / Area;
+      }
+
+      su2double* sol = nodes->GetSolution(iPoint);
+
+      /*--- Enforce (v - v_grid).n = 0; conservative momentum uses the density of this solution. ---*/
+      su2double gridVel[MAXNDIM] = {};
+      if (dynamic_grid) {
+        const su2double factor = FlowRegime == ENUM_REGIME::COMPRESSIBLE ? sol[0] : su2double(1.0);
+        for (auto iDim = 0u; iDim < nDim; iDim++) gridVel[iDim] = factor * geometry->nodes->GetGridVel(iPoint)[iDim];
+      }
+      su2double momentum_n = 0.0;
+      for (auto iDim = 0u; iDim < nDim; iDim++) momentum_n += (sol[iVel + iDim] - gridVel[iDim]) * UnitNormal[iDim];
+      for (auto iDim = 0u; iDim < nDim; iDim++) sol[iVel + iDim] -= momentum_n * UnitNormal[iDim];
+    }
+    END_SU2_OMP_FOR
+  }
+}

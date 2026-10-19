@@ -107,6 +107,12 @@ class CNewtonEquationSet : private CIntegration {
   void BeginFixedFlowReuse();
   /*! \brief End the local reuse lifetime on every accepted or failed exit from the auxiliary advance. */
   void EndFixedFlowReuse();
+  /*!
+   * \brief Remove wall-normal momentum at Euler walls and symmetry planes from a new FLOW state.
+   * \details The symmetry residual has no wall-normal momentum row; native updates enforce v.n=0 by projecting
+   * Solution_Old. Collective through the OpenMP loops; halos are exchanged by the next residual evaluation.
+   */
+  void ProjectSymmetryWalls();
 
   /*!
    * \brief Construct feasible perturbations a,b with a-b=direction on free coordinates.
@@ -186,6 +192,8 @@ class CNewtonEquationSet : private CIntegration {
       }
       END_SU2_OMP_FOR
     }
+    /*--- A zero step restores the base exactly; restoration checks compare it bit by bit. ---*/
+    if (step != 0) ProjectSymmetryWalls();
   }
   template <class Scalar>
   void SetTrial(const CSysVector<Scalar>& direction, double step, const CSysVector<Scalar>& scale) {

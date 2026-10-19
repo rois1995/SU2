@@ -4248,6 +4248,58 @@ TEST_CASE("Real-gas Newton trials reject nonphysical live thermodynamics", "[New
   CHECK(equations->GetRestorationError() == 0);
 }
 
+TEST_CASE("Newton trials remove wall-normal momentum at symmetry and Euler walls", "[NewtonBoundaries]") {
+  for (const std::string marker : {"MARKER_SYM", "MARKER_EULER"}) {
+    CAPTURE(marker);
+    Problem problem("SOLVER= EULER\nMARKER_HEATFLUX= NONE\n" + marker + "= (y_minus)\n");
+    auto& driver = *problem.driver;
+    auto* geometry = driver.Geometry();
+    auto* solver = driver.Solvers()[FLOW_SOL];
+    auto* flow = solver->GetNodes();
+    const auto nVar = solver->GetnVar();
+    auto equations = problem.Equations({RUNTIME_FLOW_SYS});
+    auto zero = MakeVector(driver, nVar), scale = MakeVector(driver, nVar, 1.0);
+    auto onWall = [&](unsigned long p) { return geometry->nodes->GetCoord(p, 1) == 0; };
+    auto residual = [&]() {
+      std::vector<double> values(geometry->GetnPointDomain() * nVar);
+      for (auto p = 0ul; p < geometry->GetnPointDomain(); ++p)
+        for (auto v = 0u; v < nVar; ++v) values[p * nVar + v] = SU2_TYPE::GetValue(solver->LinSysRes(p, v));
+      return values;
+    };
+    /*--- Same interior state, different wall-normal momentum at the wall. ---*/
+    auto evaluate = [&](double wallMomentum, bool trial) {
+      for (auto p = 0ul; p < geometry->GetnPoint(); ++p)
+        flow->SetSolution(p, 2, (onWall(p) ? wallMomentum : 0.1) * flow->GetSolution(p, 1));
+      REQUIRE(Residual(*equations));
+      if (trial) {
+        equations->Capture();
+        equations->SetTrial(zero, 1.0, scale);
+        REQUIRE(Residual(*equations));
+      }
+      return residual();
+    };
+    /*--- Without projection the residual depends on wall-normal momentum, so a nonzero v.n is not free. ---*/
+    CHECK(evaluate(0.1, false) != evaluate(-0.2, false));
+    const auto first = evaluate(0.1, true);
+    unsigned long wall = 0;
+    for (auto p = 0ul; p < geometry->GetnPointDomain(); ++p) {
+      const auto momentum = SU2_TYPE::GetValue(flow->GetSolution(p, 2));
+      const auto reference = 0.1 * SU2_TYPE::GetValue(flow->GetSolution(p, 1));
+      if (onWall(p)) {
+        ++wall;
+        CHECK(std::abs(momentum) <= 1e-14 * std::abs(reference));
+      } else {
+        CHECK(momentum == reference);
+      }
+    }
+    REQUIRE(wall > 0);
+    CHECK(evaluate(-0.2, true) == first);
+    /*--- A zero step restores the captured base exactly. ---*/
+    REQUIRE(equations->Restore());
+    CHECK(equations->GetRestorationError() == 0);
+  }
+}
+
 TEST_CASE("Newton admission checks live heat capacity and transport properties", "[NewtonProperties]") {
   struct TableFile {
     std::filesystem::path path;

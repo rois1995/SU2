@@ -883,6 +883,15 @@ public:
                                                 bool /*use_solution_old*/) {}
 
   /*!
+   * \brief Remove the wall-normal momentum of the current solution at Euler walls and symmetry planes.
+   * \details Native updates enforce this through the projection of Solution_Old in BC_Sym_Plane; the
+   *          residual alone does not constrain it. Only domain points are changed, halos need a communication.
+   * \param[in] geometry - Geometrical definition of the problem.
+   * \param[in] config - Definition of the particular problem.
+   */
+  inline virtual void ProjectSymmetryWalls(CGeometry* /*geometry*/, const CConfig* /*config*/) {}
+
+  /*!
    * \brief A virtual member.
    * \param[in] geometry - Geometrical definition of the problem.
    * \param[in] config - Definition of the particular problem.

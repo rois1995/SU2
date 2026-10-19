@@ -330,6 +330,12 @@ void CNewtonEquationSet::Communicate() {
   }
 }
 
+void CNewtonEquationSet::ProjectSymmetryWalls() {
+  /*--- Only groups that own FLOW move it; otherwise the flow is already projected by its own controller. ---*/
+  if (std::none_of(blocks.begin(), blocks.end(), [](const Block& b) { return b.slot == FLOW_SOL; })) return;
+  solvers[FLOW_SOL]->ProjectSymmetryWalls(geometry, config);
+}
+
 void CNewtonEquationSet::BeginFixedFlowReuse() {
   assert(captured && !reuseFixedFlow);
   if (blocks.size() != 1 || blocks.front().slot != TURB_SOL || config->GetKind_Turb_Model() != TURB_MODEL::SA) return;
