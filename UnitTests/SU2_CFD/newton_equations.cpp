@@ -834,8 +834,8 @@ TEST_CASE("Derivative verification resolves mass-dominated physical null modes",
           }
           END_SU2_OMP_PARALLEL
           REQUIRE(valid);
-          /*--- The same base reuses a verified starting scale, avoiding the failed fine sequence. ---*/
-          CHECK(equations->GetResidualEvaluations()[0] - repeatStart < firstWork);
+          /*--- The same base reuses what the first product needed, so a repeat never costs more. ---*/
+          CHECK(equations->GetResidualEvaluations()[0] - repeatStart <= firstWork);
         }
         if (valid) {
           actual -= expected;

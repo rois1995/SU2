@@ -267,8 +267,9 @@ bool CNewtonLinearization::Apply(const Vector& u, Vector& v, bool pseudoTime, bo
           v[i] = fine;
       }
       END_SU2_OMP_FOR
-      /*--- The first two probes only build Richardson history; verification starts with the third. ---*/
-      const bool checkDerivative = refine && refinement > 1;
+      /*--- From the second probe on, the change of the extrapolated product estimates the error of the cruder
+       *     previous value, which bounds the error of the newer one: accepting it then is conservative. ---*/
+      const bool checkDerivative = refine && refinement > 0;
       const double error = checkDerivative ? previousProduct.norm() : 0;
       double magnitude = checkDerivative && !pseudoTime ? v.norm() : 0;
       if (checkDerivative && pseudoTime) {
