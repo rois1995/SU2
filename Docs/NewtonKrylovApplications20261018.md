@@ -586,7 +586,7 @@ is retained; `prepared` and `running` entries have not completed.
 | naca_sst | 2x2 | segregated | original | rejected_base_refresh_release | original | -13.0 | iteration_cap | False | 20 | 150.430 | 151.090 |
 | naca_sa | 1x1 | native | original | verified_norms_release | original | -14.0 | qualified | True | 304 | 26.071 | 26.715 |
 | naca_sa | 1x1 | segregated | original | verified_norms_release | original | -14.0 | iteration_cap | False | 20 | 88.239 | 88.916 |
-| naca_sa | 1x1 | segregated | original | verified_norms_release | original | -14.0 | prepared | False | — | — | — |
+| naca_sa | 1x1 | segregated | original | verified_norms_release | original | -14.0 | running | False | — | — | — |
 | naca_sa | 2x2 | native | original | verified_norms_release | original | -14.0 | qualified | True | 299 | 71.133 | 71.680 |
 | naca_sa | 2x2 | segregated | original | verified_norms_release | original | -14.0 | iteration_cap | False | 20 | 113.402 | 113.971 |
 | naca_sa | 1x1 | segregated | original | muscl_boundary_gradient_v2_release | adaptive | -14.0 | incomplete_time_cap | False | 1217 | 7203.274 | 7203.906 |

@@ -601,6 +601,57 @@ are `existing_coupled_against_native14.json` and `first20_work.json` in the stud
 directory. The [complete CSV](NewtonKrylovApplications20261018.csv) includes these
 references and preserves the earlier −13 results.
 
+## Accepted segregated tail: measured CPU costs
+
+A 30-second read-only CPU-cycle sample of the current SA1×1 accuracy-only run
+records 2920 samples with no lost samples. The executable remains `1ad21449…`,
+config `1366f79bc6fbfff855b0d9a3c220275f3b5d570cd81d6d451401838665b5d59b`.
+This is an accepted-tail window around updates 599–610, not a whole-run profile
+or a timing benchmark. All newly logged attempts have alpha 1, true defect below
+0.1 and exact rollback. There are no rejections in this window.
+
+| Leaf computation | Share of recorded cycles |
+|---|---:|
+| Cached least-squares gradients | 26.67% |
+| Roe viscous flux kernel | 8.66% |
+| Limiters | 8.45% |
+| Residual wrapper itself | 6.12% |
+| State validity checks | 5.59% |
+| Primitive/property conversion | 5.21% |
+| Solution restoration plus numerical-history save/restore | 4.33% |
+| ILU preconditioner construction | 1.57% |
+
+Caller stacks partition the gradient share into 13.30% through the initial FLOW
+dependency refresh, 11.59% through other FLOW preprocessing, including the
+boundary-only path, and 1.79% through solution gradients. These are disjoint leaf
+cycle shares, not inclusive caller percentages. They do not separate FLOW-owned
+probes from auxiliary-owned probes, and therefore do not measure an avoidable
+fraction. In particular, live field gradients remain necessary when their inputs
+change. The result supports investigating narrowly scoped unchanged-field reuse
+before reducing preconditioner construction frequency.
+
+The diagnostic-file snapshots add 12 FLOW and 11 TURB accepted rows: 72 and 264
+Krylov steps, respectively, with cumulative counter deltas of 552 FLOW and 342
+TURB assemblies. Snapshot endpoints straddle an outer update; these are measured
+log-interval deltas, not exact phase call counts. Earlier rows remain unchanged.
+The host remains contended and the run stays ineligible for timing conclusions.
+CPU-cycle sampling also does not measure blocked I/O or synchronization time;
+these shares cannot establish that such costs are negligible.
+
+Raw profiles, before/after diagnostics, PID/start identity, commands and hashes
+are in `release_sampling/1792372543938788179/`. `cpu_assessment.json` uses recorded
+periods rather than unweighted sample counts. Its parser passes synthetic
+header/frame and leaf-versus-caller checks; its total recorded period exactly
+matches perf's report. Reproduce the analysis from the application evidence root:
+
+```sh
+python3 release_sampling/analyze_cpu_sample.py release_sampling/1792372543938788179
+```
+
+No additional solver was launched and no numerical code or controls changed.
+The full accuracy-only endpoint study remains pending; this sample does not
+qualify the current state or show reduced work to convergence.
+
 <!-- measured NACA results -->
 
 ## Current native endpoints
