@@ -1,0 +1,11 @@
+{
+  "status": "RANS_FIXTURE_CONFLICT_IDENTIFIED",
+  "scope": "Euler completed mesh, conservative BDF2 transfer and SU2/CGNS reload. RANS completed native mesh but failed subsequent affine state comparison.",
+  "initial_cells": 6,
+  "final_cells": 58,
+  "euler_native_seconds": 1.446696597,
+  "rans_native_seconds": 1.453685722,
+  "reason": "MakeConfig declares viscous no-slip z_minus markers for RANS. The new fixture initialized nonzero affine momentum there, while conservative transfer deliberately zeroes wall momentum and redistributes it. Error=1 is consistent with that contract. Correct the test field to affine momentum proportional to z; no transfer gate relaxed.",
+  "source_reference": "SU2_CFD/src/adaptation/CConservativeTransfer.cpp no-slip wall projection/redistribution; UnitTests/SU2_CFD/adaptation/TransferTestCase.hpp MakeConfig",
+  "next": "Confirm corrected complete RANS workflow; save transfer states and projection summary for independent audit."
+}

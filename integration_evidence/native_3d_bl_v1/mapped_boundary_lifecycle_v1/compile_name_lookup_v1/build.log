@@ -1,0 +1,1194 @@
+ninja: Entering directory `/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2'
+[0/1] Regenerating build files
+The Meson build system
+Version: 1.8.2
+Source dir: /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated
+Build dir: /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2
+Build type: native build
+Project name: SU2
+Project version: 8.5.0 "Harrier"
+C compiler for the host machine: cc (gcc 9.4.0 "cc (Ubuntu 9.4.0-1ubuntu1~20.04.2) 9.4.0")
+C linker for the host machine: cc ld.bfd 2.34
+C++ compiler for the host machine: c++ (gcc 9.4.0 "c++ (Ubuntu 9.4.0-1ubuntu1~20.04.2) 9.4.0")
+C++ linker for the host machine: c++ ld.bfd 2.34
+Host machine cpu family: x86_64
+Host machine cpu: x86_64
+Program python3 found: YES (/usr/bin/python3)
+Compiler for C++ supports arguments -Wno-empty-body: YES (cached)
+Compiler for C++ supports arguments -Wno-ignored-qualifiers: YES (cached)
+Compiler for C++ supports arguments -Wno-unused-parameter: YES (cached)
+Compiler for C++ supports arguments -Wno-deprecated-declarations: YES (cached)
+Compiler for C++ supports arguments -Wno-error=cast-function-type: YES (cached)
+Compiler for C++ supports arguments -Wno-cast-function-type: YES (cached)
+Compiler for C++ supports arguments -Wno-error=stringop-truncation: YES (cached)
+Compiler for C++ supports arguments -Wno-stringop-truncation: YES (cached)
+Compiler for C++ supports arguments -Wno-error=missing-field-initializers: YES (cached)
+Compiler for C++ supports arguments -Wno-missing-field-initializers: YES (cached)
+Compiler for C++ supports arguments -Wno-error=class-memaccess: YES (cached)
+Compiler for C++ supports arguments -Wno-class-memaccess: YES (cached)
+Compiler for C++ supports arguments -Wno-overloaded-virtual: YES (cached)
+Compiler for C++ supports arguments -Wno-array-bounds: YES (cached)
+Compiler for C++ supports arguments -Wno-dangling-pointer: NO (cached)
+Compiler for C++ supports arguments -fno-finite-math-only: YES (cached)
+Dependency mpi found: YES 4.0.3 (cached)
+Dependency mpi found: YES 4.0.3 (cached)
+Compiler for C supports arguments -Wno-unused-result: YES (cached)
+Compiler for C supports arguments -Wno-unused-parameter: YES (cached)
+Compiler for C supports arguments -Wno-unused-variable: YES (cached)
+Compiler for C supports arguments -Wno-unused-but-set-variable: YES (cached)
+Compiler for C supports arguments -Wno-sign-compare: YES (cached)
+Compiler for C supports arguments -Wno-error=unused-function: YES (cached)
+Compiler for C supports arguments -Wno-pedantic: YES (cached)
+Compiler for C supports arguments -Wno-error=stringop-truncation: YES (cached)
+Compiler for C supports arguments -Wno-stringop-truncation: YES (cached)
+Compiler for C supports arguments -Wno-error=absolute-value: YES (cached)
+Compiler for C supports arguments -Wno-error=class-memaccess: YES (cached)
+Compiler for C supports arguments -Wno-dangling-pointer: NO (cached)
+Compiler for C supports arguments -Wno-format-truncation: YES (cached)
+Compiler for C supports arguments -Wno-maybe-uninitialized: YES (cached)
+Compiler for C supports arguments -Wno-array-bounds: YES (cached)
+Compiler for C supports arguments -Wno-array-parameter: NO (cached)
+Compiler for C supports arguments -Wno-stringop-overflow: YES (cached)
+Compiler for C supports arguments -Wno-unused-result: YES (cached)
+Compiler for C supports arguments -Wno-unused-parameter: YES (cached)
+Compiler for C supports arguments -Wno-unused-variable: YES (cached)
+Compiler for C supports arguments -Wno-unused-but-set-variable: YES (cached)
+Compiler for C supports arguments -Wno-sign-compare: YES (cached)
+Compiler for C supports arguments -Wno-stringop-overflow: YES (cached)
+Compiler for C supports arguments -Wno-error=discarded-qualifiers: YES (cached)
+Compiler for C supports arguments -Wno-error=maybe-uninitialized: YES (cached)
+Compiler for C supports arguments -Wno-error=unused-function: YES (cached)
+Compiler for C supports arguments -Wno-error=unused-label: YES (cached)
+Compiler for C supports arguments -Wno-pedantic: YES (cached)
+Compiler for C supports arguments -Wno-error=stringop-truncation: YES (cached)
+Compiler for C supports arguments -Wno-error=cast-function-type: YES (cached)
+Compiler for C supports arguments -Wno-stringop-truncation: YES (cached)
+Compiler for C supports arguments -Wno-dangling-pointer: NO (cached)
+Compiler for C supports arguments -Wno-format-truncation: YES (cached)
+Dependency zlib found: YES 1.2.11 (cached)
+Found pkg-config: YES (/usr/bin/pkg-config) 1.6.3
+Found CMake: /usr/bin/cmake (3.16.3)
+DEPRECATION: CMake support for versions <3.17 is deprecated since Meson 0.62.0.
+|
+|   However, Meson was only able to find CMake 3.16.3.
+|
+|   Support for all CMake versions below 3.17.0 will be removed once
+|   newer CMake versions are more widely adopted. If you encounter
+|   any errors please try upgrading CMake to a newer version first.
+
+Run-time dependency szip found: NO (tried pkgconfig and cmake)
+Has header "zlib.h" : YES (cached)
+Checking for function "inflate" with dependency zlib: YES (cached)
+Has header "sys/file.h" : YES (cached)
+Has header "sys/ioctl.h" : YES (cached)
+Has header "sys/resource.h" : YES (cached)
+Has header "sys/socket.h" : YES (cached)
+Has header "sys/stat.h" : YES (cached)
+Has header "sys/time.h" : YES (cached)
+Has header "sys/types.h" : YES (cached)
+Has header "features.h" : YES (cached)
+Has header "dirent.h" : YES (cached)
+Has header "setjmp.h" : YES (cached)
+Has header "stddef.h" : YES (cached)
+Has header "stdint.h" : YES (cached)
+Has header "unistd.h" : YES (cached)
+Has header "io.h" : NO (cached)
+Has header "winsock2.h" : NO (cached)
+Has header "globus/common.h" : NO (cached)
+Has header "pdb.h" : NO (cached)
+Has header "pthread.h" : YES (cached)
+Has header "srbclient.h" : NO (cached)
+Has header "string.h" : YES (cached)
+Has header "strings.h" : YES (cached)
+Has header "stdlib.h" : YES (cached)
+Has header "memory.h" : YES (cached)
+Has header "dlfcn.h" : YES (cached)
+Has header "inttypes.h" : YES (cached)
+Has header "netinet/in.h" : YES (cached)
+Has header "netdb.h" : YES (cached)
+Has header "arpa/inet.h" : YES (cached)
+Has header "stdbool.h" : YES (cached)
+Has header "quadmath.h" : YES (cached)
+Library m found: YES
+Checking for function "ceil" with dependency -lm: YES (cached)
+Library dl found: YES
+Checking for function "dlopen" with dependency -ldl: YES (cached)
+Library ucb found: NO
+Checking for function "gethostbyname" with dependency -lucb: NO (cached)
+Checking for function "lseek64" : NO (cached)
+Checking for function "fseeko" : NO (cached)
+Checking for function "stat64" : NO (cached)
+Checking for size of "char" : 1 (cached)
+Checking for size of "short" : 2 (cached)
+Checking for size of "int" : 4 (cached)
+Checking for size of "unsigned" : 4 (cached)
+Checking for size of "long" : 8 (cached)
+Checking for size of "long long" : 8 (cached)
+Checking for size of "__int64" : -1 
+Checking for size of "float" : 4 (cached)
+Checking for size of "double" : 8 (cached)
+Checking for size of "long double" : 16 (cached)
+Checking for size of "int8_t" : 1 (cached)
+Checking for size of "uint8_t" : 1 (cached)
+Checking for size of "int_least8_t" : 1 (cached)
+Checking for size of "uint_least8_t" : 1 (cached)
+Checking for size of "int_fast8_t" : 1 (cached)
+Checking for size of "uint_fast8_t" : 1 (cached)
+Checking for size of "int16_t" : 2 (cached)
+Checking for size of "uint16_t" : 2 (cached)
+Checking for size of "int_least16_t" : 2 (cached)
+Checking for size of "uint_least16_t" : 2 (cached)
+Checking for size of "int_fast16_t" : 8 (cached)
+Checking for size of "uint_fast16_t" : 8 (cached)
+Checking for size of "int32_t" : 4 (cached)
+Checking for size of "uint32_t" : 4 (cached)
+Checking for size of "int_least32_t" : 4 (cached)
+Checking for size of "uint_least32_t" : 4 (cached)
+Checking for size of "int_fast32_t" : 8 (cached)
+Checking for size of "uint_fast32_t" : 8 (cached)
+Checking for size of "int64_t" : 8 (cached)
+Checking for size of "uint64_t" : 8 (cached)
+Checking for size of "int_least64_t" : 8 (cached)
+Checking for size of "uint_least64_t" : 8 (cached)
+Checking for size of "int_fast64_t" : 8 (cached)
+Checking for size of "uint_fast64_t" : 8 (cached)
+Checking for size of "size_t" : 8 (cached)
+Checking for size of "ssize_t" : -1 
+Checking for size of "ptrdiff_t" : 8 (cached)
+Checking for size of "off_t" : 8 (cached)
+Checking for size of "off64_t" : -1 
+Checking for size of "time_t" : 8 (cached)
+Checking for size of "bool" : 1 (cached)
+Checking for size of "_Quad" : -1 
+Checking for size of "__float128" : 16 (cached)
+Checking if "check dev_t" compiles: YES (cached)
+Checking if "check dev_t scalar" runs: NO (1)
+Checking if "CLOCK_MONOTONIC" compiles: YES (cached)
+Checking whether type "struct tm" has member "tm_gmtoff" : NO (cached)
+Checking whether type "struct tm" has member "__tm_gmtoff" : YES (cached)
+Checking whether type "struct tm" has member "tm_sec" : YES (cached)
+Checking whether type "struct tm" has member "tz_minuteswest" : NO (cached)
+Checking for function "gettimeofday" : YES (cached)
+Checking whether type "struct stat" has member "st_blocks" : YES (cached)
+Checking for function "ioctl" : YES (cached)
+Header "sys/ioctl.h" has symbol "TIOCGWINSZ" : YES (cached)
+Header "sys/ioctl.h" has symbol "TIOCGETD" : YES (cached)
+Checking for function "getpwuid" : YES (cached)
+Checking for function "alarm" : YES (cached)
+Checking for function "fcntl" : YES (cached)
+Checking for function "flock" : YES (cached)
+Checking for function "fork" : YES (cached)
+Checking for function "frexpf" : YES (cached)
+Checking for function "frexpl" : YES (cached)
+Checking for function "gethostname" : YES (cached)
+Checking for function "getrusage" : YES (cached)
+Checking for function "llround" : YES (cached)
+Checking for function "llroundf" : YES (cached)
+Checking for function "lround" : YES (cached)
+Checking for function "lroundf" : YES (cached)
+Checking for function "lstat" : YES (cached)
+Checking for function "pread" : YES (cached)
+Checking for function "pwrite" : YES (cached)
+Checking for function "rand_r" : YES (cached)
+Checking for function "random" : YES (cached)
+Checking for function "round" : YES (cached)
+Checking for function "roundf" : YES (cached)
+Checking for function "setsysinfo" : NO (cached)
+Checking for function "signal" : YES (cached)
+Checking for function "longjmp" : YES (cached)
+Checking for function "setjmp" : YES (cached)
+Checking for function "siglongjmp" : YES (cached)
+Checking for function "sigsetjmp" : NO (cached)
+Checking for function "sigprocmask" : YES (cached)
+Checking for function "snprintf" : YES (cached)
+Checking for function "srandom" : YES (cached)
+Checking for function "strdup" : YES (cached)
+Checking for function "strtoll" : YES (cached)
+Checking for function "strtoull" : YES (cached)
+Checking for function "symlink" : YES (cached)
+Checking for function "system" : YES (cached)
+Checking for function "tmpfile" : YES (cached)
+Checking for function "asprintf" : YES (cached)
+Checking for function "vasprintf" : YES (cached)
+Checking for function "waitpid" : YES (cached)
+Checking for function "vsnprintf" : YES (cached)
+Header "setjmp.h" has symbol "sigsetjmp" : NO (cached)
+Checking if "inline keyword check" compiles: YES (cached)
+Configuring H5pubconf.h using configuration
+Checking for size of "long" : 8 (cached)
+Checking for size of "void *" : 8 (cached)
+Configuring cgnstypes.h using configuration
+Configuring cg_hash_types.h using configuration
+Configuring cgnsconfig.h using configuration
+Compiler for C++ supports arguments -Wno-unused-result: YES (cached)
+Compiler for C++ supports arguments -Wno-unused-parameter: YES (cached)
+Compiler for C++ supports arguments -Wno-unused-variable: YES (cached)
+Compiler for C++ supports arguments -Wno-unused-but-set-variable: YES (cached)
+Compiler for C++ supports arguments -Wno-unknown-pragmas: YES (cached)
+Compiler for C++ supports arguments -Wno-sign-compare: YES (cached)
+Compiler for C++ supports arguments -Wno-clobbered: YES (cached)
+Compiler for C++ supports arguments -Wno-empty-body: YES (cached)
+Compiler for C++ supports arguments -Wno-unused-label: YES (cached)
+Compiler for C++ supports arguments -Wno-misleading-indentation: YES (cached)
+Compiler for C++ supports arguments -Wno-maybe-uninitialized: YES (cached)
+Compiler for C++ supports arguments -Wno-pedantic: YES (cached)
+Compiler for C++ supports arguments -Wno-error=absolute-value: YES (cached)
+Compiler for C++ supports arguments -Wno-absolute-value: NO (cached)
+Library mmg found: YES
+Library scotch found: YES
+Library scotcherrexit found: YES
+Dependency zlib found: YES 1.2.11 (cached)
+Dependency threads found: YES unknown (cached)
+Library m found: YES
+Library rt found: YES
+Checking if "MMG library" with dependencies -lmmg, -lscotch, -lscotcherrexit, zlib, threads, -lm, -lrt links: YES (cached)
+../../SU2_PY/meson.build:75: WARNING: Project targets '>=1.8.2' but uses feature deprecated since '0.60.0': install_subdir with empty directory. It worked by accident and is buggy. Use install_emptydir instead.
+Message: -------------------------------------------------------------------------
+         |    ___ _   _ ___                                                      |
+         |   / __| | | |_  )   Release 8.5.0 "Harrier"                           |
+         |   \__ \ |_| |/ /                                                      |
+         |   |___/\___//___|   Meson Configuration Summary                       |
+         |                                                                       |
+         -------------------------------------------------------------------------
+
+         Option          Value
+         ---------------------
+         TecIO:          false
+         CGNS:           true
+         AD (reverse):   false
+         AD (forward):   false
+         Python Wrapper: false
+         Intel-MKL:      false
+         OpenBlas:       false
+         PaStiX:         false
+         Mixed Float:    false
+         libROM:         false
+         CoolProp:       false
+         MLPCpp:         false
+         Tracy Profiler: false
+         MMG:            true
+
+         Please be sure to add the $SU2_HOME and $SU2_RUN environment variables,
+         and update your $PATH (and $PYTHONPATH if applicable) with $SU2_RUN
+
+         Based on the input to this configuration, add these lines to your .bashrc file:
+
+         export SU2_RUN=/usr/local/bin
+         export SU2_HOME=/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated
+         export PATH=$PATH:$SU2_RUN
+         export PYTHONPATH=$PYTHONPATH:$SU2_RUN
+
+         Use './ninja -C build-integrated-v2 install' to compile and install SU2
+
+Build targets in project: 19
+WARNING: Deprecated features used:
+ * 0.60.0: {'install_subdir with empty directory'}
+
+SU2 8.5.0 "Harrier"
+
+  User defined options
+    b_ndebug       : false
+    buildtype      : debugoptimized
+    enable-cgns    : true
+    enable-mmg     : true
+    enable-tecio   : false
+    enable-tests   : true
+    mmg_scotch_root: /home/rausa/Software/scotch
+    with-mpi       : enabled
+    with-omp       : false
+
+Found ninja-1.13.0 at /home/rausa/Software/su2-develop/ninja
+Generating targets:   0%|          | 0/19 eta ?Generating targets:  37%|███▋      | 7/19 eta 00:00Generating targets:  68%|██████▊   | 13/19 eta 00:00Generating targets:  95%|█████████▍| 18/19 eta 00:00                                                    Writing build.ninja:   0%|          | 0/913 eta ?                                                 Cleaning... 0 files.
+[1/54] Compiling C++ object Common/src/libSU2AccurateSum.a.p/adaptation_CNativePredicates3D.cpp.o
+[2/54] Compiling C++ object Common/src/libSU2AccurateSum.a.p/adaptation_CNativeBoundaryParameters3D.cpp.o
+FAILED: [code=1] Common/src/libSU2AccurateSum.a.p/adaptation_CNativeBoundaryParameters3D.cpp.o 
+c++ -ICommon/src/libSU2AccurateSum.a.p -ICommon/src -I../../Common/src -I../../externals/CLI11 -I../../externals/eigen -I../../externals/cgns/adf -I../../externals/cgns/adfh -Iexternals/cgns -I../../externals/cgns -Iexternals/cgns/hdf5 -I../../externals/cgns/hdf5 -I../../externals/metis/include -I../../externals/metis/GKlib -I../../externals/metis/libmetis -I../../externals/parmetis/include -I../../externals/parmetis/libparmetis -I../../externals/mel -I/usr/lib/x86_64-linux-gnu/openmpi/include/openmpi -I/usr/lib/x86_64-linux-gnu/openmpi/include -fdiagnostics-color=always -D_GLIBCXX_ASSERTIONS=1 -D_FILE_OFFSET_BITS=64 -std=c++17 -O2 -g -fPIC -pthread -Wno-empty-body -Wno-ignored-qualifiers -Wno-unused-parameter -Wno-deprecated-declarations -Wno-error=cast-function-type -Wno-cast-function-type -Wno-error=stringop-truncation -Wno-stringop-truncation -Wno-error=missing-field-initializers -Wno-missing-field-initializers -Wno-error=class-memaccess -Wno-class-memaccess -Wno-overloaded-virtual -Wno-array-bounds -march=native -ffast-math -fno-finite-math-only -DHAVE_CGNS -DHAVE_MPI -DHAVE_METIS -DHAVE_PARMETIS -DHAVE_MMG -fno-fast-math -fno-unsafe-math-optimizations -ffp-contract=off -MD -MQ Common/src/libSU2AccurateSum.a.p/adaptation_CNativeBoundaryParameters3D.cpp.o -MF Common/src/libSU2AccurateSum.a.p/adaptation_CNativeBoundaryParameters3D.cpp.o.d -o Common/src/libSU2AccurateSum.a.p/adaptation_CNativeBoundaryParameters3D.cpp.o -c ../../Common/src/adaptation/CNativeBoundaryParameters3D.cpp
+../../Common/src/adaptation/CNativeBoundaryParameters3D.cpp: In constructor ‘SU2Native3D::BoundaryParameterState::BoundaryParameterState(std::shared_ptr<const SU2NativeGeometry::MappedFacetReference>, const BoundaryPoints&, const std::vector<SU2Native3D::SurfaceFace>&, uint64_t, size_t, size_t)’:
+../../Common/src/adaptation/CNativeBoundaryParameters3D.cpp:53:48: error: no matching function for call to ‘std::array<double, 3>::array(const SU2Native3D::Point&)’
+   53 |     if(!coordinates.emplace(Coordinate(p.node.p),p.node.id).second || !supports.emplace(Support(p),p.node.id).second)
+      |                                                ^
+In file included from ../../Common/src/adaptation/../../include/adaptation/CNativeMesh3D.hpp:9,
+                 from ../../Common/src/adaptation/../../include/adaptation/CNativeTopology3D.hpp:8,
+                 from ../../Common/src/adaptation/../../include/adaptation/CNativeCavity3D.hpp:8,
+                 from ../../Common/src/adaptation/../../include/adaptation/CNativeBoundary3D.hpp:8,
+                 from ../../Common/src/adaptation/CNativeBoundaryParameters3D.cpp:6:
+/usr/include/c++/9/array:94:12: note: candidate: ‘std::array<double, 3>::array()’
+   94 |     struct array
+      |            ^~~~~
+/usr/include/c++/9/array:94:12: note:   candidate expects 0 arguments, 1 provided
+/usr/include/c++/9/array:94:12: note: candidate: ‘constexpr std::array<double, 3>::array(const std::array<double, 3>&)’
+/usr/include/c++/9/array:94:12: note:   no known conversion for argument 1 from ‘const SU2Native3D::Point’ to ‘const std::array<double, 3>&’
+/usr/include/c++/9/array:94:12: note: candidate: ‘constexpr std::array<double, 3>::array(std::array<double, 3>&&)’
+/usr/include/c++/9/array:94:12: note:   no known conversion for argument 1 from ‘const SU2Native3D::Point’ to ‘std::array<double, 3>&&’
+../../Common/src/adaptation/CNativeBoundaryParameters3D.cpp:53:98: error: no matching function for call to ‘std::tuple<unsigned int, long unsigned int, double, double>::tuple(const SU2Native3D::BoundaryPoint&)’
+   53 |     if(!coordinates.emplace(Coordinate(p.node.p),p.node.id).second || !supports.emplace(Support(p),p.node.id).second)
+      |                                                                                                  ^
+In file included from /usr/include/c++/9/bits/stl_map.h:63,
+                 from /usr/include/c++/9/map:61,
+                 from ../../Common/src/adaptation/../../include/adaptation/CNativeAffineReference.hpp:9,
+                 from ../../Common/src/adaptation/../../include/adaptation/CNativeBoundary3D.hpp:9,
+                 from ../../Common/src/adaptation/CNativeBoundaryParameters3D.cpp:6:
+/usr/include/c++/9/tuple:808:11: note: candidate: ‘template<class _Alloc, class _Dummy, class ... _UElements, typename std::enable_if<((std::tuple<unsigned int, long unsigned int, double, double>::_TMCT<_UElements ...>::_MoveConstructibleTuple<_UElements ...>() && (! std::tuple<unsigned int, long unsigned int, double, double>::_TMCT<_UElements ...>::_ImplicitlyMoveConvertibleTuple<_UElements ...>())) && std::tuple<unsigned int, long unsigned int, double, double>::_TNTC<_Dummy>::_NonNestedTuple<tuple<_Args2 ...>&&>()), bool>::type <anonymous> > std::tuple<_Elements>::tuple(std::allocator_arg_t, const _Alloc&, std::tuple<_Args2 ...>&&)’
+  808 |  explicit tuple(allocator_arg_t __tag, const _Alloc& __a,
+      |           ^~~~~
+/usr/include/c++/9/tuple:808:11: note:   template argument deduction/substitution failed:
+../../Common/src/adaptation/CNativeBoundaryParameters3D.cpp:53:98: note:   candidate expects 3 arguments, 1 provided
+   53 |     if(!coordinates.emplace(Coordinate(p.node.p),p.node.id).second || !supports.emplace(Support(p),p.node.id).second)
+      |                                                                                                  ^
+In file included from /usr/include/c++/9/bits/stl_map.h:63,
+                 from /usr/include/c++/9/map:61,
+                 from ../../Common/src/adaptation/../../include/adaptation/CNativeAffineReference.hpp:9,
+                 from ../../Common/src/adaptation/../../include/adaptation/CNativeBoundary3D.hpp:9,
+                 from ../../Common/src/adaptation/CNativeBoundaryParameters3D.cpp:6:
+/usr/include/c++/9/tuple:793:2: note: candidate: ‘template<class _Alloc, class _Dummy, class ... _UElements, typename std::enable_if<((std::tuple<unsigned int, long unsigned int, double, double>::_TMCT<_UElements ...>::_MoveConstructibleTuple<_UElements ...>() && std::tuple<unsigned int, long unsigned int, double, double>::_TMCT<_UElements ...>::_ImplicitlyMoveConvertibleTuple<_UElements ...>()) && std::tuple<unsigned int, long unsigned int, double, double>::_TNTC<_Dummy>::_NonNestedTuple<tuple<_Args2 ...>&&>()), bool>::type <anonymous> > std::tuple<_Elements>::tuple(std::allocator_arg_t, const _Alloc&, std::tuple<_Args2 ...>&&)’
+  793 |  tuple(allocator_arg_t __tag, const _Alloc& __a,
+      |  ^~~~~
+/usr/include/c++/9/tuple:793:2: note:   template argument deduction/substitution failed:
+../../Common/src/adaptation/CNativeBoundaryParameters3D.cpp:53:98: note:   candidate expects 3 arguments, 1 provided
+   53 |     if(!coordinates.emplace(Coordinate(p.node.p),p.node.id).second || !supports.emplace(Support(p),p.node.id).second)
+      |                                                                                                  ^
+In file included from /usr/include/c++/9/bits/stl_map.h:63,
+                 from /usr/include/c++/9/map:61,
+                 from ../../Common/src/adaptation/../../include/adaptation/CNativeAffineReference.hpp:9,
+                 from ../../Common/src/adaptation/../../include/adaptation/CNativeBoundary3D.hpp:9,
+                 from ../../Common/src/adaptation/CNativeBoundaryParameters3D.cpp:6:
+/usr/include/c++/9/tuple:778:11: note: candidate: ‘template<class _Alloc, class _Dummy, class ... _UElements, typename std::enable_if<((std::tuple<unsigned int, long unsigned int, double, double>::_TMCT<_UElements ...>::_ConstructibleTuple<_UElements ...>() && (! std::tuple<unsigned int, long unsigned int, double, double>::_TMCT<_UElements ...>::_ImplicitlyConvertibleTuple<_UElements ...>())) && std::tuple<unsigned int, long unsigned int, double, double>::_TNTC<_Dummy>::_NonNestedTuple<const tuple<_Args2 ...>&>()), bool>::type <anonymous> > std::tuple<_Elements>::tuple(std::allocator_arg_t, const _Alloc&, const std::tuple<_Args2 ...>&)’
+  778 |  explicit tuple(allocator_arg_t __tag, const _Alloc& __a,
+      |           ^~~~~
+/usr/include/c++/9/tuple:778:11: note:   template argument deduction/substitution failed:
+../../Common/src/adaptation/CNativeBoundaryParameters3D.cpp:53:98: note:   candidate expects 3 arguments, 1 provided
+   53 |     if(!coordinates.emplace(Coordinate(p.node.p),p.node.id).second || !supports.emplace(Support(p),p.node.id).second)
+      |                                                                                                  ^
+In file included from /usr/include/c++/9/bits/stl_map.h:63,
+                 from /usr/include/c++/9/map:61,
+                 from ../../Common/src/adaptation/../../include/adaptation/CNativeAffineReference.hpp:9,
+                 from ../../Common/src/adaptation/../../include/adaptation/CNativeBoundary3D.hpp:9,
+                 from ../../Common/src/adaptation/CNativeBoundaryParameters3D.cpp:6:
+/usr/include/c++/9/tuple:763:2: note: candidate: ‘template<class _Alloc, class _Dummy, class ... _UElements, typename std::enable_if<((std::tuple<unsigned int, long unsigned int, double, double>::_TMCT<_UElements ...>::_ConstructibleTuple<_UElements ...>() && std::tuple<unsigned int, long unsigned int, double, double>::_TMCT<_UElements ...>::_ImplicitlyConvertibleTuple<_UElements ...>()) && std::tuple<unsigned int, long unsigned int, double, double>::_TNTC<_Dummy>::_NonNestedTuple<const tuple<_Args2 ...>&>()), bool>::type <anonymous> > std::tuple<_Elements>::tuple(std::allocator_arg_t, const _Alloc&, const std::tuple<_Args2 ...>&)’
+  763 |  tuple(allocator_arg_t __tag, const _Alloc& __a,
+      |  ^~~~~
+/usr/include/c++/9/tuple:763:2: note:   template argument deduction/substitution failed:
+../../Common/src/adaptation/CNativeBoundaryParameters3D.cpp:53:98: note:   candidate expects 3 arguments, 1 provided
+   53 |     if(!coordinates.emplace(Coordinate(p.node.p),p.node.id).second || !supports.emplace(Support(p),p.node.id).second)
+      |                                                                                                  ^
+In file included from /usr/include/c++/9/bits/stl_map.h:63,
+                 from /usr/include/c++/9/map:61,
+                 from ../../Common/src/adaptation/../../include/adaptation/CNativeAffineReference.hpp:9,
+                 from ../../Common/src/adaptation/../../include/adaptation/CNativeBoundary3D.hpp:9,
+                 from ../../Common/src/adaptation/CNativeBoundaryParameters3D.cpp:6:
+/usr/include/c++/9/tuple:751:2: note: candidate: ‘template<class _Alloc> std::tuple<_Elements>::tuple(std::allocator_arg_t, const _Alloc&, std::tuple<_Elements>&&)’
+  751 |  tuple(allocator_arg_t __tag, const _Alloc& __a, tuple&& __in)
+      |  ^~~~~
+/usr/include/c++/9/tuple:751:2: note:   template argument deduction/substitution failed:
+../../Common/src/adaptation/CNativeBoundaryParameters3D.cpp:53:98: note:   candidate expects 3 arguments, 1 provided
+   53 |     if(!coordinates.emplace(Coordinate(p.node.p),p.node.id).second || !supports.emplace(Support(p),p.node.id).second)
+      |                                                                                                  ^
+In file included from /usr/include/c++/9/bits/stl_map.h:63,
+                 from /usr/include/c++/9/map:61,
+                 from ../../Common/src/adaptation/../../include/adaptation/CNativeAffineReference.hpp:9,
+                 from ../../Common/src/adaptation/../../include/adaptation/CNativeBoundary3D.hpp:9,
+                 from ../../Common/src/adaptation/CNativeBoundaryParameters3D.cpp:6:
+/usr/include/c++/9/tuple:747:2: note: candidate: ‘template<class _Alloc> std::tuple<_Elements>::tuple(std::allocator_arg_t, const _Alloc&, const std::tuple<_Elements>&)’
+  747 |  tuple(allocator_arg_t __tag, const _Alloc& __a, const tuple& __in)
+      |  ^~~~~
+/usr/include/c++/9/tuple:747:2: note:   template argument deduction/substitution failed:
+../../Common/src/adaptation/CNativeBoundaryParameters3D.cpp:53:98: note:   candidate expects 3 arguments, 1 provided
+   53 |     if(!coordinates.emplace(Coordinate(p.node.p),p.node.id).second || !supports.emplace(Support(p),p.node.id).second)
+      |                                                                                                  ^
+In file included from /usr/include/c++/9/bits/stl_map.h:63,
+                 from /usr/include/c++/9/map:61,
+                 from ../../Common/src/adaptation/../../include/adaptation/CNativeAffineReference.hpp:9,
+                 from ../../Common/src/adaptation/../../include/adaptation/CNativeBoundary3D.hpp:9,
+                 from ../../Common/src/adaptation/CNativeBoundaryParameters3D.cpp:6:
+/usr/include/c++/9/tuple:741:11: note: candidate: ‘template<class _Alloc, class ... _UElements, typename std::enable_if<(std::tuple<unsigned int, long unsigned int, double, double>::_TMC<_UElements ...>::_MoveConstructibleTuple<_UElements ...>() && (! std::tuple<unsigned int, long unsigned int, double, double>::_TMC<_UElements ...>::_ImplicitlyMoveConvertibleTuple<_UElements ...>())), bool>::type <anonymous> > std::tuple<_Elements>::tuple(std::allocator_arg_t, const _Alloc&, _UElements&& ...)’
+  741 |  explicit tuple(allocator_arg_t __tag, const _Alloc& __a,
+      |           ^~~~~
+/usr/include/c++/9/tuple:741:11: note:   template argument deduction/substitution failed:
+../../Common/src/adaptation/CNativeBoundaryParameters3D.cpp:53:98: note:   candidate expects at least 2 arguments, 1 provided
+   53 |     if(!coordinates.emplace(Coordinate(p.node.p),p.node.id).second || !supports.emplace(Support(p),p.node.id).second)
+      |                                                                                                  ^
+In file included from /usr/include/c++/9/bits/stl_map.h:63,
+                 from /usr/include/c++/9/map:61,
+                 from ../../Common/src/adaptation/../../include/adaptation/CNativeAffineReference.hpp:9,
+                 from ../../Common/src/adaptation/../../include/adaptation/CNativeBoundary3D.hpp:9,
+                 from ../../Common/src/adaptation/CNativeBoundaryParameters3D.cpp:6:
+/usr/include/c++/9/tuple:730:2: note: candidate: ‘template<class _Alloc, class ... _UElements, typename std::enable_if<(std::tuple<unsigned int, long unsigned int, double, double>::_TMC<_UElements ...>::_MoveConstructibleTuple<_UElements ...>() && std::tuple<unsigned int, long unsigned int, double, double>::_TMC<_UElements ...>::_ImplicitlyMoveConvertibleTuple<_UElements ...>()), bool>::type <anonymous> > std::tuple<_Elements>::tuple(std::allocator_arg_t, const _Alloc&, _UElements&& ...)’
+  730 |  tuple(allocator_arg_t __tag, const _Alloc& __a,
+      |  ^~~~~
+/usr/include/c++/9/tuple:730:2: note:   template argument deduction/substitution failed:
+../../Common/src/adaptation/CNativeBoundaryParameters3D.cpp:53:98: note:   candidate expects at least 2 arguments, 1 provided
+   53 |     if(!coordinates.emplace(Coordinate(p.node.p),p.node.id).second || !supports.emplace(Support(p),p.node.id).second)
+      |                                                                                                  ^
+In file included from /usr/include/c++/9/bits/stl_map.h:63,
+                 from /usr/include/c++/9/map:61,
+                 from ../../Common/src/adaptation/../../include/adaptation/CNativeAffineReference.hpp:9,
+                 from ../../Common/src/adaptation/../../include/adaptation/CNativeBoundary3D.hpp:9,
+                 from ../../Common/src/adaptation/CNativeBoundaryParameters3D.cpp:6:
+/usr/include/c++/9/tuple:720:11: note: candidate: ‘template<class _Alloc, class _Dummy, typename std::enable_if<(std::tuple<unsigned int, long unsigned int, double, double>::_TCC<_Dummy>::_ConstructibleTuple<unsigned int, long unsigned int, double, double>() && (! std::tuple<unsigned int, long unsigned int, double, double>::_TCC<_Dummy>::_ImplicitlyConvertibleTuple<unsigned int, long unsigned int, double, double>())), bool>::type <anonymous> > std::tuple<_Elements>::tuple(std::allocator_arg_t, const _Alloc&, const _Elements& ...)’
+  720 |  explicit tuple(allocator_arg_t __tag, const _Alloc& __a,
+      |           ^~~~~
+/usr/include/c++/9/tuple:720:11: note:   template argument deduction/substitution failed:
+../../Common/src/adaptation/CNativeBoundaryParameters3D.cpp:53:98: note:   candidate expects 6 arguments, 1 provided
+   53 |     if(!coordinates.emplace(Coordinate(p.node.p),p.node.id).second || !supports.emplace(Support(p),p.node.id).second)
+      |                                                                                                  ^
+In file included from /usr/include/c++/9/bits/stl_map.h:63,
+                 from /usr/include/c++/9/map:61,
+                 from ../../Common/src/adaptation/../../include/adaptation/CNativeAffineReference.hpp:9,
+                 from ../../Common/src/adaptation/../../include/adaptation/CNativeBoundary3D.hpp:9,
+                 from ../../Common/src/adaptation/CNativeBoundaryParameters3D.cpp:6:
+/usr/include/c++/9/tuple:709:2: note: candidate: ‘template<class _Alloc, class _Dummy, typename std::enable_if<(std::tuple<unsigned int, long unsigned int, double, double>::_TCC<_Dummy>::_ConstructibleTuple<unsigned int, long unsigned int, double, double>() && std::tuple<unsigned int, long unsigned int, double, double>::_TCC<_Dummy>::_ImplicitlyConvertibleTuple<unsigned int, long unsigned int, double, double>()), bool>::type <anonymous> > std::tuple<_Elements>::tuple(std::allocator_arg_t, const _Alloc&, const _Elements& ...)’
+  709 |  tuple(allocator_arg_t __tag, const _Alloc& __a,
+      |  ^~~~~
+/usr/include/c++/9/tuple:709:2: note:   template argument deduction/substitution failed:
+../../Common/src/adaptation/CNativeBoundaryParameters3D.cpp:53:98: note:   candidate expects 6 arguments, 1 provided
+   53 |     if(!coordinates.emplace(Coordinate(p.node.p),p.node.id).second || !supports.emplace(Support(p),p.node.id).second)
+      |                                                                                                  ^
+In file included from /usr/include/c++/9/bits/stl_map.h:63,
+                 from /usr/include/c++/9/map:61,
+                 from ../../Common/src/adaptation/../../include/adaptation/CNativeAffineReference.hpp:9,
+                 from ../../Common/src/adaptation/../../include/adaptation/CNativeBoundary3D.hpp:9,
+                 from ../../Common/src/adaptation/CNativeBoundaryParameters3D.cpp:6:
+/usr/include/c++/9/tuple:699:2: note: candidate: ‘template<class _Alloc> std::tuple<_Elements>::tuple(std::allocator_arg_t, const _Alloc&)’
+  699 |  tuple(allocator_arg_t __tag, const _Alloc& __a)
+      |  ^~~~~
+/usr/include/c++/9/tuple:699:2: note:   template argument deduction/substitution failed:
+../../Common/src/adaptation/CNativeBoundaryParameters3D.cpp:53:98: note:   candidate expects 2 arguments, 1 provided
+   53 |     if(!coordinates.emplace(Coordinate(p.node.p),p.node.id).second || !supports.emplace(Support(p),p.node.id).second)
+      |                                                                                                  ^
+In file included from /usr/include/c++/9/bits/stl_map.h:63,
+                 from /usr/include/c++/9/map:61,
+                 from ../../Common/src/adaptation/../../include/adaptation/CNativeAffineReference.hpp:9,
+                 from ../../Common/src/adaptation/../../include/adaptation/CNativeBoundary3D.hpp:9,
+                 from ../../Common/src/adaptation/CNativeBoundaryParameters3D.cpp:6:
+/usr/include/c++/9/tuple:693:28: note: candidate: ‘template<class ... _UElements, class _Dummy, typename std::enable_if<((std::tuple<unsigned int, long unsigned int, double, double>::_TMCT<_UElements ...>::_MoveConstructibleTuple<_UElements ...>() && (! std::tuple<unsigned int, long unsigned int, double, double>::_TMCT<_UElements ...>::_ImplicitlyMoveConvertibleTuple<_UElements ...>())) && std::tuple<unsigned int, long unsigned int, double, double>::_TNTC<_Dummy>::_NonNestedTuple<tuple<_Tps ...>&&>()), bool>::type <anonymous> > constexpr std::tuple<_Elements>::tuple(std::tuple<_Args1 ...>&&)’
+  693 |         explicit constexpr tuple(tuple<_UElements...>&& __in)
+      |                            ^~~~~
+/usr/include/c++/9/tuple:693:28: note:   template argument deduction/substitution failed:
+../../Common/src/adaptation/CNativeBoundaryParameters3D.cpp:53:98: note:   types ‘std::tuple<_Tps ...>’ and ‘const SU2Native3D::BoundaryPoint’ have incompatible cv-qualifiers
+   53 |     if(!coordinates.emplace(Coordinate(p.node.p),p.node.id).second || !supports.emplace(Support(p),p.node.id).second)
+      |                                                                                                  ^
+In file included from /usr/include/c++/9/bits/stl_map.h:63,
+                 from /usr/include/c++/9/map:61,
+                 from ../../Common/src/adaptation/../../include/adaptation/CNativeAffineReference.hpp:9,
+                 from ../../Common/src/adaptation/../../include/adaptation/CNativeBoundary3D.hpp:9,
+                 from ../../Common/src/adaptation/CNativeBoundaryParameters3D.cpp:6:
+/usr/include/c++/9/tuple:682:19: note: candidate: ‘template<class ... _UElements, class _Dummy, typename std::enable_if<((std::tuple<unsigned int, long unsigned int, double, double>::_TMCT<_UElements ...>::_MoveConstructibleTuple<_UElements ...>() && std::tuple<unsigned int, long unsigned int, double, double>::_TMCT<_UElements ...>::_ImplicitlyMoveConvertibleTuple<_UElements ...>()) && std::tuple<unsigned int, long unsigned int, double, double>::_TNTC<_Dummy>::_NonNestedTuple<tuple<_Tps ...>&&>()), bool>::type <anonymous> > constexpr std::tuple<_Elements>::tuple(std::tuple<_Args1 ...>&&)’
+  682 |         constexpr tuple(tuple<_UElements...>&& __in)
+      |                   ^~~~~
+/usr/include/c++/9/tuple:682:19: note:   template argument deduction/substitution failed:
+../../Common/src/adaptation/CNativeBoundaryParameters3D.cpp:53:98: note:   types ‘std::tuple<_Tps ...>’ and ‘const SU2Native3D::BoundaryPoint’ have incompatible cv-qualifiers
+   53 |     if(!coordinates.emplace(Coordinate(p.node.p),p.node.id).second || !supports.emplace(Support(p),p.node.id).second)
+      |                                                                                                  ^
+In file included from /usr/include/c++/9/bits/stl_map.h:63,
+                 from /usr/include/c++/9/map:61,
+                 from ../../Common/src/adaptation/../../include/adaptation/CNativeAffineReference.hpp:9,
+                 from ../../Common/src/adaptation/../../include/adaptation/CNativeBoundary3D.hpp:9,
+                 from ../../Common/src/adaptation/CNativeBoundaryParameters3D.cpp:6:
+/usr/include/c++/9/tuple:670:28: note: candidate: ‘template<class ... _UElements, class _Dummy, typename std::enable_if<((std::tuple<unsigned int, long unsigned int, double, double>::_TMCT<_UElements ...>::_ConstructibleTuple<_UElements ...>() && (! std::tuple<unsigned int, long unsigned int, double, double>::_TMCT<_UElements ...>::_ImplicitlyConvertibleTuple<_UElements ...>())) && std::tuple<unsigned int, long unsigned int, double, double>::_TNTC<_Dummy>::_NonNestedTuple<const tuple<_Tps ...>&>()), bool>::type <anonymous> > constexpr std::tuple<_Elements>::tuple(const std::tuple<_Args1 ...>&)’
+  670 |         explicit constexpr tuple(const tuple<_UElements...>& __in)
+      |                            ^~~~~
+/usr/include/c++/9/tuple:670:28: note:   template argument deduction/substitution failed:
+../../Common/src/adaptation/CNativeBoundaryParameters3D.cpp:53:98: note:   ‘const SU2Native3D::BoundaryPoint’ is not derived from ‘const std::tuple<_Tps ...>’
+   53 |     if(!coordinates.emplace(Coordinate(p.node.p),p.node.id).second || !supports.emplace(Support(p),p.node.id).second)
+      |                                                                                                  ^
+In file included from /usr/include/c++/9/bits/stl_map.h:63,
+                 from /usr/include/c++/9/map:61,
+                 from ../../Common/src/adaptation/../../include/adaptation/CNativeAffineReference.hpp:9,
+                 from ../../Common/src/adaptation/../../include/adaptation/CNativeBoundary3D.hpp:9,
+                 from ../../Common/src/adaptation/CNativeBoundaryParameters3D.cpp:6:
+/usr/include/c++/9/tuple:658:19: note: candidate: ‘template<class ... _UElements, class _Dummy, typename std::enable_if<((std::tuple<unsigned int, long unsigned int, double, double>::_TMCT<_UElements ...>::_ConstructibleTuple<_UElements ...>() && std::tuple<unsigned int, long unsigned int, double, double>::_TMCT<_UElements ...>::_ImplicitlyConvertibleTuple<_UElements ...>()) && std::tuple<unsigned int, long unsigned int, double, double>::_TNTC<_Dummy>::_NonNestedTuple<const tuple<_Tps ...>&>()), bool>::type <anonymous> > constexpr std::tuple<_Elements>::tuple(const std::tuple<_Args1 ...>&)’
+  658 |         constexpr tuple(const tuple<_UElements...>& __in)
+      |                   ^~~~~
+/usr/include/c++/9/tuple:658:19: note:   template argument deduction/substitution failed:
+../../Common/src/adaptation/CNativeBoundaryParameters3D.cpp:53:98: note:   ‘const SU2Native3D::BoundaryPoint’ is not derived from ‘const std::tuple<_Tps ...>’
+   53 |     if(!coordinates.emplace(Coordinate(p.node.p),p.node.id).second || !supports.emplace(Support(p),p.node.id).second)
+      |                                                                                                  ^
+In file included from /usr/include/c++/9/bits/stl_map.h:63,
+                 from /usr/include/c++/9/map:61,
+                 from ../../Common/src/adaptation/../../include/adaptation/CNativeAffineReference.hpp:9,
+                 from ../../Common/src/adaptation/../../include/adaptation/CNativeBoundary3D.hpp:9,
+                 from ../../Common/src/adaptation/CNativeBoundaryParameters3D.cpp:6:
+/usr/include/c++/9/tuple:642:17: note: candidate: ‘constexpr std::tuple<_Elements>::tuple(std::tuple<_Elements>&&) [with _Elements = {unsigned int, long unsigned int, double, double}]’
+  642 |       constexpr tuple(tuple&&) = default;
+      |                 ^~~~~
+/usr/include/c++/9/tuple:642:23: note:   no known conversion for argument 1 from ‘const SU2Native3D::BoundaryPoint’ to ‘std::tuple<unsigned int, long unsigned int, double, double>&&’
+  642 |       constexpr tuple(tuple&&) = default;
+      |                       ^~~~~~~
+/usr/include/c++/9/tuple:640:17: note: candidate: ‘constexpr std::tuple<_Elements>::tuple(const std::tuple<_Elements>&) [with _Elements = {unsigned int, long unsigned int, double, double}]’
+  640 |       constexpr tuple(const tuple&) = default;
+      |                 ^~~~~
+/usr/include/c++/9/tuple:640:23: note:   no known conversion for argument 1 from ‘const SU2Native3D::BoundaryPoint’ to ‘const std::tuple<unsigned int, long unsigned int, double, double>&’
+  640 |       constexpr tuple(const tuple&) = default;
+      |                       ^~~~~~~~~~~~
+/usr/include/c++/9/tuple:637:28: note: candidate: ‘template<class ... _UElements, typename std::enable_if<((std::tuple<unsigned int, long unsigned int, double, double>::_TMC<_UElements ...>::_MoveConstructibleTuple<_UElements ...>() && (! std::tuple<unsigned int, long unsigned int, double, double>::_TMC<_UElements ...>::_ImplicitlyMoveConvertibleTuple<_UElements ...>())) && (4 >= 1)), bool>::type <anonymous> > constexpr std::tuple<_Elements>::tuple(_UElements&& ...)’
+  637 |         explicit constexpr tuple(_UElements&&... __elements)
+      |                            ^~~~~
+/usr/include/c++/9/tuple:637:28: note:   template argument deduction/substitution failed:
+/usr/include/c++/9/tuple:636:21: error: no type named ‘type’ in ‘struct std::enable_if<false, bool>’
+  636 |         bool>::type=false>
+      |                     ^~~~~
+/usr/include/c++/9/tuple:626:19: note: candidate: ‘template<class ... _UElements, typename std::enable_if<((std::tuple<unsigned int, long unsigned int, double, double>::_TMC<_UElements ...>::_MoveConstructibleTuple<_UElements ...>() && std::tuple<unsigned int, long unsigned int, double, double>::_TMC<_UElements ...>::_ImplicitlyMoveConvertibleTuple<_UElements ...>()) && (4 >= 1)), bool>::type <anonymous> > constexpr std::tuple<_Elements>::tuple(_UElements&& ...)’
+  626 |         constexpr tuple(_UElements&&... __elements)
+      |                   ^~~~~
+/usr/include/c++/9/tuple:626:19: note:   template argument deduction/substitution failed:
+/usr/include/c++/9/tuple:625:21: error: no type named ‘type’ in ‘struct std::enable_if<false, bool>’
+  625 |         bool>::type=true>
+      |                     ^~~~
+/usr/include/c++/9/tuple:599:26: note: candidate: ‘template<class _Dummy, typename std::enable_if<((std::tuple<unsigned int, long unsigned int, double, double>::_TCC<_Dummy>::_ConstructibleTuple<unsigned int, long unsigned int, double, double>() && (! std::tuple<unsigned int, long unsigned int, double, double>::_TCC<_Dummy>::_ImplicitlyConvertibleTuple<unsigned int, long unsigned int, double, double>())) && (4 >= 1)), bool>::type <anonymous> > constexpr std::tuple<_Elements>::tuple(const _Elements& ...)’
+  599 |       explicit constexpr tuple(const _Elements&... __elements)
+      |                          ^~~~~
+/usr/include/c++/9/tuple:599:26: note:   template argument deduction/substitution failed:
+../../Common/src/adaptation/CNativeBoundaryParameters3D.cpp:53:98: note:   candidate expects 4 arguments, 1 provided
+   53 |     if(!coordinates.emplace(Coordinate(p.node.p),p.node.id).second || !supports.emplace(Support(p),p.node.id).second)
+      |                                                                                                  ^
+In file included from /usr/include/c++/9/bits/stl_map.h:63,
+                 from /usr/include/c++/9/map:61,
+                 from ../../Common/src/adaptation/../../include/adaptation/CNativeAffineReference.hpp:9,
+                 from ../../Common/src/adaptation/../../include/adaptation/CNativeBoundary3D.hpp:9,
+                 from ../../Common/src/adaptation/CNativeBoundaryParameters3D.cpp:6:
+/usr/include/c++/9/tuple:588:19: note: candidate: ‘template<class _Dummy, typename std::enable_if<((std::tuple<unsigned int, long unsigned int, double, double>::_TCC<_Dummy>::_ConstructibleTuple<unsigned int, long unsigned int, double, double>() && std::tuple<unsigned int, long unsigned int, double, double>::_TCC<_Dummy>::_ImplicitlyConvertibleTuple<unsigned int, long unsigned int, double, double>()) && (4 >= 1)), bool>::type <anonymous> > constexpr std::tuple<_Elements>::tuple(const _Elements& ...)’
+  588 |         constexpr tuple(const _Elements&... __elements)
+      |                   ^~~~~
+/usr/include/c++/9/tuple:588:19: note:   template argument deduction/substitution failed:
+../../Common/src/adaptation/CNativeBoundaryParameters3D.cpp:53:98: note:   candidate expects 4 arguments, 1 provided
+   53 |     if(!coordinates.emplace(Coordinate(p.node.p),p.node.id).second || !supports.emplace(Support(p),p.node.id).second)
+      |                                                                                                  ^
+In file included from /usr/include/c++/9/bits/stl_map.h:63,
+                 from /usr/include/c++/9/map:61,
+                 from ../../Common/src/adaptation/../../include/adaptation/CNativeAffineReference.hpp:9,
+                 from ../../Common/src/adaptation/../../include/adaptation/CNativeBoundary3D.hpp:9,
+                 from ../../Common/src/adaptation/CNativeBoundaryParameters3D.cpp:6:
+/usr/include/c++/9/tuple:571:26: note: candidate: ‘template<class _Dummy, typename std::enable_if<(std::tuple<unsigned int, long unsigned int, double, double>::_TC2<_Dummy>::_DefaultConstructibleTuple() && (! std::tuple<unsigned int, long unsigned int, double, double>::_TC2<_Dummy>::_ImplicitlyDefaultConstructibleTuple())), bool>::type <anonymous> > constexpr std::tuple<_Elements>::tuple()’
+  571 |       explicit constexpr tuple()
+      |                          ^~~~~
+/usr/include/c++/9/tuple:571:26: note:   template argument deduction/substitution failed:
+../../Common/src/adaptation/CNativeBoundaryParameters3D.cpp:53:98: note:   candidate expects 0 arguments, 1 provided
+   53 |     if(!coordinates.emplace(Coordinate(p.node.p),p.node.id).second || !supports.emplace(Support(p),p.node.id).second)
+      |                                                                                                  ^
+In file included from /usr/include/c++/9/bits/stl_map.h:63,
+                 from /usr/include/c++/9/map:61,
+                 from ../../Common/src/adaptation/../../include/adaptation/CNativeAffineReference.hpp:9,
+                 from ../../Common/src/adaptation/../../include/adaptation/CNativeBoundary3D.hpp:9,
+                 from ../../Common/src/adaptation/CNativeBoundaryParameters3D.cpp:6:
+/usr/include/c++/9/tuple:561:17: note: candidate: ‘template<class _Dummy, typename std::enable_if<std::tuple<unsigned int, long unsigned int, double, double>::_TC2<_Dummy>::_ImplicitlyDefaultConstructibleTuple(), bool>::type <anonymous> > constexpr std::tuple<_Elements>::tuple()’
+  561 |       constexpr tuple()
+      |                 ^~~~~
+/usr/include/c++/9/tuple:561:17: note:   template argument deduction/substitution failed:
+../../Common/src/adaptation/CNativeBoundaryParameters3D.cpp:53:98: note:   candidate expects 0 arguments, 1 provided
+   53 |     if(!coordinates.emplace(Coordinate(p.node.p),p.node.id).second || !supports.emplace(Support(p),p.node.id).second)
+      |                                                                                                  ^
+../../Common/src/adaptation/CNativeBoundaryParameters3D.cpp: In member function ‘const SU2Native3D::BoundaryPoint* SU2Native3D::BoundaryParameterState::Find(SU2Native3D::Point) const’:
+../../Common/src/adaptation/CNativeBoundaryParameters3D.cpp:64:30: error: no matching function for call to ‘std::array<double, 3>::array(SU2Native3D::Point&)’
+   64 |   for(auto x:Coordinate(point))if(!std::isfinite(x))throw std::invalid_argument("Nonfinite boundary parameter lookup.");
+      |                              ^
+In file included from ../../Common/src/adaptation/../../include/adaptation/CNativeMesh3D.hpp:9,
+                 from ../../Common/src/adaptation/../../include/adaptation/CNativeTopology3D.hpp:8,
+                 from ../../Common/src/adaptation/../../include/adaptation/CNativeCavity3D.hpp:8,
+                 from ../../Common/src/adaptation/../../include/adaptation/CNativeBoundary3D.hpp:8,
+                 from ../../Common/src/adaptation/CNativeBoundaryParameters3D.cpp:6:
+/usr/include/c++/9/array:94:12: note: candidate: ‘std::array<double, 3>::array()’
+   94 |     struct array
+      |            ^~~~~
+/usr/include/c++/9/array:94:12: note:   candidate expects 0 arguments, 1 provided
+/usr/include/c++/9/array:94:12: note: candidate: ‘constexpr std::array<double, 3>::array(const std::array<double, 3>&)’
+/usr/include/c++/9/array:94:12: note:   no known conversion for argument 1 from ‘SU2Native3D::Point’ to ‘const std::array<double, 3>&’
+/usr/include/c++/9/array:94:12: note: candidate: ‘constexpr std::array<double, 3>::array(std::array<double, 3>&&)’
+/usr/include/c++/9/array:94:12: note:   no known conversion for argument 1 from ‘SU2Native3D::Point’ to ‘std::array<double, 3>&&’
+../../Common/src/adaptation/CNativeBoundaryParameters3D.cpp:65:49: error: no matching function for call to ‘std::array<double, 3>::array(SU2Native3D::Point&)’
+   65 |   const auto p=coordinates.find(Coordinate(point));return p==coordinates.end()?nullptr:Find(p->second);
+      |                                                 ^
+In file included from ../../Common/src/adaptation/../../include/adaptation/CNativeMesh3D.hpp:9,
+                 from ../../Common/src/adaptation/../../include/adaptation/CNativeTopology3D.hpp:8,
+                 from ../../Common/src/adaptation/../../include/adaptation/CNativeCavity3D.hpp:8,
+                 from ../../Common/src/adaptation/../../include/adaptation/CNativeBoundary3D.hpp:8,
+                 from ../../Common/src/adaptation/CNativeBoundaryParameters3D.cpp:6:
+/usr/include/c++/9/array:94:12: note: candidate: ‘std::array<double, 3>::array()’
+   94 |     struct array
+      |            ^~~~~
+/usr/include/c++/9/array:94:12: note:   candidate expects 0 arguments, 1 provided
+/usr/include/c++/9/array:94:12: note: candidate: ‘constexpr std::array<double, 3>::array(const std::array<double, 3>&)’
+/usr/include/c++/9/array:94:12: note:   no known conversion for argument 1 from ‘SU2Native3D::Point’ to ‘const std::array<double, 3>&’
+/usr/include/c++/9/array:94:12: note: candidate: ‘constexpr std::array<double, 3>::array(std::array<double, 3>&&)’
+/usr/include/c++/9/array:94:12: note:   no known conversion for argument 1 from ‘SU2Native3D::Point’ to ‘std::array<double, 3>&&’
+../../Common/src/adaptation/CNativeBoundaryParameters3D.cpp: In lambda function:
+../../Common/src/adaptation/CNativeBoundaryParameters3D.cpp:114:84: error: no matching function for call to ‘std::array<double, 3>::array(const SU2Native3D::Point&)’
+  114 |       const auto& p=patch.parameters.at(id);if(p.node.id!=id || Coordinate(p.node.p)!=Coordinate(coordinates.at(id)))
+      |                                                                                    ^
+In file included from ../../Common/src/adaptation/../../include/adaptation/CNativeMesh3D.hpp:9,
+                 from ../../Common/src/adaptation/../../include/adaptation/CNativeTopology3D.hpp:8,
+                 from ../../Common/src/adaptation/../../include/adaptation/CNativeCavity3D.hpp:8,
+                 from ../../Common/src/adaptation/../../include/adaptation/CNativeBoundary3D.hpp:8,
+                 from ../../Common/src/adaptation/CNativeBoundaryParameters3D.cpp:6:
+/usr/include/c++/9/array:94:12: note: candidate: ‘std::array<double, 3>::array()’
+   94 |     struct array
+      |            ^~~~~
+/usr/include/c++/9/array:94:12: note:   candidate expects 0 arguments, 1 provided
+/usr/include/c++/9/array:94:12: note: candidate: ‘constexpr std::array<double, 3>::array(const std::array<double, 3>&)’
+/usr/include/c++/9/array:94:12: note:   no known conversion for argument 1 from ‘const SU2Native3D::Point’ to ‘const std::array<double, 3>&’
+/usr/include/c++/9/array:94:12: note: candidate: ‘constexpr std::array<double, 3>::array(std::array<double, 3>&&)’
+/usr/include/c++/9/array:94:12: note:   no known conversion for argument 1 from ‘const SU2Native3D::Point’ to ‘std::array<double, 3>&&’
+../../Common/src/adaptation/CNativeBoundaryParameters3D.cpp:114:116: error: no matching function for call to ‘std::array<double, 3>::array(std::map<long unsigned int, SU2Native3D::Point>::mapped_type&)’
+  114 |       const auto& p=patch.parameters.at(id);if(p.node.id!=id || Coordinate(p.node.p)!=Coordinate(coordinates.at(id)))
+      |                                                                                                                    ^
+In file included from ../../Common/src/adaptation/../../include/adaptation/CNativeMesh3D.hpp:9,
+                 from ../../Common/src/adaptation/../../include/adaptation/CNativeTopology3D.hpp:8,
+                 from ../../Common/src/adaptation/../../include/adaptation/CNativeCavity3D.hpp:8,
+                 from ../../Common/src/adaptation/../../include/adaptation/CNativeBoundary3D.hpp:8,
+                 from ../../Common/src/adaptation/CNativeBoundaryParameters3D.cpp:6:
+/usr/include/c++/9/array:94:12: note: candidate: ‘std::array<double, 3>::array()’
+   94 |     struct array
+      |            ^~~~~
+/usr/include/c++/9/array:94:12: note:   candidate expects 0 arguments, 1 provided
+/usr/include/c++/9/array:94:12: note: candidate: ‘constexpr std::array<double, 3>::array(const std::array<double, 3>&)’
+/usr/include/c++/9/array:94:12: note:   no known conversion for argument 1 from ‘std::map<long unsigned int, SU2Native3D::Point>::mapped_type’ {aka ‘SU2Native3D::Point’} to ‘const std::array<double, 3>&’
+/usr/include/c++/9/array:94:12: note: candidate: ‘constexpr std::array<double, 3>::array(std::array<double, 3>&&)’
+/usr/include/c++/9/array:94:12: note:   no known conversion for argument 1 from ‘std::map<long unsigned int, SU2Native3D::Point>::mapped_type’ {aka ‘SU2Native3D::Point’} to ‘std::array<double, 3>&&’
+../../Common/src/adaptation/CNativeBoundaryParameters3D.cpp: In member function ‘SU2Native3D::BoundaryParameterState::Publication SU2Native3D::BoundaryParameterState::Prepare(const std::vector<SU2Native3D::BoundaryParameterEdit>&, const std::vector<SU2Native3D::BoundaryFaceChange>&, std::string&, size_t, size_t) const’:
+../../Common/src/adaptation/CNativeBoundaryParameters3D.cpp:148:74: error: no matching function for call to ‘std::array<double, 3>::array(const SU2Native3D::Point&)’
+  148 |       const auto& p=row.second.point;const auto coord=Coordinate(p.node.p);const auto support=Support(p);
+      |                                                                          ^
+In file included from ../../Common/src/adaptation/../../include/adaptation/CNativeMesh3D.hpp:9,
+                 from ../../Common/src/adaptation/../../include/adaptation/CNativeTopology3D.hpp:8,
+                 from ../../Common/src/adaptation/../../include/adaptation/CNativeCavity3D.hpp:8,
+                 from ../../Common/src/adaptation/../../include/adaptation/CNativeBoundary3D.hpp:8,
+                 from ../../Common/src/adaptation/CNativeBoundaryParameters3D.cpp:6:
+/usr/include/c++/9/array:94:12: note: candidate: ‘std::array<double, 3>::array()’
+   94 |     struct array
+      |            ^~~~~
+/usr/include/c++/9/array:94:12: note:   candidate expects 0 arguments, 1 provided
+/usr/include/c++/9/array:94:12: note: candidate: ‘constexpr std::array<double, 3>::array(const std::array<double, 3>&)’
+/usr/include/c++/9/array:94:12: note:   no known conversion for argument 1 from ‘const SU2Native3D::Point’ to ‘const std::array<double, 3>&’
+/usr/include/c++/9/array:94:12: note: candidate: ‘constexpr std::array<double, 3>::array(std::array<double, 3>&&)’
+/usr/include/c++/9/array:94:12: note:   no known conversion for argument 1 from ‘const SU2Native3D::Point’ to ‘std::array<double, 3>&&’
+../../Common/src/adaptation/CNativeBoundaryParameters3D.cpp:148:104: error: no matching function for call to ‘std::tuple<unsigned int, long unsigned int, double, double>::tuple(const SU2Native3D::BoundaryPoint&)’
+  148 |       const auto& p=row.second.point;const auto coord=Coordinate(p.node.p);const auto support=Support(p);
+      |                                                                                                        ^
+In file included from /usr/include/c++/9/bits/stl_map.h:63,
+                 from /usr/include/c++/9/map:61,
+                 from ../../Common/src/adaptation/../../include/adaptation/CNativeAffineReference.hpp:9,
+                 from ../../Common/src/adaptation/../../include/adaptation/CNativeBoundary3D.hpp:9,
+                 from ../../Common/src/adaptation/CNativeBoundaryParameters3D.cpp:6:
+/usr/include/c++/9/tuple:808:11: note: candidate: ‘template<class _Alloc, class _Dummy, class ... _UElements, typename std::enable_if<((std::tuple<unsigned int, long unsigned int, double, double>::_TMCT<_UElements ...>::_MoveConstructibleTuple<_UElements ...>() && (! std::tuple<unsigned int, long unsigned int, double, double>::_TMCT<_UElements ...>::_ImplicitlyMoveConvertibleTuple<_UElements ...>())) && std::tuple<unsigned int, long unsigned int, double, double>::_TNTC<_Dummy>::_NonNestedTuple<tuple<_Args2 ...>&&>()), bool>::type <anonymous> > std::tuple<_Elements>::tuple(std::allocator_arg_t, const _Alloc&, std::tuple<_Args2 ...>&&)’
+  808 |  explicit tuple(allocator_arg_t __tag, const _Alloc& __a,
+      |           ^~~~~
+/usr/include/c++/9/tuple:808:11: note:   template argument deduction/substitution failed:
+../../Common/src/adaptation/CNativeBoundaryParameters3D.cpp:148:104: note:   candidate expects 3 arguments, 1 provided
+  148 |       const auto& p=row.second.point;const auto coord=Coordinate(p.node.p);const auto support=Support(p);
+      |                                                                                                        ^
+In file included from /usr/include/c++/9/bits/stl_map.h:63,
+                 from /usr/include/c++/9/map:61,
+                 from ../../Common/src/adaptation/../../include/adaptation/CNativeAffineReference.hpp:9,
+                 from ../../Common/src/adaptation/../../include/adaptation/CNativeBoundary3D.hpp:9,
+                 from ../../Common/src/adaptation/CNativeBoundaryParameters3D.cpp:6:
+/usr/include/c++/9/tuple:793:2: note: candidate: ‘template<class _Alloc, class _Dummy, class ... _UElements, typename std::enable_if<((std::tuple<unsigned int, long unsigned int, double, double>::_TMCT<_UElements ...>::_MoveConstructibleTuple<_UElements ...>() && std::tuple<unsigned int, long unsigned int, double, double>::_TMCT<_UElements ...>::_ImplicitlyMoveConvertibleTuple<_UElements ...>()) && std::tuple<unsigned int, long unsigned int, double, double>::_TNTC<_Dummy>::_NonNestedTuple<tuple<_Args2 ...>&&>()), bool>::type <anonymous> > std::tuple<_Elements>::tuple(std::allocator_arg_t, const _Alloc&, std::tuple<_Args2 ...>&&)’
+  793 |  tuple(allocator_arg_t __tag, const _Alloc& __a,
+      |  ^~~~~
+/usr/include/c++/9/tuple:793:2: note:   template argument deduction/substitution failed:
+../../Common/src/adaptation/CNativeBoundaryParameters3D.cpp:148:104: note:   candidate expects 3 arguments, 1 provided
+  148 |       const auto& p=row.second.point;const auto coord=Coordinate(p.node.p);const auto support=Support(p);
+      |                                                                                                        ^
+In file included from /usr/include/c++/9/bits/stl_map.h:63,
+                 from /usr/include/c++/9/map:61,
+                 from ../../Common/src/adaptation/../../include/adaptation/CNativeAffineReference.hpp:9,
+                 from ../../Common/src/adaptation/../../include/adaptation/CNativeBoundary3D.hpp:9,
+                 from ../../Common/src/adaptation/CNativeBoundaryParameters3D.cpp:6:
+/usr/include/c++/9/tuple:778:11: note: candidate: ‘template<class _Alloc, class _Dummy, class ... _UElements, typename std::enable_if<((std::tuple<unsigned int, long unsigned int, double, double>::_TMCT<_UElements ...>::_ConstructibleTuple<_UElements ...>() && (! std::tuple<unsigned int, long unsigned int, double, double>::_TMCT<_UElements ...>::_ImplicitlyConvertibleTuple<_UElements ...>())) && std::tuple<unsigned int, long unsigned int, double, double>::_TNTC<_Dummy>::_NonNestedTuple<const tuple<_Args2 ...>&>()), bool>::type <anonymous> > std::tuple<_Elements>::tuple(std::allocator_arg_t, const _Alloc&, const std::tuple<_Args2 ...>&)’
+  778 |  explicit tuple(allocator_arg_t __tag, const _Alloc& __a,
+      |           ^~~~~
+/usr/include/c++/9/tuple:778:11: note:   template argument deduction/substitution failed:
+../../Common/src/adaptation/CNativeBoundaryParameters3D.cpp:148:104: note:   candidate expects 3 arguments, 1 provided
+  148 |       const auto& p=row.second.point;const auto coord=Coordinate(p.node.p);const auto support=Support(p);
+      |                                                                                                        ^
+In file included from /usr/include/c++/9/bits/stl_map.h:63,
+                 from /usr/include/c++/9/map:61,
+                 from ../../Common/src/adaptation/../../include/adaptation/CNativeAffineReference.hpp:9,
+                 from ../../Common/src/adaptation/../../include/adaptation/CNativeBoundary3D.hpp:9,
+                 from ../../Common/src/adaptation/CNativeBoundaryParameters3D.cpp:6:
+/usr/include/c++/9/tuple:763:2: note: candidate: ‘template<class _Alloc, class _Dummy, class ... _UElements, typename std::enable_if<((std::tuple<unsigned int, long unsigned int, double, double>::_TMCT<_UElements ...>::_ConstructibleTuple<_UElements ...>() && std::tuple<unsigned int, long unsigned int, double, double>::_TMCT<_UElements ...>::_ImplicitlyConvertibleTuple<_UElements ...>()) && std::tuple<unsigned int, long unsigned int, double, double>::_TNTC<_Dummy>::_NonNestedTuple<const tuple<_Args2 ...>&>()), bool>::type <anonymous> > std::tuple<_Elements>::tuple(std::allocator_arg_t, const _Alloc&, const std::tuple<_Args2 ...>&)’
+  763 |  tuple(allocator_arg_t __tag, const _Alloc& __a,
+      |  ^~~~~
+/usr/include/c++/9/tuple:763:2: note:   template argument deduction/substitution failed:
+../../Common/src/adaptation/CNativeBoundaryParameters3D.cpp:148:104: note:   candidate expects 3 arguments, 1 provided
+  148 |       const auto& p=row.second.point;const auto coord=Coordinate(p.node.p);const auto support=Support(p);
+      |                                                                                                        ^
+In file included from /usr/include/c++/9/bits/stl_map.h:63,
+                 from /usr/include/c++/9/map:61,
+                 from ../../Common/src/adaptation/../../include/adaptation/CNativeAffineReference.hpp:9,
+                 from ../../Common/src/adaptation/../../include/adaptation/CNativeBoundary3D.hpp:9,
+                 from ../../Common/src/adaptation/CNativeBoundaryParameters3D.cpp:6:
+/usr/include/c++/9/tuple:751:2: note: candidate: ‘template<class _Alloc> std::tuple<_Elements>::tuple(std::allocator_arg_t, const _Alloc&, std::tuple<_Elements>&&)’
+  751 |  tuple(allocator_arg_t __tag, const _Alloc& __a, tuple&& __in)
+      |  ^~~~~
+/usr/include/c++/9/tuple:751:2: note:   template argument deduction/substitution failed:
+../../Common/src/adaptation/CNativeBoundaryParameters3D.cpp:148:104: note:   candidate expects 3 arguments, 1 provided
+  148 |       const auto& p=row.second.point;const auto coord=Coordinate(p.node.p);const auto support=Support(p);
+      |                                                                                                        ^
+In file included from /usr/include/c++/9/bits/stl_map.h:63,
+                 from /usr/include/c++/9/map:61,
+                 from ../../Common/src/adaptation/../../include/adaptation/CNativeAffineReference.hpp:9,
+                 from ../../Common/src/adaptation/../../include/adaptation/CNativeBoundary3D.hpp:9,
+                 from ../../Common/src/adaptation/CNativeBoundaryParameters3D.cpp:6:
+/usr/include/c++/9/tuple:747:2: note: candidate: ‘template<class _Alloc> std::tuple<_Elements>::tuple(std::allocator_arg_t, const _Alloc&, const std::tuple<_Elements>&)’
+  747 |  tuple(allocator_arg_t __tag, const _Alloc& __a, const tuple& __in)
+      |  ^~~~~
+/usr/include/c++/9/tuple:747:2: note:   template argument deduction/substitution failed:
+../../Common/src/adaptation/CNativeBoundaryParameters3D.cpp:148:104: note:   candidate expects 3 arguments, 1 provided
+  148 |       const auto& p=row.second.point;const auto coord=Coordinate(p.node.p);const auto support=Support(p);
+      |                                                                                                        ^
+In file included from /usr/include/c++/9/bits/stl_map.h:63,
+                 from /usr/include/c++/9/map:61,
+                 from ../../Common/src/adaptation/../../include/adaptation/CNativeAffineReference.hpp:9,
+                 from ../../Common/src/adaptation/../../include/adaptation/CNativeBoundary3D.hpp:9,
+                 from ../../Common/src/adaptation/CNativeBoundaryParameters3D.cpp:6:
+/usr/include/c++/9/tuple:741:11: note: candidate: ‘template<class _Alloc, class ... _UElements, typename std::enable_if<(std::tuple<unsigned int, long unsigned int, double, double>::_TMC<_UElements ...>::_MoveConstructibleTuple<_UElements ...>() && (! std::tuple<unsigned int, long unsigned int, double, double>::_TMC<_UElements ...>::_ImplicitlyMoveConvertibleTuple<_UElements ...>())), bool>::type <anonymous> > std::tuple<_Elements>::tuple(std::allocator_arg_t, const _Alloc&, _UElements&& ...)’
+  741 |  explicit tuple(allocator_arg_t __tag, const _Alloc& __a,
+      |           ^~~~~
+/usr/include/c++/9/tuple:741:11: note:   template argument deduction/substitution failed:
+../../Common/src/adaptation/CNativeBoundaryParameters3D.cpp:148:104: note:   candidate expects at least 2 arguments, 1 provided
+  148 |       const auto& p=row.second.point;const auto coord=Coordinate(p.node.p);const auto support=Support(p);
+      |                                                                                                        ^
+In file included from /usr/include/c++/9/bits/stl_map.h:63,
+                 from /usr/include/c++/9/map:61,
+                 from ../../Common/src/adaptation/../../include/adaptation/CNativeAffineReference.hpp:9,
+                 from ../../Common/src/adaptation/../../include/adaptation/CNativeBoundary3D.hpp:9,
+                 from ../../Common/src/adaptation/CNativeBoundaryParameters3D.cpp:6:
+/usr/include/c++/9/tuple:730:2: note: candidate: ‘template<class _Alloc, class ... _UElements, typename std::enable_if<(std::tuple<unsigned int, long unsigned int, double, double>::_TMC<_UElements ...>::_MoveConstructibleTuple<_UElements ...>() && std::tuple<unsigned int, long unsigned int, double, double>::_TMC<_UElements ...>::_ImplicitlyMoveConvertibleTuple<_UElements ...>()), bool>::type <anonymous> > std::tuple<_Elements>::tuple(std::allocator_arg_t, const _Alloc&, _UElements&& ...)’
+  730 |  tuple(allocator_arg_t __tag, const _Alloc& __a,
+      |  ^~~~~
+/usr/include/c++/9/tuple:730:2: note:   template argument deduction/substitution failed:
+../../Common/src/adaptation/CNativeBoundaryParameters3D.cpp:148:104: note:   candidate expects at least 2 arguments, 1 provided
+  148 |       const auto& p=row.second.point;const auto coord=Coordinate(p.node.p);const auto support=Support(p);
+      |                                                                                                        ^
+In file included from /usr/include/c++/9/bits/stl_map.h:63,
+                 from /usr/include/c++/9/map:61,
+                 from ../../Common/src/adaptation/../../include/adaptation/CNativeAffineReference.hpp:9,
+                 from ../../Common/src/adaptation/../../include/adaptation/CNativeBoundary3D.hpp:9,
+                 from ../../Common/src/adaptation/CNativeBoundaryParameters3D.cpp:6:
+/usr/include/c++/9/tuple:720:11: note: candidate: ‘template<class _Alloc, class _Dummy, typename std::enable_if<(std::tuple<unsigned int, long unsigned int, double, double>::_TCC<_Dummy>::_ConstructibleTuple<unsigned int, long unsigned int, double, double>() && (! std::tuple<unsigned int, long unsigned int, double, double>::_TCC<_Dummy>::_ImplicitlyConvertibleTuple<unsigned int, long unsigned int, double, double>())), bool>::type <anonymous> > std::tuple<_Elements>::tuple(std::allocator_arg_t, const _Alloc&, const _Elements& ...)’
+  720 |  explicit tuple(allocator_arg_t __tag, const _Alloc& __a,
+      |           ^~~~~
+/usr/include/c++/9/tuple:720:11: note:   template argument deduction/substitution failed:
+../../Common/src/adaptation/CNativeBoundaryParameters3D.cpp:148:104: note:   candidate expects 6 arguments, 1 provided
+  148 |       const auto& p=row.second.point;const auto coord=Coordinate(p.node.p);const auto support=Support(p);
+      |                                                                                                        ^
+In file included from /usr/include/c++/9/bits/stl_map.h:63,
+                 from /usr/include/c++/9/map:61,
+                 from ../../Common/src/adaptation/../../include/adaptation/CNativeAffineReference.hpp:9,
+                 from ../../Common/src/adaptation/../../include/adaptation/CNativeBoundary3D.hpp:9,
+                 from ../../Common/src/adaptation/CNativeBoundaryParameters3D.cpp:6:
+/usr/include/c++/9/tuple:709:2: note: candidate: ‘template<class _Alloc, class _Dummy, typename std::enable_if<(std::tuple<unsigned int, long unsigned int, double, double>::_TCC<_Dummy>::_ConstructibleTuple<unsigned int, long unsigned int, double, double>() && std::tuple<unsigned int, long unsigned int, double, double>::_TCC<_Dummy>::_ImplicitlyConvertibleTuple<unsigned int, long unsigned int, double, double>()), bool>::type <anonymous> > std::tuple<_Elements>::tuple(std::allocator_arg_t, const _Alloc&, const _Elements& ...)’
+  709 |  tuple(allocator_arg_t __tag, const _Alloc& __a,
+      |  ^~~~~
+/usr/include/c++/9/tuple:709:2: note:   template argument deduction/substitution failed:
+../../Common/src/adaptation/CNativeBoundaryParameters3D.cpp:148:104: note:   candidate expects 6 arguments, 1 provided
+  148 |       const auto& p=row.second.point;const auto coord=Coordinate(p.node.p);const auto support=Support(p);
+      |                                                                                                        ^
+In file included from /usr/include/c++/9/bits/stl_map.h:63,
+                 from /usr/include/c++/9/map:61,
+                 from ../../Common/src/adaptation/../../include/adaptation/CNativeAffineReference.hpp:9,
+                 from ../../Common/src/adaptation/../../include/adaptation/CNativeBoundary3D.hpp:9,
+                 from ../../Common/src/adaptation/CNativeBoundaryParameters3D.cpp:6:
+/usr/include/c++/9/tuple:699:2: note: candidate: ‘template<class _Alloc> std::tuple<_Elements>::tuple(std::allocator_arg_t, const _Alloc&)’
+  699 |  tuple(allocator_arg_t __tag, const _Alloc& __a)
+      |  ^~~~~
+/usr/include/c++/9/tuple:699:2: note:   template argument deduction/substitution failed:
+../../Common/src/adaptation/CNativeBoundaryParameters3D.cpp:148:104: note:   candidate expects 2 arguments, 1 provided
+  148 |       const auto& p=row.second.point;const auto coord=Coordinate(p.node.p);const auto support=Support(p);
+      |                                                                                                        ^
+In file included from /usr/include/c++/9/bits/stl_map.h:63,
+                 from /usr/include/c++/9/map:61,
+                 from ../../Common/src/adaptation/../../include/adaptation/CNativeAffineReference.hpp:9,
+                 from ../../Common/src/adaptation/../../include/adaptation/CNativeBoundary3D.hpp:9,
+                 from ../../Common/src/adaptation/CNativeBoundaryParameters3D.cpp:6:
+/usr/include/c++/9/tuple:693:28: note: candidate: ‘template<class ... _UElements, class _Dummy, typename std::enable_if<((std::tuple<unsigned int, long unsigned int, double, double>::_TMCT<_UElements ...>::_MoveConstructibleTuple<_UElements ...>() && (! std::tuple<unsigned int, long unsigned int, double, double>::_TMCT<_UElements ...>::_ImplicitlyMoveConvertibleTuple<_UElements ...>())) && std::tuple<unsigned int, long unsigned int, double, double>::_TNTC<_Dummy>::_NonNestedTuple<tuple<_Tps ...>&&>()), bool>::type <anonymous> > constexpr std::tuple<_Elements>::tuple(std::tuple<_Args1 ...>&&)’
+  693 |         explicit constexpr tuple(tuple<_UElements...>&& __in)
+      |                            ^~~~~
+/usr/include/c++/9/tuple:693:28: note:   template argument deduction/substitution failed:
+../../Common/src/adaptation/CNativeBoundaryParameters3D.cpp:148:104: note:   types ‘std::tuple<_Tps ...>’ and ‘const SU2Native3D::BoundaryPoint’ have incompatible cv-qualifiers
+  148 |       const auto& p=row.second.point;const auto coord=Coordinate(p.node.p);const auto support=Support(p);
+      |                                                                                                        ^
+In file included from /usr/include/c++/9/bits/stl_map.h:63,
+                 from /usr/include/c++/9/map:61,
+                 from ../../Common/src/adaptation/../../include/adaptation/CNativeAffineReference.hpp:9,
+                 from ../../Common/src/adaptation/../../include/adaptation/CNativeBoundary3D.hpp:9,
+                 from ../../Common/src/adaptation/CNativeBoundaryParameters3D.cpp:6:
+/usr/include/c++/9/tuple:682:19: note: candidate: ‘template<class ... _UElements, class _Dummy, typename std::enable_if<((std::tuple<unsigned int, long unsigned int, double, double>::_TMCT<_UElements ...>::_MoveConstructibleTuple<_UElements ...>() && std::tuple<unsigned int, long unsigned int, double, double>::_TMCT<_UElements ...>::_ImplicitlyMoveConvertibleTuple<_UElements ...>()) && std::tuple<unsigned int, long unsigned int, double, double>::_TNTC<_Dummy>::_NonNestedTuple<tuple<_Tps ...>&&>()), bool>::type <anonymous> > constexpr std::tuple<_Elements>::tuple(std::tuple<_Args1 ...>&&)’
+  682 |         constexpr tuple(tuple<_UElements...>&& __in)
+      |                   ^~~~~
+/usr/include/c++/9/tuple:682:19: note:   template argument deduction/substitution failed:
+../../Common/src/adaptation/CNativeBoundaryParameters3D.cpp:148:104: note:   types ‘std::tuple<_Tps ...>’ and ‘const SU2Native3D::BoundaryPoint’ have incompatible cv-qualifiers
+  148 |       const auto& p=row.second.point;const auto coord=Coordinate(p.node.p);const auto support=Support(p);
+      |                                                                                                        ^
+In file included from /usr/include/c++/9/bits/stl_map.h:63,
+                 from /usr/include/c++/9/map:61,
+                 from ../../Common/src/adaptation/../../include/adaptation/CNativeAffineReference.hpp:9,
+                 from ../../Common/src/adaptation/../../include/adaptation/CNativeBoundary3D.hpp:9,
+                 from ../../Common/src/adaptation/CNativeBoundaryParameters3D.cpp:6:
+/usr/include/c++/9/tuple:670:28: note: candidate: ‘template<class ... _UElements, class _Dummy, typename std::enable_if<((std::tuple<unsigned int, long unsigned int, double, double>::_TMCT<_UElements ...>::_ConstructibleTuple<_UElements ...>() && (! std::tuple<unsigned int, long unsigned int, double, double>::_TMCT<_UElements ...>::_ImplicitlyConvertibleTuple<_UElements ...>())) && std::tuple<unsigned int, long unsigned int, double, double>::_TNTC<_Dummy>::_NonNestedTuple<const tuple<_Tps ...>&>()), bool>::type <anonymous> > constexpr std::tuple<_Elements>::tuple(const std::tuple<_Args1 ...>&)’
+  670 |         explicit constexpr tuple(const tuple<_UElements...>& __in)
+      |                            ^~~~~
+/usr/include/c++/9/tuple:670:28: note:   template argument deduction/substitution failed:
+../../Common/src/adaptation/CNativeBoundaryParameters3D.cpp:148:104: note:   ‘const SU2Native3D::BoundaryPoint’ is not derived from ‘const std::tuple<_Tps ...>’
+  148 |       const auto& p=row.second.point;const auto coord=Coordinate(p.node.p);const auto support=Support(p);
+      |                                                                                                        ^
+In file included from /usr/include/c++/9/bits/stl_map.h:63,
+                 from /usr/include/c++/9/map:61,
+                 from ../../Common/src/adaptation/../../include/adaptation/CNativeAffineReference.hpp:9,
+                 from ../../Common/src/adaptation/../../include/adaptation/CNativeBoundary3D.hpp:9,
+                 from ../../Common/src/adaptation/CNativeBoundaryParameters3D.cpp:6:
+/usr/include/c++/9/tuple:658:19: note: candidate: ‘template<class ... _UElements, class _Dummy, typename std::enable_if<((std::tuple<unsigned int, long unsigned int, double, double>::_TMCT<_UElements ...>::_ConstructibleTuple<_UElements ...>() && std::tuple<unsigned int, long unsigned int, double, double>::_TMCT<_UElements ...>::_ImplicitlyConvertibleTuple<_UElements ...>()) && std::tuple<unsigned int, long unsigned int, double, double>::_TNTC<_Dummy>::_NonNestedTuple<const tuple<_Tps ...>&>()), bool>::type <anonymous> > constexpr std::tuple<_Elements>::tuple(const std::tuple<_Args1 ...>&)’
+  658 |         constexpr tuple(const tuple<_UElements...>& __in)
+      |                   ^~~~~
+/usr/include/c++/9/tuple:658:19: note:   template argument deduction/substitution failed:
+../../Common/src/adaptation/CNativeBoundaryParameters3D.cpp:148:104: note:   ‘const SU2Native3D::BoundaryPoint’ is not derived from ‘const std::tuple<_Tps ...>’
+  148 |       const auto& p=row.second.point;const auto coord=Coordinate(p.node.p);const auto support=Support(p);
+      |                                                                                                        ^
+In file included from /usr/include/c++/9/bits/stl_map.h:63,
+                 from /usr/include/c++/9/map:61,
+                 from ../../Common/src/adaptation/../../include/adaptation/CNativeAffineReference.hpp:9,
+                 from ../../Common/src/adaptation/../../include/adaptation/CNativeBoundary3D.hpp:9,
+                 from ../../Common/src/adaptation/CNativeBoundaryParameters3D.cpp:6:
+/usr/include/c++/9/tuple:642:17: note: candidate: ‘constexpr std::tuple<_Elements>::tuple(std::tuple<_Elements>&&) [with _Elements = {unsigned int, long unsigned int, double, double}]’
+  642 |       constexpr tuple(tuple&&) = default;
+      |                 ^~~~~
+/usr/include/c++/9/tuple:642:23: note:   no known conversion for argument 1 from ‘const SU2Native3D::BoundaryPoint’ to ‘std::tuple<unsigned int, long unsigned int, double, double>&&’
+  642 |       constexpr tuple(tuple&&) = default;
+      |                       ^~~~~~~
+/usr/include/c++/9/tuple:640:17: note: candidate: ‘constexpr std::tuple<_Elements>::tuple(const std::tuple<_Elements>&) [with _Elements = {unsigned int, long unsigned int, double, double}]’
+  640 |       constexpr tuple(const tuple&) = default;
+      |                 ^~~~~
+/usr/include/c++/9/tuple:640:23: note:   no known conversion for argument 1 from ‘const SU2Native3D::BoundaryPoint’ to ‘const std::tuple<unsigned int, long unsigned int, double, double>&’
+  640 |       constexpr tuple(const tuple&) = default;
+      |                       ^~~~~~~~~~~~
+/usr/include/c++/9/tuple:637:28: note: candidate: ‘template<class ... _UElements, typename std::enable_if<((std::tuple<unsigned int, long unsigned int, double, double>::_TMC<_UElements ...>::_MoveConstructibleTuple<_UElements ...>() && (! std::tuple<unsigned int, long unsigned int, double, double>::_TMC<_UElements ...>::_ImplicitlyMoveConvertibleTuple<_UElements ...>())) && (4 >= 1)), bool>::type <anonymous> > constexpr std::tuple<_Elements>::tuple(_UElements&& ...)’
+  637 |         explicit constexpr tuple(_UElements&&... __elements)
+      |                            ^~~~~
+/usr/include/c++/9/tuple:637:28: note:   template argument deduction/substitution failed:
+/usr/include/c++/9/tuple:636:21: error: no type named ‘type’ in ‘struct std::enable_if<false, bool>’
+  636 |         bool>::type=false>
+      |                     ^~~~~
+/usr/include/c++/9/tuple:626:19: note: candidate: ‘template<class ... _UElements, typename std::enable_if<((std::tuple<unsigned int, long unsigned int, double, double>::_TMC<_UElements ...>::_MoveConstructibleTuple<_UElements ...>() && std::tuple<unsigned int, long unsigned int, double, double>::_TMC<_UElements ...>::_ImplicitlyMoveConvertibleTuple<_UElements ...>()) && (4 >= 1)), bool>::type <anonymous> > constexpr std::tuple<_Elements>::tuple(_UElements&& ...)’
+  626 |         constexpr tuple(_UElements&&... __elements)
+      |                   ^~~~~
+/usr/include/c++/9/tuple:626:19: note:   template argument deduction/substitution failed:
+/usr/include/c++/9/tuple:625:21: error: no type named ‘type’ in ‘struct std::enable_if<false, bool>’
+  625 |         bool>::type=true>
+      |                     ^~~~
+/usr/include/c++/9/tuple:599:26: note: candidate: ‘template<class _Dummy, typename std::enable_if<((std::tuple<unsigned int, long unsigned int, double, double>::_TCC<_Dummy>::_ConstructibleTuple<unsigned int, long unsigned int, double, double>() && (! std::tuple<unsigned int, long unsigned int, double, double>::_TCC<_Dummy>::_ImplicitlyConvertibleTuple<unsigned int, long unsigned int, double, double>())) && (4 >= 1)), bool>::type <anonymous> > constexpr std::tuple<_Elements>::tuple(const _Elements& ...)’
+  599 |       explicit constexpr tuple(const _Elements&... __elements)
+      |                          ^~~~~
+/usr/include/c++/9/tuple:599:26: note:   template argument deduction/substitution failed:
+../../Common/src/adaptation/CNativeBoundaryParameters3D.cpp:148:104: note:   candidate expects 4 arguments, 1 provided
+  148 |       const auto& p=row.second.point;const auto coord=Coordinate(p.node.p);const auto support=Support(p);
+      |                                                                                                        ^
+In file included from /usr/include/c++/9/bits/stl_map.h:63,
+                 from /usr/include/c++/9/map:61,
+                 from ../../Common/src/adaptation/../../include/adaptation/CNativeAffineReference.hpp:9,
+                 from ../../Common/src/adaptation/../../include/adaptation/CNativeBoundary3D.hpp:9,
+                 from ../../Common/src/adaptation/CNativeBoundaryParameters3D.cpp:6:
+/usr/include/c++/9/tuple:588:19: note: candidate: ‘template<class _Dummy, typename std::enable_if<((std::tuple<unsigned int, long unsigned int, double, double>::_TCC<_Dummy>::_ConstructibleTuple<unsigned int, long unsigned int, double, double>() && std::tuple<unsigned int, long unsigned int, double, double>::_TCC<_Dummy>::_ImplicitlyConvertibleTuple<unsigned int, long unsigned int, double, double>()) && (4 >= 1)), bool>::type <anonymous> > constexpr std::tuple<_Elements>::tuple(const _Elements& ...)’
+  588 |         constexpr tuple(const _Elements&... __elements)
+      |                   ^~~~~
+/usr/include/c++/9/tuple:588:19: note:   template argument deduction/substitution failed:
+../../Common/src/adaptation/CNativeBoundaryParameters3D.cpp:148:104: note:   candidate expects 4 arguments, 1 provided
+  148 |       const auto& p=row.second.point;const auto coord=Coordinate(p.node.p);const auto support=Support(p);
+      |                                                                                                        ^
+In file included from /usr/include/c++/9/bits/stl_map.h:63,
+                 from /usr/include/c++/9/map:61,
+                 from ../../Common/src/adaptation/../../include/adaptation/CNativeAffineReference.hpp:9,
+                 from ../../Common/src/adaptation/../../include/adaptation/CNativeBoundary3D.hpp:9,
+                 from ../../Common/src/adaptation/CNativeBoundaryParameters3D.cpp:6:
+/usr/include/c++/9/tuple:571:26: note: candidate: ‘template<class _Dummy, typename std::enable_if<(std::tuple<unsigned int, long unsigned int, double, double>::_TC2<_Dummy>::_DefaultConstructibleTuple() && (! std::tuple<unsigned int, long unsigned int, double, double>::_TC2<_Dummy>::_ImplicitlyDefaultConstructibleTuple())), bool>::type <anonymous> > constexpr std::tuple<_Elements>::tuple()’
+  571 |       explicit constexpr tuple()
+      |                          ^~~~~
+/usr/include/c++/9/tuple:571:26: note:   template argument deduction/substitution failed:
+../../Common/src/adaptation/CNativeBoundaryParameters3D.cpp:148:104: note:   candidate expects 0 arguments, 1 provided
+  148 |       const auto& p=row.second.point;const auto coord=Coordinate(p.node.p);const auto support=Support(p);
+      |                                                                                                        ^
+In file included from /usr/include/c++/9/bits/stl_map.h:63,
+                 from /usr/include/c++/9/map:61,
+                 from ../../Common/src/adaptation/../../include/adaptation/CNativeAffineReference.hpp:9,
+                 from ../../Common/src/adaptation/../../include/adaptation/CNativeBoundary3D.hpp:9,
+                 from ../../Common/src/adaptation/CNativeBoundaryParameters3D.cpp:6:
+/usr/include/c++/9/tuple:561:17: note: candidate: ‘template<class _Dummy, typename std::enable_if<std::tuple<unsigned int, long unsigned int, double, double>::_TC2<_Dummy>::_ImplicitlyDefaultConstructibleTuple(), bool>::type <anonymous> > constexpr std::tuple<_Elements>::tuple()’
+  561 |       constexpr tuple()
+      |                 ^~~~~
+/usr/include/c++/9/tuple:561:17: note:   template argument deduction/substitution failed:
+../../Common/src/adaptation/CNativeBoundaryParameters3D.cpp:148:104: note:   candidate expects 0 arguments, 1 provided
+  148 |       const auto& p=row.second.point;const auto coord=Coordinate(p.node.p);const auto support=Support(p);
+      |                                                                                                        ^
+../../Common/src/adaptation/CNativeBoundaryParameters3D.cpp: In member function ‘void SU2Native3D::BoundaryParameterState::Commit(SU2Native3D::BoundaryParameterState::Publication&&)’:
+../../Common/src/adaptation/CNativeBoundaryParameters3D.cpp:208:110: error: no matching function for call to ‘std::array<double, 3>::array(SU2Native3D::Point&)’
+  208 |   for(Id id:staged.removed){const auto p=records.find(id);coordinates.erase(Coordinate(p->second.point.node.p));supports.erase(Support(p->second.point));records.erase(p);}
+      |                                                                                                              ^
+In file included from ../../Common/src/adaptation/../../include/adaptation/CNativeMesh3D.hpp:9,
+                 from ../../Common/src/adaptation/../../include/adaptation/CNativeTopology3D.hpp:8,
+                 from ../../Common/src/adaptation/../../include/adaptation/CNativeCavity3D.hpp:8,
+                 from ../../Common/src/adaptation/../../include/adaptation/CNativeBoundary3D.hpp:8,
+                 from ../../Common/src/adaptation/CNativeBoundaryParameters3D.cpp:6:
+/usr/include/c++/9/array:94:12: note: candidate: ‘std::array<double, 3>::array()’
+   94 |     struct array
+      |            ^~~~~
+/usr/include/c++/9/array:94:12: note:   candidate expects 0 arguments, 1 provided
+/usr/include/c++/9/array:94:12: note: candidate: ‘constexpr std::array<double, 3>::array(const std::array<double, 3>&)’
+/usr/include/c++/9/array:94:12: note:   no known conversion for argument 1 from ‘SU2Native3D::Point’ to ‘const std::array<double, 3>&’
+/usr/include/c++/9/array:94:12: note: candidate: ‘constexpr std::array<double, 3>::array(std::array<double, 3>&&)’
+/usr/include/c++/9/array:94:12: note:   no known conversion for argument 1 from ‘SU2Native3D::Point’ to ‘std::array<double, 3>&&’
+../../Common/src/adaptation/CNativeBoundaryParameters3D.cpp:208:151: error: no matching function for call to ‘std::tuple<unsigned int, long unsigned int, double, double>::tuple(SU2Native3D::BoundaryPoint&)’
+  208 |   for(Id id:staged.removed){const auto p=records.find(id);coordinates.erase(Coordinate(p->second.point.node.p));supports.erase(Support(p->second.point));records.erase(p);}
+      |                                                                                                                                                       ^
+In file included from /usr/include/c++/9/bits/stl_map.h:63,
+                 from /usr/include/c++/9/map:61,
+                 from ../../Common/src/adaptation/../../include/adaptation/CNativeAffineReference.hpp:9,
+                 from ../../Common/src/adaptation/../../include/adaptation/CNativeBoundary3D.hpp:9,
+                 from ../../Common/src/adaptation/CNativeBoundaryParameters3D.cpp:6:
+/usr/include/c++/9/tuple:808:11: note: candidate: ‘template<class _Alloc, class _Dummy, class ... _UElements, typename std::enable_if<((std::tuple<unsigned int, long unsigned int, double, double>::_TMCT<_UElements ...>::_MoveConstructibleTuple<_UElements ...>() && (! std::tuple<unsigned int, long unsigned int, double, double>::_TMCT<_UElements ...>::_ImplicitlyMoveConvertibleTuple<_UElements ...>())) && std::tuple<unsigned int, long unsigned int, double, double>::_TNTC<_Dummy>::_NonNestedTuple<tuple<_Args2 ...>&&>()), bool>::type <anonymous> > std::tuple<_Elements>::tuple(std::allocator_arg_t, const _Alloc&, std::tuple<_Args2 ...>&&)’
+  808 |  explicit tuple(allocator_arg_t __tag, const _Alloc& __a,
+      |           ^~~~~
+/usr/include/c++/9/tuple:808:11: note:   template argument deduction/substitution failed:
+../../Common/src/adaptation/CNativeBoundaryParameters3D.cpp:208:151: note:   candidate expects 3 arguments, 1 provided
+  208 |   for(Id id:staged.removed){const auto p=records.find(id);coordinates.erase(Coordinate(p->second.point.node.p));supports.erase(Support(p->second.point));records.erase(p);}
+      |                                                                                                                                                       ^
+In file included from /usr/include/c++/9/bits/stl_map.h:63,
+                 from /usr/include/c++/9/map:61,
+                 from ../../Common/src/adaptation/../../include/adaptation/CNativeAffineReference.hpp:9,
+                 from ../../Common/src/adaptation/../../include/adaptation/CNativeBoundary3D.hpp:9,
+                 from ../../Common/src/adaptation/CNativeBoundaryParameters3D.cpp:6:
+/usr/include/c++/9/tuple:793:2: note: candidate: ‘template<class _Alloc, class _Dummy, class ... _UElements, typename std::enable_if<((std::tuple<unsigned int, long unsigned int, double, double>::_TMCT<_UElements ...>::_MoveConstructibleTuple<_UElements ...>() && std::tuple<unsigned int, long unsigned int, double, double>::_TMCT<_UElements ...>::_ImplicitlyMoveConvertibleTuple<_UElements ...>()) && std::tuple<unsigned int, long unsigned int, double, double>::_TNTC<_Dummy>::_NonNestedTuple<tuple<_Args2 ...>&&>()), bool>::type <anonymous> > std::tuple<_Elements>::tuple(std::allocator_arg_t, const _Alloc&, std::tuple<_Args2 ...>&&)’
+  793 |  tuple(allocator_arg_t __tag, const _Alloc& __a,
+      |  ^~~~~
+/usr/include/c++/9/tuple:793:2: note:   template argument deduction/substitution failed:
+../../Common/src/adaptation/CNativeBoundaryParameters3D.cpp:208:151: note:   candidate expects 3 arguments, 1 provided
+  208 |   for(Id id:staged.removed){const auto p=records.find(id);coordinates.erase(Coordinate(p->second.point.node.p));supports.erase(Support(p->second.point));records.erase(p);}
+      |                                                                                                                                                       ^
+In file included from /usr/include/c++/9/bits/stl_map.h:63,
+                 from /usr/include/c++/9/map:61,
+                 from ../../Common/src/adaptation/../../include/adaptation/CNativeAffineReference.hpp:9,
+                 from ../../Common/src/adaptation/../../include/adaptation/CNativeBoundary3D.hpp:9,
+                 from ../../Common/src/adaptation/CNativeBoundaryParameters3D.cpp:6:
+/usr/include/c++/9/tuple:778:11: note: candidate: ‘template<class _Alloc, class _Dummy, class ... _UElements, typename std::enable_if<((std::tuple<unsigned int, long unsigned int, double, double>::_TMCT<_UElements ...>::_ConstructibleTuple<_UElements ...>() && (! std::tuple<unsigned int, long unsigned int, double, double>::_TMCT<_UElements ...>::_ImplicitlyConvertibleTuple<_UElements ...>())) && std::tuple<unsigned int, long unsigned int, double, double>::_TNTC<_Dummy>::_NonNestedTuple<const tuple<_Args2 ...>&>()), bool>::type <anonymous> > std::tuple<_Elements>::tuple(std::allocator_arg_t, const _Alloc&, const std::tuple<_Args2 ...>&)’
+  778 |  explicit tuple(allocator_arg_t __tag, const _Alloc& __a,
+      |           ^~~~~
+/usr/include/c++/9/tuple:778:11: note:   template argument deduction/substitution failed:
+../../Common/src/adaptation/CNativeBoundaryParameters3D.cpp:208:151: note:   candidate expects 3 arguments, 1 provided
+  208 |   for(Id id:staged.removed){const auto p=records.find(id);coordinates.erase(Coordinate(p->second.point.node.p));supports.erase(Support(p->second.point));records.erase(p);}
+      |                                                                                                                                                       ^
+In file included from /usr/include/c++/9/bits/stl_map.h:63,
+                 from /usr/include/c++/9/map:61,
+                 from ../../Common/src/adaptation/../../include/adaptation/CNativeAffineReference.hpp:9,
+                 from ../../Common/src/adaptation/../../include/adaptation/CNativeBoundary3D.hpp:9,
+                 from ../../Common/src/adaptation/CNativeBoundaryParameters3D.cpp:6:
+/usr/include/c++/9/tuple:763:2: note: candidate: ‘template<class _Alloc, class _Dummy, class ... _UElements, typename std::enable_if<((std::tuple<unsigned int, long unsigned int, double, double>::_TMCT<_UElements ...>::_ConstructibleTuple<_UElements ...>() && std::tuple<unsigned int, long unsigned int, double, double>::_TMCT<_UElements ...>::_ImplicitlyConvertibleTuple<_UElements ...>()) && std::tuple<unsigned int, long unsigned int, double, double>::_TNTC<_Dummy>::_NonNestedTuple<const tuple<_Args2 ...>&>()), bool>::type <anonymous> > std::tuple<_Elements>::tuple(std::allocator_arg_t, const _Alloc&, const std::tuple<_Args2 ...>&)’
+  763 |  tuple(allocator_arg_t __tag, const _Alloc& __a,
+      |  ^~~~~
+/usr/include/c++/9/tuple:763:2: note:   template argument deduction/substitution failed:
+../../Common/src/adaptation/CNativeBoundaryParameters3D.cpp:208:151: note:   candidate expects 3 arguments, 1 provided
+  208 |   for(Id id:staged.removed){const auto p=records.find(id);coordinates.erase(Coordinate(p->second.point.node.p));supports.erase(Support(p->second.point));records.erase(p);}
+      |                                                                                                                                                       ^
+In file included from /usr/include/c++/9/bits/stl_map.h:63,
+                 from /usr/include/c++/9/map:61,
+                 from ../../Common/src/adaptation/../../include/adaptation/CNativeAffineReference.hpp:9,
+                 from ../../Common/src/adaptation/../../include/adaptation/CNativeBoundary3D.hpp:9,
+                 from ../../Common/src/adaptation/CNativeBoundaryParameters3D.cpp:6:
+/usr/include/c++/9/tuple:751:2: note: candidate: ‘template<class _Alloc> std::tuple<_Elements>::tuple(std::allocator_arg_t, const _Alloc&, std::tuple<_Elements>&&)’
+  751 |  tuple(allocator_arg_t __tag, const _Alloc& __a, tuple&& __in)
+      |  ^~~~~
+/usr/include/c++/9/tuple:751:2: note:   template argument deduction/substitution failed:
+../../Common/src/adaptation/CNativeBoundaryParameters3D.cpp:208:151: note:   candidate expects 3 arguments, 1 provided
+  208 |   for(Id id:staged.removed){const auto p=records.find(id);coordinates.erase(Coordinate(p->second.point.node.p));supports.erase(Support(p->second.point));records.erase(p);}
+      |                                                                                                                                                       ^
+In file included from /usr/include/c++/9/bits/stl_map.h:63,
+                 from /usr/include/c++/9/map:61,
+                 from ../../Common/src/adaptation/../../include/adaptation/CNativeAffineReference.hpp:9,
+                 from ../../Common/src/adaptation/../../include/adaptation/CNativeBoundary3D.hpp:9,
+                 from ../../Common/src/adaptation/CNativeBoundaryParameters3D.cpp:6:
+/usr/include/c++/9/tuple:747:2: note: candidate: ‘template<class _Alloc> std::tuple<_Elements>::tuple(std::allocator_arg_t, const _Alloc&, const std::tuple<_Elements>&)’
+  747 |  tuple(allocator_arg_t __tag, const _Alloc& __a, const tuple& __in)
+      |  ^~~~~
+/usr/include/c++/9/tuple:747:2: note:   template argument deduction/substitution failed:
+../../Common/src/adaptation/CNativeBoundaryParameters3D.cpp:208:151: note:   candidate expects 3 arguments, 1 provided
+  208 |   for(Id id:staged.removed){const auto p=records.find(id);coordinates.erase(Coordinate(p->second.point.node.p));supports.erase(Support(p->second.point));records.erase(p);}
+      |                                                                                                                                                       ^
+In file included from /usr/include/c++/9/bits/stl_map.h:63,
+                 from /usr/include/c++/9/map:61,
+                 from ../../Common/src/adaptation/../../include/adaptation/CNativeAffineReference.hpp:9,
+                 from ../../Common/src/adaptation/../../include/adaptation/CNativeBoundary3D.hpp:9,
+                 from ../../Common/src/adaptation/CNativeBoundaryParameters3D.cpp:6:
+/usr/include/c++/9/tuple:741:11: note: candidate: ‘template<class _Alloc, class ... _UElements, typename std::enable_if<(std::tuple<unsigned int, long unsigned int, double, double>::_TMC<_UElements ...>::_MoveConstructibleTuple<_UElements ...>() && (! std::tuple<unsigned int, long unsigned int, double, double>::_TMC<_UElements ...>::_ImplicitlyMoveConvertibleTuple<_UElements ...>())), bool>::type <anonymous> > std::tuple<_Elements>::tuple(std::allocator_arg_t, const _Alloc&, _UElements&& ...)’
+  741 |  explicit tuple(allocator_arg_t __tag, const _Alloc& __a,
+      |           ^~~~~
+/usr/include/c++/9/tuple:741:11: note:   template argument deduction/substitution failed:
+../../Common/src/adaptation/CNativeBoundaryParameters3D.cpp:208:151: note:   candidate expects at least 2 arguments, 1 provided
+  208 |   for(Id id:staged.removed){const auto p=records.find(id);coordinates.erase(Coordinate(p->second.point.node.p));supports.erase(Support(p->second.point));records.erase(p);}
+      |                                                                                                                                                       ^
+In file included from /usr/include/c++/9/bits/stl_map.h:63,
+                 from /usr/include/c++/9/map:61,
+                 from ../../Common/src/adaptation/../../include/adaptation/CNativeAffineReference.hpp:9,
+                 from ../../Common/src/adaptation/../../include/adaptation/CNativeBoundary3D.hpp:9,
+                 from ../../Common/src/adaptation/CNativeBoundaryParameters3D.cpp:6:
+/usr/include/c++/9/tuple:730:2: note: candidate: ‘template<class _Alloc, class ... _UElements, typename std::enable_if<(std::tuple<unsigned int, long unsigned int, double, double>::_TMC<_UElements ...>::_MoveConstructibleTuple<_UElements ...>() && std::tuple<unsigned int, long unsigned int, double, double>::_TMC<_UElements ...>::_ImplicitlyMoveConvertibleTuple<_UElements ...>()), bool>::type <anonymous> > std::tuple<_Elements>::tuple(std::allocator_arg_t, const _Alloc&, _UElements&& ...)’
+  730 |  tuple(allocator_arg_t __tag, const _Alloc& __a,
+      |  ^~~~~
+/usr/include/c++/9/tuple:730:2: note:   template argument deduction/substitution failed:
+../../Common/src/adaptation/CNativeBoundaryParameters3D.cpp:208:151: note:   candidate expects at least 2 arguments, 1 provided
+  208 |   for(Id id:staged.removed){const auto p=records.find(id);coordinates.erase(Coordinate(p->second.point.node.p));supports.erase(Support(p->second.point));records.erase(p);}
+      |                                                                                                                                                       ^
+In file included from /usr/include/c++/9/bits/stl_map.h:63,
+                 from /usr/include/c++/9/map:61,
+                 from ../../Common/src/adaptation/../../include/adaptation/CNativeAffineReference.hpp:9,
+                 from ../../Common/src/adaptation/../../include/adaptation/CNativeBoundary3D.hpp:9,
+                 from ../../Common/src/adaptation/CNativeBoundaryParameters3D.cpp:6:
+/usr/include/c++/9/tuple:720:11: note: candidate: ‘template<class _Alloc, class _Dummy, typename std::enable_if<(std::tuple<unsigned int, long unsigned int, double, double>::_TCC<_Dummy>::_ConstructibleTuple<unsigned int, long unsigned int, double, double>() && (! std::tuple<unsigned int, long unsigned int, double, double>::_TCC<_Dummy>::_ImplicitlyConvertibleTuple<unsigned int, long unsigned int, double, double>())), bool>::type <anonymous> > std::tuple<_Elements>::tuple(std::allocator_arg_t, const _Alloc&, const _Elements& ...)’
+  720 |  explicit tuple(allocator_arg_t __tag, const _Alloc& __a,
+      |           ^~~~~
+/usr/include/c++/9/tuple:720:11: note:   template argument deduction/substitution failed:
+../../Common/src/adaptation/CNativeBoundaryParameters3D.cpp:208:151: note:   candidate expects 6 arguments, 1 provided
+  208 |   for(Id id:staged.removed){const auto p=records.find(id);coordinates.erase(Coordinate(p->second.point.node.p));supports.erase(Support(p->second.point));records.erase(p);}
+      |                                                                                                                                                       ^
+In file included from /usr/include/c++/9/bits/stl_map.h:63,
+                 from /usr/include/c++/9/map:61,
+                 from ../../Common/src/adaptation/../../include/adaptation/CNativeAffineReference.hpp:9,
+                 from ../../Common/src/adaptation/../../include/adaptation/CNativeBoundary3D.hpp:9,
+                 from ../../Common/src/adaptation/CNativeBoundaryParameters3D.cpp:6:
+/usr/include/c++/9/tuple:709:2: note: candidate: ‘template<class _Alloc, class _Dummy, typename std::enable_if<(std::tuple<unsigned int, long unsigned int, double, double>::_TCC<_Dummy>::_ConstructibleTuple<unsigned int, long unsigned int, double, double>() && std::tuple<unsigned int, long unsigned int, double, double>::_TCC<_Dummy>::_ImplicitlyConvertibleTuple<unsigned int, long unsigned int, double, double>()), bool>::type <anonymous> > std::tuple<_Elements>::tuple(std::allocator_arg_t, const _Alloc&, const _Elements& ...)’
+  709 |  tuple(allocator_arg_t __tag, const _Alloc& __a,
+      |  ^~~~~
+/usr/include/c++/9/tuple:709:2: note:   template argument deduction/substitution failed:
+../../Common/src/adaptation/CNativeBoundaryParameters3D.cpp:208:151: note:   candidate expects 6 arguments, 1 provided
+  208 |   for(Id id:staged.removed){const auto p=records.find(id);coordinates.erase(Coordinate(p->second.point.node.p));supports.erase(Support(p->second.point));records.erase(p);}
+      |                                                                                                                                                       ^
+In file included from /usr/include/c++/9/bits/stl_map.h:63,
+                 from /usr/include/c++/9/map:61,
+                 from ../../Common/src/adaptation/../../include/adaptation/CNativeAffineReference.hpp:9,
+                 from ../../Common/src/adaptation/../../include/adaptation/CNativeBoundary3D.hpp:9,
+                 from ../../Common/src/adaptation/CNativeBoundaryParameters3D.cpp:6:
+/usr/include/c++/9/tuple:699:2: note: candidate: ‘template<class _Alloc> std::tuple<_Elements>::tuple(std::allocator_arg_t, const _Alloc&)’
+  699 |  tuple(allocator_arg_t __tag, const _Alloc& __a)
+      |  ^~~~~
+/usr/include/c++/9/tuple:699:2: note:   template argument deduction/substitution failed:
+../../Common/src/adaptation/CNativeBoundaryParameters3D.cpp:208:151: note:   candidate expects 2 arguments, 1 provided
+  208 |   for(Id id:staged.removed){const auto p=records.find(id);coordinates.erase(Coordinate(p->second.point.node.p));supports.erase(Support(p->second.point));records.erase(p);}
+      |                                                                                                                                                       ^
+In file included from /usr/include/c++/9/bits/stl_map.h:63,
+                 from /usr/include/c++/9/map:61,
+                 from ../../Common/src/adaptation/../../include/adaptation/CNativeAffineReference.hpp:9,
+                 from ../../Common/src/adaptation/../../include/adaptation/CNativeBoundary3D.hpp:9,
+                 from ../../Common/src/adaptation/CNativeBoundaryParameters3D.cpp:6:
+/usr/include/c++/9/tuple:693:28: note: candidate: ‘template<class ... _UElements, class _Dummy, typename std::enable_if<((std::tuple<unsigned int, long unsigned int, double, double>::_TMCT<_UElements ...>::_MoveConstructibleTuple<_UElements ...>() && (! std::tuple<unsigned int, long unsigned int, double, double>::_TMCT<_UElements ...>::_ImplicitlyMoveConvertibleTuple<_UElements ...>())) && std::tuple<unsigned int, long unsigned int, double, double>::_TNTC<_Dummy>::_NonNestedTuple<tuple<_Tps ...>&&>()), bool>::type <anonymous> > constexpr std::tuple<_Elements>::tuple(std::tuple<_Args1 ...>&&)’
+  693 |         explicit constexpr tuple(tuple<_UElements...>&& __in)
+      |                            ^~~~~
+/usr/include/c++/9/tuple:693:28: note:   template argument deduction/substitution failed:
+../../Common/src/adaptation/CNativeBoundaryParameters3D.cpp:208:151: note:   ‘SU2Native3D::BoundaryPoint’ is not derived from ‘std::tuple<_Tps ...>’
+  208 |   for(Id id:staged.removed){const auto p=records.find(id);coordinates.erase(Coordinate(p->second.point.node.p));supports.erase(Support(p->second.point));records.erase(p);}
+      |                                                                                                                                                       ^
+In file included from /usr/include/c++/9/bits/stl_map.h:63,
+                 from /usr/include/c++/9/map:61,
+                 from ../../Common/src/adaptation/../../include/adaptation/CNativeAffineReference.hpp:9,
+                 from ../../Common/src/adaptation/../../include/adaptation/CNativeBoundary3D.hpp:9,
+                 from ../../Common/src/adaptation/CNativeBoundaryParameters3D.cpp:6:
+/usr/include/c++/9/tuple:682:19: note: candidate: ‘template<class ... _UElements, class _Dummy, typename std::enable_if<((std::tuple<unsigned int, long unsigned int, double, double>::_TMCT<_UElements ...>::_MoveConstructibleTuple<_UElements ...>() && std::tuple<unsigned int, long unsigned int, double, double>::_TMCT<_UElements ...>::_ImplicitlyMoveConvertibleTuple<_UElements ...>()) && std::tuple<unsigned int, long unsigned int, double, double>::_TNTC<_Dummy>::_NonNestedTuple<tuple<_Tps ...>&&>()), bool>::type <anonymous> > constexpr std::tuple<_Elements>::tuple(std::tuple<_Args1 ...>&&)’
+  682 |         constexpr tuple(tuple<_UElements...>&& __in)
+      |                   ^~~~~
+/usr/include/c++/9/tuple:682:19: note:   template argument deduction/substitution failed:
+../../Common/src/adaptation/CNativeBoundaryParameters3D.cpp:208:151: note:   ‘SU2Native3D::BoundaryPoint’ is not derived from ‘std::tuple<_Tps ...>’
+  208 |   for(Id id:staged.removed){const auto p=records.find(id);coordinates.erase(Coordinate(p->second.point.node.p));supports.erase(Support(p->second.point));records.erase(p);}
+      |                                                                                                                                                       ^
+In file included from /usr/include/c++/9/bits/stl_map.h:63,
+                 from /usr/include/c++/9/map:61,
+                 from ../../Common/src/adaptation/../../include/adaptation/CNativeAffineReference.hpp:9,
+                 from ../../Common/src/adaptation/../../include/adaptation/CNativeBoundary3D.hpp:9,
+                 from ../../Common/src/adaptation/CNativeBoundaryParameters3D.cpp:6:
+/usr/include/c++/9/tuple:670:28: note: candidate: ‘template<class ... _UElements, class _Dummy, typename std::enable_if<((std::tuple<unsigned int, long unsigned int, double, double>::_TMCT<_UElements ...>::_ConstructibleTuple<_UElements ...>() && (! std::tuple<unsigned int, long unsigned int, double, double>::_TMCT<_UElements ...>::_ImplicitlyConvertibleTuple<_UElements ...>())) && std::tuple<unsigned int, long unsigned int, double, double>::_TNTC<_Dummy>::_NonNestedTuple<const tuple<_Tps ...>&>()), bool>::type <anonymous> > constexpr std::tuple<_Elements>::tuple(const std::tuple<_Args1 ...>&)’
+  670 |         explicit constexpr tuple(const tuple<_UElements...>& __in)
+      |                            ^~~~~
+/usr/include/c++/9/tuple:670:28: note:   template argument deduction/substitution failed:
+../../Common/src/adaptation/CNativeBoundaryParameters3D.cpp:208:151: note:   ‘SU2Native3D::BoundaryPoint’ is not derived from ‘const std::tuple<_Tps ...>’
+  208 |   for(Id id:staged.removed){const auto p=records.find(id);coordinates.erase(Coordinate(p->second.point.node.p));supports.erase(Support(p->second.point));records.erase(p);}
+      |                                                                                                                                                       ^
+In file included from /usr/include/c++/9/bits/stl_map.h:63,
+                 from /usr/include/c++/9/map:61,
+                 from ../../Common/src/adaptation/../../include/adaptation/CNativeAffineReference.hpp:9,
+                 from ../../Common/src/adaptation/../../include/adaptation/CNativeBoundary3D.hpp:9,
+                 from ../../Common/src/adaptation/CNativeBoundaryParameters3D.cpp:6:
+/usr/include/c++/9/tuple:658:19: note: candidate: ‘template<class ... _UElements, class _Dummy, typename std::enable_if<((std::tuple<unsigned int, long unsigned int, double, double>::_TMCT<_UElements ...>::_ConstructibleTuple<_UElements ...>() && std::tuple<unsigned int, long unsigned int, double, double>::_TMCT<_UElements ...>::_ImplicitlyConvertibleTuple<_UElements ...>()) && std::tuple<unsigned int, long unsigned int, double, double>::_TNTC<_Dummy>::_NonNestedTuple<const tuple<_Tps ...>&>()), bool>::type <anonymous> > constexpr std::tuple<_Elements>::tuple(const std::tuple<_Args1 ...>&)’
+  658 |         constexpr tuple(const tuple<_UElements...>& __in)
+      |                   ^~~~~
+/usr/include/c++/9/tuple:658:19: note:   template argument deduction/substitution failed:
+../../Common/src/adaptation/CNativeBoundaryParameters3D.cpp:208:151: note:   ‘SU2Native3D::BoundaryPoint’ is not derived from ‘const std::tuple<_Tps ...>’
+  208 |   for(Id id:staged.removed){const auto p=records.find(id);coordinates.erase(Coordinate(p->second.point.node.p));supports.erase(Support(p->second.point));records.erase(p);}
+      |                                                                                                                                                       ^
+In file included from /usr/include/c++/9/bits/stl_map.h:63,
+                 from /usr/include/c++/9/map:61,
+                 from ../../Common/src/adaptation/../../include/adaptation/CNativeAffineReference.hpp:9,
+                 from ../../Common/src/adaptation/../../include/adaptation/CNativeBoundary3D.hpp:9,
+                 from ../../Common/src/adaptation/CNativeBoundaryParameters3D.cpp:6:
+/usr/include/c++/9/tuple:642:17: note: candidate: ‘constexpr std::tuple<_Elements>::tuple(std::tuple<_Elements>&&) [with _Elements = {unsigned int, long unsigned int, double, double}]’
+  642 |       constexpr tuple(tuple&&) = default;
+      |                 ^~~~~
+/usr/include/c++/9/tuple:642:23: note:   no known conversion for argument 1 from ‘SU2Native3D::BoundaryPoint’ to ‘std::tuple<unsigned int, long unsigned int, double, double>&&’
+  642 |       constexpr tuple(tuple&&) = default;
+      |                       ^~~~~~~
+/usr/include/c++/9/tuple:640:17: note: candidate: ‘constexpr std::tuple<_Elements>::tuple(const std::tuple<_Elements>&) [with _Elements = {unsigned int, long unsigned int, double, double}]’
+  640 |       constexpr tuple(const tuple&) = default;
+      |                 ^~~~~
+/usr/include/c++/9/tuple:640:23: note:   no known conversion for argument 1 from ‘SU2Native3D::BoundaryPoint’ to ‘const std::tuple<unsigned int, long unsigned int, double, double>&’
+  640 |       constexpr tuple(const tuple&) = default;
+      |                       ^~~~~~~~~~~~
+/usr/include/c++/9/tuple:637:28: note: candidate: ‘template<class ... _UElements, typename std::enable_if<((std::tuple<unsigned int, long unsigned int, double, double>::_TMC<_UElements ...>::_MoveConstructibleTuple<_UElements ...>() && (! std::tuple<unsigned int, long unsigned int, double, double>::_TMC<_UElements ...>::_ImplicitlyMoveConvertibleTuple<_UElements ...>())) && (4 >= 1)), bool>::type <anonymous> > constexpr std::tuple<_Elements>::tuple(_UElements&& ...)’
+  637 |         explicit constexpr tuple(_UElements&&... __elements)
+      |                            ^~~~~
+/usr/include/c++/9/tuple:637:28: note:   template argument deduction/substitution failed:
+/usr/include/c++/9/tuple:636:21: error: no type named ‘type’ in ‘struct std::enable_if<false, bool>’
+  636 |         bool>::type=false>
+      |                     ^~~~~
+/usr/include/c++/9/tuple:626:19: note: candidate: ‘template<class ... _UElements, typename std::enable_if<((std::tuple<unsigned int, long unsigned int, double, double>::_TMC<_UElements ...>::_MoveConstructibleTuple<_UElements ...>() && std::tuple<unsigned int, long unsigned int, double, double>::_TMC<_UElements ...>::_ImplicitlyMoveConvertibleTuple<_UElements ...>()) && (4 >= 1)), bool>::type <anonymous> > constexpr std::tuple<_Elements>::tuple(_UElements&& ...)’
+  626 |         constexpr tuple(_UElements&&... __elements)
+      |                   ^~~~~
+/usr/include/c++/9/tuple:626:19: note:   template argument deduction/substitution failed:
+/usr/include/c++/9/tuple:625:21: error: no type named ‘type’ in ‘struct std::enable_if<false, bool>’
+  625 |         bool>::type=true>
+      |                     ^~~~
+/usr/include/c++/9/tuple:599:26: note: candidate: ‘template<class _Dummy, typename std::enable_if<((std::tuple<unsigned int, long unsigned int, double, double>::_TCC<_Dummy>::_ConstructibleTuple<unsigned int, long unsigned int, double, double>() && (! std::tuple<unsigned int, long unsigned int, double, double>::_TCC<_Dummy>::_ImplicitlyConvertibleTuple<unsigned int, long unsigned int, double, double>())) && (4 >= 1)), bool>::type <anonymous> > constexpr std::tuple<_Elements>::tuple(const _Elements& ...)’
+  599 |       explicit constexpr tuple(const _Elements&... __elements)
+      |                          ^~~~~
+/usr/include/c++/9/tuple:599:26: note:   template argument deduction/substitution failed:
+../../Common/src/adaptation/CNativeBoundaryParameters3D.cpp:208:151: note:   candidate expects 4 arguments, 1 provided
+  208 |   for(Id id:staged.removed){const auto p=records.find(id);coordinates.erase(Coordinate(p->second.point.node.p));supports.erase(Support(p->second.point));records.erase(p);}
+      |                                                                                                                                                       ^
+In file included from /usr/include/c++/9/bits/stl_map.h:63,
+                 from /usr/include/c++/9/map:61,
+                 from ../../Common/src/adaptation/../../include/adaptation/CNativeAffineReference.hpp:9,
+                 from ../../Common/src/adaptation/../../include/adaptation/CNativeBoundary3D.hpp:9,
+                 from ../../Common/src/adaptation/CNativeBoundaryParameters3D.cpp:6:
+/usr/include/c++/9/tuple:588:19: note: candidate: ‘template<class _Dummy, typename std::enable_if<((std::tuple<unsigned int, long unsigned int, double, double>::_TCC<_Dummy>::_ConstructibleTuple<unsigned int, long unsigned int, double, double>() && std::tuple<unsigned int, long unsigned int, double, double>::_TCC<_Dummy>::_ImplicitlyConvertibleTuple<unsigned int, long unsigned int, double, double>()) && (4 >= 1)), bool>::type <anonymous> > constexpr std::tuple<_Elements>::tuple(const _Elements& ...)’
+  588 |         constexpr tuple(const _Elements&... __elements)
+      |                   ^~~~~
+/usr/include/c++/9/tuple:588:19: note:   template argument deduction/substitution failed:
+../../Common/src/adaptation/CNativeBoundaryParameters3D.cpp:208:151: note:   candidate expects 4 arguments, 1 provided
+  208 |   for(Id id:staged.removed){const auto p=records.find(id);coordinates.erase(Coordinate(p->second.point.node.p));supports.erase(Support(p->second.point));records.erase(p);}
+      |                                                                                                                                                       ^
+In file included from /usr/include/c++/9/bits/stl_map.h:63,
+                 from /usr/include/c++/9/map:61,
+                 from ../../Common/src/adaptation/../../include/adaptation/CNativeAffineReference.hpp:9,
+                 from ../../Common/src/adaptation/../../include/adaptation/CNativeBoundary3D.hpp:9,
+                 from ../../Common/src/adaptation/CNativeBoundaryParameters3D.cpp:6:
+/usr/include/c++/9/tuple:571:26: note: candidate: ‘template<class _Dummy, typename std::enable_if<(std::tuple<unsigned int, long unsigned int, double, double>::_TC2<_Dummy>::_DefaultConstructibleTuple() && (! std::tuple<unsigned int, long unsigned int, double, double>::_TC2<_Dummy>::_ImplicitlyDefaultConstructibleTuple())), bool>::type <anonymous> > constexpr std::tuple<_Elements>::tuple()’
+  571 |       explicit constexpr tuple()
+      |                          ^~~~~
+/usr/include/c++/9/tuple:571:26: note:   template argument deduction/substitution failed:
+../../Common/src/adaptation/CNativeBoundaryParameters3D.cpp:208:151: note:   candidate expects 0 arguments, 1 provided
+  208 |   for(Id id:staged.removed){const auto p=records.find(id);coordinates.erase(Coordinate(p->second.point.node.p));supports.erase(Support(p->second.point));records.erase(p);}
+      |                                                                                                                                                       ^
+In file included from /usr/include/c++/9/bits/stl_map.h:63,
+                 from /usr/include/c++/9/map:61,
+                 from ../../Common/src/adaptation/../../include/adaptation/CNativeAffineReference.hpp:9,
+                 from ../../Common/src/adaptation/../../include/adaptation/CNativeBoundary3D.hpp:9,
+                 from ../../Common/src/adaptation/CNativeBoundaryParameters3D.cpp:6:
+/usr/include/c++/9/tuple:561:17: note: candidate: ‘template<class _Dummy, typename std::enable_if<std::tuple<unsigned int, long unsigned int, double, double>::_TC2<_Dummy>::_ImplicitlyDefaultConstructibleTuple(), bool>::type <anonymous> > constexpr std::tuple<_Elements>::tuple()’
+  561 |       constexpr tuple()
+      |                 ^~~~~
+/usr/include/c++/9/tuple:561:17: note:   template argument deduction/substitution failed:
+../../Common/src/adaptation/CNativeBoundaryParameters3D.cpp:208:151: note:   candidate expects 0 arguments, 1 provided
+  208 |   for(Id id:staged.removed){const auto p=records.find(id);coordinates.erase(Coordinate(p->second.point.node.p));supports.erase(Support(p->second.point));records.erase(p);}
+      |                                                                                                                                                       ^
+ninja: build stopped: subcommand failed.

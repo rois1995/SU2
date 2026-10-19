@@ -228,7 +228,9 @@ struct PlanarReference::ParameterView {
   void Check()const{if(private_view&&revision!=accepted->Revision())throw std::invalid_argument("Stale private boundary parameter epoch.");}
   void Bound()const{if(local.size()+pending.size()>8*MaximumReplacementCells)throw std::length_error("Private boundary parameter workspace exhausted.");}
   void Insert(BoundaryPoint p) {
-    Check();const auto key=PointKey(p.node.p);const auto old=coordinates.find(key);
+    Check();
+    if(!accepted->Geometry().Admissible(p.binding,p.node.p))throw std::invalid_argument("Private boundary point violates its geometry binding.");
+    const auto key=PointKey(p.node.p);const auto old=coordinates.find(key);
     if(old!=coordinates.end()&&old->second!=p.node.id)throw std::invalid_argument("Private boundary coordinates have conflicting identities.");
     const auto before=local.find(p.node.id);if(before!=local.end())coordinates.erase(PointKey(before->second.node.p));
     local[p.node.id]=p;coordinates[key]=p.node.id;Bound();

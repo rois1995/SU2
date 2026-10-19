@@ -6,6 +6,7 @@
  * SU2 is free software under the GNU Lesser General Public License, version 2.1 or later.
  */
 #include "../../include/adaptation/CNativeMesh3D.hpp"
+#include "CNativePredicates3D_internal.hpp"
 #include "../../include/adaptation/CNativePointConstruction3D.hpp"
 #include <algorithm>
 #include <cmath>
@@ -287,6 +288,41 @@ bool Clip(const Cell& cell, Point a, Point b, WorkPiece& result, KernelStats* st
 
 long double Orientation(Point a, Point b, Point c, Point d, KernelStats* stats) {
   return Determinant(a, b, c, d, stats, 1);
+}
+int SurfaceOrientationSign(const std::array<Point,3>& reference,const std::array<Point,3>& actual,KernelStats* stats) {
+  for(const auto& face:{reference,actual})for(Point p:face)
+    if(!Finite(p))throw std::invalid_argument("Nonfinite native surface orientation.");
+  // The filter needs the complete degree-four binary64 exponent range; otherwise use exact integers.
+  if constexpr(std::numeric_limits<long double>::max_exponent>4*std::numeric_limits<double>::max_exponent+8 &&
+      std::numeric_limits<long double>::min_exponent-std::numeric_limits<long double>::digits<
+          4*(std::numeric_limits<double>::min_exponent-std::numeric_limits<double>::digits)-8) {
+    auto normal=[](const std::array<Point,3>& face,Vector& magnitude) {
+      const auto u=Delta(face[1],face[0]),v=Delta(face[2],face[0]);Vector n{};
+      for(unsigned i=0;i<3;++i){const unsigned j=(i+1)%3,k=(i+2)%3;
+        const auto a=u[j]*v[k],b=u[k]*v[j];n[i]=a-b;magnitude[i]=std::abs(a)+std::abs(b);}
+      return n;
+    };
+    Vector a{},b{};const auto n=normal(reference,a),m=normal(actual,b);
+    long double value=0,permanent=0;
+    for(unsigned i=0;i<3;++i){value+=n[i]*m[i];permanent+=a[i]*b[i];}
+    if(std::isfinite(value)&&std::isfinite(permanent)&&permanent>0 &&
+        std::abs(value)>64*std::numeric_limits<long double>::epsilon()*permanent) {
+      if(stats)++stats->filtered_orientations;return value>0?1:-1;
+    }
+  }
+  if(stats)++stats->exact_orientations;
+  auto normal=[](const std::array<Point,3>& face) {
+    auto difference=[&](Point p){return std::array<Integer<66>,3>{
+        Difference(Coordinate(p.x),Coordinate(face[0].x)),Difference(Coordinate(p.y),Coordinate(face[0].y)),
+        Difference(Coordinate(p.z),Coordinate(face[0].z))};};
+    const auto u=difference(face[1]),v=difference(face[2]);std::array<Integer<132>,3> n{};
+    for(unsigned i=0;i<3;++i){const unsigned j=(i+1)%3,k=(i+2)%3;n[i]=Difference(Product(u[j],v[k]),Product(u[k],v[j]));}
+    return n;
+  };
+  const auto a=normal(reference),b=normal(actual);auto value=Product(a[0],b[0]);
+  // Four coordinate factors plus three signed terms fit in264 32-bit limbs (binary64 needs at most8401bits).
+  for(unsigned i=1;i<3;++i){auto term=Product(a[i],b[i]);term.negative=!term.negative;value=Difference(value,term);}
+  return Sign(value);
 }
 int OrientationCentroidSign(Point a,Point b,const std::array<Point,3>& triangle,Point d,KernelStats* stats) {
   if(!(Finite(a)&&Finite(b)&&Finite(d)))throw std::invalid_argument("Nonfinite native centroid orientation.");

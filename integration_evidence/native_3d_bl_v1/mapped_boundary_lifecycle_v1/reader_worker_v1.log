@@ -1,0 +1,9 @@
+reader_v1_n1 {"exit_code": -6, "elapsed_seconds": 0.9264231330016628, "command": ["taskset", "-c", "0", "nice", "-n", "19", "timeout", "--kill-after=5s", "180s", "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver", "[NativeMappedReader3D]", "--abort", "--reporter", "compact"], "provenance_sha256": "fd5e1af150130eadb186d2b7db18f6742545b5f0b63a85f2616ec3b15b6e54e9", "log_sha256": "51a0c3330d61c79170ef380eb754a6d654d8ffa73e485f2c4ad17fa1f4004f2d"}
+Traceback (most recent call last):
+  File "integration_evidence/native_3d_bl_v1/mapped_boundary_lifecycle_v1/run.py", line 98, in <module>
+    if __name__=='__main__':main()
+  File "integration_evidence/native_3d_bl_v1/mapped_boundary_lifecycle_v1/run.py", line 85, in main
+    result=invoke(folder,parameters,fixture,ranks,test_filter=FILTERS[mode])
+  File "integration_evidence/native_3d_bl_v1/mapped_boundary_lifecycle_v1/run.py", line 57, in invoke
+    if not ((0<run.returncode<124) if expected_failure else run.returncode==0):raise RuntimeError('Failed '+str(folder))
+RuntimeError: Failed /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/mapped_boundary_lifecycle_v1/reader_v1_n1

@@ -1,0 +1,85 @@
+{
+  "status": "STATIC_EXACT_COUNTEREXAMPLE_CPP_CONTROL_PENDING",
+  "scope": "Shared geometry ContainsFace, not proof of final mesh acceptance or an accepted runtime failure.",
+  "reference_facet": [
+    [
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      1,
+      0
+    ],
+    [
+      1,
+      0,
+      0
+    ]
+  ],
+  "parameter_uv": [
+    [
+      0.3,
+      0.3
+    ],
+    [
+      0.3000000000000284,
+      0.3
+    ],
+    [
+      0.3,
+      0.3000000000000284
+    ]
+  ],
+  "ideal_xyz": [
+    [
+      0.3,
+      0.3,
+      0.0
+    ],
+    [
+      0.3,
+      0.3000000000000284,
+      0.0
+    ],
+    [
+      0.3000000000000284,
+      0.3,
+      0.0
+    ]
+  ],
+  "realized_xyz": [
+    [
+      0.3,
+      0.3,
+      0.0
+    ],
+    [
+      0.3,
+      0.29999999999997157,
+      0.0
+    ],
+    [
+      0.3000000000000284,
+      0.3,
+      0.0
+    ]
+  ],
+  "mapping_limit": 1e-13,
+  "maximum_L1_error": 5.684341886080802e-14,
+  "exact_signed_projected_area_ideal": "-1/1237940039285380274899124224",
+  "exact_signed_projected_area_realized": "1/1237940039285380274899124224",
+  "deduction": "Current ContainsFace checks supports, error limits and ideal orientation, then returns without testing realized orientation. The supplied supported interior points meet those checks but reverse the realized face.",
+  "required_followup": "Execute a negative C++ control after the current build is terminal, preserving mesh gates. Choose a stable projection/chart for the realized-orientation check; do not reintroduce first-small-component rounding obstruction.",
+  "additional_review_candidates": [
+    "Private geometry insertion should reject nonfinite/bad bindings before ordered coordinate-map access; accepted-state publication already revalidates.",
+    "Pure projection on an accepted mapped authority currently requires a private context for unknown proposals. Check shared API semantics before enabling broader workflows.",
+    "Coordinated movement after a child split must consume the child forward bindings, not infer them from its coordinates. Audit ConstrainMovePoint candidate scope."
+  ],
+  "source_sha256": {
+    "Common/src/adaptation/CNativeAffineReference.cpp": "371906578bd4b99c024c8fb8db6e89e290e874d3539f4036dbba58350425337d",
+    "Common/src/adaptation/CNativeBoundaryParameters3D.cpp": "1ee0fcb29d8e798947523f3e173ac21d984f35d091ddd5c4b977365e635d5c35",
+    "Common/src/adaptation/CNativeBoundary3D.cpp": "9eed5b6c9733a4360480726b152ec0b03885dae99ba58bcde24f32a3f49615ce"
+  }
+}

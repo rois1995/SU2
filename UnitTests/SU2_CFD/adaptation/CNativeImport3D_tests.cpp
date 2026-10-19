@@ -2471,7 +2471,8 @@ TEST_CASE("Candidate complexity reassesses original P1 and actual composition wi
 
 TEST_CASE("Mapped boundary records follow actual CFD reader numbering output and reload", "[NativeMappedReader3D]") {
   World world;const bool rans=GENERATE(false,true);
-  auto config=MakeConfig(3,rans?"SOLVER= RANS\nKIND_TURB_MODEL= SA\nREYNOLDS_NUMBER= 1e6\nREYNOLDS_LENGTH= 1\n":"SOLVER= EULER\n");
+  const std::string physics=rans?"SOLVER= RANS\nKIND_TURB_MODEL= SA\nREYNOLDS_NUMBER= 1e6\nREYNOLDS_LENGTH= 1\n":"SOLVER= EULER\n";
+  auto config=MakeConfig(3,physics+"TIME_DOMAIN= YES\nTIME_STEP= .001\nTIME_ITER= 10\nTIME_MARCHING= DUAL_TIME_STEPPING-2ND_ORDER\n");
   auto mesh=BoxMesh(3,1,false);
   for(size_t p=0;p<mesh.GetnPoint();++p)mesh.coord[3*p+1]+=.37*mesh.coord[3*p]+.61*mesh.coord[3*p+2];
   MeshSolution current(config.get(),mesh,0);ReferenceState reference;
@@ -2515,4 +2516,56 @@ TEST_CASE("Mapped boundary records follow actual CFD reader numbering output and
     BridgeStats synchronized;REQUIRE(SynchronizeBoundaryParameters(world,workers,parent_state,reason,synchronized));
     CHECK(parent_state.original->Parameters()->Snapshot()==returned->Parameters()->Snapshot());CHECK(synchronized.parameter_return_bytes>0);
   }
+}
+
+TEST_CASE("Mapped native runtime completes a uniform target before conservative BDF2 transfer", "[NativeMappedRuntime3D]") {
+  World world;const bool rans=GENERATE(false,true);
+  const auto physics=rans?std::string("SOLVER= RANS\nKIND_TURB_MODEL= SA\nREYNOLDS_NUMBER= 1e6\nREYNOLDS_LENGTH= 1\n"):std::string("SOLVER= EULER\n");
+  const auto all=std::getenv("SU2_NATIVE_MAPPED_ALL_WORKERS");
+  const int workers=all&&std::string(all)=="1"?world.size:(world.size>1?world.size/2:1);
+  auto config=MakeConfig(3,physics+"COMPUTE_METRIC= YES\nADAP_SENSOR= PRESSURE\nADAP_HESSIAN_NOISE= 0\nADAP_REMESHER= NATIVE_CAVITY\nADAP_SURFACE= YES\n"
+      "ADAP_NATIVE_REPARTITION= YES\nADAP_NATIVE_RANKS= "+std::to_string(workers)+"\nTIME_DOMAIN= YES\nTIME_STEP= .001\nTIME_ITER= 10\nTIME_MARCHING= DUAL_TIME_STEPPING-2ND_ORDER\n");
+  auto mesh=BoxMesh(3,1,false);for(size_t p=0;p<mesh.GetnPoint();++p)mesh.coord[3*p+1]+=.37*mesh.coord[3*p]+.61*mesh.coord[3*p+2];
+  const auto base=AffineFlow(3);
+  const transfer_test::Field flow=[base,rans](const su2double* x,su2double* u){base(x,u);if(rans){u[1]=20*x[2];u[2]=3*x[2];u[3]=2*x[2];}};
+  MeshSolution current(config.get(),mesh,0);current.SetField(FLOW_SOL,flow);
+  if(rans)current.SetField(TURB_SOL,[](const su2double*,su2double* u){u[0]=.01;});
+  for(auto slot:{FLOW_SOL,TURB_SOL}) {
+    if(slot==TURB_SOL&&!rans)continue;auto* solver=current.solver[MESH_0][slot];auto* nodes=solver->GetNodes();
+    for(unsigned long p=0;p<current.Fine().GetnPoint();++p)for(unsigned k=0;k<solver->GetnVar();++k) {
+      nodes->GetSolution_time_n()(p,k)=nodes->GetSolution(p,k);nodes->GetSolution_time_n1()(p,k)=.96875*nodes->GetSolution(p,k);
+    }
+  }
+  auto reference=std::make_shared<ReferenceState>();ImportGeometry(*config,current.Fine(),nullptr,*reference);
+  std::map<Id,double> errors;for(auto f:reference->facets)errors.emplace(f.id,1e-13);
+  auto authority=std::make_shared<SU2NativeGeometry::MappedFacetReference>(reference->original,errors,7);
+  BoundaryPoints points;std::vector<SurfaceFace> skin;
+  for(auto f:reference->facets){skin.push_back({{f.v[0].id,f.v[1].id,f.v[2].id},f.id});for(auto n:f.v)points.emplace(n.id,BoundaryPoint{n,authority->Vertex(n.id)});}
+  reference->original=PlanarReference::WithParameters(reference->original,std::make_shared<BoundaryParameterState>(authority,points,skin));
+  const auto original_reference=EncodeReference(*reference);const auto saved=State(current);
+  su2activematrix sensor(current.Fine().GetnPointDomain(),6);
+  for(size_t p=0;p<sensor.rows();++p)for(unsigned k=0;k<6;++k)sensor(p,k)=(k==0||k==3||k==5)?4.:0.;
+  EngineOptions limits;limits.maximum_seconds=120;limits.timings=true;
+  CNativeRemesher3D backend(reference,limits);const auto result=backend.Remesh(*config,current.Fine(),sensor);
+  INFO("refine="<<EngineStopName(backend.Statistics().refine.stop)<<", coarsen="<<EngineStopName(backend.Statistics().coarsen.stop));
+  REQUIRE(result.status==CRemeshResult::Status::COMPLETE);CHECK(EncodeReference(*reference)==original_reference);CHECK(State(current)==saved);
+  MeshSolution accepted(config.get(),result.slices,0);CConservativeTransfer transfer;
+  {Mute mute;transfer.Transfer(config.get(),current.Donor(),accepted.geometry,accepted.solver);}
+  const auto name=rans?"mapped_runtime_rans":"mapped_runtime_euler";
+  const auto transported=result.slices.FetchPointMetric(accepted.Fine());
+  SaveStates(world,name,current,accepted,transported,4.);SaveProjection(world,name,transfer);
+  double error=0;
+  for(unsigned long p=0;p<accepted.Fine().GetnPoint();++p) {
+    su2double expected[MAXVAR]{};flow(accepted.Fine().nodes->GetCoord(p),expected);const auto* nodes=accepted.solver[MESH_0][FLOW_SOL]->GetNodes();
+    for(unsigned k=0;k<5;++k){error=std::max(error,RelDiff(nodes->GetSolution(p,k),expected[k]));
+      error=std::max(error,RelDiff(nodes->GetSolution_time_n(p,k),expected[k]));error=std::max(error,RelDiff(nodes->GetSolution_time_n1(p,k),.96875*expected[k]));}
+    if(rans){const auto* turb=accepted.solver[MESH_0][TURB_SOL]->GetNodes();CHECK(turb->GetSolution(p,0)>=0);CHECK(turb->GetSolution_time_n(p,0)>=0);CHECK(turb->GetSolution_time_n1(p,0)>=0);
+      error=std::max(error,RelDiff(turb->GetSolution(p,0),.01));error=std::max(error,RelDiff(turb->GetSolution_time_n(p,0),.01));
+      error=std::max(error,RelDiff(turb->GetSolution_time_n1(p,0),.0096875));}
+  }
+  CHECK(CPassiveComm::Allreduce(error,CPassiveComm::Op::MAX,world.comm)<2e-9);CHECK(State(current)==saved);
+  if(result.beforeAcceptance)REQUIRE(CPassiveComm::Allreduce(int(result.beforeAcceptance()),CPassiveComm::Op::MIN,world.comm));
+  REQUIRE(result.onAccepted);result.onAccepted();const auto stable=EncodeReference(*reference);result.onAccepted();CHECK(EncodeReference(*reference)==stable);
+  OutputRoundTrip(world,name,result.slices,ImportGeometry(*config,accepted.Fine(),nullptr,*reference).cells,*reference,4.,
+      [](const su2double*,double scale){return Tensor{scale,0,0,scale,0,scale};});
 }

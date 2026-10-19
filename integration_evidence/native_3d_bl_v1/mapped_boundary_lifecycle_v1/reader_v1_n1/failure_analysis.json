@@ -1,0 +1,9 @@
+{
+  "status": "CONFIRMED_FIXTURE_HISTORY_CONFIGURATION",
+  "binary_sha256": "68f696577d50206d67b231a5e7ef6621cfb2f94e98454e08463908210e5f4c14",
+  "symbol": "State(CGeometry const&, CSolver const&)",
+  "location": "UnitTests/SU2_CFD/adaptation/CNativeImport3D_tests.cpp:91",
+  "cause": "Snapshot reads both time-history arrays unconditionally; new fixture configured steady flow, leaving those arrays empty.",
+  "correction": "Configure dual-time BDF2 for this fixture; retain current and both histories in the unchanged snapshot helper.",
+  "scope": "No mapped source/reader or full remeshing result inferred from this early assertion."
+}

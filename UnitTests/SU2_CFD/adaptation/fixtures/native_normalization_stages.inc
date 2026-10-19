@@ -279,6 +279,7 @@ void BudgetRuntime3D(bool symmetry) {
   const int workers=symmetry && all && std::string(all)=="1"?world.size:std::min(2,world.size);
   const bool annulus=symmetry && std::getenv("SU2_NATIVE_SYMMETRY_ANNULUS");
   const bool oblique=annulus && std::getenv("SU2_NATIVE_SYMMETRY_OBLIQUE");
+  const bool mapped=oblique && std::getenv("SU2_NATIVE_SYMMETRY_MAPPED");
   const double budget=GENERATE(3.,20.);if(annulus && budget!=20)return;
   const auto name=std::string(oblique?"affine_annulus_bl_budget_":annulus?"symmetry_annulus_bl_budget_":symmetry?"symmetry_bl_budget_":"bl_budget_")+std::to_string(int(budget))+"_m"+std::to_string(workers);
   if(!world.rank) {
@@ -373,6 +374,17 @@ void BudgetRuntime3D(bool symmetry) {
     for(size_t p=0;p<geometry.GetnPoint();++p)for(unsigned k=0;k<3;++k)CHECK(geometry.nodes->GetCoord(p,k)==coordinates[p][k]);
     CHECK(State(geometry,driver->Solver())==states);
   }
+  if(mapped) {
+    // Geometry already adopted; declare a matching mapping band before original metric/donors freeze.
+    auto& reference=*driver->Reference();REQUIRE(reference.original);
+    std::map<Id,double> errors;for(auto f:reference.facets)errors.emplace(f.id,1e-13);
+    auto authority=std::make_shared<SU2NativeGeometry::MappedFacetReference>(reference.original,errors,7);
+    BoundaryPoints points;std::vector<SurfaceFace> skin;
+    for(auto f:reference.facets){skin.push_back({{f.v[0].id,f.v[1].id,f.v[2].id},f.id});for(auto n:f.v)points.emplace(n.id,BoundaryPoint{n,authority->Vertex(n.id)});}
+    reference.original=PlanarReference::WithParameters(reference.original,std::make_shared<BoundaryParameterState>(authority,points,skin));
+    const auto check=ImportGeometry(driver->Config(),driver->Geometry(),nullptr,reference);
+    CHECK(CPassiveComm::Allreduce(uint64_t(check.cells.size()),CPassiveComm::Op::SUM,world.comm)==driver->Geometry().GetGlobal_nElemDomain());
+  }
   auto backend=driver->Backend();auto* native=dynamic_cast<CNativeRemesher3D*>(backend.get());REQUIRE(native);
   if(annulus) {
     struct LastTrial {Patch old,fresh;Feature feature;MetricDiagnosis metric;bool candidate=false;std::string reason;};
@@ -383,21 +395,29 @@ void BudgetRuntime3D(bool symmetry) {
         throw std::runtime_error("Controlled rejected trial exceeds its diagnostic storage bound.");
       *last={old,fresh,feature,metric,candidate,reason};
     });
-    native->SetRejectedStateObserver([last,reference,prefix](const Owned& owned,const std::string& reason) {
+    native->SetRejectedStateObserver([last,reference,prefix](const Owned& owned,const PlanarReference& active,const std::string& reason) {
+      auto rejected=*reference;rejected.original=std::shared_ptr<const PlanarReference>(reference->original,&active); // Borrowed for this call only.
       if(owned.size()>4096)throw std::runtime_error("Controlled rejected state exceeds its diagnostic storage bound.");
       std::vector<OwnedCell> rows;for(const auto& row:owned)rows.push_back(row.second);
-      SaveRecords(prefix,rows,{},*reference);
+      SaveRecords(prefix,rows,{},rejected);
       std::vector<char> bytes;RecordStream encode(bytes);uint64_t count=rows.size();encode(count);for(auto& row:rows)encode(row);
       std::ofstream raw(prefix+".bin",std::ios::binary);raw.write(bytes.data(),bytes.size());if(!raw)throw std::runtime_error("Cannot save rejected native state.");
-      std::ofstream authority(prefix+".native_ref");authority<<EncodeReference(*reference);if(!authority)throw std::runtime_error("Cannot save rejected native authority.");
+      std::ofstream authority(prefix+".native_ref");authority<<EncodeReference(rejected);if(!authority)throw std::runtime_error("Cannot save rejected native authority.");
       std::ofstream why(prefix+".txt");why<<reason<<"\nLast observed local trial: "<<last->reason<<'\n';if(!why)throw std::runtime_error("Cannot save rejected native reason.");
-      SaveRecords(prefix+"_trial_before",PatchRecords(last->old),{},*reference);
-      SaveRecords(prefix+"_trial_after",PatchRecords(last->fresh),{},*reference);
+      SaveRecords(prefix+"_trial_before",PatchRecords(last->old),{},rejected);
+      SaveRecords(prefix+"_trial_after",PatchRecords(last->fresh),{},rejected);
       std::ofstream info(prefix+"_trial.json");info<<std::setprecision(17)<<"{\"count\":"<<last->feature.count
         <<",\"vertices\":["<<last->feature.vertices[0]<<','<<last->feature.vertices[1]<<','<<last->feature.vertices[2]
         <<"],\"candidate\":"<<(last->candidate?"true":"false")<<",\"minimum_quality\":"<<last->metric.minimum_mean_ratio
         <<",\"minimum_scaled_jacobian\":"<<last->metric.minimum_scaled_jacobian
         <<",\"weakest_cell\":"<<last->metric.weakest_cell<<",\"sliver_cell\":"<<last->metric.sliver_cell<<"}\n";if(!info)throw std::runtime_error("Cannot save rejected trial diagnosis.");
+      for(const auto& trial:std::vector<std::pair<std::string,const Patch*>>{{"before",&last->old},{"after",&last->fresh}}) {
+        if(trial.second->parameters.size()>4*MaximumReplacementCells)throw std::runtime_error("Rejected parameter diagnostic exceeds its storage bound.");
+        std::vector<char> payload;RecordStream stream(payload);uint64_t count=trial.second->parameters.size();stream(count);
+        for(auto row:trial.second->parameters)stream(row.second);
+        std::ofstream out(prefix+"_trial_"+trial.first+".parameters.bin",std::ios::binary);out.write(payload.data(),payload.size());
+        if(!out)throw std::runtime_error("Cannot save rejected forward geometry parameters.");
+      }
     });
   }
 
@@ -449,7 +469,7 @@ void BudgetRuntime3D(bool symmetry) {
 
   if(oblique) {
     const auto encoded=EncodeReference(*driver->Reference());CHECK_FALSE(driver->Reference()->original->Affine().empty());
-    CHECK(encoded.find("SU2_NATIVE_REFERENCE_3D 4\n")==0);
+    CHECK(encoded.find(mapped?"SU2_NATIVE_REFERENCE_3D 5\n":"SU2_NATIVE_REFERENCE_3D 4\n")==0);
     if(!world.rank){std::ofstream out(name+".planes");out<<"SU2_NATIVE_SYMMETRY_PLANES 2 1\n\"symmetry\" 17 2 0 0 0 -.37 1 -.61 1e-10 1e-13\n";REQUIRE(bool(out));}
     SU2_MPI::Barrier(world.comm);ImportedGeometry refused;BridgeStats stats;std::string reason;auto retained=*driver->Reference();
     CHECK_FALSE(ImportGeometry(driver->Config(),g,&solver.GetNodes()->GetMetric(),retained,refused,reason,stats,size_t(128)<<20));

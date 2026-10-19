@@ -1,0 +1,21 @@
+{
+  "pid": 1830487,
+  "status": "TERMINAL",
+  "exit_code": -6,
+  "command": [
+    "taskset",
+    "-c",
+    "0",
+    "nice",
+    "-n",
+    "19",
+    "timeout",
+    "--kill-after=5s",
+    "180s",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver",
+    "[NativeMappedReader3D]",
+    "--abort",
+    "--reporter",
+    "compact"
+  ]
+}

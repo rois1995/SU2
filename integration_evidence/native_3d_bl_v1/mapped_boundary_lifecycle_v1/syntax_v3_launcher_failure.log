@@ -1,0 +1,6 @@
+Traceback (most recent call last):
+  File "integration_evidence/native_3d_bl_v1/mapped_boundary_lifecycle_v1/syntax_guard_v3.py", line 3, in <module>
+    root=Path.cwd();build=root/'integration_evidence/build-integrated-v2';out=root/'integration_evidence/native_3d_bl_v1/mapped_boundary_lifecycle_v1/syntax_v2';out.mkdir()
+  File "/usr/lib/python3.8/pathlib.py", line 1288, in mkdir
+    self._accessor.mkdir(self, mode)
+FileExistsError: [Errno 17] File exists: '/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/mapped_boundary_lifecycle_v1/syntax_v2'

@@ -1,0 +1,39 @@
+{
+  "exit_code": 0,
+  "elapsed_seconds": 3.911204765900038,
+  "command": [
+    "taskset",
+    "-c",
+    "2",
+    "nice",
+    "-n",
+    "19",
+    "timeout",
+    "--kill-after=5s",
+    "180s",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver",
+    "[NativeMappedReader3D]",
+    "--abort",
+    "--reporter",
+    "compact"
+  ],
+  "provenance_sha256": "433c6b1ee21a0d69a41bda497e92ea37434078ede7c31cbc5963da2721c9ae89",
+  "log_sha256": "8125ec019ef13c64a343b7af893c60ade30988cfc08e00bcd7bacea6c114d07b",
+  "compiled_sources_unchanged": true,
+  "test_filter_matched": true,
+  "artifacts": {
+    "mapped_reader_rans_written_CGNS_reload.json": "0e4747e4da000cf5f8f6ff46c1bf7947c47f898ed1a2d9e40aa51f00fd0f3755",
+    "mapped_reader_rans_written_SU2_reload.json": "0e4747e4da000cf5f8f6ff46c1bf7947c47f898ed1a2d9e40aa51f00fd0f3755",
+    "mapped_reader_rans_written_CGNS.cgns.native_ref": "9556beddbff97a37997c8787b3472f75405183bd445eee3a8e471f6616032891",
+    "mapped_reader_euler_written_SU2.su2.native_ref": "da888b05ef403b176bd89279edc8b21f820b6d461c94ed11d35f93a2f9ea14e9",
+    "process.json": "b08d993aee2fea38bee1d1958066a3b41df30ee7b376751b77c9fd092a7c4b39",
+    "mapped_reader_euler_written_SU2_reload.json": "fc223eb8c1029dfb91ebe670afecd14ab37680a6e399965d85c66f2deaf8ae4d",
+    "mapped_reader_euler_written_CGNS_reload.json": "fc223eb8c1029dfb91ebe670afecd14ab37680a6e399965d85c66f2deaf8ae4d",
+    "mapped_reader_rans_written_SU2.su2": "22a512705c0e58b9032dd87d04ee1a7e8de6e6f65339f9c7e73405dc46868900",
+    "mapped_reader_euler_written_CGNS.cgns.native_ref": "da888b05ef403b176bd89279edc8b21f820b6d461c94ed11d35f93a2f9ea14e9",
+    "mapped_reader_rans_written_CGNS.cgns": "6a2d205574aebeea2bc1d93f65ead3dc5861924c21900351484c6374fe34a041",
+    "mapped_reader_euler_written_SU2.su2": "3086c5a2ef6d066f7a92f1c5cdd331c52e4ac9eef20424ccd8dee021e66244b2",
+    "mapped_reader_euler_written_CGNS.cgns": "ec5ef47865085e9421c8ca8dc904cefdd2c23b0a8bf7583f0bdabb2602fac04d",
+    "mapped_reader_rans_written_SU2.su2.native_ref": "9556beddbff97a37997c8787b3472f75405183bd445eee3a8e471f6616032891"
+  }
+}

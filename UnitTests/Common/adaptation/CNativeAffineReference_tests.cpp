@@ -4,6 +4,7 @@
  * SPDX-License-Identifier: LGPL-2.1-or-later
  */
 #include "catch.hpp"
+#include "../../../Common/src/adaptation/CNativePredicates3D_internal.hpp"
 #include "../../../Common/include/adaptation/CNativeAffineReference.hpp"
 #include "../../../Common/include/adaptation/CNativeBoundary3D.hpp"
 #include "../../../Common/include/adaptation/CNativeReferenceIO3D.hpp"
@@ -297,4 +298,49 @@ TEST_CASE("Mapped edge edits publish mesh and forward geometry atomically and su
   CHECK(bound.feature==expected.feature);CHECK(bound.u==expected.u);CHECK(bound.v==expected.v);CHECK(bound.version==expected.version);
   numbering.erase(numbering.begin());CHECK_THROWS(parameters->Rebind(numbering));
   CHECK(parameters->Revision()==12);
+}
+
+TEST_CASE("Mapped realized face orientation is independent of projection axis and scale", "[NativeMappedRealized3D]") {
+  using namespace SU2Native3D;
+  for(double scale:{1e-300,1.,1e300}) {
+    const std::array<Point,3> original{{{0,0,0},{scale,2*scale,-scale},{-scale,scale,3*scale}}};
+    KernelStats stats;CHECK(SurfaceOrientationSign(original,original,&stats)>0);
+    auto reversed=original;std::swap(reversed[1],reversed[2]);CHECK(SurfaceOrientationSign(original,reversed,&stats)<0);
+    auto zero=original;zero[2]=zero[1];CHECK(SurfaceOrientationSign(original,zero,&stats)==0);
+    CHECK(stats.exact_orientations>0);
+  }
+  const std::array<Node,4> nodes{{{0,{0,0,0}},{1,{1,0,0}},{2,{0,1,0}},{3,{0,0,1}}}};
+  const std::vector<Facet> facets{{10,0,{nodes[1],nodes[2],nodes[3]}},{11,0,{nodes[0],nodes[3],nodes[2]}},
+      {12,0,{nodes[0],nodes[1],nodes[3]}},{13,0,{nodes[0],nodes[2],nodes[1]}}};
+  auto original=std::make_shared<PlanarReference>(facets);std::map<Id,double> errors;
+  for(auto f:facets)errors.emplace(f.id,1e-13);
+  auto authority=std::make_shared<MappedFacetReference>(original,errors,7);
+  const double delta=std::ldexp(1.,-45);
+  const std::array<SurfaceBinding,3> bindings{{authority->FacetPoint(13,.3,.3),authority->FacetPoint(13,.3+delta,.3),authority->FacetPoint(13,.3,.3+delta)}};
+  std::array<Point,3> points;for(unsigned i=0;i<3;++i)points[i]=authority->Realize(bindings[i]);
+  REQUIRE(authority->ContainsFace(13,bindings,points));
+  auto folded=points;folded[1].y=.3-delta;
+  CHECK(authority->Admissible(bindings[1],folded[1]));CHECK_FALSE(authority->ContainsFace(13,bindings,folded));
+  auto flat=points;flat[1]=flat[0];CHECK(authority->Admissible(bindings[1],flat[1]));CHECK_FALSE(authority->ContainsFace(13,bindings,flat));
+  BoundaryPoints records;std::vector<SurfaceFace> skin;
+  for(auto f:facets){skin.push_back({{f.v[0].id,f.v[1].id,f.v[2].id},f.id});
+    for(auto n:f.v)records.emplace(n.id,BoundaryPoint{n,authority->Vertex(n.id)});}
+  auto state=std::make_shared<BoundaryParameterState>(authority,records,skin);
+  auto reference=PlanarReference::WithParameters(original,state);const auto saved=state->Snapshot();
+  Patch invalid;auto bad=records.begin()->second;bad.node.id=991;bad.node.p.x=std::numeric_limits<double>::quiet_NaN();
+  invalid.parameters.emplace(991,bad);CHECK_THROWS(reference->PrivateParameters(invalid));CHECK(state->Snapshot()==saved);
+  bad=records.begin()->second;bad.node.id=991;++bad.binding.version;invalid.parameters[991]=bad;
+  CHECK_THROWS(reference->PrivateParameters(invalid));CHECK(state->Snapshot()==saved);
+  // A child proposal owns a face-interior point absent from accepted metadata.
+  Patch child;child.parameters=records;const auto binding=authority->FacetPoint(13,.25,.25);
+  const Node inserted{55,authority->Realize(binding)};child.parameters.emplace(55,BoundaryPoint{inserted,binding});
+  for(auto f:skin)if(f.facet!=13)child.surface.push_back(f);
+  for(auto face:std::array<Face,3>{{{0,2,55},{2,1,55},{1,0,55}}}) {
+    child.surface.push_back({face,13});std::array<Node,4> v{nodes[3],Node{},Node{},Node{}};
+    for(unsigned i=0;i<3;++i)v[i+1]=face[i]==55?inserted:nodes[face[i]];
+    if(Orientation(v[0].p,v[1].p,v[2].p,v[3].p)<0)std::swap(v[0],v[1]);
+    child.cells.push_back({Id(child.cells.size()+100),v});
+  }
+  const auto moved=ConstrainMovePoint(child,55,{55,{.275,.26,0}},{},*reference);
+  CHECK(moved.p.x!=inserted.p.x);CHECK(moved.p.y!=inserted.p.y);CHECK(moved.p.z==0);CHECK(state->Snapshot()==saved);
 }

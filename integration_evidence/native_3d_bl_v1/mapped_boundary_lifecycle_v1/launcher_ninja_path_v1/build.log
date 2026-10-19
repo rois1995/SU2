@@ -1,0 +1,306 @@
+ninja: Entering directory `/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2'
+[0/1] Regenerating build files
+The Meson build system
+Version: 1.8.2
+Source dir: /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated
+Build dir: /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2
+Build type: native build
+Project name: SU2
+Project version: 8.5.0 "Harrier"
+C compiler for the host machine: cc (gcc 9.4.0 "cc (Ubuntu 9.4.0-1ubuntu1~20.04.2) 9.4.0")
+C linker for the host machine: cc ld.bfd 2.34
+C++ compiler for the host machine: c++ (gcc 9.4.0 "c++ (Ubuntu 9.4.0-1ubuntu1~20.04.2) 9.4.0")
+C++ linker for the host machine: c++ ld.bfd 2.34
+Host machine cpu family: x86_64
+Host machine cpu: x86_64
+Program python3 found: YES (/usr/bin/python3)
+Compiler for C++ supports arguments -Wno-empty-body: YES (cached)
+Compiler for C++ supports arguments -Wno-ignored-qualifiers: YES (cached)
+Compiler for C++ supports arguments -Wno-unused-parameter: YES (cached)
+Compiler for C++ supports arguments -Wno-deprecated-declarations: YES (cached)
+Compiler for C++ supports arguments -Wno-error=cast-function-type: YES (cached)
+Compiler for C++ supports arguments -Wno-cast-function-type: YES (cached)
+Compiler for C++ supports arguments -Wno-error=stringop-truncation: YES (cached)
+Compiler for C++ supports arguments -Wno-stringop-truncation: YES (cached)
+Compiler for C++ supports arguments -Wno-error=missing-field-initializers: YES (cached)
+Compiler for C++ supports arguments -Wno-missing-field-initializers: YES (cached)
+Compiler for C++ supports arguments -Wno-error=class-memaccess: YES (cached)
+Compiler for C++ supports arguments -Wno-class-memaccess: YES (cached)
+Compiler for C++ supports arguments -Wno-overloaded-virtual: YES (cached)
+Compiler for C++ supports arguments -Wno-array-bounds: YES (cached)
+Compiler for C++ supports arguments -Wno-dangling-pointer: NO (cached)
+Compiler for C++ supports arguments -fno-finite-math-only: YES (cached)
+Dependency mpi found: YES 4.0.3 (cached)
+Dependency mpi found: YES 4.0.3 (cached)
+Compiler for C supports arguments -Wno-unused-result: YES (cached)
+Compiler for C supports arguments -Wno-unused-parameter: YES (cached)
+Compiler for C supports arguments -Wno-unused-variable: YES (cached)
+Compiler for C supports arguments -Wno-unused-but-set-variable: YES (cached)
+Compiler for C supports arguments -Wno-sign-compare: YES (cached)
+Compiler for C supports arguments -Wno-error=unused-function: YES (cached)
+Compiler for C supports arguments -Wno-pedantic: YES (cached)
+Compiler for C supports arguments -Wno-error=stringop-truncation: YES (cached)
+Compiler for C supports arguments -Wno-stringop-truncation: YES (cached)
+Compiler for C supports arguments -Wno-error=absolute-value: YES (cached)
+Compiler for C supports arguments -Wno-error=class-memaccess: YES (cached)
+Compiler for C supports arguments -Wno-dangling-pointer: NO (cached)
+Compiler for C supports arguments -Wno-format-truncation: YES (cached)
+Compiler for C supports arguments -Wno-maybe-uninitialized: YES (cached)
+Compiler for C supports arguments -Wno-array-bounds: YES (cached)
+Compiler for C supports arguments -Wno-array-parameter: NO (cached)
+Compiler for C supports arguments -Wno-stringop-overflow: YES (cached)
+Compiler for C supports arguments -Wno-unused-result: YES (cached)
+Compiler for C supports arguments -Wno-unused-parameter: YES (cached)
+Compiler for C supports arguments -Wno-unused-variable: YES (cached)
+Compiler for C supports arguments -Wno-unused-but-set-variable: YES (cached)
+Compiler for C supports arguments -Wno-sign-compare: YES (cached)
+Compiler for C supports arguments -Wno-stringop-overflow: YES (cached)
+Compiler for C supports arguments -Wno-error=discarded-qualifiers: YES (cached)
+Compiler for C supports arguments -Wno-error=maybe-uninitialized: YES (cached)
+Compiler for C supports arguments -Wno-error=unused-function: YES (cached)
+Compiler for C supports arguments -Wno-error=unused-label: YES (cached)
+Compiler for C supports arguments -Wno-pedantic: YES (cached)
+Compiler for C supports arguments -Wno-error=stringop-truncation: YES (cached)
+Compiler for C supports arguments -Wno-error=cast-function-type: YES (cached)
+Compiler for C supports arguments -Wno-stringop-truncation: YES (cached)
+Compiler for C supports arguments -Wno-dangling-pointer: NO (cached)
+Compiler for C supports arguments -Wno-format-truncation: YES (cached)
+Dependency zlib found: YES 1.2.11 (cached)
+Found pkg-config: YES (/usr/bin/pkg-config) 1.6.3
+Found CMake: /usr/bin/cmake (3.16.3)
+DEPRECATION: CMake support for versions <3.17 is deprecated since Meson 0.62.0.
+|
+|   However, Meson was only able to find CMake 3.16.3.
+|
+|   Support for all CMake versions below 3.17.0 will be removed once
+|   newer CMake versions are more widely adopted. If you encounter
+|   any errors please try upgrading CMake to a newer version first.
+
+Run-time dependency szip found: NO (tried pkgconfig and cmake)
+Has header "zlib.h" : YES (cached)
+Checking for function "inflate" with dependency zlib: YES (cached)
+Has header "sys/file.h" : YES (cached)
+Has header "sys/ioctl.h" : YES (cached)
+Has header "sys/resource.h" : YES (cached)
+Has header "sys/socket.h" : YES (cached)
+Has header "sys/stat.h" : YES (cached)
+Has header "sys/time.h" : YES (cached)
+Has header "sys/types.h" : YES (cached)
+Has header "features.h" : YES (cached)
+Has header "dirent.h" : YES (cached)
+Has header "setjmp.h" : YES (cached)
+Has header "stddef.h" : YES (cached)
+Has header "stdint.h" : YES (cached)
+Has header "unistd.h" : YES (cached)
+Has header "io.h" : NO (cached)
+Has header "winsock2.h" : NO (cached)
+Has header "globus/common.h" : NO (cached)
+Has header "pdb.h" : NO (cached)
+Has header "pthread.h" : YES (cached)
+Has header "srbclient.h" : NO (cached)
+Has header "string.h" : YES (cached)
+Has header "strings.h" : YES (cached)
+Has header "stdlib.h" : YES (cached)
+Has header "memory.h" : YES (cached)
+Has header "dlfcn.h" : YES (cached)
+Has header "inttypes.h" : YES (cached)
+Has header "netinet/in.h" : YES (cached)
+Has header "netdb.h" : YES (cached)
+Has header "arpa/inet.h" : YES (cached)
+Has header "stdbool.h" : YES (cached)
+Has header "quadmath.h" : YES (cached)
+Library m found: YES
+Checking for function "ceil" with dependency -lm: YES (cached)
+Library dl found: YES
+Checking for function "dlopen" with dependency -ldl: YES (cached)
+Library ucb found: NO
+Checking for function "gethostbyname" with dependency -lucb: NO (cached)
+Checking for function "lseek64" : NO (cached)
+Checking for function "fseeko" : NO (cached)
+Checking for function "stat64" : NO (cached)
+Checking for size of "char" : 1 (cached)
+Checking for size of "short" : 2 (cached)
+Checking for size of "int" : 4 (cached)
+Checking for size of "unsigned" : 4 (cached)
+Checking for size of "long" : 8 (cached)
+Checking for size of "long long" : 8 (cached)
+Checking for size of "__int64" : -1 
+Checking for size of "float" : 4 (cached)
+Checking for size of "double" : 8 (cached)
+Checking for size of "long double" : 16 (cached)
+Checking for size of "int8_t" : 1 (cached)
+Checking for size of "uint8_t" : 1 (cached)
+Checking for size of "int_least8_t" : 1 (cached)
+Checking for size of "uint_least8_t" : 1 (cached)
+Checking for size of "int_fast8_t" : 1 (cached)
+Checking for size of "uint_fast8_t" : 1 (cached)
+Checking for size of "int16_t" : 2 (cached)
+Checking for size of "uint16_t" : 2 (cached)
+Checking for size of "int_least16_t" : 2 (cached)
+Checking for size of "uint_least16_t" : 2 (cached)
+Checking for size of "int_fast16_t" : 8 (cached)
+Checking for size of "uint_fast16_t" : 8 (cached)
+Checking for size of "int32_t" : 4 (cached)
+Checking for size of "uint32_t" : 4 (cached)
+Checking for size of "int_least32_t" : 4 (cached)
+Checking for size of "uint_least32_t" : 4 (cached)
+Checking for size of "int_fast32_t" : 8 (cached)
+Checking for size of "uint_fast32_t" : 8 (cached)
+Checking for size of "int64_t" : 8 (cached)
+Checking for size of "uint64_t" : 8 (cached)
+Checking for size of "int_least64_t" : 8 (cached)
+Checking for size of "uint_least64_t" : 8 (cached)
+Checking for size of "int_fast64_t" : 8 (cached)
+Checking for size of "uint_fast64_t" : 8 (cached)
+Checking for size of "size_t" : 8 (cached)
+Checking for size of "ssize_t" : -1 
+Checking for size of "ptrdiff_t" : 8 (cached)
+Checking for size of "off_t" : 8 (cached)
+Checking for size of "off64_t" : -1 
+Checking for size of "time_t" : 8 (cached)
+Checking for size of "bool" : 1 (cached)
+Checking for size of "_Quad" : -1 
+Checking for size of "__float128" : 16 (cached)
+Checking if "check dev_t" compiles: YES (cached)
+Checking if "check dev_t scalar" runs: NO (1)
+Checking if "CLOCK_MONOTONIC" compiles: YES (cached)
+Checking whether type "struct tm" has member "tm_gmtoff" : NO (cached)
+Checking whether type "struct tm" has member "__tm_gmtoff" : YES (cached)
+Checking whether type "struct tm" has member "tm_sec" : YES (cached)
+Checking whether type "struct tm" has member "tz_minuteswest" : NO (cached)
+Checking for function "gettimeofday" : YES (cached)
+Checking whether type "struct stat" has member "st_blocks" : YES (cached)
+Checking for function "ioctl" : YES (cached)
+Header "sys/ioctl.h" has symbol "TIOCGWINSZ" : YES (cached)
+Header "sys/ioctl.h" has symbol "TIOCGETD" : YES (cached)
+Checking for function "getpwuid" : YES (cached)
+Checking for function "alarm" : YES (cached)
+Checking for function "fcntl" : YES (cached)
+Checking for function "flock" : YES (cached)
+Checking for function "fork" : YES (cached)
+Checking for function "frexpf" : YES (cached)
+Checking for function "frexpl" : YES (cached)
+Checking for function "gethostname" : YES (cached)
+Checking for function "getrusage" : YES (cached)
+Checking for function "llround" : YES (cached)
+Checking for function "llroundf" : YES (cached)
+Checking for function "lround" : YES (cached)
+Checking for function "lroundf" : YES (cached)
+Checking for function "lstat" : YES (cached)
+Checking for function "pread" : YES (cached)
+Checking for function "pwrite" : YES (cached)
+Checking for function "rand_r" : YES (cached)
+Checking for function "random" : YES (cached)
+Checking for function "round" : YES (cached)
+Checking for function "roundf" : YES (cached)
+Checking for function "setsysinfo" : NO (cached)
+Checking for function "signal" : YES (cached)
+Checking for function "longjmp" : YES (cached)
+Checking for function "setjmp" : YES (cached)
+Checking for function "siglongjmp" : YES (cached)
+Checking for function "sigsetjmp" : NO (cached)
+Checking for function "sigprocmask" : YES (cached)
+Checking for function "snprintf" : YES (cached)
+Checking for function "srandom" : YES (cached)
+Checking for function "strdup" : YES (cached)
+Checking for function "strtoll" : YES (cached)
+Checking for function "strtoull" : YES (cached)
+Checking for function "symlink" : YES (cached)
+Checking for function "system" : YES (cached)
+Checking for function "tmpfile" : YES (cached)
+Checking for function "asprintf" : YES (cached)
+Checking for function "vasprintf" : YES (cached)
+Checking for function "waitpid" : YES (cached)
+Checking for function "vsnprintf" : YES (cached)
+Header "setjmp.h" has symbol "sigsetjmp" : NO (cached)
+Checking if "inline keyword check" compiles: YES (cached)
+Configuring H5pubconf.h using configuration
+Checking for size of "long" : 8 (cached)
+Checking for size of "void *" : 8 (cached)
+Configuring cgnstypes.h using configuration
+Configuring cg_hash_types.h using configuration
+Configuring cgnsconfig.h using configuration
+Compiler for C++ supports arguments -Wno-unused-result: YES (cached)
+Compiler for C++ supports arguments -Wno-unused-parameter: YES (cached)
+Compiler for C++ supports arguments -Wno-unused-variable: YES (cached)
+Compiler for C++ supports arguments -Wno-unused-but-set-variable: YES (cached)
+Compiler for C++ supports arguments -Wno-unknown-pragmas: YES (cached)
+Compiler for C++ supports arguments -Wno-sign-compare: YES (cached)
+Compiler for C++ supports arguments -Wno-clobbered: YES (cached)
+Compiler for C++ supports arguments -Wno-empty-body: YES (cached)
+Compiler for C++ supports arguments -Wno-unused-label: YES (cached)
+Compiler for C++ supports arguments -Wno-misleading-indentation: YES (cached)
+Compiler for C++ supports arguments -Wno-maybe-uninitialized: YES (cached)
+Compiler for C++ supports arguments -Wno-pedantic: YES (cached)
+Compiler for C++ supports arguments -Wno-error=absolute-value: YES (cached)
+Compiler for C++ supports arguments -Wno-absolute-value: NO (cached)
+Library mmg found: YES
+Library scotch found: YES
+Library scotcherrexit found: YES
+Dependency zlib found: YES 1.2.11 (cached)
+Dependency threads found: YES unknown (cached)
+Library m found: YES
+Library rt found: YES
+Checking if "MMG library" with dependencies -lmmg, -lscotch, -lscotcherrexit, zlib, threads, -lm, -lrt links: YES (cached)
+../../SU2_PY/meson.build:75: WARNING: Project targets '>=1.8.2' but uses feature deprecated since '0.60.0': install_subdir with empty directory. It worked by accident and is buggy. Use install_emptydir instead.
+Message: -------------------------------------------------------------------------
+         |    ___ _   _ ___                                                      |
+         |   / __| | | |_  )   Release 8.5.0 "Harrier"                           |
+         |   \__ \ |_| |/ /                                                      |
+         |   |___/\___//___|   Meson Configuration Summary                       |
+         |                                                                       |
+         -------------------------------------------------------------------------
+
+         Option          Value
+         ---------------------
+         TecIO:          false
+         CGNS:           true
+         AD (reverse):   false
+         AD (forward):   false
+         Python Wrapper: false
+         Intel-MKL:      false
+         OpenBlas:       false
+         PaStiX:         false
+         Mixed Float:    false
+         libROM:         false
+         CoolProp:       false
+         MLPCpp:         false
+         Tracy Profiler: false
+         MMG:            true
+
+         Please be sure to add the $SU2_HOME and $SU2_RUN environment variables,
+         and update your $PATH (and $PYTHONPATH if applicable) with $SU2_RUN
+
+         Based on the input to this configuration, add these lines to your .bashrc file:
+
+         export SU2_RUN=/usr/local/bin
+         export SU2_HOME=/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated
+         export PATH=$PATH:$SU2_RUN
+         export PYTHONPATH=$PYTHONPATH:$SU2_RUN
+
+         Use './ninja -C build-integrated-v2 install' to compile and install SU2
+
+Build targets in project: 19
+WARNING: Deprecated features used:
+ * 0.60.0: {'install_subdir with empty directory'}
+
+SU2 8.5.0 "Harrier"
+
+  User defined options
+    b_ndebug       : false
+    buildtype      : debugoptimized
+    enable-cgns    : true
+    enable-mmg     : true
+    enable-tecio   : false
+    enable-tests   : true
+    mmg_scotch_root: /home/rausa/Software/scotch
+    with-mpi       : enabled
+    with-omp       : false
+
+
+ERROR: Could not detect Ninja v1.8.2 or newer
+
+A full log can be found at /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/meson-logs/meson-log.txt
+FAILED: [code=1] build.ninja 
+/usr/bin/python3 /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/externals/meson/meson.py --internal regenerate /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated .
+ninja: error: rebuilding 'build.ninja': subcommand failed

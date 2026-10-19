@@ -464,7 +464,9 @@ bool InsertFirstWallPoint(const Patch& old,Id first_wall_node,Id first_cell,
 }
 
 Node ConstrainMovePoint(const Patch& old,Id vertex,Node proposal,const std::map<int,double>& heights,
-                        const PlanarReference& reference) {
+                        const PlanarReference& base_reference) {
+  auto parameter_context=base_reference.PrivateParameters(old);
+  const auto& reference=parameter_context?*parameter_context:base_reference;
   // Private reconnection may already have produced the admitted replacement-size patch.
   if(old.cells.empty() || old.cells.size()>MaximumReplacementCells)
     throw std::invalid_argument("Native3D constrained movement exceeds replacement budget.");

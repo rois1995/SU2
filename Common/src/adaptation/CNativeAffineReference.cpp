@@ -4,6 +4,7 @@
  * SPDX-License-Identifier: LGPL-2.1-or-later
  */
 #include "../../include/adaptation/CNativeAffineReference.hpp"
+#include "CNativePredicates3D_internal.hpp"
 #include "../../include/adaptation/CNativeBoundary3D.hpp"
 #include "../../include/adaptation/CNativeGeometryValidation2D.hpp"
 #include "../../include/adaptation/CTransferMemory.hpp"
@@ -319,7 +320,8 @@ bool MappedFacetReference::ContainsFace(Id facet,const std::array<SurfaceBinding
   const ParametricPoint a{f.v[0].p},b{f.v[1].p},c{f.v[2].p};
   for(unsigned axis=0;axis<3;++axis) {
     const int old=ParametricOrientation(a,b,c,axis,stats);
-    if(old)return ParametricOrientation(ideal[0],ideal[1],ideal[2],axis,stats)==old;
+    if(old)return ParametricOrientation(ideal[0],ideal[1],ideal[2],axis,stats)==old &&
+        SurfaceOrientationSign({f.v[0].p,f.v[1].p,f.v[2].p},realized,stats)>0;
   }
   throw std::logic_error("Degenerate admitted mapped facet.");
 }

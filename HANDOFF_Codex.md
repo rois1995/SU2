@@ -23,46 +23,45 @@ Existing affected cancellation/subnormal/segment/saved-M6-midpoint controls pass
 no full suite, CFD rerun or MPI campaign at that historical checkpoint. Current build is listed below.
 [Sealed evidence](integration_evidence/native_3d_bl_v1/mapped_faceted_geometry_v1/validation_summary.json).
 
-The FULL integrated executable is still b232f4acbf source scope, SHA256
-`25d4e87bfee8b5ad11336a459e943bf7e1c0ffad2969028554ab98743f377d21`.
-Current source is NEWER: new shared affine-point arithmetic is scoped-tested but
-not full-integrated/MPI/lifecycle qualified. Separate geometry executables and source
-capsules remain in mapped_faceted_geometry_v1/core_v1_n1/core_v2_n1 and oracle_v1.
-Explicitly preserve this qualification distinction; no new mapped adapted mesh.
+Two mapped prototypes have linked through official dependencies. Latest tested
+binary76ffde56417555462279bd12c30b7d75ed7a02c6801d53b1019c895852b16e5a
+is preserved before the next rebuild. Realized/private-scope1case/25assertions,
+publication1case/38assertions, reader Euler/RANS1case/38assertions and independent
+exact normal-dot209samples (171filtered/38exact) PASS. Uniform Euler completes
+6->58tets, conservative BDF2 transfer and SU2/CGNS geometry reload. Uniform RANS
+also constructs58tets but its state comparison fails because the new fixture
+prescribed nonzero no-slip-wall momentum; corrected fixture is rebuilding.
+No accepted oblique BL or full mapped real-restart workflow is yet established.
 
 Prior b232 checkpoint passed source9/affected19cases per rank at MPI1/2/4,
 all12exact source-domain audits with bitwise field identity, and the complete serial
 Cartesian RANS transfer/SU2+CGNS/restart audit. Reuse its exact old-source scope;
 [details](Handbook/GOAL3_JOINT_AFFINE_SOURCE.md). Source grids are NOT CFD grids.
 
-## Connected integration — building, not qualified
+## Connected integration — annular lifecycle batch building
 
-Boundary-only accepted records/current skin, private operator bindings, staged
-collective publication, private engine-stage copies and mapped source-envelope
-plumbing are implemented in the worktree. Reader output reuses the existing dense
-point map; only boundary identities are exchanged. Parent N/M return shares the
-immutable geometry/indexes and stages inactive-rank records. Native_ref v5 persists
-limits, bindings, revisions and current faces; v1--4 remain readable. Import checks
-actual boundary identities, coordinates and topology against the stored reference.
-Final view publication moves already allocated pointers after collective approval.
+Boundary-only accepted/current skin, private bindings, staged collective
+publication, engine isolation, mapped source envelopes, N/M return, actual reader
+numbering and native_ref v5 are connected. `linked_v1`/`linked_v2` preserve complete
+source/build/resource receipts; reader_v1_n1 and runtime_v2_n1 preserve failures.
 
-These connected changes have NOT passed runtime validation. Official dependency
-build is active (tool session30898; Ninja PID1740444 at launch), one nice19 sampled
-CPU/-j1 with4TB scratch. Do not edit pinned C++ or launch another heavy job until
-its real handle is terminal. Opus5.5/high tools-disabled review reached its420s
-limit with no feedback; no review qualification is inferred. [Build/source/resource receipts and focused scope](integration_evidence/native_3d_bl_v1/mapped_boundary_lifecycle_v1/README.md).
-Launcher Ninja-discovery failure and terminal C++ helper/type-alias name collision
-are preserved in launcher_ninja_path_v1 and compile_name_lookup_v1. Both corrected;
-all6affected interface syntax checks now PASS (54.07s). Accounting and edit-stop
-receipts retain the staged-output/parent-return corrections; completed objects reused.
-no full suite or CFD rerun was launched. Prior qualified binary is fully verified
-in mapped_boundary_lifecycle_v1/test_driver_b232f4ac.gz before rebuild replacement.
+Current batch: oblique annular BL fixture declares matching mapped authority before
+metric/original-donor freeze; rejected-state observer receives the actual private
+geometry (all callers updated), preserving rejected cells/reference and trial
+forward bindings. Its mapped refusal check verifies accepted metadata unchanged.
+Uniform Euler/RANS fixtures now save BDF states/projection receipts; RANS momentum
+is affine in z and zero on its configured no-slip wall. Transfer tolerance unchanged.
 
-Next: complete the linked build, then focused actual saved-edge atomic publication/persistence and
-oblique Euler/RANS dense-reader/SU2+CGNS reload checks, then affected MPI and a full
-controlled oblique adaptation under unchanged gates. Runtime activation/initial
-adoption, full solution restart/transfer and construction remain unverified; no new
-accepted oblique mesh or general finite-region capability is claimed.
+All4changed interfaces pass syntax_v3. Official13-step build active via
+`build_guard_v2.py` (tool8820/Ninja1890502), one nice19 CPU/-j1,4TB scratch,
+bounded time and sampled memory. Do not edit pinned C++ or start another heavy job
+until the actual handle is terminal. [Exact qualification and limits](integration_evidence/native_3d_bl_v1/mapped_boundary_lifecycle_v1/README.md).
+
+Next: corrected complete uniform lifecycle and matching-private-state rejection,
+then actual oblique annular BL before broader affected MPI. Preserve exact failure
+if construction stalls; reconsider missing construction/seam capability instead
+of another local fallback. Full solution-file restart, exterior/multiple-body/2D
+and affordability remain OPEN. Opus5.5/high420s timeout gave no review qualification.
 
 ## Next complete capability
 

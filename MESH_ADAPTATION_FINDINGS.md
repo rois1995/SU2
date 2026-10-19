@@ -7054,3 +7054,17 @@ return/output-numbering/native_ref/restart/finite-plane consumption remain requi
 All original facet edges currently protected; no general body coarsening or new
 accepted oblique/exterior/2D workflow or affordability proof.
 [Current connected reach and exact evidence](Handbook/GOAL3_MAPPED_PARAMETERS.md).
+
+## Mapped lifecycle — scoped geometry/runtime results, full BL open
+
+Official linked guard/private-scope build passes realized25/publication38/reader38
+assertions and independent209exact-rational normal-dot samples. Uniform Euler
+completes6->58tets, conservative BDF2 transfer and SU2/CGNS geometry reload. Uniform
+RANS also constructs58tets, then its new test field conflicts with no-slip transfer;
+corrected fixture preserves the existing tolerance. Failure remains saved.
+
+Connected next batch declares matching annular authority before metric/donor freeze
+and carries actual private reference into rejection diagnostics, preserving exact
+failed-state bindings rather than stale accepted metadata. Syntax4units PASS;
+official build active. No complete oblique BL/MPI/real solution restart, general
+exterior/2D or affordability claim. [Current scope](Handbook/GOAL3_MAPPED_PARAMETERS.md).

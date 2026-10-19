@@ -603,7 +603,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     if (stats.stop==EngineStop::None) stats.stop=result.valid ? EngineStop::Complete : EngineStop::Failure;
     if(observe_state) {
       CLocalFailure observed;
-      if(!result.valid && options.rejected_state)try {options.rejected_state(working,result.reason);}
+      if(!result.valid && options.rejected_state)try {options.rejected_state(working,geometry,result.reason);}
       catch(const std::exception& e){observed.Set(2,0,e.what());}
       const auto elected=world.elect(observed);
       if(elected.any) {

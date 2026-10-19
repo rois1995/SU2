@@ -501,3 +501,30 @@ passing runtime test, new accepted oblique mesh, transfer/restart or
 performance gain is claimed. All original triangle seams remain protected, and
 full2D/multiple-body/exterior/mixed curved scope stays open.
 [Receipts and exact validation scope](../integration_evidence/native_3d_bl_v1/mapped_boundary_lifecycle_v1/README.md).
+
+## Mapped lifecycle correction — current build, 2026-10-19
+
+First official linked prototype completed2487.78s (build cost, not remeshing).
+Saved unrepresentable-edge transaction passes1case/38assertions/.570s, including
+atomic refusal/publication, renumbering and v5 persistence. Reader aborted before
+reader execution: steady fixture used BDF snapshot helper. Stack confirms the
+fixture mismatch; histories remain checked and the fixture requests BDF2 now.
+
+Exact static review found ideal-face validity can coexist with reversed rounded
+face orientation inside the declared mapping band. Connected correction adds
+normal-dot sign with the shared bounded-integer fallback, preserving exact volume
+and embedding gates. It also admits private bindings before ordered-map access
+and makes child-candidate movement consume its forward parameters. All6changed
+units pass syntax_v2; incremental official build/runtime remain pending. Complete
+uniform-target Euler/RANS-SA/BDF2 controls are prepared; they do not request BL or
+establish aerodynamic/real-restart readiness. No new accepted oblique BL mesh or
+performance gain. [Receipts](../integration_evidence/native_3d_bl_v1/mapped_boundary_lifecycle_v1/README.md).
+
+The guard batch subsequently linked286.47s. Realized25/publication38/reader38
+assertions and independent209normal-dot signs PASS. Uniform Euler completes6->58
+tets with conservative BDF2 transfer and both geometry reloads. RANS also constructs
+58tets but its new fixture incorrectly prescribed nonzero no-slip momentum; full
+state comparison fails1.0. Failure retained, affine momentum now zero at the wall
+and transfer tolerance unchanged. Current annular initial-authority/private-rejected
+reference batch passes4interface syntax checks and is building. Actual oblique BL,
+complete MPI/real restart/exterior/2D and performance remain OPEN.
