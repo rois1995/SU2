@@ -578,8 +578,9 @@ The application CSV and focused CSVs now include `linear_work_by_group`: native
 history fields remain separate, while each Newton controller records its outer
 and native-inner totals over all logged attempts. Coupled work is counted once
 under its coupled group. Missing legacy inner diagnostics remain `null`. Running
-results remain pending. All previous fields in the 321-row ledger are unchanged;
-the 300 rows with recorded aggregate linear work reproduce their existing totals.
+results remain pending. When this column was added, all previous fields in the
+321 existing rows remained unchanged; the 300 rows with recorded aggregate linear
+work reproduced their existing totals.
 The aggregation selfchecks cover native block sums, rejected-attempt work and
 missing diagnostics. Evidence and generator/helper hashes are preserved in
 `native_linear_breakdown_20261019/assessment.json` under the application evidence
@@ -597,14 +598,20 @@ Changing it can affect late group idling. It must therefore remain explicit in
 configuration comparisons, even when the frozen physical requirements pass.
 
 An isolated segregated study changes only nominal linear tolerance 0.001→0.05;
-adaptive CFL and adaptive forcing both remain disabled. Its matched 20-update
-serial prefix uses FLOW/TURB 1281/591 and 619 Krylov steps, versus 1808/786 and
-907 originally. Both have two derivative-verification retries and no backtracking.
-FLOW CFL falls from 1000 through 250 to 62.5 and remains there; TURB retains
-1000. Density history after 20 updates is −12.36798 versus −12.36689. Neither
-prefix qualifies, so this is a work/progress observation, not reduced work to
-convergence. Full 1×1 and 2×2 endpoints remain pending, followed by the known
-parallel coupled replay. Resource caps remain incomplete results.
+adaptive CFL and adaptive forcing both remain disabled. Matched 20-update work is:
+
+| Layout | Nominal linear tolerance | FLOW / TURB assemblies | Krylov | Retries | Density history after 20 updates |
+|---|---:|---:|---:|---:|---:|
+| 1×1 | 0.001 | 1808 / 786 | 907 | 2 | −12.366885 |
+| 1×1 | 0.05 | 1281 / 591 | 619 | 2 | −12.367980 |
+| 2×2 | 0.001 | 3809 / 678 | 1606 | 1 | −12.385116 |
+| 2×2 | 0.05 | 2270 / 448 | 863 | 1 | −12.384458 |
+
+All four prefixes remain unqualified and have no backtracking. FLOW CFL falls
+1000→250→62.5 on 1×1 and 1000→250 on 2×2; TURB retains 1000. These are
+work/progress observations, not reduced work to convergence. The serial full
+attempt reaches its resource cap, detailed below. The 2×2 attempt is running,
+followed by the known parallel coupled replay. Resource caps remain incomplete.
 
 Reproduce the stricter native reference from the evidence root, choosing a fresh
 output directory and the desired rank/thread pair:
@@ -627,6 +634,50 @@ in `sa_accuracy_005_original_20261019/plan.json`; reference results are under
 are `existing_coupled_against_native14.json` and `first20_work.json` in the study
 directory. The [complete CSV](NewtonKrylovApplications20261018.csv) includes these
 references and preserves the earlier −13 results.
+
+## Serial segregated accuracy-only result: incomplete at its resource cap
+
+With nominal linear tolerance 0.05, the fixed-control SA1×1 run exits gracefully at its 7200-second cap
+after 2849 updates. It remains **incomplete**: density history is −13.57556 against
+the configured −14 stop. The saved state passes every frozen density, all-component
+normalized residual, boundary, paired state and quantity requirement. It also
+passes the canonical state/quantity bounds. Its original qualification and
+canonical audit remain false because the run was interrupted; neither is relabelled.
+
+| Updates | FLOW / TURB assemblies | FLOW / TURB Krylov | Inner work | Retries / backtracks | Peak rank KiB | Observed loop / E2E s |
+|---:|---:|---:|---:|---:|---:|---:|
+| 2849 | 131279 / 88290 | 17059 / 68345 | 0 | 2 / 0 | 110608 | 7201.514 / 7202.159 |
+
+Fresh density RMS is 2.6573e−14, maximum normalized active-component RMS
+3.5972e−14 and boundary projection zero. Paired component/point errors are
+8.0141e−8 / 1.0953e−6; canonical point error is 6.4705e−6. Quantities pass the
+unchanged bounds. These saved-state checks support progress; the observed times
+are resource costs rather than convergence times. Assembly counts carry the
+ledger's explicit interrupted-run boundary label.
+
+Both retries are measured derivative-verification failures, at logged outer iterations
+1 and 6. Their log intervals contain only 96 FLOW assemblies, 2 TURB assemblies
+and 5 completed Krylov steps. FLOW accepts one update at CFL 1000, five at 250,
+then 2843 at 62.5; TURB retains 1000 throughout. Thus direct rejected intervals are
+0.0731% of FLOW assemblies, while their permanent CFL reductions affect later
+accepted work. Potential savings from changing that trajectory are not bounded
+by those 96 assemblies.
+
+Four early accepted FLOW attempts also contain a failed product and retain a
+valid partial direction. Their product-failure types are not separately recorded.
+Every accepted step has alpha 1, true defect at most 0.095213 and exact rollback.
+The nominal-accuracy change reduces prefix work but does not restore CFL or
+establish lower work to a qualified endpoint. Existing adaptive CFL is a separate
+control comparison; no implementation gain is attributed to it.
+
+Minimum available memory is 38.38 GiB, sampled process-tree peak 198988 KiB and no
+memory guard fires. The host is contended, so timing eligibility remains false.
+Full result, raw diagnostics and independent checks are preserved under
+`sa_accuracy_005_original/naca_sa/1x1/segregated/`; the assessment and hashes are
+`sa_accuracy_005_original_20261019/serial_accuracy_time_limited_assessment.json`.
+The same directory's `first20_work.json` now includes both layouts. The guarded
+dispatcher continues the selected 2×2 case, retaining the same source, binary,
+history target and physical protocol.
 
 ## Accepted segregated tail: measured CPU costs
 
@@ -675,9 +726,10 @@ matches perf's report. Reproduce the analysis from the application evidence root
 python3 release_sampling/analyze_cpu_sample.py release_sampling/1792372543938788179
 ```
 
-No additional solver was launched and no numerical code or controls changed.
-The full accuracy-only endpoint study remains pending; this sample does not
-qualify the current state or show reduced work to convergence.
+No additional solver was launched and no numerical code or controls changed
+for the sample. The serial full attempt is incomplete as described above;
+the parallel attempt remains pending. This sample establishes neither endpoint
+qualification nor reduced work to convergence.
 
 <!-- measured NACA results -->
 

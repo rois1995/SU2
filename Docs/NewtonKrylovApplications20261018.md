@@ -209,7 +209,7 @@ and `paper_notes/manifest.json`; they motivate investigations, not unmeasured so
 | Application | Layout | Actual trials | Qualified endpoints | Eligible timing repetitions |
 |---|---|---:|---:|---:|
 | naca_sa | 1x1 | 90 | 33 | 1 |
-| naca_sa | 2x2 | 65 | 27 | 0 |
+| naca_sa | 2x2 | 66 | 27 | 0 |
 | naca_sst | 1x1 | 43 | 5 | 0 |
 | naca_sst | 2x2 | 24 | 2 | 0 |
 | nozzle_sst | 1x1 | 32 | 0 | 0 |
@@ -586,9 +586,10 @@ is retained; `prepared` and `running` entries have not completed.
 | naca_sst | 2x2 | segregated | original | rejected_base_refresh_release | original | -13.0 | iteration_cap | False | 20 | 150.430 | 151.090 |
 | naca_sa | 1x1 | native | original | verified_norms_release | original | -14.0 | qualified | True | 304 | 26.071 | 26.715 |
 | naca_sa | 1x1 | segregated | original | verified_norms_release | original | -14.0 | iteration_cap | False | 20 | 88.239 | 88.916 |
-| naca_sa | 1x1 | segregated | original | verified_norms_release | original | -14.0 | running | False | — | — | — |
+| naca_sa | 1x1 | segregated | original | verified_norms_release | original | -14.0 | incomplete_time_cap | False | 2849 | 7201.514 | 7202.159 |
 | naca_sa | 2x2 | native | original | verified_norms_release | original | -14.0 | qualified | True | 299 | 71.133 | 71.680 |
 | naca_sa | 2x2 | segregated | original | verified_norms_release | original | -14.0 | iteration_cap | False | 20 | 113.402 | 113.971 |
+| naca_sa | 2x2 | segregated | original | verified_norms_release | original | -14.0 | running | False | — | — | — |
 | naca_sa | 1x1 | segregated | original | muscl_boundary_gradient_v2_release | adaptive | -14.0 | incomplete_time_cap | False | 1217 | 7203.274 | 7203.906 |
 | naca_sa | 1x1 | coupled | original | recovery_release | forcing | -13.0 | iteration_cap | False | 6 | 35.446 | 35.946 |
 | naca_sa | 1x1 | coupled | original | recovery_release | forcing | -13.0 | iteration_cap | False | 6 | 42.225 | 42.784 |
