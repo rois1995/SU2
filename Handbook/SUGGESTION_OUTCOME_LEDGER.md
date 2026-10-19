@@ -528,3 +528,54 @@ state comparison fails1.0. Failure retained, affine momentum now zero at the wal
 and transfer tolerance unchanged. Current annular initial-authority/private-rejected
 reference batch passes4interface syntax checks and is building. Actual oblique BL,
 complete MPI/real restart/exterior/2D and performance remain OPEN.
+
+Corrected uniform lifecycle now passes195assertions for Euler/RANS-SA current+BDF2
+transfer and SU2/CGNS/v5 geometry reload, both6->58tets/31nodes. Rejected private
+geometry/atomic observer controls pass24assertions. Four independent outputs pass
+exact finite cover/volume/topology/overlap, uniform metric and affine current/history
+checks; max mapping1.665e-16, volume drift9.252e-18,state residual3.862e-13. Three
+corrupted-mesh controls reject. Audit completed then provenance report used a
+relative helper path; corrected and only offline audit repeated. No native/CFD rerun.
+
+Preflight found no native time limit in the annular fixture. Add120s only to that
+explicit mapped test before180s outer launcher; test object/link rebuilding, native
+production unchanged. Actual oblique BL/MPI/real solution restart and full geometry/
+performance scope remain OPEN. No claim that a valid reference ensures construction.
+
+## Mapped lifecycle batch outcome — 2026-10-19
+
+Worked: boundary-only parameter transport/publication and actual-query geometry
+reach complete controlled uniform Euler/RANS-SA N1M1/N2M1/N4M2/N4M4,58tets/31nodes,
+conservative current+BDF2 transfer, v5 and both mesh formats. Independent4output
+checks per lifecycle and3negative controls pass; source/object reuse is sealed.
+N4affected8cases/rank plus reader/publication/rejection pass. Points agree across
+ranks; topology differs at N4 but remains accepted/independently validated.
+
+Did not work: actual oblique annular BL construction. Integration reaches19.9996
+for20;3.625Mstrict densities/12.79s quadrature. Remesh27.288s/refine25.541s rejects
+8192work/18private edits;96tets/36nodes,69edge tasks/84target-invalid cells. Only2
+layer transactions;5120joint trials produce no accepted joint edit. No regional
+constructor ran: prismatic excludes extension references, mapped scene enters that
+class; radial alternative needs analytic geometry. Protected raw seams and missing
+mapped regional publication prevent a safe guard-only change. Do not raise limits
+or add local retry variants. Reconsider coordinated finite-plane/body/wall/transition
+construction from exact saved failure. No acceptance gate changed.
+
+Fixture/setup failures preserved: steady history snapshot; nonzero no-slip test
+momentum; lazy driver reference before Backend; stale-binary worker safely refused
+before Ninja during deadline preflight. House initialization/physically consistent
+fields fix them. No repeated broad suite or physical CFD advance; test-object/link
+rebuilds were required for the new fixture mistakes. Offline report-path failure
+repeated only the small audit.
+
+Opus5.5/medium read-only review completed30.45s and corroborates the conditional
+facade-identity/profile reuse issue; preserve strict original donor/field eligibility.
+Default-profile rebuilding is not established as a changed mathematical field.
+Bare invocation wrongly appeared unauthenticated; normal user login works. Review
+is not validation and did not cause or fix construction. All source/rejected state/
+private references/trial parameters retained, with inspectable rejected mesh.
+
+No new accepted BL, real mapped solution restart, general2D/exterior readiness,
+viscous accuracy or complete-event affordability claim. These rejected timings are
+not a performance comparison. Full scope and future performance package remain.
+[Sealed evidence](../integration_evidence/native_3d_bl_v1/mapped_boundary_lifecycle_v1/validation_summary.json).

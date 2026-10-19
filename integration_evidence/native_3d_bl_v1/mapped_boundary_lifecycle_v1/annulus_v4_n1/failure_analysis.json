@@ -1,0 +1,6 @@
+{
+  "status": "FIXTURE_REFERENCE_INITIALIZATION_ORDER",
+  "scope": "Driver initialized and original symmetry adoption audits passed; abort before any metric construction or remeshing.",
+  "reason": "New declaration dereferenced driver->Reference before MakeRemesher creates nativeReference3D. Stack and libstdc++ shared_ptr assertion confirm null ReferenceState. Move existing Backend creation ahead of the declaration; MakeRemesher already prepares the BL reference. Add explicit pointer assertion before dereference.",
+  "acceptance_gates_changed": false
+}

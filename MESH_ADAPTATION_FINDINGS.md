@@ -7055,16 +7055,25 @@ All original facet edges currently protected; no general body coarsening or new
 accepted oblique/exterior/2D workflow or affordability proof.
 [Current connected reach and exact evidence](Handbook/GOAL3_MAPPED_PARAMETERS.md).
 
-## Mapped lifecycle — scoped geometry/runtime results, full BL open
+## Mapped lifecycle — controls pass, actual BL construction rejects
 
-Official linked guard/private-scope build passes realized25/publication38/reader38
-assertions and independent209exact-rational normal-dot samples. Uniform Euler
-completes6->58tets, conservative BDF2 transfer and SU2/CGNS geometry reload. Uniform
-RANS also constructs58tets, then its new test field conflicts with no-slip transfer;
-corrected fixture preserves the existing tolerance. Failure remains saved.
+Controlled uniform oblique Euler/RANS-SA N1M1/N2M1/N4M2/N4M4 passes6->58tets,
+conservative current+BDF2 transfer, reader/v5/SU2+CGNS reload and independent
+finite-support/volume/overlap/topology/metric/affine-state audits. N4affected8cases
+per rank and reader/publication/private-rejection controls pass. Point coordinates
+agree; valid N4connectivity differs. No new physical CFD or bitwise topology claim.
 
-Connected next batch declares matching annular authority before metric/donor freeze
-and carries actual private reference into rejection diagnostics, preserving exact
-failed-state bindings rather than stale accepted metadata. Syntax4units PASS;
-official build active. No complete oblique BL/MPI/real solution restart, general
-exterior/2D or affordability claim. [Current scope](Handbook/GOAL3_MAPPED_PARAMETERS.md).
+Actual oblique annular BL integration reaches19.9996/budget20; separate composed
+transport18violations/max4.57957 remains. Construction rejects8192work/18private
+edits,96tets,69edge tasks/84target-invalid cells.2layer transactions,5120joint trials/
+0accepted, no regional core/front. Prismatic constructor explicitly excludes the
+mapped extension class; radial alternative requires complete analytic geometry.
+All original facet seams stay protected. Removing a guard alone is insufficient.
+
+Exact failed mesh/private v5 reference/trial parameters and `_rejected.su2` are
+saved. Reconsider coordinated finite-plane/body-feature/wall/transition geometry
+and construction before another local fallback or higher ceiling. No accepted
+mapped BL/real solution restart, general2D/multiple-body/exterior or affordability.
+Separate conditional facade-pointer/frozen-profile reuse issue is corroborated by
+Opus5.5/medium source review; no correction trial occurred in this failed case.
+[Sealed results and remaining scope](Handbook/GOAL3_MAPPED_PARAMETERS.md).

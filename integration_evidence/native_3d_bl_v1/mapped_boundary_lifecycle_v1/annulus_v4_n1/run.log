@@ -1,0 +1,222 @@
+WARNING: Setting WINDOW_START_ITER = RESTART_ITER for meaningful running average.
+
+Parsing config file for zone 0
+WARNING: Setting WINDOW_START_ITER = RESTART_ITER for meaningful running average.
+
+----------------- Physical Case Definition ( Zone 0 ) -------------------
+Compressible RANS equations.
+Turbulence model: Spalart-Allmaras-noft2
+Hybrid RANS/LES: No Hybrid RANS/LES
+Mach number: 0.2.
+Angle of attack (AoA): 0 deg, and angle of sideslip (AoS): 20.3045 deg.
+Reynolds number: 1e+06. Reference length 1.
+No restart solution, use the values at infinity (freestream).
+Dimensional simulation.
+The reference area is 1 m^2.
+The semi-span will be computed using the max y(3D) value.
+The reference length is 1 m.
+Input mesh file name: affine_annulus_bl_budget_20_m1.su2
+
+--------------- Space Numerical Integration ( Zone 0 ) ------------------
+Roe (with entropy fix = 0.001) solver for the flow inviscid terms.
+Standard Roe without low-dissipation function.
+First order integration in space.
+Scalar upwind solver for the turbulence model.
+First order integration in space.
+Average of gradients with correction (viscous flow terms).
+Average of gradients with correction (viscous turbulence terms).
+Gradient for upwind reconstruction: Green-Gauss.
+Gradient for viscous and source terms: Green-Gauss.
+
+--------------- Time Numerical Integration  ( Zone 0 ) ------------------
+Unsteady simulation, dual time stepping strategy (second order in time).
+Unsteady time step provided by the user (s): 0.001.
+Euler implicit method for the flow equations.
+FGMRES is used for solving the linear system.
+Using ILU(0) preconditioning.
+Convergence criteria of the linear solver: 1e-06.
+Max number of linear iterations: 10.
+No CFL adaptation.
+Courant-Friedrichs-Lewy number:     1.25
+Euler implicit time integration for the turbulence model.
+
+------------------ Convergence Criteria  ( Zone 0 ) ---------------------
+Maximum number of solver subiterations: 2.
+Maximum number of physical time-steps: 10.
+Begin convergence monitoring at iteration 5.
+Residual minimum value: 1e-14.
+Cauchy series min. value: 1e-10.
+Number of Cauchy elements: 100.
+Begin windowed time average at iteration 0.
+
+-------------------- Output Information ( Zone 0 ) ----------------------
+File writing frequency: 
++------------------------------------+
+|                     File| Frequency|
++------------------------------------+
+|                  RESTART|         1|
++------------------------------------+
+Writing the convergence history file every 0 inner iterations.
+Writing the convergence history file every 1 time iterations.
+Writing the screen convergence history every 1 inner iterations.
+Writing the screen convergence history every 1 time iterations.
+The tabular file format is CSV (.csv).
+Convergence history file name: history.
+Forces breakdown file name: forces_breakdown.dat.
+Surface file name: surface.
+Volume file name: vol_solution.
+Restart file name: affine_annulus_bl_budget_20_m1_restart.
+
+------------- Config File Boundary Information ( Zone 0 ) ---------------
++-----------------------------------------------------------------------+
+|                        Marker Type|                        Marker Name|
++-----------------------------------------------------------------------+
+|                          Far-field|                                far|
++-----------------------------------------------------------------------+
+|                     Symmetry plane|                           symmetry|
++-----------------------------------------------------------------------+
+|                     Heat flux wall|                               wall|
++-----------------------------------------------------------------------+
+
+-------------------- Output Preprocessing ( Zone 0 ) --------------------
+
+WARNING: SURFACE_PRESSURE_DROP can only be computed for at least 2 surfaces (outlet, inlet, ...)
+
+Screen output fields: TIME_ITER, INNER_ITER, RMS_DENSITY, RMS_MOMENTUM-X, RMS_MOMENTUM-Y, RMS_ENERGY
+History output group(s): ITER, CUR_TIME, RMS_RES
+Convergence field(s): RMS_DENSITY
+Warning: No (valid) fields chosen for time convergence monitoring. Time convergence monitoring inactive.
+Volume output fields: COORDINATES, SOLUTION, PRIMITIVE
+
+------------------- Geometry Preprocessing ( Zone 0 ) -------------------
+Three dimensional problem.
+16 grid points.
+24 volume elements.
+3 surface markers.
+22 boundary elements in index 0 (Marker = far).
+8 boundary elements in index 1 (Marker = symmetry).
+2 boundary elements in index 2 (Marker = wall).
+24 tetrahedra.
+Native symmetry reference audit: marker=symmetry schema=2 maximum_original_deviation=1.2072071695155147e-11 declared_limit=1e-10
+Native symmetry reference adopted: changed_points=8 junction_points=8 maximum_displacement=9.8273446425631942e-12 maximum_mapping_error=2.7782680669941057e-17 body_displacement_bound=1.5840051492688193e-11 minimum_volume_ratio=0.99999999992203681 boundary_witnesses=24 boundary_pairs=204 boundary_check_seconds=0.117458807 maximum_requested_bytes=570952 frozen_fields_moved=0
+Setting point connectivity.
+Renumbering points (Reverse Cuthill McKee Ordering).
+Recomputing point connectivity.
+Setting element connectivity.
+Checking the numerical grid orientation.
+All volume elements are correctly oriented.
+There has been a re-orientation of 16 TRIANGLE surface elements.
+Identifying edges and vertices.
+Setting the control volume structure.
+Volume of the computational grid: 0.95999999999999508.
+Searching for the closest normal neighbors to the surfaces.
+Storing a mapping from global to local point index.
+Compute the surface curvature.
+Max K: 16.665648665594102. Mean K: 11.299245835283363. Standard deviation K: 2.3954751719007672.
+Computing mesh quality statistics for the dual control volumes.
++--------------------------------------------------------------+
+|           Mesh Quality Metric|        Minimum|        Maximum|
++--------------------------------------------------------------+
+|    Orthogonality Angle (deg.)|        31.1117|        59.3378|
+|     CV Face Area Aspect Ratio|        1.65243|        13.0482|
+|           CV Sub-Volume Ratio|              5|              5|
+|                     CV Volume|      0.0233333|           0.11|
++--------------------------------------------------------------+
+Finding max control volume width.
+NATIVE3D_STAGE stage=cfd_geometry_initial rank=0 ranks=1 time_iter=0 total=0.11853778399999999 other=2.850999999992089e-06 cpu=0.11845799999999999 cpu_other=9.9999999999433225e-07 process_peak_rss=28131328 partition=1.4258999999999973e-05 partition_cpu=6.9999999999999999e-06 migration=0.00024796099999999967 migration_cpu=0.00025000000000000001 preprocess=0.118272713 preprocess_cpu=0.1182
+Semi-span length = -1e+10 m.
+Wetted area = 0 m^2.
+Area projection in the x-plane = 0 m^2, y-plane = 0 m^2, z-plane = 0 m^2.
+Max. coordinate in the x-direction = -1e+10 m, y-direction = -1e+10 m, z-direction = -1e+10 m.
+Min. coordinate in the x-direction = 1e+10 m, y-direction = 1e+10 m, z-direction = 1e+10 m.
+Computing wall distances.
+
+-------------------- Solver Preprocessing ( Zone 0 ) --------------------
+Viscous flow: Computing pressure using the ideal gas law
+based on the free-stream temperature and a density computed
+from the Reynolds number.
+Force coefficients computed using free-stream values.
+
+-- Models:
++------------------------------------------------------------------------------+
+|          Viscosity Model|        Conductivity Model|              Fluid Model|
++------------------------------------------------------------------------------+
+|               SUTHERLAND|          CONSTANT_PRANDTL|             STANDARD_AIR|
++------------------------------------------------------------------------------+
+-- Fluid properties:
++------------------------------------------------------------------------------+
+|                  Name|    Dim. value|    Ref. value|      Unit|Non-dim. value|
++------------------------------------------------------------------------------+
+|        Ref. Viscosity|     1.716e-05|             1|   N.s/m^2|     1.716e-05|
+|      Sutherland Temp.|        273.15|             1|         K|        273.15|
+|     Sutherland Const.|         110.4|             1|         K|         110.4|
++------------------------------------------------------------------------------+
+|        Prandtl (Lam.)|             -|             -|         -|          0.72|
+|       Prandtl (Turb.)|             -|             -|         -|           0.9|
++------------------------------------------------------------------------------+
+|          Gas Constant|       287.058|             1|  N.m/kg.K|       287.058|
+|      Spec. Heat Ratio|             -|             -|         -|           1.4|
++------------------------------------------------------------------------------+
+-- Initial and free-stream conditions:
++------------------------------------------------------------------------------+
+|                  Name|    Dim. value|    Ref. value|      Unit|Non-dim. value|
++------------------------------------------------------------------------------+
+|       Static Pressure|       21746.2|             1|        Pa|       21746.2|
+|               Density|      0.262902|             1|    kg/m^3|      0.262902|
+|           Temperature|        288.15|             1|         K|        288.15|
+|          Total Energy|        209105|             1|   m^2/s^2|        209105|
+|            Velocity-X|       63.8303|             1|       m/s|       63.8303|
+|            Velocity-Y|       23.6172|             1|       m/s|       23.6172|
+|            Velocity-Z|             0|             1|       m/s|             0|
+|    Velocity Magnitude|       68.0594|             1|       m/s|       68.0594|
++------------------------------------------------------------------------------+
+|             Viscosity|    1.7893e-05|             1|   N.s/m^2|    1.7893e-05|
+|          Conductivity|             -|             1|   W/m^2.K|             -|
+|     Turb. Kin. Energy|       17.3703|             1|   m^2/s^2|       17.3703|
+|     Spec. Dissipation|       25522.3|             1|       1/s|       25522.3|
++------------------------------------------------------------------------------+
+|           Mach Number|             -|             -|         -|           0.2|
+|       Reynolds Number|             -|             -|         -|         1e+06|
++------------------------------------------------------------------------------+
+-- Unsteady conditions
++------------------------------------------------------------------------------+
+|                  Name|    Dim. value|    Ref. value|      Unit|Non-dim. value|
++------------------------------------------------------------------------------+
+|            Total Time|             1|             1|         s|             1|
+|             Time Step|         0.001|             1|         s|         0.001|
++------------------------------------------------------------------------------+
+Initialize Jacobian structure (Navier-Stokes). MG level: 0.
+Initialize Jacobian structure (SA model).
+
+------------------- Numerics Preprocessing ( Zone 0 ) -------------------
+
+----------------- Integration Preprocessing ( Zone 0 ) ------------------
+
+------------------- Iteration Preprocessing ( Zone 0 ) ------------------
+Euler/Navier-Stokes/RANS fluid iteration.
+Native symmetry reference audit: marker=symmetry schema=2 maximum_original_deviation=2.7782680669941057e-17 declared_limit=1e-10
+Native symmetry reference verified: changed_points=0 junction_points=8 maximum_displacement=0 maximum_mapping_error=2.7782680669941057e-17 body_displacement_bound=0 minimum_volume_ratio=1 boundary_witnesses=0 boundary_pairs=0 boundary_check_seconds=0 maximum_requested_bytes=527240 frozen_fields_moved=0
+Native symmetry reference audit: marker=symmetry schema=2 maximum_original_deviation=2.7782680669941057e-17 declared_limit=1e-10
+Native symmetry reference verified: changed_points=0 junction_points=8 maximum_displacement=0 maximum_mapping_error=2.7782680669941057e-17 body_displacement_bound=0 minimum_volume_ratio=1 boundary_witnesses=0 boundary_pairs=0 boundary_check_seconds=0 maximum_requested_bytes=527240 frozen_fields_moved=0
+/usr/include/c++/9/bits/shared_ptr_base.h:1007: std::__shared_ptr_access<_Tp, _Lp, <anonymous>, <anonymous> >::element_type& std::__shared_ptr_access<_Tp, _Lp, <anonymous>, <anonymous> >::operator*() const [with _Tp = SU2Native3D::ReferenceState; __gnu_cxx::_Lock_policy _Lp = __gnu_cxx::_S_atomic; bool <anonymous> = false; bool <anonymous> = false; std::__shared_ptr_access<_Tp, _Lp, <anonymous>, <anonymous> >::element_type = SU2Native3D::ReferenceState]: Assertion '_M_get() != nullptr' failed.
+../../UnitTests/SU2_CFD/adaptation/fixtures/native_normalization_stages.inc:283: failed: fatal error condition with message: 'SIGABRT - Abort (abnormal termination) signal'; expression was: {Unknown expression after the reported line}
+Failed 1 test case, failed 1 assertion.
+
+[pc-rausa:1929186] *** Process received signal ***
+[pc-rausa:1929186] Signal: Aborted (6)
+[pc-rausa:1929186] Signal code:  (-6)
+[pc-rausa:1929186] [ 0] /lib/x86_64-linux-gnu/libpthread.so.0(+0x14420)[0x7fee1cb7e420]
+[pc-rausa:1929186] [ 1] /lib/x86_64-linux-gnu/libc.so.6(gsignal+0xcb)[0x7fee1c9bb00b]
+[pc-rausa:1929186] [ 2] /lib/x86_64-linux-gnu/libc.so.6(abort+0x12b)[0x7fee1c99a859]
+[pc-rausa:1929186] [ 3] /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver(+0x33fef8)[0x558d13b32ef8]
+[pc-rausa:1929186] [ 4] /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver(+0x66007e)[0x558d13e5307e]
+[pc-rausa:1929186] [ 5] /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver(+0xadbbe3)[0x558d142cebe3]
+[pc-rausa:1929186] [ 6] /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver(+0xaee07e)[0x558d142e107e]
+[pc-rausa:1929186] [ 7] /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver(+0xb06b6e)[0x558d142f9b6e]
+[pc-rausa:1929186] [ 8] /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver(+0xb0e4f0)[0x558d143014f0]
+[pc-rausa:1929186] [ 9] /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver(+0xb0eac2)[0x558d14301ac2]
+[pc-rausa:1929186] [10] /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver(+0x3009b7)[0x558d13af39b7]
+[pc-rausa:1929186] [11] /lib/x86_64-linux-gnu/libc.so.6(__libc_start_main+0xf3)[0x7fee1c99c083]
+[pc-rausa:1929186] [12] /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver(+0x32df4e)[0x558d13b20f4e]
+[pc-rausa:1929186] *** End of error message ***
+timeout: the monitored command dumped core

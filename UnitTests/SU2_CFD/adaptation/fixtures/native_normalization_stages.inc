@@ -297,6 +297,7 @@ void BudgetRuntime3D(bool symmetry) {
     if(symmetry)text+="MARKER_SYM= (symmetry)\nADAP_NATIVE_SYMMETRY_REFERENCE= "+name+".planes\n";
     if(oblique){std::ostringstream angle;angle<<std::setprecision(17)<<"SIDESLIP_ANGLE= "<<std::atan(.37)*180/std::acos(-1.)<<'\n';text+=angle.str();}
     std::ofstream cfg(name+".cfg");cfg<<text<<"ADAP_BL_BUDGET= YES\nADAP_BL_PROTECT_DISTANCE= .1\nADAP_BL_OUTER_GROWTH_MAX= 10\n";REQUIRE(bool(cfg));
+    if(mapped){cfg<<"ADAP_NATIVE_MAX_TIME= 120\n";REQUIRE(bool(cfg));}
   }
   SU2_MPI::Barrier(world.comm);auto cfg=name+".cfg";auto driver=std::make_unique<TetraDriver>(const_cast<char*>(cfg.c_str()),1,world.comm);
   if(symmetry && !oblique) {
@@ -374,9 +375,10 @@ void BudgetRuntime3D(bool symmetry) {
     for(size_t p=0;p<geometry.GetnPoint();++p)for(unsigned k=0;k<3;++k)CHECK(geometry.nodes->GetCoord(p,k)==coordinates[p][k]);
     CHECK(State(geometry,driver->Solver())==states);
   }
+  auto backend=driver->Backend();auto* native=dynamic_cast<CNativeRemesher3D*>(backend.get());REQUIRE(native);
   if(mapped) {
     // Geometry already adopted; declare a matching mapping band before original metric/donors freeze.
-    auto& reference=*driver->Reference();REQUIRE(reference.original);
+    REQUIRE(driver->Reference());auto& reference=*driver->Reference();REQUIRE(reference.original);
     std::map<Id,double> errors;for(auto f:reference.facets)errors.emplace(f.id,1e-13);
     auto authority=std::make_shared<SU2NativeGeometry::MappedFacetReference>(reference.original,errors,7);
     BoundaryPoints points;std::vector<SurfaceFace> skin;
@@ -385,7 +387,6 @@ void BudgetRuntime3D(bool symmetry) {
     const auto check=ImportGeometry(driver->Config(),driver->Geometry(),nullptr,reference);
     CHECK(CPassiveComm::Allreduce(uint64_t(check.cells.size()),CPassiveComm::Op::SUM,world.comm)==driver->Geometry().GetGlobal_nElemDomain());
   }
-  auto backend=driver->Backend();auto* native=dynamic_cast<CNativeRemesher3D*>(backend.get());REQUIRE(native);
   if(annulus) {
     struct LastTrial {Patch old,fresh;Feature feature;MetricDiagnosis metric;bool candidate=false;std::string reason;};
     auto last=std::make_shared<LastTrial>();const auto reference=driver->Reference();

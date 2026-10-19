@@ -14,11 +14,11 @@ def sha(p):
  return h.hexdigest()
 pins={p:sha(ROOT/p) for p in files};(HERE/'source_v2.json.gz').write_bytes(gzip.compress(json.dumps({p:(ROOT/p).read_text() for p in files}).encode()))
 (HERE/'source_v2.json').write_text(json.dumps(dict(base=subprocess.check_output(['git','rev-parse','HEAD']).decode().strip(),sha256=pins),indent=2)+'\n')
-old=BUILD/'UnitTests/test_driver';archive=HERE/'test_driver_before_annulus_v1.gz'
-expected='76ffde56417555462279bd12c30b7d75ed7a02c6801d53b1019c895852b16e5a'
+old=BUILD/'UnitTests/test_driver';archive=HERE/'test_driver_before_reference_init_v1.gz'
+expected='65a59210405fe242cd911ba2d76f861e349e12669921a077e645cf8c024467f2'
 assert sha(old)==expected,'Inspect the current binary before rebuilding'
 if archive.exists():
- prior=json.loads((HERE/'before_annulus_binary_archive.json').read_text())
+ prior=json.loads((HERE/'before_reference_init_binary_archive.json').read_text())
  assert prior['sha256']==expected and prior['compressed_sha256']==sha(archive)
 else:
  with old.open('rb') as source,archive.open('xb') as dest:
@@ -27,7 +27,7 @@ else:
  with gzip.open(archive,'rb') as source:
   while chunk:=source.read(4*1024**2):h.update(chunk);count+=len(chunk)
  assert h.hexdigest()==expected and count==old.stat().st_size
- (HERE/'before_annulus_binary_archive.json').write_text(json.dumps(dict(path=str(archive.relative_to(ROOT)),sha256=expected,original_bytes=count,compressed_sha256=sha(archive),restore_required=True),indent=2)+'\n')
+ (HERE/'before_reference_init_binary_archive.json').write_text(json.dumps(dict(path=str(archive.relative_to(ROOT)),sha256=expected,original_bytes=count,compressed_sha256=sha(archive),restore_required=True),indent=2)+'\n')
 print('PRIOR_LINKED_PROTOTYPE_VERIFIED',flush=True)
 assert Path('/home/rausa/Software/su2-develop/ninja').is_file()
 def cpus():

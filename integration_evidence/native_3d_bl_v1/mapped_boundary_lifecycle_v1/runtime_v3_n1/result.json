@@ -1,0 +1,43 @@
+{
+  "exit_code": 0,
+  "elapsed_seconds": 15.851070843986236,
+  "command": [
+    "taskset",
+    "-c",
+    "3",
+    "nice",
+    "-n",
+    "19",
+    "timeout",
+    "--kill-after=5s",
+    "180s",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver",
+    "[NativeMappedRuntime3D]",
+    "--abort",
+    "--reporter",
+    "compact"
+  ],
+  "provenance_sha256": "e96a576ad0187a31e158f4c0987cd14713cc1eb6100bf28624aaa86f46cfeb39",
+  "log_sha256": "16caecf5f07fa090790e43eaf1c7ddc483028cac844836ed6c1b29c5ab3c9f4f",
+  "compiled_sources_unchanged": true,
+  "test_filter_matched": true,
+  "artifacts": {
+    "mapped_runtime_euler_written_SU2.su2": "7c608834bd25d565686a7db8b25d715497742b923cd547129a0d13b9347308f8",
+    "mapped_runtime_euler_written_CGNS.cgns": "e1e50186f0c15410feb0aae1614d0cb21a19504cc738b40937bf99fe0363050e",
+    "mapped_runtime_rans_written_SU2.su2": "571ab4ea0a8d252718ac02b940409f6ff171f3a9e055a9473b367569f08b4209",
+    "mapped_runtime_euler_written_SU2_reload.json": "ace4e9d75339e098edc14f57a183f5aea0a283e03a8d392701e96b7a536f64d7",
+    "mapped_runtime_rans_written_CGNS.cgns.native_ref": "179f09b848d3c953b88268174418904c6ac7c54bdc633a2d47fc44c145b2a694",
+    "mapped_runtime_rans_written_CGNS_reload.json": "8083a7ab118102b7c22ca9293a24aaddca52f772045986dd5f613a4b4e552509",
+    "mapped_runtime_rans_written_SU2_reload.json": "8083a7ab118102b7c22ca9293a24aaddca52f772045986dd5f613a4b4e552509",
+    "process.json": "b061ffc254d64a00dfe426b53368abd9f432440580e0671fc2c88088e332e849",
+    "mapped_runtime_euler_projection.json": "a2e41491e449cd57bc9463f94e5fca154d671c480f49ebdeadc969a0f657a2a9",
+    "mapped_runtime_euler_written_CGNS.cgns.native_ref": "29932064c1f06065f9fa4187f58d3bcf6ad629267daebefbc150d8e2ab028ef5",
+    "mapped_runtime_rans_written_CGNS.cgns": "954baa31fa9f2a369c0f03f55f82529b81316334b6262dfad07e57b705813797",
+    "mapped_runtime_euler_states.json": "36f25cc16480c3d28c0e026e51f96b2dc6095b39d61b77eceffa5cd19b16f092",
+    "mapped_runtime_euler_written_CGNS_reload.json": "ace4e9d75339e098edc14f57a183f5aea0a283e03a8d392701e96b7a536f64d7",
+    "mapped_runtime_rans_written_SU2.su2.native_ref": "179f09b848d3c953b88268174418904c6ac7c54bdc633a2d47fc44c145b2a694",
+    "mapped_runtime_euler_written_SU2.su2.native_ref": "29932064c1f06065f9fa4187f58d3bcf6ad629267daebefbc150d8e2ab028ef5",
+    "mapped_runtime_rans_projection.json": "433bc2001085f507a869f93d85ebb62b2fa456bdc1a9ac5af5e6664662e07baf",
+    "mapped_runtime_rans_states.json": "6d531caad4fcae9d0cd5eace14e3e95e39c8766d60a483e78e89a575a5f04da8"
+  }
+}

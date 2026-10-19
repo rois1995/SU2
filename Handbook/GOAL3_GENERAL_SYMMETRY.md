@@ -62,6 +62,18 @@ complete accepted-event cost. Rejected M6 timing proves no affordability result.
 
 ## Current checkpoint
 
+Mapped controlled uniform oblique Euler/RANS-SA N1M1/N2M1/N4M2/N4M4 now passes
+conservative BDF2 transfer, reader numbering, v5/SU2+CGNS reload and independent
+finite-support/volume/topology/metric/state audits. This is initialized uniform
+flow/metric evidence, not a BL/exterior/real solution-restart qualification.
+The actual mapped oblique annular BL reaches integration but rejects construction
+at8192work; regional construction excludes its geometry class. Keep the complete
+finite-plane/body-feature/wall/transition capability as the next substantial
+construction task, preserving exact failed state and all constraints.
+[Current diagnosis](../integration_evidence/native_3d_bl_v1/mapped_boundary_lifecycle_v1/CONSTRUCTION_STATUS.md).
+
+Historical Cartesian scope follows; it does not qualify the new mapped BL path.
+
 Cartesian3D adoption and finite nonconvex/annular unions are integrated. Native
 coordinated annular construction now passes initialized RANS/SA/current+BDF/
 transfer/SU2+CGNS/real restart in N1/M1,N2/M2,N4/M2,N4/M4 with independent

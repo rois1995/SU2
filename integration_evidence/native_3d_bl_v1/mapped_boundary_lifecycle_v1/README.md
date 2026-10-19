@@ -40,19 +40,47 @@ its steady fixture used the BDF snapshot helper; stack/failure evidence retained
   no-slip walls while the new fixture prescribed nonzero momentum there. Failure
   preserved; corrected affine momentum vanishes at z=0, tolerance unchanged.
 
-Current connected annular batch passes4interface syntax checks in syntax_v3 and
-is under official13-step build (build_guard_v2.py, tool8820/Ninja1890502). It adopts
-a matching mapped authority before metric/donor freeze; rejected observers receive
-matching private geometry and retain trial forward bindings. The corrected uniform
-fixture saves state/projection data for independent checking. One nice19 CPU/-j1,
-4TB scratch, source pins, bounded elapsed time and sampled memory. Prior executable
-fully decompressed/hash-verified before replacement. Build times are not remeshing
-performance. Historical launcher/edit failures and Opus420s timeout remain saved.
+`linked_v3`: complete connected production/observer build PASS587.96s, binary
+78b1aa43fbf58cd4111693d8ad9c62968dc0ac752bbaec12bfd6561dcd320d55.
+- runtime_v3_n1: complete uniform Euler/RANS-SA PASS195assertions/15.85s,6->58tets,
+  conservative BDF2 transfer and SU2/CGNS/reference geometry reload.
+- rejection_v3_n1: matching borrowed private reference/accepted-state isolation,
+  collective diagnostic failure and successful-case noninvocation PASS24assertions.
+- audits/runtime_v3_n1_uniform.json:4independent output audits,270exact overlap pairs
+  each, all12finite original-facet covers; max mapping1.665e-16,volume drift9.252e-18,
+  minq.56508/J.25677,Lmax1.743674,state/history residual3.862e-13. Three corrupted
+  mesh controls reject. Initial post-check helper report-path failure retained and
+  fixed; only the offline audit repeated, no native/CFD rerun.
 
-Current full BL/MPI/real solution restart/exterior/2D qualification is OPEN. All
-original facet seams stay protected. No production option implicitly enables a
-mapping band; explicit matching reference remains necessary. No new physical CFD
-advance or affordability claim.
+Final local qualification is sealed in `validation_summary.json` against current
+binary bcb271be14f7cc1b9cc4fe5295fc8d5caf73d0dbf005a0177e8533ceddebf78d.
+All jobs terminal. Native production/observer batch linked; test-only deadline and
+lazy-reference ordering are corrected and separately archived in linked_v4/source
+scopes. No full suite or new physical CFD advance.
+
+- Uniform Euler/RANS-SA N1M1,N2M1,N4M2,N4M4 complete6->58tets/31nodes, conservative
+  current/BDF2 transfer and SU2/CGNS/v5 geometry reload. Serial195assertions;
+  affected N4geometry8cases/rank, reader/publication/private-rejection pass.
+- Independent4output audits for each lifecycle pass finite ideal cover, mapping
+  bounds, actual orientation, volume/overlap/topology, uniform metric and affine
+  flow/history;3corrupted-mesh controls reject. Point coordinates agree across
+  ranks; N4connectivity differs and passes. No exact topology determinism claim.
+- Annulus_v5_n1 reaches complexity19.9996/budget20; remeshing rejects8192work after
+  18private edits/96tets/69edge tasks/84target-invalid cells. No regional constructor
+  attempted. PrismChart excludes extension components, mapped reference uses that
+  path; radial alternative requires analytic scene. All raw seams stay protected.
+  [Exact diagnosis and construction decision](CONSTRUCTION_STATUS.md). No accepted
+  BL or full mapped real solution-restart/exterior/general2D qualification.
+- Rejected mesh, v5 private reference, trial bindings and source are retained, with
+  inspectable `_rejected.su2`.120s native/180s outer cap; no raised work/mesh gates.
+- Opus5.5/medium source review completed with correct model, normal authentication,
+  tools/hooks/MCP disabled. It corroborates the conditional facade-pointer/profile
+  reuse issue; `authority_review_v2/assessment.json` records additional safeguards.
+  Review is not validation and is separate from observed construction rejection.
+
+Build times and contended rejected-case timings establish no unsteady affordability.
+Original facet seams, affine BL walls/mixed analytic interfaces,2D runtime,
+multiple-body/exterior/full solution restart and all original scope remain OPEN.
 
 ## Resumable focused checks (run after build PASS)
 

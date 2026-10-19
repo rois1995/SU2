@@ -5,63 +5,71 @@ Worktree `/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated`, branch
 Leave AdapNoExt, foreign ClusterResults/dependencies/jobs untouched.
 [Full requirements](integration_evidence/native_3d_bl_v1/GOAL3_REQUIREMENTS.json).
 
-## Current work — mapped boundary parameters, NOT production-enabled
+## Current result — controlled mapped lifecycle passes; BL construction rejects
 
-New parameter geometry is implemented: boundary-only support/version/scalars,
-exact unrounded coordinate bounds/orientation, minimum incident mapping error,
-complete finite-facet coverage/feature chains and bounded atomic audit refusal.
-Node/Cell/OwnedCell layouts, existing config and remeshing activation stay unchanged.
-All original facet edges are protected in this first representation; it may still
-obstruct construction. No general discrete coarsening or curved/intersection claim.
-[Current implementation and full next reach](Handbook/GOAL3_MAPPED_PARAMETERS.md).
+Latest linked binary `bcb271be14f7cc1b9cc4fe5295fc8d5caf73d0dbf005a0177e8533ceddebf78d`.
+All owned build/native/MPI/audit/review handles terminal; full Goal3 stays ACTIVE.
+No new physical CFD advancement or cluster run.
+[Sealed validation](integration_evidence/native_3d_bl_v1/mapped_boundary_lifecycle_v1/validation_summary.json).
 
-Focused isolated geometry controls pass8cases/2861assertions; constructor admission/
-valid-interior correction passes1case/26assertions. Independent rational oracle
-checks120coordinate bounds/120orientation signs (60exact zeros) across1e-300..1e300.
-Existing affected cancellation/subnormal/segment/saved-M6-midpoint controls pass
-3cases/287assertions. Only3changed units compiled, qualified support archives reused;
-no full suite, CFD rerun or MPI campaign at that historical checkpoint. Current build is listed below.
-[Sealed evidence](integration_evidence/native_3d_bl_v1/mapped_faceted_geometry_v1/validation_summary.json).
+Implemented boundary-only forward bindings/current skin, exact realized orientation,
+private proposal/stage state, common atomic publication, N/M return, actual dense
+reader numbering and native_ref v5 SU2/CGNS persistence. Existing strict formats,
+original sensor-only P1, actual-query BL/finer/fade and mesh/transfer gates stay.
+All original triangle seams remain protected; no complete general plane coarsening.
 
-Two mapped prototypes have linked through official dependencies. Latest tested
-binary76ffde56417555462279bd12c30b7d75ed7a02c6801d53b1019c895852b16e5a
-is preserved before the next rebuild. Realized/private-scope1case/25assertions,
-publication1case/38assertions, reader Euler/RANS1case/38assertions and independent
-exact normal-dot209samples (171filtered/38exact) PASS. Uniform Euler completes
-6->58tets, conservative BDF2 transfer and SU2/CGNS geometry reload. Uniform RANS
-also constructs58tets but its state comparison fails because the new fixture
-prescribed nonzero no-slip-wall momentum; corrected fixture is rebuilding.
-No accepted oblique BL or full mapped real-restart workflow is yet established.
+Controlled oblique uniform Euler/RANS-SA lifecycle passes N1/M1,N2/M1,N4/M2,N4/M4:
+6->58tets/31nodes, current+BDF2 conservative transfer and SU2/CGNS/reference reload.
+Serial195assertions; N4affected8cases per rank, reader/publication/rejection controls
+pass. Four independent output audits for EACH rank lifecycle pass: q>=.56508,
+J>=.25677,Lmax1.743674, mapping1.665e-16, volume drift9.252e-18; max audited
+flow/history residual about1.045e-12. Corrupted cells/missing faces/coordinates reject.
+Exported point coordinates agree; N4connectivity differs from N1/N2 and is valid
+under the independent audits. No bitwise topology-determinism claim. The exact
+normal-dot oracle's predicate object remains unchanged (209samples/171filter/38exact).
+These are uniform/initialized-state controls, NOT a BL or real solution-restart claim.
 
-Prior b232 checkpoint passed source9/affected19cases per rank at MPI1/2/4,
-all12exact source-domain audits with bitwise field identity, and the complete serial
-Cartesian RANS transfer/SU2+CGNS/restart audit. Reuse its exact old-source scope;
-[details](Handbook/GOAL3_JOINT_AFFINE_SOURCE.md). Source grids are NOT CFD grids.
+## Actual oblique annular BL — integration passes, construction fails
 
-## Connected integration — annular lifecycle batch building
+`mapped_boundary_lifecycle_v1/annulus_v5_n1`: native metric initialization reaches
+reported19.9996 for budget20. Separate composed audit still18violations/max4.57957;
+no tensor spreading/reset. 3.625million density evaluations/12.79s quadrature;
+these are contended rejected-case observations, not a speedup/affordability result.
 
-Boundary-only accepted/current skin, private bindings, staged collective
-publication, engine isolation, mapped source envelopes, N/M return, actual reader
-numbering and native_ref v5 are connected. `linked_v1`/`linked_v2` preserve complete
-source/build/resource receipts; reader_v1_n1 and runtime_v2_n1 preserve failures.
+Construction exhausts8192work after18private edits,96tets/36nodes,69edge tasks and
+84target-invalid cells.2layer transactions;5120joint-wall trials/0accepted; no
+regional core/front reconstruction. Remesh27.288s/refine25.541s, whole test44.508s.
+PrismChart explicitly excludes extension references; mapped geometry takes that
+path. Alternate regional construction requires a complete analytic radial/disk
+scene. Merely removing the guard is insufficient: all raw facet seams remain
+protected and the constructor does not publish mapped forward bindings.
 
-Current batch: oblique annular BL fixture declares matching mapped authority before
-metric/original-donor freeze; rejected-state observer receives the actual private
-geometry (all callers updated), preserving rejected cells/reference and trial
-forward bindings. Its mapped refusal check verifies accepted metadata unchanged.
-Uniform Euler/RANS fixtures now save BDF states/projection receipts; RANS momentum
-is affine in z and zero on its configured no-slip wall. Transfer tolerance unchanged.
+Exact private mesh/reference/trial parameters are preserved. Inspect
+`integration_evidence/native_3d_bl_v1/mapped_boundary_lifecycle_v1/annulus_v5_n1/affine_annulus_bl_budget_20_m1_rejected.su2`.
+[Diagnosis and next construction decision](integration_evidence/native_3d_bl_v1/mapped_boundary_lifecycle_v1/CONSTRUCTION_STATUS.md).
+Do not increase the ceiling, retry unchanged M6 or add another local fallback.
+Reconsider coordinated finite-plane/body-feature/wall/transition construction and
+which nonphysical seams the declared geometry can release. Preserve full scope.
 
-All4changed interfaces pass syntax_v3. Official13-step build active via
-`build_guard_v2.py` (tool8820/Ninja1890502), one nice19 CPU/-j1,4TB scratch,
-bounded time and sampled memory. Do not edit pinned C++ or start another heavy job
-until the actual handle is terminal. [Exact qualification and limits](integration_evidence/native_3d_bl_v1/mapped_boundary_lifecycle_v1/README.md).
+Fixture failures remain: reader steady/BDF mismatch; uniform RANS nonzero no-slip
+momentum; annulus lazy-reference dereference before Backend; deadline preflight
+worker refused stale binary before compilation. Corrected via house initialization
+and physically consistent test fields, no acceptance tolerance changes. Linked_v1--4
+source/binary/resource scopes retained. Current fixture has120s native/180s outer cap.
 
-Next: corrected complete uniform lifecycle and matching-private-state rejection,
-then actual oblique annular BL before broader affected MPI. Preserve exact failure
-if construction stalls; reconsider missing construction/seam capability instead
-of another local fallback. Full solution-file restart, exterior/multiple-body/2D
-and affordability remain OPEN. Opus5.5/high420s timeout gave no review qualification.
+## Frozen profile identity and Claude review
+
+Static separate issue: the BL composition factory compares whole facade pointers.
+A bounded correction after a stage can replace the facade while sharing immutable
+geometry, falsely refusing reuse. This did NOT cause annular failure (0correction
+trials). Resolve immutable geometry/mapped-authority/profile identity at composition
+re-entry, retaining strict original geometry/donor/selected-field eligibility.
+[Independent source review and qualifications](integration_evidence/native_3d_bl_v1/mapped_boundary_lifecycle_v1/authority_review_v2/assessment.json).
+
+Claude Opus5.5/medium review completed30.45s, reported exact requested model. Normal
+user authentication works; earlier stripped/bare invocation misleadingly returned
+Not logged in. Do not ask user to log in on that evidence. Tools/MCP/hooks disabled;
+review is reasoning, never validation. Prior high420s/no-feedback receipt preserved.
 
 ## Next complete capability
 

@@ -1,0 +1,200 @@
+Read-only code review. Do not edit code or invoke tools. Keep answer under 500 words. Analyze only this concrete issue: a native remesher keeps an immutable geometry definition and a mutable accepted boundary forward-parameter table. Each remeshing stage clones the table and returns a new cheap PlanarReference facade sharing the immutable geometry. Metric donors remain original sensor-only P1; geometric BL is evaluated at actual queries and stays frozen during operations. A retained BL family stores its old PlanarReference shared_ptr. Driver composition factory currently compares family.authority == state.original. At a bounded complexity correction between stages, pending.state.original is a new facade but still the same immutable geometry/BL definition. Does this identity check wrongly refuse profile reuse? What is the smallest safe identity policy, and where must it remain stricter to avoid reusing stale donor fields after a mesh/event change? Distinguish established code defect from unexecuted failure and don't propose another cache or broad abstraction. Relevant source excerpts follow.
+
+FILE SU2_CFD/src/drivers/CSinglezoneDriver.cpp
+
+std::unique_ptr<CRemesher> CSinglezoneDriver::MakeRemesher() {
+  if (config_container[ZONE_0]->GetKind_Adap_Remesher()==ADAP_REMESHER::NATIVE_CAVITY) {
+    if(geometry_container[ZONE_0][INST_0][MESH_0]->GetnDim()==3){
+      if(!nativeReference3D)nativeReference3D=std::make_shared<SU2Native3D::ReferenceState>();
+      auto constraints=[this](const CConfig& config,const SU2Native3D::ReferenceState& state,double core,
+                          SU2Native3D::EngineOptions& control) -> SU2Native3D::MetricComposition {
+        const auto family=solver_container[ZONE_0][INST_0][MESH_0][FLOW_SOL]->GetNativeMetricFamily3D();
+        const bool retained=family && family->boundary_layer && family->layers && family->authority==state.original && family->Compatible(config);
+        if(config.GetAdap_BL_Budget() && (!retained || !family->layers->GetOuterNormal().frozen))
+          throw std::invalid_argument("Budget-aware native3D requires its selected frozen original-family BL profile.");
+        const auto layers=retained ? family->layers : CBoundaryLayerMetric::FromNativeReference(state,config);
+        for(unsigned short b=0;b<config.GetnAdap_BL();++b) {
+          const auto& layer=config.GetAdap_BL(b);
+          const auto marker=std::find(state.marker_names.begin(),state.marker_names.end(),layer.marker);
+          if(marker==state.marker_names.end())throw std::invalid_argument("Native3D BL marker has no retained geometry.");
+          control.wall_heights[int(marker-state.marker_names.begin())]=SU2_TYPE::GetValue(layer.firstHeight);
+          control.region_walls[int(marker-state.marker_names.begin())]={SU2_TYPE::GetValue(layer.firstHeight),
+              SU2_TYPE::GetValue(layer.growth),SU2_TYPE::GetValue(layer.thickness)};
+        }
+        control.caller_bytes=transfer_memory::Add(control.caller_bytes,layers->StorageBytes());
+        control.edge_breakpoints=[layers](SU2Native3D::Point a,SU2Native3D::Point b) {
+          return layers->EdgeBreakpoints({a.x,a.y,a.z},{b.x,b.y,b.z});
+        };
+        return [layers,core](SU2Native3D::Point p,SU2Native3D::Tensor sensor) {
+          const su2double x[3]={p.x,p.y,p.z};CBoundaryLayerMetric::Tensor m;
+          m.m[0][0]=sensor.xx;m.m[0][1]=m.m[1][0]=sensor.xy;m.m[0][2]=m.m[2][0]=sensor.xz;
+          m.m[1][1]=sensor.yy;m.m[1][2]=m.m[2][1]=sensor.yz;m.m[2][2]=sensor.zz;
+          layers->ApplyPoint(x,m,core,nullptr,false);
+          return SU2Native3D::Tensor{SU2_TYPE::GetValue(m.m[0][0]),SU2_TYPE::GetValue(m.m[0][1]),SU2_TYPE::GetValue(m.m[0][2]),
+              SU2_TYPE::GetValue(m.m[1][1]),SU2_TYPE::GetValue(m.m[1][2]),SU2_TYPE::GetValue(m.m[2][2])};
+        };
+      };
+      auto normalization=[this](const CConfig& config,const CGeometry& geometry,const su2activematrix& sensor) {
+        auto* original=geometry_container[ZONE_0][INST_0][MESH_0];
+        if(!CPassiveComm::Allreduce(int(original==&geometry),CPassiveComm::Op::MIN))return SU2Native3D::NormalizationStage3D{};
+        return NativeNormalizationStage3D(*solver_container[ZONE_0][INST_0][MESH_0][FLOW_SOL],*original,config,*nativeReference3D,sensor);
+      };
+      auto remesher=std::make_unique<CNativeRemesher3D>(nativeReference3D,SU2Native3D::EngineOptions{},std::move(constraints),std::move(normalization));
+      if(config_container[ZONE_0]->GetnAdap_BL())
+        remesher->PrepareReference(*config_container[ZONE_0],*geometry_container[ZONE_0][INST_0][MESH_0]);
+      return remesher;
+    }
+    if (!nativeReference) nativeReference=std::make_shared<SU2NativeBoundary2D::ReferenceState>();
+
+FILE Common/src/adaptation/CNativeRemesher3D.cpp
+      if (parent.rank < stats.workers && ready) {
+        World workers(comm);
+        auto kernel = control;
+        kernel.maximum_seconds=worker_seconds;
+        kernel.maximum_work=control.maximum_work-stats.cumulative_work;
+        const auto worker_start=workers.seconds();
+        // The engine charges its input map/source; caller_bytes covers only other live runtime buffers.
+        kernel.caller_bytes = transfer_memory::Add(
+            held(), worker_source == &imported.original ? 0 : transfer_memory::Bytes(imported.original));
+        try {
+          const auto begin = workers.seconds();
+          auto refined = Refine(workers, working, *worker_source, *pending->state.original, composition, kernel);
+          stats.refine = refined.stats;
+          const bool rebuilt_domain=refined.rebuilt_domain;
+          valid = refined.valid;
+          if(valid && refined.reference)pending->state.original=std::move(refined.reference);
+          detail = refined.reason;
+          working.swap(refined.cells);
+          Owned().swap(refined.cells);
+          std::vector<SplitRecord>().swap(refined.splits);
+          std::vector<Edge>().swap(refined.collapses);
+          stats.phases[8] += workers.seconds() - begin;
+          if (valid) {
+            kernel.maximum_work-=refined.stats.global_work;
+            if (control.maximum_seconds) {
+              kernel.maximum_seconds=CPassiveComm::Allreduce(worker_seconds-(workers.seconds()-worker_start),CPassiveComm::Op::MIN,workers.comm);
+              if (!(kernel.maximum_seconds>0)) {
+                valid=false; detail="Native3D elapsed deadline exhausted between refinement and coarsening.";
+              }
+            }
+          }
+          // A complete domain reconstruction already resampled surface and volume in both metric directions.
+          if (valid && !rebuilt_domain && kernel.maximum_work) {
+            const auto begin_coarse = workers.seconds();
+            auto coarse = Coarsen(workers, working, *worker_source, *pending->state.original, composition, kernel);
+            stats.coarsen = coarse.stats;
+            valid = coarse.valid;
+            if(valid && coarse.reference)pending->state.original=std::move(coarse.reference);
+            detail = coarse.reason;
+            working.swap(coarse.cells);
+            Owned().swap(coarse.cells);
+
+FILE Common/src/adaptation/CNativeRemesher3D.cpp
+        stats.complexity.value-stats.complexity.uncertainty>SU2_TYPE::GetValue(config.GetAdap_Complexity())) {
+      ready=false;reason="estimated_budget_incompatible_without_original_family_correction";
+      stats.normalization.reason=reason;
+    }
+    if(!ready || stage==1 || !normalizer.propose || !prepared)break;
+    now=parent.seconds();NormalizationProposal3D proposal;
+    try {
+      const auto live=transfer_memory::Add(held(),OwnedStorageBytes(working),transfer_memory::Bytes(imported.original),
+          transfer_memory::Bytes(migrated),return_source->ResidentBytes(),prepared->ResidentBytes());
+      auto within=[&](){return !control.maximum_seconds || std::chrono::duration<double>(std::chrono::steady_clock::now()-deadline_start).count()<control.maximum_seconds;};
+      proposal=normalizer.propose(stats.complexity,*prepared,imported.original,frozen_core,within,control.memory_ceiling,live);
+    }catch(const std::exception& e){proposal.valid=false;proposal.reason=e.what();}
+    try {stats.normalization=proposal;stats.normalization.source_value={};}
+    catch(const std::exception& e){failure.Set(3,0,e.what());}
+    if(!vote(!failure.Failed(),failure.message)){ready=false;break;}
+    stats.maximum_native_bytes=std::max(stats.maximum_native_bytes,proposal.maximum_bytes);
+    const int changed_low=CPassiveComm::Allreduce(int(proposal.changed),CPassiveComm::Op::MIN,parent.comm),
+              changed_high=CPassiveComm::Allreduce(int(proposal.changed),CPassiveComm::Op::MAX,parent.comm);
+    ready=vote(proposal.valid && changed_low==changed_high,proposal.reason.empty()?"Native3D normalization stage differs across ranks.":proposal.reason);
+    phase(14);
+    if(!ready || !proposal.changed)break;
+    ready=vote(stats.cumulative_work<control.maximum_work,"Native3D normalization correction exhausted shared mesh work.");
+    if(!ready)break;
+    // End the old frozen source before publishing new values into the same ORIGINAL donor geometry.
+    return_source.reset();prepared.reset();
+    if(!admit(transfer_memory::Add(held(),OwnedStorageBytes(working),transfer_memory::Bytes(imported.original),
+        transfer_memory::Bytes(migrated),proposal.retained_bytes))) {ready=false;break;}
+    try {
+      if(!proposal.source_value || !(proposal.core>0) || !std::isfinite(proposal.core))
+        throw std::runtime_error("Native3D normalization omitted its original source values/core.");
+      for(auto& d:imported.original)for(unsigned k=0;k<4;++k){d.sensor[k]=proposal.source_value(d.cell.v[k].id);ValidateTensor(d.sensor[k]);}
+    }catch(const std::exception& e){failure.Set(2,0,e.what());}
+    ready=vote(!failure.Failed(),failure.message);proposal.source_value={};
+    if(!ready)break;
+    const auto previous_policy=control.caller_bytes-base_caller;
+    composition={};control.edge_breakpoints={};control.caller_bytes=base_caller;frozen_core=proposal.core;
+    retained-=previous_policy;
+    try {if(config.GetnAdap_BL())composition=compositionFactory(config,pending->state,proposal.core,control);}
+    catch(const std::exception& e){failure.Set(2,0,e.what());}
+    ready=vote(!failure.Failed() && control.caller_bytes>=base_caller &&
+        (!config.GetnAdap_BL() || (bool(composition)&&bool(control.edge_breakpoints))),"Native3D normalized geometric policy is invalid.");
+    retained=transfer_memory::Add(retained,control.caller_bytes-base_caller);phase(12);
+    if(!ready)break;
+
+FILE SU2_CFD/include/adaptation/CNativeNormalizationStage3D.hpp
+/*!
+ * \file CNativeNormalizationStage3D.hpp
+ * \brief One bounded original-family correction between private native remeshing stages.
+ * SPDX-License-Identifier: LGPL-2.1-or-later
+ */
+#pragma once
+#include "CNativeCandidateComplexity3D.hpp"
+#include "../../../Common/include/adaptation/CNativeRemesher3D.hpp"
+#include "../solvers/CSolver.hpp"
+
+inline SU2Native3D::NormalizationStage3D NativeNormalizationStage3D(CSolver& solver,CGeometry& geometry,
+    const CConfig& config,const SU2Native3D::ReferenceState& reference,const su2activematrix& selected) {
+  using namespace SU2Native3D;NormalizationStage3D job;const auto family=solver.GetNativeMetricFamily3D();
+  bool eligible=family && family->geometry==&geometry && family->Compatible(config) &&
+      (!config.GetnAdap_BL() || (family->boundary_layer && family->authority==reference.original)) &&
+      (config.GetAdap_BL_Budget() || family->normalization.status!=SU2Complexity::Status::EstimatedTolerance) && selected.rows()>=family->owned && selected.cols()>=6;
+  // Prediction may change only some ranks: eligibility belongs to the complete original field.
+  if(eligible)for(size_t i=0;i<family->owned;++i)for(unsigned a=0,k=0;a<3;++a)for(unsigned b=a;b<3;++b,++k)
+    eligible=eligible && selected(i,k)==family->selected[i].m[a][b];
+  if(!CPassiveComm::Allreduce(int(eligible),CPassiveComm::Op::MIN))return job;
+  job.retained_bytes=family->ResidentBytes()-(family->layers?family->layers->StorageBytes():0);
+  job.propose=[family,&solver,&geometry,&config,&reference](const ComplexityReassessment3D& current,
+      const PreparedComplexity3D& cloud,const std::vector<DonorCell>& original,double currentCore,
+      const std::function<bool()>& within,size_t ceiling,size_t caller_bytes) {
+    World world;NormalizationProposal3D result;result.log_scale=family->normalization.logScale;
+
+FILE Common/src/adaptation/CNativeBoundaryParameters3D.cpp
+    const auto key=PointKey(p.node.p);const auto old=coordinates.find(key);
+    if(old!=coordinates.end()&&old->second!=p.node.id)throw std::invalid_argument("Private boundary coordinates have conflicting identities.");
+    const auto before=local.find(p.node.id);if(before!=local.end())coordinates.erase(PointKey(before->second.node.p));
+    local[p.node.id]=p;coordinates[key]=p.node.id;Bound();
+  }
+};
+PlanarReference::PlanarReference(std::shared_ptr<const PlanarReference> base,std::shared_ptr<ParameterView> view)
+    :analytic{},affine{},definition(std::move(base)),parameter_view(std::move(view)) {}
+std::shared_ptr<const PlanarReference> PlanarReference::WithParameters(std::shared_ptr<const PlanarReference> base,
+    std::shared_ptr<BoundaryParameterState> parameters) {
+  if(!base||!parameters)throw std::invalid_argument("Missing mapped boundary reference/parameters.");
+  if(base->definition)base=base->definition;
+  if(&parameters->Geometry().Reference()!=base.get())throw std::invalid_argument("Parameter authority differs from its shared reference.");
+  auto view=std::make_shared<ParameterView>();view->accepted=std::move(parameters);view->revision=view->accepted->Revision();
+  const Id tag=base->Facets().begin()->first;if(tag==UINT64_MAX)throw std::invalid_argument("Mapped source identity uses the reserved physical-source tag.");
+  view->components.push_back(tag);
+  return std::shared_ptr<const PlanarReference>(new PlanarReference(std::move(base),std::move(view)));
+}
+const std::vector<Id>& PlanarReference::ExtensionComponents()const{return parameter_view?parameter_view->components:declared_components;}
+BoundaryParameterState* PlanarReference::Parameters()const{return parameter_view?parameter_view->accepted.get():nullptr;}
+std::shared_ptr<const PlanarReference> PlanarReference::WithParameterState(std::shared_ptr<BoundaryParameterState> parameters)const {
+  if(!definition)throw std::invalid_argument("Unmapped reference cannot replace boundary parameters.");
+  return WithParameters(definition,std::move(parameters));
+}
+const BoundaryPoint* PlanarReference::Parameter(Point p)const {
+  if(!parameter_view)return nullptr;parameter_view->Check();const auto key=PointKey(p);
+  for(double x:key)if(!std::isfinite(x))throw std::invalid_argument("Nonfinite mapped geometry lookup.");
+  const auto local=parameter_view->coordinates.find(key);
+  if(local!=parameter_view->coordinates.end())return &parameter_view->local.at(local->second);
+  const auto pending=parameter_view->pending.find(key);if(pending!=parameter_view->pending.end())return &pending->second;
+  return parameter_view->accepted->Find(p);
+}
+std::unique_ptr<PlanarReference> PlanarReference::PrivateParameters(const Patch& patch)const {
+  if(!parameter_view)return {};parameter_view->Check();
+  auto view=std::make_shared<ParameterView>(*parameter_view);view->private_view=true;view->revision=view->accepted->Revision();
+  for(const auto& row:patch.parameters) {

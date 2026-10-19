@@ -1,0 +1,59 @@
+# Review: BL family identity check at the normalization correction
+
+## Short answer
+
+Yes. The check refuses reuse when it should not.
+
+## Why it fails
+
+1. `Refine` or `Coarsen` can return `refined.reference` or `coarse.reference`.
+2. The code then sets `pending->state.original` to that new pointer.
+3. `PlanarReference::WithParameters` always makes a new facade object. A facade is a thin wrapper around the shared geometry.
+4. The new facade has the same `definition`. It has a new parameter table.
+5. The correction then calls `compositionFactory(config, pending->state, ...)`.
+6. The factory tests `family->authority == state.original`. This compares pointers.
+7. The old facade pointer is not the new facade pointer. So `retained` is false.
+
+The result depends on the budget setting:
+
+- **Budget on:** the factory throws `"Budget-aware native3D requires its selected frozen original-family BL profile."` The correction fails.
+- **Budget off:** the factory quietly builds a new profile with `CBoundaryLayerMetric::FromNativeReference`. This profile is not the frozen one. Stage 2 then uses a different BL policy than stage 1. Nothing reports this.
+
+## Defect or failure?
+
+- **Established code defect:** Reading the code shows the problem. If a stage returns a new reference before the correction, the pointer test must fail.
+- **Unexecuted failure:** I saw no run that reaches this path. It is unknown how often `refined.reference` or `coarse.reference` is non-null with BL plus a correction.
+
+## Smallest safe policy
+
+At the factory only, compare the root definition, not the facade:
+
+```
+root(p) = p->definition ? p->definition : p
+retained = ... && root(family->authority) == root(state.original) && ...
+```
+
+`WithParameters` already uses this rule. A small `Definition()` accessor would expose it.
+
+This is safe only if one condition is true. The frozen `layers` must read geometry only from the definition. They must not read the old facade's parameter table. Check this condition. If `layers` reads `Parameter()` or `Parameters()` through its stored facade, then:
+
+- the old table revision is stale, and
+- you must re-check `layers` against the new facade before reuse.
+
+## Where the checks must stay strict
+
+Keep each of these checks. Do not replace any of them with the definition test:
+
+1. `NativeNormalizationStage3D`: keep `family->geometry == &geometry`. This ties the donors to the original `CGeometry`.
+2. Keep the check that each `selected` entry equals `family->selected`. This ties the donors to the current sensor field.
+3. Keep `family->Compatible(config)`.
+4. Keep the `original == &geometry` all-reduce in the driver `normalization` lambda.
+5. In the eligibility test, `reference.original` is the committed `*nativeReference3D`. It runs before the stages. Keep that test as an exact pointer match.
+
+These checks reject stale donors after a mesh change or an accepted adaptation event. If `PrepareReference` builds a new definition, the definition test also fails. This is correct.
+
+## What you do now
+
+1. Check that the frozen `layers` read only definition geometry.
+2. If yes, change only the factory test to the root-definition comparison.
+3. Add one focused serial test. Use BL with budget on, with a stage that returns a new reference before the correction. It must reuse the frozen profile and must not throw.

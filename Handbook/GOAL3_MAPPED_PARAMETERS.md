@@ -11,7 +11,7 @@ error; full original-facet cover/feature-chain audit. It passes focused controls
 an independent rational oracle, including the saved unrepresentable edge. This is
 NOT an accepted adapted mesh, published parameter state or completed geometry policy.
 
-## Connected worktree implementation — first prototype linked, correction building
+## Connected implementation — local controls qualified, BL construction rejects
 
 Private proposals carry boundary-only bindings. Accepted metadata retains current
 faces and point/support records; geometry and mesh deltas stage beside one common
@@ -28,20 +28,25 @@ actual import checks matching coordinates/identities/oriented faces. Strict v1--
 formats retain their previous behavior. Sensor-only original P1 and actual-query
 BL/finer/fade policy are unchanged. Source envelopes include declared mapping bands.
 
-Current guard/private-scope prototype links and passes realized25/publication38/
-reader38 assertions. The209sample independent exact-rational normal-dot oracle
-passes both filter and exact fallback, including cancellation/subnormal/extremes.
-Uniform Euler completes6->58tets, conservative BDF2 transfer and SU2/CGNS reload.
-RANS constructs58tets but compares against an inconsistent nonzero no-slip-wall
-fixture; its corrected affine field is zero at the wall and keeps2e-9 tolerance.
+Guard/private-scope25/publication38/reader38 assertions and the independent209
+sample normal-dot oracle pass in their recorded scopes; its actual predicate
+object remains unchanged. Complete controlled uniform Euler/RANS-SA N1M1/N2M1/
+N4M2/N4M4 passes transfer/current+BDF2/v5/SU2+CGNS reload. Independent4outputs per
+lifecycle pass q.56508/J.25677/Lmax1.743674, max mapping1.665e-16 and flow/history
+about1.045e-12; three corrupted-mesh controls reject. Point coordinates agree,
+N4connectivity differs but passes; no bitwise determinism claim.
 
-The next connected batch is under official dependency build: declare matching
-annular mapped authority before original metric/donor freeze; rejected-state
-observers borrow the matching private reference, preserving complete rejected
-state/parameters rather than stale accepted metadata. All4affected interfaces pass
-syntax_v3. Complete oblique BL, MPI, solution-file restart and exterior/2D readiness
-are not yet established. Original facet seams stay protected; no broad coarsening
-or mixed analytic/mapped-junction claim. Whole-event affordability is unmeasured.
+Actual oblique annular BL initialization completes at reported19.9996/budget20;
+construction rejects8192work after18edits/96tets,69edge tasks/84target-invalid cells.
+No regional constructor ran: prismatic eligibility excludes extension references,
+while mapped geometry enters that class; radial eligibility requires complete
+analytic geometry. Current protected original seams and absent mapped regional
+publication mean simply removing the guard is unsafe. Preserve exact failure and
+reconsider coordinated surface/wall/transition construction before another fallback.
+[Construction evidence](../integration_evidence/native_3d_bl_v1/mapped_boundary_lifecycle_v1/CONSTRUCTION_STATUS.md).
+
+No complete mapped BL/real solution restart/exterior/2D readiness or affordability
+is established. All jobs terminal. User's entire general geometry scope remains.
 
 [Build, exact failures, source capsules and resource receipts](../integration_evidence/native_3d_bl_v1/mapped_boundary_lifecycle_v1/README.md).
 
@@ -76,28 +81,44 @@ zeros across1e-300..1e300. These qualify arithmetic/finite representation only.
 Inverse recovery loses forward parameter information; exact local counterexamples
 are saved. Opus5.5/high reviewed the abstract choice; one normal-error calculation
 was corrected independently. Model proof labels are not accepted as implementation
-or full geometry certificates. No source/case data or tools were supplied to Claude.
+or full geometry certificates. That historical abstract review received no source/case data or tools. The later
+Opus5.5/medium authority review received selected source, with tools disabled.
 
-One compiler, nice19/threads1,~40--41GiB host available. Partial geometry executables
-use pinned unchanged support archives. The first full mapped prototype is68f696577d
-source scope; the current guard/private-scope correction is rebuilding. No current
-complete mapped/MPI/lifecycle or physical CFD qualification.
-The new shared affine-point arithmetic passes affected coordinate controls but its
-complete-event cost is unmeasured. Track cold preparation, retained bytes, geometry
-queries, parameter publication/communication, reconstruction, transfer/rebuild and
-accepted event total when the complete path is active. Do not infer affordability
-from compile timings or primitive fixture runtimes.
+One nice19 worker/threads1 and bounded MPI<=4 were used; all current jobs terminal.
+Controlled complete uniform lifecycle and independent audits now pass through
+N1M1/N2M1/N4M2/N4M4. Official linked build/source/object scopes and resource receipts
+remain preserved. Actual BL construction rejects as recorded above; its contended
+27.288s remeshing/12.79s quadrature observations prove no speedup or affordability.
+Track cold preparation, retained bytes, queries, communication, reconstruction,
+transfer/rebuild and complete accepted-event costs when an accepted BL event exists.
+Do not infer full capability or performance from primitive/uniform fixture runtimes.
 
 ## Realized-face and candidate-scope correction — scoped checks pass
 
 A saved exact dyadic example meets the current support/error/ideal-orientation
 conditions while reversing the realized face (maximum displacement5.684e-14 below
 1e-13). This identifies a shared-predicate gap, **not an accepted-mesh failure**;
-actual-volume/embedding/metric gates are separate. Preserve the counterexample and
-the current batch adds a filtered/exact normal-dot sign control rather than choosing
-a tiny Cartesian normal projection. An independent rational oracle is prepared;
-execute it and the C++ negative control after the build is terminal. Private
+actual-volume/embedding/metric gates are separate. The counterexample is retained.
+Filtered/exact normal-dot arithmetic avoids a tiny Cartesian projection; the25
+assertion C++ control and209exact-rational samples PASS. Current compiled predicate
+object matches that independent arithmetic evidence. Private
 insertion now admits bindings before ordered-map lookup and movement uses child
 forward bindings. Pure root projection remains limited; no failed complete workflow
 is inferred from static suspicion.
 [Exact example and source pins](../integration_evidence/native_3d_bl_v1/mapped_boundary_lifecycle_v1/static_geometry_review.json).
+
+## Stage identity follow-up (static, no runtime failure claimed yet)
+
+Driver BL composition reuses a frozen profile only if family.authority equals the
+whole PlanarReference shared_ptr. Refine/Coarsen now return a fresh parameter-state
+facade sharing immutable geometry. If bounded normalization needs a second stage,
+that pointer comparison can refuse reuse and the opt-in budget check can reject.
+The composition policy must distinguish immutable geometry/profile identity from
+mutable boundary records without relaxing original-donor/selected-field/CFD mesh
+eligibility. Review/qualify this connected path before claiming repeated-stage
+mapped BL readiness. Opus5.5/medium read-only source review completed30.45s and
+corroborates the conditional issue; its root-only suggestion needs mapped-authority/
+version safeguards. Default-profile rebuilding is not itself proof of a changed
+mathematical field. Normal Claude authentication works; the earlier bare invocation
+excluded needed context. Annulus_v4 was a separate fixture lazy-reference bootstrap
+error before metric/remesh, preserved and order-corrected; v5 reaches construction.

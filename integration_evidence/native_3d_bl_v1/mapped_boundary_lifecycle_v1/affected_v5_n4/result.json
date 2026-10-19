@@ -1,0 +1,37 @@
+{
+  "exit_code": 0,
+  "elapsed_seconds": 0.797049322980456,
+  "command": [
+    "taskset",
+    "-c",
+    "0,1,2,4",
+    "nice",
+    "-n",
+    "19",
+    "timeout",
+    "--kill-after=5s",
+    "180s",
+    "mpirun",
+    "-np",
+    "4",
+    "--bind-to",
+    "none",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver",
+    "[NativeMappedFacetGeometry],[NativeParametricGeometry],[NativeAffineGeometry],[NativeAffineImport3D]",
+    "--abort",
+    "--reporter",
+    "compact"
+  ],
+  "provenance_sha256": "e945b918003bb6db67b1c06ef815d8b4c3d7618d40cc427979c74a6f371d9d86",
+  "log_sha256": "a19f6b3d019008702c15af5ca5ab7127029922581ad719bfb52bf69957d5fb6f",
+  "compiled_sources_unchanged": true,
+  "test_filter_matched": true,
+  "artifacts": {
+    "affine_import_rans.native_ref": "74f0e9036449e6bff5ad4b77660778f775efd47515b7d695908dc7476ec7f215",
+    "affine_lift_samples.json": "b5dd1c8d1f1c8f8dad3fa873dcdbf82b5dad8c6c18a4117d0d1f558502ca4b74",
+    "affine_import_euler.json": "4bfbdf01f338dcd59226dad9b860784ff8c02e0d31c623161000ff1a60b3a0e2",
+    "process.json": "63b1748198b6886f700a92d70dc6b7e0c966cc88a734387de817f31d6d5107ae",
+    "affine_import_rans.json": "4963ade7491467d4489d0f6303ffb044c80ac352103ae2d49666a5b4082d97b0",
+    "affine_import_euler.native_ref": "3a8ace055704e2a4af16107cd6a0a03a7f4ddc7792d98f8e71c0560fee259038"
+  }
+}

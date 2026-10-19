@@ -126,11 +126,11 @@
     "contact_validation_v2/README.md"
   ],
   "execution_state": {
-    "status": "Full Goal3 ACTIVE. Realized/private geometry, publication, reader and exact normal-dot oracle scoped PASS. Uniform Euler accepted transfer/reload; RANS native mesh passes but physically inconsistent fixture corrected, rebuilding. No accepted oblique BL.",
+    "status": "Full Goal3 ACTIVE. Controlled mapped uniform Euler/RANS-SA N1M1/N2M1/N4M2/N4M4 transfer/v5/SU2+CGNS reload and independent audits PASS; actual oblique annular BL integration completes but construction exhausts8192work. No accepted new BL/real mapped solution restart/general exterior capability.",
     "new_CFD_advances": 0,
     "new_Hessian_or_normalization_in_M6_replay": false,
-    "owned_jobs": "Official13-step batch build tool8820/Ninja1890502; one nice19 worker. syntax_v3 four units PASS.",
-    "next": "Corrected uniform Euler/RANS lifecycle, matching-private-reference rejection, actual oblique annular BL, affected MPI and independent audits; reconsider seam/construction capability if exact failure persists."
+    "owned_jobs": "All local build/native/MPI/offline-audit/review handles terminal; no cluster submission.",
+    "next": "Use exact annular failure to reconsider coordinated finite-plane/body/wall/transition construction and seam model, not another local fallback. Reconcile frozen-family immutable identity separately before claiming mapped correction-stage support."
   },
   "coupled_engine_checkpoint": {
     "evidence": "integration_evidence/native_3d_bl_v1/coupled_engine_v1",
@@ -2889,5 +2889,12 @@
         "review": "Opus5.5/high tools-disabled request reached420s limit with no returned feedback; not evidence."
       }
     }
+  },
+  "mapped_lifecycle_current": {
+    "validation": "integration_evidence/native_3d_bl_v1/mapped_boundary_lifecycle_v1/validation_summary.json",
+    "construction": "integration_evidence/native_3d_bl_v1/mapped_boundary_lifecycle_v1/annulus_v5_n1/construction_diagnosis.json",
+    "complete": false,
+    "current_binary_sha256": "bcb271be14f7cc1b9cc4fe5295fc8d5caf73d0dbf005a0177e8533ceddebf78d",
+    "unsupported": "General plane seam release;2D runtime; general multiple-body/exterior/mixed analytic mapped intersections; affine BL walls; full mapped solution-file restart. Original scope retained."
   }
 }

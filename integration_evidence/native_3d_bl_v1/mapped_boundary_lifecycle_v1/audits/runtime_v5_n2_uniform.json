@@ -1,0 +1,85 @@
+{
+  "status": "INDEPENDENT_MAPPED_UNIFORM_GEOMETRY_STATE_PASS",
+  "cases": [
+    {
+      "cells": 58,
+      "nodes": 31,
+      "exact_overlap_pairs": 270,
+      "finite_ideal_facets": 12,
+      "maximum_mapping_L1_error": 1.6653345369377348e-16,
+      "volume": 1.0,
+      "original_volume": 1.0,
+      "relative_volume_change": 9.25185853854297e-18,
+      "minimum_quality": 0.5650806624646884,
+      "minimum_scaled_jacobian": 0.2567677015806542,
+      "maximum_full_edge": 1.7436742815101678,
+      "audit_seconds": 0.42071564903017133,
+      "physics": "euler",
+      "format": "SU2",
+      "affine_state_residual": 3.8571624761347125e-13
+    },
+    {
+      "cells": 58,
+      "nodes": 31,
+      "exact_overlap_pairs": 270,
+      "finite_ideal_facets": 12,
+      "maximum_mapping_L1_error": 1.6653345369377348e-16,
+      "volume": 1.0,
+      "original_volume": 1.0,
+      "relative_volume_change": 9.25185853854297e-18,
+      "minimum_quality": 0.5650806624646884,
+      "minimum_scaled_jacobian": 0.2567677015806542,
+      "maximum_full_edge": 1.7436742815101678,
+      "audit_seconds": 0.42261642194353044,
+      "physics": "euler",
+      "format": "CGNS",
+      "affine_state_residual": 3.8571624761347125e-13
+    },
+    {
+      "cells": 58,
+      "nodes": 31,
+      "exact_overlap_pairs": 270,
+      "finite_ideal_facets": 12,
+      "maximum_mapping_L1_error": 1.6653345369377348e-16,
+      "volume": 1.0,
+      "original_volume": 1.0,
+      "relative_volume_change": 9.25185853854297e-18,
+      "minimum_quality": 0.5650806624646884,
+      "minimum_scaled_jacobian": 0.2567677015806542,
+      "maximum_full_edge": 1.7436742815101678,
+      "audit_seconds": 0.5323407420655712,
+      "physics": "rans",
+      "format": "SU2",
+      "affine_state_residual": 3.8571624761347125e-13
+    },
+    {
+      "cells": 58,
+      "nodes": 31,
+      "exact_overlap_pairs": 270,
+      "finite_ideal_facets": 12,
+      "maximum_mapping_L1_error": 1.6653345369377348e-16,
+      "volume": 1.0,
+      "original_volume": 1.0,
+      "relative_volume_change": 9.25185853854297e-18,
+      "minimum_quality": 0.5650806624646884,
+      "minimum_scaled_jacobian": 0.2567677015806542,
+      "maximum_full_edge": 1.7436742815101678,
+      "audit_seconds": 0.3918630259577185,
+      "physics": "rans",
+      "format": "CGNS",
+      "affine_state_residual": 3.8571624761347125e-13
+    }
+  ],
+  "negative_controls": [
+    "inverted_cell",
+    "missing_face",
+    "changed_boundary_point"
+  ],
+  "helpers": {
+    "integration_evidence/native_3d_bl_v1/mapped_boundary_lifecycle_v1/audit_uniform.py": "48e73308a7687a2bd7ee222b30c64d581823ca4c3d13a95bde346fe4fd199994",
+    "integration_evidence/native_3d_bl_v1/planar_symmetry_reference_v1/audit_annulus.py": "f6f7def2aefb6dd7a402bedc1188dc94970faee7f1f6a0bee89db0fbe34c569f",
+    "integration_evidence/native_3d_core_v1/audit_coupled.py": "1822427476ecb5687aaa06f3e7a3cc8f31cde53166fd0c711449eedf7c7c7a50"
+  },
+  "native_result_sha256": "5e892debb6ac6ef2be2344d975fd5dd522941ea5d2a525c4cd9e20f1219ec4fa",
+  "scope": "Finite original-facet cover, mapping bounds, realized orientation, rational volume/overlap/topology, uniform4I metric and physical affine current/BDF2 flow. No BL, SA independent conservation, real solution-file restart, general plane seam release or exterior readiness."
+}
