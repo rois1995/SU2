@@ -68,6 +68,7 @@ class CNewtonLinearization final : public CMatrixVectorProduct<passivedouble> {
   double absoluteStep = 0, relativeStep = 0, reconstruction = 1;
   bool physicalStep = false, refineStep = false;
   mutable double relative = 0, stepResolution = 0, probeFactor = 1;
+  mutable bool centralFirst = false; /*!< \brief This base already needed central differences. */
 
  public:
   CNewtonLinearization(CNewtonEquationSet&, CGeometry*, CConfig*);
@@ -95,6 +96,7 @@ class CNewtonLinearization final : public CMatrixVectorProduct<passivedouble> {
     SU2_OMP_SAFE_GLOBAL_ACCESS(scale = &scaling; diagonal = &pseudoTime; probeReference = relativeReference;
                                absoluteStep = step; relativeStep = relativeLimit; reconstruction = reconstructionFactor;
                                physicalStep = physicalMetric; refineStep = verifyStep; probeFactor = 1;
+                               centralFirst = false;
                                nativeMass = mass;
                                if (verifyStep && coarseProduct.GetLocSize() != scaling.GetLocSize()) {
                                  coarseProduct.Initialize(scaling.GetNBlk(), scaling.GetNBlkDomain(), scaling.GetNVar(), 0.0);

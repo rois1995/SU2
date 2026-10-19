@@ -176,18 +176,36 @@ bool CNewtonLinearization::Apply(const Vector& u, Vector& v, bool pseudoTime, bo
     SU2_OMP_BARRIER
     return false;
   }
-  /*--- Difference complete refreshed residuals, including all cross responses and explicit periodic constraints. ---*/
-  bool sampledAny = false, rejectedProbe = false;
+  /*--- Difference complete refreshed residuals, including all cross responses and explicit periodic constraints.
+   *     Central differences are a fallback: every probe of a central sequence must be centered. ---*/
+  bool sampledAny = false, rejectedProbe = false, central = false;
   auto probe = [&](double step) {
     bool shifted = false;
     if (!equations.FeasibleProbes(u, *scale, step, free, v, probeWork, shifted)) {
       rejectedProbe = true;
       return false;
     }
+    if (central) {
+      bool backShifted = false;
+      if (shifted || !equations.FeasibleProbes(u, *scale, -step, free, v, probeWork, backShifted) || backShifted) {
+        rejectedProbe = true;
+        return false;
+      }
+    }
     auto isFree = [&](const CNewtonEquationSet::Block& b, unsigned long p, unsigned short variable) {
       return free[p * equations.GetnVar() + b.offset + variable];
     };
-    if (shifted) {
+    if (central) {
+      SU2_OMP_SAFE_GLOBAL_ACCESS(
+          if (probeWork.GetLocSize() != u.GetLocSize())
+            probeWork.Initialize(u.GetNBlk(), u.GetNBlkDomain(), u.GetNVar(), 0.0);)
+      equations.SetTrial(v, -step, *scale, isFree);
+      if (!equations.EvaluateResiduals(false, false, reconstruction, residualRuntime)) {
+        rejectedProbe = true;
+        return false;
+      }
+      equations.CopyResidual(probeWork);
+    } else if (shifted) {
       equations.SetTrial(probeWork, step, *scale, isFree);
       if (!equations.EvaluateResiduals(false, false, reconstruction, residualRuntime)) {
         rejectedProbe = true;
@@ -210,7 +228,8 @@ bool CNewtonLinearization::Apply(const Vector& u, Vector& v, bool pseudoTime, bo
         if (j < first || j >= last)
           v[i] = 0.0;
         else
-          v[i] = free[i] ? (v[i] - (shifted ? probeWork[i] : baseResidual[i])) / (step * (*scale)[i]) : u[i];
+          v[i] = free[i] ? (v[i] - (shifted || central ? probeWork[i] : baseResidual[i])) /
+                               ((central ? 2 : 1) * step * (*scale)[i]) : u[i];
       }
     END_SU2_OMP_FOR
     sampledAny = true;
@@ -225,6 +244,8 @@ bool CNewtonLinearization::Apply(const Vector& u, Vector& v, bool pseudoTime, bo
       h *= 0.5;
     }
     bool converged = false;
+    double previousRatio = std::numeric_limits<double>::infinity(), bestRatio = previousRatio;
+    unsigned increases = 0;
     if (refine && pseudoTime) {
       SU2_OMP_SAFE_GLOBAL_ACCESS(
           if (probeWork.GetLocSize() != u.GetLocSize())
@@ -238,7 +259,8 @@ bool CNewtonLinearization::Apply(const Vector& u, Vector& v, bool pseudoTime, bo
       for (auto i = 0ul; i < u.GetNElmDomain(); ++i) {
         const double fine = v[i];
         if (refine) {
-          v[i] = refinement ? 2 * fine - coarseProduct[i] : fine;
+          /*--- One-sided error is O(h), central error is O(h^2). ---*/
+          v[i] = refinement ? (central ? (4 * fine - coarseProduct[i]) / 3 : 2 * fine - coarseProduct[i]) : fine;
           coarseProduct[i] = fine;
           previousProduct[i] = v[i] - (refinement ? previousProduct[i] : 0.0);
         } else
@@ -265,6 +287,17 @@ bool CNewtonLinearization::Apply(const Vector& u, Vector& v, bool pseudoTime, bo
         converged = true;
         break;
       }
+      if (checkDerivative) {
+        /*--- Round-off grows as the probe shrinks: the error rises on every halving there and soon far exceeds
+         *     the best value already seen. Further halving cannot meet the tolerance, so stop early. ---*/
+        const double ratio = magnitude > 0 ? error / magnitude : std::numeric_limits<double>::infinity();
+        if (Armijo::IsFinite(previousRatio)) {
+          increases = ratio > previousRatio ? increases + 1 : 0;
+          bestRatio = std::min(bestRatio, previousRatio);
+          if (increases >= 3 && ratio > 8 * bestRatio) break;
+        }
+        previousRatio = ratio;
+      }
       /*--- Richardson extrapolation removes the leading forward-probe error without crossing physical bounds. ---*/
       previousProduct = v;
       SU2_OMP_BARRIER
@@ -272,7 +305,19 @@ bool CNewtonLinearization::Apply(const Vector& u, Vector& v, bool pseudoTime, bo
     }
     return converged;
   };
+  /*--- One-sided products can stall just above the tolerance: truncation and round-off cross there.
+   *     Central differences reach the same tolerance at larger probes, with less round-off.
+   *     Once a base needed them, later products of that base start with them. ---*/
+  central = refine && centralFirst;
   bool converged = differentiate(initialStep);
+  if (!converged && refine) {
+    central = !central;
+    converged = differentiate(initialStep);
+    if (converged && central) {
+      SU2_OMP_SAFE_GLOBAL_ACCESS(centralFirst = true;)
+    }
+  }
+  central = false;
   if (!converged && refine && !physicalStep && probeFactor == 1 && flow != blocks.end() &&
       config->GetKind_Regime() == ENUM_REGIME::COMPRESSIBLE) {
     /*--- Halving a cancellation-dominated probe cannot resolve its derivative. Try one coarser
