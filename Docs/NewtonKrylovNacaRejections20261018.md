@@ -610,8 +610,9 @@ adaptive CFL and adaptive forcing both remain disabled. Matched 20-update work i
 All four prefixes remain unqualified and have no backtracking. FLOW CFL falls
 1000→250→62.5 on 1×1 and 1000→250 on 2×2; TURB retains 1000. These are
 work/progress observations, not reduced work to convergence. The serial full
-attempt reaches its resource cap, detailed below. The 2×2 attempt is running,
-followed by the known parallel coupled replay. Resource caps remain incomplete.
+attempt reaches its resource cap. The 2×2 attempt ends in a small-step failure,
+detailed below. The dispatcher stops for assessment before the pending parallel
+coupled replay. Neither segregated attempt is a qualified endpoint.
 
 Reproduce the stricter native reference from the evidence root, choosing a fresh
 output directory and the desired rank/thread pair:
@@ -675,9 +676,52 @@ memory guard fires. The host is contended, so timing eligibility remains false.
 Full result, raw diagnostics and independent checks are preserved under
 `sa_accuracy_005_original/naca_sa/1x1/segregated/`; the assessment and hashes are
 `sa_accuracy_005_original_20261019/serial_accuracy_time_limited_assessment.json`.
-The same directory's `first20_work.json` now includes both layouts. The guarded
-dispatcher continues the selected 2×2 case, retaining the same source, binary,
-history target and physical protocol.
+The same directory's `first20_work.json` now includes both layouts. The selected 2×2 case retains the same source, binary, history target and physical
+protocol; its subsequent failure is assessed below.
+
+## Parallel segregated accuracy-only result: small-step failure
+
+The matched SA2×2 run exits with a numerical failure after 929 accepted updates.
+Its final density history is −13.93499 against the unchanged −14 target. Every
+saved-state physical, paired/canonical state and quantity gate passes; the solver
+exit and history target do not. The original failed qualification and canonical
+audit remain unchanged. Observed times below are **failure costs**.
+
+| Updates | FLOW / TURB assemblies | FLOW / TURB Krylov | Inner work | Retries / backtracks | Peak rank KiB | Observed loop / E2E s |
+|---:|---:|---:|---:|---:|---:|---:|
+| 929 | 91384 / 21361 | 21723 / 14855 | 0 | 10 / 2 | 85400 | 3078.771 / 3081.499 |
+
+One early derivative-verification rejection reduces FLOW CFL from 1000 to 250;
+its log interval contains 203 FLOW /1 TURB assemblies and 55 completed Krylov
+iterations. FLOW then accepts 928 updates at 250, while TURB retains 1000. The
+last two accepted FLOW steps backtrack to alpha 0.49938 and 0.45814.
+
+At logged iteration 929, all ten FLOW attempts fail with `STEP_TOO_SMALL`. The
+first direction passes the independent true-defect check at 0.042981. Its full
+trial raises merit from 8.54549e−24 to 1.05149e−23; the unchanged step floor then
+prevents a smaller trial. Nine subsequent CFL reductions, down to 0.001, produce
+no trial evaluations. All their directions also pass true defect (maximum across
+the terminal sequence 0.042981); no product fails and no trial is inadmissible.
+The terminal log intervals contain 357 FLOW /1 TURB assemblies and 65 Krylov
+iterations. Rollback state and merit errors remain exactly zero.
+
+Fresh density RMS is 1.16146e−14, maximum normalized active-component RMS
+6.15490e−14 and boundary projection zero. Paired component/point errors are
+2.53659e−8 /7.36290e−7; canonical point error is 8.30725e−6. These passing
+saved-state checks do not turn the failed solve into convergence. Step tolerance,
+Armijo, derivative verification, true defect and the stopping target are retained.
+Existing adaptive CFL is a separate next control experiment: these fixed controls
+retain a reduced FLOW CFL, and the recorded smaller-CFL retries do not recover
+trials above the configured step floor. No new CFL recovery policy is selected from this one event.
+
+Minimum available memory is 40159576 KiB, sampled process-tree peak 239400 KiB,
+and all memory guards pass. Background CPU use makes timing ineligible. Exact
+attempts/trials, hashes and checks are preserved in
+`sa_accuracy_005_original_20261019/parallel_accuracy_failure_assessment.json`;
+raw output is `sa_accuracy_005_original/naca_sa/2x2/segregated/`. The seven-job
+cohort stops for assessment without launching its final coupled replay. Its
+failure and existing input/source pins are retained; do not restart the cohort
+into occupied output directories.
 
 ## Accepted segregated tail: measured CPU costs
 
@@ -728,8 +772,48 @@ python3 release_sampling/analyze_cpu_sample.py release_sampling/1792372543938788
 
 No additional solver was launched and no numerical code or controls changed
 for the sample. The serial full attempt is incomplete as described above;
-the parallel attempt remains pending. This sample establishes neither endpoint
+the parallel attempt subsequently fails as assessed below. This sample establishes neither endpoint
 qualification nor reduced work to convergence.
+
+## Parallel accepted tail: execution and waiting observations
+
+A separate read-only 30.072-second observation of the existing SA2×2 accuracy-only
+run samples kernel wait channels 299 times and differences per-thread scheduler
+counters. No process is stopped, attached or reconfigured. Both ranks use two
+OpenMP threads with `OMP_WAIT_POLICY=PASSIVE`. Follow-up inspection finds all four
+compute threads allowed on CPUs 0–7, unrestricted CPU quotas and zero recorded
+quota throttling at their CPU cgroup and ancestors.
+
+| Rank / thread | Execution s | Runqueue counter delta s | Voluntary context switches | Samples in futex wait channel |
+|---|---:|---:|---:|---:|
+| 0 / main | 17.853 | 8.243 | 86683 | 20.74% |
+| 0 / OpenMP worker | 12.407 | 6.331 | 155010 | 40.80% |
+| 1 / main | 17.576 | 8.117 | 88407 | 19.06% |
+| 1 / OpenMP worker | 12.484 | 6.572 | 153236 | 47.16% |
+
+Linux documents the first two `schedstat` fields as CPU execution and runqueue
+time in nanoseconds ([kernel documentation](https://docs.kernel.org/scheduler/sched-stats.html#proc-pid-schedstat)).
+The raw counters and kernel flags are archived. Each rank averages about one
+executing core in this window; its two other recorded threads have zero execution
+increments. Wait-channel percentages are sample occurrences, not exact phase
+durations. Futex waits can include parking outside parallel regions, and runqueue
+delay can reflect competition from both the solver's threads and other work.
+These observations do not assign every wait to an avoidable OpenMP barrier or
+provide a quiet-machine timing/scaling comparison.
+
+The bracketing diagnostics add eight accepted FLOW and eight accepted TURB rows,
+iterations 231–238: 200 and 128 Krylov steps and cumulative deltas 824 FLOW /184 TURB
+assemblies. All new attempts use alpha 1, satisfy the independent true-defect bound
+and retain exact rollback. Pre-existing diagnostic rows remain unchanged. These
+are log-window counts, not phase call counts or endpoint qualification.
+
+Evidence, PID/start identities, source/config hashes, raw thread counters, wait
+observations and checks are in `parallel_thread_observation_20261019/`, notably
+`observation_assessment.json` and `topology_followup.json`. The observer's synthetic
+counter/PID-reuse checks pass. An initial topology-read helper used an unsupported
+Python 3.8 path method; its failure and corrected follow-up are preserved without
+changing the solver or scheduler. The ledger links this observation through
+`release_sampling/1792379618025696390/manifest.json` and keeps timing ineligible.
 
 <!-- measured NACA results -->
 
