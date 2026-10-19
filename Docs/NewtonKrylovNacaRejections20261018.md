@@ -535,6 +535,72 @@ The arithmetic helper also passes independent linear/nonlinear and partition
 selfchecks. NumPy 1.24.4, already installed, supplies only the optional Gram/condition
 analysis; the residual reconstruction uses independent compensated sums.
 
+## SA references with the same history stopping control
+
+The new native references tighten the history stop from −13 to −14, matching the
+full Newton runs. Native linear tolerance remains 0.05. All frozen physical,
+boundary, full-state and quantity requirements pass, including the independent
+canonical audit. The table uses the current executable, SHA `1ad2144949e92b12…`,
+whose 21 numerical source hashes map to committed `5c0cb273e3`. The original
+precommit build manifest is preserved; `committed_source_provenance.json` supplies
+the mapping rather than rewriting its recorded HEAD.
+
+| Mode / control | Layout | Updates | FLOW / TURB assemblies | Linear work | Peak rank KiB | Loop / E2E s | Maximum normalized physical RMS | Canonical point error |
+|---|---|---:|---:|---:|---:|---:|---:|---:|
+| Native, fixed linear tolerance 0.05 | 1×1 | 304 | 304 / 304 | 1765 | 78780 | 26.071 / 26.715 | 1.163e−11 | 7.566e−6 |
+| Native, fixed linear tolerance 0.05 | 2×2 | 299 | 299 / 299 | 7787 | 60348 | 71.133 / 71.680 | 1.007e−11 | 7.571e−6 |
+| Coupled, diagonal / adaptive CFL and forcing | 1×1 | 179 | 33326 / 33326 | 7603 | 171012 | 1702.597 / 1703.262 | 3.257e−13 | 7.851e−6 |
+
+Native assemblies are inferred from fine-grid implicit updates; Newton assemblies
+are measured controller counters plus the final outer-reporting assembly. Native
+linear work sums its separate equation blocks; coupled work counts five-variable
+Krylov steps, so these counts are not equal-cost operations. All observed times
+are ineligible for speedup or scaling claims. These are separately labelled
+control settings, not an implementation-only comparison.
+
+The existing coupled endpoint also passes a direct comparison with the new
+serial native −14 reference: maximum component error 1.745e−8, point error
+2.876e−7, and quantity errors within the unchanged limits. This additional check
+is separate evidence; its original qualification record remains immutable.
+Native samples pre-update residuals while Newton samples refreshed accepted
+states; the fresh endpoint audits supply the common physical comparison.
+
+The history threshold also governs the common controller's resolved-group test.
+Changing it can affect late group idling. It must therefore remain explicit in
+configuration comparisons, even when the frozen physical requirements pass.
+
+An isolated segregated study changes only nominal linear tolerance 0.001→0.05;
+adaptive CFL and adaptive forcing both remain disabled. Its matched 20-update
+serial prefix uses FLOW/TURB 1281/591 and 619 Krylov steps, versus 1808/786 and
+907 originally. Both have two derivative-verification retries and no backtracking.
+FLOW CFL falls from 1000 through 250 to 62.5 and remains there; TURB retains
+1000. Density history after 20 updates is −12.36798 versus −12.36689. Neither
+prefix qualifies, so this is a work/progress observation, not reduced work to
+convergence. Full 1×1 and 2×2 endpoints remain pending, followed by the known
+parallel coupled replay. Resource caps remain incomplete results.
+
+Reproduce the stricter native reference from the evidence root, choosing a fresh
+output directory and the desired rank/thread pair:
+
+```sh
+nice -n 19 python3 fixed_forcing_005_case.py --case naca_sa --mode native \
+  --phase qualification --work-only --graceful-limit --control original \
+  --cfl 1000 --history-margin 2 --updates 10000 --timeout 1800 \
+  --ranks 1 --threads 1 --release verified_norms_release --output FRESH_DIRECTORY \
+  --reference static_review_correctness_v2_applications/naca_sa/1x1/native
+```
+
+The native config SHA is
+`ac9706841a87cb66f33ead52199e6b5fb97a9749ecfdab8b8faf6ba50b03c4c1`;
+the coupled config remains
+`2d1d9d892adc1a5c3551c60ece5c0f11d8db4ca11c92acc72bf65664fe425b65`.
+All seven selected commands, configuration-only differences and input hashes are
+in `sa_accuracy_005_original_20261019/plan.json`; reference results are under
+`sa_accuracy_005_original/naca_sa/`. Direct agreement and supporting-prefix data
+are `existing_coupled_against_native14.json` and `first20_work.json` in the study
+directory. The [complete CSV](NewtonKrylovApplications20261018.csv) includes these
+references and preserves the earlier −13 results.
+
 <!-- measured NACA results -->
 
 ## Current native endpoints
