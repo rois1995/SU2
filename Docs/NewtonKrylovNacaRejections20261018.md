@@ -456,11 +456,84 @@ saving nor a wall-time speedup.
 
 Full native SA accuracy-0.05 replays qualify on both layouts and reproduce their
 archived restart, history, physical report and linear work exactly: 158 updates /
-1,030 linear iterations on 1×1; 151 updates / 4,209 on 2×2. The full coupled SA
-replay is still running. Native history stop −13 and Newton history stop −14 are
-retained exactly from their archived decks; their frozen physical/state gates are
-common. Cross-solver conclusions must label that margin difference. The reduction
-and native proofs are in `verified_norms_20261019/profile_assessment.json`.
+1,030 linear iterations on 1×1; 151 updates / 4,209 on 2×2. The full coupled SA replay also qualifies at 179 updates, with unchanged 7,603
+Krylov iterations, 89 retries and no backtracking. Its restart, physical report,
+trial logs and all other attempt columns match the retained version exactly.
+The removed duplicate refresh saves 89 assemblies per active system: 33,415 →
+33,326 (0.266%). This is a modest work saving; the original verification/recovery
+cost and convergence trajectory remain.
+
+Native history stop −13 and Newton history stop −14 are retained exactly from
+their archived decks; their frozen physical/state gates are common. Cross-solver
+conclusions must label that margin difference. The reduction and native proofs
+are in `verified_norms_20261019/profile_assessment.json`; full endpoint comparisons
+are in `verified_norms_20261019/full_endpoint_assessment.json`.
+
+## Full endpoints after the local efficiency changes
+
+All rows qualify against the frozen physical, boundary, state and quantity gates,
+and reproduce their retained restart and independent physical report byte for byte.
+They compare the same configuration before and after implementation changes. Native
+assembly counts are inferred from fine-grid updates; coupled counts are measured.
+Observed times and rank RSS are retained below, with **all timings ineligible**.
+These single contended measurements establish neither time nor memory savings.
+
+| Mode / layout | Updates, unchanged | FLOW/TURB assemblies before → after | Linear work, unchanged | Loop seconds before → after | E2E seconds before → after | Peak rank KiB before → after |
+|---|---:|---:|---:|---:|---:|---:|
+| native / 1x1 | 158 | 158/158 → 158/158 | 1030 | 18.092 → 14.390 | 18.840 → 15.096 | 78096 → 78236 |
+| native / 2x2 | 151 | 151/151 → 151/151 | 4209 | 51.890 → 43.692 | 52.558 → 44.365 | 60404 → 60140 |
+| coupled / 1x1 | 179 | 33415/33415 → 33326/33326 | 7603 | 1489.580 → 1702.597 | 1490.316 → 1703.262 | 170972 → 171012 |
+
+The full SA coupled endpoint still contains 89 derivative-verification retries;
+the successful replay validates the local changes without resolving the larger
+numerical-work limitation. Parallel coupled requalification, segregated SA/SST
+endpoints, and the remaining application matrix are still outstanding.
+
+## Parallel three-inner failure: independently reconstructed model
+
+A four-update replay of the archived three-inner 2×2 executable reproduces its
+original attempt prefix exactly. Read-only GDB children capture all 38 basis
+inputs/products, combination weights, reduced matrix/right-hand side, orthogonal
+basis and the independently evaluated combined direction. Traced and plain
+restart, history and both diagnostic files are byte-identical. This is a supporting
+mechanism check, with no convergence or timing claim.
+
+The selected event is outer iteration 3, attempt 1, CFL 500. Every product is finite
+and no product failure is logged. FGMRES meets target 0.00196893, but the unchanged
+independent 0.1 true-defect limit rejects the direction:
+
+| Check | Measured relative value |
+|---|---:|
+| FGMRES reported residual | 0.001700043129318 |
+| Residual from recorded basis-product combination | 0.001700043129326 |
+| Fresh product of the combined direction | 0.232097222014 |
+| Difference between fresh and combined basis products, divided by RHS norm | 0.232100093235 |
+| Direction reconstruction error | 3.059e−13 |
+| Reduced backsolve residual, divided by RHS norm | 2.715e−13 |
+
+Coefficients are identical across ranks. The 39-vector Gram matrix differs from
+identity by at most 5.676e−15. The reduced triangular system has condition estimate
+1.362e5; the sum of weighted basis-product norms is 9,080 times the RHS norm.
+These measurements show substantial cancellation and amplification in this model.
+They are not a rigorous bound on finite-difference error.
+
+The fresh-product discrepancy is mainly FLOW: its contribution is 0.232009,
+versus 0.006509 for TURB, both normalized by the same full RHS norm. For this event,
+the recorded combination and reported residual agree; the discrepancy appears
+when evaluating the combined direction. This does not distinguish roundoff,
+nonsmoothness, or direction-dependent probe scales, and does not establish an
+Arnoldi/backsolve bookkeeping defect. Other rejected attempts have not received
+this complete vector reconstruction.
+
+The existing default remains zero inner iterations. The three-inner strategy has
+not demonstrated reliable application convergence on both layouts, and accepting
+its reported residual instead of checking the true defect would accept this bad
+direction. The complete raw-vector hashes, commands and checks are in
+`preconditioner_linearity_20261019/{ready.json,conditioning_assessment.json}` and
+`traced/combination_assessment.json` under the application evidence directory.
+The arithmetic helper also passes independent linear/nonlinear and partition
+selfchecks. NumPy 1.24.4, already installed, supplies only the optional Gram/condition
+analysis; the residual reconstruction uses independent compensated sums.
 
 <!-- measured NACA results -->
 

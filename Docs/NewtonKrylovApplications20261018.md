@@ -208,7 +208,7 @@ and `paper_notes/manifest.json`; they motivate investigations, not unmeasured so
 
 | Application | Layout | Actual trials | Qualified endpoints | Eligible timing repetitions |
 |---|---|---:|---:|---:|
-| naca_sa | 1x1 | 87 | 31 | 1 |
+| naca_sa | 1x1 | 87 | 32 | 1 |
 | naca_sa | 2x2 | 63 | 26 | 0 |
 | naca_sst | 1x1 | 43 | 5 | 0 |
 | naca_sst | 2x2 | 24 | 2 | 0 |
@@ -609,7 +609,7 @@ is retained; `prepared` and `running` entries have not completed.
 | naca_sst | 1x1 | segregated | original | verified_norms_release | original | -13.0 | iteration_cap | False | 20 | 226.085 | 226.716 |
 | naca_sst | 2x2 | coupled | original | verified_norms_release | original | -13.0 | iteration_cap | False | 20 | 146.039 | 146.675 |
 | naca_sst | 2x2 | segregated | original | verified_norms_release | original | -13.0 | iteration_cap | False | 20 | 144.941 | 145.587 |
-| naca_sa | 1x1 | coupled | original | verified_norms_release | diagonal | -14.0 | prepared | False | — | — | — |
+| naca_sa | 1x1 | coupled | original | verified_norms_release | diagonal | -14.0 | qualified | True | 179 | 1702.597 | 1703.262 |
 | naca_sa | 1x1 | native | original | verified_norms_release | original | -13.0 | qualified | True | 158 | 14.390 | 15.096 |
 | naca_sa | 2x2 | native | original | verified_norms_release | original | -13.0 | qualified | True | 151 | 43.692 | 44.365 |
 
