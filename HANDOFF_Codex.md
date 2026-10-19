@@ -35,6 +35,18 @@ all12exact source-domain audits with bitwise field identity, and the complete se
 Cartesian RANS transfer/SU2+CGNS/restart audit. Reuse its exact old-source scope;
 [details](Handbook/GOAL3_JOINT_AFFINE_SOURCE.md). Source grids are NOT CFD grids.
 
+## Uncommitted connected integration (not yet compiled)
+
+Boundary-only parameter state, private operator bindings, staged collective
+mesh/parameter publication, private engine-stage copies and mapped source-envelope
+plumbing are in the worktree. Current physical surface topology is retained with
+its parameter records. This connected implementation is NOT qualified by the
+historical core tests above and is not production-enabled. Reader/output dense-ID
+rebinding, parent N/M synchronization, native_ref persistence and matching-geometry
+admission remain to be connected before the affected build/lifecycle validation.
+No new accepted oblique mesh is claimed. Preserve these dirty sources when doing
+cleanup or documentation-only commits; do not treat them as the pushed core.
+
 ## Next complete capability
 
 Connect declared mapped body/finite-feature bindings, simultaneous junctions and
@@ -98,9 +110,10 @@ Grid `integration_evidence/native_3d_bl_v1/sphere_rans_lifecycle_v1/n4_m2_depend
  No cluster requests/submissions. Compiler scratch stays on4TB, not nearly full/tmp.
 - Optional Claude Opus5.5 medium/high is authorized. Abstract high review completed
  with tools off/no code/data; reasoning input only, not correctness evidence.
-- [Cleanup](Handbook/DISK_SPACE_CLEANUP_2026_10_18.md):27.19GiB recovered across64
- verified archives; about46GiB4TB free, root/tmp~490MiB foreign. All scientific
- evidence/current builds/foreign work preserved. Archived old binaries need restore.
+- [Cleanup](Handbook/DISK_SPACE_CLEANUP_2026_10_18.md):35.62GiB cumulative recovered,
+ including8.43GiB from18 historical2D hard-link groups/55paths. About55GiB4TB free,
+ root/tmp~490MiB foreign. All archival handles terminal; current builds,3D binaries,
+ scientific evidence and foreign work preserved. Archived old binaries need restore.
 - [Future SST/transition/nonideal transfer questions](Handbook/FUTURE_PHYSICS_TRANSFER_QUESTIONS.md).
  Three-element meshes at `/media/rausa/4TB/Validation/ThreeElementAirfoil/30P30N/Meshes`;
  located, no new adaptation in this checkpoint.

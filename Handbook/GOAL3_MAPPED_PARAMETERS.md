@@ -11,6 +11,21 @@ error; full original-facet cover/feature-chain audit. It passes focused controls
 an independent rational oracle, including the saved unrepresentable edge. This is
 NOT an accepted adapted mesh, published parameter state or completed geometry policy.
 
+## Worktree integration in progress, not qualified
+
+Private operator proposals now have a boundary-only binding overlay. A separate
+accepted parameter store retains current boundary faces as well as point/support
+records, stages geometry deltas beside mesh publication, and conserves each ideal
+facet's oriented boundary. The engine clones this store once per stage, so rejected
+progress cannot modify accepted geometry metadata. Original geometry indexes remain
+shared. Source-envelope plumbing accounts for declared mapping errors.
+
+These are uncommitted, uncompiled connected changes, not evidence of an accepted
+mesh or a complete lifecycle. Remaining reach includes current-to-dense reader
+numbering, parent N/M agreement/return, versioned native_ref serialization and
+matching actual mesh/sidecar admission. Existing primitive results qualify their
+pinned old sources only; they do not validate the new operators/publication code.
+
 ## Next connected implementation, before another complete positive attempt
 
 1. Carry boundary parameters independently of volume Node/Cell payloads. Reuse the

@@ -54,3 +54,23 @@ The observed4TB free space is now about46.4GiB; root/tmp remains nearly full.
 [Selection, manifest, integrity checks and restore instructions](../integration_evidence/disk_cleanup_20261019/README.md).
 [Final machine-readable receipt](../integration_evidence/disk_cleanup_20261019/summary.json).
 No numerical changes, CFD reruns or unrelated-file cleanup were performed.
+
+## Hard-linked 2D executables — 2026-10-19
+
+The previous batches skipped shared executable inodes. A reviewed follow-up now
+archives **18 further obsolete 2D executable groups across 55 original paths**.
+One compressed inode is retained per group, with a `.gz` hard link beside every
+original pathname. All archives passed full decompression/SHA-256 verification
+before original removal. Final group/link/size checks pass and no partials remain.
+
+Additional savings: **8.43GiB (9,053,781,576 bytes)**, counting shared storage once;
+cumulative archival savings are **35.62GiB**. Byte differences exclude block
+rounding; unrelated writes can affect observed free space (now about55GiB4TB,
+490MiBroot/tmp). All current builds,3D runtime binaries, scientific evidence and
+foreign work remain untouched. One nice19 worker used about50MiB sampled RSS over
+520seconds; no CFD/build workload was started alongside it.
+
+[Exact selection, receipt and hard-link restoration instructions](../integration_evidence/disk_cleanup_20261019_hardlinks/README.md).
+Historical replays need executable restoration; restoring each pathname separately
+can consume extra disk, so restore one per group and relink its other names.
+No numerical changes or new mesh-validation claims accompany this cleanup.
