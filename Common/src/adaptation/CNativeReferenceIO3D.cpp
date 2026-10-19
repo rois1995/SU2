@@ -18,6 +18,7 @@ namespace SU2Native3D {
 namespace {
 struct Header {
   uint64_t markers = 0, facets = 0, analytic = 0, affine = 0;
+  uint64_t errors=0,points=0,surface=0,geometry_version=0,revision=0;
   unsigned version = 1;
 };
 Header ReadHeader(std::istream& in, size_t bytes) {
@@ -25,18 +26,24 @@ Header ReadHeader(std::istream& in, size_t bytes) {
   unsigned version = 0;
   Header h;
   // Each facet needs fourteen numeric tokens; file length bounds counts before allocating any facet storage.
-  if (!(in >> magic >> version >> h.markers >> h.facets) || magic != "SU2_NATIVE_REFERENCE_3D" || (version < 1 || version > 4) ||
+  if (!(in >> magic >> version >> h.markers >> h.facets) || magic != "SU2_NATIVE_REFERENCE_3D" || (version < 1 || version > 5) ||
       !h.facets || h.facets > bytes / 14 || !h.markers || h.markers > h.facets)
     throw std::invalid_argument("Invalid native3D reference header/counts/version.");
   h.version=version;
   if (version>=2 && (!(in>>h.analytic) || (!h.analytic && version<4) || h.analytic>h.facets || h.analytic>bytes/9))
     throw std::invalid_argument("Invalid native3D analytic reference counts.");
-  if(version==4 && (!(in>>h.affine) || !h.affine || h.affine>h.facets || h.affine>bytes/11 || h.analytic>h.facets-h.affine))
+  if(version>=4 && (!(in>>h.affine) || (!h.affine && version==4) || h.affine>h.facets || h.affine>bytes/11 || h.analytic>h.facets-h.affine))
     throw std::invalid_argument("Invalid native3D affine reference counts.");
+  if(version==5 && (!(in>>h.errors>>h.points>>h.surface>>h.geometry_version>>h.revision) ||
+      !h.errors || h.errors>h.facets || h.errors>bytes/2 || !h.points || h.points>bytes/9 ||
+      !h.surface || h.surface>bytes/4 || !h.geometry_version || !h.revision || h.analytic))
+    throw std::invalid_argument("Invalid/unsupported native3D mapped reference counts/version.");
   return h;
 }
 size_t DecodeBytes(size_t bytes, const Header& h) {
-  return transfer_memory::Add(transfer_memory::Mul(bytes, 8), PlanarReference::ConstructionBytes(h.facets,h.analytic,h.affine));
+  return transfer_memory::Add(transfer_memory::Mul(bytes, 8), PlanarReference::ConstructionBytes(h.facets,h.analytic,h.affine),
+      h.version==5?transfer_memory::Add(transfer_memory::Mul(h.facets,4096),transfer_memory::Mul(h.points,2304),
+          transfer_memory::Mul(h.surface,8256)):0);
 }
 }  // namespace
 std::string EncodeReference(const ReferenceState& state) {
@@ -48,11 +55,14 @@ std::string EncodeReference(const ReferenceState& state) {
   const auto& analytic=state.original->Analytic();
   const auto& affine=state.original->Affine();
   const bool axis=std::any_of(analytic.begin(),analytic.end(),[](const auto& row){return unsigned(row.second.kind)>=3;});
-  const unsigned version=!affine.empty()?4:analytic.empty()?1:axis?3:2;
+  const auto* parameters=state.original->Parameters();
+  const unsigned version=parameters?5:!affine.empty()?4:analytic.empty()?1:axis?3:2;
   out << "SU2_NATIVE_REFERENCE_3D " << version << '\n'
       << state.marker_names.size() << ' ' << state.facets.size();
   if (version>=2) out << ' ' << analytic.size();
   if (version>=4) out << ' ' << affine.size();
+  if(parameters)out << ' ' << parameters->Geometry().Errors().size() << ' ' << parameters->Records().size()
+      << ' ' << parameters->Surface().size() << ' ' << parameters->Geometry().Version() << ' ' << parameters->Revision();
   out << '\n';
   for (const auto& name : state.marker_names) out << std::quoted(name) << '\n';
   for (const auto& f : state.facets) {
@@ -79,6 +89,17 @@ std::string EncodeReference(const ReferenceState& state) {
     out << row.first << ' ' << g.identity << ' ' << g.version << ' ' << g.dimension << ' '
         << g.origin.x << ' ' << g.origin.y << ' ' << g.origin.z << ' '
         << g.normal.x << ' ' << g.normal.y << ' ' << g.normal.z << ' ' << g.maximum_error << '\n';
+  }
+  if(parameters) {
+    for(const auto& row:parameters->Geometry().Errors())out << row.first << ' ' << row.second << '\n';
+    for(const auto& row:parameters->Records()) {
+      const auto& p=row.second.point;const auto& b=p.binding;
+      out << p.node.id << ' ' << p.node.p.x << ' ' << p.node.p.y << ' ' << p.node.p.z << ' '
+          << b.feature << ' ' << b.version << ' ' << b.dimension << ' ' << b.u << ' ' << b.v << '\n';
+    }
+    for(const auto& row:parameters->Surface()) {
+      const auto& f=row.second;out << f.v[0] << ' ' << f.v[1] << ' ' << f.v[2] << ' ' << f.facet << '\n';
+    }
   }
   if (!out)
     throw std::runtime_error("Native3D reference exceeds file limit.");
@@ -133,10 +154,32 @@ ReferenceState DecodeReference(const std::string& bytes, size_t ceiling) {
     if(!(in>>id>>g.identity>>g.version>>g.dimension>>g.origin.x>>g.origin.y>>g.origin.z>>g.normal.x>>g.normal.y>>g.normal.z>>g.maximum_error) ||
        !affine.emplace(id,g).second)throw std::invalid_argument("Invalid/duplicate native3D affine reference record.");
   }
+  std::map<Id,double> errors;BoundaryPoints points;std::vector<SurfaceFace> surface;
+  for(uint64_t i=0;i<header.errors;++i) {
+    Id id;double value;
+    if(!(in>>id>>value) || !errors.emplace(id,value).second)throw std::invalid_argument("Invalid/duplicate native3D mapping-error record.");
+  }
+  for(uint64_t i=0;i<header.points;++i) {
+    BoundaryPoint p;auto& b=p.binding;
+    if(!(in>>p.node.id>>p.node.p.x>>p.node.p.y>>p.node.p.z>>b.feature>>b.version>>b.dimension>>b.u>>b.v) ||
+        !points.emplace(p.node.id,p).second)throw std::invalid_argument("Invalid/duplicate native3D forward-parameter record.");
+  }
+  surface.reserve(header.surface);
+  for(uint64_t i=0;i<header.surface;++i) {
+    SurfaceFace f;if(!(in>>f.v[0]>>f.v[1]>>f.v[2]>>f.facet))throw std::invalid_argument("Invalid native3D current-surface record.");
+    surface.push_back(f);
+  }
   in >> std::ws;
   if (!in.eof() || used.size() != markers) throw std::invalid_argument("Trailing data or unused native3D markers.");
   ValidateDomainSurfaceTopology(skin);
   result.original = std::make_shared<PlanarReference>(result.facets, construction, std::move(analytic),std::move(affine));
+  if(header.version==5) {
+    auto mapped=std::make_shared<SU2NativeGeometry::MappedFacetReference>(result.original,errors,header.geometry_version,requested);
+    const auto caller=transfer_memory::Add(construction,transfer_memory::Mul(bytes.size(),8),
+        transfer_memory::Mul(header.points,256),transfer_memory::Mul(header.surface,64));
+    auto parameters=std::make_shared<BoundaryParameterState>(mapped,points,surface,header.revision,requested,caller);
+    result.original=PlanarReference::WithParameters(result.original,std::move(parameters));
+  }
   return result;
 }
 bool LoadReference(const std::string& filename, ReferenceState& state, bool& loaded, std::string& reason,

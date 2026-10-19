@@ -171,7 +171,9 @@ std::vector<Face> SkinVector(const Skin& skin) {
   return result;
 }
 using Physical = std::map<Face, SurfaceFace>;
-Physical CheckSurface(const Patch& patch, const Skin& skin, const PlanarReference& reference, KernelStats* stats) {
+Physical CheckSurface(const Patch& patch, const Skin& skin, const PlanarReference& base_reference, KernelStats* stats) {
+  auto parameter_context=base_reference.PrivateParameters(patch);
+  const auto& reference=parameter_context?*parameter_context:base_reference;
   if (patch.surface.size() > 4 * MaximumReplacementCells)
     throw std::invalid_argument("Native 3D physical skin exceeds budget.");
   const auto nodes = Nodes(patch.cells);
@@ -193,6 +195,16 @@ Physical CheckSurface(const Patch& patch, const Skin& skin, const PlanarReferenc
 Node ProjectSplitPoint(Edge edge,Node point,const std::map<Id,Node>& nodes,const Physical& physical,
                        const PlanarReference& reference,KernelStats* stats,bool cavity=false) {
   const auto a=nodes.at(edge[0]),b=nodes.at(edge[1]);
+  if(reference.Mapped()) {
+    std::set<Id> incident;for(const auto& f:physical)if(Has(f.second.v,edge[0])&&Has(f.second.v,edge[1]))incident.insert(f.second.facet);
+    if(!incident.empty()) {
+      if(nodes.count(point.id))throw std::invalid_argument("Mapped split reuses a current point identity.");
+      point=reference.BindNewPoint(point,incident);
+      if((point.p.x==a.p.x&&point.p.y==a.p.y&&point.p.z==a.p.z)||(point.p.x==b.p.x&&point.p.y==b.p.y&&point.p.z==b.p.z))
+        throw std::invalid_argument("Mapped split has no distinct realized point at the proposed parameter.");
+      return point;
+    }
+  }
     bool curved_edge=false;
     for(const auto& face:physical)if(Has(face.second.v,edge[0]) && Has(face.second.v,edge[1])) {
       const auto geometry=reference.Analytic().find(face.second.facet);
@@ -232,6 +244,10 @@ Node ProjectSplitPoint(Edge edge,Node point,const std::map<Id,Node>& nodes,const
 }
 Node ProjectMovePoint(Id vertex,Node point,const Skin& skin,const Physical& physical,
                       const PlanarReference& reference,KernelStats* stats) {
+  if(reference.Mapped()) {
+    std::set<Id> incident;for(const auto& f:physical)if(Has(f.second.v,vertex))incident.insert(f.second.facet);
+    if(!incident.empty())return reference.BindMovedPoint(vertex,point,incident);
+  }
   for(unsigned pass=0;pass<2;++pass)for(const auto& face:physical)
     if(Has(face.second.v,vertex) && reference.Declared(face.second.facet) &&
        (reference.Affine().count(face.second.facet) || reference.Analytic().at(face.second.facet).kind==AnalyticSurface::Kind::Disk)==(pass==0))
@@ -277,6 +293,7 @@ void Finish(const Patch& old, Patch& proposal, const Skin& expected, const Physi
   std::string reason;
   if (!ValidatePrescribedInterface(old.cells, proposal.cells, SkinVector(expected), reason, stats))
     throw std::invalid_argument(reason);
+  reference.ExportParameters(proposal);
   CheckSurface(proposal, expected, reference, stats);
 }
 void Endpoints(Edge& edge) {
@@ -364,10 +381,12 @@ bool CheckFirstHeight(const Patch& patch,const std::map<int,double>& heights,con
 
 namespace {
 bool CarveFirstLayer(const Patch& old,const Node* background,Id first_wall_node,Id first_cell,
-                         const std::map<int,double>& heights,const PlanarReference& reference,
+                         const std::map<int,double>& heights,const PlanarReference& base_reference,
                          Patch& fresh,FirstHeightReport& report,std::string& reason,KernelStats* stats) {
   report={};
   try {
+    auto parameter_context=base_reference.PrivateParameters(old);
+    const auto& reference=parameter_context?*parameter_context:base_reference;
     Bounds(old);
     if(heights.empty())throw std::invalid_argument("Native3D first-layer construction needs wall heights.");
     for(const auto& height:heights)if(!(height.second>0) || !std::isfinite(height.second))
@@ -498,6 +517,7 @@ Node ConstrainMovePoint(const Patch& old,Id vertex,Node proposal,const std::map<
   return proposal;
 }
 PlanarReference::ClosestSurface PlanarReference::ClosestAnalytic(Id id,Point p) const {
+  if(definition)return definition->ClosestAnalytic(id,p);
   id=Canonical(id);
   if(!CompleteAnalytic(id))throw std::invalid_argument("Native3D closest smooth wall requires a complete certified component.");
   for(double x:{p.x,p.y,p.z})if(!std::isfinite(x))throw std::invalid_argument("Nonfinite native3D smooth-wall query.");
@@ -921,6 +941,7 @@ size_t PlanarReference::ConstructionBytes(size_t count, size_t curves,size_t pla
                              transfer_memory::Mul(count, 6 * sizeof(su2double) + 3 * sizeof(unsigned long) + 4 * sizeof(unsigned short)));
 }
 size_t PlanarReference::ResidentBytes() const {
+  if(definition)return transfer_memory::Add(sizeof(*this),definition->ResidentBytes(),ParameterWorkspaceBytes());
   auto map = [](const auto& m) {
     return transfer_memory::Mul(m.size(), sizeof(typename std::decay_t<decltype(m)>::value_type) + 4 * sizeof(void*));
   };
@@ -937,10 +958,12 @@ size_t PlanarReference::ResidentBytes() const {
   return result;
 }
 size_t PlanarReference::SearchWorkspaceBytes() const {
+  if(parameter_view)return ParameterWorkspaceBytes();
   return search ? transfer_memory::Add(transfer_memory::Mul(indexed.size(), 2 * sizeof(unsigned long)),
                                        search->RetainedWorkspaceBound(1)) : 0;
 }
 bool PlanarReference::FindFace(int marker, const std::array<Point, 3>& triangle, Id& facet, KernelStats* stats) const {
+  if(parameter_view)return ParameterFindFace(marker,triangle,facet,stats);
   for (auto p : triangle)
     if (!std::isfinite(p.x) || !std::isfinite(p.y) || !std::isfinite(p.z))
       throw std::invalid_argument("Nonfinite native 3D physical binding query.");
@@ -970,9 +993,10 @@ bool PlanarReference::FindFace(int marker, const std::array<Point, 3>& triangle,
   if (found) facet = chosen;
   return found;
 }
-Id PlanarReference::Canonical(Id id) const { return canonical.at(id); }
-const Facet& PlanarReference::Get(Id id) const { return facets.at(id); }
+Id PlanarReference::Canonical(Id id) const { if(parameter_view){Get(id);return id;}return definition?definition->Canonical(id):canonical.at(id); }
+const Facet& PlanarReference::Get(Id id) const { return definition?definition->Get(id):facets.at(id); }
 bool PlanarReference::Contains(Id id, Point p, KernelStats* stats) const {
+  if(parameter_view)return ParameterContains(id,p);
   id = Canonical(id);
   const auto& v = Get(id).v;
   if(affine.count(id))return affine_domains.at(affine_charts.at(id))->Contains(id,p,stats);
@@ -1065,6 +1089,7 @@ bool PlanarReference::Contains(Id id, Point p, KernelStats* stats) const {
   throw std::logic_error("Degenerate admitted native 3D reference facet.");
 }
 bool PlanarReference::ContainsSegment(Id id,Point a,Point b,KernelStats* stats)const {
+  if(parameter_view)return ParameterContains(id,a)&&ParameterContains(id,b);
   id=Canonical(id);
   if(affine.count(id))return affine_domains.at(affine_charts.at(id))->ContainsSegment(id,a,b,stats);
   if(analytic.count(id))throw std::invalid_argument("Analytic segment containment requires its finite parameter chart.");
@@ -1099,6 +1124,7 @@ bool PlanarReference::ContainsSegment(Id id,Point a,Point b,KernelStats* stats)c
   return true;
 }
 bool PlanarReference::ContainsFace(Id id, const std::array<Point, 3>& triangle, KernelStats* stats) const {
+  if(parameter_view)return ParameterContainsFace(id,triangle,stats);
   id=Canonical(id);
   if(affine.count(id))return affine_domains.at(affine_charts.at(id))->ContainsFace(id,triangle,stats);
   for (auto p : triangle)
@@ -1148,6 +1174,7 @@ bool PlanarReference::ContainsFace(Id id, const std::array<Point, 3>& triangle, 
   return false;
 }
 double PlanarReference::SurfaceError(Id id,const std::array<Point,3>& triangle,KernelStats* stats) const {
+  if(parameter_view){if(!ParameterContainsFace(id,triangle,stats))throw std::invalid_argument("Mapped surface leaves its parameter authority.");return ParameterError(id,triangle);}
   id=Canonical(id);
   if(!ContainsFace(id,triangle,stats))throw std::invalid_argument("Native3D surface error leaves its authority.");
   if(affine.count(id)) {
@@ -1221,6 +1248,7 @@ double PlanarReference::SurfaceError(Id id,const std::array<Point,3>& triangle,K
   return bound;
 }
 Point PlanarReference::Project(Id id, Point p, KernelStats* stats) const {
+  if(parameter_view)return ParameterProject(id,p);
   id=Canonical(id);
   if(affine.count(id)) {
     const auto& domain=*affine_domains.at(affine_charts.at(id));p=domain.Chart().Project(p);
@@ -1250,6 +1278,7 @@ Point PlanarReference::Project(Id id, Point p, KernelStats* stats) const {
   return p;
 }
 bool PlanarReference::OnProjectedEdge(Id id, Point a, Point b, Point p, KernelStats* stats) const {
+  if(parameter_view)return ParameterOnEdge(id,a,b,p,stats);
   id=Canonical(id);
   const auto curved=analytic.find(id);
   if(affine.count(id)) {
@@ -1269,9 +1298,11 @@ bool PlanarReference::OnProjectedEdge(Id id, Point a, Point b, Point p, KernelSt
   if (g.kind==AnalyticSurface::Kind::Bump) return OnEdge({a.x,a.y,0},{b.x,b.y,0},{p.x,p.y,0},stats);
   return ArcDistance(g,a,b,p)<=g.tolerance;
 }
-bool SplitEdge(const Patch& old, Edge edge, Node point, Id first, const PlanarReference& reference, Patch& fresh,
+bool SplitEdge(const Patch& old, Edge edge, Node point, Id first, const PlanarReference& base_reference, Patch& fresh,
                std::string& reason, KernelStats* stats) {
   try {
+    auto parameter_context=base_reference.PrivateParameters(old);
+    const auto& reference=parameter_context?*parameter_context:base_reference;
     Bounds(old);
     Endpoints(edge);
     const Incidence index(old.cells, stats);
@@ -1303,7 +1334,7 @@ bool SplitEdge(const Patch& old, Edge edge, Node point, Id first, const PlanarRe
     SplitSkin(edge,point,skin,physical);
     Finish(old, proposal, skin, physical, reference, stats);
     fresh.cells.swap(proposal.cells);
-    fresh.surface.swap(proposal.surface);
+    fresh.surface.swap(proposal.surface);fresh.parameters.swap(proposal.parameters);
     reason.clear();
     return true;
   } catch (const std::exception& e) {
@@ -1311,9 +1342,11 @@ bool SplitEdge(const Patch& old, Edge edge, Node point, Id first, const PlanarRe
     return false;
   }
 }
-bool InsertEdgeCavity(const Patch& old, Edge edge, Node point, Id first, const PlanarReference& reference,
+bool InsertEdgeCavity(const Patch& old, Edge edge, Node point, Id first, const PlanarReference& base_reference,
                       Patch& fresh, std::string& reason, KernelStats* stats) {
   try {
+    auto parameter_context=base_reference.PrivateParameters(old);
+    const auto& reference=parameter_context?*parameter_context:base_reference;
     Bounds(old);
     Endpoints(edge);
     const Incidence index(old.cells, stats);
@@ -1370,7 +1403,7 @@ bool InsertEdgeCavity(const Patch& old, Edge edge, Node point, Id first, const P
       Finish(old, proposal, skin, physical, reference, stats);
     }
     fresh.cells.swap(proposal.cells);
-    fresh.surface.swap(proposal.surface);
+    fresh.surface.swap(proposal.surface);fresh.parameters.swap(proposal.parameters);
     reason.clear();
     return true;
   } catch (const std::exception& e) {
@@ -1379,8 +1412,10 @@ bool InsertEdgeCavity(const Patch& old, Edge edge, Node point, Id first, const P
   }
 }
 bool SplitSurfaceStrip(const Patch& old,Edge edge,Node point,const std::vector<std::pair<Id,Node>>& moves,
-                       Id first,const PlanarReference& reference,Patch& fresh,std::string& reason,KernelStats* stats) {
+                       Id first,const PlanarReference& base_reference,Patch& fresh,std::string& reason,KernelStats* stats) {
   try {
+    auto parameter_context=base_reference.PrivateParameters(old);
+    const auto& reference=parameter_context?*parameter_context:base_reference;
     Bounds(old);Endpoints(edge);
     if(moves.size()>8)throw std::invalid_argument("Native3D surface strip movement exceeds its bounded proposal.");
     const auto before=SkinMap(Incidence(old.cells,stats).Boundary());
@@ -1450,7 +1485,7 @@ bool SplitSurfaceStrip(const Patch& old,Edge edge,Node point,const std::vector<s
       append(left);if(a && b)append(right);
     }
     Finish(old,proposal,skin,marked,reference,stats);
-    fresh.cells.swap(proposal.cells);fresh.surface.swap(proposal.surface);reason.clear();return true;
+    fresh.cells.swap(proposal.cells);fresh.surface.swap(proposal.surface);fresh.parameters.swap(proposal.parameters);reason.clear();return true;
   }catch(const std::exception& e){reason=e.what();return false;}
 }
 std::vector<Id> SplitPatchApices(const Patch& patch,Edge edge,const std::map<Id,size_t>* costs) {
@@ -1617,10 +1652,12 @@ bool SplitHeightStar(Patch& patch,Id vertex,const std::array<Node,2>& points,
 }  // namespace
 
 bool ReconstructHeightStar(const Patch& old,Id vertex,Id first_node,Id first_cell,FrozenField& target,
-                           const PlanarReference& reference,const std::map<int,double>& heights,
+                           const PlanarReference& base_reference,const std::map<int,double>& heights,
                            Patch& fresh,JointSplitReport& report,std::string& reason,size_t maximum_trials) {
   report={};
   try {
+    auto parameter_context=base_reference.PrivateParameters(old);
+    const auto& reference=parameter_context?*parameter_context:base_reference;
     Bounds(old);const auto nodes=Nodes(old.cells);const auto skin=SkinMap(Incidence(old.cells).Boundary());
     const auto physical=CheckSurface(old,skin,reference,nullptr);const auto origin=nodes.at(vertex).p;
     if(!maximum_trials || maximum_trials>256 || first_node>UINT64_MAX-5)
@@ -1714,10 +1751,12 @@ bool ReconstructHeightStar(const Patch& old,Id vertex,Id first_node,Id first_cel
 }
 
 bool PlaceSplitPatch(const Patch& old,Edge edge,Node point,const std::vector<std::pair<Id,Id>>& apices,Id first,
-                       FrozenField& target,const PlanarReference& reference,const std::map<int,double>& heights,
+                       FrozenField& target,const PlanarReference& base_reference,const std::map<int,double>& heights,
                        Patch& fresh,JointSplitReport& report,std::string& reason,size_t maximum_trials) {
   report={};
   try {
+    auto parameter_context=base_reference.PrivateParameters(old);
+    const auto& reference=parameter_context?*parameter_context:base_reference;
     Bounds(old);Endpoints(edge);
     if(apices.size()>8)throw std::invalid_argument("Native3D joint placement exceeds its vertex bound.");
     if(!maximum_trials || maximum_trials>256)throw std::invalid_argument("Native3D joint placement exceeds its trial bound.");
@@ -1929,10 +1968,12 @@ void RestorePatchPoints(Patch& proposal,const std::map<Id,Node>& wanted,Id first
 }
 }  // namespace
 bool RefitWallSplit(const Patch& old,Edge edge,Node point,Id first_apex,Id first,
-                    const std::map<int,double>& heights,const PlanarReference& reference,
+                    const std::map<int,double>& heights,const PlanarReference& base_reference,
                     Patch& fresh,Feature& obstruction,std::string& reason,KernelStats* stats) {
   obstruction={};
   try {
+    auto parameter_context=base_reference.PrivateParameters(old);
+    const auto& reference=parameter_context?*parameter_context:base_reference;
     Bounds(old);Endpoints(edge);FirstHeightReport height;
     const Incidence index(old.cells,stats);const auto old_skin=index.Boundary();
     ValidateSurfaceTopology(old_skin,true,4*MaximumReplacementCells,&obstruction);
@@ -2013,10 +2054,12 @@ bool RefitWallSplit(const Patch& old,Edge edge,Node point,Id first_apex,Id first
   }catch(const std::exception& e){reason=e.what();return false;}
 }
 bool ReconstructWallSplit(const Patch& old,Edge edge,Node point,Id first_wall_node,Id first,
-                          const std::map<int,double>& heights,const PlanarReference& reference,
+                          const std::map<int,double>& heights,const PlanarReference& base_reference,
                           Patch& fresh,Face& obstruction,std::string& reason,KernelStats* stats,double surface_tolerance) {
   obstruction={};
   try {
+    auto parameter_context=base_reference.PrivateParameters(old);
+    const auto& reference=parameter_context?*parameter_context:base_reference;
     Bounds(old);Endpoints(edge);
     if(!std::isfinite(surface_tolerance) || surface_tolerance<0)
       throw std::invalid_argument("Native3D coupled wall split has an invalid surface tolerance.");
@@ -2135,10 +2178,12 @@ bool ReconstructWallSplit(const Patch& old,Edge edge,Node point,Id first_wall_no
   }catch(const std::exception& e){reason=e.what();return false;}
 }
 bool ReconstructSplitPatch(const Patch& old,Edge edge,Node point,Node interior,const Tensor& placement,
-                           Id first,const PlanarReference& reference,Patch& fresh,Face& obstruction,
+                           Id first,const PlanarReference& base_reference,Patch& fresh,Face& obstruction,
                            std::string& reason,KernelStats* stats,const std::map<int,double>& heights) {
   obstruction={};Face wallObstruction{};
   try {
+    auto parameter_context=base_reference.PrivateParameters(old);
+    const auto& reference=parameter_context?*parameter_context:base_reference;
     Bounds(old);Endpoints(edge);ValidateTensor(placement,stats);
     const auto index=Incidence(old.cells,stats);
     auto skin=SkinMap(index.Boundary());auto physical=CheckSurface(old,skin,reference,stats);
@@ -2249,7 +2294,7 @@ bool ReconstructSplitPatch(const Patch& old,Edge edge,Node point,Node interior,c
       Finish(old,proposal,skin,physical,reference,stats);
       if(!CheckFirstHeight(proposal,heights,reference,report,reason,stats))throw std::invalid_argument(reason);
     }
-    fresh.cells.swap(proposal.cells);fresh.surface.swap(proposal.surface);reason.clear();return true;
+    fresh.cells.swap(proposal.cells);fresh.surface.swap(proposal.surface);fresh.parameters.swap(proposal.parameters);reason.clear();return true;
   }catch(const std::exception& e){if(wallObstruction!=Face{})obstruction=wallObstruction;reason=e.what();return false;}
 }
 
@@ -2411,11 +2456,13 @@ std::map<Id,Vector> CoupledMetricDirection(const Patch& patch,FrozenField& targe
 }
 }  // namespace
 
-bool RepairMetricConnectivity(const Patch& old,FrozenField& target,const PlanarReference& reference,
+bool RepairMetricConnectivity(const Patch& old,FrozenField& target,const PlanarReference& base_reference,
                               const std::map<int,double>& heights,Id first,Patch& fresh,
                               ConnectivityRepairReport& report,std::string& reason,size_t maximum_trials,bool retire_points,const std::set<Id>* movable) {
   report={};
   try {
+    auto parameter_context=base_reference.PrivateParameters(old);
+    const auto& reference=parameter_context?*parameter_context:base_reference;
     if(old.cells.empty() || old.cells.size()>MaximumReplacementCells || maximum_trials>4096)
       throw std::invalid_argument("Native3D private connectivity repair exceeds its cell/trial bound.");
     const auto skin=SkinMap(Incidence(old.cells).Boundary());CheckSurface(old,skin,reference,nullptr);
@@ -2663,13 +2710,16 @@ bool RepairMetricConnectivity(const Patch& old,FrozenField& target,const PlanarR
     std::string closure;
     if(!ValidatePrescribedInterface(old.cells,working.cells,SkinVector(skin),closure,nullptr,MaximumReplacementCells))throw std::invalid_argument(closure);
     for(const auto& f:physical)working.surface.push_back(f.second);
+    reference.ExportParameters(working);
     CheckSurface(working,skin,reference,nullptr);
     fresh=std::move(working);reason.clear();return true;
   }catch(const std::exception& e){reason=e.what();return false;}
 }
-bool UndoEdgeSplit(const Patch& old, Id point, Edge edge, Id first, const PlanarReference& reference, Patch& fresh,
+bool UndoEdgeSplit(const Patch& old, Id point, Edge edge, Id first, const PlanarReference& base_reference, Patch& fresh,
                    std::string& reason, KernelStats* stats) {
   try {
+    auto parameter_context=base_reference.PrivateParameters(old);
+    const auto& reference=parameter_context?*parameter_context:base_reference;
     Bounds(old);
     Endpoints(edge);
     if (point == edge[0] || point == edge[1])
@@ -2679,7 +2729,8 @@ bool UndoEdgeSplit(const Patch& old, Id point, Edge edge, Id first, const Planar
     auto physical = CheckSurface(old, skin, reference, stats);
     const auto nodes = Nodes(old.cells);
     const auto a = nodes.at(edge[0]), b = nodes.at(edge[1]), p = nodes.at(point);
-    if (!OnEdge(a.p,b.p,p.p,stats)) {
+    std::set<Id> inverse_facets;for(const auto& f:physical)if(Has(f.second.v,point))inverse_facets.insert(f.second.facet);
+    if (!OnEdge(a.p,b.p,p.p,stats) && !(reference.Mapped()&&inverse_facets.size()==1)) {
       bool curved=false;
       for (const auto& f : physical) if (Has(f.second.v,point) && reference.Declared(f.second.facet)) {
         curved=true;
@@ -2756,7 +2807,7 @@ bool UndoEdgeSplit(const Patch& old, Id point, Edge edge, Id first, const Planar
     }
     Finish(old, proposal, skin, physical, reference, stats);
     fresh.cells.swap(proposal.cells);
-    fresh.surface.swap(proposal.surface);
+    fresh.surface.swap(proposal.surface);fresh.parameters.swap(proposal.parameters);
     reason.clear();
     return true;
   } catch (const std::exception& e) {
@@ -2764,9 +2815,11 @@ bool UndoEdgeSplit(const Patch& old, Id point, Edge edge, Id first, const Planar
     return false;
   }
 }
-bool CollapseVertex(const Patch& old, Id point, Id neighbor, Id first, const PlanarReference& reference, Patch& fresh,
+bool CollapseVertex(const Patch& old, Id point, Id neighbor, Id first, const PlanarReference& base_reference, Patch& fresh,
                     std::string& reason, KernelStats* stats) {
   try {
+    auto parameter_context=base_reference.PrivateParameters(old);
+    const auto& reference=parameter_context?*parameter_context:base_reference;
     Bounds(old);
     if (point == neighbor) throw std::invalid_argument("Native 3D collapse repeats its endpoint.");
     const Incidence index(old.cells, stats);
@@ -2837,7 +2890,7 @@ bool CollapseVertex(const Patch& old, Id point, Id neighbor, Id first, const Pla
       }
     Finish(old, proposal, skin, physical, reference, stats);
     fresh.cells.swap(proposal.cells);
-    fresh.surface.swap(proposal.surface);
+    fresh.surface.swap(proposal.surface);fresh.parameters.swap(proposal.parameters);
     reason.clear();
     return true;
   } catch (const std::exception& e) {
@@ -2845,9 +2898,11 @@ bool CollapseVertex(const Patch& old, Id point, Id neighbor, Id first, const Pla
     return false;
   }
 }
-bool MoveVertex(const Patch& old, Id vertex, Node point, Id first, const PlanarReference& reference, Patch& fresh,
+bool MoveVertex(const Patch& old, Id vertex, Node point, Id first, const PlanarReference& base_reference, Patch& fresh,
                 std::string& reason, KernelStats* stats) {
   try {
+    auto parameter_context=base_reference.PrivateParameters(old);
+    const auto& reference=parameter_context?*parameter_context:base_reference;
     Bounds(old);
     const Incidence index(old.cells, stats);
     const auto before = SkinMap(index.Boundary());
@@ -2917,7 +2972,7 @@ bool MoveVertex(const Patch& old, Id vertex, Node point, Id first, const PlanarR
     // Check both prescribed interface and complete chart-oriented physical skin before publishing the private proposal.
     Finish(old, proposal, skin, surface, reference, stats);
     fresh.cells.swap(proposal.cells);
-    fresh.surface.swap(proposal.surface);
+    fresh.surface.swap(proposal.surface);fresh.parameters.swap(proposal.parameters);
     reason.clear();
     return true;
   } catch (const std::exception& e) {
@@ -2925,9 +2980,11 @@ bool MoveVertex(const Patch& old, Id vertex, Node point, Id first, const PlanarR
     return false;
   }
 }
-bool Reconnect(const Patch& old, Id vertex, Id first, const PlanarReference& reference, Patch& fresh,
+bool Reconnect(const Patch& old, Id vertex, Id first, const PlanarReference& base_reference, Patch& fresh,
                std::string& reason, KernelStats* stats) {
   try {
+    auto parameter_context=base_reference.PrivateParameters(old);
+    const auto& reference=parameter_context?*parameter_context:base_reference;
     Bounds(old);
     const auto skin = SkinMap(Incidence(old.cells, stats).Boundary());
     const auto physical = CheckSurface(old, skin, reference, stats);
@@ -2936,7 +2993,7 @@ bool Reconnect(const Patch& old, Id vertex, Id first, const PlanarReference& ref
     if (!Cone(old.cells, nodes.at(vertex), first, proposal.cells, reason, stats)) return false;
     Finish(old, proposal, skin, physical, reference, stats);
     fresh.cells.swap(proposal.cells);
-    fresh.surface.swap(proposal.surface);
+    fresh.surface.swap(proposal.surface);fresh.parameters.swap(proposal.parameters);
     reason.clear();
     return true;
   } catch (const std::exception& e) {

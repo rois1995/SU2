@@ -483,3 +483,21 @@ output-node renumbering/persistent native_ref/real restart,2D/general exterior m
 and all accuracy/performance gates. All original triangle edges currently protected;
 this may block construction and is not general surface coarsening. No new accepted
 mapped mesh. [Evidence, costs and next complete implementation](GOAL3_MAPPED_PARAMETERS.md).
+
+## Connected mapped geometry lifecycle — implementation under build, 2026-10-19
+
+The forward-parameter strategy now reaches private edits, staged collective
+mesh/geometry publication, isolated engine stages, original-source mapping bands,
+parent N/M return, house-reader dense IDs and v5 reference persistence. Actual
+boundary import checks stored IDs/coordinates/skin. Prepared original geometry
+indexes are shared; no extra volume gather or per-query geometry negotiation.
+
+Outcome is **not yet validated**. Ninja discovery and C++ helper/type-alias name
+lookup failures were preserved and corrected. Official single-worker build remains
+active. All6affected interface syntax checks PASS (54.07s); retained-output charging
+and count-derived parent bounds were corrected before runtime. The saved-edge
+transaction and oblique Euler/RANS reader/reload controls are prepared; no current
+passing runtime test, new accepted oblique mesh, transfer/restart or
+performance gain is claimed. All original triangle seams remain protected, and
+full2D/multiple-body/exterior/mixed curved scope stays open.
+[Receipts and exact validation scope](../integration_evidence/native_3d_bl_v1/mapped_boundary_lifecycle_v1/README.md).

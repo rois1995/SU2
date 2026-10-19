@@ -1,3 +1,20 @@
+## Mapped boundary lifecycle — connected implementation, validation pending, 2026-10-19
+
+The worktree now carries forward boundary parameters through private native edits,
+isolated engine stages and collective staged mesh/geometry publication. Parent N/M
+return shares immutable geometry indexes, reader return reuses the existing dense-ID
+map and only exchanges boundary identities, and v5 native_ref persists explicit
+mapping limits, forward bindings, revisions and current physical faces. Import
+checks those records against the actual uniquely owned boundary. Final publication
+moves already staged views; sensor-only P1 and actual-query BL/finer/fade stay fixed.
+
+Official connected build is active. Ninja child-environment and helper/type-alias
+name-lookup failures were preserved and corrected. No new linked-runtime, MPI,
+accepted oblique mesh, state restart or performance result is claimed. Original
+facet seams are still protected; general exterior/multiple-body/2D/mixed curved
+scope remains open. [Current handoff and limitations](Handbook/GOAL3_MAPPED_PARAMETERS.md).
+[Source/build/failure receipts](integration_evidence/native_3d_bl_v1/mapped_boundary_lifecycle_v1/README.md).
+
 ## Coupled-wall scope correction — syntax PASS/runtime pending, 2026-10-19
 
 The23-case MPI1/2/4 retained-cell prototype controls passed, but a new exact oblique

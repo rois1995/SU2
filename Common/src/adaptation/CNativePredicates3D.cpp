@@ -479,6 +479,14 @@ int ParametricOrientation(const ParametricPoint& a,const ParametricPoint& b,cons
   if(stats)++stats->exact_orientations;
   return Sign(Difference(first,second));
 }
+bool ParametricOnSegment(const ParametricPoint& a,const ParametricPoint& b,const ParametricPoint& p,KernelStats* stats) {
+  for(unsigned axis=0;axis<3;++axis)if(ParametricOrientation(a,b,p,axis,stats))return false;
+  for(unsigned k=0;k<3;++k) {
+    const auto q=ParametricCoordinate(p,k);
+    if(Sign(Difference(q,ParametricCoordinate(a,k)))*Sign(Difference(q,ParametricCoordinate(b,k)))>0)return false;
+  }
+  return true;
+}
 std::array<Point,2> AffinePointBounds(Point a,Point b,double t) {
   if(!(Finite(a)&&Finite(b)&&std::isfinite(t)&&t>=0&&t<=1))
     throw std::invalid_argument("Invalid native3D affine point construction.");

@@ -63,6 +63,8 @@ struct DirectoryStats {
   size_t maximum_dependencies = 0, maximum_work_bytes = 0;
   double build_seconds = 0, lookup_seconds = 0, fetch_seconds = 0, reservation_seconds = 0, publication_seconds = 0;
   double election_seconds = 0;  // Nested detail; not added to the exclusive public-call phases.
+  double parameter_agreement_seconds=0,parameter_publication_seconds=0; // Nested, boundary-only geometry.
+  uint64_t parameter_edits=0,parameter_faces=0,parameter_payload_bytes=0; // Logical replicated payload, not wire/RSS.
 };
 constexpr size_t MaximumDirectoryFeatures = 4 * MaximumCavityCells;
 constexpr size_t MaximumDirectoryScan = 4096;
@@ -73,7 +75,8 @@ constexpr size_t MaximumDirectoryScan = 4096;
  * Geometry/embedding/marker/metric certificates and nonconflicting cavity selection remain caller duties. */
 class Directory {
  public:
-  explicit Directory(World& world, bool track_changes = false) : world(world), track_changes(track_changes) {}
+  explicit Directory(World& world, bool track_changes = false,BoundaryParameterState* parameters=nullptr)
+      :world(world),track_changes(track_changes),parameters(parameters) {}
   // Initial construction only; create a new directory after ownership migration.
   bool Build(const Owned& owned, std::string& reason, size_t ceiling = SIZE_MAX, size_t caller_bytes = 0);
   Dependencies Lookup(const std::vector<Feature>& features, size_t ceiling = SIZE_MAX, size_t caller_bytes = 0);
@@ -100,7 +103,8 @@ class Directory {
    * version/budget/rank veto leaves both accepted stores unchanged. No allocation after publication vote.
    * Reused cell IDs must advance version. Caller reserves globally unique new IDs and validates complete geometry. */
   bool Publish(Owned& owned, const std::vector<Dependency>& removed, const std::vector<OwnedCell>& added,
-               bool prevalidated, std::string& reason, size_t ceiling = SIZE_MAX, size_t caller_bytes = 0);
+               bool prevalidated, std::string& reason, size_t ceiling = SIZE_MAX, size_t caller_bytes = 0,
+               const std::vector<BoundaryParameterEdit>& parameter_edits = {});
   /*! After successful tracked publication, sorted changed vertices for every old/new star owner.
    * Staged before the final vote; rejection preserves both stores and this list. Mode must match across workers. */
   const std::vector<Id>& ChangedVertices() const { return changed_vertices; }
@@ -109,6 +113,14 @@ class Directory {
   std::vector<char> Snapshot() const;
 
  private:
+  BoundaryParameterState* parameters=nullptr; // Borrowed for the directory lifetime; never copied per edit.
+  const SU2NativeGeometry::MappedFacetReference* parameter_geometry=nullptr;
+  size_t parameter_geometry_bytes=0;
+  size_t ParameterBytes()const{return parameters?transfer_memory::Add(parameter_geometry_bytes,parameters->ResidentBytes()):0;}
+  bool AgreeParameters(std::string& reason,size_t ceiling,size_t caller_bytes);
+  bool PrepareParameters(const std::vector<OwnedCell>& old,const std::vector<OwnedCell>& added,
+                         const std::vector<BoundaryParameterEdit>& edits,BoundaryParameterState::Publication& staged,
+                         std::string& reason,size_t ceiling,size_t caller_bytes);
   struct Entry {
     Id key = 0;
     bool identity = false;

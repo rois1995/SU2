@@ -274,10 +274,32 @@ double MappedFacetReference::MaximumError(const SurfaceBinding& b)const {
   const auto& incident=b.dimension==0?vertex_facets.at(b.feature):edge_facets.at(b.feature);
   double bound=INFINITY;for(auto id:incident)bound=std::min(bound,error(id));return bound;
 }
+bool MappedFacetReference::Admissible(const SurfaceBinding& b,Point p)const {
+  if(ErrorBound(b,p)>MaximumError(b))return false;
+  auto plane=[&](Id id){const auto g=reference->Affine().find(id);return g==reference->Affine().end() || AffineChart(g->second).ErrorBound(p)<=g->second.maximum_error;};
+  if(b.dimension==2)return plane(b.feature);
+  const auto& rows=b.dimension==0?vertex_facets.at(b.feature):edge_facets.at(b.feature);
+  return std::all_of(rows.begin(),rows.end(),plane);
+}
+bool MappedFacetReference::FeatureSegment(const SurfaceBinding& a,const SurfaceBinding& b,Id& feature,double& ta,double& tb)const {
+  CheckBinding(a);CheckBinding(b);if(a.dimension>1 || b.dimension>1)return false;
+  if(a.dimension==0 && b.dimension==0) {
+    SU2Native3D::Edge edge{a.feature,b.feature};std::sort(edge.begin(),edge.end());
+    const auto found=std::lower_bound(edges.begin(),edges.end(),edge);if(found==edges.end() || *found!=edge)return false;
+    feature=Id(found-edges.begin());
+  }else {feature=a.dimension==1?a.feature:b.feature;if(a.dimension==1&&b.dimension==1&&a.feature!=b.feature)return false;}
+  const auto edge=edges.at(feature);
+  auto parameter=[&](const SurfaceBinding& p,double& t){if(p.dimension==1){t=p.u;return true;}
+    if(p.feature==edge[0] || p.feature==edge[1]){t=p.feature==edge[0]?0.:1.;return true;}return false;};
+  return parameter(a,ta)&&parameter(b,tb)&&ta!=tb;
+}
 double MappedFacetReference::ErrorBound(const SurfaceBinding& b,Point p)const {return PointModelError(Ideal(b),p);}
 Point MappedFacetReference::Realize(const SurfaceBinding& b)const {
-  const auto model=Ideal(b);const auto point=SU2Native3D::ParametricPointBounds(model)[0];
-  if(PointModelError(model,point)>MaximumError(b))throw std::invalid_argument("Mapped realization cannot satisfy all incident geometry error contracts.");
+  const auto model=Ideal(b);auto point=SU2Native3D::ParametricPointBounds(model)[0];
+  std::map<Id,AffineAuthority> equations;
+  ForFacets(b,[&](Id id){const auto row=reference->Affine().find(id);if(row!=reference->Affine().end())equations.emplace(row->second.identity,row->second);});
+  if(!equations.empty()){std::vector<AffineAuthority> constraints;for(const auto& row:equations)constraints.push_back(row.second);point=ProjectIntersection(point,constraints);}
+  if(!Admissible(b,point))throw std::invalid_argument("Mapped realization cannot satisfy all incident geometry error contracts.");
   return point;
 }
 bool MappedFacetReference::Supports(Id facet,const SurfaceBinding& b)const {
@@ -290,7 +312,7 @@ bool MappedFacetReference::ContainsFace(Id facet,const std::array<SurfaceBinding
   using namespace SU2Native3D;
   std::array<ParametricPoint,3> ideal;
   for(unsigned i=0;i<3;++i) {
-    if(!Supports(facet,binding[i]) || ErrorBound(binding[i],realized[i])>MaximumError(binding[i]))return false;
+    if(!Supports(facet,binding[i]) || !Admissible(binding[i],realized[i]))return false;
     ideal[i]=Ideal(binding[i]);
   }
   const auto& f=reference->Get(facet);

@@ -39,7 +39,7 @@ struct RemeshStats {
   std::array<uint64_t,2> normalization_stage_work{};
   NormalizationProposal3D normalization;
   double total_seconds = 0, other_seconds = 0, report_seconds = 0, process_cpu_seconds = 0, idle_cpu_seconds = 0;
-  BridgeStats imported, weights, returned, reassessment;
+  BridgeStats imported, weights, returned, reassessment, parameter_return;
   ComplexityReassessment3D complexity;
   DonorImportStats source;
   PartitionStats partition;

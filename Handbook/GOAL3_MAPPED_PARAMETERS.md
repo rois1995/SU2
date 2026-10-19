@@ -11,20 +11,32 @@ error; full original-facet cover/feature-chain audit. It passes focused controls
 an independent rational oracle, including the saved unrepresentable edge. This is
 NOT an accepted adapted mesh, published parameter state or completed geometry policy.
 
-## Worktree integration in progress, not qualified
+## Connected worktree implementation — official build active
 
-Private operator proposals now have a boundary-only binding overlay. A separate
-accepted parameter store retains current boundary faces as well as point/support
-records, stages geometry deltas beside mesh publication, and conserves each ideal
-facet's oriented boundary. The engine clones this store once per stage, so rejected
-progress cannot modify accepted geometry metadata. Original geometry indexes remain
-shared. Source-envelope plumbing accounts for declared mapping errors.
+Private proposals carry boundary-only bindings. Accepted metadata retains current
+faces and point/support records; geometry and mesh deltas stage beside one common
+vote and preserve the ideal facet boundary chain. The engine clones boundary state
+once per stage and returns an already staged view; rejected progress cannot modify
+the accepted table. Immutable geometry/indexes stay shared.
 
-These are uncommitted, uncompiled connected changes, not evidence of an accepted
-mesh or a complete lifecycle. Remaining reach includes current-to-dense reader
-numbering, parent N/M agreement/return, versioned native_ref serialization and
-matching actual mesh/sidecar admission. Existing primitive results qualify their
-pinned old sources only; they do not validate the new operators/publication code.
+Parent N/M return broadcasts boundary records at an explicit stage boundary.
+Reader return reuses the house dense point map, rendezvous-deduplicates only boundary
+identities, and stages the matching geometry before publishing slices. V5 native_ref
+stores explicit errors, original support versions, current forward parameters and
+current boundary faces. Decode revalidates full finite coverage before publication;
+actual import checks matching coordinates/identities/oriented faces. Strict v1--4
+formats retain their previous behavior. Sensor-only original P1 and actual-query
+BL/finer/fade policy are unchanged. Source envelopes include declared mapping bands.
+
+This connected code passes all6affected interface compile checks (54.07s) and is
+BUILDING through the official dependency graph, not linked/runtime-qualified. New focused controls target
+atomic split/publication of the saved unrepresentable edge, refusal, persistence,
+renumbering, and oblique Euler/RANS reader/SU2+CGNS geometry reload. They do not prove
+accepted BL construction, solution restart, multiple-body/exterior readiness or2D.
+Original triangle seams are still protected; finite-plane interior seam release and
+mixed analytic/mapped junctions remain open. Whole-event performance is unmeasured.
+
+[Build, exact failures, source capsules and resource receipts](../integration_evidence/native_3d_bl_v1/mapped_boundary_lifecycle_v1/README.md).
 
 ## Next connected implementation, before another complete positive attempt
 

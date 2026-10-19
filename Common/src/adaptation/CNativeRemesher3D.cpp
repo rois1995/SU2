@@ -352,6 +352,7 @@ CRemeshResult CNativeRemesher3D::Remesh(const CConfig& config, const CGeometry& 
           stats.refine = refined.stats;
           const bool rebuilt_domain=refined.rebuilt_domain;
           valid = refined.valid;
+          if(valid && refined.reference)pending->state.original=std::move(refined.reference);
           detail = refined.reason;
           working.swap(refined.cells);
           Owned().swap(refined.cells);
@@ -373,6 +374,7 @@ CRemeshResult CNativeRemesher3D::Remesh(const CConfig& config, const CGeometry& 
             auto coarse = Coarsen(workers, working, *worker_source, *pending->state.original, composition, kernel);
             stats.coarsen = coarse.stats;
             valid = coarse.valid;
+            if(valid && coarse.reference)pending->state.original=std::move(coarse.reference);
             detail = coarse.reason;
             working.swap(coarse.cells);
             Owned().swap(coarse.cells);
@@ -413,6 +415,11 @@ CRemeshResult CNativeRemesher3D::Remesh(const CConfig& config, const CGeometry& 
 #endif
       phase(7);
       ready = vote(valid, detail);
+      if(ready && stats.workers<parent.size && pending->state.original->Mapped()) {
+        ready=SynchronizeBoundaryParameters(parent,stats.workers,pending->state,reason,stats.parameter_return,
+            control.memory_ceiling,transfer_memory::Add(held(),OwnedStorageBytes(working),transfer_memory::Bytes(imported.original),transfer_memory::Bytes(migrated)));
+        phase(11);
+      }
     }
     const auto used=CPassiveComm::Allreduce(stats.refine.global_work+stats.coarsen.global_work,CPassiveComm::Op::MAX,parent.comm);
     stats.normalization_stage_work[stage]=used;stats.cumulative_work+=used;
@@ -498,14 +505,17 @@ CRemeshResult CNativeRemesher3D::Remesh(const CConfig& config, const CGeometry& 
     phase(6);
     }
     // Transport only the original P1 sensor; geometric BL is recomposed at each subsequent query.
-    if (ready)
+    if (ready) {
+      std::shared_ptr<const PlanarReference> rebound;
       ready = ReaderSlices(parent, working, imported.original, pending->state, result.slices, reason, stats.returned,
                            {}, control.memory_ceiling, transfer_memory::Add(held(), transfer_memory::Bytes(migrated)),
-                           control.timings,return_source.get());
+                           control.timings,return_source.get(),&rebound);
+      if(ready && rebound)pending->state.original=std::move(rebound);
+    }
     phase(11);
     stats.maximum_native_bytes =
         std::max({stats.maximum_native_bytes, stats.refine.maximum_work_bytes, stats.coarsen.maximum_work_bytes,
-                  stats.returned.maximum_native_bytes, stats.reassessment.maximum_native_bytes, parent.max_exchange_work_bytes});
+                  stats.returned.maximum_native_bytes, stats.reassessment.maximum_native_bytes, stats.parameter_return.maximum_native_bytes, parent.max_exchange_work_bytes});
     if (ready && control.maximum_seconds)
       ready=vote(remaining_time()>0,"Native3D elapsed deadline exhausted after return-to-CFD packing.");
     if (ready) {
@@ -599,9 +609,11 @@ CRemeshResult CNativeRemesher3D::Remesh(const CConfig& config, const CGeometry& 
              << " source_envelope_cells=" << b.source_envelope_cells << " source_envelope_solves=" << b.source_envelope_solves
              << " source_envelope_contacts=" << b.source_envelope_contacts << " source_envelope_distances=" << b.source_envelope_distances
              << " nested_envelope_payload=" << b.source_envelope_payload_seconds << " envelope_replicated_bytes=" << b.source_envelope_payload_bytes
+             << " parameter_return=" << b.parameter_return_seconds << " parameter_bytes=" << b.parameter_return_bytes
+             << " parameter_points=" << b.parameter_points << " parameter_faces=" << b.parameter_faces
              << " native_bound=" << b.maximum_native_bytes << '\n';
     };
-    bridge("import", stats.imported); bridge("weights", stats.weights); bridge("return", stats.returned); bridge("reassessment",stats.reassessment);
+    bridge("import", stats.imported); bridge("weights", stats.weights); bridge("return", stats.returned); bridge("reassessment",stats.reassessment); bridge("parameter_return",stats.parameter_return);
     prefix("source");
     const auto& d = stats.source;
     detail << " build=" << d.build_seconds << " imports=" << d.import_seconds << " requests=" << d.owner_requests

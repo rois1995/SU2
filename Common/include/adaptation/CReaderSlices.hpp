@@ -98,10 +98,12 @@ struct CReaderSlices {
 
   /*! \brief Collective recoverable memory admission; output is unchanged on refusal. Input/output storage is
    *         charged here; caller_bytes covers other retained storage. Bounds include tree nodes, vector growth,
-   *         routing and transport scratch, but exclude allocator overhead and MPI-internal storage. */
+   *         routing and transport scratch, but exclude allocator overhead and MPI-internal storage.
+   *         Optional dense_point_ids receives the existing numbering in local pointKeys order; unchanged on refusal. */
   static bool FromDistributed(const CSimplexMesh& mesh, const std::vector<uint64_t>& pointKeys,
                               CReaderSlices& output, std::string& reason, CReaderSliceStats& stats,
-                              size_t ceiling, size_t caller_bytes = 0);
+                              size_t ceiling, size_t caller_bytes = 0,
+                              std::vector<unsigned long>* dense_point_ids = nullptr);
 
   /*! \brief Requested heap storage retained by these slices, excluding allocator overhead. */
   size_t ResidentBytes() const;

@@ -1,0 +1,23 @@
+{
+  "log_sha256": "130778463c8e34b157d89bded59e4afec6ebce6e802ca925e8ddc612c3e7c77c",
+  "log_bytes": 123074,
+  "diagnostics": [
+    "FAILED: [code=1] Common/src/libSU2AccurateSum.a.p/adaptation_CNativeBoundaryParameters3D.cpp.o ",
+    "../../Common/src/adaptation/CNativeBoundaryParameters3D.cpp:53:48: error: no matching function for call to \u2018std::array<double, 3>::array(const SU2Native3D::Point&)\u2019",
+    "../../Common/src/adaptation/CNativeBoundaryParameters3D.cpp:53:98: error: no matching function for call to \u2018std::tuple<unsigned int, long unsigned int, double, double>::tuple(const SU2Native3D::BoundaryPoint&)\u2019",
+    "/usr/include/c++/9/tuple:636:21: error: no type named \u2018type\u2019 in \u2018struct std::enable_if<false, bool>\u2019",
+    "/usr/include/c++/9/tuple:625:21: error: no type named \u2018type\u2019 in \u2018struct std::enable_if<false, bool>\u2019",
+    "../../Common/src/adaptation/CNativeBoundaryParameters3D.cpp:64:30: error: no matching function for call to \u2018std::array<double, 3>::array(SU2Native3D::Point&)\u2019",
+    "../../Common/src/adaptation/CNativeBoundaryParameters3D.cpp:65:49: error: no matching function for call to \u2018std::array<double, 3>::array(SU2Native3D::Point&)\u2019",
+    "../../Common/src/adaptation/CNativeBoundaryParameters3D.cpp:114:84: error: no matching function for call to \u2018std::array<double, 3>::array(const SU2Native3D::Point&)\u2019",
+    "../../Common/src/adaptation/CNativeBoundaryParameters3D.cpp:114:116: error: no matching function for call to \u2018std::array<double, 3>::array(std::map<long unsigned int, SU2Native3D::Point>::mapped_type&)\u2019",
+    "../../Common/src/adaptation/CNativeBoundaryParameters3D.cpp:148:74: error: no matching function for call to \u2018std::array<double, 3>::array(const SU2Native3D::Point&)\u2019",
+    "../../Common/src/adaptation/CNativeBoundaryParameters3D.cpp:148:104: error: no matching function for call to \u2018std::tuple<unsigned int, long unsigned int, double, double>::tuple(const SU2Native3D::BoundaryPoint&)\u2019",
+    "/usr/include/c++/9/tuple:636:21: error: no type named \u2018type\u2019 in \u2018struct std::enable_if<false, bool>\u2019",
+    "/usr/include/c++/9/tuple:625:21: error: no type named \u2018type\u2019 in \u2018struct std::enable_if<false, bool>\u2019",
+    "../../Common/src/adaptation/CNativeBoundaryParameters3D.cpp:208:110: error: no matching function for call to \u2018std::array<double, 3>::array(SU2Native3D::Point&)\u2019",
+    "../../Common/src/adaptation/CNativeBoundaryParameters3D.cpp:208:151: error: no matching function for call to \u2018std::tuple<unsigned int, long unsigned int, double, double>::tuple(SU2Native3D::BoundaryPoint&)\u2019",
+    "/usr/include/c++/9/tuple:636:21: error: no type named \u2018type\u2019 in \u2018struct std::enable_if<false, bool>\u2019",
+    "/usr/include/c++/9/tuple:625:21: error: no type named \u2018type\u2019 in \u2018struct std::enable_if<false, bool>\u2019"
+  ]
+}

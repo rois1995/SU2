@@ -7,6 +7,7 @@
 #pragma once
 #include "CNativeCavity3D.hpp"
 #include "CNativeAffineReference.hpp"
+#include "CNativeBoundaryParameters3D.hpp"
 #include <map>
 #include <limits>
 #include <memory>
@@ -22,17 +23,10 @@ struct Facet {
     s(id, marker, v);
   }
 };
-struct SurfaceFace {
-  Face v;
-  Id facet = 0;
-  template <class Stream>
-  void Fields(Stream& s) {
-    s(v, facet);
-  }
-};
 struct Patch {
   std::vector<Cell> cells;
   std::vector<SurfaceFace> surface;
+  BoundaryPoints parameters;  // Sparse private boundary geometry, never original sensor weights.
 };
 /*! Analytic authority is declared per original finite facet, never inferred from its marker.
  * Sphere: origin=center, extent.x=radius. Bump: z=origin.z+extent.z*u(1-u)*v(1-v),
@@ -57,10 +51,10 @@ class PlanarReference {
   explicit PlanarReference(std::vector<Facet> facets, size_t ceiling = SIZE_MAX,
                            std::map<Id, AnalyticSurface> analytic = {},
                            std::map<Id,SU2NativeGeometry::AffineAuthority> affine = {});
-  const std::map<Id, AnalyticSurface>& Analytic() const { return analytic; }
-  const std::map<Id,SU2NativeGeometry::AffineAuthority>& Affine()const{return affine;}
-  bool Declared(Id facet)const{return analytic.count(facet)||affine.count(facet);}
-  const std::vector<Id>& ExtensionComponents()const{return declared_components;}
+  const std::map<Id, AnalyticSurface>& Analytic() const { return definition?definition->Analytic():analytic; }
+  const std::map<Id,SU2NativeGeometry::AffineAuthority>& Affine()const{return definition?definition->Affine():affine;}
+  bool Declared(Id facet)const{return parameter_view?Facets().count(facet):analytic.count(facet)||affine.count(facet);}
+  const std::vector<Id>& ExtensionComponents()const;
   bool CompleteAnalytic(Id facet) const { return complete_analytic.count(Canonical(facet)); }
   struct ClosestSurface { Point point, normal, direction; double distance=0; };
   /*! Exact radial/finite-axis closest point on a certified complete sphere, cylinder or disk.
@@ -70,7 +64,7 @@ class PlanarReference {
   Point Project(Id facet, Point p, KernelStats* stats = nullptr) const;
   bool OnProjectedEdge(Id facet, Point a, Point b, Point p, KernelStats* stats = nullptr) const;
   const Facet& Get(Id id) const;
-  const std::map<Id,Facet>& Facets() const { return facets; }
+  const std::map<Id,Facet>& Facets() const { return definition?definition->Facets():facets; }
   /*! Requested resident map/vector storage; allocator metadata and constructor scratch are separate. */
   size_t ResidentBytes() const;
   /*! Conservative reference construction peak, including the house local box index. */
@@ -89,8 +83,31 @@ class PlanarReference {
   bool FindFace(int marker, const std::array<Point, 3>& triangle, Id& facet, KernelStats* stats = nullptr) const;
   /*! Additional candidate/traversal storage bound for the serial per-rank binding query. */
   size_t SearchWorkspaceBytes() const;
+  /*! A cheap view over shared immutable topology/indexes; no duplicate whole-reference preparation. */
+  static std::shared_ptr<const PlanarReference> WithParameters(std::shared_ptr<const PlanarReference> definition,
+                                                            std::shared_ptr<BoundaryParameterState> parameters);
+  bool Mapped()const{return bool(parameter_view);}
+  BoundaryParameterState* Parameters()const;
+  std::shared_ptr<const PlanarReference> WithParameterState(std::shared_ptr<BoundaryParameterState> parameters)const;
+  /*! Private operator overlay; null in the unchanged strict path. */
+  std::unique_ptr<PlanarReference> PrivateParameters(const Patch& patch)const;
+  void ExportParameters(Patch& patch)const;
+  Node BindNewPoint(Node point,const std::set<Id>& incident)const;
+  Node BindMovedPoint(Id old,Node point,const std::set<Id>& incident)const;
 
  private:
+  struct ParameterView;
+  PlanarReference(std::shared_ptr<const PlanarReference> definition,std::shared_ptr<ParameterView> view);
+  const BoundaryPoint* Parameter(Point point)const;
+  SU2NativeGeometry::SurfaceBinding ProposedBinding(Point point,const std::set<Id>& incident,
+                                                    const SU2NativeGeometry::SurfaceBinding* previous=nullptr)const;
+  bool ParameterContains(Id facet,Point point)const;
+  bool ParameterContainsFace(Id facet,const std::array<Point,3>& triangle,KernelStats* stats)const;
+  bool ParameterFindFace(int marker,const std::array<Point,3>& triangle,Id& facet,KernelStats* stats)const;
+  Point ParameterProject(Id facet,Point point)const;
+  bool ParameterOnEdge(Id facet,Point a,Point b,Point point,KernelStats* stats)const;
+  double ParameterError(Id facet,const std::array<Point,3>& triangle)const;
+  size_t ParameterWorkspaceBytes()const;
   std::map<Id, Facet> facets;
   const std::map<Id, AnalyticSurface> analytic;
   const std::map<Id,SU2NativeGeometry::AffineAuthority> affine;
@@ -106,6 +123,8 @@ class PlanarReference {
   std::map<int, std::vector<Id>> marker_facets;
   std::vector<Id> indexed;
   std::shared_ptr<CADTElemClass> search;
+  std::shared_ptr<const PlanarReference> definition;
+  std::shared_ptr<ParameterView> parameter_view;
 };
 struct FirstHeightReport {
   size_t wall_faces=0, height_failures=0, footprint_failures=0, missing_cells=0;

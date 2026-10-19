@@ -231,10 +231,13 @@ bool Directory::Build(const Owned& owned, std::string& reason, size_t ceiling, s
   ++stats.builds;
   CLocalFailure failure;
   if (initialized) failure.Set(2, 0, "Native 3D directory is already initialized; rebuild after migration in a new directory.");
-  const bool any_tracking=world.maximum(track_changes), any_untracked=world.maximum(!track_changes);
-  if (any_tracking && any_untracked) failure.Set(1,0,"Native 3D change-notification mode differs across workers.");
+  const unsigned mode=(track_changes?1u:0u)|(parameters?2u:0u);
+  const auto mode_low=CPassiveComm::Allreduce(mode,CPassiveComm::Op::MIN,world.comm),mode_high=CPassiveComm::Allreduce(mode,CPassiveComm::Op::MAX,world.comm);
+  if((mode_low&1u)!=(mode_high&1u))failure.Set(1,0,"Native 3D change-notification mode differs across workers.");
+  if((mode_low&2u)!=(mode_high&2u))failure.Set(1,0,"Native 3D boundary parameter mode differs across workers.");
+  if(parameters){parameter_geometry=&parameters->Geometry();parameter_geometry_bytes=transfer_memory::Add(parameters->Geometry().ResidentBytes(),parameters->Geometry().Reference().ResidentBytes());}
   std::vector<OwnedCell> added;
-  const auto baseline = transfer_memory::Add(caller_bytes, MapBytes<Owned>(owned.size()));
+  const auto baseline = transfer_memory::Add(caller_bytes,ParameterBytes(), MapBytes<Owned>(owned.size()));
   const auto initial_peak = transfer_memory::Add(baseline, ResidentBytes(), transfer_memory::Mul(owned.size(), sizeof(OwnedCell)));
   stats.maximum_work_bytes = std::max(stats.maximum_work_bytes, initial_peak);
   if (initial_peak == SIZE_MAX || initial_peak > ceiling)
@@ -248,6 +251,7 @@ bool Directory::Build(const Owned& owned, std::string& reason, size_t ceiling, s
     }
   } catch (const std::exception& e) { failure.Set(2, 0, e.what()); }
   if (!Vote(failure, reason)) { ++stats.rejected; return false; }
+  if(parameters && !AgreeParameters(reason,ceiling,baseline)){++stats.rejected;return false;}
   auto prepared = Prepare({}, added, ceiling, baseline);
   reason = prepared.reason;
   if (!prepared.valid) { ++stats.rejected; return false; }
@@ -818,14 +822,79 @@ bool Directory::NotifyChanges(const Prepared& prepared, std::vector<Id>& changed
   std::sort(changed.begin(),changed.end()); changed.erase(std::unique(changed.begin(),changed.end()),changed.end());
   return true;
 }
+bool Directory::AgreeParameters(std::string& reason,size_t ceiling,size_t caller) {
+  Timer timer(stats.parameter_agreement_seconds);CLocalFailure failure;
+  const size_t count=parameters->SnapshotBytes();
+  const size_t bound=transfer_memory::Add(caller,ResidentBytes(),transfer_memory::Mul(count,4),transfer_memory::TransportBytes(world.size));
+  stats.maximum_work_bytes=std::max(stats.maximum_work_bytes,bound);
+  if(bound==SIZE_MAX || bound>ceiling)failure.Set(3,0,"Boundary parameter agreement exceeds storage admission.");
+  if(!Vote(failure,reason))return false;
+  std::vector<char> local,root;
+  try{local=parameters->Snapshot();if(!world.rank)root=local;}
+  catch(const std::exception& e){failure.Set(2,0,e.what());}
+  if(!Vote(failure,reason))return false;
+  CPassiveComm::BcastRounds(root,0,world.comm);
+  if(local!=root)failure.Set(1,0,"Boundary parameter authority/records differ across workers.");
+  stats.parameter_payload_bytes+=root.size();return Vote(failure,reason);
+}
+bool Directory::PrepareParameters(const std::vector<OwnedCell>& old,const std::vector<OwnedCell>& added,
+    const std::vector<BoundaryParameterEdit>& edits,BoundaryParameterState::Publication& staged,
+    std::string& reason,size_t ceiling,size_t caller) {
+  Timer timer(stats.parameter_publication_seconds);CLocalFailure failure;
+  const size_t local_bound=transfer_memory::Add(caller,transfer_memory::Mul(old.size()+added.size(),2048),transfer_memory::Mul(edits.size(),128));
+  stats.maximum_work_bytes=std::max(stats.maximum_work_bytes,local_bound);
+  if(local_bound==SIZE_MAX || local_bound>ceiling)failure.Set(3,0,"Boundary parameter face preparation exceeds storage admission.");
+  if(!Vote(failure,reason))return false;
+  std::vector<BoundaryFaceChange> local_faces;
+  try {
+    std::map<std::pair<Id,Face>,int> difference;
+    auto collect=[&](const std::vector<OwnedCell>& cells,int sign) {
+      for(const auto& row:cells) {
+        const auto& v=row.cell.v;const std::array<Face,4> faces{{{v[1].id,v[2].id,v[3].id},{v[0].id,v[3].id,v[2].id},{v[0].id,v[1].id,v[3].id},{v[0].id,v[2].id,v[1].id}}};
+        for(unsigned k=0;k<4;++k)if(row.physical[k].present) {
+          Face face=faces[k];const auto first=std::min_element(face.begin(),face.end());std::rotate(face.begin(),first,face.end());
+          difference[{row.physical[k].facet,face}]+=sign;
+        }
+      }
+    };
+    collect(old,-1);collect(added,1);
+    for(const auto& row:difference)if(row.second) {
+      if(row.second!=1 && row.second!=-1)throw std::invalid_argument("Duplicate physical face in local geometry publication.");
+      local_faces.push_back({row.first.second,row.first.first,row.second>0});
+    }
+  }catch(const std::exception& e){failure.Set(2,0,e.what());}
+  if(!Vote(failure,reason))return false;
+  const size_t changes=CPassiveComm::Allreduce(transfer_memory::Add(local_faces.size(),edits.size()),CPassiveComm::Op::SUM,world.comm);
+  if(!changes){staged.before=staged.after=parameters->Revision();staged.valid=true;return true;}
+  const size_t peak=transfer_memory::Add(local_bound,transfer_memory::Mul(changes,32768),
+      transfer_memory::Mul(world.size,transfer_memory::Add(transfer_memory::Bytes(local_faces),transfer_memory::Bytes(edits))),
+      transfer_memory::TransportBytes(world.size));
+  stats.maximum_work_bytes=std::max(stats.maximum_work_bytes,peak);
+  if(peak==SIZE_MAX || peak>ceiling)failure.Set(3,0,"Boundary parameter collective publication exceeds storage admission.");
+  if(!Vote(failure,reason))return false;
+  bool admitted=false;const auto common=transfer_memory::Add(local_bound,transfer_memory::Mul(changes,256));
+  const auto faces=world.exchange(std::vector<std::vector<BoundaryFaceChange>>(world.size,local_faces),&admitted,ceiling,common);
+  if(!admitted){reason="Boundary parameter face transport exceeds storage admission.";return false;}
+  const auto global_edits=world.exchange(std::vector<std::vector<BoundaryParameterEdit>>(world.size,edits),&admitted,ceiling,transfer_memory::Add(common,transfer_memory::Bytes(faces)));
+  if(!admitted){reason="Boundary parameter edit transport exceeds storage admission.";return false;}
+  std::string detail;
+  staged=parameters->Prepare(global_edits,faces,detail,ceiling,transfer_memory::Add(local_bound,transfer_memory::Bytes(faces),transfer_memory::Bytes(global_edits)));
+  if(!staged.valid)failure.Set(1,0,detail);
+  stats.parameter_edits+=global_edits.size();stats.parameter_faces+=faces.size();
+  stats.parameter_payload_bytes+=global_edits.size()*88+faces.size()*40;
+  return Vote(failure,reason);
+}
 bool Directory::Publish(Owned& owned, const std::vector<Dependency>& removed, const std::vector<OwnedCell>& added,
-                        bool prevalidated, std::string& reason, size_t ceiling, size_t caller_bytes) {
+                        bool prevalidated, std::string& reason, size_t ceiling, size_t caller_bytes,
+                        const std::vector<BoundaryParameterEdit>& parameter_edits) {
   Timer timer(stats.publication_seconds);
   CLocalFailure failure;
   Owned staged;
   std::vector<OwnedCell> old;
   if (!prevalidated) failure.Set(1, 0, "Native 3D candidate veto before publication.");
-  const auto baseline = transfer_memory::Add(caller_bytes, MapBytes<Owned>(owned.size()), transfer_memory::Bytes(removed),
+  if(!parameters && !parameter_edits.empty())failure.Set(1,0,"Boundary parameter edits have no accepted parameter store.");
+  if(parameters && parameter_geometry!=&parameters->Geometry())failure.Set(1,0,"Boundary geometry changed without rebuilding the directory.");
+  const auto baseline = transfer_memory::Add(caller_bytes,ParameterBytes(),transfer_memory::Bytes(parameter_edits), MapBytes<Owned>(owned.size()), transfer_memory::Bytes(removed),
       transfer_memory::Bytes(added), MapBytes<Owned>(added.size()), transfer_memory::Mul(removed.size(), sizeof(OwnedCell)),
       MapBytes<std::set<Id>>(removed.size()));
   auto peak = transfer_memory::Add(baseline, ResidentBytes());
@@ -853,12 +922,15 @@ bool Directory::Publish(Owned& owned, const std::vector<Dependency>& removed, co
   auto prepared = Prepare(old, added, ceiling, baseline);
   reason = prepared.reason;
   if (!prepared.valid) { ++stats.rejected; return false; }
+  BoundaryParameterState::Publication parameter_stage;
+  if(parameters && !PrepareParameters(old,added,parameter_edits,parameter_stage,reason,ceiling,transfer_memory::Add(baseline,ResidentBytes()))) {++stats.rejected;return false;}
   std::vector<Id> changed;
   if (track_changes && !NotifyChanges(prepared,changed,reason,ceiling,baseline)) { ++stats.rejected; return false; }
   // All stores and notifications are staged before the final common vote; publication allocates nothing.
   for (const auto& row : old) owned.erase(row.cell.id);
   while (!staged.empty()) owned.insert(staged.extract(staged.begin()));
   Commit(std::move(prepared));
+  if(parameters)parameters->Commit(std::move(parameter_stage));
   changed_vertices.swap(changed);
   ++stats.publications;
   reason.clear();

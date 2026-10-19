@@ -201,7 +201,13 @@ void OutputRoundTrip(World& world,const std::string& name,const CReaderSlices& s
     } else {
     for(unsigned long p=0;p<metric.rows();++p){auto m=sensor(loaded.Fine().nodes->GetCoord(p),scale);std::array<double,6> values{m.xx,m.xy,m.xz,m.yy,m.yz,m.zz};for(size_t k=0;k<6;++k)metric(p,k)=values[k];}
     }
-    auto authority=reference;auto returned=ImportGeometry(*config,loaded.Fine(),&metric,authority);CHECK(authority.original==reference.original);
+    auto authority=reference;
+    if(reference.original->Mapped()) {
+      WriteReference(file+".native_ref",reference);authority={};REQUIRE(LoadReference(file+".native_ref",authority));
+      CHECK(EncodeReference(authority)==EncodeReference(reference));
+    }
+    auto returned=ImportGeometry(*config,loaded.Fine(),&metric,authority);
+    if(!reference.original->Mapped())CHECK(authority.original==reference.original);
     CHECK(Signature(world,returned.cells,authority)==expected);Save(world,stem+"_reload",returned.cells,returned.original,authority);
     if(target_source)Save(world,stem+"_reload_target",returned.cells,*target_source,authority);
   }
@@ -2462,3 +2468,51 @@ TEST_CASE("Candidate complexity reassesses original P1 and actual composition wi
 #include "fixtures/native_saved_metric_probe.inc"
 
 #include "fixtures/native_sphere_bl_runtime.inc"
+
+TEST_CASE("Mapped boundary records follow actual CFD reader numbering output and reload", "[NativeMappedReader3D]") {
+  World world;const bool rans=GENERATE(false,true);
+  auto config=MakeConfig(3,rans?"SOLVER= RANS\nKIND_TURB_MODEL= SA\nREYNOLDS_NUMBER= 1e6\nREYNOLDS_LENGTH= 1\n":"SOLVER= EULER\n");
+  auto mesh=BoxMesh(3,1,false);
+  for(size_t p=0;p<mesh.GetnPoint();++p)mesh.coord[3*p+1]+=.37*mesh.coord[3*p]+.61*mesh.coord[3*p+2];
+  MeshSolution current(config.get(),mesh,0);ReferenceState reference;
+  ImportGeometry(*config,current.Fine(),nullptr,reference);const auto saved=State(current);
+  std::map<Id,double> errors;std::map<Id,SU2NativeGeometry::AffineAuthority> planes;
+  for(const auto& f:reference.facets) {
+    errors.emplace(f.id,1e-13);
+    if(reference.marker_names.at(f.marker)=="y_minus")planes.emplace(f.id,SU2NativeGeometry::AffineAuthority{17,3,3,{0,0,0},{-.37,1,-.61},1e-13});
+  }
+  reference.original=std::make_shared<PlanarReference>(reference.facets,SIZE_MAX,std::map<Id,AnalyticSurface>{},planes);
+  auto authority=std::make_shared<SU2NativeGeometry::MappedFacetReference>(reference.original,errors,7);
+  BoundaryPoints points;std::vector<SurfaceFace> skin;
+  for(const auto& f:reference.facets){skin.push_back({{f.v[0].id,f.v[1].id,f.v[2].id},f.id});
+    for(auto n:f.v)points.emplace(n.id,BoundaryPoint{n,authority->Vertex(n.id)});}
+  auto parameters=std::make_shared<BoundaryParameterState>(authority,points,skin);
+  reference.original=PlanarReference::WithParameters(reference.original,parameters);
+  const auto encoded=EncodeReference(reference);auto imported=ImportGeometry(*config,current.Fine(),nullptr,reference);
+  CHECK(State(current)==saved);
+  // Force a nontrivial old-ID namespace; the house reader must supply the actual map back to dense IDs.
+  const Id offset=1000;Owned shifted;
+  for(auto row:imported.cells){for(auto& n:row.second.cell.v)n.id+=offset;shifted.emplace(row.first,row.second);}
+  std::map<Id,Id> numbering;for(auto row:parameters->Records())numbering.emplace(row.first,row.first+offset);
+  reference.original=reference.original->WithParameterState(parameters->Rebind(numbering));
+  const auto shifted_bytes=reference.original->Parameters()->Snapshot();
+  CReaderSlices output;output.nDim=99;std::shared_ptr<const PlanarReference> returned=reference.original;BridgeStats stats;std::string reason;
+  CHECK_FALSE(ReaderSlices(world,shifted,imported.original,reference,output,reason,stats,{},world.rank?SIZE_MAX:1,0,true,nullptr,&returned));
+  CHECK(output.nDim==99);CHECK(returned==reference.original);CHECK(reference.original->Parameters()->Snapshot()==shifted_bytes);
+  REQUIRE(ReaderSlices(world,shifted,imported.original,reference,output,reason,stats,{},SIZE_MAX,0,true,nullptr,&returned));
+  REQUIRE(returned);CHECK(returned->Parameters()->Revision()==3);CHECK(reference.original->Parameters()->Snapshot()==shifted_bytes);
+  reference.original=returned;MeshSolution fresh(config.get(),output,0);
+  auto rebound=ImportGeometry(*config,fresh.Fine(),nullptr,reference);
+  CHECK(CPassiveComm::Allreduce(uint64_t(rebound.cells.size()),CPassiveComm::Op::SUM,world.comm)==output.nElemGlobal);
+  CHECK(State(current)==saved);
+  const std::string name=rans?"mapped_reader_rans":"mapped_reader_euler";
+  OutputRoundTrip(world,name,output,shifted,reference,1.,[](const su2double*,double){return Tensor{1,0,0,1,0,1};});
+  if(world.size>1) {
+    // Inactive ranks retain the old boundary IDs until the explicit parent stage return.
+    auto parent_state=DecodeReference(encoded);const int workers=world.size/2;
+    if(world.rank<workers)parent_state.original=parent_state.original->WithParameterState(BoundaryParameterState::FromPayload(
+        parent_state.original->Parameters()->Authority(),returned->Parameters()->Payload()));
+    BridgeStats synchronized;REQUIRE(SynchronizeBoundaryParameters(world,workers,parent_state,reason,synchronized));
+    CHECK(parent_state.original->Parameters()->Snapshot()==returned->Parameters()->Snapshot());CHECK(synchronized.parameter_return_bytes>0);
+  }
+}

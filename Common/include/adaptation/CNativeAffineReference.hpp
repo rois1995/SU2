@@ -100,6 +100,14 @@ class MappedFacetReference {
   bool ValidateSurface(const std::vector<SU2Native3D::SurfaceFace>& surface,
                        const std::map<Id,SurfaceBinding>& bindings,const std::map<Id,Point>& realized,
                        MappedSurfaceAudit& report,std::string& reason,size_t maximum_faces,size_t ceiling=SIZE_MAX)const;
+  template<class F>void ForFacets(const SurfaceBinding& b,F use)const {
+    CheckBinding(b);if(b.dimension==2){use(b.feature);return;}
+    const auto& rows=b.dimension==0?vertex_facets.at(b.feature):edge_facets.at(b.feature);for(Id id:rows)use(id);
+  }
+  bool Admissible(const SurfaceBinding& binding,Point realized)const;
+  bool FeatureSegment(const SurfaceBinding& a,const SurfaceBinding& b,Id& edge,double& ta,double& tb)const;
+  const SU2Native3D::PlanarReference& Reference()const{return *reference;}
+  const std::map<Id,double>& Errors()const{return errors;}
   size_t ResidentBytes()const;
   uint64_t Version()const{return version;}
  private:

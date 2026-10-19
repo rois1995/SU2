@@ -24,6 +24,10 @@ std::array<Point,2> ParametricPointBounds(const ParametricPoint& point);
 int ParametricOrientation(const ParametricPoint& a,const ParametricPoint& b,const ParametricPoint& c,
                           unsigned axis,KernelStats* stats=nullptr);
 
+/*! Closed exact segment membership in ideal coordinates, without rounding a dependent weight. */
+bool ParametricOnSegment(const ParametricPoint& a,const ParametricPoint& b,const ParametricPoint& point,
+                         KernelStats* stats=nullptr);
+
 enum class SegmentFreedom { Unresolved, None, MidpointOnly };
 /*! Exact conservative binary64 subdivision certificate. None forbids any interior point;
  * MidpointOnly writes the unique interior point. Unresolved makes no feasibility claim

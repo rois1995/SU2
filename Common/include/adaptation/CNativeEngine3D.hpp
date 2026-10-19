@@ -111,6 +111,8 @@ struct EngineStats {
   double edge_seconds = 0, edge_search_seconds = 0, edge_trace_seconds = 0, edge_integral_seconds = 0;
   double edge_geometry_seconds = 0, edge_composition_seconds = 0;  // Nested in edge integration.
   size_t maximum_work_bytes = 0, maximum_owned = 0;
+  double parameter_setup_seconds=0,parameter_agreement_seconds=0,parameter_publication_seconds=0; // Nested geometry detail.
+  uint64_t parameter_edits=0,parameter_faces=0,parameter_payload_bytes=0;
   double total_seconds = 0, initialization_seconds = 0, seed_seconds = 0, selection_seconds = 0;
   double planning_seconds = 0;  // Nested in selection: authoritative metadata lookup/election before payload admission.
   double dependency_seconds = 0, reservation_seconds = 0, donor_seconds = 0;
@@ -119,6 +121,8 @@ struct EngineStats {
 };
 struct EngineResult {
   Owned cells;  // Private result; on failure this is rejected progress, never an accepted CFD replacement.
+  std::shared_ptr<BoundaryParameterState> parameters;
+  std::shared_ptr<const PlanarReference> reference;  // Already staged view; caller publication does not allocate. // Same private result/failed-progress scope as cells.
   std::vector<SplitRecord> splits;
   std::vector<Edge> collapses;  // Directed {retained, removed}; no split-history requirement.
   bool valid = false;

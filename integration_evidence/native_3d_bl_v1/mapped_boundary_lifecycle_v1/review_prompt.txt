@@ -1,0 +1,527 @@
+Review a pending C++ MPI mesh-remeshing geometry patch. Use only the supplied text, no tools. Find concrete correctness bugs in staged publication, memory admission, boundary-only payload/renumbering and parent N/M return. Give at most five findings with exact trigger, impact and smallest correction. Distinguish proved defects from assumptions. Do not prescribe a new mesher or weaker gates.
+
+Context: immutable original triangles and declared error limits; geometric parameters are distinct from original sensor-only P1 interpolation. Caller retains exact volume positivity, embedding, full metric, prescribed height and transfer gates. Parameter publication conserves each ideal original facet boundary, with positive finite supported triangles. Accepted maps must not change on an elected failure. All worker ranks hold matching metadata; inactive parent ranks catch up at stage boundaries. Ranks execute matching collectives. The source field stays frozen. Only boundary records/topology are replicated, never the volume mesh.
+
+Common/include/adaptation/CNativeBoundaryParameters3D.hpp
+```cpp
+/*!
+ * \file CNativeBoundaryParameters3D.hpp
+ * \brief Sparse boundary geometry records and staged, allocation-free publication.
+ * SPDX-License-Identifier: LGPL-2.1-or-later
+ */
+#pragma once
+#include "CNativeAffineReference.hpp"
+#include <set>
+#include <tuple>
+namespace SU2Native3D {
+struct Patch;
+class Directory;
+struct SurfaceFace {
+  Face v;
+  Id facet = 0;
+  template <class Stream>
+  void Fields(Stream& s) {
+    s(v, facet);
+  }
+};
+
+struct BoundaryPoint {
+  Node node;
+  SU2NativeGeometry::SurfaceBinding binding;
+  template<class S>void Fields(S& s){s(node,binding);}
+};
+using BoundaryPoints=std::map<Id,BoundaryPoint>;
+struct BoundaryParameterEdit {
+  BoundaryPoint point;
+  uint64_t revision=0;
+  bool insert=false;
+  template<class S>void Fields(S& s){s(point,revision,insert);}
+};
+struct BoundaryFaceChange {
+  Face nodes{};
+  Id facet=0;
+  bool insert=false;
+  template<class S>void Fields(S& s){s(nodes,facet,insert);}
+};
+/*! Immutable point identities inside a publication epoch: movement replaces the identity.
+ * Only boundary records are retained. Geometry/source values and volume nodes are separate. */
+class BoundaryParameterState {
+ public:
+  struct Entry {
+    BoundaryPoint point;
+    uint64_t faces=0;
+    template<class S>void Fields(S& s){s(point,faces);}
+  };
+  using Coordinate=std::array<double,3>;
+  using Entries=std::map<Id,Entry>;
+  using Support=std::tuple<unsigned,Id,double,double>;
+  struct Publication {
+    Entries added;
+    std::map<Coordinate,Id> coordinates;
+    std::map<Support,Id> supports;
+    std::set<Id> removed;
+    std::map<Id,uint64_t> final_counts;
+    std::map<Face,SurfaceFace> surface_added;
+    std::set<Face> surface_removed;
+    uint64_t before=0,after=0;
+    bool valid=false;
+  };
+  BoundaryParameterState(std::shared_ptr<const SU2NativeGeometry::MappedFacetReference> geometry,
+      const BoundaryPoints& points,const std::vector<SurfaceFace>& surface,
+      uint64_t revision=1,size_t ceiling=SIZE_MAX,size_t caller_bytes=0);
+  const Entries& Records()const{return records;}
+  const std::map<Face,SurfaceFace>& Surface()const{return surface;}
+  const BoundaryPoint* Find(Id id)const;
+  const BoundaryPoint* Find(Point point)const;
+  const SU2NativeGeometry::MappedFacetReference& Geometry()const{return *geometry;}
+  uint64_t Revision()const{return revision;}
+  std::shared_ptr<const SU2NativeGeometry::MappedFacetReference> Authority()const{return geometry;}
+  /*! Boundary-only transport, sharing already agreed immutable authority/indexes. */
+  size_t PayloadBytes()const;
+  std::vector<char> Payload()const;
+  static std::shared_ptr<BoundaryParameterState> FromPayload(
+      std::shared_ptr<const SU2NativeGeometry::MappedFacetReference> geometry,const std::vector<char>& bytes,
+      size_t ceiling=SIZE_MAX,size_t caller_bytes=0);
+  /*! Preserve forward parameters/coordinates; only current mesh identities change. */
+  std::shared_ptr<BoundaryParameterState> Rebind(const std::map<Id,Id>& numbering,
+      size_t ceiling=SIZE_MAX,size_t caller_bytes=0)const;
+  size_t ResidentBytes()const;
+  /*! Canonical declaration/record bytes for collective agreement and snapshots, not a new sidecar. */
+  std::vector<char> Snapshot()const;
+  size_t SnapshotBytes()const;
+  /*! Global boundary-only deltas; caller transports/admit counts collectively before invoking.
+   * Prepares changed map nodes only, never copies the entire accepted table per transaction.
+   * Old/new ideal facet boundaries must agree, including exact feature subdivisions.
+   * Actual tetrahedra, embedding, metric/height and full-star reservations remain caller duties. */
+  Publication Prepare(const std::vector<BoundaryParameterEdit>& edits,const std::vector<BoundaryFaceChange>& faces,
+      std::string& reason,size_t ceiling=SIZE_MAX,size_t caller_bytes=0)const;
+  static std::vector<BoundaryParameterEdit> Changes(const Patch& old,const Patch& fresh,uint64_t revision);
+ private:
+  friend class Directory;
+  void Commit(Publication&& publication)noexcept;
+  std::shared_ptr<const SU2NativeGeometry::MappedFacetReference> geometry;
+  Entries records;
+  std::map<Face,SurfaceFace> surface;
+  std::map<Coordinate,Id> coordinates;
+  std::map<Support,Id> supports;
+  uint64_t revision;
+};
+} // namespace SU2Native3D
+
+```
+
+Common/src/adaptation/CNativeBoundaryParameters3D.cpp
+```cpp
+/*!
+ * \file CNativeBoundaryParameters3D.cpp
+ * \brief Boundary-only parameter deltas with exact finite-facet boundary conservation.
+ * SPDX-License-Identifier: LGPL-2.1-or-later
+ */
+#include "../../include/adaptation/CNativeBoundary3D.hpp"
+#include "../../include/adaptation/CNativeDistributed2D.hpp"
+#include "../../include/adaptation/CTransferMemory.hpp"
+#include <cstring>
+#include <limits>
+namespace SU2Native3D {
+namespace {
+using State=BoundaryParameterState;
+State::Coordinate Coordinate(Point p){return {p.x,p.y,p.z};}
+Face FaceKey(Face f){std::sort(f.begin(),f.end());return f;}
+Face FaceOrder(Face f){const auto first=std::min_element(f.begin(),f.end());std::rotate(f.begin(),first,f.end());return f;}
+State::Support Support(const BoundaryPoint& p){const auto& b=p.binding;return {b.dimension,b.feature,b.u,b.v};}
+bool EqualDouble(double a,double b){uint64_t x,y;std::memcpy(&x,&a,8);std::memcpy(&y,&b,8);return x==y;}
+bool Equal(const BoundaryPoint& a,const BoundaryPoint& b) {
+  return a.node.id==b.node.id && EqualDouble(a.node.p.x,b.node.p.x)&&EqualDouble(a.node.p.y,b.node.p.y)&&EqualDouble(a.node.p.z,b.node.p.z)&&
+    a.binding.dimension==b.binding.dimension&&a.binding.feature==b.binding.feature&&a.binding.version==b.binding.version&&
+    EqualDouble(a.binding.u,b.binding.u)&&EqualDouble(a.binding.v,b.binding.v);
+}
+template<class M>size_t MapBytes(const M& m){return transfer_memory::Mul(m.size(),sizeof(typename M::value_type)+4*sizeof(void*));}
+void BoundaryIds(const Patch& patch,std::set<Id>& used){for(const auto& f:patch.surface)used.insert(f.v.begin(),f.v.end());}
+void WritePayload(SU2NativeBoundary2D::RecordStream& out,const State& state) {
+  auto version=state.Geometry().Version(),revision=state.Revision();
+  uint64_t np=state.Records().size(),nf=state.Surface().size();out(version,revision,np,nf);
+  for(auto row:state.Records())out(row.second.point);
+  for(auto row:state.Surface())out(row.second);
+}
+void WriteSnapshot(SU2NativeBoundary2D::RecordStream& out,const State& state) {
+  auto version=state.Geometry().Version(),revision=state.Revision();const auto& g=state.Geometry();
+  uint64_t nf=g.Reference().Facets().size(),ne=g.Errors().size(),na=g.Reference().Affine().size(),np=state.Records().size(),ns=state.Surface().size();
+  out(version,revision,nf,ne,na,np,ns);
+  for(auto row:g.Reference().Facets())out(row.second);
+  for(auto row:g.Errors()){auto id=row.first;out(id,row.second);}
+  for(auto row:g.Reference().Affine()){auto id=row.first;out(id,row.second);}
+  for(auto row:state.Records()){auto id=row.first;out(id,row.second);}
+  for(auto row:state.Surface())out(row.second);
+}
+}
+BoundaryParameterState::BoundaryParameterState(std::shared_ptr<const SU2NativeGeometry::MappedFacetReference> authority,
+    const BoundaryPoints& points,const std::vector<SurfaceFace>& surface,uint64_t epoch,size_t ceiling,size_t caller)
+    :geometry(std::move(authority)),revision(epoch) {
+  if(!geometry || !revision)throw std::invalid_argument("Invalid boundary parameter authority/revision.");
+  const size_t bound=transfer_memory::Add(caller,geometry->ResidentBytes(),transfer_memory::Mul(points.size(),2048),transfer_memory::Mul(surface.size(),8192));
+  if(bound==SIZE_MAX || bound>ceiling)throw std::length_error("Boundary parameter initialization exceeds storage admission.");
+  std::map<Id,SU2NativeGeometry::SurfaceBinding> bindings;std::map<Id,Point> actual;
+  for(const auto& row:points) {
+    const auto& p=row.second;
+    if(row.first!=p.node.id || !geometry->Admissible(p.binding,p.node.p))throw std::invalid_argument("Invalid boundary parameter point/geometry contract.");
+    if(!coordinates.emplace(Coordinate(p.node.p),p.node.id).second || !supports.emplace(Support(p),p.node.id).second)
+      throw std::invalid_argument("Boundary parameter coordinates/support are not unique.");
+    records.emplace(row.first,Entry{p,0});bindings.emplace(row.first,p.binding);actual.emplace(row.first,p.node.p);
+  }
+  SU2NativeGeometry::MappedSurfaceAudit audit;std::string reason;
+  if(!geometry->ValidateSurface(surface,bindings,actual,audit,reason,surface.size(),ceiling))throw std::invalid_argument(reason);
+  for(auto face:surface){face.v=FaceOrder(face.v);if(!this->surface.emplace(FaceKey(face.v),face).second)throw std::invalid_argument("Duplicate accepted parameter face.");
+    for(Id id:face.v)++records.at(id).faces;}
+}
+const BoundaryPoint* BoundaryParameterState::Find(Id id)const {const auto p=records.find(id);return p==records.end()?nullptr:&p->second.point;}
+const BoundaryPoint* BoundaryParameterState::Find(Point point)const {
+  for(auto x:Coordinate(point))if(!std::isfinite(x))throw std::invalid_argument("Nonfinite boundary parameter lookup.");
+  const auto p=coordinates.find(Coordinate(point));return p==coordinates.end()?nullptr:Find(p->second);
+}
+size_t BoundaryParameterState::ResidentBytes()const {return transfer_memory::Add(sizeof(*this),MapBytes(records),MapBytes(coordinates),MapBytes(supports),MapBytes(surface));}
+size_t BoundaryParameterState::SnapshotBytes()const {SU2NativeBoundary2D::RecordStream measure;WriteSnapshot(measure,*this);return measure.Size();}
+std::vector<char> BoundaryParameterState::Snapshot()const {
+  std::vector<char> bytes;bytes.reserve(SnapshotBytes());SU2NativeBoundary2D::RecordStream out(bytes);WriteSnapshot(out,*this);return bytes;
+}
+size_t BoundaryParameterState::PayloadBytes()const {
+  SU2NativeBoundary2D::RecordStream measure;WritePayload(measure,*this);return measure.Size();
+}
+std::vector<char> BoundaryParameterState::Payload()const {
+  std::vector<char> bytes;bytes.reserve(PayloadBytes());SU2NativeBoundary2D::RecordStream out(bytes);WritePayload(out,*this);return bytes;
+}
+std::shared_ptr<BoundaryParameterState> BoundaryParameterState::FromPayload(
+    std::shared_ptr<const SU2NativeGeometry::MappedFacetReference> authority,const std::vector<char>& bytes,
+    size_t ceiling,size_t caller) {
+  using transfer_memory::Add;using transfer_memory::Mul;
+  SU2NativeBoundary2D::RecordStream input(bytes);uint64_t version=0,epoch=0,np=0,nf=0;input(version,epoch,np,nf);
+  if(!authority || version!=authority->Version() || !epoch || !np || !nf ||
+      Add(32,Mul(np,72),Mul(nf,32))!=bytes.size())throw std::invalid_argument("Invalid boundary parameter payload/version/counts.");
+  const size_t live=Add(caller,transfer_memory::Bytes(bytes),Mul(np,256),Mul(nf,sizeof(SurfaceFace)));
+  const size_t bound=Add(live,authority->ResidentBytes(),Mul(np,2048),Mul(nf,8192));
+  if(bound==SIZE_MAX || bound>ceiling)throw std::length_error("Boundary parameter payload exceeds storage admission.");
+  BoundaryPoints points;std::vector<SurfaceFace> faces;faces.reserve(nf);
+  for(uint64_t i=0;i<np;++i){BoundaryPoint point;input(point);
+    if(!points.emplace(point.node.id,point).second)throw std::invalid_argument("Duplicate boundary parameter payload identity.");}
+  for(uint64_t i=0;i<nf;++i){SurfaceFace face;input(face);faces.push_back(face);}
+  if(!input.End())throw std::invalid_argument("Trailing boundary parameter payload bytes.");
+  return std::make_shared<BoundaryParameterState>(std::move(authority),points,faces,epoch,ceiling,live);
+}
+std::shared_ptr<BoundaryParameterState> BoundaryParameterState::Rebind(const std::map<Id,Id>& numbering,
+    size_t ceiling,size_t caller)const {
+  using transfer_memory::Add;using transfer_memory::Mul;
+  if(numbering.size()!=records.size() || revision==UINT64_MAX)throw std::invalid_argument("Incomplete boundary numbering or exhausted revision.");
+  const size_t live=Add(caller,Mul(numbering.size(),256),Mul(surface.size(),sizeof(SurfaceFace)));
+  const size_t bound=Add(live,geometry->ResidentBytes(),Mul(records.size(),2048),Mul(surface.size(),8192));
+  if(bound==SIZE_MAX || bound>ceiling)throw std::length_error("Boundary parameter renumbering exceeds storage admission.");
+  BoundaryPoints points;std::vector<SurfaceFace> faces;faces.reserve(surface.size());
+  for(const auto& row:records){auto p=row.second.point;p.node.id=numbering.at(row.first);
+    if(!points.emplace(p.node.id,p).second)throw std::invalid_argument("Boundary reader numbering is not one-to-one.");}
+  for(const auto& row:surface){auto face=row.second;for(auto& id:face.v)id=numbering.at(id);faces.push_back(face);}
+  return std::make_shared<BoundaryParameterState>(geometry,points,faces,revision+1,ceiling,live);
+}
+std::vector<BoundaryParameterEdit> BoundaryParameterState::Changes(const Patch& old,const Patch& fresh,uint64_t epoch) {
+  std::set<Id> before,after;BoundaryIds(old,before);BoundaryIds(fresh,after);std::vector<BoundaryParameterEdit> changes;
+  auto check=[&](const Patch& patch,const std::set<Id>& ids) {
+    if(patch.parameters.size()!=ids.size())throw std::invalid_argument("Private patch has incomplete/extra boundary parameters.");
+    std::map<Id,Point> coordinates;for(const auto& cell:patch.cells)for(auto n:cell.v)coordinates.emplace(n.id,n.p);
+    for(Id id:ids) {
+      const auto& p=patch.parameters.at(id);if(p.node.id!=id || Coordinate(p.node.p)!=Coordinate(coordinates.at(id)))
+        throw std::invalid_argument("Private boundary parameters differ from actual mesh coordinates.");
+    }
+  };
+  check(old,before);check(fresh,after);
+  for(Id id:before)if(!after.count(id))changes.push_back({old.parameters.at(id),epoch,false});
+  for(Id id:after) {
+    if(before.count(id)) {if(!Equal(old.parameters.at(id),fresh.parameters.at(id)))
+      throw std::invalid_argument("Boundary coordinate/parameter movement requires a new point identity.");}
+    else changes.push_back({fresh.parameters.at(id),epoch,true});
+  }
+  return changes;
+}
+BoundaryParameterState::Publication BoundaryParameterState::Prepare(const std::vector<BoundaryParameterEdit>& edits,
+    const std::vector<BoundaryFaceChange>& faces,std::string& reason,size_t ceiling,size_t caller)const {
+  Publication staged;staged.before=staged.after=revision;
+  try {
+    const size_t bound=transfer_memory::Add(caller,ResidentBytes(),transfer_memory::Mul(edits.size(),2048),transfer_memory::Mul(faces.size(),8192));
+    if(bound==SIZE_MAX || bound>ceiling)throw std::length_error("Boundary parameter publication exceeds storage admission.");
+    if(edits.empty() && faces.empty()){staged.valid=true;reason.clear();return staged;}
+    if(revision==UINT64_MAX)throw std::length_error("Boundary parameter revision range exhausted.");staged.after=revision+1;
+    std::set<Id> changed;
+    for(const auto& edit:edits) {
+      const auto& p=edit.point;const auto old=records.find(p.node.id);
+      if(edit.revision!=revision || !changed.insert(p.node.id).second)throw std::invalid_argument("Stale/duplicate boundary parameter edit.");
+      if(edit.insert) {
+        if(old!=records.end() || !geometry->Admissible(p.binding,p.node.p))throw std::invalid_argument("Boundary parameter insertion conflicts with its identity/geometry.");
+        if(!staged.added.emplace(p.node.id,Entry{p,0}).second)throw std::invalid_argument("Duplicate boundary parameter insertion.");
+      }else {
+        if(old==records.end() || !Equal(p,old->second.point))throw std::invalid_argument("Boundary parameter erasure differs from accepted state.");
+        staged.removed.insert(p.node.id);
+      }
+    }
+    for(const auto& row:staged.added) {
+      const auto& p=row.second.point;const auto coord=Coordinate(p.node.p);const auto support=Support(p);
+      const auto c=coordinates.find(coord);const auto s=supports.find(support);
+      if((c!=coordinates.end()&&!staged.removed.count(c->second)) || (s!=supports.end()&&!staged.removed.count(s->second)) ||
+         !staged.coordinates.emplace(coord,row.first).second || !staged.supports.emplace(support,row.first).second)
+        throw std::invalid_argument("New boundary coordinates/support collide with accepted geometry.");
+    }
+    for(const auto& change:faces)if(!change.insert) {
+      const auto key=FaceKey(change.nodes);const auto old=surface.find(key);
+      if(old==surface.end() || old->second.facet!=change.facet || old->second.v!=FaceOrder(change.nodes) || !staged.surface_removed.insert(key).second)
+        throw std::invalid_argument("Retired physical face differs from accepted parameter topology.");
+    }
+    for(const auto& change:faces)if(change.insert) {
+      const auto key=FaceKey(change.nodes);
+      if((surface.count(key)&&!staged.surface_removed.count(key)) || !staged.surface_added.emplace(key,SurfaceFace{FaceOrder(change.nodes),change.facet}).second)
+        throw std::invalid_argument("New parameter topology repeats an accepted face.");
+    }
+    auto point=[&](Id id,bool added)->const BoundaryPoint& {
+      if(added){const auto p=staged.added.find(id);if(p!=staged.added.end())return p->second.point;
+        if(staged.removed.count(id))throw std::invalid_argument("New physical face retains an erased boundary point.");}
+      const auto p=Find(id);if(!p)throw std::invalid_argument("Physical face has no boundary parameter binding.");return *p;
+    };
+    std::map<Id,int64_t> degree;
+    std::map<std::tuple<Id,Id,Id>,int64_t> edges;
+    std::set<std::tuple<bool,Id,Face>> unique;
+    for(const auto& face:faces) {
+      auto key=face.nodes;std::sort(key.begin(),key.end());
+      if(!unique.emplace(face.insert,face.facet,key).second)throw std::invalid_argument("Duplicate physical face in parameter publication.");
+      std::array<SU2NativeGeometry::SurfaceBinding,3> b;std::array<Point,3> p;
+      for(unsigned k=0;k<3;++k){const auto& q=point(face.nodes[k],face.insert);b[k]=q.binding;p[k]=q.node.p;degree[face.nodes[k]]+=face.insert?1:-1;}
+      if(!geometry->ContainsFace(face.facet,b,p))throw std::invalid_argument("Published face leaves/reverses its finite parameter support.");
+      for(unsigned k=0;k<3;++k){Id a=face.nodes[k],b=face.nodes[(k+1)%3];const int orientation=a<b?1:-1;if(a>b)std::swap(a,b);
+        edges[{face.facet,a,b}]+=(face.insert?1:-1)*orientation;}
+    }
+    std::map<std::tuple<Id,Id,double>,int64_t> intervals;
+    for(const auto& row:edges)if(row.second) {
+      const auto facet=std::get<0>(row.first),a=std::get<1>(row.first),b=std::get<2>(row.first);
+      auto any=[&](Id id)->const BoundaryPoint& {const auto n=staged.added.find(id);return n==staged.added.end()?*Find(id):n->second.point;};
+      Id feature;double ta,tb;
+      if(!geometry->FeatureSegment(any(a).binding,any(b).binding,feature,ta,tb))
+        throw std::invalid_argument("Parameter replacement changes its retained facet interface.");
+      intervals[{facet,feature,ta}]+=row.second;intervals[{facet,feature,tb}]-=row.second;
+    }
+    for(const auto& row:intervals)if(row.second)throw std::invalid_argument("Parameter replacement changes finite feature coverage.");
+    for(const auto& row:degree) {
+      const auto old=records.find(row.first);const uint64_t count=old==records.end()?0:old->second.faces;const int64_t delta=row.second;
+      if((delta<0 && uint64_t(-delta)>count) || (delta>0 && uint64_t(delta)>UINT64_MAX-count))
+        throw std::invalid_argument("Boundary face-incidence count underflows/overflows.");
+      const uint64_t next=delta<0?count-uint64_t(-delta):count+uint64_t(delta);
+      if(staged.removed.count(row.first)){if(next)throw std::invalid_argument("Erased boundary point is still used by physical faces.");}
+      else if(!next)throw std::invalid_argument("Boundary parameter erasure is missing for a retired point.");
+      else if(staged.added.count(row.first))staged.added.at(row.first).faces=next;
+      else staged.final_counts.emplace(row.first,next);
+    }
+    for(const auto& row:staged.added)if(!row.second.faces)throw std::invalid_argument("Unused boundary parameter insertion.");
+    for(Id id:staged.removed)if(!degree.count(id))throw std::invalid_argument("Boundary parameter erasure has no mesh change.");
+    staged.valid=true;reason.clear();return staged;
+  }catch(const std::exception& e){reason=e.what();return {};}
+}
+void BoundaryParameterState::Commit(Publication&& staged)noexcept {
+  if(!staged.valid || staged.before!=revision)std::terminate();
+  for(Id id:staged.removed){const auto p=records.find(id);coordinates.erase(Coordinate(p->second.point.node.p));supports.erase(Support(p->second.point));records.erase(p);}
+  for(const auto& row:staged.final_counts)records.find(row.first)->second.faces=row.second;
+  while(!staged.added.empty())records.insert(staged.added.extract(staged.added.begin()));
+  while(!staged.coordinates.empty())coordinates.insert(staged.coordinates.extract(staged.coordinates.begin()));
+  while(!staged.supports.empty())supports.insert(staged.supports.extract(staged.supports.begin()));
+  for(const auto& key:staged.surface_removed)surface.erase(key);
+  while(!staged.surface_added.empty())surface.insert(staged.surface_added.extract(staged.surface_added.begin()));
+  revision=staged.after;
+}
+} // namespace SU2Native3D
+
+namespace SU2Native3D {
+
+```
+
+Parent synchronization and reader mapping:
+```cpp
+bool SynchronizeBoundaryParameters(World& parent,int workers,ReferenceState& state,std::string& reason,
+    BridgeStats& stats,size_t ceiling,size_t caller_bytes) {
+  Envelope envelope(parent,stats);CLocalFailure failure;
+  if(workers<1 || workers>parent.size || !state.original || !state.original->Mapped())
+    failure.Set(1,0,"Invalid mapped boundary return participants/reference.");
+  if(!Vote(parent,failure,reason))return false;
+  uint64_t count=0;
+  try {if(!parent.rank)count=state.original->Parameters()->PayloadBytes();}
+  catch(const std::exception& e){failure.Set(3,0,e.what());}
+  if(!Vote(parent,failure,reason))return false;
+  count=CPassiveComm::Allreduce(count,CPassiveComm::Op::SUM,parent.comm);
+  const auto live=transfer_memory::Add(caller_bytes,ReferenceStorageBytes(state),
+      transfer_memory::Mul(count,256),transfer_memory::TransportBytes(parent.size));
+  if(!Admit(parent,live,ceiling,stats,reason))return false;
+  std::vector<char> bytes;
+  try {if(!parent.rank)bytes=state.original->Parameters()->Payload();}
+  catch(const std::exception& e){failure.Set(3,0,e.what());}
+  if(!Vote(parent,failure,reason))return false;
+  const auto begin=parent.seconds();CPassiveComm::BcastRounds(bytes,0,parent.comm);
+  stats.parameter_return_seconds=parent.seconds()-begin;stats.parameter_return_bytes=bytes.size();
+  // Include this direct broadcast in the same parent transport totals as World exchanges.
+  parent.collective_seconds+=stats.parameter_return_seconds;++parent.collective_calls;
+  if(!parent.rank)parent.bytes_sent=transfer_memory::Add(parent.bytes_sent,transfer_memory::Mul(bytes.size(),parent.size-1));
+  std::shared_ptr<const PlanarReference> replacement;
+  try {
+    if(parent.rank>=workers)replacement=state.original->WithParameterState(BoundaryParameterState::FromPayload(
+        state.original->Parameters()->Authority(),bytes,ceiling,transfer_memory::Add(caller_bytes,ReferenceStorageBytes(state))));
+    else if(state.original->Parameters()->Payload()!=bytes)throw std::invalid_argument("Worker boundary parameters differ on parent return.");
+  }catch(const std::exception& e){failure.Set(2,0,e.what());}
+  if(!Vote(parent,failure,reason))return false;
+  if(replacement)state.original=std::move(replacement);
+  stats.parameter_points=state.original->Parameters()->Records().size();
+  stats.parameter_faces=state.original->Parameters()->Surface().size();
+  reason.clear();return true;
+}
+namespace {
+bool RebindReaderParameters(World& parent,const PlanarReference& reference,
+    const std::vector<uint64_t>& keys,const std::vector<unsigned long>& dense,
+    std::shared_ptr<const PlanarReference>& output,std::string& reason,BridgeStats& stats,size_t ceiling,size_t caller) {
+  const auto& parameters=*reference.Parameters();
+  using transfer_memory::Add;using transfer_memory::Mul;using transfer_memory::Bytes;
+  const auto live=Add(caller,Mul(parameters.Records().size(),Add(1024,Mul(parent.size,64))),
+      Mul(parameters.Surface().size(),8192),parameters.Geometry().ResidentBytes());
+  if(!Admit(parent,live,ceiling,stats,reason))return false;
+  CLocalFailure failure;std::vector<std::vector<std::array<Id,2>>> to(parent.size);
+  try {
+    if(keys.size()!=dense.size())throw std::invalid_argument("Missing native reader dense identities.");
+    for(size_t i=0;i<keys.size();++i)if(parameters.Find(keys[i]))to[keys[i]%parent.size].push_back({keys[i],dense[i]});
+  }catch(const std::exception& e){failure.Set(2,0,e.what());}
+  if(!Vote(parent,failure,reason))return false;
+  bool admitted=false;const auto rows=parent.exchange(to,&admitted,ceiling,live);
+  stats.maximum_native_bytes=std::max(stats.maximum_native_bytes,parent.max_exchange_work_bytes);
+  if(!admitted){reason="Native boundary numbering rendezvous exceeds storage admission.";return false;}
+  std::map<Id,Id> owned;
+  for(auto row:rows){const auto found=owned.emplace(row[0],row[1]);
+    if(!found.second&&found.first->second!=row[1])failure.Set(2,row[0],"Inconsistent shared boundary reader identity.");}
+  if(!Vote(parent,failure,reason))return false;
+  std::vector<std::vector<std::array<Id,2>>> send(parent.size);
+  for(auto& bucket:send)for(auto row:owned)bucket.push_back({row.first,row.second});
+  const auto all=parent.exchange(send,&admitted,ceiling,Add(live,Bytes(to),Bytes(rows)));
+  stats.maximum_native_bytes=std::max(stats.maximum_native_bytes,parent.max_exchange_work_bytes);
+  if(!admitted){reason="Native boundary numbering publication exceeds storage admission.";return false;}
+  std::shared_ptr<const PlanarReference> pending;
+  try {
+    std::map<Id,Id> numbering;
+    for(auto row:all)if(!numbering.emplace(row[0],row[1]).second)throw std::invalid_argument("Repeated boundary numbering publisher.");
+    pending=reference.WithParameterState(parameters.Rebind(numbering,ceiling,Add(live,Bytes(to),Bytes(rows),Bytes(send),Bytes(all))));
+  }catch(const std::exception& e){failure.Set(2,0,e.what());}
+  if(!Vote(parent,failure,reason))return false;
+  output=std::move(pending);return true;
+}
+} // namespace
+bool ReaderSlices(World& parent, const Owned& cells, const std::vector<DonorCell>& original,
+                  const ReferenceState& state, CReaderSlices& output, std::string& reason, BridgeStats& stats,
+                  MetricComposition composition, size_t ceiling, size_t caller_bytes, bool query_timings,DonorImport* prepared_source,
+                  std::shared_ptr<const PlanarReference>* returned_reference) {
+  Envelope envelope(parent, stats);
+  CLocalFailure failure;
+  const int supplied=bool(prepared_source);
+  const auto supplied_low=CPassiveComm::Allreduce(supplied,CPassiveComm::Op::MIN,parent.comm);
+  const auto supplied_high=CPassiveComm::Allreduce(supplied,CPassiveComm::Op::MAX,parent.comm);
+  if(supplied_low!=supplied_high || (prepared_source && (!prepared_source->BuiltFrom(original) || prepared_source->Communicator()!=parent.comm)))
+    failure.Set(1,0,"Prepared native3D reader source differs from its immutable input/communicator.");
+#ifdef HAVE_MPI
+  int relation = MPI_UNEQUAL;
+  MPI_Comm_compare(parent.comm, SU2_MPI::GetComm(), &relation);
+  if (relation != MPI_IDENT) failure.Set(1, 0, "Native3D reader return requires the actual CFD communicator.");
+#endif
+  if (!state.original || state.marker_names.empty()) failure.Set(1, 0, "Uninitialized native3D reader reference.");
+  if(state.original && state.original->Mapped() && !returned_reference)
+    failure.Set(1,0,"Mapped native3D return requires its boundary-parameter output.");
+  if (!Vote(parent, failure, reason)) return false;
+  using transfer_memory::Add;
+  using transfer_memory::Bytes;
+  using transfer_memory::GrowthBound;
+  using transfer_memory::Mul;
+  const auto vertices = Mul(cells.size(), 4);
+  size_t physical_faces = 0, name_bytes = 0;
+  for (const auto& row : cells)
+    for (const auto& face : row.second.physical) physical_faces += face.present;
+  for (const auto& name : state.marker_names) name_bytes = Add(name_bytes, name.size(), 1);
+  const size_t live = Add(caller_bytes, OwnedBytes(cells), Bytes(original), output.ResidentBytes(),
+                         prepared_source?prepared_source->ResidentBytes():0,
+                         Mul(vertices, sizeof(std::pair<const Id, Node>) + sizeof(std::pair<const Id, unsigned long>) +
+                                           8 * sizeof(void*)),
+                         GrowthBound(vertices, sizeof(Node) + sizeof(uint64_t) + 3 * sizeof(passivedouble)),
+                         Mul(vertices, 6 * sizeof(passivedouble)),
+                         GrowthBound(cells.size(), 4 * sizeof(unsigned long) + sizeof(int)),
+                         GrowthBound(physical_faces, 3 * sizeof(unsigned long)),
+                         GrowthBound(state.marker_names.size(), sizeof(CSimplexMesh::Marker)), name_bytes);
+  if (!Admit(parent, live, ceiling, stats, reason)) return false;
+  DonorImport transient(parent, query_timings);
+  DonorImport& source=prepared_source?*prepared_source:transient;
+  const double build = parent.seconds();
+  if (!prepared_source && !source.Build(original, reason, ceiling, live)) {
+    stats.source_seconds = parent.seconds() - build;
+    return false;
+  }
+  stats.source_seconds = parent.seconds() - build;
+  std::map<Id, Node> nodes;
+  std::vector<Node> ordered;
+  CSimplexMesh mesh;
+  mesh.nDim = 3;
+  std::vector<uint64_t> keys;
+  std::map<Id, unsigned long> index;
+  try {
+    for (const auto& r : cells)
+      for (auto n : r.second.cell.v) {
+        const auto old = nodes.emplace(n.id, n);
+        if (!old.second &&
+            (old.first->second.p.x != n.p.x || old.first->second.p.y != n.p.y || old.first->second.p.z != n.p.z))
+          throw std::invalid_argument("Inconsistent native3D output coordinates.");
+      }
+    for (auto r : nodes) {
+      index.emplace(r.first, ordered.size());
+      ordered.push_back(r.second);
+      keys.push_back(r.first);
+      mesh.coord.insert(mesh.coord.end(), {r.second.p.x, r.second.p.y, r.second.p.z});
+    }
+    mesh.metric.resize(6 * ordered.size());
+    for (size_t m = 0; m < state.marker_names.size(); ++m)
+      mesh.markers.push_back({state.marker_names[m], int(m + 1), {}});
+    for (const auto& r : cells) {
+      const auto& c = r.second.cell;
+      for (auto n : c.v) mesh.elem.push_back(index.at(n.id));
+      mesh.elemRef.push_back(1);
+      const auto faces = Faces(c);
+      for (size_t k = 0; k < 4; ++k)
+        if (r.second.physical[k].present) {
+          const auto marker = state.original->Get(r.second.physical[k].facet).marker;
+          for (auto id : faces[k]) mesh.markers.at(marker).elem.push_back(index.at(id));
+        }
+    }
+  } catch (const std::exception& e) {
+    failure.Set(2, 0, e.what());
+  }
+  if (!Vote(parent, failure, reason)) return false;
+  auto make = [&](size_t i, std::vector<DonorRegion>& regions) { PointRegion(ordered[i].p, regions); };
+  auto use = [&](size_t i,const std::function<FieldSample(Point)>& query) {
+    const auto m = query(ordered[i].p).target;
+    const std::array<double, 6> values{m.xx, m.xy, m.xz, m.yy, m.yz, m.zz};
+    std::copy(values.begin(), values.end(), mesh.metric.begin() + 6 * i);
+  };
+  if (!Samples(parent, ordered.size(), source, std::move(composition), make, use, stats, reason, ceiling,
+               transfer_memory::Add(live,prepared_source?0:source.ResidentBytes()), 16, query_timings,state.original.get()))
+    return false;
+  const double reader_start = parent.seconds();
+  CReaderSliceStats reader_stats;
+  const size_t reader_caller = Add(caller_bytes, OwnedBytes(cells), Bytes(original), source.ResidentBytes(),
+                                  Mul(nodes.size(), sizeof(decltype(nodes)::value_type) + 4 * sizeof(void*)),
+                                  Mul(index.size(), sizeof(decltype(index)::value_type) + 4 * sizeof(void*)), Bytes(ordered));
+  CReaderSlices pending;std::vector<unsigned long> dense;
+  const bool mapped=state.original->Mapped();
+  const bool accepted = CReaderSlices::FromDistributed(mesh, keys, pending, reason, reader_stats, ceiling, reader_caller,
+      mapped?&dense:nullptr);
+  stats.reader_seconds = parent.seconds() - reader_start;
+  stats.maximum_native_bytes = std::max(stats.maximum_native_bytes, reader_stats.maximum_bytes);
+  if (!accepted) return false;
+  std::shared_ptr<const PlanarReference> rebound;
+  if(mapped && !RebindReaderParameters(parent,*state.original,keys,dense,rebound,reason,stats,ceiling,
+      Add(live,pending.ResidentBytes(),Bytes(dense),source.ResidentBytes())))return false;
+  output=std::move(pending);
+  if(returned_reference)*returned_reference=std::move(rebound);
+  reason.clear();
+  return true;
+}
+}  // namespace SU2Native3D
+
+```

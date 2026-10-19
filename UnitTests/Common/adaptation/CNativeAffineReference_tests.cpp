@@ -6,6 +6,7 @@
 #include "catch.hpp"
 #include "../../../Common/include/adaptation/CNativeAffineReference.hpp"
 #include "../../../Common/include/adaptation/CNativeBoundary3D.hpp"
+#include "../../../Common/include/adaptation/CNativeReferenceIO3D.hpp"
 #include <fstream>
 #include <iomanip>
 using namespace SU2NativeGeometry;
@@ -234,4 +235,66 @@ TEST_CASE("Mapped finite facets preserve shared parameters complete coverage and
   for(const auto& row:bindings){renamed.emplace(row.first+500,row.second);points.emplace(row.first+500,realized.at(row.first));}
   for(auto& f:surface)for(auto& id:f.v)id+=500;
   REQUIRE(mapped.ValidateSurface(surface,renamed,points,report,reason,6));CHECK(report.maximum_mapping_error==saved.maximum_mapping_error);
+}
+
+TEST_CASE("Mapped edge edits publish mesh and forward geometry atomically and survive reference persistence", "[NativeMappedPublication3D]") {
+  using namespace SU2Native3D;World world;
+  const auto original=MappedTetrahedron();std::vector<Facet> facets;
+  for(auto row:original->Facets()){row.second.marker=0;facets.push_back(row.second);}
+  auto definition=std::make_shared<PlanarReference>(facets);std::map<Id,double> errors;
+  for(const auto& f:facets)errors.emplace(f.id,1e-13);
+  auto authority=std::make_shared<MappedFacetReference>(definition,errors,7);
+  Patch old;BoundaryPoints points;std::map<Id,Node> nodes;
+  for(const auto& f:facets){old.surface.push_back({{f.v[0].id,f.v[1].id,f.v[2].id},f.id});
+    for(auto n:f.v){nodes.emplace(n.id,n);points.emplace(n.id,BoundaryPoint{n,authority->Vertex(n.id)});}}
+  old.cells.push_back({0,{nodes.at(1),nodes.at(9),nodes.at(21),nodes.at(40)}});
+  auto parameters=std::make_shared<BoundaryParameterState>(authority,points,old.surface,11);
+  auto reference=PlanarReference::WithParameters(definition,parameters);reference->ExportParameters(old);
+  const auto initial=parameters->Snapshot();
+  auto restored=BoundaryParameterState::FromPayload(authority,parameters->Payload());
+  CHECK(restored->Snapshot()==initial);CHECK(&restored->Geometry()==authority.get());
+  auto corrupt=parameters->Payload();corrupt[0]^=1;CHECK_THROWS(BoundaryParameterState::FromPayload(authority,corrupt));
+  corrupt=parameters->Payload();corrupt.pop_back();CHECK_THROWS(BoundaryParameterState::FromPayload(authority,corrupt));
+  CHECK_THROWS(BoundaryParameterState::FromPayload(authority,parameters->Payload(),1));
+  const auto proposed=authority->Realize(authority->EdgePoint({1,9},.3));Patch fresh;std::string reason;
+  REQUIRE(SplitEdge(old,{1,9},{55,proposed},100,*reference,fresh,reason));
+  REQUIRE(fresh.parameters.size()==5);CHECK(fresh.cells.size()==2);CHECK(fresh.surface.size()==6);
+  CHECK(parameters->Snapshot()==initial);
+  auto rows=[&](const Patch& patch) {
+    std::vector<OwnedCell> result;
+    for(const auto& c:patch.cells) {
+      OwnedCell row;row.cell=c;
+      const std::array<Face,4> face{{{c.v[1].id,c.v[2].id,c.v[3].id},{c.v[0].id,c.v[3].id,c.v[2].id},
+          {c.v[0].id,c.v[1].id,c.v[3].id},{c.v[0].id,c.v[2].id,c.v[1].id}}};
+      for(unsigned k=0;k<4;++k)for(auto f:patch.surface){auto a=face[k],b=f.v;std::sort(a.begin(),a.end());std::sort(b.begin(),b.end());
+        if(a==b)row.physical[k]={true,f.facet};}
+      result.push_back(row);
+    }return result;
+  };
+  Owned owned;for(auto row:rows(old))if(row.cell.id%world.size==unsigned(world.rank))owned.emplace(row.cell.id,row);
+  Directory directory(world,true,parameters.get());REQUIRE(directory.Build(owned,reason));
+  const auto directory_before=directory.Snapshot();std::vector<Dependency> removed;std::vector<OwnedCell> added;
+  if(!world.rank)removed.push_back({0,0,0});
+  for(auto row:rows(fresh))if(row.cell.id%world.size==unsigned(world.rank))added.push_back(row);
+  const auto edits=world.rank?std::vector<BoundaryParameterEdit>{}:BoundaryParameterState::Changes(old,fresh,parameters->Revision());
+  CHECK_FALSE(directory.Publish(owned,removed,added,world.rank!=0,reason,SIZE_MAX,0,edits));
+  CHECK(parameters->Snapshot()==initial);CHECK(directory.Snapshot()==directory_before);
+  CHECK_FALSE(directory.Publish(owned,removed,added,true,reason,world.rank?SIZE_MAX:1,0,edits));
+  CHECK(parameters->Snapshot()==initial);CHECK(directory.Snapshot()==directory_before);
+  auto stale=edits;for(auto& e:stale)++e.revision;
+  CHECK_FALSE(directory.Publish(owned,removed,added,true,reason,SIZE_MAX,0,stale));
+  CHECK(parameters->Snapshot()==initial);CHECK(directory.Snapshot()==directory_before);
+  INFO(reason);REQUIRE(directory.Publish(owned,removed,added,true,reason,SIZE_MAX,0,edits));
+  CHECK(parameters->Revision()==12);CHECK(parameters->Records().size()==5);CHECK(parameters->Surface().size()==6);
+  CHECK(CPassiveComm::Allreduce(uint64_t(owned.size()),CPassiveComm::Op::SUM,world.comm)==2);
+  ReferenceState state;state.original=reference;state.facets=facets;state.marker_names={"body"};
+  const auto encoded=EncodeReference(state);CHECK(encoded.find("SU2_NATIVE_REFERENCE_3D 5\n")==0);
+  CHECK(EncodeReference(DecodeReference(encoded))==encoded);
+  CHECK_THROWS(DecodeReference(encoded+"trailing"));CHECK_THROWS(DecodeReference(encoded,1));
+  std::map<Id,Id> numbering;for(auto row:parameters->Records())numbering.emplace(row.first,row.first+1000);
+  auto rebound=parameters->Rebind(numbering);CHECK(rebound->Revision()==13);CHECK(&rebound->Geometry()==authority.get());
+  const auto& bound=rebound->Records().at(1055).point.binding;const auto& expected=parameters->Records().at(55).point.binding;
+  CHECK(bound.feature==expected.feature);CHECK(bound.u==expected.u);CHECK(bound.v==expected.v);CHECK(bound.version==expected.version);
+  numbering.erase(numbering.begin());CHECK_THROWS(parameters->Rebind(numbering));
+  CHECK(parameters->Revision()==12);
 }

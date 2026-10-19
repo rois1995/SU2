@@ -301,7 +301,7 @@ struct ReaderBudget {
 };
 
 CReaderSlices BuildDistributedSlices(const CSimplexMesh& mesh, const std::vector<uint64_t>& pointKeys,
-                                    ReaderBudget* budget) {
+                                    ReaderBudget* budget, std::vector<unsigned long>* dense_output = nullptr) {
   const int rank = SU2_MPI::GetRank(), size = SU2_MPI::GetSize();
   CLocalFailure failure;
   auto fail = [&](uint64_t id, const std::string& reason) {
@@ -640,6 +640,7 @@ CReaderSlices BuildDistributedSlices(const CSimplexMesh& mesh, const std::vector
       slices.boundaryRows[m].insert(slices.boundaryRows[m].end(), row, row + SU2_CONN_SIZE);
     }
   }
+  if (dense_output) dense_output->swap(dense);
   return slices;
 }
 
@@ -657,13 +658,16 @@ CReaderSlices CReaderSlices::FromDistributed(const CSimplexMesh& mesh, const std
 
 bool CReaderSlices::FromDistributed(const CSimplexMesh& mesh, const std::vector<uint64_t>& pointKeys,
                                    CReaderSlices& output, std::string& reason, CReaderSliceStats& stats,
-                                   size_t ceiling, size_t caller_bytes) {
+                                   size_t ceiling, size_t caller_bytes, std::vector<unsigned long>* dense_point_ids) {
   stats = {};
-  ReaderBudget budget{ceiling, transfer_memory::Add(caller_bytes, output.ResidentBytes()), stats, reason};
-  auto pending = BuildDistributedSlices(mesh, pointKeys, &budget);
+  ReaderBudget budget{ceiling, transfer_memory::Add(caller_bytes, output.ResidentBytes(),
+      dense_point_ids ? transfer_memory::Bytes(*dense_point_ids) : 0), stats, reason};
+  std::vector<unsigned long> pending_ids;
+  auto pending = BuildDistributedSlices(mesh, pointKeys, &budget, dense_point_ids ? &pending_ids : nullptr);
   if (budget.refused) return false;
   static_assert(std::is_nothrow_move_assignable<CReaderSlices>::value, "Reader publication must not allocate.");
   output = std::move(pending);
+  if (dense_point_ids) dense_point_ids->swap(pending_ids);
   reason.clear();
   return true;
 }

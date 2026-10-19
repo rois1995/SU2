@@ -361,6 +361,10 @@ bool JointAffineCoverage(World& world,const Owned& owned,std::vector<DonorCell>&
       radius=std::max(radius,4*row.second.maximum_error);
       component=std::min(component,reference.Canonical(row.first));
     }
+    if(reference.Mapped()) {
+      for(const auto& row:reference.Parameters()->Geometry().Errors())radius=std::max(radius,4*row.second);
+      component=reference.ExtensionComponents().front();
+    }
     if(!(std::isfinite(radius)&&radius>0) || component==UINT64_MAX)
       throw std::invalid_argument("Unrepresentable joint affine source envelope.");
     for(const auto& d:source) {
@@ -700,12 +704,12 @@ PrimitiveKey Primitive(const AnalyticSurface& g) {
  * Sorted source IDs choose compatible prism diagonals; component tags still control later association. */
 bool Coverage(World& world,const Owned& cells,std::vector<DonorCell>& source,const PlanarReference& reference,
               double geometry_tolerance,size_t live,size_t ceiling,BridgeStats& stats,std::string& reason,double maximum_seconds) {
-  if(reference.Analytic().empty() && reference.Affine().empty())return true;
+  if(reference.Analytic().empty() && reference.Affine().empty() && !reference.Mapped())return true;
   // Agree on source policy before any analytic/affine branch or geometry collective.
   // Complete bytes, not a hash, cover identities, versions, definitions and finite-facet assignments.
   const auto declaration_started=world.seconds();CLocalFailure declarations_failed;
   const auto declaration_bound=transfer_memory::Add(128,transfer_memory::Mul(128,
-      transfer_memory::Add(reference.Analytic().size(),reference.Affine().size())));
+      transfer_memory::Add(reference.Analytic().size(),reference.Affine().size())),reference.Mapped()?reference.Parameters()->SnapshotBytes():0);
   if(!Admit(world,transfer_memory::Add(live,transfer_memory::Mul(4,declaration_bound),
       transfer_memory::TransportBytes(world.size)),ceiling,stats,reason))return false;
   std::vector<char> declarations;
@@ -716,6 +720,7 @@ bool Coverage(World& world,const Owned& cells,std::vector<DonorCell>& source,con
       auto& g=row.second;auto kind=unsigned(g.kind);auto id=row.first;
       encode(id,kind,g.origin,g.extent,g.tolerance,g.axis);
     }
+    if(reference.Mapped()){const auto parameters=reference.Parameters()->Snapshot();declarations.insert(declarations.end(),parameters.begin(),parameters.end());}
   }catch(const std::exception& e){declarations_failed.Set(3,0,e.what());}
   if(!Vote(world,declarations_failed,reason))return false;
   auto expected=declarations;const auto payload_started=world.seconds();CPassiveComm::BcastRounds(expected,0,world.comm);
@@ -725,6 +730,7 @@ bool Coverage(World& world,const Owned& cells,std::vector<DonorCell>& source,con
   const bool consistent=Vote(world,declarations_failed,reason);
   stats.source_envelope_seconds+=world.seconds()-declaration_started;
   if(!consistent)return false;
+  if(reference.Mapped())return JointAffineCoverage(world,cells,source,reference,maximum_seconds,live,ceiling,stats,reason);
   if(reference.Analytic().empty())return AffineCoverage(world,cells,source,reference,live,ceiling,stats,reason,maximum_seconds);
   CLocalFailure failure;
   const size_t added=transfer_memory::Mul(cells.size(),12);
@@ -919,7 +925,8 @@ bool ImportGeometry(const CConfig& config, const CGeometry& geometry, const su2a
       failure.Set(1, 0, "Native tetrahedral import needs six sensor components at every CFD-owned point.");
     CollectiveFailure(failure, CURRENT_FUNCTION);
     const unsigned presence=(state.original?1u:0u)|(metric?2u:0u)|(HasSymmetryReference(config)?4u:0u)|
-        (state.original && !state.original->Affine().empty()?8u:0u)|(state.original && !state.original->Analytic().empty()?16u:0u);
+        (state.original && !state.original->Affine().empty()?8u:0u)|(state.original && !state.original->Analytic().empty()?16u:0u)|
+        (state.original && state.original->Mapped()?32u:0u);
     const auto presence_low=CPassiveComm::Allreduce(presence,CPassiveComm::Op::MIN,parent.comm);
     const auto presence_high=CPassiveComm::Allreduce(presence,CPassiveComm::Op::MAX,parent.comm);
     if(presence_low!=presence_high)
@@ -1193,12 +1200,28 @@ bool ImportGeometry(const CConfig& config, const CGeometry& geometry, const su2a
         Id chosen = 0;
         if (!authority.original->FindFace(b.marker, p, chosen))
           throw std::invalid_argument("Native3D physical triangle leaves its immutable oriented marker facets.");
+        if(authority.original->Mapped()) {
+          const auto* parameters=authority.original->Parameters();const auto found=parameters->Surface().find(Key(face));
+          if(found==parameters->Surface().end() || found->second.facet!=chosen || Parity(found->second.v)!=Parity(face))
+            throw std::invalid_argument("Actual boundary differs from persisted mapped topology.");
+          for(auto n:cell.cell.v)if(std::find(face.begin(),face.end(),n.id)!=face.end()) {
+            const auto* record=parameters->Find(n.id);
+            if(!record || record->node.p.x!=n.p.x || record->node.p.y!=n.p.y || record->node.p.z!=n.p.z)
+              throw std::invalid_argument("Actual boundary differs from persisted mapped coordinates/identities.");
+          }
+        }
         cell.physical[b.slot] = {true, chosen};
       }
     } catch (const std::exception& e) {
       failure.Set(1, 0, e.what());
     }
     CollectiveFailure(failure, CURRENT_FUNCTION);
+    if(authority.original->Mapped()) {
+      const auto count=CPassiveComm::Allreduce(uint64_t(bindings.size()),CPassiveComm::Op::SUM,parent.comm);
+      if(count!=authority.original->Parameters()->Surface().size())
+        failure.Set(1,0,"Actual boundary has incomplete persisted mapped topology.");
+      CollectiveFailure(failure,CURRENT_FUNCTION);
+    }
     if(!Coverage(parent,result.cells,result.original,*authority.original,SU2_TYPE::GetValue(config.GetAdap_Hausd()),
                  transfer_memory::Add(reference_base,state.original ? 0 : ReferenceStorageBytes(pending)),ceiling,stats,reason,
                  SU2_TYPE::GetValue(config.GetAdap_Native_Max_Time())))
@@ -1622,9 +1645,88 @@ bool ReassessComplexity(World& parent,const Owned& candidate,DonorImport& source
   }catch(const CellSamplingLimit3D& e){return limited(e.what());}
   catch(const std::exception& e){reason=e.what();return false;}
 }
+bool SynchronizeBoundaryParameters(World& parent,int workers,ReferenceState& state,std::string& reason,
+    BridgeStats& stats,size_t ceiling,size_t caller_bytes) {
+  Envelope envelope(parent,stats);CLocalFailure failure;
+  if(workers<1 || workers>parent.size || !state.original || !state.original->Mapped())
+    failure.Set(1,0,"Invalid mapped boundary return participants/reference.");
+  if(!Vote(parent,failure,reason))return false;
+  std::array<uint64_t,3> local{},counts{};
+  try {if(!parent.rank)local={state.original->Parameters()->PayloadBytes(),state.original->Parameters()->Records().size(),
+      state.original->Parameters()->Surface().size()};}
+  catch(const std::exception& e){failure.Set(3,0,e.what());}
+  if(!Vote(parent,failure,reason))return false;
+  CPassiveComm::Allreduce(local.data(),counts.data(),counts.size(),CPassiveComm::Op::SUM,parent.comm);
+  const auto live=transfer_memory::Add(caller_bytes,ReferenceStorageBytes(state),state.original->Parameters()->Geometry().ResidentBytes(),
+      transfer_memory::Mul(counts[0],3),transfer_memory::Mul(counts[1],2304),transfer_memory::Mul(counts[2],8256),
+      transfer_memory::TransportBytes(parent.size));
+  if(!Admit(parent,live,ceiling,stats,reason))return false;
+  std::vector<char> bytes;
+  try {if(!parent.rank)bytes=state.original->Parameters()->Payload();}
+  catch(const std::exception& e){failure.Set(3,0,e.what());}
+  if(!Vote(parent,failure,reason))return false;
+  const auto begin=parent.seconds();CPassiveComm::BcastRounds(bytes,0,parent.comm);
+  stats.parameter_return_seconds=parent.seconds()-begin;stats.parameter_return_bytes=bytes.size();
+  // Include this direct broadcast in the same parent transport totals as World exchanges.
+  parent.collective_seconds+=stats.parameter_return_seconds;++parent.collective_calls;
+  if(!parent.rank)parent.bytes_sent=transfer_memory::Add(parent.bytes_sent,transfer_memory::Mul(bytes.size(),parent.size-1));
+  std::shared_ptr<const PlanarReference> replacement;
+  try {
+    if(bytes.size()!=counts[0])throw std::invalid_argument("Mapped return payload differs from its admitted length.");
+    if(parent.rank>=workers)replacement=state.original->WithParameterState(BoundaryParameterState::FromPayload(
+        state.original->Parameters()->Authority(),bytes,ceiling,transfer_memory::Add(caller_bytes,ReferenceStorageBytes(state))));
+    else if(state.original->Parameters()->Payload()!=bytes)throw std::invalid_argument("Worker boundary parameters differ on parent return.");
+  }catch(const std::exception& e){failure.Set(2,0,e.what());}
+  if(!Vote(parent,failure,reason))return false;
+  if(replacement)state.original=std::move(replacement);
+  stats.parameter_points=state.original->Parameters()->Records().size();
+  stats.parameter_faces=state.original->Parameters()->Surface().size();
+  reason.clear();return true;
+}
+namespace {
+bool RebindReaderParameters(World& parent,const PlanarReference& reference,
+    const std::vector<uint64_t>& keys,const std::vector<unsigned long>& dense,
+    std::shared_ptr<const PlanarReference>& output,std::string& reason,BridgeStats& stats,size_t ceiling,size_t caller) {
+  const auto& parameters=*reference.Parameters();
+  using transfer_memory::Add;using transfer_memory::Mul;using transfer_memory::Bytes;
+  const auto live=Add(caller,Mul(parameters.Records().size(),Add(1024,Mul(parent.size,64))));
+  if(!Admit(parent,live,ceiling,stats,reason))return false;
+  CLocalFailure failure;std::vector<std::vector<std::array<Id,2>>> to(parent.size);
+  try {
+    if(keys.size()!=dense.size())throw std::invalid_argument("Missing native reader dense identities.");
+    for(size_t i=0;i<keys.size();++i)if(parameters.Find(keys[i]))to[keys[i]%parent.size].push_back({keys[i],dense[i]});
+  }catch(const std::exception& e){failure.Set(2,0,e.what());}
+  if(!Vote(parent,failure,reason))return false;
+  bool admitted=false;const auto rows=parent.exchange(to,&admitted,ceiling,live);
+  stats.maximum_native_bytes=std::max(stats.maximum_native_bytes,parent.max_exchange_work_bytes);
+  if(!admitted){reason="Native boundary numbering rendezvous exceeds storage admission.";return false;}
+  std::map<Id,Id> owned;
+  for(auto row:rows){const auto found=owned.emplace(row[0],row[1]);
+    if(!found.second&&found.first->second!=row[1])failure.Set(2,row[0],"Inconsistent shared boundary reader identity.");}
+  if(!Vote(parent,failure,reason))return false;
+  std::vector<std::vector<std::array<Id,2>>> send(parent.size);
+  for(auto& bucket:send)for(auto row:owned)bucket.push_back({row.first,row.second});
+  const auto all=parent.exchange(send,&admitted,ceiling,Add(live,Bytes(to),Bytes(rows)));
+  stats.maximum_native_bytes=std::max(stats.maximum_native_bytes,parent.max_exchange_work_bytes);
+  if(!admitted){reason="Native boundary numbering publication exceeds storage admission.";return false;}
+  const auto retained=Add(live,Bytes(to),Bytes(rows),Bytes(send),Bytes(all));
+  const auto rebuilding=Add(retained,parameters.Geometry().ResidentBytes(),Mul(parameters.Records().size(),2304),
+      Mul(parameters.Surface().size(),8192+sizeof(SurfaceFace)));
+  if(!Admit(parent,rebuilding,ceiling,stats,reason))return false;
+  std::shared_ptr<const PlanarReference> pending;
+  try {
+    std::map<Id,Id> numbering;
+    for(auto row:all)if(!numbering.emplace(row[0],row[1]).second)throw std::invalid_argument("Repeated boundary numbering publisher.");
+    pending=reference.WithParameterState(parameters.Rebind(numbering,ceiling,retained));
+  }catch(const std::exception& e){failure.Set(2,0,e.what());}
+  if(!Vote(parent,failure,reason))return false;
+  output=std::move(pending);return true;
+}
+} // namespace
 bool ReaderSlices(World& parent, const Owned& cells, const std::vector<DonorCell>& original,
                   const ReferenceState& state, CReaderSlices& output, std::string& reason, BridgeStats& stats,
-                  MetricComposition composition, size_t ceiling, size_t caller_bytes, bool query_timings,DonorImport* prepared_source) {
+                  MetricComposition composition, size_t ceiling, size_t caller_bytes, bool query_timings,DonorImport* prepared_source,
+                  std::shared_ptr<const PlanarReference>* returned_reference) {
   Envelope envelope(parent, stats);
   CLocalFailure failure;
   const int supplied=bool(prepared_source);
@@ -1638,6 +1740,8 @@ bool ReaderSlices(World& parent, const Owned& cells, const std::vector<DonorCell
   if (relation != MPI_IDENT) failure.Set(1, 0, "Native3D reader return requires the actual CFD communicator.");
 #endif
   if (!state.original || state.marker_names.empty()) failure.Set(1, 0, "Uninitialized native3D reader reference.");
+  if(state.original && state.original->Mapped() && !returned_reference)
+    failure.Set(1,0,"Mapped native3D return requires its boundary-parameter output.");
   if (!Vote(parent, failure, reason)) return false;
   using transfer_memory::Add;
   using transfer_memory::Bytes;
@@ -1717,11 +1821,20 @@ bool ReaderSlices(World& parent, const Owned& cells, const std::vector<DonorCell
   CReaderSliceStats reader_stats;
   const size_t reader_caller = Add(caller_bytes, OwnedBytes(cells), Bytes(original), source.ResidentBytes(),
                                   Mul(nodes.size(), sizeof(decltype(nodes)::value_type) + 4 * sizeof(void*)),
-                                  Mul(index.size(), sizeof(decltype(index)::value_type) + 4 * sizeof(void*)), Bytes(ordered));
-  const bool accepted = CReaderSlices::FromDistributed(mesh, keys, output, reason, reader_stats, ceiling, reader_caller);
+                                  Mul(index.size(), sizeof(decltype(index)::value_type) + 4 * sizeof(void*)), Bytes(ordered),
+                                  output.ResidentBytes());
+  CReaderSlices pending;std::vector<unsigned long> dense;
+  const bool mapped=state.original->Mapped();
+  const bool accepted = CReaderSlices::FromDistributed(mesh, keys, pending, reason, reader_stats, ceiling, reader_caller,
+      mapped?&dense:nullptr);
   stats.reader_seconds = parent.seconds() - reader_start;
   stats.maximum_native_bytes = std::max(stats.maximum_native_bytes, reader_stats.maximum_bytes);
   if (!accepted) return false;
+  std::shared_ptr<const PlanarReference> rebound;
+  if(mapped && !RebindReaderParameters(parent,*state.original,keys,dense,rebound,reason,stats,ceiling,
+      Add(live,pending.ResidentBytes(),Bytes(dense),source.ResidentBytes())))return false;
+  output=std::move(pending);
+  if(returned_reference)*returned_reference=std::move(rebound);
   reason.clear();
   return true;
 }

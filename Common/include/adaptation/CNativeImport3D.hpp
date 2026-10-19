@@ -45,6 +45,8 @@ struct BridgeStats {
   uint64_t source_envelope_contacts=0,source_envelope_distances=0;
   double source_envelope_seconds=0,source_envelope_payload_seconds=0;
   uint64_t source_envelope_payload_bytes=0; // Replicated logical payload per rank, not network/wire traffic.
+  double parameter_return_seconds=0;
+  uint64_t parameter_return_bytes=0,parameter_points=0,parameter_faces=0;
   size_t maximum_native_bytes = 0;
 };
 /*! Native requested-storage models, including map nodes and immutable reference buffers. */
@@ -114,8 +116,13 @@ bool ReassessComplexity(World& parent,const Owned& candidate,DonorImport& origin
 bool WorkingWeights(World& parent, const Owned& cells, DonorImport& source, std::vector<uint32_t>& weights,
                     std::string& reason, BridgeStats& stats, MetricComposition composition = {},
                     size_t ceiling = size_t(2) << 30, size_t caller_bytes = 0, bool query_timings = true);
+/*! Copy accepted worker boundary records to inactive CFD ranks at a stage boundary.
+ * Immutable authority/indexes are shared locally, not reconstructed or volume-gathered. */
+bool SynchronizeBoundaryParameters(World& parent,int workers,ReferenceState& reference,std::string& reason,
+    BridgeStats& stats,size_t ceiling=SIZE_MAX,size_t caller_bytes=0);
 bool ReaderSlices(World& parent, const Owned& cells, const std::vector<DonorCell>& original,
                   const ReferenceState& reference, CReaderSlices& slices, std::string& reason, BridgeStats& stats,
                   MetricComposition composition = {}, size_t ceiling = size_t(2) << 30, size_t caller_bytes = 0,
-                  bool query_timings = true,DonorImport* prepared_source=nullptr);
+                  bool query_timings = true,DonorImport* prepared_source=nullptr,
+                  std::shared_ptr<const PlanarReference>* returned_reference=nullptr);
 }  // namespace SU2Native3D
