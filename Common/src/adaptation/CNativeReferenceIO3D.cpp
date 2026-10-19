@@ -26,7 +26,7 @@ Header ReadHeader(std::istream& in, size_t bytes) {
   unsigned version = 0;
   Header h;
   // Each facet needs fourteen numeric tokens; file length bounds counts before allocating any facet storage.
-  if (!(in >> magic >> version >> h.markers >> h.facets) || magic != "SU2_NATIVE_REFERENCE_3D" || (version < 1 || version > 5) ||
+  if (!(in >> magic >> version >> h.markers >> h.facets) || magic != "SU2_NATIVE_REFERENCE_3D" || (version < 1 || version > 6) ||
       !h.facets || h.facets > bytes / 14 || !h.markers || h.markers > h.facets)
     throw std::invalid_argument("Invalid native3D reference header/counts/version.");
   h.version=version;
@@ -34,7 +34,7 @@ Header ReadHeader(std::istream& in, size_t bytes) {
     throw std::invalid_argument("Invalid native3D analytic reference counts.");
   if(version>=4 && (!(in>>h.affine) || (!h.affine && version==4) || h.affine>h.facets || h.affine>bytes/11 || h.analytic>h.facets-h.affine))
     throw std::invalid_argument("Invalid native3D affine reference counts.");
-  if(version==5 && (!(in>>h.errors>>h.points>>h.surface>>h.geometry_version>>h.revision) ||
+  if(version>=5 && (!(in>>h.errors>>h.points>>h.surface>>h.geometry_version>>h.revision) ||
       !h.errors || h.errors>h.facets || h.errors>bytes/2 || !h.points || h.points>bytes/9 ||
       !h.surface || h.surface>bytes/4 || !h.geometry_version || !h.revision || h.analytic))
     throw std::invalid_argument("Invalid/unsupported native3D mapped reference counts/version.");
@@ -42,7 +42,7 @@ Header ReadHeader(std::istream& in, size_t bytes) {
 }
 size_t DecodeBytes(size_t bytes, const Header& h) {
   return transfer_memory::Add(transfer_memory::Mul(bytes, 8), PlanarReference::ConstructionBytes(h.facets,h.analytic,h.affine),
-      h.version==5?transfer_memory::Add(transfer_memory::Mul(h.facets,4096),transfer_memory::Mul(h.points,2304),
+      h.version>=5?transfer_memory::Add(transfer_memory::Mul(h.facets,4096),transfer_memory::Mul(h.points,2304),
           transfer_memory::Mul(h.surface,8256)):0);
 }
 }  // namespace
@@ -56,7 +56,7 @@ std::string EncodeReference(const ReferenceState& state) {
   const auto& affine=state.original->Affine();
   const bool axis=std::any_of(analytic.begin(),analytic.end(),[](const auto& row){return unsigned(row.second.kind)>=3;});
   const auto* parameters=state.original->Parameters();
-  const unsigned version=parameters?5:!affine.empty()?4:analytic.empty()?1:axis?3:2;
+  const unsigned version=parameters?(parameters->Geometry().ReferenceComponents()?6:5):!affine.empty()?4:analytic.empty()?1:axis?3:2;
   out << "SU2_NATIVE_REFERENCE_3D " << version << '\n'
       << state.marker_names.size() << ' ' << state.facets.size();
   if (version>=2) out << ' ' << analytic.size();
@@ -173,8 +173,8 @@ ReferenceState DecodeReference(const std::string& bytes, size_t ceiling) {
   if (!in.eof() || used.size() != markers) throw std::invalid_argument("Trailing data or unused native3D markers.");
   ValidateDomainSurfaceTopology(skin);
   result.original = std::make_shared<PlanarReference>(result.facets, construction, std::move(analytic),std::move(affine));
-  if(header.version==5) {
-    auto mapped=std::make_shared<SU2NativeGeometry::MappedFacetReference>(result.original,errors,header.geometry_version,requested);
+  if(header.version>=5) {
+    auto mapped=std::make_shared<SU2NativeGeometry::MappedFacetReference>(result.original,errors,header.geometry_version,requested,header.version==6);
     const auto caller=transfer_memory::Add(construction,transfer_memory::Mul(bytes.size(),8),
         transfer_memory::Mul(header.points,256),transfer_memory::Mul(header.surface,64));
     auto parameters=std::make_shared<BoundaryParameterState>(mapped,points,surface,header.revision,requested,caller);

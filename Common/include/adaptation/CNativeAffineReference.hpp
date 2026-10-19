@@ -73,7 +73,8 @@ struct MappedSurfaceAudit {
   double maximum_mapping_error=0;
 };
 /*! Explicit numerical mapping contract on immutable finite triangles.
- * shortcut: original edges remain protected; extend after feature/accuracy classification.
+ * Facet-local policy protects original edges. Reference-component policy releases only
+ * the immutable reference's certified planar seams, preserving physical border chains.
  * No near-coplanar merging, inferred body identity,
  * geometric inverse recovery or per-volume-node state. Strict facets have zero mapping freedom.
  * Caller must supply/persist boundary bindings and retain actual-volume/embedding/metric gates.
@@ -81,7 +82,16 @@ struct MappedSurfaceAudit {
 class MappedFacetReference {
  public:
   MappedFacetReference(std::shared_ptr<const SU2Native3D::PlanarReference> reference,
-                       const std::map<Id,double>& mapping_errors,uint64_t version,size_t ceiling=SIZE_MAX);
+                       const std::map<Id,double>& mapping_errors,uint64_t version,size_t ceiling=SIZE_MAX,
+                       bool reference_components=false);
+  bool ReferenceComponents()const{return bool(components);}
+  Id Canonical(Id facet)const;
+  const std::vector<Id>& ComponentFacets(Id facet)const;
+  const std::vector<SU2Native3D::Edge>& ComponentBorder(Id facet)const;
+  unsigned ComponentAxis(Id facet)const;
+  std::vector<Id> CandidateFacets(Id facet,Point proposal)const;
+  bool PhysicalSupport(const SurfaceBinding& binding)const;
+  bool ContainsSegment(Id facet,const SurfaceBinding& a,const SurfaceBinding& b,SU2Native3D::KernelStats* stats=nullptr)const;
   SurfaceBinding Vertex(Id vertex)const;
   /*! Input endpoints must already be in canonical original-ID order; no rounded1-t conversion. */
   SurfaceBinding EdgePoint(SU2Native3D::Edge original_edge,double t)const;
@@ -106,6 +116,7 @@ class MappedFacetReference {
   }
   bool Admissible(const SurfaceBinding& binding,Point realized)const;
   bool FeatureSegment(const SurfaceBinding& a,const SurfaceBinding& b,Id& edge,double& ta,double& tb)const;
+  bool BoundarySegment(Id facet,const SurfaceBinding& a,const SurfaceBinding& b,Id& edge,double& ta,double& tb)const;
   const SU2Native3D::PlanarReference& Reference()const{return *reference;}
   const std::map<Id,double>& Errors()const{return errors;}
   size_t ResidentBytes()const;
@@ -118,6 +129,11 @@ class MappedFacetReference {
   std::map<Id,std::vector<Id>> vertex_facets;
   std::vector<SU2Native3D::Edge> edges;
   std::vector<std::vector<Id>> edge_facets;
+  struct ComponentData;
+  std::shared_ptr<const ComponentData> components;
+  double ComponentPointError(const SurfaceBinding& binding,Point realized)const;
+  bool ComponentContainsFace(Id facet,const std::array<SurfaceBinding,3>& binding,
+                             const std::array<Point,3>& realized,SU2Native3D::KernelStats* stats)const;
   void CheckBinding(const SurfaceBinding& binding)const;
   Id EdgeIdentity(SU2Native3D::Edge edge)const;
 };

@@ -289,6 +289,17 @@ bool Clip(const Cell& cell, Point a, Point b, WorkPiece& result, KernelStats* st
 long double Orientation(Point a, Point b, Point c, Point d, KernelStats* stats) {
   return Determinant(a, b, c, d, stats, 1);
 }
+int SurfaceNormalSign(Point normal,const std::array<Point,3>& actual,KernelStats* stats) {
+  if(!Finite(normal))throw std::invalid_argument("Nonfinite mapped component normal.");
+  for(Point p:actual)if(!Finite(p))throw std::invalid_argument("Nonfinite mapped component face.");
+  const double n[3]={normal.x,normal.y,normal.z};
+  auto delta=[&](Point p){return std::array<Integer<66>,3>{Difference(Coordinate(p.x),Coordinate(actual[0].x)),
+      Difference(Coordinate(p.y),Coordinate(actual[0].y)),Difference(Coordinate(p.z),Coordinate(actual[0].z))};};
+  const auto a=delta(actual[1]),b=delta(actual[2]);Integer<198> total;
+  for(unsigned k=0;k<3;++k){const unsigned i=(k+1)%3,j=(k+2)%3;auto term=Product(Coordinate(n[k]),Difference(Product(a[i],b[j]),Product(a[j],b[i])));
+    term.negative=!term.negative;total=Difference(total,term);}
+  if(stats)++stats->exact_orientations;return Sign(total);
+}
 int SurfaceOrientationSign(const std::array<Point,3>& reference,const std::array<Point,3>& actual,KernelStats* stats) {
   for(const auto& face:{reference,actual})for(Point p:face)
     if(!Finite(p))throw std::invalid_argument("Nonfinite native surface orientation.");
@@ -504,16 +515,64 @@ std::array<Point,2> ParametricPointBounds(const ParametricPoint& p) {
   const auto x=ParametricBounds(ParametricCoordinate(p,0)),y=ParametricBounds(ParametricCoordinate(p,1)),z=ParametricBounds(ParametricCoordinate(p,2));
   return {{{x[0],y[0],z[0]},{x[1],y[1],z[1]}}};
 }
-int ParametricOrientation(const ParametricPoint& a,const ParametricPoint& b,const ParametricPoint& c,
-                          unsigned axis,KernelStats* stats) {
+namespace {
+Integer<264> ParametricDeterminant(const ParametricPoint& a,const ParametricPoint& b,const ParametricPoint& c,unsigned axis) {
   CheckParametric(a);CheckParametric(b);CheckParametric(c);
   if(axis>2)throw std::invalid_argument("Invalid native3D parametric projection axis.");
   const unsigned x=axis==0?1:0,y=axis==2?1:2;
   const auto ax=ParametricCoordinate(a,x),ay=ParametricCoordinate(a,y);
   const auto first=Product(Difference(ParametricCoordinate(b,x),ax),Difference(ParametricCoordinate(c,y),ay));
   const auto second=Product(Difference(ParametricCoordinate(b,y),ay),Difference(ParametricCoordinate(c,x),ax));
+  return Difference(first,second);
+}
+}
+int ParametricOrientation(const ParametricPoint& a,const ParametricPoint& b,const ParametricPoint& c,
+    unsigned axis,KernelStats* stats) {
   if(stats)++stats->exact_orientations;
-  return Sign(Difference(first,second));
+  return Sign(ParametricDeterminant(a,b,c,axis));
+}
+int ParametricPlaneSide(const ParametricPoint& point,Point origin,Point normal) {
+  CheckParametric(point);if(!(Finite(origin)&&Finite(normal)))throw std::invalid_argument("Nonfinite ideal affine plane.");
+  const double o[3]={origin.x,origin.y,origin.z},n[3]={normal.x,normal.y,normal.z};Integer<198> total;
+  for(unsigned k=0;k<3;++k){auto term=Product(Coordinate(n[k]),Difference(ParametricCoordinate(point,k),Product(Coordinate(o[k]),Coordinate(1.))));
+    term.negative=!term.negative;total=Difference(total,term);}
+  return Sign(total);
+}
+int ParametricCentroidSide(const ParametricPoint& a,const ParametricPoint& b,
+    const std::array<ParametricPoint,3>& triangle,unsigned axis,KernelStats* stats) {
+  Integer<264> total;
+  for(const auto& p:triangle){auto term=ParametricDeterminant(a,b,p,axis);term.negative=!term.negative;total=Difference(total,term);}
+  if(stats)++stats->exact_orientations;
+  return Sign(total);
+}
+bool ParametricOnProjectedSegment(const ParametricPoint& a,const ParametricPoint& b,const ParametricPoint& p,
+    unsigned axis,KernelStats* stats) {
+  if(ParametricOrientation(a,b,p,axis,stats))return false;
+  const unsigned x=axis==0?1:0,y=axis==2?1:2;
+  for(unsigned k:{x,y}) {
+    const auto q=ParametricCoordinate(p,k);
+    if(Sign(Difference(q,ParametricCoordinate(a,k)))*Sign(Difference(q,ParametricCoordinate(b,k)))>0)return false;
+  }
+  return true;
+}
+bool ParametricSegmentEntersTriangle(const ParametricPoint& a,const ParametricPoint& b,
+    const std::array<ParametricPoint,3>& triangle,unsigned axis,KernelStats* stats) {
+  const int orientation=ParametricOrientation(triangle[0],triangle[1],triangle[2],axis,stats);
+  if(!orientation)return false;
+  struct Fraction {Integer<264> numerator{},denominator{};explicit Fraction(bool one=false){numerator.limb[0]=one;denominator.limb[0]=1;}};
+  auto compare=[](const Fraction& a,const Fraction& b){return Sign(Difference(Product(a.numerator,b.denominator),Product(b.numerator,a.denominator)));};
+  Fraction low,high(true);
+  for(unsigned k=0;k<3;++k) {
+    auto first=ParametricDeterminant(triangle[k],triangle[(k+1)%3],a,axis),last=ParametricDeterminant(triangle[k],triangle[(k+1)%3],b,axis);
+    if(orientation<0){first.negative=!first.negative;last.negative=!last.negative;}
+    if(stats)stats->exact_orientations+=2;
+    const int sa=Sign(first),sb=Sign(last);
+    if(sa<=0&&sb<=0)return false;
+    if(sa<=0){Fraction root;root.numerator=first;root.numerator.negative=!root.numerator.negative;root.denominator=Difference(last,first);if(compare(low,root)<0)low=root;}
+    if(sb<=0){Fraction root;root.numerator=first;root.denominator=Difference(first,last);if(compare(root,high)<0)high=root;}
+    if(compare(low,high)>=0)return false;
+  }
+  return true;
 }
 bool ParametricOnSegment(const ParametricPoint& a,const ParametricPoint& b,const ParametricPoint& p,KernelStats* stats) {
   for(unsigned axis=0;axis<3;++axis)if(ParametricOrientation(a,b,p,axis,stats))return false;

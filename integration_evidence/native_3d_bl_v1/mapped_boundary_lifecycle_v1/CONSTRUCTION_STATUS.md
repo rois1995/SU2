@@ -26,3 +26,7 @@ was attempted in this failed annulus; this is not its observed blocker.
 `annulus_v5_n1/construction_diagnosis.json` pins exact failed state/reference and
 trial forward parameters. `affine_annulus_bl_budget_20_m1_rejected.su2` is inspection
 only. Prior bootstrap abort and all source/build versions remain preserved.
+
+## Causal qualification from the accepted Cartesian control
+
+Historical accepted Cartesian annulus also used zero regional-core/front reconstruction, with77joint-wall trials/3accepted,861work/91edits. PrismChart exclusion is a capability gap, not established cause of the oblique stall. Its hole/right-prism assumptions need more than a guard bypass. Current connected implementation instead restores reference-certified finite planar seam freedom that facet-local mapped mode lost. This is a hypothesis to test on the exact difficult field, not an accepted construction result.

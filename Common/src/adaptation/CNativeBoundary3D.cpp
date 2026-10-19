@@ -995,7 +995,7 @@ bool PlanarReference::FindFace(int marker, const std::array<Point, 3>& triangle,
   if (found) facet = chosen;
   return found;
 }
-Id PlanarReference::Canonical(Id id) const { if(parameter_view){Get(id);return id;}return definition?definition->Canonical(id):canonical.at(id); }
+Id PlanarReference::Canonical(Id id) const { if(parameter_view)return Parameters()->Geometry().Canonical(id);return definition?definition->Canonical(id):canonical.at(id); }
 const Facet& PlanarReference::Get(Id id) const { return definition?definition->Get(id):facets.at(id); }
 bool PlanarReference::Contains(Id id, Point p, KernelStats* stats) const {
   if(parameter_view)return ParameterContains(id,p);
@@ -1091,7 +1091,8 @@ bool PlanarReference::Contains(Id id, Point p, KernelStats* stats) const {
   throw std::logic_error("Degenerate admitted native 3D reference facet.");
 }
 bool PlanarReference::ContainsSegment(Id id,Point a,Point b,KernelStats* stats)const {
-  if(parameter_view)return ParameterContains(id,a)&&ParameterContains(id,b);
+  if(parameter_view){if(!ParameterContains(id,a)||!ParameterContains(id,b))return false;
+    return Parameters()->Geometry().ContainsSegment(id,Parameter(a)->binding,Parameter(b)->binding,stats);}
   id=Canonical(id);
   if(affine.count(id))return affine_domains.at(affine_charts.at(id))->ContainsSegment(id,a,b,stats);
   if(analytic.count(id))throw std::invalid_argument("Analytic segment containment requires its finite parameter chart.");

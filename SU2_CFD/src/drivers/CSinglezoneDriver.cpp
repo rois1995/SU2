@@ -301,7 +301,11 @@ std::unique_ptr<CRemesher> CSinglezoneDriver::MakeRemesher() {
       auto constraints=[this](const CConfig& config,const SU2Native3D::ReferenceState& state,double core,
                           SU2Native3D::EngineOptions& control) -> SU2Native3D::MetricComposition {
         const auto family=solver_container[ZONE_0][INST_0][MESH_0][FLOW_SOL]->GetNativeMetricFamily3D();
-        const bool retained=family && family->boundary_layer && family->layers && family->authority==state.original && family->Compatible(config);
+        const bool same_authority=family && family->authority && (family->authority==state.original ||
+            (state.original && family->authority->Mapped() && state.original->Mapped() &&
+             family->authority->Parameters()->Authority()==state.original->Parameters()->Authority()));
+        // Parameter publication changes the view, never the immutable original BL geometry/profile.
+        const bool retained=family && family->boundary_layer && family->layers && same_authority && family->Compatible(config);
         if(config.GetAdap_BL_Budget() && (!retained || !family->layers->GetOuterNormal().frozen))
           throw std::invalid_argument("Budget-aware native3D requires its selected frozen original-family BL profile.");
         const auto layers=retained ? family->layers : CBoundaryLayerMetric::FromNativeReference(state,config);

@@ -2483,7 +2483,7 @@ TEST_CASE("Mapped boundary records follow actual CFD reader numbering output and
     if(reference.marker_names.at(f.marker)=="y_minus")planes.emplace(f.id,SU2NativeGeometry::AffineAuthority{17,3,3,{0,0,0},{-.37,1,-.61},1e-13});
   }
   reference.original=std::make_shared<PlanarReference>(reference.facets,SIZE_MAX,std::map<Id,AnalyticSurface>{},planes);
-  auto authority=std::make_shared<SU2NativeGeometry::MappedFacetReference>(reference.original,errors,7);
+  auto authority=std::make_shared<SU2NativeGeometry::MappedFacetReference>(reference.original,errors,7,SIZE_MAX,std::getenv("SU2_NATIVE_MAPPED_COMPONENTS")!=nullptr);
   BoundaryPoints points;std::vector<SurfaceFace> skin;
   for(const auto& f:reference.facets){skin.push_back({{f.v[0].id,f.v[1].id,f.v[2].id},f.id});
     for(auto n:f.v)points.emplace(n.id,BoundaryPoint{n,authority->Vertex(n.id)});}
@@ -2538,7 +2538,7 @@ TEST_CASE("Mapped native runtime completes a uniform target before conservative 
   }
   auto reference=std::make_shared<ReferenceState>();ImportGeometry(*config,current.Fine(),nullptr,*reference);
   std::map<Id,double> errors;for(auto f:reference->facets)errors.emplace(f.id,1e-13);
-  auto authority=std::make_shared<SU2NativeGeometry::MappedFacetReference>(reference->original,errors,7);
+  auto authority=std::make_shared<SU2NativeGeometry::MappedFacetReference>(reference->original,errors,7,SIZE_MAX,std::getenv("SU2_NATIVE_MAPPED_COMPONENTS")!=nullptr);
   BoundaryPoints points;std::vector<SurfaceFace> skin;
   for(auto f:reference->facets){skin.push_back({{f.v[0].id,f.v[1].id,f.v[2].id},f.id});for(auto n:f.v)points.emplace(n.id,BoundaryPoint{n,authority->Vertex(n.id)});}
   reference->original=PlanarReference::WithParameters(reference->original,std::make_shared<BoundaryParameterState>(authority,points,skin));

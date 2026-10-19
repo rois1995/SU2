@@ -1,0 +1,65 @@
+# Review: v6 mapped planar components
+
+## (1) Does the tiling inference hold with many holes?
+
+Yes, but only with these conditions.
+
+The argument is a degree argument. The degree is the number of triangles that cover a point. Positive triangles plus an exact oriented boundary give degree 1 inside the domain and 0 outside. Holes add no special problem, because hole chains have reverse orientation.
+
+The weak points:
+
+- **Exact oriented equality.** "Each interval covered once" must be an oriented 1-chain equality. Covering an interval once in the wrong direction must fail.
+- **Projection sign.** When you drop the dominant axis, the sign of that normal component flips 2D orientation. Apply the flip per component, before you check positivity and winding.
+- **Strict positivity.** Zero-area ideal triangles must fail.
+- **Duplicate ideal points.** Two vertex IDs can have the same ideal point. The ID chain then does not cancel. This is a safe rejection, so keep it as a rejection. Do not merge the two IDs.
+- **Exact ideal arithmetic.** The ideal points A+t(B−A) and uA+vB+(1−u−v)C must stay exact rationals in the predicates. Do not use binary64 results. If you use binary64, collinear border subdivision points can go off-line.
+
+The manifold and connectivity tests are not necessary for the degree argument. Keep them as extra safety.
+
+## (2) Do vertex error minima bound the full face?
+
+For distance to the plane: yes. Distance to a plane is affine. On a flat triangle, an affine function has its maximum at a vertex.
+
+This is not sufficient by itself:
+
+- **Tangential overhang.** Normal error 0 can still put an actual face over a hole or past the border. Also bound |actual − ideal| at each vertex. This difference is affine on the face, so any norm (L1 too) has its maximum at a vertex. That gives a full-face displacement bound.
+- **Declared non-coplanar facets.** Measure all facets against one declared plane, not against each original facet.
+- **Thin faces.** Rounding can flip the normal of a thin face. Your exact normal check catches this. Keep it per face, not per vertex.
+
+## (3) What must cancellation check when you remove an internal original vertex?
+
+- **Feature status.** The vertex must not be a corner, a hole vertex, a marker junction or a feature-incidence vertex.
+- **Interior case.** The old star boundary must equal the new cavity boundary, by ID, with net difference zero.
+- **Border case.** Two border edges merge into one. The new edge must:
+  - use the same original edge,
+  - have adjacent, monotone t intervals,
+  - cross no border event, corner or junction,
+  - keep the same orientation.
+- **References.** No tet outside the cavity, other component, frozen BL base or first-height sample may still use the vertex.
+- **New bindings.** New bindings must come from forward supports only, never from rounded coordinates.
+
+## (4) What is the smallest safe reuse key for frozen BL layers?
+
+The authority object alone is not sufficient. Mobile seam vertices can move or rebind a BL base vertex. The authority object stays the same when this happens.
+
+Use this key:
+
+1. **Authority content hash.** Hash the definition, mapping contract, policy and version (v6 ≠ v5). Do not use pointer identity. Re-entry can reallocate the object.
+2. **Frozen-footprint hash.** Hash these items for the frozen layers:
+   - base vertex IDs,
+   - their support bindings,
+   - their ideal and realized coordinates,
+   - the base face connectivity.
+3. **Wall-height values.** Include the requested wall-height values at those base queries.
+
+You can ignore the accepted-point table revision only if the footprint hash does not change. If the footprint hash changes, the reuse must fail.
+
+Your other strict checks stay as you proposed: CFD geometry, selected fields, config and normalization.
+
+## What to do now
+
+1. Add the tangential bound from (2).
+2. Add the border-merge checks from (3).
+3. Add the footprint hash from (4).
+
+Then the design is sound in my opinion. This is a model review. It does not prove correctness.

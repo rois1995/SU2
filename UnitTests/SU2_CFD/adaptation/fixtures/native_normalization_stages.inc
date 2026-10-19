@@ -380,7 +380,7 @@ void BudgetRuntime3D(bool symmetry) {
     // Geometry already adopted; declare a matching mapping band before original metric/donors freeze.
     REQUIRE(driver->Reference());auto& reference=*driver->Reference();REQUIRE(reference.original);
     std::map<Id,double> errors;for(auto f:reference.facets)errors.emplace(f.id,1e-13);
-    auto authority=std::make_shared<SU2NativeGeometry::MappedFacetReference>(reference.original,errors,7);
+    auto authority=std::make_shared<SU2NativeGeometry::MappedFacetReference>(reference.original,errors,7,SIZE_MAX,std::getenv("SU2_NATIVE_MAPPED_COMPONENTS")!=nullptr);
     BoundaryPoints points;std::vector<SurfaceFace> skin;
     for(auto f:reference.facets){skin.push_back({{f.v[0].id,f.v[1].id,f.v[2].id},f.id});for(auto n:f.v)points.emplace(n.id,BoundaryPoint{n,authority->Vertex(n.id)});}
     reference.original=PlanarReference::WithParameters(reference.original,std::make_shared<BoundaryParameterState>(authority,points,skin));
@@ -470,7 +470,7 @@ void BudgetRuntime3D(bool symmetry) {
 
   if(oblique) {
     const auto encoded=EncodeReference(*driver->Reference());CHECK_FALSE(driver->Reference()->original->Affine().empty());
-    CHECK(encoded.find(mapped?"SU2_NATIVE_REFERENCE_3D 5\n":"SU2_NATIVE_REFERENCE_3D 4\n")==0);
+    CHECK(encoded.find(mapped?(std::getenv("SU2_NATIVE_MAPPED_COMPONENTS")?"SU2_NATIVE_REFERENCE_3D 6\n":"SU2_NATIVE_REFERENCE_3D 5\n"):"SU2_NATIVE_REFERENCE_3D 4\n")==0);
     if(!world.rank){std::ofstream out(name+".planes");out<<"SU2_NATIVE_SYMMETRY_PLANES 2 1\n\"symmetry\" 17 2 0 0 0 -.37 1 -.61 1e-10 1e-13\n";REQUIRE(bool(out));}
     SU2_MPI::Barrier(world.comm);ImportedGeometry refused;BridgeStats stats;std::string reason;auto retained=*driver->Reference();
     CHECK_FALSE(ImportGeometry(driver->Config(),g,&solver.GetNodes()->GetMetric(),retained,refused,reason,stats,size_t(128)<<20));

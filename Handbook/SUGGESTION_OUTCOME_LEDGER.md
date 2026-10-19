@@ -579,3 +579,9 @@ No new accepted BL, real mapped solution restart, general2D/exterior readiness,
 viscous accuracy or complete-event affordability claim. These rejected timings are
 not a performance comparison. Full scope and future performance package remain.
 [Sealed evidence](../integration_evidence/native_3d_bl_v1/mapped_boundary_lifecycle_v1/validation_summary.json).
+
+## Finite-component geometry strategy — connected implementation, unvalidated
+
+Accepted historical Cartesian evidence also has zero regional-core/front edits (77joint trials/3accepted). The earlier inference that regional exclusion explains the mapped rejection was too strong. It is a capability gap, not a diagnosed cause. The next connected strategy restores certified planar seam freedom, complete finite containment, junction ownership, atomic publication/persistence and immutable frozen-profile reuse, then tests the exact oblique field under unchanged gates. No local fallback/ceiling increase.
+
+[Current implementation and build receipts](../integration_evidence/native_3d_bl_v1/mapped_component_geometry_v1/README.md). No result or speedup yet. Opus5.5/medium supplied a design review; exact chain/displacement safeguards apply, while evolving-footprint hashes were rejected because BL samples immutable original facets. Full geometry and performance scope remains.

@@ -210,3 +210,7 @@ choice. [Current connected work and unsupported scope](GOAL3_MAPPED_PARAMETERS.m
 No production activation, new full integrated/MPI lifecycle or accepted oblique/
 exterior mesh.2D runtime, multiple bodies/holes, mixed curved junctions and all
 full-scope requirements stay OPEN. Prior b232 source qualification is historical.
+
+## Finite-component mapped policy in progress
+
+The [connected v6 component batch](GOAL3_MAPPED_PARAMETERS.md) restores only certified planar seam freedom to mapped geometry, with finite containment/junction/publication/persistence reach. It is currently building and has no new runtime qualification. Full arbitrary2D/3D, multiple bodies/holes/disconnected regions, Euler/RANS, N/M, transfer/real restart/exterior scope remains open. Current original physical-border coarsening and mixed analytic/mapped limitations are explicit.

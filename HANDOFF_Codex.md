@@ -5,10 +5,26 @@ Worktree `/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated`, branch
 Leave AdapNoExt, foreign ClusterResults/dependencies/jobs untouched.
 [Full requirements](integration_evidence/native_3d_bl_v1/GOAL3_REQUIREMENTS.json).
 
-## Current result — controlled mapped lifecycle passes; BL construction rejects
+## Current connected batch — finite mapped components (not yet compiled)
+
+[in-progress capability and limits](integration_evidence/native_3d_bl_v1/mapped_component_geometry_v1/README.md).
+Prepared finite topology/chart ADT and exact ideal segment/face containment; release
+only reference-certified planar seams, protect physical borders/junctions. Private
+cross-seam movement, atomic parameter+mesh publication, policy-aware MPI payloads,
+explicit v6 persistence and frozen-BL facade identity are connected in source/tests.
+Default facet-local v5 remains. First checks: focused geometry controls then exact
+oblique annulus, unchanged target/limits/gates; no accepted BL claim yet. All pinned
+C++ must stay unchanged while the one-worker build/check is live. Current owned session35436;
+initial missing-LINE-include compiler failure is terminal/preserved and corrected. Full scope stays.
+
+The accepted Cartesian annulus also had zero regional-core/front reconstruction
+but77joint trials/3accepted. Thus regional exclusion alone is not the established
+cause of the mapped stall; do not bypass its guard or add local retries on that premise.
+
+## Qualified baseline — controlled mapped lifecycle passes; BL construction rejects
 
 Latest linked binary `bcb271be14f7cc1b9cc4fe5295fc8d5caf73d0dbf005a0177e8533ceddebf78d`.
-All owned build/native/MPI/audit/review handles terminal; full Goal3 stays ACTIVE.
+At that baseline all owned handles were terminal; the finite-component build above is now active. Full Goal3 stays ACTIVE.
 No new physical CFD advancement or cluster run.
 [Sealed validation](integration_evidence/native_3d_bl_v1/mapped_boundary_lifecycle_v1/validation_summary.json).
 
@@ -134,10 +150,10 @@ Grid `integration_evidence/native_3d_bl_v1/sphere_rans_lifecycle_v1/n4_m2_depend
  No cluster requests/submissions. Compiler scratch stays on4TB, not nearly full/tmp.
 - Optional Claude Opus5.5 medium/high is authorized. Abstract high review completed
  with tools off/no code/data; reasoning input only, not correctness evidence.
-- [Cleanup](Handbook/DISK_SPACE_CLEANUP_2026_10_18.md):35.62GiB cumulative recovered,
- including8.43GiB from18 historical2D hard-link groups/55paths. About55GiB4TB free,
- root/tmp~490MiB foreign. All archival handles terminal; prior builds/3D binaries,
- scientific evidence and foreign work preserved. Archived old binaries need restore.
+- [Cleanup](Handbook/DISK_SPACE_CLEANUP_2026_10_18.md): approximately 37.98GiB cumulative recovered.
+ Latest six superseded Goal1 executable groups/30paths save2.36GiB; historical replay
+ requires restoration. Current integrated build,Goal3 runtime binaries and all scientific
+ evidence preserved. All archival handles terminal; root/tmp~490MiB foreign.
 - [Future SST/transition/nonideal transfer questions](Handbook/FUTURE_PHYSICS_TRANSFER_QUESTIONS.md).
  Three-element meshes at `/media/rausa/4TB/Validation/ThreeElementAirfoil/30P30N/Meshes`;
  located, no new adaptation in this checkpoint.

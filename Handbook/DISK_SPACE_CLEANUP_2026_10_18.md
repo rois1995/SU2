@@ -74,3 +74,9 @@ foreign work remain untouched. One nice19 worker used about50MiB sampled RSS ove
 Historical replays need executable restoration; restoring each pathname separately
 can consume extra disk, so restore one per group and relink its other names.
 No numerical changes or new mesh-validation claims accompany this cleanup.
+
+## Superseded Goal1 3D core snapshots — 2026-10-19
+
+A further explicitly reviewed batch archives six obsolete Goal1 executable groups across30 paths, recovering **2.36GiB (2535738749 bytes)**. Each archive passed full decompression/SHA-256 verification before original removal. Current integrated build and Goal3 runtime snapshots remain directly usable; the selected historical Goal1 replays now require restoration. Scientific evidence and foreign files are unchanged.
+
+[Selection, receipt and restore instructions](../integration_evidence/disk_cleanup_20261019_goal1_core/README.md). Final hard-link/path/size checks pass; no partials remain. One nice19 streaming worker, 128.70s; no simultaneous build/CFD. Cumulative archival savings are approximately **37.98GiB**. Root/tmp remains490MiB free and is excluded.

@@ -239,12 +239,12 @@ TEST_CASE("Mapped finite facets preserve shared parameters complete coverage and
 }
 
 TEST_CASE("Mapped edge edits publish mesh and forward geometry atomically and survive reference persistence", "[NativeMappedPublication3D]") {
-  using namespace SU2Native3D;World world;
+  using namespace SU2Native3D;World world;const bool components=GENERATE(false,true);
   const auto original=MappedTetrahedron();std::vector<Facet> facets;
   for(auto row:original->Facets()){row.second.marker=0;facets.push_back(row.second);}
   auto definition=std::make_shared<PlanarReference>(facets);std::map<Id,double> errors;
   for(const auto& f:facets)errors.emplace(f.id,1e-13);
-  auto authority=std::make_shared<MappedFacetReference>(definition,errors,7);
+  auto authority=std::make_shared<MappedFacetReference>(definition,errors,7,SIZE_MAX,components);
   Patch old;BoundaryPoints points;std::map<Id,Node> nodes;
   for(const auto& f:facets){old.surface.push_back({{f.v[0].id,f.v[1].id,f.v[2].id},f.id});
     for(auto n:f.v){nodes.emplace(n.id,n);points.emplace(n.id,BoundaryPoint{n,authority->Vertex(n.id)});}}
@@ -289,7 +289,7 @@ TEST_CASE("Mapped edge edits publish mesh and forward geometry atomically and su
   CHECK(parameters->Revision()==12);CHECK(parameters->Records().size()==5);CHECK(parameters->Surface().size()==6);
   CHECK(CPassiveComm::Allreduce(uint64_t(owned.size()),CPassiveComm::Op::SUM,world.comm)==2);
   ReferenceState state;state.original=reference;state.facets=facets;state.marker_names={"body"};
-  const auto encoded=EncodeReference(state);CHECK(encoded.find("SU2_NATIVE_REFERENCE_3D 5\n")==0);
+  const auto encoded=EncodeReference(state);CHECK(encoded.find(components?"SU2_NATIVE_REFERENCE_3D 6\n":"SU2_NATIVE_REFERENCE_3D 5\n")==0);
   CHECK(EncodeReference(DecodeReference(encoded))==encoded);
   CHECK_THROWS(DecodeReference(encoded+"trailing"));CHECK_THROWS(DecodeReference(encoded,1));
   std::map<Id,Id> numbering;for(auto row:parameters->Records())numbering.emplace(row.first,row.first+1000);
@@ -343,4 +343,131 @@ TEST_CASE("Mapped realized face orientation is independent of projection axis an
   }
   const auto moved=ConstrainMovePoint(child,55,{55,{.275,.26,0}},{},*reference);
   CHECK(moved.p.x!=inserted.p.x);CHECK(moved.p.y!=inserted.p.y);CHECK(moved.p.z==0);CHECK(state->Snapshot()==saved);
+}
+
+namespace {
+std::vector<SU2Native3D::Facet> ComponentCube(bool rotated) {
+  using namespace SU2Native3D;std::array<Node,8> nodes;
+  for(unsigned i=0;i<8;++i){const double x=i&1,y=(i>>1)&1,z=(i>>2)&1;
+    nodes[i]={i,rotated?Point{7.125+x+.25*y+.125*z,-2.25+.375*x+y+.25*z,3.875+.125*x+.5*y+z}:Point{x,y,z}};}
+  const std::array<Face,12> faces{{{0,2,3},{0,3,1},{4,5,7},{4,7,6},{0,4,6},{0,6,2},
+      {1,3,7},{1,7,5},{0,1,5},{0,5,4},{2,6,7},{2,7,3}}};
+  std::vector<Facet> result;for(auto face:faces)result.push_back({Id(result.size()),0,{nodes[face[0]],nodes[face[1]],nodes[face[2]]}});return result;
+}
+std::shared_ptr<SU2Native3D::BoundaryParameterState> ComponentState(
+    const std::shared_ptr<const MappedFacetReference>& geometry,const std::vector<SU2Native3D::Facet>& facets) {
+  using namespace SU2Native3D;BoundaryPoints points;std::vector<SurfaceFace> skin;
+  for(auto f:facets){skin.push_back({{f.v[0].id,f.v[1].id,f.v[2].id},f.id});for(auto n:f.v)points.emplace(n.id,BoundaryPoint{n,geometry->Vertex(n.id)});}
+  return std::make_shared<BoundaryParameterState>(geometry,points,skin);
+}
+}
+TEST_CASE("Mapped components release certified diagonals and persist without changing v5", "[NativeMappedComponent3D]") {
+  using namespace SU2Native3D;const bool rotated=GENERATE(false,true);const auto facets=ComponentCube(rotated);
+  auto base=std::make_shared<PlanarReference>(facets);std::map<Id,double> errors;for(auto f:facets)errors.emplace(f.id,1e-12);
+  auto grouped=std::make_shared<MappedFacetReference>(base,errors,7,SIZE_MAX,true);
+  auto legacy=std::make_shared<MappedFacetReference>(base,errors,7);
+  CHECK(grouped->Canonical(0)==grouped->Canonical(1));CHECK(legacy->Canonical(0)!=legacy->Canonical(1));
+  CHECK(grouped->ComponentFacets(0).size()==2);CHECK(grouped->ComponentBorder(0).size()==4);
+  CHECK_FALSE(grouped->PhysicalSupport(grouped->EdgePoint({0,3},.5)));CHECK(grouped->PhysicalSupport(grouped->EdgePoint({0,1},.5)));
+  CHECK(grouped->PhysicalSupport(grouped->Vertex(0)));
+  auto state=ComponentState(grouped,facets);auto reference=PlanarReference::WithParameters(base,state);
+  const auto snapshot=state->Snapshot();std::map<Id,Node> nodes;for(auto f:facets)for(auto n:f.v)nodes.emplace(n.id,n);
+  const std::array<SurfaceBinding,3> b{grouped->Vertex(0),grouped->Vertex(2),grouped->Vertex(1)};
+  const std::array<Point,3> p{nodes.at(0).p,nodes.at(2).p,nodes.at(1).p};
+  CHECK(grouped->ContainsFace(0,b,p));CHECK_FALSE(legacy->ContainsFace(0,b,p));
+  std::vector<BoundaryFaceChange> changes{{{0,2,3},0,false},{{0,3,1},0,false},{{0,2,1},0,true},{{1,2,3},0,true}};
+  std::string reason;const auto publication=state->Prepare({},changes,reason);INFO(reason);CHECK(publication.valid);
+  CHECK(state->Snapshot()==snapshot);CHECK_FALSE(state->Prepare({},changes,reason,1).valid);CHECK(state->Snapshot()==snapshot);
+  auto damaged=changes;damaged.back().nodes={0,1,3};CHECK_FALSE(state->Prepare({},damaged,reason).valid);CHECK(state->Snapshot()==snapshot);
+  ReferenceState retained;retained.original=reference;retained.facets=facets;retained.marker_names={"body"};
+  const auto encoded=EncodeReference(retained);CHECK(encoded.find("SU2_NATIVE_REFERENCE_3D 6\n")==0);
+  CHECK(EncodeReference(DecodeReference(encoded))==encoded);CHECK_THROWS(DecodeReference(encoded+"trailing"));CHECK_THROWS(DecodeReference(encoded,1));
+  auto old=retained;old.original=PlanarReference::WithParameters(base,ComponentState(legacy,facets));
+  const auto v5=EncodeReference(old);CHECK(v5.find("SU2_NATIVE_REFERENCE_3D 5\n")==0);CHECK(EncodeReference(DecodeReference(v5))==v5);
+  CHECK_THROWS(BoundaryParameterState::FromPayload(legacy,state->Payload()));
+  auto roundtrip=BoundaryParameterState::FromPayload(grouped,state->Payload());CHECK(roundtrip->Snapshot()==snapshot);
+  std::map<Id,Id> numbering;for(auto row:state->Records())numbering.emplace(row.first,row.first+500);
+  auto rebound=state->Rebind(numbering);CHECK(rebound->Geometry().ReferenceComponents());CHECK(rebound->Records().size()==state->Records().size());
+}
+
+TEST_CASE("Mapped component movement crosses an original planar seam without moving physical corners", "[NativeMappedComponent3D]") {
+  using namespace SU2Native3D;const auto facets=ComponentCube(false);auto base=std::make_shared<PlanarReference>(facets);
+  std::map<Id,double> errors;for(auto f:facets)errors.emplace(f.id,1e-13);
+  auto g=std::make_shared<MappedFacetReference>(base,errors,7,SIZE_MAX,true);auto state=ComponentState(g,facets);
+  std::map<Id,Node> nodes;for(auto f:facets)for(auto n:f.v)nodes.emplace(n.id,n);
+  const Node middle{55,g->Realize(g->EdgePoint({0,3},.5))};nodes.emplace(55,middle);
+  Patch child;const std::array<std::array<Id,4>,8> cells{{{0,1,55,7},{55,1,3,7},{0,55,2,7},{55,3,2,7},
+      {0,2,6,7},{0,6,4,7},{0,4,5,7},{0,5,1,7}}};
+  for(auto ids:cells){Cell c;c.id=child.cells.size();for(unsigned k=0;k<4;++k)c.v[k]=nodes.at(ids[k]);if(Orientation(c.v[0].p,c.v[1].p,c.v[2].p,c.v[3].p)<0)std::swap(c.v[0],c.v[1]);child.cells.push_back(c);}
+  for(auto f:facets)if(f.id>1)child.surface.push_back({{f.v[0].id,f.v[1].id,f.v[2].id},g->Canonical(f.id)});
+  for(auto face:std::array<Face,4>{{{0,2,55},{55,2,3},{0,55,1},{55,3,1}}})child.surface.push_back({face,g->Canonical(0)});
+  BoundaryPoints points;for(auto row:state->Records())points.emplace(row.first,row.second.point);points.emplace(55,BoundaryPoint{middle,g->EdgePoint({0,3},.5)});
+  state=std::make_shared<BoundaryParameterState>(g,points,child.surface);auto reference=PlanarReference::WithParameters(base,state);
+  child.cells.resize(4);child.surface.erase(child.surface.begin(),child.surface.end()-4);reference->ExportParameters(child);
+  const auto before=state->Snapshot();const auto proposal=ConstrainMovePoint(child,55,{56,{.55,.45,0}},{},*reference);
+  CHECK(proposal.p.x!=proposal.p.y);Patch fresh;std::string reason;INFO(reason);
+  REQUIRE(MoveVertex(child,55,proposal,100,*reference,fresh,reason));CHECK(fresh.parameters.at(56).binding.dimension==2);
+  CHECK(state->Snapshot()==before);CHECK(reference->Parameters()==state.get());
+  const auto corner=ConstrainMovePoint(child,0,{57,{.1,.1,.1}},{},*reference);CHECK(corner.p.x==0);CHECK(corner.p.y==0);CHECK(corner.p.z==0);
+}
+
+TEST_CASE("Mapped finite components retain two holes a notch and a disconnected body footprint", "[NativeMappedComponent3D]") {
+  using namespace SU2Native3D;const auto definition=Definitions().at(GENERATE(2u,3u,4u));const AffineChart chart(definition);auto planar=MultipleFootprints(chart);
+  const auto& first=planar.front();const auto a=first.v[0].p,b=first.v[1].p,c=first.v[2].p;
+  const Point u{b.x-a.x,b.y-a.y,b.z-a.z},v{c.x-a.x,c.y-a.y,c.z-a.z};Point normal{u.y*v.z-u.z*v.y,u.z*v.x-u.x*v.z,u.x*v.y-u.y*v.x};
+  const auto length=std::hypot(normal.x,normal.y,normal.z);normal={normal.x/length,normal.y/length,normal.z/length};
+  auto upper=[&](Node n){n.id+=10000;n.p={n.p.x+normal.x,n.p.y+normal.y,n.p.z+normal.z};return n;};
+  std::map<Edge,std::vector<Edge>> edges;std::vector<Facet> facets;std::map<Id,AffineAuthority> planes;
+  auto top=definition;top.identity+=100;top.origin={top.origin.x+normal.x,top.origin.y+normal.y,top.origin.z+normal.z};
+  for(auto f:planar) {
+    auto low=f;std::swap(low.v[1],low.v[2]);low.id=facets.size();low.marker=0;planes.emplace(low.id,definition);facets.push_back(low);
+    f.id=facets.size();f.marker=1;for(auto& n:f.v)n=upper(n);planes.emplace(f.id,top);facets.push_back(f);
+  }
+  std::map<Id,Node> nodes;for(auto f:planar)for(auto n:f.v)nodes.emplace(n.id,n);
+  for(auto f:planar)for(unsigned k=0;k<3;++k){Edge e{f.v[k].id,f.v[(k+1)%3].id},key=e;std::sort(key.begin(),key.end());edges[key].push_back(e);}
+  for(auto row:edges)if(row.second.size()==1){const auto e=row.second.front();const auto p=nodes.at(e[0]),q=nodes.at(e[1]),pt=upper(p),qt=upper(q);
+    facets.push_back({Id(facets.size()),2,{p,q,qt}});facets.push_back({Id(facets.size()),2,{p,qt,pt}});}
+  auto base=std::make_shared<PlanarReference>(facets,SIZE_MAX,std::map<Id,AnalyticSurface>{},planes);std::map<Id,double> errors;
+  for(auto f:facets)errors.emplace(f.id,1e-10);auto g=std::make_shared<MappedFacetReference>(base,errors,7,SIZE_MAX,true);
+  auto state=ComponentState(g,facets);const Id root=g->Canonical(0);
+  CHECK_FALSE(g->PhysicalSupport(g->Vertex(103)));CHECK(g->PhysicalSupport(g->Vertex(101)));
+  CHECK(g->ContainsSegment(root,g->Vertex(200),g->Vertex(2)));CHECK_FALSE(g->ContainsSegment(root,g->Vertex(101),g->Vertex(202)));
+  CHECK_FALSE(g->ContainsSegment(root,g->Vertex(100),g->Vertex(106)));CHECK_FALSE(g->ContainsSegment(root,g->Vertex(5),g->Vertex(8)));
+  auto face=[&](std::array<Id,3> ids){std::array<SurfaceBinding,3> bind;std::array<Point,3> p;
+    for(unsigned k=0;k<3;++k){bind[k]=g->Vertex(ids[k]);p[k]=nodes.at(ids[k]).p;}return g->ContainsFace(root,bind,p);};
+  CHECK(face({0,103,6}));CHECK_FALSE(face({101,202,102}));CHECK_FALSE(face({0,303,6}));CHECK_FALSE(face({5,108,8}));
+  const auto saved=state->Snapshot();ReferenceState reference;reference.original=PlanarReference::WithParameters(base,state);reference.facets=facets;reference.marker_names={"bottom","top","side"};
+  const auto text=EncodeReference(reference);CHECK(EncodeReference(DecodeReference(text))==text);CHECK(state->Snapshot()==saved);
+  const auto recovered=DecodeReference(text);CHECK(recovered.original->Mapped());CHECK(recovered.original->Parameters()->Geometry().ReferenceComponents());
+}
+
+TEST_CASE("Exact ideal finite-component queries resolve tangencies without rounded intersections", "[NativeMappedComponent3D]") {
+  using namespace SU2Native3D;
+  for(double scale:{1e-300,1.,1e300}) {
+    const std::array<ParametricPoint,3> t{{{{0,0,0}},{{scale,0,0}},{{0,scale,0}}}};
+    auto p=[&](double x,double y){return ParametricPoint{{x*scale,y*scale,0}};};
+    KernelStats stats;
+    CHECK(ParametricSegmentEntersTriangle(p(-1,.25),p(1,.25),t,2,&stats));
+    CHECK(ParametricSegmentEntersTriangle(p(.25,.25),p(.25,.25),t,2,&stats));
+    CHECK_FALSE(ParametricSegmentEntersTriangle(p(-1,0),p(1,0),t,2,&stats));
+    CHECK_FALSE(ParametricSegmentEntersTriangle(p(-1,1),p(1,1),t,2,&stats));
+    CHECK_FALSE(ParametricSegmentEntersTriangle(p(1,0),p(0,1),t,2,&stats));
+    CHECK_FALSE(ParametricSegmentEntersTriangle(p(-1,2),p(2,2),t,2,&stats));
+    CHECK(ParametricOnProjectedSegment(p(0,0),p(1,1),p(.5,.5),2,&stats));
+    CHECK_FALSE(ParametricOnProjectedSegment(p(0,0),p(1,1),p(2,2),2,&stats));
+    CHECK(ParametricCentroidSide(p(0,0),p(1,0),t,2,&stats)>0);
+    const std::array<Point,3> face{{{0,0,0},{scale,0,0},{0,scale,0}}};
+    CHECK(SurfaceNormalSign({0,0,scale},face,&stats)>0);
+    CHECK(SurfaceNormalSign({0,0,-scale},face,&stats)<0);
+    CHECK(SurfaceNormalSign({scale,0,0},face,&stats)==0);
+    CHECK(ParametricPlaneSide(p(.25,.25),{0,0,0},{0,0,scale})==0);
+    CHECK(ParametricPlaneSide(p(.25,.25),{0,0,scale},{0,0,scale})<0);
+    CHECK(stats.exact_orientations>0);
+  }
+  const ParametricPoint a{{0,0,0}},b{{1,0,0}};
+  const std::array<ParametricPoint,3> cancelled{{{{0,1,0}},{{0,-1,0}},{{0,0,0}}}};
+  CHECK(ParametricCentroidSide(a,b,cancelled,2)==0);
+  auto reversed=cancelled;reversed[2].origin.y=std::numeric_limits<double>::denorm_min();
+  CHECK(ParametricCentroidSide(a,b,reversed,2)>0);
+  CHECK_THROWS(ParametricCentroidSide(a,b,cancelled,3));
 }

@@ -122,3 +122,13 @@ version safeguards. Default-profile rebuilding is not itself proof of a changed
 mathematical field. Normal Claude authentication works; the earlier bare invocation
 excluded needed context. Annulus_v4 was a separate fixture lazy-reference bootstrap
 error before metric/remesh, preserved and order-corrected; v5 reaches construction.
+
+## Connected finite-component policy — implementation checkpoint
+
+[Current source/build work](../integration_evidence/native_3d_bl_v1/mapped_component_geometry_v1/README.md) releases only immutable reference-certified planar seams. Boundary-only component topology/chart ADTs are prepared once; finite ideal segment/face checks account for holes, tangencies and disconnected domains without rounding constructed intersections. Positive realized orientation uses the authoritative normal. Physical border chains and shared junction identities remain protected.
+
+Private movement, atomic publication, MPI wire policy agreement, reader return and explicit v6 persistence are connected. Facet-local v5 stays the default. The frozen-BL factory recognizes facades sharing the exact immutable mapped authority; original donor and selected-field eligibility stays strict. The actual BL data copies immutable original facets, not the evolving accepted skin. Opus5.5/medium reviewed the design; its suggested evolving-footprint hashes were not adopted for that reason. Review is not numerical evidence.
+
+Build is in progress with one pinned nice19 worker. No compiled/runtime claim yet. Focused exact/component controls precede the saved difficult oblique annulus; unchanged quality/height/full-field/transfer/geometry gates and work limits. Original physical border vertices remain protected; mixed analytic/mapped geometry,2D runtime, exterior accepted workflows and full performance qualification remain open.
+
+Causal correction: the accepted Cartesian annulus also had no regional-core/front reconstruction, but77joint trials/3accepted. Regional class exclusion is therefore not established as the mapped stall cause. Restore certified seam freedom and test the actual field before proposing another construction mechanism.

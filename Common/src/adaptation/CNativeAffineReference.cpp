@@ -8,6 +8,8 @@
 #include "../../include/adaptation/CNativeBoundary3D.hpp"
 #include "../../include/adaptation/CNativeGeometryValidation2D.hpp"
 #include "../../include/adaptation/CTransferMemory.hpp"
+#include "../../include/adt/CADTElemClass.hpp"
+#include "../../include/option_structure.hpp"
 #include <numeric>
 #include <type_traits>
 namespace SU2NativeGeometry {
@@ -209,8 +211,36 @@ double PointModelError(const SU2Native3D::ParametricPoint& model,Point p) {
   return std::nextafter(double(std::max(total.hi,static_cast<long double>(std::numeric_limits<double>::min()))),INFINITY);
 }
 }
+struct MappedFacetReference::ComponentData {
+  struct Entry {
+    std::vector<Id> facets;
+    std::vector<SU2Native3D::Edge> border;
+    std::vector<std::array<Id,3>> corners;
+    std::map<Id,bool> features;
+    std::shared_ptr<CADTElemClass> search;
+    unsigned axis=0;
+    int orientation=0;
+    bool convex=false;
+    double limit=0;
+  };
+  std::map<Id,Entry> entries;
+};
+namespace {
+Point ComponentFlat(Point p,unsigned axis){return axis==0?Point{p.y,p.z,0}:axis==1?Point{p.x,p.z,0}:Point{p.x,p.y,0};}
+SU2Native3D::ParametricPoint ComponentFlat(SU2Native3D::ParametricPoint p,unsigned axis) {
+  p.origin=ComponentFlat(p.origin,axis);p.first=ComponentFlat(p.first,axis);p.second=ComponentFlat(p.second,axis);return p;
+}
+double PlaneModelOffset(const SU2Native3D::ParametricPoint& model,const AffineAuthority& plane) {
+  if(!SU2Native3D::ParametricPlaneSide(model,plane.origin,plane.normal))return 0;
+  const auto bounds=SU2Native3D::ParametricPointBounds(model);const auto lo=Values(bounds[0]),hi=Values(bounds[1]),o=Values(plane.origin),n=Values(plane.normal);
+  Range residual;unsigned axis=0;
+  for(unsigned k=0;k<3;++k){residual=Add(residual,Multiply({Subtract(lo[k],o[k]).lo,Subtract(hi[k],o[k]).hi},n[k]));if(std::abs(n[k])>std::abs(n[axis]))axis=k;}
+  const auto bound=std::nextafter(std::max(std::abs(residual.lo),std::abs(residual.hi))/std::abs(n[axis]),INFINITY);
+  return std::nextafter(double(std::max(bound,static_cast<long double>(std::numeric_limits<double>::min()))),INFINITY);
+}
+}
 MappedFacetReference::MappedFacetReference(std::shared_ptr<const SU2Native3D::PlanarReference> input,
-    const std::map<Id,double>& mapping_errors,uint64_t definition_version,size_t ceiling)
+    const std::map<Id,double>& mapping_errors,uint64_t definition_version,size_t ceiling,bool reference_components)
     :reference(std::move(input)),version(definition_version) {
   using namespace SU2Native3D;
   if(!reference || !version || mapping_errors.empty())throw std::invalid_argument("Invalid mapped-facet reference/version/declaration.");
@@ -232,6 +262,80 @@ MappedFacetReference::MappedFacetReference(std::shared_ptr<const SU2Native3D::Pl
   ValidateDomainSurfaceTopology(skin);
   edges.reserve(incident.size());edge_facets.reserve(incident.size());
   for(auto& row:incident){edges.push_back(row.first);edge_facets.push_back(std::move(row.second));}
+  if(reference_components) {
+    auto data=std::make_shared<ComponentData>();
+    for(const auto& row:reference->Facets())data->entries[reference->Canonical(row.first)].facets.push_back(row.first);
+    for(auto& row:data->entries) {
+      auto& c=row.second;const auto& root=reference->Get(row.first);std::map<Edge,std::vector<Edge>> uses;
+      c.limit=INFINITY;
+      for(Id id:c.facets) {
+        const auto error=errors.find(id);c.limit=std::min(c.limit,error==errors.end()?0.:error->second);
+        const auto& f=reference->Get(id);
+        for(unsigned k=0;k<3;++k){Edge e{f.v[k].id,f.v[(k+1)%3].id},key=e;std::sort(key.begin(),key.end());uses[key].push_back(e);}
+      }
+      const auto plane=reference->Affine().find(row.first);
+      if(plane!=reference->Affine().end()) {
+        const auto n=Values(plane->second.normal);for(unsigned k=1;k<3;++k)if(std::abs(n[k])>std::abs(n[c.axis]))c.axis=k;
+        c.limit=std::min(c.limit,plane->second.maximum_error);
+        if(!(c.limit>0))throw std::invalid_argument("Affine component consolidation requires an explicit mapping bound on every member facet.");
+      } else {
+        const auto a=Values(root.v[0].p),b=Values(root.v[1].p),d=Values(root.v[2].p);std::array<long double,3> n{};
+        for(unsigned k=0;k<3;++k){const unsigned i=(k+1)%3,j=(k+2)%3;n[k]=(static_cast<long double>(b[i])-a[i])*(static_cast<long double>(d[j])-a[j])-(static_cast<long double>(b[j])-a[j])*(static_cast<long double>(d[i])-a[i]);}
+        for(unsigned k=1;k<3;++k)if(std::abs(n[k])>std::abs(n[c.axis]))c.axis=k;
+      }
+      c.orientation=ParametricOrientation({root.v[0].p},{root.v[1].p},{root.v[2].p},c.axis);
+      if(!c.orientation)throw std::invalid_argument("Degenerate mapped component chart.");
+      std::map<Id,Id> next,previous;
+      for(const auto& use:uses) {
+        if(use.second.size()==1){const auto e=use.second.front();c.border.push_back(e);
+          if(!next.emplace(e[0],e[1]).second||!previous.emplace(e[1],e[0]).second)throw std::invalid_argument("Branched mapped component border.");}
+        else if(use.second.size()!=2||use.second[0][0]!=use.second[1][1]||use.second[0][1]!=use.second[1][0])throw std::invalid_argument("Inconsistent mapped component orientation.");
+      }
+      if(next.empty()||next.size()!=previous.size())throw std::invalid_argument("Mapped planar component has no complete border.");
+      for(auto e:c.border){const bool forward=e[0]<e[1];std::sort(e.begin(),e.end());c.features.emplace(EdgeIdentity(e),forward);}
+      std::set<Id> visited;unsigned loops=0;c.convex=true;
+      for(const auto& edge:next) {
+        const Id v=edge.first;const auto p=previous.find(v);if(p==previous.end())throw std::invalid_argument("Open mapped component border.");
+        c.corners.push_back({p->second,v,edge.second});
+        c.convex=c.convex && c.orientation*ParametricOrientation({nodes.at(p->second)},{nodes.at(v)},{nodes.at(edge.second)},c.axis)>=0;
+        if(visited.count(v))continue;++loops;Id walk=v;
+        do{if(!visited.insert(walk).second)throw std::invalid_argument("Mapped component loops intersect.");walk=next.at(walk);}while(walk!=v);
+      }
+      c.convex=c.convex && loops==1;
+      std::vector<su2double> coordinates;std::vector<unsigned long> connectivity,ids;
+      for(Id id:c.facets) {
+        const auto& f=reference->Get(id);auto low=ComponentFlat(f.v[0].p,c.axis),high=low;
+        for(auto n:f.v){const auto p=ComponentFlat(n.p,c.axis);low.x=std::min(low.x,p.x);low.y=std::min(low.y,p.y);high.x=std::max(high.x,p.x);high.y=std::max(high.y,p.y);}
+        coordinates.insert(coordinates.end(),{low.x,low.y,high.x,high.y});connectivity.push_back(connectivity.size());connectivity.push_back(connectivity.size());ids.push_back(ids.size());
+      }
+      std::vector<unsigned short> types(ids.size(),LINE),markers(ids.size(),0);
+      c.search=std::make_shared<CADTElemClass>(2,coordinates,connectivity,types,markers,ids,false);
+    }
+    components=std::move(data);
+  }
+}
+Id MappedFacetReference::Canonical(Id id)const {reference->Get(id);return components?reference->Canonical(id):id;}
+const std::vector<Id>& MappedFacetReference::ComponentFacets(Id id)const {
+  if(!components)throw std::logic_error("Facet-local mapped authority has no component inventory.");
+  return components->entries.at(Canonical(id)).facets;
+}
+const std::vector<SU2Native3D::Edge>& MappedFacetReference::ComponentBorder(Id id)const {return components->entries.at(Canonical(id)).border;}
+unsigned MappedFacetReference::ComponentAxis(Id id)const {return components->entries.at(Canonical(id)).axis;}
+std::vector<Id> MappedFacetReference::CandidateFacets(Id id,Point p)const {
+  Finite(p);const auto& c=components->entries.at(Canonical(id));const auto q=ComponentFlat(p,c.axis);
+  std::vector<unsigned long> found;const su2double x[2]={q.x,q.y};c.search->DetermineIntersectingElements(x,x,found);
+  std::vector<Id> result;result.reserve(found.size());for(auto index:found)result.push_back(c.facets.at(index));std::sort(result.begin(),result.end());return result;
+}
+bool MappedFacetReference::PhysicalSupport(const SurfaceBinding& binding)const {
+  CheckBinding(binding);if(!components)return binding.dimension<2;
+  std::set<Id> roots;ForFacets(binding,[&](Id id){roots.insert(Canonical(id));});return roots.size()>1;
+}
+double MappedFacetReference::ComponentPointError(const SurfaceBinding& binding,Point p)const {
+  const auto model=Ideal(binding);const double original=PointModelError(model,p);double maximum=original;
+  ForFacets(binding,[&](Id id){const auto plane=reference->Affine().find(Canonical(id));if(plane==reference->Affine().end())return;
+    const auto offset=PlaneModelOffset(model,plane->second);if(!offset)return;
+    maximum=std::max(maximum,std::nextafter(double(std::nextafter(static_cast<long double>(original)+offset,INFINITY)),INFINITY));});
+  return maximum;
 }
 Id MappedFacetReference::EdgeIdentity(SU2Native3D::Edge edge)const {
   const auto found=std::lower_bound(edges.begin(),edges.end(),edge);
@@ -270,7 +374,9 @@ SU2Native3D::ParametricPoint MappedFacetReference::Ideal(const SurfaceBinding& b
   const auto& f=reference->Get(b.feature);return {f.v[0].p,f.v[1].p,f.v[2].p,b.u,b.v};
 }
 double MappedFacetReference::MaximumError(const SurfaceBinding& b)const {
-  CheckBinding(b);auto error=[&](Id id){const auto found=errors.find(id);return found==errors.end()?0.:found->second;};
+  CheckBinding(b);
+  if(components){double bound=INFINITY;ForFacets(b,[&](Id id){bound=std::min(bound,components->entries.at(Canonical(id)).limit);});return bound;}
+  auto error=[&](Id id){const auto found=errors.find(id);return found==errors.end()?0.:found->second;};
   if(b.dimension==2)return error(b.feature);
   const auto& incident=b.dimension==0?vertex_facets.at(b.feature):edge_facets.at(b.feature);
   double bound=INFINITY;for(auto id:incident)bound=std::min(bound,error(id));return bound;
@@ -294,7 +400,11 @@ bool MappedFacetReference::FeatureSegment(const SurfaceBinding& a,const SurfaceB
     if(p.feature==edge[0] || p.feature==edge[1]){t=p.feature==edge[0]?0.:1.;return true;}return false;};
   return parameter(a,ta)&&parameter(b,tb)&&ta!=tb;
 }
-double MappedFacetReference::ErrorBound(const SurfaceBinding& b,Point p)const {return PointModelError(Ideal(b),p);}
+bool MappedFacetReference::BoundarySegment(Id facet,const SurfaceBinding& a,const SurfaceBinding& b,Id& feature,double& ta,double& tb)const {
+  if(!Supports(facet,a)||!Supports(facet,b)||!FeatureSegment(a,b,feature,ta,tb))return false;
+  return !components || components->entries.at(Canonical(facet)).features.count(feature);
+}
+double MappedFacetReference::ErrorBound(const SurfaceBinding& b,Point p)const {return components?ComponentPointError(b,p):PointModelError(Ideal(b),p);}
 Point MappedFacetReference::Realize(const SurfaceBinding& b)const {
   const auto model=Ideal(b);auto point=SU2Native3D::ParametricPointBounds(model)[0];
   std::map<Id,AffineAuthority> equations;
@@ -304,13 +414,16 @@ Point MappedFacetReference::Realize(const SurfaceBinding& b)const {
   return point;
 }
 bool MappedFacetReference::Supports(Id facet,const SurfaceBinding& b)const {
-  CheckBinding(b);const auto& f=reference->Get(facet);
+  CheckBinding(b);
+  if(components){const Id root=Canonical(facet);bool found=false;ForFacets(b,[&](Id id){found=found||Canonical(id)==root;});return found;}
+  const auto& f=reference->Get(facet);
   auto has=[&](Id id){return std::any_of(f.v.begin(),f.v.end(),[&](const auto& n){return n.id==id;});};
   return b.dimension==0?has(b.feature):b.dimension==1?(has(edges.at(b.feature)[0])&&has(edges.at(b.feature)[1])):b.feature==facet;
 }
 bool MappedFacetReference::ContainsFace(Id facet,const std::array<SurfaceBinding,3>& binding,
     const std::array<Point,3>& realized,SU2Native3D::KernelStats* stats)const {
   using namespace SU2Native3D;
+  if(components)return ComponentContainsFace(facet,binding,realized,stats);
   std::array<ParametricPoint,3> ideal;
   for(unsigned i=0;i<3;++i) {
     if(!Supports(facet,binding[i]) || !Admissible(binding[i],realized[i]))return false;
@@ -325,11 +438,64 @@ bool MappedFacetReference::ContainsFace(Id facet,const std::array<SurfaceBinding
   }
   throw std::logic_error("Degenerate admitted mapped facet.");
 }
+bool MappedFacetReference::ContainsSegment(Id facet,const SurfaceBinding& a,const SurfaceBinding& b,SU2Native3D::KernelStats* stats)const {
+  using namespace SU2Native3D;
+  if(!Supports(facet,a)||!Supports(facet,b))return false;
+  if(!components)return true;
+  const auto& c=components->entries.at(Canonical(facet));if(c.convex)return true;
+  const auto x=ComponentFlat(Ideal(a),c.axis),y=ComponentFlat(Ideal(b),c.axis);
+  auto side=[&](const ParametricPoint& a,const ParametricPoint& b,const ParametricPoint& p){return ParametricOrientation(a,b,p,2,stats);};
+  auto same=[](const ParametricPoint& a,const ParametricPoint& b){return ParametricOnProjectedSegment(a,a,b,2);};
+  for(auto edge:c.border) {
+    const ParametricPoint p{ComponentFlat(nodes.at(edge[0]),c.axis)},q{ComponentFlat(nodes.at(edge[1]),c.axis)};
+    if(side(x,y,p)*side(x,y,q)<0 && side(p,q,x)*side(p,q,y)<0)return false;
+    if(!same(x,p)&&!same(x,q)&&ParametricOnProjectedSegment(p,q,x,2,stats)&&c.orientation*side(p,q,y)<0)return false;
+    if(!same(y,p)&&!same(y,q)&&ParametricOnProjectedSegment(p,q,y,2,stats)&&c.orientation*side(p,q,x)<0)return false;
+  }
+  for(auto corner:c.corners) {
+    const ParametricPoint p{ComponentFlat(nodes.at(corner[0]),c.axis)},v{ComponentFlat(nodes.at(corner[1]),c.axis)},q{ComponentFlat(nodes.at(corner[2]),c.axis)};
+    if(!ParametricOnProjectedSegment(x,y,v,2,stats))continue;
+    const int turn=c.orientation*side(p,v,q);
+    for(const auto& direction:{x,y})if(!same(direction,v)) {
+      const int left=c.orientation*side(p,v,direction),right=c.orientation*side(v,q,direction);
+      if(turn>=0?left<0||right<0:left<0&&right<0)return false;
+    }
+  }
+  return true;
+}
+bool MappedFacetReference::ComponentContainsFace(Id facet,const std::array<SurfaceBinding,3>& binding,
+    const std::array<Point,3>& realized,SU2Native3D::KernelStats* stats)const {
+  using namespace SU2Native3D;
+  const auto root=Canonical(facet);const auto& c=components->entries.at(root);std::array<ParametricPoint,3> t;
+  for(unsigned k=0;k<3;++k){if(!Supports(root,binding[k])||!Admissible(binding[k],realized[k]))return false;t[k]=ComponentFlat(Ideal(binding[k]),c.axis);}
+  if(ParametricOrientation(t[0],t[1],t[2],2,stats)!=c.orientation)return false;
+  const auto plane=reference->Affine().find(root);
+  if(plane!=reference->Affine().end()) {
+    const auto n=Values(plane->second.normal);const int outward=c.orientation*(c.axis==1?-1:1)*(n[c.axis]>0?1:-1);
+    if(SurfaceNormalSign(plane->second.normal,realized,stats)!=outward)return false;
+  }else {
+    const auto& f=reference->Get(root);if(SurfaceOrientationSign({f.v[0].p,f.v[1].p,f.v[2].p},realized,stats)<=0)return false;
+  }
+  if(c.convex)return true;
+  int winding=0;
+  for(auto edge:c.border) {
+    const auto a=ComponentFlat(nodes.at(edge[0]),c.axis),b=ComponentFlat(nodes.at(edge[1]),c.axis);
+    const int ay=ParametricCentroidSide({{0,a.y,0}},{{1,a.y,0}},t,2,stats),by=ParametricCentroidSide({{0,b.y,0}},{{1,b.y,0}},t,2,stats);
+    const int side=ParametricCentroidSide({a},{b},t,2,stats);
+    if(ay>=0&&by<0&&side>0)++winding;if(ay<0&&by>=0&&side<0)--winding;
+    if(ParametricSegmentEntersTriangle({a},{b},t,2,stats))return false;
+  }
+  return winding==c.orientation;
+}
 size_t MappedFacetReference::ResidentBytes()const {
   auto bytes=[](const auto& map){return transfer_memory::Mul(map.size(),sizeof(typename std::decay_t<decltype(map)>::value_type)+4*sizeof(void*));};
   size_t out=transfer_memory::Add(sizeof(*this),bytes(errors),bytes(nodes),bytes(vertex_facets),transfer_memory::Bytes(edges),transfer_memory::Bytes(edge_facets));
   for(const auto& row:vertex_facets)out=transfer_memory::Add(out,transfer_memory::Bytes(row.second));
-  for(const auto& row:edge_facets)out=transfer_memory::Add(out,transfer_memory::Bytes(row));return out;
+  for(const auto& row:edge_facets)out=transfer_memory::Add(out,transfer_memory::Bytes(row));
+  if(components){out=transfer_memory::Add(out,sizeof(ComponentData),bytes(components->entries));
+    for(const auto& row:components->entries){const auto& c=row.second;out=transfer_memory::Add(out,transfer_memory::Bytes(c.facets),transfer_memory::Bytes(c.border),
+        transfer_memory::Bytes(c.corners),bytes(c.features),c.search->GetAllocatedBytes(),c.search->RetainedWorkspaceBound(1),transfer_memory::Mul(c.facets.size(),sizeof(Id)));}}
+  return out;
 }
 bool MappedFacetReference::ValidateSurface(const std::vector<SU2Native3D::SurfaceFace>& surface,
     const std::map<Id,SurfaceBinding>& bindings,const std::map<Id,Point>& realized,MappedSurfaceAudit& report,
@@ -346,9 +512,9 @@ bool MappedFacetReference::ValidateSurface(const std::vector<SU2Native3D::Surfac
       for(unsigned k=0;k<3;++k){b[k]=bindings.at(face.v[k]);p[k]=realized.at(face.v[k]);used.insert(face.v[k]);
         audit.maximum_mapping_error=std::max(audit.maximum_mapping_error,ErrorBound(b[k],p[k]));}
       if(!ContainsFace(face.facet,b,p))throw std::invalid_argument("Mapped face leaves its finite support, reverses, or exceeds mapping error.");
-      groups[face.facet].push_back(face.v);skin.push_back(face.v);
+      groups[Canonical(face.facet)].push_back(face.v);skin.push_back(face.v);
     }
-    if(used.size()!=bindings.size() || used.size()!=realized.size() || groups.size()!=reference->Facets().size())
+    if(used.size()!=bindings.size() || used.size()!=realized.size() || groups.size()!=(components?components->entries.size():reference->Facets().size()))
       throw std::invalid_argument("Mapped boundary bindings or original facet coverage are incomplete.");
     ValidateDomainSurfaceTopology(skin);
     // Canonical original support and scalar parameter identify one current shared node, independent of rank IDs.
@@ -359,27 +525,23 @@ bool MappedFacetReference::ValidateSurface(const std::vector<SU2Native3D::Surfac
       if(b.dimension==1 && !edge_nodes.emplace(std::make_pair(b.feature,b.u),row.first).second)throw std::invalid_argument("Duplicate mapped feature parameter.");
     }
     for(const auto& group:groups) {
-      ValidateSurfaceTopology(group.second,false,maximum_faces);
-      const auto& original=reference->Get(group.first);
+      ValidateSurfaceTopology(group.second,false,maximum_faces,nullptr,bool(components));
+      std::map<Id,bool> local_features;const std::map<Id,bool>* expected=nullptr;
+      if(components)expected=&components->entries.at(group.first).features;
+      else {const auto& original=reference->Get(group.first);
+        for(unsigned k=0;k<3;++k){Edge e{original.v[k].id,original.v[(k+1)%3].id};const bool forward=e[0]<e[1];std::sort(e.begin(),e.end());local_features.emplace(EdgeIdentity(e),forward);}expected=&local_features;}
       std::map<Edge,std::vector<Edge>> uses;
       for(const auto& face:group.second)for(unsigned k=0;k<3;++k){Edge e{face[k],face[(k+1)%3]},key=e;std::sort(key.begin(),key.end());uses[key].push_back(e);}
       std::map<Id,std::vector<std::pair<double,double>>> chains;
       for(const auto& row:uses)if(row.second.size()==1) {
-        const auto directed=row.second.front();bool found=false;
-        for(unsigned k=0;k<3;++k) {
-          Edge edge{original.v[k].id,original.v[(k+1)%3].id};const bool forward=edge[0]<edge[1];std::sort(edge.begin(),edge.end());const Id feature=EdgeIdentity(edge);
-          auto parameter=[&](const SurfaceBinding& b,double& t) {
-            if(b.dimension==1 && b.feature==feature){t=b.u;return true;}
-            if(b.dimension==0 && (b.feature==edge[0]||b.feature==edge[1])){t=b.feature==edge[0]?0.:1.;return true;}return false;
-          };
-          double a,b;
-          if(!parameter(bindings.at(directed[0]),a)||!parameter(bindings.at(directed[1]),b))continue;
-          if(!(forward?a<b:b<a))throw std::invalid_argument("Mapped feature chain reverses or collapses.");
-          chains[feature].push_back({std::min(a,b),std::max(a,b)});found=true;++audit.feature_segments;break;
-        }
-        if(!found)throw std::invalid_argument("Mapped facet border leaves its original feature.");
+        const auto directed=row.second.front();Id feature;double a,b;
+        if(!BoundarySegment(group.first,bindings.at(directed[0]),bindings.at(directed[1]),feature,a,b))
+          throw std::invalid_argument("Mapped component border leaves its physical feature.");
+        const auto found=expected->find(feature);
+        if(found==expected->end() || !(found->second?a<b:b<a))throw std::invalid_argument("Mapped feature chain reverses or collapses.");
+        chains[feature].push_back({std::min(a,b),std::max(a,b)});++audit.feature_segments;
       }
-      if(chains.size()!=3)throw std::invalid_argument("Mapped facet has missing border features.");
+      if(chains.size()!=expected->size())throw std::invalid_argument("Mapped component has missing border features.");
       for(auto& row:chains) {
         auto& chain=row.second;std::sort(chain.begin(),chain.end());double end=0;
         for(const auto& interval:chain){if(interval.first!=end)throw std::invalid_argument("Mapped feature chain has a gap or overlap.");end=interval.second;}

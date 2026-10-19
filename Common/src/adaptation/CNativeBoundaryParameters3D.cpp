@@ -6,6 +6,7 @@
 #include "../../include/adaptation/CNativeBoundary3D.hpp"
 #include "../../include/adaptation/CNativeDistributed2D.hpp"
 #include "../../include/adaptation/CTransferMemory.hpp"
+#include "CNativePredicates3D_internal.hpp"
 #include <cstring>
 #include <limits>
 namespace SU2Native3D {
@@ -25,14 +26,14 @@ template<class M>size_t MapBytes(const M& m){return transfer_memory::Mul(m.size(
 void BoundaryIds(const Patch& patch,std::set<Id>& used){for(const auto& f:patch.surface)used.insert(f.v.begin(),f.v.end());}
 void WritePayload(SU2NativeBoundary2D::RecordStream& out,const State& state) {
   auto version=state.Geometry().Version(),revision=state.Revision();
-  uint64_t np=state.Records().size(),nf=state.Surface().size();out(version,revision,np,nf);
+  uint64_t np=state.Records().size(),nf=state.Surface().size(),policy=state.Geometry().ReferenceComponents();out(version,revision,np,nf,policy);
   for(auto row:state.Records())out(row.second.point);
   for(auto row:state.Surface())out(row.second);
 }
 void WriteSnapshot(SU2NativeBoundary2D::RecordStream& out,const State& state) {
   auto version=state.Geometry().Version(),revision=state.Revision();const auto& g=state.Geometry();
   uint64_t nf=g.Reference().Facets().size(),ne=g.Errors().size(),na=g.Reference().Affine().size(),np=state.Records().size(),ns=state.Surface().size();
-  out(version,revision,nf,ne,na,np,ns);
+  uint64_t policy=g.ReferenceComponents();out(version,revision,nf,ne,na,np,ns,policy);
   for(auto row:g.Reference().Facets())out(row.second);
   for(auto row:g.Errors()){auto id=row.first;out(id,row.second);}
   for(auto row:g.Reference().Affine()){auto id=row.first;out(id,row.second);}
@@ -56,7 +57,7 @@ BoundaryParameterState::BoundaryParameterState(std::shared_ptr<const SU2NativeGe
   }
   SU2NativeGeometry::MappedSurfaceAudit audit;std::string reason;
   if(!geometry->ValidateSurface(surface,bindings,actual,audit,reason,surface.size(),ceiling))throw std::invalid_argument(reason);
-  for(auto face:surface){face.v=FaceOrder(face.v);if(!this->surface.emplace(FaceKey(face.v),face).second)throw std::invalid_argument("Duplicate accepted parameter face.");
+  for(auto face:surface){face.facet=geometry->Canonical(face.facet);face.v=FaceOrder(face.v);if(!this->surface.emplace(FaceKey(face.v),face).second)throw std::invalid_argument("Duplicate accepted parameter face.");
     for(Id id:face.v)++records.at(id).faces;}
 }
 const BoundaryPoint* BoundaryParameterState::Find(Id id)const {const auto p=records.find(id);return p==records.end()?nullptr:&p->second.point;}
@@ -79,9 +80,9 @@ std::shared_ptr<BoundaryParameterState> BoundaryParameterState::FromPayload(
     std::shared_ptr<const SU2NativeGeometry::MappedFacetReference> authority,const std::vector<char>& bytes,
     size_t ceiling,size_t caller) {
   using transfer_memory::Add;using transfer_memory::Mul;
-  SU2NativeBoundary2D::RecordStream input(bytes);uint64_t version=0,epoch=0,np=0,nf=0;input(version,epoch,np,nf);
-  if(!authority || version!=authority->Version() || !epoch || !np || !nf ||
-      Add(32,Mul(np,72),Mul(nf,32))!=bytes.size())throw std::invalid_argument("Invalid boundary parameter payload/version/counts.");
+  SU2NativeBoundary2D::RecordStream input(bytes);uint64_t version=0,epoch=0,np=0,nf=0;uint64_t policy=0;input(version,epoch,np,nf,policy);
+  if(!authority || version!=authority->Version() || policy!=authority->ReferenceComponents() || !epoch || !np || !nf ||
+      Add(40,Mul(np,72),Mul(nf,32))!=bytes.size())throw std::invalid_argument("Invalid boundary parameter payload/version/counts.");
   const size_t live=Add(caller,transfer_memory::Bytes(bytes),Mul(np,256),Mul(nf,sizeof(SurfaceFace)));
   const size_t bound=Add(live,authority->ResidentBytes(),Mul(np,2048),Mul(nf,8192));
   if(bound==SIZE_MAX || bound>ceiling)throw std::length_error("Boundary parameter payload exceeds storage admission.");
@@ -183,7 +184,7 @@ BoundaryParameterState::Publication BoundaryParameterState::Prepare(const std::v
       const auto facet=std::get<0>(row.first),a=std::get<1>(row.first),b=std::get<2>(row.first);
       auto any=[&](Id id)->const BoundaryPoint& {const auto n=staged.added.find(id);return n==staged.added.end()?*Find(id):n->second.point;};
       Id feature;double ta,tb;
-      if(!geometry->FeatureSegment(any(a).binding,any(b).binding,feature,ta,tb))
+      if(!geometry->BoundarySegment(facet,any(a).binding,any(b).binding,feature,ta,tb))
         throw std::invalid_argument("Parameter replacement changes its retained facet interface.");
       intervals[{facet,feature,ta}]+=row.second;intervals[{facet,feature,tb}]-=row.second;
     }
@@ -290,7 +291,54 @@ SU2NativeGeometry::SurfaceBinding PlanarReference::ProposedBinding(Point p,const
     const SU2NativeGeometry::SurfaceBinding* previous)const {
   if(!parameter_view || !parameter_view->private_view)throw std::invalid_argument("Mapped proposals require a private geometry context.");
   parameter_view->Check();for(double x:PointKey(p))if(!std::isfinite(x))throw std::invalid_argument("Nonfinite mapped point proposal.");
-  const auto& geometry=parameter_view->accepted->Geometry();std::set<Id> common;bool first=true;
+  const auto& geometry=parameter_view->accepted->Geometry();
+  if(geometry.ReferenceComponents()) {
+    std::set<Id> roots;for(Id f:incident)roots.insert(geometry.Canonical(f));
+    if(roots.empty())throw std::invalid_argument("Mapped proposal has no incident component.");
+    auto supported=[&](const SU2NativeGeometry::SurfaceBinding& b){for(Id f:roots)if(!geometry.Supports(f,b))return false;return true;};
+    auto edge_proposal=[&](Edge edge) {
+      std::sort(edge.begin(),edge.end());const auto a=geometry.Ideal(geometry.Vertex(edge[0])).origin,b=geometry.Ideal(geometry.Vertex(edge[1])).origin;
+      const double x[3]={a.x,a.y,a.z},y[3]={b.x,b.y,b.z},q[3]={p.x,p.y,p.z};long double numerator=0,square=0;
+      for(unsigned k=0;k<3;++k){const auto d=static_cast<long double>(y[k])-x[k];numerator+=(static_cast<long double>(q[k])-x[k])*d;square+=d*d;}
+      if(!(square>0&&std::isfinite(square)))throw std::invalid_argument("Unresolved component feature parameter.");
+      return geometry.EdgePoint(edge,double(std::clamp(numerator/square,0.L,1.L)));
+    };
+    if(previous&&geometry.PhysicalSupport(*previous)) {
+      if(previous->dimension==0){if(!supported(*previous))throw std::invalid_argument("Physical corner conflicts with incident components.");return *previous;}
+      bool found=false;Edge edge{};
+      geometry.ForFacets(*previous,[&](Id f){for(unsigned k=0;k<3&&!found;++k){Edge e{Get(f).v[k].id,Get(f).v[(k+1)%3].id};std::sort(e.begin(),e.end());
+        if(geometry.EdgePoint(e,.5).feature==previous->feature){edge=e;found=true;}}});
+      if(!found)throw std::invalid_argument("Physical component feature is missing.");const auto b=edge_proposal(edge);
+      if(!supported(b))throw std::invalid_argument("Moved feature conflicts with incident components.");return b;
+    }
+    if(roots.size()>1) {
+      bool found=false;SU2NativeGeometry::SurfaceBinding best;long double distance=INFINITY;
+      for(auto edge:geometry.ComponentBorder(*roots.begin())) {
+        auto ordered=edge;std::sort(ordered.begin(),ordered.end());if(!supported(geometry.EdgePoint(ordered,.5)))continue;
+        const auto b=edge_proposal(edge);const auto q=geometry.Realize(b);
+        const long double d=std::abs(static_cast<long double>(p.x)-q.x)+std::abs(static_cast<long double>(p.y)-q.y)+std::abs(static_cast<long double>(p.z)-q.z);
+        if(!found||d<distance){best=b;distance=d;found=true;}
+      }
+      if(!found)throw std::invalid_argument("Declared components have no shared physical feature.");return best;
+    }
+    const Id root=*roots.begin();const unsigned axis=geometry.ComponentAxis(root),x=axis==0?1:0,y=axis==2?1:2;
+    const double q[3]={p.x,p.y,p.z};
+    for(Id id:geometry.CandidateFacets(root,p)) {
+      const auto& f=Get(id);const double a[3]={f.v[0].p.x,f.v[0].p.y,f.v[0].p.z},b[3]={f.v[1].p.x,f.v[1].p.y,f.v[1].p.z},c[3]={f.v[2].p.x,f.v[2].p.y,f.v[2].p.z};
+      const auto bx=static_cast<long double>(b[x])-a[x],by=static_cast<long double>(b[y])-a[y],cx=static_cast<long double>(c[x])-a[x],cy=static_cast<long double>(c[y])-a[y];
+      const auto left=bx*cy,right=by*cx,det=left-right;
+      if(!std::isfinite(det)||std::abs(det)<=64*std::numeric_limits<long double>::epsilon()*(std::abs(left)+std::abs(right)))continue;
+      const auto px=static_cast<long double>(q[x])-a[x],py=static_cast<long double>(q[y])-a[y];
+      const double u=double((px*cy-py*cx)/det),v=double((bx*py-by*px)/det);
+      if(!(std::isfinite(u)&&std::isfinite(v)&&u>=0&&v>=0))continue;
+      const auto remainder=Orientation({1,0,0},{0,1,0},{u,v,0},{0,0,1});if(remainder<0)continue;
+      if(u>0&&v>0&&remainder>0)return geometry.FacetPoint(id,u,v);
+      Edge edge=u==0?Edge{f.v[0].id,f.v[2].id}:v==0?Edge{f.v[0].id,f.v[1].id}:Edge{f.v[1].id,f.v[2].id};
+      return edge_proposal(edge);
+    }
+    throw std::invalid_argument("Mapped proposal leaves its finite component or has unresolved support.");
+  }
+  std::set<Id> common;bool first=true;
   for(Id id:incident) {
     std::set<Id> vertices;for(auto n:Get(id).v)vertices.insert(n.id);
     if(first){common=std::move(vertices);first=false;}else {std::set<Id> next;std::set_intersection(common.begin(),common.end(),vertices.begin(),vertices.end(),std::inserter(next,next.end()));common.swap(next);}
@@ -352,8 +400,8 @@ bool PlanarReference::ParameterContainsFace(Id facet,const std::array<Point,3>& 
 bool PlanarReference::ParameterFindFace(int marker,const std::array<Point,3>& p,Id& facet,KernelStats* stats)const {
   std::array<const BoundaryPoint*,3> b{};for(unsigned k=0;k<3;++k){b[k]=Parameter(p[k]);if(!b[k])return false;}
   const auto chosen=*std::max_element(b.begin(),b.end(),[](auto a,auto b){return a->binding.dimension<b->binding.dimension;});
-  std::vector<Id> candidates;parameter_view->accepted->Geometry().ForFacets(chosen->binding,[&](Id id){if(Get(id).marker==marker)candidates.push_back(id);});
-  std::sort(candidates.begin(),candidates.end());
+  std::vector<Id> candidates;parameter_view->accepted->Geometry().ForFacets(chosen->binding,[&](Id id){if(Get(id).marker==marker)candidates.push_back(parameter_view->accepted->Geometry().Canonical(id));});
+  std::sort(candidates.begin(),candidates.end());candidates.erase(std::unique(candidates.begin(),candidates.end()),candidates.end());
   for(Id id:candidates)if(ParameterContainsFace(id,p,stats)){facet=id;return true;}return false;
 }
 Point PlanarReference::ParameterProject(Id facet,Point p)const {
@@ -363,7 +411,9 @@ Point PlanarReference::ParameterProject(Id facet,Point p)const {
 }
 bool PlanarReference::ParameterOnEdge(Id facet,Point a,Point b,Point p,KernelStats* stats)const {
   if(!(ParameterContains(facet,a)&&ParameterContains(facet,b)&&ParameterContains(facet,p)))return false;
-  const auto& g=parameter_view->accepted->Geometry();return ParametricOnSegment(g.Ideal(Parameter(a)->binding),g.Ideal(Parameter(b)->binding),g.Ideal(Parameter(p)->binding),stats);
+  const auto& g=parameter_view->accepted->Geometry();
+  if(g.ReferenceComponents())return ContainsSegment(facet,a,b,stats)&&ParametricOnProjectedSegment(g.Ideal(Parameter(a)->binding),g.Ideal(Parameter(b)->binding),g.Ideal(Parameter(p)->binding),g.ComponentAxis(facet),stats);
+  return ParametricOnSegment(g.Ideal(Parameter(a)->binding),g.Ideal(Parameter(b)->binding),g.Ideal(Parameter(p)->binding),stats);
 }
 double PlanarReference::ParameterError(Id facet,const std::array<Point,3>& p)const {
   double maximum=0;const auto& g=parameter_view->accepted->Geometry();
