@@ -558,6 +558,33 @@ Krylov steps, so these counts are not equal-cost operations. All observed times
 are ineligible for speedup or scaling claims. These are separately labelled
 control settings, not an implementation-only comparison.
 
+The native histories expose the block-level layout dependence:
+
+| Layout | FLOW linear iterations | TURB linear iterations | FLOW iterations per update | Updates using all 20 permitted FLOW iterations |
+|---|---:|---:|---|---:|
+| 1×1 | 916 | 849 | 3 on 300 updates, 4 on 4 updates | 0 |
+| 2×2 | 5950 | 1837 | 19 on 30 updates, 20 on 269 updates | 269 |
+
+Every reported FLOW relative linear residual meets 0.05; the largest is 0.049759
+on 2×2. These are residuals for the native assembled approximate matrix. Independent
+finite-difference defects of native steps have not been measured. TURB histories
+include 62 and 65 zero-work updates, respectively; their cause is not inferred
+from iteration counts alone. Both endpoints still pass all frozen physical and
+state gates. The difference shows why a fixed inner-iteration budget need not
+give comparable preconditioning across layouts; it does not establish a benefit
+for any replacement strategy. The common default remains zero inner iterations.
+
+The application CSV and focused CSVs now include `linear_work_by_group`: native
+history fields remain separate, while each Newton controller records its outer
+and native-inner totals over all logged attempts. Coupled work is counted once
+under its coupled group. Missing legacy inner diagnostics remain `null`. Running
+results remain pending. All previous fields in the 321-row ledger are unchanged;
+the 300 rows with recorded aggregate linear work reproduce their existing totals.
+The aggregation selfchecks cover native block sums, rejected-attempt work and
+missing diagnostics. Evidence and generator/helper hashes are preserved in
+`native_linear_breakdown_20261019/assessment.json` under the application evidence
+root; original reports and helpers remain archived beside it.
+
 The existing coupled endpoint also passes a direct comparison with the new
 serial native −14 reference: maximum component error 1.745e−8, point error
 2.876e−7, and quantity errors within the unchanged limits. This additional check
