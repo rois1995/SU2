@@ -445,8 +445,9 @@ CNewtonIntegration::Attempt CNewtonIntegration::SolveAttempt(bool preparedBase) 
       legacyFlowControls
           ? options.fdStep * std::max(1.0, baseState.norm() / std::sqrt(geometry->GetGlobal_nPointDomain()))
           : options.fdStep * std::sqrt(equations->GetnVar() * geometry->GetGlobal_nPointDomain());
-  const bool verifyStep = config->GetMUSCL_Flow() &&
-                          std::find(systems.begin(), systems.end(), RUNTIME_FLOW_SYS) != systems.end();
+  /*--- Verify every group's products: scalar and first-order residuals are not smooth everywhere either
+   *     (e.g. SA-neg at zero), and an unverified product lets Krylov converge on a wrong action. ---*/
+  const bool verifyStep = true;
   const bool valid = linearization->SetBase(
       scale, pseudoTime->GetDiagonal(), probeStep, options.relativeFDStep,
       [&](const CNewtonEquationSet::Block& b, unsigned long p, unsigned short v) { return IsFree(b, p, v); },
