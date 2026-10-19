@@ -25,6 +25,12 @@ they are not isolated flux-kernel counts. Native assembly counts retain their
 explicitly inferred label. Missing historical rejection reasons are not inferred
 from zero completed Krylov iterations.
 
+The [scoped SA field reuse](NewtonKrylovFixedFlowReuse20261019.md) now addresses part
+of the measured accepted-tail gradient cost. Six supporting SA/SST prefixes retain
+identical states, residual/linear work and diagnostics; actual SA gradient and MPI
+call counts decrease. Full −14 application convergence and separate control studies
+remain outstanding. These counter reductions establish no timing speedup.
+
 ## Existing preconditioner evidence
 
 These are a separate strategy experiment: common inner default 0 versus candidate

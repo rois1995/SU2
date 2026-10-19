@@ -55,6 +55,7 @@ class CNewtonEquationSet : private CIntegration {
   unsigned long flowBoundaryEvaluations = 0;
   bool captured = false, valid = true;
   bool reuseBoundaryGradients = false; /*!< \brief Collective eligibility from this evaluation's boundary closure. */
+  bool reuseFixedFlow = false; /*!< \brief Prepared FLOW fields retained during one auxiliary advance. */
   double invalidCount = 0;
   su2vector<int8_t>* reconstructionHistory = nullptr;
   std::vector<int8_t> acceptedReconstruction, nextReconstruction;
@@ -66,7 +67,7 @@ class CNewtonEquationSet : private CIntegration {
   void SaveHistory();
   /*! \brief Undo evaluation side effects without touching physical-time solution arrays. */
   void RestoreHistory();
-  /*! \brief Exchange every dependent solver state before refreshing derived quantities. */
+  /*! \brief Exchange live dependent solver states before refreshing derived quantities. */
   void Communicate();
   /*! \brief Refresh live flow, turbulence, transition and species coefficients in dependency order. */
   void Refresh();
@@ -98,6 +99,14 @@ class CNewtonEquationSet : private CIntegration {
   void SynchronizeTimeSteps();
   /*! \brief Capture an accepted base after its residual/property refresh, fixing the scalar density factors. */
   void Capture();
+  /*!
+   * \brief Reuse unchanged FLOW halos and gradients after preparing and capturing an auxiliary base.
+   * \details Collective; end before another group, configuration or external state change.
+   * Properties, auxiliary gradients, boundary closure and numerical history remain live.
+   */
+  void BeginFixedFlowReuse();
+  /*! \brief End the local reuse lifetime on every accepted or failed exit from the auxiliary advance. */
+  void EndFixedFlowReuse();
 
   /*!
    * \brief Construct feasible perturbations a,b with a-b=direction on free coordinates.

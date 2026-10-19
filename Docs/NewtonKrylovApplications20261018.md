@@ -13,7 +13,12 @@ tested separately as a configuration change; no new recovery, forcing signal or 
 
 The [MUSCL boundary-gradient reuse](NewtonKrylovGradientReuse20261018.md) removes repeated native gradient work
 for eligible first-order auxiliary probes. Six original-control pairs retain identical states/work; measured
-SST communication counts decrease. Higher-order SA keeps its fallback. No timing speedup is inferred.
+SST communication counts decrease. No timing speedup is inferred.
+
+The [scoped SA follow-up](NewtonKrylovFixedFlowReuse20261019.md) reuses prepared FLOW fields within
+one auxiliary advance. Measured SA gradient calls fall28.9%/14.2% on1x1/2x2; parallel sends/receives
+each fall9.46%. Six original20-update numerical prefixes remain byte-identical. SST control counts
+remain unchanged. Full qualification uses the retained-14 target; these are supporting work checks.
 
 See the [existing fixed-forcing study](NewtonKrylovFixedForcing20261018.md) for nominal0.05 qualification
 and separately labelled native/Newton accuracy comparisons. Implementation and configuration gains remain distinct.
@@ -208,10 +213,10 @@ and `paper_notes/manifest.json`; they motivate investigations, not unmeasured so
 
 | Application | Layout | Actual trials | Qualified endpoints | Eligible timing repetitions |
 |---|---|---:|---:|---:|
-| naca_sa | 1x1 | 90 | 33 | 1 |
-| naca_sa | 2x2 | 66 | 27 | 0 |
-| naca_sst | 1x1 | 43 | 5 | 0 |
-| naca_sst | 2x2 | 24 | 2 | 0 |
+| naca_sa | 1x1 | 91 | 33 | 1 |
+| naca_sa | 2x2 | 67 | 27 | 0 |
+| naca_sst | 1x1 | 45 | 5 | 0 |
+| naca_sst | 2x2 | 26 | 2 | 0 |
 | nozzle_sst | 1x1 | 32 | 0 | 0 |
 | nozzle_sst | 2x2 | 9 | 0 | 0 |
 | flatplate_lm | 1x1 | 20 | 0 | 0 |
@@ -362,6 +367,12 @@ is retained; `prepared` and `running` entries have not completed.
 | nozzle_sst | 1x1 | segregated | original | baseline_4712d82375 | fd_step_1e-5 | -12 | diagnostic_complete | False | 1 | — | 2.727 |
 | nozzle_sst | 1x1 | segregated | original | baseline_4712d82375 | fd_step_1e-6 | -12 | diagnostic_complete | False | 1 | — | 2.880 |
 | nozzle_sst | 1x1 | segregated | original | baseline_4712d82375 | fd_step_1e-7 | -12 | diagnostic_complete | False | 1 | — | 1.765 |
+| naca_sa | 1x1 | segregated | original | fixed_flow_reuse_release | original | -13.0 | iteration_cap | False | 20 | 75.762 | 76.425 |
+| naca_sa | 2x2 | segregated | original | fixed_flow_reuse_release | original | -13.0 | iteration_cap | False | 20 | 97.052 | 97.596 |
+| naca_sst | 1x1 | coupled | original | fixed_flow_reuse_release | original | -13.0 | iteration_cap | False | 20 | 168.170 | 168.847 |
+| naca_sst | 1x1 | segregated | original | fixed_flow_reuse_release | original | -13.0 | iteration_cap | False | 20 | 217.443 | 218.183 |
+| naca_sst | 2x2 | coupled | original | fixed_flow_reuse_release | original | -13.0 | iteration_cap | False | 20 | 136.406 | 137.019 |
+| naca_sst | 2x2 | segregated | original | fixed_flow_reuse_release | original | -13.0 | iteration_cap | False | 20 | 150.127 | 150.710 |
 | naca_sa | 2x2 | coupled | original | static_review_correctness_v2_release | diagonal | -14.0 | qualified | True | 356 | 1797.690 | 1798.629 |
 | naca_sa | 1x1 | coupled | original | muscl_boundary_gradient_v2_release | diagonal | -14.0 | qualified | True | 179 | 1489.580 | 1490.316 |
 | naca_sa | 1x1 | coupled | original | muscl_boundary_gradient_v2_release | diagonal | -14.0 | incomplete_work_cap | False | 564 | 1648.623 | 1649.319 |

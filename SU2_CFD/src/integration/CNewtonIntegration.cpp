@@ -725,6 +725,11 @@ void CNewtonIntegration::Advance() {
   Residual(true);
   for (const auto& block : equations->GetBlocks()) block.solver->Set_OldSolution();
   equations->Capture();
+  struct FixedFlowGuard {
+    CNewtonEquationSet& equations;
+    explicit FixedFlowGuard(CNewtonEquationSet& e) : equations(e) { equations.BeginFixedFlowReuse(); }
+    ~FixedFlowGuard() { equations.EndFixedFlowReuse(); }
+  } fixedFlow(*equations);
   equations->Pack(baseState);
   UpdateScale();
   /*--- Every retry uses this captured base and scale; rejection must restore both state and merit first. ---*/

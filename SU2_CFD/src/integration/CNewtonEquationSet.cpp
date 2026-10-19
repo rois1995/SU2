@@ -33,6 +33,25 @@ bool CanReuseBoundaryGradients(const CConfig& config) {
   return true;
 }
 
+/*! \brief SA changes transport coefficients, but not compressible thermodynamic gradient inputs. */
+bool CanReuseFixedFlow(const CConfig& config) {
+  if (config.GetKind_Regime() != ENUM_REGIME::COMPRESSIBLE || config.GetKind_Turb_Model() != TURB_MODEL::SA ||
+      config.GetKind_Trans_Model() != TURB_TRANS_MODEL::NONE ||
+      config.GetKind_Species_Model() != SPECIES_MODEL::NONE || config.GetWall_Functions() ||
+      config.GetDynamic_Grid() || config.GetTime_Domain() || config.GetTime_Marching() != TIME_MARCHING::STEADY ||
+      config.GetFixed_CL_Mode() || HasFlowFeedback(config) || config.GetPyCustomSource() || config.GetBounded_Scalar() ||
+      config.GetKind_HybridRANSLES() != NO_HYBRIDRANSLES || config.GetKind_RoeLowDiss() != NO_ROELOWDISS ||
+      config.GetKind_Streamwise_Periodic() != ENUM_STREAMWISE_PERIODIC::NONE) return false;
+  for (auto marker = 0u; marker < config.GetnMarker_All(); ++marker) {
+    switch (config.GetMarker_All_KindBC(marker)) {
+      case FAR_FIELD: case HEAT_FLUX: case EULER_WALL: case SYMMETRY_PLANE:
+      case PERIODIC_BOUNDARY: case SEND_RECEIVE: break;
+      default: return false;
+    }
+  }
+  return true;
+}
+
 /*! \brief Restore shared equation settings and periodic assembly flags after every evaluation or early return. */
 class EquationSettingsGuard {
   CConfig& config;
@@ -128,6 +147,7 @@ CNewtonEquationSet::CNewtonEquationSet(CGeometry* g, CSolver** s, CNumerics*** n
 }
 
 void CNewtonEquationSet::Capture() {
+  assert(!reuseFixedFlow);
   SU2_OMP_FOR_STAT(1024)
   for (auto p = 0ul; p < geometry->GetnPoint(); ++p) density[p] = solvers[FLOW_SOL]->GetNodes()->GetDensity(p);
   END_SU2_OMP_FOR
@@ -303,9 +323,29 @@ void CNewtonEquationSet::RestoreSolutions() {
 
 void CNewtonEquationSet::Communicate() {
   for (const auto& snapshot : snapshots) {
+    /*--- SetTrial restores the synchronized FLOW owned and halo primary values within this scope. ---*/
+    if (reuseFixedFlow && snapshot.slot == FLOW_SOL) continue;
     snapshot.solver->InitiateComms(geometry, config, MPI_QUANTITIES::SOLUTION);
     snapshot.solver->CompleteComms(geometry, config, MPI_QUANTITIES::SOLUTION);
   }
+}
+
+void CNewtonEquationSet::BeginFixedFlowReuse() {
+  assert(captured && !reuseFixedFlow);
+  if (blocks.size() != 1 || blocks.front().slot != TURB_SOL || config->GetKind_Turb_Model() != TURB_MODEL::SA) return;
+  BEGIN_SU2_OMP_SAFE_GLOBAL_ACCESS {
+    /*--- Marker ownership differs by rank; every rank must omit the same gradient communications. ---*/
+    const int local = CanReuseFixedFlow(*config) ? 1 : 0;
+    int global = 0;
+    SU2_MPI::Allreduce(&local, &global, 1, MPI_INT, MPI_MIN, SU2_MPI::GetComm());
+    reuseFixedFlow = global != 0;
+  }
+  END_SU2_OMP_SAFE_GLOBAL_ACCESS
+}
+
+void CNewtonEquationSet::EndFixedFlowReuse() {
+  if (!reuseFixedFlow) return;
+  SU2_OMP_SAFE_GLOBAL_ACCESS(reuseFixedFlow = false;)
 }
 
 void CNewtonEquationSet::ProjectPeriodic(CSysVector<passivedouble>& vector,
@@ -388,7 +428,10 @@ void CNewtonEquationSet::SynchronizeTimeSteps() {
 
 void CNewtonEquationSet::Refresh() {
   SU2_OMP_SAFE_GLOBAL_ACCESS(config->SetGlobalParam(config->GetKind_Solver(), RUNTIME_FLOW_SYS);)
-  solvers[FLOW_SOL]->Preprocessing(geometry, solvers, config, MESH_0, NO_RK_ITER, RUNTIME_FLOW_SYS, true);
+  if (reuseFixedFlow)
+    solvers[FLOW_SOL]->Preprocessing_Properties(geometry, solvers, config);
+  else
+    solvers[FLOW_SOL]->Preprocessing(geometry, solvers, config, MESH_0, NO_RK_ITER, RUNTIME_FLOW_SYS, true);
   if (solvers[TRANS_SOL]) solvers[FLOW_SOL]->Friction_Forces(geometry, config);
   if (solvers[TURB_SOL]) {
     SU2_OMP_SAFE_GLOBAL_ACCESS(config->SetGlobalParam(config->GetKind_Solver(), RUNTIME_TURB_SYS);)
@@ -635,7 +678,7 @@ bool CNewtonEquationSet::EvaluateResiduals(bool implicit, bool allEquations, dou
      *     Auxiliary owners never commit flow reconstruction history; its saved counters remain frozen. ---*/
     const bool boundaryOnly = runtime == RUNTIME_FLOW_SYS && !assemble &&
                               !config->GetBounded_Scalar() && !config->GetPyCustomSource() && !HasFlowFeedback(*config);
-    if (boundaryOnly && reuseBoundaryGradients)
+    if (boundaryOnly && (reuseBoundaryGradients || reuseFixedFlow))
       /*--- Refresh() already computed the gradients used here; retain native properties and residual preparation. ---*/
       solvers[slot]->Preprocessing_Properties(geometry, solvers, config, false);
     else

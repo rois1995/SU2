@@ -2455,11 +2455,13 @@ TEST_CASE("One Newton controller advances native individual equations and couple
   }
 }
 
-TEST_CASE("A failed coupled Newton update restores every selected equation", "[NewtonController]") {
+TEST_CASE("Failed Newton updates restore dependent states across CFL retries", "[NewtonController]") {
+  for (const auto& physics : {sa, sst})
   for (unsigned retries : {0u, 1u})
   for (bool linearFailure : {true, false}) {
-    CAPTURE(linearFailure, retries);
-    Problem problem(sst + std::string("CFL_NUMBER= ") + (linearFailure ? "100" : "0.05") +
+    CAPTURE(physics, linearFailure, retries);
+    const bool auxiliary = physics == sa;
+    Problem problem(physics + std::string("CFL_NUMBER= ") + (linearFailure ? "100" : "0.05") +
                     "\nLINEAR_SOLVER_PREC= ILU\n");
     auto& driver = *problem.driver;
     auto* geometry = driver.Geometry();
@@ -2472,6 +2474,17 @@ TEST_CASE("A failed coupled Newton update restores every selected equation", "[N
     }
     REQUIRE(Residual(*equations, true));
     REQUIRE(Residual(*equations, true));
+    if (auxiliary) {
+      /*--- Production prepares the carrier FLOW time step before advancing an auxiliary owner. ---*/
+      auto* config = driver.Config();
+      config->SetGlobalParam(config->GetKind_Solver(), RUNTIME_FLOW_SYS);
+      SU2_OMP_PARALLEL {
+        driver.Solvers()[FLOW_SOL]->SetTime_Step(geometry, driver.Solvers(), config, MESH_0, 0);
+      }
+      END_SU2_OMP_PARALLEL
+      for (auto p = 0ul; p < geometry->GetnPointDomain(); ++p)
+        CHECK(driver.Solvers()[FLOW_SOL]->GetNodes()->GetDelta_Time(p) > 0);
+    }
     equations->Capture();
     auto base = MakeVector(driver, equations->GetnVar());
     auto actual = MakeVector(driver, equations->GetnVar());
@@ -2480,14 +2493,16 @@ TEST_CASE("A failed coupled Newton update restores every selected equation", "[N
     options.diagnostics = false;
     if (linearFailure) {
       options.linearIterations = 1;
-      options.etaMin = 1e-8;
-      options.linearTolerance = options.etaMax = 1e-6;
+      options.etaMin = auxiliary ? 1e-14 : 1e-8;
+      options.linearTolerance = options.etaMax = auxiliary ? 1e-12 : 1e-6;
     } else {
       options.armijo = 0.99;
       options.maxBacktracks = 1;
     }
     options.maxRetries = retries;
-    CNewtonIntegration controller({RUNTIME_FLOW_SYS, RUNTIME_TURB_SYS}, options, true);
+    const std::vector<unsigned short> selected = auxiliary ? std::vector<unsigned short>{RUNTIME_TURB_SYS}
+        : std::vector<unsigned short>{RUNTIME_FLOW_SYS, RUNTIME_TURB_SYS};
+    CNewtonIntegration controller(selected, options, true);
     controller.Iterate(geometry, driver.Solvers(), driver.Numerics(), driver.Config());
     REQUIRE(controller.GetNumericalFailure());
     CHECK(controller.GetLastAttempt().linearFailure == linearFailure);
@@ -2499,7 +2514,7 @@ TEST_CASE("A failed coupled Newton update restores every selected equation", "[N
     CHECK(controller.GetLastAttempt().rollbackMeritError == 0.0);
     /*--- A retry must rebuild its time-step action while retaining the exact captured physical state. ---*/
     const double expectedCFL = (linearFailure ? 100.0 : 0.05) * std::pow(options.shrink, retries);
-    CHECK(driver.Solvers()[FLOW_SOL]->GetNodes()->GetLocalCFL(0) == Approx(expectedCFL));
+    CHECK(driver.Solvers()[auxiliary ? TURB_SOL : FLOW_SOL]->GetNodes()->GetLocalCFL(0) == Approx(expectedCFL));
     equations->Pack(actual);
     CHECK(MaxDifference(base, actual) == 0.0);
     for (const auto& block : equations->GetBlocks())
@@ -2509,6 +2524,24 @@ TEST_CASE("A failed coupled Newton update restores every selected equation", "[N
           CHECK(block.solver->GetNodes()->GetSolution_time_n(p, v) == 7.0);
           CHECK(block.solver->GetNodes()->GetSolution_time_n1(p, v) == 9.0);
         }
+    if (auxiliary) {
+      /*--- A resolved auxiliary owner must also end reuse before reporting a later FLOW state. ---*/
+      CNewtonIntegration resolved({RUNTIME_TURB_SYS}, options);
+      resolved.SetResidualTolerance(1e12);
+      resolved.Iterate(geometry, driver.Solvers(), driver.Numerics(), driver.Config());
+      REQUIRE_FALSE(resolved.GetNumericalFailure());
+      CHECK(resolved.GetLastAttempt().search.status == Armijo::Status::Accepted);
+      CHECK(resolved.GetLastAttempt().search.step == 0);
+      auto* flow = driver.Solvers()[FLOW_SOL]->GetNodes();
+      for (auto p = 0ul; p < geometry->GetnPointDomain(); ++p)
+        flow->SetSolution(p, 1, flow->GetSolution(p, 1) * (1.01 + 0.01 * geometry->nodes->GetCoord(p, 1)));
+      resolved.RefreshAfterOuterIteration();
+      REQUIRE_FALSE(resolved.GetNumericalFailure());
+      equations->CopyResidual(actual);
+      REQUIRE(Residual(*equations, false, true));
+      equations->CopyResidual(base);
+      CHECK(MaxDifference(base, actual) == 0);
+    }
   }
 }
 
@@ -3274,6 +3307,91 @@ TEST_CASE("Periodic MUSCL auxiliary probes preserve live boundary gradients", "[
         CHECK(MaxDifference(expected, actual) <= 1e-13 * std::max(1.0, expected.norm()));
         REQUIRE(equations->Restore());
         CHECK(equations->GetRestorationError() == 0);
+      }
+    }
+}
+
+TEST_CASE("Prepared auxiliary advances retain live transport and restore independent FLOW bases", "[NewtonRefresh]") {
+  for (const auto& physics : {sa, sa + "SA_OPTIONS= NEGATIVE, EXPERIMENTAL\n", sst, sst + "KIND_TRANS_MODEL= LM\n"})
+    for (bool periodic : {false, true}) {
+      CAPTURE(physics, periodic);
+      const std::string boundary = periodic
+          ? "MARKER_HEATFLUX= NONE\nMARKER_FAR= (y_minus,y_plus,z_minus,z_plus)\n"
+            "MARKER_PERIODIC= (x_minus,x_plus,0,0.5,0.5,90,0,0,1,0,0)\n" : "";
+      Problem problem(physics + boundary + "MUSCL_TURB= YES\n", 5, true, periodic);
+      auto& driver = *problem.driver;
+      auto* geometry = driver.Geometry();
+      auto* solver = driver.Solvers()[FLOW_SOL];
+      auto* nodes = solver->GetNodes();
+      auto equations = problem.Equations({RUNTIME_TURB_SYS});
+      auto prior = problem.Equations({RUNTIME_TURB_SYS});
+      auto fields = [&] {
+        std::vector<su2double> values;
+        for (auto p = 0ul; p < geometry->GetnPoint(); ++p) {
+          for (auto v = 0u; v < solver->GetnPrimVar(); ++v) values.push_back(nodes->GetPrimitive(p, v));
+          for (auto v = 0u; v < solver->GetnPrimVarGrad(); ++v) {
+            values.push_back(nodes->GetLimiter_Primitive(p, v));
+            for (auto d = 0u; d < geometry->GetnDim(); ++d) {
+              values.push_back(nodes->GetGradient_Primitive(p, v, d));
+              values.push_back(nodes->GetGradient_Reconstruction(p)[v][d]);
+            }
+          }
+          for (auto d = 0u; d < 3; ++d) values.push_back(nodes->GetVorticity(p)[d]);
+          values.push_back(nodes->GetStrainMag(p));
+        }
+        return values;
+      };
+      for (auto base = 0u; base < 2; ++base) {
+        if (base == 1 && !periodic)
+          for (auto m = 0u; m < driver.Config()->GetnMarker_All(); ++m)
+            if (driver.Config()->GetMarker_All_TagBound(m) == "x_plus")
+              driver.Config()->SetMarker_All_KindBC(m, SUPERSONIC_OUTLET);
+        /*--- A new outer FLOW state must prepare new gradients before the next auxiliary lifetime. ---*/
+        for (auto p = 0ul; p < geometry->GetnPoint(); ++p) {
+          const auto x = geometry->nodes->GetCoord(p, 0), y = geometry->nodes->GetCoord(p, 1);
+          nodes->SetSolution(p, 1, nodes->GetSolution(p, 1) * (1 + 0.01 * (x + y)));
+          nodes->SetSolution(p, 2, 0.01 * nodes->GetSolution(p, 1));
+        }
+        REQUIRE(Residual(*equations, true, true));
+        equations->Capture();
+        if (base == 0) prior->Capture();
+        auto scale = MakeVector(driver, equations->GetnVar()), reference = scale, direction = scale;
+        auto expected = scale, actual = scale;
+        equations->BuildScales(scale, reference);
+        for (auto p = 0ul; p < geometry->GetnPoint(); ++p)
+          for (auto v = 0u; v < equations->GetnVar(); ++v)
+            direction(p, v) = 0.005 * (1 + v + geometry->nodes->GetCoord(p, 0));
+        auto isFree = [](const CNewtonEquationSet::Block& b, unsigned long p, unsigned short v) {
+          return !b.solver->Jacobian.IsPrescribedRow(p, v);
+        };
+        for (double step : {0.01, -0.02, 0.0}) {
+          equations->SetTrial(direction, step, scale, isFree);
+          REQUIRE(Residual(*equations, false, true));
+          equations->CopyResidual(expected);
+          const auto expectedFields = fields();
+          REQUIRE(equations->Restore());
+          SU2_OMP_PARALLEL { equations->BeginFixedFlowReuse(); }
+          END_SU2_OMP_PARALLEL
+          equations->SetTrial(direction, step, scale, isFree);
+          REQUIRE(Residual(*equations));
+          equations->CopyResidual(actual);
+          CHECK(MaxDifference(expected, actual) == 0);
+          CHECK(fields() == expectedFields);
+          /*--- An invalid auxiliary probe must not poison the retained FLOW fields or rollback history. ---*/
+          equations->SetTrial(direction, std::numeric_limits<double>::quiet_NaN(), scale, isFree);
+          REQUIRE_FALSE(Residual(*equations));
+          REQUIRE(equations->Restore());
+          CHECK(equations->GetRestorationError() == 0);
+          SU2_OMP_PARALLEL { equations->EndFixedFlowReuse(); }
+          END_SU2_OMP_PARALLEL
+        }
+        if (base == 1) {
+          const auto current = fields();
+          REQUIRE(prior->Restore());
+          CHECK(fields() != current);
+          REQUIRE(equations->Restore());
+          CHECK(fields() == current);
+        }
       }
     }
 }
