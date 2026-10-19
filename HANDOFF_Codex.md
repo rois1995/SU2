@@ -50,17 +50,28 @@ A further exact certificate proves body/farfield edge1--9 has NO interior binary
 point but original sensor length2.249645>1.8. Symmetry authority alone is insufficient;
 direct seeding cannot fix that later literal-body obstruction. Do not retry the
 unchanged full annulus. Validator17245 was cancelled before runtime; replacement17339
-and the sealer16386 completed successfully. No owned build/test job remains live.
+and the sealer16386 completed successfully. Their jobs are terminal; the new build below is live.
 Do not restart them from stale historical handles. Saved source-policy comparison
 is now complete: nearest-face traces are discontinuous in general; a shared-column
 collar certifies the full annulus numerical band but folds on two M6 faces at the
 wider1e-4band. All12sampled M6points stay covered, so point coverage would hide it.
-Next: coherent mapped body/features plus joint affine coverage derived from the actual
-mapping envelope, with exact global admission; retain qualified analytic coverage
-and assess its actual envelope before another mechanism or full positive attempt.
+Current source implements joint affine original-source shell preparation, pre-branch
+collective declaration checks, canonical shared coordinates, exact contact/conservative
+clearance admission, sensor copies and cost counters. Strict helper/fixtures and latest
+import/diagnostic/fixture translation units pass. Linked runtime is still PENDING.
+One build is LIVE: tool session86513, Ninja PID1383805; see joint_affine_source_v1/
+build_process.json and build.log. Poll this handle; do not restart or edit pinned C++.
+Prior missing-Ninja launch failures and early interrupted builds are preserved;
+completed objects are retained. Current executable remains prototype957e2bab until
+build PASS; its verified archive is retained. Abstract Opus5.5/high review79044 is
+terminal/successful and supplied no repository source/data. No runtime checks yet.
+[Current source/build/controls](Handbook/GOAL3_JOINT_AFFINE_SOURCE.md).
+Next: finish this build, source/MPI and affected controls with independent audits;
+then connect mapped body/features and the actual envelope before another full attempt.
+Qualified analytic paths remain; joint analytic coverage and affine BL walls reject.
 [Source decision, exact grids, work and limitations](Handbook/GOAL3_SOURCE_ENVELOPE.md).
 [Required mapped body/features and joint source contract](Handbook/GOAL3_MAPPED_FEATURES.md).
-No owned job remains live. No new physical CFD advance, complete MPI lifecycle or M6 attempt.
+The new linked build is the only owned heavy job. No new physical CFD advance, complete MPI lifecycle or M6 attempt.
 [Current receipt and limitations](integration_evidence/native_3d_bl_v1/affine_initial_adoption_v1/README.md).
 
 1. Spherical repeated RANS lifecycle validation/push: **DONE**, reuse accepted cold.

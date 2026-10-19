@@ -595,6 +595,10 @@ CRemeshResult CNativeRemesher3D::Remesh(const CConfig& config, const CGeometry& 
              << " nested_interpolation=" << b.interpolation_seconds << " nested_composition=" << b.composition_seconds
              << " tracked_bytes=" << b.tracked_bytes << " tracked_calls=" << b.tracked_calls
              << " nested_tracked_collectives=" << b.tracked_collective_seconds
+             << " nested_source_envelope=" << b.source_envelope_seconds << " source_envelope_nodes=" << b.source_envelope_nodes
+             << " source_envelope_cells=" << b.source_envelope_cells << " source_envelope_solves=" << b.source_envelope_solves
+             << " source_envelope_contacts=" << b.source_envelope_contacts << " source_envelope_distances=" << b.source_envelope_distances
+             << " nested_envelope_payload=" << b.source_envelope_payload_seconds << " envelope_replicated_bytes=" << b.source_envelope_payload_bytes
              << " native_bound=" << b.maximum_native_bytes << '\n';
     };
     bridge("import", stats.imported); bridge("weights", stats.weights); bridge("return", stats.returned); bridge("reassessment",stats.reassessment);

@@ -424,13 +424,13 @@ TEST_CASE("Affine authority survives actual Euler and RANS original-source impor
   ReferenceState junction=reference;junction.original=std::make_shared<PlanarReference>(junction.facets,SIZE_MAX,curves,joined);
   ImportedGeometry retained=imported;BridgeStats stats;const auto retainedBytes=Bytes(retained.original);const auto beforeJunction=EncodeReference(junction);
   CHECK_FALSE(ImportGeometry(*config,donor.Fine(),&metric,junction,retained,reason,stats,size_t(128)<<20));
-  CHECK(reason.find("simultaneous affine source collar")!=std::string::npos);
+  CHECK(reason.find("joint affine/analytic original-source envelope")!=std::string::npos);
   CHECK(Bytes(retained.original)==retainedBytes);CHECK(EncodeReference(junction)==beforeJunction);CHECK(State(donor)==saved);
   if(world.size>1) {
     auto mismatch=planes;if(!world.rank)for(auto& row:mismatch)row.second.version++;
     ReferenceState different=reference;different.original=std::make_shared<PlanarReference>(different.facets,SIZE_MAX,curves,mismatch);
     CHECK_FALSE(ImportGeometry(*config,donor.Fine(),&metric,different,retained,reason,stats,size_t(128)<<20));
-    CHECK(reason.find("versions differ")!=std::string::npos);CHECK(State(donor)==saved);CHECK(Bytes(retained.original)==retainedBytes);
+    CHECK(reason.find("geometry declarations differ")!=std::string::npos);CHECK(State(donor)==saved);CHECK(Bytes(retained.original)==retainedBytes);
   }
 }
 
@@ -1003,6 +1003,138 @@ void DeclareImportedCurve(ReferenceState& state,bool sphere,double amplitude=1) 
   state.original=std::make_shared<PlanarReference>(state.facets,SIZE_MAX,curves);
 }
 }
+namespace {
+Point SourceFrame(Point p) {return {2.1+p.x+.2*p.y-.1*p.z,-.7+.37*p.x+p.y+.61*p.z,.8+.15*p.x-.25*p.y+p.z};}
+CSimplexMesh JointSourceMesh(bool gap) {
+  auto mesh=BoxMesh(3,1,false);
+  if(gap) {
+    const auto old=mesh;const auto offset=mesh.GetnPoint();
+    for(size_t i=0;i<old.GetnPoint();++i){mesh.coord.push_back(old.coord[3*i]+1.01);mesh.coord.push_back(old.coord[3*i+1]);mesh.coord.push_back(old.coord[3*i+2]);}
+    for(auto node:old.elem)mesh.elem.push_back(node+offset);
+    mesh.elemRef.insert(mesh.elemRef.end(),old.elemRef.begin(),old.elemRef.end());
+    for(size_t i=0;i<mesh.markers.size();++i)for(auto node:old.markers[i].elem)mesh.markers[i].elem.push_back(node+offset);
+  }
+  for(size_t i=0;i<mesh.GetnPoint();++i) {
+    const auto p=SourceFrame({mesh.coord[3*i],mesh.coord[3*i+1],mesh.coord[3*i+2]});
+    mesh.coord[3*i]=p.x;mesh.coord[3*i+1]=p.y;mesh.coord[3*i+2]=p.z;
+  }
+  return mesh;
+}
+void JointSourceReference(ReferenceState& state,bool gap,double error=1e-13) {
+  // Exact declared carriers come from the affine frame; input rounding is covered explicitly.
+  SU2NativeGeometry::AffineAuthority x{17,1,3,SourceFrame({0,0,0}),{1.1525,-.175,.222},error};
+  auto y=x;y.identity=18;y.normal={-.2785,1.015,-.647};
+  auto second=x;second.identity=19;second.origin=SourceFrame({1.01,0,0});
+  std::map<Id,SU2NativeGeometry::AffineAuthority> affine;
+  for(const auto& f:state.facets) {
+    const auto& marker=state.marker_names.at(f.marker);
+    if(marker=="y_minus")affine.emplace(f.id,y);
+    if(marker=="x_minus") {
+      const bool first=std::all_of(f.v.begin(),f.v.end(),[&](Node n){return SU2NativeGeometry::AffineChart(x).ErrorBound(n.p)<error;});
+      REQUIRE((first || (gap && std::all_of(f.v.begin(),f.v.end(),[&](Node n){return SU2NativeGeometry::AffineChart(second).ErrorBound(n.p)<error;}))));
+      affine.emplace(f.id,first?x:second);
+    }
+  }
+  REQUIRE(affine.size()>2);state.original=std::make_shared<PlanarReference>(state.facets,SIZE_MAX,std::map<Id,AnalyticSurface>{},affine);
+}
+}
+TEST_CASE("Joint affine import freezes a conforming owner-sourced shell through N/M migration", "[NativeJointAffineSource3D]") {
+  World parent;const bool rans=GENERATE(false,true);const int workers=GENERATE(1,2,4);if(workers>parent.size)return;
+  const std::string physics=rans?"SOLVER= RANS\nKIND_TURB_MODEL= SA\nREYNOLDS_NUMBER= 1e6\nREYNOLDS_LENGTH= 1\n":"SOLVER= EULER\n";
+  auto config=MakeConfig(3,physics+"TIME_DOMAIN= YES\nTIME_STEP= .001\nTIME_ITER= 10\nTIME_MARCHING= DUAL_TIME_STEPPING-2ND_ORDER\nADAP_NATIVE_MAX_TIME= 30\n");
+  MeshSolution mesh(config.get(),JointSourceMesh(false),0);const auto field=AffineFlow(3);
+  for(size_t p=0;p<mesh.Fine().GetnPoint();++p) {
+    su2double values[MAXVAR]{};field(mesh.Fine().nodes->GetCoord(p),values);
+    auto* flow=mesh.solver[MESH_0][FLOW_SOL]->GetNodes();
+    for(unsigned k=0;k<5;++k){flow->SetSolution(p,k,values[k]);flow->GetSolution_time_n()(p,k)=values[k]*.984375;flow->GetSolution_time_n1()(p,k)=values[k]*.96875;}
+    if(rans){auto* turb=mesh.solver[MESH_0][TURB_SOL]->GetNodes();const double v=.002*(1+.1*std::abs(SU2_TYPE::GetValue(mesh.Fine().nodes->GetCoord(p,0))));
+      turb->SetSolution(p,0,v);turb->GetSolution_time_n()(p,0)=v*.875;turb->GetSolution_time_n1()(p,0)=v*.75;}
+  }
+  const auto saved=State(mesh);const auto saved_turb=rans?State(mesh.Fine(),*mesh.solver[MESH_0][TURB_SOL]):std::vector<char>{};ReferenceState state;
+  su2activematrix metric(mesh.Fine().GetnPointDomain(),6);
+  for(size_t p=0;p<metric.rows();++p){const auto m=Sensor(mesh.Fine().nodes->GetCoord(p),4);const std::array<double,6> row{m.xx,m.xy,m.xz,m.yy,m.yz,m.zz};for(unsigned k=0;k<6;++k)metric(p,k)=row[k];}
+  const auto plain=ImportGeometry(*config,mesh.Fine(),&metric,state);JointSourceReference(state,false);
+  const auto encoded=EncodeReference(state);const auto imported=ImportGeometry(*config,mesh.Fine(),&metric,state);
+  CHECK(imported.stats.source_envelope_nodes==8);CHECK(imported.stats.source_envelope_cells==3*state.facets.size());
+  CHECK(imported.stats.source_envelope_solves>0);CHECK(imported.stats.source_envelope_contacts>0);CHECK(imported.stats.source_envelope_distances>0);
+  const auto span=OriginalSourceNodeSpan(parent,imported.original);const auto global=parent.metadata(imported.original);std::map<Id,Node> old,outer;
+  std::map<Id,Tensor> sensors;
+  for(const auto& d:global)if(d.extension_component==UINT64_MAX)for(unsigned k=0;k<4;++k){old.emplace(d.cell.v[k].id,d.cell.v[k]);sensors.emplace(d.cell.v[k].id,d.sensor[k]);}
+  for(const auto& d:global)if(d.extension_component!=UINT64_MAX)for(unsigned k=0;k<4;++k) {
+    const auto n=d.cell.v[k];const auto id=n.id%span;REQUIRE(sensors.count(id));
+    CHECK(Bytes(std::vector<Tensor>{d.sensor[k]})==Bytes(std::vector<Tensor>{sensors.at(id)}));
+    if(n.id>=span)outer.emplace(id,n);
+  }
+  REQUIRE(old.size()==8);REQUIRE(outer.size()==8);
+  std::set<Id> first,second;
+  for(const auto& f:state.facets)if(state.original->Affine().count(f.id))for(auto n:f.v)
+    (state.original->Affine().at(f.id).identity==17?first:second).insert(n.id);
+  std::vector<Id> junction;std::set_intersection(first.begin(),first.end(),second.begin(),second.end(),std::back_inserter(junction));
+  REQUIRE_FALSE(junction.empty());const auto corner=old.at(junction.front()).p;const auto out=outer.at(junction.front()).p;
+  const Point q{double((long double)corner.x+((long double)out.x-corner.x)/32),
+                double((long double)corner.y+((long double)out.y-corner.y)/32),
+                double((long double)corner.z+((long double)out.z-corner.z)/32)};
+  const auto inside=SourceFrame({.25,.25,.25});DonorImport service(parent,true);std::string reason;REQUIRE(service.Build(imported.original,reason));
+  const auto sample=service.SamplePoints({q,inside},state.original->ExtensionComponents());INFO(sample.reason);REQUIRE(sample.valid);
+  REQUIRE(sample.samples.size()==2);CHECK(sample.samples[0].extension_component!=UINT64_MAX);CHECK(sample.samples[1].extension_component==UINT64_MAX);
+  FrozenField frozen(global,{},false,AssociatedExtensions(global,*state.original)),original(global);
+  const auto a=frozen.Query(inside),b=original.Query(inside);CHECK(a.donor==b.donor);CHECK(a.weights==b.weights);
+  CHECK(Bytes(std::vector<Tensor>{a.sensor})==Bytes(std::vector<Tensor>{b.sensor}));
+  CHECK(double(frozen.SensorEdgeLength(inside,q))>0);
+  unsigned calls=0;FrozenField composed(global,[&](Point p,Tensor s){++calls;s.zz+=1+.5*p.x;return s;},false,AssociatedExtensions(global,*state.original),[](Point,Point){return std::vector<double>{0,1};});
+  for(unsigned i=0;i<2;++i){const auto answer=composed.Query(q);CHECK(answer.target.zz==Approx(answer.sensor.zz+(1+.5*q.x)).margin(1e-13));}
+  CHECK(calls==2);CHECK(composed.Statistics().hits==1);
+  auto working=imported.cells;std::map<Id,int> destinations;PartitionStats partition;
+  REQUIRE(Repartition(parent,working,std::vector<uint32_t>(working.size(),1),workers,partition,reason));
+  size_t position=0;for(const auto& row:imported.cells)destinations.emplace(row.first,partition.destinations.at(position++));
+  std::vector<std::vector<DonorCell>> send(parent.size);
+  for(auto d:imported.original)send[destinations.at(d.extension_component==UINT64_MAX?d.cell.id:d.parent_cell)].push_back(d);
+  const auto migrated=parent.exchange(send);
+  auto check=[&](World& worker) {
+    DonorImport local(worker);std::string detail;REQUIRE(local.Build(migrated,detail));
+    const auto answer=local.SamplePoints({q,inside},state.original->ExtensionComponents());INFO(answer.reason);REQUIRE(answer.valid);
+    for(unsigned i=0;i<2;++i)CHECK(Bytes(std::vector<Tensor>{answer.samples[i].sensor})==Bytes(std::vector<Tensor>{sample.samples[i].sensor}));
+  };
+#ifdef HAVE_MPI
+  MPI_Comm comm=MPI_COMM_NULL;MPI_Comm_split(parent.comm,parent.rank<workers?0:MPI_UNDEFINED,parent.rank,&comm);
+  if(comm!=MPI_COMM_NULL){World worker(comm);check(worker);MPI_Comm_free(&comm);}
+#else
+  check(parent);
+#endif
+  CHECK(State(mesh)==saved);CHECK(EncodeReference(state)==encoded);
+  ImportedGeometry retained=plain;BridgeStats refused;const auto before=Bytes(retained.original);
+  CHECK_FALSE(ImportGeometry(*config,mesh.Fine(),&metric,state,retained,reason,refused,parent.rank?SIZE_MAX:0));
+  CHECK(Bytes(retained.original)==before);CHECK(EncodeReference(state)==encoded);CHECK(State(mesh)==saved);
+  if(parent.size>1)for(bool empty:{false,true}) {
+    ReferenceState different=state;
+    if(!parent.rank) {
+      auto profiles=state.original->Affine();if(empty)profiles.clear();else for(auto& row:profiles)++row.second.version;
+      different.original=std::make_shared<PlanarReference>(state.facets,SIZE_MAX,std::map<Id,AnalyticSurface>{},profiles);
+    }
+    const auto held=EncodeReference(different);
+    CHECK_FALSE(ImportGeometry(*config,mesh.Fine(),&metric,different,retained,reason,refused,size_t(128)<<20));
+    INFO(reason);CHECK(reason.find(empty?"presence differs":"geometry declarations differ")!=std::string::npos);
+    CHECK(Bytes(retained.original)==before);CHECK(EncodeReference(different)==held);CHECK(State(mesh)==saved);
+  }
+  const auto name="joint_affine_source_"+std::string(rans?"rans":"euler")+"_m"+std::to_string(workers);
+  Save(parent,name,imported.cells,imported.original,state);SaveCoverage(parent,name,imported.original,state);
+  if(rans)CHECK(State(mesh.Fine(),*mesh.solver[MESH_0][TURB_SOL])==saved_turb);
+  if(!parent.rank){std::ofstream out(name+"_preparation.json");const auto& b=imported.stats;
+    out<<std::setprecision(17)<<"{\"seconds\":"<<b.source_envelope_seconds<<",\"payload_seconds\":"<<b.source_envelope_payload_seconds
+       <<",\"replicated_logical_payload_bytes\":"<<b.source_envelope_payload_bytes<<",\"requested_native_bound_bytes\":"<<b.maximum_native_bytes
+       <<",\"nodes\":"<<b.source_envelope_nodes<<",\"cells\":"<<b.source_envelope_cells<<",\"column_work\":"<<b.source_envelope_solves
+       <<",\"contacts\":"<<b.source_envelope_contacts<<",\"distances\":"<<b.source_envelope_distances<<"}\n";CHECK(out.good());}
+}
+TEST_CASE("Joint source rejects a narrow disconnected gap without publishing its shell", "[NativeJointAffineSource3D]") {
+  World world;auto config=MakeConfig(3,"SOLVER= EULER\nADAP_NATIVE_MAX_TIME= 30\n");
+  MeshSolution mesh(config.get(),JointSourceMesh(true),0);const auto saved=State(mesh);ReferenceState state;
+  const auto plain=ImportGeometry(*config,mesh.Fine(),nullptr,state);JointSourceReference(state,true,1e-3);
+  const auto encoded=EncodeReference(state);auto retained=plain;const auto before=Bytes(retained.original);BridgeStats attempted;std::string reason;
+  CHECK_FALSE(ImportGeometry(*config,mesh.Fine(),nullptr,state,retained,reason,attempted,size_t(128)<<20));
+  INFO(reason);CHECK(reason.find("joint original-source contact")!=std::string::npos);
+  CHECK(Bytes(retained.original)==before);CHECK(EncodeReference(state)==encoded);CHECK(State(mesh)==saved);
+}
+
 TEST_CASE("Actual CFD import generates bounded bump sensor columns with collective provenance and refusal",
           "[NativeGeneratedCoverage3D]") {
   World world;const int m=GENERATE(1,2,3,4);if(m>world.size)return;

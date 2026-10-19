@@ -18,6 +18,8 @@
 #include <fstream>
 #include <iomanip>
 #include <locale>
+#include <numeric>
+#include <climits>
 #include <sstream>
 namespace SU2Native3D {
 size_t OwnedStorageBytes(const Owned& cells) {
@@ -338,11 +340,247 @@ struct Binding {
   }
 };
 
+/*! One closed current-source shell, not independent projections or a new physical authority.
+ * Accepted original embedding is a precondition. Positive product cells plus conforming shell/old-boundary
+ * contacts certify the augmented embedding; old/outer separation supplies a complete numerical query band.
+ * Analytic physical envelopes stay on their qualified paths until joint coverage is independently admitted. */
+bool JointAffineCoverage(World& world,const Owned& owned,std::vector<DonorCell>& source,
+    const PlanarReference& reference,double maximum_seconds,size_t live,size_t ceiling,
+    BridgeStats& stats,std::string& reason) {
+  const auto started=world.seconds();
+  struct Receipt {World& world;BridgeStats& stats;double start;
+    ~Receipt(){stats.source_envelope_seconds+=world.seconds()-start;}} receipt{world,stats,started};
+  constexpr uint64_t maximum_work=1000000;
+  CLocalFailure failure;
+  auto vote=[&](){return Vote(world,failure,reason);};
+  auto within=[&](){return !(maximum_seconds>0) || world.seconds()-started<maximum_seconds;};
+  double radius=0;Id component=UINT64_MAX,maximum_cell=0;
+  try {
+    if(!reference.Analytic().empty())throw std::invalid_argument("Unsupported joint affine/analytic original-source envelope; accepted state unchanged.");
+    for(const auto& row:reference.Affine()) {
+      radius=std::max(radius,4*row.second.maximum_error);
+      component=std::min(component,reference.Canonical(row.first));
+    }
+    if(!(std::isfinite(radius)&&radius>0) || component==UINT64_MAX)
+      throw std::invalid_argument("Unrepresentable joint affine source envelope.");
+    for(const auto& d:source) {
+      if(d.extension_component!=UINT64_MAX)throw std::invalid_argument("Joint affine source already has an exterior envelope.");
+      maximum_cell=std::max(maximum_cell,d.cell.id);
+    }
+  }catch(const std::bad_alloc& e){failure.Set(3,0,e.what());}
+   catch(const std::exception& e){failure.Set(1,0,e.what());}
+  if(!vote())return false;
+  uint64_t local_faces=0,local_boundary=0;
+  for(const auto& row:owned) {
+    bool boundary=false;for(auto f:row.second.physical)if(f.present){++local_faces;boundary=true;}
+    local_boundary+=boundary;
+  }
+  const auto count=CPassiveComm::Allreduce(local_faces,CPassiveComm::Op::SUM,world.comm);
+  const auto witnesses=CPassiveComm::Allreduce(local_boundary,CPassiveComm::Op::SUM,world.comm);
+  maximum_cell=CPassiveComm::Allreduce(maximum_cell,CPassiveComm::Op::MAX,world.comm);
+  // Maps, full product geometry, replicated boundary witness transport, planned checks and tree buffers.
+  const auto base=transfer_memory::Add(live,transfer_memory::Mul(count,8192),
+      transfer_memory::Mul(witnesses,3*sizeof(OwnedCell)),transfer_memory::Mul(2*maximum_work,3*sizeof(size_t)),
+      transfer_memory::GrowthBound(transfer_memory::Add(source.size(),3*local_faces),sizeof(DonorCell)));
+  if(!count || !witnesses || witnesses>count || count>ULONG_MAX/24 ||
+      transfer_memory::Add(maximum_cell,1,transfer_memory::Mul(12,transfer_memory::Add(maximum_cell,1)))==SIZE_MAX)
+    failure.Set(3,0,"Joint affine source topology/identity resource limit exceeded.");
+  if(!vote() || !Admit(world,base,ceiling,stats,reason))return false;
+  std::vector<OwnedCell> boundary;
+  try {boundary.reserve(local_boundary);for(const auto& row:owned)
+    if(std::any_of(row.second.physical.begin(),row.second.physical.end(),[](auto f){return f.present;}))boundary.push_back(row.second);
+  }catch(const std::exception& e){failure.Set(3,0,e.what());}
+  if(!vote())return false;
+  auto payload_started=world.seconds();auto all=CPassiveComm::Allgatherv(boundary,nullptr,world.comm);
+  stats.source_envelope_payload_seconds+=world.seconds()-payload_started;
+  stats.source_envelope_payload_bytes+=all.size()*sizeof(OwnedCell);
+  std::vector<Facet> skin;std::vector<std::pair<Id,unsigned>> parents;
+  std::map<std::pair<Id,unsigned>,size_t> slots;std::map<Id,Point> original;
+  std::map<Id,std::vector<size_t>> incident;
+  try {
+    std::sort(all.begin(),all.end(),[](const auto& a,const auto& b){return a.cell.id<b.cell.id;});
+    for(size_t i=0;i<all.size();++i) {
+      const auto& row=all[i];if(i && all[i-1].cell.id==row.cell.id)throw std::invalid_argument("Duplicate joint-source boundary witness ownership.");
+      for(auto node:row.cell.v) {
+        const auto old=original.emplace(node.id,node.p);
+        if(!old.second && (old.first->second.x!=node.p.x || old.first->second.y!=node.p.y || old.first->second.z!=node.p.z))
+          throw std::invalid_argument("Inconsistent shared original-source coordinates.");
+      }
+      const auto faces=Faces(row.cell);
+      for(unsigned slot=0;slot<4;++slot)if(row.physical[slot].present) {
+        Facet f;f.id=skin.size();
+        for(unsigned k=0;k<3;++k)for(auto node:row.cell.v)if(node.id==faces[slot][k])f.v[k]=node;
+        skin.push_back(f);parents.push_back({row.cell.id,slot});
+      }
+    }
+    // Face/node keys, not rank ownership or marker/body assumptions, fix all arithmetic order.
+    std::vector<size_t> order(skin.size());std::iota(order.begin(),order.end(),0);
+    std::sort(order.begin(),order.end(),[&](size_t a,size_t b){return Key({skin[a].v[0].id,skin[a].v[1].id,skin[a].v[2].id})<
+        Key({skin[b].v[0].id,skin[b].v[1].id,skin[b].v[2].id});});
+    auto old_skin=skin;auto old_parents=parents;
+    for(size_t i=0;i<order.size();++i) {
+      skin[i]=old_skin[order[i]];skin[i].id=i;parents[i]=old_parents[order[i]];slots.emplace(parents[i],i);
+      const int orientation=Parity({skin[i].v[0].id,skin[i].v[1].id,skin[i].v[2].id});
+      std::sort(skin[i].v.begin(),skin[i].v.end(),[](Node a,Node b){return a.id<b.id;});
+      if(orientation<0)std::swap(skin[i].v[1],skin[i].v[2]);
+    }
+    std::vector<Face> oriented;oriented.reserve(count);
+    for(size_t i=0;i<skin.size();++i) {
+      Face f;for(unsigned k=0;k<3;++k){f[k]=skin[i].v[k].id;incident[f[k]].push_back(i);}oriented.push_back(f);
+    }
+    if(skin.size()!=count)throw std::invalid_argument("Incomplete joint-source physical skin.");
+    ValidateDomainSurfaceTopology(oriented);
+  }catch(const std::bad_alloc& e){failure.Set(3,0,e.what());}
+   catch(const std::exception& e){failure.Set(1,0,e.what());}
+  if(!vote())return false;
+  const auto span=OriginalSourceNodeSpan(world,source);
+  if(transfer_memory::Add(span,span-1)==SIZE_MAX)failure.Set(3,0,"Joint source node identity range exhausted.");
+  if(!vote())return false;
+  std::vector<Node> columns;uint64_t solves=0;
+  if(!world.rank)try {
+    columns.reserve(incident.size());
+    for(const auto& row:incident) {
+      if(!within())throw std::length_error("Joint source column elapsed resource budget exhausted.");
+      std::vector<std::array<Point,3>> faces;faces.reserve(row.second.size());
+      for(auto i:row.second)faces.push_back({skin[i].v[0].p,skin[i].v[1].p,skin[i].v[2].p});
+      columns.push_back({span+row.first,SU2NativeGeometry::SourceColumn(original.at(row.first),faces,radius,solves,maximum_work)});
+    }
+  }catch(const std::length_error& e){failure.Set(3,0,e.what());}
+   catch(const std::bad_alloc& e){failure.Set(3,0,e.what());}
+   catch(const std::exception& e){failure.Set(1,0,e.what());}
+  if(!vote())return false;
+  payload_started=world.seconds();CPassiveComm::Bcast(columns,0,world.comm);
+  stats.source_envelope_payload_seconds+=world.seconds()-payload_started;
+  stats.source_envelope_payload_bytes+=columns.size()*sizeof(Node);
+  stats.source_envelope_solves=CPassiveComm::Allreduce(solves,CPassiveComm::Op::SUM,world.comm);
+  stats.source_envelope_nodes=columns.size();std::map<Id,Point> outer;
+  std::vector<Cell> geometry;std::vector<std::array<Point,3>> outer_faces;
+  try {
+    for(auto node:columns)if(!outer.emplace(node.id-span,node.p).second)throw std::invalid_argument("Duplicate joint-source column.");
+    geometry.reserve(witnesses+3*count);for(const auto& row:all)geometry.push_back(row.cell);
+    outer_faces.reserve(count);
+    for(const auto& f:skin) {
+      std::array<Node,6> v;std::array<Node,3> sorted=f.v;
+      std::sort(sorted.begin(),sorted.end(),[](Node a,Node b){return a.id<b.id;});
+      for(unsigned k=0;k<3;++k){v[k]=sorted[k];v[k+3]={span+sorted[k].id,outer.at(sorted[k].id)};}
+      const std::array<std::array<unsigned,4>,3> tets{{{0,1,2,5},{0,1,4,5},{0,3,4,5}}};
+      const auto parent=parents[f.id];
+      for(unsigned i=0;i<3;++i) {
+        Cell cell;cell.id=maximum_cell+1+12*parent.first+3*parent.second+i;
+        for(unsigned j=0;j<4;++j)cell.v[j]=v[tets[i][j]];
+        const auto& q=cell.v;const auto sign=Orientation(q[0].p,q[1].p,q[2].p,q[3].p);
+        const int expected=Parity({f.v[0].id,f.v[1].id,f.v[2].id})*(i==1?-1:1);
+        if(!(sign*expected>0))throw std::invalid_argument("Folded/degenerate joint original-source prism at face "+std::to_string(f.id));
+        if(sign<0)std::swap(cell.v[0],cell.v[1]);geometry.push_back(cell);
+      }
+      outer_faces.push_back({outer.at(f.v[0].id),outer.at(f.v[1].id),outer.at(f.v[2].id)});
+    }
+  }catch(const std::bad_alloc& e){failure.Set(3,0,e.what());}
+   catch(const std::exception& e){failure.Set(1,0,e.what());}
+  if(!vote())return false;
+  stats.source_envelope_cells=3*count;
+  size_t resident=0,peak=0;const auto n=geometry.size();
+  CADTElemClass::PredictBytes(3,2*n,n,2*n,&resident,&peak);
+  if(!Admit(world,transfer_memory::Add(base,peak),ceiling,stats,reason))return false;
+  std::unique_ptr<CADTElemClass> tree;
+  try {
+    std::vector<su2double> coordinates;std::vector<unsigned long> connectivity,ids;
+    std::vector<unsigned short> types(n,LINE),markers(n,0);
+    coordinates.reserve(6*n);connectivity.reserve(2*n);ids.reserve(n);
+    for(size_t i=0;i<n;++i) {
+      for(unsigned corner=0;corner<2;++corner)for(unsigned axis=0;axis<3;++axis) {
+        double value=corner?-INFINITY:INFINITY;
+        for(auto node:geometry[i].v){const double q=axis==0?node.p.x:axis==1?node.p.y:node.p.z;value=corner?std::max(value,q):std::min(value,q);}
+        coordinates.push_back(value);
+      }
+      connectivity.push_back(2*i);connectivity.push_back(2*i+1);ids.push_back(i);
+    }
+    tree=std::make_unique<CADTElemClass>(3,coordinates,connectivity,types,markers,ids,false);
+  }catch(const std::exception& e){failure.Set(3,0,e.what());}
+  if(!vote())return false;
+  if(!Admit(world,transfer_memory::Add(base,tree->GetAllocatedBytes(),tree->RetainedWorkspaceBound(1)),ceiling,stats,reason))return false;
+  struct Check {size_t a,b;bool distance;};std::vector<Check> checks;std::vector<unsigned long> candidates;
+  try {
+    auto keep=[&](size_t a,size_t b,bool distance) {
+      if(checks.size()==maximum_work)throw std::length_error("Joint source pair-work ceiling exceeded.");
+      checks.push_back({a,b,distance});
+    };
+    for(size_t i=world.rank;i<3*count;i+=world.size) {
+      if(!within())throw std::length_error("Joint source planning elapsed resource budget exhausted.");
+      std::array<su2double,3> lo,hi;
+      for(unsigned axis=0;axis<3;++axis) {
+        lo[axis]=INFINITY;hi[axis]=-INFINITY;
+        for(auto node:geometry[witnesses+i].v){const double q=axis==0?node.p.x:axis==1?node.p.y:node.p.z;lo[axis]=std::min(SU2_TYPE::GetValue(lo[axis]),q);hi[axis]=std::max(SU2_TYPE::GetValue(hi[axis]),q);}
+      }
+      tree->DetermineIntersectingElements(lo.data(),hi.data(),candidates);
+      for(auto j:candidates)if(j<witnesses || witnesses+i<j)keep(witnesses+i,j,false);
+    }
+    for(size_t i=world.rank;i<count;i+=world.size) {
+      if(!within())throw std::length_error("Joint source distance planning elapsed resource budget exhausted.");
+      std::array<su2double,3> lo,hi;
+      for(unsigned axis=0;axis<3;++axis) {
+        double first=INFINITY,last=-INFINITY;
+        for(auto p:outer_faces[i]){const double q=axis==0?p.x:axis==1?p.y:p.z;first=std::min(first,q);last=std::max(last,q);}
+        lo[axis]=std::nextafter(first-radius,-INFINITY);hi[axis]=std::nextafter(last+radius,INFINITY);
+      }
+      tree->DetermineIntersectingElements(lo.data(),hi.data(),candidates);
+      for(auto j:candidates)if(j<witnesses)for(unsigned slot=0;slot<4;++slot)if(all[j].physical[slot].present)
+        keep(i,slots.at({all[j].cell.id,slot}),true);
+    }
+  }catch(const std::length_error& e){failure.Set(3,0,e.what());}
+   catch(const std::bad_alloc& e){failure.Set(3,0,e.what());}
+   catch(const std::exception& e){failure.Set(1,0,e.what());}
+  const auto work=CPassiveComm::Allreduce(uint64_t(checks.size()),CPassiveComm::Op::SUM,world.comm);
+  if(work>maximum_work)failure.Set(3,0,"Joint source global pair-work ceiling exceeded.");
+  if(!vote())return false;
+  uint64_t contacts=0,distances=0;
+  try {for(size_t i=0;i<checks.size();++i) {
+    if(i%128==0 && !within())throw std::length_error("Joint source audit elapsed resource budget exhausted.");
+    const auto c=checks[i];
+    if(c.distance) {
+      ++distances;const auto& f=skin[c.b];
+      if(!SU2NativeGeometry::SourceFacesSeparated(outer_faces[c.a],{f.v[0].p,f.v[1].p,f.v[2].p},radius))
+        throw std::invalid_argument("Uncertified joint original-source envelope coverage at face "+std::to_string(c.a));
+    }else {
+      ++contacts;if(!ConformingDisjoint(geometry[c.a],geometry[c.b]))
+        throw std::invalid_argument("Nonconforming joint original-source contact: "+std::to_string(geometry[c.a].id)+","+std::to_string(geometry[c.b].id));
+    }
+  }}catch(const std::length_error& e){failure.Set(3,0,e.what());}
+    catch(const std::bad_alloc& e){failure.Set(3,0,e.what());}
+   catch(const std::exception& e){failure.Set(1,0,e.what());}
+  stats.source_envelope_contacts=CPassiveComm::Allreduce(contacts,CPassiveComm::Op::SUM,world.comm);
+  stats.source_envelope_distances=CPassiveComm::Allreduce(distances,CPassiveComm::Op::SUM,world.comm);
+  if(!vote())return false;
+  try {
+    const auto old=source.size();source.reserve(transfer_memory::Add(old,3*local_faces));
+    for(size_t i=0;i<old;++i) {
+      const auto original=source[i];const auto& row=owned.at(original.cell.id);
+      for(unsigned slot=0;slot<4;++slot)if(row.physical[slot].present) {
+        const auto face=slots.at({original.cell.id,slot});
+        for(unsigned j=0;j<3;++j) {
+          DonorCell donor;donor.cell=geometry[witnesses+3*face+j];donor.extension_component=component;donor.parent_cell=original.cell.id;
+          for(unsigned k=0;k<4;++k) {
+            const auto id=donor.cell.v[k].id%span;bool found=false;
+            for(unsigned v=0;v<4;++v)if(original.cell.v[v].id==id){donor.sensor[k]=original.sensor[v];found=true;break;}
+            if(!found)throw std::invalid_argument("Joint source column lost its original nodal tensor.");
+          }
+          source.push_back(donor);
+        }
+      }
+    }
+  }catch(const std::exception& e){failure.Set(3,0,e.what());}
+  if(!vote())return false;
+  if(!world.rank)std::cout<<"Native joint affine source: radius="<<radius<<" nodes="<<columns.size()<<" cells="<<3*count
+      <<" column_work="<<stats.source_envelope_solves<<" contacts="<<stats.source_envelope_contacts
+      <<" distances="<<stats.source_envelope_distances<<" seconds="<<world.seconds()-started<<std::endl;
+  return true;
+}
+
 /*! Frozen sensor-only prism coverage for one affine authority at a reference vertex.
  * Dependent-coordinate extrusion retains chart coordinates and face P1 traces.
  * Shared distinct/curved authorities need a simultaneous collar, never independent face guesses. */
 bool AffineCoverage(World& world,const Owned& cells,std::vector<DonorCell>& source,const PlanarReference& reference,
-                    size_t live,size_t ceiling,BridgeStats& stats,std::string& reason) {
+                    size_t live,size_t ceiling,BridgeStats& stats,std::string& reason,double maximum_seconds) {
   if(reference.Affine().empty())return true;
   CLocalFailure failure;
   size_t active_faces=0;
@@ -353,7 +591,7 @@ bool AffineCoverage(World& world,const Owned& cells,std::vector<DonorCell>& sour
   if(!Admit(world,transfer_memory::Add(live,transfer_memory::GrowthBound(capacity,sizeof(DonorCell)),
       transfer_memory::Mul(reference.Affine().size(),2048),transfer_memory::Mul(reference.Analytic().size(),64)),ceiling,stats,reason))return false;
   struct Rule {SU2NativeGeometry::AffineAuthority geometry;unsigned axis=0;int lo=2,hi=-2;};
-  std::map<Id,Rule> rules;Id maximum_node=0,maximum_cell=0;
+  std::map<Id,Rule> rules;Id maximum_node=0,maximum_cell=0;bool joint=false;
   try {
     std::map<Id,Id> junctions;
     for(const auto& row:reference.Affine()) {
@@ -363,10 +601,10 @@ bool AffineCoverage(World& world,const Owned& cells,std::vector<DonorCell>& sour
       for(auto node:reference.Get(row.first).v) {
         const auto old=junctions.emplace(node.id,g.identity);
         if(!old.second && old.first->second!=g.identity)
-          throw std::invalid_argument("Unsupported simultaneous affine source collar at reference vertex "+std::to_string(node.id)+"; accepted state unchanged.");
+          joint=true;
       }
     }
-    for(const auto& row:reference.Analytic())for(auto node:reference.Get(row.first).v)if(junctions.count(node.id))
+    for(const auto& row:reference.Analytic())for(auto node:reference.Get(row.first).v)if(junctions.count(node.id) && !joint)
       throw std::invalid_argument("Unsupported simultaneous affine/curved source collar at reference vertex "+std::to_string(node.id)+"; accepted state unchanged.");
     for(const auto& d:source) {
       maximum_cell=std::max(maximum_cell,d.cell.id);for(auto n:d.cell.v)maximum_node=std::max(maximum_node,n.id);
@@ -384,6 +622,11 @@ bool AffineCoverage(World& world,const Owned& cells,std::vector<DonorCell>& sour
     }
   }catch(const std::exception& e){failure.Set(1,0,e.what());}
   if(!Vote(world,failure,reason))return false;
+  const auto joint_low=CPassiveComm::Allreduce(int(joint),CPassiveComm::Op::MIN,world.comm);
+  const auto joint_high=CPassiveComm::Allreduce(int(joint),CPassiveComm::Op::MAX,world.comm);
+  if(joint_low!=joint_high)failure.Set(1,0,"Joint source authority incidence differs across ranks.");
+  if(!Vote(world,failure,reason))return false;
+  if(joint)return JointAffineCoverage(world,cells,source,reference,maximum_seconds,live,ceiling,stats,reason);
   const auto count_low=CPassiveComm::Allreduce(uint64_t(rules.size()),CPassiveComm::Op::MIN,world.comm);
   const auto count_high=CPassiveComm::Allreduce(uint64_t(rules.size()),CPassiveComm::Op::MAX,world.comm);
   if(count_low!=count_high)failure.Set(1,0,"Affine source component counts differ across ranks.");
@@ -456,8 +699,33 @@ PrimitiveKey Primitive(const AnalyticSurface& g) {
  * Capped cylinders use one shared radial/axial collar map, including disk faces and rim identities.
  * Sorted source IDs choose compatible prism diagonals; component tags still control later association. */
 bool Coverage(World& world,const Owned& cells,std::vector<DonorCell>& source,const PlanarReference& reference,
-              double geometry_tolerance,size_t live,size_t ceiling,BridgeStats& stats,std::string& reason) {
-  if(reference.Analytic().empty())return AffineCoverage(world,cells,source,reference,live,ceiling,stats,reason);
+              double geometry_tolerance,size_t live,size_t ceiling,BridgeStats& stats,std::string& reason,double maximum_seconds) {
+  if(reference.Analytic().empty() && reference.Affine().empty())return true;
+  // Agree on source policy before any analytic/affine branch or geometry collective.
+  // Complete bytes, not a hash, cover identities, versions, definitions and finite-facet assignments.
+  const auto declaration_started=world.seconds();CLocalFailure declarations_failed;
+  const auto declaration_bound=transfer_memory::Add(128,transfer_memory::Mul(128,
+      transfer_memory::Add(reference.Analytic().size(),reference.Affine().size())));
+  if(!Admit(world,transfer_memory::Add(live,transfer_memory::Mul(4,declaration_bound),
+      transfer_memory::TransportBytes(world.size)),ceiling,stats,reason))return false;
+  std::vector<char> declarations;
+  try {
+    RecordStream encode(declarations);uint64_t na=reference.Affine().size(),nc=reference.Analytic().size();encode(na,nc);
+    for(auto row:reference.Affine()){auto id=row.first;encode(id,row.second);}
+    for(auto row:reference.Analytic()) {
+      auto& g=row.second;auto kind=unsigned(g.kind);auto id=row.first;
+      encode(id,kind,g.origin,g.extent,g.tolerance,g.axis);
+    }
+  }catch(const std::exception& e){declarations_failed.Set(3,0,e.what());}
+  if(!Vote(world,declarations_failed,reason))return false;
+  auto expected=declarations;const auto payload_started=world.seconds();CPassiveComm::BcastRounds(expected,0,world.comm);
+  stats.source_envelope_payload_seconds+=world.seconds()-payload_started;
+  stats.source_envelope_payload_bytes+=expected.size();
+  if(declarations!=expected)declarations_failed.Set(1,0,"Original-source geometry declarations differ across ranks.");
+  const bool consistent=Vote(world,declarations_failed,reason);
+  stats.source_envelope_seconds+=world.seconds()-declaration_started;
+  if(!consistent)return false;
+  if(reference.Analytic().empty())return AffineCoverage(world,cells,source,reference,live,ceiling,stats,reason,maximum_seconds);
   CLocalFailure failure;
   const size_t added=transfer_memory::Mul(cells.size(),12);
   const size_t requested=transfer_memory::Add(live,transfer_memory::GrowthBound(transfer_memory::Add(source.size(),added),sizeof(DonorCell)),
@@ -632,7 +900,7 @@ bool Coverage(World& world,const Owned& cells,std::vector<DonorCell>& source,con
     }
   }catch(const std::exception& e){failure.Set(1,0,e.what());}
   if(!Vote(world,failure,reason))return false;
-  return AffineCoverage(world,cells,source,reference,live,ceiling,stats,reason);
+  return AffineCoverage(world,cells,source,reference,live,ceiling,stats,reason,maximum_seconds);
 }
 }  // namespace
 bool ImportGeometry(const CConfig& config, const CGeometry& geometry, const su2activematrix* metric,
@@ -650,6 +918,13 @@ bool ImportGeometry(const CConfig& config, const CGeometry& geometry, const su2a
     if (metric && (metric->cols() != 6 || metric->rows() < geometry.GetnPointDomain()))
       failure.Set(1, 0, "Native tetrahedral import needs six sensor components at every CFD-owned point.");
     CollectiveFailure(failure, CURRENT_FUNCTION);
+    const unsigned presence=(state.original?1u:0u)|(metric?2u:0u)|(HasSymmetryReference(config)?4u:0u)|
+        (state.original && !state.original->Affine().empty()?8u:0u)|(state.original && !state.original->Analytic().empty()?16u:0u);
+    const auto presence_low=CPassiveComm::Allreduce(presence,CPassiveComm::Op::MIN,parent.comm);
+    const auto presence_high=CPassiveComm::Allreduce(presence,CPassiveComm::Op::MAX,parent.comm);
+    if(presence_low!=presence_high)
+      failure.Set(1,0,"Native3D import reference/sensor/declaration presence differs across ranks.");
+    if(!Vote(parent,failure,reason))return false;
     const size_t declaration_bytes=HasSymmetryReference(config)?8*SymmetryFileBytes:0;
     std::vector<SymmetryPlane> declared_planes;
     if(declaration_bytes) {
@@ -925,7 +1200,8 @@ bool ImportGeometry(const CConfig& config, const CGeometry& geometry, const su2a
     }
     CollectiveFailure(failure, CURRENT_FUNCTION);
     if(!Coverage(parent,result.cells,result.original,*authority.original,SU2_TYPE::GetValue(config.GetAdap_Hausd()),
-                 transfer_memory::Add(reference_base,state.original ? 0 : ReferenceStorageBytes(pending)),ceiling,stats,reason))
+                 transfer_memory::Add(reference_base,state.original ? 0 : ReferenceStorageBytes(pending)),ceiling,stats,reason,
+                 SU2_TYPE::GetValue(config.GetAdap_Native_Max_Time())))
       return false;
     stats.faces_seconds = parent.seconds() - face_start;
   }

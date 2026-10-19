@@ -111,6 +111,89 @@ Point ProjectIntersection(Point point,const std::vector<AffineAuthority>& constr
     throw std::invalid_argument("Simultaneous affine projection cannot meet its declared mapping errors.");
   return candidate;
 }
+Point SourceColumn(Point origin,const std::vector<std::array<Point,3>>& faces,double radius,
+                   uint64_t& work,uint64_t maximum_work) {
+  Finite(origin);
+  if(!(std::isfinite(radius)&&radius>=std::numeric_limits<double>::min()) || faces.empty())
+    throw std::invalid_argument("Invalid original-source column radius/skin.");
+  using Wide=std::array<long double,3>;std::vector<Wide> rows;
+  auto dot=[](Wide a,Wide b){return a[0]*b[0]+a[1]*b[1]+a[2]*b[2];};
+  for(const auto& f:faces) {
+    for(auto p:f)Finite(p);
+    const auto a=Values(f[0]),b=Values(f[1]),c=Values(f[2]);Wide u{},v{};
+    for(unsigned k=0;k<3;++k){u[k]=static_cast<long double>(b[k])-a[k];v[k]=static_cast<long double>(c[k])-a[k];}
+    Wide n{{u[1]*v[2]-u[2]*v[1],u[2]*v[0]-u[0]*v[2],u[0]*v[1]-u[1]*v[0]}};
+    const auto length=std::sqrt(dot(n,n));if(!(length>0 && std::isfinite(length)))
+      throw std::invalid_argument("Degenerate original-source boundary face.");
+    for(auto& x:n)x/=length;
+    // Identical solver rows are redundant; no facets/authorities are merged.
+    if(std::find(rows.begin(),rows.end(),n)==rows.end())rows.push_back(n);
+    if(rows.size()>64)throw std::length_error("Original-source normal-cone constraint resource ceiling exceeded.");
+  }
+  Wide best{};long double square=INFINITY;
+  auto trial=[&](std::array<size_t,3> active,size_t count) {
+    if(work>=maximum_work)throw std::length_error("Original-source column work ceiling exceeded.");++work;
+    std::array<Wide,3> basis{};std::array<long double,3> offset{};
+    for(size_t i=0;i<count;++i) {
+      Wide row=rows[active[i]];long double value=1;
+      for(unsigned pass=0;pass<2;++pass)for(size_t j=0;j<i;++j) {
+        const auto factor=dot(row,basis[j]);value-=factor*offset[j];
+        for(unsigned k=0;k<3;++k)row[k]-=factor*basis[j][k];
+      }
+      const auto length=std::sqrt(dot(row,row));if(!(length>1e-12L))return;
+      for(auto& x:row)x/=length;basis[i]=row;offset[i]=value/length;
+    }
+    Wide proposal{};for(size_t i=0;i<count;++i)for(unsigned k=0;k<3;++k)proposal[k]+=basis[i][k]*offset[i];
+    for(auto row:rows)if(dot(row,proposal)<1-256*std::numeric_limits<long double>::epsilon())return;
+    const auto norm=dot(proposal,proposal);if(std::isfinite(norm)&&norm<square){best=proposal;square=norm;}
+  };
+  for(size_t i=0;i<rows.size();++i) {
+    trial({i,0,0},1);
+    for(size_t j=i+1;j<rows.size();++j) {
+      trial({i,j,0},2);
+      for(size_t k=j+1;k<rows.size();++k)trial({i,j,k},3);
+    }
+  }
+  if(!std::isfinite(square))throw std::invalid_argument("No admitted original-source outward normal cone.");
+  auto result=Values(origin);
+  for(unsigned k=0;k<3;++k)result[k]=double(static_cast<long double>(result[k])+4*static_cast<long double>(radius)*best[k]);
+  const auto p=ToPoint(result);Finite(p);if(Values(p)==Values(origin))
+    throw std::invalid_argument("Unrepresentable original-source column.");
+  return p;
+}
+bool SourceFacesSeparated(const std::array<Point,3>& a,const std::array<Point,3>& b,double distance) {
+  if(!(std::isfinite(distance)&&distance>0))throw std::invalid_argument("Invalid original-source separation distance.");
+  for(auto p:a)Finite(p);for(auto p:b)Finite(p);
+  using Box=std::array<Range,3>;
+  auto subtract=[](Range a,Range b){return Add(a,{-b.hi,-b.lo});};
+  auto multiply=[](Range a,Range b) {
+    const std::array<long double,4> p{{a.lo*b.lo,a.lo*b.hi,a.hi*b.lo,a.hi*b.hi}};
+    return Range{std::nextafter(*std::min_element(p.begin(),p.end()),-INFINITY),
+                 std::nextafter(*std::max_element(p.begin(),p.end()),INFINITY)};
+  };
+  auto delta=[](Point a,Point b){const auto x=Values(a),y=Values(b);Box v;
+    for(unsigned k=0;k<3;++k)v[k]=Subtract(x[k],y[k]);return v;};
+  auto cross=[&](Box a,Box b){return Box{{subtract(multiply(a[1],b[2]),multiply(a[2],b[1])),
+      subtract(multiply(a[2],b[0]),multiply(a[0],b[2])),subtract(multiply(a[0],b[1]),multiply(a[1],b[0]))}};};
+  auto dot=[&](Box a,Box b){Range sum;for(unsigned k=0;k<3;++k)sum=Add(sum,multiply(a[k],b[k]));return sum;};
+  auto separated=[&](Box axis) {
+    long double norm=0;for(auto x:axis)norm=std::nextafter(norm+std::max(std::abs(x.lo),std::abs(x.hi)),INFINITY);
+    if(!(norm>0 && std::isfinite(norm)))return false;
+    long double alo=INFINITY,ahi=-INFINITY,blo=INFINITY,bhi=-INFINITY;
+    for(auto p:a){const auto q=dot(axis,delta(p,a[0]));alo=std::min(alo,q.lo);ahi=std::max(ahi,q.hi);}
+    for(auto p:b){const auto q=dot(axis,delta(p,a[0]));blo=std::min(blo,q.lo);bhi=std::max(bhi,q.hi);}
+    const auto gap=std::max(std::nextafter(blo-ahi,-INFINITY),std::nextafter(alo-bhi,-INFINITY));
+    // ||axis||_2 <= ||axis||_1; every operation encloses its real value.
+    const auto required=std::nextafter(static_cast<long double>(distance)*norm,INFINITY);
+    return std::isfinite(gap)&&std::isfinite(required)&&gap>=required;
+  };
+  for(unsigned k=0;k<3;++k){Box axis{};axis[k]={1,1};if(separated(axis))return true;}
+  std::array<Box,3> ea,eb;
+  for(unsigned k=0;k<3;++k){ea[k]=delta(a[(k+1)%3],a[k]);eb[k]=delta(b[(k+1)%3],b[k]);}
+  if(separated(cross(ea[0],ea[1])) || separated(cross(eb[0],eb[1])))return true;
+  for(auto x:ea)for(auto y:eb)if(separated(cross(x,y)))return true;
+  return false;
+}
 FiniteLineReference::FiniteLineReference(AffineAuthority authority,const std::vector<LineEdge>& edges,size_t ceiling):chart(authority) {
   if(authority.dimension!=2 || edges.empty())throw std::invalid_argument("Finite line reference requires 2D intervals.");
   const auto preparation=transfer_memory::Mul(edges.size(),1024);

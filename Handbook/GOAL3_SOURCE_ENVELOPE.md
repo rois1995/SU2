@@ -59,3 +59,11 @@ its completed numerics were sealed without rerun. No performance/scaling claim.
 No new C++ linked runtime, MPI, actual adapted mesh, state transfer, restart or
 viscous validation. Full both-dimension/multiple-body/holes/exterior scope remains.
 Pending joint-wall source correction stays syntax-only until the connected build.
+
+## Implementation follow-up
+
+[Joint affine-source preparation](GOAL3_JOINT_AFFINE_SOURCE.md) is now implemented
+with bounded collective declaration/geometry admission and original sensor copies.
+Focused translation units pass; linked/runtime/MPI/independent qualification is
+pending. The measured rejected wide/nearest strategies remain rejected, and the
+full geometry/lifecycle goal remains OPEN.

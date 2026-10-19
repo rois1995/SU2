@@ -47,6 +47,15 @@ double DisplacementBound(Point a,Point b);
  * Actual mapped points must satisfy every declared error contract. Dependent or ill-conditioned
  * unequal declarations refuse explicitly; no sequential projection or tolerance enlargement. */
 Point ProjectIntersection(Point point,const std::vector<AffineAuthority>& constraints);
+/*! Proposed shared original-source column, not a geometry/CFD vertex projection.
+ * Oriented physical faces meet at origin. A bounded normal-cone active-set search proposes
+ * a four-radius shell; callers must certify actual positivity, conformity and coverage.
+ * Work is accumulated across vertices; a missing/ill-conditioned cone or exhaustion refuses. */
+Point SourceColumn(Point origin,const std::vector<std::array<Point,3>>& faces,double radius,
+                   uint64_t& work,uint64_t maximum_work);
+/*! Sufficient outward-rounded separation certificate for two finite triangles.
+ * False includes uncertainty. No vertex-only membership or tolerance enlargement. */
+bool SourceFacesSeparated(const std::array<Point,3>& a,const std::array<Point,3>& b,double distance);
 struct LineEdge {Id identity=0;SU2Native3D::Node a,b;};
 /*! A union of directed connected intervals, including multiple body-footprint gaps.
  * Endpoints retain input feature IDs. Coincident disconnected endpoints and overlaps reject. */

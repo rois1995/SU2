@@ -416,3 +416,20 @@ Independent follow-up13.44s/maxRSS279MiB. First report-only assembly failed afte
 21.4s; saved numerical results were sealed without rerun and original failure/source
 retained. No C++/MPI/CFD/transfer/restart run, speedup or new accepted-mesh claim.
 [Receipts, inspectable source grids and next implementation](GOAL3_SOURCE_ENVELOPE.md).
+
+## Joint affine original-source implementation — qualification pending
+
+The measured numerical-band collar strategy now has production source code: current
+closed physical skin, root-owned shared columns/canonical oriented faces, exact
+positivity/all-pair contact and conservative finite-face clearance, original tensor
+copies, collective atomic admission and work/payload counters. Pre-branch presence
+and complete geometry definitions agree collectively. Existing isolated coverage
+remains; joint analytic/affine and affine BL-wall support remain explicit gaps.
+
+Strict helper/fixtures and latest import/diagnostic/fixture compilation checks pass.
+One linked build is active; runtime/MPI/N-M/state assertions and independent audits
+are pending. Launcher failures were before compilation; early review interruptions
+retain completed objects. No physical CFD rerun or accepted-mesh/performance claim.
+Abstract Opus5.5/high review supplies only conditional geometry reasoning, not proof
+of implementation. Native containment/tensor validation stays; clamping not adopted.
+[Implementation, cost counters, limitations and exact evidence](GOAL3_JOINT_AFFINE_SOURCE.md).

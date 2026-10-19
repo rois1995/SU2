@@ -7008,3 +7008,13 @@ required envelope from authority mapping, preserve qualified analytic coverage,
 and admit joint coverage globally before another positive complete attempt.
 No original sensor/BL/fade/mesh gate changed; no new CFD or MPI run was needed.
 [Exact failures, grids, costs and limits](Handbook/GOAL3_SOURCE_ENVELOPE.md).
+
+## Joint affine-source preparation — implemented, not runtime-qualified
+
+New source code prepares a shared finite collar from the actual original boundary,
+copies only original sensor values, and admits positivity/contact/clearance/work/
+memory collectively before publication. Complete source declarations agree before
+branches; source/CFD state stays atomic on refusal. Existing frozen P1 and actual-query
+BL remain. Strict helper and latest import/diagnostic/fixture compilation checks pass;
+a linked build is active. No accepted adapted mesh, new MPI/lifecycle or affordability
+claim. [Current scope and verification](Handbook/GOAL3_JOINT_AFFINE_SOURCE.md).

@@ -150,3 +150,19 @@ TEST_CASE("Simultaneous affine adoption preserves every mapping contract and rem
   CHECK_THROWS(DisplacementBound({INFINITY,0,0},{0,0,0}));
   auto zero=Authority(3);zero.maximum_error=0;CHECK_THROWS(ProjectIntersection({0,0,0},{zero}));
 }
+
+TEST_CASE("Source columns are bounded proposals and finite-face clearance is conservatively admitted", "[NativeAffineSourceGeometry]") {
+  const std::array<Point,3> x{{{0,0,0},{0,0,1},{0,1,0}}},y{{{0,0,0},{1,0,0},{0,0,1}}};
+  uint64_t work=0;const auto column=SourceColumn({0,0,0},{x,y},1e-6,work,100);
+  CHECK(column.x<0);CHECK(column.y<0);CHECK(column.z==0);CHECK(work>0);CHECK(work<=100);
+  auto outer=x;for(auto& p:outer)p.x=-8e-6;
+  CHECK(SourceFacesSeparated(x,outer,4e-6));CHECK_FALSE(SourceFacesSeparated(x,outer,1e-5));
+  CHECK_FALSE(SourceFacesSeparated(x,x,1e-8));
+  auto rotated=x;for(auto& p:rotated){const auto q=p;p={q.x+.37*q.y-.61*q.z,q.y+.23*q.z,q.z};}
+  auto shifted=rotated;for(auto& p:shifted)p.x-=1e-3;
+  CHECK(SourceFacesSeparated(rotated,shifted,1e-5));
+  uint64_t exhausted=0;CHECK_THROWS(SourceColumn({0,0,0},{x,y},1e-6,exhausted,0));
+  auto opposite=x;std::swap(opposite[1],opposite[2]);work=0;
+  CHECK_THROWS(SourceColumn({0,0,0},{x,opposite},1e-6,work,100));
+  CHECK_THROWS(SourceFacesSeparated(x,outer,0));
+}

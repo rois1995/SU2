@@ -40,6 +40,11 @@ struct BridgeStats {
   // World-wrapper payload includes self traffic; calls/time omit direct MPI/vendor work and are not MPI wait.
   uint64_t tracked_bytes = 0, tracked_calls = 0;
   double tracked_collective_seconds = 0;
+  // Source declarations/joint shell: global geometry counts/work, local elapsed/requested storage (not RSS).
+  uint64_t source_envelope_nodes=0,source_envelope_cells=0,source_envelope_solves=0;
+  uint64_t source_envelope_contacts=0,source_envelope_distances=0;
+  double source_envelope_seconds=0,source_envelope_payload_seconds=0;
+  uint64_t source_envelope_payload_bytes=0; // Replicated logical payload per rank, not network/wire traffic.
   size_t maximum_native_bytes = 0;
 };
 /*! Native requested-storage models, including map nodes and immutable reference buffers. */
