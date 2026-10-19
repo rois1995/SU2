@@ -141,6 +141,12 @@ inline double Adapt(const Options<>& options, double cfl, double agreement, doub
   return std::max(options.cflMin, std::min(options.cflMax, cfl));
 }
 
+/*! \brief CFL after a direction below the state resolution: a larger pseudo-time step gives a larger direction. */
+inline double Stationary(const Options<>& options, double cfl) {
+  if (!options.adaptCFL) return cfl;
+  return std::max(options.cflMin, std::min(options.cflMax, cfl * options.grow));
+}
+
 /*--- Eisenstat-Walker choice 2 uses norms of the same scaled residual and undamped steps. ---*/
 inline double Forcing(const Options<>& options, double eta, double base, double accepted, double step) {
   if (!options.adaptiveForcing || step < 1.0 || !(base > 0)) return options.linearTolerance;

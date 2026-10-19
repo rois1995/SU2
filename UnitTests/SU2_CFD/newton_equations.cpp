@@ -1955,7 +1955,40 @@ TEST_CASE("Reduced-communication Newton resolution is collective", "[NewtonColle
     CHECK(controller.GetLastAttempt().search.status != Armijo::Status::Accepted);
     CHECK(controller.GetLastAttempt().rollbackStateError == 0);
   } else
-    CHECK(controller.GetLastAttempt().search.step > 0);
+    CHECK((controller.GetLastAttempt().search.step > 0 || controller.GetLastAttempt().stationary));
+}
+
+TEST_CASE("Newton keeps a state whose update is below the state resolution", "[NewtonConvergence]") {
+  Problem problem("SOLVER= EULER\nMARKER_HEATFLUX= NONE\nMARKER_FAR= (x_minus,x_plus,y_minus,y_plus)\n");
+  auto& driver = *problem.driver;
+  auto* geometry = driver.Geometry();
+  auto* flow = driver.Solvers()[FLOW_SOL]->GetNodes();
+  const auto nVar = driver.Solvers()[FLOW_SOL]->GetnVar();
+  /*--- Uniform free stream plus a 1e-13 relative bump: the Newton update is far below the step tolerance. ---*/
+  for (auto p = 0ul; p < geometry->GetnPoint(); ++p)
+    if (std::abs(geometry->nodes->GetCoord(p, 0) - 0.4) < 1e-12 &&
+        std::abs(geometry->nodes->GetCoord(p, 1) - 0.4) < 1e-12)
+      flow->SetSolution(p, nVar - 1, flow->GetSolution(p, nVar - 1) * (1 + 1e-13));
+  std::vector<double> initial;
+  for (auto p = 0ul; p < geometry->GetnPointDomain(); ++p)
+    for (auto v = 0u; v < nVar; ++v) initial.push_back(SU2_TYPE::GetValue(flow->GetSolution(p, v)));
+  NonlinearGlobalization::Options<> options;
+  options.diagnostics = false;
+  CNewtonIntegration controller({RUNTIME_FLOW_SYS}, options);
+  for (unsigned iteration = 0; iteration < 3; ++iteration) {
+    driver.Config()->SetInnerIter(iteration);
+    controller.Iterate(geometry, driver.Solvers(), driver.Numerics(), driver.Config());
+    INFO(controller.GetNumericalFailureMessage());
+    const auto& attempt = controller.GetLastAttempt();
+    REQUIRE_FALSE(controller.GetNumericalFailure());
+    REQUIRE(attempt.base > 0);
+    CHECK(attempt.stationary);
+    CHECK(attempt.search.status == Armijo::Status::Accepted);
+    CHECK(attempt.search.step == 0);
+  }
+  auto index = 0ul;
+  for (auto p = 0ul; p < geometry->GetnPointDomain(); ++p)
+    for (auto v = 0u; v < nVar; ++v) CHECK(SU2_TYPE::GetValue(flow->GetSolution(p, v)) == initial[index++]);
 }
 
 TEST_CASE("Legacy Newton selection requires explicit common opt-in", "[NewtonCompatibility]") {

@@ -72,6 +72,15 @@ TEST_CASE("Accepted steps adapt pseudo-time from model agreement", "[globalizati
   REQUIRE(Adapt(options, 100, 0.9, 1) == 100);
 }
 
+TEST_CASE("A direction below the state resolution grows pseudo-time instead of failing", "[globalization]") {
+  using namespace NonlinearGlobalization;
+  Options<> options;
+  REQUIRE(Stationary(options, 100) == 200);
+  REQUIRE(Stationary(options, options.cflMax) == options.cflMax);
+  options.adaptCFL = false;
+  REQUIRE(Stationary(options, 100) == 100);
+}
+
 TEST_CASE("Inexact forcing is bounded and resets after a damped step", "[globalization]") {
   using namespace NonlinearGlobalization;
   Options<> options;

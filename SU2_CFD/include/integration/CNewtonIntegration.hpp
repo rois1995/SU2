@@ -69,7 +69,7 @@ class CNewtonIntegration final : public CIntegration {
     unsigned linearIterations = 0;
     const char* rejectionReason = "NONE";
     unsigned failedProducts = 0, inadmissibleTrials = 0;
-    bool linearFailure = false, residualFailure = false, startup = false, deflated = false;
+    bool linearFailure = false, residualFailure = false, startup = false, deflated = false, stationary = false;
     double reconstruction = 1, linearTarget = 0, toleranceFactor = 1, meanFlowResidual = 0;
     unsigned long preconditionerIterations = 0;
   };

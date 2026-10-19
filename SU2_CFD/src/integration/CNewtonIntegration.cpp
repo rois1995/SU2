@@ -576,6 +576,15 @@ void CNewtonIntegration::Search(Attempt& attempt) {
     LogEvaluation(0, "BASE", attempt.base, attempt.base);
   else
     Evaluate(0, "BASE");
+  if (!invalid && relative <= options.stepTolerance) {
+    /*--- The full step is below the state resolution, so no trial can change the state. This is not a failed
+     *    search: keep the verified base, and do not cut CFL, which would only shrink the next direction.
+     *    The outer convergence criteria still decide whether the run has converged. ---*/
+    attempt.search = {Armijo::Status::Accepted, 0, attempt.base, 0};
+    attempt.stationary = true;
+    attempt.rejectionReason = "STATIONARY";
+    return;
+  }
   if (!invalid && relative > 0) {
     /*--- Physical merit needs its own verified J*p, without subtracting a dominant mass action afterward. ---*/
     CNewtonLinearization::Failure failure;
@@ -749,8 +758,10 @@ void CNewtonIntegration::Advance() {
     SU2_OMP_SAFE_GLOBAL_ACCESS(lastAttempt = attempt;)
     using Reason = NonlinearGlobalization::RecoveryReason;
     if (attempt.search.status == Armijo::Status::Accepted && !attempt.linearFailure) {
-      const double next =
-          CommitFlow(attempt, NonlinearGlobalization::Adapt(options, cfl, attempt.agreement, attempt.search.step));
+      const double adapted =
+          attempt.stationary ? NonlinearGlobalization::Stationary(options, cfl)
+                             : NonlinearGlobalization::Adapt(options, cfl, attempt.agreement, attempt.search.step);
+      const double next = CommitFlow(attempt, adapted);
       Log(attempt, {Reason::Accepted, next});
       SU2_OMP_SAFE_GLOBAL_ACCESS(
           cfl = next;
