@@ -305,14 +305,58 @@ double CNewtonIntegration::AdaptLocalCFL(const Attempt& attempt) {
    *    update (already scaled by the accepted step) decides locally, so hard points keep a small CFL. ---*/
   const bool reduce = attempt.search.step < 1 || !(attempt.linearDefect <= 1.2 * cflLinearTolerance);
   const bool canIncrease = attempt.linearDefect < cflLinearTolerance;
+  BEGIN_SU2_OMP_SAFE_GLOBAL_ACCESS {
+    /*--- Native limit-cycle rules: a failed linear solve or a residual that grew by two orders over the last
+     *    iterations restarts the CFL ramp, flip-flop convergence reduces it (CSolver::AdaptCFLNumber). ---*/
+    resetLocalCFL = !(attempt.linearDefect <= 0.99);
+    flipFlop = false;
+    const auto count = std::min(100ul, config->GetnInner_Iter() - 1);
+    if (localRule.adaptCFL && !config->OptionIsSet("OUTLIER_MITIGATION_PARAM") && count > 0) {
+      double logResidual = 0;
+      unsigned variables = 0;
+      for (auto slot : {FLOW_SOL, TURB_SOL, SPECIES_SOL}) {
+        if (!solvers[slot]) continue;
+        for (auto v = 0u; v < solvers[slot]->GetnVar(); ++v, ++variables)
+          logResidual += std::log10(std::max(SU2_TYPE::GetValue(solvers[slot]->GetRes_RMS(v)),
+                                             std::numeric_limits<double>::min()));
+      }
+      logResidual /= std::max(1u, variables);
+      if (residualSeries.size() != count) {
+        residualSeries.assign(count, 0.0);
+        seriesCounter = 0;
+        previousLogResidual = logResidual;
+      }
+      residualSeries[seriesCounter] = logResidual - previousLogResidual;
+      previousLogResidual = logResidual;
+      seriesCounter = (seriesCounter + 1) % count;
+      if (config->GetInnerIter() >= count) {
+        unsigned long signChanges = 0;
+        double totalChange = 0, previous = residualSeries.front();
+        for (const double change : residualSeries) {
+          totalChange += change;
+          signChanges += (previous > 0) != (change > 0);
+          previous = change;
+        }
+        flipFlop = signChanges > count / 4 && totalChange > -0.5;
+        if (totalChange > 2.0) {
+          resetLocalCFL = true;
+          seriesCounter = 0;
+          std::fill(residualSeries.begin(), residualSeries.end(), 0.0);
+        }
+      }
+    }
+  }
+  END_SU2_OMP_SAFE_GLOBAL_ACCESS
   double maximum = 0;
   SU2_OMP_FOR_STAT(1024)
   for (auto p = 0ul; p < localCFL.size(); ++p) {
     double relaxation = 1;
     for (const auto& block : equations->GetBlocks())
       relaxation = std::min(relaxation, SU2_TYPE::GetValue(block.solver->GetNodes()->GetUnderRelaxation(p)));
-    const double factor = NonlinearGlobalization::LocalFactor(localRule, relaxation, reduce, canIncrease);
-    localCFL[p] = std::max(options.cflMin, std::min(options.cflMax, localCFL[p] * factor));
+    const double factor = NonlinearGlobalization::LocalFactor(localRule, relaxation, reduce || flipFlop, canIncrease);
+    localCFL[p] = resetLocalCFL && localRule.adaptCFL
+                      ? options.cflMin
+                      : std::max(options.cflMin, std::min(options.cflMax, localCFL[p] * factor));
     if (p < geometry->GetnPointDomain()) maximum = std::max(maximum, localCFL[p]);
   }
   END_SU2_OMP_FOR

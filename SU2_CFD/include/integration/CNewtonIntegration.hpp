@@ -116,6 +116,11 @@ class CNewtonIntegration final : public CIntegration {
   double cflLinearTolerance = 0; /*!< \brief Native CFL rule: acceptable linear residual (assembled operators). */
   std::vector<double> localCFL; /*!< \brief Per-point CFL of assembled operators (native local CFL rule). */
   NonlinearGlobalization::Options<> localRule; /*!< \brief Native CFL_ADAPT_PARAM factors of the per-point rule. */
+  /*! \brief Native nonlinear-residual history of the per-point rule: log10 RMS changes of the last updates. */
+  std::vector<double> residualSeries;
+  unsigned long seriesCounter = 0;
+  double previousLogResidual = 0;
+  bool resetLocalCFL = false, flipFlop = false;
   /*! \brief Scale the assembled local CFL field, clamp it to the CFL bounds and return its global maximum. */
   double ScaleLocalCFL(double factor);
   /*! \brief Apply the native per-point CFL rule after an accepted assembled update; return the global maximum. */
