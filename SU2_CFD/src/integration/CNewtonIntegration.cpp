@@ -213,11 +213,22 @@ void CNewtonIntegration::Setup() {
     /*--- Follow the native CFL controls: fixed without CFL_ADAPT, otherwise its factors and bounds. ---*/
     options.adaptCFL = options.adaptCFL && config->GetCFL_Adapt();
     cflLinearTolerance = std::max(SU2_TYPE::GetValue(config->GetCFL_AdaptParam(4)), tolerance);
+    const double shrink = SU2_TYPE::GetValue(config->GetCFL_AdaptParam(0));
+    const double grow = SU2_TYPE::GetValue(config->GetCFL_AdaptParam(1));
     if (config->GetCFL_Adapt()) {
-      options.shrink = SU2_TYPE::GetValue(config->GetCFL_AdaptParam(0));
-      options.grow = SU2_TYPE::GetValue(config->GetCFL_AdaptParam(1));
+      if (!(shrink > 0 && shrink <= 1 && grow >= 1))
+        throw std::invalid_argument("Assembled Newton operators need CFL_ADAPT_PARAM shrink in (0,1] and growth >= 1");
+      /*--- Native factors of 1 (never reduce, never grow) apply to the per-point rule; recovery after a rejected
+       *    update still needs a real CFL cut, so it keeps the Newton default factors then. ---*/
+      if (shrink < 1) options.shrink = shrink;
+      if (grow > 1) options.grow = grow;
       options.cflMin = SU2_TYPE::GetValue(config->GetCFL_AdaptParam(2));
       options.cflMax = SU2_TYPE::GetValue(config->GetCFL_AdaptParam(3));
+    }
+    localRule = options;
+    if (config->GetCFL_Adapt()) {
+      localRule.shrink = shrink;
+      localRule.grow = grow;
     }
   }
   const auto error = options.Validate();
@@ -300,7 +311,7 @@ double CNewtonIntegration::AdaptLocalCFL(const Attempt& attempt) {
     double relaxation = 1;
     for (const auto& block : equations->GetBlocks())
       relaxation = std::min(relaxation, SU2_TYPE::GetValue(block.solver->GetNodes()->GetUnderRelaxation(p)));
-    const double factor = NonlinearGlobalization::LocalFactor(options, relaxation, reduce, canIncrease);
+    const double factor = NonlinearGlobalization::LocalFactor(localRule, relaxation, reduce, canIncrease);
     localCFL[p] = std::max(options.cflMin, std::min(options.cflMax, localCFL[p] * factor));
     if (p < geometry->GetnPointDomain()) maximum = std::max(maximum, localCFL[p]);
   }
@@ -943,7 +954,7 @@ void CNewtonIntegration::Advance() {
     if (attempt.search.status == Armijo::Status::Accepted && !attempt.linearFailure) {
       const double adapted =
           assembledOperator
-              ? (attempt.stationary ? ScaleLocalCFL(options.adaptCFL ? options.grow : 1) : AdaptLocalCFL(attempt))
+              ? (attempt.stationary ? ScaleLocalCFL(localRule.adaptCFL ? localRule.grow : 1) : AdaptLocalCFL(attempt))
           : attempt.stationary ? NonlinearGlobalization::Stationary(options, cfl)
                                : NonlinearGlobalization::Adapt(options, cfl, attempt.agreement, attempt.search.step);
       const double next = CommitFlow(attempt, adapted);
