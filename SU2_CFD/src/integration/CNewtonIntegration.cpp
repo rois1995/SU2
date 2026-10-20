@@ -222,13 +222,16 @@ void CNewtonIntegration::Setup() {
        *    update still needs a real CFL cut, so it keeps the Newton default factors then. ---*/
       if (shrink < 1) options.shrink = shrink;
       if (grow > 1) options.grow = grow;
-      options.cflMin = SU2_TYPE::GetValue(config->GetCFL_AdaptParam(2));
       options.cflMax = SU2_TYPE::GetValue(config->GetCFL_AdaptParam(3));
     }
     localRule = options;
     if (config->GetCFL_Adapt()) {
       localRule.shrink = shrink;
       localRule.grow = grow;
+      /*--- The native minimum bounds the per-point rule and its restarts; recovery after a rejected update may cut
+       *    below it (down to the Newton floor), else a high native minimum leaves no recovery at all. ---*/
+      localRule.cflMin = SU2_TYPE::GetValue(config->GetCFL_AdaptParam(2));
+      options.cflMin = std::min(options.cflMin, localRule.cflMin);
     }
   }
   const auto error = options.Validate();
@@ -309,6 +312,10 @@ double CNewtonIntegration::ScaleLocalCFL(double factor) {
 double CNewtonIntegration::AdaptLocalCFL(const Attempt& attempt) {
   /*--- Native rule: the linear solve and the line search decide globally, the under-relaxation of each point's
    *    update (already scaled by the accepted step) decides locally, so hard points keep a small CFL. ---*/
+  const bool steeringBlocks = std::any_of(equations->GetBlocks().begin(), equations->GetBlocks().end(),
+                                          [](const CNewtonEquationSet::Block& b) {
+                                            return b.slot == FLOW_SOL || b.slot == TURB_SOL;
+                                          });
   const bool reduce = attempt.search.step < 1 || !(attempt.linearDefect <= 1.2 * cflLinearTolerance);
   const bool canIncrease = attempt.linearDefect < cflLinearTolerance;
   BEGIN_SU2_OMP_SAFE_GLOBAL_ACCESS {
@@ -356,13 +363,18 @@ double CNewtonIntegration::AdaptLocalCFL(const Attempt& attempt) {
   double maximum = 0;
   SU2_OMP_FOR_STAT(1024)
   for (auto p = 0ul; p < localCFL.size(); ++p) {
+    /*--- As CSolver::AdaptCFLNumber: only the flow and turbulence under-relaxation steer the local CFL (a group with
+     *    neither, e.g. transition alone, uses its own). The transition limits its own update, not the shared CFL. ---*/
     double relaxation = 1;
     for (const auto& block : equations->GetBlocks())
-      relaxation = std::min(relaxation, SU2_TYPE::GetValue(block.solver->GetNodes()->GetUnderRelaxation(p)));
+      if (block.slot == FLOW_SOL || block.slot == TURB_SOL || !steeringBlocks)
+        relaxation = std::min(relaxation, SU2_TYPE::GetValue(block.solver->GetNodes()->GetUnderRelaxation(p)));
     const double factor = NonlinearGlobalization::LocalFactor(localRule, relaxation, reduce || flipFlop, canIncrease);
-    localCFL[p] = resetLocalCFL && localRule.adaptCFL
-                      ? options.cflMin
-                      : std::max(options.cflMin, std::min(options.cflMax, localCFL[p] * factor));
+    /*--- Reductions of the native rule stop at the native minimum; points below it (after recovery) keep their CFL
+     *    until the rule grows it again. ---*/
+    double next = std::min(options.cflMax, localCFL[p] * factor);
+    if (factor < 1) next = std::max(next, std::min(localCFL[p], localRule.cflMin));
+    localCFL[p] = resetLocalCFL && localRule.adaptCFL ? localRule.cflMin : std::max(options.cflMin, next);
     if (p < geometry->GetnPointDomain()) maximum = std::max(maximum, localCFL[p]);
   }
   END_SU2_OMP_FOR
