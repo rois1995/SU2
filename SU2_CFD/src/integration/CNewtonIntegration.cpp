@@ -264,6 +264,9 @@ void CNewtonIntegration::Setup() {
   }
   for (auto* vector : {&scale, &rhs, &correction, &direction, &product, &pseudoDirection, &probeReference, &baseState})
     vector->Initialize(geometry->GetnPoint(), geometry->GetnPointDomain(), equations->GetnVar(), 0.0);
+  if (coupledAssembly)
+    for (auto* vector : {&weightedRhs, &weightedInput})
+      vector->Initialize(geometry->GetnPoint(), geometry->GetnPointDomain(), equations->GetnVar(), 0.0);
   free.resize(geometry->GetnPoint() * equations->GetnVar(), true);
   linearSolver.SetxIsZero(true);
   pseudoTime = std::make_unique<CNewtonPseudoTime>(*equations, geometry, config);
@@ -456,6 +459,7 @@ void CNewtonIntegration::LogEvaluation(double step, const char* phase, double va
 void CNewtonIntegration::MatrixFreeProduct(const CSysVector<Scalar>& u, CSysVector<Scalar>& v, bool directionModel) {
   if (directionModel && nativeDirection) {
     preconditioner->Multiply(u, v);
+    if (!blockWeights.empty()) WeightBlocks(v, 1);
     return;
   }
   CNewtonLinearization::Failure failure;
@@ -468,16 +472,29 @@ void CNewtonIntegration::MatrixFreeProduct(const CSysVector<Scalar>& u, CSysVect
 }
 
 void CNewtonIntegration::Precondition(const CSysVector<Scalar>& u, CSysVector<Scalar>& v) const {
-  /*--- A coupled assembly is preconditioned by a block Gauss-Seidel sweep that solves every block to the native
-   *    linear tolerance, as the segregated solves do: a single norm of the coupled residual would let the
-   *    dominant flow block meet it while the turbulence block stays unsolved. ---*/
-  if (nativeDirection && coupledAssembly)
-    preconditioner->Solve(u, v, std::min(1000ul, config->GetLinear_Solver_Iter()),
-                          SU2_TYPE::GetValue(config->GetLinear_Solver_Error()), true);
+  /*--- A coupled assembly is preconditioned by one block Gauss-Seidel sweep with the native preconditioners;
+   *    the balanced rows of the outer solve (blockWeights) make every block meet the tolerance. ---*/
+  if (nativeDirection && !blockWeights.empty()) {
+    weightedInput = u;
+    WeightBlocks(weightedInput, -1);
+    preconditioner->Solve(weightedInput, v, 0, flow.innerTolerance, true);
+  } else if (nativeDirection && coupledAssembly)
+    preconditioner->Solve(u, v, 0, flow.innerTolerance, true);
   else if (nativeDirection)
     preconditioner->Solve(u, v, 0, flow.innerTolerance, false);
   else
     (*preconditioner)(u, v);
+}
+
+void CNewtonIntegration::WeightBlocks(CSysVector<Scalar>& v, int power) const {
+  const auto& blocks = equations->GetBlocks();
+  SU2_OMP_FOR_STAT(1024)
+  for (auto p = 0ul; p < v.GetNBlk(); ++p)
+    for (auto b = 0u; b < blocks.size(); ++b) {
+      const double weight = power > 0 ? blockWeights[b] : 1 / blockWeights[b];
+      for (auto j = 0u; j < blocks[b].variables; ++j) v(p, blocks[b].offset + j) *= weight;
+    }
+  END_SU2_OMP_FOR
 }
 
 void CNewtonIntegration::Restore(Attempt& attempt) {
@@ -640,25 +657,54 @@ CNewtonIntegration::Attempt CNewtonIntegration::SolveAttempt(bool preparedBase) 
   preconditioner->Build();
   correction = Scalar(0);
   double residual = attempt.linearTarget;
-  const auto iterations = legacyFlowControls ? flow.linearIterations : options.linearIterations;
+  auto iterations = legacyFlowControls ? flow.linearIterations : options.linearIterations;
+  if (coupledAssembly && nativeDirection) {
+    /*--- The budget of solving every block separately, spent on cheap block Gauss-Seidel iterations. ---*/
+    iterations *= equations->GetBlocks().size();
+    /*--- Balance the block rows: w_b = 1/||rhs_b||, or the overall norm for a block without a right hand side. ---*/
+    std::vector<double> squares(equations->GetBlocks().size());
+    for (auto b = 0u; b < squares.size(); ++b) {
+      const auto& block = equations->GetBlocks()[b];
+      double local = 0;
+      SU2_OMP_FOR_STAT(1024)
+      for (auto p = 0ul; p < geometry->GetnPointDomain(); ++p)
+        for (auto v = 0u; v < block.variables; ++v) local += std::pow(rhs(p, block.offset + v), 2);
+      END_SU2_OMP_FOR
+      squares[b] = Reduce(local);
+    }
+    const double total = std::accumulate(squares.begin(), squares.end(), 0.0);
+    BEGIN_SU2_OMP_SAFE_GLOBAL_ACCESS {
+      blockWeights.resize(squares.size());
+      for (auto b = 0u; b < squares.size(); ++b)
+        blockWeights[b] = 1 / std::sqrt(squares[b] > 0 ? squares[b] : std::max(total, 1e-300));
+    }
+    END_SU2_OMP_SAFE_GLOBAL_ACCESS
+    weightedRhs = rhs;
+    WeightBlocks(weightedRhs, 1);
+  }
+  const auto& systemRhs = blockWeights.empty() ? rhs : weightedRhs;
+  const auto target = attempt.linearTarget;
   if (assembledOperator && config->GetKind_Linear_Solver() == BCGSTAB)
-    attempt.linearIterations =
-        linearSolver.BCGSTAB_LinSolver(rhs, correction, Product(*this), Preconditioner(*this), attempt.linearTarget,
-                                       iterations, residual, false, config);
+    attempt.linearIterations = linearSolver.BCGSTAB_LinSolver(systemRhs, correction, Product(*this),
+                                                              Preconditioner(*this), target, iterations, residual,
+                                                              false, config);
   else if (attempt.startup && config->GetKind_Linear_Solver_Inner() == LINEAR_SOLVER_INNER::BCGSTAB)
-    attempt.linearIterations =
-        linearSolver.BCGSTAB_LinSolver(rhs, correction, Product(*this), Preconditioner(*this), attempt.linearTarget,
-                                       iterations, residual, false, config);
+    attempt.linearIterations = linearSolver.BCGSTAB_LinSolver(systemRhs, correction, Product(*this),
+                                                              Preconditioner(*this), target, iterations, residual,
+                                                              false, config);
   else if (attempt.startup && config->GetKind_Linear_Solver_Inner() == LINEAR_SOLVER_INNER::SMOOTHER)
-    attempt.linearIterations = linearSolver.Smoother_LinSolver(rhs, correction, Product(*this), Preconditioner(*this),
-                                                               0, iterations, residual, false, config);
+    attempt.linearIterations = linearSolver.Smoother_LinSolver(systemRhs, correction, Product(*this),
+                                                               Preconditioner(*this), 0, iterations, residual, false,
+                                                               config);
   else if (attempt.deflated)
-    attempt.linearIterations =
-        linearSolver.FGCRODR_LinSolver(rhs, correction, Product(*this), Preconditioner(*this), attempt.linearTarget,
-                                       iterations, residual, false, config);
+    attempt.linearIterations = linearSolver.FGCRODR_LinSolver(systemRhs, correction, Product(*this),
+                                                              Preconditioner(*this), target, iterations, residual,
+                                                              false, config);
   else
-    attempt.linearIterations = linearSolver.FGMRES_LinSolver(rhs, correction, Product(*this), Preconditioner(*this),
-                                                             attempt.linearTarget, iterations, residual, false, config);
+    attempt.linearIterations = linearSolver.FGMRES_LinSolver(systemRhs, correction, Product(*this),
+                                                             Preconditioner(*this), target, iterations, residual,
+                                                             false, config);
+  SU2_OMP_SAFE_GLOBAL_ACCESS(blockWeights.clear();)
   attempt.preconditionerIterations = preconditioner->GetWork();
   attempt.reportedLinearResidual = residual;
   attempt.failedProducts = failedProducts + preconditioner->GetFailedProducts();

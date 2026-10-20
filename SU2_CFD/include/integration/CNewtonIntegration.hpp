@@ -128,6 +128,16 @@ class CNewtonIntegration final : public CIntegration {
   double AdaptLocalCFL(const Attempt& attempt);
   bool nativeFallback = false; /*!< \brief Assembled recovery exhausted: take one native full step. */
   bool coupledAssembly = false; /*!< \brief Assembled group with flow/turbulence cross Jacobians. */
+  /*!
+   * \brief Row weights 1/||rhs_b|| of the coupled assembled solve, one per block (empty outside the solve).
+   * \details One norm of the coupled residual lets the dominant flow block meet the tolerance while the turbulence
+   *          block stays unsolved; with balanced rows every block must meet it.
+   */
+  std::vector<double> blockWeights;
+  CSysVector<Scalar> weightedRhs;
+  mutable CSysVector<Scalar> weightedInput;
+  /*! \brief Scale the rows of each block of v by its weight (power +1) or undo it (power -1). */
+  void WeightBlocks(CSysVector<Scalar>& v, int power) const;
   bool liveResidual = false; /*!< \brief The accepted update left current residuals of every equation of the zone. */
   /*! \brief Assembled full trials also assemble the native matrices; an accepted one (or the outer refresh) is
    *  the next base assembly, if the state of every solver is still the recorded one. */
