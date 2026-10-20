@@ -360,7 +360,10 @@ double CNewtonIntegration::Merit(double step) const {
 
 double CNewtonIntegration::Evaluate(double step, const char* phase) {
   Perturb(direction, step);
-  Residual();
+  /*--- Most assembled full steps are accepted: assemble their matrices now for the next base. ---*/
+  const bool implicit = assembledOperator && step == 1;
+  Residual(implicit);
+  SU2_OMP_SAFE_GLOBAL_ACCESS(implicitTrial = implicit;)
   const double physical = Merit();
   const double value = Armijo::IsFinite(physical) && options.pseudoTimeMerit && step != 0 ? Merit(step) : physical;
   LogEvaluation(step, phase, value, physical);
@@ -477,11 +480,14 @@ CNewtonIntegration::Attempt CNewtonIntegration::SolveAttempt(bool preparedBase) 
     attempt.linearDefect = std::numeric_limits<double>::quiet_NaN();
     return attempt;
   }
+  /*--- Assembled solves keep the base residual of the implicit assembly; native preparation changes its sign. ---*/
+  if (assembledOperator) equations->CopyResidual(rhs);
   for (const auto& block : equations->GetBlocks()) {
     SU2_OMP_SAFE_GLOBAL_ACCESS(config->SetGlobalParam(config->GetKind_Solver(), block.runtime);)
     if (block.solver->Jacobian.HasCoefficients())
       block.solver->PrepareImplicitIteration(geometry, solvers, config, false);
   }
+  if (assembledOperator) equations->SetResidual(rhs);
   for (const auto& block : equations->GetBlocks()) {
     SU2_OMP_FOR_STAT(1024)
     for (auto p = 0ul; p < geometry->GetnPoint(); ++p)
@@ -506,12 +512,12 @@ CNewtonIntegration::Attempt CNewtonIntegration::SolveAttempt(bool preparedBase) 
           : options.fdStep * std::sqrt(equations->GetnVar() * geometry->GetGlobal_nPointDomain());
   /*--- Verify every group's products: scalar and first-order residuals are not smooth everywhere either
    *     (e.g. SA-neg at zero), and an unverified product lets Krylov converge on a wrong action.
-   *     Assembled operators use no finite-difference products. ---*/
+   *     Assembled operators use no finite-difference products, so the live base residual serves as reference. ---*/
   const bool verifyStep = !assembledOperator;
   const bool valid = linearization->SetBase(
       scale, pseudoTime->GetDiagonal(), probeStep, options.relativeFDStep,
       [&](const CNewtonEquationSet::Block& b, unsigned long p, unsigned short v) { return IsFree(b, p, v); },
-      &probeReference, 1.0, legacyFlowControls, verifyStep, pseudoTime.get());
+      &probeReference, 1.0, legacyFlowControls, verifyStep, pseudoTime.get(), !assembledOperator);
   SU2_OMP_SAFE_GLOBAL_ACCESS(residualValid = valid;)
   attempt.base = Merit();
   attempt.physicalMerit = attempt.search.value = attempt.base;
@@ -576,22 +582,29 @@ CNewtonIntegration::Attempt CNewtonIntegration::SolveAttempt(bool preparedBase) 
                                                              attempt.linearTarget, iterations, residual, false, config);
   attempt.preconditionerIterations = preconditioner->GetWork();
   attempt.reportedLinearResidual = residual;
-  /*--- An assembled direction is judged against the operator actually solved. ---*/
-  MatrixFreeProduct(correction, product, assembledOperator);
   attempt.failedProducts = failedProducts + preconditioner->GetFailedProducts();
-  double defect = 0, invalid = 0;
-  SU2_OMP_FOR_STAT(1024)
-  for (auto i = 0ul; i < rhs.GetNElmDomain(); ++i) {
-    const double r = product[i] - rhs[i];
-    if (!Armijo::IsFinite(r))
-      invalid = 1;
-    else
-      defect += r * r;
+  /*--- An assembled direction is judged against the operator actually solved: the solver's relative residual
+   *    already measures it (as for the native solver), unless it is not a reduction. ---*/
+  if (assembledOperator && Armijo::IsFinite(residual) && residual < 1) {
+    attempt.linearDefect = residual;
+  } else {
+    MatrixFreeProduct(correction, product, assembledOperator);
+    attempt.failedProducts = failedProducts + preconditioner->GetFailedProducts();
+    double defect = 0, invalid = 0;
+    SU2_OMP_FOR_STAT(1024)
+    for (auto i = 0ul; i < rhs.GetNElmDomain(); ++i) {
+      const double r = product[i] - rhs[i];
+      if (!Armijo::IsFinite(r))
+        invalid = 1;
+      else
+        defect += r * r;
+    }
+    END_SU2_OMP_FOR
+    const double anyInvalid = Reduce(invalid, true);
+    const double squaredDefect = Reduce(defect);
+    attempt.linearDefect =
+        anyInvalid ? std::numeric_limits<double>::infinity() : std::sqrt(squaredDefect) / rhs.norm();
   }
-  END_SU2_OMP_FOR
-  const double anyInvalid = Reduce(invalid, true);
-  const double squaredDefect = Reduce(defect);
-  attempt.linearDefect = anyInvalid ? std::numeric_limits<double>::infinity() : std::sqrt(squaredDefect) / rhs.norm();
   /*--- The assembled operator is approximate: any progress is admissible, the line search judges the step. ---*/
   const bool defectTooLarge = nativeFallback      ? false
                               : assembledOperator ? attempt.linearDefect >= 1
@@ -814,7 +827,8 @@ void CNewtonIntegration::Iterate(CGeometry* g, CSolver** s, CNumerics*** n, CCon
 void CNewtonIntegration::RefreshAfterOuterIteration() {
   if (!setup || failed) return;
   SU2_OMP_PARALLEL {
-    const bool valid = equations->EvaluateResiduals(false, true) && RefreshStatistics(true);
+    /*--- After a coupled update of every equation, the accepted trial residuals are still current. ---*/
+    const bool valid = (liveResidual || equations->EvaluateResiduals(false, true)) && RefreshStatistics(true);
     if (valid) {
       const auto settings = config->GetEquationSettings();
       SU2_OMP_SAFE_GLOBAL_ACCESS(config->SetGlobalParam(config->GetKind_Solver(), RUNTIME_FLOW_SYS);)
@@ -831,9 +845,15 @@ void CNewtonIntegration::RefreshAfterOuterIteration() {
 }
 
 void CNewtonIntegration::Advance() {
+  /*--- The accepted assembled trial is still the live state, residual and spatial assembly if nothing has evaluated
+   *    since, and no fixed-CL feedback moves the boundary state. The time term is added later from the new CFL. ---*/
+  const bool reuse = reuseAssembly && constraintsReady && !config->GetFixed_CL_Mode() &&
+                     assemblyStamp == EvaluationCount();
+  SU2_OMP_SAFE_GLOBAL_ACCESS(liveResidual = false; reuseAssembly = false;)
   SetCFL(cfl);
-  /*--- An initial or native state can still carry wall-normal momentum; the base must satisfy v.n=0. ---*/
-  equations->ProjectSymmetryWalls();
+  /*--- An initial or native state can still carry wall-normal momentum; the base must satisfy v.n=0.
+   *    A reused trial state is already projected. ---*/
+  if (!reuse) equations->ProjectSymmetryWalls();
   for (const auto& block : equations->GetBlocks()) block.solver->Set_OldSolution();
   if (config->GetFixed_CL_Mode() && IsNewtonEquation(RUNTIME_FLOW_SYS)) {
     /*--- Apply the pending outer feedback once; trial evaluations keep the new angle fixed. ---*/
@@ -844,7 +864,11 @@ void CNewtonIntegration::Advance() {
     const bool valid = equations->EvaluateResiduals(true, true);
     SU2_OMP_SAFE_GLOBAL_ACCESS(residualValid = valid; constraintsReady = true;)
   }
-  Residual(true);
+  if (reuse) {
+    SU2_OMP_SAFE_GLOBAL_ACCESS(residualValid = true;)
+  } else {
+    Residual(true);
+  }
   for (const auto& block : equations->GetBlocks()) block.solver->Set_OldSolution();
   equations->Capture();
   struct FixedFlowGuard {
@@ -888,14 +912,22 @@ void CNewtonIntegration::Advance() {
           cfl = next;
           if (attempt.search.step > 0)
             eta = NonlinearGlobalization::Forcing(options, eta, attempt.base, attempt.search.value, attempt.search.step);)
+      /*--- Every update leaves the residual of its accepted state (trial, restored base or resolved base). ---*/
+      bool live = true;
+      for (auto runtime : {RUNTIME_FLOW_SYS, RUNTIME_TURB_SYS, RUNTIME_TRANS_SYS, RUNTIME_SPECIES_SYS})
+        if (solvers[config->GetContainerPosition(runtime)] && !IsNewtonEquation(runtime)) live = false;
       if (std::find(systems.begin(), systems.end(), RUNTIME_FLOW_SYS) != systems.end()) {
-        equations->CommitHistory();
+        /*--- Changed reconstruction history changes the residual of the same state. ---*/
+        if (equations->CommitHistory()) live = false;
         SU2_OMP_SAFE_GLOBAL_ACCESS(config->SetGlobalParam(config->GetKind_Solver(), RUNTIME_FLOW_SYS);)
         solvers[FLOW_SOL]->Postprocessing(geometry, solvers, config, MESH_0);
         solvers[FLOW_SOL]->Pressure_Forces(geometry, config);
         solvers[FLOW_SOL]->Momentum_Forces(geometry, config);
         solvers[FLOW_SOL]->Friction_Forces(geometry, config);
       }
+      SU2_OMP_SAFE_GLOBAL_ACCESS(liveResidual = live;
+                                 reuseAssembly = live && implicitTrial && attempt.search.step == 1;
+                                 assemblyStamp = EvaluationCount();)
       return;
     }
     const bool invalidState = (attempt.residualFailure && attempt.search.evaluations == 0) ||

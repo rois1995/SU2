@@ -77,12 +77,14 @@ class CNewtonLinearization final : public CMatrixVectorProduct<passivedouble> {
    * \details relativeReference controls probe size independently of the state scaling. physicalMetric retains
    * legacy flow probe sizing; verifyStep requests refinement. mass supplies the native dense/projected action.
    * The optional relaxed reconstruction belongs only to a direction model; acceptance uses the physical operator.
+   * evaluate=false keeps the live residual: only valid when no product will be applied (assembled operators).
    * \return False when the explicit base residual cannot be evaluated.
    */
   template <class IsFree>
   bool SetBase(const Vector& scaling, const Vector& pseudoTime, double step, double relativeLimit, IsFree isFree,
                const Vector* relativeReference = nullptr, double reconstructionFactor = 1.0,
-               bool physicalMetric = false, bool verifyStep = false, const CNewtonPseudoTime* mass = nullptr) {
+               bool physicalMetric = false, bool verifyStep = false, const CNewtonPseudoTime* mass = nullptr,
+               bool evaluate = true) {
     assert(scaling.GetNVar() == equations.GetnVar() && pseudoTime.GetNVar() == equations.GetnVar());
     assert(scaling.GetNBlk() == geometry->GetnPoint() && pseudoTime.GetNBlk() == geometry->GetnPoint());
     assert(step > 0 && relativeLimit >= 0);
@@ -102,8 +104,9 @@ class CNewtonLinearization final : public CMatrixVectorProduct<passivedouble> {
                                  coarseProduct.Initialize(scaling.GetNBlk(), scaling.GetNBlkDomain(), scaling.GetNVar(), 0.0);
                                  previousProduct.Initialize(scaling.GetNBlk(), scaling.GetNBlkDomain(), scaling.GetNVar(), 0.0);
                                })
-    /*--- Use the same residual path for the reference and probes, avoiding implicit/explicit roundoff offsets. ---*/
-    if (!equations.EvaluateResiduals(false, false, reconstruction)) return false;
+    /*--- Use the same residual path for the reference and probes, avoiding implicit/explicit roundoff offsets.
+     *    A caller without probes may keep the live residual of the current state instead. ---*/
+    if (evaluate && !equations.EvaluateResiduals(false, false, reconstruction)) return false;
     equations.Pack(baseState);
     equations.CopyResidual(baseResidual);
     for (const auto& block : equations.GetBlocks()) {

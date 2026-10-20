@@ -53,7 +53,7 @@ class CNewtonEquationSet : private CIntegration {
   unsigned short variables = 0;
   std::array<unsigned long, 4> residualEvaluations{};
   unsigned long flowBoundaryEvaluations = 0;
-  bool captured = false, valid = true;
+  bool captured = false, valid = true, historyChanged = false;
   bool reuseBoundaryGradients = false; /*!< \brief Collective eligibility from this evaluation's boundary closure. */
   bool reuseFixedFlow = false; /*!< \brief Prepared FLOW fields retained during one auxiliary advance. */
   double invalidCount = 0;
@@ -231,6 +231,18 @@ class CNewtonEquationSet : private CIntegration {
     }
   }
 
+  /*! \brief Install a residual packed by CopyResidual, e.g. after native preparation changed its sign. */
+  template <class Scalar>
+  void SetResidual(const CSysVector<Scalar>& residual) const {
+    assert(residual.GetNVar() == variables);
+    for (const auto& block : blocks) {
+      SU2_OMP_FOR_STAT(1024)
+      for (auto p = 0ul; p < geometry->GetnPoint(); ++p)
+        for (auto v = 0u; v < block.variables; ++v) block.solver->LinSysRes(p, v) = residual(p, block.offset + v);
+      END_SU2_OMP_FOR
+    }
+  }
+
   /*!
    * \brief Rebuild live coefficients and physical residuals, with no pseudo-time term.
    * \details Periodic groups use F(w)=P*R(w)+B(w)*(I-P)*w, where B is live density for conservative
@@ -245,8 +257,9 @@ class CNewtonEquationSet : private CIntegration {
                          unsigned short residualRuntime = 0);
   /*! \brief Rebuild coefficients at the captured state; retain physical-time history and saved relaxation. */
   bool Restore();
-  /*! \brief Advance reconstruction iteration history once, after accepting a flow update. */
-  void CommitHistory();
+  /*! \brief Advance reconstruction iteration history once, after accepting a flow update.
+   *  \return Collective: true if the history changed, so residuals evaluated before the commit are stale. */
+  bool CommitHistory();
   /*! \brief Collective maximum restoration error over dependent state, row metadata, history and relaxation. */
   double GetRestorationError();
 };

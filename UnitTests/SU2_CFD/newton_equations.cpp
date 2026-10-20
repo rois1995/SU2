@@ -1870,6 +1870,59 @@ TEST_CASE("Assembled Newton operators advance every group without finite-differe
     }
 }
 
+TEST_CASE("Coupled assembled updates reuse the accepted full step as the next base", "[NewtonAssembled]") {
+  for (const auto& physics : {std::string("SOLVER= NAVIER_STOKES\n"), sa}) {
+    CAPTURE(physics);
+    Problem problem(physics + "CFL_NUMBER= 5\nLINEAR_SOLVER_PREC= ILU\nLINEAR_SOLVER_ITER= 40\n"
+                              "LINEAR_SOLVER_ERROR= 1e-6\n", 5, true);
+    auto& driver = *problem.driver;
+    std::vector<unsigned short> systems{RUNTIME_FLOW_SYS};
+    if (driver.Solvers()[TURB_SOL]) systems.push_back(RUNTIME_TURB_SYS);
+    NonlinearGlobalization::Options<> options;
+    options.diagnostics = false;
+    CNewtonIntegration controller(systems, options, false, "assembled", false, nullptr, true);
+    auto fresh = problem.Equations(systems);
+    const auto total = [&] {
+      const auto& counts = controller.GetResidualEvaluations();
+      return std::accumulate(counts.begin(), counts.end(), 0ul);
+    };
+    bool previousFull = false;
+    for (unsigned iteration = 0; iteration < 5; ++iteration) {
+      CAPTURE(iteration);
+      driver.Config()->SetInnerIter(iteration);
+      /*--- The equation set exists after the first iteration sets the controller up. ---*/
+      const auto before = iteration ? total() : 0;
+      controller.Iterate(driver.Geometry(), driver.Solvers(), driver.Numerics(), driver.Config());
+      INFO(controller.GetNumericalFailureMessage());
+      REQUIRE_FALSE(controller.GetNumericalFailure());
+      const auto& attempt = controller.GetLastAttempt();
+      REQUIRE(attempt.search.status == Armijo::Status::Accepted);
+      /*--- One residual evaluation per update: the accepted full trial, which also assembles the next base. ---*/
+      if (previousFull && attempt.search.step == 1) CHECK(total() - before == systems.size());
+      previousFull = attempt.search.step == 1;
+      /*--- Every equation is in the group: the outer refresh keeps the live residuals of the accepted state. ---*/
+      std::vector<double> live;
+      for (const auto& block : fresh->GetBlocks())
+        for (auto p = 0ul; p < driver.Geometry()->GetnPointDomain(); ++p)
+          for (auto v = 0u; v < block.variables; ++v) live.push_back(SU2_TYPE::GetValue(block.solver->LinSysRes(p, v)));
+      const auto refreshed = total();
+      controller.RefreshAfterOuterIteration();
+      CHECK(total() == refreshed);
+      REQUIRE_FALSE(controller.GetNumericalFailure());
+      REQUIRE(Residual(*fresh));
+      double difference = 0, size = 0;
+      auto value = live.begin();
+      for (const auto& block : fresh->GetBlocks())
+        for (auto p = 0ul; p < driver.Geometry()->GetnPointDomain(); ++p)
+          for (auto v = 0u; v < block.variables; ++v, ++value) {
+            difference = std::max(difference, std::abs(*value - SU2_TYPE::GetValue(block.solver->LinSysRes(p, v))));
+            size = std::max(size, std::abs(*value));
+          }
+      CHECK(difference <= 1e-12 * size);
+    }
+  }
+}
+
 TEST_CASE("Assembled Newton operators reject legacy and finite-difference coupling controls", "[NewtonAssembled]") {
   Problem problem(sa);
   auto& driver = *problem.driver;

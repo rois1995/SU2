@@ -763,12 +763,24 @@ void CNewtonEquationSet::RestoreHistory() {
   }
 }
 
-void CNewtonEquationSet::CommitHistory() {
+bool CNewtonEquationSet::CommitHistory() {
   assert(captured && valid);
+  SU2_OMP_SAFE_GLOBAL_ACCESS(invalidCount = 0;)
+  double changed = 0;
   SU2_OMP_FOR_STAT(1024)
-  for (auto e = 0ul; e < nextReconstruction.size(); ++e)
+  for (auto e = 0ul; e < nextReconstruction.size(); ++e) {
+    if ((*reconstructionHistory)[e] != nextReconstruction[e]) changed = 1;
     (*reconstructionHistory)[e] = nextReconstruction[e];
+  }
   END_SU2_OMP_FOR
+  atomicAdd(changed, invalidCount);
+  BEGIN_SU2_OMP_SAFE_GLOBAL_ACCESS {
+    double global = 0;
+    SU2_MPI::Allreduce(&invalidCount, &global, 1, MPI_DOUBLE, MPI_SUM, SU2_MPI::GetComm());
+    historyChanged = global != 0;
+  }
+  END_SU2_OMP_SAFE_GLOBAL_ACCESS
+  return historyChanged;
 }
 
 bool CNewtonEquationSet::Restore() {

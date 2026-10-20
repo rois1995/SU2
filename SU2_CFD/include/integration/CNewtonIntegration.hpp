@@ -9,6 +9,7 @@
 #include "CNewtonLinearization.hpp"
 #include "../../../Common/include/linear_algebra/CSysSolve.hpp"
 #include <deque>
+#include <numeric>
 #include <memory>
 
 /*!
@@ -119,6 +120,14 @@ class CNewtonIntegration final : public CIntegration {
   /*! \brief Apply the native per-point CFL rule after an accepted assembled update; return the global maximum. */
   double AdaptLocalCFL(const Attempt& attempt);
   bool nativeFallback = false; /*!< \brief Assembled recovery exhausted: take one native full step. */
+  bool liveResidual = false; /*!< \brief The accepted update left current residuals of every equation of the zone. */
+  /*! \brief Assembled full trials also assemble the native matrices; an accepted one is the next base assembly. */
+  bool implicitTrial = false, reuseAssembly = false;
+  unsigned long assemblyStamp = 0; /*!< \brief Residual evaluations when the reusable assembly was made. */
+  unsigned long EvaluationCount() const {
+    const auto& counts = equations->GetResidualEvaluations();
+    return std::accumulate(counts.begin(), counts.end(), 0ul);
+  }
   std::deque<double> recentMerits; /*!< \brief Accepted base merits for the non-monotone assembled line search. */
   mutable double reduction = 0;
   mutable std::vector<double> reductionPartials;
