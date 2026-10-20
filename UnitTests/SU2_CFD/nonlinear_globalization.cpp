@@ -84,6 +84,18 @@ TEST_CASE("Approximate operators adapt the local pseudo-time like the native CFL
   REQUIRE(LocalFactor(options, 0.05, true, false) == 1);
 }
 
+TEST_CASE("A fixed CFL recovers from recovery cuts", "[globalization]") {
+  using namespace NonlinearGlobalization;
+  Options<> options;
+  options.adaptCFL = false;
+  REQUIRE(Fixed(options, 5, 20, 1) == 10);   /*--- cut CFL grows back by the growth factor ---*/
+  REQUIRE(Fixed(options, 15, 20, 1) == 20);  /*--- never above the configured value ---*/
+  REQUIRE(Fixed(options, 5, 20, 0.5) == 5);  /*--- only after full steps ---*/
+  REQUIRE(Fixed(options, 20, 20, 1) == 20);
+  options.adaptCFL = true;
+  REQUIRE(Fixed(options, 5, 20, 1) == 5);    /*--- adaptive CFL is left to its own rule ---*/
+}
+
 TEST_CASE("A direction below the state resolution grows pseudo-time instead of failing", "[globalization]") {
   using namespace NonlinearGlobalization;
   Options<> options;

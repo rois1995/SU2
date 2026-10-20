@@ -334,8 +334,10 @@ bool CNewtonEquationSet::EnableCoupling() {
   const auto flow = std::find_if(blocks.begin(), blocks.end(), [](const Block& b) { return b.slot == FLOW_SOL; });
   const auto turb = std::find_if(blocks.begin(), blocks.end(), [](const Block& b) { return b.slot == TURB_SOL; });
   const auto model = config->GetKind_Turb_Model();
+  /*--- Both native blocks must be assembled (implicit) for their coupling to be. ---*/
   if (flow == blocks.end() || turb == blocks.end() || config->GetKind_Regime() != ENUM_REGIME::COMPRESSIBLE ||
-      config->GetnMarker_Periodic() || (model != TURB_MODEL::SA && model != TURB_MODEL::SST))
+      config->GetnMarker_Periodic() || (model != TURB_MODEL::SA && model != TURB_MODEL::SST) ||
+      !flow->solver->Jacobian.HasCoefficients() || !turb->solver->Jacobian.HasCoefficients())
     return false;
   coupling = std::make_unique<CNewtonCoupling>(geometry, config, solvers, numerics[TURB_SOL], flow->offset,
                                                 turb->offset, turb->variables);

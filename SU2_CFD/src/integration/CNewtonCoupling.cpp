@@ -168,7 +168,8 @@ void CNewtonCoupling::Assemble() {
     if (sst) {
       /*--- Diagonal native rho E column, see the edge loop. ---*/
       const auto* native = flowJacobian.GetBlock(i, i);
-      for (auto r = 0u; r < nFlow; ++r) ftI[r * nTurb] -= SU2_TYPE::GetValue(native[r * nFlow + nDim + 1]);
+      if (native)
+        for (auto r = 0u; r < nFlow; ++r) ftI[r * nTurb] -= SU2_TYPE::GetValue(native[r * nFlow + nDim + 1]);
       /*--- At frozen specific k, omega and strain, every k source term (production through mu_t ~ rho, its limiter,
        *    dissipation) is linear in rho: dS_k/drho = S_k/rho, R_k -= S_k V (CSourcePieceWise_TurbSST).
        *    The omega row's rho column (alpha rho S^2 + beta rho omega^2) is orders of magnitude above its diagonal

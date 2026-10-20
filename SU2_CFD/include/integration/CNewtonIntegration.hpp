@@ -113,6 +113,7 @@ class CNewtonIntegration final : public CIntegration {
   bool setup = false, failed = false, residualValid = true, constraintsReady = false, nativeDirection = false;
   std::string failureMessage;
   double cfl = 0, eta = 0, referenceCFLFactor = 1;
+  double configuredCFL = 0; /*!< \brief Setup CFL: the target of a fixed (non-adaptive) CFL after recovery cuts. */
   double cflLinearTolerance = 0; /*!< \brief Native CFL rule: acceptable linear residual (assembled operators). */
   std::vector<double> localCFL; /*!< \brief Per-point CFL of assembled operators (native local CFL rule). */
   NonlinearGlobalization::Options<> localRule; /*!< \brief Native CFL_ADAPT_PARAM factors of the per-point rule. */

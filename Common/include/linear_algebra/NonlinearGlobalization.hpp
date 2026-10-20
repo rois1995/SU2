@@ -160,6 +160,15 @@ inline double Stationary(const Options<>& options, double cfl) {
   return std::max(options.cflMin, std::min(options.cflMax, cfl * options.grow));
 }
 
+/*!
+ * \brief CFL after an accepted update without CFL adaptation: the configured CFL is the target, so a recovery cut
+ *        is temporary and grows back by the growth factor of each accepted full step.
+ */
+inline double Fixed(const Options<>& options, double cfl, double configured, double step) {
+  if (options.adaptCFL || !(cfl < configured) || step < 1.0) return cfl;
+  return std::min(configured, cfl * options.grow);
+}
+
 /*--- Eisenstat-Walker choice 2 uses norms of the same scaled residual and undamped steps. ---*/
 inline double Forcing(const Options<>& options, double eta, double base, double accepted, double step) {
   if (!options.adaptiveForcing || step < 1.0 || !(base > 0)) return options.linearTolerance;

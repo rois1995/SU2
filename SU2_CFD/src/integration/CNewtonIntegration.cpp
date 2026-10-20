@@ -248,7 +248,9 @@ void CNewtonIntegration::Setup() {
     throw std::invalid_argument("Newton flow groups require the density-based incompressible formulation");
   equations = std::make_unique<CNewtonEquationSet>(geometry, solvers, numerics, config, systems, residualWorkspace);
   /*--- A coupled assembled group solves the coupled linearization: native diagonal blocks plus assembled
-   *    flow/turbulence cross Jacobians (block-Jacobi limit-cycles on strongly coupled high-lift cases). ---*/
+   *    flow/turbulence cross Jacobians (block-Jacobi limit-cycles on strongly coupled high-lift cases).
+   *    Matrix-free groups keep their block preconditioner: with the assembled lower coupling, its directions failed
+   *    the finite-difference verification on 30P30N SST and needed more Krylov iterations on NACA0012 SA. ---*/
   coupledAssembly = assembledOperator && equations->EnableCoupling();
   for (const auto& block : equations->GetBlocks()) {
     const auto time = block.slot == FLOW_SOL ? config->GetKind_TimeIntScheme_Flow()
@@ -275,6 +277,7 @@ void CNewtonIntegration::Setup() {
   referenceCFLFactor = CFLFactor(*primary);
   cfl = std::max(options.cflMin,
                  std::min(options.cflMax, SU2_TYPE::GetValue(config->GetCFL(MESH_0)) * referenceCFLFactor));
+  configuredCFL = cfl;
   eta = options.linearTolerance;
   if (assembledOperator) localCFL.assign(geometry->GetnPoint(), cfl);
   setup = true;
@@ -1005,11 +1008,14 @@ void CNewtonIntegration::Advance() {
     SU2_OMP_SAFE_GLOBAL_ACCESS(lastAttempt = attempt;)
     using Reason = NonlinearGlobalization::RecoveryReason;
     if (attempt.search.status == Armijo::Status::Accepted && !attempt.linearFailure) {
-      const double adapted =
+      double adapted =
           assembledOperator
               ? (attempt.stationary ? ScaleLocalCFL(localRule.adaptCFL ? localRule.grow : 1) : AdaptLocalCFL(attempt))
           : attempt.stationary ? NonlinearGlobalization::Stationary(options, cfl)
                                : NonlinearGlobalization::Adapt(options, cfl, attempt.agreement, attempt.search.step);
+      /*--- Without CFL adaptation a recovery cut must not stay: it would slow every later update. ---*/
+      const double fixed = NonlinearGlobalization::Fixed(options, adapted, configuredCFL, attempt.search.step);
+      if (fixed != adapted) adapted = assembledOperator ? ScaleLocalCFL(fixed / adapted) : fixed;
       const double next = CommitFlow(attempt, adapted);
       Log(attempt, {Reason::Accepted, next});
       SU2_OMP_SAFE_GLOBAL_ACCESS(nativeFallback = false;)
