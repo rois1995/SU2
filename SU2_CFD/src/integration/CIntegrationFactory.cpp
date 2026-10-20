@@ -54,19 +54,28 @@ CIntegration** CIntegrationFactory::CreateIntegrationContainer(CConfig* config,
   /*--- Native iteration order determines the group's first dispatch, independently of its packing order. ---*/
   const std::pair<unsigned short, const char*> order[] = {{RUNTIME_FLOW_SYS, "flow"}, {RUNTIME_TRANS_SYS, "trans"},
                                                          {RUNTIME_TURB_SYS, "turb"}, {RUNTIME_SPECIES_SYS, "species"}};
+  /*--- An assembled coupled group leaves the transition model out: it is solved as its own group after the coupled
+   *    group (loose coupling, Mosahebi and Laurendeau, AIAA J. 53(5), 2015). In one group its clipped variables
+   *    share the line search and CFL, which held back the flow and turbulence updates. ---*/
+  auto coupled = config->GetNewtonCoupled() ? selected : std::vector<unsigned short>{};
+  const auto trans = std::find(coupled.begin(), coupled.end(), RUNTIME_TRANS_SYS);
+  if (config->GetNewtonAssembled() && trans != coupled.end() && coupled.size() > 1) coupled.erase(trans);
+  bool coupledCreated = false;
   for (const auto& equation : order) {
     const auto runtime = equation.first;
     if (std::find(selected.begin(), selected.end(), runtime) == selected.end()) continue;
     const auto slot = config->GetContainerPosition(runtime);
     if (!solver_container[slot]) SU2_MPI::Error("Unavailable equation in NEWTON_EQUATIONS", CURRENT_FUNCTION);
-    const auto group = config->GetNewtonCoupled() ? selected : std::vector<unsigned short>{runtime};
+    const bool inCoupled = std::find(coupled.begin(), coupled.end(), runtime) != coupled.end();
+    if (inCoupled && coupledCreated) continue;
+    const auto group = inCoupled ? coupled : std::vector<unsigned short>{runtime};
     const bool flowControls = config->GetNewtonKrylov() &&
                               std::find(group.begin(), group.end(), RUNTIME_FLOW_SYS) != group.end();
     delete integration[slot];
     integration[slot] = new CNewtonIntegration(group, options, config->GetNewtonBlockLower(),
-        config->GetNewtonCoupled() ? "newton_coupled" : std::string("newton_") + equation.second, flowControls,
+        inCoupled ? "newton_coupled" : std::string("newton_") + equation.second, flowControls,
         workspace, config->GetNewtonAssembled());
-    if (config->GetNewtonCoupled()) break;
+    coupledCreated = coupledCreated || inCoupled;
   }
 
   return integration;
