@@ -1926,10 +1926,28 @@ TEST_CASE("Coupled assembled updates reuse the accepted full step as the next ba
 
 TEST_CASE("Assembled flow/turbulence cross Jacobians match finite differences of the coupled residual",
           "[NewtonCoupling]") {
-  for (const auto& physics : {sa, sst}) {
+  const std::string inc = "SOLVER= INC_RANS\nINC_ENERGY_EQUATION= YES\n"
+                          "VISCOSITY_MODEL= CONSTANT_VISCOSITY\nMU_CONSTANT= 1.8551e-5\n";
+  const std::string translation = "MARKER_PERIODIC= (x_minus,x_plus,0,0,0,0,0,0,1,0,0)\n";
+  const std::string periodic = "MARKER_FAR= (y_plus)\n" + translation;
+  /*--- Rotated side faces must carry the same boundary condition. ---*/
+  const std::string rotation = "MARKER_HEATFLUX= NONE\nMARKER_FAR= (y_minus,y_plus,z_minus,z_plus)\n"
+                               "MARKER_PERIODIC= (x_minus,x_plus,0,0.5,0.5,90,0,0,1,0,0)\n";
+  struct Case {
+    std::string physics;
+    bool compressible, threeD;
+  };
+  const auto incSA = inc + "KIND_TURB_MODEL= SA\n", incSST = inc + "KIND_TURB_MODEL= SST\n";
+  for (const auto& test : {Case{sa, true, false}, Case{sst, true, false}, Case{incSA, false, false},
+                           Case{incSST, false, false}, Case{sa + periodic, true, false},
+                           Case{sst + periodic, true, false}, Case{incSST + periodic, false, false},
+                           Case{sa, true, true},
+                           Case{sa + "MARKER_FAR= (y_plus,z_minus,z_plus)\n" + translation, true, true},
+                           Case{sa + rotation, true, true}}) {
+    const auto& physics = test.physics;
     CAPTURE(physics);
     Problem problem(physics + "CFL_NUMBER= 5\nLINEAR_SOLVER_PREC= ILU\nLINEAR_SOLVER_ITER= 40\n"
-                              "LINEAR_SOLVER_ERROR= 1e-6\n", 8);
+                              "LINEAR_SOLVER_ERROR= 1e-6\n", test.threeD ? 5 : 8, false, test.threeD);
     auto& driver = *problem.driver;
     auto* geometry = driver.Geometry();
     auto* config = driver.Config();
@@ -1958,7 +1976,6 @@ TEST_CASE("Assembled flow/turbulence cross Jacobians match finite differences of
     equations->BuildScales(scale, probe);
     CNewtonLinearization linearization(*equations, geometry, config);
     auto diagonal = MakeVector(driver, nVar);
-    REQUIRE(linearization.SetBase(scale, diagonal, 1e-7, 1e-5));
     const auto& blocks = equations->GetBlocks();
     const auto& flowBlock = blocks[0].slot == FLOW_SOL ? blocks[0] : blocks[1];
     const auto& turbBlock = blocks[0].slot == FLOW_SOL ? blocks[1] : blocks[0];
@@ -1973,12 +1990,14 @@ TEST_CASE("Assembled flow/turbulence cross Jacobians match finite differences of
           direction(p, columns.offset + v) =
               0.1 * std::sin(0.3 + 2 * SU2_TYPE::GetValue(geometry->nodes->GetCoord(p, 0)) +
                              3 * SU2_TYPE::GetValue(geometry->nodes->GetCoord(p, 1)) + 0.7 * v);
+      /*--- Periodic copies of a consistent direction agree; the assembled product is P C P. ---*/
+      equations->ProjectPeriodic(direction, &scale);
       REQUIRE(linearization.Apply(direction, fd, false));
       for (auto i = 0ul; i < direction.GetLocSize(); ++i) physical[i] = direction[i] * scale[i];
       assembled = passivedouble(0);
       SU2_OMP_PARALLEL {
-        coupling->Apply(physical, assembled, false,
-                        [&](unsigned long p, unsigned short j) { return linearization.IsFree(p, j); });
+        equations->ApplyCoupling(physical, assembled, false,
+                                 [&](unsigned long p, unsigned short j) { return linearization.IsFree(p, j); });
       }
       END_SU2_OMP_PARALLEL
       double error = 0, size = 0;
@@ -1990,21 +2009,29 @@ TEST_CASE("Assembled flow/turbulence cross Jacobians match finite differences of
           size += std::pow(fd(p, j), 2);
         }
       }
-      return std::sqrt(error / std::max(size, std::numeric_limits<double>::min()));
+      /*--- Without a response (no wall, no eddy viscosity) the product itself must vanish. ---*/
+      return size < 1e-30 ? std::sqrt(error) : std::sqrt(error / size);
     };
-    const bool isSA = physics == sa;
-    /*--- J_ft: eddy viscosity in the viscous fluxes, k in the SST static energy. SA rows other than the
-     *    streamwise momentum are at the finite-difference resolution on this mesh. ---*/
-    const double eddy = mismatch(turbBlock, 0, turbBlock.variables, flowBlock, flowBlock.variables);
-    CHECK(eddy < (isSA ? 0.15 : 0.03));
+    const bool isSA = physics.find("KIND_TURB_MODEL= SA") != std::string::npos;
+    /*--- Next to the far field the SA and SST limiters switch within the larger step: J_tf uses a smaller one. ---*/
+    REQUIRE(linearization.SetBase(scale, diagonal, 1e-9, 1e-7));
     /*--- J_tf, momentum columns: convection and the source chain through vorticity and strain; the SST omega row
      *    keeps no flow columns from its source. ---*/
     const double momentum = mismatch(flowBlock, 1, nDim + 1, turbBlock, 1);
-    CHECK(momentum < 0.01);
-    /*--- J_tf, density column: convection, the density-linear SST k source, the SA source through nu = mu/rho. ---*/
-    const double density = mismatch(flowBlock, 0, 1, turbBlock, 1);
-    CHECK(density < 0.01);
+    /*--- J_tf, density column: convection, the density-linear SST k source, the SA source through nu = mu/rho.
+     *    The incompressible pressure column has no turbulence coupling. ---*/
+    const double density = test.compressible ? mismatch(flowBlock, 0, 1, turbBlock, 1) : 0;
+    /*--- J_ft: eddy viscosity in the viscous fluxes, k in the SST static energy. SA rows other than the
+     *    streamwise momentum are at the finite-difference resolution on these meshes. A new base needs a new
+     *    capture, as in every Newton update. ---*/
+    REQUIRE(Residual(*equations, true));
+    equations->Capture();
+    REQUIRE(linearization.SetBase(scale, diagonal, 1e-7, 1e-5));
+    const double eddy = mismatch(turbBlock, 0, turbBlock.variables, flowBlock, flowBlock.variables);
     INFO("J_ft " << eddy << ", J_tf momentum " << momentum << ", J_tf density " << density);
+    CHECK(eddy < (isSA ? (test.threeD ? 0.3 : 0.15) : 0.03));
+    CHECK(momentum < 0.01);
+    CHECK(density < 0.01);
   }
 }
 

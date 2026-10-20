@@ -26,6 +26,10 @@
  *   velocities of the point and its neighbours (the native least-squares gradient uses the same stencil); the SST
  *   omega row is left out, as its density column. Below |omega| = 1e-18 no vorticity chain is used.
  * - J_tf, SA: the source dependence on density through nu = mu/rho.
+ * - Incompressible flow: the same terms in the unknowns (p, u, h), without density columns, the SST energy terms
+ *   and the viscous work.
+ * - Periodic points keep their partial rows, as the native assembly: products are P C P (see
+ *   CNewtonEquationSet::ApplyCoupling), and the source chain of each copy carries the summed source sensitivities.
  * Laminar-viscosity (temperature) terms, boundary closures and MUSCL face values are not included.
  * Rows of prescribed equations are zero; symmetry and Euler-wall momentum rows are projected as the native rows.
  * Blocks are stored per point (diagonal) and per edge side, and applied by gathering over the neighbours of each
@@ -87,13 +91,14 @@ class CNewtonCoupling {
   CSolver** solvers;
   CNumerics** turbNumerics;
   unsigned short nDim, nFlow, nTurb, flowOffset, turbOffset;
-  bool sst, negativeSA;
+  bool sst, negativeSA, incompressible;
   /*--- Row-major blocks: tf is nTurb x nFlow, ft is nFlow x nTurb; edge slot 0 is row node 0, slot 1 row node 1. ---*/
   std::vector<passivedouble> tfDiagonal, tfEdge, ftDiagonal, ftEdge;
   std::vector<passivedouble> eddyDerivative; /*!< \brief d mu_t / d (turbulence unknowns) per point. */
   /*! \brief Point-local source sensitivities dR_turb/d|omega|, dR_turb/dS (strain) and, for SA, dR_turb/drho. */
   std::vector<passivedouble> vorticityDerivative, strainDerivative, densityDerivative;
   std::vector<su2double> savedResidual, savedValue;
+  su2activematrix periodicWork;
   std::vector<passivedouble> savedResidualBase;
 
   /*! \brief Coupling block of a point (diagonal) or of an edge side (2 * edge + side), see ZeroPrescribedRows. */

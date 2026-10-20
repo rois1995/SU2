@@ -428,8 +428,8 @@ unsigned long CNewtonBlockPreconditioner::Solve(const Vector& u, Vector& v, unsi
       SU2_OMP_FOR_STAT(1024)
       for (auto i = 0ul; i < v.GetLocSize(); ++i) crossInput[i] = v[i] * scale[i];
       END_SU2_OMP_FOR
-      assembled->Apply(crossInput, coupling, true,
-                       [&](unsigned long p, unsigned short j) { return linearization.IsFree(p, j); });
+      linearization.GetEquations().ApplyCoupling(
+          crossInput, coupling, true, [&](unsigned long p, unsigned short j) { return linearization.IsFree(p, j); });
       SU2_OMP_FOR_STAT(1024)
       for (auto p = 0ul; p < u.GetNBlkDomain(); ++p)
         for (auto j = 0u; j < block.variables; ++j) coupling(p, block.offset + j) /= scale(p, block.offset + j);
@@ -567,12 +567,12 @@ void CNewtonBlockPreconditioner::Multiply(const Vector& u, Vector& v) const {
     END_SU2_OMP_FOR
   }
   /*--- Assembled cross Jacobians of a coupled group: the operator is the coupled linearization. ---*/
-  if (const auto* assembled = linearization.GetEquations().GetCoupling()) {
+  if (linearization.GetEquations().GetCoupling()) {
     SU2_OMP_FOR_STAT(1024)
     for (auto i = 0ul; i < u.GetLocSize(); ++i) crossInput[i] = u[i] * scale[i];
     END_SU2_OMP_FOR
-    assembled->Apply(crossInput, crossOutput, false,
-                     [&](unsigned long p, unsigned short j) { return linearization.IsFree(p, j); });
+    linearization.GetEquations().ApplyCoupling(
+        crossInput, crossOutput, false, [&](unsigned long p, unsigned short j) { return linearization.IsFree(p, j); });
     /*--- Rows outside the flow and turbulence blocks stay zero in crossOutput. ---*/
     SU2_OMP_FOR_STAT(1024)
     for (auto i = 0ul; i < u.GetNElmDomain(); ++i) v[i] += crossOutput[i] / scale[i];

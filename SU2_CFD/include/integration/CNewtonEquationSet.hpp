@@ -89,11 +89,23 @@ class CNewtonEquationSet : private CIntegration {
   const std::vector<Block>& GetBlocks() const { return blocks; }
   /*!
    * \brief Assemble flow/turbulence cross Jacobians with every implicit evaluation of a group holding both.
-   * \return False if the group or the physics has no assembled coupling (no FLOW+TURB, not compressible, periodic).
+   * \return False if the group or the physics has no assembled coupling (no FLOW+TURB, not SA or SST).
    */
   bool EnableCoupling();
   /*! \brief Cross Jacobians of the latest implicit evaluation, or nullptr. */
   const CNewtonCoupling* GetCoupling() const { return coupling.get(); }
+  /*!
+   * \brief Set the cross rows of y to P C P x (call inside the parallel region, with a coupling).
+   * \details Periodic copies keep partial rows, as the native K = P A P + I - P; P is the identity otherwise.
+   * \param[in,out] x - Unscaled input, projected in place.
+   */
+  template <class IsFree>
+  void ApplyCoupling(CSysVector<passivedouble>& x, CSysVector<passivedouble>& y, bool lowerOnly,
+                     const IsFree& isFree) const {
+    ProjectPeriodic(x);
+    coupling->Apply(x, y, lowerOnly, isFree);
+    ProjectPeriodic(y);
+  }
   unsigned short GetnVar() const { return variables; }
   const std::array<unsigned long, 4>& GetResidualEvaluations() const { return residualEvaluations; }
   /*! \brief Count boundary-only flow evaluations separately from complete residual assemblies. */

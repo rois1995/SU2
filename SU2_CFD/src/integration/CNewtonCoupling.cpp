@@ -19,7 +19,8 @@ CNewtonCoupling::CNewtonCoupling(CGeometry* g, CConfig* c, CSolver** s, CNumeric
       flowOffset(flow),
       turbOffset(turb),
       sst(c->GetKind_Turb_Model() == TURB_MODEL::SST),
-      negativeSA(c->GetSAParsedOptions().version == SA_OPTIONS::NEG) {
+      negativeSA(c->GetSAParsedOptions().version == SA_OPTIONS::NEG),
+      incompressible(c->GetKind_Regime() == ENUM_REGIME::INCOMPRESSIBLE) {
   if (nFlow > MaxVariables || nTurb > MaxVariables)
     SU2_MPI::Error("Assembled Newton coupling supports at most nDim+2 flow and turbulence variables", CURRENT_FUNCTION);
   const auto nPoint = geometry->GetnPoint(), nEdge = geometry->GetnEdge();
@@ -80,7 +81,7 @@ void CNewtonCoupling::SourceSensitivities() {
     return flow->GetVorticity(p)[d];
   });
   perturbed(strainDerivative, 1, [&](unsigned long p, unsigned short) -> su2double& { return strain(p); });
-  if (!sst)
+  if (!sst && !incompressible)
     perturbed(densityDerivative, 1, [&](unsigned long p, unsigned short) -> su2double& {
       return flow->GetPrimitive(p)[density];
     });
@@ -94,10 +95,30 @@ void CNewtonCoupling::SourceSensitivities() {
       const auto n = p * nTurb + v;
       vorticityDerivative[n] = omega > 1e-18 ? (vorticityDerivative[n] - base[n]) / (relative * omega) : 0;
       strainDerivative[n] = s > 1e-18 ? (strainDerivative[n] - base[n]) / (relative * s) : 0;
-      densityDerivative[n] = sst ? 0 : (densityDerivative[n] - base[n]) / (relative * rho);
+      densityDerivative[n] = sst || incompressible ? 0 : (densityDerivative[n] - base[n]) / (relative * rho);
     }
   }
   END_SU2_OMP_FOR
+  if (config->GetnMarker_Periodic()) {
+    /*--- Periodic copies share |omega| and S, so the chain of every copy carries the source of all of them. ---*/
+    SU2_OMP_SAFE_GLOBAL_ACCESS(periodicWork.resize(nPoint, 2 * nTurb);)
+    SU2_OMP_FOR_STAT(1024)
+    for (auto p = 0ul; p < nPoint; ++p)
+      for (auto v = 0u; v < nTurb; ++v) {
+        periodicWork(p, v) = vorticityDerivative[p * nTurb + v];
+        periodicWork(p, nTurb + v) = strainDerivative[p * nTurb + v];
+      }
+    END_SU2_OMP_FOR
+    geometry->AllocatePeriodicComms(2 * nTurb);
+    SU2_OMP_SAFE_GLOBAL_ACCESS(geometry->SumPeriodicGeometry(config, periodicWork, -1);)
+    SU2_OMP_FOR_STAT(1024)
+    for (auto p = 0ul; p < geometry->GetnPointDomain(); ++p)
+      for (auto v = 0u; v < nTurb; ++v) {
+        vorticityDerivative[p * nTurb + v] = SU2_TYPE::GetValue(periodicWork(p, v));
+        strainDerivative[p * nTurb + v] = SU2_TYPE::GetValue(periodicWork(p, nTurb + v));
+      }
+    END_SU2_OMP_FOR
+  }
   SU2_OMP_FOR_STAT(1024)
   for (auto p = 0ul; p < nPoint; ++p)
     for (auto v = 0u; v < nTurb; ++v) turbSolver->LinSysRes(p, v) = savedResidual[p * nTurb + v];
@@ -159,13 +180,20 @@ void CNewtonCoupling::Assemble() {
   const auto& flowJacobian = solvers[FLOW_SOL]->Jacobian;
   const auto* constants = sst ? solvers[TURB_SOL]->GetConstants() : nullptr;
   const auto production = config->GetSSTParsedOptions().production;
+  /*--- Primitive temperature: (T, u, p, rho, ...) compressible, (p, u, T, rho, ...) incompressible. ---*/
+  const unsigned short temperature = incompressible ? nDim + 1 : 0;
+  /*--- The incompressible energy equation is optional, and its turbulent conductivity is a model choice. ---*/
+  const bool turbulentHeat =
+      !incompressible || (config->GetEnergy_Equation() &&
+                          config->GetKind_ConductivityModel_Turb() == CONDUCTIVITYMODEL_TURB::CONSTANT_PRANDTL);
 
   SU2_OMP_FOR_DYN(256)
   for (auto i = 0ul; i < geometry->GetnPointDomain(); ++i) {
     auto* tfI = TF(true, i);
     auto* ftI = FT(true, i);
     for (auto n = 0u; n < nTurb * nFlow; ++n) tfI[n] = ftI[n] = 0;
-    if (sst) {
+    /*--- Incompressible flow has no density or total energy unknown. ---*/
+    if (sst && !incompressible) {
       /*--- Diagonal native rho E column, see the edge loop. ---*/
       const auto* native = flowJacobian.GetBlock(i, i);
       if (native)
@@ -202,7 +230,8 @@ void CNewtonCoupling::Assemble() {
                                                         flow->GetGradient_Primitive(i, 1 + b, a));
       strainMagnitude = SU2_TYPE::GetValue(flow->GetStrainMag(i));
     }
-    const double volumeI = SU2_TYPE::GetValue(geometry->nodes->GetVolume(i));
+    /*--- A periodic gradient is completed over the copies, with their total volume. ---*/
+    const double volumeI = SU2_TYPE::GetValue(geometry->nodes->GetVolume(i) + geometry->nodes->GetPeriodicVolume(i));
     double weightSum[MaxDim] = {};
     auto sourceChain = [&](passivedouble* block, unsigned long point, const double* weight) {
       const double rhoX = SU2_TYPE::GetValue(flow->GetDensity(point));
@@ -224,7 +253,11 @@ void CNewtonCoupling::Assemble() {
             for (auto l = 0u; l < nDim; ++l) dS += 2 * strainTensor[k][l] * gradient[l] / strainMagnitude;
             dRdu += dStrain * dS;
           }
-          /*--- du_k/drho = -u_k/rho, du_k/d(rho u_k) = 1/rho. ---*/
+          /*--- Compressible: du_k/drho = -u_k/rho, du_k/d(rho u_k) = 1/rho; incompressible unknowns are u_k. ---*/
+          if (incompressible) {
+            block[v * nFlow + 1 + k] += dRdu;
+            continue;
+          }
           block[v * nFlow] -= dRdu * SU2_TYPE::GetValue(flow->GetVelocity(point, k)) / rhoX;
           block[v * nFlow + 1 + k] += dRdu / rhoX;
         }
@@ -256,7 +289,8 @@ void CNewtonCoupling::Assemble() {
       }
       /*--- Convection (CUpwScalarBase, first order): with the edge normal n from node 0 to node 1,
        *    F = q+ w_0 + q- w_1, q = (u_0 + u_1).n / 2, w = nu_hat (SA) or rho phi (SST) at frozen specific phi.
-       *    R_0 += F, R_1 -= F, and dq/dU_X = 0.5 [-(u_X.n)/rho_X, n/rho_X, 0]. ---*/
+       *    R_0 += F, R_1 -= F, and dq/dU_X = 0.5 [-(u_X.n)/rho_X, n/rho_X, 0], or 0.5 [0, n, 0] for the
+       *    incompressible unknowns (p, u, h). ---*/
       const unsigned short node0 = first ? 0 : 1;
       for (auto v = 0u; v < nTurb; ++v) {
         double phi[2], w[2];
@@ -267,9 +301,10 @@ void CNewtonCoupling::Assemble() {
         const double upwind = q > 0 ? w[node0] : q < 0 ? w[1 - node0] : 0.5 * (w[0] + w[1]);
         for (auto side = 0u; side < 2; ++side) {
           auto* row = (side == 0 ? tfI : tfJ) + v * nFlow;
-          const double scale = sign * 0.5 * upwind / rho[side];
-          row[0] -= scale * qn[side];
+          const double scale = sign * 0.5 * upwind / (incompressible ? 1.0 : rho[side]);
           for (auto d = 0u; d < nDim; ++d) row[1 + d] += scale * normal[d];
+          if (incompressible) continue;
+          row[0] -= scale * qn[side];
           /*--- Density weighting of the conservative flux of the same endpoint. ---*/
           if (sst) row[0] += sign * (side == node0 ? std::max(q, 0.0) : std::min(q, 0.0)) * phi[side];
         }
@@ -287,17 +322,20 @@ void CNewtonCoupling::Assemble() {
 
       if (viscousCoupling) {
         /*--- Viscous and heat fluxes through mu_t,avg = (mu_t,i + mu_t,j)/2, frozen corrected mean gradients
-         *    (CCompressibleViscousFluxBase): dFv/dmu_t = [0, tau1.n, (tau1.n).u + cp/Pr_t grad(T).n]. ---*/
+         *    (CCompressibleViscousFluxBase): dFv/dmu_t = [0, tau1.n, (tau1.n).u + cp/Pr_t grad(T).n].
+         *    Incompressible (CAvgGradInc_Flow): no viscous work, k_eff = k + cp mu_t/Pr_t in the energy row. ---*/
         double grad[MaxDim + 1][MaxDim] = {}, edge[MaxDim] = {}, dist2 = 0;
         for (auto d = 0u; d < nDim; ++d) {
           edge[d] = SU2_TYPE::GetValue(geometry->nodes->GetCoord(j, d) - geometry->nodes->GetCoord(i, d));
           dist2 += edge[d] * edge[d];
         }
         for (auto var = 0u; var < nVar; ++var) {
+          /*--- grad[0] is the temperature gradient, grad[1 + d] the velocity gradients. ---*/
+          const auto column = var == 0 ? temperature : var;
           double projected = 0;
           for (auto d = 0u; d < nDim; ++d) {
-            grad[var][d] = 0.5 * SU2_TYPE::GetValue(flow->GetGradient_Primitive(i, var, d) +
-                                                     flow->GetGradient_Primitive(j, var, d));
+            grad[var][d] = 0.5 * SU2_TYPE::GetValue(flow->GetGradient_Primitive(i, column, d) +
+                                                     flow->GetGradient_Primitive(j, column, d));
             projected += grad[var][d] * edge[d];
           }
           const double delta = var == 0 ? SU2_TYPE::GetValue(flow->GetTemperature(j) - flow->GetTemperature(i))
@@ -318,8 +356,8 @@ void CNewtonCoupling::Assemble() {
             tauN += tau * normal[k] * sign;
           }
           dFv[1 + d] = tauN;
-          dFv[nDim + 1] += tauN * 0.5 * (u[0][d] + u[1][d]);
-          dFv[nDim + 1] += cp / prandtlTurb * grad[0][d] * normal[d] * sign;
+          if (!incompressible) dFv[nDim + 1] += tauN * 0.5 * (u[0][d] + u[1][d]);
+          if (turbulentHeat) dFv[nDim + 1] += cp / prandtlTurb * grad[0][d] * normal[d] * sign;
         }
         for (auto side = 0u; side < 2; ++side) {
           const auto* dMu = &eddyDerivative[node[side] * nTurb];
@@ -329,7 +367,7 @@ void CNewtonCoupling::Assemble() {
         }
       }
 
-      if (sst) {
+      if (sst && !incompressible) {
         /*--- The static energy is e = E - u^2/2 - k, so rho k acts on the flow residual as -rho E does, except for the
          *    explicit rho E of the energy convection, whose central part is (rho E)_X (u_X.n)/2 (see below). ---*/
         for (auto side = 0u; side < 2; ++side) (side == 0 ? ftI : ftJ)[(nDim + 1) * nTurb] += sign * 0.5 * qn[side];
@@ -345,7 +383,7 @@ void CNewtonCoupling::Assemble() {
       for (auto d = 0u; d < nDim; ++d) weight[d] = -weightSum[d];
       sourceChain(tfI, i, weight);
       /*--- SA source through nu = mu/rho at the point (the velocity part of the density column is chained above). ---*/
-      if (!sst)
+      if (!sst && !incompressible)
         for (auto v = 0u; v < nTurb; ++v) tfI[v * nFlow] += densityDerivative[i * nTurb + v];
     }
   }
