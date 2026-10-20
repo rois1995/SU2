@@ -355,15 +355,19 @@ void CNewtonIntegration::Endpoint() {
   for (const auto& block : equations->GetBlocks()) {
     /*--- Each native limiter sees the same accepted density, before the independently limited endpoints are combined. ---*/
     Perturb(direction, 0);
+    /*--- Start from no relaxation: solvers that compute it (compressible flow, SA, SST) overwrite this, others
+     *    (SA-neg, incompressible flow) would otherwise keep the previous step factor and shrink every later update. ---*/
+    auto* nodes = block.solver->GetNodes();
     SU2_OMP_FOR_STAT(1024)
-    for (auto p = 0ul; p < geometry->GetnPoint(); ++p)
+    for (auto p = 0ul; p < geometry->GetnPoint(); ++p) {
+      nodes->SetUnderRelaxation(p, 1.0);
       for (auto v = 0u; v < block.variables; ++v)
         block.solver->LinSysSol(p, v) =
             IsFree(block, p, v) ? correction(p, block.offset + v) * scale(p, block.offset + v) : 0;
+    }
     END_SU2_OMP_FOR
     SU2_OMP_SAFE_GLOBAL_ACCESS(config->SetGlobalParam(config->GetKind_Solver(), block.runtime);)
     block.solver->CompleteImplicitIteration(geometry, solvers, config);
-    const auto* nodes = block.solver->GetNodes();
     SU2_OMP_FOR_STAT(1024)
     for (auto p = 0ul; p < geometry->GetnPoint(); ++p)
       for (auto v = 0u; v < block.variables; ++v) {
