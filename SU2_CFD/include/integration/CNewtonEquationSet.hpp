@@ -6,6 +6,7 @@
 #pragma once
 
 #include "CIntegration.hpp"
+#include "CNewtonCoupling.hpp"
 #include <memory>
 #include <stdexcept>
 
@@ -60,6 +61,7 @@ class CNewtonEquationSet : private CIntegration {
   su2vector<int8_t>* reconstructionHistory = nullptr;
   std::vector<int8_t> acceptedReconstruction, nextReconstruction;
   mutable su2activematrix periodicWork;
+  std::unique_ptr<CNewtonCoupling> coupling;
 
   /*! \brief Restore dependent primary values, iteration history and row masks; Restore also restores relaxation. */
   void RestoreSolutions();
@@ -85,6 +87,13 @@ class CNewtonEquationSet : private CIntegration {
   CNewtonEquationSet(CGeometry*, CSolver**, CNumerics***, CConfig*, const std::vector<unsigned short>& runtimes,
                      std::shared_ptr<ResidualWorkspace> work = {});
   const std::vector<Block>& GetBlocks() const { return blocks; }
+  /*!
+   * \brief Assemble flow/turbulence cross Jacobians with every implicit evaluation of a group holding both.
+   * \return False if the group or the physics has no assembled coupling (no FLOW+TURB, not compressible, periodic).
+   */
+  bool EnableCoupling();
+  /*! \brief Cross Jacobians of the latest implicit evaluation, or nullptr. */
+  const CNewtonCoupling* GetCoupling() const { return coupling.get(); }
   unsigned short GetnVar() const { return variables; }
   const std::array<unsigned long, 4>& GetResidualEvaluations() const { return residualEvaluations; }
   /*! \brief Count boundary-only flow evaluations separately from complete residual assemblies. */

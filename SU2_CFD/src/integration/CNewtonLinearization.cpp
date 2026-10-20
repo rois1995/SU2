@@ -377,7 +377,12 @@ CNewtonBlockPreconditioner::CNewtonBlockPreconditioner(const CNewtonLinearizatio
     block.input.Initialize(geometry->GetnPoint(), geometry->GetnPointDomain(), b.variables, 0.0);
     block.output.Initialize(geometry->GetnPoint(), geometry->GetnPointDomain(), b.variables, 0.0);
   }
-  if (lower) coupling.Initialize(geometry->GetnPoint(), geometry->GetnPointDomain(), l.GetnVar(), 0.0);
+  const bool assembled = l.GetEquations().GetCoupling();
+  if (lower || assembled) coupling.Initialize(geometry->GetnPoint(), geometry->GetnPointDomain(), l.GetnVar(), 0.0);
+  if (assembled) {
+    crossInput.Initialize(geometry->GetnPoint(), geometry->GetnPointDomain(), l.GetnVar(), 0.0);
+    crossOutput.Initialize(geometry->GetnPoint(), geometry->GetnPointDomain(), l.GetnVar(), 0.0);
+  }
   if (config->GetnMarker_Periodic())
     periodicRHS.Initialize(geometry->GetnPoint(), geometry->GetnPointDomain(), l.GetnVar(), 0.0);
 }
@@ -403,6 +408,7 @@ unsigned long CNewtonBlockPreconditioner::Solve(const Vector& u, Vector& v, unsi
   SU2_OMP_BARRIER
   const auto& scale = linearization.GetScale();
   const bool lower = lowerTriangular && useCoupling;
+  const auto* assembled = useCoupling ? linearization.GetEquations().GetCoupling() : nullptr;
   const bool periodic = config->GetnMarker_Periodic();
   if (periodic) {
     /*--- Native partial-cell solves approximate physical modes; keep consistency modes for the identity below. ---*/
@@ -416,6 +422,19 @@ unsigned long CNewtonBlockPreconditioner::Solve(const Vector& u, Vector& v, unsi
     const auto& block = blocks[index];
     /*--- Lower coupling is approximate; the outer operator and true defect use verified physical products. ---*/
     CNewtonLinearization::Failure productFailure;
+    const bool assembledLower = assembled && index && block.runtime == RUNTIME_TURB_SYS;
+    if (assembledLower) {
+      /*--- Block Gauss-Seidel: subtract J_tf times the preceding flow correction, in scaled coordinates. ---*/
+      SU2_OMP_FOR_STAT(1024)
+      for (auto i = 0ul; i < v.GetLocSize(); ++i) crossInput[i] = v[i] * scale[i];
+      END_SU2_OMP_FOR
+      assembled->Apply(crossInput, coupling, true,
+                       [&](unsigned long p, unsigned short j) { return linearization.IsFree(p, j); });
+      SU2_OMP_FOR_STAT(1024)
+      for (auto p = 0ul; p < u.GetNBlkDomain(); ++p)
+        for (auto j = 0u; j < block.variables; ++j) coupling(p, block.offset + j) /= scale(p, block.offset + j);
+      END_SU2_OMP_FOR
+    }
     if (lower && index && !linearization.Apply(v, coupling, false, false, block.runtime, &productFailure)) {
       v = passivedouble(std::numeric_limits<double>::quiet_NaN());
       SU2_OMP_BARRIER
@@ -428,7 +447,7 @@ unsigned long CNewtonBlockPreconditioner::Solve(const Vector& u, Vector& v, unsi
     for (auto p = 0ul; p < u.GetNBlk(); ++p)
       for (auto j = 0u; j < block.variables; ++j) {
         const auto column = block.offset + j;
-        const double cross = lower && index ? coupling(p, column) : 0;
+        const double cross = (lower && index) || assembledLower ? coupling(p, column) : 0;
         block.input(p, j) = (rightHandSide(p, column) - cross) * scale(p, column);
       }
     END_SU2_OMP_FOR
@@ -546,6 +565,20 @@ void CNewtonBlockPreconditioner::Multiply(const Vector& u, Vector& v) const {
       for (auto j = 0u; j < block.variables; ++j)
         v(p, block.offset + j) = SU2_TYPE::GetValue(block.output(p, j)) / scale(p, block.offset + j);
     END_SU2_OMP_FOR
+  }
+  /*--- Assembled cross Jacobians of a coupled group: the operator is the coupled linearization. ---*/
+  if (const auto* assembled = linearization.GetEquations().GetCoupling()) {
+    SU2_OMP_FOR_STAT(1024)
+    for (auto i = 0ul; i < u.GetLocSize(); ++i) crossInput[i] = u[i] * scale[i];
+    END_SU2_OMP_FOR
+    assembled->Apply(crossInput, crossOutput, false,
+                     [&](unsigned long p, unsigned short j) { return linearization.IsFree(p, j); });
+    /*--- Rows outside the flow and turbulence blocks stay zero in crossOutput. ---*/
+    SU2_OMP_FOR_STAT(1024)
+    for (auto i = 0ul; i < u.GetNElmDomain(); ++i) v[i] += crossOutput[i] / scale[i];
+    END_SU2_OMP_FOR
+    CSysMatrixComms::Initiate(v, geometry, config);
+    CSysMatrixComms::Complete(v, geometry, config);
   }
 }
 

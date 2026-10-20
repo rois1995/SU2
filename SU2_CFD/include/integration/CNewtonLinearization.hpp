@@ -139,6 +139,7 @@ class CNewtonLinearization final : public CMatrixVectorProduct<passivedouble> {
     assert(scale);
     return *scale;
   }
+  const CNewtonEquationSet& GetEquations() const { return equations; }
   /*! \brief Apply S^-1*P*S to a preconditioner vector; full derivative directions remain unprojected. */
   void ProjectPeriodic(Vector& vector) const {
     assert(scale);
@@ -153,6 +154,8 @@ class CNewtonLinearization final : public CMatrixVectorProduct<passivedouble> {
 /*!
  * \class CNewtonBlockPreconditioner
  * \brief Native block solves, optionally subtracting matrix-free lower coupling actions.
+ * \details With assembled cross Jacobians (CNewtonCoupling), Multiply applies the coupled operator and Solve is a
+ * block Gauss-Seidel sweep: flow first, then turbulence with the assembled J_tf times the flow correction.
  * \details Each matrix retains its native block size; the full group never enters CSysMatrix scratch buffers.
  * Native matrices approximate the full operator. In particular, periodic P*A*P+(I-P) is a preconditioner,
  * while arbitrary trial directions remain present in the residual derivative used for acceptance.
@@ -180,6 +183,7 @@ class CNewtonBlockPreconditioner final : public CPreconditioner<passivedouble> {
   mutable double rhsMagnitude = 0;
   std::vector<Block> blocks;
   mutable Vector coupling, periodicRHS;
+  mutable Vector crossInput, crossOutput; /*!< \brief Assembled cross-Jacobian products of a coupled group. */
 
  public:
   CNewtonBlockPreconditioner(const CNewtonLinearization&, CGeometry*, CConfig*, bool lower = false,

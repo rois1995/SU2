@@ -1863,7 +1863,8 @@ TEST_CASE("Assembled Newton operators advance every group without finite-differe
             unsigned long work = 0;
             for (auto slot = 0u; slot < 4; ++slot) work += after[slot] - before[slot];
             CHECK(work <= 16);
-            CHECK(attempt.linearIterations > 1);
+            /*--- Coupled turbulence groups move the Krylov work into the block Gauss-Seidel inner solves. ---*/
+            CHECK(attempt.linearIterations + attempt.preconditionerIterations > 1);
           }
         }
       }
@@ -1920,6 +1921,90 @@ TEST_CASE("Coupled assembled updates reuse the accepted full step as the next ba
           }
       CHECK(difference <= 1e-12 * size);
     }
+  }
+}
+
+TEST_CASE("Assembled flow/turbulence cross Jacobians match finite differences of the coupled residual",
+          "[NewtonCoupling]") {
+  for (const auto& physics : {sa, sst}) {
+    CAPTURE(physics);
+    Problem problem(physics + "CFL_NUMBER= 5\nLINEAR_SOLVER_PREC= ILU\nLINEAR_SOLVER_ITER= 40\n"
+                              "LINEAR_SOLVER_ERROR= 1e-6\n", 8);
+    auto& driver = *problem.driver;
+    auto* geometry = driver.Geometry();
+    auto* config = driver.Config();
+    const std::vector<unsigned short> systems{RUNTIME_FLOW_SYS, RUNTIME_TURB_SYS};
+    /*--- A few coupled updates develop the boundary layer and the eddy viscosity. ---*/
+    {
+      NonlinearGlobalization::Options<> options;
+      options.diagnostics = false;
+      CNewtonIntegration controller(systems, options, false, "coupling", false, nullptr, true);
+      for (unsigned iteration = 0; iteration < 3; ++iteration) {
+        config->SetInnerIter(iteration);
+        controller.Iterate(geometry, driver.Solvers(), driver.Numerics(), config);
+        INFO(controller.GetNumericalFailureMessage());
+        REQUIRE_FALSE(controller.GetNumericalFailure());
+      }
+    }
+    auto equations = problem.Equations(systems);
+    REQUIRE(equations->EnableCoupling());
+    REQUIRE(Residual(*equations, true));
+    equations->Capture();
+    const auto* coupling = equations->GetCoupling();
+    REQUIRE(coupling);
+    const auto nVar = equations->GetnVar();
+    auto scale = MakeVector(driver, nVar), probe = scale, direction = scale, fd = scale, physical = scale;
+    auto assembled = scale;
+    equations->BuildScales(scale, probe);
+    CNewtonLinearization linearization(*equations, geometry, config);
+    auto diagonal = MakeVector(driver, nVar);
+    REQUIRE(linearization.SetBase(scale, diagonal, 1e-7, 1e-5));
+    const auto& blocks = equations->GetBlocks();
+    const auto& flowBlock = blocks[0].slot == FLOW_SOL ? blocks[0] : blocks[1];
+    const auto& turbBlock = blocks[0].slot == FLOW_SOL ? blocks[1] : blocks[0];
+    const auto nDim = geometry->GetnDim();
+    /*--- Relative interior mismatch of the assembled cross product for a direction on some columns of one block,
+     *    measured on some rows of the other. Boundary closures are not part of the assembled blocks. ---*/
+    auto mismatch = [&](const CNewtonEquationSet::Block& columns, unsigned short first, unsigned short last,
+                        const CNewtonEquationSet::Block& rows, unsigned short rowCount) {
+      direction = passivedouble(0);
+      for (auto p = 0ul; p < geometry->GetnPoint(); ++p)
+        for (auto v = first; v < last; ++v)
+          direction(p, columns.offset + v) =
+              0.1 * std::sin(0.3 + 2 * SU2_TYPE::GetValue(geometry->nodes->GetCoord(p, 0)) +
+                             3 * SU2_TYPE::GetValue(geometry->nodes->GetCoord(p, 1)) + 0.7 * v);
+      REQUIRE(linearization.Apply(direction, fd, false));
+      for (auto i = 0ul; i < direction.GetLocSize(); ++i) physical[i] = direction[i] * scale[i];
+      assembled = passivedouble(0);
+      SU2_OMP_PARALLEL {
+        coupling->Apply(physical, assembled, false,
+                        [&](unsigned long p, unsigned short j) { return linearization.IsFree(p, j); });
+      }
+      END_SU2_OMP_PARALLEL
+      double error = 0, size = 0;
+      for (auto p = 0ul; p < geometry->GetnPointDomain(); ++p) {
+        if (geometry->nodes->GetPhysicalBoundary(p)) continue;
+        for (auto v = 0u; v < rowCount; ++v) {
+          const auto j = rows.offset + v;
+          error += std::pow(assembled(p, j) / scale(p, j) - fd(p, j), 2);
+          size += std::pow(fd(p, j), 2);
+        }
+      }
+      return std::sqrt(error / std::max(size, std::numeric_limits<double>::min()));
+    };
+    const bool isSA = physics == sa;
+    /*--- J_ft: eddy viscosity in the viscous fluxes, k in the SST static energy. SA rows other than the
+     *    streamwise momentum are at the finite-difference resolution on this mesh. ---*/
+    const double eddy = mismatch(turbBlock, 0, turbBlock.variables, flowBlock, flowBlock.variables);
+    CHECK(eddy < (isSA ? 0.15 : 0.03));
+    /*--- J_tf, momentum columns: convection and the source chain through vorticity and strain; the SST omega row
+     *    keeps no flow columns from its source. ---*/
+    const double momentum = mismatch(flowBlock, 1, nDim + 1, turbBlock, 1);
+    CHECK(momentum < 0.01);
+    /*--- J_tf, density column: convection, the density-linear SST k source, the SA source through nu = mu/rho. ---*/
+    const double density = mismatch(flowBlock, 0, 1, turbBlock, 1);
+    CHECK(density < 0.01);
+    INFO("J_ft " << eddy << ", J_tf momentum " << momentum << ", J_tf density " << density);
   }
 }
 

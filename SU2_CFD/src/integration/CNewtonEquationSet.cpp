@@ -330,6 +330,18 @@ void CNewtonEquationSet::Communicate() {
   }
 }
 
+bool CNewtonEquationSet::EnableCoupling() {
+  const auto flow = std::find_if(blocks.begin(), blocks.end(), [](const Block& b) { return b.slot == FLOW_SOL; });
+  const auto turb = std::find_if(blocks.begin(), blocks.end(), [](const Block& b) { return b.slot == TURB_SOL; });
+  const auto model = config->GetKind_Turb_Model();
+  if (flow == blocks.end() || turb == blocks.end() || config->GetKind_Regime() != ENUM_REGIME::COMPRESSIBLE ||
+      config->GetnMarker_Periodic() || (model != TURB_MODEL::SA && model != TURB_MODEL::SST))
+    return false;
+  coupling = std::make_unique<CNewtonCoupling>(geometry, config, solvers, numerics[TURB_SOL], flow->offset,
+                                                turb->offset, turb->variables);
+  return true;
+}
+
 void CNewtonEquationSet::ProjectSymmetryWalls() {
   /*--- Only groups that own FLOW move it; otherwise the flow is already projected by its own controller. ---*/
   if (std::none_of(blocks.begin(), blocks.end(), [](const Block& b) { return b.slot == FLOW_SOL; })) return;
@@ -711,6 +723,8 @@ bool CNewtonEquationSet::EvaluateResiduals(bool implicit, bool allEquations, dou
   for (auto e = 0ul; e < nextReconstruction.size(); ++e)
     nextReconstruction[e] = (*reconstructionHistory)[e];
   END_SU2_OMP_FOR
+  /*--- Cross Jacobians belong to the native matrices of the same state; prescribed rows are now known. ---*/
+  if (implicit && coupling) coupling->Assemble();
   SU2_OMP_SAFE_GLOBAL_ACCESS(invalidCount = 0;)
   double invalid = 0;
   for (const auto& snapshot : snapshots) {

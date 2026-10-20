@@ -126,6 +126,7 @@ class CNewtonIntegration final : public CIntegration {
   /*! \brief Apply the native per-point CFL rule after an accepted assembled update; return the global maximum. */
   double AdaptLocalCFL(const Attempt& attempt);
   bool nativeFallback = false; /*!< \brief Assembled recovery exhausted: take one native full step. */
+  bool coupledAssembly = false; /*!< \brief Assembled group with flow/turbulence cross Jacobians. */
   bool liveResidual = false; /*!< \brief The accepted update left current residuals of every equation of the zone. */
   /*! \brief Assembled full trials also assemble the native matrices; an accepted one (or the outer refresh) is
    *  the next base assembly, if the state of every solver is still the recorded one. */

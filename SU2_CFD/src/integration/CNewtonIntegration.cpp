@@ -247,6 +247,9 @@ void CNewtonIntegration::Setup() {
       config->GetKind_Incomp_System() == INCOMP_SYSTEM::PRESSURE_BASED)
     throw std::invalid_argument("Newton flow groups require the density-based incompressible formulation");
   equations = std::make_unique<CNewtonEquationSet>(geometry, solvers, numerics, config, systems, residualWorkspace);
+  /*--- A coupled assembled group solves the coupled linearization: native diagonal blocks plus assembled
+   *    flow/turbulence cross Jacobians (block-Jacobi limit-cycles on strongly coupled high-lift cases). ---*/
+  coupledAssembly = assembledOperator && equations->EnableCoupling();
   for (const auto& block : equations->GetBlocks()) {
     const auto time = block.slot == FLOW_SOL ? config->GetKind_TimeIntScheme_Flow()
                                              : block.slot == SPECIES_SOL ? config->GetKind_TimeIntScheme_Species()
@@ -450,7 +453,13 @@ void CNewtonIntegration::MatrixFreeProduct(const CSysVector<Scalar>& u, CSysVect
 }
 
 void CNewtonIntegration::Precondition(const CSysVector<Scalar>& u, CSysVector<Scalar>& v) const {
-  if (nativeDirection)
+  /*--- A coupled assembly is preconditioned by a block Gauss-Seidel sweep that solves every block to the native
+   *    linear tolerance, as the segregated solves do: a single norm of the coupled residual would let the
+   *    dominant flow block meet it while the turbulence block stays unsolved. ---*/
+  if (nativeDirection && coupledAssembly)
+    preconditioner->Solve(u, v, std::min(1000ul, config->GetLinear_Solver_Iter()),
+                          SU2_TYPE::GetValue(config->GetLinear_Solver_Error()), true);
+  else if (nativeDirection)
     preconditioner->Solve(u, v, 0, flow.innerTolerance, false);
   else
     (*preconditioner)(u, v);
