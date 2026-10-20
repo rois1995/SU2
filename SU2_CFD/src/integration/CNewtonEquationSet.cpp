@@ -678,7 +678,8 @@ bool CNewtonEquationSet::EvaluateResiduals(bool implicit, bool allEquations, dou
     if (!selected && !allEquations && runtime != RUNTIME_FLOW_SYS) continue;
     const auto slot = config->GetContainerPosition(runtime);
     if (!solvers[slot]) continue;
-    SU2_OMP_SAFE_GLOBAL_ACCESS(config->SetResidualOnly(!implicit || !assemble);
+    /*--- Only the selected equations assemble matrices; auxiliary residuals are explicit. ---*/
+    SU2_OMP_SAFE_GLOBAL_ACCESS(config->SetResidualOnly(!implicit || !selected);
                                config->SetGlobalParam(config->GetKind_Solver(), runtime);)
     /*--- Bounded scalars need live edge mass fluxes. Keep feedback and custom-source failure checks.
      *     Auxiliary owners never commit flow reconstruction history; its saved counters remain frozen. ---*/

@@ -824,11 +824,60 @@ void CNewtonIntegration::Iterate(CGeometry* g, CSolver** s, CNumerics*** n, CCon
   config->SetEquationSettings(settings);
 }
 
+void CNewtonIntegration::RecordAssembly() {
+  /*--- Other groups and the outer driver run in between: reuse also needs the state of every solver. ---*/
+  unsigned long size = 0;
+  for (auto slot : {FLOW_SOL, TURB_SOL, TRANS_SOL, SPECIES_SOL})
+    if (solvers[slot]) size += geometry->GetnPoint() * solvers[slot]->GetnVar();
+  SU2_OMP_SAFE_GLOBAL_ACCESS(assemblyState.resize(size); reuseAssembly = true; assemblyStamp = EvaluationCount();)
+  unsigned long offset = 0;
+  for (auto slot : {FLOW_SOL, TURB_SOL, TRANS_SOL, SPECIES_SOL}) {
+    if (!solvers[slot]) continue;
+    const auto* nodes = solvers[slot]->GetNodes();
+    const auto nVar = solvers[slot]->GetnVar();
+    SU2_OMP_FOR_STAT(1024)
+    for (auto p = 0ul; p < geometry->GetnPoint(); ++p)
+      for (auto v = 0u; v < nVar; ++v)
+        assemblyState[offset + p * nVar + v] = SU2_TYPE::GetValue(nodes->GetSolution(p, v));
+    END_SU2_OMP_FOR
+    offset += geometry->GetnPoint() * nVar;
+  }
+}
+
+bool CNewtonIntegration::AssemblyCurrent() {
+  /*--- Fixed-CL feedback and grid motion change the residual without changing the state. ---*/
+  bool candidate = reuseAssembly && constraintsReady && !config->GetFixed_CL_Mode() && !config->GetDynamic_Grid() &&
+                   assemblyStamp == EvaluationCount();
+  unsigned long size = 0;
+  for (auto slot : {FLOW_SOL, TURB_SOL, TRANS_SOL, SPECIES_SOL})
+    if (solvers[slot]) size += geometry->GetnPoint() * solvers[slot]->GetnVar();
+  candidate = candidate && size == assemblyState.size();
+  double changed = candidate ? 0 : 1;
+  unsigned long offset = 0;
+  for (auto slot : {FLOW_SOL, TURB_SOL, TRANS_SOL, SPECIES_SOL}) {
+    /*--- Thread-uniform conditions only: every thread must reach the same worksharing loops. ---*/
+    if (!solvers[slot] || !candidate) continue;
+    const auto* nodes = solvers[slot]->GetNodes();
+    const auto nVar = solvers[slot]->GetnVar();
+    SU2_OMP_FOR_STAT(1024)
+    for (auto p = 0ul; p < geometry->GetnPoint(); ++p)
+      for (auto v = 0u; v < nVar; ++v)
+        if (assemblyState[offset + p * nVar + v] != SU2_TYPE::GetValue(nodes->GetSolution(p, v))) changed = 1;
+    END_SU2_OMP_FOR
+    offset += geometry->GetnPoint() * nVar;
+  }
+  return Reduce(changed, true) == 0;
+}
+
 void CNewtonIntegration::RefreshAfterOuterIteration() {
   if (!setup || failed) return;
   SU2_OMP_PARALLEL {
-    /*--- After a coupled update of every equation, the accepted trial residuals are still current. ---*/
-    const bool valid = (liveResidual || equations->EvaluateResiduals(false, true)) && RefreshStatistics(true);
+    /*--- After a coupled update of every equation, the accepted trial residuals are still current. Otherwise the
+     *    refresh evaluates the final state, where the next flow update starts: assemble its matrices for reuse. ---*/
+    const bool assemble = !liveResidual && assembledOperator && IsNewtonEquation(RUNTIME_FLOW_SYS) &&
+                          !config->GetFixed_CL_Mode() && !config->GetDynamic_Grid();
+    const bool valid = (liveResidual || equations->EvaluateResiduals(assemble, true)) && RefreshStatistics(true);
+    if (valid && assemble) RecordAssembly();
     if (valid) {
       const auto settings = config->GetEquationSettings();
       SU2_OMP_SAFE_GLOBAL_ACCESS(config->SetGlobalParam(config->GetKind_Solver(), RUNTIME_FLOW_SYS);)
@@ -847,8 +896,7 @@ void CNewtonIntegration::RefreshAfterOuterIteration() {
 void CNewtonIntegration::Advance() {
   /*--- The accepted assembled trial is still the live state, residual and spatial assembly if nothing has evaluated
    *    since, and no fixed-CL feedback moves the boundary state. The time term is added later from the new CFL. ---*/
-  const bool reuse = reuseAssembly && constraintsReady && !config->GetFixed_CL_Mode() &&
-                     assemblyStamp == EvaluationCount();
+  const bool reuse = AssemblyCurrent();
   SU2_OMP_SAFE_GLOBAL_ACCESS(liveResidual = false; reuseAssembly = false;)
   SetCFL(cfl);
   /*--- An initial or native state can still carry wall-normal momentum; the base must satisfy v.n=0.
@@ -925,9 +973,8 @@ void CNewtonIntegration::Advance() {
         solvers[FLOW_SOL]->Momentum_Forces(geometry, config);
         solvers[FLOW_SOL]->Friction_Forces(geometry, config);
       }
-      SU2_OMP_SAFE_GLOBAL_ACCESS(liveResidual = live;
-                                 reuseAssembly = live && implicitTrial && attempt.search.step == 1;
-                                 assemblyStamp = EvaluationCount();)
+      SU2_OMP_SAFE_GLOBAL_ACCESS(liveResidual = live;)
+      if (live && implicitTrial && attempt.search.step == 1) RecordAssembly();
       return;
     }
     const bool invalidState = (attempt.residualFailure && attempt.search.evaluations == 0) ||

@@ -121,9 +121,15 @@ class CNewtonIntegration final : public CIntegration {
   double AdaptLocalCFL(const Attempt& attempt);
   bool nativeFallback = false; /*!< \brief Assembled recovery exhausted: take one native full step. */
   bool liveResidual = false; /*!< \brief The accepted update left current residuals of every equation of the zone. */
-  /*! \brief Assembled full trials also assemble the native matrices; an accepted one is the next base assembly. */
+  /*! \brief Assembled full trials also assemble the native matrices; an accepted one (or the outer refresh) is
+   *  the next base assembly, if the state of every solver is still the recorded one. */
   bool implicitTrial = false, reuseAssembly = false;
   unsigned long assemblyStamp = 0; /*!< \brief Residual evaluations when the reusable assembly was made. */
+  std::vector<passivedouble> assemblyState; /*!< \brief Solutions of every solver at the reusable assembly. */
+  /*! \brief Record the live residuals and matrices of this group as the next base assembly. */
+  void RecordAssembly();
+  /*! \brief Collective: the recorded assembly is still the live base of the current state. */
+  bool AssemblyCurrent();
   unsigned long EvaluationCount() const {
     const auto& counts = equations->GetResidualEvaluations();
     return std::accumulate(counts.begin(), counts.end(), 0ul);

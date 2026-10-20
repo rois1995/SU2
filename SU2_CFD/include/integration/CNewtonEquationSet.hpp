@@ -247,7 +247,7 @@ class CNewtonEquationSet : private CIntegration {
    * \brief Rebuild live coefficients and physical residuals, with no pseudo-time term.
    * \details Periodic groups use F(w)=P*R(w)+B(w)*(I-P)*w, where B is live density for conservative
    * scalars and identity otherwise. Trial unknowns are not averaged. Numerical iteration history is frozen.
-   * \param[in] implicit - Also assemble native matrices for the block preconditioner.
+   * \param[in] implicit - Also assemble native matrices of the selected equations for the block preconditioner.
    * \param[in] allEquations - Refresh residuals outside the selected group for outer-driver statistics.
    * \param[in] reconstruction - Reconstruction factor for an explicitly requested derivative model.
    * \param[in] residualRuntime - Optional single residual row for explicit preconditioner products; zero selects all.
