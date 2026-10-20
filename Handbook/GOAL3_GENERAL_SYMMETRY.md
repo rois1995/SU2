@@ -211,6 +211,14 @@ No production activation, new full integrated/MPI lifecycle or accepted oblique/
 exterior mesh.2D runtime, multiple bodies/holes, mixed curved junctions and all
 full-scope requirements stay OPEN. Prior b232 source qualification is historical.
 
-## Finite-component mapped policy in progress
+## Finite-component mapped policy — paused, scoped controls pass
 
-The [connected v6 component batch](GOAL3_MAPPED_PARAMETERS.md) restores only certified planar seam freedom to mapped geometry, with finite containment/junction/publication/persistence reach. It is currently building and has no new runtime qualification. Full arbitrary2D/3D, multiple bodies/holes/disconnected regions, Euler/RANS, N/M, transfer/real restart/exterior scope remains open. Current original physical-border coarsening and mixed analytic/mapped limitations are explicit.
+The [v6 component batch](GOAL3_MAPPED_COMPONENTS.md) releases only certified planar
+seams with finite containment and protected borders/junctions. Build, rational
+predicate, domain and atomic publication controls pass. A new incomplete corner
+fixture remains failed; actual annular construction rejects on elapsed time after
+13private edits, so accepted geometry/remeshing readiness is not established.
+Full arbitrary2D/3D, multiple bodies/holes/disconnected regions, Euler/RANS, N/M,
+transfer/real restart/exterior scope remains open. Original physical-border
+coarsening and mixed analytic/mapped limitations remain explicit. Goal3 is PAUSED
+at user request; no new implementation or tests are part of this handbook update.

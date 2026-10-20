@@ -1,6 +1,6 @@
 {
   "goal": 3,
-  "status": "ACTIVE",
+  "status": "PAUSED",
   "branch": "codex/native-3d-bl",
   "base": "c43a8a3907ea2655e4ebbb6286ab16c3fa625d8b",
   "acceptance": {
@@ -2895,13 +2895,14 @@
     "construction": "integration_evidence/native_3d_bl_v1/mapped_boundary_lifecycle_v1/annulus_v5_n1/construction_diagnosis.json",
     "complete": false,
     "current_binary_sha256": "bcb271be14f7cc1b9cc4fe5295fc8d5caf73d0dbf005a0177e8533ceddebf78d",
-    "unsupported": "General plane seam release;2D runtime; general multiple-body/exterior/mixed analytic mapped intersections; affine BL walls; full mapped solution-file restart. Original scope retained."
+    "unsupported": "General plane seam release;2D runtime; general multiple-body/exterior/mixed analytic mapped intersections; affine BL walls; full mapped solution-file restart. Original scope retained.",
+    "qualification_scope": "Historical v5 baseline; current v6 source/binary/results are in mapped_components_current. Do not transfer complete lifecycle claims."
   },
   "mapped_components_current": {
-    "status": "CONNECTED_IMPLEMENTATION_BUILD_ACTIVE_NOT_VALIDATED",
+    "status": "PAUSED_SCOPED_CONTROLS_PASS_ANNULUS_TIME_REJECTION",
     "complete": false,
-    "evidence": "integration_evidence/native_3d_bl_v1/mapped_component_geometry_v1/README.md",
-    "build_session": 35436,
+    "evidence": "integration_evidence/native_3d_bl_v1/mapped_component_geometry_v1/STATUS_2026_10_20.json",
+    "build_session": null,
     "preserved_baseline": "bcb271be14f7cc1b9cc4fe5295fc8d5caf73d0dbf005a0177e8533ceddebf78d",
     "reach": [
       "Reference-certified planar seam release, actual ideal finite containment including holes/tangencies, bounded realized displacement/orientation",
@@ -2916,6 +2917,82 @@
       "No new complete mesh/transfer/real-restart/MPI/exterior/2D/performance evidence yet"
     ],
     "causal_qualification": "Accepted Cartesian annulus also had zero regional reconstruction. Missing regional class is a gap, not established cause of mapped stall.",
-    "preserved_compile_failure": "build_missing_line_v1: missing option_structure.hpp declaration for LINE; no acceptance change"
+    "preserved_compile_failure": "build_missing_line_v1: missing option_structure.hpp declaration for LINE; no acceptance change",
+    "ninja_pid": null,
+    "source_audit_stop": "source_audit_stop_v1: terminal130, pinned sources unchanged; fix hole-boundary fixture and index workspace admission before runtime",
+    "index_policy": "Bounded scan for <=16 member facets; otherwise house ADT with admitted preparation/retained workspace and result buffers. Not a measured speedup.",
+    "binary_sha256": "501393b67053e865b5c9f88c57295e72abaaed38cde049b21e480beee99eb3c1",
+    "build_status": "PASS",
+    "build_source_unchanged": true,
+    "handbook": "Handbook/GOAL3_MAPPED_COMPONENTS.md",
+    "validation": {
+      "finite_predicates": {
+        "samples": 468,
+        "checks": 2340,
+        "status": "PASS"
+      },
+      "domains": {
+        "cases": 3,
+        "assertions": 146,
+        "status": "PASS"
+      },
+      "publication": {
+        "cases": 1,
+        "assertions": 76,
+        "policies": [
+          "v5",
+          "v6"
+        ],
+        "status": "PASS"
+      },
+      "movement_fixture": {
+        "status": "FAIL_PRESERVED",
+        "line": 411,
+        "finding": "ConstrainMovePoint tangent projection was checked for a corner using only the bottom-face patch. Complete-dependency fixture correction remains pending; no production corner defect established."
+      }
+    },
+    "construction": {
+      "status": "REJECTED_TIME_BUDGET",
+      "complexity": 19.99957902686467,
+      "budget": 20,
+      "complexity_indicator": 0.0021999536929551136,
+      "indicator_is_proven_bound": false,
+      "density_queries": 3625296,
+      "composed_transport_violations": 18,
+      "maximum_composed_transport_ratio": 4.57957,
+      "whole_test_seconds": 149.1183611471206,
+      "native_seconds": 120.205776322,
+      "native_cpu_seconds": 63.450049,
+      "work": 7399,
+      "work_limit": 8192,
+      "private_accepted_edits": 13,
+      "private_cells": 75,
+      "private_nodes": 31,
+      "remaining_edges": 68,
+      "cached_invalid_cells": 67,
+      "joint_trials": 6440,
+      "joint_accepted": 0,
+      "last_candidate_q": 0.19884476892564093,
+      "minimum_q": 0.2,
+      "last_candidate_j": 0.06959269083420723,
+      "last_candidate_cell": 16825,
+      "correction_trials": 0,
+      "accepted_cfd_state_preserved": true,
+      "scope": "Recorded native counters only; contended rejected run, not proof of infeasibility/stagnation or a performance comparison."
+    },
+    "unverified": [
+      "New v6 MPI/N-M lifecycle",
+      "Independent v6 uniform-output audit",
+      "Complete accepted v6 BL transfer and real restart",
+      "New M6 or 2D/exterior workflow"
+    ],
+    "latest_followup_cpp_committed": false,
+    "active_owned_jobs": false
+  },
+  "pause": {
+    "date": "2026-10-20",
+    "reason": "User requested pause; later request authorizes handbook update only",
+    "goal_complete": false,
+    "owned_build_test_handles": "terminal at pause"
   }
 }

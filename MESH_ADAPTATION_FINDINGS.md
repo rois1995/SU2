@@ -7077,3 +7077,14 @@ mapped BL/real solution restart, general2D/multiple-body/exterior or affordabili
 Separate conditional facade-pointer/frozen-profile reuse issue is corroborated by
 Opus5.5/medium source review; no correction trial occurred in this failed case.
 [Sealed results and remaining scope](Handbook/GOAL3_MAPPED_PARAMETERS.md).
+
+## Finite mapped components — paused result, 2026-10-20
+
+Explicit v6 seam release now passes the official build and scoped finite-domain,
+atomic publication and rational-predicate controls. The incomplete-star corner
+fixture remains failed. The difficult annulus initializes its original frozen
+target, then rejects on the120s elapsed limit after13private edits,75tets/31nodes
+and6440joint trials/0accepted; accepted CFD state retained. This is not an accepted
+BL construction, infeasibility certificate or performance comparison. New MPI/N-M,
+complete transfer/real restart,2D/exterior readiness and accepted-event cost remain
+unverified. Goal3 is PAUSED; [current evidence, limitations and resume boundary](Handbook/GOAL3_MAPPED_COMPONENTS.md).

@@ -580,8 +580,36 @@ viscous accuracy or complete-event affordability claim. These rejected timings a
 not a performance comparison. Full scope and future performance package remain.
 [Sealed evidence](../integration_evidence/native_3d_bl_v1/mapped_boundary_lifecycle_v1/validation_summary.json).
 
-## Finite-component geometry strategy — connected implementation, unvalidated
+## Finite-component geometry outcome — 2026-10-20, work paused
 
-Accepted historical Cartesian evidence also has zero regional-core/front edits (77joint trials/3accepted). The earlier inference that regional exclusion explains the mapped rejection was too strong. It is a capability gap, not a diagnosed cause. The next connected strategy restores certified planar seam freedom, complete finite containment, junction ownership, atomic publication/persistence and immutable frozen-profile reuse, then tests the exact oblique field under unchanged gates. No local fallback/ceiling increase.
+Worked in scoped controls: reference-certified seam release/finite domains (3cases/
+146assertions), atomic publication across v5/v6 (76assertions), and exact compiled
+predicates (468samples/2340rational checks). The official connected build passes.
+Index preparation/query memory is admitted; components <=16facets avoid a fixed
+ADT workspace. No measured performance gain follows from that source change.
 
-[Current implementation and build receipts](../integration_evidence/native_3d_bl_v1/mapped_component_geometry_v1/README.md). No result or speedup yet. Opus5.5/medium supplied a design review; exact chain/displacement safeguards apply, while evolving-footprint hashes were rejected because BL samples immutable original facets. Full geometry and performance scope remains.
+Did not complete construction: the exact oblique annulus initializes19.999579/
+budget20, then hits120s elapsed at7399/8192work,13private edits,75tets/31nodes,
+6440joint trials/0accepted,68edge tasks/67invalid cells. Accepted CFD state retained;
+exact rejected state and before/after trial parameters preserved. No normalization
+correction occurred. These contended rejected timings establish neither affordability,
+infeasibility nor a speed/progress comparison with the differently stopped v5 run.
+
+A separate movement fixture fails its corner assertion with an incomplete bottom-face
+patch. Tangent projection does not promise full geometry; correcting complete
+context remains pending. Caller audit did not establish a missing-binding defect:
+coordinated boundary moves use ProjectMovePoint, and connectivity repair fixes its
+boundary. Do not add a fallback based on that suspicion.
+
+Historical accepted Cartesian evidence also has0regional-core/front edits but77joint
+trials/3accepted. Regional exclusion is a capability gap, not the diagnosed mapped
+stall cause. Seam release alone did not produce a complete accepted run. The next
+construction decision must follow exact failure analysis under unchanged gates.
+
+[Detailed outcomes, costs, evidence and unsupported/unverified scope](GOAL3_MAPPED_COMPONENTS.md).
+New MPI/N-M, complete v6 transfer/real restart, independent uniform-output audit,
+2D/exterior workflows and accepted-event performance remain unverified. The uniform
+audit is an unexecuted draft and refuses declared affine footprints. Full goal and
+performance package stay intact; Goal3 is PAUSED. Opus5.5/medium review remains
+design input; evolving-footprint hashes were not adopted because BL uses immutable
+original facets. No new implementation/test was run for this documentation update.

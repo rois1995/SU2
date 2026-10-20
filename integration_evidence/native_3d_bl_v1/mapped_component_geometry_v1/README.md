@@ -1,11 +1,40 @@
-# Finite mapped component geometry — implementation in progress
+# Finite mapped components — paused result, 2026-10-20
 
-Release only reference-certified planar triangulation seams, retaining exact finite component borders and junction ownership. Default native_ref v5 remains facet-local; explicit v6 declares component semantics. Original sensor-only P1 and actual-query BL/finer/fade are unchanged. Current policy does not coarsen original physical border vertices, merge near-planar facets or support mixed analytic/mapped authorities.
+[Handbook: implementation, exact evidence, limits and resume boundary](../../../Handbook/GOAL3_MAPPED_COMPONENTS.md).
+[Machine-readable recorded status and receipt hashes](STATUS_2026_10_20.json).
 
-The connected implementation covers prepared boundary-only topology/ADT, ideal exact segment/face predicates and full oriented chains; private cross-seam movement; atomic parameter+mesh publication, wire policy agreement and v6 persistence; N/M reader/runtime fixture activation; frozen BL identity across facades sharing an immutable mapped authority.
+Goal3 is PAUSED at user request. Official build PASS; exact rational predicates
+468samples/2340checks PASS; finite domains3cases/146assertions PASS; atomic
+publication v5/v6 1case/76assertions PASS. Combined component selection FAIL at an
+incomplete-star corner assertion, retained in components_n1. Correction is pending.
 
-No compiled or numerical result yet qualifies this batch. Build/test receipts are pinned and independent of the prior mapped_boundary_lifecycle_v1 evidence. The known oblique annulus is the early difficult construction target, with unchanged gates/target/limits. A valid geometry does not prove mesh construction. Full 2D/arbitrary-plane/multi-body/hole/exterior/MPI/transfer/real-restart/performance scope remains open.
+Actual annulus initializes complexity19.999579/budget20, then rejects on120s elapsed
+at7399/8192work,13private edits,75tets/31nodes and6440joint trials/0accepted. Accepted
+CFD state retained. annulus_n1 preserves exact rejected state/v6 reference and
+before/after trial parameters. Rejected adapted SU2 conversion is pending; .su2
+files currently present are inputs. No accepted BL, transfer/restart or speedup claim.
 
-Historical Cartesian accepted annulus had zero regional-core/front reconstructions too, but three accepted coordinated-wall edits (77trials). Thus PrismChart exclusion is a class capability gap, not established cause of the mapped stall (5120joint trials/zeroaccepted). Removing its guard alone is not a supported fix.
+Default v5 remains facet-local; v6 releases only reference-certified planar seams,
+with finite containment and physical borders/junctions protected. Original physical
+border vertices remain protected. Components <=16facets use bounded scans; larger
+ADTs admit preparation/retained workspace/query results. No near-planar merging,
+metric spreading/reset, geometry/height/quality/field gate change or testcase mode.
+Original sensor-only P1, actual-query BL/finer/fade and frozen-profile policy stay.
 
-The independent uniform audit draft reuses the existing rational clipping/topology/state auditor and independently discovers exact planar components. Python syntax checked only; not executed yet. It explicitly refuses declared affine-plane footprints and does not qualify BL or real restart. Retained for the affected milestone after the difficult construction check.
+Initial missing-include failure and deliberate source-audit stop are preserved in
+build_missing_line_v1 and source_audit_stop_v1. The final resumed build is pinned in
+build_process.json/source_v1.json. finite_predicate_oracle_v1 uses the actual official
+compiled object. domains_n1 and publication_n1 retain provenance and matched-filter
+checks. Independent audit_uniform.py is a syntax-checked, unexecuted draft limited
+to exact planar components; declared affine footprints are explicitly unqualified.
+
+Historical accepted Cartesian annulus also used0regional-core/front edits but77joint
+trials/3accepted. Regional exclusion is a gap, not an established cause of the mapped
+stall. Reconsider construction/coordination from exact failure before another local
+fallback or higher limits. Time exhaustion under contention is distinct from proof
+of stagnation or infeasibility. Full general geometry, MPI/N-M, transfer/real restart,
+2D/exterior, uncertainty/gradation, viscous and performance scope remains open.
+
+Latest resource/fixture C++ corrections and validation follow-up remain local;
+documentation publication does not publish those C++ changes. No implementation,
+build, test, adaptation or CFD is launched by this documentation update.

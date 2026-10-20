@@ -1,0 +1,27 @@
+{
+  "exit_code": 0,
+  "elapsed_seconds": 13.667867213021964,
+  "command": [
+    "taskset",
+    "-c",
+    "0",
+    "nice",
+    "-n",
+    "19",
+    "timeout",
+    "--kill-after=5s",
+    "180s",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver",
+    "Mapped components release*,Mapped finite components*,Exact ideal finite-component*",
+    "--abort",
+    "--reporter",
+    "compact"
+  ],
+  "provenance_sha256": "db136000421c184e056c639e7e6e239420ad6bedc074fcd6f20c14a1adb95b81",
+  "log_sha256": "e8d5490c181001e29029c27c5de4d4d4569dba33236e0e91f59cb2b6a37eb5ed",
+  "compiled_sources_unchanged": true,
+  "test_filter_matched": true,
+  "artifacts": {
+    "process.json": "e71edfd02834e7a702003bc172cec65adb37f4ec050123effe7c807473b6ab7c"
+  }
+}

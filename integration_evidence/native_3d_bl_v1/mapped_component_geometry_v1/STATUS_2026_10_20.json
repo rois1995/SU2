@@ -1,0 +1,97 @@
+{
+  "status": "PAUSED_AT_USER_REQUEST",
+  "date": "2026-10-20",
+  "documentation_only": true,
+  "implementation_checkpoint_pushed_before_update": "feb83a3f6888a0520a7a3e21aad574bb5a6f5ec7",
+  "latest_followup_code_committed": false,
+  "build": {
+    "status": "PASS",
+    "binary_sha256": "501393b67053e865b5c9f88c57295e72abaaed38cde049b21e480beee99eb3c1",
+    "elapsed_seconds": 708.6908619403839,
+    "source_unchanged": true,
+    "maximum_sampled_descendant_rss_sum_KiB": 2653504,
+    "minimum_sampled_host_MemAvailable_KiB": 39969096
+  },
+  "validation": {
+    "finite_predicates": {
+      "samples": 468,
+      "checks": 2340,
+      "status": "PASS"
+    },
+    "domains": {
+      "cases": 3,
+      "assertions": 146,
+      "status": "PASS"
+    },
+    "publication": {
+      "cases": 1,
+      "assertions": 76,
+      "policies": [
+        "v5",
+        "v6"
+      ],
+      "status": "PASS"
+    },
+    "movement_fixture": {
+      "status": "FAIL_PRESERVED",
+      "line": 411,
+      "finding": "ConstrainMovePoint tangent projection was checked for a corner using only the bottom-face patch. Complete-dependency fixture correction remains pending; no production corner defect established."
+    }
+  },
+  "annulus": {
+    "status": "REJECTED_TIME_BUDGET",
+    "complexity": 19.99957902686467,
+    "budget": 20,
+    "complexity_indicator": 0.0021999536929551136,
+    "indicator_is_proven_bound": false,
+    "density_queries": 3625296,
+    "composed_transport_violations": 18,
+    "maximum_composed_transport_ratio": 4.57957,
+    "whole_test_seconds": 149.1183611471206,
+    "native_seconds": 120.205776322,
+    "native_cpu_seconds": 63.450049,
+    "work": 7399,
+    "work_limit": 8192,
+    "private_accepted_edits": 13,
+    "private_cells": 75,
+    "private_nodes": 31,
+    "remaining_edges": 68,
+    "cached_invalid_cells": 67,
+    "joint_trials": 6440,
+    "joint_accepted": 0,
+    "last_candidate_q": 0.19884476892564093,
+    "minimum_q": 0.2,
+    "last_candidate_j": 0.06959269083420723,
+    "last_candidate_cell": 16825,
+    "correction_trials": 0,
+    "accepted_cfd_state_preserved": true,
+    "scope": "Recorded native counters only; contended rejected run, not proof of infeasibility/stagnation or a performance comparison."
+  },
+  "not_run": [
+    "New v6 MPI/N-M lifecycle",
+    "Independent v6 uniform-output audit",
+    "Complete accepted v6 BL transfer and real restart",
+    "New M6 or 2D/exterior workflow"
+  ],
+  "pending": [
+    "Correct complete-dependency corner fixture",
+    "Reconsider missing construction/coordination capability using the exact failure before further fallbacks",
+    "Qualify complete accepted lifecycle and full unchanged goal scope after explicit resume"
+  ],
+  "local_followup_sources": {
+    "Common/src/adaptation/CNativeAffineReference.cpp": "15c5d7a7a446dc550dd32ad5ef3c06c34542a2b1a8ecf5395b5ae3e82a70cd15",
+    "UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp": "c3dcabdccd9b14ced4ba4e44ac73347d0b9255acd681c6a2eb2cd2b8ca9d19e2"
+  },
+  "evidence_sha256": {
+    "integration_evidence/native_3d_bl_v1/mapped_component_geometry_v1/build_process.json": "9a27dcee3da4b1d6b29aadbe4a53c409c0de4295b6186d4ae140151ac1c871b4",
+    "integration_evidence/native_3d_bl_v1/mapped_component_geometry_v1/finite_predicate_oracle_v1/result.json": "938906197537e48e977080f3048643a908789c7109dea3b4b5f0fbe8f3fe4690",
+    "integration_evidence/native_3d_bl_v1/mapped_component_geometry_v1/components_n1/result.json": "2493ef43ee9a5a0c4116a2d8a7074bf68ea1443f0d99a74f47e5c7225709bdb1",
+    "integration_evidence/native_3d_bl_v1/mapped_component_geometry_v1/components_n1/run.log": "4ed6c787ac10416fac6f0d4610c22e031fbdfa69deb2fdd28c26ec64262d1f81",
+    "integration_evidence/native_3d_bl_v1/mapped_component_geometry_v1/domains_n1/result.json": "6384a35d670f7059982f8fb6a65b4f76520a84d35cccb7a3943a7ed1d328e2b0",
+    "integration_evidence/native_3d_bl_v1/mapped_component_geometry_v1/domains_n1/run.log": "e8d5490c181001e29029c27c5de4d4d4569dba33236e0e91f59cb2b6a37eb5ed",
+    "integration_evidence/native_3d_bl_v1/mapped_component_geometry_v1/publication_n1/result.json": "70939d3700b039a0be62df488cfc531c933c60e7d05299aecc9c3e1eed093db5",
+    "integration_evidence/native_3d_bl_v1/mapped_component_geometry_v1/publication_n1/run.log": "cfa2402959d9560d5b6776ea5d0b0fd3f91482a5e5f8fe0fb33f98386af98589",
+    "integration_evidence/native_3d_bl_v1/mapped_component_geometry_v1/annulus_n1/result.json": "dc4fe7600a1182f061d4eba9c6da670dd9da8f30be1727a75a41e980268e9af7",
+    "integration_evidence/native_3d_bl_v1/mapped_component_geometry_v1/annulus_n1/run.log": "77e873804410b56b53e629ceb63e49c93b358a38cac0b3b4352021c54f69d982"
+  }
+}

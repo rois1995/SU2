@@ -1,6 +1,6 @@
-# Mapped geometry parameters — current connected work
+# Mapped geometry parameters — qualified v5 baseline and v6 follow-up
 
-Full Goal3/general symmetry remains ACTIVE. [Geometry contract](GOAL3_MAPPED_FEATURES.md)
+Full Goal3/general symmetry is PAUSED at user request and remains incomplete. [Geometry contract](GOAL3_MAPPED_FEATURES.md)
 and [full scope](GOAL3_GENERAL_SYMMETRY.md) stay intact.
 
 [Core implementation, exact failures, checks and limitations](../integration_evidence/native_3d_bl_v1/mapped_faceted_geometry_v1/README.md).
@@ -11,7 +11,7 @@ error; full original-facet cover/feature-chain audit. It passes focused controls
 an independent rational oracle, including the saved unrepresentable edge. This is
 NOT an accepted adapted mesh, published parameter state or completed geometry policy.
 
-## Connected implementation — local controls qualified, BL construction rejects
+## Qualified v5 baseline — local controls pass, BL construction rejects
 
 Private proposals carry boundary-only bindings. Accepted metadata retains current
 faces and point/support records; geometry and mesh deltas stage beside one common
@@ -61,7 +61,7 @@ is established. All jobs terminal. User's entire general geometry scope remains.
    qualified separately; no current complete MPI mesh claim yet.
 3. Release only nonphysical declared-plane triangulation seams while preserving
    original body features/footprints, complete finite segment/face containment and
-   simultaneous junctions. Current mapped model protects all original facet edges.
+   simultaneous junctions. Default v5 protects all original facet edges; explicit v6 now releases only certified planar seams.
    If the annulus stalls, its exact failure must motivate construction/coordination
    changes before another local fallback, not higher limits or looser gates.
 4. Retain original sensor-only P1 and actual-query BL/finer/fade at every private or
@@ -100,35 +100,23 @@ conditions while reversing the realized face (maximum displacement5.684e-14 belo
 1e-13). This identifies a shared-predicate gap, **not an accepted-mesh failure**;
 actual-volume/embedding/metric gates are separate. The counterexample is retained.
 Filtered/exact normal-dot arithmetic avoids a tiny Cartesian projection; the25
-assertion C++ control and209exact-rational samples PASS. Current compiled predicate
-object matches that independent arithmetic evidence. Private
+assertion C++ control and209exact-rational samples PASS. The qualified v5 predicate
+object matches that historical independent arithmetic evidence; current v6 has a separate oracle. Private
 insertion now admits bindings before ordered-map lookup and movement uses child
 forward bindings. Pure root projection remains limited; no failed complete workflow
 is inferred from static suspicion.
 [Exact example and source pins](../integration_evidence/native_3d_bl_v1/mapped_boundary_lifecycle_v1/static_geometry_review.json).
 
-## Stage identity follow-up (static, no runtime failure claimed yet)
+## Stage identity and v6 follow-up
 
-Driver BL composition reuses a frozen profile only if family.authority equals the
-whole PlanarReference shared_ptr. Refine/Coarsen now return a fresh parameter-state
-facade sharing immutable geometry. If bounded normalization needs a second stage,
-that pointer comparison can refuse reuse and the opt-in budget check can reject.
-The composition policy must distinguish immutable geometry/profile identity from
-mutable boundary records without relaxing original-donor/selected-field/CFD mesh
-eligibility. Review/qualify this connected path before claiming repeated-stage
-mapped BL readiness. Opus5.5/medium read-only source review completed30.45s and
-corroborates the conditional issue; its root-only suggestion needs mapped-authority/
-version safeguards. Default-profile rebuilding is not itself proof of a changed
-mathematical field. Normal Claude authentication works; the earlier bare invocation
-excluded needed context. Annulus_v4 was a separate fixture lazy-reference bootstrap
-error before metric/remesh, preserved and order-corrected; v5 reaches construction.
+The conditional whole-facade identity issue has a source correction: facades sharing
+an exact immutable mapped authority can reuse the frozen original BL profile while
+strict donor/config eligibility stays. No correction stage ran in the latest failed
+annulus, so repeated-stage behavior is still unverified. The original authority
+review and failed stripped-authentication invocations remain preserved.
 
-## Connected finite-component policy — implementation checkpoint
-
-[Current source/build work](../integration_evidence/native_3d_bl_v1/mapped_component_geometry_v1/README.md) releases only immutable reference-certified planar seams. Boundary-only component topology/chart ADTs are prepared once; finite ideal segment/face checks account for holes, tangencies and disconnected domains without rounding constructed intersections. Positive realized orientation uses the authoritative normal. Physical border chains and shared junction identities remain protected.
-
-Private movement, atomic publication, MPI wire policy agreement, reader return and explicit v6 persistence are connected. Facet-local v5 stays the default. The frozen-BL factory recognizes facades sharing the exact immutable mapped authority; original donor and selected-field eligibility stays strict. The actual BL data copies immutable original facets, not the evolving accepted skin. Opus5.5/medium reviewed the design; its suggested evolving-footprint hashes were not adopted for that reason. Review is not numerical evidence.
-
-Build is in progress with one pinned nice19 worker. No compiled/runtime claim yet. Focused exact/component controls precede the saved difficult oblique annulus; unchanged quality/height/full-field/transfer/geometry gates and work limits. Original physical border vertices remain protected; mixed analytic/mapped geometry,2D runtime, exterior accepted workflows and full performance qualification remain open.
-
-Causal correction: the accepted Cartesian annulus also had no regional-core/front reconstruction, but77joint trials/3accepted. Regional class exclusion is therefore not established as the mapped stall cause. Restore certified seam freedom and test the actual field before proposing another construction mechanism.
+[Current finite-component implementation, build/results, failures and resume boundary](GOAL3_MAPPED_COMPONENTS.md).
+The official v6 build and scoped domain/publication/rational controls pass. A movement
+fixture assertion remains failed and needs complete dependencies. Actual oblique BL
+hits the120s elapsed limit after13private edits; no accepted complete mesh. Full
+geometry/MPI/transfer/restart/exterior/performance scope remains open. Work is paused.
