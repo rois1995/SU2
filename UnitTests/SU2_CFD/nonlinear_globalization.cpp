@@ -72,6 +72,18 @@ TEST_CASE("Accepted steps adapt pseudo-time from model agreement", "[globalizati
   REQUIRE(Adapt(options, 100, 0.9, 1) == 100);
 }
 
+TEST_CASE("Approximate operators adapt the local pseudo-time like the native CFL rule", "[globalization]") {
+  using namespace NonlinearGlobalization;
+  Options<> options;
+  REQUIRE(LocalFactor(options, 1, false, true) == options.grow);
+  REQUIRE(LocalFactor(options, 0.5, false, true) == 1);    /*--- partly relaxed: hold ---*/
+  REQUIRE(LocalFactor(options, 1, false, false) == 1);     /*--- linear tolerance missed: hold ---*/
+  REQUIRE(LocalFactor(options, 0.05, false, true) == options.shrink);
+  REQUIRE(LocalFactor(options, 1, true, true) == options.shrink);
+  options.adaptCFL = false;
+  REQUIRE(LocalFactor(options, 0.05, true, false) == 1);
+}
+
 TEST_CASE("A direction below the state resolution grows pseudo-time instead of failing", "[globalization]") {
   using namespace NonlinearGlobalization;
   Options<> options;

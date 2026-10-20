@@ -443,7 +443,7 @@ private:
   NonlinearGlobalization::Options<su2double> sstNewtonOptions, newtonOptions;
   unsigned short nNewtonEquations = 0;
   unsigned short* NewtonEquations = nullptr;
-  bool NewtonCoupled = false, NewtonBlockLower = false;
+  bool NewtonCoupled = false, NewtonBlockLower = false, NewtonAssembled = false;
   array<unsigned short,4> NK_IntParam{{20, 3, 2, 0}}; /*!< \brief Integer parameters for NK method. */
   array<su2double,5> NK_DblParam{{-2.0, 0.1, -3.0, 1e-4, 1.0}}; /*!< \brief Floating-point parameters for NK method. */
   su2double NK_Relaxation = 1.0;
@@ -4559,6 +4559,8 @@ public:
   }
   bool GetNewtonCoupled() const { return NewtonCoupled; }
   bool GetNewtonBlockLower() const { return NewtonBlockLower; }
+  /*! \brief Use the native assembled Jacobians as the Newton operator instead of finite-difference products. */
+  bool GetNewtonAssembled() const { return NewtonAssembled; }
 
   /*!
    * \brief Get Newton-Krylov integer parameters.

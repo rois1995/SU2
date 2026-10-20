@@ -8,6 +8,7 @@
 #include "CIntegration.hpp"
 #include "CNewtonLinearization.hpp"
 #include "../../../Common/include/linear_algebra/CSysSolve.hpp"
+#include <deque>
 #include <memory>
 
 /*!
@@ -21,7 +22,7 @@
 class CNewtonIntegration final : public CIntegration {
   std::vector<unsigned short> systems;
   NonlinearGlobalization::Options<> options;
-  bool lowerTriangular, legacyFlowControls;
+  bool lowerTriangular, legacyFlowControls, assembledOperator;
   std::string prefix;
   std::shared_ptr<CNewtonEquationSet::ResidualWorkspace> residualWorkspace;
   double residualTolerance = 0;
@@ -36,14 +37,16 @@ class CNewtonIntegration final : public CIntegration {
    * \param[in] diagnostics - Prefix used by iteration and recovery records.
    * \param[in] flowControls - Honor existing flow startup, reconstruction and inner-solve controls.
    * \param[in] workspace - Optional evaluation scratch shared by sequential equation groups.
+   * \param[in] assembled - Solve directions with the native assembled Jacobians instead of finite differences.
    */
   CNewtonIntegration(std::vector<unsigned short> selected, NonlinearGlobalization::Options<> settings,
                      bool lower = false, std::string diagnostics = "newton", bool flowControls = false,
-                     std::shared_ptr<CNewtonEquationSet::ResidualWorkspace> workspace = {})
+                     std::shared_ptr<CNewtonEquationSet::ResidualWorkspace> workspace = {}, bool assembled = false)
       : systems(std::move(selected)),
         options(settings),
         lowerTriangular(lower),
         legacyFlowControls(flowControls),
+        assembledOperator(assembled),
         prefix(std::move(diagnostics)), residualWorkspace(std::move(workspace)) {}
   void MultiGrid_Iteration(CGeometry****, CSolver*****, CNumerics******, CConfig**, unsigned short, unsigned short,
                            unsigned short) override;
@@ -76,6 +79,8 @@ class CNewtonIntegration final : public CIntegration {
   bool GetNumericalFailure() const override { return failed; }
   const char* GetNumericalFailureMessage() const override { return failureMessage.c_str(); }
   const Attempt& GetLastAttempt() const { return lastAttempt; }
+  /*! \brief Full residual assemblies per equation slot (FLOW, TURB, TRANS, SPECIES) since setup. */
+  const std::array<unsigned long, 4>& GetResidualEvaluations() const { return equations->GetResidualEvaluations(); }
   /*! \brief Advance this group by one accepted update, or report terminal numerical failure to the driver. */
   void Iterate(CGeometry*, CSolver**, CNumerics***, CConfig*);
   /*! \brief Apply the acceptance operator; directionModel requests the optional legacy startup model. */
@@ -107,6 +112,14 @@ class CNewtonIntegration final : public CIntegration {
   bool setup = false, failed = false, residualValid = true, constraintsReady = false, nativeDirection = false;
   std::string failureMessage;
   double cfl = 0, eta = 0, referenceCFLFactor = 1;
+  double cflLinearTolerance = 0; /*!< \brief Native CFL rule: acceptable linear residual (assembled operators). */
+  std::vector<double> localCFL; /*!< \brief Per-point CFL of assembled operators (native local CFL rule). */
+  /*! \brief Scale the assembled local CFL field, clamp it to the CFL bounds and return its global maximum. */
+  double ScaleLocalCFL(double factor);
+  /*! \brief Apply the native per-point CFL rule after an accepted assembled update; return the global maximum. */
+  double AdaptLocalCFL(const Attempt& attempt);
+  bool nativeFallback = false; /*!< \brief Assembled recovery exhausted: take one native full step. */
+  std::deque<double> recentMerits; /*!< \brief Accepted base merits for the non-monotone assembled line search. */
   mutable double reduction = 0;
   mutable std::vector<double> reductionPartials;
   unsigned attemptNumber = 0, trialNumber = 0, failedProducts = 0;

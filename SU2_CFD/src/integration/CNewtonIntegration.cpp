@@ -197,6 +197,29 @@ double CNewtonIntegration::CommitFlow(const Attempt& attempt, double nextCFL) {
 
 void CNewtonIntegration::Setup() {
   if (legacyFlowControls) ConfigureFlow();
+  if (assembledOperator) {
+    if (legacyFlowControls || lowerTriangular)
+      throw std::invalid_argument("Assembled Newton operators exclude legacy flow controls and lower FD coupling");
+    /*--- The native linear-solver settings apply to the native operator; there is no forcing sequence. ---*/
+    const double tolerance = SU2_TYPE::GetValue(config->GetLinear_Solver_Error());
+    if (!(tolerance >= 0 && tolerance < 1) || !config->GetLinear_Solver_Iter())
+      throw std::invalid_argument(
+          "Assembled Newton operators need LINEAR_SOLVER_ERROR in [0,1) and LINEAR_SOLVER_ITER > 0");
+    options.linearTolerance = std::max(std::numeric_limits<double>::epsilon(), tolerance);
+    options.etaMin = std::min(options.etaMin, options.linearTolerance);
+    options.etaMax = std::max(options.etaMax, options.linearTolerance);
+    options.linearIterations = std::min(1000ul, config->GetLinear_Solver_Iter());
+    options.adaptiveForcing = false;
+    /*--- Follow the native CFL controls: fixed without CFL_ADAPT, otherwise its factors and bounds. ---*/
+    options.adaptCFL = options.adaptCFL && config->GetCFL_Adapt();
+    cflLinearTolerance = std::max(SU2_TYPE::GetValue(config->GetCFL_AdaptParam(4)), tolerance);
+    if (config->GetCFL_Adapt()) {
+      options.shrink = SU2_TYPE::GetValue(config->GetCFL_AdaptParam(0));
+      options.grow = SU2_TYPE::GetValue(config->GetCFL_AdaptParam(1));
+      options.cflMin = SU2_TYPE::GetValue(config->GetCFL_AdaptParam(2));
+      options.cflMax = SU2_TYPE::GetValue(config->GetCFL_AdaptParam(3));
+    }
+  }
   const auto error = options.Validate();
   if (!error.empty()) throw std::invalid_argument(error);
   if (config->GetTime_Marching() != TIME_MARCHING::STEADY || config->GetTime_Domain() ||
@@ -239,18 +262,50 @@ void CNewtonIntegration::Setup() {
   cfl = std::max(options.cflMin,
                  std::min(options.cflMax, SU2_TYPE::GetValue(config->GetCFL(MESH_0)) * referenceCFLFactor));
   eta = options.linearTolerance;
+  if (assembledOperator) localCFL.assign(geometry->GetnPoint(), cfl);
   setup = true;
 }
 
 void CNewtonIntegration::SetCFL(double value) {
+  const bool local = !localCFL.empty();
   for (const auto& block : equations->GetBlocks()) {
-    const double native = value * CFLFactor(block) / referenceCFLFactor;
+    const double factor = CFLFactor(block) / referenceCFLFactor;
     auto* nodes = block.solver->GetNodes();
     SU2_OMP_FOR_STAT(1024)
-    for (auto p = 0ul; p < geometry->GetnPoint(); ++p) nodes->SetLocalCFL(p, native);
+    for (auto p = 0ul; p < geometry->GetnPoint(); ++p) nodes->SetLocalCFL(p, (local ? localCFL[p] : value) * factor);
     END_SU2_OMP_FOR
-    SU2_OMP_SAFE_GLOBAL_ACCESS(block.solver->SetCFL_Local_Stats(native);)
+    SU2_OMP_SAFE_GLOBAL_ACCESS(block.solver->SetCFL_Local_Stats(value * factor);)
   }
+}
+
+double CNewtonIntegration::ScaleLocalCFL(double factor) {
+  double maximum = 0;
+  SU2_OMP_FOR_STAT(1024)
+  for (auto p = 0ul; p < localCFL.size(); ++p) {
+    localCFL[p] = std::max(options.cflMin, std::min(options.cflMax, localCFL[p] * factor));
+    if (p < geometry->GetnPointDomain()) maximum = std::max(maximum, localCFL[p]);
+  }
+  END_SU2_OMP_FOR
+  return Reduce(maximum, true);
+}
+
+double CNewtonIntegration::AdaptLocalCFL(const Attempt& attempt) {
+  /*--- Native rule: the linear solve and the line search decide globally, the under-relaxation of each point's
+   *    update (already scaled by the accepted step) decides locally, so hard points keep a small CFL. ---*/
+  const bool reduce = attempt.search.step < 1 || !(attempt.linearDefect <= 1.2 * cflLinearTolerance);
+  const bool canIncrease = attempt.linearDefect < cflLinearTolerance;
+  double maximum = 0;
+  SU2_OMP_FOR_STAT(1024)
+  for (auto p = 0ul; p < localCFL.size(); ++p) {
+    double relaxation = 1;
+    for (const auto& block : equations->GetBlocks())
+      relaxation = std::min(relaxation, SU2_TYPE::GetValue(block.solver->GetNodes()->GetUnderRelaxation(p)));
+    const double factor = NonlinearGlobalization::LocalFactor(options, relaxation, reduce, canIncrease);
+    localCFL[p] = std::max(options.cflMin, std::min(options.cflMax, localCFL[p] * factor));
+    if (p < geometry->GetnPointDomain()) maximum = std::max(maximum, localCFL[p]);
+  }
+  END_SU2_OMP_FOR
+  return Reduce(maximum, true);
 }
 
 void CNewtonIntegration::UpdateScale() {
@@ -450,8 +505,9 @@ CNewtonIntegration::Attempt CNewtonIntegration::SolveAttempt(bool preparedBase) 
           ? options.fdStep * std::max(1.0, baseState.norm() / std::sqrt(geometry->GetGlobal_nPointDomain()))
           : options.fdStep * std::sqrt(equations->GetnVar() * geometry->GetGlobal_nPointDomain());
   /*--- Verify every group's products: scalar and first-order residuals are not smooth everywhere either
-   *     (e.g. SA-neg at zero), and an unverified product lets Krylov converge on a wrong action. ---*/
-  const bool verifyStep = true;
+   *     (e.g. SA-neg at zero), and an unverified product lets Krylov converge on a wrong action.
+   *     Assembled operators use no finite-difference products. ---*/
+  const bool verifyStep = !assembledOperator;
   const bool valid = linearization->SetBase(
       scale, pseudoTime->GetDiagonal(), probeStep, options.relativeFDStep,
       [&](const CNewtonEquationSet::Block& b, unsigned long p, unsigned short v) { return IsFree(b, p, v); },
@@ -481,7 +537,8 @@ CNewtonIntegration::Attempt CNewtonIntegration::SolveAttempt(bool preparedBase) 
     Residual();
     return attempt;
   }
-  SU2_OMP_SAFE_GLOBAL_ACCESS(directionOperator = linearization.get(); nativeDirection = attempt.startup;)
+  SU2_OMP_SAFE_GLOBAL_ACCESS(directionOperator = linearization.get();
+                             nativeDirection = attempt.startup || assembledOperator;)
   if (modelLinearization && attempt.reconstruction < 1) {
     const bool modelValid = modelLinearization->SetBase(
         scale, pseudoTime->GetDiagonal(), probeStep, options.relativeFDStep,
@@ -499,7 +556,11 @@ CNewtonIntegration::Attempt CNewtonIntegration::SolveAttempt(bool preparedBase) 
   correction = Scalar(0);
   double residual = attempt.linearTarget;
   const auto iterations = legacyFlowControls ? flow.linearIterations : options.linearIterations;
-  if (attempt.startup && config->GetKind_Linear_Solver_Inner() == LINEAR_SOLVER_INNER::BCGSTAB)
+  if (assembledOperator && config->GetKind_Linear_Solver() == BCGSTAB)
+    attempt.linearIterations =
+        linearSolver.BCGSTAB_LinSolver(rhs, correction, Product(*this), Preconditioner(*this), attempt.linearTarget,
+                                       iterations, residual, false, config);
+  else if (attempt.startup && config->GetKind_Linear_Solver_Inner() == LINEAR_SOLVER_INNER::BCGSTAB)
     attempt.linearIterations =
         linearSolver.BCGSTAB_LinSolver(rhs, correction, Product(*this), Preconditioner(*this), attempt.linearTarget,
                                        iterations, residual, false, config);
@@ -515,7 +576,8 @@ CNewtonIntegration::Attempt CNewtonIntegration::SolveAttempt(bool preparedBase) 
                                                              attempt.linearTarget, iterations, residual, false, config);
   attempt.preconditionerIterations = preconditioner->GetWork();
   attempt.reportedLinearResidual = residual;
-  MatrixFreeProduct(correction, product);
+  /*--- An assembled direction is judged against the operator actually solved. ---*/
+  MatrixFreeProduct(correction, product, assembledOperator);
   attempt.failedProducts = failedProducts + preconditioner->GetFailedProducts();
   double defect = 0, invalid = 0;
   SU2_OMP_FOR_STAT(1024)
@@ -530,16 +592,23 @@ CNewtonIntegration::Attempt CNewtonIntegration::SolveAttempt(bool preparedBase) 
   const double anyInvalid = Reduce(invalid, true);
   const double squaredDefect = Reduce(defect);
   attempt.linearDefect = anyInvalid ? std::numeric_limits<double>::infinity() : std::sqrt(squaredDefect) / rhs.norm();
-  if (!Armijo::IsFinite(attempt.linearDefect) || attempt.linearDefect > options.etaMax) {
+  /*--- The assembled operator is approximate: any progress is admissible, the line search judges the step. ---*/
+  const bool defectTooLarge = nativeFallback      ? false
+                              : assembledOperator ? attempt.linearDefect >= 1
+                                                  : attempt.linearDefect > options.etaMax;
+  if (!Armijo::IsFinite(attempt.linearDefect) || defectTooLarge) {
     attempt.linearFailure = true;
     attempt.rejectionReason = preconditioner->GetFailedProducts() ? Name(preconditioner->GetFailure())
                                 : failedProducts ? productFailure : "TRUE_LINEAR_DEFECT";
     Restore(attempt);
     return attempt;
   }
-  /*--- Rejected directions already refresh the captured base in Restore; prepare accepted native endpoints here. ---*/
-  Perturb(direction, 0);
-  Residual();
+  /*--- Rejected directions already refresh the captured base in Restore; prepare accepted native endpoints here.
+   *     Assembled solves use no residual probes, so the base evaluated by SetBase is still live. ---*/
+  if (!assembledOperator) {
+    Perturb(direction, 0);
+    Residual();
+  }
   Endpoint();
   pseudoTime->Apply(direction, pseudoDirection);
   if (options.lineSearch)
@@ -581,16 +650,51 @@ void CNewtonIntegration::Search(Attempt& attempt) {
     LogEvaluation(0, "BASE", attempt.base, attempt.base);
   else
     Evaluate(0, "BASE");
-  if (!invalid && relative <= options.stepTolerance) {
-    /*--- The full step is below the state resolution, so no trial can change the state. This is not a failed
-     *    search: keep the verified base, and do not cut CFL, which would only shrink the next direction.
-     *    The outer convergence criteria still decide whether the run has converged. ---*/
-    attempt.search = {Armijo::Status::Accepted, 0, attempt.base, 0};
-    attempt.stationary = true;
-    attempt.rejectionReason = "STATIONARY";
+  /*--- Defect correction with an approximate operator is often not monotone: compare assembled trials with the
+   *    largest of the last accepted base merits (Grippo-Lampariello-Lucidi). Rollback still restores this base. ---*/
+  double reference = attempt.base;
+  if (assembledOperator)
+    for (const double merit : recentMerits) reference = std::max(reference, merit);
+  const bool tiny = !invalid && relative <= options.stepTolerance;
+  if (nativeFallback && !invalid) {
+    /*--- Exhausted assembled recovery: the native solver would take this full step unchecked. Take it if the
+     *    state stays admissible, so the assembled path is never less robust than the native one. ---*/
+    const double value = Evaluate(1, "TRIAL");
+    if (residualValid && Armijo::IsFinite(value)) {
+      attempt.search = {Armijo::Status::Accepted, 1, value, 1};
+      attempt.rejectionReason = "NATIVE_FALLBACK";
+      attempt.physicalMerit = Merit();
+    } else {
+      attempt.search = {Armijo::Status::InvalidInput, 0, attempt.base, 1};
+      attempt.rejectionReason = "NATIVE_FALLBACK";
+      Restore(attempt);
+    }
     return;
   }
-  if (!invalid && relative > 0) {
+  if (tiny) {
+    /*--- Below the step tolerance a line search cannot resolve the merit change. Try the full step once:
+     *    keep it if the merit does not rise above the reference, else keep the base. Neither is a failed
+     *    search, and CFL is not cut, which would only shrink the next direction. ---*/
+    const double value = relative > 0 ? Evaluate(1, "TRIAL") : std::numeric_limits<double>::infinity();
+    attempt.stationary = true;
+    if (residualValid && Armijo::IsFinite(value) && value <= reference) {
+      attempt.search = {Armijo::Status::Accepted, 1, value, 1};
+      attempt.rejectionReason = "TINY_STEP";
+    } else {
+      if (relative > 0) Restore(attempt);
+      attempt.search = {Armijo::Status::Accepted, 0, attempt.base, 0};
+      attempt.rejectionReason = "STATIONARY";
+      return;
+    }
+  } else if (!invalid && relative > 0 && assembledOperator) {
+    /*--- The direction solves A d = -F, A = J_a+D, to relative defect eta. A minimal-residual solve leaves
+     *    r = F + A d orthogonal to A d, so F.r = ||r||^2 and the merit model m(a) = 0.5||F + a A d||^2 has
+     *    slope -2 m0 (1-eta^2) and ||A d||^2 = 2 m0 (1-eta^2). J_a only approximates J: Armijo then asks for
+     *    a real decrease, the model agreement steers CFL and recovery handles the rest. ---*/
+    const double reduction = 1 - std::pow(std::min(1.0, attempt.linearDefect), 2);
+    attempt.slope = -2 * attempt.base * reduction;
+    attempt.productNorm2 = 2 * attempt.base * reduction;
+  } else if (!invalid && relative > 0) {
     /*--- Physical merit needs its own verified J*p, without subtracting a dominant mass action afterward. ---*/
     CNewtonLinearization::Failure failure;
     const bool valid = linearization->Apply(direction, product, options.pseudoTimeMerit, true, 0, &failure);
@@ -613,15 +717,17 @@ void CNewtonIntegration::Search(Attempt& attempt) {
     attempt.slope = std::numeric_limits<double>::quiet_NaN();
     attempt.rejectionReason = "ENDPOINT_DIRECTION";
   }
-  const Armijo::Parameters parameters{options.armijo, options.interpolationMin, options.interpolationMax,
-                                      options.maxBacktracks};
-  attempt.search = Armijo::Search(
-      attempt.base, attempt.slope, relative > 0 ? options.stepTolerance / relative : 2,
-      [&](double alpha) {
-        const double value = Evaluate(alpha, "TRIAL");
-        if (!residualValid) ++attempt.inadmissibleTrials;
-        return value;
-      }, [&] { Restore(attempt); }, parameters);
+  /*--- The model slope of an approximate operator overstates the decrease: assembled steps need simple decrease. ---*/
+  const Armijo::Parameters parameters{assembledOperator ? 1e-12 : options.armijo, options.interpolationMin,
+                                      options.interpolationMax, options.maxBacktracks};
+  if (!tiny)
+    attempt.search = Armijo::Search(
+        reference, attempt.slope, relative > 0 ? options.stepTolerance / relative : 2,
+        [&](double alpha) {
+          const double value = Evaluate(alpha, "TRIAL");
+          if (!residualValid) ++attempt.inadmissibleTrials;
+          return value;
+        }, [&] { Restore(attempt); }, parameters);
   if (attempt.search.status != Armijo::Status::Accepted && attempt.failedProducts == 0 && !invalid)
     attempt.rejectionReason = attempt.search.evaluations &&
                                       attempt.inadmissibleTrials == attempt.search.evaluations
@@ -764,10 +870,20 @@ void CNewtonIntegration::Advance() {
     using Reason = NonlinearGlobalization::RecoveryReason;
     if (attempt.search.status == Armijo::Status::Accepted && !attempt.linearFailure) {
       const double adapted =
-          attempt.stationary ? NonlinearGlobalization::Stationary(options, cfl)
-                             : NonlinearGlobalization::Adapt(options, cfl, attempt.agreement, attempt.search.step);
+          assembledOperator
+              ? (attempt.stationary ? ScaleLocalCFL(options.adaptCFL ? options.grow : 1) : AdaptLocalCFL(attempt))
+          : attempt.stationary ? NonlinearGlobalization::Stationary(options, cfl)
+                               : NonlinearGlobalization::Adapt(options, cfl, attempt.agreement, attempt.search.step);
       const double next = CommitFlow(attempt, adapted);
       Log(attempt, {Reason::Accepted, next});
+      SU2_OMP_SAFE_GLOBAL_ACCESS(nativeFallback = false;)
+      if (assembledOperator) {
+        BEGIN_SU2_OMP_SAFE_GLOBAL_ACCESS {
+          recentMerits.push_back(attempt.base);
+          if (recentMerits.size() > 10) recentMerits.pop_front();
+        }
+        END_SU2_OMP_SAFE_GLOBAL_ACCESS
+      }
       SU2_OMP_SAFE_GLOBAL_ACCESS(
           cfl = next;
           if (attempt.search.step > 0)
@@ -789,6 +905,12 @@ void CNewtonIntegration::Advance() {
                                   options.restoreTolerance * std::max(attempt.base, std::numeric_limits<double>::min());
     const auto decision = NonlinearGlobalization::Reject(options, cfl, index, invalidState);
     Log(attempt, decision);
+    if (decision.reason != Reason::Retry && assembledOperator && !nativeFallback && !invalidState &&
+        decision.reason != Reason::Disabled) {
+      SU2_OMP_SAFE_GLOBAL_ACCESS(nativeFallback = true;)
+      continue;
+    }
+    SU2_OMP_SAFE_GLOBAL_ACCESS(nativeFallback = false;)
     if (decision.reason != Reason::Retry) {
       BEGIN_SU2_OMP_SAFE_GLOBAL_ACCESS {
         failed = true;
@@ -802,7 +924,9 @@ void CNewtonIntegration::Advance() {
       END_SU2_OMP_SAFE_GLOBAL_ACCESS
       return;
     }
-    SU2_OMP_SAFE_GLOBAL_ACCESS(cfl = decision.nextCFL;
+    /*--- Assembled retries scale the whole local CFL field; the controller CFL is its maximum. ---*/
+    const double next = assembledOperator ? ScaleLocalCFL(decision.nextCFL / cfl) : decision.nextCFL;
+    SU2_OMP_SAFE_GLOBAL_ACCESS(cfl = next;
                                eta = std::max(options.etaMin, std::min(eta, options.linearTolerance) * options.shrink);)
   }
 }

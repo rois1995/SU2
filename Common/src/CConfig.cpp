@@ -1893,6 +1893,8 @@ void CConfig::SetConfig_Options() {
   addEnumListOption("NEWTON_EQUATIONS", nNewtonEquations, NewtonEquations, newtonSystems);
   addBoolOption("NEWTON_COUPLED", NewtonCoupled, false);
   addBoolOption("NEWTON_BLOCK_LOWER", NewtonBlockLower, false);
+  /* DESCRIPTION: Solve each Newton direction with the native assembled Jacobians; no finite-difference products. */
+  addBoolOption("NEWTON_ASSEMBLED", NewtonAssembled, false);
   auto addNewtonOptions = [&](const string& prefix, NonlinearGlobalization::Options<su2double>& options) {
     addBoolOption(prefix + "LINE_SEARCH", options.lineSearch, true);
     addBoolOption(prefix + "RECOVERY", options.recovery, true);
@@ -3773,8 +3775,12 @@ void CConfig::SetPostprocessing(SU2_COMPONENT val_software, unsigned short val_i
       SU2_MPI::Error("NEWTON_KRYLOV selects FLOW; include FLOW in NEWTON_EQUATIONS or set NEWTON_KRYLOV= NO", CURRENT_FUNCTION);
     if (Kind_Incomp_System == INCOMP_SYSTEM::PRESSURE_BASED)
       SU2_MPI::Error("NEWTON_EQUATIONS requires the density-based incompressible formulation", CURRENT_FUNCTION);
-  } else if (NewtonCoupled || NewtonBlockLower) {
-    SU2_MPI::Error("NEWTON_COUPLED and NEWTON_BLOCK_LOWER require NEWTON_EQUATIONS", CURRENT_FUNCTION);
+    /*--- Startup, reconstruction and lower coupling are finite-difference controls. ---*/
+    if (NewtonAssembled && (NewtonKrylov || NewtonBlockLower))
+      SU2_MPI::Error("NEWTON_ASSEMBLED excludes NEWTON_KRYLOV and NEWTON_BLOCK_LOWER", CURRENT_FUNCTION);
+  } else if (NewtonCoupled || NewtonBlockLower || NewtonAssembled) {
+    SU2_MPI::Error("NEWTON_COUPLED, NEWTON_BLOCK_LOWER and NEWTON_ASSEMBLED require NEWTON_EQUATIONS",
+                   CURRENT_FUNCTION);
   }
 
   unsigned short iCFL, iMarker;

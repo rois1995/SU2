@@ -141,6 +141,19 @@ inline double Adapt(const Options<>& options, double cfl, double agreement, doub
   return std::max(options.cflMin, std::min(options.cflMax, cfl));
 }
 
+/*!
+ * \brief Per-point CFL factor of the native SU2 rule, used with approximate (assembled) operators.
+ * \details Model agreement measures the operator quality, which an approximate Jacobian never fully meets.
+ * Shrink where the update was strongly under-relaxed or the step was poor; hold where it was partly relaxed or the
+ * linear solve missed its tolerance; grow otherwise.
+ */
+inline double LocalFactor(const Options<>& options, double underRelaxation, bool reduce, bool canIncrease) {
+  if (!options.adaptCFL) return 1;
+  if (underRelaxation < 0.1 || reduce) return options.shrink;
+  if (underRelaxation < 1 || !canIncrease) return 1;
+  return options.grow;
+}
+
 /*! \brief CFL after a direction below the state resolution: a larger pseudo-time step gives a larger direction. */
 inline double Stationary(const Options<>& options, double cfl) {
   if (!options.adaptCFL) return cfl;

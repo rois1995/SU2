@@ -53,7 +53,7 @@ def main():
                 'SOLUTION_FILENAME': str(restart.with_suffix('')), 'OUTPUT_FILES': 'NONE',
                 'CONV_FILENAME': str(output / 'unused_history'), 'COMM_LEVEL': 'FULL',
                 'NEWTON_EQUATIONS': 'NONE', 'NEWTON_COUPLED': 'NO', 'NEWTON_BLOCK_LOWER': 'NO',
-                'NEWTON_KRYLOV': 'NO', 'SST_NEWTON': 'NO'}
+                'NEWTON_ASSEMBLED': 'NO', 'NEWTON_KRYLOV': 'NO', 'SST_NEWTON': 'NO'}
     for key, value in settings.items():
         text = option(text, key, value)
     report_config, report = output / 'report.cfg', output / 'report.json'

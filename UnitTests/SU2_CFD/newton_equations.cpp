@@ -1825,6 +1825,64 @@ TEST_CASE("Explicit Newton preconditioning retains the native volume over dt dia
     }
 }
 
+TEST_CASE("Assembled Newton operators advance every group without finite-difference products", "[NewtonAssembled]") {
+  for (const auto& physics : {std::string("SOLVER= NAVIER_STOKES\n"), sa, sst, species})
+    for (bool coupled : {false, true}) {
+      CAPTURE(physics, coupled);
+      Problem problem(physics + "CFL_NUMBER= 5\nLINEAR_SOLVER_PREC= ILU\nLINEAR_SOLVER_ITER= 40\n"
+                                "LINEAR_SOLVER_ERROR= 1e-6\n", 5, true);
+      auto& driver = *problem.driver;
+      std::vector<unsigned short> systems{RUNTIME_FLOW_SYS};
+      for (auto runtime : {RUNTIME_TURB_SYS, RUNTIME_TRANS_SYS, RUNTIME_SPECIES_SYS})
+        if (driver.Solvers()[driver.Config()->GetContainerPosition(runtime)]) systems.push_back(runtime);
+      NonlinearGlobalization::Options<> options;
+      options.diagnostics = false;
+      std::vector<std::unique_ptr<CNewtonIntegration>> controllers;
+      if (coupled)
+        controllers.emplace_back(
+            std::make_unique<CNewtonIntegration>(systems, options, false, "assembled", false, nullptr, true));
+      else
+        for (auto runtime : systems)
+          controllers.emplace_back(std::make_unique<CNewtonIntegration>(
+              std::vector<unsigned short>{runtime}, options, false, "assembled", false, nullptr, true));
+      for (unsigned iteration = 0; iteration < 4; ++iteration) {
+        driver.Config()->SetInnerIter(iteration);
+        for (auto& controller : controllers) {
+          const auto before = iteration ? controller->GetResidualEvaluations() : std::array<unsigned long, 4>{};
+          controller->Iterate(driver.Geometry(), driver.Solvers(), driver.Numerics(), driver.Config());
+          INFO(controller->GetNumericalFailureMessage());
+          const auto& attempt = controller->GetLastAttempt();
+          REQUIRE_FALSE(controller->GetNumericalFailure());
+          CHECK(attempt.search.status == Armijo::Status::Accepted);
+          CHECK(attempt.failedProducts == 0);
+          CHECK(attempt.linearDefect < 1);
+          if (attempt.base > 0 && attempt.search.step > 0) CHECK(attempt.search.value < attempt.base);
+          /*--- No finite-difference products: a few evaluations per update, independent of Krylov iterations. ---*/
+          if (iteration) {
+            const auto& after = controller->GetResidualEvaluations();
+            unsigned long work = 0;
+            for (auto slot = 0u; slot < 4; ++slot) work += after[slot] - before[slot];
+            CHECK(work <= 16);
+            CHECK(attempt.linearIterations > 1);
+          }
+        }
+      }
+    }
+}
+
+TEST_CASE("Assembled Newton operators reject legacy and finite-difference coupling controls", "[NewtonAssembled]") {
+  Problem problem(sa);
+  auto& driver = *problem.driver;
+  NonlinearGlobalization::Options<> options;
+  options.diagnostics = false;
+  for (bool lower : {false, true}) {
+    CNewtonIntegration controller({RUNTIME_FLOW_SYS, RUNTIME_TURB_SYS}, options, lower, "assembled", !lower, nullptr,
+                                  true);
+    CHECK_THROWS_AS(controller.Iterate(driver.Geometry(), driver.Solvers(), driver.Numerics(), driver.Config()),
+                    std::invalid_argument);
+  }
+}
+
 TEST_CASE("The common Newton controller accepts explicit flow and implicit scalar groups", "[NewtonExplicit]") {
   for (const auto& physics : {std::string("SOLVER= NAVIER_STOKES\n"),
                              std::string("SOLVER= NAVIER_STOKES\nLOW_MACH_PREC= YES\n"),
@@ -1984,11 +2042,17 @@ TEST_CASE("Newton keeps a state whose update is below the state resolution", "[N
     REQUIRE(attempt.base > 0);
     CHECK(attempt.stationary);
     CHECK(attempt.search.status == Armijo::Status::Accepted);
-    CHECK(attempt.search.step == 0);
+    /*--- The tiny full step is kept only if the merit does not rise; otherwise the base is kept. ---*/
+    CHECK((attempt.search.step == 0 || attempt.search.step == 1));
+    if (attempt.search.step == 1) CHECK(attempt.search.value <= attempt.base);
   }
+  /*--- Zero momentum components have no own scale; use the largest state value. ---*/
+  double size = 0;
+  for (const double value : initial) size = std::max(size, std::abs(value));
   auto index = 0ul;
   for (auto p = 0ul; p < geometry->GetnPointDomain(); ++p)
-    for (auto v = 0u; v < nVar; ++v) CHECK(SU2_TYPE::GetValue(flow->GetSolution(p, v)) == initial[index++]);
+    for (auto v = 0u; v < nVar; ++v)
+      CHECK(std::abs(SU2_TYPE::GetValue(flow->GetSolution(p, v)) - initial[index++]) <= 1e-12 * size);
 }
 
 TEST_CASE("Legacy Newton selection requires explicit common opt-in", "[NewtonCompatibility]") {

@@ -64,7 +64,8 @@ CIntegration** CIntegrationFactory::CreateIntegrationContainer(CConfig* config,
                               std::find(group.begin(), group.end(), RUNTIME_FLOW_SYS) != group.end();
     delete integration[slot];
     integration[slot] = new CNewtonIntegration(group, options, config->GetNewtonBlockLower(),
-        config->GetNewtonCoupled() ? "newton_coupled" : std::string("newton_") + equation.second, flowControls, workspace);
+        config->GetNewtonCoupled() ? "newton_coupled" : std::string("newton_") + equation.second, flowControls,
+        workspace, config->GetNewtonAssembled());
     if (config->GetNewtonCoupled()) break;
   }
 
