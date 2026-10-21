@@ -35,6 +35,17 @@ CNewtonCoupling::CNewtonCoupling(CGeometry* g, CConfig* c, CSolver** s, CNumeric
   savedResidual.assign(nPoint * nTurb, 0.0);
   savedResidualBase.assign(nPoint * nTurb, 0.0);
   savedValue.assign(nPoint * 3, 0.0);
+  maskedFlow.assign(nPoint * nFlow, 0.0);
+  maskedTurb.assign(nPoint * nTurb, 0.0);
+  rowStart.assign(1, 0);
+  for (auto i = 0ul; i < geometry->GetnPointDomain(); ++i) {
+    for (auto neighbour = 0u; neighbour < geometry->nodes->GetnPoint(i); ++neighbour) {
+      const auto e = geometry->nodes->GetEdge(i, neighbour);
+      neighbourPoint.push_back(geometry->nodes->GetPoint(i, neighbour));
+      neighbourSlot.push_back(2 * e + (geometry->edges->GetNode(e, 0) == i ? 0 : 1));
+    }
+    rowStart.push_back(neighbourPoint.size());
+  }
 }
 
 void CNewtonCoupling::SourceSensitivities() {

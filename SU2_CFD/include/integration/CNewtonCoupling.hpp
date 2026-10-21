@@ -56,27 +56,32 @@ class CNewtonCoupling {
    */
   template <class IsFree>
   void Apply(const Vector& x, Vector& y, bool lowerOnly, const IsFree& isFree) const {
+    /*--- Mask the columns once per point instead of once per edge. ---*/
+    SU2_OMP_FOR_STAT(1024)
+    for (auto p = 0ul; p < geometry->GetnPoint(); ++p) {
+      for (auto c = 0u; c < nFlow; ++c)
+        maskedFlow[p * nFlow + c] = isFree(p, flowOffset + c) ? x(p, flowOffset + c) : 0.0;
+      if (!lowerOnly)
+        for (auto c = 0u; c < nTurb; ++c)
+          maskedTurb[p * nTurb + c] = isFree(p, turbOffset + c) ? x(p, turbOffset + c) : 0.0;
+    }
+    END_SU2_OMP_FOR
     SU2_OMP_FOR_DYN(256)
     for (auto i = 0ul; i < geometry->GetnPointDomain(); ++i) {
       double turb[MaxVariables] = {}, flow[MaxVariables] = {};
       auto add = [&](unsigned long point, const passivedouble* tf, const passivedouble* ft) {
-        for (auto c = 0u; c < nFlow; ++c) {
-          if (!isFree(point, flowOffset + c)) continue;
-          const double value = x(point, flowOffset + c);
-          for (auto v = 0u; v < nTurb; ++v) turb[v] += tf[v * nFlow + c] * value;
-        }
+        const auto* flowValue = &maskedFlow[point * nFlow];
+        for (auto v = 0u; v < nTurb; ++v)
+          for (auto c = 0u; c < nFlow; ++c) turb[v] += tf[v * nFlow + c] * flowValue[c];
         if (lowerOnly) return;
-        for (auto c = 0u; c < nTurb; ++c) {
-          if (!isFree(point, turbOffset + c)) continue;
-          const double value = x(point, turbOffset + c);
-          for (auto r = 0u; r < nFlow; ++r) flow[r] += ft[r * nTurb + c] * value;
-        }
+        const auto* turbValue = &maskedTurb[point * nTurb];
+        for (auto r = 0u; r < nFlow; ++r)
+          for (auto c = 0u; c < nTurb; ++c) flow[r] += ft[r * nTurb + c] * turbValue[c];
       };
       add(i, &tfDiagonal[i * nTurb * nFlow], &ftDiagonal[i * nFlow * nTurb]);
-      for (auto neighbour = 0u; neighbour < geometry->nodes->GetnPoint(i); ++neighbour) {
-        const auto e = geometry->nodes->GetEdge(i, neighbour);
-        const auto slot = 2 * e + (geometry->edges->GetNode(e, 0) == i ? 0 : 1);
-        add(geometry->nodes->GetPoint(i, neighbour), &tfEdge[slot * nTurb * nFlow], &ftEdge[slot * nFlow * nTurb]);
+      for (auto k = rowStart[i]; k < rowStart[i + 1]; ++k) {
+        const auto slot = neighbourSlot[k];
+        add(neighbourPoint[k], &tfEdge[slot * nTurb * nFlow], &ftEdge[slot * nFlow * nTurb]);
       }
       for (auto v = 0u; v < nTurb; ++v) y(i, turbOffset + v) = turb[v];
       if (!lowerOnly)
@@ -100,6 +105,9 @@ class CNewtonCoupling {
   std::vector<su2double> savedResidual, savedValue;
   su2activematrix periodicWork;
   std::vector<passivedouble> savedResidualBase;
+  /*--- Neighbours of the owned points (CSR) with the edge slot of the block in that row. ---*/
+  std::vector<unsigned long> rowStart, neighbourPoint, neighbourSlot;
+  mutable std::vector<passivedouble> maskedFlow, maskedTurb; /*!< \brief Free columns of the input of Apply. */
 
   /*! \brief Coupling block of a point (diagonal) or of an edge side (2 * edge + side), see ZeroPrescribedRows. */
   passivedouble* TF(bool diagonal, unsigned long index) {

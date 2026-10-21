@@ -657,10 +657,8 @@ CNewtonIntegration::Attempt CNewtonIntegration::SolveAttempt(bool preparedBase) 
   preconditioner->Build();
   correction = Scalar(0);
   double residual = attempt.linearTarget;
-  auto iterations = legacyFlowControls ? flow.linearIterations : options.linearIterations;
+  const auto iterations = legacyFlowControls ? flow.linearIterations : options.linearIterations;
   if (coupledAssembly && nativeDirection) {
-    /*--- The budget of solving every block separately, spent on cheap block Gauss-Seidel iterations. ---*/
-    iterations *= equations->GetBlocks().size();
     /*--- Balance the block rows: w_b = 1/||rhs_b||, or the overall norm for a block without a right hand side. ---*/
     std::vector<double> squares(equations->GetBlocks().size());
     for (auto b = 0u; b < squares.size(); ++b) {
