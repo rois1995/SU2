@@ -589,3 +589,5 @@ TEST_CASE("Native first-row transactions replay original fields without solver i
     data.close();REQUIRE(bool(data));
   }
 }
+
+#include "fixtures/native_junction_replay.inc"

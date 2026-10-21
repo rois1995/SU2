@@ -1,0 +1,30 @@
+{
+ "label": "mapped_affine",
+ "command": [
+  "/usr/bin/time",
+  "-v",
+  "nice",
+  "-n",
+  "19",
+  "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver",
+  "[NativeMappedComponent3D],[NativeMappedFacetGeometry],[NativeParametricGeometry],[NativeAffineGeometry],[NativeAffineImport3D],[NativeMappedPublication3D]",
+  "--reporter",
+  "compact",
+  "--durations",
+  "yes"
+ ],
+ "environment": {},
+ "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/robust_junction_v1/tests2",
+ "exit_code": 0,
+ "seconds": 4.755478382110596,
+ "load_at_start": [
+  5.92,
+  6.01,
+  6.5
+ ],
+ "max_rss_kb_of_one_process": 33136,
+ "binary_sha256": "a0be5017dfc6c2e5402be096abe0d29276e7b097c0b8202155000921a83742c3",
+ "summary": [
+  "Passed all 13 test cases with 4126 assertions."
+ ]
+}

@@ -1,0 +1,34 @@
+{
+ "label": "wp0b_tubes",
+ "command": [
+  "/usr/bin/time",
+  "-v",
+  "nice",
+  "-n",
+  "19",
+  "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver",
+  "[NativeJunctionReplay3D]",
+  "--reporter",
+  "compact",
+  "--durations",
+  "yes"
+ ],
+ "environment": {
+  "SU2_JUNCTION_WP0B_ROOT": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/robust_junction_v1/wp0b",
+  "SU2_JUNCTION_WP0B_CASES": "tube_root_z,tube_root_x,two_tube_y",
+  "SU2_JUNCTION_WP0B_RESUME": "1"
+ },
+ "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/robust_junction_v1/wp0b/run1",
+ "exit_code": 1,
+ "seconds": 0.38640260696411133,
+ "load_at_start": [
+  6.16,
+  6.24,
+  6.65
+ ],
+ "max_rss_kb_of_one_process": 29444,
+ "binary_sha256": "391c3cd838e8748f0e96fe868c96b7f9a934acfd99279a0905d1fbc59c56ccbe",
+ "summary": [
+  "Failed 1 test case, failed 1 assertion."
+ ]
+}

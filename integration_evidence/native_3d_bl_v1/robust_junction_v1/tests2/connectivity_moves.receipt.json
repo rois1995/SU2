@@ -1,0 +1,30 @@
+{
+ "label": "connectivity_moves",
+ "command": [
+  "/usr/bin/time",
+  "-v",
+  "nice",
+  "-n",
+  "19",
+  "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver",
+  "[NativeConnectivity3D],[NativeConnectivityMove3D],[NativeConnectivityInterface3D],[NativeConnectivityHeight3D],[NativeConnectivityReplay3D],[NativeMetricMove3D],[NativeMesh3D],[NativeFirstLayer3D],[NativeWallReconstruction3D],[NativeJointGeometry3D],[NativeSurfaceStrip3D],[NativePlanarStrip3D],[NativeBLCorner3D]",
+  "--reporter",
+  "compact",
+  "--durations",
+  "yes"
+ ],
+ "environment": {},
+ "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/robust_junction_v1/tests2",
+ "exit_code": 0,
+ "seconds": 5.353857040405273,
+ "load_at_start": [
+  5.85,
+  5.99,
+  6.49
+ ],
+ "max_rss_kb_of_one_process": 33428,
+ "binary_sha256": "a0be5017dfc6c2e5402be096abe0d29276e7b097c0b8202155000921a83742c3",
+ "summary": [
+  "Passed all 84 test cases with 26175 assertions."
+ ]
+}

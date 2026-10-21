@@ -1,0 +1,35 @@
+{
+ "label": "t5_batch_mpi2",
+ "command": [
+  "/usr/bin/time",
+  "-v",
+  "nice",
+  "-n",
+  "19",
+  "mpirun",
+  "--oversubscribe",
+  "-np",
+  "2",
+  "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver",
+  "[NativeOversizedStar3D],[NativeBatchEngine3D],[NativeBatchPlanning3D],[NativeBatchLookup3D]",
+  "--reporter",
+  "compact",
+  "--durations",
+  "yes"
+ ],
+ "environment": {},
+ "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/robust_junction_v1/tests1",
+ "exit_code": 0,
+ "seconds": 1.7800235748291016,
+ "load_at_start": [
+  5.43,
+  6.13,
+  6.66
+ ],
+ "max_rss_kb_of_one_process": 27308,
+ "binary_sha256": "391c3cd838e8748f0e96fe868c96b7f9a934acfd99279a0905d1fbc59c56ccbe",
+ "summary": [
+  "\u001b[1;32mPassed all 4 test cases with 201 assertions.\u001b[0m",
+  "\u001b[1;32mPassed all 4 test cases with 699 assertions.\u001b[0m"
+ ]
+}

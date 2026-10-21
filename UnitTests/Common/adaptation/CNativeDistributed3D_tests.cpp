@@ -3300,3 +3300,85 @@ TEST_CASE("Saved original metric edge replays its high-valence footprint without
   if(!world.rank)std::cout<<"STAR_ADMISSION_CONTROL cells="<<count<<" cap="<<MaximumCavityCells<<" valid="<<reduced.valid<<" work="<<reduced.stats.global_work<<" blocked_queue_skips="<<reduced.stats.blocked_queue_skips<<" blocked_unmeasured="<<reduced.stats.blocked_unmeasured<<std::endl;
   if(!world.rank)std::cout<<"EDGE_WITNESS ranks="<<world.size<<" original="<<count<<" positive="<<expected.size()<<" valid="<<!failed.any<<std::endl;
 }
+
+namespace {
+// Convex star whose center belongs to more cells than one cavity admits; every other vertex is a physical corner.
+Fixture IcosphereStar() {
+  const double phi=(1+std::sqrt(5.))/2;
+  std::vector<std::array<double,3>> points{{-1,phi,0},{1,phi,0},{-1,-phi,0},{1,-phi,0},{0,-1,phi},{0,1,phi},
+                                           {0,-1,-phi},{0,1,-phi},{phi,0,-1},{phi,0,1},{-phi,0,-1},{-phi,0,1}};
+  std::vector<std::array<size_t,3>> faces{{0,11,5},{0,5,1},{0,1,7},{0,7,10},{0,10,11},{1,5,9},{5,11,4},{11,10,2},{10,7,6},{7,1,8},
+                                          {3,9,4},{3,4,2},{3,2,6},{3,6,8},{3,8,9},{4,9,5},{2,4,11},{6,2,10},{8,6,7},{9,8,1}};
+  auto unit=[](std::array<double,3> p){const double n=std::sqrt(p[0]*p[0]+p[1]*p[1]+p[2]*p[2]);for(auto& x:p)x/=n;return p;};
+  for(auto& p:points)p=unit(p);
+  std::map<std::pair<size_t,size_t>,size_t> middle;
+  auto mid=[&](size_t a,size_t b){
+    const auto key=std::minmax(a,b);const auto found=middle.find(key);if(found!=middle.end())return found->second;
+    points.push_back(unit({(points[a][0]+points[b][0])/2,(points[a][1]+points[b][1])/2,(points[a][2]+points[b][2])/2}));
+    middle.emplace(key,points.size()-1);return points.size()-1;
+  };
+  std::vector<std::array<size_t,3>> fine;
+  for(auto f:faces){const auto a=mid(f[0],f[1]),b=mid(f[1],f[2]),c=mid(f[2],f[0]);fine.insert(fine.end(),{{f[0],a,c},{f[1],b,a},{f[2],c,b},{a,b,c}});}
+  Fixture result;const Node center{1000,{0,0,0}};
+  auto node=[&](size_t i){return Node{Id(i),{points[i][0],points[i][1],points[i][2]}};};
+  for(auto f:fine) {
+    std::array<Node,3> tri{node(f[0]),node(f[1]),node(f[2])};
+    if(Orientation(center.p,tri[0].p,tri[1].p,tri[2].p)<0)std::swap(tri[1],tri[2]);
+    Cell cell{Id(result.patch.cells.size()),{center,tri[0],tri[1],tri[2]}};REQUIRE(Orientation(cell.v[0].p,cell.v[1].p,cell.v[2].p,cell.v[3].p)>0);
+    result.patch.cells.push_back(cell);
+  }
+  std::map<Id,Node> nodes;for(const auto& c:result.patch.cells)for(auto n:c.v)nodes.emplace(n.id,n);
+  for(auto face:Incidence(result.patch.cells).Boundary()) {
+    const auto id=Id(result.facets.size());
+    result.facets.push_back({id,1,{nodes.at(face[0]),nodes.at(face[1]),nodes.at(face[2])}});result.patch.surface.push_back({face,id});
+  }
+  return result;
+}
+// One axis edge shared by more cells than one cavity admits.
+Fixture AxisWheel(unsigned sectors) {
+  const double pi=std::acos(-1.);Fixture result;const Node top{1000,{0,0,1}},bottom{1001,{0,0,-1}};
+  for(unsigned i=0;i<sectors;++i) {
+    const Node a{i,{std::cos(2*pi*i/sectors),std::sin(2*pi*i/sectors),0}},b{(i+1)%sectors,{std::cos(2*pi*((i+1)%sectors)/sectors),std::sin(2*pi*((i+1)%sectors)/sectors),0}};
+    Cell cell{Id(i),{top,bottom,a,b}};if(Orientation(cell.v[0].p,cell.v[1].p,cell.v[2].p,cell.v[3].p)<0)std::swap(cell.v[0],cell.v[1]);
+    result.patch.cells.push_back(cell);
+  }
+  std::map<Id,Node> nodes;for(const auto& c:result.patch.cells)for(auto n:c.v)nodes.emplace(n.id,n);
+  for(auto face:Incidence(result.patch.cells).Boundary()) {
+    const auto id=Id(result.facets.size());
+    result.facets.push_back({id,1,{nodes.at(face[0]),nodes.at(face[1]),nodes.at(face[2])}});result.patch.surface.push_back({face,id});
+  }
+  return result;
+}
+}  // namespace
+
+TEST_CASE("Oversized complete stars block batched and planned proposals without failing the event", "[NativeDistributed3D][NativeOversizedStar3D]") {
+  // T5 (audit 3D #1): MPI1 batched LookupBatch, MPI>1 PlanBatch and the one-candidate path all block the star.
+  World world;const auto sphere=IcosphereStar();REQUIRE(sphere.patch.cells.size()==80);
+  const PlanarReference geometry(sphere.facets);const auto owned=Partition(Rows(sphere.patch),world);const auto saved=Bytes(owned);
+  for(size_t batch:{size_t(1),MaximumCandidateBatch}) {
+    EngineOptions options;options.candidate_batch=batch;options.maximum_work=4096;
+    const auto result=Coarsen(world,owned,Uniform(owned,{.01,0,0,.01,0,.01}),geometry,{},options);
+    if(!world.rank)std::cout<<"OVERSIZED_STAR coarsen ranks="<<world.size<<" batch="<<batch<<" valid="<<result.valid
+        <<" stop="<<EngineStopName(result.stats.stop)<<" rounds="<<result.stats.rounds<<" oversized="<<result.stats.oversized_stars
+        <<" rejected="<<result.stats.rejected<<" batch_rounds="<<result.stats.batch_rounds<<" reason="<<result.reason<<std::endl;
+    INFO(result.reason);REQUIRE(result.valid);CHECK(result.stats.stop==EngineStop::Complete);
+    CHECK(world.sum(int(result.stats.oversized_stars))>0);CHECK(world.sum(int(result.stats.accepted))==0);
+    CHECK(CPassiveComm::Allreduce(result.cells.size(),CPassiveComm::Op::SUM,world.comm)==80);
+    CHECK(Bytes(owned)==saved);
+  }
+  const auto wheel=AxisWheel(70);const PlanarReference axis(wheel.facets);const auto spokes=Partition(Rows(wheel.patch),world);
+  const auto spokes_saved=Bytes(spokes);
+  for(size_t batch:{size_t(1),MaximumCandidateBatch}) {
+    EngineOptions options;options.candidate_batch=batch;options.maximum_rounds=1;
+    const auto result=Refine(world,spokes,Uniform(spokes,{1,0,0,1,0,1}),axis,{},options);
+    if(!world.rank)std::cout<<"OVERSIZED_STAR refine ranks="<<world.size<<" batch="<<batch<<" valid="<<result.valid
+        <<" stop="<<EngineStopName(result.stats.stop)<<" oversized="<<result.stats.oversized_stars<<" reason="<<result.reason<<std::endl;
+    INFO(result.reason);CHECK_FALSE(result.valid);CHECK(result.stats.stop==EngineStop::RoundBudget);
+    CHECK(world.sum(int(result.stats.oversized_stars))>0);
+    CHECK(world.maximum(result.stats.last_rejected_feature.count==2 &&
+        ((result.stats.last_rejected_feature.vertices[0]==1000 && result.stats.last_rejected_feature.vertices[1]==1001) ||
+         (result.stats.last_rejected_feature.vertices[0]==1001 && result.stats.last_rejected_feature.vertices[1]==1000))));
+    CHECK(CPassiveComm::Allreduce(result.cells.size(),CPassiveComm::Op::SUM,world.comm)==70);
+    CHECK(Bytes(spokes)==spokes_saved);
+  }
+}

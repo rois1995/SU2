@@ -33,6 +33,8 @@ Point Unit(Point a) {
   return Mul(a, 1 / n);
 }
 Edge Key(Id a, Id b) { return a < b ? Edge{a, b} : Edge{b, a}; }
+// Supported analytic regions need one marker per connected planar cap; other cap topologies decline the region.
+struct UnsupportedRegion : std::runtime_error { using std::runtime_error::runtime_error; };
 Face Key(Face f) {
   std::sort(f.begin(), f.end());
   return f;
@@ -254,14 +256,15 @@ class Construction {
     }
     if (wall==UINT64_MAX || geometry.Analytic().at(wall).kind!=AnalyticSurface::Kind::Cylinder) return false;
     const auto g=geometry.Analytic().at(wall);const double radius=g.extent.x,height=g.extent.y;
-    if (!(radius>0 && height>0) || cap.size()!=2) throw std::runtime_error("Cylindrical front needs two admitted caps.");
+    if (!(radius>0 && height>0)) throw std::runtime_error("Cylindrical front needs a positive declared radius and height.");
+    if (cap.size()!=2) throw UnsupportedRegion("Cylindrical front needs two admitted caps.");
     const Point axis=Unit(g.axis);std::array<Id,2> ends{UINT64_MAX,UINT64_MAX};
     for (auto f:cap) for (unsigned k=0;k<2;++k) if (geometry.Contains(f.second,Add(g.origin,Mul(axis,k*height)))) {
-      if (ends[k]!=UINT64_MAX) throw std::runtime_error("Cylindrical front has ambiguous cap authority.");
+      if (ends[k]!=UINT64_MAX) throw UnsupportedRegion("Cylindrical front has ambiguous cap authority.");
       ends[k]=f.second;
     }
     if (ends[0]==UINT64_MAX || ends[1]==UINT64_MAX || ends[0]==ends[1])
-      throw std::runtime_error("Cylindrical front caps do not close its declared axial interval.");
+      throw UnsupportedRegion("Cylindrical front caps do not close its declared axial interval.");
     Point radial{};
     for (auto f:faces) if (Wall(f.facet)) {radial=Sub(nodes.at(f.v[0]),g.origin);break;}
     const Point u=Unit(Sub(radial,Mul(axis,Dot(radial,axis)))),v=Cross(axis,u);
@@ -593,7 +596,7 @@ class Construction {
         std::vector<int> shared;
         std::set_intersection(tags[row.first[0]].begin(), tags[row.first[0]].end(), tags[row.first[1]].begin(),
                               tags[row.first[1]].end(), std::back_inserter(shared));
-        if (shared.size() != 1) throw std::runtime_error("Region rim lost its unique cap.");
+        if (shared.size() != 1) throw UnsupportedRegion("Region rim lost its unique cap.");
         const auto use = row.second.front();
         loops[shared.front()].push_back({use.b, use.a});
       }
@@ -1493,6 +1496,32 @@ bool ConstructWallRegion(const std::vector<Facet>& skin, Point kernel, const Pla
     std::vector<Face> original_skin;
     for (auto f : c.faces) original_skin.push_back(f.v);
     ValidateDomainSurfaceTopology(original_skin);
+    {
+      // Cap admission before sampling: each connected nonwall cap has one marker and each marker one cap.
+      std::map<Edge, std::vector<size_t>> links;
+      for (size_t i = 0; i < c.faces.size(); ++i) if (!c.Wall(c.faces[i].facet))
+        for (unsigned k = 0; k < 3; ++k) links[Key(c.faces[i].v[k], c.faces[i].v[(k + 1) % 3])].push_back(i);
+      std::map<size_t, size_t> component;
+      std::map<int, std::set<size_t>> markers;
+      for (size_t i = 0; i < c.faces.size(); ++i) {
+        if (c.Wall(c.faces[i].facet) || component.count(i)) continue;
+        const size_t label = i;
+        std::vector<size_t> stack{i};
+        component.emplace(i, label);
+        std::set<int> seen;
+        while (!stack.empty()) {
+          const auto at = stack.back(); stack.pop_back();
+          seen.insert(geometry.Get(c.faces[at].facet).marker);
+          for (unsigned k = 0; k < 3; ++k)
+            for (auto next : links.at(Key(c.faces[at].v[k], c.faces[at].v[(k + 1) % 3])))
+              if (component.emplace(next, label).second) stack.push_back(next);
+        }
+        if (seen.size() != 1) throw UnsupportedRegion("Region cap carries several markers; the region is declined.");
+        markers[*seen.begin()].insert(label);
+      }
+      for (const auto& row : markers)
+        if (row.second.size() != 1) throw UnsupportedRegion("Region marker spans several caps; the region is declined.");
+    }
     if (!c.SampleCylinder() && !c.SampleSphere()) {
       c.SplitSurface();
       c.CoarsenSurface(kernel);
@@ -1653,6 +1682,10 @@ bool ConstructWallRegion(const std::vector<Facet>& skin, Point kernel, const Pla
     output = std::move(c.fresh);
     reason.clear();
     return true;
+  } catch (const UnsupportedRegion& e) {
+    report.unsupported_topology = true;
+    reason = e.what();
+    return false;
   } catch (const std::exception& e) {
     if (limits.rejected && !c.fresh.cells.empty()) limits.rejected(c.fresh,e.what());
     reason = e.what();

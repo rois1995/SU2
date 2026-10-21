@@ -253,6 +253,7 @@ struct ConnectivityRepairReport {
   size_t trials=0, flips=0, moves=0, removals=0, coordinated=0;
   size_t linearizations=0, metric_probes=0, linear_iterations=0, solve_trials=0, solve_rejected=0;
   size_t move_geometry_rejected=0, move_height_rejected=0, move_loss_rejected=0;
+  size_t vertex_moves=0;  // Accepted single-vertex star re-cones; moves also counts coordinated vertices.
   double before_loss=0, after_loss=0;
   bool complete_shape=false;
   Id blocked_interior_vertex=UINT64_MAX;  // Actual-field deficit at an artificial interface; dependency hint, not infeasibility.

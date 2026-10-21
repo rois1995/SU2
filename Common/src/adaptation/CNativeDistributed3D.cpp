@@ -400,6 +400,7 @@ bool Directory::LookupImpl(const std::vector<Feature>& features, Dependencies* m
       auto& candidate = batch ? batch->candidates[i] : *merged;
       const auto& group = batch ? unique[i] : merged_unique;
       candidate.valid = !batch || footer[i] == 1;
+      candidate.oversized = batch && footer[i] == 3;
       if (!candidate.valid) {
         if (!group.empty()) throw std::runtime_error("Native 3D refused star has unexpected dependencies.");
         candidate.reason = footer[i] == 3 ? "Native 3D dependency star exceeds budget." : "Native 3D missing dependency feature.";
@@ -603,9 +604,10 @@ DependencyBatch Directory::PlanBatch(const std::vector<Feature>& features, std::
   CLocalFailure failure;size_t dependencies=transfer_memory::Bytes(result.candidates);
   for(const auto& candidate:result.candidates) {
     dependencies=transfer_memory::Add(dependencies,transfer_memory::Bytes(candidate.cells),transfer_memory::Bytes(candidate.reason));
-    if(!candidate.valid)failure.Set(1,0,candidate.reason);
+    // An oversized complete star has an empty footprint, is never elected and is reported for blocking.
+    if(!candidate.valid && !candidate.oversized)failure.Set(1,0,candidate.reason);
   }
-  const auto compact=transfer_memory::Mul(features.size(),sizeof(Dependencies)+sizeof(size_t));
+  const auto compact=transfer_memory::Mul(features.size(),2*sizeof(size_t)+sizeof(Dependencies));
   const auto baseline=transfer_memory::Add(caller_bytes,transfer_memory::Bytes(features),dependencies,compact);
   const auto peak=transfer_memory::Add(baseline,ResidentBytes());
   stats.maximum_work_bytes=std::max(stats.maximum_work_bytes,peak);
@@ -615,13 +617,15 @@ DependencyBatch Directory::PlanBatch(const std::vector<Feature>& features, std::
   if(!election.valid){result.valid=false;result.reason=election.reason;result.candidates.clear();return result;}
   try {
     std::vector<Dependencies> chosen;chosen.reserve(features.size());slots.reserve(features.size());
-    for(size_t i=0;i<election.chosen.size();++i)if(election.chosen[i]) {
-      slots.push_back(i);chosen.push_back(std::move(result.candidates[i]));
+    result.refused.reserve(features.size());
+    for(size_t i=0;i<election.chosen.size();++i) {
+      if(result.candidates[i].oversized){result.refused.push_back(i);continue;}
+      if(election.chosen[i]){slots.push_back(i);chosen.push_back(std::move(result.candidates[i]));}
     }
     result.candidates.swap(chosen);
   }catch(const std::exception& e){failure.Set(2,0,e.what());}
   result.valid=Vote(failure,result.reason);
-  if(!result.valid){slots.clear();result.candidates.clear();++stats.rejected;}
+  if(!result.valid){slots.clear();result.candidates.clear();result.refused.clear();++stats.rejected;}
   return result;
 }
 ReservationBatch Directory::ReserveBatch(const ImportedBatch& imported, size_t ceiling, size_t caller_bytes) {

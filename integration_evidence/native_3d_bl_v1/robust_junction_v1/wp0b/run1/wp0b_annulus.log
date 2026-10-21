@@ -1,0 +1,38 @@
+WP0B_ANNULUS_FIDELITY q=0.19884476892564093 recorded=0.19884476892564093 J=0.06959269083420723 recordedJ=0.06959269083420723
+WP0B_WP0A_NATIVE saved q=0.19661619108322678 J=0.05575877612565848 refine=0 removed=0 added=0
+WP0B_WP0A_NATIVE V0_interior_only q=0.19709335277892504 J=0.050275309166178728 refine=0 removed=0 added=0
+WP0B_WP0A_NATIVE V1_+13663_in-plane q=0.2082767269727111 J=0.052809913502380026 refine=0 removed=5.4313685802329781 added=6.8207649186693802
+WP0B_WP0A_NATIVE V2_+swap_1-5_->_0-13663 q=0.20933286476669136 J=0.052356637424461269 refine=0 removed=6.6516637656803663 added=7.9381742826299293
+WP0B_WP0A_NATIVE V3_=_V1_+_V2 q=0.21014382763686762 J=0.053742627852780722 refine=0 removed=6.6516637656803663 added=8.0535947417756653
+WP0B_WP0A_NATIVE P0_interior_only q=0.19688865507815279 J=0.050584795384673337 refine=0 removed=0 added=0
+WP0B_WP0A_NATIVE P3_interior_+_13663_in-plane_+_swap_1-5 q=0.2021213620917845 J=0.051941609533829848 refine=0 removed=6.6516637656803663 added=6.9449234313994435
+WP0B_REPAIR retire=1 progress=1 trials=256 flips=0 vertex_moves=0 coordinated=36 height_rejected=0 geometry_rejected=36 loss_rejected=184 q=0.19661840111175305 refine=0
+WP0B_REPAIR retire=0 progress=1 trials=256 flips=0 vertex_moves=0 coordinated=36 height_rejected=0 geometry_rejected=36 loss_rejected=184 q=0.19661840111175305 refine=0
+WP0B_SEQUENCE case=annulus_rejected targets=5 single=0 compound=0 blocked=2 not_needed=3 unattempted=0
+WP0B_SEQUENCE case=annulus_input targets=5 single=0 compound=0 blocked=2 not_needed=3 unattempted=0
+5.687 s: WP-0(b) D2 column points and D3 insertion through existing operators
+Passed 1 test case with 34 assertions.
+
+	Command being timed: "nice -n 19 /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver [NativeJunctionReplay3D] --reporter compact --durations yes"
+	User time (seconds): 5.32
+	System time (seconds): 0.02
+	Percent of CPU this job got: 88%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:06.06
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 30464
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 2
+	Minor (reclaiming a frame) page faults: 2959
+	Voluntary context switches: 800
+	Involuntary context switches: 1161
+	Swaps: 0
+	File system inputs: 0
+	File system outputs: 32
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0

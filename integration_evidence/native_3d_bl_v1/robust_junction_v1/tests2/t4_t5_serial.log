@@ -1,0 +1,33 @@
+C3_RENUMBER progress=1 trials=7 vertex_moves=1 coordinated=0 solve_rejected=1 flips=0 move_height_rejected=0 move_geometry_rejected=0 move_loss_rejected=0 before_loss=2 after_loss=0 reason=
+0.002 s: Joint repair renumbers a re-coned vertex star before validating the reused candidate range
+0.000 s: Constrained movement keeps a coplanar component seam when faces store canonical roots
+OVERSIZED_STAR coarsen ranks=1 batch=1 valid=1 stop=complete rounds=42 oversized=42 rejected=42 batch_rounds=0 reason=
+OVERSIZED_STAR coarsen ranks=1 batch=8 valid=1 stop=complete rounds=42 oversized=42 rejected=42 batch_rounds=42 reason=
+OVERSIZED_STAR refine ranks=1 batch=1 valid=0 stop=round_budget oversized=1 reason=Native 3D adaptation round limit reached before cached metric size/shape gates were satisfied. Last local rejection: feature 2:1000: Native 3D dependency star exceeds budget.
+OVERSIZED_STAR refine ranks=1 batch=8 valid=0 stop=round_budget oversized=1 reason=Native 3D adaptation round limit reached before cached metric size/shape gates were satisfied. Last local rejection: feature 2:1000: Native 3D dependency star exceeds budget.
+0.366 s: Oversized complete stars block batched and planned proposals without failing the event
+Passed all 3 test cases with 137 assertions.
+
+	Command being timed: "nice -n 19 /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver [NativeJunctionRepairIds3D],[NativeMoveConstraint3D],[NativeOversizedStar3D] --reporter compact --durations yes"
+	User time (seconds): 0.37
+	System time (seconds): 0.02
+	Percent of CPU this job got: 52%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:00.75
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 29236
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 2
+	Minor (reclaiming a frame) page faults: 2853
+	Voluntary context switches: 1130
+	Involuntary context switches: 41
+	Swaps: 0
+	File system inputs: 0
+	File system outputs: 8
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0

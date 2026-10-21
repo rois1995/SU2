@@ -657,6 +657,10 @@ CRemeshResult CNativeRemesher3D::Remesh(const CConfig& config, const CGeometry& 
              << " layer_published=" << e.layer_published << " height_checks=" << e.height_checks << " height_rejected=" << e.height_rejected << " footprint_rejected=" << e.footprint_rejected
              << " wall_reconstruction_trials=" << e.wall_reconstruction_trials << " wall_reconstruction_accepted=" << e.wall_reconstruction_accepted
              << " wall_joint_trials=" << e.wall_joint_trials << " wall_joint_moves=" << e.wall_joint_moves << " wall_joint_removals=" << e.wall_joint_removals << " wall_joint_accepted=" << e.wall_joint_accepted
+             << " wall_joint_flips=" << e.wall_joint_flips << " wall_joint_vertex_moves=" << e.wall_joint_vertex_moves << " wall_joint_coordinated=" << e.wall_joint_coordinated
+             << " wall_joint_solve_rejected=" << e.wall_joint_solve_rejected << " wall_joint_move_geometry_rejected=" << e.wall_joint_move_geometry_rejected
+             << " wall_joint_move_height_rejected=" << e.wall_joint_move_height_rejected << " wall_joint_move_loss_rejected=" << e.wall_joint_move_loss_rejected
+             << " oversized_stars=" << e.oversized_stars
              << " placement_connectivity_trials=" << e.placement_connectivity_trials << " placement_flips=" << e.placement_flips << " placement_moves=" << e.placement_moves
              << " placement_dependency_expansions=" << e.placement_dependency_expansions
              << " placement_classified_vertices=" << e.placement_classified_vertices

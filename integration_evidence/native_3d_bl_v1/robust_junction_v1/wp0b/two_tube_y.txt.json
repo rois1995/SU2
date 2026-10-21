@@ -1,0 +1,53 @@
+{
+ "arguments": {
+  "name": "two_tube_y",
+  "nu": 12,
+  "nv": 8,
+  "nw": 4,
+  "du": 0.2,
+  "dv": 0.2,
+  "dw": 0.25,
+  "lean_u": 0.0,
+  "lean_v": 17.5,
+  "axis": "y",
+  "holes": [
+   "2,3",
+   "2,4",
+   "3,3",
+   "3,4",
+   "6,3",
+   "6,4",
+   "7,3",
+   "7,4"
+  ],
+  "walls": [
+   "2,3",
+   "2,4",
+   "3,3",
+   "3,4",
+   "6,3",
+   "6,4",
+   "7,3",
+   "7,4"
+  ],
+  "h0": 0.05,
+  "growth": 1.2,
+  "thickness": 0.3,
+  "sensor_size": 0.25,
+  "out": "two_tube_y.txt"
+ },
+ "nodes": 575,
+ "cells": 2112,
+ "facets": {
+  "far": 496,
+  "symmetry": 176,
+  "wall": 128
+ },
+ "script_sha256": "2425e92552c3a7a12475debebf6a040e42e2ac0e29932bf23d57f86fe6f575b6",
+ "output_sha256": "68aaf80aa8753a7aeaa31d5b179094c44932c7e73e4427ddca05ee1ac9dcc2b8",
+ "junction_dihedrals_deg": [
+  72.5,
+  90.0,
+  107.5
+ ]
+}

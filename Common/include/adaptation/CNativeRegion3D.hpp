@@ -38,6 +38,7 @@ struct RegionReport {
   double sampling_seconds = 0, first_band_seconds = 0, transition_seconds = 0;
   double junction_seconds = 0, core_seconds = 0, validation_seconds = 0;
   bool exhausted_work = false, unresolved_core = false;
+  bool unsupported_topology = false;  // Cap/marker topology outside the supported regions: decline, retain volume operators.
   double minimum_quality = 1, minimum_jacobian = 1;
   long double maximum_edge = 0;
 };

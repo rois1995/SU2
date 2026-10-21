@@ -246,7 +246,12 @@ Node ProjectMovePoint(Id vertex,Node point,const Skin& skin,const Physical& phys
                       const PlanarReference& reference,KernelStats* stats) {
   if(reference.Mapped()) {
     std::set<Id> incident;for(const auto& f:physical)if(Has(f.second.v,vertex))incident.insert(f.second.facet);
-    if(!incident.empty())return reference.BindMovedPoint(vertex,point,incident);
+    if(!incident.empty()) {
+      // Same interface-node guard as the strict path: an artificial skin face fixes the vertex.
+      for(const auto& face:skin)if(Has(face.second,vertex) && !physical.count(face.first))
+        throw std::invalid_argument("Native 3D incomplete movement dependency at interface node "+std::to_string(vertex)+".");
+      return reference.BindMovedPoint(vertex,point,incident);
+    }
   }
   for(unsigned pass=0;pass<2;++pass)for(const auto& face:physical)
     if(Has(face.second.v,vertex) && reference.Declared(face.second.facet) &&
@@ -485,6 +490,23 @@ Node ConstrainMovePoint(const Patch& old,Id vertex,Node proposal,const std::map<
       for(auto& x:normal)x/=independent;basis[rank++]=normal;
     }
   };
+  // Faceted planes use one exact original normal per canonical component: rounded child faces of the same
+  // component must not add spurious rank, and exactly coplanar distinct components share one plane constraint.
+  // Non-coplanar components remain true creases; no angle tolerance merges them.
+  auto component_normal=[&](Id root) {
+    const auto& f=reference.Get(root);return Cross(Delta(f.v[1].p,f.v[0].p),Delta(f.v[2].p,f.v[0].p));
+  };
+  auto coplanar=[&](Id a,Id b) {
+    const auto& f=reference.Get(a);const auto& g=reference.Get(b);
+    for(auto n:g.v)if(Orientation(f.v[0].p,f.v[1].p,f.v[2].p,n.p)!=0)return false;
+    return true;
+  };
+  std::vector<Id> planes;
+  auto constrain_component=[&](Id facet) {
+    const Id root=reference.Canonical(facet);
+    for(Id other:planes)if(other==root || coplanar(other,root))return;
+    planes.push_back(root);constrain(component_normal(root));
+  };
   std::set<Id> incident;
   for(const auto& face:old.surface) {
     const bool onFace=Has(face.v,vertex);
@@ -500,9 +522,11 @@ Node ConstrainMovePoint(const Patch& old,Id vertex,Node proposal,const std::map<
     if(onFace && plane!=reference.Affine().end()) {
       const auto n=plane->second.normal;constrain({n.x,n.y,n.z});continue;
     }
+    if(!reference.Analytic().count(face.facet) && plane==reference.Affine().end()){constrain_component(face.facet);continue;}
     constrain(Cross(Delta(nodes.at(face.v[1]).p,nodes.at(face.v[0]).p),Delta(nodes.at(face.v[2]).p,nodes.at(face.v[0]).p)));
   }
   // Coplanar marker/chart seams restrict motion along their original shared edge too.
+  std::set<std::pair<Id,Id>> sealed;
   for(auto a=incident.begin();a!=incident.end();++a)for(auto b=std::next(a);b!=incident.end();++b) {
     if(reference.Canonical(*a)==reference.Canonical(*b))continue;
     const auto& left=reference.Get(*a);const auto& right=reference.Get(*b);
@@ -511,6 +535,19 @@ Node ConstrainMovePoint(const Patch& old,Id vertex,Node proposal,const std::map<
     if(shared.size()!=2 || !OnEdge(shared[0].p,shared[1].p,origin,nullptr))continue;
     const auto normal=Cross(Delta(left.v[1].p,left.v[0].p),Delta(left.v[2].p,left.v[0].p));
     constrain(Cross(normal,Delta(shared[1].p,shared[0].p)));
+    sealed.insert(std::minmax(reference.Canonical(*a),reference.Canonical(*b)));
+  }
+  // Stored component roots need not share an original edge: a current physical edge shared by two coplanar
+  // components lies on their common border chain. One chain direction per component pair, lowest neighbour first;
+  // a non-coplanar pair is already a crease through its two plane constraints.
+  std::map<Edge,std::set<Id>> uses;
+  for(const auto& face:old.surface)if(Has(face.v,vertex) && !reference.Analytic().count(face.facet) && !reference.Affine().count(face.facet))
+    for(Id w:face.v)if(w!=vertex)uses[{vertex,w}].insert(reference.Canonical(face.facet));
+  for(const auto& row:uses) {
+    if(row.second.size()!=2)continue;
+    const auto key=std::make_pair(*row.second.begin(),*row.second.rbegin());
+    if(!sealed.insert(key).second || !coplanar(key.first,key.second))continue;
+    constrain(Cross(component_normal(key.first),Delta(nodes.at(row.first[1]).p,origin)));
   }
   if(rank==3){proposal.p=origin;return proposal;}
   auto displacement=Delta(proposal.p,origin);
@@ -2200,7 +2237,9 @@ bool ReconstructSplitPatch(const Patch& old,Edge edge,Node point,Node interior,c
     for(const auto& entry:physical) {
       const auto height=heights.find(reference.Get(entry.second.facet).marker);if(height==heights.end())continue;
       const auto f=entry.second.v;const auto a=nodes.at(f[0]).p,b=nodes.at(f[1]).p,c=nodes.at(f[2]).p;
-      auto normal=Cross(Delta(b,a),Delta(c,a));const auto area=Norm(normal);for(auto& n:normal)n/=area;
+      auto normal=Cross(Delta(b,a),Delta(c,a));const auto area=Norm(normal);
+      if(!(area>0) || !std::isfinite(area))throw std::invalid_argument("Native3D joint wall face is degenerate.");
+      for(auto& n:normal)n/=area;
       const Point center{double(((long double)a.x+b.x+c.x)/3),double(((long double)a.y+b.y+c.y)/3),double(((long double)a.z+b.z+c.z)/3)};
       const Point apex{double((long double)center.x-height->second*normal[0]),
                        double((long double)center.y-height->second*normal[1]),double((long double)center.z-height->second*normal[2])};
@@ -2685,10 +2724,11 @@ bool RepairMetricConnectivity(const Patch& old,FrozenField& target,const PlanarR
             Patch proposal;proposal.surface=working.surface;
             for(size_t i=0;i<working.cells.size();++i)if(std::find(selected.begin(),selected.end(),i)==selected.end())proposal.cells.push_back(working.cells[i]);
             proposal.cells.insert(proposal.cells.end(),replacement.begin(),replacement.end());
-            if(proposal.cells.size()>MaximumReplacementCells || first>UINT64_MAX-(proposal.cells.size()-1) ||
-                !CheckFirstHeight(proposal,heights,reference,height,rejected)){losses.clear();++report.move_height_rejected;continue;}
+            if(proposal.cells.size()>MaximumReplacementCells || first>UINT64_MAX-(proposal.cells.size()-1)){losses.clear();++report.move_geometry_rejected;continue;}
+            // Retained cells already use the caller range: renumber before incidence/height validation.
             for(size_t i=0;i<proposal.cells.size();++i)proposal.cells[i].id=first+i;
-            working=std::move(proposal);losses.clear();rejected_states.clear();++report.moves;
+            if(!CheckFirstHeight(proposal,heights,reference,height,rejected)){losses.clear();++report.move_height_rejected;continue;}
+            working=std::move(proposal);losses.clear();rejected_states.clear();++report.moves;++report.vertex_moves;
             report.after_loss=total(working.cells);changed=true;break;
           }
             if(changed || report.trials>=maximum_trials)break;

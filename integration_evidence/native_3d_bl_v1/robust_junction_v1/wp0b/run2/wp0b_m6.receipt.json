@@ -1,0 +1,34 @@
+{
+ "label": "wp0b_m6",
+ "command": [
+  "/usr/bin/time",
+  "-v",
+  "nice",
+  "-n",
+  "19",
+  "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver",
+  "[NativeJunctionReplay3D]",
+  "--reporter",
+  "compact",
+  "--durations",
+  "yes"
+ ],
+ "environment": {
+  "SU2_JUNCTION_WP0B_ROOT": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/robust_junction_v1/wp0b",
+  "SU2_JUNCTION_WP0B_CASES": "m6_root_te_h0.002,m6_root_te_h0.02,m6_root_le_h0.002,m6_root_le_h0.02",
+  "SU2_JUNCTION_WP0B_RESUME": "1"
+ },
+ "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/robust_junction_v1/wp0b/run2",
+ "exit_code": 0,
+ "seconds": 475.90674805641174,
+ "load_at_start": [
+  5.77,
+  6.0,
+  6.43
+ ],
+ "max_rss_kb_of_one_process": 30384,
+ "binary_sha256": "a0be5017dfc6c2e5402be096abe0d29276e7b097c0b8202155000921a83742c3",
+ "summary": [
+  "Passed 1 test case with 7 assertions."
+ ]
+}

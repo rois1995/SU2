@@ -1,0 +1,46 @@
+{
+ "arguments": {
+  "name": "tube_root_z",
+  "nu": 10,
+  "nv": 8,
+  "nw": 4,
+  "du": 0.2,
+  "dv": 0.2,
+  "dw": 0.25,
+  "lean_u": 29.8,
+  "lean_v": 17.5,
+  "axis": "z",
+  "holes": [
+   "3,3",
+   "3,4",
+   "4,3",
+   "4,4"
+  ],
+  "walls": [
+   "3,3",
+   "3,4",
+   "4,3",
+   "4,4"
+  ],
+  "h0": 0.05,
+  "growth": 1.2,
+  "thickness": 0.3,
+  "sensor_size": 0.25,
+  "out": "tube_root_z.txt"
+ },
+ "nodes": 490,
+ "cells": 1824,
+ "facets": {
+  "far": 440,
+  "symmetry": 152,
+  "wall": 64
+ },
+ "script_sha256": "2425e92552c3a7a12475debebf6a040e42e2ac0e29932bf23d57f86fe6f575b6",
+ "output_sha256": "1d674a53cb80fb08749ab416700ac8cc500df70e0a5d6443b866b77a446f10b5",
+ "junction_dihedrals_deg": [
+  60.2,
+  72.5,
+  107.5,
+  119.8
+ ]
+}

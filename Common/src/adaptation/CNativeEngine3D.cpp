@@ -860,9 +860,9 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
             maximum_node+1,maximum_cell+1,target,limits,fresh,report,result.reason);
         if(!constructed) {
           // A height-free cone cannot resolve every interior field; retain the existing volume operators there.
-          core_declined=options.region_walls.empty() && !report.exhausted_work &&
+          core_declined=report.unsupported_topology || (options.region_walls.empty() && !report.exhausted_work &&
               (report.unresolved_core || report.minimum_quality<MinimumMeanRatio || report.minimum_jacobian<MinimumScaledJacobian ||
-               report.maximum_edge>MaximumMetricEdge);
+               report.maximum_edge>MaximumMetricEdge));
           if(!core_declined)throw std::runtime_error(result.reason);
           last_rejection=result.reason;
         } else if(coarsening && already_valid && fresh.cells.size()>=old.cells.size()) {
@@ -1416,6 +1416,14 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     ReservationBatch reserved;
     size_t slots=1;
     const bool planned_coarsening=coarsening && !repairing && !curved && !composition && world.size>1;
+    // A complete star above the cavity bound blocks only its own proposal, as on every lookup path; changed
+    // stars reactivate it. It is never published and never fails the event.
+    size_t refused_candidates=0,refused_slots=0;
+    auto refuse=[&](const Choice& candidate,const Feature& feature,const std::string& why) {
+      selection.Block(candidate.edge,candidate.feature,repairing);++stats.attempted;++stats.rejected;++stats.oversized_stars;
+      stats.last_rejected_feature=feature;++refused_candidates;
+      last_rejection="feature "+std::to_string(feature.count)+":"+std::to_string(feature.vertices[0])+": "+why;
+    };
     // Every nonempty selected round admits work; at most batch*workers metadata frontiers per admitted round.
     auto plan_choices=[&]() {
       CLocalFailure failure;
@@ -1433,12 +1441,13 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         dependency_batch=directory.PlanBatch(features,selected,options.memory_ceiling,transfer_memory::Add(bytes(),source.ResidentBytes()));
         if(!dependency_batch.valid){result.reason=dependency_batch.reason;return false;}
         try {
+          for(size_t i:dependency_batch.refused)refuse(choices.at(i),features.at(i),"Native 3D dependency star exceeds budget.");
           std::vector<Choice> planned;planned.reserve(selected.size());
           for(size_t i:selected)planned.push_back(choices.at(i));
-          stats.batch_deferred+=choices.size()-planned.size();choices.swap(planned);
+          stats.batch_deferred+=choices.size()-planned.size()-dependency_batch.refused.size();choices.swap(planned);
         }catch(const std::exception& e){failure.Set(2,0,e.what());}
         if(!(ready=vote(failure)))return false;
-        if(!world.maximum(!choices.empty())){result.reason="Native 3D complete-star selection made no progress.";return false;}
+        if(!world.maximum(!choices.empty() || refused_candidates!=0)){result.reason="Native 3D complete-star selection made no progress.";return false;}
       }
       return true;
     };
@@ -1460,11 +1469,12 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         if(!coalesce(choices))return finish();
         if(!plan_choices())return finish();
         slots=CPassiveComm::Allreduce(choices.size(),CPassiveComm::Op::MAX,world.comm);
-        ++stats.batch_rounds; stats.batch_candidates+=choices.size(); stats.proposed+=choices.size();
+        ++stats.batch_rounds; stats.batch_candidates+=choices.size(); stats.proposed+=choices.size()+refused_candidates;
       }
       {
         Timer timer(stats.selection_seconds,options.timings);
-        const uint64_t proposed=CPassiveComm::Allreduce(uint64_t(choices.size()),CPassiveComm::Op::SUM,world.comm);
+        // Planned refusals are proposals too: they consume the same global work as serial oversized stars.
+        const uint64_t proposed=CPassiveComm::Allreduce(uint64_t(choices.size()+refused_candidates),CPassiveComm::Op::SUM,world.comm);
         if (proposed>stats.work_limit-stats.global_work) {
           stats.stop=EngineStop::WorkBudget; result.reason="Native 3D global proposal budget exhausted before admission; feasibility is undetermined.";
           return finish();
@@ -1484,8 +1494,15 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         imported_batch=directory.FetchBatch(dependency_batch,working,options.memory_ceiling,
             transfer_memory::Add(bytes(),source.ResidentBytes()));
         if (!imported_batch.valid) { result.reason=imported_batch.reason; return finish(); }
-        for (const auto& candidate:imported_batch.candidates)
-          if (!candidate.valid) failure.Set(1,0,candidate.reason);
+        try {
+          for (size_t i=0;i<imported_batch.candidates.size();++i) {
+            const auto& candidate=imported_batch.candidates[i];
+            if (candidate.valid) continue;
+            const auto& star=dependency_batch.candidates.at(i);
+            if (!star.valid && star.oversized) { refuse(choices.at(i),features.at(i),star.reason); ++refused_slots; }
+            else failure.Set(1,0,candidate.reason);
+          }
+        } catch (const std::exception& e) { failure.Set(2,0,e.what()); }
         if (!(ready=vote(failure))) return finish();
       }
       {
@@ -1494,8 +1511,8 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         if (!reserved.valid) { result.reason=reserved.reason; return finish(); }
         size_t winners=0;
         for (bool chosen:reserved.chosen) winners+=chosen;
-        stats.batch_reserved+=winners; stats.conflicts+=choices.size()-winners;
-        if (!world.maximum(winners!=0)) { result.reason="Native 3D batch reservation made no progress."; return finish(); }
+        stats.batch_reserved+=winners; stats.conflicts+=choices.size()-winners-refused_slots;
+        if (!world.maximum(winners!=0 || refused_candidates!=0)) { result.reason="Native 3D batch reservation made no progress."; return finish(); }
       }
     } else {
       Timer timer(stats.selection_seconds,options.timings);
@@ -1546,25 +1563,26 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         const Feature feature=repairing ? choice.feature : (coarsening ? Feature{{choice.edge[1],0,0},1} : Feature{{choice.edge[0],choice.edge[1],0},2});
         const auto features=choice.active ? std::vector<Feature>{feature} : std::vector<Feature>{};
         if(planned_coarsening) {
+          // Every proposal of this round may have been refused for an oversized star during planning.
+          if(!world.maximum(choice.active))continue;
           if(choice.active)dependencies=std::move(dependency_batch.candidates.at(0));else dependencies.valid=true;
-        } else if(coarsening || (curved && repairing)) {
+        } else {
           auto batch=directory.LookupBatch(features,options.memory_ceiling,transfer_memory::Add(bytes(),source.ResidentBytes()));
           if(!batch.valid) {result.reason=batch.reason;return finish();}
           if(choice.active)dependencies=std::move(batch.candidates.at(0));else dependencies.valid=true;
-          const bool oversized=choice.active && !dependencies.valid && dependencies.reason=="Native 3D dependency star exceeds budget.";
+          const bool oversized=choice.active && !dependencies.valid && dependencies.oversized;
           CLocalFailure lookup_failure;
           if(choice.active && !dependencies.valid && !oversized)lookup_failure.Set(1,0,dependencies.reason);
           if(!vote(lookup_failure))return finish();
-          if(world.maximum(oversized)) {
-            // Refuse this proposal; publication still requires its complete star. Changed stars reactivate coarsening.
-            if(oversized) {
-              selection.Block(choice.edge,choice.feature,repairing);++stats.attempted;++stats.rejected;
-              stats.last_rejected_feature=feature;
-              last_rejection="feature "+std::to_string(feature.count)+":"+std::to_string(feature.vertices[0])+": "+dependencies.reason;
-            }
-            continue;
+          if(oversized) {
+            // Refuse this proposal; publication still requires its complete star. Changed stars reactivate it.
+            try {refuse(choice,feature,dependencies.reason);}catch(const std::exception& e){lookup_failure.Set(2,0,e.what());}
+            choice.active=false;dependencies=Dependencies{};dependencies.valid=true;
           }
-        } else dependencies=directory.Lookup(features,options.memory_ceiling,transfer_memory::Add(bytes(),source.ResidentBytes()));
+          if(!vote(lookup_failure))return finish();
+          // Concurrent peers keep their own proposals; a slot whose every proposal was refused is skipped.
+          if(!world.maximum(choice.active))continue;
+        }
         if (dependencies.valid) imported=directory.Fetch(dependencies,working,options.memory_ceiling,
             transfer_memory::Add(bytes(),source.ResidentBytes()));
       }
@@ -2323,6 +2341,8 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
                 }
                 const auto skin=Incidence(star.cells).Boundary();
                 for(const auto& f:fresh.surface)if(std::any_of(skin.begin(),skin.end(),[&](Face face){return Key(face)==Key(f.v);}))star.surface.push_back(f);
+                // Mapped mode: the strip's private bindings (including its new split point) must reach the sub-patch.
+                star.parameters=fresh.parameters;
                 Patch children;
                 candidate=extraFrames[frame]==2 ?
                     InsertEdgeCavity(star,extraEdge,offEdgePoint,maximum_cell+1+offset,geometry,children,result.reason) :
@@ -2332,6 +2352,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
                     return std::any_of(star.cells.begin(),star.cells.end(),[&](const auto& d){return c.id==d.id;});
                   }),fresh.cells.end());
                   fresh.cells.insert(fresh.cells.end(),children.cells.begin(),children.cells.end());
+                  for(const auto& row:children.parameters)fresh.parameters.insert_or_assign(row.first,row.second);
                   if(fresh.cells.size()>MaximumReplacementCells)candidate=false;
                   else for(size_t i=0;i<fresh.cells.size();++i)fresh.cells[i].id=maximum_cell+1+offset+i;
                 }
@@ -2532,6 +2553,11 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
                       maximum_cell+1+offset,proposal,report,rejected,repair_limit-repair_used,strategy==0);
                 }
                 stats.wall_joint_trials+=report.trials;stats.wall_joint_moves+=report.moves;stats.wall_joint_removals+=report.removals;
+                stats.wall_joint_flips+=report.flips;stats.wall_joint_vertex_moves+=report.vertex_moves;
+                stats.wall_joint_coordinated+=report.coordinated;stats.wall_joint_solve_rejected+=report.solve_rejected;
+                stats.wall_joint_move_geometry_rejected+=report.move_geometry_rejected;
+                stats.wall_joint_move_height_rejected+=report.move_height_rejected;
+                stats.wall_joint_move_loss_rejected+=report.move_loss_rejected;
                 stats.metric_linearizations+=report.linearizations;stats.metric_probes+=report.metric_probes;
                 stats.metric_linear_iterations+=report.linear_iterations;stats.metric_solve_trials+=report.solve_trials;
                 if(repaired) {

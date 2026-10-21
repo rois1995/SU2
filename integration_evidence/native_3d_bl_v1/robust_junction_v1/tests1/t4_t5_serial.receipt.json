@@ -1,0 +1,30 @@
+{
+ "label": "t4_t5_serial",
+ "command": [
+  "/usr/bin/time",
+  "-v",
+  "nice",
+  "-n",
+  "19",
+  "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver",
+  "[NativeJunctionRepairIds3D],[NativeMoveConstraint3D],[NativeOversizedStar3D]",
+  "--reporter",
+  "compact",
+  "--durations",
+  "yes"
+ ],
+ "environment": {},
+ "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/robust_junction_v1/tests1",
+ "exit_code": 0,
+ "seconds": 0.8258283138275146,
+ "load_at_start": [
+  5.62,
+  5.69,
+  6.6
+ ],
+ "max_rss_kb_of_one_process": 29588,
+ "binary_sha256": "391c3cd838e8748f0e96fe868c96b7f9a934acfd99279a0905d1fbc59c56ccbe",
+ "summary": [
+  "Passed all 3 test cases with 137 assertions."
+ ]
+}

@@ -1810,3 +1810,62 @@ TEST_CASE("Shared first-height ownership reconstructs a complete frozen-field me
   CHECK_FALSE(ReconstructHeightStar(old,vertex,vertex,2000000,target,reference,heights,sentinel,report,reason,32));
   CHECK(Connectivity(sentinel)==unchanged);
 }
+
+TEST_CASE("Joint repair renumbers a re-coned vertex star before validating the reused candidate range", "[NativeConnectivityMove3D][NativeJunctionRepairIds3D]") {
+  // T4 (C3): retained cells already occupy the caller range; the single-vertex re-cone must renumber first.
+  const Node a{0,{0,0,0}},b{1,{1,0,0}},c{2,{.5,.8660254037844386,0}},d{3,{.5,.28867513459481287,.816496580927726}};
+  const Node v{4,{.5,.28867513459481287,1e-17}};
+  const Point center{(b.p.x+c.p.x+d.p.x)/3,(b.p.y+c.p.y+d.p.y)/3,(b.p.z+c.p.z+d.p.z)/3};
+  const double u[3]={c.p.x-b.p.x,c.p.y-b.p.y,c.p.z-b.p.z},w[3]={d.p.x-b.p.x,d.p.y-b.p.y,d.p.z-b.p.z};
+  double normal[3]={u[1]*w[2]-u[2]*w[1],u[2]*w[0]-u[0]*w[2],u[0]*w[1]-u[1]*w[0]};
+  const double length=std::sqrt(normal[0]*normal[0]+normal[1]*normal[1]+normal[2]*normal[2]);
+  // Outward from the vertex star (away from a): the retained cell lies across face bcd.
+  const double side=(a.p.x-center.x)*normal[0]+(a.p.y-center.y)*normal[1]+(a.p.z-center.z)*normal[2];
+  for(auto& x:normal)x*=(side>0?-.5:.5)/length;
+  const Node e{5,{center.x+normal[0],center.y+normal[1],center.z+normal[2]}};
+  const Id first=500;Patch old;
+  for(auto cell:std::vector<std::array<Node,4>>{{e,b,c,d},{v,a,b,c},{v,a,b,d},{v,a,c,d},{v,b,c,d}}) {
+    if(Orientation(cell[0].p,cell[1].p,cell[2].p,cell[3].p)<0)std::swap(cell[0],cell[1]);
+    REQUIRE(Orientation(cell[0].p,cell[1].p,cell[2].p,cell[3].p)>0);
+    old.cells.push_back({first+old.cells.size(),cell});
+  }
+  const auto skin=Incidence(old.cells).Boundary();
+  for(size_t i=0;i<skin.size();++i)old.surface.push_back({skin[i],Id(i)});
+  const PlanarReference reference(Facets(old));
+  DonorCell donor;donor.cell={0,{{{20,{-4,-4,-4}},{21,{12,-4,-4}},{22,{-4,12,-4}},{23,{-4,-4,12}}}}};donor.sensor.fill({1,0,0,1,0,1});
+  FrozenField field({donor});Patch fresh;ConnectivityRepairReport report;std::string reason;
+  const bool progress=RepairMetricConnectivity(old,field,reference,{},first,fresh,report,reason,64,false);
+  std::cout<<"C3_RENUMBER progress="<<progress<<" trials="<<report.trials<<" vertex_moves="<<report.vertex_moves<<" coordinated="<<report.coordinated
+           <<" solve_rejected="<<report.solve_rejected<<" flips="<<report.flips<<" move_height_rejected="<<report.move_height_rejected
+           <<" move_geometry_rejected="<<report.move_geometry_rejected<<" move_loss_rejected="<<report.move_loss_rejected
+           <<" before_loss="<<report.before_loss<<" after_loss="<<report.after_loss<<" reason="<<reason<<std::endl;
+  INFO(reason);REQUIRE(progress);
+  CHECK(report.vertex_moves>0);CHECK(report.coordinated==0);CHECK(report.solve_rejected>0);
+  CHECK(report.after_loss<report.before_loss);CHECK(ValidateFixedInterface(old.cells,fresh.cells,reason));
+  std::set<Id> ids;for(const auto& cell:fresh.cells){CHECK(cell.id>=first);CHECK(cell.id<first+fresh.cells.size());ids.insert(cell.id);}
+  CHECK(ids.size()==fresh.cells.size());
+  CHECK(std::any_of(fresh.cells.begin(),fresh.cells.end(),[](const Cell& cell){return std::any_of(cell.v.begin(),cell.v.end(),[](Node n){return n.id==5;});}));
+  FirstHeightReport height;CHECK(CheckFirstHeight(fresh,{},reference,height,reason));
+}
+
+TEST_CASE("Constrained movement keeps a coplanar component seam when faces store canonical roots", "[NativeMoveConstraint3D]") {
+  // D7 #3/#4: one exact plane per canonical component and one chain direction per coplanar component pair.
+  const Node p00{0,{0,0,0}},p10{1,{1,0,0}},p01{2,{0,1,0}},p11{3,{1,1,0}},p20{4,{2,0,0}},p21{5,{2,1,0}};
+  const std::vector<Facet> facets{{0,10,{p00,p01,p10}},{1,10,{p10,p01,p11}},{2,11,{p10,p11,p20}},{3,11,{p20,p11,p21}}};
+  const PlanarReference reference(facets);
+  REQUIRE(reference.Canonical(1)==0);REQUIRE(reference.Canonical(3)==2);
+  const Node seam{6,{1,.5,0}},top{7,{1,.5,1}};Patch patch;
+  // Children of the split seam edge; faces store their component roots, not the original facet identities.
+  const std::vector<std::pair<std::array<Node,3>,Id>> bottom{{{p10,seam,p01},0},{{seam,p11,p01},0},{{p10,p20,seam},2},{{seam,p20,p11},2}};
+  for(const auto& row:bottom) {
+    std::array<Node,4> cell{row.first[0],row.first[1],row.first[2],top};
+    if(Orientation(cell[0].p,cell[1].p,cell[2].p,cell[3].p)<0)std::swap(cell[0],cell[1]);
+    patch.cells.push_back({Id(patch.cells.size()),cell});
+    patch.surface.push_back({{row.first[0].id,row.first[1].id,row.first[2].id},row.second});
+  }
+  const auto moved=ConstrainMovePoint(patch,6,{6,{1.2,.7,0}},{},reference);
+  CHECK(moved.p.x==1);CHECK(moved.p.z==0);CHECK(moved.p.y==Approx(.7).epsilon(1e-15));
+  // Normal motion is removed by the single component plane; the seam keeps its chain direction.
+  const auto lifted=ConstrainMovePoint(patch,6,{6,{1,.7,.3}},{},reference);
+  CHECK(lifted.p.z==0);CHECK(lifted.p.x==1);CHECK(lifted.p.y==Approx(.7).epsilon(1e-15));
+}
