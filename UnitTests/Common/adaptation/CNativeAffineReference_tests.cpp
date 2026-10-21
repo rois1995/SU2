@@ -403,12 +403,14 @@ TEST_CASE("Mapped component movement crosses an original planar seam without mov
   for(auto face:std::array<Face,4>{{{0,2,55},{55,2,3},{0,55,1},{55,3,1}}})child.surface.push_back({face,g->Canonical(0)});
   BoundaryPoints points;for(auto row:state->Records())points.emplace(row.first,row.second.point);points.emplace(55,BoundaryPoint{middle,g->EdgePoint({0,3},.5)});
   state=std::make_shared<BoundaryParameterState>(g,points,child.surface);auto reference=PlanarReference::WithParameters(base,state);
+  // The corner query needs the complete ball of node 0: every incident physical face constrains it.
+  auto ball=child;reference->ExportParameters(ball);
   child.cells.resize(4);child.surface.erase(child.surface.begin(),child.surface.end()-4);reference->ExportParameters(child);
   const auto before=state->Snapshot();const auto proposal=ConstrainMovePoint(child,55,{56,{.55,.45,0}},{},*reference);
   CHECK(proposal.p.x!=proposal.p.y);Patch fresh;std::string reason;INFO(reason);
   REQUIRE(MoveVertex(child,55,proposal,100,*reference,fresh,reason));CHECK(fresh.parameters.at(56).binding.dimension==2);
   CHECK(state->Snapshot()==before);CHECK(reference->Parameters()==state.get());
-  const auto corner=ConstrainMovePoint(child,0,{57,{.1,.1,.1}},{},*reference);CHECK(corner.p.x==0);CHECK(corner.p.y==0);CHECK(corner.p.z==0);
+  const auto corner=ConstrainMovePoint(ball,0,{57,{.1,.1,.1}},{},*reference);CHECK(corner.p.x==0);CHECK(corner.p.y==0);CHECK(corner.p.z==0);
 }
 
 TEST_CASE("Mapped finite components retain two holes a notch and a disconnected body footprint", "[NativeMappedComponent3D]") {
@@ -430,9 +432,11 @@ TEST_CASE("Mapped finite components retain two holes a notch and a disconnected 
   auto base=std::make_shared<PlanarReference>(facets,SIZE_MAX,std::map<Id,AnalyticSurface>{},planes);std::map<Id,double> errors;
   for(auto f:facets)errors.emplace(f.id,1e-10);auto g=std::make_shared<MappedFacetReference>(base,errors,7,SIZE_MAX,true);
   auto state=ComponentState(g,facets);const Id root=g->Canonical(0);
+  CHECK_THROWS_AS(MappedFacetReference(base,errors,7,4096*facets.size(),true),std::length_error);
   CHECK_FALSE(g->PhysicalSupport(g->Vertex(103)));CHECK(g->PhysicalSupport(g->Vertex(101)));
   CHECK(g->ContainsSegment(root,g->Vertex(200),g->Vertex(2)));CHECK_FALSE(g->ContainsSegment(root,g->Vertex(101),g->Vertex(202)));
-  CHECK_FALSE(g->ContainsSegment(root,g->Vertex(100),g->Vertex(106)));CHECK_FALSE(g->ContainsSegment(root,g->Vertex(5),g->Vertex(8)));
+  CHECK(g->ContainsSegment(root,g->Vertex(100),g->Vertex(106)));
+  CHECK_FALSE(g->ContainsSegment(root,g->Vertex(100),g->Vertex(206)));CHECK_FALSE(g->ContainsSegment(root,g->Vertex(5),g->Vertex(8)));
   auto face=[&](std::array<Id,3> ids){std::array<SurfaceBinding,3> bind;std::array<Point,3> p;
     for(unsigned k=0;k<3;++k){bind[k]=g->Vertex(ids[k]);p[k]=nodes.at(ids[k]).p;}return g->ContainsFace(root,bind,p);};
   CHECK(face({0,103,6}));CHECK_FALSE(face({101,202,102}));CHECK_FALSE(face({0,303,6}));CHECK_FALSE(face({5,108,8}));

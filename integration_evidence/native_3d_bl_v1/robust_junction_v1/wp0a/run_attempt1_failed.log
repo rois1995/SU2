@@ -1,0 +1,19 @@
+V0 interior only q_min 0.1971 J_min 0.0503 pass False Lmax 6.631
+V1 +13663 in-plane q_min 0.2083 J_min 0.0528 pass True Lmax 6.631
+V2 +swap 1-5 -> 0-13663 q_min 0.2093 J_min 0.0524 pass True Lmax 6.631
+Traceback (most recent call last):
+  File "replay_wp0a.py", line 249, in <module>
+    main()
+  File "replay_wp0a.py", line 238, in main
+    f, ev = optimise(m, interior + extra)
+  File "replay_wp0a.py", line 163, in optimise
+    best_x, (best_f, best_ev) = np.zeros(n), objective(np.zeros(n))
+  File "replay_wp0a.py", line 158, in objective
+    if k == 'sym' and not sym_faces_ok(mesh, v): return 1e9, None
+  File "replay_wp0a.py", line 139, in sym_faces_ok
+    if np.cross(b - a, c - a) @ SYM_N * mesh.sym_sign[f] <= 0: return False
+KeyError: (1, 0, 13663)
+
+real	7m37,753s
+user	7m26,064s
+sys	0m0,372s

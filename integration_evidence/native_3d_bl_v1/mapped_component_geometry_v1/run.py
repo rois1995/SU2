@@ -9,6 +9,7 @@ replay.sha=functools.lru_cache(maxsize=None)(replay.sha)
 FILTERS={
  'publication':'[NativeMappedPublication3D]',
  'components':'[NativeMappedComponent3D]',
+ 'domains':'Mapped components release*,Mapped finite components*,Exact ideal finite-component*',
  'reader':'[NativeMappedReader3D]',
  'realized':'[NativeMappedRealized3D]',
  'runtime':'[NativeMappedRuntime3D]',

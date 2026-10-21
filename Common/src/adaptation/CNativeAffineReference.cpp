@@ -263,7 +263,7 @@ MappedFacetReference::MappedFacetReference(std::shared_ptr<const SU2Native3D::Pl
   edges.reserve(incident.size());edge_facets.reserve(incident.size());
   for(auto& row:incident){edges.push_back(row.first);edge_facets.push_back(std::move(row.second));}
   if(reference_components) {
-    auto data=std::make_shared<ComponentData>();
+    auto data=std::make_shared<ComponentData>();size_t prepared=bound;
     for(const auto& row:reference->Facets())data->entries[reference->Canonical(row.first)].facets.push_back(row.first);
     for(auto& row:data->entries) {
       auto& c=row.second;const auto& root=reference->Get(row.first);std::map<Edge,std::vector<Edge>> uses;
@@ -302,16 +302,27 @@ MappedFacetReference::MappedFacetReference(std::shared_ptr<const SU2Native3D::Pl
         do{if(!visited.insert(walk).second)throw std::invalid_argument("Mapped component loops intersect.");walk=next.at(walk);}while(walk!=v);
       }
       c.convex=c.convex && loops==1;
-      std::vector<su2double> coordinates;std::vector<unsigned long> connectivity,ids;
-      for(Id id:c.facets) {
-        const auto& f=reference->Get(id);auto low=ComponentFlat(f.v[0].p,c.axis),high=low;
-        for(auto n:f.v){const auto p=ComponentFlat(n.p,c.axis);low.x=std::min(low.x,p.x);low.y=std::min(low.y,p.y);high.x=std::max(high.x,p.x);high.y=std::max(high.y,p.y);}
-        coordinates.insert(coordinates.end(),{low.x,low.y,high.x,high.y});connectivity.push_back(connectivity.size());connectivity.push_back(connectivity.size());ids.push_back(ids.size());
+      // Small certified components need no per-component tree or fixed ADT workspace.
+      if(c.facets.size()>16) {
+        const auto count=c.facets.size();size_t retained=0,peak=0;
+        CADTElemClass::PredictBytes(2,2*count,count,2*count,&retained,&peak);
+        const auto workspace=transfer_memory::Mul(2*std::max<size_t>(200,count+1),sizeof(CBBoxTargetClass)+2*sizeof(unsigned long));
+        const auto results=transfer_memory::Mul(count,3*sizeof(Id));
+        const auto requested=transfer_memory::Add(prepared,std::max(retained,peak),workspace,results);
+        if(requested==SIZE_MAX||requested>ceiling)throw std::length_error("Mapped component index exceeds storage admission.");
+        prepared=transfer_memory::Add(prepared,retained,workspace,results);
+        std::vector<su2double> coordinates;std::vector<unsigned long> connectivity,ids;
+        for(Id id:c.facets) {
+          const auto& f=reference->Get(id);auto low=ComponentFlat(f.v[0].p,c.axis),high=low;
+          for(auto n:f.v){const auto p=ComponentFlat(n.p,c.axis);low.x=std::min(low.x,p.x);low.y=std::min(low.y,p.y);high.x=std::max(high.x,p.x);high.y=std::max(high.y,p.y);}
+          coordinates.insert(coordinates.end(),{low.x,low.y,high.x,high.y});connectivity.push_back(connectivity.size());connectivity.push_back(connectivity.size());ids.push_back(ids.size());
+        }
+        std::vector<unsigned short> types(ids.size(),LINE),markers(ids.size(),0);
+        c.search=std::make_shared<CADTElemClass>(2,coordinates,connectivity,types,markers,ids,false);
       }
-      std::vector<unsigned short> types(ids.size(),LINE),markers(ids.size(),0);
-      c.search=std::make_shared<CADTElemClass>(2,coordinates,connectivity,types,markers,ids,false);
     }
     components=std::move(data);
+    if(ResidentBytes()>prepared)throw std::length_error("Mapped component storage model exhausted before publication.");
   }
 }
 Id MappedFacetReference::Canonical(Id id)const {reference->Get(id);return components?reference->Canonical(id):id;}
@@ -322,7 +333,7 @@ const std::vector<Id>& MappedFacetReference::ComponentFacets(Id id)const {
 const std::vector<SU2Native3D::Edge>& MappedFacetReference::ComponentBorder(Id id)const {return components->entries.at(Canonical(id)).border;}
 unsigned MappedFacetReference::ComponentAxis(Id id)const {return components->entries.at(Canonical(id)).axis;}
 std::vector<Id> MappedFacetReference::CandidateFacets(Id id,Point p)const {
-  Finite(p);const auto& c=components->entries.at(Canonical(id));const auto q=ComponentFlat(p,c.axis);
+  Finite(p);const auto& c=components->entries.at(Canonical(id));if(!c.search)return c.facets;const auto q=ComponentFlat(p,c.axis);
   std::vector<unsigned long> found;const su2double x[2]={q.x,q.y};c.search->DetermineIntersectingElements(x,x,found);
   std::vector<Id> result;result.reserve(found.size());for(auto index:found)result.push_back(c.facets.at(index));std::sort(result.begin(),result.end());return result;
 }
@@ -494,7 +505,7 @@ size_t MappedFacetReference::ResidentBytes()const {
   for(const auto& row:edge_facets)out=transfer_memory::Add(out,transfer_memory::Bytes(row));
   if(components){out=transfer_memory::Add(out,sizeof(ComponentData),bytes(components->entries));
     for(const auto& row:components->entries){const auto& c=row.second;out=transfer_memory::Add(out,transfer_memory::Bytes(c.facets),transfer_memory::Bytes(c.border),
-        transfer_memory::Bytes(c.corners),bytes(c.features),c.search->GetAllocatedBytes(),c.search->RetainedWorkspaceBound(1),transfer_memory::Mul(c.facets.size(),sizeof(Id)));}}
+        transfer_memory::Bytes(c.corners),bytes(c.features),c.search?c.search->GetAllocatedBytes():0,c.search?c.search->RetainedWorkspaceBound(1):0,transfer_memory::Mul(c.facets.size(),3*sizeof(Id)));}}
   return out;
 }
 bool MappedFacetReference::ValidateSurface(const std::vector<SU2Native3D::SurfaceFace>& surface,

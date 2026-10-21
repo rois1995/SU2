@@ -1,0 +1,27 @@
+{
+ "purpose": "ROBUST_JUNCTION_PLAN rev4 WP-0(a): approximate Python joint replay of the saved oblique-annulus joint candidate; no C++ edited, no build",
+ "inputs": {
+  "../../mapped_component_geometry_v1/annulus_n1/affine_annulus_bl_budget_20_m1_rejected_rank0_trial_after.json": "f6538443df92288afa3d0d3cadeeeaa0784c7a340a531d6c114e4df33dc06451",
+  "../../mapped_component_geometry_v1/annulus_n1/affine_annulus_bl_budget_20_m1_rejected_rank0_trial_before.json": "aeac08a7fe8e647e87133e8dc29352a7c4932e911ed30b774357a34dc463553b",
+  "../../mapped_component_geometry_v1/annulus_n1/affine_annulus_bl_budget_20_m1_rejected_rank0.json": "4aa55705539b3728dc2d8f9dd08fdb4be212dbdf0143705adc0350af77682601",
+  "../../mapped_component_geometry_v1/annulus_n1/affine_annulus_bl_budget_20_m1_frozen_profile.json": "de5c074d0212ffe2f746600d3c0e20f4876f23060e1473364d2517003ea40a16",
+  "../../mapped_component_geometry_v1/annulus_n1/affine_annulus_bl_budget_20_m1.cfg": "153909691d288bf917b68909b340ce91bef2ad0530261aa936a0c37432174a4c"
+ },
+ "files": {
+  "progress_attempt1_failed.log": "696dc4cc95508b6ef1805d9d1fa23e8006929514f6c13742e82bee9f0d76ccb3",
+  "progress_result.json": "f94a384a3b835c448e9e4e3aaf2f618ef49ac4aa84607228ab32b83998cec761",
+  "progress_run.log": "563b785d623008aac98a78177e4b1950e1151f6d56a113cd71a43128509751e1",
+  "progress_wp0a.py": "1397d19fa0a919edf11ec44b1c44dc8383ffa99e7cb74e4273cf629cc951bdf8",
+  "replay_wp0a.py": "86534abcd22ecd62e319cd2ddb189f87882af57927dfd9437018853aa6bc2718",
+  "result.json": "830dd839cc905be500e0245f1d3ea93606561e87ebb6446c8608318b765ee584",
+  "run.log": "9a78e577c560ddf2dc6502e672906bab928db272ef28349c5b4866977029a732",
+  "run_attempt1_failed.log": "29a1c9743806b1bc0d2a32372f2e5ad985e3c3f2053e6433515874b331ce9a22"
+ },
+ "python": "3.8.10",
+ "run": "nice -n 19, single thread (OMP/OPENBLAS=1); load checked <=6 before each run; foreign jobs untouched",
+ "failed_attempts_preserved": [
+  "run_attempt1_failed.log (KeyError: swapped symmetry faces lacked orientation sign; fixed)",
+  "progress_attempt1_failed.log (numpy bool JSON serialisation; fixed)"
+ ],
+ "limits": "metric re-implemented from documented BL rule; validated bitwise on recorded cell 16825 only; edge lengths by 16-pt Gauss (fade kink not resolved); local search = witness or best found, not optimum/impossibility"
+}
