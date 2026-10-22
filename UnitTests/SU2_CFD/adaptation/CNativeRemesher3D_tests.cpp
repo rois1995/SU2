@@ -611,3 +611,5 @@ TEST_CASE("Native first-row transactions replay original fields without solver i
 #include "fixtures/native_wpe_dc6.inc"
 
 #include "fixtures/native_d2_production.inc"
+
+#include "fixtures/native_first_row_dc7.inc"

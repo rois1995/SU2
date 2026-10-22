@@ -1,0 +1,12 @@
+Read-only review. Do not edit files, do not build, do not run binaries. Worktree /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated (branch codex/native-3d-bl).
+
+Review the TEST-ONLY C++ harness UnitTests/SU2_CFD/adaptation/fixtures/native_first_row_dc7.inc (included at the end of UnitTests/SU2_CFD/adaptation/CNativeRemesher3D_tests.cpp; it reuses namespaces layer2d from fixtures/native_layer_2dway.inc and junction_wp0 from fixtures/native_junction_replay.inc) against the design BL_FIRST_ROW_DESIGN.md rev 2.1 (sections 4.0-4.6 and the overrides in section 8) and the evidence it produced in integration_evidence/native_3d_bl_v1/bl_remesh_v1/dc7/ (runs/*.json, runs/*.log, dc7_m6_prepare.py, m6_cuts/prepare.json, m6_field/field.json).
+
+The harness implements: phase W (SplitEdge of wall/seam/junction edges to the composed surface target), R1 clearance conditioning (Reconnect / MoveVertex / Steiner cone candidates, strict local deficit decrease), R2 closed row transactions T(V) (closure over moved vertices and touched apex stars, moved non-column cells, columns coned from an apex chosen from the exact 4-variable LP over (l1,l2,eta,slack), L-C carrier check by oriented boundary loops + FindFace, ValidatePrescribedInterface, CheckFirstHeight per rebuilt face, absolute first-child q/J), closure growth in canonical face order, and phase V with existing operators where every cavity containing a column cell (star of an apex) is refused.
+
+Questions, answer each with file:line evidence:
+1. Correctness bugs that would make a reported number wrong (LP formulation and sign convention via Sigma(), column skin orientation and diagonal rule, the moved-cell replacement, lateral carrier-marker assignment, L-C boundary comparison, the per-face height/first-child check, R1 deficit before/after evaluation, census).
+2. Any place where an admission is weaker than stated: U1 (first children q>=.20, J>=.05, |h-h0|/h0<=.10 on every rebuilt face; layer cells positivity only), unchanged final gates (layer2d::FinalGates), 64/128 caps, 8192 work / 120 s limits for V.
+3. Any case-specific dispatch or fixture-only shortcut (the user forbids scenario switches; constraints must be geometric/metric).
+4. Whether the evidence supports the reported per-case verdicts, and what the binding failure class is.
+Return a concise list of findings ordered by severity (blocker/major/minor) with a one-line fix each. No praise, no restating.

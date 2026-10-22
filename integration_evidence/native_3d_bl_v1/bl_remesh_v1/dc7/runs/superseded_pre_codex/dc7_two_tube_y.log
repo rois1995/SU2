@@ -1,0 +1,643 @@
+DC7 W sweep 0 wall_faces=128 long_wall_edges=168 work=0
+DC7 W sweep 1 wall_faces=432 long_wall_edges=104 work=168
+DC7 W sweep 2 wall_faces=632 long_wall_edges=0 work=272
+DC7 R1 deficient 96 -> 47 accepted=92
+DC7 R2 tx v=105 |V|=1 ok=0 old=6 fresh=0 cls=partial-state face 105,691,811: A_f empty (exact LP) with 4 skin faces; lifted: v105(H_n/h0=1.3,tangential/inradius=2.75453); inradius/h0=0.494853; free-height LP slack=0.301672
+DC7 R2 tx v=105 |V|=3 ok=0 old=9 fresh=0 cls=partial-state face 105,742,748: A_f empty (exact LP) with 4 skin faces; lifted: v105(H_n/h0=1.3,tangential/inradius=3.20755); inradius/h0=0.424963; free-height LP slack=0.242604
+DC7 R2 tx v=105 |V|=5 ok=0 old=16 fresh=0 cls=partial-state face 106,579,742: A_f empty (exact LP) with 4 skin faces; lifted: v742(H_n/h0=1.3,tangential/inradius=1.92387); inradius/h0=0.67572; free-height LP slack=0.375654
+DC7 R2 tx v=105 |V|=7 ok=0 old=33 fresh=0 cls=partial-state face 106,107,637: A_f empty (exact LP) with 4 skin faces; lifted: v106(H_n/h0=1.3,tangential/inradius=1.52955); inradius/h0=0.849925; free-height LP slack=0.411048
+DC7 R2 tx v=105 |V|=9 ok=0 old=51 fresh=0 cls=partial-state face 106,107,651: A_f empty (exact LP) with 6 skin faces; lifted: v106(H_n/h0=1.3,tangential/inradius=1.46759) v107(H_n/h0=1.3,tangential/inradius=1.46759); inradius/h0=0.885807; free-height LP slack=0.445657
+DC7 R2 tx v=105 |V|=10 ok=0 old=54 fresh=0 cls=clearance moved cell 2708 inverts; |V|=10 moved in cell: v651(delta/deltaK=0.9,kernel cell 2709,rank 0,d=(-0.953717,0.300706,8.91909e-16),s*=1) v107(delta/deltaK=0.418955,kernel cell 252,rank 0,d=(-0.67438,0.212631,-0.707107),s*=0.707107); cell: 101(0.478825,0.25,0.4) 651W(0.718237,0.375,0.5) 107W(0.757649,0.5,0.4) 707W(0.757649,0.5,0.5)
+DC7 R2 tx v=105 |V|=11 ok=0 old=56 fresh=0 cls=partial-state face 106,625,697: A_f empty (exact LP) with 4 skin faces; lifted: v106(H_n/h0=1.3,tangential/inradius=1.96352); inradius/h0=0.662076; free-height LP slack=0.362118
+DC7 R2 tx v=105 |V|=13 ok=0 old=59 fresh=0 cls=partial-state face 107,108,819: A_f empty (exact LP) with 4 skin faces; lifted: v107(H_n/h0=1.3,tangential/inradius=2.71483); inradius/h0=0.478851; free-height LP slack=0.259399
+DC7 R2 tx v=105 |V|=15 ok=0 old=76 fresh=0 cls=cap cap-bound closure: 76 old cells
+DC7 R2 tx v=106 |V|=1 ok=0 old=18 fresh=0 cls=partial-state face 106,107,637: A_f empty (exact LP) with 4 skin faces; lifted: v106(H_n/h0=1.3,tangential/inradius=1.52955); inradius/h0=0.849925; free-height LP slack=0.411048
+DC7 R2 tx v=106 |V|=3 ok=0 old=36 fresh=0 cls=partial-state face 106,107,651: A_f empty (exact LP) with 6 skin faces; lifted: v106(H_n/h0=1.3,tangential/inradius=1.46759) v107(H_n/h0=1.3,tangential/inradius=1.46759); inradius/h0=0.885807; free-height LP slack=0.445657
+DC7 R2 tx v=106 |V|=4 ok=0 old=39 fresh=0 cls=clearance moved cell 2708 inverts; |V|=4 moved in cell: v651(delta/deltaK=0.9,kernel cell 2709,rank 0,d=(-0.953717,0.300706,8.91909e-16),s*=1) v107(delta/deltaK=0.418955,kernel cell 252,rank 0,d=(-0.67438,0.212631,-0.707107),s*=0.707107); cell: 101(0.478825,0.25,0.4) 651W(0.718237,0.375,0.5) 107W(0.757649,0.5,0.4) 707W(0.757649,0.5,0.5)
+DC7 R2 tx v=106 |V|=5 ok=0 old=41 fresh=0 cls=partial-state face 106,579,658: A_f empty (exact LP) with 4 skin faces; lifted: v106(H_n/h0=1.3,tangential/inradius=1.92387); inradius/h0=0.67572; free-height LP slack=0.369176
+DC7 R2 tx v=106 |V|=7 ok=0 old=47 fresh=0 cls=partial-state face 106,625,697: A_f empty (exact LP) with 4 skin faces; lifted: v106(H_n/h0=1.3,tangential/inradius=1.96352); inradius/h0=0.662076; free-height LP slack=0.362118
+DC7 R2 tx v=106 |V|=9 ok=0 old=53 fresh=0 cls=partial-state face 107,108,819: A_f empty (exact LP) with 4 skin faces; lifted: v107(H_n/h0=1.3,tangential/inradius=2.71483); inradius/h0=0.478851; free-height LP slack=0.259399
+DC7 R2 tx v=106 |V|=11 ok=0 old=70 fresh=0 cls=cap cap-bound closure: 70 old cells
+DC7 R2 tx v=107 |V|=1 ok=0 old=19 fresh=0 cls=partial-state face 106,107,637: A_f empty (exact LP) with 4 skin faces; lifted: v107(H_n/h0=1.3,tangential/inradius=1.52955); inradius/h0=0.849925; free-height LP slack=0.412296
+DC7 R2 tx v=107 |V|=3 ok=0 old=36 fresh=0 cls=partial-state face 106,107,651: A_f empty (exact LP) with 6 skin faces; lifted: v106(H_n/h0=1.3,tangential/inradius=1.46759) v107(H_n/h0=1.3,tangential/inradius=1.46759); inradius/h0=0.885807; free-height LP slack=0.445657
+DC7 R2 tx v=107 |V|=4 ok=0 old=39 fresh=0 cls=clearance moved cell 2708 inverts; |V|=4 moved in cell: v651(delta/deltaK=0.9,kernel cell 2709,rank 0,d=(-0.953717,0.300706,8.91909e-16),s*=1) v107(delta/deltaK=0.418955,kernel cell 252,rank 0,d=(-0.67438,0.212631,-0.707107),s*=0.707107); cell: 101(0.478825,0.25,0.4) 651W(0.718237,0.375,0.5) 107W(0.757649,0.5,0.4) 707W(0.757649,0.5,0.5)
+DC7 R2 tx v=107 |V|=5 ok=0 old=41 fresh=0 cls=partial-state face 106,579,658: A_f empty (exact LP) with 4 skin faces; lifted: v106(H_n/h0=1.3,tangential/inradius=1.92387); inradius/h0=0.67572; free-height LP slack=0.369176
+DC7 R2 tx v=107 |V|=7 ok=0 old=47 fresh=0 cls=partial-state face 106,625,697: A_f empty (exact LP) with 4 skin faces; lifted: v106(H_n/h0=1.3,tangential/inradius=1.96352); inradius/h0=0.662076; free-height LP slack=0.362118
+DC7 R2 tx v=107 |V|=9 ok=0 old=53 fresh=0 cls=partial-state face 107,108,819: A_f empty (exact LP) with 4 skin faces; lifted: v107(H_n/h0=1.3,tangential/inradius=2.71483); inradius/h0=0.478851; free-height LP slack=0.259399
+DC7 R2 tx v=107 |V|=11 ok=0 old=70 fresh=0 cls=cap cap-bound closure: 70 old cells
+DC7 R2 tx v=108 |V|=1 ok=0 old=19 fresh=0 cls=partial-state face 107,108,819: A_f empty (exact LP) with 4 skin faces; lifted: v108(H_n/h0=1.3,tangential/inradius=2.71483); inradius/h0=0.478851; free-height LP slack=0.262169
+DC7 R2 tx v=108 |V|=3 ok=0 old=36 fresh=0 cls=partial-state face 106,107,637: A_f empty (exact LP) with 4 skin faces; lifted: v107(H_n/h0=1.3,tangential/inradius=1.52955); inradius/h0=0.849925; free-height LP slack=0.412296
+DC7 R2 tx v=108 |V|=5 ok=0 old=53 fresh=0 cls=partial-state face 106,107,651: A_f empty (exact LP) with 6 skin faces; lifted: v106(H_n/h0=1.3,tangential/inradius=1.46759) v107(H_n/h0=1.3,tangential/inradius=1.46759); inradius/h0=0.885807; free-height LP slack=0.445657
+DC7 R2 tx v=108 |V|=6 ok=0 old=56 fresh=0 cls=clearance moved cell 2708 inverts; |V|=6 moved in cell: v651(delta/deltaK=0.9,kernel cell 2709,rank 0,d=(-0.953717,0.300706,8.91909e-16),s*=1) v107(delta/deltaK=0.418955,kernel cell 252,rank 0,d=(-0.67438,0.212631,-0.707107),s*=0.707107); cell: 101(0.478825,0.25,0.4) 651W(0.718237,0.375,0.5) 107W(0.757649,0.5,0.4) 707W(0.757649,0.5,0.5)
+DC7 R2 tx v=108 |V|=7 ok=0 old=58 fresh=0 cls=partial-state face 106,579,658: A_f empty (exact LP) with 4 skin faces; lifted: v106(H_n/h0=1.3,tangential/inradius=1.92387); inradius/h0=0.67572; free-height LP slack=0.369176
+DC7 R2 tx v=108 |V|=9 ok=0 old=64 fresh=0 cls=partial-state face 106,625,697: A_f empty (exact LP) with 4 skin faces; lifted: v106(H_n/h0=1.3,tangential/inradius=1.96352); inradius/h0=0.662076; free-height LP slack=0.362118
+DC7 R2 tx v=108 |V|=11 ok=0 old=70 fresh=0 cls=cap cap-bound closure: 70 old cells
+DC7 R2 tx v=109 |V|=1 ok=0 old=12 fresh=0 cls=partial-state face 109,689,766: A_f empty (exact LP) with 4 skin faces; lifted: v109(H_n/h0=1.3,tangential/inradius=2.86878); inradius/h0=0.475145; free-height LP slack=0.301795
+DC7 R2 tx v=109 |V|=3 ok=0 old=18 fresh=0 cls=partial-state face 109,705,755: A_f empty (exact LP) with 4 skin faces; lifted: v109(H_n/h0=1.3,tangential/inradius=2.75453); inradius/h0=0.494853; free-height LP slack=0.308396
+DC7 R2 tx v=109 |V|=5 ok=0 old=24 fresh=92 cls=topology Native 3D cavity link has a nonmanifold edge.
+DC7 R2 tx v=110 |V|=1 ok=1 old=5 fresh=21 cls= 
+DC7 R2 tx v=111 |V|=1 ok=1 old=23 fresh=55 cls= 
+DC7 R2 tx v=112 |V|=1 ok=1 old=22 fresh=50 cls= 
+DC7 R2 tx v=113 |V|=1 ok=1 old=22 fresh=50 cls= 
+DC7 R2 tx v=114 |V|=1 ok=1 old=9 fresh=25 cls= 
+DC7 R2 tx v=115 |V|=1 ok=0 old=12 fresh=0 cls=partial-state face 115,590,781: A_f empty (exact LP) with 4 skin faces; lifted: v115(H_n/h0=1.3,tangential/inradius=3.42797); inradius/h0=0.397637; free-height LP slack=0.230524
+DC7 R2 tx v=115 |V|=3 ok=0 old=26 fresh=0 cls=clearance moved cell 3316 inverts; |V|=3 moved in cell: v590(delta/deltaK=1.1,kernel cell 3316,rank 0,d=(0,0,-1),s*=1) v115(delta/deltaK=0.665772,kernel cell 5366,rank 1,d=(0.723655,0,-0.690162),s*=0.690162); cell: 40(0.8,0,0.2) 590W(0.939412,0.125,0.4) 115W(1,0,0.4) 828W(0.989412,0.125,0.4)
+DC7 R2 tx v=115 |V|=4 ok=0 old=27 fresh=0 cls=clearance moved cell 3317 inverts; |V|=4 moved in cell: v828(delta/deltaK=1.65,kernel cell 3319,rank 0,d=(0,0,-1),s*=1) v115(delta/deltaK=0.665772,kernel cell 5366,rank 1,d=(0.723655,0,-0.690162),s*=0.690162); cell: 40(0.8,0,0.2) 828W(0.989412,0.125,0.4) 115W(1,0,0.4) 736W(1.03941,0.125,0.4)
+DC7 R2 tx v=115 |V|=5 ok=0 old=34 fresh=0 cls=partial-state face 115,667,810: A_f empty (exact LP) with 4 skin faces; lifted: v115(H_n/h0=1.3,tangential/inradius=2.75453); inradius/h0=0.494853; free-height LP slack=0.308396
+DC7 R2 tx v=115 |V|=7 ok=0 old=37 fresh=0 cls=partial-state face 116,736,775: A_f empty (exact LP) with 4 skin faces; lifted: v736(H_n/h0=1.3,tangential/inradius=3.05909); inradius/h0=0.424963; free-height LP slack=0.244865
+DC7 R2 tx v=115 |V|=9 ok=0 old=55 fresh=0 cls=partial-state face 116,117,636: A_f empty (exact LP) with 4 skin faces; lifted: v116(H_n/h0=1.3,tangential/inradius=1.52955); inradius/h0=0.849925; free-height LP slack=0.412296
+DC7 R2 tx v=115 |V|=11 ok=0 old=92 fresh=0 cls=cap cap-bound closure: 92 old cells
+DC7 R2 tx v=116 |V|=1 ok=0 old=23 fresh=0 cls=partial-state face 116,117,636: A_f empty (exact LP) with 4 skin faces; lifted: v116(H_n/h0=1.3,tangential/inradius=1.52955); inradius/h0=0.849925; free-height LP slack=0.412296
+DC7 R2 tx v=116 |V|=3 ok=0 old=60 fresh=0 cls=partial-state face 116,117,831: A_f empty (exact LP) with 6 skin faces; lifted: v117(H_n/h0=1.3,tangential/inradius=2.71483) v116(H_n/h0=1.3,tangential/inradius=2.71483); inradius/h0=0.478851; free-height LP slack=0.26783
+DC7 R2 tx v=116 |V|=4 ok=0 old=61 fresh=0 cls=partial-state face 116,647,775: A_f empty (exact LP) with 4 skin faces; lifted: v116(H_n/h0=1.3,tangential/inradius=2.73601); inradius/h0=0.475145; free-height LP slack=0.2957
+DC7 R2 tx v=116 |V|=6 ok=0 old=70 fresh=0 cls=cap cap-bound closure: 70 old cells
+DC7 R2 tx v=117 |V|=1 ok=0 old=24 fresh=0 cls=partial-state face 116,117,636: A_f empty (exact LP) with 4 skin faces; lifted: v117(H_n/h0=1.3,tangential/inradius=1.52955); inradius/h0=0.849925; free-height LP slack=0.411048
+DC7 R2 tx v=117 |V|=3 ok=0 old=60 fresh=0 cls=partial-state face 116,117,831: A_f empty (exact LP) with 6 skin faces; lifted: v117(H_n/h0=1.3,tangential/inradius=2.71483) v116(H_n/h0=1.3,tangential/inradius=2.71483); inradius/h0=0.478851; free-height LP slack=0.26783
+DC7 R2 tx v=117 |V|=4 ok=0 old=61 fresh=0 cls=partial-state face 116,647,775: A_f empty (exact LP) with 4 skin faces; lifted: v116(H_n/h0=1.3,tangential/inradius=2.73601); inradius/h0=0.475145; free-height LP slack=0.2957
+DC7 R2 tx v=117 |V|=6 ok=0 old=70 fresh=0 cls=cap cap-bound closure: 70 old cells
+DC7 R2 tx v=118 |V|=1 ok=0 old=22 fresh=0 cls=partial-state face 117,118,805: A_f empty (exact LP) with 4 skin faces; lifted: v118(H_n/h0=1.23926,tangential/inradius=2.58798); inradius/h0=0.478851; free-height LP slack=0.258625
+DC7 R2 tx v=118 |V|=3 ok=0 old=43 fresh=0 cls=partial-state face 116,117,636: A_f empty (exact LP) with 4 skin faces; lifted: v117(H_n/h0=1.3,tangential/inradius=1.52955); inradius/h0=0.849925; free-height LP slack=0.411048
+DC7 R2 tx v=118 |V|=5 ok=0 old=79 fresh=0 cls=cap cap-bound closure: 79 old cells
+DC7 R2 tx v=119 |V|=1 ok=0 old=11 fresh=0 cls=partial-state face 119,664,743: A_f empty (exact LP) with 4 skin faces; lifted: v119(H_n/h0=1.3,tangential/inradius=2.86878); inradius/h0=0.475145; free-height LP slack=0.295666
+DC7 R2 tx v=119 |V|=3 ok=0 old=20 fresh=0 cls=partial-state face 119,675,751: A_f empty (exact LP) with 4 skin faces; lifted: v119(H_n/h0=1.3,tangential/inradius=2.75453); inradius/h0=0.494853; free-height LP slack=0.301672
+DC7 R2 tx v=119 |V|=5 ok=0 old=24 fresh=0 cls=clearance moved cell 3172 inverts; |V|=5 moved in cell: v119(delta/deltaK=0.665772,kernel cell 5291,rank 1,d=(0.723655,0,-0.690162),s*=0.690162) v751(delta/deltaK=1.15338,kernel cell 3172,rank 0,d=(0.953717,-0.300706,1.78383e-15),s*=1); cell: 797W(1.29559,0.9375,0.4) 119W(1.3153,1,0.4) 751W(1.29559,0.9375,0.45) 163(1.5153,1,0.6)
+DC7 R2 tx v=119 |V|=6 ok=1 old=27 fresh=97 cls= 
+DC7 R2 tx v=150 |V|=1 ok=1 old=5 fresh=21 cls= 
+DC7 R2 tx v=151 |V|=1 ok=1 old=22 fresh=50 cls= 
+DC7 R2 tx v=152 |V|=1 ok=1 old=22 fresh=50 cls= 
+DC7 R2 tx v=153 |V|=1 ok=1 old=22 fresh=50 cls= 
+DC7 R2 tx v=154 |V|=1 ok=1 old=9 fresh=25 cls= 
+DC7 R2 tx v=155 |V|=1 ok=1 old=9 fresh=25 cls= 
+DC7 R2 tx v=158 |V|=1 ok=1 old=22 fresh=50 cls= 
+DC7 R2 tx v=160 |V|=1 ok=1 old=22 fresh=50 cls= 
+DC7 R2 tx v=162 |V|=1 ok=1 old=22 fresh=50 cls= 
+DC7 R2 tx v=164 |V|=1 ok=1 old=9 fresh=23 cls= 
+DC7 R2 tx v=190 |V|=1 ok=0 old=11 fresh=0 cls=partial-state face 190,672,800: A_f empty (exact LP) with 4 skin faces; lifted: v190(H_n/h0=1.3,tangential/inradius=2.75453); inradius/h0=0.494853; free-height LP slack=0.301672
+DC7 R2 tx v=190 |V|=3 ok=0 old=19 fresh=0 cls=partial-state face 190,737,749: A_f empty (exact LP) with 4 skin faces; lifted: v190(H_n/h0=1.3,tangential/inradius=3.20755); inradius/h0=0.424963; free-height LP slack=0.242604
+DC7 R2 tx v=190 |V|=5 ok=0 old=27 fresh=0 cls=partial-state face 191,586,737: A_f empty (exact LP) with 4 skin faces; lifted: v737(H_n/h0=1.3,tangential/inradius=1.92387); inradius/h0=0.67572; free-height LP slack=0.375654
+DC7 R2 tx v=190 |V|=7 ok=0 old=47 fresh=0 cls=partial-state face 191,192,646: A_f empty (exact LP) with 4 skin faces; lifted: v191(H_n/h0=1.3,tangential/inradius=1.52955); inradius/h0=0.849925; free-height LP slack=0.411048
+DC7 R2 tx v=190 |V|=9 ok=0 old=70 fresh=0 cls=cap cap-bound closure: 70 old cells
+DC7 R2 tx v=191 |V|=1 ok=0 old=22 fresh=0 cls=partial-state face 191,192,646: A_f empty (exact LP) with 4 skin faces; lifted: v191(H_n/h0=1.3,tangential/inradius=1.52955); inradius/h0=0.849925; free-height LP slack=0.411048
+DC7 R2 tx v=191 |V|=3 ok=0 old=45 fresh=0 cls=partial-state face 191,192,840: A_f empty (exact LP) with 6 skin faces; lifted: v192(H_n/h0=1.3,tangential/inradius=2.71483) v191(H_n/h0=1.3,tangential/inradius=2.71483); inradius/h0=0.478851; free-height LP slack=0.26783
+DC7 R2 tx v=191 |V|=4 ok=0 old=46 fresh=0 cls=partial-state face 191,586,655: A_f empty (exact LP) with 4 skin faces; lifted: v191(H_n/h0=1.3,tangential/inradius=1.92387); inradius/h0=0.67572; free-height LP slack=0.369176
+DC7 R2 tx v=191 |V|=6 ok=0 old=52 fresh=0 cls=partial-state face 191,642,678: A_f empty (exact LP) with 4 skin faces; lifted: v191(H_n/h0=1.3,tangential/inradius=1.96352); inradius/h0=0.662076; free-height LP slack=0.362118
+DC7 R2 tx v=191 |V|=8 ok=0 old=77 fresh=0 cls=cap cap-bound closure: 77 old cells
+DC7 R2 tx v=192 |V|=1 ok=0 old=24 fresh=0 cls=partial-state face 191,192,646: A_f empty (exact LP) with 4 skin faces; lifted: v192(H_n/h0=1.3,tangential/inradius=1.52955); inradius/h0=0.849925; free-height LP slack=0.412296
+DC7 R2 tx v=192 |V|=3 ok=0 old=45 fresh=0 cls=partial-state face 191,192,840: A_f empty (exact LP) with 6 skin faces; lifted: v192(H_n/h0=1.3,tangential/inradius=2.71483) v191(H_n/h0=1.3,tangential/inradius=2.71483); inradius/h0=0.478851; free-height LP slack=0.26783
+DC7 R2 tx v=192 |V|=4 ok=0 old=46 fresh=0 cls=partial-state face 191,586,655: A_f empty (exact LP) with 4 skin faces; lifted: v191(H_n/h0=1.3,tangential/inradius=1.92387); inradius/h0=0.67572; free-height LP slack=0.369176
+DC7 R2 tx v=192 |V|=6 ok=0 old=52 fresh=0 cls=partial-state face 191,642,678: A_f empty (exact LP) with 4 skin faces; lifted: v191(H_n/h0=1.3,tangential/inradius=1.96352); inradius/h0=0.662076; free-height LP slack=0.362118
+DC7 R2 tx v=192 |V|=8 ok=0 old=77 fresh=0 cls=cap cap-bound closure: 77 old cells
+DC7 R2 tx v=193 |V|=1 ok=0 old=23 fresh=0 cls=partial-state face 192,193,818: A_f empty (exact LP) with 4 skin faces; lifted: v193(H_n/h0=1.3,tangential/inradius=2.71483); inradius/h0=0.478851; free-height LP slack=0.259399
+DC7 R2 tx v=193 |V|=3 ok=0 old=46 fresh=0 cls=partial-state face 191,192,646: A_f empty (exact LP) with 4 skin faces; lifted: v192(H_n/h0=1.3,tangential/inradius=1.52955); inradius/h0=0.849925; free-height LP slack=0.412296
+DC7 R2 tx v=193 |V|=5 ok=0 old=67 fresh=0 cls=cap cap-bound closure: 67 old cells
+DC7 R2 tx v=194 |V|=1 ok=0 old=11 fresh=0 cls=partial-state face 194,666,763: A_f empty (exact LP) with 4 skin faces; lifted: v194(H_n/h0=1.3,tangential/inradius=2.86878); inradius/h0=0.475145; free-height LP slack=0.301795
+DC7 R2 tx v=194 |V|=3 ok=0 old=16 fresh=0 cls=clearance moved cell 3152 inverts; |V|=3 moved in cell: v194(delta/deltaK=0.665772,kernel cell 743,rank 1,d=(-0.723655,0,0.690162),s*=0.690162) v763(delta/deltaK=1.1,kernel cell 3152,rank 0,d=(0,0,1),s*=1); cell: 194W(0.915299,1,0.8) 795W(0.895593,0.9375,0.8) 763W(0.945593,0.9375,0.8) 243(1.1153,1,1)
+DC7 R2 tx v=194 |V|=4 ok=0 old=20 fresh=0 cls=partial-state face 194,673,753: A_f empty (exact LP) with 4 skin faces; lifted: v194(H_n/h0=1.3,tangential/inradius=2.75453); inradius/h0=0.494853; free-height LP slack=0.308396
+DC7 R2 tx v=194 |V|=6 ok=1 old=29 fresh=107 cls= 
+DC7 R2 tx v=195 |V|=1 ok=0 old=13 fresh=0 cls=partial-state face 195,588,784: A_f empty (exact LP) with 4 skin faces; lifted: v195(H_n/h0=1.3,tangential/inradius=3.42797); inradius/h0=0.397637; free-height LP slack=0.230524
+DC7 R2 tx v=195 |V|=3 ok=0 old=20 fresh=0 cls=clearance moved cell 4999 inverts; |V|=3 moved in cell: v784(delta/deltaK=0.729,kernel cell 4997,rank 1,d=(0,0,1),s*=1) v588(delta/deltaK=0.9,kernel cell 5003,rank 0,d=(0,0,1),s*=1); cell: 606W(0.9,0,0.8) 784W(0.95,0,0.8) 588W(0.939412,0.125,0.8) 884(1.07882,0.25,1.066)
+DC7 R2 tx v=195 |V|=4 ok=0 old=22 fresh=0 cls=partial-state face 195,694,808: A_f empty (exact LP) with 4 skin faces; lifted: v195(H_n/h0=1.3,tangential/inradius=2.75453); inradius/h0=0.494853; free-height LP slack=0.308396
+DC7 R2 tx v=195 |V|=6 ok=0 old=31 fresh=0 cls=partial-state face 195,740,829: A_f empty (exact LP) with 4 skin faces; lifted: v195(H_n/h0=1.3,tangential/inradius=3.34244); inradius/h0=0.407812; free-height LP slack=0.242834
+DC7 R2 tx v=195 |V|=8 ok=0 old=36 fresh=0 cls=partial-state face 198,633,740: A_f empty (exact LP) with 4 skin faces; lifted: v740(H_n/h0=1.3,tangential/inradius=1.96352); inradius/h0=0.662076; free-height LP slack=0.368479
+DC7 R2 tx v=195 |V|=10 ok=0 old=62 fresh=0 cls=partial-state face 198,200,628: A_f empty (exact LP) with 4 skin faces; lifted: v198(H_n/h0=1.3,tangential/inradius=1.52955); inradius/h0=0.849925; free-height LP slack=0.412296
+DC7 R2 tx v=195 |V|=12 ok=0 old=81 fresh=0 cls=cap cap-bound closure: 81 old cells
+DC7 R2 tx v=198 |V|=1 ok=0 old=18 fresh=0 cls=partial-state face 198,200,628: A_f empty (exact LP) with 4 skin faces; lifted: v198(H_n/h0=1.3,tangential/inradius=1.52955); inradius/h0=0.849925; free-height LP slack=0.412296
+DC7 R2 tx v=198 |V|=3 ok=0 old=37 fresh=0 cls=partial-state face 198,200,654: A_f empty (exact LP) with 6 skin faces; lifted: v198(H_n/h0=1.3,tangential/inradius=1.46759) v200(H_n/h0=1.3,tangential/inradius=1.46759); inradius/h0=0.885807; free-height LP slack=0.445657
+DC7 R2 tx v=198 |V|=4 ok=0 old=54 fresh=0 cls=clearance moved cell 2671 inverts; |V|=4 moved in cell: v198(delta/deltaK=0.497139,kernel cell 2923,rank 0,d=(0.67438,-0.212631,0.707107),s*=0.707107) v654(delta/deltaK=0.9,kernel cell 2671,rank 0,d=(0.953717,-0.300706,-1.05884e-15),s*=1); cell: 198W(1.07882,0.25,0.8) 700W(1.07882,0.25,0.7) 654W(1.11824,0.375,0.7) 199(1.35765,0.5,0.8)
+DC7 R2 tx v=198 |V|=5 ok=0 old=60 fresh=0 cls=partial-state face 198,633,740: A_f empty (exact LP) with 4 skin faces; lifted: v198(H_n/h0=1.3,tangential/inradius=1.96352); inradius/h0=0.662076; free-height LP slack=0.389617
+DC7 R2 tx v=198 |V|=7 ok=0 old=79 fresh=0 cls=cap cap-bound closure: 79 old cells
+DC7 R2 tx v=200 |V|=1 ok=0 old=20 fresh=0 cls=partial-state face 198,200,628: A_f empty (exact LP) with 4 skin faces; lifted: v200(H_n/h0=1.3,tangential/inradius=1.52955); inradius/h0=0.849925; free-height LP slack=0.411048
+DC7 R2 tx v=200 |V|=3 ok=0 old=37 fresh=0 cls=partial-state face 198,200,654: A_f empty (exact LP) with 6 skin faces; lifted: v198(H_n/h0=1.3,tangential/inradius=1.46759) v200(H_n/h0=1.3,tangential/inradius=1.46759); inradius/h0=0.885807; free-height LP slack=0.445657
+DC7 R2 tx v=200 |V|=4 ok=0 old=54 fresh=0 cls=clearance moved cell 2671 inverts; |V|=4 moved in cell: v198(delta/deltaK=0.497139,kernel cell 2923,rank 0,d=(0.67438,-0.212631,0.707107),s*=0.707107) v654(delta/deltaK=0.9,kernel cell 2671,rank 0,d=(0.953717,-0.300706,-1.05884e-15),s*=1); cell: 198W(1.07882,0.25,0.8) 700W(1.07882,0.25,0.7) 654W(1.11824,0.375,0.7) 199(1.35765,0.5,0.8)
+DC7 R2 tx v=200 |V|=5 ok=0 old=60 fresh=0 cls=partial-state face 198,633,740: A_f empty (exact LP) with 4 skin faces; lifted: v198(H_n/h0=1.3,tangential/inradius=1.96352); inradius/h0=0.662076; free-height LP slack=0.389617
+DC7 R2 tx v=200 |V|=7 ok=0 old=79 fresh=0 cls=cap cap-bound closure: 79 old cells
+DC7 R2 tx v=202 |V|=1 ok=0 old=18 fresh=0 cls=partial-state face 200,202,813: A_f empty (exact LP) with 4 skin faces; lifted: v202(H_n/h0=1.3,tangential/inradius=2.82608); inradius/h0=0.460001; free-height LP slack=0.252875
+DC7 R2 tx v=202 |V|=3 ok=0 old=35 fresh=0 cls=partial-state face 198,200,628: A_f empty (exact LP) with 4 skin faces; lifted: v200(H_n/h0=1.3,tangential/inradius=1.52955); inradius/h0=0.849925; free-height LP slack=0.411048
+DC7 R2 tx v=202 |V|=5 ok=0 old=52 fresh=0 cls=partial-state face 198,200,654: A_f empty (exact LP) with 6 skin faces; lifted: v198(H_n/h0=1.3,tangential/inradius=1.46759) v200(H_n/h0=1.3,tangential/inradius=1.46759); inradius/h0=0.885807; free-height LP slack=0.445657
+DC7 R2 tx v=202 |V|=6 ok=0 old=69 fresh=0 cls=cap cap-bound closure: 69 old cells
+DC7 R2 tx v=204 |V|=1 ok=0 old=6 fresh=0 cls=partial-state face 204,669,745: A_f empty (exact LP) with 4 skin faces; lifted: v204(H_n/h0=1.3,tangential/inradius=2.86878); inradius/h0=0.475145; free-height LP slack=0.295666
+DC7 R2 tx v=204 |V|=3 ok=0 old=10 fresh=0 cls=partial-state face 204,696,758: A_f empty (exact LP) with 4 skin faces; lifted: v204(H_n/h0=1.3,tangential/inradius=2.75453); inradius/h0=0.494853; free-height LP slack=0.301672
+DC7 R2 tx v=204 |V|=5 ok=0 old=19 fresh=0 cls=clearance moved cell 3222 inverts; |V|=5 moved in cell: v758(delta/deltaK=0.9,kernel cell 3005,rank 0,d=(0.953717,-0.300706,0),s*=1) v204(delta/deltaK=0.340772,kernel cell 3218,rank 1,d=(0.723655,0,0.690162),s*=0.690162); cell: 804W(1.29559,0.9375,0.8) 758W(1.29559,0.9375,0.75) 204W(1.3153,1,0.8) 203(1.5153,1,0.8)
+DC7 R2 tx v=204 |V|=6 ok=1 old=21 fresh=95 cls= 
+DC7 R2 tx v=237 |V|=1 ok=1 old=9 fresh=25 cls= 
+DC7 R2 tx v=238 |V|=1 ok=1 old=23 fresh=55 cls= 
+DC7 R2 tx v=240 |V|=1 ok=1 old=22 fresh=50 cls= 
+DC7 R2 tx v=242 |V|=1 ok=1 old=22 fresh=50 cls= 
+DC7 R2 tx v=244 |V|=1 ok=1 old=13 fresh=25 cls= 
+DC7 R2 tx v=280 |V|=1 ok=0 old=6 fresh=0 cls=partial-state face 280,692,812: A_f empty (exact LP) with 4 skin faces; lifted: v280(H_n/h0=1.3,tangential/inradius=2.75453); inradius/h0=0.494853; free-height LP slack=0.301672
+DC7 R2 tx v=280 |V|=3 ok=0 old=9 fresh=0 cls=partial-state face 280,741,747: A_f empty (exact LP) with 4 skin faces; lifted: v280(H_n/h0=1.3,tangential/inradius=3.20755); inradius/h0=0.424963; free-height LP slack=0.242604
+DC7 R2 tx v=280 |V|=5 ok=0 old=16 fresh=0 cls=partial-state face 281,580,741: A_f empty (exact LP) with 4 skin faces; lifted: v741(H_n/h0=1.3,tangential/inradius=1.92387); inradius/h0=0.67572; free-height LP slack=0.375654
+DC7 R2 tx v=280 |V|=7 ok=0 old=33 fresh=0 cls=partial-state face 281,282,638: A_f empty (exact LP) with 4 skin faces; lifted: v281(H_n/h0=1.3,tangential/inradius=1.52955); inradius/h0=0.849925; free-height LP slack=0.411048
+DC7 R2 tx v=280 |V|=9 ok=0 old=51 fresh=0 cls=partial-state face 281,282,652: A_f empty (exact LP) with 6 skin faces; lifted: v281(H_n/h0=1.3,tangential/inradius=1.46759) v282(H_n/h0=1.3,tangential/inradius=1.46759); inradius/h0=0.885807; free-height LP slack=0.445657
+DC7 R2 tx v=280 |V|=10 ok=0 old=54 fresh=0 cls=clearance moved cell 2714 inverts; |V|=10 moved in cell: v652(delta/deltaK=0.9,kernel cell 2714,rank 0,d=(-0.953717,0.300706,0),s*=1) v282(delta/deltaK=0.418955,kernel cell 924,rank 0,d=(-0.67438,0.212631,-0.707107),s*=0.707107); cell: 276(0.478825,0.25,1.2) 652W(0.718237,0.375,1.3) 282W(0.757649,0.5,1.2) 708W(0.757649,0.5,1.3)
+DC7 R2 tx v=280 |V|=11 ok=0 old=56 fresh=0 cls=partial-state face 281,626,698: A_f empty (exact LP) with 4 skin faces; lifted: v281(H_n/h0=1.3,tangential/inradius=1.96352); inradius/h0=0.662076; free-height LP slack=0.362118
+DC7 R2 tx v=280 |V|=13 ok=0 old=59 fresh=0 cls=partial-state face 282,283,820: A_f empty (exact LP) with 4 skin faces; lifted: v282(H_n/h0=1.3,tangential/inradius=2.71483); inradius/h0=0.478851; free-height LP slack=0.259399
+DC7 R2 tx v=280 |V|=15 ok=0 old=76 fresh=0 cls=cap cap-bound closure: 76 old cells
+DC7 R2 tx v=281 |V|=1 ok=0 old=18 fresh=0 cls=partial-state face 281,282,638: A_f empty (exact LP) with 4 skin faces; lifted: v281(H_n/h0=1.3,tangential/inradius=1.52955); inradius/h0=0.849925; free-height LP slack=0.411048
+DC7 R2 tx v=281 |V|=3 ok=0 old=36 fresh=0 cls=partial-state face 281,282,652: A_f empty (exact LP) with 6 skin faces; lifted: v281(H_n/h0=1.3,tangential/inradius=1.46759) v282(H_n/h0=1.3,tangential/inradius=1.46759); inradius/h0=0.885807; free-height LP slack=0.445657
+DC7 R2 tx v=281 |V|=4 ok=0 old=39 fresh=0 cls=clearance moved cell 2714 inverts; |V|=4 moved in cell: v652(delta/deltaK=0.9,kernel cell 2714,rank 0,d=(-0.953717,0.300706,0),s*=1) v282(delta/deltaK=0.418955,kernel cell 924,rank 0,d=(-0.67438,0.212631,-0.707107),s*=0.707107); cell: 276(0.478825,0.25,1.2) 652W(0.718237,0.375,1.3) 282W(0.757649,0.5,1.2) 708W(0.757649,0.5,1.3)
+DC7 R2 tx v=281 |V|=5 ok=0 old=41 fresh=0 cls=partial-state face 281,580,657: A_f empty (exact LP) with 4 skin faces; lifted: v281(H_n/h0=1.3,tangential/inradius=1.92387); inradius/h0=0.67572; free-height LP slack=0.369176
+DC7 R2 tx v=281 |V|=7 ok=0 old=47 fresh=0 cls=partial-state face 281,626,698: A_f empty (exact LP) with 4 skin faces; lifted: v281(H_n/h0=1.3,tangential/inradius=1.96352); inradius/h0=0.662076; free-height LP slack=0.362118
+DC7 R2 tx v=281 |V|=9 ok=0 old=53 fresh=0 cls=partial-state face 282,283,820: A_f empty (exact LP) with 4 skin faces; lifted: v282(H_n/h0=1.3,tangential/inradius=2.71483); inradius/h0=0.478851; free-height LP slack=0.259399
+DC7 R2 tx v=281 |V|=11 ok=0 old=70 fresh=0 cls=cap cap-bound closure: 70 old cells
+DC7 R2 tx v=282 |V|=1 ok=0 old=19 fresh=0 cls=partial-state face 281,282,638: A_f empty (exact LP) with 4 skin faces; lifted: v282(H_n/h0=1.3,tangential/inradius=1.52955); inradius/h0=0.849925; free-height LP slack=0.412296
+DC7 R2 tx v=282 |V|=3 ok=0 old=36 fresh=0 cls=partial-state face 281,282,652: A_f empty (exact LP) with 6 skin faces; lifted: v281(H_n/h0=1.3,tangential/inradius=1.46759) v282(H_n/h0=1.3,tangential/inradius=1.46759); inradius/h0=0.885807; free-height LP slack=0.445657
+DC7 R2 tx v=282 |V|=4 ok=0 old=39 fresh=0 cls=clearance moved cell 2714 inverts; |V|=4 moved in cell: v652(delta/deltaK=0.9,kernel cell 2714,rank 0,d=(-0.953717,0.300706,0),s*=1) v282(delta/deltaK=0.418955,kernel cell 924,rank 0,d=(-0.67438,0.212631,-0.707107),s*=0.707107); cell: 276(0.478825,0.25,1.2) 652W(0.718237,0.375,1.3) 282W(0.757649,0.5,1.2) 708W(0.757649,0.5,1.3)
+DC7 R2 tx v=282 |V|=5 ok=0 old=41 fresh=0 cls=partial-state face 281,580,657: A_f empty (exact LP) with 4 skin faces; lifted: v281(H_n/h0=1.3,tangential/inradius=1.92387); inradius/h0=0.67572; free-height LP slack=0.369176
+DC7 R2 tx v=282 |V|=7 ok=0 old=47 fresh=0 cls=partial-state face 281,626,698: A_f empty (exact LP) with 4 skin faces; lifted: v281(H_n/h0=1.3,tangential/inradius=1.96352); inradius/h0=0.662076; free-height LP slack=0.362118
+DC7 R2 tx v=282 |V|=9 ok=0 old=53 fresh=0 cls=partial-state face 282,283,820: A_f empty (exact LP) with 4 skin faces; lifted: v282(H_n/h0=1.3,tangential/inradius=2.71483); inradius/h0=0.478851; free-height LP slack=0.259399
+DC7 R2 tx v=282 |V|=11 ok=0 old=70 fresh=0 cls=cap cap-bound closure: 70 old cells
+DC7 R2 tx v=283 |V|=1 ok=0 old=19 fresh=0 cls=partial-state face 282,283,820: A_f empty (exact LP) with 4 skin faces; lifted: v283(H_n/h0=1.3,tangential/inradius=2.71483); inradius/h0=0.478851; free-height LP slack=0.262169
+DC7 R2 tx v=283 |V|=3 ok=0 old=36 fresh=0 cls=partial-state face 281,282,638: A_f empty (exact LP) with 4 skin faces; lifted: v282(H_n/h0=1.3,tangential/inradius=1.52955); inradius/h0=0.849925; free-height LP slack=0.412296
+DC7 R2 tx v=283 |V|=5 ok=0 old=53 fresh=0 cls=partial-state face 281,282,652: A_f empty (exact LP) with 6 skin faces; lifted: v281(H_n/h0=1.3,tangential/inradius=1.46759) v282(H_n/h0=1.3,tangential/inradius=1.46759); inradius/h0=0.885807; free-height LP slack=0.445657
+DC7 R2 tx v=283 |V|=6 ok=0 old=56 fresh=0 cls=clearance moved cell 2714 inverts; |V|=6 moved in cell: v652(delta/deltaK=0.9,kernel cell 2714,rank 0,d=(-0.953717,0.300706,0),s*=1) v282(delta/deltaK=0.418955,kernel cell 924,rank 0,d=(-0.67438,0.212631,-0.707107),s*=0.707107); cell: 276(0.478825,0.25,1.2) 652W(0.718237,0.375,1.3) 282W(0.757649,0.5,1.2) 708W(0.757649,0.5,1.3)
+DC7 R2 tx v=283 |V|=7 ok=0 old=58 fresh=0 cls=partial-state face 281,580,657: A_f empty (exact LP) with 4 skin faces; lifted: v281(H_n/h0=1.3,tangential/inradius=1.92387); inradius/h0=0.67572; free-height LP slack=0.369176
+DC7 R2 tx v=283 |V|=9 ok=0 old=64 fresh=0 cls=partial-state face 281,626,698: A_f empty (exact LP) with 4 skin faces; lifted: v281(H_n/h0=1.3,tangential/inradius=1.96352); inradius/h0=0.662076; free-height LP slack=0.362118
+DC7 R2 tx v=283 |V|=11 ok=0 old=70 fresh=0 cls=cap cap-bound closure: 70 old cells
+DC7 R2 tx v=284 |V|=1 ok=0 old=12 fresh=0 cls=partial-state face 284,690,765: A_f empty (exact LP) with 4 skin faces; lifted: v284(H_n/h0=1.3,tangential/inradius=2.86878); inradius/h0=0.475145; free-height LP slack=0.301795
+DC7 R2 tx v=284 |V|=3 ok=0 old=18 fresh=0 cls=partial-state face 284,706,756: A_f empty (exact LP) with 4 skin faces; lifted: v284(H_n/h0=1.3,tangential/inradius=2.75453); inradius/h0=0.494853; free-height LP slack=0.308396
+DC7 R2 tx v=284 |V|=5 ok=0 old=24 fresh=92 cls=topology Native 3D cavity link has a nonmanifold edge.
+DC7 R2 tx v=285 |V|=1 ok=1 old=5 fresh=21 cls= 
+DC7 R2 tx v=286 |V|=1 ok=1 old=23 fresh=55 cls= 
+DC7 R2 tx v=287 |V|=1 ok=1 old=22 fresh=50 cls= 
+DC7 R2 tx v=288 |V|=1 ok=1 old=22 fresh=50 cls= 
+DC7 R2 tx v=289 |V|=1 ok=1 old=9 fresh=25 cls= 
+DC7 R2 tx v=290 |V|=1 ok=0 old=12 fresh=0 cls=partial-state face 290,589,782: A_f empty (exact LP) with 4 skin faces; lifted: v290(H_n/h0=1.3,tangential/inradius=3.42797); inradius/h0=0.397637; free-height LP slack=0.230524
+DC7 R2 tx v=290 |V|=3 ok=0 old=26 fresh=0 cls=clearance moved cell 3312 inverts; |V|=3 moved in cell: v589(delta/deltaK=1.1,kernel cell 3312,rank 0,d=(0,0,-1),s*=1) v290(delta/deltaK=0.665772,kernel cell 5392,rank 1,d=(0.723655,0,-0.690162),s*=0.690162); cell: 235(0.8,0,1) 589W(0.939412,0.125,1.2) 290W(1,0,1.2) 827W(0.989412,0.125,1.2)
+DC7 R2 tx v=290 |V|=4 ok=0 old=27 fresh=0 cls=clearance moved cell 3313 inverts; |V|=4 moved in cell: v827(delta/deltaK=1.65,kernel cell 3315,rank 0,d=(0,0,-1),s*=1) v290(delta/deltaK=0.665772,kernel cell 5392,rank 1,d=(0.723655,0,-0.690162),s*=0.690162); cell: 235(0.8,0,1) 827W(0.989412,0.125,1.2) 290W(1,0,1.2) 735W(1.03941,0.125,1.2)
+DC7 R2 tx v=290 |V|=5 ok=0 old=34 fresh=0 cls=partial-state face 290,668,809: A_f empty (exact LP) with 4 skin faces; lifted: v290(H_n/h0=1.3,tangential/inradius=2.75453); inradius/h0=0.494853; free-height LP slack=0.308396
+DC7 R2 tx v=290 |V|=7 ok=0 old=37 fresh=0 cls=partial-state face 291,735,776: A_f empty (exact LP) with 4 skin faces; lifted: v735(H_n/h0=1.3,tangential/inradius=3.05909); inradius/h0=0.424963; free-height LP slack=0.244865
+DC7 R2 tx v=290 |V|=9 ok=0 old=55 fresh=0 cls=partial-state face 291,292,635: A_f empty (exact LP) with 4 skin faces; lifted: v291(H_n/h0=1.3,tangential/inradius=1.52955); inradius/h0=0.849925; free-height LP slack=0.412296
+DC7 R2 tx v=290 |V|=11 ok=0 old=92 fresh=0 cls=cap cap-bound closure: 92 old cells
+DC7 R2 tx v=291 |V|=1 ok=0 old=23 fresh=0 cls=partial-state face 291,292,635: A_f empty (exact LP) with 4 skin faces; lifted: v291(H_n/h0=1.3,tangential/inradius=1.52955); inradius/h0=0.849925; free-height LP slack=0.412296
+DC7 R2 tx v=291 |V|=3 ok=0 old=60 fresh=0 cls=clearance moved cell 6631 inverts; |V|=3 moved in cell: v635(delta/deltaK=1.7791,kernel cell 6631,rank 0,d=(0,0,-1),s*=1); cell: 635W(1.01824,0.375,1.2) 883(0.878825,0.25,1.066) 1118L(0.957649,0.5,1.12783) 717W(1.05765,0.5,1.2)
+DC7 R2 tx v=291 |V|=4 ok=0 old=66 fresh=0 cls=cap cap-bound closure: 66 old cells
+DC7 R2 tx v=292 |V|=1 ok=0 old=24 fresh=0 cls=partial-state face 291,292,635: A_f empty (exact LP) with 4 skin faces; lifted: v292(H_n/h0=1.3,tangential/inradius=1.52955); inradius/h0=0.849925; free-height LP slack=0.411048
+DC7 R2 tx v=292 |V|=3 ok=0 old=60 fresh=0 cls=clearance moved cell 6631 inverts; |V|=3 moved in cell: v635(delta/deltaK=1.7791,kernel cell 6631,rank 0,d=(0,0,-1),s*=1); cell: 635W(1.01824,0.375,1.2) 883(0.878825,0.25,1.066) 1118L(0.957649,0.5,1.12783) 717W(1.05765,0.5,1.2)
+DC7 R2 tx v=292 |V|=4 ok=0 old=66 fresh=0 cls=cap cap-bound closure: 66 old cells
+DC7 R2 tx v=293 |V|=1 ok=0 old=22 fresh=0 cls=partial-state face 292,293,806: A_f empty (exact LP) with 4 skin faces; lifted: v293(H_n/h0=1.23926,tangential/inradius=2.58798); inradius/h0=0.478851; free-height LP slack=0.258625
+DC7 R2 tx v=293 |V|=3 ok=0 old=43 fresh=0 cls=partial-state face 291,292,635: A_f empty (exact LP) with 4 skin faces; lifted: v292(H_n/h0=1.3,tangential/inradius=1.52955); inradius/h0=0.849925; free-height LP slack=0.411048
+DC7 R2 tx v=293 |V|=5 ok=0 old=79 fresh=0 cls=cap cap-bound closure: 79 old cells
+DC7 R2 tx v=294 |V|=1 ok=0 old=11 fresh=0 cls=partial-state face 294,663,744: A_f empty (exact LP) with 4 skin faces; lifted: v294(H_n/h0=1.3,tangential/inradius=2.86878); inradius/h0=0.475145; free-height LP slack=0.295666
+DC7 R2 tx v=294 |V|=3 ok=0 old=20 fresh=0 cls=partial-state face 294,676,752: A_f empty (exact LP) with 4 skin faces; lifted: v294(H_n/h0=1.3,tangential/inradius=2.75453); inradius/h0=0.494853; free-height LP slack=0.301672
+DC7 R2 tx v=294 |V|=5 ok=0 old=24 fresh=0 cls=clearance moved cell 3182 inverts; |V|=5 moved in cell: v294(delta/deltaK=0.665772,kernel cell 5315,rank 1,d=(0.723655,0,-0.690162),s*=0.690162) v752(delta/deltaK=1.15338,kernel cell 3182,rank 0,d=(0.953717,-0.300706,0),s*=1); cell: 798W(1.29559,0.9375,1.2) 294W(1.3153,1,1.2) 752W(1.29559,0.9375,1.25) 338(1.5153,1,1.4)
+DC7 R2 tx v=294 |V|=6 ok=1 old=27 fresh=97 cls= 
+DC7 R2 tx v=325 |V|=1 ok=1 old=5 fresh=21 cls= 
+DC7 R2 tx v=326 |V|=1 ok=1 old=22 fresh=50 cls= 
+DC7 R2 tx v=327 |V|=1 ok=1 old=22 fresh=50 cls= 
+DC7 R2 tx v=328 |V|=1 ok=1 old=22 fresh=50 cls= 
+DC7 R2 tx v=329 |V|=1 ok=1 old=9 fresh=25 cls= 
+DC7 R2 tx v=330 |V|=1 ok=1 old=9 fresh=25 cls= 
+DC7 R2 tx v=333 |V|=1 ok=1 old=22 fresh=50 cls= 
+DC7 R2 tx v=335 |V|=1 ok=1 old=22 fresh=50 cls= 
+DC7 R2 tx v=337 |V|=1 ok=1 old=22 fresh=50 cls= 
+DC7 R2 tx v=339 |V|=1 ok=1 old=9 fresh=23 cls= 
+DC7 R2 tx v=365 |V|=1 ok=0 old=11 fresh=0 cls=partial-state face 365,671,799: A_f empty (exact LP) with 4 skin faces; lifted: v365(H_n/h0=1.3,tangential/inradius=2.75453); inradius/h0=0.494853; free-height LP slack=0.301672
+DC7 R2 tx v=365 |V|=3 ok=0 old=19 fresh=0 cls=partial-state face 365,738,750: A_f empty (exact LP) with 4 skin faces; lifted: v365(H_n/h0=1.3,tangential/inradius=3.20755); inradius/h0=0.424963; free-height LP slack=0.242604
+DC7 R2 tx v=365 |V|=5 ok=0 old=27 fresh=0 cls=partial-state face 366,585,738: A_f empty (exact LP) with 4 skin faces; lifted: v738(H_n/h0=1.3,tangential/inradius=1.92387); inradius/h0=0.67572; free-height LP slack=0.375654
+DC7 R2 tx v=365 |V|=7 ok=0 old=47 fresh=0 cls=partial-state face 366,367,645: A_f empty (exact LP) with 4 skin faces; lifted: v366(H_n/h0=1.3,tangential/inradius=1.52955); inradius/h0=0.849925; free-height LP slack=0.411048
+DC7 R2 tx v=365 |V|=9 ok=0 old=70 fresh=0 cls=cap cap-bound closure: 70 old cells
+DC7 R2 tx v=366 |V|=1 ok=0 old=22 fresh=0 cls=partial-state face 366,367,645: A_f empty (exact LP) with 4 skin faces; lifted: v366(H_n/h0=1.3,tangential/inradius=1.52955); inradius/h0=0.849925; free-height LP slack=0.411048
+DC7 R2 tx v=366 |V|=3 ok=0 old=45 fresh=0 cls=partial-state face 366,367,839: A_f empty (exact LP) with 6 skin faces; lifted: v367(H_n/h0=1.3,tangential/inradius=2.71483) v366(H_n/h0=1.3,tangential/inradius=2.71483); inradius/h0=0.478851; free-height LP slack=0.26783
+DC7 R2 tx v=366 |V|=4 ok=0 old=46 fresh=0 cls=partial-state face 366,585,656: A_f empty (exact LP) with 4 skin faces; lifted: v366(H_n/h0=1.3,tangential/inradius=1.92387); inradius/h0=0.67572; free-height LP slack=0.369176
+DC7 R2 tx v=366 |V|=6 ok=0 old=52 fresh=0 cls=partial-state face 366,641,679: A_f empty (exact LP) with 4 skin faces; lifted: v366(H_n/h0=1.3,tangential/inradius=1.96352); inradius/h0=0.662076; free-height LP slack=0.362118
+DC7 R2 tx v=366 |V|=8 ok=0 old=77 fresh=0 cls=cap cap-bound closure: 77 old cells
+DC7 R2 tx v=367 |V|=1 ok=0 old=24 fresh=0 cls=partial-state face 366,367,645: A_f empty (exact LP) with 4 skin faces; lifted: v367(H_n/h0=1.3,tangential/inradius=1.52955); inradius/h0=0.849925; free-height LP slack=0.412296
+DC7 R2 tx v=367 |V|=3 ok=0 old=45 fresh=0 cls=partial-state face 366,367,839: A_f empty (exact LP) with 6 skin faces; lifted: v367(H_n/h0=1.3,tangential/inradius=2.71483) v366(H_n/h0=1.3,tangential/inradius=2.71483); inradius/h0=0.478851; free-height LP slack=0.26783
+DC7 R2 tx v=367 |V|=4 ok=0 old=46 fresh=0 cls=partial-state face 366,585,656: A_f empty (exact LP) with 4 skin faces; lifted: v366(H_n/h0=1.3,tangential/inradius=1.92387); inradius/h0=0.67572; free-height LP slack=0.369176
+DC7 R2 tx v=367 |V|=6 ok=0 old=52 fresh=0 cls=partial-state face 366,641,679: A_f empty (exact LP) with 4 skin faces; lifted: v366(H_n/h0=1.3,tangential/inradius=1.96352); inradius/h0=0.662076; free-height LP slack=0.362118
+DC7 R2 tx v=367 |V|=8 ok=0 old=77 fresh=0 cls=cap cap-bound closure: 77 old cells
+DC7 R2 tx v=368 |V|=1 ok=0 old=23 fresh=0 cls=partial-state face 367,368,817: A_f empty (exact LP) with 4 skin faces; lifted: v368(H_n/h0=1.3,tangential/inradius=2.71483); inradius/h0=0.478851; free-height LP slack=0.259399
+DC7 R2 tx v=368 |V|=3 ok=0 old=46 fresh=0 cls=partial-state face 366,367,645: A_f empty (exact LP) with 4 skin faces; lifted: v367(H_n/h0=1.3,tangential/inradius=1.52955); inradius/h0=0.849925; free-height LP slack=0.412296
+DC7 R2 tx v=368 |V|=5 ok=0 old=67 fresh=0 cls=cap cap-bound closure: 67 old cells
+DC7 R2 tx v=369 |V|=1 ok=0 old=11 fresh=0 cls=partial-state face 369,665,764: A_f empty (exact LP) with 4 skin faces; lifted: v369(H_n/h0=1.3,tangential/inradius=2.86878); inradius/h0=0.475145; free-height LP slack=0.301795
+DC7 R2 tx v=369 |V|=3 ok=0 old=16 fresh=0 cls=clearance moved cell 3162 inverts; |V|=3 moved in cell: v369(delta/deltaK=0.665772,kernel cell 1415,rank 1,d=(-0.723655,0,0.690162),s*=0.690162) v764(delta/deltaK=1.1,kernel cell 3162,rank 0,d=(0,0,1),s*=1); cell: 369W(0.915299,1,1.6) 796W(0.895593,0.9375,1.6) 764W(0.945593,0.9375,1.6) 418(1.1153,1,1.8)
+DC7 R2 tx v=369 |V|=4 ok=0 old=20 fresh=0 cls=partial-state face 369,674,754: A_f empty (exact LP) with 4 skin faces; lifted: v369(H_n/h0=1.3,tangential/inradius=2.75453); inradius/h0=0.494853; free-height LP slack=0.308396
+DC7 R2 tx v=369 |V|=6 ok=1 old=29 fresh=107 cls= 
+DC7 R2 tx v=370 |V|=1 ok=0 old=13 fresh=0 cls=partial-state face 370,587,783: A_f empty (exact LP) with 4 skin faces; lifted: v370(H_n/h0=1.3,tangential/inradius=3.42797); inradius/h0=0.397637; free-height LP slack=0.230524
+DC7 R2 tx v=370 |V|=3 ok=0 old=20 fresh=0 cls=clearance moved cell 5039 inverts; |V|=3 moved in cell: v783(delta/deltaK=0.729,kernel cell 5037,rank 1,d=(0,0,1),s*=1) v587(delta/deltaK=0.9,kernel cell 5043,rank 0,d=(0,0,1),s*=1); cell: 605W(0.9,0,1.6) 783W(0.95,0,1.6) 587W(0.939412,0.125,1.6) 885(1.07882,0.25,1.866)
+DC7 R2 tx v=370 |V|=4 ok=0 old=22 fresh=0 cls=partial-state face 370,693,807: A_f empty (exact LP) with 4 skin faces; lifted: v370(H_n/h0=1.3,tangential/inradius=2.75453); inradius/h0=0.494853; free-height LP slack=0.308396
+DC7 R2 tx v=370 |V|=6 ok=0 old=31 fresh=0 cls=partial-state face 370,739,830: A_f empty (exact LP) with 4 skin faces; lifted: v370(H_n/h0=1.3,tangential/inradius=3.34244); inradius/h0=0.407812; free-height LP slack=0.242834
+DC7 R2 tx v=370 |V|=8 ok=0 old=36 fresh=0 cls=partial-state face 373,634,739: A_f empty (exact LP) with 4 skin faces; lifted: v739(H_n/h0=1.3,tangential/inradius=1.96352); inradius/h0=0.662076; free-height LP slack=0.368479
+DC7 R2 tx v=370 |V|=10 ok=0 old=62 fresh=0 cls=partial-state face 373,375,627: A_f empty (exact LP) with 4 skin faces; lifted: v373(H_n/h0=1.3,tangential/inradius=1.52955); inradius/h0=0.849925; free-height LP slack=0.412296
+DC7 R2 tx v=370 |V|=12 ok=0 old=81 fresh=0 cls=cap cap-bound closure: 81 old cells
+DC7 R2 tx v=373 |V|=1 ok=0 old=18 fresh=0 cls=partial-state face 373,375,627: A_f empty (exact LP) with 4 skin faces; lifted: v373(H_n/h0=1.3,tangential/inradius=1.52955); inradius/h0=0.849925; free-height LP slack=0.412296
+DC7 R2 tx v=373 |V|=3 ok=0 old=37 fresh=0 cls=partial-state face 373,375,653: A_f empty (exact LP) with 6 skin faces; lifted: v373(H_n/h0=1.3,tangential/inradius=1.46759) v375(H_n/h0=1.3,tangential/inradius=1.46759); inradius/h0=0.885807; free-height LP slack=0.445657
+DC7 R2 tx v=373 |V|=4 ok=0 old=54 fresh=0 cls=clearance moved cell 2665 inverts; |V|=4 moved in cell: v373(delta/deltaK=0.497139,kernel cell 2919,rank 0,d=(0.67438,-0.212631,0.707107),s*=0.707107) v653(delta/deltaK=0.9,kernel cell 2665,rank 0,d=(0.953717,-0.300706,-1.05884e-15),s*=1); cell: 373W(1.07882,0.25,1.6) 699W(1.07882,0.25,1.5) 653W(1.11824,0.375,1.5) 374(1.35765,0.5,1.6)
+DC7 R2 tx v=373 |V|=5 ok=0 old=60 fresh=0 cls=partial-state face 373,634,739: A_f empty (exact LP) with 4 skin faces; lifted: v373(H_n/h0=1.3,tangential/inradius=1.96352); inradius/h0=0.662076; free-height LP slack=0.389617
+DC7 R2 tx v=373 |V|=7 ok=0 old=79 fresh=0 cls=cap cap-bound closure: 79 old cells
+DC7 R2 tx v=375 |V|=1 ok=0 old=20 fresh=0 cls=partial-state face 373,375,627: A_f empty (exact LP) with 4 skin faces; lifted: v375(H_n/h0=1.3,tangential/inradius=1.52955); inradius/h0=0.849925; free-height LP slack=0.411048
+DC7 R2 tx v=375 |V|=3 ok=0 old=37 fresh=0 cls=partial-state face 373,375,653: A_f empty (exact LP) with 6 skin faces; lifted: v373(H_n/h0=1.3,tangential/inradius=1.46759) v375(H_n/h0=1.3,tangential/inradius=1.46759); inradius/h0=0.885807; free-height LP slack=0.445657
+DC7 R2 tx v=375 |V|=4 ok=0 old=54 fresh=0 cls=clearance moved cell 2665 inverts; |V|=4 moved in cell: v373(delta/deltaK=0.497139,kernel cell 2919,rank 0,d=(0.67438,-0.212631,0.707107),s*=0.707107) v653(delta/deltaK=0.9,kernel cell 2665,rank 0,d=(0.953717,-0.300706,-1.05884e-15),s*=1); cell: 373W(1.07882,0.25,1.6) 699W(1.07882,0.25,1.5) 653W(1.11824,0.375,1.5) 374(1.35765,0.5,1.6)
+DC7 R2 tx v=375 |V|=5 ok=0 old=60 fresh=0 cls=partial-state face 373,634,739: A_f empty (exact LP) with 4 skin faces; lifted: v373(H_n/h0=1.3,tangential/inradius=1.96352); inradius/h0=0.662076; free-height LP slack=0.389617
+DC7 R2 tx v=375 |V|=7 ok=0 old=79 fresh=0 cls=cap cap-bound closure: 79 old cells
+DC7 R2 tx v=377 |V|=1 ok=0 old=18 fresh=0 cls=partial-state face 375,377,814: A_f empty (exact LP) with 4 skin faces; lifted: v377(H_n/h0=1.3,tangential/inradius=2.82608); inradius/h0=0.460001; free-height LP slack=0.252875
+DC7 R2 tx v=377 |V|=3 ok=0 old=35 fresh=0 cls=partial-state face 373,375,627: A_f empty (exact LP) with 4 skin faces; lifted: v375(H_n/h0=1.3,tangential/inradius=1.52955); inradius/h0=0.849925; free-height LP slack=0.411048
+DC7 R2 tx v=377 |V|=5 ok=0 old=52 fresh=0 cls=partial-state face 373,375,653: A_f empty (exact LP) with 6 skin faces; lifted: v373(H_n/h0=1.3,tangential/inradius=1.46759) v375(H_n/h0=1.3,tangential/inradius=1.46759); inradius/h0=0.885807; free-height LP slack=0.445657
+DC7 R2 tx v=377 |V|=6 ok=0 old=69 fresh=0 cls=cap cap-bound closure: 69 old cells
+DC7 R2 tx v=379 |V|=1 ok=0 old=6 fresh=0 cls=partial-state face 379,670,746: A_f empty (exact LP) with 4 skin faces; lifted: v379(H_n/h0=1.3,tangential/inradius=2.86878); inradius/h0=0.475145; free-height LP slack=0.295666
+DC7 R2 tx v=379 |V|=3 ok=0 old=10 fresh=0 cls=partial-state face 379,695,757: A_f empty (exact LP) with 4 skin faces; lifted: v379(H_n/h0=1.3,tangential/inradius=2.75453); inradius/h0=0.494853; free-height LP slack=0.301672
+DC7 R2 tx v=379 |V|=5 ok=0 old=19 fresh=0 cls=clearance moved cell 3214 inverts; |V|=5 moved in cell: v757(delta/deltaK=0.9,kernel cell 3001,rank 0,d=(0.953717,-0.300706,0),s*=1) v379(delta/deltaK=0.340772,kernel cell 3210,rank 1,d=(0.723655,0,0.690162),s*=0.690162); cell: 803W(1.29559,0.9375,1.6) 757W(1.29559,0.9375,1.55) 379W(1.3153,1,1.6) 378(1.5153,1,1.6)
+DC7 R2 tx v=379 |V|=6 ok=1 old=21 fresh=95 cls= 
+DC7 R2 tx v=412 |V|=1 ok=1 old=9 fresh=25 cls= 
+DC7 R2 tx v=413 |V|=1 ok=1 old=23 fresh=55 cls= 
+DC7 R2 tx v=415 |V|=1 ok=1 old=22 fresh=50 cls= 
+DC7 R2 tx v=417 |V|=1 ok=1 old=22 fresh=50 cls= 
+DC7 R2 tx v=419 |V|=1 ok=1 old=13 fresh=25 cls= 
+DC7 R2 tx v=575 |V|=1 ok=1 old=36 fresh=56 cls= 
+DC7 R2 tx v=576 |V|=1 ok=1 old=36 fresh=56 cls= 
+DC7 R2 tx v=577 |V|=1 ok=1 old=36 fresh=56 cls= 
+DC7 R2 tx v=578 |V|=1 ok=1 old=36 fresh=56 cls= 
+DC7 R2 tx v=579 |V|=1 ok=1 old=21 fresh=43 cls= 
+DC7 R2 tx v=580 |V|=1 ok=1 old=21 fresh=43 cls= 
+DC7 R2 tx v=581 |V|=1 ok=1 old=16 fresh=44 cls= 
+DC7 R2 tx v=582 |V|=1 ok=1 old=16 fresh=44 cls= 
+DC7 R2 tx v=583 |V|=1 ok=1 old=30 fresh=52 cls= 
+DC7 R2 tx v=584 |V|=1 ok=1 old=30 fresh=52 cls= 
+DC7 R2 tx v=585 |V|=1 ok=1 old=21 fresh=43 cls= 
+DC7 R2 tx v=586 |V|=1 ok=1 old=21 fresh=43 cls= 
+DC7 R2 tx v=587 |V|=1 ok=1 old=16 fresh=44 cls= 
+DC7 R2 tx v=588 |V|=1 ok=1 old=16 fresh=44 cls= 
+DC7 R2 tx v=589 |V|=1 ok=0 old=16 fresh=0 cls=clearance moved cell 3312 inverts; |V|=1 moved in cell: v589(delta/deltaK=1.1,kernel cell 3312,rank 0,d=(0,0,-1),s*=1); cell: 235(0.8,0,1) 589W(0.939412,0.125,1.2) 290W(1,0,1.2) 827W(0.989412,0.125,1.2)
+DC7 R2 tx v=589 |V|=3 ok=0 old=27 fresh=0 cls=clearance moved cell 3313 inverts; |V|=3 moved in cell: v827(delta/deltaK=1.65,kernel cell 3315,rank 0,d=(0,0,-1),s*=1) v290(delta/deltaK=0.665772,kernel cell 5392,rank 1,d=(0.723655,0,-0.690162),s*=0.690162); cell: 235(0.8,0,1) 827W(0.989412,0.125,1.2) 290W(1,0,1.2) 735W(1.03941,0.125,1.2)
+DC7 R2 tx v=589 |V|=4 ok=0 old=34 fresh=0 cls=partial-state face 290,668,809: A_f empty (exact LP) with 4 skin faces; lifted: v290(H_n/h0=1.3,tangential/inradius=2.75453); inradius/h0=0.494853; free-height LP slack=0.308396
+DC7 R2 tx v=589 |V|=6 ok=0 old=41 fresh=0 cls=partial-state face 291,735,776: A_f empty (exact LP) with 4 skin faces; lifted: v735(H_n/h0=1.3,tangential/inradius=3.05909); inradius/h0=0.424963; free-height LP slack=0.244865
+DC7 R2 tx v=589 |V|=8 ok=0 old=59 fresh=0 cls=partial-state face 291,292,635: A_f empty (exact LP) with 4 skin faces; lifted: v291(H_n/h0=1.3,tangential/inradius=1.52955); inradius/h0=0.849925; free-height LP slack=0.412296
+DC7 R2 tx v=589 |V|=10 ok=0 old=96 fresh=0 cls=cap cap-bound closure: 96 old cells
+DC7 R2 tx v=590 |V|=1 ok=0 old=16 fresh=0 cls=clearance moved cell 3316 inverts; |V|=1 moved in cell: v590(delta/deltaK=1.1,kernel cell 3316,rank 0,d=(0,0,-1),s*=1); cell: 40(0.8,0,0.2) 590W(0.939412,0.125,0.4) 115W(1,0,0.4) 828W(0.989412,0.125,0.4)
+DC7 R2 tx v=590 |V|=3 ok=0 old=27 fresh=0 cls=clearance moved cell 3317 inverts; |V|=3 moved in cell: v828(delta/deltaK=1.65,kernel cell 3319,rank 0,d=(0,0,-1),s*=1) v115(delta/deltaK=0.665772,kernel cell 5366,rank 1,d=(0.723655,0,-0.690162),s*=0.690162); cell: 40(0.8,0,0.2) 828W(0.989412,0.125,0.4) 115W(1,0,0.4) 736W(1.03941,0.125,0.4)
+DC7 R2 tx v=590 |V|=4 ok=0 old=34 fresh=0 cls=partial-state face 115,667,810: A_f empty (exact LP) with 4 skin faces; lifted: v115(H_n/h0=1.3,tangential/inradius=2.75453); inradius/h0=0.494853; free-height LP slack=0.308396
+DC7 R2 tx v=590 |V|=6 ok=0 old=41 fresh=0 cls=partial-state face 116,736,775: A_f empty (exact LP) with 4 skin faces; lifted: v736(H_n/h0=1.3,tangential/inradius=3.05909); inradius/h0=0.424963; free-height LP slack=0.244865
+DC7 R2 tx v=590 |V|=8 ok=0 old=59 fresh=0 cls=partial-state face 116,117,636: A_f empty (exact LP) with 4 skin faces; lifted: v116(H_n/h0=1.3,tangential/inradius=1.52955); inradius/h0=0.849925; free-height LP slack=0.412296
+DC7 R2 tx v=590 |V|=10 ok=0 old=96 fresh=0 cls=cap cap-bound closure: 96 old cells
+DC7 R2 tx v=591 |V|=1 ok=1 old=30 fresh=52 cls= 
+DC7 R2 tx v=592 |V|=1 ok=1 old=30 fresh=52 cls= 
+DC7 R2 tx v=593 |V|=1 ok=0 old=30 fresh=0 cls=clearance moved cell 6266 inverts; |V|=1 moved in cell: v593(delta/deltaK=1.10966,kernel cell 6266,rank 0,d=(0.953717,-0.300706,0),s*=1); cell: 843W(1.29559,0.9375,0.65) 203(1.5153,1,0.8) 1048L(1.3882,1,0.7) 593W(1.27589,0.875,0.7)
+DC7 R2 tx v=593 |V|=2 ok=0 old=44 fresh=0 cls=clearance moved cell 4595 inverts; |V|=2 moved in cell: v843(delta/deltaK=0.9,kernel cell 4595,rank 0,d=(0.953717,-0.300706,0),s*=1) v593(delta/deltaK=1.10966,kernel cell 6266,rank 0,d=(0.953717,-0.300706,0),s*=1); cell: 843W(1.29559,0.9375,0.65) 203(1.5153,1,0.8) 593W(1.27589,0.875,0.7) 731W(1.27589,0.875,0.6)
+DC7 R2 tx v=593 |V|=3 ok=1 old=55 fresh=95 cls= 
+DC7 R2 tx v=594 |V|=1 ok=0 old=30 fresh=0 cls=clearance moved cell 7365 inverts; |V|=1 moved in cell: v594(delta/deltaK=1.10966,kernel cell 7365,rank 0,d=(0.953717,-0.300706,0),s*=1); cell: 844W(1.29559,0.9375,1.45) 378(1.5153,1,1.6) 1255L(1.3882,1,1.5) 594W(1.27589,0.875,1.5)
+DC7 R2 tx v=594 |V|=2 ok=0 old=44 fresh=0 cls=clearance moved cell 4569 inverts; |V|=2 moved in cell: v844(delta/deltaK=0.9,kernel cell 4566,rank 0,d=(0.953717,-0.300706,0),s*=1) v594(delta/deltaK=1.10966,kernel cell 7365,rank 0,d=(0.953717,-0.300706,0),s*=1); cell: 844W(1.29559,0.9375,1.45) 378(1.5153,1,1.6) 594W(1.27589,0.875,1.5) 733W(1.27589,0.875,1.4)
+DC7 R2 tx v=594 |V|=3 ok=1 old=55 fresh=95 cls= 
+DC7 R2 tx v=595 |V|=1 ok=1 old=24 fresh=48 cls= 
+DC7 R2 tx v=596 |V|=1 ok=1 old=24 fresh=48 cls= 
+DC7 R2 tx v=597 |V|=1 ok=0 old=40 fresh=0 cls=clearance moved cell 6071 inverts; |V|=1 moved in cell: v597(delta/deltaK=1.14055,kernel cell 6071,rank 0,d=(0.953717,-0.300706,1.78383e-15),s*=1); cell: 1012L(1.3053,0.728298,0.6) 681W(1.23647,0.75,0.5) 597W(1.27589,0.875,0.5) 163(1.5153,1,0.6)
+DC7 R2 tx v=597 |V|=2 ok=1 old=50 fresh=88 cls= 
+DC7 R2 tx v=598 |V|=1 ok=0 old=40 fresh=0 cls=clearance moved cell 7170 inverts; |V|=1 moved in cell: v598(delta/deltaK=1.14055,kernel cell 7170,rank 0,d=(0.953717,-0.300706,0),s*=1); cell: 1219L(1.3053,0.728298,1.4) 683W(1.23647,0.75,1.3) 598W(1.27589,0.875,1.3) 338(1.5153,1,1.4)
+DC7 R2 tx v=598 |V|=2 ok=1 old=50 fresh=88 cls= 
+DC7 R2 tx v=599 |V|=1 ok=1 old=15 fresh=23 cls= 
+DC7 R2 tx v=600 |V|=1 ok=1 old=15 fresh=23 cls= 
+DC7 R2 tx v=601 |V|=1 ok=1 old=13 fresh=21 cls= 
+DC7 R2 tx v=602 |V|=1 ok=1 old=13 fresh=21 cls= 
+DC7 R2 tx v=603 |V|=1 ok=1 old=7 fresh=17 cls= 
+DC7 R2 tx v=604 |V|=1 ok=1 old=7 fresh=17 cls= 
+DC7 R2 tx v=605 |V|=1 ok=1 old=17 fresh=23 cls= 
+DC7 R2 tx v=606 |V|=1 ok=1 old=17 fresh=23 cls= 
+DC7 R2 tx v=607 |V|=1 ok=1 old=20 fresh=38 cls= 
+DC7 R2 tx v=608 |V|=1 ok=1 old=20 fresh=38 cls= 
+DC7 R2 tx v=609 |V|=1 ok=1 old=20 fresh=38 cls= 
+DC7 R2 tx v=610 |V|=1 ok=0 old=20 fresh=0 cls=clearance moved cell 6428 inverts; |V|=1 moved in cell: v610(delta/deltaK=1.7791,kernel cell 6428,rank 0,d=(0,0,1),s*=1); cell: 720W(0.857649,0.5,0.8) 1080L(0.957649,0.5,0.872171) 610W(0.897062,0.625,0.8) 887(1.03647,0.75,0.934)
+DC7 R2 tx v=610 |V|=2 ok=1 old=28 fresh=56 cls= 
+DC7 R2 tx v=611 |V|=1 ok=1 old=20 fresh=38 cls= 
+DC7 R2 tx v=612 |V|=1 ok=1 old=20 fresh=38 cls= 
+DC7 R2 tx v=613 |V|=1 ok=0 old=46 fresh=0 cls=partial-state face 193,613,762: A_f empty (exact LP) with 4 skin faces; lifted: v613(H_n/h0=1.3,tangential/inradius=3.05909); inradius/h0=0.424963; free-height LP slack=0.244865
+DC7 R2 tx v=613 |V|=3 ok=0 old=69 fresh=0 cls=cap cap-bound closure: 69 old cells
+DC7 R2 tx v=614 |V|=1 ok=0 old=46 fresh=0 cls=partial-state face 368,614,761: A_f empty (exact LP) with 4 skin faces; lifted: v614(H_n/h0=1.3,tangential/inradius=3.05909); inradius/h0=0.424963; free-height LP slack=0.244865
+DC7 R2 tx v=614 |V|=3 ok=0 old=69 fresh=0 cls=cap cap-bound closure: 69 old cells
+DC7 R2 tx v=615 |V|=1 ok=0 old=46 fresh=0 cls=clearance moved cell 8716 inverts; |V|=1 moved in cell: v615(delta/deltaK=76.754,kernel cell 8716,rank 0,d=(0.67438,-0.212631,-0.707107),s*=0.707107); cell: 792W(1.25618,0.8125,0.45) 163(1.5153,1,0.6) 615W(1.27589,0.875,0.4) 1498L(1.32834,0.858461,0.5)
+DC7 R2 tx v=615 |V|=2 ok=0 old=60 fresh=0 cls=clearance moved cell 4440 inverts; |V|=2 moved in cell: v792(delta/deltaK=1.15338,kernel cell 4440,rank 0,d=(0.953717,-0.300706,3.56767e-15),s*=1) v615(delta/deltaK=76.754,kernel cell 8716,rank 0,d=(0.67438,-0.212631,-0.707107),s*=0.707107); cell: 792W(1.25618,0.8125,0.45) 118W(1.23647,0.75,0.4) 615W(1.27589,0.875,0.4) 163(1.5153,1,0.6)
+DC7 R2 tx v=615 |V|=3 ok=0 old=79 fresh=0 cls=cap cap-bound closure: 79 old cells
+DC7 R2 tx v=616 |V|=1 ok=0 old=46 fresh=0 cls=clearance moved cell 8804 inverts; |V|=1 moved in cell: v616(delta/deltaK=76.754,kernel cell 8804,rank 0,d=(0.67438,-0.212631,-0.707107),s*=0.707107); cell: 791W(1.25618,0.8125,1.25) 338(1.5153,1,1.4) 616W(1.27589,0.875,1.2) 1512L(1.32834,0.858461,1.3)
+DC7 R2 tx v=616 |V|=2 ok=0 old=60 fresh=0 cls=clearance moved cell 4262 inverts; |V|=2 moved in cell: v791(delta/deltaK=1.15338,kernel cell 4262,rank 0,d=(0.953717,-0.300706,0),s*=1) v616(delta/deltaK=76.754,kernel cell 8804,rank 0,d=(0.67438,-0.212631,-0.707107),s*=0.707107); cell: 791W(1.25618,0.8125,1.25) 293W(1.23647,0.75,1.2) 616W(1.27589,0.875,1.2) 338(1.5153,1,1.4)
+DC7 R2 tx v=616 |V|=3 ok=0 old=79 fresh=0 cls=cap cap-bound closure: 79 old cells
+DC7 R2 tx v=617 |V|=1 ok=0 old=28 fresh=0 cls=partial-state face 108,617,759: A_f empty (exact LP) with 4 skin faces; lifted: v617(H_n/h0=1.3,tangential/inradius=3.05909); inradius/h0=0.424963; free-height LP slack=0.244865
+DC7 R2 tx v=617 |V|=3 ok=0 old=56 fresh=0 cls=partial-state face 107,108,819: A_f empty (exact LP) with 4 skin faces; lifted: v108(H_n/h0=1.3,tangential/inradius=2.71483); inradius/h0=0.478851; free-height LP slack=0.262169
+DC7 R2 tx v=617 |V|=5 ok=0 old=73 fresh=0 cls=cap cap-bound closure: 73 old cells
+DC7 R2 tx v=618 |V|=1 ok=0 old=28 fresh=0 cls=partial-state face 283,618,760: A_f empty (exact LP) with 4 skin faces; lifted: v618(H_n/h0=1.3,tangential/inradius=3.05909); inradius/h0=0.424963; free-height LP slack=0.244865
+DC7 R2 tx v=618 |V|=3 ok=0 old=56 fresh=0 cls=partial-state face 282,283,820: A_f empty (exact LP) with 4 skin faces; lifted: v283(H_n/h0=1.3,tangential/inradius=2.71483); inradius/h0=0.478851; free-height LP slack=0.262169
+DC7 R2 tx v=618 |V|=5 ok=0 old=73 fresh=0 cls=cap cap-bound closure: 73 old cells
+DC7 R2 tx v=619 |V|=1 ok=0 old=44 fresh=0 cls=clearance moved cell 8525 inverts; |V|=1 moved in cell: v619(delta/deltaK=1.34689,kernel cell 8525,rank 0,d=(0.67438,-0.212631,0.707107),s*=0.707107); cell: 785W(1.25618,0.8125,1.55) 378(1.5153,1,1.6) 1465L(1.32834,0.858461,1.5) 619W(1.27589,0.875,1.6)
+DC7 R2 tx v=619 |V|=2 ok=0 old=52 fresh=0 cls=partial-state face 377,619,833: A_f empty (exact LP) with 4 skin faces; lifted: v619(H_n/h0=1.1,tangential/inradius=2.58846); inradius/h0=0.424963; free-height LP slack=0.233293
+DC7 R2 tx v=619 |V|=4 ok=0 old=70 fresh=0 cls=cap cap-bound closure: 70 old cells
+DC7 R2 tx v=620 |V|=1 ok=0 old=44 fresh=0 cls=clearance moved cell 8430 inverts; |V|=1 moved in cell: v620(delta/deltaK=1.34689,kernel cell 8430,rank 0,d=(0.67438,-0.212631,0.707107),s*=0.707107); cell: 786W(1.25618,0.8125,0.75) 203(1.5153,1,0.8) 1450L(1.32834,0.858461,0.7) 620W(1.27589,0.875,0.8)
+DC7 R2 tx v=620 |V|=2 ok=0 old=52 fresh=0 cls=partial-state face 202,620,834: A_f empty (exact LP) with 4 skin faces; lifted: v620(H_n/h0=1.1,tangential/inradius=2.58846); inradius/h0=0.424963; free-height LP slack=0.233293
+DC7 R2 tx v=620 |V|=4 ok=0 old=70 fresh=0 cls=cap cap-bound closure: 70 old cells
+DC7 R2 tx v=621 |V|=1 ok=1 old=20 fresh=38 cls= 
+DC7 R2 tx v=622 |V|=1 ok=1 old=20 fresh=38 cls= 
+DC7 R2 tx v=623 |V|=1 ok=1 old=21 fresh=43 cls= 
+DC7 R2 tx v=624 |V|=1 ok=1 old=21 fresh=43 cls= 
+DC7 R2 tx v=625 |V|=1 ok=1 old=21 fresh=43 cls= 
+DC7 R2 tx v=626 |V|=1 ok=1 old=21 fresh=43 cls= 
+DC7 R2 tx v=627 |V|=1 ok=1 old=20 fresh=38 cls= 
+DC7 R2 tx v=628 |V|=1 ok=1 old=20 fresh=38 cls= 
+DC7 R2 tx v=629 |V|=1 ok=1 old=20 fresh=38 cls= 
+DC7 R2 tx v=630 |V|=1 ok=1 old=20 fresh=38 cls= 
+DC7 R2 tx v=631 |V|=1 ok=1 old=20 fresh=38 cls= 
+DC7 R2 tx v=632 |V|=1 ok=1 old=20 fresh=38 cls= 
+DC7 R2 tx v=633 |V|=1 ok=1 old=21 fresh=43 cls= 
+DC7 R2 tx v=634 |V|=1 ok=1 old=21 fresh=43 cls= 
+DC7 R2 tx v=635 |V|=1 ok=0 old=20 fresh=0 cls=clearance moved cell 6631 inverts; |V|=1 moved in cell: v635(delta/deltaK=1.7791,kernel cell 6631,rank 0,d=(0,0,-1),s*=1); cell: 635W(1.01824,0.375,1.2) 883(0.878825,0.25,1.066) 1118L(0.957649,0.5,1.12783) 717W(1.05765,0.5,1.2)
+DC7 R2 tx v=635 |V|=2 ok=1 old=34 fresh=60 cls= 
+DC7 R2 tx v=636 |V|=1 ok=1 old=20 fresh=38 cls= 
+DC7 R2 tx v=637 |V|=1 ok=1 old=20 fresh=38 cls= 
+DC7 R2 tx v=638 |V|=1 ok=1 old=20 fresh=38 cls= 
+DC7 R2 tx v=639 |V|=1 ok=1 old=26 fresh=42 cls= 
+DC7 R2 tx v=640 |V|=1 ok=1 old=26 fresh=42 cls= 
+DC7 R2 tx v=641 |V|=1 ok=0 old=21 fresh=0 cls=clearance moved cell 6876 inverts; |V|=1 moved in cell: v641(delta/deltaK=1.14055,kernel cell 6876,rank 0,d=(-0.953717,0.300706,0),s*=1); cell: 320(0.4,0,1.4) 641W(0.639412,0.125,1.5) 1164L(0.609994,0.271702,1.4) 679W(0.678825,0.25,1.5)
+DC7 R2 tx v=641 |V|=2 ok=1 old=30 fresh=66 cls= 
+DC7 R2 tx v=642 |V|=1 ok=0 old=21 fresh=0 cls=clearance moved cell 5777 inverts; |V|=1 moved in cell: v642(delta/deltaK=1.14055,kernel cell 5777,rank 0,d=(-0.953717,0.300706,0),s*=1); cell: 145(0.4,0,0.6) 642W(0.639412,0.125,0.7) 957L(0.609994,0.271702,0.6) 678W(0.678825,0.25,0.7)
+DC7 R2 tx v=642 |V|=2 ok=1 old=30 fresh=66 cls= 
+DC7 R2 tx v=643 |V|=1 ok=0 old=22 fresh=0 cls=clearance moved cell 6980 inverts; |V|=1 moved in cell: v643(delta/deltaK=1.20576,kernel cell 6980,rank 0,d=(-0.953717,0.300706,0),s*=1); cell: 643W(0.797062,0.625,1.5) 1182L(0.767643,0.771702,1.4) 854(0.315598,0.32485,1.25988) 682W(0.836474,0.75,1.5)
+DC7 R2 tx v=643 |V|=2 ok=1 old=37 fresh=71 cls= 
+DC7 R2 tx v=644 |V|=1 ok=0 old=20 fresh=0 cls=clearance moved cell 5879 inverts; |V|=1 moved in cell: v644(delta/deltaK=1.1645,kernel cell 5879,rank 0,d=(-0.953717,0.300706,-3.33844e-16),s*=1); cell: 890(0.312068,0.328082,0.462465) 644W(0.797062,0.625,0.7) 975L(0.767643,0.771702,0.6) 684W(0.836474,0.75,0.7)
+DC7 R2 tx v=644 |V|=2 ok=1 old=36 fresh=70 cls= 
+DC7 R2 tx v=645 |V|=1 ok=1 old=20 fresh=38 cls= 
+DC7 R2 tx v=646 |V|=1 ok=0 old=26 fresh=0 cls=clearance moved cell 6380 inverts; |V|=1 moved in cell: v646(delta/deltaK=1.7791,kernel cell 6380,rank 0,d=(0,0,1),s*=1); cell: 655W(0.778825,0.25,0.8) 1070L(0.878825,0.25,0.872171) 646W(0.818237,0.375,0.8) 889(0.957649,0.5,0.934)
+DC7 R2 tx v=646 |V|=2 ok=1 old=40 fresh=64 cls= 
+DC7 R2 tx v=647 |V|=1 ok=1 old=21 fresh=35 cls= 
+DC7 R2 tx v=648 |V|=1 ok=1 old=21 fresh=35 cls= 
+DC7 R2 tx v=649 |V|=1 ok=1 old=27 fresh=39 cls= 
+DC7 R2 tx v=650 |V|=1 ok=1 old=27 fresh=39 cls= 
+DC7 R2 tx v=651 |V|=1 ok=1 old=20 fresh=38 cls= 
+DC7 R2 tx v=652 |V|=1 ok=1 old=20 fresh=38 cls= 
+DC7 R2 tx v=653 |V|=1 ok=1 old=20 fresh=38 cls= 
+DC7 R2 tx v=654 |V|=1 ok=1 old=20 fresh=38 cls= 
+DC7 R2 tx v=656 |V|=1 ok=1 old=26 fresh=34 cls= 
+DC7 R2 tx v=657 |V|=1 ok=1 old=26 fresh=34 cls= 
+DC7 R2 tx v=658 |V|=1 ok=1 old=26 fresh=34 cls= 
+DC7 R2 tx v=659 |V|=1 ok=0 old=20 fresh=0 cls=clearance moved cell 5974 inverts; |V|=1 moved in cell: v659(delta/deltaK=1.14055,kernel cell 5974,rank 0,d=(0.953717,-0.300706,0),s*=1); cell: 994L(1.14766,0.228298,0.6) 677W(1.07882,0.25,0.5) 659W(1.11824,0.375,0.5) 159(1.35765,0.5,0.6)
+DC7 R2 tx v=659 |V|=2 ok=1 old=35 fresh=65 cls= 
+DC7 R2 tx v=660 |V|=1 ok=0 old=20 fresh=0 cls=clearance moved cell 7073 inverts; |V|=1 moved in cell: v660(delta/deltaK=1.14055,kernel cell 7073,rank 0,d=(0.953717,-0.300706,0),s*=1); cell: 1201L(1.14766,0.228298,1.4) 680W(1.07882,0.25,1.3) 660W(1.11824,0.375,1.3) 334(1.35765,0.5,1.4)
+DC7 R2 tx v=660 |V|=2 ok=1 old=35 fresh=65 cls= 
+DC7 R2 tx v=661 |V|=1 ok=0 old=26 fresh=0 cls=clearance moved cell 6921 inverts; |V|=1 moved in cell: v661(delta/deltaK=1.56035,kernel cell 10132,rank 0,d=(-0.953717,0.300706,0),s*=1); cell: 321(0.478825,0.25,1.4) 661W(0.718237,0.375,1.5) 1173L(0.688819,0.521702,1.4) 687W(0.757649,0.5,1.5)
+DC7 R2 tx v=661 |V|=2 ok=0 old=41 fresh=0 cls=clearance moved cell 10132 inverts; |V|=2 moved in cell: v661(delta/deltaK=1.56035,kernel cell 10132,rank 0,d=(-0.953717,0.300706,0),s*=1); cell: 839W(0.698531,0.3125,1.55) 321(0.478825,0.25,1.4) 661W(0.718237,0.375,1.5) 1753L(0.61224,0.270994,1.5)
+DC7 R2 tx v=661 |V|=3 ok=1 old=49 fresh=87 cls= 
+DC7 R2 tx v=662 |V|=1 ok=0 old=26 fresh=0 cls=clearance moved cell 5822 inverts; |V|=1 moved in cell: v662(delta/deltaK=1.56035,kernel cell 10198,rank 0,d=(-0.953717,0.300706,0),s*=1); cell: 146(0.478825,0.25,0.6) 662W(0.718237,0.375,0.7) 966L(0.688819,0.521702,0.6) 688W(0.757649,0.5,0.7)
+DC7 R2 tx v=662 |V|=2 ok=0 old=41 fresh=0 cls=clearance moved cell 10198 inverts; |V|=2 moved in cell: v662(delta/deltaK=1.56035,kernel cell 10198,rank 0,d=(-0.953717,0.300706,0),s*=1); cell: 840W(0.698531,0.3125,0.75) 146(0.478825,0.25,0.6) 662W(0.718237,0.375,0.7) 1765L(0.61224,0.270994,0.7)
+DC7 R2 tx v=662 |V|=3 ok=1 old=49 fresh=87 cls= 
+DC7 R2 tx v=667 |V|=1 ok=1 old=15 fresh=23 cls= 
+DC7 R2 tx v=668 |V|=1 ok=1 old=15 fresh=23 cls= 
+DC7 R2 tx v=671 |V|=1 ok=1 old=13 fresh=21 cls= 
+DC7 R2 tx v=672 |V|=1 ok=1 old=13 fresh=21 cls= 
+DC7 R2 tx v=685 |V|=1 ok=1 old=27 fresh=39 cls= 
+DC7 R2 tx v=686 |V|=1 ok=1 old=27 fresh=39 cls= 
+DC7 R2 tx v=689 |V|=1 ok=0 old=18 fresh=0 cls=clearance moved cell 8008 inverts; |V|=1 moved in cell: v689(delta/deltaK=2.25599,kernel cell 8008,rank 1,d=(0,0,-1),s*=1); cell: 780W(1.04559,0.9375,0.4) 1371L(0.975886,0.875,0.329676) 689W(1.0153,1,0.4) 881(0.747456,0.778067,0.106662)
+DC7 R2 tx v=689 |V|=2 ok=1 old=30 fresh=48 cls= 
+DC7 R2 tx v=690 |V|=1 ok=0 old=18 fresh=0 cls=clearance moved cell 7964 inverts; |V|=1 moved in cell: v690(delta/deltaK=2.25599,kernel cell 7964,rank 1,d=(0,0,-1),s*=1); cell: 779W(1.04559,0.9375,1.2) 1362L(0.975886,0.875,1.12968) 690W(1.0153,1,1.2) 878(0.747456,0.778067,0.906662)
+DC7 R2 tx v=690 |V|=2 ok=1 old=30 fresh=48 cls= 
+DC7 R2 tx v=691 |V|=1 ok=1 old=13 fresh=21 cls= 
+DC7 R2 tx v=692 |V|=1 ok=1 old=13 fresh=21 cls= 
+DC7 R2 tx v=693 |V|=1 ok=1 old=15 fresh=23 cls= 
+DC7 R2 tx v=694 |V|=1 ok=1 old=15 fresh=23 cls= 
+DC7 R2 tx v=697 |V|=1 ok=1 old=26 fresh=34 cls= 
+DC7 R2 tx v=698 |V|=1 ok=1 old=26 fresh=34 cls= 
+DC7 R2 tx v=699 |V|=1 ok=1 old=26 fresh=34 cls= 
+DC7 R2 tx v=700 |V|=1 ok=1 old=26 fresh=34 cls= 
+DC7 R2 tx v=701 |V|=1 ok=1 old=28 fresh=44 cls= 
+DC7 R2 tx v=702 |V|=1 ok=1 old=28 fresh=44 cls= 
+DC7 R2 tx v=703 |V|=1 ok=1 old=28 fresh=44 cls= 
+DC7 R2 tx v=704 |V|=1 ok=1 old=28 fresh=44 cls= 
+DC7 R2 tx v=705 |V|=1 ok=1 old=15 fresh=23 cls= 
+DC7 R2 tx v=706 |V|=1 ok=1 old=15 fresh=23 cls= 
+DC7 R2 tx v=707 |V|=1 ok=1 old=26 fresh=34 cls= 
+DC7 R2 tx v=708 |V|=1 ok=1 old=26 fresh=34 cls= 
+DC7 R2 tx v=709 |V|=1 ok=1 old=26 fresh=34 cls= 
+DC7 R2 tx v=710 |V|=1 ok=1 old=26 fresh=34 cls= 
+DC7 R2 tx v=711 |V|=1 ok=0 old=28 fresh=0 cls=clearance moved cell 9176 inverts; |V|=1 moved in cell: v711(delta/deltaK=1.39241,kernel cell 9176,rank 0,d=(0,0,1),s*=1); cell: 842W(0.866768,0.6875,0.8) 887(1.03647,0.75,0.934) 1579L(0.897062,0.625,0.855) 711W(0.936474,0.75,0.8)
+DC7 R2 tx v=711 |V|=2 ok=1 old=36 fresh=62 cls= 
+DC7 R2 tx v=712 |V|=1 ok=1 old=28 fresh=44 cls= 
+DC7 R2 tx v=713 |V|=1 ok=1 old=28 fresh=44 cls= 
+DC7 R2 tx v=714 |V|=1 ok=1 old=28 fresh=44 cls= 
+DC7 R2 tx v=715 |V|=1 ok=1 old=27 fresh=39 cls= 
+DC7 R2 tx v=716 |V|=1 ok=1 old=27 fresh=39 cls= 
+DC7 R2 tx v=718 |V|=1 ok=1 old=26 fresh=34 cls= 
+DC7 R2 tx v=719 |V|=1 ok=1 old=26 fresh=34 cls= 
+DC7 R2 tx v=721 |V|=1 ok=1 old=28 fresh=44 cls= 
+DC7 R2 tx v=722 |V|=1 ok=1 old=28 fresh=44 cls= 
+DC7 R2 tx v=723 |V|=1 ok=1 old=26 fresh=34 cls= 
+DC7 R2 tx v=724 |V|=1 ok=1 old=26 fresh=34 cls= 
+DC7 R2 tx v=725 |V|=1 ok=1 old=27 fresh=39 cls= 
+DC7 R2 tx v=726 |V|=1 ok=1 old=27 fresh=39 cls= 
+DC7 R2 tx v=727 |V|=1 ok=1 old=33 fresh=43 cls= 
+DC7 R2 tx v=728 |V|=1 ok=1 old=37 fresh=47 cls= 
+DC7 R2 tx v=729 |V|=1 ok=1 old=33 fresh=43 cls= 
+DC7 R2 tx v=730 |V|=1 ok=1 old=37 fresh=47 cls= 
+DC7 R2 tx v=732 |V|=1 ok=1 old=33 fresh=43 cls= 
+DC7 R2 tx v=734 |V|=1 ok=1 old=33 fresh=43 cls= 
+DC7 R2 tx v=735 |V|=1 ok=0 old=21 fresh=0 cls=clearance moved cell 9427 inverts; |V|=1 moved in cell: v735(delta/deltaK=1.08966,kernel cell 9427,rank 0,d=(0.67438,-0.212631,-0.707107),s*=0.707107); cell: 809W(1.01971,0.0625,1.25) 872(1.44998,0.286486,1.4504) 735W(1.03941,0.125,1.2) 1625L(1.10313,0.104911,1.3)
+DC7 R2 tx v=735 |V|=2 ok=0 old=33 fresh=0 cls=partial-state face 290,735,827: A_f empty (exact LP) with 4 skin faces; lifted: v735(H_n/h0=1.1,tangential/inradius=2.69732); inradius/h0=0.407812; free-height LP slack=0.227608
+DC7 R2 tx v=735 |V|=4 ok=0 old=40 fresh=0 cls=partial-state face 290,589,782: A_f empty (exact LP) with 4 skin faces; lifted: v290(H_n/h0=1.3,tangential/inradius=3.42797); inradius/h0=0.397637; free-height LP slack=0.230524
+DC7 R2 tx v=735 |V|=6 ok=0 old=67 fresh=0 cls=cap cap-bound closure: 67 old cells
+DC7 R2 tx v=736 |V|=1 ok=0 old=21 fresh=0 cls=clearance moved cell 9384 inverts; |V|=1 moved in cell: v736(delta/deltaK=1.08966,kernel cell 9384,rank 0,d=(0.67438,-0.212631,-0.707107),s*=0.707107); cell: 810W(1.01971,0.0625,0.45) 875(1.44998,0.286486,0.650401) 736W(1.03941,0.125,0.4) 1617L(1.10313,0.104911,0.5)
+DC7 R2 tx v=736 |V|=2 ok=0 old=33 fresh=0 cls=partial-state face 115,736,828: A_f empty (exact LP) with 4 skin faces; lifted: v736(H_n/h0=1.1,tangential/inradius=2.69732); inradius/h0=0.407812; free-height LP slack=0.227608
+DC7 R2 tx v=736 |V|=4 ok=0 old=40 fresh=0 cls=partial-state face 115,590,781: A_f empty (exact LP) with 4 skin faces; lifted: v115(H_n/h0=1.3,tangential/inradius=3.42797); inradius/h0=0.397637; free-height LP slack=0.230524
+DC7 R2 tx v=736 |V|=6 ok=0 old=67 fresh=0 cls=cap cap-bound closure: 67 old cells
+DC7 R2 tx v=737 |V|=1 ok=0 old=28 fresh=0 cls=partial-state face 190,737,749: A_f empty (exact LP) with 4 skin faces; lifted: v737(H_n/h0=1.3,tangential/inradius=3.05909); inradius/h0=0.424963; free-height LP slack=0.244865
+DC7 R2 tx v=737 |V|=3 ok=0 old=51 fresh=0 cls=clearance moved cell 8893 inverts; |V|=3 moved in cell: v749(delta/deltaK=2.55814,kernel cell 8893,rank 0,d=(0,0,1),s*=1); cell: 772W(0.65,0,0.8) 1526L(0.7,0,0.86) 749W(0.669706,0.0625,0.8) 883(0.878825,0.25,1.066)
+DC7 R2 tx v=737 |V|=4 ok=0 old=52 fresh=0 cls=partial-state face 190,737,800: A_f empty (exact LP) with 6 skin faces; lifted: v737(H_n/h0=1.3,tangential/inradius=2.93518) v190(H_n/h0=1.3,tangential/inradius=3.07762); inradius/h0=0.442904; free-height LP slack=0.26783
+DC7 R2 tx v=737 |V|=5 ok=1 old=59 fresh=107 cls= 
+DC7 R2 tx v=738 |V|=1 ok=0 old=28 fresh=0 cls=partial-state face 365,738,750: A_f empty (exact LP) with 4 skin faces; lifted: v738(H_n/h0=1.3,tangential/inradius=3.05909); inradius/h0=0.424963; free-height LP slack=0.244865
+DC7 R2 tx v=738 |V|=3 ok=0 old=51 fresh=0 cls=clearance moved cell 8916 inverts; |V|=3 moved in cell: v750(delta/deltaK=2.55814,kernel cell 8916,rank 0,d=(0,0,1),s*=1); cell: 771W(0.65,0,1.6) 1530L(0.7,0,1.66) 750W(0.669706,0.0625,1.6) 882(0.878825,0.25,1.866)
+DC7 R2 tx v=738 |V|=4 ok=0 old=52 fresh=0 cls=partial-state face 365,738,799: A_f empty (exact LP) with 6 skin faces; lifted: v738(H_n/h0=1.3,tangential/inradius=2.93518) v365(H_n/h0=1.3,tangential/inradius=3.07762); inradius/h0=0.442904; free-height LP slack=0.26783
+DC7 R2 tx v=738 |V|=5 ok=1 old=59 fresh=107 cls= 
+DC7 R2 tx v=739 |V|=1 ok=0 old=18 fresh=0 cls=clearance moved cell 9828 inverts; |V|=1 moved in cell: v739(delta/deltaK=2.2148,kernel cell 9828,rank 0,d=(0.67438,-0.212631,0.707107),s*=0.707107); cell: 807W(1.01971,0.0625,1.55) 372(1.27882,0.25,1.6) 1699L(1.10885,0.103106,1.5) 739W(1.03941,0.125,1.6)
+DC7 R2 tx v=739 |V|=2 ok=0 old=32 fresh=0 cls=clearance moved cell 4302 inverts; |V|=2 moved in cell: v807(delta/deltaK=0.539879,kernel cell 11514,rank 0,d=(0.953717,-0.300706,0),s*=1) v739(delta/deltaK=2.2148,kernel cell 9828,rank 0,d=(0.67438,-0.212631,0.707107),s*=0.707107); cell: 807W(1.01971,0.0625,1.55) 370W(1,0,1.6) 372(1.27882,0.25,1.6) 739W(1.03941,0.125,1.6)
+DC7 R2 tx v=739 |V|=3 ok=0 old=47 fresh=0 cls=partial-state face 370,739,830: A_f empty (exact LP) with 6 skin faces; lifted: v739(H_n/h0=1.1,tangential/inradius=2.69732) v370(H_n/h0=1.3,tangential/inradius=3.34244); inradius/h0=0.407812; free-height LP slack=0.256602
+DC7 R2 tx v=739 |V|=4 ok=0 old=52 fresh=0 cls=partial-state face 373,739,768: A_f empty (exact LP) with 4 skin faces; lifted: v739(H_n/h0=1.1,tangential/inradius=2.58846); inradius/h0=0.424963; free-height LP slack=0.233425
+DC7 R2 tx v=739 |V|=6 ok=0 old=103 fresh=0 cls=cap cap-bound closure: 103 old cells
+DC7 R2 tx v=740 |V|=1 ok=0 old=18 fresh=0 cls=clearance moved cell 9785 inverts; |V|=1 moved in cell: v740(delta/deltaK=2.2148,kernel cell 9785,rank 0,d=(0.67438,-0.212631,0.707107),s*=0.707107); cell: 808W(1.01971,0.0625,0.75) 197(1.27882,0.25,0.8) 1691L(1.10885,0.103106,0.7) 740W(1.03941,0.125,0.8)
+DC7 R2 tx v=740 |V|=2 ok=0 old=32 fresh=0 cls=clearance moved cell 4320 inverts; |V|=2 moved in cell: v808(delta/deltaK=0.539879,kernel cell 11537,rank 0,d=(0.953717,-0.300706,0),s*=1) v740(delta/deltaK=2.2148,kernel cell 9785,rank 0,d=(0.67438,-0.212631,0.707107),s*=0.707107); cell: 808W(1.01971,0.0625,0.75) 195W(1,0,0.8) 197(1.27882,0.25,0.8) 740W(1.03941,0.125,0.8)
+DC7 R2 tx v=740 |V|=3 ok=0 old=47 fresh=0 cls=partial-state face 195,740,829: A_f empty (exact LP) with 6 skin faces; lifted: v740(H_n/h0=1.1,tangential/inradius=2.69732) v195(H_n/h0=1.3,tangential/inradius=3.34244); inradius/h0=0.407812; free-height LP slack=0.256602
+DC7 R2 tx v=740 |V|=4 ok=0 old=52 fresh=0 cls=partial-state face 198,740,767: A_f empty (exact LP) with 4 skin faces; lifted: v740(H_n/h0=1.1,tangential/inradius=2.58846); inradius/h0=0.424963; free-height LP slack=0.233425
+DC7 R2 tx v=740 |V|=6 ok=0 old=103 fresh=0 cls=cap cap-bound closure: 103 old cells
+DC7 R2 tx v=741 |V|=1 ok=0 old=26 fresh=0 cls=partial-state face 280,741,747: A_f empty (exact LP) with 4 skin faces; lifted: v741(H_n/h0=1.3,tangential/inradius=3.05909); inradius/h0=0.424963; free-height LP slack=0.244865
+DC7 R2 tx v=741 |V|=3 ok=0 old=44 fresh=0 cls=partial-state face 280,741,812: A_f empty (exact LP) with 6 skin faces; lifted: v280(H_n/h0=1.3,tangential/inradius=3.07762) v741(H_n/h0=1.3,tangential/inradius=2.93518); inradius/h0=0.442904; free-height LP slack=0.26783
+DC7 R2 tx v=741 |V|=4 ok=1 old=51 fresh=95 cls= 
+DC7 R2 tx v=742 |V|=1 ok=0 old=26 fresh=0 cls=partial-state face 105,742,748: A_f empty (exact LP) with 4 skin faces; lifted: v742(H_n/h0=1.3,tangential/inradius=3.05909); inradius/h0=0.424963; free-height LP slack=0.244865
+DC7 R2 tx v=742 |V|=3 ok=0 old=44 fresh=0 cls=partial-state face 105,742,811: A_f empty (exact LP) with 6 skin faces; lifted: v105(H_n/h0=1.3,tangential/inradius=3.07762) v742(H_n/h0=1.3,tangential/inradius=2.93518); inradius/h0=0.442904; free-height LP slack=0.26783
+DC7 R2 tx v=742 |V|=4 ok=1 old=51 fresh=95 cls= 
+DC7 R2 tx v=755 |V|=1 ok=1 old=21 fresh=35 cls= 
+DC7 R2 tx v=756 |V|=1 ok=1 old=21 fresh=35 cls= 
+DC7 R2 tx v=759 |V|=1 ok=1 old=18 fresh=28 cls= 
+DC7 R2 tx v=760 |V|=1 ok=1 old=18 fresh=28 cls= 
+DC7 R2 tx v=761 |V|=1 ok=0 old=18 fresh=0 cls=clearance moved cell 3016 inverts; |V|=1 moved in cell: v761(delta/deltaK=1.1,kernel cell 3016,rank 0,d=(0,0,1),s*=1); cell: 614W(0.875886,0.875,1.6) 368W(0.836474,0.75,1.6) 761W(0.90618,0.8125,1.6) 418(1.1153,1,1.8)
+DC7 R2 tx v=761 |V|=3 ok=0 old=87 fresh=0 cls=cap cap-bound closure: 87 old cells
+DC7 R2 tx v=762 |V|=1 ok=0 old=18 fresh=0 cls=clearance moved cell 3020 inverts; |V|=1 moved in cell: v762(delta/deltaK=1.1,kernel cell 3020,rank 0,d=(0,0,1),s*=1); cell: 613W(0.875886,0.875,0.8) 193W(0.836474,0.75,0.8) 762W(0.90618,0.8125,0.8) 243(1.1153,1,1)
+DC7 R2 tx v=762 |V|=3 ok=0 old=93 fresh=0 cls=cap cap-bound closure: 93 old cells
+DC7 R2 tx v=765 |V|=1 ok=1 old=19 fresh=33 cls= 
+DC7 R2 tx v=766 |V|=1 ok=1 old=19 fresh=33 cls= 
+DC7 R2 tx v=767 |V|=1 ok=1 old=19 fresh=33 cls= 
+DC7 R2 tx v=768 |V|=1 ok=1 old=19 fresh=33 cls= 
+DC7 R2 tx v=769 |V|=1 ok=1 old=18 fresh=28 cls= 
+DC7 R2 tx v=770 |V|=1 ok=1 old=18 fresh=28 cls= 
+DC7 R2 tx v=773 |V|=1 ok=1 old=14 fresh=18 cls= 
+DC7 R2 tx v=774 |V|=1 ok=1 old=14 fresh=18 cls= 
+DC7 R2 tx v=775 |V|=1 ok=0 old=13 fresh=0 cls=clearance moved cell 3070 inverts; |V|=1 moved in cell: v775(delta/deltaK=1.1,kernel cell 10502,rank 0,d=(0,0,-1),s*=1); cell: 40(0.8,0,0.2) 775W(1.00912,0.1875,0.4) 736W(1.03941,0.125,0.4) 116W(1.07882,0.25,0.4)
+DC7 R2 tx v=775 |V|=3 ok=0 old=73 fresh=0 cls=cap cap-bound closure: 73 old cells
+DC7 R2 tx v=776 |V|=1 ok=0 old=13 fresh=0 cls=clearance moved cell 3074 inverts; |V|=1 moved in cell: v776(delta/deltaK=1.1,kernel cell 10536,rank 0,d=(0,0,-1),s*=1); cell: 235(0.8,0,1) 776W(1.00912,0.1875,1.2) 735W(1.03941,0.125,1.2) 291W(1.07882,0.25,1.2)
+DC7 R2 tx v=776 |V|=3 ok=0 old=73 fresh=0 cls=cap cap-bound closure: 73 old cells
+DC7 R2 tx v=777 |V|=1 ok=1 old=28 fresh=36 cls= 
+DC7 R2 tx v=778 |V|=1 ok=1 old=28 fresh=36 cls= 
+DC7 R2 tx v=781 |V|=1 ok=0 old=6 fresh=0 cls=clearance moved cell 3092 inverts; |V|=1 moved in cell: v781(delta/deltaK=1.1,kernel cell 3092,rank 1,d=(0,0,-1),s*=1); cell: 40(0.8,0,0.2) 781W(0.95,0,0.4) 115W(1,0,0.4) 590W(0.939412,0.125,0.4)
+DC7 R2 tx v=781 |V|=3 ok=0 old=44 fresh=0 cls=clearance moved cell 3316 inverts; |V|=3 moved in cell: v590(delta/deltaK=1.1,kernel cell 3316,rank 0,d=(0,0,-1),s*=1) v115(delta/deltaK=0.665772,kernel cell 5366,rank 1,d=(0.723655,0,-0.690162),s*=0.690162); cell: 40(0.8,0,0.2) 590W(0.939412,0.125,0.4) 115W(1,0,0.4) 828W(0.989412,0.125,0.4)
+DC7 R2 tx v=781 |V|=4 ok=0 old=45 fresh=0 cls=clearance moved cell 3317 inverts; |V|=4 moved in cell: v828(delta/deltaK=1.65,kernel cell 3319,rank 0,d=(0,0,-1),s*=1) v115(delta/deltaK=0.665772,kernel cell 5366,rank 1,d=(0.723655,0,-0.690162),s*=0.690162); cell: 40(0.8,0,0.2) 828W(0.989412,0.125,0.4) 115W(1,0,0.4) 736W(1.03941,0.125,0.4)
+DC7 R2 tx v=781 |V|=5 ok=0 old=60 fresh=0 cls=clearance moved cell 9384 inverts; |V|=5 moved in cell: v736(delta/deltaK=1.08966,kernel cell 9384,rank 0,d=(0.67438,-0.212631,-0.707107),s*=0.707107); cell: 810W(1.01971,0.0625,0.45) 875(1.44998,0.286486,0.650401) 736W(1.03941,0.125,0.4) 1617L(1.10313,0.104911,0.5)
+DC7 R2 tx v=781 |V|=6 ok=0 old=67 fresh=0 cls=cap cap-bound closure: 67 old cells
+DC7 R2 tx v=782 |V|=1 ok=0 old=6 fresh=0 cls=clearance moved cell 3094 inverts; |V|=1 moved in cell: v782(delta/deltaK=1.1,kernel cell 3094,rank 1,d=(0,0,-1),s*=1); cell: 235(0.8,0,1) 782W(0.95,0,1.2) 290W(1,0,1.2) 589W(0.939412,0.125,1.2)
+DC7 R2 tx v=782 |V|=3 ok=0 old=44 fresh=0 cls=clearance moved cell 3312 inverts; |V|=3 moved in cell: v589(delta/deltaK=1.1,kernel cell 3312,rank 0,d=(0,0,-1),s*=1) v290(delta/deltaK=0.665772,kernel cell 5392,rank 1,d=(0.723655,0,-0.690162),s*=0.690162); cell: 235(0.8,0,1) 589W(0.939412,0.125,1.2) 290W(1,0,1.2) 827W(0.989412,0.125,1.2)
+DC7 R2 tx v=782 |V|=4 ok=0 old=45 fresh=0 cls=clearance moved cell 3313 inverts; |V|=4 moved in cell: v827(delta/deltaK=1.65,kernel cell 3315,rank 0,d=(0,0,-1),s*=1) v290(delta/deltaK=0.665772,kernel cell 5392,rank 1,d=(0.723655,0,-0.690162),s*=0.690162); cell: 235(0.8,0,1) 827W(0.989412,0.125,1.2) 290W(1,0,1.2) 735W(1.03941,0.125,1.2)
+DC7 R2 tx v=782 |V|=5 ok=0 old=60 fresh=0 cls=clearance moved cell 9427 inverts; |V|=5 moved in cell: v735(delta/deltaK=1.08966,kernel cell 9427,rank 0,d=(0.67438,-0.212631,-0.707107),s*=0.707107); cell: 809W(1.01971,0.0625,1.25) 872(1.44998,0.286486,1.4504) 735W(1.03941,0.125,1.2) 1625L(1.10313,0.104911,1.3)
+DC7 R2 tx v=782 |V|=6 ok=0 old=67 fresh=0 cls=cap cap-bound closure: 67 old cells
+DC7 R2 tx v=783 |V|=1 ok=1 old=14 fresh=18 cls= 
+DC7 R2 tx v=784 |V|=1 ok=1 old=14 fresh=18 cls= 
+DC7 R2 tx v=785 |V|=1 ok=1 old=20 fresh=30 cls= 
+DC7 R2 tx v=786 |V|=1 ok=1 old=20 fresh=30 cls= 
+DC7 R2 tx v=787 |V|=1 ok=1 old=18 fresh=28 cls= 
+DC7 R2 tx v=788 |V|=1 ok=1 old=18 fresh=28 cls= 
+DC7 R2 tx v=789 |V|=1 ok=1 old=28 fresh=36 cls= 
+DC7 R2 tx v=790 |V|=1 ok=1 old=28 fresh=36 cls= 
+DC7 R2 tx v=791 |V|=1 ok=0 old=20 fresh=0 cls=clearance moved cell 4262 inverts; |V|=1 moved in cell: v791(delta/deltaK=1.15338,kernel cell 4262,rank 0,d=(0.953717,-0.300706,0),s*=1); cell: 791W(1.25618,0.8125,1.25) 293W(1.23647,0.75,1.2) 616W(1.27589,0.875,1.2) 338(1.5153,1,1.4)
+DC7 R2 tx v=791 |V|=3 ok=0 old=87 fresh=0 cls=cap cap-bound closure: 87 old cells
+DC7 R2 tx v=792 |V|=1 ok=0 old=20 fresh=0 cls=clearance moved cell 4440 inverts; |V|=1 moved in cell: v792(delta/deltaK=1.15338,kernel cell 4440,rank 0,d=(0.953717,-0.300706,3.56767e-15),s*=1); cell: 792W(1.25618,0.8125,0.45) 118W(1.23647,0.75,0.4) 615W(1.27589,0.875,0.4) 163(1.5153,1,0.6)
+DC7 R2 tx v=792 |V|=3 ok=0 old=87 fresh=0 cls=cap cap-bound closure: 87 old cells
+DC7 R2 tx v=793 |V|=1 ok=1 old=24 fresh=32 cls= 
+DC7 R2 tx v=794 |V|=1 ok=1 old=24 fresh=32 cls= 
+DC7 R2 tx v=801 |V|=1 ok=0 old=24 fresh=0 cls=clearance moved cell 13296 inverts; |V|=1 moved in cell: v801(delta/deltaK=1.07702,kernel cell 13296,rank 0,d=(-0.67438,0.212631,-0.707107),s*=0.707107); cell: 2257L(0.826762,0.959202,0.45) 880(0.547456,0.778067,0.306662) 109W(0.915299,1,0.4) 801W(0.895593,0.9375,0.4)
+DC7 R2 tx v=801 |V|=2 ok=1 old=44 fresh=60 cls= 
+DC7 R2 tx v=802 |V|=1 ok=0 old=24 fresh=0 cls=clearance moved cell 13331 inverts; |V|=1 moved in cell: v802(delta/deltaK=1.07702,kernel cell 13331,rank 0,d=(-0.67438,0.212631,-0.707107),s*=0.707107); cell: 2263L(0.826762,0.959202,1.25) 877(0.547456,0.778067,1.10666) 284W(0.915299,1,1.2) 802W(0.895593,0.9375,1.2)
+DC7 R2 tx v=802 |V|=2 ok=1 old=44 fresh=60 cls= 
+DC7 R2 tx v=805 |V|=1 ok=1 old=20 fresh=30 cls= 
+DC7 R2 tx v=806 |V|=1 ok=1 old=20 fresh=30 cls= 
+DC7 R2 tx v=807 |V|=1 ok=1 old=20 fresh=30 cls= 
+DC7 R2 tx v=808 |V|=1 ok=1 old=20 fresh=30 cls= 
+DC7 R2 tx v=809 |V|=1 ok=1 old=18 fresh=28 cls= 
+DC7 R2 tx v=810 |V|=1 ok=1 old=18 fresh=28 cls= 
+DC7 R2 tx v=813 |V|=1 ok=1 old=18 fresh=28 cls= 
+DC7 R2 tx v=814 |V|=1 ok=1 old=18 fresh=28 cls= 
+DC7 R2 tx v=815 |V|=1 ok=1 old=18 fresh=28 cls= 
+DC7 R2 tx v=816 |V|=1 ok=1 old=18 fresh=28 cls= 
+DC7 R2 tx v=817 |V|=1 ok=1 old=21 fresh=35 cls= 
+DC7 R2 tx v=818 |V|=1 ok=1 old=21 fresh=35 cls= 
+DC7 R2 tx v=819 |V|=1 ok=1 old=20 fresh=30 cls= 
+DC7 R2 tx v=820 |V|=1 ok=1 old=20 fresh=30 cls= 
+DC7 R2 tx v=821 |V|=1 ok=1 old=18 fresh=28 cls= 
+DC7 R2 tx v=822 |V|=1 ok=1 old=18 fresh=28 cls= 
+DC7 R2 tx v=823 |V|=1 ok=1 old=18 fresh=28 cls= 
+DC7 R2 tx v=824 |V|=1 ok=1 old=18 fresh=28 cls= 
+DC7 R2 tx v=825 |V|=1 ok=1 old=18 fresh=28 cls= 
+DC7 R2 tx v=826 |V|=1 ok=1 old=18 fresh=28 cls= 
+DC7 R2 tx v=827 |V|=1 ok=0 old=4 fresh=0 cls=clearance moved cell 3313 inverts; |V|=1 moved in cell: v827(delta/deltaK=1.65,kernel cell 3315,rank 0,d=(0,0,-1),s*=1); cell: 235(0.8,0,1) 827W(0.989412,0.125,1.2) 290W(1,0,1.2) 735W(1.03941,0.125,1.2)
+DC7 R2 tx v=827 |V|=3 ok=0 old=47 fresh=0 cls=partial-state face 290,589,782: A_f empty (exact LP) with 4 skin faces; lifted: v290(H_n/h0=1.3,tangential/inradius=3.42797); inradius/h0=0.397637; free-height LP slack=0.230524
+DC7 R2 tx v=827 |V|=5 ok=0 old=78 fresh=0 cls=cap cap-bound closure: 78 old cells
+DC7 R2 tx v=828 |V|=1 ok=0 old=4 fresh=0 cls=clearance moved cell 3317 inverts; |V|=1 moved in cell: v828(delta/deltaK=1.65,kernel cell 3319,rank 0,d=(0,0,-1),s*=1); cell: 40(0.8,0,0.2) 828W(0.989412,0.125,0.4) 115W(1,0,0.4) 736W(1.03941,0.125,0.4)
+DC7 R2 tx v=828 |V|=3 ok=0 old=47 fresh=0 cls=partial-state face 115,590,781: A_f empty (exact LP) with 4 skin faces; lifted: v115(H_n/h0=1.3,tangential/inradius=3.42797); inradius/h0=0.397637; free-height LP slack=0.230524
+DC7 R2 tx v=828 |V|=5 ok=0 old=78 fresh=0 cls=cap cap-bound closure: 78 old cells
+DC7 R2 tx v=829 |V|=1 ok=1 old=18 fresh=28 cls= 
+DC7 R2 tx v=830 |V|=1 ok=1 old=18 fresh=28 cls= 
+DC7 R2 tx v=831 |V|=1 ok=1 old=20 fresh=30 cls= 
+DC7 R2 tx v=832 |V|=1 ok=1 old=20 fresh=30 cls= 
+DC7 R2 tx v=833 |V|=1 ok=1 old=20 fresh=30 cls= 
+DC7 R2 tx v=834 |V|=1 ok=1 old=20 fresh=30 cls= 
+DC7 R2 tx v=835 |V|=1 ok=1 old=28 fresh=36 cls= 
+DC7 R2 tx v=836 |V|=1 ok=0 old=28 fresh=0 cls=clearance moved cell 14416 inverts; |V|=1 moved in cell: v836(delta/deltaK=1.01627,kernel cell 14416,rank 0,d=(-0.953717,0.300706,0),s*=1); cell: 2441L(0.724901,0.579039,1.55) 368W(0.836474,0.75,1.6) 836W(0.816768,0.6875,1.55) 854(0.315598,0.32485,1.25988)
+DC7 R2 tx v=836 |V|=2 ok=0 old=69 fresh=0 cls=cap cap-bound closure: 69 old cells
+DC7 R2 tx v=837 |V|=1 ok=1 old=30 fresh=38 cls= 
+DC7 R2 tx v=838 |V|=1 ok=1 old=30 fresh=38 cls= 
+DC7 R2 tx v=841 |V|=1 ok=1 old=20 fresh=30 cls= 
+DC7 R2 tx v=845 |V|=1 ok=1 old=18 fresh=28 cls= 
+DC7 R2 tx v=846 |V|=1 ok=1 old=18 fresh=28 cls= 
+DC7 R2 tx v=106 |V|=1 ok=1 old=62 fresh=78 cls= 
+DC7 R2 tx v=107 |V|=1 ok=0 old=69 fresh=0 cls=cap cap-bound closure: 69 old cells
+DC7 R2 tx v=108 |V|=1 ok=0 old=65 fresh=0 cls=cap cap-bound closure: 65 old cells
+DC7 R2 tx v=115 |V|=1 ok=0 old=22 fresh=0 cls=partial-state face 115,590,781: A_f empty (exact LP) with 4 skin faces; lifted: v115(H_n/h0=1.3,tangential/inradius=3.42797); inradius/h0=0.397637; free-height LP slack=0.230524
+DC7 R2 tx v=115 |V|=3 ok=0 old=54 fresh=0 cls=clearance moved cell 3316 inverts; |V|=3 moved in cell: v590(delta/deltaK=1.1,kernel cell 3316,rank 0,d=(0,0,-1),s*=1) v115(delta/deltaK=0.665772,kernel cell 5366,rank 1,d=(0.723655,0,-0.690162),s*=0.690162); cell: 40(0.8,0,0.2) 590W(0.939412,0.125,0.4) 115W(1,0,0.4) 828W(0.989412,0.125,0.4)
+DC7 R2 tx v=115 |V|=4 ok=0 old=55 fresh=0 cls=clearance moved cell 3317 inverts; |V|=4 moved in cell: v828(delta/deltaK=1.65,kernel cell 3319,rank 0,d=(0,0,-1),s*=1) v115(delta/deltaK=0.665772,kernel cell 5366,rank 1,d=(0.723655,0,-0.690162),s*=0.690162); cell: 40(0.8,0,0.2) 828W(0.989412,0.125,0.4) 115W(1,0,0.4) 736W(1.03941,0.125,0.4)
+DC7 R2 tx v=115 |V|=5 ok=0 old=78 fresh=0 cls=cap cap-bound closure: 78 old cells
+DC7 R2 tx v=116 |V|=1 ok=0 old=63 fresh=0 cls=partial-state face 116,736,775: A_f empty (exact LP) with 4 skin faces; lifted: v116(H_n/h0=1.3,tangential/inradius=3.05909); inradius/h0=0.424963; free-height LP slack=0.244905
+DC7 R2 tx v=116 |V|=3 ok=0 old=93 fresh=0 cls=cap cap-bound closure: 93 old cells
+DC7 R2 tx v=117 |V|=1 ok=0 old=76 fresh=0 cls=cap cap-bound closure: 76 old cells
+DC7 R2 tx v=118 |V|=1 ok=0 old=56 fresh=0 cls=partial-state face 118,615,792: A_f empty (exact LP) with 4 skin faces; lifted: v118(H_n/h0=1.3,tangential/inradius=2.93518); inradius/h0=0.442904; free-height LP slack=0.253999
+DC7 R2 tx v=118 |V|=3 ok=0 old=107 fresh=0 cls=cap cap-bound closure: 107 old cells
+DC7 R2 tx v=191 |V|=1 ok=0 old=66 fresh=0 cls=cap cap-bound closure: 66 old cells
+DC7 R2 tx v=192 |V|=1 ok=0 old=76 fresh=0 cls=cap cap-bound closure: 76 old cells
+DC7 R2 tx v=193 |V|=1 ok=0 old=63 fresh=0 cls=partial-state face 193,613,762: A_f empty (exact LP) with 4 skin faces; lifted: v193(H_n/h0=1.3,tangential/inradius=3.05909); inradius/h0=0.424963; free-height LP slack=0.244905
+DC7 R2 tx v=193 |V|=3 ok=0 old=113 fresh=0 cls=cap cap-bound closure: 113 old cells
+DC7 R2 tx v=195 |V|=1 ok=1 old=39 fresh=49 cls= 
+DC7 R2 tx v=198 |V|=1 ok=1 old=58 fresh=74 cls= 
+DC7 R2 tx v=200 |V|=1 ok=0 old=76 fresh=0 cls=cap cap-bound closure: 76 old cells
+DC7 R2 tx v=202 |V|=1 ok=1 old=58 fresh=74 cls= 
+DC7 R2 tx v=281 |V|=1 ok=1 old=62 fresh=78 cls= 
+DC7 R2 tx v=282 |V|=1 ok=0 old=69 fresh=0 cls=cap cap-bound closure: 69 old cells
+DC7 R2 tx v=283 |V|=1 ok=0 old=65 fresh=0 cls=cap cap-bound closure: 65 old cells
+DC7 R2 tx v=290 |V|=1 ok=0 old=22 fresh=0 cls=partial-state face 290,589,782: A_f empty (exact LP) with 4 skin faces; lifted: v290(H_n/h0=1.3,tangential/inradius=3.42797); inradius/h0=0.397637; free-height LP slack=0.230524
+DC7 R2 tx v=290 |V|=3 ok=0 old=54 fresh=0 cls=clearance moved cell 3312 inverts; |V|=3 moved in cell: v589(delta/deltaK=1.1,kernel cell 3312,rank 0,d=(0,0,-1),s*=1) v290(delta/deltaK=0.665772,kernel cell 5392,rank 1,d=(0.723655,0,-0.690162),s*=0.690162); cell: 235(0.8,0,1) 589W(0.939412,0.125,1.2) 290W(1,0,1.2) 827W(0.989412,0.125,1.2)
+DC7 R2 tx v=290 |V|=4 ok=0 old=55 fresh=0 cls=clearance moved cell 3313 inverts; |V|=4 moved in cell: v827(delta/deltaK=1.65,kernel cell 3315,rank 0,d=(0,0,-1),s*=1) v290(delta/deltaK=0.665772,kernel cell 5392,rank 1,d=(0.723655,0,-0.690162),s*=0.690162); cell: 235(0.8,0,1) 827W(0.989412,0.125,1.2) 290W(1,0,1.2) 735W(1.03941,0.125,1.2)
+DC7 R2 tx v=290 |V|=5 ok=0 old=78 fresh=0 cls=cap cap-bound closure: 78 old cells
+DC7 R2 tx v=291 |V|=1 ok=0 old=63 fresh=0 cls=partial-state face 291,735,776: A_f empty (exact LP) with 4 skin faces; lifted: v291(H_n/h0=1.3,tangential/inradius=3.05909); inradius/h0=0.424963; free-height LP slack=0.244905
+DC7 R2 tx v=291 |V|=3 ok=0 old=93 fresh=0 cls=cap cap-bound closure: 93 old cells
+DC7 R2 tx v=292 |V|=1 ok=0 old=76 fresh=0 cls=cap cap-bound closure: 76 old cells
+DC7 R2 tx v=293 |V|=1 ok=0 old=56 fresh=0 cls=partial-state face 293,616,791: A_f empty (exact LP) with 4 skin faces; lifted: v293(H_n/h0=1.3,tangential/inradius=2.93518); inradius/h0=0.442904; free-height LP slack=0.253999
+DC7 R2 tx v=293 |V|=3 ok=0 old=107 fresh=0 cls=cap cap-bound closure: 107 old cells
+DC7 R2 tx v=366 |V|=1 ok=0 old=66 fresh=0 cls=cap cap-bound closure: 66 old cells
+DC7 R2 tx v=367 |V|=1 ok=0 old=76 fresh=0 cls=cap cap-bound closure: 76 old cells
+DC7 R2 tx v=368 |V|=1 ok=0 old=59 fresh=0 cls=partial-state face 368,614,761: A_f empty (exact LP) with 4 skin faces; lifted: v368(H_n/h0=1.3,tangential/inradius=3.05909); inradius/h0=0.424963; free-height LP slack=0.244905
+DC7 R2 tx v=368 |V|=3 ok=0 old=109 fresh=0 cls=cap cap-bound closure: 109 old cells
+DC7 R2 tx v=370 |V|=1 ok=1 old=39 fresh=49 cls= 
+DC7 R2 tx v=373 |V|=1 ok=1 old=58 fresh=74 cls= 
+DC7 R2 tx v=375 |V|=1 ok=0 old=76 fresh=0 cls=cap cap-bound closure: 76 old cells
+DC7 R2 tx v=377 |V|=1 ok=1 old=58 fresh=74 cls= 
+DC7 R2 tx v=589 |V|=1 ok=0 old=34 fresh=0 cls=clearance moved cell 3312 inverts; |V|=1 moved in cell: v589(delta/deltaK=1.1,kernel cell 3312,rank 0,d=(0,0,-1),s*=1); cell: 235(0.8,0,1) 589W(0.939412,0.125,1.2) 290W(1,0,1.2) 827W(0.989412,0.125,1.2)
+DC7 R2 tx v=589 |V|=3 ok=0 old=55 fresh=0 cls=clearance moved cell 3313 inverts; |V|=3 moved in cell: v827(delta/deltaK=1.65,kernel cell 3315,rank 0,d=(0,0,-1),s*=1) v290(delta/deltaK=0.665772,kernel cell 5392,rank 1,d=(0.723655,0,-0.690162),s*=0.690162); cell: 235(0.8,0,1) 827W(0.989412,0.125,1.2) 290W(1,0,1.2) 735W(1.03941,0.125,1.2)
+DC7 R2 tx v=589 |V|=4 ok=0 old=78 fresh=0 cls=cap cap-bound closure: 78 old cells
+DC7 R2 tx v=590 |V|=1 ok=0 old=34 fresh=0 cls=clearance moved cell 3316 inverts; |V|=1 moved in cell: v590(delta/deltaK=1.1,kernel cell 3316,rank 0,d=(0,0,-1),s*=1); cell: 40(0.8,0,0.2) 590W(0.939412,0.125,0.4) 115W(1,0,0.4) 828W(0.989412,0.125,0.4)
+DC7 R2 tx v=590 |V|=3 ok=0 old=55 fresh=0 cls=clearance moved cell 3317 inverts; |V|=3 moved in cell: v828(delta/deltaK=1.65,kernel cell 3319,rank 0,d=(0,0,-1),s*=1) v115(delta/deltaK=0.665772,kernel cell 5366,rank 1,d=(0.723655,0,-0.690162),s*=0.690162); cell: 40(0.8,0,0.2) 828W(0.989412,0.125,0.4) 115W(1,0,0.4) 736W(1.03941,0.125,0.4)
+DC7 R2 tx v=590 |V|=4 ok=0 old=78 fresh=0 cls=cap cap-bound closure: 78 old cells
+DC7 R2 tx v=613 |V|=1 ok=0 old=52 fresh=0 cls=partial-state face 193,613,762: A_f empty (exact LP) with 4 skin faces; lifted: v613(H_n/h0=1.3,tangential/inradius=3.05909); inradius/h0=0.424963; free-height LP slack=0.244865
+DC7 R2 tx v=613 |V|=3 ok=0 old=113 fresh=0 cls=cap cap-bound closure: 113 old cells
+DC7 R2 tx v=614 |V|=1 ok=0 old=52 fresh=0 cls=partial-state face 368,614,761: A_f empty (exact LP) with 4 skin faces; lifted: v614(H_n/h0=1.3,tangential/inradius=3.05909); inradius/h0=0.424963; free-height LP slack=0.244865
+DC7 R2 tx v=614 |V|=3 ok=0 old=109 fresh=0 cls=cap cap-bound closure: 109 old cells
+DC7 R2 tx v=615 |V|=1 ok=0 old=52 fresh=0 cls=clearance moved cell 8716 inverts; |V|=1 moved in cell: v615(delta/deltaK=76.754,kernel cell 8716,rank 0,d=(0.67438,-0.212631,-0.707107),s*=0.707107); cell: 792W(1.25618,0.8125,0.45) 163(1.5153,1,0.6) 615W(1.27589,0.875,0.4) 1498L(1.32834,0.858461,0.5)
+DC7 R2 tx v=615 |V|=2 ok=0 old=66 fresh=0 cls=cap cap-bound closure: 66 old cells
+DC7 R2 tx v=616 |V|=1 ok=0 old=52 fresh=0 cls=clearance moved cell 8804 inverts; |V|=1 moved in cell: v616(delta/deltaK=76.754,kernel cell 8804,rank 0,d=(0.67438,-0.212631,-0.707107),s*=0.707107); cell: 791W(1.25618,0.8125,1.25) 338(1.5153,1,1.4) 616W(1.27589,0.875,1.2) 1512L(1.32834,0.858461,1.3)
+DC7 R2 tx v=616 |V|=2 ok=0 old=66 fresh=0 cls=cap cap-bound closure: 66 old cells
+DC7 R2 tx v=617 |V|=1 ok=1 old=56 fresh=72 cls= 
+DC7 R2 tx v=618 |V|=1 ok=1 old=56 fresh=72 cls= 
+DC7 R2 tx v=619 |V|=1 ok=1 old=60 fresh=76 cls= 
+DC7 R2 tx v=620 |V|=1 ok=1 old=60 fresh=76 cls= 
+DC7 R2 tx v=735 |V|=1 ok=0 old=33 fresh=0 cls=partial-state face 290,735,827: A_f empty (exact LP) with 4 skin faces; lifted: v735(H_n/h0=1.3,tangential/inradius=3.18774); inradius/h0=0.407812; free-height LP slack=0.238367
+DC7 R2 tx v=735 |V|=3 ok=0 old=47 fresh=0 cls=partial-state face 290,589,782: A_f empty (exact LP) with 4 skin faces; lifted: v290(H_n/h0=1.3,tangential/inradius=3.42797); inradius/h0=0.397637; free-height LP slack=0.230524
+DC7 R2 tx v=735 |V|=5 ok=0 old=78 fresh=0 cls=cap cap-bound closure: 78 old cells
+DC7 R2 tx v=736 |V|=1 ok=0 old=33 fresh=0 cls=partial-state face 115,736,828: A_f empty (exact LP) with 4 skin faces; lifted: v736(H_n/h0=1.3,tangential/inradius=3.18774); inradius/h0=0.407812; free-height LP slack=0.238367
+DC7 R2 tx v=736 |V|=3 ok=0 old=47 fresh=0 cls=partial-state face 115,590,781: A_f empty (exact LP) with 4 skin faces; lifted: v115(H_n/h0=1.3,tangential/inradius=3.42797); inradius/h0=0.397637; free-height LP slack=0.230524
+DC7 R2 tx v=736 |V|=5 ok=0 old=78 fresh=0 cls=cap cap-bound closure: 78 old cells
+DC7 R2 tx v=739 |V|=1 ok=1 old=46 fresh=58 cls= 
+DC7 R2 tx v=740 |V|=1 ok=1 old=46 fresh=58 cls= 
+DC7 R2 tx v=761 |V|=1 ok=0 old=18 fresh=0 cls=clearance moved cell 3016 inverts; |V|=1 moved in cell: v761(delta/deltaK=1.1,kernel cell 3016,rank 0,d=(0,0,1),s*=1); cell: 614W(0.875886,0.875,1.6) 368W(0.836474,0.75,1.6) 761W(0.90618,0.8125,1.6) 418(1.1153,1,1.8)
+DC7 R2 tx v=761 |V|=3 ok=0 old=109 fresh=0 cls=cap cap-bound closure: 109 old cells
+DC7 R2 tx v=762 |V|=1 ok=0 old=18 fresh=0 cls=clearance moved cell 3020 inverts; |V|=1 moved in cell: v762(delta/deltaK=1.1,kernel cell 3020,rank 0,d=(0,0,1),s*=1); cell: 613W(0.875886,0.875,0.8) 193W(0.836474,0.75,0.8) 762W(0.90618,0.8125,0.8) 243(1.1153,1,1)
+DC7 R2 tx v=762 |V|=3 ok=0 old=113 fresh=0 cls=cap cap-bound closure: 113 old cells
+DC7 R2 tx v=775 |V|=1 ok=0 old=13 fresh=0 cls=clearance moved cell 3070 inverts; |V|=1 moved in cell: v775(delta/deltaK=1.1,kernel cell 10502,rank 0,d=(0,0,-1),s*=1); cell: 40(0.8,0,0.2) 775W(1.00912,0.1875,0.4) 736W(1.03941,0.125,0.4) 116W(1.07882,0.25,0.4)
+DC7 R2 tx v=775 |V|=3 ok=0 old=93 fresh=0 cls=cap cap-bound closure: 93 old cells
+DC7 R2 tx v=776 |V|=1 ok=0 old=13 fresh=0 cls=clearance moved cell 3074 inverts; |V|=1 moved in cell: v776(delta/deltaK=1.1,kernel cell 10536,rank 0,d=(0,0,-1),s*=1); cell: 235(0.8,0,1) 776W(1.00912,0.1875,1.2) 735W(1.03941,0.125,1.2) 291W(1.07882,0.25,1.2)
+DC7 R2 tx v=776 |V|=3 ok=0 old=93 fresh=0 cls=cap cap-bound closure: 93 old cells
+DC7 R2 tx v=781 |V|=1 ok=0 old=6 fresh=0 cls=clearance moved cell 3092 inverts; |V|=1 moved in cell: v781(delta/deltaK=1.1,kernel cell 3092,rank 1,d=(0,0,-1),s*=1); cell: 40(0.8,0,0.2) 781W(0.95,0,0.4) 115W(1,0,0.4) 590W(0.939412,0.125,0.4)
+DC7 R2 tx v=781 |V|=3 ok=0 old=54 fresh=0 cls=clearance moved cell 3316 inverts; |V|=3 moved in cell: v590(delta/deltaK=1.1,kernel cell 3316,rank 0,d=(0,0,-1),s*=1) v115(delta/deltaK=0.665772,kernel cell 5366,rank 1,d=(0.723655,0,-0.690162),s*=0.690162); cell: 40(0.8,0,0.2) 590W(0.939412,0.125,0.4) 115W(1,0,0.4) 828W(0.989412,0.125,0.4)
+DC7 R2 tx v=781 |V|=4 ok=0 old=55 fresh=0 cls=clearance moved cell 3317 inverts; |V|=4 moved in cell: v828(delta/deltaK=1.65,kernel cell 3319,rank 0,d=(0,0,-1),s*=1) v115(delta/deltaK=0.665772,kernel cell 5366,rank 1,d=(0.723655,0,-0.690162),s*=0.690162); cell: 40(0.8,0,0.2) 828W(0.989412,0.125,0.4) 115W(1,0,0.4) 736W(1.03941,0.125,0.4)
+DC7 R2 tx v=781 |V|=5 ok=0 old=78 fresh=0 cls=cap cap-bound closure: 78 old cells
+DC7 R2 tx v=782 |V|=1 ok=0 old=6 fresh=0 cls=clearance moved cell 3094 inverts; |V|=1 moved in cell: v782(delta/deltaK=1.1,kernel cell 3094,rank 1,d=(0,0,-1),s*=1); cell: 235(0.8,0,1) 782W(0.95,0,1.2) 290W(1,0,1.2) 589W(0.939412,0.125,1.2)
+DC7 R2 tx v=782 |V|=3 ok=0 old=54 fresh=0 cls=clearance moved cell 3312 inverts; |V|=3 moved in cell: v589(delta/deltaK=1.1,kernel cell 3312,rank 0,d=(0,0,-1),s*=1) v290(delta/deltaK=0.665772,kernel cell 5392,rank 1,d=(0.723655,0,-0.690162),s*=0.690162); cell: 235(0.8,0,1) 589W(0.939412,0.125,1.2) 290W(1,0,1.2) 827W(0.989412,0.125,1.2)
+DC7 R2 tx v=782 |V|=4 ok=0 old=55 fresh=0 cls=clearance moved cell 3313 inverts; |V|=4 moved in cell: v827(delta/deltaK=1.65,kernel cell 3315,rank 0,d=(0,0,-1),s*=1) v290(delta/deltaK=0.665772,kernel cell 5392,rank 1,d=(0.723655,0,-0.690162),s*=0.690162); cell: 235(0.8,0,1) 827W(0.989412,0.125,1.2) 290W(1,0,1.2) 735W(1.03941,0.125,1.2)
+DC7 R2 tx v=782 |V|=5 ok=0 old=78 fresh=0 cls=cap cap-bound closure: 78 old cells
+DC7 R2 tx v=791 |V|=1 ok=0 old=20 fresh=0 cls=clearance moved cell 4262 inverts; |V|=1 moved in cell: v791(delta/deltaK=1.15338,kernel cell 4262,rank 0,d=(0.953717,-0.300706,0),s*=1); cell: 791W(1.25618,0.8125,1.25) 293W(1.23647,0.75,1.2) 616W(1.27589,0.875,1.2) 338(1.5153,1,1.4)
+DC7 R2 tx v=791 |V|=3 ok=0 old=107 fresh=0 cls=cap cap-bound closure: 107 old cells
+DC7 R2 tx v=792 |V|=1 ok=0 old=20 fresh=0 cls=clearance moved cell 4440 inverts; |V|=1 moved in cell: v792(delta/deltaK=1.15338,kernel cell 4440,rank 0,d=(0.953717,-0.300706,3.56767e-15),s*=1); cell: 792W(1.25618,0.8125,0.45) 118W(1.23647,0.75,0.4) 615W(1.27589,0.875,0.4) 163(1.5153,1,0.6)
+DC7 R2 tx v=792 |V|=3 ok=0 old=107 fresh=0 cls=cap cap-bound closure: 107 old cells
+DC7 R2 tx v=827 |V|=1 ok=0 old=4 fresh=0 cls=clearance moved cell 3313 inverts; |V|=1 moved in cell: v827(delta/deltaK=1.65,kernel cell 3315,rank 0,d=(0,0,-1),s*=1); cell: 235(0.8,0,1) 827W(0.989412,0.125,1.2) 290W(1,0,1.2) 735W(1.03941,0.125,1.2)
+DC7 R2 tx v=827 |V|=3 ok=0 old=47 fresh=0 cls=partial-state face 290,589,782: A_f empty (exact LP) with 4 skin faces; lifted: v290(H_n/h0=1.3,tangential/inradius=3.42797); inradius/h0=0.397637; free-height LP slack=0.230524
+DC7 R2 tx v=827 |V|=5 ok=0 old=78 fresh=0 cls=cap cap-bound closure: 78 old cells
+DC7 R2 tx v=828 |V|=1 ok=0 old=4 fresh=0 cls=clearance moved cell 3317 inverts; |V|=1 moved in cell: v828(delta/deltaK=1.65,kernel cell 3319,rank 0,d=(0,0,-1),s*=1); cell: 40(0.8,0,0.2) 828W(0.989412,0.125,0.4) 115W(1,0,0.4) 736W(1.03941,0.125,0.4)
+DC7 R2 tx v=828 |V|=3 ok=0 old=47 fresh=0 cls=partial-state face 115,590,781: A_f empty (exact LP) with 4 skin faces; lifted: v115(H_n/h0=1.3,tangential/inradius=3.42797); inradius/h0=0.397637; free-height LP slack=0.230524
+DC7 R2 tx v=828 |V|=5 ok=0 old=78 fresh=0 cls=cap cap-bound closure: 78 old cells
+DC7 R2 tx v=836 |V|=1 ok=0 old=28 fresh=0 cls=clearance moved cell 14416 inverts; |V|=1 moved in cell: v836(delta/deltaK=1.01627,kernel cell 14416,rank 0,d=(-0.953717,0.300706,0),s*=1); cell: 2441L(0.724901,0.579039,1.55) 368W(0.836474,0.75,1.6) 836W(0.816768,0.6875,1.55) 854(0.315598,0.32485,1.25988)
+DC7 R2 tx v=836 |V|=2 ok=0 old=75 fresh=0 cls=cap cap-bound closure: 75 old cells
+DC7 R2 transactions=245 lifted=313 unlifted=39 rowed=430 unrowed=202
+DC7 V sweep 0 cells=8114 long=2400 bad=541 height_fail=16 column_demand=0 work=581
