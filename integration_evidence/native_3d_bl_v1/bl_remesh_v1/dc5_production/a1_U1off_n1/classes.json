@@ -1,0 +1,89 @@
+{
+ "records": 2458,
+ "classes": {
+  "split operator": 1185,
+  "height": 627,
+  "shape q<0.18 or J<0.05": 308,
+  "progress": 193,
+  "measurement": 73,
+  "geometry": 44,
+  "shape q in [0.18,0.20)": 22,
+  "limit": 6
+ },
+ "reasons": {
+  "shape q<0.18 or J<0.05": {
+   "Native #D metric shape/sliver failure: q=# at cell #, J=# at cell #": 308
+  },
+  "shape q in [0.18,0.20)": {
+   "Native #D metric shape/sliver failure: q=# at cell #, J=# at cell #": 22
+  },
+  "geometry": {
+   "Native #D insertion cannot change an immutable facet or marker junction.": 44
+  },
+  "height": {
+   "Native#D first-row normal foot leaves wall triangle at facet # cell # minimum barycentric #": 361,
+   "Native#D prescribed height fails at facet # cell # relative error # > tolerance #": 266
+  },
+  "split operator": {
+   "Native #D cone obstructed by interface face #,#,# at apex #": 756,
+   "Native#D normal wall child obstructed at facet #: Native #D cone obstructed by interface face #,#,# at apex #": 136,
+   "Native#D normal wall point is obstructed by retained patch interface.": 132,
+   "Native#D joint point cannot see its retained skin.": 100,
+   "Native#D background obstruction at facet #": 32,
+   "Native #D cavity link has a nonmanifold edge.": 11,
+   "Native #D cavity has a disconnected or unclosed link.": 9,
+   "Native#D surface strip inverts inherited volume connectivity.": 9
+  },
+  "measurement": {
+   "Native #D composed edge panel is unrepresentable. at native #D metric edge #,#": 73
+  },
+  "progress": {
+   "Native #D refinement does not reduce frozen changed-edge excess.": 158,
+   "Native #D repair improves neither frozen size excess nor quality/sliver bounds.": 35
+  },
+  "limit": {
+   "Native#D joint placement/reconnection exhausted its shared trial budget without frozen metric progress: Native": 6
+  }
+ },
+ "shape_q_histogram": {
+  "0.10": 129,
+  "0.00": 115,
+  "0.15": 72,
+  "0.05": 9,
+  "0.20": 5
+ },
+ "engine": {
+  "stop": "work_budget",
+  "global_work": "8192",
+  "work_limit": "8192",
+  "rounds": "110",
+  "attempted": "110",
+  "accepted": "61",
+  "rejected": "48",
+  "height_checks": "1116",
+  "height_rejected": "268",
+  "footprint_rejected": "95",
+  "geometry_trials": "2587",
+  "geometry_rejected": "1930",
+  "metric_trials": "657",
+  "metric_shape_rejected": "330",
+  "metric_progress_rejected": "193",
+  "metric_measurement_rejected": "73",
+  "wall_reconstruction_trials": "1086",
+  "wall_reconstruction_accepted": "0",
+  "wall_joint_trials": "6911",
+  "wall_joint_accepted": "0",
+  "placement_trials": "473",
+  "placement_validated": "14",
+  "oversized_stars": "0",
+  "final_owned_cells": "217",
+  "remaining_edges": "35",
+  "remaining_repairs": "0",
+  "cached_invalid_cells": "94",
+  "sample_q": "1",
+  "sample_j": "1"
+ },
+ "rejected_event": [
+  "Native3D rejected event: Native3D joint repair exhausted the global work budget. Last local rejection: feature 2:8: Native3D joint point cannot see its retained skin.; accepted CFD mesh/solution retained."
+ ]
+}

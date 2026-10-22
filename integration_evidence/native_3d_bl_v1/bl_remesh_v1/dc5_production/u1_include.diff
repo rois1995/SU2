@@ -1,0 +1,14 @@
+diff --git a/UnitTests/SU2_CFD/adaptation/CNativeImport3D_tests.cpp b/UnitTests/SU2_CFD/adaptation/CNativeImport3D_tests.cpp
+index f46184f1d4..dfe9a7bac9 100644
+--- a/UnitTests/SU2_CFD/adaptation/CNativeImport3D_tests.cpp
++++ b/UnitTests/SU2_CFD/adaptation/CNativeImport3D_tests.cpp
+@@ -2569,3 +2569,9 @@ TEST_CASE("Mapped native runtime completes a uniform target before conservative
+   OutputRoundTrip(world,name,result.slices,ImportGeometry(*config,accepted.Fine(),nullptr,*reference).cells,*reference,4.,
+       [](const su2double*,double scale){return Tensor{scale,0,0,scale,0,scale};});
+ }
++
++// DC-5 production U1 run only (test-only link-time replacement of the metric TU; never committed).
++#pragma GCC push_options
++#pragma GCC optimize("fp-contract=off", "no-fast-math", "no-unsafe-math-optimizations")  // Same FP flags as libSU2Common.
++#include "fixtures/native_u1_metric_copy.inc"
++#pragma GCC pop_options

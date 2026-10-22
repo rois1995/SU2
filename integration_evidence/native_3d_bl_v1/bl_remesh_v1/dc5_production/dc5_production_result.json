@@ -1,0 +1,70 @@
+{
+ "check": "DC-5 production re-run: A1 exact annulus ([NativeSymmetryRuntime3D] annulus/oblique/mapped, byte-identical generated config) through the PRODUCTION CNativeRemesher3D/engine path, ADAP_NATIVE_MAX_WORK 8192, ADAP_NATIVE_MAX_TIME 120, final gates unchanged, ADAP_BL_FIRST_HEIGHT_TOL default 0.10, current (pre-D1) law with WP-C pinning",
+ "binary_A": "test_driver 099aaab9 (commit 91acfc0076)",
+ "binary_U1": "same sources + test-only link-time copy of CNativeMetric3D.cpp (native_u1_metric_copy.inc, u1_include.diff, library FP flags); control a1_U1off_n1 with the switch off reproduces the A trial stream byte for byte",
+ "u1_rule": "per-transaction shape admission: positivity always; absolute gates or not worse than the replaced patch (q_min and J_min); final acceptance absolute. Not switched: first-child absoluteness (indistinguishable in the metric TU), height partitioner absolute rule",
+ "A": {
+  "classes": {
+   "split operator": 1185,
+   "height": 627,
+   "shape q<0.18 or J<0.05": 308,
+   "progress": 193,
+   "measurement": 73,
+   "geometry": 44,
+   "shape q in [0.18,0.20)": 22,
+   "limit": 6
+  },
+  "engine": {
+   "stop": "work_budget",
+   "global_work": "8192",
+   "accepted": "61",
+   "rejected": "48",
+   "final_owned_cells": "217",
+   "remaining_edges": "35",
+   "cached_invalid_cells": "94",
+   "oversized_stars": "0"
+  },
+  "event": [
+   "Native3D rejected event: Native3D joint repair exhausted the global work budget. Last local rejection: feature 2:8: Native3D joint point cannot see its retained skin.; accepted CFD mesh/solution retained."
+  ]
+ },
+ "U1": {
+  "classes": {
+   "split operator": 2264,
+   "height": 1931,
+   "shape q<0.18 or J<0.05": 336,
+   "measurement": 151,
+   "progress": 118,
+   "geometry": 75,
+   "shape q in [0.18,0.20)": 65,
+   "limit": 36,
+   "unclassified": 2
+  },
+  "engine": {
+   "stop": "work_budget",
+   "global_work": "8192",
+   "accepted": "83",
+   "rejected": "113",
+   "final_owned_cells": "336",
+   "remaining_edges": "7",
+   "cached_invalid_cells": "42",
+   "oversized_stars": "0"
+  },
+  "event": [
+   "Native3D rejected event: Native3D joint strip exhausted the global work budget. Last local rejection: feature 2:9: Native3D prescribed height fails at facet 1 cell 201142 relative error 0.750000 > tolerance 0.100000; accepted CFD mesh/solution retained."
+  ]
+ },
+ "height_error_histogram": {
+  "A": {
+   "(.20,.50]": 146,
+   ">.50": 126
+  },
+  "U1": {
+   "(.20,.50]": 860,
+   ">.50": 586
+  },
+  "(.10,.20]": 0
+ },
+ "superseded": "a1_*_fpcontract_n1: first U1 build compiled the copy with fp-contract on (rounding-level stream divergence); not used",
+ "verdict": "Both blocked at the 8192 work limit, no complete mesh. Caps do not bind (0 dependency/cap rejections, 0 oversized stars). Admission is a secondary constraint: U1 increases accepted events 61->83 and lowers the final defect (remaining long edges 35->7, invalid cells 94->42) but does not complete, and 401 shape rejections remain under U1 (worse than the replaced patch). The binding constraints are the operators: cone/visibility obstruction of split and first-row constructions (A 1185, U1 2264 of rejections) and first-row height/foot construction (A 627, U1 1931; every height miss > 0.20, so T=0.10 is not marginal), which also consume the work budget."
+}

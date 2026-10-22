@@ -1,0 +1,94 @@
+{
+ "records": 4769,
+ "classes": {
+  "split operator": 2166,
+  "height": 1852,
+  "shape q<0.18 or J<0.05": 324,
+  "measurement": 151,
+  "progress": 112,
+  "geometry": 71,
+  "shape q in [0.18,0.20)": 58,
+  "limit": 34,
+  "unclassified": 1
+ },
+ "reasons": {
+  "shape q<0.18 or J<0.05": {
+   "Native #D metric shape/sliver failure: q=# at cell #, J=# at cell #": 324
+  },
+  "geometry": {
+   "Native #D insertion cannot change an immutable facet or marker junction.": 71
+  },
+  "height": {
+   "Native#D prescribed height fails at facet # cell # relative error # > tolerance #": 1354,
+   "Native#D first-row normal foot leaves wall triangle at facet # cell # minimum barycentric #": 498
+  },
+  "split operator": {
+   "Native #D cone obstructed by interface face #,#,# at apex #": 1621,
+   "Native#D normal wall child obstructed at facet #: Native #D cone obstructed by interface face #,#,# at apex #": 206,
+   "Native#D normal wall point is obstructed by retained patch interface.": 200,
+   "Native#D joint point cannot see its retained skin.": 66,
+   "Native #D cavity link has a nonmanifold edge.": 25,
+   "Native#D background obstruction at facet #": 22,
+   "Native #D cavity has a disconnected or unclosed link.": 17,
+   "Native#D surface strip inverts inherited volume connectivity.": 9
+  },
+  "measurement": {
+   "Native #D composed edge panel is unrepresentable. at native #D metric edge #,#": 151
+  },
+  "shape q in [0.18,0.20)": {
+   "Native #D metric shape/sliver failure: q=# at cell #, J=# at cell #": 58
+  },
+  "progress": {
+   "Native #D refinement does not reduce frozen changed-edge excess.": 45,
+   "Native #D repair improves neither frozen size excess nor quality/sliver bounds.": 40,
+   "Native#D joint strip introduces a new oversized edge.": 27
+  },
+  "limit": {
+   "Native#D joint placement/reconnection exhausted its shared trial budget without frozen metric progress: Native": 34
+  },
+  "unclassified": {
+   "": 1
+  }
+ },
+ "shape_q_histogram": {
+  "0.00": 147,
+  "0.15": 116,
+  "0.05": 65,
+  "0.10": 53,
+  "0.20": 1
+ },
+ "engine": {
+  "stop": "work_budget",
+  "global_work": "8192",
+  "work_limit": "8192",
+  "rounds": "191",
+  "attempted": "190",
+  "accepted": "82",
+  "rejected": "108",
+  "height_checks": "2470",
+  "height_rejected": "1356",
+  "footprint_rejected": "156",
+  "geometry_trials": "4991",
+  "geometry_rejected": "4264",
+  "metric_trials": "727",
+  "metric_shape_rejected": "382",
+  "metric_progress_rejected": "112",
+  "metric_measurement_rejected": "151",
+  "wall_reconstruction_trials": "1392",
+  "wall_reconstruction_accepted": "0",
+  "wall_joint_trials": "2926",
+  "wall_joint_accepted": "0",
+  "placement_trials": "3106",
+  "placement_validated": "26",
+  "oversized_stars": "0",
+  "final_owned_cells": "333",
+  "remaining_edges": "6",
+  "remaining_repairs": "0",
+  "cached_invalid_cells": "44",
+  "sample_q": "1",
+  "sample_j": "1"
+ },
+ "rejected_event": [
+  "Native3D rejected event: Native 3D global proposal budget exhausted before admission; feasibility is undetermined. Last local rejection: edge 9,30431: Native 3D cone obstructed by interface face 9,162479,24143 at apex 45103.; accepted CFD mesh/solution retained."
+ ]
+}
