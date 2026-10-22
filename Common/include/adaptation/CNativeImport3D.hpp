@@ -16,6 +16,7 @@ struct ReferenceState {
   std::shared_ptr<const PlanarReference> original;
   std::vector<Facet> facets;
   std::vector<std::string> marker_names;
+  double first_height_tol = 0;  // ADAP_BL_FIRST_HEIGHT_TOL the reference was accepted under; 0 = legacy, unrecorded.
 };
 /*! Version1 Cartesian/version2 affine adoption precedes CFD geometry quantities, states and original donors.
  * Shared constraints are solved together and body displacement is bounded. Return/restart only audits

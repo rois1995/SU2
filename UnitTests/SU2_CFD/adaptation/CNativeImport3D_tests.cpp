@@ -921,6 +921,31 @@ TEST_CASE("Native3D acceptance veto retains current and BDF state before publica
   REQUIRE(driver->ReplaceMesh(remeshed,transfer));CHECK(driver->Reference()->original);
 }
 
+TEST_CASE("Native3D reference records the first-height tolerance and refuses another", "[NativeReference3D]") {
+  ReferenceState state;
+  state.marker_names={"wall","plane"};
+  const std::array<Node,4> nodes{{{0,{0,0,0}},{1,{1,0,0}},{2,{0,1,0}},{3,{0,0,1}}}};
+  for(auto face:Incidence({Cell{0,nodes}}).Boundary()) {
+    const bool wall=std::find(face.begin(),face.end(),0)==face.end();
+    state.facets.push_back({Id(state.facets.size()),wall?0:1,{nodes[face[0]],nodes[face[1]],nodes[face[2]]}});
+  }
+  state.original=std::make_shared<PlanarReference>(state.facets);
+  const auto legacy=EncodeReference(state);
+  CHECK(legacy.find("BL_FIRST_HEIGHT_TOL")==std::string::npos);CHECK(DecodeReference(legacy).first_height_tol==0);
+  state.first_height_tol=.1;
+  const auto text=EncodeReference(state);const auto decoded=DecodeReference(text);
+  CHECK(decoded.first_height_tol==.1);CHECK(EncodeReference(decoded)==text);
+  CHECK_THROWS(DecodeReference(text+"BL_FIRST_HEIGHT_TOL 0.1\n"));
+  CHECK_THROWS(DecodeReference(legacy+"BL_FIRST_HEIGHT_TOL 0\n"));
+  WriteReference("first_height_tol.native_ref",state);
+  ReferenceState loaded;REQUIRE(LoadReference("first_height_tol.native_ref",loaded));CHECK(loaded.first_height_tol==.1);
+  CHECK_THROWS(SU2NativeFirstHeight::AdoptRecorded(loaded.first_height_tol,.125));
+  CHECK(SU2NativeFirstHeight::AdoptRecorded(loaded.first_height_tol,.1)==.1);
+  SU2_MPI::Barrier(SU2_MPI::GetComm());
+  if(!SU2_MPI::GetRank())std::remove("first_height_tol.native_ref");
+  SU2_MPI::Barrier(SU2_MPI::GetComm());
+}
+
 TEST_CASE("Analytic native3D reference persists explicit geometry and requires a frozen runtime tolerance",
           "[NativeCurvedReference3D]") {
   World world;

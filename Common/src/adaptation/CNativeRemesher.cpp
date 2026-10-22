@@ -305,6 +305,13 @@ void CNativeRemesher::PrepareReference(const CConfig& config, const CGeometry& g
   CLocalFailure failure;
   if (config.GetRestart() && !loaded)
     failure.Set(1, 0, "Native solution restart requires the original geometry sidecar: " + filename);
+  // The persisted first-height policy must match ADAP_BL_FIRST_HEIGHT_TOL; legacy sidecars get it recorded now.
+  try {
+    reference->first_height_tol = SU2NativeFirstHeight::AdoptRecorded(
+        reference->first_height_tol, SU2_TYPE::GetValue(config.GetAdap_BL_FirstHeightTol()));
+  } catch (const std::exception& e) {
+    failure.Set(1, 0, e.what());
+  }
   CollectiveFailure(failure, CURRENT_FUNCTION);
   ImportNative(config, geometry, nullptr, *reference);  // Geometry preflight before solving; no target yet.
 }

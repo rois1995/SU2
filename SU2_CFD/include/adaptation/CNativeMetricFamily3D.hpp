@@ -25,6 +25,8 @@ struct CNativeMetricFamily3D {
   std::shared_ptr<CBoundaryLayerMetric> layers;
   std::shared_ptr<const SU2Native3D::PlanarReference> authority;
   double surface_tolerance=0;
+  double feature_angle=0;      // ADAP_ANGLE of the D1 feature set of the retained layers.
+  uint64_t feature_identity=0; // D1 feature identity (canonical feature list and law parameters).
   bool Compatible(const CConfig& config)const;
   std::vector<CAdapBoundaryLayer> layer_controls;
   bool boundary_layer=false;

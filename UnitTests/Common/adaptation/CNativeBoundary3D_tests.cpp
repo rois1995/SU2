@@ -1870,6 +1870,30 @@ TEST_CASE("Constrained movement keeps a coplanar component seam when faces store
   CHECK(lifted.p.z==0);CHECK(lifted.p.x==1);CHECK(lifted.p.y==Approx(.7).epsilon(1e-15));
 }
 
+TEST_CASE("D1 features are never smoothed: a crease point slides only along its crease", "[NativeMoveConstraint3D]") {
+  // Convex 90-degree crease between the components z = 0 (marker 10) and x = 1 (marker 11). A vertex on the crease
+  // keeps both plane constraints (rank 2): it can only slide along the crease line; no surface face may span the two
+  // components, so collapses/swaps cannot remove the crease edge. Corners (three components) are fixed (rank 3), as
+  // the cube-corner checks of the first-row movement test show.
+  const Node p00{0,{0,0,0}},p10{1,{1,0,0}},p01{2,{0,1,0}},p11{3,{1,1,0}},q10{4,{1,0,1}},q11{5,{1,1,1}};
+  const std::vector<Facet> facets{{0,10,{p00,p01,p10}},{1,10,{p10,p01,p11}},{2,11,{p10,p11,q11}},{3,11,{p10,q11,q10}}};
+  const PlanarReference reference(facets);
+  const Node seam{6,{1,.5,0}},top{7,{.5,.5,.5}};Patch patch;
+  const std::vector<std::pair<std::array<Node,3>,Id>> faces{{{p10,seam,p01},1},{{seam,p11,p01},1},{{p10,seam,q11},2},{{seam,p11,q11},2}};
+  for(const auto& row:faces) {
+    std::array<Node,4> cell{row.first[0],row.first[1],row.first[2],top};
+    if(Orientation(cell[0].p,cell[1].p,cell[2].p,cell[3].p)<0)std::swap(cell[0],cell[1]);
+    patch.cells.push_back({Id(patch.cells.size()),cell});
+    patch.surface.push_back({{row.first[0].id,row.first[1].id,row.first[2].id},row.second});
+  }
+  for(const Point proposal:{Point{1.2,.7,.3},Point{.8,.3,-.2},Point{1,.9,0}}) {
+    const auto moved=ConstrainMovePoint(patch,6,{6,proposal},{},reference);
+    CHECK(moved.p.x==1);CHECK(moved.p.z==0);CHECK(moved.p.y==Approx(proposal.y).epsilon(1e-15));
+  }
+  const std::array<Point,3> spanning{p01.p,seam.p,q11.p};
+  CHECK_FALSE(reference.ContainsFace(1,spanning));CHECK_FALSE(reference.ContainsFace(2,spanning));
+}
+
 TEST_CASE("Native3D first-height tolerance is inclusive at dyadic and computed bounds", "[NativeFirstLayer3D]") {
   // One wall child: base in z=0 (unit cross product), apex (.25,.25,z) inside the face; altitude is exactly z.
   auto child=[](double z) {

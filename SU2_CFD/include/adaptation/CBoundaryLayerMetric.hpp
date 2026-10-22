@@ -31,6 +31,7 @@
 #include <stdexcept>
 #include <array>
 #include <cstdint>
+#include <map>
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -54,15 +55,19 @@ namespace SU2Native3D { struct ReferenceState; class PlanarReference; class Supp
  *          - normal direction: towards the closest point of the wall (radial around convex edges and corners of the
  *            wall); at a wall point, the normal of the face, of the edge (sum of the two face normals) or of the
  *            vertex (2D: bisector of the two edges; 3D: angle-weighted face normals);
- *          - tangential sizes from the wall faces: 2D the length of the closest wall edge, limited near a vertex where
- *            the wall turns to max(h0, 2 r / cos(theta/2)), r the distance to the vertex and theta the angle between
- *            the two edges (only vertices within half the edge length where the wall turns by more than ADAP_ANGLE,
- *            the sharp corners of the remesher; the Python version uses every vertex where the wall is not straight,
- *            which makes the metric isotropic with size h0 at every vertex of a curved wall); 3D a size tensor per face (2/3 of the sum of
+ *          - tangential sizes from the wall faces: 2D the length of the closest wall edge; 3D a size tensor per face (2/3 of the sum of
  *            e e^T of its edges, i.e. the edge length for an equilateral face; quadrilaterals: 2/4 of the sum over its
  *            four edges), averaged at the vertices (logarithms, weighted by the face angles, rotated to the vertex
  *            normal) and interpolated in the face of the closest point (logarithms, barycentric weights, rotated to
  *            the normal of the point);
+ *          - D1 crease-frame law (BL_REMESH_PLAN WP-A, shared 2D/3D; it replaces the former convexity-blind 2D corner
+ *            limit): a feature is a convex wall edge (3D) or vertex (2D) where the wall turns by more than ADAP_ANGLE,
+ *            detected on the original faces of all BL walls and the adjacent non-BL physical faces (a symmetry plane
+ *            is a mirrored continuation). Across a crease segment the size is hn_f(rho) = h0_f + ln(ADAP_HGRAD) rho,
+ *            rho the distance to the segment and h0_f the smallest first height of the walls meeting there; along the
+ *            crease the metric keeps its own size (F = (I - t t^T) / hn_f^2); corners and 2D feature vertices are
+ *            isotropic (F = I / hn_f^2). Each wall sample is intersected with its features in a fixed canonical order
+ *            BEFORE the fade (full and logarithm replaced), so every consumer of a sample sees the same law;
  *          - full strength up to max(h0, 0.9 T) from the wall, then a smoothstep fade to 0 at T (never inside h0);
  *            where it fades, the eigenvalues are interpolated in logarithm (weight w) towards the isotropic metric of
  *            the largest size of the adaptation metric (its smallest eigenvalue over the whole mesh);
@@ -128,6 +133,34 @@ class CBoundaryLayerMetric {
                                                             largest tangential size of the wall metric. */
 
   /*!
+   * \brief One original physical boundary face for D1 feature detection (nDim points: 2D a segment with the fluid on
+   *        its left, 3D a triangle or quadrilateral with its normal pointing out of the fluid). wall is the BL marker
+   *        name, empty for a non-BL "partner" face; reflective marks a symmetry plane (mirrored continuation).
+   */
+  struct FeatureFace {
+    std::vector<su2double> coord;
+    std::string wall;
+    bool reflective = false;
+  };
+  /*!
+   * \brief D1 options. hgrad > 1 (ADAP_HGRAD) enables the law; the test constructor default (0) disables it.
+   *        faces: non-BL partner faces and, with wallFacesIncluded, the complete BL wall faces (otherwise the wall faces
+   *        are taken from the walls, which must then be complete and fluid-oriented).
+   */
+  struct FeatureOptions {
+    double hgrad = 0.0;
+    std::vector<FeatureFace> faces;
+    bool wallFacesIncluded = false;
+  };
+  /*! Detected D1 feature set (identical on every rank: detection uses replicated original geometry). */
+  struct FeatureSummary {
+    size_t segments = 0, images = 0, corners = 0, imageCorners = 0, carrierEnds = 0, carrierCorners = 0,
+           freeCorners = 0, planes = 0;
+    double angle = 0, slope = 0, maximumRadius = 0;
+    uint64_t identity = 0;
+  };
+
+  /*!
    * \brief Wall faces of the markers of ADAP_BL_MARKER, gathered from all ranks (collective call).
    * \param[in] geometry - Geometry (boundary faces with their volume element).
    * \param[in] config - ADAP_BL_* options (the markers must be solid walls); ADAP_ANGLE for the corners.
@@ -138,10 +171,16 @@ class CBoundaryLayerMetric {
    * \brief Given wall faces (for tests, or surfaces from elsewhere).
    * \param[in] nDim - Number of dimensions.
    * \param[in] walls - Wall markers.
-   * \param[in] cornerAngle - 2D: the tangential size is limited around the vertices where the wall turns by more than
-   *            this angle (degrees); 0 for every vertex where the wall is not straight (the rule of the Python version).
+   * \param[in] cornerAngle - D1 feature angle (degrees, ADAP_ANGLE): convex edges/vertices turning by more than it.
+   * \param[in] features - D1 options (disabled by default).
    */
+  CBoundaryLayerMetric(unsigned short nDim, std::vector<Wall> walls, su2double cornerAngle,
+                       FeatureOptions features);
+  /*! D1 disabled (tests and harness replays). */
   CBoundaryLayerMetric(unsigned short nDim, std::vector<Wall> walls, su2double cornerAngle = 0.0);
+
+  /*! D1 feature set and its identity (canonical order, parameters); empty when D1 is disabled. */
+  const FeatureSummary& GetFeatures() const { return featureSummary; }
 
   ~CBoundaryLayerMetric();
 
@@ -178,7 +217,13 @@ class CBoundaryLayerMetric {
    *  its cuts (EdgeBreakpoints). Per wall: ascending piece ends with the owning wall facet; a facet owns itself, a
    *  segment or vertex maps to its lowest candidate facet. NoFacet (support cap, analytic authority, 2D) keeps the
    *  pointwise nearest-facet rule. Pinned evaluation removes rounding-level owner flips between distance-tied facets
-   *  inside one envelope piece, so the composed edge integrand is piecewise smooth between cuts. */
+   *  inside one envelope piece, so the composed edge integrand is piecewise smooth between cuts.
+   *  Volume samples (complexity quadrature, mandatory density, SamplePoints) keep the pointwise rule (smallest
+   *  rounded distance, then lowest facet index): it is a deterministic function of the position and the replicated
+   *  wall. Facets tied because they share the closest edge/vertex give the same foot, normal and interpolated tangent
+   *  tensor up to rounding, so the choice changes the integrand by rounding only; genuine owner switches lie on
+   *  bisector surfaces of zero volume. Only a 1D chord integral can run along a tied stretch, which is what the
+   *  pinning removes. */
   struct ChordOwners {
     static constexpr unsigned long NoFacet = ~0UL;
     struct Piece { long double hi; unsigned long facet; };
@@ -321,12 +366,38 @@ class CBoundaryLayerMetric {
   struct WallData;
   void Build();
 
+  /*--- D1 crease-frame law (see the class note). ---*/
+  struct Feature {
+    std::array<double, 3> a{}, b{}, t{};  /*!< Segment end points (canonical a < b) and unit tangent; corner: a = b. */
+    double length = 0, h0 = 0;
+    bool corner = false, image = false;
+    std::vector<unsigned short> walls;   /*!< BL walls (sorted indices) whose samples receive this feature. */
+  };
+  struct FeaturePlane {
+    std::array<long double, 3> normal{}, origin{};
+    std::array<std::array<double, 3>, 3> face{};
+    long double tolerance = 0;  /*!< Distance below which a point lies on the carrier (rounding of a declared plane). */
+  };
+  void BuildFeatures(FeatureOptions options);
+  void IndexFeatures();
+  double FeatureRadius(unsigned short wall, double h0) const;
+  void ApplyFeatures(unsigned short wall, const su2double* coord, Sample& sample) const;
+  bool FeatureRefinement2D(const std::array<std::array<double, 2>, 3>& triangle, double bandRatio) const;
+  double featureSlope = 0;                 /*!< ln(ADAP_HGRAD); 0 disables D1. */
+  std::vector<Feature> baseFeatures;       /*!< Detected original segments and corners (no images). */
+  std::vector<FeaturePlane> featurePlanes; /*!< Reflective carrier planes/lines touching the BL walls. */
+  std::vector<Feature> features;           /*!< Canonical order: segments, image segments, corners, image corners. */
+  std::vector<double> featureHmax;         /*!< Per wall: largest tangential size (pre-fade A >= featureHmax^-2 I). */
+  double featureCell = 0;
+  std::map<std::array<long long, 3>, std::vector<unsigned>> featureGrid;
+  FeatureSummary featureSummary;
+
   /*--- Tangential floor of the metric M of a point next to the wall (see the class note); false outside its band. ---*/
   bool TangentialFloor(const Sample& sample, const su2double* wallEigenvalues, su2double h0, Tensor& M) const;
 
   OuterNormalProfile outerNormal;
   unsigned short nDim = 0;
-  su2double cornerAngle = 0.0; /*!< \brief Turn of the wall (degrees) above which a 2D vertex is a corner. */
+  su2double cornerAngle = 0.0; /*!< \brief D1 feature angle (degrees): convex edges/vertices turning by more. */
   std::vector<Wall> walls;
   std::vector<std::unique_ptr<WallData>> data;
 };

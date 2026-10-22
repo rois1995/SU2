@@ -1,0 +1,32 @@
+Filters: [NativeFirstLayer3D],[NativeComposite3D],[NativeChordEnvelope],[NativeFirstLayerEngine3D],[NativeWallReconstruction3D],[NativeVolumeBL3D],[NativeCurvedBL3D]
+NativeBL3DQuadrature {"tiny":false,"shifted":false,"points":36285,"integral":2.4773319773161657,"reference":2.4775664409698486,"analytic_on_rule":2.4773319773161626,"pointwise_mismatch":5.2069459854919842e-14,"stronger_points":24108,"stronger_integral":95.235368957601665,"stronger_reference":95.234018527627256}
+NativeBL3DQuadrature {"tiny":false,"shifted":true,"points":36558,"integral":2.4773331321828747,"reference":2.4775664409698486,"analytic_on_rule":2.4773331321828693,"pointwise_mismatch":4.8738790781044372e-14,"stronger_points":25083,"stronger_integral":95.23351583326226,"stronger_reference":95.234018527627256}
+NativeBL3DQuadrature {"tiny":true,"shifted":false,"points":45125,"integral":3.0907616320329141,"reference":3.0906002613307315,"analytic_on_rule":3.0907616320329154,"pointwise_mismatch":8.1934459217336553e-14,"stronger_points":23328,"stronger_integral":83215.417079479623,"stronger_reference":83215.373370106012}
+NativeBL3DQuadrature {"tiny":true,"shifted":true,"points":47302,"integral":3.0907740232308427,"reference":3.0906002613307315,"analytic_on_rule":3.0907740232308463,"pointwise_mismatch":6.0396132539608516e-14,"stronger_points":23085,"stronger_integral":83215.395306002698,"stronger_reference":83215.373370106012}
+CURVED_BL_GRADATION sensor_ratio=1 composed_ratio=30.650992757221807
+===============================================================================
+All tests passed (183566 assertions in 33 test cases)
+
+	Command being timed: "nice -n 19 timeout 3600 /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver [NativeFirstLayer3D],[NativeComposite3D],[NativeChordEnvelope],[NativeFirstLayerEngine3D],[NativeWallReconstruction3D],[NativeVolumeBL3D],[NativeCurvedBL3D] --use-colour no"
+	User time (seconds): 18.62
+	System time (seconds): 0.09
+	Percent of CPU this job got: 92%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:20.27
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 96912
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 2
+	Minor (reclaiming a frame) page faults: 21184
+	Voluntary context switches: 598
+	Involuntary context switches: 5808
+	Swaps: 0
+	File system inputs: 0
+	File system outputs: 8
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0

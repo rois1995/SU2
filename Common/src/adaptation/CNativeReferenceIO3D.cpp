@@ -101,6 +101,11 @@ std::string EncodeReference(const ReferenceState& state) {
       const auto& f=row.second;out << f.v[0] << ' ' << f.v[1] << ' ' << f.v[2] << ' ' << f.facet << '\n';
     }
   }
+  // Optional trailing policy record (any version): readers without it see a legacy sidecar.
+  if(state.first_height_tol!=0) {
+    if(!(state.first_height_tol>0 && state.first_height_tol<1))throw std::invalid_argument("Invalid native3D first-height policy.");
+    out << "BL_FIRST_HEIGHT_TOL " << state.first_height_tol << '\n';
+  }
   if (!out)
     throw std::runtime_error("Native3D reference exceeds file limit.");
   auto bytes = out.str();
@@ -170,6 +175,12 @@ ReferenceState DecodeReference(const std::string& bytes, size_t ceiling) {
     surface.push_back(f);
   }
   in >> std::ws;
+  if (!in.eof()) {
+    std::string key;double tolerance=0;
+    if(!(in>>key>>tolerance) || key!="BL_FIRST_HEIGHT_TOL" || !(tolerance>0 && tolerance<1))
+      throw std::invalid_argument("Trailing data or invalid native3D first-height policy record.");
+    result.first_height_tol=tolerance;in >> std::ws;
+  }
   if (!in.eof() || used.size() != markers) throw std::invalid_argument("Trailing data or unused native3D markers.");
   ValidateDomainSurfaceTopology(skin);
   result.original = std::make_shared<PlanarReference>(result.facets, construction, std::move(analytic),std::move(affine));

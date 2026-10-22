@@ -68,6 +68,65 @@ passivedouble SmallestEigenvalue(unsigned short nDim, const passivedouble* metri
   return *std::min_element(val, val + nDim);
 }
 
+/*--- D1 feature faces of a simplex mesh: every marker face fluid-oriented by its cell (3D normal out of the fluid,
+ *    2D fluid on the left), BL walls named, symmetry planes reflective (CBoundaryLayerMetric::FeatureOptions). ---*/
+CBoundaryLayerMetric::FeatureOptions SimplexFeatureFaces(const CConfig& config, const CSimplexMesh& mesh) {
+  CBoundaryLayerMetric::FeatureOptions options;
+  options.hgrad = SU2_TYPE::GetValue(config.GetAdap_Hgrad());
+  options.wallFacesIncluded = true;
+  const unsigned short nDim = mesh.nDim;
+  using Key = std::array<unsigned long, 3>;
+  auto key = [&](const unsigned long* v) {
+    Key k{v[0], v[1], nDim == 3 ? v[2] : ~0UL};
+    std::sort(k.begin(), k.begin() + nDim);
+    return k;
+  };
+  std::map<Key, unsigned long> opposite;
+  for (const auto& marker : mesh.markers)
+    for (auto f = 0ul; f < marker.GetnElem(nDim); ++f) opposite.emplace(key(&marker.elem[f * nDim]), ~0UL);
+  const unsigned short nCell = nDim + 1;
+  for (auto e = 0ul; e < mesh.GetnElem(); ++e)
+    for (unsigned short k = 0; k < nCell; ++k) {
+      unsigned long face[3], at = 0;
+      for (unsigned short j = 0; j < nCell; ++j)
+        if (j != k) face[at++] = mesh.elem[e * nCell + j];
+      const auto it = opposite.find(key(face));
+      if (it != opposite.end()) it->second = mesh.elem[e * nCell + k];
+    }
+  auto X = [&](unsigned long p, unsigned short d) { return mesh.coord[p * nDim + d]; };
+  for (const auto& marker : mesh.markers) {
+    std::string wall;
+    for (unsigned short iBL = 0; iBL < config.GetnAdap_BL(); ++iBL)
+      if (config.GetAdap_BL(iBL).marker == marker.name) wall = marker.name;
+    const bool reflective = wall.empty() && config.GetMarker_CfgFile_KindBC(marker.name) == SYMMETRY_PLANE;
+    for (auto f = 0ul; f < marker.GetnElem(nDim); ++f) {
+      unsigned long v[3] = {marker.elem[f * nDim], marker.elem[f * nDim + 1], nDim == 3 ? marker.elem[f * nDim + 2] : 0};
+      const auto o = opposite.at(key(v));
+      if (o == ~0UL) continue;  // no cell: not a boundary face of the volume mesh
+      if (nDim == 2) {
+        const auto side = (X(v[1], 0) - X(v[0], 0)) * (X(o, 1) - X(v[0], 1)) - (X(v[1], 1) - X(v[0], 1)) * (X(o, 0) - X(v[0], 0));
+        if (side < 0) std::swap(v[0], v[1]);
+      } else {
+        passivedouble a[3], b[3], c[3];
+        for (unsigned short d = 0; d < 3; ++d) {
+          a[d] = X(v[1], d) - X(v[0], d);
+          b[d] = X(v[2], d) - X(v[0], d);
+          c[d] = X(o, d) - X(v[0], d);
+        }
+        const auto volume = c[0] * (a[1] * b[2] - a[2] * b[1]) + c[1] * (a[2] * b[0] - a[0] * b[2]) + c[2] * (a[0] * b[1] - a[1] * b[0]);
+        if (volume > 0) std::swap(v[1], v[2]);  // the cell lies on the side opposite to the normal
+      }
+      CBoundaryLayerMetric::FeatureFace face;
+      face.wall = wall;
+      face.reflective = reflective;
+      for (unsigned short k = 0; k < nDim; ++k)
+        for (unsigned short d = 0; d < nDim; ++d) face.coord.push_back(X(v[k], d));
+      options.faces.push_back(std::move(face));
+    }
+  }
+  return options;
+}
+
 /*--- Distance from p to the segment a-b. ---*/
 passivedouble SegmentDistance(const passivedouble* p, const passivedouble* a, const passivedouble* b) {
   const passivedouble u[2] = {b[0] - a[0], b[1] - a[1]};
@@ -236,7 +295,7 @@ CSimplexMesh CBoundaryLayerRemesher::BoundaryLayerPass(const CConfig& config, co
           metric[iPoint].m[i][j] = metric[iPoint].m[j][i] = mesh.metric[iPoint * nMetric + k];
       smallest = std::min(smallest, SmallestEigenvalue(nDim, &mesh.metric[iPoint * nMetric]));
     }
-    CBoundaryLayerMetric layers(nDim, blWalls, config.GetAdap_Angle());
+    CBoundaryLayerMetric layers(nDim, blWalls, config.GetAdap_Angle(), SimplexFeatureFaces(config, mesh));
 
     /*--- Sensor loss (SERIAL_BL_FIX_PLAN.md 2.1.2): band points where the sensor metric is finer than the
      *    boundary-layer normal size in the wall-normal direction (by more than the MetricCheck tolerance, 2.5%). ---*/

@@ -8,6 +8,7 @@
 
 #include "catch.hpp"
 #include "../../../Common/include/adaptation/CNativeReferenceIO.hpp"
+#include "../../../Common/include/adaptation/CNativeFirstHeight.hpp"
 
 using namespace SU2NativeBoundary2D;
 
@@ -67,4 +68,31 @@ TEST_CASE("Native reference sidecar: immutable graph, exact coordinates and acce
   SU2_MPI::Barrier(SU2_MPI::GetComm());
   CHECK_FALSE(LoadReference(filename, loaded));
   CHECK(EncodeReference(loaded) == text);
+}
+
+TEST_CASE("Native reference sidecar records the first-height tolerance and refuses another", "[NativeReferenceIO]") {
+  const Node a{1, {0, 0}, 0}, b{2, {1, 0}, 0}, c{3, {1, 1}, 0}, d{4, {0, 1}, 0};
+  std::vector<PolylineReference::Face> faces{{a, b, 0}, {b, c, 1}, {c, d, 1}, {d, a, 1}};
+  ReferenceState state;
+  state.marker_names = {"wall", "farfield"};
+  state.original = std::make_shared<PolylineReference>(faces, 45);
+  for (const auto& face : faces)
+    state.accepted_edges.emplace(CoordinateKey(face.a.p, face.b.p),
+                                 state.original->ComponentOfOriginalFace(face.a.id, face.b.id));
+  const auto legacy = EncodeReference(state);
+  CHECK(legacy.find("BL_FIRST_HEIGHT_TOL") == std::string::npos);
+  CHECK(DecodeReference(legacy).first_height_tol == 0);
+  state.first_height_tol = 0.125;
+  const auto text = EncodeReference(state);
+  const auto decoded = DecodeReference(text);
+  CHECK(decoded.first_height_tol == 0.125);
+  CHECK(EncodeReference(decoded) == text);
+  CHECK_THROWS(DecodeReference(text + "BL_FIRST_HEIGHT_TOL 0.125\n"));
+  CHECK_THROWS(DecodeReference(legacy + "BL_FIRST_HEIGHT_TOL 1.5\n"));
+  CHECK_THROWS(DecodeReference(legacy + "BL_FIRST_HEIGHT_TOLERANCE 0.1\n"));
+  // A recorded tolerance must equal the configured one; a legacy sidecar adopts the configured tolerance.
+  CHECK(SU2NativeFirstHeight::AdoptRecorded(0, 0.1) == 0.1);
+  CHECK(SU2NativeFirstHeight::AdoptRecorded(0.125, 0.125) == 0.125);
+  CHECK_THROWS(SU2NativeFirstHeight::AdoptRecorded(0.125, 0.1));
+  CHECK_THROWS(SU2NativeFirstHeight::AdoptRecorded(0, 1.0));
 }

@@ -1232,7 +1232,10 @@ bool ImportGeometry(const CConfig& config, const CGeometry& geometry, const su2a
                 "Native3D import publication must not allocate.");
   result.stats = stats;
   output = std::move(result);
-  if (!state.original) std::swap(state, pending);
+  if (!state.original) {
+    pending.first_height_tol = state.first_height_tol;  // the caller's adopted policy survives the new authority
+    std::swap(state, pending);
+  }
   reason.clear();
   return true;
 }

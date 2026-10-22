@@ -36,6 +36,8 @@
 #include <fstream>
 #include <cstdlib>
 #include <chrono>
+#include <limits>
+#include <algorithm>
 
 #include "../../../Common/include/adaptation/CComplexityNormalization.hpp"
 #include "../../../Common/include/adaptation/CNativeChordEnvelope.hpp"
@@ -275,23 +277,27 @@ TEST_CASE("Boundary-layer metric of a circle 2D", "[Adaptation]") {
     if (w < 1.0) CheckTensor(2, sample.metric, Fade(2, expected, w, core), 1e-9);
   }
 
-  /*--- At a vertex: the tangential size is limited to max(h0, 2 r / turn), r the distance to the vertex. ---*/
+  /*--- At a vertex: radial normal, tangential size the edge length (no corner limit: convex feature vertices act
+   *    through the D1 law, which this constructor leaves disabled). ---*/
+  (void)turn;
   for (const su2double r : {0.0, 1e-4, 2e-3, 0.03}) {
     const su2double x[2] = {1.0 + r, 0.0};
     const auto sample = metric.Evaluate(0, x, core);
     CHECK(sample.distance == Approx(r).margin(1e-15));
     CHECK(fabs(sample.normal[0]) == Approx(1.0));
-    const su2double ht = (r <= 0.5 * L) ? min(L, max(h0, 2.0 * r / turn)) : L;
     const su2double n[2] = {1.0, 0.0};
-    CheckTensor(2, sample.full, Metric2D(n, ht, NormalSize(h0, growth, r)), 1e-9);
+    CheckTensor(2, sample.full, Metric2D(n, L, NormalSize(h0, growth, r)), 1e-9);
   }
 }
 
-TEST_CASE("Boundary-layer metric at sharp corners 2D", "[Adaptation]") {
-  /*--- With a corner angle of 45 degrees (ADAP_ANGLE), the vertices of the 40-gon (turn of 9 degrees) do not limit the
-   *    tangential size: at a vertex it is the length of the edge. A wedge (trailing edge) of half angle 10 degrees,
-   *    tip at the origin, edges of length 0.1: the tip turns by 160 degrees, cos of half the angle between its edges
-   *    is cos(10 deg); around it the tangential size is max(h0, 2 r / cos(10 deg)). ---*/
+TEST_CASE("Boundary-layer metric at sharp corners 2D", "[Adaptation][NativeD1Law]") {
+  /*--- D1 with ADAP_ANGLE 45 and ADAP_HGRAD 1.3: the vertices of the 40-gon (turn of 9 degrees) are no features: at a
+   *    vertex the tangential size is the length of the edge. A wedge (trailing edge) of half angle 10 degrees, tip at
+   *    the origin, edges of length 0.1, fluid outside: the tip is convex and turns by 160 degrees, so it is a feature
+   *    vertex: the wall sample is intersected with I / hn_f(r)^2, hn_f(r) = h0 + ln(1.3) r. ---*/
+  CBoundaryLayerMetric::FeatureOptions d1;
+  d1.hgrad = 1.3;
+  const su2double beta = log(1.3);
   const int N = 40;
   const su2double h0 = 1e-3, growth = 1.1, thickness = 0.2, core = 4.0, pi = PI_NUMBER, L = 2.0 * sin(pi / N);
   CBoundaryLayerMetric::Wall circle;
@@ -302,7 +308,8 @@ TEST_CASE("Boundary-layer metric at sharp corners 2D", "[Adaptation]") {
     circle.conn.push_back(i);
     circle.conn.push_back((i + 1) % N);
   }
-  CBoundaryLayerMetric smooth(2, {circle}, 45.0);
+  CBoundaryLayerMetric smooth(2, {circle}, 45.0, d1);
+  CHECK(smooth.GetFeatures().corners == 0);
   const su2double n[2] = {1.0, 0.0};
   for (const su2double r : {0.0, 2e-3}) {
     const su2double x[2] = {1.0 + r, 0.0};
@@ -321,14 +328,58 @@ TEST_CASE("Boundary-layer metric at sharp corners 2D", "[Adaptation]") {
     wedge.conn.push_back(i);
     wedge.conn.push_back(i + 1);
   }
-  CBoundaryLayerMetric sharp(2, {wedge}, 45.0);
+  CBoundaryLayerMetric sharp(2, {wedge}, 45.0, d1), plain(2, {wedge}, 45.0);
+  REQUIRE(sharp.GetFeatures().corners == 1);
   for (const su2double r : {0.0, 1e-4, 2e-3, 0.02, 0.06}) {
     const su2double x[2] = {r, 0.0};  // downstream of the tip, on its bisector
     const auto sample = sharp.Evaluate(0, x, core);
     CHECK(sample.distance == Approx(r).margin(1e-15));
-    const su2double ht = (r <= 0.05) ? min(0.1, max(h0, 2.0 * r / cos(half))) : 0.1;
-    CheckTensor(2, sample.full, Metric2D(n, ht, NormalSize(h0, growth, r)), 1e-9);
+    const su2double hf = h0 + beta * r, hn = NormalSize(h0, growth, r);
+    CheckTensor(2, sample.full, Metric2D(n, min(su2double(0.1), hf), min(hn, hf)), 1e-9);
+    CheckTensor(2, plain.Evaluate(0, x, core).full, Metric2D(n, 0.1, hn), 1e-9);
   }
+  /*--- Fluid inside the wedge (reversed orientation): the tip is concave, no feature. ---*/
+  auto inside = wedge;
+  for (size_t k = 0; k < inside.conn.size(); k += 2) std::swap(inside.conn[k], inside.conn[k + 1]);
+  CBoundaryLayerMetric concave(2, {inside}, 45.0, d1);
+  CHECK(concave.GetFeatures().corners == 0);
+  /*--- A 10-degree turn is a feature only below that angle. ---*/
+  CBoundaryLayerMetric::Wall kink;
+  kink.layer = {"kink", h0, growth, thickness};
+  kink.coord = {-0.1 * cos(5 * pi / 180), 0.1 * sin(5 * pi / 180), 0.0, 0.0, 0.1 * cos(15 * pi / 180), -0.1 * sin(15 * pi / 180)};
+  kink.conn = {0, 1, 1, 2};
+  CHECK(CBoundaryLayerMetric(2, {kink}, 45.0, d1).GetFeatures().corners == 0);
+  CHECK(CBoundaryLayerMetric(2, {kink}, 9.0, d1).GetFeatures().corners == 1);
+  CHECK(CBoundaryLayerMetric(2, {kink}, 11.0, d1).GetFeatures().corners == 0);
+}
+
+TEST_CASE("D1 2D carriers: a symmetry line is a mirrored continuation, other partners are not", "[NativeD1Law]") {
+  /*--- Upper half of the 20-degree wedge ending on the symmetry line y = 0 (fluid above). Mirrored, the tip turns by
+   *    160 degrees (feature); against a non-reflective partner along y = 0 it turns by 10 degrees (no feature). ---*/
+  const su2double h0 = 1e-3, growth = 1.1, thickness = 0.2, pi = PI_NUMBER, half = 10.0 * pi / 180.0;
+  CBoundaryLayerMetric::Wall upper;
+  upper.layer = {"upper", h0, growth, thickness};
+  upper.coord = {-0.2 * cos(half), 0.2 * sin(half), -0.1 * cos(half), 0.1 * sin(half), 0.0, 0.0};
+  upper.conn = {0, 1, 1, 2};
+  CBoundaryLayerMetric::FeatureOptions mirror;
+  mirror.hgrad = 1.3;
+  mirror.faces.push_back({{0.0, 0.0, 0.5, 0.0}, "", true});
+  mirror.faces.push_back({{0.5, 0.0, 1.0, 0.0}, "", true});
+  auto partner = mirror;
+  for (auto& f : partner.faces) f.reflective = false;
+  CBoundaryLayerMetric reflective(2, {upper}, 45.0, mirror), other(2, {upper}, 45.0, partner);
+  CHECK(reflective.GetFeatures().corners == 1);
+  CHECK(reflective.GetFeatures().planes == 1);
+  CHECK(reflective.GetFeatures().imageCorners == 0);  // the feature lies on its carrier
+  CHECK(other.GetFeatures().corners == 0);
+  const su2double x[2] = {0.01, 0.002};
+  const auto a = reflective.Evaluate(0, x, 1.0), b = other.Evaluate(0, x, 1.0);
+  su2double vec[3][3], val[3], work[3];
+  CBlasStructure::EigenDecomposition(a.full.m, vec, val, 2, work);
+  const su2double rho = sqrt(x[0] * x[0] + x[1] * x[1]), hf = h0 + log(1.3) * rho;
+  CHECK(*std::min_element(val, val + 2) >= (1 - 1e-9) / (hf * hf));
+  CBlasStructure::EigenDecomposition(b.full.m, vec, val, 2, work);
+  CHECK(*std::min_element(val, val + 2) < 0.5 / (hf * hf));
 }
 
 TEST_CASE("Boundary-layer metric of a flat wall 3D", "[Adaptation]") {
@@ -2743,4 +2794,426 @@ TEST_CASE("Interacting walls retain finer demands with one frozen outer-normal p
   for(unsigned i=0;i<3;++i)for(unsigned j=0;j<3;++j)CHECK(cached.m[i][j]==direct.m[i][j]);
   CHECK(direct.m[0][0]>=1e5*(1-1e-12));CHECK(direct.m[1][1]>=4*(1-1e-12));CHECK(direct.m[2][2]>=1*(1-1e-12));
   layers.FreezeOuterNormal();CHECK_THROWS(layers.SelectOuterNormal(1));
+}
+
+namespace {
+/*--- D1 fixtures: walls from triangles oriented with their normal out of the fluid, shared points by coordinates. ---*/
+using P3 = std::array<double, 3>;
+struct D1Wall {
+  CBoundaryLayerMetric::Wall wall;
+  std::map<P3, unsigned long> index;
+  D1Wall(const std::string& name, double h0, double growth, double thickness) {
+    wall.layer = {name, h0, growth, thickness};
+  }
+  unsigned long Point(const P3& p) {
+    const auto it = index.emplace(p, index.size());
+    if (it.second)
+      for (const auto x : p) wall.coord.push_back(x);
+    return it.first->second;
+  }
+  void Triangle(P3 a, P3 b, P3 c, const P3& out) {
+    const P3 u{b[0] - a[0], b[1] - a[1], b[2] - a[2]}, v{c[0] - a[0], c[1] - a[1], c[2] - a[2]};
+    const P3 n{u[1] * v[2] - u[2] * v[1], u[2] * v[0] - u[0] * v[2], u[0] * v[1] - u[1] * v[0]};
+    if (n[0] * out[0] + n[1] * out[1] + n[2] * out[2] < 0) std::swap(b, c);
+    const auto ia = Point(a), ib = Point(b), ic = Point(c);
+    wall.conn.insert(wall.conn.end(), {ia, ib, ic, ic});
+  }
+  /*--- Grid of right triangles over a rectangle origin + i*du + j*dv. ---*/
+  void Grid(const P3& origin, const P3& du, const P3& dv, int nu, int nv, const P3& out) {
+    auto at = [&](int i, int j) {
+      return P3{origin[0] + i * du[0] + j * dv[0], origin[1] + i * du[1] + j * dv[1], origin[2] + i * du[2] + j * dv[2]};
+    };
+    for (int i = 0; i < nu; ++i)
+      for (int j = 0; j < nv; ++j) {
+        Triangle(at(i, j), at(i + 1, j), at(i + 1, j + 1), out);
+        Triangle(at(i, j), at(i + 1, j + 1), at(i, j + 1), out);
+      }
+  }
+};
+/*--- Convex 90-degree ridge along y: solid quadrant x < 0, z < 0; top face z = 0 and side face x = 0, y in [0,8]. ---*/
+std::vector<CBoundaryLayerMetric::Wall> Ridge(double h0top = 1e-3, double h0side = 1e-3, double growth = 1.2,
+                                              bool twoWalls = false) {
+  D1Wall top(twoWalls ? "top" : "wall", h0top, growth, 0.2), side("side", h0side, growth, 0.2);
+  top.Grid({-4, 0, 0}, {0.5, 0, 0}, {0, 0.5, 0}, 8, 16, {0, 0, -1});
+  (twoWalls ? side : top).Grid({0, 0, -4}, {0, 0, 0.5}, {0, 0.5, 0}, 8, 16, {-1, 0, 0});
+  if (twoWalls) return {top.wall, side.wall};
+  return {top.wall};
+}
+/*--- Symmetry-plane partner faces y = 0 around the ridge end, outside the solid quadrant (fluid y > 0). ---*/
+std::vector<CBoundaryLayerMetric::FeatureFace> RidgeCarrier(bool reflective) {
+  std::vector<CBoundaryLayerMetric::FeatureFace> faces;
+  auto add = [&](P3 a, P3 b, P3 c) {
+    const P3 u{b[0] - a[0], b[1] - a[1], b[2] - a[2]}, v{c[0] - a[0], c[1] - a[1], c[2] - a[2]};
+    if (u[2] * v[0] - u[0] * v[2] > 0) std::swap(b, c);  // normal (0,-1,0): out of the fluid
+    faces.push_back({{a[0], a[1], a[2], b[0], b[1], b[2], c[0], c[1], c[2]}, "", reflective});
+  };
+  for (int i = -8; i < 8; ++i)
+    for (int k = -8; k < 8; ++k) {
+      if (i < 0 && k < 0) continue;  // solid
+      const double x = 0.5 * i, z = 0.5 * k;
+      add({x, 0, z}, {x + 0.5, 0, z}, {x + 0.5, 0, z + 0.5});
+      add({x, 0, z}, {x + 0.5, 0, z + 0.5}, {x, 0, z + 0.5});
+    }
+  return faces;
+}
+CBoundaryLayerMetric::Tensor Intersected(const CBoundaryLayerMetric::Tensor& A, const CBoundaryLayerMetric::Tensor& F) {
+  su2double D[3][3], vec[3][3], val[3], work[3];
+  for (unsigned i = 0; i < 3; ++i)
+    for (unsigned j = 0; j < 3; ++j) D[i][j] = A.m[i][j] - F.m[i][j];
+  CBlasStructure::EigenDecomposition(D, vec, val, 3, work);
+  if (*std::min_element(val, val + 3) >= 0) return A;
+  CBoundaryLayerMetric::Tensor C;
+  CSolver::IntersectMetrics(3, A.m, F.m, C.m);
+  return C;
+}
+CBoundaryLayerMetric::Tensor CreaseTensor(double h, const P3& t) {
+  CBoundaryLayerMetric::Tensor F;
+  for (unsigned i = 0; i < 3; ++i)
+    for (unsigned j = 0; j < 3; ++j) F.m[i][j] = ((i == j) - t[i] * t[j]) / (h * h);
+  return F;
+}
+su2double Smallest(const CBoundaryLayerMetric::Tensor& M) {
+  su2double vec[3][3], val[3], work[3];
+  CBlasStructure::EigenDecomposition(M.m, vec, val, 3, work);
+  return *std::min_element(val, val + 3);
+}
+}  // namespace
+
+TEST_CASE("D1 crease: rank-two across-crease size, exact redundancy beyond the support, fixed order", "[NativeD1Law]") {
+  CBoundaryLayerMetric::FeatureOptions d1;
+  d1.hgrad = 1.3;
+  const double beta = std::log(1.3), h0 = 1e-3;
+  CBoundaryLayerMetric layers(3, Ridge(), 45.0, d1), plain(3, Ridge(), 45.0);
+  const auto& features = layers.GetFeatures();
+  CHECK(features.segments == 16);
+  CHECK(features.corners == 2);
+  CHECK(features.freeCorners == 2);
+  CHECK(features.images == 0);
+  CHECK(plain.GetFeatures().segments == 0);
+  const double R = features.maximumRadius;
+  CHECK(R == Approx((std::sqrt(0.5) - h0) / beta).epsilon(1e-6));  // largest tangential size sqrt(2)*0.5
+  /*--- Near the crease (radial region, joint of two segments): sample = A ∩ F, F = (I - e_y e_y^T)/hn_f(rho)^2. ---*/
+  {
+    const su2double x[3] = {0.05, 4.0, 0.05};
+    const auto a = plain.Evaluate(0, x, 1.0), b = layers.Evaluate(0, x, 1.0);
+    const double rho = std::hypot(0.05, 0.05), h = h0 + beta * rho;
+    CheckTensor(3, b.full, Intersected(a.full, CreaseTensor(h, {0, 1, 0})), 1e-9);
+    CHECK(b.hn == a.hn);
+    CHECK(b.weight == a.weight);
+    // The cached logarithm is the logarithm of the composed tensor (the 3D fade exponentiates it).
+    Tensor back;
+    su2double vec[3][3], val[3], work[3];
+    CBlasStructure::EigenDecomposition(b.logarithm.m, vec, val, 3, work);
+    for (auto& v : val) v = exp(v);
+    CBlasStructure::EigenRecomposition(back.m, vec, val, 3);
+    CheckTensor(3, back, b.full, 1e-9);
+  }
+  /*--- On the top face, inside the support the across-crease size is still graded; beyond it the sample is bitwise
+   *    the plain BL sample (exactly redundant). ---*/
+  {
+    const su2double x[3] = {-1.0, 4.0, 0.01};
+    const auto a = plain.Evaluate(0, x, 1.0), b = layers.Evaluate(0, x, 1.0);
+    CheckTensor(3, b.full, Intersected(a.full, CreaseTensor(h0 + beta * std::hypot(1.0, 0.01), {0, 1, 0})), 1e-9);
+    for (const double d : {R * (1 + 1e-6), 3.5}) {
+      const su2double y[3] = {-d, 4.0, 0.01};
+      const auto p = plain.Evaluate(0, y, 1.0), q = layers.Evaluate(0, y, 1.0);
+      for (unsigned i = 0; i < 3; ++i)
+        for (unsigned j = 0; j < 3; ++j) {
+          CHECK(p.full.m[i][j] == q.full.m[i][j]);
+          CHECK(p.logarithm.m[i][j] == q.logarithm.m[i][j]);
+        }
+    }
+    /*--- Continuity at the support boundary: just inside, D1 changes the sample only at the rounding level. ---*/
+    const double inside = std::sqrt(std::pow(R * (1 - 1e-9), 2) - 1e-4);  // rho = R (1 - 1e-9)
+    const su2double y[3] = {-inside, 4.0, 0.01};
+    const auto p = plain.Evaluate(0, y, 1.0), q = layers.Evaluate(0, y, 1.0);
+    CheckTensor(3, q.full, p.full, 1e-6);
+  }
+  /*--- Fixed canonical order: the same faces in another order give the same identity and bitwise samples. ---*/
+  {
+    auto walls = Ridge();
+    auto& conn = walls[0].conn;
+    std::vector<std::array<unsigned long, 4>> faces;
+    for (size_t k = 0; k < conn.size(); k += 4) faces.push_back({conn[k], conn[k + 1], conn[k + 2], conn[k + 3]});
+    std::reverse(faces.begin(), faces.end());
+    std::rotate(faces.begin(), faces.begin() + 37, faces.end());
+    conn.clear();
+    for (const auto& f : faces) conn.insert(conn.end(), f.begin(), f.end());
+    CBoundaryLayerMetric shuffled(3, walls, 45.0, d1);
+    CHECK(shuffled.GetFeatures().identity == features.identity);
+    for (const P3 p : {P3{0.05, 4.0, 0.05}, P3{0.02, 0.3, 0.07}, P3{-0.3, 7.9, 0.02}}) {
+      const su2double x[3] = {p[0], p[1], p[2]};
+      // The BL law itself depends on the face order only through rounding (vertex tensor sums, facet ties).
+      CheckTensor(3, shuffled.Evaluate(0, x, 1.0).full, layers.Evaluate(0, x, 1.0).full, 1e-12);
+    }
+  }
+  /*--- Continuity across a segment joint (y = 4 is a feature vertex): the D1 jump is not larger than the BL one. ---*/
+  for (const P3 p : {P3{0.05, 4.0, 0.05}, P3{-0.2, 4.0, 0.03}}) {
+    const su2double lo[3] = {p[0], p[1] - 1e-9, p[2]}, hi[3] = {p[0], p[1] + 1e-9, p[2]};
+    const auto a0 = plain.Evaluate(0, lo, 1.0), a1 = plain.Evaluate(0, hi, 1.0);
+    const auto b0 = layers.Evaluate(0, lo, 1.0), b1 = layers.Evaluate(0, hi, 1.0);
+    double da = 0, na = 0, db = 0, nb = 0;
+    for (unsigned i = 0; i < 3; ++i)
+      for (unsigned j = 0; j < 3; ++j) {
+        da += std::pow(SU2_TYPE::GetValue(a1.full.m[i][j] - a0.full.m[i][j]), 2);
+        na += std::pow(SU2_TYPE::GetValue(a0.full.m[i][j]), 2);
+        db += std::pow(SU2_TYPE::GetValue(b1.full.m[i][j] - b0.full.m[i][j]), 2);
+        nb += std::pow(SU2_TYPE::GetValue(b0.full.m[i][j]), 2);
+      }
+    CHECK(std::sqrt(db / nb) <= std::sqrt(da / na) + 1e-7);
+  }
+}
+
+TEST_CASE("D1 corners: three convex creases and free line ends are isotropic", "[NativeD1Law]") {
+  D1Wall octant("wall", 1e-3, 1.2, 0.2);
+  octant.Grid({-2, -2, 0}, {0.5, 0, 0}, {0, 0.5, 0}, 4, 4, {0, 0, -1});
+  octant.Grid({-2, 0, -2}, {0.5, 0, 0}, {0, 0, 0.5}, 4, 4, {0, -1, 0});
+  octant.Grid({0, -2, -2}, {0, 0.5, 0}, {0, 0, 0.5}, 4, 4, {-1, 0, 0});
+  CBoundaryLayerMetric::FeatureOptions d1;
+  d1.hgrad = 1.3;
+  CBoundaryLayerMetric layers(3, {octant.wall}, 45.0, d1);
+  CHECK(layers.GetFeatures().segments == 12);
+  CHECK(layers.GetFeatures().corners == 4);  // the octant corner and the three free line ends
+  CHECK(layers.GetFeatures().freeCorners == 3);
+  const su2double x[3] = {0.02, 0.02, 0.02};
+  const double h = 1e-3 + std::log(1.3) * std::sqrt(3 * 0.02 * 0.02);
+  CHECK(Smallest(layers.Evaluate(0, x, 1.0).full) >= (1 - 1e-9) / (h * h));
+  CBoundaryLayerMetric plain(3, {octant.wall}, 45.0);
+  CHECK(Smallest(plain.Evaluate(0, x, 1.0).full) < 0.5 / (h * h));
+}
+
+TEST_CASE("D1 carrier ends: mirrored continuation on a symmetry plane, corners otherwise", "[NativeD1Law]") {
+  CBoundaryLayerMetric::FeatureOptions mirror;
+  mirror.hgrad = 1.3;
+  mirror.faces = RidgeCarrier(true);
+  CBoundaryLayerMetric reflective(3, Ridge(), 45.0, mirror);
+  const auto& f = reflective.GetFeatures();
+  CHECK(f.segments == 16);
+  CHECK(f.planes == 1);
+  CHECK(f.carrierEnds == 1);
+  CHECK(f.carrierCorners == 0);
+  CHECK(f.corners == 1);  // only the free end at y = 8
+  CHECK(f.images == size_t(std::floor(f.maximumRadius / 0.5)) + (std::fmod(f.maximumRadius, 0.5) > 0));
+  // A non-reflective partner, or none, makes the end a corner.
+  auto partner = mirror;
+  partner.faces = RidgeCarrier(false);
+  CBoundaryLayerMetric other(3, Ridge(), 45.0, partner);
+  CHECK(other.GetFeatures().corners == 2);
+  CHECK(other.GetFeatures().carrierEnds == 0);
+  CHECK(other.GetFeatures().images == 0);
+  // An oblique carrier: segment + image turn by 120 degrees (plane at 60 degrees) => corner; 40 degrees => continuation.
+  for (const double tilt : {60.0, 20.0}) {
+    const double c = std::cos(tilt * PI_NUMBER / 180), s = std::sin(tilt * PI_NUMBER / 180);
+    CBoundaryLayerMetric::FeatureOptions fan;
+    fan.hgrad = 1.3;
+    // Plane through the origin with normal (0, c, s): +-(0.3,0,0) and +-(0, -0.3 s, 0.3 c) are exactly coplanar
+    // with the origin (negation is exact), so the four fan faces form one carrier under the exact predicate.
+    const std::array<P3, 4> rim{{{0.3, 0, 0}, {0, -0.3 * s, 0.3 * c}, {-0.3, 0, 0}, {0, 0.3 * s, -0.3 * c}}};
+    for (int k = 0; k < 4; ++k) {
+      const auto& p = rim[k];
+      const auto& q = rim[(k + 1) % 4];
+      fan.faces.push_back({{0, 0, 0, p[0], p[1], p[2], q[0], q[1], q[2]}, "", true});
+    }
+    CBoundaryLayerMetric oblique(3, Ridge(), 45.0, fan);
+    CHECK(oblique.GetFeatures().planes == 1);
+    CHECK(oblique.GetFeatures().carrierEnds == 1);
+    CHECK(oblique.GetFeatures().carrierCorners == (tilt == 60.0 ? 1u : 0u));
+  }
+}
+
+TEST_CASE("D1 law: g = 1 and mixed first heights", "[NativeD1Law]") {
+  CBoundaryLayerMetric::FeatureOptions d1;
+  d1.hgrad = 1.3;
+  const double beta = std::log(1.3);
+  /*--- g = 1: the across-crease size grows with ln(ADAP_HGRAD) from h0; the support stays finite. ---*/
+  {
+    CBoundaryLayerMetric layers(3, Ridge(1e-3, 1e-3, 1.0), 45.0, d1), plain(3, Ridge(1e-3, 1e-3, 1.0), 45.0);
+    CHECK(std::isfinite(layers.GetFeatures().maximumRadius));
+    CHECK(layers.GetFeatures().segments == 16);
+    const su2double x[3] = {0.05, 4.0, 0.05};
+    CheckTensor(3, layers.Evaluate(0, x, 1.0).full,
+                Intersected(plain.Evaluate(0, x, 1.0).full, CreaseTensor(1e-3 + beta * std::hypot(0.05, 0.05), {0, 1, 0})), 1e-9);
+  }
+  /*--- Two walls with first heights 1e-3 (top) and 4e-3 (side): the crease takes the smaller one in both samples. ---*/
+  {
+    const auto walls = Ridge(1e-3, 4e-3, 1.2, true);
+    CBoundaryLayerMetric layers(3, walls, 45.0, d1), plain(3, walls, 45.0);
+    CHECK(layers.GetFeatures().segments == 16);
+    REQUIRE(layers.GetnWall() == 2);
+    const su2double x[3] = {0.05, 4.0, 0.05};
+    const auto F = CreaseTensor(1e-3 + beta * std::hypot(0.05, 0.05), {0, 1, 0});
+    for (unsigned short w = 0; w < 2; ++w)
+      CheckTensor(3, layers.Evaluate(w, x, 1.0).full, Intersected(plain.Evaluate(w, x, 1.0).full, F), 1e-9);
+  }
+}
+
+TEST_CASE("D1 enters every sample consumer: ApplySample, ApplyPoint and the fade", "[NativeD1Law]") {
+  CBoundaryLayerMetric::FeatureOptions d1;
+  d1.hgrad = 1.3;
+  CBoundaryLayerMetric layers(3, Ridge(), 45.0, d1);
+  for (const P3 p : {P3{0.05, 4.0, 0.05}, P3{0.05, 4.0, 0.19}, P3{-0.5, 2.0, 0.195}}) {
+    const su2double x[3] = {p[0], p[1], p[2]};
+    Tensor sensor;
+    for (unsigned i = 0; i < 3; ++i) sensor.m[i][i] = 1;
+    auto direct = sensor, cached = sensor;
+    layers.ApplyPoint(x, direct, 1.0, nullptr, false);
+    for (const auto& sample : layers.SamplePoints({x[0], x[1], x[2]}))
+      layers.ApplySample(sample.wall, sample.sample, cached, 1.0, nullptr, false);
+    for (unsigned i = 0; i < 3; ++i)
+      for (unsigned j = 0; j < 3; ++j) CHECK(direct.m[i][j] == cached.m[i][j]);
+    // The fade exponentiates the composed logarithm: Evaluate's faded metric equals the spectral fade of full.
+    const auto s = layers.Evaluate(0, x, 1.0);
+    if (s.weight > 0 && s.weight < 1) CheckTensor(3, s.metric, Fade(3, s.full, s.weight, 1.0), 1e-8);
+  }
+}
+
+TEST_CASE("D1 at BL anisotropy: rotated crease, h0 2e-6, consistent logarithm and dominance", "[NativeD1Law]") {
+  // Ridge rotated about an oblique axis: no axis alignment; wall tensors with eigenvalue ratios up to ~1e11.
+  const double h0 = 2e-6;
+  auto walls = Ridge(h0, h0, 1.2);
+  const double angle = 0.7, axis[3] = {1 / std::sqrt(3.0), 1 / std::sqrt(3.0), 1 / std::sqrt(3.0)};
+  double R[3][3];
+  for (unsigned i = 0; i < 3; ++i)
+    for (unsigned j = 0; j < 3; ++j) {
+      const double cross = (i == j) ? 0 : ((j == (i + 1) % 3) ? -axis[(i + 2) % 3] : axis[(i + 1) % 3]);
+      R[i][j] = std::cos(angle) * (i == j) + std::sin(angle) * cross + (1 - std::cos(angle)) * axis[i] * axis[j];
+    }
+  auto rotate = [&](const P3& x) {
+    P3 y{};
+    for (unsigned i = 0; i < 3; ++i)
+      for (unsigned j = 0; j < 3; ++j) y[i] += R[i][j] * x[j];
+    return y;
+  };
+  for (size_t k = 0; k < walls[0].coord.size(); k += 3) {
+    const auto y = rotate({walls[0].coord[k], walls[0].coord[k + 1], walls[0].coord[k + 2]});
+    for (unsigned j = 0; j < 3; ++j) walls[0].coord[k + j] = y[j];
+  }
+  CBoundaryLayerMetric::FeatureOptions d1;
+  d1.hgrad = 1.3;
+  CBoundaryLayerMetric layers(3, walls, 45.0, d1), plain(3, walls, 45.0);
+  REQUIRE(layers.GetFeatures().segments == 16);
+  const auto t = rotate({0, 1, 0});
+  for (const P3 local : {P3{1e-6, 4.0, 1e-6}, P3{3e-5, 4.2, 1e-5}, P3{2e-3, 3.9, 1e-3}, P3{-0.05, 4.1, 1e-6}}) {
+    const auto p = rotate(local);
+    const su2double x[3] = {p[0], p[1], p[2]};
+    const auto a = plain.Evaluate(0, x, 1.0), b = layers.Evaluate(0, x, 1.0);
+    // exp(logarithm) reproduces the composed tensor (the 3D fade uses the logarithm).
+    Tensor back;
+    su2double vec[3][3], val[3], work[3];
+    CBlasStructure::EigenDecomposition(b.logarithm.m, vec, val, 3, work);
+    for (auto& v : val) v = exp(v);
+    CBlasStructure::EigenRecomposition(back.m, vec, val, 3);
+    CheckTensor(3, back, b.full, 1e-8);
+    // X >= A and X >= F in every eigen-direction of A and on the plane normal to the crease.
+    CBlasStructure::EigenDecomposition(a.full.m, vec, val, 3, work);
+    const double rho = std::hypot(local[0], local[2]);  // distance to the crease line (x = z = 0, local frame)
+    const double lambda = 1 / std::pow(h0 + std::log(1.3) * rho, 2);
+    // A binary64 tensor resolves a direction only to ~eps of its largest eigenvalue.
+    double norm = 0;
+    for (unsigned i = 0; i < 3; ++i)
+      for (unsigned j = 0; j < 3; ++j) norm = std::max(norm, std::abs(SU2_TYPE::GetValue(b.full.m[i][j])));
+    const double slack = 64 * std::numeric_limits<double>::epsilon() * norm;
+    for (unsigned k = 0; k < 3; ++k) {
+      su2double qa = 0, qb = 0, tv = 0;
+      for (unsigned i = 0; i < 3; ++i) {
+        tv += vec[i][k] * t[i];
+        for (unsigned j = 0; j < 3; ++j) {
+          qa += vec[i][k] * a.full.m[i][j] * vec[j][k];
+          qb += vec[i][k] * b.full.m[i][j] * vec[j][k];
+        }
+      }
+      CHECK(qb >= qa * (1 - 1e-9) - slack);
+      CHECK(qb >= lambda * (1 - tv * tv) * (1 - 1e-9) - slack);
+    }
+  }
+}
+
+TEST_CASE("D1 regression: split-marker corner, wall subsets, canonical carriers", "[NativeD1Law]") {
+  CBoundaryLayerMetric::FeatureOptions d1;
+  d1.hgrad = 1.3;
+  const double beta = std::log(1.3);
+  /*--- A finer marker touching the octant corner without a crease of its own gives the corner its first height. ---*/
+  {
+    D1Wall coarse("wall", 1e-3, 1.2, 0.2), fine("fine", 2e-4, 1.2, 0.2);
+    for (int i = 0; i < 4; ++i)
+      for (int j = 0; j < 4; ++j) {
+        if (i == 3 && j == 3) continue;
+        const P3 a{-2 + 0.5 * i, -2 + 0.5 * j, 0}, b{a[0] + 0.5, a[1], 0}, c{a[0] + 0.5, a[1] + 0.5, 0}, d{a[0], a[1] + 0.5, 0};
+        coarse.Triangle(a, b, c, {0, 0, -1});
+        coarse.Triangle(a, c, d, {0, 0, -1});
+      }
+    const P3 O{0, 0, 0}, A{0, -0.5, 0}, M{-0.5, -0.5, 0}, Q{-0.5, -0.25, 0}, B{-0.5, 0, 0};
+    coarse.Triangle(O, A, M, {0, 0, -1});
+    fine.Triangle(O, M, Q, {0, 0, -1});  // touches the corner only
+    coarse.Triangle(O, Q, B, {0, 0, -1});
+    coarse.Grid({-2, 0, -2}, {0.5, 0, 0}, {0, 0, 0.5}, 4, 4, {0, -1, 0});
+    coarse.Grid({0, -2, -2}, {0, 0.5, 0}, {0, 0, 0.5}, 4, 4, {-1, 0, 0});
+    CBoundaryLayerMetric layers(3, {coarse.wall, fine.wall}, 45.0, d1);
+    CHECK(layers.GetFeatures().corners == 4);
+    const su2double x[3] = {0.02, 0.02, 0.02};
+    const double h = 2e-4 + beta * std::sqrt(3 * 0.02 * 0.02);
+    for (unsigned short w = 0; w < 2; ++w) CHECK(Smallest(layers.Evaluate(w, x, 1.0).full) >= (1 - 1e-9) / (h * h));
+  }
+  /*--- Complete detection faces with a partial or empty local wall (restricted MPI subsets): same feature set. ---*/
+  {
+    const auto full = Ridge();
+    CBoundaryLayerMetric reference(3, full, 45.0, d1);
+    CBoundaryLayerMetric::FeatureOptions complete = d1;
+    complete.wallFacesIncluded = true;
+    const auto& conn = full[0].conn;
+    for (size_t k = 0; k < conn.size(); k += 4) {
+      CBoundaryLayerMetric::FeatureFace face;
+      face.wall = "wall";
+      for (unsigned j = 0; j < 3; ++j)
+        for (unsigned d = 0; d < 3; ++d) face.coord.push_back(full[0].coord[3 * conn[k + j] + d]);
+      complete.faces.push_back(std::move(face));
+    }
+    // Local subset: the first 40 faces with their own (compacted) points only.
+    auto subset = full;
+    {
+      std::map<unsigned long, unsigned long> local;
+      subset[0].coord.clear();
+      subset[0].conn.clear();
+      for (size_t k = 0; k < 4 * 40; ++k) {
+        const auto it = local.emplace(conn[k], local.size());
+        if (it.second)
+          for (unsigned d = 0; d < 3; ++d) subset[0].coord.push_back(full[0].coord[3 * conn[k] + d]);
+        subset[0].conn.push_back(it.first->second);
+      }
+    }
+    auto empty = full;
+    empty[0].conn.clear();
+    CBoundaryLayerMetric partial(3, subset, 45.0, complete), none(3, empty, 45.0, complete);
+    for (const auto* layers : {&partial, &none}) {
+      CHECK(layers->GetFeatures().identity == reference.GetFeatures().identity);
+      CHECK(layers->GetFeatures().maximumRadius == reference.GetFeatures().maximumRadius);
+    }
+  }
+  /*--- Oblique carrier faces in another order, cyclically rotated and with -0 coordinates: one canonical transform. ---*/
+  {
+    const double c = std::cos(PI_NUMBER / 3), s = std::sin(PI_NUMBER / 3);
+    auto fan = [&](bool shuffled) {
+      CBoundaryLayerMetric::FeatureOptions options;
+      options.hgrad = 1.3;
+      const double z = shuffled ? -0.0 : 0.0;
+      const std::array<P3, 4> rim{{{0.3, z, z}, {z, -0.3 * s, 0.3 * c}, {-0.3, z, z}, {z, 0.3 * s, -0.3 * c}}};
+      for (int k = 0; k < 4; ++k) {
+        const int m = shuffled ? 3 - k : k;
+        const auto& p = rim[m];
+        const auto& q = rim[(m + 1) % 4];
+        if (shuffled) options.faces.push_back({{p[0], p[1], p[2], q[0], q[1], q[2], z, z, z}, "", true});
+        else options.faces.push_back({{0, 0, 0, p[0], p[1], p[2], q[0], q[1], q[2]}, "", true});
+      }
+      return options;
+    };
+    CBoundaryLayerMetric a(3, Ridge(), 45.0, fan(false)), b(3, Ridge(), 45.0, fan(true));
+    CHECK(a.GetFeatures().images > 0);
+    CHECK(a.GetFeatures().identity == b.GetFeatures().identity);
+    for (const P3 p : {P3{0.05, 0.3, 0.05}, P3{0.05, 2.0, 0.05}}) {
+      const su2double x[3] = {p[0], p[1], p[2]};
+      const auto sa = a.Evaluate(0, x, 1.0), sb = b.Evaluate(0, x, 1.0);
+      for (unsigned i = 0; i < 3; ++i)
+        for (unsigned j = 0; j < 3; ++j) CHECK(sa.full.m[i][j] == sb.full.m[i][j]);
+    }
+  }
 }

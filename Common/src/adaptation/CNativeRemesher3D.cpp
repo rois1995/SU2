@@ -38,6 +38,10 @@ void CNativeRemesher3D::PrepareReference(const CConfig& config,const CGeometry& 
   CollectiveFailure(failure,CURRENT_FUNCTION);
   if(config.GetRestart() && !loaded)
     failure.Set(1,0,"Native3D restart requires its original .native_ref sidecar; geometry cannot be rebased.");
+  // The persisted first-height policy must match ADAP_BL_FIRST_HEIGHT_TOL; legacy sidecars get it recorded now.
+  try{pending.first_height_tol=SU2NativeFirstHeight::AdoptRecorded(pending.first_height_tol,
+      SU2_TYPE::GetValue(config.GetAdap_BL_FirstHeightTol()));}
+  catch(const std::exception& e){failure.Set(1,0,e.what());}
   CollectiveFailure(failure,CURRENT_FUNCTION);
   SU2Native3D::ImportedGeometry imported;SU2Native3D::BridgeStats importedStats;
   if(!SU2Native3D::ImportGeometry(config,geometry,nullptr,pending,imported,reason,importedStats,
@@ -193,6 +197,12 @@ CRemeshResult CNativeRemesher3D::Remesh(const CConfig& config, const CGeometry& 
       }
       if (config.GetRestart() && !loaded)
         failure.Set(1, 0, "Native3D restart requires its original .native_ref sidecar; geometry cannot be rebased.");
+    }
+    try {
+      pending->state.first_height_tol = SU2NativeFirstHeight::AdoptRecorded(
+          pending->state.first_height_tol, SU2_TYPE::GetValue(config.GetAdap_BL_FirstHeightTol()));
+    } catch (const std::exception& e) {
+      failure.Set(1, 0, e.what());
     }
     CollectiveFailure(failure, CURRENT_FUNCTION);
     phase(1);

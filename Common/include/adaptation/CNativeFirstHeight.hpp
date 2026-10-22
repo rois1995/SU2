@@ -7,6 +7,7 @@
 #pragma once
 #include <cmath>
 #include <map>
+#include <string>
 #include <stdexcept>
 #include <utility>
 
@@ -18,6 +19,16 @@ inline double Checked(double tolerance) {
   if (!(tolerance > 0 && tolerance < 1))
     throw std::invalid_argument("Native first-height tolerance must lie strictly between 0 and 1.");
   return tolerance;
+}
+/*! Persisted reference policy (.native_ref): recorded is 0 for a legacy sidecar written before T was recorded.
+ * A recorded T must equal the configured one; a reload under another T is refused (the accepted first rows were
+ * admitted under the recorded gate). Returns the T to record from now on. */
+inline double AdoptRecorded(double recorded, double configured) {
+  Checked(configured);
+  if (recorded != 0 && recorded != configured)
+    throw std::invalid_argument("Native reference was written under ADAP_BL_FIRST_HEIGHT_TOL " + std::to_string(recorded) +
+                                "; reload under a different tolerance is refused.");
+  return configured;
 }
 /*! Inclusive gate |h-h0|/h0 <= T, compared in long double; a nonfinite error fails. */
 inline bool Within(long double relative_error, double tolerance) {

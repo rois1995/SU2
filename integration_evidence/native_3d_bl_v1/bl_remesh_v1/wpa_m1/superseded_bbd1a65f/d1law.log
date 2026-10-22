@@ -1,0 +1,60 @@
+Filters: [NativeD1Law],[NativeReferenceIO],[NativeReference3D],[NativeMoveConstraint3D]
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+test_driver is a Catch v2.13.9 host application.
+Run with -? for options
+
+-------------------------------------------------------------------------------
+D1 at BL anisotropy: rotated crease, h0 2e-6, consistent logarithm and
+                     dominance
+-------------------------------------------------------------------------------
+../../UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp:3070
+...............................................................................
+
+../../UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp:3125: FAILED:
+  CHECK( qb >= qa * (1 - 1e-9) - slack )
+with expansion:
+  249999912398.7835693359
+  >=
+  249999999746.6310119629
+
+
+
+Error in "void CBoundaryLayerMetric::Build()": 
+-------------------------------------------------------------------------
+Wall wall has an ambiguous vertex normal.
+------------------------------ Error Exit -------------------------------
+
+
+--------------------------------------------------------------------------
+MPI_ABORT was invoked on rank 0 in communicator MPI_COMM_WORLD
+with errorcode 1.
+
+NOTE: invoking MPI_ABORT causes Open MPI to kill all MPI processes.
+You may or may not see output from other processes, depending on
+exactly when Open MPI kills them.
+--------------------------------------------------------------------------
+Command exited with non-zero status 1
+	Command being timed: "nice -n 19 timeout 3600 /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver [NativeD1Law],[NativeReferenceIO],[NativeReference3D],[NativeMoveConstraint3D] --use-colour no"
+	User time (seconds): 0.08
+	System time (seconds): 0.01
+	Percent of CPU this job got: 24%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:00.42
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 27064
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 2
+	Minor (reclaiming a frame) page faults: 2884
+	Voluntary context switches: 1119
+	Involuntary context switches: 33
+	Swaps: 0
+	File system inputs: 0
+	File system outputs: 8
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 1

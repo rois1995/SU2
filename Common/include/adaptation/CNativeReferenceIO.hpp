@@ -44,6 +44,12 @@ inline std::string EncodeReference(const ReferenceState& state) {
     for (const auto x : binding.first) out << x << ' ';
     out << binding.second << '\n';
   }
+  // Optional trailing policy record: readers without it see a legacy sidecar.
+  if (state.first_height_tol != 0) {
+    if (!(state.first_height_tol > 0 && state.first_height_tol < 1))
+      throw std::invalid_argument("Invalid native first-height policy.");
+    out << "BL_FIRST_HEIGHT_TOL " << state.first_height_tol << '\n';
+  }
   if (!out || out.tellp() > std::streamoff(REFERENCE_FILE_LIMIT))
     throw std::runtime_error("Native reference sidecar exceeds its replicated file limit.");
   return out.str();
@@ -97,6 +103,14 @@ inline ReferenceState DecodeReference(const std::string& bytes) {
       throw std::invalid_argument("Duplicate or noncanonical native reference accepted edge.");
   }
   in >> std::ws;
+  if (!in.eof()) {
+    std::string key;
+    double tolerance = 0;
+    if (!(in >> key >> tolerance) || key != "BL_FIRST_HEIGHT_TOL" || !(tolerance > 0 && tolerance < 1))
+      throw std::invalid_argument("Trailing data in native reference sidecar.");
+    result.first_height_tol = tolerance;
+    in >> std::ws;
+  }
   if (!in.eof()) throw std::invalid_argument("Trailing data in native reference sidecar.");
   return result;
 }

@@ -1,0 +1,130 @@
+{
+ "scope": "BL_REMESH_PLAN WP-A (D1 crease-frame law, user decisions 2026-10-22) + deferred WP-B (T in .native_ref) / WP-C (volume ownership documented)",
+ "binary": "integration_evidence/build-integrated-v2/UnitTests/test_driver",
+ "binary_sha256": "1f53781d4fb4e10ae41ffac040480523c4c9ce7e8cebeaee8e6a64e074e63105",
+ "build": "ninja -j1 nice 19 (UnitTests/test_driver, SU2_CFD), final incremental 14 steps 13:12, max RSS 2.67 GB, exit 0",
+ "source_sha256": {
+  "Common/include/adaptation/CNativeFirstHeight.hpp": "305c4e9873b1e9cc8e5420604506e87892bb8c7b7ec69008e9c73fa3648ef4a7",
+  "Common/include/adaptation/CNativeImport2D.hpp": "6cbb07afb94638eae33e4d0f43bc042f83c29328d5ed61fa1865b210002742db",
+  "Common/include/adaptation/CNativeImport3D.hpp": "6b219d9ca251b6144a0576c44fd9694e973c1caa3b16ec3f0732836346e2a195",
+  "Common/include/adaptation/CNativeReferenceIO.hpp": "d33a795645289e94038327774de5bc7a740419dc9ba4530417bc886f9d36f068",
+  "Common/src/adaptation/CNativeImport3D.cpp": "7bc8257fec05c8bfc677d2d2bc27b8ecd4c53c87b3ef78af79f569daa56be37b",
+  "Common/src/adaptation/CNativeReferenceIO3D.cpp": "817fe3f990f7409618bd7b04e5b06715f8f90411f5c973dc291ff2c6887e5dfc",
+  "Common/src/adaptation/CNativeRemesher.cpp": "d91ef00c07e189b93576c6fe1c74e8d3ea8da7a87bff248c74cb687a579c5752",
+  "Common/src/adaptation/CNativeRemesher3D.cpp": "198cdf96f66c93fa00cf502e50b0608d091ec3c5e44fd8fa8c1357a87539fe7b",
+  "SU2_CFD/include/adaptation/CBoundaryLayerMetric.hpp": "9e9fd3c26be3a2c55335efc042b6c411c56ced10b5c772e2065d8686b4c7fd60",
+  "SU2_CFD/include/adaptation/CNativeMetricFamily3D.hpp": "9269d32872fb942ce117b8ba4603f0ab5d762cfae97ddefca237f58637ef665e",
+  "SU2_CFD/src/adaptation/CBoundaryLayerMetric.cpp": "871116de69b06ac1fe0918ddae2b9930fd0b8663762a912cbc36b4dbea90bc69",
+  "SU2_CFD/src/adaptation/CBoundaryLayerRemesher.cpp": "1870ede633ee7e7d420c1491563f1787ec4cae7a9e9f089203566aba7fc2e5c7",
+  "SU2_CFD/src/solvers/CSolver.cpp": "e6005245cd7d2ea53f911d22eb84e716d6b7572af31bba480035b060af556963",
+  "UnitTests/Common/adaptation/CNativeBoundary3D_tests.cpp": "a7a6c45fdf1bb7827eca5110077a2787b3ce4eacae208137afb02142c7705fda",
+  "UnitTests/Common/adaptation/CNativeReferenceIO_tests.cpp": "a5cb50b5f44e8a5fe57496a84413ff6dc5bc0d3d36ebf7cf0c1a15e1a3222d50",
+  "UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp": "32177a83aa6bb6401a9fc2865b60a5f79f525aea0b377760840d48fc2b6bb752",
+  "UnitTests/SU2_CFD/adaptation/CNativeImport3D_tests.cpp": "b34805f9ca0bc222072b515d007d81f33141bde3ea7a72ed0b92a50b622f4c7a"
+ },
+ "stages": {
+  "d1law": {
+   "result": "All tests passed (465 assertions in 17 test cases)",
+   "max_rss_kB": 43100,
+   "wall": "0:01.27",
+   "status": "d1law exit=0 binary=1f53781d4fb4e10ae41ffac040480523c4c9ce7e8cebeaee8e6a64e074e63105"
+  },
+  "bl2d": {
+   "result": "All tests passed (300561 assertions in 152 test cases)",
+   "max_rss_kB": 398760,
+   "wall": "0:38.14",
+   "status": "bl2d exit=0 binary=1f53781d4fb4e10ae41ffac040480523c4c9ce7e8cebeaee8e6a64e074e63105"
+  },
+  "unit3d": {
+   "result": "All tests passed (183566 assertions in 33 test cases)",
+   "max_rss_kB": 96684,
+   "wall": "0:18.30",
+   "status": "unit3d exit=0 binary=1f53781d4fb4e10ae41ffac040480523c4c9ce7e8cebeaee8e6a64e074e63105"
+  },
+  "unit2d": {
+   "result": "All tests passed (52273 assertions in 57 test cases)",
+   "max_rss_kB": 34412,
+   "wall": "0:03.48",
+   "status": "unit2d exit=0 binary=1f53781d4fb4e10ae41ffac040480523c4c9ce7e8cebeaee8e6a64e074e63105"
+  },
+  "mesh3d": {
+   "result": "test cases:  101 |  100 passed | 1 failed",
+   "max_rss_kB": 35160,
+   "wall": "0:05.52",
+   "status": "mesh3d exit=6 binary=1f53781d4fb4e10ae41ffac040480523c4c9ce7e8cebeaee8e6a64e074e63105"
+  },
+  "airfoil": {
+   "result": "All tests passed (142 assertions in 1 test case)",
+   "max_rss_kB": 117044,
+   "wall": "0:45.21",
+   "status": "airfoil exit=0 binary=1f53781d4fb4e10ae41ffac040480523c4c9ce7e8cebeaee8e6a64e074e63105"
+  },
+  "m6_d1_500k_np2": {
+   "result": null,
+   "max_rss_kB": 999572,
+   "wall": "0:54.79",
+   "status": "m6_d1_500k_np2 exit=0 binary=1f53781d4fb4e10ae41ffac040480523c4c9ce7e8cebeaee8e6a64e074e63105"
+  }
+ },
+ "mesh3d_note": "1 failure CNativeDistributed3D_tests.cpp:1446/1449/1453, identical to m1_wpbc and the archived baseline (pre-existing)",
+ "airfoil_baseline_vs_D1": {
+  "baseline_m1_wpbc": {
+   "cycle_points": [
+    5353,
+    7253,
+    4588
+   ],
+   "wall_faces": 200,
+   "qmin": [
+    0.220304,
+    0.233136,
+    0.247208
+   ],
+   "cycle2_complexity": 3765.34,
+   "height_faces": 0,
+   "residual_cells": 0
+  },
+  "D1": {
+   "features": "1 corner (TE), R_f 0.0595",
+   "cycle_points": [
+    5329,
+    7286,
+    4871
+   ],
+   "wall_faces": 206,
+   "qmin": [
+    0.225472,
+    0.295803,
+    0.255192
+   ],
+   "cycle2_complexity": 3804.74,
+   "height_faces": 0,
+   "residual_cells": 0,
+   "wall_s": 45
+  }
+ },
+ "m6_500k": {
+  "config": "integration_evidence/native_3d_bl_v1/bl_remesh_v1/wpa_m1/run_m6_d1_500k_np2/run.cfg",
+  "ranks": 2,
+  "why_not_serial": "serial refused by the unchanged 2 GiB donor-import admission (CNativeDonor3D.cpp:146) before any D1 data is admitted; superseded_b7d1f4e1/m6_d1_500k_np1.log",
+  "features": "402 segments (400 TE/tip-base + 2 root edges whose mirror image kinks by 56 deg), 82 images, 2 corners (ends of the in-plane root segments), 4 carrier ends, 1 symmetry plane, R_f 0.1233 m",
+  "selected_parameter": 0.75,
+  "version": 19,
+  "estimate": 517766.88,
+  "indicator": 36551.43,
+  "status": "integration_limited (provisional, heuristic indicator)",
+  "coarsest_param0_32768": 1015759.5,
+  "coarsest_param0_without_D1_300k_run": 790200.5,
+  "mandatory_estimate": 23040.7,
+  "mandatory_indicator": 9289.4,
+  "max_rss_kB_per_process": 999572,
+  "wall_s": 54.8,
+  "saved": "integration_evidence/native_3d_bl_v1/bl_remesh_v1/wpa_m1/run_m6_d1_500k_np2/saved_metric_budget.json"
+ },
+ "superseded": {
+  "superseded_bbd1a65f": "first binary: double IntersectMetrics lost ~3.5e-7 of the largest eigenvalue at anisotropy 1e11 (rotated test); subset fixture bug",
+  "superseded_b7d1f4e1": "exact-coplanarity carriers fragmented the non-adopted M6 symmetry plane (|y|<=4.6e-12) into 465 planes; serial M6 refused by donor budget"
+ },
+ "not_run": "MPI campaigns of the unit sets, D2 witness/control replays (production law now includes D1), RAE2822/other 2D regression, M6 construction",
+ "codex_review": "2 rounds read-only; findings fixed (corner walls, rank-independent support bounds, canonical carriers, signed zeros, fixtures)"
+}

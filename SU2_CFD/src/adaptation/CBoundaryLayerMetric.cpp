@@ -31,6 +31,7 @@
 #include <array>
 #include <cmath>
 #include <chrono>
+#include <cstring>
 #include <limits>
 #include <iterator>
 #include <map>
@@ -289,10 +290,6 @@ struct CBoundaryLayerMetric::WallData {
   std::vector<su2double> length;                     /*!< \brief Length of each segment. */
   std::vector<std::vector<unsigned long>> segments;  /*!< \brief Segments of each vertex. */
   std::vector<Vec3> vertexNormal;                    /*!< \brief Normal of each vertex (2D bisector, 3D angle-weighted). */
-  std::vector<unsigned long> corner;                 /*!< \brief Vertices where the wall turns. */
-  std::vector<su2double> turn;                       /*!< \brief cos of half the angle between the two edges. */
-  su2double cell = 0.0;                              /*!< \brief Cell size of the corner grid. */
-  std::map<std::pair<long, long>, std::vector<unsigned long>> grid; /*!< \brief Corners (positions) per grid cell. */
 
   /*--- 3D ---*/
   std::vector<Vec3> faceNormal;            /*!< \brief Unit normal of each triangle. */
@@ -310,19 +307,27 @@ size_t CBoundaryLayerMetric::StorageBytes() const {
   for(const auto& ptr:data)if(ptr) {
     const auto& d=*ptr;
     bytes=Add(bytes,sizeof(d),Bytes(d.elem),Bytes(d.length),Bytes(d.segments),Bytes(d.vertexNormal),
-              Bytes(d.corner),Bytes(d.turn),Bytes(d.faceNormal),Bytes(d.edgeNormal),Bytes(d.vertexLog));
+              Bytes(d.faceNormal),Bytes(d.edgeNormal),Bytes(d.vertexLog));
     for(const auto& row:d.segments)bytes=Add(bytes,Bytes(row));
-    bytes=Add(bytes,Mul(d.grid.size(),sizeof(decltype(d.grid)::value_type)+4*sizeof(void*)));
-    for(const auto& row:d.grid)bytes=Add(bytes,Bytes(row.second));
     if(d.adt)bytes=Add(bytes,d.adt->GetAllocatedBytes(),d.adt->RetainedWorkspaceBound(1));
   }
+  // D1 feature set: retained base/canonical features, carrier planes and the candidate grid.
+  bytes=Add(bytes,Bytes(baseFeatures),Bytes(features),Bytes(featurePlanes),Bytes(featureHmax));
+  for(const auto* list:{&baseFeatures,&features})for(const auto& f:*list)bytes=Add(bytes,Bytes(f.walls));
+  bytes=Add(bytes,Mul(featureGrid.size(),sizeof(decltype(featureGrid)::value_type)+4*sizeof(void*)));
+  for(const auto& row:featureGrid)bytes=Add(bytes,Bytes(row.second));
   return bytes;
 }
 
-CBoundaryLayerMetric::CBoundaryLayerMetric(unsigned short nDim, std::vector<Wall> walls_, su2double cornerAngle)
+CBoundaryLayerMetric::CBoundaryLayerMetric(unsigned short nDim, std::vector<Wall> walls_, su2double cornerAngle,
+                                           FeatureOptions features_)
     : nDim(nDim), cornerAngle(cornerAngle), walls(std::move(walls_)) {
   Build();
+  BuildFeatures(std::move(features_));
 }
+
+CBoundaryLayerMetric::CBoundaryLayerMetric(unsigned short nDim, std::vector<Wall> walls_, su2double cornerAngle)
+    : CBoundaryLayerMetric(nDim, std::move(walls_), cornerAngle, FeatureOptions()) {}
 
 CBoundaryLayerMetric::CBoundaryLayerMetric(const CGeometry& geometry, const CConfig& config)
     : nDim(geometry.GetnDim()), cornerAngle(config.GetAdap_Angle()) {
@@ -576,6 +581,90 @@ CBoundaryLayerMetric::CBoundaryLayerMetric(const CGeometry& geometry, const CCon
     walls.push_back(std::move(wall));
   }
   Build();
+
+  /*--- D1 feature detection needs the COMPLETE original walls and their neighbouring physical faces on every rank
+   *    (the restricted wall subsets above are not enough: a feature can act farther than their padding). Gather every
+   *    physical boundary face once, fluid-oriented (3D normal out of the fluid, 2D fluid on the left), deduplicated
+   *    by global point indices; only the detected feature set is retained. ---*/
+  FeatureOptions options;
+  options.hgrad = SU2_TYPE::GetValue(config.GetAdap_Hgrad());
+  options.wallFacesIncluded = true;
+  {
+    std::vector<unsigned long> localIds;  // per face: nNode, marker (config-file index), global point indices
+    std::vector<passivedouble> localCoord;
+    for (unsigned short iMarker = 0; iMarker < geometry.GetnMarker(); ++iMarker) {
+      if (config.GetMarker_All_KindBC(iMarker) == SEND_RECEIVE) continue;
+      const auto tag = config.GetMarker_All_TagBound(iMarker);
+      unsigned long cfg = config.GetnMarker_CfgFile();
+      for (unsigned short k = 0; k < config.GetnMarker_CfgFile(); ++k)
+        if (config.GetMarker_CfgFile_TagBound(k) == tag) cfg = k;
+      if (cfg == config.GetnMarker_CfgFile()) continue;
+      for (auto iElem = 0ul; iElem < geometry.GetnElem_Bound(iMarker); ++iElem) {
+        const auto* face = geometry.bound[iMarker][iElem];
+        const auto type = face->GetVTK_Type();
+        if (type == VERTEX) continue;
+        if ((nDim == 2) ? (type != LINE) : (type != TRIANGLE && type != QUADRILATERAL)) continue;
+        const unsigned short nNode = face->GetnNodes();
+        unsigned long node[4];
+        for (unsigned short iNode = 0; iNode < nNode; ++iNode) node[iNode] = face->GetNode(iNode);
+        const auto* elem = geometry.elem[face->GetDomainElement()];
+        su2double faceCenter[3] = {0.0}, elemCenter[3] = {0.0};
+        for (unsigned short iNode = 0; iNode < nNode; ++iNode)
+          for (unsigned short iDim = 0; iDim < nDim; ++iDim)
+            faceCenter[iDim] += geometry.nodes->GetCoord(node[iNode], iDim) / nNode;
+        for (unsigned short iNode = 0; iNode < elem->GetnNodes(); ++iNode)
+          for (unsigned short iDim = 0; iDim < nDim; ++iDim)
+            elemCenter[iDim] += geometry.nodes->GetCoord(elem->GetNode(iNode), iDim) / elem->GetnNodes();
+        auto X = [&](unsigned short k, unsigned short iDim) { return geometry.nodes->GetCoord(node[k], iDim); };
+        if (nDim == 2) {
+          /*--- Fluid (the element centre) on the left of a -> b. ---*/
+          const su2double side = (X(1, 0) - X(0, 0)) * (elemCenter[1] - X(0, 1)) - (X(1, 1) - X(0, 1)) * (elemCenter[0] - X(0, 0));
+          if (side < 0.0) std::swap(node[0], node[1]);
+        } else {
+          su2double a[3], b[3], c[3];
+          for (unsigned short iDim = 0; iDim < 3; ++iDim) {
+            a[iDim] = X(1, iDim) - X(0, iDim);
+            b[iDim] = X(2, iDim) - X(0, iDim);
+            c[iDim] = X(nNode - 1, iDim) - X(0, iDim);
+          }
+          auto normal = Cross(a, b);
+          if (nNode == 4) {
+            const auto second = Cross(b, c);
+            for (unsigned short iDim = 0; iDim < 3; ++iDim) normal[iDim] += second[iDim];
+          }
+          su2double outward[3];
+          for (unsigned short iDim = 0; iDim < 3; ++iDim) outward[iDim] = faceCenter[iDim] - elemCenter[iDim];
+          if (Dot(3, normal.data(), outward) < 0.0) std::reverse(node + 1, node + nNode);
+        }
+        localIds.push_back(nNode);
+        localIds.push_back(cfg);
+        for (unsigned short iNode = 0; iNode < nNode; ++iNode) {
+          localIds.push_back(geometry.nodes->GetGlobalIndex(node[iNode]));
+          for (unsigned short iDim = 0; iDim < nDim; ++iDim)
+            localCoord.push_back(SU2_TYPE::GetValue(geometry.nodes->GetCoord(node[iNode], iDim)));
+        }
+      }
+    }
+    const auto allIds = CPassiveComm::Allgatherv(localIds, nullptr);
+    const auto allCoord = CPassiveComm::Allgatherv(localCoord, nullptr);
+    std::set<std::vector<unsigned long>> seen;
+    for (size_t iId = 0, iCoord = 0; iId < allIds.size();) {
+      const auto nNode = allIds[iId], cfg = allIds[iId + 1];
+      std::vector<unsigned long> key(allIds.begin() + iId + 2, allIds.begin() + iId + 2 + nNode);
+      FeatureFace face;
+      face.coord.assign(allCoord.begin() + iCoord, allCoord.begin() + iCoord + nNode * nDim);
+      iId += 2 + nNode;
+      iCoord += nNode * nDim;
+      std::sort(key.begin(), key.end());
+      if (!seen.insert(key).second) continue;
+      const auto name = config.GetMarker_CfgFile_TagBound(static_cast<unsigned short>(cfg));
+      for (unsigned short iBL = 0; iBL < config.GetnAdap_BL(); ++iBL)
+        if (config.GetAdap_BL(iBL).marker == name) face.wall = name;
+      face.reflective = face.wall.empty() && config.GetMarker_CfgFile_KindBC(name) == SYMMETRY_PLANE;
+      options.faces.push_back(std::move(face));
+    }
+  }
+  BuildFeatures(std::move(options));
 }
 
 void CBoundaryLayerMetric::Build() {
@@ -634,23 +723,19 @@ void CBoundaryLayerMetric::Build() {
       d->length.resize(nSeg);
       d->segments.assign(nPoint, {});
       std::vector<std::vector<Vec3>> rays(nPoint);
-      su2double maxLength = 0.0;
       for (auto iSeg = 0ul; iSeg < nSeg; ++iSeg) {
         const auto a = d->elem[2 * iSeg], b = d->elem[2 * iSeg + 1];
         const su2double v[2] = {x(b)[0] - x(a)[0], x(b)[1] - x(a)[1]};
         d->length[iSeg] = sqrt(v[0] * v[0] + v[1] * v[1]);
         if (!(d->length[iSeg] > 0.0)) SU2_MPI::Error("Wall " + name + " has an edge of zero length.", CURRENT_FUNCTION);
-        maxLength = max(maxLength, d->length[iSeg]);
         rays[a].push_back({v[0] / d->length[iSeg], v[1] / d->length[iSeg], 0.0});
         rays[b].push_back({-v[0] / d->length[iSeg], -v[1] / d->length[iSeg], 0.0});
         d->segments[a].push_back(iSeg);
         d->segments[b].push_back(iSeg);
       }
 
-      /*--- Vertex normal: bisector of the two rays where the wall turns, else normal of the ray. The vertex limits the
-       *    tangential size around it if the wall turns there by more than cornerAngle: |r1 + r2| = 2 sin(turn / 2).
-       *    ---*/
-      const su2double cornerMagnitude = max(su2double(1e-10), 2.0 * sin(0.5 * cornerAngle * PI_NUMBER / 180.0));
+      /*--- Vertex normal: bisector of the two rays where the wall turns, else normal of the ray. (Convex vertices
+       *    turning by more than ADAP_ANGLE are D1 features, BuildFeatures; there is no separate corner limit.) ---*/
       d->vertexNormal.resize(nPoint);
       for (auto iPoint = 0ul; iPoint < nPoint; ++iPoint) {
         const auto& r = rays[iPoint];
@@ -664,22 +749,9 @@ void CBoundaryLayerMetric::Build() {
         const su2double magnitude = sqrt(bisector[0] * bisector[0] + bisector[1] * bisector[1]);
         if (r.size() == 2 && magnitude > 1e-10) {
           d->vertexNormal[iPoint] = {bisector[0] / magnitude, bisector[1] / magnitude, 0.0};
-          if (magnitude > cornerMagnitude) {
-            d->corner.push_back(iPoint);
-            d->turn.push_back(0.5 * magnitude);
-          }
         } else {
           d->vertexNormal[iPoint] = {-r[0][1], r[0][0], 0.0};
         }
-      }
-
-      /*--- Grid of the corners, cells of the largest edge length (the corner search radius is half an edge). ---*/
-      d->cell = maxLength;
-      for (size_t iCorner = 0; iCorner < d->corner.size(); ++iCorner) {
-        const auto* c = x(d->corner[iCorner]);
-        const std::pair<long, long> key(static_cast<long>(floor(SU2_TYPE::GetValue(c[0] / d->cell))),
-                                        static_cast<long>(floor(SU2_TYPE::GetValue(c[1] / d->cell))));
-        d->grid[key].push_back(iCorner);
       }
     } else {
       /*--- Faces: unit normal, size tensor (2/n sum of e e^T over the n edges, projected on the face, plus its
@@ -887,6 +959,764 @@ void CBoundaryLayerMetric::Build() {
   }
 }
 
+namespace {
+/*--- Symmetric 3x3 eigen-decomposition by cyclic Jacobi in long double (columns of V are the eigenvectors). ---*/
+bool JacobiEigen3(long double (&A)[3][3], long double (&V)[3][3], long double (&w)[3]) {
+  long double norm = 0;
+  for (unsigned i = 0; i < 3; ++i)
+    for (unsigned j = 0; j < 3; ++j) {
+      V[i][j] = (i == j) ? 1 : 0;
+      norm += A[i][j] * A[i][j];
+    }
+  for (unsigned sweep = 0; sweep < 64; ++sweep) {
+    const long double off = A[0][1] * A[0][1] + A[0][2] * A[0][2] + A[1][2] * A[1][2];
+    if (!(off > 1e-36L * norm)) {
+      for (unsigned k = 0; k < 3; ++k) w[k] = A[k][k];
+      return true;
+    }
+    for (unsigned p = 0; p < 2; ++p)
+      for (unsigned q = p + 1; q < 3; ++q) {
+        if (A[p][q] == 0) continue;
+        const long double theta = (A[q][q] - A[p][p]) / (2 * A[p][q]);
+        const long double t = (theta >= 0 ? 1 : -1) / (std::abs(theta) + std::sqrt(theta * theta + 1));
+        const long double c = 1 / std::sqrt(t * t + 1), s = t * c;
+        for (unsigned k = 0; k < 3; ++k) {
+          const long double akp = A[k][p], akq = A[k][q];
+          A[k][p] = c * akp - s * akq;
+          A[k][q] = s * akp + c * akq;
+        }
+        for (unsigned k = 0; k < 3; ++k) {
+          const long double apk = A[p][k], aqk = A[q][k];
+          A[p][k] = c * apk - s * aqk;
+          A[q][k] = s * apk + c * aqk;
+        }
+        for (unsigned k = 0; k < 3; ++k) {
+          const long double vkp = V[k][p], vkq = V[k][q];
+          V[k][p] = c * vkp - s * vkq;
+          V[k][q] = s * vkp + c * vkq;
+        }
+      }
+  }
+  return false;
+}
+
+/*--- Logarithm of a D1-composed 3D wall tensor: long-double Jacobi with an a-posteriori residual and orthogonality
+ *    check and a positive spectrum, never the analytic frame route (the composed tensor has no wall frame). ---*/
+void LogarithmSPD3(const su2double (&X)[3][3], su2double (&L)[3][3]) {
+  long double scale = 0;
+  for (unsigned i = 0; i < 3; ++i)
+    for (unsigned j = 0; j < 3; ++j) scale = std::max(scale, std::abs((long double)SU2_TYPE::GetValue(X[i][j])));
+  if (!(scale > 0) || !std::isfinite(scale)) throw std::runtime_error("Native BL D1 tensor is not finite.");
+  long double A[3][3], B[3][3], V[3][3], w[3];
+  for (unsigned i = 0; i < 3; ++i)
+    for (unsigned j = 0; j < 3; ++j) A[i][j] = B[i][j] = SU2_TYPE::GetValue(X[i][j]) / scale;
+  if (!JacobiEigen3(A, V, w)) throw std::runtime_error("Native BL D1 logarithm: Jacobi iteration did not converge.");
+  long double residual = 0, orthogonality = 0, norm = 0;
+  for (unsigned i = 0; i < 3; ++i)
+    for (unsigned j = 0; j < 3; ++j) {
+      long double r = -V[i][j] * w[j], o = (i == j) ? -1 : 0;
+      for (unsigned k = 0; k < 3; ++k) {
+        r += B[i][k] * V[k][j];
+        o += V[k][i] * V[k][j];
+      }
+      residual += r * r;
+      orthogonality += o * o;
+      norm += B[i][j] * B[i][j];
+    }
+  if (!(std::sqrt(residual) <= 1e-15L * std::sqrt(norm)) || !(std::sqrt(orthogonality) <= 1e-15L))
+    throw std::runtime_error("Native BL D1 logarithm fails its residual/orthogonality check.");
+  long double logarithm[3];
+  for (unsigned k = 0; k < 3; ++k) {
+    if (!(w[k] > 0)) throw std::runtime_error("Native BL D1 tensor is not positive definite.");
+    logarithm[k] = std::log(w[k]) + std::log(scale);
+  }
+  for (unsigned i = 0; i < 3; ++i)
+    for (unsigned j = 0; j <= i; ++j) {
+      long double value = 0;
+      for (unsigned k = 0; k < 3; ++k) value += V[i][k] * logarithm[k] * V[j][k];
+      L[i][j] = L[j][i] = double(value);
+    }
+}
+
+/*--- D1 intersection A ∩ F in long double, the same S = A + F whitening as CSolver::IntersectMetrics (in that frame A
+ *    has eigenvalues l in [0,1] and the intersection max(l, 1 - l)). Binary64 whitening loses ~1e-7 of the largest
+ *    eigenvalue at BL anisotropy (1e11), so the D1 fold is evaluated with the long-double Jacobi route. ---*/
+void IntersectLD(unsigned short n, const su2double (&A)[3][3], const su2double (&B)[3][3], su2double (&C)[3][3]) {
+  long double scale = 0;
+  for (unsigned i = 0; i < n; ++i)
+    for (unsigned j = 0; j < n; ++j)
+      scale = std::max({scale, std::abs((long double)SU2_TYPE::GetValue(A[i][j])), std::abs((long double)SU2_TYPE::GetValue(B[i][j]))});
+  if (!(scale > 0) || !std::isfinite(scale)) throw std::runtime_error("Native BL D1 intersection needs finite SPD tensors.");
+  long double a[3][3] = {{0}}, s[3][3] = {{0}}, V[3][3], w[3];
+  for (unsigned i = 0; i < 3; ++i)
+    for (unsigned j = 0; j < 3; ++j) {
+      a[i][j] = (i < n && j < n) ? SU2_TYPE::GetValue(A[i][j]) / scale : (i == j ? 0.5L : 0.0L);
+      s[i][j] = (i < n && j < n) ? a[i][j] + SU2_TYPE::GetValue(B[i][j]) / scale : (i == j ? 1.0L : 0.0L);
+    }
+  if (!JacobiEigen3(s, V, w)) throw std::runtime_error("Native BL D1 intersection: Jacobi iteration did not converge.");
+  long double root[3][3], inverse[3][3];
+  for (unsigned k = 0; k < 3; ++k)
+    if (!(w[k] > 0)) throw std::runtime_error("Native BL D1 intersection sum is not positive definite.");
+  for (unsigned i = 0; i < 3; ++i)
+    for (unsigned j = 0; j < 3; ++j) {
+      root[i][j] = inverse[i][j] = 0;
+      for (unsigned k = 0; k < 3; ++k) {
+        root[i][j] += V[i][k] * std::sqrt(w[k]) * V[j][k];
+        inverse[i][j] += V[i][k] / std::sqrt(w[k]) * V[j][k];
+      }
+    }
+  long double t[3][3], tmp[3][3], U[3][3], l[3];
+  for (unsigned i = 0; i < 3; ++i)
+    for (unsigned j = 0; j < 3; ++j) {
+      tmp[i][j] = 0;
+      for (unsigned k = 0; k < 3; ++k) tmp[i][j] += inverse[i][k] * a[k][j];
+    }
+  for (unsigned i = 0; i < 3; ++i)
+    for (unsigned j = 0; j < 3; ++j) {
+      t[i][j] = 0;
+      for (unsigned k = 0; k < 3; ++k) t[i][j] += tmp[i][k] * inverse[k][j];
+    }
+  for (unsigned i = 0; i < 3; ++i)
+    for (unsigned j = 0; j < i; ++j) t[i][j] = t[j][i] = 0.5L * (t[i][j] + t[j][i]);
+  if (!JacobiEigen3(t, U, l)) throw std::runtime_error("Native BL D1 intersection: Jacobi iteration did not converge.");
+  for (auto& x : l) x = std::max(x, 1 - x);
+  for (unsigned i = 0; i < 3; ++i)
+    for (unsigned j = 0; j < 3; ++j) {
+      t[i][j] = 0;
+      for (unsigned k = 0; k < 3; ++k) t[i][j] += U[i][k] * l[k] * U[j][k];
+    }
+  for (unsigned i = 0; i < 3; ++i)
+    for (unsigned j = 0; j < 3; ++j) {
+      tmp[i][j] = 0;
+      for (unsigned k = 0; k < 3; ++k) tmp[i][j] += root[i][k] * t[k][j];
+    }
+  long double r[3][3];
+  for (unsigned i = 0; i < 3; ++i)
+    for (unsigned j = 0; j < 3; ++j) {
+      r[i][j] = 0;
+      for (unsigned k = 0; k < 3; ++k) r[i][j] += tmp[i][k] * root[k][j];
+    }
+  for (unsigned i = 0; i < n; ++i)
+    for (unsigned j = 0; j < n; ++j) C[i][j] = double(scale * 0.5L * (r[i][j] + r[j][i]));
+}
+
+using FeaturePoint = std::array<double, 3>;
+std::array<double, 7> FeatureOrder(int rank, const FeaturePoint& a, const FeaturePoint& b) {
+  return {double(rank), a[0], a[1], a[2], b[0], b[1], b[2]};
+}
+}  // namespace
+
+double CBoundaryLayerMetric::FeatureRadius(unsigned short wall, double h0) const {
+  /*--- Largest normal size inside the band (d <= T; the outer-normal profile at its growth limit) and the largest
+   *    tangential size: the pre-fade wall tensor A >= hmax^-2 I, so F <= hn_f(rho)^-2 I <= A beyond this radius. ---*/
+  const auto& layer = walls[wall].layer;
+  const double h0w = SU2_TYPE::GetValue(layer.firstHeight), g = SU2_TYPE::GetValue(layer.growth),
+               T = SU2_TYPE::GetValue(layer.thickness);
+  double hn = std::max(h0w, 2 * (h0w + (g - 1) * T) / (g + 1));
+  if (outerNormal.version && T > outerNormal.protected_distance) {
+    const double p = outerNormal.protected_distance;
+    const double anchor = std::max(h0w, 2 * (h0w + (g - 1) * p) / (g + 1));
+    const double limit = 2 * (1 - 2 / (outerNormal.maximum_growth + 1));
+    hn = std::max(hn, anchor + limit * (T - p));
+  }
+  const double hmax = std::max(featureHmax.at(wall), hn) * (1 + 1e-12);
+  return std::max(0.0, (hmax - h0) / featureSlope);
+}
+
+void CBoundaryLayerMetric::BuildFeatures(FeatureOptions options) {
+  baseFeatures.clear();
+  features.clear();
+  featurePlanes.clear();
+  featureGrid.clear();
+  featureSummary = FeatureSummary();
+  featureSlope = 0;
+  featureCell = 0;
+  featureHmax.assign(walls.size(), 0.0);
+  if (!(options.hgrad > 1.0)) return;  // D1 disabled (test constructor default)
+  const double angle = SU2_TYPE::GetValue(cornerAngle);
+  if (!std::isfinite(options.hgrad) || !(angle >= 0 && angle < 180))
+    throw std::invalid_argument("Invalid D1 feature angle or gradation.");
+  featureSlope = std::log(options.hgrad);
+  featureSummary.angle = angle;
+  featureSummary.slope = featureSlope;
+  const double pi = std::acos(-1.0);
+  auto degrees = [&](long double cosine) { return double(std::acos(std::clamp(cosine, -1.0L, 1.0L))) * 180 / pi; };
+
+  /*--- Original faces of all BL walls and the partner faces; vertex identity by exact coordinates. ---*/
+  std::map<std::string, int> wallIndex;
+  for (unsigned short w = 0; w < walls.size(); ++w) wallIndex[walls[w].layer.marker] = w;
+  std::map<FeaturePoint, unsigned> index;
+  std::vector<FeaturePoint> P;
+  auto vertex = [&](const su2double* x) {
+    const FeaturePoint p{SU2_TYPE::GetValue(x[0]), SU2_TYPE::GetValue(x[1]), nDim == 3 ? SU2_TYPE::GetValue(x[2]) : 0.0};
+    const auto it = index.emplace(p, unsigned(P.size()));
+    if (it.second) P.push_back(p);
+    return it.first->second;
+  };
+  struct Face { std::array<unsigned, 3> v; int wall; bool reflective; };
+  std::vector<Face> faces;
+  /*--- Largest tangential wall size from the COMPLETE original wall faces (rank independent even where a rank holds
+   *    a wall subset): 2D the longest segment; 3D the largest eigenvalue of the face size tensors 2/n sum e e^T, which
+   *    bounds the vertex log-means, their projection and the curvature caps of every sample. ---*/
+  auto wallSize = [&](const std::vector<unsigned>& ids, int wall) {
+    if (wall < 0) return;
+    const size_t n = ids.size();
+    su2double C[3][3] = {{0.0}}, vec[3][3], val[3], work[3];
+    for (size_t k = 0; k < n; ++k) {
+      double e[3] = {0, 0, 0};
+      for (unsigned j = 0; j < nDim; ++j) e[j] = P[ids[(k + 1) % n]][j] - P[ids[k]][j];
+      if (nDim == 2) {
+        if (k == 0) featureHmax[wall] = std::max(featureHmax[wall], std::hypot(e[0], e[1]) * (1 + 1e-12));
+        continue;
+      }
+      for (unsigned i = 0; i < 3; ++i)
+        for (unsigned j = 0; j < 3; ++j) C[i][j] += 2.0 / n * e[i] * e[j];
+    }
+    if (nDim == 2) return;
+    CBlasStructure::EigenDecomposition(C, vec, val, 3, work);
+    featureHmax[wall] = std::max(featureHmax[wall], std::sqrt(SU2_TYPE::GetValue(*std::max_element(val, val + 3))) * (1 + 1e-12));
+  };
+  auto add = [&](const std::vector<unsigned>& ids, int wall, bool reflective) {
+    wallSize(ids, wall);
+    if (nDim == 2) {
+      if (ids[0] == ids[1]) throw std::invalid_argument("Degenerate D1 boundary segment.");
+      faces.push_back({{ids[0], ids[1], ids[1]}, wall, reflective});
+      return;
+    }
+    faces.push_back({{ids[0], ids[1], ids[2]}, wall, reflective});
+    if (ids.size() == 4) faces.push_back({{ids[0], ids[2], ids[3]}, wall, reflective});
+  };
+  if (!options.wallFacesIncluded)
+    for (unsigned short w = 0; w < walls.size(); ++w) {
+      const auto& wall = walls[w];
+      const unsigned stride = (nDim == 2) ? 2 : 4;
+      for (size_t k = 0; k + stride <= wall.conn.size(); k += stride) {
+        const unsigned n = (nDim == 2) ? 2 : (wall.conn[k + 3] == wall.conn[k + 2] ? 3 : 4);
+        std::vector<unsigned> ids;
+        for (unsigned j = 0; j < n; ++j) ids.push_back(vertex(&wall.coord[nDim * wall.conn[k + j]]));
+        add(ids, w, false);
+      }
+    }
+  for (const auto& face : options.faces) {
+    int w = -1;
+    if (!face.wall.empty()) {
+      const auto it = wallIndex.find(face.wall);
+      if (!options.wallFacesIncluded || it == wallIndex.end() || face.reflective)
+        throw std::invalid_argument("Invalid D1 wall face of marker " + face.wall + ".");
+      w = it->second;
+    }
+    const size_t n = face.coord.size() / nDim;
+    if (face.coord.size() % nDim || (nDim == 2 ? n != 2 : (n != 3 && n != 4)))
+      throw std::invalid_argument("Invalid D1 feature face.");
+    std::vector<unsigned> ids;
+    for (size_t j = 0; j < n; ++j) ids.push_back(vertex(&face.coord[nDim * j]));
+    add(ids, w, face.reflective);
+  }
+  options.faces.clear();
+  options.faces.shrink_to_fit();
+
+  using LD3 = std::array<long double, 3>;
+  auto point = [&](const FeaturePoint& p) { return SU2Native3D::Point{p[0], p[1], p[2]}; };
+  auto unitNormal = [&](const Face& f) {
+    LD3 a{}, b{};
+    for (unsigned j = 0; j < 3; ++j) {
+      a[j] = (long double)P[f.v[1]][j] - P[f.v[0]][j];
+      b[j] = (long double)P[f.v[2]][j] - P[f.v[0]][j];
+    }
+    LD3 n{a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]};
+    const auto length = std::sqrt(n[0] * n[0] + n[1] * n[1] + n[2] * n[2]);
+    if (!(length > 0)) throw std::invalid_argument("Degenerate D1 boundary face.");
+    for (auto& x : n) x /= length;
+    return n;
+  };
+  auto reflect = [&](const FeaturePlane& plane, const FeaturePoint& x) {
+    long double distance = 0;
+    for (unsigned j = 0; j < 3; ++j) distance += ((long double)x[j] - plane.origin[j]) * plane.normal[j];
+    FeaturePoint y{};
+    for (unsigned j = 0; j < 3; ++j) y[j] = double(x[j] - 2 * distance * plane.normal[j]);
+    return y;
+  };
+  /*--- A symmetry marker is a plane by declaration, but a reference that was not adopted to an exact plane carries
+   *    rounding-level offsets (M6 legacy reference: |y| <= 4.6e-12). Carriers are therefore recognized up to
+   *    1e-9 of the coordinate scale with parallel normals; exact-plane references group identically. ---*/
+  long double scale = 0;
+  for (const auto& p : P)
+    for (const auto x : p) scale = std::max(scale, std::abs((long double)x));
+  const long double carrierTolerance = 1e-9L * std::max(scale, (long double)std::numeric_limits<double>::min());
+  auto onPlane = [&](const FeaturePlane& plane, const FeaturePoint& x) {
+    long double d = 0;
+    for (unsigned j = 0; j < 3; ++j) d += ((long double)x[j] - plane.origin[j]) * plane.normal[j];
+    return std::abs(d) <= plane.tolerance;
+  };
+  auto direction2D = [&](const FeaturePoint& a, const FeaturePoint& b) {
+    const long double dx = (long double)b[0] - a[0], dy = (long double)b[1] - a[1];
+    const auto length = std::hypot(dx, dy);
+    if (!(length > 0)) throw std::invalid_argument("Degenerate D1 boundary segment.");
+    return std::array<long double, 3>{-dy / length, dx / length, 0};
+  };
+  auto parallel = [&](const FeaturePlane& plane, const Face& f) {
+    const auto n = nDim == 3 ? unitNormal(f) : direction2D(P[f.v[0]], P[f.v[1]]);
+    return std::abs(n[0] * plane.normal[0] + n[1] * plane.normal[1] + n[2] * plane.normal[2]) >= 1 - 1e-12L;
+  };
+
+  /*--- Reflective carriers (symmetry planes/lines) touching the BL walls, grouped by exact coplanarity. ---*/
+  std::vector<char> wallVertex(P.size(), 0);
+  for (const auto& f : faces)
+    if (f.wall >= 0)
+      for (unsigned k = 0; k < nDim; ++k) wallVertex[f.v[k]] = 1;
+  std::vector<int> facePlane(faces.size(), -1);
+  for (size_t i = 0; i < faces.size(); ++i) {
+    const auto& f = faces[i];
+    if (f.wall >= 0 || !f.reflective) continue;
+    bool touches = false;
+    for (unsigned k = 0; k < nDim; ++k) touches = touches || wallVertex[f.v[k]];
+    if (!touches) continue;
+    for (size_t p = 0; p < featurePlanes.size() && facePlane[i] < 0; ++p) {
+      bool same = parallel(featurePlanes[p], f);
+      for (unsigned k = 0; k < nDim; ++k) same = same && onPlane(featurePlanes[p], P[f.v[k]]);
+      if (same) facePlane[i] = int(p);
+    }
+    if (facePlane[i] >= 0) continue;
+    FeaturePlane plane;
+    for (unsigned k = 0; k < 3; ++k) plane.face[k] = P[f.v[k]];
+    for (unsigned j = 0; j < 3; ++j) plane.origin[j] = P[f.v[0]][j];
+    plane.normal = nDim == 3 ? unitNormal(f) : direction2D(P[f.v[0]], P[f.v[1]]);
+    plane.tolerance = carrierTolerance;
+    featurePlanes.push_back(plane);
+    facePlane[i] = int(featurePlanes.size() - 1);
+  }
+  /*--- Canonical carrier transforms, independent of the face order: each plane is defined by its member face with
+   *    the lexicographically smallest sorted vertices (taken in sorted order); planes are ordered by that face. ---*/
+  {
+    using FaceKey = std::array<FeaturePoint, 3>;
+    std::vector<FaceKey> canonical(featurePlanes.size());
+    std::vector<char> set(featurePlanes.size(), 0);
+    for (size_t i = 0; i < faces.size(); ++i) {
+      if (facePlane[i] < 0) continue;
+      FaceKey key{P[faces[i].v[0]], P[faces[i].v[1]], P[faces[i].v[2]]};
+      std::sort(key.begin(), key.begin() + nDim);
+      if (nDim == 2) key[2] = key[1];
+      auto& best = canonical[facePlane[i]];
+      if (!set[facePlane[i]] || key < best) best = key;
+      set[facePlane[i]] = 1;
+    }
+    std::vector<unsigned> order(featurePlanes.size()), rank(featurePlanes.size());
+    std::iota(order.begin(), order.end(), 0u);
+    std::sort(order.begin(), order.end(), [&](unsigned x, unsigned y) { return canonical[x] < canonical[y]; });
+    std::vector<FeaturePlane> planes;
+    for (unsigned r = 0; r < order.size(); ++r) {
+      rank[order[r]] = r;
+      const auto& key = canonical[order[r]];
+      FeaturePlane plane;
+      plane.face = key;
+      plane.tolerance = carrierTolerance;
+      for (unsigned j = 0; j < 3; ++j) plane.origin[j] = key[0][j];
+      plane.normal = nDim == 3 ? unitNormal({{index.at(key[0]), index.at(key[1]), index.at(key[2])}, -1, true})
+                               : direction2D(key[0], key[1]);
+      planes.push_back(plane);
+    }
+    featurePlanes = std::move(planes);
+    for (auto& p : facePlane)
+      if (p >= 0) p = int(rank[p]);
+  }
+  featureSummary.planes = featurePlanes.size();
+
+  auto h0Of = [&](int w) { return SU2_TYPE::GetValue(walls[w].layer.firstHeight); };
+  auto merge = [](std::vector<unsigned short>& list, int w) {
+    if (w < 0) return;
+    if (!std::binary_search(list.begin(), list.end(), (unsigned short)w))
+      list.insert(std::upper_bound(list.begin(), list.end(), (unsigned short)w), (unsigned short)w);
+  };
+  auto makeSegment = [&](const FeaturePoint& a, const FeaturePoint& b) {
+    Feature f;
+    f.a = std::min(a, b);
+    f.b = std::max(a, b);
+    LD3 t{};
+    long double length = 0;
+    for (unsigned j = 0; j < 3; ++j) {
+      t[j] = (long double)f.b[j] - f.a[j];
+      length += t[j] * t[j];
+    }
+    length = std::sqrt(length);
+    if (!(length > 0)) throw std::invalid_argument("Degenerate D1 feature segment.");
+    for (unsigned j = 0; j < 3; ++j) f.t[j] = double(t[j] / length);
+    f.length = double(length);
+    return f;
+  };
+
+  if (nDim == 3) {
+    /*--- Crease edges: a manifold edge of a BL face whose other side (a BL face, a non-reflective partner, or the
+     *    mirror image of the BL face in a reflective partner's plane) makes it convex and turn by more than the
+     *    angle. Convexity: each opposite vertex strictly on the solid side of the other face (exact predicate). ---*/
+    struct Segment { unsigned a, b; std::vector<unsigned short> walls; double h0; };
+    std::vector<Segment> segments;
+    std::map<std::pair<unsigned, unsigned>, std::vector<unsigned>> edges;
+    auto edgeKey = [](unsigned x, unsigned y) { return std::make_pair(std::min(x, y), std::max(x, y)); };
+    for (size_t i = 0; i < faces.size(); ++i)
+      if (faces[i].wall >= 0)
+        for (unsigned k = 0; k < 3; ++k) edges[edgeKey(faces[i].v[k], faces[i].v[(k + 1) % 3])].push_back(unsigned(i));
+    for (size_t i = 0; i < faces.size(); ++i)
+      if (faces[i].wall < 0)
+        for (unsigned k = 0; k < 3; ++k) {
+          const auto it = edges.find(edgeKey(faces[i].v[k], faces[i].v[(k + 1) % 3]));
+          if (it != edges.end()) it->second.push_back(unsigned(i));
+        }
+    for (const auto& row : edges) {
+      if (row.second.size() == 1) continue;  // border of the supplied surface: its end vertices are classified below
+      if (row.second.size() > 2) throw std::invalid_argument("Non-manifold D1 boundary edge.");
+      const auto& f1 = faces[row.second[0]];
+      const auto& f2 = faces[row.second[1]];
+      unsigned k = 0;
+      while (edgeKey(f1.v[k], f1.v[(k + 1) % 3]) != row.first) ++k;
+      const unsigned a = f1.v[k], b = f1.v[(k + 1) % 3], o1 = f1.v[(k + 2) % 3];
+      const auto n1 = unitNormal(f1);
+      LD3 n2{};
+      bool convex = false;
+      if (f2.wall < 0 && f2.reflective) {
+        const auto& plane = featurePlanes.at(facePlane[row.second[1]]);
+        const auto image = reflect(plane, P[o1]);
+        long double dot = 0;
+        for (unsigned j = 0; j < 3; ++j) dot += n1[j] * plane.normal[j];
+        for (unsigned j = 0; j < 3; ++j) n2[j] = n1[j] - 2 * dot * plane.normal[j];
+        convex = SU2Native3D::Orientation(point(P[a]), point(P[b]), point(P[o1]), point(image)) > 0;
+      } else {
+        unsigned o2 = f2.v[0];
+        for (const auto v : f2.v)
+          if (v != a && v != b) o2 = v;
+        n2 = unitNormal(f2);
+        const auto s1 = SU2Native3D::Orientation(point(P[a]), point(P[b]), point(P[o1]), point(P[o2]));
+        const auto s2 = SU2Native3D::Orientation(point(P[f2.v[0]]), point(P[f2.v[1]]), point(P[f2.v[2]]), point(P[o1]));
+        if ((s1 > 0 && s2 < 0) || (s1 < 0 && s2 > 0))
+          throw std::invalid_argument("Inconsistently oriented D1 boundary faces (3D faces need normals out of the fluid).");
+        convex = s1 > 0 && s2 > 0;
+      }
+      if (!convex) continue;
+      if (!(degrees(n1[0] * n2[0] + n1[1] * n2[1] + n1[2] * n2[2]) > angle)) continue;
+      Segment segment{a, b, {}, h0Of(f1.wall)};
+      merge(segment.walls, f1.wall);
+      if (f2.wall >= 0) {
+        merge(segment.walls, f2.wall);
+        segment.h0 = std::min(segment.h0, h0Of(f2.wall));
+      }
+      segments.push_back(std::move(segment));
+    }
+
+    /*--- Lines and corners: >= 3 feature edges, a line turning by more than the angle, or a line end off a
+     *    reflective carrier. A carrier end continues into its mirror image unless segment + image turn by more. ---*/
+    std::map<unsigned, std::vector<std::pair<unsigned, unsigned>>> incident;
+    for (unsigned s = 0; s < segments.size(); ++s) {
+      incident[segments[s].a].push_back({segments[s].b, s});
+      incident[segments[s].b].push_back({segments[s].a, s});
+    }
+    std::map<unsigned, std::vector<unsigned>> partners;
+    for (size_t i = 0; i < faces.size(); ++i)
+      if (faces[i].wall < 0)
+        for (const auto v : faces[i].v)
+          if (incident.count(v)) {
+            auto& list = partners[v];
+            if (list.empty() || list.back() != i) list.push_back(unsigned(i));
+          }
+    /*--- A corner belongs to every BL wall incident to its vertex (also a finer marker that meets it without a
+     *    crease of its own) and takes the smallest of their first heights. ---*/
+    std::map<unsigned, std::vector<unsigned short>> vertexWalls;
+    for (const auto& f : faces)
+      if (f.wall >= 0)
+        for (const auto v : f.v)
+          if (incident.count(v)) merge(vertexWalls[v], f.wall);
+    std::map<unsigned, Feature> corners;
+    auto addCorner = [&](unsigned v) {
+      auto& corner = corners[v];
+      corner.corner = true;
+      corner.a = corner.b = P[v];
+      corner.walls = vertexWalls.at(v);
+      corner.h0 = std::numeric_limits<double>::max();
+      for (const auto w : corner.walls) corner.h0 = std::min(corner.h0, h0Of(w));
+    };
+    auto direction = [&](const FeaturePoint& from, const FeaturePoint& to) {
+      LD3 d{};
+      long double length = 0;
+      for (unsigned j = 0; j < 3; ++j) {
+        d[j] = (long double)to[j] - from[j];
+        length += d[j] * d[j];
+      }
+      length = std::sqrt(length);
+      for (auto& x : d) x /= length;
+      return d;
+    };
+    for (const auto& row : incident) {
+      const unsigned v = row.first;
+      const auto& nb = row.second;
+      if (nb.size() >= 3) {
+        addCorner(v);
+        continue;
+      }
+      if (nb.size() == 2) {
+        const auto u = direction(P[nb[0].first], P[v]), w = direction(P[v], P[nb[1].first]);
+        if (degrees(u[0] * w[0] + u[1] * w[1] + u[2] * w[2]) > angle) addCorner(v);
+        continue;
+      }
+      const auto it = partners.find(v);
+      int plane = -1;
+      bool carrier = it != partners.end();
+      if (carrier)
+        for (const auto i : it->second) {
+          if (!faces[i].reflective || facePlane[i] < 0 || (plane >= 0 && plane != facePlane[i])) {
+            carrier = false;
+            break;
+          }
+          plane = facePlane[i];
+        }
+      if (!carrier) {
+        addCorner(v);
+        ++featureSummary.freeCorners;
+        continue;
+      }
+      ++featureSummary.carrierEnds;
+      const auto image = reflect(featurePlanes[plane], P[nb[0].first]);
+      const auto u = direction(P[nb[0].first], P[v]), w = direction(P[v], image);
+      if (degrees(u[0] * w[0] + u[1] * w[1] + u[2] * w[2]) > angle) {
+        addCorner(v);
+        ++featureSummary.carrierCorners;
+      }
+    }
+    for (const auto& segment : segments) {
+      auto f = makeSegment(P[segment.a], P[segment.b]);
+      f.walls = segment.walls;
+      f.h0 = segment.h0;
+      baseFeatures.push_back(std::move(f));
+    }
+    for (auto& row : corners) baseFeatures.push_back(std::move(row.second));
+  } else {
+    /*--- 2D feature vertices: the wall turns right (fluid on the left) by more than the angle; the other side of a
+     *    BL segment is a BL segment, a non-reflective partner, or the mirror image of the BL segment. ---*/
+    std::map<unsigned, std::vector<unsigned>> in, out;
+    for (size_t i = 0; i < faces.size(); ++i) {
+      out[faces[i].v[0]].push_back(unsigned(i));
+      in[faces[i].v[1]].push_back(unsigned(i));
+    }
+    for (unsigned v = 0; v < P.size(); ++v) {
+      if (!wallVertex[v]) continue;
+      const auto ii = in.find(v), oo = out.find(v);
+      if (ii == in.end() || oo == out.end() || ii->second.size() != 1 || oo->second.size() != 1) continue;
+      const auto& fi = faces[ii->second[0]];
+      const auto& fo = faces[oo->second[0]];
+      auto p = P[fi.v[0]], q = P[fo.v[1]];
+      if (fi.wall < 0 && fi.reflective) p = reflect(featurePlanes.at(facePlane[ii->second[0]]), q);
+      if (fo.wall < 0 && fo.reflective) q = reflect(featurePlanes.at(facePlane[oo->second[0]]), p);
+      if (!(SU2Native2D::Orientation(p[0], p[1], P[v][0], P[v][1], q[0], q[1]) < 0)) continue;
+      const long double ux = (long double)P[v][0] - p[0], uy = (long double)P[v][1] - p[1];
+      const long double wx = (long double)q[0] - P[v][0], wy = (long double)q[1] - P[v][1];
+      if (!(degrees((ux * wx + uy * wy) / (std::hypot(ux, uy) * std::hypot(wx, wy))) > angle)) continue;
+      Feature f;
+      f.corner = true;
+      f.a = f.b = P[v];
+      f.h0 = std::numeric_limits<double>::max();
+      for (const auto* side : {&fi, &fo})
+        if (side->wall >= 0) {
+          merge(f.walls, side->wall);
+          f.h0 = std::min(f.h0, h0Of(side->wall));
+        }
+      baseFeatures.push_back(std::move(f));
+    }
+  }
+  std::sort(baseFeatures.begin(), baseFeatures.end(), [](const Feature& x, const Feature& y) {
+    return FeatureOrder(x.corner ? 2 : 0, x.a, x.b) < FeatureOrder(y.corner ? 2 : 0, y.a, y.b);
+  });
+  IndexFeatures();
+}
+
+void CBoundaryLayerMetric::IndexFeatures() {
+  features.clear();
+  featureGrid.clear();
+  featureCell = 0;
+  if (!(featureSlope > 0)) return;
+  auto radius = [&](const Feature& f) {
+    double r = 0;
+    for (const auto w : f.walls) r = std::max(r, FeatureRadius(w, f.h0));
+    return r;
+  };
+  auto rank = [](const Feature& f) { return (f.corner ? 2 : 0) + (f.image ? 1 : 0); };
+
+  /*--- Mirror images (one reflection) of every feature within its support radius of a reflective carrier, so the
+   *    composed field is reflection symmetric on the carrier; features lying in the carrier are their own image. ---*/
+  features = baseFeatures;
+  std::set<std::array<double, 7>> seen;
+  for (const auto& f : features) seen.insert(FeatureOrder(rank(f), f.a, f.b));
+  for (const auto& plane : featurePlanes)
+    for (const auto& f : baseFeatures) {
+      auto signedDistance = [&](const FeaturePoint& x) {
+        long double d = 0;
+        for (unsigned j = 0; j < 3; ++j) d += ((long double)x[j] - plane.origin[j]) * plane.normal[j];
+        return d;
+      };
+      const auto da = signedDistance(f.a), db = signedDistance(f.b);
+      const long double distance = ((da > 0 && db < 0) || (da < 0 && db > 0)) ? 0 : std::min(std::abs(da), std::abs(db));
+      if (distance > radius(f)) continue;
+      auto onPlane = [&](const FeaturePoint& x) { return std::abs(signedDistance(x)) <= plane.tolerance; };
+      auto reflect = [&](const FeaturePoint& x) {
+        if (onPlane(x)) return x;
+        const auto d = signedDistance(x);
+        FeaturePoint y{};
+        for (unsigned j = 0; j < 3; ++j) y[j] = double(x[j] - 2 * d * plane.normal[j]);
+        return y;
+      };
+      if (onPlane(f.a) && (f.corner || onPlane(f.b))) continue;
+      Feature g = f;
+      g.image = true;
+      const auto a = reflect(f.a), b = f.corner ? a : reflect(f.b);
+      g.a = std::min(a, b);
+      g.b = std::max(a, b);
+      if (!f.corner) {
+        long double length = 0;
+        std::array<long double, 3> t{};
+        for (unsigned j = 0; j < 3; ++j) {
+          t[j] = (long double)g.b[j] - g.a[j];
+          length += t[j] * t[j];
+        }
+        length = std::sqrt(length);
+        if (!(length > 0)) continue;
+        for (unsigned j = 0; j < 3; ++j) g.t[j] = double(t[j] / length);
+        g.length = double(length);
+      }
+      if (seen.insert(FeatureOrder(rank(g), g.a, g.b)).second) features.push_back(std::move(g));
+    }
+  std::sort(features.begin(), features.end(), [&](const Feature& x, const Feature& y) {
+    return FeatureOrder(rank(x), x.a, x.b) < FeatureOrder(rank(y), y.a, y.b);
+  });
+
+  /*--- Summary and identity (FNV-1a over the parameters and the canonical feature list). ---*/
+  auto& s = featureSummary;
+  s.segments = s.images = s.corners = s.imageCorners = 0;
+  s.maximumRadius = 0;
+  uint64_t hash = 1469598103934665603ULL;
+  auto mix = [&](const void* data, size_t bytes) {
+    const auto* c = static_cast<const unsigned char*>(data);
+    for (size_t i = 0; i < bytes; ++i) hash = (hash ^ c[i]) * 1099511628211ULL;
+  };
+  const uint64_t dimension = nDim;
+  mix(&dimension, sizeof(dimension));
+  mix(&s.angle, sizeof(s.angle));
+  mix(&s.slope, sizeof(s.slope));
+  double longest = 0;
+  for (const auto& f : features) {
+    const auto r = rank(f);
+    (r == 0 ? s.segments : r == 1 ? s.images : r == 2 ? s.corners : s.imageCorners)++;
+    s.maximumRadius = std::max(s.maximumRadius, radius(f));
+    longest = std::max(longest, f.length);
+    const int32_t kind = r;
+    mix(&kind, sizeof(kind));
+    for (const auto* point : {&f.a, &f.b})
+      for (const double x : *point) {
+        uint64_t bits;
+        std::memcpy(&bits, &x, sizeof(bits));
+        if (!(bits & 0x7FFFFFFFFFFFFFFFULL)) bits = 0;  // +0 and -0 are one coordinate (integer test: fast-math safe)
+        mix(&bits, sizeof(bits));
+      }
+    mix(&f.h0, sizeof(f.h0));
+    for (const auto w : f.walls) mix(&w, sizeof(w));
+  }
+  s.identity = hash;
+  if (features.empty()) return;
+
+  /*--- Candidate grid: a point within the support radius of a feature lies in a cell where it was inserted. ---*/
+  featureCell = std::max({s.maximumRadius, longest, std::numeric_limits<double>::min()});
+  for (unsigned i = 0; i < features.size(); ++i) {
+    const auto& f = features[i];
+    const double r = radius(f);
+    std::array<long long, 3> lo{}, hi{};
+    for (unsigned j = 0; j < nDim; ++j) {
+      const double low = std::min(f.a[j], f.b[j]), high = std::max(f.a[j], f.b[j]);
+      const double pad = r + 1e-12 * (std::max(std::abs(low), std::abs(high)) + r);
+      lo[j] = static_cast<long long>(std::floor((low - pad) / featureCell));
+      hi[j] = static_cast<long long>(std::floor((high + pad) / featureCell));
+    }
+    std::array<long long, 3> key{};
+    for (key[0] = lo[0]; key[0] <= hi[0]; ++key[0])
+      for (key[1] = lo[1]; key[1] <= hi[1]; ++key[1])
+        for (key[2] = lo[2]; key[2] <= hi[2]; ++key[2]) featureGrid[key].push_back(i);
+  }
+}
+
+void CBoundaryLayerMetric::ApplyFeatures(unsigned short wall, const su2double* X, Sample& sample) const {
+  if (featureGrid.empty()) return;
+  std::array<long long, 3> key{};
+  for (unsigned j = 0; j < nDim; ++j)
+    key[j] = static_cast<long long>(std::floor(SU2_TYPE::GetValue(X[j]) / featureCell));
+  const auto cell = featureGrid.find(key);
+  if (cell == featureGrid.end()) return;
+  su2double M[3][3] = {{0.0}};
+  for (unsigned i = 0; i < nDim; ++i)
+    for (unsigned j = 0; j < nDim; ++j) M[i][j] = sample.full.m[i][j];
+  auto smallest = [&](const su2double (&A)[3][3]) {
+    su2double vec[3][3], val[3], work[3];
+    CBlasStructure::EigenDecomposition(A, vec, val, nDim, work);
+    return SU2_TYPE::GetValue(*std::min_element(val, val + nDim));
+  };
+  double lmin = -1;
+  bool changed = false;
+  for (const auto index : cell->second) {
+    const auto& f = features[index];
+    if (!std::binary_search(f.walls.begin(), f.walls.end(), wall)) continue;
+    std::array<long double, 3> delta{};
+    for (unsigned j = 0; j < nDim; ++j) delta[j] = (long double)SU2_TYPE::GetValue(X[j]) - f.a[j];
+    if (!f.corner) {
+      long double s = 0;
+      for (unsigned j = 0; j < 3; ++j) s += delta[j] * f.t[j];
+      s = std::clamp(s, 0.0L, (long double)f.length);
+      for (unsigned j = 0; j < 3; ++j) delta[j] -= s * f.t[j];
+    }
+    const double rho = double(std::sqrt(delta[0] * delta[0] + delta[1] * delta[1] + delta[2] * delta[2]));
+    if (!(rho <= FeatureRadius(wall, f.h0))) continue;
+    const double h = f.h0 + featureSlope * rho, lambda = 1 / (h * h);
+    if (lmin < 0) lmin = smallest(M);
+    if (lambda <= lmin) continue;  // F <= lambda I <= M: exactly redundant
+    su2double F[3][3] = {{0.0}}, D[3][3] = {{0.0}};
+    for (unsigned i = 0; i < nDim; ++i)
+      for (unsigned j = 0; j < nDim; ++j) {
+        F[i][j] = (i == j ? lambda : 0.0) - (f.corner ? 0.0 : lambda * f.t[i] * f.t[j]);
+        D[i][j] = M[i][j] - F[i][j];
+      }
+    if (smallest(D) >= 0) continue;  // M >= F: M ∩ F = M
+    su2double C[3][3] = {{0.0}};
+    IntersectLD(nDim, M, F, C);
+    for (unsigned i = 0; i < nDim; ++i)
+      for (unsigned j = 0; j < nDim; ++j) M[i][j] = C[i][j];
+    lmin = smallest(M);
+    changed = true;
+  }
+  if (!changed) return;
+  for (unsigned i = 0; i < nDim; ++i)
+    for (unsigned j = 0; j < nDim; ++j) sample.full.m[i][j] = M[i][j];
+  if (nDim == 3) LogarithmSPD3(M, sample.logarithm.m);
+}
+
+bool CBoundaryLayerMetric::FeatureRefinement2D(const std::array<std::array<double, 2>, 3>& triangle,
+                                               double bandRatio) const {
+  if (nDim != 2) return false;
+  for (const auto& f : features) {
+    double radius = 0;
+    for (const auto w : f.walls) radius = std::max(radius, FeatureRadius(w, f.h0));
+    double rmax = 0, rmin = std::numeric_limits<double>::max();
+    long double low = 0, high = 0;
+    for (unsigned k = 0; k < 3; ++k) {
+      const auto& u = triangle[k];
+      const auto& v = triangle[(k + 1) % 3];
+      rmax = std::max(rmax, std::hypot(u[0] - f.a[0], u[1] - f.a[1]));
+      const auto side = SU2Native2D::Orientation(u[0], u[1], v[0], v[1], f.a[0], f.a[1]);
+      low = std::min(low, side);
+      high = std::max(high, side);
+      const double ex = v[0] - u[0], ey = v[1] - u[1], length2 = ex * ex + ey * ey;
+      const double t = length2 > 0 ? std::clamp(((f.a[0] - u[0]) * ex + (f.a[1] - u[1]) * ey) / length2, 0., 1.) : 0.;
+      rmin = std::min(rmin, std::hypot(f.a[0] - u[0] - t * ex, f.a[1] - u[1] - t * ey));
+    }
+    if (low == 0 || high == 0) rmin = 0;  // the vertex is inside or on the triangle
+    if (rmin > radius) continue;
+    rmax = std::min(rmax, radius);
+    if (f.h0 + featureSlope * rmax > bandRatio * (f.h0 + featureSlope * rmin)) return true;
+  }
+  return false;
+}
+
 void CBoundaryLayerMetric::ConfigureOuterNormal(double protectedDistance,double maximumGrowth) {
   if(nDim!=3 || outerNormal.frozen || outerNormal.version || !(protectedDistance>0) || !std::isfinite(protectedDistance) ||
       !(maximumGrowth>=1) || !std::isfinite(maximumGrowth))
@@ -894,6 +1724,8 @@ void CBoundaryLayerMetric::ConfigureOuterNormal(double protectedDistance,double 
   for(const auto& wall:walls)if(protectedDistance<wall.layer.firstHeight || maximumGrowth<wall.layer.growth)
     throw std::invalid_argument("Outer-normal BL limits must preserve original first height and growth.");
   outerNormal.protected_distance=protectedDistance;outerNormal.maximum_growth=maximumGrowth;outerNormal.version=1;
+  // The outer growth limit raises the largest normal size inside the band, hence the exact D1 support radius.
+  IndexFeatures();
 }
 void CBoundaryLayerMetric::SelectOuterNormal(double parameter) {
   if(outerNormal.frozen || !outerNormal.version || !(parameter>=0 && parameter<=1) || !std::isfinite(parameter))
@@ -995,25 +1827,8 @@ CBoundaryLayerMetric::Sample CBoundaryLayerMetric::EvaluateImpl(unsigned short i
     tangent[0] = -n[1];
     tangent[1] = n[0];
 
-    /*--- Tangential size: length of the closest segment, limited near the vertices where the wall turns. ---*/
+    /*--- Tangential size: length of the closest segment (convex feature vertices act through D1 below). ---*/
     ht = length;
-    /*--- Corner searches use the existing face radius: the reference chord already avoids crossing features. ---*/
-    const su2double radiusSearch = 0.5 * length;
-    const long ci = static_cast<long>(floor(SU2_TYPE::GetValue(X[0] / d.cell)));
-    const long cj = static_cast<long>(floor(SU2_TYPE::GetValue(X[1] / d.cell)));
-    su2double limited = ht;
-    for (long i = ci - 1; i <= ci + 1; ++i) {
-      for (long j = cj - 1; j <= cj + 1; ++j) {
-        const auto it = d.grid.find(std::make_pair(i, j));
-        if (it == d.grid.end()) continue;
-        for (const auto iCorner : it->second) {
-          const auto* c = x(d.corner[iCorner]);
-          const su2double r = sqrt(pow(X[0] - c[0], 2) + pow(X[1] - c[1], 2));
-          if (r <= radiusSearch) limited = min(limited, max(d.h0, 2.0 * r / d.turn[iCorner]));
-        }
-      }
-    }
-    ht = limited;
   } else {
     /*--- The ADT's tolerant triangle test is a seed, not an authoritative closest facet. ---*/
     const auto* query=wall.authority?lookup:X;
@@ -1131,6 +1946,9 @@ CBoundaryLayerMetric::Sample CBoundaryLayerMetric::EvaluateImpl(unsigned short i
     WallMetric3D(tangentSize,sample,curvature,curvedDirection);
   }
 
+  /*--- D1: the full-strength wall sample intersected with its features (canonical order), before the fade. ---*/
+  ApplyFeatures(iWall, X, sample);
+
   /*--- Fade: eigenvalues interpolated in logarithm towards the isotropic core metric. ---*/
   if (sample.weight < 1.0) {
     const su2double w = sample.weight;
@@ -1181,7 +1999,20 @@ std::shared_ptr<CBoundaryLayerMetric> CBoundaryLayerMetric::FromNativeReference(
     }
     walls.push_back(std::move(wall));
   }
-  return std::make_shared<CBoundaryLayerMetric>(2, std::move(walls), config.GetAdap_Angle());
+  /*--- D1: the walls above are complete and fluid-oriented (fluid on the left); partners are the other markers. ---*/
+  FeatureOptions options;
+  options.hgrad = SU2_TYPE::GetValue(config.GetAdap_Hgrad());
+  for (const auto& component : reference.original->Components()) {
+    const auto& name = reference.marker_names.at(component.marker);
+    bool bl = false;
+    for (unsigned short b = 0; b < config.GetnAdap_BL(); ++b) bl = bl || config.GetAdap_BL(b).marker == name;
+    if (bl) continue;
+    const bool reflective = config.GetMarker_CfgFile_KindBC(name) == SYMMETRY_PLANE;
+    for (size_t k = 1; k < component.nodes.size(); ++k)
+      options.faces.push_back({{component.nodes[k - 1].p.x, component.nodes[k - 1].p.y, component.nodes[k].p.x,
+                                component.nodes[k].p.y}, std::string(), reflective});
+  }
+  return std::make_shared<CBoundaryLayerMetric>(2, std::move(walls), config.GetAdap_Angle(), std::move(options));
 }
 
 std::shared_ptr<CBoundaryLayerMetric> CBoundaryLayerMetric::FromNativeReference(
@@ -1216,7 +2047,18 @@ std::shared_ptr<CBoundaryLayerMetric> CBoundaryLayerMetric::FromNativeReference(
     }
     walls.push_back(std::move(wall));
   }
-  return std::make_shared<CBoundaryLayerMetric>(3,std::move(walls),config.GetAdap_Angle());
+  /*--- D1: complete original walls (facets oriented out of the fluid) and the other physical facets as partners. ---*/
+  FeatureOptions options;
+  options.hgrad=SU2_TYPE::GetValue(config.GetAdap_Hgrad());
+  for(const auto& face:reference.facets) {
+    const auto& name=reference.marker_names.at(face.marker);
+    bool bl=false;for(unsigned short b=0;b<config.GetnAdap_BL();++b)bl=bl || config.GetAdap_BL(b).marker==name;
+    if(bl)continue;
+    FeatureFace partner;partner.reflective=config.GetMarker_CfgFile_KindBC(name)==SYMMETRY_PLANE;
+    for(const auto& node:face.v){partner.coord.push_back(node.p.x);partner.coord.push_back(node.p.y);partner.coord.push_back(node.p.z);}
+    options.faces.push_back(std::move(partner));
+  }
+  return std::make_shared<CBoundaryLayerMetric>(3,std::move(walls),config.GetAdap_Angle(),std::move(options));
 }
 
 namespace {
@@ -2686,6 +3528,9 @@ std::vector<CBoundaryLayerMetric::IntegrationPoint2D> CBoundaryLayerMetric::Inte
       }
     }
   }
+  // D1 feature vertices: refine while hn_f varies by more than the band ratio over the triangle (best effort up to
+  // the existing depth limit; only an unresolved wall band is fatal).
+  if (!subdivide && depth < 16 && FeatureRefinement2D(triangle, bandRatio)) subdivide = true;
   if (subdivide) {
     if(depth>=16) throw std::runtime_error("Geometric BL quadrature failed to resolve a wall band after 16 subdivisions.");
     const Bary vertices[6] = {{{1,0,0}},{{0,1,0}},{{0,0,1}},{{.5,.5,0}},{{0,.5,.5}},{{.5,0,.5}}};

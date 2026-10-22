@@ -1,0 +1,23 @@
+Filters: [NativeFirstLayer3D],[NativeComposite3D],[NativeChordEnvelope],[NativeFirstLayerEngine3D],[NativeWallReconstruction3D],[NativeVolumeBL3D],[NativeCurvedBL3D]
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+test_driver is a Catch v2.13.9 host application.
+Run with -? for options
+
+-------------------------------------------------------------------------------
+Native3D volume support detects a thin finite wall missed by all cell vertices
+-------------------------------------------------------------------------------
+../../UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp:1265
+...............................................................................
+
+../../UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp:1266: FAILED:
+  {Unknown expression after the reported line}
+due to a fatal error condition:
+  points=36285 integral=2.47733 analytic_on_rule=2.47733 pointwise_mismatch=5.
+  20695e-14 reference=2.47757
+  SIGTERM - Termination request signal
+
+===============================================================================
+test cases:    11 |    10 passed | 1 failed
+assertions: 46517 | 46516 passed | 1 failed
+

@@ -26,6 +26,7 @@ struct ReferenceState {
   std::shared_ptr<const PolylineReference> original;
   std::vector<std::string> marker_names;
   std::map<FaceCoordinates, int> accepted_edges;
+  double first_height_tol = 0;  // ADAP_BL_FIRST_HEIGHT_TOL the reference was accepted under; 0 = legacy, unrecorded.
 };
 struct BoundaryLabel {
   Id a = 0, b = 0;

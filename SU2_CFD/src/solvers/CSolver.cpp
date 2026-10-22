@@ -2635,6 +2635,8 @@ bool CNativeMetricFamily3D::Compatible(const CConfig& config)const {
       SU2_TYPE::GetValue(config.GetAdap_ARmax()),SU2_TYPE::GetValue(config.GetAdap_Hgrad()),SU2_TYPE::GetValue(config.GetAdap_Complexity()),double(config.GetAdap_BL_Budget()),
       SU2_TYPE::GetValue(config.GetAdap_BL_ProtectDistance()),SU2_TYPE::GetValue(config.GetAdap_BL_OuterGrowthMax())}};
   if(current!=controls || config.GetnAdap_BL()!=layer_controls.size() || surface_tolerance!=SU2_TYPE::GetValue(config.GetAdap_Hausd()))return false;
+  // The D1 feature set of the retained layers depends on ADAP_ANGLE (and ADAP_HGRAD, already in the controls).
+  if(feature_angle!=SU2_TYPE::GetValue(config.GetAdap_Angle()))return false;
   for(unsigned i=0;i<layer_controls.size();++i) {
     const auto& a=layer_controls[i];const auto& b=config.GetAdap_BL(i);
     if(a.marker!=b.marker || a.firstHeight!=b.firstHeight || a.growth!=b.growth || a.thickness!=b.thickness)return false;
@@ -2909,6 +2911,19 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
             : std::make_shared<CBoundaryLayerMetric>(*geometry, *config);
       if(budgetBL)nativeLayers->ConfigureOuterNormal(
           SU2_TYPE::GetValue(config->GetAdap_BL_ProtectDistance()),SU2_TYPE::GetValue(config->GetAdap_BL_OuterGrowthMax()));
+      {
+        /*--- D1 crease-frame law: one feature set (detected on replicated original geometry) on every rank. ---*/
+        const auto& features=nativeLayers->GetFeatures();
+        const uint64_t identity=features.identity;
+        if(CPassiveComm::Allreduce(identity,CPassiveComm::Op::MIN)!=CPassiveComm::Allreduce(identity,CPassiveComm::Op::MAX))
+          throw std::runtime_error("Native BL D1 feature sets differ across ranks.");
+        if(rank==MASTER_NODE)
+          cout<<"Native BL D1 features: segments="<<features.segments<<" image_segments="<<features.images
+              <<" corners="<<features.corners<<" image_corners="<<features.imageCorners<<" carrier_ends="<<features.carrierEnds
+              <<" carrier_corners="<<features.carrierCorners<<" free_corners="<<features.freeCorners<<" planes="<<features.planes
+              <<" angle="<<features.angle<<" slope="<<features.slope<<" maximum_radius="<<features.maximumRadius
+              <<" identity="<<features.identity<<endl;
+      }
       const auto owned = OwnedSimplices(*geometry);
       for (unsigned long cell = 0; cell < owned.size(); ++cell) {
         quadratureCell=geometry->elem[owned.elem[cell]]->GetGlobalIndex();
@@ -3895,6 +3910,8 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
           double(config->GetAdap_BL_Budget()),SU2_TYPE::GetValue(config->GetAdap_BL_ProtectDistance()),SU2_TYPE::GetValue(config->GetAdap_BL_OuterGrowthMax())}};
         family->boundary_layer=boundaryLayer;family->authority=nativeReference3D?nativeReference3D->original:nullptr;
         family->surface_tolerance=SU2_TYPE::GetValue(config->GetAdap_Hausd());
+        family->feature_angle=SU2_TYPE::GetValue(config->GetAdap_Angle());
+        family->feature_identity=nativeLayers?nativeLayers->GetFeatures().identity:0;
         for(unsigned i=0;i<config->GetnAdap_BL();++i)family->layer_controls.push_back(config->GetAdap_BL(i));
         family->budget_selection=budgetSelection;
         family->normalization=normalized;family->lower=familyLower;family->upper=familyUpper;family->core=SU2_TYPE::GetValue(frozenCore);
