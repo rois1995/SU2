@@ -241,7 +241,8 @@ void WriteRejectedCandidate(const CConfig& config, const CReaderSlices& slices, 
   const auto policy = reference.original->Policy({});
   for (const auto& entry : owned) {
     const auto& c = entry.second;
-    double heightError = 0, deviation = 0;
+    long double heightError = 0;
+    double deviation = 0;
     for (int k = 0; k < 3; ++k) if (c.marker[k]) {
       const auto a = c.t.v[k], b = c.t.v[(k + 1) % 3];
       deviation = std::max(deviation, policy.deviation({a, b, c.marker[k]}));
@@ -249,12 +250,13 @@ void WriteRejectedCandidate(const CConfig& config, const CReaderSlices& slices, 
       for (unsigned short layer = 0; layer < config.GetnAdap_BL(); ++layer)
         if (config.GetAdap_BL(layer).marker == marker) {
           const auto h = SU2_TYPE::GetValue(config.GetAdap_BL(layer).firstHeight);
-          heightError = std::max(heightError, std::abs(static_cast<double>(2 * area(c.t)) / norm(b.p - a.p) / h - 1));
+          heightError = std::max(heightError, Reference::height_error(static_cast<double>(2 * area(c.t)) / norm(b.p - a.p), h));
         }
     }
     const auto q = c.target_cache[0];
     const auto length = *std::max_element(c.target_cache.begin() + 1, c.target_cache.end());
-    const bool shape = q < .18, size = length > 1.8, height = heightError > 1e-8,
+    const bool shape = q < .18, size = length > 1.8,
+               height = !SU2NativeFirstHeight::Within(heightError, SU2_TYPE::GetValue(config.GetAdap_BL_FirstHeightTol())),
                geometry = deviation > SU2_TYPE::GetValue(config.GetAdap_Hausd());
     if (!(shape || size || height || geometry)) continue;
     const auto center = (c.t.v[0].p + c.t.v[1].p + c.t.v[2].p) * (1. / 3);
@@ -332,16 +334,20 @@ CRemeshResult CNativeRemesher::Remesh(const CConfig& config, const CGeometry& ge
     else
       heights.emplace(marker - names.begin(), SU2_TYPE::GetValue(layer.firstHeight));
   }
+  // One first-height tolerance T (ADAP_BL_FIRST_HEIGHT_TOL) on every rank; no rank-local gate.
+  const double heightTolerance = SU2_TYPE::GetValue(config.GetAdap_BL_FirstHeightTol());
+  if (CPassiveComm::Allreduce(heightTolerance, CPassiveComm::Op::MIN) !=
+      CPassiveComm::Allreduce(heightTolerance, CPassiveComm::Op::MAX))
+    failure.Set(1, 0, "Native first-height tolerance differs across ranks.");
   CollectiveFailure(failure, CURRENT_FUNCTION);
-  const auto policy = reference->original->Policy(heights);
+  const auto policy = reference->original->Policy(heights, heightTolerance);
   for (auto& entry : input)
     for (int k = 0; k < 3; ++k)
       if (entry.second.marker[k]) {
         auto& cell = entry.second;
         const auto h = policy.height(cell.marker[k]);
-        if (h > 0 &&
-            std::abs(static_cast<double>(2 * area(cell.t)) / norm(cell.t.v[(k + 1) % 3].p - cell.t.v[k].p) / h - 1) <
-                1e-8)
+        if (h > 0 && policy.height_within(
+                         static_cast<double>(2 * area(cell.t)) / norm(cell.t.v[(k + 1) % 3].p - cell.t.v[k].p), h))
           cell.t.protected_cell = 1;
       }
   EngineOptions control;
@@ -427,7 +433,7 @@ CRemeshResult CNativeRemesher::Remesh(const CConfig& config, const CGeometry& ge
   if (world.rank == 0)
     std::cout << "Native contract: q>=0.18, frozen-target Simpson edge length<=1.8, reference deviation<="
               << control.geometry_tolerance
-              << ", requested wall altitude relative error<=1e-8; dependency budget=" << control.dependency_bytes
+              << ", requested wall altitude relative error<=" << policy.height_tolerance << "; dependency budget=" << control.dependency_bytes
               << " bytes per rank, original P1 sensor target"
               << (control.metric_composition ? " + geometric BL constraints" : "") << ", boundary sampling "
               << (control.fixed_boundary ? "fixed" : "adaptive") << ".\n";
@@ -513,7 +519,7 @@ CRemeshResult CNativeRemesher::Remesh(const CConfig& config, const CGeometry& ge
             const auto a = cell.t.v[k], b = cell.t.v[(k + 1) % 3];
             const auto h = policy.height(cell.marker[k]);
             missedGeometry += policy.deviation({a, b, cell.marker[k]}) > control.geometry_tolerance;
-            if (h > 0) missedHeight += std::abs(static_cast<double>(2 * area(cell.t)) / norm(b.p - a.p) / h - 1) > 1e-8;
+            if (h > 0) missedHeight += !policy.height_within(static_cast<double>(2 * area(cell.t)) / norm(b.p - a.p), h);
           }
       }
       missedQuality = CPassiveComm::Allreduce(missedQuality, CPassiveComm::Op::SUM, workers.comm);

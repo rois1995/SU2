@@ -50,6 +50,7 @@
 #include "../../../Common/include/toolboxes/geometry_toolbox.hpp"
 #include "../../../SU2_CFD/include/adaptation/CBoundaryLayerMetric.hpp"
 #include "../../../SU2_CFD/include/adaptation/CNativeComplexity3D.hpp"
+#include "../../../SU2_CFD/include/adaptation/CNativeBLComposition3D.hpp"
 #include "../../../SU2_CFD/include/drivers/CDriver.hpp"
 #include "../../../SU2_CFD/include/solvers/CSolver.hpp"
 #include "../../../SU2_CFD/include/solvers/CSolverFactory.hpp"
@@ -1050,6 +1051,58 @@ TEST_CASE("Strict faceted edge integration resolves the existing on-wall normal 
   for(const Point endpoint:std::array<Point,3>{b,Point{1,1.03125,1},Point{1.03125,1,1}}) {
     const auto forward=target.TargetEdgeLength(a,endpoint),reverse=target.TargetEdgeLength(endpoint,a);
     CHECK(std::abs(forward-reverse)<1e-9L*forward+1e-12L);
+  }
+}
+
+TEST_CASE("Native chord ownership pins distance-tied facets and keeps the pointwise law elsewhere", "[NativeComposite3D]") {
+  using namespace SU2Native3D;
+  // Concave right-angle wall: z=0 (facets 0,1) and y=0 (facets 2,3); the plane y=z ties both walls exactly.
+  auto make=[]() {
+    CBoundaryLayerMetric::Wall wall;wall.layer={"wall",1e-3,1.2,.05};
+    wall.coord={-1,0,0, 2,0,0, 2,1,0, -1,1,0, 2,0,1, -1,0,1};
+    wall.conn={0,1,2,2, 0,2,3,3, 1,0,5,5, 1,5,4,4};
+    return std::make_shared<CBoundaryLayerMetric>(3,std::vector<CBoundaryLayerMetric::Wall>{wall});
+  };
+  const auto layers=make();
+  for(const auto& chord:std::array<std::array<Point,2>,2>{{{Point{0,.01,.01},Point{1,.01,.01}},
+                                                          {Point{0,.01,.02},Point{1,.012,.025}}}}) {
+    const auto a=chord[0],b=chord[1];
+    CBoundaryLayerMetric::ChordOwners owners;
+    const auto plain=layers->EdgeBreakpoints({a.x,a.y,a.z},{b.x,b.y,b.z});
+    const auto cuts=layers->EdgeBreakpoints({a.x,a.y,a.z},{b.x,b.y,b.z},1.5,16,&owners);
+    CHECK(cuts==plain);  // Ownership is reported, never a different partition.
+    REQUIRE(owners.walls.size()==1);REQUIRE_FALSE(owners.walls[0].empty());
+    CHECK(owners.walls[0].back().hi==1);
+    for(size_t k=1;k<owners.walls[0].size();++k)CHECK(owners.walls[0][k-1].hi<owners.walls[0][k].hi);
+    for(int k=0;k<=64;++k) {
+      const long double t=k/64.L;const auto facet=owners.Owner(0,t);
+      REQUIRE(facet!=CBoundaryLayerMetric::ChordOwners::NoFacet);
+      const Point p{double((1-t)*a.x+t*b.x),double((1-t)*a.y+t*b.y),double((1-t)*a.z+t*b.z)};
+      const SU2Native3D::Tensor sensor{1,0,0,1,0,1};
+      const auto pinned=SU2NativeBL3D::Compose(*layers,1.,p,sensor,&owners,t);
+      const auto pointwise=SU2NativeBL3D::Compose(*layers,1.,p,sensor);
+      if(a.y!=a.z) {  // Off the tie plane the pinned owner is the pointwise owner: bitwise identical law.
+        CHECK(facet>=2);CHECK(pinned.xx==pointwise.xx);CHECK(pinned.yy==pointwise.yy);CHECK(pinned.zz==pointwise.zz);
+        CHECK(pinned.xy==pointwise.xy);CHECK(pinned.xz==pointwise.xz);CHECK(pinned.yz==pointwise.yz);
+      } else CHECK(facet==0);  // Exact tie: the lowest candidate facet owns the whole stretch, without flips.
+    }
+  }
+  // Ownership must name a facet of the wall and match the wall set.
+  CBoundaryLayerMetric::ChordOwners wrong;wrong.walls={{{1.L,999}}};
+  CBoundaryLayerMetric::Tensor m;m.m[0][0]=m.m[1][1]=m.m[2][2]=1;
+  const su2double x[3]={.5,.01,.02};
+  CHECK_THROWS(layers->ApplyPointOnChord(x,m,1.,wrong,.5L));
+  wrong.walls={{{1.L,0}},{{1.L,0}}};CHECK_THROWS(layers->ApplyPointOnChord(x,m,1.,wrong,.5L));
+  // Same chord, independently built geometry and frozen fields: bitwise-identical composed lengths.
+  DonorCell donor;donor.cell={0,{{{0,{-.5,-.5,-.5}},{1,{3,-.5,-.5}},{2,{-.5,3,-.5}},{3,{-.5,-.5,3}}}}};
+  donor.sensor.fill({1,0,0,1,0,1});
+  const auto other=make();
+  FrozenField first({donor},SU2NativeBL3D::Composition(layers,1.),false,{},SU2NativeBL3D::EdgeGeometry(layers,1.));
+  FrozenField second({donor},SU2NativeBL3D::Composition(other,1.),false,{},SU2NativeBL3D::EdgeGeometry(other,1.));
+  for(const auto& chord:std::array<std::array<Point,2>,2>{{{Point{0,.01,.01},Point{1,.01,.01}},
+                                                          {Point{0,.004,.004},Point{1,.03,.03}}}}) {
+    const auto length=first.TargetEdgeLength(chord[0],chord[1]);
+    CHECK(std::isfinite(double(length)));CHECK(length==second.TargetEdgeLength(chord[0],chord[1]));
   }
 }
 

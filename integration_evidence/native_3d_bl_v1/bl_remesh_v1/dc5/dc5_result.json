@@ -1,0 +1,496 @@
+{
+ "check": "DC-5 (BL_REMESH_PLAN rev 3): test-only [NativeLayer2DWay3D]; existing operators in production order (balanced split point, SplitEdge/InsertEdgeCavity, wall reconstructions, private RepairMetricConnectivity), D.3 LayerConstruct (c_v then p_f by private visibility + Cone, private repair), admission A vs D.1 on one deterministic proposal stream; T = 0.10 test-side in both; final gates absolute; independent re-audit with a fresh field",
+ "limits": "A1: 8192 work / 120 s (unchanged); fixtures 8192 work / 600 s per admission; <= 4 GiB",
+ "receipt": {
+  "elapsed": "1:25:41",
+  "max_rss_kB": "40644",
+  "exit": "0"
+ },
+ "cases": {
+  "annulus": {
+   "A": {
+    "outcome": "blocked",
+    "work": 579,
+    "accepted": 43,
+    "seconds": 17.091687078,
+    "final": {
+     "cells": 128,
+     "q_min": 0.201075802631,
+     "J_min": 0.0500241722056,
+     "edge_max": 3.88061246029,
+     "bad_shape": 0,
+     "long_edges": 45,
+     "long_by_class": {
+      "wall": 1,
+      "seam": 4,
+      "other_physical": 15,
+      "interior": 25
+     },
+     "wall_faces": 2,
+     "height_failures": 0,
+     "complete": 0
+    },
+    "reaudit": {
+     "q_min": 0.201075802631,
+     "J_min": 0.0500241722056,
+     "edge_max": 3.88061246029,
+     "height_failures": 0,
+     "complete": 0
+    },
+    "first_row_built_refused": [
+     2,
+     0
+    ],
+    "top_reasons": {
+     "Refine build: Native 3D split point is not a distinct exact on-edge point.": 89,
+     "Refine build: Native 3D insertion cannot change an immutable facet or marker junction.": 51,
+     "Refine build: Native3D joint placement/reconnection exhausted its shared trial budget without frozen met": 36,
+     "Refine build: no bounded apex cover": 24,
+     "Refine build: Native3D normal wall point is obstructed by retained patch interface.": 12,
+     "Refine InsertEdgeCavity: Native 3D physical face leaves or reverses original facet 8.": 11
+    }
+   },
+   "D": {
+    "outcome": "blocked",
+    "work": 579,
+    "accepted": 43,
+    "seconds": 16.940542171,
+    "final": {
+     "cells": 128,
+     "q_min": 0.201075802631,
+     "J_min": 0.0500241722056,
+     "edge_max": 3.88061246029,
+     "bad_shape": 0,
+     "long_edges": 45,
+     "long_by_class": {
+      "wall": 1,
+      "seam": 4,
+      "other_physical": 15,
+      "interior": 25
+     },
+     "wall_faces": 2,
+     "height_failures": 0,
+     "complete": 0
+    },
+    "reaudit": {
+     "q_min": 0.201075802631,
+     "J_min": 0.0500241722056,
+     "edge_max": 3.88061246029,
+     "height_failures": 0,
+     "complete": 0
+    },
+    "first_row_built_refused": [
+     2,
+     0
+    ],
+    "top_reasons": {
+     "Refine build: Native 3D split point is not a distinct exact on-edge point.": 89,
+     "Refine build: Native 3D insertion cannot change an immutable facet or marker junction.": 51,
+     "Refine build: Native3D joint placement/reconnection exhausted its shared trial budget without frozen met": 36,
+     "Refine build: no bounded apex cover": 24,
+     "Refine build: Native3D normal wall point is obstructed by retained patch interface.": 12,
+     "Refine InsertEdgeCavity: Native 3D physical face leaves or reverses original facet 8.": 11
+    }
+   },
+   "diverged": false,
+   "proxy_field": false,
+   "composition_fidelity_rel": null
+  },
+  "m6_root_le_h0.02": {
+   "A": {
+    "outcome": "limit",
+    "work": 3537,
+    "accepted": 105,
+    "seconds": 601.189427758,
+    "final": {
+     "cells": 2941,
+     "q_min": 0.0134501216599,
+     "J_min": 0.000552130829347,
+     "edge_max": 53.7826118825,
+     "bad_shape": 746,
+     "long_edges": 1097,
+     "long_by_class": {
+      "wall": 131,
+      "seam": 0,
+      "other_physical": 55,
+      "interior": 911
+     },
+     "wall_faces": 193,
+     "height_failures": 0,
+     "complete": 0
+    },
+    "reaudit": {
+     "q_min": 0.0134501216599,
+     "J_min": 0.000552130829347,
+     "edge_max": 53.7826118825,
+     "complete": 0
+    },
+    "first_row_built_refused": [
+     193,
+     0
+    ],
+    "top_reasons": {
+     "Refine build: Native 3D split point is not a distinct exact on-edge point.": 1300,
+     "Refine build: Native3D joint placement/reconnection exhausted its shared trial budget without frozen met": 228,
+     "Refine build: Native3D joint placement needs complete movable vertex stars.": 165,
+     "Refine build: Native 3D incomplete insertion dependency at interface face.": 107,
+     "Refine InsertEdgeCavity+repair: refine: no strict changed-edge excess reduction": 35,
+     "Refine InsertEdgeCavity: refine: no strict changed-edge excess reduction": 28
+    }
+   },
+   "D": {
+    "outcome": "limit",
+    "work": 3677,
+    "accepted": 383,
+    "seconds": 604.339808433,
+    "final": {
+     "cells": 3528,
+     "q_min": 0.0138088558111,
+     "J_min": 0.000574308731278,
+     "edge_max": 53.7826118825,
+     "bad_shape": 938,
+     "long_edges": 1759,
+     "long_by_class": {
+      "wall": 131,
+      "seam": 0,
+      "other_physical": 55,
+      "interior": 1573
+     },
+     "wall_faces": 193,
+     "height_failures": 0,
+     "complete": 0
+    },
+    "reaudit": {
+     "q_min": 0.0138088558111,
+     "J_min": 0.000574308731278,
+     "edge_max": 53.7826118825,
+     "complete": 0
+    },
+    "first_row_built_refused": [
+     193,
+     0
+    ],
+    "top_reasons": {
+     "Refine build: Native 3D split point is not a distinct exact on-edge point.": 1276,
+     "Refine build: Native3D joint placement needs complete movable vertex stars.": 300,
+     "Repair build: Native3D admitted joint repair made no actual-field shape progress.": 176,
+     "Refine InsertEdgeCavity+repair: refine: no strict changed-edge excess reduction": 129,
+     "Refine build: Native 3D incomplete insertion dependency at interface face.": 107,
+     "Refine build: Native3D joint placement/reconnection exhausted its shared trial budget without frozen met": 93
+    }
+   },
+   "diverged": true,
+   "divergence": {
+    "work": 283,
+    "op": "InsertEdgeCavity+repair",
+    "kind": "Refine",
+    "A": "A shape: q=0.116588 J=0.050496",
+    "D_ok": 1
+   },
+   "proxy_field": true,
+   "composition_fidelity_rel": 2.29126742295e-17
+  },
+  "m6_root_te_h0.02": {
+   "A": {
+    "outcome": "limit",
+    "work": 1438,
+    "accepted": 8,
+    "seconds": 601.058885657,
+    "final": {
+     "cells": 2269,
+     "q_min": 0.0185123047021,
+     "J_min": 0.000892400341698,
+     "edge_max": 28.6342976809,
+     "bad_shape": 810,
+     "long_edges": 2673,
+     "long_by_class": {
+      "wall": 217,
+      "seam": 12,
+      "other_physical": 303,
+      "interior": 2141
+     },
+     "wall_faces": 229,
+     "height_failures": 0,
+     "complete": 0
+    },
+    "reaudit": {
+     "q_min": 0.0185123047021,
+     "J_min": 0.000892400341698,
+     "edge_max": 28.6342976809,
+     "complete": 0
+    },
+    "first_row_built_refused": [
+     229,
+     0
+    ],
+    "top_reasons": {
+     "Refine build: Native 3D split point is not a distinct exact on-edge point.": 492,
+     "Refine build: Native 3D incomplete insertion dependency at interface face.": 47,
+     "Refine build: Native3D joint placement/reconnection exhausted its shared trial budget without frozen met": 30,
+     "Refine InsertEdgeCavity+repair: refine: no strict changed-edge excess reduction": 29,
+     "Layer build: LayerConstruct insertion: point outside the private patch": 24,
+     "Refine InsertEdgeCavity: refine: no strict changed-edge excess reduction": 20
+    }
+   },
+   "D": {
+    "outcome": "limit",
+    "work": 1525,
+    "accepted": 94,
+    "seconds": 603.255726844,
+    "final": {
+     "cells": 2535,
+     "q_min": 0.0189069485197,
+     "J_min": 0.000921263985621,
+     "edge_max": 28.6342976809,
+     "bad_shape": 911,
+     "long_edges": 3012,
+     "long_by_class": {
+      "wall": 217,
+      "seam": 12,
+      "other_physical": 303,
+      "interior": 2480
+     },
+     "wall_faces": 229,
+     "height_failures": 0,
+     "complete": 0
+    },
+    "reaudit": {
+     "q_min": 0.0189069485197,
+     "J_min": 0.000921263985621,
+     "edge_max": 28.6342976809,
+     "complete": 0
+    },
+    "first_row_built_refused": [
+     229,
+     0
+    ],
+    "top_reasons": {
+     "Refine build: Native 3D split point is not a distinct exact on-edge point.": 553,
+     "Refine InsertEdgeCavity+repair: refine: no strict changed-edge excess reduction": 161,
+     "Refine InsertEdgeCavity: refine: no strict changed-edge excess reduction": 108,
+     "Refine build: Native3D joint placement/reconnection exhausted its shared trial budget without frozen met": 63,
+     "Refine build: Native 3D incomplete insertion dependency at interface face.": 47,
+     "Layer build: LayerConstruct insertion: point outside the private patch": 24
+    }
+   },
+   "diverged": true,
+   "divergence": {
+    "work": 312,
+    "op": "InsertEdgeCavity+repair",
+    "kind": "Refine",
+    "A": "A shape: q=0.180176 J=0.046018",
+    "D_ok": 1
+   },
+   "proxy_field": true,
+   "composition_fidelity_rel": 0
+  },
+  "tube_root_z": {
+   "A": {
+    "outcome": "limit",
+    "work": 2873,
+    "accepted": 668,
+    "seconds": 600.578743103,
+    "final": {
+     "cells": 5480,
+     "q_min": 0.110436604288,
+     "J_min": 0.0241135918645,
+     "edge_max": 7.63632309059,
+     "bad_shape": 16,
+     "long_edges": 1550,
+     "long_by_class": {
+      "wall": 88,
+      "seam": 16,
+      "other_physical": 140,
+      "interior": 1306
+     },
+     "wall_faces": 64,
+     "height_failures": 16,
+     "complete": 0
+    },
+    "reaudit": {
+     "q_min": 0.110436604288,
+     "J_min": 0.0241135918645,
+     "edge_max": 7.63632309059,
+     "complete": 0
+    },
+    "first_row_built_refused": [
+     48,
+     16
+    ],
+    "top_reasons": {
+     "Refine build: Native 3D split point is not a distinct exact on-edge point.": 833,
+     "Refine build: Native3D joint placement needs complete movable vertex stars.": 207,
+     "Refine build: Native3D joint placement/reconnection exhausted its shared trial budget without frozen met": 180,
+     "Refine InsertEdgeCavity: refine: no strict changed-edge excess reduction": 154,
+     "Refine build: Native3D wall refit needs an admissible prescribed-height input: Native3D prescribed heigh": 126,
+     "Refine SplitEdge: refine: no strict changed-edge excess reduction": 76
+    }
+   },
+   "D": {
+    "outcome": "limit",
+    "work": 2749,
+    "accepted": 668,
+    "seconds": 603.505972115,
+    "final": {
+     "cells": 5477,
+     "q_min": 0.12571112972,
+     "J_min": 0.0264380037611,
+     "edge_max": 7.63632309059,
+     "bad_shape": 16,
+     "long_edges": 1552,
+     "long_by_class": {
+      "wall": 88,
+      "seam": 16,
+      "other_physical": 144,
+      "interior": 1304
+     },
+     "wall_faces": 64,
+     "height_failures": 16,
+     "complete": 0
+    },
+    "reaudit": {
+     "q_min": 0.12571112972,
+     "J_min": 0.0264380037611,
+     "edge_max": 7.63632309059,
+     "complete": 0
+    },
+    "first_row_built_refused": [
+     48,
+     16
+    ],
+    "top_reasons": {
+     "Refine build: Native 3D split point is not a distinct exact on-edge point.": 807,
+     "Refine build: Native3D joint placement needs complete movable vertex stars.": 189,
+     "Refine build: Native3D joint placement/reconnection exhausted its shared trial budget without frozen met": 168,
+     "Refine InsertEdgeCavity: refine: no strict changed-edge excess reduction": 147,
+     "Refine build: Native3D wall refit needs an admissible prescribed-height input: Native3D prescribed heigh": 116,
+     "Refine SplitEdge: refine: no strict changed-edge excess reduction": 76
+    }
+   },
+   "diverged": true,
+   "divergence": {
+    "work": 209,
+    "op": "InsertEdgeCavity+repair",
+    "kind": "Refine",
+    "A": "A shape: q=0.166844 J=0.040596",
+    "D_ok": 1
+   },
+   "proxy_field": false,
+   "composition_fidelity_rel": 4.98271571601e-16
+  },
+  "two_tube_y": {
+   "A": {
+    "outcome": "limit",
+    "work": 2546,
+    "accepted": 785,
+    "seconds": 636.728621482,
+    "final": {
+     "cells": 6506,
+     "q_min": 0.111022684595,
+     "J_min": 0.0169842022041,
+     "edge_max": 5.46401409732,
+     "bad_shape": 2,
+     "long_edges": 2963,
+     "long_by_class": {
+      "wall": 156,
+      "seam": 32,
+      "other_physical": 304,
+      "interior": 2471
+     },
+     "wall_faces": 128,
+     "height_failures": 0,
+     "complete": 0
+    },
+    "reaudit": {
+     "q_min": 0.111022684595,
+     "J_min": 0.0169842022041,
+     "edge_max": 5.46401409732,
+     "complete": 0
+    },
+    "first_row_built_refused": [
+     128,
+     0
+    ],
+    "top_reasons": {
+     "Refine build: Native 3D split point is not a distinct exact on-edge point.": 762,
+     "Refine build: Native3D joint placement/reconnection exhausted its shared trial budget without frozen met": 300,
+     "Refine build: Native3D joint placement needs complete movable vertex stars.": 180,
+     "Refine build: Native3D normal wall point is obstructed by retained patch interface.": 122,
+     "Refine build: Native3D projected split leaves an incident physical feature.": 20,
+     "Refine InsertEdgeCavity: refine: no strict changed-edge excess reduction": 14
+    }
+   },
+   "D": {
+    "outcome": "limit",
+    "work": 2547,
+    "accepted": 806,
+    "seconds": 635.722067973,
+    "final": {
+     "cells": 6607,
+     "q_min": 0.03319266878,
+     "J_min": 0.0049430010896,
+     "edge_max": 5.36834831189,
+     "bad_shape": 7,
+     "long_edges": 2988,
+     "long_by_class": {
+      "wall": 157,
+      "seam": 32,
+      "other_physical": 305,
+      "interior": 2494
+     },
+     "wall_faces": 129,
+     "height_failures": 0,
+     "complete": 0
+    },
+    "reaudit": {
+     "q_min": 0.03319266878,
+     "J_min": 0.0049430010896,
+     "edge_max": 5.36834831189,
+     "complete": 0
+    },
+    "first_row_built_refused": [
+     128,
+     0
+    ],
+    "top_reasons": {
+     "Refine build: Native 3D split point is not a distinct exact on-edge point.": 775,
+     "Refine build: Native3D joint placement/reconnection exhausted its shared trial budget without frozen met": 282,
+     "Refine build: Native3D joint placement needs complete movable vertex stars.": 195,
+     "Refine build: Native3D normal wall point is obstructed by retained patch interface.": 124,
+     "Refine build: Native3D projected split leaves an incident physical feature.": 20,
+     "Refine build: Native3D wall refit needs complete free apex stars.": 14
+    }
+   },
+   "diverged": true,
+   "divergence": {
+    "work": 79,
+    "op": "InsertEdgeCavity",
+    "kind": "Refine",
+    "A": "A shape: q=0.027820 J=0.002520",
+    "D_ok": 1
+   },
+   "proxy_field": false,
+   "composition_fidelity_rel": 2.74821487881e-16
+  }
+ },
+ "files_sha256": {
+  "dc5_annulus.json": "132b425bd5ff869b62a114328153557e0acb3c414079411f4df4bde3252d63d3",
+  "dc5_annulus_A_final.mesh": "1e90490f66379df0060c4be5ede111c52d5717baf195c3269e721a3f30d2811e",
+  "dc5_annulus_D_final.mesh": "1e90490f66379df0060c4be5ede111c52d5717baf195c3269e721a3f30d2811e",
+  "dc5_export_audit.json": "25433519f177dc17edd4896b2bf6de7cc8f11b794fd5a7aa19dc98251962c018",
+  "dc5_m6_root_le_h0.02.json": "55d5aedb562345cff3cf4e432958f32d775227f3e53e32f22d4b7ffefd5c7554",
+  "dc5_m6_root_le_h0.02_A_final.mesh": "b0e173e57a108a216af438cb68b502cbd3881a6c4148e40dbe064f336e6efc1c",
+  "dc5_m6_root_le_h0.02_D_final.mesh": "590c76ee425568d3835be293345054157724be1e2071a69d5987166945198fc7",
+  "dc5_m6_root_te_h0.02.json": "75d1dbe8c490d7d08167e8c802130cfefc2bb21fb173f463179a68c6fddcb3fc",
+  "dc5_m6_root_te_h0.02_A_final.mesh": "1b2d4979520fe079c3ff38ee8f5182aa12beb9f4982bc00c2c52c3769554c115",
+  "dc5_m6_root_te_h0.02_D_final.mesh": "8bae600291f34eb92742cc731262c470c909de486935945b93ac7d396baf692a",
+  "dc5_result.json": "608c5528b695e67494a34a506328ac972446bdea67fab8dcfdfc9ef7767270a7",
+  "dc5_tube_root_z.json": "3b3715bc132080ec3beb67ccac9dc7b7ca12efcc7e794d49ca2273e63db78759",
+  "dc5_tube_root_z_A_final.mesh": "eafa5191c93a6eda6cdd61436e826d05f9283cc9b8f2c028289d05165b410131",
+  "dc5_tube_root_z_D_final.mesh": "8d5854d27f2f56f05c024522af45da5be7c5736e13de8c2a3ac35279e09c4678",
+  "dc5_two_tube_y.json": "57dd617c5732147ad6ac96871eb2c1f2f469b68ca92e4a28c05e668664902b3e",
+  "dc5_two_tube_y_A_final.mesh": "96d0b2ee2d18a36b23369df71dc5be0198f662323ff28b8066998d5973efddc4",
+  "dc5_two_tube_y_D_final.mesh": "3fa90fd8f1cf6673328db01ef2b248e398a15b719f3a8a369631e35da72efa69",
+  "provenance_final_runs.txt": "02529cdbc2412c566d677605c152fb7181f653e1651ea560d5e0dca1230762d5"
+ }
+}

@@ -61,12 +61,12 @@ bool DonorCap(const std::string& reason) {
   return reason=="Original donor import exceeds patch budget." || reason=="Original donor union exceeds patch budget.";
 }
 using RepairFeature = std::pair<unsigned,std::array<Id,3>>;
-double SurfaceTolerance(const PlanarReference& geometry,Id facet,double configured,const std::map<int,double>& heights) {
+double SurfaceTolerance(const PlanarReference& geometry,Id facet,double configured,const WallHeights& heights) {
   const auto height=heights.find(geometry.Get(facet).marker);
   return height!=heights.end() && geometry.Analytic().count(geometry.Canonical(facet)) ?
       std::min(configured,.5*height->second) : configured;
 }
-long double GeometryExcess(const Patch& patch,const PlanarReference& base_geometry,double tolerance,const std::map<int,double>& heights) {
+long double GeometryExcess(const Patch& patch,const PlanarReference& base_geometry,double tolerance,const WallHeights& heights) {
   auto parameters=base_geometry.PrivateParameters(patch);const auto& geometry=parameters?*parameters:base_geometry;
   std::map<Id,Point> nodes;
   for(const auto& c:patch.cells)for(auto n:c.v)nodes.emplace(n.id,n.p);
@@ -145,14 +145,14 @@ struct ProposalKey {
 };
 class Selection {
  public:
-  Selection(bool coarsening, bool repairing, const PlanarReference& geometry, EngineStats& stats, bool timings, double tolerance,const std::map<int,double>& heights)
+  Selection(bool coarsening, bool repairing, const PlanarReference& geometry, EngineStats& stats, bool timings, double tolerance,const WallHeights& heights)
       : coarsening(coarsening), track_repairs(repairing), repair_event(repairing), geometry(geometry), stats(stats), timings(timings), tolerance(tolerance), heights(heights) {}
   bool coarsening, track_repairs, repair_event, prune_collapses = false, track_splits = false;
   const PlanarReference& geometry;
   EngineStats& stats;
   bool timings;
   double tolerance;
-  const std::map<int,double>& heights;
+  const WallHeights& heights;
   std::set<std::tuple<long double,Id,Edge>> geometry_queue;
   long double Priority(long double length) const { return coarsening ? length : -length; }
   bool Candidate(long double length) const {
@@ -698,6 +698,11 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     }
     for(const auto& h:options.wall_heights)if(!(h.second>0) || !std::isfinite(h.second))
       failure.Set(1,0,"Native3D wall-height policy is nonfinite/nonpositive.");
+    // One first-height tolerance T (ADAP_BL_FIRST_HEIGHT_TOL) on every worker; no rank-local gate.
+    const auto height_tolerance_lo=CPassiveComm::Allreduce(options.wall_heights.tolerance,CPassiveComm::Op::MIN,world.comm);
+    const auto height_tolerance_hi=CPassiveComm::Allreduce(options.wall_heights.tolerance,CPassiveComm::Op::MAX,world.comm);
+    if(!(height_tolerance_lo>0 && height_tolerance_hi<1) || height_tolerance_lo!=height_tolerance_hi)
+      failure.Set(1,0,"Native3D first-height tolerance must lie in (0,1) and agree across workers.");
     ready=vote(failure);
     if(ready)ready=admit(transfer_memory::Add(transfer_memory::Mul(world.size,sizeof(std::vector<HeightPolicyRow>)),
         transfer_memory::Mul(transfer_memory::Mul(world.size,options.wall_heights.size()),2*sizeof(HeightPolicyRow))));
@@ -857,7 +862,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         limits.checkpoint=[&](){if(options.maximum_seconds && std::chrono::duration<double>(Clock::now()-started).count()>=options.maximum_seconds)
             throw std::runtime_error("Native3D region construction exhausts elapsed-time budget.");};
         const bool constructed=ConstructWallRegion(skin,kernel,geometry,options.region_walls,options.surface_tolerance,
-            maximum_node+1,maximum_cell+1,target,limits,fresh,report,result.reason);
+            options.wall_heights.tolerance,maximum_node+1,maximum_cell+1,target,limits,fresh,report,result.reason);
         if(!constructed) {
           // A height-free cone cannot resolve every interior field; retain the existing volume operators there.
           core_declined=report.unsupported_topology || (options.region_walls.empty() && !report.exhausted_work &&
@@ -2943,7 +2948,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
 }
 }  // namespace
 bool CollapseConstraintViolation(const OwnedCell& cell,Id removed,Node retained,const PlanarReference& geometry,
-                                double tolerance,const std::map<int,double>& heights) {
+                                double tolerance,const WallHeights& heights) {
   if(heights.empty() && geometry.ExtensionComponents().empty())return false;
   if(std::none_of(cell.physical.begin(),cell.physical.end(),[](FacetBinding f){return f.present;}))return false;
   if(std::any_of(cell.cell.v.begin(),cell.cell.v.end(),[&](Node n){return n.id==retained.id;}))return false;

@@ -1,4 +1,5 @@
 """Check saved RAE grids/solutions and plot actual mesh/Mach/Cp outputs."""
+import first_height_tolerance  # SU2_BL_FIRST_HEIGHT_TOL; historical default 1e-8
 import argparse, csv, hashlib, json, re, sys
 from pathlib import Path
 import numpy as np
@@ -50,7 +51,7 @@ def inspect(wd, cycles):
                 a,b,c=mesh.P[tri[0]];area2=abs(np.cross(b-a,c-a))
                 altitude=float(area2/np.linalg.norm(mesh.P[edge[1]]-mesh.P[edge[0]]))
                 errors.append(abs(altitude/h0-1))
-            height_error=max(errors);assert height_error<=1e-8
+            height_error=max(errors);assert first_height_tolerance.within(height_error)
         last=[r for r in history if int(r['Adap_Cycle'])==cycle][-1]
         rec=dict(cycle=cycle,mesh=str(meshpath),restart=str(restart),paraview=str(vtu),points=len(mesh.P),
                  triangles=len(mesh.E),boundary_edges={k:len(v) for k,v in mesh.M.items()},validity=gates,

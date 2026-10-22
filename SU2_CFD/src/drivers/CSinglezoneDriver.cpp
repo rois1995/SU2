@@ -45,6 +45,7 @@
 #include "../../../Common/include/adaptation/CMeshGather.hpp"
 #include "../../include/adaptation/CBoundaryLayerRemesher.hpp"
 #include "../../include/adaptation/CBoundaryLayerMetric.hpp"
+#include "../../include/adaptation/CNativeBLComposition3D.hpp"
 #include "../../../Common/include/geometry/CPhysicalGeometry.hpp"
 #include "../../../Common/include/geometry/meshreader/CDistributedMemoryMeshReaderFVM.hpp"
 #include "../../../Common/include/linear_algebra/blas_structure.hpp"
@@ -318,17 +319,9 @@ std::unique_ptr<CRemesher> CSinglezoneDriver::MakeRemesher() {
               SU2_TYPE::GetValue(layer.growth),SU2_TYPE::GetValue(layer.thickness)};
         }
         control.caller_bytes=transfer_memory::Add(control.caller_bytes,layers->StorageBytes());
-        control.edge_breakpoints=[layers](SU2Native3D::Point a,SU2Native3D::Point b) {
-          return layers->EdgeBreakpoints({a.x,a.y,a.z},{b.x,b.y,b.z});
-        };
-        return [layers,core](SU2Native3D::Point p,SU2Native3D::Tensor sensor) {
-          const su2double x[3]={p.x,p.y,p.z};CBoundaryLayerMetric::Tensor m;
-          m.m[0][0]=sensor.xx;m.m[0][1]=m.m[1][0]=sensor.xy;m.m[0][2]=m.m[2][0]=sensor.xz;
-          m.m[1][1]=sensor.yy;m.m[1][2]=m.m[2][1]=sensor.yz;m.m[2][2]=sensor.zz;
-          layers->ApplyPoint(x,m,core,nullptr,false);
-          return SU2Native3D::Tensor{SU2_TYPE::GetValue(m.m[0][0]),SU2_TYPE::GetValue(m.m[0][1]),SU2_TYPE::GetValue(m.m[0][2]),
-              SU2_TYPE::GetValue(m.m[1][1]),SU2_TYPE::GetValue(m.m[1][2]),SU2_TYPE::GetValue(m.m[2][2])};
-        };
+        // Composed edges integrate the chord-pinned law (deterministic nearest-facet ownership, WP-C).
+        control.edge_breakpoints=SU2NativeBL3D::EdgeGeometry(layers,core);
+        return SU2NativeBL3D::Composition(layers,core);
       };
       auto normalization=[this](const CConfig& config,const CGeometry& geometry,const su2activematrix& sensor) {
         auto* original=geometry_container[ZONE_0][INST_0][MESH_0];

@@ -1,4 +1,5 @@
 """Inspect real static-geometry RAE native window meshes and transported states."""
+import first_height_tolerance  # SU2_BL_FIRST_HEIGHT_TOL; historical default 1e-8
 import argparse
 import hashlib
 import json
@@ -35,7 +36,7 @@ def inspect(case):
             v = mesh.P[next(i for i in t if i not in edge)]
             area2 = abs((b[0]-a[0])*(v[1]-a[1])-(b[1]-a[1])*(v[0]-a[0]))
             errors.append(abs(area2/np.linalg.norm(b-a)/height-1))
-        if errors:assert max(errors)<=1e-8
+        if errors:assert first_height_tolerance.within(max(errors))
         history = []
         donor = capcheck.read_su2(donor_path)
         def outer_area(m):

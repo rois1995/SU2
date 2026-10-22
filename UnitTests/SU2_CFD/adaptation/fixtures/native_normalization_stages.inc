@@ -391,10 +391,24 @@ void BudgetRuntime3D(bool symmetry) {
     struct LastTrial {Patch old,fresh;Feature feature;MetricDiagnosis metric;bool candidate=false;std::string reason;};
     auto last=std::make_shared<LastTrial>();const auto reference=driver->Reference();
     const auto prefix=name+"_rejected_rank"+std::to_string(world.rank);
-    native->SetRejectedTrialObserver([last](const Patch& old,const Patch& fresh,Feature feature,const MetricDiagnosis& metric,bool candidate,const std::string& reason) {
+    // Optional complete rejected-trial log (DC-5 production re-run): one JSON line per rejected engine trial.
+    std::shared_ptr<std::ofstream> trials;
+    if(const char* path=std::getenv("SU2_NATIVE_TRIAL_LOG"))
+      trials=std::make_shared<std::ofstream>(std::string(path)+".rank"+std::to_string(world.rank)+".jsonl");
+    native->SetRejectedTrialObserver([last,trials](const Patch& old,const Patch& fresh,Feature feature,const MetricDiagnosis& metric,bool candidate,const std::string& reason) {
       if(old.cells.size()>MaximumReplacementCells || fresh.cells.size()>MaximumReplacementCells)
         throw std::runtime_error("Controlled rejected trial exceeds its diagnostic storage bound.");
       *last={old,fresh,feature,metric,candidate,reason};
+      if(trials) {
+        std::string text;for(char c:reason){if(c=='"'||c=='\\')text+='\\';text+=(c=='\n'?' ':c);}
+        *trials<<std::setprecision(17)<<"{\"candidate\":"<<candidate<<",\"failure\":"<<int(metric.failure)
+          <<",\"q\":"<<metric.minimum_mean_ratio<<",\"J\":"<<metric.minimum_scaled_jacobian
+          <<",\"size_progress\":"<<metric.size_progress<<",\"quality_progress\":"<<metric.quality_progress
+          <<",\"old_cells\":"<<old.cells.size()<<",\"fresh_cells\":"<<fresh.cells.size()
+          <<",\"old_surface\":"<<old.surface.size()<<",\"feature\":["<<feature.count<<','<<feature.vertices[0]<<','
+          <<feature.vertices[1]<<','<<feature.vertices[2]<<"],\"reason\":\""<<text<<"\"}\n"<<std::flush;
+        if(!*trials)throw std::runtime_error("Cannot write the rejected-trial log.");
+      }
     });
     native->SetRejectedStateObserver([last,reference,prefix](const Owned& owned,const PlanarReference& active,const std::string& reason) {
       auto rejected=*reference;rejected.original=std::shared_ptr<const PlanarReference>(reference->original,&active); // Borrowed for this call only.

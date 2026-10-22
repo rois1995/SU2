@@ -1,4 +1,5 @@
 """Independent saved-mesh checks for eight cycles on both channel walls and both transfers."""
+import first_height_tolerance  # SU2_BL_FIRST_HEIGHT_TOL; historical default 1e-8
 import argparse
 import hashlib
 import json
@@ -63,7 +64,7 @@ for ranks in (1, 2, 4):
                        wall_faces_by_marker={tag: len(markers[tag]) for tag in ('lower_a', 'lower_b', 'upper')})
             passed = all(row[k] for k in ('all_exact_positive', 'manifold_oriented_edges', 'physical_equals_exposed')) and \
                      row['disk_euler'] == 1 and row['min_quality'] >= .18 and row['max_simpson_length'] <= 1.8 and \
-                     row['max_relative_height_error'] <= 1e-8 and not row['bad_cells'] and flat and junctions and corners
+                     first_height_tolerance.within(row['max_relative_height_error']) and not row['bad_cells'] and flat and junctions and corners
             all_ok &= passed
             output = destination/f'np{ranks}_{method}_cycle{cycle}.json'
             output.write_text(json.dumps(row, indent=2)+'\n')

@@ -3,6 +3,7 @@
 VTUs remain on the donor mesh; rewritten current/history restarts belong to the
 new mesh. This audit uses both rather than assuming they share connectivity.
 """
+import first_height_tolerance  # SU2_BL_FIRST_HEIGHT_TOL; historical default 1e-8
 import argparse
 import hashlib
 import json
@@ -120,7 +121,7 @@ def audit(case, require_native_reference=True):
                 height = abs((b[0]-a[0])*(v[1]-a[1])-(b[1]-a[1])*(v[0]-a[0])) / np.linalg.norm(b-a)
                 heights.append(abs(height/h - 1))
             height_error = max(heights)
-            assert height_error < 1e-8
+            assert first_height_tolerance.within(height_error)
         minq, maxl = 1., 0.
         for ids in candidate.E:
             p = candidate.P[ids]; xx, xy, yy = target(tuple(p.mean(axis=0)))

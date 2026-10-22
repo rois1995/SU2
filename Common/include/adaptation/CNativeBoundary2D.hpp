@@ -28,6 +28,7 @@
 #pragma once
 // Coupled physical-boundary and volume reconstruction. Reuses the native kernel.
 #include "CNativeMesh2D.hpp"
+#include "CNativeFirstHeight.hpp"
 
 namespace SU2NativeBoundary2D {
 using namespace SU2Native2D;
@@ -70,7 +71,14 @@ struct Reference {
   std::function<std::pair<double, double>(int, Point, Point)> interval;
   std::function<double(Physical)> deviation;
   std::function<double(int)> height;
+  double height_tolerance = SU2NativeFirstHeight::DefaultTolerance;  // |h-h0|/h0 <= T (ADAP_BL_FIRST_HEIGHT_TOL).
   bool is_wall(int marker) const { return height(marker) > 0; }
+  /*! Relative first-height error |h-h0|/h0 in long double; the one value for gates, demands and reports. */
+  static long double height_error(double actual, double h0) { return std::abs(static_cast<long double>(actual) / h0 - 1); }
+  /*! Inclusive first-height gate of an actual altitude against this policy's h0 of the marker. */
+  bool height_within(double actual, double h0) const {
+    return SU2NativeFirstHeight::Within(height_error(actual, h0), height_tolerance);
+  }
 };
 
 inline Metric checked(Metric metric) {
@@ -270,7 +278,7 @@ inline bool reconstruct_step(Operation op, const std::vector<Cell>& old, const R
         if (faces.count(e)) c.marker[k] = faces.at(e).marker;
         if (c.marker[k] && reference.is_wall(c.marker[k])) {
           const double height = static_cast<double>(2 * area(t)) / norm(t.v[(k + 1) % 3].p - t.v[k].p);
-          if (std::abs(height / reference.height(c.marker[k]) - 1) > 1e-8) {
+          if (!reference.height_within(height, reference.height(c.marker[k]))) {
             reason = "first-height contract";
             fresh.clear();
             return false;
@@ -567,9 +575,8 @@ inline bool reconstruct_step(Operation op, const std::vector<Cell>& old, const R
       if (faces.count(key)) {
         c.marker[i] = faces.at(key).marker;
         if (reference.is_wall(c.marker[i])) {
-          const double height =
-              (double)(2 * area(t)) / norm(t.v[(i + 1) % 3].p - t.v[i].p) / reference.height(c.marker[i]);
-          if (op.fault == 3 || std::abs(height - 1) > 1e-8) {
+          const double height = (double)(2 * area(t)) / norm(t.v[(i + 1) % 3].p - t.v[i].p);
+          if (op.fault == 3 || !reference.height_within(height, reference.height(c.marker[i]))) {
             reason = "first-height contract";
             return false;
           }

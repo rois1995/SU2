@@ -1,0 +1,134 @@
+{
+ "case": "tube_root_x",
+ "input": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/robust_junction_v1/wp0b/tube_root_x.txt",
+ "input_sha256": "6752f12cae1648b2ecd817ff7f1350dcbc91f9467073795a67a2ac03d996b266",
+ "policy": {
+  "h0": 0.05,
+  "g": 1.2,
+  "T": 0.3,
+  "hs": 0.25,
+  "hgrad": 1.3
+ },
+ "decided_profile": {
+  "g": 1.2,
+  "edge_stats": {
+   "bl_bl_edges": 88,
+   "bl_nonbl_edges": 16,
+   "convex": 26,
+   "concave_or_flat": 78
+  },
+  "features": 16,
+  "lines": 4,
+  "corners": 8,
+  "carrier_images": 4,
+  "ends": {
+   "carrier_ends": 4,
+   "carrier_end_corners": 4,
+   "free_end_corners": 0,
+   "partner_end_corners": 4
+  },
+  "turn_deg_min_max": [
+   81.40535378202804,
+   98.59464621797197
+  ],
+  "E_threshold_turn_deg": 41.08150348990653,
+  "h_tangential_max": 0.43738771871342863,
+  "h_max": 0.43738771871342863,
+  "R_f": 2.155632452923858,
+  "R_f_over_T": 7.1854415097461946,
+  "continuity": {
+   "support_boundary_points_d_lt_T": 0,
+   "support_boundary_max_rel_jump_prefade_d_lt_T": null,
+   "support_boundary_max_rel_jump_faded_all": 1.6727970774481306e-15,
+   "support_boundary_max_rel_jump_isotropic_floor": 4.97596105605027e-09,
+   "segment_switch_max_rel_jump_all_active": 2.65391681781188e-09,
+   "segment_switch_max_rel_jump_knn_proxy": 2.6435196214973664e-09,
+   "random_pairs": 400,
+   "random_pairs_jump_gt_1e-3_all_active": 0,
+   "random_pairs_jump_gt_1e-3_knn": 0,
+   "carrier_images": 4,
+   "carrier_end_max_rel_asymmetry_with_image": 0.0036011592591708094,
+   "carrier_end_max_rel_asymmetry_without_image": 0.12967198476433323,
+   "carrier_note": "D1 part on the carrier plane over the symmetric base h_max^-2 I: 0 means reflection-symmetric"
+  },
+  "gradation": {
+   "max_radial_size_slope_at_rho_h0_.1T_.5T": [
+    0.18181818181818507,
+    0.1818181818182041,
+    0.18181818181818746
+   ],
+   "hn_f_slope": 0.18181818181818177
+  },
+  "complexity_increase": {
+   "dC": 1196.1660372661531,
+   "stderr": 32.76831298529433,
+   "samples": 9600,
+   "rho_min": 0.0005,
+   "R_f": 2.155632452923858,
+   "note": "region rho < h0/100 ignored (bounded by pi*(h0/100)^2*L/h0^3 per unit length)"
+  }
+ },
+ "O1_g1": {
+  "g": 1.0,
+  "edge_stats": {
+   "bl_bl_edges": 88,
+   "bl_nonbl_edges": 16,
+   "convex": 26,
+   "concave_or_flat": 78
+  },
+  "features": 16,
+  "lines": 4,
+  "corners": 8,
+  "carrier_images": 4,
+  "ends": {
+   "carrier_ends": 4,
+   "carrier_end_corners": 4,
+   "free_end_corners": 0,
+   "partner_end_corners": 4
+  },
+  "turn_deg_min_max": [
+   81.40535378202804,
+   98.59464621797197
+  ],
+  "E_threshold_turn_deg": 29.185101204066815,
+  "h_tangential_max": 0.43738771871342863,
+  "h_max": 0.43738771871342863,
+  "R_f": 1.7849862550681428,
+  "R_f_over_T": 5.949954183560476,
+  "continuity": {
+   "support_boundary_points_d_lt_T": 0,
+   "support_boundary_max_rel_jump_prefade_d_lt_T": null,
+   "support_boundary_max_rel_jump_faded_all": 1.5358016254243272e-15,
+   "support_boundary_max_rel_jump_isotropic_floor": 6.647876910766169e-09,
+   "segment_switch_max_rel_jump_all_active": 2.7640823200138915e-09,
+   "segment_switch_max_rel_jump_knn_proxy": 2.7366658322299946e-09,
+   "random_pairs": 400,
+   "random_pairs_jump_gt_1e-3_all_active": 0,
+   "random_pairs_jump_gt_1e-3_knn": 0,
+   "carrier_images": 4,
+   "carrier_end_max_rel_asymmetry_with_image": 0.0008021956457245172,
+   "carrier_end_max_rel_asymmetry_without_image": 5.23761952741078e-15,
+   "carrier_note": "D1 part on the carrier plane over the symmetric base h_max^-2 I: 0 means reflection-symmetric"
+  },
+  "gradation": {
+   "max_radial_size_slope_at_rho_h0_.1T_.5T": [
+    0.0028895775089959885,
+    0.0015890422812349818,
+    0.004638036252471256
+   ],
+   "hn_f_slope": 0.26086956521739135
+  },
+  "complexity_increase": {
+   "dC": 4537.0973117662925,
+   "stderr": 157.47118207903168,
+   "samples": 9600,
+   "rho_min": 0.0005,
+   "R_f": 1.7849862550681428,
+   "note": "region rho < h0/100 ignored (bounded by pi*(h0/100)^2*L/h0^3 per unit length)"
+  }
+ },
+ "seconds": 3.7894468307495117,
+ "max_rss_MiB": 51.55859375,
+ "script_sha256": "d2c4d80fe458a41b919fb31a320b11417acc41d11dcd4351f41b808a3a4e7195",
+ "native_law_sha256": "270c54c5b7f0af0e4d009b77c6d14d04188bada7e7b7fee72d38fddd2e767c76"
+}

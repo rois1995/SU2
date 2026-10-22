@@ -16,14 +16,29 @@ class CADTElemClass;
 namespace SU2Native3D {
 class PlanarReference;
 constexpr size_t MaximumDonors = MaximumSegmentDonors, MaximumSensorSamples = 2048, MaximumGeometricEdgeCuts = 65536;
-// Imported records/indexes, sensor cache, exact segment scratch and global edge heap/growth; excludes CFD/RSS.
-constexpr size_t MaximumFrozenFieldBytes = MaximumDonors * 12288 + MaximumSensorSamples * 256 + MaximumGeometricEdgeCuts * (sizeof(double)+64);
+// Per-edge pinned chord ownership during one composed integration, bounded to 65,536 pieces like the cuts: the
+// reserved retained pieces (32 B), the transient per-wall Ownership() copy (32 B) and feature->facet map (8 B).
+constexpr size_t MaximumEdgeOwnerBytes = MaximumGeometricEdgeCuts * (32 + 32 + 8);
+// Imported records/indexes, sensor cache, exact segment scratch, global edge heap/growth and chord ownership;
+// excludes CFD/RSS.
+constexpr size_t MaximumFrozenFieldBytes = MaximumDonors * 12288 + MaximumSensorSamples * 256 +
+                                           MaximumGeometricEdgeCuts * (sizeof(double)+64) + MaximumEdgeOwnerBytes;
 /*! Identity of one immutable original sensor, geometry, composition and edge-accuracy policy.
  * Share only between complete imports of that same field; a new normalization stage needs a new identity. */
 struct FrozenMetricIdentity {};
 using Metric = std::function<Tensor(Point)>;
 using MetricComposition = std::function<Tensor(Point, Tensor)>;
-using MetricEdgeBreakpoints = std::function<std::vector<double>(Point, Point)>;
+/*! Geometric resolution of one chord a..b: sorted cuts {0,...,1}. Optional `pinned` evaluates the composed target at
+ *  chord parameter t (point = rounded (1-t)a+tb, sensor = original P1) with the geometry's facet ownership taken from
+ *  the same partition that produced the cuts; it must equal the pointwise composition except at rounding-level
+ *  nearest-facet ties. Without it, the pointwise composition is integrated. */
+struct EdgeGeometry {
+  std::vector<double> cuts;
+  std::function<Tensor(long double, Point, Tensor)> pinned;
+  EdgeGeometry() = default;
+  EdgeGeometry(std::vector<double> c) : cuts(std::move(c)) {}  // NOLINT: cut-only geometry converts implicitly.
+};
+using MetricEdgeBreakpoints = std::function<EdgeGeometry(Point, Point)>;
 struct DonorCell {
   Cell cell;
   std::array<Tensor, 4> sensor;
@@ -81,7 +96,8 @@ class FrozenField {
    * Composed-target acceptance requires separate geometric breakpoints/integration, never this sensor audit alone. */
   long double SensorEdgeLength(Point a, Point b);
   /*! Actual-target integral through exact source intervals and geometric distance bands.
-   * Composed fields without declared geometric breakpoints reject; sensor-only fields stay analytic. */
+   * Composed fields without declared geometric breakpoints reject; sensor-only fields stay analytic.
+   * A pinned edge geometry supplies the integrand along the chord (deterministic facet ownership). */
   long double TargetEdgeLength(Point a, Point b);
   /*! Full-target length-balanced coordinate proposal; geometry kernels still certify the rounded point. */
   Point BalancedSplitPoint(Point a, Point b, double fraction = .5);

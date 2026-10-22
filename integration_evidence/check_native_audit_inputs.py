@@ -1,6 +1,7 @@
 """Check input provenance on a saved integrated BL mesh, including a mid-audit edit.
 Run: python3 integration_evidence/check_native_audit_inputs.py
 """
+import first_height_tolerance  # SU2_BL_FIRST_HEIGHT_TOL; historical default 1e-8
 import hashlib
 from pathlib import Path
 import shutil
@@ -14,7 +15,7 @@ if __name__ == '__main__':
     row = audit_native_bl.audit(*paths, .0045, wall_tags=('lower_a', 'lower_b', 'upper'))
     assert all(row[k] for k in ('all_exact_positive', 'manifold_oriented_edges', 'physical_equals_exposed'))
     assert row['disk_euler'] == 1 and row['min_quality'] >= .18 and row['max_simpson_length'] <= 1.8
-    assert row['max_relative_height_error'] <= 1e-8 and not row['bad_cells']
+    assert first_height_tolerance.within(row['max_relative_height_error']) and not row['bad_cells']
     assert row['input_files_sha256'] == {str(p.resolve()): hashlib.sha256(p.read_bytes()).hexdigest() for p in paths}
     # Change only a temporary copy; the numeric input is unchanged by a trailing newline.
     with tempfile.TemporaryDirectory(prefix='audit_input_check_', dir=root) as name:

@@ -188,7 +188,10 @@ class Engine {
       const auto h = reference.height(face.marker);
       if (action == Action::HEIGHT && h > 0) {
         const auto actual = static_cast<double>(2 * area(cell.t)) / norm(b.p - a.p);
-        if (std::abs(actual / h - 1) > 1e-8) add(key.first, key.second, std::abs(actual / h - 1));
+        // Demand is the excess over the first-height tolerance T.
+        const auto error = Reference::height_error(actual, h);
+        if (!SU2NativeFirstHeight::Within(error, reference.height_tolerance))
+          add(key.first, key.second, double(error - static_cast<long double>(reference.height_tolerance)));
       }
       if (options.fixed_boundary) continue;
       if (coordinated) {
@@ -650,7 +653,7 @@ class Engine {
             const auto a = cell.t.v[k], b = cell.t.v[(k + 1) % 3];
             missed += reference.deviation({a, b, cell.marker[k]}) > options.geometry_tolerance;
             const double height = reference.height(cell.marker[k]);
-            if (height > 0) missed += std::abs(double(2 * area(cell.t)) / norm(b.p - a.p) / height - 1) > 1e-8;
+            if (height > 0) missed += !reference.height_within(double(2 * area(cell.t)) / norm(b.p - a.p), height);
           }
       }
     } catch (const std::exception& error) {
@@ -846,9 +849,8 @@ class Engine {
             }
             const auto h = reference.height(row.marker);
             if (h > 0)
-              valid = valid &&
-                      std::abs(static_cast<double>(orient(row.a.p, row.b.p, row.apex.p)) / norm(row.b.p - row.a.p) / h -
-                               1) < 1e-8;
+              valid = valid && reference.height_within(
+                                   static_cast<double>(orient(row.a.p, row.b.p, row.apex.p)) / norm(row.b.p - row.a.p), h);
           }
         }
         auto bind = [&](const Cell& cell, const std::map<Edge, Perimeter>& rows) {

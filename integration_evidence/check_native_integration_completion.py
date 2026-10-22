@@ -1,4 +1,5 @@
 """Recheck saved integration evidence and checkout invariants; no simulations run."""
+import first_height_tolerance  # SU2_BL_FIRST_HEIGHT_TOL; historical default 1e-8
 import argparse, hashlib, json, math, re, subprocess, time
 from pathlib import Path
 
@@ -16,7 +17,7 @@ def contract(row):
     return (all(row[k] for k in ('all_exact_positive', 'manifold_oriented_edges', 'physical_equals_exposed'))
             and all(math.isfinite(row[k]) for k in ('min_quality', 'max_simpson_length', 'max_relative_height_error'))
             and row['min_quality'] >= .18 and row['max_simpson_length'] <= 1.8
-            and row['max_relative_height_error'] <= 1e-8 and not row['bad_cells'])
+            and first_height_tolerance.within(row['max_relative_height_error']) and not row['bad_cells'])
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)

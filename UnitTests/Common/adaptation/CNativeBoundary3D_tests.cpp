@@ -1023,7 +1023,7 @@ TEST_CASE("Coupled oblique wall points retain a shared fan instead of sequential
 
 TEST_CASE("Native3D joint first-height construction rebuilds wall children and transition", "[NativeFirstLayer3D]") {
   const auto old=Cube();const auto facets=Facets(old);const PlanarReference reference(facets);
-  std::map<int,double> heights;
+  WallHeights heights;
   for(const auto& face:facets)if(std::all_of(face.v.begin(),face.v.end(),[](Node n){return n.p.z==0;}))heights[face.marker]=.05;
   REQUIRE(heights.size()==2);
   FirstHeightReport before,after;std::string reason;Patch fresh;
@@ -1052,7 +1052,7 @@ TEST_CASE("Native3D joint first-height construction rebuilds wall children and t
 
 TEST_CASE("Native3D first-layer obstruction rejects atomically without height relaxation", "[NativeFirstLayer3D]") {
   const auto old=Cube();const auto facets=Facets(old);const PlanarReference reference(facets);
-  std::map<int,double> heights;
+  WallHeights heights;
   for(const auto& f:facets)if(std::all_of(f.v.begin(),f.v.end(),[](Node n){return n.p.z==0;}))heights[f.marker]=.05;
   const auto expected=Connectivity(old);
   for(const auto background:std::vector<Node>{{100,{.5,.5,.01}},{0,{.5,.5,.5}},{100,{2,2,2}}}) {
@@ -1076,7 +1076,7 @@ TEST_CASE("Native3D first-layer obstruction rejects atomically without height re
 
 TEST_CASE("Native3D first-height certificate reports tangential tilt independently", "[NativeFirstLayer3D]") {
   const auto old=Cube();const auto facets=Facets(old);const PlanarReference reference(facets);
-  std::map<int,double> heights;
+  WallHeights heights;
   for(const auto& f:facets)if(std::all_of(f.v.begin(),f.v.end(),[](Node n){return n.p.z==0;}))heights[f.marker]=.05;
   Patch fresh;FirstHeightReport report;std::string reason;
   REQUIRE(ConstructFirstLayer(old,{100,{.5,.5,.5}},101,200,heights,reference,fresh,report,reason));
@@ -1107,7 +1107,7 @@ TEST_CASE("Native3D first-height certificate reports tangential tilt independent
 
 TEST_CASE("Native3D first layer handles wall junctions and distinguishes local clearance failure", "[NativeFirstLayer3D]") {
   const auto old=Cube();const auto facets=Facets(old);const PlanarReference reference(facets);
-  std::map<int,double> heights;
+  WallHeights heights;
   for(const auto& f:facets) {
     const bool bottom=std::all_of(f.v.begin(),f.v.end(),[](Node n){return n.p.z==0;});
     const bool left=std::all_of(f.v.begin(),f.v.end(),[](Node n){return n.p.x==0;});
@@ -1123,7 +1123,7 @@ TEST_CASE("Native3D first layer handles wall junctions and distinguishes local c
   CHECK_FALSE(ConstructFirstLayer(old,{100,{.5,.5,.01}},101,200,heights,reference,sentinel,report,reason));
   CHECK(reason.find("background obstruction")!=std::string::npos);CHECK(Connectivity(sentinel)==Connectivity(old));
   const auto thin=Cube(.1);const auto thinFacets=Facets(thin);const PlanarReference thinReference(thinFacets);
-  std::map<int,double> excessive;
+  WallHeights excessive;
   for(const auto& f:thinFacets)if(std::all_of(f.v.begin(),f.v.end(),[](Node n){return n.p.z==0;}))excessive[f.marker]=.2;
   sentinel=thin;
   CHECK_FALSE(ConstructFirstLayer(thin,{100,{.5,.5,.05}},101,200,excessive,thinReference,sentinel,report,reason));
@@ -1132,7 +1132,7 @@ TEST_CASE("Native3D first layer handles wall junctions and distinguishes local c
 
 TEST_CASE("Native3D first-row apex movement preserves altitude and boundary feature freedoms", "[NativeMetricMove3D]") {
   const auto old=Cube();const auto facets=Facets(old);const PlanarReference reference(facets);
-  std::map<int,double> heights;for(const auto& f:facets)
+  WallHeights heights;for(const auto& f:facets)
     if(std::all_of(f.v.begin(),f.v.end(),[](Node n){return n.p.z==0;}))heights[f.marker]=.05;
   Patch layer;FirstHeightReport report;std::string reason;
   REQUIRE(ConstructFirstLayer(old,{100,{.5,.5,.5}},101,200,heights,reference,layer,report,reason));
@@ -1177,7 +1177,7 @@ void CornerStripProbe(bool grouped) {
   std::vector<DonorCell> donors;for(auto c:Cube().cells){DonorCell d;d.cell=c;d.sensor.fill({1,0,0,1,0,1});donors.push_back(d);}
   FrozenField field(donors,compose,false,{},[&](Point a,Point b){return layers.EdgeBreakpoints({a.x,a.y,a.z},{b.x,b.y,b.z});});
   std::map<Id,Node> nodes;for(const auto& c:old.cells)for(auto n:c.v)nodes.emplace(n.id,n);
-  std::map<int,double> heights;for(const auto& f:facets)if(std::all_of(f.v.begin(),f.v.end(),[](Node n){return n.p.z==0;}))heights[f.marker]=.1;
+  WallHeights heights;for(const auto& f:facets)if(std::all_of(f.v.begin(),f.v.end(),[](Node n){return n.p.z==0;}))heights[f.marker]=.1;
   Node split{200000,field.BalancedSplitPoint(nodes.at(0).p,nodes.at(4).p)};
   std::vector<std::pair<Id,Node>> moves;
   for(Id id:{31,47}) {
@@ -1265,7 +1265,7 @@ TEST_CASE("Atomic planar strip split retains marker junctions and complete inter
 
 
 TEST_CASE("Native3D uneven wall split replaces apices and transition together", "[NativeWallReconstruction3D]") {
-  const auto seed=Cube();const PlanarReference reference(Facets(seed));std::map<int,double> heights;
+  const auto seed=Cube();const PlanarReference reference(Facets(seed));WallHeights heights;
   for(const auto& f:Facets(seed))if(std::all_of(f.v.begin(),f.v.end(),[](Node n){return n.p.z==0;}))
     heights[f.marker]=.1;
   Patch aligned;FirstHeightReport report;std::string reason;
@@ -1347,7 +1347,7 @@ TEST_CASE("Native3D saved wall proposal replays bounded actual-field connectivit
                   SU2_TYPE::GetValue(m.m[1][1]),SU2_TYPE::GetValue(m.m[1][2]),SU2_TYPE::GetValue(m.m[2][2])};
   };
   FrozenField field(source,compose,false,{},[&](Point a,Point b){return layers.EdgeBreakpoints({a.x,a.y,a.z},{b.x,b.y,b.z});});
-  std::map<int,double> heights;for(const auto& f:Facets(seed))if(std::all_of(f.v.begin(),f.v.end(),[](Node n){return n.p.z==0;}))heights[f.marker]=.1;
+  WallHeights heights;for(const auto& f:Facets(seed))if(std::all_of(f.v.begin(),f.v.end(),[](Node n){return n.p.z==0;}))heights[f.marker]=.1;
   Patch fresh;ConnectivityRepairReport report;std::string reason;
   const bool progress=RepairMetricConnectivity(old,field,reference,heights,100000,fresh,report,reason,256);
   std::cout<<"CONNECTIVITY_REPLAY progress="<<progress<<" trials="<<report.trials<<" flips="<<report.flips
@@ -1397,7 +1397,7 @@ TEST_CASE("Actual-field repair identifies a sliver point fixed on an artificial 
 }
 
 TEST_CASE("Private interior repair retains prescribed wall height despite admissible geometric collapse", "[NativeConnectivityHeight3D]") {
-  const auto seed=Cube();const PlanarReference reference(Facets(seed));std::map<int,double> heights;
+  const auto seed=Cube();const PlanarReference reference(Facets(seed));WallHeights heights;
   for(const auto& f:Facets(seed))if(std::all_of(f.v.begin(),f.v.end(),[](Node n){return n.p.z==0;}))heights[f.marker]=.01;
   Patch aligned;FirstHeightReport height;std::string reason;
   REQUIRE(ConstructFirstLayer(seed,{100,{.5,.5,.5}},101,200,heights,reference,aligned,height,reason));
@@ -1420,7 +1420,7 @@ TEST_CASE("Private interior repair retains prescribed wall height despite admiss
 }
 
 TEST_CASE("Native wall split inserts coordinated height points without a common background", "[NativeWallReconstruction3D]") {
-  const auto seed=Cube();const PlanarReference reference(Facets(seed));std::map<int,double> heights;
+  const auto seed=Cube();const PlanarReference reference(Facets(seed));WallHeights heights;
   for(const auto& f:Facets(seed))if(std::all_of(f.v.begin(),f.v.end(),[](Node n){return n.p.z==0;}))heights[f.marker]=.1;
   Patch aligned;FirstHeightReport height;std::string reason;
   REQUIRE(ConstructFirstLayer(seed,{100,{.5,.5,.5}},101,200,heights,reference,aligned,height,reason));
@@ -1461,7 +1461,7 @@ namespace {
 }
 TEST_CASE("Replay actual wall seam blockage with retained and common-background construction", "[.][NativeWallVisibilityReplay3D]") {
   const auto full=WallVisibilityMesh();const PlanarReference reference(WallVisibilityFacets());const Edge edge{1,11543};
-  const std::map<int,double> heights{{10,.1}};const auto all_nodes=[](const Patch& patch) {
+  const WallHeights heights{{10,.1}};const auto all_nodes=[](const Patch& patch) {
     std::map<Id,Node> nodes;for(const auto& c:patch.cells)for(auto n:c.v)nodes.emplace(n.id,n);return nodes;
   };
   const auto nodes=all_nodes(full);std::set<Id> apices;
@@ -1616,7 +1616,7 @@ TEST_CASE("Complete translated spherical sampling respects geometry and bounded 
   const RegionMetric field([](Point){return Tensor{1,0,0,1,0,1};},[](Point a,Point b){return (long double)std::hypot(a.x-b.x,a.y-b.y,a.z-b.z);});
   RegionLimits limits;limits.maximum_cells=1024;limits.maximum_work=1024;
   RegionReport report;Patch output;std::string reason;
-  const bool built=ConstructWallRegion(skin,center,reference,{},.075,32,1000,field,limits,output,report,reason);
+  const bool built=ConstructWallRegion(skin,center,reference,{},.075,SU2NativeFirstHeight::DefaultTolerance,32,1000,field,limits,output,report,reason);
   INFO(reason);REQUIRE(built);REQUIRE_FALSE(output.cells.empty());CHECK_FALSE(report.exhausted_work);
   for(const auto& cell:output.cells) {
     const Tetrahedron tet{cell.v[0].p,cell.v[1].p,cell.v[2].p,cell.v[3].p};CHECK(Orientation(tet[0],tet[1],tet[2],tet[3])>0);
@@ -1628,7 +1628,7 @@ TEST_CASE("Complete translated spherical sampling respects geometry and bounded 
   }
   const auto count=output.cells.size();const auto first=output.cells.front().id;
   limits.maximum_cells=16;limits.maximum_work=16;
-  CHECK_FALSE(ConstructWallRegion(skin,center,reference,{},.075,32,1000,field,limits,output,report,reason));
+  CHECK_FALSE(ConstructWallRegion(skin,center,reference,{},.075,SU2NativeFirstHeight::DefaultTolerance,32,1000,field,limits,output,report,reason));
   CHECK(report.exhausted_work);CHECK(output.cells.size()==count);CHECK(output.cells.front().id==first);
 }
 
@@ -1651,7 +1651,7 @@ TEST_CASE("Native exact planar annuli retain holes across complete face containm
   CHECK_FALSE(reference.Contains(0,{2,.5,std::numeric_limits<double>::denorm_min()}));
   // Valid vertices do not admit a collapsed face that bridges the finite hole.
   OwnedCell row;row.cell={0,{Node{99,{2,.25,-.1}},v[0],v[1],v[5]}};row.physical[0]={true,0};
-  const auto retained=v[6];const std::map<int,double> heights{{7,.1}};
+  const auto retained=v[6];const WallHeights heights{{7,.1}};
   CHECK(reference.Contains(0,retained.p));
   CHECK_FALSE(reference.ContainsFace(0,{v[0].p,v[1].p,retained.p}));
   CHECK(CollapseConstraintViolation(row,v[5].id,retained,reference,0,heights));
@@ -1694,7 +1694,7 @@ TEST_CASE("Saved finite-surface blockage admits coordinated placement under the 
   std::vector<DonorCell> donors;
   for(auto c:original.cells){DonorCell d;d.cell=c;d.sensor.fill({core,0,0,core,0,core});donors.push_back(d);}
   FrozenField target(donors,compose,false,{},[&](Point a,Point b){return layers.EdgeBreakpoints({a.x,a.y,a.z},{b.x,b.y,b.z});});
-  std::map<int,double> heights;
+  WallHeights heights;
   for(const auto& f:facets)if(std::all_of(f.v.begin(),f.v.end(),[](Node n){return n.p.z==0;}))heights[f.marker]=.1;
   FirstHeightReport height;std::string reason;REQUIRE(CheckFirstHeight(old,heights,reference,height,reason));
   std::map<Id,size_t> costs;for(auto id:movers)costs[id]=1;
@@ -1770,7 +1770,7 @@ TEST_CASE("Shared first-height ownership reconstructs a complete frozen-field me
   std::vector<DonorCell> donors;
   for(auto c:original.cells){DonorCell d;d.cell=c;d.sensor.fill({core,0,0,core,0,core});donors.push_back(d);}
   FrozenField target(donors,compose,false,{},[&](Point a,Point b){return layers.EdgeBreakpoints({a.x,a.y,a.z},{b.x,b.y,b.z});});
-  std::map<int,double> heights;
+  WallHeights heights;
   for(const auto& f:facets)if(std::all_of(f.v.begin(),f.v.end(),[](Node n){return n.p.z==0;}))heights[f.marker]=.1;
   REQUIRE(old.cells.size()<=MaximumCavityCells);const auto old_saved=Connectivity(old);
   Patch fresh;JointSplitReport report;std::string reason;
@@ -1868,4 +1868,49 @@ TEST_CASE("Constrained movement keeps a coplanar component seam when faces store
   // Normal motion is removed by the single component plane; the seam keeps its chain direction.
   const auto lifted=ConstrainMovePoint(patch,6,{6,{1,.7,.3}},{},reference);
   CHECK(lifted.p.z==0);CHECK(lifted.p.x==1);CHECK(lifted.p.y==Approx(.7).epsilon(1e-15));
+}
+
+TEST_CASE("Native3D first-height tolerance is inclusive at dyadic and computed bounds", "[NativeFirstLayer3D]") {
+  // One wall child: base in z=0 (unit cross product), apex (.25,.25,z) inside the face; altitude is exactly z.
+  auto child=[](double z) {
+    Patch patch;patch.cells.push_back({0,{{{0,{0,0,0}},{1,{1,0,0}},{2,{0,1,0}},{3,{.25,.25,z}}}}});
+    const auto skin=Incidence(patch.cells).Boundary();
+    for(size_t i=0;i<skin.size();++i)patch.surface.push_back({skin[i],Id(i)});
+    return patch;
+  };
+  auto decide=[&](double z,double h0,double tolerance,std::string& reason) {
+    const auto patch=child(z);const auto facets=Facets(patch);const PlanarReference reference(facets);
+    WallHeights heights;heights.tolerance=tolerance;
+    for(const auto& f:facets)if(std::all_of(f.v.begin(),f.v.end(),[](Node n){return n.p.z==0;}))heights[f.marker]=h0;
+    REQUIRE(heights.size()==1);
+    FirstHeightReport report;const bool valid=CheckFirstHeight(patch,heights,reference,report,reason);
+    const bool admissible=tolerance>0 && tolerance<1;  // Invalid T rejects before any face is counted.
+    CHECK(report.wall_faces==(admissible?1u:0u));CHECK(report.footprint_failures==0);
+    return valid;
+  };
+  std::string reason;
+  // Dyadic tolerance: both bounds are exact and accepted; one ulp outside rejects.
+  CHECK(decide(.875,1,.125,reason));CHECK(decide(1.125,1,.125,reason));
+  CHECK_FALSE(decide(std::nextafter(.875,0.),1,.125,reason));
+  CHECK(reason.find("prescribed height fails")!=std::string::npos);
+  CHECK_FALSE(decide(std::nextafter(1.125,2.),1,.125,reason));
+  // Default tolerance 0.1: decisions follow the implemented long-double comparison, not decimal literals.
+  const double T=SU2NativeFirstHeight::DefaultTolerance;
+  for(const double z:{.9,std::nextafter(.9,0.),1.1,std::nextafter(1.1,0.),1.,1.05,.95,1.2,.8}) {
+    INFO(std::setprecision(17)<<z);
+    CHECK(decide(z,1,T,reason)==SU2NativeFirstHeight::Within(std::abs((long double)z-1),T));
+  }
+  CHECK(decide(.9,1,T,reason));CHECK(decide(std::nextafter(1.1,0.),1,T,reason));
+  CHECK_FALSE(decide(1.1,1,T,reason));CHECK_FALSE(decide(std::nextafter(.9,0.),1,T,reason));
+  // Non-unit h0: four-ulp margins around h0(1 +- T) decide inside/outside.
+  const double h0=2e-6;
+  for(const int side:{-1,1}) {
+    const long double bound=(long double)h0*(1+side*(long double)T);
+    const double inside=double(bound*(1-side*4*std::numeric_limits<double>::epsilon()));
+    const double outside=double(bound*(1+side*4*std::numeric_limits<double>::epsilon()));
+    CHECK(decide(inside,h0,T,reason));CHECK_FALSE(decide(outside,h0,T,reason));
+  }
+  // The tolerance must lie strictly between zero and one.
+  CHECK_FALSE(decide(1,1,0,reason));CHECK(reason.find("tolerance")!=std::string::npos);
+  CHECK_FALSE(decide(1,1,1,reason));
 }

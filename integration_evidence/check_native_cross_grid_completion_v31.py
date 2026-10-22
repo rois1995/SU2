@@ -1,3 +1,4 @@
+import first_height_tolerance  # SU2_BL_FIRST_HEIGHT_TOL; historical default 1e-8
 from pathlib import Path
 import hashlib,json,re
 root=Path(__file__).resolve().parent.parent;e=root/'integration_evidence'
@@ -57,7 +58,7 @@ for kind,name,baseline,seedhash in [('Euler','nativefix_euler_rans_seed_v14','na
  cycles=[]
  for c,target in zip((1,2),targets):
   x=inspection['cycles'][c];h=x['maximum_relative_first_height_error']
-  if kind=='RANS':assert h is not None and h<=1e-8
+  if kind=='RANS':assert first_height_tolerance.within(h)
   else:assert h is None
   assert target['min_quality']>=.18-1e-8 and target['max_simpson_length']<=1.8+1e-8
   mesh=d/f'mesh_adap_{c:05d}.su2'

@@ -1,4 +1,5 @@
 """Independent constant-target audits of raw native engine probe meshes (standard library only)."""
+import first_height_tolerance  # SU2_BL_FIRST_HEIGHT_TOL; historical default 1e-8
 import argparse,csv,hashlib,json,math
 from collections import defaultdict
 from fractions import Fraction
@@ -76,7 +77,7 @@ for metadata in sorted(root.glob('*/native_scaling.json')):
  if abs(math.fsum(areas)-m['xmax']*m['ymax'])>1e-10*m['xmax']*m['ymax']:errors.append('total domain area changed')
  # Numerical comparison tolerance is solely for independent floating evaluation, never a modified target.
  tolerance=1e-12
- independentComplete=qmin>=.18-tolerance and lmax<=1.8+tolerance and heightError<=1e-8 and maxDeviation<=1e-10
+ independentComplete=qmin>=.18-tolerance and lmax<=1.8+tolerance and first_height_tolerance.within(heightError) and maxDeviation<=1e-10
  if independentComplete!=m['complete']:errors.append('independent contract outcome disagrees with engine report')
  if abs(qmin-m['qmin'])>1e-11 or abs(lmax-m['lmax'])>1e-10*max(1,lmax):errors.append('independent target values disagree')
  row={'directory':str(wd),'structural_pass':not errors,'errors':sorted(set(errors)),'complete':independentComplete,'qmin':qmin,'lmax':lmax,'height_error':heightError,'reference_deviation':maxDeviation,'proven_incompatible':m['metric_height']>1.8,'files_sha256':{name:hashlib.sha256((wd/name).read_bytes()).hexdigest() for name in ['points.csv','cells.csv','faces.csv','native_scaling.json']}}

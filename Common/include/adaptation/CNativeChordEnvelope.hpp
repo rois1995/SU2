@@ -9,6 +9,7 @@
 #include <cmath>
 #include <limits>
 #include <stdexcept>
+#include <utility>
 #include <vector>
 
 namespace SU2Native3D {
@@ -159,6 +160,20 @@ class ChordEnvelope {
       }
     }
     std::sort(cuts.begin(),cuts.end());cuts.erase(std::unique(cuts.begin(),cuts.end()),cuts.end());return cuts;
+  }
+  /*! Feature index owning chord parameter t (NoFeature outside the covering). Pieces are contiguous on [0,1]; a
+   *  parameter on a shared end belongs to the left piece. Indices follow the Vertex/Segment/Face insertion order; with a
+   *  finite support radius, index 0 is the support cap (no wall feature). */
+  static constexpr size_t NoFeature=Missing;
+  size_t Owner(long double t) const {
+    const auto p=std::lower_bound(pieces.begin(),pieces.end(),t,[](const Piece& p,long double t){return p.hi<t;});
+    return (p!=pieces.end() && t>=p->lo) ? p->feature : Missing;
+  }
+  /*! Ascending piece ends with their owning feature index (NoFeature where uncovered). */
+  std::vector<std::pair<long double,size_t>> Ownership() const {
+    std::vector<std::pair<long double,size_t>> owners;owners.reserve(pieces.size());
+    for(const auto& p:pieces)owners.emplace_back(p.hi,p.feature);
+    return owners;
   }
   size_t Comparisons() const{return work;}
   size_t Features() const{return features.size();}

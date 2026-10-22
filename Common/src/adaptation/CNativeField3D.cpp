@@ -262,8 +262,14 @@ long double FrozenField::EdgeLength(Point a, Point b, bool composed) {
     stats.maximum_edge_pieces = std::max(stats.maximum_edge_pieces, pieces.size());
     Timer timer(stats.edge_integral_seconds, timings);
     std::vector<double> cuts;
+    std::function<Tensor(long double, Point, Tensor)> pinned;
     if (composed) {
-      { Timer geometry(stats.edge_geometry_seconds,timings); cuts = edge_breakpoints(a,b); }
+      {
+        Timer geometry(stats.edge_geometry_seconds,timings);
+        auto resolved = edge_breakpoints(a,b);
+        cuts = std::move(resolved.cuts);
+        pinned = std::move(resolved.pinned);
+      }
       if (cuts.size() < 2 || cuts.size() > MaximumGeometricEdgeCuts || cuts.front() != 0 || cuts.back() != 1)
         throw std::invalid_argument("Invalid native 3D geometric edge coverage.");
       for (size_t i = 0; i < cuts.size(); ++i)
@@ -297,7 +303,8 @@ long double FrozenField::EdgeLength(Point a, Point b, bool composed) {
         {
           Timer timer(stats.edge_composition_seconds,timings);
           ++stats.compositions;++stats.edge_compositions;
-          target=composition(p,InterpolateSensor(donor,weights));
+          const auto sensor=InterpolateSensor(donor,weights);
+          target=pinned ? pinned(parameter,p,sensor) : composition(p,sensor);
         }
         ValidateTensor(target,&stats.kernel);
         return MetricNorm(a,b,target,&stats.kernel);

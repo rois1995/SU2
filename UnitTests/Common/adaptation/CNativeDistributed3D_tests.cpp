@@ -2416,7 +2416,7 @@ TEST_CASE("Native first-row owner retains coupled-wall reconstruction with empty
 TEST_CASE("Native3D engine initializes wall heights through owner transactions and protects edits", "[NativeFirstLayerEngine3D]") {
   World parent;const auto fixture=Box();const PlanarReference reference(fixture.facets);
   const auto input=Partition(Rows(fixture.patch),parent);const auto saved=Bytes(input);
-  std::map<int,double> heights;
+  WallHeights heights;
   for(const auto& f:fixture.facets)if(std::all_of(f.v.begin(),f.v.end(),[](Node n){return n.p.z==0;}))heights[f.marker]=.1;
   for(int m:std::set<int>{1,parent.size,std::max(1,parent.size/2)}) {
     std::vector<std::vector<OwnedCell>> to(parent.size);
@@ -2690,10 +2690,10 @@ TEST_CASE("Prismatic admission certifies opposite caps and rejects slanted sides
   Patch sentinel;sentinel.cells.push_back({123,{}});RegionReport report;RegionLimits limits;limits.maximum_cells=4096;limits.maximum_work=4096;
   auto incompatible=walls;for(auto& p:incompatible)p.second.height=.6;
   const RegionMetric metric([](Point){return Tensor{1,0,0,1,0,1};},[](Point a,Point b){return (long double)std::hypot(a.x-b.x,a.y-b.y,a.z-b.z);});
-  std::string reason;CHECK_FALSE(ConstructWallRegion(fixture.facets,{.5,.5,.5},geometry,incompatible,.04,8,6,metric,limits,sentinel,report,reason));
+  std::string reason;CHECK_FALSE(ConstructWallRegion(fixture.facets,{.5,.5,.5},geometry,incompatible,.04,SU2NativeFirstHeight::DefaultTolerance,8,6,metric,limits,sentinel,report,reason));
   CHECK(reason.find("geometry-height incompatibility")!=std::string::npos);CHECK(sentinel.cells.size()==1);CHECK(sentinel.cells.front().id==123);
   Patch retained;
-  REQUIRE(ConstructWallRegion(fixture.facets,{.5,.5,.5},geometry,{{10,{.1,1.2,.3}}},.04,8,6,metric,limits,retained,report,reason));
+  REQUIRE(ConstructWallRegion(fixture.facets,{.5,.5,.5},geometry,{{10,{.1,1.2,.3}}},.04,SU2NativeFirstHeight::DefaultTolerance,8,6,metric,limits,retained,report,reason));
   CHECK(retained.cells.size()==12);
   CHECK(report.surface_trials==1);  // Complete original cap/front fits; no lattice or boundary resampling.
 
@@ -2757,7 +2757,7 @@ TEST_CASE("Exact terminal planar wall patch diagnoses retained reconstruction", 
   const Edge edge{3,8399};std::map<Id,Node> nodes;Id maximum_node=0,maximum_cell=0;
   for(const auto& c:working.cells){maximum_cell=std::max(maximum_cell,c.id);for(auto n:c.v){nodes.emplace(n.id,n);maximum_node=std::max(maximum_node,n.id);}}
   const Node point{maximum_node+1,target.BalancedSplitPoint(nodes.at(edge[0]).p,nodes.at(edge[1]).p)};
-  const std::map<int,double> heights{{10,.1}};FirstHeightReport height;std::string reason;
+  const WallHeights heights{{10,.1}};FirstHeightReport height;std::string reason;
   REQUIRE(CheckFirstHeight(old,heights,reference,height,reason));
   MeshRecords("planar_wall_replay_old",world,Partition(Rows(old),world));
   bool reconstructed=false;
@@ -2947,7 +2947,7 @@ TEST_CASE("Known metric support never fabricates missing centroid or edge covera
 
 TEST_CASE("Surviving collapse-cell constraints reject only sufficient height and footprint witnesses", "[NativeMetricPlan3D]") {
   const auto fixture=Box(.1);const PlanarReference geometry(fixture.facets);auto row=Rows(fixture.patch).front();
-  std::map<int,double> heights;bool wall=false;Node apex;Point center{};
+  WallHeights heights;bool wall=false;Node apex;Point center{};
   const auto faces=Faces(row.cell);
   for(unsigned f=0;f<4;++f) {
     bool bottom=true;for(auto id:faces[f])for(auto n:row.cell.v)if(n.id==id)bottom=bottom && n.p.z==0;

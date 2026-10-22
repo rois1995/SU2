@@ -3333,6 +3333,9 @@ void CConfig::SetConfig_Options() {
   addBoolOption("ADAP_BL_BUDGET", Adap_BL_Budget, false);
   addDoubleOption("ADAP_BL_PROTECT_DISTANCE", Adap_BL_ProtectDistance, 0.0);
   addDoubleOption("ADAP_BL_OUTER_GROWTH_MAX", Adap_BL_OuterGrowthMax, 0.0);
+  /*!\brief ADAP_BL_FIRST_HEIGHT_TOL \n DESCRIPTION: Native remeshers: relative tolerance T of the first wall-normal cell
+   * height, |h - h0| / h0 <= T on every boundary-layer wall face (inclusive, 0 < T < 1) \ingroup Config */
+  addDoubleOption("ADAP_BL_FIRST_HEIGHT_TOL", Adap_BL_FirstHeightTol, 0.10);
   addBoolOption("ADAP_BL_LOCAL_HMAX", Adap_BL_LocalHmax, true);
   /*!\brief ADAP_BL_METHOD \n DESCRIPTION: How the near-wall cells are built: METRIC (one remesh with the boundary-layer
    * metric) or TWO_PASS (2D: pass A resets the near-wall band and resamples the wall on the reference wall with a
@@ -6684,6 +6687,8 @@ void CConfig::SetPostprocessing(SU2_COMPONENT val_software, unsigned short val_i
     SU2_MPI::Error("ADAP_BL_CORNER_FLOOR must be a finite value >= 0.", CURRENT_FUNCTION);
   if (!(Adap_BL_GeomTol >= 0.0) || !std::isfinite(SU2_TYPE::GetValue(Adap_BL_GeomTol)))
     SU2_MPI::Error("ADAP_BL_GEOM_TOL must be a finite value >= 0.", CURRENT_FUNCTION);
+  if (!(Adap_BL_FirstHeightTol > 0.0 && Adap_BL_FirstHeightTol < 1.0))
+    SU2_MPI::Error("ADAP_BL_FIRST_HEIGHT_TOL must lie strictly between 0 and 1.", CURRENT_FUNCTION);
   if (Adap_BL_Budget) {
     if ((val_nDim != 0 && val_nDim != 3) || Kind_Adap_Remesher != ADAP_REMESHER::NATIVE_CAVITY ||
         Kind_Adap_BL_Method != ADAP_BL_METHOD::METRIC || Adap_BL.empty())

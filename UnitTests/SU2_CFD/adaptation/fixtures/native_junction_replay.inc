@@ -51,7 +51,7 @@ struct State {
   std::vector<Facet> facets;  // Physical authority facets, oriented like the outward skin.
   std::vector<std::string> markers;
   std::set<int> walls;
-  std::map<int,double> heights;
+  WallHeights heights;
   double h0=0,growth=0,thickness=0,core=0;
   Owned mesh;
   std::map<Id,std::set<Id>> vertex_cells;

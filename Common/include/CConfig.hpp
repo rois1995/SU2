@@ -1381,6 +1381,7 @@ private:
   vector<CAdapBoundaryLayer> Adap_BL;       /*!< \brief Boundary-layer metric of each marker, lists expanded. */
   bool Adap_BL_Budget = false;
   su2double Adap_BL_ProtectDistance = 0.0, Adap_BL_OuterGrowthMax = 0.0;
+  su2double Adap_BL_FirstHeightTol = 0.10;  /*!< \brief Relative first-height tolerance of the native remeshers. */
   bool Adap_BL_LocalHmax = true;           /*!< \brief MMG local hmax on the boundary-layer wall markers. */
   ADAP_BL_METHOD Kind_Adap_BL_Method;      /*!< \brief How the near-wall cells are built (ADAP_BL_METHOD). */
   su2double Adap_BL_CurvatureFactor = 0.7; /*!< \brief c of the wall size cap c sqrt(2 R h0). */
@@ -10493,6 +10494,10 @@ public:
   bool GetAdap_BL_Budget() const { return Adap_BL_Budget; }
   su2double GetAdap_BL_ProtectDistance() const { return Adap_BL_ProtectDistance; }
   su2double GetAdap_BL_OuterGrowthMax() const { return Adap_BL_OuterGrowthMax; }
+  /*!
+   * \brief Relative first wall-normal height tolerance |h - h0| / h0 of the native remeshers (ADAP_BL_FIRST_HEIGHT_TOL).
+   */
+  su2double GetAdap_BL_FirstHeightTol() const { return Adap_BL_FirstHeightTol; }
 
   /*!
    * \brief Get the boundary-layer metric of a wall marker (ADAP_BL_*), in the order of ADAP_BL_MARKER.

@@ -1,0 +1,60 @@
+{
+ "check": "DC-6 (BL_REMESH_PLAN rev 3): WP-E enclosure screen on 20k native M6 edges in BL support (full WING3D wall, h0 2e-6/g1.2/T.01, proxy isotropic sensor 1/0.02^2, test-local D1 = production expression with the DC-1 M6 features: 505 + 2 images, 14 corners)",
+ "limits": "<= 30 min, <= 4 GiB",
+ "receipt": {
+  "elapsed": "1:13.76",
+  "max_rss_kB": 65228,
+  "exit": 0
+ },
+ "summary": {
+  "edges": 20000,
+  "d1": true,
+  "piece_budget": 64,
+  "decided": 18863,
+  "decided_fraction": 0.94315,
+  "wrong_decisions": 0,
+  "enclosure_misses": 0,
+  "certificate_us_per_edge": 652.24717915,
+  "native_us_per_edge": 2614.0442015,
+  "screen_not_certificate": true
+ },
+ "certificate_us_p50_p90_max": [
+  139.2015,
+  1598.2014000000001,
+  54615.933000000005
+ ],
+ "pieces_p50_p90": [
+  1.0,
+  25.0
+ ],
+ "envelope": {
+  "C_seconds": 900,
+  "E_eval": 6400000.0,
+  "budget_us_per_evaluation": 140.625,
+  "max_fallback_fraction_at_5.9ms": 0.0238,
+  "measured_certificate_us": 652.24717915,
+  "measured_undecided_fraction": 0.056849999999999956,
+  "estimated_us_per_evaluation_with_native_fallback_5.9_to_11ms": [
+   987.6621791499997,
+   1277.5971791499996
+  ],
+  "estimated_total_minutes_at_6.4M": [
+   105.35063244266664,
+   136.27703244266664
+  ]
+ },
+ "verdict": "OUTSIDE the C envelope: 0 wrong decisions and 0 enclosure misses (screen), but certificate cost 652 us/edge (> 141 us budget) and undecided 5.7% (> 2.38% fallback allowance) => est. 105-136 min serial-equivalent at 6.4M evaluations vs 15 min. Record and ask the user before M3 (plan rule).",
+ "scope_limits": [
+  "screen, not a certificate: long double, no outward-rounded primitives, no Kahan eigen brackets (WP-E (a)-(c) not implemented)",
+  "unoptimized: grid nearest-triangle search per piece, linear scan of 521 D1 features per piece; a production implementation may be several times faster",
+  "proxy isotropic sensor (no P1 sensor term); native timing here (2.6 ms/edge) is the proxy field, below the recorded 5.9-11 ms",
+  "edge sample: random BL-support edges with local metric length U(0.3,3), not the A5 rejected-trial/normalization workload"
+ ],
+ "history": "run1_domain_bug: edges crossing y<0 (outside the symmetry half-space) produced 3 enclosure misses/1 wrong decision; fixed by the y>=0 domain test",
+ "files_sha256": {
+  "dc6_edges.csv": "6158d8821b53e8ccf7bcdf06d000a9d8c9296f75473a23d806a5c65fe0800278",
+  "dc6_summary.json": "e217aee2d9ccc5c7f2a45d91c64c6483219877d2c639eda1a85b19cc99323666",
+  "run.log": "1e1016ef5b0c99e8327edb3c168160934c7ccf62e719a3703755082e6dee4d3c",
+  "provenance_build6.txt": "02529cdbc2412c566d677605c152fb7181f653e1651ea560d5e0dca1230762d5"
+ }
+}

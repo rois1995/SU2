@@ -15,6 +15,16 @@
 #include "../../../SU2_CFD/include/output/CMeshOutput.hpp"
 #include "../../../SU2_CFD/include/adaptation/CBoundaryLayerMetric.hpp"
 #include "../../../Common/include/linear_algebra/blas_structure.hpp"
+// D2 replay (fixtures/native_d2_replay.inc): headers of the test-only CBoundaryLayerMetric copy, before using-directives.
+#include "../../../Common/include/adaptation/CNativeSupport3D.hpp"
+#include "../../../Common/include/parallelization/CPassiveComm.hpp"
+#include "../../../Common/include/adaptation/CNativeImport2D.hpp"
+#include "../../../Common/include/adaptation/CNativeImport3D.hpp"
+#include "../../../Common/include/adaptation/CNativeMetric3D.hpp"
+#include "../../../Common/include/adaptation/CNativeChordEnvelope.hpp"
+#include "../../../SU2_CFD/include/adaptation/ConvexClipping.hpp"
+#include "../../../SU2_CFD/include/solvers/CSolver.hpp"
+#include "../../../SU2_CFD/include/adaptation/CNativeBLComposition3D.hpp"
 using namespace transfer_test;
 using namespace SU2Native3D;
 
@@ -591,3 +601,13 @@ TEST_CASE("Native first-row transactions replay original fields without solver i
 }
 
 #include "fixtures/native_junction_replay.inc"
+
+#include "fixtures/native_band_dc2.inc"
+
+#include "fixtures/native_d2_replay.inc"
+
+#include "fixtures/native_layer_2dway.inc"
+
+#include "fixtures/native_wpe_dc6.inc"
+
+#include "fixtures/native_d2_production.inc"

@@ -174,6 +174,20 @@ class CBoundaryLayerMetric {
    */
   Sample Evaluate(unsigned short iWall, const su2double* coord, su2double coreEigenvalue);
 
+  /*! Nearest-facet ownership along one chord, taken from the same faceted 3D wall-distance envelope that produced
+   *  its cuts (EdgeBreakpoints). Per wall: ascending piece ends with the owning wall facet; a facet owns itself, a
+   *  segment or vertex maps to its lowest candidate facet. NoFacet (support cap, analytic authority, 2D) keeps the
+   *  pointwise nearest-facet rule. Pinned evaluation removes rounding-level owner flips between distance-tied facets
+   *  inside one envelope piece, so the composed edge integrand is piecewise smooth between cuts. */
+  struct ChordOwners {
+    static constexpr unsigned long NoFacet = ~0UL;
+    struct Piece { long double hi; unsigned long facet; };
+    std::vector<std::vector<Piece>> walls;
+    /*! Owning facet of a wall at chord parameter t in [0,1] (left piece on a shared end). */
+    unsigned long Owner(unsigned short wall, long double t) const;
+    size_t Pieces() const;
+  };
+
   /*!
    * \brief Intersect a metric field with the wall metric of every wall.
    * \param[in] coord - Coordinates of the points (nDim per point).
@@ -191,6 +205,11 @@ class CBoundaryLayerMetric {
    *  sensor: its hard band switch is unsuitable for a query-time target. */
   void ApplyPoint(const su2double* coord, Tensor& metric, su2double coreEigenvalue,
                   std::vector<WallReport>* reports = nullptr, bool useTangentialFloor = true);
+  /*! ApplyPoint at a point of a chord whose ownership came from EdgeBreakpoints(a,b,...,&owners); t is the
+   *  chord parameter of coord. Each faceted wall evaluates the facet owning t in that envelope (the nearest feature's
+   *  facet, authoritative over the pointwise double tie-break); otherwise identical to ApplyPoint. */
+  void ApplyPointOnChord(const su2double* coord, Tensor& metric, su2double coreEigenvalue,
+                         const ChordOwners& owners, long double t, bool useTangentialFloor = false);
 
   /*! Original wall geometry is complete on every rank, including remote/private queries. */
   static std::shared_ptr<CBoundaryLayerMetric> FromNativeReference(
@@ -259,7 +278,7 @@ class CBoundaryLayerMetric {
    *  Face/edge/vertex offset intersections detect a thin band even when both endpoints
    *  and the midpoint are outside it. Used with actual-point composition, never nodal BL tensors. */
   std::vector<double> EdgeBreakpoints(const std::array<double, 3>& a, const std::array<double, 3>& b,
-                                      double bandRatio = 1.5, unsigned fadeBands = 16);
+                                      double bandRatio = 1.5, unsigned fadeBands = 16, ChordOwners* owners = nullptr);
 
   /*! Retained vectors/maps/tree plus first-thread tree workspace growth; excludes allocator/RSS and construction peak. */
   size_t StorageBytes() const;
@@ -269,9 +288,10 @@ class CBoundaryLayerMetric {
                    std::vector<WallReport>* reports = nullptr, bool useTangentialFloor = true);
 
  private:
-  Sample EvaluateImpl(unsigned short wall, const su2double* coord, su2double coreEigenvalue, bool distanceOnly);
+  Sample EvaluateImpl(unsigned short wall, const su2double* coord, su2double coreEigenvalue, bool distanceOnly,
+                      unsigned long pinned = ChordOwners::NoFacet);
   std::vector<double> EdgeBreakpointsImpl(const std::array<double,3>& a,const std::array<double,3>& b,
-      double bandRatio,unsigned fadeBands,bool featureTransitions=true);
+      double bandRatio,unsigned fadeBands,bool featureTransitions=true,ChordOwners* owners=nullptr);
   std::vector<IntegrationPoint3D> IntegrationRule3DImpl(
       const std::array<std::array<double,3>,4>& tetrahedron, double bandRatio,
       IntegrationDensity3D density, bool* sensorDependent, ComplexityEstimate3D* estimate, size_t maximumEvaluations,

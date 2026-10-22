@@ -8,6 +8,7 @@
 #include "CNativeCavity3D.hpp"
 #include "CNativeAffineReference.hpp"
 #include "CNativeBoundaryParameters3D.hpp"
+#include "CNativeFirstHeight.hpp"
 #include <map>
 #include <limits>
 #include <memory>
@@ -140,26 +141,26 @@ struct FirstHeightReport {
 /*! Independent geometric first-row certificate on physical triangle children. Empty heights release
  *  the BL contract. The normal foot must lie within its wall triangle; centroid tilt is reported
  *  separately. Metric quality/lengths and global coverage are caller duties. */
-bool CheckFirstHeight(const Patch& patch,const std::map<int,double>& heights,const PlanarReference& reference,
+bool CheckFirstHeight(const Patch& patch,const WallHeights& heights,const PlanarReference& reference,
                       FirstHeightReport& report,std::string& reason,KernelStats* stats=nullptr);
 /*! Joint fixed-interface background reconnection and wall-child carving. All new identities/ranges are
  *  caller-reserved; complete cavity dependencies, target metric, external clearance and commit are separate.
  *  Wall apices use face-centroid normal placement at prescribed altitude; obstruction requires another
  *  background/cavity, never relaxing height. Output remains unchanged on any rejection. */
 bool ConstructFirstLayer(const Patch& old,Node background,Id first_wall_node,Id first_cell,
-                         const std::map<int,double>& heights,const PlanarReference& reference,
+                         const WallHeights& heights,const PlanarReference& reference,
                          Patch& fresh,FirstHeightReport& report,std::string& reason,KernelStats* stats=nullptr);
 
 /*! Geometry-only direct insertion for exactly one retained tetrahedron and one wall face.
  * Coupled walls require ConstructFirstLayer and a shared feasible background. Existing valid
  * wall children are retained; full target metric/quality acceptance is a separate caller duty. */
 bool InsertFirstWallPoint(const Patch& old,Id first_wall_node,Id first_cell,
-                         const std::map<int,double>& heights,const PlanarReference& reference,
+                         const WallHeights& heights,const PlanarReference& reference,
                          Patch& fresh,FirstHeightReport& report,std::string& reason,KernelStats* stats=nullptr);
 
 /*! Project a displacement onto incident planar boundary/first-height tangent freedoms.
  * Analytic surface projection, complete dependencies and final geometry/height checks remain caller duties. */
-Node ConstrainMovePoint(const Patch& old,Id vertex,Node proposal,const std::map<int,double>& heights,
+Node ConstrainMovePoint(const Patch& old,Id vertex,Node proposal,const WallHeights& heights,
                         const PlanarReference& reference);
 /*! Geometric private proposals only. Require the globally admitted complete edge/vertex star and authoritative
  * physical skin. Input point is exact on-edge binary64, or the actual rounded midpoint of a curved edge;
@@ -195,7 +196,7 @@ bool SplitSurfaceStrip(const Patch& old,Edge edge,Node point,const std::vector<s
  * certifies the actual metric, strict size progress, nonlocal clearance and versioned dependencies.
  * Enclosed original points are restored; a compound repair need not increase tet count. Failure leaves fresh unchanged. */
 bool RefitWallSplit(const Patch& old,Edge edge,Node point,Id first_apex,Id first_cell,
-                    const std::map<int,double>& heights,const PlanarReference& reference,
+                    const WallHeights& heights,const PlanarReference& reference,
                     Patch& fresh,Feature& obstruction,std::string& reason,KernelStats* stats = nullptr);
 /*! Physical split and coordinated normal wall-point insertion into retained volume topology.
  * Visibility cavities grow only inside the complete admitted patch, across obstructing faces.
@@ -205,7 +206,7 @@ bool RefitWallSplit(const Patch& old,Edge edge,Node point,Id first_apex,Id first
  * Perimeter points plus wall points share the128-node bound. Caller certifies actual metric/progress,
  * external clearance and versioned dependencies. Failed proposals leave fresh unchanged. */
 bool ReconstructWallSplit(const Patch& old,Edge edge,Node point,Id first_wall_node,Id first_cell,
-                          const std::map<int,double>& heights,const PlanarReference& reference,
+                          const WallHeights& heights,const PlanarReference& reference,
                           Patch& fresh,Face& obstruction,std::string& reason,KernelStats* stats = nullptr,
                           double surface_tolerance = 0);
 /*! Complete edge star plus imported face neighbours; joint projected surface split and interior reconnection.
@@ -216,7 +217,7 @@ bool ReconstructWallSplit(const Patch& old,Edge edge,Node point,Id first_wall_no
 bool ReconstructSplitPatch(const Patch& old,Edge edge,Node point,Node interior,const Tensor& placement,
                            Id first_cell,const PlanarReference& reference,Patch& fresh,Face& obstruction,
                            std::string& reason,KernelStats* stats = nullptr,
-                           const std::map<int,double>& heights = {});
+                           const WallHeights& heights = {});
 class FrozenField;
 /*! Tentative bounded cover of split cells by non-endpoint vertices; physical vertices are excluded by default.
  * Optional costs contain only globally admitted movable candidates, including smooth physical vertices; missing entries are unavailable.
@@ -236,7 +237,7 @@ struct JointSplitReport {
  * Intermediate cuts enforce positive fixed-interface topology; only the final patch is height/full-field
  * certified. Geometry, wall skin and original donors are unchanged. No output change on rejection. */
 bool ReconstructHeightStar(const Patch& old,Id vertex,Id first_node,Id first_cell,FrozenField& target,
-                           const PlanarReference& reference,const std::map<int,double>& heights,
+                           const PlanarReference& reference,const WallHeights& heights,
                            Patch& fresh,JointSplitReport& report,std::string& reason,size_t maximum_trials=128);
 /*! Bounded actual-field-directed placement of one split and up to eight complete-star surface/interior vertices.
  * Surface points retain their finite authority; the split may leave a same-chart edge. Coupled shape derivatives
@@ -246,7 +247,7 @@ bool ReconstructHeightStar(const Patch& old,Id vertex,Id first_node,Id first_cel
  * reconnection; only the split and admitted apices may move, using their reserved identities.
  * Output is unchanged on failure; distributed admission and external clearance are caller duties. */
 bool PlaceSplitPatch(const Patch& old,Edge edge,Node point,const std::vector<std::pair<Id,Id>>& apices,Id first_cell,
-                       FrozenField& target,const PlanarReference& reference,const std::map<int,double>& heights,
+                       FrozenField& target,const PlanarReference& reference,const WallHeights& heights,
                        Patch& fresh,JointSplitReport& report,std::string& reason,size_t maximum_trials=128);
 constexpr size_t MetricPatchSolveScratchBytes = MaximumReplacementCells * 8192;
 struct ConnectivityRepairReport {
@@ -265,7 +266,7 @@ struct ConnectivityRepairReport {
  * Disable retirement when backtracking a shape repair that destroys frozen size resolution.
  * An optional movable set restricts point displacement/removal, without restricting fixed-skin flips. */
 bool RepairMetricConnectivity(const Patch& old,FrozenField& target,const PlanarReference& reference,
-                              const std::map<int,double>& heights,Id first_cell,Patch& fresh,
+                              const WallHeights& heights,Id first_cell,Patch& fresh,
                               ConnectivityRepairReport& report,std::string& reason,size_t maximum_trials=64,bool retire_points=true,const std::set<Id>* movable=nullptr);
 bool UndoEdgeSplit(const Patch& old, Id point, Edge endpoints, Id first_cell, const PlanarReference& reference,
                    Patch& fresh, std::string& reason, KernelStats* stats = nullptr);

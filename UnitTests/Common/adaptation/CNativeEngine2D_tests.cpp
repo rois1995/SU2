@@ -927,3 +927,22 @@ TEST_CASE("Native balance observations preserve coupled MPI wall reconstruction"
   CHECK(wall == Approx(profiled.stats.reconstruction_seconds));
   CHECK(world.sum(int(attempts)) > 0);
 }
+
+TEST_CASE("Native2D first-height tolerance is threaded through the policy and inclusive", "[NativeEngine2D]") {
+  const Node a{0,{0,0},1},b{1,{1,0},1},c{2,{1,1},1},d{3,{0,1},1};
+  const PolylineReference reference({{a,b,10},{b,c,11},{c,d,11},{d,a,11}},45);
+  // Dyadic tolerance: exact bounds accepted, one ulp outside rejected.
+  const auto dyadic=reference.Policy({{10,1.}},.125);
+  CHECK(dyadic.height_tolerance==.125);
+  CHECK(dyadic.height_within(.875,1));CHECK(dyadic.height_within(1.125,1));
+  CHECK_FALSE(dyadic.height_within(std::nextafter(.875,0.),1));CHECK_FALSE(dyadic.height_within(std::nextafter(1.125,2.),1));
+  // Default tolerance: decided by the implemented long-double comparison.
+  const auto policy=reference.Policy({{10,1.}});
+  CHECK(policy.height_tolerance==SU2NativeFirstHeight::DefaultTolerance);
+  CHECK(policy.height_within(.9,1));CHECK(policy.height_within(std::nextafter(1.1,0.),1));
+  CHECK_FALSE(policy.height_within(1.1,1));CHECK_FALSE(policy.height_within(std::nextafter(.9,0.),1));
+  // A real wall altitude: apex at (x, z) above the wall marker 10.
+  const auto altitude=[](double z){return static_cast<double>(orient(Point{0,0},Point{1,0},Point{.5,z}))/norm(Point{1,0});};
+  CHECK(policy.height_within(altitude(1.05),1));CHECK_FALSE(policy.height_within(altitude(1.2),1));
+  CHECK_THROWS(reference.Policy({{10,1.}},0.));CHECK_THROWS(reference.Policy({{10,1.}},1.));
+}

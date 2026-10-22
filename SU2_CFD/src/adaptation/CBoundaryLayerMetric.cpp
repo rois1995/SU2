@@ -909,7 +909,8 @@ CBoundaryLayerMetric::Sample CBoundaryLayerMetric::Evaluate(unsigned short iWall
 }
 
 CBoundaryLayerMetric::Sample CBoundaryLayerMetric::EvaluateImpl(unsigned short iWall, const su2double* X,
-                                                               su2double coreEigenvalue, bool distanceOnly) {
+                                                               su2double coreEigenvalue, bool distanceOnly,
+                                                               unsigned long pinned) {
   const auto& wall = walls[iWall];
   auto& d = *data[iWall];
   Sample sample;sample.profile_version=outerNormal.version;
@@ -1032,6 +1033,12 @@ CBoundaryLayerMetric::Sample CBoundaryLayerMetric::EvaluateImpl(unsigned short i
       if(distance2<dist2 || (distance2==dist2 && other<id)) {
         id=other;dist2=distance2;std::copy(weights,weights+3,w);std::copy(point,point+3,radial);
       }
+    }
+    if(pinned!=ChordOwners::NoFacet && !wall.authority) {
+      // Chord ownership (EdgeBreakpoints envelope piece): deterministic among rounding-level distance ties. The
+      // envelope (long double) is the authority; the double closest-point classifier is not re-compared against it.
+      if(pinned>=d.faceNormal.size())throw std::invalid_argument("Native BL chord owner is not a wall facet.");
+      id=pinned;dist2=closest(id,w,radial);
     }
     const auto* t = &d.elem[3 * id];
     sample.distance = sqrt(dist2);
@@ -2317,12 +2324,14 @@ std::vector<CBoundaryLayerMetric::IntegrationPoint3D> CBoundaryLayerMetric::Inte
 }
 
 std::vector<double> CBoundaryLayerMetric::EdgeBreakpoints(
-    const std::array<double, 3>& a, const std::array<double, 3>& b, double bandRatio, unsigned fadeBands) {
-  return EdgeBreakpointsImpl(a,b,bandRatio,fadeBands);
+    const std::array<double, 3>& a, const std::array<double, 3>& b, double bandRatio, unsigned fadeBands,
+    ChordOwners* owners) {
+  return EdgeBreakpointsImpl(a,b,bandRatio,fadeBands,true,owners);
 }
 
 std::vector<double> CBoundaryLayerMetric::EdgeBreakpointsImpl(
-    const std::array<double,3>& a,const std::array<double,3>& b,double bandRatio,unsigned fadeBands,bool featureTransitions) {
+    const std::array<double,3>& a,const std::array<double,3>& b,double bandRatio,unsigned fadeBands,bool featureTransitions,
+    ChordOwners* owners) {
   if (!std::isfinite(bandRatio) || !(bandRatio > 1.0) || !fadeBands || fadeBands>256)
     throw std::invalid_argument("Invalid native BL edge band ratio/fade partition.");
   using Vector = std::array<long double, 3>;
@@ -2338,6 +2347,7 @@ std::vector<double> CBoundaryLayerMetric::EdgeBreakpointsImpl(
   if (!(dot(chord,chord) > 0)) throw std::invalid_argument("Zero native BL chord.");
   std::vector<double> cuts{0,1};
   std::set<double> retained{0,1};
+  if (owners) owners->walls.assign(walls.size(), {});
   std::function<bool(double)> validRoot;
   auto retain = [&](long double t) {
     if (t > 0 && t < 1) {
@@ -2489,15 +2499,30 @@ std::vector<double> CBoundaryLayerMetric::EdgeBreakpointsImpl(
       auto vertex=[&](unsigned long id) {
         std::array<double,3> p;for(unsigned j=0;j<3;++j)p[j]=SU2_TYPE::GetValue(walls[wall].coord[3*id+j]);return p;
       };
+      // Envelope feature -> owning facet: candidate facets are ascending, so a shared vertex/segment belongs to the
+      // lowest candidate facet that introduced it. The support cap (feature 0) has no owner.
+      std::vector<unsigned long> featureFacet(owners ? envelope.Features() : 0, ChordOwners::NoFacet);
+      auto record=[&](unsigned long face){if(owners)featureFacet.resize(envelope.Features(),face);};
       for(const auto face:faces) {
         const auto* ids=&d.elem[3*face];std::array<std::array<double,3>,3> triangle;
         for(unsigned k=0;k<3;++k) {
           triangle[k]=vertex(ids[k]);
-          if(vertices.insert(ids[k]).second)envelope.Vertex(triangle[k]);
+          if(vertices.insert(ids[k]).second){envelope.Vertex(triangle[k]);record(face);}
           const auto edge=std::minmax(ids[k],ids[(k+1)%3]);
-          if(edges.insert(edge).second)envelope.Segment(vertex(edge.first),vertex(edge.second));
+          if(edges.insert(edge).second){envelope.Segment(vertex(edge.first),vertex(edge.second));record(face);}
         }
-        envelope.Face(triangle);
+        envelope.Face(triangle);record(face);
+      }
+      if(owners) {
+        auto& ownership=owners->walls[wall];
+        const auto pieces=envelope.Ownership();
+        if(owners->Pieces()+pieces.size()>65536)throw std::runtime_error("Native BL chord ownership exceeds work budget.");
+        ownership.reserve(pieces.size());
+        for(const auto& piece:pieces) {
+          const auto facet=piece.second<featureFacet.size() ? featureFacet[piece.second] : ChordOwners::NoFacet;
+          if(!ownership.empty() && ownership.back().facet==facet)ownership.back().hi=piece.first;
+          else ownership.push_back({piece.first,facet});
+        }
       }
       // Envelope boundaries also resolve nearest-feature changes, not only distance levels.
       for(auto t:envelope.Cuts(levels,featureTransitions))if(t>0 && t<1 && retained.insert(t).second) {
@@ -2785,6 +2810,34 @@ void CBoundaryLayerMetric::ApplyPoint(const su2double* X, Tensor& metric, su2dou
     if (!inside || !d.adt) continue;
     ApplySample(wall, Evaluate(wall, X, 1.0), metric, coreEigenvalue, reports, useTangentialFloor);
   }
+}
+
+void CBoundaryLayerMetric::ApplyPointOnChord(const su2double* X, Tensor& metric, su2double coreEigenvalue,
+                                             const ChordOwners& owners, long double t, bool useTangentialFloor) {
+  if (!owners.walls.empty() && owners.walls.size() != walls.size())
+    throw std::invalid_argument("Native BL chord ownership does not match the wall set.");
+  for (unsigned short wall = 0; wall < walls.size(); ++wall) {
+    const auto& d = *data[wall];
+    bool inside = true;
+    for (unsigned short k = 0; k < nDim; ++k) inside = inside && X[k] >= d.low[k] && X[k] <= d.high[k];
+    if (!inside || !d.adt) continue;
+    const auto pinned = owners.walls.empty() ? ChordOwners::NoFacet : owners.Owner(wall, t);
+    ApplySample(wall, EvaluateImpl(wall, X, 1.0, false, pinned), metric, coreEigenvalue, nullptr, useTangentialFloor);
+  }
+}
+
+unsigned long CBoundaryLayerMetric::ChordOwners::Owner(unsigned short wall, long double t) const {
+  if (wall >= walls.size() || !(t >= 0 && t <= 1)) throw std::invalid_argument("Invalid native BL chord owner query.");
+  const auto& pieces = walls[wall];
+  const auto p = std::lower_bound(pieces.begin(), pieces.end(), t,
+                                  [](const Piece& piece, long double value) { return piece.hi < value; });
+  return p == pieces.end() ? NoFacet : p->facet;
+}
+
+size_t CBoundaryLayerMetric::ChordOwners::Pieces() const {
+  size_t count = 0;
+  for (const auto& wall : walls) count += wall.size();
+  return count;
 }
 
 bool CBoundaryLayerMetric::TangentialFloor(const Sample& sample, const su2double* wallEigenvalues, su2double h0,

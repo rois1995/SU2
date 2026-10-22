@@ -17,7 +17,7 @@ struct EngineOptions {
   size_t maximum_work = SIZE_MAX, stagnation_window = 64;  // SIZE_MAX: max(4096,64*global input cells).
   double maximum_seconds = 0;  // Optional kernel elapsed ceiling, checked at collective safe points.
   double surface_tolerance = 0;  // Analytic authority requires a positive frozen physical error ceiling.
-  std::map<int,double> wall_heights;  // Frozen marker policy; empty releases the first-row constraint.
+  WallHeights wall_heights;  // Frozen marker h0 and tolerance T (ADAP_BL_FIRST_HEIGHT_TOL); empty releases the first-row constraint.
   std::map<int,RegionWallPolicy> region_walls;  // Same existing frozen BL configuration; no scenario selection.
   MetricEdgeBreakpoints edge_breakpoints;  // Frozen geometry bands; required for composed target edge audits.
   // Optional rank-local diagnostic; must not enter worker/world collectives or retain borrowed patches.
@@ -39,7 +39,7 @@ inline const char* EngineStopName(EngineStop stop) {
 /*! Sufficient local counterexample for an unchanged surviving cell of a directed collapse.
  * Cells containing both endpoints disappear and provide no witness; false is not admission. */
 bool CollapseConstraintViolation(const OwnedCell& cell,Id removed,Node retained,const PlanarReference& geometry,
-                                double tolerance,const std::map<int,double>& heights);
+                                double tolerance,const WallHeights& heights);
 struct EngineStats {
   EngineStop stop = EngineStop::None;
   uint64_t global_work = 0, work_limit = 0, progress_windows = 0, stagnant_windows = 0, search_windows = 0;

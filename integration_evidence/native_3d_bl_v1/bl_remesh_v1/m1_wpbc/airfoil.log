@@ -1,0 +1,793 @@
+Filters: [NativeAirfoil2D]
+
+Parsing config file for zone 0
+
+----------------- Physical Case Definition ( Zone 0 ) -------------------
+Compressible Laminar Navier-Stokes' equations.
+Mach number: 0.3.
+Angle of attack (AoA): 1.25 deg, and angle of sideslip (AoS): 0 deg.
+Reynolds number: 10000. Reference length 1.
+No restart solution, use the values at infinity (freestream).
+Dimensional simulation.
+The reference area is 1 m^2.
+The semi-span will be computed using the max y(3D) value.
+The reference length is 1 m.
+Reference origin for moment evaluation is (0, 0, 0).
+Surface(s) where the force coefficients are evaluated: airfoil.
+
+Surface(s) plotted in the output file: airfoil.
+Input mesh file name: /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/QuickStart/mesh_NACA0012_inv.su2
+
+--------------- Space Numerical Integration ( Zone 0 ) ------------------
+Roe (with entropy fix = 0.001) solver for the flow inviscid terms.
+Standard Roe without low-dissipation function.
+First order integration in space.
+Average of gradients with correction (viscous flow terms).
+Gradient for upwind reconstruction: Green-Gauss.
+Gradient for viscous and source terms: Green-Gauss.
+
+--------------- Time Numerical Integration  ( Zone 0 ) ------------------
+Local time stepping (steady state simulation).
+Euler implicit method for the flow equations.
+FGMRES is used for solving the linear system.
+Using ILU(0) preconditioning.
+Convergence criteria of the linear solver: 1e-06.
+Max number of linear iterations: 10.
+No CFL adaptation.
+Courant-Friedrichs-Lewy number:      0.1
+
+------------------ Convergence Criteria  ( Zone 0 ) ---------------------
+Maximum number of solver subiterations: 3.
+Begin convergence monitoring at iteration 5.
+Residual minimum value: 1e-14.
+Cauchy series min. value: 1e-10.
+Number of Cauchy elements: 100.
+Begin windowed time average at iteration 0.
+
+-------------------- Output Information ( Zone 0 ) ----------------------
+File writing frequency: 
++------------------------------------+
+|                     File| Frequency|
++------------------------------------+
+|                  RESTART|       250|
++------------------------------------+
+Writing the convergence history file every 1 inner iterations.
+Writing the screen convergence history every 1 inner iterations.
+The tabular file format is CSV (.csv).
+Convergence history file name: native_NACA0012_history.
+Forces breakdown file name: forces_breakdown.dat.
+Surface file name: surface.
+Volume file name: vol_solution.
+Restart file name: native_NACA0012_restart.
+
+------------- Config File Boundary Information ( Zone 0 ) ---------------
++-----------------------------------------------------------------------+
+|                        Marker Type|                        Marker Name|
++-----------------------------------------------------------------------+
+|                          Far-field|                           farfield|
++-----------------------------------------------------------------------+
+|                     Heat flux wall|                            airfoil|
++-----------------------------------------------------------------------+
+
+-------------------- Output Preprocessing ( Zone 0 ) --------------------
+
+WARNING: SURFACE_PRESSURE_DROP can only be computed for at least 2 surfaces (outlet, inlet, ...)
+
+Screen output fields: INNER_ITER, RMS_DENSITY, RMS_MOMENTUM-X, RMS_MOMENTUM-Y, RMS_ENERGY
+History output group(s): ITER, RMS_RES
+Convergence field(s): RMS_DENSITY
+Warning: No (valid) fields chosen for time convergence monitoring. Time convergence monitoring inactive.
+Volume output fields: COORDINATES, SOLUTION, PRIMITIVE
+
+------------------- Geometry Preprocessing ( Zone 0 ) -------------------
+Two dimensional problem.
+5233 grid points.
+10216 volume elements.
+2 surface markers.
+200 boundary elements in index 0 (Marker = airfoil).
+50 boundary elements in index 1 (Marker = farfield).
+10216 triangles.
+Setting point connectivity.
+Renumbering points (Reverse Cuthill McKee Ordering).
+Recomputing point connectivity.
+Setting element connectivity.
+Checking the numerical grid orientation.
+All volume elements are correctly oriented.
+All surface elements are correctly oriented.
+Identifying edges and vertices.
+Setting the control volume structure.
+Area of the computational grid: 1253.25.
+Searching for the closest normal neighbors to the surfaces.
+Storing a mapping from global to local point index.
+Compute the surface curvature.
+Max K: 7835.1. Mean K: 34.8252. Standard deviation K: 494.448.
+Computing mesh quality statistics for the dual control volumes.
++--------------------------------------------------------------+
+|           Mesh Quality Metric|        Minimum|        Maximum|
++--------------------------------------------------------------+
+|    Orthogonality Angle (deg.)|        62.6714|        89.7089|
+|     CV Face Area Aspect Ratio|        1.00001|        7.18337|
+|           CV Sub-Volume Ratio|        1.00285|        6.47826|
+|                     CV Volume|     7.8812e-08|         6.1058|
++--------------------------------------------------------------+
+Finding max control volume width.
+CFD geometry seconds partition/migration/preprocess (maximum across ranks): 1.081e-06 0.0295815 0.0346663
+Wetted area = 2.03916 m.
+Area projection in the x-plane = 0.119981 m, y-plane = 0.999845 m.
+Max. coordinate in the x-direction = 1 m, y-direction = 0.0600055 m.
+Min. coordinate in the x-direction = 0 m, y-direction = -0.0600055 m.
+Computing wall distances.
+
+-------------------- Solver Preprocessing ( Zone 0 ) --------------------
+Viscous flow: Computing pressure using the ideal gas law
+based on the free-stream temperature and a density computed
+from the Reynolds number.
+Force coefficients computed using free-stream values.
+
+-- Models:
++------------------------------------------------------------------------------+
+|          Viscosity Model|        Conductivity Model|              Fluid Model|
++------------------------------------------------------------------------------+
+|               SUTHERLAND|          CONSTANT_PRANDTL|             STANDARD_AIR|
++------------------------------------------------------------------------------+
+-- Fluid properties:
++------------------------------------------------------------------------------+
+|                  Name|    Dim. value|    Ref. value|      Unit|Non-dim. value|
++------------------------------------------------------------------------------+
+|        Ref. Viscosity|     1.716e-05|             1|   N.s/m^2|     1.716e-05|
+|      Sutherland Temp.|        273.15|             1|         K|        273.15|
+|     Sutherland Const.|         110.4|             1|         K|         110.4|
++------------------------------------------------------------------------------+
+|        Prandtl (Lam.)|             -|             -|         -|          0.72|
+|       Prandtl (Turb.)|             -|             -|         -|           0.9|
++------------------------------------------------------------------------------+
+|          Gas Constant|       287.058|             1|  N.m/kg.K|       287.058|
+|      Spec. Heat Ratio|             -|             -|         -|           1.4|
++------------------------------------------------------------------------------+
+-- Initial and free-stream conditions:
++------------------------------------------------------------------------------+
+|                  Name|    Dim. value|    Ref. value|      Unit|Non-dim. value|
++------------------------------------------------------------------------------+
+|       Static Pressure|       144.974|             1|        Pa|       144.974|
+|               Density|    0.00175268|             1|    kg/m^3|    0.00175268|
+|           Temperature|        288.15|             1|         K|        288.15|
+|          Total Energy|        212000|             1|   m^2/s^2|        212000|
+|            Velocity-X|       102.065|             1|       m/s|       102.065|
+|            Velocity-Y|       2.22706|             1|       m/s|       2.22706|
+|    Velocity Magnitude|       102.089|             1|       m/s|       102.089|
++------------------------------------------------------------------------------+
+|             Viscosity|    1.7893e-05|             1|   N.s/m^2|    1.7893e-05|
+|          Conductivity|             -|             1|   W/m^2.K|             -|
++------------------------------------------------------------------------------+
+|           Mach Number|             -|             -|         -|           0.3|
+|       Reynolds Number|             -|             -|         -|         10000|
++------------------------------------------------------------------------------+
+Initialize Jacobian structure (Navier-Stokes). MG level: 0.
+
+------------------- Numerics Preprocessing ( Zone 0 ) -------------------
+
+----------------- Integration Preprocessing ( Zone 0 ) ------------------
+
+------------------- Iteration Preprocessing ( Zone 0 ) ------------------
+Euler/Navier-Stokes/RANS fluid iteration.
++----------------------------------------------------------------+
+|  Inner_Iter|    rms[Rho]|   rms[RhoU]|   rms[RhoV]|   rms[RhoE]|
++----------------------------------------------------------------+
+|           0|   -4.308862|  -13.807668|  -13.872716|    1.160542|
+|           1|   -4.417039|   -1.571601|   -2.282924|    1.049853|
+|           2|   -4.421680|   -1.576304|   -2.284825|    1.045101|
+
+----------------------------- Compute Metric ----------------------------
+Hessian recovery: 0.00672331 s (maximum rank time).
+Sensor-only donor metric statistics:
+Minimum density: 0.04.
+Maximum density: 79.4263.
+Maximum cell AR: 2.27319.
+Mesh complexity after native constraints: 4000 (ADAP_COMPLEXITY= 4000).
+Sensor metric complexity before gradation: 250.72.
+Sensor-only donor complexity after gradation: 286.666.
+Native geometric integration: 110493 points, preparation 0.35059 s.
+Native metric work: 86 complexity trials, 6524 total gradation sweeps, 8368375 owned-point visits; gradation 18.2963 s, halo 1.26971 s, sweep reductions 0.0175206 s (maximum accumulated rank times).
+Native gradation tensor updates: 6921475 of 8368375 owned-point visits.
+Native sensor gradation: 76 sweeps, fixed point reached, maximum transported-metric ratio 1, directed edges above 1+1e-5: 0.
+Native composed nodal audit: maximum transported-metric ratio 148014, directed edges above 1+1e-5: 792. Sensor gradation is not a combined-field certificate.
+WARNING: Composed geometric BL transport violations remain; no nodal wall correction is spread.
+Sharp wall corners: 1, isotropic metric on 5161 points (ADAP_ISO_CORNER).
+Metric computed in 24.9698 s.
+Native contract: q>=0.18, frozen-target Simpson edge length<=1.8, reference deviation<=1e-06, requested wall altitude relative error<=0.1; dependency budget=2097152 bytes per rank, original P1 sensor target + geometric BL constraints, boundary sampling adaptive.
+Native work allowance: 2554 collective rounds per phase, 6 sweeps, for 10216 input cells on 1 ranks; frozen P1 centroid complexity=286.715, estimated unit triangles=6662.14 (geometric BL row allowance=6000).
+Native requested first altitude: airfoil = 0.0002
+Native incoming residuals: shape=294, edge length=1322
+Native adaptation: 13561 commits (0 across owners), qmin=0.220304, Lmax=1.79988, residual cells=0, height faces=0, reference faces=0. No remesher-side target floor.
+Native remaining residuals: shape=0, edge length=0
+Native coordinated repair: 0 commits, 0 seconds (maximum across ranks).
+Native private target requests/evaluations/dynamic evictions: 8549376 2882780 41549
+Native donor search candidates/full-scan equivalent: 517773 215853864; local immutable index retained bytes (max rank): 2299480
+Native operations (height/split/remove/redistribute/bulk remove/split/flip/move): 99 0 0 86 4059 5093 1023 3201; conflicts=0, dependency-size rejects=0, memory rejects=25, stale rejects=0, engine encoded bytes=242348752, largest transport admission estimate=4481208
+Native phase elapsed seconds (same action order, maximum across ranks): 0.765219 0.00399992 0.277258 1.6356 3.3863 7.75458 0.908547 3.10882
+Native candidate selection seconds (same action order, maximum across ranks): 0.241981 0.00398211 0.244042 1.13673 0.857871 0.575485 0.293793 0.438621
+Native rank cost selection seconds min/mean/max: 3.79251 3.79251 3.79251
+Native rank cost private reconstruction seconds min/mean/max: 7.18998 7.18998 7.18998
+Native rank cost tracked collectives seconds min/mean/max: 0.612141 0.612141 0.612141
+Native rank cost largest private transaction seconds min/mean/max: 0.0377732 0.0377732 0.0377732
+Native rank cost round protocol seconds min/mean/max: 0.0175463 0.0175463 0.0175463
+Native rank cost round dependency import seconds min/mean/max: 1.36153 1.36153 1.36153
+Native rank cost round donor import and IDs seconds min/mean/max: 2.96229 2.96229 2.96229
+Native rank cost round reconstruction seconds min/mean/max: 7.20077 7.20077 7.20077
+Native rank cost round validation seconds min/mean/max: 1.38795 1.38795 1.38795
+Native rank cost round commit seconds min/mean/max: 0.807778 0.807778 0.807778
+Native rank cost engine initialization seconds min/mean/max: 0.386059 0.386059 0.386059
+Native rank cost incoming residual check seconds min/mean/max: 0.00429891 0.00429891 0.00429891
+Native rank cost engine adapt seconds min/mean/max: 17.8471 17.8471 17.8471
+Native rank cost final contract check seconds min/mean/max: 0.00251634 0.00251634 0.00251634
+Native rank cost adapt unclassified seconds min/mean/max: 0.316758 0.316758 0.316758
+Native cost scopes: tracked collectives include waiting, exclude validation elections; round scopes are exclusive within each rank, include MPI waits, and exclude local temporary destruction after round return; rank maxima are not additive wall phases.
+Native cached selection full scans (same action order, sum across ranks): 0 0 0 0 144 130 40 44
+Native deferred/rejected candidate: Query outside frozen donor and associated extension band. (358).
+Native deferred/rejected candidate: boundary coarsening or movement worsens bulk size (7).
+Native deferred/rejected candidate: coarsening misses target (1036).
+Native deferred/rejected candidate: flip does not improve quality (2736).
+Native deferred/rejected candidate: insertion worsens sub-threshold shape (12).
+Native deferred/rejected candidate: no improving valid movement (1895).
+Native deferred/rejected candidate: no representable tangential redistribution (1).
+Native deferred/rejected candidate: nonconvex quadrilateral (1329).
+Native deferred/rejected candidate: physical face misses declared reference tolerance (144).
+Native deferred/rejected candidate: protected first layer (23).
+Native deferred/rejected candidate: surface reconstruction worsens sub-threshold shape (2).
+Native execution seconds workers/return-to-CFD/idle-wall/idle-CPU (maximum across ranks): 18.2516 0.0449107 0 0; CFD ranks=1, adaptation ranks=1
+Native setup seconds import-reference/target-policy/working-partition (maximum across ranks): 0.0616436 0.00705613 7.33e-07
+
+---------------------------- Replace the Mesh ---------------------------
+Two dimensional problem.
+5353 grid points.
+10456 volume elements.
+2 surface markers.
+50 boundary elements in index 0 (Marker = farfield).
+200 boundary elements in index 1 (Marker = airfoil).
+10456 triangles.
+Setting point connectivity.
+Renumbering points (Reverse Cuthill McKee Ordering).
+Recomputing point connectivity.
+Setting element connectivity.
+Checking the numerical grid orientation.
+All volume elements are correctly oriented.
+All surface elements are correctly oriented.
+Identifying edges and vertices.
+Setting the control volume structure.
+Area of the computational grid: 1253.25.
+Searching for the closest normal neighbors to the surfaces.
+Storing a mapping from global to local point index.
+Compute the surface curvature.
+Max K: 7490.11. Mean K: 33.4452. Standard deviation K: 472.678.
+Computing mesh quality statistics for the dual control volumes.
++--------------------------------------------------------------+
+|           Mesh Quality Metric|        Minimum|        Maximum|
++--------------------------------------------------------------+
+|    Orthogonality Angle (deg.)|        1.94015|        89.5754|
+|     CV Face Area Aspect Ratio|        1.00001|        237.242|
+|           CV Sub-Volume Ratio|        1.00039|        458.026|
+|                     CV Volume|    3.55801e-08|        17.0001|
++--------------------------------------------------------------+
+Finding max control volume width.
+CFD geometry seconds partition/migration/preprocess (maximum across ranks): 4.79e-07 0.0269351 0.0443164
+Wetted area = 2.03915 m.
+Area projection in the x-plane = 0.119981 m, y-plane = 0.99984 m.
+Max. coordinate in the x-direction = 1 m, y-direction = 0.0600055 m.
+Min. coordinate in the x-direction = 0 m, y-direction = -0.0600055 m.
+Computing wall distances.
+
+-------------------- Solver Preprocessing ( Zone 0 ) --------------------
+Viscous flow: Computing pressure using the ideal gas law
+based on the free-stream temperature and a density computed
+from the Reynolds number.
+Force coefficients computed using free-stream values.
+
+-- Models:
++------------------------------------------------------------------------------+
+|          Viscosity Model|        Conductivity Model|              Fluid Model|
++------------------------------------------------------------------------------+
+|               SUTHERLAND|          CONSTANT_PRANDTL|             STANDARD_AIR|
++------------------------------------------------------------------------------+
+-- Fluid properties:
++------------------------------------------------------------------------------+
+|                  Name|    Dim. value|    Ref. value|      Unit|Non-dim. value|
++------------------------------------------------------------------------------+
+|        Ref. Viscosity|     1.716e-05|             1|   N.s/m^2|     1.716e-05|
+|      Sutherland Temp.|        273.15|             1|         K|        273.15|
+|     Sutherland Const.|         110.4|             1|         K|         110.4|
++------------------------------------------------------------------------------+
+|        Prandtl (Lam.)|             -|             -|         -|          0.72|
+|       Prandtl (Turb.)|             -|             -|         -|           0.9|
++------------------------------------------------------------------------------+
+|          Gas Constant|       287.058|             1|  N.m/kg.K|       287.058|
+|      Spec. Heat Ratio|             -|             -|         -|           1.4|
++------------------------------------------------------------------------------+
+-- Initial and free-stream conditions:
++------------------------------------------------------------------------------+
+|                  Name|    Dim. value|    Ref. value|      Unit|Non-dim. value|
++------------------------------------------------------------------------------+
+|       Static Pressure|       144.974|             1|        Pa|       144.974|
+|               Density|    0.00175268|             1|    kg/m^3|    0.00175268|
+|           Temperature|        288.15|             1|         K|        288.15|
+|          Total Energy|        212000|             1|   m^2/s^2|        212000|
+|            Velocity-X|       102.065|             1|       m/s|       102.065|
+|            Velocity-Y|       2.22706|             1|       m/s|       2.22706|
+|    Velocity Magnitude|       102.089|             1|       m/s|       102.089|
++------------------------------------------------------------------------------+
+|             Viscosity|    1.7893e-05|             1|   N.s/m^2|    1.7893e-05|
+|          Conductivity|             -|             1|   W/m^2.K|             -|
++------------------------------------------------------------------------------+
+|           Mach Number|             -|             -|         -|           0.3|
+|       Reynolds Number|             -|             -|         -|         10000|
++------------------------------------------------------------------------------+
+Initialize Jacobian structure (Navier-Stokes). MG level: 0.
+
+------------------- Solution Transfer (conservative P1) -------------------
+Distributed conservative transfer on 1 rank(s): import groups 1, imported donor elements 10216 (largest per rank / mean 1); planned memory per rank (largest): resident and coverage 16 MB, import 8 MB (ceiling 2048 MB).
+Supermesh of 10456 new and 10216 donor elements: 42454 overlapping pairs (88799 clipped), measure 1.253e+03 of 1.253e+03 (new) and 1.253e+03 (donor).
+New domain outside the donor (S_n): 34 parts of control volumes at 19 points (0 of points on no marker), measure 6.011e-10, filled with the closest donor values (max distance 2.478e-08, 6.548e-06 of the face); new elements outside the donor: 0.
+Donor domain outside the new one (S_d): 20 donor elements, measure 1.106e-05, at walls and symmetry planes content kept (the difference to the S_n content there spread over the new domain by volume), at open boundaries the totals follow the domain.
+Largest uncovered fraction of a control-volume piece: 6.958e-04.
+Per field: S_n content and S_d content (relative to sum |u| V), correction spread over the domain, supermesh defect (round-off), CG iterations and true residual, values limited:
+             Density:  4.782e-13  8.827e-09 -4.666e-13  1.154e-14    8  4.389e-14       3
+          Momentum-x:  0.000e+00  8.827e-09  1.179e-14  1.179e-14   11  7.087e-14     120
+          Momentum-y:  0.000e+00  8.827e-09  1.162e-14  1.162e-14   11  9.557e-14      50
+              Energy:  4.777e-13  8.827e-09 -4.660e-13  1.170e-14    8  6.979e-14       3
+No-slip wall points: 200, projected momentum set to zero (largest 7.526e-04), redistributed over the other points.
+States not admissible after the projection (stage 1 predicate, k_lo floor with SST): 0; recovered by blending 0 patch(es) towards their mean state (up to 0 neighbour rings), integrals kept.
+Domain volume: donor 1.253e+03, new 1.253e+03, relative change -8.826e-09.
+Change of the integrals (sum of value x control volume), relative to the donor integral (momentum: to the norm of the donor momentum integral):
+             Density: -8.827e-09
+          Momentum-x: -8.825e-09
+          Momentum-y: -1.926e-10
+              Energy: -8.827e-09
+Time: setup 0.01476 s, import 0.01479 s, supermesh 0.05084 s, coverage and slivers 0.0008963 s, solve 0.008391 s, limiter 0.001318 s, total 0.09451 s.
+
+------------------- Numerics Preprocessing ( Zone 0 ) -------------------
+
+----------------- Integration Preprocessing ( Zone 0 ) ------------------
+
+------------------- Iteration Preprocessing ( Zone 0 ) ------------------
+Euler/Navier-Stokes/RANS fluid iteration.
+The problem uses the new mesh: 5353 points, 0 multigrid levels.
+Mesh replaced in 0.185925 s (solution transfer 0.0947274 s).
+Mesh replacement seconds geometry-build/check-wall-distance/solver-init/transfer/finalize (maximum across ranks, exclusive scopes): 0.0801075 0.000255101 0.00677503 0.0947274 0.00405983
+Writing the adapted mesh of cycle 1: native_NACA0012_mesh_adap_00001.su2.
+[native airfoil] cycle=0 points=5353 wall faces=200 altitude error=1.76081e-13
++----------------------------------------------------------------+
+|  Inner_Iter|    rms[Rho]|   rms[RhoU]|   rms[RhoV]|   rms[RhoE]|
++----------------------------------------------------------------+
+|           0|   -4.696408|   -2.507352|   -2.385238|    0.772387|
+|           1|   -4.701331|   -2.512615|   -2.392227|    0.767427|
+|           2|   -4.706025|   -2.517676|   -2.398741|    0.762702|
+
+----------------------------- Compute Metric ----------------------------
+Hessian recovery: 0.00375164 s (maximum rank time).
+Sensor-only donor metric statistics:
+Minimum density: 0.04.
+Maximum density: 1.27063e+06.
+Maximum cell AR: 23.3652.
+Mesh complexity after native constraints: 6000 (ADAP_COMPLEXITY= 6000).
+Sensor metric complexity before gradation: 1107.18.
+Sensor-only donor complexity after gradation: 3048.95.
+Native geometric integration: 129453 points, preparation 0.209698 s.
+Native metric work: 51 complexity trials, 2281 total gradation sweeps, 2918483 owned-point visits; gradation 3.09582 s, halo 0.233334 s, sweep reductions 0.00337024 s (maximum accumulated rank times).
+Native gradation tensor updates: 1803686 of 2918483 owned-point visits.
+Native sensor gradation: 44 sweeps, fixed point reached, maximum transported-metric ratio 1, directed edges above 1+1e-5: 0.
+Native composed nodal audit: maximum transported-metric ratio 402.815, directed edges above 1+1e-5: 1855. Sensor gradation is not a combined-field certificate.
+WARNING: Composed geometric BL transport violations remain; no nodal wall correction is spread.
+Sharp wall corners: 1, isotropic metric on 2119 points (ADAP_ISO_CORNER).
+Metric computed in 7.26488 s.
+Native contract: q>=0.18, frozen-target Simpson edge length<=1.8, reference deviation<=1e-06, requested wall altitude relative error<=0.1; dependency budget=2097152 bytes per rank, original P1 sensor target + geometric BL constraints, boundary sampling adaptive.
+Native work allowance: 3301 collective rounds per phase, 6 sweeps, for 10456 input cells on 1 ranks; frozen P1 centroid complexity=3118.35, estimated unit triangles=13201.5 (geometric BL row allowance=6000).
+Native requested first altitude: airfoil = 0.0002
+Native incoming residuals: shape=113, edge length=1052
+Native adaptation: 7180 commits (0 across owners), qmin=0.233136, Lmax=1.79995, residual cells=0, height faces=0, reference faces=0. No remesher-side target floor.
+Native remaining residuals: shape=0, edge length=0
+Native coordinated repair: 0 commits, 0 seconds (maximum across ranks).
+Native private target requests/evaluations/dynamic evictions: 3190165 968202 30956
+Native donor search candidates/full-scan equivalent: 373696 128033720; local immutable index retained bytes (max rank): 2366040
+Native operations (height/split/remove/redistribute/bulk remove/split/flip/move): 0 0 0 45 862 3290 821 2162; conflicts=0, dependency-size rejects=0, memory rejects=0, stale rejects=0, engine encoded bytes=140491792, largest transport admission estimate=4561848
+Native phase elapsed seconds (same action order, maximum across ranks): 0.00134323 0.00190357 0.0885282 0.719166 0.91536 3.66295 0.761369 1.5467
+Native candidate selection seconds (same action order, maximum across ranks): 0.0013394 0.00190129 0.0771594 0.475901 0.161785 0.366313 0.28293 0.370325
+Native rank cost selection seconds min/mean/max: 1.73765 1.73765 1.73765
+Native rank cost private reconstruction seconds min/mean/max: 2.19105 2.19105 2.19105
+Native rank cost tracked collectives seconds min/mean/max: 0.347911 0.347911 0.347911
+Native rank cost largest private transaction seconds min/mean/max: 0.0418188 0.0418188 0.0418188
+Native rank cost round protocol seconds min/mean/max: 0.00838704 0.00838704 0.00838704
+Native rank cost round dependency import seconds min/mean/max: 0.639533 0.639533 0.639533
+Native rank cost round donor import and IDs seconds min/mean/max: 1.93106 1.93106 1.93106
+Native rank cost round reconstruction seconds min/mean/max: 2.19601 2.19601 2.19601
+Native rank cost round validation seconds min/mean/max: 0.685236 0.685236 0.685236
+Native rank cost round commit seconds min/mean/max: 0.403984 0.403984 0.403984
+Native rank cost engine initialization seconds min/mean/max: 0.231763 0.231763 0.231763
+Native rank cost incoming residual check seconds min/mean/max: 0.00324085 0.00324085 0.00324085
+Native rank cost engine adapt seconds min/mean/max: 7.7017 7.7017 7.7017
+Native rank cost final contract check seconds min/mean/max: 0.00315494 0.00315494 0.00315494
+Native rank cost adapt unclassified seconds min/mean/max: 0.0998327 0.0998327 0.0998327
+Native cost scopes: tracked collectives include waiting, exclude validation elections; round scopes are exclusive within each rank, include MPI waits, and exclude local temporary destruction after round return; rank maxima are not additive wall phases.
+Native cached selection full scans (same action order, sum across ranks): 0 0 0 0 44 86 27 32
+Native deferred/rejected candidate: Query outside frozen donor and associated extension band. (179).
+Native deferred/rejected candidate: boundary coarsening or movement worsens bulk size (3).
+Native deferred/rejected candidate: coarsening misses target (1176).
+Native deferred/rejected candidate: flip does not improve quality (1657).
+Native deferred/rejected candidate: insertion worsens sub-threshold shape (8).
+Native deferred/rejected candidate: no improving valid movement (1139).
+Native deferred/rejected candidate: no representable tangential redistribution (1).
+Native deferred/rejected candidate: nonconvex quadrilateral (808).
+Native deferred/rejected candidate: not a complete interior edge star (3).
+Native deferred/rejected candidate: physical face misses declared reference tolerance (70).
+Native deferred/rejected candidate: protected first layer (21).
+Native execution seconds workers/return-to-CFD/idle-wall/idle-CPU (maximum across ranks): 7.95148 0.061526 0 0; CFD ranks=1, adaptation ranks=1
+Native setup seconds import-reference/target-policy/working-partition (maximum across ranks): 0.0447368 0.00333755 5.43e-07
+
+---------------------------- Replace the Mesh ---------------------------
+Two dimensional problem.
+7253 grid points.
+14256 volume elements.
+2 surface markers.
+50 boundary elements in index 0 (Marker = farfield).
+200 boundary elements in index 1 (Marker = airfoil).
+14256 triangles.
+Setting point connectivity.
+Renumbering points (Reverse Cuthill McKee Ordering).
+Recomputing point connectivity.
+Setting element connectivity.
+Checking the numerical grid orientation.
+All volume elements are correctly oriented.
+All surface elements are correctly oriented.
+Identifying edges and vertices.
+Setting the control volume structure.
+Area of the computational grid: 1253.25.
+Searching for the closest normal neighbors to the surfaces.
+Storing a mapping from global to local point index.
+Compute the surface curvature.
+Max K: 7430.85. Mean K: 33.2082. Standard deviation K: 468.939.
+Computing mesh quality statistics for the dual control volumes.
++--------------------------------------------------------------+
+|           Mesh Quality Metric|        Minimum|        Maximum|
++--------------------------------------------------------------+
+|    Orthogonality Angle (deg.)|        1.94015|        89.5754|
+|     CV Face Area Aspect Ratio|        1.00012|        237.242|
+|           CV Sub-Volume Ratio|        1.00039|        91.8374|
+|                     CV Volume|    2.48608e-08|        19.6366|
++--------------------------------------------------------------+
+Finding max control volume width.
+CFD geometry seconds partition/migration/preprocess (maximum across ranks): 6.53e-07 0.0372138 0.0541098
+Wetted area = 2.03915 m.
+Area projection in the x-plane = 0.119981 m, y-plane = 0.999839 m.
+Max. coordinate in the x-direction = 1 m, y-direction = 0.0600055 m.
+Min. coordinate in the x-direction = 0 m, y-direction = -0.0600055 m.
+Computing wall distances.
+
+-------------------- Solver Preprocessing ( Zone 0 ) --------------------
+Viscous flow: Computing pressure using the ideal gas law
+based on the free-stream temperature and a density computed
+from the Reynolds number.
+Force coefficients computed using free-stream values.
+
+-- Models:
++------------------------------------------------------------------------------+
+|          Viscosity Model|        Conductivity Model|              Fluid Model|
++------------------------------------------------------------------------------+
+|               SUTHERLAND|          CONSTANT_PRANDTL|             STANDARD_AIR|
++------------------------------------------------------------------------------+
+-- Fluid properties:
++------------------------------------------------------------------------------+
+|                  Name|    Dim. value|    Ref. value|      Unit|Non-dim. value|
++------------------------------------------------------------------------------+
+|        Ref. Viscosity|     1.716e-05|             1|   N.s/m^2|     1.716e-05|
+|      Sutherland Temp.|        273.15|             1|         K|        273.15|
+|     Sutherland Const.|         110.4|             1|         K|         110.4|
++------------------------------------------------------------------------------+
+|        Prandtl (Lam.)|             -|             -|         -|          0.72|
+|       Prandtl (Turb.)|             -|             -|         -|           0.9|
++------------------------------------------------------------------------------+
+|          Gas Constant|       287.058|             1|  N.m/kg.K|       287.058|
+|      Spec. Heat Ratio|             -|             -|         -|           1.4|
++------------------------------------------------------------------------------+
+-- Initial and free-stream conditions:
++------------------------------------------------------------------------------+
+|                  Name|    Dim. value|    Ref. value|      Unit|Non-dim. value|
++------------------------------------------------------------------------------+
+|       Static Pressure|       144.974|             1|        Pa|       144.974|
+|               Density|    0.00175268|             1|    kg/m^3|    0.00175268|
+|           Temperature|        288.15|             1|         K|        288.15|
+|          Total Energy|        212000|             1|   m^2/s^2|        212000|
+|            Velocity-X|       102.065|             1|       m/s|       102.065|
+|            Velocity-Y|       2.22706|             1|       m/s|       2.22706|
+|    Velocity Magnitude|       102.089|             1|       m/s|       102.089|
++------------------------------------------------------------------------------+
+|             Viscosity|    1.7893e-05|             1|   N.s/m^2|    1.7893e-05|
+|          Conductivity|             -|             1|   W/m^2.K|             -|
++------------------------------------------------------------------------------+
+|           Mach Number|             -|             -|         -|           0.3|
+|       Reynolds Number|             -|             -|         -|         10000|
++------------------------------------------------------------------------------+
+Initialize Jacobian structure (Navier-Stokes). MG level: 0.
+
+------------------- Solution Transfer (conservative P1) -------------------
+Distributed conservative transfer on 1 rank(s): import groups 1, imported donor elements 10456 (largest per rank / mean 1); planned memory per rank (largest): resident and coverage 20 MB, import 8 MB (ceiling 2048 MB).
+Supermesh of 14256 new and 10456 donor elements: 32728 overlapping pairs (205725 clipped), measure 1.253e+03 of 1.253e+03 (new) and 1.253e+03 (donor).
+New domain outside the donor (S_n): 37 parts of control volumes at 26 points (0 of points on no marker), measure 3.385e-07, filled with the closest donor values (max distance 7.116e-08, 3.454e-06 of the face); new elements outside the donor: 0.
+Donor domain outside the new one (S_d): 28 donor elements, measure 5.996e-06, at walls and symmetry planes content kept (the difference to the S_n content there spread over the new domain by volume), at open boundaries the totals follow the domain.
+Largest uncovered fraction of a control-volume piece: 2.683e-04.
+Per field: S_n content and S_d content (relative to sum |u| V), correction spread over the domain, supermesh defect (round-off), CG iterations and true residual, values limited:
+             Density:  2.701e-10  4.785e-09 -5.600e-14  6.153e-15    6  4.858e-14       3
+          Momentum-x:  2.700e-10  4.785e-09  6.085e-15  6.085e-15    9  9.369e-14      21
+          Momentum-y:  2.700e-10  4.785e-09  6.173e-15  6.173e-15   10  2.484e-14      16
+              Energy:  2.701e-10  4.785e-09 -5.600e-14  6.064e-15    6  6.629e-14       2
+No-slip wall points: 200, projected momentum set to zero (largest 1.719e-03), redistributed over the other points.
+States not admissible after the projection (stage 1 predicate, k_lo floor with SST): 0; recovered by blending 0 patch(es) towards their mean state (up to 0 neighbour rings), integrals kept.
+Domain volume: donor 1.253e+03, new 1.253e+03, relative change -4.515e-09.
+Change of the integrals (sum of value x control volume), relative to the donor integral (momentum: to the norm of the donor momentum integral):
+             Density: -4.515e-09
+          Momentum-x: -4.514e-09
+          Momentum-y: -9.849e-11
+              Energy: -4.515e-09
+Time: setup 0.02057 s, import 0.01616 s, supermesh 0.08433 s, coverage and slivers 0.0009318 s, solve 0.01014 s, limiter 0.00241 s, total 0.1399 s.
+
+------------------- Numerics Preprocessing ( Zone 0 ) -------------------
+
+----------------- Integration Preprocessing ( Zone 0 ) ------------------
+
+------------------- Iteration Preprocessing ( Zone 0 ) ------------------
+Euler/Navier-Stokes/RANS fluid iteration.
+The problem uses the new mesh: 7253 points, 0 multigrid levels.
+Mesh replaced in 0.255377 s (solution transfer 0.140117 s).
+Mesh replacement seconds geometry-build/check-wall-distance/solver-init/transfer/finalize (maximum across ranks, exclusive scopes): 0.103216 0.000184624 0.00880612 0.140117 0.00305266
+Writing the adapted mesh of cycle 2: native_NACA0012_mesh_adap_00002.su2.
+[native airfoil] cycle=1 points=7253 wall faces=200 altitude error=1.76081e-13
++----------------------------------------------------------------+
+|  Inner_Iter|    rms[Rho]|   rms[RhoU]|   rms[RhoV]|   rms[RhoE]|
++----------------------------------------------------------------+
+|           0|   -4.791522|   -2.647513|   -2.507619|    0.677329|
+|           1|   -4.795960|   -2.651102|   -2.513715|    0.672881|
+|           2|   -4.800208|   -2.654488|   -2.519365|    0.668627|
+
+----------------------------- Compute Metric ----------------------------
+Hessian recovery: 0.00537482 s (maximum rank time).
+Sensor-only donor metric statistics:
+Minimum density: 0.04.
+Maximum density: 0.04.
+Maximum cell AR: 1.
+Mesh complexity after native constraints: 3765.34 (ADAP_COMPLEXITY= 3000).
+Sensor metric complexity before gradation: 50.13.
+Sensor-only donor complexity after gradation: 50.13.
+Native geometric integration: 146736 points, preparation 0.239986 s.
+Native metric work: 8 complexity trials, 450 total gradation sweeps, 1442081 owned-point visits; gradation 1.6421 s, halo 0.0915608 s, sweep reductions 0.00139009 s (maximum accumulated rank times).
+Native gradation tensor updates: 1212120 of 1442081 owned-point visits.
+Native sensor gradation: 1 sweeps, fixed point reached, maximum transported-metric ratio 1, directed edges above 1+1e-5: 0.
+Native composed nodal audit: maximum transported-metric ratio 2.43896e+08, directed edges above 1+1e-5: 2708. Sensor gradation is not a combined-field certificate.
+WARNING: Composed geometric BL transport violations remain; no nodal wall correction is spread.
+WARNING: Geometric BL complexity target 3000 is outside the attainable bounds; integrated complexity 3765.34. BL and finer sensor demands are retained.
+Sharp wall corners: 1, isotropic metric on 1 points (ADAP_ISO_CORNER).
+Metric computed in 2.5188 s.
+Native contract: q>=0.18, frozen-target Simpson edge length<=1.8, reference deviation<=1e-06, requested wall altitude relative error<=0.1; dependency budget=2097152 bytes per rank, original P1 sensor target + geometric BL constraints, boundary sampling adaptive.
+Native work allowance: 3564 collective rounds per phase, 6 sweeps, for 14256 input cells on 1 ranks; frozen P1 centroid complexity=50.13, estimated unit triangles=6115.77 (geometric BL row allowance=6000).
+Native requested first altitude: airfoil = 0.0002
+Native incoming residuals: shape=381, edge length=0
+Native adaptation: 11945 commits (0 across owners), qmin=0.247208, Lmax=1.79938, residual cells=0, height faces=0, reference faces=0. No remesher-side target floor.
+Native remaining residuals: shape=0, edge length=0
+Native coordinated repair: 0 commits, 0 seconds (maximum across ranks).
+Native private target requests/evaluations/dynamic evictions: 19644764 8487400 781995
+Native donor search candidates/full-scan equivalent: 1538347 329342112; local immutable index retained bytes (max rank): 3300440
+Native operations (height/split/remove/redistribute/bulk remove/split/flip/move): 0 0 0 137 2832 3720 799 4457; conflicts=0, dependency-size rejects=0, memory rejects=19, stale rejects=0, engine encoded bytes=271215712, largest transport admission estimate=6887224
+Native phase elapsed seconds (same action order, maximum across ranks): 0.00593343 0.00610307 0.178232 1.65383 2.3399 21.6167 1.97852 4.17294
+Native candidate selection seconds (same action order, maximum across ranks): 0.00592562 0.00609851 0.158281 1.11813 0.500433 0.169476 0.396725 0.628168
+Native rank cost selection seconds min/mean/max: 2.98324 2.98324 2.98324
+Native rank cost private reconstruction seconds min/mean/max: 19.5843 19.5843 19.5843
+Native rank cost tracked collectives seconds min/mean/max: 0.664267 0.664267 0.664267
+Native rank cost largest private transaction seconds min/mean/max: 0.0696695 0.0696695 0.0696695
+Native rank cost round protocol seconds min/mean/max: 0.0200049 0.0200049 0.0200049
+Native rank cost round dependency import seconds min/mean/max: 1.34482 1.34482 1.34482
+Native rank cost round donor import and IDs seconds min/mean/max: 5.44664 5.44664 5.44664
+Native rank cost round reconstruction seconds min/mean/max: 19.598 19.598 19.598
+Native rank cost round validation seconds min/mean/max: 1.26077 1.26077 1.26077
+Native rank cost round commit seconds min/mean/max: 0.662418 0.662418 0.662418
+Native rank cost engine initialization seconds min/mean/max: 0.29149 0.29149 0.29149
+Native rank cost incoming residual check seconds min/mean/max: 0.00304888 0.00304888 0.00304888
+Native rank cost engine adapt seconds min/mean/max: 31.9603 31.9603 31.9603
+Native rank cost final contract check seconds min/mean/max: 0.00132939 0.00132939 0.00132939
+Native rank cost adapt unclassified seconds min/mean/max: 0.644462 0.644462 0.644462
+Native cost scopes: tracked collectives include waiting, exclude validation elections; round scopes are exclusive within each rank, include MPI waits, and exclude local temporary destruction after round return; rank maxima are not additive wall phases.
+Native cached selection full scans (same action order, sum across ranks): 0 0 0 0 125 6 51 71
+Native deferred/rejected candidate: Query outside frozen donor and associated extension band. (358).
+Native deferred/rejected candidate: boundary coarsening or movement worsens bulk size (3).
+Native deferred/rejected candidate: coarsening misses target (1678).
+Native deferred/rejected candidate: flip does not improve quality (4713).
+Native deferred/rejected candidate: insertion worsens sub-threshold shape (1).
+Native deferred/rejected candidate: no improving valid movement (2658).
+Native deferred/rejected candidate: nonconvex quadrilateral (1527).
+Native deferred/rejected candidate: not a complete interior edge star (49).
+Native deferred/rejected candidate: physical face misses declared reference tolerance (100).
+Native deferred/rejected candidate: protected first layer (51).
+Native execution seconds workers/return-to-CFD/idle-wall/idle-CPU (maximum across ranks): 32.2625 0.0328296 0 0; CFD ranks=1, adaptation ranks=1
+Native setup seconds import-reference/target-policy/working-partition (maximum across ranks): 0.0608226 0.00637169 2.09e-07
+
+---------------------------- Replace the Mesh ---------------------------
+Two dimensional problem.
+4588 grid points.
+8926 volume elements.
+2 surface markers.
+50 boundary elements in index 0 (Marker = farfield).
+200 boundary elements in index 1 (Marker = airfoil).
+8926 triangles.
+Setting point connectivity.
+Renumbering points (Reverse Cuthill McKee Ordering).
+Recomputing point connectivity.
+Setting element connectivity.
+Checking the numerical grid orientation.
+All volume elements are correctly oriented.
+All surface elements are correctly oriented.
+Identifying edges and vertices.
+Setting the control volume structure.
+Area of the computational grid: 1253.25.
+Searching for the closest normal neighbors to the surfaces.
+Storing a mapping from global to local point index.
+Compute the surface curvature.
+Max K: 7304.93. Mean K: 32.7045. Standard deviation K: 460.994.
+Computing mesh quality statistics for the dual control volumes.
++--------------------------------------------------------------+
+|           Mesh Quality Metric|        Minimum|        Maximum|
++--------------------------------------------------------------+
+|    Orthogonality Angle (deg.)|         2.0706|        87.6209|
+|     CV Face Area Aspect Ratio|        1.00016|        236.964|
+|           CV Sub-Volume Ratio|        1.00039|        213.182|
+|                     CV Volume|    3.42208e-08|        31.8432|
++--------------------------------------------------------------+
+Finding max control volume width.
+CFD geometry seconds partition/migration/preprocess (maximum across ranks): 9.71e-07 0.019369 0.0339338
+Wetted area = 2.03915 m.
+Area projection in the x-plane = 0.119981 m, y-plane = 0.999839 m.
+Max. coordinate in the x-direction = 1 m, y-direction = 0.0600055 m.
+Min. coordinate in the x-direction = 0 m, y-direction = -0.0600055 m.
+Computing wall distances.
+
+-------------------- Solver Preprocessing ( Zone 0 ) --------------------
+Viscous flow: Computing pressure using the ideal gas law
+based on the free-stream temperature and a density computed
+from the Reynolds number.
+Force coefficients computed using free-stream values.
+
+-- Models:
++------------------------------------------------------------------------------+
+|          Viscosity Model|        Conductivity Model|              Fluid Model|
++------------------------------------------------------------------------------+
+|               SUTHERLAND|          CONSTANT_PRANDTL|             STANDARD_AIR|
++------------------------------------------------------------------------------+
+-- Fluid properties:
++------------------------------------------------------------------------------+
+|                  Name|    Dim. value|    Ref. value|      Unit|Non-dim. value|
++------------------------------------------------------------------------------+
+|        Ref. Viscosity|     1.716e-05|             1|   N.s/m^2|     1.716e-05|
+|      Sutherland Temp.|        273.15|             1|         K|        273.15|
+|     Sutherland Const.|         110.4|             1|         K|         110.4|
++------------------------------------------------------------------------------+
+|        Prandtl (Lam.)|             -|             -|         -|          0.72|
+|       Prandtl (Turb.)|             -|             -|         -|           0.9|
++------------------------------------------------------------------------------+
+|          Gas Constant|       287.058|             1|  N.m/kg.K|       287.058|
+|      Spec. Heat Ratio|             -|             -|         -|           1.4|
++------------------------------------------------------------------------------+
+-- Initial and free-stream conditions:
++------------------------------------------------------------------------------+
+|                  Name|    Dim. value|    Ref. value|      Unit|Non-dim. value|
++------------------------------------------------------------------------------+
+|       Static Pressure|       144.974|             1|        Pa|       144.974|
+|               Density|    0.00175268|             1|    kg/m^3|    0.00175268|
+|           Temperature|        288.15|             1|         K|        288.15|
+|          Total Energy|        212000|             1|   m^2/s^2|        212000|
+|            Velocity-X|       102.065|             1|       m/s|       102.065|
+|            Velocity-Y|       2.22706|             1|       m/s|       2.22706|
+|    Velocity Magnitude|       102.089|             1|       m/s|       102.089|
++------------------------------------------------------------------------------+
+|             Viscosity|    1.7893e-05|             1|   N.s/m^2|    1.7893e-05|
+|          Conductivity|             -|             1|   W/m^2.K|             -|
++------------------------------------------------------------------------------+
+|           Mach Number|             -|             -|         -|           0.3|
+|       Reynolds Number|             -|             -|         -|         10000|
++------------------------------------------------------------------------------+
+Initialize Jacobian structure (Navier-Stokes). MG level: 0.
+
+------------------- Solution Transfer (conservative P1) -------------------
+Distributed conservative transfer on 1 rank(s): import groups 1, imported donor elements 14256 (largest per rank / mean 1); planned memory per rank (largest): resident and coverage 16 MB, import 11 MB (ceiling 2048 MB).
+Supermesh of 8926 new and 14256 donor elements: 45649 overlapping pairs (184881 clipped), measure 1.253e+03 of 1.253e+03 (new) and 1.253e+03 (donor).
+New domain outside the donor (S_n): 61 parts of control volumes at 53 points (0 of points on no marker), measure 2.196e-06, filled with the closest donor values (max distance 1.081e-07, 1.893e-06 of the face); new elements outside the donor: 0.
+Donor domain outside the new one (S_d): 41 donor elements, measure 1.612e-06, at walls and symmetry planes content kept (the difference to the S_n content there spread over the new domain by volume), at open boundaries the totals follow the domain.
+Largest uncovered fraction of a control-volume piece: 2.042e-04.
+Per field: S_n content and S_d content (relative to sum |u| V), correction spread over the domain, supermesh defect (round-off), CG iterations and true residual, values limited:
+             Density:  1.752e-09  1.286e-09  2.119e-13  1.076e-14    9  2.664e-14       9
+          Momentum-x:  1.752e-09  1.286e-09  1.065e-14  1.065e-14   12  4.065e-14      31
+          Momentum-y:  1.752e-09  1.286e-09  1.071e-14  1.071e-14   12  7.278e-14      21
+              Energy:  1.752e-09  1.286e-09  2.116e-13  1.070e-14    9  4.167e-14      10
+No-slip wall points: 200, projected momentum set to zero (largest 1.063e-03), redistributed over the other points.
+States not admissible after the projection (stage 1 predicate, k_lo floor with SST): 0; recovered by blending 0 patch(es) towards their mean state (up to 0 neighbour rings), integrals kept.
+Domain volume: donor 1.253e+03, new 1.253e+03, relative change 4.659e-10.
+Change of the integrals (sum of value x control volume), relative to the donor integral (momentum: to the norm of the donor momentum integral):
+             Density: 4.660e-10
+          Momentum-x: 4.659e-10
+          Momentum-y: 1.017e-11
+              Energy: 4.660e-10
+Time: setup 0.01766 s, import 0.03411 s, supermesh 0.09786 s, coverage and slivers 0.0008427 s, solve 0.006235 s, limiter 0.001294 s, total 0.1616 s.
+
+------------------- Numerics Preprocessing ( Zone 0 ) -------------------
+
+----------------- Integration Preprocessing ( Zone 0 ) ------------------
+
+------------------- Iteration Preprocessing ( Zone 0 ) ------------------
+Euler/Navier-Stokes/RANS fluid iteration.
+The problem uses the new mesh: 4588 points, 0 multigrid levels.
+Mesh replaced in 0.233533 s (solution transfer 0.162225 s).
+Mesh replacement seconds geometry-build/check-wall-distance/solver-init/transfer/finalize (maximum across ranks, exclusive scopes): 0.0593157 0.000107131 0.00915667 0.162225 0.00272882
+Writing the adapted mesh of cycle 3: native_NACA0012_mesh_adap_00003.su2.
+[native airfoil] cycle=2 points=4588 wall faces=200 altitude error=1.76081e-13
++----------------------------------------------------------------+
+|  Inner_Iter|    rms[Rho]|   rms[RhoU]|   rms[RhoV]|   rms[RhoE]|
++----------------------------------------------------------------+
+|           0|   -4.699913|   -2.492858|   -2.414099|    0.768906|
+|           1|   -4.703794|   -2.497691|   -2.418791|    0.765008|
+|           2|   -4.707482|   -2.502296|   -2.423080|    0.761307|
+
+----------------------------- Compute Metric ----------------------------
+Hessian recovery: 0.00251698 s (maximum rank time).
+Sensor-only donor metric statistics:
+Minimum density: 0.04.
+Maximum density: 0.04.
+Maximum cell AR: 1.
+Mesh complexity after native constraints: 3764.86 (ADAP_COMPLEXITY= 3000).
+Sensor metric complexity before gradation: 50.13.
+Sensor-only donor complexity after gradation: 50.13.
+Native geometric integration: 117849 points, preparation 0.1874 s.
+Native metric work: 8 complexity trials, 490 total gradation sweeps, 957564 owned-point visits; gradation 1.02471 s, halo 0.0491008 s, sweep reductions 0.000753481 s (maximum accumulated rank times).
+Native gradation tensor updates: 810043 of 957564 owned-point visits.
+Native sensor gradation: 1 sweeps, fixed point reached, maximum transported-metric ratio 1, directed edges above 1+1e-5: 0.
+Native composed nodal audit: maximum transported-metric ratio 2.20036e+08, directed edges above 1+1e-5: 2315. Sensor gradation is not a combined-field certificate.
+WARNING: Composed geometric BL transport violations remain; no nodal wall correction is spread.
+WARNING: Geometric BL complexity target 3000 is outside the attainable bounds; integrated complexity 3764.86. BL and finer sensor demands are retained.
+Sharp wall corners: 1, isotropic metric on 1 points (ADAP_ISO_CORNER).
+Metric computed in 1.83205 s.
+
+--------------------------- Finalizing Solver ---------------------------
+Deleted CNumerics container.
+Deleted CIntegration container.
+Deleted CSolver container.
+Deleted CIteration container.
+Deleted CInterface container.
+Deleted CGeometry container.
+Deleted CFreeFormDefBox class.
+Deleted CSurfaceMovement class.
+Deleted CVolumetricMovement class.
+Deleted CConfig container.
+Deleted nInst container.
+Deleted COutput class.
+-------------------------------------------------------------------------
+
+------------------------- Exit Success (SU2_CFD) ------------------------
+
+===============================================================================
+All tests passed (142 assertions in 1 test case)
+
+	Command being timed: "env SU2_NATIVE_AIRFOIL_CONFIG=/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/airfoil_inputs/baseline.cfg nice -n 19 timeout 1800 /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver [NativeAirfoil2D] --use-colour no"
+	User time (seconds): 78.05
+	System time (seconds): 0.56
+	Percent of CPU this job got: 80%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 1:37.68
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 123884
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 5
+	Minor (reclaiming a frame) page faults: 32476
+	Voluntary context switches: 239
+	Involuntary context switches: 45016
+	Swaps: 0
+	File system inputs: 952
+	File system outputs: 20648
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0

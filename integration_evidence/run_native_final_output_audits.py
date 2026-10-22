@@ -1,4 +1,5 @@
 """Audit final native output snapshots with the existing independent mesh/target checks."""
+import first_height_tolerance  # SU2_BL_FIRST_HEIGHT_TOL; historical default 1e-8
 import argparse
 from collections import Counter
 import hashlib
@@ -83,7 +84,7 @@ for ranks in (1, 2, 4):
                 passed = all(result[k] for k in ('all_exact_positive', 'manifold_oriented_edges',
                                                  'physical_equals_exposed')) and result['disk_euler'] == 1 and \
                          result['min_quality'] >= .18 and result['max_simpson_length'] <= 1.8 and \
-                         result['max_relative_height_error'] <= 1e-8 and not result['bad_cells']
+                         first_height_tolerance.within(result['max_relative_height_error']) and not result['bad_cells']
         except Exception as error:
             result = {'file': str(path), 'error': str(error)}
         all_ok &= passed

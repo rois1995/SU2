@@ -221,13 +221,15 @@ class PolylineReference {
     return std::max(chord, minimum);
   }
 
-  Reference Policy(const std::map<int, double>& heightByMarker) const {
+  Reference Policy(const std::map<int, double>& heightByMarker,
+                   double heightTolerance = SU2NativeFirstHeight::DefaultTolerance) const {
     /*--- The returned callbacks reference immutable geometry; the adapter must retain this object.
      *    Heights are copied per call so a later request can rebuild cells without rebasing geometry. ---*/
     for (const auto& entry : heightByMarker)
       if (!(std::isfinite(entry.second) && entry.second > 0))
         throw std::invalid_argument("Invalid native marker first-height request.");
     Reference policy;
+    policy.height_tolerance = SU2NativeFirstHeight::Checked(heightTolerance);
     policy.point = [this](int c, double u) { return At(c, u); };
     policy.interval = [this](int c, Point a, Point b) { return Interval(c, a, b); };
     policy.deviation = [this](Physical f) { return Deviation(f); };

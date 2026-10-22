@@ -135,7 +135,7 @@ class Construction {
  public:
   const PlanarReference& geometry;
   const std::map<int, RegionWallPolicy>& policy;
-  const double tolerance;
+  const double tolerance, height_tolerance;
   const RegionMetric& field;
   const RegionLimits& limits;
   RegionReport& report;
@@ -152,9 +152,10 @@ class Construction {
   size_t cylinder_angular = 0;
   Point cylinder_origin{}, cylinder_axis{}, cylinder_u{}, cylinder_v{};
   std::array<Id,2> cylinder_caps{UINT64_MAX,UINT64_MAX};
-  Construction(const PlanarReference& g, const std::map<int, RegionWallPolicy>& p, double t, const RegionMetric& f,
-               const RegionLimits& l, RegionReport& r, Id n, Id c)
-      : geometry(g), policy(p), tolerance(t), field(f), limits(l), report(r), next_node(n), next_cell(c) {}
+  Construction(const PlanarReference& g, const std::map<int, RegionWallPolicy>& p, double t, double h,
+               const RegionMetric& f, const RegionLimits& l, RegionReport& r, Id n, Id c)
+      : geometry(g), policy(p), tolerance(t), height_tolerance(h), field(f), limits(l), report(r), next_node(n),
+        next_cell(c) {}
   void Check() const {
     if (limits.checkpoint) limits.checkpoint();
     if (fresh.cells.size() > limits.maximum_cells || nodes.size() > 4 * limits.maximum_cells ||
@@ -1368,7 +1369,8 @@ class Construction {
       }
     for (const auto& row : links)
       ValidateSurfaceTopology(row.second, !boundary.count(row.first), 4 * limits.maximum_cells);
-    std::map<int, double> heights;
+    WallHeights heights;
+    heights.tolerance = height_tolerance;  // ADAP_BL_FIRST_HEIGHT_TOL, as admitted by the caller.
     for (auto p : policy) heights[p.first] = p.second.height;
     // The regional skin is validated above; reuse the bounded height predicate on each incident cell.
     for (const auto& cell : fresh.cells) {
@@ -1445,14 +1447,15 @@ bool PrismaticWallRegion(const PlanarReference& geometry,const std::map<int,Regi
   PrismaticChart chart;return PrismChart(geometry,policies,chart);
 }
 bool ConstructWallRegion(const std::vector<Facet>& skin, Point kernel, const PlanarReference& geometry,
-                         const std::map<int, RegionWallPolicy>& policies, double tolerance, Id first_node,
-                         Id first_cell, const RegionMetric& target, const RegionLimits& limits, Patch& output,
-                         RegionReport& report, std::string& reason) {
+                         const std::map<int, RegionWallPolicy>& policies, double tolerance,
+                         double height_tolerance, Id first_node, Id first_cell, const RegionMetric& target,
+                         const RegionLimits& limits, Patch& output, RegionReport& report, std::string& reason) {
   report = {};
   PhaseClock clock(limits.timings);
   clock.Set(report.sampling_seconds);
-  Construction c(geometry, policies, tolerance, target, limits, report, first_node, first_cell);
+  Construction c(geometry, policies, tolerance, height_tolerance, target, limits, report, first_node, first_cell);
   try {
+    SU2NativeFirstHeight::Checked(height_tolerance);
     PrismaticChart prism;
     if(PrismChart(geometry,policies,prism)) {
       if(!limits.maximum_cells || !limits.maximum_work)throw std::runtime_error("Prismatic construction requires positive admission limits.");

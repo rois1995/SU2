@@ -1,0 +1,202 @@
+{
+ "check": "DC-1 (BL_REMESH_PLAN rev 3): D1 law spec, O1, 300k feasibility (Python proxy: native-law transcription, isotropic core, no sensor)",
+ "limits": "<= 1 h, <= 4 GiB; one job, nice 19, single thread",
+ "receipts": {
+  "3d": {
+   "elapsed": "1:32.14",
+   "max_rss_kB": 187212,
+   "exit": 0
+  },
+  "2d": {
+   "elapsed": "0:47.28",
+   "max_rss_kB": 49704,
+   "exit": 0
+  }
+ },
+ "spec_results": {
+  "feature_detection": "exact-sign convexity, finite-profile E closed form, chaining, corners, carrier images work on all cases; annulus: 0 features (D1 inactive) for g=1.2 and g=1",
+  "m6_features": {
+   "features": 505,
+   "lines": 8,
+   "corners": 14,
+   "carrier_ends": {
+    "carrier_ends": 2,
+    "carrier_end_corners": 0,
+    "free_end_corners": 14,
+    "partner_end_corners": 0
+   },
+   "turn_deg_min_max": [
+    30.74455148062437,
+    98.20157750471932
+   ],
+   "E_threshold_turn_deg": 30.73099395728621
+  },
+  "m6_lines_by_dC": [
+   {
+    "line": "0",
+    "segments": 400,
+    "length": 2.48732428466887,
+    "dC": 316039.31497233396,
+    "turn_mean_deg": 82.77747152896865,
+    "centroid": [
+     0.9906,
+     0.6534,
+     -0.0
+    ]
+   },
+   {
+    "line": "1",
+    "segments": 89,
+    "length": 1.2836433930978166,
+    "dC": 267464.36555198906,
+    "turn_mean_deg": 30.886936148249006,
+    "centroid": [
+     0.385,
+     0.6669,
+     -0.0
+    ]
+   },
+   {
+    "line": "5",
+    "segments": 2,
+    "length": 0.004320905599336009,
+    "dC": 44085.79729072002,
+    "turn_mean_deg": 31.146880892618306,
+    "centroid": [
+     1.1258,
+     1.1985,
+     0.0015
+    ]
+   },
+   {
+    "line": "6",
+    "segments": 4,
+    "length": 0.004976226971817479,
+    "dC": 43328.59346662836,
+    "turn_mean_deg": 31.323519688566513,
+    "centroid": [
+     1.133,
+     1.1972,
+     -0.0014
+    ]
+   },
+   {
+    "line": "3",
+    "segments": 3,
+    "length": 0.005732492231234894,
+    "dC": 41115.68407761926,
+    "turn_mean_deg": 33.32443128365846,
+    "centroid": [
+     1.1258,
+     1.199,
+     -0.0
+    ]
+   },
+   {
+    "line": "7",
+    "segments": 2,
+    "length": 0.004320905599336009,
+    "dC": 34246.48677888508,
+    "turn_mean_deg": 31.146880892613336,
+    "centroid": [
+     1.1258,
+     1.1985,
+     -0.0015
+    ]
+   },
+   {
+    "line": "4",
+    "segments": 4,
+    "length": 0.004976226971817479,
+    "dC": 33383.858097129865,
+    "turn_mean_deg": 31.323519688566513,
+    "centroid": [
+     1.133,
+     1.1972,
+     0.0014
+    ]
+   },
+   {
+    "line": "2",
+    "segments": 1,
+    "length": 0.0025957038605944264,
+    "dC": 17399.770212047624,
+    "turn_mean_deg": 34.244857584916154,
+    "centroid": [
+     1.1142,
+     1.2005,
+     -0.0
+    ]
+   }
+  ],
+  "continuity": {
+   "support_boundary_rel_jump_isotropic_floor": 4.3988991116779435e-09,
+   "support_boundary_faded": 0.0,
+   "segment_switch_rel_jump_all_active": 4.304341301004138e-09,
+   "carrier_asymmetry_with_end_image": 0.023298749338418703,
+   "without_image": 0.5234174547816139
+  },
+  "gradation": {
+   "max_radial_size_slope_at_rho_h0_.1T_.5T": [
+    0.1803565549999124,
+    0.18032796576776694,
+    0.37410530646705803
+   ],
+   "hn_f_slope": 0.18181818181818177
+  },
+  "R_f_m6": 0.17390588715520566,
+  "h_max_m6": 0.03162107039185556
+ },
+ "complexity": {
+  "m6_dC_D1": 797063.8704473532,
+  "m6_dC_stderr": 23076.493846371453,
+  "m6_budget": 300000,
+  "m6_recorded_selection": "lambda .875 original-family 295068 +/- 5769 (GOAL3_REQUIREMENTS)",
+  "fixtures_dC": {
+   "tube_root_z": 1232.753000125714,
+   "tube_root_x": 1196.1660372661531,
+   "two_tube_y": 1821.1353719363035,
+   "annulus_faceted": 0.0
+  },
+  "te2d_v8": {
+   "turn_deg": 163.46259542591324,
+   "E": 8.575822879850856,
+   "R_f": 0.06536909865045498,
+   "dC2D_upper": 0.6164258963482753,
+   "region_complexity": 1793.4099336439192
+  }
+ },
+ "O1_g1": {
+  "m6_features": 3704,
+  "m6_corners": 891,
+  "m6_E_threshold_turn_deg": 1.024920980660731,
+  "m6_dC_order_of_magnitude": 665100236801777.8,
+  "fixtures": {
+   "tube_root_z": 4519.210390688723,
+   "tube_root_x": 4537.0973117662925,
+   "two_tube_y": 6250.282988459618,
+   "annulus_faceted": 0.0
+  }
+ },
+ "findings": [
+  "F1 300k INFEASIBLE under the decided D1 law (proxy): M6 dC = 797064 +/- 23076 added mandatory BL complexity (> 2.6x the 300k budget). TE+tip line alone 316039 > 300k. Polar h0-graded resolution around a crease costs ~2*pi/s^2*ln(R_f/h0) per spanwise station (s = 0.18), and h0 = 2e-6.",
+  "F2 Faceting sensitivity: the rounded M6 LE (coarse original facets, turns 30.74-31.3 deg vs threshold 30.73 deg) is classified as a crease line (89 segments, dC 267464) plus 6 tip-LE fragments with free-end corners (dC 213560). Detection on original facet dihedrals is resolution-dependent for curved walls without authority.",
+  "F3 O1 law is continuous with finite R_f for g=1, but g=1 with the decided E rule (Gc=d/h0) makes every convex facet edge with turn > 1.02 deg a feature: M6 3704 features, dC ~1e14 (infeasible); fixtures fine.",
+  "F4 Carrier ends: imaging only the end segment leaves 0.4-4.7% D1 asymmetry on the plane (vs 12-55% without image); spec should mirror every feature segment within R_f of a reflective carrier.",
+  "F5 Continuity of the D1 part: support boundary 4.4e-9, segment switches 4.3e-9 relative for 1e-9 moves (all-active); faded tensor continuous at R_f. Gradation of the composed directional size equals the hn_f slope 0.18 near features (0.37 at 0.5T where the BL law itself switches).",
+  "F6 2D TE v8: E = 8.6 (feature), recorded circumferential size 2.5e-4 is already finer than hn_f(rho) for rho >= 3e-4; D1 adds <= 0.6 to a region complexity of 1793 (D1 replacing the corner limit could only coarsen there)."
+ ],
+ "decision": "WP-A spec mechanics confirmed; O1 law continuous; 300k feasibility FAILS for A5 (requires a user decision: budget/profile for A5, or the D1 detection rule on faceted curved walls and its extent). M1 should not start before that decision.",
+ "files_sha256": {
+  "results/annulus_faceted.json": "0384ed50f95d008a3b3627983d85b8ec98ad6409d2a8dd7788519f605d5ce520",
+  "results/m6.json": "fae6a99270142a79f9850ebc8be2d961d787cb7458309fdf865818540267638f",
+  "results/te2d_v8.json": "72814ccab383231f444b75f714f7ced43be9cd92bb33464e9e965d318d1e7d59",
+  "results/tube_root_x.json": "6780d64ac6f7c3a07b810a26ece8e8d71f201573ad39391a256f2f04367c508b",
+  "results/tube_root_z.json": "c4bac85567dfe69634095acc6473a84f0335cf48ee85bc6d69d0401b227e480b",
+  "results/two_tube_y.json": "3aa270d223497742cfb693b0fb9da832ed82ace7a18c683c77479e575a48d7bc",
+  "dc1_d1law.py": "73c48dfe6a4f0c58af4965925d69c9a98bed21841ed5b73db03050c34fc280ea",
+  "dc1_te2d.py": "189407501261b99f7e5791c212698cab43db45d247d475a540dd016ae01a932e",
+  "dc1_run.log": "67fb0d4184ee01551cdfa490432a17d8c36485138cfb803f3494e56f8dff7dc4",
+  "te2d_run.log": "5dd5aec89c59b345ffc38dd688dfbac0c0273706cee3fccb1b6b997a4b69fd44"
+ }
+}

@@ -1,4 +1,5 @@
 """Independently audit every accepted airfoil cycle after the sequential MPI run ends."""
+import first_height_tolerance  # SU2_BL_FIRST_HEIGHT_TOL; historical default 1e-8
 import argparse
 import hashlib
 import json
@@ -53,7 +54,7 @@ for ranks in args.ranks:
             checks.update(annulus_euler=row['disk_euler'] == 0,
                           quality=math.isfinite(row['min_quality']) and row['min_quality'] >= .18,
                           length=math.isfinite(row['max_simpson_length']) and row['max_simpson_length'] <= 1.8,
-                          first_height=math.isfinite(row['max_relative_height_error']) and row['max_relative_height_error'] <= 1e-8,
+                          first_height=first_height_tolerance.within(row['max_relative_height_error']),
                           no_residuals=not row['bad_cells'],
                           reference=all(r['all_declared_features_exactly_retained'] and
                                         abs(r['covered_arc_over_period']-1) <= 1e-12 and

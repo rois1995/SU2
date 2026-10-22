@@ -599,53 +599,73 @@ def check_corners(ref, out, angle, opts=DEFAULTS, seam_tol=None):
     return res
 
 
-def check_bl(out, markers, opts=DEFAULTS, report_only=False, require_ridge=False):
+def check_bl(out, markers, opts=DEFAULTS, report_only=False, require_ridge=False, native_tol=None):
     """Heights of the wall-adjacent cells (d volume / face measure) in units of h0, as face-measure weighted fractions.
     markers: {name: h0}. Faces touching a joint with a non-BL marker are excluded; faces touching a joint of two BL
-    markers (a BL ridge) are gated separately."""
+    markers (a BL ridge) are gated separately.
+    native_tol T (native remesher acceptance, ADAP_BL_FIRST_HEIGHT_TOL): window [1-T, 1+T] h0 required on EVERY wall
+    face (fraction 1.0), junction faces with non-BL markers gated too, and no wall face may lack its first cell."""
     d = out.dim
     F, owner = faces_of(out.E, d)
     lookup = {tuple(f): e for f, e in zip(F, owner)}
     pm = point_markers(out)
     vol = np.abs(volumes(out.P, out.E, d))
     bl = set(markers)
-    lo, hi = opts["bl_window"]
+    native = native_tol is not None
+    if native and not 0.0 < native_tol < 1.0:
+        raise ValueError("native first-height tolerance must lie strictly between 0 and 1")
+    lo, hi = (1.0 - native_tol, 1.0 + native_tol) if native else opts["bl_window"]
     values = {"bl_coverage": [], "bl_cell_height": [], "bl_ridge_cell_height": []}
+    if native:
+        values["bl_junction_cell_height"] = []
     passed = dict.fromkeys(values, True)
     for name, h0 in markers.items():
         W = out.M.get(name, np.empty((0, d), dtype=np.int64))
         w = face_measure(out.P, W)
-        groups = {"wall": [], "ridge": []}
+        groups = {"wall": [], "ridge": [], "junction": []}
         excluded = 0
         for k, f in enumerate(W):
             elem = lookup.get(tuple(sorted(f)))
             if elem is None or w[k] <= 0.0:
                 excluded += 1
                 continue
-            h = d * vol[elem] / w[k] / h0
+            altitude = d * vol[elem] / w[k]
+            # Native gate: promote the actual altitude before dividing by h0 (long-double ratio, as the solver).
+            h = np.longdouble(altitude) / np.longdouble(h0) if native else altitude / h0
             sets = [pm[int(p)] for p in f if len(pm[int(p)]) >= 2]
             if not sets:
                 groups["wall"].append((h, w[k]))
             elif all(s <= bl for s in sets):
                 groups["ridge"].append((h, w[k]))
+            elif native:
+                groups["junction"].append((h, w[k]))
             else:
                 excluded += 1
         eligible = sum(area for rows in groups.values() for _, area in rows)
         total = float(w.sum())
         frac = eligible / total if total > 0.0 else 0.0
-        need = opts["bl_coverage_fraction"]
-        passed["bl_coverage"] &= eligible > 0.0 and frac >= need
+        need = 1.0 if native else opts["bl_coverage_fraction"]
+        if native:  # Every wall face has its first cell and positive measure; area fractions are reported only.
+            passed["bl_coverage"] &= len(W) > 0 and excluded == 0
+        else:
+            passed["bl_coverage"] &= eligible > 0.0 and frac >= need
         values["bl_coverage"].append(f"{name}: eligible area {eligible:.3g} / {total:.3g} = {frac:.1%} "
                                      f"(>= {need:.0%}), excluded faces {excluded}")
         for group, rows in groups.items():
             if not rows:
                 continue
-            h, area = np.array(rows).T
+            h, area = (np.array([r[0] for r in rows], dtype=np.longdouble if native else float),
+                       np.array([r[1] for r in rows], dtype=float))
             inside = (h >= lo) & (h <= hi)
             frac = float((area * inside).sum() / area.sum())
-            key = "bl_cell_height" if group == "wall" else "bl_ridge_cell_height"
-            need = opts["bl_fraction"] if group == "wall" else opts["bl_ridge_fraction"]
-            passed[key] &= frac >= need
+            key = {"wall": "bl_cell_height", "ridge": "bl_ridge_cell_height", "junction": "bl_junction_cell_height"}[group]
+            if native:
+                inside = np.abs(h - 1) <= np.longdouble(native_tol)  # Every face, inclusive.
+                frac = float((area * inside).sum() / area.sum())
+                need = 1.0
+            else:
+                need = opts["bl_fraction"] if group == "wall" else opts["bl_ridge_fraction"]
+            passed[key] &= bool(inside.all()) if native else frac >= need
             values[key].append(f"{name}: {len(h)} faces, cell height in [{lo}, {hi}] h0: {frac:.1%} of the area "
                                f"(>= {need:.0%}), median {np.median(h):.3g} h0, below {int((h < lo).sum())}, "
                                f"above {int((h > hi).sum())}")
@@ -991,6 +1011,12 @@ def selftest():
         expect("plate rows", check_bl(p, {"wall": 2e-3}), "bl_cell_height", "PASS")
         expect("plate coverage", check_bl(p, {"wall": 2e-3}), "bl_coverage", "PASS")
         expect("plate rows, wrong h0", check_bl(p, {"wall": 2e-2}), "bl_cell_height", "FAIL")
+        # Native acceptance: every face (incl. the wall/symmetry junction face) within T = 0.10, inclusive.
+        expect("native plate rows", check_bl(p, {"wall": 2e-3}, native_tol=0.10), "bl_cell_height", "PASS")
+        expect("native plate junction", check_bl(p, {"wall": 2e-3}, native_tol=0.10), "bl_junction_cell_height", "PASS")
+        expect("native plate coverage", check_bl(p, {"wall": 2e-3}, native_tol=0.10), "bl_coverage", "PASS")
+        expect("native plate inside T", check_bl(p, {"wall": 2e-3 / 1.05}, native_tol=0.10), "bl_cell_height", "PASS")
+        expect("native plate outside T", check_bl(p, {"wall": 2e-3 * 1.15}, native_tol=0.10), "bl_cell_height", "FAIL")
         meshgen.rectangle(tmp / "coarse.su2", nx=1, ny=1)
         coarse = read_su2(tmp / "coarse.su2")
         expect("sole wall face excluded", check_bl(coarse, {"lower": 0.001}), "bl_coverage", "FAIL")
@@ -1075,6 +1101,8 @@ def main():
     ap.add_argument("--angle", type=float, default=45.0)
     ap.add_argument("--bl-marker")
     ap.add_argument("--bl-h0", type=float)
+    ap.add_argument("--bl-native-tol", type=float,
+                    help="native acceptance: |h-h0|/h0 <= T on every wall face incl. junctions (ADAP_BL_FIRST_HEIGHT_TOL)")
     ap.add_argument("--analytic", choices=["bump2d", "bump3d"])
     a = ap.parse_args()
     if a.selftest:
@@ -1092,7 +1120,7 @@ def main():
     res.update(check_geometry(inp, out, a.fixed, a.hausd, analytic_references(a.analytic) if a.analytic else None))
     res.update(check_corners(inp, out, a.angle))
     if a.bl_marker:
-        res.update(check_bl(out, {a.bl_marker: a.bl_h0}))
+        res.update(check_bl(out, {a.bl_marker: a.bl_h0}, native_tol=a.bl_native_tol))
     print(json.dumps(res, indent=1))
     raise SystemExit(any(v[0] == "FAIL" for v in res.values()))
 

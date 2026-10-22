@@ -1,0 +1,39 @@
+{
+ "scope": "BL_REMESH_PLAN rev 3 M1 partial: WP-B (T threading) + WP-C (owner pinning); WP-A/WP-D not built",
+ "binary": "integration_evidence/build-integrated-v2/UnitTests/test_driver",
+ "binary_sha256": "099aaab932916fbfd36f10128ade7efc42214edbf297b0dfc90c46eabc69304a",
+ "build": "ninja -j1 nice 19, 337 steps, 1:30:34 wall, max RSS 2.66 GB, exit 0, 0 warnings",
+ "source_sha256": {
+  "Common/include/adaptation/CNativeFirstHeight.hpp": "c56a2726add1214aac2e69b4b910bff275b5a417db946eaa7975d463344ae0af",
+  "Common/src/adaptation/CNativeBoundary3D.cpp": "a227bedbc614ec06d6d6def3d73b250c47353c0dd627b3435f79d4e1d623bc82",
+  "Common/src/adaptation/CNativeEngine3D.cpp": "54b4053d08f614f1fd70d1747777fd43ac192b0a4a52a6c911ddb6924946c5c9",
+  "Common/src/adaptation/CNativeRegion3D.cpp": "466fc5b9996ab5b54a0341d1fec85593b8152dc08cdce210b872104eef849cdf",
+  "Common/src/adaptation/CNativeRemesher3D.cpp": "2d40c5463ea49c916bb7ffd2b1b39902ec23148f3acd24a43ca52a4107312979",
+  "Common/src/adaptation/CNativeRemesher.cpp": "332d7810071625e456a48446598279e255311362a20a290f164ebda683cc1386",
+  "Common/include/adaptation/CNativeBoundary2D.hpp": "0bcd90b07dd1d4acdb81aa44f29915419b00e92843a2e9f9eb285adaedc92d16",
+  "Common/include/adaptation/CNativeEngine2D.hpp": "2bd211c1329d5dba967d66ea1998a2c48f7a6a4737245a9ce344691dd0f4279d",
+  "Common/include/adaptation/CNativeReference2D.hpp": "52857ad1f68efcadb255963907bd1f118149084f55e26e91d4f6a9b48ce30c66",
+  "Common/include/adaptation/CNativeChordEnvelope.hpp": "575e3365d90baec69093f64b1788e7671ed3d26fb7de0aae4d925321457e6abc",
+  "Common/include/adaptation/CNativeField3D.hpp": "665877031cd5822cc8f210abcacd477588c05ac201e7e7fbeb62de0296ab1d29",
+  "Common/src/adaptation/CNativeField3D.cpp": "a8ff13c40128f39060b89603b86157b9243a247f3b445d5044522b7edc85098f",
+  "SU2_CFD/src/adaptation/CBoundaryLayerMetric.cpp": "fc9860a5834f892e876510c30f6efa5ae4e0e8e2fed43938630af94cae369886",
+  "SU2_CFD/include/adaptation/CBoundaryLayerMetric.hpp": "821038b19779ff15eb87f31161f22443d962f174d84002baeabb48996174ceb4",
+  "SU2_CFD/include/adaptation/CNativeBLComposition3D.hpp": "34b57166f26f9d15a461d4814ff11455a84a3f997c432d41b2595d14bf904e1d",
+  "SU2_CFD/src/drivers/CSinglezoneDriver.cpp": "b3699b9ba9b96e32ee9cae4a31312202f1126d6f33e8326fdef7dc3003ce5c19",
+  "Common/src/CConfig.cpp": "4b738da4aecabd44d58a03d1f4bc0e398636b0970b743a527d93e855737e5208",
+  "Common/include/CConfig.hpp": "aad93a2fa67cd5923d487158952addc0527bec0608839f504c1d620ca0c82fc5"
+ },
+ "stages": {
+  "unit3d": "PASS 33 test cases (NativeFirstLayer3D,NativeComposite3D,NativeChordEnvelope,NativeFirstLayerEngine3D,NativeWallReconstruction3D,NativeVolumeBL3D,NativeCurvedBL3D)",
+  "unit2d": "PASS 57 test cases (NativeEngine2D,NativeMesh2D,NativeField2D,NativeDistributed2D,NativeRemesher)",
+  "mesh3d": "100/101 test cases; the one failure (CNativeDistributed3D_tests.cpp:1446/1449/1453, Native automatic MPI repair ...) reproduces identically on the archived baseline binary bcb271be (pre-existing: composition without edge breakpoints is refused by the existing engine agreement check)",
+  "d2_witnesses": "971/971 converge through the production pinned integration; 971/971 equal the pinned replica as binary64",
+  "d2_controls": "2000/2000 converge; 2000/2000 equal the pinned replica as binary64",
+  "airfoil_baseline_serial": "PASS [NativeAirfoil2D] integration_evidence/airfoil_inputs/baseline.cfg, 3 cycles, height faces=0, residual cells=0, 98 s"
+ },
+ "not_run": "MPI2 campaigns (deferred to the milestone cadence), full suite",
+ "open": [
+  "T is not persisted in .native_ref (no first-height policy is persisted; T follows the configuration like h0)",
+  "complexity volume integration keeps the pointwise nearest-facet rule (no chord, no envelope); deterministic per point"
+ ]
+}

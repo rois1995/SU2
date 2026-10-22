@@ -306,10 +306,11 @@ void Endpoints(Edge& edge) {
   std::sort(edge.begin(), edge.end());
 }
 }  // namespace
-bool CheckFirstHeight(const Patch& patch,const std::map<int,double>& heights,const PlanarReference& reference,
+bool CheckFirstHeight(const Patch& patch,const WallHeights& heights,const PlanarReference& reference,
                       FirstHeightReport& report,std::string& reason,KernelStats* stats) {
   report={};
   try {
+    SU2NativeFirstHeight::Checked(heights.tolerance);
     for(const auto& height:heights)if(!(height.second>0) || !std::isfinite(height.second))
       throw std::invalid_argument("Native3D wall height must be finite and positive.");
     const auto skin=SkinMap(Incidence(patch.cells,stats).Boundary());
@@ -347,7 +348,7 @@ bool CheckFirstHeight(const Patch& patch,const std::map<int,double>& heights,con
         if(!(clearance>0))++report.reference_clearance_failures;
       }
       const auto altitude=std::abs(Orientation(a,b,c,apex.p,stats))/area;
-      const double error=double(std::abs(altitude/height->second-1));
+      const long double height_error=std::abs(altitude/height->second-1);const double error=double(height_error);
       auto tangent=Delta(apex.p,center);const auto projection=Dot(tangent,normal);
       for(unsigned j=0;j<3;++j)tangent[j]-=projection*normal[j];
       report.maximum_tilt=std::max(report.maximum_tilt,double(Norm(tangent)/height->second));
@@ -366,7 +367,7 @@ bool CheckFirstHeight(const Patch& patch,const std::map<int,double>& heights,con
       if(minimum<report.minimum_barycentric) {
         report.minimum_barycentric=double(minimum);report.footprint_facet=face.facet;report.footprint_cell=cell;
       }
-      report.height_failures+=error>1e-8;
+      report.height_failures+=!SU2NativeFirstHeight::Within(height_error,heights.tolerance);  // ADAP_BL_FIRST_HEIGHT_TOL
       if(error>report.maximum_relative_error) {
         report.maximum_relative_error=error;report.worst_facet=face.facet;report.worst_cell=cell;report.worst_apex=apex.p;
       }
@@ -376,7 +377,8 @@ bool CheckFirstHeight(const Patch& patch,const std::map<int,double>& heights,con
         " clearance/h0="+std::to_string(report.minimum_reference_clearance_ratio)+
         ": apex crosses smooth reference; resolve curvature before constructing the row.");
     if(report.height_failures)throw std::invalid_argument("Native3D prescribed height fails at facet "+std::to_string(report.worst_facet)+
-        " cell "+std::to_string(report.worst_cell)+" relative error "+std::to_string(report.maximum_relative_error));
+        " cell "+std::to_string(report.worst_cell)+" relative error "+std::to_string(report.maximum_relative_error)+
+        " > tolerance "+std::to_string(heights.tolerance));
     if(report.footprint_failures)throw std::invalid_argument("Native3D first-row normal foot leaves wall triangle at facet "+
         std::to_string(report.footprint_facet)+" cell "+std::to_string(report.footprint_cell)+
         " minimum barycentric "+std::to_string(report.minimum_barycentric));
@@ -386,7 +388,7 @@ bool CheckFirstHeight(const Patch& patch,const std::map<int,double>& heights,con
 
 namespace {
 bool CarveFirstLayer(const Patch& old,const Node* background,Id first_wall_node,Id first_cell,
-                         const std::map<int,double>& heights,const PlanarReference& base_reference,
+                         const WallHeights& heights,const PlanarReference& base_reference,
                          Patch& fresh,FirstHeightReport& report,std::string& reason,KernelStats* stats) {
   report={};
   try {
@@ -458,17 +460,17 @@ bool CarveFirstLayer(const Patch& old,const Node* background,Id first_wall_node,
 
 } // namespace
 bool ConstructFirstLayer(const Patch& old,Node background,Id first_wall_node,Id first_cell,
-                         const std::map<int,double>& heights,const PlanarReference& reference,
+                         const WallHeights& heights,const PlanarReference& reference,
                          Patch& fresh,FirstHeightReport& report,std::string& reason,KernelStats* stats) {
   return CarveFirstLayer(old,&background,first_wall_node,first_cell,heights,reference,fresh,report,reason,stats);
 }
 bool InsertFirstWallPoint(const Patch& old,Id first_wall_node,Id first_cell,
-                         const std::map<int,double>& heights,const PlanarReference& reference,
+                         const WallHeights& heights,const PlanarReference& reference,
                          Patch& fresh,FirstHeightReport& report,std::string& reason,KernelStats* stats) {
   return CarveFirstLayer(old,nullptr,first_wall_node,first_cell,heights,reference,fresh,report,reason,stats);
 }
 
-Node ConstrainMovePoint(const Patch& old,Id vertex,Node proposal,const std::map<int,double>& heights,
+Node ConstrainMovePoint(const Patch& old,Id vertex,Node proposal,const WallHeights& heights,
                         const PlanarReference& base_reference) {
   auto parameter_context=base_reference.PrivateParameters(old);
   const auto& reference=parameter_context?*parameter_context:base_reference;
@@ -1562,7 +1564,7 @@ std::vector<Id> SplitPatchApices(const Patch& patch,Edge edge,const std::map<Id,
 }
 namespace {
 std::map<Id,Vector> CoupledMetricDirection(const Patch& patch,FrozenField& target,
-    const std::map<int,double>& heights,const PlanarReference& reference,const std::set<Id>& fixed,
+    const WallHeights& heights,const PlanarReference& reference,const std::set<Id>& fixed,
     const std::set<Id>& active,ConnectivityRepairReport& report,bool include_edges=false);
 }
 namespace {
@@ -1570,7 +1572,7 @@ namespace {
 bool SplitHeightStar(Patch& patch,Id vertex,const std::array<Node,2>& points,
                      const std::array<std::vector<Point>,2>& descendants,const std::set<Id>& future,
                      Id first,FrozenField& target,const PlanarReference& reference,
-                     const std::map<int,double>& heights,std::string& reason) {
+                     const WallHeights& heights,std::string& reason) {
   std::vector<Cell> star;std::set<Id> removed;
   for(const auto& cell:patch.cells)for(auto n:cell.v)if(n.id==vertex){star.push_back(cell);removed.insert(cell.id);break;}
   if(star.empty() || star.size()>MaximumReplacementCells)throw std::invalid_argument("Native3D height partition lacks its bounded star.");
@@ -1692,7 +1694,7 @@ bool SplitHeightStar(Patch& patch,Id vertex,const std::array<Node,2>& points,
 }  // namespace
 
 bool ReconstructHeightStar(const Patch& old,Id vertex,Id first_node,Id first_cell,FrozenField& target,
-                           const PlanarReference& base_reference,const std::map<int,double>& heights,
+                           const PlanarReference& base_reference,const WallHeights& heights,
                            Patch& fresh,JointSplitReport& report,std::string& reason,size_t maximum_trials) {
   report={};
   try {
@@ -1791,7 +1793,7 @@ bool ReconstructHeightStar(const Patch& old,Id vertex,Id first_node,Id first_cel
 }
 
 bool PlaceSplitPatch(const Patch& old,Edge edge,Node point,const std::vector<std::pair<Id,Id>>& apices,Id first,
-                       FrozenField& target,const PlanarReference& base_reference,const std::map<int,double>& heights,
+                       FrozenField& target,const PlanarReference& base_reference,const WallHeights& heights,
                        Patch& fresh,JointSplitReport& report,std::string& reason,size_t maximum_trials) {
   report={};
   try {
@@ -2008,7 +2010,7 @@ void RestorePatchPoints(Patch& proposal,const std::map<Id,Node>& wanted,Id first
 }
 }  // namespace
 bool RefitWallSplit(const Patch& old,Edge edge,Node point,Id first_apex,Id first,
-                    const std::map<int,double>& heights,const PlanarReference& base_reference,
+                    const WallHeights& heights,const PlanarReference& base_reference,
                     Patch& fresh,Feature& obstruction,std::string& reason,KernelStats* stats) {
   obstruction={};
   try {
@@ -2094,7 +2096,7 @@ bool RefitWallSplit(const Patch& old,Edge edge,Node point,Id first_apex,Id first
   }catch(const std::exception& e){reason=e.what();return false;}
 }
 bool ReconstructWallSplit(const Patch& old,Edge edge,Node point,Id first_wall_node,Id first,
-                          const std::map<int,double>& heights,const PlanarReference& base_reference,
+                          const WallHeights& heights,const PlanarReference& base_reference,
                           Patch& fresh,Face& obstruction,std::string& reason,KernelStats* stats,double surface_tolerance) {
   obstruction={};
   try {
@@ -2219,7 +2221,7 @@ bool ReconstructWallSplit(const Patch& old,Edge edge,Node point,Id first_wall_no
 }
 bool ReconstructSplitPatch(const Patch& old,Edge edge,Node point,Node interior,const Tensor& placement,
                            Id first,const PlanarReference& base_reference,Patch& fresh,Face& obstruction,
-                           std::string& reason,KernelStats* stats,const std::map<int,double>& heights) {
+                           std::string& reason,KernelStats* stats,const WallHeights& heights) {
   obstruction={};Face wallObstruction{};
   try {
     auto parameter_context=base_reference.PrivateParameters(old);
@@ -2342,7 +2344,7 @@ bool ReconstructSplitPatch(const Patch& old,Edge edge,Node point,Node interior,c
 
 namespace {
 std::map<Id,Vector> CoupledMetricDirection(const Patch& patch,FrozenField& target,
-    const std::map<int,double>& heights,const PlanarReference& reference,const std::set<Id>& fixed,
+    const WallHeights& heights,const PlanarReference& reference,const std::set<Id>& fixed,
     const std::set<Id>& active,ConnectivityRepairReport& report,bool include_edges) {
   struct Frame {
     size_t first=0,count=0,rank=0;std::array<Vector,3> basis{},constraint{};std::vector<FootPlane> feet;Tensor metric;
@@ -2499,7 +2501,7 @@ std::map<Id,Vector> CoupledMetricDirection(const Patch& patch,FrozenField& targe
 }  // namespace
 
 bool RepairMetricConnectivity(const Patch& old,FrozenField& target,const PlanarReference& base_reference,
-                              const std::map<int,double>& heights,Id first,Patch& fresh,
+                              const WallHeights& heights,Id first,Patch& fresh,
                               ConnectivityRepairReport& report,std::string& reason,size_t maximum_trials,bool retire_points,const std::set<Id>* movable) {
   report={};
   try {
