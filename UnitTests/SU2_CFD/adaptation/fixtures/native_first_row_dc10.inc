@@ -175,11 +175,16 @@ std::shared_ptr<OptionA> optionA;  // of the current case (diagnostics, fan wedg
 std::set<int> loadedArtificial;
 std::set<std::string> reflectiveMarkers;bool reflectiveByRole=false;  // DC-12 explicit carrier roles (tube fixtures)
 std::shared_ptr<CBoundaryLayerMetric> probeBase,probeFull;  // diagnostics only (SU2_DC10_PROBE)
+// DC-13 first-height ramp diagnostic: every wall marker's own first height becomes max(h0, h0Scale x h0) in the
+// production wall policies before the target is composed (1 = unchanged, the default of every earlier harness).
+double h0Scale=1;
+double ScaledHeight(double h){return std::max(h,h0Scale*h);}
 
 // ---- loaders with the option-A field (A1 has no crease: the dc9 loader is the same target) --------------------------
 std::unique_ptr<State> LoadTubeA(const std::string& path) {
   Id center=0;loadedArtificial.clear();
   auto s=LoadCaseWith(path,center,[](std::shared_ptr<CBoundaryLayerMetric> layers,double core){return Compose(layers,core);});
+  s->h0=ScaledHeight(s->h0);  // DC-13 ramp diagnostic (one policy per junction fixture: every wall marker's own h0)
   // Fixture metadata: the junction-case format declares a reflective carrier by its marker name ("symmetry"); this one
   // loader-side reading defines both the production layers' reflective partners and the option-A marker roles.
   // DC-12: an explicit reflective marker list (case configuration, as MARKER_SYM) replaces the name test when given.
@@ -226,7 +231,7 @@ std::unique_ptr<State> LoadM6CutA(const std::string& path) {
     if(!in)throw std::runtime_error("DC10 truncated M6 cut");
   }
   if(collar)throw std::runtime_error("DC10 collar donors are not used with the covering sensor");
-  auto& field=m6cacheA[cfg+"|"+ref+"|"+std::to_string(parameter)];
+  auto& field=m6cacheA[cfg+"|"+ref+"|"+std::to_string(parameter)+"|h0x"+std::to_string(h0Scale)];
   if(!field.layers) {
     std::ifstream cfgFile(cfg);if(!cfgFile)throw std::runtime_error("DC10 M6 cfg");std::stringstream text;text<<cfgFile.rdbuf();
     ReferenceState reference;if(!LoadReference(ref,reference)||!reference.original)throw std::runtime_error("DC10 M6 reference");
@@ -236,6 +241,13 @@ std::unique_ptr<State> LoadM6CutA(const std::string& path) {
     for(auto& f:reference.facets)for(auto& x:f.v)if(x.p.y!=0&&std::abs(x.p.y)<=1e-10){x.p.y=0;++m6Snapped;}
     for(int pass=0;pass<2;++pass) {
       std::string cfgText=text.str();
+      if(h0Scale!=1){std::istringstream lines(cfgText);std::ostringstream out;size_t replaced=0;  // DC-13 ramp: per marker
+        for(std::string line;std::getline(lines,line);){
+          if(line.rfind("ADAP_BL_FIRST_HEIGHT",0)==0){const auto l=line.find('('),r=line.rfind(')');if(l==std::string::npos||r==std::string::npos||r<l)throw std::runtime_error("DC13 ADAP_BL_FIRST_HEIGHT format");
+            std::stringstream list(line.substr(l+1,r-l-1));std::ostringstream o;o<<std::setprecision(17)<<"ADAP_BL_FIRST_HEIGHT= (";bool first=true;
+            for(std::string v;std::getline(list,v,',');){o<<(first?" ":", ")<<ScaledHeight(std::stod(v));first=false;}o<<" )";line=o.str();++replaced;}
+          out<<line<<"\n";}
+        if(replaced!=1)throw std::runtime_error("DC13 ramp: ADAP_BL_FIRST_HEIGHT not found once");cfgText=out.str();}
       if(pass==1){std::istringstream lines(cfgText);std::ostringstream out;size_t replaced=0;
         // ADAP_HGRAD must stay > 1 (config check); ADAP_ANGLE is read only by the D1 detection (BuildFeatures), so a
         // feature angle no wall edge can exceed disables D1 and leaves every other BL ingredient unchanged

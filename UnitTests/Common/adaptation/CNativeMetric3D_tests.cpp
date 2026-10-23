@@ -582,7 +582,7 @@ TEST_CASE("Native 3D optimizer: edge removal 3-2 and n -> 2n-4 with the optimal 
   FrozenField field({CoveringDonor({1,0,0,1,0,1})});const RegionMetric target(field);
   const double pi=std::acos(-1.);
   auto ringOf=[&](size_t n,double R,Id first,double scale){std::vector<Node> r;for(size_t i=0;i<n;++i){const double t=2*pi*double(i)/double(n);r.push_back({first+i,{scale*R*std::cos(t),scale*R*std::sin(t),0}});}return r;};
-  OptimizeOptions options;options.smoothing=false;options.collapses=false;
+  OptimizeOptions options;options.smoothing=false;options.collapses=false;options.insertions=false;
   // bipyramid: three needle cells around the long axis a-b (score .81) -> two cells (2.5)
   {const auto r=ringOf(3,.25,10,1);const Node a{1,{0,0,1.2}},b{2,{0,0,-1.2}};
    std::vector<std::array<Node,4>> cells;for(int i=0;i<3;++i)cells.push_back(Tet(a,b,r[i],r[(i+1)%3]));
@@ -622,7 +622,7 @@ TEST_CASE("Native 3D optimizer: smoothing, collapse, frozen sets, skin and deter
   const std::array<std::array<int,4>,6> quads{{{0,1,3,2},{4,6,7,5},{0,4,5,1},{2,3,7,6},{0,2,6,4},{1,5,7,3}}};
   auto cone=[&](Node x){std::vector<std::array<Node,4>> cells;for(const auto& f:quads){cells.push_back(Tet(x,c[f[0]],c[f[1]],c[f[2]]));cells.push_back(Tet(x,c[f[0]],c[f[2]],c[f[3]]));}return cells;};
   const auto cells=cone({20,{.95,.93,.9}});
-  OptimizeOptions options;options.swaps=false;options.collapses=false;
+  OptimizeOptions options;options.swaps=false;options.collapses=false;options.insertions=false;
   {Owned mesh=MeshOf(cells);const auto before=Facts(mesh,field);REQUIRE(before.bad>0);
    OptimizeReport report;Id nn=100,nc=1000;
    CHECK(OptimizeMetricMesh(mesh,target,nn,nc,options,report));const auto after=Facts(mesh,field);
@@ -639,7 +639,7 @@ TEST_CASE("Native 3D optimizer: smoothing, collapse, frozen sets, skin and deter
     m[2]=Tet(z,c[4],c[6],c[7]);m[3]=Tet(z,c[4],c[7],c[5]);
     m.push_back(Tet(y,z,c[4],c[6]));m.push_back(Tet(y,z,c[6],c[7]));m.push_back(Tet(y,z,c[7],c[5]));m.push_back(Tet(y,z,c[5],c[4]));return m;};
   {Owned mesh=MeshOf(sliverMesh());const auto before=Facts(mesh,field);REQUIRE(before.positive);REQUIRE(before.bad>0);
-   OptimizeOptions col;col.swaps=false;col.smoothing=false;OptimizeReport report;Id nn=100,nc=1000;
+   OptimizeOptions col;col.swaps=false;col.smoothing=false;col.insertions=false;OptimizeReport report;Id nn=100,nc=1000;
    CHECK(OptimizeMetricMesh(mesh,target,nn,nc,col,report));const auto after=Facts(mesh,field);
    CHECK(report.collapses>=1);CHECK(after.min>before.min);CHECK(after.skin==before.skin);CHECK(after.positive);CHECK(after.cells==12);}
   // determinism: the same input gives the same mesh (all operations)
@@ -657,7 +657,7 @@ TEST_CASE("Native 3D optimizer: boundary edge flip inside one facet", "[NativeOp
     if(sameFacet)for(auto& row:mesh){const auto& v=row.second.cell.v;
       for(unsigned k=0;k<4;++k)if(row.second.physical[k].present&&v[k].id==x.id)row.second.physical[k].facet=7;}  // z = 0 faces: one facet
     return mesh;};
-  OptimizeOptions options;options.smoothing=false;options.collapses=false;
+  OptimizeOptions options;options.smoothing=false;options.collapses=false;options.insertions=false;
   {Owned mesh=build(true);const auto before=Facts(mesh,field);REQUIRE(before.bad>0);OptimizeReport report;Id nn=100,nc=1000;
    CHECK(OptimizeMetricMesh(mesh,target,nn,nc,options,report));const auto after=Facts(mesh,field);
    CHECK(report.boundary_flips==1);CHECK(after.cells==2);CHECK(after.positive);CHECK(after.min>before.min);
@@ -680,4 +680,40 @@ TEST_CASE("Native 3D optimizer: length-driven edge removal of an interior edge l
   // a frozen cell in the shell keeps the long edge
   Owned frozenMesh=MeshOf(cells);OptimizeOptions frozen;frozen.frozen_cells={frozenMesh.begin()->first};OptimizeReport r2;nn=100;nc=1000;
   OptimizeMetricMesh(frozenMesh,target,nn,nc,frozen,r2);CHECK(r2.length_removals==0);
+}
+TEST_CASE("Native 3D optimizer: sliver removal by vertex insertion (O7/O8) and length-driven insertion (O7L)", "[NativeOptimize3D]") {
+  FrozenField field({CoveringDonor({1,0,0,1,0,1})});const RegionMetric target(field);
+  // classic sliver (a,b,c,d) (crossing edges ab/cd, height .02) inside an octahedron: its upper faces coned to p, its
+  // lower faces to q; swaps, collapse and smoothing disabled: only a vertex insertion can remove it
+  const Node a{1,{1,0,0}},b{2,{-1,0,0}},cc{3,{0,1,.02}},d{4,{0,-1,.02}},p{5,{0,0,1}},q{6,{0,0,-1}};
+  auto sliverMesh=[&]{return std::vector<std::array<Node,4>>{Tet(a,b,cc,d),Tet(p,a,cc,d),Tet(p,b,cc,d),Tet(q,a,b,cc),Tet(q,a,b,d)};};
+  {Owned mesh=MeshOf(sliverMesh());const auto before=Facts(mesh,field);REQUIRE(before.positive);REQUIRE(before.bad>0);
+   OptimizeOptions ins;ins.swaps=false;ins.collapses=false;ins.smoothing=false;OptimizeReport report;Id nn=100,nc=1000;
+   CHECK(OptimizeMetricMesh(mesh,target,nn,nc,ins,report));const auto after=Facts(mesh,field);
+   CHECK(report.shell_insertions+report.neighbourhood_insertions>=1);CHECK(report.placements>=1);CHECK(report.placement_evaluations>0);
+   CHECK(after.min>before.min);CHECK(after.skin==before.skin);CHECK(after.positive);
+   CHECK(std::abs(double(after.volume-before.volume))<=1e-12*std::abs(double(before.volume)));
+   std::set<Id> ids;for(const auto& row:mesh)for(const auto& v:row.second.cell.v)ids.insert(v.id);for(Id i=1;i<=6;++i)CHECK(ids.count(i)==1);
+   // frozen cells everywhere: nothing is inserted
+   Owned again=MeshOf(sliverMesh());OptimizeOptions all=ins;for(const auto& row:again)all.frozen_cells.insert(row.first);OptimizeReport r2;nn=100;nc=1000;
+   CHECK_FALSE(OptimizeMetricMesh(again,target,nn,nc,all,r2));CHECK(r2.shell_insertions+r2.neighbourhood_insertions==0);}
+  // O7L: four cells around an axis of length 2.4 whose 4-4 swap would create a ring diagonal of 2.4 > 1.8: the shell
+  // is re-coned from a vertex near the axis midpoint (both halves <= .6 x 2.4), the long edge leaves the mesh
+  {const double pi=std::acos(-1.);std::vector<Node> r;for(int i=0;i<4;++i)r.push_back({Id(10+i),{1.2*std::cos(pi*i/2),1.2*std::sin(pi*i/2),0}});
+   const Node a{1,{0,0,1.2}},b{2,{0,0,-1.2}};std::vector<std::array<Node,4>> cells;for(int i=0;i<4;++i)cells.push_back(Tet(a,b,r[i],r[(i+1)%4]));
+   Owned mesh=MeshOf(cells);const auto before=Facts(mesh,field);
+   OptimizeOptions options;options.smoothing=false;options.collapses=false;OptimizeReport report;Id nn=100,nc=1000;
+   CHECK(OptimizeMetricMesh(mesh,target,nn,nc,options,report));const auto after=Facts(mesh,field);
+   CHECK(report.length_removals==0);CHECK(report.length_insertions==1);CHECK(after.cells==8);CHECK(after.positive);CHECK(after.skin==before.skin);
+   bool axis=false;long double longest=0;for(const auto& row:mesh){const auto& v=row.second.cell.v;bool ha=false,hb=false;for(const auto& x:v){ha=ha||x.id==1;hb=hb||x.id==2;}axis=axis||(ha&&hb);
+     for(unsigned i=0;i<4;++i)for(unsigned j=i+1;j<4;++j)longest=std::max(longest,field.TargetEdgeLength(v[i].p,v[j].p));}
+   CHECK_FALSE(axis);CHECK(longest<=MaximumMetricEdge);
+   CHECK(std::abs(double(after.volume-before.volume))<=1e-12*std::abs(double(before.volume)));}
+  // the public placement helper: the shell of the long axis re-coned with the size-split restriction
+  {const double pi=std::acos(-1.);std::vector<Node> r;for(int i=0;i<3;++i)r.push_back({Id(10+i),{1.2*std::cos(2*pi*i/3),1.2*std::sin(2*pi*i/3),0}});
+   const Node a{1,{0,0,1.2}},b{2,{0,0,-1.2}};std::vector<Cell> cells;
+   for(int i=0;i<3;++i){Cell x{Id(i),Tet(a,b,r[i],r[(i+1)%3])};if(Orientation(x.v[0].p,x.v[1].p,x.v[2].p,x.v[3].p)<0)std::swap(x.v[0],x.v[1]);cells.push_back(x);}
+   std::vector<Cell> fresh;double score=0;const Edge e{1,2};
+   REQUIRE(PlaceConeInsertion(cells,{0,0,0},50,500,target,fresh,score,&e,.6));CHECK(fresh.size()==6);CHECK(score>0);
+   for(const auto& x:fresh){CHECK(Orientation(x.v[0].p,x.v[1].p,x.v[2].p,x.v[3].p)>0);CHECK(x.v[0].id==50);}}
 }

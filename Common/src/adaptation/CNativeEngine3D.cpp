@@ -3012,6 +3012,65 @@ std::array<Face,4> OppositeFaces(const Cell& c) {
 bool CellHas(const Cell& c,Id v){for(const auto& n:c.v)if(n.id==v)return true;return false;}
 struct CellQuality { double q=-1,J=-1;double Score()const{return std::min(q/MinimumMeanRatio,J/MinimumScaledJacobian);}
   bool Valid()const{return q>0&&J>=ValiditySliverJacobian;} };
+// ---- DC-13 placement engine (DC13_PLAN sect. 1.1): proposals only, every acceptance re-measures exactly ----------
+// Upper Cholesky factor R of an SPD tensor (M = R^T R); ok=false if not SPD in double.
+struct Factor3 { double r00=0,r01=0,r02=0,r11=0,r12=0,r22=0;bool ok=false; };
+Factor3 FactorOf(const Tensor& m) {
+  Factor3 c;if(!(m.xx>0))return c;c.r00=std::sqrt(m.xx);c.r01=m.xy/c.r00;c.r02=m.xz/c.r00;
+  const double p11=m.yy-c.r01*c.r01;if(!(p11>0))return c;c.r11=std::sqrt(p11);c.r12=(m.yz-c.r01*c.r02)/c.r11;
+  const double p22=m.zz-c.r02*c.r02-c.r12*c.r12;if(!(p22>0))return c;c.r22=std::sqrt(p22);c.ok=true;return c;
+}
+// Approximate score min(q/.20, J/.05) of (p0..p3) in a constant tensor (same definitions as Measure, double precision);
+// -INFINITY for a non-positive (determinant <= 0) or degenerate cell.
+double FastScore(const std::array<Point,4>& p,const Factor3& f) {
+  double y[4][3];
+  for(unsigned k=0;k<4;++k){const double d0=p[k].x-p[0].x,d1=p[k].y-p[0].y,d2=p[k].z-p[0].z;
+    y[k][0]=f.r00*d0+f.r01*d1+f.r02*d2;y[k][1]=f.r11*d1+f.r12*d2;y[k][2]=f.r22*d2;}
+  auto e=[&](unsigned i,unsigned j,unsigned c){return y[j][c]-y[i][c];};
+  const double u[3]={e(0,1,0),e(0,1,1),e(0,1,2)},v[3]={e(0,2,0),e(0,2,1),e(0,2,2)},w[3]={e(0,3,0),e(0,3,1),e(0,3,2)};
+  const double det=u[0]*(v[1]*w[2]-v[2]*w[1])-u[1]*(v[0]*w[2]-v[2]*w[0])+u[2]*(v[0]*w[1]-v[1]*w[0]);
+  if(!(det>0)||!std::isfinite(det))return -INFINITY;
+  double l2[4][4]={{0}},sum=0;
+  for(unsigned i=0;i<4;++i)for(unsigned j=i+1;j<4;++j){double s=0;for(unsigned c=0;c<3;++c){const double d=e(i,j,c);s+=d*d;}l2[i][j]=l2[j][i]=s;sum+=s;}
+  const double root=std::cbrt(det/2),q=12*root*root/sum;double J=1;
+  for(unsigned k=0;k<4;++k){double den=1;for(unsigned j=0;j<4;++j)if(j!=k)den*=std::sqrt(l2[k][j]);J=std::min(J,den>0?std::sqrt(2.)*det/den:0.);}
+  return std::min(q/MinimumMeanRatio,J/MinimumScaledJacobian);
+}
+// Boundary faces of a cell set (faces used once inside the set), oriented as in their cell (opposite vertex inside).
+std::vector<Face> CavityBoundary(const std::vector<Cell>& cells) {
+  std::map<Face,std::pair<int,Face>> uses;
+  for(const auto& c:cells)for(auto f:OppositeFaces(c)){auto k=f;std::sort(k.begin(),k.end());auto& u=uses[k];++u.first;u.second=f;}
+  std::vector<Face> out;for(const auto& u:uses)if(u.second.first==1)out.push_back(u.second.second);
+  return out;
+}
+// Min-max placement of one new point x in a star-shaped cavity bounded by `faces` (cone cells {x, f}). The tensor of a
+// cone cell is the arithmetic mean of the point tensors at its three face vertices and at the start point (an SPD
+// proposal metric); deterministic best-improvement compass search in the metric frame of the start point (6 axes and
+// 8 diagonals, step .25 halving to 1e-3). `admissible` restricts the search region (e.g. the size-split region).
+struct Placement { bool ok=false;Point x;double score=-INFINITY;size_t evaluations=0; };
+Placement PlaceCone(const std::vector<Face>& faces,const std::function<Point(Id)>& point,const std::function<Tensor(Point)>& at,
+                    Point start,const std::function<bool(Point)>& admissible,size_t budget=160) {
+  Placement out;if(faces.empty())return out;
+  const Tensor t0=at(start);
+  std::map<Id,Tensor> vt;for(const auto& f:faces)for(Id v:f)if(!vt.count(v))vt.emplace(v,at(point(v)));
+  std::vector<std::array<Point,3>> base;std::vector<Factor3> factor;
+  for(const auto& f:faces){Tensor m=t0;for(Id v:f){const auto& t=vt.at(v);m.xx+=t.xx;m.xy+=t.xy;m.xz+=t.xz;m.yy+=t.yy;m.yz+=t.yz;m.zz+=t.zz;}
+    m.xx/=4;m.xy/=4;m.xz/=4;m.yy/=4;m.yz/=4;m.zz/=4;const auto c=FactorOf(m);if(!c.ok)return out;factor.push_back(c);
+    base.push_back({point(f[0]),point(f[1]),point(f[2])});}
+  auto F=[&](Point x)->double{++out.evaluations;if(admissible&&!admissible(x))return -INFINITY;double s=INFINITY;
+    for(size_t k=0;k<base.size()&&s>-INFINITY;++k)s=std::min(s,FastScore({x,base[k][0],base[k][1],base[k][2]},factor[k]));return s;};
+  // metric frame of the start: d = R0^{-1} e (unit metric length)
+  const auto R=FactorOf(t0);if(!R.ok)return out;
+  auto frame=[&](double e0,double e1,double e2)->Point{const double z=e2/R.r22,y=(e1-R.r12*z)/R.r11,x=(e0-R.r01*y-R.r02*z)/R.r00;return {x,y,z};};
+  std::vector<Point> dirs;const double r3=1/std::sqrt(3.);
+  for(int a=0;a<3;++a)for(int s:{-1,1}){double e[3]={0,0,0};e[a]=s;dirs.push_back(frame(e[0],e[1],e[2]));}
+  for(int sx:{-1,1})for(int sy:{-1,1})for(int sz:{-1,1})dirs.push_back(frame(sx*r3,sy*r3,sz*r3));
+  Point x=start;double best=F(x),h=.25;
+  while(h>=1e-3&&out.evaluations<budget){Point bx=x;double bs=best;
+    for(const auto& d:dirs){const Point y{x.x+h*d.x,x.y+h*d.y,x.z+h*d.z};const double s=F(y);if(s>bs){bs=s;bx=y;}if(out.evaluations>=budget)break;}
+    if(bs>best){best=bs;x=bx;}else h/=2;}
+  out.ok=std::isfinite(best);out.x=x;out.score=best;return out;
+}
 class MeshOptimizer {
  public:
   MeshOptimizer(Owned& mesh,const RegionMetric& target,Id& next_node,Id& next_cell,const OptimizeOptions& options,OptimizeReport& report)
@@ -3138,6 +3197,11 @@ class MeshOptimizer {
   bool Collapse(Id p,Id q);
   bool Smooth(Id p);
   bool TryCell(Id id);
+  // DC-13 (DC13_PLAN sect. 1): cone re-meshing of a star-shaped cavity from one new placed vertex
+  enum class Insert { Shell, Neighbourhood, Length };
+  bool ConeReplace(const std::vector<Id>& old,Point start,Insert kind,const std::pair<Id,Id>* split=nullptr,long double removed=0);
+  bool ShellInsert(Id a,Id b,bool lengthDriven=false);
+  bool NeighbourhoodInsert(Id cell);
   // boundary operations (no new point; every face stays inside its facet): O5 flip of a boundary edge between two faces
   // bound to the same facet, O6 contraction of a boundary vertex interior to one facet along a boundary edge
   struct BoundaryFace { Face oriented{};Id cell=0;FacetBinding binding; };
@@ -3304,8 +3368,15 @@ bool MeshOptimizer::Smooth(Id p) {
       if(std::isfinite(norm)&&norm>0)targets.push_back({double(x0.x+d[0]),double(x0.y+d[1]),double(x0.z+d[2])});
     }
   }catch(const std::exception&){}
+  // DC-13 O4m: min-max placement over the star (approximate proposal, exact trial below), from p and each proposal
+  bool placed=false;
+  {std::vector<Cell> cells;for(Id id:old)cells.push_back(mesh.at(id).cell);const auto faces=CavityBoundary(cells);
+   std::vector<Point> starts{x0};for(const auto& t:targets)starts.push_back(t);Placement best;
+   for(const auto& st:starts){const auto pl=PlaceCone(faces,[&](Id v){return points.at(v);},[&](Point q){return At(q);},st,nullptr,std::max<size_t>(16,options.placement_budget/starts.size()));
+     report.placement_evaluations+=pl.evaluations;if(pl.ok&&pl.score>best.score)best=pl;}
+   ++report.placements;if(best.ok&&!(best.x.x==x0.x&&best.x.y==x0.y&&best.x.z==x0.z)){targets.insert(targets.begin(),best.x);placed=true;}}
   struct Trial{double score;Point x;};std::vector<Trial> trials;
-  for(const auto& t:targets)for(long double w:{1.L,.5L,.25L}) {
+  for(size_t ti=0;ti<targets.size();++ti)for(long double w:{1.L,.5L,.25L}) {const Point t=targets[ti];if(ti==0&&placed&&w!=1.L)continue;  // the placed point is tried as is
     const Point x{double(x0.x+w*((long double)t.x-x0.x)),double(x0.y+w*((long double)t.y-x0.y)),double(x0.z+w*((long double)t.z-x0.z))};
     if(x.x==x0.x&&x.y==x0.y&&x.z==x0.z)continue;
     const Node P{next_node,x};std::vector<Cell> fresh;for(Id id:old){Cell c=mesh.at(id).cell;for(auto& v:c.v)if(v.id==p)v=P;fresh.push_back(c);}
@@ -3402,6 +3473,62 @@ bool MeshOptimizer::BoundaryCollapse(Id p,Id q) {
   std::map<Face,FacetBinding> added;if(!BoundaryReplacement(old,fresh,faces,faces.front().binding,added))return false;
   Commit(old,fresh,p,added);++report.boundary_collapses;return true;
 }
+// DC-13: replace the unfrozen cavity `old` by the cone from one new vertex placed by the min-max search (proposal with
+// vertex-mean tensors), accepted on the exact checks: every cavity vertex kept, exact positivity and validity of every
+// fresh cell, strict max-min progress (Shell/Neighbourhood) or min >= min(old, 1) (Length), ValidateFixedInterface and
+// the edge guard on every new edge (limit max(1.8, removed) or, for Length, max(1.8, .75 removed)).
+bool MeshOptimizer::ConeReplace(const std::vector<Id>& old,Point start,Insert kind,const std::pair<Id,Id>* split,long double removed) {
+  if(Limited()||old.empty()||old.size()>MaximumCavityCells)return false;
+  for(Id id:old)if(Frozen(id)){++report.rejected_frozen;return false;}
+  ++report.trials;
+  std::vector<Cell> cells;std::set<Id> vertices;for(Id id:old){cells.push_back(mesh.at(id).cell);for(const auto& v:cells.back().v)vertices.insert(v.id);}
+  const auto faces=CavityBoundary(cells);
+  std::function<bool(Point)> admissible;
+  if(split){const Point pa=points.at(split->first),pb=points.at(split->second);Tensor m=At(pa);const Tensor mb=At(pb);
+    m.xx=(m.xx+mb.xx)/2;m.xy=(m.xy+mb.xy)/2;m.xz=(m.xz+mb.xz)/2;m.yy=(m.yy+mb.yy)/2;m.yz=(m.yz+mb.yz)/2;m.zz=(m.zz+mb.zz)/2;
+    long double whole=0;try{whole=MetricNorm(pa,pb,m);}catch(const std::exception&){return false;}
+    admissible=[pa,pb,m,whole](Point x){try{return MetricNorm(x,pa,m)<=.6L*whole&&MetricNorm(x,pb,m)<=.6L*whole;}catch(const std::exception&){return false;}};}
+  const auto pl=PlaceCone(faces,[&](Id v){return points.at(v);},[&](Point q){return At(q);},start,admissible,options.placement_budget);
+  ++report.placements;report.placement_evaluations+=pl.evaluations;
+  if(!pl.ok){++report.rejected_validity;return false;}
+  const Node X{next_node,pl.x};std::vector<Cell> fresh;std::set<Id> kept;
+  for(const auto& f:faces){fresh.push_back(Cell{0,{X,Node{f[0],points.at(f[0])},Node{f[1],points.at(f[1])},Node{f[2],points.at(f[2])}}});for(Id v:f)kept.insert(v);}
+  if(kept.size()!=vertices.size()){++report.placement_refusals;return false;}  // a cavity vertex would vanish
+  const double oldMin=MinScore(old),newMin=FreshScore(fresh,false);  // trial identity next_node: never memoized
+  if(newMin==-INFINITY){++report.rejected_validity;++report.placement_refusals;return false;}
+  const double floor=kind==Insert::Length?std::min(oldMin,1.)-1e-12:oldMin+Gain;
+  if(!(newMin>floor)){++report.rejected_quality;++report.placement_refusals;return false;}
+  const long double limit=kind==Insert::Length?std::max<long double>(MaximumMetricEdge,.75L*removed):std::max<long double>(MaximumMetricEdge,removed);
+  for(Id v:vertices)if(!Certified(X.p,points.at(v),limit)){++report.rejected_edge;++report.placement_refusals;return false;}
+  if(split) {  // O7L: both halves of the removed edge are integrated exactly and strictly shorter than it
+    try{for(Id e:{split->first,split->second})if(!(Exact(X.p,points.at(e))<removed)){++report.rejected_edge;++report.placement_refusals;return false;}}
+    catch(const std::exception&){++report.rejected_edge;++report.placement_refusals;return false;}}
+  if(!Interface(old,fresh)){++report.placement_refusals;return false;}
+  ++next_node;Commit(old,fresh);
+  ++(kind==Insert::Shell?report.shell_insertions:kind==Insert::Neighbourhood?report.neighbourhood_insertions:report.length_insertions);
+  return true;
+}
+// O7 / O7L: the shell of edge (a,b) (closed ring for O7L) re-coned from a vertex placed near the edge midpoint.
+bool MeshOptimizer::ShellInsert(Id a,Id b,bool lengthDriven) {
+  if(Limited()||!options.insertions)return false;
+  const auto sa=star.find(a),sb=star.find(b);if(sa==star.end()||sb==star.end())return false;
+  const auto shell=Common(sa->second,sb->second);if(shell.size()<2||shell.size()>2*options.maximum_shell)return false;
+  if(lengthDriven){std::map<Id,int> ring;for(Id id:shell)for(const auto& v:mesh.at(id).cell.v)if(v.id!=a&&v.id!=b)++ring[v.id];
+    if(ring.size()!=shell.size())return false;for(const auto& r:ring)if(r.second!=2)return false;}  // closed shell only
+  const Point pa=points.at(a),pb=points.at(b);
+  const Point mid{double(((long double)pa.x+pb.x)/2),double(((long double)pa.y+pb.y)/2),double(((long double)pa.z+pb.z)/2)};
+  long double removed=MaximumMetricEdge;try{const auto e=Estimate(pa,pb);removed=e>EstimatePass?Exact(pa,pb):e;}catch(const std::exception&){return false;}
+  const std::pair<Id,Id> edge{a,b};
+  return ConeReplace(shell,mid,lengthDriven?Insert::Length:Insert::Shell,lengthDriven?&edge:nullptr,removed);
+}
+// O8: the bad cell and its face neighbours across interior faces re-coned from a vertex placed near its centroid.
+bool MeshOptimizer::NeighbourhoodInsert(Id cell) {
+  if(Limited()||!options.insertions||!mesh.count(cell))return false;
+  const auto& c=mesh.at(cell).cell;std::vector<Id> old{cell};
+  for(auto f:OppositeFaces(c)){const auto both=Common(Common(star.at(f[0]),star.at(f[1])),star.at(f[2]));for(Id id:both)if(id!=cell)old.push_back(id);}
+  if(old.size()<2)return false;
+  return ConeReplace(old,Centroid(c),Insert::Neighbourhood);
+}
 bool MeshOptimizer::TryCell(Id id) {
   const Cell c=mesh.at(id).cell;
   if(options.swaps) {
@@ -3409,6 +3536,13 @@ bool MeshOptimizer::TryCell(Id id) {
     for(auto f:OppositeFaces(c)){if(!mesh.count(id))return true;std::sort(f.begin(),f.end());if(FaceSwap(f))return true;}
     for(unsigned i=0;i<4;++i)for(unsigned j=i+1;j<4;++j){if(!mesh.count(id))return true;
       if(fixed.count(c.v[i].id)&&fixed.count(c.v[j].id)&&BoundaryFlip(c.v[i].id,c.v[j].id))return true;}
+  }
+  if(options.insertions) {  // DC-13 O7 (longest edges first) and O8
+    std::vector<std::pair<long double,std::pair<Id,Id>>> edges;
+    for(unsigned i=0;i<4;++i)for(unsigned j=i+1;j<4;++j){long double l=0;try{l=Estimate(c.v[i].p,c.v[j].p);}catch(const std::exception&){}edges.push_back({-l,{c.v[i].id,c.v[j].id}});}
+    std::sort(edges.begin(),edges.end());
+    for(const auto& e:edges){if(!mesh.count(id))return true;if(ShellInsert(e.second.first,e.second.second))return true;}
+    if(!mesh.count(id))return true;if(NeighbourhoodInsert(id))return true;
   }
   if(options.collapses) {
     std::vector<std::pair<long double,std::pair<Id,Id>>> edges;
@@ -3435,7 +3569,8 @@ bool MeshOptimizer::Run() {
         const auto e=std::minmax(c.v[i].id,c.v[j].id);if(!seen.insert(e).second)continue;
         try{if(Estimate(c.v[i].p,c.v[j].p)<=1.6L)continue;const auto l=Exact(c.v[i].p,c.v[j].p);if(l>MaximumMetricEdge)longs.push_back({-l,e});}catch(const std::exception&){}}}
       std::sort(longs.begin(),longs.end());report.long_edges_seen+=longs.size();
-      for(const auto& e:longs){if(Limited())break;if(!Adjacent(e.second.first,e.second.second))continue;if(EdgeRemoval(e.second.first,e.second.second,true))++accepted;}}
+      for(const auto& e:longs){if(Limited())break;if(!Adjacent(e.second.first,e.second.second))continue;
+        if(EdgeRemoval(e.second.first,e.second.second,true)||(options.insertions&&ShellInsert(e.second.first,e.second.second,true)))++accepted;}}
     if(Limited()){report.stop="limit";break;}
     if(!accepted){report.stop=bad.empty()?"complete":"no progress";break;}
   }
@@ -3448,6 +3583,36 @@ bool MeshOptimizer::Run() {
 bool OptimizeMetricMesh(Owned& mesh,const RegionMetric& target,Id& next_node,Id& next_cell,const OptimizeOptions& options,OptimizeReport& report) {
   MeshOptimizer optimizer(mesh,target,next_node,next_cell,options,report);
   return optimizer.Run();
+}
+bool PlaceConeInsertion(const std::vector<Cell>& cavity,Point start,Id node,Id first_cell,const RegionMetric& target,
+                        std::vector<Cell>& fresh,double& score,const Edge* split_edge,double split_ratio,size_t budget) {
+  fresh.clear();score=-INFINITY;if(cavity.empty())return false;
+  std::map<Id,Point> points;for(const auto& c:cavity)for(const auto& v:c.v)points[v.id]=v.p;
+  std::map<std::array<double,3>,Tensor> memo;
+  auto at=[&](Point p){const std::array<double,3> k{p.x,p.y,p.z};const auto f=memo.find(k);if(f!=memo.end())return f->second;const auto m=target.point(p);memo.emplace(k,m);return m;};
+  const auto faces=CavityBoundary(cavity);
+  std::function<bool(Point)> admissible;
+  if(split_edge) {
+    const auto fa=points.find((*split_edge)[0]),fb=points.find((*split_edge)[1]);if(fa==points.end()||fb==points.end())return false;
+    const Point pa=fa->second,pb=fb->second;Tensor m=at(pa);const Tensor mb=at(pb);
+    m.xx=(m.xx+mb.xx)/2;m.xy=(m.xy+mb.xy)/2;m.xz=(m.xz+mb.xz)/2;m.yy=(m.yy+mb.yy)/2;m.yz=(m.yz+mb.yz)/2;m.zz=(m.zz+mb.zz)/2;
+    long double whole=0;try{whole=MetricNorm(pa,pb,m);}catch(const std::exception&){return false;}
+    const long double limit=split_ratio*whole;
+    admissible=[pa,pb,m,limit](Point x){try{return MetricNorm(x,pa,m)<=limit&&MetricNorm(x,pb,m)<=limit;}catch(const std::exception&){return false;}};
+  }
+  const auto pl=PlaceCone(faces,[&](Id v){return points.at(v);},at,start,admissible,budget);
+  if(!pl.ok)return false;
+  const Node X{node,pl.x};std::set<Id> kept;
+  for(size_t i=0;i<faces.size();++i){const auto& f=faces[i];fresh.push_back(Cell{first_cell+i,{X,Node{f[0],points.at(f[0])},Node{f[1],points.at(f[1])},Node{f[2],points.at(f[2])}}});for(Id v:f)kept.insert(v);}
+  if(kept.size()!=points.size()){fresh.clear();return false;}  // a cavity vertex would vanish
+  double low=INFINITY;
+  for(const auto& c:fresh) {
+    if(!(Orientation(c.v[0].p,c.v[1].p,c.v[2].p,c.v[3].p)>0)){fresh.clear();return false;}
+    MetricMeasures m;try{m=Measure({c.v[0].p,c.v[1].p,c.v[2].p,c.v[3].p},at(Centroid(c)));}catch(const std::exception&){fresh.clear();return false;}
+    if(!(m.mean_ratio>0&&m.minimum_scaled_jacobian>=ValiditySliverJacobian)){fresh.clear();return false;}
+    low=std::min(low,std::min(m.mean_ratio/MinimumMeanRatio,m.minimum_scaled_jacobian/MinimumScaledJacobian));
+  }
+  score=low;return true;
 }
 EngineResult RefineOptimize(World& world,const Owned& accepted,const std::vector<DonorCell>& original,const PlanarReference& geometry,
                             MetricComposition composition,EngineOptions options,OptimizeOptions optimize,RefineOptimizeReport* report,size_t maximum_rounds) {
