@@ -1,0 +1,33 @@
+Filters: [NativeFirstRowDC8]
+DC8 two_tube_y loaded: cells=2112 wall_faces=128 creases=32
+DC8 two_tube_y W complete wall_faces=1216 stations=32 levels=512 bisections=32 t=10.3902
+DC8 two_tube_y R1 limit:work deficient 374->243 lp_empty=11 t=64.1765
+DC8 two_tube_y R2 rowed=890 unrowed=326 t=67.3574 last=vertex 369 [cap] cap-bound closure: 117 old cells
+DC8 V sweep 0 cells=12638 long=2163 bad=2825 work=865 t=120.219
+DC8 two_tube_y done in 310.722 s
+===============================================================================
+All tests passed (4 assertions in 1 test case)
+
+	Command being timed: "nice -n 19 timeout --kill-after=5s 3600s /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver [NativeFirstRowDC8] --use-colour no"
+	User time (seconds): 304.78
+	System time (seconds): 0.25
+	Percent of CPU this job got: 98%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 5:11.09
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 51260
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 2
+	Minor (reclaiming a frame) page faults: 8714
+	Voluntary context switches: 1010
+	Involuntary context switches: 48434
+	Swaps: 0
+	File system inputs: 0
+	File system outputs: 2824
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0

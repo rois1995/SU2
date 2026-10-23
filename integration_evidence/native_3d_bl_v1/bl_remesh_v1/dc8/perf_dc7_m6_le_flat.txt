@@ -1,0 +1,41 @@
+perf record -F 49 --call-graph dwarf of the DC-7 binary (sha e7eabbd5...) on case m6_le (DC-7 harness, 138 s), flat self-time profile, top 40:
+ 16.80% [.] CADTElemClass::DetermineNearestElement_impl - - 
+ 9.58% [.] CBlasStructure::EigenDecomposition<double [3][3], double [3], double [3]> - - 
+ 7.16% [.] feclearexcept - - 
+ 6.95% [.] __GI___fesetround - - 
+ 6.38% [.] __GI___fesetenv - - 
+ 4.82% [.] CBoundaryLayerMetric::EvaluateImpl - - 
+ 4.42% [.] __fmal - - 
+ 4.29% [.] CADTElemClass::DetermineElementsWithinDistance - - 
+ 3.42% [.] __GI___feholdexcept - - 
+ 1.78% [.] CSolver::IntersectMetrics - - 
+ 1.77% [.] CBoundaryLayerMetric::EvaluateImpl(unsigned short, double const*, double, bool, unsigned long)::{lambda(unsigned long, double (&) [3], doub
+ 1.58% [.] __memmove_avx_unaligned_erms - - 
+ 1.36% [.] CADTElemClass::Dist2ToLine - - 
+ 1.27% [.] SU2Native3D::(anonymous namespace)::Determinant - - 
+ 1.24% [.] (anonymous namespace)::ClosestPointTriangle - - 
+ 1.08% [.] CADTElemClass::Dist2ToTriangle - - 
+ 1.05% [.] fetestexcept - - 
+ 1.02% [.] malloc - - 
+ 0.95% [.] SU2Native3D::(anonymous namespace)::Difference<198ul> - - 
+ 0.93% [.] (anonymous namespace)::Rotate - - 
+ 0.91% [.] SU2Native3D::(anonymous namespace)::Coordinate - - 
+ 0.90% [.] CADTElemClass::Dist2ToElement - - 
+ 0.85% [.] feupdateenv@@GLIBC_2.2.5 - - 
+ 0.83% [.] std::__unguarded_linear_insert<__gnu_cxx::__normal_iterator<CBBoxTargetClass*, std::vector<CBBoxTargetClass, std::allocator<CBBoxTargetClas
+ 0.77% [.] SU2Native3D::(anonymous namespace)::Surface - - 
+ 0.72% [.] std::__introsort_loop<__gnu_cxx::__normal_iterator<CBBoxTargetClass*, std::vector<CBBoxTargetClass, std::allocator<CBBoxTargetClass> > >, l
+ 0.70% [.] CBoundaryLayerMetric::EdgeBreakpointsImpl - - 
+ 0.70% [.] std::vector<unsigned long, std::allocator<unsigned long> >::operator= - - 
+ 0.69% [.] __memset_avx2_unaligned_erms - - 
+ 0.66% [.] __GI___feraiseexcept - - 
+ 0.59% [.] (anonymous namespace)::RotateNormal - - 
+ 0.54% [.] _int_free - - 
+ 0.51% [.] SU2Native3D::InterpolateSensor - - 
+ 0.50% [.] std::_Rb_tree<std::array<long long, 3ul>, std::pair<std::array<long long, 3ul> const, std::vector<unsigned int, std::allocator<unsigned int
+ 0.43% [.] SU2Native3D::FrozenField::EdgeLength(SU2Native3D::Point, SU2Native3D::Point, bool)::{lambda(unsigned long, long double)#2}::operator() - - 
+ 0.43% [.] SU2Native3D::(anonymous namespace)::Difference<66ul> - - 
+ 0.43% [.] SU2Native3D::(anonymous namespace)::Product<66ul, 66ul> - - 
+ 0.40% [.] _int_malloc - - 
+ 0.39% [.] SU2Native3D::ValidateTensor - - 
+ 0.36% [.] SU2Native3D::MetricNorm - - 

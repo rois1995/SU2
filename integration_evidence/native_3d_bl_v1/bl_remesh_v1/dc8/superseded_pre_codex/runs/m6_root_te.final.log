@@ -1,0 +1,19 @@
+Filters: [NativeFirstRowDC8]
+DC8 m6_root_te loaded: cells=1200 wall_faces=185 creases=13
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+test_driver is a Catch v2.13.9 host application.
+Run with -? for options
+
+-------------------------------------------------------------------------------
+DC-8 W(crease strips) -> R1 -> R2(sector lifts, band window) -> V(ApexMove,
+ColumnSplit)
+-------------------------------------------------------------------------------
+../../UnitTests/SU2_CFD/adaptation/fixtures/native_first_row_dc8.inc:1235
+...............................................................................
+
+../../UnitTests/SU2_CFD/adaptation/fixtures/native_first_row_dc8.inc:1235: FAILED:
+  {Unknown expression after the reported line}
+due to a fatal error condition:
+  SIGTERM - Termination request signal
+

@@ -1,0 +1,5 @@
+1. python3 to_vtu.py writes runs/vtu/*.vtu (tets), *_faces.vtp (boundary faces, marker/is_wall), *_longedges_metric.vtp and *_longedges_proxy.vtp; PNGs in png/ (bad cells coloured by q).
+2. Final meshes of the post-review campaign carry the native gates: cell fields q_metric, J_metric, bad_metric (q<.20 or J<.05 in the frozen composed field), first_child, column_id (apex id, -1 none), cell_class (0 outside columns, 1 first child, 2 other column cell). Euclidean proxies (q_meanratio_proxy, bad_proxy, edge/h0) are kept as secondary fields.
+3. ParaView: open dc8_X.vtu, Threshold bad_metric 1..1, colour by q_metric; Threshold cell_class 1..2 shows the rows/columns.
+4. Open dc8_X_faces.vtp, Threshold is_wall = 1 (light grey, opacity 0.5); Clip the .vtu with a plane normal to the wall to see the layers.
+5. dc8_X_longedges_metric.vtp: every composed-metric edge > 1.8 with length_metric, class (0 interior, 1 wall, 2 seam, 3 other physical, 4 unmeasurable) and inside_columns_only; apply Tube. superseded_pre_codex/ holds the pre-review binary runs (4a62a9dc), superseded by runs/ (post-review binary).

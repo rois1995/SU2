@@ -1,0 +1,32 @@
+DC8 W sweep 0 wall_faces=2 long_wall_edges=5 work=0
+DC8 W sweep 1 wall_faces=8 long_wall_edges=2 work=5
+DC8 W sweep 2 wall_faces=12 long_wall_edges=0 work=7
+DC8 R1 deficient 1 -> 0 accepted=1 outcome=complete
+DC8 R2 tx v=16 |V|=1 low=0 ok=1 old=8 fresh=40 sectors=0 gaps=0 cls= 
+DC8 R2 tx v=19 |V|=1 low=0 ok=0 old=15 fresh=0 sectors=0 gaps=0 cls=clearance moved cell 67 inverts; |V|=1 moved in cell: v19(delta/deltaK=3.542,H/h0=1.1,rank 1,s*=1)
+DC8 R2 tx v=19 |V|=1 low=1 ok=0 old=15 fresh=0 sectors=0 gaps=0 cls=clearance moved cell 67 inverts; |V|=1 low band moved in cell: v19(delta/deltaK=3.0429,H/h0=0.945,rank 1,s*=1)
+DC8 R2 tx v=19 |V|=2 low=1 ok=1 old=23 fresh=41 sectors=0 gaps=0 cls= 
+DC8 R2 tx v=20 |V|=1 low=0 ok=1 old=15 fresh=23 sectors=0 gaps=0 cls= 
+DC8 R2 tx v=21 |V|=1 low=0 ok=1 old=18 fresh=28 sectors=0 gaps=0 cls= 
+DC8 R2 tx v=17 |V|=1 low=0 ok=1 old=19 fresh=25 sectors=0 gaps=0 cls= 
+DC8 R2 tx v=18 |V|=1 low=0 ok=1 old=17 fresh=23 sectors=0 gaps=0 cls= 
+DC8 R2 tx v=0 |V|=1 low=0 ok=0 old=21 fresh=0 sectors=1 gaps=5 cls=partial-state face 0,19,22: A_f empty (exact LP) with 10 skin faces; inradius/h0=1.025; free-height LP slack=-0.0025; violated at centroid+h0: (57,56,32)=0.833333; lifted: v22(H_n/h0=1.1,tangential/inradius=4.25949e-29) v0(H_n/h0=1.44342,tangential/inradius=0.859011) v19(H_n/h0=0.945,tangential/inradius=3.5319e-29)
+DC8 R2 tx v=0 |V|=1 low=1 ok=0 old=21 fresh=0 sectors=1 gaps=5 cls=partial-state face 0,19,22 (low band): A_f empty (exact LP) with 10 skin faces; inradius/h0=1.025; free-height LP slack=-0.0025; violated at centroid+h0: (57,56,32)=0.833333; lifted: v22(H_n/h0=1.1,tangential/inradius=4.25949e-29) v0(H_n/h0=1.1,tangential/inradius=0.654634) v19(H_n/h0=0.945,tangential/inradius=3.5319e-29)
+DC8 R2 tx v=1 |V|=1 low=0 ok=1 old=21 fresh=25 sectors=0 gaps=0 cls= 
+DC8 R2 tx v=8 |V|=1 low=0 ok=0 old=16 fresh=0 sectors=0 gaps=0 cls=sector-link vertex 8: sector-link: link path from seam 12 to junction 18 passes boundary vertex 32; split edge 13-32
+DC8 R2 tx v=8 |V|=1 low=0 ok=0 old=18 fresh=0 sectors=1 gaps=7 cls=partial-state face 8,16,18: A_f empty (exact LP) with 12 skin faces; inradius/h0=1.53933; free-height LP slack=-0.283774; violated at centroid+h0: (61,62,52)=1.1071 (62,60,52)=0.646424; lifted: v8(H_n/h0=1.3,tangential/inradius=0.515158) v18(H_n/h0=1.3,tangential/inradius=0.483147) v16(H_n/h0=1.33929,tangential/inradius=3.45326e-29)
+DC8 R2 tx v=8 |V|=1 low=1 ok=0 old=18 fresh=0 sectors=0 gaps=0 cls=sector vertex 8: sector: gap tetrahedron on the column side of its lid face
+DC8 R2 tx v=9 |V|=1 low=0 ok=0 old=16 fresh=0 sectors=0 gaps=0 cls=sector-link vertex 9: sector-link: link path from seam 14 to junction 18 passes boundary vertex 39; split edge 13-39
+DC8 R2 tx v=9 |V|=1 low=0 ok=0 old=18 fresh=0 sectors=0 gaps=0 cls=sector vertex 9: sector: gap tetrahedron on the column side of its lid face
+DC8 R2 tx v=0 |V|=1 low=0 ok=0 old=23 fresh=0 sectors=1 gaps=5 cls=partial-state face 0,19,22: A_f empty (exact LP) with 10 skin faces; inradius/h0=1.025; free-height LP slack=-0.0025; violated at centroid+h0: (62,61,32)=0.833333; lifted: v22(H_n/h0=1.1,tangential/inradius=4.25949e-29) v0(H_n/h0=1.44342,tangential/inradius=0.859011) v19(H_n/h0=0.945,tangential/inradius=3.5319e-29)
+DC8 R2 tx v=0 |V|=1 low=1 ok=0 old=23 fresh=0 sectors=1 gaps=5 cls=partial-state face 0,19,22 (low band): A_f empty (exact LP) with 10 skin faces; inradius/h0=1.025; free-height LP slack=-0.0025; violated at centroid+h0: (62,61,32)=0.833333; lifted: v22(H_n/h0=1.1,tangential/inradius=4.25949e-29) v0(H_n/h0=1.1,tangential/inradius=0.654634) v19(H_n/h0=0.945,tangential/inradius=3.5319e-29)
+DC8 R2 tx v=8 |V|=1 low=0 ok=0 old=18 fresh=0 sectors=1 gaps=7 cls=partial-state face 8,16,18: A_f empty (exact LP) with 12 skin faces; inradius/h0=1.53933; free-height LP slack=-0.283774; violated at centroid+h0: (62,63,52)=1.1071 (63,61,52)=0.646424; lifted: v8(H_n/h0=1.3,tangential/inradius=0.515158) v18(H_n/h0=1.3,tangential/inradius=0.483147) v16(H_n/h0=1.33929,tangential/inradius=3.45326e-29)
+DC8 R2 tx v=8 |V|=1 low=1 ok=0 old=18 fresh=0 sectors=0 gaps=0 cls=sector vertex 8: sector: gap tetrahedron on the column side of its lid face
+DC8 R2 tx v=9 |V|=1 low=0 ok=0 old=18 fresh=0 sectors=0 gaps=0 cls=sector vertex 9: sector: gap tetrahedron on the column side of its lid face
+DC8 R2 transactions=7 lifted=8 unlifted=3 rowed=6 unrowed=6
+DC8 V sweep 0 cells=224 long=61 bad=30 height_fail=0 column_demand=9 work=87 cache_skips=0 t=2.24599
+DC8 V sweep 1 cells=252 long=51 bad=30 height_fail=0 column_demand=9 work=191 cache_skips=4 t=5.86816
+DC8 V sweep 2 cells=253 long=51 bad=25 height_fail=0 column_demand=9 work=250 cache_skips=28 t=7.91872
+DC8 V sweep 3 cells=253 long=51 bad=27 height_fail=0 column_demand=9 work=294 cache_skips=59 t=10.5387
+DC8 V sweep 4 cells=258 long=49 bad=25 height_fail=0 column_demand=9 work=320 cache_skips=103 t=11.5814
+DC8 V sweep 5 cells=258 long=49 bad=25 height_fail=0 column_demand=9 work=320 cache_skips=164 t=11.5824

@@ -1,0 +1,27 @@
+What this change does: DC-8 adds sector construction, crease refinement, and column repair to the test harness. I found eight concrete defects.
+
+All DC-8 references below point to [native_first_row_dc8.inc](/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/UnitTests/SU2_CFD/adaptation/fixtures/native_first_row_dc8.inc).
+
+1. **[P1] Cell IDs are not immutable across volume repair.** At [dc8.inc:1087](/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/UnitTests/SU2_CFD/adaptation/fixtures/native_first_row_dc8.inc:1087), repaired cells are applied without renumbering. Production repair can change coordinates while retaining cell IDs ([CNativeBoundary3D.cpp:2548](/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/Common/src/adaptation/CNativeBoundary3D.cpp:2548)). Consequently, `shapeCache`, height-error values, and rejection keys can remain stale, producing incorrect minima and false blocked outcomes. **Fix:** assign fresh cell IDs before admission/application; assert agreement between cached results and the fresh reaudit, which currently only writes another result.
+
+2. **[P1] Prepare paths omit the D.2 invariant.** W applies candidates directly at [dc8.inc:630](/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/UnitTests/SU2_CFD/adaptation/fixtures/native_first_row_dc8.inc:630); R1 does likewise at [dc8.inc:670](/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/UnitTests/SU2_CFD/adaptation/fixtures/native_first_row_dc8.inc:670). An asymmetric wall-edge split can move a previously valid normal foot outside one child triangle. Shape can also deteriorate without any parent check. SplitCell/SplitLinkEdge and unrebuilt R2 faces check height preservation but omit shape preservation. **Fix:** run the shared parent/child invariant for both height and q/J before every Apply.
+
+3. **[P1] R2 bypasses LayerConstruct’s excess certificate.** [dc8.inc:569](/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/UnitTests/SU2_CFD/adaptation/fixtures/native_first_row_dc8.inc:569) accepts the transaction without measuring changed-edge excess. A positive, height-valid construction introducing oversized diagonals can therefore pass even when removed excess is zero; `Admit8` would reject it. **Fix:** enforce `added <= removed` before setting `tx.ok`, alongside the existing R2-specific checks.
+
+4. **[P2] ColumnSplit rejection keys describe the wrong cavity.** [dc8.inc:1046](/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/UnitTests/SU2_CFD/adaptation/fixtures/native_first_row_dc8.inc:1046) keys the trial using the triggering edge’s star. ColumnSplit actually gathers both columns and the lid-edge star. Changing the neighbouring column can leave that key unchanged and suppress a now-valid trial; different triggering edges also repeat identical ColumnSplit trials. **Fix:** construct the key from the complete ColumnSplit cavity and dependencies.
+
+5. **[P2] ColumnSplit uses one wall marker for both sides.** At [dc8.inc:960](/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/UnitTests/SU2_CFD/adaptation/fixtures/native_first_row_dc8.inc:960), all four children use the marker of `*facets.begin()`. When the two parents have different wall markers, children on the other side fail authority lookup. **Fix:** retain each child’s parent marker and use it for `FindFace`.
+
+6. **[P2] ColumnSplit cannot handle wall/carrier junction edges.** [dc8.inc:929](/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/UnitTests/SU2_CFD/adaptation/fixtures/native_first_row_dc8.inc:929) requires two rowed wall faces, excluding the one-wall-face carrier case required by §8.11. Its expected skin also preserves carrier triangles unchanged. Long junction-column edges therefore remain unroutable. **Fix:** support the single-column case, split the carrier skin, and validate its L-C boundary.
+
+7. **[P2] Work/time limits miss inner trials and failed construction.** The MoveVertex halvings at [dc8.inc:679](/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/UnitTests/SU2_CFD/adaptation/fixtures/native_first_row_dc8.inc:679) continue without budget checks. ApexMove/ColumnSplit increment work only after construction reaches admission, so expensive rejected constructions consume no work budget. **Fix:** charge every attempted construction and check limits between inner candidates; include deadline checks in harness-owned LP/grid loops.
+
+8. **[P2] Existing JSON files silently bypass validation.** [dc8.inc:1244](/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/UnitTests/SU2_CFD/adaptation/fixtures/native_first_row_dc8.inc:1244) skips a case solely because its JSON exists—even if truncated or produced by different source, binary, inputs, or helpers. **Fix:** verify complete saved evidence and its provenance before skipping.
+
+The `Admit8` decision branches otherwise match `layer2d::Admit(...).second`; endpoint checks make length reuse safe across rejected trials under the unchanged field.
+
+Verdict: fix these before treating DC-8 results as validation evidence.  
+Not checked: runtime behaviour; no edits, builds, or repository binaries were run.
+
+Codex session ID: 01a165f4-aba8-7051-a42b-fabeb3d1b9d0
+Resume in Codex: codex resume 01a165f4-aba8-7051-a42b-fabeb3d1b9d0

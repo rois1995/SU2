@@ -1,0 +1,28 @@
+DC-8 performance notes (profile: perf_dc7_m6_le_flat.txt; per-phase/per-operation numbers: runs/dc8_<case>.json "perf", phase "field" counters).
+
+Inclusive profile of the DC-7 harness on m6_le (perf --children):
+  86.5% FrozenField::EdgeLength (composed edge integration) <- 74% CBoundaryLayerMetric::ApplyPointOnChord / EvaluateImpl
+  57.0% FrozenField::BalancedSplitPoint, called from layer2d::RefineProposal once per VARIANT (up to 5x per edge)
+  20.1% layer2d::Admit -> MeasureMetricCells (old cavity edges re-integrated although already measured)
+   9.1% dc7::Final per V sweep + 4.5% JsonFinal (no shape/length/height caches)
+  30.9% __fmal (glibc long-double fma with fesetround/feholdexcept/fesetenv, ~25% of all cycles in FP-environment calls)
+
+Harness fixes (DC-8): balanced split point once per edge (cached by ids+coordinates); no SplitEdge trial without an
+exact on-edge binary64 point (interior edges: none exists generically); no InsertEdgeCavity trial on chart/marker
+junctions; topology-keyed rejection cache (operator + complete cavity cell ids; cells are immutable by id, repaired
+cells are renumbered); Admit8 reuses cached composed lengths through EdgeMeasure (field identity added in the loaders);
+cached cell shapes / first-height verdicts / unmeasurable edges; deficit evaluations without metric-cap integrations;
+limits checked inside candidate loops.
+
+Production hot spots (not changed in this step):
+  SU2_CFD/src/adaptation/CBoundaryLayerMetric.cpp:113, :138 (2x2 tangent eigenvalue) and :264 (closest-triangle
+    displacement): std::fma on long double -> glibc fmal, software-emulated with FP-environment save/restore; ~31% of
+    the m6_le run. A double fma or an explicit two-product would remove it.
+  Common/src/adaptation/CNativeField3D.cpp:155-171 FrozenField::BalancedSplitPoint: every Newton step re-integrates
+    the whole prefix TargetEdgeLength(a,point) (up to 48 integrations); one integration with cumulative panel lengths
+    and inversion would suffice.
+  CADTElemClass::DetermineNearestElement_impl (16.8% self) inside CBoundaryLayerMetric::EvaluateImpl wall-distance
+    queries per integration point; a per-chord nearest-facet reuse (the chord ownership already computed for the
+    breakpoints) would avoid repeated ADT descents.
+  Whole-mesh gate evaluation: the first full Final (after R2) and the independent fresh-field re-audit integrate every
+    edge of 30-40k cells (M6 TE: ~270 s and ~320 s); this is inherent to the composed-metric gate, not harness waste.

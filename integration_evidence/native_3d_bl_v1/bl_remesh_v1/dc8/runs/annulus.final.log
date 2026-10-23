@@ -1,0 +1,38 @@
+Filters: [NativeFirstRowDC8]
+DC8 annulus loaded: cells=24 wall_faces=2 creases=0
+DC8 annulus W unmeasurable wall edges: 1 wall_faces=12 stations=0 levels=0 bisections=7 collapses=0 t=0.0332273
+DC8 annulus R1 complete deficient 1->0 lp_empty=0 t=0.00445205
+DC8 annulus R2 rowed=6 unrowed=6 t=0.270706 last=vertex 9 [sector] vertex 9: sector: gap tetrahedron on the column side of its lid face
+DC8 V sweep 0 cells=224 long=61 bad=30 work=87 t=2.24601
+DC8 V sweep 1 cells=252 long=51 bad=30 work=191 t=5.86817
+DC8 V sweep 2 cells=253 long=51 bad=25 work=250 t=7.91874
+DC8 V sweep 3 cells=253 long=51 bad=27 work=294 t=10.5387
+DC8 V sweep 4 cells=258 long=49 bad=25 work=320 t=11.5814
+DC8 V sweep 5 cells=258 long=49 bad=25 work=320 t=11.5824
+DC8 annulus done in 12.3088 s
+===============================================================================
+All tests passed (4 assertions in 1 test case)
+
+	Command being timed: "nice -n 19 timeout --kill-after=5s 3600s /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver [NativeFirstRowDC8] --use-colour no"
+	User time (seconds): 12.23
+	System time (seconds): 0.01
+	Percent of CPU this job got: 96%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:12.65
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 31656
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 2
+	Minor (reclaiming a frame) page faults: 3262
+	Voluntary context switches: 1088
+	Involuntary context switches: 614
+	Swaps: 0
+	File system inputs: 0
+	File system outputs: 104
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0

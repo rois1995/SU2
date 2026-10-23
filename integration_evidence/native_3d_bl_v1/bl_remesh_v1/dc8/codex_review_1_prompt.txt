@@ -1,0 +1,24 @@
+READ-ONLY REVIEW. Do not edit any file, do not build, do not run binaries, do not run git commands that change state.
+
+Repository: /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated (branch codex/native-3d-bl). Review the uncommitted TEST-ONLY harness
+UnitTests/SU2_CFD/adaptation/fixtures/native_first_row_dc8.inc (new, included at the end of UnitTests/SU2_CFD/adaptation/CNativeRemesher3D_tests.cpp).
+It extends the DC-7 harness (fixtures/native_first_row_dc7.inc, committed) per BL_FIRST_ROW_DESIGN.md rev 2.1 (§4, §8) with:
+ (a) carrier sector lifts (PlanSectors: per-chart-seam lift points bound on both seam charts, vertex split of star(v) along shortest
+     interior link paths seam->junction with gap tetrahedra, rim/lid extras on the corner column; SplitCell / SplitLinkEdge Prepare steps),
+ (b) structured crease strips in phase W (DetectCreases replicates the production D1 rule CBoundaryLayerMetric.cpp:1386ff; crease edges
+     split first to a 1.45 station target, other long wall edges split at D1 level-line crossings rho_k, Phi(rho)=ln(1+slope rho/h0)/slope),
+ (c) band height down to (1-T)h0(1+5%) before closure growth, R1 finite candidate set (Reconnect per link edge, MoveVertex halvings,
+     CollapseVertex, Steiner), R2 order by lift-direction quality,
+ (d) V phase: ApexMove, ColumnSplit, exact on-edge split point search, junction skip for InsertEdgeCavity, topology-keyed rejection cache,
+     Admit8 (copy of layer2d::Admit decision D) with reuse of cached composed edge lengths via EdgeMeasure (field identity added in the
+     copied loaders), cached cell shapes / first-height verdicts keyed by immutable cell id.
+Final gates must remain unchanged and absolute (q>=0.20, J>=0.05, composed edge <=1.8, first height within T=0.10, no unmeasurable edge);
+caps 64 old / 128 fresh cells must not be raised; production C++ is not modified.
+
+Check for real defects: (1) anything that weakens or misreports a final gate or an admission rule (D.1/U1, D.2 invariant), including
+cache invalidation errors (are cell ids really never reused? are shape/height/length caches valid across Apply/rollback?), the reaudit
+path (caches disabled, fresh field), and Admit8 vs layer2d::Admit equivalence; (2) topological/geometric errors in PlanSectors / Transaction
+(skin closure, orientation of rims, lid extras and gap tetrahedra, L-C loop handling of sector points, unlift/marker mapping),
+ColumnSplit (expected skin, lid edge split, wall binding) and ApexMove; (3) limit enforcement (phase time/work checks inside loops),
+counters that mislead; (4) performance claims (does the rejection cache key really identify identical trials? is anything still
+repeated needlessly?). Cite file:line for each finding with a concrete fix. Do not report style issues. Be concise.

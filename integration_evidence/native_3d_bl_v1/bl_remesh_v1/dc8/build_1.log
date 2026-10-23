@@ -1,0 +1,62 @@
+ninja: Entering directory `integration_evidence/build-integrated-v2'
+[1/2] Compiling C++ object UnitTests/test_driver.p/SU2_CFD_adaptation_CNativeRemesher3D_tests.cpp.o
+FAILED: [code=1] UnitTests/test_driver.p/SU2_CFD_adaptation_CNativeRemesher3D_tests.cpp.o 
+c++ -IUnitTests/test_driver.p -IUnitTests -I../../UnitTests -ISU2_CFD/src -I../../SU2_CFD/src -ICommon/src -I../../Common/src -I../../externals/CLI11 -I../../externals/eigen -I../../externals/cgns/adf -I../../externals/cgns/adfh -Iexternals/cgns -I../../externals/cgns -Iexternals/cgns/hdf5 -I../../externals/cgns/hdf5 -I../../externals/metis/include -I../../externals/metis/GKlib -I../../externals/metis/libmetis -I../../externals/parmetis/include -I../../externals/parmetis/libparmetis -I../../externals/mel -I../../externals/catch2 -I/usr/lib/x86_64-linux-gnu/openmpi/include/openmpi -I/usr/lib/x86_64-linux-gnu/openmpi/include -fdiagnostics-color=always -D_GLIBCXX_ASSERTIONS=1 -D_FILE_OFFSET_BITS=64 -std=c++17 -O2 -g -pthread -fPIC -Wno-empty-body -Wno-ignored-qualifiers -Wno-unused-parameter -Wno-deprecated-declarations -Wno-error=cast-function-type -Wno-cast-function-type -Wno-error=stringop-truncation -Wno-stringop-truncation -Wno-error=missing-field-initializers -Wno-missing-field-initializers -Wno-error=class-memaccess -Wno-class-memaccess -Wno-overloaded-virtual -Wno-array-bounds -march=native -ffast-math -fno-finite-math-only -DHAVE_CGNS -DHAVE_MPI -DHAVE_METIS -DHAVE_PARMETIS -DHAVE_MMG -MD -MQ UnitTests/test_driver.p/SU2_CFD_adaptation_CNativeRemesher3D_tests.cpp.o -MF UnitTests/test_driver.p/SU2_CFD_adaptation_CNativeRemesher3D_tests.cpp.o.d -o UnitTests/test_driver.p/SU2_CFD_adaptation_CNativeRemesher3D_tests.cpp.o -c ../../UnitTests/SU2_CFD/adaptation/CNativeRemesher3D_tests.cpp
+In file included from /usr/include/c++/9/bits/stl_algobase.h:71,
+                 from /usr/include/c++/9/bits/char_traits.h:39,
+                 from /usr/include/c++/9/string:40,
+                 from ../../externals/catch2/catch.hpp:477,
+                 from ../../UnitTests/SU2_CFD/adaptation/TransferTestCase.hpp:29,
+                 from ../../UnitTests/SU2_CFD/adaptation/CNativeRemesher3D_tests.cpp:7:
+/usr/include/c++/9/bits/predefined_ops.h: In instantiation of ‘constexpr bool __gnu_cxx::__ops::_Iter_less_iter::operator()(_Iterator1, _Iterator2) const [with _Iterator1 = const SU2Native3D::Point*; _Iterator2 = const SU2Native3D::Point*]’:
+/usr/include/c++/9/bits/stl_algobase.h:903:14:   required from ‘bool std::__lexicographical_compare_impl(_II1, _II1, _II2, _II2, _Compare) [with _II1 = const SU2Native3D::Point*; _II2 = const SU2Native3D::Point*; _Compare = __gnu_cxx::__ops::_Iter_less_iter]’
+/usr/include/c++/9/bits/stl_algobase.h:924:44:   required from ‘static bool std::__lexicographical_compare<_BoolType>::__lc(_II1, _II1, _II2, _II2) [with _II1 = const SU2Native3D::Point*; _II2 = const SU2Native3D::Point*; bool _BoolType = false]’
+/usr/include/c++/9/bits/stl_algobase.h:960:60:   required from ‘bool std::__lexicographical_compare_aux(_II1, _II1, _II2, _II2) [with _II1 = const SU2Native3D::Point*; _II2 = const SU2Native3D::Point*]’
+/usr/include/c++/9/bits/stl_algobase.h:1256:48:   required from ‘bool std::lexicographical_compare(_II1, _II1, _II2, _II2) [with _II1 = const SU2Native3D::Point*; _II2 = const SU2Native3D::Point*]’
+/usr/include/c++/9/array:264:42:   required from ‘bool std::operator<(const std::array<_Tp, _Nm>&, const std::array<_Tp, _Nm>&) [with _Tp = SU2Native3D::Point; long unsigned int _Nm = 2]’
+/usr/include/c++/9/bits/stl_pair.h:456:50:   required from ‘constexpr bool std::operator<(const std::pair<_T1, _T2>&, const std::pair<_T1, _T2>&) [with _T1 = std::array<long unsigned int, 2>; _T2 = std::array<SU2Native3D::Point, 2>]’
+/usr/include/c++/9/bits/stl_function.h:386:20:   required from ‘constexpr bool std::less<_Tp>::operator()(const _Tp&, const _Tp&) const [with _Tp = std::pair<std::array<long unsigned int, 2>, std::array<SU2Native3D::Point, 2> >]’
+/usr/include/c++/9/bits/stl_map.h:497:32:   required from ‘std::map<_Key, _Tp, _Compare, _Alloc>::mapped_type& std::map<_Key, _Tp, _Compare, _Alloc>::operator[](const key_type&) [with _Key = std::pair<std::array<long unsigned int, 2>, std::array<SU2Native3D::Point, 2> >; _Tp = SU2Native3D::Point; _Compare = std::less<std::pair<std::array<long unsigned int, 2>, std::array<SU2Native3D::Point, 2> > >; _Alloc = std::allocator<std::pair<const std::pair<std::array<long unsigned int, 2>, std::array<SU2Native3D::Point, 2> >, SU2Native3D::Point> >; std::map<_Key, _Tp, _Compare, _Alloc>::mapped_type = SU2Native3D::Point; std::map<_Key, _Tp, _Compare, _Alloc>::key_type = std::pair<std::array<long unsigned int, 2>, std::array<SU2Native3D::Point, 2> >]’
+../../UnitTests/SU2_CFD/adaptation/fixtures/native_first_row_dc8.inc:896:125:   required from here
+/usr/include/c++/9/bits/predefined_ops.h:43:23: error: no match for ‘operator<’ (operand types are ‘const SU2Native3D::Point’ and ‘const SU2Native3D::Point’)
+   43 |       { return *__it1 < *__it2; }
+      |                ~~~~~~~^~~~~~~~
+In file included from /usr/include/c++/9/bits/stl_algobase.h:67,
+                 from /usr/include/c++/9/bits/char_traits.h:39,
+                 from /usr/include/c++/9/string:40,
+                 from ../../externals/catch2/catch.hpp:477,
+                 from ../../UnitTests/SU2_CFD/adaptation/TransferTestCase.hpp:29,
+                 from ../../UnitTests/SU2_CFD/adaptation/CNativeRemesher3D_tests.cpp:7:
+/usr/include/c++/9/bits/stl_iterator.h:912:5: note: candidate: ‘template<class _IteratorL, class _IteratorR, class _Container> bool __gnu_cxx::operator<(const __gnu_cxx::__normal_iterator<_IteratorL, _Container>&, const __gnu_cxx::__normal_iterator<_IteratorR, _Container>&)’
+  912 |     operator<(const __normal_iterator<_IteratorL, _Container>& __lhs,
+      |     ^~~~~~~~
+/usr/include/c++/9/bits/stl_iterator.h:912:5: note:   template argument deduction/substitution failed:
+In file included from /usr/include/c++/9/bits/stl_algobase.h:71,
+                 from /usr/include/c++/9/bits/char_traits.h:39,
+                 from /usr/include/c++/9/string:40,
+                 from ../../externals/catch2/catch.hpp:477,
+                 from ../../UnitTests/SU2_CFD/adaptation/TransferTestCase.hpp:29,
+                 from ../../UnitTests/SU2_CFD/adaptation/CNativeRemesher3D_tests.cpp:7:
+/usr/include/c++/9/bits/predefined_ops.h:43:23: note:   ‘const SU2Native3D::Point’ is not derived from ‘const __gnu_cxx::__normal_iterator<_IteratorL, _Container>’
+   43 |       { return *__it1 < *__it2; }
+      |                ~~~~~~~^~~~~~~~
+In file included from /usr/include/c++/9/bits/stl_algobase.h:67,
+                 from /usr/include/c++/9/bits/char_traits.h:39,
+                 from /usr/include/c++/9/string:40,
+                 from ../../externals/catch2/catch.hpp:477,
+                 from ../../UnitTests/SU2_CFD/adaptation/TransferTestCase.hpp:29,
+                 from ../../UnitTests/SU2_CFD/adaptation/CNativeRemesher3D_tests.cpp:7:
+/usr/include/c++/9/bits/stl_iterator.h:919:5: note: candidate: ‘template<class _Iterator, class _Container> bool __gnu_cxx::operator<(const __gnu_cxx::__normal_iterator<_Iterator, _Container>&, const __gnu_cxx::__normal_iterator<_Iterator, _Container>&)’
+  919 |     operator<(const __normal_iterator<_Iterator, _Container>& __lhs,
+      |     ^~~~~~~~
+/usr/include/c++/9/bits/stl_iterator.h:919:5: note:   template argument deduction/substitution failed:
+In file included from /usr/include/c++/9/bits/stl_algobase.h:71,
+                 from /usr/include/c++/9/bits/char_traits.h:39,
+                 from /usr/include/c++/9/string:40,
+                 from ../../externals/catch2/catch.hpp:477,
+                 from ../../UnitTests/SU2_CFD/adaptation/TransferTestCase.hpp:29,
+                 from ../../UnitTests/SU2_CFD/adaptation/CNativeRemesher3D_tests.cpp:7:
+/usr/include/c++/9/bits/predefined_ops.h:43:23: note:   ‘const SU2Native3D::Point’ is not derived from ‘const __gnu_cxx::__normal_iterator<_Iterator, _Container>’
+   43 |       { return *__it1 < *__it2; }
+      |                ~~~~~~~^~~~~~~~
+ninja: build stopped: subcommand failed.
