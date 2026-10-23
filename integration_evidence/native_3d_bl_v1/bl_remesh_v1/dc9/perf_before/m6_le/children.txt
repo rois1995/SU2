@@ -1,0 +1,97 @@
+    90.59%     0.00%  test_driver  test_driver                    [.] C_A_T_C_H_T_E_S_T_33
+    84.71%     0.00%  test_driver  test_driver                    [.] Catch::RunContext::invokeActiveTestCase
+    84.66%     0.00%  test_driver  test_driver                    [.] Catch::RunContext::runCurrentTest
+    84.03%     0.01%  test_driver  test_driver                    [.] dc8::PhaseV
+    82.70%     0.00%  test_driver  test_driver                    [.] Catch::RunContext::runTest
+    81.59%     0.00%  test_driver  test_driver                    [.] Catch::Session::runInternal
+    75.89%     0.00%  test_driver  test_driver                    [.] Catch::Session::run
+    75.78%     0.00%  test_driver  test_driver                    [.] main
+    65.73%     0.00%  test_driver  libc-2.31.so                   [.] __libc_start_main
+    62.09%     0.00%  test_driver  test_driver                    [.] _start
+    57.65%     0.20%  test_driver  test_driver                    [.] SU2Native3D::RepairMetricConnectivity
+    29.03%     0.00%  test_driver  [unknown]                      [.] 0xffffffffffffffff
+    28.63%     0.21%  test_driver  test_driver                    [.] SU2Native3D::FrozenField::EdgeLength
+    27.23%     5.41%  test_driver  test_driver                    [.] CBoundaryLayerMetric::EvaluateImpl
+    25.02%     0.39%  test_driver  test_driver                    [.] SU2Native3D::FrozenField::EdgeLength(SU2Native3D::Point, SU2Native3D::Point, bool, SU2Native3D::FrozenField::LengthInverse*)::{lambda(unsigned long, long double)#3}::operator()
+    24.39%     0.25%  test_driver  test_driver                    [.] SU2Native3D::(anonymous namespace)::Validate
+    24.01%     0.43%  test_driver  test_driver                    [.] SU2Native3D::FrozenField::Query
+    23.42%     0.03%  test_driver  test_driver                    [.] dc8::Admit8
+    23.28%     0.00%  test_driver  test_driver                    [.] SU2Native3D::ValidateFixedInterface
+    22.54%     0.02%  test_driver  test_driver                    [.] SU2Native3D::MeasureMetricCellsImpl
+    22.54%     0.00%  test_driver  test_driver                    [.] SU2Native3D::MeasureMetricCells
+    21.26%     0.57%  test_driver  test_driver                    [.] SU2Native3D::(anonymous namespace)::Ball
+    20.17%     2.49%  test_driver  test_driver                    [.] SU2Native3D::(anonymous namespace)::Surface
+    19.93%     0.00%  test_driver  test_driver                    [.] dc8::PhaseV(junction_wp0::State&, dc8::Rows&, unsigned long, double, std::ostream&)::{lambda(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, layer2d::Kind, std::vector<unsigned long, std::allocator<unsigned long> > const&, SU2Native3D::Patch const&, SU2Native3D::Patch const&)#3}::operator()
+    19.12%     0.06%  test_driver  test_driver                    [.] CBoundaryLayerMetric::ApplyPoint
+    19.11%     0.02%  test_driver  test_driver                    [.] std::_Function_handler<SU2Native3D::Tensor (SU2Native3D::Point, SU2Native3D::Tensor), SU2NativeBL3D::Composition(std::shared_ptr<CBoundaryLayerMetric>, double)::{lambda(SU2Native3D::Point, SU2Native3D::Tensor)#1}>::_M_invoke
+    17.72%     0.05%  test_driver  test_driver                    [.] std::_Function_handler<SU2Native3D::Tensor (long double, SU2Native3D::Point, SU2Native3D::Tensor), SU2NativeBL3D::EdgeGeometry(std::shared_ptr<CBoundaryLayerMetric>, double)::{lambda(SU2Native3D::Point, SU2Native3D::Point)#1}::operator()(SU2Native3D::Point, SU2Native3D::Point) const::{lambda(long double, SU2Native3D::Point, SU2Native3D::Tensor)#1}>::_M_invoke
+    17.68%     0.08%  test_driver  test_driver                    [.] CBoundaryLayerMetric::ApplyPointOnChord
+    16.97%     0.01%  test_driver  test_driver                    [.] CBoundaryLayerMetric::Evaluate
+    10.78%    10.74%  test_driver  test_driver                    [.] CBlasStructure::EigenDecomposition<double [3][3], double [3], double [3]>
+    10.39%     7.65%  test_driver  test_driver                    [.] CADTElemClass::DetermineNearestElement_impl
+    10.02%     0.51%  test_driver  libstdc++.so.6.0.28            [.] operator new
+     9.72%     3.72%  test_driver  libc-2.31.so                   [.] malloc
+     9.43%     0.24%  test_driver  test_driver                    [.] CBoundaryLayerMetric::ApplySample
+     8.68%     2.12%  test_driver  test_driver                    [.] CSolver::IntersectMetrics
+     7.16%     0.12%  test_driver  test_driver                    [.] SU2Native3D::(anonymous namespace)::CoupledMetricDirection
+     7.00%     2.17%  test_driver  test_driver                    [.] SU2Native3D::(anonymous namespace)::Add
+     6.02%     4.79%  test_driver  libc-2.31.so                   [.] _int_malloc
+     5.78%     1.18%  test_driver  test_driver                    [.] SU2Native3D::Incidence::Incidence
+     5.36%     0.37%  test_driver  test_driver                    [.] SU2Native3D::MetricNorm
+     4.95%     0.02%  test_driver  test_driver                    [.] SU2Native3D::CheckFirstHeight
+     4.64%     0.98%  test_driver  test_driver                    [.] SU2Native3D::(anonymous namespace)::Connected
+     3.98%     3.94%  test_driver  libc-2.31.so                   [.] _int_free
+     3.65%     0.26%  test_driver  test_driver                    [.] std::vector<unsigned long, std::allocator<unsigned long> >::reserve
+     3.62%     0.00%  test_driver  test_driver                    [.] dc8::ColumnSplit
+     3.30%     0.23%  test_driver  test_driver                    [.] SU2Native3D::(anonymous namespace)::Curve
+     3.18%     0.01%  test_driver  test_driver                    [.] std::_Function_handler<SU2Native3D::EdgeGeometry (SU2Native3D::Point, SU2Native3D::Point), SU2NativeBL3D::EdgeGeometry(std::shared_ptr<CBoundaryLayerMetric>, double)::{lambda(SU2Native3D::Point, SU2Native3D::Point)#1}>::_M_invoke
+     3.17%     0.76%  test_driver  test_driver                    [.] CBoundaryLayerMetric::EdgeBreakpointsImpl
+     3.17%     0.00%  test_driver  test_driver                    [.] CBoundaryLayerMetric::EdgeBreakpoints
+     2.99%     0.00%  test_driver  test_driver                    [.] dc8::Final
+     2.96%     0.01%  test_driver  test_driver                    [.] dc8::Len
+     2.93%     0.04%  test_driver  test_driver                    [.] SU2Native3D::TraceSegment
+     2.74%     0.00%  test_driver  test_driver                    [.] dc8::PhaseR2
+     2.73%     0.00%  test_driver  test_driver                    [.] dc8::Transaction
+     2.61%     0.01%  test_driver  test_driver                    [.] SU2Native3D::Cone
+     2.56%     0.06%  test_driver  test_driver                    [.] SU2Native3D::(anonymous namespace)::CheckSurface
+     2.53%     2.27%  test_driver  test_driver                    [.] SU2Native3D::(anonymous namespace)::Determinant
+     2.49%     2.48%  test_driver  test_driver                    [.] SU2Native3D::(anonymous namespace)::Coordinate
+     2.45%     0.06%  test_driver  test_driver                    [.] SU2Native3D::(anonymous namespace)::ExactDeterminant
+     2.44%     0.32%  test_driver  test_driver                    [.] SU2Native3D::Orientation
+     2.43%     0.32%  test_driver  test_driver                    [.] std::_Rb_tree<unsigned long, std::pair<unsigned long const, std::vector<unsigned long, std::allocator<unsigned long> > >, std::_Select1st<std::pair<unsigned long const, std::vector<unsigned long, std::allocator<unsigned long> > > >, std::less<unsigned long>, std::allocator<std::pair<unsigned long const, std::vector<unsigned long, std::allocator<unsigned long> > > > >::_M_emplace_hint_unique<std::piecewise_construct_t const&, std::tuple<unsigned long const&>, std::tuple<> >
+     2.41%     2.40%  test_driver  test_driver                    [.] std::_Hashtable<std::array<double, 3ul>, std::pair<std::array<double, 3ul> const, SU2Native3D::FrozenField::SensorValue>, std::allocator<std::pair<std::array<double, 3ul> const, SU2Native3D::FrozenField::SensorValue> >, std::__detail::_Select1st, std::equal_to<std::array<double, 3ul> >, SU2Native3D::FrozenField::Hash, std::__detail::_Mod_range_hashing, std::__detail::_Default_ranged_hash, std::__detail::_Prime_rehash_policy, std::__detail::_Hashtable_traits<true, false, true> >::_M_find_before_node
+     2.40%     0.00%  test_driver  test_driver                    [.] dc8::SizeCertificate
+     2.40%     2.02%  test_driver  test_driver                    [.] CADTElemClass::DetermineElementsWithinDistance
+     2.39%     0.00%  test_driver  test_driver                    [.] dc8::LenAt
+     2.39%     1.16%  test_driver  test_driver                    [.] std::_Rb_tree<unsigned long, unsigned long, std::_Identity<unsigned long>, std::less<unsigned long>, std::allocator<unsigned long> >::_M_insert_unique<unsigned long const&>
+     2.21%     0.01%  test_driver  test_driver                    [.] SU2Native3D::(anonymous namespace)::ExactVolume
+     2.14%     0.82%  test_driver  test_driver                    [.] CBoundaryLayerMetric::EvaluateImpl(unsigned short, double const*, double, bool, unsigned long)::{lambda(unsigned long, double (&) [3], double (&) [3])#4}::operator()
+     2.07%     0.00%  test_driver  test_driver                    [.] SU2Native3D::PlanarReference::ParameterContainsFace
+     2.07%     0.00%  test_driver  test_driver                    [.] SU2Native3D::PlanarReference::ContainsFace
+     2.05%     0.21%  test_driver  test_driver                    [.] std::_Rb_tree<unsigned long, std::pair<unsigned long const, std::vector<unsigned long, std::allocator<unsigned long> > >, std::_Select1st<std::pair<unsigned long const, std::vector<unsigned long, std::allocator<unsigned long> > > >, std::less<unsigned long>, std::allocator<std::pair<unsigned long const, std::vector<unsigned long, std::allocator<unsigned long> > > > >::_M_erase
+     2.03%     0.01%  test_driver  test_driver                    [.] SU2NativeGeometry::MappedFacetReference::ContainsFace
+     2.02%     0.01%  test_driver  test_driver                    [.] SU2NativeGeometry::MappedFacetReference::ComponentContainsFace
+     1.99%     0.06%  test_driver  test_driver                    [.] SU2Native3D::(anonymous namespace)::ClipInterval
+     1.95%     0.38%  test_driver  test_driver                    [.] SU2Native3D::ValidateTensor
+     1.92%     1.87%  test_driver  test_driver                    [.] SU2Native3D::(anonymous namespace)::Difference<198ul>
+     1.88%     1.87%  test_driver  test_driver                    [.] SU2Native3D::FusedMultiplyAdd
+     1.81%     0.22%  test_driver  test_driver                    [.] SU2Native3D::FrozenField::CacheSensor
+     1.60%     0.00%  test_driver  test_driver                    [.] SU2NativeGeometry::MappedFacetReference::Admissible
+     1.59%     0.00%  test_driver  test_driver                    [.] dc8::RefineVariantsOf[abi:cxx11]
+     1.59%     0.38%  test_driver  test_driver                    [.] std::vector<unsigned long, std::allocator<unsigned long> >::_M_realloc_insert<unsigned long const&>
+     1.56%     0.00%  test_driver  test_driver                    [.] SU2Native3D::FrozenField::BalancedSplitPoint
+     1.54%     0.05%  test_driver  test_driver                    [.] std::_Rb_tree<unsigned long, std::pair<unsigned long const, std::map<unsigned long, std::vector<unsigned long, std::allocator<unsigned long> >, std::less<unsigned long>, std::allocator<std::pair<unsigned long const, std::vector<unsigned long, std::allocator<unsigned long> > > > > >, std::_Select1st<std::pair<unsigned long const, std::map<unsigned long, std::vector<unsigned long, std::allocator<unsigned long> >, std::less<unsigned long>, std::allocator<std::pair<unsigned long const, std::vector<unsigned long, std::allocator<unsigned long> > > > > > >, std::less<unsigned long>, std::allocator<std::pair<unsigned long const, std::map<unsigned long, std::vector<unsigned long, std::allocator<unsigned long> >, std::less<unsigned long>, std::allocator<std::pair<unsigned long const, std::vector<unsigned long, std::allocator<unsigned long> > > > > > > >::_M_erase
+     1.50%     1.49%  test_driver  libstdc++.so.6.0.28            [.] std::_Rb_tree_insert_and_rebalance
+     1.47%     0.04%  test_driver  test_driver                    [.] SU2NativeGeometry::MappedFacetReference::ComponentPointError
+     1.47%     0.01%  test_driver  test_driver                    [.] SU2NativeGeometry::MappedFacetReference::ErrorBound
+     1.40%     0.10%  test_driver  test_driver                    [.] SU2Native3D::(anonymous namespace)::ParametricCoordinate
+     1.30%     0.06%  test_driver  test_driver                    [.] SU2NativeGeometry::(anonymous namespace)::PointModelError
+     1.28%     0.01%  test_driver  test_driver                    [.] SU2Native3D::RepairMetricConnectivity(SU2Native3D::Patch const&, SU2Native3D::FrozenField&, SU2Native3D::PlanarReference const&, SU2Native3D::WallHeights const&, unsigned long, SU2Native3D::Patch&, SU2Native3D::ConnectivityRepairReport&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&, unsigned long, bool, std::set<unsigned long, std::less<unsigned long>, std::allocator<unsigned long> > const*)::{lambda(std::vector<unsigned long, std::allocator<unsigned long> > const&, unsigned long)#4}::operator()
+     1.26%     0.27%  test_driver  test_driver                    [.] SU2Native3D::(anonymous namespace)::Nodes
+     1.21%     0.29%  test_driver  test_driver                    [.] SU2Native3D::ChordEnvelope::Add
+     1.20%     0.00%  test_driver  test_driver                    [.] dc8::LoadM6Cut
+     1.16%     0.32%  test_driver  test_driver                    [.] CADTElemClass::Dist2ToElement
+     1.15%     0.00%  test_driver  test_driver                    [.] SU2Native3D::ParametricPointBounds
+     1.11%     1.11%  test_driver  libc-2.31.so                   [.] cfree@GLIBC_2.2.5
+     1.08%     0.53%  test_driver  test_driver                    [.] SU2Native3D::Measure
+     1.02%     1.02%  test_driver  test_driver                    [.] SU2Native3D::(anonymous namespace)::Difference<66ul>

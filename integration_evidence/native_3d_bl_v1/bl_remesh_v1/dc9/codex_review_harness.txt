@@ -1,0 +1,10 @@
+1. **[P2] W can continue modifying the mesh after its deadline** — [native_first_row_dc9.inc:823](/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/UnitTests/SU2_CFD/adaptation/fixtures/native_first_row_dc9.inc:823). The new collapse-target loop and move-halving loop check work, but omit elapsed time. If one rejected collapse finishes after 120 seconds, subsequent collapses and moves can still run and commit. The unconditional census at line 846 also reconstructs endpoint patches after a limit, before W’s elapsed time is finalized. **Fix:** check the shared work/time predicate before every trial; bound the census separately and report whether it completed.
+
+2. **[P2] Resume can silently reuse a different campaign** — [native_first_row_dc9.inc:1547](/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/UnitTests/SU2_CFD/adaptation/fixtures/native_first_row_dc9.inc:1547). Resume checks only binary SHA and `total_seconds`, before reading the new options. Run an extended V campaign, then request defaults with the same root and SHA: the default campaign is skipped and the extended result remains. Changing sector ordering has the same problem; requesting `STOP_AFTER=W` can skip without producing its diagnostic output. **Fix:** parse options before resume, record effective limits and sector ordering, and require matching campaign settings and the requested output stage.
+
+The lazy certificate preserves DC-8’s accept/reject comparison: nonnegative removed terms permit early acceptance once their partial sum reaches added excess. The coordinate memo is cleared per case and bypassed during fresh re-audit. I found no additional confirmed topology, feature-motion, stored-extra, or junction-validation regression.
+
+Not checked: runtime behavior; no edits, builds, binaries, or commits were performed. Fix the deadline and resume issues before relying on campaign comparisons.
+
+Codex session ID: 01a16736-1de6-7f32-8160-36d07a1b066a
+Resume in Codex: codex resume 01a16736-1de6-7f32-8160-36d07a1b066a

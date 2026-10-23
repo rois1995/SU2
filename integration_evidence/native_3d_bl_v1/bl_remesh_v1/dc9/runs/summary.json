@@ -1,0 +1,1425 @@
+{
+ "annulus": {
+  "W": "unmeasurable wall edges: 1 2->12 faces (stations 0, levels 0, bisections 7)",
+  "creases_test_side/production_segments": [
+   0,
+   0
+  ],
+  "lp_empty_full_state_after_W/R1": [
+   0,
+   0
+  ],
+  "clearance_deficient_W/R1": [
+   1,
+   0
+  ],
+  "R1": [
+   "complete",
+   {
+    "deficient_before": 1,
+    "deficient_after": 0,
+    "moves": 0,
+    "flips": 1,
+    "collapses": 0,
+    "steiner": 0,
+    "exhausted_vertices": 0
+   }
+  ],
+  "R2_rowed/unrowed": [
+   6,
+   6
+  ],
+  "R2_lifted/unlifted": [
+   8,
+   3
+  ],
+  "R2_low_band/sector_tx/gaps/separations": [
+   1,
+   0,
+   0,
+   1
+  ],
+  "R2_final_witness_classes": {
+   "partial-state": 2,
+   "sector": 4
+  },
+  "R2_attempt_classes": {
+   "": 7,
+   "clearance": 2,
+   "partial-state": 6,
+   "sector-link": 1,
+   "sector": 4
+  },
+  "R2_rejected_chains_root->final": {
+   "partial-state -> partial-state": 2,
+   "sector-link -> sector-link": 1,
+   "partial-state -> sector": 2,
+   "sector -> sector": 2
+  },
+  "first_child_q/J/herr_at_admission": [
+   0.745029021544,
+   0.510638602411,
+   0.099999
+  ],
+  "V": "blocked",
+  "V_work/s": [
+   299,
+   7.394509071
+  ],
+  "V_counts": {
+   "sweeps": 4,
+   "column_demand_unrouted": 9,
+   "apex_moves": 2,
+   "column_splits": 1,
+   "junction_column_splits": 1,
+   "rejection_cache_skips": 98,
+   "exact_on_edge_splits": 0,
+   "no_exact_on_edge_point": 71,
+   "junction_insert_skips": 45,
+   "with_complete_rows": 0,
+   "demand": {
+    "cached rejection (unchanged cavity)": 4,
+    "column demand without a column route": 5
+   }
+  },
+  "final_complete": 0,
+  "final_cells": 242,
+  "long_edges": 45,
+  "long_by_class": {
+   "wall": 1,
+   "seam": 0,
+   "other_physical": 18,
+   "interior": 26,
+   "inside_columns_only": 4
+  },
+  "bad_shape": 21,
+  "bad_first/column/outside": [
+   0,
+   9,
+   12
+  ],
+  "first_child_q_min_final": 0.7550319131,
+  "height_failures": 0,
+  "unmeasurable": 1,
+  "reaudit": {
+   "long_edges": 45,
+   "bad_shape": 21,
+   "height_failures": 0,
+   "unmeasurable": 1,
+   "complete": 0,
+   "seconds": 0.223644498
+  },
+  "phase_seconds": {
+   "W": 0.023546465,
+   "R1": 0.00346844,
+   "R2": 0.161429894,
+   "V": 7.394509071
+  },
+  "total_seconds": 7.885218977,
+  "peak_rss_kB": 32168,
+  "phase_field": {
+   "W": {
+    "queries": 7,
+    "query_misses": 7,
+    "compositions": 1785,
+    "edge_integrations": 29,
+    "edge_compositions": 1785,
+    "edge_pieces": 54
+   },
+   "R1": {
+    "queries": 0,
+    "query_misses": 0,
+    "compositions": 0,
+    "edge_integrations": 0,
+    "edge_compositions": 0,
+    "edge_pieces": 0
+   },
+   "R2": {
+    "queries": 568,
+    "query_misses": 445,
+    "compositions": 26038,
+    "edge_integrations": 248,
+    "edge_compositions": 25470,
+    "edge_pieces": 472
+   },
+   "V": {
+    "queries": 63604,
+    "query_misses": 51800,
+    "compositions": 354503,
+    "edge_integrations": 2193,
+    "edge_compositions": 291075,
+    "edge_pieces": 4584
+   }
+  },
+  "top_ops_seconds": [
+   [
+    4.63,
+    "V RepairMetricConnectivity(bad)",
+    31
+   ],
+   [
+    1.39,
+    "Admit (D.1)",
+    288
+   ],
+   [
+    1.13,
+    "V Admit",
+    227
+   ],
+   [
+    0.82,
+    "V RepairMetricConnectivity(fresh)",
+    207
+   ],
+   [
+    0.31,
+    "V ColumnSplit",
+    24
+   ],
+   [
+    0.25,
+    "Final gates",
+    9
+   ],
+   [
+    0.22,
+    "Reaudit",
+    1
+   ],
+   [
+    0.17,
+    "V SplitEdge",
+    112
+   ]
+  ],
+  "caches": {
+   "length_hits": 25707,
+   "length_misses": 712,
+   "length_failures": 2,
+   "shape_hits": 3008,
+   "shape_misses": 759,
+   "height_hits": 109,
+   "height_misses": 29,
+   "rejection_cache_skips": 98,
+   "geometry_length_hits": 23
+  },
+  "R2_last": "vertex 9 [sector] vertex 9: sector: no interior link path from seam 13 to junction 18; star: [9 39 10 14 ] [39 9 13 14 ] [43 39 9 13 ] [45 21 9 20 ] [45 39 9 43 ] [45 9 21 43 ] [45 20 9 39 ] [52 43 9 13 ] [54 18 9 21 ] [54 43 9 52 ] [54 9 1",
+  "W_counts": {
+   "stations": 0,
+   "level_splits": 0,
+   "bisections": 7,
+   "short_edge_collapses": 0,
+   "unmeasurable": 1,
+   "spacing_alternatives": 0,
+   "spacing_fallbacks": 1,
+   "chain_collapses": 0,
+   "chain_moves": 0,
+   "short_wall_edges_after": 0,
+   "short_census": {}
+  },
+  "limits": {
+   "W": [
+    8192,
+    120
+   ],
+   "R1": [
+    4096,
+    120
+   ],
+   "R2_seconds": 600,
+   "V": [
+    8192,
+    120
+   ],
+   "sector_first": 0
+  },
+  "reaudit_agrees": 1
+ },
+ "m6_le": {
+  "W": "complete 216->216 faces (stations 0, levels 0, bisections 0)",
+  "creases_test_side/production_segments": [
+   0,
+   400
+  ],
+  "lp_empty_full_state_after_W/R1": [
+   0,
+   0
+  ],
+  "clearance_deficient_W/R1": [
+   0,
+   0
+  ],
+  "R1": [
+   "complete",
+   {
+    "deficient_before": 0,
+    "deficient_after": 0,
+    "moves": 0,
+    "flips": 0,
+    "collapses": 0,
+    "steiner": 0,
+    "exhausted_vertices": 0
+   }
+  ],
+  "R2_rowed/unrowed": [
+   136,
+   0
+  ],
+  "R2_lifted/unlifted": [
+   87,
+   0
+  ],
+  "R2_low_band/sector_tx/gaps/separations": [
+   0,
+   0,
+   0,
+   0
+  ],
+  "R2_final_witness_classes": {},
+  "R2_attempt_classes": {
+   "": 87
+  },
+  "R2_rejected_chains_root->final": {},
+  "first_child_q/J/herr_at_admission": [
+   0.799385308204,
+   0.569241303796,
+   0.0999990000149
+  ],
+  "V": "limit",
+  "V_work/s": [
+   8193,
+   118.3280336
+  ],
+  "V_counts": {
+   "sweeps": 7,
+   "column_demand_unrouted": 0,
+   "apex_moves": 76,
+   "column_splits": 0,
+   "junction_column_splits": 0,
+   "rejection_cache_skips": 1297,
+   "exact_on_edge_splits": 0,
+   "no_exact_on_edge_point": 2949,
+   "junction_insert_skips": 420,
+   "with_complete_rows": 1,
+   "demand": {}
+  },
+  "final_complete": 0,
+  "final_cells": 3073,
+  "long_edges": 693,
+  "long_by_class": {
+   "wall": 0,
+   "seam": 0,
+   "other_physical": 131,
+   "interior": 562,
+   "inside_columns_only": 36
+  },
+  "bad_shape": 386,
+  "bad_first/column/outside": [
+   2,
+   70,
+   314
+  ],
+  "first_child_q_min_final": 0.1553866166,
+  "height_failures": 2,
+  "unmeasurable": 0,
+  "reaudit": {
+   "long_edges": 693,
+   "bad_shape": 386,
+   "height_failures": 2,
+   "unmeasurable": 0,
+   "complete": 0,
+   "seconds": 2.76655248
+  },
+  "phase_seconds": {
+   "W": 0.161793511,
+   "R1": 0.002186262,
+   "R2": 2.835983573,
+   "V": 118.3280336
+  },
+  "total_seconds": 126.081898799,
+  "peak_rss_kB": 116488,
+  "phase_field": {
+   "W": {
+    "queries": 0,
+    "query_misses": 0,
+    "compositions": 22500,
+    "edge_integrations": 346,
+    "edge_compositions": 22500,
+    "edge_pieces": 431
+   },
+   "R1": {
+    "queries": 0,
+    "query_misses": 0,
+    "compositions": 0,
+    "edge_integrations": 0,
+    "edge_compositions": 0,
+    "edge_pieces": 0
+   },
+   "R2": {
+    "queries": 8808,
+    "query_misses": 6716,
+    "compositions": 707763,
+    "edge_integrations": 3526,
+    "edge_compositions": 698955,
+    "edge_pieces": 4272
+   },
+   "V": {
+    "queries": 5838299,
+    "query_misses": 5215107,
+    "compositions": 23954364,
+    "edge_integrations": 75504,
+    "edge_compositions": 18118503,
+    "edge_pieces": 98719
+   }
+  },
+  "top_ops_seconds": [
+   [
+    51.77,
+    "Admit (D.1)",
+    7836
+   ],
+   [
+    44.67,
+    "V Admit",
+    4630
+   ],
+   [
+    43.82,
+    "V RepairMetricConnectivity(fresh)",
+    4141
+   ],
+   [
+    16.86,
+    "V RepairMetricConnectivity(bad)",
+    846
+   ],
+   [
+    7.47,
+    "V ColumnSplit",
+    252
+   ],
+   [
+    4.41,
+    "Final gates",
+    12
+   ],
+   [
+    2.82,
+    "Transaction",
+    87
+   ],
+   [
+    2.77,
+    "Reaudit",
+    1
+   ]
+  ],
+  "caches": {
+   "length_hits": 726553,
+   "length_misses": 10105,
+   "length_failures": 0,
+   "shape_hits": 55037,
+   "shape_misses": 12209,
+   "height_hits": 2516,
+   "height_misses": 508,
+   "rejection_cache_skips": 1297,
+   "geometry_length_hits": 767
+  },
+  "R2_last": "",
+  "W_counts": {
+   "stations": 0,
+   "level_splits": 0,
+   "bisections": 0,
+   "short_edge_collapses": 0,
+   "unmeasurable": 0,
+   "spacing_alternatives": 0,
+   "spacing_fallbacks": 0,
+   "chain_collapses": 0,
+   "chain_moves": 0,
+   "short_wall_edges_after": 0,
+   "short_census": {}
+  },
+  "limits": {
+   "W": [
+    8192,
+    120
+   ],
+   "R1": [
+    4096,
+    120
+   ],
+   "R2_seconds": 600,
+   "V": [
+    8192,
+    120
+   ],
+   "sector_first": 0
+  },
+  "reaudit_agrees": 1
+ },
+ "m6_root_te": {
+  "W": "complete 185->3786 faces (stations 14, levels 1608, bisections 801)",
+  "creases_test_side/production_segments": [
+   13,
+   400
+  ],
+  "lp_empty_full_state_after_W/R1": [
+   0,
+   0
+  ],
+  "clearance_deficient_W/R1": [
+   83,
+   83
+  ],
+  "R1": [
+   "exhausted",
+   {
+    "deficient_before": 83,
+    "deficient_after": 83,
+    "moves": 0,
+    "flips": 0,
+    "collapses": 0,
+    "steiner": 0,
+    "exhausted_vertices": 83
+   }
+  ],
+  "R2_rowed/unrowed": [
+   2124,
+   1495
+  ],
+  "R2_lifted/unlifted": [
+   1420,
+   476
+  ],
+  "R2_low_band/sector_tx/gaps/separations": [
+   8,
+   0,
+   0,
+   0
+  ],
+  "R2_final_witness_classes": {
+   "cap": 577,
+   "first-child": 379
+  },
+  "R2_attempt_classes": {
+   "": 1413,
+   "first-child": 2474,
+   "cap": 577,
+   "clearance": 97,
+   "partial-state": 103
+  },
+  "R2_rejected_chains_root->final": {
+   "first-child -> first-child": 371,
+   "first-child -> cap": 500,
+   "clearance -> first-child": 8,
+   "clearance -> cap": 37,
+   "cap -> cap": 34,
+   "partial-state -> cap": 6
+  },
+  "first_child_q/J/herr_at_admission": [
+   0.200711282447,
+   0.0503874068636,
+   0.0999990000267
+  ],
+  "V": "limit",
+  "V_work/s": [
+   2684,
+   120.2352458
+  ],
+  "V_counts": {
+   "sweeps": 0,
+   "column_demand_unrouted": 50,
+   "apex_moves": 0,
+   "column_splits": 0,
+   "junction_column_splits": 0,
+   "rejection_cache_skips": 1,
+   "exact_on_edge_splits": 0,
+   "no_exact_on_edge_point": 1220,
+   "junction_insert_skips": 211,
+   "with_complete_rows": 0,
+   "demand": {
+    "ColumnSplit junction: D floor: q=# J=# old q=#": 43,
+    "ColumnSplit junction: partial-state A_f empty (exact LP) with # skin faces; inradius/h#=#; free-height LP slac": 4,
+    "cached rejection (unchanged cavity)": 1,
+    "column demand without a column route": 2
+   }
+  },
+  "final_complete": 0,
+  "final_cells": 29447,
+  "long_edges": 5477,
+  "long_by_class": {
+   "wall": 0,
+   "seam": 0,
+   "other_physical": 570,
+   "interior": 4907,
+   "inside_columns_only": 1004
+  },
+  "bad_shape": 8902,
+  "bad_first/column/outside": [
+   596,
+   4518,
+   3788
+  ],
+  "first_child_q_min_final": 0.0004576165597,
+  "height_failures": 596,
+  "unmeasurable": 0,
+  "reaudit": {
+   "long_edges": 5477,
+   "bad_shape": 8902,
+   "height_failures": 596,
+   "unmeasurable": 0,
+   "complete": 0,
+   "seconds": 102.02093601
+  },
+  "phase_seconds": {
+   "W": 39.16894836,
+   "R1": 1.279446084,
+   "R2": 173.2490906,
+   "V": 120.2352458
+  },
+  "total_seconds": 452.113283651,
+  "peak_rss_kB": 116716,
+  "phase_field": {
+   "W": {
+    "queries": 2423,
+    "query_misses": 2423,
+    "compositions": 705225,
+    "edge_integrations": 16871,
+    "edge_compositions": 705225,
+    "edge_pieces": 17802
+   },
+   "R1": {
+    "queries": 0,
+    "query_misses": 0,
+    "compositions": 0,
+    "edge_integrations": 0,
+    "edge_compositions": 0,
+    "edge_pieces": 0
+   },
+   "R2": {
+    "queries": 754180,
+    "query_misses": 533711,
+    "compositions": 5565130,
+    "edge_integrations": 55357,
+    "edge_compositions": 4810950,
+    "edge_pieces": 58009
+   },
+   "V": {
+    "queries": 1669651,
+    "query_misses": 1477446,
+    "compositions": 5281615,
+    "edge_integrations": 17078,
+    "edge_compositions": 3614238,
+    "edge_pieces": 18884
+   }
+  },
+  "top_ops_seconds": [
+   [
+    172.81,
+    "Transaction",
+    4664
+   ],
+   [
+    119.45,
+    "Excess certificate",
+    1413
+   ],
+   [
+    113.7,
+    "Final gates",
+    5
+   ],
+   [
+    102.05,
+    "Reaudit",
+    1
+   ],
+   [
+    57.43,
+    "Admit (D.1)",
+    2680
+   ],
+   [
+    55.17,
+    "V Admit",
+    2182
+   ],
+   [
+    30.37,
+    "V RepairMetricConnectivity(fresh)",
+    2182
+   ],
+   [
+    22.9,
+    "ConeColumn",
+    32015
+   ]
+  ],
+  "caches": {
+   "length_hits": 518570,
+   "length_misses": 103808,
+   "length_failures": 0,
+   "shape_hits": 201393,
+   "shape_misses": 60076,
+   "height_hits": 18930,
+   "height_misses": 7572,
+   "rejection_cache_skips": 1,
+   "geometry_length_hits": 12423
+  },
+  "R2_last": "vertex 60562 [cap] cap-bound closure: 66 old cells",
+  "W_counts": {
+   "stations": 14,
+   "level_splits": 1608,
+   "bisections": 801,
+   "short_edge_collapses": 404,
+   "unmeasurable": 0,
+   "spacing_alternatives": 795,
+   "spacing_fallbacks": 646,
+   "chain_collapses": 165,
+   "chain_moves": 82,
+   "short_wall_edges_after": 37,
+   "short_census": {
+    "bisect/d1-bisect/d2": 21,
+    "bisect/d1-level/d1": 6,
+    "bisect/d2-bisect/d2": 10
+   }
+  },
+  "limits": {
+   "W": [
+    8192,
+    120
+   ],
+   "R1": [
+    4096,
+    120
+   ],
+   "R2_seconds": 600,
+   "V": [
+    8192,
+    120
+   ],
+   "sector_first": 0
+  },
+  "reaudit_agrees": 1
+ },
+ "m6_tip_te": {
+  "W": "complete 176->4748 faces (stations 56, levels 2114, bisections 768)",
+  "creases_test_side/production_segments": [
+   14,
+   400
+  ],
+  "lp_empty_full_state_after_W/R1": [
+   2,
+   2
+  ],
+  "clearance_deficient_W/R1": [
+   247,
+   235
+  ],
+  "R1": [
+   "limit:work",
+   {
+    "deficient_before": 247,
+    "deficient_after": 235,
+    "moves": 0,
+    "flips": 16,
+    "collapses": 0,
+    "steiner": 0,
+    "exhausted_vertices": 302
+   }
+  ],
+  "R2_rowed/unrowed": [
+   3376,
+   1215
+  ],
+  "R2_lifted/unlifted": [
+   2022,
+   320
+  ],
+  "R2_low_band/sector_tx/gaps/separations": [
+   51,
+   0,
+   0,
+   0
+  ],
+  "R2_final_witness_classes": {
+   "cap": 560,
+   "first-child": 106
+  },
+  "R2_attempt_classes": {
+   "": 1990,
+   "first-child": 1065,
+   "clearance": 435,
+   "cap": 560,
+   "partial-state": 222
+  },
+  "R2_rejected_chains_root->final": {
+   "first-child -> first-child": 101,
+   "clearance -> first-child": 5,
+   "cap -> cap": 40,
+   "first-child -> cap": 316,
+   "clearance -> cap": 153,
+   "partial-state -> cap": 51
+  },
+  "first_child_q/J/herr_at_admission": [
+   0.20055347474,
+   0.0506182634551,
+   0.0999990000672
+  ],
+  "V": "limit",
+  "V_work/s": [
+   1435,
+   120.3215239
+  ],
+  "V_counts": {
+   "sweeps": 0,
+   "column_demand_unrouted": 0,
+   "apex_moves": 0,
+   "column_splits": 0,
+   "junction_column_splits": 0,
+   "rejection_cache_skips": 0,
+   "exact_on_edge_splits": 0,
+   "no_exact_on_edge_point": 672,
+   "junction_insert_skips": 271,
+   "with_complete_rows": 0,
+   "demand": {}
+  },
+  "final_complete": 0,
+  "final_cells": 40712,
+  "long_edges": 7399,
+  "long_by_class": {
+   "wall": 0,
+   "seam": 0,
+   "other_physical": 412,
+   "interior": 6987,
+   "inside_columns_only": 1791
+  },
+  "bad_shape": 10412,
+  "bad_first/column/outside": [
+   301,
+   4906,
+   5205
+  ],
+  "first_child_q_min_final": 0.0007184941002,
+  "height_failures": 301,
+  "unmeasurable": 0,
+  "reaudit": {
+   "long_edges": 7399,
+   "bad_shape": 10412,
+   "height_failures": 301,
+   "unmeasurable": 0,
+   "complete": 0,
+   "seconds": 227.446617299
+  },
+  "phase_seconds": {
+   "W": 66.29237294,
+   "R1": 5.011058001,
+   "R2": 369.0336805,
+   "V": 120.3215239
+  },
+  "total_seconds": 811.432023652,
+  "peak_rss_kB": 121504,
+  "phase_field": {
+   "W": {
+    "queries": 2938,
+    "query_misses": 2938,
+    "compositions": 1312590,
+    "edge_integrations": 18331,
+    "edge_compositions": 1312590,
+    "edge_pieces": 19498
+   },
+   "R1": {
+    "queries": 0,
+    "query_misses": 0,
+    "compositions": 0,
+    "edge_integrations": 0,
+    "edge_compositions": 0,
+    "edge_pieces": 0
+   },
+   "R2": {
+    "queries": 440537,
+    "query_misses": 362427,
+    "compositions": 9747062,
+    "edge_integrations": 80224,
+    "edge_compositions": 9306525,
+    "edge_pieces": 85786
+   },
+   "V": {
+    "queries": 1427324,
+    "query_misses": 1275050,
+    "compositions": 4586544,
+    "edge_integrations": 10226,
+    "edge_compositions": 3160569,
+    "edge_pieces": 12652
+   }
+  },
+  "top_ops_seconds": [
+   [
+    368.52,
+    "Transaction",
+    4272
+   ],
+   [
+    302.54,
+    "Excess certificate",
+    1990
+   ],
+   [
+    247.22,
+    "Final gates",
+    5
+   ],
+   [
+    227.48,
+    "Reaudit",
+    1
+   ],
+   [
+    61.23,
+    "V Admit",
+    1156
+   ],
+   [
+    61.21,
+    "Admit (D.1)",
+    1435
+   ],
+   [
+    32.57,
+    "V RepairMetricConnectivity(fresh)",
+    1156
+   ],
+   [
+    30.6,
+    "PlanLift",
+    16767
+   ]
+  ],
+  "caches": {
+   "length_hits": 608435,
+   "length_misses": 142639,
+   "length_failures": 0,
+   "shape_hits": 280333,
+   "shape_misses": 82407,
+   "height_hits": 23740,
+   "height_misses": 9496,
+   "rejection_cache_skips": 0,
+   "geometry_length_hits": 13657
+  },
+  "R2_last": "vertex 23788 [cap] cap-bound closure: 94 old cells",
+  "W_counts": {
+   "stations": 56,
+   "level_splits": 2114,
+   "bisections": 768,
+   "short_edge_collapses": 506,
+   "unmeasurable": 0,
+   "spacing_alternatives": 729,
+   "spacing_fallbacks": 606,
+   "chain_collapses": 125,
+   "chain_moves": 56,
+   "short_wall_edges_after": 14,
+   "short_census": {
+    "bisect/d1-bisect/d2": 2,
+    "bisect/d1-level/d1": 8,
+    "bisect/d2-bisect/d2": 4
+   }
+  },
+  "limits": {
+   "W": [
+    8192,
+    120
+   ],
+   "R1": [
+    4096,
+    120
+   ],
+   "R2_seconds": 600,
+   "V": [
+    8192,
+    120
+   ],
+   "sector_first": 0
+  },
+  "reaudit_agrees": 1
+ },
+ "tube_root_x": {
+  "W": "complete 64->670 faces (stations 24, levels 236, bisections 73)",
+  "creases_test_side/production_segments": [
+   16,
+   18
+  ],
+  "lp_empty_full_state_after_W/R1": [
+   5,
+   9
+  ],
+  "clearance_deficient_W/R1": [
+   260,
+   170
+  ],
+  "R1": [
+   "limit:work",
+   {
+    "deficient_before": 260,
+    "deficient_after": 170,
+    "moves": 182,
+    "flips": 43,
+    "collapses": 0,
+    "steiner": 0,
+    "exhausted_vertices": 167
+   }
+  ],
+  "R2_rowed/unrowed": [
+   557,
+   113
+  ],
+  "R2_lifted/unlifted": [
+   327,
+   30
+  ],
+  "R2_low_band/sector_tx/gaps/separations": [
+   41,
+   0,
+   0,
+   0
+  ],
+  "R2_final_witness_classes": {
+   "cap": 78,
+   "clearance": 1,
+   "partial-state": 4
+  },
+  "R2_attempt_classes": {
+   "": 293,
+   "clearance": 250,
+   "partial-state": 100,
+   "cap": 78
+  },
+  "R2_rejected_chains_root->final": {
+   "clearance -> cap": 57,
+   "clearance -> clearance": 1,
+   "partial-state -> cap": 17,
+   "partial-state -> partial-state": 3,
+   "cap -> cap": 4,
+   "clearance -> partial-state": 1
+  },
+  "first_child_q/J/herr_at_admission": [
+   0.209499954448,
+   0.0609027674792,
+   0.099999
+  ],
+  "V": "limit",
+  "V_work/s": [
+   3424,
+   120.1041997
+  ],
+  "V_counts": {
+   "sweeps": 1,
+   "column_demand_unrouted": 29,
+   "apex_moves": 80,
+   "column_splits": 74,
+   "junction_column_splits": 7,
+   "rejection_cache_skips": 111,
+   "exact_on_edge_splits": 59,
+   "no_exact_on_edge_point": 1459,
+   "junction_insert_skips": 0,
+   "with_complete_rows": 0,
+   "demand": {
+    "ColumnSplit junction: D floor: q=# J=# old q=#": 2,
+    "ColumnSplit junction: partial-state A_f empty (exact LP) with # skin faces; inradius/h#=#; free-height LP slac": 4,
+    "ColumnSplit junction: refine: no strict changed-edge excess reduction": 1,
+    "ColumnSplit: D floor: q=# J=# old q=#": 12,
+    "cached rejection (unchanged cavity)": 4,
+    "column demand without a column route": 6
+   }
+  },
+  "final_complete": 0,
+  "final_cells": 15051,
+  "long_edges": 1426,
+  "long_by_class": {
+   "wall": 0,
+   "seam": 0,
+   "other_physical": 103,
+   "interior": 1323,
+   "inside_columns_only": 197
+  },
+  "bad_shape": 962,
+  "bad_first/column/outside": [
+   18,
+   493,
+   451
+  ],
+  "first_child_q_min_final": 0.06433123199,
+  "height_failures": 18,
+  "unmeasurable": 0,
+  "reaudit": {
+   "long_edges": 1426,
+   "bad_shape": 962,
+   "height_failures": 18,
+   "unmeasurable": 0,
+   "complete": 0,
+   "seconds": 40.442947889
+  },
+  "phase_seconds": {
+   "W": 5.444293388,
+   "R1": 2.627872527,
+   "R2": 34.11148564,
+   "V": 120.1041997
+  },
+  "total_seconds": 208.174597339,
+  "peak_rss_kB": 56868,
+  "phase_field": {
+   "W": {
+    "queries": 333,
+    "query_misses": 333,
+    "compositions": 269535,
+    "edge_integrations": 1476,
+    "edge_compositions": 269535,
+    "edge_pieces": 1726
+   },
+   "R1": {
+    "queries": 0,
+    "query_misses": 0,
+    "compositions": 0,
+    "edge_integrations": 0,
+    "edge_compositions": 0,
+    "edge_pieces": 0
+   },
+   "R2": {
+    "queries": 39565,
+    "query_misses": 32538,
+    "compositions": 1767670,
+    "edge_integrations": 12770,
+    "edge_compositions": 1728105,
+    "edge_pieces": 15250
+   },
+   "V": {
+    "queries": 864178,
+    "query_misses": 743892,
+    "compositions": 5627823,
+    "edge_integrations": 31936,
+    "edge_compositions": 4765786,
+    "edge_pieces": 37288
+   }
+  },
+  "top_ops_seconds": [
+   [
+    70.39,
+    "Admit (D.1)",
+    3100
+   ],
+   [
+    51.4,
+    "V Admit",
+    2353
+   ],
+   [
+    44.32,
+    "Final gates",
+    6
+   ],
+   [
+    40.45,
+    "Reaudit",
+    1
+   ],
+   [
+    34.06,
+    "Transaction",
+    721
+   ],
+   [
+    29.7,
+    "Excess certificate",
+    293
+   ],
+   [
+    18.54,
+    "V ColumnSplit",
+    362
+   ],
+   [
+    16.24,
+    "V RepairMetricConnectivity(fresh)",
+    2237
+   ]
+  ],
+  "caches": {
+   "length_hits": 387640,
+   "length_misses": 35378,
+   "length_failures": 0,
+   "shape_hits": 111109,
+   "shape_misses": 36308,
+   "height_hits": 4403,
+   "height_misses": 1801,
+   "rejection_cache_skips": 111,
+   "geometry_length_hits": 529
+  },
+  "R2_last": "vertex 239 [cap] cap-bound closure: 104 old cells",
+  "W_counts": {
+   "stations": 24,
+   "level_splits": 236,
+   "bisections": 73,
+   "short_edge_collapses": 16,
+   "unmeasurable": 0,
+   "spacing_alternatives": 8,
+   "spacing_fallbacks": 12,
+   "chain_collapses": 0,
+   "chain_moves": 0,
+   "short_wall_edges_after": 0,
+   "short_census": {}
+  },
+  "limits": {
+   "W": [
+    8192,
+    120
+   ],
+   "R1": [
+    4096,
+    120
+   ],
+   "R2_seconds": 600,
+   "V": [
+    8192,
+    120
+   ],
+   "sector_first": 0
+  },
+  "reaudit_agrees": 1
+ },
+ "two_tube_y": {
+  "W": "complete 128->1080 faces (stations 32, levels 448, bisections 84)",
+  "creases_test_side/production_segments": [
+   32,
+   32
+  ],
+  "lp_empty_full_state_after_W/R1": [
+   2,
+   6
+  ],
+  "clearance_deficient_W/R1": [
+   320,
+   191
+  ],
+  "R1": [
+   "limit:work",
+   {
+    "deficient_before": 320,
+    "deficient_after": 191,
+    "moves": 280,
+    "flips": 52,
+    "collapses": 3,
+    "steiner": 0,
+    "exhausted_vertices": 163
+   }
+  ],
+  "R2_rowed/unrowed": [
+   924,
+   156
+  ],
+  "R2_lifted/unlifted": [
+   565,
+   23
+  ],
+  "R2_low_band/sector_tx/gaps/separations": [
+   56,
+   0,
+   0,
+   0
+  ],
+  "R2_final_witness_classes": {
+   "cap": 62
+  },
+  "R2_attempt_classes": {
+   "": 525,
+   "clearance": 155,
+   "partial-state": 37,
+   "cap": 62
+  },
+  "R2_rejected_chains_root->final": {
+   "clearance -> cap": 31,
+   "cap -> cap": 23,
+   "partial-state -> cap": 8
+  },
+  "first_child_q/J/herr_at_admission": [
+   0.235116836818,
+   0.0811479503316,
+   0.099999
+  ],
+  "V": "limit",
+  "V_work/s": [
+   4036,
+   120.0493792
+  ],
+  "V_counts": {
+   "sweeps": 1,
+   "column_demand_unrouted": 28,
+   "apex_moves": 96,
+   "column_splits": 91,
+   "junction_column_splits": 0,
+   "rejection_cache_skips": 116,
+   "exact_on_edge_splits": 45,
+   "no_exact_on_edge_point": 1281,
+   "junction_insert_skips": 0,
+   "with_complete_rows": 0,
+   "demand": {
+    "ColumnSplit junction: D floor: q=# J=# old q=#": 6,
+    "ColumnSplit junction: partial-state A_f empty (exact LP) with # skin faces; inradius/h#=#; free-height LP slac": 7,
+    "cached rejection (unchanged cavity)": 5,
+    "column demand without a column route": 10
+   }
+  },
+  "final_complete": 0,
+  "final_cells": 18763,
+  "long_edges": 2344,
+  "long_by_class": {
+   "wall": 0,
+   "seam": 0,
+   "other_physical": 232,
+   "interior": 2112,
+   "inside_columns_only": 256
+  },
+  "bad_shape": 1371,
+  "bad_first/column/outside": [
+   3,
+   786,
+   582
+  ],
+  "first_child_q_min_final": 0.08100931594,
+  "height_failures": 3,
+  "unmeasurable": 0,
+  "reaudit": {
+   "long_edges": 2344,
+   "bad_shape": 1371,
+   "height_failures": 3,
+   "unmeasurable": 0,
+   "complete": 0,
+   "seconds": 40.003847096
+  },
+  "phase_seconds": {
+   "W": 7.047338368,
+   "R1": 3.30351625,
+   "R2": 37.68608443,
+   "V": 120.0493792
+  },
+  "total_seconds": 215.043544503,
+  "peak_rss_kB": 64564,
+  "phase_field": {
+   "W": {
+    "queries": 564,
+    "query_misses": 564,
+    "compositions": 266085,
+    "edge_integrations": 2744,
+    "edge_compositions": 266085,
+    "edge_pieces": 3135
+   },
+   "R1": {
+    "queries": 0,
+    "query_misses": 0,
+    "compositions": 0,
+    "edge_integrations": 0,
+    "edge_compositions": 0,
+    "edge_pieces": 0
+   },
+   "R2": {
+    "queries": 51305,
+    "query_misses": 47175,
+    "compositions": 2176235,
+    "edge_integrations": 22277,
+    "edge_compositions": 2124930,
+    "edge_pieces": 25746
+   },
+   "V": {
+    "queries": 1027380,
+    "query_misses": 881851,
+    "compositions": 5884156,
+    "edge_integrations": 42153,
+    "edge_compositions": 4859457,
+    "edge_pieces": 48361
+   }
+  },
+  "top_ops_seconds": [
+   [
+    63.88,
+    "Admit (D.1)",
+    3620
+   ],
+   [
+    44.99,
+    "V Admit",
+    2631
+   ],
+   [
+    44.09,
+    "Final gates",
+    6
+   ],
+   [
+    40.02,
+    "Reaudit",
+    1
+   ],
+   [
+    37.6,
+    "Transaction",
+    779
+   ],
+   [
+    30.6,
+    "Excess certificate",
+    525
+   ],
+   [
+    19.81,
+    "V ColumnSplit",
+    566
+   ],
+   [
+    13.39,
+    "V RepairMetricConnectivity(fresh)",
+    2489
+   ]
+  ],
+  "caches": {
+   "length_hits": 503008,
+   "length_misses": 51054,
+   "length_failures": 0,
+   "shape_hits": 147732,
+   "shape_misses": 44153,
+   "height_hits": 6962,
+   "height_misses": 2770,
+   "rejection_cache_skips": 116,
+   "geometry_length_hits": 689
+  },
+  "R2_last": "vertex 294 [cap] cap-bound closure: 72 old cells",
+  "W_counts": {
+   "stations": 32,
+   "level_splits": 448,
+   "bisections": 84,
+   "short_edge_collapses": 48,
+   "unmeasurable": 0,
+   "spacing_alternatives": 52,
+   "spacing_fallbacks": 52,
+   "chain_collapses": 8,
+   "chain_moves": 0,
+   "short_wall_edges_after": 0,
+   "short_census": {}
+  },
+  "limits": {
+   "W": [
+    8192,
+    120
+   ],
+   "R1": [
+    4096,
+    120
+   ],
+   "R2_seconds": 600,
+   "V": [
+    8192,
+    120
+   ],
+   "sector_first": 0
+  },
+  "reaudit_agrees": 1
+ }
+}

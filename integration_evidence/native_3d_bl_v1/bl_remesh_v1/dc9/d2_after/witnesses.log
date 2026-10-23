@@ -1,0 +1,48 @@
+Filters: [NativeD2Production]
+D2 production edge timing: 971 TargetEdgeLength calls, 1.06672 s, 1.09858 ms per edge
+D2 production split timing: 752 BalancedSplitPoint calls (219 failures), 5.06409 s, 6.73416 ms per split, worst relative prefix residual 9.94434e-09
+D2 production pinned: 971/971 converged, 662/971 equal to the pinned replica, worst relative difference 1.79068e-11, 17.6272 s
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+test_driver_after is a Catch v2.13.9 host application.
+Run with -? for options
+
+-------------------------------------------------------------------------------
+D2 witnesses through the production owner-pinned edge integration
+-------------------------------------------------------------------------------
+../../UnitTests/SU2_CFD/adaptation/fixtures/native_d2_production.inc:8
+...............................................................................
+
+../../UnitTests/SU2_CFD/adaptation/fixtures/native_d2_production.inc:79: FAILED:
+  CHECK( equal==compared )
+with expansion:
+  662 (0x296) == 971 (0x3cb)
+
+===============================================================================
+test cases:  1 |  0 passed | 1 failed
+assertions: 12 | 11 passed | 1 failed
+
+Command exited with non-zero status 1
+	Command being timed: "nice -n 19 timeout 3600 /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/bl_remesh_v1/dc9/bin/test_driver_after [NativeD2Production] --use-colour no"
+	User time (seconds): 17.22
+	System time (seconds): 0.15
+	Percent of CPU this job got: 96%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:18.03
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 382396
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 2
+	Minor (reclaiming a frame) page faults: 94898
+	Voluntary context switches: 1091
+	Involuntary context switches: 4016
+	Swaps: 0
+	File system inputs: 0
+	File system outputs: 280
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 1

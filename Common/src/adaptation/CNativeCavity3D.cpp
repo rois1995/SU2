@@ -97,8 +97,8 @@ void Surface(const std::vector<Face>& triangles, bool closed, bool cavity = true
   } else Curve(border, true);
   if(!closure)for (const auto& entry : links) Curve(entry.second, !border.count(entry.first));
 }
-void Ball(const std::vector<Cell>& cells, const Incidence& index, const std::vector<Face>& boundary) {
-  if (index.FaceComponents() != 1) throw std::invalid_argument("Native 3D cavity is not face connected.");
+void BallTopology(const std::vector<Cell>& cells, size_t components, const std::vector<Face>& boundary) {
+  if (components != 1) throw std::invalid_argument("Native 3D cavity is not face connected.");
   Surface(boundary, true);
   std::set<Id> boundary_nodes;
   for (const auto& face : boundary) boundary_nodes.insert(face.begin(), face.end());
@@ -112,6 +112,9 @@ void Ball(const std::vector<Cell>& cells, const Incidence& index, const std::vec
       links[cell.v[i].id].push_back(opposite);
     }
   for (const auto& entry : links) Surface(entry.second, !boundary_nodes.count(entry.first));
+}
+void Ball(const std::vector<Cell>& cells, const Incidence& index, const std::vector<Face>& boundary) {
+  BallTopology(cells, index.FaceComponents(), boundary);
 }
 void Bounds(const std::vector<Cell>& cells, size_t maximum) {
   if (cells.empty() || cells.size() > maximum)
@@ -136,6 +139,58 @@ void Validate(const std::vector<Cell>& old, const Incidence& before, const std::
   Ball(fresh, after, new_skin);
   // Fixed-skin signed volume closes algebraically; changed-skin callers must prove their physical edit.
   // A sum of rounded determinants can falsely reject rotated thin cavities.
+}
+std::vector<Id> TopologyKey(const std::vector<Cell>& cells) {
+  std::vector<Id> key;
+  key.reserve(5 * cells.size());
+  for (const auto& cell : cells) {
+    key.push_back(cell.id);
+    for (const auto& node : cell.v) key.push_back(node.id);
+  }
+  return key;
+}
+/*! The coordinate-dependent admissions of an Incidence build: positive cells, one coordinate per vertex ID. */
+void IncidenceCoordinates(const std::vector<Cell>& cells) {
+  std::vector<Node> nodes;
+  nodes.reserve(4 * cells.size());
+  for (const auto& cell : cells) {
+    if (!(Orientation(cell.v[0].p, cell.v[1].p, cell.v[2].p, cell.v[3].p) > 0))
+      throw std::invalid_argument("Native 3D incidence requires positive tetrahedra.");
+    nodes.insert(nodes.end(), cell.v.begin(), cell.v.end());
+  }
+  std::sort(nodes.begin(), nodes.end(), [](const Node& a, const Node& b) { return a.id < b.id; });
+  for (size_t i = 1; i < nodes.size(); ++i) {
+    const auto& a = nodes[i - 1];
+    const auto& b = nodes[i];
+    if (a.id == b.id && (a.p.x != b.p.x || a.p.y != b.p.y || a.p.z != b.p.z))
+      throw std::invalid_argument("Native 3D incidence has inconsistent vertex coordinates.");
+  }
+}
+/*! Memoized Incidence facts: a key is stored only after a successful build; a hit re-checks the coordinates. */
+InterfaceTopologyMemo::Entry& Lookup(InterfaceTopologyMemo& memo, const std::vector<Cell>& cells) {
+  auto key = TopologyKey(cells);
+  const auto found = memo.entries.find(key);
+  if (found != memo.entries.end()) {
+    IncidenceCoordinates(cells);
+    return found->second;
+  }
+  const Incidence index(cells);
+  InterfaceTopologyMemo::Entry entry;
+  entry.boundary = index.Boundary();
+  entry.components = index.FaceComponents();
+  return memo.entries.emplace(std::move(key), std::move(entry)).first->second;
+}
+void MemoBall(const std::vector<Cell>& cells, InterfaceTopologyMemo::Entry& entry) {
+  if (entry.ball < 0) {
+    try {
+      BallTopology(cells, entry.components, entry.boundary);
+    } catch (const std::invalid_argument&) {
+      entry.ball = 0;  // a topology rejection; resource failures stay unknown and are retried
+      throw;
+    }
+    entry.ball = 1;
+  } else if (!entry.ball)
+    throw std::invalid_argument("Native 3D cavity ball topology rejected (memoized verdict).");
 }
 }  // namespace
 
@@ -176,6 +231,34 @@ bool ValidateFixedInterface(const std::vector<Cell>& old, const std::vector<Cell
     Bounds(old, maximum_old_cells);
     const Incidence before(old, stats);
     Validate(old, before, fresh, stats);
+    reason.clear();
+    return true;
+  } catch (const std::exception& e) {
+    reason = e.what();
+    return false;
+  }
+}
+bool ValidateFixedInterface(const std::vector<Cell>& old, const std::vector<Cell>& fresh, std::string& reason,
+                            InterfaceTopologyMemo& memo, size_t maximum_old_cells) {
+  try {
+    // Same admissions as Validate(old, Incidence(old), fresh) without an expected skin; only the order of the
+    // (independent) checks differs, so the verdict is identical.
+    if(maximum_old_cells>MaximumReplacementCells)throw std::invalid_argument("Native3D private interface input exceeds replacement admission.");
+    Bounds(old, maximum_old_cells);
+    if (memo.entries.size() >= memo.limit) memo.entries.clear();  // before any reference into the memo is taken
+    auto& before = Lookup(memo, old);
+    Bounds(fresh, MaximumReplacementCells);
+    auto& after = Lookup(memo, fresh);
+    if (after.boundary != before.boundary) throw std::invalid_argument("Native 3D cavity oriented interface changed.");
+    const auto a = Nodes(old), b = Nodes(fresh);
+    for (const auto& face : before.boundary)
+      for (Id id : face) {
+        const auto p = a.at(id).p, q = b.at(id).p;
+        if (p.x != q.x || p.y != q.y || p.z != q.z)
+          throw std::invalid_argument("Native 3D cavity interface coordinates changed.");
+      }
+    MemoBall(old, before);
+    MemoBall(fresh, after);
     reason.clear();
     return true;
   } catch (const std::exception& e) {

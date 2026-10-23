@@ -1565,7 +1565,8 @@ std::vector<Id> SplitPatchApices(const Patch& patch,Edge edge,const std::map<Id,
 namespace {
 std::map<Id,Vector> CoupledMetricDirection(const Patch& patch,FrozenField& target,
     const WallHeights& heights,const PlanarReference& reference,const std::set<Id>& fixed,
-    const std::set<Id>& active,ConnectivityRepairReport& report,bool include_edges=false);
+    const std::set<Id>& active,ConnectivityRepairReport& report,bool include_edges=false,
+    std::map<std::array<double,3>,Tensor>* targets=nullptr);
 }
 namespace {
 // A binary vertex-star split is a proposal: the cut's hard arcs encode visibility and final-cell shape.
@@ -2345,7 +2346,14 @@ bool ReconstructSplitPatch(const Patch& old,Edge edge,Node point,Node interior,c
 namespace {
 std::map<Id,Vector> CoupledMetricDirection(const Patch& patch,FrozenField& target,
     const WallHeights& heights,const PlanarReference& reference,const std::set<Id>& fixed,
-    const std::set<Id>& active,ConnectivityRepairReport& report,bool include_edges) {
+    const std::set<Id>& active,ConnectivityRepairReport& report,bool include_edges,
+    std::map<std::array<double,3>,Tensor>* targets) {
+  // Optional caller memo of frozen target tensors by exact point (repeated linearizations of unchanged cells).
+  auto query=[&](Point p)->Tensor {
+    if(!targets)return target.Query(p).target;
+    const std::array<double,3> key{p.x,p.y,p.z};const auto found=targets->find(key);if(found!=targets->end())return found->second;
+    const auto value=target.Query(p).target;if(targets->size()>=2048)targets->clear();targets->emplace(key,value);return value;
+  };
   struct Frame {
     size_t first=0,count=0,rank=0;std::array<Vector,3> basis{},constraint{};std::vector<FootPlane> feet;Tensor metric;
   };
@@ -2387,7 +2395,7 @@ std::map<Id,Vector> CoupledMetricDirection(const Patch& patch,FrozenField& targe
       const auto norm=Norm(normal);if(norm>256*std::numeric_limits<double>::epsilon()){for(auto& x:normal)x/=norm;frame.constraint[frame.rank++]=normal;}
     }
     if(frame.rank!=3-frame.count)throw std::invalid_argument("Unresolved wall tangent complement.");
-    frame.feet=feet[row.first];const auto metric=target.Query(origin).target;frame.metric=metric;
+    frame.feet=feet[row.first];const auto metric=query(origin);frame.metric=metric;
     for(size_t k=0;k<frame.count;++k) {
       auto v=tangent[k];for(unsigned pass=0;pass<2;++pass)for(size_t j=0;j<k;++j) {
         const auto q=metricDot(metric,v,frame.basis[j]);for(unsigned a=0;a<3;++a)v[a]-=q*frame.basis[j][a];
@@ -2401,7 +2409,7 @@ std::map<Id,Vector> CoupledMetricDirection(const Patch& patch,FrozenField& targe
   if(count>12*MaximumReplacementCells)throw std::invalid_argument("Native3D metric solve exceeds bounded variables.");
   ++report.linearizations;std::vector<Row> rows;rows.reserve((include_edges?8:2)*patch.cells.size());
   for(const auto& cell:patch.cells)if(active.count(cell.id) && std::any_of(cell.v.begin(),cell.v.end(),[&](Node n){return frames.count(n.id);})) {
-    const auto center=Centroid(cell);const auto metric=target.Query(center).target;
+    const auto center=Centroid(cell);const auto metric=query(center);
     const auto volume=Orientation(cell.v[0].p,cell.v[1].p,cell.v[2].p,cell.v[3].p);
     long double altitude=INFINITY;
     for(unsigned opposite=0;opposite<4;++opposite) {
@@ -2417,8 +2425,8 @@ std::map<Id,Vector> CoupledMetricDirection(const Patch& patch,FrozenField& targe
         throw std::invalid_argument("Native3D metric sensitivity step is not representable.");
       auto plus=center,minus=center;double high=double(value+step),low=double(value-step);
       if(axis==0){plus.x=high;minus.x=low;}else if(axis==1){plus.y=high;minus.y=low;}else{plus.z=high;minus.z=low;}
-      ++report.metric_probes;const auto a=target.Query(plus).target;
-      ++report.metric_probes;const auto b=target.Query(minus).target;
+      ++report.metric_probes;const auto a=query(plus);
+      ++report.metric_probes;const auto b=query(minus);
       const long double inverse=1/(static_cast<long double>(high)-low);
       spatial[axis]={double((a.xx-b.xx)*inverse),double((a.xy-b.xy)*inverse),double((a.xz-b.xz)*inverse),double((a.yy-b.yy)*inverse),double((a.yz-b.yz)*inverse),double((a.zz-b.zz)*inverse)};
     }
@@ -2514,13 +2522,23 @@ bool RepairMetricConnectivity(const Patch& old,FrozenField& target,const PlanarR
     if(!CheckFirstHeight(old,heights,reference,height,reason))throw std::invalid_argument(reason);
     Patch working=old;
     std::map<std::array<Id,4>,double> losses;
+    // The loss of one cell is a function of its ordered vertex coordinates only (frozen target): `measured` keeps it
+    // across the identity-keyed `losses` resets after movement, so unchanged cells are not re-queried. `losses`
+    // keeps its own first-value-per-period semantics, hence identical totals and decisions.
+    std::map<std::array<double,12>,double> measured;
+    InterfaceTopologyMemo topology;  // coordinate-only trials repeat the connectivity of `working`
+    std::map<std::array<double,3>,Tensor> targets;  // linearization probes of unchanged cells repeat exactly
     std::set<std::vector<Id>> rejected_states;
     auto loss=[&](const Cell& cell) {
       std::array<Id,4> key;for(unsigned i=0;i<4;++i)key[i]=cell.v[i].id;std::sort(key.begin(),key.end());
       const auto found=losses.find(key);if(found!=losses.end())return found->second;
+      std::array<double,12> where;for(unsigned i=0;i<4;++i){where[3*i]=cell.v[i].p.x;where[3*i+1]=cell.v[i].p.y;where[3*i+2]=cell.v[i].p.z;}
+      const auto known=measured.find(where);
+      if(known!=measured.end()){losses.emplace(key,known->second);return known->second;}
+      if(measured.size()>=2048)measured.clear();  // bounded scratch (about 0.3 MB); overflow only recomputes
       const auto m=Measure({cell.v[0].p,cell.v[1].p,cell.v[2].p,cell.v[3].p},target.Query(Centroid(cell)).target);
       const double q=std::max(0.,1-m.mean_ratio/MinimumMeanRatio),j=std::max(0.,1-m.minimum_scaled_jacobian/MinimumScaledJacobian);
-      const auto value=q*q+j*j;losses.emplace(key,value);return value;
+      const auto value=q*q+j*j;losses.emplace(key,value);measured.emplace(where,value);return value;
     };
     auto total=[&](const std::vector<Cell>& cells) {double value=0;for(const auto& c:cells)value+=loss(c);return value;};
     report.before_loss=report.after_loss=total(working.cells);
@@ -2536,7 +2554,7 @@ bool RepairMetricConnectivity(const Patch& old,FrozenField& target,const PlanarR
       std::sort(order.begin(),order.end());
       if(!order.empty())try {
         std::set<Id> active;for(const auto& c:working.cells)if(loss(c)>0)active.insert(c.id);
-        const auto direction=CoupledMetricDirection(working,target,heights,reference,fixed,active,report);
+        const auto direction=CoupledMetricDirection(working,target,heights,reference,fixed,active,report,false,&targets);
         if(!direction.empty())for(double fraction=1;fraction>std::numeric_limits<double>::epsilon() && report.trials<maximum_trials;fraction*=.5) {
           ++report.trials;++report.solve_trials;Patch proposal=working;size_t moved=0;std::map<Id,Point> points;
           for(const auto& row:direction) {
@@ -2547,7 +2565,7 @@ bool RepairMetricConnectivity(const Patch& old,FrozenField& target,const PlanarR
           if(!moved)break;
           for(auto& c:proposal.cells)for(auto& n:c.v)if(points.count(n.id))n.p=points.at(n.id);
           std::string rejected;
-          if(!ValidateFixedInterface(working.cells,proposal.cells,rejected,nullptr,MaximumReplacementCells)){++report.move_geometry_rejected;continue;}
+          if(!ValidateFixedInterface(working.cells,proposal.cells,rejected,topology,MaximumReplacementCells)){++report.move_geometry_rejected;continue;}
           if(!CheckFirstHeight(proposal,heights,reference,height,rejected)){++report.move_height_rejected;continue;}
           losses.clear();double after=0;
           try{after=total(proposal.cells);}catch(const std::exception&){losses.clear();++report.move_loss_rejected;continue;}
@@ -2594,7 +2612,7 @@ bool RepairMetricConnectivity(const Patch& old,FrozenField& target,const PlanarR
           proposal.cells.insert(proposal.cells.end(),collapsed.cells.begin(),collapsed.cells.end());
           if(proposal.cells.empty() || first>UINT64_MAX-(proposal.cells.size()-1))continue;
           for(size_t i=0;i<proposal.cells.size();++i)proposal.cells[i].id=first+i;
-          if(!ValidateFixedInterface(working.cells,proposal.cells,rejected,nullptr,MaximumReplacementCells) ||
+          if(!ValidateFixedInterface(working.cells,proposal.cells,rejected,topology,MaximumReplacementCells) ||
              !CheckFirstHeight(proposal,heights,reference,height,rejected))continue;
           working=std::move(proposal);rejected_states.clear();++report.removals;
           report.after_loss=total(working.cells);changed=true;break;
@@ -2682,7 +2700,7 @@ bool RepairMetricConnectivity(const Patch& old,FrozenField& target,const PlanarR
           ++report.trials;Patch proposal=working;
           for(auto& c:proposal.cells)for(auto& n:c.v){const auto found=moved.find(n.id);if(found!=moved.end())n.p=found->second;}
           std::string rejected;
-          if(!ValidateFixedInterface(old.cells,proposal.cells,rejected,nullptr,MaximumReplacementCells)){++report.move_geometry_rejected;continue;}
+          if(!ValidateFixedInterface(old.cells,proposal.cells,rejected,topology,MaximumReplacementCells)){++report.move_geometry_rejected;continue;}
           if(!CheckFirstHeight(proposal,heights,reference,height,rejected)){++report.move_height_rejected;continue;}
           losses.clear();double after=0;
           try {after=total(proposal.cells);}catch(const std::exception&){losses.clear();++report.move_loss_rejected;continue;}

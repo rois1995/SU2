@@ -1,0 +1,33 @@
+Filters: [NativeFirstRowDC9]
+DC9 m6_root_te loaded: cells=1200 wall_faces=185 creases=13
+DC9 m6_root_te W complete wall_faces=3786 stations=14 levels=1608 bisections=801 collapses=404 chain_collapses=165 chain_moves=82 short_after=37 t=39.8176
+DC9 m6_root_te R1 exhausted deficient 83->83 lp_empty=0 t=1.25501
+DC9 m6_root_te R2 rowed=2124 unrowed=1495 t=185.266 last=vertex 60562 [cap] cap-bound closure: 66 old cells
+DC9 V sweep 0 cells=33932 long=7899 bad=10104 work=8192 t=557.491
+DC9 m6_root_te done in 926.572 s
+===============================================================================
+All tests passed (4 assertions in 1 test case)
+
+	Command being timed: "nice -n 19 timeout --kill-after=5s 7200s /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/bl_remesh_v1/dc9/bin/test_driver_after [NativeFirstRowDC9] --use-colour no"
+	User time (seconds): 794.42
+	System time (seconds): 0.48
+	Percent of CPU this job got: 85%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 15:27.01
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 117376
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 2
+	Minor (reclaiming a frame) page faults: 30847
+	Voluntary context switches: 1089
+	Involuntary context switches: 146033
+	Swaps: 0
+	File system inputs: 0
+	File system outputs: 9384
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0

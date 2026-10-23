@@ -6,6 +6,7 @@
  */
 #pragma once
 #include "CNativeTopology3D.hpp"
+#include <map>
 #include <string>
 
 namespace SU2Native3D {
@@ -25,6 +26,18 @@ void ValidateDomainSurfaceTopology(const std::vector<Face>& triangles);
  * Constructed private inputs may explicitly use the replacement bound; accepted-cavity admission stays64. */
 bool ValidateFixedInterface(const std::vector<Cell>& old, const std::vector<Cell>& fresh, std::string& reason,
                             KernelStats* stats = nullptr, size_t maximum_old_cells = MaximumCavityCells);
+/*! Caller-owned memo for repeated ValidateFixedInterface calls on unchanged connectivity (e.g. coordinate-only
+ * trials). The oriented skin, face components, manifold checks and ball topology depend only on the cell IDs and
+ * their ordered vertex IDs; they are computed once per such key from a successful incidence build and reused.
+ * Positivity, per-ID coordinate consistency, coincident vertices and interface coordinates are checked on every call,
+ * so each verdict equals the unmemoized one. One memo serves one caller loop; it is not thread-safe. */
+struct InterfaceTopologyMemo {
+  struct Entry { std::vector<Face> boundary; size_t components = 0; int ball = -1; };
+  std::map<std::vector<Id>, Entry> entries;
+  size_t limit = 32;  // entries kept (cleared before a call once reached): bounded scratch, recomputation on overflow
+};
+bool ValidateFixedInterface(const std::vector<Cell>& old, const std::vector<Cell>& fresh, std::string& reason,
+                            InterfaceTopologyMemo& memo, size_t maximum_old_cells = MaximumCavityCells);
 /*! Checks a caller-proved boundary edit against its prescribed oriented skin and ball topology.
  * Caller must establish physical geometry/marker and signed-volume closure; no arbitrary changed-skin certificate. */
 bool ValidatePrescribedInterface(const std::vector<Cell>& old, const std::vector<Cell>& fresh,

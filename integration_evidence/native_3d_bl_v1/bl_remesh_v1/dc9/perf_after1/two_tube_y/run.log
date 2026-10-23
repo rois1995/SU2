@@ -1,0 +1,17 @@
+Filters: [NativeFirstRowDC8]
+DC8 two_tube_y loaded: cells=2112 wall_faces=128 creases=32
+DC8 two_tube_y W complete wall_faces=1040 stations=32 levels=512 bisections=32 collapses=88 t=9.98338
+DC8 two_tube_y R1 limit:work deficient 294->172 lp_empty=0 t=67.2224
+DC8 two_tube_y R2 rowed=957 unrowed=83 t=43.9985 last=vertex 119 [cap] cap-bound closure: 77 old cells
+DC8 V sweep 0 cells=11554 long=2222 bad=1172 work=501 t=55.5373
+DC8 two_tube_y done in 209.722 s
+===============================================================================
+All tests passed (4 assertions in 1 test case)
+
+[ perf record: Woken up 1311 times to write data ]
+Warning:
+Processed 23645 events and lost 1 chunks!
+
+Check IO/CPU overload!
+
+[ perf record: Captured and wrote 328,259 MB perf.data (20683 samples) ]

@@ -1,0 +1,59 @@
+DC-9 (base 5df8ccd3c4): production performance pass 2 (results identical) + test-only DC-9 construction harness
+(UnitTests/SU2_CFD/adaptation/fixtures/native_first_row_dc9.inc). Hashes: provenance.json. All runs serial, nice 19,
+OMP_NUM_THREADS=1, MALLOC_ARENA_MAX=2, with 4 foreign FSI MPI ranks loading the host.
+
+PRODUCTION (performance only)
+ Profiles: perf_before/m6_le, perf_before/m6_root_te (DC-8 harness, HEAD binary; children.txt, json), perf_after1/two_tube_y.
+ V on M6 LE was 58% RepairMetricConnectivity: 23% ValidateFixedInterface ball/link rebuilds of an unchanged connectivity
+ per coordinate trial, 20% re-queries of unchanged cells after every `losses.clear()`, 7% linearization probes. On the
+ tube cases 50% of the whole run was MappedFacetReference::ComponentContainsFace scanning the full component border with
+ exact predicates for the same physical faces again and again (O(border) per check, from every CheckSurface).
+ 1. CNativeCavity3D: InterfaceTopologyMemo + ValidateFixedInterface(old,fresh,reason,memo,...): incidence facts and the
+    ball verdict memoized per exact (cell id, ordered vertex ids) key, only after a successful build; positivity,
+    per-id coordinates, coincidence and interface coordinates re-checked every call; only topology rejections
+    (invalid_argument) are memoized; bounded (32 keys, cleared before a call).
+ 2. RepairMetricConnectivity: per-cell loss memo keyed by the 12 ordered vertex coordinates across the identity-keyed
+    `losses` resets (2048 entries, cleared on overflow); CoupledMetricDirection optional exact-point target memo (2048).
+ 3. MappedFacetReference::ContainsFace (reference components): verdict memo keyed by bitwise facet/bindings/realized
+    points, 16384 entries, admitted against the construction ceiling and counted in ResidentBytes, mutex-guarded,
+    bypassed when KernelStats are requested, exceptions not memoized.
+ Tried and reverted: CBoundaryLayerMetric.cpp (-ffast-math TU) EdgeBreakpointsImpl std::set -> sorted vectors and a
+    FeatureRadius hoist: 18/971 D2 witnesses and 13/2000 controls changed in the last long-double bits (fast-math
+    rescheduling); the file is unchanged (HEAD). EdgeBreakpointsImpl is 41% of all samples on M6 root TE (envelope
+    construction over every wall facet within the BL thickness box) and remains the main production sink.
+ Identity: identity/ (DC-8 harness, HEAD vs after binary; annulus natural limits, m6_le V 1500 work, tube_root_x and
+    two_tube_y V 500 work, no time limit reached): final meshes byte-identical and every non-timing JSON field equal
+    (identity/after/identity.json). D2: d2_comparison.json, 971/971 witnesses and 2000/2000 controls bitwise equal.
+    Airfoil baseline.cfg: every output byte-identical to perf1/after (HEAD production) except *_timing*.csv.
+ Timings before -> after (identity runs, same work): annulus V 10.1 -> 3.1 s; m6_le V 30.0 -> 19.0 s (Repair(fresh)
+    16.2 -> 7.7, Repair(bad) 2.6 -> 0.8); tube_root_x total 156 -> 95 s (R1 21.1 -> 2.5, V 54.5 -> 18.2, Repair(fresh)
+    18.6 -> 0.7); two_tube_y total 225 -> 108 s (R1 67.1 -> 4.1, V 60.6 -> 15.9, Repair(fresh) 24.1 -> 0.3).
+    Fresh re-audit unchanged by design (independent: fresh field, no harness caches; 40 s tubes, 102 s root TE,
+    227 s tip TE; one composed integration per edge, dominated by EdgeBreakpointsImpl). It was not made cached: that
+    would remove its independence; it agrees with the cached gates in every run.
+ Tests (after binary): unit3d 33, unit2d 57, metric 166 cases pass; mesh3d 100/101 with the same 6 pre-existing failed
+    assertions (CNativeDistributed3D_tests.cpp:1446/1449/1453) as perf1; airfoil passes.
+
+HARNESS DC-9 (test-only)
+ (b) R2 excess certificate: added excess first, removed edges integrated only while they can decide (decision identical,
+     Codex-checked) + coordinate-keyed composed-length memo (off in the re-audit). Certificate ms/call: tip TE 412 (DC-8,
+     pre-perf1) -> 152, root TE 130 (DC-8, perf1 binary) -> 84. The remainder integrates new mesh edges that the gates
+     need anyway. Tip TE R2 now completes in 369 s (DC-8: 600 s limit, 1465 rowed) with 3376 rowed / 1215 unrowed.
+ (c) STOPPED after 2 iterations. it1: sector vertices before their wall neighbours (now option SU2_DC9_SECTOR_FIRST, off):
+     A1 corner 8 then fails "partial-state" (corner column LP empty: lid faces down to the unlifted junction 18) and the
+     joint lift fails the gap side; rowed 5 instead of 6. it2: cut path may enter u only from a link vertex on the far
+     side of the lid face: witness "sector: no interior link path from seam 13 to junction 18" (vertices 8, 9), i.e. no
+     link vertex of the corner star lies beyond the lid plane once u is lifted. Override/extras of sector columns are
+     stored in Rows for later rebuilds (no sector transaction was admitted in this campaign).
+ (d) ColumnSplitJunction (one-column wall/carrier edge, FindFace + L-C + prescribed ball + first heights + D.1):
+     admitted 1x on A1 and 7x on tube_root_x.
+ (a) STOPPED on coordinator instruction (crease construction will be replaced). State: W spacing law + chain
+     collapse/move pass; root TE W leaves 37 metric-short wall edges (all bisection/level points at rho = 2-5 h0 of
+     the TE crease, census in runs/dc9_m6_root_te.json W_counts), but R2 on root TE rows fewer faces than DC-8
+     (2124/1495 vs 2622/984; first-child 379, cap 577).
+ Campaign (runs/ = V 8192/120 s reference, runs_v600/ = V 8192/600 s): summary.json in each; no case complete.
+ PNGs: png/dc9_<case>.png and png/v600_dc9_<case>.png; VTU/VTP with q_metric, J_metric, bad_metric, first_child,
+ column_id, cell_class and metric long edges in runs*/vtu/ (to_vtu.py, plain python3).
+ Codex reviews: codex_review_production.txt (3 findings: memo memory admission, repair scratch bound, bad_alloc poisoning;
+ all fixed), codex_review_harness.txt (2 findings: W chain deadline, resume provenance; both fixed). superseded_pre_review/
+ holds the partial campaign of the pre-fix binary.

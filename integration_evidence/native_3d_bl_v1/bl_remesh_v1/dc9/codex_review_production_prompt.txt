@@ -1,0 +1,16 @@
+READ-ONLY REVIEW. Do not edit, build, run binaries or git-commit anything. Repository: /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated (branch codex/native-3d-bl, base HEAD 5df8ccd3c4). Inspect the uncommitted PRODUCTION diff with:
+  git -c submodule.recurse=false diff --ignore-submodules HEAD -- Common/ SU2_CFD/
+Files: Common/include/adaptation/CNativeCavity3D.hpp, Common/src/adaptation/CNativeCavity3D.cpp, Common/src/adaptation/CNativeBoundary3D.cpp (RepairMetricConnectivity, CoupledMetricDirection), Common/include/adaptation/CNativeAffineReference.hpp + Common/src/adaptation/CNativeAffineReference.cpp (MappedFacetReference::ContainsFace memo).
+
+Claimed intent: PERFORMANCE ONLY, results must be bit-identical to HEAD.
+1. InterfaceTopologyMemo + memoized ValidateFixedInterface overload: Incidence-derived facts (oriented boundary, face components, combinatorial throws) and the Ball topology verdict are memoized per exact (cell id, ordered vertex ids) key; positivity, per-id coordinate consistency, coincident vertices and interface coordinates are re-checked every call. Claim: boolean verdict equals ValidateFixedInterface(old,fresh,...) without memo for every input.
+2. RepairMetricConnectivity: `measured` keeps per-cell losses keyed by the 12 ordered vertex coordinates across the identity-keyed `losses` resets; `losses` keeps its own first-value-per-period semantics. Claim: identical totals and decisions (the loss is a function of ordered coordinates and the frozen target).
+3. CoupledMetricDirection: optional map of target tensors by exact query point (repeated linearizations).
+4. MappedFacetReference::ContainsFace with reference components: verdicts memoized (bounded, mutex-guarded, shared_ptr shared by copies) keyed by the bitwise facet id, the three SurfaceBinding fields and the three realized points; bypassed when KernelStats are requested; exceptions are not memoized. Claim: ComponentContainsFace is a pure function of the immutable reference and these inputs.
+
+Check rigorously against the code:
+- any input where a memoized verdict/loss/tensor could differ from the unmemoized computation (including exception vs. pass, cell order, vertex order, cell id reuse with different connectivity, entries stored after failed builds, std::map reference stability, FrozenField::Query history dependence such as last_donor hints or the sensor cache eviction, composition determinism);
+- whether Validate's original checks are all reproduced (order-independence of the boolean, expected-skin variant untouched);
+- whether ComponentContainsFace/Supports/Admissible/Ideal read any mutable state, whether MappedFacetReference objects can be mutated or reassigned after construction (sharing the memo across copies), memory bound of the memo;
+- memory growth / complexity regressions, thread-safety assumptions, and any behavioural change (reason strings excepted).
+Report findings as a numbered list with severity [P1]/[P2]/[P3], file:line, concrete failing scenario and a fix. If none, say so explicitly. Keep it under 600 words.

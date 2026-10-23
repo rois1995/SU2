@@ -8,6 +8,8 @@
 #include "CNativePointConstruction3D.hpp"
 #include <map>
 #include <memory>
+#include <mutex>
+#include <unordered_map>
 #include <vector>
 
 namespace SU2Native3D { class PlanarReference; struct Facet; struct SurfaceFace; }
@@ -131,6 +133,12 @@ class MappedFacetReference {
   std::vector<std::vector<Id>> edge_facets;
   struct ComponentData;
   std::shared_ptr<const ComponentData> components;
+  /*! Memo of ContainsFace verdicts (a pure function of the immutable reference and the bitwise facet, bindings and
+   *  realized points). Used only without kernel statistics; bounded and admitted against the construction ceiling (ResidentBytes); guarded
+   *  for concurrent const use. */
+  struct FaceMemo;
+  std::shared_ptr<FaceMemo> face_memo;
+  static size_t FaceMemoBytes();
   double ComponentPointError(const SurfaceBinding& binding,Point realized)const;
   bool ComponentContainsFace(Id facet,const std::array<SurfaceBinding,3>& binding,
                              const std::array<Point,3>& realized,SU2Native3D::KernelStats* stats)const;

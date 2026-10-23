@@ -1,0 +1,36 @@
+{
+ "base_commit": "5df8ccd3c4cdc9782143dd567a2518c42ce46f94",
+ "after_test_driver": {
+  "sha256": "2274ec282c35dae15bb75903771d4d7b0e593ecaf55d1de963259c72bd498166",
+  "note": "campaign runs/, runs_v600/, identity/after, d2_after, validation after/"
+ },
+ "after_SU2_CFD": {
+  "sha256": "eed57f7a80eb59678352fec62c21b7534a15e477a782fbd701bfab2e32703bc1"
+ },
+ "before_test_driver": {
+  "sha256": "84eb442a42542e10c2ee653943a1eb1997205304bb079deb00acc148e62558b8",
+  "source": "HEAD production + DC-8 V-limit env option (test-only)"
+ },
+ "sources": {
+  "Common/include/adaptation/CNativeCavity3D.hpp": "8f607b3e64ac46168e30388c8236c0d721729ba2370c2dfffd4c5ca9e5f60ea1",
+  "Common/src/adaptation/CNativeCavity3D.cpp": "bf266181d83b224699add443aca3312c4a8848cf8fd14a1b5d3cc4c52592386d",
+  "Common/src/adaptation/CNativeBoundary3D.cpp": "0af28c77100ad2697460066fc0caed8334d05d67db44834c65a10734cefa7017",
+  "Common/include/adaptation/CNativeAffineReference.hpp": "fb02421ca5ddd9419fa5a6c94bb049c81d9faf03278c182705187db148f4ebed",
+  "Common/src/adaptation/CNativeAffineReference.cpp": "688140cf9dae067f3cb5fa5677bf75433e369807607604465142e601d32d7fb9",
+  "SU2_CFD/src/adaptation/CBoundaryLayerMetric.cpp": "7d7a34e99b27c92b72f9502b18f0c9d11eceb3a476d584d210fb6f81a45ce5ec",
+  "UnitTests/SU2_CFD/adaptation/fixtures/native_first_row_dc9.inc": "8af20ab262bd64db7ebab21153dbfadae0409951c0a1674d1fceaac65f017ebf",
+  "UnitTests/SU2_CFD/adaptation/fixtures/native_first_row_dc8.inc": "1545f40dfc910267643f50cc786062a93392c64f98d3123e42ba8c92de4f2262",
+  "UnitTests/SU2_CFD/adaptation/CNativeRemesher3D_tests.cpp": "e5088030f9d8804654e62e2d6b7554d70072802a15debd29b021025ac42c0179"
+ },
+ "campaign": "runs/: limits W 8192/120 s, R1 4096/120 s, R2 600 s, V 8192/120 s; runs_v600/: same with V 8192/600 s",
+ "scripts": [
+  "run_case.sh",
+  "run_campaign.sh",
+  "run_identity.sh",
+  "compare_identity.py",
+  "run_d2.sh",
+  "run_validation.sh",
+  "summarize_dc9.py",
+  "to_vtu.py"
+ ]
+}

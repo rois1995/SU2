@@ -10,6 +10,7 @@
 #include "../../include/adaptation/CTransferMemory.hpp"
 #include "../../include/adt/CADTElemClass.hpp"
 #include "../../include/option_structure.hpp"
+#include <cstring>
 #include <numeric>
 #include <type_traits>
 namespace SU2NativeGeometry {
@@ -239,6 +240,15 @@ double PlaneModelOffset(const SU2Native3D::ParametricPoint& model,const AffineAu
   return std::nextafter(double(std::max(bound,static_cast<long double>(std::numeric_limits<double>::min()))),INFINITY);
 }
 }
+struct MappedFacetReference::FaceMemo {
+  static constexpr size_t Entries=size_t(1)<<14;
+  using Key=std::array<uint64_t,25>;
+  struct Hash{size_t operator()(const Key& k)const{uint64_t h=1469598103934665603ULL;for(auto x:k){h^=x+0x9e3779b97f4a7c15ULL+(h<<6)+(h>>2);}return size_t(h);}};
+  std::mutex lock;std::unordered_map<Key,bool,Hash> verdicts;
+};
+namespace {
+uint64_t Bits(double x){uint64_t b;std::memcpy(&b,&x,sizeof b);return b;}
+}
 MappedFacetReference::MappedFacetReference(std::shared_ptr<const SU2Native3D::PlanarReference> input,
     const std::map<Id,double>& mapping_errors,uint64_t definition_version,size_t ceiling,bool reference_components)
     :reference(std::move(input)),version(definition_version) {
@@ -322,6 +332,8 @@ MappedFacetReference::MappedFacetReference(std::shared_ptr<const SU2Native3D::Pl
       }
     }
     components=std::move(data);
+    // The ContainsFace memo is admitted with its full bound (entries, keys, nodes, buckets) or not created at all.
+    if(transfer_memory::Add(prepared,FaceMemoBytes())<=ceiling){face_memo=std::make_shared<FaceMemo>();prepared=transfer_memory::Add(prepared,FaceMemoBytes());}
     if(ResidentBytes()>prepared)throw std::length_error("Mapped component storage model exhausted before publication.");
   }
 }
@@ -434,7 +446,19 @@ bool MappedFacetReference::Supports(Id facet,const SurfaceBinding& b)const {
 bool MappedFacetReference::ContainsFace(Id facet,const std::array<SurfaceBinding,3>& binding,
     const std::array<Point,3>& realized,SU2Native3D::KernelStats* stats)const {
   using namespace SU2Native3D;
-  if(components)return ComponentContainsFace(facet,binding,realized,stats);
+  if(components) {
+    // Component containment scans the whole component border with exact predicates; identical queries (the same
+    // physical faces re-checked by every kernel and admission) reuse their verdict. Statistics callers recompute.
+    if(stats || !face_memo)return ComponentContainsFace(facet,binding,realized,stats);
+    FaceMemo::Key key{};size_t at=0;key[at++]=facet;
+    for(unsigned k=0;k<3;++k){key[at++]=binding[k].feature;key[at++]=binding[k].version;key[at++]=binding[k].dimension;key[at++]=Bits(binding[k].u);key[at++]=Bits(binding[k].v);}
+    for(unsigned k=0;k<3;++k){key[at++]=Bits(realized[k].x);key[at++]=Bits(realized[k].y);key[at++]=Bits(realized[k].z);}
+    {std::lock_guard<std::mutex> guard(face_memo->lock);const auto found=face_memo->verdicts.find(key);if(found!=face_memo->verdicts.end())return found->second;}
+    const bool verdict=ComponentContainsFace(facet,binding,realized,nullptr);
+    std::lock_guard<std::mutex> guard(face_memo->lock);
+    if(face_memo->verdicts.size()>=FaceMemo::Entries)std::unordered_map<FaceMemo::Key,bool,FaceMemo::Hash>().swap(face_memo->verdicts);
+    face_memo->verdicts.emplace(key,verdict);return verdict;
+  }
   std::array<ParametricPoint,3> ideal;
   for(unsigned i=0;i<3;++i) {
     if(!Supports(facet,binding[i]) || !Admissible(binding[i],realized[i]))return false;
@@ -498,6 +522,10 @@ bool MappedFacetReference::ComponentContainsFace(Id facet,const std::array<Surfa
   }
   return winding==c.orientation;
 }
+size_t MappedFacetReference::FaceMemoBytes() {
+  // Per entry: key + value + hash-node links/hash + one bucket pointer (generous), plus the container itself.
+  return transfer_memory::Add(sizeof(FaceMemo),transfer_memory::Mul(FaceMemo::Entries,sizeof(FaceMemo::Key)+sizeof(bool)+4*sizeof(void*)+2*sizeof(size_t)));
+}
 size_t MappedFacetReference::ResidentBytes()const {
   auto bytes=[](const auto& map){return transfer_memory::Mul(map.size(),sizeof(typename std::decay_t<decltype(map)>::value_type)+4*sizeof(void*));};
   size_t out=transfer_memory::Add(sizeof(*this),bytes(errors),bytes(nodes),bytes(vertex_facets),transfer_memory::Bytes(edges),transfer_memory::Bytes(edge_facets));
@@ -506,6 +534,7 @@ size_t MappedFacetReference::ResidentBytes()const {
   if(components){out=transfer_memory::Add(out,sizeof(ComponentData),bytes(components->entries));
     for(const auto& row:components->entries){const auto& c=row.second;out=transfer_memory::Add(out,transfer_memory::Bytes(c.facets),transfer_memory::Bytes(c.border),
         transfer_memory::Bytes(c.corners),bytes(c.features),c.search?c.search->GetAllocatedBytes():0,c.search?c.search->RetainedWorkspaceBound(1):0,transfer_memory::Mul(c.facets.size(),3*sizeof(Id)));}}
+  if(face_memo)out=transfer_memory::Add(out,FaceMemoBytes());
   return out;
 }
 bool MappedFacetReference::ValidateSurface(const std::vector<SU2Native3D::SurfaceFace>& surface,

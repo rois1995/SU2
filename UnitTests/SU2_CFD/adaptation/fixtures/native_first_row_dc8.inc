@@ -1342,7 +1342,10 @@ TEST_CASE("DC-8 W(crease strips) -> R1 -> R2(sector lifts, band window) -> V(Ape
     {bool k=false;for(const auto& c:r2.classes){json<<(k?",":"")<<junction_wp0::Json(c.first)<<':'<<c.second;k=true;}}json<<"}}";
     std::cout<<"DC8 "<<name<<" R2 rowed="<<r2.rowed<<" unrowed="<<r2.unrowed<<" t="<<r2.seconds<<" last="<<r2.last.substr(0,300)<<std::endl;
     {Scope sc("JsonFinal after_R");json<<",\"after_R\":"<<JsonFinal(*s,rows);}
-    const auto v=PhaseV(*s,rows,8192,120,log);
+    // Optional V limits (default 8192 work / 120 s): a work-limited V makes before/after runs comparable.
+    const size_t vWork=std::getenv("SU2_DC8_V_WORK")?std::stoul(std::getenv("SU2_DC8_V_WORK")):8192;
+    const double vSeconds=std::getenv("SU2_DC8_V_SECONDS")?std::stod(std::getenv("SU2_DC8_V_SECONDS")):120;
+    const auto v=PhaseV(*s,rows,vWork,vSeconds,log);
     json<<",\"V\":"<<JsonStage(v)<<",\"V_counts\":{\"sweeps\":"<<v.sweeps<<",\"column_demand_unrouted\":"<<v.column_demand<<",\"apex_moves\":"<<v.apex_moves<<",\"column_splits\":"<<v.column_splits
         <<",\"rejection_cache_skips\":"<<v.cache_skips<<",\"exact_on_edge_splits\":"<<v.exact_splits<<",\"no_exact_on_edge_point\":"<<v.no_exact_point<<",\"junction_insert_skips\":"<<v.junction_skips
         <<",\"with_complete_rows\":"<<(r2.unrowed==0)<<",\"demand\":{";
