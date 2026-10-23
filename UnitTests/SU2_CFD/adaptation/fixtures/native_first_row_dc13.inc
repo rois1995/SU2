@@ -62,6 +62,8 @@ ColumnStats ColumnInsert(State& s,Rows10& rows) {
   for(Id w:wallSet) {
     if(!s.vertex_cells.count(w))continue;const auto lf=rows.lift.find(w);const bool lifted=lf!=rows.lift.end()&&s.vertex_cells.count(lf->second);
     if(rows.copies.count(w))continue;  // fan ridges keep their copies
+    // unlifted wall vertices (cut boundary) only on request: on m6_root_te x16 they gave 9 bad cells instead of 6
+    if(!lifted&&!(std::getenv("SU2_DC13_UNLIFTED_COLUMNS")&&std::string(std::getenv("SU2_DC13_UNLIFTED_COLUMNS"))=="1"))continue;
     const V x=Of(NodePoint(s,w));const auto dir=DirectionAt(s,w);if(dir.normals.empty()){++st.why["no wall normal"];continue;}
     // column direction: the first-row lift; a vertex without a lift (e.g. on the artificial cut boundary) uses its
     // constrained lift direction (DirectionAt: in-plane on a carrier) and its nearest-aligned non-wall edge
@@ -352,6 +354,17 @@ VStage13 PhaseV13(State& s,Rows10& rows,Growth& G,size_t work,double seconds,siz
       // DC-13: lids are not frozen (no first child contains a lid); a moved lid is relabelled in rows.lift and G below
       for(const auto& r:rows.copies)for(Id c:r.second.ids)opt.frozen_vertices.insert(c);
       for(const auto& r:rows.apex)opt.frozen_vertices.insert(r.second);
+      // TEST-ONLY cut-artifact diagnostic (coordinator 2026-10-24, SU2_DC13_CUT_SLIDE=1, never the main result): skin
+      // vertices whose every boundary face is on the artificial cut slide in the plane of their cut faces (in a full
+      // mesh they are interior vertices); geometry of the cut is then not certified
+      if(std::getenv("SU2_DC13_CUT_SLIDE")&&std::string(std::getenv("SU2_DC13_CUT_SLIDE"))=="1") {
+        std::map<Id,V> normal;std::set<Id> other;
+        for(const auto& row:s.mesh){const auto f=CellFaces(row.second.cell);for(unsigned k=0;k<4;++k){if(!row.second.physical[k].present)continue;
+          const int m=s.reference->Get(row.second.physical[k].facet).marker;if(!artificialMarkers.count(m)){for(Id x:f[k])other.insert(x);continue;}
+          const V a=Of(NodePoint(s,f[k][0])),b=Of(NodePoint(s,f[k][1])),c=Of(NodePoint(s,f[k][2]));const V n=Cross(b-a,c-a);for(Id x:f[k])normal[x]=normal[x]+n;}}
+        for(const auto& n:normal)if(!other.count(n.first)&&!opt.frozen_vertices.count(n.first)&&Norm(n.second)>0){const V u=Unit(n.second);opt.diagnostic_sliding[n.first]={double(u.x),double(u.y),double(u.z)};}
+        g.demand["DIAGNOSTIC cut vertices allowed to slide"]+=opt.diagnostic_sliding.size();
+      }
       const RegionMetric target([&s](Point p){return s.field->Query(p).target;},[&s](Point a,Point b){return GeometryLength(s,a,b);});
       OptimizeReport rep;Id nn=s.next_node,nc=s.next_cell;bool moved=false;
       {Scope sc("V12 OptimizeMetricMesh");try{moved=OptimizeMetricMesh(s.mesh,target,nn,nc,opt,rep);}catch(const std::exception& e){rep.stop=std::string("exception: ")+e.what();}}

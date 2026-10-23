@@ -3091,6 +3091,7 @@ class MeshOptimizer {
   std::unordered_map<Id,std::vector<Id>> star;   // vertex -> incident cells
   std::unordered_map<Id,Point> points;
   std::set<Id> fixed;                            // skin (physical or artificial) vertices: never moved or removed
+  std::map<Id,std::array<double,3>> sliding;     // TEST-ONLY diagnostic sliding planes (options.diagnostic_sliding, follows moves)
   std::unordered_map<std::array<double,3>,Tensor,CoordinateHash> tensors;
   std::map<std::array<Id,4>,CellQuality> qualities;  // ordered cell vertex ids (an identity keeps its coordinates)
   std::map<std::array<double,6>,long double> exact;
@@ -3112,6 +3113,7 @@ class MeshOptimizer {
       for(auto f:OppositeFaces(row.second.cell)){std::sort(f.begin(),f.end());++uses[f];}
     }
     for(const auto& u:uses)if(u.second==1)fixed.insert(u.first.begin(),u.first.end());
+    sliding=options.diagnostic_sliding;
   }
   Tensor At(Point p) {
     const std::array<double,3> key{p.x,p.y,p.z};const auto found=tensors.find(key);
@@ -3151,7 +3153,7 @@ class MeshOptimizer {
   }
   bool Frozen(Id cell) const {return options.frozen_cells.count(cell)>0;}
   bool Movable(Id v) const {
-    if(fixed.count(v) || options.frozen_vertices.count(v))return false;
+    if((fixed.count(v)&&!sliding.count(v)) || options.frozen_vertices.count(v))return false;
     const auto s=star.find(v);if(s==star.end() || s->second.empty() || s->second.size()>MaximumCavityCells)return false;
     for(Id id:s->second)if(Frozen(id))return false;
     return true;
@@ -3370,10 +3372,15 @@ bool MeshOptimizer::Smooth(Id p) {
   }catch(const std::exception&){}
   // DC-13 O4m: min-max placement over the star (approximate proposal, exact trial below), from p and each proposal
   bool placed=false;
-  {std::vector<Cell> cells;for(Id id:old)cells.push_back(mesh.at(id).cell);const auto faces=CavityBoundary(cells);
+  const auto slideIt=sliding.find(p);const bool slides=slideIt!=sliding.end();const std::array<double,3> plane=slides?slideIt->second:std::array<double,3>{0,0,0};
+  auto inPlane=[&](Point t)->Point{if(!slides)return t;const auto& n=plane;const double d=(t.x-x0.x)*n[0]+(t.y-x0.y)*n[1]+(t.z-x0.z)*n[2];return {t.x-d*n[0],t.y-d*n[1],t.z-d*n[2]};};
+  for(auto& t:targets)t=inPlane(t);
+  {std::vector<Cell> cells;for(Id id:old)cells.push_back(mesh.at(id).cell);auto faces=CavityBoundary(cells);
+   faces.erase(std::remove_if(faces.begin(),faces.end(),[&](const Face& f){return f[0]==p||f[1]==p||f[2]==p;}),faces.end());  // the link of p
    std::vector<Point> starts{x0};for(const auto& t:targets)starts.push_back(t);Placement best;
    for(const auto& st:starts){const auto pl=PlaceCone(faces,[&](Id v){return points.at(v);},[&](Point q){return At(q);},st,nullptr,std::max<size_t>(16,options.placement_budget/starts.size()));
      report.placement_evaluations+=pl.evaluations;if(pl.ok&&pl.score>best.score)best=pl;}
+   if(best.ok)best.x=inPlane(best.x);
    ++report.placements;if(best.ok&&!(best.x.x==x0.x&&best.x.y==x0.y&&best.x.z==x0.z)){targets.insert(targets.begin(),best.x);placed=true;}}
   struct Trial{double score;Point x;};std::vector<Trial> trials;
   for(size_t ti=0;ti<targets.size();++ti)for(long double w:{1.L,.5L,.25L}) {const Point t=targets[ti];if(ti==0&&placed&&w!=1.L)continue;  // the placed point is tried as is
@@ -3389,8 +3396,12 @@ bool MeshOptimizer::Smooth(Id p) {
     bool ok=true;for(Id x:nbr)if(!Certified(t.x,points.at(x),limit)){ok=false;break;}
     if(!ok){++report.rejected_edge;continue;}
     const Node P{next_node,t.x};std::vector<Cell> fresh;for(Id id:old){Cell c=mesh.at(id).cell;for(auto& v:c.v)if(v.id==p)v=P;fresh.push_back(c);}
-    if(!Interface(old,fresh))continue;
-    const Id moved=next_node++;Commit(old,fresh,p);
+    std::map<Face,FacetBinding> added;
+    if(slides){for(Id id:old){const auto& row=mesh.at(id);const auto faces=OppositeFaces(row.cell);  // diagnostic: bindings follow the moved skin vertex
+        for(unsigned k=0;k<4;++k)if(row.physical[k].present){auto f=faces[k];if(f[0]!=p&&f[1]!=p&&f[2]!=p)continue;for(auto& x:f)if(x==p)x=P.id;std::sort(f.begin(),f.end());added.emplace(f,row.physical[k]);}}}
+    else if(!Interface(old,fresh))continue;
+    const Id moved=next_node++;Commit(old,fresh,p,added);
+    if(slides){sliding.erase(p);sliding[moved]=plane;fixed.insert(moved);}
     Id origin=p;for(const auto& r:report.relabel)if(r.second==p){origin=r.first;break;}
     report.relabel[origin]=moved;++report.moves;return true;
   }

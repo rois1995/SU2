@@ -20,6 +20,10 @@ struct OptimizeOptions {
   size_t placement_budget = 160;    // Approximate cone evaluations of one placement search (proposal only).
   std::set<Id> frozen_cells;        // No operation may replace these cells (caller-certified first rows).
   std::set<Id> frozen_vertices;     // Never moved or removed (boundary vertices are always fixed).
+  /*! TEST-ONLY DIAGNOSTIC (DC-13 cut-artifact check), never set in production: skin vertices allowed to slide in the plane
+   * through their position with the given unit normal (moves by O4m only, positivity/validity checked, skin geometry
+   * NOT certified: no interface/facet check). Their boundary faces keep their bindings. */
+  std::map<Id, std::array<double, 3>> diagnostic_sliding;
   size_t cache_entries = size_t(1) << 20;  // Bounded scratch (tensor/score/length memos), cleared when reached.
 };
 struct OptimizeReport {
