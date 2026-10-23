@@ -929,6 +929,8 @@ void ExportGates10(State& s,const Rows10& rows,const std::string& path) {
 }  // namespace dc10
 
 TEST_CASE("DC-10 option-A wall target, W -> R1 -> R2(single | per-side + crease fan) -> V", "[.][NativeFirstRowDC10]") {
+  // Evidence of this harness was produced under the former production default: keep StrictExcess pinned.
+  struct PinStrictExcess{SU2Native3D::RefineAcceptance a=SU2Native3D::GetRefineAcceptance();PinStrictExcess(){SU2Native3D::SetRefineAcceptance(SU2Native3D::RefineAcceptance::StrictExcess);}~PinStrictExcess(){SU2Native3D::SetRefineAcceptance(a);}} pinStrictExcess;
   using namespace dc10;
   World world;REQUIRE(world.size==1);
   const char* folder=std::getenv("SU2_DC10_ROOT");REQUIRE(folder);const std::string root(folder);

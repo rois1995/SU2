@@ -79,7 +79,20 @@ TEST_CASE("Native 3D private refinement can progress before the final global siz
   FrozenField coarse(original);
   CHECK(ValidateMetricChange(fresh.cells, old.cells, MetricChange::Coarsen, coarse, measured, reason));
   CHECK(ValidateMetricPatch(old.cells, coarse, measured, reason));
-  CHECK_FALSE(ValidateMetricChange(old.cells, fresh.cells, MetricChange::Refine, coarse, measured, reason));
+  {  // The split edge is admissible (<= 1.8) but longer than SplitInsertionLength: the former rule (StrictExcess)
+     // refuses the split for lack of excess progress; the 2D split rule (SplitInsertion, production default since
+     // 2026-10-23) admits it as a size insertion without vertex removal.
+    struct Restore { RefineAcceptance a=GetRefineAcceptance(); ~Restore(){SetRefineAcceptance(a);} } restore;
+    SetRefineAcceptance(RefineAcceptance::StrictExcess);
+    CHECK_FALSE(ValidateMetricChange(old.cells, fresh.cells, MetricChange::Refine, coarse, measured, reason));
+    SetRefineAcceptance(RefineAcceptance::SplitInsertion);
+    MetricDiagnosis diagnosis;
+    CHECK(ValidateMetricChange(old.cells, fresh.cells, MetricChange::Refine, coarse, measured, reason, nullptr, nullptr, &diagnosis));
+    CHECK(diagnosis.size_insertion);
+    CHECK_FALSE(diagnosis.vertex_removal);
+    CHECK(diagnosis.longest_removed > SplitInsertionLength);
+    CHECK(diagnosis.longest_removed <= MaximumMetricEdge);
+  }
 }
 TEST_CASE("Native 3D metric gate never uses sensor integration to qualify a composed target", "[NativeMesh3D]") {
   size_t queries = 0;

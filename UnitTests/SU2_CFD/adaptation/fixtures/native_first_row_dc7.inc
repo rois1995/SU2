@@ -737,6 +737,8 @@ std::unique_ptr<State> LoadM6Cut(const std::string& path) {
 }  // namespace dc7
 
 TEST_CASE("DC-7 W -> R1 -> R2 closed row transactions -> V with protected columns", "[.][NativeFirstRowDC7]") {
+  // Evidence of this harness was produced under the former production default: keep StrictExcess pinned.
+  struct PinStrictExcess{SU2Native3D::RefineAcceptance a=SU2Native3D::GetRefineAcceptance();PinStrictExcess(){SU2Native3D::SetRefineAcceptance(SU2Native3D::RefineAcceptance::StrictExcess);}~PinStrictExcess(){SU2Native3D::SetRefineAcceptance(a);}} pinStrictExcess;
   using namespace dc7;
   World world;REQUIRE(world.size==1);
   const char* folder=std::getenv("SU2_DC7_ROOT");REQUIRE(folder);const std::string root(folder);
@@ -786,6 +788,8 @@ TEST_CASE("DC-7 W -> R1 -> R2 closed row transactions -> V with protected column
 // M6 field export at the configured target (ADAP_ANGLE as configured): selected sensor per owned node, D1 summary,
 // normalization; saved state, no CFD step, no construction. Run on 2 ranks (serial donor admission refuses M6).
 TEST_CASE("DC-7 M6 selected field export", "[.][NativeFirstRowDC7Field]") {
+  // Evidence of this harness was produced under the former production default: keep StrictExcess pinned.
+  struct PinStrictExcess{SU2Native3D::RefineAcceptance a=SU2Native3D::GetRefineAcceptance();PinStrictExcess(){SU2Native3D::SetRefineAcceptance(SU2Native3D::RefineAcceptance::StrictExcess);}~PinStrictExcess(){SU2Native3D::SetRefineAcceptance(a);}} pinStrictExcess;
   class Driver : public CSinglezoneDriver {
    public:
     using CSinglezoneDriver::CSinglezoneDriver;

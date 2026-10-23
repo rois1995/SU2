@@ -56,7 +56,8 @@ enum class MetricFailure { None, Measurement, Shape, Progress };
  * strict excess decrease; a non-size insertion must add no oversized changed edge and strictly raise the minimum mean
  * ratio. A vertex is removed when it is absent from the fresh cells; `relocated` (certified by the caller) old vertices
  * may be absent because a refit replaced them one for one by a new identity. Fresh shape stays strict.
- * StrictExcess: the previous rule (strict excess decrease for every refinement), kept for A/B comparisons.
+ * StrictExcess: the previous rule (strict excess decrease for every refinement), kept for A/B comparisons and the
+ * reproducibility of older harness evidence. Default: SplitInsertion (user decision 2026-10-23).
  * Process-wide; final mesh gates are independent of it. */
 enum class RefineAcceptance { StrictExcess, SplitInsertion };
 constexpr double SplitInsertionLength = 1.6;

@@ -342,7 +342,7 @@ bool ValidateMetricPatch(const std::vector<Cell>& cells, FrozenField& target, Pa
   }
 }
 namespace {
-std::atomic<int> refine_acceptance{int(RefineAcceptance::StrictExcess)};
+std::atomic<int> refine_acceptance{int(RefineAcceptance::SplitInsertion)};  // production default (user decision 2026-10-23)
 }  // namespace
 void SetRefineAcceptance(RefineAcceptance acceptance) { refine_acceptance.store(int(acceptance)); }
 RefineAcceptance GetRefineAcceptance() { return RefineAcceptance(refine_acceptance.load()); }

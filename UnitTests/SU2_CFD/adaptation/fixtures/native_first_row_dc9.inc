@@ -1586,6 +1586,8 @@ std::string JsonPerf(){std::ostringstream o;o<<std::setprecision(8)<<"{\"ops\":{
 }  // namespace dc9
 
 TEST_CASE("DC-9 W(crease strips, chain pass) -> R1 -> R2(sector order, lazy certificate) -> V(ApexMove, ColumnSplit incl. junction)", "[.][NativeFirstRowDC9]") {
+  // Evidence of this harness was produced under the former production default: keep StrictExcess pinned.
+  struct PinStrictExcess{SU2Native3D::RefineAcceptance a=SU2Native3D::GetRefineAcceptance();PinStrictExcess(){SU2Native3D::SetRefineAcceptance(SU2Native3D::RefineAcceptance::StrictExcess);}~PinStrictExcess(){SU2Native3D::SetRefineAcceptance(a);}} pinStrictExcess;
   using namespace dc9;
   World world;REQUIRE(world.size==1);
   const char* folder=std::getenv("SU2_DC9_ROOT");REQUIRE(folder);const std::string root(folder);

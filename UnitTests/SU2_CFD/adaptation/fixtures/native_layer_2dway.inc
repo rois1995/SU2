@@ -496,6 +496,8 @@ std::string Json(const Run& r,const Gates& g){std::ostringstream o;o<<std::setpr
 }  // namespace layer2d
 
 TEST_CASE("DC-5 2D-way layer construction: admission A vs D.1 on identical proposals", "[.][NativeLayer2DWay3D]") {
+  // Evidence of this harness was produced under the former production default: keep StrictExcess pinned.
+  struct PinStrictExcess{SU2Native3D::RefineAcceptance a=SU2Native3D::GetRefineAcceptance();PinStrictExcess(){SU2Native3D::SetRefineAcceptance(SU2Native3D::RefineAcceptance::StrictExcess);}~PinStrictExcess(){SU2Native3D::SetRefineAcceptance(a);}} pinStrictExcess;
   using namespace layer2d;using junction_wp0::State;
   World world;REQUIRE(world.size==1);
   const char* folder=std::getenv("SU2_DC5_ROOT");REQUIRE(folder);const std::string root(folder);   // bl_remesh_v1/dc5

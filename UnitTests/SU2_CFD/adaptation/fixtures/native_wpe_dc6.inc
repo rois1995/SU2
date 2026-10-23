@@ -142,6 +142,8 @@ Cert Certify(const Model& m,V a,V b,size_t budget) {
 }  // namespace wpe_dc6
 
 TEST_CASE("DC-6 WP-E enclosure screen on native M6 edges", "[.][NativeWPEDC6]") {
+  // Evidence of this harness was produced under the former production default: keep StrictExcess pinned.
+  struct PinStrictExcess{SU2Native3D::RefineAcceptance a=SU2Native3D::GetRefineAcceptance();PinStrictExcess(){SU2Native3D::SetRefineAcceptance(SU2Native3D::RefineAcceptance::StrictExcess);}~PinStrictExcess(){SU2Native3D::SetRefineAcceptance(a);}} pinStrictExcess;
   using namespace wpe_dc6;using namespace layer2d;
   const char* mesh=std::getenv("SU2_DC6_MESH");REQUIRE(mesh);const char* d1file=std::getenv("SU2_DC6_D1");
   const char* outdir=std::getenv("SU2_DC6_OUT");REQUIRE(outdir);
