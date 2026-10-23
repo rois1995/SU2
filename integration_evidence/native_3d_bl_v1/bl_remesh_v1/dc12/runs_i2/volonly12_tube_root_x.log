@@ -1,0 +1,29 @@
+Filters: [NativeVolumeOnlyDC12]
+VOLONLY12 tube_root_x valid=1 stop=complete cells=5985 rounds=1 t=6.00824
+VOLONLY12 tube_root_x final long=0 bad=0 complete=1
+===============================================================================
+All tests passed (4 assertions in 1 test case)
+
+	Command being timed: "env SU2_DC12_V_SECONDS=1500 SU2_DC12_REFLECTIVE=symmetry SU2_DC12_INPUT_SHA=93af24fa7f1cd6ba5f9de8ac072a64bc5f09885183789ae4e237da78708491f7 SU2_DC12_BINARY_SHA=58094269b63d970135065835dfb63c9e206b774ee6c03007aa3f386535b3351c SU2_DC12_ROOT=/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/bl_remesh_v1/dc12/runs_i2 SU2_DC12_WP0B=/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/robust_junction_v1/wp0b SU2_DC12_M6=/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/bl_remesh_v1/dc7/m6_cuts SU2_DC12_CASES=tube_root_x nice -n 19 timeout --kill-after=5s 7200s /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/bl_remesh_v1/dc12/bin/test_driver_i3 [NativeVolumeOnlyDC12] --use-colour no"
+	User time (seconds): 8.99
+	System time (seconds): 0.01
+	Percent of CPU this job got: 96%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:09.37
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 43240
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 2
+	Minor (reclaiming a frame) page faults: 7858
+	Voluntary context switches: 1193
+	Involuntary context switches: 1885
+	Swaps: 0
+	File system inputs: 0
+	File system outputs: 1144
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0

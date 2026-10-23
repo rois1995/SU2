@@ -5,10 +5,13 @@
  * SU2 is free software under the GNU Lesser General Public License, version 2.1 or later.
  */
 #include "../../include/adaptation/CNativeEngine3D.hpp"
+#include "../../include/adaptation/CNativeOptimize3D.hpp"
 #include "../../include/adaptation/CNativeRegionField3D.hpp"
 #include "../../include/adaptation/CNativePointConstruction3D.hpp"
 #include <chrono>
 #include <cmath>
+#include <cstring>
+#include <unordered_map>
 #include <ctime>
 #include <set>
 #include <sstream>
@@ -2993,5 +2996,501 @@ EngineResult Coarsen(World& world, const Owned& accepted, const std::vector<Dono
 EngineResult Repair(World& world, const Owned& accepted, const std::vector<DonorCell>& original,
                     const PlanarReference& geometry, MetricComposition composition, EngineOptions options) {
   return Adapt(world,accepted,original,geometry,std::move(composition),options,MetricChange::Repair);
+}
+// ---- DC-12 (OPTIMIZE_PLAN sect. 4/6): mesh-wide metric optimization and the serial build-then-optimize driver ----------
+namespace {
+struct CoordinateHash {
+  size_t operator()(const std::array<double,3>& k) const {
+    uint64_t h=1469598103934665603ULL;
+    for(const double v:k){uint64_t b=0;std::memcpy(&b,&v,sizeof b);h=(h^b)*1099511628211ULL;}
+    return size_t(h);
+  }
+};
+std::array<Face,4> OppositeFaces(const Cell& c) {
+  const auto& v=c.v;return {{{v[1].id,v[2].id,v[3].id},{v[0].id,v[3].id,v[2].id},{v[0].id,v[1].id,v[3].id},{v[0].id,v[2].id,v[1].id}}};
+}
+bool CellHas(const Cell& c,Id v){for(const auto& n:c.v)if(n.id==v)return true;return false;}
+struct CellQuality { double q=-1,J=-1;double Score()const{return std::min(q/MinimumMeanRatio,J/MinimumScaledJacobian);}
+  bool Valid()const{return q>0&&J>=ValiditySliverJacobian;} };
+class MeshOptimizer {
+ public:
+  MeshOptimizer(Owned& mesh,const RegionMetric& target,Id& next_node,Id& next_cell,const OptimizeOptions& options,OptimizeReport& report)
+      : mesh(mesh),target(target),next_node(next_node),next_cell(next_cell),options(options),report(report),started(Clock::now()) {}
+  bool Run();
+
+ private:
+  static constexpr double Gain=1e-6;
+  static constexpr long double EstimatePass=1.4L;  // new edges estimated at most this long are not integrated
+  Owned& mesh;
+  const RegionMetric& target;
+  Id& next_node;
+  Id& next_cell;
+  const OptimizeOptions& options;
+  OptimizeReport& report;
+  Clock::time_point started;
+  bool changed=false,limited=false;
+  std::unordered_map<Id,std::vector<Id>> star;   // vertex -> incident cells
+  std::unordered_map<Id,Point> points;
+  std::set<Id> fixed;                            // skin (physical or artificial) vertices: never moved or removed
+  std::unordered_map<std::array<double,3>,Tensor,CoordinateHash> tensors;
+  std::map<std::array<Id,4>,CellQuality> qualities;  // ordered cell vertex ids (an identity keeps its coordinates)
+  std::map<std::array<double,6>,long double> exact;
+  bool Limited() {
+    if(limited)return true;
+    if(report.trials>=options.maximum_work)limited=true;
+    if(options.maximum_seconds>0 && std::chrono::duration<double>(Clock::now()-started).count()>=options.maximum_seconds)limited=true;
+    return limited;
+  }
+  void Bound() {
+    if(tensors.size()>=options.cache_entries)tensors.clear();
+    if(qualities.size()>=options.cache_entries)qualities.clear();
+    if(exact.size()>=options.cache_entries)exact.clear();
+  }
+  void Index() {
+    star.clear();points.clear();fixed.clear();std::map<Face,int> uses;
+    for(const auto& row:mesh) {
+      for(const auto& n:row.second.cell.v){star[n.id].push_back(row.first);points[n.id]=n.p;}
+      for(auto f:OppositeFaces(row.second.cell)){std::sort(f.begin(),f.end());++uses[f];}
+    }
+    for(const auto& u:uses)if(u.second==1)fixed.insert(u.first.begin(),u.first.end());
+  }
+  Tensor At(Point p) {
+    const std::array<double,3> key{p.x,p.y,p.z};const auto found=tensors.find(key);
+    if(found!=tensors.end())return found->second;
+    ++report.point_queries;const auto m=target.point(p);if(tensors.size()>=options.cache_entries)tensors.clear();tensors.emplace(key,m);return m;
+  }
+  // q, J in the metric at the actual centroid; q = J = -1 for a non-positive or unmeasurable cell
+  CellQuality Quality(const Cell& c,bool memo=true) {
+    if(!(Orientation(c.v[0].p,c.v[1].p,c.v[2].p,c.v[3].p)>0))return {};
+    const std::array<Id,4> key{c.v[0].id,c.v[1].id,c.v[2].id,c.v[3].id};
+    if(memo){const auto found=qualities.find(key);if(found!=qualities.end())return found->second;}
+    CellQuality r;
+    try{const auto m=Measure({c.v[0].p,c.v[1].p,c.v[2].p,c.v[3].p},At(Centroid(c)));r.q=m.mean_ratio;r.J=m.minimum_scaled_jacobian;}catch(const std::exception&){r=CellQuality{};}
+    if(memo){if(qualities.size()>=options.cache_entries)qualities.clear();qualities.emplace(key,r);}
+    return r;
+  }
+  double Score(const Cell& c){return Quality(c).Score();}
+  double MinScore(const std::vector<Id>& ids){double m=INFINITY;for(Id id:ids)m=std::min(m,Score(mesh.at(id).cell));return m;}
+  // minimum score of fresh cells, -INFINITY if one is not valid (q > 0, J >= ValiditySliverJacobian)
+  double FreshScore(const std::vector<Cell>& cells,bool memo=true) {
+    double m=INFINITY;for(const auto& c:cells){const auto r=Quality(c,memo);if(!r.Valid())return -INFINITY;m=std::min(m,r.Score());}return m;}
+  long double Estimate(Point a,Point b) {
+    const Point mid{double(((long double)a.x+b.x)/2),double(((long double)a.y+b.y)/2),double(((long double)a.z+b.z)/2)};
+    ++report.edge_surrogates;
+    return (MetricNorm(a,b,At(a))+4*MetricNorm(a,b,At(mid))+MetricNorm(a,b,At(b)))/6;
+  }
+  long double Exact(Point a,Point b) {
+    std::array<double,6> key{a.x,a.y,a.z,b.x,b.y,b.z};
+    if(std::make_tuple(b.x,b.y,b.z)<std::make_tuple(a.x,a.y,a.z))key={b.x,b.y,b.z,a.x,a.y,a.z};
+    const auto found=exact.find(key);if(found!=exact.end())return found->second;
+    ++report.edge_integrations;const auto l=target.edge(a,b);if(exact.size()>=options.cache_entries)exact.clear();exact.emplace(key,l);return l;
+  }
+  // Edge guard of an accepted candidate: the exact composed length when the estimate exceeds EstimatePass.
+  bool Certified(Point a,Point b,long double limit) {
+    try{const auto e=Estimate(a,b);if(e<=EstimatePass)return true;if(e>1.45L*limit)return false;return Exact(a,b)<=limit;}
+    catch(const std::exception&){return false;}
+  }
+  bool Frozen(Id cell) const {return options.frozen_cells.count(cell)>0;}
+  bool Movable(Id v) const {
+    if(fixed.count(v) || options.frozen_vertices.count(v))return false;
+    const auto s=star.find(v);if(s==star.end() || s->second.empty() || s->second.size()>MaximumCavityCells)return false;
+    for(Id id:s->second)if(Frozen(id))return false;
+    return true;
+  }
+  static std::vector<Id> Common(std::vector<Id> x,std::vector<Id> y) {
+    std::vector<Id> out;std::sort(x.begin(),x.end());std::sort(y.begin(),y.end());
+    std::set_intersection(x.begin(),x.end(),y.begin(),y.end(),std::back_inserter(out));return out;
+  }
+  bool Adjacent(Id a,Id b) const {const auto s=star.find(a);if(s==star.end())return false;for(Id id:s->second)if(CellHas(mesh.at(id).cell,b))return true;return false;}
+  // Exact interface/ball-topology certificate of a replacement (temporary identities from next_cell).
+  bool Interface(const std::vector<Id>& old,std::vector<Cell>& fresh) {
+    std::vector<Cell> before;before.reserve(old.size());for(Id id:old)before.push_back(mesh.at(id).cell);
+    for(size_t i=0;i<fresh.size();++i)fresh[i].id=next_cell+i;
+    std::string reason;bool ok=false;
+    try{ok=ValidateFixedInterface(before,fresh,reason,nullptr,std::max<size_t>(MaximumCavityCells,before.size()));}catch(const std::exception&){ok=false;}
+    if(!ok)++report.rejected_interface;
+    return ok;
+  }
+  // Replace old cells by fresh ones: every physical binding of an old face that survives is carried by its face key;
+  // `added` binds the boundary faces a boundary operation creates (the faces it retires disappear with their cells).
+  void Commit(const std::vector<Id>& old,std::vector<Cell> fresh,Id removed=UINT64_MAX,const std::map<Face,FacetBinding>& added={}) {
+    std::map<Face,FacetBinding> bindings=added;std::set<Face> oldPhysical;
+    for(Id id:old) {
+      const auto& row=mesh.at(id);const auto faces=OppositeFaces(row.cell);
+      for(unsigned k=0;k<4;++k)if(row.physical[k].present){auto f=faces[k];std::sort(f.begin(),f.end());bindings.emplace(f,row.physical[k]);oldPhysical.insert(f);}
+      for(const auto& n:row.cell.v){auto& s=star[n.id];s.erase(std::remove(s.begin(),s.end(),id),s.end());}
+      mesh.erase(id);
+    }
+    std::set<Face> used;
+    for(auto& c:fresh) {
+      c.id=next_cell++;OwnedCell row;row.cell=c;row.version=1;const auto faces=OppositeFaces(c);
+      for(unsigned k=0;k<4;++k){auto f=faces[k];std::sort(f.begin(),f.end());const auto b=bindings.find(f);if(b!=bindings.end()){row.physical[k]=b->second;used.insert(f);}}
+      if(!mesh.emplace(c.id,row).second)throw std::logic_error("Native3D optimizer repeated a cell identity.");
+      for(const auto& n:c.v){star[n.id].push_back(c.id);points[n.id]=n.p;}
+    }
+    for(const auto& a:added)if(!used.count(a.first))throw std::logic_error("Native3D optimizer lost a created boundary face.");
+    if(added.empty())for(const auto& f:oldPhysical)if(!used.count(f))throw std::logic_error("Native3D optimizer lost a physical face binding.");
+    if(removed!=UINT64_MAX){const auto s=star.find(removed);if(s!=star.end()&&!s->second.empty())throw std::logic_error("Native3D optimizer removed a used vertex.");star.erase(removed);points.erase(removed);}
+    changed=true;Bound();
+  }
+  bool EdgeRemoval(Id a,Id b,bool lengthDriven=false);
+  bool FaceSwap(const Face& f);
+  bool Collapse(Id p,Id q);
+  bool Smooth(Id p);
+  bool TryCell(Id id);
+  // boundary operations (no new point; every face stays inside its facet): O5 flip of a boundary edge between two faces
+  // bound to the same facet, O6 contraction of a boundary vertex interior to one facet along a boundary edge
+  struct BoundaryFace { Face oriented{};Id cell=0;FacetBinding binding; };
+  std::vector<BoundaryFace> BoundaryFacesOf(const std::vector<Id>& cells,Id v) const {
+    std::vector<BoundaryFace> out;for(Id id:cells){const auto& row=mesh.at(id);const auto faces=OppositeFaces(row.cell);
+      for(unsigned k=0;k<4;++k)if(row.physical[k].present&&(v==UINT64_MAX||faces[k][0]==v||faces[k][1]==v||faces[k][2]==v))out.push_back({faces[k],id,row.physical[k]});}
+    return out;
+  }
+  static long double Norm3(Point a,Point b){const long double x=(long double)a.x-b.x,y=(long double)a.y-b.y,z=(long double)a.z-b.z;return std::sqrt(x*x+y*y+z*z);}
+  static long double Area2(Point a,Point b,Point c,long double n[3]) {
+    const long double u[3]={(long double)b.x-a.x,(long double)b.y-a.y,(long double)b.z-a.z},w[3]={(long double)c.x-a.x,(long double)c.y-a.y,(long double)c.z-a.z};
+    n[0]=u[1]*w[2]-u[2]*w[1];n[1]=u[2]*w[0]-u[0]*w[2];n[2]=u[0]*w[1]-u[1]*w[0];return std::sqrt(n[0]*n[0]+n[1]*n[1]+n[2]*n[2]);
+  }
+  // fresh boundary = old boundary - retired + created, with the created faces inside the retired faces' plane: same
+  // facet, unfolded (normals along the retired ones) and the same total area (no gap or overlap)
+  bool BoundaryReplacement(const std::vector<Id>& old,std::vector<Cell>& fresh,const std::vector<BoundaryFace>& retired,FacetBinding binding,std::map<Face,FacetBinding>& added) {
+    std::vector<Cell> before;for(Id id:old)before.push_back(mesh.at(id).cell);
+    for(size_t i=0;i<fresh.size();++i)fresh[i].id=next_cell+i;
+    std::vector<Face> oldSkin,newSkin;
+    try{oldSkin=Incidence(before).Boundary();newSkin=Incidence(fresh).Boundary();}catch(const std::exception&){++report.rejected_interface;return false;}
+    auto canon=[](Face f){std::rotate(f.begin(),std::min_element(f.begin(),f.end()),f.end());return f;};
+    std::set<Face> retiredSet,oldSet,newSet;for(const auto& r:retired)retiredSet.insert(canon(r.oriented));
+    for(const auto& f:oldSkin)oldSet.insert(canon(f));for(const auto& f:newSkin)newSet.insert(canon(f));
+    for(const auto& f:oldSet)if(!retiredSet.count(f)&&!newSet.count(f)){++report.rejected_interface;return false;}
+    long double n0[3]={0,0,0},area0=0,area1=0;
+    for(const auto& r:retired){long double n[3];area0+=Area2(points.at(r.oriented[0]),points.at(r.oriented[1]),points.at(r.oriented[2]),n);for(int i=0;i<3;++i)n0[i]+=n[i];}
+    added.clear();
+    for(const auto& f:newSet){if(oldSet.count(f))continue;
+      Point q[3];for(int i=0;i<3;++i){bool found=false;for(const auto& c:fresh)for(const auto& v:c.v)if(v.id==f[i]){q[i]=v.p;found=true;}if(!found)return false;}
+      long double n[3];const auto a=Area2(q[0],q[1],q[2],n);area1+=a;if(!(n[0]*n0[0]+n[1]*n0[1]+n[2]*n0[2]>0)){++report.rejected_interface;return false;}
+      auto key=f;std::sort(key.begin(),key.end());added.emplace(key,binding);}
+    if(!(std::abs(area1-area0)<=1e-10L*area0)){++report.rejected_interface;return false;}
+    std::string reason;bool ok=false;
+    try{ok=ValidatePrescribedInterface(before,fresh,newSkin,reason,nullptr,std::max<size_t>(MaximumCavityCells,before.size()));}catch(const std::exception&){ok=false;}
+    if(!ok)++report.rejected_interface;
+    return ok;
+  }
+  bool BoundaryFlip(Id a,Id b);
+  bool BoundaryCollapse(Id p,Id q);
+};
+// O1: interior edge with a closed shell of n cells (3 <= n <= maximum_shell) replaced by the 2(n-2) cells of the best
+// triangulation of its ring polygon (dynamic programming maximizing the minimum score; ring order with (a,b,r_i,r_i+1)
+// positive, so (a,r_i,r_k,r_j) and (b,r_i,r_j,r_k) for i < k < j are the positive orientations).
+// lengthDriven (O1L): the edge is longer than 1.8; accepted when no new edge exceeds 1.8 and the replaced cells' minimum
+// score does not fall below min(old minimum, 1) (the long edge leaves the mesh without creating a final-gate failure).
+bool MeshOptimizer::EdgeRemoval(Id a,Id b,bool lengthDriven) {
+  if(Limited())return false;
+  const auto sa=star.find(a),sb=star.find(b);if(sa==star.end()||sb==star.end())return false;
+  const auto shell=Common(sa->second,sb->second);const size_t n=shell.size();
+  if(n<3 || n>options.maximum_shell)return false;
+  for(Id id:shell)if(Frozen(id)){++report.rejected_frozen;return false;}
+  std::map<Id,std::vector<Id>> ring;
+  for(Id id:shell){std::vector<Id> o;for(const auto& v:mesh.at(id).cell.v)if(v.id!=a&&v.id!=b)o.push_back(v.id);if(o.size()!=2)return false;ring[o[0]].push_back(o[1]);ring[o[1]].push_back(o[0]);}
+  if(ring.size()!=n)return false;
+  for(const auto& r:ring)if(r.second.size()!=2)return false;  // open (boundary) shell
+  ++report.trials;
+  const Point pa=points.at(a),pb=points.at(b);
+  std::vector<Id> order{ring.begin()->first};
+  {const Id r0=order[0];Id next=UINT64_MAX;for(Id y:ring.at(r0))if(Orientation(pa,pb,points.at(r0),points.at(y))>0)next=y;if(next==UINT64_MAX)return false;
+   Id prev=r0;Id cur=next;while(cur!=r0){if(order.size()>n)return false;order.push_back(cur);const auto& nb=ring.at(cur);const Id nx=nb[0]==prev?nb[1]:nb[0];prev=cur;cur=nx;}}
+  if(order.size()!=n)return false;
+  for(size_t i=0;i<n;++i)if(!(Orientation(pa,pb,points.at(order[i]),points.at(order[(i+1)%n]))>0))return false;
+  const double oldMin=MinScore(shell);
+  long double limit=MaximumMetricEdge;
+  if(!lengthDriven){try{const auto e=Estimate(pa,pb);limit=std::max<long double>(limit,e>EstimatePass?Exact(pa,pb):e);}catch(const std::exception&){}}
+  const double floor=lengthDriven?std::min(oldMin,1.)-1e-12:oldMin+Gain;
+  const Node A{a,pa},B{b,pb};std::vector<Node> r(n);for(size_t i=0;i<n;++i)r[i]={order[i],points.at(order[i])};
+  std::map<std::array<size_t,3>,double> tri;
+  auto triangle=[&](size_t i,size_t k,size_t j){const std::array<size_t,3> key{i,k,j};const auto f=tri.find(key);if(f!=tri.end())return f->second;
+    const double s=FreshScore({Cell{0,{A,r[i],r[k],r[j]}},Cell{0,{B,r[i],r[j],r[k]}}});tri.emplace(key,s);return s;};
+  std::set<std::pair<size_t,size_t>> forbidden;
+  auto ringEdge=[&](size_t i,size_t j){return j==i+1 || (i==0&&j==n-1);};
+  for(unsigned attempt=0;attempt<4;++attempt) {
+    std::vector<std::vector<double>> best(n,std::vector<double>(n,-INFINITY));std::vector<std::vector<size_t>> arg(n,std::vector<size_t>(n,SIZE_MAX));
+    for(size_t i=0;i+1<n;++i)best[i][i+1]=INFINITY;
+    for(size_t len=2;len<n;++len)for(size_t i=0;i+len<n;++i) {
+      const size_t j=i+len;
+      for(size_t k=i+1;k<j;++k) {
+        if((!ringEdge(i,k)&&forbidden.count({i,k})) || (!ringEdge(k,j)&&forbidden.count({k,j})))continue;
+        const double v=std::min({best[i][k],best[k][j],triangle(i,k,j)});
+        if(v>best[i][j]){best[i][j]=v;arg[i][j]=k;}
+      }
+    }
+    if(!(best[0][n-1]>floor)){if(best[0][n-1]==-INFINITY)++report.rejected_validity;else ++report.rejected_quality;return false;}
+    std::vector<std::array<size_t,3>> used;std::vector<std::pair<size_t,size_t>> stack{{0,n-1}};
+    while(!stack.empty()){const auto e=stack.back();stack.pop_back();if(e.second<=e.first+1)continue;const size_t k=arg[e.first][e.second];
+      used.push_back({e.first,k,e.second});stack.push_back({e.first,k});stack.push_back({k,e.second});}
+    bool ok=true;
+    for(const auto& t:used)for(const auto& d:{std::make_pair(t[0],t[1]),std::make_pair(t[1],t[2]),std::make_pair(t[0],t[2])}) {
+      if(ringEdge(d.first,d.second)||forbidden.count(d))continue;
+      if(!Certified(r[d.first].p,r[d.second].p,limit)){forbidden.insert(d);ok=false;break;}
+    }
+    if(!ok){++report.rejected_edge;if(Limited())return false;continue;}
+    std::vector<Cell> fresh;for(const auto& t:used){fresh.push_back(Cell{0,{A,r[t[0]],r[t[1]],r[t[2]]}});fresh.push_back(Cell{0,{B,r[t[0]],r[t[2]],r[t[1]]}});}
+    if(!Interface(shell,fresh))return false;
+    Commit(shell,fresh);++(lengthDriven?report.length_removals:report.edge_removals);return true;
+  }
+  return false;
+}
+// O2: interior face (x,y,z) of two unfrozen cells with apices d, e (not yet connected) -> three cells around (d,e).
+bool MeshOptimizer::FaceSwap(const Face& f) {
+  if(Limited())return false;
+  const auto both=Common(Common(star.at(f[0]),star.at(f[1])),star.at(f[2]));
+  if(both.size()!=2)return false;
+  for(Id id:both)if(Frozen(id)){++report.rejected_frozen;return false;}
+  Id d=UINT64_MAX,e=UINT64_MAX;for(const auto& v:mesh.at(both[0]).cell.v)if(v.id!=f[0]&&v.id!=f[1]&&v.id!=f[2])d=v.id;
+  for(const auto& v:mesh.at(both[1]).cell.v)if(v.id!=f[0]&&v.id!=f[1]&&v.id!=f[2])e=v.id;
+  if(d==UINT64_MAX||e==UINT64_MAX||d==e||Adjacent(d,e))return false;
+  ++report.trials;
+  const Node D{d,points.at(d)},E{e,points.at(e)};std::array<Node,3> r{Node{f[0],points.at(f[0])},Node{f[1],points.at(f[1])},Node{f[2],points.at(f[2])}};
+  if(!(Orientation(D.p,E.p,r[0].p,r[1].p)>0))std::swap(r[1],r[2]);
+  std::vector<Cell> fresh{Cell{0,{D,E,r[0],r[1]}},Cell{0,{D,E,r[1],r[2]}},Cell{0,{D,E,r[2],r[0]}}};
+  const double oldMin=MinScore(both),newMin=FreshScore(fresh);
+  if(newMin==-INFINITY){++report.rejected_validity;return false;}
+  if(!(newMin>oldMin+Gain)){++report.rejected_quality;return false;}
+  if(!Certified(D.p,E.p,MaximumMetricEdge)){++report.rejected_edge;return false;}
+  if(!Interface(both,fresh))return false;
+  Commit(both,fresh);++report.face_swaps;return true;
+}
+// O3: interior vertex p contracted to its neighbour q (cells of the edge disappear, the rest take q).
+bool MeshOptimizer::Collapse(Id p,Id q) {
+  if(Limited()||!Movable(p)||!Adjacent(p,q))return false;
+  const auto old=star.at(p);
+  ++report.trials;
+  const Node Q{q,points.at(q)};std::vector<Cell> fresh;std::set<Id> link;
+  for(Id id:old){const auto& c=mesh.at(id).cell;for(const auto& v:c.v)if(v.id!=p)link.insert(v.id);if(CellHas(c,q))continue;Cell x=c;for(auto& v:x.v)if(v.id==p)v=Q;fresh.push_back(x);}
+  if(fresh.empty())return false;
+  const double oldMin=MinScore(old),newMin=FreshScore(fresh);
+  if(newMin==-INFINITY){++report.rejected_validity;return false;}
+  if(!(newMin>oldMin+Gain)){++report.rejected_quality;return false;}
+  for(Id x:link){if(x==q||Adjacent(q,x))continue;if(!Certified(Q.p,points.at(x),MaximumMetricEdge)){++report.rejected_edge;return false;}}
+  if(!Interface(old,fresh))return false;
+  Commit(old,fresh,p);++report.collapses;return true;
+}
+// O4: interior vertex p moved to the best of {metric spring point, hinge Gauss-Newton step} x relaxations {1,1/2,1/4};
+// the moved vertex takes a fresh identity (an identity keeps its coordinates).
+bool MeshOptimizer::Smooth(Id p) {
+  if(Limited()||!Movable(p))return false;
+  const auto old=star.at(p);const Point x0=points.at(p);
+  std::set<Id> nbr;for(Id id:old)for(const auto& v:mesh.at(id).cell.v)if(v.id!=p)nbr.insert(v.id);
+  ++report.trials;
+  const double oldMin=MinScore(old);
+  long double oldMax=0,shortest=INFINITY;
+  for(Id x:nbr){const Point px=points.at(x);try{oldMax=std::max(oldMax,Estimate(x0,px));}catch(const std::exception&){oldMax=INFINITY;}
+    const long double dx=(long double)px.x-x0.x,dy=(long double)px.y-x0.y,dz=(long double)px.z-x0.z;shortest=std::min(shortest,std::sqrt(dx*dx+dy*dy+dz*dz));}
+  const long double limit=std::max<long double>(MaximumMetricEdge,oldMax);
+  std::vector<Point> targets;
+  try{std::vector<std::pair<Point,Tensor>> samples;for(Id x:nbr)samples.push_back({points.at(x),At(points.at(x))});targets.push_back(MetricMeanPoint(x0,samples));}catch(const std::exception&){}
+  try{  // damped hinge Gauss-Newton on the failing cells of the star (LinearizeMetricShape residuals, 1% interior aim)
+    long double g[3]={0,0,0},H[3][3]={{0,0,0},{0,0,0},{0,0,0}};bool any=false;
+    for(Id id:old){const auto& c=mesh.at(id).cell;if(Score(c)>=1.01)continue;unsigned slot=0;while(c.v[slot].id!=p)++slot;
+      const auto L=LinearizeMetricShape({c.v[0].p,c.v[1].p,c.v[2].p,c.v[3].p},At(Centroid(c)));
+      for(unsigned r=0;r<2;++r)if(L.residual[r]>0){any=true;const auto& d=L.derivative[r][slot];
+        for(unsigned i=0;i<3;++i){g[i]+=L.residual[r]*d[i];for(unsigned j=0;j<3;++j)H[i][j]+=(long double)d[i]*d[j];}}}
+    if(any) {
+      const long double trace=H[0][0]+H[1][1]+H[2][2];if(!(trace>0))throw std::runtime_error("flat hinge");
+      for(unsigned i=0;i<3;++i)H[i][i]+=1e-6L*trace;
+      long double M[3][4];for(unsigned i=0;i<3;++i){for(unsigned j=0;j<3;++j)M[i][j]=H[i][j];M[i][3]=-g[i];}
+      for(unsigned c=0;c<3;++c){unsigned r=c;for(unsigned t=c+1;t<3;++t)if(std::abs(M[t][c])>std::abs(M[r][c]))r=t;if(!(std::abs(M[r][c])>0))throw std::runtime_error("singular hinge");
+        for(unsigned q=0;q<4;++q)std::swap(M[c][q],M[r][q]);for(unsigned t=0;t<3;++t)if(t!=c){const auto f=M[t][c]/M[c][c];for(unsigned q=c;q<4;++q)M[t][q]-=f*M[c][q];}}
+      long double d[3];for(unsigned i=0;i<3;++i)d[i]=M[i][3]/M[i][i];
+      const long double norm=std::sqrt(d[0]*d[0]+d[1]*d[1]+d[2]*d[2]),cap=.5L*shortest;
+      if(norm>cap&&norm>0)for(auto& v:d)v*=cap/norm;
+      if(std::isfinite(norm)&&norm>0)targets.push_back({double(x0.x+d[0]),double(x0.y+d[1]),double(x0.z+d[2])});
+    }
+  }catch(const std::exception&){}
+  struct Trial{double score;Point x;};std::vector<Trial> trials;
+  for(const auto& t:targets)for(long double w:{1.L,.5L,.25L}) {
+    const Point x{double(x0.x+w*((long double)t.x-x0.x)),double(x0.y+w*((long double)t.y-x0.y)),double(x0.z+w*((long double)t.z-x0.z))};
+    if(x.x==x0.x&&x.y==x0.y&&x.z==x0.z)continue;
+    const Node P{next_node,x};std::vector<Cell> fresh;for(Id id:old){Cell c=mesh.at(id).cell;for(auto& v:c.v)if(v.id==p)v=P;fresh.push_back(c);}
+    const double s=FreshScore(fresh,false);  // the trial identity next_node is reused: never memoized
+    if(s==-INFINITY)++report.rejected_validity;else if(s>oldMin+Gain)trials.push_back({s,x});
+  }
+  if(trials.empty()){++report.rejected_quality;return false;}
+  std::stable_sort(trials.begin(),trials.end(),[](const Trial& u,const Trial& v){return u.score>v.score;});
+  for(const auto& t:trials) {
+    bool ok=true;for(Id x:nbr)if(!Certified(t.x,points.at(x),limit)){ok=false;break;}
+    if(!ok){++report.rejected_edge;continue;}
+    const Node P{next_node,t.x};std::vector<Cell> fresh;for(Id id:old){Cell c=mesh.at(id).cell;for(auto& v:c.v)if(v.id==p)v=P;fresh.push_back(c);}
+    if(!Interface(old,fresh))continue;
+    const Id moved=next_node++;Commit(old,fresh,p);
+    Id origin=p;for(const auto& r:report.relabel)if(r.second==p){origin=r.first;break;}
+    report.relabel[origin]=moved;++report.moves;return true;
+  }
+  return false;
+}
+// O5: boundary edge (a,b) between two boundary faces bound to the same facet (coplanar within 1e-12 relative); its open
+// shell (ring path r_0..r_m from one face to the other) is replaced by the best triangulation of the polygon r_0..r_m
+// coned to a and b, the boundary pair (a,b,r_0),(a,b,r_m) becoming (a,r_0,r_m),(b,r_0,r_m).
+bool MeshOptimizer::BoundaryFlip(Id a,Id b) {
+  if(Limited()||options.frozen_vertices.count(a)||options.frozen_vertices.count(b))return false;
+  const auto sa=star.find(a),sb=star.find(b);if(sa==star.end()||sb==star.end())return false;
+  const auto shell=Common(sa->second,sb->second);const size_t n=shell.size();
+  if(n<2||n+1>options.maximum_shell)return false;
+  for(Id id:shell)if(Frozen(id)){++report.rejected_frozen;return false;}
+  std::vector<BoundaryFace> faces;for(const auto& f:BoundaryFacesOf(shell,UINT64_MAX)){int k=0;for(Id x:f.oriented)k+=x==a||x==b;if(k==2)faces.push_back(f);}
+  if(faces.size()!=2||faces[0].binding.facet!=faces[1].binding.facet)return false;
+  std::map<Id,std::vector<Id>> ring;
+  for(Id id:shell){std::vector<Id> o;for(const auto& v:mesh.at(id).cell.v)if(v.id!=a&&v.id!=b)o.push_back(v.id);if(o.size()!=2)return false;ring[o[0]].push_back(o[1]);ring[o[1]].push_back(o[0]);}
+  Id r0=UINT64_MAX,rm=UINT64_MAX;for(Id x:faces[0].oriented)if(x!=a&&x!=b)r0=x;for(Id x:faces[1].oriented)if(x!=a&&x!=b)rm=x;
+  if(r0==UINT64_MAX||rm==UINT64_MAX||r0==rm||Adjacent(r0,rm)||ring.size()!=n+1||ring.at(r0).size()!=1||ring.at(rm).size()!=1)return false;
+  std::vector<Id> order{r0};{Id prev=UINT64_MAX,cur=r0;while(cur!=rm){const auto& nb=ring.at(cur);Id nx=UINT64_MAX;for(Id y:nb)if(y!=prev)nx=y;if(nx==UINT64_MAX||order.size()>n)return false;order.push_back(nx);prev=cur;cur=nx;}}
+  if(order.size()!=n+1)return false;
+  Point pa=points.at(a),pb=points.at(b);
+  if(!(Orientation(pa,pb,points.at(order[0]),points.at(order[1]))>0)){std::swap(a,b);std::swap(pa,pb);}
+  for(size_t i=0;i+1<order.size();++i)if(!(Orientation(pa,pb,points.at(order[i]),points.at(order[i+1]))>0))return false;
+  {long double scale=0;for(Point p:{pa,pb,points.at(r0),points.at(rm)})for(Point q:{pa,pb,points.at(r0),points.at(rm)})
+     scale=std::max(scale,std::sqrt(((long double)p.x-q.x)*((long double)p.x-q.x)+((long double)p.y-q.y)*((long double)p.y-q.y)+((long double)p.z-q.z)*((long double)p.z-q.z)));
+   if(!(std::abs(Orientation(pa,pb,points.at(r0),points.at(rm)))<=1e-12L*scale*scale*scale))return false;}
+  ++report.trials;
+  const double oldMin=MinScore(shell);const size_t m=order.size();
+  const Node A{a,pa},B{b,pb};std::vector<Node> r(m);for(size_t i=0;i<m;++i)r[i]={order[i],points.at(order[i])};
+  std::map<std::array<size_t,3>,double> tri;
+  auto triangle=[&](size_t i,size_t k,size_t j){const std::array<size_t,3> key{i,k,j};const auto f=tri.find(key);if(f!=tri.end())return f->second;
+    const double s=FreshScore({Cell{0,{A,r[i],r[k],r[j]}},Cell{0,{B,r[i],r[j],r[k]}}});tri.emplace(key,s);return s;};
+  std::set<std::pair<size_t,size_t>> forbidden;auto ringEdge=[&](size_t i,size_t j){return j==i+1||(i==0&&j==m-1);};
+  if(!Certified(r[0].p,r[m-1].p,MaximumMetricEdge)){++report.rejected_edge;return false;}
+  for(unsigned attempt=0;attempt<4;++attempt) {
+    std::vector<std::vector<double>> best(m,std::vector<double>(m,-INFINITY));std::vector<std::vector<size_t>> arg(m,std::vector<size_t>(m,SIZE_MAX));
+    for(size_t i=0;i+1<m;++i)best[i][i+1]=INFINITY;
+    for(size_t len=2;len<m;++len)for(size_t i=0;i+len<m;++i){const size_t j=i+len;
+      for(size_t k=i+1;k<j;++k){if((!ringEdge(i,k)&&forbidden.count({i,k}))||(!ringEdge(k,j)&&forbidden.count({k,j})))continue;
+        const double v=std::min({best[i][k],best[k][j],triangle(i,k,j)});if(v>best[i][j]){best[i][j]=v;arg[i][j]=k;}}}
+    if(!(best[0][m-1]>oldMin+Gain)){if(best[0][m-1]==-INFINITY)++report.rejected_validity;else ++report.rejected_quality;return false;}
+    std::vector<std::array<size_t,3>> used;std::vector<std::pair<size_t,size_t>> stack{{0,m-1}};
+    while(!stack.empty()){const auto e=stack.back();stack.pop_back();if(e.second<=e.first+1)continue;const size_t k=arg[e.first][e.second];
+      used.push_back({e.first,k,e.second});stack.push_back({e.first,k});stack.push_back({k,e.second});}
+    bool ok=true;
+    for(const auto& t:used)for(const auto& d:{std::make_pair(t[0],t[1]),std::make_pair(t[1],t[2]),std::make_pair(t[0],t[2])}){
+      if(ringEdge(d.first,d.second)||forbidden.count(d))continue;if(!Certified(r[d.first].p,r[d.second].p,MaximumMetricEdge)){forbidden.insert(d);ok=false;break;}}
+    if(!ok){++report.rejected_edge;if(Limited())return false;continue;}
+    std::vector<Cell> fresh;for(const auto& t:used){fresh.push_back(Cell{0,{A,r[t[0]],r[t[1]],r[t[2]]}});fresh.push_back(Cell{0,{B,r[t[0]],r[t[2]],r[t[1]]}});}
+    std::map<Face,FacetBinding> added;if(!BoundaryReplacement(shell,fresh,faces,faces[0].binding,added))return false;
+    Commit(shell,fresh,UINT64_MAX,added);++report.boundary_flips;return true;
+  }
+  return false;
+}
+// O6: boundary vertex p, every incident boundary face bound to one facet (p interior to it), contracted to a neighbour q
+// along a boundary edge of that facet; area and orientation of the facet patch are kept.
+bool MeshOptimizer::BoundaryCollapse(Id p,Id q) {
+  if(Limited()||!fixed.count(p)||options.frozen_vertices.count(p)||!Adjacent(p,q))return false;
+  const auto sp=star.find(p);if(sp==star.end()||sp->second.size()>MaximumCavityCells)return false;
+  const auto old=sp->second;for(Id id:old)if(Frozen(id)){++report.rejected_frozen;return false;}
+  const auto faces=BoundaryFacesOf(old,p);if(faces.empty())return false;
+  for(const auto& f:faces)if(f.binding.facet!=faces.front().binding.facet)return false;
+  bool edge=false;for(const auto& f:faces)edge=edge||f.oriented[0]==q||f.oriented[1]==q||f.oriented[2]==q;if(!edge)return false;
+  // p is interior to the facet patch: its boundary faces close a fan around it (every boundary edge at p used twice)
+  {std::map<Id,int> uses;for(const auto& f:faces)for(Id x:f.oriented)if(x!=p)++uses[x];for(const auto& u:uses)if(u.second!=2)return false;
+   // the fan (p and its boundary ring) is planar within 1e-12 relative: the contracted faces stay in the facet's plane
+   const auto& f0=faces.front().oriented;long double scale=0;for(const auto& u:uses)scale=std::max(scale,(long double)Norm3(points.at(u.first),points.at(p)));
+   for(const auto& u:uses)if(!(std::abs(Orientation(points.at(f0[0]),points.at(f0[1]),points.at(f0[2]),points.at(u.first)))<=1e-12L*scale*scale*scale))return false;
+   if(!(std::abs(Orientation(points.at(f0[0]),points.at(f0[1]),points.at(f0[2]),points.at(p)))<=1e-12L*scale*scale*scale))return false;}
+  ++report.trials;
+  const Node Q{q,points.at(q)};std::vector<Cell> fresh;std::set<Id> link;
+  for(Id id:old){const auto& c=mesh.at(id).cell;for(const auto& v:c.v)if(v.id!=p)link.insert(v.id);if(CellHas(c,q))continue;Cell x=c;for(auto& v:x.v)if(v.id==p)v=Q;fresh.push_back(x);}
+  if(fresh.empty())return false;
+  const double oldMin=MinScore(old),newMin=FreshScore(fresh);
+  if(newMin==-INFINITY){++report.rejected_validity;return false;}
+  if(!(newMin>oldMin+Gain)){++report.rejected_quality;return false;}
+  for(Id x:link){if(x==q||Adjacent(q,x))continue;if(!Certified(Q.p,points.at(x),MaximumMetricEdge)){++report.rejected_edge;return false;}}
+  std::map<Face,FacetBinding> added;if(!BoundaryReplacement(old,fresh,faces,faces.front().binding,added))return false;
+  Commit(old,fresh,p,added);++report.boundary_collapses;return true;
+}
+bool MeshOptimizer::TryCell(Id id) {
+  const Cell c=mesh.at(id).cell;
+  if(options.swaps) {
+    for(unsigned i=0;i<4;++i)for(unsigned j=i+1;j<4;++j){if(!mesh.count(id))return true;if(EdgeRemoval(std::min(c.v[i].id,c.v[j].id),std::max(c.v[i].id,c.v[j].id)))return true;}
+    for(auto f:OppositeFaces(c)){if(!mesh.count(id))return true;std::sort(f.begin(),f.end());if(FaceSwap(f))return true;}
+    for(unsigned i=0;i<4;++i)for(unsigned j=i+1;j<4;++j){if(!mesh.count(id))return true;
+      if(fixed.count(c.v[i].id)&&fixed.count(c.v[j].id)&&BoundaryFlip(c.v[i].id,c.v[j].id))return true;}
+  }
+  if(options.collapses) {
+    std::vector<std::pair<long double,std::pair<Id,Id>>> edges;
+    for(unsigned i=0;i<4;++i)for(unsigned j=i+1;j<4;++j){long double l=INFINITY;try{l=Estimate(c.v[i].p,c.v[j].p);}catch(const std::exception&){}edges.push_back({l,{c.v[i].id,c.v[j].id}});}
+    std::sort(edges.begin(),edges.end());
+    for(const auto& e:edges){if(!mesh.count(id))return true;if(Collapse(e.second.first,e.second.second)||Collapse(e.second.second,e.second.first))return true;}
+    for(const auto& e:edges){if(!mesh.count(id))return true;if(BoundaryCollapse(e.second.first,e.second.second)||BoundaryCollapse(e.second.second,e.second.first))return true;}
+  }
+  if(options.smoothing)for(const auto& v:c.v){if(!mesh.count(id))return true;if(Smooth(v.id))return true;}
+  return false;
+}
+bool MeshOptimizer::Run() {
+  Index();
+  auto census=[&](size_t& bad,double& minimum){bad=0;minimum=INFINITY;for(const auto& row:mesh){if(Frozen(row.first))continue;const double s=Score(row.second.cell);minimum=std::min(minimum,s);bad+=s<1;}if(!std::isfinite(minimum))minimum=1;};
+  census(report.bad_before,report.minimum_before);
+  while(report.sweeps<options.maximum_sweeps) {
+    ++report.sweeps;
+    std::vector<std::pair<double,Id>> bad;for(const auto& row:mesh){if(Limited())break;if(Frozen(row.first))continue;const double s=Score(row.second.cell);if(s<1)bad.emplace_back(s,row.first);}
+    std::sort(bad.begin(),bad.end());size_t accepted=0;
+    for(const auto& row:bad){if(Limited())break;if(!mesh.count(row.second))continue;if(Score(mesh.at(row.second).cell)>=1)continue;if(TryCell(row.second))++accepted;}
+    // O1L: interior edges longer than 1.8 (estimate screen, exact length) removed by the best ring triangulation
+    if(options.swaps&&!Limited()){std::vector<std::pair<long double,std::pair<Id,Id>>> longs;std::set<std::pair<Id,Id>> seen;
+      for(const auto& row:mesh){if(Limited())break;if(Frozen(row.first))continue;const auto& c=row.second.cell;for(unsigned i=0;i<4;++i)for(unsigned j=i+1;j<4;++j){
+        const auto e=std::minmax(c.v[i].id,c.v[j].id);if(!seen.insert(e).second)continue;
+        try{if(Estimate(c.v[i].p,c.v[j].p)<=1.6L)continue;const auto l=Exact(c.v[i].p,c.v[j].p);if(l>MaximumMetricEdge)longs.push_back({-l,e});}catch(const std::exception&){}}}
+      std::sort(longs.begin(),longs.end());report.long_edges_seen+=longs.size();
+      for(const auto& e:longs){if(Limited())break;if(!Adjacent(e.second.first,e.second.second))continue;if(EdgeRemoval(e.second.first,e.second.second,true))++accepted;}}
+    if(Limited()){report.stop="limit";break;}
+    if(!accepted){report.stop=bad.empty()?"complete":"no progress";break;}
+  }
+  if(report.stop.empty())report.stop="sweep cap";
+  census(report.bad_after,report.minimum_after);
+  report.seconds=std::chrono::duration<double>(Clock::now()-started).count();
+  return changed;
+}
+}  // namespace
+bool OptimizeMetricMesh(Owned& mesh,const RegionMetric& target,Id& next_node,Id& next_cell,const OptimizeOptions& options,OptimizeReport& report) {
+  MeshOptimizer optimizer(mesh,target,next_node,next_cell,options,report);
+  return optimizer.Run();
+}
+EngineResult RefineOptimize(World& world,const Owned& accepted,const std::vector<DonorCell>& original,const PlanarReference& geometry,
+                            MetricComposition composition,EngineOptions options,OptimizeOptions optimize,RefineOptimizeReport* report,size_t maximum_rounds) {
+  struct Restore{ShapeAdmission admission=GetShapeAdmission();~Restore(){SetShapeAdmission(admission);}} restore;
+  RefineOptimizeReport local;auto& rep=report?*report:local;rep=RefineOptimizeReport{};
+  if(world.size!=1) {
+    auto r=Refine(world,accepted,original,geometry,std::move(composition),options);
+    r.reason="Native3D RefineOptimize is serial only; plain Refine under the caller's shape admission. "+r.reason;return r;
+  }
+  SetShapeAdmission(ShapeAdmission::ValidityOnly);
+  const auto started=Clock::now();auto elapsed=[&]{return std::chrono::duration<double>(Clock::now()-started).count();};
+  Owned current=accepted;std::shared_ptr<const PlanarReference> held;const PlanarReference* geo=&geometry;
+  EngineResult last;bool optimizedLast=false;
+  for(size_t round=0;round<maximum_rounds;++round) {
+    EngineOptions o=options;
+    if(options.maximum_seconds>0){const double left=options.maximum_seconds-elapsed();if(left<=0)break;o.maximum_seconds=std::max(1.,.5*left);}
+    const auto r0=Clock::now();
+    last=Refine(world,current,original,*geo,composition,o);optimizedLast=false;
+    rep.refine_seconds+=std::chrono::duration<double>(Clock::now()-r0).count();++rep.rounds;
+    rep.stops.push_back(EngineStopName(last.stats.stop));rep.cells.push_back(last.cells.size());
+    if(last.valid || last.cells.empty())return last;
+    if(last.reference){held=last.reference;geo=held.get();}
+    Owned cells=last.cells;Id nextNode=1,nextCell=1;
+    OptimizeOptions opt=optimize;
+    for(const auto& row:cells) {
+      nextCell=std::max(nextCell,row.first+1);for(const auto& n:row.second.cell.v)nextNode=std::max(nextNode,n.id+1);
+      for(unsigned k=0;k<4;++k)if(row.second.physical[k].present && options.wall_heights.count(geo->Get(row.second.physical[k].facet).marker)) {
+        opt.frozen_cells.insert(row.first);for(const auto& n:row.second.cell.v)opt.frozen_vertices.insert(n.id);}
+    }
+    if(options.maximum_seconds>0){const double left=options.maximum_seconds-elapsed();if(left<=0)break;opt.maximum_seconds=opt.maximum_seconds>0?std::min(opt.maximum_seconds,left):left;}
+    const auto o0=Clock::now();OptimizeReport orep;bool moved=false;
+    DonorImport source(world,false);std::string why;
+    if(!source.Build(original,why)){last.reason="Native3D RefineOptimize original source: "+why+"; "+last.reason;return last;}
+    {RegionFieldService service(world,source,*geo,composition,options.edge_breakpoints,false,options.memory_ceiling,0);
+     service.Run([&](const RegionMetric& target){moved=OptimizeMetricMesh(cells,target,nextNode,nextCell,opt,orep);});}
+    rep.optimize_seconds+=std::chrono::duration<double>(Clock::now()-o0).count();rep.optimize.push_back(orep);
+    // a budget-limited Refine round that still changed the mesh continues even when the optimizer finds nothing to do
+    const bool refining=(last.stats.stop==EngineStop::TimeBudget||last.stats.stop==EngineStop::WorkBudget||last.stats.stop==EngineStop::RoundBudget)&&
+                        (last.cells.size()!=current.size()||last.stats.accepted>0);
+    if(!moved&&!refining){last.reason="Native3D RefineOptimize: the optimizer changed nothing after Refine round "+std::to_string(round)+"; "+last.reason;return last;}
+    current=std::move(cells);optimizedLast=true;
+  }
+  if(optimizedLast){last.cells=current;last.valid=false;}
+  last.reason="Native3D RefineOptimize stopped at its round/time budget; "+last.reason;return last;
 }
 }  // namespace SU2Native3D

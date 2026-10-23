@@ -170,15 +170,21 @@ MetricEdgeBreakpoints EdgeGeometryA(std::shared_ptr<CBoundaryLayerMetric> base,s
   };
 }
 std::shared_ptr<OptionA> optionA;  // of the current case (diagnostics, fan wedge tests)
+// Loader role metadata (DC-12 rim by role): boundary markers of the last loaded case that the configuration does not
+// declare, i.e. the artificial cut boundary (empty for the tube/annulus fixtures, which have none).
+std::set<int> loadedArtificial;
+std::set<std::string> reflectiveMarkers;bool reflectiveByRole=false;  // DC-12 explicit carrier roles (tube fixtures)
 std::shared_ptr<CBoundaryLayerMetric> probeBase,probeFull;  // diagnostics only (SU2_DC10_PROBE)
 
 // ---- loaders with the option-A field (A1 has no crease: the dc9 loader is the same target) --------------------------
 std::unique_ptr<State> LoadTubeA(const std::string& path) {
-  Id center=0;
+  Id center=0;loadedArtificial.clear();
   auto s=LoadCaseWith(path,center,[](std::shared_ptr<CBoundaryLayerMetric> layers,double core){return Compose(layers,core);});
   // Fixture metadata: the junction-case format declares a reflective carrier by its marker name ("symmetry"); this one
   // loader-side reading defines both the production layers' reflective partners and the option-A marker roles.
-  std::map<int,int> roles;for(size_t m=0;m<s->markers.size();++m)roles[int(m)]=s->walls.count(int(m))?1:s->markers[m].find("sym")!=std::string::npos?0:2;
+  // DC-12: an explicit reflective marker list (case configuration, as MARKER_SYM) replaces the name test when given.
+  std::map<int,int> roles;for(size_t m=0;m<s->markers.size();++m)roles[int(m)]=s->walls.count(int(m))?1:
+    (reflectiveByRole?reflectiveMarkers.count(s->markers[m])>0:s->markers[m].find("sym")!=std::string::npos)?0:2;
   auto make=[&](double hgrad){std::vector<CBoundaryLayerMetric::Wall> walls;CBoundaryLayerMetric::FeatureOptions options;options.hgrad=hgrad;
     for(int m:s->walls){CBoundaryLayerMetric::Wall w;w.layer.marker=s->markers.at(m);w.layer.firstHeight=s->h0;w.layer.growth=s->growth;w.layer.thickness=s->thickness;
       std::map<Id,unsigned long> index;
@@ -266,8 +272,9 @@ std::unique_ptr<State> LoadM6CutA(const std::string& path) {
   s->reference=std::make_shared<PlanarReference>(s->facets);
   for(const auto& c:mesh){OwnedCell row;row.cell=c;const auto f=CellFaces(c);for(unsigned k=0;k<4;++k){const auto found=physical.find(Sorted(f[k]));if(found!=physical.end())row.physical[k]={true,found->second};}s->mesh.emplace(c.id,row);}
   for(int m:s->walls)s->heights[m]=s->h0;s->heights.tolerance=HeightTolerance;
-  std::map<int,int> roles;
+  std::map<int,int> roles;loadedArtificial.clear();
   for(size_t m=0;m<s->markers.size();++m){const auto& name=s->markers[m];const auto k=field.kinds.find(name);
+    if(k==field.kinds.end()&&!s->walls.count(int(m)))loadedArtificial.insert(int(m));
     if(s->walls.count(int(m))!=field.walls.count(name))throw std::runtime_error("DC10 M6 wall markers differ from the configuration");
     roles[int(m)]=s->walls.count(int(m))?1:k==field.kinds.end()?0:k->second==SYMMETRY_PLANE?0:2;
     // the inherited rim accounting (dc9::Rim) names the artificial cut boundary "CUT": the role decides the name
@@ -302,6 +309,7 @@ bool SplitWallEdge(State& s,Edge e,const std::vector<Point>& points,W10& g,const
     try{Scope sc(op==0?"W SplitEdge":"W InsertEdgeCavity");built=op==0?SplitEdge(old,e,{s.next_node,p},s.next_cell,*s.reference,fresh,why):InsertEdgeCavity(old,e,{s.next_node,p},s.next_cell,*s.reference,fresh,why);}
     catch(const std::exception& x){why=x.what();built=false;}
     if(!built)continue;{std::string d2;if(!D2Ok(s,old,fresh,d2)){why=d2;continue;}}
+    if(!FreshValid(s,fresh.cells)){why="validity";continue;}
     Apply(s,star,fresh);++g.accepted;++g.reasons[std::string(tag)+(op?" accepted InsertEdgeCavity":" accepted SplitEdge")];return true;}
   ++g.rejected;++g.reasons[std::string(tag)+" "+Key(why)];g.last=why;return false;
 }
@@ -497,6 +505,7 @@ R1wStage PhaseR1w(State& s,const Rows10& rows,size_t work,double seconds,std::os
         s.reference->ExportParameters(fresh);}catch(const std::exception& e){++g.rejected;++g.reasons[Key(e.what())];continue;}
       if(fresh.cells.size()>MaximumReplacementCells){++g.rejected;++g.reasons["fresh cells exceed 128"];continue;}
       {std::string d2;if(!D2Ok(s,old,fresh,d2)){++g.rejected;++g.reasons["D.2"];continue;}}
+      if(!FreshValid(s,fresh.cells)){++g.rejected;++g.reasons["validity"];continue;}
       if(splitPolicy.rule==1){  // DC-11: the full D.1 Refine admission (height, floors, measurement) with the cone request length
         splitPolicy.requested=coneShortest;const auto d=Admit8(s,old,fresh,Kind::Refine);splitPolicy.requested=-1;
         if(!d.ok){++g.rejected;++g.reasons["split rule: "+Key(d.reason)];continue;}}

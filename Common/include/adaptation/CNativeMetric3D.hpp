@@ -63,6 +63,16 @@ enum class RefineAcceptance { StrictExcess, SplitInsertion };
 constexpr double SplitInsertionLength = 1.6;
 void SetRefineAcceptance(RefineAcceptance acceptance);
 RefineAcceptance GetRefineAcceptance();
+/*! Per-operation shape admission (user decision 2026-10-23: q >= .20 / J >= .05 are FINAL acceptance gates only).
+ * Absolute: every fresh cell of a metric change must pass the final shape gates (previous behaviour, production default).
+ * ValidityOnly (build-then-optimize, OPTIMIZE_PLAN): fresh cells need only q > 0 and J >= ValiditySliverJacobian, J the
+ * scaled Jacobian measured in the metric (a cell below it is a numerically flat sliver whose quality gradient vanishes).
+ * It governs ValidateMetricChange and MeasureMetricCells(require_shape) only; progress rules are unchanged and
+ * ValidateMetricPatch (final completion) stays absolute in both modes. Process-wide; callers restore the previous mode. */
+enum class ShapeAdmission { Absolute, ValidityOnly };
+constexpr double ValiditySliverJacobian = 1e-3;
+void SetShapeAdmission(ShapeAdmission admission);
+ShapeAdmission GetShapeAdmission();
 struct MetricDiagnosis {
   MetricFailure failure = MetricFailure::None;
   bool size_progress = false, quality_progress = false, cell_removal = false;

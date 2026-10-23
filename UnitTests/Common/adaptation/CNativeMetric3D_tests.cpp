@@ -7,6 +7,7 @@
 #include "catch.hpp"
 #include "../../../Common/include/adaptation/CNativeMetric3D.hpp"
 #include "../../../Common/include/adaptation/CNativeBoundary3D.hpp"
+#include "../../../Common/include/adaptation/CNativeOptimize3D.hpp"
 #include <cmath>
 #include <limits>
 using namespace SU2Native3D;
@@ -516,4 +517,167 @@ TEST_CASE("Native 3D split rule counts only caller-certified relocations as move
   // a certified relocation cannot hide an absorption without net vertex gain
   const auto absorbed=metric({{{1,3},1.0L},{{2,3},1.0L},{{1,6},1.0L},{{2,6},1.0L},{{3,6},3.5L}});
   CHECK_FALSE(ValidateMetricChange(2,before,2,absorbed,MetricChange::Refine,reason,&d,1));CHECK(d.vertex_removal);
+}
+
+// ---- DC-12 (OPTIMIZE_PLAN): per-operation shape admission and the mesh-wide metric optimizer ----------------------------
+TEST_CASE("Native 3D shape admission: validity-only generation keeps the final gate absolute", "[NativeShapeAdmission3D]") {
+  struct Restore { ShapeAdmission a=GetShapeAdmission(); ~Restore(){SetShapeAdmission(a);} } restore;
+  CHECK(GetShapeAdmission()==ShapeAdmission::Absolute);  // production default
+  auto metric=[](double q,double J) {
+    PatchMetric m;m.minimum_mean_ratio=q;m.minimum_scaled_jacobian=J;
+    // the long edge (1,2) is split at 4 (a size insertion): it is not among the fresh edges
+    for(const auto& r:std::vector<std::pair<Edge,long double>>{{{1,3},1.0L},{{2,3},1.0L},{{1,4},1.5L},{{2,4},1.5L},{{3,4},1.2L}}){
+      EdgeMeasure e;e.a={double(r.first[0]),0,0};e.b={double(r.first[1]),1,0};e.length=r.second;m.edges.emplace(r.first,e);}
+    return m;};
+  PatchMetric before;before.minimum_mean_ratio=.5;before.minimum_scaled_jacobian=.5;
+  for(const auto& r:std::vector<std::pair<Edge,long double>>{{{1,2},3.0L},{{1,3},1.0L},{{2,3},1.0L}}){EdgeMeasure e;e.a={double(r.first[0]),0,0};e.b={double(r.first[1]),1,0};e.length=r.second;before.edges.emplace(r.first,e);}
+  std::string reason;MetricDiagnosis d;
+  const auto poor=metric(.1,.03),sliver=metric(.1,5e-4),flat=metric(0,0);
+  SetShapeAdmission(ShapeAdmission::Absolute);
+  CHECK_FALSE(ValidateMetricChange(1,before,2,poor,MetricChange::Refine,reason,&d));CHECK(d.failure==MetricFailure::Shape);
+  SetShapeAdmission(ShapeAdmission::ValidityOnly);
+  CHECK(ValidateMetricChange(1,before,2,poor,MetricChange::Refine,reason,&d));  // a valid size insertion
+  CHECK_FALSE(ValidateMetricChange(1,before,2,sliver,MetricChange::Refine,reason,&d));CHECK(d.failure==MetricFailure::Shape);
+  CHECK_FALSE(ValidateMetricChange(1,before,2,flat,MetricChange::Refine,reason,&d));
+  // progress rules are unchanged: a coarsening that adds cells is still refused
+  CHECK_FALSE(ValidateMetricChange(1,before,2,poor,MetricChange::Coarsen,reason,&d));CHECK(d.failure==MetricFailure::Progress);
+  // measured cells: the private-trial shape gate follows the mode, the final patch gate stays absolute
+  DonorCell donor;donor.cell={0,{{{0,{-10,-10,-10}},{1,{40,-10,-10}},{2,{-10,40,-10}},{3,{-10,-10,40}}}}};donor.sensor.fill(Tensor{1,0,0,1,0,.0004});  // z compressed by 50: q ~ .06, J ~ .01
+  FrozenField field({donor});
+  const Cell cell{7,{{{10,{0,0,0}},{11,{1,0,0}},{12,{0,1,0}},{13,{0,0,1}}}}};
+  PatchMetric measured;
+  const auto shape=MeasureMetricCells({cell},field,nullptr,nullptr,false);
+  REQUIRE(shape.minimum_mean_ratio<MinimumMeanRatio);REQUIRE(shape.minimum_scaled_jacobian>=ValiditySliverJacobian);
+  SetShapeAdmission(ShapeAdmission::Absolute);CHECK_THROWS(MeasureMetricCells({cell},field,nullptr,nullptr,true));
+  SetShapeAdmission(ShapeAdmission::ValidityOnly);CHECK_NOTHROW(MeasureMetricCells({cell},field,nullptr,nullptr,true));
+  CHECK_FALSE(ValidateMetricPatch({cell},field,measured,reason));CHECK(reason.find("shape/sliver")!=std::string::npos);
+  SetShapeAdmission(ShapeAdmission::Absolute);
+}
+namespace {
+// Constant-metric target covering [-1,3]^3 (sensor only: exact analytic edge lengths).
+DonorCell CoveringDonor(Tensor metric){DonorCell d;d.cell={0,{{{0,{-10,-10,-10}},{1,{40,-10,-10}},{2,{-10,40,-10}},{3,{-10,-10,40}}}}};d.sensor.fill(metric);return d;}
+Owned MeshOf(const std::vector<std::array<Node,4>>& cells) {
+  Owned out;Id id=100;
+  for(auto v:cells){Cell c{id,v};if(Orientation(c.v[0].p,c.v[1].p,c.v[2].p,c.v[3].p)<0)std::swap(c.v[0],c.v[1]);OwnedCell row;row.cell=c;out.emplace(id++,row);}
+  // skin faces carry a physical binding (facet = 1000 + running index), as an accepted mesh's boundary
+  std::map<Face,std::pair<Id,unsigned>> once;std::map<Face,int> uses;
+  for(const auto& r:out){const auto& v=r.second.cell.v;const std::array<Face,4> f{{{v[1].id,v[2].id,v[3].id},{v[0].id,v[3].id,v[2].id},{v[0].id,v[1].id,v[3].id},{v[0].id,v[2].id,v[1].id}}};
+    for(unsigned k=0;k<4;++k){auto s=f[k];std::sort(s.begin(),s.end());++uses[s];once[s]={r.first,k};}}
+  Id facet=1000;for(const auto& u:uses)if(u.second==1){auto& row=out.at(once.at(u.first).first);row.physical[once.at(u.first).second]={true,facet++};}
+  return out;
+}
+struct MeshFacts { size_t cells=0,bad=0;double min=1e300;long double volume=0;std::map<Face,Id> skin;bool positive=true; };
+MeshFacts Facts(const Owned& mesh,FrozenField& field) {
+  MeshFacts f;f.cells=mesh.size();
+  for(const auto& r:mesh){const auto& c=r.second.cell;const auto o=Orientation(c.v[0].p,c.v[1].p,c.v[2].p,c.v[3].p);f.positive=f.positive&&o>0;f.volume+=o;
+    const auto m=Measure({c.v[0].p,c.v[1].p,c.v[2].p,c.v[3].p},field.Query(Centroid(c)).target);const double s=std::min(m.mean_ratio/MinimumMeanRatio,m.minimum_scaled_jacobian/MinimumScaledJacobian);
+    f.min=std::min(f.min,s);f.bad+=s<1;
+    const auto& v=c.v;const std::array<Face,4> faces{{{v[1].id,v[2].id,v[3].id},{v[0].id,v[3].id,v[2].id},{v[0].id,v[1].id,v[3].id},{v[0].id,v[2].id,v[1].id}}};
+    for(unsigned k=0;k<4;++k)if(r.second.physical[k].present){auto s2=faces[k];std::sort(s2.begin(),s2.end());f.skin[s2]=r.second.physical[k].facet;}}
+  return f;
+}
+std::array<Node,4> Tet(Node a,Node b,Node c,Node d){return {a,b,c,d};}
+}  // namespace
+TEST_CASE("Native 3D optimizer: edge removal 3-2 and n -> 2n-4 with the optimal ring triangulation", "[NativeOptimize3D]") {
+  FrozenField field({CoveringDonor({1,0,0,1,0,1})});const RegionMetric target(field);
+  const double pi=std::acos(-1.);
+  auto ringOf=[&](size_t n,double R,Id first,double scale){std::vector<Node> r;for(size_t i=0;i<n;++i){const double t=2*pi*double(i)/double(n);r.push_back({first+i,{scale*R*std::cos(t),scale*R*std::sin(t),0}});}return r;};
+  OptimizeOptions options;options.smoothing=false;options.collapses=false;
+  // bipyramid: three needle cells around the long axis a-b (score .81) -> two cells (2.5)
+  {const auto r=ringOf(3,.25,10,1);const Node a{1,{0,0,1.2}},b{2,{0,0,-1.2}};
+   std::vector<std::array<Node,4>> cells;for(int i=0;i<3;++i)cells.push_back(Tet(a,b,r[i],r[(i+1)%3]));
+   Owned mesh=MeshOf(cells);const auto before=Facts(mesh,field);REQUIRE(before.bad==3);
+   OptimizeReport report;Id nn=100,nc=1000;
+   CHECK(OptimizeMetricMesh(mesh,target,nn,nc,options,report));const auto after=Facts(mesh,field);
+   CHECK(report.edge_removals==1);CHECK(after.cells==2);CHECK(after.positive);CHECK(after.bad==0);
+   CHECK(after.min>before.min);CHECK(after.skin==before.skin);CHECK(std::abs(double(after.volume-before.volume))<=1e-12*std::abs(double(before.volume)));}
+  // pentagon ring around a long axis: 5 -> 6 cells (best triangulation by dynamic programming)
+  {const auto r=ringOf(5,.25,20,1);const Node a{3,{0,0,1.2}},b{4,{0,0,-1.2}};
+   std::vector<std::array<Node,4>> cells;for(int i=0;i<5;++i)cells.push_back(Tet(a,b,r[i],r[(i+1)%5]));
+   Owned mesh=MeshOf(cells);const auto before=Facts(mesh,field);REQUIRE(before.bad>0);
+   OptimizeReport report;Id nn=100,nc=1000;
+   CHECK(OptimizeMetricMesh(mesh,target,nn,nc,options,report));const auto after=Facts(mesh,field);
+   CHECK(report.edge_removals==1);CHECK(after.cells==6);CHECK(after.positive);CHECK(after.min>before.min);CHECK(after.skin==before.skin);}
+  // edge guard: the same pentagon three times larger; a target whose exact length of every ring diagonal is 10 (above
+  // max(1.8, axis 7.2)) refuses the removal, the plain target accepts it
+  {const auto r=ringOf(5,.25,20,3);const Node a{3,{0,0,3.6}},b{4,{0,0,-3.6}};
+   std::vector<std::array<Node,4>> cells;for(int i=0;i<5;++i)cells.push_back(Tet(a,b,r[i],r[(i+1)%5]));
+   const RegionMetric guarded([&field](Point p){return field.Query(p).target;},
+     [&field](Point x,Point y){return (std::abs(x.z)<1e-9&&std::abs(y.z)<1e-9)?10.L:field.TargetEdgeLength(x,y);});
+   Owned mesh=MeshOf(cells);OptimizeReport report;Id nn=100,nc=1000;
+   CHECK_FALSE(OptimizeMetricMesh(mesh,guarded,nn,nc,options,report));CHECK(report.edge_removals==0);CHECK(report.rejected_edge>0);CHECK(mesh.size()==5);
+   Owned plain=MeshOf(cells);OptimizeReport r2;nn=100;nc=1000;
+   CHECK(OptimizeMetricMesh(plain,target,nn,nc,options,r2));CHECK(r2.edge_removals==1);CHECK(plain.size()==6);}
+  // face removal 2-3: two cells sharing a face (bad flat cell .68) -> three cells around the new edge (1.81)
+  {const Node r0{40,{0,0,0}},r1{41,{1,0,0}},r2{42,{.5,.866,0}},d{43,{1.15,.73,.89}},e{44,{.48,.44,-.023}};
+   Owned mesh=MeshOf({Tet(d,r0,r1,r2),Tet(e,r0,r2,r1)});const auto before=Facts(mesh,field);REQUIRE(before.bad>0);
+   OptimizeReport report;Id nn=100,nc=1000;
+   CHECK(OptimizeMetricMesh(mesh,target,nn,nc,options,report));const auto after=Facts(mesh,field);
+   CHECK(report.face_swaps==1);CHECK(after.cells==3);CHECK(after.positive);CHECK(after.min>before.min);CHECK(after.skin==before.skin);}
+}
+TEST_CASE("Native 3D optimizer: smoothing, collapse, frozen sets, skin and determinism", "[NativeOptimize3D]") {
+  FrozenField field({CoveringDonor({1,0,0,1,0,1})});const RegionMetric target(field);
+  // unit cube, 8 corners + one interior vertex pushed towards a corner (score .77): 12 boundary triangles coned from it
+  std::array<Node,8> c;for(int i=0;i<8;++i)c[i]={Id(1+i),{double(i&1),double((i>>1)&1),double((i>>2)&1)}};
+  const std::array<std::array<int,4>,6> quads{{{0,1,3,2},{4,6,7,5},{0,4,5,1},{2,3,7,6},{0,2,6,4},{1,5,7,3}}};
+  auto cone=[&](Node x){std::vector<std::array<Node,4>> cells;for(const auto& f:quads){cells.push_back(Tet(x,c[f[0]],c[f[1]],c[f[2]]));cells.push_back(Tet(x,c[f[0]],c[f[2]],c[f[3]]));}return cells;};
+  const auto cells=cone({20,{.95,.93,.9}});
+  OptimizeOptions options;options.swaps=false;options.collapses=false;
+  {Owned mesh=MeshOf(cells);const auto before=Facts(mesh,field);REQUIRE(before.bad>0);
+   OptimizeReport report;Id nn=100,nc=1000;
+   CHECK(OptimizeMetricMesh(mesh,target,nn,nc,options,report));const auto after=Facts(mesh,field);
+   CHECK(report.moves>=1);CHECK(after.min>before.min);CHECK(after.skin==before.skin);CHECK(after.positive);CHECK(report.relabel.count(20)==1);
+   CHECK(std::abs(double(after.volume-before.volume))<=1e-12*std::abs(double(before.volume)));}
+  // a frozen vertex is never moved; frozen cells are never replaced
+  {Owned mesh=MeshOf(cells);OptimizeOptions frozen=options;frozen.frozen_vertices={20};OptimizeReport report;Id nn=100,nc=1000;
+   CHECK_FALSE(OptimizeMetricMesh(mesh,target,nn,nc,frozen,report));CHECK(report.moves==0);}
+  {Owned mesh=MeshOf(cells);OptimizeOptions all;for(const auto& row:mesh)all.frozen_cells.insert(row.first);OptimizeReport report;Id nn=100,nc=1000;
+   const Owned copy=mesh;CHECK_FALSE(OptimizeMetricMesh(mesh,target,nn,nc,all,report));CHECK(mesh.size()==copy.size());
+   for(const auto& row:copy)CHECK(mesh.count(row.first)==1);}
+  // collapse: a second interior vertex 1e-3 above the centre creates four slivers that a contraction removes
+  auto sliverMesh=[&]{const Node y{21,{.5,.5,.5}},z{22,{.5,.5,.501}};auto m=cone(y);
+    m[2]=Tet(z,c[4],c[6],c[7]);m[3]=Tet(z,c[4],c[7],c[5]);
+    m.push_back(Tet(y,z,c[4],c[6]));m.push_back(Tet(y,z,c[6],c[7]));m.push_back(Tet(y,z,c[7],c[5]));m.push_back(Tet(y,z,c[5],c[4]));return m;};
+  {Owned mesh=MeshOf(sliverMesh());const auto before=Facts(mesh,field);REQUIRE(before.positive);REQUIRE(before.bad>0);
+   OptimizeOptions col;col.swaps=false;col.smoothing=false;OptimizeReport report;Id nn=100,nc=1000;
+   CHECK(OptimizeMetricMesh(mesh,target,nn,nc,col,report));const auto after=Facts(mesh,field);
+   CHECK(report.collapses>=1);CHECK(after.min>before.min);CHECK(after.skin==before.skin);CHECK(after.positive);CHECK(after.cells==12);}
+  // determinism: the same input gives the same mesh (all operations)
+  {Owned m1=MeshOf(sliverMesh()),m2=MeshOf(sliverMesh());OptimizeReport q1,q2;Id a1=100,b1=1000,a2=100,b2=1000;const OptimizeOptions every;
+   OptimizeMetricMesh(m1,target,a1,b1,every,q1);OptimizeMetricMesh(m2,target,a2,b2,every,q2);
+   REQUIRE(m1.size()==m2.size());bool same=true;auto i1=m1.begin();auto i2=m2.begin();
+   for(;i1!=m1.end();++i1,++i2)for(unsigned k=0;k<4;++k)same=same&&i1->first==i2->first&&i1->second.cell.v[k].id==i2->second.cell.v[k].id&&i1->second.cell.v[k].p.x==i2->second.cell.v[k].p.x;
+   CHECK(same);}
+}
+TEST_CASE("Native 3D optimizer: boundary edge flip inside one facet", "[NativeOptimize3D]") {
+  FrozenField field({CoveringDonor({1,0,0,1,0,1})});const RegionMetric target(field);
+  // two cells over a planar boundary quad a-r0-b-rm split along a-b (score .78); the flip to r0-rm gives 2.48
+  const Node a{1,{0,0,0}},b{2,{1,.05,0}},r0{3,{.25,-.065,0}},rm{4,{.55,.55,0}},x{5,{.056,.382,.282}};
+  auto build=[&](bool sameFacet){Owned mesh=MeshOf({Tet(a,b,r0,x),Tet(a,b,x,rm)});
+    if(sameFacet)for(auto& row:mesh){const auto& v=row.second.cell.v;
+      for(unsigned k=0;k<4;++k)if(row.second.physical[k].present&&v[k].id==x.id)row.second.physical[k].facet=7;}  // z = 0 faces: one facet
+    return mesh;};
+  OptimizeOptions options;options.smoothing=false;options.collapses=false;
+  {Owned mesh=build(true);const auto before=Facts(mesh,field);REQUIRE(before.bad>0);OptimizeReport report;Id nn=100,nc=1000;
+   CHECK(OptimizeMetricMesh(mesh,target,nn,nc,options,report));const auto after=Facts(mesh,field);
+   CHECK(report.boundary_flips==1);CHECK(after.cells==2);CHECK(after.positive);CHECK(after.min>before.min);
+   CHECK(std::abs(double(after.volume-before.volume))<=1e-12*std::abs(double(before.volume)));
+   size_t bottom=0;for(const auto& f:after.skin)if(f.second==7)++bottom;CHECK(bottom==2);
+   CHECK(after.skin.count(Face{3,4,1})+after.skin.count(Face{1,3,4})==1);}
+  // two different facets: the boundary is never flipped across them
+  {Owned mesh=build(false);OptimizeReport report;Id nn=100,nc=1000;OptimizeMetricMesh(mesh,target,nn,nc,options,report);CHECK(report.boundary_flips==0);}
+}
+TEST_CASE("Native 3D optimizer: length-driven edge removal of an interior edge longer than 1.8", "[NativeOptimize3D]") {
+  FrozenField field({CoveringDonor({1,0,0,1,0,1})});const RegionMetric target(field);
+  // four good cells (score 3.8) around an axis of length 2.0: the 4-4 swap to a ring diagonal of length 1.6 (score 4.4)
+  const double pi=std::acos(-1.);std::vector<Node> r;for(int i=0;i<4;++i)r.push_back({Id(10+i),{.8*std::cos(pi*i/2),.8*std::sin(pi*i/2),0}});
+  const Node a{1,{0,0,1}},b{2,{0,0,-1}};std::vector<std::array<Node,4>> cells;for(int i=0;i<4;++i)cells.push_back(Tet(a,b,r[i],r[(i+1)%4]));
+  Owned mesh=MeshOf(cells);const auto before=Facts(mesh,field);REQUIRE(before.bad==0);
+  OptimizeOptions options;OptimizeReport report;Id nn=100,nc=1000;
+  CHECK(OptimizeMetricMesh(mesh,target,nn,nc,options,report));const auto after=Facts(mesh,field);
+  CHECK(report.length_removals==1);CHECK(after.cells==4);CHECK(after.positive);CHECK(after.bad==0);CHECK(after.skin==before.skin);
+  bool axis=false;for(const auto& row:mesh){bool ha=false,hb=false;for(const auto& v:row.second.cell.v){ha=ha||v.id==1;hb=hb||v.id==2;}axis=axis||(ha&&hb);}CHECK_FALSE(axis);
+  // a frozen cell in the shell keeps the long edge
+  Owned frozenMesh=MeshOf(cells);OptimizeOptions frozen;frozen.frozen_cells={frozenMesh.begin()->first};OptimizeReport r2;nn=100;nc=1000;
+  OptimizeMetricMesh(frozenMesh,target,nn,nc,frozen,r2);CHECK(r2.length_removals==0);
 }

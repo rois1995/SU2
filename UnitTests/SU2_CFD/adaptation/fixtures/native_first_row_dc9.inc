@@ -64,7 +64,17 @@ bool cachesOn=true;
 extern std::map<std::array<double,6>,long double> geometryLengths;
 void ResetCaches(){shapeCache.clear();heightCache.clear();geometryLengths.clear();}
 CellShape Shape(State& s,const Cell& c){try{return ShapeOf(s,c);}catch(const std::exception&){return {-1,-1};}}
+CellShape ShapeOrInvalid(State& s,const Cell& c){return Shape(s,c);}
 bool Bad(const CellShape& sh){return sh.q<MinimumMeanRatio||sh.J<MinimumScaledJacobian;}
+// DC-12 (OPTIMIZE_PLAN sect. 1): intermediate first-child checks follow shapePolicy (validity: q > 0, J >= 1e-3);
+// default false keeps every earlier harness unchanged (Invalid == Bad). Final gates always use Bad.
+struct ShapePolicy { bool validity=false; };
+ShapePolicy shapePolicy;
+bool Invalid(const CellShape& sh){return shapePolicy.validity?!(sh.q>0&&sh.J>=ValiditySliverJacobian):Bad(sh);}
+CellShape ShapeOrInvalid(State& s,const Cell& c);
+// DC-12: every fresh cell of a construction step (W, R1, R2 preparation) is valid when shapePolicy.validity is set.
+bool FreshValid(State& s,const std::vector<Cell>& cells){if(!shapePolicy.validity)return true;
+  for(const auto& c:cells){const auto sh=ShapeOrInvalid(s,c);if(!(sh.q>0&&sh.J>=ValiditySliverJacobian))return false;}return true;}
 CellShape MeshShape(State& s,Id id) {
   if(cachesOn){const auto f=shapeCache.find(id);if(f!=shapeCache.end()){++perf.shape_hits;return f->second;}}
   ++perf.shape_misses;const auto sh=Shape(s,s.mesh.at(id).cell);if(cachesOn)shapeCache.emplace(id,sh);return sh;
@@ -109,10 +119,27 @@ std::set<Id> StarOf(const State& s,Id v){const auto f=s.vertex_cells.find(v);ret
 std::set<Id> WallVertices(const State& s){std::set<Id> out;for(const auto& f:WallFaces(s))out.insert(f.second.begin(),f.second.end());return out;}
 std::set<Id> ColumnCells(const State& s,const Rows& rows){std::set<Id> out;for(const auto& r:rows.apex){const auto st=StarOf(s,r.second);out.insert(st.begin(),st.end());}return out;}
 bool Has(const Face& f,Id v){return f[0]==v||f[1]==v||f[2]==v;}
+// DC-12: the artificial (cut) boundary by loader role metadata when rimByRole is set; otherwise the inherited marker
+// name test (default, every earlier harness unchanged).
+std::set<int> artificialMarkers;bool rimByRole=false;
 bool Rim(const State& s,Id v) {
   for(Id id:StarOf(s,v)){const auto& r=s.mesh.at(id);const auto f=CellFaces(r.cell);for(unsigned k=0;k<4;++k)
-    if(r.physical[k].present&&Has(f[k],v)&&s.markers.at(s.reference->Get(r.physical[k].facet).marker)=="CUT")return true;}
+    if(r.physical[k].present&&Has(f[k],v)){const int m=s.reference->Get(r.physical[k].facet).marker;if(rimByRole?artificialMarkers.count(m)>0:s.markers.at(m)=="CUT")return true;}}
   return false;
+}
+// DC-12 per-wall first heights: the prescribed height of a wall face / the smallest over a vertex's wall faces (s.h0
+// when none is found); equal to s.h0 in every loader where all walls share one height.
+long double FaceH0(const State& s,const Face& f) {
+  const auto a=s.vertex_cells.find(f[0]);if(a==s.vertex_cells.end())return s.h0;const auto key=Sorted(f);
+  for(Id id:a->second){const auto& r=s.mesh.at(id);const auto faces=CellFaces(r.cell);
+    for(unsigned k=0;k<4;++k)if(r.physical[k].present&&Sorted(faces[k])==key){const auto h=s.heights.find(s.reference->Get(r.physical[k].facet).marker);if(h!=s.heights.end())return h->second;}}
+  return s.h0;
+}
+long double VertexH0(const State& s,Id v) {
+  long double h=INFINITY;const auto a=s.vertex_cells.find(v);if(a==s.vertex_cells.end())return s.h0;
+  for(Id id:a->second){const auto& r=s.mesh.at(id);const auto faces=CellFaces(r.cell);
+    for(unsigned k=0;k<4;++k)if(r.physical[k].present&&Has(faces[k],v)){const auto x=s.heights.find(s.reference->Get(r.physical[k].facet).marker);if(x!=s.heights.end())h=std::min<long double>(h,x->second);}}
+  return std::isfinite(h)?h:s.h0;
 }
 bool RimFace(const State& s,const Face& f){for(Id x:f)if(Rim(s,x))return true;return false;}
 bool CellHas(const Cell& c,Id v){for(auto n:c.v)if(n.id==v)return true;return false;}
@@ -169,6 +196,8 @@ bool MinNormAny(const std::vector<V>& n,V& out) {
   return std::isfinite(best);
 }
 struct Dir { bool ok=false;V d;long double s=0;std::set<Id> carriers,bind;int rank=0;Id seam=UINT64_MAX;std::string why;std::vector<V> normals; };
+// DC-12 (OPTIMIZE_PLAN rev 5): precomputed column directions (boundary tangency + smooth blend); null = unchanged.
+std::map<Id,V>* directionField=nullptr;size_t directionFieldUses=0;
 Dir DirectionAt(State& s,Id v) {
   Dir out;const auto star=StarOf(s,v);std::vector<V> cn;
   for(const auto& f:PhysicalOf(s,star,true))if(Has(f.key,v)){const V n=-1.L*Outward(Of(NodePoint(s,f.out[0])),Of(NodePoint(s,f.out[1])),Of(NodePoint(s,f.out[2])));
@@ -181,6 +210,10 @@ Dir DirectionAt(State& s,Id v) {
   if(basis.size()==2){V t=Unit(Cross(basis[0],basis[1]));long double sum=0;for(const auto& n:out.normals)sum+=Dot(n,t);out.d=sum<0?-1.L*t:t;}
   else{std::vector<V> projected;for(auto n:out.normals){for(const auto& b:basis)n=n-Dot(n,b)*b;if(Norm(n)<1e-12L){out.why="carrier: wall normal parallel to the carrier normal";return out;}projected.push_back(n);}
     if(!MinNormAny(projected,out.d)){out.why="hemisphere: no open hemisphere";return out;}}
+  if(directionField&&basis.size()<2){const auto f=directionField->find(v);
+    if(f!=directionField->end()){bool inPlane=true;for(const auto& b:basis)inPlane=inPlane&&std::abs(Dot(f->second,b))<=1e-9L;
+      long double sd=INFINITY;for(const auto& n:out.normals)sd=std::min(sd,Dot(n,f->second));
+      if(inPlane&&sd>=.2L){out.d=f->second;++directionFieldUses;}}}  // the field's visibility margin
   out.s=INFINITY;for(const auto& n:out.normals)out.s=std::min(out.s,Dot(n,out.d));
   if(!(out.s>1e-9L)){out.why="hemisphere: s*="+std::to_string(double(out.s));return out;}
   const V x0=Of(NodePoint(s,v));const auto carrierFaces=PhysicalOf(s,star,false);
@@ -214,25 +247,25 @@ std::vector<Cell> MovedStar(const State& s,const std::set<Id>& apices,Id v) {
   for(Id id:StarOf(s,v)){const auto& c=s.mesh.at(id).cell;bool col=false;for(auto n:c.v)col=col||apices.count(n.id);if(!col)out.push_back(c);}
   return out;
 }
-long double Need(const State& s){return (1+HeightTolerance)*s.h0*Kappa;}
-long double MinimumBand(const State& s){return (1-HeightTolerance)*s.h0*(1+BandMargin);}
-struct Plan { bool ok=false;Dir dir;Kernel kernel;long double H=0,delta=0;V p;std::string why; };
+long double Need(long double h0){return (1+HeightTolerance)*h0*Kappa;}
+long double MinimumBand(long double h0){return (1-HeightTolerance)*h0*(1+BandMargin);}
+struct Plan { bool ok=false;Dir dir;Kernel kernel;long double H=0,delta=0,h0=0;V p;std::string why; };
 // (c) band height: preferred clamp(0.9 delta_K s*, [1.3,2.2]h0); below 1.3h0 the clearance value itself, floored at the
 // height-window top (1+T)h0 (DC-7) or, in the low-band retry, at the feasible LP window (1-T)h0(1+5%). The metric cap
 // (vertical column edge <= 1.5) needs edge integrations and is evaluated only for an actual lift (metricCap).
 Plan PlanLift(State& s,const std::set<Id>& apices,Id v,bool metricCap,bool low) {
   Scope scope("PlanLift");
-  Plan pl;pl.dir=DirectionAt(s,v);if(!pl.dir.ok){pl.why=pl.dir.why;return pl;}
+  Plan pl;pl.h0=VertexH0(s,v);pl.dir=DirectionAt(s,v);if(!pl.dir.ok){pl.why=pl.dir.why;return pl;}
   pl.kernel=KernelBound(MovedStar(s,apices,v),v,pl.dir.d);
-  const long double h0=s.h0;pl.H=std::min(0.9L*pl.kernel.delta*pl.dir.s,HighBand*h0);
+  const long double h0=pl.h0;pl.H=std::min(0.9L*pl.kernel.delta*pl.dir.s,HighBand*h0);
   if(low)pl.H=std::min(pl.H,(1+HeightTolerance)*h0);
-  if(pl.H<LowBand*h0)pl.H=std::max(pl.H,low?MinimumBand(s):(1+HeightTolerance)*h0);
+  if(pl.H<LowBand*h0)pl.H=std::max(pl.H,low?MinimumBand(h0):(1+HeightTolerance)*h0);
   const V x=Of(NodePoint(s,v));
   if(metricCap)for(unsigned k=0;k<12&&pl.H>LowBand*h0;++k){long double l=0;try{l=GeometryLength(s,Pt(x),Pt(x+(pl.H/pl.dir.s)*pl.dir.d));}catch(const std::exception&){break;}
     if(l<=1.5L)break;pl.H=std::max(LowBand*h0,0.9L*pl.H);}
   pl.delta=pl.H/pl.dir.s;pl.p=x+pl.delta*pl.dir.d;pl.ok=true;return pl;
 }
-long double Deficit(const State& s,const Plan& p){return p.dir.ok?std::max(0.L,Need(s)-p.kernel.delta*p.dir.s):Need(s);}
+long double Deficit(const State& s,const Plan& p){const long double h0=p.h0>0?p.h0:s.h0;return p.dir.ok?std::max(0.L,Need(h0)-p.kernel.delta*p.dir.s):Need(h0);}
 Node Constrain(const State& s,const PlanarReference* priv,Node node,const std::set<Id>& carriers,const std::set<Id>& bind) {
   if(carriers.empty())return node;
   if(s.mapped){if(!priv)throw std::runtime_error("mapped lift without a private context");return priv->BindNewPoint(node,bind.empty()?carriers:bind);}
@@ -290,7 +323,7 @@ bool FirstChildPasses(State& s,const Patch& p,const SurfaceFace& sf) {
   Patch one;const auto key=Sorted(sf.v);for(const auto& c:p.cells){unsigned k=0;for(auto n:c.v)k+=Has(key,n.id);if(k==3)one.cells.push_back(c);}
   if(one.cells.size()!=1)return false;one.surface={sf};one.parameters=p.parameters;std::string why;
   bool ok=false;try{ok=HeightT(s,one,why);}catch(const std::exception&){ok=false;}
-  return ok&&!Bad(Shape(s,one.cells.front()));
+  return ok&&!Invalid(Shape(s,one.cells.front()));
 }
 bool D2Ok(State& s,const Patch& old,const Patch& fresh,std::string& why) {
   Scope scope("D.2 invariant");
@@ -304,9 +337,11 @@ bool D2Ok(State& s,const Patch& old,const Patch& fresh,std::string& why) {
 }
 size_t firstChildDiagnostics=0;
 struct ConeOut { bool ok=false;std::string cls,witness;std::vector<Cell> cells;Node apex;double fq=0,fJ=0,colq=0;long double slack=-INFINITY; };
-ConeOut ConeColumn(State& s,const std::vector<Face>& skin,const std::map<Id,Node>& nodes,Id apexId,bool spread) {
+// h0: the prescribed first height of the column's wall face (FaceH0 of skin[0]; a caller passes it for a face not yet in
+// the mesh). DC-12 shapePolicy.validity: every cone cell must be valid and the best first child valid (not absolute).
+ConeOut ConeColumn(State& s,const std::vector<Face>& skin,const std::map<Id,Node>& nodes,Id apexId,bool spread,long double h0Override=-1) {
   Scope scope("ConeColumn");
-  ConeOut out;const long double h0=s.h0,T=HeightTolerance;const Face& f=skin[0];
+  ConeOut out;const long double h0=h0Override>0?h0Override:FaceH0(s,skin[0]),T=HeightTolerance;const Face& f=skin[0];
   const V a=Of(nodes.at(f[0]).p),b=Of(nodes.at(f[1]).p),c=Of(nodes.at(f[2]).p);const V n=-1.L*Outward(a,b,c);
   std::vector<std::array<V,3>> tris;for(size_t k=1;k<skin.size();++k)tris.push_back({Of(nodes.at(skin[k][0]).p),Of(nodes.at(skin[k][1]).p),Of(nodes.at(skin[k][2]).p)});
   std::vector<V> cand;
@@ -321,7 +356,8 @@ ConeOut ConeColumn(State& s,const std::vector<Face>& skin,const std::map<Id,Node
   auto evaluate=[&](const std::vector<V>& list){
     for(const auto& p:list){const Node apex{apexId,Pt(p)};std::vector<Cell> cone;bool pos=true;double colq=1;CellShape first{1,1};
       for(size_t k=0;k<skin.size()&&pos;++k){Cell cell{0,{apex,nodes.at(skin[k][0]),nodes.at(skin[k][1]),nodes.at(skin[k][2])}};
-        pos=Positive(cell.v);if(!pos)break;const auto sh=Shape(s,cell);if(k==0)first=sh;colq=std::min(colq,sh.q);cone.push_back(cell);}
+        pos=Positive(cell.v);if(!pos)break;const auto sh=Shape(s,cell);if(shapePolicy.validity&&!(sh.q>0&&sh.J>=ValiditySliverJacobian)){pos=false;break;}
+        if(k==0)first=sh;colq=std::min(colq,sh.q);cone.push_back(cell);}
       if(!pos)continue;const double score=std::min(first.q/MinimumMeanRatio,first.J/MinimumScaledJacobian);
       if(score>bestScore+1e-12||(score>=1&&bestScore>=1&&colq>bestCol)){bestScore=score;bestCol=colq;out.cells=cone;out.fq=first.q;out.fJ=first.J;out.apex=apex;out.colq=colq;}}};
   evaluate(cand);
@@ -331,7 +367,7 @@ ConeOut ConeColumn(State& s,const std::vector<Face>& skin,const std::map<Id,Node
     evaluate(grid);
   }
   if(out.cells.empty()){out.cls="partial-state";out.witness="LP apex rounds outside its column";return out;}
-  if(bestScore<1){out.cls="first-child";std::ostringstream w;w<<"first child q="<<out.fq<<" J="<<out.fJ;
+  if(Invalid({out.fq,out.fJ})){out.cls="first-child";std::ostringstream w;w<<"first child q="<<out.fq<<" J="<<out.fJ;
     // diagnostic (first 400 witnesses per case): composed metric lengths of the base edges and the apex edges
     if(firstChildDiagnostics<400){++firstChildDiagnostics;const auto& c0=out.cells.front();w<<"; metric edges base/apex:";
       for(unsigned i=1;i<4;++i)for(unsigned j=i+1;j<4;++j){try{w<<" "<<double(s.field->TargetEdgeLength(c0.v[i].p,c0.v[j].p));}catch(const std::exception&){w<<" ?";}}w<<" /";
@@ -392,7 +428,7 @@ SectorPlan PlanSectors(State& s,const Patch& old,const PlanarReference& ref,Id v
   auto chartPoint=[&](Id w,const FaceInfo& left,const FaceInfo& right,Node& P)->bool{
     const V x0=Of(nodes.at(v).p),xw=Of(nodes.at(w).p);const V e=Unit(xw-x0);V nbar{};for(const auto& n:dir.normals)nbar=nbar+n;nbar=Unit(nbar);
     const auto c=Dot(nbar,e);if(c<.25L){sp.why="sector: seam "+std::to_string(v)+"-"+std::to_string(w)+" too tangential (n.e="+std::to_string(double(c))+")";return false;}
-    long double dist=H/c;if(dist>.45L*Norm(xw-x0)){dist=.45L*Norm(xw-x0);if(dist*c<MinimumBand(s)){sp.why="sector: seam edge shorter than the band";return false;}}
+    long double dist=H/c;if(dist>.45L*Norm(xw-x0)){dist=.45L*Norm(xw-x0);if(dist*c<MinimumBand(VertexH0(s,v))){sp.why="sector: seam edge shorter than the band";return false;}}
     P=Node{next++,Pt(x0+dist*e)};
     try{P=Constrain(s,&ref,P,{left.facet,right.facet},{left.facet,right.facet});}catch(const std::exception& x){sp.why=std::string("sector: seam binding: ")+x.what();return false;}
     return true;};
@@ -695,15 +731,16 @@ Tx Transaction(State& s,const Rows& rows,const std::set<Id>& V0,bool low) {
       for(const auto& c:fresh){unsigned k=0;for(auto n:c.v)k+=Has(key,n.id);if(k==3)after.cells.push_back(c);}
       before.surface=after.surface={sf};before.parameters=tx.old.parameters;after.parameters=out.parameters;
       FirstHeightReport r0,r1;std::string w0,w1;
-      const bool was=before.cells.size()==1&&CheckFirstHeight(before,s.heights,*s.reference,r0,w0)&&!Bad(Shape(s,before.cells.front()));
-      if(was&&!(after.cells.size()==1&&CheckFirstHeight(after,s.heights,*s.reference,r1,w1)&&!Bad(Shape(s,after.cells.front())))){tx.failing.push_back(key);tx.cls="invariant";tx.witness="unrebuilt wall face loses its passing first child (T or q/J): "+w1;}
+      const bool was=before.cells.size()==1&&CheckFirstHeight(before,s.heights,*s.reference,r0,w0)&&!Invalid(Shape(s,before.cells.front()));
+      if(was&&!(after.cells.size()==1&&CheckFirstHeight(after,s.heights,*s.reference,r1,w1)&&!Invalid(Shape(s,after.cells.front())))){tx.failing.push_back(key);tx.cls="invariant";tx.witness="unrebuilt wall face loses its passing first child (T or q/J): "+w1;}
       continue;}
     Patch one;for(const auto& c:fresh){unsigned k=0;for(auto n:c.v)k+=Has(key,n.id);if(k==3)one.cells.push_back(c);}
     one.surface={sf};for(const auto& c:one.cells)for(auto n:c.v){const auto pr=out.parameters.find(n.id);if(pr!=out.parameters.end())one.parameters.insert(*pr);}
     FirstHeightReport r;if(one.cells.size()!=1||!CheckFirstHeight(one,s.heights,*s.reference,r,reason)){tx.failing.push_back(key);tx.cls="height";tx.witness="face "+std::to_string(key[0])+": "+reason;continue;}
     tx.height_error=std::max(tx.height_error,r.maximum_relative_error);
-    const auto sh=Shape(s,one.cells.front());if(Bad(sh)){tx.failing.push_back(key);tx.cls="first-child";tx.witness="rowed face first child q="+std::to_string(sh.q);}}
+    const auto sh=Shape(s,one.cells.front());if(Invalid(sh)){tx.failing.push_back(key);tx.cls="first-child";tx.witness="rowed face first child q="+std::to_string(sh.q);}}
   if(!tx.failing.empty())return tx;
+  if(shapePolicy.validity)for(const auto& c:out.cells){const auto sh=Shape(s,c);if(!(sh.q>0&&sh.J>=ValiditySliverJacobian)){tx.cls="validity";tx.witness="fresh cell q="+std::to_string(sh.q)+" J="+std::to_string(sh.J);return tx;}}
   if(splitPolicy.rule==1){std::set<Id> rel;for(const auto& k:tx.rebuilt){const auto a=rows.apex.find(k);if(a!=rows.apex.end())rel.insert(a->second);}
     if(!RemovesVertex(tx.old.cells,out.cells,&rel)){std::string why;if(!MeasurableChanged(s,tx.old,out,why)){tx.cls="measure";tx.witness=why;return tx;}
       ++splitPolicy.layer_free;tx.fresh=std::move(out);tx.ok=true;return tx;}++splitPolicy.layer_checked;}
@@ -896,10 +933,10 @@ WStage PhaseW(State& s,size_t work,double seconds,std::ostream& log) {
 long double LocalDeficit(State& s,const std::set<Id>& walls,const std::vector<Id>& removed,const std::vector<Cell>* added,std::map<Id,Dir>& dirs) {
   std::set<Id> gone,touched;if(added)gone.insert(removed.begin(),removed.end());for(Id id:removed)for(auto n:s.mesh.at(id).cell.v)if(walls.count(n.id))touched.insert(n.id);
   long double sum=0;
-  for(Id w:touched){auto d=dirs.find(w);if(d==dirs.end())d=dirs.emplace(w,DirectionAt(s,w)).first;if(!d->second.ok){sum+=Need(s);continue;}
+  for(Id w:touched){auto d=dirs.find(w);if(d==dirs.end())d=dirs.emplace(w,DirectionAt(s,w)).first;if(!d->second.ok){sum+=Need(VertexH0(s,w));continue;}
     std::vector<Cell> cells;for(Id id:StarOf(s,w))if(!gone.count(id))cells.push_back(s.mesh.at(id).cell);
     if(added)for(const auto& c:*added)for(auto n:c.v)if(n.id==w)cells.push_back(c);
-    const auto k=KernelBound(cells,w,d->second.d);sum+=std::max(0.L,Need(s)-k.delta*d->second.s);}
+    const auto k=KernelBound(cells,w,d->second.d);sum+=std::max(0.L,Need(VertexH0(s,w))-k.delta*d->second.s);}
   return sum;
 }
 struct R1Stage : Stage { size_t deficient_before=0,deficient_after=0,moves=0,flips=0,steiner=0,collapses=0,exhausted=0; };
@@ -924,6 +961,7 @@ R1Stage PhaseR1(State& s,const Rows& rows,size_t work,double seconds,std::ostrea
           ++g.work;const auto before=LocalDeficit(s,walls,ids,nullptr,dirs),after=LocalDeficit(s,walls,ids,&fresh.cells,dirs);
           if(!(after<before*(1-1e-9L))){++g.rejected;++g.reasons[op+": no clearance gain"];return false;}
           {Patch old=PatchOf(s,ids);std::string d2;if(!D2Ok(s,old,fresh,d2)){++g.rejected;++g.reasons[op+": "+d2.substr(0,40)];return false;}}
+          if(!FreshValid(s,fresh.cells)){++g.rejected;++g.reasons[op+": validity"];return false;}
           Apply(s,ids,fresh);++g.accepted;return true;};
         // c1 Reconnect of star(v) with the edge star of each link edge of the blocking face, coned from v
         for(int i=0;i<3&&!taken&&!limited();++i){auto ids=StarOf(s,v);for(Id id:Star(s,{std::min(F[i],F[(i+1)%3]),std::max(F[i],F[(i+1)%3])}))ids.insert(id);
@@ -946,7 +984,7 @@ R1Stage PhaseR1(State& s,const Rows& rows,size_t work,double seconds,std::ostrea
         if(!taken)for(const auto& f:PhysicalOf(s,StarOf(s,v),true)){if(taken||limited())break;if(!Has(f.key,v))continue;
           const V a=Of(NodePoint(s,f.out[0])),b=Of(NodePoint(s,f.out[1])),c=Of(NodePoint(s,f.out[2]));const auto la=Norm(b-c),lb=Norm(c-a),lc=Norm(a-b);
           const V in=(1/(la+lb+lc))*(la*a+lb*b+lc*c);const V n=-1.L*Outward(a,b,c);
-          for(long double k:{2.L,3.L}){const Point p=Pt(in+(k*Need(s)/Kappa)*n);std::string why;const auto vis=dc7::Visible(s,p,{});
+          for(long double k:{2.L,3.L}){const Point p=Pt(in+(k*Need(VertexH0(s,v))/Kappa)*n);std::string why;const auto vis=dc7::Visible(s,p,{});
             if(!vis.ok){++g.work;++g.rejected;++g.reasons["Steiner: "+vis.why];continue;}const auto& cavity=vis.cavity;
             Patch old,fresh;try{Scope sc("R1 Steiner");old=PatchOf(s,cavity);fresh.surface=old.surface;fresh.parameters=old.parameters;
               if(Cone(old.cells,{s.next_node,p},s.next_cell,fresh.cells,why)){s.reference->ExportParameters(fresh);if(attempt("Steiner",cavity,fresh)){++g.steiner;taken=true;break;}}
@@ -976,7 +1014,7 @@ Census FullStateCensus(State& s,const Rows& rows) {
     std::map<Id,V> P;for(Id x:out){P[x]=Of(NodePoint(s,x));P[x+(Id(1)<<60)]=plans.at(x).p;}
     const auto skin=ColumnSkin(out,[](Id x){return x+(Id(1)<<60);}).faces;
     const V a=P[out[0]],b=P[out[1]],cc=P[out[2]];std::vector<std::array<V,3>> tris;for(size_t k=1;k<skin.size();++k)tris.push_back({P[skin[k][0]],P[skin[k][1]],P[skin[k][2]]});
-    if(!ApexLP(tris,a,b,cc,-1.L*Outward(a,b,cc),s.h0,HeightTolerance,false).ok)++c.lp_empty;
+    if(!ApexLP(tris,a,b,cc,-1.L*Outward(a,b,cc),FaceH0(s,wf.second),HeightTolerance,false).ok)++c.lp_empty;
   }
   return c;
 }
@@ -1001,6 +1039,7 @@ bool SplitCell(State& s,const Rows& rows,Id cell,std::string& why) {
   Patch fresh;fresh.surface=old.surface;fresh.parameters=old.parameters;
   try{if(!Cone(old.cells,{s.next_node,Pt(m)},s.next_cell,fresh.cells,why))return false;s.reference->ExportParameters(fresh);}catch(const std::exception& x){why=x.what();return false;}
   {std::string d2;if(!D2Ok(s,old,fresh,d2)){why=d2;return false;}}
+  if(!FreshValid(s,fresh.cells)){why="validity";return false;}
   Apply(s,{cell},fresh);return true;
 }
 // Link separation (Prepare kind): cone the edge star of an interior edge from its midpoint (InsertEdgeCavity).
@@ -1011,11 +1050,12 @@ bool SplitLinkEdge(State& s,const Rows& rows,Edge e,std::string& why,Id wall=UIN
   Patch old,fresh;try{old=PatchOf(s,star);}catch(const std::exception& x){why=x.what();return false;}
   const Point a=NodePoint(s,e[0]),b=NodePoint(s,e[1]);Point mid{double(((long double)a.x+b.x)/2),double(((long double)a.y+b.y)/2),double(((long double)a.z+b.z)/2)};
   if(wall!=UINT64_MAX){const auto dir=DirectionAt(s,wall);if(dir.ok){V nbar{};for(const auto& n:dir.normals)nbar=nbar+n;nbar=Unit(nbar);const V w=Of(NodePoint(s,wall));
-    auto h=[&](V p){return Dot(p-w,nbar);};const V A=Of(a),B=Of(b);if(h(Of(mid))<2*Need(s)){long double best=-INFINITY;
+    auto h=[&](V p){return Dot(p-w,nbar);};const V A=Of(a),B=Of(b);if(h(Of(mid))<2*Need(VertexH0(s,wall))){long double best=-INFINITY;
       for(long double t:{.3L,.4L,.5L,.6L,.7L}){const V p=A+t*(B-A);if(h(p)>best){best=h(p);mid=Pt(p);}}}}}
   bool ok=false;try{ok=InsertEdgeCavity(old,e,{s.next_node,mid},s.next_cell,*s.reference,fresh,why);}catch(const std::exception& x){why=x.what();ok=false;}
   if(!ok)return false;
   {std::string d2;if(!D2Ok(s,old,fresh,d2)){why=d2;return false;}}
+  if(!FreshValid(s,fresh.cells)){why="validity";return false;}
   Apply(s,star,fresh);return true;
 }
 R2Stage PhaseR2(State& s,Rows& rows,double seconds,std::ostream& log) {
@@ -1099,7 +1139,10 @@ std::string JsonFinal(State& s,const Rows& rows) {
    <<",\"unmeasurable_edges\":"<<g.unmeasurable<<",\"complete\":"<<g.complete<<'}';return o.str();
 }
 
+// DC-12: when set, every Admit8 caller (ApexMove, ColumnSplit, R1w, V) is admitted by this rule instead (Admit12).
+std::function<Decision(State&,const Patch&,const Patch&,Kind)> admitOverride;
 Decision Admit8(State& s,const Patch& old,const Patch& fresh,Kind kind) {
+  if(admitOverride)return admitOverride(s,old,fresh,kind);
   Scope scope("Admit (D.1)");
   Decision base;base.old_cells=old.cells.size();base.fresh_cells=fresh.cells.size();
   if(old.cells.empty()||fresh.cells.empty()||old.cells.size()>MaximumReplacementCells||fresh.cells.size()>MaximumReplacementCells){base.category=5;base.reason="replacement size";return base;}
@@ -1227,8 +1270,8 @@ bool ColumnSplitJunction(State& s,Rows& rows,Edge ab,const Face& f,VStage& g,std
     if(!Positive(x.v)||!Positive(y.v)){why="ColumnSplit junction: lid edge split inverts an upper cell";return false;}fresh.push_back(x);fresh.push_back(y);}
   std::map<Id,Id> L=rows.lift;L[m.id]=ms.id;auto Lf=[&](Id x){const auto it=L.find(x);return it==L.end()?x:it->second;};
   const Face out=wallIt->second.v;Face f1=out,f2=out;for(auto& x:f1)if(x==b)x=m.id;for(auto& x:f2)if(x==a)x=m.id;
-  std::map<Face,Id> newApex;
-  for(const Face& h:{f1,f2}){const auto skin=ColumnSkin(h,Lf);auto cone=ConeColumn(s,skin.faces,nodes,next,false);
+  std::map<Face,Id> newApex;const long double parentH0=FaceH0(s,f);  // the halves are not in the mesh yet: the parent's wall height
+  for(const Face& h:{f1,f2}){const auto skin=ColumnSkin(h,Lf);auto cone=ConeColumn(s,skin.faces,nodes,next,false,parentH0);
     if(!cone.ok){why="ColumnSplit junction: "+cone.cls+" "+cone.witness;return false;}nodes[next]=cone.apex;newApex[Sorted(h)]=next++;fresh.insert(fresh.end(),cone.cells.begin(),cone.cells.end());}
   if(fresh.size()>MaximumReplacementCells){why="ColumnSplit junction exceeds 128 fresh cells";return false;}
   for(size_t i=0;i<fresh.size();++i)fresh[i].id=s.next_cell+i;
@@ -1300,7 +1343,8 @@ bool ColumnSplit(State& s,Rows& rows,Edge ab,VStage& g,std::string& why,std::set
   std::map<Id,Id> L=rows.lift;L[m.id]=ms.id;auto Lf=[&](Id x){const auto f=L.find(x);return f==L.end()?x:f->second;};
   std::vector<Face> newWall;std::map<Face,Id> newApex;std::map<Face,int> childMarker;
   for(const auto& f:faces){const Face out=wallOf.at(f).v;Face f1=out,f2=out;for(auto& x:f1)if(x==b)x=m.id;for(auto& x:f2)if(x==a)x=m.id;
-    for(const Face& h:{f1,f2}){const auto skin=ColumnSkin(h,Lf);auto cone=ConeColumn(s,skin.faces,nodes,next,false);
+    const long double parentH0=FaceH0(s,f);  // the halves are not in the mesh yet: the parent's wall height
+    for(const Face& h:{f1,f2}){const auto skin=ColumnSkin(h,Lf);auto cone=ConeColumn(s,skin.faces,nodes,next,false,parentH0);
       if(!cone.ok){why="ColumnSplit: "+cone.cls+" "+cone.witness;return false;}nodes[next]=cone.apex;newApex[Sorted(h)]=next++;newWall.push_back(h);
       childMarker[Sorted(h)]=s.reference->Get(wallOf.at(f).facet).marker;fresh.insert(fresh.end(),cone.cells.begin(),cone.cells.end());}}
   if(fresh.size()>MaximumReplacementCells){why="ColumnSplit exceeds 128 fresh cells";return false;}

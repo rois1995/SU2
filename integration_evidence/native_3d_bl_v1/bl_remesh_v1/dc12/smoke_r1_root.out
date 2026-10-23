@@ -1,0 +1,3 @@
+./run_case.sh: riga 31: errore di sintassi vicino al token non atteso "do"
+./run_case.sh: riga 31: `kill -0 $PID 2>/dev/null; do R1=$(ps -o rss= --ppid $PID 2>/dev/null | awk '{s+=$1}END{print s+0}'); [ "$R1" -gt "$PEAK" ] && PEAK=$R1; sleep 20; done'
+exit=2

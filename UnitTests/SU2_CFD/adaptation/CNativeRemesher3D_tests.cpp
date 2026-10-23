@@ -623,3 +623,5 @@ TEST_CASE("Native first-row transactions replay original fields without solver i
 #include "fixtures/native_first_row_dc11.inc"
 // DC-11 V diagnosis (test-only diagnostics).
 #include "fixtures/native_v_diag_dc11.inc"
+// DC-12 build-then-optimize harness (OPTIMIZE_PLAN). Test-only.
+#include "fixtures/native_first_row_dc12.inc"

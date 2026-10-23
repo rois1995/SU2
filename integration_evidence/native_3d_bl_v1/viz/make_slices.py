@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
-"""Readable 2D-slice pictures of failed native 3D BL meshes (DC-10/DC-11 *_final.mesh files).
+"""Readable 2D-slice pictures of native 3D BL meshes (DC-10/DC-11/DC-12 *_final.mesh files).
 
-Usage:  nice -n 19 python3 make_slices.py            (all pages)
+Usage:  nice -n 19 python3 make_slices.py            (all DC-11 pages)
         nice -n 19 python3 make_slices.py m6_root_te  (only cases whose name contains the argument)
+        DC_RUNS=dc12,dc12vo nice -n 19 python3 make_slices.py   (DC-12 pages into dc12/png_readable)
 
 Each page cuts the tetrahedral mesh with one plane (exact tet/plane intersection polygons) and draws it like
 a classic 2D mesh plot at three zoom levels, with a plain-words legend, failure counts split by location and
@@ -50,7 +51,11 @@ CASES = {
 }
 FN = {"te": "focus", "le": "focus", "root": "focus", "worst": "focus"}
 RUNS = {"single": ("dc11/runs_single", "DC-11 single lift"), "fan": ("dc11/runs_fan", "DC-11 crease fan"),
-        "single600": ("dc11/runs_single_600", "DC-11 single lift, 600 s budget"), "dc10": ("dc10/diag2", "DC-10 diag2")}
+        "single600": ("dc11/runs_single_600", "DC-11 single lift, 600 s budget"), "dc10": ("dc10/diag2", "DC-10 diag2"),
+        "dc12": (os.environ.get("DC12_RUN_DIR", "dc12/runs"), "DC-12 build-then-optimize (G growth layers + validity-only V + optimizer)"),
+        "dc12vo": (os.environ.get("DC12_RUN_DIR", "dc12/runs"), "DC-12 production volume-only RefineOptimize (no wall heights)")}
+PREFIX = {"dc10": "dc10", "dc12": "dc12", "dc12vo": "volonly12"}
+OUTS = {"dc12": os.path.join(BASE, os.environ.get("DC12_PNG_DIR", "dc12/png_readable")), "dc12vo": os.path.join(BASE, os.environ.get("DC12_PNG_DIR", "dc12/png_readable"))}
 
 
 # ----------------------------------------------------------------------------------------------- reading
@@ -288,7 +293,7 @@ def draw_panels(axes, m, spec, sl, views, size, label_prefix="", compact=False):
             xl = f"{'xyz'[basis(spec['normal'])[1]]} - {FN[spec['where']]}  [multiples of h0]"; yl = f"{'xyz'[basis(spec['normal'])[2]]} - {FN[spec['where']]}  [multiples of h0]"
             lw = (0.4, 2.6, 2.6, 30)
         polys = [T(p) for p in sl["polys"]]
-        ls, lp = sl["lsegs"]
+        ls, lp = sl["lsegs"] if len(sl["lsegs"]) == 2 else ([], [])
         draw_mesh(ax, m, polys, sl["cells"], T(sl["wsegs"]) if len(sl["wsegs"]) else [], T(sl["bsegs"]) if len(sl["bsegs"]) else [],
                   (T(ls) if len(ls) else [], T(lp) if len(lp) else []), lw_edge=lw[0], lw_wall=lw[1], lw_long=lw[2], ms_long=lw[3])
         a0, a1 = T(np.array([x0, y0])), T(np.array([x1, y1]))
@@ -375,7 +380,7 @@ def verdict(js, m):
     f = js.get("final", {})
     ok = int(f.get("complete", 0)) == 1
     s = (f"{'ACCEPTED' if ok else 'NOT accepted'}: {f.get('long_edges')} long edges, {f.get('bad_shape')} bad cells, "
-         f"{f.get('height_failures')} first-height failures  ({f.get('cells')} cells, worst q={f.get('q_min', 0):.3g}, "
+         f"{f.get('height_failures', 0)} first-height failures  ({f.get('cells')} cells, worst q={f.get('q_min', 0):.3g}, "
          f"worst J={f.get('J_min', 0):.2g}, h0={m['h0']:g})")
     return s, ok
 
@@ -386,7 +391,7 @@ def slice_counts(m, sl):
 
 
 def load_case(run, case):
-    d, _ = RUNS[run]; pre = "dc10" if run == "dc10" else "dc11"
+    d, _ = RUNS[run]; pre = PREFIX.get(run, "dc11")
     mp = os.path.join(BASE, d, f"{pre}_{case}_final.mesh"); jp = os.path.join(BASE, d, f"{pre}_{case}.json")
     if not os.path.exists(mp): return None, None
     m = analyse(read_mesh(mp)); js = json.load(open(jp))
@@ -418,7 +423,7 @@ def case_page(run, case):
     fig.text(0.01, 0.918, f"Run: {RUNS[run][1]}.  Cut plane {'xyz'[spec['normal']]} = {sl['off']*sc:.4f} {un}; focus (circle) at "
              f"{'xyz'[iu]}={sl['focus'][0]*sc:.4f}, {'xyz'[iv]}={sl['focus'][1]*sc:.4f} {un}.  This cut crosses {len(sl['cells'])} cells: "
              f"{nf} first-row, {nb} bad, {nl} long edges, {nh} height failures.\n{m['hcheck']}.", fontsize=8.5, color="#333", va="top", linespacing=1.4)
-    os.makedirs(OUT, exist_ok=True); fn = os.path.join(OUT, f"{run}_{case}.png")
+    out = OUTS.get(run, OUT); os.makedirs(out, exist_ok=True); fn = os.path.join(out, f"{run}_{case}.png")
     fig.savefig(fn, dpi=100); plt.close(fig)
     print(f"{fn}: off={sl['off']:.6g} cut_cells={len(sl['cells'])} bad={nb} long={nl} hfail={nh} first={nf}")
     return fn
@@ -461,7 +466,8 @@ def before_after(case="m6_root_te"):
 
 if __name__ == "__main__":
     flt = sys.argv[1] if len(sys.argv) > 1 else ""
-    for run in ("single", "fan", "single600"):
+    runs = os.environ.get("DC_RUNS", "single,fan,single600").split(",")
+    for run in runs:
         for case in CASES:
             if flt in f"{run}_{case}": case_page(run, case)
-    if flt in "before_after_m6_root_te": before_after()
+    if "single" in runs and flt in "before_after_m6_root_te": before_after()

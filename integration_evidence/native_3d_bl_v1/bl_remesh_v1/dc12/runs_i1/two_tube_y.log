@@ -1,0 +1,35 @@
+Filters: [NativeFirstRowDC12]
+DC12 two_tube_y loaded: cells=2112 wall_faces=128
+DC12 two_tube_y R2 rowed=268 unrowed=52 t=14.5102
+DC12 two_tube_y G lifted=159 columns=182 refused=393 t=1.88219
+DC12 V sweep 0 cells=11565 long=747 bad=53 h=0 t=58.3378
+DC12 V sweep 1 cells=14737 long=188 bad=71 h=0 t=83.7491
+DC12 V sweep 2 cells=14824 long=166 bad=67 h=0 t=86.2491
+DC12 V sweep 3 cells=14824 long=166 bad=67 h=0 t=86.9114
+DC12 two_tube_y done in 166.363 s
+===============================================================================
+All tests passed (4 assertions in 1 test case)
+
+	Command being timed: "env SU2_DC12_REFLECTIVE=symmetry SU2_DC12_INPUT_SHA=12418915183cef416e8482f0df69d058a8235d3da21a1dbd8d3fe570b85c4d86 SU2_DC12_BINARY_SHA=bae1df03a7868a56061b17fe832607374b23ee16c9f8701b0fa574e013b5bba7 SU2_DC12_ROOT=/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/bl_remesh_v1/dc12/runs_i1 SU2_DC12_WP0B=/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/robust_junction_v1/wp0b SU2_DC12_M6=/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/bl_remesh_v1/dc7/m6_cuts SU2_DC12_CASES=two_tube_y nice -n 19 timeout --kill-after=5s 7200s /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/bl_remesh_v1/dc12/bin/test_driver_i1 [NativeFirstRowDC12] --use-colour no"
+	User time (seconds): 166.22
+	System time (seconds): 0.01
+	Percent of CPU this job got: 99%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 2:46.70
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 57600
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 2
+	Minor (reclaiming a frame) page faults: 10133
+	Voluntary context switches: 1146
+	Involuntary context switches: 4045
+	Swaps: 0
+	File system inputs: 0
+	File system outputs: 2904
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0

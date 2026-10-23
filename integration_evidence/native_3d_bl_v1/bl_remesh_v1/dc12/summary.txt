@@ -1,0 +1,85 @@
+DC-12 (base a024f489c0): build-then-optimize for the native 3D remesher plus BL growth layers.
+Plan OPTIMIZE_PLAN.md rev 5 (untracked) with Codex plan reviews 1-3 (untracked OPTIMIZE_PLAN_REVIEW_*.md; rev 4 answers
+review 3, rev 5 adds the column-direction rule requested by the user and the iteration-2 changes) and two Codex code
+reviews (codex_review_code.txt, codex_review_code_2.txt; every MAJOR fixed before the iteration-2 binary, see FIXES).
+Serial, nice 19, OMP 1, MALLOC_ARENA_MAX 2, one own job at a time. FINAL gates unchanged and absolute (edges <= 1.8,
+q >= .20, J >= .05, first height within 10 %, unmeasurable = failure; fresh re-audit agrees in every case).
+
+RESULT: no case passes the final gates after 2 implementation iterations -> stop rule applied (witness below).
+ iteration 2 (binary i3 58094269..., V budget 1500 s, runs_i2/, pictures png_readable/):
+ case         complete cells  bad  long  h  layers 3-25h0 (A2 frac, dev p10/med/p90)  W   R1  R2  G   V     total  V outcome
+ annulus      no        361     6    8   0  0.64  -99/0/0 (4 of 11 targets failed)   0   0   0   0   1      1     blocked
+ m6_le        no      24831  4254 2307   0  0.99  -2/0/0                             0   0   3   1   1500   1529  limit
+ m6_root_te   no      26046   397  235   0  1.00  -1/0/0                             0   1  14   4   1178   1332  sweep cap 64
+ m6_tip_te    no      31829   278 1098   0  1.00  -1/0/0                             0   1  17   2   1500   1810  limit (still falling)
+ tube_root_x  no       9484    33   69   0  1.00  -2/-1/-1                           0   0   8   1   64     110   blocked
+ two_tube_y   no      12618    39   64   0  0.90  -3/-1/-1                           0   1  16   2   82     159   blocked
+ (annulus also 1 unmeasurable edge.) A3 first-row audit: 0 violations, 0 stale apex registrations in every case.
+ Production volume-only (D1-free base target, no wall heights, plain facet reference, serial RefineOptimize):
+   tube_root_x COMPLETE in 6 s (5985 cells, 1 round, long 0, bad 0);
+   m6_root_te  NOT complete: every Refine round stops with "exact-facet resolution conflict on crease edge: an interval
+   without an interior binary64 point has metric length 7.9 > 1.8" (the plain facet reference cannot split that crease
+   edge; geometry representability, not shape); 16 rounds / 131 s, 1406 cells, long 1055, bad 87 after the optimizer.
+ iteration 1 (binary i1 bae1df03..., V 900 s, runs_i1/): root_te 404 bad / 238 long, tip_te 1215 / 7225 (2 sweeps),
+   le 4265 / 2810, tube_root_x 30 / 144, two_tube_y 67 / 166, annulus aborted (target march query outside the donors);
+   DC-11 reference (120 s V): root_te 507/2142, tip_te 292/3152, le 737/1043, tubes 59/599, 85/870, annulus 14/43.
+ Full M6 Euler production adaptation: not run (no cut case accepted).
+
+WHAT WAS BUILT
+ 1 validity-only construction. Production CNativeMetric3D: ShapeAdmission {Absolute (default), ValidityOnly},
+   ValiditySliverJacobian = 1e-3; under ValidityOnly ValidateMetricChange and MeasureMetricCells(require_shape) admit
+   fresh cells with q > 0, J >= 1e-3; progress rules unchanged; ValidateMetricPatch stays absolute. Harness: dc9
+   shapePolicy/Invalid (R2 first children, ConeColumn, D.2), FreshValid on W/R1/R2-preparation commits, admitOverride =
+   Admit12 (ApexMove/ColumnSplit/V). Defaults keep DC-7..DC-11 unchanged.
+ 2 G growth layers: column lift transactions (R2 mechanics) over bounded wall patches (<= 8 tops, cavity <= 64, fresh
+   <= 128), sequential prism/pyramid/wedge fill, carrier binding + L-C + FindFace, D.2, validity, no first-child change.
+   Row height = one unit step of the target metric along the column (follows hn(d) of the target: the production law
+   h0 g^k, or on M6 the configured ADAP_BL_BUDGET outer profile, slope .545, ~4-5 layers in 3-25 h0); stops s1 thickness
+   or metric mismatch, s2 isotropy, s3 refused (mostly clearance: the existing volume above), s4 48 layers.
+ 3 column directions (user rule): n' = n - (n.s)s on any non-wall boundary plane (two planes: their intersection line),
+   |n'| < 1e-3 -> witness + mirrored-first-ring fallback; continuous blend over D = min(BL thickness, 3 wall rings),
+   per plane group (nearest source of each group), visibility >= .2 enforced (directions below it are not used); computed
+   after W, used by R1/R2/G through dc9 DirectionAt. Census in each JSON ("directions").
+ 4 production mesh-wide optimizer OptimizeMetricMesh (CNativeOptimize3D.hpp, CNativeEngine3D.cpp): O1 edge removal
+   n -> 2n-4 (DP ring triangulation), O1L length-driven removal of edges > 1.8, O2 2-3, O3 interior collapse, O4 smoothing
+   (metric spring + hinge Gauss-Newton, new identity), O5 boundary flip / O6 boundary contraction inside one facet;
+   strict max-min progress, every fresh cell valid, ValidateFixedInterface / prescribed skin, edge guard (Simpson
+   estimate, exact integral above 1.4), frozen cells/vertices; RefineOptimize (serial Refine <-> optimizer loop).
+ 5 V12: R2 retry, certified first-child route (InsertFirstWallPoint / ConstructFirstLayer / carrier-constrained
+   ApexRelocate, registrations follow relocated apices), bounded refinement slice (40 %), ApexMove, optimizer (>= 40 %).
+
+WITNESS (what blocks an accepted mesh)
+ a tubes (tube_root_x, two_tube_y; also annulus): the whole volume passes; every remaining defect is inside the first-row
+   columns at 1 h0: 33 / 39 bad column cells (lateral cone cells, q .10-.20) and 43 / 22 long edges inside columns (lateral
+   diagonals wall vertex - neighbour lid, lid at up to 2.2 h0 with one apex per column), plus 35/36 unrowed faces.
+   ApexMove cannot improve them ("repair: neither size nor quality progress" 150/155), ColumnSplit is refused by the
+   halves guard or adds oversized edges; the optimizer may not move apices/lids. The single-apex column of a two-row lid
+   is the blocker (DC-11 diagnosis confirmed); the next step is a certified lid/column re-construction (lid at one row or
+   two apices per column).
+ b M6 cuts: first row and columns are nearly clean (root_te 13 bad / 24 long at the wall, 19 / 14 inside columns); the
+   residual is the wall-to-volume transition outside the columns: root_te 365 bad cells and 116 long edges between 1 and
+   100 h0 (peak 2-5 h0) plus 81 long edges on the artificial CUT faces (CUT vertices fixed, rim wall vertices on the CUT
+   carry no columns); m6_le 4182 bad cells outside the columns spread over 1-1000 h0 (peak 10-30 h0) and 884 long edges
+   on CUT faces, with bad count rising again late in V (optimizer stalls, refine keeps creating slivers at J ~1e-3);
+   tip_te ran out of time while still improving (6 sweeps in 1500 s; 10 ms exact edge integrals dominate).
+   Final q_min on M6 is 0.003-0.01 with J_min exactly at the 1e-3 validity floor: intermediate slivers are never removed.
+ c production volume-only M6: blocked by binary64 representability of a crease edge on the plain facet reference.
+ Layers (A2): the 3-25 h0 band holds the target count +-2 for 90-100 % of the wall vertices on M6 and the tubes
+   (annulus 64 %: 4 of 11 target marches leave its box); first-row audit clean; no height failure anywhere.
+
+FIXES from the code reviews (before i3): validity on W/R1/R2-preparation commits; carrier apices relocated, not re-coned;
+ refinement census and apex repairs inside their slice, optimizer censuses deadline-checked; A2 over the post-R2 population
+ with NextLayer's owner and explicit target failures; A3 certifies only the approved routes and refuses uncertified
+ first-child changes in V and G; explicit fixture roles (SU2_DC12_REFLECTIVE, fixture_roles.txt) instead of the "sym" name
+ test; RefineOptimize continues after a budget-limited progressing Refine; cache bounds at insertion; visibility margin
+ enforced; continuous multi-plane blend; O6 coplanarity; the inclined-plane test asserts the actual lift directions.
+
+TESTS (validation_i3/, binary i3): unit3d 33 cases pass; unit2d 57 pass; metric 173 pass (168 + [NativeShapeAdmission3D]
+ + 4 [NativeOptimize3D]); [NativeGrowthLayer12] 1 case / 2530 assertions (axis, oblique, stopped neighbour, renamed
+ markers, two walls with different h0/g, seam, 65 deg inclined plane, two inclined planes 65/70 deg); mesh3d 100/101 with
+ exactly the 6 known failed assertions (CNativeDistributed3D_tests.cpp:1446/1449/1453); airfoil passes. No 2D source.
+
+FILES: runs_i2/ (dc12_<case>.json/.log/_final.mesh, volonly12_*), runs_i1/ (iteration 1), png_readable/ (every case and
+ both volume-only runs; the volume-only pages recompute "height failures" for a run without wall heights: ignore them),
+ png_i1/dc12_m6_root_te.png, validation_i3/, campaign.log, run_case.sh, run_campaign.sh, run_validation.sh,
+ summarize_dc12.py, fixture_roles.txt, codex_review_code*.txt, build*.log, test_driver_*.sha256. Binaries not committed.

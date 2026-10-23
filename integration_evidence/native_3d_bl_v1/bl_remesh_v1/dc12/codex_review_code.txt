@@ -1,0 +1,26 @@
+**MAJOR**
+
+1. **R2 preparation bypasses the validity bound.** [dc9:1028](/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/UnitTests/SU2_CFD/adaptation/fixtures/native_first_row_dc9.inc:1028) and `:1042–1045` commit separation cells after geometry and D.2 checks only. Positive fresh cells with `J < .001` therefore pass. W10 and R1 have the same bypass. Add the DC-12 validity check before these commits; switching `ShapeAdmission` cannot affect paths that never call metric admission.
+
+2. **Registered carrier apices lose their repair route.** [dc12:333](/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/UnitTests/SU2_CFD/adaptation/fixtures/native_first_row_dc12.inc:333) registers a relocation admitted under validity, potentially still below final shape. Subsequent sweeps skip it at `:424` and route through legacy `ApexMove` at `:369`. That operation cones the unchanged skin, which still contains the old boundary apex; carrier faces become degenerate or the interface fails. The optimizer freezes it too. Route registered carrier apices through carrier-constrained relocation.
+
+3. **The optimizer’s reserved time is unenforced.** [dc12:435](/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/UnitTests/SU2_CFD/adaptation/fixtures/native_first_row_dc12.inc:435) integrates every edge without checking `sliceOver()`. This census alone can exhaust V’s entire budget, causing optimization at `:483` to be skipped. First-child repairs also have no reserved-share deadline. Apply deadlines throughout the preceding stages, including census work.
+
+4. **A2 measures the wrong population and wall policy.** [dc12:272](/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/UnitTests/SU2_CFD/adaptation/fixtures/native_first_row_dc12.inc:272) enumerates current wall vertices, so ColumnSplit changes the specified post-R2 denominator. At junctions, `:276` chooses the first wall index rather than NextLayer’s owner, while `:281` measures distance to any wall. A2 can consequently pass or fail against unrelated targets. Preserve the post-R2 population and evaluate each column using its owning policy.
+
+5. **A3 silently accepts uncertified wall-face deletion.** [dc12:291](/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/UnitTests/SU2_CFD/adaptation/fixtures/native_first_row_dc12.inc:291) counts every missing face as removed without consulting `certified`; JSON labels these “removed by certified splits.” Conversely, FirstRowInsert/ApexRelocate certify only the requested face and existing registrations, although they can rebuild other unregistered first children. Record every affected face and require certification for removals and creations.
+
+6. **The real loader remains marker-name dependent.** DC-12 calls `LoadTubeA` at [dc12:573](/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/UnitTests/SU2_CFD/adaptation/fixtures/native_first_row_dc12.inc:573), whose [dc10:184](/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/UnitTests/SU2_CFD/adaptation/fixtures/native_first_row_dc10.inc:184) classifies symmetry using the substring `"sym"`. Renaming it to `"PLANE"` changes reflection and the target metric. The synthetic rename test bypasses this loader, so it cannot detect this dependence. Supply explicit carrier roles.
+
+7. **RefineOptimize can stop despite ongoing refinement progress.** [CNativeEngine3D.cpp:3356](/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/Common/src/adaptation/CNativeEngine3D.cpp:3356) returns whenever optimization changes nothing. If Refine consumed its half-budget while successfully splitting edges, and remaining cells have acceptable shape but long edges, optimization correctly does nothing; the wrapper then abandons the remaining time. Distinguish a budget-limited, progressing Refine call from stagnation.
+
+**MINOR**
+
+8. **Optimizer cache limits are ineffective during rejected searches.** [CNativeEngine3D.cpp:3044](/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/Common/src/adaptation/CNativeEngine3D.cpp:3044) bounds caches only through `Commit`. Initial censuses and arbitrarily many refused candidates keep inserting without eviction. A blocked sweep can exceed `cache_entries` substantially. Enforce limits at insertion.
+
+No weakening found in `ValidateMetricPatch` or the final `.20/.05`, `1.8`, and 10% gates.
+
+Not checked: runtime behavior; no files edited, builds, tests, or repository programs executed. These findings are from static inspection.
+
+Codex session ID: 01a16979-8853-7152-af28-19c1014f2a3c
+Resume in Codex: codex resume 01a16979-8853-7152-af28-19c1014f2a3c

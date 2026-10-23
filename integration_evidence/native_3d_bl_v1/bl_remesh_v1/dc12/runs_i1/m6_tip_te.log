@@ -1,0 +1,34 @@
+Filters: [NativeFirstRowDC12]
+DC12 m6_tip_te loaded: cells=1190 wall_faces=176
+DC12 m6_tip_te R2 rowed=131 unrowed=0 t=27.5303
+DC12 m6_tip_te G lifted=461 columns=77 refused=173 t=3.42857
+DC12 V sweep 0 cells=9703 long=5182 bad=723 h=0 t=610.385
+DC12 V sweep 1 cells=13953 long=7266 bad=1020 h=0 t=847.923
+DC12 V sweep 2 cells=15343 long=7225 bad=1215 h=0 t=904.97
+DC12 m6_tip_te done in 1135.11 s
+===============================================================================
+All tests passed (4 assertions in 1 test case)
+
+	Command being timed: "env SU2_DC12_INPUT_SHA=ad5eedbf7ef5a73b6c980204572bda97e422e1753161c7332024be89108b044b SU2_DC12_BINARY_SHA=bae1df03a7868a56061b17fe832607374b23ee16c9f8701b0fa574e013b5bba7 SU2_DC12_ROOT=/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/bl_remesh_v1/dc12/runs_i1 SU2_DC12_WP0B=/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/robust_junction_v1/wp0b SU2_DC12_M6=/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/bl_remesh_v1/dc7/m6_cuts SU2_DC12_CASES=m6_tip_te nice -n 19 timeout --kill-after=5s 7200s /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/bl_remesh_v1/dc12/bin/test_driver_i1 [NativeFirstRowDC12] --use-colour no"
+	User time (seconds): 992.70
+	System time (seconds): 1.09
+	Percent of CPU this job got: 87%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 18:55.86
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 226132
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 2
+	Minor (reclaiming a frame) page faults: 59233
+	Voluntary context switches: 352
+	Involuntary context switches: 163595
+	Swaps: 0
+	File system inputs: 0
+	File system outputs: 3672
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0
