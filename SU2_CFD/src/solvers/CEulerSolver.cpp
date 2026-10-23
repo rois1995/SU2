@@ -27,6 +27,7 @@
 
 #include "../../include/solvers/GilesRelaxation.hpp"
 #include "../../include/solvers/MixingMeanFlux.hpp"
+#include "../../../Common/include/linear_algebra/CMatrixVectorProduct.hpp"
 #include "../../include/solvers/CEulerSolver.hpp"
 #include "../../include/variables/CNSVariable.hpp"
 #include "../../../Common/include/toolboxes/geometry_toolbox.hpp"
@@ -132,6 +133,14 @@ CEulerSolver::CEulerSolver(CGeometry *geometry, CConfig *config,
   nMarker      = config->GetnMarker_All();
   nPoint       = geometry->GetnPoint();
   nPointDomain = geometry->GetnPointDomain();
+  if (mixingImplicit && iMesh == MESH_0) {
+#if defined(CODI_REVERSE_TYPE) || defined(CODI_FORWARD_TYPE) || defined(USE_MIXED_PRECISION) || defined(USE_SINGLE_PRECISION)
+    SU2_MPI::Error("Mixing mean Jacobian requires direct double precision", CURRENT_FUNCTION);
+#endif
+    if (!mixingConservation || config->GetKind_TimeIntScheme_Flow() != EULER_IMPLICIT ||
+        config->GetKind_Linear_Solver() != FGMRES || config->GetCUDA())
+      SU2_MPI::Error("Mixing mean Jacobian requires conservation, host implicit Euler and FGMRES", CURRENT_FUNCTION);
+  }
   if (mixingConservation && iMesh == MESH_0) {
 #if defined(CODI_REVERSE_TYPE) || defined(CODI_FORWARD_TYPE)
     SU2_MPI::Error("Conservative mixing experiment is not differentiated", CURRENT_FUNCTION);
@@ -424,6 +433,11 @@ void CEulerSolver::InitTurboContainers(CGeometry *geometry, CConfig **config_con
 
   if (mixingConservation) {
     MixingRawFlux.resize(nMarker); MixingCommonFlux.resize(nMarker);
+    if (mixingImplicit) {
+      MixingJacobian.resize(nMarker);
+      mixingDirection.Initialize(nPoint, nPointDomain, nVar, 0.0);
+      mixingProduct.Initialize(nPoint, nPointDomain, nVar, 0.0);
+    }
     for (auto marker=0u;marker<nMarker;++marker) {
       if (!config->GetMarker_All_MixingPlaneInterface(marker)) continue;
       if (config->GetMarker_All_KindBC(marker) != GILES_BOUNDARY)
@@ -6443,6 +6457,13 @@ void CEulerSolver::ApplyMixingConservation(CGeometry* geometry, const CConfig* c
         const auto* normal=geometry->vertex[marker][turbo->GetOldVertex()]->GetNormal();
         const auto* coord=geometry->nodes->GetCoord(point);
         const double weight=SU2_TYPE::GetValue(GeometryToolbox::Norm(nDim,normal)/global[span*6]);
+        if (mixingImplicit) {
+          auto& jac = MixingJacobian[marker][span][vertex];
+          jac.weight = weight;
+          for (auto wall=0u; wall<nMarker; ++wall)
+            if (config->GetViscous_Wall(wall) && geometry->nodes->GetVertex(point,wall) >= 0)
+              jac.fixedMomentum = true;
+        }
         const auto correction=MixingMeanFlux::CartesianCorrection(difference,weight,SU2_TYPE::GetValue(coord[0]),SU2_TYPE::GetValue(coord[1]));
         for(auto v=0u;v<5;++v)LinSysRes(point,v)+=correction[v];
         if (wallStudy.Enabled()) {
@@ -6452,7 +6473,65 @@ void CEulerSolver::ApplyMixingConservation(CGeometry* geometry, const CConfig* c
       }
     }
   }
-  // The existing local boundary Jacobian remains a quasi-Newton approximation to this nonlocal mean correction.
+  // shortcut: shared inter-zone means and Giles exterior states are frozen; use a coupled multizone operator to differentiate them.
+}
+
+void CEulerSolver::ApplyMixingJacobian(const CSysVector<su2mixedfloat>& direction,
+    CSysVector<su2mixedfloat>& product, CGeometry* geometry, const CConfig* config) {
+  for (auto point=0ul; point<nPoint; ++point)
+    for (auto v=0u; v<nVar; ++v) mixingDirection(point,v) = direction(point,v);
+  CommunicatePeriodicOperator(geometry, config, mixingDirection, false);
+  mixingProduct = su2double(0);
+  const auto spans = config->GetnSpanWiseSections();
+  for (auto interface=1u; interface<=config->GetnMarker_MixingPlaneInterface()/2; ++interface) {
+    const auto marker = config->FindMixingPlaneInterfaceMarker(geometry->GetnMarker(), interface);
+    vector<double> local(5*spans, 0.0), global(5*spans, 0.0);
+    if (marker >= 0) for (auto span=0u; span<spans; ++span) {
+      if (MixingCommonFlux[marker](span,0) == 0) continue;
+      for (const auto& vertex : MixingJacobian[marker][span]) {
+        if (vertex.weight == 0) continue;
+        double delta[5];
+        for (auto v=0u; v<5; ++v) delta[v] = SU2_TYPE::GetValue(mixingDirection(vertex.point,v));
+        const auto flux = vertex.Apply(delta);
+        for (auto v=0u; v<5; ++v) local[5*span+v] -= flux[v];
+      }
+    }
+    SU2_MPI::Allreduce(local.data(), global.data(), 5*spans, MPI_DOUBLE, MPI_SUM, SU2_MPI::GetComm());
+    if (marker < 0) continue;
+    for (auto span=0u; span<spans; ++span) {
+      if (MixingCommonFlux[marker](span,0) == 0) continue;
+      MixingMeanFlux::Flux delta;
+      for (auto v=0u; v<5; ++v) delta[v] = global[5*span+v];
+      for (const auto& vertex : MixingJacobian[marker][span]) {
+        if (vertex.weight == 0) continue;
+        const auto correction = MixingMeanFlux::CartesianCorrection(delta, vertex.weight, vertex.x, vertex.y);
+        if (nodes->GetDelta_Time(vertex.point) == 0) continue;
+        for (auto v=0u; v<5; ++v) {
+          if (vertex.fixedMomentum && v>=1 && v<=3) continue;
+          mixingProduct(vertex.point,v) += correction[v];
+        }
+      }
+    }
+  }
+  CommunicatePeriodicOperator(geometry, config, mixingProduct, true);
+  for (auto point=0ul; point<nPointDomain; ++point)
+    for (auto v=0u; v<nVar; ++v) product(point,v) += SU2_TYPE::GetValue(mixingProduct(point,v));
+}
+
+unsigned long CEulerSolver::SolveLinearSystem(CGeometry* geometry, const CConfig* config) {
+  if (!mixingImplicit || MGLevel != MESH_0) return BaseClass::SolveLinearSystem(geometry, config);
+  class Product final : public CMatrixVectorProduct<su2mixedfloat> {
+    CEulerSolver& solver;
+    CGeometry* geometry;
+    const CConfig* config;
+   public:
+    Product(CEulerSolver& s, CGeometry* g, const CConfig* c) : solver(s), geometry(g), config(c) {}
+    void operator()(const CSysVector<su2mixedfloat>& u, CSysVector<su2mixedfloat>& v) const override {
+      solver.Jacobian.MatrixVectorProduct(u, v, geometry, config);
+      solver.ApplyMixingJacobian(u, v, geometry, config);
+    }
+  } product(*this, geometry, config);
+  return System.Solve(Jacobian, LinSysRes, LinSysSol, geometry, config, &product);
 }
 
 void CEulerSolver::SavePhysicalResidual() {
@@ -6535,6 +6614,11 @@ void CEulerSolver::BC_Giles(CGeometry *geometry, CSolver **solver_container, CNu
 
   const bool conservativeMarker = mixingConservation && !MixingRawFlux[val_marker].empty();
   if (conservativeMarker) MixingRawFlux[val_marker].setConstant(0.0);
+  if (conservativeMarker && mixingImplicit) {
+    MixingJacobian[val_marker].resize(nSpanWiseSections);
+    for (auto span=0u; span<nSpanWiseSections; ++span)
+      MixingJacobian[val_marker][span].assign(geometry->GetnVertexSpan(val_marker, span), {});
+  }
   auto accumulateFlux = [&](const auto& residual, double sign, bool convective) {
     if (!conservativeMarker || !geometry->nodes->GetDomain(iPoint)) return;
     const auto x=geometry->nodes->GetCoord(iPoint,0), y=geometry->nodes->GetCoord(iPoint,1);
@@ -6547,6 +6631,16 @@ void CEulerSolver::BC_Giles(CGeometry *geometry, CSolver **solver_container, CNu
     flux[1]+=sign*residual[0]; flux[2]+=sign*residual[3];
     flux[3]+=sign*(x*residual[2]-y*residual[1]);
     flux[4]+=sign*(x*residual[1]+y*residual[2])/radius; flux[5]+=sign*residual[4];
+    if (mixingImplicit) {
+      auto& jac = MixingJacobian[val_marker][iSpan][iVertex];
+      jac.point = iPoint; jac.x = SU2_TYPE::GetValue(x); jac.y = SU2_TYPE::GetValue(y);
+      for (auto column=0u; column<5; ++column) {
+        MixingMeanFlux::Flux cartesian;
+        for (auto row=0u; row<5; ++row) cartesian[row] = SU2_TYPE::GetValue(residual.jacobian_i[row][column]);
+        const auto cylindrical = MixingMeanFlux::Cylindrical(cartesian, jac.x, jac.y);
+        for (auto row=0u; row<5; ++row) jac.value[5*row+column] += sign*cylindrical[row];
+      }
+    }
   };
 
   /*--- Compute coeff for under relaxation of Avg and Fourier Coefficient for hub and shroud---*/

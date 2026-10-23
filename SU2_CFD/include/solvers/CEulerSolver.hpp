@@ -31,6 +31,7 @@
 #include "../variables/CEulerVariable.hpp"
 #include "../output/CTurboOutput.hpp"
 #include "WallStudyDiagnostics.hpp"
+#include "MixingMeanFlux.hpp"
 
 /*!
  * \class CEulerSolver
@@ -46,6 +47,13 @@ protected:
     return value && std::string(value) == "1";
   }();
   vector<su2activematrix> MixingRawFlux, MixingCommonFlux;
+  const bool mixingImplicit = [] {
+    const auto* value = std::getenv("SU2_MIXING_IMPLICIT");
+    return value && std::string(value) == "1";
+  }();
+  vector<vector<vector<MixingMeanFlux::VertexJacobian>>> MixingJacobian;
+  CSysVector<su2double> mixingDirection, mixingProduct;
+
   su2activematrix PhysicalResidual;  /*!< Last finest-grid assembly, before FAS/time updates. */
   using BaseClass = CFVMFlowSolverBase<CEulerVariable, ENUM_REGIME::COMPRESSIBLE>;
 
@@ -362,6 +370,10 @@ public:
     if (flux) for (auto var=0u;var<5;++var) MixingCommonFlux[marker](span,var+1)=flux[var];
   }
   void ApplyMixingConservation(CGeometry* geometry, const CConfig* config) override;
+  void ApplyMixingJacobian(const CSysVector<su2mixedfloat>& direction, CSysVector<su2mixedfloat>& product,
+                           CGeometry* geometry, const CConfig* config);
+  unsigned long SolveLinearSystem(CGeometry* geometry, const CConfig* config) override;
+
   su2double GetPhysicalResidual(unsigned long point, unsigned short var) const override {
     return PhysicalResidual.empty() ? su2double(0) : PhysicalResidual(point, var);
   }

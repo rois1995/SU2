@@ -7,6 +7,25 @@
 
 namespace MixingMeanFlux {
 using Flux = std::array<double, 5>; // mass, axial momentum, axial torque, radial momentum, total energy
+/* Frozen geometry: the same linear change of basis applies to fluxes and their directions. */
+inline Flux Cylindrical(const Flux& cartesian, double x, double y) {
+  const double r = std::hypot(x, y);
+  if (!(r > 0) || !std::isfinite(r)) throw std::runtime_error("Invalid axial mixing radius");
+  return {{cartesian[0], cartesian[3], x*cartesian[2]-y*cartesian[1],
+           (x*cartesian[1]+y*cartesian[2])/r, cartesian[4]}};
+}
+struct VertexJacobian {
+  unsigned long point = 0;
+  double x = 0, y = 0, weight = 0;
+  bool fixedMomentum = false;
+  std::array<double, 25> value{}; // Cylindrical numerical flux rows, Cartesian conservative-state columns.
+  Flux Apply(const double* direction) const {
+    Flux result{};
+    for (size_t i=0; i<5; ++i) for (size_t j=0; j<5; ++j) result[i] += value[5*i+j]*direction[j];
+    return result;
+  }
+};
+
 inline std::vector<double> Edges(const std::vector<double>& radii) {
   if (radii.size() < 2 || !std::isfinite(radii.front()) || radii.front() < 0) throw std::runtime_error("Conservative axial mixing requires at least two radial planes");
   std::vector<double> edge(radii.size()+1);

@@ -456,7 +456,7 @@ class CSysSolve {
    * \param[in] config - Definition of the particular problem.
    */
   unsigned long Solve(MatrixType& Jacobian, const CSysVector<su2double>& LinSysRes, CSysVector<su2double>& LinSysSol,
-                      CGeometry* geometry, const CConfig* config);
+                      CGeometry* geometry, const CConfig* config, const ProductType* product = nullptr);
 
   /*!
    * \brief Solve the adjoint linear system using a Krylov subspace method

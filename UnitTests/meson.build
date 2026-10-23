@@ -21,6 +21,7 @@ su2_cfd_tests = files(['Common/CConfig_tests.cpp',
                        'SU2_CFD/gradients.cpp',
                        'SU2_CFD/periodic_limiters.cpp',
                        'SU2_CFD/wall_function_communication.cpp',
+                       'SU2_CFD/periodic_operator.cpp',
                        'SU2_CFD/solvers/CNEMOEulerSolver_tests.cpp',
                        'SU2_CFD/nemo_viscous_assembly.cpp',
                        'SU2_CFD/windowing.cpp',
@@ -58,6 +59,12 @@ if get_option('enable-tests')
           dependencies: su2_deps, cpp_args: su2_cpp_args)
       test('Wall-function model roots', wall_model_test)
     endif
+    mixing_flux_test = executable('mixing_mean_flux_test', 'SU2_CFD/mixing_mean_flux_test.cpp',
+        dependencies: su2_deps, cpp_args: su2_cpp_args + ['-UNDEBUG'])
+    test('Mixing mean flux conservation', mixing_flux_test)
+    mixing_jacobian_test = executable('mixing_mean_jacobian_test', 'SU2_CFD/mixing_mean_jacobian_test.cpp',
+        dependencies: su2_deps, cpp_args: su2_cpp_args + ['-UNDEBUG'])
+    test('Mixing mean flux Jacobian', mixing_jacobian_test)
     test('NEMO convergence field migration', python,
          args: files('SU2_CFD/output/check_nemo_convergence_migration.py') + [test_driver.full_path()],
          timeout: 300)

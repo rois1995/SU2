@@ -213,6 +213,8 @@ void CSolver::GetPeriodicCommCountAndType(const CConfig* config,
       COUNT_PER_POINT  = nVar + nVar*nVar + 1;
       MPI_TYPE         = COMM_TYPE::DOUBLE;
       break;
+    case PERIODIC_OPERATOR_SUM:
+    case PERIODIC_OPERATOR_DIRECTION:
     case PERIODIC_IMPLICIT:
       COUNT_PER_POINT  = nVar;
       MPI_TYPE         = COMM_TYPE::DOUBLE;
@@ -583,6 +585,14 @@ void CSolver::InitiatePeriodicComms(CGeometry *geometry,
 
             bufSSend[buf_offset] = nNeighbor;
 
+            break;
+
+          case PERIODIC_OPERATOR_SUM:
+          case PERIODIC_OPERATOR_DIRECTION:
+            for (iVar=0; iVar<nVar; ++iVar)
+              bufDSend[buf_offset+iVar] = (*periodicOperatorVector)(iPoint,iVar);
+            if (rotate_periodic)
+              Rotate(zeros, &(*periodicOperatorVector)(iPoint,1), &bufDSend[buf_offset+1]);
             break;
 
           case PERIODIC_RESIDUAL:
@@ -1237,6 +1247,18 @@ void CSolver::CompletePeriodicComms(CGeometry *geometry,
 
               break;
 
+            case PERIODIC_OPERATOR_SUM:
+              periodicOperatorVector->AddBlock(iPoint, &bufDRecv[buf_offset]);
+              if (iPeriodic == val_periodic_index + nPeriodic/2)
+                periodicOperatorVector->SetBlock_Zero(iPoint);
+              break;
+
+            case PERIODIC_OPERATOR_DIRECTION:
+              if (iPeriodic == val_periodic_index + nPeriodic/2)
+                for (iVar=0; iVar<nVar; ++iVar)
+                  (*periodicOperatorVector)(iPoint,iVar) = bufDRecv[buf_offset+iVar];
+              break;
+
             case PERIODIC_RESIDUAL:
 
               /*--- Add contributions to total residual. ---*/
@@ -1453,6 +1475,17 @@ void CSolver::CompletePeriodicComms(CGeometry *geometry,
       delete [] Jacobian_i[iVar];
   delete [] Jacobian_i;
 
+}
+
+void CSolver::CommunicatePeriodicOperator(CGeometry* geometry, const CConfig* config,
+    CSysVector<su2double>& vector, bool sum) {
+  periodicOperatorVector = &vector;
+  const auto quantity = sum ? PERIODIC_OPERATOR_SUM : PERIODIC_OPERATOR_DIRECTION;
+  for (unsigned short pair=1; pair<=config->GetnMarker_Periodic()/2; ++pair) {
+    InitiatePeriodicComms(geometry, config, pair, quantity);
+    CompletePeriodicComms(geometry, config, pair, quantity);
+  }
+  periodicOperatorVector = nullptr;
 }
 
 void CSolver::GetCommCountAndType(const CConfig* config,

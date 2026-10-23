@@ -629,7 +629,7 @@ void CFVMFlowSolverBase<V, R>::ImplicitEuler_Iteration(CGeometry *geometry, CSol
   }
   END_SU2_OMP_FOR
 
-  auto iter = System.Solve(Jacobian, LinSysRes, LinSysSol, geometry, config);
+  auto iter = SolveLinearSystem(geometry, config);
 
   BEGIN_SU2_OMP_SAFE_GLOBAL_ACCESS {
     SetIterLinSolver(iter);

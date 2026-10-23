@@ -70,6 +70,7 @@ using namespace std;
 
 class CSolver {
 protected:
+  CSysVector<su2double>* periodicOperatorVector = nullptr;
   enum : size_t {OMP_MIN_SIZE = 32}; /*!< \brief Chunk size for small loops. */
 
   int rank,       /*!< \brief MPI Rank. */
@@ -201,6 +202,12 @@ public:
   virtual const su2double* GetMixingNumericalFlux(unsigned short, unsigned short) const { return nullptr; }
   virtual void SetConservativeMixingFlux(unsigned short, unsigned short, const double*) {}
   virtual void ApplyMixingConservation(CGeometry*, const CConfig*) {}
+  void CommunicatePeriodicOperator(CGeometry* geometry, const CConfig* config,
+                                   CSysVector<su2double>& vector, bool sum);
+  virtual unsigned long SolveLinearSystem(CGeometry* geometry, const CConfig* config) {
+    return System.Solve(Jacobian, LinSysRes, LinSysSol, geometry, config);
+  }
+
   virtual su2double GetPhysicalResidual(unsigned long point, unsigned short var) const {
     return LinSysRes(point, var);
   }

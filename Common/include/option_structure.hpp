@@ -2844,6 +2844,8 @@ enum PERIODIC_QUANTITIES {
   PERIODIC_NONE       ,  /*!< \brief No periodic communication required. */
   PERIODIC_VOLUME     ,  /*!< \brief Volume communication for summing total CV (periodic only). */
   PERIODIC_NEIGHBORS  ,  /*!< \brief Communication of the number of neighbors for centered schemes (periodic only). */
+  PERIODIC_OPERATOR_SUM, /*!< Sum and rotate a matrix-free boundary product; zero passive rows. */
+  PERIODIC_OPERATOR_DIRECTION, /*!< Copy and rotate master directions to passive periodic nodes. */
   PERIODIC_RESIDUAL   ,  /*!< \brief Residual and Jacobian communication (periodic only). */
   PERIODIC_LAPLACIAN  ,  /*!< \brief Undivided Laplacian communication for JST (periodic only). */
   PERIODIC_MAX_EIG    ,  /*!< \brief Maximum eigenvalue communication (periodic only). */
