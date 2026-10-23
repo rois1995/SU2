@@ -1,0 +1,499 @@
+{
+ "annulus": {
+  "W": "unmeasurable wall edges: 1",
+  "W_counts": {
+   "splits": 7,
+   "unmeasurable": 1,
+   "strip_splits": 0,
+   "strip_faces": 0,
+   "strip_cells_across_min": -1
+  },
+  "R1w": {
+   "ridges": 0,
+   "inserted": 0,
+   "present": 0
+  },
+  "R1w_reasons": {},
+  "R2_rowed/unrowed": [
+   6,
+   6
+  ],
+  "R2_ridge_lifts": 0,
+  "R2_fan_cells_now": 0,
+  "R2_gap_cells": 0,
+  "R2_fan_check_failures": {},
+  "R2_witness_classes": {
+   "partial-state": 2,
+   "sector": 4
+  },
+  "R2_ridge_transactions_ok/refused": [
+   0,
+   0
+  ],
+  "R2_trace_classes": {
+   "": 7,
+   "clearance": 2,
+   "partial-state": 6,
+   "sector-link": 1,
+   "sector": 4
+  },
+  "first_q/J_at_admission": [
+   0.745029021544,
+   0.510638602411
+  ],
+  "after_R_bad(first/column/outside)": [
+   20,
+   0,
+   11,
+   9
+  ],
+  "V": [
+   "blocked",
+   299,
+   8.5,
+   4
+  ],
+  "final_cells": 242,
+  "final_bad(first/column/outside)": [
+   21,
+   0,
+   9,
+   12
+  ],
+  "final_fan": {
+   "cells": 0,
+   "bad": 0
+  },
+  "final_long": 45,
+  "final_long_by_class": {
+   "wall": 1,
+   "seam": 0,
+   "other_physical": 18,
+   "interior": 26,
+   "inside_columns_only": 4
+  },
+  "final_height_failures": 0,
+  "final_q_min": 0.0582834897,
+  "complete": 0,
+  "reaudit_agrees": 1,
+  "total_seconds": 9.1,
+  "peak_rss_kB": 32228,
+  "wall_distance_evaluations": 0
+ },
+ "m6_le": {
+  "W": "complete",
+  "W_counts": {
+   "splits": 0,
+   "unmeasurable": 0,
+   "strip_splits": 0,
+   "strip_faces": 0,
+   "strip_cells_across_min": -1
+  },
+  "R1w": {
+   "ridges": 0,
+   "inserted": 0,
+   "present": 0
+  },
+  "R1w_reasons": {},
+  "R2_rowed/unrowed": [
+   136,
+   0
+  ],
+  "R2_ridge_lifts": 0,
+  "R2_fan_cells_now": 0,
+  "R2_gap_cells": 0,
+  "R2_fan_check_failures": {},
+  "R2_witness_classes": {},
+  "R2_ridge_transactions_ok/refused": [
+   0,
+   0
+  ],
+  "R2_trace_classes": {
+   "": 87
+  },
+  "first_q/J_at_admission": [
+   0.799385308204,
+   0.569241303796
+  ],
+  "after_R_bad(first/column/outside)": [
+   378,
+   2,
+   120,
+   256
+  ],
+  "V": [
+   "limit",
+   6761,
+   120.1,
+   5
+  ],
+  "final_cells": 2959,
+  "final_bad(first/column/outside)": [
+   388,
+   2,
+   70,
+   316
+  ],
+  "final_fan": {
+   "cells": 0,
+   "bad": 0
+  },
+  "final_long": 688,
+  "final_long_by_class": {
+   "wall": 0,
+   "seam": 0,
+   "other_physical": 131,
+   "interior": 557,
+   "inside_columns_only": 36
+  },
+  "final_height_failures": 2,
+  "final_q_min": 0.007611778818,
+  "complete": 0,
+  "reaudit_agrees": 1,
+  "total_seconds": 130.5,
+  "peak_rss_kB": 163032,
+  "wall_distance_evaluations": 0
+ },
+ "m6_root_te": {
+  "W": "complete",
+  "W_counts": {
+   "splits": 0,
+   "unmeasurable": 0,
+   "strip_splits": 0,
+   "strip_faces": 48,
+   "strip_cells_across_min": 3.99978498822
+  },
+  "R1w": {
+   "ridges": 13,
+   "inserted": 0,
+   "present": 0
+  },
+  "R1w_reasons": {
+   "no strict excess decrease": 33,
+   "visible: physical face blocks": 6
+  },
+  "R2_rowed/unrowed": [
+   95,
+   41
+  ],
+  "R2_ridge_lifts": 0,
+  "R2_fan_cells_now": 0,
+  "R2_gap_cells": 0,
+  "R2_fan_check_failures": {
+   "fan: metric edge > 1.8": 8,
+   "fan: metric q/J below the floor": 8
+  },
+  "R2_witness_classes": {
+   "excess": 16,
+   "fan": 8,
+   "topology": 2
+  },
+  "R2_ridge_transactions_ok/refused": [
+   0,
+   26
+  ],
+  "R2_trace_classes": {
+   "": 76,
+   "excess": 16,
+   "fan": 8,
+   "topology": 2
+  },
+  "first_q/J_at_admission": [
+   0.769178697071,
+   0.507197710039
+  ],
+  "after_R_bad(first/column/outside)": [
+   326,
+   4,
+   132,
+   190
+  ],
+  "V": [
+   "limit",
+   2442,
+   120.1,
+   1
+  ],
+  "final_cells": 3895,
+  "final_bad(first/column/outside)": [
+   299,
+   4,
+   67,
+   228
+  ],
+  "final_fan": {
+   "cells": 0,
+   "bad": 0
+  },
+  "final_long": 1285,
+  "final_long_by_class": {
+   "wall": 0,
+   "seam": 0,
+   "other_physical": 218,
+   "interior": 1067,
+   "inside_columns_only": 32
+  },
+  "final_height_failures": 4,
+  "final_q_min": 0.070023039,
+  "complete": 0,
+  "reaudit_agrees": 1,
+  "total_seconds": 177.8,
+  "peak_rss_kB": 163852,
+  "wall_distance_evaluations": 4065199
+ },
+ "m6_tip_te": {
+  "W": "complete",
+  "W_counts": {
+   "splits": 0,
+   "unmeasurable": 0,
+   "strip_splits": 0,
+   "strip_faces": 32,
+   "strip_cells_across_min": 3.99982247478
+  },
+  "R1w": {
+   "ridges": 13,
+   "inserted": 0,
+   "present": 0
+  },
+  "R1w_reasons": {
+   "no strict excess decrease": 39
+  },
+  "R2_rowed/unrowed": [
+   83,
+   48
+  ],
+  "R2_ridge_lifts": 0,
+  "R2_fan_cells_now": 0,
+  "R2_gap_cells": 0,
+  "R2_fan_check_failures": {
+   "fan: metric edge > 1.8": 24,
+   "fan: metric q/J below the floor": 40
+  },
+  "R2_witness_classes": {
+   "excess": 8,
+   "fan": 18
+  },
+  "R2_ridge_transactions_ok/refused": [
+   0,
+   26
+  ],
+  "R2_trace_classes": {
+   "": 64,
+   "fan": 18,
+   "excess": 8
+  },
+  "first_q/J_at_admission": [
+   0.725346705361,
+   0.517484499619
+  ],
+  "after_R_bad(first/column/outside)": [
+   315,
+   6,
+   133,
+   176
+  ],
+  "V": [
+   "limit",
+   1426,
+   120.1,
+   0
+  ],
+  "final_cells": 3857,
+  "final_bad(first/column/outside)": [
+   319,
+   6,
+   133,
+   180
+  ],
+  "final_fan": {
+   "cells": 0,
+   "bad": 0
+  },
+  "final_long": 1807,
+  "final_long_by_class": {
+   "wall": 0,
+   "seam": 0,
+   "other_physical": 255,
+   "interior": 1552,
+   "inside_columns_only": 53
+  },
+  "final_height_failures": 6,
+  "final_q_min": 0.03321146645,
+  "complete": 0,
+  "reaudit_agrees": 1,
+  "total_seconds": 202.5,
+  "peak_rss_kB": 162260,
+  "wall_distance_evaluations": 3809367
+ },
+ "tube_root_x": {
+  "W": "complete",
+  "W_counts": {
+   "splits": 0,
+   "unmeasurable": 0,
+   "strip_splits": 68,
+   "strip_faces": 170,
+   "strip_cells_across_min": 4
+  },
+  "R1w": {
+   "ridges": 20,
+   "inserted": 0,
+   "present": 0
+  },
+  "R1w_reasons": {
+   "no strict excess decrease": 36,
+   "visible: physical face blocks": 24
+  },
+  "R2_rowed/unrowed": [
+   92,
+   96
+  ],
+  "R2_ridge_lifts": 0,
+  "R2_fan_cells_now": 0,
+  "R2_gap_cells": 0,
+  "R2_fan_check_failures": {
+   "fan: metric edge > 1.8": 84,
+   "fan: metric q/J below the floor": 20
+  },
+  "R2_witness_classes": {
+   "cap": 6,
+   "fan": 34
+  },
+  "R2_ridge_transactions_ok/refused": [
+   0,
+   34
+  ],
+  "R2_trace_classes": {
+   "": 88,
+   "fan": 34,
+   "cap": 6
+  },
+  "first_q/J_at_admission": [
+   0.445386181105,
+   0.207811766957
+  ],
+  "after_R_bad(first/column/outside)": [
+   278,
+   0,
+   215,
+   63
+  ],
+  "V": [
+   "blocked",
+   2177,
+   78.5,
+   4
+  ],
+  "final_cells": 7898,
+  "final_bad(first/column/outside)": [
+   173,
+   0,
+   160,
+   13
+  ],
+  "final_fan": {
+   "cells": 0,
+   "bad": 0
+  },
+  "final_long": 377,
+  "final_long_by_class": {
+   "wall": 0,
+   "seam": 0,
+   "other_physical": 49,
+   "interior": 328,
+   "inside_columns_only": 30
+  },
+  "final_height_failures": 0,
+  "final_q_min": 0.09187011439,
+  "complete": 0,
+  "reaudit_agrees": 1,
+  "total_seconds": 121.7,
+  "peak_rss_kB": 45072,
+  "wall_distance_evaluations": 3218582
+ },
+ "two_tube_y": {
+  "W": "complete",
+  "W_counts": {
+   "splits": 0,
+   "unmeasurable": 0,
+   "strip_splits": 108,
+   "strip_faces": 308,
+   "strip_cells_across_min": 4
+  },
+  "R1w": {
+   "ridges": 40,
+   "inserted": 0,
+   "present": 0
+  },
+  "R1w_reasons": {
+   "no strict excess decrease": 72,
+   "visible: physical face blocks": 48
+  },
+  "R2_rowed/unrowed": [
+   144,
+   176
+  ],
+  "R2_ridge_lifts": 0,
+  "R2_fan_cells_now": 0,
+  "R2_gap_cells": 0,
+  "R2_fan_check_failures": {
+   "fan: metric edge > 1.8": 164,
+   "fan: metric q/J below the floor": 8
+  },
+  "R2_witness_classes": {
+   "cap": 8,
+   "fan": 72
+  },
+  "R2_ridge_transactions_ok/refused": [
+   0,
+   72
+  ],
+  "R2_trace_classes": {
+   "": 147,
+   "clearance": 5,
+   "fan": 72,
+   "cap": 8
+  },
+  "first_q/J_at_admission": [
+   0.48170561665,
+   0.262835090788
+  ],
+  "after_R_bad(first/column/outside)": [
+   522,
+   0,
+   424,
+   98
+  ],
+  "V": [
+   "blocked",
+   3429,
+   115.5,
+   6
+  ],
+  "final_cells": 9661,
+  "final_bad(first/column/outside)": [
+   395,
+   0,
+   373,
+   22
+  ],
+  "final_fan": {
+   "cells": 0,
+   "bad": 0
+  },
+  "final_long": 686,
+  "final_long_by_class": {
+   "wall": 0,
+   "seam": 0,
+   "other_physical": 117,
+   "interior": 569,
+   "inside_columns_only": 37
+  },
+  "final_height_failures": 0,
+  "final_q_min": 0.1039998048,
+  "complete": 0,
+  "reaudit_agrees": 1,
+  "total_seconds": 178.2,
+  "peak_rss_kB": 49188,
+  "wall_distance_evaluations": 4592495
+ }
+}

@@ -1,0 +1,37 @@
+Filters: [NativeFirstRowDC10]
+DC10 annulus loaded: cells=24 wall_faces=2 creases=0 strips=0
+DC10 annulus W unmeasurable wall edges: 1 wall_faces=12 splits=7 t=0.0273812
+DC10 annulus R1 complete deficient 1->0 lp_empty=0 t=0.00363096
+DC10 annulus R2 rowed=6 unrowed=6 t=0.16766 last=vertex 9 [sector] vertex 9: sector: no interior link path from seam 13 to junction 18; star: [9 39 10 14 ] [39 9 13 14 ] [43 39 9 13 ] [45 21 9 20 ] [45 39 9 43 ] [45 9 21 43 ] [45 20 9 39 ] [52 43 9 13 ] [54 18 9 21 ] [54 43 9 52 ] [54 9 18 52 ] [54 21 9 43 ] boundary faces: c27(9,14,10) c8(9,10,39
+DC9 V sweep 0 cells=200 long=61 bad=25 work=87 t=2.16016
+DC9 V sweep 1 cells=233 long=47 bad=22 work=185 t=4.83559
+DC9 V sweep 2 cells=233 long=46 bad=21 work=257 t=6.41294
+DC9 V sweep 3 cells=242 long=45 bad=21 work=299 t=7.78523
+DC9 V sweep 4 cells=242 long=45 bad=21 work=299 t=7.78619
+DC10 annulus done in 8.28191 s
+===============================================================================
+All tests passed (5 assertions in 1 test case)
+
+	Command being timed: "nice -n 19 timeout --kill-after=5s 7200s /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/bl_remesh_v1/dc10/bin/test_driver_rev3 [NativeFirstRowDC10] --use-colour no"
+	User time (seconds): 8.00
+	System time (seconds): 0.02
+	Percent of CPU this job got: 92%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:08.65
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 31792
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 2
+	Minor (reclaiming a frame) page faults: 3270
+	Voluntary context switches: 1181
+	Involuntary context switches: 1778
+	Swaps: 0
+	File system inputs: 0
+	File system outputs: 96
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0

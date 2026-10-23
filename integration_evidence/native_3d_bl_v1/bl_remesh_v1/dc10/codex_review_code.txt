@@ -1,0 +1,54 @@
+1. **Blocking — column splitting can abort on a ridge-adjacent face.** [native_first_row_dc10.inc:824](/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/UnitTests/SU2_CFD/adaptation/fixtures/native_first_row_dc10.inc:824)
+
+   `ridgeEdge` checks only the split edge’s endpoints. A rebuilt face `(a,b,r)` can have smooth endpoints `a,b` and a ridge third vertex `r`. The inherited splitter uses `rows.lift[r]`, always the first-side copy, even when that column uses the second-side copy. If the first-side copy is absent from the cavity, `ConeColumn` throws from `nodes.at()` without a surrounding catch.
+
+   **Fix:** refuse the inherited splitter whenever **any vertex of a rebuilt face** has ridge copies, or supply the correct per-face copy mapping.
+
+2. **Blocking — the M6 re-audit reuses the construction’s cached field objects.** [native_first_row_dc10.inc:222](/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/UnitTests/SU2_CFD/adaptation/fixtures/native_first_row_dc10.inc:222), [native_first_row_dc10.inc:1003](/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/UnitTests/SU2_CFD/adaptation/fixtures/native_first_row_dc10.inc:1003)
+
+   `ResetCaches()` clears shape, height and coordinate-length caches; it does not clear `m6cacheA`. Consequently, `load()` creates a new `FrozenField` around the same cached `field.layers` and `field.base`, skipping configuration/reference loading and BL reconstruction. This fails the explicit independent-reload requirement.
+
+   **Fix:** bypass or clear `m6cacheA` before re-audit, and reconstruct both BL objects from the runtime inputs.
+
+3. **Blocking — resume accepts receipts whose re-audit failed or disagreed.** [native_first_row_dc10.inc:940](/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/UnitTests/SU2_CFD/adaptation/fixtures/native_first_row_dc10.inc:940)
+
+   Resume requires matching hash/limits substrings and the presence of `total_seconds`. It never checks `reaudit.agrees_with_cached_final` or validates the JSON structure. A saved receipt reporting disagreement is therefore skipped on every subsequent invocation; even a truncated receipt containing those substrings qualifies.
+
+   **Fix:** parse and validate the receipt, require successful independent re-audit agreement, and distinguish retained failed diagnostics from accepted case evidence.
+
+4. **Major — the ray scan can miss the first root and return one beyond another wall.** [native_first_row_dc10.inc:402](/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/UnitTests/SU2_CFD/adaptation/fixtures/native_first_row_dc10.inc:402)
+
+   Consider parallel walls separated by `2.02 h0`, with ray direction satisfying `n·d=.83`. The feasible interval where wall distance reaches `h0` is approximately `λ/h0 ∈ [1.20482,1.22892]`. The `.25 h0` scan misses it. It subsequently brackets the exterior root at approximately `3.63855 h0`, after crossing the opposing wall. The post-binding distance check passes there; later cavity checks turn a feasible placement into a refusal.
+
+   **Fix:** locate the first root using wall-distance branches or conservative interval bounds, and stop at the first wall/cavity crossing before bisection.
+
+5. **Major — the angular fade remains discontinuous on a segment’s axial extension.** [native_first_row_dc10.inc:78](/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/UnitTests/SU2_CFD/adaptation/fixtures/native_first_row_dc10.inc:78)
+
+   Beyond a finite crease endpoint, `r` can remain positive while transverse distance `ru` tends to zero. Where the endpoint is the nearest wall point and `r0<r<R_f/2`, approaching along a transverse direction with angular factor zero gives weight zero. Exactly on the axis, the `ru==0` branch inserts the full radial factor, giving weight one. Smoothstep does not remove this finite jump.
+
+   **Fix:** define the angular factor continuously at finite endpoints—for example, measure angular departure using the full endpoint displacement and its polar cone, rather than normalizing an arbitrarily small transverse projection.
+
+6. **Major — an inherited construction option is missing from provenance.** [native_first_row_dc10.inc:938](/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/UnitTests/SU2_CFD/adaptation/fixtures/native_first_row_dc10.inc:938), [run_case.sh:21](/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/bl_remesh_v1/dc10/run_case.sh:21)
+
+   In single-lift mode, DC10 calls DC9’s `PhaseR2`, which reads `SU2_DC9_SECTOR_FIRST` and changes construction order. The runner permits passing this variable, but the resume key omits it. Changing it can therefore reuse evidence from a different construction sequence.
+
+   **Fix:** record its effective value in the key, or explicitly disable that inherited option for DC10.
+
+7. **Major — construction still dispatches directly on `"CUT"`.** [native_first_row_dc10.inc:776](/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/UnitTests/SU2_CFD/adaptation/fixtures/native_first_row_dc10.inc:776), [native_first_row_dc9.inc:112](/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/UnitTests/SU2_CFD/adaptation/fixtures/native_first_row_dc9.inc:112)
+
+   DC10 calls inherited `Rim`/`RimFace`, whose construction decision is a marker-name comparison. Renaming an artificial cut changes which vertices are lifted and which faces count as unrowed; a configured physical boundary named `CUT` is also excluded regardless of its loader role.
+
+   **Fix:** store the artificial-cut role in loader metadata and have construction and row accounting consult that role.
+
+8. **Major — duplicate JSON keys discard sector-gap evidence.** [native_first_row_dc10.inc:986](/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/UnitTests/SU2_CFD/adaptation/fixtures/native_first_row_dc10.inc:986)
+
+   `R2_counts` emits `"gap_cells"` twice: first from `r2.gaps` and then from `r2.gap_cells`. Common parsers retain the latter. In single-lift mode, that latter counter remains zero, so accepted DC9 sector gaps are reported as zero.
+
+   **Fix:** emit distinct sector/ridge gap counters, or one total containing both.
+
+Read-only review: no edits, builds or repository code execution; runtime behavior remains unverified.
+
+blocking findings: 3
+
+Codex session ID: 01a16810-f405-7aa2-b49d-c03ce68b784a
+Resume in Codex: codex resume 01a16810-f405-7aa2-b49d-c03ce68b784a

@@ -1,0 +1,40 @@
+Filters: [NativeFirstRowDC10]
+DC10 two_tube_y loaded: cells=2112 wall_faces=128 creases=32 strips=160
+DC10 two_tube_y W complete wall_faces=320 splits=0 t=0.997881
+DC10 two_tube_y R1w ridges=40 inserted=0 present=0 t=3.69055
+DC10 two_tube_y R1 complete deficient 0->0 lp_empty=0 t=0.00418227
+DC10 two_tube_y R2 rowed=144 unrowed=176 t=8.97346 last=vertex 379 [fan] crease edge 377-379 slot 0: fan: metric q/J below the floor
+DC10 V sweep 0 cells=7602 long=969 bad=414 work=1543 t=55.3326
+DC10 V sweep 1 cells=9381 long=707 bad=395 work=2807 t=93.5418
+DC10 V sweep 2 cells=9557 long=687 bad=395 work=3223 t=106.501
+DC10 V sweep 3 cells=9649 long=686 bad=395 work=3345 t=111.62
+DC10 V sweep 4 cells=9657 long=686 bad=395 work=3400 t=113.945
+DC10 V sweep 5 cells=9661 long=686 bad=395 work=3419 t=114.986
+DC10 V sweep 6 cells=9661 long=686 bad=395 work=3429 t=115.528
+DC10 two_tube_y done in 178.24 s
+===============================================================================
+All tests passed (5 assertions in 1 test case)
+
+	Command being timed: "nice -n 19 timeout --kill-after=5s 7200s /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/bl_remesh_v1/dc10/bin/test_driver_final [NativeFirstRowDC10] --use-colour no"
+	User time (seconds): 171.56
+	System time (seconds): 0.23
+	Percent of CPU this job got: 96%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 2:58.60
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 49188
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 2
+	Minor (reclaiming a frame) page faults: 8002
+	Voluntary context switches: 1163
+	Involuntary context switches: 27940
+	Swaps: 0
+	File system inputs: 0
+	File system outputs: 1920
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0

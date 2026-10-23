@@ -1,0 +1,64 @@
+DC-10 (base 757ee8a54f): option-A wall target, per-side lifts + explicit crease fan. TEST-ONLY harness
+UnitTests/SU2_CFD/adaptation/fixtures/native_first_row_dc10.inc (sha256 449b6dc1...), included from
+CNativeRemesher3D_tests.cpp; no production source change. Binary bin/test_driver_final (sha256 in bin/*.sha256, 92581843...).
+All runs serial, nice 19, OMP 1, MALLOC_ARENA_MAX 2, V 8192 work / 120 s. Gates unchanged and absolute.
+
+TARGET (option A, user decision). M = log-blend of the production BL composition without D1 ("base") and with D1
+("full") by w(x) = max_c S(r_c/(h0/10)) (1 - S(2 r_c/R_f - 1)) A_c F(d/r_c); d = BL wall distance (all walls, exact
+nearest face), F(u) = S((u - cos22.5)/(1 - cos22.5)). w = 0 on every wall, 1 in the convex wedge of a crease
+(production D1 there), continuous (hard switches made edges unmeasurable under the 1e-9 quadrature). Thin-strip rule
+(>= 4 wall cells across a blunt TE base) is a W rule with census (all cases >= 4.00). M6 fixture fix: BL wall
+reference snapped to Y=0 like the cut (|y| <= 1e-10, 24952 vertices); without it the BL normal on Y=0 is rounding
+noise (D1 masked it in DC-9). W plain: no needle strips/stations/level lines; M6 W adds 0 wall faces.
+
+STEP 1 DIAGNOSTIC: option A + DC-9 single-direction lift. diag/ (rev-1 target) and diag2/ (final target, six cases):
+ case        rowed/unrowed  first q  final bad (first/col/out)  long  height  V              DC-9 (bad/long/h)
+ annulus     6/6            .745     21 (0/9/12)                45    0       blocked        21/45/0
+ m6_le       136/0          .799     389 (2/70/317)             688   2       limit 5 sw     386/693/2
+ m6_root_te  136/0          .769     259 (0/26/233)             1414  0       limit 1 sw     8902/5477/596
+ m6_tip_te   112/19         .725     257 (2/76/179)             1848  2       limit 0 sw     10412/7399/301
+ tube_root_x 145/43         .445     67 (0/60/7)                448   0       blocked        962/1426/18
+ two_tube_y  268/52         .482     86 (0/85/1)                732   0       limit 1 sw     1371/2344/3
+ => the h0 needle strips (option B) caused most DC-9 TE failures: with wide wall faces the single bisector shear
+    (~h0 on faces of ~150 h0) is harmless. Unrowed: tip cap 1 + excess 5; tubes cap 8-12, excess 6, clearance 5.
+
+FAN (runs/, per-side copies at wall distance h0 + k=1 fan prisms + gap cells + R1w wedge conditioning):
+ m6_root_te  95/41   bad 299 (4/67/228)  long 1285  h 4   ridge tx 0 accepted / 26 refused (excess 16, fan 8, topology 2)
+ m6_tip_te   83/48   bad 319 (6/133/180) long 1807  h 6   0/26 (excess 8, fan 18)
+ tube_root_x 92/96   bad 173 (0/160/13)  long 377   h 0   0/34 (fan 34: edge>1.8 84, q/J 20; cap 6)
+ two_tube_y  144/176 bad 395 (0/373/22)  long 686   h 0   0/72 (fan 72: edge>1.8 164, q/J 8; cap 8)
+ annulus, m6_le: no crease, identical to the baseline. No case complete; V 600 s not run (no fan improvement).
+ STOPPED after 2 implementation iterations (rev-1 draft, rev-2/3): no ridge transaction was ever admitted, so the fan
+ does not reduce TE bad cells or height failures (it increases them: ridge vertices stay unlifted).
+ Witness 1 (dominant on M6): D.1 LayerConstruct excess certificate, e.g. root v=4579 "added 1038 > removed 591".
+   Copies must lie at wall distance h0 (fan rule) and the slot-band boundaries duplicate the edges from the crease
+   to the coarse wedge link (~150 h0 away, metric length ~13 in the D1 wedge); each duplicate adds ~130 excess.
+ Witness 2: fan cells failing their admission (protected cells): metric edge > 1.8 and q/J floor, mostly the
+   diagonals/crease-parallel edges of h0-high prisms over long crease edges (tubes) and the root crease at Y=0.
+ Witness 3: R1w (Steiner points in the wedge at 2.5 h0) never obtains a strict excess decrease (0 of 258 trials):
+   a cone keeps every old long edge and adds point-to-skin edges; root-plane candidates lie on the carrier.
+ Witness 4: 2 "volume closure" refusals at root (fresh 1.8e-4 above the cavity) - an unresolved tiling defect.
+ Corners (spherical triangulation / mixed gluing) NOT implemented: no case has a crease point of degree >= 3.
+
+WHAT BLOCKS AN ACCEPTED MESH (single-lift baseline): the volume transition V. Remaining long edges are interior
+(1185/1593 on root/tip) and bad cells are outside columns (233/179) plus crease-adjacent columns; V finishes 0-1
+sweeps in 120 s and its refinements near creases are refused mainly by "refine: no strict changed-edge excess
+reduction" and "D floor". The D1 wedge size h0 + ln(1.3) r around a crease cannot be reached from the coarse input
+volume by greedy local steps that must each lower the summed squared excess (a single edge split near the crease
+adds more long point-to-link edges than it removes) - the same certificate that refuses the fan. This is a
+construction-strategy limit (admission potential vs strongly graded target), not a local defect.
+
+REVIEWS. Plan: CREASE_FAN_PLAN.md rev 2 (untracked), Codex reviews 1 (3 blocking) and 2 (2 blocking: unequal-slot
+diagonal -> fixed by the global event order; R1w cannot get strict excess decrease -> confirmed by the runs, reported).
+Code: codex_review_code.txt (3 blocking, 5 major): ColumnSplit with a ridge third vertex (refused + caught), M6
+re-audit reused cached BL objects (cache cleared, objects rebuilt), resume without re-audit agreement (now required),
+ray first-root scan (step .05 h0), angular factor on the axial extension (weighted by (r_perp/r)^2), inherited
+SU2_DC9_SECTOR_FIRST (unset), CUT by name (artificial role from the config sets the rim marker), duplicate JSON key
+(ridge_gap_cells). All fixed before the final campaign. Remaining open: no weight-aware chord cuts.
+Superseded runs (rev-2 prefilter target; rev-3 with cached re-audit): superseded/.
+
+FILES: diag/ diag2/ runs/ (dc10_<case>.json/.log, _final.mesh, summary.json, vtu/), png/{diag,single,fan}_dc10_<case>.png
+(bad cells, fan cells = cell_class 3 in the VTU), run_case.sh (input hashes in the resume key), run_campaign.sh,
+summarize_dc10.py, to_vtu.py, run_validation.sh, validation/ (tests), codex_review_code.txt.
+TESTS (bin/test_driver_final): unit3d 33, unit2d 57, metric 166 test cases pass; mesh3d 100/101 with the same 6
+pre-existing failed assertions (CNativeDistributed3D_tests.cpp:1446/1449/1453); airfoil passes. validation/*.log.
