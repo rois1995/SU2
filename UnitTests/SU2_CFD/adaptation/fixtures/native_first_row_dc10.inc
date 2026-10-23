@@ -246,6 +246,9 @@ std::unique_ptr<State> LoadM6CutA(const std::string& path) {
           if(line.rfind("ADAP_BL_FIRST_HEIGHT",0)==0){const auto l=line.find('('),r=line.rfind(')');if(l==std::string::npos||r==std::string::npos||r<l)throw std::runtime_error("DC13 ADAP_BL_FIRST_HEIGHT format");
             std::stringstream list(line.substr(l+1,r-l-1));std::ostringstream o;o<<std::setprecision(17)<<"ADAP_BL_FIRST_HEIGHT= (";bool first=true;
             for(std::string v;std::getline(list,v,',');){o<<(first?" ":", ")<<ScaledHeight(std::stod(v));first=false;}o<<" )";line=o.str();++replaced;}
+          // the BL budget requires ADAP_BL_PROTECT_DISTANCE >= every first height (CConfig): the protected distance (set to h0
+          // in this configuration) is scaled with the same multiplier
+          else if(line.rfind("ADAP_BL_PROTECT_DISTANCE",0)==0){const auto e=line.find('=');std::ostringstream o;o<<std::setprecision(17)<<"ADAP_BL_PROTECT_DISTANCE= "<<ScaledHeight(std::stod(line.substr(e+1)));line=o.str();}
           out<<line<<"\n";}
         if(replaced!=1)throw std::runtime_error("DC13 ramp: ADAP_BL_FIRST_HEIGHT not found once");cfgText=out.str();}
       if(pass==1){std::istringstream lines(cfgText);std::ostringstream out;size_t replaced=0;

@@ -3585,7 +3585,8 @@ bool OptimizeMetricMesh(Owned& mesh,const RegionMetric& target,Id& next_node,Id&
   return optimizer.Run();
 }
 bool PlaceConeInsertion(const std::vector<Cell>& cavity,Point start,Id node,Id first_cell,const RegionMetric& target,
-                        std::vector<Cell>& fresh,double& score,const Edge* split_edge,double split_ratio,size_t budget) {
+                        std::vector<Cell>& fresh,double& score,const Edge* split_edge,double split_ratio,size_t budget,
+                        Id replaced,const std::function<bool(Point)>& region) {
   fresh.clear();score=-INFINITY;if(cavity.empty())return false;
   std::map<Id,Point> points;for(const auto& c:cavity)for(const auto& v:c.v)points[v.id]=v.p;
   std::map<std::array<double,3>,Tensor> memo;
@@ -3600,11 +3601,12 @@ bool PlaceConeInsertion(const std::vector<Cell>& cavity,Point start,Id node,Id f
     const long double limit=split_ratio*whole;
     admissible=[pa,pb,m,limit](Point x){try{return MetricNorm(x,pa,m)<=limit&&MetricNorm(x,pb,m)<=limit;}catch(const std::exception&){return false;}};
   }
+  if(region){auto split=admissible;admissible=[split,&region](Point x){return (!split||split(x))&&region(x);};}
   const auto pl=PlaceCone(faces,[&](Id v){return points.at(v);},at,start,admissible,budget);
   if(!pl.ok)return false;
   const Node X{node,pl.x};std::set<Id> kept;
   for(size_t i=0;i<faces.size();++i){const auto& f=faces[i];fresh.push_back(Cell{first_cell+i,{X,Node{f[0],points.at(f[0])},Node{f[1],points.at(f[1])},Node{f[2],points.at(f[2])}}});for(Id v:f)kept.insert(v);}
-  if(kept.size()!=points.size()){fresh.clear();return false;}  // a cavity vertex would vanish
+  if(kept.size()+(points.count(replaced)&&!kept.count(replaced)?1:0)!=points.size()){fresh.clear();return false;}  // a cavity vertex would vanish
   double low=INFINITY;
   for(const auto& c:fresh) {
     if(!(Orientation(c.v[0].p,c.v[1].p,c.v[2].p,c.v[3].p)>0)){fresh.clear();return false;}

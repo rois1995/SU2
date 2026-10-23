@@ -59,10 +59,13 @@ bool OptimizeMetricMesh(Owned& mesh, const RegionMetric& target, Id& next_node, 
  * `node` placed by the min-max search of OptimizeMetricMesh from `start`. If split_edge is given (a,b ids in the
  * cavity), the search is restricted to points whose estimated metric lengths to a and to b are <= split_ratio x the
  * estimated length of (a,b). On success `fresh` holds positive cells (ids from first_cell) with every fresh cell valid
- * and `score` their exact minimum score at actual centroids; topology, physical and admission checks are the caller's. */
+ * and `score` their exact minimum score at actual centroids; topology, physical and admission checks are the caller's.
+ * `replaced`: a cavity vertex the new one replaces (a move: it may vanish); `region`: an extra admissible region of the
+ * search (e.g. a first-child height window), a proposal restriction only. */
 bool PlaceConeInsertion(const std::vector<Cell>& cavity, Point start, Id node, Id first_cell, const RegionMetric& target,
                         std::vector<Cell>& fresh, double& score, const Edge* split_edge = nullptr,
-                        double split_ratio = .6, size_t budget = 160);
+                        double split_ratio = .6, size_t budget = 160, Id replaced = UINT64_MAX,
+                        const std::function<bool(Point)>& region = nullptr);
 struct RefineOptimizeReport {
   size_t rounds = 0;
   std::vector<std::string> stops;      // Engine stop per Refine round.
