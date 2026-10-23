@@ -7,6 +7,8 @@
 namespace dc11 {
 using namespace dc10;
 constexpr long double HalfGuard=0.7L;
+// Diagnostics only (V diagnosis, native_v_diag_dc11.inc): called on every D-floor refusal; unset = no effect.
+std::function<void(const std::string&,const std::vector<Id>&,const Patch&,const Patch&,const Decision&)> floorHook;
 struct SweepRow { size_t cells=0,long_edges=0,bad=0,height=0,work=0;double seconds=0; };
 // ---- iteration 2: the 2D SplitPatch cavity growth in 3D (CNativeMesh2D.hpp SplitPatch ~548-628, consider()) ----------
 // A split at p of an interior edge whose children fall under the shape target grows its cavity by face-adjacent
@@ -65,6 +67,7 @@ VStage11 PhaseV11(State& s,Rows10& rows,size_t work,double seconds,size_t maxSwe
   auto attempt=[&](const std::string& op,Kind kind,const std::vector<Id>& ids,const Patch& old,const Patch& fresh)->bool{
     ++g.work;const auto d=Admit8(s,old,fresh,kind);
     if(!d.ok){++g.rejected;++g.reasons[op+" ["+std::to_string(d.category)+"] "+Key(d.reason)];g.last=op+": "+d.reason;
+      if(floorHook&&d.reason.rfind("D floor",0)==0)floorHook(op,ids,old,fresh,d);
       if(d.reason.rfind("D floor",0)==0){  // witness: was the old cavity above the floor (absolute refusal) and how low is the new cell
         const bool abs=d.q_old>=MinimumMeanRatio&&d.J_old>=MinimumScaledJacobian;const double q=d.other_q;
         ++g.floorBuckets[std::string(abs?"old>=floor":"old<floor")+(q<.05?" new q<.05":q<.1?" new q<.10":q<.15?" new q<.15":q<.2?" new q<.20":" new J only")];}

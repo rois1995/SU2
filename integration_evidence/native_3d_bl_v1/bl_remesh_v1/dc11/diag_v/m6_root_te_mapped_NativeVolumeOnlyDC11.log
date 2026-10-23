@@ -1,0 +1,29 @@
+Filters: [NativeVolumeOnlyDC11]
+VOLONLY m6_root_te base valid=0 stop=failure cells=1216 t=77.1533 reason=Retired physical face differs from accepted parameter topology. Last local rejection: feature 2:3728: Native 3D metric shape/sliver failure: q=0.039180347019242237 at cell 341508, J=0.0028806331547409
+VOLONLY m6_root_te final long=798 bad=194 lmax=10.6505 qmin=0.144756
+===============================================================================
+All tests passed (7 assertions in 1 test case)
+
+	Command being timed: "nice -n 19 timeout --kill-after=5s 3600s /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/bl_remesh_v1/dc11/diag_v/test_driver_diag [NativeVolumeOnlyDC11] --use-colour no"
+	User time (seconds): 83.07
+	System time (seconds): 0.06
+	Percent of CPU this job got: 99%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 1:23.55
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 115036
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 2
+	Minor (reclaiming a frame) page faults: 31464
+	Voluntary context switches: 1146
+	Involuntary context switches: 2711
+	Swaps: 0
+	File system inputs: 0
+	File system outputs: 16
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0

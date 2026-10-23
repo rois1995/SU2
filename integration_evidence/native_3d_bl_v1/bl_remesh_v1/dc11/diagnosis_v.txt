@@ -1,0 +1,142 @@
+DC-11 V DIAGNOSIS (2026-10-23; base dbfdb170ee = DC-11 cc0712533b + slice pictures). Diagnosis only: no acceptance or
+strategy change implemented here. Gates unchanged and absolute (edges <= 1.8, q >= .20, J >= .05, first height <= 10%).
+Serial, nice 19, OMP 1, MALLOC_ARENA_MAX 2, one own job at a time (foreign FSI mpirun -n 4 running throughout).
+
+TOOLS (test-only)
+ classify_v.py              location classes of the long edges / bad cells of a dc11_<case>_final.mesh (Q1).
+ diag_v/                    harness diagnostics (fixtures/native_v_diag_dc11.inc; dc11::floorHook, unset = DC-11 unchanged):
+   [NativeVDiagDC11]        DC-11 W -> R1 -> R2(single) -> V(2D rule) on the same inputs; census of every D-floor refusal;
+                            every k-th refused split re-examined read-only (Q4); vdiag_<case>[_interior].jsonl.
+   [NativeVolumeOnlyDC11]   production Refine on the cut INPUT, empty wall_heights (no first-row/height constraint),
+                            D1-free production BL target ("base") (Q3); volonly_<case>_base_split[_plain].json.
+   summarize_vdiag.py, run_diag.sh, runs.log; binaries test_driver_diag sha256 2cc8cd3d.. (root_te all-refusal sample),
+   5eb60f5f.. (interior/tube/le samples), c8d14f0a.. (volume-only, plain reference); binaries are not committed.
+
+Q1  WHERE ARE THE LONG EDGES AND BAD CELLS (final meshes of runs_single, runs_single_600, diag600_r2)
+ The CUT faces are not frozen: they are refined on their facets (root_te CUT faces 193 input -> 509 final, SYM 186 -> 418).
+ Long edges lying on a cut face: 3-14 % (root_te 147/2142, tip_te 230/3152, le 144/1043; 600 s: 3-4 %); of those, only
+ 52-87 per case lie on a cut-skin crease (an edge of the original coarse skin; split only on the edge). Edges with one
+ endpoint on the cut surface: 18-24 %. Interior (no endpoint on any non-wall surface): 54-76 % on M6. Inside columns 1-5 %.
+ -> The cut fixture does NOT make acceptance impossible by construction (at most the ~2-8 % on cut-skin creases are
+    artificial); it is not the main blocker.
+ Wall distance (exact point-triangle distance to the wall faces, in h0): root_te midpoints median 105 h0 (p10 25, p90 466),
+ tip_te 600 s median 17, le median 1283; bad-cell centroids median 10-28 h0 on root/tip TE, 1120 on le. Tubes: all long
+ edges and bad cells within 10 h0 (thickness 6 h0), 55/59 and 85/85 bad cells are column cells.
+ THE TRANSITION GAP (coordinator hypothesis, confirmed): vertices per wall-distance band, root_te 120 s:
+   0-3 h0: 394 (wall + first-row lid) | 3-25 h0: 3 | 25-50: 37 | 50-100: 194 | 100-200: 166 | 200-800: 447
+   root_te 600 s (diag600_r2): 3-6: 19, 6-12: 30, 12-25: 80 (cells x4, still almost empty);  m6_le 120 s: 3-800 h0: 10
+   vertices in total, everything else beyond 800 h0;  tip_te 600 s: 3-6: 72, 6-12: 253, 12-25: 685 (partly filled).
+ Long edges whose LOWER endpoint is a wall/lid vertex (d < 3 h0): root_te 921/2142 (43 %), diag600 1219/2400 (51 %),
+ tip_te 600 s 1591/4042 (39 %), m6_le 1013/1043 (97 %; their upper ends at median 2600 h0). With h0 = 2e-6, growth 1.2,
+ ADAP_BL_THICKNESS 0.01 (= 5000 h0, the whole cut is inside the BL), the target needs ln(1+0.2 d/h0)/ln 1.2 layers up to
+ height d: 17 layers to 100 h0, 29 to 1000 h0. The mesh has the h0 row and then cells 10 to hundreds of h0 tall
+ (png_readable/single_m6_root_te.png panel C). The missing growth layers are the dominant remaining defect on M6.
+
+Q2  OPERATORS
+ Production (CNativeEngine3D/CNativeBoundary3D/CNativeCavity3D): Refine = exact on-edge split, certified edge-cavity
+ insertion (InsertEdgeCavity), wall refit/PlaceSplitPatch, ReconstructHeightStar, repair fallback; Coarsen = CollapseVertex
+ (directed vertex-star contraction); Repair = Reconnect (face 2->3, edge 3->2 / 4->4 to an existing apex), MoveVertex,
+ RepairMetricConnectivity (bounded 2/3/4-tet flips, interior vertex removal, metric-gradient vertex movement inside a
+ FIXED cavity skin, <= 128 cells, loss sum max(0,1-q/.2)^2+max(0,1-J/.05)^2). Missing: general edge removal (shell n > 4
+ -> 2n-4), a mesh-wide quality pass whose steps may leave cells below the gate, sliver collapse as an optimization step,
+ any layer/sheet operator (insert a whole layer of points at one metric height over a wall patch).
+ Every production metric change calls Shape(measured): ALL fresh cells must already satisfy q >= .20, J >= .05 (absolute,
+ for Refine, Coarsen and Repair alike). The harness Admit8 uses min(old cavity min, .20/.05).
+ Harness V (PhaseV11): per long edge SplitEdge / InsertEdgeCavity / wall variants, each also tried with
+ RepairMetricConnectivity on its own fresh cavity (skin fixed = old edge star); per bad cell RepairMetricConnectivity on
+ its vertex-star union; ApexMove / ColumnSplit in columns. No collapse, no flips across the cavity skin, no smoothing pass.
+ Accepted (120 s): root_te SplitEdge 250, InsertEdgeCavity 231, +repair 223, ColumnSplit 2, bad-cell repair 0 (the first
+ sweep never reached it); m6_le 731 accepted / 6764 refused (repair 144); diag600 root_te 3322 accepted (repair 164) vs
+ 14537 refused. In 120 s V completes 1 sweep on root/tip TE.
+ Literature: Loseille-Lohner 2009 (Prove/Papers) insert on an edge if every new tet has POSITIVE VOLUME, then a relaxed
+ quality tolerance (new worst <= qr x old worst with qr > 1, lowered to 1 over the passes, plus a global qa) "to get out
+ of local minima"; they name exactly our failure: one-edge-at-a-time refinement in a strongly anisotropic field leaves the
+ orthogonal sizes worse and "edges acting as a barrier". Swaps and point smoothing follow. MMG3D: split/collapse/swap/move
+ interleaved, splits checked essentially for validity, quality restored by later swaps/moves. Marcum 2014 (AFLR):
+ point generation then local reconnection to convergence each pass, smoothing at the end. Loseille 2014: cavity insertion
+ with cavity enlargement (Alg. 1) and a height check against slivers. None applies an absolute per-operation gate.
+
+Q3  PRODUCTION Refine ON THE CUT INPUT, NO FIRST-HEIGHT CONSTRAINT, D1-FREE BL TARGET (SplitInsertion, 600 s limit)
+ (with the harness mapped-parameter overlay both cases stop at once with "Retired physical face differs from accepted
+ parameter topology" = setup incompatibility of that overlay with production commits, not a production verdict; rerun
+ with the plain facet-local PlanarReference of the cut facets, SU2_DC11_VO_PLAIN=1:)
+ tube_root_x: COMPLETE in 6 s: 1824 -> 5974 cells, long 0, bad 0, lmax 1.796, q_min .202.
+ m6_root_te: FAILS: 387 s, 3354 metric trials, 3297 refused by the absolute shape gate (98 %), 1799 geometry refusals,
+   8 accepted (6 insertions, 2 reconnections), stop = failure "exact-facet resolution conflict on crease edge ...
+   interval without an interior binary64 point has metric length 2.89 > 1.8". 1226 cells, long 800, bad 194 (the input
+   cut already has 194 bad cells and 798 long edges in this target).
+ -> Tubes: the volume target alone is reachable by the existing operators; their V failure is BL interaction (columns,
+    33/52 unrowed faces, column cells). M6: the volume transition itself is NOT reachable by per-operation-gated local
+    operators, with or without the first row. "Volume remeshing cannot meet 1.8 here" is true for M6 under any
+    per-operation shape gate (absolute in production, relative in the harness).
+
+Q4  ARE THE FLOOR REFUSALS ONLY TEMPORARILY BAD?
+ (a) Census of every D-floor refusal in V (2D rule; Admit8 checks height and measurement BEFORE the floor, and a size
+     insertion has no later condition, so these are refused by the q/J floor alone):
+       case (V s)            refusals  positive q,J  q>=.10&J>=.05  q>=.05&J>=.02  old cavity >= gates
+       root_te (180)           1874       1874 (100%)      66 (3.5%)     940 (50%)       499
+       root_te (240, 2nd run)  3513       3513 (100%)     102 (2.9%)    1789 (51%)      1024
+       tube_root_x (120)        680        680 (100%)      30 (4.4%)     593 (87%)       671
+       m6_le (120)             7279       7279 (100%)     103 (1.4%)    3066 (42%)       791
+     All are valid (positive volume, geometry, height) and would be accepted without the floor; but the fresh cells are
+     far below the gates: on M6 median fresh q .01-.05, J .0003-.005 (slivers / needles), tubes q .13, J .024.
+ (b) 20 sampled refusals each, fresh patch + 1 ring (bad-face neighbours / all face neighbours / 2 rings, <= 64 old
+     cells) re-optimized by the existing RepairMetricConnectivity (swaps only; swaps + vertex movement), read-only:
+       sample set                     reach .20/.05   reach min(old ring,.20/.05)   Admit8 accepts compound
+       root_te, first refusals (cut/sym faces)  0/20           4/20                     4/20
+       root_te, interior cavities               2/20          13/20                    13/20
+       tube_root_x                             14/20          15/20                    15/20
+       m6_le, interior cavities                 0/20          11/20                    11/20
+     Median best q/J after optimization: root_te interior .169/.027, m6_le .154/.022, tubes .201/.051 (from .05/.005,
+     .01/.0003, .13/.024). Vertex movement matters (swap-only interior root_te 1/20 relative, with movement 9/20 at 2 rings);
+     larger regions help (2 rings > 1 ring > bad neighbours only). On the tube a local swap/smooth repairs most refusals;
+     on M6 it repairs half back to the old minimum but almost never to the absolute gate, because the old ring itself is
+     already below it (median old ring q .15-.18): the region is metric-misaligned before the split.
+
+CAUSE (summary). V refines a mesh whose only wall-normal resolution is the h0 row, directly under cells 10-1000 h0 tall,
+in a target graded by 1.2 per layer. Each single-edge split of such a cell creates needles/slivers (q ~ .05, J ~ .005)
+because the orthogonal sizes are not touched (Loseille-Lohner's barrier configuration); a per-operation q/J gate refuses
+them (98 % of production metric trials; 67 % of all V work in the 600 s root_te run), and the accepted splits fill the 50-800 h0 range while 3-25 h0 stays
+empty, so the long-edge count plateaus (2163 -> 2400 while cells x4). The cut fixture and the split certificate are
+secondary. Tubes differ: the volume target is reachable (Q3) and local swap/smooth fixes 14/20 refusals; there the first
+row/column interaction (unrowed faces, column cells) is the blocker.
+
+RECOMMENDATION (user decision 2026-10-23: q >= .20 / J >= .05 only as the FINAL acceptance check; intermediate steps need
+validity only; then an optimization pass reaches the final gates). Assessment: necessary and supported by the data
+(100 % of floor refusals are valid; the literature does the same), but NOT sufficient alone on M6: (b) shows local
+swap/smooth after single-edge splits reaches the absolute gate in 0-2/20 M6 samples, and Q1 shows the wall-normal layers
+are missing. The plan therefore needs four connected parts:
+ 1. Generation with validity only: Refine/Coarsen/Repair proposals accepted on positive volume (with a sliver-height
+    lower bound as in Loseille 2014, e.g. J > 1e-3, to keep the optimizer's start finite), geometry/facet authority,
+    first-height and footprint rules, unchanged first-row cells, size criterion (2D split rule); no q/J floor. Production
+    Shape(measured) and Admit8's floor become a final-pass-only check (one RefineAcceptance-like switch, A/B kept).
+ 2. BL growth layers (new operator, the main M6 gap): from the first-row lid, insert points along each lid vertex's
+    BL direction (ApexLP / production column direction) at the metric-unit heights h_k = h0 g^k of the D1-free target
+    until the local volume size is met, as one sheet transaction over a wall patch (all columns of the patch at the same
+    k, coned per column like R2), validity-gated; general (driven by the target and the requested wall height, no case
+    switch). This replaces ~17-29 rounds of single-edge splits that the shape barrier blocks.
+ 3. Optimization pass (mesh-wide, iterated to a fixed point or budget): edge/face swaps 2-3, 3-2, 4-4 and general edge
+    removal n -> 2n-4 (new) across ANY cavity skin; metric smoothing of free interior vertices and of surface vertices on
+    their facets (RepairMetricConnectivity's movement, freed from the per-cavity fixed skin); sliver removal by collapse
+    of the shortest metric edge or vertex removal (CollapseVertex / interior removal); interleaved with split/collapse
+    passes as in MMG/Loseille (qr relaxation lowered to 1 over passes). First-row cells and lid vertices frozen except
+    certified ApexMove; height checked on every step.
+ 4. Final acceptance unchanged: all edges <= 1.8, all q >= .20, J >= .05, first height within 10 %, complete first row.
+ ACCEPTANCE CONDITIONS of the change: (i) m6_root_te, m6_tip_te, m6_le complete under the unchanged final gates in a
+ bounded serial budget, with the 3-25 h0 band populated at the target layer count (+/- 2 layers); (ii) tube_root_x,
+ two_tube_y, annulus complete (needs the existing unrowed-face issue too); (iii) production volume-only Refine (Q3 test)
+ completes on m6_root_te; (iv) no first-row cell or wall height changes outside certified moves (height failures 0);
+ (v) unit3d/unit2d/metric/mesh3d/airfoil unchanged except intended expectations; (vi) the optimizer's non-convergence is
+ reported per region (residual bad/long cells with their distance band), never hidden by relaxed gates.
+ RISKS: (d1) optimization does not converge in strongly anisotropic regions (median old-ring q .15-.18 already; LL09
+ needs gradation + many passes): mitigate with the layer operator (aligned cells first), metric gradation (ADAP_HGRAD
+ 1.3 is configured; whether the composed BL target is gradation-limited is not verified here) and bounded passes with explicit residual reporting; (d2) BL cells damaged: freeze first-row cells,
+ lid vertices and their heights in every generation/optimization step (Shape is no longer the guard; height + footprint
+ + positivity are), allow only certified ApexMove there; (d3) validity-only generation can create near-degenerate slivers
+ that no swap repairs: keep a minimum-J/height floor at 1e-3 (validity, not quality) and run sliver removal first in the
+ optimization; (d4) cost: more cells/work per sweep; bound by work/time and report.
+
+FILES: diagnosis_v.txt (this), classify_v.py, diag_v/{run_diag.sh, summarize_vdiag.py, runs.log, vdiag_*.jsonl,
+volonly_*.json, *_NativeVDiagDC11.log, *_NativeVolumeOnlyDC11.log, failed_tolerance/ (first volume-only attempt without
+the positive surface tolerance: refused at setup), build*.log}; harness UnitTests/SU2_CFD/adaptation/fixtures/
+native_v_diag_dc11.inc + floorHook in native_first_row_dc11.inc (default null, DC-11 behaviour unchanged).

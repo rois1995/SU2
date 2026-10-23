@@ -1,0 +1,52 @@
+Filters: [NativeVDiagDC11]
+VDIAG m6_root_te after R2 cells=2534
+VDIAG m6_root_te sample 1/20
+VDIAG m6_root_te sample 2/20
+VDIAG m6_root_te sample 3/20
+VDIAG m6_root_te sample 4/20
+VDIAG m6_root_te sample 5/20
+VDIAG m6_root_te sample 6/20
+VDIAG m6_root_te sample 7/20
+VDIAG m6_root_te sample 8/20
+VDIAG m6_root_te sample 9/20
+VDIAG m6_root_te sample 10/20
+VDIAG m6_root_te sample 11/20
+VDIAG m6_root_te sample 12/20
+VDIAG m6_root_te sample 13/20
+VDIAG m6_root_te sample 14/20
+DC11 V sweep 0 cells=5720 long=2163 bad=480 work=1400 t=70.1053
+VDIAG m6_root_te sample 15/20
+VDIAG m6_root_te sample 16/20
+VDIAG m6_root_te sample 17/20
+VDIAG m6_root_te sample 18/20
+VDIAG m6_root_te sample 19/20
+VDIAG m6_root_te sample 20/20
+DC11 V sweep 1 cells=10330 long=2290 bad=474 work=4593 t=179.37
+DC11 V sweep 2 cells=11131 long=2608 bad=468 work=6593 t=240.092
+VDIAG m6_root_te V limit floor refusals seen(distinct stars)=58 sampled=20
+===============================================================================
+All tests passed (4 assertions in 1 test case)
+
+	Command being timed: "nice -n 19 timeout --kill-after=5s 3600s /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/bl_remesh_v1/dc11/diag_v/test_driver_diag [NativeVDiagDC11] --use-colour no"
+	User time (seconds): 256.09
+	System time (seconds): 0.09
+	Percent of CPU this job got: 99%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 4:17.91
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 115424
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 2
+	Minor (reclaiming a frame) page faults: 31458
+	Voluntary context switches: 1068
+	Involuntary context switches: 11041
+	Swaps: 0
+	File system inputs: 0
+	File system outputs: 168
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0

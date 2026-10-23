@@ -1,0 +1,54 @@
+Filters: [NativeVDiagDC11]
+VDIAG tube_root_x after R2 cells=3412
+VDIAG tube_root_x sample 1/20
+VDIAG tube_root_x sample 2/20
+VDIAG tube_root_x sample 3/20
+VDIAG tube_root_x sample 4/20
+VDIAG tube_root_x sample 5/20
+DC11 V sweep 0 cells=6542 long=662 bad=60 work=992 t=39.4276
+VDIAG tube_root_x sample 6/20
+VDIAG tube_root_x sample 7/20
+VDIAG tube_root_x sample 8/20
+VDIAG tube_root_x sample 9/20
+VDIAG tube_root_x sample 10/20
+VDIAG tube_root_x sample 11/20
+DC11 V sweep 1 cells=7590 long=624 bad=59 work=1582 t=60.2892
+VDIAG tube_root_x sample 12/20
+VDIAG tube_root_x sample 13/20
+VDIAG tube_root_x sample 14/20
+VDIAG tube_root_x sample 15/20
+VDIAG tube_root_x sample 16/20
+VDIAG tube_root_x sample 17/20
+VDIAG tube_root_x sample 18/20
+VDIAG tube_root_x sample 19/20
+VDIAG tube_root_x sample 20/20
+DC11 V sweep 2 cells=7982 long=603 bad=59 work=2036 t=80.878
+DC11 V sweep 3 cells=8083 long=599 bad=59 work=2337 t=92.5249
+DC11 V sweep 4 cells=8083 long=599 bad=59 work=2418 t=95.5957
+VDIAG tube_root_x V blocked floor refusals seen(distinct stars)=96 sampled=20
+===============================================================================
+All tests passed (4 assertions in 1 test case)
+
+	Command being timed: "nice -n 19 timeout --kill-after=5s 3600s /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/bl_remesh_v1/dc11/diag_v/test_driver_diag [NativeVDiagDC11] --use-colour no"
+	User time (seconds): 104.94
+	System time (seconds): 0.03
+	Percent of CPU this job got: 99%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 1:45.67
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 40856
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 2
+	Minor (reclaiming a frame) page faults: 5850
+	Voluntary context switches: 1044
+	Involuntary context switches: 4984
+	Swaps: 0
+	File system inputs: 0
+	File system outputs: 136
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0
