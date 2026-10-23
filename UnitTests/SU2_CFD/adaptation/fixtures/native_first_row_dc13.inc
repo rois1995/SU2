@@ -92,6 +92,17 @@ ColumnStats ColumnInsert(State& s,Rows10& rows) {
   }
   return st;
 }
+// Witness of the remaining bad cells: per vertex its role W wall, L lid, A apex, C carrier/cut skin, I interior.
+std::string BadWitness(State& s,const Rows10& rows,size_t limit=24) {
+  std::set<Id> wall=WallVertices(s),lids,apices,skin;for(const auto& r:rows.lift)lids.insert(r.second);for(const auto& r:rows.apex)apices.insert(r.second);
+  for(const auto& row:s.mesh)for(unsigned k=0;k<4;++k)if(row.second.physical[k].present&&!s.walls.count(s.reference->Get(row.second.physical[k].facet).marker)){const auto f=CellFaces(row.second.cell);skin.insert(f[k].begin(),f[k].end());}
+  std::vector<std::pair<double,Id>> bad;for(const auto& row:s.mesh){const auto sh=MeshShape(s,row.first);if(Bad(sh))bad.emplace_back(std::min(sh.q/MinimumMeanRatio,sh.J/MinimumScaledJacobian),row.first);}
+  std::sort(bad.begin(),bad.end());std::ostringstream o;o<<"[";
+  for(size_t i=0;i<bad.size()&&i<limit;++i){const auto& c=s.mesh.at(bad[i].second).cell;const auto sh=MeshShape(s,bad[i].second);std::string roles;
+    for(auto n:c.v)roles+=wall.count(n.id)?'W':apices.count(n.id)?'A':lids.count(n.id)?'L':skin.count(n.id)?'C':'I';
+    o<<(i?",":"")<<"[\""<<roles<<"\","<<Fmt(sh.q)<<","<<Fmt(sh.J)<<","<<WallChild(s,bad[i].second)<<"]";}
+  o<<"]";return o.str();
+}
 // Census of the cells of the input that survive unchanged (cell keys) and of the vertices kept/added/removed.
 struct Change { size_t cells_before=0,cells_after=0,cells_unchanged=0,vertices_before=0,vertices_after=0,vertices_kept=0;long double max_kept_displacement=0; };
 Change Compare(const Owned& before,const State& s) {
@@ -331,13 +342,16 @@ VStage13 PhaseV13(State& s,Rows10& rows,Growth& G,size_t work,double seconds,siz
       opt.cache_entries=size_t(1)<<19;
       for(const auto& row:s.mesh)if(WallChild(s,row.first)){opt.frozen_cells.insert(row.first);for(auto n:row.second.cell.v)opt.frozen_vertices.insert(n.id);}
       for(Id id:FanCells(s,rows)){opt.frozen_cells.insert(id);for(auto n:s.mesh.at(id).cell.v)opt.frozen_vertices.insert(n.id);}
-      for(const auto& r:rows.lift)opt.frozen_vertices.insert(r.second);for(const auto& r:rows.copies)for(Id c:r.second.ids)opt.frozen_vertices.insert(c);
+      // DC-13: lids are not frozen (no first child contains a lid); a moved lid is relabelled in rows.lift and G below
+      for(const auto& r:rows.copies)for(Id c:r.second.ids)opt.frozen_vertices.insert(c);
       for(const auto& r:rows.apex)opt.frozen_vertices.insert(r.second);
       const RegionMetric target([&s](Point p){return s.field->Query(p).target;},[&s](Point a,Point b){return GeometryLength(s,a,b);});
       OptimizeReport rep;Id nn=s.next_node,nc=s.next_cell;bool moved=false;
       {Scope sc("V12 OptimizeMetricMesh");try{moved=OptimizeMetricMesh(s.mesh,target,nn,nc,opt,rep);}catch(const std::exception& e){rep.stop=std::string("exception: ")+e.what();}}
       s.next_node=std::max(s.next_node,nn);s.next_cell=std::max(s.next_cell,nc);Index(s);
       for(auto& c:G.current){const auto r=rep.relabel.find(c.second);if(r!=rep.relabel.end())c.second=r->second;}
+      for(auto& l:rows.lift){const auto r=rep.relabel.find(l.second);if(r!=rep.relabel.end())l.second=r->second;}
+      for(auto& c:G.columns){for(Id* x:{&c.lid,&c.top}){const auto r=rep.relabel.find(*x);if(r!=rep.relabel.end())*x=r->second;}}
       g.opt.push_back(rep);changed|=moved;g.optimize_seconds+=Seconds(t);
       log<<"DC12 V optimize sweep "<<g.sweeps<<" bad "<<rep.bad_before<<"->"<<rep.bad_after<<" min "<<rep.minimum_before<<"->"<<rep.minimum_after<<" O1="<<rep.edge_removals
          <<" O2="<<rep.face_swaps<<" O3="<<rep.collapses<<" O4="<<rep.moves<<" stop="<<rep.stop<<" t="<<rep.seconds<<"\n";}
@@ -443,6 +457,7 @@ TEST_CASE("DC-13 sliver-removing build-then-optimize, first-height ramp and halv
         for(size_t i=0;i<top.size()&&i<12;++i){json<<(k2?",":"")<<junction_wp0::Json(top[i].second)<<':'<<top[i].first;k2=true;}json<<"}}";k=true;}}
       json<<"},\"demand_v13\":{\"classes\":\"0 interior, 1 wall, 2 seam, 3 carrier, 4 artificial\"}}";
       {Scope sc("JsonFinal final");json<<",\"final\":"<<JsonFinal(*s,rows);}
+      json<<",\"bad_witness\":"<<BadWitness(*s,rows);
       json<<",\"bands_final\":"<<JsonBands(BandCensus(*s))<<",\"layers_final\":"<<JsonLayers(CountLayers(*s,G,eligible))<<",\"first_row_audit\":"<<JsonAudit(FirstRowAudit(*s,snapshot,certified))
           <<",\"stale_apex_registrations\":"<<StaleRegistrations(*s,rows);
       if(step){const auto c=Compare(input,*s);json<<",\"change\":{\"cells_before\":"<<c.cells_before<<",\"cells_after\":"<<c.cells_after<<",\"cells_unchanged\":"<<c.cells_unchanged
