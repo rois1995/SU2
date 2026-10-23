@@ -53,22 +53,29 @@ HalveStats HalveFirstRow(State& s,Rows10& rows,std::set<Face>& certified) {
 // the wall). Each insertion splits the current bottom column edge (w, m) by production SplitEdge at an exact on-edge
 // point (InsertEdgeCavity when none is representable / for physical carriers the bound point), from the highest
 // interface down; admitted when every fresh cell is valid and no first child changes (topology stays column-aligned).
-struct ColumnStats { size_t columns=0,inserted=0,refused=0;std::map<std::string,size_t> why; };
+struct ColumnStats { size_t columns=0,unlifted=0,inserted=0,refused=0;std::map<std::string,size_t> why; };
 ColumnStats ColumnInsert(State& s,Rows10& rows) {
   Scope scope("DC13 ColumnInsert");ColumnStats st;MapLayers(s);
   auto firstChildOf=[&](const Patch& p){std::map<Face,std::array<Id,4>> out;std::set<Face> walls;for(const auto& sf:p.surface)if(s.walls.count(s.reference->Get(sf.facet).marker))walls.insert(Sorted(sf.v));
     for(const auto& c:p.cells)for(auto f:CellFaces(c))if(walls.count(Sorted(f)))out[Sorted(f)]=CellKey(c);return out;};
-  const auto lifts=rows.lift;
-  for(const auto& r:lifts) {
-    const Id w=r.first,L=r.second;if(Rim(s,w)||!s.vertex_cells.count(L)||!s.vertex_cells.count(w))continue;++st.columns;
-    const V x=Of(NodePoint(s,w)),l=Of(NodePoint(s,L));const V d=Unit(l-x);
-    const auto dir=DirectionAt(s,w);if(dir.normals.empty()){++st.why["no wall normal"];continue;}
-    V nb{};for(const auto& n:dir.normals)nb=nb+n;nb=Unit(nb);const long double dn=Dot(d,nb);if(!(dn>.1L)){++st.why["column too flat"];continue;}
-    // the current bottom column edge: the vertex adjacent to w on the column ray (alignment 1e-6) closest to the wall
-    Id top=UINT64_MAX;long double best=INFINITY;
-    for(Id c:StarOf(s,w))for(auto n:s.mesh.at(c).cell.v){if(n.id==w)continue;const V y=Of(n.p)-x;const auto t=Dot(y,d);if(!(t>0))continue;
-      if(Norm(y-t*d)<=1e-6L*t&&t<best){best=t;top=n.id;}}
-    if(top==UINT64_MAX){++st.why["no column edge at the wall vertex"];continue;}
+  const auto wallSet=WallVertices(s);std::set<Id> apices;for(const auto& r:rows.apex)apices.insert(r.second);
+  for(Id w:wallSet) {
+    if(!s.vertex_cells.count(w))continue;const auto lf=rows.lift.find(w);const bool lifted=lf!=rows.lift.end()&&s.vertex_cells.count(lf->second);
+    if(rows.copies.count(w))continue;  // fan ridges keep their copies
+    const V x=Of(NodePoint(s,w));const auto dir=DirectionAt(s,w);if(dir.normals.empty()){++st.why["no wall normal"];continue;}
+    // column direction: the first-row lift; a vertex without a lift (e.g. on the artificial cut boundary) uses its
+    // constrained lift direction (DirectionAt: in-plane on a carrier) and its nearest-aligned non-wall edge
+    V d;if(lifted)d=Unit(Of(NodePoint(s,lf->second))-x);else if(dir.ok)d=dir.d;else{++st.why["no direction"];continue;}
+    V nb{};for(const auto& n:dir.normals)nb=nb+n;nb=Unit(nb);
+    // the current bottom column edge: for a lifted vertex the adjacent vertex on the column ray (alignment 1e-6)
+    // closest to the wall; otherwise the adjacent non-wall vertex best aligned with d (cos >= .9)
+    Id top=UINT64_MAX;long double best=INFINITY,align=.9L;
+    for(Id c:StarOf(s,w))for(auto n:s.mesh.at(c).cell.v){if(n.id==w||wallSet.count(n.id)||apices.count(n.id))continue;const V y=Of(n.p)-x;const auto t=Dot(y,d);if(!(t>0))continue;
+      if(lifted){if(Norm(y-t*d)<=1e-6L*t&&t<best){best=t;top=n.id;}}
+      else{const auto c2=t/Norm(y);if(c2>align){align=c2;top=n.id;}}}
+    if(top==UINT64_MAX){++st.why[lifted?"no column edge at the wall vertex":"no aligned edge (unlifted)"];continue;}
+    ++st.columns;if(!lifted)++st.unlifted;
+    d=Unit(Of(NodePoint(s,top))-x);const long double dn=Dot(d,nb);if(!(dn>.1L)){++st.why["column too flat"];continue;}
     const long double hL=Dot(Of(NodePoint(s,top))-x,nb),h0=VertexH0(s,w);
     long double g=s.growth;for(const auto& f:PhysicalOf(s,StarOf(s,w),true))if(Has(f.key,w)){const auto it=layerOfMarker.find(f.marker);if(it!=layerOfMarker.end()){g=GrowthOf(s,it->second);break;}}
     std::vector<long double> z;for(long double zk=h0,step=h0;zk<.85L*hL;step*=g,zk+=step)z.push_back(zk);
@@ -437,7 +444,7 @@ TEST_CASE("DC-13 sliver-removing build-then-optimize, first-height ramp and halv
         const auto hv=HalveFirstRow(*s,rows,certified);
         const bool redistribute=!(std::getenv("SU2_DC13_REDISTRIBUTE")&&std::string(std::getenv("SU2_DC13_REDISTRIBUTE"))=="0");
         ColumnStats cs;if(redistribute)cs=ColumnInsert(*s,rows);
-        json<<",\"column_insert\":{\"enabled\":"<<redistribute<<",\"columns\":"<<cs.columns<<",\"inserted\":"<<cs.inserted<<",\"refused\":"<<cs.refused<<",\"why\":{";
+        json<<",\"column_insert\":{\"enabled\":"<<redistribute<<",\"columns\":"<<cs.columns<<",\"unlifted_columns\":"<<cs.unlifted<<",\"inserted\":"<<cs.inserted<<",\"refused\":"<<cs.refused<<",\"why\":{";
         {bool k=false;for(const auto& d:cs.why){json<<(k?",":"")<<junction_wp0::Json(d.first)<<':'<<d.second;k=true;}}json<<"}}";
         std::cout<<"DC13 "<<name<<" step "<<step<<" column insertions="<<cs.inserted<<" refused="<<cs.refused<<std::endl;
         json<<",\"halve\":{\"faces\":"<<hv.faces<<",\"split\":"<<hv.split<<",\"placed\":"<<hv.placed<<",\"already_within\":"<<hv.skipped_low<<",\"refused\":"<<hv.refused<<",\"why\":{";
