@@ -619,3 +619,5 @@ TEST_CASE("Native first-row transactions replay original fields without solver i
 #include "fixtures/native_first_row_dc9.inc"
 
 #include "fixtures/native_first_row_dc10.inc"
+// DC-11 2D split-acceptance rule harness (SPLIT_RULE_PLAN). Test-only.
+#include "fixtures/native_first_row_dc11.inc"

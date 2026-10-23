@@ -484,9 +484,9 @@ R1wStage PhaseR1w(State& s,const Rows10& rows,size_t work,double seconds,std::os
     const V x0=Of(NodePoint(s,v));
     for(const V& d:{sides.d[0],Slerp(sides.d[0],sides.d[1],.5L),sides.d[1]}) {
       if(g.work>=work||Seconds(t0)>=seconds){g.outcome="limit";break;}
-      bool near=false;
+      bool near=false;long double coneShortest=INFINITY;  // DC-11: the split request of this direction
       for(Id id:StarOf(s,v)){for(auto n:s.mesh.at(id).cell.v){if(n.id==v)continue;const V e=Of(n.p)-x0;if(!(Norm(e)>0)||Dot(Unit(e),d)<cone)continue;
-          long double l=INFINITY;try{l=LenAt(s,v,NodePoint(s,v),n.id,n.p);}catch(const std::exception&){}if(l<=MaximumMetricEdge){near=true;break;}}if(near)break;}
+          long double l=INFINITY;try{l=LenAt(s,v,NodePoint(s,v),n.id,n.p);}catch(const std::exception&){}coneShortest=std::min(coneShortest,l);if(l<=MaximumMetricEdge){near=true;break;}}if(near)break;}
       if(near){++g.present;continue;}
       const auto lambda=RayToWallDistance(x0,d,2.5L*s.h0);if(!(lambda>0)){++g.reasons["no ray length at 2.5 h0"];continue;}
       const Point p=Pt(x0+lambda*d);++g.work;
@@ -497,7 +497,10 @@ R1wStage PhaseR1w(State& s,const Rows10& rows,size_t work,double seconds,std::os
         s.reference->ExportParameters(fresh);}catch(const std::exception& e){++g.rejected;++g.reasons[Key(e.what())];continue;}
       if(fresh.cells.size()>MaximumReplacementCells){++g.rejected;++g.reasons["fresh cells exceed 128"];continue;}
       {std::string d2;if(!D2Ok(s,old,fresh,d2)){++g.rejected;++g.reasons["D.2"];continue;}}
-      long double removed=0,added=0;if(!StrictExcessDecrease(s,old,fresh,removed,added)){++g.rejected;++g.reasons["no strict excess decrease"];continue;}
+      if(splitPolicy.rule==1){  // DC-11: the full D.1 Refine admission (height, floors, measurement) with the cone request length
+        splitPolicy.requested=coneShortest;const auto d=Admit8(s,old,fresh,Kind::Refine);splitPolicy.requested=-1;
+        if(!d.ok){++g.rejected;++g.reasons["split rule: "+Key(d.reason)];continue;}}
+      else{long double removed=0,added=0;if(!StrictExcessDecrease(s,old,fresh,removed,added)){++g.rejected;++g.reasons["no strict excess decrease"];continue;}}
       Apply(s,vis.cavity,fresh);++g.accepted;++g.inserted;}
   }
   if(g.outcome.empty())g.outcome="complete";End(s,g,t0);
@@ -756,6 +759,9 @@ Tx10 Transaction10(State& s,const Rows10& rows,const std::set<Id>& V0,bool low) 
     tx.height_error=std::max(tx.height_error,r.maximum_relative_error);
     const auto sh=Shape(s,one.cells.front());if(Bad(sh)){tx.failing.push_back(key);tx.cls="first-child";tx.witness="rowed face first child q="+std::to_string(sh.q);}}
   if(!tx.failing.empty())return tx;
+  if(splitPolicy.rule==1){std::set<Id> rel;for(const auto& k:tx.rebuilt){const auto a=rows.apex.find(k);if(a!=rows.apex.end())rel.insert(a->second);}
+    if(!RemovesVertex(tx.old.cells,out.cells,&rel)){std::string why;if(!MeasurableChanged(s,tx.old,out,why)){tx.cls="measure";tx.witness=why;return tx;}
+      ++splitPolicy.layer_free;tx.fresh=std::move(out);tx.ok=true;return tx;}++splitPolicy.layer_checked;}
   {long double removed=0,added=0;std::string why;if(!SizeCertificate(s,tx.old,out,removed,added,why)){tx.cls="measure";tx.witness=why;return tx;}
    if(!(added<=removed)){tx.cls="excess";std::ostringstream w;w<<"LayerConstruct adds frozen excess: added "<<double(added)<<" > removed "<<double(removed);tx.witness=w.str();return tx;}}
   tx.fresh=std::move(out);tx.ok=true;return tx;

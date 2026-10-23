@@ -447,3 +447,60 @@ TEST_CASE("Metric query planning shares exact reuse and protects bounded campaig
   CHECK_THROWS(MetricEdgeRequests({Single()},reuse,{}));
   CHECK_THROWS(MetricEdgeRequests(std::vector<Cell>(MaximumReplacementCells+1),reuse,identity));
 }
+
+TEST_CASE("Native 3D refine admission follows the 2D split rule under SplitInsertion", "[NativeMetricSplitRule3D]") {
+  struct Restore { RefineAcceptance a=GetRefineAcceptance(); ~Restore(){SetRefineAcceptance(a);} } restore;
+  auto metric=[](std::vector<std::pair<Edge,long double>> rows,double q) {
+    PatchMetric m;m.minimum_mean_ratio=q;m.minimum_scaled_jacobian=q;
+    for(const auto& r:rows){EdgeMeasure e;e.a={double(r.first[0]),0,0};e.b={double(r.first[1]),1,0};e.length=r.second;m.edges.emplace(r.first,e);}
+    return m;};
+  // a long edge (1,2) split at 4; the new edge (3,4) adds more excess than the split edge removes
+  const auto before=metric({{{1,2},3.0L},{{1,3},1.0L},{{2,3},1.0L}},.5);
+  const auto split=metric({{{1,3},1.0L},{{2,3},1.0L},{{1,4},1.5L},{{2,4},1.5L},{{3,4},3.5L}},.5);
+  std::string reason;MetricDiagnosis d;
+  SetRefineAcceptance(RefineAcceptance::StrictExcess);
+  CHECK_FALSE(ValidateMetricChange(1,before,2,split,MetricChange::Refine,reason,&d));
+  SetRefineAcceptance(RefineAcceptance::SplitInsertion);
+  CHECK(ValidateMetricChange(1,before,2,split,MetricChange::Refine,reason,&d));
+  CHECK(d.size_insertion);CHECK_FALSE(d.vertex_removal);CHECK(d.added_excess>d.removed_excess);
+  // no cell-count condition for a size insertion (a refit may keep the tetrahedron count)
+  CHECK(ValidateMetricChange(2,before,2,split,MetricChange::Refine,reason,&d));
+  // strict shape is unchanged
+  auto sliver=split;sliver.minimum_mean_ratio=.1;
+  CHECK_FALSE(ValidateMetricChange(1,before,2,sliver,MetricChange::Refine,reason,&d));
+  // no net vertex gain (absorption/collapse): strict excess decrease is required
+  const auto before4=metric({{{1,2},3.0L},{{1,3},1.0L},{{2,3},1.0L},{{1,4},1.0L},{{3,4},1.0L}},.5);
+  const auto worse=metric({{{1,3},1.0L},{{2,3},1.0L},{{1,5},1.5L},{{2,5},1.5L},{{3,5},3.5L}},.5);
+  const auto better=metric({{{1,3},1.0L},{{2,3},1.0L},{{1,5},1.5L},{{2,5},1.5L},{{3,5},1.5L}},.5);
+  CHECK_FALSE(ValidateMetricChange(2,before4,3,worse,MetricChange::Refine,reason,&d));CHECK(d.vertex_removal);
+  CHECK(ValidateMetricChange(2,before4,3,better,MetricChange::Refine,reason,&d));
+  // non-size insertion (split edge <= 1.6): no added oversized edge and a shape improvement
+  const auto shortBefore=metric({{{1,2},1.5L},{{1,3},1.0L},{{2,3},1.0L}},.4);
+  const auto shortSame=metric({{{1,3},1.0L},{{2,3},1.0L},{{1,4},.75L},{{2,4},.75L},{{3,4},1.0L}},.4);
+  const auto shortBetter=metric({{{1,3},1.0L},{{2,3},1.0L},{{1,4},.75L},{{2,4},.75L},{{3,4},1.0L}},.6);
+  const auto shortLong=metric({{{1,3},1.0L},{{2,3},1.0L},{{1,4},.75L},{{2,4},.75L},{{3,4},2.0L}},.6);
+  CHECK_FALSE(ValidateMetricChange(1,shortBefore,2,shortSame,MetricChange::Refine,reason,&d));
+  CHECK(ValidateMetricChange(1,shortBefore,2,shortBetter,MetricChange::Refine,reason,&d));CHECK_FALSE(d.size_insertion);
+  CHECK_FALSE(ValidateMetricChange(1,shortBefore,2,shortLong,MetricChange::Refine,reason,&d));
+  // other intents are unchanged by the policy
+  CHECK_FALSE(ValidateMetricChange(1,before,2,split,MetricChange::Repair,reason,&d));
+  CHECK_FALSE(ValidateMetricChange(1,before,2,split,MetricChange::GeometryRefine,reason,&d));
+}
+
+TEST_CASE("Native 3D split rule counts only caller-certified relocations as moves", "[NativeMetricSplitRule3D]") {
+  struct Restore { RefineAcceptance a=GetRefineAcceptance(); ~Restore(){SetRefineAcceptance(a);} } restore;
+  SetRefineAcceptance(RefineAcceptance::SplitInsertion);
+  auto metric=[](std::vector<std::pair<Edge,long double>> rows) {
+    PatchMetric m;m.minimum_mean_ratio=.5;m.minimum_scaled_jacobian=.5;
+    for(const auto& r:rows){EdgeMeasure e;e.a={double(r.first[0]),0,0};e.b={double(r.first[1]),1,0};e.length=r.second;m.edges.emplace(r.first,e);}
+    return m;};
+  // long edge (1,2) split at 5; apex 4 relocated to the reserved identity 6; the split adds more excess than it removes
+  const auto before=metric({{{1,2},3.0L},{{1,3},1.0L},{{2,3},1.0L},{{1,4},1.0L},{{2,4},1.0L},{{3,4},1.0L}});
+  const auto fresh=metric({{{1,3},1.0L},{{2,3},1.0L},{{1,5},1.5L},{{2,5},1.5L},{{3,5},3.5L},{{1,6},1.0L},{{2,6},1.0L},{{5,6},1.0L},{{3,6},1.0L}});
+  std::string reason;MetricDiagnosis d;
+  CHECK_FALSE(ValidateMetricChange(2,before,4,fresh,MetricChange::Refine,reason,&d));CHECK(d.vertex_removal);
+  CHECK(ValidateMetricChange(2,before,4,fresh,MetricChange::Refine,reason,&d,1));CHECK(d.size_insertion);
+  // a certified relocation cannot hide an absorption without net vertex gain
+  const auto absorbed=metric({{{1,3},1.0L},{{2,3},1.0L},{{1,6},1.0L},{{2,6},1.0L},{{3,6},3.5L}});
+  CHECK_FALSE(ValidateMetricChange(2,before,2,absorbed,MetricChange::Refine,reason,&d,1));CHECK(d.vertex_removal);
+}

@@ -1,0 +1,40 @@
+Filters: [NativeFirstRowDC11]
+DC11 tube_root_x loaded: cells=1824 wall_faces=64 creases=16 strips=64
+DC11 tube_root_x W complete wall_faces=188 splits=0 t=0.334084
+DC11 tube_root_x R1w ridges=20 inserted=14 present=0 t=2.63457
+DC11 tube_root_x R1 limit:rounds deficient 16->9 lp_empty=0 t=0.409782
+DC11 tube_root_x R2 rowed=92 unrowed=96 t=4.6793 last=vertex 249 [fan] crease edge 247-249 slot 0: fan: metric q/J below the floor
+DC11 V sweep 0 cells=6571 long=704 bad=179 work=971 t=30.7752
+DC11 V sweep 1 cells=8115 long=623 bad=179 work=1772 t=59.0414
+DC11 V sweep 2 cells=8514 long=613 bad=179 work=2398 t=84.7893
+DC11 V sweep 3 cells=8599 long=606 bad=179 work=2749 t=97.9331
+DC11 V sweep 4 cells=8629 long=601 bad=179 work=2825 t=101.275
+DC11 V sweep 5 cells=8633 long=600 bad=179 work=2844 t=102.009
+DC11 V sweep 6 cells=8633 long=600 bad=179 work=2845 t=102.038
+DC11 tube_root_x done in 149.866 s
+===============================================================================
+All tests passed (6 assertions in 1 test case)
+
+	Command being timed: "nice -n 19 timeout --kill-after=5s 7200s /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/bl_remesh_v1/dc11/bin/test_driver_r4 [NativeFirstRowDC11] --use-colour no"
+	User time (seconds): 143.62
+	System time (seconds): 0.11
+	Percent of CPU this job got: 95%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 2:30.25
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 46160
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 2
+	Minor (reclaiming a frame) page faults: 7136
+	Voluntary context switches: 1050
+	Involuntary context switches: 18758
+	Swaps: 0
+	File system inputs: 0
+	File system outputs: 1696
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0

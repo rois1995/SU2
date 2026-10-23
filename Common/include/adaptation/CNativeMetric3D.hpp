@@ -50,10 +50,23 @@ struct MetricStats {
 // Geometry intents require independently certified geometric progress at the engine caller.
 enum class MetricChange { Refine, Coarsen, Repair, GeometryRefine, GeometryRepair };
 enum class MetricFailure { None, Measurement, Shape, Progress };
+/*! Refine admission (user decision 2026-10-23: the 2D split rule, CNativeMesh2D.hpp SplitPatch sizeProgress).
+ * SplitInsertion: a refinement that removes no vertex of the old cells and replaces a changed old edge longer than
+ * SplitInsertionLength (a size insertion) needs no changed-edge excess progress; one that removes a vertex keeps the
+ * strict excess decrease; a non-size insertion must add no oversized changed edge and strictly raise the minimum mean
+ * ratio. A vertex is removed when it is absent from the fresh cells; `relocated` (certified by the caller) old vertices
+ * may be absent because a refit replaced them one for one by a new identity. Fresh shape stays strict.
+ * StrictExcess: the previous rule (strict excess decrease for every refinement), kept for A/B comparisons.
+ * Process-wide; final mesh gates are independent of it. */
+enum class RefineAcceptance { StrictExcess, SplitInsertion };
+constexpr double SplitInsertionLength = 1.6;
+void SetRefineAcceptance(RefineAcceptance acceptance);
+RefineAcceptance GetRefineAcceptance();
 struct MetricDiagnosis {
   MetricFailure failure = MetricFailure::None;
   bool size_progress = false, quality_progress = false, cell_removal = false;
-  long double removed_excess = 0, added_excess = 0;
+  bool size_insertion = false, vertex_removal = false;  // Refine classification (SplitInsertion rule)
+  long double removed_excess = 0, added_excess = 0, longest_removed = 0;
   double minimum_mean_ratio = 1, minimum_scaled_jacobian = 1;
   Id weakest_cell = 0, sliver_cell = 0;
 };
@@ -73,7 +86,7 @@ PatchMetric MeasureMetricCells(const std::vector<Cell>& cells, FrozenField& targ
  * oversized-edge excess must not increase. It does not authorize geometric progress by itself. */
 bool ValidateMetricChange(size_t old_count, const PatchMetric& before, size_t fresh_count,
                           const PatchMetric& measured, MetricChange kind, std::string& reason,
-                          MetricDiagnosis* diagnosis = nullptr);
+                          MetricDiagnosis* diagnosis = nullptr, size_t relocated = 0);
 /*! Requires separately validated geometry/topology/dependencies. Actual centroid target and source-resolved
  * target edge lengths; bounded128 cells. Final completion requires the strict gate on the whole mesh.
  * Reuse requires the same frozen full-field identity, edge IDs and exact endpoint coordinates.
@@ -82,7 +95,7 @@ bool ValidateMetricPatch(const std::vector<Cell>& cells, FrozenField& target, Pa
                          std::string& reason, MetricStats* stats = nullptr,
                          const std::map<Edge, EdgeMeasure>* frozen_reuse = nullptr);
 /*! Private progress may retain pre-existing oversized edges. Fresh shape/sliver gates are strict;
- * refinement must reduce changed-edge excess, coarsening must introduce no oversized edges and remove cells.
+ * refinement follows GetRefineAcceptance() (see RefineAcceptance), coarsening must introduce no oversized edges and remove cells.
  * Common unchanged edges cancel exactly by identity+coordinates, not subtraction of large residual sums.
  * Repair must reduce changed-edge excess or improve quality/sliver bounds without increasing excess.
  * This is not final acceptance. Unsupported composed integration rejects, never checks the sensor substitute. */
@@ -90,5 +103,5 @@ bool ValidateMetricChange(const std::vector<Cell>& old, const std::vector<Cell>&
                           FrozenField& target, PatchMetric& measured, std::string& reason,
                           MetricStats* stats = nullptr,
                           const std::map<Edge, EdgeMeasure>* frozen_reuse = nullptr,
-                          MetricDiagnosis* diagnosis = nullptr);
+                          MetricDiagnosis* diagnosis = nullptr, size_t relocated = 0);
 }  // namespace SU2Native3D

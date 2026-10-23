@@ -1,0 +1,32 @@
+DC10 W sweep 0 wall_faces=2 long_wall_edges=5 work=0
+DC10 W unmeasurable 8-16 w(a)=0 w(mid)=0 w(b)=0 crease=0 : Native 3D composed edge panel is unrepresentable.
+DC10 W sweep 1 wall_faces=8 long_wall_edges=2 work=5
+DC10 W unmeasurable 8-16 w(a)=0 w(mid)=0 w(b)=0 crease=0 : unmeasurable composed edge (cached)
+DC10 W sweep 2 wall_faces=12 long_wall_edges=0 work=7
+DC9 R1 deficient 1 -> 0 accepted=1 outcome=complete
+DC10 R1w ridges=0 inserted=0 present=0 rejected=0
+DC10 R2 tx v=16 |V|=1 low=0 ok=1 old=8 fresh=40 ridges=0 fan=0 gaps=0 sectors=0 cls= 
+DC10 R2 tx v=19 |V|=1 low=0 ok=0 old=15 fresh=0 ridges=0 fan=0 gaps=0 sectors=0 cls=clearance moved cell 67 inverts; |V|=1 moved in cell: v19(delta/deltaK=3.542,H/h0=1.1)
+DC10 R2 tx v=19 |V|=1 low=1 ok=0 old=15 fresh=0 ridges=0 fan=0 gaps=0 sectors=0 cls=clearance moved cell 67 inverts; |V|=1 low band moved in cell: v19(delta/deltaK=3.0429,H/h0=0.945)
+DC10 R2 tx v=19 |V|=2 low=1 ok=1 old=23 fresh=41 ridges=0 fan=0 gaps=0 sectors=0 cls= 
+DC10 R2 tx v=20 |V|=1 low=0 ok=1 old=15 fresh=23 ridges=0 fan=0 gaps=0 sectors=0 cls= 
+DC10 R2 tx v=21 |V|=1 low=0 ok=1 old=18 fresh=28 ridges=0 fan=0 gaps=0 sectors=0 cls= 
+DC10 R2 tx v=17 |V|=1 low=0 ok=1 old=19 fresh=25 ridges=0 fan=0 gaps=0 sectors=0 cls= 
+DC10 R2 tx v=18 |V|=1 low=0 ok=1 old=17 fresh=23 ridges=0 fan=0 gaps=0 sectors=0 cls= 
+DC10 R2 tx v=0 |V|=1 low=0 ok=0 old=21 fresh=0 ridges=0 fan=0 gaps=0 sectors=1 cls=partial-state face 0,19,22: A_f empty (exact LP) with 10 skin faces; inradius/h0=1.025; free-height LP slack=-0.0025; violated at centroid+h0: (57,56,32)=0.833333
+DC10 R2 tx v=0 |V|=1 low=1 ok=0 old=21 fresh=0 ridges=0 fan=0 gaps=0 sectors=1 cls=partial-state face 0,19,22 (low band): A_f empty (exact LP) with 10 skin faces; inradius/h0=1.025; free-height LP slack=-0.0025; violated at centroid+h0: (57,56,32)=0.833333
+DC10 R2 tx v=1 |V|=1 low=0 ok=1 old=21 fresh=25 ridges=0 fan=0 gaps=0 sectors=0 cls= 
+DC10 R2 tx v=8 |V|=1 low=0 ok=0 old=16 fresh=0 ridges=0 fan=0 gaps=0 sectors=0 cls=sector-link vertex 8: sector-link: link path from seam 12 to junction 18 passes boundary vertex 32; split edge 13-32
+DC10 R2 tx v=8 |V|=1 low=0 ok=0 old=18 fresh=0 ridges=0 fan=0 gaps=0 sectors=1 cls=partial-state face 8,16,18: A_f empty (exact LP) with 12 skin faces; inradius/h0=1.53933; free-height LP slack=-0.283774; violated at centroid+h0: (61,62,52)=1.1071 (62,60,52)=0.646424
+DC10 R2 tx v=8 |V|=1 low=1 ok=0 old=18 fresh=0 ridges=0 fan=0 gaps=0 sectors=0 cls=sector vertex 8: sector: no interior link path from seam 13 to junction 18; star: [32 8 11 12 ] [36 8 16 19 ] [36 32 23 8 ] [36 16 8 23 ] [36 8 19 32 ] [8 23 52 13 ] [53 8 18 16 ] [53 23 52 8 ] [53 18 8 52 ] [53 8 16 23 ] [59 8 12 13 ] [59 8 32 12 ] [59 8 13 23 ] [59 8 23 32 ] boundary faces: c25(8,11,12) c6(32,11,8) c6(8,19,32) c24(8,13,52) c24(18,8,52) c26(8,12,13) w(8,16,19) w(8,18,16)
+DC10 R2 tx v=9 |V|=1 low=0 ok=0 old=16 fresh=0 ridges=0 fan=0 gaps=0 sectors=0 cls=sector vertex 9: sector: no interior link path from seam 13 to junction 18; star: [9 39 10 14 ] [39 9 13 14 ] [43 39 9 13 ] [45 21 9 20 ] [45 39 9 43 ] [45 9 21 43 ] [45 20 9 39 ] [52 43 9 13 ] [54 18 9 21 ] [54 43 9 52 ] [54 9 18 52 ] [54 21 9 43 ] boundary faces: c27(9,14,10) c8(9,10,39) c28(9,13,14) c8(20,9,39) c24(52,13,9) c24(9,18,52) w(21,9,20) w(18,9,21)
+DC10 R2 tx v=0 |V|=1 low=0 ok=0 old=23 fresh=0 ridges=0 fan=0 gaps=0 sectors=1 cls=partial-state face 0,19,22: A_f empty (exact LP) with 10 skin faces; inradius/h0=1.025; free-height LP slack=-0.0025; violated at centroid+h0: (61,60,32)=0.833333
+DC10 R2 tx v=0 |V|=1 low=1 ok=0 old=23 fresh=0 ridges=0 fan=0 gaps=0 sectors=1 cls=partial-state face 0,19,22 (low band): A_f empty (exact LP) with 10 skin faces; inradius/h0=1.025; free-height LP slack=-0.0025; violated at centroid+h0: (61,60,32)=0.833333
+DC10 R2 tx v=8 |V|=1 low=0 ok=0 old=18 fresh=0 ridges=0 fan=0 gaps=0 sectors=1 cls=partial-state face 8,16,18: A_f empty (exact LP) with 12 skin faces; inradius/h0=1.53933; free-height LP slack=-0.283774; violated at centroid+h0: (61,62,52)=1.1071 (62,60,52)=0.646424
+DC10 R2 tx v=8 |V|=1 low=1 ok=0 old=18 fresh=0 ridges=0 fan=0 gaps=0 sectors=0 cls=sector vertex 8: sector: no interior link path from seam 13 to junction 18; star: [32 8 11 12 ] [36 8 16 19 ] [36 32 23 8 ] [36 16 8 23 ] [36 8 19 32 ] [8 23 52 13 ] [53 8 18 16 ] [53 23 52 8 ] [53 18 8 52 ] [53 8 16 23 ] [59 8 12 13 ] [59 8 32 12 ] [59 8 13 23 ] [59 8 23 32 ] boundary faces: c25(8,11,12) c6(32,11,8) c6(8,19,32) c24(8,13,52) c24(18,8,52) c26(8,12,13) w(8,16,19) w(8,18,16)
+DC10 R2 tx v=9 |V|=1 low=0 ok=0 old=16 fresh=0 ridges=0 fan=0 gaps=0 sectors=0 cls=sector vertex 9: sector: no interior link path from seam 13 to junction 18; star: [9 39 10 14 ] [39 9 13 14 ] [43 39 9 13 ] [45 21 9 20 ] [45 39 9 43 ] [45 9 21 43 ] [45 20 9 39 ] [52 43 9 13 ] [54 18 9 21 ] [54 43 9 52 ] [54 9 18 52 ] [54 21 9 43 ] boundary faces: c27(9,14,10) c8(9,10,39) c28(9,13,14) c8(20,9,39) c24(52,13,9) c24(9,18,52) w(21,9,20) w(18,9,21)
+DC10 R2 transactions=7 lifted=8 unlifted=3 rowed=6 unrowed=6 fan_cells=0
+DC11 V sweep 0 cells=200 long=61 bad=25 height_fail=0 column_demand=10 work=82 cache_skips=0 t=2.3932399450000004
+DC11 V sweep 1 cells=240 long=45 bad=15 height_fail=0 column_demand=10 work=170 cache_skips=6 t=5.3338398910000002
+DC11 V sweep 2 cells=250 long=43 bad=14 height_fail=0 column_demand=10 work=225 cache_skips=15 t=7.0116445450000002
+DC11 V sweep 3 cells=250 long=43 bad=14 height_fail=0 column_demand=10 work=235 cache_skips=51 t=7.6577878270000008

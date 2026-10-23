@@ -1,0 +1,1247 @@
+{
+ "annulus": {
+  "W": "unmeasurable wall edges: 1",
+  "W_counts": {
+   "splits": 7,
+   "unmeasurable": 1,
+   "strip_splits": 0,
+   "strip_faces": 0,
+   "strip_cells_across_min": -1
+  },
+  "R1w": {
+   "ridges": 0,
+   "inserted": 0,
+   "present": 0
+  },
+  "R1w_reasons": {},
+  "R2_rowed/unrowed": [
+   6,
+   6
+  ],
+  "R2_ridge_lifts": 0,
+  "R2_fan_cells_now": 0,
+  "R2_gap_cells": 0,
+  "R2_fan_check_failures": {},
+  "R2_witness_classes": {
+   "partial-state": 2,
+   "sector": 4
+  },
+  "R2_ridge_transactions_ok/refused": [
+   0,
+   0
+  ],
+  "R2_trace_classes": {
+   "": 7,
+   "clearance": 2,
+   "partial-state": 6,
+   "sector-link": 1,
+   "sector": 4
+  },
+  "first_q/J_at_admission": [
+   0.745029021544,
+   0.510638602411
+  ],
+  "after_R_bad(first/column/outside)": [
+   20,
+   0,
+   11,
+   9
+  ],
+  "V": [
+   "blocked",
+   235,
+   7.7,
+   3
+  ],
+  "final_cells": 250,
+  "final_bad(first/column/outside)": [
+   14,
+   0,
+   9,
+   5
+  ],
+  "final_fan": {
+   "cells": 0,
+   "bad": 0
+  },
+  "final_long": 43,
+  "final_long_by_class": {
+   "wall": 1,
+   "seam": 0,
+   "other_physical": 17,
+   "interior": 25,
+   "inside_columns_only": 5
+  },
+  "final_height_failures": 0,
+  "final_q_min": 0.1186499034,
+  "complete": 0,
+  "reaudit_agrees": 1,
+  "total_seconds": 9.1,
+  "split_rule": "2d",
+  "lift": "fan",
+  "split_policy_after_R": {
+   "size_insertions": 0,
+   "vertex_removal_checks": 0,
+   "vertex_removal_refusals": 0,
+   "nonsize_checks": 0,
+   "nonsize_refusals": 0,
+   "layer_free": 7,
+   "layer_checked": 0
+  },
+  "split_policy_after_V": {
+   "size_insertions": 47,
+   "vertex_removal_checks": 0,
+   "vertex_removal_refusals": 0,
+   "nonsize_checks": 0,
+   "nonsize_refusals": 0,
+   "layer_free": 7,
+   "layer_checked": 0
+  },
+  "V11": {
+   "halves_guard": 20,
+   "accepted_by": {
+    "InsertEdgeCavity+repair": 9,
+    "RepairMetricConnectivity": 5,
+    "SplitEdge": 35,
+    "SplitEdge+repair": 3
+   },
+   "per_sweep": [
+    [
+     200,
+     61,
+     25,
+     0,
+     82,
+     2.393271568
+    ],
+    [
+     240,
+     45,
+     15,
+     0,
+     170,
+     5.333863126
+    ],
+    [
+     250,
+     43,
+     14,
+     0,
+     225,
+     7.011671745
+    ],
+    [
+     250,
+     43,
+     14,
+     0,
+     235,
+     7.657824714
+    ]
+   ],
+   "completed_sweeps": 4,
+   "stale_skips": 0,
+   "grow": {
+    "calls": 0,
+    "grown": 0,
+    "trials": 0,
+    "steps": 0,
+    "no_view": 0,
+    "no_gain": 0,
+    "blocked": 0
+   },
+   "floor_refusals": {
+    "old<floor new q<.05": 4,
+    "old<floor new q<.10": 10,
+    "old<floor new q<.15": 38,
+    "old<floor new q<.20": 12,
+    "old>=floor new J only": 5,
+    "old>=floor new q<.10": 6,
+    "old>=floor new q<.15": 24,
+    "old>=floor new q<.20": 24
+   }
+  },
+  "V_top_refusals": [
+   [
+    "SplitEdge [2] D floor: q=# J=# old q=#",
+    62
+   ],
+   [
+    "InsertEdgeCavity [4] Native #D physical face leaves or reverses original facet #.",
+    43
+   ],
+   [
+    "InsertEdgeCavity [2] D floor: q=# J=# old q=#",
+    31
+   ],
+   [
+    "SplitEdge+repair [2] D floor: q=# J=# old q=#",
+    13
+   ],
+   [
+    "InsertEdgeCavity+repair [2] D floor: q=# J=# old q=#",
+    13
+   ],
+   [
+    "RepairMetricConnectivity [3] repair: neither size nor quality progress",
+    6
+   ],
+   [
+    "Repair build: Native#D admitted joint repair made no actual-field shape progress.",
+    5
+   ],
+   [
+    "RepairMetricConnectivity [2] D floor: q=# J=# old q=#",
+    4
+   ]
+  ],
+  "V_field": {
+   "queries": 48174,
+   "query_misses": 40239,
+   "compositions": 268826,
+   "edge_integrations": 1484,
+   "edge_compositions": 220805,
+   "edge_pieces": 2969
+  },
+  "peak_rss_kB": 32544,
+  "wall_distance_evaluations": 0
+ },
+ "m6_le": {
+  "W": "complete",
+  "W_counts": {
+   "splits": 0,
+   "unmeasurable": 0,
+   "strip_splits": 0,
+   "strip_faces": 0,
+   "strip_cells_across_min": -1
+  },
+  "R1w": {
+   "ridges": 0,
+   "inserted": 0,
+   "present": 0
+  },
+  "R1w_reasons": {},
+  "R2_rowed/unrowed": [
+   136,
+   0
+  ],
+  "R2_ridge_lifts": 0,
+  "R2_fan_cells_now": 0,
+  "R2_gap_cells": 0,
+  "R2_fan_check_failures": {},
+  "R2_witness_classes": {},
+  "R2_ridge_transactions_ok/refused": [
+   0,
+   0
+  ],
+  "R2_trace_classes": {
+   "": 87
+  },
+  "first_q/J_at_admission": [
+   0.799385308204,
+   0.569241303796
+  ],
+  "after_R_bad(first/column/outside)": [
+   378,
+   2,
+   120,
+   256
+  ],
+  "V": [
+   "limit",
+   5281,
+   120.0,
+   3
+  ],
+  "final_cells": 4638,
+  "final_bad(first/column/outside)": [
+   685,
+   2,
+   70,
+   613
+  ],
+  "final_fan": {
+   "cells": 0,
+   "bad": 0
+  },
+  "final_long": 1007,
+  "final_long_by_class": {
+   "wall": 0,
+   "seam": 0,
+   "other_physical": 145,
+   "interior": 862,
+   "inside_columns_only": 36
+  },
+  "final_height_failures": 2,
+  "final_q_min": 0.007611778818,
+  "complete": 0,
+  "reaudit_agrees": 1,
+  "total_seconds": 135.7,
+  "split_rule": "2d",
+  "lift": "fan",
+  "split_policy_after_R": {
+   "size_insertions": 0,
+   "vertex_removal_checks": 0,
+   "vertex_removal_refusals": 0,
+   "nonsize_checks": 0,
+   "nonsize_refusals": 0,
+   "layer_free": 87,
+   "layer_checked": 0
+  },
+  "split_policy_after_V": {
+   "size_insertions": 453,
+   "vertex_removal_checks": 0,
+   "vertex_removal_refusals": 0,
+   "nonsize_checks": 0,
+   "nonsize_refusals": 0,
+   "layer_free": 87,
+   "layer_checked": 0
+  },
+  "V11": {
+   "halves_guard": 108,
+   "accepted_by": {
+    "InsertEdgeCavity": 27,
+    "InsertEdgeCavity+repair": 364,
+    "RepairMetricConnectivity": 112,
+    "SplitEdge": 58,
+    "SplitEdge+repair": 4
+   },
+   "per_sweep": [
+    [
+     3873,
+     905,
+     619,
+     2,
+     923,
+     22.919086968
+    ],
+    [
+     4352,
+     979,
+     682,
+     2,
+     2789,
+     70.386402036
+    ],
+    [
+     4619,
+     1006,
+     686,
+     2,
+     4768,
+     112.143966785
+    ],
+    [
+     4638,
+     1007,
+     685,
+     2,
+     5281,
+     120.0267058
+    ]
+   ],
+   "completed_sweeps": 4,
+   "stale_skips": 0,
+   "grow": {
+    "calls": 0,
+    "grown": 0,
+    "trials": 0,
+    "steps": 0,
+    "no_view": 0,
+    "no_gain": 0,
+    "blocked": 0
+   },
+   "floor_refusals": {
+    "old<floor new J only": 12,
+    "old<floor new q<.05": 1838,
+    "old<floor new q<.10": 235,
+    "old<floor new q<.15": 970,
+    "old<floor new q<.20": 533,
+    "old>=floor new J only": 12,
+    "old>=floor new q<.05": 226,
+    "old>=floor new q<.10": 12,
+    "old>=floor new q<.15": 97,
+    "old>=floor new q<.20": 97
+   }
+  },
+  "V_top_refusals": [
+   [
+    "InsertEdgeCavity [2] D floor: q=# J=# old q=#",
+    1644
+   ],
+   [
+    "InsertEdgeCavity+repair [2] D floor: q=# J=# old q=#",
+    1456
+   ],
+   [
+    "SplitEdge [2] D floor: q=# J=# old q=#",
+    723
+   ],
+   [
+    "InsertEdgeCavity [4] Native #D physical face leaves or reverses original facet #.",
+    218
+   ],
+   [
+    "SplitEdge+repair [2] D floor: q=# J=# old q=#",
+    174
+   ],
+   [
+    "Repair build: Native#D admitted joint repair made no actual-field shape progress.",
+    174
+   ],
+   [
+    "RepairMetricConnectivity [3] repair: neither size nor quality progress",
+    78
+   ],
+   [
+    "ApexMove [3] repair: neither size nor quality progress",
+    68
+   ]
+  ],
+  "V_field": {
+   "queries": 3751564,
+   "query_misses": 3346073,
+   "compositions": 11740503,
+   "edge_integrations": 38386,
+   "edge_compositions": 7990845,
+   "edge_pieces": 45845
+  },
+  "peak_rss_kB": 164868,
+  "wall_distance_evaluations": 0
+ },
+ "m6_root_te": {
+  "W": "complete",
+  "W_counts": {
+   "splits": 0,
+   "unmeasurable": 0,
+   "strip_splits": 0,
+   "strip_faces": 48,
+   "strip_cells_across_min": 3.99978498822
+  },
+  "R1w": {
+   "ridges": 13,
+   "inserted": 0,
+   "present": 0
+  },
+  "R1w_reasons": {
+   "split rule: D floor: q=# J=# old q=#": 33,
+   "visible: physical face blocks": 6
+  },
+  "R2_rowed/unrowed": [
+   118,
+   18
+  ],
+  "R2_ridge_lifts": 8,
+  "R2_fan_cells_now": 44,
+  "R2_gap_cells": 0,
+  "R2_fan_check_failures": {
+   "fan: metric edge > 1.8": 8,
+   "fan: metric q/J below the floor": 8
+  },
+  "R2_witness_classes": {
+   "fan": 8,
+   "topology": 2
+  },
+  "R2_ridge_transactions_ok/refused": [
+   8,
+   10
+  ],
+  "R2_trace_classes": {
+   "": 84,
+   "fan": 8,
+   "topology": 2
+  },
+  "first_q/J_at_admission": [
+   0.769178697071,
+   0.507197710039
+  ],
+  "after_R_bad(first/column/outside)": [
+   353,
+   0,
+   114,
+   239
+  ],
+  "V": [
+   "limit",
+   2521,
+   120.2,
+   1
+  ],
+  "final_cells": 6647,
+  "final_bad(first/column/outside)": [
+   862,
+   0,
+   55,
+   807
+  ],
+  "final_fan": {
+   "cells": 44,
+   "bad": 0
+  },
+  "final_long": 2667,
+  "final_long_by_class": {
+   "wall": 0,
+   "seam": 0,
+   "other_physical": 246,
+   "interior": 2421,
+   "inside_columns_only": 33
+  },
+  "final_height_failures": 0,
+  "final_q_min": 0.008441085948,
+  "complete": 0,
+  "reaudit_agrees": 1,
+  "total_seconds": 190.9,
+  "split_rule": "2d",
+  "lift": "fan",
+  "split_policy_after_R": {
+   "size_insertions": 0,
+   "vertex_removal_checks": 0,
+   "vertex_removal_refusals": 0,
+   "nonsize_checks": 0,
+   "nonsize_refusals": 0,
+   "layer_free": 84,
+   "layer_checked": 0
+  },
+  "split_policy_after_V": {
+   "size_insertions": 948,
+   "vertex_removal_checks": 0,
+   "vertex_removal_refusals": 0,
+   "nonsize_checks": 0,
+   "nonsize_refusals": 0,
+   "layer_free": 84,
+   "layer_checked": 0
+  },
+  "V11": {
+   "halves_guard": 34,
+   "accepted_by": {
+    "InsertEdgeCavity": 251,
+    "InsertEdgeCavity+repair": 308,
+    "RepairMetricConnectivity": 46,
+    "SplitEdge": 376,
+    "SplitEdge+repair": 13
+   },
+   "per_sweep": [
+    [
+     5971,
+     2302,
+     692,
+     0,
+     1444,
+     69.517928666
+    ],
+    [
+     6647,
+     2667,
+     862,
+     0,
+     2521,
+     120.205343857
+    ]
+   ],
+   "completed_sweeps": 2,
+   "stale_skips": 0,
+   "grow": {
+    "calls": 0,
+    "grown": 0,
+    "trials": 0,
+    "steps": 0,
+    "no_view": 0,
+    "no_gain": 0,
+    "blocked": 0
+   },
+   "floor_refusals": {
+    "old<floor new J only": 1,
+    "old<floor new q<.05": 441,
+    "old<floor new q<.10": 116,
+    "old<floor new q<.15": 162,
+    "old<floor new q<.20": 104,
+    "old>=floor new J only": 23,
+    "old>=floor new q<.05": 53,
+    "old>=floor new q<.10": 24,
+    "old>=floor new q<.15": 60,
+    "old>=floor new q<.20": 76
+   }
+  },
+  "V_top_refusals": [
+   [
+    "SplitEdge [2] D floor: q=# J=# old q=#",
+    412
+   ],
+   [
+    "InsertEdgeCavity [2] D floor: q=# J=# old q=#",
+    368
+   ],
+   [
+    "InsertEdgeCavity [4] Native #D physical face leaves or reverses original facet #.",
+    293
+   ],
+   [
+    "InsertEdgeCavity+repair [2] D floor: q=# J=# old q=#",
+    191
+   ],
+   [
+    "SplitEdge+repair [2] D floor: q=# J=# old q=#",
+    76
+   ],
+   [
+    "Repair build: Native#D admitted joint repair made no actual-field shape progress.",
+    71
+   ],
+   [
+    "RepairMetricConnectivity [3] repair: neither size nor quality progress",
+    36
+   ],
+   [
+    "RepairMetricConnectivity [2] D floor: q=# J=# old q=#",
+    13
+   ]
+  ],
+  "V_field": {
+   "queries": 870766,
+   "query_misses": 760614,
+   "compositions": 3550483,
+   "edge_integrations": 17770,
+   "edge_compositions": 2681787,
+   "edge_pieces": 21205
+  },
+  "peak_rss_kB": 166148,
+  "wall_distance_evaluations": 4288706
+ },
+ "m6_tip_te": {
+  "W": "complete",
+  "W_counts": {
+   "splits": 0,
+   "unmeasurable": 0,
+   "strip_splits": 0,
+   "strip_faces": 32,
+   "strip_cells_across_min": 3.99982247478
+  },
+  "R1w": {
+   "ridges": 13,
+   "inserted": 0,
+   "present": 0
+  },
+  "R1w_reasons": {
+   "split rule: D floor: q=# J=# old q=#": 38,
+   "split rule: Native#D prescribed height fails at facet # cell # relative error # > tolerance #": 1
+  },
+  "R2_rowed/unrowed": [
+   91,
+   40
+  ],
+  "R2_ridge_lifts": 4,
+  "R2_fan_cells_now": 20,
+  "R2_gap_cells": 0,
+  "R2_fan_check_failures": {
+   "fan: metric edge > 1.8": 24,
+   "fan: metric q/J below the floor": 40
+  },
+  "R2_witness_classes": {
+   "fan": 18
+  },
+  "R2_ridge_transactions_ok/refused": [
+   4,
+   18
+  ],
+  "R2_trace_classes": {
+   "": 68,
+   "fan": 18
+  },
+  "first_q/J_at_admission": [
+   0.725346705361,
+   0.517484499619
+  ],
+  "after_R_bad(first/column/outside)": [
+   342,
+   2,
+   137,
+   203
+  ],
+  "V": [
+   "limit",
+   1924,
+   120.1,
+   1
+  ],
+  "final_cells": 7045,
+  "final_bad(first/column/outside)": [
+   429,
+   2,
+   61,
+   366
+  ],
+  "final_fan": {
+   "cells": 20,
+   "bad": 0
+  },
+  "final_long": 3185,
+  "final_long_by_class": {
+   "wall": 0,
+   "seam": 0,
+   "other_physical": 139,
+   "interior": 3046,
+   "inside_columns_only": 55
+  },
+  "final_height_failures": 2,
+  "final_q_min": 0.006591143756,
+  "complete": 0,
+  "reaudit_agrees": 1,
+  "total_seconds": 222.9,
+  "split_rule": "2d",
+  "lift": "fan",
+  "split_policy_after_R": {
+   "size_insertions": 0,
+   "vertex_removal_checks": 0,
+   "vertex_removal_refusals": 0,
+   "nonsize_checks": 0,
+   "nonsize_refusals": 0,
+   "layer_free": 68,
+   "layer_checked": 0
+  },
+  "split_policy_after_V": {
+   "size_insertions": 1047,
+   "vertex_removal_checks": 0,
+   "vertex_removal_refusals": 0,
+   "nonsize_checks": 0,
+   "nonsize_refusals": 0,
+   "layer_free": 68,
+   "layer_checked": 0
+  },
+  "V11": {
+   "halves_guard": 53,
+   "accepted_by": {
+    "InsertEdgeCavity": 387,
+    "InsertEdgeCavity+repair": 257,
+    "RepairMetricConnectivity": 27,
+    "SplitEdge": 388,
+    "SplitEdge+repair": 15
+   },
+   "per_sweep": [
+    [
+     6646,
+     3131,
+     409,
+     2,
+     1482,
+     101.25194428
+    ],
+    [
+     7045,
+     3185,
+     429,
+     2,
+     1924,
+     120.115295003
+    ]
+   ],
+   "completed_sweeps": 2,
+   "stale_skips": 0,
+   "grow": {
+    "calls": 0,
+    "grown": 0,
+    "trials": 0,
+    "steps": 0,
+    "no_view": 0,
+    "no_gain": 0,
+    "blocked": 0
+   },
+   "floor_refusals": {
+    "old<floor new q<.05": 100,
+    "old<floor new q<.10": 100,
+    "old<floor new q<.15": 57,
+    "old<floor new q<.20": 50,
+    "old>=floor new J only": 12,
+    "old>=floor new q<.05": 32,
+    "old>=floor new q<.10": 15,
+    "old>=floor new q<.15": 30,
+    "old>=floor new q<.20": 54
+   }
+  },
+  "V_top_refusals": [
+   [
+    "InsertEdgeCavity [4] Native #D physical face leaves or reverses original facet #.",
+    220
+   ],
+   [
+    "SplitEdge [2] D floor: q=# J=# old q=#",
+    197
+   ],
+   [
+    "InsertEdgeCavity [2] D floor: q=# J=# old q=#",
+    129
+   ],
+   [
+    "InsertEdgeCavity+repair [2] D floor: q=# J=# old q=#",
+    76
+   ],
+   [
+    "Repair build: Native#D admitted joint repair made no actual-field shape progress.",
+    46
+   ],
+   [
+    "SplitEdge+repair [2] D floor: q=# J=# old q=#",
+    39
+   ],
+   [
+    "RepairMetricConnectivity [3] repair: neither size nor quality progress",
+    19
+   ],
+   [
+    "SplitEdge [4] Native#D prescribed height fails at facet # cell # relative error # > tolerance #",
+    16
+   ]
+  ],
+  "V_field": {
+   "queries": 450270,
+   "query_misses": 388020,
+   "compositions": 3396937,
+   "edge_integrations": 14675,
+   "edge_compositions": 2948735,
+   "edge_pieces": 17803
+  },
+  "peak_rss_kB": 165512,
+  "wall_distance_evaluations": 4264187
+ },
+ "tube_root_x": {
+  "W": "complete",
+  "W_counts": {
+   "splits": 0,
+   "unmeasurable": 0,
+   "strip_splits": 68,
+   "strip_faces": 170,
+   "strip_cells_across_min": 4
+  },
+  "R1w": {
+   "ridges": 20,
+   "inserted": 14,
+   "present": 0
+  },
+  "R1w_reasons": {
+   "visible: physical face blocks": 24,
+   "split rule: D floor: q=# J=# old q=#": 22
+  },
+  "R2_rowed/unrowed": [
+   92,
+   96
+  ],
+  "R2_ridge_lifts": 0,
+  "R2_fan_cells_now": 0,
+  "R2_gap_cells": 0,
+  "R2_fan_check_failures": {
+   "fan: metric edge > 1.8": 68,
+   "fan: metric q/J below the floor": 20
+  },
+  "R2_witness_classes": {
+   "cap": 10,
+   "fan": 30
+  },
+  "R2_ridge_transactions_ok/refused": [
+   0,
+   30
+  ],
+  "R2_trace_classes": {
+   "": 88,
+   "fan": 30,
+   "cap": 10
+  },
+  "first_q/J_at_admission": [
+   0.445386181105,
+   0.207811766957
+  ],
+  "after_R_bad(first/column/outside)": [
+   278,
+   0,
+   215,
+   63
+  ],
+  "V": [
+   "blocked",
+   2845,
+   102.0,
+   6
+  ],
+  "final_cells": 8633,
+  "final_bad(first/column/outside)": [
+   179,
+   0,
+   160,
+   19
+  ],
+  "final_fan": {
+   "cells": 0,
+   "bad": 0
+  },
+  "final_long": 600,
+  "final_long_by_class": {
+   "wall": 0,
+   "seam": 0,
+   "other_physical": 36,
+   "interior": 564,
+   "inside_columns_only": 33
+  },
+  "final_height_failures": 0,
+  "final_q_min": 0.0849257213,
+  "complete": 0,
+  "reaudit_agrees": 1,
+  "total_seconds": 149.9,
+  "split_rule": "2d",
+  "lift": "fan",
+  "split_policy_after_R": {
+   "size_insertions": 14,
+   "vertex_removal_checks": 0,
+   "vertex_removal_refusals": 0,
+   "nonsize_checks": 0,
+   "nonsize_refusals": 0,
+   "layer_free": 88,
+   "layer_checked": 0
+  },
+  "split_policy_after_V": {
+   "size_insertions": 1078,
+   "vertex_removal_checks": 0,
+   "vertex_removal_refusals": 0,
+   "nonsize_checks": 3,
+   "nonsize_refusals": 3,
+   "layer_free": 88,
+   "layer_checked": 0
+  },
+  "V11": {
+   "halves_guard": 126,
+   "accepted_by": {
+    "InsertEdgeCavity": 629,
+    "InsertEdgeCavity+repair": 245,
+    "RepairMetricConnectivity": 2,
+    "SplitEdge": 159,
+    "SplitEdge+repair": 31
+   },
+   "per_sweep": [
+    [
+     6571,
+     704,
+     179,
+     0,
+     971,
+     30.775268435
+    ],
+    [
+     8115,
+     623,
+     179,
+     0,
+     1772,
+     59.041382195
+    ],
+    [
+     8514,
+     613,
+     179,
+     0,
+     2398,
+     84.789296991
+    ],
+    [
+     8599,
+     606,
+     179,
+     0,
+     2749,
+     97.933111087
+    ],
+    [
+     8629,
+     601,
+     179,
+     0,
+     2825,
+     101.274823271
+    ],
+    [
+     8633,
+     600,
+     179,
+     0,
+     2844,
+     102.008684218
+    ],
+    [
+     8633,
+     600,
+     179,
+     0,
+     2845,
+     102.038286339
+    ]
+   ],
+   "completed_sweeps": 7,
+   "stale_skips": 0,
+   "grow": {
+    "calls": 0,
+    "grown": 0,
+    "trials": 0,
+    "steps": 0,
+    "no_view": 0,
+    "no_gain": 0,
+    "blocked": 0
+   },
+   "floor_refusals": {
+    "old<floor new q<.10": 29,
+    "old<floor new q<.15": 59,
+    "old<floor new q<.20": 9,
+    "old>=floor new J only": 47,
+    "old>=floor new q<.10": 15,
+    "old>=floor new q<.15": 498,
+    "old>=floor new q<.20": 342
+   }
+  },
+  "V_top_refusals": [
+   [
+    "InsertEdgeCavity [4] Native #D physical face leaves or reverses original facet #.",
+    617
+   ],
+   [
+    "InsertEdgeCavity [2] D floor: q=# J=# old q=#",
+    483
+   ],
+   [
+    "InsertEdgeCavity+repair [2] D floor: q=# J=# old q=#",
+    391
+   ],
+   [
+    "SplitEdge [2] D floor: q=# J=# old q=#",
+    109
+   ],
+   [
+    "ApexMove [3] repair: neither size nor quality progress",
+    51
+   ],
+   [
+    "ApexMove [2] D floor: q=# J=# old q=#",
+    32
+   ],
+   [
+    "Repair build: Native#D admitted joint repair made no actual-field shape progress.",
+    28
+   ],
+   [
+    "SplitEdge+repair [2] D floor: q=# J=# old q=#",
+    15
+   ]
+  ],
+  "V_field": {
+   "queries": 595487,
+   "query_misses": 519922,
+   "compositions": 3381176,
+   "edge_integrations": 18877,
+   "edge_compositions": 2787532,
+   "edge_pieces": 21910
+  },
+  "peak_rss_kB": 45996,
+  "wall_distance_evaluations": 3974346
+ },
+ "two_tube_y": {
+  "W": "complete",
+  "W_counts": {
+   "splits": 0,
+   "unmeasurable": 0,
+   "strip_splits": 108,
+   "strip_faces": 308,
+   "strip_cells_across_min": 4
+  },
+  "R1w": {
+   "ridges": 40,
+   "inserted": 12,
+   "present": 0
+  },
+  "R1w_reasons": {
+   "visible: physical face blocks": 48,
+   "split rule: D floor: q=# J=# old q=#": 37,
+   "split rule: Native#D prescribed height fails at facet # cell # relative error # > tolerance #": 23
+  },
+  "R2_rowed/unrowed": [
+   144,
+   176
+  ],
+  "R2_ridge_lifts": 0,
+  "R2_fan_cells_now": 0,
+  "R2_gap_cells": 0,
+  "R2_fan_check_failures": {
+   "fan: metric edge > 1.8": 164,
+   "fan: metric q/J below the floor": 8
+  },
+  "R2_witness_classes": {
+   "cap": 8,
+   "fan": 72
+  },
+  "R2_ridge_transactions_ok/refused": [
+   0,
+   72
+  ],
+  "R2_trace_classes": {
+   "": 147,
+   "clearance": 5,
+   "fan": 72,
+   "cap": 8
+  },
+  "first_q/J_at_admission": [
+   0.48170561665,
+   0.262835090788
+  ],
+  "after_R_bad(first/column/outside)": [
+   522,
+   0,
+   424,
+   98
+  ],
+  "V": [
+   "limit",
+   3230,
+   120.1,
+   2
+  ],
+  "final_cells": 11064,
+  "final_bad(first/column/outside)": [
+   401,
+   0,
+   373,
+   28
+  ],
+  "final_fan": {
+   "cells": 0,
+   "bad": 0
+  },
+  "final_long": 912,
+  "final_long_by_class": {
+   "wall": 0,
+   "seam": 0,
+   "other_physical": 63,
+   "interior": 849,
+   "inside_columns_only": 53
+  },
+  "final_height_failures": 0,
+  "final_q_min": 0.1027031432,
+  "complete": 0,
+  "reaudit_agrees": 1,
+  "total_seconds": 196.2,
+  "split_rule": "2d",
+  "lift": "fan",
+  "split_policy_after_R": {
+   "size_insertions": 12,
+   "vertex_removal_checks": 0,
+   "vertex_removal_refusals": 0,
+   "nonsize_checks": 0,
+   "nonsize_refusals": 0,
+   "layer_free": 147,
+   "layer_checked": 0
+  },
+  "split_policy_after_V": {
+   "size_insertions": 1376,
+   "vertex_removal_checks": 0,
+   "vertex_removal_refusals": 0,
+   "nonsize_checks": 0,
+   "nonsize_refusals": 0,
+   "layer_free": 147,
+   "layer_checked": 0
+  },
+  "V11": {
+   "halves_guard": 106,
+   "accepted_by": {
+    "InsertEdgeCavity": 708,
+    "InsertEdgeCavity+repair": 328,
+    "RepairMetricConnectivity": 5,
+    "SplitEdge": 274,
+    "SplitEdge+repair": 54
+   },
+   "per_sweep": [
+    [
+     8111,
+     1139,
+     413,
+     0,
+     1300,
+     56.208639356
+    ],
+    [
+     10769,
+     899,
+     403,
+     0,
+     2611,
+     98.153466616
+    ],
+    [
+     11064,
+     912,
+     401,
+     0,
+     3230,
+     120.075025925
+    ]
+   ],
+   "completed_sweeps": 3,
+   "stale_skips": 0,
+   "grow": {
+    "calls": 0,
+    "grown": 0,
+    "trials": 0,
+    "steps": 0,
+    "no_view": 0,
+    "no_gain": 0,
+    "blocked": 0
+   },
+   "floor_refusals": {
+    "old<floor new J only": 1,
+    "old<floor new q<.05": 1,
+    "old<floor new q<.10": 35,
+    "old<floor new q<.15": 184,
+    "old<floor new q<.20": 20,
+    "old>=floor new J only": 41,
+    "old>=floor new q<.10": 2,
+    "old>=floor new q<.15": 254,
+    "old>=floor new q<.20": 308
+   }
+  },
+  "V_top_refusals": [
+   [
+    "InsertEdgeCavity [4] Native #D physical face leaves or reverses original facet #.",
+    772
+   ],
+   [
+    "InsertEdgeCavity [2] D floor: q=# J=# old q=#",
+    392
+   ],
+   [
+    "InsertEdgeCavity+repair [2] D floor: q=# J=# old q=#",
+    232
+   ],
+   [
+    "SplitEdge [2] D floor: q=# J=# old q=#",
+    186
+   ],
+   [
+    "ApexMove [3] repair: neither size nor quality progress",
+    94
+   ],
+   [
+    "ApexMove [2] D floor: q=# J=# old q=#",
+    74
+   ],
+   [
+    "Repair build: Native#D admitted joint repair made no actual-field shape progress.",
+    38
+   ],
+   [
+    "SplitEdge+repair [2] D floor: q=# J=# old q=#",
+    20
+   ]
+  ],
+  "V_field": {
+   "queries": 460770,
+   "query_misses": 391548,
+   "compositions": 3155764,
+   "edge_integrations": 19918,
+   "edge_compositions": 2697496,
+   "edge_pieces": 23587
+  },
+  "peak_rss_kB": 50428,
+  "wall_distance_evaluations": 4041005
+ }
+}

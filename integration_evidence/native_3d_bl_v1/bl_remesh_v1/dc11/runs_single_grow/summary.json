@@ -1,0 +1,1188 @@
+{
+ "annulus": {
+  "W": "unmeasurable wall edges: 1",
+  "W_counts": {
+   "splits": 7,
+   "unmeasurable": 1,
+   "strip_splits": 0,
+   "strip_faces": 0,
+   "strip_cells_across_min": -1
+  },
+  "R1w": null,
+  "R1w_reasons": null,
+  "R2_rowed/unrowed": [
+   6,
+   6
+  ],
+  "R2_ridge_lifts": 0,
+  "R2_fan_cells_now": 0,
+  "R2_gap_cells": 0,
+  "R2_fan_check_failures": {},
+  "R2_witness_classes": {
+   "partial-state": 2,
+   "sector": 4
+  },
+  "R2_ridge_transactions_ok/refused": [
+   0,
+   0
+  ],
+  "R2_trace_classes": {
+   "": 7,
+   "clearance": 2,
+   "partial-state": 6,
+   "sector-link": 1,
+   "sector": 4
+  },
+  "first_q/J_at_admission": [
+   0.745029021544,
+   0.510638602411
+  ],
+  "after_R_bad(first/column/outside)": [
+   20,
+   0,
+   11,
+   9
+  ],
+  "V": [
+   "blocked",
+   293,
+   7.4,
+   3
+  ],
+  "final_cells": 250,
+  "final_bad(first/column/outside)": [
+   14,
+   0,
+   9,
+   5
+  ],
+  "final_fan": {
+   "cells": 0,
+   "bad": 0
+  },
+  "final_long": 43,
+  "final_long_by_class": {
+   "wall": 1,
+   "seam": 0,
+   "other_physical": 17,
+   "interior": 25,
+   "inside_columns_only": 5
+  },
+  "final_height_failures": 0,
+  "final_q_min": 0.1186499034,
+  "complete": 0,
+  "reaudit_agrees": 1,
+  "total_seconds": 8.0,
+  "split_rule": "2d",
+  "lift": "single",
+  "split_policy_after_R": {
+   "size_insertions": 0,
+   "vertex_removal_checks": 0,
+   "vertex_removal_refusals": 0,
+   "nonsize_checks": 0,
+   "nonsize_refusals": 0,
+   "layer_free": 7,
+   "layer_checked": 0
+  },
+  "split_policy_after_V": {
+   "size_insertions": 47,
+   "vertex_removal_checks": 0,
+   "vertex_removal_refusals": 0,
+   "nonsize_checks": 0,
+   "nonsize_refusals": 0,
+   "layer_free": 7,
+   "layer_checked": 0
+  },
+  "V11": {
+   "halves_guard": 20,
+   "accepted_by": {
+    "InsertEdgeCavity+repair": 9,
+    "RepairMetricConnectivity": 5,
+    "SplitEdge": 35,
+    "SplitEdge+repair": 3
+   },
+   "per_sweep": [
+    [
+     200,
+     61,
+     25,
+     0,
+     97,
+     2.247849406
+    ],
+    [
+     240,
+     45,
+     15,
+     0,
+     204,
+     5.515087615
+    ],
+    [
+     250,
+     43,
+     14,
+     0,
+     277,
+     7.236878394
+    ],
+    [
+     250,
+     43,
+     14,
+     0,
+     293,
+     7.431555015
+    ]
+   ],
+   "completed_sweeps": 4,
+   "stale_skips": 0,
+   "grow": {
+    "calls": 54,
+    "grown": 2,
+    "trials": 20,
+    "steps": 3,
+    "no_view": 0,
+    "no_gain": 6,
+    "blocked": 48
+   },
+   "floor_refusals": {
+    "old<floor new q<.05": 4,
+    "old<floor new q<.10": 10,
+    "old<floor new q<.15": 38,
+    "old<floor new q<.20": 12,
+    "old>=floor new J only": 5,
+    "old>=floor new q<.10": 6,
+    "old>=floor new q<.15": 24,
+    "old>=floor new q<.20": 28
+   }
+  },
+  "V_top_refusals": [
+   [
+    "SplitEdge [2] D floor: q=# J=# old q=#",
+    62
+   ],
+   [
+    "SplitGrow build: grow: physical or protected edge star",
+    48
+   ],
+   [
+    "InsertEdgeCavity [4] Native #D physical face leaves or reverses original facet #.",
+    43
+   ],
+   [
+    "InsertEdgeCavity [2] D floor: q=# J=# old q=#",
+    31
+   ],
+   [
+    "SplitEdge+repair [2] D floor: q=# J=# old q=#",
+    13
+   ],
+   [
+    "InsertEdgeCavity+repair [2] D floor: q=# J=# old q=#",
+    13
+   ],
+   [
+    "RepairMetricConnectivity [3] repair: neither size nor quality progress",
+    6
+   ],
+   [
+    "Repair build: Native#D admitted joint repair made no actual-field shape progress.",
+    5
+   ]
+  ],
+  "V_field": {
+   "queries": 50617,
+   "query_misses": 42296,
+   "compositions": 296917,
+   "edge_integrations": 1622,
+   "edge_compositions": 246507,
+   "edge_pieces": 3203
+  },
+  "peak_rss_kB": 32208,
+  "wall_distance_evaluations": 0
+ },
+ "m6_le": {
+  "W": "complete",
+  "W_counts": {
+   "splits": 0,
+   "unmeasurable": 0,
+   "strip_splits": 0,
+   "strip_faces": 0,
+   "strip_cells_across_min": -1
+  },
+  "R1w": null,
+  "R1w_reasons": null,
+  "R2_rowed/unrowed": [
+   136,
+   0
+  ],
+  "R2_ridge_lifts": 0,
+  "R2_fan_cells_now": 0,
+  "R2_gap_cells": 0,
+  "R2_fan_check_failures": {},
+  "R2_witness_classes": {},
+  "R2_ridge_transactions_ok/refused": [
+   0,
+   0
+  ],
+  "R2_trace_classes": {
+   "": 87
+  },
+  "first_q/J_at_admission": [
+   0.799385308204,
+   0.569241303796
+  ],
+  "after_R_bad(first/column/outside)": [
+   378,
+   2,
+   120,
+   256
+  ],
+  "V": [
+   "limit",
+   8192,
+   97.4,
+   3
+  ],
+  "final_cells": 4898,
+  "final_bad(first/column/outside)": [
+   742,
+   2,
+   70,
+   670
+  ],
+  "final_fan": {
+   "cells": 0,
+   "bad": 0
+  },
+  "final_long": 1054,
+  "final_long_by_class": {
+   "wall": 0,
+   "seam": 0,
+   "other_physical": 145,
+   "interior": 909,
+   "inside_columns_only": 36
+  },
+  "final_height_failures": 2,
+  "final_q_min": 0.007611778818,
+  "complete": 0,
+  "reaudit_agrees": 1,
+  "total_seconds": 109.1,
+  "split_rule": "2d",
+  "lift": "single",
+  "split_policy_after_R": {
+   "size_insertions": 0,
+   "vertex_removal_checks": 0,
+   "vertex_removal_refusals": 0,
+   "nonsize_checks": 0,
+   "nonsize_refusals": 0,
+   "layer_free": 87,
+   "layer_checked": 0
+  },
+  "split_policy_after_V": {
+   "size_insertions": 498,
+   "vertex_removal_checks": 1,
+   "vertex_removal_refusals": 0,
+   "nonsize_checks": 0,
+   "nonsize_refusals": 0,
+   "layer_free": 87,
+   "layer_checked": 0
+  },
+  "V11": {
+   "halves_guard": 108,
+   "accepted_by": {
+    "InsertEdgeCavity": 32,
+    "InsertEdgeCavity+repair": 397,
+    "RepairMetricConnectivity": 112,
+    "SplitEdge": 58,
+    "SplitEdge+repair": 4,
+    "SplitGrow+repair": 8
+   },
+   "per_sweep": [
+    [
+     3901,
+     910,
+     617,
+     2,
+     1126,
+     19.208376228
+    ],
+    [
+     4432,
+     988,
+     680,
+     2,
+     3662,
+     48.421818019
+    ],
+    [
+     4736,
+     1013,
+     685,
+     2,
+     6458,
+     78.488755433
+    ],
+    [
+     4898,
+     1054,
+     742,
+     2,
+     8192,
+     97.433576395
+    ]
+   ],
+   "completed_sweeps": 4,
+   "stale_skips": 0,
+   "grow": {
+    "calls": 2031,
+    "grown": 48,
+    "trials": 12596,
+    "steps": 53,
+    "no_view": 0,
+    "no_gain": 1710,
+    "blocked": 321
+   },
+   "floor_refusals": {
+    "old<floor new J only": 14,
+    "old<floor new q<.05": 2195,
+    "old<floor new q<.10": 254,
+    "old<floor new q<.15": 1164,
+    "old<floor new q<.20": 659,
+    "old>=floor new J only": 12,
+    "old>=floor new q<.05": 269,
+    "old>=floor new q<.10": 11,
+    "old>=floor new q<.15": 118,
+    "old>=floor new q<.20": 125
+   }
+  },
+  "V_top_refusals": [
+   [
+    "InsertEdgeCavity [2] D floor: q=# J=# old q=#",
+    1997
+   ],
+   [
+    "InsertEdgeCavity+repair [2] D floor: q=# J=# old q=#",
+    1803
+   ],
+   [
+    "SplitGrow build: grow: no improving enlargement",
+    1662
+   ],
+   [
+    "SplitEdge [2] D floor: q=# J=# old q=#",
+    735
+   ],
+   [
+    "SplitGrow build: grow: physical or protected edge star",
+    321
+   ],
+   [
+    "InsertEdgeCavity [4] Native #D physical face leaves or reverses original facet #.",
+    245
+   ],
+   [
+    "Repair build: Native#D admitted joint repair made no actual-field shape progress.",
+    193
+   ],
+   [
+    "SplitEdge+repair [2] D floor: q=# J=# old q=#",
+    178
+   ]
+  ],
+  "V_field": {
+   "queries": 4689752,
+   "query_misses": 4106366,
+   "compositions": 15161136,
+   "edge_integrations": 49008,
+   "edge_compositions": 10475423,
+   "edge_pieces": 58985
+  },
+  "peak_rss_kB": 165176,
+  "wall_distance_evaluations": 0
+ },
+ "m6_root_te": {
+  "W": "complete",
+  "W_counts": {
+   "splits": 0,
+   "unmeasurable": 0,
+   "strip_splits": 0,
+   "strip_faces": 48,
+   "strip_cells_across_min": 3.99978498822
+  },
+  "R1w": null,
+  "R1w_reasons": null,
+  "R2_rowed/unrowed": [
+   136,
+   0
+  ],
+  "R2_ridge_lifts": 0,
+  "R2_fan_cells_now": 0,
+  "R2_gap_cells": 0,
+  "R2_fan_check_failures": {},
+  "R2_witness_classes": {},
+  "R2_ridge_transactions_ok/refused": [
+   0,
+   0
+  ],
+  "R2_trace_classes": {
+   "": 89
+  },
+  "first_q/J_at_admission": [
+   0.769178697071,
+   0.507197710039
+  ],
+  "after_R_bad(first/column/outside)": [
+   271,
+   0,
+   78,
+   193
+  ],
+  "V": [
+   "limit",
+   2760,
+   120.1,
+   1
+  ],
+  "final_cells": 6252,
+  "final_bad(first/column/outside)": [
+   488,
+   0,
+   26,
+   462
+  ],
+  "final_fan": {
+   "cells": 0,
+   "bad": 0
+  },
+  "final_long": 2379,
+  "final_long_by_class": {
+   "wall": 0,
+   "seam": 0,
+   "other_physical": 224,
+   "interior": 2155,
+   "inside_columns_only": 51
+  },
+  "final_height_failures": 0,
+  "final_q_min": 0.01126445119,
+  "complete": 0,
+  "reaudit_agrees": 1,
+  "total_seconds": 197.9,
+  "split_rule": "2d",
+  "lift": "single",
+  "split_policy_after_R": {
+   "size_insertions": 0,
+   "vertex_removal_checks": 0,
+   "vertex_removal_refusals": 0,
+   "nonsize_checks": 0,
+   "nonsize_refusals": 0,
+   "layer_free": 89,
+   "layer_checked": 0
+  },
+  "split_policy_after_V": {
+   "size_insertions": 884,
+   "vertex_removal_checks": 0,
+   "vertex_removal_refusals": 0,
+   "nonsize_checks": 0,
+   "nonsize_refusals": 0,
+   "layer_free": 89,
+   "layer_checked": 0
+  },
+  "V11": {
+   "halves_guard": 41,
+   "accepted_by": {
+    "ColumnSplit": 3,
+    "InsertEdgeCavity": 241,
+    "InsertEdgeCavity+repair": 252,
+    "RepairMetricConnectivity": 34,
+    "SplitEdge": 373,
+    "SplitEdge+repair": 9,
+    "SplitGrow+repair": 6
+   },
+   "per_sweep": [
+    [
+     5750,
+     2183,
+     478,
+     0,
+     1697,
+     82.13342776
+    ],
+    [
+     6252,
+     2379,
+     488,
+     0,
+     2760,
+     120.062614087
+    ]
+   ],
+   "completed_sweeps": 2,
+   "stale_skips": 0,
+   "grow": {
+    "calls": 378,
+    "grown": 47,
+    "trials": 1108,
+    "steps": 81,
+    "no_view": 0,
+    "no_gain": 101,
+    "blocked": 277
+   },
+   "floor_refusals": {
+    "old<floor new J only": 1,
+    "old<floor new q<.05": 270,
+    "old<floor new q<.10": 122,
+    "old<floor new q<.15": 186,
+    "old<floor new q<.20": 134,
+    "old>=floor new J only": 23,
+    "old>=floor new q<.05": 59,
+    "old>=floor new q<.10": 36,
+    "old>=floor new q<.15": 95,
+    "old>=floor new q<.20": 92
+   }
+  },
+  "V_top_refusals": [
+   [
+    "SplitEdge [2] D floor: q=# J=# old q=#",
+    413
+   ],
+   [
+    "InsertEdgeCavity [2] D floor: q=# J=# old q=#",
+    306
+   ],
+   [
+    "SplitGrow build: grow: physical or protected edge star",
+    277
+   ],
+   [
+    "InsertEdgeCavity [4] Native #D physical face leaves or reverses original facet #.",
+    274
+   ],
+   [
+    "InsertEdgeCavity+repair [2] D floor: q=# J=# old q=#",
+    119
+   ],
+   [
+    "SplitEdge+repair [2] D floor: q=# J=# old q=#",
+    81
+   ],
+   [
+    "SplitGrow build: grow: no improving enlargement",
+    54
+   ],
+   [
+    "ColumnSplit [2] D floor: q=# J=# old q=#",
+    45
+   ]
+  ],
+  "V_field": {
+   "queries": 652937,
+   "query_misses": 554879,
+   "compositions": 3346989,
+   "edge_integrations": 18656,
+   "edge_compositions": 2696405,
+   "edge_pieces": 22131
+  },
+  "peak_rss_kB": 165680,
+  "wall_distance_evaluations": 4105362
+ },
+ "m6_tip_te": {
+  "W": "complete",
+  "W_counts": {
+   "splits": 0,
+   "unmeasurable": 0,
+   "strip_splits": 0,
+   "strip_faces": 32,
+   "strip_cells_across_min": 3.99982247478
+  },
+  "R1w": null,
+  "R1w_reasons": null,
+  "R2_rowed/unrowed": [
+   131,
+   0
+  ],
+  "R2_ridge_lifts": 0,
+  "R2_fan_cells_now": 0,
+  "R2_gap_cells": 0,
+  "R2_fan_check_failures": {},
+  "R2_witness_classes": {},
+  "R2_ridge_transactions_ok/refused": [
+   0,
+   0
+  ],
+  "R2_trace_classes": {
+   "": 77
+  },
+  "first_q/J_at_admission": [
+   0.725346705361,
+   0.517484499619
+  ],
+  "after_R_bad(first/column/outside)": [
+   249,
+   2,
+   69,
+   178
+  ],
+  "V": [
+   "limit",
+   1494,
+   120.3,
+   0
+  ],
+  "final_cells": 6333,
+  "final_bad(first/column/outside)": [
+   286,
+   2,
+   69,
+   215
+  ],
+  "final_fan": {
+   "cells": 0,
+   "bad": 0
+  },
+  "final_long": 3216,
+  "final_long_by_class": {
+   "wall": 0,
+   "seam": 0,
+   "other_physical": 230,
+   "interior": 2986,
+   "inside_columns_only": 139
+  },
+  "final_height_failures": 2,
+  "final_q_min": 0.02427088717,
+  "complete": 0,
+  "reaudit_agrees": 1,
+  "total_seconds": 237.7,
+  "split_rule": "2d",
+  "lift": "single",
+  "split_policy_after_R": {
+   "size_insertions": 0,
+   "vertex_removal_checks": 0,
+   "vertex_removal_refusals": 0,
+   "nonsize_checks": 0,
+   "nonsize_refusals": 0,
+   "layer_free": 77,
+   "layer_checked": 0
+  },
+  "split_policy_after_V": {
+   "size_insertions": 816,
+   "vertex_removal_checks": 0,
+   "vertex_removal_refusals": 0,
+   "nonsize_checks": 0,
+   "nonsize_refusals": 0,
+   "layer_free": 77,
+   "layer_checked": 0
+  },
+  "V11": {
+   "halves_guard": 0,
+   "accepted_by": {
+    "ColumnSplit": 2,
+    "InsertEdgeCavity": 338,
+    "InsertEdgeCavity+repair": 232,
+    "SplitEdge": 231,
+    "SplitEdge+repair": 7,
+    "SplitGrow": 1,
+    "SplitGrow+repair": 5
+   },
+   "per_sweep": [
+    [
+     6333,
+     3216,
+     286,
+     2,
+     1494,
+     120.303266647
+    ]
+   ],
+   "completed_sweeps": 1,
+   "stale_skips": 0,
+   "grow": {
+    "calls": 226,
+    "grown": 23,
+    "trials": 411,
+    "steps": 34,
+    "no_view": 0,
+    "no_gain": 50,
+    "blocked": 175
+   },
+   "floor_refusals": {
+    "old<floor new q<.05": 25,
+    "old<floor new q<.10": 77,
+    "old<floor new q<.15": 15,
+    "old<floor new q<.20": 57,
+    "old>=floor new J only": 1,
+    "old>=floor new q<.05": 6,
+    "old>=floor new q<.10": 10,
+    "old>=floor new q<.20": 12
+   }
+  },
+  "V_top_refusals": [
+   [
+    "SplitGrow build: grow: physical or protected edge star",
+    175
+   ],
+   [
+    "InsertEdgeCavity [4] Native #D physical face leaves or reverses original facet #.",
+    174
+   ],
+   [
+    "InsertEdgeCavity+repair [2] D floor: q=# J=# old q=#",
+    51
+   ],
+   [
+    "InsertEdgeCavity [2] D floor: q=# J=# old q=#",
+    51
+   ],
+   [
+    "SplitEdge [2] D floor: q=# J=# old q=#",
+    47
+   ],
+   [
+    "ColumnSplit [2] D floor: q=# J=# old q=#",
+    44
+   ],
+   [
+    "SplitGrow build: grow: no improving enlargement",
+    28
+   ],
+   [
+    "SplitEdge+repair [2] D floor: q=# J=# old q=#",
+    20
+   ]
+  ],
+  "V_field": {
+   "queries": 308129,
+   "query_misses": 262530,
+   "compositions": 2910739,
+   "edge_integrations": 11703,
+   "edge_compositions": 2604306,
+   "edge_pieces": 14858
+  },
+  "peak_rss_kB": 164696,
+  "wall_distance_evaluations": 3840679
+ },
+ "tube_root_x": {
+  "W": "complete",
+  "W_counts": {
+   "splits": 0,
+   "unmeasurable": 0,
+   "strip_splits": 68,
+   "strip_faces": 170,
+   "strip_cells_across_min": 4
+  },
+  "R1w": null,
+  "R1w_reasons": null,
+  "R2_rowed/unrowed": [
+   155,
+   33
+  ],
+  "R2_ridge_lifts": 0,
+  "R2_fan_cells_now": 0,
+  "R2_gap_cells": 0,
+  "R2_fan_check_failures": {},
+  "R2_witness_classes": {
+   "cap": 8
+  },
+  "R2_ridge_transactions_ok/refused": [
+   0,
+   0
+  ],
+  "R2_trace_classes": {
+   "": 104,
+   "cap": 8
+  },
+  "first_q/J_at_admission": [
+   0.445386181105,
+   0.207811766957
+  ],
+  "after_R_bad(first/column/outside)": [
+   95,
+   0,
+   73,
+   22
+  ],
+  "V": [
+   "blocked",
+   3550,
+   117.6,
+   6
+  ],
+  "final_cells": 8219,
+  "final_bad(first/column/outside)": [
+   59,
+   0,
+   55,
+   4
+  ],
+  "final_fan": {
+   "cells": 0,
+   "bad": 0
+  },
+  "final_long": 594,
+  "final_long_by_class": {
+   "wall": 0,
+   "seam": 0,
+   "other_physical": 36,
+   "interior": 558,
+   "inside_columns_only": 104
+  },
+  "final_height_failures": 0,
+  "final_q_min": 0.1183176735,
+  "complete": 0,
+  "reaudit_agrees": 1,
+  "total_seconds": 161.4,
+  "split_rule": "2d",
+  "lift": "single",
+  "split_policy_after_R": {
+   "size_insertions": 0,
+   "vertex_removal_checks": 0,
+   "vertex_removal_refusals": 0,
+   "nonsize_checks": 0,
+   "nonsize_refusals": 0,
+   "layer_free": 104,
+   "layer_checked": 0
+  },
+  "split_policy_after_V": {
+   "size_insertions": 951,
+   "vertex_removal_checks": 0,
+   "vertex_removal_refusals": 0,
+   "nonsize_checks": 3,
+   "nonsize_refusals": 3,
+   "layer_free": 104,
+   "layer_checked": 0
+  },
+  "V11": {
+   "halves_guard": 154,
+   "accepted_by": {
+    "ColumnSplit": 5,
+    "InsertEdgeCavity": 559,
+    "InsertEdgeCavity+repair": 221,
+    "RepairMetricConnectivity": 1,
+    "SplitEdge": 134,
+    "SplitEdge+repair": 12,
+    "SplitGrow+repair": 20
+   },
+   "per_sweep": [
+    [
+     6542,
+     662,
+     60,
+     0,
+     1143,
+     40.291904449
+    ],
+    [
+     7602,
+     621,
+     59,
+     0,
+     1976,
+     65.594085035
+    ],
+    [
+     8019,
+     603,
+     59,
+     0,
+     2693,
+     89.637005533
+    ],
+    [
+     8196,
+     594,
+     59,
+     0,
+     3261,
+     107.848747295
+    ],
+    [
+     8209,
+     594,
+     59,
+     0,
+     3503,
+     115.715784411
+    ],
+    [
+     8219,
+     594,
+     59,
+     0,
+     3530,
+     116.734177803
+    ],
+    [
+     8219,
+     594,
+     59,
+     0,
+     3550,
+     117.635048746
+    ]
+   ],
+   "completed_sweeps": 7,
+   "stale_skips": 0,
+   "grow": {
+    "calls": 882,
+    "grown": 87,
+    "trials": 1467,
+    "steps": 106,
+    "no_view": 0,
+    "no_gain": 280,
+    "blocked": 602
+   },
+   "floor_refusals": {
+    "old<floor new q<.10": 6,
+    "old<floor new q<.15": 2,
+    "old<floor new q<.20": 1,
+    "old>=floor new J only": 42,
+    "old>=floor new q<.10": 48,
+    "old>=floor new q<.15": 423,
+    "old>=floor new q<.20": 338
+   }
+  },
+  "V_top_refusals": [
+   [
+    "SplitGrow build: grow: physical or protected edge star",
+    602
+   ],
+   [
+    "InsertEdgeCavity [4] Native #D physical face leaves or reverses original facet #.",
+    602
+   ],
+   [
+    "InsertEdgeCavity [2] D floor: q=# J=# old q=#",
+    344
+   ],
+   [
+    "InsertEdgeCavity+repair [2] D floor: q=# J=# old q=#",
+    298
+   ],
+   [
+    "SplitGrow build: grow: no improving enlargement",
+    193
+   ],
+   [
+    "ColumnSplit [2] D floor: q=# J=# old q=#",
+    124
+   ],
+   [
+    "SplitGrow+repair [2] D floor: q=# J=# old q=#",
+    67
+   ],
+   [
+    "SplitGrow [2] D floor: q=# J=# old q=#",
+    67
+   ]
+  ],
+  "V_field": {
+   "queries": 585342,
+   "query_misses": 493031,
+   "compositions": 4239769,
+   "edge_integrations": 22844,
+   "edge_compositions": 3657095,
+   "edge_pieces": 26660
+  },
+  "peak_rss_kB": 45760,
+  "wall_distance_evaluations": 4907960
+ },
+ "two_tube_y": {
+  "W": "complete",
+  "W_counts": {
+   "splits": 0,
+   "unmeasurable": 0,
+   "strip_splits": 108,
+   "strip_faces": 308,
+   "strip_cells_across_min": 4
+  },
+  "R1w": null,
+  "R1w_reasons": null,
+  "R2_rowed/unrowed": [
+   268,
+   52
+  ],
+  "R2_ridge_lifts": 0,
+  "R2_fan_cells_now": 0,
+  "R2_gap_cells": 0,
+  "R2_fan_check_failures": {},
+  "R2_witness_classes": {
+   "cap": 12
+  },
+  "R2_ridge_transactions_ok/refused": [
+   0,
+   0
+  ],
+  "R2_trace_classes": {
+   "": 181,
+   "clearance": 5,
+   "cap": 12
+  },
+  "first_q/J_at_admission": [
+   0.48170561665,
+   0.262835090788
+  ],
+  "after_R_bad(first/column/outside)": [
+   141,
+   0,
+   116,
+   25
+  ],
+  "V": [
+   "limit",
+   4054,
+   120.1,
+   3
+  ],
+  "final_cells": 10895,
+  "final_bad(first/column/outside)": [
+   85,
+   0,
+   85,
+   0
+  ],
+  "final_fan": {
+   "cells": 0,
+   "bad": 0
+  },
+  "final_long": 874,
+  "final_long_by_class": {
+   "wall": 0,
+   "seam": 0,
+   "other_physical": 31,
+   "interior": 843,
+   "inside_columns_only": 150
+  },
+  "final_height_failures": 0,
+  "final_q_min": 0.1319972946,
+  "complete": 0,
+  "reaudit_agrees": 1,
+  "total_seconds": 183.4,
+  "split_rule": "2d",
+  "lift": "single",
+  "split_policy_after_R": {
+   "size_insertions": 0,
+   "vertex_removal_checks": 0,
+   "vertex_removal_refusals": 0,
+   "nonsize_checks": 0,
+   "nonsize_refusals": 0,
+   "layer_free": 181,
+   "layer_checked": 0
+  },
+  "split_policy_after_V": {
+   "size_insertions": 1219,
+   "vertex_removal_checks": 0,
+   "vertex_removal_refusals": 0,
+   "nonsize_checks": 5,
+   "nonsize_refusals": 5,
+   "layer_free": 181,
+   "layer_checked": 0
+  },
+  "V11": {
+   "halves_guard": 175,
+   "accepted_by": {
+    "ColumnSplit": 26,
+    "InsertEdgeCavity": 627,
+    "InsertEdgeCavity+repair": 293,
+    "SplitEdge": 233,
+    "SplitEdge+repair": 22,
+    "SplitGrow+repair": 18
+   },
+   "per_sweep": [
+    [
+     8555,
+     1065,
+     86,
+     0,
+     1415,
+     52.024404328
+    ],
+    [
+     10336,
+     899,
+     85,
+     0,
+     2774,
+     85.427873243
+    ],
+    [
+     10822,
+     876,
+     85,
+     0,
+     3747,
+     113.636604233
+    ],
+    [
+     10895,
+     874,
+     85,
+     0,
+     4054,
+     120.081916413
+    ]
+   ],
+   "completed_sweeps": 4,
+   "stale_skips": 0,
+   "grow": {
+    "calls": 1062,
+    "grown": 69,
+    "trials": 898,
+    "steps": 99,
+    "no_view": 0,
+    "no_gain": 174,
+    "blocked": 888
+   },
+   "floor_refusals": {
+    "old>=floor new J only": 38,
+    "old>=floor new q<.10": 26,
+    "old>=floor new q<.15": 273,
+    "old>=floor new q<.20": 191
+   }
+  },
+  "V_top_refusals": [
+   [
+    "SplitGrow build: grow: physical or protected edge star",
+    888
+   ],
+   [
+    "InsertEdgeCavity [4] Native #D physical face leaves or reverses original facet #.",
+    888
+   ],
+   [
+    "InsertEdgeCavity [2] D floor: q=# J=# old q=#",
+    201
+   ],
+   [
+    "ColumnSplit [2] D floor: q=# J=# old q=#",
+    195
+   ],
+   [
+    "InsertEdgeCavity+repair [2] D floor: q=# J=# old q=#",
+    183
+   ],
+   [
+    "SplitGrow build: grow: no improving enlargement",
+    105
+   ],
+   [
+    "SplitGrow+repair [2] D floor: q=# J=# old q=#",
+    51
+   ],
+   [
+    "SplitGrow [2] D floor: q=# J=# old q=#",
+    51
+   ]
+  ],
+  "V_field": {
+   "queries": 495010,
+   "query_misses": 409719,
+   "compositions": 4330804,
+   "edge_integrations": 27620,
+   "edge_compositions": 3839207,
+   "edge_pieces": 33672
+  },
+  "peak_rss_kB": 50736,
+  "wall_distance_evaluations": 5330981
+ }
+}

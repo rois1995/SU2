@@ -7,6 +7,7 @@
 #include "../../include/adaptation/CNativeMetric3D.hpp"
 #include "../../include/adaptation/CNativeFma.hpp"
 #include <algorithm>
+#include <atomic>
 #include <cmath>
 #include <cstdint>
 #include <cstring>
@@ -340,8 +341,14 @@ bool ValidateMetricPatch(const std::vector<Cell>& cells, FrozenField& target, Pa
     return false;
   }
 }
+namespace {
+std::atomic<int> refine_acceptance{int(RefineAcceptance::StrictExcess)};
+}  // namespace
+void SetRefineAcceptance(RefineAcceptance acceptance) { refine_acceptance.store(int(acceptance)); }
+RefineAcceptance GetRefineAcceptance() { return RefineAcceptance(refine_acceptance.load()); }
 bool ValidateMetricChange(size_t old_count, const PatchMetric& before, size_t fresh_count,
-                          const PatchMetric& measured, MetricChange kind, std::string& reason, MetricDiagnosis* diagnosis) {
+                          const PatchMetric& measured, MetricChange kind, std::string& reason, MetricDiagnosis* diagnosis,
+                          size_t relocated) {
   if (diagnosis) { *diagnosis={}; diagnosis->failure=MetricFailure::Measurement; }
   try {
     if (!old_count || !fresh_count || old_count > MaximumReplacementCells || fresh_count > MaximumReplacementCells)
@@ -364,12 +371,25 @@ bool ValidateMetricChange(size_t old_count, const PatchMetric& before, size_t fr
       diagnosis->failure=MetricFailure::Shape;
     }
     Shape(measured);
-    long double removed = 0, added = 0;
+    long double removed = 0, added = 0, longest_removed = 0;
     for (const auto& edge : before.edges)
-      if (!Shared(measured.edges, edge)) removed += Excess(edge.second.length);
+      if (!Shared(measured.edges, edge)) {
+        removed += Excess(edge.second.length);
+        longest_removed = std::max(longest_removed, edge.second.length);
+      }
     for (const auto& edge : measured.edges)
       if (!Shared(before.edges, edge)) added += Excess(edge.second.length);
     const bool size_progress = removed > 0 && added < removed * (1 - 1e-12L);
+    // Both measurements hold every edge of their cells, so the edge keys give the vertex sets. An old vertex absent
+    // from the fresh cells is removed (collapse/absorb) unless the caller certifies it as relocated (a refit replaces a
+    // moved apex one for one by a new identity). A refinement must also gain a vertex net.
+    std::set<Id> old_vertices, fresh_vertices;
+    for (const auto& edge : before.edges) old_vertices.insert(edge.first.begin(), edge.first.end());
+    for (const auto& edge : measured.edges) fresh_vertices.insert(edge.first.begin(), edge.first.end());
+    size_t gone = 0;
+    for (const auto id : old_vertices) gone += !fresh_vertices.count(id);
+    const bool vertex_removal = gone > relocated || fresh_vertices.size() < old_vertices.size() + 1;
+    const bool size_insertion = !vertex_removal && longest_removed > SplitInsertionLength;
     const bool quality_progress =
         (measured.minimum_mean_ratio > before.minimum_mean_ratio + 1e-7 &&
          measured.minimum_scaled_jacobian >= before.minimum_scaled_jacobian * (1 - 1e-12)) ||
@@ -381,8 +401,21 @@ bool ValidateMetricChange(size_t old_count, const PatchMetric& before, size_t fr
       diagnosis->size_progress=size_progress;
       diagnosis->quality_progress=quality_progress && added<=removed;
       diagnosis->cell_removal=fresh_count<old_count;
+      diagnosis->size_insertion=size_insertion; diagnosis->vertex_removal=vertex_removal;
+      diagnosis->longest_removed=longest_removed;
     }
-    if (kind == MetricChange::Refine) {
+    if (kind == MetricChange::Refine && GetRefineAcceptance() == RefineAcceptance::SplitInsertion) {
+      // 2D split rule: resolution added by a size insertion is accepted on fresh shape alone (no cell-count
+      // condition: a wall refit may add a point without adding tetrahedra); a refinement without net vertex gain must
+      // pay with strict excess progress; a non-size insertion must improve shape and add no oversized changed edge.
+      if (vertex_removal && !size_progress)
+        throw std::invalid_argument("Native 3D refinement removes a vertex without reducing frozen changed-edge excess.");
+      // 2D (CNativeMesh2D.hpp SplitPatch): the minimum quality must rise. Production has no skin here, so it cannot
+      // test retained interior edges; production Refine requests are edges > MaximumMetricEdge (size insertions).
+      const bool mean_ratio_progress = measured.minimum_mean_ratio > before.minimum_mean_ratio + 1e-7;
+      if (!vertex_removal && !size_insertion && !(added == 0 && mean_ratio_progress))
+        throw std::invalid_argument("Native 3D refinement below the split length adds an oversized edge or improves no shape.");
+    } else if (kind == MetricChange::Refine) {
       if (fresh_count <= old_count || !(removed > 0 && added < removed * (1 - 1e-12L)))
         throw std::invalid_argument("Native 3D refinement does not reduce frozen changed-edge excess.");
     } else if (kind == MetricChange::GeometryRefine) {
@@ -407,7 +440,8 @@ bool ValidateMetricChange(size_t old_count, const PatchMetric& before, size_t fr
   }
 }
 bool ValidateMetricChange(const std::vector<Cell>& old, const std::vector<Cell>& fresh, MetricChange kind,
-                          FrozenField& target, PatchMetric& measured, std::string& reason, MetricStats* stats, const std::map<Edge, EdgeMeasure>* frozen_reuse, MetricDiagnosis* diagnosis) {
+                          FrozenField& target, PatchMetric& measured, std::string& reason, MetricStats* stats, const std::map<Edge, EdgeMeasure>* frozen_reuse, MetricDiagnosis* diagnosis,
+                          size_t relocated) {
   if (diagnosis) { *diagnosis={}; diagnosis->failure=MetricFailure::Measurement; }
   try {
     if (stats) ++stats->changes;
@@ -417,7 +451,7 @@ bool ValidateMetricChange(const std::vector<Cell>& old, const std::vector<Cell>&
     Shape(measured);
     if (diagnosis) diagnosis->failure=MetricFailure::Measurement;
     const auto before = MeasureMetricCells(old, target, stats, &measured.edges);
-    const bool valid = ValidateMetricChange(old.size(), before, fresh.size(), measured, kind, reason, diagnosis);
+    const bool valid = ValidateMetricChange(old.size(), before, fresh.size(), measured, kind, reason, diagnosis, relocated);
     if (!valid && stats) ++stats->failures;
     return valid;
   } catch (const std::exception& e) {

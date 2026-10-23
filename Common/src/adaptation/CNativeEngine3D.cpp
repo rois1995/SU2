@@ -1919,7 +1919,14 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       CLocalFailure old_failure;
       if (metric_needed && !old_measured) old_failure.Set(1,0,result.reason);
       if (!(ready=vote(old_failure))) return finish();
-      auto validate_private=[&](bool candidate,MetricChange kind,bool no_new_oversized=false,bool strict_size=false) {
+      // Refits and joint placement give each moved apex a new identity from maximum_node+2+node_offset on (one for one);
+      // the split point is maximum_node+1+node_offset. Only those callers certify relocations (RefineAcceptance).
+      auto reserved_relocations=[&]() {
+        std::set<Id> previous,ids;for(const auto& c:old.cells)for(auto n:c.v)previous.insert(n.id);
+        for(const auto& c:fresh.cells)for(auto n:c.v)if(n.id>=maximum_node+2+node_offset && !previous.count(n.id))ids.insert(n.id);
+        return ids.size();
+      };
+      auto validate_private=[&](bool candidate,MetricChange kind,bool no_new_oversized=false,bool strict_size=false,size_t relocated=0) {
         const bool completed=concurrent && approved && !candidate;
         const auto retained=certified;
         certified={};
@@ -1931,7 +1938,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         { Timer timer(stats.metric_seconds,options.timings); CpuTimer cpu(stats.metric_cpu_seconds,options.timings);
           if (candidate) {
             const auto effective=(kind==MetricChange::Repair && geometric_progress) ? MetricChange::GeometryRepair : kind;
-            if (measured) valid=ValidateMetricChange(old.cells.size(),before,fresh.cells.size(),metric,effective,result.reason,&certified);
+            if (measured) valid=ValidateMetricChange(old.cells.size(),before,fresh.cells.size(),metric,effective,result.reason,&certified,relocated);
             if(valid && no_new_oversized)for(const auto& edge:metric.edges)if(edge.second.length>MaximumMetricEdge) {
               const auto previous=before.edges.find(edge.first);
               auto same=[](Point a,Point b){return a.x==b.x && a.y==b.y && a.z==b.z;};
@@ -2077,7 +2084,8 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         if(!(ready=vote(failure)))return false;
         stats.global_work+=concurrent ? CPassiveComm::Allreduce(uint64_t(report.trials),CPassiveComm::Op::SUM,world.comm) : world.maximum(report.trials);
         const auto retained_metric=certified;
-        const bool passed=validate_private(candidate,MetricChange::Refine);
+        const bool passed=validate_private(candidate,MetricChange::Refine,false,false,
+            height_apex==UINT64_MAX && candidate ? reserved_relocations() : 0);
         if(search && !approved){approved=passed;stats.placement_validated+=passed;}
         else if(!search)certified=retained_metric;
         if(!ready)return false;
@@ -2366,7 +2374,9 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
             }
           }catch(const std::exception& e){failure.Set(2,0,e.what());}
           if(!(ready=vote(failure)))return finish();
-          const bool passed=validate_private(candidate,MetricChange::Refine,!normalTrial);
+          // The strip split is a size insertion: under the split rule it may introduce long changed edges (2D rule).
+          const bool passed=validate_private(candidate,MetricChange::Refine,
+              !normalTrial && GetRefineAcceptance()==RefineAcceptance::StrictExcess);
           if(strip && !approved)approved=passed;
           if(!ready)return finish();
         }
@@ -2515,7 +2525,13 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
           }
           if(!ready)return finish();
           const bool compound_refit=retained_frame && frame==0;
-          auto validate_joint=[&](bool available){return validate_private(available,compound_refit?MetricChange::Repair:
+          // Split rule (RefineAcceptance::SplitInsertion): the refit wall split is a refinement of a long wall edge;
+          // it needs no strict excess decrease unless it removes a vertex (handled by the Refine certificate).
+          const bool split_refit=compound_refit && !choice.geometric &&
+              GetRefineAcceptance()==RefineAcceptance::SplitInsertion;
+          auto validate_joint=[&](bool available){return split_refit ? validate_private(available,MetricChange::Refine,false,false,
+              available ? reserved_relocations() : 0) :
+              validate_private(available,compound_refit?MetricChange::Repair:
               choice.geometric?MetricChange::GeometryRefine:MetricChange::Refine,false,compound_refit && !choice.geometric);};
           bool passed=validate_joint(candidate);
           if(!ready)return finish();

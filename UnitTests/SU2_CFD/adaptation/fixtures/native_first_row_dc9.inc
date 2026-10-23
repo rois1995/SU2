@@ -537,6 +537,38 @@ bool SizeCertificate(State& s,const Patch& old,const Patch& fresh,long double& r
     if(removed>=added)break;}
   return true;
 }
+// ---- DC-11 split-acceptance policy (SPLIT_RULE_PLAN). rule 0: the DC-9/DC-10 certificates, unchanged (default).
+// rule 1: the 2D split rule (CNativeMesh2D.hpp SplitPatch sizeProgress): a refinement that removes no vertex needs no
+// changed-edge excess progress when the requested split edge (metric length `requested`; < 0 = unknown -> the longest
+// removed changed edge) exceeds 1.6, otherwise it may add no oversized changed edge; one that removes a vertex keeps
+// the strict decrease; a LayerConstruct that removes no vertex needs no size certificate (2D HEIGHT has none), one that
+// does keeps added <= removed. `relocated`: column apices rebuilt by the operation (a move, not a removal).
+struct SplitPolicy {
+  int rule=0;const std::set<Id>* relocated=nullptr;size_t relocatedCount=0;long double requested=-1;
+  size_t size_insertions=0,vertex_removal_checks=0,vertex_removal_refusals=0,nonsize_checks=0,nonsize_refusals=0,layer_free=0,layer_checked=0;
+};
+SplitPolicy splitPolicy;
+// A removal: an old vertex (not a relocated apex) absent from the fresh cells, or no net vertex gain (the production
+// criterion, which cannot see relocations).
+// `certified`: further one-for-one relocations certified by the caller (production refit identities).
+bool RemovesVertex(const std::vector<Cell>& old,const std::vector<Cell>& fresh,const std::set<Id>* relocated,size_t certified=0) {
+  std::set<Id> now,before;for(const auto& c:fresh)for(auto n:c.v)now.insert(n.id);size_t gone=0;
+  for(const auto& c:old)for(auto n:c.v)if(before.insert(n.id).second&&!now.count(n.id)&&!(relocated&&relocated->count(n.id)))++gone;
+  return gone>certified||now.size()<before.size()+1;
+}
+// Edges of the fresh cells not on their boundary skin (2D: interior edges, perimeter excluded).
+std::set<Edge> InteriorEdges(const std::vector<Cell>& cells) {
+  std::set<Edge> skin,all;for(const auto& f:Incidence(cells).Boundary())for(int i=0;i<3;++i)skin.insert({std::min(f[i],f[(i+1)%3]),std::max(f[i],f[(i+1)%3])});
+  for(const auto& c:cells)for(unsigned i=0;i<4;++i)for(unsigned j=i+1;j<4;++j){const Edge e{std::min(c.v[i].id,c.v[j].id),std::max(c.v[i].id,c.v[j].id)};if(!skin.count(e))all.insert(e);}
+  return all;
+}
+// Every changed fresh edge must be measurable (the certificates' measurement validity, kept when the excess
+// comparison is exempted). Returns false with the reason on an unmeasurable changed edge.
+bool MeasurableChanged(State& s,const Patch& old,const Patch& fresh,std::string& why) {
+  long double removed=0,added=0;std::string w;
+  // SizeCertificate integrates every changed fresh edge first and fails only on an unmeasurable one
+  if(!SizeCertificate(s,old,fresh,removed,added,w)){why=w;return false;}return true;
+}
 // ---- R2 closed row transaction with sector lifts and band-height window --------------------------------------------
 struct Tx {
   bool ok=false;std::string cls,witness;std::vector<Face> failing;std::vector<Id> ids;Patch old,fresh;
@@ -672,6 +704,9 @@ Tx Transaction(State& s,const Rows& rows,const std::set<Id>& V0,bool low) {
     tx.height_error=std::max(tx.height_error,r.maximum_relative_error);
     const auto sh=Shape(s,one.cells.front());if(Bad(sh)){tx.failing.push_back(key);tx.cls="first-child";tx.witness="rowed face first child q="+std::to_string(sh.q);}}
   if(!tx.failing.empty())return tx;
+  if(splitPolicy.rule==1){std::set<Id> rel;for(const auto& k:tx.rebuilt){const auto a=rows.apex.find(k);if(a!=rows.apex.end())rel.insert(a->second);}
+    if(!RemovesVertex(tx.old.cells,out.cells,&rel)){std::string why;if(!MeasurableChanged(s,tx.old,out,why)){tx.cls="measure";tx.witness=why;return tx;}
+      ++splitPolicy.layer_free;tx.fresh=std::move(out);tx.ok=true;return tx;}++splitPolicy.layer_checked;}
   {long double removed=0,added=0;std::string why;if(!SizeCertificate(s,tx.old,out,removed,added,why)){tx.cls="measure";tx.witness=why;return tx;}
    if(!(added<=removed)){tx.cls="excess";std::ostringstream w;w<<"LayerConstruct adds frozen excess: added "<<double(added)<<" > removed "<<double(removed);tx.witness=w.str();return tx;}}
   tx.fresh=std::move(out);tx.ok=true;return tx;
@@ -1089,6 +1124,22 @@ Decision Admit8(State& s,const Patch& old,const Patch& fresh,Kind kind) {
   if(base.first_q<MinimumMeanRatio||base.first_J<MinimumScaledJacobian){d.category=2;d.reason="D first child: q="+std::to_string(base.first_q)+" J="+std::to_string(base.first_J);return d;}
   if(kind==Kind::Layer?!(base.other_q>0&&base.other_J>0):(base.other_q<std::min<double>(MinimumMeanRatio,base.q_old)||base.other_J<std::min<double>(MinimumScaledJacobian,base.J_old))){
     d.category=2;d.reason="D floor: q="+std::to_string(base.other_q)+" J="+std::to_string(base.other_J)+" old q="+std::to_string(base.q_old);return d;}
+  if(splitPolicy.rule==1&&(kind==Kind::Refine||kind==Kind::Layer)) {  // DC-11 2D split rule (SplitPolicy)
+    const bool removes=RemovesVertex(old.cells,fresh.cells,splitPolicy.relocated,splitPolicy.relocatedCount);
+    if(kind==Kind::Layer){if(!removes){++splitPolicy.layer_free;d.ok=true;return d;}++splitPolicy.layer_checked;
+      if(base.added<=base.removed){d.ok=true;return d;}d.category=3;d.reason="layer: removes a vertex and adds frozen excess";return d;}
+    if(removes){++splitPolicy.vertex_removal_checks;if(size_progress){d.ok=true;return d;}
+      ++splitPolicy.vertex_removal_refusals;d.category=3;d.reason="refine: removes a vertex without strict changed-edge excess reduction";return d;}
+    long double longest=splitPolicy.requested;
+    if(longest<0){longest=0;for(const auto& e:before.edges)if(!shared(after.edges,e))longest=std::max(longest,e.second.length);}
+    if(longest>(long double)SplitInsertionLength){++splitPolicy.size_insertions;d.ok=true;return d;}
+    // 2D non-size insertion: shape improves and no interior (non-skin) fresh edge, changed or retained, exceeds 1.8
+    ++splitPolicy.nonsize_checks;bool interiorOk=base.added==0;
+    if(interiorOk){std::set<Edge> in;try{in=InteriorEdges(fresh.cells);}catch(const std::exception&){interiorOk=false;}
+      for(const auto& e:after.edges)if(in.count(e.first)&&e.second.length>MaximumMetricEdge)interiorOk=false;}
+    if(interiorOk&&base.q_new>base.q_old+1e-7){d.ok=true;return d;}  // 2D: the minimum quality rises
+    ++splitPolicy.nonsize_refusals;d.category=3;d.reason="refine: non-size insertion adds an oversized interior edge or improves no shape";return d;
+  }
   if(kind==Kind::Refine){if(fresh.cells.size()>old.cells.size()&&size_progress){d.ok=true;return d;}d.category=3;d.reason="refine: no strict changed-edge excess reduction";return d;}
   if(kind==Kind::Repair){if(size_progress||(quality_progress&&base.added<=base.removed)){d.ok=true;return d;}d.category=3;d.reason="repair: neither size nor quality progress";return d;}
   if(base.added<=base.removed){d.ok=true;return d;}d.category=3;d.reason="layer: adds frozen excess";return d;

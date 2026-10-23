@@ -1,0 +1,106 @@
+== runs_single
+  annulus      DC11 rowed/unrowed 6/6 cells 250 bad 14 long 43 h 0 complete 0 V blocked work 235 sweeps 4 t 9s
+               DC10 rowed/unrowed 6/6 cells 242 bad 21 long 45 h 0 complete 0 V blocked work 299 sweeps 4 t 9s
+               policy {'size_insertions': 47, 'vertex_removal_checks': 0, 'vertex_removal_refusals': 0, 'nonsize_checks': 0, 'nonsize_refusals': 0, 'layer_free': 7, 'layer_checked': 0} accepted {'InsertEdgeCavity+repair': 9, 'RepairMetricConnectivity': 5, 'SplitEdge': 35, 'SplitEdge+repair': 3}
+               floor {'old<floor new q<.05': 4, 'old<floor new q<.10': 10, 'old<floor new q<.15': 38, 'old<floor new q<.20': 12, 'old>=floor new J only': 5, 'old>=floor new q<.10': 6, 'old>=floor new q<.15': 24, 'old>=floor new q<.20': 24} grow {'calls': 0, 'grown': 0, 'trials': 0, 'steps': 0, 'no_view': 0, 'no_gain': 0, 'blocked': 0}
+  m6_le        DC11 rowed/unrowed 136/0 cells 4865 bad 737 long 1043 h 2 complete 0 V limit work 7495 sweeps 5 t 134s
+               DC10 rowed/unrowed 136/0 cells 2956 bad 389 long 688 h 2 complete 0 V limit work 6660 sweeps 5 t 130s
+               policy {'size_insertions': 511, 'vertex_removal_checks': 0, 'vertex_removal_refusals': 0, 'nonsize_checks': 0, 'nonsize_refusals': 0, 'layer_free': 87, 'layer_checked': 0} accepted {'InsertEdgeCavity': 30, 'InsertEdgeCavity+repair': 415, 'RepairMetricConnectivity': 144, 'SplitEdge': 62, 'SplitEdge+repair': 4}
+               floor {'old<floor new J only': 12, 'old<floor new q<.05': 2671, 'old<floor new q<.10': 293, 'old<floor new q<.15': 1460, 'old<floor new q<.20': 817, 'old>=floor new J only': 19, 'old>=floor new q<.05': 301, 'old>=floor new q<.10': 20, 'old>=floor new q<.15': 143, 'old>=floor new q<.20': 153} grow {'calls': 0, 'grown': 0, 'trials': 0, 'steps': 0, 'no_view': 0, 'no_gain': 0, 'blocked': 0}
+  m6_root_te   DC11 rowed/unrowed 136/0 cells 5681 bad 507 long 2142 h 0 complete 0 V limit work 1228 sweeps 1 t 231s
+               DC10 rowed/unrowed 136/0 cells 4112 bad 259 long 1414 h 0 complete 0 V limit work 2474 sweeps 1 t 175s
+               policy {'size_insertions': 706, 'vertex_removal_checks': 0, 'vertex_removal_refusals': 0, 'nonsize_checks': 0, 'nonsize_refusals': 0, 'layer_free': 89, 'layer_checked': 0} accepted {'ColumnSplit': 2, 'InsertEdgeCavity': 231, 'InsertEdgeCavity+repair': 218, 'SplitEdge': 250, 'SplitEdge+repair': 5}
+               floor {'old<floor new q<.05': 68, 'old<floor new q<.10': 55, 'old<floor new q<.15': 24, 'old<floor new q<.20': 48, 'old>=floor new J only': 1, 'old>=floor new q<.05': 19, 'old>=floor new q<.10': 17, 'old>=floor new q<.15': 13, 'old>=floor new q<.20': 19} grow {'calls': 0, 'grown': 0, 'trials': 0, 'steps': 0, 'no_view': 0, 'no_gain': 0, 'blocked': 0}
+  m6_tip_te    DC11 rowed/unrowed 131/0 cells 5708 bad 292 long 3152 h 2 complete 0 V limit work 1094 sweeps 1 t 235s
+               DC10 rowed/unrowed 112/19 cells 4019 bad 257 long 1848 h 2 complete 0 V limit work 1520 sweeps 0 t 199s
+               policy {'size_insertions': 714, 'vertex_removal_checks': 0, 'vertex_removal_refusals': 0, 'nonsize_checks': 0, 'nonsize_refusals': 0, 'layer_free': 77, 'layer_checked': 0} accepted {'InsertEdgeCavity': 253, 'InsertEdgeCavity+repair': 223, 'SplitEdge': 231, 'SplitEdge+repair': 7}
+               floor {'old<floor new q<.05': 19, 'old<floor new q<.10': 73, 'old<floor new q<.15': 11, 'old<floor new q<.20': 47, 'old>=floor new J only': 1, 'old>=floor new q<.05': 6, 'old>=floor new q<.10': 12, 'old>=floor new q<.20': 14} grow {'calls': 0, 'grown': 0, 'trials': 0, 'steps': 0, 'no_view': 0, 'no_gain': 0, 'blocked': 0}
+  tube_root_x  DC11 rowed/unrowed 155/33 cells 8083 bad 59 long 599 h 0 complete 0 V blocked work 2418 sweeps 5 t 148s
+               DC10 rowed/unrowed 145/43 cells 7474 bad 67 long 448 h 0 complete 0 V blocked work 2104 sweeps 7 t 141s
+               policy {'size_insertions': 923, 'vertex_removal_checks': 0, 'vertex_removal_refusals': 0, 'nonsize_checks': 3, 'nonsize_refusals': 3, 'layer_free': 104, 'layer_checked': 0} accepted {'ColumnSplit': 5, 'InsertEdgeCavity': 554, 'InsertEdgeCavity+repair': 218, 'RepairMetricConnectivity': 1, 'SplitEdge': 134, 'SplitEdge+repair': 12}
+               floor {'old<floor new q<.10': 6, 'old<floor new q<.15': 2, 'old<floor new q<.20': 1, 'old>=floor new J only': 42, 'old>=floor new q<.10': 30, 'old>=floor new q<.15': 317, 'old>=floor new q<.20': 282} grow {'calls': 0, 'grown': 0, 'trials': 0, 'steps': 0, 'no_view': 0, 'no_gain': 0, 'blocked': 0}
+  two_tube_y   DC11 rowed/unrowed 268/52 cells 10779 bad 85 long 870 h 0 complete 0 V limit work 2837 sweeps 4 t 198s
+               DC10 rowed/unrowed 268/52 cells 9265 bad 86 long 732 h 0 complete 0 V limit work 2332 sweeps 1 t 439s
+               policy {'size_insertions': 1198, 'vertex_removal_checks': 0, 'vertex_removal_refusals': 0, 'nonsize_checks': 5, 'nonsize_refusals': 5, 'layer_free': 181, 'layer_checked': 0} accepted {'ColumnSplit': 26, 'InsertEdgeCavity': 631, 'InsertEdgeCavity+repair': 286, 'SplitEdge': 233, 'SplitEdge+repair': 22}
+               floor {'old>=floor new J only': 38, 'old>=floor new q<.10': 26, 'old>=floor new q<.15': 202, 'old>=floor new q<.20': 150} grow {'calls': 0, 'grown': 0, 'trials': 0, 'steps': 0, 'no_view': 0, 'no_gain': 0, 'blocked': 0}
+  total gate failures (bad+long+height) DC11 9547 vs DC10 6258
+== runs_fan
+  annulus      DC11 rowed/unrowed 6/6 cells 250 bad 14 long 43 h 0 complete 0 V blocked work 235 sweeps 4 t 9s
+               DC10 rowed/unrowed 6/6 cells 242 bad 21 long 45 h 0 complete 0 V blocked work 299 sweeps 4 t 9s
+               policy {'size_insertions': 47, 'vertex_removal_checks': 0, 'vertex_removal_refusals': 0, 'nonsize_checks': 0, 'nonsize_refusals': 0, 'layer_free': 7, 'layer_checked': 0} accepted {'InsertEdgeCavity+repair': 9, 'RepairMetricConnectivity': 5, 'SplitEdge': 35, 'SplitEdge+repair': 3}
+               floor {'old<floor new q<.05': 4, 'old<floor new q<.10': 10, 'old<floor new q<.15': 38, 'old<floor new q<.20': 12, 'old>=floor new J only': 5, 'old>=floor new q<.10': 6, 'old>=floor new q<.15': 24, 'old>=floor new q<.20': 24} grow {'calls': 0, 'grown': 0, 'trials': 0, 'steps': 0, 'no_view': 0, 'no_gain': 0, 'blocked': 0}
+  m6_le        DC11 rowed/unrowed 136/0 cells 4638 bad 685 long 1007 h 2 complete 0 V limit work 5281 sweeps 4 t 136s
+               DC10 rowed/unrowed 136/0 cells 2959 bad 388 long 688 h 2 complete 0 V limit work 6761 sweeps 5 t 131s
+               policy {'size_insertions': 453, 'vertex_removal_checks': 0, 'vertex_removal_refusals': 0, 'nonsize_checks': 0, 'nonsize_refusals': 0, 'layer_free': 87, 'layer_checked': 0} accepted {'InsertEdgeCavity': 27, 'InsertEdgeCavity+repair': 364, 'RepairMetricConnectivity': 112, 'SplitEdge': 58, 'SplitEdge+repair': 4}
+               floor {'old<floor new J only': 12, 'old<floor new q<.05': 1838, 'old<floor new q<.10': 235, 'old<floor new q<.15': 970, 'old<floor new q<.20': 533, 'old>=floor new J only': 12, 'old>=floor new q<.05': 226, 'old>=floor new q<.10': 12, 'old>=floor new q<.15': 97, 'old>=floor new q<.20': 97} grow {'calls': 0, 'grown': 0, 'trials': 0, 'steps': 0, 'no_view': 0, 'no_gain': 0, 'blocked': 0}
+  m6_root_te   DC11 rowed/unrowed 118/18 cells 6647 bad 862 long 2667 h 0 complete 0 V limit work 2521 sweeps 2 t 191s
+               DC10 rowed/unrowed 95/41 cells 3895 bad 299 long 1285 h 4 complete 0 V limit work 2442 sweeps 1 t 178s
+               policy {'size_insertions': 948, 'vertex_removal_checks': 0, 'vertex_removal_refusals': 0, 'nonsize_checks': 0, 'nonsize_refusals': 0, 'layer_free': 84, 'layer_checked': 0} accepted {'InsertEdgeCavity': 251, 'InsertEdgeCavity+repair': 308, 'RepairMetricConnectivity': 46, 'SplitEdge': 376, 'SplitEdge+repair': 13}
+               floor {'old<floor new J only': 1, 'old<floor new q<.05': 441, 'old<floor new q<.10': 116, 'old<floor new q<.15': 162, 'old<floor new q<.20': 104, 'old>=floor new J only': 23, 'old>=floor new q<.05': 53, 'old>=floor new q<.10': 24, 'old>=floor new q<.15': 60, 'old>=floor new q<.20': 76} grow {'calls': 0, 'grown': 0, 'trials': 0, 'steps': 0, 'no_view': 0, 'no_gain': 0, 'blocked': 0}
+  m6_tip_te    DC11 rowed/unrowed 91/40 cells 7045 bad 429 long 3185 h 2 complete 0 V limit work 1924 sweeps 2 t 223s
+               DC10 rowed/unrowed 83/48 cells 3857 bad 319 long 1807 h 6 complete 0 V limit work 1426 sweeps 0 t 202s
+               policy {'size_insertions': 1047, 'vertex_removal_checks': 0, 'vertex_removal_refusals': 0, 'nonsize_checks': 0, 'nonsize_refusals': 0, 'layer_free': 68, 'layer_checked': 0} accepted {'InsertEdgeCavity': 387, 'InsertEdgeCavity+repair': 257, 'RepairMetricConnectivity': 27, 'SplitEdge': 388, 'SplitEdge+repair': 15}
+               floor {'old<floor new q<.05': 100, 'old<floor new q<.10': 100, 'old<floor new q<.15': 57, 'old<floor new q<.20': 50, 'old>=floor new J only': 12, 'old>=floor new q<.05': 32, 'old>=floor new q<.10': 15, 'old>=floor new q<.15': 30, 'old>=floor new q<.20': 54} grow {'calls': 0, 'grown': 0, 'trials': 0, 'steps': 0, 'no_view': 0, 'no_gain': 0, 'blocked': 0}
+  tube_root_x  DC11 rowed/unrowed 92/96 cells 8633 bad 179 long 600 h 0 complete 0 V blocked work 2845 sweeps 7 t 150s
+               DC10 rowed/unrowed 92/96 cells 7898 bad 173 long 377 h 0 complete 0 V blocked work 2177 sweeps 4 t 122s
+               policy {'size_insertions': 1078, 'vertex_removal_checks': 0, 'vertex_removal_refusals': 0, 'nonsize_checks': 3, 'nonsize_refusals': 3, 'layer_free': 88, 'layer_checked': 0} accepted {'InsertEdgeCavity': 629, 'InsertEdgeCavity+repair': 245, 'RepairMetricConnectivity': 2, 'SplitEdge': 159, 'SplitEdge+repair': 31}
+               floor {'old<floor new q<.10': 29, 'old<floor new q<.15': 59, 'old<floor new q<.20': 9, 'old>=floor new J only': 47, 'old>=floor new q<.10': 15, 'old>=floor new q<.15': 498, 'old>=floor new q<.20': 342} grow {'calls': 0, 'grown': 0, 'trials': 0, 'steps': 0, 'no_view': 0, 'no_gain': 0, 'blocked': 0}
+  two_tube_y   DC11 rowed/unrowed 144/176 cells 11064 bad 401 long 912 h 0 complete 0 V limit work 3230 sweeps 3 t 196s
+               DC10 rowed/unrowed 144/176 cells 9661 bad 395 long 686 h 0 complete 0 V blocked work 3429 sweeps 6 t 178s
+               policy {'size_insertions': 1376, 'vertex_removal_checks': 0, 'vertex_removal_refusals': 0, 'nonsize_checks': 0, 'nonsize_refusals': 0, 'layer_free': 147, 'layer_checked': 0} accepted {'InsertEdgeCavity': 708, 'InsertEdgeCavity+repair': 328, 'RepairMetricConnectivity': 5, 'SplitEdge': 274, 'SplitEdge+repair': 54}
+               floor {'old<floor new J only': 1, 'old<floor new q<.05': 1, 'old<floor new q<.10': 35, 'old<floor new q<.15': 184, 'old<floor new q<.20': 20, 'old>=floor new J only': 41, 'old>=floor new q<.10': 2, 'old>=floor new q<.15': 254, 'old>=floor new q<.20': 308} grow {'calls': 0, 'grown': 0, 'trials': 0, 'steps': 0, 'no_view': 0, 'no_gain': 0, 'blocked': 0}
+  total gate failures (bad+long+height) DC11 10988 vs DC10 6495
+== runs_single_grow
+  annulus      DC11 rowed/unrowed 6/6 cells 250 bad 14 long 43 h 0 complete 0 V blocked work 293 sweeps 4 t 8s
+               DC10 rowed/unrowed 6/6 cells 242 bad 21 long 45 h 0 complete 0 V blocked work 299 sweeps 4 t 9s
+               policy {'size_insertions': 47, 'vertex_removal_checks': 0, 'vertex_removal_refusals': 0, 'nonsize_checks': 0, 'nonsize_refusals': 0, 'layer_free': 7, 'layer_checked': 0} accepted {'InsertEdgeCavity+repair': 9, 'RepairMetricConnectivity': 5, 'SplitEdge': 35, 'SplitEdge+repair': 3}
+               floor {'old<floor new q<.05': 4, 'old<floor new q<.10': 10, 'old<floor new q<.15': 38, 'old<floor new q<.20': 12, 'old>=floor new J only': 5, 'old>=floor new q<.10': 6, 'old>=floor new q<.15': 24, 'old>=floor new q<.20': 28} grow {'calls': 54, 'grown': 2, 'trials': 20, 'steps': 3, 'no_view': 0, 'no_gain': 6, 'blocked': 48}
+  m6_le        DC11 rowed/unrowed 136/0 cells 4898 bad 742 long 1054 h 2 complete 0 V limit work 8192 sweeps 4 t 109s
+               DC10 rowed/unrowed 136/0 cells 2956 bad 389 long 688 h 2 complete 0 V limit work 6660 sweeps 5 t 130s
+               policy {'size_insertions': 498, 'vertex_removal_checks': 1, 'vertex_removal_refusals': 0, 'nonsize_checks': 0, 'nonsize_refusals': 0, 'layer_free': 87, 'layer_checked': 0} accepted {'InsertEdgeCavity': 32, 'InsertEdgeCavity+repair': 397, 'RepairMetricConnectivity': 112, 'SplitEdge': 58, 'SplitEdge+repair': 4, 'SplitGrow+repair': 8}
+               floor {'old<floor new J only': 14, 'old<floor new q<.05': 2195, 'old<floor new q<.10': 254, 'old<floor new q<.15': 1164, 'old<floor new q<.20': 659, 'old>=floor new J only': 12, 'old>=floor new q<.05': 269, 'old>=floor new q<.10': 11, 'old>=floor new q<.15': 118, 'old>=floor new q<.20': 125} grow {'calls': 2031, 'grown': 48, 'trials': 12596, 'steps': 53, 'no_view': 0, 'no_gain': 1710, 'blocked': 321}
+  m6_root_te   DC11 rowed/unrowed 136/0 cells 6252 bad 488 long 2379 h 0 complete 0 V limit work 2760 sweeps 2 t 198s
+               DC10 rowed/unrowed 136/0 cells 4112 bad 259 long 1414 h 0 complete 0 V limit work 2474 sweeps 1 t 175s
+               policy {'size_insertions': 884, 'vertex_removal_checks': 0, 'vertex_removal_refusals': 0, 'nonsize_checks': 0, 'nonsize_refusals': 0, 'layer_free': 89, 'layer_checked': 0} accepted {'ColumnSplit': 3, 'InsertEdgeCavity': 241, 'InsertEdgeCavity+repair': 252, 'RepairMetricConnectivity': 34, 'SplitEdge': 373, 'SplitEdge+repair': 9, 'SplitGrow+repair': 6}
+               floor {'old<floor new J only': 1, 'old<floor new q<.05': 270, 'old<floor new q<.10': 122, 'old<floor new q<.15': 186, 'old<floor new q<.20': 134, 'old>=floor new J only': 23, 'old>=floor new q<.05': 59, 'old>=floor new q<.10': 36, 'old>=floor new q<.15': 95, 'old>=floor new q<.20': 92} grow {'calls': 378, 'grown': 47, 'trials': 1108, 'steps': 81, 'no_view': 0, 'no_gain': 101, 'blocked': 277}
+  m6_tip_te    DC11 rowed/unrowed 131/0 cells 6333 bad 286 long 3216 h 2 complete 0 V limit work 1494 sweeps 1 t 238s
+               DC10 rowed/unrowed 112/19 cells 4019 bad 257 long 1848 h 2 complete 0 V limit work 1520 sweeps 0 t 199s
+               policy {'size_insertions': 816, 'vertex_removal_checks': 0, 'vertex_removal_refusals': 0, 'nonsize_checks': 0, 'nonsize_refusals': 0, 'layer_free': 77, 'layer_checked': 0} accepted {'ColumnSplit': 2, 'InsertEdgeCavity': 338, 'InsertEdgeCavity+repair': 232, 'SplitEdge': 231, 'SplitEdge+repair': 7, 'SplitGrow': 1, 'SplitGrow+repair': 5}
+               floor {'old<floor new q<.05': 25, 'old<floor new q<.10': 77, 'old<floor new q<.15': 15, 'old<floor new q<.20': 57, 'old>=floor new J only': 1, 'old>=floor new q<.05': 6, 'old>=floor new q<.10': 10, 'old>=floor new q<.20': 12} grow {'calls': 226, 'grown': 23, 'trials': 411, 'steps': 34, 'no_view': 0, 'no_gain': 50, 'blocked': 175}
+  tube_root_x  DC11 rowed/unrowed 155/33 cells 8219 bad 59 long 594 h 0 complete 0 V blocked work 3550 sweeps 7 t 161s
+               DC10 rowed/unrowed 145/43 cells 7474 bad 67 long 448 h 0 complete 0 V blocked work 2104 sweeps 7 t 141s
+               policy {'size_insertions': 951, 'vertex_removal_checks': 0, 'vertex_removal_refusals': 0, 'nonsize_checks': 3, 'nonsize_refusals': 3, 'layer_free': 104, 'layer_checked': 0} accepted {'ColumnSplit': 5, 'InsertEdgeCavity': 559, 'InsertEdgeCavity+repair': 221, 'RepairMetricConnectivity': 1, 'SplitEdge': 134, 'SplitEdge+repair': 12, 'SplitGrow+repair': 20}
+               floor {'old<floor new q<.10': 6, 'old<floor new q<.15': 2, 'old<floor new q<.20': 1, 'old>=floor new J only': 42, 'old>=floor new q<.10': 48, 'old>=floor new q<.15': 423, 'old>=floor new q<.20': 338} grow {'calls': 882, 'grown': 87, 'trials': 1467, 'steps': 106, 'no_view': 0, 'no_gain': 280, 'blocked': 602}
+  two_tube_y   DC11 rowed/unrowed 268/52 cells 10895 bad 85 long 874 h 0 complete 0 V limit work 4054 sweeps 4 t 183s
+               DC10 rowed/unrowed 268/52 cells 9265 bad 86 long 732 h 0 complete 0 V limit work 2332 sweeps 1 t 439s
+               policy {'size_insertions': 1219, 'vertex_removal_checks': 0, 'vertex_removal_refusals': 0, 'nonsize_checks': 5, 'nonsize_refusals': 5, 'layer_free': 181, 'layer_checked': 0} accepted {'ColumnSplit': 26, 'InsertEdgeCavity': 627, 'InsertEdgeCavity+repair': 293, 'SplitEdge': 233, 'SplitEdge+repair': 22, 'SplitGrow+repair': 18}
+               floor {'old>=floor new J only': 38, 'old>=floor new q<.10': 26, 'old>=floor new q<.15': 273, 'old>=floor new q<.20': 191} grow {'calls': 1062, 'grown': 69, 'trials': 898, 'steps': 99, 'no_view': 0, 'no_gain': 174, 'blocked': 888}
+  total gate failures (bad+long+height) DC11 9838 vs DC10 6258
+== runs_single_600
+  annulus      DC11 rowed/unrowed 6/6 cells 250 bad 14 long 43 h 0 complete 0 V blocked work 235 sweeps 4 t 7s
+               DC10 rowed/unrowed 6/6 cells 242 bad 21 long 45 h 0 complete 0 V blocked work 299 sweeps 4 t 9s
+               policy {'size_insertions': 47, 'vertex_removal_checks': 0, 'vertex_removal_refusals': 0, 'nonsize_checks': 0, 'nonsize_refusals': 0, 'layer_free': 7, 'layer_checked': 0} accepted {'InsertEdgeCavity+repair': 9, 'RepairMetricConnectivity': 5, 'SplitEdge': 35, 'SplitEdge+repair': 3}
+               floor {'old<floor new q<.05': 4, 'old<floor new q<.10': 10, 'old<floor new q<.15': 38, 'old<floor new q<.20': 12, 'old>=floor new J only': 5, 'old>=floor new q<.10': 6, 'old>=floor new q<.15': 24, 'old>=floor new q<.20': 24} grow {'calls': 0, 'grown': 0, 'trials': 0, 'steps': 0, 'no_view': 0, 'no_gain': 0, 'blocked': 0}
+  m6_le: missing
+  m6_root_te: missing
+  m6_tip_te    DC11 rowed/unrowed 131/0 cells 28607 bad 159 long 4042 h 2 complete 0 V limit work 10029 sweeps 4 t 876s
+               DC10 rowed/unrowed 112/19 cells 4019 bad 257 long 1848 h 2 complete 0 V limit work 1520 sweeps 0 t 199s
+               policy {'size_insertions': 5099, 'vertex_removal_checks': 0, 'vertex_removal_refusals': 0, 'nonsize_checks': 0, 'nonsize_refusals': 0, 'layer_free': 77, 'layer_checked': 0} accepted {'ColumnSplit': 12, 'InsertEdgeCavity': 3305, 'InsertEdgeCavity+repair': 1366, 'RepairMetricConnectivity': 30, 'SplitEdge': 402, 'SplitEdge+repair': 14}
+               floor {'old<floor new J only': 2, 'old<floor new q<.05': 170, 'old<floor new q<.10': 300, 'old<floor new q<.15': 210, 'old<floor new q<.20': 272, 'old>=floor new J only': 25, 'old>=floor new q<.05': 149, 'old>=floor new q<.10': 700, 'old>=floor new q<.15': 605, 'old>=floor new q<.20': 939} grow {'calls': 0, 'grown': 0, 'trials': 0, 'steps': 0, 'no_view': 0, 'no_gain': 0, 'blocked': 0}
+  tube_root_x  DC11 rowed/unrowed 155/33 cells 8083 bad 59 long 599 h 0 complete 0 V blocked work 2418 sweeps 5 t 136s
+               DC10 rowed/unrowed 145/43 cells 7474 bad 67 long 448 h 0 complete 0 V blocked work 2104 sweeps 7 t 141s
+               policy {'size_insertions': 923, 'vertex_removal_checks': 0, 'vertex_removal_refusals': 0, 'nonsize_checks': 3, 'nonsize_refusals': 3, 'layer_free': 104, 'layer_checked': 0} accepted {'ColumnSplit': 5, 'InsertEdgeCavity': 554, 'InsertEdgeCavity+repair': 218, 'RepairMetricConnectivity': 1, 'SplitEdge': 134, 'SplitEdge+repair': 12}
+               floor {'old<floor new q<.10': 6, 'old<floor new q<.15': 2, 'old<floor new q<.20': 1, 'old>=floor new J only': 42, 'old>=floor new q<.10': 30, 'old>=floor new q<.15': 317, 'old>=floor new q<.20': 282} grow {'calls': 0, 'grown': 0, 'trials': 0, 'steps': 0, 'no_view': 0, 'no_gain': 0, 'blocked': 0}
+  two_tube_y: missing
+  total gate failures (bad+long+height) DC11 4918 vs DC10 2688
+== runs_strict_control
+  annulus: missing
+  m6_le: missing
+  m6_root_te   DC11 rowed/unrowed 136/0 cells 3182 bad 280 long 1341 h 0 complete 0 V limit work 1249 sweeps 1 t 247s
+               DC10 rowed/unrowed 136/0 cells 4112 bad 259 long 1414 h 0 complete 0 V limit work 2474 sweeps 1 t 175s
+               policy {'size_insertions': 0, 'vertex_removal_checks': 0, 'vertex_removal_refusals': 0, 'nonsize_checks': 0, 'nonsize_refusals': 0, 'layer_free': 0, 'layer_checked': 0} accepted {'InsertEdgeCavity': 53, 'InsertEdgeCavity+repair': 10, 'SplitEdge': 153}
+               floor {'old<floor new q<.05': 194, 'old<floor new q<.10': 126, 'old<floor new q<.15': 49, 'old<floor new q<.20': 36, 'old>=floor new J only': 1, 'old>=floor new q<.05': 29, 'old>=floor new q<.10': 25, 'old>=floor new q<.15': 19, 'old>=floor new q<.20': 38} grow {'calls': 0, 'grown': 0, 'trials': 0, 'steps': 0, 'no_view': 0, 'no_gain': 0, 'blocked': 0}
+  m6_tip_te: missing
+  tube_root_x: missing
+  two_tube_y: missing
+  total gate failures (bad+long+height) DC11 1621 vs DC10 1673

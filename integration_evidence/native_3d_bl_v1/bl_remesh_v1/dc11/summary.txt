@@ -1,0 +1,83 @@
+DC-11 (base d9e0b4f310 = DC-10): the 2D split-acceptance rule in the native 3D remesher (user decision 2026-10-23).
+Plan SPLIT_RULE_PLAN.md rev 3 (untracked) with Codex plan reviews 1-3 (untracked *_REVIEW_*.md) and one Codex code review
+(codex_review_code.txt; 2 MAJOR fixed before the campaign: R1w floors, stale V lengths). Serial, nice 19, OMP 1,
+MALLOC_ARENA_MAX 2. Gates unchanged and absolute (edges <= 1.8, q >= .20, J >= .05, first height within 10%).
+Host contention: a foreign compile ran during the campaign (load 8-16); 120 s V results are throughput dependent.
+
+RULE (sect. 2 of the plan; production and harness).
+ Refine/split: vertex removal (an old vertex absent and not a certified one-for-one relocation, or no net vertex gain)
+ -> strict changed-edge excess decrease (as 2D absorption); otherwise a size insertion (requested split edge > 1.6) is
+ accepted on validity + floors with NO excess requirement; a non-size insertion needs added excess 0 and a rise of the
+ minimum mean ratio (harness: also no interior edge > 1.8). No cell-count condition. LayerConstruct (R2 single lift and
+ fan transaction) without vertex removal: no size certificate (2D HEIGHT has none), changed edges must be measurable.
+ R1w: full D.1 Refine admission with the cone request length. Repair/ApexMove/Coarsen/Geometry*: unchanged. Floors:
+ first-row children absolute; LayerConstruct others positivity; others min q/J >= min(old min, .20/.05).
+ Termination: work/time budgets, sweep cap 64, attempted set (rejection cache keyed by request + unchanged cavity),
+ no-commit stall stop; halves guard (split edge, for ColumnSplit max(wall, lid) edge, >= 1.4 so both halves cannot be
+ < 0.7); V remeasures each edge before the request. Iteration 2: SplitGrow = 2D SplitPatch cavity growth (consider()).
+
+PRODUCTION. CNativeMetric3D: enum RefineAcceptance {StrictExcess, SplitInsertion}, Set/GetRefineAcceptance (process-wide
+ atomic), ValidateMetricChange(..., relocated) with the rule above under SplitInsertion; MetricDiagnosis gains
+ size_insertion, vertex_removal, longest_removed. CNativeEngine3D: compound wall refit validated as Refine (no strict_size)
+ and joint placement with certified reserved-apex relocations under SplitInsertion; strip no_new_oversized only under
+ StrictExcess. CNativeBoundary3D PlaceSplitPatch: inner checks pass its certified relocations. DEFAULT STAYS StrictExcess
+ (byte-identical previous behaviour): the campaign below gives no evidence that the rule moves any case to an accepted
+ mesh, so the production default was not flipped; one line flips it. 2D sources untouched.
+ Unit test [NativeMetricSplitRule3D] (2 cases, 22 assertions): every branch, relocation certification, StrictExcess.
+
+HARNESS (test-only). dc9 SplitPolicy (rule 0 = DC-10 unchanged, default) consulted by Admit8, dc9 Transaction, dc10
+ Transaction10, R1w; fixtures/native_first_row_dc11.inc [NativeFirstRowDC11]: PhaseV11 (V10 + rule, guard, sweep cap,
+ remeasure, SplitGrow option, per-op/per-sweep counts, D-floor witness buckets); resume needs the JSON provenance and
+ the final mesh FNV-1a digest; both policies and SU2_DC9_SECTOR_FIRST restored after the test case.
+ Binaries (sha256 in test_driver_r*.sha256): r4 e447ac8f... = campaign + validation; r2/r3 = diagnostics only.
+
+RESULTS, 120 s V, single lift, 2D rule (runs_single; DC-10 reference dc10/diag2). rowed/unrowed, cells, bad, long, h:
+ case         DC-11                                   DC-10                          V (DC-11)
+ annulus      6/6    250  bad 14  long 43   h 0        6/6    242 bad 21  long 45  h 0  blocked, 4 sweeps, 9 s
+ m6_le        136/0  4865 bad 737 long 1043 h 2        136/0 2956 bad 389 long 688 h 2  limit, 5 sweeps, work 7495
+ m6_root_te   136/0  5681 bad 507 long 2142 h 0        136/0 4112 bad 259 long 1414 h 0 limit, 1 sweep, work 1228
+ m6_tip_te    131/0  5708 bad 292 long 3152 h 2        112/19 4019 bad 257 long 1848 h 2 limit, 1 sweep, work 1094
+ tube_root_x  155/33 8083 bad 59  long 599  h 0        145/43 7474 bad 67 long 448 h 0  blocked, 5 sweeps, 148 s
+ two_tube_y   268/52 10779 bad 85 long 870  h 0        268/52 9265 bad 86 long 732 h 0  limit, 4 sweeps, work 2837
+ No case complete. Gains: the LayerConstruct exemption completes the first row of m6_tip_te (19 -> 0 unrowed) and
+ reduces tube_root_x 43 -> 33; annulus bad 21 -> 14. Sum bad+long+height 9547 (DC-10 6258): more resolution, more
+ open edges at the time limit. Split-policy counts: 511-1198 accepted size insertions per case, 0 vertex-removal refusals, 77-181 LayerConstruct
+ transactions without a size certificate.
+ 600 s V (runs_single_600, work 40960; cases with an improved component): tip_te 28607 cells, long 4042 (plateau
+ 4018/4003/4042 over sweeps 1-3), bad 159, h 2; tube_root_x and annulus blocked (identical to 120 s).
+ Diagnostic diag600_r2 (r2 binary, root_te 600 s): cells 4112 -> 17452, long 2163/2290/2363/2313/2321/2378/2382/2400
+ over 8 sweeps (plateau), bad ~466; 3112 size insertions accepted, 11600 D-floor refusals.
+ Fan (runs_fan, same rule): the fan is admitted for the first time (root 8 ridge lifts / 44 fan cells, tip 4 / 20) but
+ rowed/unrowed get worse (root 118/18, tip 91/40, tubes unchanged 92/96 and 144/176: fan check edge > 1.8 / q/J);
+ sum 10988 vs single 9547 -> by the plan's campaign-wide rule (fewer total gate failures) SINGLE LIFT is kept.
+ Iteration 2 SplitGrow (runs_single_grow): 23-87 growths per case, 7 accepted on root_te; sum 9838 -> no gain; off.
+ A/B control (runs_strict_control, rule strict, root_te): bad 280 long 1341 vs DC-10 259/1414 at 120 s; V work 1249 vs
+ 2474 (contention + V11 bookkeeping/remeasure) - comparable, not bit-identical (time-limited V).
+
+WITNESS (2 implementation iterations, V cannot finish; stop rule applied).
+ 1. Dominant refusal after the excess certificate is gone: the D floor (fresh non-first-row cells below min(old min,
+    .20)). 120 s: m6_le 5889 floor refusals, 5253 with the old cavity already below the floor and the fresh children
+    worse (2671 with q < .05); root_te 264 (195 below); tip_te 600 s 3372, of which 2418 in cavities above the floor
+    (absolute refusals); tubes all absolute (680/671 and 416/416: old >= floor, new q .10-.20). 2D cavity growth does not lift them (most edge stars touch physical/column
+    cells: 'blocked' 277-888 per case; 'no gain' otherwise).
+ 2. Long edges are interior volume edges of the graded option-A/BL target, not wall edges: root_te 1867 interior + 275
+    cut-plane of 2142; median metric length 3.3, max 15; midpoints at median 385 h0 from the wall (10-90 %: 64-916 h0).
+    With splits accepted the mesh grows 4-7x but the long-edge count plateaus: each split of an edge inside a strongly
+    graded field produces children that fail the shape floor, so the remaining long edges cannot be refined by local
+    edge splits under per-operation floors.
+ 3. Tubes: V blocked; bad cells sit in columns (55/59, 85/85) and long edges partly inside columns (104/599, 150/870);
+    first row incomplete (33 and 52 unrowed faces: cap / fan / clearance witnesses as DC-10).
+ 4. Height failures: 2 on m6_le and m6_tip_te (unchanged since DC-9/10). Re-audit agrees with the cached final in all.
+ What blocks an accepted mesh: the volume transition V under a per-operation shape floor in the strongly graded target
+ (and the incomplete first row on the tubes). The excess certificate was one blocker; with it removed the floor binds.
+ Not run: the full M6 Euler production adaptation (no cut case produced a complete accepted mesh).
+
+TESTS (bin r4, validation/): unit3d 33, unit2d 57, metric 168 (166 + 2 new split-rule cases) test cases pass; mesh3d
+ 100/101 with the same 6 known failed assertions (CNativeDistributed3D_tests.cpp:1446/1449/1453); airfoil passes.
+ 2D unchanged (no 2D source touched; unit2d, airfoil pass). No test expectation changed.
+
+FILES: runs_single, runs_fan, runs_single_grow, runs_single_600, runs_strict_control (dc11_<case>.json/.log,
+ _final.mesh with cell_gates/long_edges, vtu/), diag600_r2 (root_te 600 s witness), superseded/ (r2/r3 runs before the
+ code-review fixes), png/dc11_{single,fan,single600}_dc11_<case>.png (bad cells coloured), compare.txt (all tables),
+ compare_dc11.py, summarize_dc11.py, to_vtu.py, run_case.sh, run_campaign.sh, run_validation.sh, campaign.log,
+ codex_review_code.txt, build*.log.

@@ -1802,6 +1802,12 @@ bool PlaceSplitPatch(const Patch& old,Edge edge,Node point,const std::vector<std
     const auto& reference=parameter_context?*parameter_context:base_reference;
     Bounds(old);Endpoints(edge);
     if(apices.size()>8)throw std::invalid_argument("Native3D joint placement exceeds its vertex bound.");
+    // Moved apices get their reserved identity (apex.second) one for one: certified relocations for the split rule.
+    auto relocations=[&](const Patch& proposal) {
+      std::set<Id> present;for(const auto& c:proposal.cells)for(auto n:c.v)present.insert(n.id);
+      size_t count=0;for(const auto& apex:apices)count+=present.count(apex.second) && !present.count(apex.first);
+      return count;
+    };
     if(!maximum_trials || maximum_trials>256)throw std::invalid_argument("Native3D joint placement exceeds its trial bound.");
     const auto nodes=Nodes(old.cells);const auto skin=SkinMap(Incidence(old.cells).Boundary());
     const auto physical=CheckSurface(old,skin,reference,nullptr);
@@ -1845,7 +1851,8 @@ bool PlaceSplitPatch(const Patch& old,Edge edge,Node point,const std::vector<std
       best_loss=loss;report.best_loss=loss;report.best_shape_loss=shape;report.best=std::move(proposal);
       if(shape==0) {
         PatchMetric metric;
-        if(ValidateMetricChange(old.cells,report.best.cells,MetricChange::Refine,target,metric,reason)) {
+        if(ValidateMetricChange(old.cells,report.best.cells,MetricChange::Refine,target,metric,reason,nullptr,nullptr,nullptr,
+                                relocations(report.best))) {
           fresh=report.best;return true;
         }
         ++report.metric_rejected;
@@ -1910,7 +1917,8 @@ bool PlaceSplitPatch(const Patch& old,Edge edge,Node point,const std::vector<std
           best_loss=measured.second;report.best_loss=best_loss;report.best_shape_loss=measured.first;report.best=repaired;
         }
         PatchMetric metric;
-        if(ValidateMetricChange(old.cells,repaired.cells,MetricChange::Refine,target,metric,reason)) {
+        if(ValidateMetricChange(old.cells,repaired.cells,MetricChange::Refine,target,metric,reason,nullptr,nullptr,nullptr,
+                                relocations(repaired))) {
           fresh=std::move(repaired);reason.clear();return true;
         }
         ++report.metric_rejected;
