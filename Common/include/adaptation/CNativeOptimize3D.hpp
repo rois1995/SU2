@@ -15,6 +15,7 @@ struct OptimizeOptions {
   size_t maximum_work = SIZE_MAX;   // Bound on evaluated candidate operations.
   size_t maximum_shell = 8;         // Edge removal shells 3 <= n <= maximum_shell (2n-4 new cells).
   bool swaps = true, collapses = true, smoothing = true;
+  bool boundary = true;             // O5/O6 boundary flips/contractions (off on a mapped parameter reference).
   bool insertions = true;           // DC-13: O7 shell / O8 neighbourhood / O7L length-driven vertex insertion.
   size_t placement_budget = 160;    // Approximate cone evaluations of one placement search (proposal only).
   std::set<Id> frozen_cells;        // No operation may replace these cells (caller-certified first rows).

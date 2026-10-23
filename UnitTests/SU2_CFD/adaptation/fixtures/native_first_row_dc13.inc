@@ -15,7 +15,7 @@ std::string JsonOpt13(const OptimizeReport& r) {
 // a point q on the segment from p to its normal foot, at the face's (new) prescribed height: the new first child is
 // (face, q) with the same foot, the three other cells (q, wall edge, p). Certified first-row route (A3); registrations
 // follow the new apex. q lies strictly inside the old first child when the old altitude exceeds the new height.
-struct HalveStats { size_t faces=0,split=0,skipped_low=0,refused=0;std::map<std::string,size_t> why; };
+struct HalveStats { size_t faces=0,split=0,skipped_low=0,refused=0,placed=0;std::map<std::string,size_t> why; };
 HalveStats HalveFirstRow(State& s,Rows10& rows,std::set<Face>& certified) {
   Scope scope("DC13 HalveFirstRow");HalveStats st;
   std::vector<std::pair<Id,Face>> faces;for(const auto& wf:WallFaces(s))faces.push_back(wf);
@@ -26,14 +26,65 @@ HalveStats HalveFirstRow(State& s,Rows10& rows,std::set<Face>& certified) {
     const long double alt=Dot(Of(apex.p)-a,n),h=FaceH0(s,wf.second);
     if(!(alt>h*(1+HeightTolerance))){++st.skipped_low;continue;}  // already within the new window (or lower)
     Patch old;try{old=PatchOf(s,{wf.first});}catch(const std::exception&){++st.refused;++st.why["patch"];continue;}
-    const Node q{s.next_node,Pt(Of(apex.p)-(alt-h)*n)};
+    Node q{s.next_node,Pt(Of(apex.p)-(alt-h)*n)};
     Patch fresh;fresh.surface=old.surface;fresh.parameters=old.parameters;std::string why;
-    try{if(!Cone(old.cells,q,s.next_cell,fresh.cells,why)){++st.refused;++st.why["cone: "+Key(why)];continue;}s.reference->ExportParameters(fresh);}
+    // the point is placed by the min-max engine inside the old first child, restricted to the new first-child window
+    // (altitude (1 -+ .98 T) h, foot barycentrics >= .02); the straight-down point is the start and the fallback
+    {const long double area=Dot(Cross(b-a,cc-a),n);const long double T=.98L*HeightTolerance;
+     auto region=[a,b,cc,n,h,area,T](Point p)->bool{const V x=Of(p);const auto t=Dot(x-a,n);if(t<(1-T)*h||t>(1+T)*h)return false;const V f=x-t*n;const std::array<V,3> q3{a,b,cc};
+       for(unsigned j=0;j<3;++j)if(!(Dot(Cross(q3[(j+1)%3]-f,q3[(j+2)%3]-f),n)/area>=.02L))return false;return true;};
+     std::vector<Cell> placed;double score=0;
+     if(std::abs(area)>0&&PlaceConeInsertion(old.cells,q.p,q.id,s.next_cell,RegionMetric(*s.field),placed,score,nullptr,.6,160,UINT64_MAX,region)){
+       for(const auto& c:placed)for(auto x:c.v)if(x.id==q.id)q=x;fresh.cells=placed;++st.placed;}}
+    if(fresh.cells.empty())try{if(!Cone(old.cells,q,s.next_cell,fresh.cells,why)){++st.refused;++st.why["cone: "+Key(why)];continue;}}
     catch(const std::exception& x){++st.refused;++st.why[std::string("cone: ")+x.what()];continue;}
+    try{s.reference->ExportParameters(fresh);}catch(const std::exception& x){++st.refused;++st.why[std::string("parameters: ")+x.what()];continue;}
     bool ok=true;for(const auto& x:fresh.cells)ok=ok&&Positive(x.v)&&Valid(Shape(s,x));
     if(!ok){++st.refused;++st.why["validity"];continue;}
     std::string hw;if(!HeightT(s,fresh,hw)){++st.refused;++st.why["height: "+Key(hw)];continue;}
     Apply(s,{wf.first},fresh);rows.apex[wf.second]=q.id;certified.insert(wf.second);++st.split;
+  }
+  return st;
+}
+// Column redistribution of a halving step (coordinator proposal 2026-10-24): along every first-row column (wall vertex
+// w, lid L, direction d = unit(L - w)) the missing near-wall law interfaces of the new first height are inserted ON the
+// column edge: normal heights z_k = h0' (1 + g + ... + g^(k-1)), k >= 1, below .85 of the lid height (the lid and the
+// G stack above it sit near the shifted law positions already: h0'/... = the old law, ~log 2 / log g more layers near
+// the wall). Each insertion splits the current bottom column edge (w, m) by production SplitEdge at an exact on-edge
+// point (InsertEdgeCavity when none is representable / for physical carriers the bound point), from the highest
+// interface down; admitted when every fresh cell is valid and no first child changes (topology stays column-aligned).
+struct ColumnStats { size_t columns=0,inserted=0,refused=0;std::map<std::string,size_t> why; };
+ColumnStats ColumnInsert(State& s,Rows10& rows) {
+  Scope scope("DC13 ColumnInsert");ColumnStats st;MapLayers(s);
+  auto firstChildOf=[&](const Patch& p){std::map<Face,std::array<Id,4>> out;std::set<Face> walls;for(const auto& sf:p.surface)if(s.walls.count(s.reference->Get(sf.facet).marker))walls.insert(Sorted(sf.v));
+    for(const auto& c:p.cells)for(auto f:CellFaces(c))if(walls.count(Sorted(f)))out[Sorted(f)]=CellKey(c);return out;};
+  const auto lifts=rows.lift;
+  for(const auto& r:lifts) {
+    const Id w=r.first,L=r.second;if(Rim(s,w)||!s.vertex_cells.count(L)||!s.vertex_cells.count(w))continue;++st.columns;
+    const V x=Of(NodePoint(s,w)),l=Of(NodePoint(s,L));const V d=Unit(l-x);
+    const auto dir=DirectionAt(s,w);if(dir.normals.empty()){++st.why["no wall normal"];continue;}
+    V nb{};for(const auto& n:dir.normals)nb=nb+n;nb=Unit(nb);const long double dn=Dot(d,nb);if(!(dn>.1L)){++st.why["column too flat"];continue;}
+    const long double hL=Dot(l-x,nb),h0=VertexH0(s,w);
+    long double g=s.growth;for(const auto& f:PhysicalOf(s,StarOf(s,w),true))if(Has(f.key,w)){const auto it=layerOfMarker.find(f.marker);if(it!=layerOfMarker.end()){g=GrowthOf(s,it->second);break;}}
+    std::vector<long double> z;for(long double zk=h0,step=h0;zk<.85L*hL;step*=g,zk+=step)z.push_back(zk);
+    Id top=L;
+    for(size_t k=z.size();k-->0;) {
+      const Edge e{std::min(w,top),std::max(w,top)};const auto ids=Star(s,e);if(ids.empty()||ids.size()>MaximumCavityCells){++st.refused;++st.why["edge star"];break;}
+      Patch old;try{old=PatchOf(s,ids);}catch(const std::exception&){++st.refused;++st.why["patch"];break;}
+      const Point want=Pt(x+(z[k]/dn)*d);Patch fresh;std::string why;bool ok=false;Point exact;
+      bool physical=false;for(const auto& sf:old.surface)physical=physical||(Has(sf.v,w)&&Has(sf.v,top));
+      try{if(physical)ok=SplitEdge(old,e,{s.next_node,want},s.next_cell,*s.reference,fresh,why);
+          else if(ExactOnEdgePoint(NodePoint(s,e[0]),NodePoint(s,e[1]),want,exact))ok=SplitEdge(old,e,{s.next_node,exact},s.next_cell,*s.reference,fresh,why);
+          if(!ok&&!physical){fresh=Patch{};ok=InsertEdgeCavity(old,e,{s.next_node,want},s.next_cell,*s.reference,fresh,why);}}
+      catch(const std::exception& x2){ok=false;why=x2.what();}
+      if(!ok){++st.refused;++st.why["split: "+Key(why)];break;}
+      for(const auto& pr:old.parameters)fresh.parameters.emplace(pr.first,pr.second);
+      try{s.reference->ExportParameters(fresh);}catch(const std::exception&){}
+      if(firstChildOf(old)!=firstChildOf(fresh)){++st.refused;++st.why["would change a first child"];break;}
+      bool valid=true;for(const auto& c:fresh.cells)valid=valid&&Positive(c.v)&&Valid(Shape(s,c));
+      if(!valid){++st.refused;++st.why["validity"];break;}
+      const Id m=s.next_node;Apply(s,ids,fresh);top=m;++st.inserted;
+    }
   }
   return st;
 }
@@ -153,9 +204,11 @@ VStage13 PhaseV13(State& s,Rows10& rows,Growth& G,size_t work,double seconds,siz
       g.r2_new_rowed+=rowed1>rowed0?rowed1-rowed0:0;changed|=r2.transactions>0;g.r2_seconds+=Seconds(t);}
     {const auto t=Clock::now();
      for(const auto& wf:WallFaces(s)){if(limited()||Seconds(t)>=.1*R)break;if(!s.mesh.count(wf.first))continue;
-       const auto a=rows.apex.find(wf.second);if(a!=rows.apex.end()&&s.vertex_cells.count(a->second))continue;
+       const auto a=rows.apex.find(wf.second);const bool registered=a!=rows.apex.end()&&s.vertex_cells.count(a->second);
        double w=0;const bool hOk=HeightOk(s,wf.first,&w);if(hOk&&!Bad(MeshShape(s,wf.first)))continue;
        if(firstTried[wf.second]++>=2)continue;
+       // DC-13: a registered first child failing its final check (e.g. after a halving step) -> certified apex placement
+       if(registered){std::string why;if(apexMove(wf.second,why)){changed=true;build();}else ++g.demand["first child failing: "+Key(why)];continue;}
        if(FirstRowInsert(s,rows,wf.first,wf.second,g.first,certified))changed=true;}
      g.first_seconds+=Seconds(t);}
     build();
@@ -239,7 +292,8 @@ VStage13 PhaseV13(State& s,Rows10& rows,Growth& G,size_t work,double seconds,siz
     }
     // (d) mesh-wide optimization with a reserved share of the sweep budget
     if(!limited()){const auto t=Clock::now();
-      OptimizeOptions opt;opt.maximum_sweeps=8;opt.maximum_seconds=std::max(1.,std::min(remaining(),std::max(.4*R,.5*remaining())));
+      OptimizeOptions opt;opt.maximum_sweeps=32;  // DC-13: inner sweeps until no progress (time-bounded)
+     opt.maximum_seconds=std::max(1.,std::min(remaining(),std::max(.4*R,.5*remaining())));
       opt.cache_entries=size_t(1)<<19;
       for(const auto& row:s.mesh)if(WallChild(s,row.first)){opt.frozen_cells.insert(row.first);for(auto n:row.second.cell.v)opt.frozen_vertices.insert(n.id);}
       for(Id id:FanCells(s,rows)){opt.frozen_cells.insert(id);for(auto n:s.mesh.at(id).cell.v)opt.frozen_vertices.insert(n.id);}
@@ -284,12 +338,14 @@ TEST_CASE("DC-13 sliver-removing build-then-optimize, first-height ramp and halv
   for(std::string name;std::getline(names,name,',');) {
     if(name.empty())continue;
     std::ostringstream limits;limits<<std::setprecision(12)<<"\"limits\":{\"W\":[8192,120],\"R1\":[4096,120],\"R2_seconds\":600,\"G_seconds\":"<<gSeconds<<",\"V\":["<<vWork<<","<<vSeconds<<"],\"V_sweeps\":"<<vSweeps
-      <<",\"lift\":\"single\",\"h0_scale\":"<<scale<<",\"chain\":\""<<env("SU2_DC13_CHAIN")<<"\",\"reflective\":\""<<env("SU2_DC12_REFLECTIVE")<<"\",\"inputs_sha256\":\""<<inputSha<<"\"}";
+      <<",\"lift\":\"single\",\"h0_scale\":"<<scale<<",\"chain\":\""<<env("SU2_DC13_CHAIN")<<"\",\"redistribute\":\""<<env("SU2_DC13_REDISTRIBUTE")<<"\",\"reflective\":\""<<env("SU2_DC12_REFLECTIVE")<<"\",\"inputs_sha256\":\""<<inputSha<<"\"}";
     std::string tag=root+"/dc13_"+name+(scale!=1?"_h0x"+Fmt(scale):"");
-    {std::ifstream old(tag+".json");std::stringstream text;text<<old.rdbuf();const auto saved=text.str();
+    // resume only when the LAST requested step has a complete receipt
+    const std::string lastTag=chain.empty()?tag:tag+"_step"+std::to_string(chain.size())+"_h0x"+Fmt(chain.back());
+    {std::ifstream old(lastTag+".json");std::stringstream text;text<<old.rdbuf();const auto saved=text.str();
      if(old&&sha!="unknown"&&inputSha!="unknown"&&saved.find("\"binary_sha256\":\""+sha+"\"")!=std::string::npos&&saved.find(limits.str())!=std::string::npos&&saved.find("\"total_seconds\":")!=std::string::npos
         &&saved.find("\"agrees_with_cached_final\":1")!=std::string::npos&&saved.size()>2&&saved.substr(saved.size()-2)=="}\n"
-        &&digest(tag+"_final.mesh")!="missing"&&saved.find("\"final_mesh_fnv64\":\""+digest(tag+"_final.mesh")+"\"")!=std::string::npos)continue;}
+        &&digest(lastTag+"_final.mesh")!="missing"&&saved.find("\"final_mesh_fnv64\":\""+digest(lastTag+"_final.mesh")+"\"")!=std::string::npos)continue;}
     Policies policies;
     reflectiveByRole=std::getenv("SU2_DC12_REFLECTIVE")!=nullptr;reflectiveMarkers.clear();
     if(name!="annulus"&&name.rfind("m6_",0)!=0)REQUIRE(reflectiveByRole);
@@ -331,7 +387,12 @@ TEST_CASE("DC-13 sliver-removing build-then-optimize, first-height ramp and halv
         {Scope sc("JsonFinal before step");json<<",\"before_step\":"<<JsonFinal(*s,rows);}
         snapshot=FirstChildren(*s);
         const auto hv=HalveFirstRow(*s,rows,certified);
-        json<<",\"halve\":{\"faces\":"<<hv.faces<<",\"split\":"<<hv.split<<",\"already_within\":"<<hv.skipped_low<<",\"refused\":"<<hv.refused<<",\"why\":{";
+        const bool redistribute=!(std::getenv("SU2_DC13_REDISTRIBUTE")&&std::string(std::getenv("SU2_DC13_REDISTRIBUTE"))=="0");
+        ColumnStats cs;if(redistribute)cs=ColumnInsert(*s,rows);
+        json<<",\"column_insert\":{\"enabled\":"<<redistribute<<",\"columns\":"<<cs.columns<<",\"inserted\":"<<cs.inserted<<",\"refused\":"<<cs.refused<<",\"why\":{";
+        {bool k=false;for(const auto& d:cs.why){json<<(k?",":"")<<junction_wp0::Json(d.first)<<':'<<d.second;k=true;}}json<<"}}";
+        std::cout<<"DC13 "<<name<<" step "<<step<<" column insertions="<<cs.inserted<<" refused="<<cs.refused<<std::endl;
+        json<<",\"halve\":{\"faces\":"<<hv.faces<<",\"split\":"<<hv.split<<",\"placed\":"<<hv.placed<<",\"already_within\":"<<hv.skipped_low<<",\"refused\":"<<hv.refused<<",\"why\":{";
         {bool k=false;for(const auto& d:hv.why){json<<(k?",":"")<<junction_wp0::Json(d.first)<<':'<<d.second;k=true;}}json<<"}}";
         {Scope sc("JsonFinal after halve");json<<",\"after_halve\":"<<JsonFinal(*s,rows);}
         std::cout<<"DC13 "<<name<<" step "<<step<<" x"<<m<<" halved="<<hv.split<<" refused="<<hv.refused<<std::endl;

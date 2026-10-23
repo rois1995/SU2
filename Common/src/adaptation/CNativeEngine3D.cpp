@@ -3535,7 +3535,7 @@ bool MeshOptimizer::TryCell(Id id) {
     for(unsigned i=0;i<4;++i)for(unsigned j=i+1;j<4;++j){if(!mesh.count(id))return true;if(EdgeRemoval(std::min(c.v[i].id,c.v[j].id),std::max(c.v[i].id,c.v[j].id)))return true;}
     for(auto f:OppositeFaces(c)){if(!mesh.count(id))return true;std::sort(f.begin(),f.end());if(FaceSwap(f))return true;}
     for(unsigned i=0;i<4;++i)for(unsigned j=i+1;j<4;++j){if(!mesh.count(id))return true;
-      if(fixed.count(c.v[i].id)&&fixed.count(c.v[j].id)&&BoundaryFlip(c.v[i].id,c.v[j].id))return true;}
+      if(options.boundary&&fixed.count(c.v[i].id)&&fixed.count(c.v[j].id)&&BoundaryFlip(c.v[i].id,c.v[j].id))return true;}
   }
   if(options.insertions) {  // DC-13 O7 (longest edges first) and O8
     std::vector<std::pair<long double,std::pair<Id,Id>>> edges;
@@ -3549,7 +3549,7 @@ bool MeshOptimizer::TryCell(Id id) {
     for(unsigned i=0;i<4;++i)for(unsigned j=i+1;j<4;++j){long double l=INFINITY;try{l=Estimate(c.v[i].p,c.v[j].p);}catch(const std::exception&){}edges.push_back({l,{c.v[i].id,c.v[j].id}});}
     std::sort(edges.begin(),edges.end());
     for(const auto& e:edges){if(!mesh.count(id))return true;if(Collapse(e.second.first,e.second.second)||Collapse(e.second.second,e.second.first))return true;}
-    for(const auto& e:edges){if(!mesh.count(id))return true;if(BoundaryCollapse(e.second.first,e.second.second)||BoundaryCollapse(e.second.second,e.second.first))return true;}
+    if(options.boundary)for(const auto& e:edges){if(!mesh.count(id))return true;if(BoundaryCollapse(e.second.first,e.second.second)||BoundaryCollapse(e.second.second,e.second.first))return true;}
   }
   if(options.smoothing)for(const auto& v:c.v){if(!mesh.count(id))return true;if(Smooth(v.id))return true;}
   return false;
@@ -3564,13 +3564,13 @@ bool MeshOptimizer::Run() {
     std::sort(bad.begin(),bad.end());size_t accepted=0;
     for(const auto& row:bad){if(Limited())break;if(!mesh.count(row.second))continue;if(Score(mesh.at(row.second).cell)>=1)continue;if(TryCell(row.second))++accepted;}
     // O1L: interior edges longer than 1.8 (estimate screen, exact length) removed by the best ring triangulation
-    if(options.swaps&&!Limited()){std::vector<std::pair<long double,std::pair<Id,Id>>> longs;std::set<std::pair<Id,Id>> seen;
+    if((options.swaps||options.insertions)&&!Limited()){std::vector<std::pair<long double,std::pair<Id,Id>>> longs;std::set<std::pair<Id,Id>> seen;
       for(const auto& row:mesh){if(Limited())break;if(Frozen(row.first))continue;const auto& c=row.second.cell;for(unsigned i=0;i<4;++i)for(unsigned j=i+1;j<4;++j){
         const auto e=std::minmax(c.v[i].id,c.v[j].id);if(!seen.insert(e).second)continue;
         try{if(Estimate(c.v[i].p,c.v[j].p)<=1.6L)continue;const auto l=Exact(c.v[i].p,c.v[j].p);if(l>MaximumMetricEdge)longs.push_back({-l,e});}catch(const std::exception&){}}}
       std::sort(longs.begin(),longs.end());report.long_edges_seen+=longs.size();
       for(const auto& e:longs){if(Limited())break;if(!Adjacent(e.second.first,e.second.second))continue;
-        if(EdgeRemoval(e.second.first,e.second.second,true)||(options.insertions&&ShellInsert(e.second.first,e.second.second,true)))++accepted;}}
+        if((options.swaps&&EdgeRemoval(e.second.first,e.second.second,true))||(options.insertions&&ShellInsert(e.second.first,e.second.second,true)))++accepted;}}
     if(Limited()){report.stop="limit";break;}
     if(!accepted){report.stop=bad.empty()?"complete":"no progress";break;}
   }
@@ -3639,6 +3639,7 @@ EngineResult RefineOptimize(World& world,const Owned& accepted,const std::vector
     if(last.reference){held=last.reference;geo=held.get();}
     Owned cells=last.cells;Id nextNode=1,nextCell=1;
     OptimizeOptions opt=optimize;
+    if(geo->Mapped())opt.boundary=false;  // DC-13: boundary faces change only through the parameter publication of Refine
     for(const auto& row:cells) {
       nextCell=std::max(nextCell,row.first+1);for(const auto& n:row.second.cell.v)nextNode=std::max(nextNode,n.id+1);
       for(unsigned k=0;k<4;++k)if(row.second.physical[k].present && options.wall_heights.count(geo->Get(row.second.physical[k].facet).marker)) {
