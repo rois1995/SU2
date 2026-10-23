@@ -17,12 +17,18 @@ TEST_CASE("Matrix-free interface vectors preserve periodic master constraints", 
   auto* solver=test.solver[FLOW_SOL];
   CSysVector<su2double> direction(test.geometry->GetnPoint(),test.geometry->GetnPointDomain(),5,0.0);
   CSysVector<su2double> product(test.geometry->GetnPoint(),test.geometry->GetnPointDomain(),5,0.0);
+  // Receive metadata identifies the sender: the upper-half local faces remain active.
   for(auto marker=0u;marker<test.config->GetnMarker_All();++marker) {
     const auto periodic=test.config->GetMarker_All_PerBound(marker);
     if (periodic==0) continue;
+    const bool active = periodic > test.config->GetnMarker_Periodic()/2;
     for(auto vertex=0ul;vertex<test.geometry->GetnVertex(marker);++vertex) {
       const auto point=test.geometry->vertex[marker][vertex]->GetNode();
-      for(auto v=0u;v<5;++v) {direction(point,v)=periodic==1 ? v+1 : -99;product(point,v)=periodic==1 ? v+1 : 2*(v+1);}
+      for(auto v=0u;v<5;++v) {
+        const su2double value = v+1;
+        direction(point,v) = active ? value : su2double(-99);
+        product(point,v) = (active ? 1 : 2)*value;
+      }
     }
   }
   solver->CommunicatePeriodicOperator(test.geometry.get(),test.config.get(),direction,false);
@@ -30,12 +36,13 @@ TEST_CASE("Matrix-free interface vectors preserve periodic master constraints", 
   for(auto marker=0u;marker<test.config->GetnMarker_All();++marker) {
     const auto periodic=test.config->GetMarker_All_PerBound(marker);
     if (periodic==0) continue;
+    const bool active = periodic > test.config->GetnMarker_Periodic()/2;
     for(auto vertex=0ul;vertex<test.geometry->GetnVertex(marker);++vertex) {
       const auto point=test.geometry->vertex[marker][vertex]->GetNode();
       if(!test.geometry->nodes->GetDomain(point))continue;
       for(auto v=0u;v<5;++v) {
         CHECK(direction(point,v)==v+1);
-        CHECK(product(point,v)==(periodic==1 ? 3*(v+1) : 0));
+        CHECK(product(point,v)==(active ? 3*(v+1) : 0));
       }
     }
   }
