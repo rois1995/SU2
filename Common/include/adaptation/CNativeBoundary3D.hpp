@@ -127,6 +127,14 @@ class PlanarReference {
   std::shared_ptr<const PlanarReference> definition;
   std::shared_ptr<ParameterView> parameter_view;
 };
+/*! DC-13: promote a plain faceted reference to the v6 mapped-component authority (MappedFacetReference with released
+ * certified planar seams, declared mapping error `relative_error` x max(1, coordinate scale) per facet, every original
+ * facet vertex bound to itself, skin = the facets). Crease and junction points then bind to their original feature
+ * (EdgePoint/FacetPoint, realized within the declared error) instead of requiring an exactly representable binary64
+ * point on both facet planes (impossible for most folded edges). The geometry contract becomes the bounded-error v5/v6
+ * contract: callers set their surface tolerance to at least the returned declared error. */
+std::shared_ptr<const PlanarReference> PromoteFacetedReference(std::shared_ptr<const PlanarReference> reference,
+    const std::vector<Facet>& facets,double relative_error,double& declared_error,size_t ceiling=SIZE_MAX);
 struct FirstHeightReport {
   size_t wall_faces=0, height_failures=0, footprint_failures=0, missing_cells=0;
   size_t reference_clearance_failures=0;

@@ -75,7 +75,7 @@ bool ApexPlace(State& s,Rows10& rows,const Face& key,VStage& g,std::string& why,
   for(const auto& f:PhysicalOf(s,star,true)){bool registered=false;for(const auto& r:rows.apex)registered=registered||(r.first==f.key&&r.second==v);
     bool child=false;for(const auto& c:old.cells){unsigned k=0;bool hasV=false;for(auto n:c.v){k+=Has(f.key,n.id);hasV=hasV||n.id==v;}child=child||(k==3&&hasV);}
     if(!registered&&!child)continue;
-    Window w;w.a=Of(NodePoint(s,f.out[0]));w.b=Of(NodePoint(s,f.out[1]));w.c=Of(NodePoint(s,f.out[2]));w.n=-1.L*Outward(w.a,w.b,w.c);w.h0=FaceH0(s,f.key);w.area=Norm(Cross(w.b-w.a,w.c-w.a));windows.push_back(w);}
+    Window w;w.a=Of(NodePoint(s,f.out[0]));w.b=Of(NodePoint(s,f.out[1]));w.c=Of(NodePoint(s,f.out[2]));w.n=-1.L*Outward(w.a,w.b,w.c);w.h0=FaceH0(s,f.key);w.area=Dot(Cross(w.b-w.a,w.c-w.a),w.n);if(!(std::abs(w.area)>0))continue;windows.push_back(w);}  // signed: barycentrics in the n orientation
   if(windows.empty()){why="no first child at the apex";return false;}
   const long double T=.98L*HeightTolerance;
   auto region=[windows,T](Point p)->bool{const V x=Of(p);
@@ -180,8 +180,12 @@ VStage13 PhaseV13(State& s,Rows10& rows,Growth& G,size_t work,double seconds,siz
              if(ridgeEdge(w))why="ColumnSplit: ridge vertex on the split faces (fan)";else{try{done=columnSplit(w,why);}catch(const std::exception& x){done=false;why=std::string("ColumnSplit: ")+x.what();}}}}
          else if(b0!=UINT64_MAX&&b1!=UINT64_MAX&&b0!=b1){const Edge w{std::min(b0,b1),std::max(b0,b1)};if(ridgeEdge(w))why="ColumnSplit: ridge vertex on the split faces (fan)";else{try{done=columnSplit(w,why);}catch(const std::exception& x){done=false;why=std::string("ColumnSplit: ")+x.what();}}}
          else why="column demand without a column route";
-         if(done){changed=true;build();}else{++g.column_demand;++g.demand[Key(why)];g.last="column demand: "+why;}
-         continue;
+         if(done){changed=true;build();continue;}
+         ++g.column_demand;++g.demand[Key(why)];g.last="column demand: "+why;
+         // DC-13: a column edge off the wall (lateral diagonal, lid or apex edge) without a column route falls through to
+         // the generic variants; first children stay protected by firstChildKept, apex/lid/wall vertices are never moved
+         {const int k=EdgeClass13(s,e);if(k==1||k==2)continue;}
+         ++g.demand["column edge -> generic refinement"];
        }
        const auto key=keyOf(1,{e[0],e[1]},star);if(rejected.count(key)){++g.cache_skips;continue;}
        long double now=-std::get<1>(row);try{now=Len(s,e[0],e[1]);}catch(const std::exception&){now=INFINITY;}
@@ -204,7 +208,7 @@ VStage13 PhaseV13(State& s,Rows10& rows,Growth& G,size_t work,double seconds,siz
          if(built&&variant.first=="wall"&&(index==1||index==2)){std::set<Id> before;for(const auto& c:old.cells)for(auto n:c.v)before.insert(n.id);
            std::set<Id> moved;for(const auto& c:fresh.cells)for(auto n:c.v)if(n.id>=s.next_node+1&&!before.count(n.id))moved.insert(n.id);splitPolicy.relocatedCount=moved.size();}
          if(!built){++g.work;++g.rejected;++g.reasons["Refine build: "+Key(reason)];++census.reasons[variant.first+" build: "+Key(reason)];continue;}
-         if(touchesColumn(ids)){++g.rejected;++g.reasons["Refine: protected column"];++census.reasons["protected column"];continue;}
+         if(touchesColumn(ids)&&variant.first=="wall"){++g.rejected;++g.reasons["Refine: protected column"];++census.reasons["protected column"];continue;}
          for(const auto& pr:old.parameters)fresh.parameters.emplace(pr.first,pr.second);
          try{s.reference->ExportParameters(fresh);}catch(const std::exception&){}
          if(variant.first!="wall"&&!firstChildKept(old,fresh)){++g.work;++g.rejected;++census.reasons[variant.first+" changes a first child"];continue;}
@@ -360,3 +364,65 @@ TEST_CASE("DC-13 sliver-removing build-then-optimize, first-height ramp and halv
     }
   }
 }
+
+TEST_CASE("DC-13 production volume-only build-then-optimize on the promoted faceted reference", "[.][NativeVolumeOnlyDC13]") {
+  using namespace dc12;using namespace dc11diag;
+  World world;REQUIRE(world.size==1);
+  struct Restore{RefineAcceptance a=GetRefineAcceptance();ShapeAdmission b=GetShapeAdmission();~Restore(){SetRefineAcceptance(a);SetShapeAdmission(b);}} restore;
+  const char* folder=std::getenv("SU2_DC13_ROOT");REQUIRE(folder);const std::string root(folder);
+  const char* wp0b=std::getenv("SU2_DC13_WP0B");REQUIRE(wp0b);const std::string fixtures(wp0b);
+  const char* m6=std::getenv("SU2_DC13_M6");const std::string cuts=m6?m6:"";
+  const char* only=std::getenv("SU2_DC13_CASES");REQUIRE(only);
+  const double seconds=std::getenv("SU2_DC13_VO_SECONDS")?std::stod(std::getenv("SU2_DC13_VO_SECONDS")):900;
+  std::stringstream names(only);
+  for(std::string name;std::getline(names,name,',');) {
+    if(name.empty())continue;
+    SetRefineAcceptance(RefineAcceptance::SplitInsertion);
+    perf=Perf{};ResetCaches();cachesOn=true;balancedCache.clear();
+    const bool isM6=name.rfind("m6_",0)==0;
+    auto s=isM6?LoadM6CutA(cuts+"/"+name+".txt"):LoadTubeA(fixtures+"/"+name+".txt");
+    Tensor sensor{s->core,0,0,s->core,0,s->core};
+    if(isM6){std::ifstream in(cuts+"/"+name+".txt");std::string key;Id centre=UINT64_MAX;bool found=false;
+      for(std::string line;std::getline(in,line);){std::istringstream l(line);l>>key;if(key=="centre")l>>centre;
+        else if(centre!=UINT64_MAX&&!key.empty()&&std::isdigit((unsigned char)key[0])&&Id(std::stoull(key))==centre&&line.find(' ')!=std::string::npos){
+          double x,y,z;std::istringstream r(line);Id id;r>>id>>x>>y>>z>>sensor.xx>>sensor.xy>>sensor.xz>>sensor.yy>>sensor.yz>>sensor.zz;found=bool(r);break;}}
+      REQUIRE(found);}
+    std::vector<DonorCell> donors;
+    {Point lo=s->mesh.begin()->second.cell.v[0].p,hi=lo;for(const auto& r:s->mesh)for(auto x:r.second.cell.v){lo={std::min(lo.x,x.p.x),std::min(lo.y,x.p.y),std::min(lo.z,x.p.z)};hi={std::max(hi.x,x.p.x),std::max(hi.y,x.p.y),std::max(hi.z,x.p.z)};}
+     const double pad=std::max({hi.x-lo.x,hi.y-lo.y,hi.z-lo.z});lo={lo.x-pad,lo.y-pad,lo.z-pad};hi={hi.x+pad,hi.y+pad,hi.z+pad};
+     auto corner=[&](unsigned b){return Node{Id(1)<<40|b,{b&1?hi.x:lo.x,b&2?hi.y:lo.y,b&4?hi.z:lo.z}};};
+     const std::array<std::array<unsigned,3>,6> paths{{{1,2,4},{1,4,2},{2,1,4},{2,4,1},{4,1,2},{4,2,1}}};
+     for(size_t k=0;k<6;++k){unsigned at=0;DonorCell d;d.cell.id=k;d.cell.v[0]=corner(0);for(unsigned j=0;j<3;++j){at|=paths[k][j];d.cell.v[j+1]=corner(at);}
+       if(Orientation(d.cell.v[0].p,d.cell.v[1].p,d.cell.v[2].p,d.cell.v[3].p)<0)std::swap(d.cell.v[0],d.cell.v[1]);d.sensor.fill(sensor);donors.push_back(d);}}
+    const auto composition=SU2NativeBL3D::Composition(probeBase,s->core);const auto edges=SU2NativeBL3D::EdgeGeometry(probeBase,s->core);
+    EngineOptions options;options.maximum_seconds=seconds;options.edge_breakpoints=edges;options.timings=false;
+    // DC13_PLAN sect. 5: the plain faceted reference is promoted to the mapped authority (production
+    // PromoteFacetedReference, 1e-13 relative declared error) so crease/junction points bind to their original feature;
+    // mesh faces are bound to the canonical facet of their component (as production import binds through FindFace)
+    double declared=0;const auto plain=std::make_shared<PlanarReference>(s->facets);
+    s->reference=PromoteFacetedReference(plain,s->facets,1e-13,declared);s->mapped=true;s->overlay.clear();
+    for(auto& row:s->mesh)for(auto& ph:row.second.physical)if(ph.present)ph.facet=s->reference->Canonical(ph.facet);
+    options.surface_tolerance=std::max(options.surface_tolerance,declared);
+    const auto cells0=s->mesh.size();const auto start=Clock::now();
+    RefineOptimizeReport report;const auto r=RefineOptimize(world,s->mesh,donors,*s->reference,composition,options,OptimizeOptions{},&report);
+    const double used=Seconds(start);
+    std::ostringstream json;json<<std::setprecision(10)<<"{\"case\":\""<<name<<"\",\"target\":\"base\",\"reference\":\"promoted facets\",\"declared_error\":"<<declared<<",\"wall_heights\":\"empty\",\"seconds_limit\":"<<seconds
+      <<",\"input_cells\":"<<cells0<<",\"valid\":"<<r.valid<<",\"stop\":\""<<EngineStopName(r.stats.stop)<<"\",\"reason\":"<<JS(r.reason.substr(0,400))<<",\"seconds\":"<<used
+      <<",\"cells\":"<<r.cells.size()<<",\"rounds\":"<<report.rounds<<",\"refine_seconds\":"<<report.refine_seconds<<",\"optimize_seconds\":"<<report.optimize_seconds<<",\"round_stops\":[";
+    for(size_t i=0;i<report.stops.size();++i)json<<(i?",":"")<<"[\""<<report.stops[i]<<"\","<<report.cells[i]<<"]";json<<"],\"optimizer\":[";
+    for(size_t i=0;i<report.optimize.size();++i)json<<(i?",":"")<<JsonOpt(report.optimize[i]);json<<"]";
+    std::cout<<"VOLONLY13 "<<name<<" valid="<<r.valid<<" stop="<<EngineStopName(r.stats.stop)<<" cells="<<r.cells.size()<<" rounds="<<report.rounds<<" t="<<used<<std::endl;
+    if(!r.cells.empty()&&r.cells.size()<=60000) {
+      s->mesh=r.cells;if(r.reference)s->reference=r.reference;s->overlay.clear();s->heights=WallHeights{};s->lengths.clear();ResetCaches();
+      s->field=std::make_unique<FrozenField>(donors,composition,false,std::vector<Id>{},edges);Index(*s);
+      try{const auto g=Final(*s);json<<",\"final\":{\"cells\":"<<g.cells<<",\"q_min\":"<<g.q<<",\"J_min\":"<<g.J<<",\"edge_max\":"<<double(g.lmax)<<",\"long_edges\":"<<g.long_edges
+        <<",\"bad_shape\":"<<g.bad_shape<<",\"unmeasurable\":"<<g.unmeasurable<<",\"complete\":"<<g.complete<<"}";
+        std::cout<<"VOLONLY13 "<<name<<" final long="<<g.long_edges<<" bad="<<g.bad_shape<<" complete="<<g.complete<<std::endl;}
+      catch(const std::exception& x){json<<",\"final_error\":"<<JS(x.what());}
+      ExportGates10(*s,Rows10{},root+"/volonly13_"+name+"_final.mesh");
+    }
+    json<<",\"peak_rss_kB\":"<<PeakKB()<<"}\n";
+    std::ofstream(root+"/volonly13_"+name+".json")<<json.str();
+  }
+}
+

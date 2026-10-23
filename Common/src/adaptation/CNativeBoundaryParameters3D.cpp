@@ -7,6 +7,8 @@
 #include "../../include/adaptation/CNativeDistributed2D.hpp"
 #include "../../include/adaptation/CTransferMemory.hpp"
 #include "CNativePredicates3D_internal.hpp"
+#include <algorithm>
+#include <cmath>
 #include <cstring>
 #include <limits>
 namespace SU2Native3D {
@@ -426,5 +428,18 @@ size_t PlanarReference::ParameterWorkspaceBytes()const {
   return transfer_memory::Add(sizeof(ParameterView),MapBytes(parameter_view->local),MapBytes(parameter_view->coordinates),MapBytes(parameter_view->pending),
       transfer_memory::Bytes(parameter_view->components),parameter_view->private_view?0:parameter_view->accepted->ResidentBytes(),
       parameter_view->private_view?0:parameter_view->accepted->Geometry().ResidentBytes());
+}
+std::shared_ptr<const PlanarReference> PromoteFacetedReference(std::shared_ptr<const PlanarReference> reference,
+    const std::vector<Facet>& facets,double relative_error,double& declared_error,size_t ceiling) {
+  if(!reference||facets.empty())throw std::invalid_argument("Native3D faceted promotion needs a reference and its facets.");
+  if(!(relative_error>0)||!std::isfinite(relative_error))throw std::invalid_argument("Native3D faceted promotion error must be finite and positive.");
+  long double scale=0;
+  for(const auto& f:facets)for(const auto& x:f.v)scale=std::max({scale,std::abs((long double)x.p.x),std::abs((long double)x.p.y),std::abs((long double)x.p.z)});
+  declared_error=double(relative_error*std::max(1.L,scale));
+  std::map<Id,double> errors;for(const auto& f:facets)errors.emplace(f.id,declared_error);
+  auto authority=std::make_shared<SU2NativeGeometry::MappedFacetReference>(reference,errors,7,ceiling,true);
+  BoundaryPoints points;std::vector<SurfaceFace> skin;
+  for(const auto& f:facets){skin.push_back({{f.v[0].id,f.v[1].id,f.v[2].id},f.id});for(const auto& x:f.v)points.emplace(x.id,BoundaryPoint{x,authority->Vertex(x.id)});}
+  return PlanarReference::WithParameters(reference,std::make_shared<BoundaryParameterState>(authority,points,skin,1,ceiling));
 }
 } // namespace SU2Native3D
