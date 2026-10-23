@@ -155,11 +155,11 @@ CEulerSolver::CEulerSolver(CGeometry *geometry, CConfig *config,
       SU2_MPI::Error("Conservative mixing experiment requires direct axial z-axis multizone flow and one OpenMP thread", CURRENT_FUNCTION);
 
   }
-  if (iMesh == MESH_0) {
+  if (iMesh == MESH_0 && config->GetnVolumeOutputFiles() != 0) {
     for (auto field = 0u; field < config->GetnVolumeOutput(); ++field) {
       const auto name = config->GetVolumeOutput_Field(field);
       if (name == "RESIDUAL" || name.compare(0, 4, "RES_") == 0) {
-        PhysicalResidual.resize(nPoint, nVar) = su2double(0);
+        PhysicalResidual.resize(nPointDomain, nVar) = su2double(0);
         break;
       }
     }
