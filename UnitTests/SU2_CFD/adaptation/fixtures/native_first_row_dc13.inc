@@ -64,10 +64,14 @@ ColumnStats ColumnInsert(State& s,Rows10& rows) {
     const V x=Of(NodePoint(s,w)),l=Of(NodePoint(s,L));const V d=Unit(l-x);
     const auto dir=DirectionAt(s,w);if(dir.normals.empty()){++st.why["no wall normal"];continue;}
     V nb{};for(const auto& n:dir.normals)nb=nb+n;nb=Unit(nb);const long double dn=Dot(d,nb);if(!(dn>.1L)){++st.why["column too flat"];continue;}
-    const long double hL=Dot(l-x,nb),h0=VertexH0(s,w);
+    // the current bottom column edge: the vertex adjacent to w on the column ray (alignment 1e-6) closest to the wall
+    Id top=UINT64_MAX;long double best=INFINITY;
+    for(Id c:StarOf(s,w))for(auto n:s.mesh.at(c).cell.v){if(n.id==w)continue;const V y=Of(n.p)-x;const auto t=Dot(y,d);if(!(t>0))continue;
+      if(Norm(y-t*d)<=1e-6L*t&&t<best){best=t;top=n.id;}}
+    if(top==UINT64_MAX){++st.why["no column edge at the wall vertex"];continue;}
+    const long double hL=Dot(Of(NodePoint(s,top))-x,nb),h0=VertexH0(s,w);
     long double g=s.growth;for(const auto& f:PhysicalOf(s,StarOf(s,w),true))if(Has(f.key,w)){const auto it=layerOfMarker.find(f.marker);if(it!=layerOfMarker.end()){g=GrowthOf(s,it->second);break;}}
     std::vector<long double> z;for(long double zk=h0,step=h0;zk<.85L*hL;step*=g,zk+=step)z.push_back(zk);
-    Id top=L;
     for(size_t k=z.size();k-->0;) {
       const Edge e{std::min(w,top),std::max(w,top)};const auto ids=Star(s,e);if(ids.empty()||ids.size()>MaximumCavityCells){++st.refused;++st.why["edge star"];break;}
       Patch old;try{old=PatchOf(s,ids);}catch(const std::exception&){++st.refused;++st.why["patch"];break;}
@@ -289,6 +293,36 @@ VStage13 PhaseV13(State& s,Rows10& rows,Growth& G,size_t work,double seconds,siz
        if(!found||!moved.insert(apexKey).second)continue;
        const auto st=StarOf(s,rows.apex.at(apexKey));const auto k=keyOf(3,{apexKey[0],apexKey[1],apexKey[2]},std::vector<Id>(st.begin(),st.end()));
        if(rejected.count(k))continue;std::string why;if(apexMove(apexKey,why)){changed=true;build();}else{rejected.insert(k);++g.demand["bad column cell: "+Key(why)];}}
+    }
+    // (c2) DC-13 boundary-constrained repair (DC13_PLAN sect. 4, review 2 #7): a bad cell with an edge on a non-wall
+    // physical face (carrier or artificial cut boundary) gets that boundary edge split by the production physical
+    // variants (bound point on the reference); the best Admit12 Repair candidate (validity + quality/size progress)
+    // is applied; first children are protected (firstChildKept)
+    {std::vector<std::pair<double,Id>> badB;
+     std::set<Id> skin;for(const auto& row:s.mesh)for(unsigned k=0;k<4;++k)if(row.second.physical[k].present&&!s.walls.count(s.reference->Get(row.second.physical[k].facet).marker)){const auto f=CellFaces(row.second.cell);skin.insert(f[k].begin(),f[k].end());}
+     for(const auto& row:s.mesh){if(WallChild(s,row.first))continue;unsigned on=0;for(const auto& n:row.second.cell.v)on+=skin.count(n.id);if(on<2)continue;
+       const auto sh=MeshShape(s,row.first);if(Bad(sh))badB.emplace_back(std::min(sh.q/MinimumMeanRatio,sh.J/MinimumScaledJacobian),row.first);}
+     std::sort(badB.begin(),badB.end());
+     for(const auto& b:badB){if(limited()||Seconds(sweepStart)>=.65*R)break;if(!s.mesh.count(b.second))continue;
+       const auto row=s.mesh.at(b.second);std::vector<std::pair<long double,Edge>> edges;
+       for(unsigned i=0;i<4;++i)for(unsigned j=i+1;j<4;++j){const Edge e{std::min(row.cell.v[i].id,row.cell.v[j].id),std::max(row.cell.v[i].id,row.cell.v[j].id)};
+         if(!skin.count(e[0])||!skin.count(e[1]))continue;const int cls=EdgeClass13(s,e);if(cls!=3&&cls!=4)continue;
+         long double l=0;try{l=Len(s,e[0],e[1]);}catch(const std::exception&){continue;}edges.push_back({-l,e});}
+       std::sort(edges.begin(),edges.end());bool done=false;
+       for(const auto& ed:edges){if(done||limited())break;const Edge e=ed.second;const auto star=Star(s,e);if(star.empty())continue;
+         const auto key=keyOf(4,{e[0],e[1]},star);if(rejected.count(key))continue;
+         struct Best{std::string op;std::vector<Id> ids;Patch old,fresh;double score=-INFINITY;} best;
+         for(auto& variant:RefineVariantsOf(s,e,g)){if(variant.first=="wall")continue;std::vector<Id> ids;Patch old,fresh;std::string reason;bool built=false;
+           try{built=variant.second(ids,old,fresh,reason);}catch(const std::exception& x){reason=x.what();built=false;}
+           if(!built){++g.reasons["boundary repair build: "+Key(reason)];continue;}
+           for(const auto& pr:old.parameters)fresh.parameters.emplace(pr.first,pr.second);try{s.reference->ExportParameters(fresh);}catch(const std::exception&){}
+           if(!firstChildKept(old,fresh))continue;
+           ++g.work;const auto d=Admit12(s,old,fresh,Kind::Repair);if(!d.ok){++g.reasons["boundary repair ["+std::to_string(d.category)+"] "+Key(d.reason)];continue;}
+           const double sc=std::min({d.first_q/MinimumMeanRatio,d.first_J/MinimumScaledJacobian,d.other_q/MinimumMeanRatio,d.other_J/MinimumScaledJacobian});
+           if(sc>best.score)best=Best{variant.first,ids,old,fresh,sc};}
+         if(!best.op.empty()){Apply(s,best.ids,best.fresh);++g.accepted;++g.acceptedBy["boundary repair "+best.op];changed=true;done=true;build();}
+         else rejected.insert(key);}
+       if(!done)++g.demand["bad boundary cell without repair"];}
     }
     // (d) mesh-wide optimization with a reserved share of the sweep budget
     if(!limited()){const auto t=Clock::now();
