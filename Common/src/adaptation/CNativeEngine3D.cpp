@@ -3512,7 +3512,8 @@ bool MeshOptimizer::ConeReplace(const std::vector<Id>& old,Point start,Insert ki
 bool MeshOptimizer::ShellInsert(Id a,Id b,bool lengthDriven) {
   if(Limited()||!options.insertions)return false;
   const auto sa=star.find(a),sb=star.find(b);if(sa==star.end()||sb==star.end())return false;
-  const auto shell=Common(sa->second,sb->second);if(shell.size()<2||shell.size()>2*options.maximum_shell)return false;
+  auto shell=Common(sa->second,sb->second);if(shell.size()<2||shell.size()>2*options.maximum_shell)return false;
+  if(!lengthDriven){shell.erase(std::remove_if(shell.begin(),shell.end(),[&](Id id){return Frozen(id);}),shell.end());if(shell.empty())return false;}  // partial shell: the edge stays
   if(lengthDriven){std::map<Id,int> ring;for(Id id:shell)for(const auto& v:mesh.at(id).cell.v)if(v.id!=a&&v.id!=b)++ring[v.id];
     if(ring.size()!=shell.size())return false;for(const auto& r:ring)if(r.second!=2)return false;}  // closed shell only
   const Point pa=points.at(a),pb=points.at(b);
@@ -3525,8 +3526,8 @@ bool MeshOptimizer::ShellInsert(Id a,Id b,bool lengthDriven) {
 bool MeshOptimizer::NeighbourhoodInsert(Id cell) {
   if(Limited()||!options.insertions||!mesh.count(cell))return false;
   const auto& c=mesh.at(cell).cell;std::vector<Id> old{cell};
-  for(auto f:OppositeFaces(c)){const auto both=Common(Common(star.at(f[0]),star.at(f[1])),star.at(f[2]));for(Id id:both)if(id!=cell)old.push_back(id);}
-  if(old.size()<2)return false;
+  for(auto f:OppositeFaces(c)){const auto both=Common(Common(star.at(f[0]),star.at(f[1])),star.at(f[2]));for(Id id:both)if(id!=cell&&!Frozen(id))old.push_back(id);}  // a frozen neighbour stays: its face bounds the cavity
+  if(Frozen(cell))return false;
   return ConeReplace(old,Centroid(c),Insert::Neighbourhood);
 }
 bool MeshOptimizer::TryCell(Id id) {
