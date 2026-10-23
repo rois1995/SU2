@@ -71,6 +71,10 @@ using namespace std;
 class CSolver {
 protected:
   CSysVector<su2double>* periodicOperatorVector = nullptr;
+  unsigned short wallCommCount = 1;
+  vector<pair<unsigned short, unsigned short>> wallCommMarkers; /*!< Local marker and compact global packet offset. */
+  void InitializeWallFunctionComms(const CConfig* config);
+
   enum : size_t {OMP_MIN_SIZE = 32}; /*!< \brief Chunk size for small loops. */
 
   int rank,       /*!< \brief MPI Rank. */
