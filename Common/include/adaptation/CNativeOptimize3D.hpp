@@ -20,6 +20,7 @@ struct OptimizeOptions {
   size_t placement_budget = 160;    // Approximate cone evaluations of one placement search (proposal only).
   std::set<Id> frozen_cells;        // No operation may replace these cells (caller-certified first rows).
   std::set<Id> frozen_vertices;     // Never moved or removed (boundary vertices are always fixed).
+  std::set<Id> keep_vertices;       // May move (new identity, relabel) but are never removed (no collapse).
   /*! TEST-ONLY DIAGNOSTIC (DC-13 cut-artifact check), never set in production: skin vertices allowed to slide in the plane
    * through their position with the given unit normal (moves by O4m only, positivity/validity checked, skin geometry
    * NOT certified: no interface/facet check). Their boundary faces keep their bindings. */

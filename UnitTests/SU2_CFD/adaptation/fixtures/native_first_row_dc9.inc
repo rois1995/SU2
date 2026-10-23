@@ -1513,10 +1513,28 @@ void ExportGates(State& s,const Rows& rows,const std::string& path) {
   out<<"long_edges "<<lines.size()<<"\n";for(const auto& l:lines)out<<l<<"\n";
 }
 // ---- loaders: DC-7 copies whose frozen field carries a metric identity (enables exact edge-length reuse) and timings
+// DC-13 first-height ramp diagnostic: every wall marker's own first height becomes max(h0, h0Scale x h0) in the
+// production wall policies before the target is composed (1 = unchanged, the default of every earlier harness). In a
+// configuration, ADAP_BL_FIRST_HEIGHT (per marker) and ADAP_BL_PROTECT_DISTANCE (the BL budget requires it >= every
+// first height; set to h0 in these configurations) are scaled.
+double h0Scale=1;
+double ScaledHeight(double h){return std::max(h,h0Scale*h);}
+std::string ScaleBLConfig(const std::string& text) {
+  if(h0Scale==1)return text;std::istringstream lines(text);std::ostringstream out;size_t replaced=0;
+  for(std::string line;std::getline(lines,line);){
+    if(line.rfind("ADAP_BL_FIRST_HEIGHT",0)==0){const auto l=line.find('('),r=line.rfind(')');if(l==std::string::npos||r==std::string::npos||r<l)throw std::runtime_error("DC13 ADAP_BL_FIRST_HEIGHT format");
+      std::stringstream list(line.substr(l+1,r-l-1));std::ostringstream o;o<<std::setprecision(17)<<"ADAP_BL_FIRST_HEIGHT= (";bool first=true;
+      for(std::string v;std::getline(list,v,',');){o<<(first?" ":", ")<<ScaledHeight(std::stod(v));first=false;}o<<" )";line=o.str();++replaced;}
+    else if(line.rfind("ADAP_BL_PROTECT_DISTANCE",0)==0){const auto e=line.find('=');std::ostringstream o;o<<std::setprecision(17)<<"ADAP_BL_PROTECT_DISTANCE= "<<ScaledHeight(std::stod(line.substr(e+1)));line=o.str();}
+    out<<line<<"\n";}
+  if(replaced!=1)throw std::runtime_error("DC13 ramp: ADAP_BL_FIRST_HEIGHT not found once");
+  return out.str();
+}
 std::unique_ptr<State> LoadA1(const std::string& wp0b) {
   const std::string annulus=wp0b+"/../../mapped_component_geometry_v1/annulus_n1/affine_annulus_bl_budget_20_m1";
   ReferenceState rejected;if(!LoadReference(annulus+"_rejected_rank0.native_ref",rejected)||!rejected.original||!rejected.original->Mapped())throw std::runtime_error("DC7 annulus reference");
-  std::ifstream cfgFile(annulus+".cfg");if(!cfgFile)throw std::runtime_error("DC7 annulus cfg");
+  std::ifstream cfgRaw(annulus+".cfg");if(!cfgRaw)throw std::runtime_error("DC7 annulus cfg");std::stringstream cfgText;cfgText<<cfgRaw.rdbuf();
+  std::istringstream cfgFile(ScaleBLConfig(cfgText.str()));  // DC-13 ramp diagnostic (identity at h0Scale 1)
   std::unique_ptr<CConfig> config;{Mute mute;config=std::make_unique<CConfig>(cfgFile,SU2_COMPONENT::SU2_CFD,false);}
   std::ifstream in(wp0b+"/annulus_case.txt");std::string tag;int version;in>>tag>>version;if(tag!="SU2_JUNCTION_ANNULUS")throw std::runtime_error("DC7 annulus case");
   std::string key;double core=0;Id recordedCell=0;double recordedQ=0,recordedJ=0;in>>key>>core;in>>key>>recordedCell>>recordedQ>>recordedJ;

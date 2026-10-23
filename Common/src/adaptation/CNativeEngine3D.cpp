@@ -3092,6 +3092,7 @@ class MeshOptimizer {
   std::unordered_map<Id,Point> points;
   std::set<Id> fixed;                            // skin (physical or artificial) vertices: never moved or removed
   std::map<Id,std::array<double,3>> sliding;     // TEST-ONLY diagnostic sliding planes (options.diagnostic_sliding, follows moves)
+  std::set<Id> keep;                             // options.keep_vertices, following moves (never collapsed)
   std::unordered_map<std::array<double,3>,Tensor,CoordinateHash> tensors;
   std::map<std::array<Id,4>,CellQuality> qualities;  // ordered cell vertex ids (an identity keeps its coordinates)
   std::map<std::array<double,6>,long double> exact;
@@ -3113,7 +3114,7 @@ class MeshOptimizer {
       for(auto f:OppositeFaces(row.second.cell)){std::sort(f.begin(),f.end());++uses[f];}
     }
     for(const auto& u:uses)if(u.second==1)fixed.insert(u.first.begin(),u.first.end());
-    sliding=options.diagnostic_sliding;
+    sliding=options.diagnostic_sliding;keep=options.keep_vertices;
   }
   Tensor At(Point p) {
     const std::array<double,3> key{p.x,p.y,p.z};const auto found=tensors.find(key);
@@ -3325,7 +3326,7 @@ bool MeshOptimizer::FaceSwap(const Face& f) {
 }
 // O3: interior vertex p contracted to its neighbour q (cells of the edge disappear, the rest take q).
 bool MeshOptimizer::Collapse(Id p,Id q) {
-  if(Limited()||!Movable(p)||!Adjacent(p,q))return false;
+  if(Limited()||keep.count(p)||!Movable(p)||!Adjacent(p,q))return false;
   const auto old=star.at(p);
   ++report.trials;
   const Node Q{q,points.at(q)};std::vector<Cell> fresh;std::set<Id> link;
@@ -3402,6 +3403,7 @@ bool MeshOptimizer::Smooth(Id p) {
     else if(!Interface(old,fresh))continue;
     const Id moved=next_node++;Commit(old,fresh,p,added);
     if(slides){sliding.erase(p);sliding[moved]=plane;fixed.insert(moved);}
+    if(keep.erase(p))keep.insert(moved);
     Id origin=p;for(const auto& r:report.relabel)if(r.second==p){origin=r.first;break;}
     report.relabel[origin]=moved;++report.moves;return true;
   }
@@ -3461,7 +3463,7 @@ bool MeshOptimizer::BoundaryFlip(Id a,Id b) {
 // O6: boundary vertex p, every incident boundary face bound to one facet (p interior to it), contracted to a neighbour q
 // along a boundary edge of that facet; area and orientation of the facet patch are kept.
 bool MeshOptimizer::BoundaryCollapse(Id p,Id q) {
-  if(Limited()||!fixed.count(p)||options.frozen_vertices.count(p)||!Adjacent(p,q))return false;
+  if(Limited()||!fixed.count(p)||options.frozen_vertices.count(p)||keep.count(p)||!Adjacent(p,q))return false;
   const auto sp=star.find(p);if(sp==star.end()||sp->second.size()>MaximumCavityCells)return false;
   const auto old=sp->second;for(Id id:old)if(Frozen(id)){++report.rejected_frozen;return false;}
   const auto faces=BoundaryFacesOf(old,p);if(faces.empty())return false;
@@ -3652,6 +3654,7 @@ EngineResult RefineOptimize(World& world,const Owned& accepted,const std::vector
     Owned cells=last.cells;Id nextNode=1,nextCell=1;
     OptimizeOptions opt=optimize;
     if(geo->Mapped())opt.boundary=false;  // DC-13: boundary faces change only through the parameter publication of Refine
+    opt.diagnostic_sliding.clear();  // the TEST-ONLY sliding diagnostic is never applied in production
     for(const auto& row:cells) {
       nextCell=std::max(nextCell,row.first+1);for(const auto& n:row.second.cell.v)nextNode=std::max(nextNode,n.id+1);
       for(unsigned k=0;k<4;++k)if(row.second.physical[k].present && options.wall_heights.count(geo->Get(row.second.physical[k].facet).marker)) {

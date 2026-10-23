@@ -352,6 +352,7 @@ VStage13 PhaseV13(State& s,Rows10& rows,Growth& G,size_t work,double seconds,siz
       for(const auto& row:s.mesh)if(WallChild(s,row.first)){opt.frozen_cells.insert(row.first);for(auto n:row.second.cell.v)opt.frozen_vertices.insert(n.id);}
       for(Id id:FanCells(s,rows)){opt.frozen_cells.insert(id);for(auto n:s.mesh.at(id).cell.v)opt.frozen_vertices.insert(n.id);}
       // DC-13: lids are not frozen (no first child contains a lid); a moved lid is relabelled in rows.lift and G below
+      for(const auto& r:rows.lift)opt.keep_vertices.insert(r.second);  // movable, never collapsed (registry identity)
       for(const auto& r:rows.copies)for(Id c:r.second.ids)opt.frozen_vertices.insert(c);
       for(const auto& r:rows.apex)opt.frozen_vertices.insert(r.second);
       // TEST-ONLY cut-artifact diagnostic (coordinator 2026-10-24, SU2_DC13_CUT_SLIDE=1, never the main result): skin
@@ -479,7 +480,8 @@ TEST_CASE("DC-13 sliver-removing build-then-optimize, first-height ramp and halv
       {Scope sc("JsonFinal final");json<<",\"final\":"<<JsonFinal(*s,rows);}
       json<<",\"bad_witness\":"<<BadWitness(*s,rows);
       json<<",\"bands_final\":"<<JsonBands(BandCensus(*s))<<",\"layers_final\":"<<JsonLayers(CountLayers(*s,G,eligible))<<",\"first_row_audit\":"<<JsonAudit(FirstRowAudit(*s,snapshot,certified))
-          <<",\"stale_apex_registrations\":"<<StaleRegistrations(*s,rows);
+          <<",\"stale_apex_registrations\":"<<StaleRegistrations(*s,rows)
+          <<",\"stale_lid_registrations\":"<<std::count_if(rows.lift.begin(),rows.lift.end(),[&](const std::pair<const Id,Id>& r){return !s->vertex_cells.count(r.second);});
       if(step){const auto c=Compare(input,*s);json<<",\"change\":{\"cells_before\":"<<c.cells_before<<",\"cells_after\":"<<c.cells_after<<",\"cells_unchanged\":"<<c.cells_unchanged
           <<",\"vertices_before\":"<<c.vertices_before<<",\"vertices_after\":"<<c.vertices_after<<",\"vertices_kept\":"<<c.vertices_kept<<",\"max_kept_displacement\":"<<double(c.max_kept_displacement)<<"}";}
       ExportGates10(*s,rows,stepTag+"_final.mesh");json<<",\"final_mesh_fnv64\":\""<<digest(stepTag+"_final.mesh")<<"\"";

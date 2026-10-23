@@ -175,10 +175,6 @@ std::shared_ptr<OptionA> optionA;  // of the current case (diagnostics, fan wedg
 std::set<int> loadedArtificial;
 std::set<std::string> reflectiveMarkers;bool reflectiveByRole=false;  // DC-12 explicit carrier roles (tube fixtures)
 std::shared_ptr<CBoundaryLayerMetric> probeBase,probeFull;  // diagnostics only (SU2_DC10_PROBE)
-// DC-13 first-height ramp diagnostic: every wall marker's own first height becomes max(h0, h0Scale x h0) in the
-// production wall policies before the target is composed (1 = unchanged, the default of every earlier harness).
-double h0Scale=1;
-double ScaledHeight(double h){return std::max(h,h0Scale*h);}
 
 // ---- loaders with the option-A field (A1 has no crease: the dc9 loader is the same target) --------------------------
 std::unique_ptr<State> LoadTubeA(const std::string& path) {
@@ -241,16 +237,7 @@ std::unique_ptr<State> LoadM6CutA(const std::string& path) {
     for(auto& f:reference.facets)for(auto& x:f.v)if(x.p.y!=0&&std::abs(x.p.y)<=1e-10){x.p.y=0;++m6Snapped;}
     for(int pass=0;pass<2;++pass) {
       std::string cfgText=text.str();
-      if(h0Scale!=1){std::istringstream lines(cfgText);std::ostringstream out;size_t replaced=0;  // DC-13 ramp: per marker
-        for(std::string line;std::getline(lines,line);){
-          if(line.rfind("ADAP_BL_FIRST_HEIGHT",0)==0){const auto l=line.find('('),r=line.rfind(')');if(l==std::string::npos||r==std::string::npos||r<l)throw std::runtime_error("DC13 ADAP_BL_FIRST_HEIGHT format");
-            std::stringstream list(line.substr(l+1,r-l-1));std::ostringstream o;o<<std::setprecision(17)<<"ADAP_BL_FIRST_HEIGHT= (";bool first=true;
-            for(std::string v;std::getline(list,v,',');){o<<(first?" ":", ")<<ScaledHeight(std::stod(v));first=false;}o<<" )";line=o.str();++replaced;}
-          // the BL budget requires ADAP_BL_PROTECT_DISTANCE >= every first height (CConfig): the protected distance (set to h0
-          // in this configuration) is scaled with the same multiplier
-          else if(line.rfind("ADAP_BL_PROTECT_DISTANCE",0)==0){const auto e=line.find('=');std::ostringstream o;o<<std::setprecision(17)<<"ADAP_BL_PROTECT_DISTANCE= "<<ScaledHeight(std::stod(line.substr(e+1)));line=o.str();}
-          out<<line<<"\n";}
-        if(replaced!=1)throw std::runtime_error("DC13 ramp: ADAP_BL_FIRST_HEIGHT not found once");cfgText=out.str();}
+      cfgText=ScaleBLConfig(cfgText);  // DC-13 ramp diagnostic (dc9::h0Scale, identity at 1)
       if(pass==1){std::istringstream lines(cfgText);std::ostringstream out;size_t replaced=0;
         // ADAP_HGRAD must stay > 1 (config check); ADAP_ANGLE is read only by the D1 detection (BuildFeatures), so a
         // feature angle no wall edge can exceed disables D1 and leaves every other BL ingredient unchanged
