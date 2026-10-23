@@ -110,7 +110,13 @@ class FrozenField {
   const FieldStats& Statistics() const { return stats; }
 
  private:
-  long double EdgeLength(Point a, Point b, bool composed);
+  /*! Optional by-product of one edge integration: chord parameter whose prefix integral is `fraction` of the total,
+   *  inverted inside the converged panel partition (NaN when unresolved). A proposal only; callers verify it. */
+  struct LengthInverse {
+    double fraction;
+    long double parameter;
+  };
+  long double EdgeLength(Point a, Point b, bool composed, LengthInverse* inverse = nullptr);
   void FindCandidates(Point lo, Point hi);
   struct Hash {
     size_t operator()(const std::array<double, 3>& point) const;

@@ -7,6 +7,9 @@
 #include "catch.hpp"
 #include "../../../Common/include/adaptation/CNativeField3D.hpp"
 #include "../../../Common/include/adaptation/CNativePointConstruction3D.hpp"
+#include "../../../Common/include/adaptation/CNativeFma.hpp"
+#include <cstring>
+#include <random>
 #include "../../../Common/include/parallelization/mpi_structure.hpp"
 #include <fstream>
 #include <iomanip>
@@ -398,6 +401,68 @@ TEST_CASE("Native3D split placement balances full target and preserves constant-
   CHECK(double(graded.TargetEdgeLength(a,point))==Approx(double(graded.TargetEdgeLength(point,b))).epsilon(3e-8));
   CHECK(graded.Query(point).sensor.zz==1);
   FrozenField missing({donor},[](Point,Tensor sensor){return sensor;});CHECK_THROWS(missing.BalancedSplitPoint(a,b));
+}
+
+TEST_CASE("Native3D split proposal inverts the whole-edge partition and keeps the certified residual", "[NativeBalancedSplit3D]") {
+  auto donor=Single();donor.sensor.fill({1,0,0,1,0,1});
+  const Point a{0,0,0},b{0,0,1};
+  // A steep graded composed target and a sensor-only gradient: one whole-edge integration plus one certifying prefix.
+  FrozenField graded({donor},[](Point p,Tensor sensor){sensor.zz=std::pow(1+999*p.z*p.z,2);return sensor;},false,{},
+      [](Point,Point){return std::vector<double>{0,.25,1};});
+  auto sensor=Single();
+  FrozenField plain({sensor});
+  for(auto* field:{&graded,&plain})for(const double fraction:{.5,.1,.83}) {
+    INFO("field "<<(field==&graded ? "graded" : "sensor")<<" fraction "<<fraction);
+    const auto before=field->Statistics().edge_requests;
+    const auto point=field->BalancedSplitPoint(a,b,fraction);
+    INFO("point z "<<point.z);
+    CHECK(field->Statistics().edge_requests-before==2);
+    const auto whole=field->TargetEdgeLength(a,b),prefix=field->TargetEdgeLength(a,point);
+    CHECK(std::abs(prefix-fraction*whole)<=1e-8L*fraction*whole);
+  }
+}
+
+TEST_CASE("Native fused multiply-add is bitwise equal to the libm long-double fma", "[NativeExactFma]") {
+#if (defined(__x86_64__) || defined(__i386__)) && defined(__LDBL_MANT_DIG__) && __LDBL_MANT_DIG__==64
+  std::mt19937_64 random(20261023);
+  struct Bits{uint64_t mantissa;uint16_t exponent;};
+  auto make=[](uint64_t mantissa,int exponent,bool negative) {
+    Bits b{mantissa|(uint64_t(1)<<63),uint16_t((exponent&0x7fff)|(negative?0x8000:0))};long double v=0;std::memcpy(&v,&b,10);return v;
+  };
+  auto draw=[&](int lo,int hi){return make(random(),16383+lo+int(random()%uint64_t(hi-lo+1)),random()&1);};
+  auto same=[](long double x,long double y) {
+    Bits u{},v{};std::memcpy(&u,&x,10);std::memcpy(&v,&y,10);
+    const bool nanX=(u.exponent&0x7fff)==0x7fff && (u.mantissa<<1),nanY=(v.exponent&0x7fff)==0x7fff && (v.mantissa<<1);
+    return (nanX && nanY) || (u.mantissa==v.mantissa && u.exponent==v.exponent);
+  };
+  size_t checked=0,mismatches=0;
+  auto check=[&](long double x,long double y,long double z){++checked;mismatches+=!same(FusedMultiplyAdd(x,y,z),std::fma(x,y,z));};
+  auto step=[](long double v,long k){Bits b{};std::memcpy(&b,&v,10);b.mantissa+=k;std::memcpy(&v,&b,10);return v;};
+  for(int i=0;i<200000;++i) {
+    check(draw(-60,60),draw(-60,60),draw(-120,120));
+    const auto x=draw(-30,30),y=draw(-30,30);const long double m=x*y;
+    check(x,y,-step(m,long(random()%2001)-1000));check(x,y,-std::ldexp(m,int(random()%141)-70));check(x,y,-m);
+    // Exact short-significand products plus half-ulp ties and near-ties.
+    const long double u=std::ldexp((long double)((random()|(1ull<<31))&0xffffffffull),int(random()%20)-10)*((random()&1)?-1:1);
+    const long double v=std::ldexp((long double)((random()|(1ull<<31))&0xffffffffull),int(random()%20)-10);
+    int e;std::frexp(u*v,&e);const long double half=std::ldexp(1.0L,e-65);
+    for(const long double z:{half,-half,3*half,-3*half,half+std::ldexp(half,-70),std::ldexp(half,-1),2*half})check(u,v,z);
+    // The 2x2 tangent determinant a*c-b*b of the BL law.
+    const auto aa=draw(-4,0),cc=std::abs(draw(-4,0)),bb=std::sqrt(std::abs(aa*cc))*(1+std::ldexp((long double)(random()%1000),-60));
+    check(aa,cc,-bb*bb);check(std::abs(aa),cc,-bb*bb);
+  }
+  const long double special[]={0.0L,-0.0L,1.0L,-1.0L,std::numeric_limits<long double>::infinity(),
+      -std::numeric_limits<long double>::infinity(),std::numeric_limits<long double>::quiet_NaN(),
+      std::numeric_limits<long double>::denorm_min(),std::numeric_limits<long double>::min(),
+      std::numeric_limits<long double>::max(),std::ldexp(1.0L,-8200),std::ldexp(1.0L,8100),std::ldexp(1.0L,-16128),
+      std::ldexp(1.0L,16128),std::ldexp(1.0L,-16127),3.0L};
+  for(auto x:special)for(auto y:special)for(auto z:special)check(x,y,z);
+  for(int i=0;i<100000;++i){check(draw(-16500,16500),draw(-16500,16500),draw(-16500,16500));check(draw(-8300,8300),draw(-8300,8300),draw(-16500,16500));}
+  CHECK(checked==2804096);
+  CHECK(mismatches==0);
+#else
+  CHECK(FusedMultiplyAdd(3.0L,5.0L,-1.0L)==std::fma(3.0L,5.0L,-1.0L));  // std::fma itself on other formats
+#endif
 }
 
 TEST_CASE("Full target split placement admits bounded biased proposals without changing the target", "[NativeBalancedSplit3D]") {

@@ -1,0 +1,50 @@
+perf1: production performance pass on the native 3D BL metric evaluation (base 1899eccff9). Hashes: provenance.json.
+All runs serial, nice 19, OMP_NUM_THREADS=1, MALLOC_ARENA_MAX=2, with 4 foreign FSI MPI ranks loading the host.
+
+Changes
+ 1. SU2Native3D::FusedMultiplyAdd (CNativeFma.hpp, body in CNativeMetric3D.cpp of the strict no-fast-math library):
+    glibc ldbl-96 fmal algorithm (Dekker product, Knuth sum, round to odd) with the odd rounding emulated from the exact
+    TwoSum error instead of fesetround/fetestexcept; std::fma outside a conservative exponent guard and on non-x87
+    long double. Replaces every long-double std::fma in CBoundaryLayerMetric.cpp, CNativeChordEnvelope.hpp,
+    CNativePredicates3D.cpp (Measure), CNativeMetric3D.cpp. Declared const/leaf/nothrow + noexcept: with an opaque or
+    const-only declaration the fast-math inline ChordEnvelope::Add/Cuts were scheduled differently and 758/971 D2
+    witness lengths changed (up to 9e-7 rel.) although the kernel itself was bit-identical (bisection variants A-F:
+    item 3 alone, libm-switched kernel, HEAD BL metric, HEAD envelope); with nothrow+leaf every length is bit-identical.
+ 2. FrozenField::BalancedSplitPoint: the whole-edge EdgeLength also inverts its converged panel partition (Kronrod-15
+    prefix + safeguarded Newton inside the panel holding the fraction; retired depth-20 panels kept) for a start
+    parameter; an 8-step seeded attempt, then the unchanged original 48-step iteration from the plain fraction. Every
+    returned point is certified by the same |L(a,p) - f L(a,b)| <= 1e-8 f L(a,b) check against its own prefix integral.
+ 3. CBoundaryLayerMetric::EvaluateImpl: a 3D non-authority wall with a chord-owned facet skips the ADT nearest-element
+    descent and within-distance scan whose result the old code overwrote with the owner (identical sample).
+ 4. CNativeCavity3D.cpp Add()/Surface(): two-entry reserve on first insertion of link/adjacency/edge-owner vectors
+    (vector<unsigned long> reallocation in cavity validation was ~7% of DC-8 V samples after items 1-3).
+    EigenDecomposition (10% self after) is in IntersectMetrics/Spectral and cannot change without changing results;
+    unpinned point-query ADT descents (7.9%) come from FrozenField::Query compositions (no chord ownership exists).
+
+Equality / bounds
+ D2 (d2_comparison.json, d2_before|after/*.dump): 971 witnesses + 2000 controls, long-double TargetEdgeLength
+   bit-identical 2971/2971. Splits: controls 2000/2000 certified before and after, 425 identical points, max
+   |prefix_after - prefix_before| / (L/2) = 9.9e-9 (each within the 1e-8 certificate). Witnesses: certified 589 -> 752,
+   0 certified before and not after, 163 newly certified; 219 remain unresolved (pre-existing 48-step class).
+   The D2 test's replica-equality CHECK fails identically before and after (1427/2000, 662/971): pin_*.jsonl predate
+   the WP-A D1 crease-frame law (f9f1258888), not this change.
+ DC-8 m6_le (dc8_comparison.json): W, R1, R2 and after_R states identical; V differs only by the larger amount of work.
+ Airfoil baseline.cfg [NativeAirfoil2D]: every output file byte-identical before/after except *_timing*.csv.
+ FMA: [NativeExactFma] 2,804,096 random/cancellation/tie/special/extreme triples, 0 mismatches vs fmal;
+   fma_standalone_test.cpp (same flags) likewise.
+
+Timings (before -> after)
+ D2 TargetEdgeLength per edge: witnesses 4.04 -> 1.20-1.28 ms, controls 4.97 -> 1.41 ms (3.1-3.5x).
+ D2 BalancedSplitPoint per certified split: controls 65.8 -> 3.2 ms (20x); witnesses 43.5 -> 7.8 ms (different set).
+ DC-8 m6_le V phase (120 s budget): edge integrations 33418 -> 43528, compositions 10.2M -> 14.9M, queries 1.67M ->
+   4.00M, V Admit ops 1203 -> 2780 (30.5 -> 10.5 ms/op), BalancedSplitPoint 680 -> 1178 ops (63.6 -> 1.81 ms/op),
+   R2 9.05 -> 3.68 s, re-audit 7.31 -> 2.92 s, Final gates 1616 -> 528 ms/op, total 140.1 -> 129.2 s.
+   After items 1-3, the V phase is dominated by RepairMetricConnectivity topology validation (perf_after_dc8_m6_le_flat.txt;
+   profile taken before item 4).
+
+Tests (after binary): unit3d 33 cases / unit2d 57 / metric suite (D1, Adaptation, BL, MetricRobustness, ExactFma,
+ BalancedSplit, MetricMove, CurvedBL, ChordEnvelope) 166 cases all pass; mesh3d 100/101 with the same 6 failed
+ assertions (CNativeDistributed3D_tests.cpp:1446/1449/1453) as the before binary; airfoil passes.
+Note: the before test binary carries the first version of the D2 instrumentation (split counted before its prefix
+ validation; no splits>0 check); lengths and timings are unaffected.
+Codex read-only reviews: codex_review_1.txt (5 findings, all fixed), codex_review_2.txt and _3.txt (no findings).

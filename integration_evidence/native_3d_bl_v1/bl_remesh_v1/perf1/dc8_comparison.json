@@ -1,0 +1,122 @@
+{
+ "before": {
+  "binary": "720d1af7192c6ef8ac1f9775239b58cd70895371f4e5f33a0160e18020365745",
+  "total_seconds": 140.131403473,
+  "V_seconds": 120.0192937,
+  "V_field": {
+   "queries": 1672695,
+   "query_misses": 1282970,
+   "compositions": 10233742,
+   "edge_integrations": 33418,
+   "edge_compositions": 8578785,
+   "edge_pieces": 42549
+  },
+  "R2_seconds": 9.049365723,
+  "reaudit_seconds": 7.307420578,
+  "ops": {
+   "V BalancedSplitPoint": {
+    "count": 680,
+    "seconds": 43.228102,
+    "ms_per_op": 63.570738
+   },
+   "V Admit": {
+    "count": 1203,
+    "seconds": 36.718041,
+    "ms_per_op": 30.522062
+   },
+   "Admit (D.1)": {
+    "count": 2127,
+    "seconds": 39.761105,
+    "ms_per_op": 18.693514
+   },
+   "V RepairMetricConnectivity(fresh)": {
+    "count": 1170,
+    "seconds": 32.634533,
+    "ms_per_op": 27.892763
+   },
+   "V RepairMetricConnectivity(bad)": {
+    "count": 45,
+    "seconds": 2.9506793,
+    "ms_per_op": 65.570652
+   },
+   "Final gates": {
+    "count": 6,
+    "seconds": 9.6986827,
+    "ms_per_op": 1616.4471
+   },
+   "Transaction": {
+    "count": 87,
+    "seconds": 9.0308269,
+    "ms_per_op": 103.80261
+   }
+  },
+  "final": {
+   "cells": 2742,
+   "bad_shape": 364,
+   "long_edges": 594,
+   "height_failures": 2,
+   "q_min": 0.007611778818,
+   "J_min": 0.00043658345
+  }
+ },
+ "after": {
+  "binary": "4fc5dfc690495bc462109530b7433066045ce8c315136a0545403182e6e62a7f",
+  "total_seconds": 129.191854516,
+  "V_seconds": 120.1842799,
+  "V_field": {
+   "queries": 4004755,
+   "query_misses": 2954570,
+   "compositions": 14859583,
+   "edge_integrations": 43528,
+   "edge_compositions": 10856505,
+   "edge_pieces": 56488
+  },
+  "R2_seconds": 3.684711654,
+  "reaudit_seconds": 2.920898072,
+  "ops": {
+   "V BalancedSplitPoint": {
+    "count": 1178,
+    "seconds": 2.1323551,
+    "ms_per_op": 1.8101486
+   },
+   "V Admit": {
+    "count": 2780,
+    "seconds": 29.149085,
+    "ms_per_op": 10.485282
+   },
+   "Admit (D.1)": {
+    "count": 4726,
+    "seconds": 33.905412,
+    "ms_per_op": 7.1742303
+   },
+   "V RepairMetricConnectivity(fresh)": {
+    "count": 2533,
+    "seconds": 55.306687,
+    "ms_per_op": 21.83446
+   },
+   "V RepairMetricConnectivity(bad)": {
+    "count": 377,
+    "seconds": 26.213098,
+    "ms_per_op": 69.530764
+   },
+   "Final gates": {
+    "count": 8,
+    "seconds": 4.2277621,
+    "ms_per_op": 528.47026
+   },
+   "Transaction": {
+    "count": 87,
+    "seconds": 3.6667013,
+    "ms_per_op": 42.145992
+   }
+  },
+  "final": {
+   "cells": 2897,
+   "bad_shape": 379,
+   "long_edges": 677,
+   "height_failures": 2,
+   "q_min": 0.007611778818,
+   "J_min": 0.00043658345
+  }
+ }
+}

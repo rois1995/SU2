@@ -1,0 +1,34 @@
+What this change does: replaces long-double FMA calls, seeds balanced splitting from the whole-edge integration, and skips searches whose results were overwritten by a pinned facet. I found five issues.
+
+1. **blocker — Unconditional x87 assertion breaks supported ARM64 builds.** [CNativeMetric3D.cpp:20](/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/Common/src/adaptation/CNativeMetric3D.cpp:20)  
+   Linux AArch64 uses a 113-bit `long double`, so this assertion prevents `SU2AccurateSum` from compiling. The repository explicitly runs ARM64 regression builds.  
+   **Fix:** compile the optimized implementation only for the supported x87 representation; otherwise return `std::fma(x,y,z)`. Guard the representation-specific test helpers similarly.
+
+2. **blocker — The new FMA test always fails its comparison-count assertion.** [CNativeField3D_tests.cpp:458](/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/UnitTests/Common/adaptation/CNativeField3D_tests.cpp:458)  
+   The loops execute `200000 × 13 + 16³ + 100000 × 2 = 2,804,096` comparisons. Therefore `CHECK(checked>3000000)` fails even with zero mismatches.  
+   **Fix:** assert the actual expected count, or deliberately add the missing comparisons.
+
+3. **blocker — The new split test incorrectly requires exactly two edge integrations.** [CNativeField3D_tests.cpp:417](/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/UnitTests/Common/adaptation/CNativeField3D_tests.cpp:417)  
+   Its graded field has speed `1+999t²`, prefix integral `t+333t³`, and whole length `334`. At fraction `0.1`, the selected panel is `[0.25,1]`; four proposal Newton steps leave approximately a `10⁻⁶` relative residual, above the certification tolerance. Another prefix integration is required, so this assertion fails.  
+   **Fix:** reserve the exact two-call assertion for cases that satisfy it. For this case, require the certified residual and an appropriate bounded integration count.
+
+4. **should-fix — Optional inversion can introduce an escaping allocation exception.** [CNativeField3D.cpp:412](/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/Common/src/adaptation/CNativeField3D.cpp:412), also line 426  
+   Both `segments.push_back` paths run outside `invert`’s `try` block. An allocation failure while copying an already-converged partition therefore escapes through `EdgeLength`, increments `edge_failures`, and discards a valid length. This violates the requested unchanged exception behavior.  
+   **Fix:** include all optional segment construction inside the best-effort exception boundary. On failure, retain NaN as the proposal and return the original integrated length.
+
+5. **should-fix — The production split fixture passes when every split fails.** [native_d2_production.inc:64](/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/UnitTests/SU2_CFD/adaptation/fixtures/native_d2_production.inc:64)  
+   Exceptions only increment `split_failures`. If every eligible split throws, `worst_split` remains zero and the sole split assertion passes. `splits` also increments before independent prefix validation succeeds.  
+   **Fix:** assert zero split failures and successful validation of every eligible edge; count success after the independent prefix check.
+
+For **item 1’s arithmetic**, I found no correctness problem under the documented little-endian x87, 64-bit precision, round-to-nearest assumptions. The exponent margins cover splitting, product residuals and cancellation without underflow or overflow. The odd-rounding step handles both signs and the smaller spacing below a power of two; exact cancellation is handled separately. The decomposition matches [glibc’s implementation](https://raw.githubusercontent.com/bminor/glibc/master/sysdeps/ieee754/ldbl-96/s_fmal.c). Every replaced site uses long-double arithmetic, and the kernel body resides exclusively in the strict library.
+
+For **item 2**, apart from finding 4, I found no returned-length or certification error. The Kronrod constants are unchanged, retained panels are sorted by chord position, NaN guesses fall back safely, and inversion evaluations share the existing composed evaluation budget. The sensor integrand represents the same affine sensor law, subject to existing binary64 interpolation rounding. One limitation: depth-20 panels removed from `pending` still contribute to `total`, so `pending` is not always the complete partition; that can degrade the proposal, while certification remains intact.
+
+For **item 3**, I found no correctness problem for valid wall geometry and finite queries. The pinned branch computes the same final `id`, `dist2`, weights and radial displacement. The pinned-range check remains; 2D, authority-wall and unpinned branches retain their previous behavior.
+
+**Verdict: fix the five findings before shipping.**
+
+Not checked: builds, tests, generated machine code or timings; this was read-only source review. Arithmetic equivalence remains conditional on the documented floating-point environment.
+
+Codex session ID: 01a16687-c06e-7200-a549-00b094fcd5c8
+Resume in Codex: codex resume 01a16687-c06e-7200-a549-00b094fcd5c8

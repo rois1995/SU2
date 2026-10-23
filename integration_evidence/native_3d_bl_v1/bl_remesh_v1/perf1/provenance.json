@@ -1,0 +1,26 @@
+{
+ "base_commit": "1899eccff98414583c08a189e143ac9ecf1c08d5",
+ "before_test_driver": {
+  "sha256": "66874683aaaff23f66f7f60bb032e0e2eaed9f3aeb110f3da7c7e8a0cce08bec",
+  "source": "HEAD + D2 fixture dump/split instrumentation only (production sources at HEAD)"
+ },
+ "after_test_driver": {
+  "sha256": "4fc5dfc690495bc462109530b7433066045ce8c315136a0545403182e6e62a7f"
+ },
+ "after_SU2_CFD": {
+  "sha256": "b3fb04ffcd6793ab5e2094a9a09cd48b44792815cc719ec43fc0f9fa2f7f53c9"
+ },
+ "dc8_before_binary_note": "before_dc8 ran the unmodified HEAD binary 720d1af7 (DC-8 harness unchanged by the instrumentation)",
+ "sources": {
+  "Common/include/adaptation/CNativeFma.hpp": "31fd64e46be262cf7d485278c29d773ec69142f0040c7e9b255c7913e8043f56",
+  "Common/include/adaptation/CNativeChordEnvelope.hpp": "c527c7c2ab8809281b8bfc16540e1978ae1fa2e1602a309a10299a580563b063",
+  "Common/include/adaptation/CNativeField3D.hpp": "2846aeb764359c531dbceeee45d42264aac901d46d84fd5cc4997991bcd6d0b2",
+  "Common/src/adaptation/CNativeField3D.cpp": "dabf7045588d12c9f0233ff634e5c6e48c6d604a8ba6f7823ef8fd2447047fe6",
+  "Common/src/adaptation/CNativeMetric3D.cpp": "e95e5fc6e37cac4c15f987ab91a444f8f5a7cd5996e092bb210f72b09e7939be",
+  "Common/src/adaptation/CNativePredicates3D.cpp": "e72d399e99c15a6294ed324159356d97924546b8cdbf72026ad71f0a561be49e",
+  "Common/src/adaptation/CNativeCavity3D.cpp": "7ed2c9721b6d9814b09cdfc70b60fbc7f0552b56032deb265ee0394f9ea0e151",
+  "SU2_CFD/src/adaptation/CBoundaryLayerMetric.cpp": "7d7a34e99b27c92b72f9502b18f0c9d11eceb3a476d584d210fb6f81a45ce5ec",
+  "UnitTests/Common/adaptation/CNativeField3D_tests.cpp": "c8b7d47909e4c21cc96810b55d23be8a997723cdfe61d1293a2d8a3a69efbbb2",
+  "UnitTests/SU2_CFD/adaptation/fixtures/native_d2_production.inc": "06a47006e5a5f55c3e93e796f08613bce376f24bc5293ee115fb73e6e41739b0"
+ }
+}

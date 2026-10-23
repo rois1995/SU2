@@ -5,16 +5,64 @@
  * SU2 is free software under the GNU Lesser General Public License, version 2.1 or later.
  */
 #include "../../include/adaptation/CNativeMetric3D.hpp"
+#include "../../include/adaptation/CNativeFma.hpp"
 #include <algorithm>
 #include <cmath>
+#include <cstdint>
+#include <cstring>
 #include <iomanip>
+#include <limits>
 #include <set>
 #include <sstream>
 #include <stdexcept>
 namespace SU2Native3D {
+long double FusedMultiplyAdd(long double x,long double y,long double z) noexcept {
+#if (defined(__x86_64__) || defined(__i386__)) && defined(__LDBL_MANT_DIG__) && __LDBL_MANT_DIG__==64
+  // x87 extended format only (other long-double formats, e.g. AArch64 binary128, use std::fma below).
+  static_assert(std::numeric_limits<long double>::digits==64 && std::numeric_limits<long double>::radix==2,
+                "Native fused multiply-add assumes the x87 extended format.");
+  struct Bits{uint64_t mantissa;uint16_t sign_exponent;};
+  auto bits=[](long double value){Bits b{};std::memcpy(&b,&value,10);return b;};
+  // Normal (explicit integer bit) operand with a biased exponent in [256, 0x7fff-256].
+  auto inside=[](const Bits& b){const int e=b.sign_exponent&0x7fff;return e>=256 && e<=0x7fff-256 && (b.mantissa>>63);};
+  const auto bx=bits(x),by=bits(y),bz=bits(z);
+  constexpr int bias=16383;
+  const int product=(bx.sign_exponent&0x7fff)+(by.sign_exponent&0x7fff);
+  // Product and sum stay normal and finite: Dekker's split/product and Knuth's sum are exact, every nonzero exact
+  // result is a multiple of an ulp far above the subnormal range, and the odd-rounded part below is normal.
+  if(!inside(bx) || !inside(by) || !inside(bz) || product<bias+256 || product>0x7fff+bias-256)return std::fma(x,y,z);
+  constexpr long double split=4294967297.0L;  // 2^32+1: Veltkamp halves of a 64-bit significand
+  long double x1=x*split,y1=y*split;const long double m1=x*y;
+  x1=(x-x1)+x1;y1=(y-y1)+y1;
+  const long double x2=x-x1,y2=y-y1;
+  const long double m2=(((x1*y1-m1)+x1*y2)+x2*y1)+x2*y2;  // m1+m2 = x*y exactly
+  const long double a1=z+m1;
+  long double t1=a1-z,t2=a1-t1;t1=m1-t1;t2=z-t2;
+  const long double a2=t1+t2;  // a1+a2 = z+m1 exactly
+  if(a1==0 && m2==0)return z+m1;
+  // Round to odd of a2+m2: RN neighbour u and its exact error; an inexact even u moves one ulp toward the exact sum.
+  const long double u=a2+m2;
+  long double s1=u-a2,s2=u-s1;s1=m2-s1;s2=a2-s2;
+  const long double error=s1+s2;
+  long double odd=u;
+  if(error!=0) {
+    auto b=bits(u);
+    if(!(b.mantissa&1)) {
+      if((b.sign_exponent&0x7fff)<=1 || (b.sign_exponent&0x7fff)==0x7fff || !(b.mantissa>>63))return std::fma(x,y,z);
+      if((error>0)==(u>0))++b.mantissa;  // even significand <= 2^64-2: stays in its binade
+      else if(b.mantissa==(uint64_t(1)<<63)){b.mantissa=~uint64_t(0);--b.sign_exponent;}  // below a power of two
+      else --b.mantissa;
+      std::memcpy(&odd,&b,10);
+    }
+  }
+  return a1+odd;
+#else
+  return std::fma(x,y,z);
+#endif
+}
 long double CompensatedCross2D(long double ax,long double ay,long double bx,long double by) {
   const auto p=ax*by,q=ay*bx;
-  return (p-q)+(std::fma(ax,by,-p)-std::fma(ay,bx,-q));
+  return (p-q)+(FusedMultiplyAdd(ax,by,-p)-FusedMultiplyAdd(ay,bx,-q));
 }
 Point MetricMeanPoint(Point origin,const std::vector<std::pair<Point,Tensor>>& neighbors) {
   if(neighbors.empty() || neighbors.size()>4*MaximumCavityCells)
@@ -57,7 +105,7 @@ MetricShapeLinearization LinearizeMetricShape(const Tetrahedron& tet,const Tenso
   const long double scale=std::max({std::abs(metric.xx),std::abs(metric.xy),std::abs(metric.xz),std::abs(metric.yy),std::abs(metric.yz),std::abs(metric.zz)});
   const auto m=matrix(metric,scale);M l{},inverse{};
   for(unsigned i=0;i<3;++i)for(unsigned j=0;j<=i;++j) {
-    auto q=m[i][j];for(unsigned k=0;k<j;++k)q=std::fma(-l[i][k],l[j][k],q);
+    auto q=m[i][j];for(unsigned k=0;k<j;++k)q=FusedMultiplyAdd(-l[i][k],l[j][k],q);
     if(i==j){if(!(q>0))throw std::invalid_argument("Unresolved metric shape Jacobian frame.");l[i][j]=std::sqrt(q);}else l[i][j]=q/l[j][j];
   }
   for(unsigned column=0;column<3;++column) {

@@ -5,6 +5,7 @@
  */
 #pragma once
 #include <algorithm>
+#include "CNativeFma.hpp"
 #include <array>
 #include <cmath>
 #include <limits>
@@ -38,7 +39,7 @@ class ChordEnvelope {
     for(unsigned j=0;j<3;++j)if(!std::isfinite(a[j]) || !std::isfinite(b[j]))throw std::invalid_argument("Nonfinite native chord feature.");
     return {(long double)a[0]-b[0],(long double)a[1]-b[1],(long double)a[2]-b[2]};
   }
-  static V At(const Feature& f,long double t){return {std::fma(t,f.v[0],f.r[0]),std::fma(t,f.v[1],f.r[1]),std::fma(t,f.v[2],f.r[2])};}
+  static V At(const Feature& f,long double t){return {SU2Native3D::FusedMultiplyAdd(t,f.v[0],f.r[0]),SU2Native3D::FusedMultiplyAdd(t,f.v[1],f.r[1]),SU2Native3D::FusedMultiplyAdd(t,f.v[2],f.r[2])};}
   static bool Clip(Feature& f,long double value,long double slope) {
     if(slope>0)f.lo=std::max(f.lo,-value/slope);
     else if(slope<0)f.hi=std::min(f.hi,-value/slope);
@@ -75,10 +76,10 @@ class ChordEnvelope {
         const auto bb=2*half*(Dot(a,candidate.v)-Dot(b,old.v));
         const auto cc=Dot(a,a)-Dot(b,b);
         std::vector<long double> cuts{left,right};
-        auto root=[&](long double u){if(u>-1 && u<1){const auto t=std::fma(half,u,middle);if(t>left && t<right)cuts.push_back(t);}};
+        auto root=[&](long double u){if(u>-1 && u<1){const auto t=SU2Native3D::FusedMultiplyAdd(half,u,middle);if(t>left && t<right)cuts.push_back(t);}};
         if(aa==0){if(bb!=0)root(-cc/bb);}
         else {
-          const auto disc=std::fma(bb,bb,-4*aa*cc);
+          const auto disc=SU2Native3D::FusedMultiplyAdd(bb,bb,-4*aa*cc);
           if(disc>=0){const auto q=-.5L*(bb+std::copysign(std::sqrt(disc),bb));
             if(q==0)root(-bb/(2*aa));else{root(q/aa);root(cc/q);}}
         }
@@ -114,7 +115,7 @@ class ChordEnvelope {
     V r{origin[0]-a[0],origin[1]-a[1],origin[2]-a[2]};
     const auto projection=Dot(r,edge),slope=Dot(velocity,edge);Feature f{r,velocity};
     if(!Clip(f,projection,slope) || !Clip(f,length-projection,-slope))return;
-    for(unsigned j=0;j<3;++j){f.r[j]=std::fma(-projection,edge[j],r[j]);f.v[j]=std::fma(-slope,edge[j],velocity[j]);}
+    for(unsigned j=0;j<3;++j){f.r[j]=SU2Native3D::FusedMultiplyAdd(-projection,edge[j],r[j]);f.v[j]=SU2Native3D::FusedMultiplyAdd(-slope,edge[j],velocity[j]);}
     Add(f);
   }
   void Face(const std::array<std::array<double,3>,3>& p) {

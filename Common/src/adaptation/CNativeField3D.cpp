@@ -14,6 +14,7 @@
 #include <cmath>
 #include <map>
 #include <iomanip>
+#include <limits>
 #include <sstream>
 #include <stdexcept>
 #include <type_traits>
@@ -154,19 +155,34 @@ long double FrozenField::TargetEdgeLength(Point a, Point b) {
 }
 Point FrozenField::BalancedSplitPoint(Point a,Point b,double fraction) {
   if(!(fraction>0 && fraction<1) || !std::isfinite(fraction))throw std::invalid_argument("Native3D split length fraction must lie strictly between zero and one.");
-  const auto requested=TargetEdgeLength(a,b)*fraction;
-  long double lo=0,hi=1;double t=fraction;
-  for(unsigned iteration=0;iteration<48;++iteration) {
-    const Point point=SegmentPoint(a,b,t);
-    if((point.x==a.x && point.y==a.y && point.z==a.z) || (point.x==b.x && point.y==b.y && point.z==b.z))
-      throw std::runtime_error("Native3D metric-balanced split is not representable.");
-    const auto residual=TargetEdgeLength(a,point)-requested;
-    if(std::abs(residual)<=1e-8L*requested)return point;
-    if(residual<0)lo=t;else hi=t;
-    const auto speed=MetricNorm(a,b,Query(point).target);
-    const auto next=t-residual/speed;
-    t=double(next>lo+.1L*(hi-lo) && next<hi-.1L*(hi-lo) ? next : (lo+hi)/2);
+  // The whole-edge integration also inverts its converged panel partition for a starting parameter. Every returned
+  // point is certified by the same safeguarded iteration against its own prefix integral (relative 1e-8).
+  RequireEdgePolicy();
+  LengthInverse inverse{fraction,std::numeric_limits<long double>::quiet_NaN()};
+  const auto requested=EdgeLength(a,b,bool(composition),&inverse)*fraction;
+  auto solve=[&](double t,unsigned steps,Point& result) {
+    long double lo=0,hi=1;
+    for(unsigned iteration=0;iteration<steps;++iteration) {
+      const Point point=SegmentPoint(a,b,t);
+      if((point.x==a.x && point.y==a.y && point.z==a.z) || (point.x==b.x && point.y==b.y && point.z==b.z))
+        throw std::runtime_error("Native3D metric-balanced split is not representable.");
+      const auto residual=TargetEdgeLength(a,point)-requested;
+      if(std::abs(residual)<=1e-8L*requested){result=point;return true;}
+      if(residual<0)lo=t;else hi=t;
+      const auto speed=MetricNorm(a,b,Query(point).target);
+      const auto next=t-residual/speed;
+      t=double(next>lo+.1L*(hi-lo) && next<hi-.1L*(hi-lo) ? next : (lo+hi)/2);
+    }
+    return false;
+  };
+  Point result;
+  const double guess=double(inverse.parameter);
+  if(guess>0 && guess<1 && guess!=fraction) {
+    // A short seeded attempt; any failure falls back to the complete iteration from the plain fraction, so every
+    // split certified without the proposal is still certified with it (a near-root seed can stall on the bracket rule).
+    try { if(solve(guess,8,result))return result; } catch(const std::exception&) {}
   }
+  if(solve(fraction,48,result))return result;
   throw std::runtime_error("Native3D full-target split balance remains unresolved after48 steps.");
 }
 Point FrozenField::SegmentPoint(Point a,Point b,double parameter) {
@@ -218,7 +234,7 @@ void FrozenField::CacheSensor(const std::array<double,3>& key,const SensorValue&
   stats.maximum_cache_entries=std::max(stats.maximum_cache_entries,cache.size());
 }
 long double FrozenField::SensorEdgeLength(Point a, Point b) { return EdgeLength(a,b,false); }
-long double FrozenField::EdgeLength(Point a, Point b, bool composed) {
+long double FrozenField::EdgeLength(Point a, Point b, bool composed, LengthInverse* inverse) {
   Timer edge_time(stats.edge_seconds, timings);
   ++stats.edge_requests;
   try {
@@ -278,6 +294,55 @@ long double FrozenField::EdgeLength(Point a, Point b, bool composed) {
       // Interior rules do not need the endpoint-inclusive rule's extra root-bracketing panels.
     }
     long double total = 0;
+    constexpr long double node[8]={.991455371120812639206854697526329L,.949107912342758524526189684047851L,
+        .864864423359769072789712788640926L,.741531185599394439863864773280788L,.586087235467691130294144838258730L,
+        .405845151377397166906606412076961L,.207784955007898467600689403773245L,0};
+    constexpr long double kronrod[8]={.022935322010529224963732008058970L,.063092092629978553290700663189204L,
+        .104790010322250183839876322541518L,.140653259715525918745189590510238L,.169004726639267902826583426598550L,
+        .190350578064785409913256402421014L,.204432940075298892414161999234649L,.209482141084727828012999174891714L};
+    // Optional inversion of the converged partition (piece, local low/high, integral): locate the panel holding the
+    // requested fraction of the total and solve for its local parameter with Kronrod-15 prefix integrals and Newton
+    // steps. A proposal only (NaN if unresolved); it never changes the returned length or its failure behavior.
+    struct Segment { size_t piece; long double low, high, value; };
+    std::vector<Segment> segments;
+    auto invert = [&](auto&& collect, auto&& integrand) {
+      inverse->parameter = std::numeric_limits<long double>::quiet_NaN();
+      try {
+        collect();
+        auto start = [&](const Segment& x) { return pieces[x.piece].begin + x.low * pieces[x.piece].width; };
+        std::sort(segments.begin(), segments.end(), [&](const Segment& x, const Segment& y) { return start(x) < start(y); });
+        const long double target = total * inverse->fraction;
+        long double before = 0;
+        size_t k = 0;
+        while (k + 1 < segments.size() && before + segments[k].value < target) before += segments[k++].value;
+        if (segments.empty()) return;
+        const auto s = segments[k];
+        const long double width = pieces[s.piece].width, remaining = target - before;
+        if (!(s.value > 0 && width > 0 && s.high > s.low)) return;
+        auto prefix = [&](long double x) {
+          const auto middle = (s.low + x) / 2, half = (x - s.low) / 2;
+          long double sum = kronrod[7] * integrand(s.piece, middle);
+          for (unsigned j = 0; j < 7; ++j)
+            sum += kronrod[j] * (integrand(s.piece, middle - half * node[j]) + integrand(s.piece, middle + half * node[j]));
+          return width * half * sum;
+        };
+        // Safeguarded Newton on the monotone panel prefix: the bracket [low, high] always holds the root.
+        long double low = s.low, high = s.high;
+        long double x = s.low + (s.high - s.low) * std::clamp(remaining / s.value, 0.L, 1.L);
+        for (unsigned iteration = 0; iteration < 32 && x > low && x < high; ++iteration) {
+          const auto residual = prefix(x) - remaining;
+          if (std::abs(residual) <= 1e-13L * target) break;
+          (residual < 0 ? low : high) = x;
+          auto next = x - residual / (width * integrand(s.piece, x));
+          if (!(next > low && next < high)) next = low + (high - low) / 2;
+          if (next == x) break;
+          x = next;
+        }
+        inverse->parameter = pieces[s.piece].begin + x * width;
+      } catch (...) {
+        inverse->parameter = std::numeric_limits<long double>::quiet_NaN();
+      }
+    };
     if (composed) {
       struct Panel {
         size_t piece;
@@ -309,12 +374,6 @@ long double FrozenField::EdgeLength(Point a, Point b, bool composed) {
         ValidateTensor(target,&stats.kernel);
         return MetricNorm(a,b,target,&stats.kernel);
       };
-      constexpr long double node[8]={.991455371120812639206854697526329L,.949107912342758524526189684047851L,
-          .864864423359769072789712788640926L,.741531185599394439863864773280788L,.586087235467691130294144838258730L,
-          .405845151377397166906606412076961L,.207784955007898467600689403773245L,0};
-      constexpr long double kronrod[8]={.022935322010529224963732008058970L,.063092092629978553290700663189204L,
-          .104790010322250183839876322541518L,.140653259715525918745189590510238L,.169004726639267902826583426598550L,
-          .190350578064785409913256402421014L,.204432940075298892414161999234649L,.209482141084727828012999174891714L};
       constexpr long double gauss[4]={.129484966168869693270611432679082L,.279705391489276667901467771423780L,
           .381830050505118944950369775488975L,.417959183673469387755102040816327L};
       auto measure = [&](size_t index,long double low,long double high,unsigned depth) {
@@ -332,6 +391,10 @@ long double FrozenField::EdgeLength(Point a, Point b, bool composed) {
       };
       long double error=0;
       std::vector<Panel> pending;
+      // Depth-limited panels leave the heap but stay in the total; the optional inversion keeps them (bounded, no
+      // allocation in the integration loop: an exhausted reserve only disables the proposal).
+      std::vector<Panel> retired;bool retired_lost=false;
+      if (inverse) try { retired.reserve(256); } catch (...) { retired_lost = true; }
       auto retain = [&](Panel panel) {
         total+=panel.value;error+=panel.error;
         pending.push_back(panel);std::push_heap(pending.begin(),pending.end());
@@ -357,21 +420,47 @@ long double FrozenField::EdgeLength(Point a, Point b, bool composed) {
           throw std::runtime_error(why.str());
         }
         std::pop_heap(pending.begin(),pending.end());auto panel=pending.back();pending.pop_back();
-        if(panel.depth>=20)continue; // Its unresolved error stays in the total; other panels may still improve.
+        if(panel.depth>=20) { // Its unresolved error stays in the total; other panels may still improve.
+          if(inverse && retired.size()<retired.capacity())retired.push_back(panel);else retired_lost=true;
+          continue;
+        }
         const auto middle=(panel.low+panel.high)/2;
         const auto left=measure(panel.piece,panel.low,middle,panel.depth+1),
                    right=measure(panel.piece,middle,panel.high,panel.depth+1);
         total-=panel.value;error=std::max(0.L,error-panel.error);
         retain(left);retain(right);
       }
-    } else for (const auto& piece : pieces) {
-      const auto& donor = donors[candidates[piece.donor]];
-      if (donor.extension_component!=UINT64_MAX) ++stats.extended_edge_pieces;
-      const auto first = MetricNorm(a, b, InterpolateSensor(donor, piece.begin_weights), &stats.kernel);
-      const auto last = MetricNorm(a, b, InterpolateSensor(donor, piece.end_weights), &stats.kernel);
-      const auto largest = std::max(first, last), r = std::min(first, last) / largest;
-      // Integral of sqrt(affine quadratic form), avoiding subtraction of nearly equal cubes.
-      total += piece.width * largest * (2.L / 3) * (1 + r + r * r) / (1 + r);
+      if (inverse && total > 0 && std::isfinite(total))
+        invert([&] {
+          if (retired_lost) throw std::runtime_error("Incomplete native3D edge partition.");
+          for (const auto* list : {&pending, &retired})
+            for (const auto& panel : *list) segments.push_back({panel.piece, panel.low, panel.high, panel.value});
+        }, value);
+    } else {
+      std::vector<long double> contributions;
+      if (inverse) try { contributions.reserve(pieces.size()); } catch (...) {}
+      for (size_t index = 0; index < pieces.size(); ++index) {
+        const auto& piece = pieces[index];
+        const auto& donor = donors[candidates[piece.donor]];
+        if (donor.extension_component!=UINT64_MAX) ++stats.extended_edge_pieces;
+        const auto first = MetricNorm(a, b, InterpolateSensor(donor, piece.begin_weights), &stats.kernel);
+        const auto last = MetricNorm(a, b, InterpolateSensor(donor, piece.end_weights), &stats.kernel);
+        const auto largest = std::max(first, last), r = std::min(first, last) / largest;
+        // Integral of sqrt(affine quadratic form), avoiding subtraction of nearly equal cubes.
+        const long double contribution = piece.width * largest * (2.L / 3) * (1 + r + r * r) / (1 + r);
+        total += contribution;
+        if (inverse && contributions.size() < contributions.capacity()) contributions.push_back(contribution);
+      }
+      if (inverse && total > 0 && std::isfinite(total))
+        invert([&] {
+          if (contributions.size() != pieces.size()) throw std::runtime_error("Incomplete native3D edge partition.");
+          for (size_t index = 0; index < pieces.size(); ++index) segments.push_back({index, 0, 1, contributions[index]});
+        }, [&](size_t index, long double t) {
+          const auto& piece = pieces[index];
+          std::array<long double, 4> weights;
+          for (unsigned k = 0; k < 4; ++k) weights[k] = (1 - t) * piece.begin_weights[k] + t * piece.end_weights[k];
+          return MetricNorm(a, b, InterpolateSensor(donors[candidates[piece.donor]], weights), &stats.kernel);
+        });
     }
     if (!(total > 0 && std::isfinite(total)))
       throw std::runtime_error("Unrepresentable native 3D original sensor edge length.");

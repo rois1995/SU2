@@ -37,8 +37,12 @@ bool Connected(const Graph& graph) {
   return seen.size() == graph.size();
 }
 void Add(Graph& graph, Id a, Id b) {
-  graph[a].push_back(b);
-  graph[b].push_back(a);
+  // Link and adjacency vertices mostly have two neighbors: one allocation instead of two (hot in cavity validation).
+  for (const auto [from, to] : {std::pair<Id, Id>{a, b}, std::pair<Id, Id>{b, a}}) {
+    auto& neighbors = graph[from];
+    if (!neighbors.capacity()) neighbors.reserve(2);
+    neighbors.push_back(to);
+  }
 }
 void Curve(const Graph& graph, bool closed) {
   size_t ends = 0;
@@ -62,7 +66,9 @@ void Surface(const std::vector<Face>& triangles, bool closed, bool cavity = true
     const auto& t = triangles[i];
     for (size_t j = 0; j < 3; ++j) {
       const Id a = t[j], b = t[(j + 1) % 3], c = t[(j + 2) % 3];
-      edges[Edge{std::min(a, b), std::max(a, b)}].push_back(i);
+      auto& owners = edges[Edge{std::min(a, b), std::max(a, b)}];
+      if (!owners.capacity()) owners.reserve(2);
+      owners.push_back(i);
       Add(links[a], b, c);
     }
   }

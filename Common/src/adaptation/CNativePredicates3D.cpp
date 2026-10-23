@@ -6,6 +6,7 @@
  * SU2 is free software under the GNU Lesser General Public License, version 2.1 or later.
  */
 #include "../../include/adaptation/CNativeMesh3D.hpp"
+#include "../../include/adaptation/CNativeFma.hpp"
 #include "CNativePredicates3D_internal.hpp"
 #include "../../include/adaptation/CNativePointConstruction3D.hpp"
 #include <algorithm>
@@ -827,10 +828,10 @@ MetricMeasures Measure(const Tetrahedron& tet, const Tensor& metric, KernelStats
   const long double a = metric.xx / metricScale, b = metric.xy / metricScale, c = metric.xz / metricScale,
                     e = metric.yy / metricScale, f = metric.yz / metricScale, g = metric.zz / metricScale;
   const auto l00 = std::sqrt(a), l10 = b / l00, l20 = c / l00;
-  const auto pivot11 = std::fma(-l10, l10, e);
+  const auto pivot11 = SU2Native3D::FusedMultiplyAdd(-l10, l10, e);
   if (!(pivot11 > 0)) throw std::runtime_error("Unresolved native 3D SPD factorization.");
-  const auto l11 = std::sqrt(pivot11), l21 = std::fma(-l20, l10, f) / l11;
-  const auto pivot22 = std::fma(-l21, l21, std::fma(-l20, l20, g));
+  const auto l11 = std::sqrt(pivot11), l21 = SU2Native3D::FusedMultiplyAdd(-l20, l10, f) / l11;
+  const auto pivot22 = SU2Native3D::FusedMultiplyAdd(-l21, l21, SU2Native3D::FusedMultiplyAdd(-l20, l20, g));
   if (!(pivot22 > 0)) throw std::runtime_error("Unresolved native 3D SPD factorization.");
   const auto l22 = std::sqrt(pivot22);
   const auto determinant = Orientation(tet[0], tet[1], tet[2], tet[3], stats);

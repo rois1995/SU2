@@ -1,0 +1,11 @@
+No findings. The claimed equivalence holds, excluding allocation behavior:
+
+- `a == b` still appends twice to the same vector, in the same order.
+- `std::map` insertions preserve references. Neither changed block retains references to vector elements across reallocation.
+- The structured-binding loop visits `(a,b)` then `(b,a)`. Its initializer-list lifetime covers the loop; copying the `uint64_t` IDs adds no exceptions.
+- `reserve(2)` changes capacity, preserving map contents, vector element order, and non-allocation exceptions.
+
+Not checked: builds, tests, or performance measurements, as requested. Allocation timing and memory use differ.
+
+Codex session ID: 01a166c0-af33-75e1-9c59-2264ad5596e8
+Resume in Codex: codex resume 01a166c0-af33-75e1-9c59-2264ad5596e8

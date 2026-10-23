@@ -1,0 +1,17 @@
+What this change does: adds the guarded FMA kernel, uses whole-edge integration to seed balanced splitting, and preserves the original solver as fallback.
+
+**No blocker, should-fix, or nit findings.**
+
+- **(b) Attributes:** [CNativeFma.hpp:16](/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/Common/include/adaptation/CNativeFma.hpp:16) is consistent with the documented fixed rounding and precision assumptions. Neither branch allocates or throws C++ exceptions. `leaf` permits calls into libm; it prohibits callbacks into the caller’s translation unit. GCC assigns its own `fmal` builtin the same attributes when rounding-mode changes are excluded. [GCC attribute semantics](https://gcc.gnu.org/onlinedocs/gcc/Common-Attributes.html), [builtin definitions](https://github.com/gcc-mirror/gcc/blob/master/gcc/builtins.def).
+
+- **(c) EdgeLength:** [CNativeField3D.cpp:308](/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/Common/src/adaptation/CNativeField3D.cpp:308) now catches optional collection and inversion failures before the outer `edge_failures` handler. The new loop bookkeeping cannot allocate after reservation. Retired panels complete the partition; unavailable capacity disables the proposal. I found no change to the integrated total or escaping failure behavior for the same immutable field.
+
+- **(d) Fallback:** [CNativeField3D.cpp:163](/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/Common/src/adaptation/CNativeField3D.cpp:163) reproduces the old iteration, with a fresh `[0,1]` bracket, plain fraction, and all 48 steps. Exceptions from that fallback propagate normally. For the production immutable callbacks, I found no seeded-attempt mutation that changes its calculation. Extra attempts can change profiling and failure counters.
+
+- **Remaining diff:** The architecture guards and exact 2,804,096 count are correct. The 32-step inversion addresses the earlier four-step test problem. The pinned-facet shortcut preserves the final sample, and the D2 split check now prevents vacuous success.
+
+Not checked: builds, tests, generated code, or the reported D2 measurements; no files changed.  
+Risk: this conclusion assumes the documented floating-point environment; exception-flag equivalence is not established.
+
+Codex session ID: 01a166b9-943f-7203-a28d-bf0e56aeda2c
+Resume in Codex: codex resume 01a166b9-943f-7203-a28d-bf0e56aeda2c

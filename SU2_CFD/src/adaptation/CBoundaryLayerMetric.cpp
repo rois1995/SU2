@@ -46,6 +46,7 @@
 #include "../../../Common/include/adaptation/CNativeImport3D.hpp"
 #include "../../../Common/include/adaptation/CNativeMetric3D.hpp"
 #include "../../../Common/include/adaptation/CNativeChordEnvelope.hpp"
+#include "../../../Common/include/adaptation/CNativeFma.hpp"
 #include "../../include/adaptation/ConvexClipping.hpp"
 #include "../../../Common/include/geometry/CGeometry.hpp"
 #include "../../../Common/include/linear_algebra/blas_structure.hpp"
@@ -110,7 +111,7 @@ void WallMetric3D(const Mat3& size, CBoundaryLayerMetric::Sample& sample,double 
     throw std::runtime_error("Invalid native 3D wall tangent size.");
   aa/=scale;bb/=scale;cc/=scale;
   const auto largest=.5L*(aa+cc+std::hypot(aa-cc,2*bb));
-  const auto smallest=std::fma(aa,cc,-bb*bb)/largest;
+  const auto smallest=SU2Native3D::FusedMultiplyAdd(aa,cc,-bb*bb)/largest;
   if (!(smallest>0)) throw std::runtime_error("Singular native 3D wall tangent size.");
   const auto angle=.5L*std::atan2(2*bb,aa-cc), cosine=std::cos(angle), sine=std::sin(angle);
   Vector q{},r{};
@@ -135,7 +136,7 @@ void WallMetric3D(const Mat3& size, CBoundaryLayerMetric::Sample& sample,double 
         long double b=(m0-m1)*cosine*sine+alpha*d0*d1;
         long double c=m0*sine*sine+m1*cosine*cosine+alpha*d1*d1;
         const auto ms=std::max({std::abs(a),std::abs(b),std::abs(c)});a/=ms;b/=ms;c/=ms;
-        const auto large=.5L*(a+c+std::hypot(a-c,2*b)),small=std::fma(a,c,-b*b)/large;
+        const auto large=.5L*(a+c+std::hypot(a-c,2*b)),small=SU2Native3D::FusedMultiplyAdd(a,c,-b*b)/large;
         if(!(small>0))throw std::runtime_error("Singular native3D curvature tangent metric.");
         const auto angle=.5L*std::atan2(2*b,a-c),co=std::cos(angle),si=std::sin(angle);
         for(unsigned i=0;i<3;++i){q[i]=co*u[i]+si*v[i];r[i]=-si*u[i]+co*v[i];}
@@ -261,7 +262,7 @@ Vec3 TriangleDisplacement(const su2double* a,const su2double* b,const su2double*
     if(count==2) {
       const auto e=difference(vertex[indices[1]],vertex[indices[0]]);
       const auto t=std::clamp(dot(displacement,e)/dot(e,e),0.L,1.L);
-      for(unsigned j=0;j<3;++j)displacement[j]=std::fma(-t,e[j],displacement[j]);
+      for(unsigned j=0;j<3;++j)displacement[j]=SU2Native3D::FusedMultiplyAdd(-t,e[j],displacement[j]);
     }
   }
   for(unsigned j=0;j<3;++j)result[j]=double(displacement[j]);
@@ -1760,8 +1761,11 @@ CBoundaryLayerMetric::Sample CBoundaryLayerMetric::EvaluateImpl(unsigned short i
         {SU2_TYPE::GetValue(X[0]),SU2_TYPE::GetValue(X[1]),SU2_TYPE::GetValue(X[2])});
     lookup[0]=smooth.point.x;lookup[1]=smooth.point.y;lookup[2]=smooth.point.z;
   }
+  // A chord-owned facet (EdgeBreakpoints envelope piece) replaces the nearest-facet search outright: the search result
+  // would be overwritten by the owner, so it is skipped (identical sample, no ADT descent per integration point).
+  const bool ownedFacet = nDim == 3 && pinned != ChordOwners::NoFacet && !wall.authority;
   // Tangential interpolation belongs to the physical foot, not an interior proxy Voronoi branch.
-  d.adt->DetermineNearestElement(lookup, adtDistance, markerID, id, rankID);
+  if (!ownedFacet) d.adt->DetermineNearestElement(lookup, adtDistance, markerID, id, rankID);
 
   su2double tangentSize[3][3] = {{0.0}};  // 3D: size tensor (squared sizes) on the tangent plane
   su2double ht = 0.0, tangent[3] = {0.0};  // 2D
@@ -1839,21 +1843,23 @@ CBoundaryLayerMetric::Sample CBoundaryLayerMetric::EvaluateImpl(unsigned short i
       su2double distance2=0;for(unsigned j=0;j<3;++j)distance2+=pow(point[j],2);
       return distance2;
     };
-    su2double w[3],radial[3];auto dist2=closest(id,w,radial);
-    std::vector<unsigned long> candidates;
-    d.adt->DetermineElementsWithinDistance(query,sqrt(dist2)+d.tolerance,candidates);
-    std::sort(candidates.begin(),candidates.end());
-    for(auto other:candidates)if(other!=id) {
-      su2double weights[3],point[3];const auto distance2=closest(other,weights,point);
-      if(distance2<dist2 || (distance2==dist2 && other<id)) {
-        id=other;dist2=distance2;std::copy(weights,weights+3,w);std::copy(point,point+3,radial);
-      }
-    }
-    if(pinned!=ChordOwners::NoFacet && !wall.authority) {
+    su2double w[3],radial[3],dist2;
+    if(ownedFacet) {
       // Chord ownership (EdgeBreakpoints envelope piece): deterministic among rounding-level distance ties. The
       // envelope (long double) is the authority; the double closest-point classifier is not re-compared against it.
       if(pinned>=d.faceNormal.size())throw std::invalid_argument("Native BL chord owner is not a wall facet.");
       id=pinned;dist2=closest(id,w,radial);
+    } else {
+      dist2=closest(id,w,radial);
+      std::vector<unsigned long> candidates;
+      d.adt->DetermineElementsWithinDistance(query,sqrt(dist2)+d.tolerance,candidates);
+      std::sort(candidates.begin(),candidates.end());
+      for(auto other:candidates)if(other!=id) {
+        su2double weights[3],point[3];const auto distance2=closest(other,weights,point);
+        if(distance2<dist2 || (distance2==dist2 && other<id)) {
+          id=other;dist2=distance2;std::copy(weights,weights+3,w);std::copy(point,point+3,radial);
+        }
+      }
     }
     const auto* t = &d.elem[3 * id];
     sample.distance = sqrt(dist2);
@@ -3204,7 +3210,7 @@ std::vector<double> CBoundaryLayerMetric::EdgeBreakpointsImpl(
     if (!scale) return;
     aa /= scale; bb /= scale; cc /= scale;
     if (!aa) { if (bb) retain(-cc/bb); return; }
-    const auto discriminant = std::fma(bb,bb,-4*aa*cc);
+    const auto discriminant = SU2Native3D::FusedMultiplyAdd(bb,bb,-4*aa*cc);
     if (discriminant < 0) return;
     const auto q = -.5L*(bb + std::copysign(std::sqrt(discriminant),bb));
     if (!q) retain(-bb/(2*aa));
@@ -3257,7 +3263,7 @@ std::vector<double> CBoundaryLayerMetric::EdgeBreakpointsImpl(
         const auto speed=dot(velocity,velocity);
         if(speed>0) {
           const auto center=-dot(radial,velocity)/speed;Vector nearest{};
-          for(unsigned j=0;j<3;++j)nearest[j]=std::fma(center,velocity[j],radial[j]);
+          for(unsigned j=0;j<3;++j)nearest[j]=SU2Native3D::FusedMultiplyAdd(center,velocity[j],radial[j]);
           const auto minimum=std::sqrt(dot(nearest,nearest));const auto difference=(radius-minimum)*(radius+minimum);
           if(difference>=0){const auto width=std::sqrt(difference/speed);retain(center-width);retain(center+width);}
         }
@@ -3395,7 +3401,7 @@ std::vector<double> CBoundaryLayerMetric::EdgeBreakpointsImpl(
           const long double w[3]={1-first[1]-first[2],first[1],first[2]},dw[3]={-slope[1]-slope[2],slope[1],slope[2]};
           for(unsigned k=0;k<3;++k)if(dw[k]!=0) {
             const auto t=(NormalFeatureThreshold3D-w[k])/dw[k];if(!(t>0 && t<1))continue;
-            long double low=1,scale=1;for(unsigned j=0;j<3;++j){low=std::min(low,std::fma(t,dw[j],w[j]));scale=std::max({scale,std::abs(w[j]),std::abs(dw[j])});}
+            long double low=1,scale=1;for(unsigned j=0;j<3;++j){low=std::min(low,SU2Native3D::FusedMultiplyAdd(t,dw[j],w[j]));scale=std::max({scale,std::abs(w[j]),std::abs(dw[j])});}
             if(low < -256*std::numeric_limits<long double>::epsilon()*scale)continue;
             const auto distance=std::abs(dot(r,n)+t*dot(chord,n))/std::sqrt(square);
             classificationCut(t,distance);
@@ -3407,7 +3413,7 @@ std::vector<double> CBoundaryLayerMetric::EdgeBreakpointsImpl(
           const auto first=dot(r,e)/square;
           for(long double fraction:{(long double)NormalFeatureThreshold3D,1.L-NormalFeatureThreshold3D}) {
             const auto t=(fraction-first)/slope;if(!(t>0 && t<1))continue;
-            Vector residual{};for(unsigned j=0;j<3;++j)residual[j]=std::fma(t,chord[j],r[j])-fraction*e[j];
+            Vector residual{};for(unsigned j=0;j<3;++j)residual[j]=SU2Native3D::FusedMultiplyAdd(t,chord[j],r[j])-fraction*e[j];
             classificationCut(t,std::sqrt(dot(residual,residual)));
           }
         }
