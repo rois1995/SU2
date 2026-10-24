@@ -1,0 +1,33 @@
+Filters: [NativeFirstRowDC13]
+DC13 m6_root_te x32 loaded: cells=1200 wall_faces=185
+DC13 m6_root_te x32 R2 rowed=132 G lifted=121 t=26.1473
+DC12 V sweep 0 cells=8574 long=106 bad=0 h=0 t=78.5422
+DC12 V sweep 1 cells=8857 long=15 bad=0 h=0 t=85.493
+DC12 V sweep 2 cells=8894 long=0 bad=0 h=0 t=87.2326
+DC13 m6_root_te step 0 x32 final cells=8894 long=0 bad=0 h=0 complete=1 t=152.084
+===============================================================================
+All tests passed (5 assertions in 1 test case)
+
+	Command being timed: "env SU2_DC13_H0_SCALE=32 SU2_DC13_INPUT_SHA=6180b5e24481b6e7d8c422cf2bd4604bb19c794ae465a090899a98dc2cb82f05 SU2_DC13_BINARY_SHA=88597821987dafb5b1293a6482b723645b0ddca67ea878a43b779f4c9a606fc2 SU2_DC13_ROOT=/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/bl_remesh_v1/dc15/cuts_c1 SU2_DC13_WP0B=/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/robust_junction_v1/wp0b SU2_DC13_M6=/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/bl_remesh_v1/dc7/m6_cuts SU2_DC13_CASES=m6_root_te nice -n 19 timeout --kill-after=5s 14400s /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/bl_remesh_v1/dc15/bin/test_driver_c1 [NativeFirstRowDC13] --use-colour no"
+	User time (seconds): 151.50
+	System time (seconds): 0.06
+	Percent of CPU this job got: 99%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 2:32.45
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 168428
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 3
+	Minor (reclaiming a frame) page faults: 44864
+	Voluntary context switches: 1167
+	Involuntary context switches: 6199
+	Swaps: 0
+	File system inputs: 0
+	File system outputs: 1960
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0

@@ -1,0 +1,139 @@
+DC-15 summary (2026-10-24): one valid full-ONERA-M6 FIRST_ROW cycle at h0 x32 in bounded time
+=================================================================================================
+Branch codex/native-3d-bl. Plan DC15_PLAN.md rev 2 (untracked), plan review DC15_PLAN_REVIEW_1.md, code review
+dc15/codex_review_code.txt (majors 1 and 2 and minor 3 fixed in c3; minor 4 open, see 5).
+Source snapshots: c1 20aa6e2a4c, c2 b9d2fb2296, c3 09b869bda8. Binaries (sha256): c1 88597821..., c2 f7ce48aa...,
+c3 06181d1b... (dc15/test_driver_c*.sha256; c1 and c2 deleted, c3 kept for the campaign).
+
+1. RESULT (stop rule reached: 2 implementation iterations, full M6 x32 not valid within 90 min)
+-----------------------------------------------------------------------------------------------
+ run              valid  bad     long     height  cells    total      decision
+ full_c1 (c1)     no     100496  140095   89      693313   4669 s     independent check: 0 nonpositive, topology clean,
+                                                                         89 height failures (thin tip-cap cells near the TE)
+ full_c2 (c2)     no     99716   138422   1       690581   killed     5400 s timeout in the diagnostic ExportGates10
+                         (estimated deficits, 473k edges estimated)      (it integrated every edge); last face 13338,13543,
+                                                                         13546 (cell 10917): cavity cone fails validity
+ x16 event 1      not run (needs a valid event 0)
+ Witness of the remaining face: completion why {"cavity: admission: validity": 2, "relocate: no admissible candidate"}.
+ Deficits are cached (c1) / cached + midpoint-estimated (c2) and labelled so; the uncached audit runs only on the final
+ cycle (or EventControls::full_audit).
+
+ Phase wall times (stdout "DC15 phase" lines, also in <prefix>_bl_report[.partial].json):
+   phase        c1 [s]   c2 [s]   note
+   prepare      2.5      2.4      state, field, Prepare
+   W            175      170      0 wall splits (target has no curvature term, see 4)
+   R1           2.0      2.2
+   R2           1618     1618     hit its .25 budget: 8.2k / 8.1k transactions at 0.19 s, 11.3k wall vertices untried
+   completion   325      320      c1 19134 -> 147 failing (limit), c2 19338 -> 1 (cavity route 94)
+   G            232      226      8.2k / 8.1k columns, 31k lifted points, up to 7 layers
+   V            2288     924      c1: 900 s operators + 1370 s gate scan; c2: cap respected (gate scan skipped)
+   deficits     12       489      c2: estimated scan (one composition per unmeasured edge, ~0.36 ms/edge)
+   export       6        >1600    c2 killed here; fixed in c3 (export uses cached/estimated lengths)
+   validity     3.2      -        independent check (sorted face keys)
+ Peak RSS 7.9 GB (jumps from 1.5 to 7.5 GB inside G; not explained yet).
+
+ Profile (perf at 19 Hz over the whole c1 run, perf.data deleted; dc15/perf_c1_flat.txt): dc10::OptionA::Weight 22.8 %
+ self, CADT nearest-element search ~17 % (incl. bounding-box sorts), EigenDecomposition 4.4 %, EdgeBreakpointsImpl 5 %,
+ exact arithmetic ~12 %, malloc/free ~6 %. Fix: option-A crease grid of radius/k buckets (k = 8,4,2,1 within 2^23
+ registrations) - exact: root_te cut identical (8894 cells, bad 0, long 0, height 0) before/after. It did not speed up
+ R2: R2's cost is the excess certificate (perf scope 'Excess certificate' 1402 s of 1674 s in Transaction), i.e. the
+ integration of ~39 changed edges per lift at ~141 compositions x 35 us each. W/V/R2/Final all share this per-edge cost.
+
+2. WHAT WAS CHANGED (all general: roles from config kinds, no case or marker names)
+------------------------------------------------------------------------------------
+ c1: per-phase stdout timing, streamed construction log and partial JSON; intermediate decision = independent validity
+     (exact orientation of every cell, one point per vertex id, every interior face shared by exactly two cells with
+     opposite orientation, no physical binding on interior faces, every open face bound to a known marker, two-manifold
+     skin edges, first heights by HeightT with no construction cache); final cycle keeps the uncached audit + final
+     gates; row completion after R2 (ApexPlace/ApexMove, FirstRowInsert, SplitCell separation); G ClearAbove
+     (relocate free blocking vertices above the planned top, else collapse with Admit12 Layer; retry <= 2 rounds); V
+     attempts from demand (max(1024, long/4)), near-wall ordering [h0, 300 h0], V cap 900 s on intermediate events;
+     R2 'untried' census; A3 first-row audit in production.
+ c2: cavity first child (thin cells: point at h0 over the face coned over its star-shaped visibility cavity seeded with
+     the face cell); estimated intermediate deficits (cached length or midpoint estimate); V scan with estimates and gate
+     scan skipped at its cap; finer exact option-A crease grid; gap-audit fixes: crease roles from the CConfig marker
+     kinds (BL wall 1, MARKER_SYM 0, others 2; the old name rule lives only in the test include
+     fixtures/native_bl_test_roles.inc), rim only by role in production (dc9::rimByRole set by PipelineScope), growth/
+     thickness per marker (ColumnInsert has no global fallback), config error for ADAP_BL_H0_RAMP in time-domain runs.
+ c3: code-review fixes - a face is registered as a column only when its three vertices are lifted (FirstRowInsert and
+     ApexRelocate, every caller); cavity completion never consumes column cells and keeps every registered identity;
+     A3 certificates cleared after the post-completion snapshot (production and harness); diagnostic export with
+     cached/estimated lengths on intermediate events; ramp message "not supported yet in time-domain runs" (temporary
+     block, user decision).
+
+3. CUT REGRESSION, TESTS, PICTURES
+-----------------------------------
+ m6_root_te x32: c1 accepted (8894 cells, bad 0, long 0, height 0, A3 violations 0, 152 s; DC-14: 8192 cells);
+   c2 identical (8894, 150 s); c3 accepted (8894 cells, bad 0, long 0, height 0, 151 s).
+ m6_tip_te x32: c1/c3 height 0 (DC-13: 1), long 0 (DC-13: 3), bad 6 (DC-13: 0), 7691/7693 cells - not accepted, as before.
+ Tests on c3 (dc15/run_validation.sh, dc15/validation_c3/*.status): pipeline [ConfigBLRamp,NativeBLRegistry14,
+   NativeBL14Entry] pass (124 assertions), growth pass, unit3d pass (175 cases), unit2d pass, metric pass, airfoil pass,
+   mesh3d pass-known (exactly the 6 known failures CNativeDistributed3D_tests.cpp:1446/1449/1453).
+   The full M6 was NOT rerun on c3 (stop rule); c3 changes the full run only by the review fixes and the cheap export.
+ Pictures (c1, the complete exported state; c2's export was truncated by the kill): dc15/png_c1/
+   event0_span{20,50,90}_{le,te}.png (panels: whole section, the edge, ~8 h0), header with the cached deficits.
+
+4. CURVED WALL (coordinator addendum) - checked, planned as DC-16
+-----------------------------------------------------------------
+ Wall points are placed on the promoted PLAIN FACETED reference (PromoteFacetedReference, 1e-13); the only non-planar
+ authorities are declared analytic primitives; MappedFacetReference::Ideal is planar; the W target has no curvature
+ term (sensor core 1e-4 = 100 m isotropic), so W splits nothing. Coarse.su2 LE (chord < 5 %, dc15/wall_curvature_coarse.txt):
+ facet turn 17.7 deg median / 30.9 max, across-spacing 6.5 mm vs curvature radius ~23 mm (w/R 0.31), chord-height
+ deviation 0.22 mm median / 0.46 mm max (= 228 true h0; 3.5-7 h0 at x32); elsewhere turn <= 1 deg. A curved PN
+ reference must become the height/containment authority itself (a 0.3 mm declared error would swamp h0 = 2e-6 m):
+ Common-level authority change -> DC-16, with W size L <= sqrt(8 eps R) (eps = ADAP_HAUSD 1e-4 -> ~4 mm at the LE).
+
+5. WHAT BLOCKS
+--------------
+ B1 R2 throughput: 0.19 s per lift (edge integrations of the excess certificate) -> only ~8.1k of 19.5k wall vertices
+    lifted in 1618 s; the rest get completion first children without columns, so G cannot grow there (LE: no layer).
+ B2 one thin tip-cap face (cavity cone fails validity) -> event not valid by 1 face.
+ B3 every full-mesh scan that measures all edges costs ~1 ms-5 ms/edge (V gate scan, export, uncached audit).
+ B4 V never reached a refinement attempt on the full mesh: its long-edge scan consumes the .4 R slice (estimated
+    lengths ~0.36 ms/edge still need one composition each); the near-wall demand list must come from G/R2 deltas.
+ B5 code-review minor 4: the cut harness runs V with DC-13 settings (production V changes not exercised by the cut).
+ B6 RSS jump to 7.5 GB in G, not explained.
+
+6. NEXT: VOLUME DEFORMATION (design note; user decisions: option 1, methods first, parallel-ready, shared 2D/3D)
+----------------------------------------------------------------------------------------------------------------
+ Data (G of c1 / c2): columns 8224 / 8114 (only lifted wall vertices), layers per column (c2) 0:43 1:696 2:1737 3:1283
+ 4:1262 5:1337 6:1129 7:627; stops s2 isotropy 6171, s3 refused 1943 (24 %); refusals clearance 3233 / 3221, topology
+ 286 / 283, validity 331 / 320. ClearAbove: 3046 / 3053 relocations, 62 / 68 collapses, 1308 / 1307 retries, 473 / 470
+ accepted; refusals of single blockers: FIXED (lid, apex, stack vertex or top of a neighbouring column) 10337 / 10371,
+ no valid move or collapse 7794 / 7902, star touches the stack/a column 2324 / 2401, collapse would add frozen excess
+ 1079 / 1095, star size 772 / 769, first child 169 / 17. Where (layer census of the c1 mesh, dc15/layer_census_c1.txt,
+ vertices per wall vertex per wall-distance band; one law layer per band slot = 1 / 2 / 3 / 4 in 1.5-3 / 3-6 / 6-12 /
+ 12-25 h0): LE 0.00 0.00 0.00 0.00 (no lifted vertex: R2 order/time, B1), mid 0.14 0.14 0.14 0.28, TE 0.65 0.64 0.60
+ 0.76, root 0.47 0.49 0.53 0.78, tip 0.44 0.47 0.43 0.59 - the 10-300 h0 band still holds coarse/construction vertices
+ everywhere (the DC-14 b3 mesh shows the same pattern, dc15/layer_census_b3.txt).
+ ClearAbove vs a real deformation step: ClearAbove is a discrete one-vertex repair - it moves a single FREE blocker along
+ one column direction, only when no neighbour column vertex is involved, and the layer of each column advances alone.
+ 81 % of its refusals (18131 of 22475 in c1) are exactly the cases a deformation handles: the blocker belongs to a neighbouring column front
+ (FIXED) or a lone move inverts its star because its neighbours stay (no valid move). A closed advancing-layer step
+ (Alauzet-Loseille-Marcum 2017, Algorithm 2) instead prescribes the displacement of the whole active front (every
+ active top moves by its law step along its smoothed normal; stopped columns and walls fixed, symmetry planes sliding),
+ solves for a smooth displacement of all inner vertices (linear elasticity P1, or a cheaper metric-weighted Laplacian/
+ IDW as a first version), moves the mesh in pseudo-time steps with validity freezing (cancel and freeze vertices of a
+ cell that would invert or leave the validity window) and connectivity optimisation (swaps) plus smoothing between
+ steps, then inserts the layer by splitting the column edges in the room that was made. It replaces ClearAbove and most
+ of G's clearance stops, and with the first layer inserted the same way it also removes B1 (no per-lift excess
+ certificate: one deformation solve per layer group instead of 19.5k local transactions).
+ Acceptance (TODO 3.1): target layer count +-2 on >= 90 % of wall vertices; bad/long at 10-300 h0 strongly lower on the
+ full M6; cut regressions accepted.
+ Components and sharing (decision: share where useful, parallel-ready = local cavity transactions on owned cells,
+ commit as one unit, 2D pattern):
+   - displacement solver (P1 elasticity / Laplacian on simplices, CG): SHARED, dimension-generic template over the
+     simplex (2 or 3); 2D growth layers need the same room.
+   - pseudo-time move loop with validity freeze and one-unit commit per owned patch: SHARED (template on Cell/Point;
+     the exact orientation predicate is per dimension behind one interface).
+   - connectivity optimisation during the move: DIMENSION-SPECIFIC kernels (2D edge flips; 3D 2-3/3-2/edge swaps) behind
+     a shared driver; 3D reuses CNativeOptimize3D.
+   - front normals and the symmetry/crease direction rules (n' = n - (n.s)s, blend, D1 law): SHARED math; vertex-normal
+     extraction per dimension.
+   - validity-only intermediate steps + final gates + deficit report (IndependentValidity, estimated deficits): SHARED
+     module to be generalised from BLEvent15 (orientation, face matching, skin manifoldness, first heights).
+   - h0 ramp and its config check: SHARED already (CConfig, dimension-free); the 2D engine must consume it.
+   - surface-first phase driver with phase timing/streaming: SHARED skeleton, operators per dimension.
+   - curved reference (DC-16): DIMENSION-SPECIFIC evaluators (3D PN triangles; 2D curved polyline/spline, CReferenceWall)
+     behind one curved-authority interface; the curvature size rule L <= sqrt(8 eps R): SHARED.
+   - parallel FIRST_ROW driver: SHARED ownership/commit pattern (port of the 2D one), after the curved wall.

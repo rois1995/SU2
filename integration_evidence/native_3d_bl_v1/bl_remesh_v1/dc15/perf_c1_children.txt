@@ -1,0 +1,70 @@
+    22.89%    22.83%  [.] dc10::OptionA::Weight                                                                                                                                                         
+    12.47%     0.00%  [.] 0x0000000000000006                                                                                                                                                            
+    12.43%     0.01%  [.] 0000000000000000                                                                                                                                                              
+    10.59%    10.54%  [.] CADTElemClass::DetermineNearestElement_impl                                                                                                                                   
+     6.75%     0.00%  [.] 0x900000000000841f                                                                                                                                                            
+     6.75%     0.00%  [.] std::_Sp_counted_ptr_inplace<CBoundaryLayerMetric::ChordOwners, std::allocator<CBoundaryLayerMetric::ChordOwners>, (__gnu_cxx::_Lock_policy)2>::~_Sp_counted_ptr_inplace      
+     6.74%     0.00%  [.] 0x0000000100000001                                                                                                                                                            
+     6.74%     0.00%  [.] CBoundaryLayerMetric::EdgeBreakpoints                                                                                                                                         
+     5.57%     5.53%  [.] SU2Native3D::FusedMultiplyAdd                                                                                                                                                 
+     5.06%     5.02%  [.] CBoundaryLayerMetric::EdgeBreakpointsImpl                                                                                                                                     
+     4.39%     4.38%  [.] CBlasStructure::EigenDecomposition<double [3][3], double [3], double [3]>                                                                                                     
+     2.50%     2.47%  [.] CBoundaryLayerMetric::EvaluateImpl                                                                                                                                            
+     2.33%     0.00%  [.] 0x231c986affffffff                                                                                                                                                            
+     2.11%     2.11%  [.] SU2Native3D::(anonymous namespace)::Coordinate                                                                                                                                
+     2.05%     2.05%  [.] std::__introsort_loop<__gnu_cxx::__normal_iterator<CBBoxTargetClass*, std::vector<CBBoxTargetClass, std::allocator<CBBoxTargetClass> > >, long, __gnu_cxx::__ops::_Iter_less_i
+     2.03%     2.03%  [.] _int_malloc                                                                                                                                                                   
+     2.01%     0.00%  [.] Catch::RunContext::invokeActiveTestCase                                                                                                                                       
+     2.01%     0.00%  [.] 0x000055c9ae99b710                                                                                                                                                            
+     2.00%     0.00%  [.] C_A_T_C_H_T_E_S_T_65                                                                                                                                                          
+     2.00%     0.00%  [.] CNativeRemesher3D::Remesh                                                                                                                                                     
+     1.99%     0.00%  [.] std::_Function_handler<SU2Native3D::EngineResult (SU2NativeBoundary2D::World&, std::map<unsigned long, SU2Native3D::OwnedCell, std::less<unsigned long>, std::allocator<std::p
+     1.99%     0.00%  [.] SU2NativeBLPipeline3D::RunEvent                                                                                                                                               
+     1.83%     1.76%  [.] std::__unguarded_linear_insert<__gnu_cxx::__normal_iterator<CBBoxTargetClass*, std::vector<CBBoxTargetClass, std::allocator<CBBoxTargetClass> > >, __gnu_cxx::__ops::_Val_less
+     1.70%     1.69%  [.] CADTElemClass::DetermineElementsWithinDistance                                                                                                                                
+     1.61%     1.59%  [.] SU2Native3D::ChordEnvelope::Add                                                                                                                                               
+     1.60%     0.09%  [.] SU2Native3D::FrozenField::EdgeLength                                                                                                                                          
+     1.58%     1.57%  [.] unlink_chunk.isra.0                                                                                                                                                           
+     1.50%     1.50%  [.] SU2Native3D::(anonymous namespace)::Difference<66ul>                                                                                                                          
+     1.24%     0.00%  [.] dc13::PhaseV13                                                                                                                                                                
+     1.23%     1.16%  [.] __memmove_avx_unaligned_erms                                                                                                                                                  
+     1.16%     1.15%  [.] std::_Rb_tree_increment                                                                                                                                                       
+     1.13%     1.12%  [.] CBoundaryLayerMetric::ApplyFeatures                                                                                                                                           
+     1.11%     1.11%  [.] CADTElemClass::DetermineIntersectingElements                                                                                                                                  
+     1.09%     0.26%  [.] std::ostream::_M_insert<unsigned long>                                                                                                                                        
+     1.08%     1.07%  [.] dc10::StripFaces                                                                                                                                                              
+     1.06%     1.06%  [.] (anonymous namespace)::JacobiEigen3                                                                                                                                           
+     1.04%     1.00%  [.] malloc                                                                                                                                                                        
+     1.03%     0.00%  [.] 0x0000000000000001                                                                                                                                                            
+     1.02%     0.00%  [.] 0x0000000000000002                                                                                                                                                            
+     1.02%     0.00%  [.] std::num_put<char, std::ostreambuf_iterator<char, std::char_traits<char> > >::~num_put                                                                                        
+     1.02%     0.00%  [.] 0x4810c08348000bd4                                                                                                                                                            
+     0.92%     0.10%  [.] SU2Native3D::TraceSegment                                                                                                                                                     
+     0.90%     0.00%  [.] 0x0000000000003ffe                                                                                                                                                            
+     0.87%     0.85%  [.] _int_free                                                                                                                                                                     
+     0.87%     0.87%  [.] SU2Native3D::(anonymous namespace)::Product<198ul, 198ul>                                                                                                                     
+     0.83%     0.02%  [.] dc9::PhaseR2                                                                                                                                                                  
+     0.79%     0.78%  [.] std::_Rb_tree<unsigned long, unsigned long, std::_Identity<unsigned long>, std::less<unsigned long>, std::allocator<unsigned long> >::_M_get_insert_unique_pos                
+     0.79%     0.79%  [.] SU2Native3D::(anonymous namespace)::Difference<198ul>                                                                                                                         
+     0.73%     0.16%  [.] dc9::Final                                                                                                                                                                    
+     0.72%     0.71%  [.] CBoundaryLayerMetric::EvaluateImpl(unsigned short, double const*, double, bool, unsigned long)::{lambda(unsigned long, double (&) [3], double (&) [3])#4}::operator()         
+     0.71%     0.02%  [.] dc9::LenAt                                                                                                                                                                    
+     0.70%     0.69%  [.] SU2Native3D::(anonymous namespace)::Difference<132ul>                                                                                                                         
+     0.68%     0.67%  [.] malloc_consolidate                                                                                                                                                            
+     0.66%     0.66%  [.] dc10::OptionA::Compose                                                                                                                                                        
+     0.63%     0.00%  [.] 0x0000000000000010                                                                                                                                                            
+     0.62%     0.00%  [.] 0x776f725f74737269                                                                                                                                                            
+     0.62%     0.61%  [.] CSolver::IntersectMetrics                                                                                                                                                     
+     0.61%     0.00%  [k] do_syscall_64                                                                                                                                                                 
+     0.61%     0.00%  [k] entry_SYSCALL_64_after_hwframe                                                                                                                                                
+     0.61%     0.00%  [k] x64_sys_call                                                                                                                                                                  
+     0.60%     0.60%  [.] SU2Native3D::(anonymous namespace)::Product<66ul, 66ul>                                                                                                                       
+     0.58%     0.00%  [.] 0x0000000000003fee                                                                                                                                                            
+     0.58%     0.58%  [.] feclearexcept                                                                                                                                                                 
+     0.55%     0.55%  [.] __GI___fesetenv                                                                                                                                                               
+     0.53%     0.51%  [.] CADTElemClass::Dist2ToLine                                                                                                                                                    
+     0.53%     0.52%  [.] __GI___fesetround                                                                                                                                                             
+     0.51%     0.50%  [.] CADTElemClass::Dist2ToTriangle                                                                                                                                                
+     0.47%     0.47%  [.] SU2Native3D::(anonymous namespace)::Determinant                                                                                                                               
+     0.46%     0.46%  [.] (anonymous namespace)::Rotate                                                                                                                                                 
+     0.46%     0.46%  [.] std::_Rb_tree_insert_and_rebalance                                                                                                                                            
