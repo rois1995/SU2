@@ -363,7 +363,7 @@ public:
   }
   void ApplyMixingConservation(CGeometry* geometry, const CConfig* config) override;
   su2double GetPhysicalResidual(unsigned long point, unsigned short var) const override {
-    return PhysicalResidual.empty() ? su2double(0) : PhysicalResidual(point, var);
+    return PhysicalResidual.empty() || point >= nPointDomain ? su2double(0) : PhysicalResidual(point, var);
   }
 
   CEulerSolver() = delete;
