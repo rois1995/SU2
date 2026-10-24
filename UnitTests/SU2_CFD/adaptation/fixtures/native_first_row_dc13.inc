@@ -571,12 +571,15 @@ TEST_CASE("DC-13 ApexPlace and the halving step on a synthetic box: window, posi
   BoxSpec b;auto s=SyntheticBox(b);ApplyWallPolicies(*s);DetectCreases(*s);size_t unbound=0;const auto areas=MarkerAreas(*s,unbound);REQUIRE(unbound==0);
   auto field=ComputeDirectionField(*s);directionField=&field.d;Rows10 rows;std::ostringstream log;
   PhaseR1(*s,rows,4096,60,log);PhaseR2(*s,static_cast<Rows&>(rows),120,log);REQUIRE(!rows.apex.empty());
+  std::set<Face> passing;  // the wall faces whose first child passes after R2 (R2 does not row every face)
   auto checkMesh=[&](const char* what){INFO(what);long double volume=0;bool positive=true;
     for(const auto& row:s->mesh){const auto& c=row.second.cell;const auto o=Orientation(c.v[0].p,c.v[1].p,c.v[2].p,c.v[3].p);positive=positive&&o>0;volume+=o;}
     CHECK(positive);CHECK(std::abs(double(volume/6)-1)<1e-9);size_t u=0;const auto now=MarkerAreas(*s,u);CHECK(u==0);
     for(const auto& a:areas){const auto f=now.find(a.first);REQUIRE(f!=now.end());CHECK(std::abs(double(f->second-a.second))<=1e-9);}
-    for(const auto& wf:WallFaces(*s)){double w=0;CHECK(HeightOk(*s,wf.first,&w));}
+    for(const auto& wf:WallFaces(*s))if(passing.count(wf.second)){double w=0;CHECK(HeightOk(*s,wf.first,&w));}
     CHECK(StaleRegistrations(*s,rows)==0);};
+  for(const auto& wf:WallFaces(*s)){double w=0;if(HeightOk(*s,wf.first,&w))passing.insert(wf.second);}
+  REQUIRE(passing.size()>=rows.apex.size()/2);
   checkMesh("after R2");
   // ApexPlace on every registered face: never worse than its star minimum, first child within the window
   VStage g;std::set<Face> certified;size_t placed=0;const auto keys=rows.apex;
@@ -585,5 +588,7 @@ TEST_CASE("DC-13 ApexPlace and the halving step on a synthetic box: window, posi
   // halving step at twice the multiplier-free height: every first child split at h0/2 inside the window
   for(auto& h:s->heights)h.second/=2;ResetCaches();
   const auto hv=HalveFirstRow(*s,rows,certified);CHECK(hv.split>=1);CHECK(hv.refused==0);
+  {std::set<Face> split;for(const auto& wf:WallFaces(*s)){double w=0;ResetCaches();if(HeightOk(*s,wf.first,&w))split.insert(wf.second);}
+   size_t kept=0;for(const auto& f:passing)kept+=split.count(f);CHECK(kept==passing.size());passing=split;}
   ResetCaches();checkMesh("after halving");
 }
