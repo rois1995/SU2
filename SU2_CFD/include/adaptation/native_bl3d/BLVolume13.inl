@@ -171,6 +171,24 @@ inline long double LenOrEstimate(State& s,Id a,Id b,bool& estimated) {
 // DC-14: optimizer boundary operations O5/O6 on a mapped authority (they change skin faces without a parameter
 // transaction). Production: off (as RefineOptimize). The DC-13 harness sets it to reproduce its cut results.
 inline bool v13MappedBoundaryOps=false;
+// DC-16 (B3/B4): demand queue of V. Selection only: one target tensor per vertex (coordinate-checked cache), the geometric
+// edge estimate 2/3 (la^2 + la lb + lb^2)/(la + lb) of the endpoint lengths, a full arithmetic scan once, then only the
+// edges of cells created since the previous scan plus the not yet attempted queue; every attempted edge is integrated
+// exactly before its admission (unchanged). Intermediate events skip the full sweep-end gate scan (deficits are reported
+// once after V). Production sets it; the DC-13 harness keeps its exact scan unless SU2_DC16_PRODUCTION_V=1.
+inline bool v13DemandQueue=false;inline double v13DemandThreshold=1.6;
+struct VertexTensors {
+  std::unordered_map<Id,std::pair<Point,Tensor>> at;size_t queries=0;
+  const Tensor& Get(State& s,Id v){const auto p=NodePoint(s,v);auto f=at.find(v);
+    if(f!=at.end()&&SamePoint(f->second.first,p))return f->second.second;++queries;const Tensor t=s.field->Query(p).target;
+    auto& slot=at[v];slot={p,t};return slot.second;}
+};
+inline long double EstimateLength(State& s,VertexTensors& vt,Id a,Id b) {
+  const auto pa=NodePoint(s,a),pb=NodePoint(s,b);const long double e[3]={(long double)pb.x-pa.x,(long double)pb.y-pa.y,(long double)pb.z-pa.z};
+  auto len=[&](const Tensor& m){const long double q=e[0]*(m.xx*e[0]+m.xy*e[1]+m.xz*e[2])+e[1]*(m.xy*e[0]+m.yy*e[1]+m.yz*e[2])+e[2]*(m.xz*e[0]+m.yz*e[1]+m.zz*e[2]);
+    if(!(q>=0))throw std::runtime_error("non-positive vertex metric");return std::sqrt(q);};
+  const long double la=len(vt.Get(s,a)),lb=len(vt.Get(s,b));return la+lb>0?(2.L/3)*(la*la+la*lb+lb*lb)/(la+lb):0;
+}
 struct VStage13 : VStage12 { std::map<int,ClassCensus> byClass;size_t apex_place=0; };
 // edge class for the census: 0 interior, 1 wall, 2 seam (wall + other physical), 3 carrier (non-wall, non-artificial
 // physical), 4 artificial (cut) boundary
@@ -258,10 +276,12 @@ inline VStage13 PhaseV13(State& s,Rows10& rows,Growth& G,size_t work,double seco
   auto ridgeEdge=[&](Edge w){if(rows.copies.count(w[0])||rows.copies.count(w[1]))return true;
     for(const auto& r:rows.apex)if(Has(r.first,w[0])&&Has(r.first,w[1]))for(Id x:r.first)if(rows.copies.count(x))return true;return false;};
   std::map<Face,unsigned> firstTried;
+  VertexTensors vt;Id scanned=0;std::set<Edge> queued;size_t lastDemand=0;  // DC-16 demand queue state
   for(;;++g.sweeps) {
     if(limited()){g.outcome="limit";break;}
     if(g.sweeps>=maxSweeps){g.outcome="sweep cap";break;}
     const double R=remaining();bool changed=false;const auto sweepStart=Clock::now();BoundCaches(s);
+    if(vt.at.size()>(size_t(1)<<22))vt.at.clear();
     // (a) R2 retry (sweeps 0 and 1) and the certified first-child route
     if(g.sweeps<2&&v13R2Retry){const auto t=Clock::now();size_t rowed0=0;for(const auto& wf:WallFaces(s))rowed0+=rows.apex.count(wf.second)&&std::all_of(wf.second.begin(),wf.second.end(),[&](Id x){return rows.lift.count(x);});
       const auto apex0=rows.apex;
@@ -285,16 +305,28 @@ inline VStage13 PhaseV13(State& s,Rows10& rows,Growth& G,size_t work,double seco
      auto sliceOver=[&]{return limited()||Seconds(t)>=slice||attempts>=attemptCap;};
      auto touchesColumn=[&](const std::vector<Id>& ids){for(Id id:ids)if(ci.cells.count(id))return true;return false;};
      std::vector<std::tuple<int,long double,Edge>> longs;std::set<Edge> seen;
-     for(const auto& row:s.mesh){if(sliceOver())break;const auto& c=row.second.cell;for(unsigned a=0;a<4;++a)for(unsigned b=a+1;b<4;++b){
-       const Edge e{std::min(c.v[a].id,c.v[b].id),std::max(c.v[a].id,c.v[b].id)};if(!seen.insert(e).second)continue;
-       long double l=0;try{bool est=false;l=v13EstimateScan?LenOrEstimate(s,e[0],e[1],est):Len(s,e[0],e[1]);}catch(const std::exception&){continue;}if(l>MaximumMetricEdge){const int k=EdgeClass(s,e);int pri=k==1||k==2?0:k==3?1:2;
+     auto classify=[&](const Edge& e,long double l){const int k=EdgeClass(s,e);int pri=k==1||k==2?0:k==3?1:2;
          if(v13NearWallFirst&&pri>0){long double d=INFINITY;try{d=MinWallDistance(s,.5L*(Of(NodePoint(s,e[0]))+Of(NodePoint(s,e[1]))));}catch(const std::exception&){}
            pri=d>=s.h0&&d<=300*s.h0?1:pri+1;}
-         longs.emplace_back(pri,-l,e);}}}
+         longs.emplace_back(pri,-l,e);};
+     if(v13DemandQueue) {
+       // DC-16: edges of the cells created since the previous scan (all cells at the first scan) plus the queue rest
+       const Id from=scanned;scanned=s.next_cell;std::set<Edge> cand;
+       for(const auto& e:queued)if(s.vertex_cells.count(e[0])&&s.vertex_cells.count(e[1])&&!Star(s,e).empty())cand.insert(e);
+       for(auto it=s.mesh.lower_bound(from);it!=s.mesh.end();++it){const auto& c=it->second.cell;
+         for(unsigned a=0;a<4;++a)for(unsigned b=a+1;b<4;++b)cand.insert(Edge{std::min(c.v[a].id,c.v[b].id),std::max(c.v[a].id,c.v[b].id)});}
+       queued.clear();
+       for(const auto& e:cand){long double l=0;try{l=EstimateLength(s,vt,e[0],e[1]);}catch(const std::exception&){l=INFINITY;}
+         if(l>v13DemandThreshold){queued.insert(e);classify(e,std::isfinite(l)?l:1e30L);}}
+       lastDemand=longs.size();
+     } else
+     for(const auto& row:s.mesh){if(sliceOver())break;const auto& c=row.second.cell;for(unsigned a=0;a<4;++a)for(unsigned b=a+1;b<4;++b){
+       const Edge e{std::min(c.v[a].id,c.v[b].id),std::max(c.v[a].id,c.v[b].id)};if(!seen.insert(e).second)continue;
+       long double l=0;try{bool est=false;l=v13EstimateScan?LenOrEstimate(s,e[0],e[1],est):Len(s,e[0],e[1]);}catch(const std::exception&){continue;}if(l>MaximumMetricEdge)classify(e,l);}}
      std::sort(longs.begin(),longs.end());std::set<Face> movedThisSweep;
      if(!v13AttemptsPerSweep)attemptCap=std::max<size_t>(1024,longs.size()/4);
      for(const auto& row:longs) {
-       if(sliceOver())break;const Edge e=std::get<2>(row);const auto star=Star(s,e);if(star.empty())continue;
+       if(sliceOver())break;const Edge e=std::get<2>(row);queued.erase(e);const auto star=Star(s,e);if(star.empty())continue;
        if(touchesColumn(star)) {
          ++attempts;auto base=[&](Id x)->Id{const auto u=ci.unlift.find(x);if(u!=ci.unlift.end())return u->second;return rows.lift.count(x)?x:UINT64_MAX;};
          const Id b0=base(e[0]),b1=base(e[1]);bool done=false;std::string why;
@@ -425,6 +457,13 @@ inline VStage13 PhaseV13(State& s,Rows10& rows,Growth& G,size_t work,double seco
       log<<"DC12 V optimize sweep "<<g.sweeps<<" bad "<<rep.bad_before<<"->"<<rep.bad_after<<" min "<<rep.minimum_before<<"->"<<rep.minimum_after<<" O1="<<rep.edge_removals
          <<" O2="<<rep.face_swaps<<" O3="<<rep.collapses<<" O4="<<rep.moves<<" stop="<<rep.stop<<" t="<<rep.seconds<<"\n";}
     if(v13SkipFinalOnLimit&&limited()){g.outcome="limit";log<<"DC12 V sweep "<<g.sweeps<<" stopped by its limit (gate scan skipped) t="<<Seconds(t0)<<"\n";break;}
+    if(v13DemandQueue&&v13EstimateScan){  // DC-16: intermediate event, no full gate scan per sweep
+      log<<"DC16 V sweep "<<g.sweeps<<" cells="<<s.mesh.size()<<" estimated_demand="<<lastDemand<<" queued="<<queued.size()<<" vertex_queries="<<vt.queries<<" work="<<g.work<<" t="<<Seconds(t0)<<"\n";
+      std::cout<<"DC16 V sweep "<<g.sweeps<<" cells="<<s.mesh.size()<<" estimated_demand="<<lastDemand<<" accepted="<<g.accepted<<" t="<<Seconds(t0)<<std::endl;
+      g.per_sweep.push_back({s.mesh.size(),lastDemand,0,0,g.work,Seconds(t0)});
+      if(limited()){g.outcome="limit";break;}
+      if(!changed){g.outcome="blocked";break;}
+      continue;}
     const auto gates=Final(s);
     log<<"DC12 V sweep "<<g.sweeps<<" cells="<<gates.cells<<" long="<<gates.long_edges<<" bad="<<gates.bad_shape<<" height_fail="<<gates.height_failures<<" unmeasurable="<<gates.unmeasurable<<" work="<<g.work<<" t="<<Seconds(t0)<<"\n";
     std::cout<<"DC12 V sweep "<<g.sweeps<<" cells="<<gates.cells<<" long="<<gates.long_edges<<" bad="<<gates.bad_shape<<" h="<<gates.height_failures<<" t="<<Seconds(t0)<<std::endl;

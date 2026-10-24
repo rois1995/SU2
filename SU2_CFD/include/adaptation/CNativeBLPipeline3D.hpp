@@ -234,6 +234,7 @@ struct PipelineScope {
     dc13::v13R2Retry = true; dc13::unliftedColumns = false; dc13::diagnosticCutSlide = false; dc13::v13AttemptsPerSweep = 1024;
     dc13::v13NearWallFirst = false; dc12::growthClearing = true; dc13::v13EstimateScan = false; dc13::v13SkipFinalOnLimit = false;
     dc9::rimByRole = true;  // DC-15: artificial boundaries only by role (production has none), never by a marker name
+    dc9::validityOnlyConstruction = false; dc13::v13DemandQueue = false; dc16::roomStep = true; dc9::markerRoles.clear();
   }
   ~PipelineScope() {
     dc9::ResetCaches(); dc9::balancedCache.clear(); dc9::cachesOn = true; dc12::layerOfMarker.clear();
@@ -241,6 +242,7 @@ struct PipelineScope {
     dc13::v13R2Retry = true; dc13::v13AttemptsPerSweep = 1024; dc9::directionField = nullptr; dc9::directionFieldUses = 0;
     dc13::v13NearWallFirst = false; dc12::growthClearing = true; dc13::v13EstimateScan = false; dc13::v13SkipFinalOnLimit = false;
     dc9::rimByRole = false;
+    dc9::validityOnlyConstruction = false; dc13::v13DemandQueue = false; dc16::roomStep = true; dc9::markerRoles.clear();
   }
 };
 }  // namespace detail
@@ -362,6 +364,10 @@ inline EngineResult RunEvent(World& world, const Owned& cells, const std::vector
     v13AttemptsPerSweep = 0;  // DC-15: per sweep from the current long-edge demand
     v13NearWallFirst = true;
     v13EstimateScan = v13SkipFinalOnLimit = !ctl.final_cycle;  // intermediate events: deficits reported once, estimated
+    // DC-16: validity-only construction on intermediate events (R2 lifts and LayerConstruct admissions without edge
+    // integration); the V demand queue on every event (selection only, exact admission)
+    dc9::validityOnlyConstruction = !ctl.final_cycle; v13DemandQueue = true;
+    json << ",\"dc16\":{\"validity_only_construction\":" << dc9::validityOnlyConstruction << ",\"v_demand_queue\":1,\"room_step\":" << dc16::roomStep << "}";
     json << ",\"limits\":{\"budget_seconds\":" << budget << ",\"reserve_seconds\":" << reserve << ",\"W\":[" << wWork << "," << .08 * usable
          << "],\"R1\":[" << r1Work << "," << .05 * usable << "],\"R2_seconds\":" << .25 * usable << ",\"G_seconds\":" << .12 * usable
          << ",\"V_attempts_per_sweep\":\"max(1024, long/4)\",\"V_intermediate_seconds\":" << ctl.intermediate_v_seconds

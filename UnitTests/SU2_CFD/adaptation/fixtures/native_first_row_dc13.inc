@@ -11,7 +11,13 @@ TEST_CASE("DC-13 sliver-removing build-then-optimize, first-height ramp and halv
   auto flag=[](const char* k){const char* v=std::getenv(k);return v&&std::string(v)=="1";};
   dc13::unliftedColumns=flag("SU2_DC13_UNLIFTED_COLUMNS");dc13::diagnosticCutSlide=flag("SU2_DC13_CUT_SLIDE");
   dc13::v13MappedBoundaryOps=true;  // DC-13 results were produced with O5/O6 on the mapped cut references
-  struct SwitchReset{~SwitchReset(){dc13::unliftedColumns=false;dc13::diagnosticCutSlide=false;dc13::v13MappedBoundaryOps=false;}} switchReset;
+  // DC-16 switches (test-side): SU2_DC16_VALIDITY_ONLY=1 the intermediate-event construction policy, SU2_DC16_PRODUCTION_V=1
+  // the production V settings (demand queue, attempts from demand, near-wall order), SU2_DC16_ROOM=0 no room step in G
+  dc9::validityOnlyConstruction=flag("SU2_DC16_VALIDITY_ONLY");
+  if(flag("SU2_DC16_PRODUCTION_V")){dc13::v13DemandQueue=true;dc13::v13AttemptsPerSweep=0;dc13::v13NearWallFirst=true;dc13::v13MappedBoundaryOps=false;}
+  {const char* r=std::getenv("SU2_DC16_ROOM");dc16::roomStep=!(r&&std::string(r)=="0");}
+  struct SwitchReset{~SwitchReset(){dc13::unliftedColumns=false;dc13::diagnosticCutSlide=false;dc13::v13MappedBoundaryOps=false;
+    dc9::validityOnlyConstruction=false;dc13::v13DemandQueue=false;dc13::v13AttemptsPerSweep=1024;dc13::v13NearWallFirst=false;dc16::roomStep=true;}} switchReset;
   using namespace dc13;
   auto digest=[](const std::string& path)->std::string{std::ifstream in(path,std::ios::binary);if(!in)return "missing";uint64_t h=1469598103934665603ULL;char c;
     while(in.get(c)){h^=(unsigned char)c;h*=1099511628211ULL;}std::ostringstream o;o<<std::hex<<h;return o.str();};
@@ -30,7 +36,7 @@ TEST_CASE("DC-13 sliver-removing build-then-optimize, first-height ramp and halv
   for(std::string name;std::getline(names,name,',');) {
     if(name.empty())continue;
     std::ostringstream limits;limits<<std::setprecision(12)<<"\"limits\":{\"W\":[8192,120],\"R1\":[4096,120],\"R2_seconds\":600,\"G_seconds\":"<<gSeconds<<",\"V\":["<<vWork<<","<<vSeconds<<"],\"V_sweeps\":"<<vSweeps
-      <<",\"lift\":\"single\",\"h0_scale\":"<<scale<<",\"chain\":\""<<env("SU2_DC13_CHAIN")<<"\",\"redistribute\":\""<<env("SU2_DC13_REDISTRIBUTE")<<"\",\"reflective\":\""<<env("SU2_DC12_REFLECTIVE")<<"\",\"inputs_sha256\":\""<<inputSha<<"\"}";
+      <<",\"lift\":\"single\",\"h0_scale\":"<<scale<<",\"chain\":\""<<env("SU2_DC13_CHAIN")<<"\",\"redistribute\":\""<<env("SU2_DC13_REDISTRIBUTE")<<"\",\"reflective\":\""<<env("SU2_DC12_REFLECTIVE")<<"\",\"dc16\":\""<<env("SU2_DC16_VALIDITY_ONLY")<<env("SU2_DC16_PRODUCTION_V")<<env("SU2_DC16_ROOM")<<"\",\"inputs_sha256\":\""<<inputSha<<"\"}";
     std::string tag=root+"/dc13_"+name+(scale!=1?"_h0x"+Fmt(scale):"");
     // resume only when the LAST requested step has a complete receipt
     const std::string lastTag=chain.empty()?tag:tag+"_step"+std::to_string(chain.size())+"_h0x"+Fmt(chain.back());

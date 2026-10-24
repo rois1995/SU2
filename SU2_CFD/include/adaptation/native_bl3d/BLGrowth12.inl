@@ -29,6 +29,16 @@ inline Decision Admit12(State& s,const Patch& old,const Patch& fresh,Kind kind) 
   Decision base;base.old_cells=old.cells.size();base.fresh_cells=fresh.cells.size();
   if(old.cells.empty()||fresh.cells.empty()||old.cells.size()>MaximumReplacementCells||fresh.cells.size()>MaximumReplacementCells){base.category=5;base.reason="replacement size";return base;}
   std::string why;if(!HeightT(s,fresh,why)){base.category=4;base.reason=why;return base;}
+  // DC-16: validity-only intermediate event: a LayerConstruct that removes no vertex is admitted by the validity of its
+  // fresh cells alone (SplitPolicy rule 1 needs no size certificate for it); its changed edges are not integrated
+  if(validityOnlyConstruction&&kind==Kind::Layer&&splitPolicy.rule==1&&!RemovesVertex(old.cells,fresh.cells,splitPolicy.relocated,splitPolicy.relocatedCount)) {
+    for(const auto& c:fresh.cells){const auto sh=ShapeOf(s,c);
+      if(IsFirstChild(s,fresh,c)){base.first_q=std::min(base.first_q,sh.q);base.first_J=std::min(base.first_J,sh.J);}
+      else{base.other_q=std::min(base.other_q,sh.q);base.other_J=std::min(base.other_J,sh.J);}}
+    if(!Valid({base.first_q,base.first_J})){base.category=2;base.reason="validity first child: q="+std::to_string(base.first_q)+" J="+std::to_string(base.first_J);return base;}
+    if(!Valid({base.other_q,base.other_J})){base.category=2;base.reason="validity: q="+std::to_string(base.other_q)+" J="+std::to_string(base.other_J);return base;}
+    ++splitPolicy.layer_free;base.ok=true;return base;
+  }
   PatchMetric after,before;
   try{auto reuse=ReuseOf(s,old.cells,&fresh.cells);
     after=MeasureMetricCells(fresh.cells,*s.field,nullptr,&reuse,false);StoreLengths(s,after);
@@ -149,6 +159,8 @@ struct Growth {
   std::set<Id> forceStop;   // tests: wall vertices whose column never grows
   // DC-15 ClearAbove: clearance refusals answered by relocating/removing free blocking vertices, then a retry
   size_t clear_moves=0,clear_collapses=0,clear_retries=0,clear_retry_accepted=0;std::map<std::string,size_t> clear_refusals;
+  std::map<std::string,size_t> fixed_blockers;  // DC-16: kind of every registry identity named as a clearance blocker
+  size_t joint_retries=0,joint_accepted=0;      // DC-16: transactions widened by the planned tops they depend on
 };
 struct Step { bool ok=false;std::string stop;V u;long double d=0,next=0;int wall=-1; };
 // Target metric density along the unit direction d at x, and the distance along d from x0 at which the target metric
@@ -312,6 +324,9 @@ inline bool ClearAbove(State& s,Growth& G,const std::function<bool(Id)>& below,c
   const auto dec=Admit12(s,old,fresh,Kind::Layer);if(!dec.ok)return refuse("collapse adds frozen excess");
   Apply(s,ids,fresh);++G.clear_collapses;return true;
 }
+}  // namespace dc12
+#include "BLDeform16.inl"
+namespace dc12 {
 // G: layer index by layer index; per layer, bounded wall patches of adjacent planned tops (<= 8 tops, above cavity <= 64),
 // each member alone on failure, one retry of every refused column at the same index; stop rules s1-s4 (OPTIMIZE_PLAN 2).
 inline Growth PhaseG(State& s,Rows10& rows,double seconds,std::ostream& log,const std::set<Id>& forceStop={}) {
@@ -334,6 +349,8 @@ inline Growth PhaseG(State& s,Rows10& rows,double seconds,std::ostream& log,cons
   // DC-15: identities ClearAbove never touches (lids, apices, copies, stack vertices and tops)
   std::set<Id> fixed;for(const auto& r:rows.lift)fixed.insert(r.second);for(const auto& r:rows.apex)fixed.insert(r.second);
   for(const auto& r:rows.copies)for(Id c:r.second.ids)fixed.insert(c);for(const auto& c:G.columns){fixed.insert(c.top);fixed.insert(c.lid);}
+  std::set<Id> lidIds,apexIds;for(const auto& r:rows.lift)lidIds.insert(r.second);for(const auto& r:rows.apex)apexIds.insert(r.second);
+  dc16::roomStats=dc16::RoomStats{};
   auto apply=[&](const LTx& tx,const std::map<Id,size_t>& owner) {
     Apply(s,tx.ids,tx.fresh);for(const auto& k:tx.keys)G.layerKeys.insert(k);for(const auto& l:tx.lifted)fixed.insert(l.second);
     for(const auto& l:tx.lifted){auto& c=G.columns[owner.at(l.first)];c.stack.push_back(l.second);c.top=l.second;G.current[l.second]=l.second;++G.lifted;}
@@ -355,23 +372,35 @@ inline Growth PhaseG(State& s,Rows10& rows,double seconds,std::ostream& log,cons
       plan[c.top]=st.u;owner[c.top]=i;
     }
     if(plan.empty())break;
+    // DC-16: room for the layer (deformation of the free volume above the active front, one-unit commit)
+    if(dc16::roomStep){try{dc16::MakeRoom(s,below,fixed,plan,log);}catch(const std::exception& e){++dc16::roomStats.why[std::string("exception: ")+e.what()];}}
     std::vector<Id> tops;for(const auto& p:plan)tops.push_back(p.first);
     std::set<Id> done,refusedNow;
     auto aboveOf=[&](Id t){std::set<Id> out;for(Id id:StarOf(s,t))if(!below(id))out.insert(id);return out;};
-    auto attempt=[&](const std::set<Id>& T)->bool{
+    // a planned top is pending while its column still has k layers and this top (a lifted top is a stack vertex)
+    auto pending=[&](Id t){const auto o=owner.find(t);if(o==owner.end())return false;const auto& c=G.columns[o->second];return !c.stopped&&c.stack.size()==k&&c.top==t;};
+    auto attempt=[&](const std::set<Id>& T0)->bool{
+      std::set<Id> T;for(Id t:T0)if(pending(t))T.insert(t);if(T.empty())return true;  // lifted meanwhile (joint transaction)
       std::map<Id,V> targets;for(Id t:T)targets[t]=plan.at(t);
-      LTx tx;
+      LTx tx;bool jointTried=false;
       for(unsigned round=0;;++round){
         try{tx=LayerTransaction(s,below,targets);}catch(const std::exception& e){tx.ok=false;tx.cls="exception";tx.witness=e.what();}
         if(tx.ok){if(round)++G.clear_retry_accepted;break;}
-        // DC-15: clear free blockers above the planned tops and retry (at most two clearing rounds)
-        if(tx.cls!="clearance"||!growthClearing||round>=2||Seconds(t0)>=seconds)break;
+        if(tx.cls!="clearance"||round>=3||Seconds(t0)>=seconds)break;
+        for(const auto& b:tx.blockers){const Id x=b.first;
+          if(fixed.count(x))++G.fixed_blockers[plan.count(x)?(targets.count(x)?"planned top (same transaction)":"planned top (other transaction)"):lidIds.count(x)?"lid":apexIds.count(x)?"apex":"stack or stopped top"];}
+        // DC-16 (plan review 1): tops that must advance together are lifted in one joint transaction
+        if(!jointTried){std::set<Id> joint;for(const auto& b:tx.blockers)if(plan.count(b.first)&&!targets.count(b.first)&&pending(b.first))joint.insert(b.first);
+          if(!joint.empty()&&targets.size()+joint.size()<=16){for(Id x:joint)targets[x]=plan.at(x);jointTried=true;++G.joint_retries;continue;}}
+        // DC-15: clear free blockers above the planned tops and retry (local fallback)
+        if(!growthClearing)break;
         size_t cleared=0;
         for(const auto& b:tx.blockers){const Id t=b.second;if(!plan.count(t))continue;const auto& c=G.columns[owner.at(t)];
           const V top=Of(NodePoint(s,t)),u=plan.at(t);cleared+=ClearAbove(s,G,below,fixed,b.first,c.dir,u,Norm(u-top));}
         if(!cleared)break;++G.clear_retries;}
-      if(tx.ok){apply(tx,owner);++G.accepted[T.size()>1?"patch":"single"];(T.size()>1?G.patch_tx:G.single_tx)++;return true;}
-      ++G.refused;++G.refusals[tx.cls];G.last=tx.cls+": "+tx.witness;log<<"DC12 G refuse |T|="<<T.size()<<" cls="<<tx.cls<<" "<<tx.witness<<"\n";return false;};
+      if(tx.ok){apply(tx,owner);for(const auto& t:targets)done.insert(t.first);if(jointTried)++G.joint_accepted;
+        ++G.accepted[targets.size()>1?"patch":"single"];(targets.size()>1?G.patch_tx:G.single_tx)++;return true;}
+      ++G.refused;++G.refusals[tx.cls];G.last=tx.cls+": "+tx.witness;log<<"DC12 G refuse |T|="<<targets.size()<<" cls="<<tx.cls<<" "<<tx.witness<<"\n";return false;};
     for(Id seed:tops) {
       if(done.count(seed))continue;if(Seconds(t0)>=seconds)break;
       std::set<Id> T{seed},cav=aboveOf(seed);
@@ -386,8 +415,12 @@ inline Growth PhaseG(State& s,Rows10& rows,double seconds,std::ostream& log,cons
       if(++c.refusals>=2||!attempt({t})){if(c.stack.size()==k)stop(c,"s3 refused transactions ("+G.last.substr(0,G.last.find(':'))+")",INFINITY);}}
     ++G.layers;
     log<<"DC12 G layer "<<k<<" planned="<<plan.size()<<" lifted_total="<<G.lifted<<" refused_total="<<G.refused<<" t="<<Seconds(t0)<<"\n";
+    std::cout<<"DC16 G layer "<<k<<" planned="<<plan.size()<<" lifted_total="<<G.lifted<<" refused_total="<<G.refused<<" room_needy="<<dc16::roomStats.needy
+             <<" room_moved="<<dc16::roomStats.moved<<" t="<<Seconds(t0)<<" "<<dc16::MemoryLine(s)<<std::endl;
   }
   for(auto& c:G.columns)if(!c.stopped&&c.stack.size()>=48){c.stopped=true;c.stop="s4 layer cap";++G.stops["s4"];}
+  // DC-16 memory diagnosis (plan review 8): live structures vs allocator retention around one malloc_trim
+  std::cout<<"DC16 G end before_trim "<<dc16::MemoryLine(s)<<std::endl;malloc_trim(0);std::cout<<"DC16 G end after_trim "<<dc16::MemoryLine(s)<<std::endl;
   if(G.outcome.empty())G.outcome="complete";G.seconds=Seconds(t0);return G;
 }
 
@@ -714,7 +747,9 @@ inline std::string JsonGrowth(State& s,const Growth& G) {
   {bool k=false;for(const auto& h:hist){o<<(k?",":"")<<"\""<<h.first<<"\":"<<h.second;k=true;}}
   o<<"},\"clear\":{\"moves\":"<<G.clear_moves<<",\"collapses\":"<<G.clear_collapses<<",\"retries\":"<<G.clear_retries<<",\"retries_accepted\":"<<G.clear_retry_accepted<<",\"refusals\":{";
   {bool k=false;for(const auto& r:G.clear_refusals){o<<(k?",":"")<<junction_wp0::Json(r.first)<<':'<<r.second;k=true;}}
-  o<<"}},\"last_refusal\":"<<junction_wp0::Json(G.last.substr(0,300))<<"}";(void)s;return o.str();
+  o<<"}},\"joint\":{\"retries\":"<<G.joint_retries<<",\"accepted\":"<<G.joint_accepted<<"},\"fixed_blockers\":{";
+  {bool k=false;for(const auto& r:G.fixed_blockers){o<<(k?",":"")<<junction_wp0::Json(r.first)<<':'<<r.second;k=true;}}
+  o<<"},\"room\":"<<dc16::JsonRoom(dc16::roomStats)<<",\"last_refusal\":"<<junction_wp0::Json(G.last.substr(0,300))<<"}";(void)s;return o.str();
 }
 inline std::string JsonLayers(const LayerCensus& L) {
   std::vector<long> d=L.deviation;std::sort(d.begin(),d.end());auto at=[&](double f)->long{return d.empty()?0:d[size_t(f*(d.size()-1))];};

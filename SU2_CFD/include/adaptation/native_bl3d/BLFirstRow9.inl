@@ -169,8 +169,11 @@ struct D1Geometry { std::vector<Crease> creases;long double slope=0,radius=0,h0=
 inline D1Geometry d1;
 // DC-15: marker roles from the caller (production: CConfig marker kinds, 1 BL wall, 0 symmetry continuation, 2 other);
 // no marker name is read here. Test loaders build their roles themselves.
+// DC-16: the roles of the last DetectCreases call (the room step of G slides only role-0 continuation planes; empty:
+// no vertex slides). Production: CConfig marker kinds; test loaders: their own role rule.
+inline std::map<int,int> markerRoles;
 inline void DetectCreases(const State& s,const std::map<int,int>& roles) {
-  d1=D1Geometry{};const auto& F=s.layers->GetFeatures();d1.slope=F.slope;d1.radius=F.maximumRadius;d1.h0=s.h0;d1.angle=F.angle;
+  markerRoles=roles;d1=D1Geometry{};const auto& F=s.layers->GetFeatures();d1.slope=F.slope;d1.radius=F.maximumRadius;d1.h0=s.h0;d1.angle=F.angle;
   for(const auto& f:s.facets)for(auto x:f.v)d1.scale=std::max({d1.scale,std::abs((long double)x.p.x),std::abs((long double)x.p.y),std::abs((long double)x.p.z)});
   if(!(d1.slope>0))return;
   auto kind=[&](const Facet& f){if(s.walls.count(f.marker))return 1;const auto r=roles.find(f.marker);
@@ -605,6 +608,11 @@ struct SplitPolicy {
   size_t size_insertions=0,vertex_removal_checks=0,vertex_removal_refusals=0,nonsize_checks=0,nonsize_refusals=0,layer_free=0,layer_checked=0;
 };
 inline SplitPolicy splitPolicy;
+// DC-16 (validity-only intermediate events, user decision): set by the production entry on intermediate (ramped-h0)
+// events only. R2 then admits a lift that removes no vertex by its validity checks (cell validity, heights, carriers,
+// interface, D.2) without integrating its changed edges, and Admit12 admits such a LayerConstruct without measuring
+// them. Final cycles and every harness keep the certificates (default false).
+inline bool validityOnlyConstruction=false;
 // DC-14: the former SU2_DC9_SECTOR_FIRST switch (option of the DC-9..11 harnesses; never set in production).
 inline bool sectorFirst=false;
 // A removal: an old vertex (not a relocated apex) absent from the fresh cells, or no net vertex gain (the production
@@ -765,7 +773,7 @@ inline Tx Transaction(State& s,const Rows& rows,const std::set<Id>& V0,bool low)
   if(!tx.failing.empty())return tx;
   if(shapePolicy.validity)for(const auto& c:out.cells){const auto sh=Shape(s,c);if(!(sh.q>0&&sh.J>=ValiditySliverJacobian)){tx.cls="validity";tx.witness="fresh cell q="+std::to_string(sh.q)+" J="+std::to_string(sh.J);return tx;}}
   if(splitPolicy.rule==1){std::set<Id> rel;for(const auto& k:tx.rebuilt){const auto a=rows.apex.find(k);if(a!=rows.apex.end())rel.insert(a->second);}
-    if(!RemovesVertex(tx.old.cells,out.cells,&rel)){std::string why;if(!MeasurableChanged(s,tx.old,out,why)){tx.cls="measure";tx.witness=why;return tx;}
+    if(!RemovesVertex(tx.old.cells,out.cells,&rel)){std::string why;if(!validityOnlyConstruction&&!MeasurableChanged(s,tx.old,out,why)){tx.cls="measure";tx.witness=why;return tx;}
       ++splitPolicy.layer_free;tx.fresh=std::move(out);tx.ok=true;return tx;}++splitPolicy.layer_checked;}
   {long double removed=0,added=0;std::string why;if(!SizeCertificate(s,tx.old,out,removed,added,why)){tx.cls="measure";tx.witness=why;return tx;}
    if(!(added<=removed)){tx.cls="excess";std::ostringstream w;w<<"LayerConstruct adds frozen excess: added "<<double(added)<<" > removed "<<double(removed);tx.witness=w.str();return tx;}}

@@ -632,3 +632,5 @@ TEST_CASE("Native first-row transactions replay original fields without solver i
 #include "fixtures/native_first_row_dc13.inc"
 // DC-14 production FIRST_ROW construction: registry, entry and frozen-field replay.
 #include "fixtures/native_first_row_dc14.inc"
+// DC-16 shared deformation module (2D/3D) and the room step of the growth layers. Test-only.
+#include "fixtures/native_deform_dc16.inc"
