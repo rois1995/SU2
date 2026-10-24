@@ -292,9 +292,16 @@ inline Plan PlanLift(State& s,const std::set<Id>& apices,Id v,bool metricCap,boo
 inline long double Deficit(const State& s,const Plan& p){const long double h0=p.h0>0?p.h0:s.h0;return p.dir.ok?std::max(0.L,Need(h0)-p.kernel.delta*p.dir.s):Need(h0);}
 inline Node Constrain(const State& s,const PlanarReference* priv,Node node,const std::set<Id>& carriers,const std::set<Id>& bind) {
   if(carriers.empty())return node;
-  if(s.mapped){if(!priv)throw std::runtime_error("mapped lift without a private context");return priv->BindNewPoint(node,bind.empty()?carriers:bind);}
   std::set<Id> comps;for(Id f:carriers)comps.insert(s.component.at(f));
   V p=Of(node.p);bool all=true;for(Id c:comps)all=all&&s.snap.count(c);
+  if(s.mapped){if(!priv)throw std::runtime_error("mapped lift without a private context");
+    // DC-16: a point on exactly axis-aligned carrier planes is snapped to them before (and, if the binding moved it,
+    // after) its binding: a realization off the plane by rounding (1e-18 on the M6 symmetry plane) lies outside the
+    // original donors and makes every edge through it unmeasurable
+    if(all)node.p=Pt(junction_wp0::Snap(s,comps,p));
+    Node bound=priv->BindNewPoint(node,bind.empty()?carriers:bind);
+    if(all){const Point q=Pt(junction_wp0::Snap(s,comps,Of(bound.p)));if(!(q.x==bound.p.x&&q.y==bound.p.y&&q.z==bound.p.z)){Node again=node;again.p=q;try{bound=priv->BindNewPoint(again,bind.empty()?carriers:bind);}catch(const std::exception&){}}}
+    return bound;}
   if(all){node.p=Pt(junction_wp0::Snap(s,comps,p));return node;}
   for(unsigned pass=0;pass<4;++pass)for(Id f:carriers)node.p=s.reference->Project(f,node.p);
   return node;

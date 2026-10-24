@@ -231,7 +231,9 @@ inline std::string OptionACheck(State& s,std::shared_ptr<CBoundaryLayerMetric> b
 }
 
 // ---- (W) plain wall resolve to the option-A target --------------------------------------------------------------
-struct W10 : Stage { size_t splits=0,unmeasurable=0,strip_splits=0,strip_faces=0;double strip_cells_min=-1; };
+struct W10 : Stage { size_t splits=0,unmeasurable=0,strip_splits=0,strip_faces=0,prefiltered=0;double strip_cells_min=-1; };
+// DC-16: W selection prefilter (production): the caller's cheap length estimate (vertex tensors); null = exact scan only
+inline bool wallPrefilter=false;inline std::function<long double(Id,Id)> wallEstimate;
 // Split one wall edge (production SplitEdge, else InsertEdgeCavity) at the given points in order; D.2 invariant.
 inline bool SplitWallEdge(State& s,Edge e,const std::vector<Point>& points,W10& g,const char* tag) {
   const auto star=Star(s,e);if(star.empty())return false;++g.work;
@@ -260,7 +262,10 @@ inline W10 PhaseW10(State& s,size_t work,double seconds,std::ostream& log) {
   for(unsigned sweep=0;;++sweep) {
     std::vector<std::pair<long double,Edge>> longs;std::set<Edge> seen;g.unmeasurable=0;
     for(const auto& wf:WallFaces(s))for(int i=0;i<3;++i){Edge e{std::min(wf.second[i],wf.second[(i+1)%3]),std::max(wf.second[i],wf.second[(i+1)%3])};
-      if(!seen.insert(e).second)continue;long double l=0;try{l=Len(s,e[0],e[1]);}catch(const std::exception& x){++g.reasons["length: "+Key(x.what())];++g.unmeasurable;
+      if(!seen.insert(e).second)continue;long double l=0;
+      // DC-16: production selection by the vertex-tensor estimate first; only candidates above 1.8/1.5 are integrated
+      if(wallPrefilter){bool ok=true;long double est=0;try{est=wallEstimate(e[0],e[1]);}catch(const std::exception&){ok=false;}if(ok&&est<=MaximumMetricEdge/1.5L){++g.prefiltered;continue;}}
+      try{l=Len(s,e[0],e[1]);}catch(const std::exception& x){++g.reasons["length: "+Key(x.what())];++g.unmeasurable;
         if(g.unmeasurable<=8){const V A=Of(NodePoint(s,e[0])),B=Of(NodePoint(s,e[1]));log<<std::setprecision(17)<<"DC10 W unmeasurable "<<e[0]<<"-"<<e[1]<<" w(a)="<<double(optionA->Weight(A))<<" w(mid)="<<double(optionA->Weight(.5L*(A+B)))
           <<" w(b)="<<double(optionA->Weight(B))<<" crease="<<OnCrease(A,B)<<" : "<<x.what()<<"\n";}
         continue;}

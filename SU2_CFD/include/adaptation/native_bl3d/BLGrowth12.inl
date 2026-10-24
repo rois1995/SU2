@@ -31,13 +31,15 @@ inline Decision Admit12(State& s,const Patch& old,const Patch& fresh,Kind kind) 
   std::string why;if(!HeightT(s,fresh,why)){base.category=4;base.reason=why;return base;}
   // DC-16: validity-only intermediate event: a LayerConstruct that removes no vertex is admitted by the validity of its
   // fresh cells alone (SplitPolicy rule 1 needs no size certificate for it); its changed edges are not integrated
-  if(validityOnlyConstruction&&kind==Kind::Layer&&splitPolicy.rule==1&&!RemovesVertex(old.cells,fresh.cells,splitPolicy.relocated,splitPolicy.relocatedCount)) {
+  // (and a Refine of a requested edge above the split-insertion length, which the 2D split rule admits by validity)
+  if(validityOnlyConstruction&&splitPolicy.rule==1&&(kind==Kind::Layer||(kind==Kind::Refine&&splitPolicy.requested>(long double)SplitInsertionLength))
+     &&!RemovesVertex(old.cells,fresh.cells,splitPolicy.relocated,splitPolicy.relocatedCount)) {
     for(const auto& c:fresh.cells){const auto sh=ShapeOf(s,c);
       if(IsFirstChild(s,fresh,c)){base.first_q=std::min(base.first_q,sh.q);base.first_J=std::min(base.first_J,sh.J);}
       else{base.other_q=std::min(base.other_q,sh.q);base.other_J=std::min(base.other_J,sh.J);}}
     if(!Valid({base.first_q,base.first_J})){base.category=2;base.reason="validity first child: q="+std::to_string(base.first_q)+" J="+std::to_string(base.first_J);return base;}
     if(!Valid({base.other_q,base.other_J})){base.category=2;base.reason="validity: q="+std::to_string(base.other_q)+" J="+std::to_string(base.other_J);return base;}
-    ++splitPolicy.layer_free;base.ok=true;return base;
+    if(kind==Kind::Layer)++splitPolicy.layer_free;else ++splitPolicy.size_insertions;base.ok=true;return base;
   }
   PatchMetric after,before;
   try{auto reuse=ReuseOf(s,old.cells,&fresh.cells);

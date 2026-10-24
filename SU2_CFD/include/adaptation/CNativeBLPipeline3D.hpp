@@ -402,7 +402,11 @@ inline EngineResult RunEvent(World& world, const Owned& cells, const std::vector
       return std::max(1.0, v);
     };
     if (!chain) {
+      // DC-16: W selects its long wall edges by the vertex-tensor estimate (exact integration only above 1.2)
+      dc10::wallPrefilter = true; dc10::wallEstimate = [&](Id a, Id b) { return dc13::EstimateLength(*s, dc13::eventTensors, a, b); };
       const auto w = dc10::PhaseW10(*s, wWork, .08 * usable, log);workDone += w.work;
+      dc10::wallPrefilter = false; dc10::wallEstimate = nullptr;
+      json << ",\"W_prefiltered\":" << w.prefiltered;
       json << ",\"W\":" << JsonStage(w);
       phase("W", "splits=" + std::to_string(w.splits) + " outcome=" + w.outcome);
       if (!memoryOk("W", why)) return finish(why);
