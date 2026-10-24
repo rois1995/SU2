@@ -27,6 +27,8 @@ inline size_t roomRings=2;            // free vertices of the needy above stars 
 inline size_t roomMaxVertices=400000; // bound of one region (larger regions are cut at the bound, in ring order)
 inline double roomEuclidRatio=.25;    // pseudo-time kernel: Euclidean mean ratio may not drop below this x its old value
 
+inline long RssKB(){long pages=0,resident=0;std::ifstream in("/proc/self/statm");in>>pages>>resident;return resident*(sysconf(_SC_PAGESIZE)/1024);}
+inline long rssCeilingKB=long(16)<<20;  // G stops planning above this resident set (machine safety; reported as limit:memory)
 /*! Current RSS and malloc in-use bytes (diagnostics of the DC-15 G memory jump). */
 inline std::string MemoryLine(const State& s) {
   long pages=0,resident=0;{std::ifstream in("/proc/self/statm");in>>pages>>resident;}

@@ -109,25 +109,42 @@ inline bool CavityFirstChild(State& s,const Rows10& rows,Id cell,const Face& key
     std::set<Id> in{cell};bool ok=true;
     if(columnCell(cell)){why="the face cell is a column cell";return false;}
     for(Id id:Locate(s,p)){if(id!=cell&&(WallChild(s,id)||columnCell(id))){ok=false;why="target inside another first child or a column";break;}in.insert(id);}
-    for(unsigned pass=0;ok&&pass<256;++pass) {
-      std::map<Face,std::pair<Face,Id>> skin;std::map<Face,int> count;
-      for(Id id:in){const auto f=CellFaces(s.mesh.at(id).cell);for(unsigned k=0;k<4;++k){const auto kk=Sorted(f[k]);++count[kk];skin[kk]={f[k],id};}}
+    // star-shaped visibility cavity of p (hidden faces are crossed)
+    auto visible=[&]()->bool{
+      for(unsigned pass=0;pass<256;++pass) {
+        std::map<Face,std::pair<Face,Id>> skin;std::map<Face,int> count;
+        for(Id id:in){const auto f=CellFaces(s.mesh.at(id).cell);for(unsigned k=0;k<4;++k){const auto kk=Sorted(f[k]);++count[kk];skin[kk]={f[k],id};}}
+        bool grew=false;
+        for(const auto& row:skin){if(count.at(row.first)!=1)continue;const auto& f=row.second.first;const auto& own=s.mesh.at(row.second.second);
+          std::array<Point,3> q;for(unsigned k=0;k<3;++k)for(auto nn:own.cell.v)if(nn.id==f[k])q[k]=nn.p;
+          if(Orientation(p,q[0],q[1],q[2])>0)continue;
+          const auto faces=CellFaces(own.cell);bool phys=false;for(unsigned k=0;k<4;++k)if(Sorted(faces[k])==row.first&&own.physical[k].present)phys=true;
+          if(phys){why="target cannot see a physical face";return false;}
+          Id nb=UINT64_MAX;for(Id id:Star(s,{f[0],f[1]}))if(!in.count(id)&&CellHas(s.mesh.at(id).cell,f[2]))nb=id;
+          if(nb==UINT64_MAX){why="no neighbour across a hidden face";return false;}
+          if(WallChild(s,nb)||columnCell(nb)){why="visibility needs another first child or a column cell";return false;}
+          in.insert(nb);grew=true;if(in.size()>MaximumCavityCells){why="cavity exceeds 64 cells";return false;}break;}
+        if(!grew)return true;
+      }
+      why="visibility did not close";return false;};
+    if(!ok||!visible())continue;
+    // DC-16 (B2): a cone cell that is not valid (a metric sliver over a nearly coplanar skin face) widens the cavity
+    // across that face (an admissible neighbour), then visibility closes again; at most 8 widenings
+    std::vector<Id> ids;Patch old,fresh;bool built=false;
+    for(unsigned widen=0;widen<=8;++widen) {
+      ids.assign(in.begin(),in.end());try{old=PatchOf(s,ids);}catch(const std::exception& x){why=x.what();break;}
+      fresh=Patch{};fresh.surface=old.surface;fresh.parameters=old.parameters;
+      try{if(!Cone(old.cells,{s.next_node,p},s.next_cell,fresh.cells,why))break;s.reference->ExportParameters(fresh);}catch(const std::exception& x){why=x.what();break;}
+      std::vector<Face> thin;for(const auto& c:fresh.cells)if(!Valid(Shape(s,c))){Face f{};unsigned k=0;for(auto nn:c.v)if(nn.id!=s.next_node&&k<3)f[k++]=nn.id;thin.push_back(f);}
+      if(thin.empty()){built=true;break;}
+      if(widen==8){why="cone cells stay invalid after widening";break;}
       bool grew=false;
-      for(const auto& row:skin){if(count.at(row.first)!=1)continue;const auto& f=row.second.first;const auto& own=s.mesh.at(row.second.second);
-        std::array<Point,3> q;for(unsigned k=0;k<3;++k)for(auto nn:own.cell.v)if(nn.id==f[k])q[k]=nn.p;
-        if(Orientation(p,q[0],q[1],q[2])>0)continue;
-        const auto faces=CellFaces(own.cell);bool phys=false;for(unsigned k=0;k<4;++k)if(Sorted(faces[k])==row.first&&own.physical[k].present)phys=true;
-        if(phys){ok=false;why="target cannot see a physical face";break;}
-        Id nb=UINT64_MAX;for(Id id:Star(s,{f[0],f[1]}))if(!in.count(id)&&CellHas(s.mesh.at(id).cell,f[2]))nb=id;
-        if(nb==UINT64_MAX){ok=false;why="no neighbour across a hidden face";break;}
-        if(WallChild(s,nb)||columnCell(nb)){ok=false;why="visibility needs another first child or a column cell";break;}
-        in.insert(nb);grew=true;if(in.size()>MaximumCavityCells){ok=false;why="cavity exceeds 64 cells";}break;}
-      if(!grew)break;
+      for(const auto& f:thin){Id nb=UINT64_MAX;for(Id id:Star(s,{f[0],f[1]}))if(!in.count(id)&&CellHas(s.mesh.at(id).cell,f[2]))nb=id;
+        if(nb==UINT64_MAX||WallChild(s,nb)||columnCell(nb))continue;in.insert(nb);grew=true;}
+      if(!grew){why="an invalid cone cell sits on a face that cannot be crossed";break;}
+      if(in.size()>MaximumCavityCells||!visible()){if(why.empty())why="cavity exceeds 64 cells";break;}
     }
-    if(!ok)continue;
-    std::vector<Id> ids(in.begin(),in.end());Patch old;try{old=PatchOf(s,ids);}catch(const std::exception& x){why=x.what();continue;}
-    Patch fresh;fresh.surface=old.surface;fresh.parameters=old.parameters;
-    try{if(!Cone(old.cells,{s.next_node,p},s.next_cell,fresh.cells,why))continue;s.reference->ExportParameters(fresh);}catch(const std::exception& x){why=x.what();continue;}
+    if(!built)continue;
     {std::set<Id> before,after;for(const auto& x:old.cells)for(auto nn:x.v)if(registered.count(nn.id))before.insert(nn.id);
      for(const auto& x:fresh.cells)for(auto nn:x.v)after.insert(nn.id);bool kept=true;for(Id x:before)kept=kept&&after.count(x);
      if(!kept){why="the cone would remove a registered identity";continue;}}

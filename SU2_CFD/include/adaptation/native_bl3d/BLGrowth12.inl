@@ -360,17 +360,32 @@ inline Growth PhaseG(State& s,Rows10& rows,double seconds,std::ostream& log,cons
     std::vector<size_t> active;for(size_t i=0;i<G.columns.size();++i)if(!G.columns[i].stopped&&G.columns[i].stack.size()==k)active.push_back(i);
     if(active.empty())break;
     std::map<Id,V> plan;std::map<Id,size_t> owner;
+    // DC-16 memory diagnosis: resident-set deltas of the planning calls (largest ones with their column) and a guard
+    const auto tp=Clock::now();const long rss0=dc16::RssKB();std::array<long,3> grown{0,0,0};std::vector<std::pair<long,std::string>> worst;
+    auto note=[&](int which,long before,const Column& c,const std::string& what){const long d=dc16::RssKB()-before;grown[which]+=d;
+      if(d>=65536){std::ostringstream w;const V x=Of(NodePoint(s,c.top));w<<(which==0?"NextLayer":which==1?"TangentialSize":"GeometryLength")<<" +"<<d<<" kB at top "<<c.top
+        <<" ("<<double(x.x)<<","<<double(x.y)<<","<<double(x.z)<<") stack "<<c.stack.size()<<" "<<what;worst.push_back({d,w.str()});}};
     for(size_t i:active) {
       auto& c=G.columns[i];if(!s.vertex_cells.count(c.top)){stop(c,"s3 top vanished",INFINITY);continue;}
+      if(dc16::RssKB()>dc16::rssCeilingKB){G.outcome="limit:memory";break;}
+      long r=dc16::RssKB();
       Step st;try{st=NextLayer(s,c);}catch(const std::exception& e){st.ok=false;st.stop=std::string("s3 law: ")+e.what();}
+      note(0,r,c,st.ok?"ok":st.stop);
       if(!st.ok){stop(c,st.stop,st.stop.rfind("s1",0)==0?st.d:INFINITY);continue;}
-      long double tangential=INFINITY;try{tangential=TangentialSize(s,st.u,c.dir);}catch(const std::exception&){}
+      r=dc16::RssKB();long double tangential=INFINITY;try{tangential=TangentialSize(s,st.u,c.dir);}catch(const std::exception&){}
+      note(1,r,c,"");
       if(st.next-st.d>=tangential){stop(c,"s2 isotropy",st.d);continue;}
-      long double l=-1;try{l=GeometryLength(s,NodePoint(s,c.top),Pt(st.u));}catch(const std::exception&){l=-1;}
+      r=dc16::RssKB();long double l=-1;try{l=GeometryLength(s,NodePoint(s,c.top),Pt(st.u));}catch(const std::exception&){l=-1;}
+      note(2,r,c,"");
       if(l<0){stop(c,"s3 unmeasurable column segment",INFINITY);continue;}
       if(l<.6L||l>1.5L){stop(c,std::string("s1 metric ")+(l<.6L?"coarser":"finer")+" than the law",st.d);continue;}
       plan[c.top]=st.u;owner[c.top]=i;
     }
+    std::sort(worst.rbegin(),worst.rend());
+    std::cout<<"DC16 G plan "<<k<<" active="<<active.size()<<" planned="<<plan.size()<<" seconds="<<Seconds(tp)<<" rss_kB "<<rss0<<"->"<<dc16::RssKB()
+             <<" grown_kB NextLayer="<<grown[0]<<" Tangential="<<grown[1]<<" Geometry="<<grown[2]<<std::endl;
+    for(size_t w=0;w<worst.size()&&w<6;++w)std::cout<<"DC16 G plan worst "<<worst[w].second<<std::endl;
+    if(G.outcome=="limit:memory")break;
     if(plan.empty())break;
     // DC-16: room for the layer (deformation of the free volume above the active front, one-unit commit)
     if(dc16::roomStep){try{dc16::MakeRoom(s,below,fixed,plan,log);}catch(const std::exception& e){++dc16::roomStats.why[std::string("exception: ")+e.what()];}}
