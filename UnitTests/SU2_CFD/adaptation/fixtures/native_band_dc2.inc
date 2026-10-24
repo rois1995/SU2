@@ -9,8 +9,7 @@
 #include <cstdio>
 namespace swbi_dc2 {
 using namespace SU2Native3D;
-using Clock=std::chrono::steady_clock;
-double Seconds(Clock::time_point t){return std::chrono::duration<double>(Clock::now()-t).count();}
+// DC-14: Clock, Seconds and Category moved to SU2_CFD/include/adaptation/native_bl3d/BLState.inl (production).
 template<class T> std::vector<T> ReadRaw(const std::string& path,size_t count) {
   std::ifstream in(path,std::ios::binary|std::ios::ate);if(!in)throw std::runtime_error("DC2 missing "+path);
   if(size_t(in.tellg())!=count*sizeof(T))throw std::runtime_error("DC2 size mismatch "+path);
@@ -26,16 +25,6 @@ bool Complete(const std::string& path,size_t bytes){std::ifstream in(path,std::i
 void WriteText(const std::string& path,const std::string& text) {
   {std::ofstream out(path+".tmp");out<<text;if(!out)throw std::runtime_error("DC2 cannot write "+path);}
   if(std::rename((path+".tmp").c_str(),path.c_str()))throw std::runtime_error("DC2 cannot rename "+path);
-}
-std::string Category(const std::string& what) {  // Reason histogram key: message with numbers/ids replaced by '#'.
-  std::string out;
-  for(size_t i=0;i<what.size();++i) {
-    const char c=what[i];const bool digit=std::isdigit(static_cast<unsigned char>(c));
-    const bool inner=!out.empty()&&out.back()=='#'&&(c=='.'||c=='e'||c=='-'||c=='+')&&i+1<what.size()&&
-                     (std::isdigit(static_cast<unsigned char>(what[i+1]))||what[i+1]=='-'||what[i+1]=='+');
-    if(digit||inner){if(out.empty()||out.back()!='#')out+='#';}else out+=c;
-  }
-  return out.substr(0,160);
 }
 struct Case {
   std::string name;double h0=0,growth=0,thickness=0,hs=0,core=0;int wall=0;

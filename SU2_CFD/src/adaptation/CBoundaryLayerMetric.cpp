@@ -2022,7 +2022,7 @@ std::shared_ptr<CBoundaryLayerMetric> CBoundaryLayerMetric::FromNativeReference(
 }
 
 std::shared_ptr<CBoundaryLayerMetric> CBoundaryLayerMetric::FromNativeReference(
-    const SU2Native3D::ReferenceState& reference, const CConfig& config) {
+    const SU2Native3D::ReferenceState& reference, const CConfig& config, double featureAngle) {
   if (!reference.original) throw std::invalid_argument("Native3D BL needs immutable original geometry.");
   std::vector<Wall> walls;
   for (unsigned short b=0;b<config.GetnAdap_BL();++b) {
@@ -2064,7 +2064,7 @@ std::shared_ptr<CBoundaryLayerMetric> CBoundaryLayerMetric::FromNativeReference(
     for(const auto& node:face.v){partner.coord.push_back(node.p.x);partner.coord.push_back(node.p.y);partner.coord.push_back(node.p.z);}
     options.faces.push_back(std::move(partner));
   }
-  return std::make_shared<CBoundaryLayerMetric>(3,std::move(walls),config.GetAdap_Angle(),std::move(options));
+  return std::make_shared<CBoundaryLayerMetric>(3,std::move(walls),featureAngle<0?config.GetAdap_Angle():su2double(featureAngle),std::move(options));
 }
 
 namespace {

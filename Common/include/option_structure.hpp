@@ -1287,10 +1287,14 @@ enum class ADAP_BL_METHOD {
   METRIC,   /*!< \brief The boundary-layer metric is intersected with the sensor metric, one remesh (default). */
   TWO_PASS, /*!< \brief Pass A resets the near-wall band and resamples the wall on the cycle-0 reference wall with a
                  curvature-capped tangential size (2D), pass B remeshes with the boundary-layer metric. */
+  FIRST_ROW, /*!< \brief Native 3D surface-first construction: wall resolve, first row, growth layers, volume and
+                  metric optimizer (ADAP_REMESHER= NATIVE_CAVITY, serial worker); with ADAP_BL_H0_RAMP the first row
+                  is halved between cycles. */
 };
 static const MapType<std::string, ADAP_BL_METHOD> Adap_BL_Method_Map = {
   MakePair("METRIC", ADAP_BL_METHOD::METRIC)
   MakePair("TWO_PASS", ADAP_BL_METHOD::TWO_PASS)
+  MakePair("FIRST_ROW", ADAP_BL_METHOD::FIRST_ROW)
 };
 
 /*!

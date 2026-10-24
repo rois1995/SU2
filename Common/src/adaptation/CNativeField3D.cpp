@@ -36,8 +36,8 @@ class Timer {
   std::chrono::steady_clock::time_point start;
 };
 std::array<double, 6> Components(Tensor m) { return {m.xx, m.xy, m.xz, m.yy, m.yz, m.zz}; }
-void Canonical(std::vector<DonorCell>& original) {
-  if (original.size() > MaximumDonors) throw std::invalid_argument("Native 3D original donor patch exceeds budget.");
+void Canonical(std::vector<DonorCell>& original, size_t limit) {
+  if (original.size() > limit) throw std::invalid_argument("Native 3D original donor patch exceeds budget.");
   std::sort(original.begin(), original.end(), [](const DonorCell& a, const DonorCell& b) { return a.Key() < b.Key(); });
   for (size_t i = 1; i < original.size(); ++i)
     if (original[i].Key() == original[i - 1].Key())
@@ -73,11 +73,11 @@ size_t FrozenField::Hash::operator()(const std::array<double, 3>& point) const {
 }
 FrozenField::FrozenField(std::vector<DonorCell> original, MetricComposition combine, bool enabled,
                          std::vector<Id> components, MetricEdgeBreakpoints breakpoints,
-                         std::shared_ptr<const FrozenMetricIdentity> authority,bool reuse)
+                         std::shared_ptr<const FrozenMetricIdentity> authority,bool reuse,size_t limit)
     : donors(std::move(original)), composition(std::move(combine)), edge_breakpoints(std::move(breakpoints)), timings(enabled),reuse_interior(reuse),
       identity(authority ? std::move(authority) : std::make_shared<const FrozenMetricIdentity>()) {
   Timer timer(stats.build_seconds, timings);
-  Canonical(donors);
+  Canonical(donors, limit);
   std::sort(components.begin(),components.end());
   if (std::binary_search(components.begin(),components.end(),UINT64_MAX))
     throw std::invalid_argument("Original native3D source cannot be declared as an extension component.");

@@ -227,6 +227,18 @@ CRemeshResult CNativeRemesher3D::Remesh(const CConfig& config, const CGeometry& 
     stats.maximum_native_bytes = std::max(stats.maximum_native_bytes, stats.imported.maximum_native_bytes);
     phase(2);
     if (!ready) break;
+    // A construction works on the mapped authority: a plain faceted original is promoted on EVERY rank (deterministic,
+    // identical inputs), so later parameter synchronization sees one authority kind on all ranks.
+    if (construction && !pending->state.original->Mapped() && pending->state.original->Analytic().empty() &&
+        pending->state.original->Affine().empty()) {
+      CLocalFailure promotion;
+      try {
+        double declared=0;
+        pending->state.original=SU2Native3D::PromoteFacetedReference(pending->state.original,pending->state.facets,1e-13,declared);
+        control.surface_tolerance=std::max(control.surface_tolerance,declared);
+      } catch(const std::exception& e){promotion.Set(2,0,e.what());}
+      if(!vote(!promotion.Failed(),promotion.message))break;
+    }
     MetricComposition composition;double frozen_core=0;
     if (config.GetnAdap_BL()) {
       if (!vote(bool(compositionFactory),"Native3D configured BL requires an actual-query geometric policy.")) break;
@@ -359,6 +371,18 @@ CRemeshResult CNativeRemesher3D::Remesh(const CConfig& config, const CGeometry& 
             held(), worker_source == &imported.original ? 0 : transfer_memory::Bytes(imported.original));
         try {
           const auto begin = workers.seconds();
+          if (construction) {
+            // ADAP_BL_METHOD= FIRST_ROW: one construction replaces Refine/Coarsen (its own acceptance and report).
+            stats.construction = true;
+            auto built = construction(workers, working, *worker_source, pending->state, composition, kernel, stats.construction_report);
+            stats.refine = built.stats;
+            valid = built.valid;
+            if (valid && built.reference) pending->state.original = std::move(built.reference);
+            detail = built.reason;
+            working.swap(built.cells);
+            Owned().swap(built.cells);
+            stats.phases[8] += workers.seconds() - begin;
+          } else {
           auto refined = Refine(workers, working, *worker_source, *pending->state.original, composition, kernel);
           stats.refine = refined.stats;
           const bool rebuilt_domain=refined.rebuilt_domain;
@@ -392,6 +416,7 @@ CRemeshResult CNativeRemesher3D::Remesh(const CConfig& config, const CGeometry& 
             std::vector<SplitRecord>().swap(coarse.splits);
             std::vector<Edge>().swap(coarse.collapses);
             stats.phases[9] += workers.seconds() - begin_coarse;
+          }
           }
         } catch (const CElectedFailure& e) {
           valid = false;
@@ -538,10 +563,11 @@ CRemeshResult CNativeRemesher3D::Remesh(const CConfig& config, const CGeometry& 
         };
       }
       result.status = CRemeshResult::Status::COMPLETE;
-      result.onAccepted = [state = reference, pending]() {
+      result.onAccepted = [state = reference, pending, accepted = constructionAccepted]() {
         if (!pending->published) {
           std::swap(*state, pending->state);
           pending->published = true;
+          if (accepted) accepted();
         }
       };
       stats.final_cells = result.slices.nElemGlobal;

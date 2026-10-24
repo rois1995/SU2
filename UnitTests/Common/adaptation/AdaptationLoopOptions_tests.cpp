@@ -419,3 +419,62 @@ TEST_CASE("Boundary-layer metric options", "[Adaptation]") {
     CHECK(layers.empty());
   }
 }
+
+TEST_CASE("First-height ramp ADAP_BL_H0_RAMP of ADAP_BL_METHOD= FIRST_ROW", "[Adaptation][ConfigBLRamp]") {
+  const std::string options =
+      "SOLVER= NAVIER_STOKES\nMESH_FORMAT= BOX\nINIT_OPTION= TD_CONDITIONS\nREYNOLDS_NUMBER= 1e6\n"
+      "MARKER_HEATFLUX= (z_minus, 0.0, z_plus, 0.0)\nMARKER_FAR= (x_minus, x_plus, y_minus, y_plus)\n"
+      "COMPUTE_METRIC= YES\nADAP_SENSOR= (MACH)\nADAP_HMIN= 1e-6\nADAP_HMAX= 1\nADAP_REMESHER= NATIVE_CAVITY\n"
+      "ADAP_BL_MARKER= (z_minus, z_plus)\nADAP_BL_FIRST_HEIGHT= (1e-4, 2e-4)\nADAP_BL_GROWTH= (1.2)\nADAP_BL_THICKNESS= (0.1)\n"
+      "ADAP_BL_PROTECT_DISTANCE= 3e-4\n";
+  auto make = [&](const std::string& extra) {
+    std::stringstream ss(options + extra);
+    auto* origBuf = std::cout.rdbuf(nullptr);
+    auto config = std::make_unique<CConfig>(ss, SU2_COMPONENT::SU2_CFD, false);
+    std::cout.rdbuf(origBuf);
+    return config;
+  };
+  SECTION("Default: no ramp, true heights, final event") {
+    const auto config = make("ADAP_BL_METHOD= FIRST_ROW\n");
+    CHECK(config->GetAdap_BL_H0Ramp() == 0);
+    CHECK(config->GetAdap_BL_RampFactor() == 1.0);
+    CHECK(config->GetAdap_BL_RampFinal());
+    CHECK(config->GetAdap_BL(0).firstHeight == 1e-4);
+    CHECK(config->GetAdap_BL_ProtectDistance() == 3e-4);
+  }
+  SECTION("N = 2 with three cycles: x4, x2, x1 per marker, protect distance alike") {
+    auto config = make("ADAP_BL_METHOD= FIRST_ROW\nADAP_LOOP= YES\nADAP_SIZES= (1000, 2000, 4000)\nADAP_BL_H0_RAMP= 2\n");
+    REQUIRE(config->GetAdap_BL_H0Ramp() == 2);
+    const double expected[3] = {4, 2, 1};
+    for (unsigned long k = 0; k < 3; ++k) {
+      config->SetAdap_BL_RampEvent(k);
+      CHECK(config->GetAdap_BL_RampEvent() == k);
+      CHECK(config->GetAdap_BL_RampFactor() == expected[k]);
+      CHECK(config->GetAdap_BL_RampFinal() == (k == 2));
+      CHECK(config->GetAdap_BL(0).firstHeight == Approx(expected[k] * 1e-4));
+      CHECK(config->GetAdap_BL(1).firstHeight == Approx(expected[k] * 2e-4));
+      CHECK(config->GetAdap_BL_True(0).firstHeight == 1e-4);
+      CHECK(config->GetAdap_BL_True(1).firstHeight == 2e-4);
+      CHECK(config->GetAdap_BL(1).thickness == 0.1);
+      CHECK(config->GetAdap_BL_ProtectDistance() == Approx(expected[k] * 3e-4));
+    }
+    config->SetAdap_BL_RampEvent(7);  // events past N keep the true heights
+    CHECK(config->GetAdap_BL_RampFactor() == 1.0);
+    CHECK(config->GetAdap_BL(0).firstHeight == 1e-4);
+  }
+  SECTION("Validation: method, loop, number of cycles, ramped heights") {
+    std::vector<CAdapBoundaryLayer> layers(1);
+    layers[0].marker = "w"; layers[0].firstHeight = 1e-4; layers[0].growth = 1.2; layers[0].thickness = 0.1;
+    auto contains = [](const std::string& text, const std::string& part) { return text.find(part) != std::string::npos; };
+    CHECK(CConfig::CheckAdap_BL_H0Ramp(0, false, false, 0, layers, 0).empty());
+    CHECK(CConfig::CheckAdap_BL_H0Ramp(3, true, true, 4, layers, 3e-4).empty());
+    CHECK(contains(CConfig::CheckAdap_BL_H0Ramp(3, false, true, 4, layers, 0), "requires ADAP_BL_METHOD= FIRST_ROW"));
+    CHECK(contains(CConfig::CheckAdap_BL_H0Ramp(3, true, false, 4, layers, 0), "requires ADAP_LOOP= YES"));
+    const auto few = CConfig::CheckAdap_BL_H0Ramp(3, true, true, 3, layers, 0);
+    CHECK(contains(few, "needs more adaptation cycles than 3"));
+    CHECK(contains(few, "the loop has 3"));
+    CHECK(contains(CConfig::CheckAdap_BL_H0Ramp(3, true, true, 1, layers, 0), "the loop has 1"));
+    CHECK(contains(CConfig::CheckAdap_BL_H0Ramp(10, true, true, 11, layers, 0), "at most ADAP_BL_THICKNESS"));
+    CHECK(contains(CConfig::CheckAdap_BL_H0Ramp(61, true, true, 70, layers, 0), "at most 60"));
+  }
+}

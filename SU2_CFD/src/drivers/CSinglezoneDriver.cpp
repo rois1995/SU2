@@ -25,6 +25,8 @@
  * License along with SU2. If not, see <http://www.gnu.org/licenses/>.
  */
 
+// DC-14: the FIRST_ROW construction (inline headers) before any using-directive of the driver headers.
+#include "../../include/adaptation/CNativeBLPipeline3D.hpp"
 #include "../../include/adaptation/CNativeNormalizationStage3D.hpp"
 #include "../../include/drivers/CSinglezoneDriver.hpp"
 #include "../../include/definition_structure.hpp"
@@ -328,6 +330,63 @@ std::unique_ptr<CRemesher> CSinglezoneDriver::MakeRemesher() {
         if(!CPassiveComm::Allreduce(int(original==&geometry),CPassiveComm::Op::MIN))return SU2Native3D::NormalizationStage3D{};
         return NativeNormalizationStage3D(*solver_container[ZONE_0][INST_0][MESH_0][FLOW_SOL],*original,config,*nativeReference3D,sensor);
       };
+      if(config_container[ZONE_0]->GetKind_Adap_BL_Method()==ADAP_BL_METHOD::FIRST_ROW) {
+        /*--- FIRST_ROW: one per-event option-A target policy shared by the reassessment and the construction; no
+         *    candidate normalization stage (it composes the full-D1 law); the construction replaces Refine/Coarsen. ---*/
+        if(!nativeFirstRow3D) {
+          nativeFirstRow3D=std::make_shared<SU2NativeBLPipeline3D::Continuation>();
+          const auto* config=config_container[ZONE_0];
+          std::string why;
+          if(SU2NativeBLPipeline3D::LoadContinuation(config->GetMesh_FileName()+".native_rows",*nativeFirstRow3D,why) && rank==MASTER_NODE)
+            cout<<"FIRST_ROW: continuing the first row of "<<config->GetMesh_FileName()<<".native_rows."<<endl;
+        }
+        auto slot=std::make_shared<std::shared_ptr<SU2NativeBLPipeline3D::TargetPolicy>>();
+        auto firstRowTarget=[this,slot](const CConfig& config,const SU2Native3D::ReferenceState& state,double core,
+                                         SU2Native3D::EngineOptions& control) -> SU2Native3D::MetricComposition {
+          double parameter=-1;
+          if(config.GetAdap_BL_Budget()) {
+            if(nativeOuterNormalParameter>=0)parameter=nativeOuterNormalParameter;
+            else {
+              const auto family=solver_container[ZONE_0][INST_0][MESH_0][FLOW_SOL]->GetNativeMetricFamily3D();
+              if(!family || !family->layers || !family->layers->GetOuterNormal().frozen)
+                throw std::invalid_argument("FIRST_ROW with ADAP_BL_BUDGET requires the selected frozen outer-normal profile of the metric.");
+              parameter=family->layers->GetOuterNormal().parameter;
+            }
+          }
+          auto policy=SU2NativeBLPipeline3D::MakeTargetPolicy(config,state,core,parameter);
+          for(unsigned short b=0;b<config.GetnAdap_BL();++b) {
+            const auto& layer=config.GetAdap_BL(b);
+            const auto marker=std::find(state.marker_names.begin(),state.marker_names.end(),layer.marker);
+            if(marker==state.marker_names.end())throw std::invalid_argument("Native3D BL marker has no retained geometry.");
+            control.wall_heights[int(marker-state.marker_names.begin())]=SU2_TYPE::GetValue(layer.firstHeight);
+            control.region_walls[int(marker-state.marker_names.begin())]={SU2_TYPE::GetValue(layer.firstHeight),
+                SU2_TYPE::GetValue(layer.growth),SU2_TYPE::GetValue(layer.thickness)};
+          }
+          control.caller_bytes=transfer_memory::Add(control.caller_bytes,policy->StorageBytes());
+          control.edge_breakpoints=policy->Edges();
+          *slot=policy;
+          return policy->Composition();
+        };
+        auto remesher=std::make_unique<CNativeRemesher3D>(nativeReference3D,SU2Native3D::EngineOptions{},std::move(firstRowTarget));
+        auto continuation=nativeFirstRow3D;
+        remesher->SetConstruction([this,slot,continuation](SU2Native3D::World& world,const SU2Native3D::Owned& cells,
+            const std::vector<SU2Native3D::DonorCell>& donors,const SU2Native3D::ReferenceState& state,SU2Native3D::MetricComposition,
+            const SU2Native3D::EngineOptions& kernel,std::string& report) {
+          const auto* config=config_container[ZONE_0];
+          if(!*slot)throw std::runtime_error("FIRST_ROW construction without its target policy.");
+          SU2NativeBLPipeline3D::EventControls ctl;
+          ctl.seconds=kernel.maximum_seconds;ctl.memory_ceiling=kernel.memory_ceiling;
+          ctl.final_cycle=config->GetAdap_BL_RampFinal();ctl.event=config->GetAdap_BL_RampEvent();ctl.ramp_factor=config->GetAdap_BL_RampFactor();
+          ctl.report_prefix=nativeConstructionPrefix.empty()?config->GetMesh_Out_FileName()+"_bl_event"+std::to_string(ctl.event):nativeConstructionPrefix;
+          ctl.export_mesh=nativeConstructionExport;
+          continuation->pending.reset();
+          return SU2NativeBLPipeline3D::RunEvent(world,cells,donors,state,**slot,*config,*continuation,ctl,report);
+        },[continuation]() {
+          continuation->committed=continuation->pending;continuation->source="memory";
+        });
+        remesher->PrepareReference(*config_container[ZONE_0],*geometry_container[ZONE_0][INST_0][MESH_0]);
+        return remesher;
+      }
       auto remesher=std::make_unique<CNativeRemesher3D>(nativeReference3D,SU2Native3D::EngineOptions{},std::move(constraints),std::move(normalization));
       if(config_container[ZONE_0]->GetnAdap_BL())
         remesher->PrepareReference(*config_container[ZONE_0],*geometry_container[ZONE_0][INST_0][MESH_0]);
@@ -429,6 +488,13 @@ void CSinglezoneDriver::RunAdaptationLoop() {
 
     config->SetAdap_MetricLevel(config->GetAdap_CycleLevel(min(iCycle + 1, nCycles)));
     output->SetAdaptationCycle(iCycle, iterOffset);
+    /*--- ADAP_BL_H0_RAMP: the metric of this solve (made in its postprocessing) and the remesh use h0_k of event k. ---*/
+    if (config->GetAdap_BL_H0Ramp() && iCycle < nCycles) {
+      config->SetAdap_BL_RampEvent(iCycle);
+      if (rank == MASTER_NODE)
+        cout << "First-height ramp: remesh event " << iCycle << " uses " << config->GetAdap_BL_RampFactor()
+             << " x ADAP_BL_FIRST_HEIGHT" << (config->GetAdap_BL_RampFinal() ? " (true height: final gates)." : " (intermediate).") << endl;
+    }
 
     if (rank == MASTER_NODE) {
       const auto cycle = config->GetMGCycle();
@@ -1681,6 +1747,8 @@ void CSinglezoneDriver::WriteAdaptedMesh(unsigned long iCycle, unsigned long fir
     if(geometry_container[ZONE_0][INST_0][MESH_0]->GetnDim()==3){
       if(!nativeReference3D || !nativeReference3D->original)SU2_MPI::Error("Native3D mesh output requires its retained geometry reference.",CURRENT_FUNCTION);
       SU2Native3D::WriteReference(fileName+config->GetMesh_Out_FileExtension()+".native_ref",*nativeReference3D);
+      if(nativeFirstRow3D && nativeFirstRow3D->committed && rank==MASTER_NODE)
+        SU2NativeBLPipeline3D::WriteContinuation(fileName+config->GetMesh_Out_FileExtension()+".native_rows",*nativeFirstRow3D);
       profile.Mark(1);
       profile.Report(config->GetTimeIter(), {{"mesh", "reference"}});
       return;

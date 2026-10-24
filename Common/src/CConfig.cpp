@@ -3341,6 +3341,11 @@ void CConfig::SetConfig_Options() {
    * metric) or TWO_PASS (2D: pass A resets the near-wall band and resamples the wall on the reference wall with a
    * curvature-capped tangential size, pass B remeshes with the boundary-layer metric) \ingroup Config */
   addEnumOption("ADAP_BL_METHOD", Kind_Adap_BL_Method, Adap_BL_Method_Map, ADAP_BL_METHOD::METRIC);
+  /*!\brief ADAP_BL_H0_RAMP \n DESCRIPTION: First-height ramp N of ADAP_BL_METHOD= FIRST_ROW: remesh event k of the
+   * adaptation loop uses max(h0, 2^(N-k) h0) for every ADAP_BL_FIRST_HEIGHT (and ADAP_BL_PROTECT_DISTANCE scaled alike),
+   * halved each cycle; intermediate cycles accept a valid mesh with the ramped first height and report the deficits
+   * against the final gates, the cycles with the true first height must pass the final gates. 0 = off. \ingroup Config*/
+  addUnsignedLongOption("ADAP_BL_H0_RAMP", Adap_BL_H0Ramp, 0);
   /*!\brief ADAP_BL_CURVATURE_FACTOR \n DESCRIPTION: TWO_PASS: wall tangential size at most c sqrt(2 R h0) (R radius of
    * curvature of the reference wall, h0 the first height) \ingroup Config */
   addDoubleOption("ADAP_BL_CURVATURE_FACTOR", Adap_BL_CurvatureFactor, 0.7);
@@ -6691,8 +6696,8 @@ void CConfig::SetPostprocessing(SU2_COMPONENT val_software, unsigned short val_i
     SU2_MPI::Error("ADAP_BL_FIRST_HEIGHT_TOL must lie strictly between 0 and 1.", CURRENT_FUNCTION);
   if (Adap_BL_Budget) {
     if ((val_nDim != 0 && val_nDim != 3) || Kind_Adap_Remesher != ADAP_REMESHER::NATIVE_CAVITY ||
-        Kind_Adap_BL_Method != ADAP_BL_METHOD::METRIC || Adap_BL.empty())
-      SU2_MPI::Error("ADAP_BL_BUDGET currently requires native3D METRIC and ADAP_BL_MARKER.", CURRENT_FUNCTION);
+        (Kind_Adap_BL_Method != ADAP_BL_METHOD::METRIC && Kind_Adap_BL_Method != ADAP_BL_METHOD::FIRST_ROW) || Adap_BL.empty())
+      SU2_MPI::Error("ADAP_BL_BUDGET currently requires native3D METRIC or FIRST_ROW and ADAP_BL_MARKER.", CURRENT_FUNCTION);
     if (!(Adap_BL_ProtectDistance > 0) || !std::isfinite(SU2_TYPE::GetValue(Adap_BL_ProtectDistance)) ||
         !(Adap_BL_OuterGrowthMax >= 1) || !std::isfinite(SU2_TYPE::GetValue(Adap_BL_OuterGrowthMax)))
       SU2_MPI::Error("ADAP_BL_BUDGET needs explicit finite positive ADAP_BL_PROTECT_DISTANCE and ADAP_BL_OUTER_GROWTH_MAX >= 1.", CURRENT_FUNCTION);
@@ -6711,6 +6716,26 @@ void CConfig::SetPostprocessing(SU2_COMPONENT val_software, unsigned short val_i
                      CURRENT_FUNCTION);
   }
 
+  /*--- ADAP_BL_METHOD= FIRST_ROW (native 3D construction) and its first-height ramp ADAP_BL_H0_RAMP. ---*/
+  if (Kind_Adap_BL_Method == ADAP_BL_METHOD::FIRST_ROW) {
+    if (Kind_Adap_Remesher != ADAP_REMESHER::NATIVE_CAVITY)
+      SU2_MPI::Error("ADAP_BL_METHOD= FIRST_ROW requires ADAP_REMESHER= NATIVE_CAVITY.", CURRENT_FUNCTION);
+    if (Adap_BL.empty()) SU2_MPI::Error("ADAP_BL_METHOD= FIRST_ROW needs ADAP_BL_MARKER.", CURRENT_FUNCTION);
+    if (val_nDim == 2) SU2_MPI::Error("ADAP_BL_METHOD= FIRST_ROW is a 3D construction (2D uses METRIC).", CURRENT_FUNCTION);
+    if (std::abs(SU2_TYPE::GetValue(Adap_BL_FirstHeightTol) - 0.10) > 1e-12)
+      SU2_MPI::Error("ADAP_BL_METHOD= FIRST_ROW currently implements ADAP_BL_FIRST_HEIGHT_TOL= 0.10 only.", CURRENT_FUNCTION);
+  }
+  Adap_BL_True = Adap_BL;
+  Adap_BL_ProtectDistanceTrue = Adap_BL_ProtectDistance;
+  {
+    unsigned long nCycles = 0;
+    for (const auto& level : Adap_Levels) nCycles += level.subIter;
+    const auto rampError = CheckAdap_BL_H0Ramp(Adap_BL_H0Ramp, Kind_Adap_BL_Method == ADAP_BL_METHOD::FIRST_ROW, Adap_Loop,
+                                               nCycles, Adap_BL_True, Adap_BL_ProtectDistanceTrue);
+    if (!rampError.empty()) SU2_MPI::Error(rampError, CURRENT_FUNCTION);
+  }
+  SetAdap_BL_RampEvent(0);
+
   if (!Adap_Native_Symmetry_Reference.empty() && Adap_Native_Symmetry_Reference!="NONE" &&
       (Kind_Adap_Remesher!=ADAP_REMESHER::NATIVE_CAVITY || GetFEMSolver() || Kind_SU2!=SU2_COMPONENT::SU2_CFD || val_nDim==2))
     SU2_MPI::Error("ADAP_NATIVE_SYMMETRY_REFERENCE requires native tetrahedral FVM CFD initialization.", CURRENT_FUNCTION);
@@ -6723,6 +6748,38 @@ void CConfig::SetPostprocessing(SU2_COMPONENT val_software, unsigned short val_i
   }
 #endif
 
+}
+
+string CConfig::CheckAdap_BL_H0Ramp(unsigned long ramp, bool firstRow, bool loop, unsigned long cycles,
+                                    const vector<CAdapBoundaryLayer>& layers, su2double protect) {
+  if (ramp == 0) return "";
+  const string option = "ADAP_BL_H0_RAMP= " + to_string(ramp);
+  if (!firstRow) return option + " requires ADAP_BL_METHOD= FIRST_ROW.";
+  if (!loop) return option + " requires ADAP_LOOP= YES: the ramp halves the first height once per adaptation cycle.";
+  if (cycles <= ramp)
+    return option + " needs more adaptation cycles than " + to_string(ramp) + " (the loop has " + to_string(cycles) +
+           ", the sum of ADAP_SUBITER over ADAP_SIZES): the last cycle must use the true ADAP_BL_FIRST_HEIGHT.";
+  if (ramp > 60) return option + ": the ramp is at most 60.";
+  const double factor = std::ldexp(1.0, int(ramp));
+  for (const auto& layer : layers) {
+    const su2double h = factor * layer.firstHeight;
+    if (!std::isfinite(SU2_TYPE::GetValue(h)) || h > layer.thickness)
+      return option + ": 2^N ADAP_BL_FIRST_HEIGHT must stay finite and at most ADAP_BL_THICKNESS (ADAP_BL_MARKER " +
+             layer.marker + ").";
+  }
+  if (!std::isfinite(SU2_TYPE::GetValue(factor * protect))) return option + ": the ramped ADAP_BL_PROTECT_DISTANCE is not finite.";
+  return "";
+}
+
+void CConfig::SetAdap_BL_RampEvent(unsigned long iEvent) {
+  Adap_BL_RampEvent = iEvent;
+  if (Adap_BL_True.size() != Adap_BL.size()) return;  // before postprocessing: nothing to ramp yet
+  const double factor = GetAdap_BL_RampFactor();
+  for (size_t i = 0; i < Adap_BL.size(); i++) {
+    Adap_BL[i] = Adap_BL_True[i];
+    Adap_BL[i].firstHeight = max(Adap_BL_True[i].firstHeight, factor * Adap_BL_True[i].firstHeight);
+  }
+  Adap_BL_ProtectDistance = max(Adap_BL_ProtectDistanceTrue, factor * Adap_BL_ProtectDistanceTrue);
 }
 
 void CConfig::SetMarkers(SU2_COMPONENT val_software) {

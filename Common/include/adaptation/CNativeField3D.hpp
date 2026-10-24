@@ -85,7 +85,8 @@ class FrozenField {
  public:
   explicit FrozenField(std::vector<DonorCell> original, MetricComposition composition = {}, bool timings = false,
                        std::vector<Id> extension_components = {}, MetricEdgeBreakpoints edge_breakpoints = {},
-                       std::shared_ptr<const FrozenMetricIdentity> identity = {}, bool reuse_interior = true);
+                       std::shared_ptr<const FrozenMetricIdentity> identity = {}, bool reuse_interior = true,
+                       size_t donor_limit = MaximumDonors);  // DC-14: a whole-domain caller (FIRST_ROW) admits its own bound
   ~FrozenField();
   FieldSample Query(Point point);
   /*! Sensor P1 at the ideal endpoint midpoint; BL at its represented coordinate. Never populates Query's point cache. */

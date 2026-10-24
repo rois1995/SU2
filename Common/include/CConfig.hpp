@@ -1384,6 +1384,10 @@ private:
   su2double Adap_BL_FirstHeightTol = 0.10;  /*!< \brief Relative first-height tolerance of the native remeshers. */
   bool Adap_BL_LocalHmax = true;           /*!< \brief MMG local hmax on the boundary-layer wall markers. */
   ADAP_BL_METHOD Kind_Adap_BL_Method;      /*!< \brief How the near-wall cells are built (ADAP_BL_METHOD). */
+  unsigned long Adap_BL_H0Ramp = 0;        /*!< \brief First-height ramp N (ADAP_BL_H0_RAMP, 0 = off). */
+  unsigned long Adap_BL_RampEvent = 0;     /*!< \brief Remesh event k the ramped heights currently apply to. */
+  vector<CAdapBoundaryLayer> Adap_BL_True; /*!< \brief Configured (true) boundary layers; Adap_BL holds the ramped ones. */
+  su2double Adap_BL_ProtectDistanceTrue = 0.0; /*!< \brief Configured ADAP_BL_PROTECT_DISTANCE (ramped copy above). */
   su2double Adap_BL_CurvatureFactor = 0.7; /*!< \brief c of the wall size cap c sqrt(2 R h0). */
   su2double Adap_BL_GateFactor = 1.0;      /*!< \brief k of the wall edge gate L sin(turn/2) <= k h0. */
   su2double Adap_BL_CornerFloor = 0.0;     /*!< \brief m_c of the convex-corner wall size floor (0: off). */
@@ -10513,6 +10517,41 @@ public:
    * \brief How the near-wall cells of the boundary-layer markers are built (ADAP_BL_METHOD).
    */
   ADAP_BL_METHOD GetKind_Adap_BL_Method(void) const { return Kind_Adap_BL_Method; }
+
+  /*!
+   * \brief First-height ramp N (ADAP_BL_H0_RAMP): remesh event k uses h0_k = max(h0, 2^(N-k) h0) per BL marker (and the
+   *        protect distance scaled alike); 0 = off. Requires ADAP_BL_METHOD= FIRST_ROW, ADAP_LOOP= YES, more cycles than N.
+   */
+  unsigned long GetAdap_BL_H0Ramp(void) const { return Adap_BL_H0Ramp; }
+  /*!
+   * \brief Remesh event the ramped boundary-layer heights apply to (0-based adaptation cycle).
+   */
+  unsigned long GetAdap_BL_RampEvent(void) const { return Adap_BL_RampEvent; }
+  /*!
+   * \brief Ramp factor 2^max(0, N - k) of the current event (1 when the ramp is off or reached the true heights).
+   */
+  double GetAdap_BL_RampFactor(void) const {
+    return Adap_BL_RampEvent >= Adap_BL_H0Ramp ? 1.0 : std::ldexp(1.0, int(std::min<unsigned long>(Adap_BL_H0Ramp - Adap_BL_RampEvent, 60)));
+  }
+  /*!
+   * \brief True when the current event uses the configured (true) first heights: the final gates apply.
+   */
+  bool GetAdap_BL_RampFinal(void) const { return Adap_BL_RampEvent >= Adap_BL_H0Ramp; }
+  /*!
+   * \brief Configured (unramped) boundary layer of a marker, in the order of ADAP_BL_MARKER.
+   */
+  const CAdapBoundaryLayer& GetAdap_BL_True(unsigned short iBL) const { return Adap_BL_True[iBL]; }
+  /*!
+   * \brief Select the remesh event k: ADAP_BL_FIRST_HEIGHT and ADAP_BL_PROTECT_DISTANCE become their ramped values
+   *        (configured values times GetAdap_BL_RampFactor()); every boundary-layer consumer sees one consistent h0_k.
+   */
+  void SetAdap_BL_RampEvent(unsigned long iEvent);
+  /*!
+   * \brief Validation of ADAP_BL_H0_RAMP (empty: valid): FIRST_ROW, the adaptation loop, more cycles than the ramp,
+   *        finite ramped heights not above the thickness, finite ramped protect distance.
+   */
+  static string CheckAdap_BL_H0Ramp(unsigned long ramp, bool firstRow, bool loop, unsigned long cycles,
+                                    const vector<CAdapBoundaryLayer>& layers, su2double protect);
 
   /*!
    * \brief Factor c of the wall tangential size cap c sqrt(2 R h0) (ADAP_BL_CURVATURE_FACTOR).

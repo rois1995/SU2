@@ -25,6 +25,8 @@
 #include "../../../SU2_CFD/include/adaptation/ConvexClipping.hpp"
 #include "../../../SU2_CFD/include/solvers/CSolver.hpp"
 #include "../../../SU2_CFD/include/adaptation/CNativeBLComposition3D.hpp"
+// DC-14: the BL pipeline of the first-row harnesses is production code (inline headers, before the using-directives).
+#include "../../../SU2_CFD/include/adaptation/CNativeBLPipeline3D.hpp"
 using namespace transfer_test;
 using namespace SU2Native3D;
 
@@ -627,3 +629,5 @@ TEST_CASE("Native first-row transactions replay original fields without solver i
 #include "fixtures/native_first_row_dc12.inc"
 // DC-13 sliver-removing optimizer, first-height ramp and halving chain diagnostics (DC13_PLAN). Test-only.
 #include "fixtures/native_first_row_dc13.inc"
+// DC-14 production FIRST_ROW construction: registry, entry and frozen-field replay.
+#include "fixtures/native_first_row_dc14.inc"

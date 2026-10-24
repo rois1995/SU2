@@ -259,8 +259,10 @@ class CBoundaryLayerMetric {
   /*! Original wall geometry is complete on every rank, including remote/private queries. */
   static std::shared_ptr<CBoundaryLayerMetric> FromNativeReference(
       const SU2NativeBoundary2D::ReferenceState& reference, const CConfig& config);
+  /*! featureAngle < 0: ADAP_ANGLE; otherwise the D1 feature angle used instead (FIRST_ROW base layers: an angle no
+   *  wall edge exceeds leaves every other BL ingredient unchanged and detects no D1 feature). */
   static std::shared_ptr<CBoundaryLayerMetric> FromNativeReference(
-      const SU2Native3D::ReferenceState& reference, const CConfig& config);
+      const SU2Native3D::ReferenceState& reference, const CConfig& config, double featureAngle = -1);
 
   /*! Shared stable sensor-core eigenvalue for complexity trials and frozen query composition. */
   static double CoreEigenvalue2D(double xx, double xy, double yy);

@@ -38,6 +38,7 @@ class CSolutionTransfer;
 class CMultiGridIntegration;
 namespace SU2NativeBoundary2D { struct ReferenceState; }
 namespace SU2Native3D { struct ReferenceState; }
+namespace SU2NativeBLPipeline3D { struct Continuation; }
 struct CMeshDonor;
 
 /*!
@@ -53,6 +54,13 @@ protected:
   unsigned long TimeIter;
   std::shared_ptr<SU2NativeBoundary2D::ReferenceState> nativeReference;
   std::shared_ptr<SU2Native3D::ReferenceState> nativeReference3D;
+  /*! ADAP_BL_METHOD= FIRST_ROW: first-row registry continued between remesh events (<mesh>.native_rows sidecar). */
+  std::shared_ptr<SU2NativeBLPipeline3D::Continuation> nativeFirstRow3D;
+  /*! Frozen-field replays only (no CFD metric): the selected budget outer-normal parameter (< 0: from the solver). */
+  double nativeOuterNormalParameter = -1;
+  /*! Diagnostics of FIRST_ROW events: report prefix (empty: <MESH_OUT_FILENAME>_bl_event<k>) and gate-mesh export. */
+  std::string nativeConstructionPrefix;
+  bool nativeConstructionExport = false;
   std::unique_ptr<CRemesher> MakeRemesher();
 
   /*!
