@@ -6733,6 +6733,10 @@ void CConfig::SetPostprocessing(SU2_COMPONENT val_software, unsigned short val_i
     const auto rampError = CheckAdap_BL_H0Ramp(Adap_BL_H0Ramp, Kind_Adap_BL_Method == ADAP_BL_METHOD::FIRST_ROW, Adap_Loop,
                                                nCycles, Adap_BL_True, Adap_BL_ProtectDistanceTrue);
     if (!rampError.empty()) SU2_MPI::Error(rampError, CURRENT_FUNCTION);
+    if (Adap_BL_H0Ramp > 0 && (Time_Domain || TimeMarching != TIME_MARCHING::STEADY))
+      SU2_MPI::Error("ADAP_BL_H0_RAMP= " + to_string(Adap_BL_H0Ramp) + " ramps the first height over the cycles of a steady "
+                     "adaptation loop; it cannot be used in a time-domain run (TIME_DOMAIN= YES or an unsteady TIME_MARCHING).",
+                     CURRENT_FUNCTION);
   }
   SetAdap_BL_RampEvent(0);
 

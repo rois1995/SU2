@@ -232,13 +232,15 @@ struct PipelineScope {
     dc9::firstChildDiagnostics = 0; dc9::geometryHits = 0;
     dc10::reflectiveByRole = false; dc10::reflectiveMarkers.clear(); dc9::artificialMarkers.clear();
     dc13::v13R2Retry = true; dc13::unliftedColumns = false; dc13::diagnosticCutSlide = false; dc13::v13AttemptsPerSweep = 1024;
-    dc13::v13NearWallFirst = false; dc12::growthClearing = true;
+    dc13::v13NearWallFirst = false; dc12::growthClearing = true; dc13::v13EstimateScan = false; dc13::v13SkipFinalOnLimit = false;
+    dc9::rimByRole = true;  // DC-15: artificial boundaries only by role (production has none), never by a marker name
   }
   ~PipelineScope() {
     dc9::ResetCaches(); dc9::balancedCache.clear(); dc9::cachesOn = true; dc12::layerOfMarker.clear();
     dc10::optionA.reset(); dc10::probeBase.reset(); dc10::probeFull.reset();
     dc13::v13R2Retry = true; dc13::v13AttemptsPerSweep = 1024; dc9::directionField = nullptr; dc9::directionFieldUses = 0;
-    dc13::v13NearWallFirst = false; dc12::growthClearing = true;
+    dc13::v13NearWallFirst = false; dc12::growthClearing = true; dc13::v13EstimateScan = false; dc13::v13SkipFinalOnLimit = false;
+    dc9::rimByRole = false;
   }
 };
 }  // namespace detail
@@ -291,8 +293,12 @@ inline EngineResult RunEvent(World& world, const Owned& cells, const std::vector
     }
     s->heights.tolerance = layer2d::HeightTolerance;
     s->h0 = policy.h0;
-    s->growth = SU2_TYPE::GetValue(config.GetAdap_BL(0).growth);
-    s->thickness = SU2_TYPE::GetValue(config.GetAdap_BL(0).thickness);
+    // DC-15: growth and thickness are per marker (every consumer reads the wall's own production layer); the scalar
+    // fields only report the BL entry with the smallest first height
+    {unsigned short low = 0;
+     for (unsigned short b = 1; b < config.GetnAdap_BL(); ++b) if (config.GetAdap_BL(b).firstHeight < config.GetAdap_BL(low).firstHeight) low = b;
+     s->growth = SU2_TYPE::GetValue(config.GetAdap_BL(low).growth);
+     s->thickness = SU2_TYPE::GetValue(config.GetAdap_BL(low).thickness);}
     s->core = policy.core;
     s->layers = policy.full;
     s->mesh = cells;
@@ -304,7 +310,7 @@ inline EngineResult RunEvent(World& world, const Owned& cells, const std::vector
     s->field = makeField(*s);
     Prepare(*s);
     ApplyWallPolicies(*s);
-    DetectCreases(*s);
+    DetectCreases(*s, policy.roles);  // DC-15: crease roles from the configuration marker kinds
     json << ",\"authority\":{\"mapped_input\":" << state.original->Mapped() << ",\"declared_error\":" << declared
          << "},\"wall_faces\":" << WallFaces(*s).size() << ",\"h0_min\":" << s->h0;
     const size_t callerBytes = cells.size() * 640 + donors.size() * (sizeof(DonorCell) + 64);
@@ -355,6 +361,7 @@ inline EngineResult RunEvent(World& world, const Owned& cells, const std::vector
     const size_t wWork = std::max<size_t>(8192, 4 * wallEdges), r1Work = std::max<size_t>(4096, 2 * wallVertices);
     v13AttemptsPerSweep = 0;  // DC-15: per sweep from the current long-edge demand
     v13NearWallFirst = true;
+    v13EstimateScan = v13SkipFinalOnLimit = !ctl.final_cycle;  // intermediate events: deficits reported once, estimated
     json << ",\"limits\":{\"budget_seconds\":" << budget << ",\"reserve_seconds\":" << reserve << ",\"W\":[" << wWork << "," << .08 * usable
          << "],\"R1\":[" << r1Work << "," << .05 * usable << "],\"R2_seconds\":" << .25 * usable << ",\"G_seconds\":" << .12 * usable
          << ",\"V_attempts_per_sweep\":\"max(1024, long/4)\",\"V_intermediate_seconds\":" << ctl.intermediate_v_seconds
@@ -406,10 +413,10 @@ inline EngineResult RunEvent(World& world, const Owned& cells, const std::vector
                   " untried=" + std::to_string(r2.untried) + " outcome=" + r2.outcome);
       if (!memoryOk("R2", why)) return finish(why);
       MapLayers(*s);
-      const auto cp = dc15::CompleteFirstRow(*s, rows, std::max(60., .05 * usable), certified, log);
+      const auto cp = dc15::CompleteFirstRow(*s, rows, std::max(60., .1 * usable), certified, log);
       json << ",\"completion\":" << dc15::JsonCompletion(cp);
       phase("completion", "failing=" + std::to_string(cp.failing_before) + "->" + std::to_string(cp.failing_after) + " inserted=" +
-                          std::to_string(cp.inserted) + " separated=" + std::to_string(cp.separated));
+                          std::to_string(cp.inserted) + " cavity=" + std::to_string(cp.cavity) + " separated=" + std::to_string(cp.separated) + " outcome=" + cp.outcome);
       snapshot = FirstChildren(*s);
       MapLayers(*s);
       G = PhaseG(*s, rows, .12 * usable, log);workDone += G.transactions + G.refused;
@@ -447,10 +454,20 @@ inline EngineResult RunEvent(World& world, const Owned& cells, const std::vector
     }
     json << ",\"work\":" << workDone << ",\"construction_seconds\":" << elapsed();
     // deficits against the final gates from ONE cached scan of the construction state (labelled cached)
-    const auto cached = dc9::Final(*s);
+    // intermediate events: cached lengths plus midpoint estimates for unmeasured edges (no integration of every edge);
+    // final cycle: the cached Final (every edge measured) before the uncached audit
+    dc9::Gates8 cached;
     size_t cachedMetricInvalid = 0;
-    for (const auto& row : s->mesh) { const auto sh = dc9::MeshShape(*s, row.first); if (!(sh.q > 0 && sh.J >= ValiditySliverJacobian)) ++cachedMetricInvalid; }
-    json << ",\"final_cached\":" << dc9::JsonFinal(*s, rows) << ",\"metric_invalid_cached\":" << cachedMetricInvalid << ",\"bad_witness\":" << BadWitness(*s, rows);
+    if (ctl.final_cycle || ctl.full_audit) {
+      cached = dc9::Final(*s);
+      for (const auto& row : s->mesh) { const auto sh = dc9::MeshShape(*s, row.first); if (!(sh.q > 0 && sh.J >= ValiditySliverJacobian)) ++cachedMetricInvalid; }
+      json << ",\"final_cached\":" << dc9::JsonFinal(*s, rows);
+    } else {
+      const auto est = dc15::FinalEstimated(*s);
+      cached = est.gates; cachedMetricInvalid = est.metric_invalid;
+      json << ",\"final_estimated\":" << dc15::JsonEstimated(est);
+    }
+    json << ",\"metric_invalid_cached\":" << cachedMetricInvalid << ",\"bad_witness\":" << BadWitness(*s, rows);
     {const auto a3 = FirstRowAudit(*s, snapshot, certified);
      json << ",\"first_row_audit\":" << JsonAudit(a3);}
     phase("deficits", "bad=" + std::to_string(cached.bad_shape) + " long=" + std::to_string(cached.long_edges) + " height=" + std::to_string(cached.height_failures));

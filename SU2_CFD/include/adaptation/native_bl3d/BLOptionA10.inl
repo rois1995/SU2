@@ -89,18 +89,25 @@ struct OptionA {
   GridKey KeyAt(V x)const{return {(long long)std::floor(x.x/cell),(long long)std::floor(x.y/cell),(long long)std::floor(x.z/cell)};}
   void IndexCreases() {
     grid.clear();cell=0;if(creases.empty()||!(radius>0)||!std::isfinite((double)radius))return;
-    std::vector<std::array<GridKey,2>> boxes;size_t buckets=0;
-    for(const auto& c:creases){V lo{std::min(c.a.x,c.b.x)-radius,std::min(c.a.y,c.b.y)-radius,std::min(c.a.z,c.b.z)-radius};
-      V hi{std::max(c.a.x,c.b.x)+radius,std::max(c.a.y,c.b.y)+radius,std::max(c.a.z,c.b.z)+radius};
-      cell=radius;boxes.push_back({KeyAt(lo),KeyAt(hi)});const auto& b=boxes.back();
-      buckets+=size_t(b[1][0]-b[0][0]+1)*size_t(b[1][1]-b[0][1]+1)*size_t(b[1][2]-b[0][2]+1);}
-    if(buckets>(size_t(1)<<24)){grid.clear();cell=0;return;}  // bounded index; otherwise the exact full loop
-    for(size_t i=0;i<creases.size();++i){const auto& b=boxes[i];
-      for(long long u=b[0][0];u<=b[1][0];++u)for(long long v=b[0][1];v<=b[1][1];++v)for(long long w=b[0][2];w<=b[1][2];++w)grid[{u,v,w}].push_back(i);}
+    // DC-15: buckets of radius/k (k = 8, 4, 2, 1, the finest within 2^23 registrations): every segment is registered in
+    // every bucket its box grown by R_f meets, so the candidate list of a point still holds every segment closer than
+    // R_f, in increasing index order (exact, fewer far segments per query; the profile's top cost centre)
+    for(long double k:{8.L,4.L,2.L,1.L}) {
+      cell=radius/k;std::vector<std::array<GridKey,2>> boxes;long double buckets=0;
+      for(const auto& c:creases){V lo{std::min(c.a.x,c.b.x)-radius,std::min(c.a.y,c.b.y)-radius,std::min(c.a.z,c.b.z)-radius};
+        V hi{std::max(c.a.x,c.b.x)+radius,std::max(c.a.y,c.b.y)+radius,std::max(c.a.z,c.b.z)+radius};
+        boxes.push_back({KeyAt(lo),KeyAt(hi)});const auto& b=boxes.back();
+        buckets+=(long double)(b[1][0]-b[0][0]+1)*(long double)(b[1][1]-b[0][1]+1)*(long double)(b[1][2]-b[0][2]+1);}
+      if(buckets>(long double)(size_t(1)<<23))continue;
+      for(size_t i=0;i<creases.size();++i){const auto& b=boxes[i];
+        for(long long u=b[0][0];u<=b[1][0];++u)for(long long v=b[0][1];v<=b[1][1];++v)for(long long w=b[0][2];w<=b[1][2];++w)grid[{u,v,w}].push_back(i);}
+      return;
+    }
+    grid.clear();cell=0;  // bounded index; otherwise the exact full loop
   }
   long double Weight(V x) const {
     const long double pi=std::acos(-1.L),c0=std::cos(pi/8);
-    std::vector<std::pair<long double,long double>> cand;  // (radial factor, r_c)
+    thread_local std::vector<std::pair<long double,long double>> cand;cand.clear();  // (radial factor, r_c)
     static const std::vector<size_t> none;const std::vector<size_t>* visit=nullptr;
     if(cell>0){const auto f=grid.find(KeyAt(x));visit=f==grid.end()?&none:&f->second;}
     const size_t count=visit?visit->size():creases.size();

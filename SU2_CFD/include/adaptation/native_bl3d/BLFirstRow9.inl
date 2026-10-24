@@ -167,12 +167,14 @@ inline bool CellHas(const Cell& c,Id v){for(auto n:c.v)if(n.id==v)return true;re
 struct Crease { V a,b,t;long double L=0; };
 struct D1Geometry { std::vector<Crease> creases;long double slope=0,radius=0,h0=0,angle=0,scale=1; };
 inline D1Geometry d1;
-inline void DetectCreases(const State& s) {
+// DC-15: marker roles from the caller (production: CConfig marker kinds, 1 BL wall, 0 symmetry continuation, 2 other);
+// no marker name is read here. Test loaders build their roles themselves.
+inline void DetectCreases(const State& s,const std::map<int,int>& roles) {
   d1=D1Geometry{};const auto& F=s.layers->GetFeatures();d1.slope=F.slope;d1.radius=F.maximumRadius;d1.h0=s.h0;d1.angle=F.angle;
   for(const auto& f:s.facets)for(auto x:f.v)d1.scale=std::max({d1.scale,std::abs((long double)x.p.x),std::abs((long double)x.p.y),std::abs((long double)x.p.z)});
   if(!(d1.slope>0))return;
-  auto kind=[&](const Facet& f){if(s.walls.count(f.marker))return 1;std::string m=s.markers.at(f.marker);for(auto& c:m)c=char(std::tolower(c));
-    if(m=="cut"||m.find("sym")!=std::string::npos)return 0;return 2;};  // reflective images are smooth continuations here
+  auto kind=[&](const Facet& f){if(s.walls.count(f.marker))return 1;const auto r=roles.find(f.marker);
+    return r!=roles.end()&&r->second==0?0:2;};  // reflective images (role 0) are smooth continuations here
   std::map<std::pair<Id,Id>,std::vector<const Facet*>> edges;
   for(const auto& f:s.facets)if(kind(f)==1)for(int k=0;k<3;++k){const Id a=f.v[k].id,b=f.v[(k+1)%3].id;edges[{std::min(a,b),std::max(a,b)}].push_back(&f);}
   for(const auto& f:s.facets)if(kind(f)==2)for(int k=0;k<3;++k){const Id a=f.v[k].id,b=f.v[(k+1)%3].id;const auto e=edges.find({std::min(a,b),std::max(a,b)});if(e!=edges.end())e->second.push_back(&f);}

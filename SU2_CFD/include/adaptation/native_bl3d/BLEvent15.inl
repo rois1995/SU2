@@ -8,6 +8,7 @@
  * SU2 is free software under the GNU Lesser General Public License, version 2.1 or later.
  */
 #pragma once
+#include <unordered_set>
 namespace dc15 {
 using namespace dc13;
 
@@ -64,13 +65,77 @@ inline std::string JsonValidity(const Validity& v) {
    <<",\"witness\":"<<junction_wp0::Json(v.witness)<<"}";return o.str();
 }
 
+/*! Deficits of an intermediate event without integrating every edge: a measured (cached) length is used when it exists,
+ *  otherwise the midpoint estimate sqrt(e^T M(mid) e), counted as `estimated`. Shapes and heights as the cached Final. */
+struct Estimated { dc9::Gates8 gates;size_t estimated=0,metric_invalid=0,bad_first=0; };
+inline Estimated FinalEstimated(State& s) {
+  Scope scope("DC15 FinalEstimated");
+  Estimated out;auto& g=out.gates;g.cells=s.mesh.size();std::unordered_set<uint64_t> seen;seen.reserve(8*s.mesh.size());
+  std::set<Edge> seenBig;  // ids beyond 2^32 (never expected) fall back to an ordered set
+  for(const auto& row:s.mesh){const auto& c=row.second.cell;const auto sh=MeshShape(s,row.first);g.q=std::min(g.q,sh.q);g.J=std::min(g.J,sh.J);
+    if(Bad(sh)){++g.bad_shape;if(WallChild(s,row.first))++out.bad_first;}if(!(sh.q>0&&sh.J>=ValiditySliverJacobian))++out.metric_invalid;
+    for(unsigned a=0;a<4;++a)for(unsigned b=a+1;b<4;++b){const Edge e{std::min(c.v[a].id,c.v[b].id),std::max(c.v[a].id,c.v[b].id)};
+      if(e[1]<(Id(1)<<32)){if(!seen.insert((uint64_t(e[0])<<32)|uint64_t(e[1])).second)continue;}else if(!seenBig.insert(e).second)continue;
+      long double l=0;bool est=false;try{l=LenOrEstimate(s,e[0],e[1],est);}catch(const std::exception&){++g.unmeasurable;continue;}
+      out.estimated+=est;if(std::isfinite(l))g.lmax=std::max(g.lmax,l);
+      if(l>MaximumMetricEdge){++g.long_edges;const int k=EdgeClass(s,e);(k==2?g.long_seam:k==1?g.long_wall:k==3?g.long_other_physical:g.long_interior)++;}}}
+  for(const auto& wf:WallFaces(s)){++g.wall_faces;if(!HeightOk(s,wf.first))++g.height_failures;}
+  g.complete=!g.bad_shape&&!g.long_edges&&!g.height_failures&&!g.unmeasurable;return out;
+}
+inline std::string JsonEstimated(const Estimated& e) {
+  const auto& g=e.gates;std::ostringstream o;o<<std::setprecision(10)<<"{\"kind\":\"cached lengths, midpoint estimate for unmeasured edges\",\"cells\":"<<g.cells<<",\"q_min\":"<<g.q<<",\"J_min\":"<<g.J
+   <<",\"edge_max\":"<<double(g.lmax)<<",\"bad_shape\":"<<g.bad_shape<<",\"bad_first_child\":"<<e.bad_first<<",\"metric_invalid\":"<<e.metric_invalid<<",\"long_edges\":"<<g.long_edges
+   <<",\"long_by_class\":{\"wall\":"<<g.long_wall<<",\"seam\":"<<g.long_seam<<",\"other_physical\":"<<g.long_other_physical<<",\"interior\":"<<g.long_interior<<"}"
+   <<",\"estimated_edges\":"<<e.estimated<<",\"wall_faces\":"<<g.wall_faces<<",\"height_failures\":"<<g.height_failures<<",\"unmeasurable\":"<<g.unmeasurable<<"}";return o.str();
+}
+
+/*! Cavity first child (completion route 3): for a wall face whose own cell cannot hold a point at the prescribed height
+ *  (the cell is thinner than h0: "cone obstructed"), a point p at height h0 over a foot inside the face is coned over
+ *  the star-shaped visibility cavity of p seeded with the face's cell; no other first child and no physical face may
+ *  enter the cavity; D.2 and Admit12 Layer (validity, every wall face of the patch passing its height) admit it. */
+inline bool CavityFirstChild(State& s,Id cell,const Face& key,std::set<Face>& certified,std::string& why) {
+  Scope scope("DC15 CavityFirstChild");
+  const Cell c=s.mesh.at(cell).cell;Face out{};for(auto f:CellFaces(c))if(Sorted(f)==key)out=f;
+  const V a=Of(NodePoint(s,out[0])),b=Of(NodePoint(s,out[1])),cc=Of(NodePoint(s,out[2]));const V n=-1.L*Outward(a,b,cc);const long double h=FaceH0(s,key);
+  const std::array<std::array<long double,3>,7> feet{{{1.L/3,1.L/3,1.L/3},{.6L,.2L,.2L},{.2L,.6L,.2L},{.2L,.2L,.6L},{.45L,.45L,.1L},{.45L,.1L,.45L},{.1L,.45L,.45L}}};
+  for(long double eta:{1.L,.95L,1.05L})for(const auto& w:feet) {
+    const Point p=Pt(w[0]*a+w[1]*b+w[2]*cc+(eta*h)*n);
+    std::set<Id> in{cell};bool ok=true;
+    for(Id id:Locate(s,p)){if(id!=cell&&WallChild(s,id)){ok=false;why="target inside another first child";break;}in.insert(id);}
+    for(unsigned pass=0;ok&&pass<256;++pass) {
+      std::map<Face,std::pair<Face,Id>> skin;std::map<Face,int> count;
+      for(Id id:in){const auto f=CellFaces(s.mesh.at(id).cell);for(unsigned k=0;k<4;++k){const auto kk=Sorted(f[k]);++count[kk];skin[kk]={f[k],id};}}
+      bool grew=false;
+      for(const auto& row:skin){if(count.at(row.first)!=1)continue;const auto& f=row.second.first;const auto& own=s.mesh.at(row.second.second);
+        std::array<Point,3> q;for(unsigned k=0;k<3;++k)for(auto nn:own.cell.v)if(nn.id==f[k])q[k]=nn.p;
+        if(Orientation(p,q[0],q[1],q[2])>0)continue;
+        const auto faces=CellFaces(own.cell);bool phys=false;for(unsigned k=0;k<4;++k)if(Sorted(faces[k])==row.first&&own.physical[k].present)phys=true;
+        if(phys){ok=false;why="target cannot see a physical face";break;}
+        Id nb=UINT64_MAX;for(Id id:Star(s,{f[0],f[1]}))if(!in.count(id)&&CellHas(s.mesh.at(id).cell,f[2]))nb=id;
+        if(nb==UINT64_MAX){ok=false;why="no neighbour across a hidden face";break;}
+        if(WallChild(s,nb)){ok=false;why="visibility needs another first child";break;}
+        in.insert(nb);grew=true;if(in.size()>MaximumCavityCells){ok=false;why="cavity exceeds 64 cells";}break;}
+      if(!grew)break;
+    }
+    if(!ok)continue;
+    std::vector<Id> ids(in.begin(),in.end());Patch old;try{old=PatchOf(s,ids);}catch(const std::exception& x){why=x.what();continue;}
+    Patch fresh;fresh.surface=old.surface;fresh.parameters=old.parameters;
+    try{if(!Cone(old.cells,{s.next_node,p},s.next_cell,fresh.cells,why))continue;s.reference->ExportParameters(fresh);}catch(const std::exception& x){why=x.what();continue;}
+    {std::string d2;if(!D2Ok(s,old,fresh,d2)){why=d2;continue;}}
+    const auto d=Admit12(s,old,fresh,Kind::Layer);if(!d.ok){why="admission: "+d.reason;continue;}
+    for(const auto& sf:old.surface)if(s.walls.count(s.reference->Get(sf.facet).marker))certified.insert(Sorted(sf.v));
+    Apply(s,ids,fresh);certified.insert(key);return true;
+  }
+  return false;
+}
+
 /*! Row completion (DC15_PLAN sect. 3): every wall face whose first child fails the first-height rule or the validity
  *  check gets the certified first-child routes of V without V's per-face try limit: a registered column re-places its
  *  apex (ApexPlace, then ApexMove); an unregistered face gets FirstRowInsert (InsertFirstWallPoint / ConstructFirstLayer
  *  / ApexRelocate); a refused face whose cell carries several wall faces or a foreign physical face (a corner cell where
  *  creases meet another wall, symmetry or other plane) is separated first (SplitCell, the R2 Prepare operator) and
  *  retried. Every route is admitted by its own checks (D.2, Admit12, validity); faces are certified for the A3 audit. */
-struct Completion { size_t failing_before=0,failing_after=0,apex_placed=0,inserted=0,separated=0,refused=0,passes=0;double seconds=0;std::string outcome;
+struct Completion { size_t failing_before=0,failing_after=0,apex_placed=0,inserted=0,separated=0,refused=0,passes=0,cavity=0;double seconds=0;std::string outcome;
   std::map<std::string,size_t> why;std::vector<std::string> witnesses; };
 inline Completion CompleteFirstRow(State& s,Rows10& rows,double seconds,std::set<Face>& certified,std::ostream& log) {
   Scope scope("DC15 CompleteFirstRow");
@@ -94,6 +159,7 @@ inline Completion CompleteFirstRow(State& s,Rows10& rows,double seconds,std::set
       FirstRowStats fr;
       if(FirstRowInsert(s,rows,cell,key,fr,certified)){settle(key);++st.inserted;any=true;continue;}
       for(const auto& w:fr.why)++st.why[w.first];
+      {std::string cw;if(CavityFirstChild(s,cell,key,certified,cw)){settle(key);++st.cavity;any=true;continue;}++st.why["cavity: "+Key(cw)];}
       // corner cell: several wall faces or a foreign physical face -> separation, then the first-child route again
       unsigned walls=0,others=0;{const auto& row=s.mesh.at(cell);for(const auto& f:row.physical)if(f.present)(s.walls.count(s.reference->Get(f.facet).marker)?walls:others)++;}
       if(walls>=2||others>=1){std::string sw;
@@ -115,7 +181,7 @@ inline Completion CompleteFirstRow(State& s,Rows10& rows,double seconds,std::set
 }
 inline std::string JsonCompletion(const Completion& c) {
   std::ostringstream o;o<<std::setprecision(8)<<"{\"outcome\":\""<<c.outcome<<"\",\"failing_before\":"<<c.failing_before<<",\"failing_after\":"<<c.failing_after<<",\"inserted\":"<<c.inserted
-   <<",\"apex_placed\":"<<c.apex_placed<<",\"separated\":"<<c.separated<<",\"passes\":"<<c.passes<<",\"seconds\":"<<c.seconds<<",\"why\":{";
+   <<",\"apex_placed\":"<<c.apex_placed<<",\"cavity\":"<<c.cavity<<",\"separated\":"<<c.separated<<",\"passes\":"<<c.passes<<",\"seconds\":"<<c.seconds<<",\"why\":{";
   {bool k=false;for(const auto& r:c.why){o<<(k?",":"")<<junction_wp0::Json(r.first)<<':'<<r.second;k=true;}}
   o<<"},\"witnesses\":[";for(size_t i=0;i<c.witnesses.size();++i)o<<(i?",":"")<<junction_wp0::Json(c.witnesses[i]);o<<"]}";return o.str();
 }

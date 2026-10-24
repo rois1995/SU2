@@ -27,6 +27,7 @@
 #include "../../../SU2_CFD/include/adaptation/CNativeBLComposition3D.hpp"
 // DC-14: the BL pipeline of the first-row harnesses is production code (inline headers, before the using-directives).
 #include "../../../SU2_CFD/include/adaptation/CNativeBLPipeline3D.hpp"
+#include "fixtures/native_bl_test_roles.inc"
 using namespace transfer_test;
 using namespace SU2Native3D;
 

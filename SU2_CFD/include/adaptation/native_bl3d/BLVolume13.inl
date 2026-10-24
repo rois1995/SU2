@@ -95,7 +95,8 @@ inline ColumnStats ColumnInsert(State& s,Rows10& rows) {
     ++st.columns;if(!lifted)++st.unlifted;
     d=Unit(Of(NodePoint(s,top))-x);const long double dn=Dot(d,nb);if(!(dn>.1L)){++st.why["column too flat"];continue;}
     const long double hL=Dot(Of(NodePoint(s,top))-x,nb),h0=VertexH0(s,w);
-    long double g=s.growth;for(const auto& f:PhysicalOf(s,StarOf(s,w),true))if(Has(f.key,w)){const auto it=layerOfMarker.find(f.marker);if(it!=layerOfMarker.end()){g=GrowthOf(s,it->second);break;}}
+    long double g=-1;for(const auto& f:PhysicalOf(s,StarOf(s,w),true))if(Has(f.key,w)){const auto it=layerOfMarker.find(f.marker);if(it!=layerOfMarker.end()){g=GrowthOf(s,it->second);break;}}
+    if(!(g>1)){++st.why["no wall growth policy"];continue;}  // DC-15: per-marker growth only (no global fallback)
     std::vector<long double> z;for(long double zk=h0,step=h0;zk<.85L*hL;step*=g,zk+=step)z.push_back(zk);
     for(size_t k=z.size();k-->0;) {
       const Edge e{std::min(w,top),std::max(w,top)};const auto ids=Star(s,e);if(ids.empty()||ids.size()>MaximumCavityCells){++st.refused;++st.why["edge star"];break;}
@@ -153,6 +154,20 @@ inline size_t v13AttemptsPerSweep=1024;
 // DC-15: 0 = per-sweep attempt cap from the current demand (max(1024, long edges / 4)); production sets 0. Near-wall first:
 // after wall/seam edges, the long edges whose midpoint wall distance is in [h0, 300 h0] (BL band, TE base, near wake).
 inline bool v13NearWallFirst=false;
+// DC-15 (intermediate events): the long-edge scan uses the measured length when it is cached and the midpoint estimate
+// sqrt(e^T M(mid) e) otherwise (selection only: every attempted edge is integrated again before its admission); the
+// sweep-end gate scan is skipped when V stops by its limit (the event reports its deficits once afterwards).
+inline bool v13EstimateScan=false,v13SkipFinalOnLimit=false;
+inline long double LenOrEstimate(State& s,Id a,Id b,bool& estimated) {
+  estimated=false;const auto key=std::minmax(a,b);const auto pa=NodePoint(s,key.first),pb=NodePoint(s,key.second);
+  const auto f=s.lengths.find({key.first,key.second});
+  if(f!=s.lengths.end()&&SamePoint(f->second.first[0],pa)&&SamePoint(f->second.first[1],pb)){if(f->second.second<0)throw std::runtime_error("unmeasurable composed edge (cached)");return f->second.second;}
+  const std::array<double,6> k6{pa.x,pa.y,pa.z,pb.x,pb.y,pb.z};const auto g=geometryLengths.find(k6);
+  if(g!=geometryLengths.end()){if(g->second<0)throw std::runtime_error("unmeasurable composed edge (cached)");return g->second;}
+  estimated=true;const V A=Of(pa),E=Of(pb)-A;const Tensor m=s.field->Query(Pt(A+.5L*E)).target;
+  const long double q=E.x*(m.xx*E.x+m.xy*E.y+m.xz*E.z)+E.y*(m.xy*E.x+m.yy*E.y+m.yz*E.z)+E.z*(m.xz*E.x+m.yz*E.y+m.zz*E.z);
+  if(!(q>=0))throw std::runtime_error("non-positive midpoint metric");return std::sqrt(q);
+}
 // DC-14: optimizer boundary operations O5/O6 on a mapped authority (they change skin faces without a parameter
 // transaction). Production: off (as RefineOptimize). The DC-13 harness sets it to reproduce its cut results.
 inline bool v13MappedBoundaryOps=false;
@@ -272,7 +287,7 @@ inline VStage13 PhaseV13(State& s,Rows10& rows,Growth& G,size_t work,double seco
      std::vector<std::tuple<int,long double,Edge>> longs;std::set<Edge> seen;
      for(const auto& row:s.mesh){if(sliceOver())break;const auto& c=row.second.cell;for(unsigned a=0;a<4;++a)for(unsigned b=a+1;b<4;++b){
        const Edge e{std::min(c.v[a].id,c.v[b].id),std::max(c.v[a].id,c.v[b].id)};if(!seen.insert(e).second)continue;
-       long double l=0;try{l=Len(s,e[0],e[1]);}catch(const std::exception&){continue;}if(l>MaximumMetricEdge){const int k=EdgeClass(s,e);int pri=k==1||k==2?0:k==3?1:2;
+       long double l=0;try{bool est=false;l=v13EstimateScan?LenOrEstimate(s,e[0],e[1],est):Len(s,e[0],e[1]);}catch(const std::exception&){continue;}if(l>MaximumMetricEdge){const int k=EdgeClass(s,e);int pri=k==1||k==2?0:k==3?1:2;
          if(v13NearWallFirst&&pri>0){long double d=INFINITY;try{d=MinWallDistance(s,.5L*(Of(NodePoint(s,e[0]))+Of(NodePoint(s,e[1]))));}catch(const std::exception&){}
            pri=d>=s.h0&&d<=300*s.h0?1:pri+1;}
          longs.emplace_back(pri,-l,e);}}}
@@ -409,6 +424,7 @@ inline VStage13 PhaseV13(State& s,Rows10& rows,Growth& G,size_t work,double seco
       g.opt.push_back(rep);changed|=moved;g.optimize_seconds+=Seconds(t);
       log<<"DC12 V optimize sweep "<<g.sweeps<<" bad "<<rep.bad_before<<"->"<<rep.bad_after<<" min "<<rep.minimum_before<<"->"<<rep.minimum_after<<" O1="<<rep.edge_removals
          <<" O2="<<rep.face_swaps<<" O3="<<rep.collapses<<" O4="<<rep.moves<<" stop="<<rep.stop<<" t="<<rep.seconds<<"\n";}
+    if(v13SkipFinalOnLimit&&limited()){g.outcome="limit";log<<"DC12 V sweep "<<g.sweeps<<" stopped by its limit (gate scan skipped) t="<<Seconds(t0)<<"\n";break;}
     const auto gates=Final(s);
     log<<"DC12 V sweep "<<g.sweeps<<" cells="<<gates.cells<<" long="<<gates.long_edges<<" bad="<<gates.bad_shape<<" height_fail="<<gates.height_failures<<" unmeasurable="<<gates.unmeasurable<<" work="<<g.work<<" t="<<Seconds(t0)<<"\n";
     std::cout<<"DC12 V sweep "<<g.sweeps<<" cells="<<gates.cells<<" long="<<gates.long_edges<<" bad="<<gates.bad_shape<<" h="<<gates.height_failures<<" t="<<Seconds(t0)<<std::endl;
