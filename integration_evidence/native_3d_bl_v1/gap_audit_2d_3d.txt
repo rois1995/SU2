@@ -1,0 +1,250 @@
+GAP AUDIT: native 2D vs native 3D mesh adaptation (both directions), target = accepted ONERA M6 RANS adapted grid
+=====================================================================================================================
+Date 2026-10-24. Read-only audit of worktree /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated, branch
+codex/native-3d-bl (HEAD 20aa6e2a4c + uncommitted files that another agent is editing in native_bl3d/* and
+CNativeBLPipeline3D.hpp; line numbers below are those of the working files read on 2026-10-24 ~15:30 and can move).
+No build, no run, no Codex. Paths are relative to the worktree root.
+Legend: Benefit = for the M6 RANS goal (H/M/L). Effort = S (days) / M (1-2 weeks) / L (multi-week, cross-module).
+"2D" below has two different meanings, and that matters: NATIVE 2D (CNativeEngine2D / CNativeRemesher, polyline
+reference) vs the MMG 2D TWO_PASS path (CBoundaryLayerRemesher + CReferenceWall). Several "2D-only" items exist ONLY
+in the MMG path, not in native 2D.
+
+Main M6 facts used (evidence): full M6 FIRST_ROW event 0 at h0 x32 (dc14/full_m6_diagnosis.txt): 715127 tets, all
+valid, but bad 103826, long 158791, 89 unrowed wall faces (86 at the tip/TE corner); G refusals are almost all
+"clearance: moved cell inverts"; 82 % of long edges / 77 % of bad cells are in the 10-300 h0 band; V sweep 0 = 5205 s;
+uncached audit projected ~52 min. LE facets: 17.7 deg median turn, 6.5 mm spacing, R ~23 mm, flat-facet chord height
+0.22-0.46 mm = ~228 true h0 (DC15_PLAN.md sect. 9). All M6 FIRST_ROW runs went through the test harness
+[NativeFrozenBL14] with frozen sensor donors (bl_remesh_v1/dc15/run_event.sh), never through SU2_CFD. Sensor came from
+a 120-iteration, unconverged coarse RANS (Handbook/GOAL3_ONERA_M6.md:12-14).
+
+---------------------------------------------------------------------------------------------------------------------
+PART A. ITEMS SAID TO BE 2D-ONLY
+---------------------------------------------------------------------------------------------------------------------
+A(a) Curved reference wall + curvature size rule t_w <= c sqrt(2 R h0)
+  Present: MMG 2D TWO_PASS only. CReferenceWall (cubic splines of the cycle-0 wall; curvature =
+    max(|spline curvature|, 2 sin(turn/2)/L)): SU2_CFD/include/adaptation/CReferenceWall.hpp:3,39-51,255-260;
+    rule used at SU2_CFD/src/adaptation/CBoundaryLayerRemesher.cpp:994; option CConfig.cpp:3351.
+  NOT in native 2D: Common/include/adaptation/CNativeReference2D.hpp:16-18 (PolylineReference, piecewise linear; new
+    wall points lie on the input polyline). Its curvature-like TangentialSize (CNativeReference2D.hpp:186-220) has NO
+    caller (grep: dead code). Native 2D only gates chord deviation <= ADAP_HAUSD (CNativeRemesher.cpp:438,
+    CNativeEngine2D.hpp:198-201).
+  NOT in native 3D: FIRST_ROW promotes the faceted input to a plain mapped facet authority
+    (CNativeBLPipeline3D.hpp:283); W has no curvature term (DC15_PLAN.md sect. 9). Only declared analytic primitives
+    sphere/bump/cylinder/disk are curved (Common/include/adaptation/CNativeBoundary3D.hpp:32-43).
+  Verdict: claim REFINED: 2D-MMG-only; missing in both native engines.
+  Benefit H (LE faceting = ~228 h0; first row sits on a wrong surface; not needed to pass the current gates,
+    which measure height against the flat facets, but needed for a physically valid RANS grid at the LE/tip).
+  Effort L. Deps: Common-level authority change (Ideal/Realize/ContainsFace/first-height against a curved patch,
+    e.g. PN triangles, Vlachos 2001 in Papers), discrete curvature (Rusinkiewicz 2004 in Papers), creases kept sharp
+    (option-A crease set), a wall vertex relocation op (see A(f) surface), the size rule as an anisotropic
+    principal-direction surface metric (only chordwise at the LE).
+
+A(b) TWO_PASS wall reset and resampling
+  Present: MMG 2D only. CConfig.cpp:6709-6716 (TWO_PASS requires MMG, rejected in 3D); CBoundaryLayerRemesher.cpp:986+.
+  Native 2D does not need it: the HEIGHT action rebuilds each wall triangle to the prescribed altitude directly
+    (CNativeEngine2D.hpp:186-193), shown from an Euler seed (RAE_CROSS_GRID_VALIDATION.md). Native 3D: FIRST_ROW
+    W->R1->R2 plays the reset role (CNativeBLPipeline3D.hpp:392-409).
+  Verdict: claim REFUTED for native 2D (MMG-only). Benefit for M6 L (concept already covered). Effort -.
+
+A(c) ADAP_BL_GATE_FACTOR, ADAP_BL_GEOM_TOL, ADAP_BL_CORNER_FLOOR
+  Present: MMG TWO_PASS only. Options CConfig.cpp:3354-3361, checks 6689-6694; consumed only in
+    CBoundaryLayerRemesher.cpp:391 (GEOM_TOL), 802 (CORNER_FLOOR), 995 (GATE_FACTOR). No native 2D/3D consumer.
+  Useful idea for 3D: the gate L sin(turn/2) <= k h0 is a cheap, general acceptance test of "wall faceting vs h0".
+    On the M6 LE: 6.5 mm x sin(8.85 deg) ~ 1.0 mm ~ 500 true h0 -> would flag the faceting problem explicitly.
+  Benefit M (as a diagnostic gate/deficit in the 3D report; real fix is A(a)). Effort S (report-only) / L (with A(a)).
+  Deps: A(a) to be satisfiable.
+
+A(d) Solver-coupled adaptation loops proven
+  Native 2D: YES. RAE2822 Euler-from-RANS and RANS-from-Euler, two accepted cycles each, MPI4, conservative transfer,
+    restart/VTU pairing, resumed CFD (RAE_CROSS_GRID_VALIDATION.md; RAE_CROSS_GRID_COMPLETION_AUDIT.md); 2D unsteady
+    WINDOW_AVERAGE (NATIVE_ADAPTATION.md:28).
+  Native 3D METRIC: YES in fixture scope (sphere RANS N4M2 5440->3768 tets, Cartesian annulus; HANDOFF_Codex.md,
+    Handbook/GOAL3_SPHERE_RANS_LIFECYCLE.md). The real M6 METRIC attempt is unaccepted (GOAL3_ONERA_M6.md).
+  Native 3D FIRST_ROW: NO. Driver wiring exists (SU2_CFD/src/drivers/CSinglezoneDriver.cpp:333-386, ramp 491-497,
+    .native_rows write 1751) but no saved evidence of an SU2_CFD run (no *.cfg with ADAP_BL_METHOD= FIRST_ROW under
+    integration_evidence; M6 runs use the harness).
+  Benefit H (an accepted M6 grid must come out of the driver, followed by transfer + CFD restart). Effort M (once a
+    construction passes: run the driver loop, transfer, restart; the transfer/restart code is shared).
+  Deps: an accepted FIRST_ROW event; .native_ref/.native_rows sidecars; conservative transfer on 1e5-1e6 tets.
+
+A(e) Parallel execution
+  FIRST_ROW 3D: ONE native worker only, confirmed: CNativeBLPipeline3D.hpp:268 ("runs on one native worker (set
+    ADAP_NATIVE_RANKS= 1)"); header says "Serial; one pipeline run at a time" (hpp:5); globals in PipelineScope
+    (hpp:222-241) make it non-reentrant. CFD can still run on N ranks: the driver gathers to the worker
+    communicator (Common/src/adaptation/CNativeRemesher3D.cpp:278,330,353,374-384).
+  3D METRIC: multi-worker Refine/Coarsen with repartition (CNativeRemesher3D.cpp:114,278,386-418), MPI1/2/4 checked
+    (NATIVE_ADAPTATION.md:34), work/time limits (CConfig.cpp:3311-3312, 6433-6436).
+  Native 2D: fully distributed transactional engine (ownership, reservation, certificates, atomic publication),
+    ParMETIS repartition, MPI1/2/4 (CNativeRemesher.cpp:456-494; CNativeEngine2D.hpp:310-617).
+  Benefit H (serial M6 event: R2 ~1000-1600 s, V 5205 s/sweep, audit ~52 min; the 500k target and 5-6 ramp events
+    make serial hours-to-days). Effort L. Deps: removal of pipeline globals (dc9::*, dc10::optionA, dc12/dc13
+    switches), partition with frozen interfaces or the 2D reservation/certificate protocol, per-rank audit.
+
+A(f) Other 2D-vs-3D items
+  f1 Wall surface operations. Native 2D: wall SPLIT, REMOVE (coarsen), REDISTRIBUTE (move along polyline) every sweep
+     (CNativeEngine2D.hpp:198-219, 676-684). 3D FIRST_ROW W: split-only + thin-strip splits, no wall coarsening,
+     no wall vertex relocation (BLOptionA10.inl:250-290; legacy dc9 W has a short-edge collapse, BLFirstRow9.inl
+     818-870ff). 3D METRIC: Refine/Coarsen incl. surface. Benefit M (M6 W split 0 edges, input surface kept; needed
+     for general bodies with over-fine input walls and for A(a) relocation). Effort M. Deps: D.2 invariant, option-A
+     crease preservation, mapped parameter bindings (hpp:497-520).
+  f2 Metric gradation. Shared, sensor-only: Alauzet eq. 9 transport-intersect sweeps (SU2_CFD/src/solvers/CSolver.cpp
+     3013-3104); composed (sensor x BL) gradation only MEASURED, not enforced (CSolver.cpp:3615-3629;
+     HANDOFF "composed gradation ... remain open"). Missing in both. Benefit M (sharp BL-fade/sensor jumps feed the
+     10-300 h0 bad/long band). Effort M. Deps: must not propagate the hard wall-normal size (the code deliberately
+     excludes geometric wall tensors).
+  f3 Solution-based wall tangential size. MMG TWO_PASS only: sensor sampled OFF the wall at 0.1-1 x thickness
+     because the wall Hessian is meaningless under no-slip (CBoundaryLayerRemesher.cpp:1007-1035). Native 2D/3D
+     intersect the sensor AT wall points (CNativeBLPipeline3D.hpp:65 Composition; CSolver.cpp:3595-3606).
+     M6 uses ADAP_SENSOR= (MACH, PRESSURE): MACH is 0 on the wall. Benefit M (shock foot/LE chordwise wall sizes).
+     Effort M. Deps: frozen field donors off-wall (FrozenField), option-A composition.
+  f4 Transfer/interpolation: shared (CBarycentricTransfer, CConservativeTransfer; driver 469-473). 2D proven in
+     loops; 3D proven in fixture scope only (current+BDF2, sphere/annulus). Benefit H once A(d) is reached; effort S.
+  f5 Restart: 2D reference sidecar (CNativeRemesher.cpp:302-316); 3D .native_ref mandatory on restart
+     (CNativeRemesher3D.cpp:193-199) + FIRST_ROW .native_rows continuation keyed by a coordinate digest
+     (CNativeBLPipeline3D.hpp:150-205; driver 340, 1751). Parity OK; FIRST_ROW restart path unexercised.
+  f6 Unsteady: both admit WINDOW_AVERAGE/PREDICT (CNativeRemesher.cpp:50-57; CNativeRemesher3D.cpp:67-75).
+     ADAP_BL_H0_RAMP is set only in the steady loop (driver 491-497); the time loop never calls SetAdap_BL_RampEvent,
+     and CheckAdap_BL_H0Ramp (CConfig.cpp:6753-6772) then fails on the cycle count with a misleading message.
+     Benefit L for M6. Effort S (explicit rejection message).
+  f7 Fixed surface ADAP_SURFACE= NO: native 2D yes (CNativeRemesher.cpp:439); 3D rejected (CNativeRemesher3D.cpp
+     101-102). ADAP_ISO_CORNER: 2D only (CSolver.cpp:3487-3493), superseded by D1. Benefit L. Effort -.
+  f8 In-solver acceptance in native 2D uses the engine's cached target values (CNativeRemesher.cpp:513-538); the
+     independent audits are external python (check_native_cross_grid_completion_v31.py). See B(g).
+
+---------------------------------------------------------------------------------------------------------------------
+PART B. 3D-ONLY ITEMS THAT 2D COULD USE
+---------------------------------------------------------------------------------------------------------------------
+B(a) h0 ramp (ADAP_BL_H0_RAMP)
+  Present 3D only: CConfig.cpp:3344-3348 (doc), 6738-6744 + 6753-6772 (check, FIRST_ROW only at 6757, needs ADAP_LOOP and more
+    cycles than N), driver 491-497. 2D: rejected by the FIRST_ROW-only check.
+  Benefit for 2D M (very small h0 from coarse seeds, multi-element 30P30N); for M6 it is already in use.
+  Effort S-M (lift the FIRST_ROW-only condition; map the intermediate decision onto CRemeshResult in
+    CNativeRemesher.cpp:534-538). Deps: B(b).
+
+B(b) Validity-only intermediate events, final gates only at the true h0
+  Present 3D FIRST_ROW only: CNativeBLPipeline3D.hpp:242-246 (contract), 459-461 (independent validity),
+    494 (accepted = valid && (!final || audit.complete)). Native 2D and 3D METRIC apply the full contract on every
+    event (CNativeRemesher.cpp:534-538 status; CNativeEngine2D.hpp:643-664 satisfied()).
+  Benefit for 2D M (coarse-to-BL seeds, hard multi-element cases). Effort S-M. Deps: B(a), deficit report B(g).
+
+B(c) Strict surface-first order
+  3D FIRST_ROW: strict W -> R1 -> R2 -> completion -> G -> V (CNativeBLPipeline3D.hpp:392-422).
+  Native 2D: CONFIRMED interleaved. adapt() runs per sweep HEIGHT (first row) BEFORE wall SPLIT/REMOVE/REDISTRIBUTE,
+    then volume BULK_*, and repeats sweeps (CNativeEngine2D.hpp:676-684); repair() alternates coordinated BULK_SPLIT
+    and wall SPLIT (665-675). Conflicts with the user rule "surface first, then first row, then volume" (2D+3D).
+  Benefit for 2D M (rule compliance, fewer HEIGHT redo after wall splits); M6 none. Effort S-M; re-qualify the
+    accepted RAE cases (byte-identical outputs will change). Deps: none; the actions already exist.
+
+B(d) D1 crease law and per-side normals
+  D1 metric law is SHARED: CBoundaryLayerMetric.hpp:63-70; 2D factory CBoundaryLayerMetric.cpp:2008-2021,
+    3D 2056-2066 (symmetry partners reflective by MARKER kind, not name). 3D-only on top: option A (D1 kept off the
+    wall, blended in the crease wedge) BLOptionA10.inl:15-21, 142-200; per-side lifts + explicit crease fan
+    BLOptionA10.inl:25-26, 294-311; thin-strip rule (>= 4 wall cells across a blunt TE base) BLOptionA10.inl:276-290.
+  2D: D1 isotropic at feature vertices; HEIGHT is per wall face, so per-side heights exist implicitly; no option A,
+    no fan, no thin-strip rule.
+  Benefit for 2D M (blunt TE, slat/flap coves of 30P30N); M6 n/a. Effort M. Deps: 2D option-A weight, HEIGHT at
+    feature vertices.
+
+B(e) Symmetry / other-boundary projection of BL directions
+  3D only: ComputeDirectionField, n' = n - (n.s)s on symmetry planes, line constraint at two planes, smooth blend,
+    visibility margin (BLGrowth12.inl:85-136); marker roles from config kinds (CNativeBLPipeline3D.hpp:75-84).
+  2D: no column directions (no growth layers); the metric handles the band. Benefit for 2D L. Effort M.
+  DEFECT FOUND (3D): dc9::DetectCreases still classifies markers by NAME: lowercase name == "cut" or contains "sym"
+    -> continuation (BLFirstRow9.inl:174-175). It runs in production (CNativeBLPipeline3D.hpp:307) and feeds W
+    (BLFirstRow9.inl:827-842 via d1). Violates AGENTS.md (no dispatch on names). M6 passes by luck (marker
+    "SYMMETRY"); a symmetry plane named e.g. "plane_y0" becomes a non-reflective partner -> spurious root creases;
+    a wall called "asymmetric_flap" would be a continuation. Fix: use TargetPolicy::roles (hpp:75-84) as
+    BuildOptionA already does (BLOptionA10.inl:144-148). Benefit H (robustness), Effort S.
+  Related: FIRST_ROW takes growth/thickness of BL marker 0 only (CNativeBLPipeline3D.hpp:294-295) while heights are
+    per marker (ApplyWallPolicies); FIRST_HEIGHT_TOL fixed at 0.10 (CConfig.cpp:6725-6726; BLLayer.inl:22).
+    Multi-wall bodies with different growths are not general. Benefit M (robustness), Effort S-M.
+
+B(f) Growth layers and column redistribution vs 2D HEIGHT
+  3D only: PhaseG (BLGrowth12.inl:317+, stops "s2 isotropy" when the step reaches the tangential size, "s1 metric"
+    otherwise), chain step HalveFirstRow + ColumnInsert (CNativeBLPipeline3D.hpp:433-434).
+  2D: HEIGHT fixes only the first-row altitude (CNativeEngine2D.hpp:186-193); later rows come from metric bulk ops,
+    and 2D still passes its gates (RAE). Benefit for 2D L-M (row regularity, fewer bulk transactions). Effort M-L.
+
+B(g) Independent re-audit and deficit report
+  3D FIRST_ROW: one cached Final scan for deficits, independent validity (BLEvent15.inl:22+), fresh-state uncached
+    audit on the final cycle (CNativeBLPipeline3D.hpp:452-490), per-phase streamed JSON + log (hpp:367-380).
+  2D: acceptance from cached target values (CNativeRemesher.cpp:513-538); rejected candidate dump with locations
+    (CNativeRemesher.cpp:179-290); independent audit only external. Benefit for 2D L. Effort S.
+  Note for 3D: the uncached audit costs ~4.35 ms/cell (projected ~52 min on M6); it is a cost item, see Part D.
+
+---------------------------------------------------------------------------------------------------------------------
+PART C. MISSING IN BOTH
+---------------------------------------------------------------------------------------------------------------------
+C1 Wall functions / y+-based first height (Frazza, Loseille, Alauzet, AIAA 2018-4153, in Papers): RANS adaptation
+   with model-specific wall functions when the low-Re model is unresolved, degenerating to low-Re as h -> 0; better
+   solutions on coarse grids, faster path to the final mesh. Code: no y+/wall-function reference in any adaptation
+   source (grep over SU2_CFD/*/adaptation, Common/*/adaptation: 0 hits). The solver has STANDARD_WALL_FUNCTION
+   (Common/include/option_structure.hpp:1781; CConfig.cpp:1659-1661; SU2_CFD/src/solvers/CNSSolver.cpp:833). h0 is a
+   per-marker constant (CConfig.cpp:3320-3329), tolerance fixed for FIRST_ROW.
+   Benefit M-H: the already attempted x32 level (h0 = 6.4e-5 m) is roughly a wall-function first height (y+ ~ tens;
+   ESTIMATE, not computed from the solution), so early cycles could be RANS+WF on valid grids, low-Re only at the end.
+   It is an alternative path, not a replacement of the requested h0 = 2e-6. Effort L (per-face h0 field from u_tau
+   through CBoundaryLayerMetric, FIRST_ROW heights/gates, ramp). Deps: converged-enough solution for u_tau.
+C2 Solution-based surface metric (surface Hessian of Cp/Cf, tangent-plane projected; Loseille-Lohner 2009 surface/
+   volume, in Papers): none in native 2D/3D; only the off-wall sampling of MMG TWO_PASS (A(f)f3). Benefit M,
+   Effort M. Deps: f3, A(a) for curved surfaces.
+C3 Curvature from CAD or analytic surface: no CAD kernel anywhere. 3D: analytic primitives only (CNativeBoundary3D.hpp
+   32-43), affine planes, mapped facets. 2D MMG: spline fit of the cycle-0 wall (model of the first mesh, not the
+   true geometry; CReferenceWall.hpp:51). M6 needs a discrete-surface curvature (PN/Rusinkiewicz) or an analytic M6
+   description. Benefit H (with A(a)). Effort L.
+C4 Room-making for layer inflation: closed advancing layer with metric-based mesh deformation + connectivity
+   optimization, always valid output, blended termination, normal smoothing (Alauzet, Loseille, Marcum AIAA
+   2017-0585, in Papers). 3D G is local: lift per column, refused on "clearance" (dc14 diagnosis); DC-15 ClearAbove is
+   a local move/collapse of blockers. No global volume deformation in either engine. Benefit H (G refusals and the
+   10-300 h0 band are the main M6 deficits). Effort L. Deps: optimizer CNativeOptimize3D, frozen field, validity
+   admission Admit12.
+C5 Metric-aligned / metric-orthogonal point placement (Marcum-Alauzet IMR 2014; Loseille 2014 in Papers): both
+   engines use split/collapse/swap/smooth cavities; no aligned point placement. Would fill 1-300 h0 with
+   quasi-structured anisotropic layers from the metric. Benefit H for V quality, Effort L.
+C6 Normal smoothing: 3D uses per-vertex visibility-optimal normals (MinNormAny, BLGrowth12.inl:100) + symmetry blend,
+   no Laplacian/visibility-constrained smoothing over the wall. Benefit M (column crossing at concave/convex
+   transitions, tip). Effort S-M.
+C7 Mixed-element BL (prisms/pyramids): both reject non-simplex cells (CNativeRemesher.cpp:59-60;
+   CNativeRemesher3D.cpp:76-78). Benefit L-M (solver accuracy in the BL, cell count). Effort L.
+C8 Resumable construction state: 3D streams phase receipts only (hpp:367-380); a killed event loses the state
+   (dc14 event 0 lost 2.5 h). 2D runs are short. Benefit M (campaign cost, AGENTS resumable rule). Effort S-M.
+C9 Composed gradation enforcement: see A(f)f2. Benefit M. Effort M.
+C10 Goal-oriented metric for native: adjoint configurations rejected by both CheckSupport (CNativeRemesher.cpp:41-42;
+   CNativeRemesher3D.cpp:57-58); MMG has ADAP_SENSOR= GOAL. Benefit L now (Michal et al. 2018 M6 study shows
+   feature-based Lp is a valid first target). Effort L.
+C11 Sensor solution quality (dependency, not a mesher gap): the M6 donor sensor is from 120 unconverged iterations
+   (GOAL3_ONERA_M6.md:12-14). Use Michal et al. AIAA 2018-0920 (Papers) as the reference for M6 complexities/forces.
+
+---------------------------------------------------------------------------------------------------------------------
+PART D. RANKED PORT LIST
+---------------------------------------------------------------------------------------------------------------------
+Top 5 for 3D (M6 acceptance first, then general robustness):
+ 1. Room-making for G/V in 1-300 h0: global metric-driven volume deformation during layer inflation (C4, Alauzet-
+    Loseille-Marcum 2017) generalizing DC-15 ClearAbove; optionally aligned placement (C5) later.
+    Benefit H, Effort L. Evidence: G refusals "clearance", 82 % long / 77 % bad in 10-300 h0.
+ 2. Parallel FIRST_ROW (A(e)): port the native-2D ownership/reservation/certificate/atomic-publication pattern or a
+    partition with frozen interfaces; parallel uncached audit. Benefit H (time), Effort L. Deps: remove pipeline
+    globals first (S-M, also needed for reentrancy).
+ 3. Curved wall authority + curvature size rule + faceting gate (A(a), A(c), C3), with wall vertex relocation and
+    coarsening in W (A(f)f1, from native 2D REMOVE/REDISTRIBUTE). Benefit H (LE/tip validity), Effort L.
+ 4. Off-wall sensor sampling for wall tangential sizes (A(f)f3, from MMG TWO_PASS) + composed gradation (A(f)f2).
+    Benefit M, Effort M.
+ 5. Robustness quick wins (S): role-based crease classification instead of names (B(e) defect,
+    BLFirstRow9.inl:174-175); per-marker growth/thickness (hpp:294-295); explicit time-domain ramp rejection (f6);
+    resumable phase state (C8). Benefit H for generality, Effort S each.
+ (Next: C1 wall-function path as an optional cost-saving target variant; then A(d) driver loop + transfer + restart
+ as soon as one event is accepted.)
+
+Top 3 for native 2D:
+ 1. Strict surface-first order (B(c)): wall SPLIT/REMOVE/REDISTRIBUTE to target, then HEIGHT, then BULK_*;
+    re-qualify RAE. Benefit M (user rule, consistency with 3D), Effort S-M.
+ 2. h0 ramp + validity-only intermediate events + deficit report (B(a), B(b), B(g)). Benefit M (small h0 from
+    coarse seeds, 30P30N), Effort S-M.
+ 3. Option-A D1 + thin-strip rule at blunt TE / coves (B(d)). Benefit M for multi-element/blunt-TE bodies,
+    Effort M.
+ (Also cheap for 2D: ADAP_NATIVE_MAX_WORK/TIME are rejected in 2D (CNativeRemesher.cpp:36-37), 3D has them.)
+
+Open doubts: line numbers in native_bl3d/*.inl and CNativeBLPipeline3D.hpp are from files being edited now; the
+y+ estimate for the x32 level is not computed; benefit/effort grades are judgement, not measurements; whether the
+M6 W found 0 long wall edges because of the sensor (unconverged) or because of the BL tangential floor/option-A
+composition was not traced to the end.
