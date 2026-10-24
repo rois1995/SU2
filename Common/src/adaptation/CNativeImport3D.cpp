@@ -350,7 +350,7 @@ bool JointAffineCoverage(World& world,const Owned& owned,std::vector<DonorCell>&
   const auto started=world.seconds();
   struct Receipt {World& world;BridgeStats& stats;double start;
     ~Receipt(){stats.source_envelope_seconds+=world.seconds()-start;}} receipt{world,stats,started};
-  constexpr uint64_t maximum_work=1000000;
+  uint64_t maximum_work=1000000;  // DC-16: scaled below with the skin size (a published FIRST_ROW event has more skin vertices)
   CLocalFailure failure;
   auto vote=[&](){return Vote(world,failure,reason);};
   auto within=[&](){return !(maximum_seconds>0) || world.seconds()-started<maximum_seconds;};
@@ -382,6 +382,9 @@ bool JointAffineCoverage(World& world,const Owned& owned,std::vector<DonorCell>&
   const auto count=CPassiveComm::Allreduce(local_faces,CPassiveComm::Op::SUM,world.comm);
   const auto witnesses=CPassiveComm::Allreduce(local_boundary,CPassiveComm::Op::SUM,world.comm);
   maximum_cell=CPassiveComm::Allreduce(maximum_cell,CPassiveComm::Op::MAX,world.comm);
+  // DC-16: the column normal-cone solves are bounded per skin face (128 trials on average, a vertex with eight distinct
+  // incident normals needs 92), not by a fixed total: the published full-M6 x32 mesh exceeded 10^6 with 49.5k faces
+  maximum_work=std::max<uint64_t>(maximum_work,128*count);
   // Maps, full product geometry, replicated boundary witness transport, planned checks and tree buffers.
   const auto base=transfer_memory::Add(live,transfer_memory::Mul(count,8192),
       transfer_memory::Mul(witnesses,3*sizeof(OwnedCell)),transfer_memory::Mul(2*maximum_work,3*sizeof(size_t)),
