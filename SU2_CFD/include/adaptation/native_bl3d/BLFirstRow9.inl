@@ -1044,7 +1044,7 @@ inline std::string JsonCensus(const Census& c){std::ostringstream o;o<<"{\"wall_
   for(const auto& r:c.why){o<<(k?",":"")<<junction_wp0::Json(r.first)<<':'<<r.second;k=true;}o<<"}}";return o.str();}
 
 // ---- R2: closed row transactions; low band before growth; corner separation (Prepare) for sector lifts ------------
-struct R2Stage : Stage { size_t rim_faces=0,transactions=0,lifted=0,unlifted=0,rowed=0,unrowed=0,max_closure=0,max_old=0,max_fresh=0,low_band=0,sector_tx=0,gaps=0,separations=0;
+struct R2Stage : Stage { size_t rim_faces=0,transactions=0,lifted=0,unlifted=0,rowed=0,unrowed=0,max_closure=0,max_old=0,max_fresh=0,low_band=0,sector_tx=0,gaps=0,separations=0,untried=0;
   double first_q=1,first_J=1,height_error=0;std::map<std::string,size_t> classes; };
 // Corner / link separation (Prepare kind): a point at the centroid of the named star cell cones that cell, so a corner
 // cell no longer owns a wall face and a foreign carrier face and the link of v gains an interior vertex. Positivity,
@@ -1081,7 +1081,7 @@ inline bool SplitLinkEdge(State& s,const Rows& rows,Edge e,std::string& why,Id w
 }
 inline R2Stage PhaseR2(State& s,Rows& rows,double seconds,std::ostream& log) {
   Scope scope("PhaseR2");
-  R2Stage g;Begin(s,g);const auto t0=Clock::now();
+  R2Stage g;Begin(s,g);const auto t0=Clock::now();std::set<Id> tried;  // DC-15: vertices with at least one transaction
   for(unsigned pass=0;pass<2;++pass) {
     // (c) canonical order by lift-direction quality: smooth vertices (s* = 1) first, crease and corner vertices last,
     // so a crease vertex is lifted when its neighbours already are (full instead of skewed partial column states)
@@ -1101,7 +1101,7 @@ inline R2Stage PhaseR2(State& s,Rows& rows,double seconds,std::ostream& log) {
       std::set<Id> V0{v};Tx tx;bool low=false;unsigned separated=0;
       for(unsigned grow=0;grow<20;++grow) {
         if(Seconds(t0)>=seconds)break;
-        ++g.work;tx=Transaction(s,rows,V0,low);
+        ++g.work;tried.insert(v);tx=Transaction(s,rows,V0,low);
         log<<"DC9 R2 tx v="<<v<<" |V|="<<V0.size()<<" low="<<low<<" ok="<<tx.ok<<" old="<<tx.old_cells<<" fresh="<<tx.fresh_cells<<" sectors="<<tx.sectors<<" gaps="<<tx.gaps<<" cls="<<tx.cls<<" "<<tx.witness<<"\n";
         if(tx.ok)break;
         if((tx.cls=="sector-corner"||tx.cls=="sector-link")&&separated<4&&(tx.corner!=UINT64_MAX||tx.splitEdge[0]!=tx.splitEdge[1])){std::string why;
@@ -1120,10 +1120,10 @@ inline R2Stage PhaseR2(State& s,Rows& rows,double seconds,std::ostream& log) {
     }
     if(!g.outcome.empty())break;
   }
-  for(Id v:WallVertices(s))if(!Rim(s,v))(rows.lift.count(v)?g.lifted:g.unlifted)++;
+  for(Id v:WallVertices(s))if(!Rim(s,v)){(rows.lift.count(v)?g.lifted:g.unlifted)++;if(!rows.lift.count(v)&&!tried.count(v))++g.untried;}
   for(const auto& wf:WallFaces(s)){if(RimFace(s,wf.second)){++g.rim_faces;continue;}const bool r=rows.apex.count(wf.second)&&std::all_of(wf.second.begin(),wf.second.end(),[&](Id x){return rows.lift.count(x);});(r?g.rowed:g.unrowed)++;}
   if(g.outcome.empty())g.outcome=g.unrowed?"incomplete":"complete";End(s,g,t0);
-  log<<"DC9 R2 transactions="<<g.transactions<<" lifted="<<g.lifted<<" unlifted="<<g.unlifted<<" rowed="<<g.rowed<<" unrowed="<<g.unrowed<<"\n";return g;
+  log<<"DC9 R2 transactions="<<g.transactions<<" lifted="<<g.lifted<<" unlifted="<<g.unlifted<<" untried="<<g.untried<<" rowed="<<g.rowed<<" unrowed="<<g.unrowed<<" outcome="<<g.outcome<<"\n";return g;
 }
 
 // ---- final gates with cached measures --------------------------------------------------------------------------------

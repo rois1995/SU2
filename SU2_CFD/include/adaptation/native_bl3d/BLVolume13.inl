@@ -150,6 +150,9 @@ struct ClassCensus { size_t attempts=0;std::map<std::string,size_t> accepted,rea
 inline bool v13R2Retry=true;
 // DC-14: refinement attempts per V13 sweep (DC-13: 1024; the production entry scales it with the long-edge demand).
 inline size_t v13AttemptsPerSweep=1024;
+// DC-15: 0 = per-sweep attempt cap from the current demand (max(1024, long edges / 4)); production sets 0. Near-wall first:
+// after wall/seam edges, the long edges whose midpoint wall distance is in [h0, 300 h0] (BL band, TE base, near wake).
+inline bool v13NearWallFirst=false;
 // DC-14: optimizer boundary operations O5/O6 on a mapped authority (they change skin faces without a parameter
 // transaction). Production: off (as RefineOptimize). The DC-13 harness sets it to reproduce its cut results.
 inline bool v13MappedBoundaryOps=false;
@@ -263,13 +266,18 @@ inline VStage13 PhaseV13(State& s,Rows10& rows,Growth& G,size_t work,double seco
     build();
     // (b) bounded refinement of long edges (wall-first, longest first), at most 40 % of R and 1024 attempts per sweep
     {const auto t=Clock::now();const double slice=.4*R;size_t attempts=0;g.column_demand=0;g.demand.clear();
-     auto sliceOver=[&]{return limited()||Seconds(t)>=slice||attempts>=v13AttemptsPerSweep;};
+     size_t attemptCap=v13AttemptsPerSweep?v13AttemptsPerSweep:SIZE_MAX;
+     auto sliceOver=[&]{return limited()||Seconds(t)>=slice||attempts>=attemptCap;};
      auto touchesColumn=[&](const std::vector<Id>& ids){for(Id id:ids)if(ci.cells.count(id))return true;return false;};
      std::vector<std::tuple<int,long double,Edge>> longs;std::set<Edge> seen;
      for(const auto& row:s.mesh){if(sliceOver())break;const auto& c=row.second.cell;for(unsigned a=0;a<4;++a)for(unsigned b=a+1;b<4;++b){
        const Edge e{std::min(c.v[a].id,c.v[b].id),std::max(c.v[a].id,c.v[b].id)};if(!seen.insert(e).second)continue;
-       long double l=0;try{l=Len(s,e[0],e[1]);}catch(const std::exception&){continue;}if(l>MaximumMetricEdge){const int k=EdgeClass(s,e);longs.emplace_back(k==1||k==2?0:k==3?1:2,-l,e);}}}
+       long double l=0;try{l=Len(s,e[0],e[1]);}catch(const std::exception&){continue;}if(l>MaximumMetricEdge){const int k=EdgeClass(s,e);int pri=k==1||k==2?0:k==3?1:2;
+         if(v13NearWallFirst&&pri>0){long double d=INFINITY;try{d=MinWallDistance(s,.5L*(Of(NodePoint(s,e[0]))+Of(NodePoint(s,e[1]))));}catch(const std::exception&){}
+           pri=d>=s.h0&&d<=300*s.h0?1:pri+1;}
+         longs.emplace_back(pri,-l,e);}}}
      std::sort(longs.begin(),longs.end());std::set<Face> movedThisSweep;
+     if(!v13AttemptsPerSweep)attemptCap=std::max<size_t>(1024,longs.size()/4);
      for(const auto& row:longs) {
        if(sliceOver())break;const Edge e=std::get<2>(row);const auto star=Star(s,e);if(star.empty())continue;
        if(touchesColumn(star)) {

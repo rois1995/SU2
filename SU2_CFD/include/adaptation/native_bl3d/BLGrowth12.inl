@@ -147,6 +147,8 @@ struct Growth {
   size_t transactions=0,patch_tx=0,single_tx=0,lifted=0,refused=0,layers=0,max_old=0,max_fresh=0;double seconds=0;std::string outcome,last;
   std::map<Id,Id> current;  // stack vertex identity -> its identity now (optimizer moves)
   std::set<Id> forceStop;   // tests: wall vertices whose column never grows
+  // DC-15 ClearAbove: clearance refusals answered by relocating/removing free blocking vertices, then a retry
+  size_t clear_moves=0,clear_collapses=0,clear_retries=0,clear_retry_accepted=0;std::map<std::string,size_t> clear_refusals;
 };
 struct Step { bool ok=false;std::string stop;V u;long double d=0,next=0;int wall=-1; };
 // Target metric density along the unit direction d at x, and the distance along d from x0 at which the target metric
@@ -180,7 +182,9 @@ inline long double TangentialSize(State& s,V x,V d) {
   const long double a=q(e1,e1),b=q(e1,e2),c=q(e2,e2),lmax=(a+c)/2+std::sqrt(((a-c)/2)*((a-c)/2)+b*b);
   return lmax>0?1/std::sqrt(lmax):INFINITY;
 }
-struct LTx { bool ok=false;std::string cls,witness;std::vector<Id> ids;Patch fresh;std::map<Id,Id> lifted;std::vector<std::array<Id,4>> keys;size_t old_cells=0,fresh_cells=0; };
+struct LTx { bool ok=false;std::string cls,witness;std::vector<Id> ids;Patch fresh;std::map<Id,Id> lifted;std::vector<std::array<Id,4>> keys;size_t old_cells=0,fresh_cells=0;
+  std::map<Id,Id> blockers;  // DC-15: stationary vertex of an inverted substituted cell -> a moved top of that cell
+};
 // One layer transaction for the tops of T: the cells of their stars above the stack are re-attached to the new points
 // (R2 lift mechanics), every top face of the stack touching T is filled by the sequential decomposition in increasing id
 // order of its lifted vertices; carrier faces, carrier loops, interface, D.2 and validity are checked as for R2.
@@ -203,8 +207,12 @@ inline LTx LayerTransaction(State& s,const std::function<bool(Id)>& below,const 
     nodes[u.id]=u;L[t.first]=u.id;unlift[u.id]=t.first;tx.lifted[t.first]=u.id;if(charts.size()>=2)seam.insert(u.id);
   }
   std::vector<Cell> fresh;
+  // DC-15: every inverted fully substituted cell is recorded (its stationary vertices are the blockers of ClearAbove)
   for(const auto& c:old.cells){Cell m=c;for(auto& n:m.v){const auto f=L.find(n.id);if(f!=L.end())n=nodes.at(f->second);}
-    if(!Positive(m.v)){tx.cls="clearance";tx.witness="moved cell "+std::to_string(c.id)+" inverts (the volume above is too close)";return tx;}fresh.push_back(m);}
+    if(!Positive(m.v)){if(tx.cls.empty()){tx.cls="clearance";tx.witness="moved cell "+std::to_string(c.id)+" inverts (the volume above is too close)";}
+      Id top=UINT64_MAX;for(auto n:c.v)if(L.count(n.id))top=n.id;for(auto n:c.v)if(!L.count(n.id))tx.blockers.emplace(n.id,top);continue;}
+    fresh.push_back(m);}
+  if(tx.cls=="clearance")return tx;
   for(const auto& c:old.cells){const auto faces=CellFaces(c);
     for(unsigned k=0;k<4;++k){const Face F=faces[k];bool any=false;for(Id x:F)any=any||L.count(x);if(!any)continue;
       const auto a=s.vertex_cells.find(F[0]),b=s.vertex_cells.find(F[1]),d=s.vertex_cells.find(F[2]);Id other=UINT64_MAX;
@@ -273,6 +281,37 @@ inline LTx LayerTransaction(State& s,const std::function<bool(Id)>& below,const 
   for(const auto& c:fresh)if(!Valid(Shape(s,c))){const auto sh=Shape(s,c);tx.cls="validity";tx.witness="fresh cell q="+Fmt(sh.q)+" J="+Fmt(sh.J);return tx;}
   tx.fresh=std::move(out);tx.ok=true;return tx;
 }
+// DC-15 ClearAbove (DC15_PLAN rev 2 sect. 4): a clearance refusal names the stationary vertices of every inverted
+// substituted cell. A blocker x is FREE when it is no lid, apex, stack vertex, top or copy (`fixed`), lies on no physical
+// face, and its whole star avoids the stack/column/layer/fan cells (`below`) and every first child - so G's below-stack
+// classification, the first children and every registry identity are untouched. x is relocated along the column
+// direction above the planned top (MoveVertex: a relocation of an interior vertex, admitted like G's own lift: exact
+// positivity, validity q > 0 / J >= 1e-3, D.2), else collapsed onto its link neighbour farthest along the column
+// (CollapseVertex, a vertex removal: also Admit12 Kind::Layer, no added frozen excess). The layer is then retried.
+inline bool growthClearing=true;
+inline bool ClearAbove(State& s,Growth& G,const std::function<bool(Id)>& below,const std::set<Id>& fixed,Id x,V d,V u,long double step) {
+  Scope scope("G ClearAbove");
+  auto refuse=[&](const char* k){++G.clear_refusals[k];return false;};
+  if(!s.vertex_cells.count(x))return refuse("gone");
+  if(fixed.count(x))return refuse("fixed (lid, apex, stack, top or copy)");
+  const auto star=StarOf(s,x);if(star.empty()||star.size()>MaximumCavityCells)return refuse("star size");
+  for(Id id:star){if(below(id))return refuse("star touches the stack or a column");if(WallChild(s,id))return refuse("star touches a first child");
+    const auto& r=s.mesh.at(id);const auto f=CellFaces(r.cell);for(unsigned k=0;k<4;++k)if(r.physical[k].present&&Has(f[k],x))return refuse("boundary vertex");}
+  std::vector<Id> ids(star.begin(),star.end());Patch old;try{old=PatchOf(s,ids);}catch(const std::exception&){return refuse("patch");}
+  const V px=Of(NodePoint(s,x));const long double lift=std::max(0.L,Dot(u-px,d));
+  auto valid=[&](const Patch& fresh){for(const auto& c:fresh.cells)if(!Positive(c.v)||!Valid(Shape(s,c)))return false;std::string d2;return D2Ok(s,old,fresh,d2);};
+  for(long double k:{1.L,2.L}){Patch fresh;std::string why;bool ok=false;
+    try{ok=MoveVertex(old,x,{s.next_node,Pt(px+(lift+k*step)*d)},s.next_cell,*s.reference,fresh,why);}catch(const std::exception&){ok=false;}
+    if(!ok||!valid(fresh))continue;
+    Apply(s,ids,fresh);++G.clear_moves;return true;}
+  Id y=UINT64_MAX;long double best=0;for(Id id:star)for(auto n:s.mesh.at(id).cell.v)if(n.id!=x){const auto h=Dot(Of(n.p)-px,d);if(h>best){best=h;y=n.id;}}
+  if(y==UINT64_MAX)return refuse("no move; no neighbour above");
+  Patch fresh;std::string why;bool ok=false;
+  try{ok=CollapseVertex(old,x,y,s.next_cell,*s.reference,fresh,why);}catch(const std::exception&){ok=false;}
+  if(!ok||!valid(fresh))return refuse("no valid move or collapse");
+  const auto dec=Admit12(s,old,fresh,Kind::Layer);if(!dec.ok)return refuse("collapse adds frozen excess");
+  Apply(s,ids,fresh);++G.clear_collapses;return true;
+}
 // G: layer index by layer index; per layer, bounded wall patches of adjacent planned tops (<= 8 tops, above cavity <= 64),
 // each member alone on failure, one retry of every refused column at the same index; stop rules s1-s4 (OPTIMIZE_PLAN 2).
 inline Growth PhaseG(State& s,Rows10& rows,double seconds,std::ostream& log,const std::set<Id>& forceStop={}) {
@@ -292,8 +331,11 @@ inline Growth PhaseG(State& s,Rows10& rows,double seconds,std::ostream& log,cons
   std::set<Id> stackCells=ColumnCells(s,rows);for(Id id:FanCells(s,rows))stackCells.insert(id);
   auto below=[&](Id id){return stackCells.count(id)||G.layerKeys.count(CellKey(s.mesh.at(id).cell));};
   auto stop=[&](Column& c,const std::string& why,long double height){c.stopped=true;c.stop=why;c.stopHeight=height;++G.stops[why.substr(0,why.find(' '))];};
+  // DC-15: identities ClearAbove never touches (lids, apices, copies, stack vertices and tops)
+  std::set<Id> fixed;for(const auto& r:rows.lift)fixed.insert(r.second);for(const auto& r:rows.apex)fixed.insert(r.second);
+  for(const auto& r:rows.copies)for(Id c:r.second.ids)fixed.insert(c);for(const auto& c:G.columns){fixed.insert(c.top);fixed.insert(c.lid);}
   auto apply=[&](const LTx& tx,const std::map<Id,size_t>& owner) {
-    Apply(s,tx.ids,tx.fresh);for(const auto& k:tx.keys)G.layerKeys.insert(k);
+    Apply(s,tx.ids,tx.fresh);for(const auto& k:tx.keys)G.layerKeys.insert(k);for(const auto& l:tx.lifted)fixed.insert(l.second);
     for(const auto& l:tx.lifted){auto& c=G.columns[owner.at(l.first)];c.stack.push_back(l.second);c.top=l.second;G.current[l.second]=l.second;++G.lifted;}
     ++G.transactions;G.max_old=std::max(G.max_old,tx.old_cells);G.max_fresh=std::max(G.max_fresh,tx.fresh_cells);};
   for(unsigned k=0;k<48;++k) {
@@ -318,7 +360,16 @@ inline Growth PhaseG(State& s,Rows10& rows,double seconds,std::ostream& log,cons
     auto aboveOf=[&](Id t){std::set<Id> out;for(Id id:StarOf(s,t))if(!below(id))out.insert(id);return out;};
     auto attempt=[&](const std::set<Id>& T)->bool{
       std::map<Id,V> targets;for(Id t:T)targets[t]=plan.at(t);
-      LTx tx;try{tx=LayerTransaction(s,below,targets);}catch(const std::exception& e){tx.ok=false;tx.cls="exception";tx.witness=e.what();}
+      LTx tx;
+      for(unsigned round=0;;++round){
+        try{tx=LayerTransaction(s,below,targets);}catch(const std::exception& e){tx.ok=false;tx.cls="exception";tx.witness=e.what();}
+        if(tx.ok){if(round)++G.clear_retry_accepted;break;}
+        // DC-15: clear free blockers above the planned tops and retry (at most two clearing rounds)
+        if(tx.cls!="clearance"||!growthClearing||round>=2||Seconds(t0)>=seconds)break;
+        size_t cleared=0;
+        for(const auto& b:tx.blockers){const Id t=b.second;if(!plan.count(t))continue;const auto& c=G.columns[owner.at(t)];
+          const V top=Of(NodePoint(s,t)),u=plan.at(t);cleared+=ClearAbove(s,G,below,fixed,b.first,c.dir,u,Norm(u-top));}
+        if(!cleared)break;++G.clear_retries;}
       if(tx.ok){apply(tx,owner);++G.accepted[T.size()>1?"patch":"single"];(T.size()>1?G.patch_tx:G.single_tx)++;return true;}
       ++G.refused;++G.refusals[tx.cls];G.last=tx.cls+": "+tx.witness;log<<"DC12 G refuse |T|="<<T.size()<<" cls="<<tx.cls<<" "<<tx.witness<<"\n";return false;};
     for(Id seed:tops) {
@@ -658,7 +709,9 @@ inline std::string JsonGrowth(State& s,const Growth& G) {
   {bool k=false;for(const auto& r:G.refusals){o<<(k?",":"")<<junction_wp0::Json(r.first)<<':'<<r.second;k=true;}}
   std::map<size_t,size_t> hist;for(const auto& c:G.columns)++hist[c.stack.size()];o<<"},\"layers_per_column\":{";
   {bool k=false;for(const auto& h:hist){o<<(k?",":"")<<"\""<<h.first<<"\":"<<h.second;k=true;}}
-  o<<"},\"last_refusal\":"<<junction_wp0::Json(G.last.substr(0,300))<<"}";(void)s;return o.str();
+  o<<"},\"clear\":{\"moves\":"<<G.clear_moves<<",\"collapses\":"<<G.clear_collapses<<",\"retries\":"<<G.clear_retries<<",\"retries_accepted\":"<<G.clear_retry_accepted<<",\"refusals\":{";
+  {bool k=false;for(const auto& r:G.clear_refusals){o<<(k?",":"")<<junction_wp0::Json(r.first)<<':'<<r.second;k=true;}}
+  o<<"}},\"last_refusal\":"<<junction_wp0::Json(G.last.substr(0,300))<<"}";(void)s;return o.str();
 }
 inline std::string JsonLayers(const LayerCensus& L) {
   std::vector<long> d=L.deviation;std::sort(d.begin(),d.end());auto at=[&](double f)->long{return d.empty()?0:d[size_t(f*(d.size()-1))];};

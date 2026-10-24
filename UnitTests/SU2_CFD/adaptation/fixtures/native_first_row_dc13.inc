@@ -65,6 +65,8 @@ TEST_CASE("DC-13 sliver-removing build-then-optimize, first-height ramp and halv
         const auto r2=PhaseR2(*s,static_cast<Rows&>(rows),600,log);
         json<<",\"R2\":"<<JsonStage(r2)<<",\"R2_counts\":{\"lifted\":"<<r2.lifted<<",\"unlifted\":"<<r2.unlifted<<",\"rowed\":"<<r2.rowed<<",\"unrowed\":"<<r2.unrowed<<",\"rim_faces_excluded\":"<<r2.rim_faces<<"}";
         json<<",\"directions\":"<<JsonDirections(field);
+        // DC-15: the production row completion (every wall face gets a passing first child) before G
+        {MapLayers(*s);const auto cp=dc15::CompleteFirstRow(*s,rows,60,certified,log);json<<",\"completion\":"<<dc15::JsonCompletion(cp);}
         {Scope sc("JsonFinal after_R");json<<",\"after_R\":"<<JsonFinal(*s,rows);}
         snapshot=FirstChildren(*s);MapLayers(*s);eligible=EligibleAfterR2(*s);
         G=PhaseG(*s,rows,gSeconds,log);
