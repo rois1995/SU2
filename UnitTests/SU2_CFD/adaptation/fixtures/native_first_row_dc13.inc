@@ -130,6 +130,10 @@ Change Compare(const Owned& before,const State& s) {
 // ---- V13 helpers ----------------------------------------------------------------------------------------------------
 namespace dc13 {
 struct ClassCensus { size_t attempts=0;std::map<std::string,size_t> accepted,reasons; };
+// R2 retry in V (sweeps 0 and 1) builds missing first-row columns; a halving chain step does not construct the first
+// row (its registered apices cover only the subdivided first children, so column rebuilds would read lids outside the
+// cavity): off in chain steps.
+bool v13R2Retry=true;
 struct VStage13 : VStage12 { std::map<int,ClassCensus> byClass;size_t apex_place=0; };
 // edge class for the census: 0 interior, 1 wall, 2 seam (wall + other physical), 3 carrier (non-wall, non-artificial
 // physical), 4 artificial (cut) boundary
@@ -222,7 +226,7 @@ VStage13 PhaseV13(State& s,Rows10& rows,Growth& G,size_t work,double seconds,siz
     if(g.sweeps>=maxSweeps){g.outcome="sweep cap";break;}
     const double R=remaining();bool changed=false;const auto sweepStart=Clock::now();
     // (a) R2 retry (sweeps 0 and 1) and the certified first-child route
-    if(g.sweeps<2){const auto t=Clock::now();size_t rowed0=0;for(const auto& wf:WallFaces(s))rowed0+=rows.apex.count(wf.second)&&std::all_of(wf.second.begin(),wf.second.end(),[&](Id x){return rows.lift.count(x);});
+    if(g.sweeps<2&&v13R2Retry){const auto t=Clock::now();size_t rowed0=0;for(const auto& wf:WallFaces(s))rowed0+=rows.apex.count(wf.second)&&std::all_of(wf.second.begin(),wf.second.end(),[&](Id x){return rows.lift.count(x);});
       const auto apex0=rows.apex;
       const auto r2=PhaseR2(s,static_cast<Rows&>(rows),std::min(60.,.1*R),log);++g.r2_retries;
       for(const auto& r:rows.apex){const auto o=apex0.find(r.first);if(o==apex0.end()||o->second!=r.second)certified.insert(r.first);}
@@ -468,7 +472,7 @@ TEST_CASE("DC-13 sliver-removing build-then-optimize, first-height ramp and halv
         {Scope sc("JsonFinal after halve");json<<",\"after_halve\":"<<JsonFinal(*s,rows);}
         std::cout<<"DC13 "<<name<<" step "<<step<<" x"<<m<<" halved="<<hv.split<<" refused="<<hv.refused<<std::endl;
       }
-      const auto v=PhaseV13(*s,rows,G,vWork,vSeconds,vSweeps,certified,log);
+      v13R2Retry=step==0;const auto v=PhaseV13(*s,rows,G,vWork,vSeconds,vSweeps,certified,log);v13R2Retry=true;
       json<<",\"V\":{\"stage\":"<<JsonStage(v)<<",\"sweeps\":"<<v.sweeps<<",\"refine_attempts\":"<<v.refine_attempts<<",\"first_row\":{\"tried\":"<<v.first.tried<<",\"inserted\":"<<v.first.inserted<<",\"relocated\":"<<v.first.relocated
           <<"},\"seconds\":{\"refine\":"<<v.refine_seconds<<",\"optimize\":"<<v.optimize_seconds<<"},\"accepted_by\":{";
       {bool k=false;for(const auto& d:v.acceptedBy){json<<(k?",":"")<<junction_wp0::Json(d.first)<<':'<<d.second;k=true;}}json<<"},\"demand\":{";
