@@ -82,7 +82,9 @@ bool Vote(World& world, const CLocalFailure& failure, std::string& reason) {
 bool Admit(World& world, size_t bytes, size_t ceiling, BridgeStats& stats, std::string& reason) {
   stats.maximum_native_bytes = std::max(stats.maximum_native_bytes, bytes);
   CLocalFailure failure;
-  if (bytes == SIZE_MAX || bytes > ceiling) failure.Set(3, 0, "Native 3D bridge storage budget exceeded.");
+  // DC-16: the message names the requested and admitted bytes (diagnosis of fixed ceilings)
+  if (bytes == SIZE_MAX || bytes > ceiling) failure.Set(3, 0, "Native 3D bridge storage budget exceeded: requested " +
+      (bytes == SIZE_MAX ? std::string("overflow") : std::to_string(bytes >> 20) + " MiB") + " > ceiling " + std::to_string(ceiling >> 20) + " MiB.");
   return Vote(world, failure, reason);
 }
 constexpr size_t SymmetryFileBytes=65536;

@@ -32,15 +32,16 @@ CNativeRemesher3D::CNativeRemesher3D(std::shared_ptr<ReferenceState> retained, E
 namespace {
 // DC-16: FIRST_ROW gathers and multiplies the whole mesh on one worker; its ceiling (reference setup, construction,
 // publication) is max(default, 1.5 x the event's need), capped at 25 % of the node memory (shared with other jobs).
-// Need before the construction: max(measured peak RSS of this process, 2 KiB per input cell; the ONERA M6 x32 event
-// 0 published 1.25M cells at a 2.5 GB peak); after it, the publication rule in Remesh. Other methods: the default.
+// Need before the construction: max(measured peak RSS of this process, 4 KiB per input cell; measured: the import of
+// the published 1.25M-cell ONERA M6 x32 mesh requests 3.9 GB, 3.1 KiB/cell); after it, the publication rule in
+// Remesh. Other methods: the default.
 // TODO: ADAP_NATIVE_MEMORY_LIMIT (needs a CConfig.hpp change).
 size_t FirstRowCeiling(const CConfig& config,const CGeometry& geometry,size_t base,bool print) {
   if (config.GetKind_Adap_BL_Method()!=ADAP_BL_METHOD::FIRST_ROW) return base;
   const long pages=sysconf(_SC_PHYS_PAGES),page=sysconf(_SC_PAGESIZE);
   const size_t cap=pages>0&&page>0?size_t(uint64_t(pages)*uint64_t(page)/4):base;
   struct rusage usage{};getrusage(RUSAGE_SELF,&usage);
-  const size_t need=std::max(size_t(usage.ru_maxrss)*1024,size_t(2048)*size_t(geometry.GetGlobal_nElem()));
+  const size_t need=std::max(size_t(usage.ru_maxrss)*1024,size_t(4096)*size_t(geometry.GetGlobal_nElem()));
   const size_t ceiling=std::min(std::max(base,size_t(1.5*double(need))),std::max(base,cap));
   if (print) std::cout<<"DC16 FIRST_ROW memory: need "<<(need>>20)<<" MiB, ceiling "<<(ceiling>>20)<<" MiB (default "<<(base>>20)<<" MiB, cap 25 % of node memory "<<(cap>>20)<<" MiB)"<<std::endl;
   return ceiling;
@@ -51,7 +52,7 @@ void CNativeRemesher3D::PrepareReference(const CConfig& config,const CGeometry& 
   auto pending=*reference;
   bool loaded=false;std::string reason;size_t maximum=0;
   const auto held=transfer_memory::Add(options.caller_bytes,ReferenceStorageBytes(*reference));
-  const auto ceiling=FirstRowCeiling(config,geometry,options.memory_ceiling,false);
+  const auto ceiling=FirstRowCeiling(config,geometry,options.memory_ceiling,SU2_MPI::GetRank()==0);
   CLocalFailure failure;
   if(!SU2Native3D::LoadReference(config.GetMesh_FileName()+".native_ref",pending,loaded,reason,
                                ceiling,held,maximum)) failure.Set(2,0,reason);
