@@ -9,6 +9,7 @@
 #include "../../include/adaptation/CNativeFma.hpp"
 #include "CNativePredicates3D_internal.hpp"
 #include "../../include/adaptation/CNativePointConstruction3D.hpp"
+#include "../../include/adaptation/CNativeNearContainment.hpp"
 #include <algorithm>
 #include <cmath>
 #include <cstring>
@@ -736,6 +737,14 @@ std::vector<SegmentPiece> TraceSegment(const std::vector<const Cell*>& donors, P
       continue;
     }
     const int order = CompareRoot(cursor, piece.begin);
+    // DC-16: an uncovered start of length <= the near-coverage tolerance (an endpoint realized just outside a boundary
+    // donor) is covered by the first piece (its start weights stand for the endpoint)
+    const long double length=std::sqrt(((long double)b.x-a.x)*((long double)b.x-a.x)+((long double)b.y-a.y)*((long double)b.y-a.y)+((long double)b.z-a.z)*((long double)b.z-a.z));
+    const long double slack=NearCoverageTolerance(a,b)/std::max(length,std::numeric_limits<long double>::min());
+    if (order < 0 && result.empty() && piece.piece.begin <= slack) {
+      auto p = piece.piece; p.end = p.begin + p.width; p.begin = 0; p.width = p.end;
+      result.push_back(p); cursor = piece.end; previous = &piece; continue;
+    }
     if (order != 0)
       throw std::runtime_error(order > 0 ? "Overlapping native 3D source segment intervals."
                                          : "Uncovered native 3D source segment interval.");
@@ -743,7 +752,15 @@ std::vector<SegmentPiece> TraceSegment(const std::vector<const Cell*>& donors, P
     cursor = piece.end;
     previous = &piece;
   }
-  if (CompareRoot(cursor, Root(true)) != 0) throw std::runtime_error("Uncovered native 3D source segment endpoint.");
+  if (CompareRoot(cursor, Root(true)) != 0) {
+    // DC-16: the same tolerance at the far endpoint
+    const long double length=std::sqrt(((long double)b.x-a.x)*((long double)b.x-a.x)+((long double)b.y-a.y)*((long double)b.y-a.y)+((long double)b.z-a.z)*((long double)b.z-a.z));
+    const long double slack=NearCoverageTolerance(a,b)/std::max(length,std::numeric_limits<long double>::min());
+    if (!result.empty() && 1 - (result.back().begin + result.back().width) <= slack) {
+      result.back().end = 1; result.back().width = 1 - result.back().begin; return result;
+    }
+    throw std::runtime_error("Uncovered native 3D source segment endpoint.");
+  }
   return result;
 }
 void ValidateTensor(const Tensor& tensor, KernelStats* stats) {

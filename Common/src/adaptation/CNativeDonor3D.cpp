@@ -6,6 +6,7 @@
  */
 #include "../../include/adaptation/CNativeDonor3D.hpp"
 #include "../../include/adt/CADTElemClass.hpp"
+#include "../../include/adaptation/CNativeNearContainment.hpp"
 #include "../../include/option_structure.hpp"
 #include <chrono>
 #include <cmath>
@@ -430,6 +431,17 @@ DonorSamples DonorImport::SampleQueries(const std::vector<Point>& points,const s
             if(contains) {
               selected=i;found=true;break;
             }
+          }
+          // DC-16: tolerant coverage at the domain boundary (physical donors only, clamped weights, nearest donor
+          // within the coordinate-scaled tolerance); the exact search above always runs first
+          if(!found && !query.midpoint) {
+            const double t=double(NearCoverageTolerance(query.point));
+            const std::array<su2double,3> lo{query.point.x-t,query.point.y-t,query.point.z-t},hi{query.point.x+t,query.point.y+t,query.point.z+t};
+            index->DetermineIntersectingElements(lo.data(),hi.data(),candidates);std::sort(candidates.begin(),candidates.end());
+            long double best=INFINITY;
+            for(auto i:candidates){const auto& row=donors.at(i);if(row.extension_component!=UINT64_MAX)continue;const auto& v=row.cell.v;
+              std::array<long double,4> w{};const auto dist=NearWeights({v[0].p,v[1].p,v[2].p,v[3].p},query.point,w);
+              if(dist<=NearCoverageTolerance(query.point)&&dist<best){best=dist;selected=i;sample.weights=w;found=true;}}
           }
         }
         if(found) {

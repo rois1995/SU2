@@ -7,6 +7,7 @@
 #include "../../include/adaptation/CNativeField3D.hpp"
 #include "../../include/adaptation/CNativeBoundary3D.hpp"
 #include "../../include/adaptation/CNativePointConstruction3D.hpp"
+#include "../../include/adaptation/CNativeNearContainment.hpp"
 #include "../../include/adt/CADTElemClass.hpp"
 #include "../../include/option_structure.hpp"
 #include <algorithm>
@@ -245,8 +246,10 @@ long double FrozenField::EdgeLength(Point a, Point b, bool composed, LengthInver
     std::vector<const Cell*> cells;
     {
       Timer timer(stats.edge_search_seconds, timings);
-      FindCandidates({std::min(a.x, b.x), std::min(a.y, b.y), std::min(a.z, b.z)},
-                     {std::max(a.x, b.x), std::max(a.y, b.y), std::max(a.z, b.z)});
+      // DC-16: the box grows by the near-coverage tolerance so donors next to a near-boundary endpoint are traced
+      const double t=double(NearCoverageTolerance(a,b));
+      FindCandidates({std::min(a.x, b.x)-t, std::min(a.y, b.y)-t, std::min(a.z, b.z)-t},
+                     {std::max(a.x, b.x)+t, std::max(a.y, b.y)+t, std::max(a.z, b.z)+t});
       stats.edge_box_candidates += candidates.size();
       stats.maximum_edge_candidates = std::max(stats.maximum_edge_candidates, candidates.size());
       cells.reserve(candidates.size());
@@ -569,6 +572,17 @@ FieldSample FrozenField::Query(Point point) {
             }
             value.donor=index;found=true;break;
           }
+        }
+        if (!found) {
+          // DC-16: tolerant coverage at the domain boundary (a point within the coordinate-scaled tolerance of an
+          // original donor, e.g. a bound point realized just off a boundary plane): clamped weights in the nearest
+          // physical donor; the exact search above always runs first
+          const long double tol=NearCoverageTolerance(point);const double t=double(tol);
+          FindCandidates({point.x-t,point.y-t,point.z-t},{point.x+t,point.y+t,point.z+t});
+          long double best=INFINITY;
+          for(auto index:candidates){const auto& d=donors.at(index);if(d.extension_component!=UINT64_MAX)continue;const auto& c=d.cell;
+            std::array<long double,4> w{};const auto dist=NearWeights({c.v[0].p,c.v[1].p,c.v[2].p,c.v[3].p},point,w);
+            if(dist<=tol&&dist<best){best=dist;value.donor=index;value.weights=w;found=true;}}
         }
         if (!found) {
           std::ostringstream why;why<<std::setprecision(17)<<"Query outside native 3D immutable original donors: point=("
