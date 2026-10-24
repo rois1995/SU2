@@ -156,8 +156,8 @@ inline bool Solve(const Input& p, su2double seed, unsigned short max_iterations,
   }
   if (!have_low) return false;
   su2double trial = (low + high) / 2;
+  if (!Evaluate(p, trial, state)) return false;
   for (auto i = 0u; i < max_iterations; ++i) {
-    if (!Evaluate(p, trial, state)) return false;
     if (Converged(state)) return Finish(p, state, out);
     if (state.residual < 0) low = trial;
     else high = trial;
@@ -166,8 +166,13 @@ inline bool Solve(const Input& p, su2double seed, unsigned short max_iterations,
                                                                   su2double((low + high) / 2);
     State candidate;
     if (!Finite(next) || next <= low || next >= high || !Evaluate(p, next, candidate) ||
-        abs(candidate.residual) >= abs(state.residual)) trial = (low + high) / 2;
-    else trial = next;
+        abs(candidate.residual) >= abs(state.residual)) {
+      trial = (low + high) / 2;
+      if (!Evaluate(p, trial, state)) return false;
+    } else {
+      trial = next;
+      state = candidate; // Reuse the accepted evaluation instead of recording it twice on the AD tape.
+    }
   }
   return false;
 }
