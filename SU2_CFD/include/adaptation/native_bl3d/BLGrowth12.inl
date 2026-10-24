@@ -160,7 +160,7 @@ struct Growth {
   // DC-15 ClearAbove: clearance refusals answered by relocating/removing free blocking vertices, then a retry
   size_t clear_moves=0,clear_collapses=0,clear_retries=0,clear_retry_accepted=0;std::map<std::string,size_t> clear_refusals;
   std::map<std::string,size_t> fixed_blockers;  // DC-16: kind of every registry identity named as a clearance blocker
-  size_t joint_retries=0,joint_accepted=0;      // DC-16: transactions widened by the planned tops they depend on
+  size_t joint_retries=0,joint_accepted=0;std::map<std::string,size_t> stop_reasons;      // DC-16: transactions widened by the planned tops they depend on
 };
 struct Step { bool ok=false;std::string stop;V u;long double d=0,next=0;int wall=-1; };
 // Target metric density along the unit direction d at x, and the distance along d from x0 at which the target metric
@@ -345,7 +345,9 @@ inline Growth PhaseG(State& s,Rows10& rows,double seconds,std::ostream& log,cons
     G.columns.push_back(c);}
   std::set<Id> stackCells=ColumnCells(s,rows);for(Id id:FanCells(s,rows))stackCells.insert(id);
   auto below=[&](Id id){return stackCells.count(id)||G.layerKeys.count(CellKey(s.mesh.at(id).cell));};
-  auto stop=[&](Column& c,const std::string& why,long double height){c.stopped=true;c.stop=why;c.stopHeight=height;++G.stops[why.substr(0,why.find(' '))];};
+  // DC-16: stop texts are bounded (an exception text can be megabytes) and the census keys keep the reason class
+  auto stop=[&](Column& c,const std::string& why,long double height){c.stopped=true;c.stop=why.substr(0,160);c.stopHeight=height;++G.stops[why.substr(0,why.find(' '))];
+    ++G.stop_reasons[swbi_dc2::Category(why).substr(0,48)];};
   // DC-15: identities ClearAbove never touches (lids, apices, copies, stack vertices and tops)
   std::set<Id> fixed;for(const auto& r:rows.lift)fixed.insert(r.second);for(const auto& r:rows.apex)fixed.insert(r.second);
   for(const auto& r:rows.copies)for(Id c:r.second.ids)fixed.insert(c);for(const auto& c:G.columns){fixed.insert(c.top);fixed.insert(c.lid);}
@@ -762,7 +764,8 @@ inline std::string JsonGrowth(State& s,const Growth& G) {
   {bool k=false;for(const auto& h:hist){o<<(k?",":"")<<"\""<<h.first<<"\":"<<h.second;k=true;}}
   o<<"},\"clear\":{\"moves\":"<<G.clear_moves<<",\"collapses\":"<<G.clear_collapses<<",\"retries\":"<<G.clear_retries<<",\"retries_accepted\":"<<G.clear_retry_accepted<<",\"refusals\":{";
   {bool k=false;for(const auto& r:G.clear_refusals){o<<(k?",":"")<<junction_wp0::Json(r.first)<<':'<<r.second;k=true;}}
-  o<<"}},\"joint\":{\"retries\":"<<G.joint_retries<<",\"accepted\":"<<G.joint_accepted<<"},\"fixed_blockers\":{";
+  o<<"}},\"stop_reasons\":{";{bool k=false;for(const auto& r:G.stop_reasons){o<<(k?",":"")<<junction_wp0::Json(r.first)<<':'<<r.second;k=true;}}
+  o<<"},\"joint\":{\"retries\":"<<G.joint_retries<<",\"accepted\":"<<G.joint_accepted<<"},\"fixed_blockers\":{";
   {bool k=false;for(const auto& r:G.fixed_blockers){o<<(k?",":"")<<junction_wp0::Json(r.first)<<':'<<r.second;k=true;}}
   o<<"},\"room\":"<<dc16::JsonRoom(dc16::roomStats)<<",\"last_refusal\":"<<junction_wp0::Json(G.last.substr(0,300))<<"}";(void)s;return o.str();
 }

@@ -12,6 +12,7 @@
 #include "../../include/linear_algebra/blas_structure.hpp"
 #include "../../include/geometry/CGeometry.hpp"
 #include <chrono>
+#include <unistd.h>
 #include <ctime>
 #include <iomanip>
 #include <iostream>
@@ -381,6 +382,22 @@ CRemeshResult CNativeRemesher3D::Remesh(const CConfig& config, const CGeometry& 
             detail = built.reason;
             working.swap(built.cells);
             Owned().swap(built.cells);
+            // DC-16: the construction multiplies the cell count (0.3M -> 1.2M on the ONERA M6 at h0 x32), so the fixed
+            // 2 GiB ceiling rejected the publication (original donor transport). The publication ceiling becomes
+            // max(2 GiB, 1.5 x the estimated need of this event), capped at 25 % of the node memory; above the cap the
+            // event fails with that reason. Need = held + candidate cells + original donors, plus four donor copies
+            // for the staged import (sorted copy, boxes, authority records, index). TODO: ADAP_NATIVE_MEMORY_LIMIT.
+            if (valid) {
+              const long pages=sysconf(_SC_PHYS_PAGES),page=sysconf(_SC_PAGESIZE);
+              const size_t cap=pages>0&&page>0?size_t(uint64_t(pages)*uint64_t(page)/4):control.memory_ceiling;
+              const size_t need=transfer_memory::Add(held(),OwnedStorageBytes(working),transfer_memory::Bytes(migrated),
+                                                     transfer_memory::Mul(5,transfer_memory::Bytes(imported.original)));
+              const size_t wanted=std::max(control.memory_ceiling,size_t(1.5*double(need)));
+              std::cout<<"DC16 publication memory: need "<<need/(size_t(1)<<20)<<" MiB, ceiling "<<std::min(wanted,cap)/(size_t(1)<<20)
+                       <<" MiB (default "<<control.memory_ceiling/(size_t(1)<<20)<<" MiB, cap 25 % of node memory "<<cap/(size_t(1)<<20)<<" MiB)"<<std::endl;
+              if (wanted>cap) { valid=false; detail="FIRST_ROW publication needs an estimated "+std::to_string(need>>20)+" MiB x 1.5, above the 25 % node-memory cap ("+std::to_string(cap>>20)+" MiB)."; }
+              else control.memory_ceiling=wanted;
+            }
             stats.phases[8] += workers.seconds() - begin;
           } else {
           auto refined = Refine(workers, working, *worker_source, *pending->state.original, composition, kernel);

@@ -282,7 +282,7 @@ inline VStage13 PhaseV13(State& s,Rows10& rows,Growth& G,size_t work,double seco
   auto ridgeEdge=[&](Edge w){if(rows.copies.count(w[0])||rows.copies.count(w[1]))return true;
     for(const auto& r:rows.apex)if(Has(r.first,w[0])&&Has(r.first,w[1]))for(Id x:r.first)if(rows.copies.count(x))return true;return false;};
   std::map<Face,unsigned> firstTried;
-  VertexTensors& vt=eventTensors;Id scanned=0;std::set<Edge> queued;size_t lastDemand=0;  // DC-16 demand queue state
+  size_t measureWitnesses=0;VertexTensors& vt=eventTensors;Id scanned=0;std::set<Edge> queued;size_t lastDemand=0;  // DC-16 demand queue state
   for(;;++g.sweeps) {
     if(limited()){g.outcome="limit";break;}
     if(g.sweeps>=maxSweeps){g.outcome="sweep cap";break;}
@@ -376,7 +376,8 @@ inline VStage13 PhaseV13(State& s,Rows10& rows,Growth& G,size_t work,double seco
          try{s.reference->ExportParameters(fresh);}catch(const std::exception&){}
          if(variant.first!="wall"&&!firstChildKept(old,fresh)){++g.work;++g.rejected;++census.reasons[variant.first+" changes a first child"];continue;}
          ++g.work;const auto d=Admit12(s,old,fresh,Kind::Refine);
-         if(!d.ok){++g.rejected;++g.reasons[variant.first+" ["+std::to_string(d.category)+"] "+Key(d.reason)];++census.reasons[variant.first+" ["+std::to_string(d.category)+"] "+Key(d.reason)];g.last=variant.first+": "+d.reason;continue;}
+         if(!d.ok){++g.rejected;++g.reasons[variant.first+" ["+std::to_string(d.category)+"] "+Key(d.reason)];++census.reasons[variant.first+" ["+std::to_string(d.category)+"] "+Key(d.reason)];g.last=variant.first+": "+d.reason;
+           if(d.category==5&&measureWitnesses<16){++measureWitnesses;log<<"DC16 V measure witness "<<variant.first<<" edge "<<e[0]<<"-"<<e[1]<<": "<<d.reason.substr(0,600)<<"\n";}continue;}
          const double sc=std::min({d.first_q/MinimumMeanRatio,d.first_J/MinimumScaledJacobian,d.other_q/MinimumMeanRatio,d.other_J/MinimumScaledJacobian});
          if(variant.first=="wall"){best=Best{variant.first,ids,old,fresh,INFINITY,splitPolicy.relocatedCount};break;}  // certified wall rebuild first
          if(sc>best.score)best=Best{variant.first,ids,old,fresh,sc,splitPolicy.relocatedCount};

@@ -266,9 +266,8 @@ long double FrozenField::EdgeLength(Point a, Point b, bool composed, LengthInver
         // Keep an exact replay witness; missing support and a geometrically outside proposal need different repairs.
         std::ostringstream why;why<<std::setprecision(17)<<error.what()<<" edge=("<<a.x<<','<<a.y<<','<<a.z
             <<")..("<<b.x<<','<<b.y<<','<<b.z<<") admitted=";
-        for(const auto& donor:donors) {
-          why<<donor.cell.id<<'[';for(const auto& node:donor.cell.v)why<<node.id<<',';why<<"]";
-        }
+        why<<donors.size()<<" donors, first: ";  // DC-16: bounded witness (was every donor)
+          for(size_t k=0;k<donors.size()&&k<8;++k){const auto& donor=donors[k];why<<donor.cell.id<<'[';for(const auto& node:donor.cell.v)why<<node.id<<',';why<<"]";}
         why<<" candidates=";for(auto i:candidates)why<<donors[i].cell.id<<',';
         throw std::runtime_error(why.str());
       }
@@ -573,8 +572,10 @@ FieldSample FrozenField::Query(Point point) {
         }
         if (!found) {
           std::ostringstream why;why<<std::setprecision(17)<<"Query outside native 3D immutable original donors: point=("
-              <<point.x<<','<<point.y<<','<<point.z<<") admitted=";
-          for(const auto& donor:donors){why<<donor.cell.id<<'[';for(auto n:donor.cell.v)why<<n.id<<',';why<<"]";}
+              <<point.x<<','<<point.y<<','<<point.z<<") admitted "<<donors.size()<<" donors: ";
+          // DC-16: bounded message (a whole-domain field listed every donor: ~15 MB per exception, retained by callers)
+          for(size_t k=0;k<donors.size()&&k<8;++k){const auto& donor=donors[k];why<<donor.cell.id<<'[';for(auto n:donor.cell.v)why<<n.id<<',';why<<"]";}
+          if(donors.size()>8)why<<"...";
           throw std::runtime_error(why.str());
         }
       }
