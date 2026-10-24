@@ -1,0 +1,158 @@
+DC-14 full ONERA M6, FIRST_ROW event 0 (h0 x32 = 6.4e-5 m), chain_b3 - diagnosis of the killed run (2026-10-24)
+=====================================================================================================================
+Inputs: chain_b3/event0/event0.out, event0.cfg, event0_final.mesh (09:15:49), campaign.log, input Coarse.su2
+(sha 8c839170..., identical in dc7/m6_field and oneram6_frozen_v1), sources CNativeBLPipeline3D.hpp, BLVolume13.inl,
+BLFirstRow9.inl, BLOptionA10.inl, cut reference cuts_b3/dc13_m6_root_te_h0x32.json. Read-only analysis with python
+(numpy/scipy): no SU2 or test_driver run was made. Wall distances = exact point-triangle distance against the 12-16
+nearest final wall triangles (KD tree of triangle centroids); h0 = 6.4e-5 m for the only BL marker WING3D.
+Regions by the wall foot point: root/sym eta < 5 %, tip eta > 95 %, LE chord fraction < 5 %, TE > 95 %, else mid-wing;
+far field = wall distance > 1 m. Bands are distance / h0. Classes from the exported cell_gates: first row = cell on a
+wall face, BL column = cell in the star of a registered apex, volume = the rest (no fan cells exist).
+
+1. WHAT event0_final.mesh IS
+----------------------------
+Written by dc10::ExportGates10 in CNativeBLPipeline3D.hpp after PhaseV13 returned and after the cached dc9::Final(*s)
+and BadWitness: it is the state after V (W -> R1 -> R2 -> G -> V, V stopped after sweep 0 by its time limit; only one
+"DC12 V sweep" line exists and a second sweep would have printed one). Its gates are the cached gates of that state.
+After the export the pipeline started the independent uncached audit (copy of the state, new field, Prepare, Final);
+the process was in that audit for 31 min (09:15:49 -> kill at 09:46:42) when the 9000 s timeout killed it, so no
+report, no receipt, no accept/reject decision.
+Validity (computed here): 715127 tets, all signed volumes > 0 (min 2.3e-15 m^3, min vol/lmax^3 = 4.9e-7, none < 1e-8);
+metric shape q_min 0.0127 > 0, J_min 0.00133 >= 1e-3, so no inverted or metric-invalid cell. Gates (match the log):
+bad 103826 (q < .20 or J < .05), long 158791, first-height failures 89 (my independent apex-height count is also
+exactly 89). An intermediate event is accepted iff invalid == 0 AND height_failures == 0, so even a finished audit
+would have REJECTED this event because of the 89 height failures.
+The 89 height failures are exactly the 89 wall faces without a registered column (38711 of 38800 rowed): 86 at the
+wing tip / trailing-edge corner (x ~ 1.143, y ~ 1.197, z ~ 0), 2 TE, 1 root; apex height 1.12 .. 42 h0 (median 2.0).
+
+2. TIME PER PHASE
+-----------------
+No per-phase timing reached the log (the JSON report and perf table are written only at finish). Measured / derived:
+  process start 07:16:42; driver + frozen-sensor prepare ~7 s (prepare_seconds 6.7 in the same binary/input run of
+    chain_b3_rejected_repartition); pipeline budget 7200 s, reserve 720 s, usable 6480 s.
+  Load + W + R1 + R2 + G (combined): ~1650-1900 s (DERIVED: export at +7147 s, minus the 5205 s V sweep, minus the
+    post-V cached Final + BadWitness + export; consistent with V's time limit being 6480 - pre-V and sweep 0
+    overrunning it by its closing Final). Caps: W 518 s, R1 324 s, R2 1620 s, G 778 s.
+    ESTIMATED split from the cut rates (cut: W 0.76 s, R1 0.005 s, R2 11.2 s, G 0.62 s for 185 wall faces, 87
+    columns): W did nothing to the wall (38800 wall faces in = out, 0 long wall edges) - tens to a few hundred s of
+    Option-A evaluation; R1 negligible; R2 the dominant part, ~60 ms/face x 38.8k faces ~ 1000-1600 s (near its cap);
+    G ~ 7 ms/column x 38.7k ~ 300 s, stopping after 0-1 layers (refusals, see 3).
+  V: sweep 0 = 5205 s (measured, the only sweep). Slices by code: R2 retry <= 60 s, first-row loop <= .1R, refinement
+    <= .4R and at most v13AttemptsPerSweep = 303359/32 = 9480 attempts (sized from the INPUT cell count), repair
+    <= .65R, optimizer >= .4R of the sweep, then a full Final scan of ~1M edges.
+  post-V cached Final + BadWitness + ExportGates (80 MB): small part of the remaining ~ minutes (not separable).
+  Audit (uncached Final on 715k cells): > 1853 s and unfinished when killed. The cut costs 4.35 ms/cell uncached
+    (Reaudit 35.6 s / 8192 cells), i.e. ~3100 s (~52 min) PROJECTED here - 4.3x the 720 s reserve.
+
+3. WHERE THE LONG EDGES AND BAD CELLS ARE
+------------------------------------------
+All cells, band x type:
+  band[h0]   volume  first   column   total      coarse input cells in the same band
+  <1             85  38796    71336  110217        628
+  1-3         34391      2    74525  108918       3218
+  3-10        87997      0    12784  100781      11591
+  10-30       69727      2    36975  106704      37737
+  30-100      83372      0    16947  100319      56639
+  100-300     52874      0       90   52964      55489
+  300-1e3     52814      0        0   52814      55647
+  1e3-1e4     43459      0        0   43459      43459
+  >1e4        38951      0        0   38951      38951
+175000 cells are untouched original coarse cells (all bands >= 1e3 h0 entirely, 44.6k of 52.8k in 300-1e3).
+Bad cells 103826: 66864 BL-column cells (64 %), 36960 volume cells (36 %), 2 first-row cells. Medians q 0.092,
+J 0.011; 87.7k fail both q and J (flat slivers/needles, not inversions). 282 are untouched original cells.
+  by band: <1 2668, 1-3 2956, 3-10 14166, 10-30 46854, 30-100 32638, 100-300 4536, >300 8  (77 % in 10-100 h0)
+  by region: TE 40652 (24577 volume + 16073 column), mid-wing 30774 (27172 column), tip 16711, root/sym 9538,
+    LE 6151, far field 0.  By span, bad cells peak at eta < 0.1 (13.6k) and 0.9-1.0 (17.3k), like the wall faces.
+Long edges 158791: metric length median 5.48, p90 8.83, p99 16.8, max 52.1; 0 unmeasurable; class interior 157912,
+sym/far skin 879, wall 0, seam 0; 30361 lie only inside BL columns; 40967 (26 %) are original coarse edges; 29965
+are edges of untouched original cells.
+  by band (count, median, p90, original share, median physical length):
+    <1     2244  1.86  1.93   2 %  5.0 mm   |  30-100   69631  7.00  8.91  30 %  7.5 mm
+    1-3    7372  2.67  2.89   9 %  3.1 mm   |  100-300  16632  5.33 10.56  47 % 10.8 mm
+    3-10  18493  3.66  4.90  15 %  2.4 mm   |  300-1e3     48  8.83  8.83  73 % 44 mm
+    10-30 44371  5.86  7.23  20 %  4.2 mm   |  >1e3 h0      0
+  by region: TE 57762 (median 5.1), tip 37321 (4.1, 48 % original), mid-wing 34571 (7.6), root/sym 22579 (3.7,
+    44 % original), LE 6558 (7.1), far field 0.
+ANSWER to "mostly in the coarse far field that V never reached?": NO. There are no long edges beyond 1000 h0
+(6.4 cm) and none in the far field: the untouched coarse far field already satisfies the target. 82 % of the long
+edges are in 10-300 h0 (0.6-19 mm, the BL band up to ADAP_BL_THICKNESS = 0.01 m = 156 h0 and its transition), where
+the BL law asks for normal spacings ~h0*1.2^k and the mesh still has coarse-volume vertices.
+Cause visible in the data: G built almost no layers. Nodes by band: 19.5k wall nodes, 39.0k at 0.5-1.5 h0, then only
+8.7k at 1.5-3 h0 and 8.6k at 3-6 h0 (one full layer would be ~19.5k): most columns stopped after 0-1 layers (in the
+cut: 'clearance: moved cell inverts (the volume above is too close)', 184 refusals for 87 columns). The apex star
+(column cells) reaches median 3.5 h0, but p75 75 h0 and p90 126 h0: a quarter of the columns join the h0 row
+directly to coarse vertices 30-130 h0 above it - those cone cells are the 10-100 h0 bad column cells, and their
+lateral/normal edges are the long edges. At the LE (pictures) the coarse wall facets (~5 mm) sit under a 6.4e-5 m
+first row with no column at all above it; at the TE the blunt base corners carry fans of slivers and the near wake
+volume (0-10 mm) is bad.
+
+4. WHY 715k CELLS (and the 500k target)
+---------------------------------------
++411.8k cells over the 303.4k input, ALL within 100 h0 (6.4 mm) of the wall (bands >= 100 h0 have fewer or equal
+cells than the input). 251.5k are first-row + column cells built by R1/R2 (first row, lifts, apexes; 38711
+columns, ~6.5 cells per column) and G; the volume below 100 h0 grew from 109.8k to 275.6k cells (re-triangulation
+around the lifts/apexes in R2, G transactions, V refinement - V can have added at most a few 10^4 in 9480 attempts).
+By region: TE 76.2k -> 295.6k (41 % of the mesh; 40 % of the input wall faces lie in the last 5 % of chord), tip
+62.2k -> 124.5k, mid-wing 67.4k -> 138.8k, root 41.1k -> 93.7k, LE 20.5k -> 26.4k, far field unchanged 36.1k.
+W added nothing (wall faces 38800 = input). Not separable between R2 and G without the lost report.
+NOTE: ADAP_COMPLEXITY = 500000 is the metric complexity (integral of sqrt(det M)), not a cell budget. A unit mesh of
+complexity C has O(C) vertices and roughly 6-8 C tets, i.e. several million tets for 500k. With 141k vertices and
+159k edges at 5-9x the target length this mesh is UNDER-refined against its target, not over it. The cut shows the
+same: m6_root_te grew 1200 -> 8192 cells (6.8x) before it was accepted. The relevant question is whether the
+option-A budget (BL law) is affordable at all; that reassessment was never reached.
+
+5. PICTURES (dc14/png_full/, checked one by one)
+------------------------------------------------
+event0_span{20,50,90}_{le,te}.png, planes y = 20/50/90 % of the span; panels A whole section, B the edge
+(3 % chord), C 8 h0 around the edge. Colours: blue first row, cream column, red below the final shape gate, orange
+edge > 1.8. What they show:
+  LE (all spans): coarse ~5 mm wall facets; a 6.4e-5 m first row directly under coarse tets; the cells above are red
+    (needle/flat) at every span; no column growth.
+  TE (all spans): the base corners (C) have the first row and a few column cells, then red slivers fanning from the
+    corner vertex; B shows a red cloud of 10-15 mm around the TE and the near wake with many orange long edges, and
+    the lower surface near the TE with fans of long edges from single coarse vertices.
+  A: orange dots (long edges crossing the plane) all along both surfaces within a few mm of the wall, nothing away
+    from the wing - same conclusion as section 3.
+
+6. RECOMMENDATION
+-----------------
+Top 3 cost centres:
+  C1 uncached independent audit: ~4.35 ms/cell (projected ~3100 s here, > 4x the 720 s reserve) - killed the run.
+     The cached Final at every V sweep end and after V is the same scan (~1M metric edge integrations).
+  C2 V sweep structure: one sweep = 5205 s with fixed fractions of the whole remaining budget, a full-mesh long-edge
+     scan, all refinement variants admitted per edge (Admit12 ~23 ms each in the cut) and an optimizer slice >= 40 %;
+     attempt cap 9480/sweep against 158.8k long edges -> no convergence possible in any budget.
+  C3 R2 on 38.8k wall faces (~60 ms/face, estimated ~1000-1600 s), plus W evaluating Option-A on a wall that needs
+     no change.
+Top 3 defect causes:
+  D1 G stops after 0-1 layers (clearance/validity refusals against the coarse volume above the columns): the BL band
+     3-300 h0 keeps coarse vertices -> 130k long edges in 10-300 h0 and the 10-100 h0 cone slivers (77 % of bad).
+  D2 89 unrowed wall faces at the tip/TE corner (three boundary planes) -> 89 height failures -> the event is
+     rejected regardless of everything else.
+  D3 TE base corners and near wake (40.7k bad, 57.8k long, 41 % of the cells): first row + corner fans with no
+     coordinated column/volume construction there; LE: coarse wall facets under the thin row (no surface/metric
+     reconciliation at the LE, W changed nothing).
+Smallest set of changes for one valid full-wing x32 cycle in 30-60 min serial:
+  1 (speed, C1) intermediate events (final_cycle 0) decide acceptance by exactly what the rule needs: exact
+    orientation of every cell + the height rule on the wall faces (seconds, uncached, independent); shape/length
+    deficits are reported from the cached gates, labelled as cached. The full uncached audit is run only on the final
+    cycle, and its cost goes into the budget: node-metric memo local to the audit (fresh, still independent of the
+    construction caches), one edge set built once (sorted vector, not std::set), and the reserve sized from the
+    measured ms/cell x cells.
+  2 (robustness, D1, also removes most of C2's work) make G clear its own room: when a layer step is refused
+    because the volume above is too close, remove the obstructing non-column volume vertices inside the column's
+    envelope up to the BL thickness (cavity re-triangulation of the volume above the stack, existing SplitInsertion /
+    cavity operators, Admit12 validity) and retry, instead of stopping the column. The layers then supply the
+    10-300 h0 vertices that V cannot create by edge splits at 9480 attempts per 5205 s.
+  3 (robustness, D2) at three-boundary-plane vertices (tip/TE corner) R2 must row every wall face or V's first-row
+    route must be guaranteed for the unrowed ones (now limited to 2 tries per face and .1R per sweep): log and test the
+    89 faces of this mesh as a fixed repro (extract a cut around x 1.14, y 1.197).
+  4 (speed, C2) V budget per sweep sized from the work (attempt cap from the current long-edge count, not the input
+    cell count; optimizer only over cells touched in the sweep; long-edge list and gate counts maintained by Apply
+    deltas instead of a full rescan per sweep), and a hard V cap for intermediate events (e.g. 15 min) since their
+    acceptance does not need the final gates.
+  With 1 + 3 alone the current state would already pass the intermediate rule (no inverted cell; heights fixed) in
+  ~ 30 (pre-V) + 15 (capped V) + ~2 (audit) min; 2 and 4 are what makes the next cycles converge towards the final
+  gates. Open doubts: the W/R1/R2/G split is estimated, not measured (rerun with the per-phase timing printed to
+  stdout - JsonStage seconds and the perf table flushed after each phase - would settle it); the region thresholds
+  (5 % chord/span) are conventions.
