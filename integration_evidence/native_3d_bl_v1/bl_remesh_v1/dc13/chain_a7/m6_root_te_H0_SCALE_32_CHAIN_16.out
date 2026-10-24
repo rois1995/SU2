@@ -1,0 +1,41 @@
+Filters: [NativeFirstRowDC13]
+DC13 m6_root_te x32 loaded: cells=1200 wall_faces=185
+DC13 m6_root_te x32 R2 rowed=132 G lifted=76 t=22.8715
+DC12 V sweep 0 cells=7849 long=109 bad=0 h=0 t=75.1296
+DC12 V sweep 1 cells=8142 long=14 bad=0 h=0 t=82.8986
+DC12 V sweep 2 cells=8192 long=0 bad=0 h=0 t=85.0031
+DC13 m6_root_te step 0 x32 final cells=8192 long=0 bad=0 h=0 complete=1 t=144.909
+DC13 m6_root_te step 1 column insertions=238 refused=0
+DC13 m6_root_te step 1 x16 halved=247 refused=0
+DC12 V sweep 0 cells=18427 long=37 bad=10 h=0 t=116.266
+DC12 V sweep 1 cells=18599 long=0 bad=6 h=0 t=122.385
+DC12 V sweep 2 cells=18599 long=0 bad=6 h=0 t=124.24
+DC12 V sweep 3 cells=18599 long=0 bad=6 h=0 t=125.67
+DC12 V sweep 4 cells=18599 long=0 bad=6 h=0 t=127.07
+DC13 m6_root_te step 1 x16 final cells=18599 long=0 bad=6 h=0 complete=0 t=245.989
+===============================================================================
+All tests passed (6 assertions in 1 test case)
+
+	Command being timed: "env SU2_DC13_H0_SCALE=32 SU2_DC13_CHAIN=16 SU2_DC13_INPUT_SHA=6180b5e24481b6e7d8c422cf2bd4604bb19c794ae465a090899a98dc2cb82f05 SU2_DC13_BINARY_SHA=1a82a7269052945e84e34a5f6053de63338aece804db792642bbed336ece7eea SU2_DC13_ROOT=/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/bl_remesh_v1/dc13/chain_a7 SU2_DC13_WP0B=/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/robust_junction_v1/wp0b SU2_DC13_M6=/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/bl_remesh_v1/dc7/m6_cuts SU2_DC13_CASES=m6_root_te nice -n 19 timeout --kill-after=5s 14400s /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/bl_remesh_v1/dc13/bin/test_driver_a7 [NativeFirstRowDC13] --use-colour no"
+	User time (seconds): 390.05
+	System time (seconds): 0.19
+	Percent of CPU this job got: 99%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 6:31.34
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 211180
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 2
+	Minor (reclaiming a frame) page faults: 55539
+	Voluntary context switches: 598
+	Involuntary context switches: 9730
+	Swaps: 0
+	File system inputs: 0
+	File system outputs: 5664
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0

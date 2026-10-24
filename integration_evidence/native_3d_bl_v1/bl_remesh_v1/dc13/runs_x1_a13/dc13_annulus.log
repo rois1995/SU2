@@ -1,0 +1,74 @@
+DC10 W sweep 0 wall_faces=2 long_wall_edges=5 work=0
+DC10 W unmeasurable 8-16 w(a)=0 w(mid)=0 w(b)=0 crease=0 : Native 3D composed edge panel is unrepresentable.
+DC10 W sweep 1 wall_faces=8 long_wall_edges=2 work=5
+DC10 W unmeasurable 8-16 w(a)=0 w(mid)=0 w(b)=0 crease=0 : unmeasurable composed edge (cached)
+DC10 W sweep 2 wall_faces=12 long_wall_edges=0 work=7
+DC9 R1 deficient 1 -> 0 accepted=1 outcome=complete
+DC9 R2 tx v=16 |V|=1 low=0 ok=1 old=8 fresh=40 sectors=0 gaps=0 cls= 
+DC9 R2 tx v=19 |V|=1 low=0 ok=0 old=15 fresh=0 sectors=0 gaps=0 cls=clearance moved cell 67 inverts; |V|=1 moved in cell: v19(delta/deltaK=3.542,H/h0=1.1,rank 1,s*=1)
+DC9 R2 tx v=19 |V|=1 low=1 ok=0 old=15 fresh=0 sectors=0 gaps=0 cls=clearance moved cell 67 inverts; |V|=1 low band moved in cell: v19(delta/deltaK=3.0429,H/h0=0.945,rank 1,s*=1)
+DC9 R2 tx v=19 |V|=2 low=1 ok=1 old=23 fresh=41 sectors=0 gaps=0 cls= 
+DC9 R2 tx v=20 |V|=1 low=0 ok=1 old=15 fresh=23 sectors=0 gaps=0 cls= 
+DC9 R2 tx v=21 |V|=1 low=0 ok=1 old=18 fresh=28 sectors=0 gaps=0 cls= 
+DC9 R2 tx v=17 |V|=1 low=0 ok=1 old=19 fresh=25 sectors=0 gaps=0 cls= 
+DC9 R2 tx v=18 |V|=1 low=0 ok=1 old=17 fresh=23 sectors=0 gaps=0 cls= 
+DC9 R2 tx v=0 |V|=1 low=0 ok=0 old=21 fresh=0 sectors=1 gaps=5 cls=partial-state face 0,19,22: A_f empty (exact LP) with 10 skin faces; inradius/h0=1.025; free-height LP slack=-0.0025; violated at centroid+h0: (57,56,32)=0.833333; lifted: v22(H_n/h0=1.1,tangential/inradius=0.000359889) v0(H_n/h0=1.44342,tangential/inradius=0.859011) v19(H_n/h0=0.945,tangential/inradius=3.5319e-29)
+DC9 R2 tx v=0 |V|=1 low=1 ok=0 old=21 fresh=0 sectors=1 gaps=5 cls=partial-state face 0,19,22 (low band): A_f empty (exact LP) with 10 skin faces; inradius/h0=1.025; free-height LP slack=-0.0025; violated at centroid+h0: (57,56,32)=0.833333; lifted: v22(H_n/h0=1.1,tangential/inradius=0.000359889) v0(H_n/h0=1.1,tangential/inradius=0.654634) v19(H_n/h0=0.945,tangential/inradius=3.5319e-29)
+DC9 R2 tx v=1 |V|=1 low=0 ok=1 old=21 fresh=25 sectors=0 gaps=0 cls= 
+DC9 R2 tx v=8 |V|=1 low=0 ok=0 old=16 fresh=0 sectors=0 gaps=0 cls=sector-link vertex 8: sector-link: link path from seam 12 to junction 18 passes boundary vertex 32; split edge 13-32
+DC9 R2 tx v=8 |V|=1 low=0 ok=0 old=18 fresh=0 sectors=1 gaps=7 cls=partial-state face 8,16,18: A_f empty (exact LP) with 12 skin faces; inradius/h0=1.53933; free-height LP slack=-0.283774; violated at centroid+h0: (61,62,52)=1.1071 (62,60,52)=0.646424; lifted: v8(H_n/h0=1.3,tangential/inradius=0.515158) v18(H_n/h0=1.3,tangential/inradius=0.483147) v16(H_n/h0=1.33929,tangential/inradius=3.45326e-29)
+DC9 R2 tx v=8 |V|=1 low=1 ok=0 old=18 fresh=0 sectors=0 gaps=0 cls=sector vertex 8: sector: no interior link path from seam 13 to junction 18; star: [32 8 11 12 ] [36 8 16 19 ] [36 32 23 8 ] [36 16 8 23 ] [36 8 19 32 ] [8 23 52 13 ] [53 8 18 16 ] [53 23 52 8 ] [53 18 8 52 ] [53 8 16 23 ] [59 8 12 13 ] [59 8 32 12 ] [59 8 13 23 ] [59 8 23 32 ] boundary faces: c25(8,11,12) c6(32,11,8) c6(8,19,32) c24(8,13,52) c24(18,8,52) c26(8,12,13) w(8,16,19) w(8,18,16)
+DC9 R2 tx v=9 |V|=1 low=0 ok=0 old=16 fresh=0 sectors=0 gaps=0 cls=sector vertex 9: sector: no interior link path from seam 13 to junction 18; star: [9 39 10 14 ] [39 9 13 14 ] [43 39 9 13 ] [45 21 9 20 ] [45 39 9 43 ] [45 9 21 43 ] [45 20 9 39 ] [52 43 9 13 ] [54 18 9 21 ] [54 43 9 52 ] [54 9 18 52 ] [54 21 9 43 ] boundary faces: c27(9,14,10) c8(9,10,39) c28(9,13,14) c8(20,9,39) c24(52,13,9) c24(9,18,52) w(21,9,20) w(18,9,21)
+DC9 R2 tx v=0 |V|=1 low=0 ok=0 old=23 fresh=0 sectors=1 gaps=5 cls=partial-state face 0,19,22: A_f empty (exact LP) with 10 skin faces; inradius/h0=1.025; free-height LP slack=-0.0025; violated at centroid+h0: (61,60,32)=0.833333; lifted: v22(H_n/h0=1.1,tangential/inradius=0.000359889) v0(H_n/h0=1.44342,tangential/inradius=0.859011) v19(H_n/h0=0.945,tangential/inradius=3.5319e-29)
+DC9 R2 tx v=0 |V|=1 low=1 ok=0 old=23 fresh=0 sectors=1 gaps=5 cls=partial-state face 0,19,22 (low band): A_f empty (exact LP) with 10 skin faces; inradius/h0=1.025; free-height LP slack=-0.0025; violated at centroid+h0: (61,60,32)=0.833333; lifted: v22(H_n/h0=1.1,tangential/inradius=0.000359889) v0(H_n/h0=1.1,tangential/inradius=0.654634) v19(H_n/h0=0.945,tangential/inradius=3.5319e-29)
+DC9 R2 tx v=8 |V|=1 low=0 ok=0 old=18 fresh=0 sectors=1 gaps=7 cls=partial-state face 8,16,18: A_f empty (exact LP) with 12 skin faces; inradius/h0=1.53933; free-height LP slack=-0.283774; violated at centroid+h0: (61,62,52)=1.1071 (62,60,52)=0.646424; lifted: v8(H_n/h0=1.3,tangential/inradius=0.515158) v18(H_n/h0=1.3,tangential/inradius=0.483147) v16(H_n/h0=1.33929,tangential/inradius=3.45326e-29)
+DC9 R2 tx v=8 |V|=1 low=1 ok=0 old=18 fresh=0 sectors=0 gaps=0 cls=sector vertex 8: sector: no interior link path from seam 13 to junction 18; star: [32 8 11 12 ] [36 8 16 19 ] [36 32 23 8 ] [36 16 8 23 ] [36 8 19 32 ] [8 23 52 13 ] [53 8 18 16 ] [53 23 52 8 ] [53 18 8 52 ] [53 8 16 23 ] [59 8 12 13 ] [59 8 32 12 ] [59 8 13 23 ] [59 8 23 32 ] boundary faces: c25(8,11,12) c6(32,11,8) c6(8,19,32) c24(8,13,52) c24(18,8,52) c26(8,12,13) w(8,16,19) w(8,18,16)
+DC9 R2 tx v=9 |V|=1 low=0 ok=0 old=16 fresh=0 sectors=0 gaps=0 cls=sector vertex 9: sector: no interior link path from seam 13 to junction 18; star: [9 39 10 14 ] [39 9 13 14 ] [43 39 9 13 ] [45 21 9 20 ] [45 39 9 43 ] [45 9 21 43 ] [45 20 9 39 ] [52 43 9 13 ] [54 18 9 21 ] [54 43 9 52 ] [54 9 18 52 ] [54 21 9 43 ] boundary faces: c27(9,14,10) c8(9,10,39) c28(9,13,14) c8(20,9,39) c24(52,13,9) c24(9,18,52) w(21,9,20) w(18,9,21)
+DC9 R2 transactions=7 lifted=8 unlifted=3 rowed=6 unrowed=6
+DC12 G refuse |T|=8 cls=clearance moved cell 104 inverts (the volume above is too close)
+DC12 G refuse |T|=1 cls=clearance moved cell 196 inverts (the volume above is too close)
+DC12 G refuse |T|=1 cls=clearance moved cell 266 inverts (the volume above is too close)
+DC12 G refuse |T|=1 cls=clearance moved cell 104 inverts (the volume above is too close)
+DC12 G refuse |T|=1 cls=clearance moved cell 246 inverts (the volume above is too close)
+DC12 G refuse |T|=1 cls=clearance moved cell 167 inverts (the volume above is too close)
+DC12 G refuse |T|=1 cls=validity fresh cell q=0.0101975 J=0.000426017
+DC12 G refuse |T|=1 cls=clearance moved cell 196 inverts (the volume above is too close)
+DC12 G refuse |T|=1 cls=clearance moved cell 266 inverts (the volume above is too close)
+DC12 G refuse |T|=1 cls=clearance moved cell 104 inverts (the volume above is too close)
+DC12 G refuse |T|=1 cls=validity fresh cell q=0.0101975 J=0.000426017
+DC12 G layer 0 planned=8 lifted_total=4 refused_total=11 t=0.031782009
+DC9 R2 tx v=0 |V|=1 low=0 ok=0 old=23 fresh=0 sectors=1 gaps=5 cls=partial-state face 0,19,22: A_f empty (exact LP) with 10 skin faces; inradius/h0=1.025; free-height LP slack=-0.0025; violated at centroid+h0: (65,64,32)=0.833333; lifted: v22(H_n/h0=1.1,tangential/inradius=0.000359889) v0(H_n/h0=1.44342,tangential/inradius=0.859011) v19(H_n/h0=0.945,tangential/inradius=3.5319e-29)
+DC9 R2 tx v=0 |V|=1 low=1 ok=0 old=23 fresh=0 sectors=1 gaps=5 cls=partial-state face 0,19,22 (low band): A_f empty (exact LP) with 10 skin faces; inradius/h0=1.025; free-height LP slack=-0.0025; violated at centroid+h0: (65,64,32)=0.833333; lifted: v22(H_n/h0=1.1,tangential/inradius=0.000359889) v0(H_n/h0=1.1,tangential/inradius=0.654634) v19(H_n/h0=0.945,tangential/inradius=3.5319e-29)
+DC9 R2 tx v=8 |V|=1 low=0 ok=0 old=19 fresh=0 sectors=1 gaps=7 cls=partial-state face 8,16,18: A_f empty (exact LP) with 12 skin faces; inradius/h0=1.53933; free-height LP slack=-0.283774; violated at centroid+h0: (65,66,52)=1.1071 (66,64,52)=0.646424; lifted: v8(H_n/h0=1.3,tangential/inradius=0.515158) v18(H_n/h0=1.3,tangential/inradius=0.483147) v16(H_n/h0=1.33929,tangential/inradius=3.45326e-29)
+DC9 R2 tx v=8 |V|=1 low=1 ok=0 old=19 fresh=0 sectors=0 gaps=0 cls=sector vertex 8: sector: no interior link path from seam 13 to junction 18; star: [32 8 11 12 ] [36 8 16 19 ] [36 32 23 8 ] [36 16 8 23 ] [36 8 19 32 ] [53 8 18 16 ] [53 23 52 8 ] [53 18 8 52 ] [53 8 16 23 ] [59 8 12 13 ] [59 8 32 12 ] [59 8 13 23 ] [59 8 23 32 ] [8 23 60 13 ] [60 8 52 23 ] boundary faces: c25(8,11,12) c6(32,11,8) c6(8,19,32) c24(18,8,52) c26(8,12,13) c24(8,13,60) c24(60,52,8) w(8,16,19) w(8,18,16)
+DC9 R2 tx v=9 |V|=1 low=0 ok=0 old=20 fresh=0 sectors=0 gaps=0 cls=sector-link vertex 9: sector-link: link path from seam 13 to junction 18 passes boundary vertex 62; split edge 13-62
+DC9 R2 tx v=9 |V|=1 low=0 ok=0 old=22 fresh=0 sectors=0 gaps=0 cls=sector vertex 9: sector: no interior link path from seam 13 to junction 18; star: [45 21 9 20 ] [45 39 9 43 ] [45 9 21 43 ] [45 20 9 39 ] [54 18 9 21 ] [54 43 9 52 ] [54 9 18 52 ] [54 21 9 43 ] [60 52 9 43 ] [9 62 10 14 ] [62 43 9 39 ] [60 63 9 13 ] [63 60 9 43 ] [63 43 9 62 ] [64 9 13 14 ] [64 9 63 13 ] [64 9 14 62 ] [64 9 62 63 ] boundary faces: c8(20,9,39) c24(9,18,52) c24(60,9,52) c27(9,14,10) c8(9,10,62) c8(62,39,9) c24(60,13,9) c28(9,13,14) w(21,9,20) w(18,9,21)
+DC9 R2 tx v=0 |V|=1 low=0 ok=0 old=23 fresh=0 sectors=1 gaps=5 cls=partial-state face 0,19,22: A_f empty (exact LP) with 10 skin faces; inradius/h0=1.025; free-height LP slack=-0.0025; violated at centroid+h0: (66,65,32)=0.833333; lifted: v22(H_n/h0=1.1,tangential/inradius=0.000359889) v0(H_n/h0=1.44342,tangential/inradius=0.859011) v19(H_n/h0=0.945,tangential/inradius=3.5319e-29)
+DC9 R2 tx v=0 |V|=1 low=1 ok=0 old=23 fresh=0 sectors=1 gaps=5 cls=partial-state face 0,19,22 (low band): A_f empty (exact LP) with 10 skin faces; inradius/h0=1.025; free-height LP slack=-0.0025; violated at centroid+h0: (66,65,32)=0.833333; lifted: v22(H_n/h0=1.1,tangential/inradius=0.000359889) v0(H_n/h0=1.1,tangential/inradius=0.654634) v19(H_n/h0=0.945,tangential/inradius=3.5319e-29)
+DC9 R2 tx v=8 |V|=1 low=0 ok=0 old=19 fresh=0 sectors=1 gaps=7 cls=partial-state face 8,16,18: A_f empty (exact LP) with 12 skin faces; inradius/h0=1.53933; free-height LP slack=-0.283774; violated at centroid+h0: (66,67,52)=1.1071 (67,65,52)=0.646424; lifted: v8(H_n/h0=1.3,tangential/inradius=0.515158) v18(H_n/h0=1.3,tangential/inradius=0.483147) v16(H_n/h0=1.33929,tangential/inradius=3.45326e-29)
+DC9 R2 tx v=8 |V|=1 low=1 ok=0 old=19 fresh=0 sectors=0 gaps=0 cls=sector vertex 8: sector: no interior link path from seam 13 to junction 18; star: [32 8 11 12 ] [36 8 16 19 ] [36 32 23 8 ] [36 16 8 23 ] [36 8 19 32 ] [53 8 18 16 ] [53 23 52 8 ] [53 18 8 52 ] [53 8 16 23 ] [59 8 12 13 ] [59 8 32 12 ] [59 8 13 23 ] [59 8 23 32 ] [8 23 60 13 ] [60 8 52 23 ] boundary faces: c25(8,11,12) c6(32,11,8) c6(8,19,32) c24(18,8,52) c26(8,12,13) c24(8,13,60) c24(60,52,8) w(8,16,19) w(8,18,16)
+DC9 R2 tx v=9 |V|=1 low=0 ok=0 old=22 fresh=0 sectors=0 gaps=0 cls=sector vertex 9: sector: no interior link path from seam 13 to junction 18; star: [45 21 9 20 ] [45 39 9 43 ] [45 9 21 43 ] [45 20 9 39 ] [54 18 9 21 ] [54 43 9 52 ] [54 9 18 52 ] [54 21 9 43 ] [60 52 9 43 ] [9 62 10 14 ] [62 43 9 39 ] [60 63 9 13 ] [63 60 9 43 ] [63 43 9 62 ] [64 9 13 14 ] [64 9 63 13 ] [64 9 14 62 ] [64 9 62 63 ] boundary faces: c8(20,9,39) c24(9,18,52) c24(60,9,52) c27(9,14,10) c8(9,10,62) c8(62,39,9) c24(60,13,9) c28(9,13,14) w(21,9,20) w(18,9,21)
+DC9 R2 transactions=0 lifted=8 unlifted=3 rowed=6 unrowed=6
+DC12 V optimize sweep 0 bad 48->4 min 0.16155916920213856->0.41603887336354395 O1=28 O2=0 O3=1 O4=29 stop=no progress t=0.256820196
+DC12 V sweep 0 cells=417 long=19 bad=4 height_fail=0 unmeasurable=1 work=242 t=1.858375914
+DC9 R2 tx v=0 |V|=1 low=0 ok=0 old=20 fresh=0 sectors=0 gaps=0 cls=sector-link vertex 0: sector-link: link path from seam 131 to junction 19 passes boundary vertex 73; split edge 131-73
+DC9 R2 tx v=0 |V|=1 low=0 ok=0 old=22 fresh=0 sectors=0 gaps=0 cls=sector-link vertex 0: sector-link: link path from seam 131 to junction 19 passes boundary vertex 32; split edge 164-32
+DC9 R2 tx v=0 |V|=1 low=0 ok=0 old=24 fresh=0 sectors=0 gaps=0 cls=sector-link vertex 0: sector-link: link path from seam 131 to junction 19 passes boundary vertex 73; split edge 164-73
+DC9 R2 tx v=0 |V|=1 low=0 ok=0 old=26 fresh=0 sectors=0 gaps=0 cls=sector-link vertex 0: sector-link: link path from seam 131 to junction 19 passes boundary vertex 32; split edge 165-32
+DC9 R2 tx v=0 |V|=1 low=0 ok=0 old=28 fresh=0 sectors=0 gaps=0 cls=sector-link vertex 0: sector-link: link path from seam 131 to junction 19 passes boundary vertex 73; split edge 165-73
+DC9 R2 tx v=8 |V|=1 low=0 ok=0 old=34 fresh=0 sectors=0 gaps=0 cls=sector vertex 8: sector: seam edge shorter than the band
+DC9 R2 tx v=9 |V|=1 low=0 ok=0 old=28 fresh=0 sectors=0 gaps=0 cls=sector vertex 9: sector: seam edge shorter than the band
+DC9 R2 tx v=0 |V|=1 low=0 ok=0 old=28 fresh=0 sectors=0 gaps=0 cls=sector-link vertex 0: sector-link: link path from seam 131 to junction 19 passes boundary vertex 73; split edge 165-73
+DC9 R2 tx v=0 |V|=1 low=0 ok=0 old=30 fresh=0 sectors=0 gaps=0 cls=sector-link vertex 0: sector-link: link path from seam 131 to junction 19 passes boundary vertex 32; split edge 167-32
+DC9 R2 tx v=0 |V|=1 low=0 ok=0 old=32 fresh=0 sectors=0 gaps=0 cls=sector-link vertex 0: sector-link: link path from seam 131 to junction 19 passes boundary vertex 73; split edge 167-73
+DC9 R2 tx v=0 |V|=1 low=0 ok=0 old=34 fresh=0 sectors=0 gaps=0 cls=sector-link vertex 0: sector-link: link path from seam 131 to junction 19 passes boundary vertex 32; split edge 169-32
+DC9 R2 tx v=0 |V|=1 low=0 ok=0 old=36 fresh=0 sectors=0 gaps=0 cls=sector-link vertex 0: sector-link: link path from seam 131 to junction 19 passes boundary vertex 73; split edge 169-73
+DC9 R2 tx v=8 |V|=1 low=0 ok=0 old=34 fresh=0 sectors=0 gaps=0 cls=sector vertex 8: sector: seam edge shorter than the band
+DC9 R2 tx v=9 |V|=1 low=0 ok=0 old=28 fresh=0 sectors=0 gaps=0 cls=sector vertex 9: sector: seam edge shorter than the band
+DC9 R2 transactions=0 lifted=8 unlifted=3 rowed=6 unrowed=6
+DC12 V optimize sweep 1 bad 51->3 min 0.14365654010872084->0.88894219562626253 O1=53 O2=1 O3=8 O4=32 stop=no progress t=0.192014184
+DC12 V sweep 1 cells=638 long=3 bad=3 height_fail=0 unmeasurable=1 work=355 t=2.724589565
+DC12 V optimize sweep 2 bad 3->1 min 0.88894219562626253->0.89849898777042159 O1=0 O2=1 O3=0 O4=2 stop=no progress t=0.026901991
+DC12 V sweep 2 cells=643 long=1 bad=1 height_fail=0 unmeasurable=1 work=377 t=2.835373562
+DC12 V optimize sweep 3 bad 1->1 min 0.89849898777042159->0.89849898777042159 O1=0 O2=0 O3=0 O4=0 stop=no progress t=0.012413178
+DC12 V sweep 3 cells=643 long=1 bad=1 height_fail=0 unmeasurable=1 work=385 t=2.8690796410000003

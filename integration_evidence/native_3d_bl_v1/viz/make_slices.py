@@ -53,9 +53,13 @@ FN = {"te": "focus", "le": "focus", "root": "focus", "worst": "focus"}
 RUNS = {"single": ("dc11/runs_single", "DC-11 single lift"), "fan": ("dc11/runs_fan", "DC-11 crease fan"),
         "single600": ("dc11/runs_single_600", "DC-11 single lift, 600 s budget"), "dc10": ("dc10/diag2", "DC-10 diag2"),
         "dc12": (os.environ.get("DC12_RUN_DIR", "dc12/runs"), "DC-12 build-then-optimize (G growth layers + validity-only V + optimizer)"),
-        "dc12vo": (os.environ.get("DC12_RUN_DIR", "dc12/runs"), "DC-12 production volume-only RefineOptimize (no wall heights)")}
-PREFIX = {"dc10": "dc10", "dc12": "dc12", "dc12vo": "volonly12"}
-OUTS = {"dc12": os.path.join(BASE, os.environ.get("DC12_PNG_DIR", "dc12/png_readable")), "dc12vo": os.path.join(BASE, os.environ.get("DC12_PNG_DIR", "dc12/png_readable"))}
+        "dc12vo": (os.environ.get("DC12_RUN_DIR", "dc12/runs"), "DC-12 production volume-only RefineOptimize (no wall heights)"),
+        "dc13": (os.environ.get("DC13_RUN_DIR", "dc13/runs"), "DC-13 sliver-removing build-then-optimize" + os.environ.get("DC13_NOTE", "")),
+        "dc13vo": (os.environ.get("DC13_RUN_DIR", "dc13/runs"), "DC-13 production volume-only RefineOptimize, promoted faceted reference (no wall heights)")}
+PREFIX = {"dc10": "dc10", "dc12": "dc12", "dc12vo": "volonly12", "dc13": "dc13", "dc13vo": "volonly13"}
+OUTS = {"dc12": os.path.join(BASE, os.environ.get("DC12_PNG_DIR", "dc12/png_readable")), "dc12vo": os.path.join(BASE, os.environ.get("DC12_PNG_DIR", "dc12/png_readable")),
+        "dc13": os.path.join(BASE, os.environ.get("DC13_PNG_DIR", "dc13/png_readable")), "dc13vo": os.path.join(BASE, os.environ.get("DC13_PNG_DIR", "dc13/png_readable"))}
+SUFFIX = os.environ.get("DC_SUFFIX", "")  # e.g. _h0x32 or _h0x32_step1_h0x16 (DC-13 ramp/chain files)
 
 
 # ----------------------------------------------------------------------------------------------- reading
@@ -392,7 +396,8 @@ def slice_counts(m, sl):
 
 def load_case(run, case):
     d, _ = RUNS[run]; pre = PREFIX.get(run, "dc11")
-    mp = os.path.join(BASE, d, f"{pre}_{case}_final.mesh"); jp = os.path.join(BASE, d, f"{pre}_{case}.json")
+    sx = SUFFIX if run.startswith("dc13") else ""
+    mp = os.path.join(BASE, d, f"{pre}_{case}{sx}_final.mesh"); jp = os.path.join(BASE, d, f"{pre}_{case}{sx}.json")
     if not os.path.exists(mp): return None, None
     m = analyse(read_mesh(mp)); js = json.load(open(jp))
     jh = js.get("final", {}).get("height_failures")
@@ -423,7 +428,7 @@ def case_page(run, case):
     fig.text(0.01, 0.918, f"Run: {RUNS[run][1]}.  Cut plane {'xyz'[spec['normal']]} = {sl['off']*sc:.4f} {un}; focus (circle) at "
              f"{'xyz'[iu]}={sl['focus'][0]*sc:.4f}, {'xyz'[iv]}={sl['focus'][1]*sc:.4f} {un}.  This cut crosses {len(sl['cells'])} cells: "
              f"{nf} first-row, {nb} bad, {nl} long edges, {nh} height failures.\n{m['hcheck']}.", fontsize=8.5, color="#333", va="top", linespacing=1.4)
-    out = OUTS.get(run, OUT); os.makedirs(out, exist_ok=True); fn = os.path.join(out, f"{run}_{case}.png")
+    out = OUTS.get(run, OUT); os.makedirs(out, exist_ok=True); fn = os.path.join(out, f"{run}_{case}{SUFFIX if run.startswith('dc13') else ''}.png")
     fig.savefig(fn, dpi=100); plt.close(fig)
     print(f"{fn}: off={sl['off']:.6g} cut_cells={len(sl['cells'])} bad={nb} long={nl} hfail={nh} first={nf}")
     return fn

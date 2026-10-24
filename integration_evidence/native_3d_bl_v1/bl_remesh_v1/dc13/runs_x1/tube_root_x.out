@@ -1,0 +1,35 @@
+Filters: [NativeFirstRowDC13]
+DC13 tube_root_x x1 loaded: cells=1824 wall_faces=64
+DC13 tube_root_x x1 R2 rowed=153 G lifted=66 t=16.7125
+DC12 V sweep 0 cells=9586 long=50 bad=6 h=0 t=101.319
+DC12 V sweep 1 cells=9828 long=4 bad=4 h=0 t=109.374
+DC12 V sweep 2 cells=9842 long=3 bad=4 h=0 t=110.465
+DC12 V sweep 3 cells=9855 long=1 bad=4 h=0 t=112.233
+DC12 V sweep 4 cells=9855 long=1 bad=4 h=0 t=112.877
+DC13 tube_root_x step 0 x1 final cells=9855 long=1 bad=4 h=0 complete=0 t=160.153
+===============================================================================
+All tests passed (6 assertions in 1 test case)
+
+	Command being timed: "env SU2_DC12_REFLECTIVE=symmetry SU2_DC13_INPUT_SHA=66ff374bc857ac2e00bda31ffa00fe707f7e6677b7798b1ce911e85ef1c35159 SU2_DC13_BINARY_SHA=cceaefc988afdc1a31d35c41c709c2caa1da9c88d9447793647d574a2831d237 SU2_DC13_ROOT=/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/bl_remesh_v1/dc13/runs_x1 SU2_DC13_WP0B=/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/robust_junction_v1/wp0b SU2_DC13_M6=/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/bl_remesh_v1/dc7/m6_cuts SU2_DC13_CASES=tube_root_x nice -n 19 timeout --kill-after=5s 14400s /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/bl_remesh_v1/dc13/bin/test_driver_a12 [NativeFirstRowDC13] --use-colour no"
+	User time (seconds): 159.96
+	System time (seconds): 0.04
+	Percent of CPU this job got: 99%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 2:40.57
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 50624
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 2
+	Minor (reclaiming a frame) page faults: 8407
+	Voluntary context switches: 1173
+	Involuntary context switches: 3980
+	Swaps: 0
+	File system inputs: 0
+	File system outputs: 1912
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0

@@ -1,0 +1,36 @@
+Filters: [NativeFirstRowDC13]
+DC13 m6_root_te x32 loaded: cells=1200 wall_faces=185
+DC13 m6_root_te x32 R2 rowed=132 G lifted=76 t=22.9175
+DC12 V sweep 0 cells=7695 long=121 bad=3 h=0 t=71.7629
+DC12 V sweep 1 cells=7996 long=33 bad=1 h=0 t=79.5132
+DC12 V sweep 2 cells=8077 long=14 bad=1 h=0 t=81.5382
+DC12 V sweep 3 cells=8082 long=13 bad=1 h=0 t=82.393
+DC12 V sweep 4 cells=8084 long=12 bad=1 h=0 t=83.4596
+DC12 V sweep 5 cells=8084 long=12 bad=1 h=0 t=84.0627
+DC13 m6_root_te step 0 x32 final cells=8084 long=12 bad=1 h=0 complete=0 t=143.958
+===============================================================================
+All tests passed (5 assertions in 1 test case)
+
+	Command being timed: "env SU2_DC13_H0_SCALE=32 SU2_DC13_INPUT_SHA=6180b5e24481b6e7d8c422cf2bd4604bb19c794ae465a090899a98dc2cb82f05 SU2_DC13_BINARY_SHA=0aec57e4121c8b41beac149e1d03055ec4fd0091e645613ab6628d96298c17e5 SU2_DC13_ROOT=/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/bl_remesh_v1/dc13/ramp_a2 SU2_DC13_WP0B=/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/robust_junction_v1/wp0b SU2_DC13_M6=/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/bl_remesh_v1/dc7/m6_cuts SU2_DC13_CASES=m6_root_te nice -n 19 timeout --kill-after=5s 14400s /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/bl_remesh_v1/dc13/bin/test_driver_a2 [NativeFirstRowDC13] --use-colour no"
+	User time (seconds): 142.96
+	System time (seconds): 0.13
+	Percent of CPU this job got: 99%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 2:24.33
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 168056
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 2
+	Minor (reclaiming a frame) page faults: 44817
+	Voluntary context switches: 1149
+	Involuntary context switches: 9776
+	Swaps: 0
+	File system inputs: 0
+	File system outputs: 1840
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0

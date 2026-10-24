@@ -1,0 +1,55 @@
+Filters: [NativeGrowthLayer12],[NativeApexPlace13]
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+test_driver_a14 is a Catch v2.13.9 host application.
+Run with -? for options
+
+-------------------------------------------------------------------------------
+DC-13 ApexPlace and the halving step on a synthetic box: window, positivity,
+                                                         skin, registrations
+-------------------------------------------------------------------------------
+../../UnitTests/SU2_CFD/adaptation/fixtures/native_first_row_dc13.inc:568
+...............................................................................
+
+../../UnitTests/SU2_CFD/adaptation/fixtures/native_first_row_dc13.inc:578: FAILED:
+  CHECK( HeightOk(*s,wf.first,&w) )
+with expansion:
+  false
+with message:
+  after R2
+
+../../UnitTests/SU2_CFD/adaptation/fixtures/native_first_row_dc13.inc:578: FAILED:
+  CHECK( HeightOk(*s,wf.first,&w) )
+with expansion:
+  false
+with message:
+  after ApexPlace
+
+===============================================================================
+test cases:    2 |    1 passed | 1 failed
+assertions: 2662 | 2660 passed | 2 failed
+
+Command exited with non-zero status 2
+	Command being timed: "nice -n 19 timeout 3600 /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/bl_remesh_v1/dc13/bin/test_driver_a14 [NativeGrowthLayer12],[NativeApexPlace13] --use-colour no"
+	User time (seconds): 3.71
+	System time (seconds): 0.03
+	Percent of CPU this job got: 91%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:04.08
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 44108
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 2
+	Minor (reclaiming a frame) page faults: 6547
+	Voluntary context switches: 1078
+	Involuntary context switches: 683
+	Swaps: 0
+	File system inputs: 0
+	File system outputs: 8
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 2

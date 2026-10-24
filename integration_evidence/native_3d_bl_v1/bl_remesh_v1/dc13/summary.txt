@@ -1,0 +1,93 @@
+DC-13 (base 2a2961fb08 DC-12 + b4763cd166): sliver-removing build-then-optimize, certified column repair, per-marker
+first-height ramp and halving chain. Plan DC13_PLAN.md rev 3 (untracked) with Codex plan reviews 1-2 (DC13_PLAN_REVIEW_*.md,
+untracked) and one Codex code review (codex_review_code.txt; its 3 MAJOR fixed before the final binaries). Serial, nice 19,
+OMP 1, MALLOC_ARENA_MAX 2, one own job at a time. FINAL gates unchanged and absolute (edges <= 1.8, q >= .20, J >= .05,
+first height within 10 % incl. the normal-foot footprint, unmeasurable = failure); fresh re-audit agrees in every row.
+wall/h0 = median wall-edge length / h0 of the final mesh (near-wall anisotropy; comparable across cases).
+
+FIRST ACCEPTED native 3D BL cut mesh: m6_root_te at x32 (every wall marker's h0 x32): 8192 cells, bad 0, long 0, height 0,
+ unmeasurable 0, q .2016 / J .0500, max edge 1.79999, 145 s, first-row audit 0 violations (A2 layer census 82 % < 90 %).
+
+RESULTS (main = M6 at x32 with the halving chain to x16; reference = true h0). complete / cells / bad / long / height /
+ worst q, J / time / wall/h0 (binary):
+ m6_root_te x32         YES  8192  0   0  0  .202 .050   145 s   5.6  (a12, a13 identical)
+ m6_root_te x16 chain   no  18599  6   0  0  .167 .046   246 s  11.2  (a12/a13) 4513 of 8192 cells unchanged, 1813/1845 vertices kept
+ m6_tip_te  x32         no   6977  0   3  1  .200 .050   202 s   2.7  (a12/a13/a14 identical)
+ m6_tip_te  x16 chain   no  15363  4   0  0  .166 .044   310 s   5.4  (a14) 3655 of 6977 cells unchanged
+ m6_le      x32         no  32646 575 23  0  .0067 .0011 1519 s  238   (a12, V limit; x16 not run)
+ cut-slide DIAGNOSTIC (TEST-ONLY, cut-only skin vertices slide in their cut plane, geometry not certified):
+ m6_root_te x16 chain   no  18588  1   3  0  .196 .050   265 s  11.2  (a13; constrained: bad 6, long 0)
+ true h0 reference:
+ tube_root_x            no   9855  4   1  0  .188 .050   160 s   3.0  (a12; DC-12: 33 bad / 69 long)
+ two_tube_y             no  12626  8   2  0  .100 .046   230 s   2.8  (a12; DC-12: 39 / 64)
+ annulus                no    643  1   1  0  .198 .045     4 s   5.0  (a13; long = the unmeasurable input wall edge 8-16;
+                                                                        a12: 468 cells, bad 0, long 1 = the same edge)
+ m6_root_te             no  45631 1188 1098 0 .0061 .0010 1735 s 199  (a12; V limit after 2 sweeps; DC-12: 397 / 235)
+ m6_tip_te              no  36535 927 2176 0 .018 .0017  1850 s  84   (a12; V limit; DC-12: 278 / 1098)
+ m6_le                  not run on the final binaries (stopped for time; DC-12 reference 4254 / 2307)
+ volume-only tube_root_x   COMPLETE 5985 cells, 15 s (promoted faceted reference)
+ volume-only m6_root_te    no: crease conflict GONE (0 "exact-facet resolution conflict"), 5 rounds, 28828 cells, bad 2964,
+                           long 218, q .013 / J .0011, 900 s budget
+ Full M6 Euler production adaptation: not run (no true-h0 M6 cut accepted; the accepted mesh is the x32 ramp cycle).
+
+FIRST-HEIGHT RAMP (coordinator): difficulty falls strongly with less anisotropy. m6_root_te x32 accepted, x8 direct (a2)
+ bad 37 / long 22, x1 (DC-12) 397 / 235. Halving chain x32 -> x16 -> x8 -> x4 (a3, split-only halving): x16 bad 15 / h 2,
+ x8 bad 27 / long 3, x4 bad 285 / long 12 (old-spaced layers refined in the volume -> slivers); with the column
+ redistribution (a5+: law interfaces inserted along every first-row column) x16 bad 6 / h 0, x8 bad 22-26 / long 0-1.
+
+M6 BAD-CELL CLASSES (classify_bad.py; distance of the cell centroid from the wall in h0):
+ m6_le x32 (575): 458 cut-touching volume (1-5 h0: 328), 86 wall/cut corner (0-1 h0: 55), 1 real wall/BL, 30 volume
+   (all < 10 h0) -> 94.6 % of the representative (spanwise-stretched, wall/h0 238) case touch the artificial cut.
+ m6_tip_te x1 (927): 489 cut-touching, 123 wall/cut corner, 304 volume, 11 wall/BL. m6_root_te x1 (1188): 472 cut-touching,
+   184 corner, 505 volume, 27 wall/BL. Remaining x16 chain cells: all wall/cut corner (wall vertex, two cut vertices, one free).
+ Tubes (x1): the remaining bad cells are lateral cone cells of first-row columns (apex, 2 wall vertices, lid) and 1-2
+   long edges inside columns.
+
+WHAT WAS BUILT
+ 1 production optimizer (CNativeOptimize3D.hpp / CNativeEngine3D.cpp): PlaceCone min-max placement engine (vertex-mean
+   tensors, deterministic compass search in the metric frame; proposal only), O4m min-max smoothing, O7 shell insertion,
+   O8 neighbourhood insertion (frozen neighbours stay outside the cavity), O7L length-driven insertion (both halves
+   integrated exactly and strictly shorter); every acceptance exact (positivity, validity, strict max-min or O1L rule,
+   ValidateFixedInterface, edge guard, frozen sets, vertex retention). keep_vertices (movable, never removed), boundary flag
+   (O5/O6 off on a mapped parameter reference), TEST-ONLY diagnostic_sliding (cleared in RefineOptimize).
+   PlaceConeInsertion helper for refinement callers. PromoteFacetedReference (production, boundary parameters): plain
+   facets -> v6 mapped authority (1e-13 x scale declared error), used by the volume-only test with canonical face bindings.
+ 2 harness DC-13 (fixtures/native_first_row_dc13.inc): V13 = V12 + best admitted refine variant + placement-optimal
+   ShellCone split + off-wall column edges fall through to the generic refinement (first children protected) + ApexPlace
+   (window-constrained min-max apex placement; certified route) + a certified route for failing registered first
+   children + boundary-constrained repair splits + lids movable in the optimizer (relabelled, never collapsed) + per-class
+   census + bad-cell role witness; h0 multiplier per marker (dc9::h0Scale, ADAP_BL_FIRST_HEIGHT and PROTECT_DISTANCE of
+   the configuration, or the junction policy); halving chain (HalveFirstRow: placement-optimal first-child split in the
+   new window, ColumnInsert: law interfaces along each column edge, no R2 retry in chain steps).
+ 3 rev-1 prism first row withdrawn: the final height gate requires the apex normal foot inside the wall face; lids on
+   vertex directions tilt outward on convex walls (code evidence CheckFirstHeight; Codex review 1 independently).
+ 4 m6_le "regression" (DC-12 4254 bad vs DC-11 737): not G (A/B diag/nog: same growth without G) - validity-only V accepts
+   ~3x more insertions with a similar ~14 % bad fraction; DC-13 placement/insertion operators do not change the x1 result
+   within the 1500 s V budget (cost-limited: 2 V sweeps on root_te x1).
+
+WHAT BLOCKS
+ - True-h0 M6 cuts: V is cost-limited at x1 (2-3 sweeps in 1500 s) and most bad cells touch the artificial cut; the
+   x32 -> x16 step leaves 4-6 wall/cut corner cells whose three boundary vertices are fixed (cut-slide diagnostic: 1 left,
+   long 3) -> the cut fixture itself is the main remaining obstacle; next step: port the DC-13 pipeline to production and
+   run the full M6 (no cut faces), starting at x32.
+ - Tubes: 4-8 lateral cone cells + 1-2 long column edges (single apex columns).
+ - Annulus: one input wall edge whose composed metric edge is unmeasurable ("composed edge panel is unrepresentable").
+
+TESTS (validation_a14/, binary a14 dd0d3c6d...; growth on a15 161803ef... = a14 + a fix of the new synthetic test only):
+ unit3d 33 cases pass; unit2d 57 pass; metric 174 pass (incl. [NativeOptimize3D] 5 cases with the new sliver/O7L/helper
+ test, [NativeShapeAdmission3D]); mesh3d 100/101 with exactly the 6 known failed assertions (CNativeDistributed3D_tests.cpp
+ 1446/1449/1453); airfoil passes; growth ([NativeGrowthLayer12] + new [NativeApexPlace13]) 2 cases / 2662 assertions pass
+ on a15 (on a14 the new test failed by checking faces R2 had not rowed; test fixed). No 2D source touched.
+BINARIES (all deleted after use, sha256 kept): a2 0aec57e4 (first ramp), a3 02c5667e (first accepted mesh, chain), a5-a9
+ (chain variants), a12 cceaefc9 (final campaign), a13 96c45d00 (reruns), a14 dd0d3c6d (tip_te chain, validation), a15
+ 161803ef (growth stage). Sources of every binary are the local WIP commits on this branch (one per binary).
+PROVENANCE NOTE (code review 1): the cut-slide diagnostic receipts carry no explicit flag in "limits"; diagnostic runs are
+ identified by their directories (runs_diag*, png_readable/diag_cutslide) and the V demand counter "DIAGNOSTIC cut vertices
+ allowed to slide" in their JSON; they are never used as a result.
+
+FILES: runs_x32/ (a12), runs_x32_a13/, runs_x32_a14/ (tip_te chain), runs_x1/ (a12), runs_x1_a13/ (annulus),
+ runs_diag/ (a12) and runs_diag_a13/ (TEST-ONLY cut-slide), ramp_a2/ ramp_a3/ (first ramp runs, first accepted mesh),
+ chain_a3/ chain_a5..a9/ (chain iterations; JSON/logs, meshes only for a3), diag/nog/ (G A/B on m6_le, DC-12 binary),
+ png_readable/ (every case incl. failed ones; diag_cutslide/ for the TEST-ONLY run),
+ campaign.log, run_case.sh, run_campaign.sh, run_final.sh, run_a13.sh, run_a14.sh, run_validation.sh, summarize_dc13.py,
+ classify_bad.py, codex_review_code.txt, build*.log, test_driver_*.sha256. Binaries deleted (sha256 kept).

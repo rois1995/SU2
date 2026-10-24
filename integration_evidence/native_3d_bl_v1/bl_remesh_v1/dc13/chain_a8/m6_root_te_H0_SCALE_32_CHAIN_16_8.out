@@ -1,0 +1,50 @@
+Filters: [NativeFirstRowDC13]
+DC13 m6_root_te x32 loaded: cells=1200 wall_faces=185
+DC13 m6_root_te x32 R2 rowed=132 G lifted=76 t=22.9432
+DC12 V sweep 0 cells=7849 long=109 bad=0 h=0 t=75.7031
+DC12 V sweep 1 cells=8142 long=14 bad=0 h=0 t=83.5559
+DC12 V sweep 2 cells=8192 long=0 bad=0 h=0 t=85.6255
+DC13 m6_root_te step 0 x32 final cells=8192 long=0 bad=0 h=0 complete=1 t=145.584
+DC13 m6_root_te step 1 column insertions=256 refused=0
+DC13 m6_root_te step 1 x16 halved=247 refused=0
+DC12 V sweep 0 cells=18640 long=37 bad=17 h=0 t=118.445
+DC12 V sweep 1 cells=18838 long=1 bad=12 h=0 t=127.293
+DC12 V sweep 2 cells=18845 long=1 bad=11 h=0 t=131.347
+DC12 V sweep 3 cells=18845 long=1 bad=9 h=0 t=133.19
+DC12 V sweep 4 cells=18845 long=1 bad=9 h=0 t=134.509
+DC13 m6_root_te step 1 x16 final cells=18845 long=1 bad=9 h=0 complete=0 t=255.317
+DC13 m6_root_te step 2 column insertions=113 refused=0
+DC13 m6_root_te step 2 x8 halved=247 refused=0
+DC12 V sweep 0 cells=28270 long=53 bad=47 h=0 t=151.471
+DC12 V sweep 1 cells=28611 long=2 bad=23 h=0 t=168.126
+DC12 V sweep 2 cells=28629 long=0 bad=24 h=0 t=173.3
+DC12 V sweep 3 cells=28625 long=0 bad=24 h=0 t=177.004
+DC12 V sweep 4 cells=28629 long=0 bad=22 h=0 t=179.618
+DC12 V sweep 5 cells=28629 long=0 bad=22 h=0 t=182.102
+DC13 m6_root_te step 2 x8 final cells=28629 long=0 bad=22 h=0 complete=0 t=360.995
+===============================================================================
+All tests passed (7 assertions in 1 test case)
+
+	Command being timed: "env SU2_DC13_H0_SCALE=32 SU2_DC13_CHAIN=16,8 SU2_DC13_INPUT_SHA=6180b5e24481b6e7d8c422cf2bd4604bb19c794ae465a090899a98dc2cb82f05 SU2_DC13_BINARY_SHA=4514dd1b20944c001fd06e55b54f94221317263f615fe6f54c7934f874a1c97c SU2_DC13_ROOT=/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/bl_remesh_v1/dc13/chain_a8 SU2_DC13_WP0B=/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/robust_junction_v1/wp0b SU2_DC13_M6=/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/bl_remesh_v1/dc7/m6_cuts SU2_DC13_CASES=m6_root_te nice -n 19 timeout --kill-after=5s 14400s /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/bl_remesh_v1/dc13/bin/test_driver_a8 [NativeFirstRowDC13] --use-colour no"
+	User time (seconds): 759.51
+	System time (seconds): 0.26
+	Percent of CPU this job got: 99%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 12:42.44
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 242196
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 2
+	Minor (reclaiming a frame) page faults: 63253
+	Voluntary context switches: 1113
+	Involuntary context switches: 22922
+	Swaps: 0
+	File system inputs: 0
+	File system outputs: 11512
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0

@@ -1,0 +1,15 @@
+Verdict: fix the evidence-reuse and registry bugs before accepting DC-13 results.
+
+1. **MAJOR — Diagnostic results can satisfy ordinary resume checks.** [native_first_row_dc13.inc:409](/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/UnitTests/SU2_CFD/adaptation/fixtures/native_first_row_dc13.inc:409) omits `SU2_DC13_CUT_SLIDE` and `SU2_DC13_UNLIFTED_COLUMNS` from provenance. Reusing the same output directory can silently reuse a sliding run for a constrained run; fresh gate agreement does not certify the deliberately unchecked skin geometry. **Fix:** include both effective switches in receipts and paths, and explicitly exclude sliding receipts from ordinary acceptance.
+
+2. **MAJOR — Unfreezing lids also permits their removal.** [native_first_row_dc13.inc:354](/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/UnitTests/SU2_CFD/adaptation/fixtures/native_first_row_dc13.inc:354) enables collapse of registered lids, but lines 372–374 repair only smoothing relabels. `Collapse`/`BoundaryCollapse` publish no removal mapping, leaving `rows.lift` and column lid/top references dangling. Subsequent reconstruction can fail at `NodePoint`; the apex-only stale-registration audit misses this. **Fix:** protect registered lids from collapse while allowing smoothing, and audit all registered identities.
+
+3. **MAJOR — Annulus ramp receipts describe an unchanged target.** [native_first_row_dc13.inc:422](/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/UnitTests/SU2_CFD/adaptation/fixtures/native_first_row_dc13.inc:422) calls `LoadA1`, which never reads `h0Scale`. Annulus runs labelled x32/x16 retain their original wall policies and heights; the fresh audit repeats that mistake and agrees. **Fix:** apply scaling before composing annulus wall metrics, or reject non-unit annulus multipliers explicitly.
+
+4. **MINOR — Placement limits are not consistently enforced.** [CNativeEngine3D.cpp:3381](/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/Common/src/adaptation/CNativeEngine3D.cpp:3381) starts every placement without another deadline check and forces at least 16 evaluations per start, exceeding small requested budgets. [native_first_row_dc13.inc:457](/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/UnitTests/SU2_CFD/adaptation/fixtures/native_first_row_dc13.inc:457) also runs halving/column insertion without phase work or time limits. **Fix:** share remaining budgets, check deadlines before searches, and bound preprocessing with explicit limit receipts.
+
+No default/environment sliding leak found; however, `RefineOptimize` forwards an explicitly supplied diagnostic map, so reject it there to enforce production isolation.
+Not checked: builds or tests, as requested. Static tracing found no trial-ID memo pollution or stale cell-cache path; runtime correctness remains unverified.
+
+Codex session ID: 01a16b23-a40c-7563-8aa3-a44cd3be43c2
+Resume in Codex: codex resume 01a16b23-a40c-7563-8aa3-a44cd3be43c2

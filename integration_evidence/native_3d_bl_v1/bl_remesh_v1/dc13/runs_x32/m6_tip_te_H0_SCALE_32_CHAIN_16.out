@@ -1,0 +1,53 @@
+Filters: [NativeFirstRowDC13]
+DC13 m6_tip_te x32 loaded: cells=1190 wall_faces=176
+DC13 m6_tip_te x32 R2 rowed=77 G lifted=3 t=24.1194
+DC12 V sweep 0 cells=6762 long=101 bad=3 h=1 t=112.849
+DC12 V sweep 1 cells=6977 long=3 bad=0 h=1 t=123.873
+DC12 V sweep 2 cells=6977 long=3 bad=0 h=1 t=124.411
+DC13 m6_tip_te step 0 x32 final cells=6977 long=3 bad=0 h=1 complete=0 t=200.951
+DC13 m6_tip_te step 1 column insertions=123 refused=0
+DC13 m6_tip_te step 1 x16 halved=183 refused=1
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+test_driver_a12 is a Catch v2.13.9 host application.
+Run with -? for options
+
+-------------------------------------------------------------------------------
+DC-13 sliver-removing build-then-optimize, first-height ramp and halving chain
+-------------------------------------------------------------------------------
+../../UnitTests/SU2_CFD/adaptation/fixtures/native_first_row_dc13.inc:391
+...............................................................................
+
+../../UnitTests/SU2_CFD/adaptation/fixtures/native_first_row_dc13.inc:391: FAILED:
+  {Unknown expression after the reported line}
+due to unexpected exception with message:
+  map::at
+
+===============================================================================
+test cases: 1 | 1 failed
+assertions: 7 | 6 passed | 1 failed
+
+Command exited with non-zero status 1
+	Command being timed: "env SU2_DC13_H0_SCALE=32 SU2_DC13_CHAIN=16 SU2_DC13_INPUT_SHA=ad5eedbf7ef5a73b6c980204572bda97e422e1753161c7332024be89108b044b SU2_DC13_BINARY_SHA=cceaefc988afdc1a31d35c41c709c2caa1da9c88d9447793647d574a2831d237 SU2_DC13_ROOT=/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/bl_remesh_v1/dc13/runs_x32 SU2_DC13_WP0B=/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/robust_junction_v1/wp0b SU2_DC13_M6=/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/bl_remesh_v1/dc7/m6_cuts SU2_DC13_CASES=m6_tip_te nice -n 19 timeout --kill-after=5s 14400s /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/bl_remesh_v1/dc13/bin/test_driver_a12 [NativeFirstRowDC13] --use-colour no"
+	User time (seconds): 268.50
+	System time (seconds): 0.10
+	Percent of CPU this job got: 99%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 4:29.64
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 207152
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 2
+	Minor (reclaiming a frame) page faults: 54436
+	Voluntary context switches: 1191
+	Involuntary context switches: 8322
+	Swaps: 0
+	File system inputs: 0
+	File system outputs: 1624
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 1
