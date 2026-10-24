@@ -42,7 +42,9 @@ HalveStats HalveFirstRow(State& s,Rows10& rows,std::set<Face>& certified) {
     bool ok=true;for(const auto& x:fresh.cells)ok=ok&&Positive(x.v)&&Valid(Shape(s,x));
     if(!ok){++st.refused;++st.why["validity"];continue;}
     std::string hw;if(!HeightT(s,fresh,hw)){++st.refused;++st.why["height: "+Key(hw)];continue;}
-    Apply(s,{wf.first},fresh);rows.apex[wf.second]=q.id;certified.insert(wf.second);++st.split;
+    // only a registered column face follows its new apex (a face without a column - rim, unrowed - stays unregistered:
+    // the column routes assume registered faces have lifted vertices)
+    Apply(s,{wf.first},fresh);if(rows.apex.count(wf.second))rows.apex[wf.second]=q.id;certified.insert(wf.second);++st.split;
   }
   return st;
 }
@@ -558,3 +560,26 @@ TEST_CASE("DC-13 production volume-only build-then-optimize on the promoted face
   }
 }
 
+
+TEST_CASE("DC-13 ApexPlace and the halving step on a synthetic box: window, positivity, skin, registrations", "[NativeApexPlace13]") {
+  using namespace dc13;World world;REQUIRE(world.size==1);
+  Policies policies;artificialMarkers={2};perf=Perf{};ResetCaches();cachesOn=true;
+  BoxSpec b;auto s=SyntheticBox(b);ApplyWallPolicies(*s);DetectCreases(*s);size_t unbound=0;const auto areas=MarkerAreas(*s,unbound);REQUIRE(unbound==0);
+  auto field=ComputeDirectionField(*s);directionField=&field.d;Rows10 rows;std::ostringstream log;
+  PhaseR1(*s,rows,4096,60,log);PhaseR2(*s,static_cast<Rows&>(rows),120,log);REQUIRE(!rows.apex.empty());
+  auto checkMesh=[&](const char* what){INFO(what);long double volume=0;bool positive=true;
+    for(const auto& row:s->mesh){const auto& c=row.second.cell;const auto o=Orientation(c.v[0].p,c.v[1].p,c.v[2].p,c.v[3].p);positive=positive&&o>0;volume+=o;}
+    CHECK(positive);CHECK(std::abs(double(volume/6)-1)<1e-9);size_t u=0;const auto now=MarkerAreas(*s,u);CHECK(u==0);
+    for(const auto& a:areas){const auto f=now.find(a.first);REQUIRE(f!=now.end());CHECK(std::abs(double(f->second-a.second))<=1e-9);}
+    for(const auto& wf:WallFaces(*s)){double w=0;CHECK(HeightOk(*s,wf.first,&w));}
+    CHECK(StaleRegistrations(*s,rows)==0);};
+  checkMesh("after R2");
+  // ApexPlace on every registered face: never worse than its star minimum, first child within the window
+  VStage g;std::set<Face> certified;size_t placed=0;const auto keys=rows.apex;
+  for(const auto& r:keys){std::string why;ResetCaches();if(ApexPlace(*s,rows,r.first,g,why,certified))++placed;}
+  ResetCaches();checkMesh("after ApexPlace");CHECK(placed>=1);
+  // halving step at twice the multiplier-free height: every first child split at h0/2 inside the window
+  for(auto& h:s->heights)h.second/=2;ResetCaches();
+  const auto hv=HalveFirstRow(*s,rows,certified);CHECK(hv.split>=1);CHECK(hv.refused==0);
+  ResetCaches();checkMesh("after halving");
+}

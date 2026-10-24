@@ -3051,8 +3051,9 @@ struct Placement { bool ok=false;Point x;double score=-INFINITY;size_t evaluatio
 Placement PlaceCone(const std::vector<Face>& faces,const std::function<Point(Id)>& point,const std::function<Tensor(Point)>& at,
                     Point start,const std::function<bool(Point)>& admissible,size_t budget=160) {
   Placement out;if(faces.empty())return out;
-  const Tensor t0=at(start);
-  std::map<Id,Tensor> vt;for(const auto& f:faces)for(Id v:f)if(!vt.count(v))vt.emplace(v,at(point(v)));
+  // a start outside the target's coverage (e.g. a smoothing proposal beyond the domain) is no proposal, not an error
+  Tensor t0;std::map<Id,Tensor> vt;
+  try{t0=at(start);for(const auto& f:faces)for(Id v:f)if(!vt.count(v))vt.emplace(v,at(point(v)));}catch(const std::exception&){return out;}
   std::vector<std::array<Point,3>> base;std::vector<Factor3> factor;
   for(const auto& f:faces){Tensor m=t0;for(Id v:f){const auto& t=vt.at(v);m.xx+=t.xx;m.xy+=t.xy;m.xz+=t.xz;m.yy+=t.yy;m.yz+=t.yz;m.zz+=t.zz;}
     m.xx/=4;m.xy/=4;m.xz/=4;m.yy/=4;m.yz/=4;m.zz/=4;const auto c=FactorOf(m);if(!c.ok)return out;factor.push_back(c);
