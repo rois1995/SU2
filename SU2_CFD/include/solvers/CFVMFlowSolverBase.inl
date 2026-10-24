@@ -78,6 +78,8 @@ template <class V, ENUM_REGIME R>
 void CFVMFlowSolverBase<V, R>::Allocate(const CConfig& config) {
   SU2_ZONE_SCOPED
 
+  InitializeWallFunctionComms(&config);
+
   /*--- Define some auxiliar vector related with the residual ---*/
 
   Residual_RMS.resize(nVar,0.0);

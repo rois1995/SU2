@@ -16,6 +16,12 @@ TEST_CASE("Wall-function halos receive each owner's marker state", "[WallFunctio
   auto flow = test.solver[FLOW_SOL];
   auto geometry = test.geometry.get();
   auto config = test.config.get();
+  unsigned short packet = 0;
+  COMM_TYPE datatype{};
+  flow->GetCommCountAndType(config, MPI_QUANTITIES::WALL_FUNCTION, packet, datatype);
+  CHECK(packet == 10); // Three modelled walls; custom and communication markers occupy no slots.
+  CHECK(packet < 1 + 3*config->GetnMarker_CfgFile());
+
   if (SU2_MPI::GetSize() > 1) CHECK(geometry->GetnPoint() > geometry->GetnPointDomain());
   for (int pass = 0; pass < 2; ++pass) {
     for (auto point = 0ul; point < geometry->GetnPoint(); ++point) {
