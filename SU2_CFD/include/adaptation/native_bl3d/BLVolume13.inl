@@ -158,19 +158,6 @@ inline bool v13NearWallFirst=false;
 // sqrt(e^T M(mid) e) otherwise (selection only: every attempted edge is integrated again before its admission); the
 // sweep-end gate scan is skipped when V stops by its limit (the event reports its deficits once afterwards).
 inline bool v13EstimateScan=false,v13SkipFinalOnLimit=false;
-inline long double LenOrEstimate(State& s,Id a,Id b,bool& estimated) {
-  estimated=false;const auto key=std::minmax(a,b);const auto pa=NodePoint(s,key.first),pb=NodePoint(s,key.second);
-  const auto f=s.lengths.find({key.first,key.second});
-  if(f!=s.lengths.end()&&SamePoint(f->second.first[0],pa)&&SamePoint(f->second.first[1],pb)){if(f->second.second<0)throw std::runtime_error("unmeasurable composed edge (cached)");return f->second.second;}
-  const std::array<double,6> k6{pa.x,pa.y,pa.z,pb.x,pb.y,pb.z};const auto g=geometryLengths.find(k6);
-  if(g!=geometryLengths.end()){if(g->second<0)throw std::runtime_error("unmeasurable composed edge (cached)");return g->second;}
-  estimated=true;const V A=Of(pa),E=Of(pb)-A;const Tensor m=s.field->Query(Pt(A+.5L*E)).target;
-  const long double q=E.x*(m.xx*E.x+m.xy*E.y+m.xz*E.z)+E.y*(m.xy*E.x+m.yy*E.y+m.yz*E.z)+E.z*(m.xz*E.x+m.yz*E.y+m.zz*E.z);
-  if(!(q>=0))throw std::runtime_error("non-positive midpoint metric");return std::sqrt(q);
-}
-// DC-14: optimizer boundary operations O5/O6 on a mapped authority (they change skin faces without a parameter
-// transaction). Production: off (as RefineOptimize). The DC-13 harness sets it to reproduce its cut results.
-inline bool v13MappedBoundaryOps=false;
 // DC-16 (B3/B4): demand queue of V. Selection only: one target tensor per vertex (coordinate-checked cache), the geometric
 // edge estimate 2/3 (la^2 + la lb + lb^2)/(la + lb) of the endpoint lengths, a full arithmetic scan once, then only the
 // edges of cells created since the previous scan plus the not yet attempted queue; every attempted edge is integrated
@@ -183,6 +170,25 @@ struct VertexTensors {
     if(f!=at.end()&&SamePoint(f->second.first,p))return f->second.second;++queries;const Tensor t=s.field->Query(p).target;
     auto& slot=at[v];slot={p,t};return slot.second;}
 };
+// DC-16: one event-wide vertex tensor cache (reset by the pipeline scope) for the V queue, the estimated deficits and
+// the diagnostic export; LenOrEstimate then estimates an unmeasured edge from its endpoint tensors instead of a
+// midpoint query
+inline VertexTensors eventTensors;
+inline long double EstimateLength(State& s,VertexTensors& vt,Id a,Id b);
+inline long double LenOrEstimate(State& s,Id a,Id b,bool& estimated) {
+  estimated=false;const auto key=std::minmax(a,b);const auto pa=NodePoint(s,key.first),pb=NodePoint(s,key.second);
+  const auto f=s.lengths.find({key.first,key.second});
+  if(f!=s.lengths.end()&&SamePoint(f->second.first[0],pa)&&SamePoint(f->second.first[1],pb)){if(f->second.second<0)throw std::runtime_error("unmeasurable composed edge (cached)");return f->second.second;}
+  const std::array<double,6> k6{pa.x,pa.y,pa.z,pb.x,pb.y,pb.z};const auto g=geometryLengths.find(k6);
+  if(g!=geometryLengths.end()){if(g->second<0)throw std::runtime_error("unmeasurable composed edge (cached)");return g->second;}
+  estimated=true;if(v13DemandQueue)return EstimateLength(s,eventTensors,a,b);
+  const V A=Of(pa),E=Of(pb)-A;const Tensor m=s.field->Query(Pt(A+.5L*E)).target;
+  const long double q=E.x*(m.xx*E.x+m.xy*E.y+m.xz*E.z)+E.y*(m.xy*E.x+m.yy*E.y+m.yz*E.z)+E.z*(m.xz*E.x+m.yz*E.y+m.zz*E.z);
+  if(!(q>=0))throw std::runtime_error("non-positive midpoint metric");return std::sqrt(q);
+}
+// DC-14: optimizer boundary operations O5/O6 on a mapped authority (they change skin faces without a parameter
+// transaction). Production: off (as RefineOptimize). The DC-13 harness sets it to reproduce its cut results.
+inline bool v13MappedBoundaryOps=false;
 inline long double EstimateLength(State& s,VertexTensors& vt,Id a,Id b) {
   const auto pa=NodePoint(s,a),pb=NodePoint(s,b);const long double e[3]={(long double)pb.x-pa.x,(long double)pb.y-pa.y,(long double)pb.z-pa.z};
   auto len=[&](const Tensor& m){const long double q=e[0]*(m.xx*e[0]+m.xy*e[1]+m.xz*e[2])+e[1]*(m.xy*e[0]+m.yy*e[1]+m.yz*e[2])+e[2]*(m.xz*e[0]+m.yz*e[1]+m.zz*e[2]);
@@ -276,7 +282,7 @@ inline VStage13 PhaseV13(State& s,Rows10& rows,Growth& G,size_t work,double seco
   auto ridgeEdge=[&](Edge w){if(rows.copies.count(w[0])||rows.copies.count(w[1]))return true;
     for(const auto& r:rows.apex)if(Has(r.first,w[0])&&Has(r.first,w[1]))for(Id x:r.first)if(rows.copies.count(x))return true;return false;};
   std::map<Face,unsigned> firstTried;
-  VertexTensors vt;Id scanned=0;std::set<Edge> queued;size_t lastDemand=0;  // DC-16 demand queue state
+  VertexTensors& vt=eventTensors;Id scanned=0;std::set<Edge> queued;size_t lastDemand=0;  // DC-16 demand queue state
   for(;;++g.sweeps) {
     if(limited()){g.outcome="limit";break;}
     if(g.sweeps>=maxSweeps){g.outcome="sweep cap";break;}

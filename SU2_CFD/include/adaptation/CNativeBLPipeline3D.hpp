@@ -234,7 +234,7 @@ struct PipelineScope {
     dc13::v13R2Retry = true; dc13::unliftedColumns = false; dc13::diagnosticCutSlide = false; dc13::v13AttemptsPerSweep = 1024;
     dc13::v13NearWallFirst = false; dc12::growthClearing = true; dc13::v13EstimateScan = false; dc13::v13SkipFinalOnLimit = false;
     dc9::rimByRole = true;  // DC-15: artificial boundaries only by role (production has none), never by a marker name
-    dc9::validityOnlyConstruction = false; dc13::v13DemandQueue = false; dc16::roomStep = true; dc9::markerRoles.clear();
+    dc9::validityOnlyConstruction = false; dc13::v13DemandQueue = false; dc16::roomStep = true; dc9::markerRoles.clear(); dc13::eventTensors = dc13::VertexTensors{};
   }
   ~PipelineScope() {
     dc9::ResetCaches(); dc9::balancedCache.clear(); dc9::cachesOn = true; dc12::layerOfMarker.clear();
@@ -242,7 +242,7 @@ struct PipelineScope {
     dc13::v13R2Retry = true; dc13::v13AttemptsPerSweep = 1024; dc9::directionField = nullptr; dc9::directionFieldUses = 0;
     dc13::v13NearWallFirst = false; dc12::growthClearing = true; dc13::v13EstimateScan = false; dc13::v13SkipFinalOnLimit = false;
     dc9::rimByRole = false;
-    dc9::validityOnlyConstruction = false; dc13::v13DemandQueue = false; dc16::roomStep = true; dc9::markerRoles.clear();
+    dc9::validityOnlyConstruction = false; dc13::v13DemandQueue = false; dc16::roomStep = true; dc9::markerRoles.clear(); dc13::eventTensors = dc13::VertexTensors{};
   }
 };
 }  // namespace detail
@@ -369,7 +369,7 @@ inline EngineResult RunEvent(World& world, const Owned& cells, const std::vector
     dc9::validityOnlyConstruction = !ctl.final_cycle; v13DemandQueue = true;
     json << ",\"dc16\":{\"validity_only_construction\":" << dc9::validityOnlyConstruction << ",\"v_demand_queue\":1,\"room_step\":" << dc16::roomStep << "}";
     json << ",\"limits\":{\"budget_seconds\":" << budget << ",\"reserve_seconds\":" << reserve << ",\"W\":[" << wWork << "," << .08 * usable
-         << "],\"R1\":[" << r1Work << "," << .05 * usable << "],\"R2_seconds\":" << .25 * usable << ",\"G_seconds\":" << .12 * usable
+         << "],\"R1\":[" << r1Work << "," << .05 * usable << "],\"R2_seconds\":" << .25 * usable << ",\"G_seconds\":" << .15 * usable
          << ",\"V_attempts_per_sweep\":\"max(1024, long/4)\",\"V_intermediate_seconds\":" << ctl.intermediate_v_seconds
          << ",\"memory_ceiling\":" << ctl.memory_ceiling << "}";
     std::ostringstream log;
@@ -426,7 +426,7 @@ inline EngineResult RunEvent(World& world, const Owned& cells, const std::vector
       snapshot = FirstChildren(*s);
       certified.clear();  // code review 3: the A3 audit covers only the certified operations after the snapshot
       MapLayers(*s);
-      G = PhaseG(*s, rows, .12 * usable, log);workDone += G.transactions + G.refused;
+      G = PhaseG(*s, rows, .15 * usable, log);  /* DC-16: .15 (room step included) */workDone += G.transactions + G.refused;
       json << ",\"G\":" << JsonGrowth(*s, G);
       phase("G", "lifted=" + std::to_string(G.lifted) + " refused=" + std::to_string(G.refused) + " clear_moves=" + std::to_string(G.clear_moves) +
                  " clear_collapses=" + std::to_string(G.clear_collapses) + " retries_accepted=" + std::to_string(G.clear_retry_accepted));

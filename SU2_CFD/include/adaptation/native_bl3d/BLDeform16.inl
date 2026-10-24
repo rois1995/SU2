@@ -45,7 +45,7 @@ inline long double EuclidQuality(const std::array<SU2NativeDeform::Vec<3>,4>& p)
 }
 
 struct RoomStats { size_t calls=0,needy=0,region=0,cells=0,moved=0,frozen=0,metric_frozen=0,slide=0,slide_reverted=0,iterations=0,unconverged=0,commits=0,refused=0;
-  double seconds=0,solve=0,move=0,metric=0,commit=0;std::map<std::string,size_t> why; };
+  double seconds=0,solve=0,move=0,metric=0,commit=0,batch=0,slides=0,problem=0;std::map<std::string,size_t> why; };
 inline RoomStats roomStats;
 
 /*! Room step of one layer. `plan`: planned top -> target; `fixed`: registry identities (never moved). */
@@ -96,6 +96,7 @@ inline void MakeRoom(State& s,const std::function<bool(Id)>& below,const std::se
     if(c==1){const V m=slideNormal.at(region[i]);pb.normals[i]={Vec<3>{double(m.x),double(m.y),double(m.z)}};++st.slide;}}
   for(size_t i=region.size();i<n;++i){const auto f=plan.find(global[i]);if(f==plan.end())continue;const V d=f->second-Of(NodePoint(s,global[i]));pb.value[i]={double(d.x),double(d.y),double(d.z)};}
   st.region+=region.size();st.cells+=cellIds.size();
+  st.problem+=Seconds(t0);
   // 5 solve
   std::vector<Vec<3>> d;SolveOptions so;SolveReport sr;
   try{if(!SolveDisplacement<3>(pb,d,so,sr))++st.unconverged;}catch(const std::exception& e){++st.why[std::string("solve: ")+e.what()];st.seconds+=Seconds(t0);return;}
@@ -137,12 +138,17 @@ inline void MakeRoom(State& s,const std::function<bool(Id)>& below,const std::se
      std::vector<Id> ids;{std::unordered_set<Id> seen;for(auto v:moved)for(auto c:star[v])if(seen.insert(cellIds[c]).second)ids.push_back(cellIds[c]);}
      std::sort(ids.begin(),ids.end());
      std::unordered_map<Id,Node> to;Id next=s.next_node;for(auto v:moved){if(fixed.count(global[v]))throw std::logic_error("DC16 room: a registry identity would move");to[global[v]]=Node{next++,pt(y[v])};}
-     Patch old=PatchOf(s,ids);Patch fresh;fresh.surface=old.surface;fresh.parameters=old.parameters;bool ok=true;
-     for(const auto& sf:old.surface)for(Id x:sf.v)ok=ok&&!to.count(x);
-     for(size_t i=0;i<old.cells.size()&&ok;++i){Cell c=old.cells[i];for(auto& x:c.v){const auto f=to.find(x.id);if(f!=to.end())x=f->second;}c.id=s.next_cell+i;
-       ok=Orientation(c.v[0].p,c.v[1].p,c.v[2].p,c.v[3].p)>0;fresh.cells.push_back(c);}
+     // the fresh patch is built from the cell rows directly: physical faces keep their facets (none holds a moved
+     // vertex) and the boundary bindings in the overlay stay valid (no boundary point moves), so no parameter export
+     const auto tb=Clock::now();Patch fresh;bool ok=true;
+     for(size_t i=0;i<ids.size()&&ok;++i){const auto& row=s.mesh.at(ids[i]);const auto faces=CellFaces(row.cell);
+       for(unsigned k=0;k<4;++k)if(row.physical[k].present){for(Id x:faces[k])ok=ok&&!to.count(x);fresh.surface.push_back({faces[k],row.physical[k].facet});}
+       Cell c=row.cell;for(auto& x:c.v){const auto f=to.find(x.id);if(f!=to.end())x=f->second;}c.id=s.next_cell+i;
+       ok=ok&&Orientation(c.v[0].p,c.v[1].p,c.v[2].p,c.v[3].p)>0;fresh.cells.push_back(c);}
      if(ok){Apply(s,ids,fresh);s.next_node=std::max(s.next_node,next);++st.commits;st.moved+=moved.size();}
-     else{++st.refused;++st.why["interior commit: skin or positivity"];}}}
+     else{++st.refused;++st.why["interior commit: skin or positivity"];}
+     st.batch+=Seconds(tb);}}
+  const auto ts=Clock::now();
   for(const auto& sl:slides){const Id g=global[sl.first];if(!s.vertex_cells.count(g))continue;
     const auto starIds=StarOf(s,g);if(starIds.size()>MaximumCavityCells){++st.slide_reverted;++st.why["slide: star size"];continue;}
     std::vector<Id> ids(starIds.begin(),starIds.end());Patch old,fresh;std::string why;bool ok=false;
@@ -150,6 +156,7 @@ inline void MakeRoom(State& s,const std::function<bool(Id)>& below,const std::se
     if(ok)for(const auto& c:fresh.cells)ok=ok&&Valid(Shape(s,c));
     if(!ok){++st.slide_reverted;++st.why["slide: "+swbi_dc2::Category(why).substr(0,60)];continue;}
     Apply(s,ids,fresh);++st.moved;}
+  st.slides+=Seconds(ts);
   st.commit+=Seconds(tc);st.seconds+=Seconds(t0);
   log<<"DC16 room needy="<<needy.size()<<" region="<<region.size()<<" cells="<<cellIds.size()<<" cg="<<sr.iterations<<(sr.converged?"":" (unconverged)")
      <<" pseudo_frozen="<<mr.frozen<<" stations="<<mr.reached<<" metric_frozen_total="<<st.metric_frozen<<" commits="<<st.commits<<" t="<<Seconds(t0)<<"\n";
@@ -158,7 +165,7 @@ inline std::string JsonRoom(const RoomStats& r) {
   std::ostringstream o;o<<std::setprecision(8)<<"{\"calls\":"<<r.calls<<",\"needy_tops\":"<<r.needy<<",\"region_vertices\":"<<r.region<<",\"cells\":"<<r.cells<<",\"moved\":"<<r.moved
    <<",\"pseudo_frozen\":"<<r.frozen<<",\"metric_reverted\":"<<r.metric_frozen<<",\"sliding\":"<<r.slide<<",\"sliding_reverted\":"<<r.slide_reverted<<",\"cg_iterations\":"<<r.iterations
    <<",\"unconverged\":"<<r.unconverged<<",\"commits\":"<<r.commits<<",\"refused\":"<<r.refused<<",\"seconds\":{\"total\":"<<r.seconds<<",\"solve\":"<<r.solve<<",\"move\":"<<r.move
-   <<",\"metric\":"<<r.metric<<",\"commit\":"<<r.commit<<"},\"why\":{";
+   <<",\"metric\":"<<r.metric<<",\"commit\":"<<r.commit<<",\"batch\":"<<r.batch<<",\"slides\":"<<r.slides<<",\"problem\":"<<r.problem<<"},\"why\":{";
   bool k=false;for(const auto& w:r.why){o<<(k?",":"")<<junction_wp0::Json(w.first)<<':'<<w.second;k=true;}o<<"}}";return o.str();
 }
 }  // namespace dc16
