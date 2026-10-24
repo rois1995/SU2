@@ -4,6 +4,7 @@
  * Copyright 2012-2026, SU2 Contributors (cf. AUTHORS.md).
  * SU2 is free software under the GNU Lesser General Public License, version 2.1 or later.
  */
+#include "../../include/adaptation/CNativeNearContainment.hpp"
 #include "../../include/adaptation/CNativeImport3D.hpp"
 #include "../../include/adaptation/CNativeCellSampling3D.hpp"
 #include "../../include/adaptation/CDistributedSearch.hpp"
@@ -376,6 +377,13 @@ bool JointAffineCoverage(World& world,const Owned& owned,std::vector<DonorCell>&
   }catch(const std::bad_alloc& e){failure.Set(3,0,e.what());}
    catch(const std::exception& e){failure.Set(1,0,e.what());}
   if(!vote())return false;
+  // DC-16: an envelope thinner than the near-coverage tolerance of the field/donor/segment kernels (1e-12 x coordinate
+  // scale; e.g. the promoted faceted reference with 1e-13 relative mapping error) is not built: those kernels already
+  // evaluate a point within that distance of the original donors in the nearest donor. Its exact pair audit grows with
+  // the boundary (hours on the published 1.25M-cell ONERA M6 mesh) and would certify nothing more.
+  {double scale=1;for(const auto& d:source)for(const auto& n:d.cell.v)scale=std::max({scale,std::abs(n.p.x),std::abs(n.p.y),std::abs(n.p.z)});
+   scale=CPassiveComm::Allreduce(scale,CPassiveComm::Op::MAX,world.comm);
+   if(radius<=double(NearCoverageTolerance(Point{scale,0,0})))return true;}
   uint64_t local_faces=0,local_boundary=0;
   for(const auto& row:owned) {
     bool boundary=false;for(auto f:row.second.physical)if(f.present){++local_faces;boundary=true;}

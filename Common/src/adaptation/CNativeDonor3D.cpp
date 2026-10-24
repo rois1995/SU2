@@ -434,14 +434,16 @@ DonorSamples DonorImport::SampleQueries(const std::vector<Point>& points,const s
           }
           // DC-16: tolerant coverage at the domain boundary (physical donors only, clamped weights, nearest donor
           // within the coordinate-scaled tolerance); the exact search above always runs first
-          if(!found && !query.midpoint) {
-            const double t=double(NearCoverageTolerance(query.point));
-            const std::array<su2double,3> lo{query.point.x-t,query.point.y-t,query.point.z-t},hi{query.point.x+t,query.point.y+t,query.point.z+t};
+          if(!found) {
+            // a midpoint request is evaluated at its rounded midpoint (the exact midpoint lies within rounding of it)
+            const Point at=query.midpoint?Point{double(((long double)query.point.x+query.end.x)/2),double(((long double)query.point.y+query.end.y)/2),double(((long double)query.point.z+query.end.z)/2)}:query.point;
+            const double t=double(NearCoverageTolerance(at));
+            const std::array<su2double,3> lo{at.x-t,at.y-t,at.z-t},hi{at.x+t,at.y+t,at.z+t};
             index->DetermineIntersectingElements(lo.data(),hi.data(),candidates);std::sort(candidates.begin(),candidates.end());
             long double best=INFINITY;
             for(auto i:candidates){const auto& row=donors.at(i);if(row.extension_component!=UINT64_MAX)continue;const auto& v=row.cell.v;
-              std::array<long double,4> w{};const auto dist=NearWeights({v[0].p,v[1].p,v[2].p,v[3].p},query.point,w);
-              if(dist<=NearCoverageTolerance(query.point)&&dist<best){best=dist;selected=i;sample.weights=w;found=true;}}
+              std::array<long double,4> w{};const auto dist=NearWeights({v[0].p,v[1].p,v[2].p,v[3].p},at,w);
+              if(dist<=NearCoverageTolerance(at)&&dist<best){best=dist;selected=i;sample.weights=w;found=true;}}
           }
         }
         if(found) {
