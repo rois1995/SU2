@@ -99,7 +99,7 @@ TEST_CASE("DC-16 room step of the growth layers on synthetic boxes: valid, volum
       INFO("room "<<room);
       Policies policies;artificialMarkers={2};perf=Perf{};ResetCaches();cachesOn=true;
       dc16::roomStep=room;dc16::roomNeed=room?1e9L:1.5L;  // every planned top is needy
-      BoxSpec b;b.angle=angle;b.g=1.25;b.topWall=variant==2;auto s=SyntheticBox(b);ApplyWallPolicies(*s);DetectCreases(*s);
+      BoxSpec b;b.angle=angle;b.g=1.25;b.topWall=variant==2;auto s=SyntheticBox(b);ApplyWallPolicies(*s);DetectCreases(*s,BoxRoles());
       size_t unbound=0;const auto areas0=MarkerAreas(*s,unbound);REQUIRE(unbound==0);
       auto field=ComputeDirectionField(*s);directionField=&field.d;
       Rows10 rows;std::ostringstream log;PhaseR1(*s,rows,4096,60,log);PhaseR2(*s,static_cast<Rows&>(rows),120,log);

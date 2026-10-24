@@ -212,7 +212,7 @@ struct EventControls {
   size_t memory_ceiling = size_t(2) << 30;
   std::string report_prefix;   // <prefix>_bl_report.json (and <prefix>_final.mesh when export_mesh)
   bool export_mesh = false;
-  double intermediate_v_seconds = 900;  // DC-15: V cap of an intermediate (ramped-h0) event; the final cycle uses the budget
+  double intermediate_v_seconds = 1800;  // DC-15: V cap of an intermediate (ramped-h0) event (DC-16: 1800, the full-M6 x32 event 0 takes 34 of its 60 min with 900); the final cycle uses the budget
   bool full_audit = false;              // DC-15: run the uncached audit also on intermediate events (diagnostic)
 };
 

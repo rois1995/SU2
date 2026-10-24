@@ -29,14 +29,32 @@ CNativeRemesher3D::CNativeRemesher3D(std::shared_ptr<ReferenceState> retained, E
     : reference(std::move(retained)), options(control), compositionFactory(std::move(constraints)), normalizationFactory(std::move(normalizer)) {
   if (!reference) throw std::invalid_argument("Native3D needs driver-owned reference storage.");
 }
+namespace {
+// DC-16: FIRST_ROW gathers and multiplies the whole mesh on one worker; its ceiling (reference setup, construction,
+// publication) is max(default, 1.5 x the event's need), capped at 25 % of the node memory (shared with other jobs).
+// Need before the construction: max(measured peak RSS of this process, 2 KiB per input cell; the ONERA M6 x32 event
+// 0 published 1.25M cells at a 2.5 GB peak); after it, the publication rule in Remesh. Other methods: the default.
+// TODO: ADAP_NATIVE_MEMORY_LIMIT (needs a CConfig.hpp change).
+size_t FirstRowCeiling(const CConfig& config,const CGeometry& geometry,size_t base,bool print) {
+  if (config.GetKind_Adap_BL_Method()!=ADAP_BL_METHOD::FIRST_ROW) return base;
+  const long pages=sysconf(_SC_PHYS_PAGES),page=sysconf(_SC_PAGESIZE);
+  const size_t cap=pages>0&&page>0?size_t(uint64_t(pages)*uint64_t(page)/4):base;
+  struct rusage usage{};getrusage(RUSAGE_SELF,&usage);
+  const size_t need=std::max(size_t(usage.ru_maxrss)*1024,size_t(2048)*size_t(geometry.GetGlobal_nElem()));
+  const size_t ceiling=std::min(std::max(base,size_t(1.5*double(need))),std::max(base,cap));
+  if (print) std::cout<<"DC16 FIRST_ROW memory: need "<<(need>>20)<<" MiB, ceiling "<<(ceiling>>20)<<" MiB (default "<<(base>>20)<<" MiB, cap 25 % of node memory "<<(cap>>20)<<" MiB)"<<std::endl;
+  return ceiling;
+}
+}  // namespace
 void CNativeRemesher3D::PrepareReference(const CConfig& config,const CGeometry& geometry) {
   if(reference->original) return;
   auto pending=*reference;
   bool loaded=false;std::string reason;size_t maximum=0;
   const auto held=transfer_memory::Add(options.caller_bytes,ReferenceStorageBytes(*reference));
+  const auto ceiling=FirstRowCeiling(config,geometry,options.memory_ceiling,false);
   CLocalFailure failure;
   if(!SU2Native3D::LoadReference(config.GetMesh_FileName()+".native_ref",pending,loaded,reason,
-                               options.memory_ceiling,held,maximum)) failure.Set(2,0,reason);
+                               ceiling,held,maximum)) failure.Set(2,0,reason);
   CollectiveFailure(failure,CURRENT_FUNCTION);
   if(config.GetRestart() && !loaded)
     failure.Set(1,0,"Native3D restart requires its original .native_ref sidecar; geometry cannot be rebased.");
@@ -47,7 +65,7 @@ void CNativeRemesher3D::PrepareReference(const CConfig& config,const CGeometry& 
   CollectiveFailure(failure,CURRENT_FUNCTION);
   SU2Native3D::ImportedGeometry imported;SU2Native3D::BridgeStats importedStats;
   if(!SU2Native3D::ImportGeometry(config,geometry,nullptr,pending,imported,reason,importedStats,
-                                options.memory_ceiling,held)) failure.Set(2,0,reason);
+                                ceiling,held)) failure.Set(2,0,reason);
   CollectiveFailure(failure,CURRENT_FUNCTION);
   *reference=std::move(pending);
 }
@@ -120,6 +138,7 @@ CRemeshResult CNativeRemesher3D::Remesh(const CConfig& config, const CGeometry& 
   control.wall_heights.tolerance = SU2_TYPE::GetValue(config.GetAdap_BL_FirstHeightTol());  // Agreed by the engine.
   if (config.GetAdap_Native_Max_Work()) control.maximum_work=config.GetAdap_Native_Max_Work();
   if (config.GetAdap_Native_Max_Time()>0) control.maximum_seconds=SU2_TYPE::GetValue(config.GetAdap_Native_Max_Time());
+  control.memory_ceiling=FirstRowCeiling(config,geometry,control.memory_ceiling,parent.rank==0);
   stats.detailed_timings = control.timings;
   const auto start = parent.seconds();
   const auto cpu = std::clock();
@@ -397,7 +416,7 @@ CRemeshResult CNativeRemesher3D::Remesh(const CConfig& config, const CGeometry& 
               const size_t estimated=transfer_memory::Add(held(),OwnedStorageBytes(working),transfer_memory::Bytes(migrated),
                                                      transfer_memory::Mul(12,transfer_memory::Bytes(imported.original)));
               const size_t need=std::max(measured,estimated);
-              const size_t wanted=std::max(control.memory_ceiling,size_t(1.5*double(need)));
+              const size_t wanted=std::max(control.memory_ceiling,size_t(1.5*double(need)));  // never below the pre-construction ceiling
               std::cout<<"DC16 publication memory: need "<<need/(size_t(1)<<20)<<" MiB (measured peak "<<measured/(size_t(1)<<20)<<", estimated "<<estimated/(size_t(1)<<20)<<"), ceiling "<<std::min(wanted,cap)/(size_t(1)<<20)
                        <<" MiB (default "<<control.memory_ceiling/(size_t(1)<<20)<<" MiB, cap 25 % of node memory "<<cap/(size_t(1)<<20)<<" MiB)"<<std::endl;
               if (wanted>cap) { valid=false; detail="FIRST_ROW publication needs an estimated "+std::to_string(need>>20)+" MiB x 1.5, above the 25 % node-memory cap ("+std::to_string(cap>>20)+" MiB)."; }
