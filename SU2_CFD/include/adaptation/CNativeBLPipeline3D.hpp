@@ -418,6 +418,7 @@ inline EngineResult RunEvent(World& world, const Owned& cells, const std::vector
       phase("completion", "failing=" + std::to_string(cp.failing_before) + "->" + std::to_string(cp.failing_after) + " inserted=" +
                           std::to_string(cp.inserted) + " cavity=" + std::to_string(cp.cavity) + " separated=" + std::to_string(cp.separated) + " outcome=" + cp.outcome);
       snapshot = FirstChildren(*s);
+      certified.clear();  // code review 3: the A3 audit covers only the certified operations after the snapshot
       MapLayers(*s);
       G = PhaseG(*s, rows, .12 * usable, log);workDone += G.transactions + G.refused;
       json << ",\"G\":" << JsonGrowth(*s, G);
@@ -471,7 +472,12 @@ inline EngineResult RunEvent(World& world, const Owned& cells, const std::vector
     {const auto a3 = FirstRowAudit(*s, snapshot, certified);
      json << ",\"first_row_audit\":" << JsonAudit(a3);}
     phase("deficits", "bad=" + std::to_string(cached.bad_shape) + " long=" + std::to_string(cached.long_edges) + " height=" + std::to_string(cached.height_failures));
-    if (ctl.export_mesh && !ctl.report_prefix.empty()) { dc10::ExportGates10(*s, rows, ctl.report_prefix + "_final.mesh"); phase("export"); }
+    if (ctl.export_mesh && !ctl.report_prefix.empty()) {
+      std::function<long double(Id, Id)> length;
+      if (!(ctl.final_cycle || ctl.full_audit)) length = [&](Id a, Id b) { bool est = false; return dc13::LenOrEstimate(*s, a, b, est); };
+      dc10::ExportGates10(*s, rows, ctl.report_prefix + "_final.mesh", length);
+      phase("export");
+    }
     // independent validity of the returned cells (exact orientation, conformity, skin, first heights; no construction cache)
     const auto validity = dc15::IndependentValidity(*s);
     json << ",\"validity\":" << dc15::JsonValidity(validity);

@@ -93,15 +93,22 @@ inline std::string JsonEstimated(const Estimated& e) {
  *  (the cell is thinner than h0: "cone obstructed"), a point p at height h0 over a foot inside the face is coned over
  *  the star-shaped visibility cavity of p seeded with the face's cell; no other first child and no physical face may
  *  enter the cavity; D.2 and Admit12 Layer (validity, every wall face of the patch passing its height) admit it. */
-inline bool CavityFirstChild(State& s,Id cell,const Face& key,std::set<Face>& certified,std::string& why) {
+inline bool CavityFirstChild(State& s,const Rows10& rows,Id cell,const Face& key,std::set<Face>& certified,std::string& why) {
   Scope scope("DC15 CavityFirstChild");
+  // code review 1: column cells (stars of registered apices) never enter the cavity; every registered identity present
+  // in the cavity (lids, apices, copies) must survive the cone
+  std::set<Id> registered;for(const auto& r:rows.lift)registered.insert(r.second);for(const auto& r:rows.apex)registered.insert(r.second);
+  for(const auto& r:rows.copies)for(Id c:r.second.ids)registered.insert(c);
+  std::set<Id> apices;for(const auto& r:rows.apex)apices.insert(r.second);
+  auto columnCell=[&](Id id){for(auto n:s.mesh.at(id).cell.v)if(apices.count(n.id))return true;return false;};
   const Cell c=s.mesh.at(cell).cell;Face out{};for(auto f:CellFaces(c))if(Sorted(f)==key)out=f;
   const V a=Of(NodePoint(s,out[0])),b=Of(NodePoint(s,out[1])),cc=Of(NodePoint(s,out[2]));const V n=-1.L*Outward(a,b,cc);const long double h=FaceH0(s,key);
   const std::array<std::array<long double,3>,7> feet{{{1.L/3,1.L/3,1.L/3},{.6L,.2L,.2L},{.2L,.6L,.2L},{.2L,.2L,.6L},{.45L,.45L,.1L},{.45L,.1L,.45L},{.1L,.45L,.45L}}};
   for(long double eta:{1.L,.95L,1.05L})for(const auto& w:feet) {
     const Point p=Pt(w[0]*a+w[1]*b+w[2]*cc+(eta*h)*n);
     std::set<Id> in{cell};bool ok=true;
-    for(Id id:Locate(s,p)){if(id!=cell&&WallChild(s,id)){ok=false;why="target inside another first child";break;}in.insert(id);}
+    if(columnCell(cell)){why="the face cell is a column cell";return false;}
+    for(Id id:Locate(s,p)){if(id!=cell&&(WallChild(s,id)||columnCell(id))){ok=false;why="target inside another first child or a column";break;}in.insert(id);}
     for(unsigned pass=0;ok&&pass<256;++pass) {
       std::map<Face,std::pair<Face,Id>> skin;std::map<Face,int> count;
       for(Id id:in){const auto f=CellFaces(s.mesh.at(id).cell);for(unsigned k=0;k<4;++k){const auto kk=Sorted(f[k]);++count[kk];skin[kk]={f[k],id};}}
@@ -113,7 +120,7 @@ inline bool CavityFirstChild(State& s,Id cell,const Face& key,std::set<Face>& ce
         if(phys){ok=false;why="target cannot see a physical face";break;}
         Id nb=UINT64_MAX;for(Id id:Star(s,{f[0],f[1]}))if(!in.count(id)&&CellHas(s.mesh.at(id).cell,f[2]))nb=id;
         if(nb==UINT64_MAX){ok=false;why="no neighbour across a hidden face";break;}
-        if(WallChild(s,nb)){ok=false;why="visibility needs another first child";break;}
+        if(WallChild(s,nb)||columnCell(nb)){ok=false;why="visibility needs another first child or a column cell";break;}
         in.insert(nb);grew=true;if(in.size()>MaximumCavityCells){ok=false;why="cavity exceeds 64 cells";}break;}
       if(!grew)break;
     }
@@ -121,6 +128,9 @@ inline bool CavityFirstChild(State& s,Id cell,const Face& key,std::set<Face>& ce
     std::vector<Id> ids(in.begin(),in.end());Patch old;try{old=PatchOf(s,ids);}catch(const std::exception& x){why=x.what();continue;}
     Patch fresh;fresh.surface=old.surface;fresh.parameters=old.parameters;
     try{if(!Cone(old.cells,{s.next_node,p},s.next_cell,fresh.cells,why))continue;s.reference->ExportParameters(fresh);}catch(const std::exception& x){why=x.what();continue;}
+    {std::set<Id> before,after;for(const auto& x:old.cells)for(auto nn:x.v)if(registered.count(nn.id))before.insert(nn.id);
+     for(const auto& x:fresh.cells)for(auto nn:x.v)after.insert(nn.id);bool kept=true;for(Id x:before)kept=kept&&after.count(x);
+     if(!kept){why="the cone would remove a registered identity";continue;}}
     {std::string d2;if(!D2Ok(s,old,fresh,d2)){why=d2;continue;}}
     const auto d=Admit12(s,old,fresh,Kind::Layer);if(!d.ok){why="admission: "+d.reason;continue;}
     for(const auto& sf:old.surface)if(s.walls.count(s.reference->Get(sf.facet).marker))certified.insert(Sorted(sf.v));
@@ -159,7 +169,7 @@ inline Completion CompleteFirstRow(State& s,Rows10& rows,double seconds,std::set
       FirstRowStats fr;
       if(FirstRowInsert(s,rows,cell,key,fr,certified)){settle(key);++st.inserted;any=true;continue;}
       for(const auto& w:fr.why)++st.why[w.first];
-      {std::string cw;if(CavityFirstChild(s,cell,key,certified,cw)){settle(key);++st.cavity;any=true;continue;}++st.why["cavity: "+Key(cw)];}
+      {std::string cw;if(CavityFirstChild(s,rows,cell,key,certified,cw)){settle(key);++st.cavity;any=true;continue;}++st.why["cavity: "+Key(cw)];}
       // corner cell: several wall faces or a foreign physical face -> separation, then the first-child route again
       unsigned walls=0,others=0;{const auto& row=s.mesh.at(cell);for(const auto& f:row.physical)if(f.present)(s.walls.count(s.reference->Get(f.facet).marker)?walls:others)++;}
       if(walls>=2||others>=1){std::string sw;

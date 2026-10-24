@@ -852,7 +852,9 @@ inline VStage PhaseV10(State& s,Rows10& rows,size_t work,double seconds,std::ost
   End(s,g,t0);return g;
 }
 // Final mesh with the native gates; cell class 3 = fan cell.
-inline void ExportGates10(State& s,const Rows10& rows,const std::string& path) {
+// DC-15: `length` (optional) replaces Len for the long-edge list, e.g. cached-or-estimated lengths of an intermediate
+// event (the export is a diagnostic; integrating every edge of a full body cost ~25 min in DC-15 c2).
+inline void ExportGates10(State& s,const Rows10& rows,const std::string& path,const std::function<long double(Id,Id)>& length={}) {
   Scope scope("ExportGates");
   Export(s,path);std::ofstream out(path,std::ios::app);out<<std::setprecision(17);
   std::map<Id,Id> column;for(const auto& r:rows.apex)for(Id id:StarOf(s,r.second))column.emplace(id,r.second);const auto fan=FanCells(s,rows);
@@ -862,7 +864,7 @@ inline void ExportGates10(State& s,const Rows10& rows,const std::string& path) {
   std::vector<std::string> lines;std::set<Edge> seen;
   for(const auto& row:s.mesh){const auto& c=row.second.cell;for(unsigned a=0;a<4;++a)for(unsigned b=a+1;b<4;++b){
     const Edge e{std::min(c.v[a].id,c.v[b].id),std::max(c.v[a].id,c.v[b].id)};if(!seen.insert(e).second)continue;
-    long double l=-1;bool ok=true;try{l=Len(s,e[0],e[1]);}catch(const std::exception&){ok=false;}
+    long double l=-1;bool ok=true;try{l=length?length(e[0],e[1]):Len(s,e[0],e[1]);}catch(const std::exception&){ok=false;}
     if(ok&&!(l>MaximumMetricEdge))continue;
     bool inColumn=true;for(Id id:Star(s,e))inColumn=inColumn&&column.count(id);
     const int cls=!ok?4:EdgeClass(s,e);std::ostringstream x;x<<std::setprecision(10)<<e[0]<<' '<<e[1]<<' '<<(ok?double(l):-1.0)<<' '<<cls<<' '<<inColumn;lines.push_back(x.str());}}

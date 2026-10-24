@@ -459,6 +459,9 @@ struct FirstRowStats { size_t tried=0,inserted=0,relocated=0,refused=0,registrat
 inline void MoveRegistrations(Rows10& rows,Id from,Id to,std::set<Face>& certified,FirstRowStats* st=nullptr) {
   for(auto& r:rows.apex)if(r.second==from){r.second=to;certified.insert(r.first);if(st)++st->registrations_moved;}
 }
+// DC-15 (code review 2): a face is registered as a column only when all three of its vertices are lifted (the column
+// routes and the continuation sidecar assume lifts); a certified first child without lifts stays unregistered.
+inline bool ColumnEligible(const Rows& rows,const Face& key){return std::all_of(key.begin(),key.end(),[&](Id x){return rows.lift.count(x)>0;});}
 inline size_t StaleRegistrations(const State& s,const Rows10& rows){size_t n=0;for(const auto& r:rows.apex)n+=!s.vertex_cells.count(r.second);return n;}
 // (iii) ApexRelocate: the existing apex v of the face's first child (interior or on carriers, never a wall or lid vertex)
 // moved by production MoveVertex to the best ConeColumn-grid candidate bound to v's carriers; Admit12 Repair + D.2.
@@ -489,7 +492,7 @@ inline bool ApexRelocate(State& s,Rows10& rows,Id cell,const Face& key,FirstRowS
   if(best<0){++st.why["relocate: no admissible candidate"];return false;}
   for(const auto& sf:old.surface)if(s.walls.count(s.reference->Get(sf.facet).marker))certified.insert(Sorted(sf.v));
   const Id moved=s.next_node;Apply(s,ids,chosen);
-  MoveRegistrations(rows,v,moved,certified,&st);rows.apex[key]=moved;certified.insert(key);++st.relocated;return true;
+  MoveRegistrations(rows,v,moved,certified,&st);if(ColumnEligible(rows,key))rows.apex[key]=moved;else rows.apex.erase(key);certified.insert(key);++st.relocated;return true;
 }
 inline bool FirstRowInsert(State& s,Rows10& rows,Id cell,const Face& key,FirstRowStats& st,std::set<Face>& certified) {
   Scope scope("V12 FirstRowInsert");++st.tried;
@@ -517,7 +520,7 @@ inline bool FirstRowInsert(State& s,Rows10& rows,Id cell,const Face& key,FirstRo
   if(ok) {
     Id apex=UINT64_MAX;for(const auto& c:fresh.cells){unsigned k=0;Id other=UINT64_MAX;for(auto n:c.v){if(Has(key,n.id))++k;else other=n.id;}if(k==3&&!before.count(other))apex=other;}
     for(const auto& sf:old.surface)if(s.walls.count(s.reference->Get(sf.facet).marker))certified.insert(Sorted(sf.v));
-    Apply(s,{cell},fresh);if(apex!=UINT64_MAX)rows.apex[key]=apex;certified.insert(key);++st.inserted;return true;
+    Apply(s,{cell},fresh);if(apex!=UINT64_MAX&&ColumnEligible(rows,key))rows.apex[key]=apex;certified.insert(key);++st.inserted;return true;
   }
   ++st.why["insert: "+Key(why)];
   if(ApexRelocate(s,rows,cell,key,st,certified))return true;
