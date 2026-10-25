@@ -36,7 +36,7 @@ TEST_CASE("DC-13 sliver-removing build-then-optimize, first-height ramp and halv
   for(std::string name;std::getline(names,name,',');) {
     if(name.empty())continue;
     std::ostringstream limits;limits<<std::setprecision(12)<<"\"limits\":{\"W\":[8192,120],\"R1\":[4096,120],\"R2_seconds\":600,\"G_seconds\":"<<gSeconds<<",\"V\":["<<vWork<<","<<vSeconds<<"],\"V_sweeps\":"<<vSweeps
-      <<",\"lift\":\"single\",\"h0_scale\":"<<scale<<",\"chain\":\""<<env("SU2_DC13_CHAIN")<<"\",\"redistribute\":\""<<env("SU2_DC13_REDISTRIBUTE")<<"\",\"reflective\":\""<<env("SU2_DC12_REFLECTIVE")<<"\",\"dc16\":\""<<env("SU2_DC16_VALIDITY_ONLY")<<env("SU2_DC16_PRODUCTION_V")<<env("SU2_DC16_ROOM")<<"\",\"inputs_sha256\":\""<<inputSha<<"\"}";
+      <<",\"lift\":\"single\",\"h0_scale\":"<<scale<<",\"chain\":\""<<env("SU2_DC13_CHAIN")<<"\",\"redistribute\":\""<<env("SU2_DC13_REDISTRIBUTE")<<"\",\"reflective\":\""<<env("SU2_DC12_REFLECTIVE")<<"\",\"dc16\":\""<<env("SU2_DC16_VALIDITY_ONLY")<<env("SU2_DC16_PRODUCTION_V")<<env("SU2_DC16_ROOM")<<"\",\"dc17\":\""<<env("SU2_DC17_OLD_HALVING")<<"\",\"inputs_sha256\":\""<<inputSha<<"\"}";
     std::string tag=root+"/dc13_"+name+(scale!=1?"_h0x"+Fmt(scale):"");
     // resume only when the LAST requested step has a complete receipt
     const std::string lastTag=chain.empty()?tag:tag+"_step"+std::to_string(chain.size())+"_h0x"+Fmt(chain.back());
@@ -86,9 +86,13 @@ TEST_CASE("DC-13 sliver-removing build-then-optimize, first-height ramp and halv
         s->growth=fresh->growth;s->thickness=fresh->thickness;s->lengths.clear();ResetCaches();DetectCreases(*s);MapLayers(*s);Index(*s);
         {Scope sc("JsonFinal before step");json<<",\"before_step\":"<<JsonFinal(*s,rows);}
         snapshot=FirstChildren(*s);
-        const auto hv=HalveFirstRow(*s,rows,certified);
-        const bool redistribute=!(std::getenv("SU2_DC13_REDISTRIBUTE")&&std::string(std::getenv("SU2_DC13_REDISTRIBUTE"))=="0");
-        ColumnStats cs;if(redistribute)cs=ColumnInsert(*s,rows);
+        // DC-17: the production first-row rebuild (SU2_DC17_OLD_HALVING=1: the DC-16 halving + ColumnInsert)
+        HalveStats hv;ColumnStats cs;bool redistribute=true;
+        if(!flag("SU2_DC17_OLD_HALVING")){const auto rb=dc17::RebuildFirstRow(*s,rows,certified);hv=rb.halve;hv.faces=rb.faces;hv.split+=rb.rebuilt;cs=rb.column;
+          json<<",\"rebuild\":"<<dc17::JsonRebuild(rb);std::cout<<"DC17 "<<name<<" step "<<step<<" rebuild "<<dc17::JsonRebuild(rb)<<std::endl;}
+        else{hv=HalveFirstRow(*s,rows,certified);
+          redistribute=!(std::getenv("SU2_DC13_REDISTRIBUTE")&&std::string(std::getenv("SU2_DC13_REDISTRIBUTE"))=="0");
+          if(redistribute)cs=ColumnInsert(*s,rows);}
         json<<",\"column_insert\":{\"enabled\":"<<redistribute<<",\"columns\":"<<cs.columns<<",\"unlifted_columns\":"<<cs.unlifted<<",\"inserted\":"<<cs.inserted<<",\"refused\":"<<cs.refused<<",\"why\":{";
         {bool k=false;for(const auto& d:cs.why){json<<(k?",":"")<<junction_wp0::Json(d.first)<<':'<<d.second;k=true;}}json<<"}}";
         std::cout<<"DC13 "<<name<<" step "<<step<<" column insertions="<<cs.inserted<<" refused="<<cs.refused<<std::endl;

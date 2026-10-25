@@ -48,6 +48,7 @@
 #include "native_bl3d/BLGrowth12.inl"
 #include "native_bl3d/BLVolume13.inl"
 #include "native_bl3d/BLEvent15.inl"
+#include "native_bl3d/BLRebuild17.inl"
 
 /*--- Production entry (DC-14): one remesh event of ADAP_BL_METHOD= FIRST_ROW. ---*/
 namespace SU2NativeBLPipeline3D {
@@ -399,6 +400,7 @@ inline EngineResult RunEvent(World& world, const Owned& cells, const std::vector
       const double auditEstimate = (ctl.final_cycle || ctl.full_audit) ? .005 * double(s->mesh.size()) : 0.;
       double v = usable - elapsed() - auditEstimate;
       if (!ctl.final_cycle) v = std::min(v, ctl.intermediate_v_seconds);
+      if (dc17::diagnosticVSeconds >= 0) v = std::min(v, dc17::diagnosticVSeconds);  // TEST-ONLY diagnostic cap
       return std::max(1.0, v);
     };
     if (!chain) {
@@ -448,8 +450,15 @@ inline EngineResult RunEvent(World& world, const Owned& cells, const std::vector
       auto field = ComputeDirectionField(*s);
       dc9::directionField = &field.d; dc9::directionFieldUses = 0;
       snapshot = FirstChildren(*s);
-      const auto hv = HalveFirstRow(*s, rows, certified);
-      const auto cs = ColumnInsert(*s, rows);workDone += hv.faces + cs.inserted + cs.refused;
+      // DC-17: the first-row rebuild (column midpoints, lateral flips, prism rebuild; DC-16 cone split as fallback)
+      HalveStats hv;
+      ColumnStats cs;
+      if (dc17::rebuildFirstRow) {
+        const auto rb = dc17::RebuildFirstRow(*s, rows, certified);
+        hv = rb.halve; hv.faces = rb.faces; hv.split += rb.rebuilt; cs = rb.column;
+        json << ",\"rebuild\":" << dc17::JsonRebuild(rb);
+      } else { hv = HalveFirstRow(*s, rows, certified); cs = ColumnInsert(*s, rows); }
+      workDone += hv.faces + cs.inserted + cs.refused;
       json << ",\"halve\":{\"faces\":" << hv.faces << ",\"split\":" << hv.split << ",\"placed\":" << hv.placed << ",\"already_within\":"
            << hv.skipped_low << ",\"refused\":" << hv.refused << "},\"column_insert\":{\"columns\":" << cs.columns << ",\"inserted\":"
            << cs.inserted << ",\"refused\":" << cs.refused << "}";

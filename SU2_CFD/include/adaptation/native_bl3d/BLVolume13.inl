@@ -27,16 +27,16 @@ inline std::string JsonOpt13(const OptimizeReport& r) {
 // (face, q) with the same foot, the three other cells (q, wall edge, p). Certified first-row route (A3); registrations
 // follow the new apex. q lies strictly inside the old first child when the old altitude exceeds the new height.
 struct HalveStats { size_t faces=0,split=0,skipped_low=0,refused=0,placed=0;std::map<std::string,size_t> why; };
-inline HalveStats HalveFirstRow(State& s,Rows10& rows,std::set<Face>& certified) {
-  Scope scope("DC13 HalveFirstRow");HalveStats st;
-  std::vector<std::pair<Id,Face>> faces;for(const auto& wf:WallFaces(s))faces.push_back(wf);
-  for(const auto& wf:faces){++st.faces;if(!s.mesh.count(wf.first))continue;
+// DC-17: one face of the halving (the cone split of its first child), shared by HalveFirstRow and the fallback of the
+// first-row rebuild (dc17::RebuildFirstRow); `false` when the face was not split (counted in st).
+inline bool HalveFace(State& s,Rows10& rows,std::set<Face>& certified,const std::pair<Id,Face>& wf,HalveStats& st) {
+  {if(!s.mesh.count(wf.first))return false;
     const Cell c=s.mesh.at(wf.first).cell;Face out{};for(auto f:CellFaces(c))if(Sorted(f)==wf.second)out=f;
     Node apex{};for(auto n:c.v)if(!Has(wf.second,n.id))apex=n;
     const V a=Of(NodePoint(s,out[0])),b=Of(NodePoint(s,out[1])),cc=Of(NodePoint(s,out[2]));const V n=-1.L*Outward(a,b,cc);
     const long double alt=Dot(Of(apex.p)-a,n),h=FaceH0(s,wf.second);
-    if(!(alt>h*(1+HeightTolerance))){++st.skipped_low;continue;}  // already within the new window (or lower)
-    Patch old;try{old=PatchOf(s,{wf.first});}catch(const std::exception&){++st.refused;++st.why["patch"];continue;}
+    if(!(alt>h*(1+HeightTolerance))){++st.skipped_low;return false;}  // already within the new window (or lower)
+    Patch old;try{old=PatchOf(s,{wf.first});}catch(const std::exception&){++st.refused;++st.why["patch"];return false;}
     Node q{s.next_node,Pt(Of(apex.p)-(alt-h)*n)};
     Patch fresh;fresh.surface=old.surface;fresh.parameters=old.parameters;std::string why;
     // the point is placed by the min-max engine inside the old first child, restricted to the new first-child window
@@ -47,16 +47,22 @@ inline HalveStats HalveFirstRow(State& s,Rows10& rows,std::set<Face>& certified)
      std::vector<Cell> placed;double score=0;
      if(std::abs(area)>0&&PlaceConeInsertion(old.cells,q.p,q.id,s.next_cell,RegionMetric(*s.field),placed,score,nullptr,.6,160,UINT64_MAX,region)){
        for(const auto& c:placed)for(auto x:c.v)if(x.id==q.id)q=x;fresh.cells=placed;++st.placed;}}
-    if(fresh.cells.empty())try{if(!Cone(old.cells,q,s.next_cell,fresh.cells,why)){++st.refused;++st.why["cone: "+Key(why)];continue;}}
-    catch(const std::exception& x){++st.refused;++st.why[std::string("cone: ")+x.what()];continue;}
-    try{s.reference->ExportParameters(fresh);}catch(const std::exception& x){++st.refused;++st.why[std::string("parameters: ")+x.what()];continue;}
+    if(fresh.cells.empty())try{if(!Cone(old.cells,q,s.next_cell,fresh.cells,why)){++st.refused;++st.why["cone: "+Key(why)];return false;}}
+    catch(const std::exception& x){++st.refused;++st.why[std::string("cone: ")+x.what()];return false;}
+    try{s.reference->ExportParameters(fresh);}catch(const std::exception& x){++st.refused;++st.why[std::string("parameters: ")+x.what()];return false;}
     bool ok=true;for(const auto& x:fresh.cells)ok=ok&&Positive(x.v)&&Valid(Shape(s,x));
-    if(!ok){++st.refused;++st.why["validity"];continue;}
-    std::string hw;if(!HeightT(s,fresh,hw)){++st.refused;++st.why["height: "+Key(hw)];continue;}
+    if(!ok){++st.refused;++st.why["validity"];return false;}
+    std::string hw;if(!HeightT(s,fresh,hw)){++st.refused;++st.why["height: "+Key(hw)];return false;}
     // only a registered column face follows its new apex (a face without a column - rim, unrowed - stays unregistered:
     // the column routes assume registered faces have lifted vertices)
     Apply(s,{wf.first},fresh);if(rows.apex.count(wf.second))rows.apex[wf.second]=q.id;certified.insert(wf.second);++st.split;
   }
+  return true;
+}
+inline HalveStats HalveFirstRow(State& s,Rows10& rows,std::set<Face>& certified) {
+  Scope scope("DC13 HalveFirstRow");HalveStats st;
+  std::vector<std::pair<Id,Face>> faces;for(const auto& wf:WallFaces(s))faces.push_back(wf);
+  for(const auto& wf:faces){++st.faces;HalveFace(s,rows,certified,wf,st);}
   return st;
 }
 // Column redistribution of a halving step (coordinator proposal 2026-10-24): along every first-row column (wall vertex
@@ -70,51 +76,64 @@ inline HalveStats HalveFirstRow(State& s,Rows10& rows,std::set<Face>& certified)
 // slide is a TEST-ONLY diagnostic and never set in production.
 inline bool unliftedColumns=false,diagnosticCutSlide=false;
 struct ColumnStats { size_t columns=0,unlifted=0,inserted=0,refused=0;std::map<std::string,size_t> why; };
-inline ColumnStats ColumnInsert(State& s,Rows10& rows) {
-  Scope scope("DC13 ColumnInsert");ColumnStats st;MapLayers(s);
+// DC-17: one column-edge insertion of ColumnInsert (shared with dc17::RebuildFirstRow): splits the bottom column edge
+// (w, top) at normal height z (direction d, d.n = dn) by production SplitEdge at an exact on-edge point
+// (InsertEdgeCavity when none is representable; the bound point on physical carriers); admitted when every fresh cell
+// is valid and no first child changes. Returns the new vertex, UINT64_MAX on refusal (counted in st).
+inline Id SplitColumnEdge(State& s,Id w,Id top,V x,V d,long double dn,long double z,ColumnStats& st) {
   auto firstChildOf=[&](const Patch& p){std::map<Face,std::array<Id,4>> out;std::set<Face> walls;for(const auto& sf:p.surface)if(s.walls.count(s.reference->Get(sf.facet).marker))walls.insert(Sorted(sf.v));
     for(const auto& c:p.cells)for(auto f:CellFaces(c))if(walls.count(Sorted(f)))out[Sorted(f)]=CellKey(c);return out;};
+  const Edge e{std::min(w,top),std::max(w,top)};const auto ids=Star(s,e);if(ids.empty()||ids.size()>MaximumCavityCells){++st.refused;++st.why["edge star"];return UINT64_MAX;}
+  Patch old;try{old=PatchOf(s,ids);}catch(const std::exception&){++st.refused;++st.why["patch"];return UINT64_MAX;}
+  const Point want=Pt(x+(z/dn)*d);Patch fresh;std::string why;bool ok=false;Point exact;
+  bool physical=false;for(const auto& sf:old.surface)physical=physical||(Has(sf.v,w)&&Has(sf.v,top));
+  try{if(physical)ok=SplitEdge(old,e,{s.next_node,want},s.next_cell,*s.reference,fresh,why);
+      else if(ExactOnEdgePoint(NodePoint(s,e[0]),NodePoint(s,e[1]),want,exact))ok=SplitEdge(old,e,{s.next_node,exact},s.next_cell,*s.reference,fresh,why);
+      if(!ok&&!physical){fresh=Patch{};ok=InsertEdgeCavity(old,e,{s.next_node,want},s.next_cell,*s.reference,fresh,why);}}
+  catch(const std::exception& x2){ok=false;why=x2.what();}
+  if(!ok){++st.refused;++st.why["split: "+Key(why)];return UINT64_MAX;}
+  for(const auto& pr:old.parameters)fresh.parameters.emplace(pr.first,pr.second);
+  try{s.reference->ExportParameters(fresh);}catch(const std::exception&){}
+  if(firstChildOf(old)!=firstChildOf(fresh)){++st.refused;++st.why["would change a first child"];return UINT64_MAX;}
+  bool valid=true;for(const auto& c:fresh.cells)valid=valid&&Positive(c.v)&&Valid(Shape(s,c));
+  if(!valid){++st.refused;++st.why["validity"];return UINT64_MAX;}
+  const Id m=s.next_node;Apply(s,ids,fresh);++st.inserted;return m;
+}
+// DC-17: the current bottom column edge (w, top) of a first-row column (shared by ColumnInsert and
+// dc17::RebuildFirstRow): for a lifted vertex the adjacent vertex on the column ray (alignment 1e-6) closest to the
+// wall; otherwise (only with `unlifted`) the adjacent non-wall vertex best aligned with its constrained lift direction
+// (cos >= .9). Fan ridges (copies) have none. False with the reason counted in st.why.
+struct ColumnEdge { Id top=UINT64_MAX;V x,d,nb;long double dn=0;bool lifted=false; };
+inline bool ColumnEdgeOf(State& s,const Rows10& rows,Id w,const std::set<Id>& wallSet,const std::set<Id>& apices,bool unlifted,ColumnEdge& out,ColumnStats& st) {
+  if(!s.vertex_cells.count(w))return false;const auto lf=rows.lift.find(w);const bool lifted=lf!=rows.lift.end()&&s.vertex_cells.count(lf->second);
+  if(rows.copies.count(w))return false;  // fan ridges keep their copies
+  // unlifted wall vertices (cut boundary) only on request: on m6_root_te x16 they gave 9 bad cells instead of 6
+  if(!lifted&&!unlifted)return false;
+  const V x=Of(NodePoint(s,w));const auto dir=DirectionAt(s,w);if(dir.normals.empty()){++st.why["no wall normal"];return false;}
+  // column direction: the first-row lift; a vertex without a lift (e.g. on the artificial cut boundary) uses its
+  // constrained lift direction (DirectionAt: in-plane on a carrier) and its nearest-aligned non-wall edge
+  V d;if(lifted)d=Unit(Of(NodePoint(s,lf->second))-x);else if(dir.ok)d=dir.d;else{++st.why["no direction"];return false;}
+  V nb{};for(const auto& n:dir.normals)nb=nb+n;nb=Unit(nb);
+  Id top=UINT64_MAX;long double best=INFINITY,align=.9L;
+  for(Id c:StarOf(s,w))for(auto n:s.mesh.at(c).cell.v){if(n.id==w||wallSet.count(n.id)||apices.count(n.id))continue;const V y=Of(n.p)-x;const auto t=Dot(y,d);if(!(t>0))continue;
+    if(lifted){if(Norm(y-t*d)<=1e-6L*t&&t<best){best=t;top=n.id;}}
+    else{const auto c2=t/Norm(y);if(c2>align){align=c2;top=n.id;}}}
+  if(top==UINT64_MAX){++st.why[lifted?"no column edge at the wall vertex":"no aligned edge (unlifted)"];return false;}
+  ++st.columns;if(!lifted)++st.unlifted;
+  d=Unit(Of(NodePoint(s,top))-x);const long double dn=Dot(d,nb);if(!(dn>.1L)){++st.why["column too flat"];return false;}
+  out=ColumnEdge{top,x,d,nb,dn,lifted};return true;
+}
+inline ColumnStats ColumnInsert(State& s,Rows10& rows) {
+  Scope scope("DC13 ColumnInsert");ColumnStats st;MapLayers(s);
   const auto wallSet=WallVertices(s);std::set<Id> apices;for(const auto& r:rows.apex)apices.insert(r.second);
   for(Id w:wallSet) {
-    if(!s.vertex_cells.count(w))continue;const auto lf=rows.lift.find(w);const bool lifted=lf!=rows.lift.end()&&s.vertex_cells.count(lf->second);
-    if(rows.copies.count(w))continue;  // fan ridges keep their copies
-    // unlifted wall vertices (cut boundary) only on request: on m6_root_te x16 they gave 9 bad cells instead of 6
-    if(!lifted&&!unliftedColumns)continue;
-    const V x=Of(NodePoint(s,w));const auto dir=DirectionAt(s,w);if(dir.normals.empty()){++st.why["no wall normal"];continue;}
-    // column direction: the first-row lift; a vertex without a lift (e.g. on the artificial cut boundary) uses its
-    // constrained lift direction (DirectionAt: in-plane on a carrier) and its nearest-aligned non-wall edge
-    V d;if(lifted)d=Unit(Of(NodePoint(s,lf->second))-x);else if(dir.ok)d=dir.d;else{++st.why["no direction"];continue;}
-    V nb{};for(const auto& n:dir.normals)nb=nb+n;nb=Unit(nb);
-    // the current bottom column edge: for a lifted vertex the adjacent vertex on the column ray (alignment 1e-6)
-    // closest to the wall; otherwise the adjacent non-wall vertex best aligned with d (cos >= .9)
-    Id top=UINT64_MAX;long double best=INFINITY,align=.9L;
-    for(Id c:StarOf(s,w))for(auto n:s.mesh.at(c).cell.v){if(n.id==w||wallSet.count(n.id)||apices.count(n.id))continue;const V y=Of(n.p)-x;const auto t=Dot(y,d);if(!(t>0))continue;
-      if(lifted){if(Norm(y-t*d)<=1e-6L*t&&t<best){best=t;top=n.id;}}
-      else{const auto c2=t/Norm(y);if(c2>align){align=c2;top=n.id;}}}
-    if(top==UINT64_MAX){++st.why[lifted?"no column edge at the wall vertex":"no aligned edge (unlifted)"];continue;}
-    ++st.columns;if(!lifted)++st.unlifted;
-    d=Unit(Of(NodePoint(s,top))-x);const long double dn=Dot(d,nb);if(!(dn>.1L)){++st.why["column too flat"];continue;}
+    ColumnEdge ce;if(!ColumnEdgeOf(s,rows,w,wallSet,apices,unliftedColumns,ce,st))continue;
+    Id top=ce.top;const V x=ce.x,d=ce.d,nb=ce.nb;const long double dn=ce.dn;
     const long double hL=Dot(Of(NodePoint(s,top))-x,nb),h0=VertexH0(s,w);
     long double g=-1;for(const auto& f:PhysicalOf(s,StarOf(s,w),true))if(Has(f.key,w)){const auto it=layerOfMarker.find(f.marker);if(it!=layerOfMarker.end()){g=GrowthOf(s,it->second);break;}}
     if(!(g>1)){++st.why["no wall growth policy"];continue;}  // DC-15: per-marker growth only (no global fallback)
     std::vector<long double> z;for(long double zk=h0,step=h0;zk<.85L*hL;step*=g,zk+=step)z.push_back(zk);
-    for(size_t k=z.size();k-->0;) {
-      const Edge e{std::min(w,top),std::max(w,top)};const auto ids=Star(s,e);if(ids.empty()||ids.size()>MaximumCavityCells){++st.refused;++st.why["edge star"];break;}
-      Patch old;try{old=PatchOf(s,ids);}catch(const std::exception&){++st.refused;++st.why["patch"];break;}
-      const Point want=Pt(x+(z[k]/dn)*d);Patch fresh;std::string why;bool ok=false;Point exact;
-      bool physical=false;for(const auto& sf:old.surface)physical=physical||(Has(sf.v,w)&&Has(sf.v,top));
-      try{if(physical)ok=SplitEdge(old,e,{s.next_node,want},s.next_cell,*s.reference,fresh,why);
-          else if(ExactOnEdgePoint(NodePoint(s,e[0]),NodePoint(s,e[1]),want,exact))ok=SplitEdge(old,e,{s.next_node,exact},s.next_cell,*s.reference,fresh,why);
-          if(!ok&&!physical){fresh=Patch{};ok=InsertEdgeCavity(old,e,{s.next_node,want},s.next_cell,*s.reference,fresh,why);}}
-      catch(const std::exception& x2){ok=false;why=x2.what();}
-      if(!ok){++st.refused;++st.why["split: "+Key(why)];break;}
-      for(const auto& pr:old.parameters)fresh.parameters.emplace(pr.first,pr.second);
-      try{s.reference->ExportParameters(fresh);}catch(const std::exception&){}
-      if(firstChildOf(old)!=firstChildOf(fresh)){++st.refused;++st.why["would change a first child"];break;}
-      bool valid=true;for(const auto& c:fresh.cells)valid=valid&&Positive(c.v)&&Valid(Shape(s,c));
-      if(!valid){++st.refused;++st.why["validity"];break;}
-      const Id m=s.next_node;Apply(s,ids,fresh);top=m;++st.inserted;
-    }
+    for(size_t k=z.size();k-->0;){const Id m=SplitColumnEdge(s,w,top,x,d,dn,z[k],st);if(m==UINT64_MAX)break;top=m;}
   }
   return st;
 }
