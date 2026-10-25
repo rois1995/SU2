@@ -1,0 +1,145 @@
+ninja: Entering directory `integration_evidence/build-integrated-v2'
+[1/4] Compiling C++ object SU2_CFD/src/libSU2core.a.p/drivers_CSinglezoneDriver.cpp.o
+FAILED: [code=1] SU2_CFD/src/libSU2core.a.p/drivers_CSinglezoneDriver.cpp.o 
+c++ -ISU2_CFD/src/libSU2core.a.p -ISU2_CFD/src -I../../SU2_CFD/src -I../../externals/CLI11 -I../../externals/eigen -I../../externals/cgns/adf -I../../externals/cgns/adfh -Iexternals/cgns -I../../externals/cgns -Iexternals/cgns/hdf5 -I../../externals/cgns/hdf5 -I../../externals/metis/include -I../../externals/metis/GKlib -I../../externals/metis/libmetis -I../../externals/parmetis/include -I../../externals/parmetis/libparmetis -I../../externals/mel -ICommon/src -I../../Common/src -I/usr/lib/x86_64-linux-gnu/openmpi/include/openmpi -I/usr/lib/x86_64-linux-gnu/openmpi/include -fdiagnostics-color=always -D_GLIBCXX_ASSERTIONS=1 -D_FILE_OFFSET_BITS=64 -std=c++17 -O2 -g -fPIC -pthread -Wno-empty-body -Wno-ignored-qualifiers -Wno-unused-parameter -Wno-deprecated-declarations -Wno-error=cast-function-type -Wno-cast-function-type -Wno-error=stringop-truncation -Wno-stringop-truncation -Wno-error=missing-field-initializers -Wno-missing-field-initializers -Wno-error=class-memaccess -Wno-class-memaccess -Wno-overloaded-virtual -Wno-array-bounds -march=native -ffast-math -fno-finite-math-only -DHAVE_CGNS -DHAVE_MPI -DHAVE_METIS -DHAVE_PARMETIS -DHAVE_MMG -MD -MQ SU2_CFD/src/libSU2core.a.p/drivers_CSinglezoneDriver.cpp.o -MF SU2_CFD/src/libSU2core.a.p/drivers_CSinglezoneDriver.cpp.o.d -o SU2_CFD/src/libSU2core.a.p/drivers_CSinglezoneDriver.cpp.o -c ../../SU2_CFD/src/drivers/CSinglezoneDriver.cpp
+In file included from ../../SU2_CFD/src/drivers/../../include/adaptation/native_bl3d/BLGrowth12.inl:328,
+                 from ../../SU2_CFD/src/drivers/../../include/adaptation/CNativeBLPipeline3D.hpp:48,
+                 from ../../SU2_CFD/src/drivers/CSinglezoneDriver.cpp:29:
+../../SU2_CFD/src/drivers/../../include/adaptation/native_bl3d/BLDeform16.inl: In function ‘void dc16::MakeRoom(junction_wp0::State&, const std::function<bool(long unsigned int)>&, const std::set<long unsigned int>&, const std::map<long unsigned int, junction_wp0::V>&, std::ostream&)’:
+../../SU2_CFD/src/drivers/../../include/adaptation/native_bl3d/BLDeform16.inl:150:6: error: expected ‘}’ before ‘else’
+  150 |      else{++st.refused;++st.why["interior commit: skin or positivity"];}}}
+      |      ^~~~
+../../SU2_CFD/src/drivers/../../include/adaptation/native_bl3d/BLDeform16.inl:137:22: note: to match this ‘{’
+  137 |    if(!moved.empty()){
+      |                      ^
+../../SU2_CFD/src/drivers/../../include/adaptation/native_bl3d/BLDeform16.inl: At global scope:
+../../SU2_CFD/src/drivers/../../include/adaptation/native_bl3d/BLDeform16.inl:152:3: error: expected unqualified-id before ‘for’
+  152 |   for(const auto& sl:slides){const Id g=global[sl.first];if(!s.vertex_cells.count(g))continue;
+      |   ^~~
+../../SU2_CFD/src/drivers/../../include/adaptation/native_bl3d/BLDeform16.inl:159:3: error: ‘st’ does not name a type; did you mean ‘ts’?
+  159 |   st.slides+=Seconds(ts);
+      |   ^~
+      |   ts
+../../SU2_CFD/src/drivers/../../include/adaptation/native_bl3d/BLDeform16.inl:160:3: error: ‘st’ does not name a type; did you mean ‘ts’?
+  160 |   st.commit+=Seconds(tc);st.seconds+=Seconds(t0);
+      |   ^~
+      |   ts
+../../SU2_CFD/src/drivers/../../include/adaptation/native_bl3d/BLDeform16.inl:160:26: error: ‘st’ does not name a type; did you mean ‘ts’?
+  160 |   st.commit+=Seconds(tc);st.seconds+=Seconds(t0);
+      |                          ^~
+      |                          ts
+../../SU2_CFD/src/drivers/../../include/adaptation/native_bl3d/BLDeform16.inl:161:3: error: ‘log’ does not name a type
+  161 |   log<<"DC16 room needy="<<needy.size()<<" region="<<region.size()<<" cells="<<cellIds.size()<<" cg="<<sr.iterations<<(sr.converged?"":" (unconverged)")
+      |   ^~~
+../../SU2_CFD/src/drivers/../../include/adaptation/native_bl3d/BLDeform16.inl:164:35: error: ‘RoomStats’ does not name a type
+  164 | inline std::string JsonRoom(const RoomStats& r) {
+      |                                   ^~~~~~~~~
+../../SU2_CFD/src/drivers/../../include/adaptation/native_bl3d/BLDeform16.inl: In function ‘std::string JsonRoom(const int&)’:
+../../SU2_CFD/src/drivers/../../include/adaptation/native_bl3d/BLDeform16.inl:165:66: error: request for member ‘calls’ in ‘r’, which is of non-class type ‘const int’
+  165 |   std::ostringstream o;o<<std::setprecision(8)<<"{\"calls\":"<<r.calls<<",\"needy_tops\":"<<r.needy<<",\"region_vertices\":"<<r.region<<",\"cells\":"<<r.cells<<",\"moved\":"<<r.moved
+      |                                                                  ^~~~~
+../../SU2_CFD/src/drivers/../../include/adaptation/native_bl3d/BLDeform16.inl:165:95: error: request for member ‘needy’ in ‘r’, which is of non-class type ‘const int’
+  165 |   std::ostringstream o;o<<std::setprecision(8)<<"{\"calls\":"<<r.calls<<",\"needy_tops\":"<<r.needy<<",\"region_vertices\":"<<r.region<<",\"cells\":"<<r.cells<<",\"moved\":"<<r.moved
+      |                                                                                               ^~~~~
+../../SU2_CFD/src/drivers/../../include/adaptation/native_bl3d/BLDeform16.inl:165:129: error: request for member ‘region’ in ‘r’, which is of non-class type ‘const int’
+  165 |   std::ostringstream o;o<<std::setprecision(8)<<"{\"calls\":"<<r.calls<<",\"needy_tops\":"<<r.needy<<",\"region_vertices\":"<<r.region<<",\"cells\":"<<r.cells<<",\"moved\":"<<r.moved
+      |                                                                                                                                 ^~~~~~
+../../SU2_CFD/src/drivers/../../include/adaptation/native_bl3d/BLDeform16.inl:165:154: error: request for member ‘cells’ in ‘r’, which is of non-class type ‘const int’
+  165 |   std::ostringstream o;o<<std::setprecision(8)<<"{\"calls\":"<<r.calls<<",\"needy_tops\":"<<r.needy<<",\"region_vertices\":"<<r.region<<",\"cells\":"<<r.cells<<",\"moved\":"<<r.moved
+      |                                                                                                                                                          ^~~~~
+../../SU2_CFD/src/drivers/../../include/adaptation/native_bl3d/BLDeform16.inl:165:178: error: request for member ‘moved’ in ‘r’, which is of non-class type ‘const int’
+  165 |   std::ostringstream o;o<<std::setprecision(8)<<"{\"calls\":"<<r.calls<<",\"needy_tops\":"<<r.needy<<",\"region_vertices\":"<<r.region<<",\"cells\":"<<r.cells<<",\"moved\":"<<r.moved
+      |                                                                                                                                                                                  ^~~~~
+../../SU2_CFD/src/drivers/../../include/adaptation/native_bl3d/BLDeform16.inl:166:31: error: request for member ‘frozen’ in ‘r’, which is of non-class type ‘const int’
+  166 |    <<",\"pseudo_frozen\":"<<r.frozen<<",\"metric_reverted\":"<<r.metric_frozen<<",\"sliding\":"<<r.slide<<",\"sliding_reverted\":"<<r.slide_reverted<<",\"cg_iterations\":"<<r.iterations
+      |                               ^~~~~~
+../../SU2_CFD/src/drivers/../../include/adaptation/native_bl3d/BLDeform16.inl:166:66: error: request for member ‘metric_frozen’ in ‘r’, which is of non-class type ‘const int’
+  166 |    <<",\"pseudo_frozen\":"<<r.frozen<<",\"metric_reverted\":"<<r.metric_frozen<<",\"sliding\":"<<r.slide<<",\"sliding_reverted\":"<<r.slide_reverted<<",\"cg_iterations\":"<<r.iterations
+      |                                                                  ^~~~~~~~~~~~~
+../../SU2_CFD/src/drivers/../../include/adaptation/native_bl3d/BLDeform16.inl:166:100: error: request for member ‘slide’ in ‘r’, which is of non-class type ‘const int’
+  166 |    <<",\"pseudo_frozen\":"<<r.frozen<<",\"metric_reverted\":"<<r.metric_frozen<<",\"sliding\":"<<r.slide<<",\"sliding_reverted\":"<<r.slide_reverted<<",\"cg_iterations\":"<<r.iterations
+      |                                                                                                    ^~~~~
+../../SU2_CFD/src/drivers/../../include/adaptation/native_bl3d/BLDeform16.inl:166:135: error: request for member ‘slide_reverted’ in ‘r’, which is of non-class type ‘const int’
+  166 |    <<",\"pseudo_frozen\":"<<r.frozen<<",\"metric_reverted\":"<<r.metric_frozen<<",\"sliding\":"<<r.slide<<",\"sliding_reverted\":"<<r.slide_reverted<<",\"cg_iterations\":"<<r.iterations
+      |                                                                                                                                       ^~~~~~~~~~~~~~
+../../SU2_CFD/src/drivers/../../include/adaptation/native_bl3d/BLDeform16.inl:166:176: error: request for member ‘iterations’ in ‘r’, which is of non-class type ‘const int’
+  166 |    <<",\"pseudo_frozen\":"<<r.frozen<<",\"metric_reverted\":"<<r.metric_frozen<<",\"sliding\":"<<r.slide<<",\"sliding_reverted\":"<<r.slide_reverted<<",\"cg_iterations\":"<<r.iterations
+      |                                                                                                                                                                                ^~~~~~~~~~
+../../SU2_CFD/src/drivers/../../include/adaptation/native_bl3d/BLDeform16.inl:167:29: error: request for member ‘unconverged’ in ‘r’, which is of non-class type ‘const int’
+  167 |    <<",\"unconverged\":"<<r.unconverged<<",\"commits\":"<<r.commits<<",\"refused\":"<<r.refused<<",\"seconds\":{\"total\":"<<r.seconds<<",\"solve\":"<<r.solve<<",\"move\":"<<r.move
+      |                             ^~~~~~~~~~~
+../../SU2_CFD/src/drivers/../../include/adaptation/native_bl3d/BLDeform16.inl:167:61: error: request for member ‘commits’ in ‘r’, which is of non-class type ‘const int’
+  167 |    <<",\"unconverged\":"<<r.unconverged<<",\"commits\":"<<r.commits<<",\"refused\":"<<r.refused<<",\"seconds\":{\"total\":"<<r.seconds<<",\"solve\":"<<r.solve<<",\"move\":"<<r.move
+      |                                                             ^~~~~~~
+../../SU2_CFD/src/drivers/../../include/adaptation/native_bl3d/BLDeform16.inl:167:89: error: request for member ‘refused’ in ‘r’, which is of non-class type ‘const int’
+  167 |    <<",\"unconverged\":"<<r.unconverged<<",\"commits\":"<<r.commits<<",\"refused\":"<<r.refused<<",\"seconds\":{\"total\":"<<r.seconds<<",\"solve\":"<<r.solve<<",\"move\":"<<r.move
+      |                                                                                         ^~~~~~~
+../../SU2_CFD/src/drivers/../../include/adaptation/native_bl3d/BLDeform16.inl:167:128: error: request for member ‘seconds’ in ‘r’, which is of non-class type ‘const int’
+  167 |    <<",\"unconverged\":"<<r.unconverged<<",\"commits\":"<<r.commits<<",\"refused\":"<<r.refused<<",\"seconds\":{\"total\":"<<r.seconds<<",\"solve\":"<<r.solve<<",\"move\":"<<r.move
+      |                                                                                                                                ^~~~~~~
+../../SU2_CFD/src/drivers/../../include/adaptation/native_bl3d/BLDeform16.inl:167:154: error: request for member ‘solve’ in ‘r’, which is of non-class type ‘const int’
+  167 |    <<",\"unconverged\":"<<r.unconverged<<",\"commits\":"<<r.commits<<",\"refused\":"<<r.refused<<",\"seconds\":{\"total\":"<<r.seconds<<",\"solve\":"<<r.solve<<",\"move\":"<<r.move
+      |                                                                                                                                                          ^~~~~
+../../SU2_CFD/src/drivers/../../include/adaptation/native_bl3d/BLDeform16.inl:167:177: error: request for member ‘move’ in ‘r’, which is of non-class type ‘const int’
+  167 |    <<",\"unconverged\":"<<r.unconverged<<",\"commits\":"<<r.commits<<",\"refused\":"<<r.refused<<",\"seconds\":{\"total\":"<<r.seconds<<",\"solve\":"<<r.solve<<",\"move\":"<<r.move
+      |                                                                                                                                                                                 ^~~~
+../../SU2_CFD/src/drivers/../../include/adaptation/native_bl3d/BLDeform16.inl:168:24: error: request for member ‘metric’ in ‘r’, which is of non-class type ‘const int’
+  168 |    <<",\"metric\":"<<r.metric<<",\"commit\":"<<r.commit<<",\"batch\":"<<r.batch<<",\"slides\":"<<r.slides<<",\"problem\":"<<r.problem<<"},\"why\":{";
+      |                        ^~~~~~
+../../SU2_CFD/src/drivers/../../include/adaptation/native_bl3d/BLDeform16.inl:168:50: error: request for member ‘commit’ in ‘r’, which is of non-class type ‘const int’
+  168 |    <<",\"metric\":"<<r.metric<<",\"commit\":"<<r.commit<<",\"batch\":"<<r.batch<<",\"slides\":"<<r.slides<<",\"problem\":"<<r.problem<<"},\"why\":{";
+      |                                                  ^~~~~~
+../../SU2_CFD/src/drivers/../../include/adaptation/native_bl3d/BLDeform16.inl:168:75: error: request for member ‘batch’ in ‘r’, which is of non-class type ‘const int’
+  168 |    <<",\"metric\":"<<r.metric<<",\"commit\":"<<r.commit<<",\"batch\":"<<r.batch<<",\"slides\":"<<r.slides<<",\"problem\":"<<r.problem<<"},\"why\":{";
+      |                                                                           ^~~~~
+../../SU2_CFD/src/drivers/../../include/adaptation/native_bl3d/BLDeform16.inl:168:100: error: request for member ‘slides’ in ‘r’, which is of non-class type ‘const int’
+  168 |    <<",\"metric\":"<<r.metric<<",\"commit\":"<<r.commit<<",\"batch\":"<<r.batch<<",\"slides\":"<<r.slides<<",\"problem\":"<<r.problem<<"},\"why\":{";
+      |                                                                                                    ^~~~~~
+../../SU2_CFD/src/drivers/../../include/adaptation/native_bl3d/BLDeform16.inl:168:127: error: request for member ‘problem’ in ‘r’, which is of non-class type ‘const int’
+  168 |    <<",\"metric\":"<<r.metric<<",\"commit\":"<<r.commit<<",\"batch\":"<<r.batch<<",\"slides\":"<<r.slides<<",\"problem\":"<<r.problem<<"},\"why\":{";
+      |                                                                                                                               ^~~~~~~
+../../SU2_CFD/src/drivers/../../include/adaptation/native_bl3d/BLDeform16.inl:169:36: error: request for member ‘why’ in ‘r’, which is of non-class type ‘const int’
+  169 |   bool k=false;for(const auto& w:r.why){o<<(k?",":"")<<junction_wp0::Json(w.first)<<':'<<w.second;k=true;}o<<"}}";return o.str();
+      |                                    ^~~
+../../SU2_CFD/src/drivers/../../include/adaptation/native_bl3d/BLDeform16.inl: At global scope:
+../../SU2_CFD/src/drivers/../../include/adaptation/native_bl3d/BLDeform16.inl:171:1: error: expected declaration before ‘}’ token
+  171 | }  // namespace dc16
+      | ^
+In file included from ../../SU2_CFD/src/drivers/../../include/adaptation/CNativeBLPipeline3D.hpp:48,
+                 from ../../SU2_CFD/src/drivers/CSinglezoneDriver.cpp:29:
+../../SU2_CFD/src/drivers/../../include/adaptation/native_bl3d/BLGrowth12.inl: In function ‘std::string dc12::JsonGrowth(junction_wp0::State&, const dc12::Growth&)’:
+../../SU2_CFD/src/drivers/../../include/adaptation/native_bl3d/BLGrowth12.inl:752:27: error: ‘JsonRoom’ is not a member of ‘dc16’; did you mean ‘JsonRoom’?
+  752 |   o<<"},\"room\":"<<dc16::JsonRoom(dc16::roomStats)<<",\"last_refusal\":"<<junction_wp0::Json(G.last.substr(0,300))<<"}";(void)s;return o.str();
+      |                           ^~~~~~~~
+In file included from ../../SU2_CFD/src/drivers/../../include/adaptation/native_bl3d/BLGrowth12.inl:328,
+                 from ../../SU2_CFD/src/drivers/../../include/adaptation/CNativeBLPipeline3D.hpp:48,
+                 from ../../SU2_CFD/src/drivers/CSinglezoneDriver.cpp:29:
+../../SU2_CFD/src/drivers/../../include/adaptation/native_bl3d/BLDeform16.inl:164:20: note: ‘JsonRoom’ declared here
+  164 | inline std::string JsonRoom(const RoomStats& r) {
+      |                    ^~~~~~~~
+ninja: build stopped: subcommand failed.
+Command exited with non-zero status 1
+	Command being timed: "nice -n 19 /home/rausa/Software/su2-develop/ninja -C integration_evidence/build-integrated-v2 -j1 UnitTests/test_driver"
+	User time (seconds): 11.54
+	System time (seconds): 0.44
+	Percent of CPU this job got: 98%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:12.13
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 1301920
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 1
+	Minor (reclaiming a frame) page faults: 346553
+	Voluntary context switches: 29
+	Involuntary context switches: 1804
+	Swaps: 0
+	File system inputs: 8
+	File system outputs: 136
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 1
+BUILD EXIT 1

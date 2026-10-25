@@ -1,0 +1,99 @@
+DC-16 summary (2026-10-25): room for the BL growth layers by volume deformation; first published full-M6 FIRST_ROW events
+==================================================================================================================
+Branch codex/native-3d-bl, base 81cb2c1c3f. Plan DC16_PLAN.md rev 2 (untracked); plan review dc16/codex_review_plan.txt;
+code review dc16/codex_review_code.txt (8 majors + 2 minors, all addressed in c12). Source snapshots (WIP commits): c1 da6d7cba01,
+c2 49a0cddf42, c3 8c1c095871, c4 c141867c90, c5 49cf11e37b, c6 ebb169b5e6, c7 afc5bae3c0, c8 91ea670d84, c9 a1eeb233f3,
+c10 1556fe4eb9, c11 353258fee4, c12 abdd98600f. Binaries: dc16/test_driver_c*.sha256 (only c12 kept).
+
+1. RESULT: full ONERA M6, frozen sensor, production entry ([NativeFrozenBL14]), serial, nice 19
+--------------------------------------------------------------------------------------------
+ event                 binary  valid  published  cells      bad*     long*    height  total     peak RSS
+ x32 event 0           c6      yes    yes        1,247,578  48,540   148,526  0       34 min    3.2 GB
+ x16 event 1 (chain)   c11     yes    yes        1,995,203  355,917  445,353  0       37 min    8.1 GB
+ DC-15 c1 (reference)  -       no     no         693,313    100,496  140,095  89      78 min    7.9 GB
+ * intermediate events: deficits from cached lengths + vertex-tensor estimates (labelled), final gates not applied
+ (user decision). Validity = independent check: 0 nonpositive, topology clean, every first height within 10 %; A3
+ first-row audit 0 violations in both. Published meshes and sidecars: dc16/published_meshes.sha256 (meshes not committed).
+ Event 0 phases (s): W 65 (prefiltered; c3 172), R1 2, R2 677 (all 19,506 wall vertices tried, 19,271 lifted; c1:
+ 8.2k), completion 3 (2 -> 0 failing faces: B2 solved by cavity widening), G 232, V 965 (6,008 attempts, 7,613 accepted,
+ 1 sweep), deficits 29, export 8, validity 3.5; publication ceiling 3.8 GB (need 2.5 GB).
+ Event 1: halving 66 s (40,890 faces split, 0 refused; 40,614 column points), V 1,862 s (24.5k attempts), publication
+ ceiling 12.5 GB (need 8.3 GB estimated). 244k of its 356k bad cells are at 0-3 h0: the halved first rows are flat
+ against the unchanged tangential target (DC-13 chain-step weakness; V cannot repair it within its cap).
+ Layer census (vertices per wall vertex per band, 1.0 = one law layer; dc16/full_c6/layer_census_event0.txt,
+ full_c11/layer_census_event1.txt). Event 0, bands 1.5-3 / 3-6 / 6-12 / 12-25 h0 [DC-15 c1]:
+   LE 1.04 1.17 1.28 2.22 [0 0 0 0]   mid 0.99 0.99 0.99 1.99 [0.14 ...]   TE 0.75 0.88 0.85 1.35 [0.65 0.64 0.60 0.76]
+   root 0.83 0.88 0.87 1.60 [0.47 ...]   tip 0.99 1.05 1.00 1.55 [0.44 ...]
+ G: 19,271 columns, 97,226 lifts (c1 31k), 1,878 refusals; layers per column 1:729 2:2312 3:2336 4:2160 5:1987 6:1911
+ 7:7832; stops isotropy 11,232, thickness 4,363, "s3 law: Query outside" 3,469 (the unit-step march leaves the domain at
+ thin sections), refused 207. Not measured: the A2 fraction on the full mesh (CountLayers costs ~20 min there).
+ Deficits by band (event 0): 45.8k of 48.5k bad and 97k of 149k long at 10-300 h0, concentrated in the TE wake block
+ (TE 30-100 h0: 20.9k bad, 31.9k long) and the tip; LE/tip 0-3 h0 carry 11k/12k long tangential edges.
+ Pictures: dc16/png_event0, dc16/png_event1 (20/50/90 % span, LE/TE, three zooms each).
+
+2. WHAT WAS BUILT
+------------------
+ Shared 2D/3D: Common/include/adaptation/CNativeDeformation.hpp (template on D = 2, 3): stiffened P1 vector Laplacian,
+   projected PCG with sliding constraints, pseudo-time move with validity freezing (ALM 2017 Alg. 2 step 4) behind one
+   per-cell predicate. Tests [NativeDeform16] in 2D and 3D. The 2D engine does not use it yet (2D behaviour unchanged).
+ 3D room step (BLDeform16.inl, before each layer of G): needy tops (kernel bound < 1.5 x step), free vertices of their
+   above stars + 1 ring (registry, below-cell and first-child vertices pinned, role-0 planes slide), Dirichlet =
+   planned top steps, solve, move (exact orientation + Euclidean quality floor), metric validity settle (bounded; a
+   non-closing settle cancels the move), one-unit interior commit over the complete union of stars, sliding vertices
+   one by one through MoveVertex. Event 0: 7 calls, 11.9k needy tops, 31.7k vertices moved, 21 s. ClearAbove kept as a
+   local fallback (173 moves, 19 collapses on event 0).
+ Joint transactions in G: a clearance refusal whose blocker is a pending planned top widens the transaction (791
+   retries, 375 accepted on event 0).
+ Validity-only intermediate construction (dc9::validityOnlyConstruction, set only when !final_cycle): R2 lifts without
+   MeasurableChanged; Admit12 Layer and Refine (requested edge > 1.6) by cell validity only. Vertex-removing operations
+   keep their certificate; final cycles unchanged.
+ V: demand queue with an event-wide vertex-tensor cache (geometric edge estimate), cells rescanned by id watermark,
+   exact admission unchanged; intermediate cap 900 -> 1800 s; final cycles keep the exact scan (review 8).
+ W: selection prefilter by the same estimate (exact integration only above 1.2): 172 -> 65 s. W still splits 0 edges:
+   the target asks for none (no curvature term, coarse wall sensor) -> DC-17 curved authority.
+ Memory (B6 explained): FrozenField's "Query outside" exception listed every donor (~15 MB per message); G stored the
+   stop text per column (~1000 such stops at layer 7) -> 17 GB (34 GB in the killed c2 run). Fixed at the source
+   (bounded donor witnesses in CNativeField3D.cpp) and in G (stop texts <= 160 chars). G now 1.95 GB.
+ V throughput: the same unbounded witness made each failed measurement cost ~1 s (404 attempts in 360 s on c3).
+ Boundary coverage: the imported M6 symmetry "plane" is not planar (y varies ~1e-14); points bound on it were
+   realized ~1e-18 outside the donors ("Uncovered source segment endpoint", "No original donor contains a requested
+   point"). CNativeNearContainment.hpp: tolerant coverage at the domain boundary (1e-12 x max(1, |x|), and at most
+   1e-6 x the donor's longest edge), used after the exact search in FrozenField::Query and edge candidates,
+   TraceSegment endpoints (separate constant end pieces, exact pieces untouched) and the donor import (incl. routing
+   and midpoints). Constrain also snaps exactly on axis-aligned carrier planes (fast path).
+ Publication / reference setup budgets (fixed 2 GiB and work totals blocked the published events):
+   FIRST_ROW memory ceiling = max(default, 1.5 x need), capped at 25 % of node memory, one value on all ranks; need =
+   max(measured peak RSS, 4 KiB per input cell) before, max(measured, live + ~6 KiB per original donor) after the
+   construction; printed. Joint-source column work bound max(10^6, 128 x skin faces), printed.
+   REMOVED CORRECTNESS CHECK (coordinator): the exact JointAffineCoverage envelope pair audit (hours on 1.25M cells) is
+   skipped ONLY on intermediate FIRST_ROW ramp events and only when 4 x the declared mapping error of every facet is
+   below the near-coverage tolerance at that facet; the tolerant lookups cover those points. The final cycle keeps the
+   exact audit (TODO: spatial index, or evidence that it is redundant).
+ Other: B2 cavity widening (invalid cone cells widen the cavity across their base face); bounded witness messages for
+   bridge/donor budgets; box test roles by marker index.
+
+3. TESTS AND CUTS (c12, dc16/validation_c12/*.status)
+---------------------------------------------------
+ pipeline pass, growth pass, unit3d pass, unit2d pass, metric pass, mesh3d pass-known (exactly the 6 failures at
+ CNativeDistributed3D_tests.cpp:1446/1449/1453), airfoil pass, [NativeDeform16]+[NativeRoom16] pass (958 assertions).
+ Cut m6_root_te x32: accepted on c1..c12 (9316 cells, bad 0, long 0, height 0; DC-15: 8894); G lifted 172 vs 121,
+ refused 55 vs 139, A2 0.944 vs 0.899. m6_root_te with the full production policy (validity-only + production V):
+ 9414 cells, bad 2 (B5 evidence: the production V leaves 2 bad cells on the cut). m6_tip_te x32: bad 6 (as DC-15).
+ Tubes/annulus not rerun in DC-16.
+
+4. OPEN / BLOCKERS
+-------------------
+ - Deficits: V refines (24.5k attempts on event 1) but cannot clear the bad TE wake block and the halved first rows
+   within intermediate caps; the final cycle needs a much larger budget or parallel V.
+ - The chain step (halving) creates flat first rows (244k bad at 0-3 h0 on x16): wall-tangential refinement with the
+   halving (W role) is missing.
+ - Symmetry sliding of ORIGINAL vertices impossible on the promoted faceted reference (898/898 refused).
+ - Final-cycle exact envelope audit unaffordable (TODO); memory ceiling should be a config option (TODO,
+   ADAP_NATIVE_MEMORY_LIMIT, needs a CConfig.hpp change); tilted-plane coverage unit test (TODO); a segment lying
+   entirely just outside a boundary plane is still uncovered (review 6 residual).
+ - R2 677 s remains the largest construction phase.
+
+5. SHARED 2D/3D
+----------------
+ Shared: CNativeDeformation.hpp (solver + pseudo-time freezing driver, tested in 2D and 3D). 3D-specific behind the
+ per-cell predicate: orientation/metric validity, room region and commit (BLDeform16.inl). 2D production code unchanged.

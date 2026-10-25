@@ -1,0 +1,516 @@
+Filters: [NativeD1Law],[Adaptation],[BoundaryLayerMetric],[MetricRobustness],[NativeExactFma],[NativeBalancedSplit3D],[NativeMetricMove3D],[NativeCurvedBL3D],[NativeChordEnvelope],[NativeMetricSplitRule3D],[NativeShapeAdmission3D],[NativeOptimize3D]
+Hessian recovery: 0.000159712 s (maximum rank time).
+Hessian WLS stencil statistics: 0 numerically deficient, 0 poorly conditioned owned points; minimum normalized reciprocal condition 1.
+Hessian recovery: 0.000376502 s (maximum rank time).
+Hessian recovery: 0.000167166 s (maximum rank time).
+Hessian WLS stencil statistics: 0 numerically deficient, 0 poorly conditioned owned points; minimum normalized reciprocal condition 1.
+Hessian recovery: 0.00030999 s (maximum rank time).
+Hessian recovery: 0.000180144 s (maximum rank time).
+Hessian recovery: 0.000152701 s (maximum rank time).
+Hessian WLS stencil statistics: 0 numerically deficient, 0 poorly conditioned owned points; minimum normalized reciprocal condition 1.
+Hessian recovery: 0.000256694 s (maximum rank time).
+Hessian WLS stencil statistics: 0 numerically deficient, 0 poorly conditioned owned points; minimum normalized reciprocal condition 1.
+Hessian recovery: 0.000246486 s (maximum rank time).
+Hessian recovery: 0.000519863 s (maximum rank time).
+Hessian WLS stencil statistics: 0 numerically deficient, 0 poorly conditioned owned points; minimum normalized reciprocal condition 1.
+Hessian recovery: 0.000485706 s (maximum rank time).
+Hessian recovery: 0.000273968 s (maximum rank time).
+Hessian WLS stencil statistics: 0 numerically deficient, 0 poorly conditioned owned points; minimum normalized reciprocal condition 1.
+Hessian recovery: 0.000335406 s (maximum rank time).
+Hessian recovery: 0.000167928 s (maximum rank time).
+Metric field statistics:
+Minimum density: 7329.62.
+Maximum density: 11109.6.
+Maximum cell AR: 2.44949.
+Mesh complexity: 10000 (ADAP_COMPLEXITY= 10000).
+Hessian recovery: 0.000151191 s (maximum rank time).
+Metric field statistics:
+Minimum density: 7329.62.
+Maximum density: 11109.6.
+Maximum cell AR: 2.44949.
+Mesh complexity: 10000 (ADAP_COMPLEXITY= 10000).
+Hessian WLS stencil statistics: 0 numerically deficient, 0 poorly conditioned owned points; minimum normalized reciprocal condition 1.
+Hessian recovery: 0.000272639 s (maximum rank time).
+Metric field statistics:
+Minimum density: 7329.62.
+Maximum density: 11109.6.
+Maximum cell AR: 2.44949.
+Mesh complexity: 10000 (ADAP_COMPLEXITY= 10000).
+Hessian WLS stencil statistics: 0 numerically deficient, 0 poorly conditioned owned points; minimum normalized reciprocal condition 1.
+Hessian recovery: 0.000244302 s (maximum rank time).
+Metric field statistics:
+Minimum density: 7329.62.
+Maximum density: 11109.6.
+Maximum cell AR: 2.44949.
+Mesh complexity: 10000 (ADAP_COMPLEXITY= 10000).
+Hessian WLS stencil statistics: 0 numerically deficient, 0 poorly conditioned owned points; minimum normalized reciprocal condition 1.
+Hessian recovery: 0.00086463 s (maximum rank time).
+Hessian WLS stencil statistics: 0 numerically deficient, 0 poorly conditioned owned points; minimum normalized reciprocal condition 1.
+Hessian recovery: 0.00736403 s (maximum rank time).
+Custom MACH*MACH Hessian maximum relative errors: coarse=0.011068 fine=0.00252302
+Warning: selected custom adaptation sensors must be mirror-even at MARKER_SYM. Cartesian components may be odd; use fabs or an even power. Odd sensors have incorrect boundary Hessians.
+Warning: selected custom adaptation sensors must be mirror-even at MARKER_SYM. Cartesian components may be odd; use fabs or an even power. Odd sensors have incorrect boundary Hessians.
+
+Parsing config file for zone 0
+
+----------------- Physical Case Definition ( Zone 0 ) -------------------
+Compressible Euler equations.
+Mach number: 0.5.
+Angle of attack (AoA): 0 deg, and angle of sideslip (AoS): 0 deg.
+No restart solution, use the values at infinity (freestream).
+Dimensional simulation.
+The reference area is 1 m^2.
+The semi-span will be computed using the max y(3D) value.
+The reference length is 1 m.
+Input mesh file name: steady_metric_reuse.su2
+
+--------------- Space Numerical Integration ( Zone 0 ) ------------------
+Roe (with entropy fix = 0.001) solver for the flow inviscid terms.
+Standard Roe without low-dissipation function.
+First order integration in space.
+Gradient for upwind reconstruction: inverse-distance weighted Least-Squares.
+Gradient for viscous and source terms: inverse-distance weighted Least-Squares.
+
+--------------- Time Numerical Integration  ( Zone 0 ) ------------------
+Local time stepping (steady state simulation).
+Euler implicit method for the flow equations.
+FGMRES is used for solving the linear system.
+Using ILU(0) preconditioning.
+Convergence criteria of the linear solver: 1e-06.
+Max number of linear iterations: 10.
+No CFL adaptation.
+Courant-Friedrichs-Lewy number:        1
+
+------------------ Convergence Criteria  ( Zone 0 ) ---------------------
+Maximum number of solver subiterations: 1.
+Begin convergence monitoring at iteration 5.
+Residual minimum value: 1e-14.
+Cauchy series min. value: 1e-10.
+Number of Cauchy elements: 100.
+Begin windowed time average at iteration 0.
+
+-------------------- Output Information ( Zone 0 ) ----------------------
+File writing frequency: 
++------------------------------------+
+|                     File| Frequency|
++------------------------------------+
+|                  RESTART|       250|
++------------------------------------+
+Writing the convergence history file every 1 inner iterations.
+Writing the screen convergence history every 1 inner iterations.
+The tabular file format is CSV (.csv).
+Convergence history file name: steady_metric_reuse_history.
+Forces breakdown file name: forces_breakdown.dat.
+Surface file name: surface.
+Volume file name: vol_solution.
+Restart file name: steady_metric_reuse_solution.
+
+------------- Config File Boundary Information ( Zone 0 ) ---------------
++-----------------------------------------------------------------------+
+|                        Marker Type|                        Marker Name|
++-----------------------------------------------------------------------+
+|                          Far-field|                               left|
+|                                   |                              right|
+|                                   |                              upper|
+|                                   |                            lower_a|
+|                                   |                            lower_b|
++-----------------------------------------------------------------------+
+
+-------------------- Output Preprocessing ( Zone 0 ) --------------------
+
+WARNING: SURFACE_PRESSURE_DROP can only be computed for at least 2 surfaces (outlet, inlet, ...)
+
+Screen output fields: INNER_ITER, RMS_DENSITY, RMS_MOMENTUM-X, RMS_MOMENTUM-Y, RMS_ENERGY
+History output group(s): ITER, RMS_RES
+Convergence field(s): RMS_DENSITY
+Warning: No (valid) fields chosen for time convergence monitoring. Time convergence monitoring inactive.
+Volume output fields: COORDINATES, SOLUTION, PRIMITIVE
+
+------------------- Geometry Preprocessing ( Zone 0 ) -------------------
+Two dimensional problem.
+45 grid points.
+64 volume elements.
+5 surface markers.
+4 boundary elements in index 0 (Marker = left).
+4 boundary elements in index 1 (Marker = lower_a).
+4 boundary elements in index 2 (Marker = lower_b).
+4 boundary elements in index 3 (Marker = right).
+8 boundary elements in index 4 (Marker = upper).
+64 triangles.
+Setting point connectivity.
+Renumbering points (Reverse Cuthill McKee Ordering).
+Recomputing point connectivity.
+Setting element connectivity.
+Checking the numerical grid orientation.
+There has been a re-orientation of 32 TRIANGLE volume elements.
+There has been a re-orientation of 12 LINE surface elements.
+Identifying edges and vertices.
+Setting the control volume structure.
+Area of the computational grid: 2.
+Searching for the closest normal neighbors to the surfaces.
+Storing a mapping from global to local point index.
+Compute the surface curvature.
+Max K: 5.65685. Mean K: 1.56051. Standard deviation K: 2.52832.
+Computing mesh quality statistics for the dual control volumes.
++--------------------------------------------------------------+
+|           Mesh Quality Metric|        Minimum|        Maximum|
++--------------------------------------------------------------+
+|    Orthogonality Angle (deg.)|        63.4349|        73.7269|
+|     CV Face Area Aspect Ratio|        1.34164|        2.68328|
+|           CV Sub-Volume Ratio|              1|              1|
+|                     CV Volume|      0.0104167|         0.0625|
++--------------------------------------------------------------+
+Finding max control volume width.
+CFD geometry seconds partition/migration/preprocess (maximum across ranks): 7.09e-07 9.6526e-05 0.00023403
+Wetted area = 0 m.
+Area projection in the x-plane = 0 m, y-plane = 0 m.
+Max. coordinate in the x-direction = -1e+10 m, y-direction = -1e+10 m.
+Min. coordinate in the x-direction = 1e+10 m, y-direction = 1e+10 m.
+Computing wall distances.
+
+-------------------- Solver Preprocessing ( Zone 0 ) --------------------
+Inviscid flow: Computing density based on free-stream
+temperature and pressure using the ideal gas law.
+Force coefficients computed using free-stream values.
+
+-- Models:
++------------------------------------------------------------------------------+
+|          Viscosity Model|        Conductivity Model|              Fluid Model|
++------------------------------------------------------------------------------+
+|                        -|                         -|             STANDARD_AIR|
++------------------------------------------------------------------------------+
+-- Fluid properties:
++------------------------------------------------------------------------------+
+|                  Name|    Dim. value|    Ref. value|      Unit|Non-dim. value|
++------------------------------------------------------------------------------+
+|          Gas Constant|       287.058|             1|  N.m/kg.K|       287.058|
+|      Spec. Heat Ratio|             -|             -|         -|           1.4|
++------------------------------------------------------------------------------+
+-- Initial and free-stream conditions:
++------------------------------------------------------------------------------+
+|                  Name|    Dim. value|    Ref. value|      Unit|Non-dim. value|
++------------------------------------------------------------------------------+
+|       Static Pressure|        101325|             1|        Pa|        101325|
+|               Density|       1.22498|             1|    kg/m^3|       1.22498|
+|           Temperature|        288.15|             1|         K|        288.15|
+|          Total Energy|        221265|             1|   m^2/s^2|        221265|
+|            Velocity-X|       170.149|             1|       m/s|       170.149|
+|            Velocity-Y|             0|             1|       m/s|             0|
+|    Velocity Magnitude|       170.149|             1|       m/s|       170.149|
++------------------------------------------------------------------------------+
+|           Mach Number|             -|             -|         -|           0.5|
++------------------------------------------------------------------------------+
+Initialize Jacobian structure (Euler). MG level: 0.
+
+------------------- Numerics Preprocessing ( Zone 0 ) -------------------
+
+----------------- Integration Preprocessing ( Zone 0 ) ------------------
+
+------------------- Iteration Preprocessing ( Zone 0 ) ------------------
+Euler/Navier-Stokes/RANS fluid iteration.
+
+------------------------- Mesh Adaptation Cycle -------------------------
+Cycle 0 of 1: 45 points, at most 1 iterations, CFL 1, V multigrid cycle, initial solution.
+Its metric makes the next mesh: complexity 8, sizes 0.01 to 2, norm 1, aspect ratio up to 1e+06.
+
+------------------------------ Begin Solver -----------------------------
+
+Simulation Run using the Single-zone Driver
++----------------------------------------------------------------+
+|  Inner_Iter|    rms[Rho]|   rms[RhoU]|   rms[RhoV]|   rms[RhoE]|
++----------------------------------------------------------------+
+|           0|  -14.268047|  -11.374170|  -12.265746|   -8.653380|
+
+----------------------------- Solver Exit -------------------------------
+
+Maximum number of iterations reached (ITER = 1) before convergence.
++-----------------------------------------------------------------------+
+|      Convergence Field     |     Value    |   Criterion  |  Converged |
++-----------------------------------------------------------------------+
+|                    rms[Rho]|       -14.268|         < -14|         Yes|
++-----------------------------------------------------------------------+
+-------------------------------------------------------------------------
++-----------------------------------------------------------------------+
+|        File Writing Summary       |              Filename             |
++-----------------------------------------------------------------------+
+|SU2 binary restart                 |steady_metric_reuse_solution_adap_00000.dat|
++-----------------------------------------------------------------------+
+Native contract: q>=0.18, frozen-target Simpson edge length<=1.8, reference deviation<=1e-08, requested wall altitude relative error<=0.1; dependency budget=2097152 bytes per rank, original P1 sensor target, boundary sampling adaptive.
+Native work allowance: 300 collective rounds per phase, 6 sweeps, for 64 input cells on 1 ranks; frozen P1 centroid complexity=8, estimated unit triangles=18.4752 (geometric BL row allowance=0).
+Native incoming residuals: shape=0, edge length=0
+Native adaptation: 33 commits (0 across owners), qmin=0.866025, Lmax=1.41421, residual cells=0, height faces=0, reference faces=0. No remesher-side target floor.
+Native remaining residuals: shape=0, edge length=0
+Native coordinated repair: 0 commits, 0 seconds (maximum across ranks).
+Native private target requests/evaluations/dynamic evictions: 5651 1967 0
+Native donor search candidates/full-scan equivalent: 2072 6080; local immutable index retained bytes (max rank): 22232
+Native operations (height/split/remove/redistribute/bulk remove/split/flip/move): 0 0 12 7 14 0 0 0; conflicts=0, dependency-size rejects=0, memory rejects=0, stale rejects=0, engine encoded bytes=728712, largest transport admission estimate=44464
+Native phase elapsed seconds (same action order, maximum across ranks): 2.324e-06 6.489e-06 0.00330024 0.00311071 0.00962416 1.466e-06 0.00365424 0.00145787
+Native candidate selection seconds (same action order, maximum across ranks): 2.003e-06 6.264e-06 4.2393e-05 1.7739e-05 6.1287e-05 1.134e-06 0.000100423 1.8758e-05
+Native rank cost selection seconds min/mean/max: 0.000250001 0.000250001 0.000250001
+Native rank cost private reconstruction seconds min/mean/max: 0.00374949 0.00374949 0.00374949
+Native rank cost tracked collectives seconds min/mean/max: 0.00105574 0.00105574 0.00105574
+Native rank cost largest private transaction seconds min/mean/max: 0.000242537 0.000242537 0.000242537
+Native rank cost round protocol seconds min/mean/max: 2.8503e-05 2.8503e-05 2.8503e-05
+Native rank cost round dependency import seconds min/mean/max: 0.00180602 0.00180602 0.00180602
+Native rank cost round donor import and IDs seconds min/mean/max: 0.0124678 0.0124678 0.0124678
+Native rank cost round reconstruction seconds min/mean/max: 0.0037724 0.0037724 0.0037724
+Native rank cost round validation seconds min/mean/max: 0.0022561 0.0022561 0.0022561
+Native rank cost round commit seconds min/mean/max: 0.000429212 0.000429212 0.000429212
+Native rank cost engine initialization seconds min/mean/max: 0.000770818 0.000770818 0.000770818
+Native rank cost incoming residual check seconds min/mean/max: 1.497e-06 1.497e-06 1.497e-06
+Native rank cost engine adapt seconds min/mean/max: 0.0211702 0.0211702 0.0211702
+Native rank cost final contract check seconds min/mean/max: 3.958e-06 3.958e-06 3.958e-06
+Native rank cost adapt unclassified seconds min/mean/max: 0.000160223 0.000160223 0.000160223
+Native cost scopes: tracked collectives include waiting, exclude validation elections; round scopes are exclusive within each rank, include MPI waits, and exclude local temporary destruction after round return; rank maxima are not additive wall phases.
+Native cached selection full scans (same action order, sum across ranks): 0 0 0 0 2 1 2 2
+Native deferred/rejected candidate: boundary coarsening or movement misses geometry/metric target (7).
+Native deferred/rejected candidate: coarsening misses target (6).
+Native deferred/rejected candidate: flip does not improve quality (19).
+Native deferred/rejected candidate: no improving valid movement (7).
+Native deferred/rejected candidate: nonconvex quadrilateral (11).
+Native deferred/rejected candidate: not a complete interior edge star (12).
+Native execution seconds workers/return-to-CFD/idle-wall/idle-CPU (maximum across ranks): 0.022031 0.000100585 0 0; CFD ranks=1, adaptation ranks=1
+Native setup seconds import-reference/target-policy/working-partition (maximum across ranks): 0.000121115 1.7448e-05 9.8e-08
+
+---------------------------- Replace the Mesh ---------------------------
+Two dimensional problem.
+19 grid points.
+24 volume elements.
+5 surface markers.
+2 boundary elements in index 0 (Marker = left).
+2 boundary elements in index 1 (Marker = right).
+4 boundary elements in index 2 (Marker = upper).
+2 boundary elements in index 3 (Marker = lower_a).
+2 boundary elements in index 4 (Marker = lower_b).
+24 triangles.
+Setting point connectivity.
+Renumbering points (Reverse Cuthill McKee Ordering).
+Recomputing point connectivity.
+Setting element connectivity.
+Checking the numerical grid orientation.
+All volume elements are correctly oriented.
+All surface elements are correctly oriented.
+Identifying edges and vertices.
+Setting the control volume structure.
+Area of the computational grid: 2.
+Searching for the closest normal neighbors to the surfaces.
+Storing a mapping from global to local point index.
+Compute the surface curvature.
+Max K: 2.82843. Mean K: 1.33102. Standard deviation K: 1.41176.
+Computing mesh quality statistics for the dual control volumes.
++--------------------------------------------------------------+
+|           Mesh Quality Metric|        Minimum|        Maximum|
++--------------------------------------------------------------+
+|    Orthogonality Angle (deg.)|        63.4349|             90|
+|     CV Face Area Aspect Ratio|              1|              6|
+|           CV Sub-Volume Ratio|              1|              2|
+|                     CV Volume|      0.0416667|       0.208333|
++--------------------------------------------------------------+
+Finding max control volume width.
+CFD geometry seconds partition/migration/preprocess (maximum across ranks): 4.7e-07 7.1656e-05 0.000145257
+Wetted area = 0 m.
+Area projection in the x-plane = 0 m, y-plane = 0 m.
+Max. coordinate in the x-direction = -1e+10 m, y-direction = -1e+10 m.
+Min. coordinate in the x-direction = 1e+10 m, y-direction = 1e+10 m.
+Computing wall distances.
+
+-------------------- Solver Preprocessing ( Zone 0 ) --------------------
+Inviscid flow: Computing density based on free-stream
+temperature and pressure using the ideal gas law.
+Force coefficients computed using free-stream values.
+
+-- Models:
++------------------------------------------------------------------------------+
+|          Viscosity Model|        Conductivity Model|              Fluid Model|
++------------------------------------------------------------------------------+
+|                        -|                         -|             STANDARD_AIR|
++------------------------------------------------------------------------------+
+-- Fluid properties:
++------------------------------------------------------------------------------+
+|                  Name|    Dim. value|    Ref. value|      Unit|Non-dim. value|
++------------------------------------------------------------------------------+
+|          Gas Constant|       287.058|             1|  N.m/kg.K|       287.058|
+|      Spec. Heat Ratio|             -|             -|         -|           1.4|
++------------------------------------------------------------------------------+
+-- Initial and free-stream conditions:
++------------------------------------------------------------------------------+
+|                  Name|    Dim. value|    Ref. value|      Unit|Non-dim. value|
++------------------------------------------------------------------------------+
+|       Static Pressure|        101325|             1|        Pa|        101325|
+|               Density|       1.22498|             1|    kg/m^3|       1.22498|
+|           Temperature|        288.15|             1|         K|        288.15|
+|          Total Energy|        221265|             1|   m^2/s^2|        221265|
+|            Velocity-X|       170.149|             1|       m/s|       170.149|
+|            Velocity-Y|             0|             1|       m/s|             0|
+|    Velocity Magnitude|       170.149|             1|       m/s|       170.149|
++------------------------------------------------------------------------------+
+|           Mach Number|             -|             -|         -|           0.5|
++------------------------------------------------------------------------------+
+Initialize Jacobian structure (Euler). MG level: 0.
+
+------------------------ Solution Transfer (P1) -------------------------
+Distributed transfer on 1 rank(s), 0.000333 s (largest over the ranks: directory 1.67e-05 s, location 0.000154 s, fetch 8.02e-06 s, kernel 4.61e-06 s, integrals and round trip 0.000142 s, finish 2.35e-06 s); queries 19 in 1 chunk(s), received per rank max/mean 1.
+Barycentric interpolation of the donor solution at 19 points.
+Points outside the donor mesh: 0. Points on a marker take the closest point of the donor boundary of the same marker, other points outside the donor the closest donor boundary point.
+Distance to the closest donor point (mean over the points off the donor boundary), absolute and relative to the longest edge of the donor face:
+            Marker   Points  Outside      Off   Max dist  Mean dist    Max rel   Mean rel   > face
+              left        3        0        0  0.000e+00  0.000e+00  0.000e+00  0.000e+00        0
+             right        3        0        0  0.000e+00  0.000e+00  0.000e+00  0.000e+00        0
+             upper        5        0        0  0.000e+00  0.000e+00  0.000e+00  0.000e+00        0
+           lower_a        3        0        0  0.000e+00  0.000e+00  0.000e+00  0.000e+00        0
+           lower_b        3        0        0  0.000e+00  0.000e+00  0.000e+00  0.000e+00        0
+        (interior)        7        0        0  0.000e+00  0.000e+00  0.000e+00  0.000e+00        0
+Distance accepted: the face size, at least 2.236e-03 (2 ADAP_HAUSD or 1e-3 x the domain size).
+States not admissible after the interpolation (flow and turbulence of one donor point used): 0.
+Domain volume: donor 2.000e+00, new 2.000e+00, relative change 0.000e+00.
+Change of the integrals (not conserved by the interpolation), relative to the donor integral (momentum: to the norm of the donor momentum integral):
+     Density: 0.000e+00
+  Momentum-x: 0.000e+00
+  Momentum-y: 1.165e-18
+      Energy: 0.000e+00
+Round trip donor -> new -> donor, difference relative to the donor range (RMS, max):
+     Density: 0.000e+00, 0.000e+00
+  Momentum-x: 2.582e-01, 1.000e+00
+  Momentum-y: 1.290e-01, 8.469e-01
+      Energy: 0.000e+00, 0.000e+00
+
+------------------- Numerics Preprocessing ( Zone 0 ) -------------------
+
+----------------- Integration Preprocessing ( Zone 0 ) ------------------
+
+------------------- Iteration Preprocessing ( Zone 0 ) ------------------
+Euler/Navier-Stokes/RANS fluid iteration.
+The problem uses the new mesh: 19 points, 0 multigrid levels.
+Mesh replaced in 0.000923477 s (solution transfer 0.000397497 s).
+Mesh replacement seconds geometry-build/check-wall-distance/solver-init/transfer/finalize (maximum across ranks, exclusive scopes): 0.000275731 2.2545e-05 0.000136159 0.000397497 9.1545e-05
+
+------------------------- Mesh Adaptation Cycle -------------------------
+Cycle 1 of 1: 19 points, at most 1 iterations, CFL 1, V multigrid cycle, transferred solution.
+
+------------------------------ Begin Solver -----------------------------
+
+Simulation Run using the Single-zone Driver
++----------------------------------------------------------------+
+|  Inner_Iter|    rms[Rho]|   rms[RhoU]|   rms[RhoV]|   rms[RhoE]|
++----------------------------------------------------------------+
+|           0|  -13.868901|  -11.310414|  -11.300365|   -8.274921|
+
+----------------------------- Solver Exit -------------------------------
+
+Maximum number of iterations reached (ITER = 1) before convergence.
++-----------------------------------------------------------------------+
+|      Convergence Field     |     Value    |   Criterion  |  Converged |
++-----------------------------------------------------------------------+
+|                    rms[Rho]|      -13.8689|         < -14|          No|
++-----------------------------------------------------------------------+
+-------------------------------------------------------------------------
++-----------------------------------------------------------------------+
+|        File Writing Summary       |              Filename             |
++-----------------------------------------------------------------------+
+|SU2 binary restart                 |steady_metric_reuse_solution_adap_00001.dat|
++-----------------------------------------------------------------------+
+
+------------------------ Mesh Adaptation Summary ------------------------
++---------------------------------------------------------------------------------------+
+|     Cycle|      Complexity|          Points|      Iterations|   Solve [s]|   Adapt [s]|
++---------------------------------------------------------------------------------------+
+|         0|      input mesh|              45|               1|  0.00141084|   0.0232805|
+|         1|               8|              19|               1|  0.00052937|           -|
++---------------------------------------------------------------------------------------+
+Solve: the flow iterations on the mesh of the cycle, with their output. Adapt: metric, native cavities, new geometry and solvers, solution transfer and mesh output that make the mesh of the next cycle.
+Native contract: q>=0.18, frozen-target Simpson edge length<=1.8, reference deviation<=1e-08, requested wall altitude relative error<=0.1; dependency budget=2097152 bytes per rank, original P1 sensor target, boundary sampling adaptive.
+Native work allowance: 300 collective rounds per phase, 6 sweeps, for 24 input cells on 1 ranks; frozen P1 centroid complexity=8, estimated unit triangles=18.4752 (geometric BL row allowance=0).
+Native incoming residuals: shape=0, edge length=0
+Native adaptation: 3 commits (0 across owners), qmin=0.866025, Lmax=1.41421, residual cells=0, height faces=0, reference faces=0. No remesher-side target floor.
+Native remaining residuals: shape=0, edge length=0
+Native coordinated repair: 0 commits, 0 seconds (maximum across ranks).
+Native private target requests/evaluations/dynamic evictions: 3105 1442 0
+Native donor search candidates/full-scan equivalent: 706 1344; local immutable index retained bytes (max rank): 13272
+Native operations (height/split/remove/redistribute/bulk remove/split/flip/move): 0 0 0 3 0 0 0 0; conflicts=0, dependency-size rejects=0, memory rejects=0, stale rejects=0, engine encoded bytes=255800, largest transport admission estimate=35344
+Native phase elapsed seconds (same action order, maximum across ranks): 1.727e-06 4.628e-06 1.105e-06 0.00270694 1.536e-06 1.305e-06 0.00316696 0.00119928
+Native candidate selection seconds (same action order, maximum across ranks): 1.44e-06 4.355e-06 8.67e-07 1.4733e-05 1.155e-06 1.057e-06 9.7321e-05 1.9105e-05
+Native rank cost selection seconds min/mean/max: 0.000140033 0.000140033 0.000140033
+Native rank cost private reconstruction seconds min/mean/max: 0.00210179 0.00210179 0.00210179
+Native rank cost tracked collectives seconds min/mean/max: 0.000555483 0.000555483 0.000555483
+Native rank cost largest private transaction seconds min/mean/max: 0.000299342 0.000299342 0.000299342
+Native rank cost round protocol seconds min/mean/max: 1.257e-05 1.257e-05 1.257e-05
+Native rank cost round dependency import seconds min/mean/max: 0.00100764 0.00100764 0.00100764
+Native rank cost round donor import and IDs seconds min/mean/max: 0.0029095 0.0029095 0.0029095
+Native rank cost round reconstruction seconds min/mean/max: 0.00211651 0.00211651 0.00211651
+Native rank cost round validation seconds min/mean/max: 0.000686057 0.000686057 0.000686057
+Native rank cost round commit seconds min/mean/max: 0.00012539 0.00012539 0.00012539
+Native rank cost engine initialization seconds min/mean/max: 0.000317662 0.000317662 0.000317662
+Native rank cost incoming residual check seconds min/mean/max: 1.281e-06 1.281e-06 1.281e-06
+Native rank cost engine adapt seconds min/mean/max: 0.00709199 0.00709199 0.00709199
+Native rank cost final contract check seconds min/mean/max: 3.241e-06 3.241e-06 3.241e-06
+Native rank cost adapt unclassified seconds min/mean/max: 9.4283e-05 9.4283e-05 9.4283e-05
+Native cost scopes: tracked collectives include waiting, exclude validation elections; round scopes are exclusive within each rank, include MPI waits, and exclude local temporary destruction after round return; rank maxima are not additive wall phases.
+Native cached selection full scans (same action order, sum across ranks): 0 0 0 0 1 1 2 2
+Native deferred/rejected candidate: flip does not improve quality (26).
+Native deferred/rejected candidate: no improving valid movement (7).
+Native deferred/rejected candidate: no representable tangential redistribution (4).
+Native deferred/rejected candidate: nonconvex quadrilateral (4).
+Native deferred/rejected candidate: not a complete interior edge star (12).
+Native execution seconds workers/return-to-CFD/idle-wall/idle-CPU (maximum across ranks): 0.00747729 7.4085e-05 0 0; CFD ranks=1, adaptation ranks=1
+Native setup seconds import-reference/target-policy/working-partition (maximum across ranks): 8.1791e-05 1.1834e-05 5.2e-08
+
+--------------------------- Finalizing Solver ---------------------------
+Deleted CNumerics container.
+Deleted CIntegration container.
+Deleted CSolver container.
+Deleted CIteration container.
+Deleted CInterface container.
+Deleted CGeometry container.
+Deleted CFreeFormDefBox class.
+Deleted CSurfaceMovement class.
+Deleted CVolumetricMovement class.
+Deleted CConfig container.
+Deleted nInst container.
+Deleted COutput class.
+-------------------------------------------------------------------------
+
+------------------------- Exit Success (SU2_CFD) ------------------------
+
+Native BL geometry wall: largest local subset 18 of 18 supplied wall faces (before duplicate removal).
+CURVED_BL_GRADATION sensor_ratio=1 composed_ratio=30.650992757221807
+Hessian WLS stencil statistics: 0 numerically deficient, 0 poorly conditioned owned points; minimum normalized reciprocal condition 0.5.
+Hessian recovery: 0.000128283 s (maximum rank time).
+Metric field statistics:
+Minimum density: 62.4461.
+Maximum density: 3100.65.
+Maximum cell AR: 21.4948.
+Mesh complexity: 1000 (ADAP_COMPLEXITY= 1000).
+Hessian WLS stencil statistics: 0 numerically deficient, 0 poorly conditioned owned points; minimum normalized reciprocal condition 0.5.
+Hessian recovery: 0.000119436 s (maximum rank time).
+Metric field statistics:
+Minimum density: 62.4461.
+Maximum density: 3100.65.
+Maximum cell AR: 21.4948.
+Mesh complexity: 1000 (ADAP_COMPLEXITY= 1000).
+Custom sensor MPI maximum relative differences: values=0 gradients=0 Hessians=0 metric=0
+===============================================================================
+All tests passed (305637 assertions in 175 test cases)
+
+	Command being timed: "nice -n 19 timeout 3600 /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/bl_remesh_v1/dc16/bin/test_driver_c12 [NativeD1Law],[Adaptation],[BoundaryLayerMetric],[MetricRobustness],[NativeExactFma],[NativeBalancedSplit3D],[NativeMetricMove3D],[NativeCurvedBL3D],[NativeChordEnvelope],[NativeMetricSplitRule3D],[NativeShapeAdmission3D],[NativeOptimize3D] --use-colour no"
+	User time (seconds): 23.73
+	System time (seconds): 0.17
+	Percent of CPU this job got: 98%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:24.24
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 399156
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 24
+	Minor (reclaiming a frame) page faults: 127888
+	Voluntary context switches: 1196
+	Involuntary context switches: 452
+	Swaps: 0
+	File system inputs: 32
+	File system outputs: 2552
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0

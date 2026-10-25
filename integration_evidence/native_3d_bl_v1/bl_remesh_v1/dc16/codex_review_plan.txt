@@ -1,0 +1,89 @@
+[codex] Starting Codex task thread.
+[codex] Thread ready (01a16f0a-8a36-70a2-89ff-1031333768e2).
+[codex] Turn started (01a16f0a-8cc6-7cb1-ac54-af3b5745bf1a).
+[codex] Assistant message captured: I’ll use the ponytail review guidance to check the plan against the transaction, binding, and...
+[codex] Running command: /bin/bash -lc 'pwd; git status --short --branch; cat AGENTS.md; cat /home/rausa/.codex/plugin...
+[codex] Command completed: /bin/bash -lc 'pwd; git status --short --branch; cat AGENTS.md; cat /home/rausa/.codex/plugin... (exit 0)
+[codex] Running command: /bin/bash -lc "nl -ba DC16_PLAN.md; nl -ba integration_evidence/native_3d_bl_v1/bl_remesh_v1/...
+[codex] Command completed: /bin/bash -lc "nl -ba DC16_PLAN.md; nl -ba integration_evidence/native_3d_bl_v1/bl_remesh_v1/... (exit 0)
+[codex] Searching:
+[codex] Searching:
+[codex] Running command: /bin/bash -lc "nl -ba SU2_CFD/include/adaptation/native_bl3d/BLGrowth12.inl | sed -n '1,280p'"
+[codex] Command completed: /bin/bash -lc "nl -ba SU2_CFD/include/adaptation/native_bl3d/BLGrowth12.inl | sed -n '1,280p'" (exit 0)
+[codex] Running command: /bin/bash -lc "nl -ba SU2_CFD/include/adaptation/CNativeBLPipeline3D.hpp | sed -n '1,330p'; n...
+[codex] Command completed: /bin/bash -lc "nl -ba SU2_CFD/include/adaptation/CNativeBLPipeline3D.hpp | sed -n '1,330p'; n... (exit 0)
+[codex] Running command: /bin/bash -lc "nl -ba SU2_CFD/include/adaptation/native_bl3d/BLGrowth12.inl | sed -n '185,480p'"
+[codex] Command completed: /bin/bash -lc "nl -ba SU2_CFD/include/adaptation/native_bl3d/BLGrowth12.inl | sed -n '185,480p'" (exit 0)
+[codex] Running command: /bin/bash -lc "nl -ba SU2_CFD/include/adaptation/native_bl3d/BLFirstRow9.inl | sed -n '250,28...
+[codex] Command failed: /bin/bash -lc "nl -ba SU2_CFD/include/adaptation/native_bl3d/BLFirstRow9.inl | sed -n '250,28... (exit 2)
+[codex] Assistant message captured: The key gap so far is front coordination: the plan deforms free vertices collectively, then l...
+[codex] Running command: /bin/bash -lc "rg -n 'MoveVertex|PrivateParameters|BindMovedPoint|ExportParameters|ImportPara...
+[codex] Command completed: /bin/bash -lc "rg -n 'MoveVertex|PrivateParameters|BindMovedPoint|ExportParameters|ImportPara... (exit 0)
+[codex] Searching:
+[codex] Running command: /bin/bash -lc "nl -ba SU2_CFD/include/adaptation/CNativeBLPipeline3D.hpp | sed -n '324,540p';...
+[codex] Command completed: /bin/bash -lc "nl -ba SU2_CFD/include/adaptation/CNativeBLPipeline3D.hpp | sed -n '324,540p';... (exit 0)
+[codex] Running command: /bin/bash -lc "nl -ba SU2_CFD/include/adaptation/native_bl3d/BLState.inl | sed -n '80,210p'; ...
+[codex] Command completed: /bin/bash -lc "nl -ba SU2_CFD/include/adaptation/native_bl3d/BLState.inl | sed -n '80,210p'; ... (exit 0)
+[codex] Searching:
+[codex] Running command: /bin/bash -lc "nl -ba SU2_CFD/include/adaptation/CNativeBLPipeline3D.hpp | sed -n '324,525p'"
+[codex] Command completed: /bin/bash -lc "nl -ba SU2_CFD/include/adaptation/CNativeBLPipeline3D.hpp | sed -n '324,525p'" (exit 0)
+[codex] Running command: /bin/bash -lc "nl -ba SU2_CFD/include/adaptation/native_bl3d/BLEvent15.inl | sed -n '1,205p';...
+[codex] Command completed: /bin/bash -lc "nl -ba SU2_CFD/include/adaptation/native_bl3d/BLEvent15.inl | sed -n '1,205p';... (exit 0)
+[codex] Running command: /bin/bash -lc "nl -ba Common/src/adaptation/CNativeBoundary3D.cpp | sed -n '220,310p;2968,305...
+[codex] Command completed: /bin/bash -lc "nl -ba Common/src/adaptation/CNativeBoundary3D.cpp | sed -n '220,310p;2968,305... (exit 0)
+[codex] Searching:
+[codex] Searching:
+[codex] Running command: /bin/bash -lc "nl -ba Common/src/adaptation/CNativeBoundaryParameters3D.cpp | sed -n '248,300...
+[codex] Command completed: /bin/bash -lc "nl -ba Common/src/adaptation/CNativeBoundaryParameters3D.cpp | sed -n '248,300... (exit 0)
+[codex] Running command: /bin/bash -lc "nl -ba Common/include/adaptation/CNativeField3D.hpp | sed -n '80,210p'; nl -ba...
+[codex] Command completed: /bin/bash -lc "nl -ba Common/include/adaptation/CNativeField3D.hpp | sed -n '80,210p'; nl -ba... (exit 0)
+[codex] Searching:
+[codex] Running command: /bin/bash -lc "nl -ba LIT_REVIEW_TE_BL.md | sed -n '1,45p;65,86p'; rg -n 'MaximumSensorSample...
+[codex] Searching:
+[codex] Assistant message captured: Two concrete safety gaps are emerging. A single `Apply` does not validate the replacement or ...
+[codex] Searching:
+[codex] Running command: /bin/bash -lc "rg -n 'ShapeOf' SU2_CFD/include/adaptation/native_bl3d/BLState.inl; nl -ba Com...
+[codex] Command completed: /bin/bash -lc "rg -n 'ShapeOf' SU2_CFD/include/adaptation/native_bl3d/BLState.inl; nl -ba Com... (exit 0)
+[codex] Searching:
+[codex] Running command: /bin/bash -lc "rg -n 'ShapeOf' SU2_CFD/include/adaptation/native_bl3d Common/include/adaptati...
+[codex] Command completed: /bin/bash -lc "rg -n 'ShapeOf' SU2_CFD/include/adaptation/native_bl3d Common/include/adaptati... (exit 0)
+[codex] Running command: /bin/bash -lc "rg -n 'cache|mutable|unordered_map|map<' SU2_CFD/include/adaptation/native_bl3...
+[codex] Command completed: /bin/bash -lc "rg -n 'cache|mutable|unordered_map|map<' SU2_CFD/include/adaptation/native_bl3... (exit 0)
+[codex] Running command: /bin/bash -lc "rg --files Common SU2_CFD | rg 'BoundaryLayerMetric'; nl -ba SU2_CFD/include/a...
+[codex] Command completed: /bin/bash -lc "rg --files Common SU2_CFD | rg 'BoundaryLayerMetric'; nl -ba SU2_CFD/include/a... (exit 0)
+[codex] Searching:
+[codex] Running command: /bin/bash -lc "rg -n 'mutable|cache|Cache|map<|vector<' SU2_CFD/include/adaptation/CBoundaryL...
+[codex] Command completed: /bin/bash -lc "rg -n 'mutable|cache|Cache|map<|vector<' SU2_CFD/include/adaptation/CBoundaryL... (exit 0)
+[codex] Running command: /bin/bash -lc "rg -n 'struct Rows|struct Rows10|class ColumnIndex|struct ColumnIndex|FanCells...
+[codex] Command completed: /bin/bash -lc "rg -n 'struct Rows|struct Rows10|class ColumnIndex|struct ColumnIndex|FanCells... (exit 0)
+[codex] Searching:
+[codex] Searching:
+[codex] Running command: /bin/bash -lc "nl -ba SU2_CFD/include/adaptation/native_bl3d/BLFirstRow9.inl | sed -n '119,13...
+[codex] Command completed: /bin/bash -lc "nl -ba SU2_CFD/include/adaptation/native_bl3d/BLFirstRow9.inl | sed -n '119,13... (exit 0)
+[codex] Running command: /bin/bash -lc "rg -n 'relabel|first_cell|next_cell|mesh\\.at|\\.cell\\s*=|fresh.*id|id.*fresh...
+[codex] Command completed: /bin/bash -lc "rg -n 'relabel|first_cell|next_cell|mesh\\.at|\\.cell\\s*=|fresh.*id|id.*fresh... (exit 0)
+[codex] Assistant message captured: The validity-only policy can defer edge integration without weakening the final gate, but it ...
+[codex] Assistant message captured: The room step is sound as a guarded deformation heuristic. Rev 1 does not yet establish a com...
+[codex] Turn completed.
+The room step is sound as a guarded deformation heuristic. Rev 1 does not yet establish a complete closed advancing-layer capability.
+
+1. **Major — collective deformation still feeds incompatible partial lifts.** Neighbouring planned tops remain stationary until their group runs; groups contain at most eight tops. A cell requiring two tops to advance together can still invert when they fall in different groups, even after every free vertex moves. Evidence: [BLGrowth12.inl:211](/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/SU2_CFD/include/adaptation/native_bl3d/BLGrowth12.inl:211), grouping at lines 375–386; `DC16_PLAN.md:48–60`. **Fix:** certify the actual lift schedule against the deformed mesh; jointly transact mutually dependent tops, or replan/freeze their dependent front. Include a blocker containing only registered identities.
+
+2. **Major — G cannot provide room for the initial R2 lift.** G constructs columns exclusively from existing lifts/copies. Production runs R2 and completion before G, so the claim at `DC16_PLAN.md:72` cannot rescue a vertex that never acquired a column—or necessarily the remaining thin first child. Evidence: [BLGrowth12.inl:320](/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/SU2_CFD/include/adaptation/native_bl3d/BLGrowth12.inl:320), [CNativeBLPipeline3D.hpp:409](/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/SU2_CFD/include/adaptation/CNativeBLPipeline3D.hpp:409). **Fix:** expose room preparation to the initial R2/completion proposals, using their prescribed targets and geometric constraints.
+
+3. **Major — one `Apply` is publication, not transaction validation.** It erases old cells before inserting replacements and does not check complete stars, interfaces, geometry or rollback. Fresh cell identities are safe for A3: the audit compares **vertex keys**, so replacing unchanged first-child cells is harmless; moving any first-child vertex is not. Evidence: [BLState.inl:162](/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/SU2_CFD/include/adaptation/native_bl3d/BLState.inl:162), [BLGrowth12.inl:444](/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/SU2_CFD/include/adaptation/native_bl3d/BLGrowth12.inl:444). **Fix:** prepare the complete changed-star union, preserve every registry/below-cell/first-child vertex, validate fixed interfaces and oriented physical skin, then publish once. Keep rejected proposals private.
+
+4. **Major — symmetry binding needs bounded contexts and validation after realization.** `BindMovedPoint` can change the proposed coordinate; checking the displacement before binding is insufficient. Private contexts also reject above 1,024 local/pending records, including imported overlay records. Evidence: [CNativeBoundaryParameters3D.cpp:232](/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/Common/src/adaptation/CNativeBoundaryParameters3D.cpp:232), lines 268–290 and 388–392. Existing movement additionally checks complete dependencies and physical-face orientation: [CNativeBoundary3D.cpp:2988](/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/Common/src/adaptation/CNativeBoundary3D.cpp:2988). **Fix:** bind first, then recheck all affected cells/faces and freeze on failure. Bound boundary workspace as well as vertices; export accepted bindings before destroying the private context.
+
+5. **Major — “parallel-ready” needs a publication contract beyond halo CG.** An owned cell’s shared vertex may also belong to another owner’s cell. Updating only local owned cells can split coordinates/connectivity across the interface. Production currently rejects multiple workers outright: [CNativeBLPipeline3D.hpp:270](/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/SU2_CFD/include/adaptation/CNativeBLPipeline3D.hpp:270). **Fix:** specify complete dependency ownership, unique identities, epoch/version checks and joint prepare/commit for mesh, bindings and registries—or freeze partition-interface vertices initially. Reuse the staged publication pattern in [CNativeEngine2D.hpp:549](/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/Common/include/adaptation/CNativeEngine2D.hpp:549).
+
+6. **Major — deferred measurability is compatible with validity-only acceptance, but repair can stall.** An unmeasured edge does not itself corrupt state. However, V skips measurement failures during selection or converts them to infinity; `Admit12` subsequently measures the **old** patch too, potentially rejecting every attempted repair. Evidence: [BLVolume13.inl:290](/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/SU2_CFD/include/adaptation/native_bl3d/BLVolume13.inl:290), lines 315–340; [BLGrowth12.inl:33](/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/SU2_CFD/include/adaptation/native_bl3d/BLGrowth12.inl:33). **Fix:** distinguish deferred, measured and failed measurements; report failures and provide explicit repair/refusal handling. Keep removal-progress checks where `RemovesVertex` requires them ([BLFirstRow9.inl:767](/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/SU2_CFD/include/adaptation/native_bl3d/BLFirstRow9.inl:767)). Preserve the final uncached measurability gate.
+
+7. **Minor — the tensor queue is sound for selection, not completeness.** Its formula integrates a linearly interpolated directional quadratic metric; the composed field need not follow that interpolation. Small endpoint tensors can therefore hide a large interior peak. Queue exhaustion cannot mean “complete.” Evidence: `DC16_PLAN.md:77–81`; exact admission at [BLVolume13.inl:316](/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/SU2_CFD/include/adaptation/native_bl3d/BLVolume13.inl:316). **Fix:** prefer reusable exact lengths, label estimate-only stopping, and retain exact final scans. Track replacement cells from **all** operators, including the optimizer, discard stale queue entries, and scope tensor caches to the frozen-field identity/event.
+
+8. **Minor — investigate storage before adding deformation memory.** Existing caches permit over four million entries each and are bounded only once per G layer; removed-cell entries survive until clearing. Evidence: [BLFirstRow9.inl:72](/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/SU2_CFD/include/adaptation/native_bl3d/BLFirstRow9.inl:72), [BLGrowth12.inl:342](/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/SU2_CFD/include/adaptation/native_bl3d/BLGrowth12.inl:342). **Fix:** first measure live cache bytes, container capacities, allocator arenas and mmap allocations. Check pruning dead entries and tighter insertion-time bounds; use one diagnostic `malloc_trim` comparison to distinguish allocator retention. The 6 GB increase remains undiagnosed.
+
+9. **Major — acceptance and regression coverage are weaker than the stated goal.** `DC16_PLAN.md:18–21` requires regional reporting, but omits the explicit ≥90% layer-count gate stated at line 8. The cut harness also retains different measurement policies and enables mapped boundary operations that production disables: [native_first_row_dc13.inc:13](/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/UnitTests/SU2_CFD/adaptation/fixtures/native_first_row_dc13.inc:13), [BLVolume13.inl:399](/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/SU2_CFD/include/adaptation/native_bl3d/BLVolume13.inl:399). **Fix:** enforce coverage after V, require zero A3 violations/stale registrations, and run the cut with the complete production policy alongside its baseline. Add opposing bodies and rotated/intersecting symmetry constraints. I found no proposed case-name dispatch or direct 2D behavior change.
+
+No files changed, builds or solver/test binaries run; runtime and regression success remain unverified. The paper PDF fetch failed, so Algorithm 2 details were checked against the repository’s literature notes only.
+exit=0

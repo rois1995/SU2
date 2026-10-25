@@ -1,0 +1,33 @@
+ninja: Entering directory `integration_evidence/build-integrated-v2'
+[1/8] Compiling C++ object Common/src/libSU2AccurateSum.a.p/adaptation_CNativeField3D.cpp.o
+[2/8] Compiling C++ object Common/src/libSU2Common.a.p/adaptation_CNativeRemesher3D.cpp.o
+[3/8] Compiling C++ object SU2_CFD/src/libSU2core.a.p/drivers_CSinglezoneDriver.cpp.o
+[4/8] Linking static target Common/src/libSU2AccurateSum.a
+[5/8] Linking static target Common/src/libSU2Common.a
+[6/8] Linking static target SU2_CFD/src/libSU2core.a
+[7/8] Compiling C++ object UnitTests/test_driver.p/SU2_CFD_adaptation_CNativeRemesher3D_tests.cpp.o
+[8/8] Linking target UnitTests/test_driver
+	Command being timed: "nice -n 19 /home/rausa/Software/su2-develop/ninja -C integration_evidence/build-integrated-v2 -j1 UnitTests/test_driver"
+	User time (seconds): 345.39
+	System time (seconds): 7.62
+	Percent of CPU this job got: 97%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 6:02.56
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 3994492
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 0
+	Minor (reclaiming a frame) page faults: 3849754
+	Voluntary context switches: 319
+	Involuntary context switches: 9606
+	Swaps: 0
+	File system inputs: 1736
+	File system outputs: 3810944
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0
+BUILD EXIT 0

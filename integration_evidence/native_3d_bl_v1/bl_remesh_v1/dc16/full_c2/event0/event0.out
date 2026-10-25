@@ -1,0 +1,209 @@
+Filters: [NativeFrozenBL14]
+
+Parsing config file for zone 0
+
+----------------- Physical Case Definition ( Zone 0 ) -------------------
+Compressible RANS equations.
+Turbulence model: Spalart-Allmaras-noft2
+Hybrid RANS/LES: No Hybrid RANS/LES
+Mach number: 0.8395.
+Angle of attack (AoA): 3.06 deg, and angle of sideslip (AoS): 0 deg.
+Reynolds number: 1.172e+07. Reference length 0.64607.
+No restart solution, use the values at infinity (freestream).
+Dimensional simulation.
+The reference area is 0.7532 m^2.
+The semi-span will be computed using the max y(3D) value.
+The reference length is 0.64607 m.
+Reference origin for moment evaluation is (0.25, 0, 0).
+Surface(s) where the force coefficients are evaluated: WING3D.
+
+Surface(s) plotted in the output file: WING3D.
+Input mesh file name: /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/bl_remesh_v1/dc16/../dc7/m6_field/Coarse.su2
+
+--------------- Space Numerical Integration ( Zone 0 ) ------------------
+Roe (with entropy fix = 0.001) solver for the flow inviscid terms.
+Standard Roe without low-dissipation function.
+Second order integration in space, with slope limiter.
+Venkatakrishnan slope-limiting method, with constant: 1.
+The reference element size is: 1. 
+Scalar upwind solver for the turbulence model.
+First order integration in space.
+Average of gradients with correction (viscous flow terms).
+Average of gradients with correction (viscous turbulence terms).
+Gradient for upwind reconstruction: Green-Gauss.
+Gradient for viscous and source terms: Green-Gauss.
+
+--------------- Time Numerical Integration  ( Zone 0 ) ------------------
+Local time stepping (steady state simulation).
+Euler implicit method for the flow equations.
+FGMRES is used for solving the linear system.
+Using LU-SGS preconditioning.
+Convergence criteria of the linear solver: 0.0001.
+Max number of linear iterations: 5.
+CFL adaptation. Factor down: 0.5, factor up: 1.25,
+                lower limit: 0.5, upper limit: 20,
+                acceptable linear residual: 0.001'
+                starting iteration: 0.
+Courant-Friedrichs-Lewy number:        1
+Euler implicit time integration for the turbulence model.
+
+------------------ Convergence Criteria  ( Zone 0 ) ---------------------
+Maximum number of solver subiterations: 1.
+Begin convergence monitoring at iteration 10.
+Residual minimum value: 1e-10.
+Cauchy series min. value: 1e-06.
+Number of Cauchy elements: 100.
+Begin windowed time average at iteration 0.
+
+-------------------- Output Information ( Zone 0 ) ----------------------
+File writing frequency: 
++------------------------------------+
+|                     File| Frequency|
++------------------------------------+
+|                  RESTART|         1|
+|                 PARAVIEW|         1|
+|         SURFACE_PARAVIEW|         1|
++------------------------------------+
+Writing the convergence history file every 1 inner iterations.
+Writing the screen convergence history every 10 inner iterations.
+The tabular file format is CSV (.csv).
+Convergence history file name: frozen_history.
+Forces breakdown file name: forces_breakdown.dat.
+Surface file name: frozen_surface.
+Volume file name: frozen_flow.
+Restart file name: frozen_flow.
+
+------------- Config File Boundary Information ( Zone 0 ) ---------------
++-----------------------------------------------------------------------+
+|                        Marker Type|                        Marker Name|
++-----------------------------------------------------------------------+
+|                          Far-field|                           FARFIELD|
++-----------------------------------------------------------------------+
+|                     Symmetry plane|                           SYMMETRY|
++-----------------------------------------------------------------------+
+|                     Heat flux wall|                             WING3D|
++-----------------------------------------------------------------------+
+
+-------------------- Output Preprocessing ( Zone 0 ) --------------------
+
+WARNING: SURFACE_PRESSURE_DROP can only be computed for at least 2 surfaces (outlet, inlet, ...)
+
+Screen output fields: INNER_ITER, RMS_DENSITY, RMS_NU_TILDE, LIFT, DRAG, TOTAL_HEATFLUX
+History output group(s): ITER, RMS_RES
+Convergence field(s): RMS_DENSITY
+Warning: No (valid) fields chosen for time convergence monitoring. Time convergence monitoring inactive.
+Volume output fields: COORDINATES, SOLUTION, PRIMITIVE, METRIC, ADAP_SENSOR
+
+------------------- Geometry Preprocessing ( Zone 0 ) -------------------
+Three dimensional problem.
+61330 grid points.
+303359 volume elements.
+3 surface markers.
+2060 boundary elements in index 0 (Marker = FARFIELD).
+8094 boundary elements in index 1 (Marker = SYMMETRY).
+38800 boundary elements in index 2 (Marker = WING3D).
+303359 tetrahedra.
+Setting point connectivity.
+Renumbering points (Reverse Cuthill McKee Ordering).
+Recomputing point connectivity.
+Setting element connectivity.
+Checking the numerical grid orientation.
+All volume elements are correctly oriented.
+All surface elements are correctly oriented.
+Identifying edges and vertices.
+Setting the control volume structure.
+Volume of the computational grid: 2.08846e+06.
+Searching for the closest normal neighbors to the surfaces.
+Storing a mapping from global to local point index.
+Compute the surface curvature.
+Max K: 72103.8. Mean K: 541.635. Standard deviation K: 3508.42.
+Computing mesh quality statistics for the dual control volumes.
++--------------------------------------------------------------+
+|           Mesh Quality Metric|        Minimum|        Maximum|
++--------------------------------------------------------------+
+|    Orthogonality Angle (deg.)|        6.83474|        84.2921|
+|     CV Face Area Aspect Ratio|        1.05639|        157.983|
+|           CV Sub-Volume Ratio|        1.00915|        1864.59|
+|                     CV Volume|    4.23004e-13|        1347.01|
++--------------------------------------------------------------+
+Finding max control volume width.
+NATIVE3D_STAGE stage=cfd_geometry_initial rank=0 ranks=1 time_iter=0 total=4.3985544560000003 other=2.9300000001786231e-06 cpu=4.2941630000000002 cpu_other=2.0000000002795559e-06 process_peak_rss=297074688 partition=5.6230000000656588e-06 partition_cpu=3.0000000000000001e-06 migration=1.5015328449999998 migration_cpu=1.4189769999999999 preprocess=2.8970130580000002 preprocess_cpu=2.875181
+CFD geometry seconds partition/migration/preprocess (maximum across ranks): 5.61e-07 1.50153 2.89705
+Semi-span length = 1.21848 m.
+Wetted area = 1.55706 m^2.
+Area projection in the x-plane = 0.0743682 m^2, y-plane = 0.0181104 m^2, z-plane = 0.758905 m^2.
+Max. coordinate in the x-direction = 1.14408 m, y-direction = 1.21848 m, z-direction = 0.0394304 m.
+Min. coordinate in the x-direction = -6.1346e-14 m, y-direction = -1.06253e-13 m, z-direction = -0.0394304 m.
+Computing wall distances.
+
+-------------------- Solver Preprocessing ( Zone 0 ) --------------------
+Viscous flow: Computing pressure using the ideal gas law
+based on the free-stream temperature and a density computed
+from the Reynolds number.
+Force coefficients computed using free-stream values.
+
+-- Models:
++------------------------------------------------------------------------------+
+|          Viscosity Model|        Conductivity Model|              Fluid Model|
++------------------------------------------------------------------------------+
+|               SUTHERLAND|          CONSTANT_PRANDTL|             STANDARD_AIR|
++------------------------------------------------------------------------------+
+-- Fluid properties:
++------------------------------------------------------------------------------+
+|                  Name|    Dim. value|    Ref. value|      Unit|Non-dim. value|
++------------------------------------------------------------------------------+
+|        Ref. Viscosity|     1.716e-05|             1|   N.s/m^2|     1.716e-05|
+|      Sutherland Temp.|        273.15|             1|         K|        273.15|
+|     Sutherland Const.|         110.4|             1|         K|         110.4|
++------------------------------------------------------------------------------+
+|        Prandtl (Lam.)|             -|             -|         -|          0.72|
+|       Prandtl (Turb.)|             -|             -|         -|           0.9|
++------------------------------------------------------------------------------+
+|          Gas Constant|       287.058|             1|  N.m/kg.K|       287.058|
+|      Spec. Heat Ratio|             -|             -|         -|           1.4|
++------------------------------------------------------------------------------+
+-- Initial and free-stream conditions:
++------------------------------------------------------------------------------+
+|                  Name|    Dim. value|    Ref. value|      Unit|Non-dim. value|
++------------------------------------------------------------------------------+
+|       Static Pressure|         93981|             1|        Pa|         93981|
+|               Density|       1.13619|             1|    kg/m^3|       1.13619|
+|           Temperature|        288.15|             1|         K|        288.15|
+|          Total Energy|        247596|             1|   m^2/s^2|        247596|
+|            Velocity-X|       285.272|             1|       m/s|       285.272|
+|            Velocity-Y|             0|             1|       m/s|             0|
+|            Velocity-Z|         15.25|             1|       m/s|         15.25|
+|    Velocity Magnitude|       285.679|             1|       m/s|       285.679|
++------------------------------------------------------------------------------+
+|             Viscosity|    1.7893e-05|             1|   N.s/m^2|    1.7893e-05|
+|          Conductivity|             -|             1|   W/m^2.K|             -|
+|     Turb. Kin. Energy|       306.048|             1|   m^2/s^2|       306.048|
+|     Spec. Dissipation|   1.94338e+06|             1|       1/s|   1.94338e+06|
++------------------------------------------------------------------------------+
+|           Mach Number|             -|             -|         -|        0.8395|
+|       Reynolds Number|             -|             -|         -|     1.172e+07|
++------------------------------------------------------------------------------+
+Initialize Jacobian structure (Navier-Stokes). MG level: 0.
+Initialize Jacobian structure (SA model).
+
+------------------- Numerics Preprocessing ( Zone 0 ) -------------------
+
+----------------- Integration Preprocessing ( Zone 0 ) ------------------
+
+------------------- Iteration Preprocessing ( Zone 0 ) ------------------
+Euler/Navier-Stokes/RANS fluid iteration.
+DC15 phase prepare seconds=0.00322718 elapsed=2.52443 cells=303359 rss_kB=1345092 wall_faces=38800
+DC15 phase W seconds=179.733 elapsed=182.258 cells=303359 rss_kB=1345092 splits=0 outcome=complete
+DC15 phase R1 seconds=2.18181 elapsed=184.44 cells=303363 rss_kB=1345092 accepted=12 outcome=exhausted
+DC15 phase R2 seconds=793.224 elapsed=977.664 cells=612067 rss_kB=1535264 rowed=38165 unrowed=635 unlifted=235 untried=0 outcome=incomplete
+DC15 phase completion seconds=3.70858 elapsed=981.373 cells=612071 rss_kB=1535264 failing=2->1 inserted=0 cavity=1 separated=0 outcome=incomplete
+DC16 G layer 0 planned=19270 lifted_total=19267 refused_total=199 room_needy=396 room_moved=1252 t=46.7269 rss_now_kB=1609952 heap_inuse_kB_mod4G=1121327 heap_free_kB_mod4G=4692 mmap_kB=459760 cells=727592 vertices=138672 lengths=58305 geometry=155403 shape=38799 height=38801 balanced=0 overlay=19744 boxes=12737
+DC16 G layer 1 planned=18557 lifted_total=37805 refused_total=460 room_needy=1138 room_moved=3682 t=93.7272 rss_now_kB=1677068 heap_inuse_kB_mod4G=1187209 heap_free_kB_mod4G=5950 mmap_kB=459760 cells=838749 vertices=157210 lengths=58824 geometry=173960 shape=38799 height=38801 balanced=0 overlay=19745 boxes=12797
+DC16 G layer 2 planned=16255 lifted_total=54031 refused_total=781 room_needy=2443 room_moved=7271 t=137.098 rss_now_kB=1738052 heap_inuse_kB_mod4G=1244747 heap_free_kB_mod4G=10616 mmap_kB=459760 cells=936036 vertices=173436 lengths=59220 geometry=190215 shape=38799 height=38801 balanced=0 overlay=19745 boxes=12845
+DC16 G layer 3 planned=13939 lifted_total=67921 refused_total=1184 room_needy=4164 room_moved=11834 t=172.022 rss_now_kB=1810916 heap_inuse_kB_mod4G=1293505 heap_free_kB_mod4G=34174 mmap_kB=459760 cells=1019305 vertices=187324 lengths=59627 geometry=204154 shape=38799 height=38801 balanced=0 overlay=19745 boxes=12909
+DC16 G layer 4 planned=11756 lifted_total=79651 refused_total=1432 room_needy=6021 room_moved=17020 t=202.494 rss_now_kB=1862924 heap_inuse_kB_mod4G=1334890 heap_free_kB_mod4G=44505 mmap_kB=459760 cells=1089623 vertices=199054 lengths=60356 geometry=215910 shape=38799 height=38801 balanced=0 overlay=19746 boxes=13071
+DC16 G layer 5 planned=9774 lifted_total=89394 refused_total=1645 room_needy=8579 room_moved=23386 t=224.583 rss_now_kB=1907012 heap_inuse_kB_mod4G=1369184 heap_free_kB_mod4G=54263 mmap_kB=459760 cells=1148017 vertices=208795 lengths=61332 geometry=225684 shape=38799 height=38801 balanced=0 overlay=19746 boxes=13290
+DC16 G layer 6 planned=7882 lifted_total=97226 refused_total=1879 room_needy=11890 room_moved=31687 t=247.702 rss_now_kB=1954796 heap_inuse_kB_mod4G=1397534 heap_free_kB_mod4G=73241 mmap_kB=459760 cells=1194887 vertices=216612 lengths=63187 geometry=233566 shape=38799 height=38801 balanced=0 overlay=19757 boxes=13473
+DC16 G end before_trim rss_now_kB=34035808 heap_inuse_kB_mod4G=4145518 heap_free_kB_mod4G=45889 mmap_kB=459760 cells=1194887 vertices=216612 lengths=63187 geometry=233566 shape=38799 height=38801 balanced=0 overlay=19757 boxes=13473
+DC16 G end after_trim rss_now_kB=33999592 heap_inuse_kB_mod4G=4145518 heap_free_kB_mod4G=21181 mmap_kB=459760 cells=1194887 vertices=216612 lengths=63187 geometry=233566 shape=38799 height=38801 balanced=0 overlay=19757 boxes=13473
+DC15 phase G seconds=511.228 elapsed=1492.6 cells=1194887 rss_kB=34035844 lifted=97226 refused=1879 clear_moves=173 clear_collapses=19 retries_accepted=417

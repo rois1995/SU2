@@ -1,0 +1,40 @@
+ninja: Entering directory `integration_evidence/build-integrated-v2'
+[1/3] Compiling C++ object Common/src/libSU2Common.a.p/adaptation_CNativeImport3D.cpp.o
+In file included from ../../Common/src/adaptation/../../include/adaptation/CNativeMesh3D.hpp:9,
+                 from ../../Common/src/adaptation/../../include/adaptation/CNativeTopology3D.hpp:8,
+                 from ../../Common/src/adaptation/../../include/adaptation/CNativeCavity3D.hpp:8,
+                 from ../../Common/src/adaptation/../../include/adaptation/CNativeBoundary3D.hpp:8,
+                 from ../../Common/src/adaptation/../../include/adaptation/CNativeDistributed3D.hpp:8,
+                 from ../../Common/src/adaptation/../../include/adaptation/CNativeDonor3D.hpp:8,
+                 from ../../Common/src/adaptation/../../include/adaptation/CNativeImport3D.hpp:8,
+                 from ../../Common/src/adaptation/CNativeImport3D.cpp:7:
+../../Common/src/adaptation/CNativeImport3D.cpp: In instantiation of ‘SU2Native3D::{anonymous}::CheckProjectedBoundary(SU2Native3D::World&, const CConfig&, const CGeometry&, const std::vector<std::array<double, 3> >&, SU2Native3D::SymmetryReferenceAudit3D&, size_t, size_t, std::string&)::<lambda(auto:16)> [with auto:16 = SU2Native3D::{anonymous}::CheckProjectedBoundary(SU2Native3D::World&, const CConfig&, const CGeometry&, const std::vector<std::array<double, 3> >&, SU2Native3D::SymmetryReferenceAudit3D&, size_t, size_t, std::string&)::<lambda(size_t, size_t)>]’:
+../../Common/src/adaptation/CNativeImport3D.cpp:308:165:   required from here
+/usr/include/c++/9/array:94:12: note: ‘struct std::array<double, 3>’ has no user-provided default constructor
+   94 |     struct array
+      |            ^~~~~
+/usr/include/c++/9/array:110:56: note: and the implicitly-defined constructor does not initialize ‘double std::array<double, 3>::_M_elems [3]’
+  110 |       typename _AT_Type::_Type                         _M_elems;
+      |                                                        ^~~~~~~~
+/usr/include/c++/9/array:94:12: note: ‘struct std::array<double, 3>’ has no user-provided default constructor
+   94 |     struct array
+      |            ^~~~~
+/usr/include/c++/9/array:110:56: note: and the implicitly-defined constructor does not initialize ‘double std::array<double, 3>::_M_elems [3]’
+  110 |       typename _AT_Type::_Type                         _M_elems;
+      |                                                        ^~~~~~~~
+../../Common/src/adaptation/CNativeImport3D.cpp: In instantiation of ‘SU2Native3D::{anonymous}::CheckProjectedBoundary(SU2Native3D::World&, const CConfig&, const CGeometry&, const std::vector<std::array<double, 3> >&, SU2Native3D::SymmetryReferenceAudit3D&, size_t, size_t, std::string&)::<lambda(auto:16)> [with auto:16 = SU2Native3D::{anonymous}::CheckProjectedBoundary(SU2Native3D::World&, const CConfig&, const CGeometry&, const std::vector<std::array<double, 3> >&, SU2Native3D::SymmetryReferenceAudit3D&, size_t, size_t, std::string&)::<lambda(size_t, size_t)>]’:
+../../Common/src/adaptation/CNativeImport3D.cpp:321:4:   required from here
+/usr/include/c++/9/array:94:12: note: ‘struct std::array<double, 3>’ has no user-provided default constructor
+   94 |     struct array
+      |            ^~~~~
+/usr/include/c++/9/array:110:56: note: and the implicitly-defined constructor does not initialize ‘double std::array<double, 3>::_M_elems [3]’
+  110 |       typename _AT_Type::_Type                         _M_elems;
+      |                                                        ^~~~~~~~
+/usr/include/c++/9/array:94:12: note: ‘struct std::array<double, 3>’ has no user-provided default constructor
+   94 |     struct array
+      |            ^~~~~
+/usr/include/c++/9/array:110:56: note: and the implicitly-defined constructor does not initialize ‘double std::array<double, 3>::_M_elems [3]’
+  110 |       typename _AT_Type::_Type                         _M_elems;
+      |                                                        ^~~~~~~~
+[2/3] Linking static target Common/src/libSU2Common.a
+[3/3] Linking target UnitTests/test_driver

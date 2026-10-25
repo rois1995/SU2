@@ -1,0 +1,43 @@
+Filters: [NativeFirstRowDC13]
+DC13 m6_root_te x32 loaded: cells=1200 wall_faces=185
+DC16 G plan 0 active=87 planned=87 seconds=0.155965 rss_kB 113564->113564 grown_kB NextLayer=0 Tangential=0 Geometry=0
+DC16 G layer 0 planned=87 lifted_total=86 refused_total=3 room_needy=44 room_moved=104 t=2.60618 rss_now_kB=113564 heap_inuse_kB_mod4G=46905 heap_free_kB_mod4G=43214 mmap_kB=2000 cells=2979 vertices=715 lengths=4911 geometry=4705 shape=2514 height=188 balanced=0 overlay=274 boxes=0
+DC16 G plan 1 active=86 planned=86 seconds=0.145331 rss_kB 113564->113564 grown_kB NextLayer=0 Tangential=0 Geometry=0
+DC16 G layer 1 planned=86 lifted_total=158 refused_total=36 room_needy=125 room_moved=216 t=5.86961 rss_now_kB=113564 heap_inuse_kB_mod4G=47290 heap_free_kB_mod4G=42829 mmap_kB=2000 cells=3366 vertices=787 lengths=5068 geometry=4791 shape=2514 height=188 balanced=0 overlay=344 boxes=0
+DC16 G plan 2 active=72 planned=21 seconds=0.0595787 rss_kB 113564->113564 grown_kB NextLayer=0 Tangential=0 Geometry=0
+DC16 G layer 2 planned=21 lifted_total=172 refused_total=51 room_needy=146 room_moved=317 t=7.75832 rss_now_kB=113564 heap_inuse_kB_mod4G=47419 heap_free_kB_mod4G=42700 mmap_kB=2000 cells=3439 vertices=800 lengths=5140 geometry=4812 shape=2514 height=188 balanced=0 overlay=382 boxes=0
+DC16 G plan 3 active=14 planned=2 seconds=0.00748792 rss_kB 113564->113564 grown_kB NextLayer=0 Tangential=0 Geometry=0
+DC16 G layer 3 planned=2 lifted_total=172 refused_total=55 room_needy=148 room_moved=348 t=8.56542 rss_now_kB=113564 heap_inuse_kB_mod4G=47495 heap_free_kB_mod4G=42624 mmap_kB=2000 cells=3439 vertices=800 lengths=5140 geometry=4814 shape=2514 height=188 balanced=0 overlay=402 boxes=0
+DC16 G end before_trim rss_now_kB=113564 heap_inuse_kB_mod4G=47494 heap_free_kB_mod4G=42625 mmap_kB=2000 cells=3439 vertices=800 lengths=5140 geometry=4814 shape=2514 height=188 balanced=0 overlay=402 boxes=0
+DC16 G end after_trim rss_now_kB=76060 heap_inuse_kB_mod4G=47494 heap_free_kB_mod4G=40449 mmap_kB=2000 cells=3439 vertices=800 lengths=5140 geometry=4814 shape=2514 height=188 balanced=0 overlay=402 boxes=0
+DC13 m6_root_te x32 R2 rowed=132 G lifted=172 t=33.8648
+DC12 V sweep 0 cells=8993 long=112 bad=2 h=0 t=77.7218
+DC12 V sweep 1 cells=9295 long=11 bad=0 h=0 t=86.3983
+DC12 V sweep 2 cells=9316 long=0 bad=0 h=0 t=87.3963
+DC13 m6_root_te step 0 x32 final cells=9316 long=0 bad=0 h=0 complete=1 t=158.732
+===============================================================================
+All tests passed (5 assertions in 1 test case)
+
+	Command being timed: "env SU2_DC13_H0_SCALE=32 SU2_DC13_INPUT_SHA=6180b5e24481b6e7d8c422cf2bd4604bb19c794ae465a090899a98dc2cb82f05 SU2_DC13_BINARY_SHA=44504d91da2fb7894803920c7b73d16aa72d5d2b426690736248194928403b82 SU2_DC13_ROOT=/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/bl_remesh_v1/dc16/cuts_c12 SU2_DC13_WP0B=/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/robust_junction_v1/wp0b SU2_DC13_M6=/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/bl_remesh_v1/dc7/m6_cuts SU2_DC13_CASES=m6_root_te nice -n 19 timeout --kill-after=5s 14400s /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/bl_remesh_v1/dc16/bin/test_driver_c12 [NativeFirstRowDC13] --use-colour no"
+	User time (seconds): 158.74
+	System time (seconds): 0.06
+	Percent of CPU this job got: 99%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 2:39.10
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 171228
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 2
+	Minor (reclaiming a frame) page faults: 55257
+	Voluntary context switches: 1131
+	Involuntary context switches: 1071
+	Swaps: 0
+	File system inputs: 0
+	File system outputs: 2064
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0

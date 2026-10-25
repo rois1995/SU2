@@ -1,0 +1,39 @@
+Filters: [NativeFirstRowDC13]
+DC13 m6_root_te x32 loaded: cells=1200 wall_faces=185
+DC16 G layer 0 planned=87 lifted_total=86 refused_total=3 room_needy=44 room_moved=104 t=2.67489 rss_now_kB=113476 heap_inuse_kB_mod4G=46908 heap_free_kB_mod4G=43211 mmap_kB=2000 cells=2979 vertices=715 lengths=4911 geometry=4705 shape=2514 height=188 balanced=0 overlay=274 boxes=0
+DC16 G layer 1 planned=86 lifted_total=158 refused_total=36 room_needy=125 room_moved=216 t=6.07711 rss_now_kB=113476 heap_inuse_kB_mod4G=47294 heap_free_kB_mod4G=42825 mmap_kB=2000 cells=3366 vertices=787 lengths=5068 geometry=4791 shape=2514 height=188 balanced=0 overlay=344 boxes=0
+DC16 G layer 2 planned=21 lifted_total=172 refused_total=51 room_needy=146 room_moved=317 t=7.99817 rss_now_kB=113476 heap_inuse_kB_mod4G=47423 heap_free_kB_mod4G=42696 mmap_kB=2000 cells=3439 vertices=800 lengths=5140 geometry=4812 shape=2514 height=188 balanced=0 overlay=382 boxes=0
+DC16 G layer 3 planned=2 lifted_total=172 refused_total=55 room_needy=148 room_moved=348 t=8.8195 rss_now_kB=113476 heap_inuse_kB_mod4G=47499 heap_free_kB_mod4G=42620 mmap_kB=2000 cells=3439 vertices=800 lengths=5140 geometry=4814 shape=2514 height=188 balanced=0 overlay=402 boxes=0
+DC16 G end before_trim rss_now_kB=113476 heap_inuse_kB_mod4G=47498 heap_free_kB_mod4G=42621 mmap_kB=2000 cells=3439 vertices=800 lengths=5140 geometry=4814 shape=2514 height=188 balanced=0 overlay=402 boxes=0
+DC16 G end after_trim rss_now_kB=75752 heap_inuse_kB_mod4G=47498 heap_free_kB_mod4G=40445 mmap_kB=2000 cells=3439 vertices=800 lengths=5140 geometry=4814 shape=2514 height=188 balanced=0 overlay=402 boxes=0
+DC13 m6_root_te x32 R2 rowed=132 G lifted=172 t=35.3638
+DC12 V sweep 0 cells=8993 long=112 bad=2 h=0 t=82.7323
+DC12 V sweep 1 cells=9295 long=11 bad=0 h=0 t=91.8761
+DC12 V sweep 2 cells=9316 long=0 bad=0 h=0 t=92.8916
+DC13 m6_root_te step 0 x32 final cells=9316 long=0 bad=0 h=0 complete=1 t=168.412
+===============================================================================
+All tests passed (5 assertions in 1 test case)
+
+	Command being timed: "env SU2_DC13_H0_SCALE=32 SU2_DC13_INPUT_SHA=6180b5e24481b6e7d8c422cf2bd4604bb19c794ae465a090899a98dc2cb82f05 SU2_DC13_BINARY_SHA=3e3cfa64eb163b07f33c8b926e0efe958355af29f46fa359fae6af310611b699 SU2_DC13_ROOT=/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/bl_remesh_v1/dc16/cuts_c2 SU2_DC13_WP0B=/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/robust_junction_v1/wp0b SU2_DC13_M6=/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/bl_remesh_v1/dc7/m6_cuts SU2_DC13_CASES=m6_root_te nice -n 19 timeout --kill-after=5s 14400s /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/bl_remesh_v1/dc16/bin/test_driver_c2 [NativeFirstRowDC13] --use-colour no"
+	User time (seconds): 167.78
+	System time (seconds): 0.07
+	Percent of CPU this job got: 99%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 2:48.79
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 170956
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 2
+	Minor (reclaiming a frame) page faults: 55256
+	Voluntary context switches: 973
+	Involuntary context switches: 5718
+	Swaps: 0
+	File system inputs: 0
+	File system outputs: 2048
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0
