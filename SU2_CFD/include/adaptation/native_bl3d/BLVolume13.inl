@@ -257,6 +257,37 @@ inline bool ApexPlace(State& s,Rows10& rows,const Face& key,VStage& g,std::strin
 
 // ---- V13 (DC13_PLAN sect. 2-4): V12 + best admitted variant + ShellCone + ApexPlace + per-class census --------
 namespace dc13 {
+// DC-17 (target 3): the production optimizer on a LOCAL region (the cells a refinement slice created plus one vertex
+// ring), as one transaction: the region is copied into its own mesh, whose skin (region border, physical faces) the
+// optimizer keeps fixed; first children, fan cells, apices and copies are frozen, lids kept (as the mesh-wide call); the
+// changed cells are committed back by Apply with their physical faces, and moved registry vertices are relabelled.
+// Ready for the 2D ownership pattern (a region is an owned cavity; disjoint regions commute).
+inline bool LocalOptimize(State& s,Rows10& rows,Growth& G,const std::set<Id>& region,double seconds,OptimizeReport& rep) {
+  if(region.empty()||!(seconds>0))return false;
+  Owned local;for(Id id:region){const auto f=s.mesh.find(id);if(f!=s.mesh.end())local.emplace(id,f->second);}
+  OptimizeOptions opt;opt.maximum_sweeps=4;opt.maximum_seconds=seconds;opt.boundary=false;opt.cache_entries=std::max<size_t>(size_t(1)<<16,8*local.size());
+  for(const auto& row:local)if(WallChild(s,row.first)){opt.frozen_cells.insert(row.first);for(const auto& n:row.second.cell.v)opt.frozen_vertices.insert(n.id);}
+  for(Id id:FanCells(s,rows))if(local.count(id)){opt.frozen_cells.insert(id);for(const auto& n:s.mesh.at(id).cell.v)opt.frozen_vertices.insert(n.id);}
+  for(const auto& r:rows.lift)opt.keep_vertices.insert(r.second);
+  for(const auto& r:rows.copies)for(Id c:r.second.ids)opt.frozen_vertices.insert(c);
+  for(const auto& r:rows.apex)opt.frozen_vertices.insert(r.second);
+  opt.mesh_quality=[&s](Id id,double& q,double& J){if(!s.mesh.count(id))return false;const auto sh=MeshShape(s,id);q=sh.q;J=sh.J;return true;};
+  const RegionMetric target([&s](Point p){return s.field->Query(p).target;},[&s](Point a,Point b){return GeometryLength(s,a,b);});
+  Id nn=s.next_node,nc=s.next_cell;bool moved=false;
+  {Scope sc("DC17 LocalOptimize");try{moved=OptimizeMetricMesh(local,target,nn,nc,opt,rep);}catch(const std::exception& e){rep.stop=std::string("exception: ")+e.what();return false;}}
+  if(!moved)return false;
+  std::vector<Id> removed;for(Id id:region)if(s.mesh.count(id)&&!local.count(id))removed.push_back(id);
+  Patch fresh;
+  for(const auto& row:local){if(region.count(row.first))continue;fresh.cells.push_back(row.second.cell);const auto f=CellFaces(row.second.cell);
+    for(unsigned k=0;k<4;++k)if(row.second.physical[k].present)fresh.surface.push_back({f[k],row.second.physical[k].facet});}
+  if(removed.empty()&&fresh.cells.empty())return false;
+  s.next_node=std::max(s.next_node,nn);s.next_cell=std::max(s.next_cell,nc);
+  Apply(s,removed,fresh);
+  for(auto& c:G.current){const auto r=rep.relabel.find(c.second);if(r!=rep.relabel.end())c.second=r->second;}
+  for(auto& l:rows.lift){const auto r=rep.relabel.find(l.second);if(r!=rep.relabel.end())l.second=r->second;}
+  for(auto& c:G.columns){for(Id* x:{&c.lid,&c.top}){const auto r=rep.relabel.find(*x);if(r!=rep.relabel.end())*x=r->second;}}
+  return true;
+}
 inline VStage13 PhaseV13(State& s,Rows10& rows,Growth& G,size_t work,double seconds,size_t maxSweeps,std::set<Face>& certified,std::ostream& log) {
   Scope scope("PhaseV13");
   VStage13 g;std::set<Id> apexIds;Begin(s,g);const auto t0=Clock::now();
@@ -305,7 +336,9 @@ inline VStage13 PhaseV13(State& s,Rows10& rows,Growth& G,size_t work,double seco
   for(;;++g.sweeps) {
     if(limited()){g.outcome="limit";break;}
     if(g.sweeps>=maxSweeps){g.outcome="sweep cap";break;}
-    const double R=remaining();bool changed=false;const auto sweepStart=Clock::now();BoundCaches(s);
+    // DC-17 (target 3): with the demand queue the sweep budget is a slice (refine -> repairs -> optimizer alternate at
+    // least four times instead of one refine block and one optimizer block)
+    const double R=v13DemandQueue?std::min(remaining(),std::max(300.,seconds/4)):remaining();bool changed=false;const auto sweepStart=Clock::now();BoundCaches(s);
     if(vt.at.size()>(size_t(1)<<22))vt.at.clear();
     // (a) R2 retry (sweeps 0 and 1) and the certified first-child route
     if(g.sweeps<2&&v13R2Retry){const auto t=Clock::now();size_t rowed0=0;for(const auto& wf:WallFaces(s))rowed0+=rows.apex.count(wf.second)&&std::all_of(wf.second.begin(),wf.second.end(),[&](Id x){return rows.lift.count(x);});
@@ -325,7 +358,7 @@ inline VStage13 PhaseV13(State& s,Rows10& rows,Growth& G,size_t work,double seco
      g.first_seconds+=Seconds(t);}
     build();
     // (b) bounded refinement of long edges (wall-first, longest first), at most 40 % of R and 1024 attempts per sweep
-    {const auto t=Clock::now();const double slice=.4*R;size_t attempts=0;g.column_demand=0;g.demand.clear();
+    {const auto t=Clock::now();const double slice=.4*R;size_t attempts=0;g.column_demand=0;g.demand.clear();const Id refineMark=s.next_cell;
      size_t attemptCap=v13AttemptsPerSweep?v13AttemptsPerSweep:SIZE_MAX;
      auto sliceOver=[&]{return limited()||Seconds(t)>=slice||attempts>=attemptCap;};
      auto touchesColumn=[&](const std::vector<Id>& ids){for(Id id:ids)if(ci.cells.count(id))return true;return false;};
@@ -410,7 +443,15 @@ inline VStage13 PhaseV13(State& s,Rows10& rows,Growth& G,size_t work,double seco
        if(!taken)rejected.insert(key);
        changed|=taken;if(taken)build();
      }
-     g.refine_seconds+=Seconds(t);}
+     g.refine_seconds+=Seconds(t);
+     // DC-17 (target 3): the region this refinement slice created is optimized at once (local transaction), so a
+     // refinement does not leave its new cells for a later mesh-wide pass
+     if(v13DemandQueue&&!limited()&&s.next_cell>refineMark){const auto tl=Clock::now();std::set<Id> region;
+       for(auto it=s.mesh.lower_bound(refineMark);it!=s.mesh.end();++it)for(const auto& n:it->second.cell.v){const auto st=s.vertex_cells.find(n.id);if(st!=s.vertex_cells.end())region.insert(st->second.begin(),st->second.end());}
+       OptimizeReport rep;const bool moved=LocalOptimize(s,rows,G,region,std::min(remaining(),.15*R),rep);changed|=moved;if(moved)build();
+       g.opt.push_back(rep);g.optimize_seconds+=Seconds(tl);
+       log<<"DC17 V local optimize sweep "<<g.sweeps<<" region="<<region.size()<<" bad "<<rep.bad_before<<"->"<<rep.bad_after<<" O1="<<rep.edge_removals<<" O2="<<rep.face_swaps<<" O3="<<rep.collapses<<" O4="<<rep.moves
+          <<" stop="<<rep.stop<<" t="<<rep.seconds<<"\n";}}
     // (c) bad first-row column cells -> ApexMove (certified, Admit12 Repair through the override)
     {std::vector<std::pair<double,Id>> badColumn;for(const auto& row:s.mesh)if(ci.cells.count(row.first)){const auto sh=MeshShape(s,row.first);if(Bad(sh))badColumn.emplace_back(sh.q,row.first);}
      std::sort(badColumn.begin(),badColumn.end());std::set<Face> moved;
@@ -453,8 +494,13 @@ inline VStage13 PhaseV13(State& s,Rows10& rows,Growth& G,size_t work,double seco
     // (d) mesh-wide optimization with a reserved share of the sweep budget
     if(!limited()){const auto t=Clock::now();
       OptimizeOptions opt;opt.maximum_sweeps=32;  // DC-13: inner sweeps until no progress (time-bounded)
-     opt.maximum_seconds=std::max(1.,std::min(remaining(),std::max(.4*R,.5*remaining())));
+     opt.maximum_seconds=v13DemandQueue?std::max(1.,std::min(remaining(),R-Seconds(sweepStart))):std::max(1.,std::min(remaining(),std::max(.4*R,.5*remaining())));
       opt.cache_entries=size_t(1)<<19;if(s.mapped&&!v13MappedBoundaryOps)opt.boundary=false;
+      // DC-17 (target 3): the whole-mesh scans of the optimizer read the exact cell-shape memo of the state (same
+      // measure, cells immutable by identity) and its tensor/length memos are sized to the mesh, so a sweep no longer
+      // re-measures 1.5M cells after its 2^19-entry scratch overflows
+      if(v13DemandQueue){opt.cache_entries=std::max(opt.cache_entries,4*s.mesh.size());
+        opt.mesh_quality=[&s](Id id,double& q,double& J){if(!s.mesh.count(id))return false;const auto sh=MeshShape(s,id);q=sh.q;J=sh.J;return true;};}
       for(const auto& row:s.mesh)if(WallChild(s,row.first)){opt.frozen_cells.insert(row.first);for(auto n:row.second.cell.v)opt.frozen_vertices.insert(n.id);}
       for(Id id:FanCells(s,rows)){opt.frozen_cells.insert(id);for(auto n:s.mesh.at(id).cell.v)opt.frozen_vertices.insert(n.id);}
       // DC-13: lids are not frozen (no first child contains a lid); a moved lid is relabelled in rows.lift and G below

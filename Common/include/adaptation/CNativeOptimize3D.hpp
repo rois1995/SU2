@@ -26,6 +26,11 @@ struct OptimizeOptions {
    * NOT certified: no interface/facet check). Their boundary faces keep their bindings. */
   std::map<Id, std::array<double, 3>> diagnostic_sliding;
   size_t cache_entries = size_t(1) << 20;  // Bounded scratch (tensor/score/length memos), cleared when reached.
+  /*! DC-17: optional exact quality of a CURRENT mesh cell by identity (cells are immutable by identity): the caller's
+   *  memo of the same measure (metric at the actual centroid, the target's own point query). The whole-mesh scans
+   *  (census, bad-cell list, re-checks) use it instead of re-measuring every cell per sweep; fresh candidates are
+   *  always measured. Returns false when unknown. */
+  std::function<bool(Id, double&, double&)> mesh_quality;
 };
 struct OptimizeReport {
   size_t sweeps = 0, trials = 0, edge_removals = 0, face_swaps = 0, collapses = 0, moves = 0;

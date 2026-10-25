@@ -3133,7 +3133,11 @@ class MeshOptimizer {
     return r;
   }
   double Score(const Cell& c){return Quality(c).Score();}
-  double MinScore(const std::vector<Id>& ids){double m=INFINITY;for(Id id:ids)m=std::min(m,Score(mesh.at(id).cell));return m;}
+  // DC-17: score of a current mesh cell, from the caller's identity memo when given (same exact measure)
+  double RowScore(Id id,const Cell& c){
+    if(options.mesh_quality){CellQuality r;if(options.mesh_quality(id,r.q,r.J))return r.Score();}
+    return Score(c);}
+  double MinScore(const std::vector<Id>& ids){double m=INFINITY;for(Id id:ids)m=std::min(m,RowScore(id,mesh.at(id).cell));return m;}
   // minimum score of fresh cells, -INFINITY if one is not valid (q > 0, J >= ValiditySliverJacobian)
   double FreshScore(const std::vector<Cell>& cells,bool memo=true) {
     double m=INFINITY;for(const auto& c:cells){const auto r=Quality(c,memo);if(!r.Valid())return -INFINITY;m=std::min(m,r.Score());}return m;}
@@ -3571,13 +3575,13 @@ bool MeshOptimizer::TryCell(Id id) {
 }
 bool MeshOptimizer::Run() {
   Index();
-  auto census=[&](size_t& bad,double& minimum){bad=0;minimum=INFINITY;for(const auto& row:mesh){if(Frozen(row.first))continue;const double s=Score(row.second.cell);minimum=std::min(minimum,s);bad+=s<1;}if(!std::isfinite(minimum))minimum=1;};
+  auto census=[&](size_t& bad,double& minimum){bad=0;minimum=INFINITY;for(const auto& row:mesh){if(Frozen(row.first))continue;const double s=RowScore(row.first,row.second.cell);minimum=std::min(minimum,s);bad+=s<1;}if(!std::isfinite(minimum))minimum=1;};
   census(report.bad_before,report.minimum_before);
   while(report.sweeps<options.maximum_sweeps) {
     ++report.sweeps;
-    std::vector<std::pair<double,Id>> bad;for(const auto& row:mesh){if(Limited())break;if(Frozen(row.first))continue;const double s=Score(row.second.cell);if(s<1)bad.emplace_back(s,row.first);}
+    std::vector<std::pair<double,Id>> bad;for(const auto& row:mesh){if(Limited())break;if(Frozen(row.first))continue;const double s=RowScore(row.first,row.second.cell);if(s<1)bad.emplace_back(s,row.first);}
     std::sort(bad.begin(),bad.end());size_t accepted=0;
-    for(const auto& row:bad){if(Limited())break;if(!mesh.count(row.second))continue;if(Score(mesh.at(row.second).cell)>=1)continue;if(TryCell(row.second))++accepted;}
+    for(const auto& row:bad){if(Limited())break;if(!mesh.count(row.second))continue;if(RowScore(row.second,mesh.at(row.second).cell)>=1)continue;if(TryCell(row.second))++accepted;}
     // O1L: interior edges longer than 1.8 (estimate screen, exact length) removed by the best ring triangulation
     if((options.swaps||options.insertions)&&!Limited()){std::vector<std::pair<long double,std::pair<Id,Id>>> longs;std::set<std::pair<Id,Id>> seen;
       for(const auto& row:mesh){if(Limited())break;if(Frozen(row.first))continue;const auto& c=row.second.cell;for(unsigned i=0;i<4;++i)for(unsigned j=i+1;j<4;++j){

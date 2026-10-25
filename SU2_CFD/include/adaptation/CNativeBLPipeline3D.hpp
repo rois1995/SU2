@@ -409,6 +409,16 @@ inline EngineResult RunEvent(World& world, const Owned& cells, const std::vector
       if (dc17::diagnosticVSeconds >= 0) v = std::min(v, dc17::diagnosticVSeconds);  // TEST-ONLY diagnostic cap
       return std::max(1.0, v);
     };
+    // DC-17 (target 3): V's effect is measured on intermediate events by the same estimated deficits before and after V
+    size_t badBeforeV = 0, longBeforeV = 0;
+    double vSecondsUsed = 0;
+    auto beforeV = [&] {
+      if (ctl.final_cycle) return;
+      const auto pre = dc15::FinalEstimated(*s);
+      badBeforeV = pre.gates.bad_shape; longBeforeV = pre.gates.long_edges;
+      json << ",\"before_V\":{\"bad\":" << badBeforeV << ",\"long\":" << longBeforeV << ",\"cells\":" << s->mesh.size() << "}";
+      phase("before_V", "bad=" + std::to_string(badBeforeV) + " long=" + std::to_string(longBeforeV));
+    };
     if (!chain) {
       // DC-16: W selects its long wall edges by the vertex-tensor estimate (exact integration only above 1.2)
       dc10::wallPrefilter = true; dc10::wallEstimate = [&](Id a, Id b) { return dc13::EstimateLength(*s, dc13::eventTensors, a, b); };
@@ -444,11 +454,12 @@ inline EngineResult RunEvent(World& world, const Owned& cells, const std::vector
                  " clear_collapses=" + std::to_string(G.clear_collapses) + " retries_accepted=" + std::to_string(G.clear_retry_accepted));
       if (!memoryOk("G", why)) return finish(why);
       v13R2Retry = true;
+      beforeV();
       const double vSeconds = cappedV();
       const auto v = PhaseV13(*s, rows, G, std::max<size_t>(size_t(1) << 22, 64 * s->mesh.size()), vSeconds, 64, certified, log);
       json << ",\"V\":{\"stage\":" << JsonStage(v) << ",\"seconds_cap\":" << vSeconds << ",\"sweeps\":" << v.sweeps << ",\"refine_attempts\":" << v.refine_attempts
            << ",\"seconds\":{\"r2\":" << v.r2_seconds << ",\"first\":" << v.first_seconds << ",\"refine\":" << v.refine_seconds << ",\"optimize\":" << v.optimize_seconds << "}}";
-      workDone += v.work;
+      workDone += v.work; vSecondsUsed = v.seconds;
       phase("V", "sweeps=" + std::to_string(v.sweeps) + " attempts=" + std::to_string(v.refine_attempts) + " accepted=" + std::to_string(v.accepted) + " outcome=" + v.outcome);
       dc9::directionField = nullptr;
     } else {
@@ -471,10 +482,11 @@ inline EngineResult RunEvent(World& world, const Owned& cells, const std::vector
       phase("halving", "split=" + std::to_string(hv.split) + " refused=" + std::to_string(hv.refused) + " inserted=" + std::to_string(cs.inserted));
       if (!memoryOk("halving", why)) return finish(why);
       v13R2Retry = false;
+      beforeV();
       const double vSeconds = cappedV();
       const auto v = PhaseV13(*s, rows, G, std::max<size_t>(size_t(1) << 22, 64 * s->mesh.size()), vSeconds, 64, certified, log);
       json << ",\"V\":{\"stage\":" << JsonStage(v) << ",\"seconds_cap\":" << vSeconds << ",\"sweeps\":" << v.sweeps << ",\"refine_attempts\":" << v.refine_attempts << "}";
-      workDone += v.work;
+      workDone += v.work; vSecondsUsed = v.seconds;
       phase("V", "sweeps=" + std::to_string(v.sweeps) + " attempts=" + std::to_string(v.refine_attempts) + " outcome=" + v.outcome);
       dc9::directionField = nullptr;
     }
@@ -492,6 +504,11 @@ inline EngineResult RunEvent(World& world, const Owned& cells, const std::vector
       const auto est = dc15::FinalEstimated(*s);
       cached = est.gates; cachedMetricInvalid = est.metric_invalid;
       json << ",\"final_estimated\":" << dc15::JsonEstimated(est);
+    }
+    if (!ctl.final_cycle && vSecondsUsed > 0) {
+      const double minutes = vSecondsUsed / 60;
+      json << ",\"V_rates\":{\"minutes\":" << minutes << ",\"bad_removed_per_minute\":" << (double(badBeforeV) - double(cached.bad_shape)) / minutes
+           << ",\"long_removed_per_minute\":" << (double(longBeforeV) - double(cached.long_edges)) / minutes << "}";
     }
     json << ",\"metric_invalid_cached\":" << cachedMetricInvalid << ",\"bad_witness\":" << BadWitness(*s, rows);
     size_t a3Violations = 0;  // DC-17 (plan review 2): the A3 first-row audit is an acceptance condition
