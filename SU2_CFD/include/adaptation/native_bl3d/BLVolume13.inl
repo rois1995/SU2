@@ -363,7 +363,7 @@ inline VStage13 PhaseV13(State& s,Rows10& rows,Growth& G,size_t work,double seco
      g.first_seconds+=Seconds(t);}
     build();
     // (b) bounded refinement of long edges (wall-first, longest first), at most 40 % of R and 1024 attempts per sweep
-    {const auto t=Clock::now();const double slice=.4*R;size_t attempts=0;g.column_demand=0;g.demand.clear();const Id refineMark=s.next_cell;
+    {const auto t=Clock::now();const double slice=.4*R;size_t attempts=0;g.column_demand=0;g.demand.clear();const Id refineMark=s.next_cell;size_t sliceUntransacted=0;
      size_t attemptCap=v13AttemptsPerSweep?v13AttemptsPerSweep:SIZE_MAX;
      auto sliceOver=[&]{return limited()||Seconds(t)>=slice||attempts>=attemptCap;};
      auto touchesColumn=[&](const std::vector<Id>& ids){for(Id id:ids)if(ci.cells.count(id))return true;return false;};
@@ -463,7 +463,7 @@ inline VStage13 PhaseV13(State& s,Rows10& rows,Growth& G,size_t work,double seco
              ++census.reasons["refine+repair adds bad cells"];
            } else {++g.accepted;++g.acceptedBy[best.op+"+repair"];++census.accepted[best.op];taken=true;}
          } else {
-         Apply(s,best.ids,best.fresh);++g.accepted;++g.acceptedBy[best.op];++census.accepted[best.op];taken=true;}}
+         Apply(s,best.ids,best.fresh);++g.accepted;++g.acceptedBy[best.op];++census.accepted[best.op];taken=true;++sliceUntransacted;}}
        splitPolicy.relocatedCount=0;splitPolicy.requested=-1;
        if(!taken)rejected.insert(key);
        changed|=taken;if(taken)build();
@@ -471,7 +471,8 @@ inline VStage13 PhaseV13(State& s,Rows10& rows,Growth& G,size_t work,double seco
      g.refine_seconds+=Seconds(t);
      // DC-17 (target 3): the region this refinement slice created is optimized at once (local transaction), so a
      // refinement does not leave its new cells for a later mesh-wide pass
-     if(v13DemandQueue&&!limited()&&s.next_cell>refineMark){const auto tl=Clock::now();std::set<Id> region;
+     // (c7: only for refinements that were not already repaired in their own transaction - boundary/column ones)
+     if(v13DemandQueue&&!limited()&&s.next_cell>refineMark&&g.acceptedBy.size()>0&&sliceUntransacted>0){const auto tl=Clock::now();std::set<Id> region;
        for(auto it=s.mesh.lower_bound(refineMark);it!=s.mesh.end();++it)for(const auto& n:it->second.cell.v){const auto st=s.vertex_cells.find(n.id);if(st!=s.vertex_cells.end())region.insert(st->second.begin(),st->second.end());}
        OptimizeReport rep;const bool moved=LocalOptimize(s,rows,G,region,std::min(remaining(),.15*R),rep);changed|=moved;if(moved)build();
        g.opt.push_back(rep);g.optimize_seconds+=Seconds(tl);

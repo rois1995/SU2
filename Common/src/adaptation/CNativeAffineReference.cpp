@@ -512,9 +512,24 @@ bool MappedFacetReference::ComponentContainsFace(Id facet,const std::array<Surfa
     const auto& f=reference->Get(root);if(SurfaceOrientationSign({f.v[0].p,f.v[1].p,f.v[2].p},realized,stats)<=0)return false;
   }
   if(c.convex)return true;
+  // DC-17: exact prefilter of the border loop (same verdict). Rigorous binary64 bounds of the ideal triangle
+  // (ParametricPointBounds) give its box and an enclosure of its centroid height; a border edge whose box is strictly
+  // apart from the triangle box cannot enter it, and an edge with both ends strictly on one side of the centroid
+  // enclosure adds no winding, so the exact predicates run only for the few border edges near the face.
+  double tlo[2]={INFINITY,INFINITY},thi[2]={-INFINITY,-INFINITY},clo=0,chi=0;
+  for(unsigned k=0;k<3;++k){const auto bnd=ParametricPointBounds(t[k]);
+    tlo[0]=std::min(tlo[0],bnd[0].x);tlo[1]=std::min(tlo[1],bnd[0].y);thi[0]=std::max(thi[0],bnd[1].x);thi[1]=std::max(thi[1],bnd[1].y);
+    clo+=bnd[0].y;chi+=bnd[1].y;}
+  clo=std::nextafter(std::nextafter(clo,-INFINITY)/3,-INFINITY);chi=std::nextafter(std::nextafter(chi,INFINITY)/3,INFINITY);
+  const bool boxed=std::isfinite(tlo[0])&&std::isfinite(tlo[1])&&std::isfinite(thi[0])&&std::isfinite(thi[1])&&std::isfinite(clo)&&std::isfinite(chi);
   int winding=0;
   for(auto edge:c.border) {
     const auto a=ComponentFlat(nodes.at(edge[0]),c.axis),b=ComponentFlat(nodes.at(edge[1]),c.axis);
+    if(boxed) {
+      const bool apart=std::max(a.x,b.x)<tlo[0]||std::min(a.x,b.x)>thi[0]||std::max(a.y,b.y)<tlo[1]||std::min(a.y,b.y)>thi[1];
+      const bool oneSide=(a.y<clo&&b.y<clo)||(a.y>chi&&b.y>chi);
+      if(apart&&oneSide)continue;
+    }
     const int ay=ParametricCentroidSide({{0,a.y,0}},{{1,a.y,0}},t,2,stats),by=ParametricCentroidSide({{0,b.y,0}},{{1,b.y,0}},t,2,stats);
     const int side=ParametricCentroidSide({a},{b},t,2,stats);
     if(ay>=0&&by<0&&side>0)++winding;if(ay<0&&by>=0&&side<0)--winding;
