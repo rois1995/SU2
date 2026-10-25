@@ -1,0 +1,85 @@
+{
+  "date": "2026-10-25",
+  "build_exit": 0,
+  "sources_and_binaries_and_runtime_verified": true,
+  "standalone": {
+    "groups": 10,
+    "reused": 10,
+    "pass": true
+  },
+  "serial_stages": {
+    "metric": {
+      "status": "metric exit=0 verdict=pass binary=d32b23b938e563527605070cf1c811a8754647123041139f723589f0ef239f32",
+      "clean_pass": true,
+      "counts": [
+        "All tests passed (305646 assertions in 176 test cases)"
+      ],
+      "log": "integration_evidence/native_3d_bl_v1/bl_remesh_v1/dc17/review_20261025_final/metric.log"
+    },
+    "unit2d": {
+      "status": "unit2d exit=0 verdict=pass binary=d32b23b938e563527605070cf1c811a8754647123041139f723589f0ef239f32",
+      "clean_pass": true,
+      "counts": [
+        "All tests passed (52273 assertions in 57 test cases)"
+      ],
+      "log": "integration_evidence/native_3d_bl_v1/bl_remesh_v1/dc17/review_20261025_final/unit2d.log"
+    },
+    "unit3d": {
+      "status": "unit3d exit=0 verdict=pass binary=d32b23b938e563527605070cf1c811a8754647123041139f723589f0ef239f32",
+      "clean_pass": true,
+      "counts": [
+        "All tests passed (183575 assertions in 34 test cases)"
+      ],
+      "log": "integration_evidence/native_3d_bl_v1/bl_remesh_v1/dc17/review_20261025_final/unit3d.log"
+    },
+    "mesh3d": {
+      "status": "mesh3d exit=6 verdict=pass-known binary=d32b23b938e563527605070cf1c811a8754647123041139f723589f0ef239f32",
+      "clean_pass": false,
+      "counts": [
+        "test cases:  101 |  100 passed | 1 failed",
+        "assertions: 9083 | 9077 passed | 6 failed"
+      ],
+      "log": "integration_evidence/native_3d_bl_v1/bl_remesh_v1/dc17/review_20261025_final/mesh3d.log"
+    },
+    "pipeline": {
+      "status": "pipeline exit=0 verdict=pass binary=d32b23b938e563527605070cf1c811a8754647123041139f723589f0ef239f32",
+      "clean_pass": true,
+      "counts": [
+        "All tests passed (124 assertions in 3 test cases)"
+      ],
+      "log": "integration_evidence/native_3d_bl_v1/bl_remesh_v1/dc17/review_20261025_final/pipeline.log"
+    }
+  },
+  "connected_curved": {
+    "cases": 24,
+    "passed": 23,
+    "failed": 1,
+    "failure": "baseline c9 hidden-sphere radial work budget",
+    "exit": 1
+  },
+  "mpi2": {
+    "exit": 0,
+    "cases_per_rank": 12,
+    "assertions_by_rank": [
+      2742,
+      2842
+    ]
+  },
+  "whole_campaign_clean": false,
+  "native_final_m6_accepted": false,
+  "discrete_curved_authority_integrated": false,
+  "pending": [
+    "DC17 coordinated continuation and final M6 acceptance",
+    "DC18 immutable authority persistence, source envelopes, curved row construction, transfer and restart qualification",
+    "hidden-sphere bounded quadrature",
+    "documented distributed-repair assertions"
+  ],
+  "discarded_quadrature_trials": [
+    "diagnosis_v3",
+    "validation_v4",
+    "validation_v5"
+  ],
+  "production_quadrature_retained_from": "d11d05d9cc",
+  "binary_manifest": "integration_evidence/native_3d_bl_v1/dc18_review_v1/final_validation/binaries_helpers.sha256",
+  "resource_note": "time -v maximum RSS and process observations are not whole-job peak memory"
+}

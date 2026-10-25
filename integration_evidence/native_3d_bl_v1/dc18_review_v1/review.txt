@@ -10,7 +10,11 @@ DC-17 c9 event 0 published, event 1 terminated but rejected. Its receipt has
 complete=0, written=0, accepted=0, validity.valid=0; three height failures,
 44,498 bad cells, 176,687 long edges, 529 unmeasurable edges. The process exited 0
 and the wrapper printed ALL DONE. No event1.su2 exists. This is not an accepted
-mesh and not a successfully completed chain.
+mesh and not a successfully completed chain. c9 cut receipts likewise distinguish
+policies: root TE x32 passes under DC-13 settings (9,316 cells), but production
+settings leave one bad cell, J=.0475457<.05 (7,691 cells); the x16 DC-13 continuation
+has seven bad cells. The c4 production pass must not be described as a c9 pass.
+The archived c9 binary matches its recorded SHA24f2268a5ee2f09014ead7d34106f7850ea9a49743191c94605e163a896959d8.
 
 The height failures already appear in the rebuild summary: 41,020 faces need
 halving, 41,017 split and three fallback refusals. 213 columns were too short
@@ -66,6 +70,13 @@ sizing/bounds, engine geometry demand/coarsening, retained-wall perimeter splitt
 and regional surface construction now use that same tolerance. First-height and
 actual-volume validity checks remain intact. The unrelated MMG TWO_PASS rule is
 unchanged. Build/regression results are recorded separately as they finish.
+The geometric limit is a ceiling, not a guarantee of constructibility: the current
+first-height check measures altitude from the actual flat child face and separately
+requires positive clearance from the smooth reference. On a strongly convex wall,
+a coarse chord with sagitta greater than h0 can still make that row impossible.
+No clearance/height gate was weakened. Curved first-row construction and the exact
+height definition must be reconciled before claiming a reasonable wall count at
+true M6 h0; changing the size cap alone does not achieve that capability.
 
 Still required before discrete curved production adoption
 ---------------------------------------------------------
@@ -81,3 +92,30 @@ Still required before discrete curved production adoption
   transfer and reference restart on M6 and distinct multi-body/2D cases.
 The standalone accuracy tests do not close these items. DC-17's continuation,
 wake construction and metric gradation are also still unresolved.
+
+Production validation diagnosis (2026-10-25)
+-----------------------------------------
+The initial build passed 18/22 connected cases. Replay with the hash-verified c9
+binary reproduced stale runtime/lifecycle expected references (missing persisted
+BL_FIRST_HEIGHT_TOL) and the hidden-sphere radial work-limit failure. Expected
+authorities now record the configured policy before equality/restart checks.
+The newly exposed ordinary-sphere integral mismatch was NOT a metric or quadrature
+regression: its oracle used integer division 8*64/6, omitting exactly 1/3 of the
+background integral. Independent Simpson4096/16384 both give391.743002873305;
+the original rule gives391.7434511903. Pointwise density mismatch is <9e-13.
+The v3 tighter angular trial exhausted work; v4 shared only ray budgets and
+comparison rules, reducing ordinary-sphere points22050->4536, but the hidden
+sphere reached the65536 point limit. Those unsuccessful trials are preserved.
+The v5 candidate reused the complete column integrator for spherical cones,
+including global angular coordination. It still exhausted65536 points (retained
+65446, panel297, ray1). All experimental production quadrature changes were
+reverted to d11d05d9cc. The existing hidden-sphere failure remains open; do not
+raise limits or add another local quadrature fallback without a new strategy.
+The sphere oracle integer division is corrected without changing its tolerance.
+Final validation of confirmed fixes: build and pins verified; all ten standalone
+groups reused; metric, unit2d, unit3d and pipeline pass; MPI2 passes12 cases/rank.
+Connected curved regression passes23/24 (hidden-sphere budget remains open).
+mesh3d passes100/101 cases with exactly the six documented pre-existing assertions.
+No full M6 chain was repeated: these changes do not resolve its known coordinated
+continuation failure. No accepted final M6, discrete PN adoption or full RANS
+adaptation/transfer capability is claimed. See final_validation/summary.json.

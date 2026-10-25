@@ -1,0 +1,250 @@
+diff --git a/SU2_CFD/src/adaptation/CBoundaryLayerMetric.cpp b/SU2_CFD/src/adaptation/CBoundaryLayerMetric.cpp
+index 7798e94f4d..30b603a2ac 100644
+--- a/SU2_CFD/src/adaptation/CBoundaryLayerMetric.cpp
++++ b/SU2_CFD/src/adaptation/CBoundaryLayerMetric.cpp
+@@ -2161,6 +2161,92 @@ bool MayIntersectWallBand(const BLTetrahedron& tet,const std::array<BLPoint3D,3>
+     if(separated(closestAxis(p,{tet[(f+1)%4],tet[(f+2)%4],tet[(f+3)%4]})))return false;
+   return true;
+ }
++  const double gauss[5]={-.90617984593866399280,-.53846931010568309104,0,.53846931010568309104,.90617984593866399280};
++  const double weights[5]={.23692688505618908751,.47862867049936646804,128./225,.47862867049936646804,.23692688505618908751};
++  const double gauss3[3]={-.77459666924148337704,0,.77459666924148337704},weights3[3]={5./9,8./9,5./9};
++  const double gauss7[7]={-.94910791234275852453,-.74153118559939443986,-.40584515137739716691,0,
++      .40584515137739716691,.74153118559939443986,.94910791234275852453};
++  const double weights7[7]={.12948496616886969327,.27970539148927666790,.38183005050511894495,.41795918367346938776,
++      .38183005050511894495,.27970539148927666790,.12948496616886969327};
++  const double faceBary[7][3]={
++      {1./3,1./3,1./3},
++      {.059715871789770,.470142064105115,.470142064105115},
++      {.470142064105115,.059715871789770,.470142064105115},
++      {.470142064105115,.470142064105115,.059715871789770},
++      {.797426985353087,.101286507323456,.101286507323456},
++      {.101286507323456,.797426985353087,.101286507323456},
++      {.101286507323456,.101286507323456,.797426985353087}};
++  const double faceWeights[7]={.225,.132394152788506,.132394152788506,.132394152788506,
++      .125939180544827,.125939180544827,.125939180544827};
++  // Compare the retained degree-five rule with a higher-degree probe without retaining its extra points.
++  const double comparisonBary[12][3]={
++      {.501426509658179,.249286745170910,.249286745170910},
++      {.249286745170910,.501426509658179,.249286745170910},
++      {.249286745170910,.249286745170910,.501426509658179},
++      {.873821971016996,.063089014491502,.063089014491502},
++      {.063089014491502,.873821971016996,.063089014491502},
++      {.063089014491502,.063089014491502,.873821971016996},
++      {.053145049844817,.310352451033784,.636502499121399},
++      {.053145049844817,.636502499121399,.310352451033784},
++      {.310352451033784,.053145049844817,.636502499121399},
++      {.310352451033784,.636502499121399,.053145049844817},
++      {.636502499121399,.053145049844817,.310352451033784},
++      {.636502499121399,.310352451033784,.053145049844817}};
++  const double comparisonWeights[12]={.116786275726379,.116786275726379,.116786275726379,
++      .050844906370207,.050844906370207,.050844906370207,
++      .082851075618374,.082851075618374,.082851075618374,.082851075618374,.082851075618374,.082851075618374};
++
++// Share the ray error budget between spherical fans and parallel columns.
++template<class Quadrature>
++double IntegrateBLRay(const std::vector<double>& cuts,Quadrature&& radial,size_t retained,size_t& visited,
++                      std::vector<CBoundaryLayerMetric::IntegrationPoint3D>& points,double& radialError) {
++  using IntegrationPoint3D=CBoundaryLayerMetric::IntegrationPoint3D;
++  struct RadialPanel {
++    double left,right,value,error,comparison;
++    unsigned depth;
++    bool upgraded=false;
++    std::vector<IntegrationPoint3D> points,comparisonPoints;
++  };
++  std::map<size_t,RadialPanel> radialPanels;
++  std::priority_queue<std::pair<double,size_t>> radialPriority;
++  size_t nextRadial=0,rayPoints=0;double rayValue=0,rayError=0;
++  auto retain=[&](RadialPanel panel) {
++    rayPoints+=panel.points.size();
++    if(retained+points.size()+rayPoints>65536)
++      throw CBoundaryLayerMetric::IntegrationLimit("Native3D BL ray point budget exhausted: retained="+std::to_string(retained));
++    rayValue+=panel.value;rayError+=panel.error;
++    radialPriority.emplace(panel.error,nextRadial);radialPanels.emplace(nextRadial++,std::move(panel));
++  };
++  auto addRadial=[&](double left,double right,unsigned depth) {
++    RadialPanel panel{left,right,0,0,0,depth};
++    panel.value=radial(left,right,3,panel.points);
++    panel.comparison=radial(left,right,5,panel.comparisonPoints);
++    panel.error=std::abs(panel.comparison-panel.value);retain(std::move(panel));
++  };
++  for(size_t band=1;band<cuts.size();++band)addRadial(cuts[band-1],cuts[band],0);
++  // A nearest-feature jump needs a ray-integral error budget, not relative accuracy on an infinitesimal interval.
++  while(rayError>1e-5*rayValue) {
++    const auto selected=radialPriority.top().second;radialPriority.pop();
++    auto panel=std::move(radialPanels.at(selected));radialPanels.erase(selected);
++    rayValue-=panel.value;rayError=std::max(0.,rayError-panel.error);rayPoints-=panel.points.size();
++    if(!panel.upgraded) {
++      std::vector<IntegrationPoint3D> higherPoints;
++      const auto higher=radial(panel.left,panel.right,7,higherPoints);
++      panel.value=panel.comparison;panel.error=std::abs(higher-panel.comparison);
++      panel.points=std::move(panel.comparisonPoints);panel.upgraded=true;retain(std::move(panel));continue;
++    }
++    if(panel.depth>=32)throw CBoundaryLayerMetric::IntegrationLimit("Native3D BL ray density remains unresolved after32 subdivisions: value="+
++        std::to_string(rayValue)+" error="+std::to_string(rayError+panel.error));
++    if(++visited>16384)throw CBoundaryLayerMetric::IntegrationLimit("Native3D BL radial quadrature work budget exhausted: retained="+std::to_string(retained));
++    const double middle=.5*(panel.left+panel.right);
++    if(middle==panel.left || middle==panel.right)throw std::runtime_error("Unrepresentable native3D radial subdivision.");
++    addRadial(panel.left,middle,panel.depth+1);addRadial(middle,panel.right,panel.depth+1);
++  }
++  radialError+=rayError;
++  for(auto& panel:radialPanels)points.insert(points.end(),std::make_move_iterator(panel.second.points.begin()),std::make_move_iterator(panel.second.points.end()));
++  return rayValue;
++}
++
+ void SetBLSourceQuery(const BLTetrahedron& source,const SU2Native3D::Tetrahedron& positive,bool reversed,
+                       std::array<double,4>& parent,BLPoint3D& position,
+                       double inwardScale=std::numeric_limits<double>::epsilon()) {
+@@ -2330,14 +2416,6 @@ std::vector<CBoundaryLayerMetric::IntegrationPoint3D> CBoundaryLayerMetric::Inte
+     if(g.kind!=SU2Native3D::AnalyticSurface::Kind::Sphere || !SU2Native3D::Barycentric(fanSource,g.origin,centerWeights))continue;
+     if(fanReversed)std::swap(centerWeights[1],centerWeights[2]);
+     const BLPoint3D center{g.origin.x,g.origin.y,g.origin.z};
+-    const double radialNodes[5]={-.90617984593866399280,-.53846931010568309104,0,.53846931010568309104,.90617984593866399280};
+-    const double radialWeights[5]={.23692688505618908751,.47862867049936646804,128./225,.47862867049936646804,.23692688505618908751};
+-    const double lowNodes[3]={-.77459666924148337704,0,.77459666924148337704},lowWeights[3]={5./9,8./9,5./9};
+-    const double angular[7][3]={{1./3,1./3,1./3},{.059715871789770,.470142064105115,.470142064105115},
+-      {.470142064105115,.059715871789770,.470142064105115},{.470142064105115,.470142064105115,.059715871789770},
+-      {.797426985353087,.101286507323456,.101286507323456},{.101286507323456,.797426985353087,.101286507323456},
+-      {.101286507323456,.101286507323456,.797426985353087}};
+-    const double angularWeights[7]={.225,.132394152788506,.132394152788506,.132394152788506,.125939180544827,.125939180544827,.125939180544827};
+     using Panel=std::array<std::array<double,4>,3>;
+     std::vector<IntegrationPoint3D> radialRule;size_t radialWork=0;
+     auto position=[&](const std::array<double,4>& b){BLPoint3D p{};for(unsigned k=0;k<4;++k)for(unsigned j=0;j<3;++j)p[j]+=b[k]*tetrahedron[k][j];return p;};
+@@ -2348,36 +2426,24 @@ std::vector<CBoundaryLayerMetric::IntegrationPoint3D> CBoundaryLayerMetric::Inte
+       const double volume=std::abs(BLDeterminant(region[0],region[1],region[2],region[3]))/6;if(!(volume>0))return;
+       auto integrate=[&](bool high,std::vector<IntegrationPoint3D>& points,double& error) {
+         double value=0;
+-        for(unsigned at=0;at<(high?7u:3u);++at) {
++        for(unsigned at=0;at<(high?7u:12u);++at) {
+           std::array<double,4> end{};
+           for(unsigned k=0;k<4;++k)for(unsigned j=0;j<3;++j)
+-            end[k]+=panel[j][k]*(high?angular[at][j]:(at==j?2./3:1./6));
++            end[k]+=panel[j][k]*(high?faceBary[at][j]:comparisonBary[at][j]);
+           const auto target=position(end);const auto cuts=EdgeBreakpoints(center,target,std::max(2.,bandRatio),4);
+-          const double jacobian=3*volume*(high?angularWeights[at]:1./3);
+-          auto gauss=[&](double left,double right,unsigned order,std::vector<IntegrationPoint3D>& samples) {
++          const double jacobian=3*volume*(high?faceWeights[at]:comparisonWeights[at]);
++          auto radial=[&](double left,double right,unsigned order,std::vector<IntegrationPoint3D>& samples) {
+             double sum=0;const double half=.5*(right-left),middle=.5*(right+left);
+             for(unsigned p=0;p<order;++p) {
+-              const double t=middle+half*(order==5?radialNodes[p]:lowNodes[p]);std::array<double,4> parent{};
++              const double t=middle+half*(order==7?gauss7[p]:(order==5?gauss[p]:gauss3[p]));std::array<double,4> parent{};
+               for(unsigned k=0;k<4;++k)parent[k]=double((1-t)*centerWeights[k]+t*end[k]);
+               auto x=position(parent);SetBLSourceQuery(tetrahedron,fanSource,fanReversed,parent,x);
+-              IntegrationPoint3D point{parent,jacobian*half*(order==5?radialWeights[p]:lowWeights[p])*t*t,SamplePoints({x[0],x[1],x[2]})};
++              IntegrationPoint3D point{parent,jacobian*half*(order==7?weights7[p]:(order==5?weights[p]:weights3[p]))*t*t,SamplePoints({x[0],x[1],x[2]})};
+               sum+=point.weight*probe(point);samples.push_back(std::move(point));
+             }
+             return sum;
+           };
+-          std::function<void(double,double,unsigned)> refineRadius;
+-          refineRadius=[&](double left,double right,unsigned level) {
+-            std::vector<IntegrationPoint3D> lower,upper;const auto a=gauss(left,right,3,lower),b=gauss(left,right,5,upper);
+-            if(std::abs(a-b)<=1e-5*b) {
+-              if(radialRule.size()+points.size()+lower.size()>65536)throw std::runtime_error("Native3D spherical-fan point budget exhausted.");
+-              error+=std::abs(a-b);value+=a;points.insert(points.end(),std::make_move_iterator(lower.begin()),std::make_move_iterator(lower.end()));return;
+-            }
+-            if(++radialWork>16384)throw std::runtime_error("Native3D spherical radial work budget exhausted.");
+-            const double middle=.5*(left+right);
+-            if(level>=32 || middle==left || middle==right)throw std::runtime_error("Unresolved native3D spherical radial density.");
+-            refineRadius(left,middle,level+1);refineRadius(middle,right,level+1);
+-          };
+-          for(size_t k=1;k<cuts.size();++k)refineRadius(cuts[k-1],cuts[k],0);
++          value+=IntegrateBLRay(cuts,radial,radialRule.size(),radialWork,points,error);
+         }
+         return value;
+       };
+@@ -2803,40 +2869,6 @@ std::vector<CBoundaryLayerMetric::IntegrationPoint3D> CBoundaryLayerMetric::Inte
+   const bool reversed=SU2Native3D::Orientation(originalSource[0],originalSource[1],originalSource[2],originalSource[3])<0;
+   if(reversed)std::swap(originalSource[1],originalSource[2]);
+   size_t visited=0;std::vector<IntegrationPoint3D> rule;
+-  const double gauss[5]={-.90617984593866399280,-.53846931010568309104,0,.53846931010568309104,.90617984593866399280};
+-  const double weights[5]={.23692688505618908751,.47862867049936646804,128./225,.47862867049936646804,.23692688505618908751};
+-  const double gauss3[3]={-.77459666924148337704,0,.77459666924148337704},weights3[3]={5./9,8./9,5./9};
+-  const double gauss7[7]={-.94910791234275852453,-.74153118559939443986,-.40584515137739716691,0,
+-      .40584515137739716691,.74153118559939443986,.94910791234275852453};
+-  const double weights7[7]={.12948496616886969327,.27970539148927666790,.38183005050511894495,.41795918367346938776,
+-      .38183005050511894495,.27970539148927666790,.12948496616886969327};
+-  const double faceBary[7][3]={
+-      {1./3,1./3,1./3},
+-      {.059715871789770,.470142064105115,.470142064105115},
+-      {.470142064105115,.059715871789770,.470142064105115},
+-      {.470142064105115,.470142064105115,.059715871789770},
+-      {.797426985353087,.101286507323456,.101286507323456},
+-      {.101286507323456,.797426985353087,.101286507323456},
+-      {.101286507323456,.101286507323456,.797426985353087}};
+-  const double faceWeights[7]={.225,.132394152788506,.132394152788506,.132394152788506,
+-      .125939180544827,.125939180544827,.125939180544827};
+-  // Compare the retained degree-five rule with a higher-degree probe without retaining its extra points.
+-  const double comparisonBary[12][3]={
+-      {.501426509658179,.249286745170910,.249286745170910},
+-      {.249286745170910,.501426509658179,.249286745170910},
+-      {.249286745170910,.249286745170910,.501426509658179},
+-      {.873821971016996,.063089014491502,.063089014491502},
+-      {.063089014491502,.873821971016996,.063089014491502},
+-      {.063089014491502,.063089014491502,.873821971016996},
+-      {.053145049844817,.310352451033784,.636502499121399},
+-      {.053145049844817,.636502499121399,.310352451033784},
+-      {.310352451033784,.053145049844817,.636502499121399},
+-      {.310352451033784,.636502499121399,.053145049844817},
+-      {.636502499121399,.053145049844817,.310352451033784},
+-      {.636502499121399,.310352451033784,.053145049844817}};
+-  const double comparisonWeights[12]={.116786275726379,.116786275726379,.116786275726379,
+-      .050844906370207,.050844906370207,.050844906370207,
+-      .082851075618374,.082851075618374,.082851075618374,.082851075618374,.082851075618374,.082851075618374};
+   if(estimate) {
+     // Only complete coverings are published; a failed child transaction leaves its parent intact.
+     struct WorkLimit {};
+@@ -3042,51 +3074,7 @@ std::vector<CBoundaryLayerMetric::IntegrationPoint3D> CBoundaryLayerMetric::Inte
+           }
+           return value;
+         };
+-        struct RadialPanel {
+-          double left,right,value,error,comparison;
+-          unsigned depth;
+-          bool upgraded=false;
+-          std::vector<IntegrationPoint3D> points,comparisonPoints;
+-        };
+-        std::map<size_t,RadialPanel> radialPanels;
+-        std::priority_queue<std::pair<double,size_t>> radialPriority;
+-        size_t nextRadial=0,rayPoints=0;double rayValue=0,rayError=0;
+-        auto retain=[&](RadialPanel panel) {
+-          rayPoints+=panel.points.size();
+-          if((fine?retained:0)+points.size()+rayPoints>65536)
+-            throw IntegrationLimit("Native3D BL column point budget exhausted: retained="+std::to_string(retained)+
+-                " panel="+std::to_string(nextPanel)+" ray="+std::to_string(corner));
+-          rayValue+=panel.value;rayError+=panel.error;
+-          radialPriority.emplace(panel.error,nextRadial);radialPanels.emplace(nextRadial++,std::move(panel));
+-        };
+-        auto addRadial=[&](double left,double right,unsigned depth) {
+-          RadialPanel panel{left,right,0,0,0,depth};
+-          panel.value=radial(left,right,3,panel.points);
+-          panel.comparison=radial(left,right,5,panel.comparisonPoints);
+-          panel.error=std::abs(panel.comparison-panel.value);retain(std::move(panel));
+-        };
+-        for(size_t band=1;band<cuts.size();++band)addRadial(cuts[band-1],cuts[band],0);
+-        // A nearest-feature jump needs a ray-integral error budget, not relative accuracy on an infinitesimal interval.
+-        while(rayError>1e-5*rayValue) {
+-          const auto selected=radialPriority.top().second;radialPriority.pop();
+-          auto panel=std::move(radialPanels.at(selected));radialPanels.erase(selected);
+-          rayValue-=panel.value;rayError=std::max(0.,rayError-panel.error);rayPoints-=panel.points.size();
+-          if(!panel.upgraded) {
+-            std::vector<IntegrationPoint3D> higherPoints;
+-            const auto higher=radial(panel.left,panel.right,7,higherPoints);
+-            panel.value=panel.comparison;panel.error=std::abs(higher-panel.comparison);
+-            panel.points=std::move(panel.comparisonPoints);panel.upgraded=true;retain(std::move(panel));continue;
+-          }
+-          if(panel.depth>=32)throw IntegrationLimit("Native3D BL ray density remains unresolved after32 subdivisions: value="+
+-              std::to_string(rayValue)+" error="+std::to_string(rayError+panel.error));
+-          if(++visited>16384)throw IntegrationLimit("Native3D BL radial quadrature work budget exhausted: retained="+std::to_string(retained)+
+-              " panels="+std::to_string(nextPanel)+" cones="+std::to_string(charts.size())+" ray="+std::to_string(corner));
+-          const double middle=.5*(panel.left+panel.right);
+-          if(middle==panel.left || middle==panel.right)throw std::runtime_error("Unrepresentable native3D radial subdivision.");
+-          addRadial(panel.left,middle,panel.depth+1);addRadial(middle,panel.right,panel.depth+1);
+-        }
+-        radialError+=rayError;integral+=rayValue;
+-        for(auto& panel:radialPanels)points.insert(points.end(),std::make_move_iterator(panel.second.points.begin()),std::make_move_iterator(panel.second.points.end()));
++        integral+=IntegrateBLRay(cuts,radial,fine?retained:0,visited,points,radialError);
+         if(vertexValues && corner>=4)(*vertexValues)[corner-4]=(integral-before)/double(chart.area*fraction*faceWeights[corner]);
+       }
+       return integral;

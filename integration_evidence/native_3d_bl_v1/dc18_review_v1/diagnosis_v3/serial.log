@@ -1,0 +1,36 @@
+Filters: [NativeCurvedBLVolume3D],[NativeInteractingBLVolume3D]
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+test_driver is a Catch v2.13.9 host application.
+Run with -? for options
+
+-------------------------------------------------------------------------------
+Smooth spherical BL thin volume rule resolves an enclosed layer against a
+radial integral
+-------------------------------------------------------------------------------
+../../UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp:1459
+...............................................................................
+
+../../UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp:1459: FAILED:
+due to unexpected exception with message:
+  Native3D spherical radial work budget exhausted: depth=0 interval=[0.
+  43134082567096044,0.4316558262739334] low=0.0013391671443241109 high=0.
+  0013392423635732596 relative_error=5.6165524026643261e-05
+
+-------------------------------------------------------------------------------
+Visible wall samples cannot hide an enclosed thin spherical second wall
+-------------------------------------------------------------------------------
+../../UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp:1553
+...............................................................................
+
+../../UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp:1553: FAILED:
+  {Unknown expression after the reported line}
+due to unexpected exception with message:
+  Native3D spherical radial work budget exhausted: depth=2 interval=[0.
+  0017153830159924903,0.0017157143415814664] low=2.8217533476820958e-14 high=2.
+  8219416323491921e-14 relative_error=6.6721673098376705e-05
+
+===============================================================================
+test cases:  2 |  0 passed | 2 failed
+assertions: 20 | 18 passed | 2 failed
+

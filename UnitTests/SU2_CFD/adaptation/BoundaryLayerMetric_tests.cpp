@@ -1477,10 +1477,18 @@ TEST_CASE("Smooth spherical BL thin volume rule resolves an enclosed layer again
     for(unsigned k=0;k<=n;++k){const double d=left+h*k;total+=(k==0||k==n?1:k%2?4:2)*(1+d*d)*(radial(d)-8);}
     return h*total/3;
   };
-  const double expected=8*64/6+std::acos(-1.)*(integral(0,.005)+integral(.005,.027)+integral(.027,.03));
+  const double expected=8*64./6+std::acos(-1.)*(integral(0,.005)+integral(.005,.027)+integral(.027,.03));
   bool dependent=false;const auto rule=layers.IntegrationRule3D(cell,1.5,density,&dependent);
-  double volume=0,measured=0;bool sampled=false;
-  for(const auto& p:rule){CHECK(p.weight>0);volume+=p.weight;measured+=p.weight*density(p);sampled=sampled||!p.samples.empty();}
+  double volume=0,measured=0,analyticOnRule=0,maximumMismatch=0;bool sampled=false;
+  for(const auto& p:rule) {
+    CHECK(p.weight>0);volume+=p.weight;const auto actual=density(p);measured+=p.weight*actual;
+    std::array<double,3> x{};for(unsigned k=0;k<4;++k)for(unsigned j=0;j<3;++j)x[j]+=p.barycentric[k]*cell[k][j];
+    const auto oracle=radial(std::abs(std::hypot(x[0],x[1],x[2])-1));
+    analyticOnRule+=p.weight*oracle;maximumMismatch=std::max(maximumMismatch,std::abs(actual/oracle-1));
+    sampled=sampled||!p.samples.empty();
+  }
+  INFO("analytic_on_rule="<<analyticOnRule<<" pointwise_mismatch="<<maximumMismatch);
+  CHECK(maximumMismatch<1e-6);
   REQUIRE(sampled);CHECK(dependent);CHECK(volume==Approx(64./6).epsilon(2e-10));
   INFO("points="<<rule.size()<<" measured="<<measured<<" radial="<<expected);
   CHECK(measured==Approx(expected).epsilon(8e-4));
@@ -1567,6 +1575,13 @@ TEST_CASE("Visible wall samples cannot hide an enclosed thin spherical second wa
   };
   // The enclosed sphere has both shells: (r-d)^2+(r+d)^2 = 2*(r*r+d*d).
   const double expected=8./6+8*std::acos(-1.)*(integral(0,5e-6)+integral(5e-6,2.7e-5)+integral(2.7e-5,3e-5));
+  for(const double distance:{0.,1e-5,2.7e-5,2.8e-5,2.9e-5,3e-5})for(const double z:{0.,.3,.8}) {
+    const double radius=r+distance;const std::vector<su2double> x{.35+radius*std::sqrt(1-z*z),.35,.02+radius*z};
+    CBoundaryLayerMetric::IntegrationPoint3D point{{},1,layers.SamplePoints(x)};
+    const double oracle=8+integrand(distance)/(r*r+distance*distance),actual=density(point);
+    INFO("distance="<<distance<<" z="<<z<<" actual="<<actual<<" oracle="<<oracle);
+    CHECK(actual==Approx(oracle).epsilon(1e-6));
+  }
   const auto rule=layers.IntegrationRule3D(cell,1.5,density);double volume=0,measured=0;bool found=false;
   for(const auto& p:rule) {
     volume+=p.weight;measured+=p.weight*density(p);

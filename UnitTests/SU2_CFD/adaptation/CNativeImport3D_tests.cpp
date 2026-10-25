@@ -1252,6 +1252,7 @@ TEST_CASE("Curved native3D runtime refines geometry, publishes and transfers con
   SU2_MPI::Barrier(SU2_MPI::GetComm());
   TetraDriver driver(const_cast<char*>(filename.c_str()),1,SU2_MPI::GetComm());
   ReferenceState declared;ImportGeometry(driver.Config(),driver.Geometry(),nullptr,declared);
+  declared.first_height_tol=SU2_TYPE::GetValue(driver.Config().GetAdap_BL_FirstHeightTol());
   AnalyticSurface g;g.kind=AnalyticSurface::Kind::Bump;g.extent={1,1,-.01};
   std::map<Id,AnalyticSurface> curves;
   for(auto f:declared.facets)if(std::all_of(f.v.begin(),f.v.end(),[](Node n){return n.p.z==0;}))curves.emplace(f.id,g);
@@ -1376,7 +1377,9 @@ TEST_CASE("Curved native3D repeated conservative events preserve domain accounti
   }
   SU2_MPI::Barrier(world.comm);const auto cfg=name+".cfg";
   auto driver=std::make_unique<TetraDriver>(const_cast<char*>(cfg.c_str()),1,world.comm);
-  ReferenceState declared;ImportGeometry(driver->Config(),driver->Geometry(),nullptr,declared);DeclareImportedCurve(declared,false,amplitude);
+  ReferenceState declared;ImportGeometry(driver->Config(),driver->Geometry(),nullptr,declared);
+  declared.first_height_tol=SU2_TYPE::GetValue(driver->Config().GetAdap_BL_FirstHeightTol());
+  DeclareImportedCurve(declared,false,amplitude);
   WriteReference(name+".su2.native_ref",declared);const auto authority=EncodeReference(declared);
   auto field=AffineFlow(3);auto* nodes=driver->Solver().GetNodes();
   for(unsigned long p=0;p<driver->Geometry().GetnPoint();++p) {
@@ -1429,7 +1432,9 @@ TEST_CASE("Solved three-dimensional Euler pressure supplies repeated native curv
   }
   SU2_MPI::Barrier(world.comm);const auto cfg=name+".cfg";
   auto driver=std::make_unique<TetraDriver>(const_cast<char*>(cfg.c_str()),1,world.comm);
-  ReferenceState declared;ImportGeometry(driver->Config(),driver->Geometry(),nullptr,declared);DeclareImportedCurve(declared,false,amplitude);
+  ReferenceState declared;ImportGeometry(driver->Config(),driver->Geometry(),nullptr,declared);
+  declared.first_height_tol=SU2_TYPE::GetValue(driver->Config().GetAdap_BL_FirstHeightTol());
+  DeclareImportedCurve(declared,false,amplitude);
   WriteReference(name+".su2.native_ref",declared);const auto authority=EncodeReference(declared);CConservativeTransfer transfer;
   auto backend=driver->Backend();
   for(int cycle=0;cycle<2;++cycle) {
@@ -1524,7 +1529,9 @@ TEST_CASE("Native sphere cylinder and disk rims adapt through full distributed r
   }
   SU2_MPI::Barrier(world.comm);const auto cfg=name+".cfg";
   auto driver=std::make_unique<TetraDriver>(const_cast<char*>(cfg.c_str()),1,world.comm);
-  ReferenceState declared;ImportGeometry(driver->Config(),driver->Geometry(),nullptr,declared);DeclarePrimitive(declared,sphere,tilted);
+  ReferenceState declared;ImportGeometry(driver->Config(),driver->Geometry(),nullptr,declared);
+  declared.first_height_tol=SU2_TYPE::GetValue(driver->Config().GetAdap_BL_FirstHeightTol());
+  DeclarePrimitive(declared,sphere,tilted);
   const auto authority=EncodeReference(declared);CHECK(authority.find(sphere?"3D 2\n":"3D 3\n")!=std::string::npos);
   WriteReference(name+".su2.native_ref",declared);auto backend=driver->Backend();CConservativeTransfer transfer;
   auto* nodes=driver->Solver().GetNodes();const std::array<su2double,5> constant{1,.2,.1,.05,3};
@@ -1655,6 +1662,7 @@ TEST_CASE("Resolved three-dimensional Euler vortex drives native curved adaptati
   SU2_MPI::Barrier(world.comm);const auto cfg=name+".cfg";
   auto driver=std::make_unique<TetraDriver>(const_cast<char*>(cfg.c_str()),1,world.comm);
   ReferenceState declared;ImportGeometry(driver->Config(),driver->Geometry(),nullptr,declared);
+  declared.first_height_tol=SU2_TYPE::GetValue(driver->Config().GetAdap_BL_FirstHeightTol());
   std::map<Id,AnalyticSurface> curves;
   for(const auto& f:declared.facets)if(declared.marker_names.at(f.marker).rfind("z_minus",0)==0) {
     AnalyticSurface g;g.kind=AnalyticSurface::Kind::Bump;g.origin={-2,-2,0};g.extent={4,4,amplitude};curves.emplace(f.id,g);
