@@ -18,7 +18,7 @@ namespace SU2Native3D {
 namespace {
 struct Header {
   uint64_t markers = 0, facets = 0, analytic = 0, affine = 0;
-  uint64_t errors=0,points=0,surface=0,geometry_version=0,revision=0;
+  uint64_t errors=0,points=0,surface=0,geometry_version=0,revision=0,curves=0;
   unsigned version = 1;
 };
 Header ReadHeader(std::istream& in, size_t bytes) {
@@ -26,7 +26,7 @@ Header ReadHeader(std::istream& in, size_t bytes) {
   unsigned version = 0;
   Header h;
   // Each facet needs fourteen numeric tokens; file length bounds counts before allocating any facet storage.
-  if (!(in >> magic >> version >> h.markers >> h.facets) || magic != "SU2_NATIVE_REFERENCE_3D" || (version < 1 || version > 6) ||
+  if (!(in >> magic >> version >> h.markers >> h.facets) || magic != "SU2_NATIVE_REFERENCE_3D" || (version < 1 || version > 7) ||
       !h.facets || h.facets > bytes / 14 || !h.markers || h.markers > h.facets)
     throw std::invalid_argument("Invalid native3D reference header/counts/version.");
   h.version=version;
@@ -38,6 +38,8 @@ Header ReadHeader(std::istream& in, size_t bytes) {
       !h.errors || h.errors>h.facets || h.errors>bytes/2 || !h.points || h.points>bytes/9 ||
       !h.surface || h.surface>bytes/4 || !h.geometry_version || !h.revision || h.analytic))
     throw std::invalid_argument("Invalid/unsupported native3D mapped reference counts/version.");
+  if(version==7 && (!(in>>h.curves) || !h.curves || h.curves>h.facets || h.curves>bytes/31))
+    throw std::invalid_argument("Invalid native3D curved control count.");
   return h;
 }
 size_t DecodeBytes(size_t bytes, const Header& h) {
@@ -56,13 +58,14 @@ std::string EncodeReference(const ReferenceState& state) {
   const auto& affine=state.original->Affine();
   const bool axis=std::any_of(analytic.begin(),analytic.end(),[](const auto& row){return unsigned(row.second.kind)>=3;});
   const auto* parameters=state.original->Parameters();
-  const unsigned version=parameters?(parameters->Geometry().ReferenceComponents()?6:5):!affine.empty()?4:analytic.empty()?1:axis?3:2;
+  const unsigned version=parameters?(!parameters->Geometry().Curves().empty()?7:parameters->Geometry().ReferenceComponents()?6:5):!affine.empty()?4:analytic.empty()?1:axis?3:2;
   out << "SU2_NATIVE_REFERENCE_3D " << version << '\n'
       << state.marker_names.size() << ' ' << state.facets.size();
   if (version>=2) out << ' ' << analytic.size();
   if (version>=4) out << ' ' << affine.size();
   if(parameters)out << ' ' << parameters->Geometry().Errors().size() << ' ' << parameters->Records().size()
       << ' ' << parameters->Surface().size() << ' ' << parameters->Geometry().Version() << ' ' << parameters->Revision();
+  if(version==7)out << ' ' << parameters->Geometry().Curves().size();
   out << '\n';
   for (const auto& name : state.marker_names) out << std::quoted(name) << '\n';
   for (const auto& f : state.facets) {
@@ -92,6 +95,9 @@ std::string EncodeReference(const ReferenceState& state) {
   }
   if(parameters) {
     for(const auto& row:parameters->Geometry().Errors())out << row.first << ' ' << row.second << '\n';
+    for(const auto& row:parameters->Geometry().Curves()) {
+      out << row.first;for(Point p:row.second)out << ' ' << p.x << ' ' << p.y << ' ' << p.z;out << '\n';
+    }
     for(const auto& row:parameters->Records()) {
       const auto& p=row.second.point;const auto& b=p.binding;
       out << p.node.id << ' ' << p.node.p.x << ' ' << p.node.p.y << ' ' << p.node.p.z << ' '
@@ -164,6 +170,13 @@ ReferenceState DecodeReference(const std::string& bytes, size_t ceiling) {
     Id id;double value;
     if(!(in>>id>>value) || !errors.emplace(id,value).second)throw std::invalid_argument("Invalid/duplicate native3D mapping-error record.");
   }
+  SU2NativeGeometry::MappedFacetReference::CurvedNets curves;
+  for(uint64_t i=0;i<header.curves;++i) {
+    Id id;SU2NativeGeometry::MappedFacetReference::CubicNet net;
+    if(!(in>>id))throw std::invalid_argument("Invalid native3D curved facet identity.");
+    for(auto& p:net)if(!(in>>p.x>>p.y>>p.z))throw std::invalid_argument("Invalid native3D curved control record.");
+    if(!curves.emplace(id,net).second)throw std::invalid_argument("Duplicate native3D curved control record.");
+  }
   for(uint64_t i=0;i<header.points;++i) {
     BoundaryPoint p;auto& b=p.binding;
     if(!(in>>p.node.id>>p.node.p.x>>p.node.p.y>>p.node.p.z>>b.feature>>b.version>>b.dimension>>b.u>>b.v) ||
@@ -185,7 +198,7 @@ ReferenceState DecodeReference(const std::string& bytes, size_t ceiling) {
   ValidateDomainSurfaceTopology(skin);
   result.original = std::make_shared<PlanarReference>(result.facets, construction, std::move(analytic),std::move(affine));
   if(header.version>=5) {
-    auto mapped=std::make_shared<SU2NativeGeometry::MappedFacetReference>(result.original,errors,header.geometry_version,requested,header.version==6);
+    auto mapped=std::make_shared<SU2NativeGeometry::MappedFacetReference>(result.original,errors,header.geometry_version,requested,header.version==6,curves);
     const auto caller=transfer_memory::Add(construction,transfer_memory::Mul(bytes.size(),8),
         transfer_memory::Mul(header.points,256),transfer_memory::Mul(header.surface,64));
     auto parameters=std::make_shared<BoundaryParameterState>(mapped,points,surface,header.revision,requested,caller);

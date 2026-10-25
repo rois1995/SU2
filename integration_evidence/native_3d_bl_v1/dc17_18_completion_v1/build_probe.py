@@ -17,7 +17,8 @@ while i<len(args):
 destination=evidence/(sys.argv[1] if len(sys.argv)>1 else 'validation7')
 destination.mkdir(parents=True,exist_ok=True)
 obj=destination/'probe.o';binary=destination/'probe'
-out+=['-I'+str(root),'-I'+str(root/'Common/include'),'-O1','-g0','-c',str(evidence/'probe_transition.cpp'),'-o',str(obj)]
+probe_source=Path(sys.argv[2]).resolve() if len(sys.argv)>2 else evidence/'probe_transition.cpp'
+out+=['-I'+str(root),'-I'+str(root/'Common/include'),'-O1','-g0','-c',str(probe_source),'-o',str(obj)]
 link=shlex.split((evidence/'link_command.txt').read_text())
 link=[link[0],'-o',str(binary),str(obj)]+[a for a in link[3:] if not a.endswith('.o')]
 (destination/'probe_commands.json').write_text(json.dumps([out,link],indent=2)+'\n')

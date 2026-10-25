@@ -1,0 +1,40 @@
+{
+  "status": "authority stage validated; production curved workflow still incomplete",
+  "build_session": 30140,
+  "syntax_session": 82992,
+  "syntax_exit": 0,
+  "source_pins": "source_input_pins.json",
+  "automatic_curved_construction_enabled": false,
+  "planned_checks": [
+    "curved mapped controls/persistence/error bounds",
+    "existing mapped geometry/publication/component/parametric checks",
+    "full M6 curved authority admission and persistence",
+    "MPI2 connected mapped publication checks"
+  ],
+  "build_exit": 0,
+  "build_fix_exit": 0,
+  "serial_exit": 0,
+  "serial_cases": 11,
+  "serial_assertions": 959,
+  "pins_verified_after_serial": true,
+  "m6_exit": 0,
+  "m6": {
+    "authority_admitted": true,
+    "mesh_constructed": false,
+    "facets": 48954,
+    "fallback_patches": 0,
+    "mapping_error": 6.039613253960853e-14,
+    "envelope": 0.0019950424975519053,
+    "child_error": 0.001995042487551905,
+    "resident_bytes": 26043760,
+    "sidecar_bytes": 46610856
+  },
+  "m6_sidecar_sha256": "2e99fb7870e2c718f110da8509e4c0f7e746ce138e7f27ab57aa0dedbb6c42de",
+  "m6_pins_verified": true,
+  "mpi2_exit": 0,
+  "mpi2_cases_per_rank": 11,
+  "mpi2_assertions_per_rank": 959,
+  "standalone_exit": 0,
+  "standalone_groups": 10,
+  "final_pins_verified": true
+}

@@ -1,0 +1,59 @@
+In file included from [01m[K/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/validation20/probe_budget.cpp:3[m[K:
+[01m[K/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc18_prep/test_curved_reference.cpp:[m[K In function ‘[01m[Kvoid TestGap(const string&, const std::vector<std::__cxx11::basic_string<char> >&, double)[m[K’:
+[01m[K/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc18_prep/test_curved_reference.cpp:983:7:[m[K [01;31m[Kerror: [m[Kreference to ‘[01m[KFoot[m[K’ is ambiguous
+  983 |       [01;31m[KFoot[m[K<2> other;
+      |       [01;31m[K^~~~[m[K
+In file included from [01m[K/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc18_prep/test_curved_reference.cpp:4[m[K,
+                 from [01m[K/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/validation20/probe_budget.cpp:3[m[K:
+[01m[K/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/Common/include/adaptation/CNativeCurvedReference.hpp:235:8:[m[K [01;36m[Knote: [m[Kcandidates are: ‘[01m[Ktemplate<int D> struct SU2NativeCurved::Foot[m[K’
+  235 | struct [01;36m[KFoot[m[K {
+      |        [01;36m[K^~~~[m[K
+In file included from [01m[K/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/SU2_CFD/include/adaptation/../../../Common/include/CConfig.hpp:53[m[K,
+                 from [01m[K/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/SU2_CFD/include/adaptation/CNativeBLTarget3D.hpp:10[m[K,
+                 from [01m[K/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/validation20/probe_budget.cpp:1[m[K:
+[01m[K../../externals/cgns/cgnslib.h:347:15:[m[K [01;36m[Knote: [m[K                ‘[01m[KLengthUnits_t Foot[m[K’
+  347 |   CGNS_ENUMV( [01;36m[KFoot[m[K )                  =5,
+      |               [01;36m[K^~~~[m[K
+[01m[K../../externals/cgns/cgnslib.h:90:25:[m[K [01;36m[Knote: [m[Kin definition of macro ‘[01m[KCGNS_ENUMV[m[K’
+   90 | #define CGNS_ENUMV( e ) [01;36m[Ke[m[K
+      |                         [01;36m[K^[m[K
+In file included from [01m[K/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/validation20/probe_budget.cpp:3[m[K:
+[01m[K/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc18_prep/test_curved_reference.cpp:983:15:[m[K [01;31m[Kerror: [m[K‘[01m[Kother[m[K’ was not declared in this scope
+  983 |       Foot<2> [01;31m[Kother[m[K;
+      |               [01;31m[K^~~~~[m[K
+Traceback (most recent call last):
+  File "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/build_probe.py", line 25, in <module>
+    for command in (out,link):subprocess.run(command,cwd=build,check=True)
+  File "/usr/lib/python3.8/subprocess.py", line 516, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['c++', '-IUnitTests/test_driver.p', '-IUnitTests', '-I../../UnitTests', '-ISU2_CFD/src', '-I../../SU2_CFD/src', '-ICommon/src', '-I../../Common/src', '-I../../externals/CLI11', '-I../../externals/eigen', '-I../../externals/cgns/adf', '-I../../externals/cgns/adfh', '-Iexternals/cgns', '-I../../externals/cgns', '-Iexternals/cgns/hdf5', '-I../../externals/cgns/hdf5', '-I../../externals/metis/include', '-I../../externals/metis/GKlib', '-I../../externals/metis/libmetis', '-I../../externals/parmetis/include', '-I../../externals/parmetis/libparmetis', '-I../../externals/mel', '-I../../externals/catch2', '-I/usr/lib/x86_64-linux-gnu/openmpi/include/openmpi', '-I/usr/lib/x86_64-linux-gnu/openmpi/include', '-fdiagnostics-color=always', '-D_GLIBCXX_ASSERTIONS=1', '-D_FILE_OFFSET_BITS=64', '-std=c++17', '-pthread', '-fPIC', '-Wno-empty-body', '-Wno-ignored-qualifiers', '-Wno-unused-parameter', '-Wno-deprecated-declarations', '-Wno-error=cast-function-type', '-Wno-cast-function-type', '-Wno-error=stringop-truncation', '-Wno-stringop-truncation', '-Wno-error=missing-field-initializers', '-Wno-missing-field-initializers', '-Wno-error=class-memaccess', '-Wno-class-memaccess', '-Wno-overloaded-virtual', '-Wno-array-bounds', '-march=native', '-ffast-math', '-fno-finite-math-only', '-DHAVE_CGNS', '-DHAVE_MPI', '-DHAVE_METIS', '-DHAVE_PARMETIS', '-DHAVE_MMG', '-I/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated', '-I/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/Common/include', '-O1', '-g0', '-c', '/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/validation20/probe_budget.cpp', '-o', '/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/validation20/probe.o']' returned non-zero exit status 1.
+Traceback (most recent call last):
+  File "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/probe_variance.py", line 79, in <module>
+    subprocess.run([sys.executable, str(evidence / 'build_probe.py'), sys.argv[1], str(probe)], check=True)
+  File "/usr/lib/python3.8/subprocess.py", line 516, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['/usr/bin/python3', '/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/build_probe.py', 'validation20', '/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/validation20/probe_budget.cpp']' returned non-zero exit status 1.
+Command exited with non-zero status 1
+	Command being timed: "python3 integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/probe_variance.py validation20"
+	User time (seconds): 4.42
+	System time (seconds): 0.22
+	Percent of CPU this job got: 97%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:04.74
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 512156
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 10
+	Minor (reclaiming a frame) page faults: 145162
+	Voluntary context switches: 36
+	Involuntary context switches: 141
+	Swaps: 0
+	File system inputs: 776
+	File system outputs: 112
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 1

@@ -1,0 +1,24 @@
+In file included from /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc18_prep/test_curved_reference.cpp:4:
+/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/Common/include/adaptation/CNativeCurvedReference.hpp: In member function ‘bool SU2NativeCurved::PNTriangleSurface::Minimize(SU2NativeCurved::Vec<3>&, long int, double&, double&) const’:
+/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/Common/include/adaptation/CNativeCurvedReference.hpp:595:53: warning: operation on ‘u’ may be undefined [-Wsequence-point]
+  595 |       if (1 - u - v <= snap) detail::ClampSimplex(u = std::max(u, 0.0), v = 1 - u + 1e-300);
+      |                                                   ~~^~~~~~~~~~~~~~~~~~
+/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/Common/include/adaptation/CNativeCurvedReference.hpp: In lambda function:
+/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/Common/include/adaptation/CNativeCurvedReference.hpp:753:7: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+  753 |       if (i == 3) return 0; if (j == 3) return 1; if (k == 3) return 2;
+      |       ^~
+/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/Common/include/adaptation/CNativeCurvedReference.hpp:753:29: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+  753 |       if (i == 3) return 0; if (j == 3) return 1; if (k == 3) return 2;
+      |                             ^~
+/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/Common/include/adaptation/CNativeCurvedReference.hpp:754:7: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+  754 |       if (i == 2 && j == 1) return 3; if (i == 1 && j == 2) return 4; if (j == 2 && k == 1) return 5;
+      |       ^~
+/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/Common/include/adaptation/CNativeCurvedReference.hpp:754:39: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+  754 |       if (i == 2 && j == 1) return 3; if (i == 1 && j == 2) return 4; if (j == 2 && k == 1) return 5;
+      |                                       ^~
+/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/Common/include/adaptation/CNativeCurvedReference.hpp:755:7: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+  755 |       if (j == 1 && k == 2) return 6; if (i == 1 && k == 2) return 7; if (i == 2 && k == 1) return 8; return 9;
+      |       ^~
+/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/Common/include/adaptation/CNativeCurvedReference.hpp:755:39: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+  755 |       if (j == 1 && k == 2) return 6; if (i == 1 && k == 2) return 7; if (i == 2 && k == 1) return 8; return 9;
+      |                                       ^~

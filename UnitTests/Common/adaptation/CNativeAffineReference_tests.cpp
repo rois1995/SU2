@@ -533,3 +533,70 @@ TEST_CASE("DC-17 fitted symmetry plane lets original vertices slide on a tilted 
   CHECK(std::abs((moved.x-o.x)*n.x+(moved.y-o.y)*n.y+(moved.z-o.z)*n.z)<=1e-12);
   CHECK(fresh.parameters.at(100).binding.dimension==2);
 }
+
+TEST_CASE("Curved mapped controls persist physical geometry separately from exact parameter topology", "[NativeCurvedMapped3D]") {
+  using namespace SU2Native3D;
+  const auto tetrahedron=MappedTetrahedron();
+  std::vector<Facet> facets;for(auto row:tetrahedron->Facets()){row.second.marker=0;facets.push_back(row.second);}
+  const auto original=std::make_shared<PlanarReference>(facets);
+  MappedFacetReference::CurvedNets controls;std::map<Id,double> errors;
+  const unsigned powers[10][3]={{3,0,0},{0,3,0},{0,0,3},{2,1,0},{1,2,0},{0,2,1},{0,1,2},{1,0,2},{2,0,1},{1,1,1}};
+  for(const auto& f:facets) {
+    auto& net=controls[f.id];errors[f.id]=1e-12;
+    for(unsigned k=0;k<3;++k)net[k]=f.v[k].p;
+    for(unsigned q=3;q<10;++q) {
+      long double sum[3]={};
+      for(unsigned k=0;k<3;++k){sum[0]+=powers[q][k]*(long double)f.v[k].p.x;sum[1]+=powers[q][k]*(long double)f.v[k].p.y;sum[2]+=powers[q][k]*(long double)f.v[k].p.z;}
+      net[q]={double(sum[0]/3),double(sum[1]/3),double(sum[2]/3)};
+    }
+    const auto a=f.v[0].p,b=f.v[1].p,c=f.v[2].p;
+    net[9].x+=.02*((b.y-a.y)*(c.z-a.z)-(b.z-a.z)*(c.y-a.y));
+    net[9].y+=.02*((b.z-a.z)*(c.x-a.x)-(b.x-a.x)*(c.z-a.z));
+    net[9].z+=.02*((b.x-a.x)*(c.y-a.y)-(b.y-a.y)*(c.x-a.x));
+  }
+  CHECK_THROWS(MappedFacetReference(original,errors,9,1,false,controls));
+  CHECK_THROWS(MappedFacetReference(original,errors,9,SIZE_MAX,true,controls));
+  auto geometry=std::make_shared<MappedFacetReference>(original,errors,9,SIZE_MAX,false,controls);
+  auto points=ComponentState(geometry,facets);
+  ReferenceState state{PlanarReference::WithParameters(original,points),facets,{"wall"},.1};
+  const auto encoded=EncodeReference(state);REQUIRE(encoded.find("SU2_NATIVE_REFERENCE_3D 7\n")==0);
+  const auto restored=DecodeReference(encoded);CHECK(EncodeReference(restored)==encoded);
+  CHECK_THROWS(DecodeReference(encoded,1024));
+  const auto& recovered=restored.original->Parameters()->Geometry();
+  REQUIRE(recovered.Curves().size()==controls.size());
+  for(const auto& f:facets) {
+    std::array<SurfaceBinding,3> corners;std::array<Point,3> actual;
+    for(unsigned k=0;k<3;++k){corners[k]=geometry->Vertex(f.v[k].id);actual[k]=f.v[k].p;}
+    REQUIRE(geometry->ContainsFace(f.id,corners,actual));
+    const auto full=geometry->SurfaceError(f.id,corners,actual);
+    REQUIRE(full>1e-3);CHECK(geometry->EnvelopeError(f.id)>=full);
+    CHECK(state.original->SurfaceError(f.id,actual)==Approx(full));
+    const auto& net=controls.at(f.id);
+    for(unsigned i=1;i<8;++i)for(unsigned j=1;i+j<9;++j) {
+      const double u=i/10.,v=j/10.,w=1-u-v;const auto binding=geometry->FacetPoint(f.id,u,v);
+      const auto p=geometry->Realize(binding),q=recovered.Realize(binding);
+      CHECK(p.x==q.x);CHECK(p.y==q.y);CHECK(p.z==q.z);CHECK(geometry->Admissible(binding,p));
+      const long double c[10]={std::pow((long double)w,3),std::pow((long double)u,3),std::pow((long double)v,3),
+          3*w*w*(long double)u,3*w*u*(long double)u,3*u*u*(long double)v,3*u*v*(long double)v,
+          3*w*v*(long double)v,3*w*w*(long double)v,6*w*u*(long double)v};
+      long double x=0,y=0,z=0;for(unsigned k=0;k<10;++k){x+=c[k]*net[k].x;y+=c[k]*net[k].y;z+=c[k]*net[k].z;}
+      CHECK(std::sqrt((x-p.x)*(x-p.x)+(y-p.y)*(y-p.y)+(z-p.z)*(z-p.z))<=geometry->ErrorBound(binding,p)+2e-15);
+    }
+    const std::array<SurfaceBinding,3> child{{geometry->FacetPoint(f.id,.2,.2),geometry->FacetPoint(f.id,.3,.2),geometry->FacetPoint(f.id,.2,.3)}};
+    std::array<Point,3> childPoints;for(unsigned k=0;k<3;++k)childPoints[k]=geometry->Realize(child[k]);
+    CHECK(geometry->ContainsFace(f.id,child,childPoints));
+    CHECK(geometry->SurfaceError(f.id,child,childPoints)<full/8);
+    childPoints[0].x+=.001;CHECK_FALSE(geometry->ContainsFace(f.id,child,childPoints));
+  }
+  auto disconnected=facets;
+  for(auto f:facets){f.id+=1000;for(auto& n:f.v){n.id+=1000;n.p.x+=10;}disconnected.push_back(f);}
+  MappedFacetReference mixed(std::make_shared<PlanarReference>(disconnected),errors,9,SIZE_MAX,false,controls);
+  const auto strictPoint=disconnected.back().v[0];const auto strictBinding=mixed.Vertex(strictPoint.id);
+  CHECK(mixed.ErrorBound(strictBinding,strictPoint.p)==0);CHECK(mixed.Admissible(strictBinding,strictPoint.p));
+  CHECK(mixed.Realize(strictBinding).x==strictPoint.p.x);
+  auto bad=controls;bad.begin()->second[0].x+=.001;CHECK_THROWS(MappedFacetReference(original,errors,9,SIZE_MAX,false,bad));
+  bad=controls;bad.begin()->second[3].x+=.001;CHECK_THROWS(MappedFacetReference(original,errors,9,SIZE_MAX,false,bad));
+  bad=controls;bad.begin()->second[9].x=INFINITY;CHECK_THROWS(MappedFacetReference(original,errors,9,SIZE_MAX,false,bad));
+  bad=controls;bad.begin()->second[9].x+=100;CHECK_THROWS(MappedFacetReference(original,errors,9,SIZE_MAX,false,bad));
+  bad=controls;bad.erase(bad.begin());CHECK_THROWS(MappedFacetReference(original,errors,9,SIZE_MAX,false,bad));
+}

@@ -83,9 +83,19 @@ struct MappedSurfaceAudit {
  * This class alone does not enable a mapped mesh in the production lifecycle. */
 class MappedFacetReference {
  public:
+  /*! Cubic Bernstein order: 300,030,003,210,120,021,012,102,201,111.
+   * Controls are immutable binary64 geometry, not a recipe to rebuild on restart. */
+  using CubicNet=std::array<Point,10>;
+  using CurvedNets=std::map<Id,CubicNet>;
   MappedFacetReference(std::shared_ptr<const SU2Native3D::PlanarReference> reference,
                        const std::map<Id,double>& mapping_errors,uint64_t version,size_t ceiling=SIZE_MAX,
-                       bool reference_components=false);
+                       bool reference_components=false,const CurvedNets& curved_nets={});
+  const CurvedNets& Curves()const{return curves;}
+  /*! Physical displacement from the original flat facet, including realization error. */
+  double EnvelopeError(Id facet)const;
+  /*! Outward bound between a flat realized child and its curved parameter patch. */
+  double SurfaceError(Id facet,const std::array<SurfaceBinding,3>& binding,
+                      const std::array<Point,3>& realized)const;
   bool ReferenceComponents()const{return bool(components);}
   Id Canonical(Id facet)const;
   const std::vector<Id>& ComponentFacets(Id facet)const;
@@ -126,6 +136,7 @@ class MappedFacetReference {
  private:
   std::shared_ptr<const SU2Native3D::PlanarReference> reference;
   std::map<Id,double> errors;
+  CurvedNets curves;
   uint64_t version;
   std::map<Id,Point> nodes;
   std::map<Id,std::vector<Id>> vertex_facets;
@@ -144,6 +155,8 @@ class MappedFacetReference {
                              const std::array<Point,3>& realized,SU2Native3D::KernelStats* stats)const;
   void CheckBinding(const SurfaceBinding& binding)const;
   Id EdgeIdentity(SU2Native3D::Edge edge)const;
+  SU2Native3D::ParametricPoint FacetParameters(Id facet,const SurfaceBinding& binding)const;
+  std::array<Point,2> CurvedBounds(const SurfaceBinding& binding)const;
 };
 struct LineEdge {Id identity=0;SU2Native3D::Node a,b;};
 /*! A union of directed connected intervals, including multiple body-footprint gaps.

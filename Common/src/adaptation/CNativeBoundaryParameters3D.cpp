@@ -419,10 +419,10 @@ bool PlanarReference::ParameterOnEdge(Id facet,Point a,Point b,Point p,KernelSta
   return ParametricOnSegment(g.Ideal(Parameter(a)->binding),g.Ideal(Parameter(b)->binding),g.Ideal(Parameter(p)->binding),stats);
 }
 double PlanarReference::ParameterError(Id facet,const std::array<Point,3>& p)const {
-  double maximum=0;const auto& g=parameter_view->accepted->Geometry();
-  for(Point q:p){const auto b=Parameter(q);if(!b)throw std::invalid_argument("Unbound mapped surface error query.");maximum=std::max(maximum,g.ErrorBound(b->binding,q));
-    const auto plane=Affine().find(facet);if(plane!=Affine().end())maximum=std::max(maximum,SU2NativeGeometry::AffineChart(plane->second).ErrorBound(q));}
-  return maximum;
+  double maximum=0;const auto& g=parameter_view->accepted->Geometry();std::array<SU2NativeGeometry::SurfaceBinding,3> binding;
+  for(unsigned k=0;k<3;++k){const auto b=Parameter(p[k]);if(!b)throw std::invalid_argument("Unbound mapped surface error query.");binding[k]=b->binding;
+    const auto plane=Affine().find(facet);if(plane!=Affine().end())maximum=std::max(maximum,SU2NativeGeometry::AffineChart(plane->second).ErrorBound(p[k]));}
+  return std::max(maximum,g.SurfaceError(facet,binding,p));
 }
 size_t PlanarReference::ParameterWorkspaceBytes()const {
   if(!parameter_view)return 0;

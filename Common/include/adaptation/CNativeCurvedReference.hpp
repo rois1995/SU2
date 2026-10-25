@@ -371,6 +371,7 @@ class PNTriangleSurface : public CurvedReference<3> {
     double featureAngle = 45;       /*!< \brief ADAP_ANGLE (degrees): smooth-edge turn above it is a crease. */
     NormalWeight weight = NormalWeight::Max;
     HandleRule handle = HandleRule::PN;
+    std::set<int> fixedMarkers;     /*!< \brief Keep unselected boundaries faceted, including their shared edge curves. */
     std::set<int> planarMarkers;    /*!< \brief Markers that are exact planes (symmetry kinds): fitted, kept flat. */
     double planarTolerance = 1e-9;  /*!< \brief Relative planarity contract of a planar marker component. */
     bool reflectivePlanes = true;   /*!< \brief Planar markers are mirror planes (MARKER_SYM): a wall sector meeting one
@@ -406,6 +407,7 @@ class PNTriangleSurface : public CurvedReference<3> {
   double Bulge(long f) const { return bulge[f]; }
   const std::vector<Vec<3>>& Points() const { return x; }
   const std::vector<Triangle>& Triangles() const { return tri; }
+  const std::vector<std::array<Vec<3>,10>>& ControlNets() const { return net; }
 
   int VertexFeature(long vertex) const override { return vertexFeature[vertex]; }
 
@@ -435,6 +437,7 @@ class PNTriangleSurface : public CurvedReference<3> {
     Sv = Sub<3>(dv, dw);
   }
   Vec<3> Normal(long f, double u, double v) const override {
+    if (opt.fixedMarkers.count(tri[f].marker)) return facetNormal[f];
     if (planeOf[f] >= 0) return planes[planeOf[f]].second;
     Vec<3> Su, Sv;
     Derivatives(f, u, v, Su, Sv);
@@ -447,6 +450,7 @@ class PNTriangleSurface : public CurvedReference<3> {
 
   Principal Curvature(long f, double u, double v) const override {
     Principal out;
+    if (opt.fixedMarkers.count(tri[f].marker)) { detail::TangentEigen(detail::Sym3{}, facetNormal[f], out); return out; }
     const double w[3] = {1 - u - v, u, v};
     const auto n = Normal(f, u, v);
     detail::Sym3 K{};
@@ -469,6 +473,7 @@ class PNTriangleSurface : public CurvedReference<3> {
   /*! Curvature tensor (3D, tangential) of a vertex sector and its principal values. */
   Principal SectorCurvature(long f, int k) const {
     Principal out;
+    if (opt.fixedMarkers.count(tri[f].marker)) { detail::TangentEigen(detail::Sym3{}, facetNormal[f], out); return out; }
     const long s = sector[3 * f + k];
     detail::TangentEigen(sectorK[s], sectorNormal[s], out);
     out.guard = guard[f];
@@ -802,9 +807,9 @@ class PNTriangleSurface : public CurvedReference<3> {
     {
       detail::UnionFind uf(nf);
       for (const auto& faces : vertexFaces) {
-        long first[2] = {-1, -1};
+        long first[3] = {-1, -1, -1};
         for (long f : faces) {
-          const int planar = opt.planarMarkers.count(tri[f].marker) != 0;
+          const int planar = opt.fixedMarkers.count(tri[f].marker) ? 2 : opt.planarMarkers.count(tri[f].marker) != 0;
           if (first[planar] < 0) first[planar] = f;
           else uf.Join(first[planar], f);
         }
@@ -972,7 +977,10 @@ class PNTriangleSurface : public CurvedReference<3> {
     else { sectorQuadric.assign(sectorNormal.size(), 0); sectorQK.assign(sectorNormal.size(), detail::Sym3{}); }
     // edge curves, then patches; unsafe patches straighten their edges (and neighbours rebuild) until stable
     fallbackFace.assign(nf, 0);
-    for (auto& e : edgeInfo) BuildEdge(e);
+    for (auto& e : edgeInfo) {
+      for (long f : e.faces) e.straight = e.straight || opt.fixedMarkers.count(tri[f].marker);
+      BuildEdge(e);
+    }
     net.resize(nf);
     bulge.assign(nf, 0);
     for (size_t f = 0; f < nf; ++f) BuildNet(long(f));
@@ -1126,7 +1134,7 @@ class PNTriangleSurface : public CurvedReference<3> {
     Vec<3> E{}, V{};
     for (int q = 3; q < 9; ++q) E = Axpy<3>(E, 1 / 6.0, b[q]);
     for (int q = 0; q < 3; ++q) V = Axpy<3>(V, 1 / 3.0, b[q]);
-    b[9] = Axpy<3>(E, .5, Sub<3>(E, V));
+    b[9] = opt.fixedMarkers.count(tri[f].marker) ? V : Axpy<3>(E, .5, Sub<3>(E, V));
     const int ijk[10][3] = {{3, 0, 0}, {0, 3, 0}, {0, 0, 3}, {2, 1, 0}, {1, 2, 0}, {0, 2, 1}, {0, 1, 2}, {1, 0, 2}, {2, 0, 1}, {1, 1, 1}};
     double m = 0;
     for (int q = 0; q < 10; ++q) {

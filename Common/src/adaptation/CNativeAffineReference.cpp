@@ -25,6 +25,78 @@ Range Add(Range a,Range b){return {std::nextafter(a.lo+b.lo,-INFINITY),std::next
 Range Multiply(Range a,long double b){return b>=0?Range{std::nextafter(a.lo*b,-INFINITY),std::nextafter(a.hi*b,INFINITY)}:
     Range{std::nextafter(a.hi*b,-INFINITY),std::nextafter(a.lo*b,INFINITY)};}
 Range Subtract(double a,double b){const auto x=static_cast<long double>(a)-b;return {std::nextafter(x,-INFINITY),std::nextafter(x,INFINITY)};}
+using Box=std::array<Range,3>;
+constexpr unsigned CubicIndex[10][3]={{3,0,0},{0,3,0},{0,0,3},{2,1,0},{1,2,0},{0,2,1},{0,1,2},{1,0,2},{2,0,1},{1,1,1}};
+Range Subtract(Range a,Range b){return Add(a,{-b.hi,-b.lo});}
+Range Multiply(Range a,Range b) {
+  const long double p[]={a.lo*b.lo,a.lo*b.hi,a.hi*b.lo,a.hi*b.hi};
+  return {std::nextafter(*std::min_element(p,p+4),-INFINITY),std::nextafter(*std::max_element(p,p+4),INFINITY)};
+}
+Box Exact(Point p){const auto v=Values(p);return {{{v[0],v[0]},{v[1],v[1]},{v[2],v[2]}}};}
+Box ParameterBox(const SU2Native3D::ParametricPoint& p) {
+  const auto b=SU2Native3D::ParametricPointBounds(p);const auto lo=Values(b[0]),hi=Values(b[1]);
+  return {{{lo[0],hi[0]},{lo[1],hi[1]},{lo[2],hi[2]}}};
+}
+unsigned PolynomialIndex(unsigned degree,unsigned i,unsigned j){return i*(degree+1)-i*(i-1)/2+j;}
+Box Blossom(const MappedFacetReference::CubicNet& net,const std::array<Box,3>& arguments) {
+  std::array<Box,10> level{};
+  for(unsigned q=0;q<10;++q)level[PolynomialIndex(3,CubicIndex[q][0],CubicIndex[q][1])]=Exact(net[q]);
+  for(unsigned degree=3;degree>0;--degree) {
+    std::array<Box,10> next{};const auto& a=arguments[3-degree];
+    for(unsigned i=0;i<degree;++i)for(unsigned j=0;i+j<degree;++j)for(unsigned d=0;d<3;++d)
+      next[PolynomialIndex(degree-1,i,j)][d]=Add(Add(Multiply(a[0],level[PolynomialIndex(degree,i+1,j)][d]),
+          Multiply(a[1],level[PolynomialIndex(degree,i,j+1)][d])),Multiply(a[2],level[PolynomialIndex(degree,i,j)][d]));
+    level=next;
+  }
+  return level[0];
+}
+double NormBound(const Box& a) {
+  Range sum;
+  for(const auto& r:a){const auto bound=std::max(std::abs(r.lo),std::abs(r.hi));sum=Add(sum,Multiply({bound,bound},bound));}
+  const auto value=std::nextafter(std::sqrt(sum.hi),INFINITY);
+  return std::nextafter(double(std::max(value,(long double)std::numeric_limits<double>::min())),INFINITY);
+}
+Box Difference(const Box& a,const Box& b){Box c;for(unsigned d=0;d<3;++d)c[d]=Subtract(a[d],b[d]);return c;}
+Box CrossBox(const Box& a,const Box& b){Box c;for(unsigned d=0;d<3;++d)c[d]=Subtract(Multiply(a[(d+1)%3],b[(d+2)%3]),Multiply(a[(d+2)%3],b[(d+1)%3]));return c;}
+Range DotBox(const Box& a,const Box& b){Range c;for(unsigned d=0;d<3;++d)c=Add(c,Multiply(a[d],b[d]));return c;}
+/* Positive Bernstein coefficients certify a positive projected Jacobian over the entire patch. */
+bool PositiveCubicJacobian(const MappedFacetReference::CubicNet& net) {
+  std::array<Box,10> b{};for(unsigned q=0;q<10;++q)b[PolynomialIndex(3,CubicIndex[q][0],CubicIndex[q][1])]=Exact(net[q]);
+  std::array<Box,6> u{},v{};
+  for(unsigned i=0;i<=2;++i)for(unsigned j=0;i+j<=2;++j) {
+    const auto k=PolynomialIndex(2,i,j);
+    u[k]=Difference(b[PolynomialIndex(3,i,j+1)],b[PolynomialIndex(3,i+1,j)]);
+    v[k]=Difference(b[PolynomialIndex(3,i,j)],b[PolynomialIndex(3,i+1,j)]);
+  }
+  const auto n=CrossBox(Difference(Exact(net[1]),Exact(net[0])),Difference(Exact(net[2]),Exact(net[0])));
+  std::array<Range,15> coefficients{};
+  const unsigned factorial[]={1,1,2,6,24};
+  for(unsigned i=0;i<=2;++i)for(unsigned j=0;i+j<=2;++j)
+    for(unsigned k=0;k<=2;++k)for(unsigned l=0;k+l<=2;++l) {
+      const auto numerator=4*factorial[i+k]*factorial[j+l]*factorial[4-i-j-k-l];
+      const auto denominator=24*factorial[i]*factorial[j]*factorial[2-i-j]*factorial[k]*factorial[l]*factorial[2-k-l];
+      const long double weight=(long double)numerator/denominator;
+      const Range w{std::nextafter(weight,-INFINITY),std::nextafter(weight,INFINITY)};
+      auto& c=coefficients[PolynomialIndex(4,i+k,j+l)];
+      c=Add(c,Multiply(DotBox(CrossBox(u[PolynomialIndex(2,i,j)],v[PolynomialIndex(2,k,l)]),n),w));
+    }
+  return std::all_of(coefficients.begin(),coefficients.end(),[](Range r){return r.lo>0&&std::isfinite(r.hi);});
+}
+double CubicDeviation(const MappedFacetReference::CubicNet& net,const std::array<Box,3>& parameters,
+                      const std::array<Point,3>& realized) {
+  double bound=0;
+  for(unsigned q=0;q<10;++q) {
+    std::array<Box,3> arguments;unsigned at=0;
+    for(unsigned k=0;k<3;++k)for(unsigned n=0;n<CubicIndex[q][k];++n)arguments[at++]=parameters[k];
+    const auto curved=Blossom(net,arguments);Box flat{};
+    for(unsigned k=0;k<3;++k)for(unsigned d=0;d<3;++d) {
+      const auto weight=(long double)CubicIndex[q][k]/3;
+      flat[d]=Add(flat[d],Multiply({std::nextafter(weight,-INFINITY),std::nextafter(weight,INFINITY)},Values(realized[k])[d]));
+    }
+    bound=std::max(bound,NormBound(Difference(curved,flat)));
+  }
+  return bound;
+}
 SU2Native2D::Point Flat(Point p){return {p.x,p.y};}
 }
 AffineChart::AffineChart(AffineAuthority value):authority(value) {
@@ -250,7 +322,7 @@ namespace {
 uint64_t Bits(double x){uint64_t b;std::memcpy(&b,&x,sizeof b);return b;}
 }
 MappedFacetReference::MappedFacetReference(std::shared_ptr<const SU2Native3D::PlanarReference> input,
-    const std::map<Id,double>& mapping_errors,uint64_t definition_version,size_t ceiling,bool reference_components)
+    const std::map<Id,double>& mapping_errors,uint64_t definition_version,size_t ceiling,bool reference_components,const CurvedNets& curved_nets)
     :reference(std::move(input)),version(definition_version) {
   using namespace SU2Native3D;
   if(!reference || !version || mapping_errors.empty())throw std::invalid_argument("Invalid mapped-facet reference/version/declaration.");
@@ -260,6 +332,19 @@ MappedFacetReference::MappedFacetReference(std::shared_ptr<const SU2Native3D::Pl
     if(!reference->Facets().count(row.first) || !(std::isfinite(row.second)&&row.second>=std::numeric_limits<double>::min()))
       throw std::invalid_argument("Invalid mapped-facet identity/error declaration.");
   if(!reference->Analytic().empty())throw std::invalid_argument("Mixed analytic/mapped-facet authority is not supported.");
+  if(!curved_nets.empty() && reference_components)throw std::invalid_argument("Curved controls require facet-local parameter topology.");
+  for(const auto& row:curved_nets) {
+    if(!reference->Facets().count(row.first) || !mapping_errors.count(row.first))throw std::invalid_argument("Undeclared curved facet.");
+    const auto& f=reference->Get(row.first);
+    for(Point p:row.second) {
+      Finite(p);const auto plane=reference->Affine().find(row.first);
+      if(plane!=reference->Affine().end() && AffineChart(plane->second).ErrorBound(p)>plane->second.maximum_error)
+        throw std::invalid_argument("Curved controls leave their declared affine carrier.");
+    }
+    for(unsigned k=0;k<3;++k)if(Values(row.second[k])!=Values(f.v[k].p))throw std::invalid_argument("Curved control corner differs from immutable facet.");
+    if(!PositiveCubicJacobian(row.second))throw std::invalid_argument("Curved patch "+std::to_string(row.first)+" has no certified positive projected Jacobian.");
+  }
+  curves=curved_nets;
   errors=mapping_errors;
   std::map<Edge,std::vector<Id>> incident;std::vector<Face> skin;
   for(const auto& row:reference->Facets()) {
@@ -272,6 +357,20 @@ MappedFacetReference::MappedFacetReference(std::shared_ptr<const SU2Native3D::Pl
   ValidateDomainSurfaceTopology(skin);
   edges.reserve(incident.size());edge_facets.reserve(incident.size());
   for(auto& row:incident){edges.push_back(row.first);edge_facets.push_back(std::move(row.second));}
+  for(size_t e=0;e<edges.size();++e) {
+    std::array<Point,2> expected{};bool seen=false,curved=false,flat=false;
+    for(Id id:edge_facets[e]) {
+      const auto found=curves.find(id);if(found==curves.end()){flat=true;continue;}curved=true;
+      const auto& f=reference->Get(id);unsigned k=0;
+      while(k<3 && !(std::minmax(f.v[k].id,f.v[(k+1)%3].id)==std::minmax(edges[e][0],edges[e][1])))++k;
+      const unsigned controls[3][2]={{3,4},{5,6},{7,8}};
+      auto a=found->second[controls[k][0]],b=found->second[controls[k][1]];
+      if(f.v[k].id>f.v[(k+1)%3].id)std::swap(a,b);
+      if(seen && (Values(a)!=Values(expected[0]) || Values(b)!=Values(expected[1])))throw std::invalid_argument("Curved adjacent patches disagree on shared edge controls.");
+      expected={a,b};seen=true;
+    }
+    if(curved&&flat)throw std::invalid_argument("Curved control net must cover every adjacent facet, including planar patches.");
+  }
   if(reference_components) {
     auto data=std::make_shared<ComponentData>();size_t prepared=bound;
     for(const auto& row:reference->Facets())data->entries[reference->Canonical(row.first)].facets.push_back(row.first);
@@ -396,6 +495,42 @@ SU2Native3D::ParametricPoint MappedFacetReference::Ideal(const SurfaceBinding& b
   if(b.dimension==1){const auto edge=edges.at(b.feature);return {nodes.at(edge[0]),nodes.at(edge[1]),nodes.at(edge[0]),b.u,0};}
   const auto& f=reference->Get(b.feature);return {f.v[0].p,f.v[1].p,f.v[2].p,b.u,b.v};
 }
+SU2Native3D::ParametricPoint MappedFacetReference::FacetParameters(Id facet,const SurfaceBinding& b)const {
+  if(!Supports(facet,b))throw std::invalid_argument("Curved parameter binding leaves its facet.");
+  const auto& f=reference->Get(facet);
+  auto corner=[&](Id id){for(unsigned k=0;k<3;++k)if(f.v[k].id==id){Point p{};if(k==0)p.x=1;if(k==1)p.y=1;if(k==2)p.z=1;return p;}
+    throw std::invalid_argument("Curved binding has no facet corner.");};
+  if(b.dimension==0){const auto p=corner(b.feature);return {p,p,p,0,0};}
+  if(b.dimension==1){const auto e=edges.at(b.feature);return {corner(e[0]),corner(e[1]),corner(e[0]),b.u,0};}
+  return {{1,0,0},{0,1,0},{0,0,1},b.u,b.v};
+}
+std::array<Point,2> MappedFacetReference::CurvedBounds(const SurfaceBinding& b)const {
+  CheckBinding(b);Id facet=UINT64_MAX;
+  ForFacets(b,[&](Id f){facet=std::min(facet,f);});
+  const auto found=curves.find(facet);
+  if(found==curves.end())return SU2Native3D::ParametricPointBounds(Ideal(b));
+  if(b.dimension==0){const auto p=nodes.at(b.feature);return {p,p};}
+  const auto r=ParameterBox(FacetParameters(facet,b));const auto box=Blossom(found->second,{r,r,r});
+  Vec lo{},hi{};
+  for(unsigned d=0;d<3;++d){lo[d]=std::nextafter(double(box[d].lo),-INFINITY);hi[d]=std::nextafter(double(box[d].hi),INFINITY);}
+  const auto a=ToPoint(lo),c=ToPoint(hi);Finite(a);Finite(c);return {a,c};
+}
+double MappedFacetReference::EnvelopeError(Id facet)const {
+  const auto e=errors.find(facet);const double numerical=e==errors.end()?0.:e->second;
+  const auto found=curves.find(facet);if(found==curves.end())return numerical;
+  const auto& f=reference->Get(facet);
+  const auto deviation=CubicDeviation(found->second,{Exact({1,0,0}),Exact({0,1,0}),Exact({0,0,1})},
+                                      {f.v[0].p,f.v[1].p,f.v[2].p});
+  return std::nextafter(deviation+numerical,INFINITY);
+}
+double MappedFacetReference::SurfaceError(Id facet,const std::array<SurfaceBinding,3>& binding,
+                                         const std::array<Point,3>& realized)const {
+  const auto found=curves.find(facet);
+  if(found==curves.end()){double result=0;for(unsigned k=0;k<3;++k)result=std::max(result,ErrorBound(binding[k],realized[k]));return result;}
+  std::array<Box,3> parameters;
+  for(unsigned k=0;k<3;++k){Finite(realized[k]);parameters[k]=ParameterBox(FacetParameters(facet,binding[k]));}
+  return CubicDeviation(found->second,parameters,realized);
+}
 double MappedFacetReference::MaximumError(const SurfaceBinding& b)const {
   CheckBinding(b);
   if(components){double bound=INFINITY;ForFacets(b,[&](Id id){bound=std::min(bound,components->entries.at(Canonical(id)).limit);});return bound;}
@@ -427,9 +562,15 @@ bool MappedFacetReference::BoundarySegment(Id facet,const SurfaceBinding& a,cons
   if(!Supports(facet,a)||!Supports(facet,b)||!FeatureSegment(a,b,feature,ta,tb))return false;
   return !components || components->entries.at(Canonical(facet)).features.count(feature);
 }
-double MappedFacetReference::ErrorBound(const SurfaceBinding& b,Point p)const {return components?ComponentPointError(b,p):PointModelError(Ideal(b),p);}
+double MappedFacetReference::ErrorBound(const SurfaceBinding& b,Point p)const {
+  bool curved=false;if(!curves.empty())ForFacets(b,[&](Id f){curved=curved||curves.count(f);});
+  if(!curved)return components?ComponentPointError(b,p):PointModelError(Ideal(b),p);
+  Finite(p);const auto bounds=CurvedBounds(b);const auto lo=Values(bounds[0]),hi=Values(bounds[1]),actual=Values(p);Box error;
+  for(unsigned d=0;d<3;++d)error[d]=Subtract(Range{lo[d],hi[d]},Range{actual[d],actual[d]});
+  return NormBound(error);
+}
 Point MappedFacetReference::Realize(const SurfaceBinding& b)const {
-  const auto model=Ideal(b);auto point=SU2Native3D::ParametricPointBounds(model)[0];
+  const auto model=Ideal(b);auto point=curves.empty()?SU2Native3D::ParametricPointBounds(model)[0]:CurvedBounds(b)[0];
   std::map<Id,AffineAuthority> equations;
   ForFacets(b,[&](Id id){const auto row=reference->Affine().find(id);if(row!=reference->Affine().end())equations.emplace(row->second.identity,row->second);});
   if(!equations.empty()){std::vector<AffineAuthority> constraints;for(const auto& row:equations)constraints.push_back(row.second);point=ProjectIntersection(point,constraints);}
@@ -543,7 +684,7 @@ size_t MappedFacetReference::FaceMemoBytes() {
 }
 size_t MappedFacetReference::ResidentBytes()const {
   auto bytes=[](const auto& map){return transfer_memory::Mul(map.size(),sizeof(typename std::decay_t<decltype(map)>::value_type)+4*sizeof(void*));};
-  size_t out=transfer_memory::Add(sizeof(*this),bytes(errors),bytes(nodes),bytes(vertex_facets),transfer_memory::Bytes(edges),transfer_memory::Bytes(edge_facets));
+  size_t out=transfer_memory::Add(sizeof(*this),bytes(errors),bytes(curves),bytes(nodes),bytes(vertex_facets),transfer_memory::Bytes(edges),transfer_memory::Bytes(edge_facets));
   for(const auto& row:vertex_facets)out=transfer_memory::Add(out,transfer_memory::Bytes(row.second));
   for(const auto& row:edge_facets)out=transfer_memory::Add(out,transfer_memory::Bytes(row));
   if(components){out=transfer_memory::Add(out,sizeof(ComponentData),bytes(components->entries));

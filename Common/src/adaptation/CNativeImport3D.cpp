@@ -366,7 +366,7 @@ bool JointAffineCoverage(World& world,const Owned& owned,std::vector<DonorCell>&
       component=std::min(component,reference.Canonical(row.first));
     }
     if(reference.Mapped()) {
-      for(const auto& row:reference.Parameters()->Geometry().Errors())radius=std::max(radius,4*row.second);
+      for(const auto& row:reference.Parameters()->Geometry().Errors())radius=std::max(radius,4*reference.Parameters()->Geometry().EnvelopeError(row.first));
       component=reference.ExtensionComponents().front();
     }
     if(!(std::isfinite(radius)&&radius>0) || component==UINT64_MAX)
@@ -388,7 +388,7 @@ bool JointAffineCoverage(World& world,const Owned& owned,std::vector<DonorCell>&
     int thin=reference.Mapped()&&reference.Affine().empty()?1:0;double worst=0;
     if(thin)try{for(const auto& row:reference.Parameters()->Geometry().Errors()){const auto& f=reference.Parameters()->Geometry().Reference().Get(row.first);
         long double tol=INFINITY;for(const auto& n:f.v)tol=std::min(tol,NearCoverageTolerance(n.p));
-        worst=std::max(worst,4*row.second/double(tol));if(!(4*row.second<=double(tol))){thin=0;break;}}}catch(const std::exception&){thin=0;}
+        const auto error=reference.Parameters()->Geometry().EnvelopeError(row.first);worst=std::max(worst,4*error/double(tol));if(!(4*error<=double(tol))){thin=0;break;}}}catch(const std::exception&){thin=0;}
     thin=CPassiveComm::Allreduce(thin,CPassiveComm::Op::MIN,world.comm);
     if(thin){if(!world.rank)std::cout<<"DC16 joint source envelope skipped (intermediate event): 4 x mapping error <= near-coverage tolerance on every facet (worst ratio "<<worst<<")"<<std::endl;
       return true;}}

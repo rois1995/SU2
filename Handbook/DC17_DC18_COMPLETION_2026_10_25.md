@@ -356,3 +356,59 @@ MPI selection93123 passes11 cases/rank (1,411/2,125 assertions). All source/runt
 pins verify; failed selections are preserved. Next: normalized M6 event1,12GiB,
 V=0 diagnostic,1800s whole-job guard. Sources/input/helper and
 new invalid configs are pinned.
+
+Local checkpoint fe9bb2d30e contains memory controls, final publication-budget
+guard, repaired injection fixture, retained query diagnostics and validation16-19
+evidence. Raw logs retain their original whitespace. Remote push remains blocked
+by the previously recorded approval review; no remote attempt made.
+M6 session26009 is terminal/exit1: c9 event0 -> normalized event1, fixed12288MiB, V=0,
+1800s whole-job guard. Host before launch:38.6GiB available, load1.41, no live
+compiler/test/solver. validation19/resources.jsonl records the receipt. Sources
+and runtime pins verify at termination. No owned build/test remains live.
+
+M6 validation19 passes the memory blocker, then rejects before construction:
+coarsest-sensor complexity rises from814,092.78 +/-88,656.92 (profile0) to
+2,368,375.60 +/-422,363.34 (profile1), across all nine permitted profiles.
+Mandatory estimate18,116 +/-7,455 does not establish infeasibility. Whole122.84s,
+process peak7,278,232KiB; no accepted/publication receipt. Whole-tensor transport
+decays more slowly when the anchor normal is coarsened, so a relaxed normal can
+retain tangential demands over a larger curved/edge/vertex volume. Measure the
+inside-band/tail and base/D1 contributions on the uniform coarsest field using
+the existing estimator/probe before choosing a connected field correction.
+Do not raise the500k budget, sampling/work caps or acceptance tolerances.
+
+Validation20 diagnostic reuses probe_transition.cpp's original M6 loader and
+build_probe.py's build/link flags. probe_variance.py generates a separate copy of
+the estimator with per-query profile/distance/tensor-density contributions, and a
+coarsest uniform-sensor Option A probe. Production C++ is unchanged. Assess all
+nine profiles, then0/.5/1 at the existing16k/32k refinements; retain each completed
+assessment immediately. Direct/cached equality is audited. This uses the original
+coarse volume geometry (not the current fine input), so it diagnoses the field's
+cost mechanism rather than replacing full M6 qualification. Sampling/work/storage
+limits remain unchanged. Source/helper/input pins include the generator and loader.
+
+Validation20 initial diagnostic build exited1 before execution: including the target before the reused curved test loader exposes a CGNS Foot enum collision. Move that include after the loader; also explicitly pass the shared target to Assess. Production sources unchanged. Preserve failed build.log; retry build in build_retry.log.
+
+Validation20 retry build23654 and run41212 terminate exit0. All15 profile/stage assessments retained, final32,768 queries,68,411,939 support candidates below80M. 36.12s, process peak1,333,320KiB. Source pins verified; runtime pin script initially rejected an external libz path, corrected during the run to preserve absolute runtime paths, then verified after termination. Production unchanged. Attribution self-check reconstructs all15 correction integrals (1e-11 relative) and validates source/runtime hashes. Profile0:821,265 +/-53,688; profile1:2,298,938 +/-198,670. Inside0.9T falls541,371 ->269,268; beyond10T rises156,396 ->1,876,743. Base/D1 results also differ in the outer tail because stronger D1 at the anchor accelerates the scalar continuation. These are diagnostics, not accepted meshes or certified infeasibility.
+
+Next diagnostic tests an upper bound on normal spacing by the shortest tangential size (never below h0) throughout the continued native field. It preserves tangents, first height and all original protected resolution by refinement, and prevents normal relaxation from creating reverse anisotropy at the band end. This is a candidate field design, not yet production: require lower M6 intrinsic cost, unchanged first-height/protected/finer constraints, shared point/cache/chord behavior and full changing-frame gradation assessment before adoption. Production guards and budget remain unchanged.
+
+Validation21 diagnostic build2703/run17239 terminate exit0. Normal cap is rejected: profile1 remains1,182,909 +/-67,994; inside0.9T becomes1,077,101. No production field change. Fifteen attribution reconstructions and pins pass. All prior jobs terminal before DC18 source edits. Asked asynchronously whether tangential relaxation outside the protected band is permitted; existing normal-only contract remains in force pending reply.
+
+DC18 connected implementation scope: extend existing MappedFacetReference with immutable cubic control nets, validated corners/shared edges/projected Jacobian, outward physical realization/deviation bounds, versioned sidecar round-trip, source-envelope displacement and child-faceting queries. Preserve exact affine parameter topology. Do not activate automatic curved construction before first-height/clearance and full geometry/transfer gates are qualified. Curved facet-local mode initially preserves original seams; it cannot claim the existing planar component release supports multiple nonlinear charts. Tests must exercise closed curved meshes, wrong/corrupt controls, budget refusal, restart identity and child error under refinement.
+
+Validation22 syntax82992 passed all five affected translation units. Integrated31-task build started with one worker/nice19/threaded libraries1 and compile-tmp on4TB. Host load2.20,38.6GiB available,4TB87GiB/root11GiB free. All957+ relevant sources/inputs pinned before build. Source frozen until owned build/test handles terminate. The new curved path is facet-local and requires complete matching controls on adjacent patches; it certifies positive projected Jacobian but still needs whole-surface embedding/clearance and construction qualification. No automatic production switch enabled.
+
+Build22 remains active/session30140; production source frozen. Review follow-up before qualification: preserve PointModelError's exact-zero semantics on disconnected flat components when another component has curves (current new ErrorBound takes an outward positive floor there). Add a mixed curved/strict-flat regression after build terminal. M6 probe_curved_authority.cpp is a new, not-yet-compiled diagnostic; it reuses probe_transition.cpp's donor-oriented loader, not raw SU2 face orientation. Full M6 admission/persistence is required alongside focused cases before this authority stage is called validated.
+
+Pre-test review also caught a lifetime error in the new unit fixture's range-for over MappedTetrahedron()->Facets(); retain the shared pointer before iterating when build22 is terminal. This is unexecuted test code, not production. Rebuild the affected object(s) after these two fixes before running tests. The new M6 diagnostic reuses the original loader and names its PN object curvedSurface to avoid the loader's existing surface-map name.
+
+Build22/session30140 terminated exit0:31 tasks,16m28.26s, process peak4,087,828KiB. Fixed the reviewed mixed-flat exact-zero handling and temporary-owner lifetime before testing. Added fixedMarkers to the PN builder so non-wall/non-carrier boundaries retain their faceted geometry and shared edges; a sphere/fixed-patch contract checks flatness, zero smooth curvature, watertightness and retained curvature elsewhere. The M6 probe selects these roles from config kinds/BL markers, not case names. Source pins updated for the next build (old pins preserved); production remains disabled pending qualification.
+
+Build-fix25302 is terminal/exit0 (53.78s, process peak2,868,724KiB). Approval review initially treated it as active and rejected the following edit/test command; no edits executed. Read-only host ps subsequently confirmed no ninja/compiler/assembler/linker exists, and time log independently records exit0. Fixed-marker projection groups are separated from walls/carriers; source/runtime pins refreshed after that verified terminal state.
+
+Validation22 serial12486 terminates exit0:959 assertions/11 cases,2.12s, source/runtime pins verify. Covers new immutable curved mapping, malformed controls/folds/shared edges, unchanged strict-flat component handling, error bounds, v7 round-trip and existing v5/v6 mapped publication/components. Next full-M6 authority diagnostic uses the original donor-oriented loader and fixed non-wall/non-carrier markers; no mesh acceptance claim.
+
+Full M6 authority81869 terminates exit0:48,954 facets, zero fallback patches, all projected Jacobians certified, fitted carriers/fixed farfield admitted. Largest mapping bound6.04e-14; conservative full child deviation1.995e-3 and source envelope1.995e-3 (these are correspondence bounds over the complete boundary, not the earlier LE-only normal sagitta). 26,043,760 resident authority bytes;46,610,856-byte sidecar round-trips bit-identically. 80.04s, process peak569,024KiB. Source/runtime/archive pins verify. No mesh constructed, no first-height/clearance/transfer acceptance claimed. Existing ten-group standalone campaign now runs against updated PN options; then connected MPI2 qualification.
+
+Validation22 standalone67191 terminates exit0 (all10 groups, reusable per-case provenance); MPI34115 terminates exit0 (11 cases/959 assertions on each of2 ranks). All source/runtime/archive pins verify. Geometry-authority stage is validated in this scope only. No automatic curved promotion is enabled. Production field/clearance still knows affine/analytic authorities; v7 controls must not be treated as a qualified adaptation input until those consumers and first-row/wall-refinement paths are connected. Next stage must reach these consumers together, then the difficult M6 and multi-body geometry/mesh targets under unchanged gates.

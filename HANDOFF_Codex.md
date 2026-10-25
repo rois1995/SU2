@@ -25,16 +25,37 @@ listed distributed-repair assertions (100/101 cases pass), not a clean suite.
 Sphere oracle integer division and stale expected reference policies are fixed.
 Quadrature experiments failed unchanged limits and were reverted; see the review.
 [Final receipts](integration_evidence/native_3d_bl_v1/dc18_review_v1/final_validation/summary.json).
-Completion checkpoint: shared BL/outer tensor continuation, cache/support and
-normalization plumbing, donor memory accounting, shared height-constrained lids,
-continuation completion and height-directed admission are implemented. Full-M6
-validation9 is rejected with two remaining height failures; LP moves add frozen
-edge excess. Validation10 still has21 field-gradation violations and10.18%
-complexity uncertainty. Metric/2D/3D/pipeline/growth and focused serial/MPI2 checks
-pass at that checkpoint. Validation11 is terminal: cavity completion fixes both height failures and construction accepts; publication rejects complexity1.758M +/-28k against500k without original-family correction. Shared Option A normalization/correction and sensor-preserving blending pass594 assertions/8 cases (validation15). Normalized M6 replay55778 is terminal: its donor import requests5482MiB against normalization's hard-coded2048MiB ceiling, before construction. The listed native memory-limit option is implemented across normalization/reference/remeshing/publication; full308-task build83949 passed (validation16),607 focused assertions/10 cases and3 invalid-config checks pass. Review found a no-op normalization publication-budget hole and a stale distributed failure-injection fixture; both fixes are written, build17 passed;1,656/1,658 focused assertions pass, including the publication guard and six old failures. The two new diagnostic assertions exposed dropped query errors; build18 passes the error-propagation fix and1,032 assertions. A reproduced fractional-memory-token defect is fixed using existing raw option access; build19 and7 invalid-config checks pass; connected serial1,658 assertions/12 cases andMPI2 11 cases/rank (1,411/2,125 assertions) pass. Normalized M6 replay next; no final acceptance claimed. Planned M6 explicit budget12GiB; see the active handbook. [Checkpoint receipts](integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/validation10/summary.json).
-Checkpoint d11d05d9cc and7c1a56e0bc are
-local; automatic approval review blocked pushing to origin and destination approval
-remains pending. Unrelated dc11/dc15 campaign logs were left out of the checkpoints.
+Current checkpoint: `fe9bb2d30e` (local). Shared Option A normalization,
+construction, reassessment and original-family correction now use the same field;
+logarithmic blending preserves finer sensor directions. Registered-column cavities
+resolve the last two M6 first-height failures (validation11), but that diagnostic
+mesh still fails final quality/edge/budget gates. No accepted full M6 exists.
+
+The native memory ceiling, final publication-budget check and lost query-error
+diagnostic are fixed. The six historical distributed-repair assertions above are
+resolved. Validation19 passes1,658 assertions/12 serial cases,11 MPI2 cases/rank
+and7 invalid-configuration checks, with source/runtime provenance.
+Normalized M6 event1 passes12GiB admission, then rejects all nine profiles before
+construction (814k at0 increasing to2.37M at1, budget500k). Session26009 is terminal.
+
+Validation20 isolates the uniform-sensor field cost at32,768 samples: profile0
+821,265 +/-53,688; profile1 2,298,938 +/-198,670. Profile1 contributes1,876,743
+beyond10T. All15 completed estimates reconstruct from query receipts and direct/
+cached values agree. This diagnoses excessive continuation from a coarse normal
+with fine tangents; it does not prove infeasibility. Validation21 rejects a diagnostic normal-spacing cap: best sampled1,182,909
++/-67,994, still over budget. The normal-only field contract remains in force; an
+asynchronous tangential-policy clarification is pending. Validation22 is terminal: curved mapped controls, strict bounds, v7 persistence
+and source/child error plumbing pass959 assertions/11 cases in serial and on each
+of2 MPI ranks, plus all10 standalone groups. Full M6 admits48,954 patches with
+zero fallbacks and a bit-identical46.6MB sidecar round trip. No volume mesh was
+constructed. Next: curved field queries, clearance, refinement and initialization
+as one connected change; no automatic curved switch is enabled.
+Full-field gradation, final accepted mesh, curved integration and transfer/restart
+remain open; see the active handbook for scope, live handles and detailed receipts.
+
+Automatic approval review blocked pushing to origin; destination approval remains
+pending. Do not retry remote export without it. Unrelated dc11/dc15 campaign logs
+remain outside our checkpoints.
 
 User curvature decision: configured geometric error ADAP_HAUSD, independent of h0
 and ramp. Use mesh units (1e-4 means 0.1 mm only for metre coordinates). Preserve

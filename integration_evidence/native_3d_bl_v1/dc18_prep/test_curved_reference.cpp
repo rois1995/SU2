@@ -1045,6 +1045,18 @@ static void TestContracts() {
   CHECK(error[1] < 1e-12, "exact plane has negligible normal deviation");
 
   auto sphere = Icosphere(1, 1, 0, 1);
+  {
+    auto selected = sphere; selected.t[0].marker = 2;
+    PNTriangleSurface::Options fixed; fixed.fixedMarkers = {2};
+    PNTriangleSurface constrained(selected.p, selected.t, fixed);
+    CHECK(constrained.Bulge(0) < 1e-12, "unselected marker stays faceted");
+    CHECK(constrained.Component(0) != constrained.Component(1), "wall projection cannot enter a fixed boundary");
+    CHECK(constrained.Curvature(0, .2, .3).k1 == 0 && constrained.SectorCurvature(0, 0).k2 == 0,
+          "fixed facets do not acquire fitted smooth curvature");
+    CHECK(constrained.MaximumEdgeGap() < 1e-12, "fixed/curved shared edges remain watertight");
+    double curvedBulge = 0; for (size_t f = 1; f < selected.t.size(); ++f) curvedBulge = std::max(curvedBulge, constrained.Bulge(f));
+    CHECK(curvedBulge > 1e-3, "unselected marker does not flatten unrelated curved patches");
+  }
   const size_t originalVertices = sphere.p.size(), originalFaces = sphere.t.size();
   for (size_t i = 0; i < originalVertices; ++i) sphere.p.push_back(Add<3>(sphere.p[i], {3,0,0}));
   for (size_t i = 0; i < originalFaces; ++i) {
