@@ -29,6 +29,7 @@
 #include "../../../Common/include/adaptation/CNativeRuntimeProfile3D.hpp"
 #include "../../../Common/include/adaptation/CNativeImport3D.hpp"
 #include "../../include/solvers/CSolver.hpp"
+#include "../../include/adaptation/CNativeBLTarget3D.hpp"
 #include "../../../Common/include/adaptation/CMeshGather.hpp"
 #include "../../../Common/include/adaptation/CDistributedSearch.hpp"
 #include "../../../Common/include/adaptation/CTransferMemory.hpp"
@@ -2635,6 +2636,7 @@ bool CNativeMetricFamily3D::Compatible(const CConfig& config)const {
       SU2_TYPE::GetValue(config.GetAdap_ARmax()),SU2_TYPE::GetValue(config.GetAdap_Hgrad()),SU2_TYPE::GetValue(config.GetAdap_Complexity()),double(config.GetAdap_BL_Budget()),
       SU2_TYPE::GetValue(config.GetAdap_BL_ProtectDistance()),SU2_TYPE::GetValue(config.GetAdap_BL_OuterGrowthMax())}};
   if(current!=controls || config.GetnAdap_BL()!=layer_controls.size() || surface_tolerance!=SU2_TYPE::GetValue(config.GetAdap_Hausd()))return false;
+  if(bool(first_row)!=(boundary_layer && !layer_controls.empty() && config.GetKind_Adap_BL_Method()==ADAP_BL_METHOD::FIRST_ROW))return false;
   // The D1 feature set of the retained layers depends on ADAP_ANGLE (and ADAP_HGRAD, already in the controls).
   if(feature_angle!=SU2_TYPE::GetValue(config.GetAdap_Angle()))return false;
   for(unsigned i=0;i<layer_controls.size();++i) {
@@ -2878,6 +2880,7 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
     if(!std::equal(low,low+3,high))SU2_MPI::Error("Inconsistent native3D BL budget controls.",CURRENT_FUNCTION);
   }
   std::shared_ptr<CBoundaryLayerMetric> nativeLayers;
+  std::shared_ptr<SU2NativeBLPipeline3D::TargetPolicy> firstRowTarget;
   struct CellRule {
     std::array<unsigned long, 3> nodes;
     std::array<std::array<double,2>,3> coordinates;
@@ -2900,7 +2903,7 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
   unsigned long quadratureCell=0;
   std::string quadratureContext="Native geometric BL reference";
   try {
-    if(replay)nativeLayers=replay->family->layers;
+    if(replay){nativeLayers=replay->family->layers;firstRowTarget=replay->family->first_row;}
     if (geometricBL && !replay) {
       if(nDim==2)
         nativeLayers = nativeReference != nullptr
@@ -2912,6 +2915,10 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
             : std::make_shared<CBoundaryLayerMetric>(*geometry, *config);
       if(budgetBL)nativeLayers->ConfigureOuterNormal(
           SU2_TYPE::GetValue(config->GetAdap_BL_ProtectDistance()),SU2_TYPE::GetValue(config->GetAdap_BL_OuterGrowthMax()));
+      if(nDim==3 && config->GetKind_Adap_BL_Method()==ADAP_BL_METHOD::FIRST_ROW) {
+        if(!nativeReference3D)throw std::runtime_error("FIRST_ROW normalization requires its retained geometry authority.");
+        firstRowTarget=SU2NativeBLPipeline3D::MakeTargetPolicy(*config,*nativeReference3D,SU2_TYPE::GetValue(eigMin),-1,nativeLayers);
+      }
       {
         /*--- D1 crease-frame law: one feature set (detected on replicated original geometry) on every rank. ---*/
         const auto& features=nativeLayers->GetFeatures();
@@ -2972,7 +2979,7 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
   if(uncertaintyPolicy && nativeLayers) {
     const int local=!nativeLayers->PlanarWalls3D();int global=0;
     SU2_MPI::Allreduce(&local,&global,1,MPI_INT,MPI_MAX,SU2_MPI::GetComm());
-    boundedGeometry=global!=0;
+    boundedGeometry=global!=0 || bool(firstRowTarget);
   }
   double integrationUncertainty=0;
   SU2Complexity::Normalization normalization;
@@ -3147,6 +3154,7 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
           if(!hadTransition)boundedComplexity.reset();
           for(auto& cell:integration)cell.points=nativeLayers->IntegrationRule2D(cell.coordinates);
         }
+        if(firstRowTarget)firstRowTarget->Update(SU2_TYPE::GetValue(frozenCore),SU2_TYPE::GetValue(config->GetAdap_Hgrad()));
       }catch(const std::exception& error){transitionFailure.Set(2,0,error.what());}
       CollectiveFailure(transitionFailure,CURRENT_FUNCTION);
       if(replay) {
@@ -3264,7 +3272,7 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
           }
           if(boundedComplexity) {
             CLocalFailure assessmentFailure;
-            try {boundedAssessment=boundedComplexity->Assess(blMetric,frozenCore);}
+            try {boundedAssessment=boundedComplexity->Assess(blMetric,frozenCore,false,firstRowTarget.get());}
             catch(const std::exception& error){assessmentFailure.Set(2,0,error.what());}
             CollectiveFailure(assessmentFailure,CURRENT_FUNCTION);
             global=boundedAssessment.global.value;integrationUncertainty=boundedAssessment.global.uncertainty;
@@ -3601,8 +3609,11 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
     syncSensor();
     vector<CBoundaryLayerMetric::Tensor> composed = blMetric;
     if (nativeLayers)
-      for (auto point = 0ul; point < nPoint; ++point)
-        nativeLayers->ApplyPoint(geometry->nodes->GetCoord(point), composed[point], frozenCore, nullptr, false);
+      for (auto point = 0ul; point < nPoint; ++point) {
+        const auto* p=geometry->nodes->GetCoord(point);
+        if(firstRowTarget)firstRowTarget->ApplyPoint({SU2_TYPE::GetValue(p[0]),SU2_TYPE::GetValue(p[1]),SU2_TYPE::GetValue(p[2])},composed[point]);
+        else nativeLayers->ApplyPoint(p, composed[point], frozenCore, nullptr, false);
+      }
     auto transportRatio = [&](const CBoundaryLayerMetric::Tensor& a, const CBoundaryLayerMetric::Tensor& b,
                               const su2double* x, const su2double* y) {
       su2double vec[3][3], val[3], work[3], inv[3][3], transformed[3][3] = {}, distance2 = 0;
@@ -3902,10 +3913,11 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
         replay->normalization=normalized;replay->core=SU2_TYPE::GetValue(frozenCore);
       } else {
         const auto bytes=transfer_memory::Add(transfer_memory::Mul(nPoint,sizeof(CNativeMetricFamily3D::Node)+sizeof(CBoundaryLayerMetric::Tensor)),
-            transfer_memory::Bytes(blFrames),transfer_memory::Bytes(eigenvalues),nativeLayers?nativeLayers->StorageBytes():0);
+            transfer_memory::Bytes(blFrames),transfer_memory::Bytes(eigenvalues),firstRowTarget?firstRowTarget->StorageBytes():(nativeLayers?nativeLayers->StorageBytes():0));
         if(bytes>(size_t(2)<<30))throw std::runtime_error("Original metric family exceeds2GiB storage ceiling.");
         auto family=std::make_shared<CNativeMetricFamily3D>();family->geometry=geometry;family->owned=nPointDomain;
         family->frames=std::move(blFrames);family->eigenvalues=std::move(eigenvalues);family->layers=nativeLayers;
+        family->first_row=firstRowTarget;family->target_extra_bytes=firstRowTarget?firstRowTarget->StorageBytes()-nativeLayers->StorageBytes():0;
         family->selected.resize(nPoint);family->nodes.reserve(nPoint);
         for(size_t i=0;i<nPoint;++i) {
           const auto id=geometry->nodes->GetGlobalIndex(i);const auto* p=geometry->nodes->GetCoord(i);

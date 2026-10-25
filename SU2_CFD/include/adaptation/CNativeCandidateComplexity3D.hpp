@@ -5,6 +5,7 @@
  */
 #pragma once
 #include "CNativeMetricFamily3D.hpp"
+#include "CNativeBLTarget3D.hpp"
 #include "../../../Common/include/adaptation/CNativeImport3D.hpp"
 
 /*! Preparation verifies original publisher/cell/node bindings. Trials reuse stencils and geometry;
@@ -16,7 +17,8 @@ class CNativeCandidateComplexity3D {
     SU2Native3D::Point point;
     double inverse_pdf=0;
     uint64_t row=0;
-    std::vector<CBoundaryLayerMetric::PointSample> geometry;
+    std::vector<CBoundaryLayerMetric::PointSample> geometry,baseGeometry;
+    long double weight=0;
   };
   const CNativeMetricFamily3D& family;
   uint64_t count,profileVersion=0;
@@ -31,7 +33,7 @@ class CNativeCandidateComplexity3D {
   } stats;
   size_t ResidentBytes()const {
     size_t bytes=transfer_memory::Add(sizeof(*this),transfer_memory::Bytes(queries));
-    for(const auto& q:queries)bytes=transfer_memory::Add(bytes,transfer_memory::Bytes(q.geometry));
+    for(const auto& q:queries)bytes=transfer_memory::Add(bytes,transfer_memory::Bytes(q.geometry),transfer_memory::Bytes(q.baseGeometry));
     return bytes;
   }
   CNativeCandidateComplexity3D(const CNativeMetricFamily3D& original,const SU2Native3D::PreparedComplexity3D& cloud,
@@ -69,7 +71,11 @@ class CNativeCandidateComplexity3D {
           q.nodes[k]=family.LocalNode(p.nodes[k],source_span);
         }
         if(family.layers){q.geometry=family.layers->SamplePoints({p.point.x,p.point.y,p.point.z});++stats.geometry_queries;}
-        geometry_bytes=transfer_memory::Add(geometry_bytes,transfer_memory::Bytes(q.geometry));
+        if(family.first_row) {
+          q.baseGeometry=family.first_row->base->SamplePoints({p.point.x,p.point.y,p.point.z});
+          q.weight=family.first_row->A->Weight(junction_wp0::Of(p.point));++stats.geometry_queries;
+        }
+        geometry_bytes=transfer_memory::Add(geometry_bytes,transfer_memory::Bytes(q.geometry),transfer_memory::Bytes(q.baseGeometry));
         queries.push_back(std::move(q));
         if(transfer_memory::Add(caller_bytes,sizeof(*this),transfer_memory::Bytes(queries),geometry_bytes)>ceiling)throw std::runtime_error("Original candidate geometry exceeds storage ceiling.");
       }
@@ -86,11 +92,13 @@ class CNativeCandidateComplexity3D {
     try {
       if(current.size()!=family.selected.size() || !(core>0) || !std::isfinite(SU2_TYPE::GetValue(core)))
         throw std::runtime_error("Invalid current original candidate integration field/core.");
+      if(family.first_row)family.first_row->Update(SU2_TYPE::GetValue(core),family.controls[3]);
       if(family.layers && profileVersion!=family.layers->GetSampleVersion()) {
         size_t bytes=transfer_memory::Add(callerBytes,sizeof(*this),transfer_memory::Bytes(queries));
         for(auto& q:queries) {
           q.geometry=family.layers->SamplePoints({q.point.x,q.point.y,q.point.z});++stats.geometry_queries;
-          bytes=transfer_memory::Add(bytes,transfer_memory::Bytes(q.geometry));
+          if(family.first_row){q.baseGeometry=family.first_row->base->SamplePoints({q.point.x,q.point.y,q.point.z});++stats.geometry_queries;}
+          bytes=transfer_memory::Add(bytes,transfer_memory::Bytes(q.geometry),transfer_memory::Bytes(q.baseGeometry));
           if(bytes>storageCeiling)throw std::runtime_error("Refreshed original candidate geometry exceeds storage ceiling.");
         }
         profileVersion=family.layers->GetSampleVersion();
@@ -103,7 +111,8 @@ class CNativeCandidateComplexity3D {
         const auto sensor=InterpolateSensor(values,q.weights);CBoundaryLayerMetric::Tensor target;
         target.m[0][0]=sensor.xx;target.m[0][1]=target.m[1][0]=sensor.xy;target.m[0][2]=target.m[2][0]=sensor.xz;
         target.m[1][1]=sensor.yy;target.m[1][2]=target.m[2][1]=sensor.yz;target.m[2][2]=sensor.zz;
-        for(const auto& g:q.geometry)family.layers->ApplySample(g.wall,g.sample,target,core,nullptr,false);
+        if(family.first_row)family.first_row->ApplySamples(q.geometry,q.baseGeometry,q.weight,target);
+        else for(const auto& g:q.geometry)family.layers->ApplySample(g.wall,g.sample,target,core,nullptr,false);
         const Tensor packed{SU2_TYPE::GetValue(target.m[0][0]),SU2_TYPE::GetValue(target.m[0][1]),SU2_TYPE::GetValue(target.m[0][2]),
             SU2_TYPE::GetValue(target.m[1][1]),SU2_TYPE::GetValue(target.m[1][2]),SU2_TYPE::GetValue(target.m[2][2])};
         long double condition=0;const auto y=(long double)MetricDensity(packed,nullptr,&condition)*q.inverse_pdf;

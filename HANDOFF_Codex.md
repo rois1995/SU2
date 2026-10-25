@@ -31,7 +31,7 @@ continuation completion and height-directed admission are implemented. Full-M6
 validation9 is rejected with two remaining height failures; LP moves add frozen
 edge excess. Validation10 still has21 field-gradation violations and10.18%
 complexity uncertainty. Metric/2D/3D/pipeline/growth and focused serial/MPI2 checks
-pass. No owned job is live. [Current receipts](integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/validation10/summary.json).
+pass at that checkpoint. Validation11 is terminal: cavity completion fixes both height failures and construction accepts; publication rejects complexity1.758M +/-28k against500k without original-family correction. Shared Option A normalization/correction and sensor-preserving blending pass594 assertions/8 cases (validation15). Normalized M6 replay55778 is terminal: its donor import requests5482MiB against normalization's hard-coded2048MiB ceiling, before construction. Implement the listed native memory-limit option across normalization/reference/remeshing next; no owned job is live; see the active handbook. [Checkpoint receipts](integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/validation10/summary.json).
 Checkpoint d11d05d9cc and7c1a56e0bc are
 local; automatic approval review blocked pushing to origin and destination approval
 remains pending. Unrelated dc11/dc15 campaign logs were left out of the checkpoints.

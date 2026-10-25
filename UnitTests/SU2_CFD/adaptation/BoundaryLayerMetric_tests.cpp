@@ -25,6 +25,7 @@
  */
 
 #include "catch.hpp"
+#include "../../../SU2_CFD/include/adaptation/CNativeCandidateComplexity3D.hpp"
 
 #include <array>
 #include <cmath>
@@ -3347,4 +3348,82 @@ TEST_CASE("Outer BL correction samples the source domain and refreshes changed c
   CHECK(refined.global.uncertainty<.1*exact);
   CBoundaryLayerMetric legacy(3,{wall});CNativeComplexity3D old(legacy,source,mesh.GetnPoint(),size_t(256)<<20,64,7519);
   legacy.ConfigureOuterTransition(.01,1.3);CHECK_THROWS(old.Assess(sensor,1.,true));
+}
+
+TEST_CASE("FIRST_ROW crease policy is shared by candidate integration across profile and core trials", "[NativeBLTargetNormalization]") {
+  using namespace SU2Native3D;
+  CBoundaryLayerMetric::FeatureOptions options;options.hgrad=1.3;
+  const auto walls=Ridge();
+  auto target=std::make_shared<SU2NativeBLPipeline3D::TargetPolicy>();
+  target->full=std::make_shared<CBoundaryLayerMetric>(3,walls,45.,options);
+  target->base=std::make_shared<CBoundaryLayerMetric>(3,walls,179.999,options);
+  target->full->ConfigureOuterNormal(.01,2.);
+  std::map<P3,Id> nodes;std::vector<Facet> facets;
+  for(const auto& wall:walls)for(size_t k=0;k<wall.conn.size();k+=4) {
+    Facet f;f.id=facets.size();f.marker=0;
+    for(unsigned j=0;j<3;++j){const size_t n=wall.conn[k+j];P3 p{wall.coord[3*n],wall.coord[3*n+1],wall.coord[3*n+2]};
+      const auto id=nodes.emplace(p,nodes.size()).first->second;f.v[j]={id,{p[0],p[1],p[2]}};}
+    facets.push_back(f);
+  }
+  target->A=dc10::BuildOptionA(facets,{{0,1}},45,target->full->GetFeatures().maximumRadius,1e-3);
+  target->A->distanceLayers=target->base;REQUIRE(!target->A->creases.empty());
+  DonorCell donor;donor.cell.id=0;
+  const Point points[]={{-.2,3.5,0},{.2,3.5,0},{-.2,4.5,0},{-.2,3.5,.4}};
+  for(unsigned k=0;k<4;++k){donor.cell.v[k]={k,points[k]};donor.sensor[k]={1,0,0,2,0,3};}
+  if(Orientation(points[0],points[1],points[2],points[3])<0){std::swap(donor.cell.v[0],donor.cell.v[1]);std::swap(donor.sensor[0],donor.sensor[1]);}
+  CNativeMetricFamily3D family;family.node_span=4;family.layers=target->full;family.first_row=target;family.controls[3]=1.3;
+  family.selected.resize(4);
+  for(unsigned k=0;k<4;++k){family.nodes.push_back({k,points[k],k});family.selected[k].m[0][0]=1;family.selected[k].m[1][1]=2;family.selected[k].m[2][2]=3;}
+  World world;PreparedComplexity3D cloud;cloud.count=64;std::vector<DonorCell> source;
+  if(world.rank==0) {
+    source.push_back(donor);
+    for(unsigned k=0;k<64;++k) {
+      OriginalComplexityPoint3D q;q.row=k;q.cell=0;q.publisher=0;q.inverse_pdf=1;
+      q.weights={.4L-.005L*k,.25L+.005L*k,.1L,.25L};
+      for(unsigned j=0;j<4;++j){q.nodes[j]=donor.cell.v[j].id;q.point.x+=q.weights[j]*donor.cell.v[j].p.x;
+        q.point.y+=q.weights[j]*donor.cell.v[j].p.y;q.point.z+=q.weights[j]*donor.cell.v[j].p.z;}
+      cloud.points.push_back(q);
+    }
+  }
+  target->Update(1.,1.3);CNativeCandidateComplexity3D assess(family,cloud,source,size_t(64)<<20);
+  bool differs=false;
+  for(double parameter:{0.,.75,1.})for(double c:{1.,.25,2.}) {
+    target->full->SelectOuterNormal(parameter);target->Update(c,1.3);su2double core=c;
+    const auto result=assess.Assess(family.selected,core);long double sum=0;
+    for(const auto& q:cloud.points) {
+      const auto m=target->Composition()(q.point,donor.sensor[0]);sum+=MetricDensity(m)/cloud.count;
+      const auto full=SU2NativeBL3D::Composition(target->full,c)(q.point,donor.sensor[0]);
+      differs=differs||std::abs(MetricDensity(m)-MetricDensity(full))>1e-3;
+    }
+    long double global=0;SU2_MPI::Allreduce(&sum,&global,1,MPI_LONG_DOUBLE,MPI_SUM,world.comm);sum=global;
+    CHECK(result.value==Approx(double(sum)).epsilon(2e-12));
+    CHECK(target->base->GetOuterNormal().parameter==parameter);
+  }
+  CHECK(CPassiveComm::Allreduce(int(differs),CPassiveComm::Op::MAX)==1);
+  target->full->FreezeOuterNormal();target->Update(.5,1.3);CHECK(target->base->GetOuterNormal().frozen);
+  std::vector<CNativeComplexity3D::SourceCell> cells;
+  if(!world.rank) {
+    CNativeComplexity3D::SourceCell c;c.cell=donor.cell;
+    for(unsigned k=0;k<4;++k)c.nodes[k]=donor.cell.v[k].id;cells.push_back(c);
+  }
+  CNativeComplexity3D integral(*target->full,std::move(cells),4,size_t(128)<<20,8192,20261017,true);
+  auto checked=integral.Assess(family.selected,.5,true,target.get());CHECK(checked.directChecks>32);
+  std::string why;REQUIRE(integral.Refine(why));
+  checked=integral.Assess(family.selected,.5,true,target.get());CHECK(checked.directChecks>32);
+  target->Update(.25,1.3);checked=integral.Assess(family.selected,.25,true,target.get());CHECK(checked.directChecks>32);
+  CHECK_THROWS(integral.Assess(family.selected,.5,true,target.get()));
+}
+
+TEST_CASE("Logarithmic FIRST_ROW blending preserves fine anisotropic sensor directions", "[NativeBLTargetNormalization]") {
+  using SU2Native3D::Tensor;
+  const Tensor sensor{1.7188839577992443,-2.0391202806247564,-1.067954756614314,5.278146679780957,2.669778686638549,1.5669455033350104};
+  const Tensor base{1.9876850211058414,9.765094311096066,-5.864472372740881,523.6521457009932,-207.96600726316206,87.15656690885362};
+  const Tensor full{412.52919497747723,-378.9562155873974,-120.76699295529062,351.0983291914359,112.49324849409037,36.44401494719777};
+  auto minimum=[&](Tensor t) {auto a=dc10::FromTensor(t),b=dc10::FromTensor(sensor);for(unsigned i=0;i<3;++i)for(unsigned j=0;j<3;++j)a[i][j]-=b[i][j];
+    std::array<long double,3> values;dc10::M3 vectors;dc10::Eig3(a,values,vectors);return *std::min_element(values.begin(),values.end());};
+  CHECK(minimum(base)>-1e-12);CHECK(minimum(full)>-1e-12);
+  auto lb=dc10::Function3(dc10::FromTensor(base),dc10::LogL),lf=dc10::Function3(dc10::FromTensor(full),dc10::LogL);
+  for(unsigned i=0;i<3;++i)for(unsigned j=0;j<3;++j)lb[i][j]=.5L*(lb[i][j]+lf[i][j]);
+  CHECK(minimum(dc10::ToTensor(dc10::Function3(lb,dc10::ExpL)))<-.1L);
+  for(long double weight:{0.L,.1L,.5L,.9L,1.L})CHECK(minimum(dc10::OptionA::Blend(base,full,weight,sensor))>-1e-11L);
 }

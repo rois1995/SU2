@@ -28,7 +28,7 @@ fi
 mv event$K.cfg.pending event$K.cfg
 echo "event=$K env=V${SU2_DC17_V_SECONDS:-}/old${SU2_DC17_OLD_HALVING:-} binary=$SHA inputs=$IN mesh=$MESH dir=$DIR start=$(date -Is)" >> $E/campaign.log
 ( /usr/bin/time -v env SU2_DC14_CONFIG=$DIR/event$K.cfg SU2_DC14_DONORS=$E/../dc14/m6_full/coarse_sensor_donors.bin SU2_DC14_OUT=$DIR/event${K} \
-   SU2_DC14_EVENT=$K SU2_DC14_OUTER_PARAMETER=0.75 nice -n 19 timeout --kill-after=10s ${TO}s ${PERF:+perf record --no-buildid --no-buildid-cache -F 19 -g -o $DIR/perf.data} $BIN "[NativeFrozenBL14]" --use-colour no > event$K.out 2>&1 ) &
+   SU2_DC14_EVENT=$K nice -n 19 timeout --kill-after=10s ${TO}s ${PERF:+perf record --no-buildid --no-buildid-cache -F 19 -g -o $DIR/perf.data} $BIN "[NativeFrozenBL14]" --use-colour no > event$K.out 2>&1 ) &
 PID=$!
 tree(){ local p=$1; echo $p; for c in $(pgrep -P $p || true); do tree $c; done; }
 PEAK=0;while kill -0 $PID 2>/dev/null; do R1=$(for p in $(tree $PID); do ps -o rss= -p $p 2>/dev/null || true; done | awk '{s+=$1}END{print s+0}'); if [ "$R1" -gt "$PEAK" ]; then PEAK=$R1; fi; sleep 20; done

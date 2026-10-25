@@ -1,0 +1,305 @@
+ninja: Entering directory `integration_evidence/build-integrated-v2'
+[1/9] Compiling C++ object SU2_CFD/src/libSU2core.a.p/solvers_CSolver.cpp.o
+[2/9] Compiling C++ object SU2_CFD/src/libSU2core.a.p/drivers_CSinglezoneDriver.cpp.o
+[3/9] Compiling C++ object SU2_CFD/src/libSU2core.a.p/adaptation_CNativeComplexity3D.cpp.o
+FAILED: [code=1] SU2_CFD/src/libSU2core.a.p/adaptation_CNativeComplexity3D.cpp.o 
+c++ -ISU2_CFD/src/libSU2core.a.p -ISU2_CFD/src -I../../SU2_CFD/src -I../../externals/CLI11 -I../../externals/eigen -I../../externals/cgns/adf -I../../externals/cgns/adfh -Iexternals/cgns -I../../externals/cgns -Iexternals/cgns/hdf5 -I../../externals/cgns/hdf5 -I../../externals/metis/include -I../../externals/metis/GKlib -I../../externals/metis/libmetis -I../../externals/parmetis/include -I../../externals/parmetis/libparmetis -I../../externals/mel -ICommon/src -I../../Common/src -I/usr/lib/x86_64-linux-gnu/openmpi/include/openmpi -I/usr/lib/x86_64-linux-gnu/openmpi/include -fdiagnostics-color=always -D_GLIBCXX_ASSERTIONS=1 -D_FILE_OFFSET_BITS=64 -std=c++17 -O2 -g -fPIC -pthread -Wno-empty-body -Wno-ignored-qualifiers -Wno-unused-parameter -Wno-deprecated-declarations -Wno-error=cast-function-type -Wno-cast-function-type -Wno-error=stringop-truncation -Wno-stringop-truncation -Wno-error=missing-field-initializers -Wno-missing-field-initializers -Wno-error=class-memaccess -Wno-class-memaccess -Wno-overloaded-virtual -Wno-array-bounds -march=native -ffast-math -fno-finite-math-only -DHAVE_CGNS -DHAVE_MPI -DHAVE_METIS -DHAVE_PARMETIS -DHAVE_MMG -MD -MQ SU2_CFD/src/libSU2core.a.p/adaptation_CNativeComplexity3D.cpp.o -MF SU2_CFD/src/libSU2core.a.p/adaptation_CNativeComplexity3D.cpp.o.d -o SU2_CFD/src/libSU2core.a.p/adaptation_CNativeComplexity3D.cpp.o -c ../../SU2_CFD/src/adaptation/CNativeComplexity3D.cpp
+In file included from ../../SU2_CFD/src/adaptation/CNativeComplexity3D.cpp:1:
+../../SU2_CFD/src/adaptation/../../include/adaptation/CNativeBLTarget3D.hpp:142:64: error: ‘Facet’ was not declared in this scope
+  142 | inline std::shared_ptr<OptionA> BuildOptionA(const std::vector<Facet>& facets,const std::map<int,int>& roles,double angle,double radius,double h0) {
+      |                                                                ^~~~~
+../../SU2_CFD/src/adaptation/../../include/adaptation/CNativeBLTarget3D.hpp:142:69: error: template argument 1 is invalid
+  142 | inline std::shared_ptr<OptionA> BuildOptionA(const std::vector<Facet>& facets,const std::map<int,int>& roles,double angle,double radius,double h0) {
+      |                                                                     ^
+../../SU2_CFD/src/adaptation/../../include/adaptation/CNativeBLTarget3D.hpp:142:69: error: template argument 2 is invalid
+../../SU2_CFD/src/adaptation/../../include/adaptation/CNativeBLTarget3D.hpp: In function ‘std::shared_ptr<dc10::OptionA> dc10::BuildOptionA(const int&, const std::map<int, int>&, double, double, double)’:
+../../SU2_CFD/src/adaptation/../../include/adaptation/CNativeBLTarget3D.hpp:144:42: error: ‘begin’ was not declared in this scope; did you mean ‘std::begin’?
+  144 |   {long double scale=1;for(const auto& f:facets)for(auto x:f.v)scale=std::max({scale,std::abs((long double)x.p.x),std::abs((long double)x.p.y),std::abs((long double)x.p.z)});A->onLine=1e-9L*scale;}
+      |                                          ^~~~~~
+      |                                          std::begin
+In file included from /usr/include/c++/9/string:54,
+                 from /usr/include/c++/9/stdexcept:39,
+                 from /usr/include/c++/9/array:39,
+                 from ../../SU2_CFD/src/adaptation/../../include/adaptation/../../../Common/include/adaptation/CNativeMesh3D.hpp:9,
+                 from ../../SU2_CFD/src/adaptation/../../include/adaptation/CNativeBLVector3D.hpp:4,
+                 from ../../SU2_CFD/src/adaptation/../../include/adaptation/CNativeBLTarget3D.hpp:7,
+                 from ../../SU2_CFD/src/adaptation/CNativeComplexity3D.cpp:1:
+/usr/include/c++/9/bits/range_access.h:105:37: note: ‘std::begin’ declared here
+  105 |   template<typename _Tp> const _Tp* begin(const valarray<_Tp>&);
+      |                                     ^~~~~
+In file included from ../../SU2_CFD/src/adaptation/CNativeComplexity3D.cpp:1:
+../../SU2_CFD/src/adaptation/../../include/adaptation/CNativeBLTarget3D.hpp:144:42: error: ‘end’ was not declared in this scope; did you mean ‘std::end’?
+  144 |   {long double scale=1;for(const auto& f:facets)for(auto x:f.v)scale=std::max({scale,std::abs((long double)x.p.x),std::abs((long double)x.p.y),std::abs((long double)x.p.z)});A->onLine=1e-9L*scale;}
+      |                                          ^~~~~~
+      |                                          std::end
+In file included from /usr/include/c++/9/string:54,
+                 from /usr/include/c++/9/stdexcept:39,
+                 from /usr/include/c++/9/array:39,
+                 from ../../SU2_CFD/src/adaptation/../../include/adaptation/../../../Common/include/adaptation/CNativeMesh3D.hpp:9,
+                 from ../../SU2_CFD/src/adaptation/../../include/adaptation/CNativeBLVector3D.hpp:4,
+                 from ../../SU2_CFD/src/adaptation/../../include/adaptation/CNativeBLTarget3D.hpp:7,
+                 from ../../SU2_CFD/src/adaptation/CNativeComplexity3D.cpp:1:
+/usr/include/c++/9/bits/range_access.h:107:37: note: ‘std::end’ declared here
+  107 |   template<typename _Tp> const _Tp* end(const valarray<_Tp>&);
+      |                                     ^~~
+In file included from ../../SU2_CFD/src/adaptation/CNativeComplexity3D.cpp:1:
+../../SU2_CFD/src/adaptation/../../include/adaptation/CNativeBLTarget3D.hpp:144:173: error: no matching function for call to ‘max(<brace-enclosed initializer list>)’
+  144 |   {long double scale=1;for(const auto& f:facets)for(auto x:f.v)scale=std::max({scale,std::abs((long double)x.p.x),std::abs((long double)x.p.y),std::abs((long double)x.p.z)});A->onLine=1e-9L*scale;}
+      |                                                                                                                                                                             ^
+In file included from /usr/include/c++/9/bits/char_traits.h:39,
+                 from /usr/include/c++/9/string:40,
+                 from /usr/include/c++/9/stdexcept:39,
+                 from /usr/include/c++/9/array:39,
+                 from ../../SU2_CFD/src/adaptation/../../include/adaptation/../../../Common/include/adaptation/CNativeMesh3D.hpp:9,
+                 from ../../SU2_CFD/src/adaptation/../../include/adaptation/CNativeBLVector3D.hpp:4,
+                 from ../../SU2_CFD/src/adaptation/../../include/adaptation/CNativeBLTarget3D.hpp:7,
+                 from ../../SU2_CFD/src/adaptation/CNativeComplexity3D.cpp:1:
+/usr/include/c++/9/bits/stl_algobase.h:222:5: note: candidate: ‘template<class _Tp> constexpr const _Tp& std::max(const _Tp&, const _Tp&)’
+  222 |     max(const _Tp& __a, const _Tp& __b)
+      |     ^~~
+/usr/include/c++/9/bits/stl_algobase.h:222:5: note:   template argument deduction/substitution failed:
+In file included from ../../SU2_CFD/src/adaptation/CNativeComplexity3D.cpp:1:
+../../SU2_CFD/src/adaptation/../../include/adaptation/CNativeBLTarget3D.hpp:144:173: note:   candidate expects 2 arguments, 1 provided
+  144 |   {long double scale=1;for(const auto& f:facets)for(auto x:f.v)scale=std::max({scale,std::abs((long double)x.p.x),std::abs((long double)x.p.y),std::abs((long double)x.p.z)});A->onLine=1e-9L*scale;}
+      |                                                                                                                                                                             ^
+In file included from /usr/include/c++/9/bits/char_traits.h:39,
+                 from /usr/include/c++/9/string:40,
+                 from /usr/include/c++/9/stdexcept:39,
+                 from /usr/include/c++/9/array:39,
+                 from ../../SU2_CFD/src/adaptation/../../include/adaptation/../../../Common/include/adaptation/CNativeMesh3D.hpp:9,
+                 from ../../SU2_CFD/src/adaptation/../../include/adaptation/CNativeBLVector3D.hpp:4,
+                 from ../../SU2_CFD/src/adaptation/../../include/adaptation/CNativeBLTarget3D.hpp:7,
+                 from ../../SU2_CFD/src/adaptation/CNativeComplexity3D.cpp:1:
+/usr/include/c++/9/bits/stl_algobase.h:268:5: note: candidate: ‘template<class _Tp, class _Compare> constexpr const _Tp& std::max(const _Tp&, const _Tp&, _Compare)’
+  268 |     max(const _Tp& __a, const _Tp& __b, _Compare __comp)
+      |     ^~~
+/usr/include/c++/9/bits/stl_algobase.h:268:5: note:   template argument deduction/substitution failed:
+In file included from ../../SU2_CFD/src/adaptation/CNativeComplexity3D.cpp:1:
+../../SU2_CFD/src/adaptation/../../include/adaptation/CNativeBLTarget3D.hpp:144:173: note:   candidate expects 3 arguments, 1 provided
+  144 |   {long double scale=1;for(const auto& f:facets)for(auto x:f.v)scale=std::max({scale,std::abs((long double)x.p.x),std::abs((long double)x.p.y),std::abs((long double)x.p.z)});A->onLine=1e-9L*scale;}
+      |                                                                                                                                                                             ^
+In file included from /usr/include/c++/9/functional:65,
+                 from ../../SU2_CFD/src/adaptation/../../include/adaptation/CBoundaryLayerMetric.hpp:30,
+                 from ../../SU2_CFD/src/adaptation/../../include/adaptation/CNativeBLComposition3D.hpp:10,
+                 from ../../SU2_CFD/src/adaptation/../../include/adaptation/CNativeBLTarget3D.hpp:8,
+                 from ../../SU2_CFD/src/adaptation/CNativeComplexity3D.cpp:1:
+/usr/include/c++/9/bits/stl_algo.h:3462:5: note: candidate: ‘template<class _Tp> constexpr _Tp std::max(std::initializer_list<_Tp>)’
+ 3462 |     max(initializer_list<_Tp> __l)
+      |     ^~~
+/usr/include/c++/9/bits/stl_algo.h:3462:5: note:   template argument deduction/substitution failed:
+/usr/include/c++/9/bits/stl_algo.h:3468:5: note: candidate: ‘template<class _Tp, class _Compare> constexpr _Tp std::max(std::initializer_list<_Tp>, _Compare)’
+ 3468 |     max(initializer_list<_Tp> __l, _Compare __comp)
+      |     ^~~
+/usr/include/c++/9/bits/stl_algo.h:3468:5: note:   template argument deduction/substitution failed:
+In file included from ../../SU2_CFD/src/adaptation/CNativeComplexity3D.cpp:1:
+../../SU2_CFD/src/adaptation/../../include/adaptation/CNativeBLTarget3D.hpp:145:23: error: ‘Facet’ does not name a type; did you mean ‘facets’?
+  145 |   auto kind=[&](const Facet& f){return roles.at(f.marker);};
+      |                       ^~~~~
+      |                       facets
+../../SU2_CFD/src/adaptation/../../include/adaptation/CNativeBLTarget3D.hpp:145:60: error: expected ‘)’ before ‘;’ token
+  145 |   auto kind=[&](const Facet& f){return roles.at(f.marker);};
+      |                ~                                           ^
+      |                                                            )
+../../SU2_CFD/src/adaptation/../../include/adaptation/CNativeBLTarget3D.hpp: In lambda function:
+../../SU2_CFD/src/adaptation/../../include/adaptation/CNativeBLTarget3D.hpp:145:60: error: expected ‘{’ before ‘;’ token
+../../SU2_CFD/src/adaptation/../../include/adaptation/CNativeBLTarget3D.hpp: In function ‘std::shared_ptr<dc10::OptionA> dc10::BuildOptionA(const int&, const std::map<int, int>&, double, double, double)’:
+../../SU2_CFD/src/adaptation/../../include/adaptation/CNativeBLTarget3D.hpp:146:47: error: ISO C++ forbids declaration of ‘type name’ with no type [-fpermissive]
+  146 |   std::map<std::pair<Id,Id>,std::vector<const Facet*>> edges;
+      |                                               ^~~~~
+../../SU2_CFD/src/adaptation/../../include/adaptation/CNativeBLTarget3D.hpp:146:53: error: template argument 1 is invalid
+  146 |   std::map<std::pair<Id,Id>,std::vector<const Facet*>> edges;
+      |                                                     ^~
+../../SU2_CFD/src/adaptation/../../include/adaptation/CNativeBLTarget3D.hpp:146:53: error: template argument 2 is invalid
+../../SU2_CFD/src/adaptation/../../include/adaptation/CNativeBLTarget3D.hpp:146:56: error: template argument 2 is invalid
+  146 |   std::map<std::pair<Id,Id>,std::vector<const Facet*>> edges;
+      |                                                        ^~~~~
+../../SU2_CFD/src/adaptation/../../include/adaptation/CNativeBLTarget3D.hpp:146:56: error: template argument 4 is invalid
+../../SU2_CFD/src/adaptation/../../include/adaptation/CNativeBLTarget3D.hpp:147:21: error: ‘begin’ was not declared in this scope; did you mean ‘std::begin’?
+  147 |   for(const auto& f:facets)if(kind(f)==1)for(int k=0;k<3;++k){const Id a=f.v[k].id,b=f.v[(k+1)%3].id;edges[{std::min(a,b),std::max(a,b)}].push_back(&f);}
+      |                     ^~~~~~
+      |                     std::begin
+In file included from /usr/include/c++/9/string:54,
+                 from /usr/include/c++/9/stdexcept:39,
+                 from /usr/include/c++/9/array:39,
+                 from ../../SU2_CFD/src/adaptation/../../include/adaptation/../../../Common/include/adaptation/CNativeMesh3D.hpp:9,
+                 from ../../SU2_CFD/src/adaptation/../../include/adaptation/CNativeBLVector3D.hpp:4,
+                 from ../../SU2_CFD/src/adaptation/../../include/adaptation/CNativeBLTarget3D.hpp:7,
+                 from ../../SU2_CFD/src/adaptation/CNativeComplexity3D.cpp:1:
+/usr/include/c++/9/bits/range_access.h:105:37: note: ‘std::begin’ declared here
+  105 |   template<typename _Tp> const _Tp* begin(const valarray<_Tp>&);
+      |                                     ^~~~~
+In file included from ../../SU2_CFD/src/adaptation/CNativeComplexity3D.cpp:1:
+../../SU2_CFD/src/adaptation/../../include/adaptation/CNativeBLTarget3D.hpp:147:21: error: ‘end’ was not declared in this scope; did you mean ‘std::end’?
+  147 |   for(const auto& f:facets)if(kind(f)==1)for(int k=0;k<3;++k){const Id a=f.v[k].id,b=f.v[(k+1)%3].id;edges[{std::min(a,b),std::max(a,b)}].push_back(&f);}
+      |                     ^~~~~~
+      |                     std::end
+In file included from /usr/include/c++/9/string:54,
+                 from /usr/include/c++/9/stdexcept:39,
+                 from /usr/include/c++/9/array:39,
+                 from ../../SU2_CFD/src/adaptation/../../include/adaptation/../../../Common/include/adaptation/CNativeMesh3D.hpp:9,
+                 from ../../SU2_CFD/src/adaptation/../../include/adaptation/CNativeBLVector3D.hpp:4,
+                 from ../../SU2_CFD/src/adaptation/../../include/adaptation/CNativeBLTarget3D.hpp:7,
+                 from ../../SU2_CFD/src/adaptation/CNativeComplexity3D.cpp:1:
+/usr/include/c++/9/bits/range_access.h:107:37: note: ‘std::end’ declared here
+  107 |   template<typename _Tp> const _Tp* end(const valarray<_Tp>&);
+      |                                     ^~~
+In file included from ../../SU2_CFD/src/adaptation/CNativeComplexity3D.cpp:1:
+../../SU2_CFD/src/adaptation/../../include/adaptation/CNativeBLTarget3D.hpp:147:102: error: ‘edges’ was not declared in this scope
+  147 |   for(const auto& f:facets)if(kind(f)==1)for(int k=0;k<3;++k){const Id a=f.v[k].id,b=f.v[(k+1)%3].id;edges[{std::min(a,b),std::max(a,b)}].push_back(&f);}
+      |                                                                                                      ^~~~~
+../../SU2_CFD/src/adaptation/../../include/adaptation/CNativeBLTarget3D.hpp:147:120: error: ‘b’ was not declared in this scope
+  147 |   for(const auto& f:facets)if(kind(f)==1)for(int k=0;k<3;++k){const Id a=f.v[k].id,b=f.v[(k+1)%3].id;edges[{std::min(a,b),std::max(a,b)}].push_back(&f);}
+      |                                                                                                                        ^
+../../SU2_CFD/src/adaptation/../../include/adaptation/CNativeBLTarget3D.hpp:148:21: error: ‘begin’ was not declared in this scope; did you mean ‘std::begin’?
+  148 |   for(const auto& f:facets)if(kind(f)==2)for(int k=0;k<3;++k){const Id a=f.v[k].id,b=f.v[(k+1)%3].id;const auto e=edges.find({std::min(a,b),std::max(a,b)});if(e!=edges.end())e->second.push_back(&f);}
+      |                     ^~~~~~
+      |                     std::begin
+In file included from /usr/include/c++/9/string:54,
+                 from /usr/include/c++/9/stdexcept:39,
+                 from /usr/include/c++/9/array:39,
+                 from ../../SU2_CFD/src/adaptation/../../include/adaptation/../../../Common/include/adaptation/CNativeMesh3D.hpp:9,
+                 from ../../SU2_CFD/src/adaptation/../../include/adaptation/CNativeBLVector3D.hpp:4,
+                 from ../../SU2_CFD/src/adaptation/../../include/adaptation/CNativeBLTarget3D.hpp:7,
+                 from ../../SU2_CFD/src/adaptation/CNativeComplexity3D.cpp:1:
+/usr/include/c++/9/bits/range_access.h:105:37: note: ‘std::begin’ declared here
+  105 |   template<typename _Tp> const _Tp* begin(const valarray<_Tp>&);
+      |                                     ^~~~~
+In file included from ../../SU2_CFD/src/adaptation/CNativeComplexity3D.cpp:1:
+../../SU2_CFD/src/adaptation/../../include/adaptation/CNativeBLTarget3D.hpp:148:21: error: ‘end’ was not declared in this scope; did you mean ‘std::end’?
+  148 |   for(const auto& f:facets)if(kind(f)==2)for(int k=0;k<3;++k){const Id a=f.v[k].id,b=f.v[(k+1)%3].id;const auto e=edges.find({std::min(a,b),std::max(a,b)});if(e!=edges.end())e->second.push_back(&f);}
+      |                     ^~~~~~
+      |                     std::end
+In file included from /usr/include/c++/9/string:54,
+                 from /usr/include/c++/9/stdexcept:39,
+                 from /usr/include/c++/9/array:39,
+                 from ../../SU2_CFD/src/adaptation/../../include/adaptation/../../../Common/include/adaptation/CNativeMesh3D.hpp:9,
+                 from ../../SU2_CFD/src/adaptation/../../include/adaptation/CNativeBLVector3D.hpp:4,
+                 from ../../SU2_CFD/src/adaptation/../../include/adaptation/CNativeBLTarget3D.hpp:7,
+                 from ../../SU2_CFD/src/adaptation/CNativeComplexity3D.cpp:1:
+/usr/include/c++/9/bits/range_access.h:107:37: note: ‘std::end’ declared here
+  107 |   template<typename _Tp> const _Tp* end(const valarray<_Tp>&);
+      |                                     ^~~
+In file included from ../../SU2_CFD/src/adaptation/CNativeComplexity3D.cpp:1:
+../../SU2_CFD/src/adaptation/../../include/adaptation/CNativeBLTarget3D.hpp:148:115: error: ‘edges’ was not declared in this scope
+  148 |   for(const auto& f:facets)if(kind(f)==2)for(int k=0;k<3;++k){const Id a=f.v[k].id,b=f.v[(k+1)%3].id;const auto e=edges.find({std::min(a,b),std::max(a,b)});if(e!=edges.end())e->second.push_back(&f);}
+      |                                                                                                                   ^~~~~
+../../SU2_CFD/src/adaptation/../../include/adaptation/CNativeBLTarget3D.hpp:148:138: error: ‘b’ was not declared in this scope
+  148 |   for(const auto& f:facets)if(kind(f)==2)for(int k=0;k<3;++k){const Id a=f.v[k].id,b=f.v[(k+1)%3].id;const auto e=edges.find({std::min(a,b),std::max(a,b)});if(e!=edges.end())e->second.push_back(&f);}
+      |                                                                                                                                          ^
+../../SU2_CFD/src/adaptation/../../include/adaptation/CNativeBLTarget3D.hpp:149:24: error: ‘Facet’ does not name a type; did you mean ‘facets’?
+  149 |   auto normal=[](const Facet& f) {
+      |                        ^~~~~
+      |                        facets
+../../SU2_CFD/src/adaptation/../../include/adaptation/CNativeBLTarget3D.hpp:152:4: error: expected ‘)’ before ‘;’ token
+  152 |   };
+      |    ^
+      |    )
+../../SU2_CFD/src/adaptation/../../include/adaptation/CNativeBLTarget3D.hpp:149:17: note: to match this ‘(’
+  149 |   auto normal=[](const Facet& f) {
+      |                 ^
+../../SU2_CFD/src/adaptation/../../include/adaptation/CNativeBLTarget3D.hpp: In lambda function:
+../../SU2_CFD/src/adaptation/../../include/adaptation/CNativeBLTarget3D.hpp:152:4: error: expected ‘{’ before ‘;’ token
+  152 |   };
+      |    ^
+../../SU2_CFD/src/adaptation/../../include/adaptation/CNativeBLTarget3D.hpp: In function ‘std::shared_ptr<dc10::OptionA> dc10::BuildOptionA(const int&, const std::map<int, int>&, double, double, double)’:
+../../SU2_CFD/src/adaptation/../../include/adaptation/CNativeBLTarget3D.hpp:154:23: error: ‘edges’ was not declared in this scope
+  154 |   for(const auto& row:edges) {
+      |                       ^~~~~
+../../SU2_CFD/src/adaptation/../../include/adaptation/CNativeBLTarget3D.hpp:155:44: error: ‘Facet’ does not name a type; did you mean ‘facets’?
+  155 |     if(row.second.size()!=2)continue;const Facet& f1=*row.second[0];const Facet& f2=*row.second[1];
+      |                                            ^~~~~
+      |                                            facets
+../../SU2_CFD/src/adaptation/../../include/adaptation/CNativeBLTarget3D.hpp:155:75: error: ‘Facet’ does not name a type; did you mean ‘facets’?
+  155 |     if(row.second.size()!=2)continue;const Facet& f1=*row.second[0];const Facet& f2=*row.second[1];
+      |                                                                           ^~~~~
+      |                                                                           facets
+../../SU2_CFD/src/adaptation/../../include/adaptation/CNativeBLTarget3D.hpp:156:43: error: ‘f1’ was not declared in this scope; did you mean ‘y1’?
+  156 |     unsigned k=0;while(k<3&&!(std::minmax(f1.v[k].id,f1.v[(k+1)%3].id)==std::minmax(row.first.first,row.first.second)))++k;if(k==3)continue;
+      |                                           ^~
+      |                                           y1
+../../SU2_CFD/src/adaptation/../../include/adaptation/CNativeBLTarget3D.hpp:157:19: error: ‘f1’ was not declared in this scope; did you mean ‘y1’?
+  157 |     const Point a=f1.v[k].p,b=f1.v[(k+1)%3].p,o1=f1.v[(k+2)%3].p;Point o2{};for(auto x:f2.v)if(x.id!=row.first.first&&x.id!=row.first.second)o2=x.p;
+      |                   ^~
+      |                   y1
+../../SU2_CFD/src/adaptation/../../include/adaptation/CNativeBLTarget3D.hpp:157:88: error: ‘f2’ was not declared in this scope; did you mean ‘o2’?
+  157 |     const Point a=f1.v[k].p,b=f1.v[(k+1)%3].p,o1=f1.v[(k+2)%3].p;Point o2{};for(auto x:f2.v)if(x.id!=row.first.first&&x.id!=row.first.second)o2=x.p;
+      |                                                                                        ^~
+      |                                                                                        o2
+../../SU2_CFD/src/adaptation/../../include/adaptation/CNativeBLTarget3D.hpp:158:24: error: ‘b’ was not declared in this scope
+  158 |     if(!(Orientation(a,b,o1,o2)>0&&Orientation(f2.v[0].p,f2.v[1].p,f2.v[2].p,o1)>0))continue;
+      |                        ^
+../../SU2_CFD/src/adaptation/../../include/adaptation/CNativeBLTarget3D.hpp:158:26: error: ‘o1’ was not declared in this scope; did you mean ‘o2’?
+  158 |     if(!(Orientation(a,b,o1,o2)>0&&Orientation(f2.v[0].p,f2.v[1].p,f2.v[2].p,o1)>0))continue;
+      |                          ^~
+      |                          o2
+../../SU2_CFD/src/adaptation/../../include/adaptation/CNativeBLTarget3D.hpp:158:48: error: ‘f2’ was not declared in this scope; did you mean ‘o2’?
+  158 |     if(!(Orientation(a,b,o1,o2)>0&&Orientation(f2.v[0].p,f2.v[1].p,f2.v[2].p,o1)>0))continue;
+      |                                                ^~
+      |                                                o2
+../../SU2_CFD/src/adaptation/../../include/adaptation/CNativeBLTarget3D.hpp:159:36: error: ‘b’ was not declared in this scope
+  159 |     WedgeCrease c;c.a=Of(a);c.b=Of(b);c.L=Norm(c.b-c.a);c.t=(1/c.L)*(c.b-c.a);c.f1=f1.id;c.f2=f2.id;
+      |                                    ^
+../../SU2_CFD/src/adaptation/../../include/adaptation/CNativeBLTarget3D.hpp:159:95: error: ‘f2’ was not declared in this scope; did you mean ‘o2’?
+  159 |     WedgeCrease c;c.a=Of(a);c.b=Of(b);c.L=Norm(c.b-c.a);c.t=(1/c.L)*(c.b-c.a);c.f1=f1.id;c.f2=f2.id;
+      |                                                                                               ^~
+      |                                                                                               o2
+../../SU2_CFD/src/adaptation/../../include/adaptation/CNativeBLTarget3D.hpp:161:92: error: ‘o1’ was not declared in this scope; did you mean ‘o2’?
+  161 |     auto inFace=[&](Point o){V d=Of(o)-c.a;d=d-Dot(d,c.t)*c.t;return Unit(d);};c.m1=inFace(o1);c.m2=inFace(o2);
+      |                                                                                            ^~
+      |                                                                                            o2
+../../SU2_CFD/src/adaptation/../../include/adaptation/CNativeBLTarget3D.hpp: In function ‘std::map<int, int> SU2NativeBLPipeline3D::MarkerRoles(const CConfig&, const SU2Native3D::ReferenceState&)’:
+../../SU2_CFD/src/adaptation/../../include/adaptation/CNativeBLTarget3D.hpp:250:26: error: invalid use of incomplete type ‘const struct SU2Native3D::ReferenceState’
+  250 |   for (size_t m = 0; m < state.marker_names.size(); ++m) {
+      |                          ^~~~~
+In file included from ../../SU2_CFD/src/adaptation/../../include/adaptation/CNativeBLComposition3D.hpp:10,
+                 from ../../SU2_CFD/src/adaptation/../../include/adaptation/CNativeBLTarget3D.hpp:8,
+                 from ../../SU2_CFD/src/adaptation/CNativeComplexity3D.cpp:1:
+../../SU2_CFD/src/adaptation/../../include/adaptation/CBoundaryLayerMetric.hpp:45:32: note: forward declaration of ‘struct SU2Native3D::ReferenceState’
+   45 | namespace SU2Native3D { struct ReferenceState; class PlanarReference; class SupportSampler3D; }
+      |                                ^~~~~~~~~~~~~~
+In file included from ../../SU2_CFD/src/adaptation/CNativeComplexity3D.cpp:1:
+../../SU2_CFD/src/adaptation/../../include/adaptation/CNativeBLTarget3D.hpp:251:24: error: invalid use of incomplete type ‘const struct SU2Native3D::ReferenceState’
+  251 |     const auto& name = state.marker_names[m];
+      |                        ^~~~~
+In file included from ../../SU2_CFD/src/adaptation/../../include/adaptation/CNativeBLComposition3D.hpp:10,
+                 from ../../SU2_CFD/src/adaptation/../../include/adaptation/CNativeBLTarget3D.hpp:8,
+                 from ../../SU2_CFD/src/adaptation/CNativeComplexity3D.cpp:1:
+../../SU2_CFD/src/adaptation/../../include/adaptation/CBoundaryLayerMetric.hpp:45:32: note: forward declaration of ‘struct SU2Native3D::ReferenceState’
+   45 | namespace SU2Native3D { struct ReferenceState; class PlanarReference; class SupportSampler3D; }
+      |                                ^~~~~~~~~~~~~~
+In file included from ../../SU2_CFD/src/adaptation/CNativeComplexity3D.cpp:1:
+../../SU2_CFD/src/adaptation/../../include/adaptation/CNativeBLTarget3D.hpp: In function ‘std::shared_ptr<SU2NativeBLPipeline3D::TargetPolicy> SU2NativeBLPipeline3D::MakeTargetPolicy(const CConfig&, const SU2Native3D::ReferenceState&, double, double, std::shared_ptr<CBoundaryLayerMetric>)’:
+../../SU2_CFD/src/adaptation/../../include/adaptation/CNativeBLTarget3D.hpp:277:29: error: invalid use of incomplete type ‘const struct SU2Native3D::ReferenceState’
+  277 |   p->A = dc10::BuildOptionA(state.facets, p->roles, p->full->GetFeatures().angle, p->full->GetFeatures().maximumRadius, p->h0);
+      |                             ^~~~~
+In file included from ../../SU2_CFD/src/adaptation/../../include/adaptation/CNativeBLComposition3D.hpp:10,
+                 from ../../SU2_CFD/src/adaptation/../../include/adaptation/CNativeBLTarget3D.hpp:8,
+                 from ../../SU2_CFD/src/adaptation/CNativeComplexity3D.cpp:1:
+../../SU2_CFD/src/adaptation/../../include/adaptation/CBoundaryLayerMetric.hpp:45:32: note: forward declaration of ‘struct SU2Native3D::ReferenceState’
+   45 | namespace SU2Native3D { struct ReferenceState; class PlanarReference; class SupportSampler3D; }
+      |                                ^~~~~~~~~~~~~~
+ninja: build stopped: subcommand failed.
+Command exited with non-zero status 1
+	Command being timed: "/home/rausa/Software/su2-develop/ninja -C integration_evidence/build-integrated-v2 -j1 UnitTests/test_driver SU2_CFD/src/SU2_CFD"
+	User time (seconds): 140.83
+	System time (seconds): 3.13
+	Percent of CPU this job got: 97%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 2:28.12
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 2494924
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 0
+	Minor (reclaiming a frame) page faults: 1834002
+	Voluntary context switches: 126
+	Involuntary context switches: 10796
+	Swaps: 0
+	File system inputs: 0
+	File system outputs: 902912
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 1

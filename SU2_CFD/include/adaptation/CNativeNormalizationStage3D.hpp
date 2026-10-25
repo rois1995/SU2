@@ -11,14 +11,17 @@
 inline SU2Native3D::NormalizationStage3D NativeNormalizationStage3D(CSolver& solver,CGeometry& geometry,
     const CConfig& config,const SU2Native3D::ReferenceState& reference,const su2activematrix& selected) {
   using namespace SU2Native3D;NormalizationStage3D job;const auto family=solver.GetNativeMetricFamily3D();
+  const bool sameAuthority=family && family->authority && (family->authority==reference.original ||
+      (reference.original && family->authority->Mapped() && reference.original->Mapped() &&
+       family->authority->Parameters()->Authority()==reference.original->Parameters()->Authority()));
   bool eligible=family && family->geometry==&geometry && family->Compatible(config) &&
-      (!config.GetnAdap_BL() || (family->boundary_layer && family->authority==reference.original)) &&
+      (!config.GetnAdap_BL() || (family->boundary_layer && sameAuthority)) &&
       (config.GetAdap_BL_Budget() || family->normalization.status!=SU2Complexity::Status::EstimatedTolerance) && selected.rows()>=family->owned && selected.cols()>=6;
   // Prediction may change only some ranks: eligibility belongs to the complete original field.
   if(eligible)for(size_t i=0;i<family->owned;++i)for(unsigned a=0,k=0;a<3;++a)for(unsigned b=a;b<3;++b,++k)
     eligible=eligible && selected(i,k)==family->selected[i].m[a][b];
   if(!CPassiveComm::Allreduce(int(eligible),CPassiveComm::Op::MIN))return job;
-  job.retained_bytes=family->ResidentBytes()-(family->layers?family->layers->StorageBytes():0);
+  job.retained_bytes=family->ResidentBytes()-(family->layers?family->layers->StorageBytes():0)-family->target_extra_bytes;
   job.propose=[family,&solver,&geometry,&config,&reference](const ComplexityReassessment3D& current,
       const PreparedComplexity3D& cloud,const std::vector<DonorCell>& original,double currentCore,
       const std::function<bool()>& within,size_t ceiling,size_t caller_bytes) {

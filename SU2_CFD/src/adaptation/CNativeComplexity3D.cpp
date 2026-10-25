@@ -3,6 +3,7 @@
  * \brief Retained geometry, fresh trial tensors, globally assessed bounded complexity work.
  * SPDX-License-Identifier: LGPL-2.1-or-later
  */
+#include "../../include/adaptation/CNativeBLTarget3D.hpp"
 #include "../../include/adaptation/CNativeComplexity3D.hpp"
 #include "../../../Common/include/adaptation/CNativeDonor3D.hpp"
 #include "../../../Common/include/adaptation/CNativeSupport3D.hpp"
@@ -96,7 +97,7 @@ CNativeComplexity3D::~CNativeComplexity3D()=default;
 size_t CNativeComplexity3D::ResidentBytes()const {
   auto bytes=transfer_memory::Add(transfer_memory::Bytes(source),transfer_memory::Bytes(volumes),
       transfer_memory::Bytes(queries),transfer_memory::Bytes(backgroundSensor),preparation?preparation->Bytes():0);
-  for(const auto& q:queries)bytes=transfer_memory::Add(bytes,transfer_memory::Bytes(q.geometry));
+  for(const auto& q:queries)bytes=transfer_memory::Add(bytes,transfer_memory::Bytes(q.geometry),transfer_memory::Bytes(q.baseGeometry));
   return bytes;
 }
 void CNativeComplexity3D::PreparationCounts() {
@@ -273,9 +274,9 @@ bool CNativeComplexity3D::Extend(size_t count,std::string& reason,bool initial) 
         Query q;q.nodes=row.nodes;q.point=request.point;q.inversePDF=request.inversePDF;q.batch=batches;
         for(unsigned k=0;k<4;++k)q.weights[k]=double(weights[k]);
         ++statistics.preparationGeometryQueries;q.geometry=layers.SamplePoints({request.point.x,request.point.y,request.point.z});
-        const size_t bytes=transfer_memory::Add(held,transfer_memory::Bytes(extra),extraGeometry,transfer_memory::Bytes(q.geometry));
+        const size_t bytes=transfer_memory::Add(held,transfer_memory::Bytes(extra),extraGeometry,transfer_memory::Bytes(q.geometry),transfer_memory::Bytes(q.baseGeometry));
         if(bytes>ceiling)throw SupportLimit3D("Complexity appended stencils exceed storage ceiling.");
-        extraGeometry=transfer_memory::Add(extraGeometry,transfer_memory::Bytes(q.geometry));
+        extraGeometry=transfer_memory::Add(extraGeometry,transfer_memory::Bytes(q.geometry),transfer_memory::Bytes(q.baseGeometry));
         extra.push_back(std::move(q));
       }
     }catch(const SupportLimit3D& error){failure.Set(3,round,error.what());}
@@ -288,7 +289,7 @@ bool CNativeComplexity3D::Extend(size_t count,std::string& reason,bool initial) 
   if(totals[0]!=totals[1])failure.Set(4,0,"Incomplete original complexity stencil routing.");if(!vote())return false;
   try {
     const auto needed=transfer_memory::Add(ResidentBytes(),transfer_memory::GrowthBound(queries.size()+extra.size(),sizeof(Query)),transfer_memory::Bytes(extra));
-    size_t bytes=needed;for(const auto& q:extra)bytes=transfer_memory::Add(bytes,transfer_memory::Bytes(q.geometry));
+    size_t bytes=needed;for(const auto& q:extra)bytes=transfer_memory::Add(bytes,transfer_memory::Bytes(q.geometry),transfer_memory::Bytes(q.baseGeometry));
     if(bytes>ceiling)throw SupportLimit3D("Complexity append commit exceeds storage ceiling.");
     queries.reserve(queries.size()+extra.size());
   }catch(const SupportLimit3D& error){failure.Set(3,0,error.what());}
@@ -313,26 +314,33 @@ bool CNativeComplexity3D::Refine(std::string& reason) {
   try {valid=Extend(statistics.samples,reason,false);}
   catch(...){PreparationCounts();statistics.preparationSeconds+=world.seconds()-start;throw;}
   PreparationCounts();statistics.preparationSeconds+=world.seconds()-start;
+  if(valid)cachedTarget=nullptr;
   statistics.refinements+=valid;return valid;
 }
 
-CNativeComplexity3D::Assessment CNativeComplexity3D::Assess(const std::vector<CBoundaryLayerMetric::Tensor>& sensor,su2double core,bool audit) {
+CNativeComplexity3D::Assessment CNativeComplexity3D::Assess(const std::vector<CBoundaryLayerMetric::Tensor>& sensor,su2double core,bool audit,const SU2NativeBLPipeline3D::TargetPolicy* target) {
   World world;CLocalFailure failure;const auto start=world.seconds();long double local[10]={},global[10]={},batchLocal[6]={},batchGlobal[6]={};
   uint64_t counts[2]={},totals[2];
   try {
     if(sensor.size()!=sourceNodes || !(SU2_TYPE::GetValue(core)>0) || !std::isfinite(SU2_TYPE::GetValue(core)))
       throw std::runtime_error("Invalid current complexity trial field/core.");
+    if(target && (target->full.get()!=&layers || target->core!=SU2_TYPE::GetValue(core)))
+      throw std::runtime_error("Complexity target differs from its retained support or current core.");
     if(domainProposal!=(layers.GetOuterTransitionCore()>0))throw std::runtime_error("Changed BL continuation mode requires rebuilding the complexity proposal.");
     const auto version=layers.GetSampleVersion();
-    if(version!=profileVersion) {
+    if(version!=profileVersion || target!=cachedTarget) {
       const auto refreshStart=world.seconds();size_t bytes=transfer_memory::Add(transfer_memory::Bytes(source),
           transfer_memory::Bytes(queries),transfer_memory::Bytes(volumes),transfer_memory::Bytes(backgroundSensor),preparation?preparation->Bytes():0);
       for(auto& q:queries) {
         q.geometry=layers.SamplePoints({q.point.x,q.point.y,q.point.z});++statistics.profileGeometryQueries;
-        bytes=transfer_memory::Add(bytes,transfer_memory::Bytes(q.geometry));
+        if(target) {
+          q.baseGeometry=target->base->SamplePoints({q.point.x,q.point.y,q.point.z});++statistics.profileGeometryQueries;
+          q.weight=target->A->Weight(junction_wp0::Of(q.point));
+        } else q.baseGeometry.clear();
+        bytes=transfer_memory::Add(bytes,transfer_memory::Bytes(q.geometry),transfer_memory::Bytes(q.baseGeometry));
         if(bytes>ceiling)throw std::runtime_error("Refreshed BL profile samples exceed storage ceiling.");
       }
-      statistics.retainedBytes=bytes;profileVersion=version;++statistics.profileRefreshes;
+      statistics.retainedBytes=bytes;profileVersion=version;cachedTarget=target;++statistics.profileRefreshes;
       statistics.preparationSeconds+=world.seconds()-refreshStart;
     }
     const auto backgroundStart=world.seconds();
@@ -370,9 +378,10 @@ CNativeComplexity3D::Assessment CNativeComplexity3D::Assess(const std::vector<CB
     statistics.backgroundSeconds+=world.seconds()-backgroundStart;const auto correctionStart=world.seconds();
     for(const auto& q:queries) {
       const auto sensorMetric=Interpolate(q.nodes,q.weights,sensor);auto composed=sensorMetric;
-      for(const auto& sample:q.geometry)layers.ApplySample(sample.wall,sample.sample,composed,core,nullptr,false);
+      if(target)target->ApplySamples(q.geometry,q.baseGeometry,q.weight,composed);
+      else for(const auto& sample:q.geometry)layers.ApplySample(sample.wall,sample.sample,composed,core,nullptr,false);
       if(audit) {
-        auto direct=sensorMetric;const su2double p[]={q.point.x,q.point.y,q.point.z};layers.ApplyPoint(p,direct,core,nullptr,false);
+        auto direct=sensorMetric;const su2double p[]={q.point.x,q.point.y,q.point.z};if(target)target->ApplyPoint(q.point,direct);else layers.ApplyPoint(p,direct,core,nullptr,false);
         for(unsigned i=0;i<3;++i)for(unsigned j=0;j<3;++j)if(direct.m[i][j]!=composed.m[i][j])
           throw std::runtime_error("Retained geometry changed current direct composed tensor.");
         ++counts[1];
@@ -388,8 +397,12 @@ CNativeComplexity3D::Assessment CNativeComplexity3D::Assess(const std::vector<CB
         auto mandatory=a;
         for(const auto& sample:q.geometry)if(sample.sample.distance<=layers.GetOuterNormal().protected_distance) {
           CBoundaryLayerMetric::Tensor wall;for(unsigned i=0;i<3;++i)wall.m[i][i]=core;
-          layers.ApplySample(sample.wall,sample.sample,wall,core,nullptr,false);
-          mandatory=std::max(mandatory,LogDensity(wall));
+          if(target) {
+            const auto base=std::find_if(q.baseGeometry.begin(),q.baseGeometry.end(),[&](const auto& g){return g.wall==sample.wall;});
+            if(base!=q.baseGeometry.end())target->base->ApplySample(base->wall,base->sample,wall,core,nullptr,false);
+          } else layers.ApplySample(sample.wall,sample.sample,wall,core,nullptr,false);
+          // Option A removes wall-side D1 demands; their full-D1 cost cannot certify a mandatory budget conflict.
+          mandatory=std::max(mandatory,target?std::min(b,LogDensity(wall)):LogDensity(wall));
         }
         const long double z=(long double)std::exp(a)*std::expm1(mandatory-a)*q.inversePDF;
         if(!std::isfinite(z))throw std::runtime_error("Nonfinite mandatory BL contribution.");

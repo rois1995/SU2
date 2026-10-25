@@ -11,6 +11,8 @@
 #include "../../../Common/include/adaptation/CNativeField3D.hpp"
 
 namespace SU2NativeBL3D {
+/*! Logarithmic blending is not order preserving; restore every finer sensor direction afterwards. */
+SU2Native3D::Tensor PreserveSensor(SU2Native3D::Tensor metric,SU2Native3D::Tensor sensor);
 /*! sensor ∩ BL of every wall at p (ApplyPoint without the legacy tangential floor). With owners, each faceted
  *  wall evaluates the facet owning chord parameter t (ApplyPointOnChord). */
 inline SU2Native3D::Tensor Compose(CBoundaryLayerMetric& layers, double core, SU2Native3D::Point p,

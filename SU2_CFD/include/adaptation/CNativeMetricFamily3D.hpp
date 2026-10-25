@@ -13,6 +13,7 @@
 #include <functional>
 #include <memory>
 
+namespace SU2NativeBLPipeline3D { struct TargetPolicy; }
 class CGeometry;
 class CConfig;
 /*! This snapshot belongs to one metric event on an unchanged original CFD mesh. */
@@ -23,6 +24,8 @@ struct CNativeMetricFamily3D {
   std::vector<CBoundaryLayerMetric::Tensor> frames,selected;
   std::vector<su2double> eigenvalues;
   std::shared_ptr<CBoundaryLayerMetric> layers;
+  std::shared_ptr<SU2NativeBLPipeline3D::TargetPolicy> first_row;
+  size_t target_extra_bytes=0;
   std::shared_ptr<const SU2Native3D::PlanarReference> authority;
   double surface_tolerance=0;
   double feature_angle=0;      // ADAP_ANGLE of the D1 feature set of the retained layers.
@@ -38,7 +41,7 @@ struct CNativeMetricFamily3D {
   uint64_t node_span=0;
   size_t ResidentBytes()const {
     return transfer_memory::Add(sizeof(*this),transfer_memory::Bytes(nodes),transfer_memory::Bytes(frames),
-        transfer_memory::Bytes(selected),transfer_memory::Bytes(eigenvalues),transfer_memory::Bytes(layer_controls),layers?layers->StorageBytes():0);
+        target_extra_bytes,transfer_memory::Bytes(selected),transfer_memory::Bytes(eigenvalues),transfer_memory::Bytes(layer_controls),layers?layers->StorageBytes():0);
   }
   size_t LocalNode(SU2Native3D::Id sourceNode,uint64_t sourceSpan=0)const {
     if(!node_span)throw std::runtime_error("Original metric family has no node identity range.");

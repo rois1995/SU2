@@ -8,6 +8,8 @@
 #include "../../../Common/include/adaptation/CComplexityNormalization.hpp"
 #include "../../../Common/include/adaptation/CNativeMesh3D.hpp"
 
+namespace SU2NativeBLPipeline3D { struct TargetPolicy; }
+
 /*! Geometry-only stencils survive bounded/graded scale trials. Source node indices and ownership
  *  must remain fixed for this object's lifetime; no tensors sampled on an adapted mesh enter it.
  *  Background reuse requires identical current tensors, independent of BL profile/core.
@@ -38,7 +40,8 @@ class CNativeComplexity3D {
   /*! Collective append of the same proposal stream, at most two doublings. Resource refusal
    * retains the complete previous estimate; invalid geometry/protocol remains a fatal error. */
   bool Refine(std::string& reason);
-  Assessment Assess(const std::vector<CBoundaryLayerMetric::Tensor>& sensor,su2double core,bool auditDirect=false);
+  Assessment Assess(const std::vector<CBoundaryLayerMetric::Tensor>& sensor,su2double core,bool auditDirect=false,
+                    const SU2NativeBLPipeline3D::TargetPolicy* target=nullptr);
   const Statistics& GetStatistics() const {return statistics;}
  private:
   struct Query {
@@ -47,7 +50,8 @@ class CNativeComplexity3D {
     SU2Native3D::Point point;
     double inversePDF;
     unsigned batch=0;
-    std::vector<CBoundaryLayerMetric::PointSample> geometry;
+    std::vector<CBoundaryLayerMetric::PointSample> geometry,baseGeometry;
+    long double weight=0;
   };
   struct Preparation;
   std::unique_ptr<Preparation> preparation;
@@ -64,6 +68,7 @@ class CNativeComplexity3D {
   std::vector<Query> queries;
   size_t sourceNodes,ceiling;
   uint64_t profileVersion=0;
+  const SU2NativeBLPipeline3D::TargetPolicy* cachedTarget=nullptr;
   bool domainProposal=false;
   std::vector<CBoundaryLayerMetric::Tensor> backgroundSensor;
   std::array<long double,4> background{};

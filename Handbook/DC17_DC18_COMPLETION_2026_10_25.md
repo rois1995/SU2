@@ -201,3 +201,92 @@ column optimization, which is false. The shared lid now respects the currently
 requested height of every incident wall face. One failure is fixed; the two
 remaining cavities need coordinated height/size construction rather than
 acceptance relaxation or more unmotivated fixed-star candidates.
+
+
+## Continued implementation after checkpoint29e6778c13
+
+User explicitly requests sustained work through all remaining TODO items and newly
+found defects. No owned job was live; host load0.77 and39GiB available at restart.
+Current connected change removes CavityFirstChild's blanket ban on registered
+column transitions. Visibility/widening can cross those cells if every registered
+vertex remains on the new cavity boundary; other first children stay outside.
+Existing D2, height, topology/positivity, validity and size admission remain.
+The target face registration follows its inserted apex, including repeated
+continuation. No case identity, limit increase or new fallback is introduced.
+A two-wall/two-carrier test at two rotations checks preserved vertices, other
+first children, total volume, positive cells, fresh registration and A3.
+Full-M6 replay is the acceptance target, not the fixture alone.
+
+Build95298 (validation11) terminated successfully. Focused checks pass443 assertions/3 cases. Full-M6 replay20248 terminated exit1 (V=0 diagnostic): construction accepted, height0, positivity/topology/A3 pass,1,554,208 cells; publication rejected complexity1,757,603 +/-28,089 against500,000 without original-family correction. Complete0/written0; remesh345.68s, whole7m22.60s, process peak8,201,436KiB. No owned job remains live. Source review also finds
+why extending the old correction proposal is inappropriate: its radial density
+is proportional to1/hn, whereas whole-tensor transport has a1/scale^3 density
+outside the full band before sensor eigenvalue floors become active. Those floor
+crossings change the power, so a pure cubic-tail proposal is not sufficient. Its current all-axis radius boxes also overbound the
+oriented face prisms. Next normalization work must model that transported tail
+and evaluate the complete mixture PDF under the same work/storage limits; first
+measure contribution/variance by region before choosing proposal parameters.
+
+Connected field-consistency work: normalization currently uses full D1, FIRST_ROW
+construction/reassessment uses Option A, and its driver explicitly omits the
+normalization callback. Reuse/extract Option A rather than duplicate a law.
+Reach solver normalization/profile trials and diagnostics, retained family,
+candidate assessment, driver construction/reassessment and focused tests.
+Require pointwise agreement plus M6 geometry/budget publication under unchanged
+limits. Frozen harness has no original metric family and reinterpolates donor
+samples on its event input, so it cannot stand in for normalized solver evidence.
+
+Implementation (validation12 build86572, subsequently terminated): extracted
+existing Option A and shared vector operations into CNativeBLTarget3D.hpp and
+CNativeBLVector3D.hpp. Solver profile/scale trials and final field diagnostics use
+that target; retained families carry it; candidate correction and driver stages
+reuse it. Private-stage row continuation uses pending rows without committing them;
+RebuildFirstRow already selects only children above the current height window.
+The replay now normalizes supplied nodal sensor seeds with ComputeMetric, retaining
+the event's family; it is no longer evidence for unchanged original coarse-P1
+values throughout the ramp. Added sharp-crease profile/core agreement and solver /
+candidate agreement tests. These edits are unvalidated. Cavity registration also
+updates all physical wall faces of a multi-wall seed cell.
+Host check20:54: load2.45,38GiB available; one owned build-j1, nice19, threads1.
+
+Build86572 terminated exit1: extracted header lacked its direct ReferenceState /
+Facet include (solver and driver compiled because they already included it).
+Fixed self-contained includes. Review also corrected retained-family selection
+across faceted promotion, extra policy memory double counting, and cached base /
+full samples + geometric weights for trials (no repeated wall searches for an
+unchanged profile). Sample appends invalidate the new base cache.
+A numerical counterexample establishes another preexisting Option A defect:
+logarithmic interpolation of two sensor-dominating metrics can weaken a sensor
+direction (minimum eigenvalue of blend-sensor -0.16648). Shared blending now
+intersects with the original sensor using existing long-double intersection;
+endpoint policies stay unchanged. Added regression, cached/direct/refinement and
+stale-core checks. Validation13 build31862 subsequently terminated; see the build result below.
+
+Build31862 terminated exit1 after production objects/library/CFD executable built:
+new test used the passive communicator wrapper with long double, which that
+wrapper does not support. Replaced with the existing explicit MPI_LONG_DOUBLE
+reduction pattern. No production change for this correction.
+
+Build92348 (validation14) and focused execution are terminal. Build passes;
+focused593/594 assertions pass across8 cases, one fixture-only failure: all crease
+samples sat in the full-D1 wedge, so the intended base/full contrast assertion
+failed. Coordinates corrected to cross wall-side, blend and wedge regions.
+Sensor-preservation, direct/cached sample append/stale-core, solver/candidate and
+cavity checks passed. v14 source/runtime pins and failed receipt are saved.
+Production is unchanged for validation15; only that fixture is rebuilt.
+
+Validation15 build97176 and focused run terminated exit0:594 assertions/8 cases.
+Sources and binary/runtime pins verify. Full M6 c9 event0 -> requested event1 is
+starting with production normalization and retained-family correction, V=0
+geometry/budget diagnostic; whole-job guard1800s allows the newly included
+normalization phase. Native operator gates/work limits stay unchanged.
+
+Normalized M6 replay55778 (validation15) terminated exit1 before construction:
+reference preparation and original-family field setup complete, but bounded
+normalization's DonorImport requests5482MiB > hard-coded2048MiB. Whole99.42s,
+process peak3,855,144KiB. Source/runtime pins verify at termination; no job live.
+Next connected capability: the ledger's explicit native3D memory-limit option
+(MiB per MPI rank), shared by metric quadrature, source preparation, family
+snapshot, reference preparation, remeshing and publication. Explicit values stay
+fixed; zero preserves existing defaults/automatic FIRST_ROW behavior. This is
+accounted native working storage, not an OS/process RSS cap. Use a reviewed12GiB
+M6 budget within available RAM; keep all geometry/quality/budget gates unchanged.

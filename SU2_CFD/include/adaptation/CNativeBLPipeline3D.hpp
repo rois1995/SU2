@@ -35,6 +35,7 @@
 #include "../../../Common/include/linear_algebra/blas_structure.hpp"
 #include "../../../Common/include/parallelization/CPassiveComm.hpp"
 #include "CBoundaryLayerMetric.hpp"
+#include "CNativeBLTarget3D.hpp"
 #include "CNativeBLComposition3D.hpp"
 #include "CNativeMetricFamily3D.hpp"
 #include "../solvers/CSolver.hpp"
@@ -53,59 +54,6 @@
 /*--- Production entry (DC-14): one remesh event of ADAP_BL_METHOD= FIRST_ROW. ---*/
 namespace SU2NativeBLPipeline3D {
 using namespace SU2Native3D;
-
-/*! One immutable per-event target: full layers (production D1), base layers (no D1 feature), option A blending them
- *  (D1 kept off the wall), the frozen sensor core. The same object gives the composition of the remesher's
- *  reassessment and of the construction's frozen field. */
-struct TargetPolicy {
-  std::shared_ptr<CBoundaryLayerMetric> full, base;
-  std::shared_ptr<dc10::OptionA> A;
-  double core = 0, h0 = 0, outer_parameter = -1;
-  std::map<int, int> roles;  // marker -> 1 BL wall, 0 reflective continuation (MARKER_SYM), 2 other physical partner
-  MetricComposition Composition() const { return dc10::CompositionA(base, full, core, A); }
-  MetricEdgeBreakpoints Edges() const { return dc10::EdgeGeometryA(base, full, core, A); }
-  size_t StorageBytes() const { return full->StorageBytes() + base->StorageBytes(); }
-};
-
-/*! Marker roles from the configuration kinds only (no marker names): BL markers 1, symmetry planes 0, others 2. */
-inline std::map<int, int> MarkerRoles(const CConfig& config, const ReferenceState& state) {
-  std::map<int, int> roles;
-  for (size_t m = 0; m < state.marker_names.size(); ++m) {
-    const auto& name = state.marker_names[m];
-    bool bl = false;
-    for (unsigned short b = 0; b < config.GetnAdap_BL(); ++b) bl = bl || config.GetAdap_BL(b).marker == name;
-    roles[int(m)] = bl ? 1 : config.GetMarker_CfgFile_KindBC(name) == SYMMETRY_PLANE ? 0 : 2;
-  }
-  return roles;
-}
-
-/*! outerParameter < 0: no budget outer-normal profile (ADAP_BL_BUDGET= NO); otherwise the selected frozen parameter. */
-inline std::shared_ptr<TargetPolicy> MakeTargetPolicy(const CConfig& config, const ReferenceState& state, double core,
-                                                      double outerParameter) {
-  auto p = std::make_shared<TargetPolicy>();
-  p->core = core;
-  p->outer_parameter = outerParameter;
-  p->full = CBoundaryLayerMetric::FromNativeReference(state, config);
-  p->base = CBoundaryLayerMetric::FromNativeReference(state, config, 179.999);
-  for (auto* layers : {p->full.get(), p->base.get()}) {
-    if (config.GetAdap_BL_Budget()) {
-      if (!(outerParameter >= 0)) throw std::invalid_argument("FIRST_ROW with ADAP_BL_BUDGET needs the selected outer-normal parameter.");
-      layers->ConfigureOuterNormal(SU2_TYPE::GetValue(config.GetAdap_BL_ProtectDistance()),
-                                   SU2_TYPE::GetValue(config.GetAdap_BL_OuterGrowthMax()));
-      layers->SelectOuterNormal(outerParameter);
-      layers->FreezeOuterNormal();
-    }
-    layers->ConfigureOuterTransition(core,SU2_TYPE::GetValue(config.GetAdap_Hgrad()));
-  }
-  if (p->base->GetFeatures().segments != 0) throw std::runtime_error("FIRST_ROW base layers still carry a D1 feature.");
-  p->roles = MarkerRoles(config, state);
-  p->h0 = std::numeric_limits<double>::infinity();
-  for (unsigned short b = 0; b < config.GetnAdap_BL(); ++b) p->h0 = std::min(p->h0, SU2_TYPE::GetValue(config.GetAdap_BL(b).firstHeight));
-  p->A = dc10::BuildOptionA(state.facets, p->roles, p->full->GetFeatures().angle, p->full->GetFeatures().maximumRadius, p->h0);
-  p->A->distanceLayers = p->base;
-  p->A->core = core;
-  return p;
-}
 
 /*! First-row registry of one accepted event, keyed by exact coordinates (continuation of the next event). */
 struct RowRegistry {

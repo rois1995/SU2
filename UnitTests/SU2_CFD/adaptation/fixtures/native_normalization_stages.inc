@@ -1,6 +1,6 @@
 // Original frames and original-P1 stencils, never an adapted-node replacement field.
 namespace normalization_test {
-std::string Options(const std::string& name,int workers,bool walls=true) {
+std::string Options(const std::string& name,int workers,bool walls=true,bool firstRow=false) {
   std::ostringstream s;s<<"SOLVER= RANS\nKIND_TURB_MODEL= SA\nMATH_PROBLEM= DIRECT\nMACH_NUMBER= .2\nREYNOLDS_NUMBER= 1e6\nREYNOLDS_LENGTH= 1\n"
     <<"MESH_FORMAT= SU2\nMESH_FILENAME= "<<name<<".su2\nMARKER_FAR= (far)\nMARKER_HEATFLUX= (wall,0)\n"
     <<"COMPUTE_METRIC= YES\nADAP_SENSOR= PRESSURE\nADAP_REMESHER= NATIVE_CAVITY\nADAP_SURFACE= YES\nADAP_HESSIAN_NOISE= 0\nADAP_ISO_CORNER= NO\n"
@@ -10,12 +10,13 @@ std::string Options(const std::string& name,int workers,bool walls=true) {
     <<"TIME_DOMAIN= YES\nTIME_STEP= .001\nTIME_ITER= 10\nTIME_MARCHING= DUAL_TIME_STEPPING-2ND_ORDER\nINNER_ITER= 2\n"
     <<"OUTPUT_FILES= (RESTART)\nWRT_ADAP_MESH= NO\nRESTART_FILENAME= "<<name<<"_restart\nSOLUTION_FILENAME= "<<name<<"_restart\n";
   if(walls)s<<"ADAP_BL_MARKER= (wall)\nADAP_BL_FIRST_HEIGHT= (.1)\nADAP_BL_GROWTH= (1.2)\nADAP_BL_THICKNESS= (.3)\n";
+  if(firstRow)s<<"ADAP_BL_METHOD= FIRST_ROW\n";
   return s.str();
 }
-std::unique_ptr<TetraDriver> Driver(World& world,const std::string& name,int workers,bool walls=true) {
+std::unique_ptr<TetraDriver> Driver(World& world,const std::string& name,int workers,bool walls=true,bool firstRow=false) {
   if(!world.rank) {
     simplex_test::WriteSU2Mesh(simplex_test::MakeSimplexMesh(3,1,[](const passivedouble* p){return p[2]==0?"wall":"far";}),name+".su2");
-    std::ofstream out(name+".cfg");out<<Options(name,workers,walls);
+    std::ofstream out(name+".cfg");out<<Options(name,workers,walls,firstRow);
   }
   SU2_MPI::Barrier(world.comm);auto cfg=name+".cfg";
   return std::make_unique<TetraDriver>(const_cast<char*>(cfg.c_str()),1,world.comm);
@@ -680,4 +681,24 @@ TEST_CASE("An uncertain BL budget freezes the coarsest original field without sc
   CHECK(family->layers->GetOuterNormal().frozen);CHECK(family->layers->GetOuterNormal().parameter==0);
   CHECK(State(geometry,solver)==before);
   {Mute mute;driver->Finalize();driver.reset();}
+}
+
+TEST_CASE("FIRST_ROW solver and candidate normalization retain the construction target", "[NativeBLTargetNormalization]") {
+  World world;auto driver=normalization_test::Driver(world,"first_row_family",world.size,true,true);
+  auto backend=driver->Backend();auto& g=driver->Geometry();auto& solver=driver->Solver();
+  std::vector<su2double> seed(6*g.GetnPointDomain());
+  for(size_t i=0;i<g.GetnPointDomain();++i){seed[6*i]=2;seed[6*i+3]=3;seed[6*i+5]=4;}
+  {Mute mute;solver.ComputeMetric(&g,&driver->Config(),&seed,true,nullptr,driver->Reference().get());}
+  const auto family=solver.GetNativeMetricFamily3D();REQUIRE(family);REQUIRE(family->first_row);
+  CHECK(family->Compatible(driver->Config()));CHECK(family->first_row->full==family->layers);
+  const auto input=ImportGeometry(driver->Config(),g,&solver.GetNodes()->GetMetric(),*driver->Reference());
+  DonorImport source(world);std::string why;REQUIRE(source.Build(input.original,why));
+  ComplexityReassessment3D result;BridgeStats stats;std::shared_ptr<const PreparedComplexity3D> cloud;
+  REQUIRE(ReassessComplexity(world,input.cells,source,*driver->Reference()->original,family->first_row->Composition(),
+      result,why,stats,size_t(256)<<20,0,8192,20261017,{},&cloud));
+  REQUIRE(cloud);CNativeCandidateComplexity3D assess(*family,*cloud,input.original,size_t(256)<<20);
+  su2double core=family->core;const auto estimate=assess.Assess(family->selected,core);
+  CHECK(estimate.value==Approx(result.value).epsilon(2e-12));
+  CHECK(std::abs(estimate.value-family->normalization.estimate.value)<=estimate.uncertainty+family->normalization.estimate.uncertainty);
+  {Mute mute;driver->Finalize();}
 }

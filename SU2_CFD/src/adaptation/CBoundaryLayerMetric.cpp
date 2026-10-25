@@ -25,6 +25,7 @@
  */
 
 #include "../../include/adaptation/CBoundaryLayerMetric.hpp"
+#include "../../include/adaptation/CNativeBLComposition3D.hpp"
 #include "../../../Common/include/adaptation/CNativeSupport3D.hpp"
 
 #include <algorithm>
@@ -3918,4 +3919,14 @@ std::shared_ptr<SU2Native3D::SupportSampler3D> CBoundaryLayerMetric::PrepareCorr
     support.push_back(std::move(row));
   }
   return std::make_shared<SU2Native3D::SupportSampler3D>(support,maximumBytes,maximumWork);
+}
+
+namespace SU2NativeBL3D {
+SU2Native3D::Tensor PreserveSensor(SU2Native3D::Tensor metric,SU2Native3D::Tensor sensor) {
+  su2double a[3][3]={{metric.xx,metric.xy,metric.xz},{metric.xy,metric.yy,metric.yz},{metric.xz,metric.yz,metric.zz}},
+            b[3][3]={{sensor.xx,sensor.xy,sensor.xz},{sensor.xy,sensor.yy,sensor.yz},{sensor.xz,sensor.yz,sensor.zz}},c[3][3];
+  IntersectLD(3,a,b,c);
+  return {SU2_TYPE::GetValue(c[0][0]),SU2_TYPE::GetValue((c[0][1]+c[1][0])/2),SU2_TYPE::GetValue((c[0][2]+c[2][0])/2),
+          SU2_TYPE::GetValue(c[1][1]),SU2_TYPE::GetValue((c[1][2]+c[2][1])/2),SU2_TYPE::GetValue(c[2][2])};
+}
 }

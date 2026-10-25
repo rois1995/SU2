@@ -115,15 +115,14 @@ TEST_CASE("DC-14 FIRST_ROW entry: two wall markers, two symmetry planes, fresh e
 }
 
 TEST_CASE("DC-14 frozen-field FIRST_ROW event through the production driver backend (full M6)", "[.][NativeFrozenBL14]") {
-  // TEST-ONLY replay: the frozen original sensor (P1 on the original mesh, donor file) is evaluated at the nodes of the
-  // event's input mesh; the production MakeRemesher/Remesh run unchanged (FIRST_ROW, the configured ramp event); the
+  // TEST-ONLY replay: donor sensor values seed the event's input nodes. Production ComputeMetric retains and
+  // normalizes that event's original family before MakeRemesher/Remesh (FIRST_ROW, configured ramp event); the
   // accepted mesh is written with its .native_ref and .native_rows sidecars; a JSON receipt is written in any case.
   World world;
   auto env = [](const char* k) -> std::string { const char* v = std::getenv(k); return v ? v : ""; };
   const auto cfg = env("SU2_DC14_CONFIG"), donorFile = env("SU2_DC14_DONORS"), out = env("SU2_DC14_OUT");
   REQUIRE(!cfg.empty()); REQUIRE(!donorFile.empty()); REQUIRE(!out.empty());
   const unsigned long event = std::stoul(env("SU2_DC14_EVENT").empty() ? "0" : env("SU2_DC14_EVENT"));
-  const double parameter = env("SU2_DC14_OUTER_PARAMETER").empty() ? -1 : std::stod(env("SU2_DC14_OUTER_PARAMETER"));
   // DC-17 TEST-ONLY diagnostics: SU2_DC17_V_SECONDS caps V, SU2_DC17_OLD_HALVING=1 runs the DC-16 halving
   dc17::diagnosticVSeconds = env("SU2_DC17_V_SECONDS").empty() ? -1 : std::stod(env("SU2_DC17_V_SECONDS"));
   dc17::rebuildFirstRow = env("SU2_DC17_OLD_HALVING") != "1";
@@ -134,6 +133,7 @@ TEST_CASE("DC-14 frozen-field FIRST_ROW event through the production driver back
     using CSinglezoneDriver::CSinglezoneDriver;
     CConfig& Config() { return *config_container[ZONE_0]; }
     CGeometry& Geometry() { return *geometry_container[ZONE_0][INST_0][MESH_0]; }
+    CSolver& Solver() { return *solver_container[ZONE_0][INST_0][MESH_0][FLOW_SOL]; }
     std::unique_ptr<CRemesher> Backend(double p, const std::string& prefix) {
       nativeOuterNormalParameter = p; nativeConstructionPrefix = prefix; nativeConstructionExport = true; return MakeRemesher(); }
     SU2Native3D::ReferenceState& Reference() { return *nativeReference3D; }
@@ -163,8 +163,13 @@ TEST_CASE("DC-14 frozen-field FIRST_ROW event through the production driver back
     const auto t = frozen.Query({SU2_TYPE::GetValue(x[0]), SU2_TYPE::GetValue(x[1]), SU2_TYPE::GetValue(x[2])}).sensor;
     sensor(p, 0) = t.xx; sensor(p, 1) = t.xy; sensor(p, 2) = t.xz; sensor(p, 3) = t.yy; sensor(p, 4) = t.yz; sensor(p, 5) = t.zz;
   }
+  auto backend = driver.Backend(-1, out);
+  std::vector<su2double> seed(6*sensor.rows());
+  for(size_t p=0;p<sensor.rows();++p)for(unsigned k=0;k<6;++k)seed[6*p+k]=sensor(p,k);
+  driver.Solver().ComputeMetric(&geometry,&config,&seed,true,nullptr,&driver.Reference());
+  const auto family=driver.Solver().GetNativeMetricFamily3D();REQUIRE(family);REQUIRE(family->first_row);
+  sensor=driver.Solver().GetNodes()->GetMetric();
   const double prepared = std::chrono::duration<double>(std::chrono::steady_clock::now() - t0).count();
-  auto backend = driver.Backend(parameter, out);
   const auto* native = dynamic_cast<CNativeRemesher3D*>(backend.get()); REQUIRE(native);
   const auto start = std::chrono::steady_clock::now();
   auto result = backend->Remesh(config, geometry, sensor);
@@ -223,4 +228,45 @@ TEST_CASE("First-row movement distinguishes requested heights from quality repai
   CHECK(FirstRowKind(*s,old)==Kind::Repair);
   s->heights[0]=2.;s->h0=2.;
   CHECK(FirstRowKind(*s,old)==Kind::Layer);
+}
+
+TEST_CASE("First-row cavities retain registered column vertices and neighbouring wall children", "[NativeBL17Cavity]") {
+  using namespace dc15;
+  World world;REQUIRE(world.size==1);
+  for(double angle:{0.,.7}) {
+    Policies policies;artificialMarkers={2};ResetCaches();
+    BoxSpec spec;spec.n=2;spec.angle=angle;spec.topWall=true;spec.seam=true;
+    auto s=SyntheticBox(spec);ApplyWallPolicies(*s);DetectCreases(*s,BoxRoles());
+    auto field=ComputeDirectionField(*s);directionField=&field.d;
+    Rows10 rows;std::ostringstream log;
+    PhaseR1(*s,rows,4096,60,log);PhaseR2(*s,static_cast<Rows&>(rows),120,log);
+    REQUIRE(!rows.apex.empty());
+    const auto children=FirstChildren(*s);
+    const auto oldApices=rows.apex;
+    std::map<Id,Point> registered;
+    for(const auto& r:rows.apex)registered.emplace(r.second,NodePoint(*s,r.second));
+    for(const auto& r:rows.lift)registered.emplace(r.second,NodePoint(*s,r.second));
+    for(const auto& r:rows.copies)for(Id id:r.second.ids)registered.emplace(id,NodePoint(*s,id));
+    for(auto& h:s->heights)h.second/=2;
+    ResetCaches();std::set<Face> certified;bool completed=false;
+    for(const auto& r:oldApices) {
+      const auto owner=s->wall_index.find(r.first);REQUIRE(owner!=s->wall_index.end());
+      std::string why;
+      if(!CavityFirstChild(*s,rows,owner->second,r.first,certified,why))continue;
+      completed=true;
+      REQUIRE(rows.apex.count(r.first));CHECK(rows.apex.at(r.first)!=r.second);
+      CHECK(s->vertex_cells.count(r.second)==1);
+      CHECK(HeightOk(*s,s->wall_index.at(r.first)));
+      const auto after=FirstChildren(*s);
+      for(const auto& c:children)if(c.first!=r.first)CHECK(after.at(c.first)==c.second);
+      break;
+    }
+    REQUIRE(completed);
+    for(const auto& r:registered) {REQUIRE(s->vertex_cells.count(r.first));CHECK(SamePoint(NodePoint(*s,r.first),r.second));}
+    CHECK(StaleRegistrations(*s,rows)==0);
+    long double volume=0;
+    for(const auto& row:s->mesh){const auto& v=row.second.cell.v;const auto o=Orientation(v[0].p,v[1].p,v[2].p,v[3].p);REQUIRE(o>0);volume+=o/6;}
+    CHECK(double(volume)==Approx(1.).epsilon(1e-10));
+    CHECK(FirstRowAudit(*s,children,certified).violations==0);
+  }
 }

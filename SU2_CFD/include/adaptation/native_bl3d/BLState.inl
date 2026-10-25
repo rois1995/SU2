@@ -12,6 +12,7 @@
 // ROBUST_JUNCTION_PLAN rev4 WP-0(b): (history: formerly test-only) prototype of D2 column points and D3 single/bounded-compound
 // insertion through the existing operators and unchanged gates. (DC-14: production.)
 // Outcomes per target: 1 single, 2 bounded compound, 3 blocked (witness kept), 0 not needed (no long edge sees it).
+#include "../CNativeBLVector3D.hpp"
 #include <chrono>
 #include <functional>
 #include <numeric>
@@ -37,16 +38,6 @@ inline std::string Category(const std::string& what) {  // Reason histogram key:
 namespace junction_wp0 {
 using namespace SU2Native3D;
 using Clock=std::chrono::steady_clock;
-struct V { long double x=0,y=0,z=0; };
-inline V Of(Point p){return {p.x,p.y,p.z};}
-inline Point Pt(V v){return {double(v.x),double(v.y),double(v.z)};}
-inline V operator+(V a,V b){return {a.x+b.x,a.y+b.y,a.z+b.z};}
-inline V operator-(V a,V b){return {a.x-b.x,a.y-b.y,a.z-b.z};}
-inline V operator*(long double s,V a){return {s*a.x,s*a.y,s*a.z};}
-inline long double Dot(V a,V b){return a.x*b.x+a.y*b.y+a.z*b.z;}
-inline V Cross(V a,V b){return {a.y*b.z-a.z*b.y,a.z*b.x-a.x*b.z,a.x*b.y-a.y*b.x};}
-inline long double Norm(V a){return std::sqrt(Dot(a,a));}
-inline V Unit(V a){const auto n=Norm(a);if(!(n>0))throw std::runtime_error("WP0B degenerate direction.");return (1/n)*a;}
 inline std::array<Face,4> CellFaces(const Cell& c) {
   const auto& v=c.v;return {{{v[1].id,v[2].id,v[3].id},{v[0].id,v[3].id,v[2].id},{v[0].id,v[1].id,v[3].id},{v[0].id,v[2].id,v[1].id}}};
 }

@@ -332,8 +332,7 @@ std::unique_ptr<CRemesher> CSinglezoneDriver::MakeRemesher() {
         return NativeNormalizationStage3D(*solver_container[ZONE_0][INST_0][MESH_0][FLOW_SOL],*original,config,*nativeReference3D,sensor);
       };
       if(config_container[ZONE_0]->GetKind_Adap_BL_Method()==ADAP_BL_METHOD::FIRST_ROW) {
-        /*--- FIRST_ROW: one per-event option-A target policy shared by the reassessment and the construction; no
-         *    candidate normalization stage (it composes the full-D1 law); the construction replaces Refine/Coarsen. ---*/
+        /*--- FIRST_ROW uses the retained option-A target throughout normalization, construction and reassessment. ---*/
         if(!nativeFirstRow3D) {
           nativeFirstRow3D=std::make_shared<SU2NativeBLPipeline3D::Continuation>();
           const auto* config=config_container[ZONE_0];
@@ -354,7 +353,13 @@ std::unique_ptr<CRemesher> CSinglezoneDriver::MakeRemesher() {
               parameter=family->layers->GetOuterNormal().parameter;
             }
           }
-          auto policy=SU2NativeBLPipeline3D::MakeTargetPolicy(config,state,core,parameter);
+          const auto family=solver_container[ZONE_0][INST_0][MESH_0][FLOW_SOL]->GetNativeMetricFamily3D();
+          const bool sameAuthority=family && family->authority && (family->authority==nativeReference3D->original || family->authority==state.original ||
+              (state.original && family->authority->Mapped() && state.original->Mapped() &&
+               family->authority->Parameters()->Authority()==state.original->Parameters()->Authority()));
+          auto policy=family && family->first_row && sameAuthority && family->Compatible(config)
+              ? family->first_row : SU2NativeBLPipeline3D::MakeTargetPolicy(config,state,core,parameter);
+          policy->Update(core,SU2_TYPE::GetValue(config.GetAdap_Hgrad()));
           for(unsigned short b=0;b<config.GetnAdap_BL();++b) {
             const auto& layer=config.GetAdap_BL(b);
             const auto marker=std::find(state.marker_names.begin(),state.marker_names.end(),layer.marker);
@@ -368,8 +373,9 @@ std::unique_ptr<CRemesher> CSinglezoneDriver::MakeRemesher() {
           *slot=policy;
           return policy->Composition();
         };
-        auto remesher=std::make_unique<CNativeRemesher3D>(nativeReference3D,SU2Native3D::EngineOptions{},std::move(firstRowTarget));
+        auto remesher=std::make_unique<CNativeRemesher3D>(nativeReference3D,SU2Native3D::EngineOptions{},std::move(firstRowTarget),std::move(normalization));
         auto continuation=nativeFirstRow3D;
+        continuation->pending.reset();
         remesher->SetConstruction([this,slot,continuation](SU2Native3D::World& world,const SU2Native3D::Owned& cells,
             const std::vector<SU2Native3D::DonorCell>& donors,const SU2Native3D::ReferenceState& state,SU2Native3D::MetricComposition,
             const SU2Native3D::EngineOptions& kernel,std::string& report) {
@@ -380,8 +386,12 @@ std::unique_ptr<CRemesher> CSinglezoneDriver::MakeRemesher() {
           ctl.final_cycle=config->GetAdap_BL_RampFinal();ctl.event=config->GetAdap_BL_RampEvent();ctl.ramp_factor=config->GetAdap_BL_RampFactor();
           ctl.report_prefix=nativeConstructionPrefix.empty()?config->GetMesh_Out_FileName()+"_bl_event"+std::to_string(ctl.event):nativeConstructionPrefix;
           ctl.export_mesh=nativeConstructionExport;
-          continuation->pending.reset();
-          return SU2NativeBLPipeline3D::RunEvent(world,cells,donors,state,**slot,*config,*continuation,ctl,report);
+          auto stage=*continuation;
+          if(stage.pending){stage.committed=stage.pending;stage.source="private normalization stage";}
+          stage.pending.reset();
+          const auto result=SU2NativeBLPipeline3D::RunEvent(world,cells,donors,state,**slot,*config,stage,ctl,report);
+          continuation->pending=stage.pending;
+          return result;
         },[continuation]() {
           continuation->committed=continuation->pending;continuation->source="memory";
         });
