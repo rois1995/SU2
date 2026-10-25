@@ -264,4 +264,41 @@ inline std::string JsonRebuild(const RebuildStats& r) {
   o << "}}";
   return o.str();
 }
+
+// ---- TEST-ONLY diagnostic probe (DC-17 target 2): what the bad cells are in their own target ------------------------
+// Never set in production (the frozen full-M6 harness sets probePath from SU2_DC17_PROBE). For every cell below the
+// final shape gate and a deterministic 1-in-50 sample of the others: centroid, q, J, wall distance, the metric sizes at
+// the centroid (h1 <= h2 <= h3) with the h1 direction, the longest/shortest metric edge (centroid tensor) and the
+// largest vertex-vs-centroid metric ratio of a cell edge (how much the target varies across the cell).
+inline std::string probePath;
+inline void SymmetricEigen3(long double a[3][3],long double w[3],long double v[3][3]) {
+  for(int i=0;i<3;++i)for(int j=0;j<3;++j)v[i][j]=i==j;
+  for(int sweep=0;sweep<64;++sweep){long double off=0;for(int i=0;i<3;++i)for(int j=i+1;j<3;++j)off+=a[i][j]*a[i][j];if(off<1e-36L*(a[0][0]*a[0][0]+a[1][1]*a[1][1]+a[2][2]*a[2][2]))break;
+    for(int p=0;p<3;++p)for(int q=p+1;q<3;++q){if(a[p][q]==0)continue;const long double th=(a[q][q]-a[p][p])/(2*a[p][q]);
+      const long double t=(th>=0?1:-1)/(std::abs(th)+std::sqrt(th*th+1)),c=1/std::sqrt(t*t+1),sn=t*c;
+      for(int k=0;k<3;++k){const long double x=a[k][p],y=a[k][q];a[k][p]=c*x-sn*y;a[k][q]=sn*x+c*y;}
+      for(int k=0;k<3;++k){const long double x=a[p][k],y=a[q][k];a[p][k]=c*x-sn*y;a[q][k]=sn*x+c*y;}
+      for(int k=0;k<3;++k){const long double x=v[k][p],y=v[k][q];v[k][p]=c*x-sn*y;v[k][q]=sn*x+c*y;}}}
+  for(int i=0;i<3;++i)w[i]=a[i][i];
+}
+inline void Probe(State& s,const std::string& path) {
+  std::ofstream out(path);out<<std::setprecision(9);
+  out<<"cell bad x y z q J wall_distance h1 h2 h3 d1x d1y d1z lmax lmin variation\n";
+  size_t k=0;
+  for(const auto& row:s.mesh) {
+    const auto sh=MeshShape(s,row.first);const bool bad=Bad(sh);if(!bad&&(k++%50))continue;
+    const auto& c=row.second.cell;const Point g=Centroid(c);Tensor m;
+    try{m=s.field->Query(g).target;}catch(const std::exception&){continue;}
+    long double a[3][3]={{m.xx,m.xy,m.xz},{m.xy,m.yy,m.yz},{m.xz,m.yz,m.zz}},w[3],v[3][3];SymmetricEigen3(a,w,v);
+    int o[3]={0,1,2};std::sort(o,o+3,[&](int x,int y){return w[x]>w[y];});  // largest eigenvalue = smallest size first
+    auto len=[](const Tensor& t,const V& e){const long double q=e.x*(t.xx*e.x+t.xy*e.y+t.xz*e.z)+e.y*(t.xy*e.x+t.yy*e.y+t.yz*e.z)+e.z*(t.xz*e.x+t.yz*e.y+t.zz*e.z);return std::sqrt(std::max(q,0.L));};
+    long double lmax=0,lmin=INFINITY,variation=0;
+    for(unsigned i=0;i<4;++i)for(unsigned j=i+1;j<4;++j){const V e=Of(c.v[j].p)-Of(c.v[i].p);const auto l=len(m,e);lmax=std::max(lmax,l);lmin=std::min(lmin,l);
+      for(unsigned x:{i,j}){Tensor t;try{t=eventTensors.Get(s,c.v[x].id);}catch(const std::exception&){continue;}const auto lv=len(t,e);if(lv>0&&l>0)variation=std::max(variation,std::abs(std::log(lv/l)));}}
+    long double d=-1;try{d=MinWallDistance(s,Of(g));}catch(const std::exception&){}
+    out<<row.first<<' '<<bad<<' '<<g.x<<' '<<g.y<<' '<<g.z<<' '<<sh.q<<' '<<sh.J<<' '<<double(d);
+    for(int i=0;i<3;++i)out<<' '<<double(1/std::sqrt(std::max(w[o[i]],1e-300L)));
+    out<<' '<<double(v[0][o[0]])<<' '<<double(v[1][o[0]])<<' '<<double(v[2][o[0]])<<' '<<double(lmax)<<' '<<double(lmin)<<' '<<double(variation)<<"\n";
+  }
+}
 }  // namespace dc17

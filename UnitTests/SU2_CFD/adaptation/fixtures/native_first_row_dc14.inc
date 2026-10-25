@@ -124,7 +124,8 @@ TEST_CASE("DC-14 frozen-field FIRST_ROW event through the production driver back
   // DC-17 TEST-ONLY diagnostics: SU2_DC17_V_SECONDS caps V, SU2_DC17_OLD_HALVING=1 runs the DC-16 halving
   dc17::diagnosticVSeconds = env("SU2_DC17_V_SECONDS").empty() ? -1 : std::stod(env("SU2_DC17_V_SECONDS"));
   dc17::rebuildFirstRow = env("SU2_DC17_OLD_HALVING") != "1";
-  struct Dc17Reset { ~Dc17Reset() { dc17::diagnosticVSeconds = -1; dc17::rebuildFirstRow = true; } } dc17Reset;
+  dc17::probePath = env("SU2_DC17_PROBE");
+  struct Dc17Reset { ~Dc17Reset() { dc17::diagnosticVSeconds = -1; dc17::rebuildFirstRow = true; dc17::probePath.clear(); } } dc17Reset;
   class Driver : public CSinglezoneDriver {
    public:
     using CSinglezoneDriver::CSinglezoneDriver;

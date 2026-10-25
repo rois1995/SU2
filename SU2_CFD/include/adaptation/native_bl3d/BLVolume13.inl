@@ -518,7 +518,7 @@ inline VStage13 PhaseV13(State& s,Rows10& rows,Growth& G,size_t work,double seco
     }
     // (d) mesh-wide optimization with a reserved share of the sweep budget (DC-17: with the demand queue, skipped after a
     // pass that removed almost nothing - its time goes to refinement and the local repairs)
-    if(v13DemandQueue&&globalStalled){++g.global_skipped;}
+    if(v13DemandQueue&&globalStalled&&remaining()>2*R){++g.global_skipped;}  // the last slice always optimizes
     else if(!limited()){const auto t=Clock::now();
       OptimizeOptions opt;opt.maximum_sweeps=32;  // DC-13: inner sweeps until no progress (time-bounded)
      opt.maximum_seconds=v13DemandQueue?std::max(1.,std::min(remaining(),R-Seconds(sweepStart))):std::max(1.,std::min(remaining(),std::max(.4*R,.5*remaining())));
@@ -553,7 +553,7 @@ inline VStage13 PhaseV13(State& s,Rows10& rows,Growth& G,size_t work,double seco
       for(auto& l:rows.lift){const auto r=rep.relabel.find(l.second);if(r!=rep.relabel.end())l.second=r->second;}
       for(auto& c:G.columns){for(Id* x:{&c.lid,&c.top}){const auto r=rep.relabel.find(*x);if(r!=rep.relabel.end())*x=r->second;}}
       g.opt.push_back(rep);changed|=moved;g.optimize_seconds+=Seconds(t);
-      if(v13DemandQueue&&rep.bad_before<=rep.bad_after+std::max<size_t>(50,rep.bad_before/500))globalStalled=true;
+      globalStalled=v13DemandQueue&&rep.bad_before<rep.bad_after+std::max<size_t>(1,rep.bad_before/500);  // removed < 0.2 % (at least 1)
       log<<"DC12 V optimize sweep "<<g.sweeps<<" bad "<<rep.bad_before<<"->"<<rep.bad_after<<" min "<<rep.minimum_before<<"->"<<rep.minimum_after<<" O1="<<rep.edge_removals
          <<" O2="<<rep.face_swaps<<" O3="<<rep.collapses<<" O4="<<rep.moves<<" stop="<<rep.stop<<" t="<<rep.seconds<<"\n";}
     if(v13SkipFinalOnLimit&&limited()){g.outcome="limit";log<<"DC12 V sweep "<<g.sweeps<<" stopped by its limit (gate scan skipped) t="<<Seconds(t0)<<"\n";break;}

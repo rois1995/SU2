@@ -515,6 +515,7 @@ inline EngineResult RunEvent(World& world, const Owned& cells, const std::vector
     {const auto a3 = FirstRowAudit(*s, snapshot, certified);
      a3Violations = a3.violations;
      json << ",\"first_row_audit\":" << JsonAudit(a3);}
+    if (!dc17::probePath.empty()) dc17::Probe(*s, dc17::probePath);  // TEST-ONLY diagnostic (SU2_DC17_PROBE)
     phase("deficits", "bad=" + std::to_string(cached.bad_shape) + " long=" + std::to_string(cached.long_edges) + " height=" + std::to_string(cached.height_failures));
     if (ctl.export_mesh && !ctl.report_prefix.empty()) {
       std::function<long double(Id, Id)> length;
