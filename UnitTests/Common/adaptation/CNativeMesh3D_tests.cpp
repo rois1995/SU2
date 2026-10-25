@@ -312,7 +312,9 @@ TEST_CASE("Native3D supporting-plane contact preserves exact fallback and input 
   // Non-axis-aligned supporting faces retain the original exact SAT/clipping path.
   Cell rotated=a;for(auto& n:rotated.v){n.p.x+=n.p.z;n.p.y+=n.p.z;}
   auto reverse=positive(Cell{1,{{rotated.v[1],rotated.v[2],rotated.v[3],{4,{2,2,2}}}}});
-  stats={};CHECK(ConformingDisjoint(rotated,reverse,&stats));CHECK(stats.exact_orientations>0);
+  // DC-17: the shared-face proof settles it; the full exact SAT/clipping path keeps its own coverage
+  CHECK(ConformingDisjoint(rotated,reverse));
+  stats={};CHECK(ConformingDisjointExactPath(rotated,reverse,&stats));CHECK(stats.exact_orientations>0);
   reverse.v[0].id=100;CHECK_FALSE(ConformingDisjoint(rotated,reverse));
   auto touching=positive(Cell{1,{{a.v[1],{4,{2,0,0}},{5,{1,1,0}},{6,{1,0,1}}}}});
   for(auto& n:touching.v)n.id+=100;

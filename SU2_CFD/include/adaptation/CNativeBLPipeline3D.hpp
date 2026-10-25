@@ -285,7 +285,13 @@ inline EngineResult RunEvent(World& world, const Owned& cells, const std::vector
     double declared = 0;
     if (!state.original) return finish("FIRST_ROW needs the original geometry authority.");
     const bool plainFaceted = !state.original->Mapped() && state.original->Analytic().empty() && state.original->Affine().empty();
-    s->reference = plainFaceted ? PromoteFacetedReference(state.original, state.facets, 1e-13, declared) : state.original;
+    size_t fittedPlanes = 0;
+    if (plainFaceted) {
+      // DC-17: symmetry-plane markers (configuration kinds) get fitted affine plane authorities (FitPlanarMarkers)
+      std::set<int> planar;
+      for (const auto& r : policy.roles) if (r.second == 0) planar.insert(r.first);
+      s->reference = PromoteFacetedReference(FitPlanarMarkers(state.original, state.facets, planar, 1e-12, fittedPlanes), state.facets, 1e-13, declared);
+    } else s->reference = state.original;
     s->mapped = s->reference->Mapped();
     for (unsigned short b = 0; b < config.GetnAdap_BL(); ++b) {
       const auto m = std::find(state.marker_names.begin(), state.marker_names.end(), config.GetAdap_BL(b).marker);
@@ -314,7 +320,7 @@ inline EngineResult RunEvent(World& world, const Owned& cells, const std::vector
     Prepare(*s);
     ApplyWallPolicies(*s);
     DetectCreases(*s, policy.roles);  // DC-15: crease roles from the configuration marker kinds
-    json << ",\"authority\":{\"mapped_input\":" << state.original->Mapped() << ",\"declared_error\":" << declared
+    json << ",\"authority\":{\"mapped_input\":" << state.original->Mapped() << ",\"declared_error\":" << declared << ",\"fitted_planes\":" << fittedPlanes << ",\"affine\":" << s->reference->Affine().size()
          << "},\"wall_faces\":" << WallFaces(*s).size() << ",\"h0_min\":" << s->h0;
     const size_t callerBytes = cells.size() * 640 + donors.size() * (sizeof(DonorCell) + 64);
     auto memoryOk = [&](const char* where, std::string& why, size_t extra = 0) {

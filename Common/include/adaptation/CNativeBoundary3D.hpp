@@ -135,6 +135,16 @@ class PlanarReference {
  * contract: callers set their surface tolerance to at least the returned declared error. */
 std::shared_ptr<const PlanarReference> PromoteFacetedReference(std::shared_ptr<const PlanarReference> reference,
     const std::vector<Facet>& facets,double relative_error,double& declared_error,size_t ceiling=SIZE_MAX);
+/*! DC-17: declared affine plane authorities for planar markers of a plain faceted reference (FIRST_ROW construction
+ * only). Each connected facet component of a marker in `planar_markers` (the caller passes the configuration's
+ * symmetry-plane kinds) gets a fitted plane (area-weighted normal, vertex centroid, any orientation) with the error
+ * contract relative_tolerance x max(1, coordinate scale), when every vertex lies within that contract; a curved or
+ * kinked component keeps its exact faceted authority. Interior original vertices of a fitted component then have one
+ * canonical root and can slide on the promoted reference (imported planes are rarely exactly coplanar in binary64);
+ * component borders and junctions stay pinned. Returns `reference` unchanged when nothing is fitted or when it is not
+ * plain faceted. `fitted` counts the fitted components. */
+std::shared_ptr<const PlanarReference> FitPlanarMarkers(std::shared_ptr<const PlanarReference> reference,
+    const std::vector<Facet>& facets,const std::set<int>& planar_markers,double relative_tolerance,size_t& fitted,size_t ceiling=SIZE_MAX);
 struct FirstHeightReport {
   size_t wall_faces=0, height_failures=0, footprint_failures=0, missing_cells=0;
   size_t reference_clearance_failures=0;

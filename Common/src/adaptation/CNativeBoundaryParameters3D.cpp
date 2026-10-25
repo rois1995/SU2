@@ -8,6 +8,7 @@
 #include "../../include/adaptation/CTransferMemory.hpp"
 #include "CNativePredicates3D_internal.hpp"
 #include <algorithm>
+#include <functional>
 #include <cmath>
 #include <cstring>
 #include <limits>
@@ -441,5 +442,43 @@ std::shared_ptr<const PlanarReference> PromoteFacetedReference(std::shared_ptr<c
   BoundaryPoints points;std::vector<SurfaceFace> skin;
   for(const auto& f:facets){skin.push_back({{f.v[0].id,f.v[1].id,f.v[2].id},f.id});for(const auto& x:f.v)points.emplace(x.id,BoundaryPoint{x,authority->Vertex(x.id)});}
   return PlanarReference::WithParameters(reference,std::make_shared<BoundaryParameterState>(authority,points,skin,1,ceiling));
+}
+std::shared_ptr<const PlanarReference> FitPlanarMarkers(std::shared_ptr<const PlanarReference> reference,
+    const std::vector<Facet>& facets,const std::set<int>& planar_markers,double relative_tolerance,size_t& fitted,size_t ceiling) {
+  fitted=0;
+  if(!reference||facets.empty()||planar_markers.empty())return reference;
+  if(!(relative_tolerance>0)||!std::isfinite(relative_tolerance))throw std::invalid_argument("Native3D planar marker fit tolerance must be finite and positive.");
+  if(reference->Mapped()||!reference->Analytic().empty()||!reference->Affine().empty())return reference;  // plain faceted only
+  long double scale=0;
+  for(const auto& f:facets)for(const auto& x:f.v)scale=std::max({scale,std::abs((long double)x.p.x),std::abs((long double)x.p.y),std::abs((long double)x.p.z)});
+  const double tolerance=double(relative_tolerance*std::max(1.L,scale));
+  // connected components (shared vertices) of the facets of each planar marker; disconnected bodies stay separate
+  std::map<Id,size_t> parent;std::function<size_t(size_t)> root=[&](size_t a){while(parent.at(a)!=a)a=parent[a]=parent.at(parent.at(a));return a;};
+  std::map<std::pair<int,Id>,std::vector<size_t>> byVertex;
+  for(size_t i=0;i<facets.size();++i)if(planar_markers.count(facets[i].marker)){parent[i]=i;for(const auto& x:facets[i].v)byVertex[{facets[i].marker,x.id}].push_back(i);}
+  for(const auto& row:byVertex)for(size_t k=1;k<row.second.size();++k){const size_t a=root(row.second[0]),b=root(row.second[k]);if(a!=b)parent[b]=a;}
+  std::map<size_t,std::vector<size_t>> components;for(const auto& p:parent)components[root(p.first)].push_back(p.first);
+  std::map<Id,SU2NativeGeometry::AffineAuthority> planes;Id identity=0x5D17000000000000ULL;
+  for(const auto& c:components) {
+    // area-weighted normal (consistently oriented skin facets) and vertex centroid, long double
+    long double nx=0,ny=0,nz=0,ox=0,oy=0,oz=0;std::map<Id,Point> vertices;
+    for(size_t i:c.second){const auto& f=facets[i];
+      const long double ux=(long double)f.v[1].p.x-f.v[0].p.x,uy=(long double)f.v[1].p.y-f.v[0].p.y,uz=(long double)f.v[1].p.z-f.v[0].p.z;
+      const long double vx=(long double)f.v[2].p.x-f.v[0].p.x,vy=(long double)f.v[2].p.y-f.v[0].p.y,vz=(long double)f.v[2].p.z-f.v[0].p.z;
+      nx+=uy*vz-uz*vy;ny+=uz*vx-ux*vz;nz+=ux*vy-uy*vx;for(const auto& x:f.v)vertices.emplace(x.id,x.p);}
+    const long double length=std::sqrt(nx*nx+ny*ny+nz*nz);if(!(length>0)||vertices.empty())continue;
+    for(const auto& v:vertices){ox+=v.second.x;oy+=v.second.y;oz+=v.second.z;}
+    const long double n=vertices.size();
+    SU2NativeGeometry::AffineAuthority a;a.identity=identity++;a.version=1;a.dimension=3;
+    a.origin={double(ox/n),double(oy/n),double(oz/n)};a.normal={double(nx/length),double(ny/length),double(nz/length)};a.maximum_error=tolerance;
+    bool within=true;
+    try{const SU2NativeGeometry::AffineChart chart(a);for(const auto& v:vertices)within=within&&chart.ErrorBound(v.second)<=tolerance;}
+    catch(const std::exception&){within=false;}
+    if(!within)continue;  // a curved or kinked marker patch keeps its exact faceted authority
+    for(size_t i:c.second)planes.emplace(facets[i].id,a);
+    ++fitted;
+  }
+  if(planes.empty())return reference;
+  return std::make_shared<PlanarReference>(facets,ceiling,std::map<Id,AnalyticSurface>{},planes);
 }
 } // namespace SU2Native3D

@@ -261,7 +261,15 @@ CRemeshResult CNativeRemesher3D::Remesh(const CConfig& config, const CGeometry& 
       CLocalFailure promotion;
       try {
         double declared=0;
-        pending->state.original=SU2Native3D::PromoteFacetedReference(pending->state.original,pending->state.facets,1e-13,declared);
+        // DC-17: symmetry-plane markers (configuration kinds) get fitted affine plane authorities first, so their
+        // interior original vertices can slide on the promoted reference (any plane orientation)
+        std::set<int> planar;
+        for(size_t m=0;m<pending->state.marker_names.size();++m)
+          if(config.GetMarker_CfgFile_KindBC(pending->state.marker_names[m])==SYMMETRY_PLANE)planar.insert(int(m));
+        size_t fitted=0;
+        const auto fittedReference=SU2Native3D::FitPlanarMarkers(pending->state.original,pending->state.facets,planar,1e-12,fitted);
+        pending->state.original=SU2Native3D::PromoteFacetedReference(fittedReference,pending->state.facets,1e-13,declared);
+        if(parent.rank==0)std::cout<<"DC17 symmetry planes fitted: "<<fitted<<" of the components of "<<planar.size()<<" symmetry marker(s)"<<std::endl;
         control.surface_tolerance=std::max(control.surface_tolerance,declared);
       } catch(const std::exception& e){promotion.Set(2,0,e.what());}
       if(!vote(!promotion.Failed(),promotion.message))break;

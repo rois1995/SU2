@@ -475,3 +475,56 @@ TEST_CASE("Exact ideal finite-component queries resolve tangencies without round
   CHECK(ParametricCentroidSide(a,b,reversed,2)>0);
   CHECK_THROWS(ParametricCentroidSide(a,b,cancelled,3));
 }
+
+TEST_CASE("DC-17 fitted symmetry plane lets original vertices slide on a tilted noisy plane", "[NativeMappedComponent3D]") {
+  // A tilted plane (any orientation) whose imported vertices deviate by ~1e-15 from exact coplanarity: the exact
+  // coplanar merge keeps every facet its own root, so the promoted reference pins the original interior vertex; the
+  // fitted affine plane authority (FitPlanarMarkers) gives it one root and it slides in the plane. Pyramid volume:
+  // 3x3 plane grid (ids 0..8, centre 4, marker 0 = symmetry) coned to an apex (id 9, side marker 1).
+  using namespace SU2Native3D;
+  const double rotation=GENERATE(0.,.7,2.1);
+  const Point raw{.37+rotation,1.,-.61+.5*rotation};const double nl=std::hypot(raw.x,raw.y,raw.z);
+  const Point n{raw.x/nl,raw.y/nl,raw.z/nl};
+  auto cross=[](Point a,Point b){return Point{a.y*b.z-a.z*b.y,a.z*b.x-a.x*b.z,a.x*b.y-a.y*b.x};};
+  auto unit=[](Point a){const double l=std::hypot(a.x,a.y,a.z);return Point{a.x/l,a.y/l,a.z/l};};
+  const Point t1=unit(cross(n,std::abs(n.x)<.9?Point{1,0,0}:Point{0,1,0})),t2=cross(n,t1);
+  const Point o{1.25,-.5,2.};
+  auto at=[&](double u,double v,double w){return Point{o.x+u*t1.x+v*t2.x+w*n.x,o.y+u*t1.y+v*t2.y+w*n.y,o.z+u*t1.z+v*t2.z+w*n.z};};
+  std::array<Node,10> nodes;
+  for(unsigned i=0;i<3;++i)for(unsigned j=0;j<3;++j){const Id id=3*i+j;nodes[id]={id,at(double(i)-1,double(j)-1,1e-15*(double((5*id)%3)-1))};}
+  nodes[9]={9,at(0,0,1)};
+  const Point inside=at(0,0,.3);
+  auto outward=[&](Facet f){const Point a=f.v[0].p,b=f.v[1].p,c=f.v[2].p;
+    const Point m=cross(Point{b.x-a.x,b.y-a.y,b.z-a.z},Point{c.x-a.x,c.y-a.y,c.z-a.z});
+    const Point g{(a.x+b.x+c.x)/3-inside.x,(a.y+b.y+c.y)/3-inside.y,(a.z+b.z+c.z)/3-inside.z};
+    if(m.x*g.x+m.y*g.y+m.z*g.z<0)std::swap(f.v[1],f.v[2]);return f;};
+  std::vector<Facet> facets;std::vector<std::array<Id,3>> plane;
+  for(unsigned i=0;i<2;++i)for(unsigned j=0;j<2;++j){const Id a=3*i+j,b=3*(i+1)+j,c=3*(i+1)+j+1,d=3*i+j+1;
+    for(auto t:{std::array<Id,3>{a,b,c},std::array<Id,3>{a,c,d}}){plane.push_back(t);facets.push_back(outward({Id(facets.size()),0,{nodes[t[0]],nodes[t[1]],nodes[t[2]]}}));}}
+  const std::array<Id,8> ring{0,1,2,5,8,7,6,3};
+  for(unsigned k=0;k<8;++k)facets.push_back(outward({Id(facets.size()),1,{nodes[ring[k]],nodes[ring[(k+1)%8]],nodes[9]}}));
+  auto base=std::make_shared<PlanarReference>(facets);
+  CHECK(base->Canonical(0)!=base->Canonical(1));  // the noisy plane is not merged exactly
+  size_t fitted=0;const auto planes=FitPlanarMarkers(base,facets,{0},1e-12,fitted);
+  REQUIRE(fitted==1);CHECK(planes->Affine().size()==8);CHECK(planes->Canonical(0)==planes->Canonical(7));
+  size_t none=0;CHECK(FitPlanarMarkers(base,facets,{1},1e-12,none)==base);CHECK(none==0);  // the folded sides are not planar
+  auto star=[&](const std::shared_ptr<const PlanarReference>& reference){Patch p;
+    for(size_t f=0;f<plane.size();++f){const auto& t=plane[f];if(t[0]!=4&&t[1]!=4&&t[2]!=4)continue;
+      Cell c{Id(p.cells.size()),{nodes[9],nodes[t[0]],nodes[t[1]],nodes[t[2]]}};
+      if(Orientation(c.v[0].p,c.v[1].p,c.v[2].p,c.v[3].p)<0)std::swap(c.v[2],c.v[3]);p.cells.push_back(c);
+      p.surface.push_back({{facets[f].v[0].id,facets[f].v[1].id,facets[f].v[2].id},Id(f)});}
+    reference->ExportParameters(p);return p;};
+  const Point target=at(.12,-.07,0);
+  double declared=0;
+  {const auto pinned=PromoteFacetedReference(base,facets,1e-13,declared);auto child=star(pinned);Patch fresh;std::string reason;
+   const auto proposal=ConstrainMovePoint(child,4,{100,target},{},*pinned);
+   CHECK_FALSE(MoveVertex(child,4,proposal,1000,*pinned,fresh,reason));}
+  const auto reference=PromoteFacetedReference(planes,facets,1e-13,declared);auto child=star(reference);
+  const auto proposal=ConstrainMovePoint(child,4,{100,target},{},*reference);
+  Patch fresh;std::string reason;
+  REQUIRE(MoveVertex(child,4,proposal,1000,*reference,fresh,reason));INFO(reason);
+  Point moved{};for(const auto& c:fresh.cells)for(const auto& v:c.v)if(v.id==100)moved=v.p;
+  CHECK(std::hypot(moved.x-nodes[4].p.x,moved.y-nodes[4].p.y,moved.z-nodes[4].p.z)>.05);
+  CHECK(std::abs((moved.x-o.x)*n.x+(moved.y-o.y)*n.y+(moved.z-o.z)*n.z)<=1e-12);
+  CHECK(fresh.parameters.at(100).binding.dimension==2);
+}
