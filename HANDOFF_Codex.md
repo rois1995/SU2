@@ -1,7 +1,10 @@
 # Codex handoff — current state, 2026-10-25
 
-Current request: review and fix the native adaptation implementations, maintain
-[ADAPTATION_TODO.md](ADAPTATION_TODO.md), then proceed through its ordered roadmap.
+Current request: implement the missing BL-to-outer metric transition and finish
+DC-17 and DC-18. Keep [ADAPTATION_TODO.md](ADAPTATION_TODO.md) current.
+[Active completion work](Handbook/DC17_DC18_COMPLETION_2026_10_25.md) records scope,
+evidence, acceptance and current work; the reviewed baseline below remains valid
+only for its pinned source. No new capability is yet declared complete.
 Standing target: accepted M6 Euler followed by RANS adaptation, general geometry
 and metric driven operators, unchanged final acceptance and transfer gates.
 
@@ -22,7 +25,14 @@ listed distributed-repair assertions (100/101 cases pass), not a clean suite.
 Sphere oracle integer division and stale expected reference policies are fixed.
 Quadrature experiments failed unchanged limits and were reverted; see the review.
 [Final receipts](integration_evidence/native_3d_bl_v1/dc18_review_v1/final_validation/summary.json).
-No owned build/test job remains live. Checkpoint d11d05d9cc and the follow-up are
+Completion checkpoint: shared BL/outer tensor continuation, cache/support and
+normalization plumbing, donor memory accounting, shared height-constrained lids,
+continuation completion and height-directed admission are implemented. Full-M6
+validation9 is rejected with two remaining height failures; LP moves add frozen
+edge excess. Validation10 still has21 field-gradation violations and10.18%
+complexity uncertainty. Metric/2D/3D/pipeline/growth and focused serial/MPI2 checks
+pass. No owned job is live. [Current receipts](integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/validation10/summary.json).
+Checkpoint d11d05d9cc and7c1a56e0bc are
 local; automatic approval review blocked pushing to origin and destination approval
 remains pending. Unrelated dc11/dc15 campaign logs were left out of the checkpoints.
 

@@ -1209,11 +1209,11 @@ TEST_CASE("Native3D complexity integrates the geometric BL with sensor-only dono
   const auto output=test.ComputeMetric();INFO(output);
   // The wall triangles have tangent eigenvalues2 and6; sensor is the bounded identity.
   const double fullDensity=std::sqrt(12.)/h0;
-  double reference=1-T+.9*T*fullDensity;const unsigned n=10000;
-  for(unsigned k=0;k<=n;++k) {
-    const double t=double(k)/n,w=1-t*t*(3-2*t);
-    reference+=.1*T/n/3*(k==0||k==n?1:(k%2?4:2))*std::pow(fullDensity,w);
-  }
+  // Beyond .9T, integrate max(lambda/scale^2,1), with crossings at sqrt(2), sqrt(6), 1/h0.
+  const double slope=std::log(1.3),end=1+slope*(1-.9*T)/h0;
+  REQUIRE(end>std::sqrt(6.));REQUIRE(end<1/h0);
+  const double reference=.9*T*fullDensity+std::sqrt(12.)/(4*slope)+
+      (std::sqrt(3.)-1)/slope+std::log(end/std::sqrt(6.))/slope;
   CHECK(test.solver[FLOW_SOL]->GetMetricComplexityFinal()==Approx(reference).epsilon(5e-4));
   for(auto p=0ul;p<test.Geometry().GetnPointDomain();++p) {
     const auto m=test.Metric(p);CHECK(SU2_TYPE::GetValue(m.m[0][0])==Approx(1));
@@ -3245,4 +3245,106 @@ TEST_CASE("D1 regression: split-marker corner, wall subsets, canonical carriers"
         for (unsigned j = 0; j < 3; ++j) CHECK(sa.full.m[i][j] == sb.full.m[i][j]);
     }
   }
+}
+
+TEST_CASE("BL band-end transport preserves anisotropy and grades the normal ray", "[NativeBLOuterTransition]") {
+  CBoundaryLayerMetric::Wall wall;wall.layer={"wall",.01,1.2,.1};
+  wall.coord={0,0,0,.001,0,0,.001,1,0,0,1,0};wall.conn={0,1,2,2,0,2,3,3};
+  CBoundaryLayerMetric legacy(3,{wall}),layers(3,{wall});
+  REQUIRE(layers.ConfigureOuterTransition(1.,1.3));
+  CHECK_FALSE(layers.ConfigureOuterTransition(1.,1.3));
+  const su2double anchor[]={.0005,.5,.09};const auto at=layers.Evaluate(0,anchor,1.);
+  REQUIRE(at.full.m[0][0]>at.full.m[2][2]); // Fine tangent: independent linear growth of sizes would violate transport.
+  for(double z:{0.,.005,.01,.05,.09}) {
+    const su2double p[]={.0005,.5,z};const auto a=legacy.Evaluate(0,p,1.),b=layers.Evaluate(0,p,1.);
+    for(unsigned i=0;i<3;++i)for(unsigned j=0;j<3;++j)CHECK(a.full.m[i][j]==b.full.m[i][j]);
+  }
+  CBoundaryLayerMetric::ChordOwners owners;
+  const auto cuts=layers.EdgeBreakpoints({.0005,.5,.09},{.0005,.5,.2},1.5,16,&owners);
+  REQUIRE(cuts.size()>2);
+  for(double z:{.090001,.099999,.100001,.15,.199999}) {
+    const su2double p[]={.0005,.5,z};const auto sample=layers.Evaluate(0,p,1.);
+    const auto factor=std::pow(1+std::log(1.3)*(z-.09)*std::sqrt(SU2_TYPE::GetValue(at.full.m[2][2])),-2);
+    for(unsigned i=0;i<3;++i)for(unsigned j=0;j<3;++j)
+      CHECK(std::abs(SU2_TYPE::GetValue(sample.full.m[i][j]-factor*at.full.m[i][j]))<1e-11*SU2_TYPE::GetValue(at.full.m[0][0]));
+    Tensor sensor;sensor.m[0][0]=3e7;sensor.m[1][1]=4;sensor.m[2][2]=1;
+    auto direct=sensor,cached=sensor,chord=sensor;layers.ApplyPoint(p,direct,1.,nullptr,false);
+    const auto samples=layers.SamplePoints({p[0],p[1],p[2]});REQUIRE(samples.size()==1);
+    for(const auto& q:samples)layers.ApplySample(q.wall,q.sample,cached,1.,nullptr,false);
+    layers.ApplyPointOnChord(p,chord,1.,owners,(z-.09)/.11);
+    for(unsigned i=0;i<3;++i)for(unsigned j=0;j<3;++j) {
+      CHECK(std::abs(SU2_TYPE::GetValue(cached.m[i][j]-direct.m[i][j]))<1e-8);
+      CHECK(std::abs(SU2_TYPE::GetValue(chord.m[i][j]-direct.m[i][j]))<1e-8);
+    }
+    CHECK(direct.m[0][0]>=sensor.m[0][0]*(1-1e-12));
+  }
+  const auto stale=layers.SamplePoints({.0005,.5,.15});REQUIRE(stale.size()==1);
+  auto workspace=layers.PrepareComplexity3D({{{0,0,0},{.001,0,0},{0,1,0},{0,0,.2}}},1<<20);
+  const auto support=layers.GetSupportVersion();REQUIRE(layers.ConfigureOuterTransition(.1,1.3));
+  CHECK(layers.GetSupportVersion()>support);
+  CHECK_FALSE(layers.ConfigureOuterTransition(10.,1.3));CHECK(layers.GetOuterTransitionCore()==.1);
+  Tensor m;for(unsigned i=0;i<3;++i)m.m[i][i]=1;
+  CHECK_THROWS(layers.ApplySample(0,stale[0].sample,m,1.,nullptr,false));
+  CHECK_THROWS(layers.EstimateComplexity3D({{{0,0,0},{.001,0,0},{0,1,0},{0,0,.2}}},[](const auto&){return 1.;},8192,-1,workspace.get()));
+  CHECK(layers.SamplePoints({.0005,.5,1e7}).empty());
+  CHECK_THROWS(layers.ConfigureOuterTransition(0.,1.3));
+  CHECK_THROWS(layers.ConfigureOuterTransition(1.,1.));
+  CHECK_THROWS(layers.ConfigureOuterNormal(.02,2.));
+}
+
+TEST_CASE("BL outer transport shares its law in two dimensions and on analytic curved walls", "[NativeBLOuterTransition]") {
+  CBoundaryLayerMetric flat(2,{FlatWall2D({0,.001},.01,1.2,.1)});
+  flat.ConfigureOuterTransition(1.,1.3);
+  for(double side:{-1.,1.}) {
+    const su2double a[]={.0005,side*.09},b[]={.0005,side*.15};
+    const auto first=flat.Evaluate(0,a,1.),last=flat.Evaluate(0,b,1.);
+    const auto factor=std::pow(1+std::log(1.3)*.06*std::sqrt(SU2_TYPE::GetValue(first.full.m[1][1])),-2);
+    CHECK(last.full.m[0][0]==Approx(SU2_TYPE::GetValue(factor*first.full.m[0][0])));
+    CHECK(last.full.m[1][1]==Approx(SU2_TYPE::GetValue(factor*first.full.m[1][1])));
+  }
+  CBoundaryLayerMetric sphere(3,{AnalyticSphereWall(.01,.3,1.)});
+  sphere.ConfigureOuterNormal(.03,2.);sphere.SelectOuterNormal(.5);sphere.FreezeOuterNormal();
+  sphere.ConfigureOuterTransition(1.,1.3);
+  const su2double a[]={1.27,0.,0.},b[]={1.4,0.,0.};
+  const auto first=sphere.Evaluate(0,a,1.),last=sphere.Evaluate(0,b,1.);
+  const auto factor=std::pow(1+std::log(1.3)*.13*std::sqrt(SU2_TYPE::GetValue(first.full.m[0][0])),-2);
+  for(unsigned j=0;j<3;++j)CHECK(last.full.m[j][j]==Approx(SU2_TYPE::GetValue(factor*first.full.m[j][j])));
+  CHECK(last.weight==1.);
+}
+
+TEST_CASE("Outer BL correction samples the source domain and refreshes changed cores without rebuilding donors", "[NativeBLOuterTransition][NativeDynamicComplexity3D]") {
+  using namespace SU2Native3D;
+  const auto mesh=simplex_test::MakeSimplexMesh(3,2,[](const passivedouble*){return "far";});
+  std::vector<CNativeComplexity3D::SourceCell> source;
+  for(size_t i=0;i<mesh.GetnElem();++i)if((i+1)%SU2_MPI::GetSize()==unsigned(SU2_MPI::GetRank())) {
+    CNativeComplexity3D::SourceCell row;row.cell.id=i;
+    for(unsigned k=0;k<4;++k) {const auto n=mesh.elem[4*i+k];row.nodes[k]=n;
+      row.cell.v[k]={n,{mesh.coord[3*n],mesh.coord[3*n+1],mesh.coord[3*n+2]}};}
+    source.push_back(row);
+  }
+  CBoundaryLayerMetric::Wall wall;wall.layer={"wall",.001,1.2,.01};
+  wall.coord={0,0,.5,1,0,.5,1,1,.5,0,1,.5};wall.conn={0,1,2,2,0,2,3,3};
+  CBoundaryLayerMetric layers(3,{wall});layers.ConfigureOuterTransition(.01,1.3);
+  CNativeComplexity3D estimate(layers,source,mesh.GetnPoint(),size_t(256)<<20,4096,7519,true);
+  std::vector<CBoundaryLayerMetric::Tensor> sensor(mesh.GetnPoint());for(auto& m:sensor)for(unsigned j=0;j<3;++j)m.m[j][j]=1;
+  const auto first=estimate.Assess(sensor,1.,true);CHECK(first.inside>2000);CHECK(first.nonzero>1000);
+  CHECK(std::isfinite(first.global.uncertainty));CHECK(first.directChecks==first.inside);
+  const auto builds=estimate.GetStatistics().donorBuilds,queries=estimate.GetStatistics().preparationGeometryQueries;
+  const auto support=layers.GetSupportVersion();layers.ConfigureOuterTransition(.001,1.3);CHECK(layers.GetSupportVersion()>support);
+  const auto second=estimate.Assess(sensor,1.,true);
+  CHECK(second.global.value==first.global.value);CHECK(second.global.uncertainty==first.global.uncertainty);
+  CHECK(estimate.GetStatistics().donorBuilds==builds);CHECK(estimate.GetStatistics().preparationGeometryQueries==queries);
+  CHECK(estimate.GetStatistics().profileRefreshes==1);
+  std::string why;CHECK(estimate.Refine(why));const auto refined=estimate.Assess(sensor,1.,true);
+  CHECK(refined.samples==2*first.samples);CHECK(refined.directChecks==refined.inside);
+  // The two unit right triangles have tangential metric eigenvalues1/2 and3/2.
+  // Integrate both sides, including the3/2 eigenvalue until transport makes it redundant.
+  const double slope=2*.2/2.2,anchor=2*(.001+.2*.009)/2.2,outer=std::log(1.3);
+  const double tangent=std::sqrt(1.5);
+  const double exact=2*(tangent*(.5+std::log(anchor/.001)/slope)+(tangent-1)/outer+
+      std::log((anchor+outer*(.5-.009))/(tangent*anchor))/outer);
+  CHECK(std::abs(refined.global.value-exact)<=refined.global.uncertainty);
+  CHECK(refined.global.uncertainty<.1*exact);
+  CBoundaryLayerMetric legacy(3,{wall});CNativeComplexity3D old(legacy,source,mesh.GetnPoint(),size_t(256)<<20,64,7519);
+  legacy.ConfigureOuterTransition(.01,1.3);CHECK_THROWS(old.Assess(sensor,1.,true));
 }

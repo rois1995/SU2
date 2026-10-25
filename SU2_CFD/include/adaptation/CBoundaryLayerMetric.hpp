@@ -193,11 +193,21 @@ class CBoundaryLayerMetric {
   void SelectOuterNormal(double parameter);
   void FreezeOuterNormal() { outerNormal.frozen=true; }
   const OuterNormalProfile& GetOuterNormal() const { return outerNormal; }
+  /*! Native normal-ray tensor transport beyond the full-strength band. Configure after outer-normal limits.
+   * Support covers all points that can exceed this core; subsequent queries may use this core or a finer one.
+   * Returns true when cached geometry samples/support must be rebuilt. MMG retains its legacy fade. */
+  bool ConfigureOuterTransition(double coreEigenvalue, double hgrad);
+  uint64_t GetSampleVersion() const { return sampleVersion; }
+  uint64_t GetSupportVersion() const { return supportVersion; }
+  double GetOuterTransitionCore() const { return transitionCore; }
+
 
   /*!
    * \brief Number of walls (sorted by marker name).
    */
   unsigned short GetnWall() const { return walls.size(); }
+  /*! Bounds of the immutable physical wall coordinates, without metric support padding. */
+  std::array<double,6> WallBounds() const;
 
   /*!
    * \brief Boundary-layer options of a wall.
@@ -300,8 +310,10 @@ class CBoundaryLayerMetric {
   bool PlanarWalls3D() const;
 
   /*! Complete faceted-wall support proposal, independent of the sensor/scale. Analytic authority retains
-   * its existing integration path. Sampler limits bound work/storage; no metric or error bound is implied. */
-  std::shared_ptr<SU2Native3D::SupportSampler3D> PrepareCorrectionSupport3D(size_t maximumBytes,uint64_t maximumWork) const;
+   * its existing integration path. includeTransition=false proposes only the requested wall band; a caller
+   * must then cover any outer continuation separately. Limits bound work/storage, not metric or integration error. */
+  std::shared_ptr<SU2Native3D::SupportSampler3D> PrepareCorrectionSupport3D(size_t maximumBytes,uint64_t maximumWork,
+                                                                         bool includeTransition = true) const;
 
   struct ComplexityEstimate3D {
     double value=0, indicator=0;
@@ -398,6 +410,8 @@ class CBoundaryLayerMetric {
   bool TangentialFloor(const Sample& sample, const su2double* wallEigenvalues, su2double h0, Tensor& M) const;
 
   OuterNormalProfile outerNormal;
+  double transitionCore=0, transitionSlope=0;
+  uint64_t sampleVersion=0, supportVersion=0;
   unsigned short nDim = 0;
   su2double cornerAngle = 0.0; /*!< \brief D1 feature angle (degrees): convex edges/vertices turning by more. */
   std::vector<Wall> walls;

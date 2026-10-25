@@ -1,0 +1,49 @@
+{
+  "build": "passed",
+  "focused": {
+    "exit": 0,
+    "cases": 12,
+    "assertions": 645
+  },
+  "mpi2": {
+    "exit": 0,
+    "cases_per_rank": 10,
+    "assertions_by_rank": [
+      612,
+      627
+    ]
+  },
+  "full_m6": {
+    "state": "rejected",
+    "session": 56923,
+    "volume_optimization_seconds": 0,
+    "exit": 1,
+    "complete": 0,
+    "written": 0,
+    "remesh_seconds": 286.943045982,
+    "peak_rss_kB": 4875424,
+    "completion": {
+      "outcome": "incomplete",
+      "failing_before": 2,
+      "failing_after": 2,
+      "inserted": 0,
+      "apex_placed": 0,
+      "cavity": 0,
+      "separated": 0,
+      "passes": 1,
+      "seconds": 4.2533725,
+      "why": {
+        "apex: ApexMove: layer: removes a vertex and adds frozen excess": 2,
+        "cavity: the face cell is a column cell": 2,
+        "insert: Native #D cone obstructed by interface face #,#,# at apex #.": 2,
+        "insert: validity: q=# J=#": 1,
+        "relocate: no admissible candidate": 2
+      },
+      "witnesses": [
+        "face 23477,222718,222742 cell 1217351 walls=1 others=0 registered=1 first-row: relocate: no admissible candidate",
+        "face 23485,221980,222722 cell 1217329 walls=1 others=0 registered=1 first-row: relocate: no admissible candidate"
+      ]
+    }
+  },
+  "closure": false
+}

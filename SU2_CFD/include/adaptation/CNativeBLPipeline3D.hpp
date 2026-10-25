@@ -95,6 +95,7 @@ inline std::shared_ptr<TargetPolicy> MakeTargetPolicy(const CConfig& config, con
       layers->SelectOuterNormal(outerParameter);
       layers->FreezeOuterNormal();
     }
+    layers->ConfigureOuterTransition(core,SU2_TYPE::GetValue(config.GetAdap_Hgrad()));
   }
   if (p->base->GetFeatures().segments != 0) throw std::runtime_error("FIRST_ROW base layers still carry a D1 feature.");
   p->roles = MarkerRoles(config, state);
@@ -467,7 +468,7 @@ inline EngineResult RunEvent(World& world, const Owned& cells, const std::vector
       auto field = ComputeDirectionField(*s);
       dc9::directionField = &field.d; dc9::directionFieldUses = 0;
       snapshot = FirstChildren(*s);
-      // DC-17: the first-row rebuild (column midpoints, lateral flips, prism rebuild; DC-16 cone split as fallback)
+      // DC-17: shared height-constrained lids, lateral flips and prism rebuild; DC-16 cone split as fallback.
       HalveStats hv;
       ColumnStats cs;
       if (dc17::rebuildFirstRow) {
@@ -481,6 +482,12 @@ inline EngineResult RunEvent(World& world, const Owned& cells, const std::vector
            << cs.inserted << ",\"refused\":" << cs.refused << "}";
       phase("halving", "split=" + std::to_string(hv.split) + " refused=" + std::to_string(hv.refused) + " inserted=" + std::to_string(cs.inserted));
       if (!memoryOk("halving", why)) return finish(why);
+      // Current height requests must be completed independently of the optional volume-optimization budget.
+      const auto cp = dc15::CompleteFirstRow(*s, rows, std::max(60., .1 * usable), certified, log);
+      workDone += cp.inserted + cp.apex_placed + cp.cavity + cp.separated;
+      json << ",\"completion\":" << dc15::JsonCompletion(cp);
+      phase("completion", "failing=" + std::to_string(cp.failing_before) + "->" + std::to_string(cp.failing_after));
+      if (!memoryOk("completion", why)) return finish(why);
       v13R2Retry = false;
       beforeV();
       const double vSeconds = cappedV();

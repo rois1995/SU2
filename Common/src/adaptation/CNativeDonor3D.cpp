@@ -218,26 +218,32 @@ bool DonorImport::Build(const std::vector<DonorCell>& original, std::string& rea
     }
   } catch (const std::exception& e) { failure.Set(2, 0, e.what()); }
   if (!Vote(failure, reason)) { ++stats.rejected; return false; }
-  bool admitted = false;
-  const auto records = world.exchange(to, &admitted, ceiling, initial_peak);
-  if (!admitted) failure.Set(3, 0, "Original donor authority transport exceeds budget.");
-  if (!Vote(failure, reason)) { ++stats.rejected; return false; }
-  const auto check_peak = transfer_memory::Add(initial_peak, transfer_memory::Bytes(to), transfer_memory::Bytes(records),
-      MapBytes(records.size(), sizeof(std::pair<const std::pair<unsigned, std::array<Id, 4>>, Authority>)));
-  if (!Admit(check_peak, ceiling, reason)) { ++stats.rejected; return false; }
-  try {
-    std::map<std::pair<unsigned, std::array<Id, 4>>, Authority> authority;
-    for (const auto& row : records) {
-      const auto inserted = authority.emplace(std::make_pair(row.kind, row.key), row);
-      if (inserted.second) continue;
-      const auto& old = inserted.first->second;
-      if (row.kind != 0) throw std::invalid_argument("Duplicate original donor cell ID or simplex across workers.");
-      if (old.point.x != row.point.x || old.point.y != row.point.y || old.point.z != row.point.z ||
-          Components(old.sensor) != Components(row.sensor))
-        throw std::invalid_argument("Inconsistent original donor sensor/coordinate across workers.");
-    }
-  } catch (const std::exception& e) { failure.Set(2, 0, e.what()); }
-  if (!Vote(failure, reason)) { ++stats.rejected; return false; }
+  // Construction scratch is dead. The exchange accounts for its buckets and wire buffers itself.
+  const auto prepared=transfer_memory::Add(baseline,transfer_memory::Bytes(staged),transfer_memory::Bytes(staged_boxes),
+      staged_index?transfer_memory::Add(staged_index->GetAllocatedBytes(),staged_index->RetainedWorkspaceBound(1)):0,
+      transfer_memory::Bytes(owner_boxes),transfer_memory::Mul(world.size,32768));
+  {
+    bool admitted = false;
+    auto records = world.exchange(to, &admitted, ceiling, prepared);
+    if (!admitted) failure.Set(3, 0, "Original donor authority transport exceeds budget.");
+    if (!Vote(failure, reason)) { ++stats.rejected; return false; }
+    std::vector<std::vector<Authority>>().swap(to);
+    if (!Admit(transfer_memory::Add(prepared,transfer_memory::Bytes(records)),ceiling,reason)) { ++stats.rejected; return false; }
+    try {
+      std::sort(records.begin(),records.end(),[](const auto& a,const auto& b) {
+        return a.kind<b.kind || (a.kind==b.kind && a.key<b.key);
+      });
+      for(size_t i=1;i<records.size();++i) {
+        const auto& old=records[i-1];const auto& row=records[i];
+        if(old.kind!=row.kind || old.key!=row.key)continue;
+        if(row.kind!=0)throw std::invalid_argument("Duplicate original donor cell ID or simplex across workers.");
+        if(old.point.x!=row.point.x || old.point.y!=row.point.y || old.point.z!=row.point.z ||
+            Components(old.sensor)!=Components(row.sensor))
+          throw std::invalid_argument("Inconsistent original donor sensor/coordinate across workers.");
+      }
+    } catch (const std::exception& e) { failure.Set(2, 0, e.what()); }
+    if (!Vote(failure, reason)) { ++stats.rejected; return false; }
+  }
   const auto total = CPassiveComm::Allreduce(uint64_t(std::min(n, MaximumDonors + 1)), CPassiveComm::Op::SUM, world.comm);
   if (!total) failure.Set(1, 0, "Empty original donor source.");
   if (!Vote(failure, reason)) { ++stats.rejected; return false; }
@@ -245,7 +251,7 @@ bool DonorImport::Build(const std::vector<DonorCell>& original, std::string& rea
   const auto resident = transfer_memory::Add(baseline, transfer_memory::Bytes(staged), transfer_memory::Bytes(staged_boxes),
       staged_index ? transfer_memory::Add(staged_index->GetAllocatedBytes(), staged_index->RetainedWorkspaceBound(1)) : 0,
       staged_ranks->GetMemory());
-  if (!Admit(transfer_memory::Add(check_peak, resident), ceiling, reason)) { ++stats.rejected; return false; }
+  if (!Admit(transfer_memory::Add(resident, transfer_memory::Bytes(owner_boxes)), ceiling, reason)) { ++stats.rejected; return false; }
   donors.swap(staged); boxes.swap(staged_boxes); index.swap(staged_index); ranks.swap(staged_ranks);
   filter_cells = total > MaximumDonors;
   initialized = true;built_from=&original;

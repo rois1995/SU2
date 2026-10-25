@@ -19,7 +19,8 @@ class CNativeCandidateComplexity3D {
     std::vector<CBoundaryLayerMetric::PointSample> geometry;
   };
   const CNativeMetricFamily3D& family;
-  uint64_t count;
+  uint64_t count,profileVersion=0;
+  size_t storageCeiling=0,callerBytes=0;
   std::vector<Query> queries;
  public:
   uint64_t source_span=0;
@@ -34,7 +35,7 @@ class CNativeCandidateComplexity3D {
     return bytes;
   }
   CNativeCandidateComplexity3D(const CNativeMetricFamily3D& original,const SU2Native3D::PreparedComplexity3D& cloud,
-      const std::vector<SU2Native3D::DonorCell>& source,size_t ceiling,size_t caller_bytes=0):family(original),count(cloud.count) {
+      const std::vector<SU2Native3D::DonorCell>& source,size_t ceiling,size_t caller_bytes=0):family(original),count(cloud.count),storageCeiling(ceiling),callerBytes(caller_bytes) {
     using namespace SU2Native3D;World world;CLocalFailure failure;const auto start=world.seconds();
     auto vote=[&](){const auto e=world.elect(failure);if(e.any)throw std::runtime_error(e.message);};
     const auto low=CPassiveComm::Allreduce(count,CPassiveComm::Op::MIN,world.comm),high=CPassiveComm::Allreduce(count,CPassiveComm::Op::MAX,world.comm);
@@ -75,6 +76,7 @@ class CNativeCandidateComplexity3D {
     }catch(const std::exception& e){failure.Set(2,0,e.what());}vote();
     const auto total=CPassiveComm::Allreduce(uint64_t(queries.size()),CPassiveComm::Op::SUM,world.comm);
     if(total!=count)failure.Set(2,0,"Incomplete original candidate integration partition.");vote();
+    profileVersion=family.layers? family.layers->GetSampleVersion():0;
     stats.preparation_seconds=world.seconds()-start;
   }
   SU2Complexity::Estimate Assess(const std::vector<CBoundaryLayerMetric::Tensor>& current,su2double& core) {
@@ -84,6 +86,15 @@ class CNativeCandidateComplexity3D {
     try {
       if(current.size()!=family.selected.size() || !(core>0) || !std::isfinite(SU2_TYPE::GetValue(core)))
         throw std::runtime_error("Invalid current original candidate integration field/core.");
+      if(family.layers && profileVersion!=family.layers->GetSampleVersion()) {
+        size_t bytes=transfer_memory::Add(callerBytes,sizeof(*this),transfer_memory::Bytes(queries));
+        for(auto& q:queries) {
+          q.geometry=family.layers->SamplePoints({q.point.x,q.point.y,q.point.z});++stats.geometry_queries;
+          bytes=transfer_memory::Add(bytes,transfer_memory::Bytes(q.geometry));
+          if(bytes>storageCeiling)throw std::runtime_error("Refreshed original candidate geometry exceeds storage ceiling.");
+        }
+        profileVersion=family.layers->GetSampleVersion();
+      }
       for(const auto& q:queries) {
         DonorCell values;
         for(unsigned k=0;k<4;++k){const auto& m=current.at(q.nodes[k]);values.sensor[k]={

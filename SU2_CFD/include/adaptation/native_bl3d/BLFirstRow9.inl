@@ -1263,6 +1263,12 @@ struct ColumnIndex {
     lastApex=rows.apex;lastLift=rows.lift;built=true;return true;}
 };
 // ApexMove: Cone(star(p_f), p') with p' from the LP and a fixed grid inside the T window; Repair admission (D.1).
+// A requested height correction is layer construction; an already compliant row is a quality repair.
+inline Kind FirstRowKind(State& s,const Patch& old) {
+  std::string why;
+  return HeightT(s,old,why) ? Kind::Repair : Kind::Layer;
+}
+
 inline bool ApexMove(State& s,Rows& rows,const Face& key,VStage& g,std::string& why) {
   Scope scope("V ApexMove");
   const auto it=rows.apex.find(key);if(it==rows.apex.end()){why="not rowed";return false;}
@@ -1276,7 +1282,7 @@ inline bool ApexMove(State& s,Rows& rows,const Face& key,VStage& g,std::string& 
   Patch fresh;fresh.cells=cone.cells;for(size_t i=0;i<fresh.cells.size();++i)fresh.cells[i].id=s.next_cell+i;fresh.surface=old.surface;fresh.parameters=old.parameters;
   std::string reason;if(!ValidatePrescribedInterface(old.cells,fresh.cells,skin,reason,nullptr,MaximumCavityCells)){why="ApexMove: "+reason;return false;}
   try{s.reference->ExportParameters(fresh);}catch(const std::exception& x){why=x.what();return false;}
-  const auto d=Admit8(s,old,fresh,Kind::Repair);
+  const auto d=Admit8(s,old,fresh,FirstRowKind(s,old));
   if(!d.ok){++g.rejected;++g.reasons["ApexMove ["+std::to_string(d.category)+"] "+Key(d.reason)];why="ApexMove: "+d.reason;return false;}
   Apply(s,ids,fresh);rows.apex[key]=cone.apex.id;++g.accepted;++g.apex_moves;return true;
 }

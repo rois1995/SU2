@@ -103,7 +103,10 @@ TEST_CASE("DC-14 FIRST_ROW entry: two wall markers, two symmetry planes, fresh e
     for (const auto& a : areas0) { const auto f = areas.find(a.first); REQUIRE(f != areas.end()); CHECK(std::abs(double(f->second - a.second)) <= 1e-9); }
     REQUIRE(cont.pending); CHECK(cont.pending->digest == CoordinateDigest(result.cells));
     CHECK(!cont.pending->lift.empty()); CHECK(!cont.pending->apex.empty());
-    if (event) CHECK(report.find("\"halve\":{") != std::string::npos);
+    if (event) {
+      CHECK(report.find("\"halve\":{") != std::string::npos);
+      CHECK(report.find("\"completion\":{") != std::string::npos);
+    }
     // commit (the remesher does this in onAccepted) and continue from the published state
     if (!result.valid) break;  // only an accepted event continues
     cont.committed = cont.pending; cont.source = "memory";
@@ -183,7 +186,8 @@ TEST_CASE("DC-14 frozen-field FIRST_ROW event through the production driver back
             << ",\"final_cycle\":" << config.GetAdap_BL_RampFinal() << ",\"input_points\":" << geometry.GetGlobal_nPointDomain()
             << ",\"complete\":" << complete << ",\"written\":" << written << ",\"initial_cells\":" << stats.initial_cells
             << ",\"final_cells\":" << stats.final_cells << ",\"complexity\":{\"value\":" << stats.complexity.value << ",\"uncertainty\":"
-            << stats.complexity.uncertainty << ",\"estimated\":" << stats.complexity.estimated << ",\"reason\":" << junction_wp0::Json(stats.complexity.reason)
+            ;if(std::isfinite(stats.complexity.uncertainty))receipt<<stats.complexity.uncertainty;else receipt<<"null";
+    receipt << ",\"estimated\":" << stats.complexity.estimated << ",\"reason\":" << junction_wp0::Json(stats.complexity.reason)
             << ",\"target\":" << SU2_TYPE::GetValue(config.GetAdap_Complexity()) << "},\"prepare_seconds\":" << prepared
             << ",\"remesh_seconds\":" << seconds << ",\"peak_rss_kB\":" << dc9::PeakKB() << ",\"construction\":"
             << (stats.construction_report.empty() ? std::string("null") : stats.construction_report.substr(0, stats.construction_report.size() - 1)) << "}\n";
@@ -191,4 +195,32 @@ TEST_CASE("DC-14 frozen-field FIRST_ROW event through the production driver back
   driver.Finalize();
   REQUIRE(complete);
   REQUIRE(written);
+}
+
+TEST_CASE("DC-17 shared column lids use every incident current wall height", "[NativeBL17Lid]") {
+  using namespace dc12;
+  Policies scoped;
+  for(double angle:{0.,.7,1.3}) {
+    BoxSpec spec;spec.n=1;spec.angle=angle;auto s=SyntheticBox(spec);
+    auto delta=[&](double x,double z) {return V{x*std::cos(angle),x*std::sin(angle),z};};
+    // The failing M6 columns had only about2.01 new h0: their midpoint leaves almost no apex room.
+    const auto d=delta(.02,2.01028*spec.h0);
+    CHECK(dc17::ColumnLidFraction(*s,1,d)==Approx(1.5/2.01028));
+    s->walls.insert(1);s->heights[1]=.012;
+    CHECK(dc17::ColumnLidFraction(*s,1,d)==Approx(.9));
+    CHECK_FALSE(std::isfinite(dc17::ColumnLidFraction(*s,1,delta(.01,.02))));
+    CHECK_FALSE(std::isfinite(dc17::ColumnLidFraction(*s,1,delta(-.02,.02))));
+    CHECK_FALSE(std::isfinite(dc17::ColumnLidFraction(*s,UINT64_MAX,d)));
+  }
+}
+
+TEST_CASE("First-row movement distinguishes requested heights from quality repair", "[NativeBL17Lid]") {
+  using namespace dc12;
+  Policies scoped;BoxSpec spec;spec.n=1;auto s=SyntheticBox(spec);
+  const auto wf=WallFaces(*s).front();const auto old=PatchOf(*s,{wf.first});
+  CHECK(FirstRowKind(*s,old)==Kind::Layer);
+  s->heights[0]=1.;s->h0=1.;
+  CHECK(FirstRowKind(*s,old)==Kind::Repair);
+  s->heights[0]=2.;s->h0=2.;
+  CHECK(FirstRowKind(*s,old)==Kind::Layer);
 }

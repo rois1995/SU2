@@ -83,10 +83,13 @@ struct CNativeComplexity3D::Preparation {
   std::map<Id,size_t> original;
   std::shared_ptr<SupportSampler3D> sampler;
   bool retained=false;
+  std::array<double,3> low{},high{};
+  std::vector<std::array<double,6>> domainBoxes;
+  std::vector<double> domainPDF;
   size_t Bytes()const {
     return transfer_memory::Add(sizeof(*this),transfer_memory::Bytes(geometry),
         transfer_memory::Mul(original.size(),sizeof(Id)+sizeof(size_t)+6*sizeof(void*)),donor.ResidentBytes(),
-        sampler?sampler->Statistics().retained_bytes:0);
+        sampler?sampler->Statistics().retained_bytes:0,transfer_memory::Bytes(domainBoxes),transfer_memory::Bytes(domainPDF));
   }
 };
 CNativeComplexity3D::~CNativeComplexity3D()=default;
@@ -109,10 +112,10 @@ CNativeComplexity3D::CNativeComplexity3D(CBoundaryLayerMetric& model,std::vector
     size_t nNodes,size_t maximumBytes,size_t count,uint64_t streamSeed,bool retain)
     :initialSamples(count),seed(streamSeed),layers(model),source(std::move(cells)),sourceNodes(nNodes),ceiling(maximumBytes) {
   World world;CLocalFailure failure;const auto start=world.seconds();
-  const uint64_t controls[]={maximumBytes,count,seed,uint64_t(retain)};uint64_t low[4],high[4];
-  SU2_MPI::Allreduce(controls,low,4,MPI_UNSIGNED_LONG_LONG,MPI_MIN,world.comm);
-  SU2_MPI::Allreduce(controls,high,4,MPI_UNSIGNED_LONG_LONG,MPI_MAX,world.comm);
-  if(!std::equal(low,low+4,high) || count<32 || count>1048576 || ceiling<4096)
+  const uint64_t controls[]={maximumBytes,count,seed,uint64_t(retain),uint64_t(layers.GetOuterTransitionCore()>0)};uint64_t low[5],high[5];
+  SU2_MPI::Allreduce(controls,low,5,MPI_UNSIGNED_LONG_LONG,MPI_MIN,world.comm);
+  SU2_MPI::Allreduce(controls,high,5,MPI_UNSIGNED_LONG_LONG,MPI_MAX,world.comm);
+  if(!std::equal(low,low+5,high) || count<32 || count>1048576 || ceiling<4096)
     failure.Set(2,0,"Invalid/inconsistent bounded-complexity controls.");
   Vote(world,failure);
   try {
@@ -132,15 +135,51 @@ CNativeComplexity3D::CNativeComplexity3D(CBoundaryLayerMetric& model,std::vector
     }
   }catch(const std::exception& error){failure.Set(2,0,error.what());}Vote(world,failure);
   std::string reason;
-  if(!preparation->donor.Build(preparation->geometry,reason,ceiling,ResidentBytes()))throw std::runtime_error(reason);
+  if(!preparation->donor.Build(preparation->geometry,reason,ceiling,ResidentBytes()-transfer_memory::Bytes(preparation->geometry)))throw std::runtime_error(reason);
+  domainProposal=layers.GetOuterTransitionCore()>0;
+  if(domainProposal) {
+    double low[3]={INFINITY,INFINITY,INFINITY},high[3]={-INFINITY,-INFINITY,-INFINITY};
+    for(const auto& row:source)for(const auto& n:row.cell.v) {
+      const double x[]={n.p.x,n.p.y,n.p.z};
+      for(unsigned j=0;j<3;++j){low[j]=std::min(low[j],x[j]);high[j]=std::max(high[j],x[j]);}
+    }
+    SU2_MPI::Allreduce(low,preparation->low.data(),3,MPI_DOUBLE,MPI_MIN,world.comm);
+    SU2_MPI::Allreduce(high,preparation->high.data(),3,MPI_DOUBLE,MPI_MAX,world.comm);
+    try {
+    const auto wall=layers.WallBounds();long double radius=0;
+    for(unsigned j=0;j<3;++j)if(!std::isfinite(wall[j]) || !std::isfinite(wall[j+3]) ||
+        !std::isfinite(preparation->low[j]) || !std::isfinite(preparation->high[j]) ||
+        !(preparation->high[j]>preparation->low[j]))throw std::runtime_error("Invalid BL/source sampling bounds.");
+    for(unsigned w=0;w<layers.GetnWall();++w)radius=std::max(radius,(long double)layers.GetLayer(w).thickness);
+    if(!(radius>0) || !std::isfinite(radius))throw std::runtime_error("Invalid wall extent for continuation sampling.");
+    for(bool complete=false;!complete;radius*=2) {
+      std::array<double,6> box;complete=true;long double volume=1;
+      for(unsigned j=0;j<3;++j) {
+        box[j]=double(std::max((long double)preparation->low[j],(long double)wall[j]-radius));
+        box[j+3]=double(std::min((long double)preparation->high[j],(long double)wall[j+3]+radius));
+        complete=complete && box[j]==preparation->low[j] && box[j+3]==preparation->high[j];
+        volume*=std::max(0.L,(long double)box[j+3]-box[j]);
+      }
+      if(volume>0) {
+        const double density=double(1/volume);
+        if(!std::isfinite(volume) || !(density>0) || !std::isfinite(density))
+          throw std::runtime_error("Invalid source domain for BL continuation sampling.");
+        if(transfer_memory::Add(ResidentBytes(),transfer_memory::GrowthBound(preparation->domainBoxes.size()+1,sizeof(box)+sizeof(double)))>ceiling)
+          throw std::runtime_error("BL continuation proposals exceed storage ceiling.");
+        preparation->domainBoxes.push_back(box);preparation->domainPDF.push_back(density);
+      }
+      if(complete && preparation->domainBoxes.empty())throw std::runtime_error("Empty BL continuation domain.");
+    }
+    }catch(const std::exception& error){failure.Set(2,0,error.what());}Vote(world,failure);
+  }
   if(!world.rank)try {
     const auto held=ResidentBytes();if(held>=ceiling)throw SupportLimit3D("Complexity support exceeds storage ceiling.");
-    preparation->sampler=layers.PrepareCorrectionSupport3D(std::min(ceiling/2,ceiling-held),80000000);
+    preparation->sampler=layers.PrepareCorrectionSupport3D(std::min(ceiling/2,ceiling-held),80000000,!domainProposal);
   }catch(const std::exception& error){failure.Set(2,0,error.what());}Vote(world,failure);
   Extend(count,reason,true);
   PreparationCounts();
   if(!retain){preparation.reset();statistics.preparationBytes=0;statistics.retainedBytes=ResidentBytes();}
-  profileVersion=layers.GetOuterNormal().version;
+  profileVersion=layers.GetSampleVersion();
   statistics.preparationSeconds=world.seconds()-start;
 }
 bool CNativeComplexity3D::Extend(size_t count,std::string& reason,bool initial) {
@@ -159,7 +198,30 @@ bool CNativeComplexity3D::Extend(size_t count,std::string& reason,bool initial) 
   try {
     distribution.resize(world.size);
     if(!world.rank) {
-      const auto draws=p.sampler->Draw(count,seed,statistics.samples);
+      auto draws=p.sampler->Draw(count,seed,statistics.samples);
+      if(domainProposal) {
+        // Nested wall boxes resolve the tail across scales; the last box covers the entire source domain.
+        const size_t wallCount=(count+(statistics.samples%2==0))/2;
+        const double wallProbability=double(wallCount)/count;
+        std::mt19937_64 random(seed^uint64_t(0x9e3779b97f4a7c15ULL));random.discard(4*statistics.samples);
+        for(size_t i=0;i<draws.size();++i) {
+          auto uniform=[&]() {return std::min(std::ldexp(static_cast<long double>(random()),-64),std::nextafter(1.L,0.L));};
+          const auto boxIndex=std::min(size_t(uniform()*p.domainBoxes.size()),p.domainBoxes.size()-1);
+          const auto& box=p.domainBoxes[boxIndex];std::array<double,3> x;
+          for(unsigned j=0;j<3;++j) {const auto u=uniform();x[j]=double((1-u)*box[j]+u*box[j+3]);}
+          auto& draw=draws[i];double wallPDF=1/draw.inverse_pdf;
+          if((statistics.samples+i)%2) {draw.point={x[0],x[1],x[2]};wallPDF=p.sampler->Density(draw.point);}
+          const double coordinate[]={draw.point.x,draw.point.y,draw.point.z};long double boxPDF=0;
+          for(size_t b=0;b<p.domainBoxes.size();++b) {
+            bool inside=true;const auto& bounds=p.domainBoxes[b];
+            for(unsigned j=0;j<3;++j)inside=inside && coordinate[j]>=bounds[j] && coordinate[j]<=bounds[j+3];
+            if(inside)boxPDF+=p.domainPDF[b];
+          }
+          const double pdf=wallProbability*wallPDF+(1-wallProbability)*boxPDF/p.domainBoxes.size();
+          if(!(pdf>0) || !std::isfinite(1/pdf))throw std::runtime_error("Invalid complete wall/domain mixture density.");
+          draw.inverse_pdf=1/pdf;
+        }
+      }
       for(size_t i=0;i<draws.size();++i)distribution[(statistics.samples+i)%world.size].push_back({i,draws[i].point,draws[i].inverse_pdf});
     }
   }catch(const SupportLimit3D& error){failure.Set(3,0,error.what());}
@@ -242,7 +304,7 @@ bool CNativeComplexity3D::Refine(std::string& reason) {
   const uint64_t controls[]={statistics.samples,batches,statistics.refinementAttempts,profileVersion};uint64_t low[4],high[4];
   SU2_MPI::Allreduce(controls,low,4,MPI_UNSIGNED_LONG_LONG,MPI_MIN,world.comm);
   SU2_MPI::Allreduce(controls,high,4,MPI_UNSIGNED_LONG_LONG,MPI_MAX,world.comm);
-  if(!std::equal(low,low+4,high) || profileVersion!=layers.GetOuterNormal().version)
+  if(!std::equal(low,low+4,high) || profileVersion!=layers.GetSampleVersion() || domainProposal!=(layers.GetOuterTransitionCore()>0))
     failure.Set(4,0,"Inconsistent/stale complexity refinement stage.");Vote(world,failure);
   if(!preparation || !preparation->retained){reason="sampling_preparation_not_retained";return false;}
   if(statistics.refinementAttempts==2 || statistics.samples>=std::min<size_t>(1048576,4*initialSamples) || statistics.samples>1048576-statistics.samples){reason="sampling_stage_budget";return false;}
@@ -260,7 +322,8 @@ CNativeComplexity3D::Assessment CNativeComplexity3D::Assess(const std::vector<CB
   try {
     if(sensor.size()!=sourceNodes || !(SU2_TYPE::GetValue(core)>0) || !std::isfinite(SU2_TYPE::GetValue(core)))
       throw std::runtime_error("Invalid current complexity trial field/core.");
-    const auto version=layers.GetOuterNormal().version;
+    if(domainProposal!=(layers.GetOuterTransitionCore()>0))throw std::runtime_error("Changed BL continuation mode requires rebuilding the complexity proposal.");
+    const auto version=layers.GetSampleVersion();
     if(version!=profileVersion) {
       const auto refreshStart=world.seconds();size_t bytes=transfer_memory::Add(transfer_memory::Bytes(source),
           transfer_memory::Bytes(queries),transfer_memory::Bytes(volumes),transfer_memory::Bytes(backgroundSensor),preparation?preparation->Bytes():0);

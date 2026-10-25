@@ -64,6 +64,7 @@ class CNativeComplexity3D {
   std::vector<Query> queries;
   size_t sourceNodes,ceiling;
   uint64_t profileVersion=0;
+  bool domainProposal=false;
   std::vector<CBoundaryLayerMetric::Tensor> backgroundSensor;
   std::array<long double,4> background{};
   bool backgroundValid=false;

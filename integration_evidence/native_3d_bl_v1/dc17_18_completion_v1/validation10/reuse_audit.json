@@ -1,0 +1,12 @@
+{
+  "changed_from_validation9": {
+    "source_input_pins.json": [
+      "UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp"
+    ],
+    "binary_runtime_pins.json": [
+      "integration_evidence/build-integrated-v2/UnitTests/test_driver"
+    ],
+    "production_link_pins.json": []
+  },
+  "reuse": "Unaffected v9 stages retain their own pins/logs; production libraries, CFD binary, runtime libraries and test sources other than the explicit oracle are unchanged. Rerun unit3d, which contains that oracle."
+}

@@ -1,0 +1,129 @@
+{
+  "closure": {
+    "DC17": false,
+    "DC18": false
+  },
+  "verified_pins": {
+    "source_input_pins.json": 954,
+    "binary_runtime_pins.json": 20,
+    "production_link_pins.json": 7
+  },
+  "focused_v9": {
+    "exit": 0,
+    "cases": 12,
+    "assertions": 645
+  },
+  "mpi2_v9": {
+    "exit": 0,
+    "cases_per_rank": 10,
+    "assertions_by_rank": [
+      612,
+      627
+    ]
+  },
+  "regression": {
+    "metric": {
+      "assertions": 305646,
+      "cases": 176,
+      "status": "metric exit=0 verdict=pass binary=8467dd40bfed61fd10d0e8a63e9a18f259f8693db57677a5cbd51744ab219a35",
+      "log": "integration_evidence/native_3d_bl_v1/bl_remesh_v1/dc17/completion_20261025_v9/metric.log",
+      "log_sha256": "1bd173cf2d31f7161b5e29a806246ed4ab623741b0031ad8568fe5a9dec27b8f"
+    },
+    "unit2d": {
+      "assertions": 52273,
+      "cases": 57,
+      "status": "unit2d exit=0 verdict=pass binary=8467dd40bfed61fd10d0e8a63e9a18f259f8693db57677a5cbd51744ab219a35",
+      "log": "integration_evidence/native_3d_bl_v1/bl_remesh_v1/dc17/completion_20261025_v9/unit2d.log",
+      "log_sha256": "d0ccf707f53a64f563c66345b446f7f3b6cc2a68389af96260741db6dfaf2322"
+    },
+    "unit3d": {
+      "assertions": 183577,
+      "cases": 34,
+      "status": "unit3d exit=0 verdict=pass binary=f5a62b5bae6b196a7aa776bb31090bc79480976432ca62f21bb67a1911a74bde",
+      "log": "integration_evidence/native_3d_bl_v1/bl_remesh_v1/dc17/completion_20261025_v10/unit3d.log",
+      "log_sha256": "5ef10cf342e3812cfcab09742a247039f3fc16744a6d3243129076de083f87a1"
+    },
+    "pipeline": {
+      "assertions": 125,
+      "cases": 3,
+      "status": "pipeline exit=0 verdict=pass binary=8467dd40bfed61fd10d0e8a63e9a18f259f8693db57677a5cbd51744ab219a35",
+      "log": "integration_evidence/native_3d_bl_v1/bl_remesh_v1/dc17/completion_20261025_v9/pipeline.log",
+      "log_sha256": "8fcd666664982b44ae0617d9bb1b3ab393abc5a84c97e77722ab60b8918b18e0"
+    },
+    "growth": {
+      "assertions": 3286,
+      "cases": 2,
+      "status": "growth exit=0 verdict=pass binary=8467dd40bfed61fd10d0e8a63e9a18f259f8693db57677a5cbd51744ab219a35",
+      "log": "integration_evidence/native_3d_bl_v1/bl_remesh_v1/dc17/completion_20261025_v9/growth.log",
+      "log_sha256": "0e603e16c7b02fe8d8c8172a215c28b1eec1547ceb8f7cc03f6eaed99e90db15"
+    }
+  },
+  "full_m6_v9": {
+    "state": "rejected",
+    "session": 56923,
+    "volume_optimization_seconds": 0,
+    "exit": 1,
+    "complete": 0,
+    "written": 0,
+    "remesh_seconds": 286.943045982,
+    "peak_rss_kB": 4875424,
+    "completion": {
+      "outcome": "incomplete",
+      "failing_before": 2,
+      "failing_after": 2,
+      "inserted": 0,
+      "apex_placed": 0,
+      "cavity": 0,
+      "separated": 0,
+      "passes": 1,
+      "seconds": 4.2533725,
+      "why": {
+        "apex: ApexMove: layer: removes a vertex and adds frozen excess": 2,
+        "cavity: the face cell is a column cell": 2,
+        "insert: Native #D cone obstructed by interface face #,#,# at apex #.": 2,
+        "insert: validity: q=# J=#": 1,
+        "relocate: no admissible candidate": 2
+      },
+      "witnesses": [
+        "face 23477,222718,222742 cell 1217351 walls=1 others=0 registered=1 first-row: relocate: no admissible candidate",
+        "face 23485,221980,222722 cell 1217329 walls=1 others=0 registered=1 first-row: relocate: no admissible candidate"
+      ]
+    }
+  },
+  "field": {
+    "probe_completed": true,
+    "mesh_constructed": false,
+    "policy": "full D1, original P1 sensor",
+    "core": 9.99999999999997e-05,
+    "pairs": 9393,
+    "failed_queries": 53,
+    "old_bad": 4177,
+    "new_bad": 21,
+    "old_worst": 11023.246092475,
+    "new_worst": 1.4059853521889,
+    "sensor_bad": 0,
+    "sensor_worst": 1,
+    "query_seconds": 0.737827952,
+    "sampling": "Support PDF candidate/work ceiling; no contribution discarded.",
+    "sample_inside_64": 0
+  },
+  "complexity": {
+    "completed": true,
+    "value": 777624.650128591,
+    "uncertainty": 79139.0136802562,
+    "samples": 32768,
+    "inside": 26494,
+    "nonzero": 26494,
+    "seconds": 13.396383614,
+    "retained_bytes": 549721600,
+    "support_candidates": 68380877
+  },
+  "complexity_relative_uncertainty": 0.10177019680017792,
+  "unresolved": [
+    "Combined tensor gradation across changing wall frames",
+    "Bounded normalization accuracy",
+    "Two M6 first-row heights; candidate moves add frozen edge excess",
+    "Complete accepted M6 mesh with final q/J/edge/height gates",
+    "Production discrete curved authority, persistence, clearance, remeshing, transfer and restart"
+  ]
+}

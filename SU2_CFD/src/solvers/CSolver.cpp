@@ -2880,6 +2880,7 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
   std::shared_ptr<CBoundaryLayerMetric> nativeLayers;
   struct CellRule {
     std::array<unsigned long, 3> nodes;
+    std::array<std::array<double,2>,3> coordinates;
     std::vector<CBoundaryLayerMetric::IntegrationPoint2D> points;
   };
   vector<CellRule> integration;
@@ -2939,7 +2940,7 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
             coordinates[k][d]=SU2_TYPE::GetValue(geometry->nodes->GetCoord(nodes[k],d));
           auto points=nativeLayers->IntegrationRule2D(coordinates);
           localQuadraturePoints+=points.size();
-          integration.push_back({{nodes[0],nodes[1],nodes[2]},std::move(points)});
+          integration.push_back({{nodes[0],nodes[1],nodes[2]},coordinates,std::move(points)});
         } else {
           std::array<std::array<double,3>,4> coordinates;
           for(unsigned k=0;k<4;++k)for(unsigned d=0;d<3;++d)
@@ -3139,6 +3140,15 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
         localSmallest = fmin(localSmallest,smallest);
       }
       SU2_MPI::Allreduce(&localSmallest, &frozenCore, 1, MPI_DOUBLE, MPI_MIN, SU2_MPI::GetComm());
+      CLocalFailure transitionFailure;
+      try {
+        const bool hadTransition=nativeLayers && nativeLayers->GetOuterTransitionCore()>0;
+        if(nativeLayers && nativeLayers->ConfigureOuterTransition(SU2_TYPE::GetValue(frozenCore),SU2_TYPE::GetValue(config->GetAdap_Hgrad()))) {
+          if(!hadTransition)boundedComplexity.reset();
+          for(auto& cell:integration)cell.points=nativeLayers->IntegrationRule2D(cell.coordinates);
+        }
+      }catch(const std::exception& error){transitionFailure.Set(2,0,error.what());}
+      CollectiveFailure(transitionFailure,CURRENT_FUNCTION);
       if(replay) {
         const auto estimate=replay->assess(blMetric,frozenCore);
         integratedComplexity=estimate.value;integrationUncertainty=estimate.uncertainty;
@@ -3183,7 +3193,7 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
                 nativeLayers->ApplySample(sample.wall,sample.sample,metric,frozenCore,nullptr,false);
               return SU2_TYPE::GetValue(density(metric));
             };
-            bool same=!cell.points.empty() && cell.profile_version==nativeLayers->GetOuterNormal().version;
+            bool same=!cell.points.empty() && cell.profile_version==nativeLayers->GetSampleVersion();
             if(cell.sensorDependent) {
               same=same && cell.core==frozenCore;
               for(unsigned k=0;k<4;++k)for(unsigned i=0;i<3;++i)for(unsigned j=0;j<3;++j)
@@ -3193,7 +3203,7 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
             else {
               cell.points=nativeLayers->IntegrationRule3D(cell.coordinates,1.5,targetDensity,&cell.sensorDependent);++quadratureBuilds;
               for(unsigned k=0;k<4;++k)cell.sensor[k]=blMetric[cell.nodes[k]];
-              cell.core=frozenCore;cell.profile_version=nativeLayers->GetOuterNormal().version;
+              cell.core=frozenCore;cell.profile_version=nativeLayers->GetSampleVersion();
             }
             quadratureBytes=transfer_memory::Add(quadratureBytes,transfer_memory::Bytes(cell.points),sizeof(CellRule3D));
             for(const auto& point:cell.points)quadratureBytes=transfer_memory::Add(quadratureBytes,transfer_memory::Bytes(point.samples));

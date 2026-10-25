@@ -312,6 +312,7 @@ std::unique_ptr<CRemesher> CSinglezoneDriver::MakeRemesher() {
         if(config.GetAdap_BL_Budget() && (!retained || !family->layers->GetOuterNormal().frozen))
           throw std::invalid_argument("Budget-aware native3D requires its selected frozen original-family BL profile.");
         const auto layers=retained ? family->layers : CBoundaryLayerMetric::FromNativeReference(state,config);
+        layers->ConfigureOuterTransition(core,SU2_TYPE::GetValue(config.GetAdap_Hgrad()));
         for(unsigned short b=0;b<config.GetnAdap_BL();++b) {
           const auto& layer=config.GetAdap_BL(b);
           const auto marker=std::find(state.marker_names.begin(),state.marker_names.end(),layer.marker);
@@ -408,6 +409,7 @@ std::unique_ptr<CRemesher> CSinglezoneDriver::MakeRemesher() {
         localSmallest = std::min(localSmallest, smallest);
       }
       const auto core = CPassiveComm::Allreduce(localSmallest, CPassiveComm::Op::MIN);
+      layers->ConfigureOuterTransition(core,SU2_TYPE::GetValue(config.GetAdap_Hgrad()));
       return [layers, core](SU2Native2D::Point p, SU2Native2D::Tensor sensor) {
         const su2double coord[2] = {p.x, p.y};
         CBoundaryLayerMetric::Tensor m;

@@ -537,7 +537,7 @@ inline bool ApexRelocate(State& s,Rows10& rows,Id cell,const Face& key,FirstRowS
     try{if(!carriers.empty())node=Constrain(s,priv.get(),node,carriers,carriers);}catch(const std::exception&){continue;}
     Patch fresh;std::string why;bool ok=false;try{ok=MoveVertex(old,v,node,s.next_cell,ref,fresh,why);if(ok)ref.ExportParameters(fresh);}catch(const std::exception&){ok=false;}
     if(!ok)continue;{std::string d2;if(!D2Ok(s,old,fresh,d2))continue;}
-    const auto d=Admit12(s,old,fresh,Kind::Repair);if(!d.ok)continue;
+    const auto d=Admit12(s,old,fresh,FirstRowKind(s,old));if(!d.ok)continue;
     double score=1e300;for(const auto& x:fresh.cells)if(IsFirstChild(s,fresh,x)){const auto sh=Shape(s,x);score=std::min(score,std::min(sh.q/MinimumMeanRatio,sh.J/MinimumScaledJacobian));}
     if(score>best){best=score;chosen=std::move(fresh);}
   }

@@ -2,11 +2,26 @@ import copy
 import json
 from pathlib import Path
 import tempfile
+import subprocess
 import unittest
 from check_event import check
 
 
 class ReceiptChecks(unittest.TestCase):
+    def test_generated_config_contains_first_row_controls(self):
+        script = Path(__file__).with_name('run_event.sh').read_text()
+        prefix, separator, _ = script.partition('\nIN=')
+        self.assertTrue(separator)
+        with tempfile.TemporaryDirectory() as directory:
+            subprocess.run(['bash', '-c', prefix, 'run_event.sh', '/bin/true', '2',
+                            '/input mesh.su2', directory], check=True)
+            config = (Path(directory) / 'event2.cfg.pending').read_text()
+            self.assertIn('MESH_FILENAME= /input mesh.su2\n', config)
+            self.assertIn('ADAP_BL_METHOD= FIRST_ROW\n', config)
+            self.assertIn('ADAP_BL_H0_RAMP= 5\n', config)
+            self.assertIn('ADAP_SIZES= (500000, 500000, 500000, 500000, 500000, 500000)\n', config)
+            self.assertFalse((Path(directory) / 'event2.cfg.pending.pending').exists())
+
     def test_actual_rejected_c9_receipt(self):
         with self.assertRaisesRegex(ValueError, 'complete is not true'):
             check(Path(__file__).parent / 'chain_c9/event1/event1')

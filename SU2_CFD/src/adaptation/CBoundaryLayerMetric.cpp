@@ -282,6 +282,7 @@ su2double FadeWeight(su2double distance, su2double full, su2double width) {
 /*--- Search structures and per-vertex data of one wall. ---*/
 struct CBoundaryLayerMetric::WallData {
   su2double h0 = 0.0, growth = 1.0, full = 0.0, width = 0.0, thickness = 0.0;
+  double support = 0;
   su2double low[3] = {0.0}, high[3] = {0.0}; /*!< \brief Bounding box of the wall grown by the thickness. */
   su2double tolerance = 0.0;                 /*!< \brief Distance below which a point is on the wall (3D). */
   std::vector<unsigned long> elem;           /*!< \brief Segments (2D) or triangles (3D) of the ADT. */
@@ -682,6 +683,7 @@ void CBoundaryLayerMetric::Build() {
     d->h0 = wall.layer.firstHeight;
     d->growth = wall.layer.growth;
     d->thickness = wall.layer.thickness;
+    d->support = SU2_TYPE::GetValue(d->thickness);
     if (!(d->h0 > 0.0) || !(d->growth >= 1.0) || !(d->thickness >= d->h0)) {
       SU2_MPI::Error("Wall " + name + ": the boundary-layer metric needs first height > 0, growth >= 1 and thickness "
                      ">= first height.", CURRENT_FUNCTION);
@@ -1719,12 +1721,12 @@ bool CBoundaryLayerMetric::FeatureRefinement2D(const std::array<std::array<doubl
 }
 
 void CBoundaryLayerMetric::ConfigureOuterNormal(double protectedDistance,double maximumGrowth) {
-  if(nDim!=3 || outerNormal.frozen || outerNormal.version || !(protectedDistance>0) || !std::isfinite(protectedDistance) ||
+  if(nDim!=3 || outerNormal.frozen || outerNormal.version || transitionCore>0 || sampleVersion==UINT64_MAX || !(protectedDistance>0) || !std::isfinite(protectedDistance) ||
       !(maximumGrowth>=1) || !std::isfinite(maximumGrowth))
     throw std::invalid_argument("Invalid or already-frozen outer-normal BL limits.");
   for(const auto& wall:walls)if(protectedDistance<wall.layer.firstHeight || maximumGrowth<wall.layer.growth)
     throw std::invalid_argument("Outer-normal BL limits must preserve original first height and growth.");
-  outerNormal.protected_distance=protectedDistance;outerNormal.maximum_growth=maximumGrowth;outerNormal.version=1;
+  outerNormal.protected_distance=protectedDistance;outerNormal.maximum_growth=maximumGrowth;outerNormal.version=1;++sampleVersion;
   // The outer growth limit raises the largest normal size inside the band, hence the exact D1 support radius.
   IndexFeatures();
 }
@@ -1732,8 +1734,55 @@ void CBoundaryLayerMetric::SelectOuterNormal(double parameter) {
   if(outerNormal.frozen || !outerNormal.version || !(parameter>=0 && parameter<=1) || !std::isfinite(parameter))
     throw std::invalid_argument("Invalid or frozen outer-normal BL selection.");
   if(parameter==outerNormal.parameter)return;
-  if(outerNormal.version==UINT64_MAX)throw std::runtime_error("BL profile identity exhausted.");
-  outerNormal.parameter=parameter;++outerNormal.version;
+  if(outerNormal.version==UINT64_MAX || sampleVersion==UINT64_MAX)throw std::runtime_error("BL profile identity exhausted.");
+  outerNormal.parameter=parameter;++outerNormal.version;++sampleVersion;
+}
+
+std::array<double,6> CBoundaryLayerMetric::WallBounds() const {
+  std::array<double,6> result{INFINITY,INFINITY,INFINITY,-INFINITY,-INFINITY,-INFINITY};
+  for(const auto& wall:walls)for(size_t p=0;p<wall.coord.size()/nDim;++p)for(unsigned j=0;j<nDim;++j) {
+    const auto value=SU2_TYPE::GetValue(wall.coord[nDim*p+j]);
+    result[j]=std::min(result[j],value);result[j+3]=std::max(result[j+3],value);
+  }
+  return result;
+}
+
+bool CBoundaryLayerMetric::ConfigureOuterTransition(double core,double hgrad) {
+  if(!(core>0) || !std::isfinite(core) || !(hgrad>1) || !std::isfinite(hgrad))
+    throw std::invalid_argument("Native BL outer transition requires finite core > 0 and ADAP_HGRAD > 1.");
+  const double slope=std::log(hgrad);
+  // Scale trials share the original family. Enlarged support must remain valid after a rejected trial.
+  if(transitionCore>0 && transitionSlope==slope && core>=transitionCore)return false;
+  if(sampleVersion==UINT64_MAX || supportVersion==UINT64_MAX)
+    throw std::runtime_error("Native BL sample identity exhausted.");
+  std::vector<double> support(data.size());
+  for(size_t w=0;w<data.size();++w) {
+    const auto& d=*data[w];
+    if(!d.adt){support[w]=d.support;continue;}
+    double bound=std::max(d.maximum_wall_eigenvalue,1/std::pow(SU2_TYPE::GetValue(d.h0),2));
+    for(auto length:d.length)bound=std::max(bound,1/std::pow(SU2_TYPE::GetValue(length),2));
+    for(const auto& logarithm:d.vertexLog) {
+      su2double vectors[3][3],values[3],work[3];CBlasStructure::EigenDecomposition(logarithm.m,vectors,values,3,work);
+      for(auto value:values)bound=std::max(bound,4*std::exp(-SU2_TYPE::GetValue(value)));
+    }
+    // Each intersection A intersect F <= A + F; include only this wall's feature constraints.
+    for(const auto& f:features)if(std::binary_search(f.walls.begin(),f.walls.end(),w))bound+=1/(f.h0*f.h0);
+    const double h0=SU2_TYPE::GetValue(d.h0),g=SU2_TYPE::GetValue(d.growth),full=SU2_TYPE::GetValue(d.full);
+    double hn=std::max(h0,2*(h0+(g-1)*full)/(g+1));
+    if(outerNormal.version && full>outerNormal.protected_distance) {
+      const double p=outerNormal.protected_distance,anchor=std::max(h0,2*(h0+(g-1)*p)/(g+1));
+      hn=std::max(hn,anchor+2*(1-2/(outerNormal.maximum_growth+1))*(full-p));
+    }
+    support[w]=std::max(SU2_TYPE::GetValue(d.thickness),full+std::max(0.,std::sqrt(bound/core)-1)*hn/slope)*(1+1e-12);
+    if(!std::isfinite(support[w]))throw std::runtime_error("Unrepresentable native BL outer transition support.");
+  }
+  for(size_t w=0;w<data.size();++w) {
+    auto& d=*data[w];const double extra=support[w]-d.support;
+    for(unsigned j=0;j<nDim;++j){d.low[j]-=extra;d.high[j]+=extra;}
+    d.support=support[w];
+  }
+  transitionCore=core;transitionSlope=slope;++sampleVersion;++supportVersion;
+  return true;
 }
 
 CBoundaryLayerMetric::Sample CBoundaryLayerMetric::Evaluate(unsigned short iWall, const su2double* X,
@@ -1746,7 +1795,7 @@ CBoundaryLayerMetric::Sample CBoundaryLayerMetric::EvaluateImpl(unsigned short i
                                                                unsigned long pinned) {
   const auto& wall = walls[iWall];
   auto& d = *data[iWall];
-  Sample sample;sample.profile_version=outerNormal.version;
+  Sample sample;sample.profile_version=sampleVersion;
   if (!d.adt) return sample;
   auto x = [&](unsigned long iPoint) { return &wall.coord[iPoint * nDim]; };
 
@@ -1769,7 +1818,7 @@ CBoundaryLayerMetric::Sample CBoundaryLayerMetric::EvaluateImpl(unsigned short i
 
   su2double tangentSize[3][3] = {{0.0}};  // 3D: size tensor (squared sizes) on the tangent plane
   su2double ht = 0.0, tangent[3] = {0.0};  // 2D
-  su2double geometricNormal[3] = {0.0};
+  su2double geometricNormal[3] = {0.0}, distanceDirection[3] = {0.0};
 
   if (nDim == 2) {
     /*--- Exact distance to a segment, parameter of the closest point. ---*/
@@ -1816,6 +1865,7 @@ CBoundaryLayerMetric::Sample CBoundaryLayerMetric::EvaluateImpl(unsigned short i
     su2double n[2] = {-t[1], t[0]};
     const su2double radial[2] = {X[0] - a[0] - along * (b[0] - a[0]), X[1] - a[1] - along * (b[1] - a[1])};
     const su2double radius = sqrt(radial[0] * radial[0] + radial[1] * radial[1]);
+    if(radius>0)for(unsigned j=0;j<2;++j)distanceDirection[j]=radial[j]/radius;
     if (along == 0.0 || along == 1.0) {
       if (radius > 1e-12 * length) {
         n[0] = radial[0] / radius;
@@ -1884,7 +1934,10 @@ CBoundaryLayerMetric::Sample CBoundaryLayerMetric::EvaluateImpl(unsigned short i
       if(wall.authority)n={smooth.direction.x,smooth.direction.y,smooth.direction.z};
       else for (unsigned short iDim = 0; iDim < 3; ++iDim) n[iDim] = radial[iDim] / sample.distance;
     }
-    for (unsigned short iDim = 0; iDim < 3; ++iDim) sample.normal[iDim] = n[iDim];
+    for (unsigned short iDim = 0; iDim < 3; ++iDim) {
+      sample.normal[iDim] = n[iDim];
+      if(sample.distance>0)distanceDirection[iDim]=wall.authority ? su2double(iDim==0?smooth.direction.x:iDim==1?smooth.direction.y:smooth.direction.z) : radial[iDim]/sample.distance;
+    }
 
     /*--- Size tensor: barycentric mean of the logarithms of the vertex tensors, rotated to this normal; then its
      *    projection on the tangent plane. ---*/
@@ -1912,17 +1965,18 @@ CBoundaryLayerMetric::Sample CBoundaryLayerMetric::EvaluateImpl(unsigned short i
       }
   }
 
-  sample.weight = FadeWeight(sample.distance, d.full, d.width);
+  sample.weight = transitionCore>0 ? su2double(sample.distance<=d.support) : FadeWeight(sample.distance, d.full, d.width);
   if (!(sample.weight > 0.0)) return sample;
 
   /*--- Wall-normal size of geometric rows: harmonic mean of the two rows around the point, at least h0. ---*/
-  sample.hn = max(d.h0, 2.0 * (d.h0 + (d.growth - 1.0) * sample.distance) / (d.growth + 1.0));
-  if(outerNormal.parameter>0 && sample.distance>outerNormal.protected_distance) {
+  const auto profileDistance=transitionCore>0 ? min(sample.distance,d.full) : sample.distance;
+  sample.hn = max(d.h0, 2.0 * (d.h0 + (d.growth - 1.0) * profileDistance) / (d.growth + 1.0));
+  if(outerNormal.parameter>0 && profileDistance>outerNormal.protected_distance) {
     const auto p=outerNormal.protected_distance;
     const auto anchor=max(d.h0,2*(d.h0+(d.growth-1)*p)/(d.growth+1));
     const auto slope=2*(1-2/(d.growth+1));
     const auto limit=2*(1-2/(outerNormal.maximum_growth+1));
-    sample.hn=max(sample.hn,anchor+(slope+outerNormal.parameter*(limit-slope))*(sample.distance-p));
+    sample.hn=max(sample.hn,anchor+(slope+outerNormal.parameter*(limit-slope))*(profileDistance-p));
   }
 
   auto& M = sample.full.m;
@@ -1952,8 +2006,24 @@ CBoundaryLayerMetric::Sample CBoundaryLayerMetric::EvaluateImpl(unsigned short i
     WallMetric3D(tangentSize,sample,curvature,curvedDirection);
   }
 
-  /*--- D1: the full-strength wall sample intersected with its features (canonical order), before the fade. ---*/
-  ApplyFeatures(iWall, X, sample);
+  /*--- Continue the band-end tensor by normal-ray metric transport, preserving anisotropy.
+   * shortcut: changing nearest-wall frames still need combined-field gradation; this only grades a fixed ray. ---*/
+  su2double anchorPoint[3]={X[0],X[1],nDim==3?X[2]:su2double(0.)};
+  const auto outward=transitionCore>0 ? max(su2double(0),sample.distance-d.full) : su2double(0);
+  for(unsigned j=0;j<nDim;++j)anchorPoint[j]-=outward*distanceDirection[j];
+  ApplyFeatures(iWall, anchorPoint, sample);
+  if(outward>0) {
+    su2double normalMetric=0;
+    for(unsigned i=0;i<nDim;++i)for(unsigned j=0;j<nDim;++j)
+      normalMetric+=distanceDirection[i]*sample.full.m[i][j]*distanceDirection[j];
+    const auto scale=1+transitionSlope*outward*sqrt(normalMetric);
+    for(unsigned i=0;i<nDim;++i)for(unsigned j=0;j<nDim;++j) {
+      sample.full.m[i][j]/=scale*scale;
+      if(nDim==3 && i==j)sample.logarithm.m[i][j]-=2*log(scale);
+    }
+    sample.hn*=scale;
+
+  }
 
   /*--- Fade: eigenvalues interpolated in logarithm towards the isotropic core metric. ---*/
   if (sample.weight < 1.0) {
@@ -2212,7 +2282,7 @@ std::shared_ptr<CBoundaryLayerMetric::ComplexityWorkspace3D> CBoundaryLayerMetri
   if(BLDeterminant(tetrahedron[0],tetrahedron[1],tetrahedron[2],tetrahedron[3])==0)
     throw std::invalid_argument("Degenerate native3D geometry workspace cell.");
   auto result=std::make_shared<ComplexityWorkspace3D>();
-  result->owner=this;result->profile_version=outerNormal.version;result->cell=tetrahedron;result->ceiling=maximumBytes;
+  result->owner=this;result->profile_version=sampleVersion;result->cell=tetrahedron;result->ceiling=maximumBytes;
   return result;
 }
 
@@ -2221,7 +2291,7 @@ CBoundaryLayerMetric::ComplexityEstimate3D CBoundaryLayerMetric::EstimateComplex
     double absoluteTolerance,ComplexityWorkspace3D* workspace) {
   if(!density || maximumEvaluations<64 || maximumEvaluations>65536 ||
       (!std::isfinite(absoluteTolerance) || (absoluteTolerance<0 && absoluteTolerance!=-1)) ||
-      (workspace && (workspace->owner!=this || workspace->profile_version!=outerNormal.version || workspace->cell!=tetrahedron)))
+      (workspace && (workspace->owner!=this || workspace->profile_version!=sampleVersion || workspace->cell!=tetrahedron)))
     throw std::invalid_argument("Invalid bounded native3D complexity control.");
   ComplexityEstimate3D estimate;
   const auto start=std::chrono::steady_clock::now();
@@ -2255,8 +2325,8 @@ std::vector<CBoundaryLayerMetric::IntegrationPoint3D> CBoundaryLayerMetric::Inte
   const auto preparationStart=std::chrono::steady_clock::now();
   if(!workspace || !workspace->prepared)for(unsigned short wall=0;wall<walls.size();++wall) {
     const auto& d=*data[wall];if(!d.adt)continue;
-    const double thickness=SU2_TYPE::GetValue(d.thickness)+d.proxy_error;
-    if(walls[wall].authority && !MayIntersectSmoothBand(tetrahedron,*walls[wall].authority,walls[wall].authority_facet,SU2_TYPE::GetValue(d.thickness)))continue;
+    const double thickness=d.support+d.proxy_error;
+    if(walls[wall].authority && !MayIntersectSmoothBand(tetrahedron,*walls[wall].authority,walls[wall].authority_facet,d.support))continue;
     bool hidden=true;
     if(!walls[wall].authority)for(const auto& p:tetrahedron){const su2double x[3]={p[0],p[1],p[2]};hidden=hidden && EvaluateImpl(wall,x,1.,true).distance>=thickness;}
     su2double low[3],high[3];
@@ -2387,9 +2457,9 @@ std::vector<CBoundaryLayerMetric::IntegrationPoint3D> CBoundaryLayerMetric::Inte
       for(const auto* points:{&low,&high})for(const auto& point:*points)for(const auto& s:point.samples)sampled[s.wall]=true;
       bool unresolved=false;
       for(unsigned w=0;w<walls.size();++w)if(!sampled[w] && data[w]->adt) {
-        if(walls[w].authority)unresolved=unresolved || MayIntersectSmoothBand(region,*walls[w].authority,walls[w].authority_facet,SU2_TYPE::GetValue(data[w]->thickness));
+        if(walls[w].authority)unresolved=unresolved || MayIntersectSmoothBand(region,*walls[w].authority,walls[w].authority_facet,data[w]->support);
         else {
-          const double thickness=SU2_TYPE::GetValue(data[w]->thickness);su2double lo[3],hi[3];
+          const double thickness=data[w]->support;su2double lo[3],hi[3];
           for(unsigned j=0;j<3;++j){double first=region[0][j],last=first;for(const auto& x:region){first=std::min(first,x[j]);last=std::max(last,x[j]);}lo[j]=first-thickness;hi[j]=last+thickness;}
           std::vector<unsigned long> faces;data[w]->adt->DetermineIntersectingElements(lo,hi,faces);
           for(auto f:faces){std::array<BLPoint3D,3> face;for(unsigned k=0;k<3;++k)for(unsigned j=0;j<3;++j)face[k][j]=SU2_TYPE::GetValue(walls[w].coord[3*data[w]->elem[3*f+k]+j]);unresolved=unresolved || MayIntersectWallBand(region,face,thickness*(1-1e-12));}
@@ -2775,7 +2845,7 @@ std::vector<CBoundaryLayerMetric::IntegrationPoint3D> CBoundaryLayerMetric::Inte
   double best=std::numeric_limits<double>::infinity();
   if(!workspace || workspace->opposite<0)for(unsigned short wall=0;wall<walls.size();++wall)if(data[wall]->adt) {
     std::array<double,4> distances;
-    for(unsigned k=0;k<4;++k)distances[k]=SU2_TYPE::GetValue(EvaluateImpl(wall,tetrahedron[k].data(),1.,true).distance)/SU2_TYPE::GetValue(data[wall]->thickness);
+    for(unsigned k=0;k<4;++k)distances[k]=SU2_TYPE::GetValue(EvaluateImpl(wall,tetrahedron[k].data(),1.,true).distance)/data[wall]->support;
     for(unsigned candidate=0;candidate<4;++candidate) {
       double score=0;for(unsigned k=0;k<4;++k)if(k!=candidate)score+=distances[k];
       if(score<best){best=score;opposite=candidate;}
@@ -2945,7 +3015,7 @@ std::vector<CBoundaryLayerMetric::IntegrationPoint3D> CBoundaryLayerMetric::Inte
       for(const auto& f:support)if(!sampled[f.wall])for(const auto& r:regions) {
         if(BLDeterminant(r[0],r[1],r[2],r[3])==0)continue;
         const auto& w=walls[f.wall];
-        p.unresolved=p.unresolved || (w.authority?MayIntersectSmoothBand(r,*w.authority,w.authority_facet,SU2_TYPE::GetValue(data[f.wall]->thickness)):
+        p.unresolved=p.unresolved || (w.authority?MayIntersectSmoothBand(r,*w.authority,w.authority_facet,data[f.wall]->support):
             MayIntersectWallBand(r,f.vertices,f.thickness*(1-1e-12)));
       }
       return p;
@@ -3124,7 +3194,7 @@ std::vector<CBoundaryLayerMetric::IntegrationPoint3D> CBoundaryLayerMetric::Inte
       for(const auto& face:support)if(!sampled[face.wall])for(const auto& region:regions) {
         if(BLDeterminant(region[0],region[1],region[2],region[3])==0)continue;
         const auto& wall=walls[face.wall];
-        if(wall.authority ? MayIntersectSmoothBand(region,*wall.authority,wall.authority_facet,SU2_TYPE::GetValue(data[face.wall]->thickness)) :
+        if(wall.authority ? MayIntersectSmoothBand(region,*wall.authority,wall.authority_facet,data[face.wall]->support) :
             MayIntersectWallBand(region,face.vertices,face.thickness*(1-1e-12)))panel.unresolved=true;
       }
     }
@@ -3220,7 +3290,7 @@ std::vector<double> CBoundaryLayerMetric::EdgeBreakpointsImpl(
     const auto& d = *data[wall];
     if (!d.adt) continue;
     const double h0 = SU2_TYPE::GetValue(d.h0), full = SU2_TYPE::GetValue(d.full);
-    const double thickness = SU2_TYPE::GetValue(d.thickness);
+    const double thickness = d.support;
     std::vector<double> levels{0,.5*h0};
     if(outerNormal.version && outerNormal.protected_distance<thickness)levels.push_back(outerNormal.protected_distance);
     // Strict edges also integrate the existing on-wall face/edge/vertex normal classification band.
@@ -3233,7 +3303,13 @@ std::vector<double> CBoundaryLayerMetric::EdgeBreakpointsImpl(
       level = next;
     }
     levels.push_back(full);
-    for (unsigned k = 1; k <= fadeBands; ++k) levels.push_back(full + (thickness-full)*k/fadeBands);
+    if(transitionCore>0) {
+      for(double offset=h0;offset<thickness-full;offset*=bandRatio) {
+        if(levels.size()>=4096)throw std::runtime_error("Native BL transition bands exceed work budget.");
+        levels.push_back(full+offset);
+      }
+      levels.push_back(thickness);
+    } else for (unsigned k = 1; k <= fadeBands; ++k) levels.push_back(full + (thickness-full)*k/fadeBands);
     validRoot=[&](double t) {
       su2double x[3]{};for(unsigned j=0;j<nDim;++j)x[j]=(1-t)*a[j]+t*b[j];
       const double actual=walls[wall].authority ? walls[wall].authority->ClosestAnalytic(walls[wall].authority_facet,
@@ -3327,10 +3403,20 @@ std::vector<double> CBoundaryLayerMetric::EdgeBreakpointsImpl(
       }
       continue;
     }
+    double searchRadius=thickness;
+    if(transitionCore>0) {
+      su2double x[3],y[3];for(unsigned j=0;j<3;++j){x[j]=a[j];y[j]=b[j];}
+      const auto da=SU2_TYPE::GetValue(EvaluateImpl(wall,x,1.,true).distance);
+      const auto db=SU2_TYPE::GetValue(EvaluateImpl(wall,y,1.,true).distance);
+      const double length=std::hypot(a[0]-b[0],a[1]-b[1],nDim==3?a[2]-b[2]:0.);
+      // Nearest distance anywhere on a chord is <= (d(a)+d(b)+length)/2.
+      double scale=length;for(unsigned j=0;j<nDim;++j)scale=std::max({scale,std::abs(a[j]),std::abs(b[j])});
+      searchRadius=std::min(thickness,.5*da+.5*db+.5*length+4*SU2_TYPE::GetValue(d.tolerance)+128*std::numeric_limits<double>::epsilon()*scale);
+    }
     su2double low[3]{}, high[3]{};
     for (unsigned j = 0; j < nDim; ++j) {
-      low[j] = std::min(a[j],b[j])-thickness;
-      high[j] = std::max(a[j],b[j])+thickness;
+      low[j] = std::min(a[j],b[j])-searchRadius;
+      high[j] = std::max(a[j],b[j])+searchRadius;
     }
     std::vector<unsigned long> faces;
     d.adt->DetermineIntersectingElements(low,high,faces);
@@ -3497,7 +3583,7 @@ std::vector<CBoundaryLayerMetric::IntegrationPoint2D> CBoundaryLayerMetric::Inte
   };
   for (unsigned short wall=0;wall<walls.size() && !subdivide;++wall) {
     if (!data[wall]->adt) continue;
-    const double thickness=SU2_TYPE::GetValue(walls[wall].layer.thickness);
+    const double thickness=data[wall]->support;
     std::array<double,3> d;
     for(unsigned k=0;k<3;++k) {const su2double x[2]={triangle[k][0],triangle[k][1]};d[k]=SU2_TYPE::GetValue(EvaluateImpl(wall,x,1.,true).distance);}
     const double minimum=*std::min_element(d.begin(),d.end());
@@ -3563,16 +3649,23 @@ std::vector<CBoundaryLayerMetric::IntegrationPoint2D> CBoundaryLayerMetric::Inte
       distance[k] = SU2_TYPE::GetValue(Evaluate(wall, x, 1.0).distance);
     }
     const auto& layer = walls[wall].layer;
-    const double h0 = SU2_TYPE::GetValue(layer.firstHeight), thickness = SU2_TYPE::GetValue(layer.thickness);
+    const double h0 = SU2_TYPE::GetValue(layer.firstHeight), thickness = data[wall]->support;
     if (*std::min_element(distance.begin(), distance.end()) >= thickness) continue;
     auto interpolatedDistance = [&](const Bary& b) {
       return b[0]*distance[0] + b[1]*distance[1] + b[2]*distance[2];
     };
     std::vector<double> levels;
     // Geometric bands resolve h0 even when no interior donor vertex lies inside the layer.
-    for (double level = h0; level < .9*thickness; level *= bandRatio) levels.push_back(level);
-    levels.push_back(.9*thickness);
-    for (unsigned k = 1; k <= 16; ++k) levels.push_back((.9+.1*k/16)*thickness);
+    const double full=SU2_TYPE::GetValue(data[wall]->full);
+    for(double level=h0;level<full;level*=bandRatio)levels.push_back(level);
+    levels.push_back(full);
+    if(transitionCore>0) {
+      for(double offset=h0;offset<thickness-full;offset*=bandRatio) {
+        if(levels.size()>=4096)throw std::runtime_error("Native BL transition bands exceed work budget.");
+        levels.push_back(full+offset);
+      }
+      levels.push_back(thickness);
+    } else for(unsigned k=1;k<=16;++k)levels.push_back(full+(thickness-full)*k/16);
     for (const auto level : levels) {
       std::vector<Polygon> next;
       for (const auto& piece : pieces) {
@@ -3616,7 +3709,10 @@ std::vector<CBoundaryLayerMetric::IntegrationPoint2D> CBoundaryLayerMetric::Inte
 void CBoundaryLayerMetric::ApplySample(unsigned short wall, const Sample& sample, Tensor& metric,
                                       su2double coreEigenvalue, std::vector<WallReport>* reports,
                                       bool useTangentialFloor) {
-  if(sample.profile_version!=outerNormal.version)throw std::runtime_error("Stale BL sample from another profile.");
+  if(transitionCore>0 && !(SU2_TYPE::GetValue(coreEigenvalue)>=transitionCore*(1-1e-12)))
+    throw std::runtime_error("BL transition support does not cover the requested core.");
+  useTangentialFloor=useTangentialFloor && (!transitionCore || sample.distance<=data[wall]->full);
+  if(sample.profile_version!=sampleVersion)throw std::runtime_error("Stale BL sample from another profile.");
   if (!(sample.weight > 0.0)) return;
   Tensor faded = sample.full;
   if (sample.weight < 1.0) {
@@ -3654,6 +3750,8 @@ void CBoundaryLayerMetric::ApplySample(unsigned short wall, const Sample& sample
 
 void CBoundaryLayerMetric::ApplyPoint(const su2double* X, Tensor& metric, su2double coreEigenvalue,
                                       std::vector<WallReport>* reports, bool useTangentialFloor) {
+  if(transitionCore>0 && !(SU2_TYPE::GetValue(coreEigenvalue)>=transitionCore*(1-1e-12)))
+    throw std::runtime_error("BL transition support does not cover the requested core.");
   for (unsigned short wall = 0; wall < walls.size(); ++wall) {
     const auto& d = *data[wall];
     bool inside = true;
@@ -3665,6 +3763,8 @@ void CBoundaryLayerMetric::ApplyPoint(const su2double* X, Tensor& metric, su2dou
 
 void CBoundaryLayerMetric::ApplyPointOnChord(const su2double* X, Tensor& metric, su2double coreEigenvalue,
                                              const ChordOwners& owners, long double t, bool useTangentialFloor) {
+  if(transitionCore>0 && !(SU2_TYPE::GetValue(coreEigenvalue)>=transitionCore*(1-1e-12)))
+    throw std::runtime_error("BL transition support does not cover the requested core.");
   if (!owners.walls.empty() && owners.walls.size() != walls.size())
     throw std::invalid_argument("Native BL chord ownership does not match the wall set.");
   for (unsigned short wall = 0; wall < walls.size(); ++wall) {
@@ -3806,13 +3906,13 @@ bool CBoundaryLayerMetric::SupportsCorrectionSupport3D() const {
 }
 
 std::shared_ptr<SU2Native3D::SupportSampler3D> CBoundaryLayerMetric::PrepareCorrectionSupport3D(
-    size_t maximumBytes,uint64_t maximumWork) const {
+    size_t maximumBytes,uint64_t maximumWork,bool includeTransition) const {
   if(nDim!=3)throw std::invalid_argument("Correction support requires3D faceted walls.");
   std::vector<SU2Native3D::SupportWall3D> support;
   for(size_t wall=0;wall<walls.size();++wall) {
     if(walls[wall].authority)throw std::invalid_argument("Analytic wall correction support is not qualified; retain analytic quadrature.");
     SU2Native3D::SupportWall3D row;const auto& d=*data[wall];
-    row.first_height=SU2_TYPE::GetValue(d.h0);row.growth=SU2_TYPE::GetValue(d.growth);row.thickness=SU2_TYPE::GetValue(d.thickness);
+    row.first_height=SU2_TYPE::GetValue(d.h0);row.growth=SU2_TYPE::GetValue(d.growth);row.thickness=includeTransition?d.support:SU2_TYPE::GetValue(d.thickness);
     for(size_t p=0;p<walls[wall].coord.size()/3;++p)row.vertices.push_back({SU2_TYPE::GetValue(walls[wall].coord[3*p]),SU2_TYPE::GetValue(walls[wall].coord[3*p+1]),SU2_TYPE::GetValue(walls[wall].coord[3*p+2])});
     for(size_t f=0;f<d.elem.size()/3;++f)row.triangles.push_back({d.elem[3*f],d.elem[3*f+1],d.elem[3*f+2]});
     support.push_back(std::move(row));

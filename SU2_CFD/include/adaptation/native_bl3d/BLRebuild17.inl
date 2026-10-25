@@ -13,8 +13,8 @@
 // coned the first child from q at h0' = h0/2 and split only the vertical column edges; the lateral quad diagonals
 // (wall vertex -> neighbour lid, 0 -> 3 h0') and the old apex edges were kept, so 74 % of the bad cells were the pieces
 // (w, m, p, L_b) and (b, p, m, L_a) spanning the whole old band (dc17/bad_signature_dc16_event1.txt).
-// The rebuild makes the chain step self-similar: (1) every column edge (w, L_w) is split at its midpoint m_w (the new
-// lid, normal height ~1.5 h0'), (2) every lateral quad diagonal is removed by a 4-4 edge flip to the chord (m_a, m_b),
+// The rebuild uses the current height: (1) every column edge (w, L_w) is split at m_w (the new
+// lid, normal height at least1.5 h0' above each incident wall), (2) every lateral quad diagonal is removed by a 4-4 edge flip to the chord (m_a, m_b),
 // (3) every prism star(p_f) is rebuilt as the lower prism (a,b,c, m_a,m_b,m_c) coned from the new apex q_f at h0'
 // (the R2 first-row pattern at the new scale) and the upper slab (m_a,m_b,m_c, L_a,L_b,L_c) coned from a centre u_f.
 // Every operation is a local cavity transaction (owned cells, one-unit commit, fixed oriented interface, positive
@@ -175,6 +175,22 @@ inline bool RebuildPrism(State& s, Rows10& rows, std::set<Face>& certified, cons
   return true;
 }
 
+// A shared lid must clear every incident wall's current first-height request, even after column optimization.
+inline long double ColumnLidFraction(const State& s,Id wall,const V& delta) {
+  long double fraction=0;
+  for(Id id:StarOf(s,wall)) {
+    const auto& row=s.mesh.at(id);const auto faces=CellFaces(row.cell);
+    for(unsigned k=0;k<4;++k)if(row.physical[k].present && Has(faces[k],wall)) {
+      const auto marker=s.reference->Get(row.physical[k].facet).marker;if(!s.walls.count(marker))continue;
+      const auto& f=faces[k];const V a=Of(NodePoint(s,f[0])),b=Of(NodePoint(s,f[1])),c=Of(NodePoint(s,f[2]));
+      const auto height=Dot(delta,-1.L*Outward(a,b,c));
+      if(!(height>0))return INFINITY;
+      fraction=std::max(fraction,1.5L*FaceH0(s,f)/height);
+    }
+  }
+  return fraction>0 && fraction<1 ? fraction : INFINITY;
+}
+
 // The chain-step first-row rebuild (steps 1-3 above) over the wall faces whose first-child apex lies above the new
 // first-height window; fallback HalveFace (DC-16 cone split) for the others.
 inline RebuildStats RebuildFirstRow(State& s, Rows10& rows, std::set<Face>& certified) {
@@ -195,7 +211,7 @@ inline RebuildStats RebuildFirstRow(State& s, Rows10& rows, std::set<Face>& cert
     if (alt > h * (1 + HeightTolerance)) need.push_back(wf); else ++st.halve.skipped_low;
   }
   st.need = need.size();
-  // step 1: column midpoints (new lids)
+  // step 1: shared lids sized by all incident requested heights
   std::set<Id> verts;
   for (const auto& wf : need) verts.insert(wf.second.begin(), wf.second.end());
   const auto wallSet = WallVertices(s);
@@ -205,8 +221,10 @@ inline RebuildStats RebuildFirstRow(State& s, Rows10& rows, std::set<Face>& cert
     ColumnEdge ce;
     if (!ColumnEdgeOf(s, rows, w, wallSet, apices, false, ce, st.column)) continue;
     ++st.columns;
-    const long double hL = Dot(Of(NodePoint(s, ce.top)) - ce.x, ce.nb), z = .5L * hL, h0 = VertexH0(s, w);
-    if (!(z >= 1.15L * h0)) { ++st.short_columns; continue; }  // no room for the new apex below the new lid
+    const V delta=Of(NodePoint(s,ce.top))-ce.x;
+    const long double fraction=ColumnLidFraction(s,w,delta);
+    if(!std::isfinite(fraction)){++st.short_columns;continue;}
+    const long double z=fraction*Dot(delta,ce.nb);
     const Id m = SplitColumnEdge(s, w, ce.top, ce.x, ce.d, ce.dn, z, st.column);
     if (m == UINT64_MAX) continue;
     col[w] = {m, ce.top};

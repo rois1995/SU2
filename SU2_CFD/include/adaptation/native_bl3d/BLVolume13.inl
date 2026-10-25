@@ -249,7 +249,7 @@ inline bool ApexPlace(State& s,Rows10& rows,const Face& key,VStage& g,std::strin
   Patch fresh;fresh.cells=cells;fresh.surface=old.surface;fresh.parameters=old.parameters;
   try{s.reference->ExportParameters(fresh);}catch(const std::exception& x){why=x.what();return false;}
   {std::string d2;if(!D2Ok(s,old,fresh,d2)){why=d2;return false;}}
-  ++g.work;const auto d=Admit12(s,old,fresh,Kind::Repair);if(!d.ok){++g.rejected;why="admission: "+d.reason;return false;}
+  ++g.work;const auto d=Admit12(s,old,fresh,FirstRowKind(s,old));if(!d.ok){++g.rejected;why="admission: "+d.reason;return false;}
   for(const auto& sf:old.surface)if(s.walls.count(s.reference->Get(sf.facet).marker))certified.insert(Sorted(sf.v));
   const Id moved=s.next_node;Apply(s,ids,fresh);MoveRegistrations(rows,v,moved,certified);certified.insert(key);++g.accepted;return true;
 }
