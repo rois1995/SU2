@@ -271,6 +271,8 @@ inline bool LocalOptimize(State& s,Rows10& rows,Growth& G,const std::set<Id>& re
   if(freezeRegistry){for(const auto& r:rows.lift)opt.frozen_vertices.insert(r.second);for(const auto& c:G.current)opt.frozen_vertices.insert(c.second);
     for(const auto& c:G.columns){opt.frozen_vertices.insert(c.lid);opt.frozen_vertices.insert(c.top);}}
   for(const auto& row:local)if(WallChild(s,row.first)){opt.frozen_cells.insert(row.first);for(const auto& n:row.second.cell.v)opt.frozen_vertices.insert(n.id);}
+  // DC-17 c8: first-row prism cells (apex stars) keep their structure for the next chain step's rebuild
+  {const auto apices=rows.Apices();for(const auto& row:local)for(const auto& n:row.second.cell.v)if(apices.count(n.id)){opt.frozen_cells.insert(row.first);break;}}
   for(Id id:FanCells(s,rows))if(local.count(id)){opt.frozen_cells.insert(id);for(const auto& n:s.mesh.at(id).cell.v)opt.frozen_vertices.insert(n.id);}
   for(const auto& r:rows.lift)opt.keep_vertices.insert(r.second);
   for(const auto& r:rows.copies)for(Id c:r.second.ids)opt.frozen_vertices.insert(c);
@@ -531,6 +533,10 @@ inline VStage13 PhaseV13(State& s,Rows10& rows,Growth& G,size_t work,double seco
         opt.mesh_quality=[&s](Id id,double& q,double& J){if(!s.mesh.count(id))return false;const auto sh=MeshShape(s,id);q=sh.q;J=sh.J;return true;};}
       for(const auto& row:s.mesh)if(WallChild(s,row.first)){opt.frozen_cells.insert(row.first);for(auto n:row.second.cell.v)opt.frozen_vertices.insert(n.id);}
       for(Id id:FanCells(s,rows)){opt.frozen_cells.insert(id);for(auto n:s.mesh.at(id).cell.v)opt.frozen_vertices.insert(n.id);}
+      // DC-17 c8: with the demand queue the first-row prism cells (apex stars) are frozen too: the optimizer's swaps of
+      // their lateral diagonals made 2.5k prisms irregular for the next chain step (chain_c6 event 1: rebuilt 38.4k of
+      // 40.9k, 'link face across the new lid level' 2,288)
+      if(v13DemandQueue){for(Id a:ci.cells.apices)for(Id id:StarOf(s,a))opt.frozen_cells.insert(id);for(Id id:ci.cells.extra)if(s.mesh.count(id))opt.frozen_cells.insert(id);}
       // DC-13: lids are not frozen (no first child contains a lid); a moved lid is relabelled in rows.lift and G below
       for(const auto& r:rows.lift)opt.keep_vertices.insert(r.second);  // movable, never collapsed (registry identity)
       for(const auto& r:rows.copies)for(Id c:r.second.ids)opt.frozen_vertices.insert(c);
