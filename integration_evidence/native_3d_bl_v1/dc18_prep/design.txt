@@ -1,0 +1,336 @@
+REVIEW UPDATE 2026-10-25 (supersedes conflicting proposal text below)
+-----------------------------------------------------------------
+Selected native rule: geometric ADAP_HAUSD, independent of h0/ramp. The TWO_PASS
+comparisons below are historical alternatives. Production analytic consumers are
+being updated together; discrete curved authority adoption remains pending.
+
+Correctness fixes and ten-group results: ../dc18_review_v1/review.txt and
+../dc18_review_v1/standalone_final/. Old results/provenance below are preserved.
+Conflicting body/element hints reject. Wrapped 2D same-edge intervals include the
+whole traversed chain. Planar child bounds account for in-plane parameter motion.
+Non-converged projections are flagged and stay on the authority; they no longer
+substitute an artificially closer flat foot. Face-only projectPlanar is rejected:
+fit shared coordinates using the affine geometry workflow before construction.
+A one-ring halo is insufficient for the three-ring quadric stencils and global
+body/crease identities. Sampled fold/accuracy checks do not prove production
+embedding or floating-point bounds. These remain integration acceptance gates.
+
+DC-18 PREP: CURVED WALL REFERENCE AND CURVATURE SIZE RULE, SHARED BY NATIVE 2D AND 3D
+=====================================================================================
+Date 2026-10-25. Branch codex/native-3d-bl, HEAD ca6e3e81bb (DC-17 c6). Standalone prep for integration after DC-17.
+No tracked file is edited. Nothing is built with meson/ninja.
+New files:
+  Common/include/adaptation/CNativeCurvedReference.hpp   header-only implementation (namespace SU2NativeCurved)
+  integration_evidence/native_3d_bl_v1/dc18_prep/         test_curved_reference.cpp, run_tests.sh, result_*.txt,
+                                                          provenance.txt (sha256 of the sources, inputs and binary)
+Rebuild and rerun: bash integration_evidence/native_3d_bl_v1/dc18_prep/run_tests.sh   (serial, nice 19, ~1 min, 70 MB)
+
+0. MISSING CAPABILITY, EVIDENCE, ACCEPTANCE
+-------------------------------------------
+Missing: both native engines place new wall points on the flat input facets. 3D FIRST_ROW promotes the faceted input
+to a plain mapped facet authority (CNativeBLPipeline3D.hpp:287-294; MappedFacetReference::Ideal is the linear facet
+point, CNativeAffineReference.cpp:393-398). Native 2D uses a flat polyline (CNativeReference2D.hpp:18). Only declared
+analytic primitives are curved. The W target has no curvature term, so W does 0 splits on the full M6.
+Evidence (dc15/wall_curvature_coarse.txt, confirmed here, result_m6.txt): at the M6 LE (chord < 5 %) the flat
+facets sit off the curved surface by 254 um median, 449/384/302 um max at eta 0.2/0.5/0.9 (DC-15 estimate:
+314/267/206 median). This is 150-225 true h0. The radius is R = 23.9 mm median (Rusinkiewicz on the PN normals; the
+turn estimate gives 23.5 mm).
+Acceptance of the prep: one interface for 2D and 3D. Projection error converges at the expected order. Curvature is
+within 5-10 % on smooth parts. Creases, corners and planes stay exact. The surface is watertight. A projection never
+jumps to another body. The M6 LE numbers and the W demand are measured. The hook list is exact. All of this passes
+(section 7). Acceptance of DC-18 itself, the next step, is in section 6.
+
+1. ONE CURVED-AUTHORITY INTERFACE (2D AND 3D)
+---------------------------------------------
+template <int D> class CurvedReference (CNativeCurvedReference.hpp):
+  Elements(), Component(element), Marker(element)
+  Evaluate(element, u, v)  point at the parameters. 2D: edge and t. 3D: facet and barycentric (u, v) of corners 1 and 2.
+  Normal(element, u, v)    unit normal of the element's own side; per side at creases.
+  Curvature(element, u, v) -> Principal {k1, k2 (|k1| >= |k2|), d1, d2, guard}
+                           the guard is the largest turn curvature 2 sin(theta/2)/L of the smooth element edges.
+                           A coarse wall cannot hide a small radius from it, as in CReferenceWall.
+  VertexFeature(vertex)    0 smooth, 1 crease/feature, 2 corner
+  Project(p, SearchHint)   -> Foot {point, normal, distance, component, element, u, v, feature, fallback}
+                           SearchHint {component, element, rings}: a window of element rings around the hint element
+                           inside its component (production), or a whole component, or everything.
+Shared helpers (dimension templates): EdgeCubic<D> (Bezier edge curve, D1/D2, convex-hull Bulge),
+MakeEdgeCubic<D>(a, b, ta, tb, HandleRule), TangentFromNormal<D>, CircleTangent<D>/CircleCurvature<D>,
+CurvatureSizeRule, CurvatureSizes, and CurvatureMetric (3x3 tensor for the metric intersection).
+The 2D curve and the boundary curves of the 3D PN patches use the same edge-cubic code.
+
+2. DIMENSION-SPECIFIC EVALUATORS
+--------------------------------
+3D: PNTriangleSurface (one cubic PN triangle per original facet, Vlachos 2001)
+  - Edges: crease if the faces turn by more than ADAP_ANGLE, at a marker junction, or at an open border or
+    non-manifold edge. Concave creases count too: this is geometry, not the BL convexity rule.
+  - Smooth sectors per vertex: the incident faces connected across non-crease edges. One normal per sector, so a
+    crease vertex keeps one normal per side.
+    Weights: Area, Angle or Max (Max 1999, the default). The tests show why:
+      * area or angle normals have O(h) error on irregular stars. They give second-order PN only, and curvature does
+        not converge (3-7 % on the icosphere, 20-50 % jittered).
+      * Max normals give fourth-order PN (sphere and jittered sphere: order 3.7-4.0) and exact sphere curvature.
+      * On the M6, max and angle give the same LE radius within 1 %.
+  - Crease and border sectors get a one-sided quadric height fit, z = d x + e y + a x^2 + b xy + c y^2. It uses two
+    smooth face rings (three at corners), never crosses a crease, and is refitted in the corrected frame. It gives the
+    normal and the curvature tensor. This is needed: the sector-average normal there is tilted by O(h), and that
+    gives an O(1) curvature error next to every crease. Measured: the half cylinder had 42 % at the 90 deg rim. With
+    the fit it has 0.4 % at n = 64, and the open cylinder converges at order 2 including its borders.
+  - Mirror rule at reflective planes (planar markers = MARKER_SYM kinds): a wall sector that meets the plane nearly
+    orthogonally (|n.s| < sin(ADAP_ANGLE/2)) gets n' = n - (n.s)s. This is the user's symmetry column rule. It is
+    exact by symmetry: the half-cylinder side curvature error is 1e-8.
+  - Edge curves belong to the edge, in canonical orientation (a < b):
+      smooth edge: PN boundary curve. The tangent is the chord projected on each endpoint's sector tangent plane.
+      crease edge: built from crease tangents only. At a regular crease vertex (two crease edges, smooth turn) the
+                   tangent is the circumcircle tangent of (prev, v, next), which is exact on circles. At a corner
+                   (degree != 2, or a turn > ADAP_ANGLE) the tangent is the chord, so the end is straight. Next to a
+                   planar face, the tangent is projected into its plane, so the junction curve stays in the
+                   symmetry plane.
+    Handle rule: PN (|projected chord|/3, Vlachos), the 3D default, or Circle (2L/(3(1+cos a)), exact on circular
+    arcs).
+  - Patch: the 10-point cubic net. Its 6 edge points come from the edge curves, b111 = E + (E - V)/2. Evaluate on an
+    edge or at a vertex uses the canonical edge curve, so both sides give bitwise the same points.
+  - Safety: a patch whose sampled normal turns more than acos(0.2) from its facet, or whose net bulge exceeds 0.5 x
+    its longest edge, is a fallback patch. Its edges become straight and its neighbours are rebuilt until nothing
+    changes. Fallback is never silent; the count is in the statistics. On the M6 it is 0.
+  - Curvature: Rusinkiewicz 2004 per face (II from the normal differences along the 3 edges, using the sector normals
+    of the face's own side), rotated into each vertex sector frame. Weights are mixed Voronoi areas (Meyer). Crease
+    and border sectors use the quadric tensor. At a point, the three corner tensors are rotated to the patch normal,
+    averaged barycentrically and diagonalized in the tangent plane.
+  - Certified faceting bound of a flat child triangle (vertices at parameters r0, r1, r2 of one facet): the sub-patch
+    control net comes from blossoming, then the convex hull gives max |S - T| and the normal deviation. Test: never
+    below the sampled value, 1.33-1.50 x it. A rigorous per-facet bulge bound is also kept for search pruning.
+2D: CurvedPolyline (cubic Bezier/Hermite per edge; generalizes what CReferenceWall does, but local)
+  - Chains: connected wall segments over all markers, one per closed body or open chain. Orientation is kept from the
+    input (fluid on the left). Branching is rejected.
+  - Features: open ends, marker junctions (option), turn > ADAP_ANGLE, and forced vertices. On the 30P30N these are
+    the slat cusp (163 deg), the blunt slat, main and flap TE corners (60-113 deg) and the main-element cove corners.
+  - Per-side vertex tangents: the circumcircle tangent at smooth vertices. At a feature vertex, the one-sided tangent
+    of the circle through (v, next, next2) (the reflection of the neighbour's circle tangent about the chord), or the
+    chord when the neighbour is also a feature.
+  - Edge cubic with the Circle handle (default). An edge that is not monotone along its chord becomes straight.
+  - Curvature: of the cubic, with the circumcircle guard at smooth ends (as CReferenceWall: max(spline, turn)).
+  - The PolylineReference API on the curve: At(chain, arc), Parameter, Interval, Locate, Deviation (exact arc-chord
+    bound: the line distance and the overshoot are cubics per piece and their extremes come from real roots, as in
+    CReferenceWall::ArcChordDistance), TangentialSize, ProjectInterval (never leaves the interval).
+  - Why local rather than the global spline of CReferenceWall: every quantity uses 1-2 neighbours, so a rank with a
+    one-ring halo evaluates its edges exactly like the serial code (parallel-ready). Accuracy is the same: leave-one-
+    out on the original RAE2822 wall gives 4.0e-6 median vs the spline's 4.4e-6, and the flat polyline's 4.0e-5.
+
+3. CURVATURE SIZE RULE AND HOW IT ENTERS THE WALL METRIC FOR W
+-------------------------------------------------------------
+CurvatureSizeRule::Size(kappa) = clamp(min(c sqrt(2 R h0), 2 sqrt(eps (2R - eps)), hmax), hmin, hmax), R = 1/|kappa|.
+  - c sqrt(2 R h0), c = 0.7: the TWO_PASS rule (CReferenceWall SizeRule; CBoundaryLayerRemesher.cpp:1073-1078). Its
+    chord height is L^2/(8R) = c^2 h0/4 = 0.12 h0. This is consistent with the 10 % first-height tolerance:
+    faceting stays below the height tolerance.
+  - 2 sqrt(eps (2R - eps)) ~ sqrt(8 eps R): the chord-height rule. eps = ADAP_HAUSD for a geometric tolerance, or
+    eps = h0/2 as in the existing analytic hook (CBoundaryLayerMetric.cpp:1938-1941).
+  - h0 is the marker's h0 of the current event, so the rule follows the h0 ramp: h0_k = 2^(N-k) h0 refines the wall
+    progressively.
+  The rule returns the largest admissible edge L*. The metric unit size is L*/1.8, so the final edge gate 1.8 enforces
+  |e| <= L*, as the analytic hook does (curvature eigenvalue (1.8/chord)^2).
+  Directions: (L1, L2) from (|k1| or the guard, |k2|) along (d1, d2). At the LE, d1 is chordwise and k2 ~ 0, so only
+  the chordwise size is constrained. This is the anisotropic surface metric the gap audit asks for (A(a)).
+Entry into W (3D): through the BL wall sample, so every consumer sees the same law: W, V, the audits, and the vertex
+  tensors of the W prefilter.
+  - CBoundaryLayerMetric.cpp:1934-1952: the analytic-only curvature branch becomes "authority has curvature". The
+    curved reference gives (k1, d1, k2, d2) at the foot, and the rule gives (1.8/L1)^2, (1.8/L2)^2.
+  - WallMetric3D (CBoundaryLayerMetric.cpp:85-153) today takes one rank-one direction (cylinder) or isotropic
+    (sphere). Extend it to two rank-one lower bounds M >= l1 d1 d1^T, M >= l2 d2 d2^T, applied in turn with the
+    existing never-relaxing update (:131-144).
+  - The sample is intersected with D1 before the fade, so it carries through the BL band like the face-size tensor.
+    It is never weaker than the wall face sizes.
+  Then PhaseW10 (BLOptionA10.inl:259-286) finds the LE edges long and sorts them longest first (:275), so W refines
+  the M6 LE before anything else. With the curved authority (section 5), the split point is realized on the curved
+  surface.
+  The W prefilter estimate (CNativeBLPipeline3D.hpp:424, dc13::EstimateLength on the event vertex tensors) is built
+  from the same composition, so it includes the term automatically. Check that eventTensors are recomputed after this
+  change.
+  Faceting gate (both dimensions), as in native 2D (CNativeEngine2D.hpp:206): split demand = max(metric length / 1.8,
+  child deviation / eps_f). In 3D the child deviation is the certified ChildDeviation bound.
+Entry in 2D: CBoundaryLayerMetric.cpp:1835 (ht = closest segment length) becomes ht = min(length, L*(kappa)/1.8) with
+  the curved-polyline curvature at the foot. The engine's SPLIT demand from the reference deviation
+  (CNativeEngine2D.hpp:206) becomes the chord rule with eps = ADAP_HAUSD on its own once the reference is curved.
+
+4. ROBUSTNESS
+-------------
+  - Projection: the candidates are the hint window, ordered by the lower bound (facet distance - certified bulge) and
+    stopped when the bound exceeds the best foot.
+    3D per patch: Gauss-Newton with backtracking in the simplex. Near-boundary iterates snap onto the boundary. Then
+    an exact 1D Newton runs along each active edge (the edge curve), with a vertex KKT rule and re-entry to the
+    interior when that descends. Descent is accepted within 1e-13 relative, because the squared distance resolves a
+    foot only to sqrt(eps).
+    2D per edge: best of 9 samples (a cubic edge can hold two minima), then backtracked Newton.
+    Exact fallback to the facet or chord foot when the curved problem is degenerate, flagged in Foot::fallback.
+    Measured: 0 fallbacks on the sphere, the box and the M6. The sphere foot error is at the PN deviation; the box
+    error is 1.5e-15. 2D feet equal dense sampling to 5.5e-15.
+  - Watertightness: edge curves belong to edges. The raw-patch gap across every interior edge is <= 4.3e-14 on the
+    M6, and 3-4e-16 on the analytic cases; on the edge itself it is bitwise.
+  - Planes: planar markers keep the plane normal for their sectors and in-plane crease tangents, so they stay planar
+    by construction: 6e-17 on the half cylinder. The M6 symmetry plane is as exact as its input (4.6e-12 = the input
+    |y|). The optional projection onto the fitted plane (projectPlanar) is for noisy imports; that case belongs to the
+    existing DC-17 affine authority (FitPlanarMarkers).
+  - ADAP_ANGLE rule: the same threshold as the BL D1/option-A creases (ADAP_ANGLE; M6 60 deg). Marker junctions
+    are creases by default.
+    Risk: a coarse smooth wall whose facet turn exceeds ADAP_ANGLE is treated as a crease. The M6 LE turns at most
+    30.9 deg < 60, but a smaller ADAP_ANGLE could cut the LE. Report: creases whose turn is close to ADAP_ANGLE.
+  - Multi-marker walls: markers are attributes. Junctions are creases (option) whose shared curve is identical from
+    both sides. Planar markers are detected by role (config kind), never by name.
+  - Several bodies: components (bodies) are the connected facet sets (3D) or chains (2D). Production projections
+    always pass the element hint (the facet or edge the wall point is bound to). The window then lies inside that
+    body, so a foot never jumps across a gap.
+    Tested on 2 spheres 0.05 R apart: 0 jumps in 5120 probes at 0.25 and 0.49 of the gap.
+    Tested on the 30P30N (3 bodies, minimum gap 0.229): 0 hinted jumps in 2440 probes. The unhinted global nearest
+    jumps only beyond half the gap (142 cases, all at 0.6), which is the correct nearest point.
+    A wing with a fuselage that touches it is one component with a junction crease. Slat/flap/main in 3D are
+    separate components.
+  - Degenerate or unsafe patches fall back to straight edges, with counts. Construction throws on degenerate facets,
+    out-of-range ids and branched 2D graphs.
+
+5. PARALLEL-READY DESIGN
+------------------------
+  - Construction uses only 1-ring data: sector normals and crease tangents from the vertex star, quadric fits from
+    2-3 smooth face rings, edge curves from their two endpoints, patches from their three edges. It is deterministic
+    in facet order.
+  - Every query is const and allocation-light. There is no global state, no cache and no pipeline globals (unlike
+    dc9::*), so threads and ranks can query concurrently.
+  - Distribution: like CBoundaryLayerMetric, which replicates all wall faces on every rank ("The faces of the walls
+    are gathered from all ranks"), each rank builds the same reference from the replicated original facets, sorted by
+    id. This is cheap: the M6 test (2 constructions on 46.9k facets, all measurements and 11k projections) takes
+    39 s with 67 MB peak RSS. A halo variant (owned facets + 3 rings) gives identical values for the owned facets.
+  - Nothing is mesh-dependent: the reference is a function of the immutable original geometry only (like
+    PolylineReference). Restarts rebuild it bit-identically from the original facets + ADAP_ANGLE + marker roles.
+    The .native_ref sidecar does not change; the JSON report gets a fingerprint (hash of the control nets).
+
+6. INTEGRATION PLAN (after DC-17), WITH EXACT HOOK POINTS (line numbers of HEAD ca6e3e81bb + working files)
+---------------------------------------------------------------------------------------------------------
+3D FIRST_ROW
+ H1 Authority build. CNativeBLPipeline3D.hpp:287-294 (plainFaceted -> FitPlanarMarkers -> PromoteFacetedReference):
+    build PNTriangleSurface from state.facets (ids sorted). Settings: planarMarkers = roles 0 (policy.roles, :64,
+    :71-80), featureAngle = ADAP_ANGLE (policy.full->GetFeatures().angle, as BuildOptionA :103), Max weighting, and
+    the quadric and mirror rules. Hand it to the promoted authority: PromoteFacetedReference
+    (CNativeBoundaryParameters3D.cpp:433-446) constructs MappedFacetReference at :441. Do the same later in the
+    METRIC path (CNativeRemesher3D.cpp:271-274).
+ H2 Curved mapped authority. MappedFacetReference (CNativeAffineReference.hpp:84-147). Ideal/Realize/ErrorBound
+    (CNativeAffineReference.cpp:393-398, :430-438) get a curved mode:
+      Realize(b): dimension 0 = the vertex; 1 = the edge curve of original edge b.feature at u; 2 = PN(facet, u, v).
+      ErrorBound(b, p) = |p - curved(b)|. The declared error stays the rounding contract (1e-13 x scale), never the
+      faceting.
+      ContainsFace/ComponentContainsFace: the parameters lie in the facet and the realizations are within the error.
+    The FaceMemo key (hpp:136-141) must include the curved version.
+    This replaces the planar Ideal and is the Common-level authority change that DC-15 section 4 requires ("a curved
+    PN reference must become the height/containment authority itself").
+ H3 Faceting error. PlanarReference::SurfaceError (CNativeBoundary3D.cpp:1218) -> ParameterError
+    (CNativeBoundaryParameters3D.cpp:421-426) returns ChildDeviation(facet, bindings) for children inside one facet.
+    For children over several facets: the maximum over the pieces cut by the original edges, or conservatively the
+    sum of the bulges.
+ H4 W. PhaseW10 (BLOptionA10.inl:259-286):
+      the long-edge scan (:264-272) adds the faceting demand SurfaceError/eps_f;
+      the split proposals (:279-281, field SegmentPoint or Mid) stay proposals: SplitEdge -> ProjectSplitPoint
+      (CNativeBoundary3D.cpp:195, called at :1354) -> BindNewPoint (CNativeBoundaryParameters3D.cpp:385) -> Realize
+      puts the point on the curved surface;
+      FreshValid/D2Ok (:246-247) already guard the star.
+    The thin-strip rule (:287-298) is unchanged.
+ H5 Metric. CBoundaryLayerMetric.cpp:1934-1952 and WallMetric3D :85-153 (section 3). The foot comes from the curved
+    projection with the ADT facet as hint (:1759-1768, :1866-1869 for the distance and normal).
+    Per-wall h0 = the ramped h0_k, as ApplyWallPolicies provides.
+ H6 First row. CheckFirstHeight (CNativeBoundary3D.cpp:309-378) and HeightT (BLLayer.inl:86-92) measure against the
+    child faces; unchanged. The reference-clearance branch (CNativeBoundary3D.cpp:330-350, analytic only today)
+    generalizes: the apex must lie above the curved patch (hinted Project, signed distance along the curved normal).
+    ConstructFirstLayer (hpp:168-170): unchanged.
+ H7 Column directions. ComputeDirectionField (BLGrowth12.inl:101-120): option to seed I.n with the curved per-side
+    normal at the vertex binding instead of MinNormAny over the child faces (:112). The symmetry rule (:115-120) is
+    unchanged and identical to the reference's mirror rule.
+ H8 Audits. The final A3 and uncached audits (BLEvent15.inl, CNativeBLPipeline3D.hpp:452-490) add the faceting gate
+    (SurfaceError <= eps_f) as a final-only gate. Intermediate events report it as a deficit.
+ H9 Report. CNativeBLPipeline3D.hpp:323 "authority" JSON gets curved: {fingerprint, crease/corner/quadric/mirror/
+    fallback counts}.
+Native 2D
+ H10 CNativeImport2D.hpp:127 builds CurvedPolyline next to PolylineReference from the same faces and featureAngle.
+     The restart path CNativeReferenceIO.hpp:92 uses 180 deg for the flat reference; the curved one must use
+     ADAP_ANGLE.
+ H11 Policy. CNativeBoundary2D.hpp:69-73 (point, interval, deviation, height). PolylineReference::Policy
+     (CNativeReference2D.hpp:224-241) gets a CurvedPolyline equivalent: point = At, interval = Interval,
+     deviation = Deviation. Component numbering must match the flat reference (one component per marker): an index
+     map, or chains broken per marker (junctions are features anyway, so the curves are identical).
+ H12 CNativeEngine2D.hpp:206 (SPLIT demand by deviation/ADAP_HAUSD), :221 (REDISTRIBUTE along the reference),
+     :842-845 (validity: wall points equal At(parameter) within 32 eps). The At(Parameter(node)) round trip is 0.0.
+ H13 h0 rule. CBoundaryLayerMetric.cpp:1835 (section 3). The dead TangentialSize (CNativeReference2D.hpp:189-222)
+     is replaced by CurvedPolyline::TangentialSize.
+ (MMG TWO_PASS keeps CReferenceWall. Median curvature agreement is 4-12 %; delegating to CurvedPolyline is optional.)
+Shared: CurvatureSizeRule is the single rule for CBoundaryLayerMetric 2D and 3D and the gates.
+TODO section 5 also lists the h0 ramp and the surface-first driver.
+DC-18 acceptance (proposal, unchanged gates):
+  - The M6 x32 event: W splits the LE to L* (chordwise), and the final faceting gate passes everywhere.
+  - The cut regressions (m6_root_te/m6_tip_te) at least as before.
+  - Native 2D: RAE2822 re-qualified with the curved reference, then the 30P30N.
+
+7. TEST RESULTS (run_tests.sh, all 9 groups exit 0; provenance.txt)
+-------------------------------------------------------------------
+(a) Sphere (icosphere levels 1-5, regular and 25 % jittered):
+      facet error order 2.00;
+      PN with Max normals order 4.0 (jittered 3.7-3.9) at 1e-4 of the facet error; curvature exact;
+      area normals: order 2, 10 % of facet; angle: 4 %; curvature 3-7 % (20-50 % jittered).
+    Projection of 2000 points at 0.8-1.2 R: feet within the PN deviation, |r x n| <= 2e-8, 0 fallbacks, the hinted
+    search equals the global one. Gap 4.4e-16.
+    Cylinder (open, offset rows, n = 12..192): PN order 4.0; k1 error order 2 (8e-10 interior, 6e-4 at the borders,
+    after the quadric fit); |k2| 1e-4; d1 horizontal.
+(a') Two spheres 0.05 apart: 2 components, 0 jumps. Certified child bound >= sampled in 2000/2000, ratio 1.33-1.50.
+(b) Box (12 creases, 8 corners): faces exactly planar (0), creases straight, feet vs the exact box 1.5e-15, every
+    edge or corner foot flagged.
+    Closed half cylinder (90 deg straight wedges and 90 deg circular cap creases): flat faces 6e-17 off plane; wedge
+    lines exactly straight; rim arcs order 2; gap 4e-16; side curvature 0.44 % (undeclared planes) or 1e-8 (declared
+    reflective).
+(c) M6 Coarse.su2 (38800 wing + 8094 symmetry facets, ADAP_ANGLE 60):
+      674 creases (210 wing/symmetry junction, 64 border), 2 corners, 0 fallback patches, gap 4.3e-14.
+      LE < 5 % chord: facet deviation 254 um median; max 449/384/302 um at eta 0.2/0.5/0.9 (= 225/192/151 h0).
+      R median/min 29.3/15.9, 25.3/13.6, 19.8/10.5 mm (all LE: 23.9 mm median).
+      L* median at the LE: 0.7 sqrt(2 R h0) = 0.216 mm (true h0), 1.22 mm (x32); chord eps 1e-4: 4.37 mm;
+      analytic hook eps = h0/2: 0.437 mm. The current LE spacing is 6.5 mm across.
+      W demand (bisection model, edges above L*; metric-area vertex factor in the LE band):
+        true h0:   LE 2239/3039 edges, ~99.9k points, x83; whole wing 20.9k/58.3k edges, ~292k points, x13.8
+        h0 x32:    LE 2168/3039, ~13.3k points, x7.3;      whole wing ~34k points, x1.74
+        eps 1e-4:  LE 1811/3039, ~2.2k points, x1.8;      whole wing ~3.5k points, x1.06
+        eps h0/2:  LE ~48k points, x28;                   whole wing ~134k points, x4.9
+      Projection of 11k points (h0 and 100 h0 above facet centroids): hinted = component search, 0 fallbacks.
+2D  RAE2822 original (rae2822_transonic_v1/mesh_RAE2822_turb.su2, 192 wall nodes, sharp TE turn 171 deg):
+      leave-one-out median/p90: flat 4.0e-5/1.0e-4; CReferenceWall spline 4.4e-6/2.1e-5; curved 4.0e-6/1.9e-5;
+      curvature vs CReferenceWall: median 6 % (p90 35 %, at fast curvature changes); min radius 4.42 vs 4.73 mm;
+      projection equals dense sampling; 0 wrong-body feet; At(Parameter) round trip 0.
+      With ADAP_HAUSD 1e-6, all 192 faces exceed it: +569 points by the chord rule.
+    RAE2822 frozen input (native_frozen_rae_*/airfoil_input.su2): an adapted wall whose added nodes lie on flat
+      chords (flat leave-one-out median 7e-18). Accuracy cannot be measured on it; the curved reference rebuilt on it
+      inherits the flat nodes. Use the original wall as the reference source.
+    30P30N (3 bodies; per element slat / main / flap):
+      leave-one-out median: flat 8.9e-5 / 2.3e-4 / 1.3e-3; spline 6.0e-6 / 2.1e-6 / 2.8e-5;
+                            curved 7.2e-6 / 2.5e-6 / 3.2e-5;
+      curvature vs CReferenceWall median 4.7 / 4.4 / 8.6 %; min R 0.109 / 0.164 / 0.252 (mesh units);
+      every projection exact and on its own body.
+      The size-rule counts with h0 = 1e-6 are illustrative: the mesh units are not metres.
+
+8. RISKS AND OPEN POINTS
+------------------------
+ R1 The rule at the true h0 dominates the wall budget: x13.8 wall vertices on the whole wing (~292k bisection
+    points), mostly chordwise. The 500k target is a metric complexity, but this is large. A user decision is needed:
+      - k = 0.12 h0 chord height (TWO_PASS, consistent with the 10 % height tolerance);
+      - eps = h0/2 (the existing analytic hook, x4.9);
+      - eps = ADAP_HAUSD (x1.06; geometric only, LE faceting 0.1 mm = 50 true h0).
+    The ramp makes it gradual (x32: x1.74).
+ R2 The curved authority changes the Common contract: Ideal/Realize/ErrorBound/ContainsFace/SurfaceError, the
+    ContainsFace memo, the D.2 invariant and the A3 audit. It moves wall points off the old facets by up to the
+    sagitta (0.25-0.45 mm at the LE; 4-7 h0 at x32, 125-225 at the true h0). Every split star must stay valid; W runs
+    first, on a coarse volume.
+ R3 Normal weighting matters: area/angle normals are O(h) (no curvature convergence on irregular stars). The default
+    is Max plus the quadric fit at creases. Corner-vertex curvature is the least accurate (one-quadrant data, 0.4 %
+    at n = 64 on the half cylinder; earlier 16 % before the third ring).
+ R4 The ADAP_ANGLE threshold also decides what is curved: a coarse smooth wall above ADAP_ANGLE becomes a crease.
+    The M6 LE is fine at 60 deg (31 deg max turn).
+ R5 Native 2D re-qualification: with a curved reference every RAE wall face exceeds ADAP_HAUSD = 1e-6 (+569 points
+    by the chord rule), so the accepted RAE results will change. A wall imported from an adapted flat mesh carries
+    flat nodes (the frozen RAE input).
+ R6 Projection is local Gauss-Newton per patch. It is robust for near-wall queries (tested to 0.2 R; production
+    queries are within the BL). Far queries can meet patch-local minima; the window ordering by certified bounds
+    limits this.
+ R7 The 2D component numbering differs from PolylineReference (chains per body, not per marker). It needs an index
+    map at H11.
+ R8 Environment: the root filesystem is full (0 B free on /). Tool output capture failed during this work, so all
+    results were written to the data disk.

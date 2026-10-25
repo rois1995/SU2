@@ -245,9 +245,7 @@ class Construction {
   bool SurfaceValid(const SurfaceFace& f) {
     const auto p = Triangle(f);
     if (!geometry.ContainsFace(f.facet, p)) return false;
-    const double tol =
-        policy.count(geometry.Get(f.facet).marker) ? std::min(tolerance, .5 * Height(f.facet)) : tolerance;
-    return geometry.SurfaceError(f.facet, p) <= tol;
+    return geometry.SurfaceError(f.facet, p) <= tolerance;
   }
   bool SampleCylinder() {
     Id wall=UINT64_MAX; std::map<int,Id> cap;
@@ -269,7 +267,7 @@ class Construction {
     Point radial{};
     for (auto f:faces) if (Wall(f.facet)) {radial=Sub(nodes.at(f.v[0]),g.origin);break;}
     const Point u=Unit(Sub(radial,Mul(axis,Dot(radial,axis)))),v=Cross(axis,u);
-    const double pi=std::acos(-1.),error=policy.empty()?tolerance:std::min(tolerance,.5*Height(wall));
+    const double pi=std::acos(-1.),error=tolerance;
     const double half=std::acos(std::max(-1.,1-std::min(error/radius,1.)));
     if (!(half>0)) throw std::runtime_error("Cylindrical front curvature is unresolved in binary64.");
     const double curvature=std::ceil(pi/half);

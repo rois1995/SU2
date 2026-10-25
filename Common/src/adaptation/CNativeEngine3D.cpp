@@ -64,19 +64,14 @@ bool DonorCap(const std::string& reason) {
   return reason=="Original donor import exceeds patch budget." || reason=="Original donor union exceeds patch budget.";
 }
 using RepairFeature = std::pair<unsigned,std::array<Id,3>>;
-double SurfaceTolerance(const PlanarReference& geometry,Id facet,double configured,const WallHeights& heights) {
-  const auto height=heights.find(geometry.Get(facet).marker);
-  return height!=heights.end() && geometry.Analytic().count(geometry.Canonical(facet)) ?
-      std::min(configured,.5*height->second) : configured;
-}
-long double GeometryExcess(const Patch& patch,const PlanarReference& base_geometry,double tolerance,const WallHeights& heights) {
+long double GeometryExcess(const Patch& patch,const PlanarReference& base_geometry,double tolerance) {
   auto parameters=base_geometry.PrivateParameters(patch);const auto& geometry=parameters?*parameters:base_geometry;
   std::map<Id,Point> nodes;
   for(const auto& c:patch.cells)for(auto n:c.v)nodes.emplace(n.id,n.p);
   long double excess=0;
   for(const auto& f:patch.surface) {
     const std::array<Point,3> p{nodes.at(f.v[0]),nodes.at(f.v[1]),nodes.at(f.v[2])};
-    const long double error=std::max(0.,geometry.SurfaceError(f.facet,p)-SurfaceTolerance(geometry,f.facet,tolerance,heights));
+    const long double error=std::max(0.,geometry.SurfaceError(f.facet,p)-tolerance);
     const long double ax=static_cast<long double>(p[1].x)-p[0].x,ay=static_cast<long double>(p[1].y)-p[0].y,az=static_cast<long double>(p[1].z)-p[0].z;
     const long double bx=static_cast<long double>(p[2].x)-p[0].x,by=static_cast<long double>(p[2].y)-p[0].y,bz=static_cast<long double>(p[2].z)-p[0].z;
     excess+=error*error*std::hypot(ay*bz-az*by,az*bx-ax*bz,ax*by-ay*bx);
@@ -377,7 +372,7 @@ class Selection {
         std::array<Point,3> triangle{};
         for(size_t i=0;i<3;++i)for(auto n:cell.v)if(n.id==faces[slot][i])triangle[i]=n.p;
         const double error=geometry.SurfaceError(owned.physical[slot].facet,triangle);
-        const auto allowed=SurfaceTolerance(geometry,owned.physical[slot].facet,tolerance,heights);
+        const auto allowed=tolerance;
         if(error<=allowed)continue;
         row.valid=false;
         for(size_t i=0;i<3;++i)for(size_t j=i+1;j<3;++j) {
@@ -388,7 +383,7 @@ class Selection {
             const Point middle{double((static_cast<long double>(a.x)+b.x)/2),double((static_cast<long double>(a.y)+b.y)/2),double((static_cast<long double>(a.z)+b.z)/2)};
             const auto projected=geometry.Project(owned.physical[slot].facet,middle);
             auto left=triangle,right=triangle;left[j]=projected;right[i]=projected;
-            const auto before=GeometryExcess(Patch{{cell},{{faces[slot],owned.physical[slot].facet}}},geometry,tolerance,heights);
+            const auto before=GeometryExcess(Patch{{cell},{{faces[slot],owned.physical[slot].facet}}},geometry,tolerance);
             const double l=std::max(0.,geometry.SurfaceError(owned.physical[slot].facet,left)-allowed);
             const double r=std::max(0.,geometry.SurfaceError(owned.physical[slot].facet,right)-allowed);
             auto area=[](const std::array<Point,3>& t) {
@@ -833,7 +828,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         options.memory_ceiling,transfer_memory::Add(bytes(),scratch,directory.ResidentBytes()),
         [&](const FrozenField& field){FieldCounts(stats,field);},tick);
     try {service.Run([&](const RegionMetric& target){
-      bool already_valid=GeometryExcess(old,geometry,options.surface_tolerance,options.wall_heights)==0;
+      bool already_valid=GeometryExcess(old,geometry,options.surface_tolerance)==0;
       bool short_edges=false;
       std::string why;
       if(already_valid)for(const auto& row:rows)if(!height_check(GeometryPatch(Imported{{row},true,{}}, &geometry),why)){already_valid=false;break;}
@@ -1616,8 +1611,8 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     auto geometric_change=[&](bool candidate,MetricChange kind) {
       if(!candidate || !curved)return candidate;
       try {
-        const auto before=GeometryExcess(old,geometry,options.surface_tolerance,options.wall_heights);
-        const auto after=GeometryExcess(fresh,geometry,options.surface_tolerance,options.wall_heights);
+        const auto before=GeometryExcess(old,geometry,options.surface_tolerance);
+        const auto after=GeometryExcess(fresh,geometry,options.surface_tolerance);
         geometric_progress=before>0 && after<before*(1-1e-12L);
         if((kind==MetricChange::GeometryRefine && !geometric_progress) ||
            (kind==MetricChange::Coarsen && after>0) ||
@@ -2980,7 +2975,7 @@ bool CollapseConstraintViolation(const OwnedCell& cell,Id removed,Node retained,
     for(unsigned i=0;i<3;++i)for(auto n:proposed.cell.v)if(n.id==face.v[i])points[i]=n.p;
     if(!geometry.ContainsFace(face.facet,points))return true;
     if(geometry.Declared(geometry.Canonical(face.facet)) &&
-        geometry.SurfaceError(face.facet,points)>SurfaceTolerance(geometry,face.facet,tolerance,heights))return true;
+        geometry.SurfaceError(face.facet,points)>tolerance)return true;
   }
   FirstHeightReport report;std::string reason;
   return !heights.empty() && !CheckFirstHeight(patch,heights,geometry,report,reason);

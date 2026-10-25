@@ -1,0 +1,20 @@
+pass: 2D conflicting body/element hints reject
+pass: wrapped interval on the same edge includes the rest of the body (bound 2.02191)
+pass: non-wrapped subedge retains a useful bound
+pass: planar patch bounds in-plane parameter displacement
+pass: exact plane has negligible normal deviation
+pass: 3D conflicting body/element hints reject
+pass: a shared symmetry plane cannot join separate wall bodies
+pass: wall projections cannot escape onto a carrier plane
+pass: inconsistent segment orientations reject
+pass: zero-length geometry rejects
+pass: invalid 2D indices reject before access
+pass: duplicate 2D edges reject
+pass: nonfinite arc parameters reject
+pass: invalid 3D hint rejects before access
+pass: face-only plane projection cannot silently open seams
+pass: geometric size reproduces the configured sagitta at the M6 leading-edge radius
+pass: a size floor conflicting with geometry is reported
+pass: nonfinite curvature rejects
+pass: small sagitta does not vanish through cancellation
+contracts: 0 failure(s)

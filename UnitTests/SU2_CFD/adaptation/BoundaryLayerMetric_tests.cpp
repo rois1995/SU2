@@ -1442,6 +1442,20 @@ TEST_CASE("Smooth native BL preserves actual radial queries, fine sensors and hi
   for(size_t i=0;i<cuts.size();++i)CHECK(cuts[i]==Approx(1-reverse[cuts.size()-1-i]).margin(2e-12));
 }
 
+TEST_CASE("Native curvature tolerance is geometric and independent of the first-height ramp", "[NativeCurvedBL3D]") {
+  constexpr double radius=1, tolerance=1e-4;
+  const double chord=2*std::sqrt(tolerance*(2*radius-tolerance));
+  const double expected=std::pow(1.8/chord,2);
+  for(double height:{2e-6,6.4e-5,.01}) {
+    auto wall=AnalyticSphereWall(height);wall.surface_tolerance=tolerance;
+    CBoundaryLayerMetric layers(3,{wall});const su2double x[3]={1,0,0};
+    const auto sample=layers.Evaluate(0,x,1.);
+    CHECK(SU2_TYPE::GetValue(sample.full.m[1][1])==Approx(expected).epsilon(1e-9));
+    CHECK(SU2_TYPE::GetValue(sample.full.m[2][2])==Approx(expected).epsilon(1e-9));
+    CHECK(SU2_TYPE::GetValue(sample.full.m[0][0])==Approx(1/(height*height)).epsilon(1e-9));
+  }
+}
+
 TEST_CASE("Smooth spherical BL thin volume rule resolves an enclosed layer against a radial integral", "[.][NativeCurvedBLVolume3D]") {
   const auto wall=AnalyticSphereWall();CBoundaryLayerMetric layers(3,{wall});
   const std::array<std::array<double,3>,4> cell{{{{0,0,0}},{{4,0,0}},{{0,4,0}},{{0,0,4}}}};
@@ -1452,7 +1466,7 @@ TEST_CASE("Smooth spherical BL thin volume rule resolves an enclosed layer again
     return SU2_TYPE::GetValue(sqrt(e[0]*e[1]*e[2]));
   };
   // Whole spherical octant shell is inside this coarse tetrahedron.
-  const double epsilon=.005,chord=2*std::sqrt(epsilon*(2-epsilon)),curvature=std::pow(1.8/chord,2);
+  const double epsilon=wall.surface_tolerance,chord=2*std::sqrt(epsilon*(2-epsilon)),curvature=std::pow(1.8/chord,2);
   auto radial=[&](double distance) {
     const double hn=std::max(.01,2*(.01+.2*distance)/2.2);
     const double t=std::clamp((distance-.027)/.003,0.,1.),weight=1-t*t*(3-2*t);
@@ -1531,7 +1545,7 @@ TEST_CASE("Finite cylinder BL queries and edge bands include the actual end rims
 TEST_CASE("Visible wall samples cannot hide an enclosed thin spherical second wall", "[.][NativeInteractingBLVolume3D]") {
   CBoundaryLayerMetric::Wall visible;visible.layer={"a_visible",2.,1.,2.};
   visible.coord={-2,-2,0,2,-2,0,2,2,0,-2,2,0};visible.conn={0,1,2,2,0,2,3,3};
-  auto hidden=AnalyticSphereWall(1e-5,3e-5,.001,{.35,.35,.02});hidden.layer.marker="b_hidden";
+  auto hidden=AnalyticSphereWall(1e-5,3e-5,.001,{.35,.35,.02});hidden.layer.marker="b_hidden";hidden.surface_tolerance=5e-6;
   CBoundaryLayerMetric layers(3,{visible,hidden});
   const std::array<std::array<double,3>,4> cell{{{{0,0,0}},{{1,0,0}},{{0,1,0}},{{0,0,1}}}};
   auto density=[&](const CBoundaryLayerMetric::IntegrationPoint3D& p) {

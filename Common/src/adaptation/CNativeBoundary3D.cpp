@@ -2126,7 +2126,7 @@ bool ReconstructWallSplit(const Patch& old,Edge edge,Node point,Id first_wall_no
       std::map<Edge,double> perimeter;
       for(const auto& f:old.surface)if(Has(f.v,edge[0]) && Has(f.v,edge[1]) &&
           heights.count(reference.Get(f.facet).marker) && reference.Analytic().count(f.facet)) {
-        const auto tolerance=std::min(surface_tolerance,.5*heights.at(reference.Get(f.facet).marker));
+        const auto tolerance=surface_tolerance;
         for(unsigned i=0;i<3;++i) {
           Edge other{f.v[i],f.v[(i+1)%3]};std::sort(other.begin(),other.end());
           auto selected=edge;std::sort(selected.begin(),selected.end());if(other==selected)continue;

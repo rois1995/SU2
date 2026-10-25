@@ -94,7 +94,7 @@ class CBoundaryLayerMetric {
                                           repeats its last point). 3D faces must be oriented consistently. */
     std::shared_ptr<const SU2Native3D::PlanarReference> authority;
     uint64_t authority_facet=0; /*!< Complete analytic component; absent authority keeps faceted behavior. */
-    double surface_tolerance=0; /*!< Frozen physical geometry ceiling, tightened relative to first height. */
+    double surface_tolerance=0; /*!< Frozen physical geometry ceiling in mesh units, independent of first height. */
   };
 
   /*!

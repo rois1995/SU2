@@ -938,7 +938,7 @@ void CBoundaryLayerMetric::Build() {
         for(auto value:values)bound=std::max(bound,std::exp(-SU2_TYPE::GetValue(value)));
       }
       if(g.kind!=SU2Native3D::AnalyticSurface::Kind::Disk) {
-        const long double epsilon=std::min(wall.surface_tolerance,.5*SU2_TYPE::GetValue(d->h0));
+        const long double epsilon=wall.surface_tolerance;
         const auto e=std::min(epsilon,(long double)g.extent.x);
         const auto chord=2*std::sqrt(e*(2*g.extent.x-e));
         bound=std::max(bound,double(std::pow(SU2Native3D::MaximumMetricEdge/chord,2)));
@@ -1935,7 +1935,7 @@ CBoundaryLayerMetric::Sample CBoundaryLayerMetric::EvaluateImpl(unsigned short i
     if(wall.authority) {
       const auto& g=wall.authority->Analytic().at(wall.authority_facet);
       if(g.kind!=SU2Native3D::AnalyticSurface::Kind::Disk) {
-        const long double epsilon=std::min(wall.surface_tolerance,.5*SU2_TYPE::GetValue(d.h0));
+        const long double epsilon=wall.surface_tolerance;
         const long double radius=g.extent.x,e=std::min(epsilon,radius);
         const long double chord=2*std::sqrt(e*(2*radius-e));
         curvature=double(std::pow(SU2Native3D::MaximumMetricEdge/chord,2));

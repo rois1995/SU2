@@ -1,0 +1,10 @@
+
+== 2D curved polyline: /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_frozen_rae_bl_to_euler_hash_v1/airfoil_input.su2 (h0 1e-06, feature angle 45) ==
+ chain 0 (marker AIRFOIL): closed, 451 nodes, x [0.0000, 1.0000] y [-0.0578, 0.0644], length 2.0325; features: (1.0000,0.0002) turn 170.9;
+ chain 0 leave-one-out (225 dropped nodes, coarse feature mismatches 0): distance med/p90  flat 6.94e-18/2.33e-05  CReferenceWall spline 9.08e-06/1.84e-05  curved(circle) 8.88e-06/1.82e-05  curved(PN) 8.88e-06/1.82e-05
+note: chain 0 dropped nodes lie on the flat chords (an adapted wall built on a flat reference): accuracy not measurable
+ chain 0 drop-in: max face deviation from the curve 1.83e-05, faces above eps 1e-06: 358 (+461 points by the chord rule), At(Parameter(node)) round trip 0.0e+00
+pass: chain 0 wall nodes are exact reference points
+ chain 0: min radius curved 0.00078 at (0.0000, 0.0000), spline 0.00089; curvature rel. diff to CReferenceWall med 0.123 p90 1.000; projection excess over dense sampling 0.0e+00, wrong-body feet 0; size rule 0.7 sqrt(2 R h0): min L* 2.89e-05, wall points needed 2495 (spline curvature 2742) vs 451 now
+pass: chain 0 projection is the exact closest curve point and stays on its body
+airfoil: 0 failure(s)

@@ -189,4 +189,6 @@ TEST_CASE("DC-14 frozen-field FIRST_ROW event through the production driver back
             << (stats.construction_report.empty() ? std::string("null") : stats.construction_report.substr(0, stats.construction_report.size() - 1)) << "}\n";
   }
   driver.Finalize();
+  REQUIRE(complete);
+  REQUIRE(written);
 }

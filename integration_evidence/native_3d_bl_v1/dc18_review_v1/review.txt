@@ -1,0 +1,83 @@
+DC-17 / DC-18 correctness review, 2026-10-25
+===========================================
+Scope: latest c9 source 95058150af, DC-18 preparation header/tests, related native
+curvature policy consumers and validation receipts. Not a whole-repository audit.
+
+Verified status
+---------------
+DC-18 was never adopted by production: the header has no production include/caller.
+DC-17 c9 event 0 published, event 1 terminated but rejected. Its receipt has
+complete=0, written=0, accepted=0, validity.valid=0; three height failures,
+44,498 bad cells, 176,687 long edges, 529 unmeasurable edges. The process exited 0
+and the wrapper printed ALL DONE. No event1.su2 exists. This is not an accepted
+mesh and not a successfully completed chain.
+
+The height failures already appear in the rebuild summary: 41,020 faces need
+halving, 41,017 split and three fallback refusals. 213 columns were too short
+for midpoint splitting, 1,354 prism refusals cite unsplit columns, 230 cite a
+link across the new lid level; 238 lateral flips refused. These are evidence of
+a missing coordinated continuation construction, not proof that another local
+fallback or more V iterations can fix it. c9 keeps prism topology but permits
+lid movement. Preserving topology alone does not establish rebuild feasibility.
+
+Confirmed defects and changes
+-----------------------------
+contracts_before.txt reproduces five assertion failures: 2D/3D conflicting body
+hints ignored, a wrapped same-edge interval returns zero, planar child error
+ignores in-plane displacement, and small sagitta rounds to zero. The header now
+rejects inconsistent hints; includes all pieces of wrapped intervals; computes
+planar child bounds from the same control net; uses rationalized sagitta;
+rejects invalid points, indices, duplicate/degenerate segments and invalid rules.
+
+A projection solver previously claimed convergence unconditionally on iteration
+exhaustion/stall. KKT checks now flag failure. This exposed another issue: falling
+back to a flat foot can beat a valid curved foot while lying off the authority.
+Failed candidates now remain on the curved patch and retain the failure flag.
+Standalone v2 preserves those detected failures; standalone_final passes all ten
+groups, including 19 contract assertions. A shared symmetry carrier no longer
+merges disconnected wall bodies into one projection component. Inconsistent 2D
+segment orientation rejects instead of silently changing normals. Sphere
+convergence is now asserted, not merely printed. resume_check.txt confirms all ten
+completed groups are reused with verified provenance and output hashes.
+
+projectPlanar formerly changed only patch interiors: boundary Evaluate uses shared
+edge curves/vertices, derivatives and blossomed bounds use the unprojected net.
+That cannot be a continuous, consistent authority for noisy imports. It now rejects
+explicitly. Fit shared affine coordinates before construction; do not use per-face
+query projection. The old projected-half-cylinder test used nearly exact planes
+and could not establish correctness for noisy multi-plane junctions. Its rejection
+is now tested; noisy shared affine adoption remains a production integration gate.
+
+Validation plumbing: the C++ frozen-event harness now asserts complete/written
+after saving diagnostics. run_event requires accepted/valid, zero validity/A3
+violations and all three nonempty publications, hashes outputs, and only resumes
+with matching provenance and unchanged outputs. Existing unverified/rejected
+receipts are preserved and require a new run directory. run_chain exits nonzero
+on rejection or time limit. test_check_event.py covers the actual c9 rejection
+plus acceptance-bit, height/A3 and missing-sidecar failures.
+
+User decision and connected next step
+------------------------------------
+Native curvature faceting tolerance is the configured ADAP_HAUSD in mesh units,
+independent of h0/ramp. 1e-4 equals 0.1 mm only with metre coordinates. A chord
+fraction must be converted using the user's geometry length. No scenario, body,
+marker-name or solver-label dispatch is introduced. Existing analytic metric
+sizing/bounds, engine geometry demand/coarsening, retained-wall perimeter splitting
+and regional surface construction now use that same tolerance. First-height and
+actual-volume validity checks remain intact. The unrelated MMG TWO_PASS rule is
+unchanged. Build/regression results are recorded separately as they finish.
+
+Still required before discrete curved production adoption
+---------------------------------------------------------
+* Persist geometry/options/control-net version and body/feature identity; maintain
+  exact chart containment/tiling while evaluating nonlinear physical geometry.
+* Check source envelopes for curved displacements and simultaneous symmetry/crease
+  constraints, including the M6 leading edge at the real tolerance.
+* Certify or conservatively refuse folded patches and outward numerical bounds.
+  Sampled normal tests and sampled agreement are not mathematical certificates.
+* Bound memory and projection search cost; three-ring quadric stencils plus global
+  component/crease coordination are needed, not a claimed one-ring MPI halo.
+* End-to-end wall refinement, first row/layers, accepted final gates, conservative
+  transfer and reference restart on M6 and distinct multi-body/2D cases.
+The standalone accuracy tests do not close these items. DC-17's continuation,
+wake construction and metric gradation are also still unresolved.
