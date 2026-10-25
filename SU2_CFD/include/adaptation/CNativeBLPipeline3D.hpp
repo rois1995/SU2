@@ -290,7 +290,7 @@ inline EngineResult RunEvent(World& world, const Owned& cells, const std::vector
       // DC-17: symmetry-plane markers (configuration kinds) get fitted affine plane authorities (FitPlanarMarkers)
       std::set<int> planar;
       for (const auto& r : policy.roles) if (r.second == 0) planar.insert(r.first);
-      s->reference = PromoteFacetedReference(FitPlanarMarkers(state.original, state.facets, planar, 1e-12, fittedPlanes), state.facets, 1e-13, declared);
+      s->reference = PromoteFacetedReference(FitPlanarMarkers(state.original, state.facets, planar, 1e-13, fittedPlanes), state.facets, 1e-13, declared);
     } else s->reference = state.original;
     s->mapped = s->reference->Mapped();
     for (unsigned short b = 0; b < config.GetnAdap_BL(); ++b) {
@@ -458,7 +458,7 @@ inline EngineResult RunEvent(World& world, const Owned& cells, const std::vector
       const double vSeconds = cappedV();
       const auto v = PhaseV13(*s, rows, G, std::max<size_t>(size_t(1) << 22, 64 * s->mesh.size()), vSeconds, 64, certified, log);
       json << ",\"V\":{\"stage\":" << JsonStage(v) << ",\"seconds_cap\":" << vSeconds << ",\"sweeps\":" << v.sweeps << ",\"refine_attempts\":" << v.refine_attempts
-           << ",\"seconds\":{\"r2\":" << v.r2_seconds << ",\"first\":" << v.first_seconds << ",\"refine\":" << v.refine_seconds << ",\"optimize\":" << v.optimize_seconds << "}}";
+           << ",\"seconds\":{\"r2\":" << v.r2_seconds << ",\"first\":" << v.first_seconds << ",\"refine\":" << v.refine_seconds << ",\"optimize\":" << v.optimize_seconds << "}" << ",\"transactional_repairs\":" << v.transactional_repairs << ",\"transactional_rollbacks\":" << v.transactional_rollbacks << ",\"global_skipped\":" << v.global_skipped << "}";
       workDone += v.work; vSecondsUsed = v.seconds;
       phase("V", "sweeps=" + std::to_string(v.sweeps) + " attempts=" + std::to_string(v.refine_attempts) + " accepted=" + std::to_string(v.accepted) + " outcome=" + v.outcome);
       dc9::directionField = nullptr;
@@ -485,7 +485,7 @@ inline EngineResult RunEvent(World& world, const Owned& cells, const std::vector
       beforeV();
       const double vSeconds = cappedV();
       const auto v = PhaseV13(*s, rows, G, std::max<size_t>(size_t(1) << 22, 64 * s->mesh.size()), vSeconds, 64, certified, log);
-      json << ",\"V\":{\"stage\":" << JsonStage(v) << ",\"seconds_cap\":" << vSeconds << ",\"sweeps\":" << v.sweeps << ",\"refine_attempts\":" << v.refine_attempts << "}";
+      json << ",\"V\":{\"stage\":" << JsonStage(v) << ",\"seconds_cap\":" << vSeconds << ",\"sweeps\":" << v.sweeps << ",\"refine_attempts\":" << v.refine_attempts << ",\"transactional_repairs\":" << v.transactional_repairs << ",\"transactional_rollbacks\":" << v.transactional_rollbacks << ",\"global_skipped\":" << v.global_skipped << "}";
       workDone += v.work; vSecondsUsed = v.seconds;
       phase("V", "sweeps=" + std::to_string(v.sweeps) + " attempts=" + std::to_string(v.refine_attempts) + " outcome=" + v.outcome);
       dc9::directionField = nullptr;

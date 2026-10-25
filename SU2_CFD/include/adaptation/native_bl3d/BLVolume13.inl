@@ -214,7 +214,7 @@ inline long double EstimateLength(State& s,VertexTensors& vt,Id a,Id b) {
     if(!(q>=0))throw std::runtime_error("non-positive vertex metric");return std::sqrt(q);};
   const long double la=len(vt.Get(s,a)),lb=len(vt.Get(s,b));return la+lb>0?(2.L/3)*(la*la+la*lb+lb*lb)/(la+lb):0;
 }
-struct VStage13 : VStage12 { std::map<int,ClassCensus> byClass;size_t apex_place=0; };
+struct VStage13 : VStage12 { std::map<int,ClassCensus> byClass;size_t apex_place=0,transactional_repairs=0,transactional_rollbacks=0;size_t global_skipped=0; };
 // edge class for the census: 0 interior, 1 wall, 2 seam (wall + other physical), 3 carrier (non-wall, non-artificial
 // physical), 4 artificial (cut) boundary
 inline int EdgeClass13(State& s,Edge e) {
@@ -262,10 +262,14 @@ namespace dc13 {
 // optimizer keeps fixed; first children, fan cells, apices and copies are frozen, lids kept (as the mesh-wide call); the
 // changed cells are committed back by Apply with their physical faces, and moved registry vertices are relabelled.
 // Ready for the 2D ownership pattern (a region is an owned cavity; disjoint regions commute).
-inline bool LocalOptimize(State& s,Rows10& rows,Growth& G,const std::set<Id>& region,double seconds,OptimizeReport& rep) {
+// freezeRegistry: every registry identity (lids, G stack tops) is frozen too, so nothing is relabelled and the caller
+// can roll the region back from a snapshot (refine + repair transaction below).
+inline bool LocalOptimize(State& s,Rows10& rows,Growth& G,const std::set<Id>& region,double seconds,OptimizeReport& rep,bool freezeRegistry=false,size_t work=SIZE_MAX) {
   if(region.empty()||!(seconds>0))return false;
   Owned local;for(Id id:region){const auto f=s.mesh.find(id);if(f!=s.mesh.end())local.emplace(id,f->second);}
-  OptimizeOptions opt;opt.maximum_sweeps=4;opt.maximum_seconds=seconds;opt.boundary=false;opt.cache_entries=std::max<size_t>(size_t(1)<<16,8*local.size());
+  OptimizeOptions opt;opt.maximum_sweeps=4;opt.maximum_seconds=seconds;opt.maximum_work=work;opt.boundary=false;opt.cache_entries=std::max<size_t>(size_t(1)<<16,8*local.size());
+  if(freezeRegistry){for(const auto& r:rows.lift)opt.frozen_vertices.insert(r.second);for(const auto& c:G.current)opt.frozen_vertices.insert(c.second);
+    for(const auto& c:G.columns){opt.frozen_vertices.insert(c.lid);opt.frozen_vertices.insert(c.top);}}
   for(const auto& row:local)if(WallChild(s,row.first)){opt.frozen_cells.insert(row.first);for(const auto& n:row.second.cell.v)opt.frozen_vertices.insert(n.id);}
   for(Id id:FanCells(s,rows))if(local.count(id)){opt.frozen_cells.insert(id);for(const auto& n:s.mesh.at(id).cell.v)opt.frozen_vertices.insert(n.id);}
   for(const auto& r:rows.lift)opt.keep_vertices.insert(r.second);
@@ -332,6 +336,7 @@ inline VStage13 PhaseV13(State& s,Rows10& rows,Growth& G,size_t work,double seco
   auto ridgeEdge=[&](Edge w){if(rows.copies.count(w[0])||rows.copies.count(w[1]))return true;
     for(const auto& r:rows.apex)if(Has(r.first,w[0])&&Has(r.first,w[1]))for(Id x:r.first)if(rows.copies.count(x))return true;return false;};
   std::map<Face,unsigned> firstTried;
+  bool globalStalled=false;  // DC-17: the last mesh-wide optimizer pass made no progress
   size_t measureWitnesses=0;VertexTensors& vt=eventTensors;Id scanned=0;std::set<Edge> queued;size_t lastDemand=0;  // DC-16 demand queue state
   for(;;++g.sweeps) {
     if(limited()){g.outcome="limit";break;}
@@ -438,7 +443,27 @@ inline VStage13 PhaseV13(State& s,Rows10& rows,Growth& G,size_t work,double seco
          if(best.op=="wall"){std::set<Face> before,after;for(const auto& sf:best.old.surface)if(s.walls.count(s.reference->Get(sf.facet).marker))before.insert(Sorted(sf.v));
            for(const auto& sf:best.fresh.surface)if(s.walls.count(s.reference->Get(sf.facet).marker))after.insert(Sorted(sf.v));
            for(const auto& f:before)certified.insert(f);for(const auto& f:after)certified.insert(f);}
-         Apply(s,best.ids,best.fresh);++g.accepted;++g.acceptedBy[best.op];++census.accepted[best.op];taken=true;}
+         if(v13DemandQueue&&cls==0&&best.op!="wall") {
+           // DC-17 (target 3): an interior refinement and the local repair of its region are ONE transaction, kept only
+           // when the region holds no more cells below the final shape gate than before (V converges in bad cells
+           // instead of trading long edges for unrepairable slivers); otherwise the region is restored from its snapshot
+           std::set<Id> region(best.ids.begin(),best.ids.end());
+           for(Id id:best.ids)for(const auto& n:s.mesh.at(id).cell.v){const auto st=s.vertex_cells.find(n.id);if(st!=s.vertex_cells.end())region.insert(st->second.begin(),st->second.end());}
+           Owned snapshot;size_t bad0=0;for(Id id:region){snapshot.emplace(id,s.mesh.at(id));bad0+=Bad(MeshShape(s,id));}
+           const Id mark=s.next_cell;Apply(s,best.ids,best.fresh);
+           std::set<Id> area;for(Id id:region)if(s.mesh.count(id))area.insert(id);for(auto it=s.mesh.lower_bound(mark);it!=s.mesh.end();++it)area.insert(it->first);
+           OptimizeReport lr;LocalOptimize(s,rows,G,area,std::min(.5,std::max(.05,remaining())),lr,true,256);++g.transactional_repairs;
+           area.clear();for(Id id:region)if(s.mesh.count(id))area.insert(id);for(auto it=s.mesh.lower_bound(mark);it!=s.mesh.end();++it)area.insert(it->first);
+           size_t bad1=0;for(Id id:area)bad1+=Bad(MeshShape(s,id));
+           if(bad1>bad0) {
+             std::vector<Id> drop;for(Id id:area)if(!snapshot.count(id))drop.push_back(id);
+             Patch back;for(const auto& row:snapshot){if(s.mesh.count(row.first))continue;back.cells.push_back(row.second.cell);const auto f=CellFaces(row.second.cell);
+               for(unsigned k=0;k<4;++k)if(row.second.physical[k].present)back.surface.push_back({f[k],row.second.physical[k].facet});}
+             Apply(s,drop,back);++g.transactional_rollbacks;++g.rejected;++g.reasons["Refine+repair: adds cells below the final shape gate"];
+             ++census.reasons["refine+repair adds bad cells"];
+           } else {++g.accepted;++g.acceptedBy[best.op+"+repair"];++census.accepted[best.op];taken=true;}
+         } else {
+         Apply(s,best.ids,best.fresh);++g.accepted;++g.acceptedBy[best.op];++census.accepted[best.op];taken=true;}}
        splitPolicy.relocatedCount=0;splitPolicy.requested=-1;
        if(!taken)rejected.insert(key);
        changed|=taken;if(taken)build();
@@ -491,8 +516,10 @@ inline VStage13 PhaseV13(State& s,Rows10& rows,Growth& G,size_t work,double seco
          else rejected.insert(key);}
        if(!done)++g.demand["bad boundary cell without repair"];}
     }
-    // (d) mesh-wide optimization with a reserved share of the sweep budget
-    if(!limited()){const auto t=Clock::now();
+    // (d) mesh-wide optimization with a reserved share of the sweep budget (DC-17: with the demand queue, skipped after a
+    // pass that removed almost nothing - its time goes to refinement and the local repairs)
+    if(v13DemandQueue&&globalStalled){++g.global_skipped;}
+    else if(!limited()){const auto t=Clock::now();
       OptimizeOptions opt;opt.maximum_sweeps=32;  // DC-13: inner sweeps until no progress (time-bounded)
      opt.maximum_seconds=v13DemandQueue?std::max(1.,std::min(remaining(),R-Seconds(sweepStart))):std::max(1.,std::min(remaining(),std::max(.4*R,.5*remaining())));
       opt.cache_entries=size_t(1)<<19;if(s.mapped&&!v13MappedBoundaryOps)opt.boundary=false;
@@ -526,6 +553,7 @@ inline VStage13 PhaseV13(State& s,Rows10& rows,Growth& G,size_t work,double seco
       for(auto& l:rows.lift){const auto r=rep.relabel.find(l.second);if(r!=rep.relabel.end())l.second=r->second;}
       for(auto& c:G.columns){for(Id* x:{&c.lid,&c.top}){const auto r=rep.relabel.find(*x);if(r!=rep.relabel.end())*x=r->second;}}
       g.opt.push_back(rep);changed|=moved;g.optimize_seconds+=Seconds(t);
+      if(v13DemandQueue&&rep.bad_before<=rep.bad_after+std::max<size_t>(50,rep.bad_before/500))globalStalled=true;
       log<<"DC12 V optimize sweep "<<g.sweeps<<" bad "<<rep.bad_before<<"->"<<rep.bad_after<<" min "<<rep.minimum_before<<"->"<<rep.minimum_after<<" O1="<<rep.edge_removals
          <<" O2="<<rep.face_swaps<<" O3="<<rep.collapses<<" O4="<<rep.moves<<" stop="<<rep.stop<<" t="<<rep.seconds<<"\n";}
     if(v13SkipFinalOnLimit&&limited()){g.outcome="limit";log<<"DC12 V sweep "<<g.sweeps<<" stopped by its limit (gate scan skipped) t="<<Seconds(t0)<<"\n";break;}

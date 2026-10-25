@@ -505,9 +505,14 @@ TEST_CASE("DC-17 fitted symmetry plane lets original vertices slide on a tilted 
   for(unsigned k=0;k<8;++k)facets.push_back(outward({Id(facets.size()),1,{nodes[ring[k]],nodes[ring[(k+1)%8]],nodes[9]}}));
   auto base=std::make_shared<PlanarReference>(facets);
   CHECK(base->Canonical(0)!=base->Canonical(1));  // the noisy plane is not merged exactly
-  size_t fitted=0;const auto planes=FitPlanarMarkers(base,facets,{0},1e-12,fitted);
+  size_t fitted=0;const auto planes=FitPlanarMarkers(base,facets,{0},1e-13,fitted);
   REQUIRE(fitted==1);CHECK(planes->Affine().size()==8);CHECK(planes->Canonical(0)==planes->Canonical(7));
-  size_t none=0;CHECK(FitPlanarMarkers(base,facets,{1},1e-12,none)==base);CHECK(none==0);  // the folded sides are not planar
+  size_t none=0;CHECK(FitPlanarMarkers(base,facets,{1},1e-13,none)==base);CHECK(none==0);  // the folded sides are not planar
+  {// code review 1: a residual above the contract keeps the exact faceted authority (no fit, no throw); the
+   // production contract equals the promotion's declared error (1e-13 x scale)
+   auto rough=facets;for(auto& f:rough)for(auto& v:f.v)if(v.id==4){v.p.x+=3e-12*n.x;v.p.y+=3e-12*n.y;v.p.z+=3e-12*n.z;}
+   auto roughBase=std::make_shared<PlanarReference>(rough);size_t k=0;CHECK(FitPlanarMarkers(roughBase,rough,{0},1e-13,k)==roughBase);CHECK(k==0);
+   size_t k2=0;const auto fit13=FitPlanarMarkers(base,facets,{0},1e-13,k2);CHECK(k2==1);double d=0;CHECK_NOTHROW(PromoteFacetedReference(fit13,facets,1e-13,d));}
   auto star=[&](const std::shared_ptr<const PlanarReference>& reference){Patch p;
     for(size_t f=0;f<plane.size();++f){const auto& t=plane[f];if(t[0]!=4&&t[1]!=4&&t[2]!=4)continue;
       Cell c{Id(p.cells.size()),{nodes[9],nodes[t[0]],nodes[t[1]],nodes[t[2]]}};
