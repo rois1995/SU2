@@ -1,0 +1,77 @@
+diff --git a/Common/src/adaptation/CNativeImport3D.cpp b/Common/src/adaptation/CNativeImport3D.cpp
+index 31be553376..40802ce8db 100644
+--- a/Common/src/adaptation/CNativeImport3D.cpp
++++ b/Common/src/adaptation/CNativeImport3D.cpp
+@@ -420,7 +420,7 @@ bool JointAffineCoverage(World& world,const Owned& owned,std::vector<DonorCell>&
+   auto payload_started=world.seconds();auto all=CPassiveComm::Allgatherv(boundary,nullptr,world.comm);
+   stats.source_envelope_payload_seconds+=world.seconds()-payload_started;
+   stats.source_envelope_payload_bytes+=all.size()*sizeof(OwnedCell);
+-  std::vector<Facet> skin;std::vector<std::pair<Id,unsigned>> parents;
++  std::vector<Facet> skin;std::vector<std::pair<Id,unsigned>> parents;std::vector<double> face_radius;
+   std::map<std::pair<Id,unsigned>,size_t> slots;std::map<Id,Point> original;
+   std::map<Id,std::vector<size_t>> incident;
+   try {
+@@ -437,15 +437,21 @@ bool JointAffineCoverage(World& world,const Owned& owned,std::vector<DonorCell>&
+         Facet f;f.id=skin.size();
+         for(unsigned k=0;k<3;++k)for(auto node:row.cell.v)if(node.id==faces[slot][k])f.v[k]=node;
+         skin.push_back(f);parents.push_back({row.cell.id,slot});
++        const auto* mapped=reference.Parameters();
++        const double local=mapped && !mapped->Geometry().Curves().empty()?
++            4*mapped->Geometry().EnvelopeError(row.physical[slot].facet):radius;
++        if(!(std::isfinite(local)&&local>0))throw std::invalid_argument("Unrepresentable local source envelope.");
++        face_radius.push_back(local);
+       }
+     }
+     // Face/node keys, not rank ownership or marker/body assumptions, fix all arithmetic order.
+     std::vector<size_t> order(skin.size());std::iota(order.begin(),order.end(),0);
+     std::sort(order.begin(),order.end(),[&](size_t a,size_t b){return Key({skin[a].v[0].id,skin[a].v[1].id,skin[a].v[2].id})<
+         Key({skin[b].v[0].id,skin[b].v[1].id,skin[b].v[2].id});});
+-    auto old_skin=skin;auto old_parents=parents;
++    auto old_skin=skin;auto old_parents=parents;auto old_radius=face_radius;
+     for(size_t i=0;i<order.size();++i) {
+       skin[i]=old_skin[order[i]];skin[i].id=i;parents[i]=old_parents[order[i]];slots.emplace(parents[i],i);
++      face_radius[i]=old_radius[order[i]];
+       const int orientation=Parity({skin[i].v[0].id,skin[i].v[1].id,skin[i].v[2].id});
+       std::sort(skin[i].v.begin(),skin[i].v.end(),[](Node a,Node b){return a.id<b.id;});
+       if(orientation<0)std::swap(skin[i].v[1],skin[i].v[2]);
+@@ -468,8 +474,9 @@ bool JointAffineCoverage(World& world,const Owned& owned,std::vector<DonorCell>&
+     for(const auto& row:incident) {
+       if(!within())throw std::length_error("Joint source column elapsed resource budget exhausted.");
+       std::vector<std::array<Point,3>> faces;faces.reserve(row.second.size());
+-      for(auto i:row.second)faces.push_back({skin[i].v[0].p,skin[i].v[1].p,skin[i].v[2].p});
+-      columns.push_back({span+row.first,SU2NativeGeometry::SourceColumn(original.at(row.first),faces,radius,solves,maximum_work)});
++      double local=0;
++      for(auto i:row.second){faces.push_back({skin[i].v[0].p,skin[i].v[1].p,skin[i].v[2].p});local=std::max(local,face_radius[i]);}
++      columns.push_back({span+row.first,SU2NativeGeometry::SourceColumn(original.at(row.first),faces,local,solves,maximum_work)});
+     }
+   }catch(const std::length_error& e){failure.Set(3,0,e.what());}
+    catch(const std::bad_alloc& e){failure.Set(3,0,e.what());}
+@@ -546,12 +553,15 @@ bool JointAffineCoverage(World& world,const Owned& owned,std::vector<DonorCell>&
+       std::array<su2double,3> lo,hi;
+       for(unsigned axis=0;axis<3;++axis) {
+         double first=INFINITY,last=-INFINITY;
+-        for(auto p:outer_faces[i]){const double q=axis==0?p.x:axis==1?p.y:p.z;first=std::min(first,q);last=std::max(last,q);}
+-        lo[axis]=std::nextafter(first-radius,-INFINITY);hi[axis]=std::nextafter(last+radius,INFINITY);
++        for(auto node:skin[i].v){const auto p=node.p;const double q=axis==0?p.x:axis==1?p.y:p.z;first=std::min(first,q);last=std::max(last,q);}
++        lo[axis]=std::nextafter(first-face_radius[i],-INFINITY);hi[axis]=std::nextafter(last+face_radius[i],INFINITY);
+       }
+       tree->DetermineIntersectingElements(lo.data(),hi.data(),candidates);
+-      for(auto j:candidates)if(j<witnesses)for(unsigned slot=0;slot<4;++slot)if(all[j].physical[slot].present)
+-        keep(i,slots.at({all[j].cell.id,slot}),true);
++      // Certify each original face's band against every nearby outer face, including other bodies.
++      candidates.erase(std::remove_if(candidates.begin(),candidates.end(),[&](auto j){return j<witnesses;}),candidates.end());
++      for(auto& j:candidates)j=(j-witnesses)/3;
++      std::sort(candidates.begin(),candidates.end());candidates.erase(std::unique(candidates.begin(),candidates.end()),candidates.end());
++      for(auto j:candidates)keep(j,i,true);
+     }
+   }catch(const std::length_error& e){failure.Set(3,0,e.what());}
+    catch(const std::bad_alloc& e){failure.Set(3,0,e.what());}
+@@ -565,7 +575,7 @@ bool JointAffineCoverage(World& world,const Owned& owned,std::vector<DonorCell>&
+     const auto c=checks[i];
+     if(c.distance) {
+       ++distances;const auto& f=skin[c.b];
+-      if(!SU2NativeGeometry::SourceFacesSeparated(outer_faces[c.a],{f.v[0].p,f.v[1].p,f.v[2].p},radius))
++      if(!SU2NativeGeometry::SourceFacesSeparated(outer_faces[c.a],{f.v[0].p,f.v[1].p,f.v[2].p},face_radius[c.b]))
+         throw std::invalid_argument("Uncertified joint original-source envelope coverage at face "+std::to_string(c.a));
+     }else {
+       ++contacts;if(!ConformingDisjoint(geometry[c.a],geometry[c.b]))

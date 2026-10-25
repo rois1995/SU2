@@ -12,13 +12,17 @@ metric-driven operators, unchanged q>=.20, J>=.05, edge<=1.8, first height withi
 User curvature decision: configured ADAP_HAUSD in mesh units, independent of h0
 and ramp. No implicit chord inference or silent tightening to h0.
 
-Current validated source stage: validation25 (local checkpoint pending).
+Current validated source stage: validation25, local checkpoint61bf6cc4c1.
 Curved first-height/curvature checks pass25 cases/2,335 serial assertions and
 2,336 assertions per MPI rank. All325 M6 queries pass, including65 certified
 fluid-side1e-6 offsets; max work2,336, queries4.57s, whole13.06s, peak314,176KiB.
 Validation24's tilted-plane clearance failure is fixed and preserved as evidence.
-Validation26 source-shell diagnostic probe build13810 is active; pinned sources
-must remain unchanged until its handle terminates.
+Validation26/27 source-shell runs terminated exit2 at sorted face284 (reference
+7440, wing/symmetry junction), for both global and local radii. The local trial
+is preserved in validation27/local_source_trial.patch and reverted. All owned
+handles are terminal. Validation28 shows the shell crosses the nose and displaces
+~32mm through symmetry, while nearby controls move fluidward. Next measure
+actual curved-surface coverage in frozen original donors before redesign.
 - Shared Option A field is used by normalization, profile selection, construction,
   reassessment and original-family correction; finer sensor directions survive.
 - Registered-column cavities resolve the remaining M6 first-height witnesses.

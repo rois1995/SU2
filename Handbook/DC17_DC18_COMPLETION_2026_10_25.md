@@ -535,3 +535,38 @@ uses global radius4*max(EnvelopeError), and SourceColumn proposes a further4-rad
 extrusion; full M6 physical displacement may make this inappropriate. That is a
 hypothesis until this admission run supplies a concrete witness. Production metric,
 wall refinement, plane seam release and complete construction remain unqualified.
+
+Validation26 terminated: probe build13810 exit0, M6 source58370 exit2. The
+full original303,359 donors remain unchanged. Global radius0.00798016999m;
+24,479 columns,1,022,435 cone trials, then folded prism at sorted face284.
+Source-work22.32s, whole53.02s, process peak469,364KiB. This confirms the
+uniform physical-displacement shell is not an admissible curved-source strategy.
+
+Validation27 uses local original-patch displacement radii for cubic authorities,
+sharing the maximum incident radius at each proposed vertex. Every original
+face's required band is certified against all nearby outer faces (including other
+bodies) by reversing the distance broad phase: query original face plus its local
+radius against shell-cell boxes, map hits to unique outer faces, then apply the
+same outward separation predicate. Positive product cells and the exact global
+contact audit remain mandatory. Uniform affine/faceted radii retain their prior
+proposal; only the coverage planning direction changes. Acceptance is the actual
+full-M6 shell plus existing affine/narrow-gap regressions, unchanged resource caps.
+
+Validation27 also fails at sorted face284/reference7440, a symmetry triangle
+with nodes3357,65,64 adjacent to the wing. Source-work44.28s, original303,359
+donors unchanged, no shell cells accepted. Global-radius magnitude is therefore
+not the sole cause. The local proposal/audit change is preserved as
+validation27/local_source_trial.patch and reverted from production. No additional
+local factor/limit variants are planned; diagnose the junction and the physical
+coverage actually required before selecting a different source construction.
+
+Validation28 junction probe58344/99843 passed and pins verify. Reference7440's
+product orientation signs are[-,+,+], whereas the third must be negative.
+Node64 local radius7.98017mm proposes(x,y,z)=(.0200974,-.0319207,~0);
+node65 moves from z=-.00763483 to z=+.00736976. Incident wing control-plane
+projections are approximately[-.00168190,0] (fluid side), despite the positive
+absolute displacement radius. Symmetry-only node3357 also inherits3.17461mm
+radius from tangential curved-edge displacement. These measured signs diagnose
+an unnecessary solid-side extrusion; they are not a whole-domain containment
+certificate. Next measure actual curved-surface coverage in original donors and
+retain every uncovered witness before designing directional coverage.
