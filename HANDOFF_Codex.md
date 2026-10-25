@@ -1,4 +1,4 @@
-# Codex handoff — current state, 2026-10-25
+# Codex handoff — current state, 2026-10-26
 
 Active request: keep implementing until the TODO and newly found defects are
 verified closed, beginning with DC-17/DC-18. Do not end with a WIP final while
@@ -12,7 +12,13 @@ metric-driven operators, unchanged q>=.20, J>=.05, edge<=1.8, first height withi
 User curvature decision: configured ADAP_HAUSD in mesh units, independent of h0
 and ramp. No implicit chord inference or silent tightening to h0.
 
-Current validated source stage: validation23, following local783bdb7bda.
+Current validated source stage: validation25 (local checkpoint pending).
+Curved first-height/curvature checks pass25 cases/2,335 serial assertions and
+2,336 assertions per MPI rank. All325 M6 queries pass, including65 certified
+fluid-side1e-6 offsets; max work2,336, queries4.57s, whole13.06s, peak314,176KiB.
+Validation24's tilted-plane clearance failure is fixed and preserved as evidence.
+Validation26 source-shell diagnostic probe build13810 is active; pinned sources
+must remain unchanged until its handle terminates.
 - Shared Option A field is used by normalization, profile selection, construction,
   reassessment and original-family correction; finer sensor directions survive.
 - Registered-column cavities resolve the remaining M6 first-height witnesses.
@@ -27,14 +33,15 @@ Current validated source stage: validation23, following local783bdb7bda.
   Serial passes12 cases/1,025 assertions; MPI2 passes12/1,026 on each rank.
   All195 M6 queries from the saved sidecar meet1e-8 distance accuracy; worst
   work2,336/16,384, query time1.59s, whole10.09s, process peak314,412KiB.
-  Source/input/binary/runtime pins verify. All owned jobs are terminal.
+  Source/input/binary/runtime pins verify for validation23.
 
-Next: certified curved first-height clearance and geometry differential queries,
-then the connected metric/support/quadrature, wall refinement and initialization.
+Next: actual M6 source-envelope admission, then connected metric/support/
+quadrature, wall refinement and initialization. Current coverage uses one global
+4*maximum-displacement radius; qualify it before redesigning the shell.
 Import and BL construction explicitly refuse incomplete curved production use;
 remove these guards only when all affected consumers are qualified. FIRST_ROW W
 currently lacks a SurfaceError demand. Fitted-plane seam release must survive
-curved promotion. Distance certification alone does not prove signed clearance.
+curved promotion. The new positive bound certifies local normal clearance, not global embedding.
 
 DC17 field/budget blockers remain:21/9,393 changing-frame gradation violations
 (worst ratio1.406). Normalized M6 event1 passes12GiB admission but all nine allowed

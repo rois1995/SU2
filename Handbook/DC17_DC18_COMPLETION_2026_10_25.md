@@ -473,3 +473,65 @@ All owned jobs are terminal. Next connected work: certified curved clearance in
 CheckFirstHeight and geometric normals/curvature for the metric, retaining the
 production import guard until support, integration, wall refinement, fitted-plane
 sliding and full construction are qualified together.
+
+## Curved clearance and differential integration (active, 2026-10-26)
+
+Local checkpoint73167a10c4 contains validated queries/guards/snapshot agreement.
+The next change bounds normal clearance on every subdivision region that can
+contain a globally closest point: derivative control hulls enclose the oriented
+normal, and interval dot products certify a positive fluid-side projection. An
+unresolved sign retains a conservative negative distance bound and cannot pass
+first-height admission. This is local oriented-wall clearance, not a new global
+embedding proof. The shared CheckFirstHeight keeps its flat altitude/footprint
+gates and queries at h0-scaled numerical accuracy; HAUSD/faceting is unchanged.
+The curve's first/second polynomial derivatives also supply principal curvature
+and directions at the returned binding (local values, not global bounds).
+The maximum one-query scratch is included in the mapped geometry workspace
+model. Production import and BL field guards stay until remaining consumers are
+connected. Acceptance: known cubic-graph curvature oracle, clear versus blocked
+apices with identical correct flat height, persisted full-M6 fluid/solid queries,
+and the existing geometry/height regressions under unchanged limits.
+
+Review queued while build76284 is active: the old first-height error says an apex
+"crosses" the surface, but a conservative nonpositive bound may mean unresolved
+sign. After the build handle is terminal, change that diagnostic to uncertified
+positive clearance (no acceptance change), and have the M6 probe independently
+check -upper <= clearance_lower <= upper. Keep the first-height and HAUSD laws.
+
+The frozen M6 config used for prior qualification requests h0=2e-6 and
+HAUSD=1e-4 (thickness.01, growth1.2). The validation24 probe uses offsets
++/-1e-6 with distance accuracy1e-10, plus0 and+/-1e-3 at1e-8, for325 queries
+across the same65 sampled facets. Numerical query precision does not change
+the geometric faceting limit or the first-height/footprint acceptance law.
+
+Validation24 build76284 passed (16m25.14s, process peak4,095,104KiB);
+review build68760 passed after correcting the uncertified-clearance diagnostic
+and adding the independent clearance interval assertion. Serial80535 passed
+25 cases/2,332 assertions, including the cubic graph oracle and all selected
+existing first-height/analytic geometry cases. M6 and MPI checks remain.
+
+Validation24 M6 session3905 terminated exit1 after queries0/1. At facet0,
+offset-1e-6, the distance bracket is [1.00000001016e-6,1.00000001438e-6],
+but clearance remains unresolved. Independent position/normal coordinate boxes
+lose tilted-plane cancellation. Validation25 bounds the degree-four normal
+with its Bernstein controls and dot products with intact position controls;
+this preserves spatial correlation. The shared normal polynomial also serves
+the existing Jacobian proof. A tilted planar tetrahedron regression is added.
+M6/MPI acceptance remains pending; all validation24 handles are terminal.
+
+Validation25 completed. Build9945 and probe build70513 passed. Serial20274:
+25 cases/2,335 assertions; MPI19269:25 cases/2,336 assertions per rank. M6
+session58383:325/325 queries, maximum work2,336/16,384, query time4.5688s,
+whole13.06s, process peak314,176KiB. Every sampled inward1e-6 offset has positive
+clearance (minimum9.9794276e-7); all three markers covered. Source/input/runtime
+pins verify. No curved mesh construction or automatic production enablement.
+
+Next, validation26 calls the actual internal Coverage routine on the persisted
+M6 authority and original donor records, independently checking source orientation,
+coordinates and one-to-one boundary incidence. This diagnostic includes the
+existing implementation without adding a production API or bypassing the import
+guard. It uses12GiB requested storage and180s source-work budget. Current coverage
+uses global radius4*max(EnvelopeError), and SourceColumn proposes a further4-radius
+extrusion; full M6 physical displacement may make this inappropriate. That is a
+hypothesis until this admission run supplies a concrete witness. Production metric,
+wall refinement, plane seam release and complete construction remain unqualified.

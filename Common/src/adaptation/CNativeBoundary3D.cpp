@@ -320,9 +320,6 @@ bool CheckFirstHeight(const Patch& patch,const WallHeights& heights,const Planar
       const auto& face=entry.second;
       const auto height=heights.find(reference.Get(face.facet).marker);
       if(height==heights.end())continue;
-      // shortcut: curved first-row admission needs a certified fluid-side clearance, not only flat altitude.
-      if(reference.Mapped() && reference.Parameters()->Geometry().Curves().count(face.facet))
-        throw std::invalid_argument("Native3D curved first-height clearance is not integrated.");
       ++report.wall_faces;
       const auto a=nodes.at(face.v[0]).p,b=nodes.at(face.v[1]).p,c=nodes.at(face.v[2]).p;
       auto normal=Cross(Delta(b,a),Delta(c,a));const auto area=Norm(normal);
@@ -340,10 +337,19 @@ bool CheckFirstHeight(const Patch& patch,const WallHeights& heights,const Planar
         if(count==3){++found;apex=opposite;cell=candidate.id;}
       }
       if(found!=1){++report.missing_cells;throw std::invalid_argument("Native3D wall face has no unique first child.");}
-      if(reference.CompleteAnalytic(face.facet)) {
-        const auto closest=reference.ClosestAnalytic(face.facet,apex.p);
-        const auto n=closest.normal,d=closest.direction;
-        const long double clearance=-closest.distance*((long double)d.x*n.x+(long double)d.y*n.y+(long double)d.z*n.z);
+      const bool curved=reference.Mapped() && reference.Parameters()->Geometry().Curves().count(face.facet);
+      if(curved || reference.CompleteAnalytic(face.facet)) {
+        long double clearance=0;
+        if(curved) {
+          const auto& geometry=reference.Parameters()->Geometry();
+          const auto work=SU2NativeGeometry::MappedFacetReference::ClearanceWork;
+          const double precision=std::max(std::numeric_limits<double>::min(),height->second*1e-4);
+          clearance=geometry.ClosestCurved(face.facet,apex.p,precision,work,geometry.CurvedQueryWorkspaceBytes(work)).clearance_lower;
+        } else {
+          const auto closest=reference.ClosestAnalytic(face.facet,apex.p);
+          const auto n=closest.normal,d=closest.direction;
+          clearance=-closest.distance*((long double)d.x*n.x+(long double)d.y*n.y+(long double)d.z*n.z);
+        }
         if(clearance/height->second<report.minimum_reference_clearance_ratio) {
           report.minimum_reference_clearance_ratio=double(clearance/height->second);
           report.reference_clearance_facet=face.facet;report.reference_clearance_cell=cell;report.reference_clearance_apex=apex.p;
@@ -378,7 +384,7 @@ bool CheckFirstHeight(const Patch& patch,const WallHeights& heights,const Planar
     if(report.reference_clearance_failures)throw std::invalid_argument("Native3D geometry-height incompatibility of the normal-row proposal at facet "+
         std::to_string(report.reference_clearance_facet)+" cell "+std::to_string(report.reference_clearance_cell)+
         " clearance/h0="+std::to_string(report.minimum_reference_clearance_ratio)+
-        ": apex crosses smooth reference; resolve curvature before constructing the row.");
+        ": positive smooth-reference clearance is not certified; reconsider the wall/row proposal.");
     if(report.height_failures)throw std::invalid_argument("Native3D prescribed height fails at facet "+std::to_string(report.worst_facet)+
         " cell "+std::to_string(report.worst_cell)+" relative error "+std::to_string(report.maximum_relative_error)+
         " > tolerance "+std::to_string(heights.tolerance));

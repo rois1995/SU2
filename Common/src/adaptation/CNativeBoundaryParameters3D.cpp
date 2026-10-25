@@ -429,7 +429,8 @@ size_t PlanarReference::ParameterWorkspaceBytes()const {
   if(!parameter_view)return 0;
   return transfer_memory::Add(sizeof(ParameterView),MapBytes(parameter_view->local),MapBytes(parameter_view->coordinates),MapBytes(parameter_view->pending),
       transfer_memory::Bytes(parameter_view->components),parameter_view->private_view?0:parameter_view->accepted->ResidentBytes(),
-      parameter_view->private_view?0:parameter_view->accepted->Geometry().ResidentBytes());
+      parameter_view->private_view?0:parameter_view->accepted->Geometry().ResidentBytes(),
+      parameter_view->accepted->Geometry().CurvedQueryWorkspaceBytes(SU2NativeGeometry::MappedFacetReference::ClearanceWork));
 }
 std::shared_ptr<const PlanarReference> PromoteFacetedReference(std::shared_ptr<const PlanarReference> reference,
     const std::vector<Facet>& facets,double relative_error,double& declared_error,size_t ceiling) {

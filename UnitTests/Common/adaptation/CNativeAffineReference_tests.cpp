@@ -630,7 +630,7 @@ TEST_CASE("Curved mapped controls persist physical geometry separately from exac
   if(Orientation(cell.v[0].p,cell.v[1].p,cell.v[2].p,cell.v[3].p)<0)std::swap(cell.v[0],cell.v[1]);
   patch.cells.push_back(cell);state.original->ExportParameters(patch);FirstHeightReport report;std::string reason;
   CHECK_FALSE(CheckFirstHeight(patch,{{0,.1}},*state.original,report,reason));
-  CHECK(reason.find("curved first-height clearance")!=std::string::npos);
+  CHECK(report.reference_clearance_failures>0); // Each opposite tetrahedron corner lies on another wall face.
   auto changedControls=controls;changedControls.begin()->second[9].x+=.001;
   auto changedGeometry=std::make_shared<MappedFacetReference>(original,errors,9,SIZE_MAX,false,changedControls);
   auto changedPoints=ComponentState(changedGeometry,facets);
@@ -658,4 +658,62 @@ TEST_CASE("Curved mapped controls persist physical geometry separately from exac
   bad=controls;bad.begin()->second[9].x=INFINITY;CHECK_THROWS(MappedFacetReference(original,errors,9,SIZE_MAX,false,bad));
   bad=controls;bad.begin()->second[9].x+=100;CHECK_THROWS(MappedFacetReference(original,errors,9,SIZE_MAX,false,bad));
   bad=controls;bad.erase(bad.begin());CHECK_THROWS(MappedFacetReference(original,errors,9,SIZE_MAX,false,bad));
+}
+
+TEST_CASE("Curved first-height clearance and principal curvature use the persisted polynomial", "[NativeCurvedMapped3D]") {
+  using namespace SU2Native3D;
+  const std::array<Node,4> n{{{0,{0,0,0}},{1,{3,0,0}},{2,{0,3,0}},{3,{0,0,-3}}}};
+  const std::vector<Facet> facets{{0,0,{n[2],n[1],n[3]}},{1,0,{n[0],n[3],n[1]}},
+      {2,0,{n[0],n[2],n[3]}},{3,0,{n[0],n[1],n[2]}}};
+  const auto base=std::make_shared<PlanarReference>(facets);
+  MappedFacetReference::CurvedNets nets;std::map<Id,double> errors;
+  const unsigned powers[10][3]={{3,0,0},{0,3,0},{0,0,3},{2,1,0},{1,2,0},{0,2,1},{0,1,2},{1,0,2},{2,0,1},{1,1,1}};
+  for(const auto& f:facets) {
+    errors[f.id]=1e-12;
+    for(unsigned q=0;q<10;++q) {
+      long double p[3]={};for(unsigned k=0;k<3;++k){p[0]+=powers[q][k]*(long double)f.v[k].p.x;
+        p[1]+=powers[q][k]*(long double)f.v[k].p.y;p[2]+=powers[q][k]*(long double)f.v[k].p.z;}
+      nets[f.id][q]={double(p[0]/3),double(p[1]/3),double(p[2]/3)};
+    }
+  }
+  {
+    auto tilted=facets;auto tiltedNets=nets;
+    auto rotate=[](Point p){return Point{.6*p.x+.8*p.z,p.y,-.8*p.x+.6*p.z};};
+    for(auto& f:tilted)for(auto& node:f.v)node.p=rotate(node.p);
+    for(auto& row:tiltedNets)for(auto& point:row.second)point=rotate(point);
+    const auto tiltedBase=std::make_shared<PlanarReference>(tilted);
+    const MappedFacetReference plane(tiltedBase,errors,1,SIZE_MAX,false,tiltedNets);
+    auto query=plane.Realize(plane.FacetPoint(3,.25,.25));query.x-=.8e-6;query.z-=.6e-6;
+    const auto clearance=plane.ClosestCurved(3,query,1e-10,16384);
+    CHECK(clearance.clearance_lower>0);CHECK(clearance.clearance_lower<=clearance.upper);
+    CHECK(clearance.upper==Approx(1e-6).margin(1e-12));
+  }
+  nets[3][9].z=.1;
+  auto geometry=std::make_shared<MappedFacetReference>(base,errors,1,SIZE_MAX,false,nets);
+  const auto point=geometry->Realize(geometry->FacetPoint(3,1./3,1./3));
+  const auto differential=geometry->ClosestCurved(3,point,1e-10,16384);
+  CHECK(differential.upper<1e-10);CHECK(differential.normal.z==Approx(1).margin(1e-10));
+  // z=.6*u*v*(1-u-v), x=3*u, y=3*v has Hessian eigenvalues -1/45 and -1/15 at its center.
+  CHECK(differential.curvature1==Approx(-1./45).margin(1e-8));
+  CHECK(differential.curvature2==Approx(-1./15).margin(1e-8));
+  auto dot=[](Point a,Point b){return a.x*b.x+a.y*b.y+a.z*b.z;};
+  CHECK(dot(differential.direction1,differential.direction1)==Approx(1).margin(1e-12));
+  CHECK(dot(differential.direction2,differential.direction2)==Approx(1).margin(1e-12));
+  CHECK(dot(differential.direction1,differential.direction2)==Approx(0).margin(1e-12));
+  const auto fluid=geometry->ClosestCurved(3,{point.x,point.y,point.z-.01},1e-8,16384);
+  CHECK(fluid.clearance_lower>0);CHECK(fluid.clearance_lower<=.01+1e-12);
+  const auto outside=geometry->ClosestCurved(3,{point.x,point.y,point.z+.01},1e-8,16384);
+  CHECK(outside.clearance_lower<0);
+  nets[3][9].z=-.1;geometry=std::make_shared<MappedFacetReference>(base,errors,2,SIZE_MAX,false,nets);
+  auto parameters=ComponentState(geometry,facets);const auto reference=PlanarReference::WithParameters(base,parameters);
+  CHECK(reference->SearchWorkspaceBytes()>=geometry->CurvedQueryWorkspaceBytes(MappedFacetReference::ClearanceWork));
+  for(double h:{.001,.1}) {
+    Patch patch;patch.cells.push_back({0,{n[0],n[2],n[1],{100,{1,1,-h}}}});
+    patch.surface.push_back({{0,1,2},3});reference->ExportParameters(patch);
+    FirstHeightReport report;std::string reason;
+    const bool accepted=CheckFirstHeight(patch,{{0,h}},*reference,report,reason);INFO(reason);
+    CHECK(accepted==(h==.1));CHECK(report.height_failures==0);CHECK(report.footprint_failures==0);
+    CHECK(report.reference_clearance_failures==(h==.1?0:1));
+    CHECK((report.minimum_reference_clearance_ratio>0)==(h==.1));
+  }
 }

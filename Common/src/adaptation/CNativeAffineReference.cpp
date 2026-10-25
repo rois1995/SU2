@@ -60,17 +60,15 @@ double NormBound(const Box& a) {
 Box Difference(const Box& a,const Box& b){Box c;for(unsigned d=0;d<3;++d)c[d]=Subtract(a[d],b[d]);return c;}
 Box CrossBox(const Box& a,const Box& b){Box c;for(unsigned d=0;d<3;++d)c[d]=Subtract(Multiply(a[(d+1)%3],b[(d+2)%3]),Multiply(a[(d+2)%3],b[(d+1)%3]));return c;}
 Range DotBox(const Box& a,const Box& b){Range c;for(unsigned d=0;d<3;++d)c=Add(c,Multiply(a[d],b[d]));return c;}
-/* Positive Bernstein coefficients certify a positive projected Jacobian over the entire patch. */
-bool PositiveCubicJacobian(const MappedFacetReference::CubicNet& net) {
-  std::array<Box,10> b{};for(unsigned q=0;q<10;++q)b[PolynomialIndex(3,CubicIndex[q][0],CubicIndex[q][1])]=Exact(net[q]);
+std::array<Box,15> CubicNormalControls(const std::array<Box,10>& net) {
+  std::array<Box,10> b{};for(unsigned q=0;q<10;++q)b[PolynomialIndex(3,CubicIndex[q][0],CubicIndex[q][1])]=net[q];
   std::array<Box,6> u{},v{};
   for(unsigned i=0;i<=2;++i)for(unsigned j=0;i+j<=2;++j) {
     const auto k=PolynomialIndex(2,i,j);
     u[k]=Difference(b[PolynomialIndex(3,i,j+1)],b[PolynomialIndex(3,i+1,j)]);
     v[k]=Difference(b[PolynomialIndex(3,i,j)],b[PolynomialIndex(3,i+1,j)]);
   }
-  const auto n=CrossBox(Difference(Exact(net[1]),Exact(net[0])),Difference(Exact(net[2]),Exact(net[0])));
-  std::array<Range,15> coefficients{};
+  std::array<Box,15> coefficients{};
   const unsigned factorial[]={1,1,2,6,24};
   for(unsigned i=0;i<=2;++i)for(unsigned j=0;i+j<=2;++j)
     for(unsigned k=0;k<=2;++k)for(unsigned l=0;k+l<=2;++l) {
@@ -79,9 +77,29 @@ bool PositiveCubicJacobian(const MappedFacetReference::CubicNet& net) {
       const long double weight=(long double)numerator/denominator;
       const Range w{std::nextafter(weight,-INFINITY),std::nextafter(weight,INFINITY)};
       auto& c=coefficients[PolynomialIndex(4,i+k,j+l)];
-      c=Add(c,Multiply(DotBox(CrossBox(u[PolynomialIndex(2,i,j)],v[PolynomialIndex(2,k,l)]),n),w));
+      const auto normal=CrossBox(u[PolynomialIndex(2,i,j)],v[PolynomialIndex(2,k,l)]);
+      for(unsigned d=0;d<3;++d)c[d]=Add(c[d],Multiply(normal[d],w));
     }
-  return std::all_of(coefficients.begin(),coefficients.end(),[](Range r){return r.lo>0&&std::isfinite(r.hi);});
+  return coefficients;
+}
+double PositiveNormalClearance(const std::array<Box,10>& net,Point query) {
+  long double projection=-INFINITY;double length=0;
+  // Keep each control point intact: a coordinate box loses tilted-plane cancellation.
+  for(const auto& normal:CubicNormalControls(net)) {
+    length=std::max(length,NormBound(normal));
+    for(const auto& point:net)projection=std::max(projection,DotBox(Difference(Exact(query),point),normal).hi);
+  }
+  if(!(projection<0 && std::isfinite(length) && length>0))return 0;
+  return std::max(0.,std::nextafter(double(std::nextafter(-projection/length,-INFINITY)),-INFINITY));
+}
+/* Positive Bernstein coefficients certify a positive projected Jacobian over the entire patch. */
+bool PositiveCubicJacobian(const MappedFacetReference::CubicNet& net) {
+  std::array<Box,10> controls;for(unsigned q=0;q<10;++q)controls[q]=Exact(net[q]);
+  const auto n=CrossBox(Difference(controls[1],controls[0]),Difference(controls[2],controls[0]));
+  for(const auto& normal:CubicNormalControls(controls)) {
+    const auto r=DotBox(normal,n);if(!(r.lo>0&&std::isfinite(r.hi)))return false;
+  }
+  return true;
 }
 double CubicDeviation(const MappedFacetReference::CubicNet& net,const std::array<Box,3>& parameters,
                       const std::array<Point,3>& realized) {
@@ -306,6 +324,7 @@ struct MappedFacetReference::CurvedSearch {
   std::mutex mutex; // House ADT traversal buffers are shared by concurrent non-OpenMP callers.
 };
 namespace {
+struct CurvedQueryRegion {Id facet;std::array<Point,3> parameter;double lower,clearance;unsigned depth;};
 Point ComponentFlat(Point p,unsigned axis){return axis==0?Point{p.y,p.z,0}:axis==1?Point{p.x,p.z,0}:Point{p.x,p.y,0};}
 SU2Native3D::ParametricPoint ComponentFlat(SU2Native3D::ParametricPoint p,unsigned axis) {
   p.origin=ComponentFlat(p.origin,axis);p.first=ComponentFlat(p.first,axis);p.second=ComponentFlat(p.second,axis);return p;
@@ -553,15 +572,20 @@ std::array<Point,2> MappedFacetReference::CurvedBounds(const SurfaceBinding& b)c
   for(unsigned d=0;d<3;++d){lo[d]=std::nextafter(double(box[d].lo),-INFINITY);hi[d]=std::nextafter(double(box[d].hi),INFINITY);}
   const auto a=ToPoint(lo),c=ToPoint(hi);Finite(a);Finite(c);return {a,c};
 }
+size_t MappedFacetReference::CurvedQueryWorkspaceBytes(size_t maximum_work)const {
+  if(!curved_search)return 0;
+  size_t facets=0;for(const auto& row:curved_search->entries)facets=std::max(facets,row.second.facets.size());
+  return transfer_memory::Add(transfer_memory::Mul(facets,2*sizeof(unsigned long)),
+      transfer_memory::Mul(maximum_work,4*sizeof(CurvedQueryRegion)));
+}
 MappedFacetReference::CurvedClosest MappedFacetReference::ClosestCurved(
     Id hint,Point query,double tolerance,size_t maximum_work,size_t ceiling)const {
   Finite(query);
   if(!curved_search || !curves.count(hint) || !(std::isfinite(tolerance)&&tolerance>=std::numeric_limits<double>::min()) || !maximum_work)
     throw std::invalid_argument("Invalid curved component/distance query contract.");
   const auto& entry=curved_search->entries.at(curved_search->root.at(hint));
-  struct Region {Id facet;std::array<Point,3> parameter;double lower;unsigned depth;};
-  const auto storage=transfer_memory::Add(transfer_memory::Mul(entry.facets.size(),2*sizeof(unsigned long)),
-      transfer_memory::Mul(maximum_work,4*sizeof(Region)));
+  using Region=CurvedQueryRegion;
+  const auto storage=CurvedQueryWorkspaceBytes(maximum_work);
   if(storage==SIZE_MAX||storage>ceiling)throw std::length_error("Curved query exceeds storage admission.");
   CurvedClosest result;result.upper=INFINITY;
   auto consume=[&](){if(result.work>=maximum_work)throw std::length_error("Curved distance certification work exhausted.");++result.work;};
@@ -635,7 +659,7 @@ MappedFacetReference::CurvedClosest MappedFacetReference::ClosestCurved(
       direction=Difference(Exact(query),Blossom(curves.at(id),{Exact(ToPoint(v)),Exact(ToPoint(v)),Exact(ToPoint(v))}));
     }
     const double bound=std::max(0.,std::nextafter(double(lower),-INFINITY));
-    pending.push({id,parameter,bound,depth});
+    pending.push({id,parameter,bound,PositiveNormalClearance(net,query),depth});
   };
   for(auto index:candidates)prepare(entry.facets.at(index),{{{1,0,0},{0,1,0},{0,0,1}}},0);
   if(pending.empty())throw std::logic_error("Curved component broad phase lost its seed.");
@@ -650,6 +674,13 @@ MappedFacetReference::CurvedClosest MappedFacetReference::ClosestCurved(
     for(unsigned k=0;k<3;++k)prepare(parent.facet,{parent.parameter[k],mid[k],mid[(k+2)%3]},parent.depth+1);
     prepare(parent.facet,{mid[0],mid[1],mid[2]},parent.depth+1);
   }
+  result.clearance_lower=INFINITY;
+  while(!pending.empty()) {
+    const auto region=pending.top();pending.pop();
+    if(region.lower<=result.upper)result.clearance_lower=std::min(result.clearance_lower,
+        region.clearance>0?region.clearance:-result.upper);
+  }
+  if(!std::isfinite(result.clearance_lower))throw std::logic_error("Curved clearance lost all possible nearest points.");
   const auto r=ParameterBox(FacetParameters(result.facet,result.binding));const auto& net=curves.at(result.facet);
   const auto base=Blossom(net,{Exact({1,0,0}),r,r});
   const auto normal=CrossBox(Difference(Blossom(net,{Exact({0,1,0}),r,r}),base),
@@ -657,7 +688,30 @@ MappedFacetReference::CurvedClosest MappedFacetReference::ClosestCurved(
   Vec n{};for(unsigned d=0;d<3;++d)n[d]=double((normal[d].lo+normal[d].hi)/2);
   const double length=std::hypot(n[0],n[1],n[2]);
   if(!(length>0&&std::isfinite(length)))throw std::invalid_argument("Unrepresentable curved normal.");
-  for(auto& x:n)x/=length;result.normal=ToPoint(n);return result;
+  for(auto& x:n)x/=length;result.normal=ToPoint(n);
+  using Wide=std::array<long double,3>;
+  auto midpoint=[](const Box& box,long double scale){Wide out;for(unsigned d=0;d<3;++d)out[d]=scale*(box[d].lo+box[d].hi)/2;return out;};
+  auto dot=[](const Wide& a,const Wide& b){long double out=0;for(unsigned d=0;d<3;++d)out+=a[d]*b[d];return out;};
+  const auto u=midpoint(Difference(Blossom(net,{Exact({0,1,0}),r,r}),base),3);
+  const auto v=midpoint(Difference(Blossom(net,{Exact({0,0,1}),r,r}),base),3);
+  const auto e0=Exact({1,0,0}),e1=Exact({0,1,0}),e2=Exact({0,0,1});
+  const auto zero=Blossom(net,{e0,e0,r});
+  auto second=[&](const Box& a,const Box& b){return midpoint(Difference(
+      Difference(Blossom(net,{a,b,r}),Blossom(net,{a,e0,r})),Difference(Blossom(net,{e0,b,r}),zero)),6);};
+  const Wide unit{n[0],n[1],n[2]};const auto a=std::sqrt(dot(u,u));
+  Wide t1{},t2{};for(unsigned d=0;d<3;++d)t1[d]=u[d]/a;
+  for(unsigned d=0;d<3;++d)t2[d]=unit[(d+1)%3]*t1[(d+2)%3]-unit[(d+2)%3]*t1[(d+1)%3];
+  const auto b=dot(v,t1),c=dot(v,t2);
+  if(!(a>0&&c>0&&std::isfinite(a)&&std::isfinite(c)))throw std::invalid_argument("Unrepresentable curved tangent frame.");
+  const auto k11=dot(unit,second(e1,e1))/(a*a);
+  const auto k12=(dot(unit,second(e1,e2))/a-b*k11)/c;
+  const auto k22=(dot(unit,second(e2,e2))-b*b*k11-2*b*c*k12)/(c*c);
+  const auto mean=(k11+k22)/2,radius=std::hypot((k11-k22)/2,k12),angle=std::atan2(2*k12,k11-k22)/2;
+  result.curvature1=double(mean+radius);result.curvature2=double(mean-radius);
+  Vec d1{},d2{};for(unsigned d=0;d<3;++d){d1[d]=double(std::cos(angle)*t1[d]+std::sin(angle)*t2[d]);d2[d]=double(-std::sin(angle)*t1[d]+std::cos(angle)*t2[d]);}
+  result.direction1=ToPoint(d1);result.direction2=ToPoint(d2);Finite(result.direction1);Finite(result.direction2);
+  if(!std::isfinite(result.curvature1)||!std::isfinite(result.curvature2))throw std::invalid_argument("Unrepresentable curved principal curvature.");
+  return result;
 }
 double MappedFacetReference::EnvelopeError(Id facet)const {
   const auto e=errors.find(facet);const double numerical=e==errors.end()?0.:e->second;

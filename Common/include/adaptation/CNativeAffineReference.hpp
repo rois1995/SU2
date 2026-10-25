@@ -96,6 +96,12 @@ class MappedFacetReference {
     SurfaceBinding binding;
     Point point{},normal{};
     double lower=0,upper=0;
+    /*! Lower bound on -dot(query-surface, outward unit normal) at every possible nearest point.
+     * Positive certifies fluid-side normal clearance; nonpositive includes unresolved sign. */
+    double clearance_lower=0;
+    /*! Local differential geometry at the returned binding; these are not global curvature bounds. */
+    double curvature1=0,curvature2=0;
+    Point direction1{},direction2{};
     size_t work=0;
   };
   /*! Closest distance to the edge-connected, same-marker curved component containing hint.
@@ -104,6 +110,9 @@ class MappedFacetReference {
    * Ambiguous accuracy or resource exhaustion throws; no other body/marker is searched. */
   CurvedClosest ClosestCurved(Id hint,Point query,double absolute_error,size_t maximum_work,
                               size_t ceiling=SIZE_MAX)const;
+  static constexpr size_t ClearanceWork=16384;
+  /*! Additional scratch bound for one active query; immutable authority storage is separate. */
+  size_t CurvedQueryWorkspaceBytes(size_t maximum_work)const;
   /*! Physical displacement from the original flat facet, including realization error. */
   double EnvelopeError(Id facet)const;
   /*! Outward bound between a flat realized child and its curved parameter patch. */
