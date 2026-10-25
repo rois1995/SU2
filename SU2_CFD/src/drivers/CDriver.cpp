@@ -766,7 +766,8 @@ void CDriver::BuildGeometryFVM(CConfig *config, CGeometry *geometry_aux, CGeomet
   {
     std::string reason;
     if (!SU2Native3D::PrepareSymmetryReference(*config, *geometry[MESH_0],
-            !checkOrientation && !config->GetRestart() && !config->GetRestart_Flow(), reason))
+            !checkOrientation && !config->GetRestart() && !config->GetRestart_Flow(), reason,nullptr,
+            config->GetAdap_Native_MemoryLimit()?config->GetAdap_Native_MemoryLimit():(size_t(2)<<30)))
       SU2_MPI::Error(reason, CURRENT_FUNCTION);
   }
 

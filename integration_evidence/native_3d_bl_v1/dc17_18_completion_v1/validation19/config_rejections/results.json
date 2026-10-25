@@ -1,0 +1,93 @@
+{
+  "overflow": {
+    "command": [
+      "nice",
+      "-n",
+      "19",
+      "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD",
+      "overflow.cfg"
+    ],
+    "exit": 1,
+    "expected_diagnostic": "exceeds the addressable byte range",
+    "passed": true,
+    "config_sha256": "81e05d2f9bf47070d0cb3c0ebd64ccabde05daa522502ae66aabc35085ed26cc"
+  },
+  "negative": {
+    "command": [
+      "nice",
+      "-n",
+      "19",
+      "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD",
+      "negative.cfg"
+    ],
+    "exit": 1,
+    "expected_diagnostic": "must be a nonnegative integer number of MiB",
+    "passed": true,
+    "config_sha256": "49e570465c806cc8007e32545f6e96c9cb61e41361a830a22e615ff1021381e4"
+  },
+  "wrong_backend": {
+    "command": [
+      "nice",
+      "-n",
+      "19",
+      "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD",
+      "wrong_backend.cfg"
+    ],
+    "exit": 1,
+    "expected_diagnostic": "requires the native3D remesher",
+    "passed": true,
+    "config_sha256": "3192f65ab69d2d578325f7754481d2a1a79b9d6b9f62a2e382728884c695dcff"
+  },
+  "fractional": {
+    "command": [
+      "nice",
+      "-n",
+      "19",
+      "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD",
+      "fractional.cfg"
+    ],
+    "exit": 1,
+    "expected_diagnostic": "must be a nonnegative integer number of MiB",
+    "passed": true,
+    "config_sha256": "74d8833374ebb7cc05df7b394c275dc39615d306a8df67e831d615db175b6fe4"
+  },
+  "suffix": {
+    "command": [
+      "nice",
+      "-n",
+      "19",
+      "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD",
+      "suffix.cfg"
+    ],
+    "exit": 1,
+    "expected_diagnostic": "must be a nonnegative integer number of MiB",
+    "passed": true,
+    "config_sha256": "04fb70f72d275c9cb4a94043392c9e480a6147e5dcb97c765864493f764fd593"
+  },
+  "exponent": {
+    "command": [
+      "nice",
+      "-n",
+      "19",
+      "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD",
+      "exponent.cfg"
+    ],
+    "exit": 1,
+    "expected_diagnostic": "must be a nonnegative integer number of MiB",
+    "passed": true,
+    "config_sha256": "786b5a42cc59e711187b003eb9f6a98e7757f91671bccde0d3195640655808f3"
+  },
+  "hexadecimal": {
+    "command": [
+      "nice",
+      "-n",
+      "19",
+      "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD",
+      "hexadecimal.cfg"
+    ],
+    "exit": 1,
+    "expected_diagnostic": "must be a nonnegative integer number of MiB",
+    "passed": true,
+    "config_sha256": "3d13f832d6f801b49796532b78e1fdcf5665d9d30031204fe0a5af161784f1f0"
+  }
+}

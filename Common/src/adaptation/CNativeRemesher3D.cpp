@@ -35,10 +35,18 @@ namespace {
 // Need before the construction: max(measured peak RSS of this process, 4 KiB per input cell; measured: the import of
 // the published 1.25M-cell ONERA M6 x32 mesh requests 3.9 GB, 3.1 KiB/cell); after it, the publication rule in
 // Remesh. Other methods: the default.
-// TODO: ADAP_NATIVE_MEMORY_LIMIT (needs a CConfig.hpp change).
+// ADAP_NATIVE_MEMORY_LIMIT overrides this legacy automatic policy with one fixed per-rank limit.
 // Review 3/9: one value on every rank (MAX of the need, MIN of the cap over the communicator), saturating arithmetic;
 // the cap never lowers the default (a node with less than 4 x 2 GiB keeps the default).
-size_t FirstRowCeiling(const CConfig& config,const CGeometry& geometry,size_t base,bool print,SU2_Comm comm) {
+size_t NativeMemoryCeiling(const CConfig& config,const CGeometry& geometry,size_t base,bool print,SU2_Comm comm) {
+  const auto requested=uint64_t(config.GetAdap_Native_MemoryLimit());
+  const auto low=CPassiveComm::Allreduce(requested,CPassiveComm::Op::MIN,comm),
+             high=CPassiveComm::Allreduce(requested,CPassiveComm::Op::MAX,comm);
+  if(low!=high)throw std::invalid_argument("Native3D configured memory limits differ across ranks.");
+  if(const auto explicitLimit=config.GetAdap_Native_MemoryLimit()) {
+    if(print)std::cout<<"Native3D configured working-storage ceiling: "<<(explicitLimit>>20)<<" MiB per rank"<<std::endl;
+    return explicitLimit;
+  }
   if (config.GetKind_Adap_BL_Method()!=ADAP_BL_METHOD::FIRST_ROW) return base;
   const long pages=sysconf(_SC_PHYS_PAGES),page=sysconf(_SC_PAGESIZE);
   const uint64_t local_cap=pages>0&&page>0?uint64_t(pages)*uint64_t(page)/4:uint64_t(base);
@@ -57,7 +65,7 @@ void CNativeRemesher3D::PrepareReference(const CConfig& config,const CGeometry& 
   auto pending=*reference;
   bool loaded=false;std::string reason;size_t maximum=0;
   const auto held=transfer_memory::Add(options.caller_bytes,ReferenceStorageBytes(*reference));
-  const auto ceiling=FirstRowCeiling(config,geometry,options.memory_ceiling,SU2_MPI::GetRank()==0,SU2_MPI::GetComm());
+  const auto ceiling=NativeMemoryCeiling(config,geometry,options.memory_ceiling,SU2_MPI::GetRank()==0,SU2_MPI::GetComm());
   CLocalFailure failure;
   if(!SU2Native3D::LoadReference(config.GetMesh_FileName()+".native_ref",pending,loaded,reason,
                                ceiling,held,maximum)) failure.Set(2,0,reason);
@@ -144,7 +152,7 @@ CRemeshResult CNativeRemesher3D::Remesh(const CConfig& config, const CGeometry& 
   control.wall_heights.tolerance = SU2_TYPE::GetValue(config.GetAdap_BL_FirstHeightTol());  // Agreed by the engine.
   if (config.GetAdap_Native_Max_Work()) control.maximum_work=config.GetAdap_Native_Max_Work();
   if (config.GetAdap_Native_Max_Time()>0) control.maximum_seconds=SU2_TYPE::GetValue(config.GetAdap_Native_Max_Time());
-  control.memory_ceiling=FirstRowCeiling(config,geometry,control.memory_ceiling,parent.rank==0,parent.comm);
+  control.memory_ceiling=NativeMemoryCeiling(config,geometry,control.memory_ceiling,parent.rank==0,parent.comm);
   stats.detailed_timings = control.timings;
   const auto start = parent.seconds();
   const auto cpu = std::clock();
@@ -421,8 +429,8 @@ CRemeshResult CNativeRemesher3D::Remesh(const CConfig& config, const CGeometry& 
             // 2 GiB ceiling rejected the publication (original donor transport). The publication ceiling becomes
             // max(2 GiB, 1.5 x the estimated need of this event), capped at 25 % of the node memory; above the cap the
             // event fails with that reason. Need = max(measured peak RSS of the event, live candidate + staged import
-            // estimate). TODO: ADAP_NATIVE_MEMORY_LIMIT.
-            if (valid) {
+            // estimate). An explicit configured ceiling stays fixed and all subsequent stages admit against it.
+            if (valid && !config.GetAdap_Native_MemoryLimit()) {
               const long pages=sysconf(_SC_PHYS_PAGES),page=sysconf(_SC_PAGESIZE);
               const size_t cap=pages>0&&page>0?size_t(uint64_t(pages)*uint64_t(page)/4):control.memory_ceiling;
               // measured: the event's own peak resident set (the construction and its inputs); estimated: the live
@@ -547,15 +555,6 @@ CRemeshResult CNativeRemesher3D::Remesh(const CConfig& config, const CGeometry& 
       const double target=SU2_TYPE::GetValue(config.GetAdap_Complexity());
       if(std::abs(stats.complexity.value-target)>std::max(target*1e-6,stats.complexity.uncertainty+stats.normalization.estimate.uncertainty))
         stats.normalization.reason="correction_stage_limit_budget_residual";
-      if(config.GetAdap_BL_Budget() && stats.complexity.value-stats.complexity.uncertainty>target) {
-        ready=false;reason="estimated_budget_incompatible_after_bounded_normalization_stage";
-        stats.normalization.reason=reason;
-      }
-    }
-    if(ready && config.GetAdap_BL_Budget() && !normalizer.propose && stats.complexity.estimated &&
-        stats.complexity.value-stats.complexity.uncertainty>SU2_TYPE::GetValue(config.GetAdap_Complexity())) {
-      ready=false;reason="estimated_budget_incompatible_without_original_family_correction";
-      stats.normalization.reason=reason;
     }
     if(!ready || stage==1 || !normalizer.propose || !prepared)break;
     now=parent.seconds();NormalizationProposal3D proposal;
@@ -599,6 +598,15 @@ CRemeshResult CNativeRemesher3D::Remesh(const CConfig& config, const CGeometry& 
     std::vector<DonorCell>().swap(migrated);
     if(repartition)migrate_source(transfer_memory::Add(held(),OwnedStorageBytes(working),transfer_memory::Bytes(imported.original)));
     phase(6);
+    }
+    // A storage-limited or unchanged correction must satisfy the same publication budget as every other exit.
+    if(ready && config.GetAdap_BL_Budget() && stats.complexity.estimated &&
+        stats.complexity.value-stats.complexity.uncertainty>SU2_TYPE::GetValue(config.GetAdap_Complexity())) {
+      ready=false;
+      reason=normalizer.propose?"estimated_budget_incompatible_after_bounded_normalization_stage":
+                                "estimated_budget_incompatible_without_original_family_correction";
+      if(!stats.normalization.reason.empty())reason+=": "+stats.normalization.reason;
+      stats.normalization.reason=reason;
     }
     // Transport only the original P1 sensor; geometric BL is recomposed at each subsequent query.
     if (ready) {

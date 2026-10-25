@@ -360,10 +360,10 @@ class Selection {
     }
     return blocked;
   }
-  void Add(const OwnedCell& owned, const PatchMetric& metric, bool valid) {
+  void Add(const OwnedCell& owned, const PatchMetric& metric, bool valid, const std::string& reason) {
     const auto& cell=owned.cell;
     if (metric.edges.size()!=6 || !std::isfinite(metric.maximum_length))
-      throw std::runtime_error("Incomplete native 3D initial/updated metric measurement.");
+      throw std::runtime_error(reason.empty()?"Incomplete native 3D initial/updated metric measurement.":reason);
     CellState row; row.valid=valid;
     std::map<Edge,long double> geometry_scores;
     if (!geometry.ExtensionComponents().empty()) {
@@ -1265,7 +1265,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
           const auto& cell=working.at(ids[i]).cell;
           const bool strict=ValidateMetricPatch({cell},field,metric,reason,&counted,&reuse) &&
               height_check(GeometryPatch(Imported{{working.at(ids[i])},true,{}}, &geometry),reason);
-          selection.Add(working.at(ids[i]),metric,strict);
+          selection.Add(working.at(ids[i]),metric,strict,reason);
           for(const auto& edge:metric.edges)reuse.insert_or_assign(edge.first,edge.second);
           stats.edge_evaluations+=counted.edge_evaluations;
           stats.edge_reused+=counted.edge_reused;

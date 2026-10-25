@@ -87,3 +87,11 @@ TEST_CASE("INIT_OPTION_INC defaults", "[Config]") {
         INIT_OPTION_INC::OPERATING_PRESSURE);
   CHECK(GetInitOptionInc(ideal_gas_options + "INIT_OPTION_INC= DENSITY_INIT\n") == INIT_OPTION_INC::DENSITY_INIT);
 }
+
+TEST_CASE("Native memory limit uses MiB and keeps automatic defaults", "[Config][NativeMemoryLimit3D]") {
+  for(unsigned long mib:{0ul,1ul,12288ul}) {
+    std::stringstream input(base_options+"ADAP_REMESHER= NATIVE_CAVITY\nADAP_NATIVE_MEMORY_LIMIT= "+std::to_string(mib)+"\n");
+    auto* output=std::cout.rdbuf(nullptr);CConfig config(input,SU2_COMPONENT::SU2_CFD,false);std::cout.rdbuf(output);
+    CHECK(config.GetAdap_Native_MemoryLimit()==size_t(mib)*(size_t(1)<<20));
+  }
+}

@@ -1434,6 +1434,7 @@ TEST_CASE("Native automatic MPI repair selects complete failing features and res
     const auto original=Uniform(input,{4,0,0,4,0,4});
     for(bool detail : {false,true}) {
       EngineOptions options;options.timings=detail;options.maximum_rounds=1;
+      options.edge_breakpoints=[](Point,Point){return std::vector<double>{0,1};};
       uint64_t calls=0;
       const auto bytes_before=parent.bytes_sent;const auto calls_before=parent.collective_calls;
       const double seconds_before=parent.collective_seconds;
@@ -1446,6 +1447,7 @@ TEST_CASE("Native automatic MPI repair selects complete failing features and res
       CHECK(rejected.stats.directory_elections>0);
       CHECK(rejected.stats.directory_election_seconds>=0);
       CHECK_FALSE(rejected.valid);CHECK(rejected.stats.accepted==0);CHECK(Bytes(input)==saved);
+      CHECK(rejected.reason.find("Injected query composition failure.")!=std::string::npos);
       CHECK(Bytes(rejected.cells)==saved);
       CHECK(rejected.stats.field_requests==rejected.stats.field_hits+rejected.stats.field_misses+rejected.stats.field_invalid_queries);
       CHECK(rejected.stats.field_invalid_queries==0);CHECK(rejected.stats.field_failures==calls);

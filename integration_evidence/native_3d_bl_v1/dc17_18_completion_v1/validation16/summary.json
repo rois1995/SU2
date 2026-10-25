@@ -1,0 +1,55 @@
+{
+  "build_exit": 0,
+  "source_pins_verified": true,
+  "pinned_files": 957,
+  "receipt_helpers_tests": 3,
+  "receipt_helpers_exit": 0,
+  "status": "memory interface and focused field/cavity checks pass; M6 deferred until publication guard fix",
+  "focused_exit": 0,
+  "config_rejections": {
+    "overflow": {
+      "command": [
+        "nice",
+        "-n",
+        "19",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD",
+        "overflow.cfg"
+      ],
+      "exit": 1,
+      "expected_diagnostic": "exceeds the addressable byte range",
+      "passed": true,
+      "config_sha256": "81e05d2f9bf47070d0cb3c0ebd64ccabde05daa522502ae66aabc35085ed26cc"
+    },
+    "negative": {
+      "command": [
+        "nice",
+        "-n",
+        "19",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD",
+        "negative.cfg"
+      ],
+      "exit": 1,
+      "expected_diagnostic": "exceeds the addressable byte range",
+      "passed": true,
+      "config_sha256": "49e570465c806cc8007e32545f6e96c9cb61e41361a830a22e615ff1021381e4"
+    },
+    "wrong_backend": {
+      "command": [
+        "nice",
+        "-n",
+        "19",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD",
+        "wrong_backend.cfg"
+      ],
+      "exit": 1,
+      "expected_diagnostic": "requires the native3D remesher",
+      "passed": true,
+      "config_sha256": "3192f65ab69d2d578325f7754481d2a1a79b9d6b9f62a2e382728884c695dcff"
+    }
+  },
+  "final_source_runtime_pins_verified": true,
+  "assertions": 607,
+  "cases": 10,
+  "build_wall_seconds": 2328.42,
+  "build_process_peak_rss_kib": 4097284
+}

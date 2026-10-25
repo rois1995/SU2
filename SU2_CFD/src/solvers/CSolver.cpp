@@ -2653,6 +2653,7 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
   SU2Native3D::RuntimeProfile3D<6> profile(config->GetWrt_Performance() && nDim == 3 &&
       config->GetKind_Adap_Remesher() == ADAP_REMESHER::NATIVE_CAVITY, "metric_build");
 
+  const size_t nativeMemoryLimit=config->GetAdap_Native_MemoryLimit()?config->GetAdap_Native_MemoryLimit():(size_t(2)<<30);
   if(!replay)nativeMetricFamily3D.reset();
   const auto nSensor = config->GetnAdap_Sensor();
   const su2double p = config->GetAdap_Norm();
@@ -3215,7 +3216,7 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
             }
             quadratureBytes=transfer_memory::Add(quadratureBytes,transfer_memory::Bytes(cell.points),sizeof(CellRule3D));
             for(const auto& point:cell.points)quadratureBytes=transfer_memory::Add(quadratureBytes,transfer_memory::Bytes(point.samples));
-            if(quadratureBytes>(size_t(2)<<30))throw CBoundaryLayerMetric::IntegrationLimit("Native3D complexity quadrature exceeds storage budget.");
+            if(quadratureBytes>nativeMemoryLimit)throw CBoundaryLayerMetric::IntegrationLimit("Native3D complexity quadrature exceeds storage budget.");
             localQuadraturePoints+=cell.points.size();
           }catch(const CBoundaryLayerMetric::IntegrationLimit& error) {
             if(!uncertaintyPolicy)integrationFailure.Set(2,cell.global_cell,error.what());
@@ -3266,7 +3267,7 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
               }
             }catch(const std::exception& error){preparationFailure.Set(2,0,error.what());}
             CollectiveFailure(preparationFailure,CURRENT_FUNCTION);
-            try {boundedComplexity=std::make_unique<CNativeComplexity3D>(*nativeLayers,std::move(source),nPoint,size_t(2)<<30,8192,20261017,budgetBL);}
+            try {boundedComplexity=std::make_unique<CNativeComplexity3D>(*nativeLayers,std::move(source),nPoint,nativeMemoryLimit,8192,20261017,budgetBL);}
             catch(const std::exception& error){preparationFailure.Set(2,0,error.what());}
             CollectiveFailure(preparationFailure,CURRENT_FUNCTION);
           }
@@ -3914,7 +3915,7 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
       } else {
         const auto bytes=transfer_memory::Add(transfer_memory::Mul(nPoint,sizeof(CNativeMetricFamily3D::Node)+sizeof(CBoundaryLayerMetric::Tensor)),
             transfer_memory::Bytes(blFrames),transfer_memory::Bytes(eigenvalues),firstRowTarget?firstRowTarget->StorageBytes():(nativeLayers?nativeLayers->StorageBytes():0));
-        if(bytes>(size_t(2)<<30))throw std::runtime_error("Original metric family exceeds2GiB storage ceiling.");
+        if(bytes>nativeMemoryLimit)throw std::runtime_error("Original metric family exceeds native working-storage ceiling.");
         auto family=std::make_shared<CNativeMetricFamily3D>();family->geometry=geometry;family->owned=nPointDomain;
         family->frames=std::move(blFrames);family->eigenvalues=std::move(eigenvalues);family->layers=nativeLayers;
         family->first_row=firstRowTarget;family->target_extra_bytes=firstRowTarget?firstRowTarget->StorageBytes()-nativeLayers->StorageBytes():0;

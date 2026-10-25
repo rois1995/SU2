@@ -290,3 +290,69 @@ snapshot, reference preparation, remeshing and publication. Explicit values stay
 fixed; zero preserves existing defaults/automatic FIRST_ROW behavior. This is
 accounted native working storage, not an OS/process RSS cap. Use a reviewed12GiB
 M6 budget within available RAM; keep all geometry/quality/budget gates unchanged.
+
+Local checkpoint e2626a9c5b preserves the shared target, cavity correction,
+passing594-assertion focused checks, and all M6 failures. Remote push remains
+blocked by the previously recorded automatic review; no new remote attempt.
+Memory option implementation now reaches CConfig registration/overflow/backend
+validation and documentation, CDriver symmetry preparation, solver quadrature /
+bounded integration / family retention, native3D reference/remesh and publication.
+Explicit limits are collective-consistent and cannot auto-grow. Native2D explicitly
+rejects the currently unsupported option. Tests cover MiB parsing/defaults and
+both METRIC/FIRST_ROW refusal without state publication. Full header rebuild next.
+
+Validation16 full build83949 terminated exit0 (308 tasks,38m48.42s, process peak4,097,284KiB), nice19,
+one worker, library threads1, compile scratch on4TB. Host at start:38GiB available,
+87GiB disk free, root11GiB. Sources/input/helper/config pins are recorded. Do not
+edit pinned C++ before the owned build handle is terminal. Next: memory option /
+field/cavity focused checks, invalid option CLI checks, M6 event1 with12GiB,
+then the appropriate integrated serial/MPI regression at the capability milestone.
+
+Read-only review during build16 identifies the likely cause of the six baseline
+distributed-repair assertions: the injected throwing composition at
+CNativeDistributed3D_tests.cpp:1440 omits options.edge_breakpoints. Engine policy
+validation correctly rejects it before copying the input or invoking the callback.
+Other constant-composition fixtures provide {0,1}. After pinned validation ends,
+restore this fixture interface and check its original rollback/counter assertions,
+including an explicit expected failure reason. No production guard needs weakening.
+The three receipt-helper tests pass in validation16/receipt_helpers.log.
+
+Publication review found a concrete guard hole before the next M6 run: a present
+normalizer returning valid=true/changed=false skips both existing over-budget
+guards (no-normalizer stage0 and corrected stage1). NativeNormalizationStage3D
+returns that default on storage-limited correction and other no-change exits.
+Add a final budget check after the stage loop, before ReaderSlices, and cover
+unchanged correction/refused publication. Let build83949 finish; run memory/CLI
+checks, then fix this guard together with the stale injection fixture and rebuild
+the affected objects before M6. No M6 acceptance may rely on this guard hole.
+
+Validation16 runtime checks terminated successfully:607 assertions/10 cases,
+three invalid configurations rejected with the expected diagnostics (MiB overflow,
+negative value, non-native backend). All957 source/input/helper pins and19 binary/
+runtime pins verify. No build/test is live.
+Publication guard is now consolidated after every normalization-stage-loop exit;
+its regression uses a valid uniform field and a storage-limited no-op correction,
+requiring rejection above budget and acceptance below it without publishing state.
+The stale distributed failure-injection fixture now supplies its edge callback and
+asserts the actual injected error. Config documentation now describes the native
+continuation instead of the removed fade. Validation17 build25843 terminated successfully (6 affected tasks). Focused
+run36108 terminated exit2:1,656/1,658 assertions pass across12 cases; only the
+new injected-error text assertion fails twice. The six old assertions and new
+publication guard pass. Source/runtime pins verify. Selection::Add loses the
+actual ValidateMetricPatch error when measurement is incomplete; it now retains
+that error through its sole caller. Validation18 rebuild/focused/MPI checks next,
+then M6. No source is edited during active compilation or execution.
+
+Validation18 build81127 terminated exit0 (82.05s, process peak2,860,436KiB).
+The repaired automatic-repair case passes1,032 assertions; the six old failures
+and the new injected-error diagnostics are resolved in serial. Source/runtime
+pins verify. A startup probe also confirms the shared unsigned parser accepts
+ADAP_NATIVE_MEMORY_LIMIT=0.5 as zero (later missing-mesh refusal). This option now
+checks its existing raw token for decimal digits before range/backend admission;
+unrelated parser behavior is untouched. Validation19 build28180 terminated exit0. Seven invalid-token CLI checks pass;
+connected serial2730 passes1,658 assertions/12 cases. First MPI selection82783
+failed only because NativeBL17Cavity explicitly requires one rank. Corrected
+MPI selection93123 passes11 cases/rank (1,411/2,125 assertions). All source/runtime
+pins verify; failed selections are preserved. Next: normalized M6 event1,12GiB,
+V=0 diagnostic,1800s whole-job guard. Sources/input/helper and
+new invalid configs are pinned.
