@@ -9,6 +9,8 @@
 #include "../../../Common/include/adaptation/CNativeSupport3D.hpp"
 #include "../../../Common/include/adaptation/CNativePointConstruction3D.hpp"
 #include "../../../Common/include/adaptation/CNativeCellSampling3D.hpp"
+#include "../../../Common/src/adaptation/CNativePredicates3D_internal.hpp"
+#include <random>
 #include <fstream>
 #include <iomanip>
 #include <cstdlib>
@@ -259,6 +261,28 @@ TEST_CASE("Native3D exact contact admits only the common mesh simplex", "[Native
   }
 }
 
+
+TEST_CASE("DC-17 shared-simplex contact proofs agree with the exact contact test", "[NativeContact3D]") {
+  // Grid points in [-2,2]^3 (exact coplanar, collinear and tangent configurations are frequent); b shares k = 0..3
+  // vertices (ids and coordinates) with a, its other vertices are fresh ids (possibly at a's coordinates).
+  std::mt19937_64 rng(1729);std::uniform_int_distribution<int> c(-2,2),pick(0,3),kk(0,3);
+  auto random=[&]{return Point{double(c(rng)),double(c(rng)),double(c(rng))};};
+  auto positive=[](Cell& t){const auto o=Orientation(t.v[0].p,t.v[1].p,t.v[2].p,t.v[3].p);if(o<0)std::swap(t.v[0],t.v[1]);return o!=0;};
+  size_t cases=0,agree=0,proved=0,yes=0;const size_t proofs0=SharedSimplexProofs();
+  for(int it=0;it<200000&&cases<40000;++it) {
+    Cell a{0,{{{0,random()},{1,random()},{2,random()},{3,random()}}}};if(!positive(a))continue;
+    const int k=kk(rng);Cell b{1,{{{10,random()},{11,random()},{12,random()},{13,random()}}}};
+    std::array<bool,4> used{};for(int i=0;i<k;++i){int j=pick(rng);while(used[j])j=(j+1)%4;used[j]=true;b.v[i]=a.v[j];}
+    if(!positive(b))continue;
+    ++cases;const bool full=ConformingDisjointExactPath(a,b),fast=ConformingDisjoint(a,b);
+    agree+=full==fast;yes+=full;
+    if(full!=fast)INFO("disagreement at case "<<cases<<" k="<<k);
+    REQUIRE(full==fast);
+    proved+=fast;
+  }
+  const size_t shortcut=SharedSimplexProofs()-proofs0;
+  CHECK(cases>=40000);CHECK(agree==cases);CHECK(yes>1000);CHECK(shortcut>yes/2);CHECK(shortcut<=proved);
+}
 
 TEST_CASE("Native3D supporting-plane contact preserves exact fallback and input checks", "[NativeContact3D]") {
   auto positive=[](Cell c) {

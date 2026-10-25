@@ -396,7 +396,68 @@ bool IntersectsSegment(const Tetrahedron& donor, Point a, Point b, KernelStats* 
 bool IntersectsSegmentPositiveLength(const Tetrahedron& donor, Point a, Point b, KernelStats* stats) {
   return SegmentIntersection(donor,a,b,stats,false);
 }
-bool ConformingDisjoint(const Cell& a, const Cell& b, KernelStats* stats) {
+// DC-17: exact local contact proof from the shared simplex, with the exact adaptive Orientation predicate only. A plane
+// through the shared vertices (plus vertices of either cell up to three points; a face plane of either cell when
+// nothing is shared) that leaves every other vertex of `a` strictly on one side and every other vertex of `b` strictly
+// on the other proves disjoint interiors, and the intersection lies in the shared simplex: on the plane, one cell meets
+// it in the shared simplex or in a triangle/segment through it, the other only in the shared simplex, or (one shared
+// vertex v, one extra vertex x of `a` and y of `b`) in the segments vx and vy, which meet only at v because the plane
+// is not degenerate. False means "not proved"; the full exact test then decides, so verdicts are unchanged.
+static thread_local size_t sharedSimplexProofs = 0;
+size_t SharedSimplexProofs() { return sharedSimplexProofs; }
+static bool SharedSimplexSeparated(const Cell& a, const Cell& b, const std::array<bool,4>& shared_a,
+                            const std::array<bool,4>& shared_b, KernelStats* stats) {
+  std::array<size_t,4> sa{}, ua{}, ub{};
+  size_t k = 0, na = 0, nb = 0;
+  for (size_t i = 0; i < 4; ++i) { if (shared_a[i]) sa[k++] = i; else ua[na++] = i; }
+  for (size_t j = 0; j < 4; ++j) if (!shared_b[j]) ub[nb++] = j;
+  if (k == 4 || nb != na) return false;
+  using Ref = std::pair<int, size_t>;  // (0: a, 1: b; vertex slot)
+  auto point = [&](const Ref& r) { return (r.first ? b : a).v[r.second].p; };
+  auto separates = [&](const std::array<Ref,3>& d) {
+    const Point p0 = point(d[0]), p1 = point(d[1]), p2 = point(d[2]);
+    auto on = [&](int c, size_t i) { for (const auto& x : d) if (x.first == c && x.second == i) return true; return false; };
+    int side = 0;
+    for (size_t i = 0; i < na; ++i) {
+      if (on(0, ua[i])) continue;
+      const auto o = Orientation(p0, p1, p2, a.v[ua[i]].p, stats);
+      if (o == 0) return false;
+      const int sg = o > 0 ? 1 : -1;
+      if (!side) side = sg; else if (sg != side) return false;
+    }
+    if (!side) return false;
+    for (size_t j = 0; j < nb; ++j) {
+      if (on(1, ub[j])) continue;
+      const auto o = Orientation(p0, p1, p2, b.v[ub[j]].p, stats);
+      if (o == 0 || (o > 0 ? 1 : -1) == side) return false;
+    }
+    return true;
+  };
+  std::vector<Ref> extra;
+  for (size_t i = 0; i < na; ++i) extra.push_back({0, ua[i]});
+  for (size_t j = 0; j < nb; ++j) extra.push_back({1, ub[j]});
+  if (k == 3) return separates({Ref{0, sa[0]}, Ref{0, sa[1]}, Ref{0, sa[2]}});
+  if (k == 2) {
+    for (const auto& x : extra) if (separates({Ref{0, sa[0]}, Ref{0, sa[1]}, x})) return true;
+    return false;
+  }
+  if (k == 1) {
+    for (size_t i = 0; i < extra.size(); ++i)
+      for (size_t j = i + 1; j < extra.size(); ++j)
+        if (separates({Ref{0, sa[0]}, extra[i], extra[j]})) return true;
+    return false;
+  }
+  // nothing shared: the face planes of either cell
+  for (int c = 0; c < 2; ++c)
+    for (size_t skip = 0; skip < 4; ++skip) {
+      std::array<Ref,3> d{}; size_t n = 0;
+      for (size_t i = 0; i < 4; ++i) if (i != skip) d[n++] = {c, i};
+      if (separates(d)) return true;
+    }
+  return false;
+}
+
+static bool ConformingDisjointPath(const Cell& a, const Cell& b, KernelStats* stats, bool fast) {
   const Tetrahedron ta{a.v[0].p,a.v[1].p,a.v[2].p,a.v[3].p}, tb{b.v[0].p,b.v[1].p,b.v[2].p,b.v[3].p};
   for (const auto& t : {ta,tb})
     if (!(Orientation(t[0],t[1],t[2],t[3],stats)>0))
@@ -426,6 +487,7 @@ bool ConformingDisjoint(const Cell& a, const Cell& b, KernelStats* stats) {
       if(common_a || common_b)return true;
     }
   }
+  if(fast && SharedSimplexSeparated(a,b,shared_a,shared_b,stats)){++sharedSimplexProofs;return true;}  // DC-17 exact local proof
   auto delta=[](Point p,Point q) {
     return std::array<Integer<66>,3>{Difference(Coordinate(p.x),Coordinate(q.x)),
       Difference(Coordinate(p.y),Coordinate(q.y)),Difference(Coordinate(p.z),Coordinate(q.z))};
@@ -479,6 +541,8 @@ bool ConformingDisjoint(const Cell& a, const Cell& b, KernelStats* stats) {
   };
   return contacts(ta,tb,shared_a) && contacts(tb,ta,shared_b);
 }
+bool ConformingDisjoint(const Cell& a, const Cell& b, KernelStats* stats) { return ConformingDisjointPath(a, b, stats, true); }
+bool ConformingDisjointExactPath(const Cell& a, const Cell& b, KernelStats* stats) { return ConformingDisjointPath(a, b, stats, false); }
 namespace {
 Integer<132> ParametricCoordinate(const ParametricPoint& p,unsigned axis) {
   const double a[3]={p.origin.x,p.origin.y,p.origin.z},b[3]={p.first.x,p.first.y,p.first.z},c[3]={p.second.x,p.second.y,p.second.z};

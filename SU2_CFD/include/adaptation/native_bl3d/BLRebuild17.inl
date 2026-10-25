@@ -123,6 +123,10 @@ inline bool RebuildPrism(State& s, Rows10& rows, std::set<Face>& certified, cons
   try { old = PatchOf(s, ids); } catch (const std::exception&) { why = "patch"; return false; }
   std::map<Id, Node> nodes;
   for (const auto& c : old.cells) for (const auto& n : c.v) nodes[n.id] = n;
+  // plan review 1: every prism node must be in the apex star (an irregular star falls back instead of throwing)
+  for (Id x : lower) if (!nodes.count(x)) { why = "irregular: prism node outside the apex star"; return false; }
+  for (Id x : upper) if (!nodes.count(x)) { why = "irregular: prism node outside the apex star"; return false; }
+  if (lo.empty() || up.empty()) { why = "irregular: empty prism part"; return false; }
   const V a = Of(nodes.at(out[0]).p), b = Of(nodes.at(out[1]).p), cc = Of(nodes.at(out[2]).p);
   const V n = -1.L * Outward(a, b, cc), g = (1.L / 3) * (a + b + cc);
   const long double alt = Dot(Of(apex.p) - a, n), h = FaceH0(s, wf.second);
@@ -222,19 +226,24 @@ inline RebuildStats RebuildFirstRow(State& s, Rows10& rows, std::set<Face>& cert
     if (e1 == e2) { ++st.no_diagonal; continue; }
     ++st.diagonals;
     std::string why;
-    if (FlipToChord(s, e1 ? d1 : d2, ca->second.first, cb->second.first, why)) ++st.flipped;
+    bool ok = false;
+    try { ok = FlipToChord(s, e1 ? d1 : d2, ca->second.first, cb->second.first, why); } catch (const std::exception& x) { why = x.what(); }
+    if (ok) ++st.flipped;
     else { ++st.flip_refused; ++st.why["flip: " + Key(why)]; }
   }
   // step 3: prism rebuild, fallback cone split
   for (const auto& wf : need) {
     ++st.prisms;
     std::string why;
-    if (RebuildPrism(s, rows, certified, wf, col, why)) { ++st.rebuilt; continue; }
+    bool ok = false;
+    try { ok = RebuildPrism(s, rows, certified, wf, col, why); } catch (const std::exception& x) { why = std::string("exception: ") + x.what(); }
+    if (ok) { ++st.rebuilt; continue; }
     (why.rfind("irregular", 0) == 0 ? st.irregular : st.refused)++;
     ++st.why["prism: " + Key(why)];
     ++st.fallback;
     ++st.halve.faces;
-    HalveFace(s, rows, certified, wf, st.halve);
+    try { HalveFace(s, rows, certified, wf, st.halve); }
+    catch (const std::exception& x) { ++st.halve.refused; ++st.halve.why[std::string("exception: ") + Key(x.what())]; }
   }
   st.seconds = Seconds(t0);
   return st;

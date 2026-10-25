@@ -488,7 +488,9 @@ inline EngineResult RunEvent(World& world, const Owned& cells, const std::vector
       json << ",\"final_estimated\":" << dc15::JsonEstimated(est);
     }
     json << ",\"metric_invalid_cached\":" << cachedMetricInvalid << ",\"bad_witness\":" << BadWitness(*s, rows);
+    size_t a3Violations = 0;  // DC-17 (plan review 2): the A3 first-row audit is an acceptance condition
     {const auto a3 = FirstRowAudit(*s, snapshot, certified);
+     a3Violations = a3.violations;
      json << ",\"first_row_audit\":" << JsonAudit(a3);}
     phase("deficits", "bad=" + std::to_string(cached.bad_shape) + " long=" + std::to_string(cached.long_edges) + " height=" + std::to_string(cached.height_failures));
     if (ctl.export_mesh && !ctl.report_prefix.empty()) {
@@ -533,7 +535,7 @@ inline EngineResult RunEvent(World& world, const Owned& cells, const std::vector
                                              cached.height_failures == audit.height_failures && cached.unmeasurable == audit.unmeasurable) << "}";
       phase("audit", "complete=" + std::to_string(audit.complete));
     } else json << ",\"audit\":{\"skipped\":\"intermediate event: decision by the independent validity check, deficits cached\"}";
-    const bool accepted = validity.Valid() && (!ctl.final_cycle || audit.complete);
+    const bool accepted = validity.Valid() && a3Violations == 0 && (!ctl.final_cycle || audit.complete);
     // boundary parameters of the final skin: accepted private bindings, else the authority's own binding
     if (s->mapped) {
       BoundaryPoints points;
@@ -592,7 +594,7 @@ inline EngineResult RunEvent(World& world, const Owned& cells, const std::vector
              << ", long " << audit.long_edges << ", height " << audit.height_failures << ", unmeasurable " << audit.unmeasurable
              << ", invalid " << invalid << " (q_min " << audit.q << ", J_min " << audit.J << (audited ? ", uncached audit" : ", cached deficits")
              << "); validity: nonpositive " << validity.nonpositive << ", height " << validity.height_failures << ", topology "
-             << validity.overshared + validity.same_orientation + validity.interior_physical + validity.open_unbound + validity.nonmanifold_skin_edges + validity.inconsistent_points;
+             << validity.overshared + validity.same_orientation + validity.interior_physical + validity.open_unbound + validity.nonmanifold_skin_edges + validity.inconsistent_points << ", A3 first-row violations " << a3Violations;
       if (!ctl.report_prefix.empty()) reason << "; report " << ctl.report_prefix << "_bl_report.json";
     }
     phase("pack", std::string("accepted=") + (accepted ? "1" : "0"));

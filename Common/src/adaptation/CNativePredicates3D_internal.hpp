@@ -12,6 +12,10 @@ int ParametricCentroidSide(const ParametricPoint& a,const ParametricPoint& b,
                           const std::array<ParametricPoint,3>& triangle,unsigned axis,KernelStats* stats=nullptr);
 bool ParametricSegmentEntersTriangle(const ParametricPoint& a,const ParametricPoint& b,
                                     const std::array<ParametricPoint,3>& triangle,unsigned axis,KernelStats* stats=nullptr);
+/*! DC-17: ConformingDisjoint without its shared-simplex shortcut (the unchanged exact SAT/clipping test; tests only). */
+bool ConformingDisjointExactPath(const Cell& a,const Cell& b,KernelStats* stats=nullptr);
+/*! DC-17: number of ConformingDisjoint verdicts settled by the shared-simplex proof (this thread). */
+size_t SharedSimplexProofs();
 bool ParametricOnProjectedSegment(const ParametricPoint& a,const ParametricPoint& b,const ParametricPoint& point,
                                  unsigned axis,KernelStats* stats=nullptr);
 }
