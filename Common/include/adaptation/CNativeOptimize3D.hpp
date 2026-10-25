@@ -21,6 +21,10 @@ struct OptimizeOptions {
   std::set<Id> frozen_cells;        // No operation may replace these cells (caller-certified first rows).
   std::set<Id> frozen_vertices;     // Never moved or removed (boundary vertices are always fixed).
   std::set<Id> keep_vertices;       // May move (new identity, relabel) but are never removed (no collapse).
+  /*! DC-17: a cell holding one of these vertices keeps its topology: no swap, collapse, insertion or boundary
+   *  operation replaces it; vertex moves (O4) of its other vertices stay allowed. The caller passes vertices that never
+   *  move (e.g. registered first-row apices, also in frozen_vertices), so the set follows renumbered cells. */
+  std::set<Id> structure_vertices;
   /*! TEST-ONLY DIAGNOSTIC (DC-13 cut-artifact check), never set in production: skin vertices allowed to slide in the plane
    * through their position with the given unit normal (moves by O4m only, positivity/validity checked, skin geometry
    * NOT certified: no interface/facet check). Their boundary faces keep their bindings. */

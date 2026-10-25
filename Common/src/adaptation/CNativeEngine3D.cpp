@@ -3157,11 +3157,16 @@ class MeshOptimizer {
     try{const auto e=Estimate(a,b);if(e<=EstimatePass)return true;if(e>1.45L*limit)return false;return Exact(a,b)<=limit;}
     catch(const std::exception&){return false;}
   }
-  bool Frozen(Id cell) const {return options.frozen_cells.count(cell)>0;}
+  bool Frozen(Id cell) const {  // no topology change (DC-17: also cells holding a structure vertex)
+    if(options.frozen_cells.count(cell))return true;
+    if(options.structure_vertices.empty())return false;
+    const auto f=mesh.find(cell);if(f==mesh.end())return false;
+    for(const auto& n:f->second.cell.v)if(options.structure_vertices.count(n.id))return true;
+    return false;}
   bool Movable(Id v) const {
     if((fixed.count(v)&&!sliding.count(v)) || options.frozen_vertices.count(v))return false;
     const auto s=star.find(v);if(s==star.end() || s->second.empty() || s->second.size()>MaximumCavityCells)return false;
-    for(Id id:s->second)if(Frozen(id))return false;
+    for(Id id:s->second)if(options.frozen_cells.count(id))return false;  // moves keep the topology of structure cells
     return true;
   }
   static std::vector<Id> Common(std::vector<Id> x,std::vector<Id> y) {
@@ -3575,11 +3580,11 @@ bool MeshOptimizer::TryCell(Id id) {
 }
 bool MeshOptimizer::Run() {
   Index();
-  auto census=[&](size_t& bad,double& minimum){bad=0;minimum=INFINITY;for(const auto& row:mesh){if(Frozen(row.first))continue;const double s=RowScore(row.first,row.second.cell);minimum=std::min(minimum,s);bad+=s<1;}if(!std::isfinite(minimum))minimum=1;};
+  auto census=[&](size_t& bad,double& minimum){bad=0;minimum=INFINITY;for(const auto& row:mesh){if(options.frozen_cells.count(row.first))continue;const double s=RowScore(row.first,row.second.cell);minimum=std::min(minimum,s);bad+=s<1;}if(!std::isfinite(minimum))minimum=1;};
   census(report.bad_before,report.minimum_before);
   while(report.sweeps<options.maximum_sweeps) {
     ++report.sweeps;
-    std::vector<std::pair<double,Id>> bad;for(const auto& row:mesh){if(Limited())break;if(Frozen(row.first))continue;const double s=RowScore(row.first,row.second.cell);if(s<1)bad.emplace_back(s,row.first);}
+    std::vector<std::pair<double,Id>> bad;for(const auto& row:mesh){if(Limited())break;if(options.frozen_cells.count(row.first))continue;const double s=RowScore(row.first,row.second.cell);if(s<1)bad.emplace_back(s,row.first);}
     std::sort(bad.begin(),bad.end());size_t accepted=0;
     for(const auto& row:bad){if(Limited())break;if(!mesh.count(row.second))continue;if(RowScore(row.second,mesh.at(row.second).cell)>=1)continue;if(TryCell(row.second))++accepted;}
     // O1L: interior edges longer than 1.8 (estimate screen, exact length) removed by the best ring triangulation
