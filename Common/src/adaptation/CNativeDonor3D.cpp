@@ -144,7 +144,9 @@ bool DonorImport::Vote(const CLocalFailure& failure, std::string& reason) {
 bool DonorImport::Admit(size_t bytes, size_t ceiling, std::string& reason) {
   stats.maximum_work_bytes = std::max(stats.maximum_work_bytes, bytes);
   CLocalFailure failure;
-  if (bytes == SIZE_MAX || bytes > ceiling) failure.Set(3, 0, "Native 3D donor import exceeds working-storage budget.");
+  // DC-16: the message names the requested and admitted bytes
+  if (bytes == SIZE_MAX || bytes > ceiling) failure.Set(3, 0, "Native 3D donor import exceeds working-storage budget: requested " +
+      (bytes == SIZE_MAX ? std::string("overflow") : std::to_string(bytes >> 20) + " MiB") + " > ceiling " + std::to_string(ceiling >> 20) + " MiB.");
   return Vote(failure, reason);
 }
 size_t DonorImport::ResidentBytes() const {

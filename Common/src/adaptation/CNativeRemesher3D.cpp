@@ -414,8 +414,10 @@ CRemeshResult CNativeRemesher3D::Remesh(const CConfig& config, const CGeometry& 
               // measured: the event's own peak resident set (the construction and its inputs); estimated: the live
               // candidate plus the staged import (sorted donor copy, boxes, index, authority records sent and received)
               struct rusage usage{};getrusage(RUSAGE_SELF,&usage);const size_t measured=size_t(usage.ru_maxrss)*1024;
+              // staged import per original donor (DonorImport::Build): sorted copy, 6 box doubles, 256 B scratch, box
+              // tree, 6 authority records with growth, their send/receive copies and the authority map: ~6 KiB
               const size_t estimated=transfer_memory::Add(held(),OwnedStorageBytes(working),transfer_memory::Bytes(migrated),
-                                                     transfer_memory::Mul(12,transfer_memory::Bytes(imported.original)));
+                                                     transfer_memory::Bytes(imported.original),transfer_memory::Mul(6144,imported.original.size()));
               const size_t need=std::max(measured,estimated);
               const size_t wanted=std::max(control.memory_ceiling,size_t(1.5*double(need)));  // never below the pre-construction ceiling
               std::cout<<"DC16 publication memory: need "<<need/(size_t(1)<<20)<<" MiB (measured peak "<<measured/(size_t(1)<<20)<<", estimated "<<estimated/(size_t(1)<<20)<<"), ceiling "<<std::min(wanted,cap)/(size_t(1)<<20)

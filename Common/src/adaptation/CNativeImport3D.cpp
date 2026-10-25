@@ -5,6 +5,7 @@
  * SU2 is free software under the GNU Lesser General Public License, version 2.1 or later.
  */
 #include "../../include/adaptation/CNativeNearContainment.hpp"
+#include <iostream>
 #include "../../include/adaptation/CNativeImport3D.hpp"
 #include "../../include/adaptation/CNativeCellSampling3D.hpp"
 #include "../../include/adaptation/CDistributedSearch.hpp"
@@ -349,7 +350,7 @@ struct Binding {
  * Analytic physical envelopes stay on their qualified paths until joint coverage is independently admitted. */
 bool JointAffineCoverage(World& world,const Owned& owned,std::vector<DonorCell>& source,
     const PlanarReference& reference,double maximum_seconds,size_t live,size_t ceiling,
-    BridgeStats& stats,std::string& reason) {
+    BridgeStats& stats,std::string& reason,bool exact_audit=true) {
   const auto started=world.seconds();
   struct Receipt {World& world;BridgeStats& stats;double start;
     ~Receipt(){stats.source_envelope_seconds+=world.seconds()-start;}} receipt{world,stats,started};
@@ -383,7 +384,10 @@ bool JointAffineCoverage(World& world,const Owned& owned,std::vector<DonorCell>&
   // the boundary (hours on the published 1.25M-cell ONERA M6 mesh) and would certify nothing more.
   {double scale=1;for(const auto& d:source)for(const auto& n:d.cell.v)scale=std::max({scale,std::abs(n.p.x),std::abs(n.p.y),std::abs(n.p.z)});
    scale=CPassiveComm::Allreduce(scale,CPassiveComm::Op::MAX,world.comm);
-   if(radius<=double(NearCoverageTolerance(Point{scale,0,0})))return true;}
+   // the exact audit stays for the final cycle of a FIRST_ROW h0 ramp (and every other caller): exact_audit
+   if(!exact_audit&&radius<=double(NearCoverageTolerance(Point{scale,0,0}))){
+     if(!world.rank)std::cout<<"DC16 joint source envelope skipped (intermediate event): radius "<<radius<<" <= near-coverage tolerance "<<double(NearCoverageTolerance(Point{scale,0,0}))<<std::endl;
+     return true;}}
   uint64_t local_faces=0,local_boundary=0;
   for(const auto& row:owned) {
     bool boundary=false;for(auto f:row.second.physical)if(f.present){++local_faces;boundary=true;}
@@ -395,6 +399,7 @@ bool JointAffineCoverage(World& world,const Owned& owned,std::vector<DonorCell>&
   // DC-16: the column normal-cone solves are bounded per skin face (128 trials on average, a vertex with eight distinct
   // incident normals needs 92), not by a fixed total: the published full-M6 x32 mesh exceeded 10^6 with 49.5k faces
   maximum_work=std::max<uint64_t>(maximum_work,128*count);
+  if(!world.rank)std::cout<<"DC16 joint source work bound "<<maximum_work<<" (max(10^6, 128 x "<<count<<" skin faces))"<<std::endl;
   // Maps, full product geometry, replicated boundary witness transport, planned checks and tree buffers.
   const auto base=transfer_memory::Add(live,transfer_memory::Mul(count,8192),
       transfer_memory::Mul(witnesses,3*sizeof(OwnedCell)),transfer_memory::Mul(2*maximum_work,3*sizeof(size_t)),
@@ -716,7 +721,8 @@ PrimitiveKey Primitive(const AnalyticSurface& g) {
  * Capped cylinders use one shared radial/axial collar map, including disk faces and rim identities.
  * Sorted source IDs choose compatible prism diagonals; component tags still control later association. */
 bool Coverage(World& world,const Owned& cells,std::vector<DonorCell>& source,const PlanarReference& reference,
-              double geometry_tolerance,size_t live,size_t ceiling,BridgeStats& stats,std::string& reason,double maximum_seconds) {
+              double geometry_tolerance,size_t live,size_t ceiling,BridgeStats& stats,std::string& reason,double maximum_seconds,
+              bool exact_audit=true) {
   if(reference.Analytic().empty() && reference.Affine().empty() && !reference.Mapped())return true;
   // Agree on source policy before any analytic/affine branch or geometry collective.
   // Complete bytes, not a hash, cover identities, versions, definitions and finite-facet assignments.
@@ -743,7 +749,7 @@ bool Coverage(World& world,const Owned& cells,std::vector<DonorCell>& source,con
   const bool consistent=Vote(world,declarations_failed,reason);
   stats.source_envelope_seconds+=world.seconds()-declaration_started;
   if(!consistent)return false;
-  if(reference.Mapped())return JointAffineCoverage(world,cells,source,reference,maximum_seconds,live,ceiling,stats,reason);
+  if(reference.Mapped())return JointAffineCoverage(world,cells,source,reference,maximum_seconds,live,ceiling,stats,reason,exact_audit);
   if(reference.Analytic().empty())return AffineCoverage(world,cells,source,reference,live,ceiling,stats,reason,maximum_seconds);
   CLocalFailure failure;
   const size_t added=transfer_memory::Mul(cells.size(),12);
@@ -1237,7 +1243,9 @@ bool ImportGeometry(const CConfig& config, const CGeometry& geometry, const su2a
     }
     if(!Coverage(parent,result.cells,result.original,*authority.original,SU2_TYPE::GetValue(config.GetAdap_Hausd()),
                  transfer_memory::Add(reference_base,state.original ? 0 : ReferenceStorageBytes(pending)),ceiling,stats,reason,
-                 SU2_TYPE::GetValue(config.GetAdap_Native_Max_Time())))
+                 SU2_TYPE::GetValue(config.GetAdap_Native_Max_Time()),
+                 // DC-16: the exact envelope audit is skipped only on intermediate FIRST_ROW ramp events
+                 !(config.GetKind_Adap_BL_Method()==ADAP_BL_METHOD::FIRST_ROW && !config.GetAdap_BL_RampFinal())))
       return false;
     stats.faces_seconds = parent.seconds() - face_start;
   }
