@@ -564,7 +564,22 @@ TEST_CASE("Curved mapped controls persist physical geometry separately from exac
   CHECK_THROWS(DecodeReference(encoded,1024));
   const auto& recovered=restored.original->Parameters()->Geometry();
   REQUIRE(recovered.Curves().size()==controls.size());
+  CHECK_THROWS(geometry->ClosestCurved(facets[0].id,{0,0,0},0,4096));
+  CHECK_THROWS(geometry->ClosestCurved(facets[0].id,{0,0,0},1e-6,0));
+  CHECK_THROWS(geometry->ClosestCurved(facets[0].id,{0,0,0},1e-6,4096,1));
+  CHECK_THROWS(geometry->ClosestCurved(facets[0].id,{NAN,0,0},1e-6,4096));
+  CHECK_THROWS(geometry->ClosestCurved(facets[0].id,{0,0,0},1e-6,1));
   for(const auto& f:facets) {
+    const auto known=geometry->Realize(geometry->FacetPoint(f.id,.25,.25));
+    const auto on=geometry->ClosestCurved(f.id,known,1e-8,4096);
+    CHECK(on.upper<=1e-8);CHECK(on.lower<=geometry->MaximumError(on.binding));
+    CHECK(geometry->Admissible(on.binding,on.point));
+    const Point query{known.x+.01*on.normal.x,known.y+.01*on.normal.y,known.z+.01*on.normal.z};
+    const auto near=geometry->ClosestCurved(f.id,query,1e-6,4096);
+    INFO("curved work "<<near.work);CHECK(near.upper-near.lower<=1e-6);
+    CHECK(near.lower<=.01+1e-12);CHECK(near.upper>=.01-1e-12);
+    const auto replay=recovered.ClosestCurved(f.id,query,1e-6,4096);
+    CHECK(replay.lower==near.lower);CHECK(replay.upper==near.upper);CHECK(replay.facet==near.facet);
     std::array<SurfaceBinding,3> corners;std::array<Point,3> actual;
     for(unsigned k=0;k<3;++k){corners[k]=geometry->Vertex(f.v[k].id);actual[k]=f.v[k].p;}
     REQUIRE(geometry->ContainsFace(f.id,corners,actual));
@@ -594,6 +609,50 @@ TEST_CASE("Curved mapped controls persist physical geometry separately from exac
   const auto strictPoint=disconnected.back().v[0];const auto strictBinding=mixed.Vertex(strictPoint.id);
   CHECK(mixed.ErrorBound(strictBinding,strictPoint.p)==0);CHECK(mixed.Admissible(strictBinding,strictPoint.p));
   CHECK(mixed.Realize(strictBinding).x==strictPoint.p.x);
+  CHECK_THROWS(mixed.ClosestCurved(disconnected.back().id,strictPoint.p,1e-6,4096));
+  auto twoControls=controls;auto twoErrors=errors;
+  for(const auto& row:controls){auto net=row.second;for(auto& p:net)p.x+=10;twoControls[row.first+1000]=net;twoErrors[row.first+1000]=1e-12;}
+  MappedFacetReference two(std::make_shared<PlanarReference>(disconnected),twoErrors,9,SIZE_MAX,false,twoControls);
+  const auto first=two.Realize(two.FacetPoint(facets[0].id,.25,.25));
+  const Point other{first.x+10,first.y,first.z};
+  const auto restricted=two.ClosestCurved(facets[0].id,other,1e-5,8192);
+  CHECK(restricted.facet<1000);CHECK(restricted.lower>8);
+  const auto second=two.ClosestCurved(facets[0].id+1000,other,1e-8,4096);
+  CHECK(second.facet>=1000);CHECK(second.upper<1e-8);
+  auto separated=facets;for(auto& f:separated)f.marker=int(f.id);
+  MappedFacetReference byMarker(std::make_shared<PlanarReference>(separated),errors,9,SIZE_MAX,false,controls);
+  const auto markerPoint=byMarker.Realize(byMarker.FacetPoint(separated[1].id,.25,.25));
+  const auto sameMarker=byMarker.ClosestCurved(separated[0].id,markerPoint,1e-6,4096);
+  CHECK(sameMarker.facet==separated[0].id);CHECK(sameMarker.lower>0);
+  Patch patch;Cell cell;std::map<Id,Node> vertices;
+  for(const auto& f:facets){for(auto n:f.v)vertices.emplace(n.id,n);patch.surface.push_back({{f.v[0].id,f.v[1].id,f.v[2].id},f.id});}
+  size_t next=0;for(auto v:vertices)cell.v[next++]=v.second;
+  if(Orientation(cell.v[0].p,cell.v[1].p,cell.v[2].p,cell.v[3].p)<0)std::swap(cell.v[0],cell.v[1]);
+  patch.cells.push_back(cell);state.original->ExportParameters(patch);FirstHeightReport report;std::string reason;
+  CHECK_FALSE(CheckFirstHeight(patch,{{0,.1}},*state.original,report,reason));
+  CHECK(reason.find("curved first-height clearance")!=std::string::npos);
+  auto changedControls=controls;changedControls.begin()->second[9].x+=.001;
+  auto changedGeometry=std::make_shared<MappedFacetReference>(original,errors,9,SIZE_MAX,false,changedControls);
+  auto changedPoints=ComponentState(changedGeometry,facets);
+  CHECK(points->SnapshotBytes()==changedPoints->SnapshotBytes());
+  CHECK(points->Snapshot()!=changedPoints->Snapshot());
+  World world;Owned owned;
+  if(!world.rank) {
+    OwnedCell row;row.cell=cell;
+    const std::array<Face,4> cellFaces{{{cell.v[1].id,cell.v[2].id,cell.v[3].id},{cell.v[0].id,cell.v[3].id,cell.v[2].id},
+        {cell.v[0].id,cell.v[1].id,cell.v[3].id},{cell.v[0].id,cell.v[2].id,cell.v[1].id}}};
+    for(unsigned k=0;k<4;++k)for(const auto& f:facets) {
+      auto a=cellFaces[k];Face b{f.v[0].id,f.v[1].id,f.v[2].id};std::sort(a.begin(),a.end());std::sort(b.begin(),b.end());
+      if(a==b)row.physical[k]={true,f.id};
+    }
+    owned.emplace(cell.id,row);
+  }
+  Directory agreed(world,true,points.get());REQUIRE(agreed.Build(owned,reason));
+  auto rankPoints=world.rank?changedPoints:points;const auto saved=rankPoints->Snapshot();
+  Directory inconsistent(world,true,rankPoints.get());
+  CHECK(inconsistent.Build(owned,reason)==(world.size==1));
+  if(world.size>1)CHECK(reason.find("authority/records differ")!=std::string::npos);
+  CHECK(rankPoints->Snapshot()==saved);
   auto bad=controls;bad.begin()->second[0].x+=.001;CHECK_THROWS(MappedFacetReference(original,errors,9,SIZE_MAX,false,bad));
   bad=controls;bad.begin()->second[3].x+=.001;CHECK_THROWS(MappedFacetReference(original,errors,9,SIZE_MAX,false,bad));
   bad=controls;bad.begin()->second[9].x=INFINITY;CHECK_THROWS(MappedFacetReference(original,errors,9,SIZE_MAX,false,bad));

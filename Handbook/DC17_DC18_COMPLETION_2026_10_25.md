@@ -412,3 +412,64 @@ Validation22 serial12486 terminates exit0:959 assertions/11 cases,2.12s, source/
 Full M6 authority81869 terminates exit0:48,954 facets, zero fallback patches, all projected Jacobians certified, fitted carriers/fixed farfield admitted. Largest mapping bound6.04e-14; conservative full child deviation1.995e-3 and source envelope1.995e-3 (these are correspondence bounds over the complete boundary, not the earlier LE-only normal sagitta). 26,043,760 resident authority bytes;46,610,856-byte sidecar round-trips bit-identically. 80.04s, process peak569,024KiB. Source/runtime/archive pins verify. No mesh constructed, no first-height/clearance/transfer acceptance claimed. Existing ten-group standalone campaign now runs against updated PN options; then connected MPI2 qualification.
 
 Validation22 standalone67191 terminates exit0 (all10 groups, reusable per-case provenance); MPI34115 terminates exit0 (11 cases/959 assertions on each of2 ranks). All source/runtime/archive pins verify. Geometry-authority stage is validated in this scope only. No automatic curved promotion is enabled. Production field/clearance still knows affine/analytic authorities; v7 controls must not be treated as a qualified adaptation input until those consumers and first-row/wall-refinement paths are connected. Next stage must reach these consumers together, then the difficult M6 and multi-body geometry/mesh targets under unchanged gates.
+
+## Curved query integration in progress
+
+After783bdb7bda, the immutable mapped authority is gaining a bounded closest-distance
+query over edge-connected same-marker components, including disconnected bodies
+sharing a marker. Reuse the house ADT on complete control-net boxes; a certified
+control-hull subdivision bounds the minimum distance. The returned normal belongs
+to the candidate point; neither uniqueness nor signed fluid-side clearance is
+claimed. Required checks: finite/invalid contracts, budget/storage exhaustion,
+known-distance curved points, restart equality, marker/body confinement, and full
+M6 query cost/accuracy before connecting clearance and metric consumers.
+Production import, BL builder and first-height admission explicitly refuse v7
+curved adaptation while those consumers remain incomplete. This closes a silent
+flat-substitute hole; decoding/inspection/persistence remain supported.
+
+Caller review also confirms two integration dependencies: FIRST_ROW W currently
+selects only metric-long/strip edges and has no SurfaceError refinement demand;
+the v7 facet-local topology pins the imported planar-carrier seams, whereas DC17
+needs released fitted-plane components for room slides. Curved wall patches and
+released planar carriers need an explicit mixed policy before automatic promotion.
+Do not remove the new production guard after validating closest distance alone.
+Build6487 terminated exit0 (16m25.40s, process peak4,093,440KiB); syntax76043 passed. Incremental build47156 terminated exit0 after the queued review fixes. Serial35231 passed1,025 assertions/12 cases in2.33s; source and runtime pins are preserved.
+
+Read-only audit during build6487 found another required fix: WriteSnapshot in
+CNativeBoundaryParameters3D.cpp serializes facets/errors/affine declarations but
+omits cubic controls. ConfirmParameterAgreement and CheckReferenceAgreement use
+this snapshot, so a same-version control mismatch could escape rank agreement.
+After the owned build terminates, include net counts/controls in the snapshot and
+add a changed-interior-control regression (unchanged original bound corners).
+
+Curved first-row design constraint from the caller audit: centroid-normal apices
+can lie inside a convex curved wall when sagitta exceeds h0. Vertex-normal lifts
+can clear the curve but put their normal foot outside the adjacent flat triangle.
+A per-face apex near a corner may meet both constraints; shared vertex columns
+alone do not prove feasibility. The existing footprint, flat-altitude and positive
+clearance gates must all remain. Qualify a coordinated face-apex/transition design
+on the M6 leading edge rather than forcing HAUSD to scale with h0.
+
+The post-build fixes include cubic-control counts/values in the shared snapshot,
+a same-version altered-interior-control test and collective mismatch regression,
+preallocation matching the index input-storage model, and skipping the optional
+nearest-line seed for distances whose binary64 square could overflow. The exact
+control-box broad phase and outward certificate remain the authority.
+
+M6 query session41622 terminated exit0 (10.09s, process peak314,412KiB), reading the
+validated validation22 sidecar. The probe saves each independently checked query
+and accepts a first-query index for resumption into a separate receipt file after
+verifying source/input/runtime provenance. Planned195 queries cover all sampled
+markers at0,1e-6 and1e-3 offsets, distance accuracy1e-8, work cap16,384 and query
+scratch cap16MiB. No volume construction or signed-clearance claim.
+
+Validation23 completed:195/195 M6 queries, maximum work2,336/16,384, maximum
+bracket width9.93424696e-9, total query time1.5875s, worst query0.22282s, all
+three markers covered. Authority resident storage46,639,568bytes. MPI84011
+terminated exit0:12 cases/1,026 assertions per rank, including deliberate same-
+version control mismatch and atomic import refusal. Serial12 cases/1,025
+assertions. Source/input/binary/runtime pins verify after all stages.
+All owned jobs are terminal. Next connected work: certified curved clearance in
+CheckFirstHeight and geometric normals/curvature for the metric, retaining the
+production import guard until support, integration, wall refinement, fitted-plane
+sliding and full construction are qualified together.

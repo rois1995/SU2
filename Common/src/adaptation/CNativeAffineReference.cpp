@@ -12,6 +12,7 @@
 #include "../../include/option_structure.hpp"
 #include <cstring>
 #include <numeric>
+#include <queue>
 #include <type_traits>
 namespace SU2NativeGeometry {
 namespace {
@@ -298,6 +299,12 @@ struct MappedFacetReference::ComponentData {
   };
   std::map<Id,Entry> entries;
 };
+struct MappedFacetReference::CurvedSearch {
+  struct Entry {std::vector<Id> facets;std::shared_ptr<CADTElemClass> index;};
+  std::map<Id,Id> root;
+  std::map<Id,Entry> entries;
+  std::mutex mutex; // House ADT traversal buffers are shared by concurrent non-OpenMP callers.
+};
 namespace {
 Point ComponentFlat(Point p,unsigned axis){return axis==0?Point{p.y,p.z,0}:axis==1?Point{p.x,p.z,0}:Point{p.x,p.y,0};}
 SU2Native3D::ParametricPoint ComponentFlat(SU2Native3D::ParametricPoint p,unsigned axis) {
@@ -370,6 +377,37 @@ MappedFacetReference::MappedFacetReference(std::shared_ptr<const SU2Native3D::Pl
       expected={a,b};seen=true;
     }
     if(curved&&flat)throw std::invalid_argument("Curved control net must cover every adjacent facet, including planar patches.");
+  }
+  if(!curves.empty()) {
+    auto data=std::make_shared<CurvedSearch>();
+    for(const auto& row:curves)data->root.emplace(row.first,row.first);
+    auto root=[&](Id id){while(data->root.at(id)!=id){data->root[id]=data->root.at(data->root.at(id));id=data->root.at(id);}return id;};
+    for(const auto& row:edge_facets)if(row.size()==2 && curves.count(row[0]) && curves.count(row[1]) &&
+        reference->Get(row[0]).marker==reference->Get(row[1]).marker) {
+      const auto a=root(row[0]),b=root(row[1]);data->root[std::max(a,b)]=std::min(a,b);
+    }
+    for(auto& row:data->root){row.second=root(row.first);data->entries[row.second].facets.push_back(row.first);}
+    size_t prepared=bound;
+    for(auto& row:data->entries) {
+      auto& entry=row.second;const size_t count=entry.facets.size();if(count<=16)continue;
+      size_t retained=0,peak=0;CADTElemClass::PredictBytes(3,2*count,count,2*count,&retained,&peak);
+      const auto workspace=transfer_memory::Mul(2*std::max<size_t>(200,count+1),sizeof(CBBoxTargetClass)+2*sizeof(unsigned long));
+      const auto requested=transfer_memory::Add(prepared,std::max(retained,peak),workspace,transfer_memory::Mul(count,128));
+      if(requested==SIZE_MAX||requested>ceiling)throw std::length_error("Curved component index exceeds storage admission.");
+      prepared=transfer_memory::Add(prepared,retained,workspace);
+      std::vector<su2double> coordinates;std::vector<unsigned long> connectivity,ids;
+      coordinates.reserve(6*count);connectivity.reserve(2*count);ids.reserve(count);
+      for(Id id:entry.facets) {
+        auto lo=Values(curves.at(id)[0]),hi=lo;
+        for(Point p:curves.at(id))for(unsigned d=0;d<3;++d){lo[d]=std::min(lo[d],Values(p)[d]);hi[d]=std::max(hi[d],Values(p)[d]);}
+        coordinates.insert(coordinates.end(),{lo[0],lo[1],lo[2],hi[0],hi[1],hi[2]});
+        connectivity.push_back(connectivity.size());connectivity.push_back(connectivity.size());ids.push_back(ids.size());
+      }
+      std::vector<unsigned short> types(count,LINE),markers(count,0);
+      entry.index=std::make_shared<CADTElemClass>(3,coordinates,connectivity,types,markers,ids,false);
+    }
+    curved_search=std::move(data);
+    if(ResidentBytes()>prepared)throw std::length_error("Curved component storage model exhausted before publication.");
   }
   if(reference_components) {
     auto data=std::make_shared<ComponentData>();size_t prepared=bound;
@@ -514,6 +552,112 @@ std::array<Point,2> MappedFacetReference::CurvedBounds(const SurfaceBinding& b)c
   Vec lo{},hi{};
   for(unsigned d=0;d<3;++d){lo[d]=std::nextafter(double(box[d].lo),-INFINITY);hi[d]=std::nextafter(double(box[d].hi),INFINITY);}
   const auto a=ToPoint(lo),c=ToPoint(hi);Finite(a);Finite(c);return {a,c};
+}
+MappedFacetReference::CurvedClosest MappedFacetReference::ClosestCurved(
+    Id hint,Point query,double tolerance,size_t maximum_work,size_t ceiling)const {
+  Finite(query);
+  if(!curved_search || !curves.count(hint) || !(std::isfinite(tolerance)&&tolerance>=std::numeric_limits<double>::min()) || !maximum_work)
+    throw std::invalid_argument("Invalid curved component/distance query contract.");
+  const auto& entry=curved_search->entries.at(curved_search->root.at(hint));
+  struct Region {Id facet;std::array<Point,3> parameter;double lower;unsigned depth;};
+  const auto storage=transfer_memory::Add(transfer_memory::Mul(entry.facets.size(),2*sizeof(unsigned long)),
+      transfer_memory::Mul(maximum_work,4*sizeof(Region)));
+  if(storage==SIZE_MAX||storage>ceiling)throw std::length_error("Curved query exceeds storage admission.");
+  CurvedClosest result;result.upper=INFINITY;
+  auto consume=[&](){if(result.work>=maximum_work)throw std::length_error("Curved distance certification work exhausted.");++result.work;};
+  auto binding=[&](Id id,Point r) {
+    const auto& f=reference->Get(id);const auto v=Values(r);
+    for(unsigned k=0;k<3;++k)if(v[k]==1)return Vertex(f.v[k].id);
+    for(unsigned k=0;k<3;++k)if(v[k]==0) {
+      const unsigned a=(k+1)%3,b=(k+2)%3;
+      return f.v[a].id<f.v[b].id?EdgePoint({f.v[a].id,f.v[b].id},v[b]):EdgePoint({f.v[b].id,f.v[a].id},v[a]);
+    }
+    return FacetPoint(id,r.y,r.z);
+  };
+  auto candidate=[&](Id id,Point r) {
+    const auto a=Exact(r);const auto box=Blossom(curves.at(id),{a,a,a});
+    const auto upper=NormBound(Difference(box,Exact(query)));
+    if(upper<result.upper) {
+      result.facet=id;result.binding=binding(id,r);result.point=Realize(result.binding);result.upper=upper;
+    }
+  };
+  consume();candidate(hint,{1,0,0});candidate(hint,{0,1,0});candidate(hint,{0,0,1});candidate(hint,{.5,.25,.25});
+  if(!std::isfinite(result.upper))throw std::invalid_argument("Unrepresentable curved query distance.");
+  // The house nearest-line routine uses squared binary64 distances; it is only an optional seed.
+  if(entry.index && result.upper>tolerance && result.upper<std::sqrt(std::numeric_limits<double>::max())/4) {
+    std::lock_guard<std::mutex> lock(curved_search->mutex);
+    const su2double x[3]={query.x,query.y,query.z};su2double distance=0;unsigned short marker=0;unsigned long id=0;int rank=0;
+    entry.index->DetermineNearestElement(x,distance,marker,id,rank);const Id seed=entry.facets.at(id);
+    if(seed!=hint){consume();candidate(seed,{1,0,0});candidate(seed,{0,1,0});candidate(seed,{0,0,1});candidate(seed,{.5,.25,.25});}
+  }
+  if(!std::isfinite(result.upper))throw std::invalid_argument("Unrepresentable curved query distance.");
+  std::vector<unsigned long> candidates;
+  if(entry.index) {
+    const auto x=Values(query);su2double lo[3],hi[3];
+    for(unsigned d=0;d<3;++d) {
+      lo[d]=std::nextafter(double(Subtract(x[d],result.upper).lo),-INFINITY);
+      hi[d]=std::nextafter(double(Add({x[d],x[d]},{result.upper,result.upper}).hi),INFINITY);
+    }
+    std::lock_guard<std::mutex> lock(curved_search->mutex);entry.index->DetermineIntersectingElements(lo,hi,candidates);
+    std::sort(candidates.begin(),candidates.end());
+  } else {candidates.resize(entry.facets.size());std::iota(candidates.begin(),candidates.end(),0);}
+  auto compare=[](const Region& a,const Region& b){return a.lower>b.lower;};
+  std::priority_queue<Region,std::vector<Region>,decltype(compare)> pending(compare);
+  auto prepare=[&](Id id,const std::array<Point,3>& parameter,unsigned depth) {
+    consume();std::array<Box,10> net;Box hull{};
+    for(unsigned d=0;d<3;++d)hull[d]={INFINITY,-INFINITY};
+    for(unsigned q=0;q<10;++q) {
+      std::array<Box,3> args;unsigned at=0;
+      for(unsigned k=0;k<3;++k)for(unsigned n=0;n<CubicIndex[q][k];++n)args[at++]=Exact(parameter[k]);
+      net[q]=Blossom(curves.at(id),args);
+      for(unsigned d=0;d<3;++d){hull[d].lo=std::min(hull[d].lo,net[q][d].lo);hull[d].hi=std::max(hull[d].hi,net[q][d].hi);}
+    }
+    Point r{};auto v=Values(r);
+    for(unsigned d=0;d<3;++d)v[d]=.25*Values(parameter[0])[d]+.25*Values(parameter[1])[d]+.5*Values(parameter[2])[d];
+    candidate(id,ToPoint(v));
+    Range squared;
+    for(unsigned d=0;d<3;++d) {
+      const auto diff=Subtract({Values(query)[d],Values(query)[d]},hull[d]);
+      const auto length=std::max({0.L,diff.lo,-diff.hi});squared=Add(squared,Multiply({length,length},length));
+    }
+    long double lower=std::nextafter(std::sqrt(std::max(0.L,squared.lo)),-INFINITY);
+    // Any separating direction gives a valid convex-hull distance bound; a normal resolves flat interior queries.
+    Box direction=CrossBox(Difference(net[1],net[0]),Difference(net[2],net[0]));
+    for(unsigned attempt=0;attempt<2;++attempt) {
+      Vec n{};
+      for(unsigned d=0;d<3;++d)n[d]=double((direction[d].lo+direction[d].hi)/2);
+      const auto exact=Exact(ToPoint(n));const auto length=NormBound(exact);
+      if(std::isfinite(length)&&length>std::numeric_limits<double>::min()) {
+        long double lo=INFINITY,hi=-INFINITY;
+        for(const auto& control:net){const auto projection=DotBox(Difference(Exact(query),control),exact);lo=std::min(lo,projection.lo);hi=std::max(hi,projection.hi);}
+        lower=std::max(lower,std::nextafter(std::max({0.L,lo,-hi})/length,-INFINITY));
+      }
+      direction=Difference(Exact(query),Blossom(curves.at(id),{Exact(ToPoint(v)),Exact(ToPoint(v)),Exact(ToPoint(v))}));
+    }
+    const double bound=std::max(0.,std::nextafter(double(lower),-INFINITY));
+    pending.push({id,parameter,bound,depth});
+  };
+  for(auto index:candidates)prepare(entry.facets.at(index),{{{1,0,0},{0,1,0},{0,0,1}}},0);
+  if(pending.empty())throw std::logic_error("Curved component broad phase lost its seed.");
+  while(!pending.empty()) {
+    result.lower=std::min(result.upper,pending.top().lower);
+    if(Subtract(result.upper,result.lower).hi<=tolerance)break;
+    const auto parent=pending.top();pending.pop();
+    if(parent.depth>=48)throw std::length_error("Curved distance parameters exhausted their exact dyadic resolution.");
+    std::array<Point,3> mid;
+    for(unsigned k=0;k<3;++k){const auto a=Values(parent.parameter[k]),b=Values(parent.parameter[(k+1)%3]);Vec r{};
+      for(unsigned d=0;d<3;++d)r[d]=.5*a[d]+.5*b[d];mid[k]=ToPoint(r);}
+    for(unsigned k=0;k<3;++k)prepare(parent.facet,{parent.parameter[k],mid[k],mid[(k+2)%3]},parent.depth+1);
+    prepare(parent.facet,{mid[0],mid[1],mid[2]},parent.depth+1);
+  }
+  const auto r=ParameterBox(FacetParameters(result.facet,result.binding));const auto& net=curves.at(result.facet);
+  const auto base=Blossom(net,{Exact({1,0,0}),r,r});
+  const auto normal=CrossBox(Difference(Blossom(net,{Exact({0,1,0}),r,r}),base),
+                            Difference(Blossom(net,{Exact({0,0,1}),r,r}),base));
+  Vec n{};for(unsigned d=0;d<3;++d)n[d]=double((normal[d].lo+normal[d].hi)/2);
+  const double length=std::hypot(n[0],n[1],n[2]);
+  if(!(length>0&&std::isfinite(length)))throw std::invalid_argument("Unrepresentable curved normal.");
+  for(auto& x:n)x/=length;result.normal=ToPoint(n);return result;
 }
 double MappedFacetReference::EnvelopeError(Id facet)const {
   const auto e=errors.find(facet);const double numerical=e==errors.end()?0.:e->second;
@@ -691,6 +835,11 @@ size_t MappedFacetReference::ResidentBytes()const {
     for(const auto& row:components->entries){const auto& c=row.second;out=transfer_memory::Add(out,transfer_memory::Bytes(c.facets),transfer_memory::Bytes(c.border),
         transfer_memory::Bytes(c.corners),bytes(c.features),c.search?c.search->GetAllocatedBytes():0,c.search?c.search->RetainedWorkspaceBound(1):0,transfer_memory::Mul(c.facets.size(),3*sizeof(Id)));}}
   if(face_memo)out=transfer_memory::Add(out,FaceMemoBytes());
+  if(curved_search) {
+    out=transfer_memory::Add(out,sizeof(CurvedSearch),bytes(curved_search->root),bytes(curved_search->entries));
+    for(const auto& row:curved_search->entries){const auto& c=row.second;out=transfer_memory::Add(out,transfer_memory::Bytes(c.facets),
+        c.index?c.index->GetAllocatedBytes():0,c.index?c.index->RetainedWorkspaceBound(1):0);}
+  }
   return out;
 }
 bool MappedFacetReference::ValidateSurface(const std::vector<SU2Native3D::SurfaceFace>& surface,

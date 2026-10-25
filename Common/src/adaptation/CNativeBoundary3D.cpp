@@ -320,6 +320,9 @@ bool CheckFirstHeight(const Patch& patch,const WallHeights& heights,const Planar
       const auto& face=entry.second;
       const auto height=heights.find(reference.Get(face.facet).marker);
       if(height==heights.end())continue;
+      // shortcut: curved first-row admission needs a certified fluid-side clearance, not only flat altitude.
+      if(reference.Mapped() && reference.Parameters()->Geometry().Curves().count(face.facet))
+        throw std::invalid_argument("Native3D curved first-height clearance is not integrated.");
       ++report.wall_faces;
       const auto a=nodes.at(face.v[0]).p,b=nodes.at(face.v[1]).p,c=nodes.at(face.v[2]).p;
       auto normal=Cross(Delta(b,a),Delta(c,a));const auto area=Norm(normal);

@@ -36,10 +36,11 @@ void WritePayload(SU2NativeBoundary2D::RecordStream& out,const State& state) {
 void WriteSnapshot(SU2NativeBoundary2D::RecordStream& out,const State& state) {
   auto version=state.Geometry().Version(),revision=state.Revision();const auto& g=state.Geometry();
   uint64_t nf=g.Reference().Facets().size(),ne=g.Errors().size(),na=g.Reference().Affine().size(),np=state.Records().size(),ns=state.Surface().size();
-  uint64_t policy=g.ReferenceComponents();out(version,revision,nf,ne,na,np,ns,policy);
+  uint64_t policy=g.ReferenceComponents(),nc=g.Curves().size();out(version,revision,nf,ne,na,np,ns,policy,nc);
   for(auto row:g.Reference().Facets())out(row.second);
   for(auto row:g.Errors()){auto id=row.first;out(id,row.second);}
   for(auto row:g.Reference().Affine()){auto id=row.first;out(id,row.second);}
+  for(auto row:g.Curves()){auto id=row.first;out(id,row.second);}
   for(auto row:state.Records()){auto id=row.first;out(id,row.second);}
   for(auto row:state.Surface())out(row.second);
 }

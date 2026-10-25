@@ -91,6 +91,19 @@ class MappedFacetReference {
                        const std::map<Id,double>& mapping_errors,uint64_t version,size_t ceiling=SIZE_MAX,
                        bool reference_components=false,const CurvedNets& curved_nets={});
   const CurvedNets& Curves()const{return curves;}
+  struct CurvedClosest {
+    Id facet=0;
+    SurfaceBinding binding;
+    Point point{},normal{};
+    double lower=0,upper=0;
+    size_t work=0;
+  };
+  /*! Closest distance to the edge-connected, same-marker curved component containing hint.
+   * Outward control-hull subdivision certifies [lower,upper] to the requested absolute error.
+   * The returned binding/normal describe the candidate point, not a certified unique minimizer.
+   * Ambiguous accuracy or resource exhaustion throws; no other body/marker is searched. */
+  CurvedClosest ClosestCurved(Id hint,Point query,double absolute_error,size_t maximum_work,
+                              size_t ceiling=SIZE_MAX)const;
   /*! Physical displacement from the original flat facet, including realization error. */
   double EnvelopeError(Id facet)const;
   /*! Outward bound between a flat realized child and its curved parameter patch. */
@@ -144,6 +157,8 @@ class MappedFacetReference {
   std::vector<std::vector<Id>> edge_facets;
   struct ComponentData;
   std::shared_ptr<const ComponentData> components;
+  struct CurvedSearch;
+  std::shared_ptr<CurvedSearch> curved_search;
   /*! Memo of ContainsFace verdicts (a pure function of the immutable reference and the bitwise facet, bindings and
    *  realized points). Used only without kernel statistics; bounded and admitted against the construction ceiling (ResidentBytes); guarded
    *  for concurrent const use. */

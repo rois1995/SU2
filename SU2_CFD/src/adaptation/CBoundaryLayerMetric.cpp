@@ -2095,6 +2095,9 @@ std::shared_ptr<CBoundaryLayerMetric> CBoundaryLayerMetric::FromNativeReference(
 std::shared_ptr<CBoundaryLayerMetric> CBoundaryLayerMetric::FromNativeReference(
     const SU2Native3D::ReferenceState& reference, const CConfig& config, double featureAngle) {
   if (!reference.original) throw std::invalid_argument("Native3D BL needs immutable original geometry.");
+  // shortcut: remove this refusal only with curved support, quadrature and chord integration qualified together.
+  if(reference.original->Mapped() && !reference.original->Parameters()->Geometry().Curves().empty())
+    throw std::invalid_argument("Native3D BL curved mapped queries are not integrated; refusing a faceted substitute.");
   std::vector<Wall> walls;
   for (unsigned short b=0;b<config.GetnAdap_BL();++b) {
     Wall wall;wall.layer=config.GetAdap_BL(b);

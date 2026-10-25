@@ -954,6 +954,9 @@ bool ImportGeometry(const CConfig& config, const CGeometry& geometry, const su2a
     const auto presence_high=CPassiveComm::Allreduce(presence,CPassiveComm::Op::MAX,parent.comm);
     if(presence_low!=presence_high)
       failure.Set(1,0,"Native3D import reference/sensor/declaration presence differs across ranks.");
+    // shortcut: v7 geometry can be inspected/persisted, but the complete curved adaptation path is not qualified.
+    if(state.original && state.original->Mapped() && !state.original->Parameters()->Geometry().Curves().empty())
+      failure.Set(1,0,"Native3D curved mapped adaptation is not integrated; reference retained unchanged.");
     if(!Vote(parent,failure,reason))return false;
     const size_t declaration_bytes=HasSymmetryReference(config)?8*SymmetryFileBytes:0;
     std::vector<SymmetryPlane> declared_planes;

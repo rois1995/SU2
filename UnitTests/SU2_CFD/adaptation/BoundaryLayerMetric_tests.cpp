@@ -1222,7 +1222,7 @@ TEST_CASE("Native3D complexity integrates the geometric BL with sensor-only dono
   }
 }
 
-TEST_CASE("Native3D complexity reference does not rebase the wall on the adapted surface", "[NativeVolumeBL3D]") {
+TEST_CASE("Native3D complexity reference does not rebase the wall on the adapted surface", "[NativeVolumeBL3D][NativeCurvedMappedGuards3D]") {
   using namespace SU2Native3D;
   auto mesh=simplex_test::MakeSimplexMesh(3,2,[](const passivedouble* x){return x[2]==0?"wall":"far";});
   MetricTest test(mesh,"MARKER_HEATFLUX= (wall,0)\nMARKER_FAR= (far)\nADAP_REMESHER= NATIVE_CAVITY\n"
@@ -1238,6 +1238,26 @@ TEST_CASE("Native3D complexity reference does not rebase the wall on the adapted
   CHECK(original.distance==Approx(0).margin(1e-14));CHECK(current.Evaluate(0,x,1.).distance==Approx(.025));
   CHECK(CBoundaryLayerMetric::FromNativeReference(state,*test.config)->Evaluate(0,x,1.).hn==Approx(.001));
   CHECK_FALSE(imported.original.empty());
+  using SU2NativeGeometry::MappedFacetReference;
+  MappedFacetReference::CurvedNets nets;std::map<Id,double> errors;
+  const unsigned powers[10][3]={{3,0,0},{0,3,0},{0,0,3},{2,1,0},{1,2,0},{0,2,1},{0,1,2},{1,0,2},{2,0,1},{1,1,1}};
+  for(const auto& f:state.facets) {
+    auto& net=nets[f.id];errors[f.id]=1e-12;
+    for(unsigned q=0;q<10;++q){long double p[3]={};for(unsigned k=0;k<3;++k){p[0]+=powers[q][k]*(long double)f.v[k].p.x;p[1]+=powers[q][k]*(long double)f.v[k].p.y;p[2]+=powers[q][k]*(long double)f.v[k].p.z;}
+      net[q]={double(p[0]/3),double(p[1]/3),double(p[2]/3)};}
+  }
+  auto curved=std::make_shared<MappedFacetReference>(state.original,errors,7,SIZE_MAX,false,nets);
+  BoundaryPoints points;std::vector<SurfaceFace> skin;
+  for(const auto& f:state.facets){for(auto n:f.v)points.emplace(n.id,BoundaryPoint{n,curved->Vertex(n.id)});skin.push_back({{f.v[0].id,f.v[1].id,f.v[2].id},f.id});}
+  auto parameters=std::make_shared<BoundaryParameterState>(curved,points,skin,1);
+  state.original=PlanarReference::WithParameters(state.original,parameters);
+  CHECK_THROWS_WITH(CBoundaryLayerMetric::FromNativeReference(state,*test.config),
+      "Native3D BL curved mapped queries are not integrated; refusing a faceted substitute.");
+  const auto saved=state.original;const auto savedPoints=parameters->Snapshot();
+  ImportedGeometry output;std::string reason;BridgeStats stats;
+  CHECK_FALSE(ImportGeometry(*test.config,test.Geometry(),nullptr,state,output,reason,stats,SIZE_MAX));
+  CHECK(reason.find("curved mapped adaptation is not integrated")!=std::string::npos);
+  CHECK(state.original==saved);CHECK(parameters->Snapshot()==savedPoints);CHECK(output.cells.empty());
 }
 
 TEST_CASE("Native3D volume integration resolves a far vertex closest to another wall face", "[NativeVolumeBL3D]") {
