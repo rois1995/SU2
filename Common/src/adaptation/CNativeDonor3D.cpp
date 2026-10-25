@@ -378,7 +378,9 @@ DonorSamples DonorImport::SampleQueries(const std::vector<Point>& points,const s
     for(size_t i=0;i<size;++i) {
       PointRequest query{world.rank,0,i,midpoints?midpoints->at(i)[0]:points[i],UINT64_MAX};
       if(midpoints){query.end=midpoints->at(i)[1];query.midpoint=true;}
-      const auto box=PointBounds(query);ranks->RanksIntersecting(box.data(),box.data()+3,owners);
+      // review 4: routing boxes grow by the near-coverage tolerance (the owner of a near-boundary donor gets the query)
+      auto box=PointBounds(query);{const double t=double(NearCoverageTolerance(query.point));for(int k=0;k<3;++k){box[k]-=t;box[k+3]+=t;}}
+      ranks->RanksIntersecting(box.data(),box.data()+3,owners);
       for(auto peer:owners)send.at(peer).push_back(query);
     }
     // Fixed-size eligibility records share the query transport; the house codec requires fixed records.

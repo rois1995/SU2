@@ -315,7 +315,7 @@ inline VStage13 PhaseV13(State& s,Rows10& rows,Growth& G,size_t work,double seco
          if(v13NearWallFirst&&pri>0){long double d=INFINITY;try{d=MinWallDistance(s,.5L*(Of(NodePoint(s,e[0]))+Of(NodePoint(s,e[1]))));}catch(const std::exception&){}
            pri=d>=s.h0&&d<=300*s.h0?1:pri+1;}
          longs.emplace_back(pri,-l,e);};
-     if(v13DemandQueue) {
+     if(v13DemandQueue&&v13EstimateScan) {  // review 8: the final cycle keeps the exact scan (no estimate-only selection)
        // DC-16: edges of the cells created since the previous scan (all cells at the first scan) plus the queue rest
        const Id from=scanned;scanned=s.next_cell;std::set<Edge> cand;
        for(const auto& e:queued)if(s.vertex_cells.count(e[0])&&s.vertex_cells.count(e[1])&&!Star(s,e).empty())cand.insert(e);

@@ -51,7 +51,16 @@ struct RoomStats { size_t calls=0,needy=0,region=0,cells=0,moved=0,frozen=0,metr
 inline RoomStats roomStats;
 
 /*! Room step of one layer. `plan`: planned top -> target; `fixed`: registry identities (never moved). */
+inline void MakeRoomImpl(State& s,const std::function<bool(Id)>& below,const std::set<Id>& fixed,const std::map<Id,V>& plan,std::ostream& log);
+/*! Review 2: an exception before the commit (planning, solve, checks) leaves the mesh unchanged and is only counted; an
+ *  exception during the commit (Apply) propagates and fails the event (Apply is not exception safe). */
+inline bool roomCommitting=false;
 inline void MakeRoom(State& s,const std::function<bool(Id)>& below,const std::set<Id>& fixed,const std::map<Id,V>& plan,std::ostream& log) {
+  roomCommitting=false;
+  try{MakeRoomImpl(s,below,fixed,plan,log);}
+  catch(const std::exception& e){if(roomCommitting)throw;++roomStats.why[std::string("exception: ")+e.what()];}
+}
+inline void MakeRoomImpl(State& s,const std::function<bool(Id)>& below,const std::set<Id>& fixed,const std::map<Id,V>& plan,std::ostream& log) {
   Scope scope("G MakeRoom");
   using namespace SU2NativeDeform;
   const auto t0=Clock::now();auto& st=roomStats;++st.calls;
@@ -116,12 +125,14 @@ inline void MakeRoom(State& s,const std::function<bool(Id)>& below,const std::se
   std::vector<std::vector<uint32_t>> star(n);for(size_t c=0;c<pb.cells.size();++c)for(auto v:pb.cells[c])star[v].push_back(uint32_t(c));
   auto cellOf=[&](size_t c,const std::vector<Vec<3>>& at){Cell x;x.id=0;for(int k=0;k<4;++k)x.v[k]=Node{global[pb.cells[c][k]],pt(at[pb.cells[c][k]])};return x;};
   std::vector<char> check(pb.cells.size(),0);
-  auto settle=[&]{const auto tm=Clock::now();
+  // review 1: a settle that does not close within its bound cancels the whole move (the original state is valid)
+  auto settle=[&]{const auto tm=Clock::now();bool closed=false;
    for(unsigned round=0;round<256;++round){std::vector<uint32_t> reverted;
      for(size_t c=0;c<pb.cells.size();++c){if(!check[c])continue;check[c]=0;bool changed=false;for(auto v:pb.cells[c])changed=changed||y[v]!=pb.x[v];if(!changed)continue;
        const Cell x=cellOf(c,y);const bool ok=Orientation(x.v[0].p,x.v[1].p,x.v[2].p,x.v[3].p)>0&&Valid(Shape(s,x));
        if(!ok)for(auto v:pb.cells[c])if(y[v]!=pb.x[v]){y[v]=pb.x[v];reverted.push_back(v);++st.metric_frozen;}}
-     if(reverted.empty())break;for(auto v:reverted)for(auto c:star[v])check[c]=1;}
+     if(reverted.empty()){closed=true;break;}for(auto v:reverted)for(auto c:star[v])check[c]=1;}
+   if(!closed){y=pb.x;std::fill(check.begin(),check.end(),0);++st.why["settle bound: move cancelled"];}
    st.metric+=Seconds(tm);};
   for(size_t c=0;c<pb.cells.size();++c)for(auto v:pb.cells[c])if(y[v]!=pb.x[v])check[c]=1;
   settle();
@@ -147,7 +158,7 @@ inline void MakeRoom(State& s,const std::function<bool(Id)>& below,const std::se
        for(unsigned k=0;k<4;++k)if(row.physical[k].present){for(Id x:faces[k])ok=ok&&!to.count(x);fresh.surface.push_back({faces[k],row.physical[k].facet});}
        Cell c=row.cell;for(auto& x:c.v){const auto f=to.find(x.id);if(f!=to.end())x=f->second;}c.id=s.next_cell+i;
        ok=ok&&Orientation(c.v[0].p,c.v[1].p,c.v[2].p,c.v[3].p)>0;fresh.cells.push_back(c);}
-     if(ok){Apply(s,ids,fresh);s.next_node=std::max(s.next_node,next);++st.commits;st.moved+=moved.size();}
+     if(ok){roomCommitting=true;Apply(s,ids,fresh);roomCommitting=false;s.next_node=std::max(s.next_node,next);++st.commits;st.moved+=moved.size();}
      else{++st.refused;++st.why["interior commit: skin or positivity"];}
      st.batch+=Seconds(tb);}}
   const auto ts=Clock::now();
@@ -157,7 +168,7 @@ inline void MakeRoom(State& s,const std::function<bool(Id)>& below,const std::se
     try{old=PatchOf(s,ids);ok=MoveVertex(old,g,Node{s.next_node,pt(sl.second)},s.next_cell,*s.reference,fresh,why);}catch(const std::exception& e){ok=false;why=e.what();}
     if(ok)for(const auto& c:fresh.cells)ok=ok&&Valid(Shape(s,c));
     if(!ok){++st.slide_reverted;++st.why["slide: "+swbi_dc2::Category(why).substr(0,60)];continue;}
-    Apply(s,ids,fresh);++st.moved;}
+    roomCommitting=true;Apply(s,ids,fresh);roomCommitting=false;++st.moved;}
   st.slides+=Seconds(ts);
   st.commit+=Seconds(tc);st.seconds+=Seconds(t0);
   log<<"DC16 room needy="<<needy.size()<<" region="<<region.size()<<" cells="<<cellIds.size()<<" cg="<<sr.iterations<<(sr.converged?"":" (unconverged)")

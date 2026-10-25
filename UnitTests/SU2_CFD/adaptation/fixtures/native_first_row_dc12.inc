@@ -208,7 +208,8 @@ TEST_CASE("DC-12 growth layers on synthetic boxes: fills, law heights, carriers,
   struct Run { std::unique_ptr<State> s;Rows10 rows;Growth G;std::map<int,long double> areas;size_t walls=0;DirField field; };
   auto run=[&](const BoxSpec& b,const std::set<std::array<int,2>>& stopAt)->Run{
     Run r;Policies policies;artificialMarkers={2};perf=Perf{};ResetCaches();cachesOn=true;
-    r.s=SyntheticBox(b);ApplyWallPolicies(*r.s);DetectCreases(*r.s,BoxRoles());  // DC-16: roles by marker index (spec), as production takes them from config kindssize_t unbound=0;r.areas=MarkerAreas(*r.s,unbound);REQUIRE(unbound==0);
+    r.s=SyntheticBox(b);ApplyWallPolicies(*r.s);DetectCreases(*r.s,BoxRoles());size_t unbound=0;  // DC-16: roles by marker index (spec), as production takes them from config kinds
+   r.areas=MarkerAreas(*r.s,unbound);REQUIRE(unbound==0);
     r.field=ComputeDirectionField(*r.s);directionField=&r.field.d;
     std::ostringstream log;PhaseR1(*r.s,r.rows,4096,60,log);PhaseR2(*r.s,static_cast<Rows&>(r.rows),120,log);
     std::set<Id> force;for(const auto& a:stopAt)force.insert(Id(1+a[0]+(b.n+1)*a[1]));

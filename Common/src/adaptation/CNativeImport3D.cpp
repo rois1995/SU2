@@ -382,12 +382,16 @@ bool JointAffineCoverage(World& world,const Owned& owned,std::vector<DonorCell>&
   // scale; e.g. the promoted faceted reference with 1e-13 relative mapping error) is not built: those kernels already
   // evaluate a point within that distance of the original donors in the nearest donor. Its exact pair audit grows with
   // the boundary (hours on the published 1.25M-cell ONERA M6 mesh) and would certify nothing more.
-  {double scale=1;for(const auto& d:source)for(const auto& n:d.cell.v)scale=std::max({scale,std::abs(n.p.x),std::abs(n.p.y),std::abs(n.p.z)});
-   scale=CPassiveComm::Allreduce(scale,CPassiveComm::Op::MAX,world.comm);
-   // the exact audit stays for the final cycle of a FIRST_ROW h0 ramp (and every other caller): exact_audit
-   if(!exact_audit&&radius<=double(NearCoverageTolerance(Point{scale,0,0}))){
-     if(!world.rank)std::cout<<"DC16 joint source envelope skipped (intermediate event): radius "<<radius<<" <= near-coverage tolerance "<<double(NearCoverageTolerance(Point{scale,0,0}))<<std::endl;
-     return true;}}
+  // review 6: the condition holds per mapped facet: 4 x its declared error below the near-coverage tolerance at that
+  // facet (the point tolerance is local: 1e-12 x max(1, |x|) at each of its vertices)
+  if(!exact_audit) {
+    int thin=reference.Mapped()&&reference.Affine().empty()?1:0;double worst=0;
+    if(thin)try{for(const auto& row:reference.Parameters()->Geometry().Errors()){const auto& f=reference.Parameters()->Geometry().Reference().Get(row.first);
+        long double tol=INFINITY;for(const auto& n:f.v)tol=std::min(tol,NearCoverageTolerance(n.p));
+        worst=std::max(worst,4*row.second/double(tol));if(!(4*row.second<=double(tol))){thin=0;break;}}}catch(const std::exception&){thin=0;}
+    thin=CPassiveComm::Allreduce(thin,CPassiveComm::Op::MIN,world.comm);
+    if(thin){if(!world.rank)std::cout<<"DC16 joint source envelope skipped (intermediate event): 4 x mapping error <= near-coverage tolerance on every facet (worst ratio "<<worst<<")"<<std::endl;
+      return true;}}
   uint64_t local_faces=0,local_boundary=0;
   for(const auto& row:owned) {
     bool boundary=false;for(auto f:row.second.physical)if(f.present){++local_faces;boundary=true;}

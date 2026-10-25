@@ -46,6 +46,14 @@ inline long double NearWeights(const std::array<Point, 4>& t, Point p, std::arra
   for (auto& v : w) v /= sum;
   long double q[3] = {0, 0, 0};
   for (int k = 0; k < 4; ++k) { q[0] += w[k] * t[k].x; q[1] += w[k] * t[k].y; q[2] += w[k] * t[k].z; }
-  return std::sqrt((q[0] - p.x) * (q[0] - p.x) + (q[1] - p.y) * (q[1] - p.y) + (q[2] - p.z) * (q[2] - p.z));
+  const long double distance = std::sqrt((q[0] - p.x) * (q[0] - p.x) + (q[1] - p.y) * (q[1] - p.y) + (q[2] - p.z) * (q[2] - p.z));
+  // review 7: never more than 1e-6 of the donor's longest edge (a translated domain far from the origin, where the
+  // coordinate-scaled tolerance would be large, still admits only rounding-level exterior points)
+  long double edge = 0;
+  for (int i = 0; i < 4; ++i) for (int j = i + 1; j < 4; ++j) {
+    const long double dx = (long double)t[i].x - t[j].x, dy = (long double)t[i].y - t[j].y, dz = (long double)t[i].z - t[j].z;
+    edge = std::max(edge, std::sqrt(dx * dx + dy * dy + dz * dz));
+  }
+  return distance <= 1e-6L * edge ? distance : INFINITY;
 }
 }  // namespace SU2Native3D

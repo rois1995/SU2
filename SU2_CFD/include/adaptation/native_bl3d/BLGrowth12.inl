@@ -392,7 +392,7 @@ inline Growth PhaseG(State& s,Rows10& rows,double seconds,std::ostream& log,cons
     if(G.outcome=="limit:memory")break;
     if(plan.empty())break;
     // DC-16: room for the layer (deformation of the free volume above the active front, one-unit commit)
-    if(dc16::roomStep){try{dc16::MakeRoom(s,below,fixed,plan,log);}catch(const std::exception& e){++dc16::roomStats.why[std::string("exception: ")+e.what()];}}
+    if(dc16::roomStep)dc16::MakeRoom(s,below,fixed,plan,log);  // review 2: commit failures propagate (event fails)
     std::vector<Id> tops;for(const auto& p:plan)tops.push_back(p.first);
     std::set<Id> done,refusedNow;
     auto aboveOf=[&](Id t){std::set<Id> out;for(Id id:StarOf(s,t))if(!below(id))out.insert(id);return out;};

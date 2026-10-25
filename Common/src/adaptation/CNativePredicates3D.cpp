@@ -742,8 +742,9 @@ std::vector<SegmentPiece> TraceSegment(const std::vector<const Cell*>& donors, P
     const long double length=std::sqrt(((long double)b.x-a.x)*((long double)b.x-a.x)+((long double)b.y-a.y)*((long double)b.y-a.y)+((long double)b.z-a.z)*((long double)b.z-a.z));
     const long double slack=NearCoverageTolerance(a,b)/std::max(length,std::numeric_limits<long double>::min());
     if (order < 0 && result.empty() && piece.piece.begin <= slack) {
-      auto p = piece.piece; p.end = p.begin + p.width; p.begin = 0; p.width = p.end;
-      result.push_back(p); cursor = piece.end; previous = &piece; continue;
+      // review 5: a separate constant piece over [0, begin) carries the start weights; the exact piece is unchanged
+      SegmentPiece gap = piece.piece; gap.end = gap.width = piece.piece.begin; gap.begin = 0; gap.end_weights = gap.begin_weights;
+      if (gap.width > 0) result.push_back(gap); result.push_back(piece.piece); cursor = piece.end; previous = &piece; continue;
     }
     if (order != 0)
       throw std::runtime_error(order > 0 ? "Overlapping native 3D source segment intervals."
@@ -756,8 +757,10 @@ std::vector<SegmentPiece> TraceSegment(const std::vector<const Cell*>& donors, P
     // DC-16: the same tolerance at the far endpoint
     const long double length=std::sqrt(((long double)b.x-a.x)*((long double)b.x-a.x)+((long double)b.y-a.y)*((long double)b.y-a.y)+((long double)b.z-a.z)*((long double)b.z-a.z));
     const long double slack=NearCoverageTolerance(a,b)/std::max(length,std::numeric_limits<long double>::min());
-    if (!result.empty() && 1 - (result.back().begin + result.back().width) <= slack) {
-      result.back().end = 1; result.back().width = 1 - result.back().begin; return result;
+    if (!result.empty() && 1 - result.back().end <= slack) {
+      // review 5: a separate constant piece over (end, 1] carries the end weights
+      SegmentPiece gap = result.back(); gap.begin = result.back().end; gap.end = 1; gap.width = 1 - gap.begin; gap.begin_weights = gap.end_weights;
+      if (gap.width > 0) result.push_back(gap); return result;
     }
     throw std::runtime_error("Uncovered native 3D source segment endpoint.");
   }
