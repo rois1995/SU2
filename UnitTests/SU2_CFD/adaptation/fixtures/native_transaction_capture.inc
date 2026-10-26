@@ -264,8 +264,7 @@ TEST_CASE("Saved native transaction construction replay", "[.][NativeTransaction
   for(const auto& f:Incidence(first->fresh.cells).Boundary())boundary_vertices.insert(f.begin(),f.end());
   for(const auto& c:first->fresh.cells)for(auto n:c.v)all_vertices.insert(n.id);
   const auto interior_vertices=all_vertices.size()-boundary_vertices.size();
-  // The live capture already certified first-cavity completeness, versions, reservation and exterior contact.
-  // Here one bounded connectivity repair keeps that initial candidate's complete curved skin fixed.
+  // The live capture certifies the old footprint; every changed proposal still needs its own terminal checks.
   const auto start=std::chrono::steady_clock::now();const auto cpu=std::clock();
   std::cout<<"TRANSACTION_REPAIR_BEGIN"<<std::endl;
   FrozenField repair_field(std::move(source),{},false,components,{}, {},true,capture.donors.size());
@@ -273,9 +272,34 @@ TEST_CASE("Saved native transaction construction replay", "[.][NativeTransaction
   REQUIRE(initial.minimum_mean_ratio>0);REQUIRE(initial.minimum_scaled_jacobian>=ValiditySliverJacobian);
   SetShapeAdmission(ShapeAdmission::ValidityOnly);
   Patch repaired;ConnectivityRepairReport report;std::string reason;
-  const bool surface_placement=std::getenv("SU2_NATIVE_TRANSACTION_SURFACE_PLACEMENT");
+  const bool parameter_search=std::getenv("SU2_NATIVE_TRANSACTION_PARAMETER_SEARCH");
+  const bool surface_placement=parameter_search || std::getenv("SU2_NATIVE_TRANSACTION_SURFACE_PLACEMENT");
   JointSplitReport placement_report;bool changed=false;std::string method="connectivity";
-  if(surface_placement) {
+  if(parameter_search) {
+    REQUIRE(seed_event==1);std::map<Id,Point> points;
+    for(const auto& c:first->old.cells)for(auto n:c.v)points.emplace(n.id,n.p);
+    const auto a=points.at(edge[0]),b=points.at(edge[1]);double best=-1;
+    const auto before_geometry=TransactionSurfaceExcess(first->old,*capture.reference,tolerance);
+    std::ofstream scan("parameter_scan.json");scan<<std::setprecision(17)<<"[";
+    for(unsigned step=1;step<16;++step) {
+      const long double t=step/16.L;Node point{first->first_node,{double(a.x+t*(b.x-(long double)a.x)),
+          double(a.y+t*(b.y-(long double)a.y)),double(a.z+t*(b.z-(long double)a.z))}};
+      Patch trial;std::string why;++placement_report.trials;
+      const bool built=SplitEdge(first->old,edge,point,first->first_cell,*capture.reference,trial,why);
+      if(step>1)scan<<",";scan<<"{\"t\":"<<double(t)<<",\"built\":"<<built;
+      if(built) {
+        const auto m=MeasureMetricCells(trial.cells,repair_field);
+        const auto geometry=TransactionSurfaceExcess(trial,*capture.reference,tolerance);
+        const bool progress=before_geometry>0 && geometry<before_geometry*(1-1e-12L);
+        const double score=std::min(m.minimum_mean_ratio/MinimumMeanRatio,m.minimum_scaled_jacobian/MinimumScaledJacobian);
+        scan<<",\"q\":"<<m.minimum_mean_ratio<<",\"J\":"<<m.minimum_scaled_jacobian
+          <<",\"maximum_edge\":"<<double(m.maximum_length)<<",\"geometry_progress\":"<<progress;
+        if(progress && score>best){best=score;repaired=std::move(trial);changed=true;}
+      }else {++placement_report.geometry_rejected;scan<<",\"reason\":"<<std::quoted(why);}
+      scan<<"}";
+    }
+    scan<<"]\n";scan.close();REQUIRE(bool(scan));method="edge_parameter_search";
+  } else if(surface_placement) {
     REQUIRE(seed_event==1);
     PlaceSplitPatch(first->old,edge,first->point,{},first->first_cell,repair_field,*capture.reference,{},
         repaired,placement_report,reason,256);
@@ -315,6 +339,7 @@ TEST_CASE("Saved native transaction construction replay", "[.][NativeTransaction
       std::vector<Face> expected;
       for(auto f:Incidence(first->old.cells).Boundary()){auto key=f;std::sort(key.begin(),key.end());if(!physical.count(key))expected.push_back(f);}
       for(auto f:repaired.surface)expected.push_back(f.v);
+      std::sort(expected.begin(),expected.end(),[](Face a,Face b){std::sort(a.begin(),a.end());std::sort(b.begin(),b.end());return a<b;});
       interface=ValidatePrescribedInterface(first->old.cells,repaired.cells,expected,reason,nullptr,MaximumReplacementCells);
     } else interface=ValidateFixedInterface(first->fresh.cells,repaired.cells,reason,nullptr,MaximumReplacementCells);
     const auto before_geometry=TransactionSurfaceExcess(first->old,*capture.reference,tolerance);

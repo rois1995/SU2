@@ -15,20 +15,29 @@ operators, q>=.20,J>=.05,edge<=1.8,h0 within10%, configured500k metric-complexit
 (not tet-count), geometry, conservative transfer and restart. Curvature uses
 ADAP_HAUSD in mesh units independently ofh0. No accepted full M6 exists.
 
-ACTIVE: test-only surface-placement probe build7712 is running (one worker; pinned C++). Previous build64033,
-offline5 session19972 and concurrent2 session29830 are terminal. Offline5 staged
-interior seed still fails q=.09641,J=.022545; max edge1.59836/interface pass,128 total
-trials,0.031s branch. Independent enumeration proves one physical child face cannot
-be filled admissibly using any of the six fixed vertices (not general infeasibility).
-Next: existing PlaceSplitPatch under GeometryRefine terminal checks; no new M6 prefix.
-The engine diagnostic fix now preserves refusals across peer contact/reservation
-votes; MPI2 passes5 tests/rank (81/121 assertions). Production construction and gates
-remain unchanged. All26 original calls/11 shape messages replay exactly.
-Details: [transaction replay](Handbook/M6_TRANSACTION_REPLAY.md). No accepted local
-repair or full M6. Capture94073:72.287s native/work2048 rejection, all diagnostic55
-counters match. Large303,428-cell capture stays local with hashes. Latest pushed
-checkpoint4e1c3be1ef; subsequent connected work is being checkpointed. Do not edit
-pinned C++ during the next build/replay. No larger construction cap or full1800s rerun.
+ACTIVE: no owned build/run remains live. Build96356 and offline7/session83140 are
+terminal/pass, pins verified. The captured M6 cavity now has an accepted LOCAL
+replacement: move only the authoritative split parameter to.8125; q=.24412,J=.05570,
+max edge1.59836; curvature, prescribed interface and full-current-mesh contact pass.
+Independent q/J/source/orientation check agrees. No full M6 acceptance.
+
+LATEST USER STEERING: validity-first construction then metric/BL-aware optimization
+was ALREADY an agreed ledger decision. User reaffirmed it and explicitly permits
+physical boundary-node motion; do not continue adding strict-construction fallbacks.
+Follow [connected scope](Handbook/STAGED_NATIVE_ADAPTATION.md). Reuse distributed
+Adapt/Repair; it already supports validity-only interior repair and strict completion.
+RefineOptimize is serial; RegionFieldService is rank0-driven. Production still
+forces Absolute. Boundary geometry currently protects original mesh-chart edges/
+vertices beyond genuine features; smooth cross-chart mobility and its geometry/source
+certificates are part of the gap, not license to weaken the authority.
+
+No new production placement fallback has been implemented. Only the lost-rejection
+message fix is changed production behavior (MPI2 passes5 tests/rank). Test-only
+probes/replay establish the diagnosis. All26 original calls/11 shape refusals match.
+Details: [transaction replay](Handbook/M6_TRANSACTION_REPLAY.md). Latest pushed
+checkpoint1a5745fe3e; accepted witness and revised direction being saved next.
+Large303,428-cell capture stays local with hashes. No new M6 prefix or1800s rerun
+until the connected staged implementation is ready. Keep C++ pinned during jobs.
 
 54 full M6 Euler6 session64848 terminal (driver0, native REJECTED).
 Native1805.12s, whole1980.41s, largest process736,780KiB (not whole-job peak).

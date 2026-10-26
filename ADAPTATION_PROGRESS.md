@@ -64,28 +64,29 @@ context before repair. Local transaction acceptance and final-patch edge accepta
 are distinct. No production fix, new numerical validation or capability closure is
 claimed by this documentation checkpoint.
 
-Diagnostic56 capture is terminal and passes (MPI6, native72.287s, launch80.475s;
-no accepted mesh). It preserves the full303,428-cell current mesh at round4 and
-70 selected transaction events. The initial split and first shape failure reproduce
-exactly; a fresh directory confirms dependency versions/reservation and external
-contact. Maximum integrated candidate edge1.59836 passes; q=.183972/J=.042790 fail.
-The transaction uses all12 growth iterations, then13 reconnections. Independent
-checks verify722 dependency records against global ownership. Captured geometry
-parameters agree across all ranks. Lossless deduplication keeps the capture below
-25MiB; the initial archive-size refusal is retained. Offline3 exactly replays all26
-construction calls and11 shape refusals, then finds no changed repair candidate in
-6 connectivity and9 optimizer trials. No resource limit was reached. The interior-vertex seed also fails
-(q=.09641,J=.022545,128 total trials). Independent enumeration identifies a physical
-child triangle with no admissible apex among the six fixed vertices. The next probe
-reuses surface placement to test a different construction freedom. The concurrent
-contact/reservation diagnostic fix passes5 tests on each of2 ranks. No construction-policy
-change, accepted repaired witness or DC closure. See the
-[transaction replay report](Handbook/M6_TRANSACTION_REPLAY.md).
+Diagnostic56 now establishes an accepted LOCAL replacement for its first M6 failure.
+The capture retains303,428 current cells,70 events and722 verified dependencies;
+all26 construction calls and11 shape refusals replay exactly. Fixed-wall repairs
+fail, but changing the authoritative split parameter passes q=.24412,J=.05570,
+maximum edge1.59836, curvature progress, prescribed interface and external contact.
+Independent original-P1 measurement agrees; only the new wall point moved. This
+proves local possibility, not a complete M6 mesh. The diagnostic rejection-message
+fix passes5 tests on each of2 ranks. [Evidence](Handbook/M6_TRANSACTION_REPLAY.md).
+
+The user reaffirmed validity-first construction followed by quality improvement,
+and allowed physical boundary-node movement. This was already a ledger decision;
+production's forced Absolute admission remains an integration gap. Next work follows
+[the connected staged implementation scope](Handbook/STAGED_NATIVE_ADAPTATION.md):
+geometry/BL-aware movement and topology optimization, complete distributed stars,
+strict final acceptance and transfer/restart. No more isolated strict-construction
+fallbacks. Curved chart restrictions currently pin some smooth original mesh nodes
+and must not be mistaken for genuine feature constraints.
 
 ## Checkpoints
 
 | Checkpoint | Change | Validation status |
 | --- | --- | --- |
+| `1a5745fe3e` — WIP | Preserve concurrent rejection messages; complete M6 transaction replay and fixed-vertex obstruction | MPI2 diagnostic regression passes; both private repairs fail strict shape. Surface placement is test-only, full M6 remains unaccepted. |
 | `fdb6ad2683` | Persisted curved import and original-source runtime queries | Small cubic Euler/RANS transfer and SU2/CGNS reload pass at this baseline. |
 | `79bfba6f8f` | Reuse collision searches, retaining exact contact checks | Connected checks pass; full M6 validation41 rejects. |
 | `e398807a2c` | Reactivate curved demands; admit compatible concurrent proposals | 105 serial cases, MPI2 and all-worker runtime pass; full M6 validation43 rejects. |

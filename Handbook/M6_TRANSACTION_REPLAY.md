@@ -1,12 +1,10 @@
 # M6 transaction replay — diagnostic56
 
-Current: all26 recorded construction calls and11 shape refusals replay exactly.
-Neither the initial fixed-skin repair nor the staged interior-vertex repair passes
-strict shape. Exhaustive fixed-vertex enumeration identifies one wall child triangle
-with no admissible existing apex. The next bounded probe reuses surface placement.
-The lost-rejection diagnostic is fixed and passes MPI2 regression. No accepted local
-repair or full-M6 mesh exists; DC-17/DC-18 remain open. This follows the
-[independent review reconciliation](M6_REVIEW_RECONCILIATION.md).
+Current: an accepted LOCAL replacement now exists for the captured first M6 failure.
+All26 recorded construction calls and11 shape refusals replay exactly. Adjusting the
+split parameter passes strict shape/edges, curvature progress, prescribed interface
+and external contact. Full M6/DC-17/DC-18 remain open. The implementation direction
+is now the user's reaffirmed [staged construction and movable-boundary optimization](STAGED_NATIVE_ADAPTATION.md), not more strict construction fallbacks.
 
 ## Verified capture
 
@@ -133,3 +131,42 @@ shape/edge checks, curvature progress and current-mesh contact, using captured s
 and unchanged256-trial/60s/1GiB-RSS limits. This is test-only; no new production
 construction path is enabled. The serial directory uses production's12GiB conservative
 storage allowance, independently of the enforced1GiB measured process RSS cap.
+
+Offline6 (session8203, exit0,19.158s launch) uses59 surface-placement trials but
+retains the initial split exactly. Independent original-donor measurement confirms
+q=.183971960,J=.042789630 and identical new-point coordinates. The helper's terminal
+interface check incorrectly supplied an unsorted expected-face vector; this diagnostic
+setup failure is corrected by canonical face-key ordering. No acceptance is inferred
+from the exit status or the unmeasured q/J fields. Next:15 deterministic interior
+parameters along the authoritative original edge, rebuilding each with existing
+SplitEdge and checking actual shape plus curvature progress. This isolates whether
+the placement search misses an available admissible position. It is not a cap increase
+or a production fallback. Sources remain pinned through build96356 and its replay.
+
+## Accepted local parameter witness
+
+Offline7/session83140 is terminal/pass with immutable source/runtime/input pins:
+15 parameter trials,4-cell candidate, q=.24412178036264912,J=.055704157122262989,
+maximum integrated edge1.5983623161096352. Curvature progress, prescribed interface,
+GeometryRefine admission, complete final-patch metric and current-mesh contact all
+pass. Parameter t=.8125 supplies the best normalized shape score in this bounded
+scan; t=.6875 and.75 also pass q/J. All other node coordinates and physical facet
+identities remain unchanged. No extra interior point, relaxed gate or new MPI prefix.
+
+Branch wall2.4828s/CPU2.4812s includes the serial full-current-mesh directory/contact
+check; launcher16.9202s. Largest sampled process RSS905,027,584 bytes stays below
+1GiB; no cap reached. Conservative directory allowance12GiB is distinct from that
+measured-process limit. The accepted local witness is not an accepted global mesh.
+
+`verify_repair.py` independently confirms positive exact orientations, original-donor
+P1 centroid q/J and the single moved node; native full-edge and contact certificates
+remain separately attributed. `offline7/repair_candidate.json` is readable; small
+candidate binary, all15 scan rows, status/pins and independent receipt are retained.
+Earlier failed repairs and the offline6 interface-ordering harness failure remain.
+
+User2026-10-26 reaffirmed the existing final-only quality decision and explicitly
+allowed boundary-node movement. Production still forces Absolute admission. The
+next implementation is the connected validity-first construction, geometry/BL-aware
+quality improvement and distributed repair lifecycle, reusing this accepted witness
+as a regression. Original mapped chart restrictions are a separate mobility gap;
+do not confuse artificial original-mesh edges with actual sharp physical features.

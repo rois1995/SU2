@@ -107,3 +107,13 @@ User instruction, 2026-10-17: account for machine contention and RAM usage.
 User authorization, 2026-10-18: consult the local Claude Code installation when
 useful, using Opus 5.5 at medium or high effort. Keep source-checking and validation
 with the implementation; a model review does not establish correctness.
+
+## Staged adaptation and boundary mobility
+
+User reaffirmation,2026-10-26: implement the already agreed validity-first construction
+followed by metric/BL-aware quality improvement. q/J/size and requested first-height gates apply to the
+final accepted mesh; intermediate meshes must remain valid. Fixed physical boundary
+node coordinates are not required. Allow redistribution on the prescribed geometry
+while retaining genuine features, body separation and requested BL constraints.
+Complete the connected distributed workflow rather than accumulating strict local
+construction fallbacks; preserve all final acceptance/transfer/restart obligations.
