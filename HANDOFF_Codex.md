@@ -12,7 +12,7 @@ metric-driven operators, unchanged q>=.20, J>=.05, edge<=1.8, first height withi
 User curvature decision: configured ADAP_HAUSD in mesh units, independent of h0
 and ramp. No implicit chord inference or silent tightening to h0.
 
-Current local checkpoint10c24a78ce. Full M6 curved-source/field qualification
+Current local checkpointfdb6ad2683. Full M6 curved-source/field qualification
 passes (validation32–34):450,221 source cells, all48,954 reference facets queried,
 293,724 directed chords, exact serial/MPI2 record identity including ownership.
 Curved first-height clearance/local differential geometry remains validated on
@@ -34,8 +34,22 @@ and no-slip redistribution. Independent saved-mesh flow/history error8.88e-16.
 Serial46476 passes98 cases/15,718 assertions. MPI24127 exposes local-only wall
 classification of halo nodes (owned states correct); validation39 gathers physical
 wall global IDs for the oracle. Build85486 and MPI2 job20715 pass98 cases/rank (16,342/16,021 assertions);
-serial runtime61407 passes487 assertions. All jobs terminal; all pins verified. Production unchanged from validation37; no M6 rerun for
-these test-only fixes. Gates/deadline unchanged. Automatic curved initialization
+serial runtime61407 passes487 assertions. Validation39 is terminal; its pins verify. The checkpoint retains production validation37;39 only changes tests.
+New validation40 implements Directory collision-index reuse, version checks,
+atomic added-cell tracking and exact owner vetoes. Direct distributed tests cover
+movement/reused IDs, deletion, rejected publication, rebuild and byte refusal.
+Build48180 failed on missing LINE enum include/fixed-record codec; corrected
+with bounded std::array proposal fields. Build13114 passed; final count/thread-bound review fixed and build47859 passed.
+Final build90802 passes. Serial43635 passes99 cases/15,752 assertions; MPI94064
+passes99 cases/rank,16,376/16,055 assertions. All-active-worker MPI57077 also
+passes408/442 assertions. Full M6 job20721 is terminal:3,122 accepted edits (was99),38 collision builds,
+1,040,674 exact contacts in22.11s; total300.89s,135,178 invalid cells and80,523
+queued edges remain. No accepted M6; original CFD state retained. Source pins
+verify. This is time exhaustion during active refinement, not operator stagnation.
+Validation41 adds final demand diagnostics and a bounded longer qualification:
+native1800s/outer2400s,12GiB/rank, same500k/q/J/edge/geometry/transfer gates.
+The300s comparison remains preserved in40; no mesh acceptance condition changes.
+Build passes; serial23227 passes3 cases/7,689 assertions. Full M6 job23818 running; preserve pinned C++. Gates/deadline unchanged. Automatic curved initialization
 is absent and BL support/quadrature remains guarded.
 - Shared Option A field is used by normalization, profile selection, construction,
   reassessment and original-family correction; finer sensor directions survive.

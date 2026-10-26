@@ -1,0 +1,412 @@
+diff --git a/Common/include/adaptation/CNativeDistributed3D.hpp b/Common/include/adaptation/CNativeDistributed3D.hpp
+index c585a3716b..4ef0038822 100644
+--- a/Common/include/adaptation/CNativeDistributed3D.hpp
++++ b/Common/include/adaptation/CNativeDistributed3D.hpp
+@@ -60,6 +60,8 @@ struct ReservationBatch {
+ struct DirectoryStats {
+   uint64_t builds = 0, lookups = 0, fetches = 0, reservations = 0, publications = 0, rejected = 0;
+   uint64_t metadata_scanned = 0, payloads = 0, elections = 0;
++  uint64_t collision_builds=0,collision_candidates=0,collision_checks=0;
++  double collision_seconds=0;
+   uint64_t change_scanned = 0, change_sent = 0, change_received = 0;
+   double change_seconds = 0;  // Nested in publication; only affected-star owner notifications.
+   size_t maximum_dependencies = 0, maximum_work_bytes = 0;
+@@ -77,8 +79,8 @@ constexpr size_t MaximumDirectoryScan = 4096;
+  * Geometry/embedding/marker/metric certificates and nonconflicting cavity selection remain caller duties. */
+ class Directory {
+  public:
+-  explicit Directory(World& world, bool track_changes = false,BoundaryParameterState* parameters=nullptr)
+-      :world(world),track_changes(track_changes),parameters(parameters) {}
++  explicit Directory(World& world, bool track_changes = false,BoundaryParameterState* parameters=nullptr);
++  ~Directory();
+   // Initial construction only; create a new directory after ownership migration.
+   bool Build(const Owned& owned, std::string& reason, size_t ceiling = SIZE_MAX, size_t caller_bytes = 0);
+   Dependencies Lookup(const std::vector<Feature>& features, size_t ceiling = SIZE_MAX, size_t caller_bytes = 0);
+@@ -111,11 +113,18 @@ class Directory {
+   /*! After successful tracked publication, sorted changed vertices for every old/new star owner.
+    * Staged before the final vote; rejection preserves both stores and this list. Mode must match across workers. */
+   const std::vector<Id>& ChangedVertices() const { return changed_vertices; }
++  /*! Collective exact contact veto against the current published mesh. Private replacement cells are broadcast;
++   * local cached boxes plus published additions cover every current cell. False return is a protocol/resource
++   * failure; candidate=false is a geometric veto. Publication invalidates stale cell IDs/versions. */
++  bool Clearance(const Owned& owned,const Patch& old,const Patch& fresh,bool& candidate,std::string& reason,
++                 size_t ceiling=SIZE_MAX,size_t caller_bytes=0);
+   size_t ResidentBytes() const;
+   const DirectoryStats& Statistics() const { return stats; }
+   std::vector<char> Snapshot() const;
+ 
+  private:
++  struct CollisionIndex;
++  std::unique_ptr<CollisionIndex> collision;
+   BoundaryParameterState* parameters=nullptr; // Borrowed for the directory lifetime; never copied per edit.
+   const SU2NativeGeometry::MappedFacetReference* parameter_geometry=nullptr;
+   size_t parameter_geometry_bytes=0;
+diff --git a/Common/include/adaptation/CNativeEngine3D.hpp b/Common/include/adaptation/CNativeEngine3D.hpp
+index a8185b0f06..a8fa6344b8 100644
+--- a/Common/include/adaptation/CNativeEngine3D.hpp
++++ b/Common/include/adaptation/CNativeEngine3D.hpp
+@@ -115,6 +115,8 @@ struct EngineStats {
+   double edge_seconds = 0, edge_search_seconds = 0, edge_trace_seconds = 0, edge_integral_seconds = 0;
+   double edge_geometry_seconds = 0, edge_composition_seconds = 0;  // Nested in edge integration.
+   size_t maximum_work_bytes = 0, maximum_owned = 0;
++  uint64_t collision_builds=0,collision_candidates=0,collision_checks=0;
++  double collision_seconds=0; // Exclusive current-mesh contact search.
+   double parameter_setup_seconds=0,parameter_agreement_seconds=0,parameter_publication_seconds=0; // Nested geometry detail.
+   uint64_t parameter_edits=0,parameter_faces=0,parameter_payload_bytes=0;
+   double total_seconds = 0, initialization_seconds = 0, seed_seconds = 0, selection_seconds = 0;
+diff --git a/Common/src/adaptation/CNativeDistributed3D.cpp b/Common/src/adaptation/CNativeDistributed3D.cpp
+index b771a2b4aa..bf5055dc04 100644
+--- a/Common/src/adaptation/CNativeDistributed3D.cpp
++++ b/Common/src/adaptation/CNativeDistributed3D.cpp
+@@ -5,7 +5,10 @@
+  * SU2 is free software under the GNU Lesser General Public License, version 2.1 or later.
+  */
+ #include "../../include/adaptation/CNativeDistributed3D.hpp"
++#include "../../include/adt/CADTElemClass.hpp"
++#include "../../include/option_structure.hpp"
+ #include <chrono>
++#include <cmath>
+ #include <set>
+ #include <stdexcept>
+ namespace SU2Native3D {
+@@ -110,8 +113,22 @@ bool Directory::Vote(const CLocalFailure& failure, std::string& reason) {
+   reason = elected.message;
+   return !elected.any;
+ }
++struct Directory::CollisionIndex {
++  std::unique_ptr<CADTElemClass> tree;
++  std::vector<std::pair<Id,uint64_t>> rows;
++  std::set<Id> added;
++  bool initialized=false;
++  size_t Bytes()const {
++    return transfer_memory::Add(transfer_memory::Bytes(rows),MapBytes<std::set<Id>>(added.size()),
++        tree?transfer_memory::Add(tree->GetAllocatedBytes(),tree->RetainedWorkspaceBound(1)):0);
++  }
++};
++Directory::Directory(World& world,bool track_changes,BoundaryParameterState* parameters)
++    :world(world),track_changes(track_changes),parameters(parameters) {}
++Directory::~Directory()=default;
+ size_t Directory::ResidentBytes() const {
+-  return transfer_memory::Add(MapBytes<Stars>(stars.size()), resident_payload_bytes, transfer_memory::Bytes(changed_vertices));
++  return transfer_memory::Add(MapBytes<Stars>(stars.size()), resident_payload_bytes, transfer_memory::Bytes(changed_vertices),
++      collision?transfer_memory::Add(sizeof(CollisionIndex),collision->Bytes()):0);
+ }
+ std::vector<char> Directory::Snapshot() const {
+   std::vector<char> bytes;
+@@ -226,6 +243,132 @@ void Directory::Commit(Prepared&& prepared) noexcept {
+     }
+   }
+ }
++namespace {
++struct CollisionProposal {
++  int owner=0;
++  size_t count=0,removed_count=0;
++  std::array<Cell,MaximumReplacementCells> cells{};
++  std::array<Id,MaximumCavityCells> removed{};
++  template<class S>void Fields(S& s){s(owner,count,removed_count,cells,removed);}
++};
++std::array<su2double,6> CollisionBounds(const Cell& cell) {
++  std::array<su2double,6> box{INFINITY,INFINITY,INFINITY,-INFINITY,-INFINITY,-INFINITY};
++  for(auto n:cell.v) {
++    const double p[3]={n.p.x,n.p.y,n.p.z};
++    for(unsigned k=0;k<3;++k) {
++      if(!std::isfinite(p[k]))throw std::invalid_argument("Nonfinite collision cell.");
++      box[k]=std::min(box[k],su2double(p[k]));box[k+3]=std::max(box[k+3],su2double(p[k]));
++    }
++  }
++  return box;
++}
++}
++bool Directory::Clearance(const Owned& owned,const Patch& old,const Patch& fresh,bool& candidate,
++                          std::string& reason,size_t ceiling,size_t caller_bytes) {
++  Timer timer(stats.collision_seconds);CLocalFailure failure;
++  auto admit=[&](size_t extra) {
++    const size_t peak=transfer_memory::Add(caller_bytes,ParameterBytes(),ResidentBytes(),MapBytes<Owned>(owned.size()),extra);
++    stats.maximum_work_bytes=std::max(stats.maximum_work_bytes,peak);
++    if(peak==SIZE_MAX || peak>ceiling)failure.Set(3,0,"Native3D current-mesh collision search exceeds storage budget.");
++    return Vote(failure,reason);
++  };
++  if(!initialized)failure.Set(1,0,"Native3D collision search needs a published directory.");
++  if(candidate && (old.cells.size()>MaximumCavityCells || fresh.cells.size()>MaximumReplacementCells))
++    failure.Set(1,0,"Native3D collision proposal exceeds cavity bounds.");
++  if(!admit(sizeof(CollisionIndex)))return false;
++  try {if(!collision)collision=std::make_unique<CollisionIndex>();}
++  catch(const std::exception& e){failure.Set(2,0,e.what());}
++  if(!Vote(failure,reason))return false;
++  // Balance full rebuild cost against scanning the live additions; this threshold changes no contact gate.
++  const bool rebuild=!collision->initialized ||
++      collision->added.size()>std::max<size_t>(64,size_t(std::sqrt(double(collision->rows.size()+1)))) ||
++      collision->rows.size()>transfer_memory::Add(transfer_memory::Mul(owned.size(),2),64);
++  const size_t n=rebuild?owned.size():0;
++  if(!admit(transfer_memory::Mul(4096,transfer_memory::Add(n,1))))return false;
++  size_t retained=0,peak=0;if(n)CADTElemClass::PredictBytes(3,2*n,n,2*n,&retained,&peak);
++  if(!admit(transfer_memory::Add(peak,transfer_memory::Mul(n,6*sizeof(su2double)+3*sizeof(unsigned long)+
++      2*sizeof(unsigned short)+sizeof(std::pair<Id,uint64_t>)))))return false;
++  try {if(rebuild) {
++    auto next=std::make_unique<CollisionIndex>();next->rows.reserve(n);
++    std::vector<su2double> coordinates;coordinates.reserve(6*n);
++    std::vector<unsigned long> connectivity(2*n),ids(n);
++    std::vector<unsigned short> types(n,LINE),markers(n,0);
++    for(const auto& row:owned) {
++      const auto box=CollisionBounds(row.second.cell);coordinates.insert(coordinates.end(),box.begin(),box.end());
++      next->rows.emplace_back(row.first,row.second.version);
++    }
++    for(size_t i=0;i<2*n;++i)connectivity[i]=i;for(size_t i=0;i<n;++i)ids[i]=i;
++    if(n)next->tree=std::make_unique<CADTElemClass>(3,coordinates,connectivity,types,markers,ids,false);
++    next->initialized=true;collision.swap(next);++stats.collision_builds;
++  }}catch(const std::exception& e){failure.Set(2,0,e.what());}
++  if(!Vote(failure,reason))return false;
++  const size_t proposal_bound=sizeof(CollisionProposal);
++  const size_t query_scratch=transfer_memory::Add(transfer_memory::Mul(transfer_memory::Mul(4,world.size),proposal_bound),
++      transfer_memory::Mul(collision->rows.size(),sizeof(unsigned long)),transfer_memory::Mul(world.size,256));
++  if(!admit(query_scratch))return false;
++  std::vector<CollisionProposal> local;std::string rejected_reason;
++  try {if(candidate) {
++    for(size_t i=0;i<fresh.cells.size();++i) {
++      const auto& v=fresh.cells[i].v;
++      if(!(Orientation(v[0].p,v[1].p,v[2].p,v[3].p)>0))throw std::invalid_argument("Nonpositive collision candidate.");
++      for(size_t j=0;j<i;++j)if(!ConformingDisjoint(fresh.cells[i],fresh.cells[j]))candidate=false;
++    }
++    if(candidate) {
++      CollisionProposal p;p.owner=world.rank;p.count=fresh.cells.size();p.removed_count=old.cells.size();
++      std::copy(fresh.cells.begin(),fresh.cells.end(),p.cells.begin());
++      for(size_t k=0;k<old.cells.size();++k)p.removed[k]=old.cells[k].id;
++      std::sort(p.removed.begin(),p.removed.begin()+p.removed_count);local.push_back(std::move(p));
++    }else rejected_reason="Native3D curved replacement overlaps or has nonconforming contact.";
++  }}catch(const std::exception& e){failure.Set(2,0,e.what());}
++  if(!Vote(failure,reason))return false;
++  const size_t held=transfer_memory::Add(caller_bytes,ParameterBytes(),ResidentBytes(),MapBytes<Owned>(owned.size()),query_scratch);
++  std::vector<std::vector<CollisionProposal>> outgoing;std::vector<std::vector<Id>> veto;
++  try {outgoing.assign(world.size,local);veto.resize(world.size);}
++  catch(const std::exception& e){failure.Set(2,0,e.what());}
++  if(!Vote(failure,reason))return false;
++  bool transported=false;
++  const auto proposals=world.exchange(outgoing,&transported,ceiling,held);
++  if(!transported){reason="Native3D collision proposal exchange exceeds storage budget.";return false;}
++  try {
++    std::vector<unsigned long> hits;hits.reserve(collision->rows.size());
++    for(const auto& proposal:proposals) {
++      Id obstruction=0;bool blocked=false;
++      if(proposal.owner<0 || proposal.owner>=world.size || proposal.count>MaximumReplacementCells ||
++          proposal.removed_count>MaximumCavityCells)throw std::runtime_error("Invalid current collision proposal.");
++      for(size_t k=0;k<proposal.count;++k) {
++        const auto& cell=proposal.cells[k];const auto box=CollisionBounds(cell);hits.clear();
++        if(collision->tree)collision->tree->DetermineIntersectingElements(box.data(),box.data()+3,hits);
++        auto check=[&](Id id) {
++          if(blocked || std::binary_search(proposal.removed.begin(),proposal.removed.begin()+proposal.removed_count,id))return;
++          const auto current=owned.find(id);if(current==owned.end())return;
++          const auto held=CollisionBounds(current->second.cell);
++          for(unsigned k=0;k<3;++k)if(box[k]>held[k+3] || held[k]>box[k+3])return;
++          ++stats.collision_checks;
++          if(!ConformingDisjoint(cell,current->second.cell)){obstruction=id;blocked=true;}
++        };
++        stats.collision_candidates+=hits.size()+collision->added.size();
++        for(auto hit:hits) {
++          const auto row=collision->rows.at(hit);const auto current=owned.find(row.first);
++          if(current!=owned.end() && current->second.version==row.second)check(row.first);
++        }
++        for(Id id:collision->added)check(id);
++        // Concurrent replacements must also be mutually conforming, even when their old cells are disjoint.
++        for(const auto& other:proposals)if(other.owner!=proposal.owner)
++          for(size_t j=0;j<other.count;++j)if(!ConformingDisjoint(cell,other.cells[j])){obstruction=other.cells[j].id;blocked=true;}
++      }
++      if(blocked)veto.at(proposal.owner).push_back(obstruction);
++    }
++  }catch(const std::exception& e){failure.Set(2,0,e.what());}
++  if(!Vote(failure,reason))return false;
++  const auto rejected=world.exchange(veto,&transported,ceiling,held);
++  if(!transported){reason="Native3D collision veto exchange exceeds storage budget.";return false;}
++  if(!rejected_reason.empty())reason=rejected_reason;
++  if(!rejected.empty()) {
++    candidate=false;reason="Native3D projected candidate collides with current cell "+
++        std::to_string(*std::min_element(rejected.begin(),rejected.end()))+".";
++  }
++  return true;
++}
+ bool Directory::Build(const Owned& owned, std::string& reason, size_t ceiling, size_t caller_bytes) {
+   Timer timer(stats.build_seconds);
+   ++stats.builds;
+@@ -894,13 +1037,14 @@ bool Directory::Publish(Owned& owned, const std::vector<Dependency>& removed, co
+   Timer timer(stats.publication_seconds);
+   CLocalFailure failure;
+   Owned staged;
++  std::set<Id> collision_added;
+   std::vector<OwnedCell> old;
+   if (!prevalidated) failure.Set(1, 0, "Native 3D candidate veto before publication.");
+   if(!parameters && !parameter_edits.empty())failure.Set(1,0,"Boundary parameter edits have no accepted parameter store.");
+   if(parameters && parameter_geometry!=&parameters->Geometry())failure.Set(1,0,"Boundary geometry changed without rebuilding the directory.");
+   const auto baseline = transfer_memory::Add(caller_bytes,ParameterBytes(),transfer_memory::Bytes(parameter_edits), MapBytes<Owned>(owned.size()), transfer_memory::Bytes(removed),
+       transfer_memory::Bytes(added), MapBytes<Owned>(added.size()), transfer_memory::Mul(removed.size(), sizeof(OwnedCell)),
+-      MapBytes<std::set<Id>>(removed.size()));
++      MapBytes<std::set<Id>>(removed.size()),collision?MapBytes<std::set<Id>>(added.size()):0);
+   auto peak = transfer_memory::Add(baseline, ResidentBytes());
+   stats.maximum_work_bytes = std::max(stats.maximum_work_bytes, peak);
+   // Routed rows aggregate independent caller-validated cavities; bound their staging by bytes, not one cavity.
+@@ -917,6 +1061,7 @@ bool Directory::Publish(Owned& owned, const std::vector<Dependency>& removed, co
+       old.push_back(found->second);
+     }
+     for (const auto& row : added) {
++      if(collision)collision_added.insert(row.cell.id);
+       Validate(row);
+       if ((owned.count(row.cell.id) && !erasures.count(row.cell.id)) || !staged.emplace(row.cell.id, row).second)
+         throw std::runtime_error("Native 3D duplicate publication cell identity.");
+@@ -931,7 +1076,10 @@ bool Directory::Publish(Owned& owned, const std::vector<Dependency>& removed, co
+   std::vector<Id> changed;
+   if (track_changes && !NotifyChanges(prepared,changed,reason,ceiling,baseline)) { ++stats.rejected; return false; }
+   // All stores and notifications are staged before the final common vote; publication allocates nothing.
+-  for (const auto& row : old) owned.erase(row.cell.id);
++  for (const auto& row : old) {
++    owned.erase(row.cell.id);if(collision)collision->added.erase(row.cell.id);
++  }
++  if(collision)while(!collision_added.empty())collision->added.insert(collision_added.extract(collision_added.begin()));
+   while (!staged.empty()) owned.insert(staged.extract(staged.begin()));
+   Commit(std::move(prepared));
+   if(parameters)parameters->Commit(std::move(parameter_stage));
+diff --git a/Common/src/adaptation/CNativeEngine3D.cpp b/Common/src/adaptation/CNativeEngine3D.cpp
+index 994388c581..91904838e3 100644
+--- a/Common/src/adaptation/CNativeEngine3D.cpp
++++ b/Common/src/adaptation/CNativeEngine3D.cpp
+@@ -87,55 +87,6 @@ bool SameSkin(const Patch& old,const Patch& fresh) {
+   for(const auto& face:before)for(Id id:face)if(!Same(a.at(id),b.at(id)))return false;
+   return true;
+ }
+-bool Clearance(World& world,const Owned& working,const Patch& old,const Patch& fresh,bool& candidate,
+-               std::string& reason,EngineStats& stats,size_t ceiling,size_t caller) {
+-  const size_t scratch=transfer_memory::Add(caller,65536,transfer_memory::GrowthBound(working.size(),sizeof(DonorCell)));
+-  CLocalFailure failure;
+-  auto vote=[&]() {const auto elected=world.elect(failure);if(elected.any)reason=elected.message;return !elected.any;};
+-  stats.maximum_work_bytes=std::max(stats.maximum_work_bytes,scratch);
+-  if(scratch==SIZE_MAX || scratch>ceiling)failure.Set(3,0,"Native3D collision preparation exceeds storage budget.");
+-  if(!vote())return false;
+-  std::vector<DonorCell> current;std::set<Id> removed;
+-  std::string rejected;
+-  try {
+-    current.reserve(working.size());for(const auto& row:working)current.push_back(DonorCell{row.second.cell});
+-    for(const auto& cell:old.cells)removed.insert(cell.id);
+-    if(candidate)for(size_t i=0;i<fresh.cells.size();++i)for(size_t j=i+1;j<fresh.cells.size();++j)
+-      if(!ConformingDisjoint(fresh.cells[i],fresh.cells[j])) {
+-        candidate=false;rejected="Native3D curved replacement overlaps or has nonconforming contact.";break;
+-      }
+-  }catch(const std::exception& e){failure.Set(2,0,e.what());}
+-  if(!vote())return false;
+-  DonorImport collision(world);
+-  if(!collision.Build(current,reason,ceiling,scratch))return false;
+-  const size_t count=CPassiveComm::Allreduce(candidate ? fresh.cells.size() : 0,CPassiveComm::Op::MAX,world.comm);
+-  for(size_t at=0;at<count;) {
+-    size_t batch=std::min<size_t>(16,count-at);DonorPatch neighbors;
+-    for(;;) {
+-      std::vector<Cell> query;
+-      try {if(candidate)for(size_t i=at;i<std::min(at+batch,fresh.cells.size());++i)query.push_back(fresh.cells[i]);}
+-      catch(const std::exception& e){failure.Set(2,0,e.what());}
+-      if(!vote())return false;
+-      neighbors=collision.ImportCells(query,ceiling,scratch);
+-      if(neighbors.valid)break;
+-      if(!DonorCap(neighbors.reason)){reason=neighbors.reason;return false;}
+-      if(batch==1){candidate=false;rejected=neighbors.reason;break;}
+-      batch=(batch+1)/2;
+-    }
+-    if(candidate)try {
+-      for(const auto& neighbor:neighbors.cells)if(!removed.count(neighbor.cell.id))
+-        for(size_t i=at;i<std::min(at+batch,fresh.cells.size());++i)
+-          if(!ConformingDisjoint(fresh.cells[i],neighbor.cell)) {
+-            candidate=false;rejected="Native3D projected candidate collides with unedited cell "+std::to_string(neighbor.cell.id)+".";break;
+-          }
+-    }catch(const std::exception& e){failure.Set(2,0,e.what());}
+-    if(!vote())return false;
+-    at+=batch;
+-  }
+-  stats.maximum_work_bytes=std::max(stats.maximum_work_bytes,collision.Statistics().maximum_work_bytes);
+-  if(!rejected.empty())reason=rejected;
+-  return true;
+-}
+ struct Choice { Edge edge{}; EdgeMeasure measure; bool active = false; Feature feature; bool geometric=false; };
+ struct ProposalKey {
+   Edge edge{};int rank=0;size_t slot=0;
+@@ -619,6 +570,10 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
+     stats.tracked_bytes=world.bytes_sent-tracked_bytes_begin;
+     stats.tracked_calls=world.collective_calls-tracked_calls_begin;
+     stats.tracked_collective_seconds=world.collective_seconds-tracked_seconds_begin;
++    stats.collision_seconds=directory.Statistics().collision_seconds;
++    stats.collision_builds=directory.Statistics().collision_builds;
++    stats.collision_candidates=directory.Statistics().collision_candidates;
++    stats.collision_checks=directory.Statistics().collision_checks;
+     stats.directory_elections=directory.Statistics().elections;
+     stats.directory_election_seconds=directory.Statistics().election_seconds;
+     stats.parameter_agreement_seconds=directory.Statistics().parameter_agreement_seconds;
+@@ -643,7 +598,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
+       stats.total_seconds=std::chrono::duration<double>(Clock::now()-started).count();
+       const double phases=stats.initialization_seconds+stats.seed_seconds+stats.selection_seconds+
+           stats.dependency_seconds+stats.reservation_seconds+stats.donor_seconds+stats.reconstruction_seconds+
+-          stats.metric_seconds+stats.routing_seconds+stats.publication_seconds+stats.update_seconds+stats.completion_seconds;
++          stats.metric_seconds+stats.routing_seconds+stats.publication_seconds+stats.update_seconds+stats.completion_seconds+stats.collision_seconds;
+       stats.other_seconds=stats.total_seconds-phases-stats.layer_seconds;
+     }
+     return std::move(result);
+@@ -2802,8 +2757,8 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
+     const bool surface_edit=approved && !SameSkin(old,fresh);
+     if(curved && world.maximum(surface_edit)) {
+       const bool prior=approved;
+-      if(!Clearance(world,working,old,fresh,approved,result.reason,stats,options.memory_ceiling,
+-          transfer_memory::Add(bytes(),source.ResidentBytes(),directory.ResidentBytes(),private_scratch)))return finish();
++      if(!directory.Clearance(working,old,fresh,approved,result.reason,options.memory_ceiling,
++          transfer_memory::Add(bytes(),source.ResidentBytes(),private_scratch)))return finish();
+       if(prior && !approved)geometry_trial(false);
+     }
+     if(concurrent && world.maximum(approved)) {
+diff --git a/Common/src/adaptation/CNativeRemesher3D.cpp b/Common/src/adaptation/CNativeRemesher3D.cpp
+index 25ceafc677..d4ae8acd6e 100644
+--- a/Common/src/adaptation/CNativeRemesher3D.cpp
++++ b/Common/src/adaptation/CNativeRemesher3D.cpp
+@@ -738,6 +738,8 @@ CRemeshResult CNativeRemesher3D::Remesh(const CConfig& config, const CGeometry&
+              << " selection=" << e.selection_seconds << " dependency=" << e.dependency_seconds
+              << " reservation=" << e.reservation_seconds << " donor=" << e.donor_seconds
+              << " reconstruction=" << e.reconstruction_seconds << " metric=" << e.metric_seconds
++             << " collision=" << e.collision_seconds << " collision_builds=" << e.collision_builds
++             << " collision_candidates=" << e.collision_candidates << " collision_checks=" << e.collision_checks
+              << " routing=" << e.routing_seconds << " publication=" << e.publication_seconds
+              << " update=" << e.update_seconds << " completion=" << e.completion_seconds << " other=" << e.other_seconds
+              << " tracked_bytes=" << e.tracked_bytes << " tracked_calls=" << e.tracked_calls
+diff --git a/UnitTests/Common/adaptation/CNativeDistributed3D_tests.cpp b/UnitTests/Common/adaptation/CNativeDistributed3D_tests.cpp
+index a288a689d6..ae8db791e0 100644
+--- a/UnitTests/Common/adaptation/CNativeDistributed3D_tests.cpp
++++ b/UnitTests/Common/adaptation/CNativeDistributed3D_tests.cpp
+@@ -3384,3 +3384,39 @@ TEST_CASE("Oversized complete stars block batched and planned proposals without
+     CHECK(Bytes(spokes)==spokes_saved);
+   }
+ }
++
++TEST_CASE("Native current collision index follows remote publication and retains exact contact vetoes", "[NativeCollision3D]") {
++  World world;const int owner=world.size-1;
++  auto cell=[](Id id,Id first,double x,double y,double z,double h) {
++    OwnedCell row;row.cell={id,{{{first,{x,y,z}},{first+1,{x+h,y,z}},
++        {first+2,{x,y+h,z}},{first+3,{x,y,z+h}}}}};return row;
++  };
++  auto obstacle=cell(10,100,2,0,0,.5);Owned owned;if(world.rank==owner)owned.emplace(10,obstacle);
++  Directory directory(world);std::string reason;REQUIRE(directory.Build(owned,reason));
++  const Patch query{{cell(20,0,0,0,0,1).cell},{}};
++  auto check=[&](bool expected,const Patch& old=Patch{}) {
++    bool candidate=world.rank==0;
++    REQUIRE(directory.Clearance(owned,old,query,candidate,reason));INFO(reason);
++    CHECK(world.sum(candidate)==int(expected));
++  };
++  check(true);check(true);CHECK(directory.Statistics().collision_builds==1);
++  auto moved=cell(10,100,.2,.2,.2,.5);moved.version=1;
++  std::vector<Dependency> remove;std::vector<OwnedCell> add;
++  if(world.rank==owner){remove.push_back({10,0,owner});add.push_back(moved);}
++  const auto before=Bytes(owned),metadata=directory.Snapshot();
++  CHECK_FALSE(directory.Publish(owned,remove,add,world.rank!=0,reason));
++  CHECK(Bytes(owned)==before);CHECK(directory.Snapshot()==metadata);check(true);
++  REQUIRE(directory.Publish(owned,remove,add,true,reason));check(false);
++  CHECK(directory.Statistics().collision_builds==1);
++  check(true,Patch{{moved.cell},{}}); // The complete removed cavity is excluded on its actual owner.
++  if(world.rank==owner)remove[0].version=1;add.clear();
++  REQUIRE(directory.Publish(owned,remove,add,true,reason));check(true);remove.clear();
++  if(world.rank==owner)for(Id i=0;i<70;++i)add.push_back(cell(100+i,1000+4*i,3+double(i),0,0,.5));
++  REQUIRE(directory.Publish(owned,remove,add,true,reason));check(true);
++  CHECK(world.maximum(directory.Statistics().collision_builds==2));
++  bool candidate=world.rank==0;const auto saved=Bytes(owned),savedMetadata=directory.Snapshot();
++  CHECK_FALSE(directory.Clearance(owned,{},query,candidate,reason,world.rank?SIZE_MAX:1));
++  CHECK(Bytes(owned)==saved);CHECK(directory.Snapshot()==savedMetadata);check(true);
++  auto duplicate=query;duplicate.cells.push_back(query.cells[0]);duplicate.cells.back().id=21;
++  candidate=world.rank==0;REQUIRE(directory.Clearance(owned,{},duplicate,candidate,reason));CHECK(world.sum(candidate)==0);
++}

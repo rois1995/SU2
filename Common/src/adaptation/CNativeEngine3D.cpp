@@ -87,55 +87,6 @@ bool SameSkin(const Patch& old,const Patch& fresh) {
   for(const auto& face:before)for(Id id:face)if(!Same(a.at(id),b.at(id)))return false;
   return true;
 }
-bool Clearance(World& world,const Owned& working,const Patch& old,const Patch& fresh,bool& candidate,
-               std::string& reason,EngineStats& stats,size_t ceiling,size_t caller) {
-  const size_t scratch=transfer_memory::Add(caller,65536,transfer_memory::GrowthBound(working.size(),sizeof(DonorCell)));
-  CLocalFailure failure;
-  auto vote=[&]() {const auto elected=world.elect(failure);if(elected.any)reason=elected.message;return !elected.any;};
-  stats.maximum_work_bytes=std::max(stats.maximum_work_bytes,scratch);
-  if(scratch==SIZE_MAX || scratch>ceiling)failure.Set(3,0,"Native3D collision preparation exceeds storage budget.");
-  if(!vote())return false;
-  std::vector<DonorCell> current;std::set<Id> removed;
-  std::string rejected;
-  try {
-    current.reserve(working.size());for(const auto& row:working)current.push_back(DonorCell{row.second.cell});
-    for(const auto& cell:old.cells)removed.insert(cell.id);
-    if(candidate)for(size_t i=0;i<fresh.cells.size();++i)for(size_t j=i+1;j<fresh.cells.size();++j)
-      if(!ConformingDisjoint(fresh.cells[i],fresh.cells[j])) {
-        candidate=false;rejected="Native3D curved replacement overlaps or has nonconforming contact.";break;
-      }
-  }catch(const std::exception& e){failure.Set(2,0,e.what());}
-  if(!vote())return false;
-  DonorImport collision(world);
-  if(!collision.Build(current,reason,ceiling,scratch))return false;
-  const size_t count=CPassiveComm::Allreduce(candidate ? fresh.cells.size() : 0,CPassiveComm::Op::MAX,world.comm);
-  for(size_t at=0;at<count;) {
-    size_t batch=std::min<size_t>(16,count-at);DonorPatch neighbors;
-    for(;;) {
-      std::vector<Cell> query;
-      try {if(candidate)for(size_t i=at;i<std::min(at+batch,fresh.cells.size());++i)query.push_back(fresh.cells[i]);}
-      catch(const std::exception& e){failure.Set(2,0,e.what());}
-      if(!vote())return false;
-      neighbors=collision.ImportCells(query,ceiling,scratch);
-      if(neighbors.valid)break;
-      if(!DonorCap(neighbors.reason)){reason=neighbors.reason;return false;}
-      if(batch==1){candidate=false;rejected=neighbors.reason;break;}
-      batch=(batch+1)/2;
-    }
-    if(candidate)try {
-      for(const auto& neighbor:neighbors.cells)if(!removed.count(neighbor.cell.id))
-        for(size_t i=at;i<std::min(at+batch,fresh.cells.size());++i)
-          if(!ConformingDisjoint(fresh.cells[i],neighbor.cell)) {
-            candidate=false;rejected="Native3D projected candidate collides with unedited cell "+std::to_string(neighbor.cell.id)+".";break;
-          }
-    }catch(const std::exception& e){failure.Set(2,0,e.what());}
-    if(!vote())return false;
-    at+=batch;
-  }
-  stats.maximum_work_bytes=std::max(stats.maximum_work_bytes,collision.Statistics().maximum_work_bytes);
-  if(!rejected.empty())reason=rejected;
-  return true;
-}
 struct Choice { Edge edge{}; EdgeMeasure measure; bool active = false; Feature feature; bool geometric=false; };
 struct ProposalKey {
   Edge edge{};int rank=0;size_t slot=0;
@@ -172,7 +123,7 @@ class Selection {
   }
   size_t invalid = 0, repair_bytes = 0;
   struct EdgeState { EdgeMeasure measure; size_t users = 0; std::array<size_t,2> forbidden{}; };
-  struct CellState { std::array<Edge, 6> edges{}; std::array<unsigned char,6> forbidden{}; std::array<Id,4> vertices{}; std::array<long double,6> geometry_scores{}; bool valid = false; };
+  struct CellState { std::array<Edge, 6> edges{}; std::array<unsigned char,6> forbidden{}; std::array<Id,4> vertices{}; std::array<long double,6> geometry_scores{}; bool valid = false,target_valid=false,geometry_invalid=false; };
   std::map<Id,CellState> cells;
   std::map<Edge,EdgeState> edges;
   std::set<std::pair<long double,Edge>> queue;
@@ -364,7 +315,7 @@ class Selection {
     const auto& cell=owned.cell;
     if (metric.edges.size()!=6 || !std::isfinite(metric.maximum_length))
       throw std::runtime_error(reason.empty()?"Incomplete native 3D initial/updated metric measurement.":reason);
-    CellState row; row.valid=valid;
+    CellState row; row.valid=row.target_valid=valid;
     std::map<Edge,long double> geometry_scores;
     if (!geometry.ExtensionComponents().empty()) {
       const auto faces=Faces(cell);
@@ -374,7 +325,7 @@ class Selection {
         const double error=geometry.SurfaceError(owned.physical[slot].facet,triangle);
         const auto allowed=tolerance;
         if(error<=allowed)continue;
-        row.valid=false;
+        row.valid=false;row.geometry_invalid=true;
         for(size_t i=0;i<3;++i)for(size_t j=i+1;j<3;++j) {
           const auto a=triangle[i],b=triangle[j];
           const Edge key{std::min(faces[slot][i],faces[slot][j]),std::max(faces[slot][i],faces[slot][j])};
@@ -619,6 +570,10 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     stats.tracked_bytes=world.bytes_sent-tracked_bytes_begin;
     stats.tracked_calls=world.collective_calls-tracked_calls_begin;
     stats.tracked_collective_seconds=world.collective_seconds-tracked_seconds_begin;
+    stats.collision_seconds=directory.Statistics().collision_seconds;
+    stats.collision_builds=directory.Statistics().collision_builds;
+    stats.collision_candidates=directory.Statistics().collision_candidates;
+    stats.collision_checks=directory.Statistics().collision_checks;
     stats.directory_elections=directory.Statistics().elections;
     stats.directory_election_seconds=directory.Statistics().election_seconds;
     stats.parameter_agreement_seconds=directory.Statistics().parameter_agreement_seconds;
@@ -637,13 +592,20 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     stats.metric_support_cells=donor.metric_sample_cells;stats.metric_support_edges=donor.metric_edge_queries;stats.metric_support_skipped=donor.metric_edge_skipped;stats.metric_support_duplicates=donor.metric_edge_duplicates;
     stats.maximum_work_bytes = std::max(stats.maximum_work_bytes, donor.maximum_work_bytes);
     result.cells.swap(working);result.parameters=private_parameters;result.reference=private_geometry;
+    if(curved && !result.valid && !selection.cells.empty()) {
+      size_t metric_bad=0,geometry_bad=0;
+      for(const auto& row:selection.cells){metric_bad+=!row.second.target_valid;geometry_bad+=row.second.geometry_invalid;}
+      result.reason+=" Local cached demands: geometry_cells="+std::to_string(geometry_bad)+
+          ", metric_or_height_cells="+std::to_string(metric_bad)+", geometry_edges="+std::to_string(selection.geometry_queue.size())+
+          ", metric_edges="+std::to_string(selection.queue.size())+".";
+    }
     if (!result.valid && !last_rejection.empty()) result.reason += " Last local rejection: " + last_rejection;
     if (options.timings) {
       stats.process_cpu_seconds=double(std::clock()-started_cpu)/CLOCKS_PER_SEC;
       stats.total_seconds=std::chrono::duration<double>(Clock::now()-started).count();
       const double phases=stats.initialization_seconds+stats.seed_seconds+stats.selection_seconds+
           stats.dependency_seconds+stats.reservation_seconds+stats.donor_seconds+stats.reconstruction_seconds+
-          stats.metric_seconds+stats.routing_seconds+stats.publication_seconds+stats.update_seconds+stats.completion_seconds;
+          stats.metric_seconds+stats.routing_seconds+stats.publication_seconds+stats.update_seconds+stats.completion_seconds+stats.collision_seconds;
       stats.other_seconds=stats.total_seconds-phases-stats.layer_seconds;
     }
     return std::move(result);
@@ -2802,8 +2764,8 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     const bool surface_edit=approved && !SameSkin(old,fresh);
     if(curved && world.maximum(surface_edit)) {
       const bool prior=approved;
-      if(!Clearance(world,working,old,fresh,approved,result.reason,stats,options.memory_ceiling,
-          transfer_memory::Add(bytes(),source.ResidentBytes(),directory.ResidentBytes(),private_scratch)))return finish();
+      if(!directory.Clearance(working,old,fresh,approved,result.reason,options.memory_ceiling,
+          transfer_memory::Add(bytes(),source.ResidentBytes(),private_scratch)))return finish();
       if(prior && !approved)geometry_trial(false);
     }
     if(concurrent && world.maximum(approved)) {

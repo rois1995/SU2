@@ -60,6 +60,8 @@ struct ReservationBatch {
 struct DirectoryStats {
   uint64_t builds = 0, lookups = 0, fetches = 0, reservations = 0, publications = 0, rejected = 0;
   uint64_t metadata_scanned = 0, payloads = 0, elections = 0;
+  uint64_t collision_builds=0,collision_candidates=0,collision_checks=0;
+  double collision_seconds=0;
   uint64_t change_scanned = 0, change_sent = 0, change_received = 0;
   double change_seconds = 0;  // Nested in publication; only affected-star owner notifications.
   size_t maximum_dependencies = 0, maximum_work_bytes = 0;
@@ -77,8 +79,8 @@ constexpr size_t MaximumDirectoryScan = 4096;
  * Geometry/embedding/marker/metric certificates and nonconflicting cavity selection remain caller duties. */
 class Directory {
  public:
-  explicit Directory(World& world, bool track_changes = false,BoundaryParameterState* parameters=nullptr)
-      :world(world),track_changes(track_changes),parameters(parameters) {}
+  explicit Directory(World& world, bool track_changes = false,BoundaryParameterState* parameters=nullptr);
+  ~Directory();
   // Initial construction only; create a new directory after ownership migration.
   bool Build(const Owned& owned, std::string& reason, size_t ceiling = SIZE_MAX, size_t caller_bytes = 0);
   Dependencies Lookup(const std::vector<Feature>& features, size_t ceiling = SIZE_MAX, size_t caller_bytes = 0);
@@ -111,11 +113,18 @@ class Directory {
   /*! After successful tracked publication, sorted changed vertices for every old/new star owner.
    * Staged before the final vote; rejection preserves both stores and this list. Mode must match across workers. */
   const std::vector<Id>& ChangedVertices() const { return changed_vertices; }
+  /*! Collective exact contact veto against the current published mesh. Private replacement cells are broadcast;
+   * local cached boxes plus published additions cover every current cell. False return is a protocol/resource
+   * failure; candidate=false is a geometric veto. Publication invalidates stale cell IDs/versions. */
+  bool Clearance(const Owned& owned,const Patch& old,const Patch& fresh,bool& candidate,std::string& reason,
+                 size_t ceiling=SIZE_MAX,size_t caller_bytes=0);
   size_t ResidentBytes() const;
   const DirectoryStats& Statistics() const { return stats; }
   std::vector<char> Snapshot() const;
 
  private:
+  struct CollisionIndex;
+  std::unique_ptr<CollisionIndex> collision;
   BoundaryParameterState* parameters=nullptr; // Borrowed for the directory lifetime; never copied per edit.
   const SU2NativeGeometry::MappedFacetReference* parameter_geometry=nullptr;
   size_t parameter_geometry_bytes=0;

@@ -115,6 +115,8 @@ struct EngineStats {
   double edge_seconds = 0, edge_search_seconds = 0, edge_trace_seconds = 0, edge_integral_seconds = 0;
   double edge_geometry_seconds = 0, edge_composition_seconds = 0;  // Nested in edge integration.
   size_t maximum_work_bytes = 0, maximum_owned = 0;
+  uint64_t collision_builds=0,collision_candidates=0,collision_checks=0;
+  double collision_seconds=0; // Exclusive current-mesh contact search.
   double parameter_setup_seconds=0,parameter_agreement_seconds=0,parameter_publication_seconds=0; // Nested geometry detail.
   uint64_t parameter_edits=0,parameter_faces=0,parameter_payload_bytes=0;
   double total_seconds = 0, initialization_seconds = 0, seed_seconds = 0, selection_seconds = 0;

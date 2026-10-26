@@ -738,6 +738,8 @@ CRemeshResult CNativeRemesher3D::Remesh(const CConfig& config, const CGeometry& 
              << " selection=" << e.selection_seconds << " dependency=" << e.dependency_seconds
              << " reservation=" << e.reservation_seconds << " donor=" << e.donor_seconds
              << " reconstruction=" << e.reconstruction_seconds << " metric=" << e.metric_seconds
+             << " collision=" << e.collision_seconds << " collision_builds=" << e.collision_builds
+             << " collision_candidates=" << e.collision_candidates << " collision_checks=" << e.collision_checks
              << " routing=" << e.routing_seconds << " publication=" << e.publication_seconds
              << " update=" << e.update_seconds << " completion=" << e.completion_seconds << " other=" << e.other_seconds
              << " tracked_bytes=" << e.tracked_bytes << " tracked_calls=" << e.tracked_calls
@@ -751,7 +753,7 @@ CRemeshResult CNativeRemesher3D::Remesh(const CConfig& config, const CGeometry& 
              << " batch_rounds=" << e.batch_rounds << " batch_candidates=" << e.batch_candidates
              << " stop=" << EngineStopName(e.stop) << " global_work=" << e.global_work << " work_limit=" << e.work_limit
              << " progress_windows=" << e.progress_windows << " stagnant_windows=" << e.stagnant_windows << " search_windows=" << e.search_windows
-             << " size_progress=" << e.size_progress << " quality_progress=" << e.quality_progress << " cell_removals=" << e.cell_removals
+             << " geometry_progress=" << e.geometry_progress << " size_progress=" << e.size_progress << " quality_progress=" << e.quality_progress << " cell_removals=" << e.cell_removals
              << " layer_shape_screens=" << e.layer_shape_screens << " layer_shape_pruned=" << e.layer_shape_pruned
              << " layer_batches=" << e.layer_batches << " layer_maximum_batch=" << e.layer_maximum_batch
              << " layer_donor_batches=" << e.layer_donor_batches << " layer_donor_retries=" << e.layer_donor_retries

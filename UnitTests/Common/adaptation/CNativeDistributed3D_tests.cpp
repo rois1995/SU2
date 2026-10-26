@@ -3384,3 +3384,41 @@ TEST_CASE("Oversized complete stars block batched and planned proposals without 
     CHECK(Bytes(spokes)==spokes_saved);
   }
 }
+
+TEST_CASE("Native current collision index follows remote publication and retains exact contact vetoes", "[NativeCollision3D]") {
+  World world;const int owner=world.size-1;
+  auto cell=[](Id id,Id first,double x,double y,double z,double h) {
+    OwnedCell row;row.cell={id,{{{first,{x,y,z}},{first+1,{x+h,y,z}},
+        {first+2,{x,y+h,z}},{first+3,{x,y,z+h}}}}};return row;
+  };
+  auto obstacle=cell(10,100,2,0,0,.5);Owned owned;if(world.rank==owner)owned.emplace(10,obstacle);
+  Directory directory(world);std::string reason;REQUIRE(directory.Build(owned,reason));
+  const Patch query{{cell(20,0,0,0,0,1).cell},{}};
+  auto check=[&](bool expected,const Patch& old=Patch{}) {
+    bool candidate=world.rank==0;
+    REQUIRE(directory.Clearance(owned,old,query,candidate,reason));INFO(reason);
+    CHECK(world.sum(candidate)==int(expected));
+  };
+  check(true);check(true);CHECK(directory.Statistics().collision_builds==1);
+  auto moved=cell(10,100,.2,.2,.2,.5);moved.version=1;
+  std::vector<Dependency> remove;std::vector<OwnedCell> add;
+  if(world.rank==owner){remove.push_back({10,0,owner});add.push_back(moved);}
+  const auto before=Bytes(owned),metadata=directory.Snapshot();
+  CHECK_FALSE(directory.Publish(owned,remove,add,world.rank!=0,reason));
+  CHECK(Bytes(owned)==before);CHECK(directory.Snapshot()==metadata);check(true);
+  REQUIRE(directory.Publish(owned,remove,add,true,reason));check(false);
+  CHECK(directory.Statistics().collision_builds==1);
+  check(true,Patch{{moved.cell},{}}); // The complete removed cavity is excluded on its actual owner.
+  if(world.rank==owner)remove[0].version=1;add.clear();
+  REQUIRE(directory.Publish(owned,remove,add,true,reason));check(true);remove.clear();
+  if(world.rank==owner)for(Id i=0;i<70;++i)add.push_back(cell(100+i,1000+4*i,i?3+double(i):.2,i?0:.2,i?0:.2,.5));
+  REQUIRE(directory.Publish(owned,remove,add,true,reason));check(false);
+  CHECK(world.maximum(directory.Statistics().collision_builds==2));
+  add.clear();if(world.rank==owner)remove.push_back({100,0,owner});
+  REQUIRE(directory.Publish(owned,remove,add,true,reason));check(true); // Delete an obstacle already in the rebuilt tree.
+  bool candidate=world.rank==0;const auto saved=Bytes(owned),savedMetadata=directory.Snapshot();
+  CHECK_FALSE(directory.Clearance(owned,{},query,candidate,reason,world.rank?SIZE_MAX:1));
+  CHECK(Bytes(owned)==saved);CHECK(directory.Snapshot()==savedMetadata);check(true);
+  auto duplicate=query;duplicate.cells.push_back(query.cells[0]);duplicate.cells.back().id=21;
+  candidate=world.rank==0;REQUIRE(directory.Clearance(owned,{},duplicate,candidate,reason));CHECK(world.sum(candidate)==0);
+}

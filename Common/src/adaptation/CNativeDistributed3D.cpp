@@ -5,7 +5,10 @@
  * SU2 is free software under the GNU Lesser General Public License, version 2.1 or later.
  */
 #include "../../include/adaptation/CNativeDistributed3D.hpp"
+#include "../../include/adt/CADTElemClass.hpp"
+#include "../../include/option_structure.hpp"
 #include <chrono>
+#include <cmath>
 #include <set>
 #include <stdexcept>
 namespace SU2Native3D {
@@ -110,8 +113,22 @@ bool Directory::Vote(const CLocalFailure& failure, std::string& reason) {
   reason = elected.message;
   return !elected.any;
 }
+struct Directory::CollisionIndex {
+  std::unique_ptr<CADTElemClass> tree;
+  std::vector<std::pair<Id,uint64_t>> rows;
+  std::set<Id> added;
+  bool initialized=false;
+  size_t Bytes()const {
+    return transfer_memory::Add(transfer_memory::Bytes(rows),MapBytes<std::set<Id>>(added.size()),
+        tree?transfer_memory::Add(tree->GetAllocatedBytes(),tree->RetainedWorkspaceBound(1)):0);
+  }
+};
+Directory::Directory(World& world,bool track_changes,BoundaryParameterState* parameters)
+    :world(world),track_changes(track_changes),parameters(parameters) {}
+Directory::~Directory()=default;
 size_t Directory::ResidentBytes() const {
-  return transfer_memory::Add(MapBytes<Stars>(stars.size()), resident_payload_bytes, transfer_memory::Bytes(changed_vertices));
+  return transfer_memory::Add(MapBytes<Stars>(stars.size()), resident_payload_bytes, transfer_memory::Bytes(changed_vertices),
+      collision?transfer_memory::Add(sizeof(CollisionIndex),collision->Bytes()):0);
 }
 std::vector<char> Directory::Snapshot() const {
   std::vector<char> bytes;
@@ -225,6 +242,134 @@ void Directory::Commit(Prepared&& prepared) noexcept {
       stars.insert(prepared.changed.extract(current));
     }
   }
+}
+namespace {
+struct CollisionProposal {
+  int owner=0;
+  size_t count=0,removed_count=0;
+  std::array<Cell,MaximumReplacementCells> cells{};
+  std::array<Id,MaximumCavityCells> removed{};
+  template<class S>void Fields(S& s){s(owner,count,removed_count,cells,removed);}
+};
+std::array<su2double,6> CollisionBounds(const Cell& cell) {
+  std::array<su2double,6> box{INFINITY,INFINITY,INFINITY,-INFINITY,-INFINITY,-INFINITY};
+  for(auto n:cell.v) {
+    const double p[3]={n.p.x,n.p.y,n.p.z};
+    for(unsigned k=0;k<3;++k) {
+      if(!std::isfinite(p[k]))throw std::invalid_argument("Nonfinite collision cell.");
+      box[k]=std::min(box[k],su2double(p[k]));box[k+3]=std::max(box[k+3],su2double(p[k]));
+    }
+  }
+  return box;
+}
+}
+bool Directory::Clearance(const Owned& owned,const Patch& old,const Patch& fresh,bool& candidate,
+                          std::string& reason,size_t ceiling,size_t caller_bytes) {
+  Timer timer(stats.collision_seconds);CLocalFailure failure;
+  auto admit=[&](size_t extra) {
+    const size_t peak=transfer_memory::Add(caller_bytes,ParameterBytes(),ResidentBytes(),MapBytes<Owned>(owned.size()),extra);
+    stats.maximum_work_bytes=std::max(stats.maximum_work_bytes,peak);
+    if(peak==SIZE_MAX || peak>ceiling)failure.Set(3,0,"Native3D current-mesh collision search exceeds storage budget.");
+    return Vote(failure,reason);
+  };
+  if(!initialized)failure.Set(1,0,"Native3D collision search needs a published directory.");
+  if(candidate && (old.cells.size()>MaximumCavityCells || fresh.cells.size()>MaximumReplacementCells))
+    failure.Set(1,0,"Native3D collision proposal exceeds cavity bounds.");
+  if(!admit(sizeof(CollisionIndex)))return false;
+  try {if(!collision)collision=std::make_unique<CollisionIndex>();}
+  catch(const std::exception& e){failure.Set(2,0,e.what());}
+  if(!Vote(failure,reason))return false;
+  // Balance full rebuild cost against scanning the live additions; this threshold changes no contact gate.
+  const bool rebuild=!collision->initialized ||
+      collision->added.size()>std::max<size_t>(64,size_t(std::sqrt(double(collision->rows.size()+1)))) ||
+      collision->rows.size()>transfer_memory::Add(transfer_memory::Mul(owned.size(),2),64);
+  const size_t n=rebuild?owned.size():0;
+  if(!admit(transfer_memory::Mul(transfer_memory::Mul(4096,transfer_memory::Add(n,1)),
+      size_t(omp_get_max_threads()))))return false;
+  size_t retained=0,peak=0;if(n)CADTElemClass::PredictBytes(3,2*n,n,2*n,&retained,&peak);
+  if(!admit(transfer_memory::Add(peak,transfer_memory::Mul(n,6*sizeof(su2double)+3*sizeof(unsigned long)+
+      2*sizeof(unsigned short)+sizeof(std::pair<Id,uint64_t>)))))return false;
+  try {if(rebuild) {
+    auto next=std::make_unique<CollisionIndex>();next->rows.reserve(n);
+    std::vector<su2double> coordinates;coordinates.reserve(6*n);
+    std::vector<unsigned long> connectivity(2*n),ids(n);
+    std::vector<unsigned short> types(n,LINE),markers(n,0);
+    for(const auto& row:owned) {
+      const auto box=CollisionBounds(row.second.cell);coordinates.insert(coordinates.end(),box.begin(),box.end());
+      next->rows.emplace_back(row.first,row.second.version);
+    }
+    for(size_t i=0;i<2*n;++i)connectivity[i]=i;for(size_t i=0;i<n;++i)ids[i]=i;
+    if(n)next->tree=std::make_unique<CADTElemClass>(3,coordinates,connectivity,types,markers,ids,false);
+    next->initialized=true;collision.swap(next);++stats.collision_builds;
+  }}catch(const std::exception& e){failure.Set(2,0,e.what());}
+  if(!Vote(failure,reason))return false;
+  const size_t proposal_bound=sizeof(CollisionProposal);
+  const size_t query_scratch=transfer_memory::Add(transfer_memory::Mul(transfer_memory::Mul(4,world.size),proposal_bound),
+      transfer_memory::Mul(collision->rows.size(),sizeof(unsigned long)),transfer_memory::Mul(world.size,256));
+  if(!admit(query_scratch))return false;
+  std::vector<CollisionProposal> local;std::string rejected_reason;
+  try {if(candidate) {
+    for(size_t i=0;i<fresh.cells.size();++i) {
+      const auto& v=fresh.cells[i].v;
+      if(!(Orientation(v[0].p,v[1].p,v[2].p,v[3].p)>0))throw std::invalid_argument("Nonpositive collision candidate.");
+      for(size_t j=0;j<i;++j)if(!ConformingDisjoint(fresh.cells[i],fresh.cells[j]))candidate=false;
+    }
+    if(candidate) {
+      CollisionProposal p;p.owner=world.rank;p.count=fresh.cells.size();p.removed_count=old.cells.size();
+      std::copy(fresh.cells.begin(),fresh.cells.end(),p.cells.begin());
+      for(size_t k=0;k<old.cells.size();++k)p.removed[k]=old.cells[k].id;
+      std::sort(p.removed.begin(),p.removed.begin()+p.removed_count);local.push_back(std::move(p));
+    }else rejected_reason="Native3D curved replacement overlaps or has nonconforming contact.";
+  }}catch(const std::exception& e){failure.Set(2,0,e.what());}
+  if(!Vote(failure,reason))return false;
+  const size_t held=transfer_memory::Add(caller_bytes,ParameterBytes(),ResidentBytes(),MapBytes<Owned>(owned.size()),query_scratch);
+  std::vector<std::vector<CollisionProposal>> outgoing;std::vector<std::vector<Id>> veto;
+  try {outgoing.assign(world.size,local);veto.resize(world.size);}
+  catch(const std::exception& e){failure.Set(2,0,e.what());}
+  if(!Vote(failure,reason))return false;
+  bool transported=false;
+  const auto proposals=world.exchange(outgoing,&transported,ceiling,held);
+  if(!transported){reason="Native3D collision proposal exchange exceeds storage budget.";return false;}
+  try {
+    std::vector<unsigned long> hits;hits.reserve(collision->rows.size());
+    for(const auto& proposal:proposals)
+      if(proposal.owner<0 || proposal.owner>=world.size || proposal.count>MaximumReplacementCells ||
+          proposal.removed_count>MaximumCavityCells)throw std::runtime_error("Invalid current collision proposal.");
+    for(const auto& proposal:proposals) {
+      Id obstruction=0;bool blocked=false;
+      for(size_t k=0;k<proposal.count;++k) {
+        const auto& cell=proposal.cells[k];const auto box=CollisionBounds(cell);hits.clear();
+        if(collision->tree)collision->tree->DetermineIntersectingElements(box.data(),box.data()+3,hits);
+        auto check=[&](Id id) {
+          if(blocked || std::binary_search(proposal.removed.begin(),proposal.removed.begin()+proposal.removed_count,id))return;
+          const auto current=owned.find(id);if(current==owned.end())return;
+          const auto held=CollisionBounds(current->second.cell);
+          for(unsigned k=0;k<3;++k)if(box[k]>held[k+3] || held[k]>box[k+3])return;
+          ++stats.collision_checks;
+          if(!ConformingDisjoint(cell,current->second.cell)){obstruction=id;blocked=true;}
+        };
+        stats.collision_candidates+=hits.size()+collision->added.size();
+        for(auto hit:hits) {
+          const auto row=collision->rows.at(hit);const auto current=owned.find(row.first);
+          if(current!=owned.end() && current->second.version==row.second)check(row.first);
+        }
+        for(Id id:collision->added)check(id);
+        // Concurrent replacements must also be mutually conforming, even when their old cells are disjoint.
+        for(const auto& other:proposals)if(other.owner!=proposal.owner)
+          for(size_t j=0;j<other.count;++j)if(!ConformingDisjoint(cell,other.cells[j])){obstruction=other.cells[j].id;blocked=true;}
+      }
+      if(blocked)veto.at(proposal.owner).push_back(obstruction);
+    }
+  }catch(const std::exception& e){failure.Set(2,0,e.what());}
+  if(!Vote(failure,reason))return false;
+  const auto rejected=world.exchange(veto,&transported,ceiling,held);
+  if(!transported){reason="Native3D collision veto exchange exceeds storage budget.";return false;}
+  if(!rejected_reason.empty())reason=rejected_reason;
+  if(!rejected.empty()) {
+    candidate=false;reason="Native3D projected candidate collides with current cell "+
+        std::to_string(*std::min_element(rejected.begin(),rejected.end()))+".";
+  }
+  return true;
 }
 bool Directory::Build(const Owned& owned, std::string& reason, size_t ceiling, size_t caller_bytes) {
   Timer timer(stats.build_seconds);
@@ -894,13 +1039,14 @@ bool Directory::Publish(Owned& owned, const std::vector<Dependency>& removed, co
   Timer timer(stats.publication_seconds);
   CLocalFailure failure;
   Owned staged;
+  std::set<Id> collision_added;
   std::vector<OwnedCell> old;
   if (!prevalidated) failure.Set(1, 0, "Native 3D candidate veto before publication.");
   if(!parameters && !parameter_edits.empty())failure.Set(1,0,"Boundary parameter edits have no accepted parameter store.");
   if(parameters && parameter_geometry!=&parameters->Geometry())failure.Set(1,0,"Boundary geometry changed without rebuilding the directory.");
   const auto baseline = transfer_memory::Add(caller_bytes,ParameterBytes(),transfer_memory::Bytes(parameter_edits), MapBytes<Owned>(owned.size()), transfer_memory::Bytes(removed),
       transfer_memory::Bytes(added), MapBytes<Owned>(added.size()), transfer_memory::Mul(removed.size(), sizeof(OwnedCell)),
-      MapBytes<std::set<Id>>(removed.size()));
+      MapBytes<std::set<Id>>(removed.size()),collision?MapBytes<std::set<Id>>(added.size()):0);
   auto peak = transfer_memory::Add(baseline, ResidentBytes());
   stats.maximum_work_bytes = std::max(stats.maximum_work_bytes, peak);
   // Routed rows aggregate independent caller-validated cavities; bound their staging by bytes, not one cavity.
@@ -917,6 +1063,7 @@ bool Directory::Publish(Owned& owned, const std::vector<Dependency>& removed, co
       old.push_back(found->second);
     }
     for (const auto& row : added) {
+      if(collision)collision_added.insert(row.cell.id);
       Validate(row);
       if ((owned.count(row.cell.id) && !erasures.count(row.cell.id)) || !staged.emplace(row.cell.id, row).second)
         throw std::runtime_error("Native 3D duplicate publication cell identity.");
@@ -931,7 +1078,10 @@ bool Directory::Publish(Owned& owned, const std::vector<Dependency>& removed, co
   std::vector<Id> changed;
   if (track_changes && !NotifyChanges(prepared,changed,reason,ceiling,baseline)) { ++stats.rejected; return false; }
   // All stores and notifications are staged before the final common vote; publication allocates nothing.
-  for (const auto& row : old) owned.erase(row.cell.id);
+  for (const auto& row : old) {
+    owned.erase(row.cell.id);if(collision)collision->added.erase(row.cell.id);
+  }
+  if(collision)while(!collision_added.empty())collision->added.insert(collision_added.extract(collision_added.begin()));
   while (!staged.empty()) owned.insert(staged.extract(staged.begin()));
   Commit(std::move(prepared));
   if(parameters)parameters->Commit(std::move(parameter_stage));

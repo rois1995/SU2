@@ -170,7 +170,7 @@ RANS state survives domain growth: production correctly conserves closed-wall
 content and imposes zero wall momentum, redistributing to other points. Existing
 SaveProjection checks pass all totals/history/domain accounting. Correct the
 pointwise oracle from independent donor/target/free-node volumes and marker IDs,
-retaining tolerances. Full M6 rerun25094 is terminal, process exit0 but adaptation rejected at301.36s: all303,359 initial cells measured in41.24s and99 edits accepted. Original CFD state retained. Donor filtering0.73s, exact edge trace1.45s;174.42s remains outside timed phases. Clearance rebuilds the whole current-mesh DonorImport on each surface edit; replace that repeated setup with a reusable current-mesh collision search while retaining exact contacts, deletion/movement invalidation and remote queries. Do not raise the deadline.
+retaining tolerances. Full M6 rerun25094 is terminal, process exit0 but adaptation rejected at301.36s: all303,359 initial cells measured in41.24s and99 edits accepted. Original CFD state retained. Donor filtering0.73s, exact edge trace1.45s;174.42s remains outside timed phases. Clearance rebuilds the whole current-mesh DonorImport on each surface edit; replace that repeated setup with a reusable current-mesh collision search while retaining exact contacts, deletion/movement invalidation and remote queries. The300s comparison remains fixed; longer qualification requires measured progress and an explicit resource budget.
 
 Independent saved-mesh RANS oracle uses tetrahedral volumes/4 and physical wall
 markers; all flow/history states agree to8.88e-16. Validation38 applies this
@@ -178,7 +178,7 @@ pointwise expectation in the runtime test, including SA scalar volume scaling.
 Production sources are unchanged from validation37; no M6 rerun for this test-only
 correction. Connected serial/MPI checks remain required before the checkpoint.
 
-Next implementation design (not yet implemented): reuse Directory, whose Publish
+Collision-index design (draft implemented in validation40): reuse Directory, whose Publish
 already atomically owns cell additions/removals. Add a lazy local CADTElemClass
 box index over (cell ID,version), plus a bounded set of cells added since its
 build. Queries broadcast bounded replacement/removed-cell records with existing
@@ -201,3 +201,29 @@ not whole-job peak. Serial runtime61407 passes487 assertions in18.29s,45,464KiB.
 All source/runtime pins verify. Broader serial evidence38 remains applicable:
 only the runtime test oracle changed; no production changes since37. All jobs
 terminal. The repeated full-M6 collision-index rebuild remains the next work.
+
+Validation40 connects this to Directory::Clearance and Publish, with exact
+contacts, fixed-size bounded World records and explicit collision statistics.
+The direct fixture covers a moved remote cell with reused ID/version, deletion
+both before and after indexing, publication veto, rebuild and memory refusal.
+First build48180 failed on the LINE include and variable-length records; corrected
+with the fixed-record codec. Builds13114/47859 passed; final build90802 additionally
+includes indexed-obstacle deletion. All proposal counts are validated before
+cross-proposal access; predictor overflow guards include the OpenMP thread count.
+Serial43635 passes99 cases/15,752 assertions (22.83s,47,544KiB); MPI94064 passes99
+cases/rank (16,376/16,055 assertions,22.11s,largest reported process45,120KiB).
+All-active-worker runtime57077 passes408/442 assertions (24.09s,largest reported
+process41,612KiB). MPI memory figures are not whole-job peaks. Full M6 job20721 is
+terminal, process exit0 with rejected adaptation and the original CFD state kept.
+Whole491.18s, process peak2,836,984KiB; native300.89s,3,122 accepted/3,628 attempted
+edits (previous99). Collision38 builds/1,040,674 exact checks cost22.11s, with
+135,178 invalid cells and80,523 queued edges remaining. Detailed profile saved.
+All pins verify. The active geometric search exhausted time; no operator
+stagnation or infeasibility established. No full-M6 acceptance claimed.
+
+Validation41 adds final cached geometry versus metric/height demand counts and
+prints existing geometry-progress counts. A longer qualification gets native1800s,
+outer2400s and12GiB/rank, with unchanged500k/q/J/edge/geometry/transfer gates. This
+follows the31.5x accepted-edit improvement in the controlled300s comparison and
+allows the active search to reach later metric/quality stages or completion.
+Preserve the300s benchmark; do not reinterpret a longer pass as meeting300s.
