@@ -15,18 +15,21 @@ operators, q>=.20,J>=.05,edge<=1.8,h0 within10%, configured500k metric-complexit
 (not tet-count), geometry, conservative transfer and restart. Curvature uses
 ADAP_HAUSD in mesh units independently ofh0. No accepted full M6 exists.
 
-ACTIVE: build9/session76705 is running; all sources/helpers frozen. It links both
-test_driver and SU2_CFD. Build8/session57428 passed (396.46s), all933
-pins unchanged. Offline3/session76089 passes the saved M6 LOCAL repair:1 move,
-12 trials, q=.2446273,J=.0532005,edge=1.5983623; prescribed interface/contact and
-metric gates pass. Surface approximation remains provisional debt; not a full mesh.
-Serial/session77808 passes23/24 cases. Only the new multi-star quality-pass fixture
-hits its112-round cap before all stars finish. Direct height recovery and provisional
-height admission pass. The current revision restores Coarsen's short-edge sweep
-after productive quality passes and fixes that test allowance (production unchanged).
-Then build both test_driver and SU2_CFD, run focused distributed checks and full M6.
-All failures/receipts remain in staged57 and its linked handbook.
-External-SSD reference files are copied and hash-verified locally; see below.
+ACTIVE: build11/session30951 is running; all sources/helpers frozen. Build10 passed
+(171.24s,933 pins unchanged).
+Broad serial_full/session42727 is terminal:133/138 cases and1,083,966/1,083,996
+assertions pass;85.84s. Five failing cases split into metric/accounting/obsolete
+strict-construction path assertions and a genuine cubic runtime construction stall.
+Cubic Euler/RANS fixture spends4096 work in2348 rounds/613 accepts, leaving572
+geometry-demand cells before quality starts. Strict GeometryRefine metric-excess
+admission conflicts with independently certified geometric improvement. The connected
+fix permits provisional size debt for that intent only under ValidityOnly; final
+size/q/J/geometry gates and the4096 workflow budget remain unchanged. Agents own
+Metric.cpp/tests and Engine.cpp/Distributed tests respectively. Build11 is the only owned heavy job.
+Build9 focused serial25/25 passed, including repair→coarsen completion. Saved M6
+offline3 passes LOCAL q/J/interface/contact repair, with surface approximation debt;
+no full M6 acceptance. Next build11 then affected runtime+broader qualification.
+External-SSD references are copied and hash-verified locally; see below.
 
 LATEST USER STEERING: construction must not measure/rank q/J or require shape
 progress. J>=.001 is also a quality gate, not geometric validity. Construction
@@ -48,7 +51,9 @@ allow measured provisional deficits while retaining geometric clearance.
 Curved cross-chart movement and full M6 acceptance
 remain open. Follow [connected scope](Handbook/STAGED_NATIVE_ADAPTATION.md).
 
-Latest pushed checkpoint36de990633 saves the unvalidated explicit construction/improvement stages;
+Latest pushed checkpoint519a4813a2 saves useful quality passes, provisional-height
+admission, resumed coarsening and LOCAL saved-M6 evidence; build9 focused serial passes; broad qualification remains pending.
+Checkpoint36de990633 saves the explicit construction/improvement stages;
 checkpoint6cf0dcedfd saves the earlier connected implementation
 and the diagnosed M6 quality-stage refusal; d9e840ba35 holds the earlier LOCAL witness. All26 original calls/11 shape refusals replay exactly;
 this is diagnosis, not full-mesh acceptance. Details:
@@ -81,7 +86,7 @@ integration_evidence/build-integrated-v2/compile-tmp. Preserve terminal receipts
 source/runtime/input hashes. Build initial50 log/pins preserved separately.
 
 User explicitly approved pushes to rois1995/SU2 branch codex/native-3d-bl.
-Approval persists; no destination question is needed. Latest pushed36de990633 (WIP); build9/session76705 is active; prior owned handles are terminal.
+Approval persists; no destination question is needed. Latest pushed519a4813a2 (WIP); build11/session30951 is active; prior owned handles are terminal.
 TODO intentionally untracked; progress companion tracked. Leave unrelated dc11/dc15
 logs and untracked planning files alone. Git status needs --ignore-submodules.
 [AGENTS.md](AGENTS.md) holds permanent cadence/architecture/resource instructions.

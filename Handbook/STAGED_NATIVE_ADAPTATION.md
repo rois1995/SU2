@@ -221,3 +221,74 @@ requires a successful build receipt that explicitly includes the CFD target, ver
 input/runtime provenance and cannot treat solver exit0 alone as native acceptance.
 Its acceptance parser self-check covers saved rejection, success, missing ranks,
 explicit rejection and solver failure. No full M6 job is running yet.
+
+Read-only follow-up while build9 is frozen: `CollapseConstraintViolation` still
+uses strict CheckFirstHeight to filter coarsening directions. That can suppress an
+otherwise positive/clearance-certified proposal for measured h0/footprint debt before
+shared provisional admission gets to see it. Align this filter with the same stage
+policy, preserving exact containment, surface error, positive orientation, missing-
+child and reference-clearance checks. Its direct strict-default tests must remain;
+add explicit ValidityOnly coverage. This does not affect the wall-height-free M6
+Euler case, but remains an open consistency defect for the full BL workflow.
+
+Build9 is terminal PASS (552.879s, all933 pins unchanged), both executables linked.
+Focused serial `cases/serial_20261026T183126_3857793` (session10231) passes all25
+cases/3436 assertions in8.53s. Roof case: one move then one collapse, six rounds,
+174 work, two quality censuses/one construction return, strict final mesh accepted.
+Multi-star case: all eight stars meet strict q/J,64 accepted repairs, two quality
+censuses/one construction return; the independent blocked wheel ultimately rejects
+at679 rounds/4695 work. This test certifies useful-pass behavior, not full-mesh
+capability. The remaining height-filter consistency edit precedes build10.
+
+Build10/session97582 is active; sources/helpers frozen. The height prefilter now
+admits measured provisional deficits only under ValidityOnly; Absolute behavior,
+containment/surface-error, missing-child, reference clearance and invalid metadata
+refusals stay intact. Existing direct test gains both-policy cases and the selected
+ShapeAdmission tag. The campaign reuses validation54 connected serial/MPI6 filters
+plus new stage/quality/height/coarsening regressions; all-worker workflows remain
+separate. Preflight receipt records34+GiB available,40% CPU idle and36% I/O wait;
+load average alone includes contention, so one nice19 build worker remains in use.
+
+Build10 terminal PASS:171.243s,933 pins unchanged. Connected serial_full/session42727
+is running with all compiled inputs/helpers frozen; each case group saves its own receipt.
+
+## Broad qualification finding: geometric construction versus size debt
+
+`serial_full_20261026T183710_3873135` / session42727 is terminal (85.842s,
+pins unchanged):133/138 cases,1,083,966/1,083,996 assertions pass. New coarsening
+height-policy checks pass. Failures include four legacy path/accounting cases and
+one mapped-runtime case with both curved Euler/RANS variants failing COMPLETE.
+Affine variants pass. The cubic variants stop at4096 work after2348 rounds/613
+accepted edits (~21s, below120s time limit),608 geometry-progress events and1747
+reactivations. Rejected mesh:1268 cells/628 nodes,572 surface-error failures,
+1210 q failures/1215 J failures. Quality improvement has not started.
+
+The rejection is `GeometryRefine` adding metric excess: engine1701–1707 independently
+requires strict frozen GeometryExcess reduction, then Metric.cpp448 rejects any
+added metric excess even in ValidityOnly. The strongest curvature-refinement paths
+are unavailable, and alternate subdivisions consume work. Align this intent with
+the staged contract: admit temporary size debt only in ValidityOnly, preserve net
+geometric freedom/exact-validity/progress and final q/J/edge/geometry constraints.
+Do not raise the4096 runtime budget or alter COMPLETE/BDF2 transfer/reload checks.
+This is a connected construction-policy fix, not another local fallback.
+
+Other failures: full-shape fixture metadata/error wording and edge-request counts;
+FIRST composed-edge failure omitted from Engine field_failures; automatic-repair
+fixtures assume retired strict-constructor fallbacks/no splits; centroid-import
+fallback counts are obsolete under edge-only construction. Preserve accepted final
+mesh/input/geometry assertions when updating path-specific checks. Agent ownership
+is split across Metric.cpp/tests and Engine.cpp/Distributed tests; no live job.
+
+Build11/session30951 is running with933 pinned inputs; all sources/helpers frozen.
+Implemented GeometryRefine validity-only size debt allowance, with both production
+callers audited to require strict GeometryExcess reduction. New positive-cone test
+requires zero centroid queries in construction and strict final oversized-edge
+rejection; Absolute retains old restriction. Absolute shape failure again stops
+before edge tracing (useful diagnostic short circuit; construction remains edge-only).
+Engine counts edge failures as well as point failures. Revised fixtures preserve
+strict output/geometry/immutability and assert staged behavior rather than disabled
+constructor fallback counters. Next `connected_fix` includes all five failed areas,
+especially unchanged curved runtime conservative BDF2 transfer/reload.
+Header Metric3D.hpp:101 has an inherited overgeneral strict-policy comment; update
+it with the next substantive header edit (actual stage contracts documented here
+and in the changed implementation). No runtime case budget was raised.

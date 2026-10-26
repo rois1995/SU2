@@ -430,7 +430,8 @@ struct BlockedEdge {
 void FieldCounts(EngineStats& stats, const FrozenField& field) {
   const auto& f=field.Statistics();
   stats.field_requests+=f.requests; stats.field_hits+=f.hits; stats.field_misses+=f.misses;
-  stats.field_invalid_queries+=f.invalid_queries; stats.field_failures+=f.failures; stats.field_evictions+=f.evictions;
+  // Edge-only construction can fail before any point query.
+  stats.field_invalid_queries+=f.invalid_queries; stats.field_failures+=f.failures+f.edge_failures; stats.field_evictions+=f.evictions;
   stats.field_compositions+=f.compositions;
   stats.donor_hint_tests+=f.donor_hint_tests;stats.donor_hint_hits+=f.donor_hint_hits;
   stats.field_edges+=f.edge_requests;
@@ -3142,7 +3143,9 @@ bool CollapseConstraintViolation(const OwnedCell& cell,Id removed,Node retained,
         geometry.SurfaceError(face.facet,points)>tolerance)return true;
   }
   FirstHeightReport report;std::string reason;
-  return !heights.empty() && !CheckFirstHeight(patch,heights,geometry,report,reason);
+  if(heights.empty() || CheckFirstHeight(patch,heights,geometry,report,reason))return false;
+  return GetShapeAdmission()!=ShapeAdmission::ValidityOnly || !report.measured || report.missing_cells ||
+         report.reference_clearance_failures;
 }
 EngineResult Refine(World& world, const Owned& accepted, const std::vector<DonorCell>& original,
                     const PlanarReference& geometry, MetricComposition composition, EngineOptions options) {

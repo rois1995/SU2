@@ -1500,7 +1500,7 @@ TEST_CASE("Native automatic MPI repair selects complete failing features and res
       CHECK(Bytes(rejected.cells)==saved);
       CHECK(rejected.stats.field_requests==rejected.stats.field_hits+rejected.stats.field_misses+rejected.stats.field_invalid_queries);
       CHECK(rejected.stats.field_invalid_queries==0);CHECK(rejected.stats.field_failures==calls);
-      CHECK(rejected.stats.field_compositions==calls);CHECK(rejected.stats.field_requests==calls);
+      CHECK(rejected.stats.field_compositions==calls);CHECK(rejected.stats.field_requests+rejected.stats.field_edges==calls);
       CHECK(parent.sum(int(calls))>0);
     }
   }
@@ -1549,16 +1549,23 @@ TEST_CASE("Native automatic MPI repair selects complete failing features and res
           CHECK(result.stats.global_work<=result.stats.work_limit);
           CHECK(result.stats.initial_cells==owned.size());
           CHECK(result.stats.field_requests==result.stats.field_hits+result.stats.field_misses+result.stats.field_invalid_queries);
-          CHECK(result.stats.field_failures<=result.stats.field_requests);
+          CHECK(result.stats.field_failures<=result.stats.field_requests+result.stats.field_edges);
           CHECK(result.stats.field_evictions<=result.stats.field_misses);
           CHECK(result.splits.size()+result.collapses.size()+result.stats.moved+result.stats.reconnected+result.stats.inserted==result.stats.accepted);
+          CHECK(result.stats.quality_stages>=1);
           if(mode=="auto") {
-            CHECK(worker.sum(int(kind=="wall" || kind=="interior" ? result.stats.moved : result.stats.reconnected))>0);
-            CHECK(result.splits.empty());CHECK(result.collapses.empty());
+            if(kind!="face") {
+              CHECK(worker.sum(int(kind=="wall" || kind=="interior" ? result.stats.moved : result.stats.reconnected))>0);
+              CHECK(result.splits.empty());
+            }
+            CHECK(worker.maximum(Bytes(result.cells)!=owned_saved));CHECK(result.collapses.empty());
           }
-          if(mode=="restoreR" && kind!="face") CHECK(result.stats.recovery_starts==1);
+          if(mode=="restoreR" && kind!="face") CHECK(worker.sum(int(result.stats.quality_progress))>0);
           if(mode=="restoreC") CHECK(result.splits.empty());
-          if(mode=="restoreC" && kind=="edge4") CHECK(worker.sum(int(result.stats.fallback_accepted))>0);
+          if(mode=="restoreC" && kind=="edge4") {
+            CHECK(worker.sum(int(result.stats.quality_progress))>0);
+            CHECK(result.stats.quality_stages>=2);CHECK(result.stats.construction_returns>0);
+          }
           EngineReport(result,worker,label);repaired.swap(result.cells);
           if(mode=="auto" && spec.name==std::string("unit") && kind=="interior") {
             options.maximum_rounds=1;const auto rejected=Repair(worker,owned,source_rows,geometry,{},options);
@@ -1575,8 +1582,9 @@ TEST_CASE("Native automatic MPI repair selects complete failing features and res
         const auto returned=parent.exchange(to);Owned output;for(auto row:returned)output.emplace(row.cell.id,row);
         const auto return_s=elapsed(returning);const auto audit_start=Clock::now();
         const auto count=CPassiveComm::Allreduce(output.size(),CPassiveComm::Op::SUM,parent.comm);
-        if(mode=="auto") CHECK(count==(kind=="face" ? 2u : fixture.patch.cells.size()));
-        else { CHECK(count>0);CHECK(count<=12);if(mode=="restoreC") CHECK(count<=fixture.patch.cells.size()); }
+        CHECK(count>0);CHECK(count<=12);
+        if(mode=="auto" && kind!="face") CHECK(count==fixture.patch.cells.size());
+        if(mode=="restoreC") CHECK(count<=fixture.patch.cells.size());
         CHECK(Audit(parent,output,fixture,count));CHECK(Bytes(input)==saved);
         const auto all=Gather(parent,output),all_source=Gather(parent,input);
         if(!parent.rank) {
@@ -2406,7 +2414,9 @@ TEST_CASE("Native original support preserves affine P1 and falls back at inserte
   INFO(result.reason);CHECK_FALSE(result.valid);CHECK(result.stats.stop==EngineStop::WorkBudget);
   CHECK(Bytes(input)==saved);CHECK(Bytes(result.cells)==saved);CHECK(world.maximum(observed>0));
   CHECK(result.stats.seed_batches>0);
-  CHECK(result.stats.donor_batches==result.stats.seed_batches*(kind==1?2:1));
+  CHECK(result.stats.donor_batches==result.stats.seed_batches);
+  CHECK(result.stats.metric_support_cells==result.stats.initial_cells);
+  CHECK(result.stats.metric_support_edges>0 || input.empty());
 }
 
 TEST_CASE("Native retained first-row insertion reaches full-field measurement without background searches", "[NativeFirstLayerRanking3D]") {
@@ -2999,7 +3009,9 @@ TEST_CASE("Known metric support never fabricates missing centroid or edge covera
   CHECK_FALSE(strict.valid);CHECK(strict.samples.empty());CHECK(source.ResidentBytes()==held);
 }
 
-TEST_CASE("Surviving collapse-cell constraints reject only sufficient height and footprint witnesses", "[NativeMetricPlan3D]") {
+TEST_CASE("Surviving collapse-cell constraints follow shape admission policy", "[NativeMetricPlan3D][NativeShapeAdmission3D]") {
+  struct Restore {ShapeAdmission previous=GetShapeAdmission();~Restore(){SetShapeAdmission(previous);}} restore;
+  SetShapeAdmission(ShapeAdmission::Absolute);
   const auto fixture=Box(.1);const PlanarReference geometry(fixture.facets);auto row=Rows(fixture.patch).front();
   WallHeights heights;bool wall=false;Node apex;Point center{};
   const auto faces=Faces(row.cell);
@@ -3016,6 +3028,15 @@ TEST_CASE("Surviving collapse-cell constraints reject only sufficient height and
   retained.p={-1,-1,.1};CHECK(CollapseConstraintViolation(row,apex.id,retained,geometry,0,heights));
   CHECK_FALSE(CollapseConstraintViolation(row,99999,retained,geometry,0,heights));
   for(auto n:row.cell.v)if(n.id!=apex.id){CHECK_FALSE(CollapseConstraintViolation(row,apex.id,n,geometry,0,heights));break;}
+
+  SetShapeAdmission(ShapeAdmission::ValidityOnly);
+  retained.p={center.x,center.y,.2};CHECK_FALSE(CollapseConstraintViolation(row,apex.id,retained,geometry,0,heights));
+  retained.p={center.x+2,center.y,.1};CHECK_FALSE(CollapseConstraintViolation(row,apex.id,retained,geometry,0,heights));
+  retained.p={center.x,center.y,0};CHECK(CollapseConstraintViolation(row,apex.id,retained,geometry,0,heights));
+  auto malformed=heights;malformed.tolerance=std::numeric_limits<double>::quiet_NaN();
+  retained.p={center.x,center.y,.1};CHECK(CollapseConstraintViolation(row,apex.id,retained,geometry,0,malformed));
+  malformed=heights;malformed.begin()->second=std::numeric_limits<double>::quiet_NaN();
+  CHECK(CollapseConstraintViolation(row,apex.id,retained,geometry,0,malformed));
 }
 
 TEST_CASE("Masked metric imports retain actual point support and validate request boundaries", "[NativeMetricPlan3D]") {

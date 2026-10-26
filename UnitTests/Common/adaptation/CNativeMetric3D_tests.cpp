@@ -270,6 +270,8 @@ TEST_CASE("Native general wall collapse retains fine demands through the frozen 
 }
 
 TEST_CASE("Native private shape rejection avoids edge tracing while preserving actual composition", "[NativeMesh3D]") {
+  struct Restore {ShapeAdmission previous=GetShapeAdmission();~Restore(){SetShapeAdmission(previous);}} restore;
+  SetShapeAdmission(ShapeAdmission::Absolute);
   std::vector<Cell> fresh;std::string reason;PatchMetric metric;MetricStats stats;
   REQUIRE(Cone({Single()},{4,{.03125,.03125,.03125}},100,fresh,reason));
   size_t compositions=0;
@@ -327,6 +329,8 @@ TEST_CASE("Native 3D streamed metric measurements retain the full frozen progres
 }
 
 TEST_CASE("Native metric diagnosis separates shape, measurement and frozen progress failures", "[NativeMesh3D][NativePolicy3D]") {
+  struct Restore {ShapeAdmission previous=GetShapeAdmission();~Restore(){SetShapeAdmission(previous);}} restore;
+  SetShapeAdmission(ShapeAdmission::Absolute);
   FrozenField target({Donor({})});
   PatchMetric metric; MetricDiagnosis diagnosis; std::string reason;
   const auto cell=Single();
@@ -348,7 +352,7 @@ TEST_CASE("Native metric diagnosis separates shape, measurement and frozen progr
   CHECK(diagnosis.minimum_mean_ratio<MinimumMeanRatio);
   CHECK(diagnosis.minimum_scaled_jacobian<MinimumScaledJacobian);
   // Diagnostics must not replace a failed shape query by an integrated sensor surrogate.
-  CHECK(target.Statistics().edge_requests==6);
+  CHECK(target.Statistics().edge_requests==12); // before plus explicit edge-only measurement; failed shape query adds none
 }
 
 TEST_CASE("Geometry-only repairs retain strict shape and changed-edge excess gates", "[NativeSurfaceError3D]") {
@@ -364,6 +368,29 @@ TEST_CASE("Geometry-only repairs retain strict shape and changed-edge excess gat
   CHECK_FALSE(ValidateMetricChange(1,before,1,bad,MetricChange::GeometryRepair,reason));
   bad=before;bad.edges.begin()->second.length=2;bad.edges.begin()->second.a.x-=1;
   CHECK_FALSE(ValidateMetricChange(1,before,1,bad,MetricChange::GeometryRepair,reason));
+}
+
+TEST_CASE("Geometric refinement may defer metric excess to final validation", "[NativeMesh3D][NativeShapeAdmission3D][NativePolicy3D]") {
+  struct Restore {ShapeAdmission previous=GetShapeAdmission();~Restore(){SetShapeAdmission(previous);}} restore;
+  // This exercises the metric subgate only; production callers separately certify strict geometry-error reduction.
+  const auto old=Single();std::vector<Cell> fresh;std::string reason;
+  REQUIRE(Cone({old},{4,{.25,.25,.25}},100,fresh,reason));
+  for(const auto& cell:fresh)CHECK(Orientation(cell.v[0].p,cell.v[1].p,cell.v[2].p,cell.v[3].p)>0);
+  const auto donor=Donor({9,0,0,9,0,9});
+  SetShapeAdmission(ShapeAdmission::ValidityOnly);
+  FrozenField construction({donor});PatchMetric edge_only;
+  CHECK(ValidateMetricChange({old},fresh,MetricChange::GeometryRefine,construction,edge_only,reason));
+  CHECK_FALSE(edge_only.shape_measured);CHECK(construction.Statistics().requests==0);
+  PatchMetric final_metric;
+  CHECK_FALSE(ValidateMetricPatch(fresh,construction,final_metric,reason));
+  CHECK(final_metric.shape_measured);CHECK(reason.find("oversized")!=std::string::npos);
+
+  SetShapeAdmission(ShapeAdmission::Absolute);
+  FrozenField diagnostic({donor});PatchMetric measured;MetricDiagnosis diagnosis;
+  CHECK_FALSE(ValidateMetricChange({old},fresh,MetricChange::GeometryRefine,diagnostic,measured,reason,
+                                   nullptr,nullptr,&diagnosis));
+  CHECK(diagnosis.failure==MetricFailure::Progress);
+  CHECK(reason.find("adds frozen metric excess")!=std::string::npos);
 }
 
 TEST_CASE("Native3D metric movement honours directional stiffness without changing its target", "[NativeMetricMove3D]") {
@@ -491,6 +518,8 @@ TEST_CASE("Metric query planning shares exact reuse and protects bounded campaig
 
 TEST_CASE("Native 3D refine admission follows the 2D split rule under SplitInsertion", "[NativeMetricSplitRule3D]") {
   struct Restore { RefineAcceptance a=GetRefineAcceptance(); ~Restore(){SetRefineAcceptance(a);} } restore;
+  struct RestoreShape {ShapeAdmission a=GetShapeAdmission();~RestoreShape(){SetShapeAdmission(a);}} restore_shape;
+  SetShapeAdmission(ShapeAdmission::Absolute);
   auto metric=[](std::vector<std::pair<Edge,long double>> rows,double q) {
     PatchMetric m;m.shape_measured=true;m.minimum_mean_ratio=q;m.minimum_scaled_jacobian=q;
     for(const auto& r:rows){EdgeMeasure e;e.a={double(r.first[0]),0,0};e.b={double(r.first[1]),1,0};e.length=r.second;m.edges.emplace(r.first,e);}

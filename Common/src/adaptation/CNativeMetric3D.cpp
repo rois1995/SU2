@@ -446,7 +446,8 @@ bool ValidateMetricChange(size_t old_count, const PatchMetric& before, size_t fr
       if (fresh_count <= old_count || !(removed > 0 && added < removed * (1 - 1e-12L)))
         throw std::invalid_argument("Native 3D refinement does not reduce frozen changed-edge excess.");
     } else if (kind == MetricChange::GeometryRefine) {
-      if (fresh_count <= old_count || added > removed)
+      // Validity-only construction may accrue metric debt; its caller separately certifies strict geometry progress.
+      if (fresh_count <= old_count || (added > removed && GetShapeAdmission()!=ShapeAdmission::ValidityOnly))
         throw std::invalid_argument("Native3D geometric refinement adds frozen metric excess or removes no geometric freedom.");
     } else if (kind == MetricChange::GeometryRepair) {
       if (added>removed && GetShapeAdmission()!=ShapeAdmission::ValidityOnly)
@@ -477,12 +478,9 @@ bool ValidateMetricChange(const std::vector<Cell>& old, const std::vector<Cell>&
     if (kind != MetricChange::Refine && kind != MetricChange::Coarsen && kind != MetricChange::Repair && kind != MetricChange::GeometryRefine && kind != MetricChange::GeometryRepair)
       throw std::invalid_argument("Unknown native 3D metric-change intent.");
     const bool measure_shape = GetShapeAdmission()==ShapeAdmission::Absolute || kind==MetricChange::Repair || kind==MetricChange::GeometryRepair;
-    measured = measure_shape ? MeasureMetricCells(fresh,target,stats,frozen_reuse,false,diagnosis) :
+    measured = measure_shape ? MeasureMetricCells(fresh,target,stats,frozen_reuse,
+                                                   GetShapeAdmission()==ShapeAdmission::Absolute,diagnosis) :
                                MeasureMetricEdges(fresh,target,stats,frozen_reuse);
-    if(GetShapeAdmission()==ShapeAdmission::Absolute) {
-      if(diagnosis)diagnosis->failure=MetricFailure::Shape;
-      GenerationShape(measured);
-    }
     if(diagnosis && measured.shape_measured) {
       diagnosis->shape_measured=true; diagnosis->minimum_mean_ratio=measured.minimum_mean_ratio;
       diagnosis->minimum_scaled_jacobian=measured.minimum_scaled_jacobian;

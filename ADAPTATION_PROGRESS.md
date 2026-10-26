@@ -14,17 +14,21 @@ repair passes strict q/J/edge, prescribed interface and external contact: q=.244
 J=.0532005,edge=1.5983623 after1 move/12 trials. It still owes surface approximation;
 this is a LOCAL repair witness, never full-mesh acceptance.
 
-Focused serial passes23/24 cases (3345/3361 assertions). Direct optimizer height
-recovery and private height admission pass. Only the multi-star fixture reaches
-its112-round test cap before all stars finish; its strict q/J assertions remain.
-The current revision also restores Coarsen's short-edge sweep after productive quality
-passes: quality can create new short edges. Production budgets remain unchanged.
-Build9/session76705 is active with sources frozen, linking tests and the full CFD
-driver. The new roof regression requires quality repair followed by a resumed
-collapse sweep and strict final acceptance.
+Build9 focused serial passed25/25 cases (3436 assertions), including quality movement
+followed by resumed coarsening and strict final acceptance. The height prefilter
+consistency fix built in build10 with933 unchanged pins. Broad serial then passed
+133/138 cases and1,083,966/1,083,996 assertions (85.84s). Four cases expose outdated
+path/count expectations and lost edge-failure accounting; the curved runtime case
+fails both flow variants on4096 work before quality starts. It performs613 private
+edits but leaves572 geometry-demand cells. GeometryRefine still rejects added size
+error after the engine proves geometry improvement, causing alternate subdivisions.
+The connected correction permits that provisional size debt under ValidityOnly,
+retaining strict geometry progress/validity and all final gates. Its runtime budget
+and full conservative BDF2 transfer/restart assertions remain unchanged. Build11/session30951 is active with sources/helpers frozen; the connected
+corrections are implemented and awaiting validation.
 See [staged implementation](Handbook/STAGED_NATIVE_ADAPTATION.md). Curved chart
 mobility, distributed qualification and accepted full M6 remain open.
-Latest pushed: `36de990633` (WIP). External-SSD references are copied locally and
+Latest pushed: `519a4813a2` (WIP). External-SSD references are copied locally and
 hash-verified: [archive record](Handbook/ADAPTATION_REFERENCE_INPUTS.md).
 
 Validation54 is historical evidence predating the current code. Validation54 passes the full six-worker flat and cubic Euler/RANS workflows,

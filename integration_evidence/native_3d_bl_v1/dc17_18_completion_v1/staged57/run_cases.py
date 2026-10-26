@@ -16,6 +16,9 @@ from run import sha, save
 REPO = ROOT.parents[3]
 BINARY = REPO / "integration_evidence/build-integrated-v2/UnitTests/test_driver"
 CASES = {
+    "connected_fix": (1, "[NativeMappedRuntime3D],[NativeMesh3D],[NativeAutomaticRepair3D],[NativeOriginalSupport3D],[NativeShapeAdmission3D]"),
+    'serial_full': (1, '[NativeCollision3D],[NativeMesh3D],[NativeOriginalSupport3D],[NativeMetricFootprint3D],[NativeMetricSamples3D],[NativeCurvedMapped3D],[NativeCurvedMappedGuards3D],[NativeMappedFacetGeometry],[NativeMappedPublication3D],[NativeMappedRealized3D],[NativeMappedComponent3D],[NativeParametricGeometry],[NativeAffineSourceGeometry],[NativeFirstLayer3D],[NativeCurvedBL3D],[NativeJointAffineSource3D],[NativeGeneratedCoverage3D],[NativeMappedRuntime3D],[NativeMappedReader3D],[NativeConcurrentComposed3D],[NativeCollapseFilter3D],[NativeInteriorPlacement3D],[NativeAutomaticRepair3D],[NativeShapeAdmission3D],[NativeOptimize3D],[NativeDefault3D],[NativePolicyRuntime3D],[NativeInteractingBLVolume3D],[NativeCurvedBLVolume3D],[NativeCylinderBLVolume3D],[NativeComplexityEstimate3D],[NativeParallelBL3D],[NativeVolumeBL3D],[NativeStagedConstruction3D],[NativeConstructionHandoff3D],[NativeJointGeometry3D],[NativeConcurrentRepair3D],[NativeQualityPass3D],[NativeHeightOptimization3D],[NativeCoarsenQualityReturn3D]'),
+    'mpi6': (6, '[NativeCollision3D],[NativeMesh3D],[NativeOriginalSupport3D],[NativeMetricFootprint3D],[NativeMetricSamples3D],[NativeCurvedMapped3D],[NativeCurvedMappedGuards3D],[NativeMappedFacetGeometry],[NativeMappedPublication3D],[NativeMappedRealized3D],[NativeMappedComponent3D],[NativeParametricGeometry],[NativeAffineSourceGeometry],[NativeFirstLayer3D],[NativeCurvedBL3D],[NativeJointAffineSource3D],[NativeGeneratedCoverage3D],[NativeMappedRuntime3D],[NativeMappedReader3D],[NativeConcurrentComposed3D],[NativeCollapseFilter3D],[NativeInteriorPlacement3D],[NativeAutomaticRepair3D],[NativeShapeAdmission3D],[NativeOptimize3D],[NativeDefault3D],[NativePolicyRuntime3D],[NativeStagedConstruction3D],[NativeConstructionHandoff3D],[NativeJointGeometry3D],[NativeConcurrentRepair3D],[NativeQualityPass3D],[NativeHeightOptimization3D],[NativeCoarsenQualityReturn3D]'),
     "serial": (1, "[NativeStagedConstruction3D],[NativeConstructionHandoff3D],[NativeShapeAdmission3D],"
                   "[NativeFirstLayer3D],[NativeOptimize3D],[NativeJointGeometry3D],"
                   "[NativeInteriorPlacement3D],[NativeConcurrentRepair3D],[NativeQualityPass3D],[NativeHeightOptimization3D],[NativeCoarsenQualityReturn3D]"),
@@ -59,7 +62,7 @@ def sample_tree(pid):
 
 def main():
     if len(sys.argv) != 3 or not re.fullmatch(r"build[1-9][0-9]*", sys.argv[1]) or sys.argv[2] not in CASES:
-        raise SystemExit("usage: run_cases.py buildN serial|mpi2|allworker6")
+        raise SystemExit("usage: run_cases.py buildN connected_fix|serial|serial_full|mpi2|mpi6|allworker6")
     build, case = sys.argv[1], sys.argv[2]
     ranks, filter_expr = CASES[case]
     build_status_path = ROOT / f"{build}_status.json"
