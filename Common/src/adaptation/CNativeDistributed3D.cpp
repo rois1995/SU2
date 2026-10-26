@@ -264,8 +264,9 @@ std::array<su2double,6> CollisionBounds(const Cell& cell) {
 }
 }
 bool Directory::Clearance(const Owned& owned,const Patch& old,const Patch& fresh,bool& candidate,
-                          std::string& reason,size_t ceiling,size_t caller_bytes) {
+                          std::string& reason,size_t ceiling,size_t caller_bytes,bool* deferred) {
   Timer timer(stats.collision_seconds);CLocalFailure failure;
+  if(deferred)*deferred=false;
   auto admit=[&](size_t extra) {
     const size_t peak=transfer_memory::Add(caller_bytes,ParameterBytes(),ResidentBytes(),MapBytes<Owned>(owned.size()),extra);
     stats.maximum_work_bytes=std::max(stats.maximum_work_bytes,peak);
@@ -354,9 +355,6 @@ bool Directory::Clearance(const Owned& owned,const Patch& old,const Patch& fresh
           if(current!=owned.end() && current->second.version==row.second)check(row.first);
         }
         for(Id id:collision->added)check(id);
-        // Concurrent replacements must also be mutually conforming, even when their old cells are disjoint.
-        for(const auto& other:proposals)if(other.owner!=proposal.owner)
-          for(size_t j=0;j<other.count;++j)if(!ConformingDisjoint(cell,other.cells[j])){obstruction=other.cells[j].id;blocked=true;}
       }
       if(blocked)veto.at(proposal.owner).push_back(obstruction);
     }
@@ -368,6 +366,42 @@ bool Directory::Clearance(const Owned& owned,const Patch& old,const Patch& fresh
   if(!rejected.empty()) {
     candidate=false;reason="Native3D projected candidate collides with current cell "+
         std::to_string(*std::min_element(rejected.begin(),rejected.end()))+".";
+  }
+  if(proposals.size()>1) {
+    // A physically vetoed proposal must not exclude an otherwise admissible peer.
+    std::vector<std::vector<int>> outgoing_eligible;
+    try {outgoing_eligible.assign(world.size,candidate?std::vector<int>{world.rank}:std::vector<int>{});}
+    catch(const std::exception& e){failure.Set(2,0,e.what());}
+    if(!Vote(failure,reason))return false;
+    auto eligible=world.exchange(outgoing_eligible,&transported,ceiling,held);
+    if(!transported){reason="Native3D collision eligibility exchange exceeds storage budget.";return false;}
+    try {
+      std::sort(eligible.begin(),eligible.end());
+      if(std::adjacent_find(eligible.begin(),eligible.end())!=eligible.end())
+        throw std::runtime_error("Repeated current collision owner.");
+      std::vector<const CollisionProposal*> selected;selected.reserve(eligible.size());
+      for(int owner:eligible) {
+        const auto proposal=std::find_if(proposals.begin(),proposals.end(),[&](const auto& p){return p.owner==owner;});
+        if(proposal==proposals.end())throw std::runtime_error("Missing eligible collision proposal.");
+        bool compatible=true;
+        for(const auto* peer:selected) {
+          for(size_t i=0;i<proposal->count && compatible;++i)for(size_t j=0;j<peer->count && compatible;++j) {
+            const auto a=CollisionBounds(proposal->cells[i]),b=CollisionBounds(peer->cells[j]);bool separated=false;
+            for(unsigned k=0;k<3;++k)separated=separated || a[k]>b[k+3] || b[k]>a[k+3];
+            if(separated)continue;
+            ++stats.collision_checks;
+            compatible=ConformingDisjoint(proposal->cells[i],peer->cells[j]);
+          }
+          if(!compatible)break;
+        }
+        if(compatible)selected.push_back(&*proposal);
+        else if(owner==world.rank) {
+          candidate=false;if(deferred)*deferred=true;
+          reason="Native3D projected candidate deferred by a conflicting peer.";
+        }
+      }
+    }catch(const std::exception& e){failure.Set(2,0,e.what());}
+    if(!Vote(failure,reason))return false;
   }
   return true;
 }

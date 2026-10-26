@@ -3421,4 +3421,21 @@ TEST_CASE("Native current collision index follows remote publication and retains
   CHECK(Bytes(owned)==saved);CHECK(directory.Snapshot()==savedMetadata);check(true);
   auto duplicate=query;duplicate.cells.push_back(query.cells[0]);duplicate.cells.back().id=21;
   candidate=world.rank==0;REQUIRE(directory.Clearance(owned,{},duplicate,candidate,reason));CHECK(world.sum(candidate)==0);
+  if(world.size>1) {
+    auto peers=[&](const Patch& first,const Patch& second,int accepted,bool expectDeferred) {
+      bool active=world.rank<2,deferred=false;
+      REQUIRE(directory.Clearance(owned,{},world.rank?second:first,active,reason,SIZE_MAX,0,&deferred));
+      INFO(reason);CHECK(world.sum(active)==accepted);CHECK(world.sum(deferred)==int(expectDeferred));
+      CHECK(Bytes(owned)==saved);CHECK(directory.Snapshot()==savedMetadata);
+      return active;
+    };
+    const Patch overlap{{cell(21,200,.2,.2,.2,.5).cell},{}};
+    const bool selected=peers(query,overlap,1,true);CHECK(selected==(world.rank==0));
+    const Patch disjoint{{cell(22,300,2,0,0,.5).cell},{}};
+    CHECK(peers(query,disjoint,2,false)==(world.rank<2));
+    // The first proposal hits the published obstacle at x=4; its peer only intersects that rejected proposal.
+    const Patch obstructed{{cell(23,400,3,0,0,2).cell},{}};
+    const Patch free{{cell(24,500,3.1,.05,.05,.1).cell},{}};
+    CHECK(peers(obstructed,free,1,false)==(world.rank==1));
+  }
 }

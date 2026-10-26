@@ -214,7 +214,16 @@ class Selection {
     for (Id retained:found->second) {
       Edge edge{retained,vertex}, key=edge; std::sort(key.begin(),key.end());
       const auto measured=edges.find(key);
-      if (measured==edges.end() || !Candidate(measured->second.measure.length)) continue;
+      if (measured==edges.end())continue;
+      if(!coarsening && !geometry.ExtensionComponents().empty()) {
+        const auto star=vertex_cells.find(vertex);
+        if(star!=vertex_cells.end())for(Id id:star->second) {
+          const auto& row=cells.at(id);
+          for(size_t k=0;k<row.edges.size();++k)if(row.edges[k]==key && row.geometry_scores[k]>0)
+            stats.geometry_reactivated+=geometry_queue.insert({-row.geometry_scores[k],id,key}).second;
+        }
+      }
+      if(!Candidate(measured->second.measure.length))continue;
       const auto direction=retained==key[0] ? 0u : 1u;
       if (prune_collapses && measured->second.forbidden[direction]) continue;
       if (!coarsening) edge=key;
@@ -358,7 +367,9 @@ class Selection {
     for (const auto& measured : metric.edges) {
       const auto key=measured.first;
       row.geometry_scores[slot]=geometry_scores[key];
-      if(!coarsening && row.geometry_scores[slot]>0)
+      const auto blocked=blocked_edges.find(key[1]);
+      if(!coarsening && row.geometry_scores[slot]>0 &&
+          (blocked==blocked_edges.end() || !blocked->second.count(key[0])))
         geometry_queue.insert({-row.geometry_scores[slot],cell.id,key});
       auto inserted=edges.emplace(key,EdgeState{measured.second,0});
       auto& state=inserted.first->second;
@@ -457,7 +468,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
   std::map<Edge,EdgeMeasure> retired_edges,campaign_edges;
   std::shared_ptr<const FrozenMetricIdentity> field_identity;
   // Joint split feasibility depends on neighboring vertex stars, even when the edge itself is unchanged.
-  selection.track_splits=bool(composition);
+  selection.track_splits=bool(composition) || curved;
   Directory directory(world,coarsening || selection.track_splits,geometry.Parameters());
   DonorImport source(world,options.timings);
   size_t accepted_bytes=MapBytes(accepted);
@@ -1376,7 +1387,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       if (!ready) return finish();
     }
     ++stats.rounds;
-    const bool concurrent=composition && !curved && !repairing && !coarsening && options.candidate_batch>1 && world.size>1;
+    const bool concurrent=(composition || curved) && !repairing && !coarsening && options.candidate_batch>1 && world.size>1;
     stats.concurrent_rounds+=concurrent;
     const bool batched=!curved && !composition && !repairing && (!coarsening || !bad_field) && options.candidate_batch>1;
     std::vector<Choice> choices;
@@ -1486,7 +1497,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     } else {
       Timer timer(stats.selection_seconds,options.timings);
       if((curved || composition) && !concurrent) {
-        // Projected curvature and repair/coarsening retain their established serial ordering.
+        // Single-proposal requests and repair/coarsening retain their established serial ordering.
         if(composition && !curved && !repairing) {
           // Choose global metric priority before ownership; rank numbering must not decide the next edit.
           const double priority=choice.active ? double(selection.Priority(choice.measure.length)) : INFINITY;
@@ -2763,10 +2774,11 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     }
     const bool surface_edit=approved && !SameSkin(old,fresh);
     if(curved && world.maximum(surface_edit)) {
-      const bool prior=approved;
+      const bool prior=approved;bool deferred=false;
       if(!directory.Clearance(working,old,fresh,approved,result.reason,options.memory_ceiling,
-          transfer_memory::Add(bytes(),source.ResidentBytes(),private_scratch)))return finish();
-      if(prior && !approved)geometry_trial(false);
+          transfer_memory::Add(bytes(),source.ResidentBytes(),private_scratch),&deferred))return finish();
+      if(deferred){chosen=false;++stats.conflicts;++stats.rejected;++stats.proposal_deferred;}
+      else if(prior && !approved)geometry_trial(false);
     }
     if(concurrent && world.maximum(approved)) {
       Timer timer(stats.reservation_seconds,options.timings);CLocalFailure final_failure;

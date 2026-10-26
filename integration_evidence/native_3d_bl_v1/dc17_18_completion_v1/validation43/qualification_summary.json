@@ -1,0 +1,33 @@
+{
+  "parent_commit": "79bfba6f8f",
+  "acceptance": "exact current/peer contacts, conflict deferral, final reservations; all-worker accepted cubic Euler/RANS transfer/reload with concurrent commits; full M6 MPI2 all gates unchanged",
+  "known_open_failure": "validation42 hidden sphere point cap; full M6 still unaccepted",
+  "build_session": 78606,
+  "build_exit": 0,
+  "verified_source_inputs": 989,
+  "build_seconds": 898.6,
+  "build_peak_process_kib": 4090492,
+  "serial_session": 70556,
+  "serial_exit": 0,
+  "serial_cases": 105,
+  "serial_assertions": 15872,
+  "serial_seconds": 23.15,
+  "mpi_session": 24618,
+  "mpi_exit": 0,
+  "mpi_cases_per_rank": 105,
+  "mpi_assertions_per_rank": [
+    16513,
+    16205
+  ],
+  "mpi_seconds": 22.91,
+  "all_workers_session": 55579,
+  "all_workers_exit": 0,
+  "all_workers_assertions_per_rank": [
+    397,
+    431
+  ],
+  "all_workers_seconds": 30.6,
+  "maximum_parallel_commits": 2,
+  "pre_m6_pins_verified": true,
+  "status": "connected serial/MPI/all-worker qualification passed; full M6 acceptance remains open"
+}

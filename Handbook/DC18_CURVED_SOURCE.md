@@ -227,3 +227,94 @@ outer2400s and12GiB/rank, with unchanged500k/q/J/edge/geometry/transfer gates. T
 follows the31.5x accepted-edit improvement in the controlled300s comparison and
 allows the active search to reach later metric/quality stages or completion.
 Preserve the300s benchmark; do not reinterpret a longer pass as meeting300s.
+
+## Current construction review and validation42
+
+Local checkpoint79bfba6f8f saves collision reuse. Validation41 session23818 is
+terminal/rejected: native1801.78s, whole1992.14s, peak2,836,992KiB. All source and
+runtime pins verify. It accepted41,632/48,705 edits:9,622 geometric,21,252 size
+progress,7,574 quality progress;511,810 private cells. It retains2,638 geometry
+violations with no queued geometric edges,292,368 metric/height violations and
+257,684 metric edges. Original CFD state remains accepted; no new mesh accepted.
+Last local rejection is edge32859,58328, q=.1659921/J=.0416113 at cell53793513.
+A10s/487-sample profile (zero lost) attributes27% to SurfaceError and5% to collision.
+Full no-inline report succeeds; two inline-symbol reports were stopped after debug
+information errors. Profile is diagnostic, not a full-run speed claim.
+
+Selection tracked split dependencies only with composition. Curved-only rejected
+splits therefore missed changed-star notifications; Touch also ignored short
+geometric demands. Validation42 enables curved tracking, restores cached geometric
+scores after neighboring edits and blocks unchanged rejected geometry during
+progressive measurement. The curved runtime check now requires reactivation and
+complete accepted transfer/reload. Reuse bounded FaceMemo for exact repeated cubic
+SurfaceError queries; coordinate/version/nonfinite-input tests protect key validity.
+
+Validation42 also removes duplicate spherical-fan local error recursion and
+routes its same positive covering through IntegrationColumns3D's global error
+allocator. Retain16384 work/65536 point ceilings and existing radial/volume oracles.
+This is a connected integration repair, not general curved-BL completion.
+Build25343 passes (1003.45s, process peak4,090,520KiB). Geometry/runtime70748
+passes9 cases/1,323 assertions; both cubic workflows reactivate75 geometric
+requests and complete accepted transfer/reload. Volume66000 finishes in28.53s,
+process peak131,912KiB:9/10 cases pass, hidden sphere still exhausts the65536-point
+limit (retained65446, panel297, ray1). Preserve the failure; shared global error
+allocation alone does not resolve an off-centre fan’s angular conditioning. All
+988 source/input and19 runtime pins verify after terminal tests. No M6 run42.
+
+### Validation43: concurrent curved proposals (implemented, unvalidated)
+
+The previous Engine excluded curved geometry from concurrent proposals. Directory
+now selects a deterministic compatible subset after all current-mesh owner vetoes.
+A conflicting peer is deferred without permanently blocking its demand. Physical
+contacts still veto; final complete-dependency reservations and atomic boundary
+parameter publication remain required. Curved refinement now uses the existing
+concurrent path; repair/coarsening retain serial ordering. No new config/mode.
+
+Reach: Directory::Clearance peer admission, Adapt concurrent eligibility and
+deferred bookkeeping, direct multi-owner collision/old-veto tests and actual
+all-worker cubic Euler/RANS transfer/reload with multiple commits per round.
+Direct tests cover overlapping peers, disjoint peers and a physically vetoed first
+proposal that must not exclude a valid peer. All-worker curved runtime additionally
+requires multiple commits in a round. Use existing fixed-record transport, bounds,
+exact contacts and publication. Validation42 jobs are terminal;43 build follows
+source/config pinning. Broader serial/MPI checks precede the full M6 MPI2 workflow
+with1800s/500k/q/J/edge/geometry/transfer gates unchanged. This adds a second active
+worker; elapsed comparisons must account for the changed CPU resources.
+
+While43 builds, an independent solid-angle probe diagnoses the hidden-sphere
+quadrature without modifying pinned C++. The exact integrand is1/|ray|^3 and
+the full-fan oracle4*pi. Current density-gradient splitting remains unresolved
+after4096 panels; physical longest-edge bisection reaches the1e-4 estimated
+error target with156 panels. Angular midpoint alone needs2205 panels; it is not
+the remedy. Preserve the positive affine panels/exact volume weights and remove
+gradient-directed splitting for collapsed radial charts across both strict and
+bounded-scalar consumers. This is a proposed correction, not applied or accepted.
+Evidence: validation43/probe_angular_split.py/.json; these cheap analytical probes
+are not a substitute for the existing hidden-sphere and volume acceptance tests.
+
+Additional caller review during43: ordinary CNativeRemesher3D invokes Refine
+under ShapeAdmission::Absolute. The user’s validity-only construction/final-only
+quality rule is currently confined to RefineOptimize (serial helper) and separate
+FIRST_ROW construction. Refine already owns a distributed repair queue, but its
+current fallback moves are centroid/metric-mean samples and reconnections; simply
+changing the global mode cannot establish optimizer completion. Review/qualify the
+connected construction→repair→strict-final path, including actual curved parameter
+publication and immutable source queries. Baseline41’s last refusal q=.16599/J=.04161
+is below final gates but above the1e-3 validity Jacobian. Preserve all final gates.
+
+The distributed repair queue can retain final acceptance; initial review suggests
+reusing PlaceConeInsertion for complete interior vertex stars as a metric-aware
+move proposal, routed through existing MoveVertex, height, metric, reservation and
+publication checks. Its target must come from bounded original-donor import, not
+a surrogate used for acceptance. Scope runtime ValidityOnly with restoration on
+all exits; every completion remains ValidateMetricPatch-based. This is a design
+candidate, not implemented, and requires a multi-owner star test plus runtime
+rollback and final quality checks before the next M6 capability claim.
+
+Validation43 build78606 passes in898.60s (process peak4,090,492KiB). Serial70556:
+105 cases/15,872 assertions,23.15s; MPI24618:105 cases/rank,16,513/16,205 assertions,
+22.91s. All-worker55579 passes397/431 assertions in30.60s: cubic Euler/RANS each
+complete with2 simultaneous commits, accepted final meshes, conservative transfer
+and SU2/CGNS reload.989 source/input and19 runtime pins verify before full M6.
+Full M6 MPI2 session75390 is running at unchanged1800s native/2400s outer limits,
+500k metric target and all quality/geometry gates. Keep pinned sources unchanged.

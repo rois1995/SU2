@@ -346,11 +346,16 @@ struct MappedFacetReference::FaceMemo {
   static constexpr size_t Entries=size_t(1)<<14;
   using Key=std::array<uint64_t,25>;
   struct Hash{size_t operator()(const Key& k)const{uint64_t h=1469598103934665603ULL;for(auto x:k){h^=x+0x9e3779b97f4a7c15ULL+(h<<6)+(h>>2);}return size_t(h);}};
-  std::mutex lock;std::unordered_map<Key,bool,Hash> verdicts;
+  static Key Query(Id facet,const std::array<SurfaceBinding,3>& binding,const std::array<Point,3>& realized) {
+    auto bits=[](double x){uint64_t b;std::memcpy(&b,&x,sizeof b);return b;};
+    Key key{};size_t at=0;key[at++]=facet;
+    for(unsigned k=0;k<3;++k){key[at++]=binding[k].feature;key[at++]=binding[k].version;key[at++]=binding[k].dimension;key[at++]=bits(binding[k].u);key[at++]=bits(binding[k].v);}
+    for(unsigned k=0;k<3;++k){key[at++]=bits(realized[k].x);key[at++]=bits(realized[k].y);key[at++]=bits(realized[k].z);}
+    return key;
+  }
+  // Components and curved nets are mutually exclusive: store containment or surface error respectively.
+  std::mutex lock;std::unordered_map<Key,double,Hash> values;
 };
-namespace {
-uint64_t Bits(double x){uint64_t b;std::memcpy(&b,&x,sizeof b);return b;}
-}
 MappedFacetReference::MappedFacetReference(std::shared_ptr<const SU2Native3D::PlanarReference> input,
     const std::map<Id,double>& mapping_errors,uint64_t definition_version,size_t ceiling,bool reference_components,const CurvedNets& curved_nets)
     :reference(std::move(input)),version(definition_version) {
@@ -496,6 +501,8 @@ MappedFacetReference::MappedFacetReference(std::shared_ptr<const SU2Native3D::Pl
     if(transfer_memory::Add(prepared,FaceMemoBytes())<=ceiling){face_memo=std::make_shared<FaceMemo>();prepared=transfer_memory::Add(prepared,FaceMemoBytes());}
     if(ResidentBytes()>prepared)throw std::length_error("Mapped component storage model exhausted before publication.");
   }
+  if(!curves.empty() && transfer_memory::Add(ResidentBytes(),FaceMemoBytes())<=ceiling)
+    face_memo=std::make_shared<FaceMemo>();
 }
 Id MappedFacetReference::Canonical(Id id)const {reference->Get(id);return components?reference->Canonical(id):id;}
 const std::vector<Id>& MappedFacetReference::ComponentFacets(Id id)const {
@@ -806,9 +813,20 @@ double MappedFacetReference::SurfaceError(Id facet,const std::array<SurfaceBindi
                                          const std::array<Point,3>& realized)const {
   const auto found=curves.find(facet);
   if(found==curves.end()){double result=0;for(unsigned k=0;k<3;++k)result=std::max(result,ErrorBound(binding[k],realized[k]));return result;}
+  const auto key=FaceMemo::Query(facet,binding,realized);
+  if(face_memo) {
+    std::lock_guard<std::mutex> guard(face_memo->lock);const auto cached=face_memo->values.find(key);
+    if(cached!=face_memo->values.end())return cached->second;
+  }
   std::array<Box,3> parameters;
   for(unsigned k=0;k<3;++k){Finite(realized[k]);parameters[k]=ParameterBox(FacetParameters(facet,binding[k]));}
-  return CubicDeviation(found->second,parameters,realized);
+  const double result=CubicDeviation(found->second,parameters,realized);
+  if(face_memo) {
+    std::lock_guard<std::mutex> guard(face_memo->lock);
+    if(face_memo->values.size()>=FaceMemo::Entries)std::unordered_map<FaceMemo::Key,double,FaceMemo::Hash>().swap(face_memo->values);
+    face_memo->values.emplace(key,result);
+  }
+  return result;
 }
 double MappedFacetReference::MaximumError(const SurfaceBinding& b)const {
   CheckBinding(b);
@@ -870,14 +888,12 @@ bool MappedFacetReference::ContainsFace(Id facet,const std::array<SurfaceBinding
     // Component containment scans the whole component border with exact predicates; identical queries (the same
     // physical faces re-checked by every kernel and admission) reuse their verdict. Statistics callers recompute.
     if(stats || !face_memo)return ComponentContainsFace(facet,binding,realized,stats);
-    FaceMemo::Key key{};size_t at=0;key[at++]=facet;
-    for(unsigned k=0;k<3;++k){key[at++]=binding[k].feature;key[at++]=binding[k].version;key[at++]=binding[k].dimension;key[at++]=Bits(binding[k].u);key[at++]=Bits(binding[k].v);}
-    for(unsigned k=0;k<3;++k){key[at++]=Bits(realized[k].x);key[at++]=Bits(realized[k].y);key[at++]=Bits(realized[k].z);}
-    {std::lock_guard<std::mutex> guard(face_memo->lock);const auto found=face_memo->verdicts.find(key);if(found!=face_memo->verdicts.end())return found->second;}
+    const auto key=FaceMemo::Query(facet,binding,realized);
+    {std::lock_guard<std::mutex> guard(face_memo->lock);const auto found=face_memo->values.find(key);if(found!=face_memo->values.end())return found->second;}
     const bool verdict=ComponentContainsFace(facet,binding,realized,nullptr);
     std::lock_guard<std::mutex> guard(face_memo->lock);
-    if(face_memo->verdicts.size()>=FaceMemo::Entries)std::unordered_map<FaceMemo::Key,bool,FaceMemo::Hash>().swap(face_memo->verdicts);
-    face_memo->verdicts.emplace(key,verdict);return verdict;
+    if(face_memo->values.size()>=FaceMemo::Entries)std::unordered_map<FaceMemo::Key,double,FaceMemo::Hash>().swap(face_memo->values);
+    face_memo->values.emplace(key,verdict);return verdict;
   }
   std::array<ParametricPoint,3> ideal;
   for(unsigned i=0;i<3;++i) {
@@ -959,7 +975,7 @@ bool MappedFacetReference::ComponentContainsFace(Id facet,const std::array<Surfa
 }
 size_t MappedFacetReference::FaceMemoBytes() {
   // Per entry: key + value + hash-node links/hash + one bucket pointer (generous), plus the container itself.
-  return transfer_memory::Add(sizeof(FaceMemo),transfer_memory::Mul(FaceMemo::Entries,sizeof(FaceMemo::Key)+sizeof(bool)+4*sizeof(void*)+2*sizeof(size_t)));
+  return transfer_memory::Add(sizeof(FaceMemo),transfer_memory::Mul(FaceMemo::Entries,sizeof(FaceMemo::Key)+sizeof(double)+4*sizeof(void*)+2*sizeof(size_t)));
 }
 size_t MappedFacetReference::ResidentBytes()const {
   auto bytes=[](const auto& map){return transfer_memory::Mul(map.size(),sizeof(typename std::decay_t<decltype(map)>::value_type)+4*sizeof(void*));};

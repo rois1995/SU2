@@ -585,6 +585,13 @@ TEST_CASE("Curved mapped controls persist physical geometry separately from exac
     REQUIRE(geometry->ContainsFace(f.id,corners,actual));
     const auto full=geometry->SurfaceError(f.id,corners,actual);
     REQUIRE(full>1e-3);CHECK(geometry->EnvelopeError(f.id)>=full);
+    auto movedFace=actual;movedFace[0].x+=2*full;
+    CHECK(geometry->SurfaceError(f.id,corners,movedFace)>full);
+    auto stale=corners;++stale[0].version;
+    CHECK_THROWS(geometry->SurfaceError(f.id,stale,actual));
+    auto nonfinite=actual;nonfinite[0].x=NAN;
+    CHECK_THROWS(geometry->SurfaceError(f.id,corners,nonfinite));
+    CHECK(geometry->SurfaceError(f.id,corners,actual)==full);
     CHECK(state.original->SurfaceError(f.id,actual)==Approx(full));
     const auto& net=controls.at(f.id);
     for(unsigned i=1;i<8;++i)for(unsigned j=1;i+j<9;++j) {

@@ -115,9 +115,10 @@ class Directory {
   const std::vector<Id>& ChangedVertices() const { return changed_vertices; }
   /*! Collective exact contact veto against the current published mesh. Private replacement cells are broadcast;
    * local cached boxes plus published additions cover every current cell. False return is a protocol/resource
-   * failure; candidate=false is a geometric veto. Publication invalidates stale cell IDs/versions. */
+   * failure; candidate=false is a geometric veto or a deferred peer conflict. Eligible peers are selected
+   * in owner order after current-mesh vetoes. Publication invalidates stale cell IDs/versions. */
   bool Clearance(const Owned& owned,const Patch& old,const Patch& fresh,bool& candidate,std::string& reason,
-                 size_t ceiling=SIZE_MAX,size_t caller_bytes=0);
+                 size_t ceiling=SIZE_MAX,size_t caller_bytes=0,bool* deferred=nullptr);
   size_t ResidentBytes() const;
   const DirectoryStats& Statistics() const { return stats; }
   std::vector<char> Snapshot() const;

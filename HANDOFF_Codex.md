@@ -12,60 +12,54 @@ metric-driven operators, unchanged q>=.20, J>=.05, edge<=1.8, first height withi
 User curvature decision: configured ADAP_HAUSD in mesh units, independent of h0
 and ramp. No implicit chord inference or silent tightening to h0.
 
-Current local checkpointfdb6ad2683. Full M6 curved-source/field qualification
+Current local checkpoint `79bfba6f8f`. Full M6 curved-source/field qualification
 passes (validation32–34):450,221 source cells, all48,954 reference facets queried,
 293,724 directed chords, exact serial/MPI2 record identity including ownership.
-Curved first-height clearance/local differential geometry remains validated on
-325 M6 queries, including65 certified fluid-side1e-6 offsets (validation25).
-See [curved-source history and current design](Handbook/DC18_CURVED_SOURCE.md).
+Persisted curved import, marker-name reordering, private geometry scoring and
+original-parent support are connected. Small cubic Euler/RANS runtime meshes
+complete with conservative BDF2 accounting and SU2/CGNS reload. See
+[curved-source history and current design](Handbook/DC18_CURVED_SOURCE.md).
 
-Production persisted curved import now works, including marker-name reordering.
-Validation37 fixes private mapped geometry scoring and reuses exact original-parent
-support/nodal chords. Both small cubic runtime branches complete with159 cells,
-conservative BDF2 accounting and SU2/CGNS reload. Full M6 job25094 finished with
-adaptation rejected: all303,359 initial cells measured in41.24s,99 accepted edits,
-then301.36s deadline. Original CFD state retained; no accepted full M6 exists.
-The next limitation is whole-mesh collision-index rebuild on every surface edit
-(174.42s unclassified refine time). Reuse Directory/CADTElemClass with publication
-invalidation, exact contacts and remote queries; design is in the linked handbook.
+Collision-index reuse is implemented and validated (validation40): serial99 cases/
+15,752 assertions; MPI2 99 cases/rank,16,376/16,055 assertions; all-active-worker
+runtime408/442 assertions. Tests cover ID/version movement, deletion, rollback,
+rebuild and collective memory refusal. Exact contacts and owner vetoes remain.
+Full M6 comparison job20721 is terminal:3,122 accepted edits (was99),38 collision
+builds,1,040,674 exact contacts in22.11s; native300.89s,135,178 invalid cells and
+80,523 queued edges remain. Original CFD state retained; no accepted M6.
 
-Validation38 corrects the RANS test oracle for closed-wall volume conservation
-and no-slip redistribution. Independent saved-mesh flow/history error8.88e-16.
-Serial46476 passes98 cases/15,718 assertions. MPI24127 exposes local-only wall
-classification of halo nodes (owned states correct); validation39 gathers physical
-wall global IDs for the oracle. Build85486 and MPI2 job20715 pass98 cases/rank (16,342/16,021 assertions);
-serial runtime61407 passes487 assertions. Validation39 is terminal; its pins verify. The checkpoint retains production validation37;39 only changes tests.
-New validation40 implements Directory collision-index reuse, version checks,
-atomic added-cell tracking and exact owner vetoes. Direct distributed tests cover
-movement/reused IDs, deletion, rejected publication, rebuild and byte refusal.
-Build48180 failed on missing LINE enum include/fixed-record codec; corrected
-with bounded std::array proposal fields. Build13114 passed; final count/thread-bound review fixed and build47859 passed.
-Final build90802 passes. Serial43635 passes99 cases/15,752 assertions; MPI94064
-passes99 cases/rank,16,376/16,055 assertions. All-active-worker MPI57077 also
-passes408/442 assertions. Full M6 job20721 is terminal:3,122 accepted edits (was99),38 collision builds,
-1,040,674 exact contacts in22.11s; total300.89s,135,178 invalid cells and80,523
-queued edges remain. No accepted M6; original CFD state retained. Source pins
-verify. This is time exhaustion during active refinement, not operator stagnation.
-Validation41 adds final demand diagnostics and a bounded longer qualification:
-native1800s/outer2400s,12GiB/rank, same500k/q/J/edge/geometry/transfer gates.
-The300s comparison remains preserved in40; no mesh acceptance condition changes.
-Build passes; serial23227 passes3 cases/7,689 assertions. Full M6 job23818 running; preserve pinned C++. Gates/deadline unchanged. Automatic curved initialization
-is absent and BL support/quadrature remains guarded.
-- Shared Option A field is used by normalization, profile selection, construction,
-  reassessment and original-family correction; finer sensor directions survive.
-- Registered-column cavities resolve the remaining M6 first-height witnesses.
-  The diagnostic mesh still fails final quality/edge/budget gates.
-- Explicit ADAP_NATIVE_MEMORY_LIMIT (MiB/rank), final publication-budget guard,
-  query-error propagation and historical distributed-repair fixtures are fixed.
-- Curved mapped controls have strict realization/child-error/Jacobian/shared-edge
-  checks, v7 persistence and source-envelope displacement. Full M6 admits48,954
-  patches with zero fallbacks (validation22); no volume construction.
-- Validation23 adds bounded closest-distance queries restricted to connected
-  same-marker components and includes cubic controls in cross-rank agreement.
-  Serial passes12 cases/1,025 assertions; MPI2 passes12/1,026 on each rank.
-  All195 M6 queries from the saved sidecar meet1e-8 distance accuracy; worst
-  work2,336/16,384, query time1.59s, whole10.09s, process peak314,412KiB.
-  Source/input/binary/runtime pins verify for validation23.
+Validation41 is terminal/rejected, process exit0; source/runtime pins verify.
+Native1801.78s, whole1992.14s, peak2,836,992KiB. Accepted41,632/48,705 edits:
+9,622 geometric,21,252 size-progress;511,810 private cells. Remaining geometry
+violations2,638 with EMPTY geometry queue;292,368 metric/height violations,
+257,684 metric edges. No accepted mesh; original CFD state retained.
+
+Validation42 is terminal;988 source/input and19 runtime pins verify. Build25343
+passes (1003.45s, process peak4,090,520KiB); geometry/runtime70748 passes9 cases/
+1,323 assertions. Cubic Euler/RANS each reactivate75 geometric requests and
+complete transfer/reload. Geometry memo key checks pass. Volume66000:9/10 cases
+pass, hidden sphere still exhausts65536 points (retained65446, panel297, ray1).
+No M6 run42. Shared IntegrationColumns3D removes duplicate local recursion but
+needs better off-centre angular conditioning; preserve failure and limits.
+
+ACTIVE: validation43 full M6 MPI2 session75390 running; pinned C++ unchanged.
+Build78606 passes (898.60s, process peak4,090,492KiB);989 source/input pins
+verify,19 runtime files pinned. Serial70556 passes105 cases/15,872 assertions;
+MPI24618 passes105 cases/rank (16,513/16,205). All-worker55579 passes397/431
+assertions; both cubic branches reach2 simultaneous commits and complete strict
+mesh, conservative transfer and SU2/CGNS reload.
+Directory selects compatible peers only after current-mesh owner vetoes; peer
+conflicts defer without blocking the edge. Curved refinement uses the existing
+concurrent path; final dependency reservations/atomic parameter publication stay.
+Tests cover overlap, independent peers and vetoed-first/valid-second interaction.
+All-worker cubic runtime requires multiple parallel commits. Qualify connected
+serial/MPI before full M6 MPI2 at1800s and all unchanged mesh/500k gates. CPU use
+changes from1 to2 workers, so do not claim a same-resource elapsed speedup.
+
+New caller gap: normal runtime Refine still uses Absolute per-edit shape gates;
+ValidityOnly/RefineOptimize is serial and not connected there. Qualify construction
+plus repair/optimization under the user’s final-only quality policy; do not simply
+relax admission. See current curved-source handbook.
 
 Next: complete production geometry construction and its runtime workflow, then
 connected metric/support/quadrature, wall refinement and initialization.

@@ -2616,7 +2616,11 @@ TEST_CASE("Mapped native runtime completes a uniform target before conservative 
   CNativeRemesher3D backend(reference,limits);const auto result=backend.Remesh(*config,current.Fine(),sensor);
   INFO("refine="<<EngineStopName(backend.Statistics().refine.stop)<<", coarsen="<<EngineStopName(backend.Statistics().coarsen.stop));
   REQUIRE(result.status==CRemeshResult::Status::COMPLETE);CHECK(EncodeReference(*reference)==original_reference);CHECK(State(current)==saved);
-  if(curved)CHECK(CPassiveComm::Allreduce(backend.Statistics().refine.geometry_progress,CPassiveComm::Op::SUM,world.comm)>0);
+  if(curved) {
+    CHECK(CPassiveComm::Allreduce(backend.Statistics().refine.geometry_progress,CPassiveComm::Op::SUM,world.comm)>0);
+    CHECK(CPassiveComm::Allreduce(backend.Statistics().refine.geometry_reactivated,CPassiveComm::Op::SUM,world.comm)>0);
+    if(workers>1)CHECK(world.maximum(backend.Statistics().refine.maximum_parallel_commits)>1);
+  }
   MeshSolution accepted(config.get(),result.slices,0);CConservativeTransfer transfer;
   {Mute mute;transfer.Transfer(config.get(),current.Donor(),accepted.geometry,accepted.solver);}
   const std::string name=std::string(curved?"cubic_":"")+(rans?"mapped_runtime_rans":"mapped_runtime_euler");

@@ -184,9 +184,8 @@ class MappedFacetReference {
   std::shared_ptr<const ComponentData> components;
   struct CurvedSearch;
   std::shared_ptr<CurvedSearch> curved_search;
-  /*! Memo of ContainsFace verdicts (a pure function of the immutable reference and the bitwise facet, bindings and
-   *  realized points). Used only without kernel statistics; bounded and admitted against the construction ceiling (ResidentBytes); guarded
-   *  for concurrent const use. */
+  /*! Memo of component containment or curved surface error, keyed by immutable geometry, bitwise bindings and
+   *  realized points. Containment statistics bypass it; full bounded storage is admitted before use. */
   struct FaceMemo;
   std::shared_ptr<FaceMemo> face_memo;
   static size_t FaceMemoBytes();

@@ -44,6 +44,7 @@ struct EngineStats {
   EngineStop stop = EngineStop::None;
   uint64_t global_work = 0, work_limit = 0, progress_windows = 0, stagnant_windows = 0, search_windows = 0;
   uint64_t size_progress = 0, quality_progress = 0, cell_removals = 0, geometry_progress = 0;
+  uint64_t geometry_reactivated=0;
   uint64_t region_field_points=0,region_field_sensor_hits=0,region_field_interior_hits=0;
   uint64_t region_field_edges=0,region_field_edge_hits=0,region_field_imports=0;
   size_t region_field_maximum_resident=0;

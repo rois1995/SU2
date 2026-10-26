@@ -1,0 +1,332 @@
+diff --git a/Common/include/adaptation/CNativeAffineReference.hpp b/Common/include/adaptation/CNativeAffineReference.hpp
+index 9cce1bd49c..b998c14484 100644
+--- a/Common/include/adaptation/CNativeAffineReference.hpp
++++ b/Common/include/adaptation/CNativeAffineReference.hpp
+@@ -184,9 +184,8 @@ class MappedFacetReference {
+   std::shared_ptr<const ComponentData> components;
+   struct CurvedSearch;
+   std::shared_ptr<CurvedSearch> curved_search;
+-  /*! Memo of ContainsFace verdicts (a pure function of the immutable reference and the bitwise facet, bindings and
+-   *  realized points). Used only without kernel statistics; bounded and admitted against the construction ceiling (ResidentBytes); guarded
+-   *  for concurrent const use. */
++  /*! Memo of component containment or curved surface error, keyed by immutable geometry, bitwise bindings and
++   *  realized points. Containment statistics bypass it; full bounded storage is admitted before use. */
+   struct FaceMemo;
+   std::shared_ptr<FaceMemo> face_memo;
+   static size_t FaceMemoBytes();
+diff --git a/Common/include/adaptation/CNativeEngine3D.hpp b/Common/include/adaptation/CNativeEngine3D.hpp
+index a8fa6344b8..e682702193 100644
+--- a/Common/include/adaptation/CNativeEngine3D.hpp
++++ b/Common/include/adaptation/CNativeEngine3D.hpp
+@@ -44,6 +44,7 @@ struct EngineStats {
+   EngineStop stop = EngineStop::None;
+   uint64_t global_work = 0, work_limit = 0, progress_windows = 0, stagnant_windows = 0, search_windows = 0;
+   uint64_t size_progress = 0, quality_progress = 0, cell_removals = 0, geometry_progress = 0;
++  uint64_t geometry_reactivated=0;
+   uint64_t region_field_points=0,region_field_sensor_hits=0,region_field_interior_hits=0;
+   uint64_t region_field_edges=0,region_field_edge_hits=0,region_field_imports=0;
+   size_t region_field_maximum_resident=0;
+diff --git a/Common/src/adaptation/CNativeAffineReference.cpp b/Common/src/adaptation/CNativeAffineReference.cpp
+index e4de450e2a..4f608ce726 100644
+--- a/Common/src/adaptation/CNativeAffineReference.cpp
++++ b/Common/src/adaptation/CNativeAffineReference.cpp
+@@ -346,11 +346,16 @@ struct MappedFacetReference::FaceMemo {
+   static constexpr size_t Entries=size_t(1)<<14;
+   using Key=std::array<uint64_t,25>;
+   struct Hash{size_t operator()(const Key& k)const{uint64_t h=1469598103934665603ULL;for(auto x:k){h^=x+0x9e3779b97f4a7c15ULL+(h<<6)+(h>>2);}return size_t(h);}};
+-  std::mutex lock;std::unordered_map<Key,bool,Hash> verdicts;
++  static Key Query(Id facet,const std::array<SurfaceBinding,3>& binding,const std::array<Point,3>& realized) {
++    auto bits=[](double x){uint64_t b;std::memcpy(&b,&x,sizeof b);return b;};
++    Key key{};size_t at=0;key[at++]=facet;
++    for(unsigned k=0;k<3;++k){key[at++]=binding[k].feature;key[at++]=binding[k].version;key[at++]=binding[k].dimension;key[at++]=bits(binding[k].u);key[at++]=bits(binding[k].v);}
++    for(unsigned k=0;k<3;++k){key[at++]=bits(realized[k].x);key[at++]=bits(realized[k].y);key[at++]=bits(realized[k].z);}
++    return key;
++  }
++  // Components and curved nets are mutually exclusive: store containment or surface error respectively.
++  std::mutex lock;std::unordered_map<Key,double,Hash> values;
+ };
+-namespace {
+-uint64_t Bits(double x){uint64_t b;std::memcpy(&b,&x,sizeof b);return b;}
+-}
+ MappedFacetReference::MappedFacetReference(std::shared_ptr<const SU2Native3D::PlanarReference> input,
+     const std::map<Id,double>& mapping_errors,uint64_t definition_version,size_t ceiling,bool reference_components,const CurvedNets& curved_nets)
+     :reference(std::move(input)),version(definition_version) {
+@@ -496,6 +501,8 @@ MappedFacetReference::MappedFacetReference(std::shared_ptr<const SU2Native3D::Pl
+     if(transfer_memory::Add(prepared,FaceMemoBytes())<=ceiling){face_memo=std::make_shared<FaceMemo>();prepared=transfer_memory::Add(prepared,FaceMemoBytes());}
+     if(ResidentBytes()>prepared)throw std::length_error("Mapped component storage model exhausted before publication.");
+   }
++  if(!curves.empty() && transfer_memory::Add(ResidentBytes(),FaceMemoBytes())<=ceiling)
++    face_memo=std::make_shared<FaceMemo>();
+ }
+ Id MappedFacetReference::Canonical(Id id)const {reference->Get(id);return components?reference->Canonical(id):id;}
+ const std::vector<Id>& MappedFacetReference::ComponentFacets(Id id)const {
+@@ -806,9 +813,20 @@ double MappedFacetReference::SurfaceError(Id facet,const std::array<SurfaceBindi
+                                          const std::array<Point,3>& realized)const {
+   const auto found=curves.find(facet);
+   if(found==curves.end()){double result=0;for(unsigned k=0;k<3;++k)result=std::max(result,ErrorBound(binding[k],realized[k]));return result;}
++  const auto key=FaceMemo::Query(facet,binding,realized);
++  if(face_memo) {
++    std::lock_guard<std::mutex> guard(face_memo->lock);const auto cached=face_memo->values.find(key);
++    if(cached!=face_memo->values.end())return cached->second;
++  }
+   std::array<Box,3> parameters;
+   for(unsigned k=0;k<3;++k){Finite(realized[k]);parameters[k]=ParameterBox(FacetParameters(facet,binding[k]));}
+-  return CubicDeviation(found->second,parameters,realized);
++  const double result=CubicDeviation(found->second,parameters,realized);
++  if(face_memo) {
++    std::lock_guard<std::mutex> guard(face_memo->lock);
++    if(face_memo->values.size()>=FaceMemo::Entries)std::unordered_map<FaceMemo::Key,double,FaceMemo::Hash>().swap(face_memo->values);
++    face_memo->values.emplace(key,result);
++  }
++  return result;
+ }
+ double MappedFacetReference::MaximumError(const SurfaceBinding& b)const {
+   CheckBinding(b);
+@@ -870,14 +888,12 @@ bool MappedFacetReference::ContainsFace(Id facet,const std::array<SurfaceBinding
+     // Component containment scans the whole component border with exact predicates; identical queries (the same
+     // physical faces re-checked by every kernel and admission) reuse their verdict. Statistics callers recompute.
+     if(stats || !face_memo)return ComponentContainsFace(facet,binding,realized,stats);
+-    FaceMemo::Key key{};size_t at=0;key[at++]=facet;
+-    for(unsigned k=0;k<3;++k){key[at++]=binding[k].feature;key[at++]=binding[k].version;key[at++]=binding[k].dimension;key[at++]=Bits(binding[k].u);key[at++]=Bits(binding[k].v);}
+-    for(unsigned k=0;k<3;++k){key[at++]=Bits(realized[k].x);key[at++]=Bits(realized[k].y);key[at++]=Bits(realized[k].z);}
+-    {std::lock_guard<std::mutex> guard(face_memo->lock);const auto found=face_memo->verdicts.find(key);if(found!=face_memo->verdicts.end())return found->second;}
++    const auto key=FaceMemo::Query(facet,binding,realized);
++    {std::lock_guard<std::mutex> guard(face_memo->lock);const auto found=face_memo->values.find(key);if(found!=face_memo->values.end())return found->second;}
+     const bool verdict=ComponentContainsFace(facet,binding,realized,nullptr);
+     std::lock_guard<std::mutex> guard(face_memo->lock);
+-    if(face_memo->verdicts.size()>=FaceMemo::Entries)std::unordered_map<FaceMemo::Key,bool,FaceMemo::Hash>().swap(face_memo->verdicts);
+-    face_memo->verdicts.emplace(key,verdict);return verdict;
++    if(face_memo->values.size()>=FaceMemo::Entries)std::unordered_map<FaceMemo::Key,double,FaceMemo::Hash>().swap(face_memo->values);
++    face_memo->values.emplace(key,verdict);return verdict;
+   }
+   std::array<ParametricPoint,3> ideal;
+   for(unsigned i=0;i<3;++i) {
+@@ -959,7 +975,7 @@ bool MappedFacetReference::ComponentContainsFace(Id facet,const std::array<Surfa
+ }
+ size_t MappedFacetReference::FaceMemoBytes() {
+   // Per entry: key + value + hash-node links/hash + one bucket pointer (generous), plus the container itself.
+-  return transfer_memory::Add(sizeof(FaceMemo),transfer_memory::Mul(FaceMemo::Entries,sizeof(FaceMemo::Key)+sizeof(bool)+4*sizeof(void*)+2*sizeof(size_t)));
++  return transfer_memory::Add(sizeof(FaceMemo),transfer_memory::Mul(FaceMemo::Entries,sizeof(FaceMemo::Key)+sizeof(double)+4*sizeof(void*)+2*sizeof(size_t)));
+ }
+ size_t MappedFacetReference::ResidentBytes()const {
+   auto bytes=[](const auto& map){return transfer_memory::Mul(map.size(),sizeof(typename std::decay_t<decltype(map)>::value_type)+4*sizeof(void*));};
+diff --git a/Common/src/adaptation/CNativeEngine3D.cpp b/Common/src/adaptation/CNativeEngine3D.cpp
+index 5210ffa365..8ef21732ea 100644
+--- a/Common/src/adaptation/CNativeEngine3D.cpp
++++ b/Common/src/adaptation/CNativeEngine3D.cpp
+@@ -214,7 +214,16 @@ class Selection {
+     for (Id retained:found->second) {
+       Edge edge{retained,vertex}, key=edge; std::sort(key.begin(),key.end());
+       const auto measured=edges.find(key);
+-      if (measured==edges.end() || !Candidate(measured->second.measure.length)) continue;
++      if (measured==edges.end())continue;
++      if(!coarsening && !geometry.ExtensionComponents().empty()) {
++        const auto star=vertex_cells.find(vertex);
++        if(star!=vertex_cells.end())for(Id id:star->second) {
++          const auto& row=cells.at(id);
++          for(size_t k=0;k<row.edges.size();++k)if(row.edges[k]==key && row.geometry_scores[k]>0)
++            stats.geometry_reactivated+=geometry_queue.insert({-row.geometry_scores[k],id,key}).second;
++        }
++      }
++      if(!Candidate(measured->second.measure.length))continue;
+       const auto direction=retained==key[0] ? 0u : 1u;
+       if (prune_collapses && measured->second.forbidden[direction]) continue;
+       if (!coarsening) edge=key;
+@@ -358,7 +367,9 @@ class Selection {
+     for (const auto& measured : metric.edges) {
+       const auto key=measured.first;
+       row.geometry_scores[slot]=geometry_scores[key];
+-      if(!coarsening && row.geometry_scores[slot]>0)
++      const auto blocked=blocked_edges.find(key[1]);
++      if(!coarsening && row.geometry_scores[slot]>0 &&
++          (blocked==blocked_edges.end() || !blocked->second.count(key[0])))
+         geometry_queue.insert({-row.geometry_scores[slot],cell.id,key});
+       auto inserted=edges.emplace(key,EdgeState{measured.second,0});
+       auto& state=inserted.first->second;
+@@ -457,7 +468,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
+   std::map<Edge,EdgeMeasure> retired_edges,campaign_edges;
+   std::shared_ptr<const FrozenMetricIdentity> field_identity;
+   // Joint split feasibility depends on neighboring vertex stars, even when the edge itself is unchanged.
+-  selection.track_splits=bool(composition);
++  selection.track_splits=bool(composition) || curved;
+   Directory directory(world,coarsening || selection.track_splits,geometry.Parameters());
+   DonorImport source(world,options.timings);
+   size_t accepted_bytes=MapBytes(accepted);
+diff --git a/Common/src/adaptation/CNativeRemesher3D.cpp b/Common/src/adaptation/CNativeRemesher3D.cpp
+index b3ed2bd7ad..902959f535 100644
+--- a/Common/src/adaptation/CNativeRemesher3D.cpp
++++ b/Common/src/adaptation/CNativeRemesher3D.cpp
+@@ -753,7 +753,7 @@ CRemeshResult CNativeRemesher3D::Remesh(const CConfig& config, const CGeometry&
+              << " batch_rounds=" << e.batch_rounds << " batch_candidates=" << e.batch_candidates
+              << " stop=" << EngineStopName(e.stop) << " global_work=" << e.global_work << " work_limit=" << e.work_limit
+              << " progress_windows=" << e.progress_windows << " stagnant_windows=" << e.stagnant_windows << " search_windows=" << e.search_windows
+-             << " geometry_progress=" << e.geometry_progress << " size_progress=" << e.size_progress << " quality_progress=" << e.quality_progress << " cell_removals=" << e.cell_removals
++             << " geometry_progress=" << e.geometry_progress << " geometry_reactivated=" << e.geometry_reactivated << " size_progress=" << e.size_progress << " quality_progress=" << e.quality_progress << " cell_removals=" << e.cell_removals
+              << " layer_shape_screens=" << e.layer_shape_screens << " layer_shape_pruned=" << e.layer_shape_pruned
+              << " layer_batches=" << e.layer_batches << " layer_maximum_batch=" << e.layer_maximum_batch
+              << " layer_donor_batches=" << e.layer_donor_batches << " layer_donor_retries=" << e.layer_donor_retries
+diff --git a/SU2_CFD/src/adaptation/CBoundaryLayerMetric.cpp b/SU2_CFD/src/adaptation/CBoundaryLayerMetric.cpp
+index c0329a70fa..4fbaa1262b 100644
+--- a/SU2_CFD/src/adaptation/CBoundaryLayerMetric.cpp
++++ b/SU2_CFD/src/adaptation/CBoundaryLayerMetric.cpp
+@@ -2391,8 +2391,6 @@ std::vector<CBoundaryLayerMetric::IntegrationPoint3D> CBoundaryLayerMetric::Inte
+     }
+     estimate->indicator=std::abs(estimate->value-lower);estimate->panels=1;return {};
+   }
+-  // Scalar complexity needs a positive covering, not the strict projected-chart closure.
+-  if(estimate)return IntegrationRule3DVisible(tetrahedron,support,bandRatio,probe,estimate,maximumEvaluations,absoluteTolerance,workspace);
+   // Positive radial fans avoid a spherical silhouette in parallel-chord coordinates.
+   SU2Native3D::Tetrahedron fanSource;
+   for(unsigned k=0;k<4;++k)fanSource[k]={tetrahedron[k][0],tetrahedron[k][1],tetrahedron[k][2]};
+@@ -2404,94 +2402,36 @@ std::vector<CBoundaryLayerMetric::IntegrationPoint3D> CBoundaryLayerMetric::Inte
+     if(g.kind!=SU2Native3D::AnalyticSurface::Kind::Sphere || !SU2Native3D::Barycentric(fanSource,g.origin,centerWeights))continue;
+     if(fanReversed)std::swap(centerWeights[1],centerWeights[2]);
+     const BLPoint3D center{g.origin.x,g.origin.y,g.origin.z};
+-    const double radialNodes[5]={-.90617984593866399280,-.53846931010568309104,0,.53846931010568309104,.90617984593866399280};
+-    const double radialWeights[5]={.23692688505618908751,.47862867049936646804,128./225,.47862867049936646804,.23692688505618908751};
+-    const double lowNodes[3]={-.77459666924148337704,0,.77459666924148337704},lowWeights[3]={5./9,8./9,5./9};
+-    const double angular[7][3]={{1./3,1./3,1./3},{.059715871789770,.470142064105115,.470142064105115},
+-      {.470142064105115,.059715871789770,.470142064105115},{.470142064105115,.470142064105115,.059715871789770},
+-      {.797426985353087,.101286507323456,.101286507323456},{.101286507323456,.797426985353087,.101286507323456},
+-      {.101286507323456,.101286507323456,.797426985353087}};
+-    const double angularWeights[7]={.225,.132394152788506,.132394152788506,.132394152788506,.125939180544827,.125939180544827,.125939180544827};
+-    using Panel=std::array<std::array<double,4>,3>;
+-    std::vector<IntegrationPoint3D> radialRule;size_t radialWork=0;
+-    auto position=[&](const std::array<double,4>& b){BLPoint3D p{};for(unsigned k=0;k<4;++k)for(unsigned j=0;j<3;++j)p[j]+=b[k]*tetrahedron[k][j];return p;};
+-    std::function<void(const Panel&,unsigned)> refineAngular;
+-    refineAngular=[&](const Panel& panel,unsigned depth) {
+-      if(++radialWork>16384)throw std::runtime_error("Native3D spherical-fan work budget exhausted.");
+-      const BLTetrahedron region{center,position(panel[0]),position(panel[1]),position(panel[2])};
+-      const double volume=std::abs(BLDeterminant(region[0],region[1],region[2],region[3]))/6;if(!(volume>0))return;
+-      auto integrate=[&](bool high,std::vector<IntegrationPoint3D>& points,double& error) {
+-        double value=0;
+-        for(unsigned at=0;at<(high?7u:3u);++at) {
+-          std::array<double,4> end{};
+-          for(unsigned k=0;k<4;++k)for(unsigned j=0;j<3;++j)
+-            end[k]+=panel[j][k]*(high?angular[at][j]:(at==j?2./3:1./6));
+-          const auto target=position(end);const auto cuts=EdgeBreakpoints(center,target,std::max(2.,bandRatio),4);
+-          const double jacobian=3*volume*(high?angularWeights[at]:1./3);
+-          auto gauss=[&](double left,double right,unsigned order,std::vector<IntegrationPoint3D>& samples) {
+-            double sum=0;const double half=.5*(right-left),middle=.5*(right+left);
+-            for(unsigned p=0;p<order;++p) {
+-              const double t=middle+half*(order==5?radialNodes[p]:lowNodes[p]);std::array<double,4> parent{};
+-              for(unsigned k=0;k<4;++k)parent[k]=double((1-t)*centerWeights[k]+t*end[k]);
+-              auto x=position(parent);SetBLSourceQuery(tetrahedron,fanSource,fanReversed,parent,x);
+-              IntegrationPoint3D point{parent,jacobian*half*(order==5?radialWeights[p]:lowWeights[p])*t*t,SamplePoints({x[0],x[1],x[2]})};
+-              sum+=point.weight*probe(point);samples.push_back(std::move(point));
+-            }
+-            return sum;
+-          };
+-          std::function<void(double,double,unsigned)> refineRadius;
+-          refineRadius=[&](double left,double right,unsigned level) {
+-            std::vector<IntegrationPoint3D> lower,upper;const auto a=gauss(left,right,3,lower),b=gauss(left,right,5,upper);
+-            if(std::abs(a-b)<=1e-5*b) {
+-              if(radialRule.size()+points.size()+lower.size()>65536)throw std::runtime_error("Native3D spherical-fan point budget exhausted.");
+-              error+=std::abs(a-b);value+=a;points.insert(points.end(),std::make_move_iterator(lower.begin()),std::make_move_iterator(lower.end()));return;
+-            }
+-            if(++radialWork>16384)throw std::runtime_error("Native3D spherical radial work budget exhausted.");
+-            const double middle=.5*(left+right);
+-            if(level>=32 || middle==left || middle==right)throw std::runtime_error("Unresolved native3D spherical radial density.");
+-            refineRadius(left,middle,level+1);refineRadius(middle,right,level+1);
+-          };
+-          for(size_t k=1;k<cuts.size();++k)refineRadius(cuts[k-1],cuts[k],0);
+-        }
+-        return value;
+-      };
+-      std::vector<IntegrationPoint3D> low,high;double lowerError=0,upperError=0;
+-      const auto a=integrate(false,low,lowerError),b=integrate(true,high,upperError);
+-      std::vector<bool> sampled(walls.size(),false);
+-      for(const auto* points:{&low,&high})for(const auto& point:*points)for(const auto& s:point.samples)sampled[s.wall]=true;
+-      bool unresolved=false;
+-      for(unsigned w=0;w<walls.size();++w)if(!sampled[w] && data[w]->adt) {
+-        if(walls[w].authority)unresolved=unresolved || MayIntersectSmoothBand(region,*walls[w].authority,walls[w].authority_facet,data[w]->support);
+-        else {
+-          const double thickness=data[w]->support;su2double lo[3],hi[3];
+-          for(unsigned j=0;j<3;++j){double first=region[0][j],last=first;for(const auto& x:region){first=std::min(first,x[j]);last=std::max(last,x[j]);}lo[j]=first-thickness;hi[j]=last+thickness;}
+-          std::vector<unsigned long> faces;data[w]->adt->DetermineIntersectingElements(lo,hi,faces);
+-          for(auto f:faces){std::array<BLPoint3D,3> face;for(unsigned k=0;k<3;++k)for(unsigned j=0;j<3;++j)face[k][j]=SU2_TYPE::GetValue(walls[w].coord[3*data[w]->elem[3*f+k]+j]);unresolved=unresolved || MayIntersectWallBand(region,face,thickness*(1-1e-12));}
+-        }
+-      }
+-      if(!unresolved && std::abs(a-b)+lowerError+upperError<=1e-4*b) {
+-        if(radialRule.size()+high.size()>65536)throw std::runtime_error("Native3D spherical-fan point budget exhausted.");
+-        radialRule.insert(radialRule.end(),std::make_move_iterator(high.begin()),std::make_move_iterator(high.end()));return;
+-      }
+-      if(depth>=32)throw std::runtime_error("Unresolved native3D spherical angular density/support.");
+-      unsigned first=0,last=1;double longest=0;
+-      for(unsigned i=0;i<3;++i)for(unsigned j=i+1;j<3;++j){const auto x=position(panel[i]),y=position(panel[j]);double d=0;for(unsigned k=0;k<3;++k)d+=(x[k]-y[k])*(x[k]-y[k]);if(d>longest){longest=d;first=i;last=j;}}
+-      std::array<double,4> middle{};for(unsigned k=0;k<4;++k)middle[k]=.5*(panel[first][k]+panel[last][k]);
+-      if(middle==panel[first] || middle==panel[last])throw std::runtime_error("Unrepresentable native3D spherical angular split.");
+-      for(auto vertex:{first,last}){auto child=panel;child[vertex]=middle;refineAngular(child,depth+1);}
+-    };
++    std::vector<Column3D> columns;
+     for(unsigned skip=0;skip<4;++skip) {
+       unsigned ids[3],at=0;for(unsigned k=0;k<4;++k)if(k!=skip)ids[at++]=k;
+-      const double volume=std::abs(BLDeterminant(center,tetrahedron[ids[0]],tetrahedron[ids[1]],tetrahedron[ids[2]]))/6;
+-      if(!(volume>0))continue;
++      if(BLDeterminant(center,tetrahedron[ids[0]],tetrahedron[ids[1]],tetrahedron[ids[2]])==0)continue;
+       su2double a[3],b[3],c[3],origin[3]={g.origin.x,g.origin.y,g.origin.z},weights[3];
+       for(unsigned j=0;j<3;++j){a[j]=tetrahedron[ids[0]][j];b[j]=tetrahedron[ids[1]][j];c[j]=tetrahedron[ids[2]][j];}
+-      ClosestPointTriangle(a,b,c,origin,weights);std::array<double,4> anchor{};for(unsigned j=0;j<3;++j)anchor[ids[j]]=SU2_TYPE::GetValue(weights[j]);
+-      for(unsigned j=0;j<3;++j){Panel face{anchor};face[1][ids[j]]=1;face[2][ids[(j+1)%3]]=1;refineAngular(face,0);}
++      ClosestPointTriangle(a,b,c,origin,weights);std::array<double,4> anchor{};
++      for(unsigned j=0;j<3;++j)anchor[ids[j]]=SU2_TYPE::GetValue(weights[j]);
++      for(unsigned j=0;j<3;++j) {
++        Column3D column;column.collapsed=true;column.entry[0]=anchor;
++        column.entry[1][ids[j]]=1;column.entry[2][ids[(j+1)%3]]=1;
++        BLTetrahedron region;region[0]=center;
++        for(unsigned v=0;v<3;++v) {
++          for(unsigned k=0;k<4;++k)column.exit[v][k]=double(centerWeights[k]);
++          column.axial[v]=1;
++          for(unsigned d=0;d<3;++d) {
++            region[v+1][d]=0;
++            for(unsigned k=0;k<4;++k)region[v+1][d]+=column.entry[v][k]*tetrahedron[k][d];
++            column.projection[v][d]=region[v+1][d]-center[d];
++          }
++        }
++        column.area=std::abs(BLDeterminant(region[0],region[1],region[2],region[3]))/2;
++        if(column.area>0)columns.push_back(std::move(column));
++      }
+     }
+     if(sensorDependent)*sensorDependent=true;
+-    return radialRule;
++    return IntegrationColumns3D(tetrahedron,columns,support,bandRatio,probe,estimate,maximumEvaluations,absoluteTolerance,workspace);
+   }
++  // Scalar complexity needs a positive covering, not the strict projected-chart closure.
++  if(estimate)return IntegrationRule3DVisible(tetrahedron,support,bandRatio,probe,estimate,maximumEvaluations,absoluteTolerance,workspace);
+   using Triangle=std::array<std::array<double,4>,3>;
+   struct ChordRule {
+     Triangle entry,exit;
+diff --git a/UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp b/UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp
+index f1bd11da40..e44ef4e010 100644
+--- a/UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp
++++ b/UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp
+@@ -585,6 +585,13 @@ TEST_CASE("Curved mapped controls persist physical geometry separately from exac
+     REQUIRE(geometry->ContainsFace(f.id,corners,actual));
+     const auto full=geometry->SurfaceError(f.id,corners,actual);
+     REQUIRE(full>1e-3);CHECK(geometry->EnvelopeError(f.id)>=full);
++    auto movedFace=actual;movedFace[0].x+=2*full;
++    CHECK(geometry->SurfaceError(f.id,corners,movedFace)>full);
++    auto stale=corners;++stale[0].version;
++    CHECK_THROWS(geometry->SurfaceError(f.id,stale,actual));
++    auto nonfinite=actual;nonfinite[0].x=NAN;
++    CHECK_THROWS(geometry->SurfaceError(f.id,corners,nonfinite));
++    CHECK(geometry->SurfaceError(f.id,corners,actual)==full);
+     CHECK(state.original->SurfaceError(f.id,actual)==Approx(full));
+     const auto& net=controls.at(f.id);
+     for(unsigned i=1;i<8;++i)for(unsigned j=1;i+j<9;++j) {
+diff --git a/UnitTests/SU2_CFD/adaptation/CNativeImport3D_tests.cpp b/UnitTests/SU2_CFD/adaptation/CNativeImport3D_tests.cpp
+index 69dafa0ca0..c72052ada0 100644
+--- a/UnitTests/SU2_CFD/adaptation/CNativeImport3D_tests.cpp
++++ b/UnitTests/SU2_CFD/adaptation/CNativeImport3D_tests.cpp
+@@ -2616,7 +2616,10 @@ TEST_CASE("Mapped native runtime completes a uniform target before conservative
+   CNativeRemesher3D backend(reference,limits);const auto result=backend.Remesh(*config,current.Fine(),sensor);
+   INFO("refine="<<EngineStopName(backend.Statistics().refine.stop)<<", coarsen="<<EngineStopName(backend.Statistics().coarsen.stop));
+   REQUIRE(result.status==CRemeshResult::Status::COMPLETE);CHECK(EncodeReference(*reference)==original_reference);CHECK(State(current)==saved);
+-  if(curved)CHECK(CPassiveComm::Allreduce(backend.Statistics().refine.geometry_progress,CPassiveComm::Op::SUM,world.comm)>0);
++  if(curved) {
++    CHECK(CPassiveComm::Allreduce(backend.Statistics().refine.geometry_progress,CPassiveComm::Op::SUM,world.comm)>0);
++    CHECK(CPassiveComm::Allreduce(backend.Statistics().refine.geometry_reactivated,CPassiveComm::Op::SUM,world.comm)>0);
++  }
+   MeshSolution accepted(config.get(),result.slices,0);CConservativeTransfer transfer;
+   {Mute mute;transfer.Transfer(config.get(),current.Donor(),accepted.geometry,accepted.solver);}
+   const std::string name=std::string(curved?"cubic_":"")+(rans?"mapped_runtime_rans":"mapped_runtime_euler");
