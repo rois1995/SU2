@@ -65,8 +65,8 @@ long double CompensatedCross2D(long double ax,long double ay,long double bx,long
   const auto p=ax*by,q=ay*bx;
   return (p-q)+(FusedMultiplyAdd(ax,by,-p)-FusedMultiplyAdd(ay,bx,-q));
 }
-Point MetricMeanPoint(Point origin,const std::vector<std::pair<Point,Tensor>>& neighbors) {
-  if(neighbors.empty() || neighbors.size()>4*MaximumCavityCells)
+Point MetricMeanPoint(Point origin,const std::vector<std::pair<Point,Tensor>>& neighbors,size_t maximum_neighbors) {
+  if(neighbors.empty() || neighbors.size()>maximum_neighbors)
     throw std::invalid_argument("Native3D movement neighbor count exceeds bounds.");
   long double scale=0;
   for(const auto& row:neighbors) {
@@ -366,17 +366,26 @@ void SetRefineAcceptance(RefineAcceptance acceptance) { refine_acceptance.store(
 RefineAcceptance GetRefineAcceptance() { return RefineAcceptance(refine_acceptance.load()); }
 bool ValidateMetricChange(size_t old_count, const PatchMetric& before, size_t fresh_count,
                           const PatchMetric& measured, MetricChange kind, std::string& reason, MetricDiagnosis* diagnosis,
-                          size_t relocated) {
+                          size_t relocated, bool coordinate_move) {
   if (diagnosis) { *diagnosis={}; diagnosis->failure=MetricFailure::Measurement; }
   try {
-    if (!old_count || !fresh_count || old_count > MaximumReplacementCells || fresh_count > MaximumReplacementCells)
-      throw std::invalid_argument("Native 3D metric-change cell count exceeds budget or is empty.");
     if (kind != MetricChange::Refine && kind != MetricChange::Coarsen && kind != MetricChange::Repair && kind != MetricChange::GeometryRefine && kind != MetricChange::GeometryRepair)
       throw std::invalid_argument("Unknown native 3D metric-change intent.");
+    const bool coordinate_repair = coordinate_move &&
+        (kind == MetricChange::Repair || kind == MetricChange::GeometryRepair) && old_count == fresh_count && old_count > 0;
+    if (coordinate_move && !coordinate_repair)
+      throw std::invalid_argument("Coordinate-move metric exception requires a same-count Repair or GeometryRepair.");
+    if (!old_count || !fresh_count ||
+        (old_count > MaximumReplacementCells && !coordinate_repair) ||
+        (fresh_count > MaximumReplacementCells && !coordinate_repair))
+      throw std::invalid_argument("Native 3D metric-change cell count exceeds budget or is empty.");
+    if (coordinate_repair && old_count > std::numeric_limits<size_t>::max() / 6)
+      throw std::invalid_argument("Coordinate-move metric edge cap overflows size_t.");
+    const size_t edge_limit = coordinate_repair ? 6 * old_count : 6 * MaximumReplacementCells;
     for (const auto* metric : {&before, &measured}) {
       if ((metric->shape_measured && (!std::isfinite(metric->minimum_mean_ratio) || !std::isfinite(metric->minimum_scaled_jacobian) ||
           metric->minimum_mean_ratio < 0 || metric->minimum_scaled_jacobian < 0)) || metric->edges.empty() ||
-          metric->edges.size() > 6 * MaximumReplacementCells)
+          metric->edges.size() > edge_limit)
         throw std::invalid_argument("Invalid native 3D metric-change measurement.");
       for (const auto& edge : metric->edges)
         if (!std::isfinite(edge.second.length) || edge.second.length <= 0)
@@ -394,15 +403,18 @@ bool ValidateMetricChange(size_t old_count, const PatchMetric& before, size_t fr
       diagnosis->failure=MetricFailure::Shape;
     }
     if (GetShapeAdmission()==ShapeAdmission::Absolute) GenerationShape(measured);
-    long double removed = 0, added = 0, longest_removed = 0;
+    long double removed = 0, added = 0, longest_removed = 0, longest_added = 0;
     for (const auto& edge : before.edges)
       if (!Shared(measured.edges, edge)) {
         removed += Excess(edge.second.length);
         longest_removed = std::max(longest_removed, edge.second.length);
       }
     for (const auto& edge : measured.edges)
-      if (!Shared(before.edges, edge)) added += Excess(edge.second.length);
-    const bool size_progress = removed > 0 && added < removed * (1 - 1e-12L);
+      if (!Shared(before.edges, edge)) {
+        added += Excess(edge.second.length);
+        longest_added = std::max(longest_added, edge.second.length);
+      }
+    const bool aggregate_size_progress = removed > 0 && added < removed * (1 - 1e-12L);
     // Both measurements hold every edge of their cells, so the edge keys give the vertex sets. An old vertex absent
     // from the fresh cells is removed (collapse/absorb) unless the caller certifies it as relocated (a refit replaces a
     // moved apex one for one by a new identity). A refinement must also gain a vertex net.
@@ -413,6 +425,10 @@ bool ValidateMetricChange(size_t old_count, const PatchMetric& before, size_t fr
     for (const auto id : old_vertices) gone += !fresh_vertices.count(id);
     const bool vertex_removal = gone > relocated || fresh_vertices.size() < old_vertices.size() + 1;
     const bool size_insertion = !vertex_removal && longest_removed > SplitInsertionLength;
+    const bool frontier_progress = longest_removed > 0 && longest_added < longest_removed * (1 - 1e-12L);
+    const bool size_progress = aggregate_size_progress ||
+        (kind == MetricChange::Refine && GetRefineAcceptance() == RefineAcceptance::SplitInsertion &&
+         size_insertion && frontier_progress);
     const auto score=[](const PatchMetric& m){return std::min(m.minimum_mean_ratio/MinimumMeanRatio,
                                                            m.minimum_scaled_jacobian/MinimumScaledJacobian);};
     const bool quality_progress = before.shape_measured && measured.shape_measured &&
@@ -431,11 +447,11 @@ bool ValidateMetricChange(size_t old_count, const PatchMetric& before, size_t fr
       diagnosis->longest_removed=longest_removed;
     }
     if (kind == MetricChange::Refine && GetRefineAcceptance() == RefineAcceptance::SplitInsertion) {
-      // 2D split rule: resolution added by a size insertion is accepted on fresh shape alone (no cell-count
-      // condition: a wall refit may add a point without adding tetrahedra); a refinement without net vertex gain must
-      // pay with strict excess progress; a non-size insertion must improve shape and add no oversized changed edge.
-      if (vertex_removal && !size_progress)
+      // A size insertion may add total excess, but its longest replacement edge must shrink the changed-edge frontier.
+      if (vertex_removal && !aggregate_size_progress)
         throw std::invalid_argument("Native 3D refinement removes a vertex without reducing frozen changed-edge excess.");
+      if (!vertex_removal && size_insertion && !frontier_progress)
+        throw std::invalid_argument("Native 3D size insertion does not shorten the longest changed-edge frontier.");
       // 2D (CNativeMesh2D.hpp SplitPatch): the minimum quality must rise. Production has no skin here, so it cannot
       // test retained interior edges; production Refine requests are edges > MaximumMetricEdge (size insertions).
       const bool short_split_allowed = GetShapeAdmission()==ShapeAdmission::ValidityOnly ? added==0 :

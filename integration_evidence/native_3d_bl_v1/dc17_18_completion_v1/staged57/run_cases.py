@@ -28,6 +28,12 @@ CASES = {
                       "[NativeConcurrentComposed3D],[NativeConcurrentRepair3D]"),
 }
 
+# Connected construction/quality coordination regression, shared by focused and broad campaigns.
+COORDINATION = "[NativeCoordinateStar3D],[NativeMetricSplitRule3D],[NativeRepairFairness3D],[NativeConstructionSweep3D]"
+for name in ("serial", "serial_full", "mpi6", "connected_fix"):
+    ranks, filters = CASES[name]
+    CASES[name] = ranks, filters + "," + COORDINATION
+
 
 def loaded_libraries():
     result = subprocess.run(["ldd", str(BINARY)], check=True, text=True, capture_output=True)

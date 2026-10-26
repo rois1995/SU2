@@ -45,8 +45,8 @@ struct Query {
   Feature feature;
   int caller = 0;
   unsigned ticket = 0;
-  bool footprint = false;
-  template <class S> void Fields(S& s) { s(feature, caller, ticket, footprint); }
+  bool footprint = false, coordinate_star = false;
+  template <class S> void Fields(S& s) { s(feature, caller, ticket, footprint, coordinate_star); }
 };
 struct Reply {
   Dependency dependency;
@@ -245,14 +245,51 @@ void Directory::Commit(Prepared&& prepared) noexcept {
   }
 }
 namespace {
+struct CollisionPage {
+  int owner=0;
+  unsigned priority=0;
+  size_t page=0,pages=0,total=0,total_removed=0,count=0,removed_count=0;
+  Feature coordinate_star{};
+  std::array<Cell,MaximumReplacementCells> cells{};
+  std::array<Id,MaximumCavityCells> removed{};
+  template<class S>void Fields(S& s){s(owner,priority,page,pages,total,total_removed,count,removed_count,coordinate_star,cells,removed);}
+};
 struct CollisionProposal {
   int owner=0;
   unsigned priority=0;
   size_t count=0,removed_count=0;
-  std::array<Cell,MaximumReplacementCells> cells{};
-  std::array<Id,MaximumCavityCells> removed{};
-  template<class S>void Fields(S& s){s(owner,priority,count,removed_count,cells,removed);}
+  std::vector<Cell> cells;
+  std::vector<Id> removed;
 };
+bool CoordinateReplacement(const Patch& old,const Patch& fresh,Feature feature) {
+  if(feature.count!=1 || old.cells.empty() || old.cells.size()!=fresh.cells.size() ||
+      old.cells.size()>MaximumDirectoryScan)return false;
+  std::map<Id,const Cell*> originals;
+  std::map<Id,Point> nodes;
+  for(const auto& cell:old.cells) {
+    if(!originals.emplace(cell.id,&cell).second)return false;
+    unsigned incidence=0;
+    for(auto n:cell.v) {
+      incidence+=n.id==feature.vertices[0];
+      const auto found=nodes.emplace(n.id,n.p);
+      if(!found.second && !Same(found.first->second,n.p))return false;
+    }
+    if(incidence!=1)return false;
+  }
+  Node moved{};bool have_moved=false;
+  for(const auto& cell:fresh.cells) {
+    const auto found=originals.find(cell.id);if(found==originals.end())return false;
+    for(size_t k=0;k<4;++k) {
+      const auto before=found->second->v[k],after=cell.v[k];
+      if(before.id==feature.vertices[0]) {
+        if(nodes.count(after.id) || (have_moved && (moved.id!=after.id || !Same(moved.p,after.p))))return false;
+        moved=after;have_moved=true;
+      } else if(before.id!=after.id || !Same(before.p,after.p))return false;
+    }
+    originals.erase(found);
+  }
+  return originals.empty() && have_moved;
+}
 std::array<su2double,6> CollisionBounds(const Cell& cell) {
   std::array<su2double,6> box{INFINITY,INFINITY,INFINITY,-INFINITY,-INFINITY,-INFINITY};
   for(auto n:cell.v) {
@@ -266,7 +303,7 @@ std::array<su2double,6> CollisionBounds(const Cell& cell) {
 }
 }
 bool Directory::Clearance(const Owned& owned,const Patch& old,const Patch& fresh,bool& candidate,
-                          std::string& reason,size_t ceiling,size_t caller_bytes,bool* deferred,unsigned priority) {
+                          std::string& reason,size_t ceiling,size_t caller_bytes,bool* deferred,unsigned priority,Feature coordinate_star) {
   Timer timer(stats.collision_seconds);CLocalFailure failure;
   if(deferred)*deferred=false;
   auto admit=[&](size_t extra) {
@@ -276,9 +313,16 @@ bool Directory::Clearance(const Owned& owned,const Patch& old,const Patch& fresh
     return Vote(failure,reason);
   };
   if(!initialized)failure.Set(1,0,"Native3D collision search needs a published directory.");
-  if(candidate && (old.cells.size()>MaximumCavityCells || fresh.cells.size()>MaximumReplacementCells))
-    failure.Set(1,0,"Native3D collision proposal exceeds cavity bounds.");
-  if(!admit(sizeof(CollisionIndex)))return false;
+  if(candidate && (coordinate_star.count ? (coordinate_star.count!=1 || old.cells.empty() ||
+      old.cells.size()!=fresh.cells.size() || old.cells.size()>MaximumDirectoryScan) :
+      (old.cells.size()>MaximumCavityCells || fresh.cells.size()>MaximumReplacementCells)))
+    failure.Set(1,0,"Native3D collision proposal exceeds its topology/coordinate admission.");
+  if(!admit(transfer_memory::Add(sizeof(CollisionIndex),
+      coordinate_star.count?transfer_memory::Mul(old.cells.size(),1024):0)))return false;
+  try {if(candidate && coordinate_star.count && !CoordinateReplacement(old,fresh,coordinate_star))
+    failure.Set(1,0,"Native3D coordinate collision proposal changes its admitted connectivity.");}
+  catch(const std::exception& e){failure.Set(2,0,e.what());}
+  if(!Vote(failure,reason))return false;
   try {if(!collision)collision=std::make_unique<CollisionIndex>();}
   catch(const std::exception& e){failure.Set(2,0,e.what());}
   if(!Vote(failure,reason))return false;
@@ -306,38 +350,78 @@ bool Directory::Clearance(const Owned& owned,const Patch& old,const Patch& fresh
     next->initialized=true;collision.swap(next);++stats.collision_builds;
   }}catch(const std::exception& e){failure.Set(2,0,e.what());}
   if(!Vote(failure,reason))return false;
-  const size_t proposal_bound=sizeof(CollisionProposal);
-  const size_t query_scratch=transfer_memory::Add(transfer_memory::Mul(transfer_memory::Mul(4,world.size),proposal_bound),
-      transfer_memory::Mul(collision->rows.size(),sizeof(unsigned long)),transfer_memory::Mul(world.size,256));
+  const size_t local_pages=candidate?std::max((fresh.cells.size()+MaximumReplacementCells-1)/MaximumReplacementCells,
+      (old.cells.size()+MaximumCavityCells-1)/MaximumCavityCells):0;
+  const size_t all_pages=CPassiveComm::Allreduce(local_pages,CPassiveComm::Op::SUM,world.comm);
+  const size_t query_scratch=transfer_memory::Add(
+      transfer_memory::Mul(transfer_memory::Add(transfer_memory::Mul(local_pages,world.size),all_pages),
+          4*sizeof(CollisionPage)),transfer_memory::Mul(collision->rows.size(),sizeof(unsigned long)),
+      transfer_memory::Mul(world.size,256));
   if(!admit(query_scratch))return false;
-  std::vector<CollisionProposal> local;std::string rejected_reason;
+  std::vector<CollisionPage> local;std::string rejected_reason;
   try {if(candidate) {
     for(size_t i=0;i<fresh.cells.size();++i) {
       const auto& v=fresh.cells[i].v;
       if(!(Orientation(v[0].p,v[1].p,v[2].p,v[3].p)>0))throw std::invalid_argument("Nonpositive collision candidate.");
       for(size_t j=0;j<i;++j)if(!ConformingDisjoint(fresh.cells[i],fresh.cells[j]))candidate=false;
     }
-    if(candidate) {
-      CollisionProposal p;p.owner=world.rank;p.priority=priority;p.count=fresh.cells.size();p.removed_count=old.cells.size();
-      std::copy(fresh.cells.begin(),fresh.cells.end(),p.cells.begin());
-      for(size_t k=0;k<old.cells.size();++k)p.removed[k]=old.cells[k].id;
-      std::sort(p.removed.begin(),p.removed.begin()+p.removed_count);local.push_back(std::move(p));
+    if(candidate)for(size_t page=0;page<local_pages;++page) {
+      CollisionPage p;p.owner=world.rank;p.priority=priority;p.page=page;p.pages=local_pages;
+      p.total=fresh.cells.size();p.total_removed=old.cells.size();p.coordinate_star=coordinate_star;
+      const size_t first_cell=page*MaximumReplacementCells,first_removed=page*MaximumCavityCells;
+      for(size_t k=first_cell;k<std::min(first_cell+MaximumReplacementCells,fresh.cells.size());++k)p.cells[p.count++]=fresh.cells[k];
+      for(size_t k=first_removed;k<std::min(first_removed+MaximumCavityCells,old.cells.size());++k)p.removed[p.removed_count++]=old.cells[k].id;
+      local.push_back(std::move(p));
     }else rejected_reason="Native3D curved replacement overlaps or has nonconforming contact.";
   }}catch(const std::exception& e){failure.Set(2,0,e.what());}
   if(!Vote(failure,reason))return false;
   const size_t held=transfer_memory::Add(caller_bytes,ParameterBytes(),ResidentBytes(),MapBytes<Owned>(owned.size()),query_scratch);
-  std::vector<std::vector<CollisionProposal>> outgoing;std::vector<std::vector<Id>> veto;
+  std::vector<std::vector<CollisionPage>> outgoing;std::vector<std::vector<Id>> veto;
   try {outgoing.assign(world.size,local);veto.resize(world.size);}
   catch(const std::exception& e){failure.Set(2,0,e.what());}
   if(!Vote(failure,reason))return false;
   bool transported=false;
-  const auto proposals=world.exchange(outgoing,&transported,ceiling,held);
+  const auto pages=world.exchange(outgoing,&transported,ceiling,held);
   if(!transported){reason="Native3D collision proposal exchange exceeds storage budget.";return false;}
+  std::vector<CollisionProposal> proposals;
   try {
+    std::map<int,std::vector<const CollisionPage*>> grouped;
+    for(const auto& page:pages) {
+      const size_t limit=page.coordinate_star.count==1?MaximumDirectoryScan:MaximumCavityCells;
+      if(page.owner<0 || page.owner>=world.size || page.coordinate_star.count>1 ||
+          !page.pages || page.page>=page.pages || !page.total || !page.total_removed ||
+          page.total_removed>limit || page.total>(page.coordinate_star.count?limit:MaximumReplacementCells) ||
+          page.count>MaximumReplacementCells || page.removed_count>MaximumCavityCells ||
+          page.pages!=std::max((page.total+MaximumReplacementCells-1)/MaximumReplacementCells,
+              (page.total_removed+MaximumCavityCells-1)/MaximumCavityCells))
+        throw std::runtime_error("Invalid current collision page.");
+      grouped[page.owner].push_back(&page);
+    }
+    for(auto& owner:grouped) {
+      auto& rows=owner.second;
+      std::sort(rows.begin(),rows.end(),[](const auto* a,const auto* b){return a->page<b->page;});
+      const auto& first=*rows.front();
+      if(rows.size()!=first.pages)throw std::runtime_error("Incomplete current collision pages.");
+      CollisionProposal proposal;proposal.owner=first.owner;proposal.priority=first.priority;
+      proposal.count=first.total;proposal.removed_count=first.total_removed;
+      for(size_t k=0;k<rows.size();++k) {
+        const auto& page=*rows[k];
+        const size_t cells_at=k*MaximumReplacementCells,removed_at=k*MaximumCavityCells;
+        if(page.page!=k || page.pages!=first.pages || page.total!=first.total || page.total_removed!=first.total_removed ||
+            page.priority!=first.priority || page.coordinate_star.count!=first.coordinate_star.count ||
+            page.coordinate_star.vertices!=first.coordinate_star.vertices ||
+            page.count!=(cells_at<first.total?std::min(MaximumReplacementCells,first.total-cells_at):0) ||
+            page.removed_count!=(removed_at<first.total_removed?std::min(MaximumCavityCells,first.total_removed-removed_at):0))
+          throw std::runtime_error("Inconsistent current collision pages.");
+        proposal.cells.insert(proposal.cells.end(),page.cells.begin(),page.cells.begin()+page.count);
+        proposal.removed.insert(proposal.removed.end(),page.removed.begin(),page.removed.begin()+page.removed_count);
+      }
+      std::sort(proposal.removed.begin(),proposal.removed.end());
+      if(std::adjacent_find(proposal.removed.begin(),proposal.removed.end())!=proposal.removed.end())
+        throw std::runtime_error("Repeated current collision dependency.");
+      proposals.push_back(std::move(proposal));
+    }
     std::vector<unsigned long> hits;hits.reserve(collision->rows.size());
-    for(const auto& proposal:proposals)
-      if(proposal.owner<0 || proposal.owner>=world.size || proposal.count>MaximumReplacementCells ||
-          proposal.removed_count>MaximumCavityCells)throw std::runtime_error("Invalid current collision proposal.");
     for(const auto& proposal:proposals) {
       Id obstruction=0;bool blocked=false;
       for(size_t k=0;k<proposal.count;++k) {
@@ -452,19 +536,20 @@ Dependencies Directory::Lookup(const std::vector<Feature>& features, size_t ceil
   if (!result.valid) result.cells.clear();
   return result;
 }
-DependencyBatch Directory::LookupBatch(const std::vector<Feature>& features, size_t ceiling, size_t caller_bytes) {
+DependencyBatch Directory::LookupBatch(const std::vector<Feature>& features, size_t ceiling, size_t caller_bytes, bool coordinate_stars) {
   DependencyBatch result;
-  result.valid = LookupImpl(features, nullptr, &result, ceiling, caller_bytes, result.reason);
+  result.valid = LookupImpl(features, nullptr, &result, ceiling, caller_bytes, result.reason, nullptr, coordinate_stars);
   if (!result.valid) result.candidates.clear();
   return result;
 }
 bool Directory::LookupImpl(const std::vector<Feature>& features, Dependencies* merged, DependencyBatch* batch,
                            size_t ceiling, size_t caller_bytes, std::string& reason,
-                           std::vector<std::vector<Id>>* footprints) {
+                           std::vector<std::vector<Id>>* footprints, bool coordinate_stars) {
   Timer timer(stats.lookup_seconds);
   ++stats.lookups;
   auto lookup=[&](auto example) {
   using LookupReply=decltype(example);
+  const size_t cell_bound=coordinate_stars ? MaximumDirectoryScan : MaximumCavityCells;
   CLocalFailure failure;
   std::vector<std::vector<Query>> to;
   const auto baseline = transfer_memory::Add(caller_bytes, ResidentBytes(), transfer_memory::Bytes(features));
@@ -482,7 +567,7 @@ bool Directory::LookupImpl(const std::vector<Feature>& features, Dependencies* m
       std::sort(f.vertices.begin(), f.vertices.begin() + f.count);
       if (std::adjacent_find(f.vertices.begin(), f.vertices.begin() + f.count) != f.vertices.begin() + f.count)
         throw std::runtime_error("Native 3D dependency repeats a vertex.");
-      to[Rendezvous({false, f.vertices[0]})].push_back({f, world.rank, i, footprints!=nullptr});
+      to[Rendezvous({false, f.vertices[0]})].push_back({f, world.rank, i, footprints!=nullptr, coordinate_stars && f.count==1});
     }
   } catch (const std::exception& e) { failure.Set(2, 0, e.what()); }
   if (!Vote(failure, reason)) { ++stats.rejected; return false; }
@@ -492,8 +577,8 @@ bool Directory::LookupImpl(const std::vector<Feature>& features, Dependencies* m
   std::vector<std::vector<LookupReply>> reply;
   const auto reply_peak = transfer_memory::Add(baseline, transfer_memory::Bytes(to), transfer_memory::Bytes(queries),
       transfer_memory::Mul(world.size, sizeof(std::vector<LookupReply>)),
-      transfer_memory::GrowthBound(transfer_memory::Mul(queries.size(), MaximumCavityCells + 1), sizeof(LookupReply)),
-      transfer_memory::GrowthBound(MaximumCavityCells + 1, sizeof(LookupReply)));
+      transfer_memory::GrowthBound(transfer_memory::Mul(queries.size(), cell_bound + 1), sizeof(LookupReply)),
+      transfer_memory::GrowthBound(cell_bound + 1, sizeof(LookupReply)));
   stats.maximum_work_bytes = std::max(stats.maximum_work_bytes, reply_peak);
   if (reply_peak == SIZE_MAX || reply_peak > ceiling) failure.Set(3, 0, "Native 3D dependency replies exceed budget.");
   if (!Vote(failure, reason)) { ++stats.rejected; return false; }
@@ -515,7 +600,7 @@ bool Directory::LookupImpl(const std::vector<Feature>& features, Dependencies* m
             LookupReply match{row.second.dependency,q.ticket,q.footprint?4:0};
             if constexpr(std::is_same<LookupReply,FootprintReply>::value)match.nodes=row.second.nodes;
             matches.push_back(match);
-            if (matches.size() > MaximumCavityCells) { status = 3; break; }
+            if (matches.size() > (q.coordinate_star ? MaximumDirectoryScan : MaximumCavityCells)) { status = 3; break; }
           }
         }
       if (status == 1 && matches.empty()) status = 2;
@@ -528,7 +613,7 @@ bool Directory::LookupImpl(const std::vector<Feature>& features, Dependencies* m
       transfer_memory::Add(baseline, transfer_memory::Bytes(to), transfer_memory::Bytes(queries)));
   if (!admitted) failure.Set(3, 0, "Native 3D dependency import exceeds budget.");
   const auto groups = batch ? features.size() : size_t(1);
-  const auto dependency_bound = transfer_memory::Mul(groups, MaximumCavityCells);
+  const auto dependency_bound = transfer_memory::Mul(groups, cell_bound);
   const auto import_peak = transfer_memory::Add(baseline, transfer_memory::Bytes(to), transfer_memory::Bytes(queries),
       transfer_memory::Bytes(reply), transfer_memory::Bytes(received), MapBytes<std::map<Id, Dependency>>(transfer_memory::Add(dependency_bound,groups)),
       batch ? MapBytes<std::map<Id,Dependency>>(dependency_bound) : 0,
@@ -578,7 +663,7 @@ bool Directory::LookupImpl(const std::vector<Feature>& features, Dependencies* m
         const auto old = group.emplace(row.dependency.cell, row.dependency);
         if (!old.second && (old.first->second.version != row.dependency.version || old.first->second.owner != row.dependency.owner))
           throw std::runtime_error("Native 3D inconsistent dependency ownership.");
-        if (group.size() > MaximumCavityCells) throw std::runtime_error("Native 3D dependency union exceeds budget.");
+        if (group.size() > (batch && coordinate_stars && features[row.ticket].count==1 ? MaximumDirectoryScan : MaximumCavityCells)) throw std::runtime_error("Native 3D dependency union exceeds budget.");
       }
     }
     if (std::find(footer.begin(), footer.end(), 0) != footer.end()) throw std::runtime_error("Native 3D incomplete dependency footer.");
@@ -587,6 +672,7 @@ bool Directory::LookupImpl(const std::vector<Feature>& features, Dependencies* m
       auto& candidate = batch ? batch->candidates[i] : *merged;
       const auto& group = batch ? unique[i] : merged_unique;
       candidate.valid = !batch || footer[i] == 1;
+      if(batch && coordinate_stars && features[i].count==1)candidate.coordinate_star=features[i];
       candidate.oversized = batch && footer[i] == 3;
       if (!candidate.valid) {
         if (!group.empty()) throw std::runtime_error("Native 3D refused star has unexpected dependencies.");
@@ -622,7 +708,8 @@ Imported Directory::Fetch(const Dependencies& dependencies, const Owned& owned, 
   if (request_peak == SIZE_MAX || request_peak > ceiling) failure.Set(3, 0, "Native 3D payload request packing exceeds budget.");
   if (!Vote(failure, result.reason)) { ++stats.rejected; return result; }
   try {
-    if (!dependencies.valid || dependencies.cells.size() > MaximumCavityCells) throw std::runtime_error("Native 3D dependencies were not admitted.");
+    if (!dependencies.valid || dependencies.coordinate_star.count>1 ||
+        dependencies.cells.size() > (dependencies.coordinate_star.count ? MaximumDirectoryScan : MaximumCavityCells)) throw std::runtime_error("Native 3D dependencies were not admitted.");
     to.resize(world.size);
     std::set<Id> unique;
     for (const auto& row : dependencies.cells) {
@@ -665,10 +752,14 @@ Imported Directory::Fetch(const Dependencies& dependencies, const Owned& owned, 
     for (const auto& row : received) {
       const auto found = expected.find(row.cell.cell.id);
       if (!row.present || found == expected.end() || found->second != row.cell.version) throw std::runtime_error("Native 3D stale dependency payload.");
+      if(dependencies.coordinate_star.count &&
+          std::none_of(row.cell.cell.v.begin(),row.cell.cell.v.end(),[&](Node n){return n.id==dependencies.coordinate_star.vertices[0];}))
+        throw std::runtime_error("Native 3D coordinate dependency is not incident to its vertex.");
       expected.erase(found);
       result.cells.push_back(row.cell);
     }
     std::sort(result.cells.begin(), result.cells.end(), [](const auto& a, const auto& b) { return a.cell.id < b.cell.id; });
+    result.coordinate_star=dependencies.coordinate_star;
     stats.payloads += result.cells.size();
   } catch (const std::exception& e) { failure.Set(2, 0, e.what()); }
   result.valid = Vote(failure, result.reason);
@@ -927,12 +1018,18 @@ bool Directory::Reserve(const Imported& imported, bool active, std::string& reas
   if (peak == SIZE_MAX || peak > ceiling) failure.Set(3, 0, "Native 3D reservation packing exceeds budget.");
   if (!Vote(failure, reason)) { ++stats.rejected; return false; }
   try {
-    if (active && (!imported.valid || imported.cells.empty() || imported.cells.size() > MaximumCavityCells))
+    if (active && (!imported.valid || imported.cells.empty() || imported.coordinate_star.count>1 ||
+        imported.cells.size() > (imported.coordinate_star.count ? MaximumDirectoryScan : MaximumCavityCells)))
       throw std::runtime_error("Native 3D reservation lacks admitted dependencies.");
     to.resize(world.size);
     if (active) {
       std::set<Id> vertices;
-      for (const auto& row : imported.cells) for (auto node : row.cell.v) vertices.insert(node.id);
+      for (const auto& row : imported.cells) {
+        if(imported.coordinate_star.count &&
+            std::none_of(row.cell.v.begin(),row.cell.v.end(),[&](Node n){return n.id==imported.coordinate_star.vertices[0];}))
+          throw std::runtime_error("Native 3D coordinate reservation contains a foreign cell.");
+        for (auto node : row.cell.v) vertices.insert(node.id);
+      }
       for (auto id : vertices) to[Rendezvous({false, id})].push_back({id, world.rank,priority});
     }
   } catch (const std::exception& e) { failure.Set(2, 0, e.what()); }

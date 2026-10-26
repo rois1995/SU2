@@ -213,7 +213,7 @@ zero-work bouncing. A roofed-box regression will require actual quality movement
 resumed collapse and final strict acceptance. Build9 will also link SU2_CFD for the
 unchanged six-rank full M6 campaign; no accepted full M6 is claimed.
 
-Build9/session76705 is active, linking both UnitTests/test_driver and SU2_CFD.
+Historical build9/session76705 linked both UnitTests/test_driver and SU2_CFD; its terminal PASS is recorded below.
 All933 compiled/source/build inputs are frozen. The Coarsen fix includes the
 round-cap completion path. Legacy diagnostic (inactive production path) full-shape
 minima now initialize after measurement; unknown records remain NaN. New run_m6.py
@@ -240,7 +240,7 @@ censuses/one construction return; the independent blocked wheel ultimately rejec
 at679 rounds/4695 work. This test certifies useful-pass behavior, not full-mesh
 capability. The remaining height-filter consistency edit precedes build10.
 
-Build10/session97582 is active; sources/helpers frozen. The height prefilter now
+Historical build10/session97582 subsequently passed with frozen pins. The height prefilter now
 admits measured provisional deficits only under ValidityOnly; Absolute behavior,
 containment/surface-error, missing-child, reference clearance and invalid metadata
 refusals stay intact. Existing direct test gains both-policy cases and the selected
@@ -292,3 +292,65 @@ especially unchanged curved runtime conservative BDF2 transfer/reload.
 Header Metric3D.hpp:101 has an inherited overgeneral strict-policy comment; update
 it with the next substantive header edit (actual stage contracts documented here
 and in the changed implementation). No runtime case budget was raised.
+
+Build11 is terminal compile failure (111.17s,933 pins unchanged): Catch2 requires
+parentheses around the newly added disjunction in a support-stat assertion. Root
+fixed that assertion only. Build12/session42383 is running, inputs frozen; no
+production or acceptance change. Checkpointd0b5f7b70c is pushed to the approved fork.
+
+## Build12: connected result and full-M6 rejection
+
+Build12 PASS141.236s,933 pins unchanged. Affected
+`connected_fix_20261026T185235_3916319` / session66158 terminal:68/69 cases,
+12928/12930 assertions pass,16.496s,pins unchanged. The curved runtime Euler/RANS
+variants remain incomplete under4096 work (~4.08s each), but geometry no longer
+starves quality:194 rounds/143 accepted,36 geometry-progress,52 quality-progress,
+34 moves/24 reconnections/35 insertions,44 optimizer trials/16 validated. Remaining
+6 geometry-demand cells/17 geometry edges and153 quality/height demands; no oversized
+metric edges. This is a narrower diagnosis, not accepted mesh capability.
+
+Full M6 Euler `m6_runs/euler_build12`, session43478, is terminal REJECT (solver
+exit0,365.99s wall/306.7s native, pins unchanged, original CFD state retained).
+Under the unchanged validation54 configuration (6 ranks,500k,native1800s,
+outer2400s), construction failed before quality when changed-star notification
+exceeded scan budget4096. It made19,658 private edits across372,631 cells and left
+165,439 cached construction demands. Evidence is preserved in that run's
+`diagnosis.json`, `native_assessment.json`, pins and logs. That M6 job is terminal; current build13 is described below.
+
+Diagnosis for next design review, not a fix: seed max-star88 exceeds current
+quality capacity64; changed-star notification work is uneven across ranks and scans
+exceed the cap. The connected curved runtime cases also remain incomplete after
+4096 work with6 geometry-demand and153 quality-demand cells (no oversized edges).
+Reconsider complete quality coordination and scheduling; do not raise limits or add
+local fallback variants. No acceptance milestone is closed. Preserve the Build12
+and full-M6 receipts unchanged.
+
+### Connected frontier and complete-star correction (in implementation)
+
+The M6 degree growth is shared by ordinary edge bisection and cone insertion:
+both replace an interior edge star of m tetrahedra with 2m and increase ring-vertex
+valence. The selected edge is removed; the problem is recursive new-spoke debt,
+not a no-op or a cone-specific defect. The new SplitInsertion rule permits total
+edge excess to increase only while the longest changed edge strictly decreases.
+This uses existing edge measurements, never construction q/J samples.
+
+Repair demands retain a service epoch across atomic removal/addition, including
+transient zero users. Global selection and reservation use waiting age; serviced
+features return to the tail, deferred conflicts retain age, and healthy-support
+changes reactivate blocked demands. Construction is being organized into frontier
+generations so descendants cannot indefinitely postpone improvement.
+
+Complete coordinate stars have an explicit transaction path beyond the64-cell
+arbitrary-topology bound. Metadata and payload admission retain the existing4096
+scan and configured byte bounds; movement proves unchanged connectivity, retains
+cell identities and advances versions, checks every cell and physical face, and
+uses paged global contact checks with one atomic publication. General topology
+cavities remain64/128. Larger-star direct movement is being integrated; it does
+not yet provide arbitrary large-star retriangulation or cross-chart mobility.
+New local tests cover88/176-cell movement and distributed paged publication with
+resource-veto rollback. Build13/session1413 is active with933 frozen source pins; these changes are not yet qualified; no acceptance
+checkbox is closed.
+
+Build13 includes both the test driver and CFD executable. Runtime qualification will
+first exercise the connected curved case and new fairness/sweep/coordinate paths,
+then the unchanged full M6 six-rank target. No second heavy job runs concurrently.

@@ -103,9 +103,8 @@ TEST_CASE("Native 3D private refinement can progress before the final global siz
   FrozenField coarse(original);
   CHECK(ValidateMetricChange(fresh.cells, old.cells, MetricChange::Coarsen, coarse, measured, reason));
   CHECK(ValidateMetricPatch(old.cells, coarse, measured, reason));
-  {  // The split edge is admissible (<= 1.8) but longer than SplitInsertionLength: the former rule (StrictExcess)
-     // refuses the split for lack of excess progress; the 2D split rule (SplitInsertion, production default since
-     // 2026-10-23) admits it as a size insertion without vertex removal.
+  {  // The split edge is admissible (<= 1.8) but longer than SplitInsertionLength: StrictExcess requires total
+     // excess reduction, while SplitInsertion requires only a shorter changed-edge frontier for net-new resolution.
     struct Restore { RefineAcceptance a=GetRefineAcceptance(); ~Restore(){SetRefineAcceptance(a);} } restore;
     SetRefineAcceptance(RefineAcceptance::StrictExcess);
     CHECK_FALSE(ValidateMetricChange(old.cells, fresh.cells, MetricChange::Refine, coarse, measured, reason));
@@ -355,6 +354,28 @@ TEST_CASE("Native metric diagnosis separates shape, measurement and frozen progr
   CHECK(target.Statistics().edge_requests==12); // before plus explicit edge-only measurement; failed shape query adds none
 }
 
+TEST_CASE("Coordinate-only metric repair can measure a large unchanged star", "[NativeMesh3D][NativePolicy3D]") {
+  struct Restore {ShapeAdmission previous=GetShapeAdmission();~Restore(){SetShapeAdmission(previous);}} restore;
+  SetShapeAdmission(ShapeAdmission::ValidityOnly);
+  constexpr size_t cells=130;
+  PatchMetric before,after;
+  before.shape_measured=after.shape_measured=true;
+  before.minimum_mean_ratio=.10;before.minimum_scaled_jacobian=.10;
+  after.minimum_mean_ratio=.12;after.minimum_scaled_jacobian=.11;
+  // 40 vertices provide 780 distinct edges, beyond the ordinary 128-cell edge allowance (768).
+  for(Id a=0;a<40;++a)for(Id b=a+1;b<40;++b) {
+    EdgeMeasure measure;measure.length=1;
+    before.edges.emplace(Edge{a,b},measure);after.edges.emplace(Edge{a,b},measure);
+  }
+  REQUIRE(before.edges.size()==780);
+  std::string reason;MetricDiagnosis diagnosis;
+  CHECK(ValidateMetricChange(cells,before,cells,after,MetricChange::Repair,reason,&diagnosis,0,true));
+  CHECK(diagnosis.quality_progress);
+  CHECK_FALSE(ValidateMetricChange(cells,before,cells,after,MetricChange::Repair,reason));
+  CHECK_FALSE(ValidateMetricChange(cells,before,cells+1,after,MetricChange::Repair,reason,nullptr,0,true));
+  CHECK_FALSE(ValidateMetricChange(cells,before,cells,after,MetricChange::Refine,reason,nullptr,0,true));
+}
+
 TEST_CASE("Geometry-only repairs retain strict shape and changed-edge excess gates", "[NativeSurfaceError3D]") {
   FrozenField field({Donor({})});const auto cell=Single();
   const auto before=MeasureMetricCells({cell},field);
@@ -401,6 +422,13 @@ TEST_CASE("Native3D metric movement honours directional stiffness without changi
   neighbors.back().second.zz=30.25;const auto graded=MetricMeanPoint(origin,neighbors);
   CHECK(graded.x==Approx(1./3));CHECK(graded.y==Approx(1./3));CHECK(graded.z==Approx(30.25/32.25));
   CHECK(neighbors.back().second.zz==30.25);CHECK_THROWS(MetricMeanPoint(origin,{}));
+  std::vector<std::pair<Point,Tensor>> large(257,{{1,2,3},{}});
+  CHECK_THROWS(MetricMeanPoint(origin,large));
+  const auto admitted=MetricMeanPoint(origin,large,large.size());
+  CHECK(admitted.x==Approx(1));CHECK(admitted.y==Approx(2));CHECK(admitted.z==Approx(3));
+  large[0].second.xx=-1;CHECK_THROWS(MetricMeanPoint(origin,large,large.size()));
+  large[0].second.xx=std::numeric_limits<double>::quiet_NaN();
+  CHECK_THROWS(MetricMeanPoint(origin,large,large.size()));
 }
 
 TEST_CASE("Native actual-centroid q/J Jacobian matches anisotropic spatial finite differences", "[NativeMetricJacobian3D]") {
@@ -516,7 +544,7 @@ TEST_CASE("Metric query planning shares exact reuse and protects bounded campaig
   CHECK_THROWS(MetricEdgeRequests(std::vector<Cell>(MaximumReplacementCells+1),reuse,identity));
 }
 
-TEST_CASE("Native 3D refine admission follows the 2D split rule under SplitInsertion", "[NativeMetricSplitRule3D]") {
+TEST_CASE("Native 3D SplitInsertion requires a descending edge frontier", "[NativeMetricSplitRule3D]") {
   struct Restore { RefineAcceptance a=GetRefineAcceptance(); ~Restore(){SetRefineAcceptance(a);} } restore;
   struct RestoreShape {ShapeAdmission a=GetShapeAdmission();~RestoreShape(){SetShapeAdmission(a);}} restore_shape;
   SetShapeAdmission(ShapeAdmission::Absolute);
@@ -524,17 +552,22 @@ TEST_CASE("Native 3D refine admission follows the 2D split rule under SplitInser
     PatchMetric m;m.shape_measured=true;m.minimum_mean_ratio=q;m.minimum_scaled_jacobian=q;
     for(const auto& r:rows){EdgeMeasure e;e.a={double(r.first[0]),0,0};e.b={double(r.first[1]),1,0};e.length=r.second;m.edges.emplace(r.first,e);}
     return m;};
-  // a long edge (1,2) split at 4; the new edge (3,4) adds more excess than the split edge removes
+  // a long edge (1,2) split at 4; one replacement edge is longer than the removed frontier
   const auto before=metric({{{1,2},3.0L},{{1,3},1.0L},{{2,3},1.0L}},.5);
   const auto split=metric({{{1,3},1.0L},{{2,3},1.0L},{{1,4},1.5L},{{2,4},1.5L},{{3,4},3.5L}},.5);
+  // Every replacement edge is shorter, although their aggregate excess is greater than the removed edge's.
+  const auto debt=metric({{{1,3},1.0L},{{2,3},1.0L},{{1,4},2.9L},{{2,4},2.9L},{{3,4},2.9L}},.5);
   std::string reason;MetricDiagnosis d;
   SetRefineAcceptance(RefineAcceptance::StrictExcess);
   CHECK_FALSE(ValidateMetricChange(1,before,2,split,MetricChange::Refine,reason,&d));
+  CHECK_FALSE(ValidateMetricChange(1,before,2,debt,MetricChange::Refine,reason,&d));
   SetRefineAcceptance(RefineAcceptance::SplitInsertion);
-  CHECK(ValidateMetricChange(1,before,2,split,MetricChange::Refine,reason,&d));
-  CHECK(d.size_insertion);CHECK_FALSE(d.vertex_removal);CHECK(d.added_excess>d.removed_excess);
+  CHECK_FALSE(ValidateMetricChange(1,before,2,split,MetricChange::Refine,reason,&d));
+  CHECK(reason.find("longest changed-edge frontier")!=std::string::npos);
+  CHECK(ValidateMetricChange(1,before,2,debt,MetricChange::Refine,reason,&d));
+  CHECK(d.size_insertion);CHECK_FALSE(d.vertex_removal);CHECK(d.added_excess>d.removed_excess);CHECK(d.size_progress);
   // no cell-count condition for a size insertion (a refit may keep the tetrahedron count)
-  CHECK(ValidateMetricChange(2,before,2,split,MetricChange::Refine,reason,&d));
+  CHECK(ValidateMetricChange(2,before,2,debt,MetricChange::Refine,reason,&d));
   // strict shape is unchanged
   auto sliver=split;sliver.minimum_mean_ratio=.1;
   CHECK_FALSE(ValidateMetricChange(1,before,2,sliver,MetricChange::Refine,reason,&d));
@@ -552,21 +585,31 @@ TEST_CASE("Native 3D refine admission follows the 2D split rule under SplitInser
   CHECK_FALSE(ValidateMetricChange(1,shortBefore,2,shortSame,MetricChange::Refine,reason,&d));
   CHECK(ValidateMetricChange(1,shortBefore,2,shortBetter,MetricChange::Refine,reason,&d));CHECK_FALSE(d.size_insertion);
   CHECK_FALSE(ValidateMetricChange(1,shortBefore,2,shortLong,MetricChange::Refine,reason,&d));
+  // Validity-only construction still requires a descending edge frontier but never requires centroid shape data.
+  SetShapeAdmission(ShapeAdmission::ValidityOnly);
+  auto edge_before=before,edge_debt=debt;edge_before.shape_measured=edge_debt.shape_measured=false;
+  edge_before.minimum_mean_ratio=edge_before.minimum_scaled_jacobian=std::numeric_limits<double>::quiet_NaN();
+  edge_debt.minimum_mean_ratio=edge_debt.minimum_scaled_jacobian=std::numeric_limits<double>::quiet_NaN();
+  CHECK(ValidateMetricChange(1,edge_before,2,edge_debt,MetricChange::Refine,reason,&d));
+  CHECK_FALSE(d.quality_progress);CHECK(d.size_insertion);CHECK(d.added_excess>d.removed_excess);
   // other intents are unchanged by the policy
+  SetShapeAdmission(ShapeAdmission::Absolute);
   CHECK_FALSE(ValidateMetricChange(1,before,2,split,MetricChange::Repair,reason,&d));
   CHECK_FALSE(ValidateMetricChange(1,before,2,split,MetricChange::GeometryRefine,reason,&d));
 }
 
 TEST_CASE("Native 3D split rule counts only caller-certified relocations as moves", "[NativeMetricSplitRule3D]") {
   struct Restore { RefineAcceptance a=GetRefineAcceptance(); ~Restore(){SetRefineAcceptance(a);} } restore;
+  struct RestoreShape {ShapeAdmission a=GetShapeAdmission();~RestoreShape(){SetShapeAdmission(a);}} restore_shape;
   SetRefineAcceptance(RefineAcceptance::SplitInsertion);
+  SetShapeAdmission(ShapeAdmission::Absolute);
   auto metric=[](std::vector<std::pair<Edge,long double>> rows) {
     PatchMetric m;m.shape_measured=true;m.minimum_mean_ratio=.5;m.minimum_scaled_jacobian=.5;
     for(const auto& r:rows){EdgeMeasure e;e.a={double(r.first[0]),0,0};e.b={double(r.first[1]),1,0};e.length=r.second;m.edges.emplace(r.first,e);}
     return m;};
-  // long edge (1,2) split at 5; apex 4 relocated to the reserved identity 6; the split adds more excess than it removes
+  // long edge (1,2) split at 5; apex 4 relocated to 6; aggregate excess grows while the longest new edge shrinks
   const auto before=metric({{{1,2},3.0L},{{1,3},1.0L},{{2,3},1.0L},{{1,4},1.0L},{{2,4},1.0L},{{3,4},1.0L}});
-  const auto fresh=metric({{{1,3},1.0L},{{2,3},1.0L},{{1,5},1.5L},{{2,5},1.5L},{{3,5},3.5L},{{1,6},1.0L},{{2,6},1.0L},{{5,6},1.0L},{{3,6},1.0L}});
+  const auto fresh=metric({{{1,3},1.0L},{{2,3},1.0L},{{1,5},2.9L},{{2,5},2.9L},{{3,5},2.9L},{{1,6},1.0L},{{2,6},1.0L},{{5,6},1.0L},{{3,6},1.0L}});
   std::string reason;MetricDiagnosis d;
   CHECK_FALSE(ValidateMetricChange(2,before,4,fresh,MetricChange::Refine,reason,&d));CHECK(d.vertex_removal);
   CHECK(ValidateMetricChange(2,before,4,fresh,MetricChange::Refine,reason,&d,1));CHECK(d.size_insertion);

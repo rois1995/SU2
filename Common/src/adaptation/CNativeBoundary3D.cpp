@@ -171,10 +171,11 @@ std::vector<Face> SkinVector(const Skin& skin) {
   return result;
 }
 using Physical = std::map<Face, SurfaceFace>;
-Physical CheckSurface(const Patch& patch, const Skin& skin, const PlanarReference& base_reference, KernelStats* stats) {
+Physical CheckSurface(const Patch& patch, const Skin& skin, const PlanarReference& base_reference, KernelStats* stats,
+                      size_t maximum_faces = 4 * MaximumReplacementCells) {
   auto parameter_context=base_reference.PrivateParameters(patch);
   const auto& reference=parameter_context?*parameter_context:base_reference;
-  if (patch.surface.size() > 4 * MaximumReplacementCells)
+  if (patch.surface.size() > maximum_faces)
     throw std::invalid_argument("Native 3D physical skin exceeds budget.");
   const auto nodes = Nodes(patch.cells);
   Physical faces;
@@ -280,8 +281,8 @@ void SplitSkin(Edge edge,Node point,Skin& skin,Physical& physical) {
     }
   }
 }
-void Bounds(const Patch& patch) {
-  if (patch.cells.empty() || patch.cells.size() > MaximumCavityCells)
+void Bounds(const Patch& patch, size_t maximum = MaximumCavityCells) {
+  if (patch.cells.empty() || patch.cells.size() > maximum)
     throw std::invalid_argument("Native 3D edge patch is empty or exceeds cell budget.");
 }
 void Append(std::vector<Cell>& cells, std::array<Node, 4> nodes, Id first, KernelStats* stats) {
@@ -2865,14 +2866,17 @@ bool CollapseVertex(const Patch& old, Id point, Id neighbor, Id first, const Pla
   }
 }
 bool MoveVertex(const Patch& old, Id vertex, Node point, Id first, const PlanarReference& base_reference, Patch& fresh,
-                std::string& reason, KernelStats* stats) {
+                std::string& reason, KernelStats* stats, size_t maximum_old_cells) {
   try {
     auto parameter_context=base_reference.PrivateParameters(old);
     const auto& reference=parameter_context?*parameter_context:base_reference;
-    Bounds(old);
+    Bounds(old, maximum_old_cells);
+    const size_t maximum_faces = maximum_old_cells > std::numeric_limits<size_t>::max() / 4
+                                     ? std::numeric_limits<size_t>::max()
+                                     : 4 * maximum_old_cells;
     const Incidence index(old.cells, stats);
     const auto before = SkinMap(index.Boundary());
-    const auto physical = CheckSurface(old, before, reference, stats);
+    const auto physical = CheckSurface(old, before, reference, stats, maximum_faces);
     const auto nodes = Nodes(old.cells);
     const auto original = nodes.at(vertex);
     if (nodes.count(point.id) || (original.p.x == point.p.x && original.p.y == point.p.y && original.p.z == point.p.z))
@@ -2902,7 +2906,10 @@ bool MoveVertex(const Patch& old, Id vertex, Node point, Id first, const PlanarR
       if (!found) throw std::invalid_argument("Native 3D movement input is not a complete vertex star.");
       if (!(Orientation(v[0].p, v[1].p, v[2].p, v[3].p, stats) > 0))
         throw std::invalid_argument("Native 3D movement obstructed at cell " + std::to_string(cell.id) + ".");
-      Append(proposal.cells, v, first, stats);
+      if (old.cells.size() > MaximumCavityCells)
+        proposal.cells.push_back({cell.id, v});  // Coordinate-only large stars retain their existing cell IDs.
+      else
+        Append(proposal.cells, v, first, stats);
     }
     auto moved_nodes = nodes;
     moved_nodes.emplace(point.id, point);
@@ -2936,7 +2943,17 @@ bool MoveVertex(const Patch& old, Id vertex, Node point, Id first, const PlanarR
       if (marked != physical.end()) surface.emplace(Key(face), SurfaceFace{face, marked->second.facet});
     }
     // Check both prescribed interface and complete chart-oriented physical skin before publishing the private proposal.
-    Finish(old, proposal, skin, surface, reference, stats);
+    if (old.cells.size() > MaximumCavityCells) {
+      for (const auto& f : surface) proposal.surface.push_back(f.second);
+      std::string validation;
+      if (!ValidateCoordinateStarMove(old.cells, proposal.cells, vertex, point.id, validation, stats,
+                                      maximum_old_cells))
+        throw std::invalid_argument(validation);
+      reference.ExportParameters(proposal);
+      CheckSurface(proposal, skin, reference, stats, maximum_faces);
+    } else {
+      Finish(old, proposal, skin, surface, reference, stats);
+    }
     fresh.cells.swap(proposal.cells);
     fresh.surface.swap(proposal.surface);fresh.parameters.swap(proposal.parameters);
     reason.clear();

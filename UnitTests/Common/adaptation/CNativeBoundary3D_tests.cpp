@@ -69,6 +69,67 @@ Patch EdgeStar(const Patch& patch, Edge edge) {
     if (OnSkin(skin,f.v)) star.surface.push_back(f);
   return star;
 }
+Patch LargeCoordinateStar(size_t sides = 44) {
+  const Node center{9000,{0,0,0}};
+  std::vector<Node> ring(sides);
+  for(size_t i=0;i<sides;++i) {
+    const double angle=2.0*std::acos(-1.0)*double(i)/double(sides);
+    ring[i]={Id(100+i),{std::cos(angle),std::sin(angle),0}};
+  }
+  const Node top{200,{0,0,1}}, bottom{201,{0,0,-1}};
+  std::vector<Face> shell;
+  for(size_t i=0;i<sides;++i) {
+    const auto next=(i+1)%sides;
+    shell.push_back({top.id,ring[i].id,ring[next].id});
+    shell.push_back({bottom.id,ring[next].id,ring[i].id});
+  }
+  std::map<Id,Node> nodes{{center.id,center},{top.id,top},{bottom.id,bottom}};
+  for(const auto& n:ring)nodes.emplace(n.id,n);
+  Patch result;
+  for(size_t i=0;i<shell.size();++i) {
+    Cell cell{Id(10000+i),{center,nodes.at(shell[i][0]),nodes.at(shell[i][1]),nodes.at(shell[i][2])}};
+    if(Orientation(cell.v[0].p,cell.v[1].p,cell.v[2].p,cell.v[3].p)<0)std::swap(cell.v[2],cell.v[3]);
+    result.cells.push_back(cell);
+  }
+  for(const auto& face:Incidence(result.cells).Boundary())result.surface.push_back({face,Id(result.surface.size())});
+  return result;
+}
+Patch LargeBoundaryCoordinateStar() {
+  constexpr size_t outer_count=44, inner_count=22;
+  const Node apex{9000,{0,0,0}};
+  std::vector<Node> outer(outer_count),middle(outer_count),inner(inner_count);
+  auto ring=[](std::vector<Node>& nodes,Id first,double radius,double height) {
+    for(size_t i=0;i<nodes.size();++i) {
+      const double angle=2.0*std::acos(-1.0)*double(i)/double(nodes.size());
+      nodes[i]={first+i,{radius*std::cos(angle),radius*std::sin(angle),height}};
+    }
+  };
+  ring(outer,10000,1,0);ring(middle,11000,.7,.4);ring(inner,12000,.35,.8);
+  const Node center{13000,{0,0,1.2}};
+  std::vector<Face> link;
+  for(size_t i=0;i<outer_count;++i) {
+    const size_t next=(i+1)%outer_count;
+    link.push_back({outer[i].id,outer[next].id,middle[next].id});
+    link.push_back({outer[i].id,middle[next].id,middle[i].id});
+  }
+  for(size_t i=0;i<inner_count;++i) {
+    const size_t j=2*i,next=(i+1)%inner_count;
+    link.push_back({middle[j].id,middle[j+1].id,inner[i].id});
+    link.push_back({middle[j+1].id,middle[j+2].id,inner[next].id});
+    link.push_back({middle[j+1].id,inner[next].id,inner[i].id});
+    link.push_back({inner[i].id,inner[next].id,center.id});
+  }
+  std::map<Id,Node> nodes{{apex.id,apex},{center.id,center}};
+  for(const auto* level:{&outer,&middle,&inner})for(const auto& node:*level)nodes.emplace(node.id,node);
+  Patch result;
+  for(size_t i=0;i<link.size();++i) {
+    Cell cell{Id(20000+i),{apex,nodes.at(link[i][0]),nodes.at(link[i][1]),nodes.at(link[i][2])}};
+    if(Orientation(cell.v[0].p,cell.v[1].p,cell.v[2].p,cell.v[3].p)<0)std::swap(cell.v[2],cell.v[3]);
+    result.cells.push_back(cell);
+  }
+  for(const auto& face:Incidence(result.cells).Boundary())result.surface.push_back({face,Id(result.surface.size())});
+  return result;
+}
 std::set<std::array<Id, 4>> Connectivity(const Patch& patch) {
   std::set<std::array<Id, 4>> result;
   for (const auto& c : patch.cells) {
@@ -283,6 +344,46 @@ TEST_CASE("Native movement preserves the interior skin and protects original cor
   CHECK(reason.find("incident reference facet")!=std::string::npos);
   CHECK_FALSE(MoveVertex(star,999,{5,{.125,.25,.25}},200,reference,fresh,reason));
   CHECK(fresh.cells.front().id==100);
+}
+TEST_CASE("Native coordinate movement admits an explicitly bounded complete star above the cavity cap", "[NativeMesh3D]") {
+  for(const size_t sides:{44u,88u}) {
+    const auto old=LargeCoordinateStar(sides);
+    REQUIRE(old.cells.size()==2*sides);
+    const PlanarReference reference(Facets(old));
+    Patch moved;std::string reason;
+    const size_t admission=old.cells.size();
+    CHECK_FALSE(MoveVertex(old,9000,{9001,{.001,0,0}},300,reference,moved,reason));
+    REQUIRE(MoveVertex(old,9000,{9001,{.001,0,0}},300,reference,moved,reason,nullptr,admission));
+    REQUIRE(moved.cells.size()==old.cells.size());
+    for(size_t i=0;i<old.cells.size();++i)CHECK(moved.cells[i].id==old.cells[i].id);
+    CHECK(ValidateCoordinateStarMove(old.cells,moved.cells,9000,9001,reason,nullptr,admission));
+    CHECK_FALSE(MoveVertex(old,9000,{9001,{.001,0,0}},300,reference,moved,reason,nullptr,admission-1));
+    CHECK_FALSE(MoveVertex(old,9000,{9001,{0,0,1.5}},300,reference,moved,reason,nullptr,admission));
+    auto incomplete=old;incomplete.cells.pop_back();
+    const auto remaining=Incidence(incomplete.cells).Boundary();incomplete.surface.clear();
+    for(const auto& face:remaining)incomplete.surface.push_back({face,Id(incomplete.surface.size())});
+    const PlanarReference incomplete_reference(Facets(incomplete));
+    CHECK_FALSE(MoveVertex(incomplete,9000,{9001,{.001,0,0}},300,incomplete_reference,moved,reason,nullptr,admission));
+  }
+}
+TEST_CASE("Native coordinate-star validator canonicalizes a large boundary-vertex rename", "[NativeMesh3D]") {
+  auto old=LargeBoundaryCoordinateStar();
+  REQUIRE(old.cells.size()==176);
+  const auto skin=Incidence(old.cells).Boundary();
+  CHECK(std::count_if(skin.begin(),skin.end(),[](Face f){return std::find(f.begin(),f.end(),9000)!=f.end();})==44);
+  auto renamed=old.cells;
+  for(auto& cell:renamed)for(auto& node:cell.v)if(node.id==9000)node.id=9001;
+  std::string reason;
+  CHECK(ValidateCoordinateStarMove(old.cells,renamed,9000,9001,reason,nullptr,176));
+  std::map<Id,Node> nodes;
+  for(const auto& cell:old.cells)for(const auto& node:cell.v)nodes.emplace(node.id,node);
+  std::vector<Facet> facets;
+  for(const auto& face:old.surface)
+    facets.push_back({face.facet,77,{nodes.at(face.v[0]),nodes.at(face.v[1]),nodes.at(face.v[2])}});
+  const PlanarReference reference(facets);Patch moved;
+  REQUIRE(MoveVertex(old,9000,{9001,{.001,0,0}},300,reference,moved,reason,nullptr,176));
+  CHECK(moved.cells.size()==176);
+  for(size_t i=0;i<old.cells.size();++i)CHECK(moved.cells[i].id==old.cells[i].id);
 }
 TEST_CASE("Native boundary-aware reconnection preserves markers for face and edge swaps", "[NativeMesh3D]") {
   const Node a{0,{0,0,0}},b{1,{1,0,0}},c{2,{.5,.75,0}},d{3,{.5,.25,.25}},e{4,{.5,.25,-.25}};

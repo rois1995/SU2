@@ -298,8 +298,9 @@ bool CollapseVertex(const Patch& old, Id point, Id neighbor, Id first_cell, cons
  * positive endpoint determinants and chart-oriented faces are required; global clearance remains a caller duty;
  * exact planar motion preserves its domain; interface-star omissions, corner drift and inversion reject atomically.
  * New identity permits surface-coordinate changes without weakening fixed-interface coordinate checks. */
+/*! Coordinate-only move; maximum_old_cells is an explicit complete-star admission (default remains64). */
 bool MoveVertex(const Patch& old, Id vertex, Node point, Id first_cell, const PlanarReference& reference, Patch& fresh,
-                std::string& reason, KernelStats* stats = nullptr);
+                std::string& reason, KernelStats* stats = nullptr, size_t maximum_old_cells = MaximumCavityCells);
 /*! Fixed-skin reconnection to an existing admitted apex (including face2->3 and edge3->2/4->4).
  * Geometry/topology only: frozen metric progress, complete dependencies and global IDs remain caller duties. */
 bool Reconnect(const Patch& old, Id vertex, Id first_cell, const PlanarReference& reference, Patch& fresh,

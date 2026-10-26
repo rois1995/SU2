@@ -35,6 +35,7 @@ struct Dependencies {
   bool valid = false;
   bool oversized = false;  // Batch refusal of a complete star above the cavity bound; a block, not a protocol failure.
   std::string reason;
+  Feature coordinate_star{};  // Complete-vertex movement only; topology cavities retain their bound.
 };
 struct DependencyBatch {
   std::vector<Dependencies> candidates;
@@ -46,6 +47,7 @@ struct Imported {
   std::vector<OwnedCell> cells;
   bool valid = false;
   std::string reason;
+  Feature coordinate_star{};
 };
 struct ImportedBatch {
   std::vector<Imported> candidates;
@@ -86,7 +88,8 @@ class Directory {
   Dependencies Lookup(const std::vector<Feature>& features, size_t ceiling = SIZE_MAX, size_t caller_bytes = 0);
   /*! One complete star per feature, in input order, sharing the same exchanges. Missing/oversized
    * stars refuse only their candidate; protocol/storage failure refuses the whole batch without mutation. */
-  DependencyBatch LookupBatch(const std::vector<Feature>& features, size_t ceiling = SIZE_MAX, size_t caller_bytes = 0);
+  DependencyBatch LookupBatch(const std::vector<Feature>& features, size_t ceiling = SIZE_MAX, size_t caller_bytes = 0,
+                              bool coordinate_stars = false);
   /*! Complete-star metadata selection before payload admission. slots maps compacted candidates
    * to input features; deferred candidates are not failures or reservations. Oversized complete stars are
    * listed in refused (never selected); a missing feature still refuses the batch. Final Fetch/Reserve
@@ -120,7 +123,8 @@ class Directory {
    * failure; candidate=false is a geometric veto or a deferred peer conflict. Eligible peers are selected
    * in priority/owner order after current-mesh vetoes. Publication invalidates stale cell IDs/versions. */
   bool Clearance(const Owned& owned,const Patch& old,const Patch& fresh,bool& candidate,std::string& reason,
-                 size_t ceiling=SIZE_MAX,size_t caller_bytes=0,bool* deferred=nullptr,unsigned priority=0);
+                 size_t ceiling=SIZE_MAX,size_t caller_bytes=0,bool* deferred=nullptr,unsigned priority=0,
+                 Feature coordinate_star = {});
   size_t ResidentBytes() const;
   const DirectoryStats& Statistics() const { return stats; }
   std::vector<char> Snapshot() const;
@@ -164,7 +168,7 @@ class Directory {
   bool Vote(const CLocalFailure& failure, std::string& reason);
   bool LookupImpl(const std::vector<Feature>& features, Dependencies* merged,
                   DependencyBatch* batch, size_t ceiling, size_t caller_bytes, std::string& reason,
-                  std::vector<std::vector<Id>>* footprints = nullptr);
+                  std::vector<std::vector<Id>>* footprints = nullptr, bool coordinate_stars = false);
   ReservationBatch ReserveBatchImpl(const ImportedBatch& imported, size_t ceiling, size_t caller_bytes, bool interiors);
   ReservationBatch ChooseBatch(const std::vector<std::vector<Id>>& footprints, size_t ceiling, size_t caller_bytes);
   Prepared Prepare(const std::vector<OwnedCell>& removed, const std::vector<OwnedCell>& added,

@@ -929,6 +929,29 @@ TEST_CASE("Native composed measurements interleave complete cavities and certify
   CHECK_FALSE(Refine(world,input,unit,geometry,invalid,options).valid);CHECK(Bytes(input)==saved);
 }
 
+TEST_CASE("Construction yields its descendants to quality after servicing the entry frontier", "[NativeConstructionSweep3D]") {
+  World world;const auto fixture=Box();const PlanarReference geometry(fixture.facets);
+  const auto input=Partition(Rows(fixture.patch),world);const auto saved=Bytes(input);
+  std::set<Edge> entry;
+  for(const auto& c:fixture.patch.cells)for(unsigned i=0;i<4;++i)for(unsigned j=i+1;j<4;++j) {
+    Edge edge{c.v[i].id,c.v[j].id};std::sort(edge.begin(),edge.end());entry.insert(edge);
+  }
+  EngineOptions options;options.candidate_batch=1;options.maximum_rounds=entry.size()+1;options.maximum_work=4096;
+  const Tensor tensor{64,0,0,64,0,64};
+  const auto result=Refine(world,input,Uniform(input,tensor),geometry,{},options);INFO(result.reason);
+  CHECK_FALSE(result.valid);CHECK(result.stats.quality_stages>0);CHECK(world.sum(result.stats.accepted)>0);
+  bool descendant_debt=false;
+  for(const auto& row:result.cells) {
+    const auto& v=row.second.cell.v;CHECK(Orientation(v[0].p,v[1].p,v[2].p,v[3].p)>0);
+    for(unsigned i=0;i<4;++i)for(unsigned j=i+1;j<4;++j) {
+      Edge edge{v[i].id,v[j].id};std::sort(edge.begin(),edge.end());
+      descendant_debt=descendant_debt || (!entry.count(edge) && MetricNorm(v[i].p,v[j].p,tensor)>MaximumMetricEdge);
+    }
+  }
+  CHECK(world.maximum(descendant_debt));CHECK(Bytes(input)==saved);
+  CHECK(result.stats.global_work<=options.maximum_work);
+}
+
 TEST_CASE("Native MPI refinement preserves accepted input on incomplete or invalid events", "[NativeDistributed3D]") {
   World world;
   const auto fixture=Box();const PlanarReference reference(fixture.facets);
@@ -2416,7 +2439,7 @@ TEST_CASE("Native original support preserves affine P1 and falls back at inserte
   CHECK(result.stats.seed_batches>0);
   CHECK(result.stats.donor_batches==result.stats.seed_batches);
   CHECK(result.stats.metric_support_cells==result.stats.initial_cells);
-  CHECK(result.stats.metric_support_edges>0 || input.empty());
+  CHECK((result.stats.metric_support_edges>0 || input.empty()));
 }
 
 TEST_CASE("Native retained first-row insertion reaches full-field measurement without background searches", "[NativeFirstLayerRanking3D]") {
@@ -3433,7 +3456,7 @@ TEST_CASE("Saved original metric edge replays its high-valence footprint without
 
 namespace {
 // Convex star whose center belongs to more cells than one cavity admits; every other vertex is a physical corner.
-Fixture IcosphereStar() {
+Fixture IcosphereStar(unsigned levels=1) {
   const double phi=(1+std::sqrt(5.))/2;
   std::vector<std::array<double,3>> points{{-1,phi,0},{1,phi,0},{-1,-phi,0},{1,-phi,0},{0,-1,phi},{0,1,phi},
                                            {0,-1,-phi},{0,1,-phi},{phi,0,-1},{phi,0,1},{-phi,0,-1},{-phi,0,1}};
@@ -3447,8 +3470,11 @@ Fixture IcosphereStar() {
     points.push_back(unit({(points[a][0]+points[b][0])/2,(points[a][1]+points[b][1])/2,(points[a][2]+points[b][2])/2}));
     middle.emplace(key,points.size()-1);return points.size()-1;
   };
-  std::vector<std::array<size_t,3>> fine;
-  for(auto f:faces){const auto a=mid(f[0],f[1]),b=mid(f[1],f[2]),c=mid(f[2],f[0]);fine.insert(fine.end(),{{f[0],a,c},{f[1],b,a},{f[2],c,b},{a,b,c}});}
+  std::vector<std::array<size_t,3>> fine=faces;
+  for(unsigned level=0;level<levels;++level) {
+    auto coarse=std::move(fine);fine.clear();
+    for(auto f:coarse){const auto a=mid(f[0],f[1]),b=mid(f[1],f[2]),c=mid(f[2],f[0]);fine.insert(fine.end(),{{f[0],a,c},{f[1],b,a},{f[2],c,b},{a,b,c}});}
+  }
   Fixture result;const Node center{1000,{0,0,0}};
   auto node=[&](size_t i){return Node{Id(i),{points[i][0],points[i][1],points[i][2]}};};
   for(auto f:fine) {
@@ -3480,6 +3506,70 @@ Fixture AxisWheel(unsigned sectors) {
   return result;
 }
 }  // namespace
+
+TEST_CASE("Complete coordinate stars cross payload pages and publish atomically", "[NativeDistributed3D][NativeCoordinateStar3D]") {
+  World world;
+  for(unsigned levels:{1u,2u}) {
+  const auto fixture=IcosphereStar(levels);const size_t count=fixture.patch.cells.size();const PlanarReference geometry(fixture.facets);
+  auto owned=Partition(Rows(fixture.patch),world);const auto original=Bytes(owned);
+  Directory directory(world,true);std::string reason;REQUIRE(directory.Build(owned,reason));
+  const auto original_directory=directory.Snapshot();
+  const Feature center{{1000,0,0},1};
+  auto bounded=directory.LookupBatch(Query(world,center));REQUIRE(bounded.valid);
+  if(!world.rank){CHECK_FALSE(bounded.candidates.front().valid);CHECK(bounded.candidates.front().oversized);}
+  CHECK_FALSE(directory.LookupBatch(Query(world,center),world.rank?SIZE_MAX:1,0,true).valid);
+  auto batch=directory.LookupBatch(Query(world,center),SIZE_MAX,0,true);REQUIRE(batch.valid);
+  Dependencies dependencies;dependencies.valid=true;
+  if(!world.rank){dependencies=batch.candidates.front();REQUIRE(dependencies.valid);CHECK(dependencies.cells.size()==count);}
+  auto imported=directory.Fetch(dependencies,owned);REQUIRE(imported.valid);
+  if(!world.rank){CHECK(imported.cells.size()==count);CHECK(imported.coordinate_star.count==1);}
+  REQUIRE(world.sum(directory.Reserve(imported,world.rank==0,reason))==1);
+  Patch moved;REQUIRE(MoveVertex(fixture.patch,1000,{2000,{.01,0,0}},10000,geometry,moved,reason,nullptr,fixture.patch.cells.size()));
+  bool candidate=world.rank==0;
+  REQUIRE(directory.Clearance(owned,fixture.patch,moved,candidate,reason,SIZE_MAX,0,nullptr,0,center));
+  REQUIRE(world.sum(candidate)==1);
+  auto corrupt=moved;corrupt.cells.front().v[1].p.x+=.001;candidate=world.rank==0;
+  CHECK_FALSE(directory.Clearance(owned,fixture.patch,corrupt,candidate,reason,SIZE_MAX,0,nullptr,0,center));
+  auto added=Partition(Rows(moved),world);std::vector<Dependency> removed;std::vector<OwnedCell> replacements;
+  for(const auto& row:owned){removed.push_back({row.first,row.second.version,world.rank});auto next=added.at(row.first);next.version=row.second.version+1;replacements.push_back(next);}
+  CHECK_FALSE(directory.Publish(owned,removed,replacements,true,reason,world.rank?SIZE_MAX:1));
+  CHECK(Bytes(owned)==original);CHECK(directory.Snapshot()==original_directory);
+  REQUIRE(directory.Publish(owned,removed,replacements,true,reason));
+  CHECK(Audit(world,owned,fixture,count));
+  for(const auto& row:owned){CHECK(row.second.version==18+row.first);CHECK(std::any_of(row.second.cell.v.begin(),row.second.cell.v.end(),[](Node n){return n.id==2000;}));}
+  const auto current=directory.LookupBatch(Query(world,{{2000,0,0},1}),SIZE_MAX,0,true);REQUIRE(current.valid);
+  if(!world.rank){REQUIRE(current.candidates.front().valid);CHECK(current.candidates.front().cells.size()==count);}
+  CHECK_FALSE(directory.Lookup(Query(world,center)).valid);
+  }
+}
+
+TEST_CASE("Distributed repair moves complete large stars without changing cell ownership or identities", "[NativeCoordinateStar3D]") {
+  World world;
+  for(unsigned levels:{1u,2u}) {
+    auto fixture=IcosphereStar(levels);
+    for(auto& c:fixture.patch.cells)for(auto& n:c.v) {
+      if(n.id==1000){n.id=0;n.p={.75,0,0};}else ++n.id;
+    }
+    for(auto& f:fixture.patch.surface)for(auto& id:f.v)++id;
+    for(auto& f:fixture.facets)for(auto& n:f.v)++n.id;
+    const PlanarReference geometry(fixture.facets);const auto input=Partition(Rows(fixture.patch),world);
+    const auto saved=Bytes(input);EngineOptions options;options.candidate_batch=1;options.maximum_rounds=1;options.maximum_work=4096;
+    const auto result=Repair(world,input,Uniform(input,Tensor{}),geometry,{},options);INFO(result.reason);
+    CHECK(result.stats.quality_stages==1);CHECK(world.sum(result.stats.moved)==1);
+    CHECK(result.cells.size()==input.size());CHECK(Bytes(input)==saved);
+    for(const auto& row:result.cells) {
+      REQUIRE(input.count(row.first));CHECK(row.second.version==input.at(row.first).version+1);
+      CHECK(std::none_of(row.second.cell.v.begin(),row.second.cell.v.end(),[](Node n){return n.id==0;}));
+      const auto& v=row.second.cell.v;CHECK(Orientation(v[0].p,v[1].p,v[2].p,v[3].p)>0);
+      if(result.valid) {
+        const auto m=Measure({v[0].p,v[1].p,v[2].p,v[3].p},Tensor{});
+        CHECK(m.mean_ratio>=MinimumMeanRatio);CHECK(m.minimum_scaled_jacobian>=MinimumScaledJacobian);CHECK(m.maximum_edge<=MaximumMetricEdge);
+      }
+    }
+    CHECK(Audit(world,result.cells,fixture,fixture.patch.cells.size()));
+    CHECK(result.stats.global_work<=options.maximum_work);
+  }
+}
 
 TEST_CASE("Oversized complete stars block batched and planned proposals without failing the event", "[NativeDistributed3D][NativeOversizedStar3D]") {
   // T5 (audit 3D #1): MPI1 batched LookupBatch, MPI>1 PlanBatch and the one-candidate path all block the star.
@@ -3630,6 +3720,49 @@ TEST_CASE("Native MPI interior placement repairs a complete star through ordinar
     }
     CHECK(CPassiveComm::Allreduce(double(volume),CPassiveComm::Op::SUM,world.comm)==Approx(1.).margin(1e-12));
     EngineReport(result,world,sheared?"interior_placement_sheared":"interior_placement_uniform");
+  }
+}
+
+TEST_CASE("Global repair age precedes ownership and reactivated low IDs", "[NativeRepairFairness3D]") {
+  World world;
+  for(bool reversed:{false,true}) {
+    Fixture fixture;Owned input;
+    for(int copy=0;copy<2;++copy) {
+      auto box=Box();box.patch.cells.clear();const Node center{8,{.95,.93,.9}};
+      for(const auto& f:box.facets) {
+        Cell c{box.patch.cells.size(),{center,f.v[0],f.v[1],f.v[2]}};
+        if(Orientation(c.v[0].p,c.v[1].p,c.v[2].p,c.v[3].p)<0)std::swap(c.v[2],c.v[3]);
+        box.patch.cells.push_back(c);
+      }
+      for(auto& c:box.patch.cells){c.id+=100*copy;for(auto& n:c.v){n.id+=16*copy;n.p.x+=3*copy;}}
+      for(auto& f:box.patch.surface){f.facet+=12*copy;for(auto& id:f.v)id+=16*copy;}
+      for(auto& f:box.facets){f.id+=12*copy;for(auto& n:f.v){n.id+=16*copy;n.p.x+=3*copy;}}
+      const int owner=(copy==int(reversed)) ? 0 : world.size-1;
+      if(owner==world.rank)for(const auto& row:Rows(box.patch))input.emplace(row.cell.id,row);
+      fixture.patch.cells.insert(fixture.patch.cells.end(),box.patch.cells.begin(),box.patch.cells.end());
+      fixture.patch.surface.insert(fixture.patch.surface.end(),box.patch.surface.begin(),box.patch.surface.end());
+      fixture.facets.insert(fixture.facets.end(),box.facets.begin(),box.facets.end());
+    }
+    const auto saved=Bytes(input);const PlanarReference geometry(fixture.facets);
+    EngineOptions options;options.candidate_batch=1;options.maximum_rounds=9;options.maximum_work=4096;
+    options.capture_feature={{8,0,0},1};unsigned serviced=0;uint64_t service_round=UINT64_MAX;
+    options.transaction_observer=[&](const TransactionView& view) {
+      if(view.selected && std::string(view.stage)=="transaction_end") {
+        ++serviced;service_round=view.round;
+        CHECK(std::all_of(view.old.cells.begin(),view.old.cells.end(),[](const Cell& c) {
+          return std::any_of(c.v.begin(),c.v.end(),[](Node n){return n.id==8;});
+        }));
+      }
+    };
+    const auto result=Repair(world,input,Uniform(input,Tensor{}),geometry,{},options);INFO(result.reason);
+    // At most the eight original corner demands precede this waiting interior star. A newly
+    // generated/reactivated corner gets a later epoch, regardless of which worker owns either box.
+    CHECK(world.sum(serviced)==1);CHECK(world.maximum(service_round<9));
+    CHECK(result.stats.quality_stages>0);CHECK(result.stats.global_work<=options.maximum_work);
+    CHECK(Bytes(input)==saved);
+    for(const auto& row:result.cells) {
+      const auto& v=row.second.cell.v;CHECK(Orientation(v[0].p,v[1].p,v[2].p,v[3].p)>0);
+    }
   }
 }
 

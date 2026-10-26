@@ -121,8 +121,8 @@ void Bounds(const std::vector<Cell>& cells, size_t maximum) {
     throw std::invalid_argument("Native 3D cavity cell budget/empty-input rejection.");
 }
 void Validate(const std::vector<Cell>& old, const Incidence& before, const std::vector<Cell>& fresh, KernelStats* stats,
-              const std::vector<Face>* expected_skin = nullptr) {
-  Bounds(fresh, MaximumReplacementCells);
+              const std::vector<Face>* expected_skin = nullptr, size_t maximum_fresh_cells = MaximumReplacementCells) {
+  Bounds(fresh, maximum_fresh_cells);
   const Incidence after(fresh, stats);
   const auto old_skin = before.Boundary(), new_skin = after.Boundary();
   if (new_skin != (expected_skin ? *expected_skin : old_skin))
@@ -276,6 +276,71 @@ bool ValidatePrescribedInterface(const std::vector<Cell>& old, const std::vector
       throw std::invalid_argument("Native 3D prescribed skin exceeds budget.");
     const Incidence before(old, stats);
     Validate(old, before, fresh, stats, &expected_skin);
+    reason.clear();
+    return true;
+  } catch (const std::exception& e) {
+    reason = e.what();
+    return false;
+  }
+}
+bool ValidateCoordinateStarMove(const std::vector<Cell>& old, const std::vector<Cell>& fresh, Id old_vertex,
+                                Id moved_vertex, std::string& reason, KernelStats* stats,
+                                size_t maximum_old_cells) {
+  try {
+    if (old.size() > maximum_old_cells || old.empty())
+      throw std::invalid_argument("Native 3D coordinate-star move exceeds explicit admission.");
+    if (old_vertex == moved_vertex || fresh.size() != old.size())
+      throw std::invalid_argument("Native 3D coordinate-star move changed cell count or vertex identity.");
+    std::map<Id, const Cell*> after_by_id;
+    for (const auto& cell : fresh)
+      if (!after_by_id.emplace(cell.id, &cell).second)
+        throw std::invalid_argument("Native 3D coordinate-star move repeats a cell identity.");
+    for (const auto& cell : old) {
+      const auto found = after_by_id.find(cell.id);
+      if (found == after_by_id.end())
+        throw std::invalid_argument("Native 3D coordinate-star move changed a cell identity.");
+      size_t count = 0;
+      std::array<Id, 4> expected, actual;
+      for (size_t i = 0; i < 4; ++i) {
+        expected[i] = cell.v[i].id;
+        if (cell.v[i].id == old_vertex) {
+          ++count;
+          expected[i] = moved_vertex;
+        }
+        actual[i] = found->second->v[i].id;
+      }
+      if (count != 1)
+        throw std::invalid_argument("Native 3D coordinate-star input is not a complete vertex star.");
+      std::sort(expected.begin(), expected.end());
+      std::sort(actual.begin(), actual.end());
+      if (expected != actual)
+        throw std::invalid_argument("Native 3D coordinate-star move changed tetrahedron connectivity.");
+      for (size_t i = 0; i < 4; ++i)
+        if (cell.v[i].id != old_vertex) {
+          const auto node = std::find_if(found->second->v.begin(), found->second->v.end(),
+                                         [&](const Node& n) { return n.id == cell.v[i].id; });
+          if (node == found->second->v.end() || node->p.x != cell.v[i].p.x || node->p.y != cell.v[i].p.y ||
+              node->p.z != cell.v[i].p.z)
+            throw std::invalid_argument("Native 3D coordinate-star move changed a stationary vertex.");
+        }
+    }
+    const auto nodes = Nodes(fresh);
+    const auto old_nodes = Nodes(old);
+    if (!nodes.count(moved_vertex) || nodes.count(old_vertex) || old_nodes.count(moved_vertex))
+      throw std::invalid_argument("Native 3D coordinate-star move has an incomplete moved identity.");
+    const Incidence before(old, stats);
+    auto expected_skin = before.Boundary();
+    for (auto& face : expected_skin) {
+      for (auto& id : face)
+        if (id == old_vertex) id = moved_vertex;
+      std::rotate(face.begin(), std::min_element(face.begin(), face.end()), face.end());
+    }
+    auto key = [](Face face) {
+      std::sort(face.begin(), face.end());
+      return face;
+    };
+    std::sort(expected_skin.begin(), expected_skin.end(), [&](Face a, Face b) { return key(a) < key(b); });
+    Validate(old, before, fresh, stats, &expected_skin, maximum_old_cells);
     reason.clear();
     return true;
   } catch (const std::exception& e) {

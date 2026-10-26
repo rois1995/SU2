@@ -34,8 +34,10 @@ struct PatchMetric {
   long double maximum_length = 0;
   std::map<Edge, EdgeMeasure> edges;
 };
-/*! Proposal only: minimise the midpoint-metric spring energy around an original vertex. */
-Point MetricMeanPoint(Point origin,const std::vector<std::pair<Point,Tensor>>& neighbors);
+/*! Proposal only: minimise midpoint-metric spring energy around an original vertex. The default bound preserves
+ * legacy behavior; callers admitting larger stars must supply a bound justified by their storage admission. */
+Point MetricMeanPoint(Point origin,const std::vector<std::pair<Point,Tensor>>& neighbors,
+                      size_t maximum_neighbors=4*MaximumCavityCells);
 struct MetricShapeLinearization {
   std::array<double,2> residual{};
   std::array<std::array<std::array<double,3>,4>,2> derivative{};
@@ -53,10 +55,11 @@ struct MetricStats {
 // Geometry intents require independently certified geometric progress at the engine caller.
 enum class MetricChange { Refine, Coarsen, Repair, GeometryRefine, GeometryRepair };
 enum class MetricFailure { None, Measurement, Shape, Progress };
-/*! Refine admission (user decision 2026-10-23: the 2D split rule, CNativeMesh2D.hpp SplitPatch sizeProgress).
+/*! Refine admission (adapted from the user-selected 2D split rule, CNativeMesh2D.hpp SplitPatch sizeProgress).
  * SplitInsertion: a refinement that removes no vertex of the old cells and replaces a changed old edge longer than
- * SplitInsertionLength (a size insertion) needs no changed-edge excess progress; one that removes a vertex keeps the
- * strict excess decrease; a non-size insertion must add no oversized changed edge. Under Absolute compatibility mode,
+ * SplitInsertionLength (a size insertion) need not reduce total changed-edge excess, but its longest new/changed edge
+ * must be shorter than its longest removed edge; one that removes a vertex keeps the strict excess decrease; a
+ * non-size insertion must add no oversized changed edge. Under Absolute compatibility mode,
  * it also raises the minimum mean ratio. A vertex is removed when absent from fresh cells; `relocated` old vertices may
  * be absent when a refit replaces them one for one by a new identity.
  * StrictExcess: the previous rule (strict excess decrease for every refinement), kept for A/B comparisons and the
@@ -98,11 +101,15 @@ PatchMetric MeasureMetricCells(const std::vector<Cell>& cells, FrozenField& targ
                               std::map<Edge,EdgeMeasure>* campaign = nullptr);
 /*! Same progress gate on complete measurements assembled from the same frozen target. The caller must
  * retain all cells/edges and verify geometry/dependencies separately; this does not certify source coverage.
- * GeometryRefine/GeometryRepair need caller-certified geometric-error progress; metric shape remains strict and changed
- * oversized-edge excess must not increase. It does not authorize geometric progress by itself. */
+ * GeometryRefine/GeometryRepair need caller-certified geometric-error progress. Absolute mode also applies strict
+ * shape and non-increasing changed-edge excess; ValidityOnly GeometryRefine is edge-only and may accrue size debt,
+ * while GeometryRepair measures shape to guide improvement. Neither intent certifies geometry progress by itself.
+ * Coordinate-only Repair/GeometryRepair may exceed the ordinary 128-cell cap when old_count==fresh_count; the
+ * caller must certify unchanged connectivity and the measurement edge cap is six times old_count. */
 bool ValidateMetricChange(size_t old_count, const PatchMetric& before, size_t fresh_count,
                           const PatchMetric& measured, MetricChange kind, std::string& reason,
-                          MetricDiagnosis* diagnosis = nullptr, size_t relocated = 0);
+                          MetricDiagnosis* diagnosis = nullptr, size_t relocated = 0,
+                          bool coordinate_move = false);
 /*! Requires separately validated geometry/topology/dependencies. Actual centroid target and source-resolved
  * target edge lengths; bounded128 cells. Final completion requires the strict gate on the whole mesh.
  * Reuse requires the same frozen full-field identity, edge IDs and exact endpoint coordinates.

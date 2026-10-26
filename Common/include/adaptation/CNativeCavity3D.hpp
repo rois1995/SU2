@@ -43,6 +43,11 @@ bool ValidateFixedInterface(const std::vector<Cell>& old, const std::vector<Cell
 bool ValidatePrescribedInterface(const std::vector<Cell>& old, const std::vector<Cell>& fresh,
                                  const std::vector<Face>& expected_skin, std::string& reason,
                                  KernelStats* stats = nullptr, size_t maximum_old_cells = MaximumCavityCells);
+/*! Coordinate-only complete vertex-star move. Cell identities/connectivity must be unchanged modulo the moved
+ * vertex ID; the caller supplies its explicit admission bound. */
+bool ValidateCoordinateStarMove(const std::vector<Cell>& old, const std::vector<Cell>& fresh, Id old_vertex,
+                                Id moved_vertex, std::string& reason, KernelStats* stats = nullptr,
+                                size_t maximum_old_cells = MaximumCavityCells);
 /*! Private insertion/movement/reconnection by coning the cavity skin to an apex. Does not commit a mesh.
  * Existing boundary apex faces are omitted; an outside/degenerate fan is rejected without changing fresh.
  * first_cell is a caller-reserved ID range; external ID collisions require the distributed directory. */
