@@ -59,6 +59,9 @@ if get_option('enable-tests')
       wall_model_test = executable('wall_function_model_test', 'SU2_CFD/wall_function_model.cpp',
           dependencies: su2_deps, cpp_args: su2_cpp_args)
       test('Wall-function model roots', wall_model_test)
+    mixing_self_test = executable('mixing_self_response_test', 'SU2_CFD/mixing_self_response_test.cpp',
+        dependencies: su2_deps, cpp_args: su2_cpp_args + ['-UNDEBUG'])
+    test('Mixing shared-target self-response', mixing_self_test)
     endif
     mixing_flux_test = executable('mixing_mean_flux_test', 'SU2_CFD/mixing_mean_flux_test.cpp',
         dependencies: su2_deps, cpp_args: su2_cpp_args + ['-UNDEBUG'])

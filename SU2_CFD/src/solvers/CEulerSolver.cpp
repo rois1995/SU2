@@ -6493,7 +6493,8 @@ void CEulerSolver::ApplyMixingJacobian(const CSysVector<su2mixedfloat>& directio
         double delta[5];
         for (auto v=0u; v<5; ++v) delta[v] = SU2_TYPE::GetValue(mixingDirection(vertex.point,v));
         const auto flux = vertex.Apply(delta);
-        for (auto v=0u; v<5; ++v) local[5*span+v] -= flux[v];
+        // Retain the local half-response of Common; donor/exterior coupling is still lagged.
+        for (auto v=0u; v<5; ++v) local[5*span+v] -= 0.5*flux[v];
       }
     }
     SU2_MPI::Allreduce(local.data(), global.data(), 5*spans, MPI_DOUBLE, MPI_SUM, SU2_MPI::GetComm());
@@ -6518,8 +6519,86 @@ void CEulerSolver::ApplyMixingJacobian(const CSysVector<su2mixedfloat>& directio
     for (auto v=0u; v<nVar; ++v) product(point,v) += SU2_TYPE::GetValue(mixingProduct(point,v));
 }
 
+bool CEulerSolver::AuditMixingJacobian(CGeometry* geometry, const CConfig* config) {
+  // Audit the captured linear raw-flux model on the real partition; do not perturb the CFD state.
+  CSysVector<su2mixedfloat> direction(nPoint, nPointDomain, nVar, 0.0), actual(nPoint, nPointDomain, nVar, 0.0);
+  CSysVector<su2double> expected(nPoint, nPointDomain, nVar, 0.0);
+  for (auto point=0ul; point<nPoint; ++point)
+    for (auto var=0u; var<nVar; ++var)
+      direction(point,var) = 0.01*std::sin(double(geometry->nodes->GetGlobalIndex(point)%1009+1)*(var+1));
+  ApplyMixingJacobian(direction, actual, geometry, config);
+  const auto spans = config->GetnSpanWiseSections();
+  unsigned active = 0;
+  for (auto interface=1u; interface<=config->GetnMarker_MixingPlaneInterface()/2; ++interface) {
+    const auto marker = config->FindMixingPlaneInterfaceMarker(geometry->GetnMarker(), interface);
+    vector<double> local(11*spans, 0.0), global(11*spans, 0.0);
+    if (marker>=0) for (auto span=0u; span<spans; ++span) {
+      if (MixingCommonFlux[marker](span,0)==0) continue;
+      local[11*span] = 1.0;
+      for (auto var=0u; var<5; ++var) local[11*span+1+var] = SU2_TYPE::GetValue(MixingRawFlux[marker](span,var+1));
+      for (const auto& vertex : MixingJacobian[marker][span]) {
+        if (vertex.weight==0) continue;
+        double delta[5];
+        for (auto var=0u; var<5; ++var) delta[var] = SU2_TYPE::GetValue(mixingDirection(vertex.point,var));
+        const auto flux = vertex.Apply(delta);
+        for (auto var=0u; var<5; ++var) local[11*span+6+var] += flux[var];
+      }
+    }
+    SU2_MPI::Allreduce(local.data(), global.data(), 11*spans, MPI_DOUBLE, MPI_SUM, SU2_MPI::GetComm());
+    if (global[0]>0) ++active;
+    if (marker<0 || global[0]==0) continue;
+    vector<double> radii(spans);
+    vector<MixingMeanFlux::Flux> plus(spans), minus(spans), donor_zero(spans);
+    const auto flag = config->GetMarker_All_TurbomachineryFlag(marker);
+    const double step = 1e-3;
+    for (auto span=0u; span<spans; ++span) {
+      radii[span] = SU2_TYPE::GetValue(geometry->GetSpanWiseValue(flag)[span]);
+      for (auto var=0u; var<5; ++var) {
+        plus[span][var] = global[11*span+1+var] + step*global[11*span+6+var];
+        minus[span][var] = global[11*span+1+var] - step*global[11*span+6+var];
+      }
+    }
+    // The constant donor part cancels in the central difference; keep the actual local transfer map.
+    const auto target_plus = MixingMeanFlux::Common(radii, plus, 1.0, radii, donor_zero, 1.0);
+    const auto target_minus = MixingMeanFlux::Common(radii, minus, 1.0, radii, donor_zero, 1.0);
+    for (auto span=0u; span<spans; ++span) {
+      MixingMeanFlux::Flux dp{}, dm{};
+      for (auto var=0u; var<5; ++var) {
+        dp[var] = target_plus[span][var]-plus[span][var];
+        dm[var] = target_minus[span][var]-minus[span][var];
+      }
+      for (const auto& vertex : MixingJacobian[marker][span]) {
+        if (vertex.weight==0 || nodes->GetDelta_Time(vertex.point)==0) continue;
+        const auto cp = MixingMeanFlux::CartesianCorrection(dp,vertex.weight,vertex.x,vertex.y);
+        const auto cm = MixingMeanFlux::CartesianCorrection(dm,vertex.weight,vertex.x,vertex.y);
+        for (auto var=0u; var<5; ++var) {
+          if (vertex.fixedMomentum && var>=1 && var<=3) continue;
+          expected(vertex.point,var) += (cp[var]-cm[var])/(2*step);
+        }
+      }
+    }
+  }
+  if (!active) return false;
+  CommunicatePeriodicOperator(geometry, config, expected, true);
+  double local[2]={0,0}, global[2]={0,0};
+  for (auto point=0ul; point<nPointDomain; ++point) for (auto var=0u; var<nVar; ++var) {
+    const double ref = SU2_TYPE::GetValue(expected(point,var));
+    const double err = std::abs(SU2_TYPE::GetValue(actual(point,var))-ref);
+    if (!std::isfinite(ref) || !std::isfinite(err)) SU2_MPI::Error("Nonfinite mixing operator audit",CURRENT_FUNCTION);
+    local[0] = std::max(local[0],err); local[1] = std::max(local[1],std::abs(ref));
+  }
+  SU2_MPI::Allreduce(local,global,2,MPI_DOUBLE,MPI_MAX,SU2_MPI::GetComm());
+  if (rank==MASTER_NODE)
+    std::cout << "MIXING_SELF_JACOBIAN_AUDIT {\"zone\":" << config->GetiZone()
+              << ",\"error\":" << global[0] << ",\"reference_norm\":" << global[1]
+              << ",\"scope\":\"captured_linear_flux_with_local_target_response\"}" << std::endl;
+  if (global[0]>1e-7*(1+global[1])) SU2_MPI::Error("Mixing local-response operator audit failed",CURRENT_FUNCTION);
+  return true;
+}
+
 unsigned long CEulerSolver::SolveLinearSystem(CGeometry* geometry, const CConfig* config) {
   if (!mixingImplicit || MGLevel != MESH_0) return BaseClass::SolveLinearSystem(geometry, config);
+  if (mixingJacobianAudit && !mixingJacobianAuditDone) mixingJacobianAuditDone = AuditMixingJacobian(geometry,config);
   class Product final : public CMatrixVectorProduct<su2mixedfloat> {
     CEulerSolver& solver;
     CGeometry* geometry;

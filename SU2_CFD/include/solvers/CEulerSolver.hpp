@@ -53,6 +53,12 @@ protected:
   }();
   vector<vector<vector<MixingMeanFlux::VertexJacobian>>> MixingJacobian;
   CSysVector<su2double> mixingDirection, mixingProduct;
+  const bool mixingJacobianAudit = [] {
+    const auto* value = std::getenv("SU2_MIXING_JACOBIAN_AUDIT");
+    return value && std::string(value) == "1";
+  }();
+  bool mixingJacobianAuditDone = false;
+  bool AuditMixingJacobian(CGeometry* geometry, const CConfig* config);
 
   su2activematrix PhysicalResidual;  /*!< Last finest-grid assembly, before FAS/time updates. */
   using BaseClass = CFVMFlowSolverBase<CEulerVariable, ENUM_REGIME::COMPRESSIBLE>;
