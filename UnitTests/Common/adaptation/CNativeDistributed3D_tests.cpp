@@ -3475,12 +3475,15 @@ TEST_CASE("Native MPI interior placement repairs a complete star through ordinar
     REQUIRE(result.valid);CHECK(world.sum(result.stats.moved)>0);
     CHECK(result.stats.cached_invalid_cells==0);CHECK(Bytes(input)==Bytes(saved));
     if(mapped)CHECK(reference->Parameters()->Snapshot()==parameters);
-    CHECK(Audit(world,result.cells,fixture,12));
+    CHECK(Audit(world,result.cells,fixture,world.sum(int(result.cells.size()))));
+    long double volume=0;
     for(const auto& row:result.cells) {
       const auto& v=row.second.cell.v;const auto q=Measure({v[0].p,v[1].p,v[2].p,v[3].p},tensor);
       CHECK(q.mean_ratio>=MinimumMeanRatio);CHECK(q.minimum_scaled_jacobian>=MinimumScaledJacobian);
       CHECK(q.maximum_edge<=MaximumMetricEdge);
+      volume+=TetrahedronVolume({v[0].p,v[1].p,v[2].p,v[3].p});
     }
+    CHECK(CPassiveComm::Allreduce(double(volume),CPassiveComm::Op::SUM,world.comm)==Approx(1.).margin(1e-12));
     EngineReport(result,world,sheared?"interior_placement_sheared":"interior_placement_uniform");
   }
 }

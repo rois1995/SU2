@@ -452,3 +452,29 @@ Reserve work only in optimizer phase and immediately refund unused work, prevent
 unused reservations from starving joint placement. Cumulative160/global caps unchanged.
 The early-filter fixture uses its validated two-owner witness layout with all MPI
 ranks participating; retain every original assertion. Build pending/unvalidated.
+
+Validation50 builds4417/25768 pass; review correction separates optimizer insertion
+IDs from moved-apex counting. Focused11020 terminal14/16 cases,2227/2233 assertions,
+8.62s. Cubic Euler/RANS exhausts4096 after9 edits,69 optimizer calls/0 validated:
+optimizing every simple rejected split starves ordinary joint placement. Interior
+star has valid strict geometry/metric with32 cells but its fixture assumes12. Pins
+verify.51 retains one shape-rejected candidate per exact current parent-cell set,
+using failed-shape score only as a search priority. Bounded optimization runs once
+after ordinary construction/placement attempts, before unchanged strict publication.
+Preserve kind, edge policy, relocated count and parameter bindings. Replace the star
+fixture's12-cell restriction by explicit unit-volume conservation alongside all
+existing mesh/quality/identity audits. No six-rank/M6 claim for50.
+
+Validation51: initial build51613 failed test MPI long-double reduction; corrected
+to supported double reduction after extended-precision local volume. Build10434
+passes88.64s. Focused14145 passes16 cases/2532 assertions,23.09s; serial cubic
+work1504 with0 invalid cells,21 optimizer calls/2 validated. All-worker6 session24928
+terminal21.65s: flat Euler/RANS and4 collapse-filter cases pass; cubic Euler/RANS
+work4093/4096 rejects.145 cells: no q/J failures;17 oversized edges,12 geometric
+violations,7 overlap. This is construction progress, not accepted curved runtime.
+Inspection: dependency reservations and peer contact selection arbitrate by rank,
+so a lower-rank metric demand can defeat a conflicting geometric demand. Serial
+selection puts geometry first. Next connect geometry-first conflict priority across
+initial/expanded/final reservations and peer clearance, retaining independent
+concurrency and all current-mesh/version/exact-contact gates. Test priority reversal
+and ensure it cannot bypass an obstacle veto. No limit increases or M6 run yet.

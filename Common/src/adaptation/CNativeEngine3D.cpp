@@ -1596,7 +1596,17 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       if (!ready) return finish();
     }
     CLocalFailure failure;
-    Patch old,fresh;
+    Patch old,fresh,quality_candidate;
+    std::vector<Id> quality_parents;
+    double quality_score=-INFINITY;
+    MetricChange quality_kind=intent;
+    bool quality_no_edges=false,quality_strict_size=false;
+    size_t quality_relocated=0;
+    auto quality_matches=[&]() {
+      if(quality_candidate.cells.empty() || quality_parents.size()!=old.cells.size())return false;
+      for(const auto& c:old.cells)if(std::find(quality_parents.begin(),quality_parents.end(),c.id)==quality_parents.end())return false;
+      return true;
+    };
     auto guarded_geometry=[&](bool valid){return geometry_trial(valid && height_check(fresh,result.reason));};
     Node point;
     bool approved=false, moved=false, repair_approved=false, cavity_inserted=false;
@@ -1772,6 +1782,16 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       repair_work-=reserved-used;
       return changed;
     };
+    auto retain_quality_candidate=[&](const MetricDiagnosis& diagnosis,MetricChange kind,bool no_edges=false,bool strict_size=false,size_t relocated=0) {
+      if(repairing || coarsening || diagnosis.failure!=MetricFailure::Shape)return;
+      const auto score=std::min(diagnosis.minimum_mean_ratio/MinimumMeanRatio,
+                                diagnosis.minimum_scaled_jacobian/MinimumScaledJacobian);
+      if(quality_matches() && score<=quality_score)return;
+      quality_candidate=fresh;quality_parents.clear();
+      for(const auto& c:old.cells)quality_parents.push_back(c.id);
+      quality_score=score;quality_kind=kind;quality_no_edges=no_edges;
+      quality_strict_size=strict_size;quality_relocated=relocated;
+    };
     {
       Timer timer(stats.metric_seconds,options.timings);
       const double reconstruction_before=stats.reconstruction_seconds;
@@ -1785,12 +1805,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         for (const auto& cell : old.cells) selection.Cached(cell,reuse);
         if (approved) {
           approved=metric_trial(ValidateMetricChange(old.cells,fresh.cells,intent,*field,metric,result.reason,nullptr,&reuse,&certified),certified);
-          if(!approved && certified.failure==MetricFailure::Shape && repair_budget) {
-            {Timer timer(stats.reconstruction_seconds,options.timings);
-              approved=guarded_geometry(optimize_patch(fresh,RegionMetric(*field),true));}
-            if(approved)approved=metric_trial(ValidateMetricChange(old.cells,fresh.cells,intent,*field,metric,result.reason,nullptr,&reuse,&certified),certified);
-            if(approved){cavity_inserted=true;++stats.optimization_validated;}
-          }
+          if(!approved)retain_quality_candidate(certified,intent);
         }
         if (!approved) cavity_inserted=false;
         // An already-admissible coarsening mesh needs removal, not repeated quality-only rearrangement.
@@ -1843,7 +1858,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
                 if (approved) break;
               }
             }
-            if(!approved && repair_work<repair_budget) {
+            if(!approved && !quality_matches() && repair_work<repair_budget) {
               {Timer geometry_timer(stats.reconstruction_seconds,options.timings);CpuTimer geometry_cpu(stats.reconstruction_cpu_seconds,options.timings);
                 approved=guarded_geometry(optimize_patch(old,RegionMetric(*field),false));}
               if(approved)approved=metric_trial(ValidateMetricChange(old.cells,fresh.cells,MetricChange::Repair,*field,metric,result.reason,nullptr,&reuse,&certified),certified);
@@ -1857,6 +1872,13 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
           if (!approved && !repairing && coarsening) approved=try_repair(false,vertex);
           repair_approved=approved;
           if (approved && !repairing) ++stats.fallback_accepted;
+        }
+        if(!approved && !composition && quality_matches() && repair_work<repair_budget) {
+          fresh=quality_candidate;
+          {Timer timer(stats.reconstruction_seconds,options.timings);
+            approved=guarded_geometry(optimize_patch(fresh,RegionMetric(*field),true));}
+          if(approved)approved=metric_trial(ValidateMetricChange(old.cells,fresh.cells,quality_kind,*field,metric,result.reason,nullptr,&reuse,&certified),certified);
+          if(approved){cavity_inserted=true;++stats.optimization_validated;}
         }
       } catch (const std::exception& e) { approved=false; result.reason=e.what(); }
       if (field) FieldCounts(stats,*field);
@@ -1969,26 +1991,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         PatchMetric metric;
         const std::vector<Cell> empty;
         bool measured=measure_private(candidate ? fresh.cells : empty,metric,true,before.edges);
-        const bool improve=ready && candidate && !measured && certified.failure==MetricFailure::Shape && repair_work<160 && (repairing || !coarsening);
-        bool optimized=false;
-        if(world.maximum(improve)) {
-          reserve_optimization(improve);
-          DonorPatch donors;
-          {Timer timer(stats.donor_seconds,options.timings);++stats.donor_batches;
-            donors=source.ImportCells(improve && repair_work<repair_budget?fresh.cells:empty,options.memory_ceiling,
-                transfer_memory::Add(bytes(),directory.ResidentBytes(),private_scratch));}
-          if(!donors.valid && !DonorCap(donors.reason)){ready=false;result.reason=donors.reason;return false;}
-          CLocalFailure optimization;
-          if(improve && repair_work<repair_budget && donors.valid)try {
-            const auto components=AssociatedExtensions(donors.cells,geometry);
-            FrozenField target(std::move(donors.cells),composition,options.timings,components,options.edge_breakpoints,field_identity);
-            FieldAccounting accounting{stats,target};Timer timer(stats.reconstruction_seconds,options.timings);
-            if(optimize_patch(fresh,RegionMetric(target),true))candidate=optimized=guarded_geometry(true);
-          }catch(const std::exception& e){optimization.Set(2,0,e.what());}
-          if(!(ready=vote(optimization)))return false;
-          release_optimization();
-          if(world.maximum(optimized))measured=measure_private(candidate?fresh.cells:empty,metric,true,before.edges);
-        }
+        CLocalFailure observed;
         bool valid=false;
         { Timer timer(stats.metric_seconds,options.timings); CpuTimer cpu(stats.metric_cpu_seconds,options.timings);
           if (candidate) {
@@ -2006,10 +2009,10 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
               valid=false;certified.failure=MetricFailure::Progress;result.reason="Native3D compound wall repair does not reduce frozen changed-edge excess.";
             }
             metric_trial(valid,certified);
-            if(valid && optimized){cavity_inserted=true;++stats.optimization_validated;}
+            if(!valid)try {retain_quality_candidate(certified,kind,no_new_oversized,strict_size,relocated);}
+            catch(const std::exception& e){observed.Set(2,0,e.what());}
           }
         }
-        CLocalFailure observed;
         if(chosen && !valid && !completed) {
           stats.last_metric_rejection=certified;
           stats.last_rejected_feature=repairing ? choice.feature : Feature{{choice.edge[0],choice.edge[1],0},2};
@@ -2020,7 +2023,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
             options.rejected_trial(old,fresh,stats.last_rejected_feature,certified,candidate,result.reason);
           }catch(const std::exception& e){observed.Set(2,0,e.what());}
         }
-        if(observe_rejections)ready=vote(observed);
+        if(observe_rejections || (!repairing && !coarsening))ready=vote(observed);
         if(completed)certified=retained;
         return valid;
       };
@@ -2850,6 +2853,31 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         const bool valid=validate_private(candidate,MetricChange::Repair);
         if (!ready) return finish();
         if (valid) { approved=true; repair_approved=true; moved=move_trial; }
+      }
+      if(!repairing && !coarsening && world.maximum(chosen && !approved && quality_matches())) {
+        const bool eligible=chosen && !approved && quality_matches();
+        reserve_optimization(eligible);
+        DonorPatch donors;
+        {Timer timer(stats.donor_seconds,options.timings);++stats.donor_batches;
+          donors=source.ImportCells(eligible && repair_work<repair_budget?quality_candidate.cells:empty,
+              options.memory_ceiling,transfer_memory::Add(bytes(),directory.ResidentBytes(),private_scratch));}
+        if(!donors.valid && !DonorCap(donors.reason)){result.reason=donors.reason;return finish();}
+        bool candidate=false;
+        if(eligible && repair_work<repair_budget && donors.valid)try {
+          fresh=quality_candidate;
+          const auto components=AssociatedExtensions(donors.cells,geometry);
+          FrozenField target(std::move(donors.cells),composition,options.timings,components,options.edge_breakpoints,field_identity);
+          FieldAccounting accounting{stats,target};Timer timer(stats.reconstruction_seconds,options.timings);
+          candidate=guarded_geometry(optimize_patch(fresh,RegionMetric(target),true));
+        }catch(const std::exception& e){failure.Set(2,0,e.what());}
+        if(!(ready=vote(failure)))return finish();
+        release_optimization();
+        if(world.maximum(candidate)) {
+          const bool placed=validate_private(candidate,quality_kind,quality_no_edges,quality_strict_size,quality_relocated);
+          if(!ready)return finish();
+          if(placed){approved=cavity_inserted=true;repair_approved=quality_kind==MetricChange::Repair || quality_kind==MetricChange::GeometryRepair;
+            ++stats.optimization_validated;}
+        }
       }
       if(repairing && world.maximum(repair_work<160 && chosen && !approved)) {
         reserve_optimization(repair_work<160 && chosen && !approved);

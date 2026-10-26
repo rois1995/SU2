@@ -1,5 +1,5 @@
 {
-  "status": "review-corrected build passes; focused serial starting",
+  "status": "terminal focused failures; candidate optimization starves ordinary joint placement",
   "base_commit": "895ab7274a",
   "changes": [
     "Runtime restores strict shape admission; private candidates receive bounded optimizer repair before publication",
@@ -23,5 +23,13 @@
   "runtime_pins": 19,
   "focused_session": 11020,
   "build_seconds": 84.34,
-  "build_largest_process_kib": 2889408
+  "build_largest_process_kib": 2889408,
+  "focused_exit": 6,
+  "focused_cases": 16,
+  "focused_passed": 14,
+  "focused_assertions": 2233,
+  "focused_failures": 6,
+  "focused_seconds": 8.62,
+  "terminal_pins_verified": true,
+  "diagnosis": "Cubic Euler/RANS:9 accepted,69 optimizer calls/0 validated,work4096; repeated optimization of simple rejected splits runs before ordinary joint placement. Interior-star result valid/strict shape with32 cells but fixture assumes12; replace cardinality restriction by explicit volume and unchanged boundary/quality audits."
 }

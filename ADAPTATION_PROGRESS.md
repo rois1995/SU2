@@ -1,112 +1,82 @@
 # Native adaptation progress
 
-Companion to [ADAPTATION_TODO.md](ADAPTATION_TODO.md). This file records reviewable
-changes and their validation status. The TODO remains the acceptance ledger.
-Updated: 2026-10-26.
+Companion to [ADAPTATION_TODO.md](ADAPTATION_TODO.md), the acceptance ledger.
+Updated: 2026-10-26. Detailed failures and provenance remain linked below.
 
 ## Current result
 
 **DC-17 and DC-18 remain open. No full M6 adaptation has passed final acceptance.**
-The current work connects construction to distributed quality repair and corrects
-bounded geometric integration. Validation46 passes all selected integration checks, including positive sphere weights
-and second moments. Cubic Euler/RANS still fails its repair work limit. Validation47
-corrects overcharging of optimizer work: all 12 focused cases pass, including
-curved Euler/RANS transfer and reload. Connected serial qualification passes 125 cases and 1,082,524 assertions; six-rank MPI aborts on a four-point sphere imported across six ranks. Validation48
-fixes that empty-rank partitioning path: the reproducer passes on all six ranks;
-connected MPI passes114/116 cases per rank. Distributed runtime repair and a
-collapse-filter counter assertion remain open. All-worker runtime also rejects.
+Validation51 passes all16 focused cases/2,532 assertions. The all-six-worker
+flat Euler/RANS workflows and collapse-filter checks pass. Cubic Euler/RANS still
+reaches the work limit; it now preserves q/J shape but retains size/geometry demands. It corrects how bounded candidate repair is scheduled:
+retain a shape-rejected candidate, finish ordinary construction attempts, then try
+repair before strict publication. The candidate remains tied to the exact current
+parent cells. Broader qualification and full M6 remain open.
 
-The final requirements remain q ≥ 0.20, J ≥ 0.05, metric edges ≤ 1.8, first height
-within 10%, geometry preservation, the configured 500k metric-complexity target,
-conservative transfer and restart. The 500k target is not a literal tetrahedron count.
+Required gates remain q ≥ 0.20, J ≥ 0.05, metric edges ≤ 1.8, first height within
+10%, geometry preservation, the configured 500k metric-complexity target,
+conservative transfer and restart. The target is not a literal tetrahedron count.
 Curvature uses `ADAP_HAUSD` in mesh units, independently of h0.
 
-## Checkpoints
+## Local checkpoints
 
-| Local checkpoint | Change | What the evidence establishes |
+| Checkpoint | Change | Validation status |
 | --- | --- | --- |
-| `fdb6ad2683` | Persisted curved import and original-source runtime queries | Small cubic Euler/RANS workflows complete with conservative BDF2 accounting and SU2/CGNS reload. Full M6 remains separate. |
-| `79bfba6f8f` | Reuse the collision search while retaining exact contact checks | Connected serial/MPI checks pass. Full M6 validation41 still rejects its private mesh. |
-| `e398807a2c` | Reactivate curved demands after neighboring edits; admit compatible concurrent proposals | 105 serial cases, 105 cases per MPI2 rank and all-worker curved runtime checks pass. Two simultaneous commits are exercised. Full M6 validation43 fails final acceptance. |
-| `c02010b08d` — WIP | Connect validity-only construction and bounded point-placement repair; revise radial integration | Preserves failed M6 and validation44 evidence. Subsequent validation45 still fails, as recorded below. This is not a validated capability checkpoint. |
-| `895ab7274a` — import fix verified | Handle empty initial FVM graph ranks | Four-point import passes on six ranks. Connected MPI repair failures are preserved, not marked complete. |
-| `4933586627` — focused validation passes | Correct work accounting at both optimizer repair callers | 12 focused cases pass, including curved Euler/RANS transfer/reload. Connected serial/MPI and full M6 remain pending. |
-| `3deed0ca3c` — WIP | Connect bounded topology repair and weighted radial integration; add this companion | Validation46 passes 21/22 cases. Integration defects are fixed; cubic Euler/RANS still exhausts repair work. Final acceptance remains open. |
+| `fdb6ad2683` | Persisted curved import and original-source runtime queries | Small cubic Euler/RANS transfer and SU2/CGNS reload pass at this baseline. |
+| `79bfba6f8f` | Reuse collision searches, retaining exact contact checks | Connected checks pass; full M6 validation41 rejects. |
+| `e398807a2c` | Reactivate curved demands; admit compatible concurrent proposals | 105 serial cases, MPI2 and all-worker runtime pass; full M6 validation43 rejects. |
+| `c02010b08d` — WIP | Connect validity-only construction and bounded point placement | Validation44/45 failures preserved; not an accepted capability. |
+| `3deed0ca3c` — WIP | Bounded topology repair and weighted radial integration | Validation46 fixes integration; cubic runtime still fails. |
+| `4933586627` | Charge actual optimizer work and refund unused reservations | Validation47 serial passes; later six-rank qualification exposes further failures. |
+| `895ab7274a` | Handle empty initial FVM graph ranks | Four-point import passes on six ranks. Distributed repair failures remain. |
+| `7113fd984d` — WIP | Couple bounded candidate repair to strict construction admission | Builds; validation50 fails runtime and a fixed-cell-count assertion. Validation51 correction is uncommitted. |
 
-Connected changes in validation46:
+`72c4684264` preserves the repair-accounting evidence and links its checkpoint.
+Documentation-only commits may follow an implementation checkpoint.
 
-- Replace the new single-point search with the existing bounded topology optimizer
-  for repair cavities. It can swap edges/faces and collapse interior vertices;
-  cavity boundaries remain fixed. Exact interface, height and frozen-field checks
-  still decide whether a proposal can proceed.
-- Align validity-only repair with the optimizer's minimum normalized q/J objective.
-  Final quality thresholds and the changed-edge excess constraint remain unchanged.
-- Integrate the quadratic collapse Jacobian in the two-point quadrature weights,
-  preserving polynomial moments. Avoid cancellation that produced zero weights at
-  rounded endpoints. Retain the higher-order error checks and existing work limits.
-
-## Latest evidence and failures
+## Evidence and remaining failures
 
 | Campaign | Result | Consequence |
 | --- | --- | --- |
-| Full M6, validation43, MPI2 | Rejected at the 1800-second native limit: 26,567 private edits; 218,099 cached invalid cells. 238,305 metric trials refused intermediate shape. | Scheduling improvements alone do not complete construction. The accepted CFD state is retained. |
-| Validation44 | Build passes. Repair 10/11, volume 8/10 and connected serial 104/105 cases pass. | Fix the mapped fixture's missing tolerance; preserve planar integration; address sphere point usage and curved-runtime repair cost. |
-| Validation45 | Build passes. Focused checks: 19/22 cases, 1,066,854/1,066,866 assertions pass. | The mapped fixture and planar complexity regression are fixed. Sphere density/volume/first moments finish within the cap, but eight zero weights and a second-moment regression remain. Cubic Euler/RANS still exhaust repair work with seven invalid cells. |
-| Validation47 connected | Serial125 cases/1,082,524 assertions pass. MPI6 aborts in a four-point sphere import before completing the campaign. | Empty initial graph ranks reach ParMETIS; validation48 fixes this production import path. No full M6 run started. |
-| Validation47 focused | Build and 12/12 cases, 2,183 assertions pass. | Curved Euler/RANS completes with zero invalid cells and work1,180/4,096. Connected serial/MPI and full M6 remain required. |
-| Validation46 | Build passes; 21/22 cases and 1,066,877/1,066,879 assertions pass. | All selected integration checks pass. Cubic Euler/RANS reaches work4096 with 14 invalid cells. No six-rank or full M6 result exists for this change. |
+| Full M6 validation43, MPI2 | Rejected at1800s:26,567 private edits;218,099 cached invalid cells;238,305 intermediate shape refusals. | Scheduling alone does not complete construction. Original CFD state is retained. |
+| Validation46 | 21/22 focused cases pass. All selected integration cases pass, including positive sphere weights and second moments within the65536-point cap. | Cubic Euler/RANS still exhausts work4096. |
+| Validation47 | 12 focused cases/2,183 assertions; connected serial125 cases/1,082,524 assertions pass. | Actual work accounting fixes serial runtime. MPI6 then aborts on a four-point sphere import with empty graph ranks. |
+| Validation48 | Empty-rank reproducer passes on all6 ranks. Connected MPI passes114/116 cases per rank. | Cubic runtime exhausts4096 with3 active workers. With all6 active, affine runtime stalls with1 bad cell and cubic runtime exhausts4096. A collapse-filter counter fixture also fails. |
+| Validation49 diagnostic | Whole-mesh topology leaves the affine bad cell; one insertion/flip removes it. Cubic45 bad cells become34 with topology and88 with full interior repair. | Larger late repair alone is insufficient. Diagnostic meshes are not runtime acceptance. |
+| Validation50 | Build passes; focused14/16 cases,2,227/2,233 assertions pass. | Early candidate optimization starves ordinary joint placement:69 calls/0 accepted. Valid star repair creates32 cells; its fixture assumes12. |
+| Validation51 | Build and16 focused cases/2,532 assertions pass. All6 flat runtime and collapse-filter checks pass; cubic runtime rejects. | Retain one candidate for bounded repair after ordinary construction. Preserve all final gates; replace the star fixture's count restriction with an explicit volume check. |
 
-Validation47 refunds unused optimizer work using its actual trial count, at both
-resident and streamed repair callers. The reservation and global limit are unchanged;
-a runtime guard rejects any optimizer overrun. Build and all 12 focused cases pass (2,183 assertions). Both curved runtime cases
-finish refinement with zero invalid cells and work1,180/4,096. Broader serial passes 125 cases/1,082,524 assertions. Six-rank MPI aborts in initial partitioning of a four-point sphere (empty graph
-ranks). Validation48 preserves the already balanced linear distribution for this
-degenerate graph; ordinary graph partitioning remains unchanged. Build and the
-six-rank reproducer pass. Connected MPI passes114/116 cases per rank; curved
-Euler/RANS exhausts work4096 with three active workers. With all six active, affine
-cases stagnate with one invalid cell and curved cases exhaust work. The collapse
-filter counter fixture also needs diagnosis; its final mesh audit passes. No full
-M6 run starts until these failures are resolved.
-
-Validation49 adds bounded diagnostics to compare the existing optimizer on complete
-rejected test meshes. It changes no production repair algorithm or acceptance gate.
-The flat failure needs an interior insertion or boundary flip. The curved failure
-persists even with the whole-mesh optimizer: topology-only leaves34 bad cells;
-full interior repair leaves88. Validity-only construction accumulates damage that
-late repair cannot resolve within its bounds. Next: couple candidate construction
-to bounded repair before publication. Diagnostic output is not runtime acceptance.
-
-Validation50 implements bounded candidate repair before strict shape admission in
-both resident and streamed paths. It reuses swaps and interior insertion, retains
-the candidate boundary and parameter bindings, reserves new-node identities and
-refunds unused work immediately. No work limit or final gate increases. The collapse
-filter fixture retains its guaranteed local witness with two ownership groups and
-all ranks participating. The corrected build passes; focused serial checks11020
-are running. These changes remain unvalidated.
+The connected implementation reuses swaps and interior insertion, retains candidate
+boundary/parameter bindings, reserves separate new-node identities, and refunds
+unused work immediately. The global work limits and final gates are unchanged.
+The collapse-filter fixture keeps its known local witness on two ownership groups
+while every MPI rank participates; its original filter and mesh assertions remain.
 
 ## Next acceptance steps
 
-1. Resolve every focused failure above without increasing limits or weakening final gates.
-2. Run connected serial and six-rank MPI checks, including concurrent curved
-   transactions, final mesh checks, conservative transfer and reload.
-3. Reassess the difficult full M6 workflow under the agreed constraints. An accepted
-   Euler mesh is followed by the remaining RANS/BL integration and qualification.
+1. Resolve the focused runtime failures; verify final geometry, quality, volume,
+   solution transfer and reload.
+2. Pass connected serial and six-rank MPI qualification, including all-worker
+   concurrent curved transactions.
+3. Reassess full M6 under the agreed constraints. Accepted Euler adaptation precedes
+   the remaining RANS/BL integration and qualification.
 
-Other open DC-17/DC-18 requirements include changing-frame gradation, the M6
-complexity budget, general curved BL support/chord/quadrature consumers, FIRST_ROW
-surface-error demands, fitted-plane seam behavior and automatic curved initialization.
-The existing normal-only relaxation contract remains in force while the question
-about tangential relaxation outside the protected band is unanswered.
+Other open requirements: changing-frame gradation, M6 complexity normalization,
+curved BL support/chord/quadrature consumers, FIRST_ROW surface-error demands,
+fitted-plane seams and automatic curved initialization. The normal-only relaxation
+contract remains in force while tangential relaxation outside the protected band
+is an unanswered question.
 
 ## Detailed records
 
-- [Current handoff](HANDOFF_Codex.md): active job handle, resource limits and immediate next action.
+- [Current handoff](HANDOFF_Codex.md): active handle and immediate next action.
 - [Curved construction and failure history](Handbook/DC18_CURVED_SOURCE.md).
 - [DC-17/DC-18 completion handbook](Handbook/DC17_DC18_COMPLETION_2026_10_25.md).
-- [Validation43 result](integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/validation43/summary.json).
-- [Validation44 result](integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/validation44/summary.json).
-- [Validation45 result](integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/validation45/summary.json).
-- [Validation46 scope and status](integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/validation46/summary.json).
+- [Validation47](integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/validation47/summary.json).
+- [Validation48](integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/validation48/summary.json).
+- [Validation49 diagnostic](integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/validation49/summary.json).
+- [Validation50](integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/validation50/summary.json).
+- [Validation51](integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/validation51/summary.json).
 
-Checkpoints are local. Remote export remains pending the destination approval
-previously requested after automatic approval review rejected the push.
+Checkpoints are local. Remote export remains pending destination approval after
+an earlier automatic approval review rejected the push.

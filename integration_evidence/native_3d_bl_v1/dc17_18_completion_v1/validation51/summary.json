@@ -1,0 +1,39 @@
+{
+  "status": "terminal: focused passes; all6 flat runtime/collapse tests pass; cubic runtime still rejects",
+  "base_commit": "7113fd984d",
+  "prior_failure": "50 focused14/16; repeated candidate optimization consumes4096 before ordinary joint placement;69 calls/0 accepted. Valid interior-star mesh has32 cells, fixture assumes12.",
+  "changes": [
+    "Retain one shape-rejected private candidate keyed to exact current parent cell identities; use failed-shape score only for search priority",
+    "Try bounded candidate optimization once after ordinary construction/placement attempts; preserve strict shape and all final gates",
+    "Existing interior-star audit now permits inserted cells and explicitly checks physical volume1 alongside boundary/quality/identity checks"
+  ],
+  "acceptance": [
+    "Focused serial runtime/repair",
+    "All6-worker flat/cubic Euler/RANS transfer/reload",
+    "Connected serial/MPI then full M6"
+  ],
+  "build_session": 10434,
+  "initial_build_session": 51613,
+  "initial_build_exit": 1,
+  "initial_build_failure": "Test physical volume reduction used unsupported CPassiveComm long double; use existing double MPI reduction after extended-precision local sum.",
+  "build_exit": 0,
+  "verified_source_inputs": 990,
+  "runtime_pins": 19,
+  "focused_session": 14145,
+  "build_seconds": 88.64,
+  "build_largest_process_kib": 2889320,
+  "focused_exit": 0,
+  "focused_cases": 16,
+  "focused_assertions": 2532,
+  "focused_seconds": 23.09,
+  "curved_refine_work": 1504,
+  "curved_refine_invalid": 0,
+  "all_workers6_session": 24928,
+  "all_workers6_exit": 2,
+  "all_workers6_seconds": 21.65,
+  "all_workers6_cases_per_rank": 5,
+  "all_workers6_passed_per_rank": 4,
+  "terminal_pins_verified": true,
+  "all_workers6_failure": "Cubic Euler/RANS work4093/4096 with145 cells:17 have oversized edges,12 geometry error,7 both; all q/J shape gates pass. Geometry and metric proposals still compete by rank in dependency/contact reservations.",
+  "next": "Prefer geometric demands over conflicting metric demands consistently in initial, expanded/final dependency reservation and peer clearance; retain disjoint concurrency and every current-mesh veto."
+}

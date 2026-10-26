@@ -11,12 +11,17 @@ operators, q>=.20,J>=.05,edge<=1.8,h0 within10%, configured500k metric-complexit
 (not tet-count), geometry, conservative transfer and restart. Curvature uses
 ADAP_HAUSD in mesh units independently ofh0. No accepted full M6 exists.
 
-ACTIVE: validation50 focused11020 running. Builds25768/4417 terminal/pass. Do not
-edit pinned C++/binaries until terminal. Review correction restricts relocation
-counting to construction IDs: optimizer insertions are not moved wall apices.
-Evidence: integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/validation50.
-990 source inputs verified;19 runtime files pinned. Finish focused serial repair/runtime, then all-six-worker
-flat/cubic Euler/RANS. Only after those pass: connected serial/MPI and full M6.
+ACTIVE: no owned job.51 build10434/focused14145/all-worker24928 terminal; pins verify.
+Focused16 cases/2532 assertions pass,23.09s; serial cubic0 invalid,work1504/4096.
+All-worker6 flat Euler/RANS and collapse-filter cases pass. Cubic rejects at4093work:
+145cells,all q/J pass,17oversized-edge cells,12geometry cells,7both. No M6 started.
+NEXT52: geometric demands currently lose to lower-rank metric demands in dependency
+reservation and peer clearance, unlike serial geometry-first selection. Propagate
+geometry-first conflict priority through initial, expanded/final reservations and
+peer clearance; preserve disjoint concurrency, version/ownership checks and all
+current-mesh/exact-contact vetoes. Reverse-priority tests for dependency expansion
+and peer overlap/obstacles. Qualify all6 curved runtime, then broader suites/M6.
+Preserve51 evidence and code checkpoint before modifying pinned sources.
 
 Latest production checkpoint895ab7274a: empty initial FVM ranks fix; four-point sphere
 import passes on6 ranks.4933586627 fixed optimizer work accounting;47 serial125
@@ -27,7 +32,7 @@ whole-mesh topology cannot fix affine last cell; one insertion/flip can. Cubic45
 ->34 topology, ->88 full-interior/boundary at8-sweep cap, normalizedminimum0.0394.
 No diagnostic output is an accepted mesh. No full M6 run since43 (rejected1800s).
 
-50 connected implementation (uncommitted/unvalidated): Runtime Absolute shape policy;
+50 connected implementation checkpoint7113fd984d (WIP;51 correction uncommitted): Runtime Absolute shape policy;
 bounded optimizer repair of private candidates before publication, both resident and
 streamed paths. Swaps/insertion; no smoothing/boundary operations. Construction
 preserves old vertices; repair retains collapse. Candidate parameters/interface,
