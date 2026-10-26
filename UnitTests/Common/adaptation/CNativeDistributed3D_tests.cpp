@@ -3210,6 +3210,23 @@ TEST_CASE("Faceted composed proposals publish independent complete cavities conc
   MeshRecords("concurrent_composed_initial",world,input);MeshRecords("concurrent_composed_accepted",world,result.cells);
 }
 
+TEST_CASE("Conflicting composed refinements prioritize the global metric demand before rank", "[NativeConcurrentComposed3D]") {
+  World world;auto fixture=Box();
+  for(auto& c:fixture.patch.cells)for(auto& n:c.v)if(n.id==3)n.p.x=-1;
+  for(auto& f:fixture.facets)for(auto& n:f.v)if(n.id==3)n.p.x=-1;
+  const auto input=Partition(Rows(fixture.patch),world);const auto saved=Bytes(input);
+  const PlanarReference geometry(fixture.facets);const auto source=Uniform(input,{4,0,0,4,0,4});
+  const MetricComposition compose=[](Point,Tensor m){return m;};
+  EngineOptions options;options.maximum_rounds=1;options.timings=true;
+  options.edge_breakpoints=[](Point,Point){return std::vector<double>{0,1};};
+  const auto result=Refine(world,input,source,geometry,compose,options);
+  INFO(result.reason);CHECK(world.sum(int(result.stats.accepted))==1);
+  CHECK(world.sum(int(result.splits.size()))==1);
+  for(const auto& split:result.splits)CHECK((split.edge==Edge{3,6}));
+  CHECK(Bytes(input)==saved);CHECK(Audit(world,result.cells,fixture,8));
+  EngineReport(result,world,"global_priority_composed_refine");
+}
+
 TEST_CASE("Replicated composed refinement consumes one unique edge proposal", "[NativeConcurrentComposed3D]") {
   World world;const auto fixture=Box();const auto input=Partition(Rows(fixture.patch),world);
   const auto saved=Bytes(input);const PlanarReference geometry(fixture.facets);

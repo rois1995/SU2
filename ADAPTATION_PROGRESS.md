@@ -6,18 +6,16 @@ Updated: 2026-10-26. Detailed failures and provenance remain linked below.
 ## Current result
 
 **DC-17 and DC-18 remain open. No full M6 adaptation has passed final acceptance.**
-Validation51 passes all 16 focused cases and 2,532 assertions. With all six workers
-active, flat Euler/RANS workflows and collapse-filter checks pass. Cubic Euler/RANS
-still reaches the work limit: all cells satisfy q/J, but size and geometry demands
-remain. The correction retains one shape-rejected candidate, finishes ordinary
-construction attempts, then tries bounded repair before strict publication. The
-candidate stays tied to the exact current parent cells.
+Validation54 passes the full six-worker flat and cubic Euler/RANS workflows,
+including conservative BDF2 transfer and SU2/CGNS reload. All 11 selected cases
+pass on every rank. The curved workflow uses 1,975 of 4,096 work units: 1,750 for
+refinement and 225 for coarsening. The flat workflow uses 105 total. Full demand
+priority now precedes ownership in shared selection, dependency reservations and
+peer contact selection; independent proposals still commit concurrently.
 
-Validation52 addresses distributed conflict ordering: wall-geometry demands take
-precedence over conflicting metric-only demands. Validation52 passes all 16 serial cases and the six-rank priority/conflict tests.
-The curved runtime still exhausts work 4096: all 224 cells meet shape/size gates,
-but two faces exceed the surface tolerance (0.00125 against 0.001). Broader
-qualification and full M6 remain open.
+The focused priority tests also pass (4 cases, 31 assertions). Connected serial qualification passes 127 cases and 1,082,802 assertions.
+Connected MPI qualification also passes: 118 cases on each of six ranks.
+Full M6 is prepared but has not been rerun or accepted.
 
 Required gates remain q ≥ 0.20, J ≥ 0.05, metric edges ≤ 1.8, first height within
 10%, geometry preservation, the configured 500k metric-complexity target,
@@ -37,6 +35,7 @@ Curvature uses `ADAP_HAUSD` in mesh units, independently of h0.
 | `895ab7274a` | Handle empty initial FVM graph ranks | Four-point import passes on six ranks. Distributed repair failures remain. |
 | `7113fd984d` — WIP | Couple bounded candidate repair to strict construction admission | Builds; validation50 fails runtime and a fixed-cell-count assertion. Corrected in validation51. |
 
+| `4ffe4e507d` — WIP | Coalesce replicated concurrent edge demands | One-budget election passes; curved refinement completes, but subsequent coarsening exhausts remaining work. |
 | `2a214b1058` — WIP | Geometry-first distributed conflict priority | Serial and priority/conflict tests pass; six-rank cubic runtime retains two geometry violations. |
 | `b214ff210b` — WIP | Retain one candidate for bounded repair after ordinary construction | Validation51 serial and six-rank flat runtime pass; cubic six-rank runtime remains incomplete. |
 
@@ -53,6 +52,7 @@ Documentation-only commits may follow an implementation checkpoint.
 | Validation48 | Empty-rank reproducer passes on all six ranks. Connected MPI passes114/116 cases per rank. | Cubic runtime exhausts4096 with3 active workers. With all six active, affine runtime stalls with1 bad cell and cubic runtime exhausts4096. A collapse-filter counter fixture also fails. |
 | Validation49 diagnostic | Whole-mesh topology leaves the affine bad cell; one insertion/flip removes it. Cubic45 bad cells become34 with topology and88 with full interior repair. | Larger late repair alone is insufficient. Diagnostic meshes are not runtime acceptance. |
 | Validation50 | Build passes; focused14/16 cases,2,227/2,233 assertions pass. | Early candidate optimization starves ordinary joint placement:69 calls/0 accepted. Valid star repair creates32 cells; its fixture assumes12. |
+| Validation54 | Focused 4 cases/31 assertions and all-six-worker 11 cases per rank pass. | Flat and cubic Euler/RANS complete with transfer/reload; curved total work 1,975/4,096. Connected serial127 and MPI6 118 cases/rank pass; full M6 pending. |
 | Validation53 | MPI6 passes 9/10 cases per rank, including one-budget shared-edge election. | Curved refinement completes at work 4,066; coarsening exhausts its remaining 30. No accepted workflow yet. |
 | Validation52 | Serial 16 cases/2,532 assertions pass; MPI6 passes 8/9 cases per rank. Flat transfer/reload and priority checks pass. | Cubic improves to zero shape/size failures and two geometry failures; work limit remains unchanged. |
 | Validation51 | Build and16 focused cases/2,532 assertions pass. All six flat runtime and collapse-filter checks pass; cubic runtime rejects. | Retain one candidate for bounded repair after ordinary construction. Preserve all final gates; replace the star fixture's count restriction with an explicit volume check. |
@@ -95,10 +95,14 @@ is an unanswered question.
 - [Validation48](integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/validation48/summary.json).
 - [Validation49 diagnostic](integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/validation49/summary.json).
 - [Validation50](integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/validation50/summary.json).
+- [Validation54](integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/validation54/summary.json).
+- [Validation53](integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/validation53/summary.json).
 - [Validation52](integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/validation52/summary.json).
 - [Validation51](integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/validation51/summary.json).
 
 The user approved pushing checkpoints to `rois1995/SU2`, branch
-`codex/native-3d-bl`, on 2026-10-26. Push succeeded through `c093abefbd` on
+`codex/native-3d-bl`, on 2026-10-26. Push succeeded through `4ffe4e507d` on
 [the fork branch](https://github.com/rois1995/SU2/tree/codex/native-3d-bl).
-Validation53 is being checkpointed with its incomplete workflow result.
+Validation53 is checkpointed and pushed with its incomplete workflow result.
+Validation54 passes focused, all-worker and connected serial/MPI checks. Its
+implementation remains pinned for the pending full-M6 campaign.

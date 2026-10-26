@@ -1,0 +1,97 @@
+{
+  "status": "connected qualification complete: serial127, MPI6 118/rank, all-worker workflows pass; M6 pending",
+  "base_commit": "4ffe4e507d",
+  "changes": [
+    "Carry serial geometry-benefit/cell/edge and metric-length/edge ordering through existing shared proposal election",
+    "Convert sorted priority to existing reservation priority API at initial/expanded/final/contact stages",
+    "Preserve duplicate election, disjoint concurrency, all budgets and documented coarsening completion contract",
+    "Add shared-box test with global longest edge absent from rank0 initial ownership"
+  ],
+  "prior_failure": "53 Refine completes at4066 of4096; subsequent Coarsen exhausts remaining30. Class-only geometry priority still selects conflicting proposals by rank.",
+  "acceptance": [
+    "Global demand priority and duplicate election plus independent-cavity concurrency",
+    "All6 flat/cubic Euler/RANS transfer/reload with unchanged4096 work limit",
+    "Connected serial/MPI and full M6"
+  ],
+  "verified_source_inputs": 990,
+  "build_session": 64078,
+  "initial_build_session": 23366,
+  "initial_build_exit": 1,
+  "initial_build_failure": "Proposal ordering attempted unsupported long-double wire scalar. Use supported double for search priority only; geometric/metric certificates remain unchanged.",
+  "build_exit": 0,
+  "runtime_pins": 19,
+  "build_largest_process_kib": 2889780,
+  "build_elapsed": "5:34.48",
+  "focused_exit": 0,
+  "all_workers6_session": 89244,
+  "focused_cases": 4,
+  "focused_assertions": 31,
+  "all_workers6_exit": 0,
+  "all_workers6_cases_per_rank": 11,
+  "all_workers6_assertions": [
+    [
+      "521",
+      "11"
+    ],
+    [
+      "536",
+      "11"
+    ],
+    [
+      "550",
+      "11"
+    ],
+    [
+      "563",
+      "11"
+    ],
+    [
+      "509",
+      "11"
+    ],
+    [
+      "576",
+      "11"
+    ]
+  ],
+  "all_workers6_seconds": 102.02,
+  "curved_refine_work": 1750,
+  "curved_coarsen_work": 225,
+  "all_workers_pins_verified": true,
+  "serial_session": 34415,
+  "serial_exit": 0,
+  "serial_cases": 127,
+  "serial_assertions": 1082802,
+  "serial_seconds": 83.43,
+  "mpi6_session": 56906,
+  "mpi6_exit": 0,
+  "mpi6_cases_per_rank": 118,
+  "mpi6_assertions": [
+    [
+      "15956",
+      "118"
+    ],
+    [
+      "16631",
+      "118"
+    ],
+    [
+      "16103",
+      "118"
+    ],
+    [
+      "15735",
+      "118"
+    ],
+    [
+      "16843",
+      "118"
+    ],
+    [
+      "16856",
+      "118"
+    ]
+  ],
+  "mpi6_elapsed": "1:23.57",
+  "connected_pins_verified": true
+}

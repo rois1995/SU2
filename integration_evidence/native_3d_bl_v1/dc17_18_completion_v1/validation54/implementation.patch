@@ -1,0 +1,160 @@
+diff --git a/Common/src/adaptation/CNativeEngine3D.cpp b/Common/src/adaptation/CNativeEngine3D.cpp
+index adb4a18dfc..80a9eaa435 100644
+--- a/Common/src/adaptation/CNativeEngine3D.cpp
++++ b/Common/src/adaptation/CNativeEngine3D.cpp
+@@ -87,10 +87,13 @@ bool SameSkin(const Patch& old,const Patch& fresh) {
+   for(const auto& face:before)for(Id id:face)if(!Same(a.at(id),b.at(id)))return false;
+   return true;
+ }
+-struct Choice { Edge edge{}; EdgeMeasure measure; bool active = false; Feature feature; bool geometric=false; };
++struct Choice {
++  Edge edge{};EdgeMeasure measure;bool active=false;Feature feature;bool geometric=false;
++  long double priority_score=0;Id priority_cell=0;unsigned reservation_priority=0;
++};
+ struct ProposalKey {
+-  Edge edge{};int rank=0;size_t slot=0;bool geometric=false;
+-  template<class S> void Fields(S& s){s(edge,rank,slot,geometric);}
++  Edge edge{};int rank=0;size_t slot=0;bool geometric=false;double score=0;Id cell=0;
++  template<class S> void Fields(S& s){s(edge,rank,slot,geometric,score,cell);}
+ };
+ class Selection {
+  public:
+@@ -144,12 +147,12 @@ class Selection {
+     }
+     if (!geometry_queue.empty()) {
+       const auto key=std::get<2>(*geometry_queue.begin());
+-      return {key,edges.at(key).measure,true,{},true};
++      return {key,edges.at(key).measure,true,{},true,std::get<0>(*geometry_queue.begin()),std::get<1>(*geometry_queue.begin())};
+     }
+     if (queue.empty()) return {};
+     const auto key = queue.begin()->second;
+     Edge canonical=key; std::sort(canonical.begin(),canonical.end());
+-    return {key,edges.at(canonical).measure,true,{}};
++    return {key,edges.at(canonical).measure,true,{},false,Priority(edges.at(canonical).measure.length)};
+   }
+   std::vector<Choice> Batch(const Owned& working, size_t limit) {
+     std::vector<Choice> result;
+@@ -521,23 +524,33 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
+     try {
+       if(choices.size()>MaximumCandidateBatch)throw std::logic_error("Native edge proposal table exceeds its bound.");
+       std::vector<ProposalKey> local;
+-      for(size_t i=0;i<choices.size();++i)local.push_back({choices[i].edge,world.rank,i,choices[i].geometric});
++      for(size_t i=0;i<choices.size();++i)local.push_back({choices[i].edge,world.rank,i,choices[i].geometric,
++          double(choices[i].priority_score),choices[i].priority_cell});
+       to.assign(world.size,local);
+     }catch(const std::exception& e){failure.Set(2,0,e.what());}
+     if(!vote(failure))return false;bool admitted=false;
+-    const auto all=world.exchange(to,&admitted,options.memory_ceiling,
++    auto all=world.exchange(to,&admitted,options.memory_ceiling,
+         transfer_memory::Add(bytes(),source.ResidentBytes(),directory.ResidentBytes(),scratch));
+     if(!admitted){result.reason="Native edge proposal exchange exceeds storage.";return false;}
+     try {
++      if(all.size()>std::numeric_limits<unsigned>::max())throw std::logic_error("Native edge proposal ordering exceeds its bound.");
++      for(const auto& key:all)
++        if(key.rank<0 || key.rank>=world.size || key.slot>=MaximumCandidateBatch || key.edge[0]==key.edge[1] || !std::isfinite(key.score))
++          throw std::logic_error("Invalid native edge proposal identity/priority.");
++      // Demand priority precedes ownership; this score orders search, never certifies a mesh.
++      std::sort(all.begin(),all.end(),[](const auto& a,const auto& b) {
++        return std::make_tuple(!a.geometric,a.score,a.cell,a.edge,a.rank,a.slot)<
++               std::make_tuple(!b.geometric,b.score,b.cell,b.edge,b.rank,b.slot);
++      });
+       std::vector<Choice> unique;
+       for(size_t i=0;i<choices.size();++i) {
+-        const auto owner=std::make_tuple(!choices[i].geometric,world.rank,i);bool duplicate=false;
+-        for(const auto& key:all) {
+-          if(key.rank<0 || key.rank>=world.size || key.slot>=MaximumCandidateBatch || key.edge[0]==key.edge[1])
+-            throw std::logic_error("Invalid native edge proposal identity.");
+-          duplicate=duplicate || (key.edge==choices[i].edge && std::make_tuple(!key.geometric,key.rank,key.slot)<owner);
++        const auto owner=std::find_if(all.begin(),all.end(),[&](const auto& key){return key.edge==choices[i].edge;});
++        if(owner==all.end())throw std::logic_error("Missing native edge proposal.");
++        if(owner->rank!=world.rank || owner->slot!=i)++stats.proposal_duplicates;
++        else {
++          if(concurrent_refine)choices[i].reservation_priority=unsigned(owner-all.begin());
++          unique.push_back(choices[i]);
+         }
+-        if(duplicate)++stats.proposal_duplicates;else unique.push_back(choices[i]);
+       }
+       choices.swap(unique);
+     }catch(const std::exception& e){failure.Set(2,0,e.what());}
+@@ -1591,7 +1604,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
+       {
+         Timer timer(stats.reservation_seconds,options.timings);
+         chosen=directory.Reserve(imported,choice.active,result.reason,options.memory_ceiling,
+-            transfer_memory::Add(bytes(),source.ResidentBytes()),choice.geometric?0u:1u);
++            transfer_memory::Add(bytes(),source.ResidentBytes()),choice.reservation_priority);
+         stats.conflicts+=choice.active && !chosen;
+         if (!world.sum(chosen)) ready=false;
+       }
+@@ -2097,7 +2110,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
+         if(!(ready=vote(failure)))return false;
+         bool reserved=false;
+         {Timer timer(stats.reservation_seconds,options.timings);
+-          reserved=directory.Reserve(imported,search || approved,result.reason,options.memory_ceiling,transfer_memory::Add(bytes(),source.ResidentBytes(),private_scratch),choice.geometric?0u:1u);}
++          reserved=directory.Reserve(imported,search || approved,result.reason,options.memory_ceiling,transfer_memory::Add(bytes(),source.ResidentBytes(),private_scratch),choice.reservation_priority);}
+         if((search || approved) && !reserved) {
+           if(result.reason=="Native 3D conflicting dependency reservation.") {
+             ++stats.conflicts;
+@@ -2219,7 +2232,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
+         bool reserved=false;
+         {Timer timer(stats.reservation_seconds,options.timings);
+           reserved=directory.Reserve(imported,strip || wallSplit,result.reason,options.memory_ceiling,
+-              transfer_memory::Add(bytes(),source.ResidentBytes(),private_scratch),choice.geometric?0u:1u);}
++              transfer_memory::Add(bytes(),source.ResidentBytes(),private_scratch),choice.reservation_priority);}
+         if((strip || wallSplit) && !reserved) {
+           if(concurrent && result.reason=="Native 3D conflicting dependency reservation.")++stats.conflicts;
+           else failure.Set(1,0,"Native3D strip lost its complete-star reservation.");
+@@ -2750,7 +2763,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
+         if(!(ready=vote(failure)))return finish();
+         if(!world.maximum(joint))break;
+         const bool reserved=directory.Reserve(imported,joint,result.reason,options.memory_ceiling,
+-            transfer_memory::Add(bytes(),source.ResidentBytes(),private_scratch),choice.geometric?0u:1u);
++            transfer_memory::Add(bytes(),source.ResidentBytes(),private_scratch),choice.reservation_priority);
+         CLocalFailure reservation_failure;
+         if(joint && !reserved) {
+           if(concurrent && result.reason=="Native 3D conflicting dependency reservation.")++stats.conflicts;
+@@ -2910,7 +2923,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
+     if(curved && world.maximum(surface_edit)) {
+       const bool prior=approved;bool deferred=false;
+       if(!directory.Clearance(working,old,fresh,approved,result.reason,options.memory_ceiling,
+-          transfer_memory::Add(bytes(),source.ResidentBytes(),private_scratch),&deferred,choice.geometric?0u:1u))return finish();
++          transfer_memory::Add(bytes(),source.ResidentBytes(),private_scratch),&deferred,choice.reservation_priority))return finish();
+       if(deferred){chosen=false;++stats.conflicts;++stats.rejected;++stats.proposal_deferred;}
+       else if(prior && !approved)geometry_trial(false);
+     }
+@@ -2931,7 +2944,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
+       if(!vote(final_failure))return finish();
+       ++stats.final_reservations;
+       const bool admitted=directory.Reserve(imported,approved,result.reason,options.memory_ceiling,
+-          transfer_memory::Add(bytes(),source.ResidentBytes(),private_scratch),choice.geometric?0u:1u);
++          transfer_memory::Add(bytes(),source.ResidentBytes(),private_scratch),choice.reservation_priority);
+       if(approved && !admitted) {
+         if(result.reason=="Native 3D conflicting dependency reservation.") {
+           approved=false;chosen=false;++stats.conflicts;++stats.rejected;++stats.proposal_deferred;
+diff --git a/UnitTests/Common/adaptation/CNativeDistributed3D_tests.cpp b/UnitTests/Common/adaptation/CNativeDistributed3D_tests.cpp
+index cfa19188cf..a59b6d4b97 100644
+--- a/UnitTests/Common/adaptation/CNativeDistributed3D_tests.cpp
++++ b/UnitTests/Common/adaptation/CNativeDistributed3D_tests.cpp
+@@ -3210,6 +3210,23 @@ TEST_CASE("Faceted composed proposals publish independent complete cavities conc
+   MeshRecords("concurrent_composed_initial",world,input);MeshRecords("concurrent_composed_accepted",world,result.cells);
+ }
+ 
++TEST_CASE("Conflicting composed refinements prioritize the global metric demand before rank", "[NativeConcurrentComposed3D]") {
++  World world;auto fixture=Box();
++  for(auto& c:fixture.patch.cells)for(auto& n:c.v)if(n.id==3)n.p.x=-1;
++  for(auto& f:fixture.facets)for(auto& n:f.v)if(n.id==3)n.p.x=-1;
++  const auto input=Partition(Rows(fixture.patch),world);const auto saved=Bytes(input);
++  const PlanarReference geometry(fixture.facets);const auto source=Uniform(input,{4,0,0,4,0,4});
++  const MetricComposition compose=[](Point,Tensor m){return m;};
++  EngineOptions options;options.maximum_rounds=1;options.timings=true;
++  options.edge_breakpoints=[](Point,Point){return std::vector<double>{0,1};};
++  const auto result=Refine(world,input,source,geometry,compose,options);
++  INFO(result.reason);CHECK(world.sum(int(result.stats.accepted))==1);
++  CHECK(world.sum(int(result.splits.size()))==1);
++  for(const auto& split:result.splits)CHECK((split.edge==Edge{3,6}));
++  CHECK(Bytes(input)==saved);CHECK(Audit(world,result.cells,fixture,8));
++  EngineReport(result,world,"global_priority_composed_refine");
++}
++
+ TEST_CASE("Replicated composed refinement consumes one unique edge proposal", "[NativeConcurrentComposed3D]") {
+   World world;const auto fixture=Box();const auto input=Partition(Rows(fixture.patch),world);
+   const auto saved=Bytes(input);const PlanarReference geometry(fixture.facets);
