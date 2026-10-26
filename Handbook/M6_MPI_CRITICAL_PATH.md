@@ -22,7 +22,8 @@ The test binary and PMPI library are pinned; no production numerical source chan
 The two-rank collector self-check verifies ten Allreduce calls plus one broadcast,
 their values, counts, datatype widths and elapsed bounds on each rank. Both M6
 replays complete with launcher exit zero and native work-budget rejection at 2,048.
-Ten selected per-rank work/state counters agree. This is not a bytewise mesh check.
+Ten selected per-rank work/state counters agree. This is not a bytewise mesh check
+and does not establish identical candidate sequences or execution trajectories.
 
 ## Observations
 
@@ -51,7 +52,7 @@ with 4.119–4.380 s in the plain run. Nested callbacks/source work and other us
 work are not fully classified; no whole-event useful-compute imbalance is reported.
 The full validation54 CPU scopes of approximately 330–344 s are a different run.
 
-## Overhead and bounds
+## Overhead and conditional accounting
 
 Matched plain/observed remesher durations are 89.999 / 62.723 s, delta -30.3%.
 On a shared host, with one run of each and no exclusive CPU allocation, this does
@@ -59,10 +60,12 @@ not estimate true profiling overhead. The difference must not be reported as an
 optimization or zero-overhead proof. All runs use six ranks, `--bind-to none`,
 nice 19 and single-threaded numerical libraries; inputs and operation counters match.
 
-For this fixed observed run only, removing every wrapped MPI duration while keeping
-each rank's remaining elapsed work unchanged leaves at least 43.925 s: an optimistic
-1.428x ceiling. Removing waits without changing causal work is generally impossible;
-this conditional bound is not a forecast for batching, repartitioning or full M6.
+For this fixed observed run only, subtracting every wrapped MPI duration while
+keeping each rank's remaining elapsed work unchanged gives a maximum residual of
+43.925 s and the quotient 62.723 / 43.925 = 1.428. This is a hypothetical accounting
+illustration, not an engineering speedup ceiling or forecast. Removing waits can
+change scheduling and subsequent work, invalidating the fixed-residual assumption.
+It does not bound batching, repartitioning or full-M6 performance improvements.
 
 The validation54 five-second profile (~74% inclusive MPI_Allreduce samples) is a
 CPU sample from a different stage, not contradictory to these full-prefix wall
@@ -72,7 +75,9 @@ durations and not a valid substitute for them.
 
 `diagnostic55/m6_mpi_callsites.csv` contains per-rank aggregated direct-callsite
 measurements; `observed/mpi_calls_rank*.csv` retains count/type/communicator details.
-`mpi_analysis.json` contains fractions, residuals and conditional bound assumptions.
+`mpi_analysis.json` contains fractions, residuals and the original conditional-bound
+field labels; those historical receipts retain their hashes. Interpret that quotient
+with the accounting limitations above.
 `bounded_records.json` retains per-phase native logs with raw line numbers;
 `m6_rank_phase_timings.csv` is the independently reconciled full-run baseline.
 

@@ -39,8 +39,8 @@ record does not print it; no numerical edge-cut claim is made here.
 
 The independent current-formula transcription sums to exactly the same 5,664,358.
 Its min/median/p95/max are 2/4/153/591, with zero weights at the 1024 cap and zero
-raw values above it. This is evidence against clipping as the explanation for this
-input. Exact equality of every individual production weight is not established
+raw values above it. This is replica-only evidence against clipping as the explanation
+for this input. Exact equality of every individual production weight is not established
 because those values were not exported. Per-rank clipping is therefore not claimed;
 the offline spatial-bin clipping counts are all zero.
 

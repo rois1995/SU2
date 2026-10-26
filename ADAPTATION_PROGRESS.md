@@ -45,7 +45,8 @@ Follow-up diagnostic55 is terminal (2026-10-26): see the linked
 [decision package](Handbook/M6_DIAGNOSTIC_DECISION.md), with construction/MPI/weight
 reports and raw receipts. Original coordinates/global IDs and all 61,330 metric
 tensors round-trip exactly. Weighted partition reduces proxy max/mean 4.699 to 1.08449;
-offline current-formula sum matches production, with no 1024 clipping (maximum 591).
+offline current-formula sum matches production in aggregate only. The replica has
+no 1024 clipping (maximum 591); production per-cell weights were not exported.
 Matched work-2048 six-rank replays have 476 private edits/879 shape refusals and no
 accepted mesh. Optional PMPI records 18.74–26.00 s/rank inside MPI over 62.72 s, with no
 trace overflow; useful compute/wait decomposition and true instrumentation overhead
@@ -53,6 +54,15 @@ remain unresolved. Independent original-P1 replay reproduces 16 positive-volume 
 refusals among 28 captured patches. No repaired accepted witness exists. Production
 code/gates unchanged. Next: the specific complete-context transaction experiment in
 the decision package, not another full-M6 timeout or partition API replacement.
+
+The supplied independent review of `f5e9456f06` is now
+[reconciled and preserved](Handbook/M6_REVIEW_RECONCILIATION.md). Corrected the
+exemplar table to show failed-cell and full-patch q/J separately, and relabeled
+the 1.428 timing quotient as hypothetical accounting rather than a speedup ceiling.
+The next replay starts with edge23754–24333 only and requires exact pre-transaction
+context before repair. Local transaction acceptance and final-patch edge acceptance
+are distinct. No production fix, new numerical validation or capability closure is
+claimed by this documentation checkpoint.
 
 ## Checkpoints
 

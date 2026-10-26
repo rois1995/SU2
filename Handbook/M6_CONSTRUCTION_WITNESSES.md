@@ -51,14 +51,21 @@ reason reproduces all sixteen refusals. The analysis also reports complete patch
 centroid minima separately. This is a diagnostic interpretation correction, not a
 production numerical change.
 
-`witness_rank2_0.json` (edge 23754–24333): two old cells, four proposed cells,
-q=0.1839719600100712 and J=0.042789630122176694. The subsequent captured snapshot
+The two exemplar records distinguish the first failed cell from full-patch minima:
+
+| Edge / snapshot | Old cells / proposed cells | Old patch min q / J | First failed cell | Failed-cell q / J | Proposed patch min q / J |
+|---|---:|---|---:|---|---|
+| 23754–24333 / `witness_rank2_0.json` | 2 / 4 | 0.232448088 / 0.062308272 | 3970075 | 0.183971960 / 0.042789630 | 0.183971960 / 0.042789630 |
+| 81–17687 / `witness_rank3_0.json` | 3 / 6 | 0.203673571 / 0.039710928 | 3946523 | 0.127629958 / 0.096229616 | 0.127629958 / 0.019286643 |
+
+Both proposed patches fail q and J. The second old patch already fails J against
+the target metric, making it a contrasting second witness rather than a q-only
+failure. These are centroid shape measures, not integrated edge/contact certificates.
+
+For edge 23754–24333, the subsequent captured snapshot
 for the same edge has five old cells and twelve proposal records, with retained-skin
 visibility refusal. These observed sizes do not hit the 64/128 caps; the full
 growth history was not captured, so no statement about the final limiting cap follows.
-
-`witness_rank3_0.json` (edge 81–17687) is a second surface example from a different
-rank, also with a strictly positive candidate and reproduced shape failure.
 
 For geometric refusals, `fresh` may be partial or retained from an earlier attempt.
 Positive orientations in such records do not establish that the intended replacement

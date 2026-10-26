@@ -22,7 +22,8 @@ plain93702, observed94465, independent witness8056 all terminal. Two fixed-work2
 MPI6 runs match ten counters/rank:476 private edits,879 shape refusals, no accepted mesh.
 Observed MPI-call18.74–26.00s/rank over62.72s; useful compute and overhead unresolved.
 28 snapshots,16 positive-volume shape failures independently reproduced. No repaired
-accepted witness. Offline proxy sum5,664,358 matches production; max591/no1024clipping.
+accepted witness. Offline proxy sum5,664,358 matches production in aggregate only;
+max591/no1024clipping applies to the replica, not verified production per-cell weights.
 Current partition already balances proxy max/mean4.699->1.08449. Details/pins under
 dc17_18_completion_v1/diagnostic55; raw metric/compiled profiler stay local.
 
@@ -35,8 +36,14 @@ Source990/runtime19,81 loaded MPI/library pins, inputs and connected receipts ve
 54 connected qualification remains passed: serial127/1,082,802; MPI6 118/rank;
 all-worker11/rank incl cubic Euler/RANS BDF2+SU2/CGNS reload; focused4/31.
 Implementation e9263060cf and docs68621318f5 pushed to approved fork/branch.
-NEXT: complete-context transaction replay for edge23754–24333 and independent81–17687,
-as specified in the decision package. No generic audit, new repartitioner, relaxed
+Independent review of f5e9456f06 reconciled:
+[findings and implementation qualifications](Handbook/M6_REVIEW_RECONCILIATION.md).
+Witness table now separates failed-cell q/J from patch minima; MPI1.428 is only a
+hypothetical accounting quotient. No production defect/fix or new numerical run.
+NEXT: complete-context transaction replay for edge23754–24333 first; independent
+81–17687 only after faithful replay is established. Existing observer lacks required
+pre-transaction context; implementation remains open. Distinguish local transaction
+admission from final-patch edge acceptance. No generic audit, new repartitioner, relaxed
 gate or full1800s rerun. Failure checkpoint/assessment5f469f7800 already pushed.
 Do not add local fallbacks or raise limits blindly. M6 restart_adap_00000.dat
 contains exact original 61,330-node sensor metric (Metric_XX..ZZ,23 fields), usable

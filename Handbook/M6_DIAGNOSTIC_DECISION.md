@@ -24,6 +24,9 @@ or launch another full timeout campaign on the present evidence.
 
 This is a completed bounded evidence collection, not completion of the broader
 causal diagnosis, prediction calibration, full-M6 adaptation or DC-17/DC-18.
+The [independent review and reconciliation](M6_REVIEW_RECONCILIATION.md) confirms
+this next experiment and sharpens its acceptance criteria. It does not establish
+that these early failures cause the late full-M6 timeout.
 
 ## Baseline fact sheet
 
@@ -87,6 +90,7 @@ This bounded prefix does not reproduce the exact late state of validation54.
 Both bounded runs stop at exactly 2,048 work units, with 476 private edits and
 879 shape refusals. Ten selected operation/state counters match on every rank.
 No final mesh is accepted. Their rejected states were not compared byte for byte.
+Matched counters also do not establish identical candidate sequences or trajectories.
 The low-refusal ranks 0–1 produce no rejection witnesses in this prefix; no samples
 were invented. The late run's concentration on ranks 4–5 is not reproduced by this
 early prefix, so temporal representativeness remains limited.
@@ -112,12 +116,12 @@ Controlled equal-density rotated anisotropy changes the mismatch terms while
 leaving density unchanged. This confirms the diagnostic distinction, not runtime
 predictiveness. Calibration/holdout accuracy remains unavailable.
 
-**[INFERRED, conditional bound]** If every measured wrapped-MPI duration could be
-removed while each rank's remaining elapsed work stayed fixed, the observed event
-would still require at least 43.925 s. Its corresponding optimistic speedup ceiling
-is 1.428x. This is not achievable by simply improving weights, not a full-M6 bound,
-and not a network-only opportunity. Changes to the amount of work invalidate the
-assumption. Migration/rebuild/transfer costs must be included in any future benefit.
+**[HYPOTHETICAL ACCOUNTING]** Subtracting every measured wrapped-MPI duration while
+holding each rank's remaining elapsed time fixed gives a maximum residual of
+43.925 s and quotient 1.428. This is not an engineering speedup ceiling, a full-M6
+bound or a forecast. Coordination changes can change the work and scheduling,
+invalidating the assumption. Migration/rebuild/transfer costs must be included in
+any future measured benefit.
 
 ## One discriminating experiment
 
@@ -126,13 +130,29 @@ metric/geometry and external-contact/dependency context. Its initial 2-to-4-cell
 candidate has positive volumes but q=0.183972 and J=0.042790; the subsequent captured
 growth attempt reports that the point cannot see its retained skin.
 
-Use existing local reconstruction/optimizer facilities under unchanged limits.
-Compare strict admission with an isolated valid-intermediate search, requiring
-the same final shape, complete edge, geometry, source, interface/contact checks
-and rollback. Record the complete dependency set and obstruction history; the
-current callback does not supply ownership/version/external-contact records.
-Bound the investigation to this transaction and a second independent captured
-surface region (edge 81–17687), using a fixed work limit and no full-M6 campaign.
+First capture the exact pre-transaction state and every growth/repair attempt;
+the current rejected-trial callback lacks ownership/version/external-contact records.
+Do not interpret an incomplete snapshot as a replay. Strict replay must reproduce
+the original candidate sequence and failure classification before an alternative
+is evaluated. Use existing local reconstruction/optimizer facilities under unchanged
+limits, with at most two isolated validity-only provisional operations and rollback.
+
+Restore Absolute admission for the terminal local transaction and apply production
+`ValidateMetricChange` plus complete geometry, source, interface/contact and applicable
+height checks. Integrate every replacement/exposed edge. Separately report the stronger
+`ValidateMetricPatch` result: a production-admissible transaction can retain oversized
+edges under its progress rules; this is not final mesh acceptance. List all residual
+edges above 1.8. No production policy switch is authorized by this experiment.
+
+Start with edge 23754–24333 only. Apply the verified replay to independent edge
+81–17687 if needed afterward: its old patch already fails target-metric J, and its
+candidate fails both q and J (see the witness table). No full-M6 campaign.
+Use the review's bounded protocol: at most one new MPI6 prefix, work 2,048/native
+180 s/launcher 240 s; each replay branch at most 256 trials, two provisional operations,
+60 s CPU or wall, 1 GiB RSS, and existing 12-growth/64-old/128-new construction limits.
+Capture limits are 128 MiB per rank and 25 MiB output per witness. Truncation means
+missing evidence. Verify these limits against existing invariant/resource controls
+before execution; the protocol is not yet implemented.
 Budget one test-driver rebuild (the present build took about six minutes) and
 roughly two minutes per bounded replay on this host, not a guaranteed timing.
 
