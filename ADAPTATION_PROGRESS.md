@@ -14,24 +14,27 @@ repair passes strict q/J/edge, prescribed interface and external contact: q=.244
 J=.0532005,edge=1.5983623 after1 move/12 trials. It still owes surface approximation;
 this is a LOCAL repair witness, never full-mesh acceptance.
 
-Build12 passed with933 unchanged pins. The affected connected check remains68/69
-cases (12,928/12,930 assertions); curved runtime Euler/RANS reach quality but stop
-at4096 work with6 geometry-demand/153 quality-demand cells and no oversized edges.
-No acceptance gate or work limit changed.
+Build13 passed1069.09s with933 unchanged pins. Its connected campaign is incomplete:
+exit134 after246.91s,44/46 reached cases pass,3978/3981 assertions. Both curved
+runtime variants now finish Refine in~1.89s with173 cells and zero cached invalid
+cells, using157work. Coarsen then spends~118s alternating removals and quality
+reconstruction:292 removal publications versus279–280 quality patches, ending
+118/128cells. Phase resets lose blocked-collapse state, and combined-pass progress
+needs a proper criterion. No construction quality floor will be reinstated.
+A separate new fixture abort is a missing cyclic index at the last ring segment.
 
-Full M6 Euler `staged57/m6_runs/euler_build12`, session43478, is terminal REJECT
-(solver exit0;365.99s wall/306.7s native; native event not accepted). It used the
-unchanged validation54 configuration:6 ranks,500k complexity,native1800s,
-outer2400s. Construction stopped before quality because changed-star notification
-exceeded scan budget4096, after19,658 private edits across372,631 cells with165,439
-cached construction demands. Pins are unchanged and original CFD state retained.
-Seed max-star88 vs quality capacity64 and uneven changed-star scheduling are
-diagnosis only, not validated fixes. Build13/session1413 is active (one worker,933 source pins); sources/helpers are frozen. Connected frontier scheduling, descending changed-edge size admission and complete coordinate-star transactions are implemented but unvalidated; see the staged handbook. Prior broad/focused receipts
-remain preserved; no milestone is closed and no full-mesh acceptance is claimed.
-See [staged implementation](Handbook/STAGED_NATIVE_ADAPTATION.md). Curved chart
-mobility, distributed qualification and accepted full M6 remain open.
-Latest pushed: `d0b5f7b70c` (WIP). External-SSD references are copied locally and
-hash-verified: [archive record](Handbook/ADAPTATION_REFERENCE_INPUTS.md).
+Full M6 Euler `staged57/m6_runs/euler_build13`, session70428, is actively running
+on6 ranks under unchanged500k complexity/native1800s/outer2400s and all final gates.
+Sources/helpers remain frozen. The diagnosed coarsening correction and fixture fix are being implemented in an isolated sparse checkout; they are not yet integrated or tested. Previous build12 full M6 rejected during construction
+before quality at306.7s native on the4096 changed-star notification limit, after
+19,658 edits/372,631 cells; original CFD state and pin provenance were preserved.
+
+Latest pushed: `536025f6e4` (WIP). It connects fair global repair scheduling,
+construction frontier generations and atomic complete coordinate-star movement.
+No milestone is closed. See [staged implementation](Handbook/STAGED_NATIVE_ADAPTATION.md).
+Curved cross-chart mobility, distributed qualification and accepted full M6 remain
+open. External-SSD references are copied locally and hash-verified:
+[archive record](Handbook/ADAPTATION_REFERENCE_INPUTS.md).
 
 Validation54 is historical evidence predating the current code. Validation54 passes the full six-worker flat and cubic Euler/RANS workflows,
 including conservative BDF2 transfer and SU2/CGNS reload. All 11 selected cases

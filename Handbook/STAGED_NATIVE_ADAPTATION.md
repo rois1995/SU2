@@ -348,9 +348,43 @@ uses paged global contact checks with one atomic publication. General topology
 cavities remain64/128. Larger-star direct movement is being integrated; it does
 not yet provide arbitrary large-star retriangulation or cross-chart mobility.
 New local tests cover88/176-cell movement and distributed paged publication with
-resource-veto rollback. Build13/session1413 is active with933 frozen source pins; these changes are not yet qualified; no acceptance
+resource-veto rollback. Build13/session1413 passed1069.09s with933 unchanged pins; connected_fix/session10316 failed/aborted; full M6 euler_build13/session70428 is active; these changes are not yet qualified; no acceptance
 checkbox is closed.
 
 Build13 includes both the test driver and CFD executable. Runtime qualification will
 first exercise the connected curved case and new fairness/sweep/coordinate paths,
 then the unchanged full M6 six-rank target. No second heavy job runs concurrently.
+
+### Build13 connected result and next diagnosis
+
+Build13 passed1069.09s,933 pins unchanged. Connected_fix/session10316 terminated
+with exit134 after246.91s, pins unchanged:44/46 reached cases pass,3978/3981
+assertions pass. Campaign is incomplete. The new LargeBoundaryCoordinateStar
+fixture accesses middle[j+2] atj42 in a44-node ring; wraparound is missing. This
+is a fixture defect, not an observed production crash. Fix awaits source release.
+
+Both curved variants now finish Refine in~1.89s,101rounds/81edits,173cells and no
+cached invalid cells, using157/4096work. Entire workflows still reject: Coarsen
+spends the remaining~118s,292 removal publications opposed by279–280 accepted
+quality patches, ending118/128cells. About52k collapse filters consume90s. This
+proves opposing removal/reconstruction work, not a zero-round hang. Blocked
+construction directions are discarded at phase census despite exact support
+change tracking. Preserve that lifecycle and assess net progress across the
+complete coarsen→quality pass; do not restore construction quality floors.
+
+Full M6 `staged57/m6_runs/euler_build13`, session70428, is now running diagnostically
+on this unchanged build:6ranks,500k complexity,native1800s,outer2400s,all gates
+unchanged. Preflight63.9% CPUidle,36.9GB available RAM,no other heavy jobs. Sources
+and helpers remain frozen. This run does not qualify the failed connected campaign.
+
+An isolated sparse checkout, `dc17_18_completion_v1/coarsen_closure_worktree`, based
+on536025f6e4, now holds implementation work while M6 runs. Main933 pins were
+reverified unchanged. The boundary fixture modulo fix is present there only.
+The connected next design treats construction plus quality closure as one
+speculative coarsening trial, with a strict checkpoint and net cell reduction.
+On a completed but unproductive closure, restore the checkpoint and retire only
+actually attempted directions for its unchanged support; collateral retired but
+unattempted directions must return. Time/work exhaustion still rejects, and
+construction gains no q/J floor. Preserve blocked directions across phase
+censuses and use existing support-change notifications to reactivate them.
+This design is in implementation, not validated or integrated into the running binary.

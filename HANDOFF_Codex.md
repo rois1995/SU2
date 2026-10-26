@@ -15,25 +15,36 @@ operators, q>=.20,J>=.05,edge<=1.8,h0 within10%, configured500k metric-complexit
 (not tet-count), geometry, conservative transfer and restart. Curvature uses
 ADAP_HAUSD in mesh units independently ofh0. No accepted full M6 exists.
 
-Build13/session1413 is active (one worker,933 source pins); sources/helpers are frozen. Connected frontier scheduling, descending changed-edge size admission and complete coordinate-star transactions are implemented but unvalidated; see the staged handbook. Full M6 Euler `staged57/m6_runs/euler_build12`, session43478,
-is terminal REJECT: solver exit0,365.99s wall/306.7s native, native event not
-accepted; source/input/runtime pins unchanged and original CFD state retained. The
-unchanged validation54 config used6 ranks,nice19,threads1,500k complexity,
-native1800s and outer2400s. Construction stopped before quality with `changed-star
-notification exceeds scan budget4096`:19,658 private edits,372,631 cells and
-165,439 cached construction demands. See its diagnosis, assessment, pins and run log
-under `staged57/m6_runs/euler_build12`.
+ACTIVE: full M6 Euler `staged57/m6_runs/euler_build13`, session70428, diagnostic
+run on6 ranks with unchanged500k complexity/native1800s/outer2400s and final gates.
+Sources/helpers are FROZEN; no other heavy job.
+Implementation continues ONLY in isolated sparse checkout
+`integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/coarsen_closure_worktree`
+(detached536025f6e4). Main933 pins verified unchanged after checkout creation.
+Engine agent owns combined coarsen/quality checkpoint progress there; boundary
+fixture wraparound is fixed there. No staging build; integrate only after M6 is terminal. Build13 passed1069.09s with933
+unchanged pins. Check its owned handle before editing any C++ or starting jobs.
 
-Build12's connected qualification remains68/69 cases,12928/12930 assertions
-(session66158; pins unchanged). Curved runtime Euler/RANS reach quality but stop at
-4096 work: remaining6 geometry-demand/153 quality-demand cells, no oversized edges.
-Diagnosis, not a validated correction: seed maximum star88 exceeds current quality
-capacity64, while changed-star notification scans become uneven and exceed their
-cap. Do not raise budgets or add local fallback variants. Reconsider complete
-quality coordination and changed-star scheduling. No acceptance milestone is
-closed; broad build10 failures and prior passing receipts remain preserved.
-Saved M6 offline3 passes LOCAL q/J/interface/contact repair with surface debt; no
-full M6 acceptance. External-SSD inputs are archived locally; see below.
+Checkpoint536025f6e4 implements fair global repair service, construction frontier
+generations and complete coordinate-star movement beyond64 cells, with existing
+scan/byte bounds and atomic paged contact/publication. Connected_fix/session10316
+is terminal FAIL/abort:44/46 reached cases pass,3978/3981 assertions;246.91s,pins
+unchanged. The two curved variants now finish Refine in~1.89s,173cells,zero cached
+invalid cells,157work. Coarsen then churns between removal and quality reconstruction
+until118s:292 removal publications,279–280 quality patches,118/128 final cells.
+Phase resets discard blocked collapse directions; combined-pass net progress is
+also missing. Do not restore construction quality floors. A new Boundary fixture
+also needs cyclic indexing: middle[j+2] overruns its44-node ring atj42. Fix only
+after the current M6 handle is terminal. Campaign is incomplete, not qualified.
+
+Prior full M6 build12 rejected during Construction at306.7s native, before quality:
+changed-star notification exceeded4096 after19,658 edits/372,631 private cells.
+Original CFD state retained; all pins unchanged. Seed stars already reached88,
+beyond the then64-cell movement path. Full M6 has never passed acceptance.
+See [staged implementation and receipts](Handbook/STAGED_NATIVE_ADAPTATION.md).
+Prior build12 connected68/69, broad build10 failures and older passing evidence
+remain historical. Saved M6 offline3 is only a LOCAL repair witness with surface
+debt. External-SSD inputs are archived locally; see below.
 
 LATEST USER STEERING: construction must not measure/rank q/J or require shape
 progress. J>=.001 is also a quality gate, not geometric validity. Construction
@@ -55,7 +66,8 @@ allow measured provisional deficits while retaining geometric clearance.
 Curved cross-chart movement and full M6 acceptance
 remain open. Follow [connected scope](Handbook/STAGED_NATIVE_ADAPTATION.md).
 
-Latest pushed checkpointd0b5f7b70c saves the geometry/size policy and accounting fixes.
+Latest pushed checkpoint536025f6e4 saves frontier generations, fair repair service and atomic complete coordinate-star movement; build13 passed; connected qualification failed; full M6 diagnostic is active.
+Checkpointd0b5f7b70c saves the geometry/size policy and accounting fixes.
 Checkpoint519a4813a2 saves useful quality passes, provisional-height
 admission, resumed coarsening and LOCAL saved-M6 evidence; build9 focused serial passes; broad qualification remains pending.
 Checkpoint36de990633 saves the explicit construction/improvement stages;
@@ -91,8 +103,8 @@ integration_evidence/build-integrated-v2/compile-tmp. Preserve terminal receipts
 source/runtime/input hashes. Build initial50 log/pins preserved separately.
 
 User explicitly approved pushes to rois1995/SU2 branch codex/native-3d-bl.
-Approval persists; no destination question is needed. Latest pushedd0b5f7b70c (WIP);
-full M6/session43478 is terminal REJECT; build13/session1413 is active; prior owned handles are terminal.
+Approval persists; no destination question is needed. Latest pushed536025f6e4 (WIP);
+full M6/session43478 is terminal REJECT; connected_fix/session10316 failed/aborted; full M6 euler_build13/session70428 is active; the build and prior owned handles are terminal.
 TODO intentionally untracked; progress companion tracked. Leave unrelated dc11/dc15
 logs and untracked planning files alone. Git status needs --ignore-submodules.
 [AGENTS.md](AGENTS.md) holds permanent cadence/architecture/resource instructions.
