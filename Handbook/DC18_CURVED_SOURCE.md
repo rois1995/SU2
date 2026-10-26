@@ -426,3 +426,29 @@ curved Euler/RANS exhausts4096. Source/runtime pins verify. No M6 started.
 Before expanding local fallbacks, compare the existing whole-mesh optimizer on
 these rejected small meshes to identify missing cavity coordination versus missing
 operator freedom. Diagnostic outcomes cannot establish accepted runtime meshes.
+
+Validation49 test-only full rejected-mesh diagnostics: build95165 passes105.92s;
+probe6364 terminal62.13s, expected runtime failure exit4. Affine full-mesh topology
+leaves1 bad cell; one interior insertion (8 operations) or boundary flip (7) resolves
+shape diagnostically. Cubic starts45 bad; topology leaves34 (729 work), full interior
+ends88 (3258 work), boundary-enabled88 (3092), both at8-sweep cap. Minimum normalized
+score remains0.0394.990 source/19 runtime pins verify. No acceptance claim or M6.
+This rejects the assumption that larger post-construction topology repair alone
+will fix arbitrary validity-only refinement. Next connected design: private split
+candidates receive bounded existing optimizer repair before publication, and must
+satisfy strict shape admission. Include insertion/smoothing with reserved unique
+node ranges, preserve fixed candidate interface/parameters, actual trial accounting,
+original-field remeasurement, height and all geometry gates. Reach resident and
+streamed callers. Test six-worker flat/cubic Euler/RANS first, then connected suite
+and full M6; do not merely add another late fallback or raise limits.
+
+Validation50 implementation: restore runtime Absolute shape admission; share existing
+optimizer swaps/interior insertion in private candidate validation, resident and
+streamed. Construction preserves existing vertices, no smoothing/boundary operators;
+repair retains collapse. Exact candidate boundary and parameter maps copied; original
+frozen field/geometry/height/changed-edge gates rechecked. Reserve160 extra node IDs
+per proposal separately from construction range; actual optimizer trial/node guards.
+Reserve work only in optimizer phase and immediately refund unused work, preventing
+unused reservations from starving joint placement. Cumulative160/global caps unchanged.
+The early-filter fixture uses its validated two-owner witness layout with all MPI
+ranks participating; retain every original assertion. Build pending/unvalidated.

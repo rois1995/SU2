@@ -7,6 +7,7 @@
 #include "TransferTestCase.hpp"
 #include "../../../Common/include/adaptation/CNativeImport3D.hpp"
 #include "../../../Common/include/adaptation/CNativeEngine3D.hpp"
+#include "../../../Common/include/adaptation/CNativeOptimize3D.hpp"
 #include "../../../Common/include/adaptation/CNativeRegionField3D.hpp"
 #include "../../../SU2_CFD/include/adaptation/CBarycentricTransfer.hpp"
 #include "../../../SU2_CFD/include/output/CMeshOutput.hpp"
@@ -2597,8 +2598,9 @@ TEST_CASE("Mapped native runtime completes a uniform target before conservative 
   su2activematrix sensor(current.Fine().GetnPointDomain(),6);
   for(size_t p=0;p<sensor.rows();++p)for(unsigned k=0;k<6;++k)sensor(p,k)=(k==0||k==3||k==5)?4.:0.;
   EngineOptions limits;limits.maximum_seconds=120;limits.timings=true;
-  if(curved)limits.rejected_state=[&](const Owned& owned,const PlanarReference& geometry,const std::string& why) {
-    std::ofstream out("cubic_runtime_rejected_"+std::to_string(rans)+"_"+std::to_string(world.rank)+".txt");
+  limits.rejected_state=[&](const Owned& owned,const PlanarReference& geometry,const std::string& why) {
+    const auto name=std::string(curved?"cubic":"affine")+"_runtime_rejected_"+std::to_string(rans);
+    std::ofstream out(name+"_"+std::to_string(world.rank)+".txt");
     out<<std::setprecision(17)<<why<<'\n';
     for(const auto& row:owned) {
       const auto& c=row.second.cell;const auto m=Measure({c.v[0].p,c.v[1].p,c.v[2].p,c.v[3].p},Tensor{4,0,0,4,0,4});
@@ -2608,9 +2610,34 @@ TEST_CASE("Mapped native runtime completes a uniform target before conservative 
         if(k%2)std::swap(p[1],p[2]);
         error=std::max(error,geometry.SurfaceError(row.second.physical[k].facet,p));
       }
-      if(m.mean_ratio>=.20 && m.minimum_scaled_jacobian>=.05 && m.maximum_edge<=1.8 && error<=.001)continue;
       out<<c.id<<" q="<<m.mean_ratio<<" J="<<m.minimum_scaled_jacobian<<" edge="<<m.maximum_edge<<" surface="<<error<<'\n';
       for(auto n:c.v)out<<n.id<<' '<<n.p.x<<' '<<n.p.y<<' '<<n.p.z<<'\n';
+    }
+    if(all && std::string(all)=="1" && std::getenv("SU2_NATIVE_MAPPED_REPAIR_PROBE")) {
+      if(CPassiveComm::Allreduce(uint64_t(owned.size()),CPassiveComm::Op::SUM,world.comm)>4096)
+        throw std::length_error("Runtime diagnostic mesh exceeds its gather bound.");
+      std::vector<std::vector<OwnedCell>> send(world.size);
+      for(const auto& row:owned)send[0].push_back(row.second);
+      const auto gathered=world.exchange(send);
+      if(world.rank==0) {
+        Owned whole;Id next_node=0,next_cell=0;
+        for(const auto& row:gathered){whole.emplace(row.cell.id,row);next_cell=std::max(next_cell,row.cell.id+1);
+          for(auto n:row.cell.v)next_node=std::max(next_node,n.id+1);}
+        const RegionMetric target([](Point){return Tensor{4,0,0,4,0,4};},
+            [](Point a,Point b){return 2*std::hypot((long double)a.x-b.x,(long double)a.y-b.y,(long double)a.z-b.z);});
+        std::ofstream probe(name+"_optimizer.txt");probe<<std::setprecision(17);
+        for(unsigned mode=0;mode<3;++mode) {
+          auto candidate=whole;auto node=next_node,cell=next_cell;OptimizeOptions options;
+          options.maximum_work=4096;options.maximum_seconds=5;options.cache_entries=8192;
+          options.boundary=mode==2;options.smoothing=options.insertions=mode>0;
+          OptimizeReport report;OptimizeMetricMesh(candidate,target,node,cell,options,report);
+          probe<<"mode="<<mode<<" before="<<report.bad_before<<" after="<<report.bad_after
+               <<" score="<<report.minimum_after<<" work="<<report.trials<<" stop="<<report.stop
+               <<" swaps="<<report.edge_removals+report.face_swaps<<" moves="<<report.moves
+               <<" insertions="<<report.shell_insertions+report.neighbourhood_insertions+report.length_insertions
+               <<" boundary="<<report.boundary_flips+report.boundary_collapses<<'\n';
+        }
+      }
     }
   };
   CNativeRemesher3D backend(reference,limits);const auto result=backend.Remesh(*config,current.Fine(),sensor);

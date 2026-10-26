@@ -29,6 +29,7 @@ Curvature uses `ADAP_HAUSD` in mesh units, independently of h0.
 | `79bfba6f8f` | Reuse the collision search while retaining exact contact checks | Connected serial/MPI checks pass. Full M6 validation41 still rejects its private mesh. |
 | `e398807a2c` | Reactivate curved demands after neighboring edits; admit compatible concurrent proposals | 105 serial cases, 105 cases per MPI2 rank and all-worker curved runtime checks pass. Two simultaneous commits are exercised. Full M6 validation43 fails final acceptance. |
 | `c02010b08d` — WIP | Connect validity-only construction and bounded point-placement repair; revise radial integration | Preserves failed M6 and validation44 evidence. Subsequent validation45 still fails, as recorded below. This is not a validated capability checkpoint. |
+| `895ab7274a` — import fix verified | Handle empty initial FVM graph ranks | Four-point import passes on six ranks. Connected MPI repair failures are preserved, not marked complete. |
 | `4933586627` — focused validation passes | Correct work accounting at both optimizer repair callers | 12 focused cases pass, including curved Euler/RANS transfer/reload. Connected serial/MPI and full M6 remain pending. |
 | `3deed0ca3c` — WIP | Connect bounded topology repair and weighted radial integration; add this companion | Validation46 passes 21/22 cases. Integration defects are fixed; cubic Euler/RANS still exhausts repair work. Final acceptance remains open. |
 
@@ -69,8 +70,19 @@ M6 run starts until these failures are resolved.
 
 Validation49 adds bounded diagnostics to compare the existing optimizer on complete
 rejected test meshes. It changes no production repair algorithm or acceptance gate.
-The comparison will identify whether local cavity limits or operator freedom block
-repair; diagnostic output cannot count as an accepted runtime mesh.
+The flat failure needs an interior insertion or boundary flip. The curved failure
+persists even with the whole-mesh optimizer: topology-only leaves34 bad cells;
+full interior repair leaves88. Validity-only construction accumulates damage that
+late repair cannot resolve within its bounds. Next: couple candidate construction
+to bounded repair before publication. Diagnostic output is not runtime acceptance.
+
+Validation50 implements bounded candidate repair before strict shape admission in
+both resident and streamed paths. It reuses swaps and interior insertion, retains
+the candidate boundary and parameter bindings, reserves new-node identities and
+refunds unused work immediately. No work limit or final gate increases. The collapse
+filter fixture retains its guaranteed local witness with two ownership groups and
+all ranks participating. The corrected build passes; focused serial checks11020
+are running. These changes remain unvalidated.
 
 ## Next acceptance steps
 

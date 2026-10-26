@@ -1,109 +1,64 @@
 # Codex handoff — current state, 2026-10-26
 
-Active request: keep implementing until the TODO and newly found defects are
-verified closed, beginning with DC-17/DC-18. Do not end with a WIP final while
-independent work remains. Keep [ADAPTATION_TODO.md](ADAPTATION_TODO.md) current.
-The [progress companion](ADAPTATION_PROGRESS.md) gives the concise checkpoint/result
-history and must stay current alongside the TODO. The [completion handbook](Handbook/DC17_DC18_COMPLETION_2026_10_25.md) preserves
-all diagnoses, failed trials, source/runtime provenance and current acceptance.
+User requests persistent implementation until DC-17/DC-18 and ensuing defects are
+verified closed. Do not end with WIP while independent work remains. Keep the local
+[TODO](ADAPTATION_TODO.md) and tracked [progress companion](ADAPTATION_PROGRESS.md)
+current. Detailed evidence/history: [curved source/construction](Handbook/DC18_CURVED_SOURCE.md)
+and [completion handbook](Handbook/DC17_DC18_COMPLETION_2026_10_25.md).
 
-Standing target: accepted full M6 Euler then RANS adaptation, general geometry/
-metric-driven operators, unchanged q>=.20, J>=.05, edge<=1.8, first height within
-10%, geometry, solution-transfer and restart gates. No accepted full M6 exists.
-User curvature decision: configured ADAP_HAUSD in mesh units, independent of h0
-and ramp. No implicit chord inference or silent tightening to h0.
+Target: accepted full M6 Euler then RANS adaptation, general metric/geometry-driven
+operators, q>=.20,J>=.05,edge<=1.8,h0 within10%, configured500k metric-complexity
+(not tet-count), geometry, conservative transfer and restart. Curvature uses
+ADAP_HAUSD in mesh units independently ofh0. No accepted full M6 exists.
 
-Current implementation checkpoint `4933586627` (focused repair/runtime passes;
-connected serial/MPI and full M6 pending). Prior `3deed0ca3c` preserves46 implementation. Previous validated scheduling/concurrency
-checkpoint `e398807a2c`; full M6 remains open.
-Full M6 curved-source/field qualification
-passes (validation32–34):450,221 source cells, all48,954 reference facets queried,
-293,724 directed chords, exact serial/MPI2 record identity including ownership.
-Persisted curved import, marker-name reordering, private geometry scoring and
-original-parent support are connected. Baseline43 small cubic Euler/RANS runtime meshes
-complete with conservative BDF2 accounting and SU2/CGNS reload. See
-[curved-source history and current design](Handbook/DC18_CURVED_SOURCE.md).
+ACTIVE: validation50 focused11020 running. Builds25768/4417 terminal/pass. Do not
+edit pinned C++/binaries until terminal. Review correction restricts relocation
+counting to construction IDs: optimizer insertions are not moved wall apices.
+Evidence: integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/validation50.
+990 source inputs verified;19 runtime files pinned. Finish focused serial repair/runtime, then all-six-worker
+flat/cubic Euler/RANS. Only after those pass: connected serial/MPI and full M6.
 
-Validated baseline43:105 serial cases,105 cases/rank on MPI2 and all-worker cubic
-runtime transfer/reload pass. Full M6 MPI2 is still rejected:26,567 private edits,
-218,099 cached invalid cells at1800s;238,305 shape refusals motivated runtime
-admission work. The [progress companion](ADAPTATION_PROGRESS.md) and curved-source
-handbook preserve41–44 failures, counters, timings and complete evidence paths.
+Latest production checkpoint895ab7274a: empty initial FVM ranks fix; four-point sphere
+import passes on6 ranks.4933586627 fixed optimizer work accounting;47 serial125
+cases/1,082,524 assertions pass.48 MPI6 passes114/116 cases/rank: cubic runtime
+work4096 and collapse-filter counter fail. All-worker48 affine stagnates with1 bad
+cell; cubic exhausts4096.49 diagnostic build95165/probe6364 terminal, pins verified:
+whole-mesh topology cannot fix affine last cell; one insertion/flip can. Cubic45bad
+->34 topology, ->88 full-interior/boundary at8-sweep cap, normalizedminimum0.0394.
+No diagnostic output is an accepted mesh. No full M6 run since43 (rejected1800s).
 
-Validation45 terminal: build66808 passes (790.59s, largest process4,092,364KiB).
-Focused6243 fails12 assertions/3 of22 cases (1,066,854/1,066,866 pass),42.77s.
-Mapped-star omission and planar complexity regression fixed. Hidden sphere now
-finishes density/volume/first moments within cap but has8 zero weights from endpoint
-rounding. Ordinary two-point radial integration breaks existing collapsed second
-moment (.00504901 vs.006). Cubic Euler/RANS still exhaust work4096 with7 invalid
-cells; reordering point-placement search is insufficient.989 source and19 runtime
-pins verify; no MPI/M6. Failed evidence preserved under45.
+50 connected implementation (uncommitted/unvalidated): Runtime Absolute shape policy;
+bounded optimizer repair of private candidates before publication, both resident and
+streamed paths. Swaps/insertion; no smoothing/boundary operations. Construction
+preserves old vertices; repair retains collapse. Candidate parameters/interface,
+original-field metrics, height, geometry and progress checks retained.160 extra node
+IDs separate from original construction range; actual trial/node guards. Reserve
+work only for optimizer phase, refund unused immediately; cumulative160/proposal and
+global limits unchanged. Collapse-filter fixture retains its two-owner local witness
+layout while all ranks participate; every original counter/mesh assertion retained.
+49 adds test-only complete rejected-cell dumps and optional bounded probe using
+SU2_NATIVE_MAPPED_REPAIR_PROBE with SU2_NATIVE_MAPPED_ALL_WORKERS=1. Preserve its
+failure evidence. Do not introduce further late fallbacks or raise limits blindly.
 
-ACTIVE: validation49 diagnostic build95165 running.48 all handles terminal: build8260,
-focused6 sphere pass; connected30312 exit3,114/116 cases/rank (curved runtime and
-collapse-filter counter). All-worker65345 exit4: affine Euler/RANS stagnates with
-one invalid cell at254 work; cubic Euler/RANS work4096. No M6 started.48 pins verify.
-49 adds only test diagnostics (plus retained48 partition fix): full rejected-cell
-dumps for affine/cubic; SU2_NATIVE_MAPPED_REPAIR_PROBE with ALL_WORKERS=1 gathers
-<=4096 cells onto rank0 and compares topology-only/full-interior/boundary-enabled
-existing optimizer at4096 operations/5s per mode. No production reconstruction
-fallback or gate changes. Goal: identify cavity reach vs missing operator freedom.
-Do not change pinned sources during build/run; then diagnose and implement the
-connected repair capability. Collapse-filter fixture count failure still needs
-qualification without weakening its witness/mesh audit.
-Validation46 build56379 and focused7723 are terminal.
-Focused21/22 cases,1,066,877/1,066,879 assertions pass. All volume/integration cases
-pass, including hidden sphere positivity/second moments. Cubic Euler/RANS still
-fails work4096 with14 invalid cells (25 optimizer calls,5 validated).990 source,
-19 runtime and29 receipt pins verified before edits. No MPI/M6 for46.
-47 changes only Engine3D: refund unused optimizer reservation from report.trials,
-both resident and streamed callers; runtime guard rejects reservation overrun.
-Keep pinned sources unchanged once build/run starts. Work cap4096 unchanged.
-Connected redesign: reuse existing topology optimizer (interior edge/face swaps and
-collapses; fixed boundary, no smoothing/insertions/new nodes) on bounded repair
-cavities after cheap moves/reconnections. Remap local cell IDs into reserved range,
-keep physical skin, exact ValidateFixedInterface, height and full frozen metric
-revalidation. Candidate operations remain capped160; cache1024; existing scratch
-admission. Both resident/streamed callers; new optimization_trials/validated stats.
-ValidityOnly Repair now uses the optimizer's minimum normalized q/J progress,
-allowing spare margin in one measure to repair the other. Absolute-mode behavior,
-nonincreasing changed-edge excess and final q>=.20/J>=.05/edge gates unchanged.
-Focused policy test checks improvement/reversal/worst-score regression.
-Quadrature now derives2 nodes/weights for the actual quadratic collapse measure,
-keeping polynomial moments through cubic degree; stable remaining-distance
-arithmetic avoids zero weights at rounded endpoints. Existing5/7 comparison,
-all tolerances/caps retained. Hidden sphere adds second-moment assertions. Independent
-weighted_radial_probe.py checks positivity and moments for7 ratios; not acceptance.
-See46/summary.json and implementation.patch. Must resolve45 failures before the
-six-rank milestone and full M6. No accepted full M6 exists.
+Other open scope:21/9,393 changing-frame gradation violations (worst1.406); M6
+normal-only budget profiles exceed500k (best20 profile0 821,265+/-53,688; normal-cap21
+rejected). Tangential growth outside protected band remains an unanswered question;
+normal-only contract still binds.46 hidden-sphere integration passes positivity and
+second moments under unchanged caps; whole-field normalization remains open.
+Curved BL support/chord/quadrature consumers, FIRST_ROW surface-error demands,
+fitted-plane seams and automatic curved initialization remain. Keep separate BL
+refusal until its consumers are complete.32–34 full M6 original-source/field coverage
+passes450,221 source cells/all48,954facets/293,724directedchords, serial/MPI2 identity.
 
-Next: complete production geometry construction and its runtime workflow, then
-connected metric/support/quadrature, wall refinement and initialization.
-Qualify the newly connected persisted curved import through full runtime workflows;
-keep the separate BL refusal until its support/quadrature consumers are complete. FIRST_ROW W
-currently lacks a SurfaceError demand. Fitted-plane seam release must survive
-curved promotion. The new positive bound certifies local normal clearance, not global embedding.
+Resource rules: user authorizes up to6 MPI ranks. Check actual host RAM/load and live
+handles; one owned heavy job,nice19,single-threaded libraries,ninja-j1. Ninja is
+/home/rausa/Software/su2-develop/ninja; TMPDIR must be4TB
+integration_evidence/build-integrated-v2/compile-tmp. Preserve terminal receipts and
+source/runtime/input hashes. Build initial50 log/pins preserved separately.
 
-DC17 field/budget blockers remain:21/9,393 changing-frame gradation violations
-(worst ratio1.406). Normalized M6 event1 passes12GiB admission but all nine allowed
-profiles exceed500k before construction. Validation20 uniform-sensor diagnosis:
-profile0 821,265+/-53,688; profile1 2,298,938+/-198,670, mostly the outer tail.
-Validation21 rejects the diagnostic normal cap (best1,182,909+/-67,994).
-The existing normal-only relaxation contract remains in force. An asynchronous
-question about permitting tangential growth outside the protected band is pending.
-Do not treat silence as approval. Hidden-sphere integration passes46 under unchanged caps; whole-field normalization remains open.
-
-Automatic approval review blocked pushing to origin; destination approval remains
-pending. Do not retry remote export without approval. Local checkpoints are allowed.
-Leave unrelated dc11/dc15 campaign logs and untracked planning files untouched.
-Git status needs --ignore-submodules (pre-existing broken Eigen submodule gitdir).
-
-User reminder2026-10-26: up to6 MPI ranks are authorized. Use a six-rank
-qualification at the next connected milestone after serial failures are resolved;
-check actual RAM before the full M6 run. One owned heavy job, nice19, libraries
-single-threaded, build-j1. Ninja1.13 at
-/home/rausa/Software/su2-develop/ninja; compile scratch on4TB at
-integration_evidence/build-integrated-v2/compile-tmp. Check actual host load/RAM
-and live handles before sustained work. Never edit pinned C++ during a build/run.
-[AGENTS.md](AGENTS.md) contains the permanent implementation/validation cadence.
-The [October20 archive](Handbook/HANDOFF_2026_10_20_ARCHIVE.md) is historical.
+Remote push was rejected by automatic approval review; destination approval remains
+pending. Do not retry remote export without approval. Local checkpoints authorized.
+Local checkpoint retry after review timeout succeeded (895ab7274a); no local block.
+TODO intentionally untracked; progress companion tracked. Leave unrelated dc11/dc15
+logs and untracked planning files alone. Git status needs --ignore-submodules.
+[AGENTS.md](AGENTS.md) holds permanent cadence/architecture/resource instructions.

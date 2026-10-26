@@ -1799,7 +1799,10 @@ TEST_CASE("Native MPI early collapse filtering rejects exact zero-volume witness
   const PlanarReference geometry(fixture.facets);
   Patch split; std::string reason;
   REQUIRE(SplitEdge(fixture.patch,{1,6},{8,{.5,.5,.5}},100,geometry,split,reason));
-  auto input=Partition(Rows(split),world);const auto saved=Bytes(input);
+  // Keep the candidate and its zero-volume witness on the same owner; extra ranks still participate in the workflow.
+  Owned input;for(const auto& row:Rows(split))
+    if(row.cell.id%std::min(world.size,2)==unsigned(world.rank))input.emplace(row.cell.id,row);
+  const auto saved=Bytes(input);
   EngineOptions options;options.timings=true;
   const auto result=Coarsen(world,input,Uniform(input,{.25,0,0,.25,0,.25}),geometry,{},options);
   CHECK(result.valid);CHECK(result.reason.empty());

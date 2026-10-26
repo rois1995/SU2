@@ -450,7 +450,7 @@ CRemeshResult CNativeRemesher3D::Remesh(const CConfig& config, const CGeometry& 
             stats.phases[8] += workers.seconds() - begin;
           } else {
           struct RestoreShape {ShapeAdmission previous=GetShapeAdmission();~RestoreShape(){SetShapeAdmission(previous);}} restore_shape;
-          SetShapeAdmission(ShapeAdmission::ValidityOnly);
+          SetShapeAdmission(ShapeAdmission::Absolute);
           auto refined = Refine(workers, working, *worker_source, *pending->state.original, composition, kernel);
           stats.refine = refined.stats;
           const bool rebuilt_domain=refined.rebuilt_domain;
