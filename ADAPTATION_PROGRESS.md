@@ -53,6 +53,7 @@ Documentation-only commits may follow an implementation checkpoint.
 | Validation48 | Empty-rank reproducer passes on all six ranks. Connected MPI passes114/116 cases per rank. | Cubic runtime exhausts4096 with3 active workers. With all six active, affine runtime stalls with1 bad cell and cubic runtime exhausts4096. A collapse-filter counter fixture also fails. |
 | Validation49 diagnostic | Whole-mesh topology leaves the affine bad cell; one insertion/flip removes it. Cubic45 bad cells become34 with topology and88 with full interior repair. | Larger late repair alone is insufficient. Diagnostic meshes are not runtime acceptance. |
 | Validation50 | Build passes; focused14/16 cases,2,227/2,233 assertions pass. | Early candidate optimization starves ordinary joint placement:69 calls/0 accepted. Valid star repair creates32 cells; its fixture assumes12. |
+| Validation53 | MPI6 passes 9/10 cases per rank, including one-budget shared-edge election. | Curved refinement completes at work 4,066; coarsening exhausts its remaining 30. No accepted workflow yet. |
 | Validation52 | Serial 16 cases/2,532 assertions pass; MPI6 passes 8/9 cases per rank. Flat transfer/reload and priority checks pass. | Cubic improves to zero shape/size failures and two geometry failures; work limit remains unchanged. |
 | Validation51 | Build and16 focused cases/2,532 assertions pass. All six flat runtime and collapse-filter checks pass; cubic runtime rejects. | Retain one candidate for bounded repair after ordinary construction. Preserve all final gates; replace the star fixture's count restriction with an explicit volume check. |
 
@@ -63,8 +64,12 @@ The collapse-filter fixture keeps its known local witness on two ownership group
 while every MPI rank participates; its original filter and mesh assertions remain.
 
 Validation53 reuses duplicate-edge election for concurrent refinement before
-import and work charging. A shared-edge regression requires completion with one
-proposal budget. Implementation is pinned for build; validation is pending.
+import and work charging. The one-budget shared-edge regression passes on all six ranks. Refinement now
+completes every mesh gate at work 4,066, but coarsening exhausts the remaining 30
+units. The rejected private mesh has 209 cells and zero shape/size/geometry
+violations; transfer/reload is still not reached. The documented coarsening
+completion contract remains in force. Next: carry the full serial demand ordering
+through distributed conflicts, including geometric benefit and metric length.
 
 ## Next acceptance steps
 
@@ -94,5 +99,6 @@ is an unanswered question.
 - [Validation51](integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/validation51/summary.json).
 
 The user approved pushing checkpoints to `rois1995/SU2`, branch
-`codex/native-3d-bl`, on 2026-10-26. The first push is pending; validation53
-implementation remains uncommitted while its build/test campaign runs.
+`codex/native-3d-bl`, on 2026-10-26. Push succeeded through `c093abefbd` on
+[the fork branch](https://github.com/rois1995/SU2/tree/codex/native-3d-bl).
+Validation53 is being checkpointed with its incomplete workflow result.

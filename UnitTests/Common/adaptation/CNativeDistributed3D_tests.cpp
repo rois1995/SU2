@@ -3210,6 +3210,22 @@ TEST_CASE("Faceted composed proposals publish independent complete cavities conc
   MeshRecords("concurrent_composed_initial",world,input);MeshRecords("concurrent_composed_accepted",world,result.cells);
 }
 
+TEST_CASE("Replicated composed refinement consumes one unique edge proposal", "[NativeConcurrentComposed3D]") {
+  World world;const auto fixture=Box();const auto input=Partition(Rows(fixture.patch),world);
+  const auto saved=Bytes(input);const PlanarReference geometry(fixture.facets);
+  const auto source=Uniform(input,{1.21,0,0,1.21,0,1.21});
+  const MetricComposition compose=[](Point,Tensor m){m.xx*=1.03125;return m;};
+  EngineOptions options;options.maximum_work=1;options.timings=true;
+  options.edge_breakpoints=[](Point,Point){return std::vector<double>{0,1};};
+  const auto result=Refine(world,input,source,geometry,compose,options);
+  INFO(result.reason);REQUIRE(result.valid);CHECK(result.stats.global_work==1);
+  CHECK(world.sum(int(result.stats.proposed))==1);CHECK(world.sum(int(result.stats.accepted))==1);
+  CHECK(world.sum(int(result.stats.proposal_duplicates))==std::min(world.size,6)-1);
+  CHECK(Bytes(input)==saved);CHECK(result.stats.cached_invalid_cells==0);
+  CHECK(Audit(world,result.cells,fixture,12));
+  EngineReport(result,world,"unique_composed_refine");
+}
+
 TEST_CASE("Final reservations include expanded candidates and completed peers without mutation", "[NativeConcurrentComposed3D]") {
   World world;if(world.size<2)return;auto left=Box(),right=Box();
   for(auto& c:right.patch.cells){c.id+=100;for(auto& n:c.v){n.id+=16;n.p.x+=3;}}

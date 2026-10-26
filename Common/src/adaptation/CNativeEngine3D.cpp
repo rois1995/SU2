@@ -89,8 +89,8 @@ bool SameSkin(const Patch& old,const Patch& fresh) {
 }
 struct Choice { Edge edge{}; EdgeMeasure measure; bool active = false; Feature feature; bool geometric=false; };
 struct ProposalKey {
-  Edge edge{};int rank=0;size_t slot=0;
-  template<class S> void Fields(S& s){s(edge,rank,slot);}
+  Edge edge{};int rank=0;size_t slot=0;bool geometric=false;
+  template<class S> void Fields(S& s){s(edge,rank,slot,geometric);}
 };
 class Selection {
  public:
@@ -510,30 +510,32 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     return vote(failure);
   };
   auto coalesce=[&](std::vector<Choice>& choices) {
-    if(!coarsening || repairing || curved || composition || world.size==1)return true;
-    // A replicated directed collapse is one proposal; different retained endpoints remain distinct.
+    const bool collapse=coarsening && !curved && !composition;
+    const bool concurrent_refine=!coarsening && (curved || composition) && options.candidate_batch>1;
+    if(repairing || world.size==1 || (!collapse && !concurrent_refine))return true;
+    // Replicated edge demands are one proposal; directed collapses retain distinct endpoints.
     const auto scratch=transfer_memory::Mul(transfer_memory::Mul(world.size,MaximumCandidateBatch),
         8*sizeof(ProposalKey)+8*sizeof(void*));
     if(!admit(scratch))return false;
     CLocalFailure failure;std::vector<std::vector<ProposalKey>> to;
     try {
-      if(choices.size()>MaximumCandidateBatch)throw std::logic_error("Native collapse proposal table exceeds its bound.");
+      if(choices.size()>MaximumCandidateBatch)throw std::logic_error("Native edge proposal table exceeds its bound.");
       std::vector<ProposalKey> local;
-      for(size_t i=0;i<choices.size();++i)local.push_back({choices[i].edge,world.rank,i});
+      for(size_t i=0;i<choices.size();++i)local.push_back({choices[i].edge,world.rank,i,choices[i].geometric});
       to.assign(world.size,local);
     }catch(const std::exception& e){failure.Set(2,0,e.what());}
     if(!vote(failure))return false;bool admitted=false;
     const auto all=world.exchange(to,&admitted,options.memory_ceiling,
         transfer_memory::Add(bytes(),source.ResidentBytes(),directory.ResidentBytes(),scratch));
-    if(!admitted){result.reason="Native collapse proposal exchange exceeds storage.";return false;}
+    if(!admitted){result.reason="Native edge proposal exchange exceeds storage.";return false;}
     try {
       std::vector<Choice> unique;
       for(size_t i=0;i<choices.size();++i) {
-        const auto owner=std::make_pair(world.rank,i);bool duplicate=false;
+        const auto owner=std::make_tuple(!choices[i].geometric,world.rank,i);bool duplicate=false;
         for(const auto& key:all) {
           if(key.rank<0 || key.rank>=world.size || key.slot>=MaximumCandidateBatch || key.edge[0]==key.edge[1])
-            throw std::logic_error("Invalid native collapse proposal identity.");
-          duplicate=duplicate || (key.edge==choices[i].edge && std::make_pair(key.rank,key.slot)<owner);
+            throw std::logic_error("Invalid native edge proposal identity.");
+          duplicate=duplicate || (key.edge==choices[i].edge && std::make_tuple(!key.geometric,key.rank,key.slot)<owner);
         }
         if(duplicate)++stats.proposal_duplicates;else unique.push_back(choices[i]);
       }
@@ -1528,7 +1530,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         const int owner=CPassiveComm::Allreduce(choice.active ? world.rank : world.size,CPassiveComm::Op::MIN,world.comm);
         choice.active=choice.active && world.rank==owner;
       }
-      if(coarsening && !repairing && !curved && !composition && world.size>1) {
+      if(concurrent || (coarsening && !repairing && !curved && !composition && world.size>1)) {
         CLocalFailure failure;
         try {if(choice.active)choices.push_back(choice);}catch(const std::exception& e){failure.Set(2,0,e.what());}
         if(!vote(failure) || !coalesce(choices) || !plan_choices())return finish();

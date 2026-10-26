@@ -11,18 +11,18 @@ operators, q>=.20,J>=.05,edge<=1.8,h0 within10%, configured500k metric-complexit
 (not tet-count), geometry, conservative transfer and restart. Curvature uses
 ADAP_HAUSD in mesh units independently ofh0. No accepted full M6 exists.
 
-ACTIVE:53 build session5012 running; sources pinned.52 build45125, all-worker89207 and focused14333 terminal.
-52 source990/runtime19 pins verified; all receipts saved. Serial16/2532 passes.
-All6 priority/conflict, flat runtime and collapse checks pass (8/9 cases/rank).
-Cubic work4096 rejects:224 cells,zero shape/size failures,two surface errors.00125
-against.001. Geometry priority improves51 (17 size/12geometry violations).
-NEXT53: reuse duplicate-edge proposal election for concurrent refinement, before
-full-star import and global proposal charging. Currently replicated edge choices
-are charged independently and later lose reservation; collapse already coalesces.
-Retain geometric intent when electing a duplicate owner; preserve disjoint
-concurrency and all work/geometry/shape gates. Add a shared-body-diagonal regression
-with one unique proposal budget, then rerun all6 curved runtime before broad/M6.
-52 checkpoint2a214b1058 saved.53 source pins/patch/summary saved; do not edit C++ during build.
+ACTIVE: no owned job.53 build5012 and all-worker21166 terminal; pins verified.
+53 MPI6 passes9/10 cases/rank incl one-budget duplicate-edge regression. Curved
+Refine completes with4066work; Coarsen exhausts remaining30. Rejected209-cell
+mesh has0 shape/size/geometry violations; transfer/reload not reached. No M6.
+52 checkpoint2a214b1058; pushed through c093abefbd.53 checkpoint pending.
+NEXT54: complete geometry-first ordering through existing coalescing metadata:
+geometry score/cell/edge and metric length/edge before owner rank. Convert sorted
+keys to reservation priority for every initial/expanded/final/contact call; avoid
+another public API. Preserve existing duplicate collapse semantics, concurrency,
+all gates and documented Coarsen exhaustion contract. Add shared-box regression
+where global longest edge occurs off rank0; keep independent-cavity concurrency
+and one-budget duplicate tests. Small all6 workflow must pass before broad/M6.
 
 Latest production checkpoint895ab7274a: empty initial FVM ranks fix; four-point sphere
 import passes on6 ranks.4933586627 fixed optimizer work accounting;47 serial125
@@ -63,8 +63,8 @@ integration_evidence/build-integrated-v2/compile-tmp. Preserve terminal receipts
 source/runtime/input hashes. Build initial50 log/pins preserved separately.
 
 User explicitly approved push to rois1995/SU2 branch codex/native-3d-bl on2026-10-26.
-Prior destination approval block is resolved; push of saved checkpoints starting.
-53 implementation remains uncommitted/pinned until its campaign completes.
+Prior destination approval block is resolved; push21357 terminal/pass through c093abefbd. Remote updated ca6e3e81bb..c093abefbd.
+53 campaign terminal; local checkpoint/push next.
 Local checkpoint retry after review timeout succeeded (895ab7274a); no local block.
 TODO intentionally untracked; progress companion tracked. Leave unrelated dc11/dc15
 logs and untracked planning files alone. Git status needs --ignore-submodules.

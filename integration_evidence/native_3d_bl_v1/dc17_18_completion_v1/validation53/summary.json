@@ -1,0 +1,35 @@
+{
+  "status": "terminal:9/10 cases per rank pass; refinement complete, coarsening exhausts remaining30work",
+  "base_commit": "2a214b1058",
+  "changes": [
+    "Reuse directed-edge duplicate election for concurrent refinement before full-star import/work charging",
+    "Prefer geometric intent among duplicate owners; preserve distinct edges and disjoint concurrency",
+    "One-budget shared-body-diagonal refinement regression retains mesh and immutable-input checks"
+  ],
+  "prior_failure": "52 all6 curved:224 cells with zero shape/size failures,two geometry failures; work4096. Duplicate edge proposals were charged before losing reservation.",
+  "acceptance": [
+    "Unique-proposal and independent-cavity MPI tests",
+    "All6 flat/cubic Euler/RANS transfer/reload under unchanged4096 limit",
+    "Connected serial/MPI and full M6"
+  ],
+  "verified_source_inputs": 990,
+  "build_session": 5012,
+  "build_exit": 0,
+  "runtime_pins": 19,
+  "build_largest_process_kib": 2889660,
+  "build_elapsed": "4:07.67",
+  "all_workers6_session": 21166,
+  "all_workers6_exit": 2,
+  "all_workers6_cases_per_rank": 10,
+  "all_workers6_passed_per_rank": 9,
+  "all_workers6_seconds": 54.04,
+  "curved_refine_work": 4066,
+  "curved_refine_stop": "complete",
+  "curved_coarsen_work_limit": 30,
+  "rejected_mesh_cells": 209,
+  "rejected_mesh_shape_failures": 0,
+  "rejected_mesh_size_failures": 0,
+  "rejected_mesh_geometry_failures": 0,
+  "terminal_pins_verified": true,
+  "next": "Preserve documented coarsening completion contract. Carry full geometry-score/metric-length ordering through shared election/reservations; class-only geometry priority still orders conflicting edges by rank."
+}

@@ -1,0 +1,39 @@
+[1;33mFilters: [NativeMappedRuntime3D],[NativeCollapseFilter3D],[NativeCollision3D],[NativeConcurrentComposed3D],Native tetrahedral MPI claims elect one nonconflicting proposal
+[0m
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+[0;37mtest_driver is a Catch v2.13.9 host application.
+Run with -? for options
+
+[0m-------------------------------------------------------------------------------
+[0mMapped native runtime completes a uniform target before conservative BDF2
+transfer
+[0m-------------------------------------------------------------------------------
+[0;37m../../UnitTests/SU2_CFD/adaptation/CNativeImport3D_tests.cpp:2555
+...............................................................................
+
+[0m[0;37m../../UnitTests/SU2_CFD/adaptation/CNativeImport3D_tests.cpp:2645: [0m[1;31mFAILED:
+[0m[0;36m  REQUIRE( result.status==CRemeshResult::Status::COMPLETE )
+[0mwith expansion:
+[1;33m  2 == 0
+[0mwith message:
+  refine=complete, coarsen=work_budget
+
+-------------------------------------------------------------------------------
+[0mMapped native runtime completes a uniform target before conservative BDF2
+transfer
+[0m-------------------------------------------------------------------------------
+[0;37m../../UnitTests/SU2_CFD/adaptation/CNativeImport3D_tests.cpp:2555
+...............................................................................
+
+[0m[0;37m../../UnitTests/SU2_CFD/adaptation/CNativeImport3D_tests.cpp:2645: [0m[1;31mFAILED:
+[0m[0;36m  REQUIRE( result.status==CRemeshResult::Status::COMPLETE )
+[0mwith expansion:
+[1;33m  2 == 0
+[0mwith message:
+  refine=complete, coarsen=work_budget
+
+DIRECTORY conflict rank=3 ranks=6 builds=1 lookups=1 fetches=1 reservations=2 publications=0 rejected=2 scanned=0 payloads=6 elections=27 max_dependencies=6 resident_bytes=0 max_directory_work_bytes=9476 max_exchange_work_bytes=8184 bytes_sent=2448 collective_calls=29 build_s=0.000947671 lookup_s=5.528e-05 fetch_s=6.2269e-05 reserve_s=9.5029e-05 publish_s=0 election_nested_s=5.2701e-05 world_transport_partial_s=0.000270099
+[1;31m========[0m[1;33m[0m[0;32m=======================================================================[0m
+test cases:  10[0;37m | [0m[0;32m  9 passed[0m[0;37m | [0m[1;31m1 failed[0m
+assertions: 333[0;37m | [0m[0;32m331 passed[0m[0;37m | [0m[1;31m2 failed[0m
+
