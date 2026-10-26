@@ -25,6 +25,7 @@
  * License along with SU2. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <sstream>
 #include "../../include/solvers/GilesRelaxation.hpp"
 #include "../../include/solvers/MixingMeanFlux.hpp"
 #include "../../../Common/include/linear_algebra/CMatrixVectorProduct.hpp"
@@ -6588,10 +6589,13 @@ bool CEulerSolver::AuditMixingJacobian(CGeometry* geometry, const CConfig* confi
     local[0] = std::max(local[0],err); local[1] = std::max(local[1],std::abs(ref));
   }
   SU2_MPI::Allreduce(local,global,2,MPI_DOUBLE,MPI_MAX,SU2_MPI::GetComm());
-  if (rank==MASTER_NODE)
-    std::cout << "MIXING_SELF_JACOBIAN_AUDIT {\"zone\":" << config->GetiZone()
+  if (rank==MASTER_NODE) {
+    std::ostringstream record; record.precision(17);
+    record << "MIXING_SELF_JACOBIAN_AUDIT {\"zone\":" << config->GetiZone()
               << ",\"error\":" << global[0] << ",\"reference_norm\":" << global[1]
-              << ",\"scope\":\"captured_linear_flux_with_local_target_response\"}" << std::endl;
+              << ",\"scope\":\"captured_linear_flux_with_local_target_response\"}";
+    std::cout << record.str() << std::endl;
+  }
   if (global[0]>1e-7*(1+global[1])) SU2_MPI::Error("Mixing local-response operator audit failed",CURRENT_FUNCTION);
   return true;
 }
