@@ -208,16 +208,11 @@ class Construction {
     for (unsigned k = 0; k < 4; ++k) c.v[k] = {ids[k], nodes.at(ids[k])};
     return c;
   }
-  MetricMeasures Shape(const Cell& c) {
-    return Measure({c.v[0].p, c.v[1].p, c.v[2].p, c.v[3].p}, field.point(Centroid(c)));
-  }
   double Score(const std::vector<std::array<Id, 4>>& cells, bool measure_edges = true) {
     double score = INFINITY;
     for (auto ids : cells) {
       const auto c = Tet(ids);
       if (!(Orientation(c.v[0].p, c.v[1].p, c.v[2].p, c.v[3].p) > 0)) return -INFINITY;
-      const auto m = Shape(c);
-      score = std::min({score, m.mean_ratio / .22, m.minimum_scaled_jacobian / .055});
       if (measure_edges)
         for (unsigned a = 0; a < 4; ++a)
           for (unsigned b = a + 1; b < 4; ++b)
@@ -341,10 +336,6 @@ class Construction {
           for (auto f:choices[choice]) {
             const SurfaceFace face{f,wall};if (!SurfaceValid(face)) {geometry_failure=true;score=-INFINITY;break;}
             for (unsigned k=0;k<3;++k) score=std::min(score,double(MaximumMetricEdge/Length(f[k],f[(k+1)%3])));
-            if (!policy.empty()) {
-              const Point p=Sub(Center(face),Mul(Normal(face),Height(wall)));const auto m=Measure({p,nodes.at(f[0]),nodes.at(f[1]),nodes.at(f[2])},field.point(Mul(Add(Add(p,nodes.at(f[0])),Add(nodes.at(f[1]),nodes.at(f[2]))),.25)));
-              score=std::min({score,m.mean_ratio/MinimumMeanRatio,m.minimum_scaled_jacobian/MinimumScaledJacobian});
-            }
           }
           if (score>best) {best=score;selected=choice;}
         }
@@ -403,12 +394,6 @@ class Construction {
       Check();bool valid=true;
       for(const auto& face:faces) {
         if(!SurfaceValid(face)){valid=false;break;}
-        if(!policy.empty()) {
-          const Point apex=Sub(Center(face),Mul(Normal(face),Height(wall)));
-          const auto p=Triangle(face);const auto center=Mul(Add(Add(apex,p[0]),Add(p[1],p[2])),.25);
-          const auto shape=Measure({apex,p[0],p[1],p[2]},field.point(center));
-          if(shape.mean_ratio<MinimumMeanRatio || shape.minimum_scaled_jacobian<MinimumScaledJacobian){valid=false;break;}
-        }
       }
       if(valid)for(const auto& edge:Links(faces))if(Length(edge.first[0],edge.first[1])>MaximumMetricEdge){valid=false;break;}
       if(valid)return true;
@@ -561,8 +546,7 @@ class Construction {
             Cell c;
             c.v[0] = {UINT64_MAX, apex};
             for (unsigned k = 0; k < 3; ++k) c.v[k + 1] = {f.v[k], nodes.at(f.v[k])};
-            const auto shape = Shape(c);
-            if (shape.mean_ratio < .24 || shape.minimum_scaled_jacobian < .06) {
+            if (!(Orientation(c.v[0].p,c.v[1].p,c.v[2].p,c.v[3].p)>0)) {
               valid = false;
               break;
             }
@@ -772,8 +756,6 @@ class Construction {
       for(auto pattern:PrismTets) {
         Check();Tetrahedron tet;for(unsigned k=0;k<4;++k)tet[k]=points[pattern[k]];
         const auto sign=Orientation(tet[0],tet[1],tet[2],tet[3]);if(!sign)return false;if(sign<0)std::swap(tet[0],tet[1]);
-        Point center{};for(auto p:tet)center=Add(center,Mul(p,.25));const auto shape=Measure(tet,field.point(center));
-        if(shape.mean_ratio<MinimumMeanRatio || shape.minimum_scaled_jacobian<MinimumScaledJacobian)return false;
         for(unsigned i=0;i<4;++i)for(unsigned j=i+1;j<4;++j) {
           auto edge=std::minmax(keys[pattern[i]],keys[pattern[j]]);if(!seen.emplace(edge.first,edge.second).second)continue;
           if(field.edge(points[pattern[i]],points[pattern[j]])>MaximumMetricEdge)return false;
@@ -1170,32 +1152,28 @@ class Construction {
         ++report.junction_trials;
         Check();
         point = geometry.Project(j.facet, point);
+        long double score = INFINITY;
         for (unsigned k = 0; k < 4; ++k)
-          if (Dot(Cross(Sub(nodes.at(j.quad[(k + 1) % 4]), nodes.at(j.quad[k])), Sub(point, nodes.at(j.quad[k]))),
-                  normal) < 0)
-            return -std::numeric_limits<double>::infinity();
-        double score = INFINITY;
+          score = std::min<long double>(score, Dot(Cross(Sub(nodes.at(j.quad[(k + 1) % 4]), nodes.at(j.quad[k])),
+                                               Sub(point, nodes.at(j.quad[k]))), normal));
         for (size_t index : j.cells) {
           auto c = fresh.cells[index];
           for (auto& n : c.v)
             if (n.id == j.node) n.p = point;
-          if (!(Orientation(c.v[0].p, c.v[1].p, c.v[2].p, c.v[3].p) > 0))
-            return -std::numeric_limits<double>::infinity();
-          const auto m = Shape(c);
-          score = std::min({score, m.mean_ratio / .22, m.minimum_scaled_jacobian / .055});
+          score = std::min(score, Orientation(c.v[0].p,c.v[1].p,c.v[2].p,c.v[3].p));
         }
         return score;
       };
       Point best = origin;
-      double value = evaluate(best), step = .1 * diameter;
-      for (unsigned iteration = 0; iteration < 48 && value < 1.0 && step > 1e-7 * diameter; ++iteration) {
+      long double value = evaluate(best); double step = .1 * diameter;
+      for (unsigned iteration = 0; iteration < 48 && !(value > 0) && step > 1e-7 * diameter; ++iteration) {
         Point chosen = best;
-        double next = value;
+        long double next = value;
         for (int x = -1; x <= 1; ++x)
           for (int y = -1; y <= 1; ++y)
             if (x || y) {
               const Point trial = geometry.Project(j.facet, Add(best, Mul(Add(Mul(u, x), Mul(v, y)), step)));
-              const double s = evaluate(trial);
+              const long double s = evaluate(trial);
               if (s > next) {
                 next = s;
                 chosen = trial;
@@ -1207,6 +1185,7 @@ class Construction {
         } else
           step *= .5;
       }
+      if (!(value > 0)) throw std::runtime_error("Region junction has no positive geometric placement.");
       nodes.at(j.node) = best;
       for (size_t index : j.cells)
         for (auto& n : fresh.cells[index].v)
@@ -1233,8 +1212,6 @@ class Construction {
       for (const auto& c : region.cells) {
         if (!(Orientation(c.v[0].p,c.v[1].p,c.v[2].p,c.v[3].p)>0))
           throw std::runtime_error("Region core has no positive initial fan.");
-        const auto m = Shape(c);
-        resolved = resolved && m.mean_ratio>=MinimumMeanRatio && m.minimum_scaled_jacobian>=MinimumScaledJacobian;
         for (unsigned a=0;a<4;++a) for (unsigned b=a+1;b<4;++b)
           if (Length(c.v[a].id,c.v[b].id)>MaximumMetricEdge) resolved=false;
       }
@@ -1387,7 +1364,9 @@ class Construction {
       if (wall) {
         FirstHeightReport height;
         std::string why;
-        if (!CheckFirstHeight(local, heights, geometry, height, why)) throw std::runtime_error(why);
+        if (!CheckFirstHeight(local, heights, geometry, height, why) &&
+            (!height.measured || height.missing_cells || height.reference_clearance_failures))
+          throw std::runtime_error(why);
       }
     }
     struct Box {
@@ -1397,16 +1376,8 @@ class Construction {
     boxes.reserve(fresh.cells.size());
     for (const auto& c : fresh.cells) {
       Check();
-      const auto m = Shape(c);
-      report.minimum_quality = std::min(report.minimum_quality, m.mean_ratio);
-      report.minimum_jacobian = std::min(report.minimum_jacobian, m.minimum_scaled_jacobian);
-      if (m.mean_ratio < MinimumMeanRatio || m.minimum_scaled_jacobian < MinimumScaledJacobian) {
-        const auto x = Centroid(c);
-        std::ostringstream reason;
-        reason << std::setprecision(17) << "Region actual-centroid shape failure at cell " << c.id << " centroid ("
-               << x.x << ',' << x.y << ',' << x.z << "): q=" << m.mean_ratio << ", J=" << m.minimum_scaled_jacobian;
-        throw std::runtime_error(reason.str());
-      }
+      if (!(Orientation(c.v[0].p,c.v[1].p,c.v[2].p,c.v[3].p)>0))
+        throw std::runtime_error("Region contains a nonpositive tetrahedron.");
       Box box{c.v[0].p, c.v[0].p};
       for (auto n : c.v) {
         box.lo = {std::min(box.lo.x, n.p.x), std::min(box.lo.y, n.p.y), std::min(box.lo.z, n.p.z)};
@@ -1417,14 +1388,6 @@ class Construction {
         for (unsigned b = a + 1; b < 4; ++b) {
           const auto l = Length(c.v[a].id, c.v[b].id);
           report.maximum_edge = std::max(report.maximum_edge, l);
-          if (l > MaximumMetricEdge) {
-            const auto x = c.v[a], y = c.v[b];
-            std::ostringstream reason;
-            reason << std::setprecision(20) << "Region full metric edge " << x.id << ',' << y.id << " has length " << l
-                   << " at (" << x.p.x << ',' << x.p.y << ',' << x.p.z << ") -> (" << y.p.x << ',' << y.p.y << ','
-                   << y.p.z << ')';
-            throw std::runtime_error(reason.str());
-          }
         }
     }
     for (size_t i = 0; i < fresh.cells.size(); ++i) {

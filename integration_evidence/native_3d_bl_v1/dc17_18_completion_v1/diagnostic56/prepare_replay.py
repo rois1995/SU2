@@ -19,7 +19,8 @@ def main():
     pack('Q',len(report['events']))
     for e in report['events']:
         text(e['stage']);text(e['reason']);pack('Q',e['passed'])
-        pack('Qddd',*e['point']);pack('QQQdd',e['first_cell'],e['first_node'],e['metric_failure'],e['q'],e['J'])
+        pack('Qddd',*e['point']);pack('QQQdd',e['first_cell'],e['first_node'],e['metric_failure'],
+            float('nan') if e.get('q') is None else e['q'],float('nan') if e.get('J') is None else e['J'])
     (out/'events.bin').write_bytes(data)
     save(out/'pins.json',{p.name:hashlib.sha256(p.read_bytes()).hexdigest() for p in out.iterdir() if p.is_file() and p.name!='pins.json'})
     print('Prepared',len(receipts),'verified records; no input mesh or metric rebuilt.')

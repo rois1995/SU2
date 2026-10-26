@@ -403,7 +403,10 @@ void BudgetRuntime3D(bool symmetry) {
       if(trials) {
         std::string text;for(char c:reason){if(c=='"'||c=='\\')text+='\\';text+=(c=='\n'?' ':c);}
         *trials<<std::setprecision(17)<<"{\"candidate\":"<<candidate<<",\"failure\":"<<int(metric.failure)
-          <<",\"q\":"<<metric.minimum_mean_ratio<<",\"J\":"<<metric.minimum_scaled_jacobian
+          <<",\"shape_measured\":"<<(metric.shape_measured?"true":"false")<<",\"q\":";
+        if(metric.shape_measured)*trials<<metric.minimum_mean_ratio;else *trials<<"null";
+        *trials<<",\"J\":";if(metric.shape_measured)*trials<<metric.minimum_scaled_jacobian;else *trials<<"null";
+        *trials
           <<",\"size_progress\":"<<metric.size_progress<<",\"quality_progress\":"<<metric.quality_progress
           <<",\"old_cells\":"<<old.cells.size()<<",\"fresh_cells\":"<<fresh.cells.size()
           <<",\"old_surface\":"<<old.surface.size()<<",\"feature\":["<<feature.count<<','<<feature.vertices[0]<<','
@@ -424,9 +427,11 @@ void BudgetRuntime3D(bool symmetry) {
       SaveRecords(prefix+"_trial_after",PatchRecords(last->fresh),{},rejected);
       std::ofstream info(prefix+"_trial.json");info<<std::setprecision(17)<<"{\"count\":"<<last->feature.count
         <<",\"vertices\":["<<last->feature.vertices[0]<<','<<last->feature.vertices[1]<<','<<last->feature.vertices[2]
-        <<"],\"candidate\":"<<(last->candidate?"true":"false")<<",\"minimum_quality\":"<<last->metric.minimum_mean_ratio
-        <<",\"minimum_scaled_jacobian\":"<<last->metric.minimum_scaled_jacobian
-        <<",\"weakest_cell\":"<<last->metric.weakest_cell<<",\"sliver_cell\":"<<last->metric.sliver_cell<<"}\n";if(!info)throw std::runtime_error("Cannot save rejected trial diagnosis.");
+        <<"],\"candidate\":"<<(last->candidate?"true":"false")<<",\"shape_measured\":"<<(last->metric.shape_measured?"true":"false")<<",\"minimum_quality\":";
+      if(last->metric.shape_measured)info<<last->metric.minimum_mean_ratio;else info<<"null";
+      info<<",\"minimum_scaled_jacobian\":";if(last->metric.shape_measured)info<<last->metric.minimum_scaled_jacobian;else info<<"null";
+      info<<",\"weakest_cell\":"<<last->metric.weakest_cell<<",\"sliver_cell\":"<<last->metric.sliver_cell<<"}\n";
+      if(!info)throw std::runtime_error("Cannot save rejected trial diagnosis.");
       for(const auto& trial:std::vector<std::pair<std::string,const Patch*>>{{"before",&last->old},{"after",&last->fresh}}) {
         if(trial.second->parameters.size()>4*MaximumReplacementCells)throw std::runtime_error("Rejected parameter diagnostic exceeds its storage bound.");
         std::vector<char> payload;RecordStream stream(payload);uint64_t count=trial.second->parameters.size();stream(count);

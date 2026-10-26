@@ -20,63 +20,48 @@
 #include "../../../../Common/include/adaptation/CNativeOptimize3D.hpp"
 namespace dc12 {
 using namespace dc11;
-inline bool Valid(const CellShape& sh){return sh.q>0&&sh.J>=ValiditySliverJacobian;}
 inline std::string Fmt(double x){std::ostringstream o;o<<std::setprecision(6)<<x;return o.str();}
 
-// ---- (1) Admit12: Admit8 with every shape floor replaced by validity --------------------------------------------------
+// Construction admission uses topology, exact geometric positivity, wall height and frozen edge size only.
 inline Decision Admit12(State& s,const Patch& old,const Patch& fresh,Kind kind) {
   Scope scope("Admit12");
   Decision base;base.old_cells=old.cells.size();base.fresh_cells=fresh.cells.size();
   if(old.cells.empty()||fresh.cells.empty()||old.cells.size()>MaximumReplacementCells||fresh.cells.size()>MaximumReplacementCells){base.category=5;base.reason="replacement size";return base;}
-  std::string why;if(!HeightT(s,fresh,why)){base.category=4;base.reason=why;return base;}
-  // DC-16: validity-only intermediate event: a LayerConstruct that removes no vertex is admitted by the validity of its
-  // fresh cells alone (SplitPolicy rule 1 needs no size certificate for it); its changed edges are not integrated
-  // (and a Refine of a requested edge above the split-insertion length, which the 2D split rule admits by validity)
+  std::string why;FirstHeightReport hr;if(!(validityOnlyConstruction?HeightConstruct(fresh,s.heights,*s.reference,&hr,&why):HeightT(s,fresh,why))){base.category=4;base.reason=why;return base;}
+  for(const auto& c:fresh.cells)if(!(Orientation(c.v[0].p,c.v[1].p,c.v[2].p,c.v[3].p)>0)){base.category=2;base.reason="fresh cell has nonpositive exact orientation";return base;}
   if(validityOnlyConstruction&&splitPolicy.rule==1&&(kind==Kind::Layer||(kind==Kind::Refine&&splitPolicy.requested>(long double)SplitInsertionLength))
      &&!RemovesVertex(old.cells,fresh.cells,splitPolicy.relocated,splitPolicy.relocatedCount)) {
-    for(const auto& c:fresh.cells){const auto sh=ShapeOf(s,c);
-      if(IsFirstChild(s,fresh,c)){base.first_q=std::min(base.first_q,sh.q);base.first_J=std::min(base.first_J,sh.J);}
-      else{base.other_q=std::min(base.other_q,sh.q);base.other_J=std::min(base.other_J,sh.J);}}
-    if(!Valid({base.first_q,base.first_J})){base.category=2;base.reason="validity first child: q="+std::to_string(base.first_q)+" J="+std::to_string(base.first_J);return base;}
-    if(!Valid({base.other_q,base.other_J})){base.category=2;base.reason="validity: q="+std::to_string(base.other_q)+" J="+std::to_string(base.other_J);return base;}
     if(kind==Kind::Layer)++splitPolicy.layer_free;else ++splitPolicy.size_insertions;base.ok=true;return base;
   }
   PatchMetric after,before;
   try{auto reuse=ReuseOf(s,old.cells,&fresh.cells);
-    after=MeasureMetricCells(fresh.cells,*s.field,nullptr,&reuse,false);StoreLengths(s,after);
+    after=MeasureMetricEdges(fresh.cells,*s.field,nullptr,&reuse);StoreLengths(s,after);
     for(const auto& e:after.edges)reuse.insert_or_assign(e.first,e.second);
-    before=MeasureMetricCells(old.cells,*s.field,nullptr,&reuse,false);StoreLengths(s,before);}
+    before=MeasureMetricEdges(old.cells,*s.field,nullptr,&reuse);StoreLengths(s,before);}
   catch(const std::exception& e){base.category=5;base.reason=e.what();return base;}
-  base.q_old=before.minimum_mean_ratio;base.J_old=before.minimum_scaled_jacobian;base.q_new=after.minimum_mean_ratio;base.J_new=after.minimum_scaled_jacobian;
-  for(const auto& c:fresh.cells){const auto sh=ShapeOf(s,c);
-    if(IsFirstChild(s,fresh,c)){base.first_q=std::min(base.first_q,sh.q);base.first_J=std::min(base.first_J,sh.J);}
-    else{base.other_q=std::min(base.other_q,sh.q);base.other_J=std::min(base.other_J,sh.J);}}
   auto shared=[](const std::map<Edge,EdgeMeasure>& others,const std::pair<const Edge,EdgeMeasure>& e){
     const auto o=others.find(e.first);return o!=others.end()&&SamePoint(o->second.a,e.second.a)&&SamePoint(o->second.b,e.second.b);};
   for(const auto& e:before.edges)if(!shared(after.edges,e))base.removed+=layer2d::ExcessOf(e.second.length);
   for(const auto& e:after.edges)if(!shared(before.edges,e))base.added+=layer2d::ExcessOf(e.second.length);
   const bool size_progress=base.removed>0&&base.added<base.removed*(1-1e-12L);
-  const bool quality_progress=(base.q_new>base.q_old+1e-7&&base.J_new>=base.J_old*(1-1e-12))||(base.J_new>base.J_old+1e-7&&base.q_new>=base.q_old*(1-1e-12));
-  Decision d=base;
-  if(!Valid({base.first_q,base.first_J})){d.category=2;d.reason="validity first child: q="+std::to_string(base.first_q)+" J="+std::to_string(base.first_J);return d;}
-  if(!Valid({base.other_q,base.other_J})){d.category=2;d.reason="validity: q="+std::to_string(base.other_q)+" J="+std::to_string(base.other_J);return d;}
-  if(kind==Kind::Refine||kind==Kind::Layer) {  // SplitPolicy rule 1 (the 2D split rule), as Admit8
+  if(kind==Kind::Refine||kind==Kind::Layer) {
     const bool removes=RemovesVertex(old.cells,fresh.cells,splitPolicy.relocated,splitPolicy.relocatedCount);
-    if(kind==Kind::Layer){if(!removes){++splitPolicy.layer_free;d.ok=true;return d;}++splitPolicy.layer_checked;
-      if(base.added<=base.removed){d.ok=true;return d;}d.category=3;d.reason="layer: removes a vertex and adds frozen excess";return d;}
-    if(removes){++splitPolicy.vertex_removal_checks;if(size_progress){d.ok=true;return d;}
-      ++splitPolicy.vertex_removal_refusals;d.category=3;d.reason="refine: removes a vertex without strict changed-edge excess reduction";return d;}
+    if(kind==Kind::Layer){if(!removes||base.added<=base.removed){++splitPolicy.layer_free;base.ok=true;return base;}
+      base.category=3;base.reason="layer removes a vertex and adds frozen excess";return base;}
+    if(removes){if(size_progress){++splitPolicy.vertex_removal_checks;base.ok=true;return base;}
+      ++splitPolicy.vertex_removal_refusals;base.category=3;base.reason="refine removes a vertex without reducing changed-edge excess";return base;}
     long double longest=splitPolicy.requested;
     if(longest<0){longest=0;for(const auto& e:before.edges)if(!shared(after.edges,e))longest=std::max(longest,e.second.length);}
-    if(longest>(long double)SplitInsertionLength){++splitPolicy.size_insertions;d.ok=true;return d;}
+    if(longest>(long double)SplitInsertionLength){++splitPolicy.size_insertions;base.ok=true;return base;}
     ++splitPolicy.nonsize_checks;bool interiorOk=base.added==0;
     if(interiorOk){std::set<Edge> in;try{in=InteriorEdges(fresh.cells);}catch(const std::exception&){interiorOk=false;}
       for(const auto& e:after.edges)if(in.count(e.first)&&e.second.length>MaximumMetricEdge)interiorOk=false;}
-    if(interiorOk&&base.q_new>base.q_old+1e-7){d.ok=true;return d;}
-    ++splitPolicy.nonsize_refusals;d.category=3;d.reason="refine: non-size insertion adds an oversized interior edge or improves no shape";return d;
+    if(interiorOk){base.ok=true;return base;}
+    ++splitPolicy.nonsize_refusals;base.category=3;base.reason="short refine adds an oversized interior edge";return base;
   }
-  if(kind==Kind::Repair){if(size_progress||(quality_progress&&base.added<=base.removed)){d.ok=true;return d;}d.category=3;d.reason="repair: neither size nor quality progress";return d;}
-  d.category=3;d.reason="unknown kind";return d;
+  if(kind==Kind::Repair){if(size_progress||base.added<=base.removed){base.ok=true;return base;}
+    base.category=3;base.reason="repair adds frozen edge excess";return base;}
+  base.category=3;base.reason="unknown kind";return base;
 }
 
 // ---- wall policy of a column (production layers, per wall) -------------------------------------------------------------
@@ -156,7 +141,7 @@ struct Column { Id wall=0,top=0,lid=0;V dir;std::set<unsigned short> walls;std::
   unsigned refusals=0;long double stopHeight=INFINITY,lidDistance=0;int owner=-1; };
 struct Growth {
   std::vector<Column> columns;std::set<std::array<Id,4>> layerKeys;std::map<std::string,size_t> stops,refusals,accepted;
-  size_t transactions=0,patch_tx=0,single_tx=0,lifted=0,refused=0,layers=0,max_old=0,max_fresh=0;double seconds=0;std::string outcome,last;
+  size_t transactions=0,patch_tx=0,single_tx=0,lifted=0,refused=0,layers=0,max_old=0,max_fresh=0,work=0;double seconds=0;std::string outcome,last;
   std::map<Id,Id> current;  // stack vertex identity -> its identity now (optimizer moves)
   std::set<Id> forceStop;   // tests: wall vertices whose column never grows
   // DC-15 ClearAbove: clearance refusals answered by relocating/removing free blocking vertices, then a retry
@@ -290,9 +275,9 @@ inline LTx LayerTransaction(State& s,const std::function<bool(Id)>& below,const 
     Patch before,after;for(const auto& c:old.cells){unsigned k=0;for(auto n:c.v)k+=Has(key,n.id);if(k==3)before.cells.push_back(c);}
     for(const auto& c:fresh){unsigned k=0;for(auto n:c.v)k+=Has(key,n.id);if(k==3)after.cells.push_back(c);}
     before.surface=after.surface={sf};before.parameters=old.parameters;after.parameters=out.parameters;
-    std::string w0,w1;const bool was=before.cells.size()==1&&HeightT(s,before,w0)&&Valid(Shape(s,before.cells.front()));
-    if(was&&!(after.cells.size()==1&&HeightT(s,after,w1)&&Valid(Shape(s,after.cells.front())))){tx.cls="invariant";tx.witness="a wall face loses its passing first child";return tx;}}
-  for(const auto& c:fresh)if(!Valid(Shape(s,c))){const auto sh=Shape(s,c);tx.cls="validity";tx.witness="fresh cell q="+Fmt(sh.q)+" J="+Fmt(sh.J);return tx;}
+    std::string w0,w1;const bool was=before.cells.size()==1&&HeightT(s,before,w0)&&Orientation(before.cells.front().v[0].p,before.cells.front().v[1].p,before.cells.front().v[2].p,before.cells.front().v[3].p)>0;
+    if(was&&!(after.cells.size()==1&&HeightT(s,after,w1)&&Orientation(after.cells.front().v[0].p,after.cells.front().v[1].p,after.cells.front().v[2].p,after.cells.front().v[3].p)>0)){tx.cls="invariant";tx.witness="a wall face loses its passing first child";return tx;}}
+  for(const auto& c:fresh)if(!(Orientation(c.v[0].p,c.v[1].p,c.v[2].p,c.v[3].p)>0)){tx.cls="validity";tx.witness="fresh cell has nonpositive exact orientation";return tx;}
   tx.fresh=std::move(out);tx.ok=true;return tx;
 }
 // DC-15 ClearAbove (DC15_PLAN rev 2 sect. 4): a clearance refusal names the stationary vertices of every inverted
@@ -313,7 +298,7 @@ inline bool ClearAbove(State& s,Growth& G,const std::function<bool(Id)>& below,c
     const auto& r=s.mesh.at(id);const auto f=CellFaces(r.cell);for(unsigned k=0;k<4;++k)if(r.physical[k].present&&Has(f[k],x))return refuse("boundary vertex");}
   std::vector<Id> ids(star.begin(),star.end());Patch old;try{old=PatchOf(s,ids);}catch(const std::exception&){return refuse("patch");}
   const V px=Of(NodePoint(s,x));const long double lift=std::max(0.L,Dot(u-px,d));
-  auto valid=[&](const Patch& fresh){for(const auto& c:fresh.cells)if(!Positive(c.v)||!Valid(Shape(s,c)))return false;std::string d2;return D2Ok(s,old,fresh,d2);};
+  auto valid=[&](const Patch& fresh){for(const auto& c:fresh.cells)if(!Positive(c.v))return false;std::string d2;return D2Ok(s,old,fresh,d2);};
   for(long double k:{1.L,2.L}){Patch fresh;std::string why;bool ok=false;
     try{ok=MoveVertex(old,x,{s.next_node,Pt(px+(lift+k*step)*d)},s.next_cell,*s.reference,fresh,why);}catch(const std::exception&){ok=false;}
     if(!ok||!valid(fresh))continue;
@@ -331,7 +316,7 @@ inline bool ClearAbove(State& s,Growth& G,const std::function<bool(Id)>& below,c
 namespace dc12 {
 // G: layer index by layer index; per layer, bounded wall patches of adjacent planned tops (<= 8 tops, above cavity <= 64),
 // each member alone on failure, one retry of every refused column at the same index; stop rules s1-s4 (OPTIMIZE_PLAN 2).
-inline Growth PhaseG(State& s,Rows10& rows,double seconds,std::ostream& log,const std::set<Id>& forceStop={}) {
+inline Growth PhaseG(State& s,Rows10& rows,double seconds,std::ostream& log,const std::set<Id>& forceStop={},size_t maximum_work=std::numeric_limits<size_t>::max()) {
   Scope scope("PhaseG");
   Growth G;G.forceStop=forceStop;const auto t0=Clock::now();MapLayers(s);
   for(const auto& r:rows.lift){const Id w=r.first;if(Rim(s,w))continue;Column c;c.wall=w;c.top=c.lid=r.second;
@@ -360,7 +345,7 @@ inline Growth PhaseG(State& s,Rows10& rows,double seconds,std::ostream& log,cons
     for(const auto& l:tx.lifted){auto& c=G.columns[owner.at(l.first)];c.stack.push_back(l.second);c.top=l.second;G.current[l.second]=l.second;++G.lifted;}
     ++G.transactions;G.max_old=std::max(G.max_old,tx.old_cells);G.max_fresh=std::max(G.max_fresh,tx.fresh_cells);};
   for(unsigned k=0;k<48;++k) {
-    if(Seconds(t0)>=seconds){G.outcome="limit";break;}BoundCaches(s);
+    if(Seconds(t0)>=seconds){G.outcome="limit";break;}if(G.work>=maximum_work){G.outcome="limit:work";break;}BoundCaches(s);
     std::vector<size_t> active;for(size_t i=0;i<G.columns.size();++i)if(!G.columns[i].stopped&&G.columns[i].stack.size()==k)active.push_back(i);
     if(active.empty())break;
     std::map<Id,V> plan;std::map<Id,size_t> owner;
@@ -370,6 +355,7 @@ inline Growth PhaseG(State& s,Rows10& rows,double seconds,std::ostream& log,cons
       if(d>=65536){std::ostringstream w;const V x=Of(NodePoint(s,c.top));w<<(which==0?"NextLayer":which==1?"TangentialSize":"GeometryLength")<<" +"<<d<<" kB at top "<<c.top
         <<" ("<<double(x.x)<<","<<double(x.y)<<","<<double(x.z)<<") stack "<<c.stack.size()<<" "<<what;worst.push_back({d,w.str()});}};
     for(size_t i:active) {
+      if(Seconds(t0)>=seconds){G.outcome="limit:time";break;}
       auto& c=G.columns[i];if(!s.vertex_cells.count(c.top)){stop(c,"s3 top vanished",INFINITY);continue;}
       if(dc16::RssKB()>dc16::rssCeilingKB){G.outcome="limit:memory";break;}
       long r=dc16::RssKB();
@@ -389,7 +375,7 @@ inline Growth PhaseG(State& s,Rows10& rows,double seconds,std::ostream& log,cons
     std::cout<<"DC16 G plan "<<k<<" active="<<active.size()<<" planned="<<plan.size()<<" seconds="<<Seconds(tp)<<" rss_kB "<<rss0<<"->"<<dc16::RssKB()
              <<" grown_kB NextLayer="<<grown[0]<<" Tangential="<<grown[1]<<" Geometry="<<grown[2]<<std::endl;
     for(size_t w=0;w<worst.size()&&w<6;++w)std::cout<<"DC16 G plan worst "<<worst[w].second<<std::endl;
-    if(G.outcome=="limit:memory")break;
+    if(G.outcome=="limit:memory" || G.outcome=="limit:time")break;
     if(plan.empty())break;
     // DC-16: room for the layer (deformation of the free volume above the active front, one-unit commit)
     if(dc16::roomStep)dc16::MakeRoom(s,below,fixed,plan,log);  // review 2: commit failures propagate (event fails)
@@ -403,6 +389,8 @@ inline Growth PhaseG(State& s,Rows10& rows,double seconds,std::ostream& log,cons
       std::map<Id,V> targets;for(Id t:T)targets[t]=plan.at(t);
       LTx tx;bool jointTried=false;
       for(unsigned round=0;;++round){
+        if(G.work>=maximum_work || Seconds(t0)>=seconds){G.outcome=G.work>=maximum_work?"limit:work":"limit:time";return false;}
+        ++G.work;
         try{tx=LayerTransaction(s,below,targets);}catch(const std::exception& e){tx.ok=false;tx.cls="exception";tx.witness=e.what();}
         if(tx.ok){if(round)++G.clear_retry_accepted;break;}
         if(tx.cls!="clearance"||round>=3||Seconds(t0)>=seconds)break;
@@ -421,7 +409,7 @@ inline Growth PhaseG(State& s,Rows10& rows,double seconds,std::ostream& log,cons
         ++G.accepted[targets.size()>1?"patch":"single"];(targets.size()>1?G.patch_tx:G.single_tx)++;return true;}
       ++G.refused;++G.refusals[tx.cls];G.last=tx.cls+": "+tx.witness;log<<"DC12 G refuse |T|="<<targets.size()<<" cls="<<tx.cls<<" "<<tx.witness<<"\n";return false;};
     for(Id seed:tops) {
-      if(done.count(seed))continue;if(Seconds(t0)>=seconds)break;
+      if(done.count(seed))continue;if(G.work>=maximum_work || Seconds(t0)>=seconds)break;
       std::set<Id> T{seed},cav=aboveOf(seed);
       for(bool grew=true;grew&&T.size()<8;) {grew=false;
         std::set<Id> cand;for(Id t:T)for(Id id:StarOf(s,t))for(auto n:s.mesh.at(id).cell.v)if(plan.count(n.id)&&!done.count(n.id)&&!T.count(n.id))cand.insert(n.id);
@@ -430,7 +418,7 @@ inline Growth PhaseG(State& s,Rows10& rows,double seconds,std::ostream& log,cons
       if(attempt(T))continue;
       if(T.size()>1){for(Id t:T)if(!attempt({t}))refusedNow.insert(t);}else refusedNow.insert(seed);
     }
-    for(Id t:refusedNow){auto& c=G.columns[owner.at(t)];if(c.stopped||c.stack.size()!=k)continue;
+    for(Id t:refusedNow){if(G.work>=maximum_work || Seconds(t0)>=seconds)break;auto& c=G.columns[owner.at(t)];if(c.stopped||c.stack.size()!=k)continue;
       if(++c.refusals>=2||!attempt({t})){if(c.stack.size()==k)stop(c,"s3 refused transactions ("+G.last.substr(0,G.last.find(':'))+")",INFINITY);}}
     ++G.layers;
     log<<"DC12 G layer "<<k<<" planned="<<plan.size()<<" lifted_total="<<G.lifted<<" refused_total="<<G.refused<<" t="<<Seconds(t0)<<"\n";
@@ -531,17 +519,16 @@ inline bool ApexRelocate(State& s,Rows10& rows,Id cell,const Face& key,FirstRowS
   Face out{};for(auto f:CellFaces(c))if(Sorted(f)==Sorted(key))out=f;
   const V a=Of(NodePoint(s,out[0])),b=Of(NodePoint(s,out[1])),cc=Of(NodePoint(s,out[2]));const V n=-1.L*Outward(a,b,cc);const long double h0=FaceH0(s,key);
   const std::array<std::array<long double,3>,7> feet{{{1.L/3,1.L/3,1.L/3},{.6L,.2L,.2L},{.2L,.6L,.2L},{.2L,.2L,.6L},{.45L,.45L,.1L},{.45L,.1L,.45L},{.1L,.45L,.45L}}};
-  double best=-1;Patch chosen;
+  Patch chosen;bool found=false;
   for(long double eta:{1.L,.92L,1.08L})for(const auto& w:feet) {
     Node node{s.next_node,Pt(w[0]*a+w[1]*b+w[2]*cc+(eta*h0)*n)};
     try{if(!carriers.empty())node=Constrain(s,priv.get(),node,carriers,carriers);}catch(const std::exception&){continue;}
     Patch fresh;std::string why;bool ok=false;try{ok=MoveVertex(old,v,node,s.next_cell,ref,fresh,why);if(ok)ref.ExportParameters(fresh);}catch(const std::exception&){ok=false;}
     if(!ok)continue;{std::string d2;if(!D2Ok(s,old,fresh,d2))continue;}
     const auto d=Admit12(s,old,fresh,FirstRowKind(s,old));if(!d.ok)continue;
-    double score=1e300;for(const auto& x:fresh.cells)if(IsFirstChild(s,fresh,x)){const auto sh=Shape(s,x);score=std::min(score,std::min(sh.q/MinimumMeanRatio,sh.J/MinimumScaledJacobian));}
-    if(score>best){best=score;chosen=std::move(fresh);}
+    chosen=std::move(fresh);found=true;break;
   }
-  if(best<0){++st.why["relocate: no admissible candidate"];return false;}
+  if(!found){++st.why["relocate: no admissible candidate"];return false;}
   for(const auto& sf:old.surface)if(s.walls.count(s.reference->Get(sf.facet).marker))certified.insert(Sorted(sf.v));
   const Id moved=s.next_node;Apply(s,ids,chosen);
   MoveRegistrations(rows,v,moved,certified,&st);if(ColumnEligible(rows,key))rows.apex[key]=moved;else rows.apex.erase(key);certified.insert(key);++st.relocated;return true;
@@ -558,15 +545,14 @@ inline bool FirstRowInsert(State& s,Rows10& rows,Id cell,const Face& key,FirstRo
   Patch fresh;FirstHeightReport report;std::string why;bool ok=false;
   try{if(walls==1&&InsertFirstWallPoint(old,s.next_node,s.next_cell,s.heights,*s.reference,fresh,report,why))ok=admit(fresh);}catch(const std::exception& e){why=e.what();ok=false;}
   if(!ok) {
-    std::vector<Point> backgrounds{Centroid(old.cells.front())};double best=-1;Patch chosen;
+    std::vector<Point> backgrounds{Centroid(old.cells.front())};Patch chosen;
     for(const auto& f:old.surface){const auto h=s.heights.find(s.reference->Get(f.facet).marker);if(h==s.heights.end())continue;
       std::array<V,3> q;for(unsigned k=0;k<3;++k)for(auto n:old.cells.front().v)if(n.id==f.v[k])q[k]=Of(n.p);
       const V nn=Unit(Cross(q[1]-q[0],q[2]-q[0]));const V cc=(1.L/3)*(q[0]+q[1]+q[2]);
       for(double factor:{1.25,1.5,2.})backgrounds.push_back(Pt(cc-(factor*h->second)*nn));}
     for(const auto& b:backgrounds){Patch candidate;std::string reason;
       try{if(!ConstructFirstLayer(old,{s.next_node,b},s.next_node+1,s.next_cell,s.heights,*s.reference,candidate,report,reason)){why=reason;continue;}}catch(const std::exception& e){why=e.what();continue;}
-      if(!admit(candidate))continue;double q=-1;try{q=MetricShapeQuality(candidate.cells,*s.field);}catch(const std::exception&){}
-      if(q>best){best=q;chosen=std::move(candidate);ok=true;}}
+      if(!admit(candidate))continue;chosen=std::move(candidate);ok=true;break;}
     if(ok)fresh=std::move(chosen);
   }
   if(ok) {
@@ -653,7 +639,7 @@ inline VStage12 PhaseV12(State& s,Rows10& rows,Growth& G,size_t work,double seco
     {const auto t=Clock::now();
      for(const auto& wf:WallFaces(s)){if(limited()||Seconds(t)>=.1*R)break;if(!s.mesh.count(wf.first))continue;
        const auto a=rows.apex.find(wf.second);if(a!=rows.apex.end()&&s.vertex_cells.count(a->second))continue;
-       double w=0;const bool hOk=HeightOk(s,wf.first,&w);if(hOk&&!Bad(MeshShape(s,wf.first)))continue;
+       const bool hOk=HeightOk(s,wf.first);if(hOk)continue;
        if(firstTried[wf.second]++>=2)continue;
        if(FirstRowInsert(s,rows,wf.first,wf.second,g.first,certified))changed=true;}
      g.first_seconds+=Seconds(t);}
@@ -705,15 +691,6 @@ inline VStage12 PhaseV12(State& s,Rows10& rows,Growth& G,size_t work,double seco
        changed|=taken;if(taken)build();
      }
      g.refine_seconds+=Seconds(t);}
-    // (c) bad first-row column cells -> ApexMove (certified, Admit12 Repair through the override)
-    {std::vector<std::pair<double,Id>> badColumn;for(const auto& row:s.mesh)if(ci.cells.count(row.first)){const auto sh=MeshShape(s,row.first);if(Bad(sh))badColumn.emplace_back(sh.q,row.first);}
-     std::sort(badColumn.begin(),badColumn.end());std::set<Face> moved;
-     for(const auto& b:badColumn){if(limited()||Seconds(sweepStart)>=.6*R)break;if(!s.mesh.count(b.second))continue;  // keep the optimizer's 40 % share
-       Face apexKey{};bool found=false;for(auto n:s.mesh.at(b.second).cell.v){const auto f=ci.apexFace.find(n.id);if(f!=ci.apexFace.end()&&rows.apex.count(f->second)&&rows.apex.at(f->second)==n.id){apexKey=f->second;found=true;}}
-       if(!found||!moved.insert(apexKey).second)continue;
-       const auto st=StarOf(s,rows.apex.at(apexKey));const auto k=keyOf(3,{apexKey[0],apexKey[1],apexKey[2]},std::vector<Id>(st.begin(),st.end()));
-       if(rejected.count(k))continue;std::string why;if(apexMove(apexKey,why)){changed=true;build();}else{rejected.insert(k);++g.demand["bad column cell: "+Key(why)];}}
-    }
     // (d) mesh-wide optimization with a reserved share of the sweep budget
     if(!limited()){const auto t=Clock::now();
       OptimizeOptions opt;opt.maximum_sweeps=8;opt.maximum_seconds=std::max(1.,std::min(remaining(),std::max(.4*R,.5*remaining())));

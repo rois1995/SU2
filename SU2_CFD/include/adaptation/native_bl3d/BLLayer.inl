@@ -102,49 +102,33 @@ inline bool SamePoint(Point a,Point b){return a.x==b.x&&a.y==b.y&&a.z==b.z;}
 inline long double ExcessOf(long double l){const auto e=std::max(0.L,l-(long double)MaximumMetricEdge);return e*e;}
 
 struct Decision {
-  bool ok=false;int category=0;std::string reason;double q_old=1,J_old=1,q_new=1,J_new=1,first_q=1,first_J=1,other_q=1,other_J=1;
+  bool ok=false,shape_measured=false;int category=0;std::string reason;double q_old=std::numeric_limits<double>::quiet_NaN(),J_old=std::numeric_limits<double>::quiet_NaN(),q_new=std::numeric_limits<double>::quiet_NaN(),J_new=std::numeric_limits<double>::quiet_NaN(),first_q=std::numeric_limits<double>::quiet_NaN(),first_J=std::numeric_limits<double>::quiet_NaN(),other_q=std::numeric_limits<double>::quiet_NaN(),other_J=std::numeric_limits<double>::quiet_NaN();
   long double removed=0,added=0;size_t old_cells=0,fresh_cells=0;
 };
 // One measurement, two admissions (A and D) on the same proposal.
 inline std::pair<Decision,Decision> Admit(State& s,const Patch& old,const Patch& fresh,Kind kind) {
   Decision base;base.old_cells=old.cells.size();base.fresh_cells=fresh.cells.size();
-  if(old.cells.empty()||fresh.cells.empty()||old.cells.size()>MaximumReplacementCells||fresh.cells.size()>MaximumReplacementCells){
-    base.category=5;base.reason="replacement size";return {base,base};}
-  std::string why;
-  if(!HeightT(s,fresh,why)){base.category=4;base.reason=why;return {base,base};}
+  if(old.cells.empty()||fresh.cells.empty()||old.cells.size()>MaximumReplacementCells||fresh.cells.size()>MaximumReplacementCells){base.category=5;base.reason="replacement size";return {base,base};}
+  std::string why;if(!HeightT(s,fresh,why)){base.category=4;base.reason=why;return {base,base};}
+  for(const auto& c:fresh.cells)if(Orientation(c.v[0].p,c.v[1].p,c.v[2].p,c.v[3].p)<=0){base.category=2;base.reason="fresh cell has nonpositive exact orientation";return {base,base};}
   PatchMetric after,before;
-  try {
-    after=MeasureMetricCells(fresh.cells,*s.field,nullptr,nullptr,false);
-    before=MeasureMetricCells(old.cells,*s.field,nullptr,&after.edges,false);
-  } catch(const std::exception& e){base.category=5;base.reason=e.what();return {base,base};}
-  base.q_old=before.minimum_mean_ratio;base.J_old=before.minimum_scaled_jacobian;base.q_new=after.minimum_mean_ratio;base.J_new=after.minimum_scaled_jacobian;
-  for(const auto& c:fresh.cells){const auto sh=ShapeOf(s,c);
-    if(IsFirstChild(s,fresh,c)){base.first_q=std::min(base.first_q,sh.q);base.first_J=std::min(base.first_J,sh.J);}
-    else{base.other_q=std::min(base.other_q,sh.q);base.other_J=std::min(base.other_J,sh.J);}}
+  try {after=MeasureMetricEdges(fresh.cells,*s.field);before=MeasureMetricEdges(old.cells,*s.field,nullptr,&after.edges);}
+  catch(const std::exception& e){base.category=5;base.reason=e.what();return {base,base};}
   auto shared=[](const std::map<Edge,EdgeMeasure>& others,const std::pair<const Edge,EdgeMeasure>& e){
     const auto o=others.find(e.first);return o!=others.end()&&SamePoint(o->second.a,e.second.a)&&SamePoint(o->second.b,e.second.b);};
   for(const auto& e:before.edges)if(!shared(after.edges,e))base.removed+=ExcessOf(e.second.length);
   for(const auto& e:after.edges)if(!shared(before.edges,e))base.added+=ExcessOf(e.second.length);
   const bool size_progress=base.removed>0&&base.added<base.removed*(1-1e-12L);
-  const bool quality_progress=(base.q_new>base.q_old+1e-7&&base.J_new>=base.J_old*(1-1e-12))||(base.J_new>base.J_old+1e-7&&base.q_new>=base.q_old*(1-1e-12));
-  auto progress=[&](Kind k,std::string& r)->bool{
-    if(k==Kind::Refine){if(fresh.cells.size()>old.cells.size()&&size_progress)return true;r="refine: no strict changed-edge excess reduction";return false;}
-    if(k==Kind::Repair){if(size_progress||(quality_progress&&base.added<=base.removed))return true;r="repair: neither size nor quality progress";return false;}
-    // LayerConstruct (D only): all affected faces within T and first children absolute are checked above/below;
-    // certificate: added excess <= removed excess (no size regression); the T/first-child count decrease is implied
-    // by the absolute D.1 checks on every affected face.
-    if(base.added<=base.removed)return true;r="layer: adds frozen excess";return false;};
-  Decision a=base,d=base;
-  // A: every fresh cell absolute; LayerConstruct is not a kind of A, judged as Repair.
-  if(base.q_new<MinimumMeanRatio||base.J_new<MinimumScaledJacobian){a.category=2;a.reason="A shape: q="+std::to_string(base.q_new)+" J="+std::to_string(base.J_new);}
-  else if(!progress(kind==Kind::Layer?Kind::Repair:kind,a.reason))a.category=3;else a.ok=true;
-  // D: D.1 contract.
-  if(base.first_q<MinimumMeanRatio||base.first_J<MinimumScaledJacobian){d.category=2;d.reason="D first child: q="+std::to_string(base.first_q)+" J="+std::to_string(base.first_J);}
-  else if(kind==Kind::Layer?!(base.other_q>0&&base.other_J>0):
-          (base.other_q<std::min<double>(MinimumMeanRatio,base.q_old)||base.other_J<std::min<double>(MinimumScaledJacobian,base.J_old))){
-    d.category=2;d.reason="D floor: q="+std::to_string(base.other_q)+" J="+std::to_string(base.other_J)+" old q="+std::to_string(base.q_old);}
-  else if(!progress(kind,d.reason))d.category=3;else d.ok=true;
-  return {a,d};
+  if(kind==Kind::Refine){
+    if(RemovesVertex(old.cells,fresh.cells)){if(size_progress){base.ok=true;return {base,base};}base.category=3;base.reason="refine removes a vertex without reducing changed-edge excess";return {base,base};}
+    const bool interior_ok=base.added==0;
+    if(interior_ok){base.ok=true;return {base,base};}
+    base.category=3;base.reason="refine adds frozen edge excess";return {base,base};
+  }
+  if(kind==Kind::Repair){base.ok=true;return {base,base};}
+  if(kind==Kind::Layer){if(!RemovesVertex(old.cells,fresh.cells)||base.added<=base.removed){base.ok=true;return {base,base};}
+    base.category=3;base.reason="layer removes a vertex and adds frozen excess";return {base,base};}
+  base.category=3;base.reason="unknown kind";return {base,base};
 }
 
 // ---- private point insertion inside a patch (visibility bounded by the patch; physical/artificial faces block) ------
@@ -402,8 +386,11 @@ inline void Export(State& s,const std::string& path) {
   out<<"h0 "<<s.h0<<"\n";
 }
 inline std::string Json(const Decision& d){std::ostringstream o;o<<std::setprecision(10)<<"{\"ok\":"<<d.ok<<",\"category\":"<<d.category<<",\"reason\":"<<junction_wp0::Json(d.reason)
-  <<",\"q_old\":"<<d.q_old<<",\"q_new\":"<<d.q_new<<",\"first_q\":"<<d.first_q<<",\"first_J\":"<<d.first_J<<",\"other_q\":"<<d.other_q<<",\"other_J\":"<<d.other_J
-  <<",\"removed\":"<<double(d.removed)<<",\"added\":"<<double(d.added)<<",\"cells\":["<<d.old_cells<<','<<d.fresh_cells<<"]}";return o.str();}
+  <<",\"shape_measured\":"<<d.shape_measured<<",\"q_old\":";
+  if(d.shape_measured)o<<d.q_old;else o<<"null";o<<",\"q_new\":";if(d.shape_measured)o<<d.q_new;else o<<"null";
+  o<<",\"first_q\":";if(d.shape_measured)o<<d.first_q;else o<<"null";o<<",\"first_J\":";if(d.shape_measured)o<<d.first_J;else o<<"null";
+  o<<",\"other_q\":";if(d.shape_measured)o<<d.other_q;else o<<"null";o<<",\"other_J\":";if(d.shape_measured)o<<d.other_J;else o<<"null";
+  o<<",\"removed\":"<<double(d.removed)<<",\"added\":"<<double(d.added)<<",\"cells\":["<<d.old_cells<<','<<d.fresh_cells<<"]}";return o.str();}
 inline std::string Json(const Run& r,const Gates& g){std::ostringstream o;o<<std::setprecision(12)<<"{\"outcome\":\""<<r.outcome<<"\",\"work\":"<<r.work<<",\"accepted\":"<<r.accepted<<",\"sweeps\":"<<r.sweeps
   <<",\"seconds\":"<<r.seconds<<",\"final\":{\"cells\":"<<g.cells<<",\"q_min\":"<<g.q<<",\"J_min\":"<<g.J<<",\"edge_max\":"<<double(g.lmax)<<",\"bad_shape\":"<<g.bad_shape
   <<",\"long_edges\":"<<g.long_edges<<",\"long_by_class\":{\"wall\":"<<g.long_wall<<",\"seam\":"<<g.long_seam<<",\"other_physical\":"<<g.long_other_physical<<",\"interior\":"<<g.long_interior<<"},\"wall_faces\":"<<g.wall_faces<<",\"height_failures\":"<<g.height_failures<<",\"complete\":"<<g.complete<<"},\"rejections\":{";

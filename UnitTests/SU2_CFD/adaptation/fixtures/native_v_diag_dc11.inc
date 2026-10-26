@@ -68,6 +68,7 @@ TEST_CASE("DC-11 diagnosis: refused splits re-examined with a local swap/smooth"
       std::vector<Id> added;for(Id x:freshV)if(!oldV.count(x))added.push_back(x);
       std::set<int> markers;for(const auto& f:old.surface)markers.insert(s->reference->Get(f.facet).marker);
       out<<"{\"case\":\""<<name<<"\",\"op\":"<<JS(op)<<",\"requested\":"<<double(requested)<<",\"star\":"<<ids.size()<<",\"fresh\":"<<fresh.cells.size()<<",\"new_points\":"<<added.size()
+         <<",\"shape_measured\":true"
          <<",\"old_q\":"<<d.q_old<<",\"old_J\":"<<d.J_old<<",\"fresh_q\":"<<d.other_q<<",\"fresh_J\":"<<d.other_J<<",\"physical_markers\":[";
       {bool k=false;for(int m:markers){out<<(k?",":"")<<JS(s->markers.at(m));k=true;}}out<<"],\"levels\":[";
       // bad fresh children: faces not containing a new point are skin faces of the old star
@@ -167,12 +168,14 @@ TEST_CASE("DC-11 diagnosis: production Refine on the cut input without a first-h
       <<",\"metric_trials\":"<<st.metric_trials<<",\"metric_shape_rejected\":"<<st.metric_shape_rejected<<",\"metric_progress_rejected\":"<<st.metric_progress_rejected
       <<",\"metric_measurement_rejected\":"<<st.metric_measurement_rejected<<",\"geometry_trials\":"<<st.geometry_trials<<",\"geometry_rejected\":"<<st.geometry_rejected
       <<",\"oversized_stars\":"<<st.oversized_stars<<",\"remaining_edges\":"<<st.remaining_edges<<",\"remaining_repairs\":"<<st.remaining_repairs<<",\"cached_invalid_cells\":"<<st.cached_invalid_cells
-      <<",\"last_metric_rejection\":{\"q_new\":"<<st.last_metric_rejection.minimum_mean_ratio<<"}";
+      <<",\"last_metric_rejection\":{\"shape_measured\":"<<(st.last_metric_rejection.shape_measured?"true":"false")<<",\"q_new\":";
+    if(st.last_metric_rejection.shape_measured)json<<st.last_metric_rejection.minimum_mean_ratio;else json<<"null";
+    json<<"}";
     std::cout<<"VOLONLY "<<name<<" "<<target<<" valid="<<r.valid<<" stop="<<EngineStopName(st.stop)<<" cells="<<r.cells.size()<<" t="<<used<<" reason="<<r.reason.substr(0,200)<<std::endl;
     if(!r.cells.empty()&&r.cells.size()<=30000) {
       s->mesh=r.cells;if(r.reference)s->reference=r.reference;s->overlay.clear();s->heights=WallHeights{};s->lengths.clear();ResetCaches();
       s->field=std::make_unique<FrozenField>(donors,composition,false,std::vector<Id>{},edges);Index(*s);
-      try{const auto g=Final(*s);json<<",\"final\":{\"cells\":"<<g.cells<<",\"q_min\":"<<g.q<<",\"J_min\":"<<g.J<<",\"edge_max\":"<<double(g.lmax)<<",\"long_edges\":"<<g.long_edges
+      try{const auto g=Final(*s);json<<",\"final\":{\"cells\":"<<g.cells<<",\"shape_measured\":true,\"q_min\":"<<g.q<<",\"J_min\":"<<g.J<<",\"edge_max\":"<<double(g.lmax)<<",\"long_edges\":"<<g.long_edges
         <<",\"long_interior\":"<<g.long_interior<<",\"long_other_physical\":"<<g.long_other_physical<<",\"long_wall\":"<<g.long_wall<<",\"bad_shape\":"<<g.bad_shape<<",\"unmeasurable\":"<<g.unmeasurable<<"}";
         std::cout<<"VOLONLY "<<name<<" final long="<<g.long_edges<<" bad="<<g.bad_shape<<" lmax="<<double(g.lmax)<<" qmin="<<g.q<<std::endl;}
       catch(const std::exception& x){json<<",\"final_error\":"<<JS(x.what());}

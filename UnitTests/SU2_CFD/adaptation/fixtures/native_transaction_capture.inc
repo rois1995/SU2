@@ -1,5 +1,6 @@
 #include "../../../../Common/include/adaptation/CNativeOptimize3D.hpp"
 #include <chrono>
+#include <cmath>
 #include <ctime>
 // Bounded test-only capture; borrowed engine objects never survive the callback.
 namespace {
@@ -82,7 +83,10 @@ struct NativeTransactionCapture {
       if(i)log<<',';log<<"{\"stage\":"<<std::quoted(e.stage)<<",\"passed\":"<<e.passed<<",\"reason\":"<<std::quoted(e.reason)
         <<",\"point\":["<<e.point.id<<','<<e.point.p.x<<','<<e.point.p.y<<','<<e.point.p.z<<"],\"first_cell\":"<<e.first_cell
         <<",\"first_node\":"<<e.first_node<<",\"metric_failure\":"<<unsigned(e.metric.failure)
-        <<",\"q\":"<<e.metric.minimum_mean_ratio<<",\"J\":"<<e.metric.minimum_scaled_jacobian<<'}';
+        <<",\"shape_measured\":"<<(e.metric.shape_measured?"true":"false")<<",\"q\":";
+      if(e.metric.shape_measured)log<<e.metric.minimum_mean_ratio;else log<<"null";
+      log<<",\"J\":";if(e.metric.shape_measured)log<<e.metric.minimum_scaled_jacobian;else log<<"null";
+      log<<'}';
     }
     log<<"]}\n";log.close();REQUIRE(bool(log));
   }
@@ -138,7 +142,7 @@ struct NativeTransactionCapture {
     CHECK(diagnosis.minimum_mean_ratio==metric->metric.minimum_mean_ratio);
     CHECK(diagnosis.minimum_scaled_jacobian==metric->metric.minimum_scaled_jacobian);
     std::ofstream log("transaction_replay_rank"+std::to_string(rank)+".json");log<<std::setprecision(17)
-      <<"{\"initial_split_exact\":"<<(valid==first.passed && PatchBytes(fresh)==PatchBytes(first.fresh))
+      <<"{\"shape_measured\":true,\"initial_split_exact\":"<<(valid==first.passed && PatchBytes(fresh)==PatchBytes(first.fresh))
       <<",\"first_failure_exact\":"<<(failure==metric->reason)<<",\"before_q\":"<<before.minimum_mean_ratio
       <<",\"before_J\":"<<before.minimum_scaled_jacobian<<",\"after_q\":"<<after.minimum_mean_ratio
       <<",\"after_J\":"<<after.minimum_scaled_jacobian<<",\"maximum_integrated_edge\":"<<double(after.maximum_length)
@@ -207,6 +211,7 @@ TEST_CASE("Saved native transaction construction replay", "[.][NativeTransaction
       NativeTransactionCapture::Event e;uint64_t passed=0,failure=0;
       e.stage=TransactionString(stream);e.reason=TransactionString(stream);stream(passed,e.point,e.first_cell,e.first_node,failure,
           e.metric.minimum_mean_ratio,e.metric.minimum_scaled_jacobian);REQUIRE(passed<=1);e.passed=passed;
+      e.metric.shape_measured=std::isfinite(e.metric.minimum_mean_ratio)&&std::isfinite(e.metric.minimum_scaled_jacobian);
       REQUIRE(failure<=unsigned(MetricFailure::Progress));e.metric.failure=MetricFailure(failure);
       const auto stem=root+"/transaction_rank2_event"+std::to_string(i);
       e.old=TransactionPatch(stem+"_old.bin");e.fresh=TransactionPatch(stem+"_fresh.bin");capture.events.push_back(std::move(e));
@@ -219,9 +224,10 @@ TEST_CASE("Saved native transaction construction replay", "[.][NativeTransaction
   const auto components=AssociatedExtensions(source,*capture.reference);
   FrozenField field(source,{},false,components,{}, {},true,source.size());
   const Edge edge{capture.feature.vertices[0],capture.feature.vertices[1]};
+  const bool boundary_optimizer=std::getenv("SU2_NATIVE_TRANSACTION_BOUNDARY_OPTIMIZER");
   size_t constructions=0,metrics=0,reconnects=0;bool exact=true,placement_set=false;Tensor placement;
   const NativeTransactionCapture::Event* first=nullptr;
-  for(size_t i=0;i<capture.events.size();++i) {
+  if(!boundary_optimizer)for(size_t i=0;i<capture.events.size();++i) {
     const auto& e=capture.events[i];INFO(i);INFO(e.stage);INFO(e.reason);
     Patch fresh;std::string reason;bool built=false,construction=true;
     if(e.stage=="SplitEdge") {
@@ -251,13 +257,21 @@ TEST_CASE("Saved native transaction construction replay", "[.][NativeTransaction
       CHECK(after>before);exact=exact && after>before;
     }
   }
-  std::ofstream strict("strict_replay.json");strict<<"{\"construction_calls\":"<<constructions<<",\"shape_failures\":"<<metrics
-    <<",\"calls_and_failure_reasons_exact\":"<<exact<<",\"growth_selection_policy_replayed\":false,\"MPI_peer_schedule_replayed\":false}\n";
-  strict.close();REQUIRE(bool(strict));REQUIRE(exact);REQUIRE(first);REQUIRE(constructions==26);
+  std::ofstream strict("strict_replay.json");
+  if(boundary_optimizer)strict<<"{\"construction_calls\":0,\"shape_failures\":0,\"calls_and_failure_reasons_exact\":null,\"historical_construction_replay_skipped\":true,\"growth_selection_policy_replayed\":false,\"MPI_peer_schedule_replayed\":false}\n";
+  else strict<<"{\"construction_calls\":"<<constructions<<",\"shape_failures\":"<<metrics
+    <<",\"calls_and_failure_reasons_exact\":"<<exact<<",\"historical_construction_replay_skipped\":false,\"growth_selection_policy_replayed\":false,\"MPI_peer_schedule_replayed\":false}\n";
+  strict.close();REQUIRE(bool(strict));if(!boundary_optimizer){REQUIRE(exact);REQUIRE(first);REQUIRE(constructions==26);}
   size_t seed_event=1;
   if(const auto* seed=std::getenv("SU2_NATIVE_TRANSACTION_SEED_EVENT")) {
     seed_event=std::stoul(seed);REQUIRE(seed_event<capture.events.size());
-    first=&capture.events[seed_event];REQUIRE(first->passed);
+  }
+  if(boundary_optimizer)REQUIRE(seed_event==1);
+  if(boundary_optimizer || std::getenv("SU2_NATIVE_TRANSACTION_SEED_EVENT")) {
+    REQUIRE(seed_event<capture.events.size());first=&capture.events[seed_event];
+  }
+  if(boundary_optimizer || std::getenv("SU2_NATIVE_TRANSACTION_SEED_EVENT")) {
+    REQUIRE(first);REQUIRE(first->passed);
     REQUIRE((first->stage=="SplitEdge" || first->stage=="ReconstructSplitPatch"));
   }
   std::set<Id> boundary_vertices,all_vertices;
@@ -276,7 +290,6 @@ TEST_CASE("Saved native transaction construction replay", "[.][NativeTransaction
     const auto& v=c.v;return {{{v[1].id,v[2].id,v[3].id},{v[0].id,v[3].id,v[2].id},
         {v[0].id,v[1].id,v[3].id},{v[0].id,v[2].id,v[1].id}}};
   };
-  const bool boundary_optimizer=std::getenv("SU2_NATIVE_TRANSACTION_BOUNDARY_OPTIMIZER");
   const bool parameter_search=std::getenv("SU2_NATIVE_TRANSACTION_PARAMETER_SEARCH");
   const bool surface_placement=parameter_search || std::getenv("SU2_NATIVE_TRANSACTION_SURFACE_PLACEMENT");
   JointSplitReport placement_report;bool changed=false;std::string method="connectivity";
@@ -297,10 +310,10 @@ TEST_CASE("Saved native transaction construction replay", "[.][NativeTransaction
         const auto geometry=TransactionSurfaceExcess(trial,*capture.reference,tolerance);
         const bool progress=before_geometry>0 && geometry<before_geometry*(1-1e-12L);
         const double score=std::min(m.minimum_mean_ratio/MinimumMeanRatio,m.minimum_scaled_jacobian/MinimumScaledJacobian);
-        scan<<",\"q\":"<<m.minimum_mean_ratio<<",\"J\":"<<m.minimum_scaled_jacobian
+        scan<<",\"shape_measured\":true,\"q\":"<<m.minimum_mean_ratio<<",\"J\":"<<m.minimum_scaled_jacobian
           <<",\"maximum_edge\":"<<double(m.maximum_length)<<",\"geometry_progress\":"<<progress;
         if(progress && score>best){best=score;repaired=std::move(trial);changed=true;}
-      }else {++placement_report.geometry_rejected;scan<<",\"reason\":"<<std::quoted(why);}
+      }else {++placement_report.geometry_rejected;scan<<",\"shape_measured\":false,\"q\":null,\"J\":null,\"reason\":"<<std::quoted(why);}
       scan<<"}";
     }
     scan<<"]\n";scan.close();REQUIRE(bool(scan));method="edge_parameter_search";
@@ -382,7 +395,8 @@ TEST_CASE("Saved native transaction construction replay", "[.][NativeTransaction
     <<",\"optimizer_stop\":"<<std::quoted(optimized.stop)<<",\"method\":"<<std::quoted(method)
     <<",\"flips\":"<<report.flips<<",\"moves\":"<<report.moves<<",\"removals\":"<<report.removals
     <<",\"prescribed_interface\":"<<interface<<",\"geometry_progress\":"<<geometry_progress<<",\"transaction_metric\":"<<transaction<<",\"final_patch_metric\":"<<final_patch
-    <<",\"external_contact\":"<<contact<<",\"candidate_measured\":"<<(changed && interface)<<",\"q\":";
+    <<",\"external_contact\":"<<contact<<",\"shape_measured\":"<<(changed && interface?"true":"false")
+    <<",\"candidate_measured\":"<<(changed && interface)<<",\"q\":";
   if(changed && interface)out<<measured.minimum_mean_ratio;else out<<"null";
   out<<",\"J\":";if(changed && interface)out<<measured.minimum_scaled_jacobian;else out<<"null";
   out<<",\"maximum_edge\":";if(changed && interface)out<<double(measured.maximum_length);else out<<"null";

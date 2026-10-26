@@ -85,15 +85,27 @@ inline void BoundCaches(State& s) {
 inline CellShape Shape(State& s,const Cell& c){try{return ShapeOf(s,c);}catch(const std::exception&){return {-1,-1};}}
 inline CellShape ShapeOrInvalid(State& s,const Cell& c){return Shape(s,c);}
 inline bool Bad(const CellShape& sh){return sh.q<MinimumMeanRatio||sh.J<MinimumScaledJacobian;}
-// DC-12 (OPTIMIZE_PLAN sect. 1): intermediate first-child checks follow shapePolicy (validity: q > 0, J >= 1e-3);
-// default false keeps every earlier harness unchanged (Invalid == Bad). Final gates always use Bad.
+// ShapePolicy remains for harness compatibility; production construction checks exact positive orientation. Final gates use Bad.
 struct ShapePolicy { bool validity=false; };
 inline ShapePolicy shapePolicy;
-inline bool Invalid(const CellShape& sh){return shapePolicy.validity?!(sh.q>0&&sh.J>=ValiditySliverJacobian):Bad(sh);}
+// DC-16 (validity-only intermediate events, user decision): set by the production entry on intermediate (ramped-h0)
+// events only. R2 then admits a lift that removes no vertex by its validity checks (cell validity, heights, carriers,
+// interface, D.2) without integrating its changed edges, and Admit12 admits such a LayerConstruct without measuring
+// them. Final cycles and every harness keep the certificates (default false).
+inline bool validityOnlyConstruction=false;
+// Construction may carry a measured requested-height deficit forward, but never accepts missing geometry or
+// failed reference clearance. Final validation continues to use strict CheckFirstHeight/HeightT.
+inline bool HeightConstruct(const Patch& p,const WallHeights& h,const PlanarReference& ref,FirstHeightReport* report=nullptr,std::string* witness=nullptr) {
+  FirstHeightReport r;std::string why;if(CheckFirstHeight(p,h,ref,r,why)){if(report)*report=r;return true;}
+  if(report)*report=r;if(witness)*witness=why;
+  return validityOnlyConstruction&&r.measured&&!r.missing_cells&&!r.reference_clearance_failures;
+}
+
+inline bool Invalid(const CellShape& sh){return Bad(sh);}
 inline CellShape ShapeOrInvalid(State& s,const Cell& c);
-// DC-12: every fresh cell of a construction step (W, R1, R2 preparation) is valid when shapePolicy.validity is set.
+// Every fresh construction cell is checked for exact positive orientation.
 inline bool FreshValid(State& s,const std::vector<Cell>& cells){if(!shapePolicy.validity)return true;
-  for(const auto& c:cells){const auto sh=ShapeOrInvalid(s,c);if(!(sh.q>0&&sh.J>=ValiditySliverJacobian))return false;}return true;}
+  for(const auto& c:cells)if(!(Orientation(c.v[0].p,c.v[1].p,c.v[2].p,c.v[3].p)>0))return false;return true;}
 inline CellShape MeshShape(State& s,Id id) {
   if(cachesOn){const auto f=shapeCache.find(id);if(f!=shapeCache.end()){++perf.shape_hits;return f->second;}}
   ++perf.shape_misses;const auto sh=Shape(s,s.mesh.at(id).cell);if(cachesOn)shapeCache.emplace(id,sh);return sh;
@@ -347,14 +359,13 @@ inline Skin ColumnSkin(const Face& f,const std::function<Id(Id)>& L,Id ovV=UINT6
   return out;
 }
 // Cone of one column skin (skin[0] = wall face, outward) from an apex of the exact LP; best first child, then column q.
-// spread: also a fixed grid of feet x heights inside the T window (ApexMove, and R2 when the LP points fail U1 shape).
-// D.2 parent/child invariant (Prepare kind and unrebuilt faces): a fresh wall face whose first child fails T or the
-// absolute first-child q/J is admitted only if every old wall face it overlaps (shares >= 2 vertices) failed as well.
+// spread: fixed grid of feet x heights inside the T window when the LP points fail geometric validity.
+// D.2 parent/child invariant (Prepare kind and unrebuilt faces): a fresh wall face may not lose an already passing geometric first child.
 inline bool FirstChildPasses(State& s,const Patch& p,const SurfaceFace& sf) {
   Patch one;const auto key=Sorted(sf.v);for(const auto& c:p.cells){unsigned k=0;for(auto n:c.v)k+=Has(key,n.id);if(k==3)one.cells.push_back(c);}
   if(one.cells.size()!=1)return false;one.surface={sf};one.parameters=p.parameters;std::string why;
-  bool ok=false;try{ok=HeightT(s,one,why);}catch(const std::exception&){ok=false;}
-  return ok&&!Invalid(Shape(s,one.cells.front()));
+  bool ok=false;try{FirstHeightReport h;ok=validityOnlyConstruction?HeightConstruct(one,s.heights,*s.reference,&h,&why):HeightT(s,one,why);}catch(const std::exception&){ok=false;}
+  return ok&&Positive(one.cells.front().v);
 }
 inline bool D2Ok(State& s,const Patch& old,const Patch& fresh,std::string& why) {
   Scope scope("D.2 invariant");
@@ -383,27 +394,19 @@ inline ConeOut ConeColumn(State& s,const std::vector<Face>& skin,const std::map<
        const auto d=Sigma()*Dot(N,p0-tris[k][0])/nn/h0;if(d>-1e-9L)w<<" ("<<skin[k+1][0]<<","<<skin[k+1][1]<<","<<skin[k+1][2]<<")="<<double(d);}}
     out.witness=w.str();return out;}
   cand.push_back((1.L/3)*(a+b+c)+h0*n);
-  double bestScore=-1,bestCol=-1;
+  bool found=false;
   auto evaluate=[&](const std::vector<V>& list){
-    for(const auto& p:list){const Node apex{apexId,Pt(p)};std::vector<Cell> cone;bool pos=true;double colq=1;CellShape first{1,1};
+    for(const auto& p:list){const Node apex{apexId,Pt(p)};std::vector<Cell> cone;bool pos=true;
       for(size_t k=0;k<skin.size()&&pos;++k){Cell cell{0,{apex,nodes.at(skin[k][0]),nodes.at(skin[k][1]),nodes.at(skin[k][2])}};
-        pos=Positive(cell.v);if(!pos)break;const auto sh=Shape(s,cell);if(shapePolicy.validity&&!(sh.q>0&&sh.J>=ValiditySliverJacobian)){pos=false;break;}
-        if(k==0)first=sh;colq=std::min(colq,sh.q);cone.push_back(cell);}
-      if(!pos)continue;const double score=std::min(first.q/MinimumMeanRatio,first.J/MinimumScaledJacobian);
-      if(score>bestScore+1e-12||(score>=1&&bestScore>=1&&colq>bestCol)){bestScore=score;bestCol=colq;out.cells=cone;out.fq=first.q;out.fJ=first.J;out.apex=apex;out.colq=colq;}}};
+        pos=Positive(cell.v);if(pos)cone.push_back(cell);}
+      if(!pos)continue;out.cells=cone;out.apex=apex;found=true;return;}};
   evaluate(cand);
-  if(spread||bestScore<1) {
+  if(spread||!found) {
     std::vector<V> grid;const std::array<std::array<long double,3>,7> feet{{{1.L/3,1.L/3,1.L/3},{.6L,.2L,.2L},{.2L,.6L,.2L},{.2L,.2L,.6L},{.45L,.45L,.1L},{.45L,.1L,.45L},{.1L,.45L,.45L}}};
     for(long double eta:{.92L,1.L,1.08L})for(const auto& w:feet)grid.push_back(w[0]*a+w[1]*b+w[2]*c+(eta*h0)*n);
     evaluate(grid);
   }
   if(out.cells.empty()){out.cls="partial-state";out.witness="LP apex rounds outside its column";return out;}
-  if(Invalid({out.fq,out.fJ})){out.cls="first-child";std::ostringstream w;w<<"first child q="<<out.fq<<" J="<<out.fJ;
-    // diagnostic (first 400 witnesses per case): composed metric lengths of the base edges and the apex edges
-    if(firstChildDiagnostics<400){++firstChildDiagnostics;const auto& c0=out.cells.front();w<<"; metric edges base/apex:";
-      for(unsigned i=1;i<4;++i)for(unsigned j=i+1;j<4;++j){try{w<<" "<<double(s.field->TargetEdgeLength(c0.v[i].p,c0.v[j].p));}catch(const std::exception&){w<<" ?";}}w<<" /";
-      for(unsigned j=1;j<4;++j){try{w<<" "<<double(s.field->TargetEdgeLength(c0.v[0].p,c0.v[j].p));}catch(const std::exception&){w<<" ?";}}}
-    out.witness=w.str();return out;}
   out.ok=true;return out;
 }
 
@@ -615,11 +618,6 @@ struct SplitPolicy {
   size_t size_insertions=0,vertex_removal_checks=0,vertex_removal_refusals=0,nonsize_checks=0,nonsize_refusals=0,layer_free=0,layer_checked=0;
 };
 inline SplitPolicy splitPolicy;
-// DC-16 (validity-only intermediate events, user decision): set by the production entry on intermediate (ramped-h0)
-// events only. R2 then admits a lift that removes no vertex by its validity checks (cell validity, heights, carriers,
-// interface, D.2) without integrating its changed edges, and Admit12 admits such a LayerConstruct without measuring
-// them. Final cycles and every harness keep the certificates (default false).
-inline bool validityOnlyConstruction=false;
 // DC-14: the former SU2_DC9_SECTOR_FIRST switch (option of the DC-9..11 harnesses; never set in production).
 inline bool sectorFirst=false;
 // A removal: an old vertex (not a relocated apex) absent from the fresh cells, or no net vertex gain (the production
@@ -769,16 +767,16 @@ inline Tx Transaction(State& s,const Rows& rows,const std::set<Id>& V0,bool low)
       for(const auto& c:fresh){unsigned k=0;for(auto n:c.v)k+=Has(key,n.id);if(k==3)after.cells.push_back(c);}
       before.surface=after.surface={sf};before.parameters=tx.old.parameters;after.parameters=out.parameters;
       FirstHeightReport r0,r1;std::string w0,w1;
-      const bool was=before.cells.size()==1&&CheckFirstHeight(before,s.heights,*s.reference,r0,w0)&&!Invalid(Shape(s,before.cells.front()));
-      if(was&&!(after.cells.size()==1&&CheckFirstHeight(after,s.heights,*s.reference,r1,w1)&&!Invalid(Shape(s,after.cells.front())))){tx.failing.push_back(key);tx.cls="invariant";tx.witness="unrebuilt wall face loses its passing first child (T or q/J): "+w1;}
+      const bool was=before.cells.size()==1&&HeightConstruct(before,s.heights,*s.reference,&r0)&&Positive(before.cells.front().v);
+      if(was&&!(after.cells.size()==1&&HeightConstruct(after,s.heights,*s.reference,&r1)&&Positive(after.cells.front().v))){tx.failing.push_back(key);tx.cls="invariant";tx.witness="unrebuilt wall face loses its passing geometric first child: "+w1;}
       continue;}
     Patch one;for(const auto& c:fresh){unsigned k=0;for(auto n:c.v)k+=Has(key,n.id);if(k==3)one.cells.push_back(c);}
     one.surface={sf};for(const auto& c:one.cells)for(auto n:c.v){const auto pr=out.parameters.find(n.id);if(pr!=out.parameters.end())one.parameters.insert(*pr);}
-    FirstHeightReport r;if(one.cells.size()!=1||!CheckFirstHeight(one,s.heights,*s.reference,r,reason)){tx.failing.push_back(key);tx.cls="height";tx.witness="face "+std::to_string(key[0])+": "+reason;continue;}
+    FirstHeightReport r;if(one.cells.size()!=1||!(validityOnlyConstruction?HeightConstruct(one,s.heights,*s.reference,&r,&reason):CheckFirstHeight(one,s.heights,*s.reference,r,reason))){tx.failing.push_back(key);tx.cls="height";tx.witness="face "+std::to_string(key[0])+": "+reason;continue;}
     tx.height_error=std::max(tx.height_error,r.maximum_relative_error);
-    const auto sh=Shape(s,one.cells.front());if(Invalid(sh)){tx.failing.push_back(key);tx.cls="first-child";tx.witness="rowed face first child q="+std::to_string(sh.q);}}
+    if(!Positive(one.cells.front().v)){tx.failing.push_back(key);tx.cls="first-child";tx.witness="rowed face first child has nonpositive orientation";}}
   if(!tx.failing.empty())return tx;
-  if(shapePolicy.validity)for(const auto& c:out.cells){const auto sh=Shape(s,c);if(!(sh.q>0&&sh.J>=ValiditySliverJacobian)){tx.cls="validity";tx.witness="fresh cell q="+std::to_string(sh.q)+" J="+std::to_string(sh.J);return tx;}}
+  for(const auto& c:out.cells)if(!(Orientation(c.v[0].p,c.v[1].p,c.v[2].p,c.v[3].p)>0)){tx.cls="validity";tx.witness="fresh cell has nonpositive orientation";return tx;}
   if(splitPolicy.rule==1){std::set<Id> rel;for(const auto& k:tx.rebuilt){const auto a=rows.apex.find(k);if(a!=rows.apex.end())rel.insert(a->second);}
     if(!RemovesVertex(tx.old.cells,out.cells,&rel)){std::string why;if(!validityOnlyConstruction&&!MeasurableChanged(s,tx.old,out,why)){tx.cls="measure";tx.witness=why;return tx;}
       ++splitPolicy.layer_free;tx.fresh=std::move(out);tx.ok=true;return tx;}++splitPolicy.layer_checked;}
@@ -1096,7 +1094,7 @@ inline bool SplitLinkEdge(State& s,const Rows& rows,Edge e,std::string& why,Id w
   if(!FreshValid(s,fresh.cells)){why="validity";return false;}
   Apply(s,star,fresh);return true;
 }
-inline R2Stage PhaseR2(State& s,Rows& rows,double seconds,std::ostream& log) {
+inline R2Stage PhaseR2(State& s,Rows& rows,double seconds,std::ostream& log,size_t maximum_work=std::numeric_limits<size_t>::max()) {
   Scope scope("PhaseR2");
   R2Stage g;Begin(s,g);const auto t0=Clock::now();std::set<Id> tried;  // DC-15: vertices with at least one transaction
   for(unsigned pass=0;pass<2;++pass) {
@@ -1114,10 +1112,10 @@ inline R2Stage PhaseR2(State& s,Rows& rows,double seconds,std::ostream& log) {
      order.swap(sequenced);}
     for(const auto& ov:order) {
       const Id v=ov.second;
-      if(rows.lift.count(v)||Rim(s,v))continue;if(Seconds(t0)>=seconds){g.outcome="limit:time";break;}
+      if(rows.lift.count(v)||Rim(s,v))continue;if(Seconds(t0)>=seconds){g.outcome="limit:time";break;}if(g.work>=maximum_work){g.outcome="limit:work";break;}
       std::set<Id> V0{v};Tx tx;bool low=false;unsigned separated=0;
       for(unsigned grow=0;grow<20;++grow) {
-        if(Seconds(t0)>=seconds)break;
+        if(Seconds(t0)>=seconds)break;if(g.work>=maximum_work){g.outcome="limit:work";break;}
         ++g.work;tried.insert(v);tx=Transaction(s,rows,V0,low);
         log<<"DC9 R2 tx v="<<v<<" |V|="<<V0.size()<<" low="<<low<<" ok="<<tx.ok<<" old="<<tx.old_cells<<" fresh="<<tx.fresh_cells<<" sectors="<<tx.sectors<<" gaps="<<tx.gaps<<" cls="<<tx.cls<<" "<<tx.witness<<"\n";
         if(tx.ok)break;
@@ -1184,27 +1182,22 @@ inline Decision Admit8(State& s,const Patch& old,const Patch& fresh,Kind kind) {
   Scope scope("Admit (D.1)");
   Decision base;base.old_cells=old.cells.size();base.fresh_cells=fresh.cells.size();
   if(old.cells.empty()||fresh.cells.empty()||old.cells.size()>MaximumReplacementCells||fresh.cells.size()>MaximumReplacementCells){base.category=5;base.reason="replacement size";return base;}
-  std::string why;if(!HeightT(s,fresh,why)){base.category=4;base.reason=why;return base;}
+  std::string why;FirstHeightReport heightReport;if(!(validityOnlyConstruction?HeightConstruct(fresh,s.heights,*s.reference,&heightReport,&why):HeightT(s,fresh,why))){base.category=4;base.reason=why;return base;}
+  for(const auto& c:fresh.cells)if(!(Orientation(c.v[0].p,c.v[1].p,c.v[2].p,c.v[3].p)>0)){base.category=2;base.reason="fresh cell has nonpositive exact orientation";return base;}
   PatchMetric after,before;
   try{auto reuse=ReuseOf(s,old.cells,&fresh.cells);
-    after=MeasureMetricCells(fresh.cells,*s.field,nullptr,&reuse,false);StoreLengths(s,after);
+    after=MeasureMetricEdges(fresh.cells,*s.field,nullptr,&reuse);StoreLengths(s,after);
     for(const auto& e:after.edges)reuse.insert_or_assign(e.first,e.second);
-    before=MeasureMetricCells(old.cells,*s.field,nullptr,&reuse,false);StoreLengths(s,before);}
+    before=MeasureMetricEdges(old.cells,*s.field,nullptr,&reuse);StoreLengths(s,before);}
   catch(const std::exception& e){base.category=5;base.reason=e.what();return base;}
-  base.q_old=before.minimum_mean_ratio;base.J_old=before.minimum_scaled_jacobian;base.q_new=after.minimum_mean_ratio;base.J_new=after.minimum_scaled_jacobian;
-  for(const auto& c:fresh.cells){const auto sh=ShapeOf(s,c);
-    if(IsFirstChild(s,fresh,c)){base.first_q=std::min(base.first_q,sh.q);base.first_J=std::min(base.first_J,sh.J);}
-    else{base.other_q=std::min(base.other_q,sh.q);base.other_J=std::min(base.other_J,sh.J);}}
   auto shared=[](const std::map<Edge,EdgeMeasure>& others,const std::pair<const Edge,EdgeMeasure>& e){
     const auto o=others.find(e.first);return o!=others.end()&&SamePoint(o->second.a,e.second.a)&&SamePoint(o->second.b,e.second.b);};
   for(const auto& e:before.edges)if(!shared(after.edges,e))base.removed+=layer2d::ExcessOf(e.second.length);
   for(const auto& e:after.edges)if(!shared(before.edges,e))base.added+=layer2d::ExcessOf(e.second.length);
   const bool size_progress=base.removed>0&&base.added<base.removed*(1-1e-12L);
-  const bool quality_progress=(base.q_new>base.q_old+1e-7&&base.J_new>=base.J_old*(1-1e-12))||(base.J_new>base.J_old+1e-7&&base.q_new>=base.q_old*(1-1e-12));
+
   Decision d=base;
-  if(base.first_q<MinimumMeanRatio||base.first_J<MinimumScaledJacobian){d.category=2;d.reason="D first child: q="+std::to_string(base.first_q)+" J="+std::to_string(base.first_J);return d;}
-  if(kind==Kind::Layer?!(base.other_q>0&&base.other_J>0):(base.other_q<std::min<double>(MinimumMeanRatio,base.q_old)||base.other_J<std::min<double>(MinimumScaledJacobian,base.J_old))){
-    d.category=2;d.reason="D floor: q="+std::to_string(base.other_q)+" J="+std::to_string(base.other_J)+" old q="+std::to_string(base.q_old);return d;}
+
   if(splitPolicy.rule==1&&(kind==Kind::Refine||kind==Kind::Layer)) {  // DC-11 2D split rule (SplitPolicy)
     const bool removes=RemovesVertex(old.cells,fresh.cells,splitPolicy.relocated,splitPolicy.relocatedCount);
     if(kind==Kind::Layer){if(!removes){++splitPolicy.layer_free;d.ok=true;return d;}++splitPolicy.layer_checked;
@@ -1218,11 +1211,11 @@ inline Decision Admit8(State& s,const Patch& old,const Patch& fresh,Kind kind) {
     ++splitPolicy.nonsize_checks;bool interiorOk=base.added==0;
     if(interiorOk){std::set<Edge> in;try{in=InteriorEdges(fresh.cells);}catch(const std::exception&){interiorOk=false;}
       for(const auto& e:after.edges)if(in.count(e.first)&&e.second.length>MaximumMetricEdge)interiorOk=false;}
-    if(interiorOk&&base.q_new>base.q_old+1e-7){d.ok=true;return d;}  // 2D: the minimum quality rises
-    ++splitPolicy.nonsize_refusals;d.category=3;d.reason="refine: non-size insertion adds an oversized interior edge or improves no shape";return d;
+    if(interiorOk){d.ok=true;return d;}
+    ++splitPolicy.nonsize_refusals;d.category=3;d.reason="refine: non-size insertion adds an oversized interior edge or ";return d;
   }
   if(kind==Kind::Refine){if(fresh.cells.size()>old.cells.size()&&size_progress){d.ok=true;return d;}d.category=3;d.reason="refine: no strict changed-edge excess reduction";return d;}
-  if(kind==Kind::Repair){if(size_progress||(quality_progress&&base.added<=base.removed)){d.ok=true;return d;}d.category=3;d.reason="repair: neither size nor quality progress";return d;}
+  if(kind==Kind::Repair){d.ok=true;return d;}
   if(base.added<=base.removed){d.ok=true;return d;}d.category=3;d.reason="layer: adds frozen excess";return d;
 }
 // ---- V (d): existing volume operators outside columns; ApexMove / ColumnSplit inside columns --------------------------

@@ -8,6 +8,7 @@
 #include "CNativeField3D.hpp"
 #include "CNativeCavity3D.hpp"
 #include <map>
+#include <limits>
 namespace SU2Native3D {
 constexpr double MaximumMetricEdge = 1.8;
 /*! Signed planar cross product with fma compensation, compiled in the strict-arithmetic library. */
@@ -25,7 +26,9 @@ std::vector<unsigned char> MetricEdgeRequests(const std::vector<Cell>& cells,std
     const std::shared_ptr<const FrozenMetricIdentity>& identity,const std::map<Edge,EdgeMeasure>* campaign=nullptr);
 
 struct PatchMetric {
-  double minimum_mean_ratio = 1, minimum_scaled_jacobian = 1;
+  bool shape_measured = false;
+  double minimum_mean_ratio = std::numeric_limits<double>::quiet_NaN();
+  double minimum_scaled_jacobian = std::numeric_limits<double>::quiet_NaN();
   Id weakest_cell = 0, sliver_cell = 0;
   Edge longest_edge{};
   long double maximum_length = 0;
@@ -53,9 +56,9 @@ enum class MetricFailure { None, Measurement, Shape, Progress };
 /*! Refine admission (user decision 2026-10-23: the 2D split rule, CNativeMesh2D.hpp SplitPatch sizeProgress).
  * SplitInsertion: a refinement that removes no vertex of the old cells and replaces a changed old edge longer than
  * SplitInsertionLength (a size insertion) needs no changed-edge excess progress; one that removes a vertex keeps the
- * strict excess decrease; a non-size insertion must add no oversized changed edge and strictly raise the minimum mean
- * ratio. A vertex is removed when it is absent from the fresh cells; `relocated` (certified by the caller) old vertices
- * may be absent because a refit replaced them one for one by a new identity. Fresh shape stays strict.
+ * strict excess decrease; a non-size insertion must add no oversized changed edge. Under Absolute compatibility mode,
+ * it also raises the minimum mean ratio. A vertex is removed when absent from fresh cells; `relocated` old vertices may
+ * be absent when a refit replaces them one for one by a new identity.
  * StrictExcess: the previous rule (strict excess decrease for every refinement), kept for A/B comparisons and the
  * reproducibility of older harness evidence. Default: SplitInsertion (user decision 2026-10-23).
  * Process-wide; final mesh gates are independent of it. */
@@ -63,30 +66,32 @@ enum class RefineAcceptance { StrictExcess, SplitInsertion };
 constexpr double SplitInsertionLength = 1.6;
 void SetRefineAcceptance(RefineAcceptance acceptance);
 RefineAcceptance GetRefineAcceptance();
-/*! Per-operation shape admission (user decision 2026-10-23: q >= .20 / J >= .05 are FINAL acceptance gates only).
- * Absolute: every fresh cell of a metric change must pass the final shape gates (previous behaviour, production default).
- * ValidityOnly (build-then-optimize, OPTIMIZE_PLAN): fresh cells need only q > 0 and J >= ValiditySliverJacobian, J the
- * scaled Jacobian measured in the metric (a cell below it is a numerically flat sliver whose quality gradient vanishes).
- * It governs ValidateMetricChange and MeasureMetricCells(require_shape) only; progress rules are unchanged and
- * ValidateMetricPatch (final completion) stays absolute in both modes. Process-wide; callers restore the previous mode. */
+/*! Per-operation admission. Absolute: explicit legacy/diagnostic metric changes also enforce final q/J.
+ * ValidityOnly: Refine/Coarsen/GeometryRefine use edge-only measurements; Repair intents measure q/J for improvement.
+ * Final ValidateMetricPatch always enforces q/J and edge limits. Process-wide; callers restore the previous mode. */
 enum class ShapeAdmission { Absolute, ValidityOnly };
+// Legacy diagnostic threshold only; not a construction-validity requirement.
 constexpr double ValiditySliverJacobian = 1e-3;
 void SetShapeAdmission(ShapeAdmission admission);
 ShapeAdmission GetShapeAdmission();
 struct MetricDiagnosis {
   MetricFailure failure = MetricFailure::None;
+  bool shape_measured = false;
   bool size_progress = false, quality_progress = false, cell_removal = false;
   bool size_insertion = false, vertex_removal = false;  // Refine classification (SplitInsertion rule)
   long double removed_excess = 0, added_excess = 0, longest_removed = 0;
-  double minimum_mean_ratio = 1, minimum_scaled_jacobian = 1;
+  double minimum_mean_ratio = std::numeric_limits<double>::quiet_NaN();
+  double minimum_scaled_jacobian = std::numeric_limits<double>::quiet_NaN();
   Id weakest_cell = 0, sliver_cell = 0;
 };
 /*! Minimum normalized q/J at actual cell centroids, with the same geometry/source validation
  * and arithmetic as MeasureMetricCells. This scalar is a proposal-ranking score, never an edge/mesh certificate. */
 double MetricShapeQuality(const std::vector<Cell>& cells,FrozenField& target);
-/*! Measures only actual centroids and source-resolved edges of the supplied known cells; throws on
- * invalid geometry/source coverage. A caller can merge bounded batches by cell minima and unique edges.
- * The source must remain the same original frozen target throughout, including any scalar-edge reuse. */
+/*! Measures exact positive cell geometry and source-resolved edges without centroid metric queries.
+ * Bounded batches may merge unique edges. The same frozen target and exact reuse rules apply; shape fields remain unavailable. */
+PatchMetric MeasureMetricEdges(const std::vector<Cell>& cells, FrozenField& target, MetricStats* stats = nullptr,
+                               const std::map<Edge, EdgeMeasure>* frozen_reuse = nullptr,
+                               std::map<Edge,EdgeMeasure>* campaign = nullptr);
 PatchMetric MeasureMetricCells(const std::vector<Cell>& cells, FrozenField& target, MetricStats* stats = nullptr,
                               const std::map<Edge, EdgeMeasure>* frozen_reuse = nullptr,
                               bool require_shape = false, MetricDiagnosis* diagnosis = nullptr,

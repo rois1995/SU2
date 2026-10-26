@@ -91,8 +91,10 @@ TEST_CASE("DC-14 FIRST_ROW entry: two wall markers, two symmetry planes, fresh e
     auto result = RunEvent(world, current, donors, state, *policy, *config, cont, ctl, report);
     INFO(report.substr(0, 4000));
     REQUIRE(!result.cells.empty());
-    if (!event) REQUIRE(result.valid);  // intermediate acceptance: positive cells, every first height within T of h0_k
+    if (!event) REQUIRE(result.valid);  // Provisional construction only; the remesher runs strict distributed acceptance.
     CHECK(report.find("\"audit\":") != std::string::npos);
+    CHECK(report.find("\"phase_V\"") == std::string::npos);
+    CHECK(report.find("\"shape_misses\":0") != std::string::npos);
     CHECK(report.find(event ? "\"chain_step\":1" : "\"chain_step\":0") != std::string::npos);
     // every cell positive, volume and every marker's skin area unchanged (planar box), skin fully bound
     long double vol = 0; bool positive = true;
@@ -107,7 +109,7 @@ TEST_CASE("DC-14 FIRST_ROW entry: two wall markers, two symmetry planes, fresh e
       CHECK(report.find("\"halve\":{") != std::string::npos);
       CHECK(report.find("\"completion\":{") != std::string::npos);
     }
-    // commit (the remesher does this in onAccepted) and continue from the published state
+    // Exercise construction lineage privately; production commits only after distributed/CFD acceptance.
     if (!result.valid) break;  // only an accepted event continues
     cont.committed = cont.pending; cont.source = "memory";
     current = result.cells; state.original = result.reference;

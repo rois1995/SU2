@@ -68,6 +68,7 @@ struct EngineStats {
   uint64_t global_work = 0, work_limit = 0, progress_windows = 0, stagnant_windows = 0, search_windows = 0;
   uint64_t size_progress = 0, quality_progress = 0, cell_removals = 0, geometry_progress = 0;
   uint64_t geometry_reactivated=0;
+  uint64_t quality_stages=0,construction_returns=0;  // Fresh strict censuses and size/geometry returns within this event.
   uint64_t region_field_points=0,region_field_sensor_hits=0,region_field_interior_hits=0;
   uint64_t region_field_edges=0,region_field_edge_hits=0,region_field_imports=0;
   size_t region_field_maximum_resident=0;
@@ -162,16 +163,12 @@ struct EngineResult {
   std::string reason;
   EngineStats stats;
 };
-/*! Complete metric refinement with bounded private reconnection after rejection and one repair-queue recovery.
- * Recovery retains one dependency-tracked repair queue and retries newly unblocked splits after edits.
- * It shares the same frozen source/indexes, round budget and strict completion gates.
- * All world ranks call together; accepted and original source remain unchanged. Same options/immutable geometry
- * authority and frozen composition policy on every worker; source must cover the original accepted domain.
- * Donor/dependency limits can reject the whole event. Exact edge splits or certified edge-cavity insertion
- * preserve the admitted cavity and physical planar domain; caller supplies embedded conforming accepted input and facet authority.
- * Success means all working cells satisfy the frozen metric gates, not CFD/CGNS/partition qualification.
- * Each instance/call runs on one thread per worker. Byte models describe requested storage, not allocator/RSS.
- */
+/*! Distributed validity-first construction followed by metric/first-height quality improvement.
+ * Construction uses exact-positive cells, geometry and frozen edge lengths; complete construction starts a
+ * fresh strict q/J/size/height census and the dependency-tracked distributed repair queue. Improvement may
+ * return new size/surface deficits to construction; every re-entry measures shape afresh. Budgets, source and
+ * private geometry are shared across phases. Accepted input/source remain unchanged; only complete strict
+ * final acceptance makes the private result valid. All worker ranks call together. */
 EngineResult Refine(World& world, const Owned& accepted, const std::vector<DonorCell>& original,
                     const PlanarReference& geometry, MetricComposition composition = {}, EngineOptions options = {});
 /*! General directed vertex-star coarsening on the same frozen-target transaction path. A successful event
@@ -182,10 +179,9 @@ EngineResult Refine(World& world, const Owned& accepted, const std::vector<Donor
  * Already-admissible meshes retain the cheaper removal path; coarsening need not minimize cell count. */
 EngineResult Coarsen(World& world, const Owned& accepted, const std::vector<DonorCell>& original,
                     const PlanarReference& geometry, MetricComposition composition = {}, EngineOptions options = {});
-/*! Automatically reconnects admitted face/edge cavities or moves complete vertex stars of failing cells.
- * At most16 private proposals per cavity; strict fresh shape/sliver and original-field progress gates remain.
- * Success requires every working cell to pass the full frozen target. Stagnation rejects the private event;
- * finite reference facets protect planar motion and original seams. No refinement/coarsening target relaxation. */
+/*! Uses the same distributed construction/improvement lifecycle, with complete vertex/edge/face repairs
+ * for quality and requested first-height deficits. Exact-positive intermediate cells have no q/J floor;
+ * final success still requires all strict frozen target gates. */
 EngineResult Repair(World& world, const Owned& accepted, const std::vector<DonorCell>& original,
                     const PlanarReference& geometry, MetricComposition composition = {}, EngineOptions options = {});
 }  // namespace SU2Native3D

@@ -16,9 +16,9 @@ using namespace dc13;
  *  prescribed heights only (no index, cache or field of the construction). */
 struct Validity {
   size_t cells=0,nonpositive=0,faces=0,boundary_faces=0,interior_faces=0,overshared=0,same_orientation=0,interior_physical=0,
-         open_unbound=0,wall_faces=0,height_failures=0,unknown_marker=0,vertices=0,inconsistent_points=0,skin_edges=0,nonmanifold_skin_edges=0;
+         open_unbound=0,wall_faces=0,height_failures=0,reference_clearance_failures=0,missing_height_cells=0,unmeasured_heights=0,unknown_marker=0,vertices=0,inconsistent_points=0,skin_edges=0,nonmanifold_skin_edges=0;
   std::string witness;
-  bool Valid()const{return cells>0&&!nonpositive&&!overshared&&!same_orientation&&!interior_physical&&!open_unbound&&!unknown_marker&&!height_failures&&!inconsistent_points&&!nonmanifold_skin_edges;}
+  bool Valid()const{return cells>0&&!nonpositive&&!overshared&&!same_orientation&&!interior_physical&&!open_unbound&&!unknown_marker&&!height_failures&&!reference_clearance_failures&&!missing_height_cells&&!unmeasured_heights&&!inconsistent_points&&!nonmanifold_skin_edges;}
 };
 inline Validity IndependentValidity(const State& s) {
   Scope scope("DC15 IndependentValidity");
@@ -44,7 +44,10 @@ inline Validity IndependentValidity(const State& s) {
       else{int marker=-1;try{marker=s.reference->Get(s.mesh.at(r.cell).physical[r.k].facet).marker;}catch(const std::exception&){marker=-1;}
         if(marker<0||marker>=int(s.markers.size())){++v.unknown_marker;note("physical face of cell "+std::to_string(r.cell)+" without a known marker");}
         else if(s.walls.count(marker)){++v.wall_faces;auto h=heightOf.find(r.cell);
-          if(h==heightOf.end()){bool ok=false;std::string why;try{ok=HeightT(s,PatchOf(s,{r.cell}),why);}catch(const std::exception&){ok=false;}h=heightOf.emplace(r.cell,ok).first;}
+          if(h==heightOf.end()){bool ok=false;std::string why;FirstHeightReport report;
+            try{ok=CheckFirstHeight(PatchOf(s,{r.cell}),s.heights,*s.reference,report,why);}catch(const std::exception&){ok=false;}
+            v.reference_clearance_failures+=report.reference_clearance_failures;v.missing_height_cells+=report.missing_cells;v.unmeasured_heights+=!report.measured;
+            h=heightOf.emplace(r.cell,ok).first;}
           if(!h->second){++v.height_failures;if(v.height_failures<=4)note("wall face of cell "+std::to_string(r.cell)+" fails the first-height rule");}}}}
     else if(j-i==2){++v.interior_faces;
       if(rows[i].physical||rows[i+1].physical){++v.interior_physical;note("interior face carries a physical binding (cell "+std::to_string(rows[i].cell)+")");}
@@ -61,6 +64,7 @@ inline std::string JsonValidity(const Validity& v) {
   std::ostringstream o;o<<"{\"valid\":"<<v.Valid()<<",\"cells\":"<<v.cells<<",\"nonpositive\":"<<v.nonpositive<<",\"faces\":"<<v.faces<<",\"boundary_faces\":"<<v.boundary_faces
    <<",\"interior_faces\":"<<v.interior_faces<<",\"overshared\":"<<v.overshared<<",\"same_orientation\":"<<v.same_orientation<<",\"interior_physical\":"<<v.interior_physical
    <<",\"open_unbound\":"<<v.open_unbound<<",\"unknown_marker\":"<<v.unknown_marker<<",\"wall_faces\":"<<v.wall_faces<<",\"height_failures\":"<<v.height_failures
+   <<",\"reference_clearance_failures\":"<<v.reference_clearance_failures<<",\"missing_height_cells\":"<<v.missing_height_cells<<",\"unmeasured_heights\":"<<v.unmeasured_heights
    <<",\"vertices\":"<<v.vertices<<",\"inconsistent_points\":"<<v.inconsistent_points<<",\"skin_edges\":"<<v.skin_edges<<",\"nonmanifold_skin_edges\":"<<v.nonmanifold_skin_edges
    <<",\"witness\":"<<junction_wp0::Json(v.witness)<<"}";return o.str();
 }
@@ -131,7 +135,7 @@ inline bool CavityFirstChild(State& s,Rows10& rows,Id cell,const Face& key,std::
       ids.assign(in.begin(),in.end());try{old=PatchOf(s,ids);}catch(const std::exception& x){why=x.what();break;}
       fresh=Patch{};fresh.surface=old.surface;fresh.parameters=old.parameters;
       try{if(!Cone(old.cells,{s.next_node,p},s.next_cell,fresh.cells,why))break;s.reference->ExportParameters(fresh);}catch(const std::exception& x){why=x.what();break;}
-      std::vector<Face> thin;for(const auto& c:fresh.cells)if(!Valid(Shape(s,c))){Face f{};unsigned k=0;for(auto nn:c.v)if(nn.id!=s.next_node&&k<3)f[k++]=nn.id;thin.push_back(f);}
+      std::vector<Face> thin;for(const auto& c:fresh.cells)if(!Positive(c.v) || (GetShapeAdmission()!=ShapeAdmission::ValidityOnly && !Valid(Shape(s,c)))){Face f{};unsigned k=0;for(auto nn:c.v)if(nn.id!=s.next_node&&k<3)f[k++]=nn.id;thin.push_back(f);}
       if(thin.empty()){built=true;break;}
       if(widen==8){why="cone cells stay invalid after widening";break;}
       bool grew=false;
@@ -165,15 +169,15 @@ inline bool CavityFirstChild(State& s,Rows10& rows,Id cell,const Face& key,std::
  *  / ApexRelocate); a refused face whose cell carries several wall faces or a foreign physical face (a corner cell where
  *  creases meet another wall, symmetry or other plane) is separated first (SplitCell, the R2 Prepare operator) and
  *  retried. Every route is admitted by its own checks (D.2, Admit12, validity); faces are certified for the A3 audit. */
-struct Completion { size_t failing_before=0,failing_after=0,apex_placed=0,inserted=0,separated=0,refused=0,passes=0,cavity=0;double seconds=0;std::string outcome;
+struct Completion { size_t work=0,failing_before=0,failing_after=0,apex_placed=0,inserted=0,separated=0,refused=0,passes=0,cavity=0;double seconds=0;std::string outcome;
   std::map<std::string,size_t> why;std::vector<std::string> witnesses; };
-inline Completion CompleteFirstRow(State& s,Rows10& rows,double seconds,std::set<Face>& certified,std::ostream& log) {
+inline Completion CompleteFirstRow(State& s,Rows10& rows,double seconds,std::set<Face>& certified,std::ostream& log,size_t maximum_work=SIZE_MAX) {
   Scope scope("DC15 CompleteFirstRow");
   Completion st;const auto t0=Clock::now();
   auto failing=[&]{std::vector<Face> out;for(const auto& wf:WallFaces(s)){if(!s.mesh.count(wf.first))continue;
-      if(HeightOk(s,wf.first)&&!Invalid(MeshShape(s,wf.first)))continue;out.push_back(wf.second);}return out;};
+      if(HeightOk(s,wf.first)&&(GetShapeAdmission()==ShapeAdmission::ValidityOnly || !Invalid(MeshShape(s,wf.first))))continue;out.push_back(wf.second);}return out;};
   auto owner=[&](const Face& key,Id& cell){const auto w=s.wall_index.find(key);if(w==s.wall_index.end()||!s.mesh.count(w->second))return false;cell=w->second;return true;};
-  auto passes=[&](Id cell){return HeightOk(s,cell)&&!Invalid(MeshShape(s,cell));};
+  auto passes=[&](Id cell){return HeightOk(s,cell)&&(GetShapeAdmission()==ShapeAdmission::ValidityOnly || !Invalid(MeshShape(s,cell)));};
   // a completed first child is certified but not a column: its registration stays only when the face is a full column
   // (all three vertices lifted), as the column routes assume (review item 3)
   auto settle=[&](const Face& key){certified.insert(key);if(!std::all_of(key.begin(),key.end(),[&](Id x){return rows.lift.count(x)>0;})){rows.apex.erase(key);rows.overrides.erase(key);rows.extras.erase(key);}};
@@ -181,11 +185,12 @@ inline Completion CompleteFirstRow(State& s,Rows10& rows,double seconds,std::set
   for(unsigned pass=0;pass<3&&!list.empty();++pass) {
     ++st.passes;bool any=false;
     for(const auto& key:list) {
-      if(Seconds(t0)>=seconds){st.outcome="limit:time";break;}
+      if(st.work>=maximum_work || Seconds(t0)>=seconds){st.outcome=st.work>=maximum_work?"limit:work":"limit:time";break;}
+      ++st.work;
       Id cell=0;if(!owner(key,cell)||passes(cell))continue;
       const auto a=rows.apex.find(key);const bool registered=a!=rows.apex.end()&&s.vertex_cells.count(a->second);
       std::string why;VStage g;
-      if(registered){if(ApexPlace(s,rows,key,g,why,certified)||ApexMove12(s,rows,key,g,why,certified)){++st.apex_placed;any=true;continue;}++st.why["apex: "+Key(why)];}
+      if(registered){if((GetShapeAdmission()!=ShapeAdmission::ValidityOnly&&ApexPlace(s,rows,key,g,why,certified))||ApexMove12(s,rows,key,g,why,certified)){++st.apex_placed;any=true;continue;}++st.why["apex: "+Key(why)];}
       FirstRowStats fr;
       if(FirstRowInsert(s,rows,cell,key,fr,certified)){settle(key);++st.inserted;any=true;continue;}
       for(const auto& w:fr.why)++st.why[w.first];
@@ -210,7 +215,7 @@ inline Completion CompleteFirstRow(State& s,Rows10& rows,double seconds,std::set
   return st;
 }
 inline std::string JsonCompletion(const Completion& c) {
-  std::ostringstream o;o<<std::setprecision(8)<<"{\"outcome\":\""<<c.outcome<<"\",\"failing_before\":"<<c.failing_before<<",\"failing_after\":"<<c.failing_after<<",\"inserted\":"<<c.inserted
+  std::ostringstream o;o<<std::setprecision(8)<<"{\"outcome\":\""<<c.outcome<<"\",\"failing_before\":"<<c.failing_before<<",\"failing_after\":"<<c.failing_after<<",\"work\":"<<c.work<<",\"inserted\":"<<c.inserted
    <<",\"apex_placed\":"<<c.apex_placed<<",\"cavity\":"<<c.cavity<<",\"separated\":"<<c.separated<<",\"passes\":"<<c.passes<<",\"seconds\":"<<c.seconds<<",\"why\":{";
   {bool k=false;for(const auto& r:c.why){o<<(k?",":"")<<junction_wp0::Json(r.first)<<':'<<r.second;k=true;}}
   o<<"},\"witnesses\":[";for(size_t i=0;i<c.witnesses.size();++i)o<<(i?",":"")<<junction_wp0::Json(c.witnesses[i]);o<<"]}";return o.str();

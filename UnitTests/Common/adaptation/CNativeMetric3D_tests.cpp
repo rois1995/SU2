@@ -42,6 +42,29 @@ TEST_CASE("Native 3D final metric gate requires length, shape and sliver criteri
   CHECK(stats.maximum_edges == 6);
   CHECK_FALSE(ValidateMetricPatch({}, unit, measured, reason));
 }
+
+TEST_CASE("Native3D edge-only construction ignores metric q/J and rejects invalid orientation", "[NativeMesh3D][NativeShapeAdmission3D]") {
+  DonorCell donor=Donor({1,0,0,1,0,1e-12});
+  size_t centroid_queries=0;
+  FrozenField edge_target({donor},[](Point p,Tensor m) {
+    if(p.x==.25 && p.y==.25 && p.z==.25) throw std::runtime_error("centroid was queried during construction");
+    return m;
+  },false,{},[](Point,Point){return std::vector<double>{0,1};});
+  auto edges=MeasureMetricEdges({Single()},edge_target);
+  CHECK_FALSE(edges.shape_measured);
+  CHECK(std::isnan(edges.minimum_mean_ratio));CHECK(std::isnan(edges.minimum_scaled_jacobian));
+  CHECK(edges.edges.size()==6);
+  auto reversed=Single();std::swap(reversed.v[0],reversed.v[1]);
+  CHECK_THROWS(MeasureMetricEdges({reversed},edge_target));
+  auto degenerate=Single();degenerate.v[3].p.z=0;
+  CHECK_THROWS(MeasureMetricEdges({degenerate},edge_target));
+  FrozenField final_target({donor});
+  PatchMetric final;std::string reason;
+  CHECK_FALSE(ValidateMetricPatch({Single()},final_target,final,reason));
+  CHECK(final.shape_measured);CHECK(final.minimum_scaled_jacobian<MinimumScaledJacobian);
+  CHECK(reason.find("shape/sliver")!=std::string::npos);
+}
+
 TEST_CASE("Native 3D private refinement can progress before the final global size gate", "[NativeMesh3D]") {
   const std::array<Node, 8> nodes{{{0, {0, 0, 0}},
                                    {1, {1, 0, 0}},
@@ -272,6 +295,7 @@ TEST_CASE("Native 3D streamed metric measurements retain the full frozen progres
   const auto before=MeasureMetricCells(old.cells,target);
   const auto together=MeasureMetricCells(fresh.cells,target);
   PatchMetric streamed;
+  streamed.shape_measured=true;streamed.minimum_mean_ratio=streamed.minimum_scaled_jacobian=std::numeric_limits<double>::infinity();
   streamed.weakest_cell=streamed.sliver_cell=fresh.cells.front().id;
   MetricStats stats;
   for (const auto& cell:fresh.cells) {
@@ -311,6 +335,9 @@ TEST_CASE("Native metric diagnosis separates shape, measurement and frozen progr
   CHECK_FALSE(ValidateMetricChange(1,before,1,before,MetricChange::Repair,reason,&diagnosis));
   CHECK(diagnosis.failure==MetricFailure::Progress);
   CHECK_FALSE(diagnosis.size_progress); CHECK_FALSE(diagnosis.quality_progress);
+  auto unshaped=MeasureMetricEdges({cell},target);
+  CHECK_FALSE(ValidateMetricChange(1,before,1,unshaped,MetricChange::Repair,reason,&diagnosis));
+  CHECK(reason.find("lacks measured shape")!=std::string::npos);
   auto corrupt=before;corrupt.edges.begin()->second.length=-1;
   CHECK_FALSE(ValidateMetricChange(1,before,1,corrupt,MetricChange::Repair,reason,&diagnosis));
   CHECK(diagnosis.failure==MetricFailure::Measurement);
@@ -465,7 +492,7 @@ TEST_CASE("Metric query planning shares exact reuse and protects bounded campaig
 TEST_CASE("Native 3D refine admission follows the 2D split rule under SplitInsertion", "[NativeMetricSplitRule3D]") {
   struct Restore { RefineAcceptance a=GetRefineAcceptance(); ~Restore(){SetRefineAcceptance(a);} } restore;
   auto metric=[](std::vector<std::pair<Edge,long double>> rows,double q) {
-    PatchMetric m;m.minimum_mean_ratio=q;m.minimum_scaled_jacobian=q;
+    PatchMetric m;m.shape_measured=true;m.minimum_mean_ratio=q;m.minimum_scaled_jacobian=q;
     for(const auto& r:rows){EdgeMeasure e;e.a={double(r.first[0]),0,0};e.b={double(r.first[1]),1,0};e.length=r.second;m.edges.emplace(r.first,e);}
     return m;};
   // a long edge (1,2) split at 4; the new edge (3,4) adds more excess than the split edge removes
@@ -505,7 +532,7 @@ TEST_CASE("Native 3D split rule counts only caller-certified relocations as move
   struct Restore { RefineAcceptance a=GetRefineAcceptance(); ~Restore(){SetRefineAcceptance(a);} } restore;
   SetRefineAcceptance(RefineAcceptance::SplitInsertion);
   auto metric=[](std::vector<std::pair<Edge,long double>> rows) {
-    PatchMetric m;m.minimum_mean_ratio=.5;m.minimum_scaled_jacobian=.5;
+    PatchMetric m;m.shape_measured=true;m.minimum_mean_ratio=.5;m.minimum_scaled_jacobian=.5;
     for(const auto& r:rows){EdgeMeasure e;e.a={double(r.first[0]),0,0};e.b={double(r.first[1]),1,0};e.length=r.second;m.edges.emplace(r.first,e);}
     return m;};
   // long edge (1,2) split at 5; apex 4 relocated to the reserved identity 6; the split adds more excess than it removes
@@ -524,12 +551,12 @@ TEST_CASE("Native 3D shape admission: validity-only generation keeps the final g
   struct Restore { ShapeAdmission a=GetShapeAdmission(); ~Restore(){SetShapeAdmission(a);} } restore;
   CHECK(GetShapeAdmission()==ShapeAdmission::Absolute);  // production default
   auto metric=[](double q,double J) {
-    PatchMetric m;m.minimum_mean_ratio=q;m.minimum_scaled_jacobian=J;
+    PatchMetric m;m.shape_measured=true;m.minimum_mean_ratio=q;m.minimum_scaled_jacobian=J;
     // the long edge (1,2) is split at 4 (a size insertion): it is not among the fresh edges
     for(const auto& r:std::vector<std::pair<Edge,long double>>{{{1,3},1.0L},{{2,3},1.0L},{{1,4},1.5L},{{2,4},1.5L},{{3,4},1.2L}}){
       EdgeMeasure e;e.a={double(r.first[0]),0,0};e.b={double(r.first[1]),1,0};e.length=r.second;m.edges.emplace(r.first,e);}
     return m;};
-  PatchMetric before;before.minimum_mean_ratio=.5;before.minimum_scaled_jacobian=.5;
+  PatchMetric before;before.shape_measured=true;before.minimum_mean_ratio=.5;before.minimum_scaled_jacobian=.5;
   for(const auto& r:std::vector<std::pair<Edge,long double>>{{{1,2},3.0L},{{1,3},1.0L},{{2,3},1.0L}}){EdgeMeasure e;e.a={double(r.first[0]),0,0};e.b={double(r.first[1]),1,0};e.length=r.second;before.edges.emplace(r.first,e);}
   std::string reason;MetricDiagnosis d;
   const auto poor=metric(.1,.03),sliver=metric(.1,5e-4),flat=metric(0,0);
@@ -537,8 +564,8 @@ TEST_CASE("Native 3D shape admission: validity-only generation keeps the final g
   CHECK_FALSE(ValidateMetricChange(1,before,2,poor,MetricChange::Refine,reason,&d));CHECK(d.failure==MetricFailure::Shape);
   SetShapeAdmission(ShapeAdmission::ValidityOnly);
   CHECK(ValidateMetricChange(1,before,2,poor,MetricChange::Refine,reason,&d));  // a valid size insertion
-  CHECK_FALSE(ValidateMetricChange(1,before,2,sliver,MetricChange::Refine,reason,&d));CHECK(d.failure==MetricFailure::Shape);
-  CHECK_FALSE(ValidateMetricChange(1,before,2,flat,MetricChange::Refine,reason,&d));
+  CHECK(ValidateMetricChange(1,before,2,sliver,MetricChange::Refine,reason,&d));
+  CHECK(ValidateMetricChange(1,before,2,flat,MetricChange::Refine,reason,&d));
   // progress rules are unchanged: a coarsening that adds cells is still refused
   CHECK_FALSE(ValidateMetricChange(1,before,2,poor,MetricChange::Coarsen,reason,&d));CHECK(d.failure==MetricFailure::Progress);
   // Construction repair uses the optimizer's worst normalized quality; spare Jacobian margin may repair q.
@@ -546,7 +573,7 @@ TEST_CASE("Native 3D shape admission: validity-only generation keeps the final g
   CHECK(ValidateMetricChange(1,weak_q,1,repaired_q,MetricChange::Repair,reason,&d));CHECK(d.quality_progress);
   CHECK_FALSE(ValidateMetricChange(1,repaired_q,1,weak_q,MetricChange::Repair,reason,&d));
   CHECK_FALSE(ValidateMetricChange(1,repaired_q,1,weaker_J,MetricChange::Repair,reason,&d));
-  // measured cells: the private-trial shape gate follows the mode, the final patch gate stays absolute
+  // Explicit full measurements report poor final shape; construction edge measurements do not query centroids.
   DonorCell donor;donor.cell={0,{{{0,{-10,-10,-10}},{1,{40,-10,-10}},{2,{-10,40,-10}},{3,{-10,-10,40}}}}};donor.sensor.fill(Tensor{1,0,0,1,0,.0004});  // z compressed by 50: q ~ .06, J ~ .01
   FrozenField field({donor});
   const Cell cell{7,{{{10,{0,0,0}},{11,{1,0,0}},{12,{0,1,0}},{13,{0,0,1}}}}};

@@ -81,6 +81,18 @@ prescribed geometry. Evidence: `staged57/offline1`, `debug1`–`debug3`; debugge
 stopped on an optimized-out variable, debugger3 completed. Debugger exit0 is not
 a passing numerical test.
 
+Build3/session10140 passed (1426.6s), with unchanged pins. Subsequent implementation
+is unvalidated: explicit construction/improvement phases replace a policy-only
+change. Construction imports edge samples without centroid shape queries, records
+q/J as unavailable, and omits shape-ranking/fallback optimization. Exact positivity,
+topology, authority membership and contact remain hard constraints. FIRST_ROW must
+hand its provisional result to the same distributed lifecycle. Fully seeded stalled
+construction may enter improvement with size/geometry debt; an admitted improvement
+can return to construction. Exhausted improvement without publication rejects rather
+than bouncing phases. One shared resource/work budget and strict final census remain.
+The current M6 optimizer test uses the preserved valid midpoint seed separately from
+historical byte-identical replay of the superseded26 constructor calls.
+
 The connected revision now:
 
 - Carries physical bindings and private moved-point parameters through the shared
@@ -127,3 +139,8 @@ first height within10%, geometry/feature/contact conformity,500k metric complexi
 conservative transfer and restart. A local accepted witness is diagnostic evidence,
 not DC-17/DC-18 closure. Fewer MPI synchronization points are an architectural
 opportunity; no speedup is established yet.
+
+Build4/session95149 stopped on a long-double/double `std::min` type mismatch in
+regional geometric junction placement (72.1s, pins unchanged). Corrected the explicit
+comparison type; build5/session20546 is running with933 pinned inputs. No numerical
+validation yet. Build receipts stay under `staged57`.

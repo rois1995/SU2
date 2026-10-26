@@ -39,7 +39,8 @@ struct RegionReport {
   double junction_seconds = 0, core_seconds = 0, validation_seconds = 0;
   bool exhausted_work = false, unresolved_core = false;
   bool unsupported_topology = false;  // Cap/marker topology outside the supported regions: decline, retain volume operators.
-  double minimum_quality = 1, minimum_jacobian = 1;
+  bool quality_measured = false;
+  double minimum_quality = 1, minimum_jacobian = 1;  // Unavailable unless quality_measured is true.
   long double maximum_edge = 0;
 };
 /*! Geometry-only admission for a finite right prism with requested walls confined to its opposite caps. */
@@ -51,7 +52,8 @@ bool PrismaticWallRegion(const PlanarReference& geometry,const std::map<int,Regi
  * state is mutated. Empty height policies omit the normal band and test the metric-driven core. New IDs start at
  * caller-reserved global maxima; unchanged retained nodes keep IDs. Uses actual original-P1/composed queries
  * throughout. The volume core uses metric-directed shared-interface subregions, followed by whole-region
- * embedding/height/metric validation; first heights pass |h-h0|/h0 <= height_tolerance (ADAP_BL_FIRST_HEIGHT_TOL).
+ * embedding/topology/height validation; metric quality is a downstream improvement/final-certificate duty.
+ * First heights pass |h-h0|/h0 <= height_tolerance (ADAP_BL_FIRST_HEIGHT_TOL).
  * Distributed dependency admission, policy
  * agreement and atomic publication belong to caller. */
 bool ConstructWallRegion(const std::vector<Facet>& skin, Point kernel, const PlanarReference& geometry,

@@ -117,3 +117,12 @@ node coordinates are not required. Allow redistribution on the prescribed geomet
 while retaining genuine features, body separation and requested BL constraints.
 Complete the connected distributed workflow rather than accumulating strict local
 construction fallbacks; preserve all final acceptance/transfer/restart obligations.
+
+
+User clarification,2026-10-26: construction must omit q/J measurements, shape
+ranking and quality-progress vetoes that are unnecessary for valid elements.
+Exact positive, nondegenerate cells, topology, geometry and body separation remain
+mandatory; J>=.001 is a quality threshold, not geometric validity. Measure and
+improve shape in the subsequent stage and enforce all final acceptance gates.
+Delegate bounded routine tasks to more token-efficient models; retain integrated
+design, source review and acceptance assessment with the primary agent.

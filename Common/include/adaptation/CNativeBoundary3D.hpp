@@ -248,22 +248,19 @@ struct JointSplitReport {
   size_t connectivity_trials=0, flips=0, moves=0;
   size_t linearizations=0, metric_probes=0, linear_iterations=0, solve_trials=0;
   Id blocked_interior_vertex=UINT64_MAX;
-  double initial_loss=0, best_loss=0, best_shape_loss=0;
-  Patch best;  // Geometric/height-valid private proposal, including failed shape; never an accepted mesh.
+  double initial_loss=0, best_loss=0, best_shape_loss=0;  // Unavailable: constructor does not measure q/J.
+  Patch best;  // Geometric/height-valid private proposal; never an accepted mesh.
 };
 /*! Private compound replacement of shared first-height ownership using metric-scaled wall-patch directions.
  * Complete interior vertex stars, six new node IDs and replacement IDs must be globally reserved.
- * Intermediate cuts enforce positive fixed-interface topology; only the final patch is height/full-field
- * certified. Geometry, wall skin and original donors are unchanged. No output change on rejection. */
+ * Intermediate cuts enforce positive fixed-interface topology; the final patch enforces requested wall height.
+ * Metric quality/progress is checked downstream. Geometry, wall skin and original donors are unchanged. */
 bool ReconstructHeightStar(const Patch& old,Id vertex,Id first_node,Id first_cell,FrozenField& target,
                            const PlanarReference& reference,const WallHeights& heights,
                            Patch& fresh,JointSplitReport& report,std::string& reason,size_t maximum_trials=128);
-/*! Bounded actual-field-directed placement of one split and up to eight complete-star surface/interior vertices.
- * Surface points retain their finite authority; the split may leave a same-chart edge. Coupled shape derivatives
- * coordinate all admitted freedoms. All trials reconstruct from the original patch; artificial interfaces
- * and first-height constraints remain fixed. Proposal scores use midpoint lengths only; success requires full composed Refine
- * validation. Placement reserves half of the shared trial bound for optional point-preserving private
- * reconnection; only the split and admitted apices may move, using their reserved identities.
+/*! Geometry-first placement of one split and up to eight complete-star surface/interior vertices.
+ * Surface points retain their finite authority; the split may leave a same-chart edge. Trials preserve positive
+ * orientation, interfaces and requested first heights. Metric quality/progress is checked downstream.
  * Output is unchanged on failure; distributed admission and external clearance are caller duties. */
 bool PlaceSplitPatch(const Patch& old,Edge edge,Node point,const std::vector<std::pair<Id,Id>>& apices,Id first_cell,
                        FrozenField& target,const PlanarReference& reference,const WallHeights& heights,

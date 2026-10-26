@@ -44,7 +44,7 @@ struct OptimizeReport {
   size_t boundary_flips = 0, boundary_collapses = 0;  // O5/O6: faces stay inside their facet
   size_t length_removals = 0, long_edges_seen = 0;    // O1L: interior edges > 1.8 removed by swaps
   size_t rejected_orientation = 0, rejected_interface = 0, rejected_quality = 0, rejected_edge = 0, rejected_frozen = 0;
-  size_t rejected_validity = 0;  // a fresh cell below q > 0, J >= ValiditySliverJacobian
+  size_t rejected_validity = 0;  // a fresh cell without exact positive orientation or finite measured shape
   size_t shell_insertions = 0, neighbourhood_insertions = 0, length_insertions = 0;  // O7 / O8 / O7L (DC-13)
   size_t placements = 0, placement_refusals = 0;   // placement searches; proposals refused by the exact checks
   uint64_t placement_evaluations = 0;               // approximate cone evaluations (no field query)
@@ -63,7 +63,7 @@ struct OptimizeReport {
  * relative, unfolded, area-preserving, prescribed oriented skin; no new point, so no new boundary parameters). No skin
  * vertex moves without an explicit geometry authority; certified physical moves carry new forward parameters. Every accepted operation strictly raises the minimum score
  * metric/first-height score of its replaced cells (the certified monotone quantity), keeps exact positive orientation and
- * validity of every fresh cell (q > 0, J >= ValiditySliverJacobian). Edge guard: candidates are screened with a Simpson
+ * exact positive orientation and finite measured shape of every fresh cell. Edge guard: candidates are screened with a Simpson
  * estimate from three point tensors; an accepted operation integrates exactly every new edge whose estimate exceeds 1.4
  * and refuses it above max(1.8, the edge it replaces); estimates <= 1.4 are not integrated (heuristic, not a certificate:
  * callers re-measure every edge exactly). Final gates are not checked here.

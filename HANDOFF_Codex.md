@@ -15,37 +15,33 @@ operators, q>=.20,J>=.05,edge<=1.8,h0 within10%, configured500k metric-complexit
 (not tet-count), geometry, conservative transfer and restart. Curvature uses
 ADAP_HAUSD in mesh units independently ofh0. No accepted full M6 exists.
 
-ACTIVE: no owned build/run remains live. Build96356 and offline7/session83140 are
-terminal/pass, pins verified. The captured M6 cavity now has an accepted LOCAL
-replacement: move only the authoritative split parameter to.8125; q=.24412,J=.05570,
-max edge1.59836; curvature, prescribed interface and full-current-mesh contact pass.
-Independent q/J/source/orientation check agrees. No full M6 acceptance.
+ACTIVE: integrated build5/session20546 is running with one low-priority worker.
+933 source/build files are pinned, now explicitly including .inl/.inc inputs.
+No source edits while this job or its validation campaign runs. Build3/session10140
+passed before the new stage-separation changes; current changes are unvalidated.
+Agents have released construction, FIRST_ROW handoff and phase coordination changes.
+The external-SSD reference files are copied and hash-verified locally; see below.
 
-LATEST USER STEERING: validity-first construction then metric/BL-aware optimization
-was ALREADY an agreed ledger decision. User reaffirmed it and explicitly permits
-physical boundary-node motion; do not continue adding strict-construction fallbacks.
-Follow [connected scope](Handbook/STAGED_NATIVE_ADAPTATION.md). Reuse distributed
-Adapt/Repair; it already supports validity-only interior repair and strict completion.
-RefineOptimize is serial; RegionFieldService is rank0-driven. Production still
-forces Absolute. Boundary geometry currently protects original mesh-chart edges/
-vertices beyond genuine features; smooth cross-chart mobility and its geometry/source
-certificates are part of the gap, not license to weaken the authority.
+LATEST USER STEERING: construction must not measure/rank q/J or require shape
+progress. J>=.001 is also a quality gate, not geometric validity. Construction
+retains exact positive cells, topology, geometry/body separation and metric size
+guidance. Quality/height improvement follows, with all final gates unchanged.
+Physical nodes may move on prescribed geometry, retaining genuine features.
+Use efficient models for bounded tasks; primary agent owns design/review.
 
-Active implementation is unvalidated after a diagnosed M6 quality-stage failure.
-Build2 passed; offline1 made0 moves in24 trials. The debugger traced this to a
-monotonic surface-error veto, not a budget: quality-improving points increased the
-already nonzero approximation-error deficit. The connected revision now allows
-that deficit to return to refinement, scores first-height/footprint deficits with
-quality, proposes requested heights, and rejects partial geometry measurements or
-non-positive curved clearance. Production uses validity-only shape admission;
-strict final census/height/geometry/publication checks remain. Feature-keyed
-concurrent repair and boundary parameter propagation are implemented but unvalidated.
-Next: build, saved M6 quality-stage check, connected serial/MPI/transfer checks,
-then complete difficult-target qualification. No claim of DC closure.
-Details and receipts: [staged implementation](Handbook/STAGED_NATIVE_ADAPTATION.md).
+Current work removes centroid shape sampling from construction, makes unavailable
+shape explicit, and connects the serial FIRST_ROW constructor to general distributed
+Refine/Coarsen before publication. A stalled valid construction can enter quality
+improvement with remaining size/geometry deficits; productive repair returns those
+deficits to construction. No-progress phase bouncing must reject, not loop.
+The saved M6 midpoint test previously made0 moves in24 trials because of a monotonic
+surface-error veto, not a budget. The revision permits provisional approximation
+error debt while retaining geometry membership/contact and strict final acceptance.
+No new numerical validation yet. Curved cross-chart movement and full M6 acceptance
+remain open. Follow [connected scope](Handbook/STAGED_NATIVE_ADAPTATION.md).
 
-Latest pushed checkpoint d9e840ba35 preserves the accepted LOCAL boundary-placement
-witness and staged direction. All26 original calls/11 shape refusals replay exactly;
+Latest pushed checkpoint6cf0dcedfd saves the unvalidated connected implementation
+and the diagnosed M6 quality-stage refusal; d9e840ba35 holds the earlier LOCAL witness. All26 original calls/11 shape refusals replay exactly;
 this is diagnosis, not full-mesh acceptance. Details:
 [transaction replay](Handbook/M6_TRANSACTION_REPLAY.md) and
 [staged implementation](Handbook/STAGED_NATIVE_ADAPTATION.md).
@@ -76,7 +72,8 @@ integration_evidence/build-integrated-v2/compile-tmp. Preserve terminal receipts
 source/runtime/input hashes. Build initial50 log/pins preserved separately.
 
 User explicitly approved pushes to rois1995/SU2 branch codex/native-3d-bl.
-Approval persists; no destination question is needed. Latest pushed d9e840ba35.
+Approval persists; no destination question is needed. Latest pushed6cf0dcedfd (WIP); build3 session10140 is terminal/pass.
 TODO intentionally untracked; progress companion tracked. Leave unrelated dc11/dc15
 logs and untracked planning files alone. Git status needs --ignore-submodules.
 [AGENTS.md](AGENTS.md) holds permanent cadence/architecture/resource instructions.
+[Adaptation reference inputs](Handbook/ADAPTATION_REFERENCE_INPUTS.md) are archived locally; current inputs no longer require the external SSD.

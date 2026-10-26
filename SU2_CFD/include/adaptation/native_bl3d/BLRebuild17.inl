@@ -29,7 +29,7 @@ inline bool rebuildFirstRow = true;
 inline double diagnosticVSeconds = -1;
 
 struct RebuildStats {
-  size_t faces = 0, need = 0, columns = 0, split = 0, short_columns = 0, diagonals = 0, flipped = 0, flip_refused = 0,
+  size_t work = 0, faces = 0, need = 0, columns = 0, split = 0, short_columns = 0, diagonals = 0, flipped = 0, flip_refused = 0,
          no_diagonal = 0, prisms = 0, rebuilt = 0, irregular = 0, refused = 0, fallback = 0;
   HalveStats halve;
   ColumnStats column;
@@ -64,7 +64,7 @@ inline bool FlipToChord(State& s, Edge e, Id c0, Id c1, std::string& why) {
   }
   InterfaceTopologyMemo memo;
   if (!ValidateFixedInterface(old.cells, fresh.cells, why, memo)) return false;
-  for (const auto& c : fresh.cells) if (!Valid(Shape(s, c))) { why = "validity"; return false; }
+  for (const auto& c : fresh.cells) if (!(Orientation(c.v[0].p,c.v[1].p,c.v[2].p,c.v[3].p)>0)) { why = "validity"; return false; }
   try { s.reference->ExportParameters(fresh); } catch (const std::exception& x) { why = std::string("parameters: ") + x.what(); return false; }
   Apply(s, ids, fresh);
   return true;
@@ -72,15 +72,9 @@ inline bool FlipToChord(State& s, Edge e, Id c0, Id c1, std::string& why) {
 
 // Worst normalized shape of a candidate cone (min over cells of min(q / .2, J / .05)); -1 when a cell is not positive
 // or not metric-valid.
-inline double ConeScore(State& s, const std::vector<Cell>& cells) {
-  double worst = INFINITY;
-  for (const auto& c : cells) {
-    if (!Positive(c.v)) return -1;
-    const auto sh = Shape(s, c);
-    if (!Valid(sh)) return -1;
-    worst = std::min(worst, std::min(sh.q / MinimumMeanRatio, sh.J / MinimumScaledJacobian));
-  }
-  return worst;
+inline double ConeScore(State&, const std::vector<Cell>& cells) {
+  for (const auto& c : cells) if (!(Orientation(c.v[0].p,c.v[1].p,c.v[2].p,c.v[3].p)>0)) return -1;
+  return 1;
 }
 
 // Step 3: star(p_f) rebuilt as the lower prism coned from q_f and the upper slab coned from u_f. `col` maps each
@@ -167,7 +161,8 @@ inline bool RebuildPrism(State& s, Rows10& rows, std::set<Face>& certified, cons
   if (!ValidateFixedInterface(old.cells, fresh.cells, why, memo)) { why = "interface: " + Key(why); return false; }
   try { s.reference->ExportParameters(fresh); } catch (const std::exception& x) { why = std::string("parameters: ") + x.what(); return false; }
   std::string hw;
-  if (!HeightT(s, fresh, hw)) { why = "height: " + Key(hw); return false; }
+  FirstHeightReport hr;const bool heightOk=GetShapeAdmission()==ShapeAdmission::ValidityOnly?HeightConstruct(fresh,s.heights,*s.reference,&hr,&hw):HeightT(s,fresh,hw);
+  if (!heightOk) { why = "height: " + Key(hw); return false; }
   Apply(s, ids, fresh);
   if (rows.apex.count(wf.second)) rows.apex[wf.second] = q.id;
   certified.insert(wf.second);
@@ -193,13 +188,16 @@ inline long double ColumnLidFraction(const State& s,Id wall,const V& delta) {
 
 // The chain-step first-row rebuild (steps 1-3 above) over the wall faces whose first-child apex lies above the new
 // first-height window; fallback HalveFace (DC-16 cone split) for the others.
-inline RebuildStats RebuildFirstRow(State& s, Rows10& rows, std::set<Face>& certified) {
+inline RebuildStats RebuildFirstRow(State& s, Rows10& rows, std::set<Face>& certified,size_t maximum_work=SIZE_MAX,double seconds=INFINITY) {
   Scope scope("DC17 RebuildFirstRow");
   const auto t0 = Clock::now();
   RebuildStats st;
+  auto limited=[&](){return st.work>=maximum_work || Seconds(t0)>=seconds;};
+  if(limited())return st;
   MapLayers(s);
   std::vector<std::pair<Id, Face>> need;
   for (const auto& wf : WallFaces(s)) {
+    if(limited())break;
     ++st.faces;
     const Cell& c = s.mesh.at(wf.first).cell;
     Face out{};
@@ -218,6 +216,7 @@ inline RebuildStats RebuildFirstRow(State& s, Rows10& rows, std::set<Face>& cert
   const auto apices = rows.Apices();
   std::map<Id, std::pair<Id, Id>> col;
   for (Id w : verts) {
+    if(limited())break;
     ColumnEdge ce;
     if (!ColumnEdgeOf(s, rows, w, wallSet, apices, false, ce, st.column)) continue;
     ++st.columns;
@@ -225,6 +224,7 @@ inline RebuildStats RebuildFirstRow(State& s, Rows10& rows, std::set<Face>& cert
     const long double fraction=ColumnLidFraction(s,w,delta);
     if(!std::isfinite(fraction)){++st.short_columns;continue;}
     const long double z=fraction*Dot(delta,ce.nb);
+    if(limited())break;++st.work;
     const Id m = SplitColumnEdge(s, w, ce.top, ce.x, ce.d, ce.dn, z, st.column);
     if (m == UINT64_MAX) continue;
     col[w] = {m, ce.top};
@@ -236,13 +236,14 @@ inline RebuildStats RebuildFirstRow(State& s, Rows10& rows, std::set<Face>& cert
   for (const auto& wf : need)
     for (int k = 0; k < 3; ++k) { const Id x = wf.second[k], y = wf.second[(k + 1) % 3]; wallEdges.insert({std::min(x, y), std::max(x, y)}); }
   for (const auto& we : wallEdges) {
+    if(limited())break;
     const auto ca = col.find(we[0]), cb = col.find(we[1]);
     if (ca == col.end() || cb == col.end()) continue;
     const Edge d1{std::min(we[0], cb->second.second), std::max(we[0], cb->second.second)};
     const Edge d2{std::min(we[1], ca->second.second), std::max(we[1], ca->second.second)};
     const bool e1 = !Star(s, d1).empty(), e2 = !Star(s, d2).empty();
     if (e1 == e2) { ++st.no_diagonal; continue; }
-    ++st.diagonals;
+    ++st.diagonals;++st.work;
     std::string why;
     bool ok = false;
     try { ok = FlipToChord(s, e1 ? d1 : d2, ca->second.first, cb->second.first, why); } catch (const std::exception& x) { why = x.what(); }
@@ -251,13 +252,15 @@ inline RebuildStats RebuildFirstRow(State& s, Rows10& rows, std::set<Face>& cert
   }
   // step 3: prism rebuild, fallback cone split
   for (const auto& wf : need) {
-    ++st.prisms;
+    if(limited())break;
+    ++st.prisms;++st.work;
     std::string why;
     bool ok = false;
     try { ok = RebuildPrism(s, rows, certified, wf, col, why); } catch (const std::exception& x) { why = std::string("exception: ") + x.what(); }
     if (ok) { ++st.rebuilt; continue; }
     (why.rfind("irregular", 0) == 0 ? st.irregular : st.refused)++;
     ++st.why["prism: " + Key(why)];
+    if(limited())break;++st.work;
     ++st.fallback;
     ++st.halve.faces;
     try { HalveFace(s, rows, certified, wf, st.halve); }
@@ -269,7 +272,7 @@ inline RebuildStats RebuildFirstRow(State& s, Rows10& rows, std::set<Face>& cert
 
 inline std::string JsonRebuild(const RebuildStats& r) {
   std::ostringstream o;
-  o << "{\"faces\":" << r.faces << ",\"need\":" << r.need << ",\"columns\":" << r.columns << ",\"split\":" << r.split
+  o << "{\"work\":" << r.work << ",\"faces\":" << r.faces << ",\"need\":" << r.need << ",\"columns\":" << r.columns << ",\"split\":" << r.split
     << ",\"short_columns\":" << r.short_columns << ",\"diagonals\":" << r.diagonals << ",\"flipped\":" << r.flipped
     << ",\"flip_refused\":" << r.flip_refused << ",\"no_diagonal\":" << r.no_diagonal << ",\"prisms\":" << r.prisms
     << ",\"rebuilt\":" << r.rebuilt << ",\"irregular\":" << r.irregular << ",\"refused\":" << r.refused

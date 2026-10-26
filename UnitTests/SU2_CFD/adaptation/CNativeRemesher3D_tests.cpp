@@ -516,8 +516,10 @@ TEST_CASE("Native3D remeshes an externally frozen original sensor field without 
     out<<std::setprecision(17)<<"{\"rank\":"<<world.rank<<",\"sequence\":"<<w.sequence<<",\"observed\":"<<observed
        <<",\"feature\":["<<w.feature.vertices[0]<<','<<w.feature.vertices[1]<<','<<w.feature.vertices[2]
        <<"],\"feature_count\":"<<w.feature.count<<",\"geometry_candidate\":"<<(w.geometry?"true":"false")
-       <<",\"metric_failure\":"<<unsigned(w.metric.failure)<<",\"q\":"<<w.metric.minimum_mean_ratio
-       <<",\"J\":"<<w.metric.minimum_scaled_jacobian<<",\"reason\":"<<std::quoted(w.reason);
+       <<",\"metric_failure\":"<<unsigned(w.metric.failure)<<",\"shape_measured\":"<<(w.metric.shape_measured?"true":"false")<<",\"q\":";
+    if(w.metric.shape_measured)out<<w.metric.minimum_mean_ratio;else out<<"null";
+    out<<",\"J\":";if(w.metric.shape_measured)out<<w.metric.minimum_scaled_jacobian;else out<<"null";
+    out<<",\"reason\":"<<std::quoted(w.reason);
     auto patch=[&](const char* name,const Patch& p) {
       out<<",\""<<name<<"\":{\"cells\":[";
       for(size_t j=0;j<p.cells.size();++j){if(j)out<<',';const auto& c=p.cells[j];out<<'['<<c.id;
@@ -703,6 +705,35 @@ TEST_CASE("Native first-row transactions replay original fields without solver i
 #include "fixtures/native_first_row_dc14.inc"
 // DC-16 shared deformation module (2D/3D) and the room step of the growth layers. Test-only.
 #include "fixtures/native_deform_dc16.inc"
+
+TEST_CASE("Native construction factories must pass the distributed stages before publication", "[NativeConstructionHandoff3D]") {
+  const bool unresolved=GENERATE(false,true);World world;
+  auto config=MakeConfig(3,"SOLVER= EULER\nCOMPUTE_METRIC= YES\nADAP_SENSOR= PRESSURE\n"
+      "ADAP_REMESHER= NATIVE_CAVITY\nADAP_SURFACE= YES\nADAP_HESSIAN_NOISE= 0\n"
+      "ADAP_NATIVE_MEMORY_LIMIT= 1024\nADAP_NATIVE_REPARTITION= NO\n");
+  MeshSolution donor(config.get(),BoxMesh(3,1,false),0);const auto before=Snapshot(donor);
+  su2activematrix sensor(donor.Fine().GetnPointDomain(),6);
+  for(size_t p=0;p<sensor.rows();++p)for(unsigned k=0;k<6;++k)sensor(p,k)=(k==0||k==3||k==5)?(unresolved?4.:1.):0.;
+  auto reference=std::make_shared<ReferenceState>();EngineOptions options;options.maximum_work=4;
+  CNativeRemesher3D remesher(reference,options);unsigned called=0,accepted=0;
+  remesher.SetConstruction([&](World&,const Owned& cells,const std::vector<DonorCell>&,
+      const ReferenceState& state,MetricComposition,const EngineOptions& kernel,std::string& report) {
+    ++called;CHECK(GetShapeAdmission()==ShapeAdmission::ValidityOnly);CHECK(kernel.maximum_work==4);
+    EngineResult provisional;provisional.cells=cells;provisional.reference=state.original;provisional.valid=true;
+    provisional.stats.global_work=3;report="provisional constructor";return provisional;
+  },[&](){++accepted;});
+  const auto previous=GetShapeAdmission();const auto result=remesher.Remesh(*config,donor.Fine(),sensor);
+  CHECK(GetShapeAdmission()==previous);CHECK(called==1);CHECK(accepted==0);
+  CHECK_FALSE(reference->original);CHECK(Snapshot(donor)==before);
+  const auto& stats=remesher.Statistics();CHECK(stats.construction_stats.global_work==3);
+  CHECK(stats.cumulative_work==stats.construction_stats.global_work+stats.refine.global_work+stats.coarsen.global_work);
+  CHECK(stats.cumulative_work<=options.maximum_work);
+  if(unresolved) {CHECK(result.status!=CRemeshResult::Status::COMPLETE);CHECK_FALSE(result.onAccepted);}
+  else {
+    REQUIRE(result.status==CRemeshResult::Status::COMPLETE);CHECK(bool(result.onAccepted));
+    CHECK(stats.refine.quality_stages>=1);CHECK(stats.refine.cached_invalid_cells==0);
+  }
+}
 
 TEST_CASE("Explicit native memory limits cannot auto-grow or publish partial state", "[NativeMemoryLimit3D]") {
   const bool firstRow=GENERATE(false,true);

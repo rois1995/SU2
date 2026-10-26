@@ -43,7 +43,7 @@ struct RemeshStats {
   ComplexityReassessment3D complexity;
   DonorImportStats source;
   PartitionStats partition;
-  EngineStats refine, coarsen;
+  EngineStats construction_stats, refine, coarsen;
   // Import owns a separate World; weight/return scopes are already inside the parent's totals.
   uint64_t communication_bytes = 0, communication_calls = 0, initial_cells = 0, final_cells = 0;
   uint64_t parent_transport_bytes = 0, parent_transport_calls = 0;
@@ -52,7 +52,7 @@ struct RemeshStats {
   size_t maximum_native_bytes = 0, process_peak_rss_bytes = 0;
   int workers = 0;
   bool complete = false, detailed_timings = false;
-  bool construction = false;      // A construction factory (ADAP_BL_METHOD= FIRST_ROW) replaced Refine/Coarsen.
+  bool construction = false;      // A FIRST_ROW factory seeded private construction before distributed adaptation.
   std::string construction_report;  // Its JSON report (phases, gates, deficits, acceptance), also on rejection.
 };
 }  // namespace SU2Native3D
@@ -62,9 +62,9 @@ class CNativeRemesher3D final : public CRemesher {
       const CConfig&, const SU2Native3D::ReferenceState&, double, SU2Native3D::EngineOptions&)>;
   using NormalizationFactory = std::function<SU2Native3D::NormalizationStage3D(
       const CConfig&,const CGeometry&,const su2activematrix&)>;
-  /*! Construction replacing Refine/Coarsen on the worker communicator (one worker): the accepted import, the original
-   *  donors, the pending reference state, the event composition and the kernel controls; the result's cells/reference
-   *  are published like Refine's. `report` receives a JSON report (also on rejection). */
+  /*! Provisional construction on the worker communicator: the accepted import, immutable original donors,
+   * pending reference, composition and shared event controls. A valid construction continues through distributed
+   * Refine/Coarsen and strict final acceptance before CFD publication. `report` also records rejection. */
   using ConstructionFactory = std::function<SU2Native3D::EngineResult(SU2Native3D::World&,const SU2Native3D::Owned&,
       const std::vector<SU2Native3D::DonorCell>&,const SU2Native3D::ReferenceState&,SU2Native3D::MetricComposition,
       const SU2Native3D::EngineOptions&,std::string& report)>;

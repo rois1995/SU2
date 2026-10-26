@@ -15,7 +15,12 @@ tracks measured first-height/footprint deficits in optimization and adds request
 altitude proposals. Strict final acceptance and hard geometry validity remain.
 Physical bindings/parameters and feature-keyed concurrent repair are connected.
 See [staged implementation](Handbook/STAGED_NATIVE_ADAPTATION.md). Curved chart
-mobility and complete M6 acceptance remain open. Latest pushed: `d9e840ba35`.
+mobility and complete M6 acceptance remain open. Latest pushed: `6cf0dcedfd` (WIP). Build3/session10140 passed; subsequent
+stage-separation edits are unvalidated. Integrated build5/session20546 is running
+with933 pinned source/build inputs, including .inl/.inc files. Construction now separates edge guidance
+from q/J sampling; FIRST_ROW handoff and no-progress stage coordination are
+implemented and awaiting validation. No final acceptance claim. External-SSD reference inputs are copied
+locally and hash-verified: [archive record](Handbook/ADAPTATION_REFERENCE_INPUTS.md).
 
 Validation54 passes the full six-worker flat and cubic Euler/RANS workflows,
 including conservative BDF2 transfer and SU2/CGNS reload. All 11 selected cases

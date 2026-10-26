@@ -25,7 +25,7 @@ inline bool roomStep=true;            // the deformation before each layer of G
 inline long double roomNeed=1.5L;     // a top needs room when its above-star kernel bound is below roomNeed x its step
 inline size_t roomRings=2;            // free vertices of the needy above stars plus roomRings-1 further rings
 inline size_t roomMaxVertices=400000; // bound of one region (larger regions are cut at the bound, in ring order)
-inline double roomEuclidRatio=.25;    // pseudo-time kernel: Euclidean mean ratio may not drop below this x its old value
+inline double roomEuclidRatio=.25;    // retained compatibility diagnostic; construction checks exact orientation only
 
 inline long RssKB(){long pages=0,resident=0;std::ifstream in("/proc/self/statm");in>>pages>>resident;return resident*(sysconf(_SC_PAGESIZE)/1024);}
 inline long rssCeilingKB=long(16)<<20;  // G stops planning above this resident set (machine safety; reported as limit:memory)
@@ -113,11 +113,9 @@ inline void MakeRoomImpl(State& s,const std::function<bool(Id)>& below,const std
   try{if(!SolveDisplacement<3>(pb,d,so,sr))++st.unconverged;}catch(const std::exception& e){++st.why[std::string("solve: ")+e.what()];st.seconds+=Seconds(t0);return;}
   st.iterations+=sr.iterations;st.solve+=sr.seconds;
   // 6 pseudo-time move: exact orientation and a Euclidean shape floor relative to the old cell
-  std::vector<long double> q0(pb.cells.size());
-  for(size_t c=0;c<pb.cells.size();++c){std::array<Vec<3>,4> p;for(int k=0;k<4;++k)p[k]=pb.x[pb.cells[c][k]];q0[c]=EuclidQuality(p);}
   auto pt=[](const Vec<3>& a){return Point{a[0],a[1],a[2]};};
   const CellCheck<3> kernel=[&](size_t c,const std::array<Vec<3>,4>& p){
-    if(!(Orientation(pt(p[0]),pt(p[1]),pt(p[2]),pt(p[3]))>0))return false;return EuclidQuality(p)>=roomEuclidRatio*q0[c];};
+    return Orientation(pt(p[0]),pt(p[1]),pt(p[2]),pt(p[3]))>0;};
   std::vector<Vec<3>> y;std::vector<char> frozen;MoveOptions mo;MoveReport mr;
   PseudoTimeMove<3>(pb,d,kernel,y,frozen,mo,mr);st.move+=mr.seconds;st.frozen+=mr.frozen;
   // 7 metric validity of every changed cell (q > 0, J >= 1e-3 at the actual centroid, as Admit12); a failing cell
@@ -129,7 +127,7 @@ inline void MakeRoomImpl(State& s,const std::function<bool(Id)>& below,const std
   auto settle=[&]{const auto tm=Clock::now();bool closed=false;
    for(unsigned round=0;round<256;++round){std::vector<uint32_t> reverted;
      for(size_t c=0;c<pb.cells.size();++c){if(!check[c])continue;check[c]=0;bool changed=false;for(auto v:pb.cells[c])changed=changed||y[v]!=pb.x[v];if(!changed)continue;
-       const Cell x=cellOf(c,y);const bool ok=Orientation(x.v[0].p,x.v[1].p,x.v[2].p,x.v[3].p)>0&&Valid(Shape(s,x));
+       const Cell x=cellOf(c,y);const bool ok=Orientation(x.v[0].p,x.v[1].p,x.v[2].p,x.v[3].p)>0;
        if(!ok)for(auto v:pb.cells[c])if(y[v]!=pb.x[v]){y[v]=pb.x[v];reverted.push_back(v);++st.metric_frozen;}}
      if(reverted.empty()){closed=true;break;}for(auto v:reverted)for(auto c:star[v])check[c]=1;}
    if(!closed){y=pb.x;std::fill(check.begin(),check.end(),0);++st.why["settle bound: move cancelled"];}
@@ -166,7 +164,7 @@ inline void MakeRoomImpl(State& s,const std::function<bool(Id)>& below,const std
     const auto starIds=StarOf(s,g);if(starIds.size()>MaximumCavityCells){++st.slide_reverted;++st.why["slide: star size"];continue;}
     std::vector<Id> ids(starIds.begin(),starIds.end());Patch old,fresh;std::string why;bool ok=false;
     try{old=PatchOf(s,ids);ok=MoveVertex(old,g,Node{s.next_node,pt(sl.second)},s.next_cell,*s.reference,fresh,why);}catch(const std::exception& e){ok=false;why=e.what();}
-    if(ok)for(const auto& c:fresh.cells)ok=ok&&Valid(Shape(s,c));
+    if(ok)for(const auto& c:fresh.cells)ok=ok&&Orientation(c.v[0].p,c.v[1].p,c.v[2].p,c.v[3].p)>0;
     if(!ok){++st.slide_reverted;++st.why["slide: "+swbi_dc2::Category(why).substr(0,60)];continue;}
     roomCommitting=true;Apply(s,ids,fresh);roomCommitting=false;++st.moved;}
   st.slides+=Seconds(ts);

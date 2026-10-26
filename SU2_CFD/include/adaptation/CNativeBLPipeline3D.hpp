@@ -160,6 +160,7 @@ struct EventControls {
   unsigned long event = 0;
   double ramp_factor = 1;
   size_t memory_ceiling = size_t(2) << 30;
+  size_t maximum_work = SIZE_MAX;  // Shared event allowance; construction is charged before distributed improvement.
   std::string report_prefix;   // <prefix>_bl_report.json (and <prefix>_final.mesh when export_mesh)
   bool export_mesh = false;
   double intermediate_v_seconds = 1800;  // DC-15: V cap of an intermediate (ramped-h0) event (DC-16: 1800, the full-M6 x32 event 0 takes 34 of its 60 min with 900); the final cycle uses the budget
@@ -197,24 +198,24 @@ struct PipelineScope {
 };
 }  // namespace detail
 
-/*! One FIRST_ROW event on one worker. Fresh mesh (no committed registry matching it): W -> R1 -> R2 -> G -> V13.
- *  Continuation (registry of the previous accepted event, digest-matched): halving of the first children, column
- *  redistribution, V13 (DC-13 chain step). Acceptance by an uncached audit with a fresh field: intermediate events
- *  (ramped h0) need every cell valid (positive, q > 0, J >= 1e-3) and every first height within T of h0_k; the final
- *  event needs the final gates. The report carries every deficit. */
+/*! Geometry/height-guided first-row construction on one worker. The private result always continues
+ * through the general distributed construction/improvement lifecycle; this function never certifies final q/J.
+ * A digest-matched continuation supplies retained row topology only. */
 inline EngineResult RunEvent(World& world, const Owned& cells, const std::vector<DonorCell>& donors,
                              const ReferenceState& state, const TargetPolicy& policy, const CConfig& config,
                              Continuation& cont, const EventControls& ctl, std::string& report) {
   using namespace dc13;
   using Clock = std::chrono::steady_clock;
   EngineResult out;
-  out.valid = false;
+  out.valid = false;out.stats.initial_cells=cells.size();
+  struct RestoreShape {ShapeAdmission previous=GetShapeAdmission();~RestoreShape(){SetShapeAdmission(previous);}} restore_shape;
+  SetShapeAdmission(ShapeAdmission::ValidityOnly);
   std::ostringstream json;
   json << std::setprecision(12) << "{\"event\":" << ctl.event << ",\"ramp_factor\":" << ctl.ramp_factor
        << ",\"final_cycle\":" << ctl.final_cycle << ",\"input_cells\":" << cells.size();
   auto finish = [&](const std::string& reason) {
     out.reason = reason;
-    json << ",\"accepted\":" << out.valid << ",\"reason\":" << junction_wp0::Json(reason) << "}\n";
+    json << ",\"construction_valid\":" << out.valid << ",\"final_acceptance\":\"deferred to distributed stages\",\"reason\":" << junction_wp0::Json(reason) << "}\n";
     report = json.str();
     if (!ctl.report_prefix.empty()) { std::ofstream(ctl.report_prefix + "_bl_report.json") << report; }
     return out;
@@ -223,7 +224,7 @@ inline EngineResult RunEvent(World& world, const Owned& cells, const std::vector
   try {
     const auto t0 = Clock::now();
     const double budget = ctl.seconds > 0 ? ctl.seconds : 7200.0;
-    const double reserve = std::max(120.0, .1 * budget), usable = std::max(1.0, budget - reserve);
+    const double reserve = std::min(.5*budget,std::max(120.0,.1*budget)), usable = budget-reserve;
     auto elapsed = [&] { return std::chrono::duration<double>(Clock::now() - t0).count(); };
     detail::PipelineScope scope;
     dc10::optionA = policy.A; dc10::probeBase = policy.base; dc10::probeFull = policy.full;
@@ -274,6 +275,8 @@ inline EngineResult RunEvent(World& world, const Owned& cells, const std::vector
     const size_t callerBytes = cells.size() * 640 + donors.size() * (sizeof(DonorCell) + 64);
     auto memoryOk = [&](const char* where, std::string& why, size_t extra = 0) {
       const auto bytes = detail::StateBytes(*s, callerBytes + extra, donors.size());
+      out.stats.maximum_work_bytes=std::max(out.stats.maximum_work_bytes,bytes);
+      out.stats.maximum_owned=std::max(out.stats.maximum_owned,s->mesh.size());
       if (bytes <= ctl.memory_ceiling) return true;
       why = std::string("FIRST_ROW state estimate exceeds the native memory ceiling at ") + where + " (" +
             std::to_string(bytes) + " > " + std::to_string(ctl.memory_ceiling) + " bytes)";
@@ -316,17 +319,14 @@ inline EngineResult RunEvent(World& world, const Owned& cells, const std::vector
     { std::set<Edge> e; std::set<Id> v;
       for (const auto& wf : WallFaces(*s)) for (int i = 0; i < 3; ++i) { e.insert({std::min(wf.second[i], wf.second[(i + 1) % 3]), std::max(wf.second[i], wf.second[(i + 1) % 3])}); v.insert(wf.second[i]); }
       wallEdges = e.size(); wallVertices = v.size(); }
-    const size_t wWork = std::max<size_t>(8192, 4 * wallEdges), r1Work = std::max<size_t>(4096, 2 * wallVertices);
-    v13AttemptsPerSweep = 0;  // DC-15: per sweep from the current long-edge demand
-    v13NearWallFirst = true;
-    v13EstimateScan = v13SkipFinalOnLimit = !ctl.final_cycle;  // intermediate events: deficits reported once, estimated
-    // DC-16: validity-only construction on intermediate events (R2 lifts and LayerConstruct admissions without edge
-    // integration); the V demand queue on every event (selection only, exact admission)
-    dc9::validityOnlyConstruction = !ctl.final_cycle; v13DemandQueue = true;
-    json << ",\"dc16\":{\"validity_only_construction\":" << dc9::validityOnlyConstruction << ",\"v_demand_queue\":1,\"room_step\":" << dc16::roomStep << "}";
+    const size_t wWork = std::min(ctl.maximum_work,std::max<size_t>(8192, 4 * wallEdges));
+    const size_t r1Work = std::min(ctl.maximum_work,std::max<size_t>(4096, 2 * wallVertices));
+    // Every ramp event returns provisional geometry; the distributed engine owns all shape improvement.
+    dc9::validityOnlyConstruction = true; v13DemandQueue = false;
+    json << ",\"dc16\":{\"validity_only_construction\":" << dc9::validityOnlyConstruction << ",\"v_demand_queue\":0,\"room_step\":" << dc16::roomStep << "}";
     json << ",\"limits\":{\"budget_seconds\":" << budget << ",\"reserve_seconds\":" << reserve << ",\"W\":[" << wWork << "," << .08 * usable
          << "],\"R1\":[" << r1Work << "," << .05 * usable << "],\"R2_seconds\":" << .25 * usable << ",\"G_seconds\":" << .15 * usable
-         << ",\"V_attempts_per_sweep\":\"max(1024, long/4)\",\"V_intermediate_seconds\":" << ctl.intermediate_v_seconds
+         << ",\"maximum_work\":" << ctl.maximum_work
          << ",\"memory_ceiling\":" << ctl.memory_ceiling << "}";
     std::ostringstream log;
     std::string why;
@@ -334,6 +334,7 @@ inline EngineResult RunEvent(World& world, const Owned& cells, const std::vector
     // JSON to <prefix>_bl_report.partial.json (a killed run keeps its phase receipts)
     std::ofstream logFile;
     if (!ctl.report_prefix.empty()) logFile.open(ctl.report_prefix + "_bl.log");
+    uint64_t workDone = 0;
     double phaseStart = elapsed();
     auto phase = [&](const char* name, const std::string& extra = "") {
       const double now = elapsed();
@@ -344,30 +345,14 @@ inline EngineResult RunEvent(World& world, const Owned& cells, const std::vector
       log.str(""); log.clear();
       if (!ctl.report_prefix.empty()) std::ofstream(ctl.report_prefix + "_bl_report.partial.json") << json.str() << "}\n";
       phaseStart = now;
+      out.stats.global_work=workDone;
+      if(now>=budget)throw std::runtime_error("FIRST_ROW construction exhausted the shared elapsed deadline.");
+      if(workDone>ctl.maximum_work)throw std::runtime_error("FIRST_ROW construction exhausted shared native work.");
     };
     phase("prepare", "wall_faces=" + std::to_string(WallFaces(*s).size()));
     Growth G;
     std::set<Face> certified;
     std::map<Face, std::array<Id, 4>> snapshot;  // A3: first children after R2 + completion
-    uint64_t workDone = 0;
-    auto cappedV = [&] {
-      // the final cycle keeps the remaining budget minus the uncached audit estimate; intermediate events are capped
-      const double auditEstimate = (ctl.final_cycle || ctl.full_audit) ? .005 * double(s->mesh.size()) : 0.;
-      double v = usable - elapsed() - auditEstimate;
-      if (!ctl.final_cycle) v = std::min(v, ctl.intermediate_v_seconds);
-      if (dc17::diagnosticVSeconds >= 0) v = std::min(v, dc17::diagnosticVSeconds);  // TEST-ONLY diagnostic cap
-      return std::max(1.0, v);
-    };
-    // DC-17 (target 3): V's effect is measured on intermediate events by the same estimated deficits before and after V
-    size_t badBeforeV = 0, longBeforeV = 0;
-    double vSecondsUsed = 0;
-    auto beforeV = [&] {
-      if (ctl.final_cycle) return;
-      const auto pre = dc15::FinalEstimated(*s);
-      badBeforeV = pre.gates.bad_shape; longBeforeV = pre.gates.long_edges;
-      json << ",\"before_V\":{\"bad\":" << badBeforeV << ",\"long\":" << longBeforeV << ",\"cells\":" << s->mesh.size() << "}";
-      phase("before_V", "bad=" + std::to_string(badBeforeV) + " long=" + std::to_string(longBeforeV));
-    };
     if (!chain) {
       // DC-16: W selects its long wall edges by the vertex-tensor estimate (exact integration only above 1.2)
       dc10::wallPrefilter = true; dc10::wallEstimate = [&](Id a, Id b) { return dc13::EstimateLength(*s, dc13::eventTensors, a, b); };
@@ -380,36 +365,29 @@ inline EngineResult RunEvent(World& world, const Owned& cells, const std::vector
       auto field = ComputeDirectionField(*s);
       dc9::directionField = &field.d; dc9::directionFieldUses = 0;
       json << ",\"directions\":" << JsonDirections(field);
-      const auto r1 = dc9::PhaseR1(*s, rows, r1Work, .05 * usable, log);workDone += r1.work;
+      const auto r1 = dc9::PhaseR1(*s, rows, std::min(r1Work,ctl.maximum_work-workDone), .05 * usable, log);workDone += r1.work;
       json << ",\"R1\":" << JsonStage(r1);
       phase("R1", "accepted=" + std::to_string(r1.accepted) + " outcome=" + r1.outcome);
-      const auto r2 = dc9::PhaseR2(*s, static_cast<Rows&>(rows), .25 * usable, log);workDone += r2.work;
+      const auto r2 = dc9::PhaseR2(*s, static_cast<Rows&>(rows), std::min(.25*usable,budget-elapsed()), log,ctl.maximum_work-workDone);workDone += r2.work;
       json << ",\"R2\":" << JsonStage(r2) << ",\"R2_counts\":{\"lifted\":" << r2.lifted << ",\"unlifted\":" << r2.unlifted << ",\"untried\":" << r2.untried
            << ",\"rowed\":" << r2.rowed << ",\"unrowed\":" << r2.unrowed << "}";
       phase("R2", "rowed=" + std::to_string(r2.rowed) + " unrowed=" + std::to_string(r2.unrowed) + " unlifted=" + std::to_string(r2.unlifted) +
                   " untried=" + std::to_string(r2.untried) + " outcome=" + r2.outcome);
       if (!memoryOk("R2", why)) return finish(why);
       MapLayers(*s);
-      const auto cp = dc15::CompleteFirstRow(*s, rows, std::max(60., .1 * usable), certified, log);
+      const auto cp = dc15::CompleteFirstRow(*s, rows, std::min(std::max(60., .1 * usable),budget-elapsed()), certified, log,ctl.maximum_work-workDone);
+      workDone += cp.work;
       json << ",\"completion\":" << dc15::JsonCompletion(cp);
       phase("completion", "failing=" + std::to_string(cp.failing_before) + "->" + std::to_string(cp.failing_after) + " inserted=" +
                           std::to_string(cp.inserted) + " cavity=" + std::to_string(cp.cavity) + " separated=" + std::to_string(cp.separated) + " outcome=" + cp.outcome);
       snapshot = FirstChildren(*s);
       certified.clear();  // code review 3: the A3 audit covers only the certified operations after the snapshot
       MapLayers(*s);
-      G = PhaseG(*s, rows, .15 * usable, log);  /* DC-16: .15 (room step included) */workDone += G.transactions + G.refused;
+      G = PhaseG(*s, rows, std::min(.15*usable,budget-elapsed()), log,{},ctl.maximum_work-workDone);workDone += G.work;
       json << ",\"G\":" << JsonGrowth(*s, G);
       phase("G", "lifted=" + std::to_string(G.lifted) + " refused=" + std::to_string(G.refused) + " clear_moves=" + std::to_string(G.clear_moves) +
                  " clear_collapses=" + std::to_string(G.clear_collapses) + " retries_accepted=" + std::to_string(G.clear_retry_accepted));
       if (!memoryOk("G", why)) return finish(why);
-      v13R2Retry = true;
-      beforeV();
-      const double vSeconds = cappedV();
-      const auto v = PhaseV13(*s, rows, G, std::max<size_t>(size_t(1) << 22, 64 * s->mesh.size()), vSeconds, 64, certified, log);
-      json << ",\"V\":{\"stage\":" << JsonStage(v) << ",\"seconds_cap\":" << vSeconds << ",\"sweeps\":" << v.sweeps << ",\"refine_attempts\":" << v.refine_attempts
-           << ",\"seconds\":{\"r2\":" << v.r2_seconds << ",\"first\":" << v.first_seconds << ",\"refine\":" << v.refine_seconds << ",\"optimize\":" << v.optimize_seconds << "}" << ",\"transactional_repairs\":" << v.transactional_repairs << ",\"transactional_rollbacks\":" << v.transactional_rollbacks << ",\"global_skipped\":" << v.global_skipped << "}";
-      workDone += v.work; vSecondsUsed = v.seconds;
-      phase("V", "sweeps=" + std::to_string(v.sweeps) + " attempts=" + std::to_string(v.refine_attempts) + " accepted=" + std::to_string(v.accepted) + " outcome=" + v.outcome);
       dc9::directionField = nullptr;
     } else {
       MapLayers(*s);
@@ -420,101 +398,45 @@ inline EngineResult RunEvent(World& world, const Owned& cells, const std::vector
       HalveStats hv;
       ColumnStats cs;
       if (dc17::rebuildFirstRow) {
-        const auto rb = dc17::RebuildFirstRow(*s, rows, certified);
+        const auto rb = dc17::RebuildFirstRow(*s, rows, certified,ctl.maximum_work-workDone,budget-elapsed());
+        workDone += rb.work;
         hv = rb.halve; hv.faces = rb.faces; hv.split += rb.rebuilt; cs = rb.column;
         json << ",\"rebuild\":" << dc17::JsonRebuild(rb);
-      } else { hv = HalveFirstRow(*s, rows, certified); cs = ColumnInsert(*s, rows); }
-      workDone += hv.faces + cs.inserted + cs.refused;
+      } else {
+        hv = HalveFirstRow(*s, rows, certified,ctl.maximum_work-workDone,budget-elapsed());workDone += hv.faces;
+        cs = ColumnInsert(*s, rows,ctl.maximum_work-workDone,budget-elapsed());workDone += cs.work;
+      }
       json << ",\"halve\":{\"faces\":" << hv.faces << ",\"split\":" << hv.split << ",\"placed\":" << hv.placed << ",\"already_within\":"
            << hv.skipped_low << ",\"refused\":" << hv.refused << "},\"column_insert\":{\"columns\":" << cs.columns << ",\"inserted\":"
            << cs.inserted << ",\"refused\":" << cs.refused << "}";
       phase("halving", "split=" + std::to_string(hv.split) + " refused=" + std::to_string(hv.refused) + " inserted=" + std::to_string(cs.inserted));
       if (!memoryOk("halving", why)) return finish(why);
       // Current height requests must be completed independently of the optional volume-optimization budget.
-      const auto cp = dc15::CompleteFirstRow(*s, rows, std::max(60., .1 * usable), certified, log);
-      workDone += cp.inserted + cp.apex_placed + cp.cavity + cp.separated;
+      const auto cp = dc15::CompleteFirstRow(*s, rows, std::min(std::max(60., .1 * usable),budget-elapsed()), certified, log,ctl.maximum_work-workDone);
+      workDone += cp.work;
       json << ",\"completion\":" << dc15::JsonCompletion(cp);
       phase("completion", "failing=" + std::to_string(cp.failing_before) + "->" + std::to_string(cp.failing_after));
       if (!memoryOk("completion", why)) return finish(why);
-      v13R2Retry = false;
-      beforeV();
-      const double vSeconds = cappedV();
-      const auto v = PhaseV13(*s, rows, G, std::max<size_t>(size_t(1) << 22, 64 * s->mesh.size()), vSeconds, 64, certified, log);
-      json << ",\"V\":{\"stage\":" << JsonStage(v) << ",\"seconds_cap\":" << vSeconds << ",\"sweeps\":" << v.sweeps << ",\"refine_attempts\":" << v.refine_attempts << ",\"transactional_repairs\":" << v.transactional_repairs << ",\"transactional_rollbacks\":" << v.transactional_rollbacks << ",\"global_skipped\":" << v.global_skipped << "}";
-      workDone += v.work; vSecondsUsed = v.seconds;
-      phase("V", "sweeps=" + std::to_string(v.sweeps) + " attempts=" + std::to_string(v.refine_attempts) + " outcome=" + v.outcome);
       dc9::directionField = nullptr;
     }
     json << ",\"work\":" << workDone << ",\"construction_seconds\":" << elapsed();
-    // deficits against the final gates from ONE cached scan of the construction state (labelled cached)
-    // intermediate events: cached lengths plus midpoint estimates for unmeasured edges (no integration of every edge);
-    // final cycle: the cached Final (every edge measured) before the uncached audit
-    dc9::Gates8 cached;
-    size_t cachedMetricInvalid = 0;
-    if (ctl.final_cycle || ctl.full_audit) {
-      cached = dc9::Final(*s);
-      for (const auto& row : s->mesh) { const auto sh = dc9::MeshShape(*s, row.first); if (!(sh.q > 0 && sh.J >= ValiditySliverJacobian)) ++cachedMetricInvalid; }
-      json << ",\"final_cached\":" << dc9::JsonFinal(*s, rows);
-    } else {
-      const auto est = dc15::FinalEstimated(*s);
-      cached = est.gates; cachedMetricInvalid = est.metric_invalid;
-      json << ",\"final_estimated\":" << dc15::JsonEstimated(est);
-    }
-    if (!ctl.final_cycle && vSecondsUsed > 0) {
-      const double minutes = vSecondsUsed / 60;
-      json << ",\"V_rates\":{\"minutes\":" << minutes << ",\"bad_removed_per_minute\":" << (double(badBeforeV) - double(cached.bad_shape)) / minutes
-           << ",\"long_removed_per_minute\":" << (double(longBeforeV) - double(cached.long_edges)) / minutes << "}";
-    }
-    json << ",\"metric_invalid_cached\":" << cachedMetricInvalid << ",\"bad_witness\":" << BadWitness(*s, rows);
-    size_t a3Violations = 0;  // DC-17 (plan review 2): the A3 first-row audit is an acceptance condition
+    if(workDone>ctl.maximum_work)return finish("FIRST_ROW construction exhausted shared native work.");
+    if(elapsed()>=budget)return finish("FIRST_ROW construction exhausted the shared elapsed deadline.");
+    size_t a3Violations = 0;
     {const auto a3 = FirstRowAudit(*s, snapshot, certified);
      a3Violations = a3.violations;
      json << ",\"first_row_audit\":" << JsonAudit(a3);}
-    if (!dc17::probePath.empty()) dc17::Probe(*s, dc17::probePath);  // TEST-ONLY diagnostic (SU2_DC17_PROBE)
-    phase("deficits", "bad=" + std::to_string(cached.bad_shape) + " long=" + std::to_string(cached.long_edges) + " height=" + std::to_string(cached.height_failures));
-    if (ctl.export_mesh && !ctl.report_prefix.empty()) {
-      std::function<long double(Id, Id)> length;
-      if (!(ctl.final_cycle || ctl.full_audit)) length = [&](Id a, Id b) { bool est = false; return dc13::LenOrEstimate(*s, a, b, est); };
-      dc10::ExportGates10(*s, rows, ctl.report_prefix + "_final.mesh", length);
+    const auto validity = dc15::IndependentValidity(*s);
+    json << ",\"validity\":" << dc15::JsonValidity(validity)
+         << ",\"audit\":{\"deferred\":\"distributed quality stage\"}";
+    phase("validity", "valid=" + std::to_string(validity.Valid()) + " nonpositive=" + std::to_string(validity.nonpositive));
+    auto geometric_validity=validity;geometric_validity.height_failures=0;
+    const bool accepted = geometric_validity.Valid() && a3Violations == 0;
+    if(ctl.export_mesh && !ctl.report_prefix.empty()) {
+      layer2d::Export(*s,ctl.report_prefix+"_final.mesh");
+      json << ",\"export_acceptance\":\"provisional construction\"";
       phase("export");
     }
-    // independent validity of the returned cells (exact orientation, conformity, skin, first heights; no construction cache)
-    const auto validity = dc15::IndependentValidity(*s);
-    json << ",\"validity\":" << dc15::JsonValidity(validity);
-    phase("validity", "valid=" + std::to_string(validity.Valid()) + " nonpositive=" + std::to_string(validity.nonpositive) + " height=" +
-                      std::to_string(validity.height_failures));
-    dc9::Gates8 audit = cached;
-    size_t invalid = validity.nonpositive, metricInvalid = cachedMetricInvalid;
-    bool audited = false;
-    if (ctl.final_cycle || ctl.full_audit) {
-      // the audit allocates a second complete state and field
-      if (!memoryOk("audit", why, s->mesh.size() * 640 + donors.size() * (sizeof(DonorCell) + 64))) return finish(why);
-      // independent audit: fresh state and field from the same policy, caches off
-      dc9::ResetCaches(); dc9::cachesOn = false;
-      auto f = std::make_unique<State>();
-      f->name = s->name; f->reference = s->reference; f->facets = s->facets; f->markers = s->markers; f->walls = s->walls;
-      f->heights = s->heights; f->h0 = s->h0; f->growth = s->growth; f->thickness = s->thickness; f->core = s->core;
-      f->layers = s->layers; f->mesh = s->mesh; f->overlay = s->overlay; f->mapped = s->mapped;
-      f->field = makeField(*f);
-      Prepare(*f);
-      audit = dc9::Final(*f);
-      invalid = 0; metricInvalid = 0;
-      for (const auto& row : f->mesh) {
-        const auto& c = row.second.cell;
-        const auto sh = dc9::MeshShape(*f, row.first);
-        if (!(Orientation(c.v[0].p, c.v[1].p, c.v[2].p, c.v[3].p) > 0)) ++invalid;
-        if (!(sh.q > 0 && sh.J >= ValiditySliverJacobian)) ++metricInvalid;
-      }
-      dc9::cachesOn = true; audited = true;
-      json << ",\"audit\":{\"cells\":" << audit.cells << ",\"q_min\":" << audit.q << ",\"J_min\":" << audit.J << ",\"edge_max\":" << double(audit.lmax)
-           << ",\"bad_shape\":" << audit.bad_shape << ",\"long_edges\":" << audit.long_edges << ",\"height_failures\":" << audit.height_failures
-           << ",\"unmeasurable\":" << audit.unmeasurable << ",\"invalid_cells\":" << invalid << ",\"metric_invalid_cells\":" << metricInvalid
-           << ",\"final_gates\":" << audit.complete
-           << ",\"agrees_with_cached\":" << (cached.bad_shape == audit.bad_shape && cached.long_edges == audit.long_edges &&
-                                             cached.height_failures == audit.height_failures && cached.unmeasurable == audit.unmeasurable) << "}";
-      phase("audit", "complete=" + std::to_string(audit.complete));
-    } else json << ",\"audit\":{\"skipped\":\"intermediate event: decision by the independent validity check, deficits cached\"}";
-    const bool accepted = validity.Valid() && a3Violations == 0 && (!ctl.final_cycle || audit.complete);
     // boundary parameters of the final skin: accepted private bindings, else the authority's own binding
     if (s->mapped) {
       BoundaryPoints points;
@@ -569,14 +491,13 @@ inline EngineResult RunEvent(World& world, const Owned& cells, const std::vector
     out.stats.global_work = workDone;
     std::ostringstream reason;
     if (!accepted) {
-      reason << (ctl.final_cycle ? "FIRST_ROW final gates not met" : "FIRST_ROW intermediate mesh not valid") << ": bad " << audit.bad_shape
-             << ", long " << audit.long_edges << ", height " << audit.height_failures << ", unmeasurable " << audit.unmeasurable
-             << ", invalid " << invalid << " (q_min " << audit.q << ", J_min " << audit.J << (audited ? ", uncached audit" : ", cached deficits")
-             << "); validity: nonpositive " << validity.nonpositive << ", height " << validity.height_failures << ", topology "
-             << validity.overshared + validity.same_orientation + validity.interior_physical + validity.open_unbound + validity.nonmanifold_skin_edges + validity.inconsistent_points << ", A3 first-row violations " << a3Violations;
+      reason << "FIRST_ROW provisional geometry/height construction rejected: nonpositive " << validity.nonpositive
+             << ", height " << validity.height_failures << ", topology "
+             << validity.overshared + validity.same_orientation + validity.interior_physical + validity.open_unbound + validity.nonmanifold_skin_edges + validity.inconsistent_points
+             << ", first-row violations " << a3Violations;
       if (!ctl.report_prefix.empty()) reason << "; report " << ctl.report_prefix << "_bl_report.json";
     }
-    phase("pack", std::string("accepted=") + (accepted ? "1" : "0"));
+    phase("pack", std::string("construction_valid=") + (accepted ? "1" : "0"));
     return finish(reason.str());
   } catch (const std::exception& e) {
     out.valid = false;

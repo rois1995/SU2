@@ -100,13 +100,14 @@ class DonorImport {
   /*! Only covers these cells' actual centroids and six closed edge segments; not arbitrary interior queries.
    * Reconstruction callers must retain full-cell imports until every private query is known. */
   DonorPatch ImportMetricCells(const std::vector<Cell>& cells, size_t ceiling = SIZE_MAX, size_t caller_bytes = 0);
-  /*! Exact measurement support: canonical centroid donors and all positive-length edge intervals.
+  /*! Exact support for optional centroid samples and requested positive-length edge intervals.
    * At most MaximumCavityCells/6 cells; no arbitrary interior or midpoint-query guarantee.
    * Coverage remains authoritative in FrozenField; missing centroids never fabricate donors.
    * Optional masks select local edges(01,02,03,12,13,23); omitted edges require caller-held certificates.
    * Existing closed ImportMetricCells semantics remain available to reconstruction callers. */
   DonorPatch ImportMetricSamples(const std::vector<Cell>& cells,const std::vector<Id>& extensions={},
-                                 size_t ceiling=SIZE_MAX,size_t caller_bytes=0,const std::vector<unsigned char>& edge_masks={});
+                                 size_t ceiling=SIZE_MAX,size_t caller_bytes=0,const std::vector<unsigned char>& edge_masks={},
+                                 bool include_centroids=true);
   /*! Sensor P1 at exact ideal endpoint midpoints, with the same owner priority as SamplePoints.
    * This does not authorize ordinary queries at the rounded midpoint coordinate. */
   DonorSamples SampleMidpoints(const std::vector<std::array<Point,2>>& endpoints,const std::vector<Id>& extensions={},

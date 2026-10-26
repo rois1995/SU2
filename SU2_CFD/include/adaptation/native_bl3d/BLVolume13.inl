@@ -45,24 +45,24 @@ inline bool HalveFace(State& s,Rows10& rows,std::set<Face>& certified,const std:
      auto region=[a,b,cc,n,h,area,T](Point p)->bool{const V x=Of(p);const auto t=Dot(x-a,n);if(t<(1-T)*h||t>(1+T)*h)return false;const V f=x-t*n;const std::array<V,3> q3{a,b,cc};
        for(unsigned j=0;j<3;++j)if(!(Dot(Cross(q3[(j+1)%3]-f,q3[(j+2)%3]-f),n)/area>=.02L))return false;return true;};
      std::vector<Cell> placed;double score=0;
-     if(std::abs(area)>0&&PlaceConeInsertion(old.cells,q.p,q.id,s.next_cell,RegionMetric(*s.field),placed,score,nullptr,.6,160,UINT64_MAX,region)){
+     if(GetShapeAdmission()!=ShapeAdmission::ValidityOnly&&std::abs(area)>0&&PlaceConeInsertion(old.cells,q.p,q.id,s.next_cell,RegionMetric(*s.field),placed,score,nullptr,.6,160,UINT64_MAX,region)){
        for(const auto& c:placed)for(auto x:c.v)if(x.id==q.id)q=x;fresh.cells=placed;++st.placed;}}
     if(fresh.cells.empty())try{if(!Cone(old.cells,q,s.next_cell,fresh.cells,why)){++st.refused;++st.why["cone: "+Key(why)];return false;}}
     catch(const std::exception& x){++st.refused;++st.why[std::string("cone: ")+x.what()];return false;}
     try{s.reference->ExportParameters(fresh);}catch(const std::exception& x){++st.refused;++st.why[std::string("parameters: ")+x.what()];return false;}
-    bool ok=true;for(const auto& x:fresh.cells)ok=ok&&Positive(x.v)&&Valid(Shape(s,x));
+    bool ok=true;for(const auto& x:fresh.cells)ok=ok&&Positive(x.v);
     if(!ok){++st.refused;++st.why["validity"];return false;}
-    std::string hw;if(!HeightT(s,fresh,hw)){++st.refused;++st.why["height: "+Key(hw)];return false;}
+    std::string hw;FirstHeightReport hr;const bool heightOk=GetShapeAdmission()==ShapeAdmission::ValidityOnly?HeightConstruct(fresh,s.heights,*s.reference,&hr,&hw):HeightT(s,fresh,hw);if(!heightOk){++st.refused;++st.why["height: "+Key(hw)];return false;}
     // only a registered column face follows its new apex (a face without a column - rim, unrowed - stays unregistered:
     // the column routes assume registered faces have lifted vertices)
     Apply(s,{wf.first},fresh);if(rows.apex.count(wf.second))rows.apex[wf.second]=q.id;certified.insert(wf.second);++st.split;
   }
   return true;
 }
-inline HalveStats HalveFirstRow(State& s,Rows10& rows,std::set<Face>& certified) {
-  Scope scope("DC13 HalveFirstRow");HalveStats st;
+inline HalveStats HalveFirstRow(State& s,Rows10& rows,std::set<Face>& certified,size_t maximum_work=SIZE_MAX,double seconds=INFINITY) {
+  Scope scope("DC13 HalveFirstRow");HalveStats st;const auto t0=Clock::now();
   std::vector<std::pair<Id,Face>> faces;for(const auto& wf:WallFaces(s))faces.push_back(wf);
-  for(const auto& wf:faces){++st.faces;HalveFace(s,rows,certified,wf,st);}
+  for(const auto& wf:faces){if(st.faces>=maximum_work || Seconds(t0)>=seconds)break;++st.faces;HalveFace(s,rows,certified,wf,st);}
   return st;
 }
 // Column redistribution of a halving step (coordinator proposal 2026-10-24): along every first-row column (wall vertex
@@ -75,7 +75,7 @@ inline HalveStats HalveFirstRow(State& s,Rows10& rows,std::set<Face>& certified)
 // DC-14: former environment switches of the DC-13 harness (SU2_DC13_UNLIFTED_COLUMNS, SU2_DC13_CUT_SLIDE); the cut
 // slide is a TEST-ONLY diagnostic and never set in production.
 inline bool unliftedColumns=false,diagnosticCutSlide=false;
-struct ColumnStats { size_t columns=0,unlifted=0,inserted=0,refused=0;std::map<std::string,size_t> why; };
+struct ColumnStats { size_t work=0,columns=0,unlifted=0,inserted=0,refused=0;std::map<std::string,size_t> why; };
 // DC-17: one column-edge insertion of ColumnInsert (shared with dc17::RebuildFirstRow): splits the bottom column edge
 // (w, top) at normal height z (direction d, d.n = dn) by production SplitEdge at an exact on-edge point
 // (InsertEdgeCavity when none is representable; the bound point on physical carriers); admitted when every fresh cell
@@ -95,7 +95,7 @@ inline Id SplitColumnEdge(State& s,Id w,Id top,V x,V d,long double dn,long doubl
   for(const auto& pr:old.parameters)fresh.parameters.emplace(pr.first,pr.second);
   try{s.reference->ExportParameters(fresh);}catch(const std::exception&){}
   if(firstChildOf(old)!=firstChildOf(fresh)){++st.refused;++st.why["would change a first child"];return UINT64_MAX;}
-  bool valid=true;for(const auto& c:fresh.cells)valid=valid&&Positive(c.v)&&Valid(Shape(s,c));
+  bool valid=true;for(const auto& c:fresh.cells)valid=valid&&Positive(c.v);
   if(!valid){++st.refused;++st.why["validity"];return UINT64_MAX;}
   const Id m=s.next_node;Apply(s,ids,fresh);++st.inserted;return m;
 }
@@ -123,17 +123,18 @@ inline bool ColumnEdgeOf(State& s,const Rows10& rows,Id w,const std::set<Id>& wa
   d=Unit(Of(NodePoint(s,top))-x);const long double dn=Dot(d,nb);if(!(dn>.1L)){++st.why["column too flat"];return false;}
   out=ColumnEdge{top,x,d,nb,dn,lifted};return true;
 }
-inline ColumnStats ColumnInsert(State& s,Rows10& rows) {
-  Scope scope("DC13 ColumnInsert");ColumnStats st;MapLayers(s);
+inline ColumnStats ColumnInsert(State& s,Rows10& rows,size_t maximum_work=SIZE_MAX,double seconds=INFINITY) {
+  Scope scope("DC13 ColumnInsert");ColumnStats st;const auto t0=Clock::now();MapLayers(s);
   const auto wallSet=WallVertices(s);std::set<Id> apices;for(const auto& r:rows.apex)apices.insert(r.second);
   for(Id w:wallSet) {
+    if(st.work>=maximum_work || Seconds(t0)>=seconds)break;
     ColumnEdge ce;if(!ColumnEdgeOf(s,rows,w,wallSet,apices,unliftedColumns,ce,st))continue;
     Id top=ce.top;const V x=ce.x,d=ce.d,nb=ce.nb;const long double dn=ce.dn;
     const long double hL=Dot(Of(NodePoint(s,top))-x,nb),h0=VertexH0(s,w);
     long double g=-1;for(const auto& f:PhysicalOf(s,StarOf(s,w),true))if(Has(f.key,w)){const auto it=layerOfMarker.find(f.marker);if(it!=layerOfMarker.end()){g=GrowthOf(s,it->second);break;}}
     if(!(g>1)){++st.why["no wall growth policy"];continue;}  // DC-15: per-marker growth only (no global fallback)
     std::vector<long double> z;for(long double zk=h0,step=h0;zk<.85L*hL;step*=g,zk+=step)z.push_back(zk);
-    for(size_t k=z.size();k-->0;){const Id m=SplitColumnEdge(s,w,top,x,d,dn,z[k],st);if(m==UINT64_MAX)break;top=m;}
+    for(size_t k=z.size();k-->0;){if(st.work>=maximum_work || Seconds(t0)>=seconds)break;++st.work;const Id m=SplitColumnEdge(s,w,top,x,d,dn,z[k],st);if(m==UINT64_MAX)break;top=m;}
   }
   return st;
 }

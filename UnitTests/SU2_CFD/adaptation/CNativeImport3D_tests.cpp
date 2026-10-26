@@ -1926,7 +1926,7 @@ TEST_CASE("Cold native cylinder BL construction and release use the same origina
       q=CPassiveComm::Allreduce(q,CPassiveComm::Op::MIN,world.comm);j=CPassiveComm::Allreduce(j,CPassiveComm::Op::MIN,world.comm);
       // Passive wire scalar is double; the strict long-double edge gate has already run above on every cell.
       const auto length=CPassiveComm::Allreduce(double(maximum),CPassiveComm::Op::MAX,world.comm);
-      if(!world.rank){std::ofstream out("region_summary.json");out<<std::setprecision(17)<<"{\"valid\":true,\"ranks\":"<<world.size
+      if(!world.rank){std::ofstream out("region_summary.json");out<<std::setprecision(17)<<"{\"valid\":true,\"shape_measured\":true,\"ranks\":"<<world.size
           <<",\"cells\":"<<count<<",\"q\":"<<q<<",\"j\":"<<j<<",\"maximum_full_length\":"<<length
           <<",\"work\":"<<partial.stats.global_work<<"}\n";REQUIRE(out.good());}
       return;  // Complete construction/publication only; CFD transfer and restart remain separate gates.
@@ -1947,7 +1947,7 @@ TEST_CASE("Cold native cylinder BL construction and release use the same origina
     std::ofstream lengths("grid_edges.csv");lengths<<std::setprecision(20)<<"a,b,length\n";long double maximum=0;size_t longEdges=0;
     for(const auto& e:edges){const auto length=target.TargetEdgeLength(e.second.first,e.second.second);maximum=std::max(maximum,length);longEdges+=length>MaximumMetricEdge;lengths<<e.first[0]<<','<<e.first[1]<<','<<length<<'\n';}
     REQUIRE(cells.good());REQUIRE(lengths.good());std::ofstream summary("grid_metric_summary.json");summary<<std::setprecision(17)
-        <<"{\"cells\":"<<grid.cells.size()<<",\"shape_failures\":"<<shapeFailures<<",\"q\":"<<q<<",\"j\":"<<j
+        <<"{\"cells\":"<<grid.cells.size()<<",\"shape_measured\":true,\"shape_failures\":"<<shapeFailures<<",\"q\":"<<q<<",\"j\":"<<j
         <<",\"edges\":"<<edges.size()<<",\"oversized_edges\":"<<longEdges<<",\"maximum_length\":"<<maximum<<"}\n";REQUIRE(summary.good());
     if(std::getenv("SU2_NATIVE_CURVED_GRID_REFINE")) {
       const auto unchanged=Signature(world,grid.cells,reference);
@@ -1966,8 +1966,10 @@ TEST_CASE("Cold native cylinder BL construction and release use the same origina
         std::ofstream out("saved_grid_last_rejected_diagnosis.json");out<<std::setprecision(17)<<"{\"trials\":"<<rejected_count
             <<",\"feature\":["<<rejected_feature.vertices[0]<<','<<rejected_feature.vertices[1]<<','<<rejected_feature.vertices[2]
             <<"],\"count\":"<<rejected_feature.count<<",\"geometry\":"<<(rejected_geometry?"true":"false")
-            <<",\"metric_failure\":"<<unsigned(rejected_metric.failure)<<",\"q\":"<<rejected_metric.minimum_mean_ratio
-            <<",\"j\":"<<rejected_metric.minimum_scaled_jacobian<<",\"reason\":"<<std::quoted(rejected_reason)<<"}\n";REQUIRE(out.good());
+            <<",\"metric_failure\":"<<unsigned(rejected_metric.failure)<<",\"shape_measured\":"<<(rejected_metric.shape_measured?"true":"false")<<",\"q\":";
+        if(rejected_metric.shape_measured)out<<rejected_metric.minimum_mean_ratio;else out<<"null";
+        out<<",\"j\":";if(rejected_metric.shape_measured)out<<rejected_metric.minimum_scaled_jacobian;else out<<"null";
+        out<<",\"reason\":"<<std::quoted(rejected_reason)<<"}\n";REQUIRE(out.good());
       }
       std::cout<<"CURVED_GRID_REFINE accepted="<<partial.stats.accepted<<" inserted="<<partial.stats.inserted
           <<" classified_vertices="<<partial.stats.placement_classified_vertices<<" placement_trials="<<partial.stats.placement_trials<<" placement_validated="<<partial.stats.placement_validated
@@ -1990,7 +1992,7 @@ TEST_CASE("Cold native cylinder BL construction and release use the same origina
       long double initial_excess=0;
       for(const auto& e:edges)initial_excess+=std::pow(std::max(0.L,target.TargetEdgeLength(e.second.first,e.second.second)-MaximumMetricEdge),2);
       CHECK(minimum_q>=MinimumMeanRatio);CHECK(minimum_j>=MinimumScaledJacobian);CHECK(excess<initial_excess);
-      std::ofstream diagnosis("grid_refine_summary.json");diagnosis<<std::setprecision(17)<<"{\"accepted\":"<<partial.stats.accepted
+      std::ofstream diagnosis("grid_refine_summary.json");diagnosis<<std::setprecision(17)<<"{\"accepted\":"<<partial.stats.accepted<<",\"shape_measured\":true"
           <<",\"cells\":"<<partial.cells.size()<<",\"q\":"<<minimum_q<<",\"j\":"<<minimum_j<<",\"oversized_edges\":"<<oversized
           <<",\"region_attempts\":"<<partial.stats.region_attempts<<",\"region_cells\":"<<partial.stats.region_cells
           <<",\"region_surface_trials\":"<<partial.stats.region_surface_trials<<",\"region_junction_trials\":"<<partial.stats.region_junction_trials
@@ -2131,9 +2133,15 @@ TEST_CASE("Cold native cylinder BL construction and release use the same origina
           }
         }
         std::cout<<std::setprecision(17)<<"WALL_REFIT old="<<full.cells.size()<<" fresh="<<fresh.cells.size()<<" apices="<<apices.size()
-            <<" valid="<<valid<<" q="<<diagnosis.minimum_mean_ratio<<" j="<<diagnosis.minimum_scaled_jacobian<<" reason="<<reason<<std::endl;
+            <<" valid="<<valid<<" q=";
+        if(diagnosis.shape_measured)std::cout<<diagnosis.minimum_mean_ratio;else std::cout<<"unavailable";
+        std::cout<<" j=";if(diagnosis.shape_measured)std::cout<<diagnosis.minimum_scaled_jacobian;else std::cout<<"unavailable";
+        std::cout<<" reason="<<reason<<std::endl;
         std::ofstream out("wall_refit_metric.json");out<<std::setprecision(17)<<"{\"accepted\":"<<(valid?"true":"false")
-            <<",\"q\":"<<diagnosis.minimum_mean_ratio<<",\"j\":"<<diagnosis.minimum_scaled_jacobian<<",\"reason\":"<<std::quoted(reason)<<"}\n";REQUIRE(out.good());
+            <<",\"shape_measured\":"<<(diagnosis.shape_measured?"true":"false")<<",\"q\":";
+        if(diagnosis.shape_measured)out<<diagnosis.minimum_mean_ratio;else out<<"null";
+        out<<",\"j\":";if(diagnosis.shape_measured)out<<diagnosis.minimum_scaled_jacobian;else out<<"null";
+        out<<",\"reason\":"<<std::quoted(reason)<<"}\n";REQUIRE(out.good());
         auto retained=fresh;const auto count=retained.cells.size();
         CHECK_FALSE(RefitWallSplit(full,edge,point,point.id,2000000,options.wall_heights,*reference.original,retained,obstruction,reason));CHECK(retained.cells.size()==count);
         CHECK_FALSE(RefitWallSplit(old,edge,point,1000001,2000000,options.wall_heights,*reference.original,retained,obstruction,reason));CHECK(retained.cells.size()==count);
@@ -2214,8 +2222,10 @@ TEST_CASE("Cold native cylinder BL construction and release use the same origina
         if(geometry){SaveRecords("edge_op"+std::to_string(op),PatchRecords(fresh),captured_source,reference);
           if(CheckFirstHeight(fresh,options.wall_heights,*reference.original,height,reason))
             valid=ValidateMetricChange(old.cells,fresh.cells,MetricChange::Refine,target,measured,reason);}
-        std::cout<<"EDGE_REPLAY op="<<op<<" geometry="<<geometry<<" valid="<<valid<<" q="<<measured.minimum_mean_ratio<<" j="<<measured.minimum_scaled_jacobian
-            <<" obstruction="<<obstruction[0]<<','<<obstruction[1]<<','<<obstruction[2]<<" reason="<<reason<<std::endl;
+        std::cout<<"EDGE_REPLAY op="<<op<<" geometry="<<geometry<<" valid="<<valid<<" q=";
+        if(measured.shape_measured)std::cout<<measured.minimum_mean_ratio;else std::cout<<"unavailable";
+        std::cout<<" j=";if(measured.shape_measured)std::cout<<measured.minimum_scaled_jacobian;else std::cout<<"unavailable";
+        std::cout<<" obstruction="<<obstruction[0]<<','<<obstruction[1]<<','<<obstruction[2]<<" reason="<<reason<<std::endl;
         if(op==1 && geometry && !valid) {
           for(double fraction:{.05,.075,.1,.125,.15,.2,.25}) {
             const auto a=longest->second.first,b=longest->second.second;
@@ -2313,7 +2323,7 @@ TEST_CASE("Cold native cylinder BL construction and release use the same origina
         const auto p=Centroid(c);const auto m=field.Query(p).target;
         const auto shape=Measure({c.v[0].p,c.v[1].p,c.v[2].p,c.v[3].p},m);q=std::min(q,shape.mean_ratio);j=std::min(j,shape.minimum_scaled_jacobian);
         if(comma)out<<',';comma=true;out<<"{\"cell\":"<<c.id<<",\"tensor\":["<<m.xx<<','<<m.xy<<','<<m.xz<<','<<m.yy<<','<<m.yz<<','<<m.zz
-            <<"],\"q\":"<<shape.mean_ratio<<",\"j\":"<<shape.minimum_scaled_jacobian<<"}";
+            <<"],\"shape_measured\":true,\"q\":"<<shape.mean_ratio<<",\"j\":"<<shape.minimum_scaled_jacobian<<"}";
       }
       out<<"]\n";REQUIRE(out.good());std::cout<<std::setprecision(17)<<"CURVED_REPLAY "<<name<<" cells="<<patch.cells.size()<<" q="<<q<<" j="<<j<<std::endl;
     };
@@ -2335,13 +2345,17 @@ TEST_CASE("Cold native cylinder BL construction and release use the same origina
     std::ofstream out(name+"_diagnosis.json");out<<std::setprecision(17)
         <<"{\"trial\":"<<++captured<<",\"feature\":["<<feature.vertices[0]<<','<<feature.vertices[1]<<','<<feature.vertices[2]
         <<"],\"feature_count\":"<<feature.count<<",\"geometry_valid\":"<<(geometry_valid?"true":"false")
-        <<",\"metric_failure\":"<<unsigned(metric.failure)<<",\"q\":"<<metric.minimum_mean_ratio
-        <<",\"j\":"<<metric.minimum_scaled_jacobian<<",\"weakest_cell\":"<<metric.weakest_cell
+        <<",\"metric_failure\":"<<unsigned(metric.failure)<<",\"shape_measured\":"<<(metric.shape_measured?"true":"false")<<",\"q\":";
+    if(metric.shape_measured)out<<metric.minimum_mean_ratio;else out<<"null";
+    out<<",\"j\":";if(metric.shape_measured)out<<metric.minimum_scaled_jacobian;else out<<"null";
+    out<<",\"weakest_cell\":"<<metric.weakest_cell
         <<",\"sliver_cell\":"<<metric.sliver_cell<<",\"reason\":"<<std::quoted(reason)<<"}\n";
     REQUIRE(out.good());
     std::cout<<"CURVED_REJECTED_TRIAL rank="<<world.rank<<" trial="<<captured<<" old="<<old.cells.size()<<" fresh="<<fresh.cells.size()
-        <<" geometry="<<geometry_valid<<" failure="<<unsigned(metric.failure)<<" q="<<metric.minimum_mean_ratio
-        <<" j="<<metric.minimum_scaled_jacobian<<" reason="<<reason<<std::endl;
+        <<" geometry="<<geometry_valid<<" failure="<<unsigned(metric.failure)<<" q=";
+    if(metric.shape_measured)std::cout<<metric.minimum_mean_ratio;else std::cout<<"unavailable";
+    std::cout<<" j=";if(metric.shape_measured)std::cout<<metric.minimum_scaled_jacobian;else std::cout<<"unavailable";
+    std::cout<<" reason="<<reason<<std::endl;
   };
   options.maximum_seconds=300;  // Return/save private progress before the collector's hard timeout.
   const auto cold_started=std::chrono::steady_clock::now();
@@ -2354,7 +2368,10 @@ TEST_CASE("Cold native cylinder BL construction and release use the same origina
         <<" topology_trials="<<e.wall_topology_trials<<" topology_accepted="<<e.wall_topology_accepted
         <<" joint_trials="<<e.wall_joint_trials<<" joint_moves="<<e.wall_joint_moves<<" joint_removals="<<e.wall_joint_removals<<" joint_accepted="<<e.wall_joint_accepted
         <<" geometry_rejected="<<e.geometry_rejected<<" shape_rejected="<<e.metric_shape_rejected
-        <<" failure="<<unsigned(m.failure)<<" q="<<m.minimum_mean_ratio<<" j="<<m.minimum_scaled_jacobian
+        <<" failure="<<unsigned(m.failure)<<" q=";
+    if(m.shape_measured)std::cout<<m.minimum_mean_ratio;else std::cout<<"unavailable";
+    std::cout<<" j=";if(m.shape_measured)std::cout<<m.minimum_scaled_jacobian;else std::cout<<"unavailable";
+    std::cout
         <<" feature_count="<<e.last_rejected_feature.count<<" v0="<<e.last_rejected_feature.vertices[0]
         <<" v1="<<e.last_rejected_feature.vertices[1]<<" v2="<<e.last_rejected_feature.vertices[2]
         <<" x="<<e.last_rejected_cavity_centroid.x<<" y="<<e.last_rejected_cavity_centroid.y<<" z="<<e.last_rejected_cavity_centroid.z<<std::endl;
@@ -2393,7 +2410,7 @@ TEST_CASE("Cold native cylinder BL construction and release use the same origina
       const auto rejected=world.elect(failure);INFO(rejected.message);REQUIRE_FALSE(rejected.any);
       if(!world.rank){CHECK(residual<2e-12);CHECK(q>=MinimumMeanRatio);CHECK(j>=MinimumScaledJacobian);CHECK(maximum<=MaximumMetricEdge);
         std::ofstream out(name+"_summary.json");out<<std::setprecision(17)<<"{\"original_donors\":"<<current<<",\"cells\":"<<cells.size()
-            <<",\"sensor_target_residual\":"<<residual<<",\"q\":"<<q<<",\"j\":"<<j<<",\"maximum_full_length\":"<<maximum
+            <<",\"sensor_target_residual\":"<<residual<<",\"shape_measured\":true,\"q\":"<<q<<",\"j\":"<<j<<",\"maximum_full_length\":"<<maximum
             <<",\"work\":"<<result.stats.global_work<<",\"field_imports\":"<<result.stats.region_field_imports
             <<",\"sensor_hits\":"<<result.stats.region_field_sensor_hits<<",\"interior_hits\":"<<result.stats.region_field_interior_hits
             <<",\"edge_hits\":"<<result.stats.region_field_edge_hits<<",\"maximum_resident\":"<<result.stats.region_field_maximum_resident<<"}\n";REQUIRE(out.good());}
@@ -2438,7 +2455,7 @@ TEST_CASE("Cold native cylinder BL construction and release use the same origina
   const auto layer_count=world.sum(refined.cells.size()),release_count=world.sum(released.cells.size());
   CHECK(release_count<layer_count);CHECK(refined.stats.global_work+released.stats.global_work<=4096);
   if(!world.rank) {
-    std::ofstream out("cold_summary.json");out<<std::setprecision(17)<<"{\"ranks\":"<<world.size<<",\"layer_cells\":"<<layer_count
+        std::ofstream out("cold_summary.json");out<<std::setprecision(17)<<"{\"ranks\":"<<world.size<<",\"shape_measured\":true,\"layer_cells\":"<<layer_count
         <<",\"released_cells\":"<<release_count<<",\"layer_q\":"<<layer_q<<",\"layer_j\":"<<layer_j<<",\"layer_maximum_length\":"<<layer_l
         <<",\"release_q\":"<<release_q<<",\"release_j\":"<<release_j<<",\"release_maximum_length\":"<<release_l
         <<",\"construction_work\":"<<refined.stats.global_work<<",\"removal_work\":"<<released.stats.global_work<<"}\n";REQUIRE(out.good());

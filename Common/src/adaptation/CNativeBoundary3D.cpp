@@ -1579,10 +1579,10 @@ std::map<Id,Vector> CoupledMetricDirection(const Patch& patch,FrozenField& targe
     std::map<std::array<double,3>,Tensor>* targets=nullptr);
 }
 namespace {
-// A binary vertex-star split is a proposal: the cut's hard arcs encode visibility and final-cell shape.
+// The cut's hard arcs encode positive-cell visibility and requested wall-height feasibility.
 bool SplitHeightStar(Patch& patch,Id vertex,const std::array<Node,2>& points,
-                     const std::array<std::vector<Point>,2>& descendants,const std::set<Id>& future,
-                     Id first,FrozenField& target,const PlanarReference& reference,
+                     const std::array<std::vector<Point>,2>& descendants,
+                     Id first,const PlanarReference& reference,
                      const WallHeights& heights,std::string& reason) {
   std::vector<Cell> star;std::set<Id> removed;
   for(const auto& cell:patch.cells)for(auto n:cell.v)if(n.id==vertex){star.push_back(cell);removed.insert(cell.id);break;}
@@ -1595,17 +1595,6 @@ bool SplitHeightStar(Patch& patch,Id vertex,const std::array<Node,2>& points,
   auto cell=[&](std::array<Node,4> v){
     if(Orientation(v[0].p,v[1].p,v[2].p,v[3].p)<0)std::swap(v[0],v[1]);return Cell{0,v};
   };
-  auto shape=[&](const Cell& c){
-    return Measure({c.v[0].p,c.v[1].p,c.v[2].p,c.v[3].p},target.Query(Centroid(c)).target);
-  };
-  auto cost=[](MetricMeasures m)->uint64_t {
-    const auto q=m.mean_ratio,j=m.minimum_scaled_jacobian;
-    const auto value=100*(std::pow(std::max(0.,1-q/(1.01*MinimumMeanRatio)),2)+
-        std::pow(std::max(0.,1-j/(1.01*MinimumScaledJacobian)),2))+.01/std::max(q,.01)+.002/std::max(j,.01);
-    if(!(std::isfinite(value) && value>=0 && value<1e6))throw std::invalid_argument("Native3D height partition has unrepresentable cost.");
-    return uint64_t(std::ceil(1000*value));
-  };
-  auto admissible=[](MetricMeasures m){return m.mean_ratio>=MinimumMeanRatio && m.minimum_scaled_jacobian>=MinimumScaledJacobian;};
   struct Arc {size_t from,to;uint64_t cost;bool hard;};std::vector<Arc> arcs;
   const size_t source=faces.size(),sink=source+1,count=sink+1;
   auto add=[&](size_t from,size_t to,uint64_t value,bool hard=false){arcs.push_back({from,to,value,hard});};
@@ -1613,14 +1602,7 @@ bool SplitHeightStar(Patch& patch,Id vertex,const std::array<Node,2>& points,
   for(size_t i=0;i<faces.size();++i) {
     const auto f=faces[i];const std::array<Node,3> v{nodes.at(f[0]),nodes.at(f[1]),nodes.at(f[2])};
     for(unsigned side=0;side<2;++side) {
-      const auto c=cell({points[side],v[0],v[1],v[2]});
       bool allowed=Orientation(points[side].p,v[0].p,v[1].p,v[2].p)>0;
-      uint64_t penalty=1000000;
-      if(allowed) {
-        const auto m=shape(c);penalty=cost(m);
-        const bool intermediate=std::any_of(c.v.begin(),c.v.end(),[&](Node n){return future.count(n.id);});
-        allowed=intermediate || admissible(m);
-      }
       const auto wall=walls.find(Key(f));
       if(allowed && wall!=walls.end()) {
         allowed=false;
@@ -1631,7 +1613,7 @@ bool SplitHeightStar(Patch& patch,Id vertex,const std::array<Node,2>& points,
         }
       }
       // Source side is label0; selecting label0 cuts i->sink and selecting label1 cuts source->i.
-      add(side?source:i,side?i:sink,penalty);
+      add(side?source:i,side?i:sink,0);
       if(!allowed)add(side?source:i,side?i:sink,0,true);
     }
     for(unsigned k=0;k<3;++k){Id a=f[k],b=f[(k+1)%3];edges[{std::min(a,b),std::max(a,b)}].push_back({i,a,b});}
@@ -1641,15 +1623,10 @@ bool SplitHeightStar(Patch& patch,Id vertex,const std::array<Node,2>& points,
     if(edge.second.size()!=2)throw std::invalid_argument("Native3D height partition has a nonmanifold link.");
     const auto a=edge.second[0],b=edge.second[1];const auto u=nodes.at(a.a),v=nodes.at(a.b);
     const auto sign=Orientation(points[0].p,points[1].p,u.p,v.p);
-    const auto c=cell({points[0],points[1],u,v});bool quality=false;uint64_t penalty=1000000;
-    if(sign) {
-      const auto m=shape(c);penalty=cost(m);
-      quality=admissible(m) || std::any_of(c.v.begin(),c.v.end(),[&](Node n){return future.count(n.id);});
-    }
-    // sign>0 permits a1/b0; sign<0 permits a0/b1. Zero/invalid final shape requires equal labels.
-    if(sign>=0 || !quality)add(a.face,b.face,0,true);
-    if(sign<=0 || !quality)add(b.face,a.face,0,true);
-    if(sign>0)add(b.face,a.face,penalty);else if(sign<0)add(a.face,b.face,penalty);
+    // Positive bridge orientation admits one directed label transition; zero requires equal labels.
+    if(sign>=0)add(a.face,b.face,0,true);
+    if(sign<=0)add(b.face,a.face,0,true);
+    if(sign>0)add(b.face,a.face,1);else if(sign<0)add(a.face,b.face,1);
     bridges.push_back({a,b,sign});
   }
   uint64_t total=0;
@@ -1680,7 +1657,7 @@ bool SplitHeightStar(Patch& patch,Id vertex,const std::array<Node,2>& points,
   std::vector<bool> label(faces.size());for(size_t i=0;i<faces.size();++i)label[i]=previous[i]==count;
   auto side=[&](size_t i){return i==source?false:i==sink?true:bool(label[i]);};
   for(const auto& arc:arcs)if(arc.hard && !side(arc.from) && side(arc.to)) {
-    std::ostringstream message;message<<"Native3D height partition has no admitted positive/quality cut at vertex "<<vertex;
+    std::ostringstream message;message<<"Native3D height partition has no positive geometric cut at vertex "<<vertex;
     auto describe=[&](size_t i){if(i<faces.size())message<<" face "<<faces[i][0]<<","<<faces[i][1]<<","<<faces[i][2];};
     describe(arc.from);describe(arc.to);throw std::invalid_argument(message.str());
   }
@@ -1748,7 +1725,6 @@ bool ReconstructHeightStar(const Patch& old,Id vertex,Id first_node,Id first_cel
         d[1]*(metric.xy*d[0]+metric.yy*d[1]+metric.yz*d[2])+d[2]*(metric.xz*d[0]+metric.yz*d[1]+metric.zz*d[2]));};
     const auto scale=std::min({spacing(u),spacing(v),length})/8;
     if(!(scale>0 && std::isfinite(scale)))throw std::invalid_argument("Native3D height reconstruction has unrepresentable spacing.");
-    const auto before=MeasureMetricCells(old.cells,target);
     for(double factor:{1.,1.25,1.5,1.75}) {
       if(maximum_trials-report.trials<3){reason="Native3D multi-apex reconstruction exhausted its admitted trial budget.";break;}
       // Represent the shared chart offset once; separate extended-precision lifts can miss a common wall foot.
@@ -1784,17 +1760,14 @@ bool ReconstructHeightStar(const Patch& old,Id vertex,Id first_node,Id first_cel
       Patch proposal=old;
       try {
         ++report.trials;++report.connectivity_trials;SplitHeightStar(proposal,vertex,{{{first_node,p(-1,0)},{first_node+1,p(1,0)}}},
-            {{{leaves[0],leaves[1]},{leaves[2],leaves[3]}}},{first_node,first_node+1},first_cell,target,reference,heights,reason);
+            {{{leaves[0],leaves[1]},{leaves[2],leaves[3]}}},first_cell,reference,heights,reason);
         ++report.trials;++report.connectivity_trials;SplitHeightStar(proposal,first_node,{{{first_node+2,leaves[0]},{first_node+3,leaves[1]}}},
-            {{{leaves[0]},{leaves[1]}}},{first_node+1},first_cell,target,reference,heights,reason);
+            {{{leaves[0]},{leaves[1]}}},first_cell,reference,heights,reason);
         ++report.trials;++report.connectivity_trials;SplitHeightStar(proposal,first_node+1,{{{first_node+4,leaves[2]},{first_node+5,leaves[3]}}},
-            {{{leaves[2]},{leaves[3]}}},{},first_cell,target,reference,heights,reason);
+            {{{leaves[2]},{leaves[3]}}},first_cell,reference,heights,reason);
         proposal.surface.clear();Finish(old,proposal,skin,physical,reference,nullptr);
         if(!CheckFirstHeight(proposal,heights,reference,height,reason)){++report.height_rejected;continue;}
-        report.best=proposal;PatchMetric measured;
-        if(!ValidateMetricChange(old.cells,proposal.cells,MetricChange::Refine,target,measured,reason,nullptr,&before.edges)) {
-          ++report.metric_rejected;continue;
-        }
+        report.best=proposal;
         fresh=std::move(proposal);reason.clear();return true;
       }catch(const std::exception& error){++report.geometry_rejected;reason=error.what();}
     }
@@ -1812,12 +1785,6 @@ bool PlaceSplitPatch(const Patch& old,Edge edge,Node point,const std::vector<std
     const auto& reference=parameter_context?*parameter_context:base_reference;
     Bounds(old);Endpoints(edge);
     if(apices.size()>8)throw std::invalid_argument("Native3D joint placement exceeds its vertex bound.");
-    // Moved apices get their reserved identity (apex.second) one for one: certified relocations for the split rule.
-    auto relocations=[&](const Patch& proposal) {
-      std::set<Id> present;for(const auto& c:proposal.cells)for(auto n:c.v)present.insert(n.id);
-      size_t count=0;for(const auto& apex:apices)count+=present.count(apex.second) && !present.count(apex.first);
-      return count;
-    };
     if(!maximum_trials || maximum_trials>256)throw std::invalid_argument("Native3D joint placement exceeds its trial bound.");
     const auto nodes=Nodes(old.cells);const auto skin=SkinMap(Incidence(old.cells).Boundary());
     const auto physical=CheckSurface(old,skin,reference,nullptr);
@@ -1829,24 +1796,8 @@ bool PlaceSplitPatch(const Patch& old,Edge edge,Node point,const std::vector<std
       nodes.at(apex.first);
       if(interface.count(apex.first))throw std::invalid_argument("Native3D joint placement needs complete movable vertex stars.");
     }
-    double best_loss=std::numeric_limits<double>::infinity();
+    (void)target;  // Construction admits geometry/height-valid candidates; metric quality is checked downstream.
     const size_t placement_limit=(maximum_trials+1)/2;
-    auto score=[&](const Patch& proposal) {
-      double shape=0,soft_shape=0,excess=0;std::set<Edge> measured;
-      for(const auto& c:proposal.cells) {
-        const auto m=Measure({c.v[0].p,c.v[1].p,c.v[2].p,c.v[3].p},target.Query(Centroid(c)).target);
-        shape+=std::pow(std::max(0.,1-m.mean_ratio/MinimumMeanRatio),2)+
-               std::pow(std::max(0.,1-m.minimum_scaled_jacobian/MinimumScaledJacobian),2);
-        soft_shape+=std::pow(std::max(0.,1-m.mean_ratio/(1.01*MinimumMeanRatio)),2)+
-                    std::pow(std::max(0.,1-m.minimum_scaled_jacobian/(1.01*MinimumScaledJacobian)),2);
-        for(unsigned j=0;j<4;++j)for(unsigned k=j+1;k<4;++k) {
-          const auto u=c.v[j],v=c.v[k];
-          if(!measured.insert({std::min(u.id,v.id),std::max(u.id,v.id)}).second)continue;
-          excess+=std::pow(std::max(0.L,MetricNorm(u.p,v.p,target.QueryMidpoint(u.p,v.p).target)-MaximumMetricEdge),2);
-        }
-      }
-      return std::make_pair(shape,100*soft_shape+excess);
-    };
     auto trial=[&](Node inserted,const std::vector<std::pair<Id,Node>>& moves) {
       if(report.trials>=placement_limit)return false;
       ++report.trials;Patch proposal;
@@ -1855,86 +1806,14 @@ bool PlaceSplitPatch(const Patch& old,Edge edge,Node point,const std::vector<std
       }
       FirstHeightReport height;
       if(!CheckFirstHeight(proposal,heights,reference,height,reason)){++report.height_rejected;return false;}
-      const auto measured=score(proposal);const double shape=measured.first,loss=measured.second;
-      if(report.trials==1)report.initial_loss=loss;
-      if(!(loss<best_loss))return false;
-      best_loss=loss;report.best_loss=loss;report.best_shape_loss=shape;report.best=std::move(proposal);
-      if(shape==0) {
-        PatchMetric metric;
-        if(ValidateMetricChange(old.cells,report.best.cells,MetricChange::Refine,target,metric,reason,nullptr,nullptr,nullptr,
-                                relocations(report.best))) {
-          fresh=report.best;return true;
-        }
-        ++report.metric_rejected;
-      }
-      return false;
+      report.best=std::move(proposal);
+      fresh=report.best;
+      reason.clear();
+      return true;
     };
-    if(trial(point,{})){reason.clear();return true;}
-    ConnectivityRepairReport solve;
-    // Solve for the admitted surface and volume points together; rebuild from the original complete stars.
-    while(!report.best.cells.empty() && report.trials<placement_limit) {
-      const auto current=Nodes(report.best.cells);std::set<Id> movable{point.id},fixed,active;
-      for(const auto& apex:apices)movable.insert(current.count(apex.second)?apex.second:apex.first);
-      for(const auto& n:current)if(!movable.count(n.first) || interface.count(n.first))fixed.insert(n.first);
-      for(const auto& c:report.best.cells)active.insert(c.id);
-      const auto direction=CoupledMetricDirection(report.best,target,heights,reference,fixed,active,solve,true);
-      report.linearizations=solve.linearizations;report.metric_probes=solve.metric_probes;report.linear_iterations=solve.linear_iterations;
-      if(direction.empty())break;
-      const auto previous=best_loss;
-      for(double fraction=1;fraction>std::numeric_limits<double>::epsilon() && report.trials<placement_limit;fraction*=.5) {
-        size_t changed=0;
-        auto displaced=[&](Id id) {
-          Node n=current.at(id);const auto d=direction.find(id);
-          if(d!=direction.end()) {
-            n.p={double(n.p.x+fraction*d->second[0]),double(n.p.y+fraction*d->second[1]),double(n.p.z+fraction*d->second[2])};
-            n=ConstrainMovePoint(report.best,id,n,heights,reference);
-          }
-          const auto origin=current.at(id).p;
-          changed+=n.p.x!=origin.x || n.p.y!=origin.y || n.p.z!=origin.z;
-          return n;
-        };
-        Node inserted=displaced(point.id);std::vector<std::pair<Id,Node>> moves;
-        for(const auto& apex:apices) {
-          auto moved=displaced(current.count(apex.second)?apex.second:apex.first);const auto origin=nodes.at(apex.first).p;
-          moved.id=apex.second;
-          if(moved.p.x!=origin.x || moved.p.y!=origin.y || moved.p.z!=origin.z)moves.emplace_back(apex.first,moved);
-        }
-        ++report.solve_trials;
-        if(trial(inserted,moves)){report.moves+=changed;reason.clear();return true;}
-        if(best_loss<previous){report.moves+=changed;break;}
-      }
-      if(!(best_loss<previous))break;
-    }
-    if(!report.best.cells.empty() && report.best_shape_loss>0 && report.trials<maximum_trials) {
-      const auto present=Nodes(report.best.cells);std::set<Id> movable{point.id};
-      for(const auto& apex:apices)movable.insert(present.count(apex.second)?apex.second:apex.first);
-      Patch repaired;ConnectivityRepairReport connectivity;
-      const bool progress=RepairMetricConnectivity(report.best,target,reference,heights,first,repaired,connectivity,reason,
-          maximum_trials-report.trials,false,&movable);
-      report.trials+=connectivity.trials;report.connectivity_trials=connectivity.trials;
-      report.flips=connectivity.flips;report.moves+=connectivity.moves;
-      report.linearizations+=connectivity.linearizations;report.metric_probes+=connectivity.metric_probes;
-      report.linear_iterations+=connectivity.linear_iterations;report.solve_trials+=connectivity.solve_trials;
-      report.blocked_interior_vertex=connectivity.blocked_interior_vertex;
-      if(progress) {
-        for(const auto& apex:apices) {
-          const auto origin=nodes.at(apex.first).p;
-          for(auto& c:repaired.cells)for(auto& n:c.v)if(n.id==apex.first || n.id==apex.second)
-            n.id=(n.p.x==origin.x && n.p.y==origin.y && n.p.z==origin.z)?apex.first:apex.second;
-        }
-        const auto measured=score(repaired);
-        if(measured.second<best_loss) {
-          best_loss=measured.second;report.best_loss=best_loss;report.best_shape_loss=measured.first;report.best=repaired;
-        }
-        PatchMetric metric;
-        if(ValidateMetricChange(old.cells,repaired.cells,MetricChange::Refine,target,metric,reason,nullptr,nullptr,nullptr,
-                                relocations(repaired))) {
-          fresh=std::move(repaired);reason.clear();return true;
-        }
-        ++report.metric_rejected;
-      }
-    }
-    reason="Native3D joint placement/reconnection exhausted its shared trial budget without frozen metric progress: "+reason;return false;
+    if(trial(point,{}))return true;
+    if(reason.empty())reason="Native3D joint placement has no geometry-valid split at the proposed point.";
+    return false;
   }catch(const std::exception& e){reason=e.what();return false;}
 }
 namespace {
@@ -2280,10 +2159,11 @@ bool ReconstructSplitPatch(const Patch& old,Edge edge,Node point,Node interior,c
       const auto det=Orientation(c.v[0].p,c.v[1].p,c.v[2].p,c.v[3].p,stats);
       if(!(det>0))throw std::invalid_argument("Native3D joint patch contains an inverted donor.");
       for(const auto n:c.v){const auto d=Delta(n.p,origin);for(size_t k=0;k<3;++k)moment[k]+=det*d[k]/4;}
-      volume+=det;rms+=Measure({c.v[0].p,c.v[1].p,c.v[2].p,c.v[3].p},placement,stats).rms_edge;
+      volume+=det;
+      for(unsigned i=0;i<4;++i)for(unsigned j=i+1;j<4;++j)rms+=Dot(Delta(c.v[i].p,c.v[j].p),Delta(c.v[i].p,c.v[j].p));
     }
     interior.p={double(origin.x+moment[0]/volume),double(origin.y+moment[1]/volume),double(origin.z+moment[2]/volume)};
-    rms/=old.cells.size();
+    rms=std::sqrt(rms/(6*old.cells.size()));
     const long double scale=std::max({std::abs(placement.xx),std::abs(placement.xy),std::abs(placement.xz),std::abs(placement.yy),std::abs(placement.yz),std::abs(placement.zz)});
     const long double m[3][3]={{placement.xx/scale,placement.xy/scale,placement.xz/scale},{placement.xy/scale,placement.yy/scale,placement.yz/scale},{placement.xz/scale,placement.yz/scale,placement.zz/scale}};
     long double l[3][3]{};
@@ -2298,6 +2178,9 @@ bool ReconstructSplitPatch(const Patch& old,Edge edge,Node point,Node interior,c
       for(size_t j=i+1;j<3;++j)value-=l[j][i]*basis[column][j];
       basis[column][i]=value/l[i][i];
     }
+    // rms is a physical length: retain frame anisotropy without applying metric scale twice.
+    const auto frame_scale=std::max({Norm(basis[0]),Norm(basis[1]),Norm(basis[2])});
+    for(auto& axis:basis)for(auto& component:axis)component/=frame_scale;
     auto cost=[&](Point apex,Face* blocked) {
       long double score=0,worst=INFINITY;
       for(const auto& row:skin) {
@@ -2305,25 +2188,19 @@ bool ReconstructSplitPatch(const Patch& old,Edge edge,Node point,Node interior,c
         const Tetrahedron tet{apex,nodes.at(f[0]).p,nodes.at(f[1]).p,nodes.at(f[2]).p};
         const auto wall=wallPoints.find(row.first);
         long double ratio=INFINITY;
-        // Score the actual four wall children, so placement respects their height and visibility.
         for(unsigned child=0;child<(wall==wallPoints.end()?1u:4u);++child) {
           auto candidate=tet;if(wall!=wallPoints.end())candidate[child]=wall->second;
-          long double deficit=10,qualityRatio=-INFINITY;
-          if(Orientation(candidate[0],candidate[1],candidate[2],candidate[3],stats)>0) {
-            const auto quality=Measure(candidate,placement,stats);
-            const auto q=std::max(0.,.22-quality.mean_ratio),j=std::max(0.,.06-quality.minimum_scaled_jacobian);
-            deficit=q*q+j*j;
-            qualityRatio=std::min(quality.mean_ratio/MinimumMeanRatio,quality.minimum_scaled_jacobian/MinimumScaledJacobian);
-          }
-          score+=deficit;ratio=std::min(ratio,qualityRatio);
+          const auto orientation=Orientation(candidate[0],candidate[1],candidate[2],candidate[3],stats);
+          if(orientation>0)ratio=std::min(ratio,orientation);
+          else {score+=1-std::min(0.L,orientation/(rms*rms*rms));ratio=-INFINITY;}
         }
-        if(blocked && !physical.count(row.first) && ratio<worst){worst=ratio;*blocked=row.first;}
+        if(blocked && !physical.count(row.first) && ratio<=0 && ratio<worst){worst=ratio;*blocked=row.first;}
       }
       return score;
     };
-    // Placement uses one frozen proxy; the engine certifies the complete actual-query field afterwards.
+    // Search only for a positive visible cone; metric shape is optimized downstream.
     auto best=cost(interior.p,nullptr);
-    for(unsigned level=0;level<9 && best>1e-12L;++level)for(unsigned sweep=0;sweep<3 && best>1e-12L;++sweep) {
+    for(unsigned level=0;level<9 && best>0;++level)for(unsigned sweep=0;sweep<3 && best>0;++sweep) {
       const auto center=interior.p;const auto previous=best;
       for(int a=-1;a<=1;++a)for(int b=-1;b<=1;++b)for(int c=-1;c<=1;++c)if(a || b || c) {
         const auto step=std::ldexp(rms,-int(level)-1)/std::sqrt(static_cast<long double>(a*a+b*b+c*c));

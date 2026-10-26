@@ -241,13 +241,13 @@ inline bool VisibleCavity(const State& s,Point p,std::vector<Id>& cavity,std::st
   }
   why="visibility cavity did not close";return false;
 }
-struct Verdict { bool ok=false;int category=0;std::string reason;double q=0,j=0;long double removed=0,added=0;size_t old_cells=0,fresh_cells=0; };
+struct Verdict { bool ok=false,shape_measured=false;int category=0;std::string reason;double q=std::numeric_limits<double>::quiet_NaN(),j=std::numeric_limits<double>::quiet_NaN();long double removed=0,added=0;size_t old_cells=0,fresh_cells=0; };
 // category: 1 geometry/operator, 2 shape, 3 Refine progress, 4 first height, 5 measurement/cap
 inline Verdict Validate(State& s,const Patch& old,const Patch& fresh) {
   Verdict v;v.old_cells=old.cells.size();v.fresh_cells=fresh.cells.size();PatchMetric measured;MetricDiagnosis d;
   if(old.cells.size()>MaximumReplacementCells||fresh.cells.size()>MaximumReplacementCells){v.category=5;v.reason="replacement exceeds 128 cells";return v;}
   const bool metric=ValidateMetricChange(old.cells,fresh.cells,MetricChange::Refine,*s.field,measured,v.reason,nullptr,nullptr,&d);
-  v.q=d.minimum_mean_ratio;v.j=d.minimum_scaled_jacobian;v.removed=d.removed_excess;v.added=d.added_excess;
+  v.shape_measured=d.shape_measured;if(v.shape_measured){v.q=d.minimum_mean_ratio;v.j=d.minimum_scaled_jacobian;}v.removed=d.removed_excess;v.added=d.added_excess;
   if(!metric){v.category=d.failure==MetricFailure::Shape?2:d.failure==MetricFailure::Progress?3:5;return v;}
   if(!s.heights.empty()){FirstHeightReport h;if(!CheckFirstHeight(fresh,s.heights,*s.reference,h,v.reason)){v.category=4;return v;}}
   v.ok=true;v.reason.clear();return v;
@@ -255,7 +255,7 @@ inline Verdict Validate(State& s,const Patch& old,const Patch& fresh) {
 struct Target {
   Point p;size_t column=0;unsigned row=0;int kind=0;  // 0 interior, 1 partner chart, 2 partner junction line
   std::set<Id> partners;long double distance=0;int outcome=-1;bool needed=false;
-  std::string witness;std::map<int,size_t> histogram;double best_q=0;size_t cavity=0;std::string op;
+  std::string witness;std::map<int,size_t> histogram;long double best_size_gain=0;size_t cavity=0;std::string op;
 };
 struct Column { Id root=0;V direction;int kind=0;std::set<Id> partners;size_t body=0;std::string cause;std::vector<Point> rows;std::vector<long double> distance,step;V inward; };
 // Bounded strictly convex direction problem: min |w|^2, n_i.w >= 1 over active sets <= 3 (residual-checked).
@@ -440,7 +440,7 @@ inline bool Single(State& s,Target& t) {
     Patch fresh;std::string why;bool built=false;
     try{built=c.second(old,fresh,why);}catch(const std::exception& e){why=e.what();}
     if(!built){++t.histogram[1];t.witness=why;continue;}
-    const auto v=Validate(s,old,fresh);t.best_q=std::max(t.best_q,v.q);
+    const auto v=Validate(s,old,fresh);t.best_size_gain=std::max(t.best_size_gain,v.removed-v.added);
     if(!v.ok){++t.histogram[v.category];t.witness=v.reason;continue;}
     Apply(s,c.first,fresh);t.outcome=1;t.cavity=old.cells.size();return true;
   }
@@ -557,7 +557,7 @@ inline bool Compound(State& s,std::vector<Target>& targets,size_t at,const std::
       if(!fixed||!positive){t.witness="compound changed its artificial interface or inverted a cell";continue;}
     }
     try{s.reference->ExportParameters(work);}catch(const std::exception& e){t.witness=std::string("compound parameters: ")+e.what();continue;}
-    const auto v=Validate(s,old,work);t.best_q=std::max(t.best_q,v.q);
+    const auto v=Validate(s,old,work);t.best_size_gain=std::max(t.best_size_gain,v.removed-v.added);
     if(!v.ok){++t.histogram[10+v.category];t.witness="compound: "+v.reason;t.cavity=old.cells.size();continue;}
     Apply(s,ids,work);s.next_node=std::max(s.next_node,next_node);
     for(size_t g:group)if(targets[g].outcome<0){targets[g].outcome=2;targets[g].cavity=old.cells.size();}
@@ -590,7 +590,7 @@ inline std::pair<size_t,size_t> FirstRow(State& s,std::ostringstream& log) {
           for(double factor:{1.25,1.5,2.})backgrounds.push_back(Pt(c-(factor*h->second)*n));}
         for(const auto& b:backgrounds){Patch candidate;std::string reason;
           if(!ConstructFirstLayer(old,{s.next_node,b},s.next_node+1,s.next_cell,s.heights,*s.reference,candidate,report,reason)){why=reason;continue;}
-          const double q=MetricShapeQuality(candidate.cells,*s.field);if(q>best){best=q;chosen=std::move(candidate);ok=true;}}
+          chosen=std::move(candidate);ok=true;break;}
         if(ok)fresh=std::move(chosen);
       }
       if(ok){Apply(s,{id},fresh);++built;}else{++failed;refused.insert(id);log<<"FIRST_ROW_REFUSED cell="<<id<<" walls="<<walls<<" reason="<<why<<"\n";}
@@ -624,7 +624,7 @@ inline Summary Sequence(State& s,const std::vector<Id>& roots,double seconds,std
     if(t.outcome==1)++sum.single;else if(t.outcome==2)++sum.compound;else if(t.outcome==3)++sum.blocked;else if(t.outcome==0)++sum.not_needed;
     for(const auto& h:t.histogram)sum.failures[h.first]+=h.second;
     json<<(i?",":"")<<"{\"column\":"<<t.column<<",\"row\":"<<t.row<<",\"kind\":"<<t.kind<<",\"distance\":"<<double(t.distance)<<",\"point\":["<<t.p.x<<','<<t.p.y<<','<<t.p.z
-        <<"],\"outcome\":"<<t.outcome<<",\"cavity\":"<<t.cavity<<",\"best_q\":"<<t.best_q<<",\"histogram\":{";
+        <<"],\"outcome\":"<<t.outcome<<",\"cavity\":"<<t.cavity<<",\"best_size_gain\":"<<double(t.best_size_gain)<<",\"histogram\":{";
     bool comma=false;for(const auto& h:t.histogram){json<<(comma?",":"")<<'"'<<h.first<<"\":"<<h.second;comma=true;}
     json<<"},\"witness\":"<<Json(t.witness)<<'}';
   }

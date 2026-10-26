@@ -390,7 +390,7 @@ CRemeshResult CNativeRemesher3D::Remesh(const CConfig& config, const CGeometry& 
     phase(3);
     std::unique_ptr<DonorImport> return_source;
     for(unsigned stage=0;ready && stage<2;++stage) {
-    ++stats.normalization_stages;stats.refine={};stats.coarsen={};
+    ++stats.normalization_stages;stats.construction_stats={};stats.refine={};stats.coarsen={};
     if (ready) {
       auto comm = parent.comm;
 #ifdef HAVE_MPI
@@ -414,12 +414,14 @@ CRemeshResult CNativeRemesher3D::Remesh(const CConfig& config, const CGeometry& 
         kernel.caller_bytes = transfer_memory::Add(
             held(), worker_source == &imported.original ? 0 : transfer_memory::Bytes(imported.original));
         try {
+          struct RestoreShape {ShapeAdmission previous=GetShapeAdmission();~RestoreShape(){SetShapeAdmission(previous);}} restore_shape;
+          SetShapeAdmission(ShapeAdmission::ValidityOnly);
           const auto begin = workers.seconds();
           if (construction) {
-            // ADAP_BL_METHOD= FIRST_ROW: one construction replaces Refine/Coarsen (its own acceptance and report).
+            // FIRST_ROW publishes only a provisional private mesh into the shared distributed stages.
             stats.construction = true;
             auto built = construction(workers, working, *worker_source, pending->state, composition, kernel, stats.construction_report);
-            stats.refine = built.stats;
+            stats.construction_stats = built.stats;
             valid = built.valid;
             if (valid && built.reference) pending->state.original = std::move(built.reference);
             detail = built.reason;
@@ -447,11 +449,20 @@ CRemeshResult CNativeRemesher3D::Remesh(const CConfig& config, const CGeometry& 
               if (wanted>cap) { valid=false; detail="FIRST_ROW publication needs an estimated "+std::to_string(need>>20)+" MiB x 1.5, above the 25 % node-memory cap ("+std::to_string(cap>>20)+" MiB)."; }
               else control.memory_ceiling=wanted;
             }
+            if(built.stats.global_work>kernel.maximum_work) {
+              valid=false;detail="FIRST_ROW construction exhausted shared native work.";
+            } else kernel.maximum_work-=built.stats.global_work;
+            kernel.memory_ceiling=control.memory_ceiling;
+            if(valid && control.maximum_seconds) {
+              kernel.maximum_seconds=CPassiveComm::Allreduce(worker_seconds-(workers.seconds()-worker_start),CPassiveComm::Op::MIN,workers.comm);
+              if(!(kernel.maximum_seconds>0)) {
+                valid=false;detail="Native3D elapsed deadline exhausted after first-row construction.";
+              }
+            }
             stats.phases[8] += workers.seconds() - begin;
-          } else {
-          struct RestoreShape {ShapeAdmission previous=GetShapeAdmission();~RestoreShape(){SetShapeAdmission(previous);}} restore_shape;
-          // Construct valid intermediate cells; distributed repair and the strict census gate final publication.
-          SetShapeAdmission(ShapeAdmission::ValidityOnly);
+          }
+          if(valid) {
+          const auto refine_begin=workers.seconds();
           auto refined = Refine(workers, working, *worker_source, *pending->state.original, composition, kernel);
           stats.refine = refined.stats;
           const bool rebuilt_domain=refined.rebuilt_domain;
@@ -462,7 +473,7 @@ CRemeshResult CNativeRemesher3D::Remesh(const CConfig& config, const CGeometry& 
           Owned().swap(refined.cells);
           std::vector<SplitRecord>().swap(refined.splits);
           std::vector<Edge>().swap(refined.collapses);
-          stats.phases[8] += workers.seconds() - begin;
+          stats.phases[8] += workers.seconds() - refine_begin;
           if (valid) {
             kernel.maximum_work-=refined.stats.global_work;
             if (control.maximum_seconds) {
@@ -528,9 +539,9 @@ CRemeshResult CNativeRemesher3D::Remesh(const CConfig& config, const CGeometry& 
         phase(11);
       }
     }
-    const auto used=CPassiveComm::Allreduce(stats.refine.global_work+stats.coarsen.global_work,CPassiveComm::Op::MAX,parent.comm);
+    const auto used=CPassiveComm::Allreduce(stats.construction_stats.global_work+stats.refine.global_work+stats.coarsen.global_work,CPassiveComm::Op::MAX,parent.comm);
     stats.normalization_stage_work[stage]=used;stats.cumulative_work+=used;
-    stats.maximum_native_bytes=std::max({stats.maximum_native_bytes,stats.refine.maximum_work_bytes,stats.coarsen.maximum_work_bytes});
+    stats.maximum_native_bytes=std::max({stats.maximum_native_bytes,stats.construction_stats.maximum_work_bytes,stats.refine.maximum_work_bytes,stats.coarsen.maximum_work_bytes});
     now = parent.seconds();
     // Reassess before any reference/flow publication. Only the proposal uses candidate cells.
     // The one retained parent source also serves return packing, with immutable original sensors.
@@ -621,7 +632,7 @@ CRemeshResult CNativeRemesher3D::Remesh(const CConfig& config, const CGeometry& 
     }
     phase(11);
     stats.maximum_native_bytes =
-        std::max({stats.maximum_native_bytes, stats.refine.maximum_work_bytes, stats.coarsen.maximum_work_bytes,
+        std::max({stats.maximum_native_bytes, stats.construction_stats.maximum_work_bytes, stats.refine.maximum_work_bytes, stats.coarsen.maximum_work_bytes,
                   stats.returned.maximum_native_bytes, stats.reassessment.maximum_native_bytes, stats.parameter_return.maximum_native_bytes, parent.max_exchange_work_bytes});
     if (ready && control.maximum_seconds)
       ready=vote(remaining_time()>0,"Native3D elapsed deadline exhausted after return-to-CFD packing.");
@@ -781,8 +792,13 @@ CRemeshResult CNativeRemesher3D::Remesh(const CConfig& config, const CGeometry& 
              << " metric_shape_rejected=" << e.metric_shape_rejected << " metric_progress_rejected=" << e.metric_progress_rejected
              << " metric_measurement_rejected=" << e.metric_measurement_rejected
              << " sample_metric_present=" << (e.last_metric_rejection.failure!=MetricFailure::None)
-             << " sample_q=" << e.last_metric_rejection.minimum_mean_ratio << " sample_j=" << e.last_metric_rejection.minimum_scaled_jacobian
-             << " sample_cell=" << e.last_metric_rejection.weakest_cell << " sample_sliver=" << e.last_metric_rejection.sliver_cell
+             << " sample_shape_measured=" << e.last_metric_rejection.shape_measured << " sample_q=";
+    if(e.last_metric_rejection.shape_measured) detail << e.last_metric_rejection.minimum_mean_ratio;
+    else detail << "unavailable";
+    detail << " sample_j=";
+    if(e.last_metric_rejection.shape_measured) detail << e.last_metric_rejection.minimum_scaled_jacobian;
+    else detail << "unavailable";
+    detail << " sample_cell=" << e.last_metric_rejection.weakest_cell << " sample_sliver=" << e.last_metric_rejection.sliver_cell
              << " sample_feature=" << e.last_rejected_feature.count << " sample_v0=" << e.last_rejected_feature.vertices[0]
              << " sample_v1=" << e.last_rejected_feature.vertices[1] << " sample_v2=" << e.last_rejected_feature.vertices[2]
              << " sample_x=" << e.last_rejected_cavity_centroid.x << " sample_y=" << e.last_rejected_cavity_centroid.y << " sample_z=" << e.last_rejected_cavity_centroid.z
@@ -835,6 +851,7 @@ CRemeshResult CNativeRemesher3D::Remesh(const CConfig& config, const CGeometry& 
              << " batch_retries=" << e.batch_retries << " query_retries=" << e.query_import_retries
              << " private_query_retries=" << e.private_query_retries << " native_bound=" << e.maximum_work_bytes << '\n';
     };
+    if(stats.construction)engine("construction",stats.construction_stats);
     engine("refine",stats.refine); engine("coarsen",stats.coarsen);
     SU2Native3D::ProfileRow3D(detail.str(), parent.comm);
   }

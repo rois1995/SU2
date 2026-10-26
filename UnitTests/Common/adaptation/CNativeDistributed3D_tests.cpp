@@ -778,6 +778,8 @@ void EngineReport(const EngineResult& result, World& world, const std::string& l
              << " sample_feature=" << s.last_rejected_feature.count << " sample_v0=" << s.last_rejected_feature.vertices[0]
              << " sample_v1=" << s.last_rejected_feature.vertices[1] << " sample_v2=" << s.last_rejected_feature.vertices[2]
              << " sample_x=" << s.last_rejected_cavity_centroid.x << " sample_y=" << s.last_rejected_cavity_centroid.y << " sample_z=" << s.last_rejected_cavity_centroid.z
+       << " quality_stages=" << s.quality_stages << " construction_returns=" << s.construction_returns
+       << " shape_measured=" << s.last_metric_rejection.shape_measured
        << " batch_reserved=" << s.batch_reserved
        << " concurrent_rounds=" << s.concurrent_rounds << " final_reservations=" << s.final_reservations
        << " proposal_deferred=" << s.proposal_deferred << " maximum_parallel_commits=" << s.maximum_parallel_commits << " field_build_nested_s=" << s.field_build_seconds << " field_query_nested_s=" << s.field_query_seconds
@@ -831,6 +833,47 @@ TEST_CASE("Native incremental MPI refinement reaches complete frozen metric gate
     CHECK(untimed.stats.total_seconds==0);
   }
 }
+TEST_CASE("Native construction skips centroid shape queries and requires a fresh quality census", "[NativeStagedConstruction3D]") {
+  World world;const auto fixture=Box();const PlanarReference reference(fixture.facets);
+  const auto input=Partition(Rows(fixture.patch),world);const auto saved=Bytes(input);
+  std::set<std::array<double,3>> centroids;
+  auto remember=[&](const std::vector<Cell>& cells) {
+    for(const auto& c:cells){const auto p=Centroid(c);centroids.insert({p.x,p.y,p.z});}
+  };
+  remember(fixture.patch.cells);
+  unsigned centroid_queries=0,construction_metrics=0;
+  EngineOptions options;options.maximum_rounds=1;options.candidate_batch=1;
+  options.edge_breakpoints=[](Point,Point){return std::vector<double>{0,1};};
+  options.capture_feature={{0,6,0},2};
+  options.transaction_observer=[&](const TransactionView& view) {
+    if(std::string(view.stage)=="SplitEdge" && view.passed)remember(view.fresh.cells);
+    if(std::string(view.stage)=="construction_end" && view.passed) {
+      ++construction_metrics;CHECK_FALSE(view.metric.shape_measured);
+      CHECK(std::isnan(view.metric.minimum_mean_ratio));CHECK(std::isnan(view.metric.minimum_scaled_jacobian));
+    }
+  };
+  auto compose=[&](Point p,Tensor sensor) {
+    centroid_queries+=centroids.count({p.x,p.y,p.z});return sensor;
+  };
+  const auto limited=Refine(world,input,Uniform(input,{4,0,0,4,0,4}),reference,compose,options);
+  INFO(limited.reason);CHECK_FALSE(limited.valid);CHECK(limited.stats.stop==EngineStop::RoundBudget);
+  CHECK(world.sum(int(limited.stats.accepted))>0);CHECK(world.sum(int(construction_metrics))>0);
+  CHECK(world.sum(int(centroid_queries))==0);CHECK(limited.stats.quality_stages==0);
+  CHECK(Bytes(input)==saved);CHECK_FALSE(limited.rebuilt_domain);
+  for(const auto& row:limited.cells) {
+    const auto& v=row.second.cell.v;CHECK(Orientation(v[0].p,v[1].p,v[2].p,v[3].p)>0);
+  }
+  // Size/geometry already fit, so failure at a centroid can only occur after construction hands off.
+  options.maximum_rounds=0;options.transaction_observer={};centroid_queries=0;
+  auto reject_centroids=[&](Point p,Tensor sensor) {
+    if(centroids.count({p.x,p.y,p.z})) {++centroid_queries;throw std::runtime_error("strict quality census sentinel");}
+    return sensor;
+  };
+  const auto censused=Refine(world,input,Uniform(input,Tensor{}),reference,reject_centroids,options);
+  INFO(censused.reason);CHECK_FALSE(censused.valid);CHECK(censused.stats.quality_stages==1);
+  CHECK(world.sum(int(centroid_queries))>0);CHECK(Bytes(input)==saved);CHECK_FALSE(censused.rebuilt_domain);
+}
+
 TEST_CASE("Native composed measurements interleave complete cavities and certify every survivor", "[NativeProgressiveMeasurement3D]") {
   World world;const bool concentrated=GENERATE(false,true);Fixture fixture;
   const Id components=8*world.size+1;
@@ -3211,15 +3254,19 @@ TEST_CASE("Faceted composed proposals publish independent complete cavities conc
   if(world.size>1) {
     auto mixed=original;for(auto& donor:mixed)if(donor.cell.id<100)donor.sensor.fill({1e8,0,0,1.21,0,1.21});
     EngineOptions observed;observed.maximum_rounds=1;observed.edge_breakpoints=options.edge_breakpoints;
-    observed.capture_feature={{{0,6,0}},2};std::string construction_refusal,terminal_refusal;bool ended=false;
+    observed.capture_feature={{{0,6,0}},2};bool constructed=false,ended=false;
     observed.transaction_observer=[&](const TransactionView& view) {
       if(!view.selected)return;
-      if(std::string(view.stage)=="construction_end" && !view.passed)construction_refusal=view.reason;
-      if(std::string(view.stage)=="transaction_end") {ended=true;CHECK_FALSE(view.passed);terminal_refusal=view.reason;}
+      if(std::string(view.stage)=="construction_end") {
+        constructed=true;CHECK(view.passed);CHECK_FALSE(view.metric.shape_measured);
+      }
+      if(std::string(view.stage)=="transaction_end") {ended=true;CHECK(view.passed);}
     };
-    const auto rejected=Refine(world,input,mixed,geometry,compose,observed);
-    CHECK(world.sum(int(rejected.stats.accepted))==world.size-1);CHECK(Bytes(input)==frozen);
-    if(!world.rank){REQUIRE(ended);REQUIRE_FALSE(construction_refusal.empty());CHECK(terminal_refusal==construction_refusal);}
+    // Anisotropic low shape is provisional construction progress; strict shape belongs to the next stage.
+    const auto provisional=Refine(world,input,mixed,geometry,compose,observed);
+    CHECK(world.sum(int(provisional.stats.accepted))==world.size);CHECK(Bytes(input)==frozen);
+    CHECK_FALSE(provisional.valid);CHECK(provisional.stats.quality_stages==0);
+    if(!world.rank){REQUIRE(constructed);REQUIRE(ended);}
   }
 
 }

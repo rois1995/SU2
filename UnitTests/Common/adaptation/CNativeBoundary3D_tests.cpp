@@ -909,6 +909,18 @@ TEST_CASE("Joint curved split reconstructs a saved obstruction under unchanged f
   Patch fresh;Face obstruction{};std::string reason;
   const Tensor unit{.5,0,0,.5,0,.5};
   const bool rebuilt=ReconstructSplitPatch(old,edge,point,{200001,{}},unit,300000,reference,fresh,obstruction,reason);INFO(reason);REQUIRE(rebuilt);
+  // Geometric cone placement must not depend on the scalar size of its metric frame.
+  for(int exponent:{-40,40}) {
+    const double value=std::ldexp(.5,exponent);Patch scaled;
+    REQUIRE(ReconstructSplitPatch(old,edge,point,{200001,{}},{value,0,0,value,0,value},300000,
+                                  reference,scaled,obstruction,reason));
+    REQUIRE(Connectivity(scaled)==Connectivity(fresh));
+    for(size_t i=0;i<fresh.cells.size();++i)for(unsigned j=0;j<4;++j) {
+      CHECK(scaled.cells[i].v[j].p.x==fresh.cells[i].v[j].p.x);
+      CHECK(scaled.cells[i].v[j].p.y==fresh.cells[i].v[j].p.y);
+      CHECK(scaled.cells[i].v[j].p.z==fresh.cells[i].v[j].p.z);
+    }
+  }
   CHECK(fresh.cells.size()>old.cells.size());
   DonorCell donor;donor.cell={0,{{{0,{-10,-10,-10}},{1,{30,-10,-10}},{2,{-10,30,-10}},{3,{-10,-10,30}}}}};donor.sensor.fill(unit);
   FrozenField field({donor});PatchMetric metric;
@@ -1617,7 +1629,8 @@ TEST_CASE("Complete translated spherical sampling respects geometry and bounded 
   RegionLimits limits;limits.maximum_cells=1024;limits.maximum_work=1024;
   RegionReport report;Patch output;std::string reason;
   const bool built=ConstructWallRegion(skin,center,reference,{},.075,SU2NativeFirstHeight::DefaultTolerance,32,1000,field,limits,output,report,reason);
-  INFO(reason);REQUIRE(built);REQUIRE_FALSE(output.cells.empty());CHECK_FALSE(report.exhausted_work);
+  INFO(reason);REQUIRE(built);REQUIRE_FALSE(output.cells.empty());CHECK_FALSE(report.exhausted_work);CHECK_FALSE(report.quality_measured);
+  // This separate downstream census keeps the strict q/J requirement visible after construction becomes provisional.
   for(const auto& cell:output.cells) {
     const Tetrahedron tet{cell.v[0].p,cell.v[1].p,cell.v[2].p,cell.v[3].p};CHECK(Orientation(tet[0],tet[1],tet[2],tet[3])>0);
     const auto quality=Measure(tet,{1,0,0,1,0,1});CHECK(quality.mean_ratio>=MinimumMeanRatio);CHECK(quality.minimum_scaled_jacobian>=MinimumScaledJacobian);
@@ -1722,7 +1735,7 @@ TEST_CASE("Saved finite-surface blockage admits coordinated placement under the 
     <<" height_rejected="<<report.height_rejected<<" metric_rejected="<<report.metric_rejected<<" linearizations="<<report.linearizations
     <<" solves="<<report.solve_trials<<" loss="<<report.best_loss<<" shape_loss="<<report.best_shape_loss<<" reason="<<reason<<std::endl;
   if(!report.best.cells.empty())SaveCurved(report.best,reference,"native_joint_best");
-  INFO(reason);REQUIRE(accepted);CHECK(report.trials<=256);CHECK(report.linearizations>0);
+  INFO(reason);REQUIRE(accepted);CHECK(report.trials<=256);CHECK(report.linearizations==0);
   REQUIRE(ValidateMetricChange(old.cells,fresh.cells,MetricChange::Refine,target,measured,reason,nullptr,nullptr,&diagnosis));
   CHECK(CheckFirstHeight(fresh,heights,reference,height,reason));CHECK(Connectivity(old)==saved);
   for(size_t i=0;i<fresh.cells.size();++i)for(size_t j=i+1;j<fresh.cells.size();++j)CHECK(ConformingDisjoint(fresh.cells[i],fresh.cells[j]));
