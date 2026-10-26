@@ -31,6 +31,12 @@
 using namespace transfer_test;
 using namespace SU2Native3D;
 
+#if defined(__GNUC__) && defined(__linux__)
+// Optional test-only PMPI collector; ordinary binaries do not supply these symbols.
+extern "C" void su2_m6_trace_begin() __attribute__((weak));
+extern "C" void su2_m6_trace_end() __attribute__((weak));
+#endif
+
 namespace {
 std::vector<double> Snapshot(const MeshSolution& mesh) {
   std::vector<double> values;
@@ -321,7 +327,7 @@ TEST_CASE("Native3D remeshes an externally frozen original sensor field without 
     const unsigned upper[6]={0,1,2,4,5,8};for(unsigned j=0;j<6;++j)sensor(p,j)=r.m[upper[j]];
   }
   REQUIRE(world.sum(uint64_t(sensor.rows()))==count);
-  auto backend=driver.Backend();const auto* native=dynamic_cast<CNativeRemesher3D*>(backend.get());REQUIRE(native);
+  auto backend=driver.Backend();auto* native=dynamic_cast<CNativeRemesher3D*>(backend.get());REQUIRE(native);
   const auto* edgeLimit=std::getenv("SU2_NATIVE_EDGE_REUSE_LIMIT");
   if(const char* limit=edgeLimit ? edgeLimit : std::getenv("SU2_NATIVE_PREPARATION_LIMIT")) {
     const auto maximum=std::stoul(limit);REQUIRE(maximum>0);REQUIRE(maximum<=4096);
@@ -476,8 +482,52 @@ TEST_CASE("Native3D remeshes an externally frozen original sensor field without 
         <<",\"exact_weight_match\":true,\"exact_query_tensors_match\":true,\"CFD_steps\":0,\"mesh_constructed\":false}\n";
     out.close();REQUIRE(bool(out));driver.Finalize();return;
   }
+  struct Witness {Patch before,after;Feature feature;MetricDiagnosis metric;bool geometry;std::string reason;size_t sequence;};
+  std::vector<Witness> witnesses;witnesses.reserve(12);
+  std::set<std::tuple<unsigned,std::array<Id,3>,unsigned,bool>> sampled;
+  std::array<size_t,3> categories{};size_t observed=0;
+  if(std::getenv("SU2_NATIVE_FROZEN_WITNESSES")) {
+    native->SetRejectedTrialObserver([&](const Patch& old,const Patch& fresh,Feature feature,
+                                       const MetricDiagnosis& diagnosis,bool geometric,const std::string& reason) {
+      ++observed;
+      const unsigned category=!geometric?0:diagnosis.failure==MetricFailure::Shape?1:2;
+      if(categories[category]>=4 || old.cells.empty())return;
+      const auto key=std::make_tuple(feature.count,feature.vertices,category,!old.surface.empty());
+      if(!sampled.insert(key).second)return;
+      witnesses.push_back({old,fresh,feature,diagnosis,geometric,reason,observed});++categories[category];
+    });
+  }
+#if defined(__GNUC__) && defined(__linux__)
+  if(su2_m6_trace_begin)su2_m6_trace_begin();
+#endif
   const auto start=SU2_MPI::Wtime();auto result=backend->Remesh(driver.Config(),geometry,sensor);
-  const auto elapsed=CPassiveComm::Allreduce(SU2_MPI::Wtime()-start,CPassiveComm::Op::MAX);
+  const double local_elapsed=SU2_MPI::Wtime()-start;
+#if defined(__GNUC__) && defined(__linux__)
+  if(su2_m6_trace_end)su2_m6_trace_end();
+#endif
+  const auto elapsed=CPassiveComm::Allreduce(local_elapsed,CPassiveComm::Op::MAX);
+  // Write bounded copies after the measured event; the authority and original sensor remain separate pinned inputs.
+  for(size_t i=0;i<witnesses.size();++i) {
+    const auto& w=witnesses[i];std::ofstream out("witness_rank"+std::to_string(world.rank)+"_"+std::to_string(i)+".json");
+    out<<std::setprecision(17)<<"{\"rank\":"<<world.rank<<",\"sequence\":"<<w.sequence<<",\"observed\":"<<observed
+       <<",\"feature\":["<<w.feature.vertices[0]<<','<<w.feature.vertices[1]<<','<<w.feature.vertices[2]
+       <<"],\"feature_count\":"<<w.feature.count<<",\"geometry_candidate\":"<<(w.geometry?"true":"false")
+       <<",\"metric_failure\":"<<unsigned(w.metric.failure)<<",\"q\":"<<w.metric.minimum_mean_ratio
+       <<",\"J\":"<<w.metric.minimum_scaled_jacobian<<",\"reason\":"<<std::quoted(w.reason);
+    auto patch=[&](const char* name,const Patch& p) {
+      out<<",\""<<name<<"\":{\"cells\":[";
+      for(size_t j=0;j<p.cells.size();++j){if(j)out<<',';const auto& c=p.cells[j];out<<'['<<c.id;
+        for(auto n:c.v)out<<",["<<n.id<<','<<n.p.x<<','<<n.p.y<<','<<n.p.z<<']';out<<']';}
+      out<<"],\"surface\":[";
+      for(size_t j=0;j<p.surface.size();++j){if(j)out<<',';const auto& f=p.surface[j];out<<'['<<f.facet;
+        for(auto n:f.v)out<<','<<n;out<<']';}
+      out<<"],\"parameters\":[";bool comma=false;
+      for(const auto& row:p.parameters){if(comma)out<<',';comma=true;const auto& b=row.second.binding;
+        out<<'['<<row.first<<','<<b.feature<<','<<b.version<<','<<b.dimension<<','<<b.u<<','<<b.v<<']';}
+      out<<"]}";
+    };
+    patch("before",w.before);patch("after",w.after);out<<"}\n";out.close();REQUIRE(bool(out));
+  }
   const auto& stats=native->Statistics();CHECK(stats.complete==(result.status==CRemeshResult::Status::COMPLETE));
   if(world.rank==0) {
     std::ofstream out("construction_result.json");out<<std::setprecision(17)

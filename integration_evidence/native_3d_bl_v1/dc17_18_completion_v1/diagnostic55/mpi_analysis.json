@@ -1,0 +1,86 @@
+{
+  "ranks": [
+    {
+      "rank": 0,
+      "elapsed": 62.722872641,
+      "mpi_seconds": 25.909295343002107,
+      "calls": 670201,
+      "overflow": 0,
+      "outside_wrapped_mpi_seconds": 36.813577297997895,
+      "useful_compute_seconds": null,
+      "mpi_fraction": 0.41307571308629765
+    },
+    {
+      "rank": 1,
+      "elapsed": 62.664363171999995,
+      "mpi_seconds": 25.996036466000934,
+      "calls": 671602,
+      "overflow": 0,
+      "outside_wrapped_mpi_seconds": 36.668326705999064,
+      "useful_compute_seconds": null,
+      "mpi_fraction": 0.41484561798940633
+    },
+    {
+      "rank": 2,
+      "elapsed": 62.664355862,
+      "mpi_seconds": 18.739178672001646,
+      "calls": 669969,
+      "overflow": 0,
+      "outside_wrapped_mpi_seconds": 43.92517718999835,
+      "useful_compute_seconds": null,
+      "mpi_fraction": 0.2990404738743223
+    },
+    {
+      "rank": 3,
+      "elapsed": 62.66435918100001,
+      "mpi_seconds": 24.251381475003292,
+      "calls": 671647,
+      "overflow": 0,
+      "outside_wrapped_mpi_seconds": 38.41297770599672,
+      "useful_compute_seconds": null,
+      "mpi_fraction": 0.38700438003292265
+    },
+    {
+      "rank": 4,
+      "elapsed": 62.664355242,
+      "mpi_seconds": 22.82200199799759,
+      "calls": 671001,
+      "overflow": 0,
+      "outside_wrapped_mpi_seconds": 39.84235324400241,
+      "useful_compute_seconds": null,
+      "mpi_fraction": 0.3641943160487739
+    },
+    {
+      "rank": 5,
+      "elapsed": 62.664357196,
+      "mpi_seconds": 24.043873937003355,
+      "calls": 670826,
+      "overflow": 0,
+      "outside_wrapped_mpi_seconds": 38.62048325899664,
+      "useful_compute_seconds": null,
+      "mpi_fraction": 0.3836929797556134
+    }
+  ],
+  "numerical_counter_match": [
+    "accepted",
+    "attempted",
+    "global_work",
+    "metric_shape_rejected",
+    "geometry_rejected",
+    "optimization_trials",
+    "optimization_validated",
+    "final_owned_cells",
+    "cached_invalid_cells",
+    "remaining_edges"
+  ],
+  "plain_seconds": 89.998940557,
+  "observed_seconds": 62.722872167000006,
+  "observed_relative_delta": -0.3030709941827031,
+  "true_instrumentation_overhead": null,
+  "overhead_limitation": "One sequential pair on a shared host; negative elapsed delta cannot identify instrumentation overhead",
+  "conditional_zero_wrapped_MPI_remaining_seconds": 43.92517718999835,
+  "conditional_zero_wrapped_MPI_speedup_ceiling": 1.4279480847554062,
+  "bound_assumptions": "Fixed per-rank outside-MPI work; every wrapped MPI duration unrealistically removed; no migration or algorithm changes",
+  "native_mesh_accepted": false,
+  "unclassified": "Outside wrapped MPI includes scheduling, bookkeeping, observer overhead and any unwrapped calls; not useful-compute time"
+}

@@ -1,0 +1,121 @@
+{
+  "compiler": "c++ (Ubuntu 9.4.0-1ubuntu1~20.04.2) 9.4.0\nCopyright (C) 2019 Free Software Foundation, Inc.\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.",
+  "mpi": "mpirun (Open MPI) 4.0.3\n\nReport bugs to http://www.open-mpi.org/community/help/",
+  "mpicc": "gcc -I/usr/lib/x86_64-linux-gnu/openmpi/include/openmpi -I/usr/lib/x86_64-linux-gnu/openmpi/include -pthread -L/usr/lib/x86_64-linux-gnu/openmpi/lib -lmpi",
+  "cpu": "Architecture:                         x86_64\nCPU op-mode(s):                       32-bit, 64-bit\nByte Order:                           Little Endian\nAddress sizes:                        39 bits physical, 48 bits virtual\nCPU(s):                               8\nOn-line CPU(s) list:                  0-7\nThread(s) per core:                   1\nCore(s) per socket:                   8\nSocket(s):                            1\nNUMA node(s):                         1\nVendor ID:                            GenuineIntel\nCPU family:                           6\nModel:                                158\nModel name:                           Intel(R) Core(TM) i7-9700 CPU @ 3.00GHz\nStepping:                             13\nCPU MHz:                              3839.859\nCPU max MHz:                          4700.0000\nCPU min MHz:                          800.0000\nBogoMIPS:                             6000.00\nVirtualization:                       VT-x\nL1d cache:                            256 KiB\nL1i cache:                            256 KiB\nL2 cache:                             2 MiB\nL3 cache:                             12 MiB\nNUMA node0 CPU(s):                    0-7\nVulnerability Gather data sampling:   Mitigation; Microcode\nVulnerability Itlb multihit:          KVM: Mitigation: VMX disabled\nVulnerability L1tf:                   Not affected\nVulnerability Mds:                    Not affected\nVulnerability Meltdown:               Not affected\nVulnerability Mmio stale data:        Mitigation; Clear CPU buffers; SMT disabled\nVulnerability Reg file data sampling: Not affected\nVulnerability Retbleed:               Mitigation; Enhanced IBRS\nVulnerability Spec rstack overflow:   Not affected\nVulnerability Spec store bypass:      Mitigation; Speculative Store Bypass disabled via prctl and seccomp\nVulnerability Spectre v1:             Mitigation; usercopy/swapgs barriers and __user pointer sanitization\nVulnerability Spectre v2:             Mitigation; Enhanced / Automatic IBRS; IBPB conditional; RSB filling; PBRSB-eIBRS SW sequence; BHI SW loop, KVM SW loop\nVulnerability Srbds:                  Mitigation; Microcode\nVulnerability Tsx async abort:        Mitigation; TSX disabled\nFlags:                                fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx pdpe1gb rdtscp lm constant_tsc art arch_perfmon pebs bts rep_good nopl xtopology nonstop_tsc cpuid aperfmperf pni pclmulqdq dtes64 monitor ds_cpl vmx smx est tm2 ssse3 sdbg fma cx16 xtpr pdcm pcid sse4_1 sse4_2 x2apic movbe popcnt tsc_deadline_timer aes xsave avx f16c rdrand lahf_lm abm 3dnowprefetch cpuid_fault epb invpcid_single ssbd ibrs ibpb stibp ibrs_enhanced tpr_shadow vnmi flexpriority ept vpid ept_ad fsgsbase tsc_adjust bmi1 avx2 smep bmi2 erms invpcid mpx rdseed adx smap clflushopt intel_pt xsaveopt xsavec xgetbv1 xsaves dtherm ida arat pln pts hwp hwp_notify hwp_act_window hwp_epp md_clear flush_l1d arch_capabilities",
+  "created_utc": "2026-10-26T11:12:58.327950+00:00",
+  "git_base": "5f469f7800873d02abb82704c912f8f00fb77bef",
+  "python": "3.8.10 (default, Mar 18 2025, 20:04:55) \n[GCC 9.4.0]",
+  "platform": "Linux-5.15.0-139-generic-x86_64-with-glibc2.29",
+  "rank_mapping": "--bind-to none; shared host, no dedicated CPUs",
+  "threads": {
+    "OMP_NUM_THREADS": 1,
+    "OPENBLAS_NUM_THREADS": 1,
+    "MKL_NUM_THREADS": 1
+  },
+  "ranks": 6,
+  "resource_policy": "One owned heavy job; nice 19; build -j1; native 180s and launcher 240s limits, fixed work2048",
+  "followup_sha256": "94e51686c02389d3689a524092003fe41fc4e9f8f745162d2586137a90b24fc9",
+  "baseline_input_manifest": "input_manifest.json",
+  "production_numerical_sources_changed": false,
+  "build_handle": {
+    "session": 35749,
+    "terminal": true,
+    "exit": 0
+  },
+  "runs": {
+    "plain": {
+      "session": 93702,
+      "state": "terminal",
+      "exit_code": 0,
+      "elapsed_seconds": 96.25519251823425,
+      "pins_verified": true,
+      "native": {
+        "accepted": false,
+        "seconds": 89.998940557,
+        "initial_cells": 303359,
+        "final_cells": 0,
+        "workers": 6,
+        "normalization_accuracy_established": false,
+        "CFD_steps": 0
+      }
+    },
+    "observed": {
+      "session": 94465,
+      "state": "terminal",
+      "exit_code": 0,
+      "elapsed_seconds": 74.2046811580658,
+      "pins_verified": true,
+      "native": {
+        "accepted": false,
+        "seconds": 62.722872167000006,
+        "initial_cells": 303359,
+        "final_cells": 0,
+        "workers": 6,
+        "normalization_accuracy_established": false,
+        "CFD_steps": 0
+      }
+    }
+  },
+  "unexecuted": [
+    "full M6 acceptance",
+    "BL construction",
+    "transfer/restart",
+    "offline repartition alternatives",
+    "held-out useful-work regression",
+    "local repaired witness under complete final gates"
+  ],
+  "pin_scope": "Per-run pins.json includes baseline source list, changed test source, current test binary, inputs, trace library, and previously captured loaded MPI/runtime plugins. No new process maps collected; claim limited to verified pinned runtime set.",
+  "metis": {
+    "version": "5.1.0",
+    "idx_t_bits": 64,
+    "real_t_bits": 32
+  },
+  "parmetis": {
+    "version": "4.0.3",
+    "options": [
+      1,
+      0,
+      0
+    ],
+    "ncon": 2,
+    "ubvec": [
+      1.15,
+      1.15
+    ]
+  },
+  "analysis_checks": {
+    "baseline_terminal_hashes": 29,
+    "exact_metric_nodes": 61330,
+    "captured_witnesses": 28,
+    "independently_reproduced_shape_failures": 16,
+    "source_containment": "exact rational signs on original tetrahedra",
+    "no_extrapolation": true,
+    "profile_overflow": 0
+  },
+  "resources": {
+    "pre_build_load_average": [
+      3.01,
+      3.84,
+      5.15
+    ],
+    "pre_build_available_MiB": 40416,
+    "build_elapsed_seconds": 364.87,
+    "build_largest_process_RSS_KiB": 4111976,
+    "build_sample_linker_RSS_KiB": 2455060,
+    "build_sample_available_MiB": 38064,
+    "whole_job_peak_memory": null,
+    "per_rank_runtime_high_water": "NATIVE3D process_peak_rss fields in each run.log; not summed into a simultaneous peak"
+  },
+  "uncommitted_source_patch": "implementation.patch",
+  "unrelated_modified_files_left_untouched": [
+    "integration_evidence/native_3d_bl_v1/bl_remesh_v1/dc11/campaign.log",
+    "integration_evidence/native_3d_bl_v1/bl_remesh_v1/dc15/campaign.log"
+  ],
+  "test_compile_command": {
+    "directory": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2",
+    "command": "c++ -IUnitTests/test_driver.p -IUnitTests -I../../UnitTests -ISU2_CFD/src -I../../SU2_CFD/src -ICommon/src -I../../Common/src -I../../externals/CLI11 -I../../externals/eigen -I../../externals/cgns/adf -I../../externals/cgns/adfh -Iexternals/cgns -I../../externals/cgns -Iexternals/cgns/hdf5 -I../../externals/cgns/hdf5 -I../../externals/metis/include -I../../externals/metis/GKlib -I../../externals/metis/libmetis -I../../externals/parmetis/include -I../../externals/parmetis/libparmetis -I../../externals/mel -I../../externals/catch2 -I/usr/lib/x86_64-linux-gnu/openmpi/include/openmpi -I/usr/lib/x86_64-linux-gnu/openmpi/include -fdiagnostics-color=always -D_GLIBCXX_ASSERTIONS=1 -D_FILE_OFFSET_BITS=64 -std=c++17 -O2 -g -pthread -fPIC -Wno-empty-body -Wno-ignored-qualifiers -Wno-unused-parameter -Wno-deprecated-declarations -Wno-error=cast-function-type -Wno-cast-function-type -Wno-error=stringop-truncation -Wno-stringop-truncation -Wno-error=missing-field-initializers -Wno-missing-field-initializers -Wno-error=class-memaccess -Wno-class-memaccess -Wno-overloaded-virtual -Wno-array-bounds -march=native -ffast-math -fno-finite-math-only -DHAVE_CGNS -DHAVE_MPI -DHAVE_METIS -DHAVE_PARMETIS -DHAVE_MMG -MD -MQ UnitTests/test_driver.p/SU2_CFD_adaptation_CNativeRemesher3D_tests.cpp.o -MF UnitTests/test_driver.p/SU2_CFD_adaptation_CNativeRemesher3D_tests.cpp.o.d -o UnitTests/test_driver.p/SU2_CFD_adaptation_CNativeRemesher3D_tests.cpp.o -c ../../UnitTests/SU2_CFD/adaptation/CNativeRemesher3D_tests.cpp",
+    "file": "../../UnitTests/SU2_CFD/adaptation/CNativeRemesher3D_tests.cpp",
+    "output": "UnitTests/test_driver.p/SU2_CFD_adaptation_CNativeRemesher3D_tests.cpp.o"
+  }
+}

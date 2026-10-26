@@ -15,7 +15,18 @@ operators, q>=.20,J>=.05,edge<=1.8,h0 within10%, configured500k metric-complexit
 (not tet-count), geometry, conservative transfer and restart. Curvature uses
 ADAP_HAUSD in mesh units independently ofh0. No accepted full M6 exists.
 
-ACTIVE: no owned job.54 full M6 Euler6 session64848 terminal (driver0, native REJECTED).
+ACTIVE: no owned job. Follow-up diagnostic55 terminal; primary handover:
+[M6 diagnostic decision](Handbook/M6_DIAGNOSTIC_DECISION.md). Test-only capture/PMPI
+hooks in NativeFrozenVolume3D; production numerical source unchanged. Build35749,
+plain93702, observed94465, independent witness8056 all terminal. Two fixed-work2048
+MPI6 runs match ten counters/rank:476 private edits,879 shape refusals, no accepted mesh.
+Observed MPI-call18.74–26.00s/rank over62.72s; useful compute and overhead unresolved.
+28 snapshots,16 positive-volume shape failures independently reproduced. No repaired
+accepted witness. Offline proxy sum5,664,358 matches production; max591/no1024clipping.
+Current partition already balances proxy max/mean4.699->1.08449. Details/pins under
+dc17_18_completion_v1/diagnostic55; raw metric/compiled profiler stay local.
+
+54 full M6 Euler6 session64848 terminal (driver0, native REJECTED).
 Native1805.12s, whole1980.41s, largest process736,780KiB (not whole-job peak).
 24,972 private edits/31,133 attempts;427,852 cells;235,717 cached invalid;
 235,227 queued edges;76,739 shape refusals;2113 optimizer calls/115 validated;
@@ -24,7 +35,9 @@ Source990/runtime19,81 loaded MPI/library pins, inputs and connected receipts ve
 54 connected qualification remains passed: serial127/1,082,802; MPI6 118/rank;
 all-worker11/rank incl cubic Euler/RANS BDF2+SU2/CGNS reload; focused4/31.
 Implementation e9263060cf and docs68621318f5 pushed to approved fork/branch.
-NEXT: preserve full-M6 failure checkpoint, then diagnose difficult-region construction.
+NEXT: complete-context transaction replay for edge23754–24333 and independent81–17687,
+as specified in the decision package. No generic audit, new repartitioner, relaxed
+gate or full1800s rerun. Failure checkpoint/assessment5f469f7800 already pushed.
 Do not add local fallbacks or raise limits blindly. M6 restart_adap_00000.dat
 contains exact original 61,330-node sensor metric (Metric_XX..ZZ,23 fields), usable
 with existing hidden NativeFrozenVolume3D replay. Verify coordinate/ID correspondence.
