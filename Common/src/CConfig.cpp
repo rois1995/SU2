@@ -1732,6 +1732,8 @@ void CConfig::SetConfig_Options() {
   /*!\brief AVERAGE_PROCESS_TYPE \n DESCRIPTION: types of mixing process for averaging quantities at the boundaries.
     \n OPTIONS: see \link MixingProcess_Map \endlink \n DEFAULT: AREA_AVERAGE \ingroup Config*/
   addEnumOption("MIXINGPLANE_INTERFACE_KIND", Kind_MixingPlaneInterface, MixingPlaneInterface_Map, NEAREST_SPAN);
+  /*!\brief Enable conservative mean-flow fluxes on steady, direct, axial Giles mixing planes. */
+  addBoolOption("CONSERVATIVE_MIXINGPLANE", ConservativeMixingPlane, false);
   /*!\brief AVERAGE_PROCESS_KIND \n DESCRIPTION: types of mixing process for averaging quantities at the boundaries.
     \n OPTIONS: see \link MixingProcess_Map \endlink \n DEFAULT: AREA_AVERAGE \ingroup Config*/
   addEnumOption("AVERAGE_PROCESS_KIND", Kind_AverageProcess, AverageProcess_Map, AREA);
@@ -3668,6 +3670,9 @@ void CConfig::SetnZone(){
 }
 
 void CConfig::SetPostprocessing(SU2_COMPONENT val_software, unsigned short val_izone, unsigned short val_nDim) {
+  if (ConservativeMixingPlane && Kind_Solver != MAIN_SOLVER::EULER &&
+      Kind_Solver != MAIN_SOLVER::NAVIER_STOKES && Kind_Solver != MAIN_SOLVER::RANS)
+    SU2_MPI::Error("CONSERVATIVE_MIXINGPLANE requires a direct compressible flow solver", CURRENT_FUNCTION);
 
   unsigned short iCFL, iMarker;
   bool ideal_gas = ((Kind_FluidModel == STANDARD_AIR) ||

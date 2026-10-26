@@ -41,10 +41,6 @@
 class CEulerSolver : public CFVMFlowSolverBase<CEulerVariable, ENUM_REGIME::COMPRESSIBLE> {
 protected:
   WallStudyDiagnostics wallStudy;
-  const bool mixingConservation = [] {
-    const auto* value = std::getenv("SU2_MIXING_CONSERVATION");
-    return value && std::string(value) == "1";
-  }();
   vector<su2activematrix> MixingRawFlux, MixingCommonFlux;
   su2activematrix PhysicalResidual;  /*!< Last finest-grid assembly, before FAS/time updates. */
   using BaseClass = CFVMFlowSolverBase<CEulerVariable, ENUM_REGIME::COMPRESSIBLE>;

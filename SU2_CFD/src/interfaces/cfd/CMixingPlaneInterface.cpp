@@ -28,7 +28,6 @@
 
 #include "../../../include/interfaces/cfd/CMixingPlaneInterface.hpp"
 #include "../../../include/solvers/MixingMeanFlux.hpp"
-#include <cstdlib>
 #include "../../../Common/include/interface_interpolation/CInterpolator.hpp"
 #include "../../../../Common/include/CConfig.hpp"
 #include "../../../../Common/include/geometry/CGeometry.hpp"
@@ -75,8 +74,9 @@ void CMixingPlaneInterface::BroadcastData_MixingPlane(const CInterpolator& inter
     /*--- Check if this interface connects the two zones, if not continue. ---*/
     if(!CInterpolator::CheckInterfaceBoundary(markDonor, markTarget)) continue;
 
-    const auto* conservative = std::getenv("SU2_MIXING_CONSERVATION");
-    if (conservative && std::string(conservative)=="1")
+    if (donor_config->GetConservativeMixingPlane() != target_config->GetConservativeMixingPlane())
+      SU2_MPI::Error("CONSERVATIVE_MIXINGPLANE must agree across a mixing interface", CURRENT_FUNCTION);
+    if (target_config->GetConservativeMixingPlane())
       TransferConservativeFlux(donor_solution,target_solution,donor_geometry,target_geometry,
                                donor_config,target_config,markDonor,markTarget);
 

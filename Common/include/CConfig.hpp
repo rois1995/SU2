@@ -71,6 +71,7 @@ private:
   unsigned short Ref_Inc_NonDim;  /*!< \brief Kind of non dimensionalization.*/
   unsigned short Kind_AverageProcess;            /*!< \brief Kind of mixing process.*/
   unsigned short Kind_PerformanceAverageProcess; /*!< \brief Kind of mixing process.*/
+  bool ConservativeMixingPlane;                  /*!< Enable the restricted conservative axial mean flux. */
   unsigned short Kind_MixingPlaneInterface;      /*!< \brief Kind of mixing process.*/
   unsigned short Kind_SpanWise;                  /*!< \brief Kind of span-wise section computation.*/
   unsigned short iZone, nZone;    /*!< \brief Number of zones in the mesh. */
@@ -5388,6 +5389,8 @@ public:
    * \return Kind of mixing process.
    */
   unsigned short GetKind_MixingPlaneInterface(void) const { return Kind_MixingPlaneInterface;}
+
+  bool GetConservativeMixingPlane() const { return ConservativeMixingPlane; }
 
   /*!
    * \brief Get the kind of turbomachinery architecture.

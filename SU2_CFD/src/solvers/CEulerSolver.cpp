@@ -132,18 +132,18 @@ CEulerSolver::CEulerSolver(CGeometry *geometry, CConfig *config,
   nMarker      = config->GetnMarker_All();
   nPoint       = geometry->GetnPoint();
   nPointDomain = geometry->GetnPointDomain();
-  if (mixingConservation && iMesh == MESH_0) {
+  if (config->GetConservativeMixingPlane() && iMesh == MESH_0) {
 #if defined(CODI_REVERSE_TYPE) || defined(CODI_FORWARD_TYPE)
-    SU2_MPI::Error("Conservative mixing experiment is not differentiated", CURRENT_FUNCTION);
+    SU2_MPI::Error("Conservative mixing is not differentiated", CURRENT_FUNCTION);
 #endif
-    // shortcut: axial z-axis direct-flow study only; generalize and validate before public use.
+    // The conservative option is restricted to the supported steady axial direct-flow formulation.
     if (!config->GetMultizone_Problem() || !config->GetBoolTurbomachinery() || nDim != 3 ||
         config->GetKind_TurboMachinery(config->GetiZone()) != TURBOMACHINERY_TYPE::AXIAL ||
         config->GetDiscrete_Adjoint() || config->GetContinuous_Adjoint() ||
         config->GetTime_Marching() != TIME_MARCHING::STEADY || omp_get_max_threads() != 1 ||
         config->GetRotation_Rate(0) != 0 || config->GetRotation_Rate(1) != 0 ||
         config->GetMotion_Origin(0) != 0 || config->GetMotion_Origin(1) != 0)
-      SU2_MPI::Error("Conservative mixing experiment requires direct axial z-axis multizone flow and one OpenMP thread", CURRENT_FUNCTION);
+      SU2_MPI::Error("Conservative mixing requires direct axial z-axis multizone flow and one OpenMP thread", CURRENT_FUNCTION);
 
   }
   if (iMesh == MESH_0 && config->GetnVolumeOutputFiles() != 0) {
@@ -422,12 +422,12 @@ void CEulerSolver::InitTurboContainers(CGeometry *geometry, CConfig **config_con
   /*--- Initialize quantities for the average process for internal flow ---*/
   const auto nSpanWiseSections = config->GetnSpanWiseSections();
 
-  if (mixingConservation) {
+  if (config->GetConservativeMixingPlane()) {
     MixingRawFlux.resize(nMarker); MixingCommonFlux.resize(nMarker);
     for (auto marker=0u;marker<nMarker;++marker) {
       if (!config->GetMarker_All_MixingPlaneInterface(marker)) continue;
       if (config->GetMarker_All_KindBC(marker) != GILES_BOUNDARY)
-        SU2_MPI::Error("Conservative mixing experiment requires Giles mixing boundaries", CURRENT_FUNCTION);
+        SU2_MPI::Error("Conservative mixing requires Giles mixing boundaries", CURRENT_FUNCTION);
       const auto spans=config->GetnSpanWiseSections();
       MixingRawFlux[marker].resize(spans,6) = su2double(0);
       MixingCommonFlux[marker].resize(spans,6) = su2double(0);
@@ -6423,7 +6423,7 @@ void CEulerSolver::WriteBoundaryDiagnostics(const CConfig* config, unsigned shor
 }
 
 void CEulerSolver::ApplyMixingConservation(CGeometry* geometry, const CConfig* config) {
-  if (!mixingConservation) return;
+  if (!config->GetConservativeMixingPlane()) return;
   for (auto interface=1u;interface<=config->GetnMarker_MixingPlaneInterface()/2;++interface) {
     const auto marker=config->FindMixingPlaneInterfaceMarker(geometry->GetnMarker(),interface);
     const auto spans=config->GetnSpanWiseSections();
@@ -6533,7 +6533,7 @@ void CEulerSolver::BC_Giles(CGeometry *geometry, CSolver **solver_container, CNu
   complex<su2double> I, c2ks, c2js, c3ks, c3js, cOutks, cOutjs, Beta_inf;
   I = complex<su2double>(0.0,1.0);
 
-  const bool conservativeMarker = mixingConservation && !MixingRawFlux[val_marker].empty();
+  const bool conservativeMarker = config->GetConservativeMixingPlane() && !MixingRawFlux[val_marker].empty();
   if (conservativeMarker) MixingRawFlux[val_marker].setConstant(0.0);
   auto accumulateFlux = [&](const auto& residual, double sign, bool convective) {
     if (!conservativeMarker || !geometry->nodes->GetDomain(iPoint)) return;
@@ -6541,7 +6541,7 @@ void CEulerSolver::BC_Giles(CGeometry *geometry, CSolver **solver_container, CNu
     const su2double radius=sqrt(x*x+y*y), area=GeometryToolbox::Norm(nDim,Normal);
     if (radius <= 0 || fabs(Normal[0])+fabs(Normal[1]) > 1e-5*area ||
         (dynamic_grid && fabs(GeometryToolbox::DotProduct(nDim,Normal,geometry->nodes->GetGridVel(iPoint))) > 1e-10*area))
-      SU2_MPI::Error("Conservative mixing experiment requires axial planes with zero normal grid speed", CURRENT_FUNCTION);
+      SU2_MPI::Error("Conservative mixing requires axial planes with zero normal grid speed", CURRENT_FUNCTION);
     auto* flux=MixingRawFlux[val_marker][iSpan];
     if (convective) flux[0]+=area;
     flux[1]+=sign*residual[0]; flux[2]+=sign*residual[3];

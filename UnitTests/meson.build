@@ -22,6 +22,7 @@ su2_cfd_tests = files(['Common/CConfig_tests.cpp',
                        'SU2_CFD/periodic_limiters.cpp',
                        'SU2_CFD/wall_function_communication.cpp',
                        'SU2_CFD/physical_residual_storage.cpp',
+                       'SU2_CFD/mixing_wall_reaction.cpp',
                        'SU2_CFD/solvers/CNEMOEulerSolver_tests.cpp',
                        'SU2_CFD/nemo_viscous_assembly.cpp',
                        'SU2_CFD/windowing.cpp',
@@ -53,6 +54,9 @@ if get_option('enable-tests')
         cpp_args: ['-fPIC', default_warning_flags, su2_cpp_args]
     )
     test('Catch2 test driver', test_driver)
+    mixing_mean_flux_test = executable('mixing_mean_flux_test', 'SU2_CFD/mixing_mean_flux_test.cpp',
+        cpp_args: [su2_cpp_args, '-UNDEBUG'])
+    test('Conservative mixing mean flux', mixing_mean_flux_test)
     # These heated-wall reference cases are validated in double precision.
     if not get_option('enable-singleprec')
       wall_model_test = executable('wall_function_model_test', 'SU2_CFD/wall_function_model.cpp',
