@@ -13,8 +13,8 @@ metric-driven operators, unchanged q>=.20, J>=.05, edge<=1.8, first height withi
 User curvature decision: configured ADAP_HAUSD in mesh units, independent of h0
 and ramp. No implicit chord inference or silent tightening to h0.
 
-Current local checkpoint `c02010b08d` (explicit WIP: validation45 corrections
-building;43/44 failures preserved). Previous validated scheduling/concurrency
+Current implementation checkpoint `3deed0ca3c` (explicit WIP: validation46
+corrections building;43–45 failures preserved; progress companion added). Previous validated scheduling/concurrency
 checkpoint `e398807a2c`; full M6 remains open.
 Full M6 curved-source/field qualification
 passes (validation32–34):450,221 source cells, all48,954 reference facets queried,

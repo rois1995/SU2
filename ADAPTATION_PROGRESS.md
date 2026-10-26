@@ -23,6 +23,7 @@ Curvature uses `ADAP_HAUSD` in mesh units, independently of h0.
 | `79bfba6f8f` | Reuse the collision search while retaining exact contact checks | Connected serial/MPI checks pass. Full M6 validation41 still rejects its private mesh. |
 | `e398807a2c` | Reactivate curved demands after neighboring edits; admit compatible concurrent proposals | 105 serial cases, 105 cases per MPI2 rank and all-worker curved runtime checks pass. Two simultaneous commits are exercised. Full M6 validation43 fails final acceptance. |
 | `c02010b08d` — WIP | Connect validity-only construction and bounded point-placement repair; revise radial integration | Preserves failed M6 and validation44 evidence. Subsequent validation45 still fails, as recorded below. This is not a validated capability checkpoint. |
+| `3deed0ca3c` — WIP | Connect bounded topology repair and weighted radial integration; add this companion | Validation46 is building. Preserves validation45 failures and their provenance; final acceptance remains open. |
 
 Current unvalidated correction, validation46:
 
