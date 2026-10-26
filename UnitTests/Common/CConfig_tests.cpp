@@ -92,7 +92,7 @@ TEST_CASE("Conservative mixing is an explicit default-off configuration option",
   for (const auto* option : {"", "CONSERVATIVE_MIXINGPLANE= NO\n", "CONSERVATIVE_MIXINGPLANE= YES\n"}) {
     auto options = base_options;
     options.replace(options.find("INC_NAVIER_STOKES"), std::string("INC_NAVIER_STOKES").size(), "NAVIER_STOKES");
-    std::stringstream input(options + option);
+    std::stringstream input(options + "INIT_OPTION= TD_CONDITIONS\n" + option);
     auto* original = std::cout.rdbuf(nullptr);
     CConfig config(input, SU2_COMPONENT::SU2_CFD, false);
     std::cout.rdbuf(original);
